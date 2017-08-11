@@ -47,7 +47,7 @@ bool set_command(void)
 		rval = rand();
 	} else if (rhs[0] == '$' && strlen(rhs) > 1) {
 		rval_index = atoi(&rhs[1]);
-		if (rval_index >= VAR_SIZE) {
+		if (rval_index < 0 || rval_index >= VAR_SIZE) {
 			log_script_var_index(rval_index);
 			log_script_exec_footer();
 			return false;

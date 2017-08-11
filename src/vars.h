@@ -38,4 +38,7 @@ bool get_variable_by_string(const char *var, int32_t *val);
 /* 変数を文字列で指定して設定する */
 bool set_variable_by_string(const char *var, int32_t val);
 
+/* 文字列の中の変数を展開して返す */
+char *expand_variable(const char *msg);
+
 #endif

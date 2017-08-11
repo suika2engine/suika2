@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <math.h>
 #include <time.h>
 #include <assert.h>

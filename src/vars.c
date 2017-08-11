@@ -103,3 +103,56 @@ bool set_variable_by_string(const char *var, int32_t val)
 	var_tbl[index] = val;
 	return true;
 }
+
+/*
+ * 文字列の中の変数を展開して返す
+ */
+char *expand_variable(const char *msg)
+{
+	char dst[1024];
+	char var[5];
+	char *d;
+	int i, index;
+
+	d = dst;
+	while (*msg && d < &dst[sizeof(dst) - 2]) {
+		/* 変数参照の場合 */
+		if (*msg == '$') {
+			/* エスケープの場合 */
+			if (*(msg + 1) == '$') {
+				*d++ = *msg;
+				msg += 2;
+				continue;
+			}
+
+			/* 変数番号を取得する */
+			msg++;
+			for (i = 0; i < 4; i++) {
+				if (isdigit(*msg))
+					var[i] = *msg++;
+				else
+					break;
+			}
+			var[i] = '\0';
+
+			/* 変数番号から値を取得して文字列にする */
+			if (i > 0) {
+				index = atoi(var);
+				if (index >= 0 && index < VAR_SIZE) {
+					d += snprintf(d, sizeof(dst) -
+						      (size_t)(d - dst), "%d",
+						      get_variable(index));
+				}
+			} else {
+				/* 不正な変数番号の場合、$を出力する */
+				*d++ = '$';
+			}
+		} else {
+			/* 変数参照でない場合 */
+			*d++ = *msg++;
+		}
+	}
+
+	*d = '\0';
+	return strdup(dst);
+}

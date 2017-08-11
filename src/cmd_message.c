@@ -59,6 +59,7 @@ static int draw_w;
 static int draw_h;
 
 /* 描画するメッセージ */
+static char *msg_top;
 static const char *msg;
 
 /* クリックアニメーションの初回描画が完了したか */
@@ -115,6 +116,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (is_right_button_pressed) {
 		start_save_mode(false);
 		repeatedly = false;
+		free(msg_top);
 		show_click(false);
 		return true;
 	}
@@ -123,6 +125,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (is_up_pressed) {
 		start_history_mode();
 		repeatedly = false;
+		free(msg_top);
 		return true;
 	}
 
@@ -176,6 +179,14 @@ bool message_command(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(void)
 {
+	const char *raw_msg;
+
+	/* メッセージを取得する */
+	raw_msg = get_command_type() == COMMAND_MESSAGE ?
+		get_line_string() : get_string_param(SERIF_PARAM_MESSAGE);
+	msg_top = expand_variable(raw_msg);
+	msg = msg_top;
+
 	/* ヒストリ画面用にメッセージ履歴を登録する */
 	if (!register_message_for_history())
 		return false;
@@ -186,10 +197,6 @@ static bool init(void)
 
 	/* セリフが登録・表示されたことを記録する */
 	is_registered = true;
-
-	/* メッセージを取得する */
-	msg = get_command_type() == COMMAND_MESSAGE ?
-		get_line_string() : get_string_param(SERIF_PARAM_MESSAGE);
 
 	/*メッセージの文字数を求める */
 	total_chars = utf8_chars(msg);
@@ -251,7 +258,6 @@ static bool register_message_for_history(void)
 {
 	const char *name;
 	const char *voice;
-	const char *msg;
 
 	/* ヒストリ画面から戻ったばかりの場合、2重登録を防ぐ */
 	history_flag = check_history_flag();
@@ -267,11 +273,9 @@ static bool register_message_for_history(void)
 	if (get_command_type() == COMMAND_SERIF) {
 		name = get_string_param(SERIF_PARAM_NAME);
 		voice = get_string_param(SERIF_PARAM_VOICE);
-		msg = get_string_param(SERIF_PARAM_MESSAGE);
 	} else {
 		name = NULL;
 		voice = NULL;
-		msg = get_line_string();
 	}
 
 	/* ヒストリ画面用に登録する */
@@ -575,6 +579,9 @@ static int get_en_word_width(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	/* メッセージを破棄する */
+	free(msg_top);
+
 	/* コマンドの繰り返し動作を無効にする */
 	repeatedly = false;
 
