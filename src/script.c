@@ -23,7 +23,7 @@
 #define CMD_SIZE	(1000)
 
 /* コマンドの引数の数(コマンド名も含める) */
-#define PARAM_SIZE	(23)
+#define PARAM_SIZE	(56)
 
 /* コマンド配列 */
 static struct command {
