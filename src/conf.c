@@ -68,6 +68,18 @@ int conf_selbox_y;
 int conf_selbox_margin_y;
 
 /*
+ * スイッチボックスの設定
+ */
+char *conf_switch_bg_file;
+char *conf_switch_fg_file;
+int conf_switch_parent_x;
+int conf_switch_parent_y;
+int conf_switch_child_x;
+int conf_switch_child_y;
+int conf_switch_margin_y;
+int conf_switch_text_margin_y;
+
+/*
  * セーブ・ロード画面の設定
  */
 char *conf_save_bg_file;
@@ -164,6 +176,13 @@ struct rule {
 	{"selbox.x", 'i', &conf_selbox_x, false, false},
 	{"selbox.y", 'i', &conf_selbox_y, false, false},
 	{"selbox.margin.y", 'i', &conf_selbox_margin_y, false, false},
+	{"switch.bg.file", 's', &conf_switch_bg_file, false, false},
+	{"switch.fg.file", 's', &conf_switch_fg_file, false, false},
+	{"switch.parent.x", 'i', &conf_switch_parent_x, false, false},
+	{"switch.parent.y", 'i', &conf_switch_parent_y, false, false},
+	{"switch.child.x", 'i', &conf_switch_child_x, false, false},
+	{"switch.margin.y", 'i', &conf_switch_margin_y, false, false},
+	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, false, false},
 	{"save.bg.file", 's', &conf_save_bg_file, false, false},
 	{"save.fg.file", 's', &conf_save_fg_file, false, false},
 	{"save.save.x", 'i', &conf_save_save_x, false, false},
@@ -316,7 +335,7 @@ bool check_conf(void)
 }
 
 /*
- * プロパティの終了処理を行う
+ * コンフィグの終了処理を行う
  */
 void cleanup_conf(void)
 {

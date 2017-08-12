@@ -71,6 +71,18 @@ extern int conf_selbox_y;
 extern int conf_selbox_margin_y;
 
 /*
+ * スイッチボックスの設定
+ */
+extern char *conf_switch_bg_file;
+extern char *conf_switch_fg_file;
+extern int conf_switch_parent_x;
+extern int conf_switch_parent_y;
+extern int conf_switch_child_x;
+extern int conf_switch_child_y;
+extern int conf_switch_margin_y;
+extern int conf_switch_text_margin_y;
+
+/*
  * セーブ・ロード画面の設定
  */
 extern char *conf_save_bg_file;
