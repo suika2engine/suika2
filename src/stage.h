@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016-06-14 作成
+ *  - 2017-08-14 スイッチ対応
  */
 
 #ifndef SUIKA_STAGE_H
