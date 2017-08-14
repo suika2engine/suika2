@@ -90,6 +90,13 @@ bool switch_command(int *x, int *y, int *w, int *h)
 		if (!init())
 			return false;
 
+	/* セーブ画面への遷移を確認する */
+	if (selected_parent_index == -1 && is_right_button_pressed) {
+		start_save_mode(false);
+		repeatedly = false;
+		return true;
+	}
+
 	/* 繰り返し動作を行う */
 	draw_frame(x, y, w, h);
 
