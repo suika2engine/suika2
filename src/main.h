@@ -58,6 +58,7 @@ bool select_command(int *x, int *y, int *w, int *h);
 bool se_command(void);
 bool menu_command(int *x, int *y, int *w, int *h);
 bool retrospect_command(int *x, int *y, int *w, int *h);
+bool switch_command(int *x, int *y, int *w, int *h);
 
 /*
  * コマンドが終了した直後であるかのチェック

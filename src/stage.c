@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016-06-14 作成
+ *  - 2017-08-13 スイッチの対応
  */
 
 #include "suika.h"
@@ -47,6 +48,7 @@ enum {
 	 *  - キャラのフェード
 	 *  - イメージボタン
 	 *  - セーブ・ロード
+	 *  - スイッチ
 	 */
 	LAYER_FO,	/* 特殊: 実体イメージあり */
 
@@ -55,6 +57,7 @@ enum {
 	 *  - キャラフェード
 	 *  - イメージボタン
 	 *  - セーブ・ロード
+	 *  - スイッチ
 	 */
 	LAYER_FI,	/* 特殊: 実体イメージあり */
 
@@ -95,6 +98,12 @@ static struct image *selbox_fg_image;
 /* 選択肢ボックスを表示するか */
 static bool is_selbox_visible;
 
+/* スイッチ(非選択)のイメージ */
+static struct image *switch_bg_image;
+
+/* スイッチ(選択)のイメージ */
+static struct image *switch_fg_image;
+
 /* セーブ画面(非選択)のイメージ */
 static struct image *save_bg_image;
 
@@ -132,6 +141,7 @@ static bool setup_namebox(void);
 static bool setup_msgbox(void);
 static bool setup_click(void);
 static bool setup_selbox(void);
+static bool setup_switch(void);
 static bool setup_save(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
@@ -173,6 +183,10 @@ bool init_stage(void)
 	if (!setup_selbox())
 		return false;
 
+	/* スイッチをセットアップする */
+	if (!setup_switch())
+		return false;
+
 	/* セーブ画面をセットアップする */
 	if (!setup_save())
 		return false;
@@ -209,8 +223,10 @@ static bool setup_namebox(void)
 
 	/* 名前ボックスの画像を読み込む */
 	namebox_image = create_image_from_file(CG_DIR, conf_namebox_file);
-	if (namebox_image == NULL)
+	if (namebox_image == NULL) {
+		log_dir_file_open(CG_DIR, conf_namebox_file);
 		return false;
+	}
 
 	/* 名前ボックスのレイヤのイメージを作成する */
 	layer_image[LAYER_NAME] = create_image(get_image_width(namebox_image),
@@ -235,8 +251,10 @@ static bool setup_msgbox(void)
 
 	/* メッセージボックスの画像を読み込む */
 	msgbox_image = create_image_from_file(CG_DIR, conf_msgbox_file);
-	if (msgbox_image == NULL)
+	if (msgbox_image == NULL) {
+		log_dir_file_open(CG_DIR, conf_msgbox_file);
 		return false;
+	}
 
 	/* メッセージボックスのレイヤのイメージを作成する */
 	layer_image[LAYER_MSG] = create_image(get_image_width(msgbox_image),
@@ -262,8 +280,10 @@ static bool setup_click(void)
 	/* クリックアニメーションの画像を読み込む */
 	layer_image[LAYER_CLICK] = create_image_from_file(CG_DIR,
 							  conf_click_file);
-	if (layer_image[LAYER_CLICK] == NULL)
+	if (layer_image[LAYER_CLICK] == NULL) {
+		log_dir_file_open(CG_DIR, conf_click_file);
 		return false;
+	}
 
 	/* クリックアニメーションレイヤの配置を行う */
 	layer_x[LAYER_CLICK] = conf_click_x;
@@ -279,12 +299,13 @@ static bool setup_selbox(void)
 
 	/* 選択肢ボックスの画像を読み込む */
 	selbox_bg_image = create_image_from_file(CG_DIR, conf_selbox_bg_file);
-	if (selbox_bg_image == NULL)
+	if (selbox_bg_image == NULL) {
+		log_dir_file_open(CG_DIR, conf_selbox_bg_file);
 		return false;
+	}
 	selbox_fg_image = create_image_from_file(CG_DIR, conf_selbox_fg_file);
 	if (selbox_fg_image == NULL) {
 		log_dir_file_open(CG_DIR, conf_selbox_fg_file);
-		log_script_exec_footer();
 		return false;
 	}
 
@@ -298,6 +319,26 @@ static bool setup_selbox(void)
 	/* 選択肢ボックスのレイヤの配置を行う */
 	layer_x[LAYER_SEL] = conf_selbox_x;
 	layer_y[LAYER_SEL] = conf_selbox_y;
+
+	return true;
+}
+
+/* スイッチをセットアップする */
+static bool setup_switch(void)
+{
+	/* スイッチの非選択イメージを読み込む */
+	switch_bg_image = create_image_from_file(CG_DIR, conf_switch_bg_file);
+	if (switch_bg_image == NULL) {
+		log_dir_file_open(CG_DIR, conf_switch_bg_file);
+		return false;
+	}
+
+	/* スイッチの選択イメージを読み込む */
+	switch_fg_image = create_image_from_file(CG_DIR, conf_switch_fg_file);
+	if (selbox_fg_image == NULL) {
+		log_dir_file_open(CG_DIR, conf_switch_fg_file);
+		return false;
+	}
 
 	return true;
 }
@@ -525,6 +566,16 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 	/* 新しいボタンを描画する */
 	draw_image(back_image, new_x, new_y, layer_image[LAYER_FI], new_w,
 		   new_h, new_x, new_y, 255, BLEND_NONE);
+}
+
+/*
+ * ステージの指定された矩形とスイッチを描画する
+ */
+void draw_stage_rect_with_switch(int x, int y, int w, int h)
+{
+	draw_stage_rect(x, y, w, h);
+	draw_image(back_image, x, y, layer_image[LAYER_FI], w, h, x, y, 255,
+		   BLEND_FAST);
 }
 
 /*
@@ -901,7 +952,9 @@ void get_click_rect(int *x, int *y, int *w, int *h)
 	*h = get_image_height(layer_image[LAYER_CLICK]);
 }
 
-/* クリックアニメーションの表示・非表示を設定する */
+/*
+ * クリックアニメーションの表示・非表示を設定する
+ */
 void show_click(bool show)
 {
 	is_click_visible = show;
@@ -911,7 +964,9 @@ void show_click(bool show)
  * 選択肢ボックスの描画
  */
 
-/* 選択肢ボックスの矩形を取得する */
+/*
+ * 選択肢ボックスの矩形を取得する
+ */
 void get_selbox_rect(int *x, int *y, int *w, int *h)
 {
 	*x = layer_x[LAYER_SEL];
@@ -933,7 +988,9 @@ void clear_selbox(int fg_x, int fg_y, int fg_w, int fg_h)
 		   fg_h, fg_x, fg_y, 255, BLEND_NONE);
 }
 
-/* 選択肢ボックスの表示・非表示を設定する */
+/*
+ * 選択肢ボックスの表示・非表示を設定する
+ */
 void show_selbox(bool show)
 {
 	is_selbox_visible = show;
@@ -950,6 +1007,48 @@ int draw_char_on_selbox(int x, int y, uint32_t wc)
 	draw_char_on_layer(LAYER_SEL, x, y, wc, &w, &h);
 
 	return w;
+}
+
+/*
+ * スイッチの描画
+ */
+
+/*
+ * スイッチの親選択肢の矩形を取得する
+ */
+void get_switch_rect(int index, int *x, int *y, int *w, int *h)
+{
+	int width, height;
+
+	width = get_image_width(switch_bg_image);
+	height = get_image_height(switch_bg_image);
+
+	*x = conf_switch_x;
+	*y = conf_switch_y + (height + conf_switch_margin_y) * index;
+	*w = width;
+	*h = height;
+}
+
+/*
+ * FIレイヤにスイッチの非選択イメージを描画する
+ */
+void draw_switch_bg_image(int x, int y)
+{
+	draw_image(layer_image[LAYER_FI], x, y, switch_bg_image,
+		   get_image_width(switch_bg_image),
+		   get_image_height(switch_bg_image),
+		   0, 0, 255, BLEND_NONE);
+}
+
+/*
+ * FIレイヤにスイッチの選択イメージを描画する
+ */
+void draw_switch_fg_image(int x, int y)
+{
+	draw_image(layer_image[LAYER_FI], x, y, switch_fg_image,
+		   get_image_width(switch_fg_image),
+		   get_image_height(switch_fg_image),
+		   0, 0, 255, BLEND_NONE);
 }
 
 /*

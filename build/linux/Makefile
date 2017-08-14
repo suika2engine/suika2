@@ -17,7 +17,8 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O3 \
+	-g3 \
+	-O0 \
 	-ftree-vectorize \
 	-fopt-info-vec \
 	-std=gnu89 \

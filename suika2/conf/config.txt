@@ -104,27 +104,23 @@ selbox.y=200
 selbox.margin.y=10
 
 ###
-### スイッチボックスの設定
+### スイッチの設定
 ###
 
-# スイッチボックス（非選択中）画像のファイル名
+# スイッチ（非選択中）画像のファイル名
 switch.bg.file=switch-bg.png
 
-# スイッチボックス（選択中）画像のファイル名
+# スイッチ（選択中）画像のファイル名
 switch.fg.file=switch-fg.png
 
-# スイッチボックス（親）の位置
-switch.parent.x=0
-switch.parent.y=0
+# スイッチの位置
+switch.x=0
+switch.y=0
 
-# スイッチボックス（子）の位置
-switch.child.x=100
-switch.child.y=0
-
-# スイッチボックスの選択肢の間のマージン
+# スイッチの選択肢の間のマージン
 switch.margin.y=20
 
-# スイッチボックス内のテキストの縦方向マージン
+# スイッチ内のテキストの縦方向マージン
 switch.text.margin.y=10
 
 ###

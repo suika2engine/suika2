@@ -209,6 +209,12 @@ void log_script_size(int size)
 		  "分割してください。\n", get_script_file_name(), size);
 }
 
+/* スイッチの選択肢がないエラーを記録する */
+void log_script_switch_no_item(void)
+{
+	log_error("スイッチの選択肢がありません。");
+}
+
 /* スクリプトの変数インデックスが範囲外であるエラーを記録する */
 void log_script_var_index(int index)
 {

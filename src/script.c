@@ -22,8 +22,8 @@
 /* コマンドの最大数 */
 #define CMD_SIZE	(1000)
 
-/* コマンドの引数の数(コマンド名も含める) */
-#define PARAM_SIZE	(56)
+/* コマンドの引数の最大数(コマンド名も含める) */
+#define PARAM_SIZE	(137)
 
 /* コマンド配列 */
 static struct command {
@@ -58,6 +58,7 @@ struct insn_item {
 	{"@se", COMMAND_SE, 1, 1},
 	{"@menu", COMMAND_MENU, 7, 22},
 	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
+	{"@switch", COMMAND_SWITCH, 9, 136},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))

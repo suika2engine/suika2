@@ -75,10 +75,8 @@ extern int conf_selbox_margin_y;
  */
 extern char *conf_switch_bg_file;
 extern char *conf_switch_fg_file;
-extern int conf_switch_parent_x;
-extern int conf_switch_parent_y;
-extern int conf_switch_child_x;
-extern int conf_switch_child_y;
+extern int conf_switch_x;
+extern int conf_switch_y;
 extern int conf_switch_margin_y;
 extern int conf_switch_text_margin_y;
 
