@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/25 作成
+ *  - 2017/08/14 スイッチに対応
  */
 
 #ifndef SUIKA_PROP_H
@@ -71,7 +72,7 @@ extern int conf_selbox_y;
 extern int conf_selbox_margin_y;
 
 /*
- * スイッチボックスの設定
+ * スイッチの設定
  */
 extern char *conf_switch_bg_file;
 extern char *conf_switch_fg_file;

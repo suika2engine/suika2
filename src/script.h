@@ -8,6 +8,7 @@
 /*
  * [Changes]
  *  - 2016/06/01 作成
+ *  - 2017/08/14 スイッチに対応
  */
 
 #ifndef SUIKA_SCRIPT_H

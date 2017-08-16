@@ -2,14 +2,14 @@
 
 /*
  * Suika
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
  */
 
 /*
- * @menuコマンド
+ * @switchコマンド
  *
  * [Changes]
- *  - 2016/07/04 作成
+ *  - 2017/08/14 作成
  */
 
 #include "suika.h"
@@ -269,7 +269,6 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	/* 親選択肢を選んでいる最中の場合 */
 	if (selected_parent_index == -1) {
 		draw_frame_parent(x, y, w, h);
-		return;
 	} else {
 		/* 子選択肢を選んでいる最中の場合 */
 		draw_frame_child(x, y, w, h);
