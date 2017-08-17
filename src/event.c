@@ -24,7 +24,7 @@
  */
 bool on_event_init(void)
 {
-	/* 変数の初期化処理する */
+	/* 変数の初期化処理を行う */
 	init_vars();
 
 	/* 文字レンダリングエンジンの初期化処理を行う */
@@ -39,7 +39,8 @@ bool on_event_init(void)
 		return false;
 
 	/* セーブデータの初期化処理を行う */
-	init_save();
+	if (!init_save())
+		return false;
 
 	/* 初期スクリプトをロードする */
 	if (!init_script())

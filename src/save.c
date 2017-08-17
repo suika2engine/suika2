@@ -95,6 +95,8 @@ static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
 static bool deserialize_bgm(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
+static void load_global_vars(void);
+static void save_global_vars(void);
 
 /*
  * 初期化
@@ -115,6 +117,9 @@ bool init_save(void)
 
 	/* セーブデータからセーブ時刻を取得する */
 	load_save_time();
+
+	/* グローバル変数のロードを行う */
+	load_global_vars();
 
 	return true;
 }
@@ -178,6 +183,8 @@ static void load_button_conf(void)
  */
 void cleanup_save(void)
 {
+	/* グローバル変数のセーブを行う */
+	save_global_vars();
 }
 
 /*
@@ -515,6 +522,7 @@ static void process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	/* セーブボタンの場合 */
 	if (new_pointed_index == BUTTON_SAVE) {
 		process_save();
+		save_global_vars();
 		stop_save_mode(x, y, w, h);
 		restore_flag = true;
 	}
@@ -671,12 +679,12 @@ static bool serialize_bgm(struct wfile *wf)
 	return true;
 }
 
-/* 変数をシリアライズする */
+/* ローカル変数をシリアライズする */
 static bool serialize_vars(struct wfile *wf)
 {
 	int i, n;
 
-	for (i = 0; i < VAR_SIZE; i++) {
+	for (i = 0; i < LOCAL_VAR_SIZE; i++) {
 		n = get_variable(i);
 		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
 			return false;
@@ -840,12 +848,12 @@ static bool deserialize_bgm(struct rfile *rf)
 	return true;
 }
 
-/* 変数をデシリアライズする */
+/* ローカル変数をデシリアライズする */
 static bool deserialize_vars(struct rfile *rf)
 {
 	int i, n;
 
-	for (i = 0; i < VAR_SIZE; i++) {
+	for (i = 0; i < LOCAL_VAR_SIZE; i++) {
 		if (read_rfile(rf, &n, sizeof(n)) < sizeof(n))
 			return false;
 		set_variable(i, n);
@@ -872,4 +880,57 @@ static void load_save_time(void)
 			close_rfile(rf);
 		}
 	}
+}
+
+/*
+ * グローバル変数
+ */
+
+/* グローバル変数のロードを行う */
+static void load_global_vars(void)
+{
+	struct rfile *rf;
+	int i;
+	int32_t n;
+
+	/* ファイルを開く */
+	rf = open_rfile(SAVE_DIR, GLOBAL_VARS_FILE, true);
+	if (rf == NULL)
+		return;
+
+	/* グローバル変数をデシリアライズする */
+	for (i = 0; i < GLOBAL_VAR_SIZE; i++) {
+		if (read_rfile(rf, &n, sizeof(n)) < sizeof(n))
+			break;
+		set_variable(GLOBAL_VAR_OFFSET + i, n);
+	}
+
+	/* ファイルを閉じる */
+	close_rfile(rf);
+}
+
+/* グローバル変数のセーブを行う */
+static void save_global_vars(void)
+{
+	struct wfile *wf;
+	int i;
+	int32_t n;
+
+	/* セーブディレクトリを作成する */
+	make_sav_dir();
+
+	/* ファイルを開く */
+	wf = open_wfile(SAVE_DIR, GLOBAL_VARS_FILE);
+	if (wf == NULL)
+		return;
+
+	/* グローバル変数をシリアライズする */
+	for (i = 0; i < GLOBAL_VAR_SIZE; i++) {
+		n = get_variable(GLOBAL_VAR_OFFSET + i);
+		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
+			break;
+	}
+
+	/* ファイルを閉じる */
+	close_wfile(wf);
 }

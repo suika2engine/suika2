@@ -18,7 +18,14 @@
 /*
  * 変数の数
  */
-#define VAR_SIZE	(1024)
+#define LOCAL_VAR_SIZE	(1000)
+#define GLOBAL_VAR_SIZE	(1000)
+#define VAR_SIZE	(LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE)
+
+/*
+ * グローバル変数のインデックスのオフセット
+ */
+#define GLOBAL_VAR_OFFSET	LOCAL_VAR_SIZE
 
 /* 変数の初期化処理を行う */
 void init_vars(void);

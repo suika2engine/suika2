@@ -13,9 +13,14 @@
 #include "suika.h"
 
 /*
- * 変数テーブル
+ * ローカル変数テーブル
  */
-static int32_t var_tbl[VAR_SIZE];
+static int32_t local_var_tbl[LOCAL_VAR_SIZE];
+
+/*
+ * グローバル変数テーブル
+ */
+static int32_t global_var_tbl[GLOBAL_VAR_SIZE];
 
 /*
  * 変数の初期化処理を行う
@@ -25,8 +30,10 @@ void init_vars(void)
 	int i;
 
 	/* Androidでは再利用されるので初期化する */
-	for (i = 0; i < VAR_SIZE; i++)
-		var_tbl[i] = 0;
+	for (i = 0; i < LOCAL_VAR_SIZE; i++)
+		local_var_tbl[i] = 0;
+	for (i = 0; i < GLOBAL_VAR_SIZE; i++)
+		global_var_tbl[i] = 0;
 }
 
 /*
@@ -43,7 +50,10 @@ int32_t get_variable(int index)
 {
 	assert(index < VAR_SIZE);
 
-	return var_tbl[index];
+	if (index < GLOBAL_VAR_OFFSET)
+		return local_var_tbl[index];
+	else
+		return global_var_tbl[index - GLOBAL_VAR_OFFSET];
 }
 
 /*
@@ -53,7 +63,10 @@ void set_variable(int index, int32_t val)
 {
 	assert(index < VAR_SIZE);
 
-	var_tbl[index] = val;
+	if (index < GLOBAL_VAR_OFFSET)
+		local_var_tbl[index] = val;
+	else
+		global_var_tbl[index - GLOBAL_VAR_OFFSET] = val;
 }
 
 /*
@@ -76,7 +89,7 @@ bool get_variable_by_string(const char *var, int32_t *val)
 		return false;
 	}
 
-	*val = var_tbl[index];
+	*val = get_variable(index);
 	return true;
 }
 
@@ -100,7 +113,7 @@ bool set_variable_by_string(const char *var, int32_t val)
 		return false;
 	}
 
-	var_tbl[index] = val;
+	set_variable(index, val);
 	return true;
 }
 

@@ -17,6 +17,11 @@
 
 #include "types.h"
 
+/*
+ * グローバル変数のセーブファイル
+ */
+#define GLOBAL_VARS_FILE	"g000.sav"
+
 /* セーブデータに関する初期化処理を行う */
 bool init_save(void);
 
