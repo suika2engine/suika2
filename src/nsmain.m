@@ -128,7 +128,7 @@ int main()
             // パッケージの終了処理を行う
             cleanup_file();
         }
-        
+
         // ログをクローズする
         closeLog();
     }
@@ -481,6 +481,9 @@ int get_stop_watch_lap(stop_watch_t *t)
     // フレーム描画イベントを実行する
     int x = 0, y = 0, w = 0, h = 0;
     if (!on_event_frame(&x, &y, &w, &h)) {
+        // グローバル変数を保存する
+        save_global_vars();
+
         [NSApp terminate:nil];
         return;
     }
@@ -681,10 +684,13 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     [alert addButtonWithTitle:@"いいえ"];
     [alert setMessageText:@"終了しますか？"];
     [alert setAlertStyle:NSWarningAlertStyle];
-    if([alert runModal] == NSAlertFirstButtonReturn)
+    if([alert runModal] == NSAlertFirstButtonReturn) {
+        // グローバル変数を保存する
+        save_global_vars();
         return YES;
-    else
+    } else {
         return NO;
+    }
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app {

@@ -96,7 +96,6 @@ static bool deserialize_stage(struct rfile *rf);
 static bool deserialize_bgm(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
 static void load_global_vars(void);
-static void save_global_vars(void);
 
 /*
  * 初期化
@@ -909,8 +908,10 @@ static void load_global_vars(void)
 	close_rfile(rf);
 }
 
-/* グローバル変数のセーブを行う */
-static void save_global_vars(void)
+/*
+ * グローバル変数のセーブを行う
+ */
+void save_global_vars(void)
 {
 	struct wfile *wf;
 	int i;
