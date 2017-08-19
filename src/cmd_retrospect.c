@@ -2,7 +2,7 @@
 
 /*
  * Suika
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -10,6 +10,7 @@
  *
  * [Changes]
  *  - 2016/07/13 作成
+ *  - 2017/08/19 キャンセル時の動作を修正
  */
 
 #include "suika.h"
@@ -66,6 +67,7 @@ static void fill_thumbnail_rects(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
 static int get_pointed_index(void);
 static bool cleanup(void);
+static bool cancel(void);
 
 /*
  * retrospectコマンド
@@ -79,7 +81,7 @@ bool retrospect_command(int *x, int *y, int *w, int *h)
 
 	/* 右クリックによるキャンセルを処理する */
 	if (is_right_button_pressed)
-		return move_to_next_command();
+		return cancel();
 
 	/* 繰り返し動作を行う */
 	draw_frame(x, y, w, h);
@@ -397,9 +399,31 @@ static bool cleanup(void)
 
 	/* メニューコマンドが完了したばかりであることを記録する */
 	retrospect_finished_flag = true;
-	
+
 	/* ラベルにジャンプする */
 	return move_to_label(thumbnail[pointed_index].label);
+}
+
+/* コマンドをキャンセルする */
+static bool cancel(void)
+{
+	assert(is_right_button_pressed);
+
+	/* ステージの画像を無効にする */
+	change_bg_immediately(NULL);
+	change_ch_immediately(CH_BACK, NULL, 0, 0);
+	change_ch_immediately(CH_LEFT, NULL, 0, 0);
+	change_ch_immediately(CH_RIGHT, NULL, 0, 0);
+	change_ch_immediately(CH_CENTER, NULL, 0, 0);
+
+	/* メニューコマンドが完了したばかりであることを記録する */
+	retrospect_finished_flag = true;
+
+	/* 繰り返し動作を終了する */
+	repeatedly = false;
+
+	/* ラベルにジャンプする */
+	return move_to_next_command();
 }
 
 /*
