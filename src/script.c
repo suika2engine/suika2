@@ -14,7 +14,7 @@
 #include "suika.h"
 
 /* 1行の読み込みサイズ */
-#define LINE_BUF_SIZE	(4096)
+#define LINE_BUF_SIZE	(65536)
 
 /*
  * コマンド配列
