@@ -36,7 +36,6 @@ int conf_font_color_b;
 char *conf_namebox_file;
 int conf_namebox_x;
 int conf_namebox_y;
-int conf_namebox_margin_left;
 int conf_namebox_margin_top;
 
 /*
@@ -156,7 +155,6 @@ struct rule {
 	{"namebox.file", 's', &conf_namebox_file, false, false},
 	{"namebox.x", 'i', &conf_namebox_x, false, false},
 	{"namebox.y", 'i', &conf_namebox_y, false, false},
-	{"namebox.margin.left", 'i', &conf_namebox_margin_left, false, false},
 	{"namebox.margin.top", 'i', &conf_namebox_margin_top, false, false},
 	{"msgbox.file", 's', &conf_msgbox_file, false, false},
 	{"msgbox.x", 'i', &conf_msgbox_x, false, false},

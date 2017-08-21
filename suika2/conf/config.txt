@@ -40,9 +40,6 @@ namebox.file=namebox-blue.png
 namebox.x=70
 namebox.y=400
 
-# 名前ボックス画像内のテキスト左端マージン
-namebox.margin.left=40
-
 # 名前ボックス画像内のテキスト上端マージン
 namebox.margin.top=18
 

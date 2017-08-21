@@ -90,6 +90,7 @@ static bool init(void);
 static bool register_message_for_history(void);
 static bool process_serif_command(void);
 static void draw_namebox(void);
+static int get_namebox_width(void);
 static bool play_voice(void);
 static void draw_msgbox(void);
 static int get_frame_chars(void);
@@ -338,7 +339,7 @@ static void draw_namebox(void)
 		return;
 
 	/* 描画位置を決める */
-	x = conf_namebox_margin_left;
+	x = (get_namebox_width() - get_utf8_width(name)) / 2;
 
 	/* 名前ボックスをクリアする */
 	clear_namebox();
@@ -357,6 +358,16 @@ static void draw_namebox(void)
 		x += w;
 		name += mblen;
 	}
+}
+
+/* 名前ボックスの幅を取得する */
+static int get_namebox_width(void)
+{
+	int x, y, w, h;
+
+	get_namebox_rect(&x, &y, &w, &h);
+
+	return w;
 }
 
 /* ボイスを再生する */

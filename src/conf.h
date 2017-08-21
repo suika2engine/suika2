@@ -39,7 +39,6 @@ extern int conf_font_color_b;
 extern char *conf_namebox_file;
 extern int conf_namebox_x;
 extern int conf_namebox_y;
-extern int conf_namebox_margin_left;
 extern int conf_namebox_margin_top;
 
 /*
