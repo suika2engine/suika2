@@ -606,15 +606,17 @@ void draw_stage_history(void)
  */
 bool set_bg_file_name(const char *file)
 {
-	assert(file != NULL);
-
 	if (bg_file_name != NULL)
 		free(bg_file_name);
 
-	bg_file_name = strdup(file);
-	if (bg_file_name == NULL) {
-		log_memory();
-		return false;
+	if (file == NULL) {
+		bg_file_name = NULL;
+	} else {
+		bg_file_name = strdup(file);
+		if (bg_file_name == NULL) {
+			log_memory();
+			return false;
+		}
 	}
 
 	return true;
@@ -625,9 +627,6 @@ bool set_bg_file_name(const char *file)
  */
 const char *get_bg_file_name(void)
 {
-	if (bg_file_name == NULL)
-		return "none";
-
 	return bg_file_name;
 }
 
@@ -701,14 +700,19 @@ bool set_ch_file_name(int pos, const char *file)
 {
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
 	       pos == CH_CENTER);
+	assert(file == NULL || strcmp(file, "") != 0);
 	       
 	if (ch_file_name[pos] != NULL)
 		free(ch_file_name[pos]);
 
-	ch_file_name[pos] = strdup(file);
-	if (ch_file_name[pos] == NULL) {
-		log_memory();
-		return false;
+	if (file == NULL) {
+		ch_file_name[pos] = NULL;
+	} else {
+		ch_file_name[pos] = strdup(file);
+		if (ch_file_name[pos] == NULL) {
+			log_memory();
+			return false;
+		}
 	}
 
 	return true;
@@ -721,9 +725,6 @@ const char *get_ch_file_name(int pos)
 {
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
 	       pos == CH_CENTER);
-
-	if (ch_file_name[pos] == NULL)
-		return "none";
 
 	return ch_file_name[pos];
 }

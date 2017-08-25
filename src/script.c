@@ -21,7 +21,7 @@
  */
 
 /* コマンドの最大数 */
-#define CMD_SIZE	(1000)
+#define CMD_SIZE	(65536)
 
 /* コマンドの引数の最大数(コマンド名も含める) */
 #define PARAM_SIZE	(137)

@@ -38,7 +38,7 @@ bool bgm_command(void)
 	set_mixer_input(BGM_STREAM, w);
 
 	/* BGMのファイル名を設定する */
-	if (!set_bgm_file_name(fname))
+	if (!set_bgm_file_name(strcmp(fname, "stop") == 0 ? NULL : fname))
 		return false;
 
 	/* 次のコマンドへ移動する */

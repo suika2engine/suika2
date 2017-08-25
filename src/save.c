@@ -649,6 +649,8 @@ static bool serialize_stage(struct wfile *wf)
 	int i, m, n;
 
 	s = get_bg_file_name();
+	if (s == NULL)
+		s = "none";
 	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
 		return false;
 
@@ -660,9 +662,12 @@ static bool serialize_stage(struct wfile *wf)
 			return false;
 
 		s = get_ch_file_name(i);
+		if (s == NULL)
+			s = "none";
 		if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
 			return false;
 	}
+
 	return true;
 }
 
@@ -672,6 +677,8 @@ static bool serialize_bgm(struct wfile *wf)
 	const char *s;
 
 	s = get_bgm_file_name();
+	if (s == NULL)
+		s = "none";
 	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
 		return false;
 
@@ -688,6 +695,7 @@ static bool serialize_vars(struct wfile *wf)
 		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
 			return false;
 	}
+
 	return true;
 }
 
@@ -784,16 +792,16 @@ static bool deserialize_stage(struct rfile *rf)
 	if (gets_rfile(rf, s, sizeof(s)) == NULL)
 		return false;
 
-	set_bg_file_name(s);
-
-	if (strcmp(s, "none") != 0) {
+	if (strcmp(s, "none") == 0) {
+		set_bg_file_name(NULL);
+		img = NULL;
+	} else {
+		set_bg_file_name(s);
 		img = create_image_from_file(BG_DIR, s);
 		if (img == NULL) {
 			log_dir_file_open(BG_DIR, s);
 			return false;
 		}
-	} else {
-		img = NULL;
 	}
 
 	change_bg_immediately(img);
@@ -806,20 +814,23 @@ static bool deserialize_stage(struct rfile *rf)
 		if (gets_rfile(rf, s, sizeof(s)) == NULL)
 			return false;
 
-		set_ch_file_name(i, s);
-
-		if (strcmp(s, "none") != 0) {
+		assert(strcmp(s, "") != 0);
+		if (strcmp(s, "none") == 0) {
+			set_ch_file_name(i, NULL);
+			img = NULL;
+		} else {
+			set_ch_file_name(i, s);
 			img = create_image_from_file(CH_DIR, s);
 			if (img == NULL) {
 				log_dir_file_open(CH_DIR, s);
 				return false;
 			}
-		} else {
-			img = NULL;
+		
 		}
 
 		change_ch_immediately(i, img, m, n);
 	}
+
 	return true;
 }
 
@@ -832,14 +843,14 @@ static bool deserialize_bgm(struct rfile *rf)
 	if (gets_rfile(rf, s, sizeof(s)) == NULL)
 		return false;
 
-	set_bgm_file_name(s);
-
-	if (strcmp(s, "none") != 0) {
+	if (strcmp(s, "none") == 0) {
+		set_bgm_file_name(NULL);
+		w = NULL;
+	} else {
+		set_bgm_file_name(s);
 		w = create_wave_from_file(BGM_DIR, s, true);
 		if (w == NULL)
 			return false;
-	} else {
-		w = NULL;
 	}
 
 	set_mixer_input(BGM_STREAM, w);
@@ -857,6 +868,7 @@ static bool deserialize_vars(struct rfile *rf)
 			return false;
 		set_variable(i, n);
 	}
+
 	return true;
 }
 

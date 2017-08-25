@@ -85,8 +85,16 @@ static bool init(void)
 		return false;
 	}
 
-	/* 背景ファイル名を設定する */
+	/* 背景・キャラクタファイル名を設定する */
 	if (!set_bg_file_name(fname))
+		return false;
+	if (!set_ch_file_name(CH_BACK, NULL))
+		return false;
+	if (!set_ch_file_name(CH_RIGHT, NULL))
+		return false;
+	if (!set_ch_file_name(CH_LEFT, NULL))
+		return false;
+	if (!set_ch_file_name(CH_CENTER, NULL))
 		return false;
 
 	/* フェードしない場合か、Controlが押されている場合 */

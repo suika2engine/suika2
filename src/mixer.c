@@ -79,10 +79,14 @@ bool set_bgm_file_name(const char *file)
 	if (bgm_file_name != NULL)
 		free(bgm_file_name);
 
-	bgm_file_name = strdup(file);
-	if (bgm_file_name == NULL) {
-		log_memory();
-		return false;
+	if (file == NULL) {
+		bgm_file_name = NULL;
+	} else {
+		bgm_file_name = strdup(file);
+		if (bgm_file_name == NULL) {
+			log_memory();
+			return false;
+		}
 	}
 
 	return true;
@@ -93,9 +97,6 @@ bool set_bgm_file_name(const char *file)
  */
 const char *get_bgm_file_name(void)
 {
-	if (bgm_file_name == NULL)
-		return "none";
-
 	return bgm_file_name;
 }
 

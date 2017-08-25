@@ -109,8 +109,9 @@ static bool init(void)
 	ypos = img != NULL ? conf_window_height - get_image_height(img) : 0;
 
 	/* キャラのファイル名を設定する */
-	if (!set_ch_file_name(chpos, fname))
-		return false;
+	if (!set_ch_file_name(chpos, strcmp(fname, "none") == 0 ? NULL :
+			      fname))
+	    return false;
 
 	/* Controlが押されているか、フェードしない場合 */
 	if (is_control_pressed || span == 0) {
