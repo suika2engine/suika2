@@ -41,6 +41,7 @@ struct wave {
 	char *dir;
 	char *file;
 	bool loop;
+	int times;	/* loop=trueのとき、-1なら無限、0以上は残り回数 */
 	bool monoral;
 
 	/* 状態 */
@@ -109,6 +110,7 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 
 	/* wave構造体を初期化する */
 	w->loop = loop;
+	w->times = -1;
 	w->eos = false;
 
 	/* 成功 */
@@ -154,6 +156,9 @@ static size_t read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
 	struct rfile *rf;
 	size_t len;
 
+	assert(ptr != NULL);
+	assert(datasource != NULL);
+
 	rf = (struct rfile *)datasource;
 
 	len = read_rfile(rf, ptr, size * nmemb);
@@ -164,8 +169,22 @@ static size_t read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
 /* ファイルクローズコールバック */
 static int close_func(void *datasource)
 {
+	assert(datasource != NULL);
+
 	close_rfile((struct rfile *)datasource);
+
 	return 0;
+}
+
+/*
+ * PCMストリームのループ回数を設定する
+ */
+void set_wave_repeat_times(struct wave *w, int n)
+{
+	assert(w != NULL);
+	assert(n > 0);
+
+	w->times = n;
 }
 
 /*
@@ -222,7 +241,7 @@ static int get_wave_samples_monoral(struct wave *w, uint32_t *buf, int samples)
 				    1, &bitstream);
 		if (ret_bytes == 0) {
 			/* 終端に達した */
-			if (w->loop) {
+			if (w->loop && (w->times == -1 || w->times > 0)) {
 				/* ストリームを再度オープンする */
 				if (last_ret_bytes == 0)
 					return 0; 	/* エラー */
@@ -230,6 +249,8 @@ static int get_wave_samples_monoral(struct wave *w, uint32_t *buf, int samples)
 				if (!reopen(w))
 					return 0;	/* エラー */
 				last_ret_bytes = ret_bytes;
+				if (w->times != -1)
+					w->times--;
 			} else {
 				/* 読み込んだサンプル数を返す */
 				w->eos = true;
@@ -267,7 +288,7 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 				    &bitstream);
 		if (ret_bytes == 0) {
 			/* 終端に達した */
-			if (w->loop) {
+			if (w->loop && (w->times == -1 || w->times > 0)) {
 				/* ストリームを再度オープンする */
 				if (last_ret_bytes == 0)
 					return 0; 	/* エラー */
@@ -275,6 +296,8 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 				if (!reopen(w))
 					return 0;	/* エラー */
 				last_ret_bytes = ret_bytes;
+				if (w->times != -1)
+					w->times--;
 			} else {
 				/* 読み込んだサンプル数を返す */
 				w->eos = true;

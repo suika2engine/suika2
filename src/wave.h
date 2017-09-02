@@ -22,6 +22,9 @@ struct wave *create_wave_from_file(const char *dir, const char *file,
 /* PCMストリームを破棄する */
 void destroy_wave(struct wave *w);
 
+/* PCMストリームのループ回数を設定する */
+void set_wave_repeat_times(struct wave *w, int n);
+
 /* PCMストリームが終端に達しているか取得する */
 bool is_wave_eos(struct wave *w);
 

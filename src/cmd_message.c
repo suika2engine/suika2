@@ -27,6 +27,9 @@
 #define CHAR_YENSIGN	(0x00a5)
 #define CHAR_SMALLN	(0x006e)
 
+/* ビープ音ファイルあたりの文字数 */
+#define BEEP_CHARS	(6)
+
 /* 繰り返し動作中であるか */
 static bool repeatedly;
 
@@ -375,17 +378,29 @@ static bool play_voice(void)
 {
 	struct wave *w;
 	const char *voice;
+	int times;
+	bool repeat;
 
 	/* ボイスのファイル名を取得する */
 	voice = get_string_param(SERIF_PARAM_VOICE);
+	repeat = voice[0] == '@';
+	voice = repeat ? &voice[1] : voice;
 	if (strcmp(voice, "") == 0)
 		return true;
 
 	/* PCMストリームを開く */
-	w = create_wave_from_file(CV_DIR, voice, false);
+	w = create_wave_from_file(CV_DIR, voice, repeat);
 	if (w == NULL) {
 		log_script_exec_footer();
 		return false;
+	}
+
+	/* ビープ音用のリピート回数をセットする */
+	if (repeat) {
+		times = utf8_chars(get_string_param(SERIF_PARAM_MESSAGE));
+		times /= BEEP_CHARS;
+		times = times == 0 ? 1 : times;
+		set_wave_repeat_times(w, times);
 	}
 
 	/* PCMストリームを再生する */
