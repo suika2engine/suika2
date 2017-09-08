@@ -14,11 +14,10 @@
 
 #include "suika.h"
 
-/* false assertion */
-#define NEVER_COME_HERE	(0)
-
-/* ボタンの数 */
+/* 親ボタンの最大数 */
 #define PARENT_COUNT	(8)
+
+/* 親ボタン1つあたりの子ボタンの最大数 */
 #define CHILD_COUNT	(8)
 
 /* コマンドの引数 */
@@ -124,6 +123,10 @@ bool init(void)
 	/* 子選択肢の情報を取得する */
 	if (!get_children_info())
 		return false;
+
+	/* 名前ボックス、メッセージボックスを非表示にする */
+	show_namebox(false);
+	show_msgbox(false);
 
 	return true;
 }
@@ -261,6 +264,13 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 
 	/* 初回描画の場合 */
 	if (is_first_frame) {
+		/* 名前ボックス、メッセージボックスを消すため再描画する */
+		draw_stage();
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
+
 		draw_switch_images(x, y, w, h);
 		is_first_frame = false;
 		return;
