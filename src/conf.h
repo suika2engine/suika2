@@ -9,6 +9,7 @@
  * [Changes]
  *  - 2016/06/25 作成
  *  - 2017/08/14 スイッチに対応
+ *  - 2017/09/25 セリフの色付けに対応
  */
 
 #ifndef SUIKA_PROP_H
@@ -130,6 +131,17 @@ extern int conf_history_margin_left;
 extern int conf_history_margin_top;
 extern int conf_history_margin_right;
 extern int conf_history_margin_bottom;
+
+/*
+ * セリフの色付け
+ */
+#define SERIF_COLOR_COUNT	(10)
+
+extern char *conf_serif_color_name[SERIF_COLOR_COUNT];
+extern int conf_serif_color_r[SERIF_COLOR_COUNT];
+extern int conf_serif_color_g[SERIF_COLOR_COUNT];
+extern int conf_serif_color_b[SERIF_COLOR_COUNT];
+
 
 /* コンフィグの初期化処理を行う */
 bool init_conf(void);

@@ -9,6 +9,7 @@
  * [Changes]
  *  - 2016-06-14 作成
  *  - 2017-08-13 スイッチに対応
+ *  - 2017-09-25 セリフの色付けに対応
  */
 
 #include "suika.h"
@@ -150,8 +151,8 @@ static int pos_to_layer(int pos);
 static void draw_layer_image(struct image *target, int layer);
 static void draw_layer_image_rect(struct image *target, int layer, int x,
 				  int y, int w, int h);
-static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc, int *w,
-			       int *h);
+static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
+			       pixel_t color, int *w, int *h);
 
 /*
  * 初期化
@@ -879,11 +880,11 @@ void show_namebox(bool show)
  * メッセージボックスに文字を描画する
  *  - 描画した幅を返す
  */
-int draw_char_on_namebox(int x, int y, uint32_t wc)
+int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color)
 {
 	int w, h;
 
-	draw_char_on_layer(LAYER_NAME, x, y, wc, &w, &h);
+	draw_char_on_layer(LAYER_NAME, x, y, wc, color, &w, &h);
 
 	return w;
 }
@@ -929,11 +930,11 @@ void show_msgbox(bool show)
  * メッセージボックスに文字を描画する
  *  - 描画した高さを返す
  */
-int draw_char_on_msgbox(int x, int y, uint32_t wc)
+int draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color)
 {
 	int w, h;
 
-	draw_char_on_layer(LAYER_MSG, x, y, wc, &w, &h);
+	draw_char_on_layer(LAYER_MSG, x, y, wc, color, &w, &h);
 
 	return h;
 }
@@ -1003,9 +1004,14 @@ void show_selbox(bool show)
  */
 int draw_char_on_selbox(int x, int y, uint32_t wc)
 {
+	pixel_t color;
 	int w, h;
 
-	draw_char_on_layer(LAYER_SEL, x, y, wc, &w, &h);
+	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+
+	draw_char_on_layer(LAYER_SEL, x, y, wc, color, &w, &h);
 
 	return w;
 }
@@ -1074,10 +1080,15 @@ void clear_save_stage(void)
 /* FO/FIの2レイヤに文字を描画する */
 int draw_char_on_fo_fi(int x, int y, uint32_t wc)
 {
+	pixel_t color;
 	int w, h;
 
-	draw_char_on_layer(LAYER_FO, x, y, wc, &w, &h);
-	draw_char_on_layer(LAYER_FI, x, y, wc, &w, &h);
+	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+
+	draw_char_on_layer(LAYER_FO, x, y, wc, color, &w, &h);
+	draw_char_on_layer(LAYER_FI, x, y, wc, color, &w, &h);
 
 	return w;
 }
@@ -1146,7 +1157,13 @@ void draw_history_fi(pixel_t color)
  */
 void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
 {
-	draw_char_on_layer(LAYER_FI, x, y, wc, w, h);
+	pixel_t color;
+
+	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+
+	draw_char_on_layer(LAYER_FI, x, y, wc, color, w, h);
 }
 
 /*
@@ -1206,19 +1223,15 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 }
 
 /* レイヤに文字を描画する */
-static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc, int *w,
-			       int *h)
+static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
+			       pixel_t color, int *w, int *h)
 {
 	/* 文字を描画する */
-	if (!draw_glyph(layer_image[layer], x, y,
-			make_pixel(0xff,
-				   (pixel_t)conf_font_color_r,
-				   (pixel_t)conf_font_color_g,
-				   (pixel_t)conf_font_color_b),
-			wc, w, h)) {
+	if (!draw_glyph(layer_image[layer], x, y, color, wc, w, h)) {
 		/* グリフがない、コードポイントがおかしい、など */
 		return false;
 	}
+
 	return true;
 }
 

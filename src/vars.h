@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/29 作成
+ *  - 2017/08/17 グローバル変数に対応
  */
 
 #ifndef SUIKA_VARS_H
@@ -18,7 +19,7 @@
 /*
  * 変数の数
  */
-#define LOCAL_VAR_SIZE	(1000)
+#define LOCAL_VAR_SIZE	(10000)
 #define GLOBAL_VAR_SIZE	(1000)
 #define VAR_SIZE	(LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE)
 

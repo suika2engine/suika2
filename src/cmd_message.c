@@ -65,6 +65,9 @@ static int draw_h;
 static char *msg_top;
 static const char *msg;
 
+/* 文字の色 */
+static pixel_t color;
+
 /* クリックアニメーションの初回描画が完了したか */
 static bool done_click_first;
 
@@ -99,6 +102,7 @@ static void draw_msgbox(void);
 static int get_frame_chars(void);
 static void draw_click(void);
 static int get_en_word_width(void);
+static pixel_t get_message_color(void);
 static bool cleanup(void);
 
 /*
@@ -194,6 +198,9 @@ static bool init(void)
 	/* ヒストリ画面用にメッセージ履歴を登録する */
 	if (!register_message_for_history())
 		return false;
+
+	/* 文字色を求める */
+	color = get_message_color();
 
 	/* セリフの場合を処理する */
 	if (!process_serif_command())
@@ -355,7 +362,7 @@ static void draw_namebox(void)
 			return;
 
 		/* 描画する */
-		w = draw_char_on_namebox(x, conf_namebox_margin_top, c);
+		w = draw_char_on_namebox(x, conf_namebox_margin_top, c, color);
 
 		/* 次の文字へ移動する */
 		x += w;
@@ -479,7 +486,7 @@ static void draw_msgbox(void)
 		}
 
 		/* 描画する */
-		h = draw_char_on_msgbox(pen_x, pen_y, c);
+		h = draw_char_on_msgbox(pen_x, pen_y, c, color);
 
 		/* 更新領域を求める */
 		union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y,
@@ -600,6 +607,37 @@ static int get_en_word_width(void)
 		width += get_glyph_width((unsigned char)*m++);
 
 	return width;
+}
+
+/* 文字色を求める */
+static pixel_t get_message_color(void)
+{
+	int i;
+	const char *name;
+
+	/* セリフの場合 */
+	if (get_command_type() == COMMAND_SERIF) {
+		name = get_string_param(SERIF_PARAM_NAME);
+
+		/* コンフィグでnameの指す名前が指定されているか */
+		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
+			if (conf_serif_color_name[i] == NULL)
+				continue;
+			if (strcmp(name, conf_serif_color_name[i]) == 0) {
+				/* コンフィグで指定された色にする */
+				return make_pixel(
+					0xff,
+					(uint32_t)conf_serif_color_r[i],
+					(uint32_t)conf_serif_color_g[i],
+					(uint32_t)conf_serif_color_b[i]);
+			}
+		}
+	}
+
+	/* セリフでないかコンフィグで名前が指定されていない場合 */
+	return make_pixel(0xff, (pixel_t)conf_font_color_r,
+			  (pixel_t)conf_font_color_g,
+			  (pixel_t)conf_font_color_b);
 }
 
 /* 終了処理を行う */

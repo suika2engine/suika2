@@ -129,6 +129,14 @@ int conf_history_margin_right;
 int conf_history_margin_bottom;
 
 /*
+ * セリフの色付け
+ */
+char *conf_serif_color_name[SERIF_COLOR_COUNT];
+int conf_serif_color_r[SERIF_COLOR_COUNT];
+int conf_serif_color_g[SERIF_COLOR_COUNT];
+int conf_serif_color_b[SERIF_COLOR_COUNT];
+
+/*
  * 1行のサイズ
  */
 #define BUF_SIZE	(1024)
@@ -222,6 +230,46 @@ struct rule {
 	{"history.margin.top", 'i', &conf_history_margin_top, false, false},
 	{"history.margin.right", 'i', &conf_history_margin_right, false, false},
 	{"history.margin.bottom", 'i', &conf_history_margin_bottom, false, false},
+	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
+	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},
+	{"serif.color1.g", 'i', &conf_serif_color_g[0], true, false},
+	{"serif.color1.b", 'i', &conf_serif_color_b[0], true, false},
+	{"serif.color2.name", 's', &conf_serif_color_name[1], true, false},
+	{"serif.color2.r", 'i', &conf_serif_color_r[1], true, false},
+	{"serif.color2.g", 'i', &conf_serif_color_g[1], true, false},
+	{"serif.color2.b", 'i', &conf_serif_color_b[1], true, false},
+	{"serif.color3.name", 's', &conf_serif_color_name[2], true, false},
+	{"serif.color3.r", 'i', &conf_serif_color_r[2], true, false},
+	{"serif.color3.g", 'i', &conf_serif_color_g[2], true, false},
+	{"serif.color3.b", 'i', &conf_serif_color_b[2], true, false},
+	{"serif.color4.name", 's', &conf_serif_color_name[3], true, false},
+	{"serif.color4.r", 'i', &conf_serif_color_r[3], true, false},
+	{"serif.color4.g", 'i', &conf_serif_color_g[3], true, false},
+	{"serif.color4.b", 'i', &conf_serif_color_b[3], true, false},
+	{"serif.color5.name", 's', &conf_serif_color_name[4], true, false},
+	{"serif.color5.r", 'i', &conf_serif_color_r[4], true, false},
+	{"serif.color5.g", 'i', &conf_serif_color_g[4], true, false},
+	{"serif.color5.b", 'i', &conf_serif_color_b[4], true, false},
+	{"serif.color6.name", 's', &conf_serif_color_name[5], true, false},
+	{"serif.color6.r", 'i', &conf_serif_color_r[5], true, false},
+	{"serif.color6.g", 'i', &conf_serif_color_g[5], true, false},
+	{"serif.color6.b", 'i', &conf_serif_color_b[5], true, false},
+	{"serif.color7.name", 's', &conf_serif_color_name[6], true, false},
+	{"serif.color7.r", 'i', &conf_serif_color_r[6], true, false},
+	{"serif.color7.g", 'i', &conf_serif_color_g[6], true, false},
+	{"serif.color7.b", 'i', &conf_serif_color_b[6], true, false},
+	{"serif.color8.name", 's', &conf_serif_color_name[7], true, false},
+	{"serif.color8.r", 'i', &conf_serif_color_r[7], true, false},
+	{"serif.color8.g", 'i', &conf_serif_color_g[7], true, false},
+	{"serif.color8.b", 'i', &conf_serif_color_b[7], true, false},
+	{"serif.color9.name", 's', &conf_serif_color_name[8], true, false},
+	{"serif.color9.r", 'i', &conf_serif_color_r[8], true, false},
+	{"serif.color9.g", 'i', &conf_serif_color_g[8], true, false},
+	{"serif.color9.b", 'i', &conf_serif_color_b[8], true, false},
+	{"serif.color10.name", 's', &conf_serif_color_name[9], true, false},
+	{"serif.color10.r", 'i', &conf_serif_color_r[9], true, false},
+	{"serif.color10.g", 'i', &conf_serif_color_g[9], true, false},
+	{"serif.color10.b", 'i', &conf_serif_color_b[9], true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))

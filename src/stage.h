@@ -126,7 +126,7 @@ void clear_namebox(void);
 void show_namebox(bool show);
 
 /* 名前ボックスに文字を描画する */
-int draw_char_on_namebox(int x, int y, uint32_t wc);
+int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color);
 
 /*
  * メッセージボックスの描画
@@ -142,7 +142,7 @@ void clear_msgbox(void);
 void show_msgbox(bool show);
 
 /* メッセージボックスに文字を描画する */
-int draw_char_on_msgbox(int x, int y, uint32_t wc);
+int draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color);
 
 /*
  * クリックアニメーションの描画
