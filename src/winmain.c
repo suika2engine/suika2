@@ -39,6 +39,9 @@
 /* 1回にスリープする時間 */
 #define SLEEP_MILLI		(5)
 
+/* UTF-8からSJISへの変換バッファサイズ */
+#define NATIVE_MESSAGE_SIZE	(65536)
+
 /* ウィンドウクラス名 */
 static const char szWindowClass[] = "suika";
 
@@ -69,6 +72,9 @@ static RECT rectWindow;
 /* フルスクリーンモード時の描画オフセット */
 static int nOffsetX;
 static int nOffsetY;
+
+/* UTF-8からSJISへの変換バッファ */
+static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
 /* 前方参照 */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
@@ -661,6 +667,28 @@ bool log_error(const char *s, ...)
 	}
 	va_end(ap);
 	return true;
+}
+
+/*
+ * UTF-8のメッセージをネイティブの文字コードに変換する
+ */
+const char *conv_utf8_to_native(const char *utf8_message)
+{
+	wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
+	int cch;
+
+	assert(utf8_message != NULL);
+
+	/* UTF-8からワイド文字に変換する */
+	cch = MultiByteToWideChar(CP_UTF8, 0, utf8_message, -1, wszMessage,
+							  NATIVE_MESSAGE_SIZE - 1);
+	wszMessage[cch] = L'\0';
+
+	/* ワイド文字からSJISに変換する */
+	WideCharToMultiByte(CP_THREAD_ACP, 0, wszMessage, (int)wcslen(wszMessage),
+						szNativeMessage, NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
+
+	return szNativeMessage;
 }
 
 /*

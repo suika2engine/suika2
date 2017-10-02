@@ -31,7 +31,8 @@ void log_api_error(const char *api)
  */
 void log_audio_file_error(const char *dir, const char *file)
 {
-	log_error("オーディオファイル%s/%sを読み込めません。\n", dir, file);
+	log_error("オーディオファイル%s/%sを読み込めません。\n", dir,
+		  conv_utf8_to_native(file));
 }
 
 /*
@@ -39,7 +40,17 @@ void log_audio_file_error(const char *dir, const char *file)
  */
 void log_ch_position(const char *pos)
 {
-	log_error("\"%s\"はキャラクタの位置指定として間違っています。\n", pos);
+	log_error("\"%s\"はキャラクタの位置指定として間違っています。\n",
+		  conv_utf8_to_native(pos));
+}
+
+/*
+ * ファイル名に英数字以外が含まれるエラーを記録する
+ */
+void log_file_name(const char *dir, const char *file)
+{
+	log_error("ファイル名に半角英数字以外の文字が使われています。"
+		  "(%s/%s)\n", dir, conv_utf8_to_native(file));
 }
 
 /*
@@ -47,7 +58,8 @@ void log_ch_position(const char *pos)
  */
 void log_dir_file_open(const char *dir, const char *file)
 {
-	log_error("ファイル\"%s/%s\"を開けません。\n", dir, file);
+	log_error("ファイル\"%s/%s\"を開けません。\n", dir,
+		  conv_utf8_to_native(file));
 }
 
 /*
@@ -55,7 +67,8 @@ void log_dir_file_open(const char *dir, const char *file)
  */
 void log_file_open(const char *fname)
 {
-	log_error("ファイル\"%s\"を開けません。\n", fname);
+	log_error("ファイル\"%s\"を開けません。\n",
+		  conv_utf8_to_native(fname));
 }
 
 /*
@@ -63,7 +76,8 @@ void log_file_open(const char *fname)
  */
 void log_font_file_error(const char *font)
 {
-	log_error("フォントファイル%sを読み込めません。\n", font);
+	log_error("フォントファイル%sを読み込めません。\n",
+		  conv_utf8_to_native(font));
 }
 
 /*
@@ -71,7 +85,8 @@ void log_font_file_error(const char *font)
  */
 void log_image_file_error(const char *dir, const char *file)
 {
-	log_error("イメージファイル%s/%sを読み込めません。\n", dir, file);
+	log_error("イメージファイル%s/%sを読み込めません。\n", dir,
+		  conv_utf8_to_native(file));
 }
 
 /*
@@ -95,7 +110,8 @@ void log_package_file_error(void)
  */
 void log_script_command_not_found(const char *name)
 {
-	log_error("コマンド\"%s\"がみつかりません\n", name);
+	log_error("コマンド\"%s\"がみつかりません\n",
+		  conv_utf8_to_native(name));
 }
 
 /*
@@ -111,15 +127,16 @@ void log_script_empty_serif(void)
  */
 void log_script_exec_footer(void)
 {
+	const char *file;
 	int line;
-	const char *script;
 
-	script = get_script_file_name();
-	assert(script != NULL);
+	file = get_script_file_name();
+	assert(file != NULL);
 
 	line = get_line_num() + 1;
-	log_error("> スクリプト実行エラー: %s %d行目\n", script, line);
-	log_error("> %s\n", get_line_string());
+
+	log_error("> スクリプト実行エラー: %s %d行目\n", file, line);
+	log_error("> %s\n", conv_utf8_to_native(get_line_string()));
 }
 
 /*
@@ -127,7 +144,7 @@ void log_script_exec_footer(void)
  */
 void log_script_label_not_found(const char *name)
 {
-	log_error("ラベル%sがみつかりません。\n", name);
+	log_error("ラベル%sがみつかりません。\n", conv_utf8_to_native(name));
 }
 
 /*
@@ -135,7 +152,8 @@ void log_script_label_not_found(const char *name)
  */
 void log_script_lhs_not_variable(const char *lhs)
 {
-	log_error("左辺(%s)が変数名ではありません。\n", lhs);
+	log_error("左辺(%s)が変数名ではありません。\n",
+		  conv_utf8_to_native(lhs));
 }
 
 /*
@@ -143,7 +161,8 @@ void log_script_lhs_not_variable(const char *lhs)
  */
 void log_script_no_command(const char *file)
 {
-	log_error("スクリプト%sにコマンドが含まれません。\n", file);
+	log_error("スクリプト%sにコマンドが含まれません。\n",
+		  conv_utf8_to_native(file));
 }
 
 /*
@@ -151,7 +170,8 @@ void log_script_no_command(const char *file)
  */
 void log_script_not_variable(const char *name)
 {
-	log_error("変数名ではない名前(%s)が指定されました。\n", name);
+	log_error("変数名ではない名前(%s)が指定されました。\n",
+		  conv_utf8_to_native(name));
 }
 
 /*
@@ -159,7 +179,7 @@ void log_script_not_variable(const char *name)
  */
 void log_script_non_positive_size(int val)
 {
-	log_error("サイズに正の値が指定されませんでした。(%)\n", val);
+	log_error("サイズに正の値が指定されませんでした。(%d)\n", val);
 }
 
 /*
@@ -181,7 +201,7 @@ void log_script_too_many_param(int max, int real)
 /* スクリプトの演算子が間違っているエラーを記録する */
 void log_script_op_error(const char *op)
 {
-	log_error("演算子%sは間違っています。\n", op);
+	log_error("演算子%sは間違っています。\n", conv_utf8_to_native(op));
 }
 
 /* スクリプトに文字列が指定されていないエラーを記録する */
@@ -194,7 +214,7 @@ void log_script_param_string(int param)
 void log_script_parse_footer(const char *file, int line, const char *buf)
 {
 	log_error("> スクリプト書式エラー: %s %d行目\n", file, line);
-	log_error("> %s\n", buf);
+	log_error("> %s\n", conv_utf8_to_native(buf));
 }
 
 /* RGB値が負であるエラーを記録する */
@@ -231,12 +251,14 @@ void log_undefined_conf(const char *key)
 /* 不明なコンフィグを記録する */
 void log_unknown_conf(const char *key)
 {
-	log_error("コンフィグの%sは認識されません。\n", key);
+	log_error("コンフィグの%sは認識されません。\n",
+		  conv_utf8_to_native(key));
 }
 
 /* 音声ファイルの入力エラーを記録する */
 void log_wave_error(const char *fname)
 {
 	assert(fname != NULL);
-	log_error("ファイル%sの再生に失敗しました。\n", fname);
+	log_error("ファイル%sの再生に失敗しました。\n",
+		  conv_utf8_to_native(fname));
 }

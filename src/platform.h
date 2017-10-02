@@ -19,10 +19,17 @@ struct wave;
 /*
  * ログを出力する
  *  - ログを出力してよいのはメインスレッドのみとする
+ *  - ネイティブの文字コードを渡すこととする
  */
 bool log_info(const char *s, ...);
 bool log_warn(const char *s, ...);
 bool log_error(const char *s, ...);
+
+/*
+ * UTF-8のメッセージをネイティブの文字コードに変換する
+ *  - 変換の必要のない場合は引数をそのまま返す
+ */
+const char *conv_utf8_to_native(const char *utf8_message);
 
 /* セーブディレクトリを作成する */
 bool make_sav_dir(void);

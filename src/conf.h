@@ -135,7 +135,7 @@ extern int conf_history_margin_bottom;
 /*
  * セリフの色付け
  */
-#define SERIF_COLOR_COUNT	(10)
+#define SERIF_COLOR_COUNT	(32)
 
 extern char *conf_serif_color_name[SERIF_COLOR_COUNT];
 extern int conf_serif_color_r[SERIF_COLOR_COUNT];

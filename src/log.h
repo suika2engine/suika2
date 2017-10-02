@@ -22,6 +22,7 @@ void log_api_error(const char *api);
 void log_audio_file_error(const char *dir, const char *file);
 void log_ch_position(const char *pos);
 void log_dir_file_open(const char *dir, const char *file);
+void log_file_name(const char *dir, const char *file);
 void log_file_open(const char *fname);
 void log_font_file_error(const char *font);
 void log_image_file_error(const char *dir, const char *file);

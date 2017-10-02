@@ -53,6 +53,7 @@ static char *package_path;
 /*
  * 前方参照
  */
+static bool check_file_name(const char *file);
 static void ungetc_rfile(struct rfile *rf, char c);
 
 /*
@@ -133,6 +134,12 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	struct rfile *rf;
 	uint64_t i;
 
+	/* ファイル名に半角英数字以外が含まれるかチェックする */
+	if (!check_file_name(file)) {
+		log_file_name(dir, file);
+		return NULL;
+	}
+
 	/* rfile構造体のメモリを確保する */
 	rf = malloc(sizeof(struct rfile));
 	if (rf == NULL) {
@@ -205,6 +212,22 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	rf->pos = 0;
 
 	return rf;
+}
+
+/* ファイル名に半角英数字以外が含まれるかチェックする */
+static bool check_file_name(const char *file)
+{
+	const char *c;
+
+	c = file;
+	while (*c) {
+		/* UTF-8文字列に半角英数字以外が含まれる場合 */
+		if (*c & 0x80)
+			return false;
+		c++;
+	}
+
+	return true;
 }
 
 /*
