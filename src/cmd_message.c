@@ -643,6 +643,9 @@ static pixel_t get_message_color(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	/* PCMストリームの再生を終了する */
+	set_mixer_input(VOICE_STREAM, NULL);
+
 	/* メッセージを破棄する */
 	free(msg_top);
 
