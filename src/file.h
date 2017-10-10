@@ -53,7 +53,7 @@ size_t read_rfile(struct rfile *rf, void *buf, size_t size);
 /*
  * ファイル読み込みストリームから1行読み込む
  */
-void *gets_rfile(struct rfile *rf, void *buf, size_t size);
+const char *gets_rfile(struct rfile *rf, char *buf, size_t size);
 
 /*
  * ファイル読み込みストリームを閉じる

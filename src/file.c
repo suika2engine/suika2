@@ -296,7 +296,7 @@ static void ungetc_rfile(struct rfile *rf, char c)
 /*
  * ファイル読み込みストリームから1行読み込む
  */
-void *gets_rfile(struct rfile *rf, void *buf, size_t size)
+const char *gets_rfile(struct rfile *rf, char *buf, size_t size)
 {
 	char *ptr;
 	size_t len;
@@ -305,7 +305,7 @@ void *gets_rfile(struct rfile *rf, void *buf, size_t size)
 	assert(rf != NULL);
 	assert(rf->fp != NULL);
 
-	ptr = (char *)buf;
+	ptr = buf;
 
 	for (len = 0; len < size - 1; len++) {
 		if (read_rfile(rf, &c, 1) != 1) {
