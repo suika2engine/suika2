@@ -22,7 +22,7 @@ static bool repeatedly;
 static bool is_first_frame;
 
 /* テキスト */
-static char *text[3];
+static const char *text[3];
 
 /* 選択肢の矩形 */
 static int rect_x;
@@ -36,7 +36,6 @@ static int selected_item;
 /* 前方参照 */
 static bool init(void);
 static bool cleanup(void);
-static void free_texts(void);
 static int get_selected_item(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
 static void draw_selbox(int sel);
@@ -55,7 +54,6 @@ bool select_command(int *x, int *y, int *w, int *h)
 	if (is_right_button_pressed) {
 		start_save_mode(false);
 		repeatedly = false;
-		free_texts();
 		return true;
 	}
 
@@ -75,21 +73,9 @@ bool select_command(int *x, int *y, int *w, int *h)
 static bool init(void)
 {
 	/* パラメータを取得する */
-	text[0] = strdup(get_string_param(SELECT_PARAM_TEXT1));
-	if (text[0] == NULL) {
-		log_memory();
-		return false;
-	}
-	text[1] = strdup(get_string_param(SELECT_PARAM_TEXT2));
-	if (text[1] == NULL) {
-		log_memory();
-		return false;
-	}
-	text[2] = strdup(get_string_param(SELECT_PARAM_TEXT3));
-	if (text[2] == NULL) {
-		log_memory();
-		return false;
-	}
+	text[0] = get_string_param(SELECT_PARAM_TEXT1);
+	text[1] = get_string_param(SELECT_PARAM_TEXT2);
+	text[2] = get_string_param(SELECT_PARAM_TEXT3);
 
 	/* 選択肢ボックスの矩形を取得する */
 	get_selbox_rect(&rect_x, &rect_y[0], &rect_w, &rect_h);
@@ -140,19 +126,8 @@ static bool cleanup(void)
 		return false;
 	}
 
-	/* テキストを解放する */
-	free_texts();
-
 	/* ラベルへ移動する */
 	return move_to_label(label);
-}
-
-/* テキストを解放する */
-static void free_texts(void)
-{
-	free(text[0]);
-	free(text[1]);
-	free(text[2]);
 }
 
 /*
