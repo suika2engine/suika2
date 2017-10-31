@@ -80,6 +80,7 @@ extern int conf_switch_x;
 extern int conf_switch_y;
 extern int conf_switch_margin_y;
 extern int conf_switch_text_margin_y;
+extern char *conf_switch_click_se_file;
 
 /*
  * セーブ・ロード画面の設定

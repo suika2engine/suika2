@@ -28,6 +28,7 @@ CPPFLAGS = \
 
 CFLAGS = \
 	-O3 \
+	-ffast-math \
 	-fopt-info-vec \
 	-std=gnu89 \
 	-finput-charset=utf-8 \

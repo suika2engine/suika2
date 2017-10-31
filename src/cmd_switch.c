@@ -66,7 +66,7 @@ static int pointed_child_index;
 
 /* 前方参照 */
 static bool init(void);
-static bool get_parent_info(void);
+static bool get_parents_info(void);
 static bool get_children_info(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
 static void draw_frame_parent(int *x, int *y, int *w, int *h);
@@ -77,6 +77,7 @@ static void draw_switch_images(int *x, int *y, int *w, int *h);
 static void draw_switch_parent_images(int *x, int *y, int *w, int *h);
 static void draw_switch_child_images(int *x, int *y, int *w, int *h);
 static void draw_text(int x, int y, int w, const char *t);
+static void play_se(void);
 static bool cleanup(void);
 
 /*
@@ -117,7 +118,7 @@ bool init(void)
 	pointed_child_index = -1;
 
 	/* 親選択肢の情報を取得する */
-	if (!get_parent_info())
+	if (!get_parents_info())
 		return false;
 
 	/* 子選択肢の情報を取得する */
@@ -132,7 +133,7 @@ bool init(void)
 }
 
 /* 親選択肢の情報を取得する */
-static bool get_parent_info(void)
+static bool get_parents_info(void)
 {
 	const char *p;
 	int i;
@@ -314,6 +315,9 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		*h = conf_window_height;
 
 		if (parent_button[new_pointed_index].has_child) {
+			/* SEを鳴らす */
+			play_se();
+
 			/* 子選択肢の描画を行う */
 			draw_switch_images(x, y, w, h);
 		} else {
@@ -508,6 +512,23 @@ static void draw_text(int x, int y, int w, const char *t)
 		/* 次の文字へ移動する */
 		t += mblen;
 	}
+}
+
+/* SEを再生する */
+static void play_se(void)
+{
+	struct wave *w;
+
+	if (conf_switch_click_se_file == NULL)
+		return;
+
+	/* PCMストリームを開く */
+	w = create_wave_from_file(SE_DIR, conf_switch_click_se_file, false);
+	if (w == NULL)
+		return;
+
+	/* PCMストリームを再生する */
+	set_mixer_input(SE_STREAM, w);
 }
 
 /* コマンドを終了する */

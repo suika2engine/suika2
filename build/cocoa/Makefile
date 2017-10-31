@@ -23,7 +23,11 @@ CFLAGS = \
 	-arch x86_64 \
 	-mmacosx-version-min=10.6 \
 	-O3 \
-	-ftree-vectorize \
+	-ffast-math \
+	-fvectorize \
+	-Rpass=loop-vectorize \
+	-Rpass-missed=loop-vectorize \
+	-Rpass-analysis=loop-vectorize \
 	-std=gnu89 \
 	-Wall \
 	-Werror \
