@@ -9,6 +9,7 @@
  * [Changes]
  *  2014-05-24 作成 (conskit)
  *  2016-05-29 作成 (suika)
+ *  2017-11-07 フルスクリーンで解像度変更するように修正
  */
 
 #include <windows.h>
@@ -66,6 +67,9 @@ static FILE *pLogFile;
 /* フルスクリーンモードであるか */
 static BOOL bFullScreen;
 
+/* ディスプレイセッティングを変更中か */
+static BOOL bDisplaySettingsChanged;
+
 /* ウィンドウモードでの座標 */
 static RECT rectWindow;
 
@@ -90,6 +94,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 								LPARAM lParam);
 static int ConvertKeyCode(int nVK);
 static void ToggleFullScreen(void);
+static void ChangeDisplayMode(void);
+static void ResetDisplayMode(void);
 static void OnPaint(void);
 
 /*
@@ -537,6 +543,9 @@ static void ToggleFullScreen(void)
 	if(!bFullScreen)
 	{
 		bFullScreen = TRUE;
+
+		ChangeDisplayMode();
+
 		cx = GetSystemMetrics(SM_CXSCREEN);
 		cy = GetSystemMetrics(SM_CYSCREEN);
 		nOffsetX = (cx - conf_window_width) / 2;
@@ -553,6 +562,9 @@ static void ToggleFullScreen(void)
 	else
 	{
 		bFullScreen = FALSE;
+
+		ResetDisplayMode();
+
 		nOffsetX = 0;
 		nOffsetY = 0;
 		SetWindowLong(hWndMain, GWL_STYLE, (LONG)(WS_CAPTION |
@@ -568,6 +580,71 @@ static void ToggleFullScreen(void)
 				   rectWindow.bottom - rectWindow.top, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
+	}
+}
+
+/* 画面のサイズを変更する */
+static void ChangeDisplayMode(void)
+{
+	DEVMODE dm, dmSmallest;
+	HDC hDCDisp;
+	DWORD n, size;
+	int bpp;
+	BOOL bFound;
+
+	/* ウィンドウサイズと同じサイズに変更できるか試してみる */
+	dm.dmSize = sizeof(DEVMODE);
+	dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+	dm.dmPelsWidth = (DWORD)conf_window_width;
+	dm.dmPelsHeight = (DWORD)conf_window_height;
+	if(ChangeDisplaySettings(&dm, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL)
+	{
+		bDisplaySettingsChanged = TRUE;
+		return;
+	}
+
+	/* 現在の画面のBPPを取得する */
+	hDCDisp = GetDC(NULL);
+	bpp = GetDeviceCaps(hDCDisp, BITSPIXEL);
+	ReleaseDC(NULL, hDCDisp);
+
+	/* ウィンドウサイズ以上の最小の画面サイズを取得する */
+	n = 0;
+	bFound = FALSE;
+	size = 0xffffffff;
+	while(EnumDisplaySettings(NULL, n, &dm))
+	{
+		if(dm.dmPelsWidth >= (DWORD)conf_window_width &&
+		   dm.dmPelsHeight >= (DWORD)conf_window_height &&
+		   dm.dmBitsPerPel == (DWORD)bpp &&
+		   dm.dmPelsWidth + dm.dmPelsHeight <= size)
+		{
+			bFound = TRUE;
+			size = dm.dmPelsWidth + dm.dmPelsHeight;
+			dmSmallest = dm;
+		}
+		n++;
+	}
+
+	/* 求めた画面サイズに変更する */
+	if(bFound)
+	{
+		if(ChangeDisplaySettings(&dmSmallest, CDS_FULLSCREEN) ==
+		   DISP_CHANGE_SUCCESSFUL)
+		{
+			bDisplaySettingsChanged = TRUE;
+			return;
+		}
+	}
+}
+
+/* 画面のサイズを元に戻す */
+static void ResetDisplayMode(void)
+{
+	if(bDisplaySettingsChanged)
+	{
+		ChangeDisplaySettings(NULL, 0);
+		bDisplaySettingsChanged = FALSE;
 	}
 }
 
