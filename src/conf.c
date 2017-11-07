@@ -76,7 +76,8 @@ int conf_switch_x;
 int conf_switch_y;
 int conf_switch_margin_y;
 int conf_switch_text_margin_y;
-char *conf_switch_click_se_file;
+char *conf_switch_parent_click_se_file;
+char *conf_switch_child_click_se_file;
 
 /*
  * セーブ・ロード画面の設定
@@ -188,7 +189,8 @@ struct rule {
 	{"switch.y", 'i', &conf_switch_y, false, false},
 	{"switch.margin.y", 'i', &conf_switch_margin_y, false, false},
 	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, false, false},
-	{"switch.click.se.file", 's', &conf_switch_click_se_file, true, false},
+	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, true, false},
+	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, true, false},
 	{"save.bg.file", 's', &conf_save_bg_file, false, false},
 	{"save.fg.file", 's', &conf_save_fg_file, false, false},
 	{"save.save.x", 'i', &conf_save_save_x, false, false},

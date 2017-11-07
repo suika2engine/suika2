@@ -10,6 +10,7 @@
  *  - 2016/06/25 作成
  *  - 2017/08/14 スイッチに対応
  *  - 2017/09/25 セリフの色付けに対応
+ *  - 2017/10/31 スイッチのクリック音に対応
  */
 
 #ifndef SUIKA_PROP_H
@@ -80,7 +81,8 @@ extern int conf_switch_x;
 extern int conf_switch_y;
 extern int conf_switch_margin_y;
 extern int conf_switch_text_margin_y;
-extern char *conf_switch_click_se_file;
+extern char *conf_switch_parent_click_se_file;
+extern char *conf_switch_child_click_se_file;
 
 /*
  * セーブ・ロード画面の設定

@@ -10,6 +10,7 @@
  *
  * [Changes]
  *  - 2017/08/14 作成
+ *  - 2017/10/31 効果音に対応
  */
 
 #include "suika.h"
@@ -77,7 +78,7 @@ static void draw_switch_images(int *x, int *y, int *w, int *h);
 static void draw_switch_parent_images(int *x, int *y, int *w, int *h);
 static void draw_switch_child_images(int *x, int *y, int *w, int *h);
 static void draw_text(int x, int y, int w, const char *t);
-static void play_se(void);
+static void play_se(bool is_parent);
 static bool cleanup(void);
 
 /*
@@ -316,11 +317,14 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 
 		if (parent_button[new_pointed_index].has_child) {
 			/* SEを鳴らす */
-			play_se();
+			play_se(true);
 
 			/* 子選択肢の描画を行う */
 			draw_switch_images(x, y, w, h);
 		} else {
+			/* SEを鳴らす */
+			play_se(false);
+
 			/* 繰り返し動作を終了する */
 			repeatedly = false;
 		}
@@ -361,6 +365,9 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 
 	/* マウスの左ボタンでクリックされた場合 */
 	if (new_pointed_index != -1 && is_left_button_pressed) {
+		/* SEを鳴らす */
+		play_se(false);
+
 		/* ステージをボタンなしで描画しなおす */
 		draw_stage();
 		*x = 0;
@@ -515,15 +522,19 @@ static void draw_text(int x, int y, int w, const char *t)
 }
 
 /* SEを再生する */
-static void play_se(void)
+static void play_se(bool is_parent)
 {
 	struct wave *w;
 
-	if (conf_switch_click_se_file == NULL)
+	if (is_parent && conf_switch_parent_click_se_file == NULL)
+		return;
+	if (!is_parent && conf_switch_child_click_se_file == NULL)
 		return;
 
 	/* PCMストリームを開く */
-	w = create_wave_from_file(SE_DIR, conf_switch_click_se_file, false);
+	w = create_wave_from_file(SE_DIR, is_parent ?
+				  conf_switch_parent_click_se_file :
+				  conf_switch_child_click_se_file, false);
 	if (w == NULL)
 		return;
 
