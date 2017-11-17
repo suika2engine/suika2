@@ -346,9 +346,9 @@ static bool clip_by_source(
 	 * 転送矩形が転送元領域の有効な座標範囲から
 	 * 完全に外れている場合を検出する
 	 */
-	if(*src_x < 0 && -*src_x > *cx)
+	if(*src_x < 0 && -*src_x >= *cx)
 		return false;	/* 左方向に完全にはみ出している */
-	if(*src_y < 0 && -*src_y > *cy)
+	if(*src_y < 0 && -*src_y >= *cy)
 		return false;	/* 上方向に完全にはみ出している */
 	if(*src_x > 0 && *src_x >= src_cx)
 		return false;	/* 右方向に完全にはみ出している */
@@ -418,9 +418,9 @@ static bool clip_by_dest(
 	 * 転送矩形が転送先領域の有効な座標範囲から
 	 * 完全に外れている場合を検出する
 	 */
-	if(*dst_x < 0 && -*dst_x > *cx)
+	if(*dst_x < 0 && -*dst_x >= *cx)
 		return false;	/* 左方向に完全にはみ出している */
-	if(*dst_y < 0 && -*dst_y > *cy)
+	if(*dst_y < 0 && -*dst_y >= *cy)
 		return false;	/* 上方向に完全にはみ出している */
 	if(*dst_x > 0 && *dst_x >= dst_cx)
 		return false;	/* 右方向に完全にはみ出している */
