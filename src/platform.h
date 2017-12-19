@@ -55,4 +55,10 @@ bool stop_sound(int n);
 /* サウンドのボリュームを設定する */
 bool set_sound_volume(int n, float vol);
 
+/* 終了ダイアログを表示する */
+bool exit_dialog(void);
+
+/* タイトルに戻るダイアログを表示する */
+bool title_dialog(void);
+
 #endif

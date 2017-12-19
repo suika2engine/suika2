@@ -192,6 +192,21 @@ save.data5.y=448
 save.data6.x=448
 save.data6.y=512
 
+# セーブ画面の終了ボタンの位置
+save.exit.x=85
+save.exit.y=605
+save.exit.width=280
+save.exit.height=65
+
+# セーブ画面のタイトルへ戻るボタンの位置
+save.title.x=915
+save.title.y=605
+save.title.width=280
+save.title.height=65
+
+# セーブ画面のタイトルへ戻るボタンのジャンプ先
+save.title.txt=init.txt
+
 ###
 ### ヒストリ画面の設定
 ###

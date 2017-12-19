@@ -68,7 +68,8 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 {
 	if (is_save_mode()) {
 		/* セーブ画面を実行する */
-		run_save_mode(x, y, w, h);
+		if (!run_save_mode(x, y, w, h))
+			return false; /* 終了ボタンが押下された */
 	} else if (is_history_mode()) {
 		/* ヒストリ画面を実行する */
 		run_history_mode(x, y, w, h);

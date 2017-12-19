@@ -2,6 +2,7 @@
 ### ロゴ
 ###
 
+@bg white.png 0
 @ch c suika.png 1.0
 @se suika.ogg
 @wait 2.0

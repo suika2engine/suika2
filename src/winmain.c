@@ -826,3 +826,24 @@ int get_stop_watch_lap(stop_watch_t *t)
 	DWORD dwCur = GetTickCount();
 	return (int32_t)(dwCur - *t);
 }
+
+/*
+ * 終了ダイアログを表示する
+ */
+bool exit_dialog(void)
+{
+	if (MessageBox(hWndMain, "終了しますか？", mbszTitle, MB_OKCANCEL) == IDOK)
+		return true;
+	return false;
+}
+
+/*
+ * タイトルに戻るダイアログを表示する
+ */
+bool title_dialog(void)
+{
+	if (MessageBox(hWndMain, "タイトルに戻りますか？", mbszTitle, MB_OKCANCEL)
+		== IDOK)
+		return true;
+	return false;
+}

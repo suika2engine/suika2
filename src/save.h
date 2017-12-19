@@ -42,7 +42,7 @@ void start_save_mode(bool load_only);
 bool is_save_mode(void);
 
 /* セーブ画面を実行する */
-void run_save_mode(int *x, int *y, int *w, int *h);
+bool run_save_mode(int *x, int *y, int *w, int *h);
 
 /* グローバル変数を保存する */
 void save_global_vars(void);

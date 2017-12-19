@@ -121,6 +121,15 @@ extern int conf_save_data5_x;
 extern int conf_save_data5_y;
 extern int conf_save_data6_x;
 extern int conf_save_data6_y;
+extern int conf_save_exit_x;
+extern int conf_save_exit_y;
+extern int conf_save_exit_width;
+extern int conf_save_exit_height;
+extern int conf_save_title_x;
+extern int conf_save_title_y;
+extern int conf_save_title_width;
+extern int conf_save_title_height;
+extern char *conf_save_title_txt;
 
 /*
  * ヒストリ画面の設定

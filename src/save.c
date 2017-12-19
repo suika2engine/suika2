@@ -25,7 +25,7 @@
 #define SAVE_PAGES	(SAVE_SLOTS / PAGE_SLOTS)
 
 /* ボタンの数 */
-#define BUTTON_COUNT	(10)
+#define BUTTON_COUNT	(12)
 
 /* ボタンのインデックス */
 #define BUTTON_ONE	(0)
@@ -38,6 +38,8 @@
 #define BUTTON_NEXT	(7)
 #define BUTTON_SAVE	(8)
 #define BUTTON_LOAD	(9)
+#define BUTTON_EXIT	(10)
+#define BUTTON_TITLE	(11)
 
 /* セーブデータの日付 */
 static time_t save_time[SAVE_SLOTS];
@@ -81,8 +83,8 @@ static void draw_page(int *x, int *y, int *w, int *h);
 static int get_pointed_index(void);
 static void draw_all_text_items(void);
 static void draw_text_item(int x, int y, const char *text);
-static void update_pointed_index(int *x, int *y, int *w, int *h);
-static void process_left_press(int new_pointed_index, int *x, int *y, int *w,
+static bool update_pointed_index(int *x, int *y, int *w, int *h);
+static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			       int *h);
 static void process_left_press_save_button(int new_pointed_index, int *x,
 					   int *y, int *w, int *h);
@@ -176,6 +178,16 @@ static void load_button_conf(void)
 	button[BUTTON_LOAD].y = conf_save_load_y;
 	button[BUTTON_LOAD].w = conf_save_load_width;
 	button[BUTTON_LOAD].h = conf_save_load_height;
+
+	button[BUTTON_EXIT].x = conf_save_exit_x;
+	button[BUTTON_EXIT].y = conf_save_exit_y;
+	button[BUTTON_EXIT].w = conf_save_exit_width;
+	button[BUTTON_EXIT].h = conf_save_exit_height;
+
+	button[BUTTON_TITLE].x = conf_save_title_x;
+	button[BUTTON_TITLE].y = conf_save_title_y;
+	button[BUTTON_TITLE].w = conf_save_title_width;
+	button[BUTTON_TITLE].h = conf_save_title_height;
 }
 
 /*
@@ -270,24 +282,28 @@ bool is_save_mode(void)
 /*
  * セーブ画面の1フレームを実行する
  */
-void run_save_mode(int *x, int *y, int *w, int *h)
+bool run_save_mode(int *x, int *y, int *w, int *h)
 {
 	/* 最初のフレームを実行する */
 	if (is_first_frame) {
 		draw_page(x, y, w, h);
 		is_first_frame = false;
-		return;
+		return true;
 	}
 
 	/* 右クリックされた場合、セーブをキャンセルする */
 	if (is_right_button_pressed) {
 		stop_save_mode(x, y, w, h);
 		restore_flag = true;
-		return;
+		return true;
 	}
 
 	/* ポイントされている項目を更新する */
-	update_pointed_index(x, y, w, h);
+	if (!update_pointed_index(x, y, w, h))
+		return false;	/* 終了ボタンが押下された */
+
+	/* セーブ画面を継続する */
+	return true;
 }
 
 /* ページの描画を行う */
@@ -417,7 +433,7 @@ static void draw_text_item(int x, int y, const char *text)
 /*
  * ポイントされている項目を更新する
  */
-void update_pointed_index(int *x, int *y, int *w, int *h)
+bool update_pointed_index(int *x, int *y, int *w, int *h)
 {
 	int new_pointed_index;
 
@@ -426,13 +442,14 @@ void update_pointed_index(int *x, int *y, int *w, int *h)
 
 	/* 左クリックされた場合 */
 	if (is_left_button_pressed) {
-		process_left_press(new_pointed_index, x, y, w, h);
-		return;
+		if (!process_left_press(new_pointed_index, x, y, w, h))
+			return false; /* 終了ボタンが押下された */
+		return true;
 	}
 
 	/* 前回ポイントされていた項目と同じ場合は何もしない */
 	if (new_pointed_index == pointed_index)
-		return;
+		return true;
 
 	/* 選択されたボタンとポイントされたボタンをバックイメージに描画する */
 	if (new_pointed_index != -1) {
@@ -493,21 +510,23 @@ void update_pointed_index(int *x, int *y, int *w, int *h)
 
 	/* ポイントされている項目を変更する */
 	pointed_index = new_pointed_index;
+
+	return true;
 }
 
 /* 左ボタンのクリックを処理する */
-static void process_left_press(int new_pointed_index, int *x, int *y, int *w,
+static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			       int *h)
 {
 	/* ポイントされている項目がない場合 */
 	if (new_pointed_index == -1)
-		return;
+		return true;
 
 	/* セーブデータのボタンの場合、選択する */
 	if (new_pointed_index >= BUTTON_ONE &&
 	    new_pointed_index <= BUTTON_SIX) {
 		process_left_press_save_button(new_pointed_index, x, y, w, h);
-		return;
+		return true;
 	}
 
 	/* 前ページ、次ページボタンの場合 */
@@ -516,7 +535,7 @@ static void process_left_press(int new_pointed_index, int *x, int *y, int *w,
 		page += new_pointed_index == BUTTON_PREV ? -1 : 1;
 		selected_index = -1;
 		draw_page(x, y, w, h);
-		return;
+		return true;
 	}
 
 	/* セーブボタンの場合 */
@@ -532,6 +551,30 @@ static void process_left_press(int new_pointed_index, int *x, int *y, int *w,
 		process_load();
 		stop_save_mode(x, y, w, h);
 	}
+
+	/* 終了ボタンの場合 */
+	if (new_pointed_index == BUTTON_EXIT) {
+		if (exit_dialog())
+			return false;
+	}
+
+	/* タイトルへ戻るボタンの場合 */
+	if (new_pointed_index == BUTTON_TITLE) {
+		if (title_dialog()) {
+			if (!load_script(conf_save_title_txt))
+				return false;
+			set_mixer_input(BGM_STREAM, NULL);
+			set_mixer_input(SE_STREAM, NULL);
+			set_mixer_input(VOICE_STREAM, NULL);
+			show_namebox(false);
+			show_msgbox(false);
+			show_selbox(false);
+			stop_save_mode(x, y, w, h);
+			return true;
+		}
+	}
+
+	return true;
 }
 
 /* セーブボタン上での左クリックを処理する */

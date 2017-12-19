@@ -474,6 +474,40 @@ int get_stop_watch_lap(stop_watch_t *t)
 }
 
 //
+// 終了ダイアログを表示する
+//
+bool exit_dialog(void)
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+#if !__has_feature(objc_arc)
+    [alert autorelease];
+#endif
+    [alert addButtonWithTitle:@"はい"];
+    [alert addButtonWithTitle:@"いいえ"];
+    [alert setMessageText:@"終了しますか？"];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    if([alert runModal] == NSAlertFirstButtonReturn)
+        return true;
+    return false;
+}    
+
+/* タイトルに戻るダイアログを表示する */
+bool title_dialog(void)
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+#if !__has_feature(objc_arc)
+    [alert autorelease];
+#endif
+    [alert addButtonWithTitle:@"はい"];
+    [alert addButtonWithTitle:@"いいえ"];
+    [alert setMessageText:@"タイトルへ戻りますか？"];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    if([alert runModal] == NSAlertFirstButtonReturn)
+        return true;
+    return false;
+}
+
+//
 // ビューの実装
 //
 @implementation SuikaView

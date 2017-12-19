@@ -116,6 +116,15 @@ int conf_save_data5_x;
 int conf_save_data5_y;
 int conf_save_data6_x;
 int conf_save_data6_y;
+int conf_save_exit_x;
+int conf_save_exit_y;
+int conf_save_exit_width;
+int conf_save_exit_height;
+int conf_save_title_x;
+int conf_save_title_y;
+int conf_save_title_width;
+int conf_save_title_height;
+char *conf_save_title_txt;
 
 /*
  * ヒストリ画面の設定
@@ -225,6 +234,15 @@ struct rule {
 	{"save.data5.y", 'i', &conf_save_data5_y, false, false},
 	{"save.data6.x", 'i', &conf_save_data6_x, false, false},
 	{"save.data6.y", 'i', &conf_save_data6_y, false, false},
+	{"save.exit.x", 'i', &conf_save_exit_x, false, false},
+	{"save.exit.y", 'i', &conf_save_exit_y, false, false},
+	{"save.exit.width", 'i', &conf_save_exit_width, false, false},
+	{"save.exit.height", 'i',  &conf_save_exit_height, false, false},
+	{"save.title.x", 'i', &conf_save_title_x, false, false},
+	{"save.title.y", 'i', &conf_save_title_y, false, false},
+	{"save.title.width", 'i', &conf_save_title_width, false, false},
+	{"save.title.height", 'i', &conf_save_title_height, false, false},
+	{"save.title.txt", 's', &conf_save_title_txt, false, false},
 	{"history.color.r", 'i', &conf_history_color_r, false, false},
 	{"history.color.g", 'i', &conf_history_color_g, false, false},
 	{"history.color.b", 'i', &conf_history_color_b, false, false},

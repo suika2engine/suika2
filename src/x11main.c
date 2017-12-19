@@ -873,3 +873,21 @@ int get_stop_watch_lap(stop_watch_t *t)
 
 	return (int)(end - *t);
 }
+
+/*
+ * 終了ダイアログを表示する
+ */
+bool exit_dialog(void)
+{
+	/* stub */
+	return true;
+}
+
+/*
+ * タイトルに戻るダイアログを表示する
+ */
+bool title_dialog(void)
+{
+	/* stub */
+	return true;
+}
