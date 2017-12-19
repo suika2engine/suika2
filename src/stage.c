@@ -437,9 +437,16 @@ void draw_stage_rect(int x, int y, int w, int h)
 	assert(!is_save_mode());
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
+	assert(x >= 0 && y >= 0 && w > 0 && h > 0);
 
 	if (w == 0 || h == 0)
 		return;
+	if (x >= conf_window_width || y >= conf_window_height)
+		return;
+	if (x + w >= conf_window_width)
+		w = conf_window_width - x;
+	if (y + h >= conf_window_height)
+		h = conf_window_height - y;
 
 	draw_layer_image_rect(back_image, LAYER_BG, x, y, w, h);
 	draw_layer_image_rect(back_image, LAYER_CHB, x, y, w, h);
