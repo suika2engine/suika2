@@ -437,7 +437,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 	assert(!is_save_mode());
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
-	assert(x >= 0 && y >= 0 && w > 0 && h > 0);
+	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
 
 	if (w == 0 || h == 0)
 		return;
