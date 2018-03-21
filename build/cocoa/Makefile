@@ -85,8 +85,7 @@ OBJS = \
 # Target
 #
 
-Suika.app/Contents/MacOS/Suika: $(OBJS)
-	mkdir -p Suika.app/Contents/MacOS
+Suika: $(OBJS)
 	$(CC) -o $@ $(CFLAGS) $(OBJS) $(LDFLAGS)
 
 #
@@ -99,14 +98,24 @@ include ../sse.mk
 # Phony rules
 #
 
-run: $(TARGET)
-	cp -R Suika.app ../../suika2/ && ../../suika2/Suika.app/Contents/MacOS/Suika
-
-install: $(TARGET)
-	cp -R Suika.app ../../suika2/
+install: Suika
+	cp -av Suika ../../mac/Suika.app/Contents/MacOS/Suika
+	cp -av ../../suika2/COPYING ../../mac/Suika.app
+	cp -Rav ../../suika2/conf ../../mac/Suika.app
+	cp -Rav ../../suika2/se ../../mac/Suika.app
+	cp -Rav ../../suika2/bg ../../mac/Suika.app
+	cp -Rav ../../suika2/cv ../../mac/Suika.app
+	cp -Rav ../../suika2/bgm ../../mac/Suika.app
+	cp -Rav ../../suika2/font ../../mac/Suika.app
+	cp -Rav ../../suika2/cg ../../mac/Suika.app
+	cp -av ../../suika2/tool/package-mac ../../mac/tool/
+	cp -Rav ../../suika2/ch ../../mac/Suika.app
+	cp -Rav ../../suika2/txt ../../mac/Suika.app
+	rm -rf ../../mac/Suika.app/sav
+	rm -f ../../mac/Suika.app/log.txt
 
 clean:
-	rm -rf $(TARGET) $(OBJS) *~ log.txt sav tmp
+	rm -rf Suika $(OBJS) *~ log.txt sav tmp
 
 erase:
 	rm -rf libroot

@@ -146,8 +146,7 @@ int main()
 static BOOL openLog(void)
 {
     // .appバンドルのあるパスを取得する
-    NSString *base = [[[NSBundle mainBundle] bundlePath]
-                         stringByDeletingLastPathComponent];
+    NSString *base = [[NSBundle mainBundle] bundlePath];
 
     // ログのパスを生成する
     const char *path = [[NSString stringWithFormat:@"%@/%s", base,
@@ -157,7 +156,7 @@ static BOOL openLog(void)
     logFp = fopen(path, "w");
     if(logFp == NULL) {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"エラー"];
+        [alert setMessageText:@"Error"];
         [alert setInformativeText:@"Cannot open log file."];
         [alert runModal];
 #if !__has_feature(objc_arc)
@@ -293,8 +292,7 @@ bool make_sav_dir(void)
 #else
     @autoreleasepool {
 #endif
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
-    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+    NSString *basePath = [[NSBundle mainBundle] bundlePath];
     NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath,
                                    SAVE_DIR];
     NSError *error;
@@ -323,8 +321,7 @@ char *make_valid_path(const char *dir, const char *fname)
     @autoreleasepool {
 #endif
 
-    NSString *base = [[[NSBundle mainBundle] bundlePath]
-                         stringByDeletingLastPathComponent];
+    NSString *base = [[NSBundle mainBundle] bundlePath];
 
     NSString *path;
     if (dir != NULL)
