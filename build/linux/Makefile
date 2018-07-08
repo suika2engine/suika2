@@ -17,10 +17,11 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O3 \
+	-O0 -g3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-fopt-info-vec \
+	-mavx \
 	-std=gnu89 \
 	-Wall \
 	-Werror \
@@ -39,7 +40,8 @@ LDFLAGS = \
 	-lX11 \
 	-lXpm \
 	-L./libroot/lib \
-	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
+	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
+	-lmvec
 
 #
 # Source files
