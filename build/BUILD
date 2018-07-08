@@ -14,7 +14,11 @@ How to build
     * Xcode7 project helps you to debug this software
 
 * Linux
-    * On Ubuntu 16.04, install build-essentials package.
+    * On Ubuntu 18.04, install following packages.
+        * build-essentials
+	* libasound2-dev
+	* libX11-dev
+	* libxpm-dev
     * Enter build/linux
     * Run ./build-libs.sh && make && make run
 
