@@ -137,6 +137,9 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 {
 	int new_selected_item;
 
+	/* セーブ画面から復帰した場合のフラグをクリアする */
+	check_restore_flag();
+
 	/* 終了する場合 */
 	if (!is_first_frame && selected_item != -1 && is_left_button_pressed) {
 		/* 選択肢ボックスを非表示する */
