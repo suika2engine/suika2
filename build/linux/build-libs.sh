@@ -37,7 +37,7 @@ cd ..
 
 tar xzf ../../libsrc/freetype-2.7.1.tar.gz
 cd freetype-2.7.1
-./configure --prefix=$PREFIX --disable-shared --with-bzip2 --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no
+./configure --prefix=$PREFIX --disable-shared --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no
 make
 make install
 cd ..

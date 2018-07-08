@@ -38,7 +38,7 @@ cd ..
 
 tar xzf ../../libsrc/freetype-2.7.1.tar.gz
 cd freetype-2.7.1
-./configure --prefix=$PREFIX --disable-shared --with-bzip2 --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no CFLAGS="-arch i386 -arch x86_64 -mmacosx-version-min=10.6" LDFLAGS="-arch i386 -arch x86_64 -mmacosx-version-min=10.6"
+./configure --prefix=$PREFIX --disable-shared --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no CFLAGS="-arch i386 -arch x86_64 -mmacosx-version-min=10.6" LDFLAGS="-arch i386 -arch x86_64 -mmacosx-version-min=10.6"
 make
 make install
 cd ..
