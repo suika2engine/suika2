@@ -513,7 +513,7 @@ static int get_frame_chars(void)
 	}
 
 	/* セーブ画面かヒストリ画面から復帰した場合 */
-	if (restore_flag || history_flag) {
+	if (check_restore_flag() || check_history_flag()) {
 		/* すべての文字を描画する */
 		return total_chars;
 	}

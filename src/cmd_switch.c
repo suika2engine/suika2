@@ -264,6 +264,10 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	*w = 0;
 	*h = 0;
 
+	/* セーブ画面かヒストリ画面から復帰した場合のフラグをクリアする */
+	check_restore_flag();
+	check_history_flag();
+
 	/* 初回描画の場合 */
 	if (is_first_frame) {
 		/* 名前ボックス、メッセージボックスを消すため再描画する */
