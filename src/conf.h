@@ -13,8 +13,8 @@
  *  - 2017/10/31 スイッチのクリック音に対応
  */
 
-#ifndef SUIKA_PROP_H
-#define SUIKA_PROP_H
+#ifndef SUIKA_CONF_H
+#define SUIKA_CONF_H
 
 #include "types.h"
 
