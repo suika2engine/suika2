@@ -233,45 +233,59 @@ void log_script_return_error(void)
 	log_error("@returnの戻り先が存在しません。\n");
 }
 
-/* RGB値が負であるエラーを記録する */
+/*
+ * RGB値が負であるエラーを記録する
+ */
 void log_script_rgb_negative(int val)
 {
 	log_error("RGB値が負の数(%d)が指定されました。\n", val);
 }
 
-/* スクリプトが長すぎるエラーを記録する */
+/*
+ * スクリプトが長すぎるエラーを記録する
+ */
 void log_script_size(int size)
 {
 	log_error("スクリプト%sが最大コマンド数%dを超えています。"
 		  "分割してください。\n", get_script_file_name(), size);
 }
 
-/* スイッチの選択肢がないエラーを記録する */
+/*
+ * スイッチの選択肢がないエラーを記録する
+ */
 void log_script_switch_no_item(void)
 {
 	log_error("スイッチの選択肢がありません。");
 }
 
-/* スクリプトの変数インデックスが範囲外であるエラーを記録する */
+/*
+ * スクリプトの変数インデックスが範囲外であるエラーを記録する
+ */
 void log_script_var_index(int index)
 {
 	log_error("変数インデックス%dは範囲外です。\n", index);
 }
 
-/* 未定義のコンフィグを記録する */
+/*
+ * 未定義のコンフィグを記録する
+ */
 void log_undefined_conf(const char *key)
 {
 	log_error("コンフィグに%sが記述されていません。\n", key);
 }
 
-/* 不明なコンフィグを記録する */
+/*
+ * 不明なコンフィグを記録する
+ */
 void log_unknown_conf(const char *key)
 {
 	log_error("コンフィグの%sは認識されません。\n",
 		  conv_utf8_to_native(key));
 }
 
-/* 音声ファイルの入力エラーを記録する */
+/*
+ * 音声ファイルの入力エラーを記録する
+ */
 void log_wave_error(const char *fname)
 {
 	assert(fname != NULL);
