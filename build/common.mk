@@ -3,12 +3,14 @@ SRCS_COMMON = \
 	../../src/cmd_bgm.c \
 	../../src/cmd_ch.c \
 	../../src/cmd_click.c \
+	../../src/cmd_gosub.c \
 	../../src/cmd_goto.c \
 	../../src/cmd_if.c \
 	../../src/cmd_load.c \
 	../../src/cmd_menu.c \
 	../../src/cmd_message.c \
 	../../src/cmd_retrospect.c \
+	../../src/cmd_return.c \
 	../../src/cmd_se.c \
 	../../src/cmd_select.c \
 	../../src/cmd_set.c \

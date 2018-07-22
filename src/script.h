@@ -2,13 +2,14 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/01 作成
  *  - 2017/08/14 スイッチに対応
+ *  - 2018/07/21 gosubに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -40,6 +41,8 @@ enum command_type {
 	COMMAND_MENU,
 	COMMAND_RETROSPECT,
 	COMMAND_SWITCH,
+	COMMAND_GOSUB,
+	COMMAND_RETURN,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -352,6 +355,11 @@ enum switch_command_param {
 	SWITCH_PARAM_CHILD8_M8,
 };
 
+/* gosubコマンドのパラメータ */
+enum gosub_command_param {
+	GOSUB_PARAM_LABEL = 1,
+};
+
 /*
  * 初期化
  */
@@ -375,7 +383,7 @@ const char *get_script_file_name(void);
 /* 実行中のコマンドのインデックスを取得する(セーブ用) */
 int get_command_index(void);
 
-/* 実行中のコマンドのインデックスを取得する(ロード用) */
+/* 実行中のコマンドのインデックスを設定する(gosub,ロード用) */
 bool move_to_command_index(int index);
 
 /* 次のコマンドに移動する */
@@ -384,17 +392,26 @@ bool move_to_next_command(void);
 /* ラベルへ移動する */
 bool move_to_label(const char *label);
 
-/* コマンドの行番号を取得する */
+/* gosubによるリターンポイントを記録する(gosub用) */
+void push_return_point(void);
+
+/* gosubによるリターンポイントを取得する(return用) */
+int pop_return_point(void);
+
+/* gosubによるリターンポイントの行番号を設定する(ロード用) */
+bool set_return_point(int index);
+
+/* gosubによるリターンポイントの行番号を取得する(セーブ用) */
+int get_return_point(void);
+
+/* コマンドの行番号を取得する(ログ用) */
 int get_line_num(void);
 
-/* コマンドの行全体を取得する */
+/* コマンドの行全体を取得する(ログ用) */
 const char *get_line_string(void);
 
 /* コマンドのタイプを取得する */
 int get_command_type(void);
-
-/* コマンドの文字列全体を取得する */
-const char *get_command_string(void);
 
 /* 文字列のコマンドパラメータを取得する */
 const char *get_string_param(int index);

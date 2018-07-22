@@ -2,13 +2,14 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/01 作成
  *  - 2017/08/13 スイッチに対応
+ *  - 2018/07/21 gosubに対応
  */
 
 #include "suika.h"
@@ -60,6 +61,8 @@ struct insn_item {
 	{"@menu", COMMAND_MENU, 7, 22},
 	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
 	{"@switch", COMMAND_SWITCH, 9, 136},
+	{"@gosub", COMMAND_GOSUB, 1, 1},
+	{"@return", COMMAND_RETURN, 0, 0},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))
@@ -67,8 +70,9 @@ struct insn_item {
 /*
  * コマンド実行ポインタ
  */
-static char *cur_script;
-static int cur_index;
+static char *cur_script;	/* 実行中のスクリプト名 */
+static int cur_index;		/* 実行中の行番号 */
+static int return_point;	/* 最後にgosubが実行された行番号 */
 
 /*
  * 前方参照
@@ -162,6 +166,8 @@ bool load_script(const char *fname)
 		return false;
 	}
 
+	/* リターンポイントを無効にする */
+	set_return_point(-1);
 	return true;
 }
 
@@ -182,7 +188,7 @@ int get_command_index(void)
 }
 
 /*
- * 実行中のコマンドのインデックスを取得する(ロード用)
+ * 実行中のコマンドのインデックスを設定する(ロード用)
  */
 bool move_to_command_index(int index)
 {
@@ -241,14 +247,57 @@ bool move_to_label(const char *label)
 }
 
 /*
- * コマンドの行番号を取得する
+ * gosubによるリターンポイントを記録する(gosub用)
+ */
+void push_return_point(void)
+{
+	return_point = cur_index;
+}
+
+/*
+ * gosubによるリターンポイントを取得する(return用)
+ */
+int pop_return_point(void)
+{
+	int rp;
+	rp = return_point;
+	return_point = -1;
+	return rp;
+}
+
+/*
+ * gosubによるリターンポイントの行番号を設定する(ロード用)
+ *  - indexが-1ならリターンポイントは無効
+ */
+bool set_return_point(int index)
+{
+	if (index >= cmd_size)
+		return false;
+
+	return_point = index;
+	return true;
+}
+
+/*
+ * gosubによるリターンポイントの行番号を取得する(return,セーブ用)
+ *  - indexが-1ならリターンポイントは無効
+ */
+int get_return_point(void)
+{
+	return return_point;
+}
+
+/*
+ * コマンドの行番号を取得する(ログ用)
  */
 int get_line_num(void)
 {
 	return cmd[cur_index].line;
 }
 
-/* コマンドの行番号を取得する */
+/*
+ * コマンドの行番号を取得する(ログ用)
+ */
 const char *get_line_string(void)
 {
 	struct command *c;

@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  * [Changes]
  *  - 2016/06/30 作成
  *  - 2017/08/17 グローバル変数に対応
+ *  - 2018/07/22 gosubに対応
  */
 
 #include "suika.h"
@@ -673,14 +674,18 @@ static bool process_save(void)
 static bool serialize_command(struct wfile *wf)
 {
 	const char *s;
-	int n;
-	
+	int n, m;
+
 	s = get_script_file_name();
 	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
 		return false;
 
 	n = get_command_index();
 	if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
+		return false;
+
+	m = get_return_point();
+	if (write_wfile(wf, &m, sizeof(m)) < sizeof(m))
 		return false;
 
 	return true;
@@ -809,7 +814,7 @@ static bool process_load(void)
 static bool deserialize_command(struct rfile *rf)
 {
 	char s[1024];
-	int n;
+	int n, m;
 
 	if (gets_rfile(rf, s, sizeof(s)) == NULL)
 		return false;
@@ -820,7 +825,13 @@ static bool deserialize_command(struct rfile *rf)
 	if (read_rfile(rf, &n, sizeof(n)) < sizeof(n))
 		return false;
 
+	if (read_rfile(rf, &m, sizeof(m)) < sizeof(m))
+		return false;
+
 	if (!move_to_command_index(n))
+		return false;
+
+	if (!set_return_point(m))
 		return false;
 
 	return true;

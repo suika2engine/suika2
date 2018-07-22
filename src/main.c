@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  * [Changes]
  *  - 2016/05/27 作成
  *  - 2017/08/13 スイッチに対応
+ *  - 2018/07/21 gosubに対応
  */
 
 #include "suika.h"
@@ -172,6 +173,14 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 		break;
 	case COMMAND_SWITCH:
 		if (!switch_command(x, y, w, h))
+			return false;
+		break;
+	case COMMAND_GOSUB:
+		if (!gosub_command())
+			return false;
+		break;
+	case COMMAND_RETURN:
+		if (!return_command())
 			return false;
 		break;
 	default:

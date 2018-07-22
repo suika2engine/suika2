@@ -2,13 +2,14 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/05/27 作成
  *  - 2017/08/13 スイッチに対応
+ *  - 2018/07/21 gosubに対応
  */
 
 #ifndef SUIKA_MAIN_H
@@ -60,6 +61,8 @@ bool se_command(void);
 bool menu_command(int *x, int *y, int *w, int *h);
 bool retrospect_command(int *x, int *y, int *w, int *h);
 bool switch_command(int *x, int *y, int *w, int *h);
+bool gosub_command(void);
+bool return_command(void);
 
 /*
  * コマンドが終了した直後であるかのチェック

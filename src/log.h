@@ -41,6 +41,7 @@ void log_script_too_many_param(int max, int real);
 void log_script_op_error(const char *op);
 void log_script_param_string(int param);
 void log_script_parse_footer(const char *file, int line, const char *buf);
+void log_script_return_error(void);
 void log_script_rgb_negative(int val);
 void log_script_size(int size);
 void log_script_switch_no_item(void);

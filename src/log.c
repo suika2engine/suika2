@@ -191,30 +191,46 @@ void log_script_too_few_param(int min, int real)
 		  "%d個しか指定されませんでした。\n", min, real);
 }
 
-/* スクリプトのパラメータが多すぎるエラーを記録する */
+/*
+ * スクリプトのパラメータが多すぎるエラーを記録する
+ */
 void log_script_too_many_param(int max, int real)
 {
 	log_error("引数が多すぎます。最大%d個ですが、"
 		  "%d個指定されました。\n", max, real);
 }
 
-/* スクリプトの演算子が間違っているエラーを記録する */
+/*
+ * スクリプトの演算子が間違っているエラーを記録する
+ */
 void log_script_op_error(const char *op)
 {
 	log_error("演算子%sは間違っています。\n", conv_utf8_to_native(op));
 }
 
-/* スクリプトに文字列が指定されていないエラーを記録する */
+/*
+ * スクリプトに文字列が指定されていないエラーを記録する
+ */
 void log_script_param_string(int param)
 {
 	log_error("パラメータ%dに文字列が指定されていません。\n", param);
 }
 
-/* スクリプトパースエラーの位置を記録する */
+/*
+ * スクリプトパースエラーの位置を記録する
+ */
 void log_script_parse_footer(const char *file, int line, const char *buf)
 {
 	log_error("> スクリプト書式エラー: %s %d行目\n", file, line);
 	log_error("> %s\n", conv_utf8_to_native(buf));
+}
+
+/*
+ * returnの戻り先が存在しない行であるエラーを記録する
+ */
+void log_script_return_error(void)
+{
+	log_error("@returnの戻り先が存在しません。\n");
 }
 
 /* RGB値が負であるエラーを記録する */
