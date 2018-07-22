@@ -24,7 +24,7 @@ bool goto_command(void)
 
 	/* パラメータからラベルを取得する */
 	label = get_string_param(GOTO_PARAM_LABEL);
-	
+
 	/* ロード画面への遷移を処理する */
 	if (strcmp(label, LOAD_LABEL) == 0) {
 		/* ロード専用モードでセーブ画面を開始する */
