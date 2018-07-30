@@ -18,4 +18,4 @@ Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
     * See suika2/COPYING
 
 * Build
-    * See build/BUILD
+    * See build/BUILD.md
