@@ -4,13 +4,13 @@ include ../common.mk
 # Toolchain
 #
 
-# For native compilation
-CC = gcc
-WINDRES = windres
-
 # For cross compilation
-#CC = i686-w64-mingw32-gcc
-#WINDRES = i686-w64-mingw32-windres
+CC = i686-w64-mingw32-gcc
+WINDRES = i686-w64-mingw32-windres
+
+# For native compilation
+#CC = gcc
+#WINDRES = windres
 
 #
 # CPPFLAGS
@@ -98,7 +98,7 @@ include ../sse.mk
 #
 
 run: suika.exe
-	cp suika.exe ../../suika2; cd ../../suika2; ./suika.exe
+	cp suika.exe ../../suika2; cd ../../suika2; wine suika.exe
 
 install: suika.exe
 	cp suika.exe ../../suika2
