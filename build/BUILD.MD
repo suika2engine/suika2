@@ -9,7 +9,6 @@ How to build
         * Run `make` to build Suika2 binary.
         * Run `make install` to deploy Suika2 binary.
         * Run `make run` to run Suika2.
-    * Visual C++ project helps you to debug this software, but Microsoft's compiler does not do AVX optimization
 
 * Mac Binary
     * On Mac OS 10.11, install Xcode7 and command line tools.
@@ -17,8 +16,7 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to deploy Suika2 binary.
-    * Enter mac directory and run Suika.app.
-    * Xcode7 project helps you to debug this software.
+    * Open mac folder on Finder and run Suika.app.
 
 * Linux Binary
     * On Ubuntu 18.04, install following packages.
@@ -30,7 +28,3 @@ How to build
         * Run `make` to build Suika2 binary.
         * Run `make install` to deploy Suika2 binary.
         * Run `make run` to run Suika2.
-    * gdb helps you to debug this software.
-
-* Android NDK
-    * Open build/ndk on Android Studio

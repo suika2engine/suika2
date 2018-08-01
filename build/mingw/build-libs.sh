@@ -15,8 +15,8 @@ cp zlib.h zconf.h ../../libroot/include/
 cp libz.a ../../libroot/lib/
 cd ..
 
-tar xzf ../../libsrc/libpng-1.6.28.tar.gz
-cd libpng-1.6.28
+tar xzf ../../libsrc/libpng-1.6.35.tar.gz
+cd libpng-1.6.35
 ./configure --prefix=$PREFIX --disable-shared --host=i686-w64-mingw32 CPPFLAGS=-I$PREFIX/include LDFLAGS=-L$PREFIX/lib
 make
 make install

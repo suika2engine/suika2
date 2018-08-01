@@ -14,8 +14,8 @@ make
 make install
 cd ..
 
-tar xzf ../../libsrc/libpng-1.6.28.tar.gz
-cd libpng-1.6.28
+tar xzf ../../libsrc/libpng-1.6.35.tar.gz
+cd libpng-1.6.35
 ./configure --prefix=$PREFIX --disable-shared CPPFLAGS=-I$PREFIX/include LDFLAGS=-L$PREFIX/lib
 make
 make install

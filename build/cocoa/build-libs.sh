@@ -14,8 +14,8 @@ make
 make install
 cd ..
 
-tar xzf ../../libsrc/libpng-1.6.28.tar.gz
-cd libpng-1.6.28
+tar xzf ../../libsrc/libpng-1.6.35.tar.gz
+cd libpng-1.6.35
 ./configure --prefix=$PREFIX --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch i386 -arch x86_64 -mmacosx-version-min=10.6" LDFLAGS="-L$PREFIX/lib -arch i386 -arch x86_64 -mmacosx-version-min=10.6"
 make
 make install
