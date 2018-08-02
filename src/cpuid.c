@@ -10,12 +10,12 @@
  *  2016-06-11 作成
  */
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include "suika.h"
 #include "cpuid.h"
+
+#ifdef WIN
+#include <windows.h>
+#endif
 
 bool has_avx512;
 bool has_avx2;
@@ -27,7 +27,7 @@ bool has_sse2;
 bool has_sse;
 bool has_mmx;
 
-#ifdef _WIN32
+#ifdef WIN
 static void clear_sse_flags_by_os_version(void);
 #endif
 
