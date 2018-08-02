@@ -63,7 +63,6 @@ SRCS_C = \
 	$(SRCS_SSE) \
 	../../src/aunit.c
 
-
 SRCS_M = \
 	../../src/nsmain.m
 
@@ -99,20 +98,20 @@ include ../sse.mk
 #
 
 install: Suika
-	cp -av Suika ../../mac/Suika.app/Contents/MacOS/Suika
-	cp -av ../../suika2/COPYING ../../mac/Suika.app
-	cp -Rav ../../suika2/conf ../../mac/Suika.app
-	cp -Rav ../../suika2/se ../../mac/Suika.app
-	cp -Rav ../../suika2/bg ../../mac/Suika.app
-	cp -Rav ../../suika2/cv ../../mac/Suika.app
-	cp -Rav ../../suika2/bgm ../../mac/Suika.app
-	cp -Rav ../../suika2/font ../../mac/Suika.app
-	cp -Rav ../../suika2/cg ../../mac/Suika.app
-	cp -av ../../suika2/tool/package-mac ../../mac/tool/
-	cp -Rav ../../suika2/ch ../../mac/Suika.app
-	cp -Rav ../../suika2/txt ../../mac/Suika.app
-	rm -rf ../../mac/Suika.app/sav
-	rm -f ../../mac/Suika.app/log.txt
+	cp -av Suika ../../suika2-mac/Suika.app/Contents/MacOS/Suika
+	cp -av ../../suika2/COPYING ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/conf ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/se ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/bg ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/cv ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/bgm ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/font ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/cg ../../suika2-mac/Suika.app
+	cp -av ../../suika2/tool/package-mac ../../suika2-mac/tool/
+	cp -Rav ../../suika2/ch ../../suika2-mac/Suika.app
+	cp -Rav ../../suika2/txt ../../suika2-mac/Suika.app
+	rm -rf ../../suika2-mac/Suika.app/sav
+	rm -f ../../suika2-mac/Suika.app/log.txt
 
 clean:
 	rm -rf Suika $(OBJS) *~ log.txt sav tmp

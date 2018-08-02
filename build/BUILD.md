@@ -2,27 +2,32 @@ How to build
 ============
 
 * Windows Binary
-    * On Ubuntu 18.04, install following package.
-	    * mingw-w64
-    * Enter `build/mingw` directory.
+    * We use cross compiler to build Windows binary.
+    * On Ubuntu 18.04, install following packages.
+        * mingw-w64
+        * wine-stable
+    * In terminal, enter `build/mingw` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to deploy Suika2 binary.
+        * Run `make run` to run Suika2 by Wine.
 
 * Mac Binary
-    * On Mac OS 10.11, install Xcode7 and command line tools.
-    * Enter `build/cocoa` directory
+    * On Mac OS 10.13, install Xcode and command line tools.
+    * In terminal, enter `build/cocoa` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to deploy Suika2 binary.
-    * Open `mac` folder on Finder and run Suika.app.
+    * In Finder, open `suika2-mac` folder.
+        * Copy `Suika.app` to `/Applications`
+		* Open `/Applications/Suika.app`
 
 * Linux Binary
     * On Ubuntu 18.04, install following packages.
         * libasound2-dev
         * libX11-dev
         * libxpm-dev
-    * Enter `build/linux`
+    * In terminal, enter `build/linux` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to deploy Suika2 binary.
