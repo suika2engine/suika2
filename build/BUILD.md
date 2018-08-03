@@ -13,7 +13,7 @@ How to build
         * Run `make run` to run Suika2 by Wine.
 
 * Mac Binary
-    * On Mac OS 10.13, install command line development tools.
+    * On Mac OS 10.13, install command line developer tools.
     * In terminal, enter `build/cocoa` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
