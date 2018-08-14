@@ -1,21 +1,31 @@
-![demo](https://github.com/ktabata/suika2/raw/master/doc/icon.png "icon") Suika 2
+![icon](https://github.com/ktabata/suika2/raw/master/doc/icon.png "icon") Suika 2
 =================================================================================
 
 Suika 2 is a simple game engine that runs on both Windows and Mac. You can enjoy producing impressive visual novels using Suika 2.
 
-## Description
+## Demo
 
-In a strict sense, Suika 2 runs on Windows, Mac, Linux and Android. It's portable!
+![demo](https://github.com/ktabata/suika2/raw/master/doc/screenshot.jpg "screenshot")
 
 ## Portability
+
+In a strict sense, Suika 2 runs on Windows, Mac, Linux and Android. It's portable!
 
 Suika 2 is consist of platform independent part and hardware abstraction layer (HAL). Platform independent part is written in ANSI C with some GCC pragmas. HALs are currently written in C, Objective-C and Java.
 
 If you want to port Suika 2 to a new target platform, it is only necessary to write a HAL.
 
-## Demo
+## Contribution
 
-![demo](https://github.com/ktabata/suika2/raw/master/doc/screenshot.png "screenshot")
+Please write a issue with a light heart. Any and all feedback is welcome.
+
+## Build
+
+See build/BUILD.md
+
+## License
+
+MIT license.
 
 ## Usage
 
@@ -33,19 +43,3 @@ If you want to port Suika 2 to a new target platform, it is only necessary to wr
     * `git clone` the repository or download the zip file.
 	* Enter `suika2` directory in terminal.
 	* run `./suika-linux`
-
-## Contribution
-
-Please write a issue with a light heart. Any and all feedback is welcome.
-
-## Build
-
-See build/BUILD.md
-
-## License
-
-MIT license.
-
-## Author
-
-[ktabata](https://github.com/ktabata)
