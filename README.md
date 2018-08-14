@@ -17,7 +17,7 @@ If you want to port Suika 2 to a new target platform, it is only necessary to wr
 
 ## Contribution
 
-Please write a issue with a light heart. Any and all feedback is welcome.
+Please write an issue with a light heart. Any and all feedback is welcome.
 
 ## Build
 
