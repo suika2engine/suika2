@@ -1,7 +1,7 @@
 ![icon](https://github.com/ktabata/suika2/raw/master/doc/icon.png "icon") Suika 2
 =================================================================================
 
-Suika 2 is a simple game engine that runs on both Windows and Mac. You can enjoy producing impressive visual novels using Suika 2.
+Suika 2 is a portable game engine that runs on both Windows and Mac. You can enjoy producing impressive visual novels using Suika 2.
 
 ## Demo
 
@@ -9,7 +9,7 @@ Suika 2 is a simple game engine that runs on both Windows and Mac. You can enjoy
 
 ## Portability
 
-In a strict sense, Suika 2 runs on Windows, Mac, Linux and Android. It's portable!
+In a strict sense, Suika 2 runs on Windows, Mac, Linux and Android.
 
 Suika 2 is consist of platform independent part and hardware abstraction layer (HAL). Platform independent part is written in ANSI C with some GCC pragmas. HALs are currently written in C, Objective-C and Java.
 
@@ -25,21 +25,22 @@ See build/BUILD.md
 
 ## License
 
-MIT license.
+This software is released under the MIT license. See suika2/COPYING.
 
 ## Usage
 
 * On Windows:
     * `git clone` the repository or download the zip file.
-	* Open `suika2` folder in Explorer.
-	* Double click `suika.exe`
+    * Open `suika2` folder in Explorer.
+    * Double click `suika.exe`
 
 * On Mac:
     * `git clone` the repository or download the zip file.
     * Open `suika2-mac` folder in Finder.
-	* Copy `Suika` to the `/Applications` folder.
+    * Copy `Suika` to the `/Applications` folder. This step is necessary.
+    * Double click `Suika` in the `/Application` folder.
 
 * On Linux:
     * `git clone` the repository or download the zip file.
-	* Enter `suika2` directory in terminal.
-	* run `./suika-linux`
+    * Enter `suika2` directory in terminal.
+    * run `./suika-linux`
