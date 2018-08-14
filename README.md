@@ -19,7 +19,11 @@ If you want to port Suika 2 to a new target platform, it is only necessary to wr
 
 Please write an issue with a light heart. Any and all feedback is welcome.
 
-## Build
+## Prebuilt Binaries
+
+Download the binaries from [the official web site.](http://luxion.jp/s2/dl.html)
+
+## Build from Source
 
 See build/BUILD.md
 
