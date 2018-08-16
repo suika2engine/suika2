@@ -80,6 +80,7 @@ static int return_point;	/* 最後にgosubが実行された行番号 */
 static bool read_script_from_file(const char *fname);
 static bool parse_insn(int index, const char *fname, int line,
 		       const char *buf);
+static char *strtok_escape(char *buf);
 static bool parse_serif(int index, const char *fname, int line,
 			const char *buf);
 static bool parse_message(int index, const char *fname, int line,
@@ -486,7 +487,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 	}
 
 	/* 最初のトークンを切り出す */
-	strtok(c->param[0], " ");
+	strtok_escape(c->param[0]);
 
 	/* コマンドのタイプを取得する */
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
@@ -505,7 +506,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 
 	/* 2番目以降のトークンを取得する */
 	i = 1;
-	while ((tp = strtok(NULL, " "))  != NULL && i < PARAM_SIZE) {
+	while ((tp = strtok_escape(NULL))  != NULL && i < PARAM_SIZE) {
 		c->param[i] = tp;
 		i++;
 	}
@@ -523,6 +524,46 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 	}
 
 	return true;
+}
+
+/* ダブルクォーテーションでエスケープ可能なトークナイズを実行する */
+static char *strtok_escape(char *buf)
+{
+	static char *top = NULL;
+	char *result;
+
+	/* 初回呼び出しの場合バッファを保存する */
+	if (buf != NULL)
+		top = buf;
+	assert(top != NULL);
+
+	/* すでにバッファの終端に達している場合NULLを返す */
+	if (*top == '\0')
+		return NULL;
+
+	/* 先頭のスペースをスキップする */
+	for (; *top != '\0' && *top == ' '; top++)
+		;
+	if (*top == '\0')
+		return NULL;
+
+	/* エスケープされている場合 */
+	if (*top == '\"') {
+		result = ++top;
+		for (; *top != '\0' && *top != '\"'; top++)
+			;
+		if (*top == '\"')
+			*top++ = '\0';
+		return result;
+	}
+	
+	/* エスケーブされていない場合 */
+	result = top;
+	for (; *top != '\0' && *top != ' '; top++)
+		;
+	if (*top == ' ')
+		*top++ = '\0';
+	return result;
 }
 
 /* セリフ行をパースする */
