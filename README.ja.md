@@ -11,7 +11,7 @@ Suika 2はWindowsとMacの両方で動くアドベンチャーゲームエンジ
 
 正確に言えば、Suika 2はWindowsとMac、Linux、そしてAndroidで動作します。
 
-Suika 2はプラットフォーム非依存部とハードウェア抽象化レイヤ(HAL)から成ります。プラットフォーム非依存部はANSI Cと少しのGCC pragmaで書かれています。HALは今のところ、C、Objective-C、そしてJavaで書かれています。
+Suika 2はプラットフォーム非依存部とハードウェア抽象化レイヤ(HAL)から成ります。プラットフォーム非依存部はANSI Cと少しのGCC pragmaで書かれています。HALは今のところ、C、Objective-C、アセンブラ、そしてJavaで書かれています。
 
 あなたがもしSuika 2を新しいプラットフォームに移植したければ、HALを記述するだけで済みます。
 
