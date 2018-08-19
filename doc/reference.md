@@ -3,42 +3,42 @@ Suika 2 Command Reference
 
 ## @bg
 
-Change background image.
-After changing background image,
-character images vanish from stage.
+This command changes the background image.
+After changing the background image,
+character images vanish from the stage.
 
-* Usage 1: Change background image to `sample.png` with fade-in time 1.5 sec.
+* Usage 1: Changes the background image to `sample.png` with a 1.5 second fade-in time.
 ```
 @bg sample.png 1.5
 ```
 
-* Usage 2: Change background image to `sample.png` immediately.
+* Usage 2: Changes the background image to `sample.png` immediately.
 ```
 @bg sample.png
 ```
 
-* Usage 3: Change background image to `sample.png` with fade-in time 1.5 sec. Fading type is curtain.
+* Usage 3: Changes the background image to `sample.png` with a 1.5 second fade-in time. Fading type is curtain.
 ```
 @bg sample.png 1.5 c
 ```
 
 ## @bgm
 
-Play BGM.
-BGM files are required to be stored in `bgm` folder.
-Suika 2 can play only Ogg Vorbis 44.1kHz stereo or monaural format.
+This command plays BGM.
+BGM files need to be stored in the `bgm` folder.
+Suika 2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
-* Usage 1: Play `sample.ogg`.
+* Usage 1: Plays `sample.ogg`.
 ```
 @bgm sample.ogg
 ```
 
-* Usage 2: Stop BGM.
+* Usage 2: Stops BGM.
 ```
 @bgm stop
 ```
 
-* Application: Fade-out BGM in 2 sec.
+* Application: Fade-out BGM in 2 seconds.
 ```
 @vol bgm 0 2
 @wait 2
@@ -47,7 +47,7 @@ Suika 2 can play only Ogg Vorbis 44.1kHz stereo or monaural format.
 
 ## @ch
 
-Change character.
+This command changes the character.
 
 * Character positions are:
     * `center` (front center)
@@ -55,7 +55,7 @@ Change character.
     * `left`
     * `back` (back center)
 
-* Usage 1: Display `sample.png` in 0.5 sec at front center.
+* Usage 1: Displays `sample.png` in 0.5 seconds at front center.
 ```
 @ch center sample.png 0.5
 ```
@@ -65,20 +65,20 @@ Change character.
 @ch c sample.png 0.5
 ```
 
-* Usage 3: Specify `none` to vanish character.
+* Usage 3: Specifying `none` will cause the character to vanish.
 ```
 @ch c none 0.5
 ```
 
-* Usage 4: Change is applied immediately when fade-in time is not specified.
+* Usage 4: Changes are applied immediately when the fade-in time is not specified.
 ```
 @ch c sample.png
 ```
 
 ## @click
 
-Wait for a click.
-While waiting for a click, message box is hidden.
+This command instructs Suika 2 to wait for a click before continuing.
+While waiting for a click, the message box is hidden.
 
 * Usage:
 ```
@@ -87,32 +87,32 @@ While waiting for a click, message box is hidden.
 
 ## @gosub
 
-Jump to subroutine. Use `@return` to return.
+This command jumps to the specified subroutine. Use `@return` to return.
 
-* Usage: Run subroutine `SUB`.
+* Usage: Runs subroutine `SUB`.
 ```
 @gosub SUB
 
 :SUB
-Describe process here.
+Describe the process here.
 @return
 ```
 
 ## @goto
 
-Jump to label.
-Use `@goto` to make a loop, or break a loop.
+This command jumps to a label.
+Use `@goto` to make or break a loop.
 
-* Usage: Jump to label `abc` (loop).
+* Usage: Jumps to the label `abc` (loop).
 ```
 :abc
-Describe process here.
+Describe the process here.
 @goto abc
 ```
 
 ## @if
 
-Jump to label if condition is true.
+This command jumps to the specified label if the specified condition is true.
 
 * Available operators are:
     * `>` greater than
@@ -122,11 +122,11 @@ Jump to label if condition is true.
     * `<` less than
     * `!=` not equal to
 
-* LHS must be a variable name e.g. `$1`
+* LHS must be a variable name (e.g., `$1`).
 
-* RHS must be a integer or a variable name.
+* RHS must be an integer or a variable name.
 
-* Usage 1: Jump to label `abc` if variable at number 1 is greater than or equal to 10.
+* Usage 1: Jumps to the label `abc` if the variable at number 1 is greater than or equal to 10.
 ```
 @if $1 >= 10 abc
 Variable 1 is less than 10.
@@ -135,14 +135,14 @@ Variable 1 is less than 10.
 
 ## @menu
 
-Display menu using two images.
+This command displays a menu using two images.
 `@menu` can create up to four buttons.
 
 Basically the first image is displayed,
-but while a button is pointed by mouse,
+but while a button is pointed at by the mouse,
 the area of the button is changed to the second image.
 
-Menu is not cancelable by right click.
+Menus can't be canceled using right click.
 
 * Usage:
 ```
@@ -152,8 +152,8 @@ Menu is not cancelable by right click.
 
 ## Label
 
-Create label to be a jump target.
-Use with `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch`.
+This creates a label to be used as a jump target.
+Use with `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect`, and `@switch`.
 
 * Usage:
 ```
@@ -164,10 +164,10 @@ Show some messages.
 
 ## Message
 
-Print text to the message box.
+Prints text to the message box.
 
-* Use `\n` to insert line feed.
-* Use `$ + number` to show value of variable. (e.g. $1)
+* Use `\n` to insert a line feed.
+* Use `$ + number` to show the value of a variable (e.g., $1).
 
 * Usage:
 ```
@@ -176,33 +176,33 @@ Hello, world!
 
 ## @load
 
-Jump to other script.
-Script files are required to be in `txt` folder.
+This command jumps to another script.
+Script files need to be in the `txt` folder.
 
-* Usage: Jump to script file `001.txt`.
+* Usage: Jumps to the script file `001.txt`.
 ```
 @load 001.txt
 ```
 
 ## @retrospect
 
-Execute event image catalog mode.
-In a similar way to `@menu`, `@retrospect` uses two images.
+This command executes event image catalog mode.
+Similarly to `@menu`, `@retrospect` uses two images.
 
 * The difference between `@menu` and `@retrospect` is:
     * `@retrospect` can create up to twelve buttons.
-    * `@retrospect` can specify variable to button. If the value of the variable is 0, the button is hidden.
-    * `@retrospect` is cancelable by right click.
+    * `@retrospect` can hook variables to buttons. If the value of the variable is 0, the button is hidden.
+    * `@retrospect` can be canceled using right click.
 
 * `@retrospect` has many parameters.
     * background image.
     * background image (selected button).
-    * RGB values to fill buttons when specified variable is `0`.
-    * Width of buttons, height of buttons
-    * To the number of buttons:
-        * Jump target label
-        * Variable to check
-        * X and Y position of button
+    * RGB values to fill buttons when the specified variable is `0`.
+    * The width and height of buttons.
+    * For each button:
+        * The jump target label.
+        * The variable to check.
+        * The X and Y position of the button.
 
 * Usage:
 ```
@@ -217,22 +217,22 @@ Canceled.
 
 ## @return
 
-Return from subroutine.
+This is used to return from subroutines.
 
 * Usage:
 ```
 @gosub SUB
 
 :SUB
-Describe process here.
+Describe the process here.
 @return
 ```
 
 ## @se
 
-Play sound effecct.
-Sound effect files are required to be in `se` folder.
-Suika 2 can play only Ogg Vorbis 44.1kHz stereo or monaural format.
+This command plays sound effects.
+Sound effect files need to be in the `se` folder.
+Suika 2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
 * Usage:
 ```
@@ -241,7 +241,7 @@ Suika 2 can play only Ogg Vorbis 44.1kHz stereo or monaural format.
 
 ## @select
 
-Show options and jump to label.
+This command shows options and jumps to the specified label.
 The number of options is fixed to three.
 
 * Usage:
@@ -260,36 +260,36 @@ Good evening.
 
 ## Message with character name
 
-Print text to the message box, and print character name to name box.
+This prints text to the message box, and the character name to the name box.
 
-Suika 2 can play voice when printing message.
-Voice files are required to be in `voice` folder.
-Suika 2 can play only Ogg Vorbis 44.1kHz stereo or monaural format.
+Suika 2 can play voice files when printing messages.
+Voice files need to be in the `voice` folder.
+Suika 2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
-* Usage 1: Print message with character name.
+* Usage 1: Prints a message with the character name.
 ```
 *Name*Hello, world!
 ```
 
-* Usage 2: Print message with character name and voice.
+* Usage 2: Prints a message with the character name and plays the character's voice.
 ```
 *Name*001.ogg*Hello, world!
 ```
 
-* Usage 3: Print message with character name and beep.
+* Usage 3: Prints a message with the character name and plays a beep.
 ```
 *Name*@beep.ogg*Hello, world!
 ```
 
 ## @set
 
-Set value to variable.
+This sets a value to a variable.
 
 Local variables are `$0` to `$9999`.
-Local variable is stored in every save data.
+Local variables are stored in all save data.
 
 Global variables are `$10000` to `$10999`.
-Global variable is stored commonly across all save data.
+Global variables are stored commonly across all save data.
 
 * Available operators are:
     * `=` (assignment)
@@ -297,56 +297,56 @@ Global variable is stored commonly across all save data.
     * `-=` (subtraction)
     * `*=` (multiplication)
     * `/=` (division)
-    * `%=` (remainer)
+    * `%=` (remainder)
 
-Initial value of variable is `0`.
+The initial value of a variable is `0`.
 
-* Usage 1: Set value `1` to variable `$0`.
+* Usage 1: Sets a value of `1` to the variable `$0`.
 ```
 @set $0 = 1
 ```
 
-* Usage2: Add value`23` to variable `$10`.
+* Usage 2: Adds the value `23` to the variable `$10`.
 ```
 @set $10 += 23
 ```
 
-* Usage 3: Set random number (0 to 2147483647) to variable `$0`.
+* Usage 3: Sets a random number (from 0 to 2147483647) to the variable `$0`.
 ```
 @set $0 = $RAND
 ```
 
-* Usage 4: Add value of variable `$2` to variable `$1`.
+* Usage 4: Adds the value of the variable `$2` to the variable `$1`.
 ```
 @set $1 += $2
 ```
 
 ## @switch
 
-Show up to two levels of options.
-Number of parent options are eight,
+Shows up to two levels of options.
+The number of parent options are eight,
 and each parent option has eight child options.
 
-* Usage 1: Show one level options.
+* Usage 1: Shows one level option.
 ```
 @switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * *
 ```
 
-* Usage 2: Show two levels options.
+* Usage 2: Shows two level options.
 ```
 @switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 "Child option 1" LABEL2 "Child option 2" * * * * * * * * * * * * LABEL3 "Child option 3" LABEL4 "Child option 4" * * * * * * * * * * * *
 ```
 
 ## @vol
 
-Set sound volume.
+This command sets the sound volume.
 
 * Sound channels are:
-    * `bgm` for BGM
-    * `voice` for voice
-    * `se` for sound effect
+    * `bgm` for BGM.
+    * `voice` for voice.
+    * `se` for sound effects.
 
-* Usage 1: Set BGM volume to 0.5 in 1 sec.
+* Usage 1: Sets BGM volume to 0.5 in 1 second.
 ```
 @vol bgm 0.5 1.0
 ```
@@ -358,11 +358,11 @@ Set sound volume.
 
 ## @wait
 
-Wait.
-Keyboard input and mouse click interrupt `@wait`.
-Message box is hidden while `@wait`.
+This command instructs Suika 2 to wait for input from the keyboard or mouse before continuing.
+Input from the keyboard or mouse will interrupt `@wait` (thus allowing Suika 2 to continue).
+While waiting for input, the message box is hidden.
 
-* Usage: Wait of 5 sec.
+* Usage: Waits for 5 seconds.
 ```
 @wait 5.0
 ```
