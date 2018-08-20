@@ -1,0 +1,9 @@
+build/linux/*.o
+build/linux/libroot
+build/linux/suika
+build/mingw/*.o
+build/mingw/libroot
+build/mingw/suika.exe
+build/cocoa/*.o
+build/cocoa/libroot
+build/cocoa/Suika

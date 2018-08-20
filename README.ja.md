@@ -43,4 +43,4 @@ build/BUILD.md を見てください。
 * Linuxでは:
     * リポジトリを`git clone`するか、ZIPファイルをダウンロードしてください。
     * ターミナルで `suika2` ディレクトリに入ってください。
-    * `./suika-linux` を実行してください。
+    * `./suika-linux64` を実行してください。

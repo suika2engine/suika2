@@ -47,4 +47,4 @@ This software is released under the MIT license. See suika2/COPYING.
 * On Linux:
     * `git clone` the repository or download the zip file.
     * Enter `suika2` directory in terminal.
-    * run `./suika-linux`
+    * run `./suika-linux64`
