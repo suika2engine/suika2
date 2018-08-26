@@ -97,14 +97,28 @@ include ../sse.mk
 # Phony rules
 #
 
-run: suika.exe
-	cp suika.exe ../../suika2; cd ../../suika2; wine suika.exe
+package: suika.exe
+	rm -rf suika2
+	mkdir suika2
+	cp -Rv ../../game/bg suika2/
+	cp -Rv ../../game/bgm suika2/
+	cp -Rv ../../game/cg suika2/
+	cp -Rv ../../game/ch suika2/
+	cp -Rv ../../game/conf suika2/
+	cp -Rv ../../game/cv suika2/
+	cp -Rv ../../game/font suika2/
+	cp -Rv ../../game/se suika2/
+	mkdir suika2/tool
+	cp -v ../../tool/package-win.exe suika2/tool/
+	cp -Rv ../../game/txt suika2/
+	cp -v ../../game/COPYING suika2/
+	cp -v ../../game/readme.en.html suika2/
+	cp -v ../../game/readme.ja.html suika2/
+	cp -v suika.exe suika2/
+	zip -r suika-2.x.x-win.zip suika2
 
-install: suika.exe
-	cp suika.exe ../../suika2
+run: suika.exe
+	cd suika2 && wine suika.exe
 
 clean:
-	rm -rf *.o *~ suika.exe log.txt sav tmp
-
-erase:
-	rm -rf libroot
+	rm -rf *.o *~ suika.exe log.txt sav tmp libroot suika2 suika-2.x.x-win.zip

@@ -97,24 +97,29 @@ include ../sse.mk
 # Phony rules
 #
 
-install: Suika
-	cp -av Suika ../../suika2-mac/Suika.app/Contents/MacOS/Suika
-	cp -av ../../suika2/COPYING ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/conf ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/se ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/bg ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/cv ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/bgm ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/font ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/cg ../../suika2-mac/Suika.app
-	cp -av ../../suika2/tool/package-mac ../../suika2-mac/tool/
-	cp -Rav ../../suika2/ch ../../suika2-mac/Suika.app
-	cp -Rav ../../suika2/txt ../../suika2-mac/Suika.app
-	rm -rf ../../suika2-mac/Suika.app/sav
-	rm -f ../../suika2-mac/Suika.app/log.txt
+package: suika
+	rm -rf suika2
+	mkdir suika2
+	cp -Rav Suika.app suika2/
+	cp -av Suika suika2/Suika.app/Contents/MacOS/Suika
+	cp -Rv ../../game/bg suika2/Suika.app/
+	cp -Rv ../../game/bgm suika2/Suika.app/
+	cp -Rv ../../game/cg suika2/Suika.app/
+	cp -Rv ../../game/ch suika2/Suika.app/
+	cp -Rv ../../game/conf suika2/Suika.app/
+	cp -Rv ../../game/cv suika2/Suika.app/
+	cp -Rv ../../game/font suika2/Suika.app/
+	cp -Rv ../../game/se suika2/Suika.app/
+	mkdir suika2/tool
+	cp -v ../../tool/package-mac suika2/tool/
+	cp -Rv ../../game/txt suika2/Suika.app/
+	cp -v ../../game/COPYING suika2/
+	cp -v ../../game/readme.en.html suika2/
+	cp -v ../../game/readme.ja.html suika2/
+	zip -r suika-2.x.x-mac.zip suika2
 
 clean:
-	rm -rf Suika $(OBJS) *~ log.txt sav tmp
+	rm -rf Suika $(OBJS) *~ log.txt sav tmp libroot suika2 suika-2.x.x-mac.zip
 
 erase:
 	rm -rf libroot

@@ -1,9 +1,15 @@
 build/linux/*.o
 build/linux/libroot
 build/linux/suika
+build/linux/suika2
+build/linux/suika-2.x.x-linux64.zip
 build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
+build/mingw/suika2
+build/mingw/suika-2.x.x-win.zip
 build/cocoa/*.o
 build/cocoa/libroot
 build/cocoa/Suika
+build/cocoa/suika2
+build/cocoa/suika-2.x.x-mac.zip

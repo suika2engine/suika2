@@ -9,7 +9,7 @@ How to build
     * In terminal, enter `build/mingw` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
-        * Run `make install` to deploy Suika2 binary.
+        * Run `make package` to create release zip file.
         * Run `make run` to run Suika2 by Wine.
 
 * Mac Binary
@@ -17,8 +17,8 @@ How to build
     * In terminal, enter `build/cocoa` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
-        * Run `make install` to deploy Suika2 binary.
-    * In Finder, open `suika2-mac` folder.
+        * Run `make package` to create release zip file.
+    * In Finder, open `build/cocoa/suika2` folder.
         * Copy `Suika.app` to `/Applications`
         * Open `/Applications/Suika.app`
 
@@ -30,5 +30,5 @@ How to build
     * In terminal, enter `build/linux` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
-        * Run `make install` to deploy Suika2 binary.
+        * Run `make package` to create release zip file.
         * Run `make run` to run Suika2.

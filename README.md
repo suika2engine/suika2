@@ -21,7 +21,7 @@ Please write an issue with a light heart. Any and all feedback is welcome.
 
 ## Prebuilt Binaries
 
-Download the binaries from [the official web site.](http://luxion.jp/s2/dl.html)
+Download the binaries from [the official web site.](http://luxion.jp/s2/)
 
 ## Build from Source
 
@@ -29,22 +29,22 @@ See build/BUILD.md
 
 ## License
 
-This software is released under the MIT license. See suika2/COPYING.
+This software is released under the MIT license. See game/COPYING.
 
 ## Usage
 
 * On Windows:
-    * `git clone` the repository or download the zip file.
+    * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Explorer.
     * Double click `suika.exe`
 
 * On Mac:
-    * `git clone` the repository or download the zip file.
-    * Open `suika2-mac` folder in Finder.
+    * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
+    * Open `suika2` folder in Finder.
     * Copy `Suika` to the `/Applications` folder. This step is necessary.
     * Double click `Suika` in the `/Application` folder.
 
 * On Linux:
-    * `git clone` the repository or download the zip file.
+    * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
     * Enter `suika2` directory in terminal.
     * run `./suika-linux64`
