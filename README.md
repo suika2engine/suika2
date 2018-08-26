@@ -42,7 +42,7 @@ This software is released under the MIT license. See game/COPYING.
     * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Finder.
     * Copy `Suika` to the `/Applications` folder. This step is necessary.
-    * Double click `Suika` in the `/Application` folder.
+    * Double click `Suika` in the `/Applications` folder.
 
 * On Linux:
     * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
