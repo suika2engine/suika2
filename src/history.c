@@ -14,9 +14,17 @@
 
 #include "suika.h"
 
-/* 句読点のUnicodeコードポイント */
+/* Unicodeコードポイント */
+#define CHAR_SPACE	(0x0020)
+#define CHAR_COMMA 	(0x002c)
+#define CHAR_PERIOD	(0x002e)
+#define CHAR_COLON	(0x003a)
+#define CHAR_SEMICOLON  (0x003b)
 #define CHAR_TOUTEN	(0x3001)
 #define CHAR_KUTEN	(0x3002)
+#define CHAR_BACKSLASH	(0x005c)
+#define CHAR_YENSIGN	(0x00a5)
+#define CHAR_SMALLN	(0x006e)
 
 /* テキストのサイズ(名前とメッセージを連結するため) */
 #define TEXT_SIZE	(1024)
@@ -62,6 +70,7 @@ static int pointed_index;
 /* 前方参照 */
 static void draw_page(int *x, int *y, int *w, int *h);
 static bool draw_message(int *pen_x, int *pen_y, int index);
+static int get_en_word_width(const char *text);
 static void update_pointed_index(void);
 static bool play_voice(void);
 
@@ -342,6 +351,7 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 	const char *text;
 	uint32_t c;
 	int mblen, width, height;
+	bool is_after_space = true, escaped = false;
 
 	/* テキストの描画開始Y座標を記録する */
 	history[index].y_top = *pen_y;
@@ -349,10 +359,43 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 	/* 1文字ずつ描画する */
 	text = history[index].text;
 	while (*text != '\0') {
+		/* ワードラッピングを処理する */
+		if (is_after_space) {
+			if (*pen_x + get_en_word_width(text) >=
+			    conf_window_width - conf_history_margin_right) {
+				*pen_y += conf_history_margin_line;
+				*pen_x = conf_history_margin_left;
+			}
+		}
+		is_after_space = *text == ' ';
+
 		/* 描画する文字を取得する */
 		mblen = utf8_to_utf32(text, &c);
 		if (mblen == -1)
 			return false;
+
+		/* エスケープの処理 */
+		if (!escaped) {
+			/* エスケープ文字であるとき */
+			if (c == CHAR_BACKSLASH || c == CHAR_YENSIGN) {
+				escaped = true;
+				text += mblen;
+				continue;
+			}
+		} else if (escaped) {
+			/* エスケープされた文字であるとき */
+			if (c == CHAR_SMALLN) {
+				*pen_y += conf_history_margin_line;
+				*pen_x = conf_history_margin_left;
+				escaped = false;
+				text += mblen;
+				continue;
+			}
+
+			/* 不明なエスケープシーケンスの場合 */
+			escaped = false;
+		}
+
 
 		/* 描画する文字の幅を取得する */
 		width = get_glyph_width(c);
@@ -360,7 +403,9 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 		/* メッセージボックスの幅を超える場合、改行する */
 		if ((*pen_x + width + conf_history_margin_right >=
 		     conf_window_width) &&
-		    (c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
+		    (c != CHAR_SPACE && c != CHAR_COMMA && c != CHAR_PERIOD &&
+		     c != CHAR_COLON && c != CHAR_SEMICOLON &&
+		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
 			*pen_y += conf_history_margin_line;
 			*pen_x = conf_history_margin_left;
 		}
@@ -386,6 +431,20 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 	history[index].y_bottom = *pen_y - 1;
 
 	return true;
+}
+
+/* textが英単語であればその描画幅、それ以外の場合0を返す */
+static int get_en_word_width(const char *text)
+{
+	const char *m;
+	int width;
+
+	m = text;
+	width = 0;
+	while (isalnum(*m))
+		width += get_glyph_width((unsigned char)*m++);
+
+	return width;
 }
 
 /* ポイントされている項目を更新する */
