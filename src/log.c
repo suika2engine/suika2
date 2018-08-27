@@ -14,16 +14,19 @@
 #include <stddef.h>
 #include <assert.h>
 
-#include "log.h"
-#include "platform.h"
-#include "script.h"
+#include "suika.h"
+
+static bool is_english_mode(void);
 
 /*
  * APIのエラーを記録する
  */
 void log_api_error(const char *api)
 {
-	log_error("API %s が失敗しました。\n", api);
+	if (is_english_mode())
+		log_error("API %s が失敗しました。\n", api);
+	else
+		log_error("API %s failed.\n", api);
 }
 
 /*
@@ -271,7 +274,10 @@ void log_script_var_index(int index)
  */
 void log_undefined_conf(const char *key)
 {
-	log_error("コンフィグに%sが記述されていません。\n", key);
+	if (is_english_mode())
+		log_error("コンフィグに%sが記述されていません。\n", key);
+	else
+		log_error("Missing %s in config.txt\n", key);
 }
 
 /*
@@ -279,8 +285,13 @@ void log_undefined_conf(const char *key)
  */
 void log_unknown_conf(const char *key)
 {
-	log_error("コンフィグの%sは認識されません。\n",
-		  conv_utf8_to_native(key));
+	if (is_english_mode()) {
+		log_error("コンフィグの%sは認識されません。\n",
+			  conv_utf8_to_native(key));
+	} else {
+		log_error("Configuration key %s is not recognized.\n",
+			  conv_utf8_to_native(key));
+	}
 }
 
 /*
@@ -291,4 +302,17 @@ void log_wave_error(const char *fname)
 	assert(fname != NULL);
 	log_error("ファイル%sの再生に失敗しました。\n",
 		  conv_utf8_to_native(fname));
+}
+
+/* 英語モードであるかチェックする */
+static bool is_english_mode(void)
+{
+	/* コンフィグlanguageが未指定の場合 */
+	if (conf_language == NULL)
+		return false;
+
+	if (strcmp(conf_language, "English") == 0)
+		return true;
+
+	return false;
 }

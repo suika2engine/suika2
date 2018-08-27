@@ -1,4 +1,11 @@
 ###
+### Language Setting
+###
+
+# Uncomment this line to setup English mode.
+#language=English
+
+###
 ### ウィンドウの設定
 ###
 
@@ -11,7 +18,7 @@ window.width=1280
 # ウィンドウの高さ
 window.height=720
 
-# 背景を白にするか(trueなら白、falseなら黒)
+# 背景を白にするか(1なら白、0なら黒)
 window.white=1
 
 ###

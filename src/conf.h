@@ -19,12 +19,17 @@
 #include "types.h"
 
 /*
+ * 言語の設定
+ */
+extern char *conf_language;
+
+/*
  * ウィンドウの設定
  */
 extern char *conf_window_title;
 extern int conf_window_width;
 extern int conf_window_height;
-extern bool conf_window_white;
+extern int conf_window_white;
 
 /*
  * フォントの設定

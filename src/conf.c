@@ -14,12 +14,17 @@
 #include "suika.h"
 
 /*
+ * 言語の設定
+ */
+char *conf_language;
+
+/*
  * ウィンドウの設定
  */
 char *conf_window_title;
 int conf_window_width;
 int conf_window_height;
-bool conf_window_white;
+int conf_window_white;
 
 /*
  * フォントの設定
@@ -162,6 +167,7 @@ struct rule {
 	bool omissible;
 	bool loaded;
 } rule_tbl[] = {
+	{"language", 's', &conf_language, true, false},
 	{"window.title", 's', &conf_window_title, false, false},
 	{"window.width", 'i', &conf_window_width, false, false},
 	{"window.height", 'i', &conf_window_height, false, false},

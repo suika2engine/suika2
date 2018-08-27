@@ -134,8 +134,12 @@ bool register_message(const char *name, const char *msg, const char *voice)
 	/* 名前が指定されいる場合 */
 	if (name != NULL) {
 		/* "名前「メッセージ」"の形式に連結して保存する */
-		snprintf(text, TEXT_SIZE, "%s%c%c%c%s%c%c%c", name,
-			 0xe3, 0x80, 0x8c, msg, 0xe3, 0x80, 0x8d);
+		if (conf_language == NULL) {
+			snprintf(text, TEXT_SIZE, "%s%c%c%c%s%c%c%c", name,
+				 0xe3, 0x80, 0x8c, msg, 0xe3, 0x80, 0x8d);
+		} else {
+			snprintf(text, TEXT_SIZE, "%s: %s", name, msg);
+		}
 		h->text = strdup(text);
 		if (h->text == NULL) {
 			log_memory();
