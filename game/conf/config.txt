@@ -52,7 +52,7 @@ font.color.b=255
 ### 名前ボックスの設定
 ###
 
-# Name box file name
+# Name box image file name
 # 名前ボックス画像のファイル名
 namebox.file=namebox-blue.png
 
@@ -144,11 +144,11 @@ selbox.margin.y=10
 ### スイッチの設定
 ###
 
-# Switch box (non-selected) image file
+# Switch box (non-selected) image file name
 # スイッチ（非選択中）画像のファイル名
 switch.bg.file=switch-bg.png
 
-# Switch box (selected) image file
+# Switch box (selected) image file name
 # スイッチ（選択中）画像のファイル名
 switch.fg.file=switch-fg.png
 
@@ -178,11 +178,11 @@ switch.child.click.se.file=click.ogg
 ### セーブ・ロード画面の設定
 ###
 
-# Save/load screen image (non-selected)
+# Save/load screen (non-selected) image file name
 # 非選択状態の画像
 save.bg.file=save-bg.png
 
-# Save/load screen image (selected)
+# Save/load screen (selected) image file name
 # 選択状態の画像
 save.fg.file=save-fg.png
 
@@ -214,12 +214,12 @@ save.next.y=0
 save.next.width=128
 save.next.height=64
 
-# Size of a save data item
+# Size of each save data item
 # セーブデータ項目の大きさ
 save.data.width=384
 save.data.height=64
 
-# Text margin in a save data item
+# Text margin in each save data item
 # セーブデータ項目内のテキストマージン
 save.data.margin.left=10
 save.data.margin.top=10
