@@ -81,7 +81,7 @@ include ../sse.mk
 #
 
 package: suika
-	rm -rf suika2
+	rm -rf suika2 suika-2.x.x-linux64.zip
 	mkdir suika2
 	cp -Rv ../../game/bg suika2/
 	cp -Rv ../../game/bgm suika2/

@@ -98,7 +98,7 @@ include ../sse.mk
 #
 
 package: suika
-	rm -rf suika2
+	rm -rf suika2 suika-2.x.x-mac.zip
 	mkdir suika2
 	cp -Rav Suika.app suika2/
 	cp -av Suika suika2/Suika.app/Contents/MacOS/Suika
