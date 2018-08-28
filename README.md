@@ -22,7 +22,7 @@ Pull requests that correct my English are especially welcome.
 
 ## Prebuilt Binaries
 
-Download the binaries from [the official web site.](http://luxion.jp/s2/)
+Download the binaries from [the official web site.](https://luxion.jp/s2/)
 
 ## Build from Source
 
@@ -35,27 +35,30 @@ This software is released under the MIT license. See game/COPYING.
 ## Usage
 
 * On Windows:
-    * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
+    * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Explorer.
     * Double click `suika.exe`
 
 * On Mac:
-    * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
+    * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Finder.
     * Copy `Suika` to the `/Applications` folder. This step is necessary.
     * Double click `Suika` in the `/Applications` folder.
 
 * On Linux:
-    * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
+    * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
     * Enter `suika2` directory in terminal.
     * run `./suika-linux64`
 
-## Turn on English mode
+## Manuals
 
-* Open `conf/config.txt` by a text editor.
+* [Tutorial](https://github.com/ktabata/suika2/blob/master/doc/tutorial.md)
+* [Command Reference](https://github.com/ktabata/suika2/blob/master/doc/reference.md)
+
+## Enable English mode
+
+* Open `conf/config.txt` by a text editor other than Notepad.
 * You can find the following line:
-```
-#language=English
-```
+```#language=English```
 * Delete the heading character `#` and save the file.
 * You'll get the error messages in English.
