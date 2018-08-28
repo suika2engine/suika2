@@ -10,7 +10,7 @@ Are you ready? Let's get started!
 
 ## Preparation
 
-Firstly, [download](http://luxion.jp/s2/dl.html) the Suika 2 binary.
+Firstly, [download](https://luxion.jp/s2/en/) the Suika 2 binary.
 We use the Windows version here.
 
 Extract the downloaded ZIP file. We see the following file and folders.
