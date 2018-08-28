@@ -35,7 +35,10 @@ This tutorial makes changes to the sample game.
 ## Enable English mode
 
 * Open `conf/config.txt` by a text editor.
-* You can find the line `#language=English`.
+* You can find the following line:
+```
+#language=English
+```
 * Delete the heading character `#` and save the file.
 
 ## Open script file

@@ -53,6 +53,9 @@ This software is released under the MIT license. See game/COPYING.
 ## Turn on English mode
 
 * Open `conf/config.txt` by a text editor.
-* You can find the line `#language=English`.
+* You can find the following line:
+```
+#language=English
+```
 * Delete the heading character `#` and save the file.
 * You'll get the error messages in English.
