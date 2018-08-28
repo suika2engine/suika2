@@ -126,7 +126,7 @@ int main()
 	} else {
 		/* エラーメッセージを表示する */
 		if (log_fp != NULL)
-			printf(LOG_FILE "を確認してください。\n");
+			printf("Check " LOG_FILE "\n");
 
 		/* 失敗 */
 		ret = 1;
@@ -160,31 +160,31 @@ static bool init(void)
 
 	/* ALSAの使用を開始する */
 	if (!init_asound()) {
-		log_error("サウンドを初期化できません。\n");
+		log_error("Cannot initialize sound.\n");
 		return false;
 	}
 
 	/* ディスプレイをオープンする */
 	if (!open_display()) {
-		log_error("ディスプレイをオープンできません。\n");
+		log_error("Cannot open display.\n");
 		return false;
 	}
 
 	/* ウィンドウを作成する */
 	if (!create_window()) {
-		log_error("ウィンドウを作成できません。\n");
+		log_error("Cannot open window.\n");
 		return false;
 	}
 
 	/* アイコンを作成する */
 	if (!create_icon_image()) {
-		log_error("アイコンを作成できません。\n");
+		log_error("Cannot create icon.\n");
 		return false;
 	}
 
 	/* バックイメージを作成する */
 	if (!create_back_image()) {
-		log_error("バックイメージを作成できません。\n");
+		log_error("Cannot create back image.\n");
 		return false;
 	}
 

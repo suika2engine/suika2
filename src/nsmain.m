@@ -405,7 +405,7 @@ bool log_error(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:@"エラー"];
+    [alert setMessageText:conf_language == NULL ? @"エラー" : @"Error"];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -479,9 +479,10 @@ bool exit_dialog(void)
 #if !__has_feature(objc_arc)
     [alert autorelease];
 #endif
-    [alert addButtonWithTitle:@"はい"];
-    [alert addButtonWithTitle:@"いいえ"];
-    [alert setMessageText:@"終了しますか？"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+    [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
+               @"Quit?"];
     [alert setAlertStyle:NSWarningAlertStyle];
     if([alert runModal] == NSAlertFirstButtonReturn)
         return true;
@@ -495,9 +496,10 @@ bool title_dialog(void)
 #if !__has_feature(objc_arc)
     [alert autorelease];
 #endif
-    [alert addButtonWithTitle:@"はい"];
-    [alert addButtonWithTitle:@"いいえ"];
-    [alert setMessageText:@"タイトルへ戻りますか？"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+    [alert setMessageText:conf_language == NULL ? @"タイトルへ戻りますか？" :
+               @"Are you sure you want to go to title?"];
     [alert setAlertStyle:NSWarningAlertStyle];
     if([alert runModal] == NSAlertFirstButtonReturn)
         return true;
@@ -721,9 +723,10 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 #if !__has_feature(objc_arc)
     [alert autorelease];
 #endif
-    [alert addButtonWithTitle:@"はい"];
-    [alert addButtonWithTitle:@"いいえ"];
-    [alert setMessageText:@"終了しますか？"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+    [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
+        @"Quit?"];
     [alert setAlertStyle:NSWarningAlertStyle];
     if([alert runModal] == NSAlertFirstButtonReturn) {
         // グローバル変数を保存する

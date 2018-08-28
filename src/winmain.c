@@ -211,7 +211,11 @@ static BOOL OpenLogFile(void)
 		pLogFile = fopen(LOG_FILE, "w");
 		if (pLogFile == NULL)
 		{
-			MessageBox(NULL, "ログファイルをオープンできません。", "エラー",
+			MessageBox(NULL,
+					   conf_language == NULL ?
+					   "ログファイルをオープンできません。" :
+					   "Cannot open log file.",
+					   conf_language == NULL ? "エラー" : "Error",
 					   MB_OK | MB_ICONWARNING);
 			return FALSE;
 		}
@@ -231,7 +235,10 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	if(GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
 	   GetSystemMetrics(SM_CYVIRTUALSCREEN) < conf_window_height)
 	{
-		MessageBox(NULL, "ディスプレイのサイズが足りません。", "エラー",
+		MessageBox(NULL, conf_language == NULL ?
+				   "ディスプレイのサイズが足りません。" :
+				   "Display size too small.",
+				   conf_language == NULL ? "エラー" : "Error",
 				   MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
@@ -428,8 +435,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 		PostQuitMessage(0);
 		return 0;
 	case WM_CLOSE:
-		if (MessageBox(hWnd, "終了しますか？", mbszTitle, MB_OKCANCEL)
-			== IDOK)
+		if (MessageBox(hWnd, conf_language == NULL ?
+					   "終了しますか？" : "Quit?",
+					   mbszTitle, MB_OKCANCEL) == IDOK)
 			DestroyWindow(hWnd);
 		return 0;
 	case WM_LBUTTONDOWN:
@@ -684,7 +692,8 @@ bool log_info(const char *s, ...)
 	{
 		/* メッセージボックスを表示する */
 		vsnprintf(buf, sizeof(buf), s, ap);
-		MessageBox(hWndMain, buf, "情報", MB_OK | MB_ICONINFORMATION);
+		MessageBox(hWndMain, buf, conf_language == NULL ? "情報" : "Info",
+				   MB_OK | MB_ICONINFORMATION);
 
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
@@ -709,7 +718,8 @@ bool log_warn(const char *s, ...)
 	{
 		/* メッセージボックスを表示する */
 		vsnprintf(buf, sizeof(buf), s, ap);
-		MessageBox(hWndMain, buf, "警告", MB_OK | MB_ICONWARNING);
+		MessageBox(hWndMain, buf, conf_language == NULL ? "警告" : "Warning",
+				   MB_OK | MB_ICONWARNING);
 
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
@@ -734,7 +744,8 @@ bool log_error(const char *s, ...)
 	{
 		/* メッセージボックスを表示する */
 		vsnprintf(buf, sizeof(buf), s, ap);
-		MessageBox(hWndMain, buf, "エラー", MB_OK | MB_ICONERROR);
+		MessageBox(hWndMain, buf, conf_language == NULL ? "エラー" : "Error",
+				   MB_OK | MB_ICONERROR);
 
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
@@ -832,7 +843,8 @@ int get_stop_watch_lap(stop_watch_t *t)
  */
 bool exit_dialog(void)
 {
-	if (MessageBox(hWndMain, "終了しますか？", mbszTitle, MB_OKCANCEL) == IDOK)
+	const char *pszMsg = conf_language == NULL ? "終了しますか？" : "Quit?";
+	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -842,7 +854,10 @@ bool exit_dialog(void)
  */
 bool title_dialog(void)
 {
-	if (MessageBox(hWndMain, "タイトルに戻りますか？", mbszTitle, MB_OKCANCEL)
+	const char *pszMsg = conf_language == NULL ?
+		"タイトルに戻りますか？" :
+		"Are you sure you want to go to title?";
+	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL)
 		== IDOK)
 		return true;
 	return false;
