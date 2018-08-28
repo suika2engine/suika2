@@ -5,7 +5,7 @@ Suika 2 is a portable game engine that runs on both Windows and Mac. You can enj
 
 ## Demo
 
-![demo](https://github.com/ktabata/suika2/raw/master/doc/screenshot.jpg "screenshot")
+![demo](https://github.com/ktabata/suika2/raw/master/doc/screenshot-en.jpg "screenshot")
 
 ## Portability
 
