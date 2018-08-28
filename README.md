@@ -59,6 +59,8 @@ This software is released under the MIT license. See game/COPYING.
 
 * Open `conf/config.txt` by a text editor other than Notepad.
 * You can find the following line:
-```#language=English```
+```
+#language=English
+```
 * Delete the heading character `#` and save the file.
 * You'll get the error messages in English.

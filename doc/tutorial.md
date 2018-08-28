@@ -36,7 +36,9 @@ This tutorial makes changes to the sample game.
 
 * Open `conf/config.txt` by a text editor other than Notepad.
 * You can find the following line:
-```#language=English```
+```
+#language=English
+```
 * Delete the heading character `#` and save the file.
 
 ## Open script file
