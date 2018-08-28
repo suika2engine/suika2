@@ -1,261 +1,328 @@
 ###
 ### Language Setting
+### 言語設定
 ###
 
-# Uncomment this line to setup English mode.
+# Uncomment this line to enable English mode.
+# 次の行のコメントを外すと英語モードが有効になります
 #language=English
 
 ###
+### Window Settings
 ### ウィンドウの設定
 ###
 
+# Window title
 # ウィンドウのタイトル
 window.title=Suika
 
+# Window width
 # ウィンドウの幅
 window.width=1280
 
+# Window height
 # ウィンドウの高さ
 window.height=720
 
+# Background color (1:white, 0:black)
 # 背景を白にするか(1なら白、0なら黒)
 window.white=1
 
 ###
+### Font Settings
 ### フォントの設定
 ###
 
+# Font file name
 # フォントファイル名
 font.file=VL-PGothic-Regular.ttf
 
+# Font size
 # フォントサイズ
 font.size=38
 
+# Font color
 # フォントの色
 font.color.r=255
 font.color.g=255
 font.color.b=255
 
 ###
+### Name Box Settings
 ### 名前ボックスの設定
 ###
 
+# Name box file name
 # 名前ボックス画像のファイル名
 namebox.file=namebox-blue.png
 
+# Position to show the name box image
 # 名前ボックス画像を表示する位置
 namebox.x=70
 namebox.y=400
 
+# Top margin of text in the name box image
 # 名前ボックス画像内のテキスト上端マージン
 namebox.margin.top=18
 
 ###
+### Message Box Settings
 ### メッセージボックスの設定
 ###
 
+# Message box image file name
 # メッセージボックス画像のファイル名
 msgbox.file=msgbox-blue.png
 
+# Position to show the message box image
 # メッセージボックス画像を表示する位置
 msgbox.x=0
 msgbox.y=496
 
+# Left margin of text in the message box image
 # メッセージボックス画像内のテキスト左端マージン
 msgbox.margin.left=80
 
+# Top margin of text in the message box image
 # メッセージボックス画像内のテキスト上端マージン
 msgbox.margin.top=40
 
+# Right margin of text in the message box image
 # メッセージボックス画像内のテキスト右端マージン
 msgbox.margin.right=80
 
+# Space between lines
 # メッセージの行間
 msgbox.margin.line=47
 
-# メッセージのスピード(n文字/秒)
+# Message speed (x characters per second)
+# メッセージのスピード(x文字/秒)
 msgbox.speed=20.0
 
 ###
+### Click Animation Settings
 ### クリックアニメーションの設定
 ###
 
+# Click animation image file name
 # クリックアニメーション画像のファイル名
 click.file=click.png
 
+# Position to show the click animation image
 # クリックアニメーション画像の表示位置
 click.x=1170
 click.y=660
 
+# Click animation interval (seconds)
 # クリックアニメーションの時間感覚
 click.interval=0.5
 
 ###
+### Option Box Settings
 ### 選択肢ボックスの設定
 ###
 
+# Option box (non-selected) image file name
 # 選択肢ボックス（非選択中）画像のファイル名
 selbox.bg.file=selbox-bg.png
 
+# Option box (selected) image file name
 # 選択肢ボックス（選択中）画像のファイル名
 selbox.fg.file=selbox-fg.png
 
+# Position of the option box
 # 選択肢ボックスの位置
 selbox.x=265
 selbox.y=200
 
+# Top margin of text in the option box
 # 選択肢ボックス内の文字のY方向マージン
 selbox.margin.y=10
 
 ###
+### Switch Settings
 ### スイッチの設定
 ###
 
+# Switch box (non-selected) image file
 # スイッチ（非選択中）画像のファイル名
 switch.bg.file=switch-bg.png
 
+# Switch box (selected) image file
 # スイッチ（選択中）画像のファイル名
 switch.fg.file=switch-fg.png
 
+# Position of the first switch box
 # スイッチの位置
 switch.x=265
 switch.y=120
 
+# Vertical space between the switch box images
 # スイッチの選択肢の間のマージン
 switch.margin.y=20
 
+# Top margin of text in the switch box image
 # スイッチ内のテキストの縦方向マージン
 switch.text.margin.y=18
 
+# Click sound file when the parent option is clicked (omissible)
 # スイッチの親選択肢を選択したときの効果音(省略可)
 switch.parent.click.se.file=click.ogg
 
+# Click sound file when the child option is clicked (omissible)
 # スイッチの子選択肢を選択したときの効果音(省略可)
 switch.child.click.se.file=click.ogg
 
 ###
+### Save/Load Screen Settings
 ### セーブ・ロード画面の設定
 ###
 
+# Save/load screen image (non-selected)
 # 非選択状態の画像
 save.bg.file=save-bg.png
 
+# Save/load screen image (selected)
 # 選択状態の画像
 save.fg.file=save-fg.png
 
+# Position and size of the save button
 # セーブボタンの位置と大きさ
 save.save.x=448
 save.save.y=100
 save.save.width=128
 save.save.height=64
 
+# Position and size of the load button
 # ロードボタンの位置と大きさ
 save.load.x=704
 save.load.y=100
 save.load.width=128
 save.load.height=64
 
+# Position and size of the previous page button
 # 前ページボタンの位置と大きさ
 save.prev.x=0
 save.prev.y=0
 save.prev.width=128
 save.prev.height=64
 
+# Position and size of the next page button
 # 次ページボタンの位置と大きさ
 save.next.x=1152
 save.next.y=0
 save.next.width=128
 save.next.height=64
 
+# Size of a save data item
 # セーブデータ項目の大きさ
 save.data.width=384
 save.data.height=64
 
+# Text margin in a save data item
 # セーブデータ項目内のテキストマージン
 save.data.margin.left=10
 save.data.margin.top=10
 
+# Position of the save data 1
 # セーブデータ1の位置
 save.data1.x=448
 save.data1.y=192
 
+# Position of the save data 2
 # セーブデータ2の位置
 save.data2.x=448
 save.data2.y=256
 
+# Position of the save data 3
 # セーブデータ3の位置
 save.data3.x=448
 save.data3.y=320
 
+# Position of the save data 4
 # セーブデータ4の位置
 save.data4.x=448
 save.data4.y=384
 
+# Position of the save data 5
 # セーブデータ5の位置
 save.data5.x=448
 save.data5.y=448
 
+# Position of the save data 6
 # セーブデータ6の位置
 save.data6.x=448
 save.data6.y=512
 
-# セーブ画面の終了ボタンの位置
+# Position and size of the exit button
+# セーブ画面の終了ボタンの位置とサイズ
 save.exit.x=85
 save.exit.y=605
 save.exit.width=280
 save.exit.height=65
 
-# セーブ画面のタイトルへ戻るボタンの位置
+# Position and size of the 'return to title' button
+# セーブ画面のタイトルへ戻るボタンの位置とサイズ
 save.title.x=915
 save.title.y=605
 save.title.width=280
 save.title.height=65
 
+# Jump target file of the 'return to title' button
 # セーブ画面のタイトルへ戻るボタンのジャンプ先
 save.title.txt=init.txt
 
 ###
+### History Settings
 ### ヒストリ画面の設定
 ###
 
+# Background color
 # 背景色
 history.color.r=53
 history.color.g=90
 history.color.b=161
 history.color.a=128
 
+# Space between lines
 # 行間マージン
 history.margin.line=48
 
+# Left margin
 # 画面左のマージン
 history.margin.left=20
 
+# Top margin
 # 画面上のマージン
 history.margin.top=20
 
+# Right margin
 # 画面右のマージン
 history.margin.right=20
 
+# Bottom margin
 # 画面下のマージン
 history.margin.bottom=20
 
 ###
+### Character Message Colors
 ### セリフの色の設定
 ###
 
-serif.color1.name=名前1
+serif.color1.name=Haruka
 serif.color1.r=255
 serif.color1.g=200
 serif.color1.b=200
 
-serif.color2.name=名前2
+serif.color2.name=Kana
 serif.color2.r=200
 serif.color2.g=255
 serif.color2.b=200
 
-serif.color3.name=名前3
+serif.color3.name=Chiaki
 serif.color3.r=200
 serif.color3.g=200
 serif.color3.b=255
 
+# Continues to serif.color32, but omissible
 # 以降、serif.color32まで続くが省略可能

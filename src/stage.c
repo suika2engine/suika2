@@ -10,6 +10,7 @@
  *  - 2016-06-14 作成
  *  - 2017-08-13 スイッチに対応
  *  - 2017-09-25 セリフの色付けに対応
+ *  - 2018-08-28 不要なエラーログの削除
  */
 
 #include "suika.h"
@@ -224,10 +225,8 @@ static bool setup_namebox(void)
 
 	/* 名前ボックスの画像を読み込む */
 	namebox_image = create_image_from_file(CG_DIR, conf_namebox_file);
-	if (namebox_image == NULL) {
-		log_dir_file_open(CG_DIR, conf_namebox_file);
+	if (namebox_image == NULL)
 		return false;
-	}
 
 	/* 名前ボックスのレイヤのイメージを作成する */
 	layer_image[LAYER_NAME] = create_image(get_image_width(namebox_image),
@@ -252,10 +251,8 @@ static bool setup_msgbox(void)
 
 	/* メッセージボックスの画像を読み込む */
 	msgbox_image = create_image_from_file(CG_DIR, conf_msgbox_file);
-	if (msgbox_image == NULL) {
-		log_dir_file_open(CG_DIR, conf_msgbox_file);
+	if (msgbox_image == NULL)
 		return false;
-	}
 
 	/* メッセージボックスのレイヤのイメージを作成する */
 	layer_image[LAYER_MSG] = create_image(get_image_width(msgbox_image),
@@ -281,10 +278,8 @@ static bool setup_click(void)
 	/* クリックアニメーションの画像を読み込む */
 	layer_image[LAYER_CLICK] = create_image_from_file(CG_DIR,
 							  conf_click_file);
-	if (layer_image[LAYER_CLICK] == NULL) {
-		log_dir_file_open(CG_DIR, conf_click_file);
+	if (layer_image[LAYER_CLICK] == NULL)
 		return false;
-	}
 
 	/* クリックアニメーションレイヤの配置を行う */
 	layer_x[LAYER_CLICK] = conf_click_x;
@@ -300,15 +295,11 @@ static bool setup_selbox(void)
 
 	/* 選択肢ボックスの画像を読み込む */
 	selbox_bg_image = create_image_from_file(CG_DIR, conf_selbox_bg_file);
-	if (selbox_bg_image == NULL) {
-		log_dir_file_open(CG_DIR, conf_selbox_bg_file);
+	if (selbox_bg_image == NULL)
 		return false;
-	}
 	selbox_fg_image = create_image_from_file(CG_DIR, conf_selbox_fg_file);
-	if (selbox_fg_image == NULL) {
-		log_dir_file_open(CG_DIR, conf_selbox_fg_file);
+	if (selbox_fg_image == NULL)
 		return false;
-	}
 
 	/* 選択肢ボックスのレイヤのイメージを作成する */
 	layer_image[LAYER_SEL] = create_image(get_image_width(selbox_bg_image),
@@ -329,17 +320,13 @@ static bool setup_switch(void)
 {
 	/* スイッチの非選択イメージを読み込む */
 	switch_bg_image = create_image_from_file(CG_DIR, conf_switch_bg_file);
-	if (switch_bg_image == NULL) {
-		log_dir_file_open(CG_DIR, conf_switch_bg_file);
+	if (switch_bg_image == NULL)
 		return false;
-	}
 
 	/* スイッチの選択イメージを読み込む */
 	switch_fg_image = create_image_from_file(CG_DIR, conf_switch_fg_file);
-	if (selbox_fg_image == NULL) {
-		log_dir_file_open(CG_DIR, conf_switch_fg_file);
+	if (selbox_fg_image == NULL)
 		return false;
-	}
 
 	return true;
 }
@@ -354,11 +341,8 @@ static bool setup_save(void)
 
 	/* セーブ画面(非選択)の画像を読み込む */
 	save_fg_image = create_image_from_file(CG_DIR, conf_save_fg_file);
-	if (save_fg_image == NULL) {
-		log_dir_file_open(CG_DIR, conf_save_fg_file);
-		log_script_exec_footer();
+	if (save_fg_image == NULL)
 		return false;
-	}
 
 	return true;
 }

@@ -80,7 +80,6 @@ static bool init(void)
 	/* イメージを読み込む */
 	img = create_image_from_file(BG_DIR, fname);
 	if (img == NULL) {
-		log_dir_file_open(BG_DIR, fname);
 		log_script_exec_footer();
 		return false;
 	}

@@ -85,16 +85,20 @@ bool init(void)
 	/* 背景を読み込んでFOレイヤに描画する */
 	file = get_string_param(MENU_PARAM_BG_FILE);
 	img = create_image_from_file(BG_DIR, file);
-	if (img == NULL)
+	if (img == NULL) {
+		log_script_exec_footer();
 		return false;
+	}
 	draw_image_to_fo(img);
 	destroy_image(img);
 
 	/* 前景を読み込んでFIレイヤに描画する */
 	file = get_string_param(MENU_PARAM_FG_FILE);
 	img = create_image_from_file(BG_DIR, file);
-	if (img == NULL)
+	if (img == NULL) {
+		log_script_exec_footer();
 		return false;
+	}
 	draw_image_to_fi(img);
 	destroy_image(img);
 

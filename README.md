@@ -18,6 +18,7 @@ If you want to port Suika 2 to a new target platform, it is only necessary to wr
 ## Contribution
 
 Please write an issue with a light heart. Any and all feedback is welcome.
+Pull requests that correct my English are especially welcome.
 
 ## Prebuilt Binaries
 
@@ -48,3 +49,10 @@ This software is released under the MIT license. See game/COPYING.
     * Download the zip file from [the official web site](http://luxion.jp/s2/) and extract it.
     * Enter `suika2` directory in terminal.
     * run `./suika-linux64`
+
+## Turn on English mode
+
+* Open `conf/config.txt` by a text editor.
+* You can find the line `#language=English`.
+* Delete the heading character `#` and save the file.
+* You'll get the error messages in English.

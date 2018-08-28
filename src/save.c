@@ -853,10 +853,8 @@ static bool deserialize_stage(struct rfile *rf)
 	} else {
 		set_bg_file_name(s);
 		img = create_image_from_file(BG_DIR, s);
-		if (img == NULL) {
-			log_dir_file_open(BG_DIR, s);
+		if (img == NULL)
 			return false;
-		}
 	}
 
 	change_bg_immediately(img);
@@ -876,11 +874,8 @@ static bool deserialize_stage(struct rfile *rf)
 		} else {
 			set_ch_file_name(i, s);
 			img = create_image_from_file(CH_DIR, s);
-			if (img == NULL) {
-				log_dir_file_open(CH_DIR, s);
+			if (img == NULL)
 				return false;
-			}
-		
 		}
 
 		change_ch_immediately(i, img, m, n);
