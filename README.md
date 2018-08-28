@@ -30,7 +30,9 @@ See build/BUILD.md
 
 ## License
 
-This software is released under the MIT license. See game/COPYING.
+This software is released under the MIT license.
+You can redistribute this software commercially.
+See game/COPYING.
 
 ## Usage
 
@@ -50,11 +52,6 @@ This software is released under the MIT license. See game/COPYING.
     * Enter `suika2` directory in terminal.
     * run `./suika-linux64`
 
-## Manuals
-
-* [Tutorial](https://github.com/ktabata/suika2/blob/master/doc/tutorial.md)
-* [Command Reference](https://github.com/ktabata/suika2/blob/master/doc/reference.md)
-
 ## Enable English mode
 
 * Open `conf/config.txt` by a text editor other than Notepad.
@@ -63,4 +60,13 @@ This software is released under the MIT license. See game/COPYING.
 #language=English
 ```
 * Delete the heading character `#` and save the file.
-* You'll get the error messages in English.
+* You'll get the messages in English.
+
+## Manuals
+
+* [Tutorial](https://github.com/ktabata/suika2/blob/master/doc/tutorial.md)
+* [Command Reference](https://github.com/ktabata/suika2/blob/master/doc/reference.md)
+
+## What does "suika" mean?
+
+It means "watermelon" in Japanese.
