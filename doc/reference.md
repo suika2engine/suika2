@@ -153,7 +153,7 @@ Menus can't be canceled using right click.
 ## Label
 
 This creates a label to be used as a jump target.
-Use with `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect`, and `@switch`.
+Use with `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch`.
 
 * Usage:
 ```

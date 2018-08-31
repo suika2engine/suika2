@@ -149,7 +149,7 @@ I'm home sick from school.
 After saving it, run `suika.exe`.
 Suika 2 will show three options.
 `@select` is the command to show options.
-`label1`, `label2`, and `label3` are jump destinations.
+`label1`, `label2` and `label3` are jump destinations.
 Option messages follow labels.
 
 `:label1` is a label to specify a jump destination.
@@ -263,7 +263,7 @@ Suika 2 will show "moved to second.txt" after "inside init.txt".
 
 ## Create package
 
-We can create a single package file to contain scripts, images, sounds, and so
+We can create a single package file to contain scripts, images, sounds and so
 on. Follow these steps.
 
 1. Move `package-win.exe` from the `tools` folder into the folder where `suika.exe` exists.
