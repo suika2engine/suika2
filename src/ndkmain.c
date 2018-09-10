@@ -249,6 +249,15 @@ bool log_error(const char *s, ...)
 }
 
 /*
+ * UTF-8のメッセージをネイティブの文字コードに変換する
+ *  - 変換の必要がないので引数をそのまま返す
+ */
+const char *conv_utf8_to_native(const char *utf8_message)
+{
+	return utf8_message;
+}
+
+/*
  * セーブディレクトリを作成する
  */
 bool make_sav_dir(void)
@@ -359,5 +368,23 @@ bool set_sound_volume(int n, float vol)
 	mid = (*jni_env)->GetMethodID(jni_env, cls, "setVolume", "(IF)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, n, vol);
 
+	return true;
+}
+
+/*
+ * 終了ダイアログを表示する
+ */
+bool exit_dialog(void)
+{
+	/* stub */
+	return true;
+}
+
+/*
+ * タイトルに戻るダイアログを表示する
+ */
+bool title_dialog(void)
+{
+	/* stub */
 	return true;
 }

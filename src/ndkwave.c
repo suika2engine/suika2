@@ -55,6 +55,14 @@ struct wave *create_wave_from_file(const char *dir, const char *file,
 }
 
 /*
+ * PCMストリームのループ回数を設定する
+ */
+void set_wave_repeat_times(struct wave *w, int n)
+{
+	/* FIXME */
+}
+
+/*
  * PCMストリームを破棄する
  */
 void destroy_wave(struct wave *w)

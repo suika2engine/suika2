@@ -131,7 +131,7 @@ static void ungetc_rfile(struct rfile *rf, char c)
 /*
  * ファイル読み込みストリームから1行読み込む
  */
-void *gets_rfile(struct rfile *rf, void *buf, size_t size)
+const char *gets_rfile(struct rfile *rf, char *buf, size_t size)
 {
 	char *ptr;
 	size_t len;
@@ -175,7 +175,7 @@ void close_rfile(struct rfile *rf)
 {
 	assert(rf != NULL);
 
-	(*jni_env)->ReleaseByteArrayElements(jni_env, rf->array, rf->buf, JNI_ABORT);
+	(*jni_env)->ReleaseByteArrayElements(jni_env, rf->array, (jbyte *)rf->buf, JNI_ABORT);
 	(*jni_env)->DeleteGlobalRef(jni_env, rf->array);
 	free(rf);
 }
