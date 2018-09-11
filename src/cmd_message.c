@@ -42,6 +42,9 @@ static int drawn_chars;
 /* スペースの直後であるか */
 static bool is_after_space;
 
+/* ビープ音再生中であるか */
+static bool is_beep;
+
 /* 描画位置 */
 static int pen_x;
 static int pen_y;
@@ -154,7 +157,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 		draw_h = conf_window_height;
 	} else if (!is_hidden) {
 		if (is_control_pressed)
-			stop_sound(VOICE_STREAM);
+			set_mixer_input(VOICE_STREAM, NULL);
 		if (drawn_chars < total_chars)
 			draw_msgbox();
 		else
@@ -308,6 +311,7 @@ static bool process_serif_command(void)
 	if (get_command_type() != COMMAND_SERIF) {
 		/* 名前ボックスを表示しない */
 		show_namebox(false);
+		is_beep = false;
 		return true;
 	}
 
@@ -388,6 +392,8 @@ static bool play_voice(void)
 	voice = repeat ? &voice[1] : voice;
 	if (strcmp(voice, "") == 0)
 		return true;
+
+	is_beep = repeat;
 
 	/* PCMストリームを開く */
 	w = create_wave_from_file(CV_DIR, voice, repeat);
@@ -521,6 +527,10 @@ static int get_frame_chars(void)
 		return total_chars - drawn_chars;
 	}
 	if (is_return_pressed || is_down_pressed || is_left_button_pressed) {
+		/* ビープの再生を止める */
+		if (is_beep)
+			set_mixer_input(VOICE_STREAM, NULL);
+
 		/* 残りの文字をすべて描画する */
 		return total_chars - drawn_chars;
 	}
