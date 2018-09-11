@@ -792,6 +792,9 @@ static bool process_load(void)
 		if (!deserialize_vars(rf))
 			break;
 		
+		/* ヒストリをクリアする */
+		clear_history();
+
 		/* ロードが実行された直後であることをマークする */
 		load_flag = true;
 

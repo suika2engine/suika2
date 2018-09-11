@@ -12,7 +12,6 @@
 
 #include "suika.h"
 
-static bool waiting;
 static float span;
 static stop_watch_t sw;
 
@@ -22,8 +21,8 @@ static stop_watch_t sw;
 bool wait_command(void)
 {
 	/* 初期化処理を行う */
-	if (!waiting) {
-		waiting = true;
+	if (!is_in_command_repetition()) {
+		start_command_repetition();
 
 		/* パラメータを取得する */
 		span = get_float_param(WAIT_PARAM_SPAN);
@@ -36,7 +35,7 @@ bool wait_command(void)
 	if ((float)get_stop_watch_lap(&sw) / 1000.0f >= span ||
 	    is_control_pressed || is_return_pressed ||
 	    is_left_button_pressed) {
-		waiting = false;
+		stop_command_repetition();
 
 		/* 次のコマンドへ移動する */
 		return move_to_next_command();

@@ -26,6 +26,9 @@ void cleanup_history(void);
 /* メッセージを登録する */
 bool register_message(const char *name, const char *msg, const char *voice);
 
+/* ヒストリをクリアする(ロード時) */
+void clear_history(void);
+
 /* ヒストリ画面から復帰したかばかりかを確認する */
 bool check_history_flag(void);
 

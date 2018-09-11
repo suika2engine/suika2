@@ -38,6 +38,16 @@ int mouse_pos_x;
 int mouse_pos_y;
 
 /*
+ * 複数のイテレーションに渡るコマンドの実行中であるか
+ */
+static bool is_in_repetition;
+
+/*
+ * 現在表示中のメッセージがヒストリに登録済みであるか
+ */
+static bool flag_message_registered;
+
+/*
  * 前方参照
  */
 static bool dispatch_command(int *x, int *y, int *w, int *h);
@@ -60,6 +70,14 @@ void init_game_loop(void)
 	is_control_pressed = false;
 	mouse_pos_x = 0;
 	mouse_pos_y = 0;
+	is_in_repetition = false;
+	flag_message_registered = false;
+
+	/* Android NDK用に状態を初期化する */
+	check_menu_finish_flag();
+	check_retrospect_finish_flag();
+	check_load_flag();
+	check_restore_flag();
 }
 
 /*
@@ -197,4 +215,56 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
  */
 void cleanup_game_loop(void)
 {
+}
+
+/*
+ * 複数のイテレーションに渡るコマンドの実行を開始する
+ */
+void start_command_repetition(void)
+{
+	assert(!is_in_repetition);
+	is_in_repetition = true;
+}
+
+/*
+ * 複数のイテレーションに渡るコマンドの実行を終了する
+ */
+void stop_command_repetition(void)
+{
+	assert(is_in_repetition);
+	is_in_repetition = false;
+}
+
+/*
+ * 複数のイテレーションに渡るコマンドの実行中であるかを返す
+ */
+bool is_in_command_repetition(void)
+{
+	return is_in_repetition;
+}
+
+/*
+ * 現在表示中のメッセージがヒストリに登録済みであることを設定する
+ */
+void set_message_registered(void)
+{
+	assert(!flag_message_registered);
+	flag_message_registered = true;
+}
+
+/*
+ * 表示中のメッセージがなくなったことを設定する
+ */
+void clear_message_registered(void)
+{
+	assert(flag_message_registered);
+	flag_message_registered = false;
+}
+
+/*
+ * 現在表示中のメッセージがヒストリに登録済みであるかを返す
+ */
+bool is_message_registered(void)
+{
+	return flag_message_registered;
 }

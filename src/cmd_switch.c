@@ -50,9 +50,6 @@ static struct child_button {
 	int h;
 } child_button[PARENT_COUNT][CHILD_COUNT];
 
-/* 繰り返し動作中であるか */
-static bool repeatedly;
-
 /* 最初の描画であるか */
 static bool is_first_frame;
 
@@ -87,14 +84,14 @@ static bool cleanup(void);
 bool switch_command(int *x, int *y, int *w, int *h)
 {
 	/* 初期化処理を行う */
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
 	/* セーブ画面への遷移を確認する */
 	if (selected_parent_index == -1 && is_right_button_pressed) {
 		start_save_mode(false);
-		repeatedly = false;
+		stop_command_repetition();
 		return true;
 	}
 
@@ -102,7 +99,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	draw_frame(x, y, w, h);
 
 	/* 終了処理を行う */
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
 
@@ -112,7 +109,8 @@ bool switch_command(int *x, int *y, int *w, int *h)
 /* コマンドの初期化処理を行う */
 bool init(void)
 {
-	repeatedly = true;
+	start_command_repetition();
+
 	is_first_frame = true;
 	pointed_parent_index = -1;
 	selected_parent_index = -1;
@@ -330,7 +328,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 			play_se(false);
 
 			/* 繰り返し動作を終了する */
-			repeatedly = false;
+			stop_command_repetition();
 		}
 	}
 }
@@ -380,7 +378,7 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 		*h = conf_window_height;
 
 		/* 繰り返し動作を終了する */
-		repeatedly = false;
+		stop_command_repetition();
 	}
 }
 

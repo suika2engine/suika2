@@ -12,9 +12,6 @@
 
 #include "suika.h"
 
-/* 繰り返し動作中であるか */
-static bool repeatedly;
-
 /* コマンドの経過時刻を表すストップウォッチ */
 static stop_watch_t sw;
 
@@ -39,13 +36,13 @@ static bool cleanup(void);
  */
 bool bg_command(int *x, int *y, int *w, int *h)
 {
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
 	draw();
 
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
 
@@ -53,7 +50,7 @@ bool bg_command(int *x, int *y, int *w, int *h)
 	*y = 0;
 	*w = conf_window_width;
 	*h = conf_window_height;
-	
+
 	return true;
 }
 
@@ -106,8 +103,8 @@ static bool init(void)
 		change_ch_immediately(CH_CENTER, NULL, 0, 0);
 		return true;
 	} else {
-		/* bgコマンドが繰り返し呼び出されるようにする */
-		repeatedly = true;
+		/* 繰り返し動作を開始する */
+		start_command_repetition();
 
 		/* 背景フェードモードを有効にする */
 		start_bg_fade(img);
@@ -135,11 +132,11 @@ static void draw(void)
 		lap = span;
 
 	/* 経過時間が一定値を超えた場合と、入力によりスキップされた場合 */
-	if (repeatedly) {
+	if (is_in_command_repetition()) {
 		if (lap >= span || is_control_pressed || is_return_pressed ||
 		    is_left_button_pressed) {
 			/* 繰り返し動作を停止する */
-			repeatedly = false;
+			stop_command_repetition();
 
 			/* フェードを完了する */
 			stop_bg_fade();
@@ -150,7 +147,7 @@ static void draw(void)
 	}
 
 	/* ステージを描画する */
-	if (repeatedly)
+	if (is_in_command_repetition())
 		draw_stage_bg_fade(is_curtain);
 	else
 		draw_stage();
@@ -159,9 +156,6 @@ static void draw(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* bgコマンドを非動作状態にする */
-	repeatedly = false;
-
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

@@ -83,6 +83,11 @@ static bool play_voice(void);
  */
 bool init_history(void)
 {
+	/* Android NDK用に初期化を行う */
+	clear_history();
+	history_flag = false;
+	is_history_mode_enabled = false;
+
 	return true;
 }
 
@@ -91,19 +96,7 @@ bool init_history(void)
  */
 void cleanup_history(void)
 {
-	int i;
-
-	for (i = 0; i < HISTORY_SIZE; i++) {
-		if (history[i].text != NULL) {
-			free(history[i].text);
-			history[i].text = NULL;
-		}
-
-		if (history[i].voice != NULL) {
-			free(history[i].voice);
-			history[i].voice = NULL;
-		}
-	}
+	clear_history();
 }
 
 /*
@@ -169,6 +162,33 @@ bool register_message(const char *name, const char *msg, const char *voice)
 			(history_count + 1);
 
 	return true;
+}
+
+/*
+ * ロード時のクリア
+ */
+
+/*
+ * ヒストリをクリアする
+ */
+void clear_history(void)
+{
+	int i;
+
+	for (i = 0; i < HISTORY_SIZE; i++) {
+		if (history[i].text != NULL) {
+			free(history[i].text);
+			history[i].text = NULL;
+		}
+
+		if (history[i].voice != NULL) {
+			free(history[i].voice);
+			history[i].voice = NULL;
+		}
+	}
+
+	history_count = 0;
+	history_index = 0;
 }
 
 /*
@@ -294,7 +314,6 @@ void run_history_mode(int *x, int *y, int *w, int *h)
 
 	/* ポイントされているテキスト項目があり、左ボタンが押された場合 */
 	if (pointed_index != -1 && is_left_button_pressed) {
-		printf("play_voice()\n");
 		play_voice();
 	}
 }
@@ -311,8 +330,8 @@ static void draw_page(int *x, int *y, int *w, int *h)
 				   (uint8_t)conf_history_color_b));
 
 	/* テキストを描画する */
-	index = (history_index + HISTORY_SIZE - 1) % HISTORY_SIZE -
-		start_offset;
+	index = (history_index - start_offset + HISTORY_SIZE - 1) %
+		HISTORY_SIZE;
 	view_start = index;
 	pen_x = conf_history_margin_left;
 	pen_y = conf_history_margin_top;
@@ -493,8 +512,8 @@ static bool play_voice(void)
 	voice = history[pointed_index].voice;
 	if (strcmp(voice, "") == 0)
 		return true;
-
-	printf("voice %s\n", voice);
+	if (voice[0] == '@')
+		return true;
 
 	/* PCMストリームを開く */
 	w = create_wave_from_file(CV_DIR, voice, false);

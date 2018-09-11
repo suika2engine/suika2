@@ -36,9 +36,6 @@ static struct button {
 	int h;
 } button[BUTTON_COUNT];
 
-/* 繰り返し動作中であるか */
-static bool repeatedly;
-
 /* 最初の描画であるか */
 static bool is_first_frame;
 
@@ -60,7 +57,7 @@ static bool cleanup(void);
 bool menu_command(int *x, int *y, int *w, int *h)
 {
 	/* 初期化処理を行う */
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
@@ -68,7 +65,7 @@ bool menu_command(int *x, int *y, int *w, int *h)
 	draw_frame(x, y, w, h);
 
 	/* 終了処理を行う */
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
 
@@ -112,7 +109,7 @@ bool init(void)
 	}
 
 	/* 繰り返し動作を開始する */
-	repeatedly = true;
+	start_command_repetition();
 
 	/* ポイントされているボタンを初期化する */
 	pointed_index = -1;
@@ -161,7 +158,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	if (new_pointed_index != -1 && is_left_button_pressed) {
 		/* 繰り返し動作を終了する */
 		pointed_index = new_pointed_index;
-		repeatedly = false;
+		stop_command_repetition();
 		return;
 	}
 

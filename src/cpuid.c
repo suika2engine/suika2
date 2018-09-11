@@ -65,7 +65,7 @@ void x86_check_cpuid_flags(void)
 		/* ZMMが保存されない場合 */
 		if (has_avx512 && (a & 0xc0) != 0xc0) {
 #ifndef NDEBUG
-			printf("OS disables AVX512F.\n");
+			//printf("OS disables AVX512F.\n");
 #endif
 			has_avx512 = false;
 		}
@@ -73,14 +73,14 @@ void x86_check_cpuid_flags(void)
 		/* YMMが保存されない場合 */
 		if ((has_avx2 || has_avx) && (a & 0x04) != 0x04) {
 #ifndef NDEBUG
-			printf("OS doesn't support AVX/AVX2.\n");
+			//printf("OS doesn't support AVX/AVX2.\n");
 #endif
 			has_avx = false;
 			has_avx2 = false;
 		}
 	} else {
 #ifndef NDEBUG
-		printf("OS doesn't support XGETBV.\n");
+		//printf("OS doesn't support XGETBV.\n");
 #endif
 		has_avx512 = false;
 		has_avx2 = false;
@@ -88,6 +88,7 @@ void x86_check_cpuid_flags(void)
 	}
 
 #ifndef NDEBUG
+/*
 	printf("AVX512\t%d\n", has_avx512);
 	printf("AVX2\t%d\n", has_avx2);
 	printf("AVX\t%d\n", has_avx);
@@ -97,6 +98,7 @@ void x86_check_cpuid_flags(void)
 	printf("SSE2\t%d\n", has_sse2);
 	printf("SSE\t%d\n", has_sse);
 	printf("MMX\t%d\n", has_mmx);
+*/
 #endif
 }
 

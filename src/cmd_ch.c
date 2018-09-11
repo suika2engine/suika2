@@ -12,7 +12,6 @@
 
 #include "suika.h"
 
-static bool repeatedly;
 static stop_watch_t sw;
 static float span;
 
@@ -25,13 +24,13 @@ static bool cleanup(void);
  */
 bool ch_command(int *x, int *y, int *w, int *h)
 {
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
 	draw();
 
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
 
@@ -117,8 +116,8 @@ static bool init(void)
 		/* フェードせず、すぐに切り替える */
 		change_ch_immediately(chpos, img, xpos, ypos);
 	} else {
-		/* chコマンドが繰り返し呼び出されるようにする */
-		repeatedly = true;
+		/* 繰り返し動作を開始する */
+		start_command_repetition();
 
 		/* キャラフェードモードを有効にする */
 		start_ch_fade(chpos, img, xpos, ypos);
@@ -145,21 +144,18 @@ static void draw(void)
 	if (lap >= span)
 		lap = span;
 
-	if (repeatedly) {
+	if (is_in_command_repetition()) {
 		/*
 		 * 経過時間が一定値を超えた場合と、
 		 * 入力によりスキップされた場合
 		 */
 		if (lap >= span || is_control_pressed || is_return_pressed ||
 		    is_left_button_pressed) {
-			/* 繰り返し呼び出しを終了する */
-			repeatedly = false;
+			/* 繰り返し動作を終了する */
+			stop_command_repetition();
 
 			/* キャラフェードモードを終了する */
 			stop_ch_fade();
-
-			/* 繰り返し動作をオフにする */
-			repeatedly = false;
 		} else {
 			/* 進捗を設定する */
 			set_ch_fade_progress(lap / span);
@@ -167,7 +163,7 @@ static void draw(void)
 	}
 
 	/* ステージを描画する */
-	if (repeatedly)
+	if (is_in_command_repetition())
 		draw_stage_ch_fade();
 	else
 		draw_stage();

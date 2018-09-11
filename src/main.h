@@ -37,9 +37,9 @@ extern int mouse_pos_y;
  * ゲームループの中身
  */
 
-void init_game_loop();
-bool game_loop_iter();
-void cleanup_game_loop();
+void init_game_loop(void);
+bool game_loop_iter(int *x, int *y, int *w, int *h);
+void cleanup_game_loop(void);
 
 /*
  * コマンドの実装
@@ -63,6 +63,22 @@ bool retrospect_command(int *x, int *y, int *w, int *h);
 bool switch_command(int *x, int *y, int *w, int *h);
 bool gosub_command(void);
 bool return_command(void);
+
+/*
+ * 複数のイテレーションに渡るコマンドの実行中であるかの設定
+ */
+
+void start_command_repetition(void);
+void stop_command_repetition(void);
+bool is_in_command_repetition(void);
+
+/*
+ * 現在表示中のメッセージがヒストリに登録済みであるかの設定
+ */
+
+void set_message_registered(void);
+void clear_message_registered(void);
+bool is_message_registered(void);
 
 /*
  * コマンドが終了した直後であるかのチェック

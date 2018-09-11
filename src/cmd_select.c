@@ -15,9 +15,6 @@
 /* false assertion */
 #define INVALID_SELECTION	(0)
 
-/* 繰り返し動作中であるか */
-static bool repeatedly;
-
 /* 最初の描画であるか */
 static bool is_first_frame;
 
@@ -46,21 +43,21 @@ static void draw_text(int y, const char *t);
  */
 bool select_command(int *x, int *y, int *w, int *h)
 {
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
 	/* セーブ画面への遷移を確認する */
 	if (is_right_button_pressed) {
 		start_save_mode(false);
-		repeatedly = false;
+		stop_command_repetition();
 		return true;
 	}
 
 	/* 繰り返し動作を行う */
 	draw_frame(x, y, w, h);
 
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
 
@@ -88,7 +85,7 @@ static bool init(void)
 	selected_item = -1;
 
 	/* 繰り返し動作を開始する */
-	repeatedly = true;
+	start_command_repetition();
 
 	/* 選択肢ボックスを表示する */
 	show_selbox(true);
@@ -153,7 +150,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		get_selbox_rect(x, y, w, h);
 
 		/* 繰り返し動作を終了する */
-		repeatedly = false;
+		stop_command_repetition();
 		return;
 	}
 

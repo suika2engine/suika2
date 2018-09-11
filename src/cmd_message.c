@@ -30,9 +30,6 @@
 /* ビープ音ファイルあたりの文字数 */
 #define BEEP_CHARS	(6)
 
-/* 繰り返し動作中であるか */
-static bool repeatedly;
-
 /* コマンドの経過時刻を表すストップウォッチ */
 static stop_watch_t sw;
 
@@ -68,8 +65,8 @@ static const char *msg;
 /* 文字の色 */
 static pixel_t color;
 
-/* クリックアニメーションの初回描画が完了したか */
-static bool done_click_first;
+/* クリックアニメーションの初回描画を処理すべきか */
+static bool process_click_first;
 
 /* クリックアニメーションの表示状態 */
 static bool is_click_visible;
@@ -82,9 +79,6 @@ static bool history_flag;
 
 /* セーブ画面から戻ったばかりであるか */
 static bool restore_flag;
-
-/* メッセージの登録が完了したか */
-static bool is_registered;
 
 /* 文字列がエスケープ中か */
 static bool escaped;
@@ -116,14 +110,14 @@ bool message_command(int *x, int *y, int *w, int *h)
 	draw_h = 0;
 
 	/* 初期化処理を行う */
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
 	/* セーブ画面への遷移を処理する */
 	if (is_right_button_pressed) {
 		start_save_mode(false);
-		repeatedly = false;
+		stop_command_repetition();
 		free(msg_top);
 		show_click(false);
 		return true;
@@ -132,7 +126,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* ヒストリ画面への遷移を処理する */
 	if (is_up_pressed) {
 		start_history_mode();
-		repeatedly = false;
+		stop_command_repetition();
 		free(msg_top);
 		return true;
 	}
@@ -168,7 +162,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	}
 
 	/* 終了処理を行う */
-	if (!repeatedly)
+	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
 
@@ -207,7 +201,8 @@ static bool init(void)
 		return false;
 
 	/* セリフが登録・表示されたことを記録する */
-	is_registered = true;
+	if (!is_message_registered())
+		set_message_registered();
 
 	/*メッセージの文字数を求める */
 	total_chars = utf8_chars(msg);
@@ -231,7 +226,7 @@ static bool init(void)
 
 	/* クリックアニメーションを非表示の状態にする */
 	show_click(false);
-	done_click_first = true;
+	process_click_first = true;
 	is_click_visible = false;
 
 	/* スペースキーによる非表示でない状態にする */
@@ -242,7 +237,7 @@ static bool init(void)
 		/* 繰り返し動作せず、すぐに表示する */
 	} else {
 		/* コマンドが繰り返し呼び出されるようにする */
-		repeatedly = true;
+		start_command_repetition();
 
 		/* 時間計測を開始する */
 		reset_stop_watch(&sw);
@@ -277,7 +272,7 @@ static bool register_message_for_history(void)
 
 	/* セーブ画面から戻ったばかりの場合、2重登録を防ぐ */
 	restore_flag = check_restore_flag();
-	if (restore_flag && is_registered)
+	if (restore_flag && is_message_registered())
 		return true;
 
 	/* 名前、ボイスファイル名、メッセージを取得する */
@@ -318,7 +313,7 @@ static bool process_serif_command(void)
 
 	/* ボイスを再生する */
 	if (!is_control_pressed && !history_flag &&
-	    (!restore_flag || !is_registered)) {
+	    (!restore_flag || !is_message_registered())) {
 		if (!play_voice())
 			return false;
 	}
@@ -331,7 +326,6 @@ static bool process_serif_command(void)
 
 	return true;
 }
-
 
 /* 名前ボックスを描画する */
 static void draw_namebox(void)
@@ -507,7 +501,7 @@ static int get_frame_chars(void)
 	int char_count;
 
 	/* 繰り返し動作しない場合 */
-	if (!repeatedly) {
+	if (!is_in_command_repetition()) {
 		/* すべての文字を描画する */
 		return total_chars;
 	}
@@ -521,7 +515,7 @@ static int get_frame_chars(void)
 	/* 入力によりスキップされた場合 */
 	if (is_control_pressed) {
 		/* 繰り返し動作を停止する */
-		repeatedly = false;
+		stop_command_repetition();
 
 		/* 残りの文字をすべて描画する */
 		return total_chars - drawn_chars;
@@ -550,19 +544,18 @@ static void draw_click(void)
 
 	/* 入力があったら終了する */
 	if (is_control_pressed) {
-		repeatedly = false;
+		stop_command_repetition();
 		return;
 	}
-	if (!done_click_first &&
+	if (!process_click_first &&
 	    (is_return_pressed || is_down_pressed || is_left_button_pressed)) {
-		repeatedly = false;
+		stop_command_repetition();
 		return;
 	}
 
 	/* クリックアニメーションの初回表示のとき */
-	if (done_click_first) {
-		done_click_first = false;
-		is_click_visible = false;
+	if (process_click_first) {
+		process_click_first = false;
 
 		/* 時間計測を開始する */
 		reset_stop_watch(&sw);
@@ -649,14 +642,11 @@ static bool cleanup(void)
 	/* メッセージを破棄する */
 	free(msg_top);
 
-	/* コマンドの繰り返し動作を無効にする */
-	repeatedly = false;
-
 	/* クリックアニメーションを非表示にする */
 	show_click(false);
 
-	/* 登録・表示済みであるかをクリアする */
-	is_registered = false;
+	/* 表示中のメッセージをなしとする */
+	clear_message_registered();
 
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())

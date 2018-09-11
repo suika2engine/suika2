@@ -48,10 +48,10 @@ public class MainActivity extends Activity {
 	private static final int DELAY = 0;
 
 	/** タッチをホールドと判断する時間[ms]です */
-	private static final int HOLD_TIME_MIN = 200;
+	private static final int HOLD_TIME_MIN = 700;
 
 	/** タッチをホールドと判断する時間[ms]です */
-	private static final int HOLD_TIME_MAX = 1000;
+	private static final int HOLD_TIME_MAX = 2000;
 
 	/** ミキサのストリーム数です。 */
 	private static final int MIXER_STREAMS = 3;
@@ -245,6 +245,38 @@ public class MainActivity extends Activity {
 			lastPointedCount = pointed;
 			return true;
 		}
+	}
+
+	/**
+	 * 一時停止する際に呼ばれます。
+	 */
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		// サウンドの再生を一時停止する
+		for(int i=0; i<player.length; i++) {
+			if(player[i] != null) {
+				// すでに再生終了している場合を除外する
+				if(!player[i].isPlaying())
+					player[i] = null;
+				else
+					player[i].pause();
+			}
+		}
+	}
+
+	/**
+	 * 再開する際に呼ばれます。
+	 */
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		// サウンドの再生を再開する
+		for(int i=0; i<player.length; i++)
+			if(player[i] != null)
+				player[i].start();
 	}
 
 	/*
