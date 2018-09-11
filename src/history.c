@@ -444,7 +444,7 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 
 	/* 改行する */
 	*pen_x = conf_history_margin_left;
-	*pen_y += conf_font_size;
+	*pen_y += conf_history_margin_line;
 
 	/* テキストの描画終了Y座標を記録する */
 	history[index].y_bottom = *pen_y - 1;
