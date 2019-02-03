@@ -13,7 +13,7 @@
 #include "suika.h"
 
 /* パッケージ内のファイルエントリの最大数 */
-#define ENTRY_SIZE		(10000)
+#define ENTRY_SIZE		(65536)
 
 /* パッケージ内のファイル名のサイズ */
 #define FILE_NAME_SIZE		(256)

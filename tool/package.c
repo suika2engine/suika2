@@ -24,7 +24,7 @@
 #endif
 
 /* ファイルエントリの最大数 */
-#define ENTRY_SIZE		(10000)
+#define ENTRY_SIZE		(65536)
 
 /* ファイル名のサイズ */
 #define FILE_NAME_SIZE		(256)
@@ -240,6 +240,7 @@ bool write_file_bodies(FILE *fp)
 #ifdef _WIN32
 		free(path);
 #endif
+		fclose(fpin);
 	}
 	return true;
 }
