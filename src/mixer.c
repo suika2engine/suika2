@@ -33,6 +33,9 @@ static float vol_span[MIXER_STREAMS];
 /* フェードの開始時刻 */
 static stop_watch_t sw[MIXER_STREAMS];
 
+/* セーブデータに書き込まれるべきボリュームの値 */
+static float vol_sav[MIXER_STREAMS];
+
 /* BGMファイル名 */
 static char *bgm_file_name;
 
@@ -45,6 +48,7 @@ void init_mixer(void)
 
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		vol_cur[n] = 1.0f;
+		vol_sav[n] = 1.0f;
 		set_sound_volume(n, 1.0f);
 
 		/* Androidでは再利用されるので初期化する */
@@ -136,12 +140,25 @@ void set_mixer_volume(int n, float vol, float span)
 		vol_start[n] = vol_cur[n];
 		vol_end[n] = vol;
 		vol_span[n] = span;
+		vol_sav[n] = vol;
 		reset_stop_watch(&sw[n]);
 	} else {
 		is_fading[n] = false;
 		vol_cur[n] = vol;
+		vol_sav[n] = vol;
 		set_sound_volume(n, vol);
 	}
+}
+
+/*
+ * ボリュームを取得する
+ *  - セーブ用
+ */
+float get_mixer_volume(int n)
+{
+	assert(n < MIXER_STREAMS);
+
+	return vol_sav[n];
 }
 
 /*

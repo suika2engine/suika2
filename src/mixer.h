@@ -41,6 +41,9 @@ void set_mixer_input(int n, struct wave *w);
 /* ボリュームを設定する */
 void set_mixer_volume(int n, float vol, float span);
 
+/* ボリュームを取得する */
+float get_mixer_volume(int n);
+
 /* サウンドのフェード処理を実行する */
 void process_sound_fading(void);
 

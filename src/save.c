@@ -93,11 +93,13 @@ static bool process_save(void);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
 static bool serialize_bgm(struct wfile *wf);
+static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
 static bool process_load(void);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
 static bool deserialize_bgm(struct rfile *rf);
+static bool deserialize_volumes(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
 static void load_global_vars(void);
 
@@ -652,6 +654,10 @@ static bool process_save(void)
 		if (!serialize_bgm(wf))
 			break;
 
+		/* ボリュームのシリアライズを行う */
+		if (!serialize_volumes(wf))
+			break;
+
 		/* 変数のシリアライズを行う */
 		if (!serialize_vars(wf))
 			break;
@@ -734,6 +740,21 @@ static bool serialize_bgm(struct wfile *wf)
 	return true;
 }
 
+/* ボリュームをシリアライズする */
+static bool serialize_volumes(struct wfile *wf)
+{
+	float vol;
+	int n;
+
+	for (n = 0; n < MIXER_STREAMS; n++) {
+		vol = get_mixer_volume(n);
+		if (write_wfile(wf, &vol, sizeof(vol)) < sizeof(vol))
+			return false;
+	}
+
+	return true;
+}
+
 /* ローカル変数をシリアライズする */
 static bool serialize_vars(struct wfile *wf)
 {
@@ -786,6 +807,10 @@ static bool process_load(void)
 
 		/* BGMのデシリアライズを行う */
 		if (!deserialize_bgm(rf))
+			break;
+
+		/* ボリュームのデシリアライズを行う */
+		if (!deserialize_volumes(rf))
 			break;
 
 		/* 変数のデシリアライズを行う */
@@ -907,6 +932,21 @@ static bool deserialize_bgm(struct rfile *rf)
 	}
 
 	set_mixer_input(BGM_STREAM, w);
+
+	return true;
+}
+
+/* ボリュームをデシリアライズする */
+static bool deserialize_volumes(struct rfile *rf)
+{
+	float vol;
+	int n;
+
+	for (n = 0; n < MIXER_STREAMS; n++) {
+		if (read_rfile(rf, &vol, sizeof(vol)) < sizeof(vol))
+			return false;
+		set_mixer_volume(n, vol, 0);
+	}
 
 	return true;
 }
