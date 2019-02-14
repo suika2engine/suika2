@@ -160,31 +160,31 @@ static bool init(void)
 
 	/* ALSAの使用を開始する */
 	if (!init_asound()) {
-		log_error("Cannot initialize sound.\n");
+		log_error("Can't initialize sound.\n");
 		return false;
 	}
 
 	/* ディスプレイをオープンする */
 	if (!open_display()) {
-		log_error("Cannot open display.\n");
+		log_error("Can't open display.\n");
 		return false;
 	}
 
 	/* ウィンドウを作成する */
 	if (!create_window()) {
-		log_error("Cannot open window.\n");
+		log_error("Can't open window.\n");
 		return false;
 	}
 
 	/* アイコンを作成する */
 	if (!create_icon_image()) {
-		log_error("Cannot create icon.\n");
+		log_error("Can't create icon.\n");
 		return false;
 	}
 
 	/* バックイメージを作成する */
 	if (!create_back_image()) {
-		log_error("Cannot create back image.\n");
+		log_error("Can't create back image.\n");
 		return false;
 	}
 
@@ -254,7 +254,7 @@ static bool open_display(void)
 
 	display = XOpenDisplay(NULL);
 	if (display == NULL) {
-		printf("Can't open display.\n");
+		log_api_error("XOpenDisplay");
 		return false;
 	}
 	return true;
