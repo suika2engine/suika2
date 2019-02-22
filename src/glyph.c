@@ -157,7 +157,7 @@ int utf8_to_utf32(const char *mbs, uint32_t *wc)
 		octets = 0;
 	else if((mbs[0] & 0x80) == 0)
 		octets = 1;
-	else if((mbs[0] & 0xe0) == 0x0c)
+	else if((mbs[0] & 0xe0) == 0xc0)
 		octets = 2;
 	else if((mbs[0] & 0xf0) == 0xe0)
 		octets = 3;
