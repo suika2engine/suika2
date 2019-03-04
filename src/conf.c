@@ -406,7 +406,7 @@ bool init_conf(void)
 	if (!read_conf())
 		return false;
 
-	/* 読み込まれなかった文字列コンフィグをチェックする */
+	/* 読み込まれなかった必須コンフィグをチェックする */
 	if (!check_conf())
 		return false;
 
