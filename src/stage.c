@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  *  - 2017-08-13 スイッチに対応
  *  - 2017-09-25 セリフの色付けに対応
  *  - 2018-08-28 不要なエラーログの削除
+ *  - 2019-09-17 NEWSに対応
  */
 
 #include "suika.h"
@@ -106,6 +107,12 @@ static struct image *switch_bg_image;
 /* スイッチ(選択)のイメージ */
 static struct image *switch_fg_image;
 
+/* NEWS(非選択)のイメージ */
+static struct image *news_bg_image;
+
+/* NEWS(選択)のイメージ */
+static struct image *news_fg_image;
+
 /* セーブ画面(非選択)のイメージ */
 static struct image *save_bg_image;
 
@@ -144,6 +151,7 @@ static bool setup_msgbox(void);
 static bool setup_click(void);
 static bool setup_selbox(void);
 static bool setup_switch(void);
+static bool setup_news(void);
 static bool setup_save(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
@@ -187,6 +195,10 @@ bool init_stage(void)
 
 	/* スイッチをセットアップする */
 	if (!setup_switch())
+		return false;
+
+	/* NEWSをセットアップする */
+	if (!setup_news())
 		return false;
 
 	/* セーブ画面をセットアップする */
@@ -325,7 +337,23 @@ static bool setup_switch(void)
 
 	/* スイッチの選択イメージを読み込む */
 	switch_fg_image = create_image_from_file(CG_DIR, conf_switch_fg_file);
-	if (selbox_fg_image == NULL)
+	if (switch_fg_image == NULL)
+		return false;
+
+	return true;
+}
+
+/* NEWSをセットアップする */
+static bool setup_news(void)
+{
+	/* NEWSの非選択イメージを読み込む */
+	news_bg_image = create_image_from_file(CG_DIR, conf_news_bg_file);
+	if (news_bg_image == NULL)
+		return false;
+
+	/* NEWSの選択イメージを読み込む */
+	news_fg_image = create_image_from_file(CG_DIR, conf_news_fg_file);
+	if (news_fg_image == NULL)
 		return false;
 
 	return true;
@@ -1046,6 +1074,73 @@ void draw_switch_fg_image(int x, int y)
 	draw_image(layer_image[LAYER_FI], x, y, switch_fg_image,
 		   get_image_width(switch_fg_image),
 		   get_image_height(switch_fg_image),
+		   0, 0, 255, BLEND_NONE);
+}
+
+/*
+ * NEWSの描画
+ */
+
+/*
+ * NEWSの親選択肢の矩形を取得する
+ */
+void get_news_rect(int index, int *x, int *y, int *w, int *h)
+{
+	const int NORTH = 0;
+	const int EAST = 1;
+	const int WEST = 2;
+	const int SOUTH = 3;
+	const int SWITCH_BASE = 4;
+
+	if (index == NORTH) {
+		*w = get_image_width(news_bg_image);
+		*h = get_image_height(news_bg_image);
+		*x = (conf_window_width - *w) / 2;
+		*y = conf_news_margin;
+	} else if (index == EAST) {
+		*w = get_image_width(news_bg_image);
+		*h = get_image_height(news_bg_image);
+		*x = conf_window_width - *w - conf_news_margin;
+		*y = *h + conf_switch_margin_y;
+	} else if (index == WEST) {
+		*w = get_image_width(news_bg_image);
+		*h = get_image_height(news_bg_image);
+		*x = conf_news_margin;
+		*y = *h + conf_switch_margin_y;
+	} else if (index == SOUTH) {
+		*w = get_image_width(news_bg_image);
+		*h = get_image_height(news_bg_image);
+		*x = (conf_window_width - *w) / 2;
+		*y = *h * 2 + conf_switch_margin_y * 2;
+	} else {
+		*w = get_image_width(switch_bg_image);
+		*h = get_image_height(switch_bg_image);
+		*x = conf_switch_x;
+		*y = (get_image_height(news_bg_image) + conf_switch_margin_y) *
+			3 + conf_switch_margin_y +
+			(*h + conf_switch_margin_y) * (index - SWITCH_BASE);
+	}
+}
+
+/*
+ * FIレイヤにNEWSの非選択イメージを描画する
+ */
+void draw_news_bg_image(int x, int y)
+{
+	draw_image(layer_image[LAYER_FI], x, y, news_bg_image,
+		   get_image_width(news_bg_image),
+		   get_image_height(news_bg_image),
+		   0, 0, 255, BLEND_NONE);
+}
+
+/*
+ * FIレイヤにスイッチの選択イメージを描画する
+ */
+void draw_news_fg_image(int x, int y)
+{
+	draw_image(layer_image[LAYER_FI], x, y, news_fg_image,
+		   get_image_width(news_fg_image),
+		   get_image_height(news_fg_image),
 		   0, 0, 255, BLEND_NONE);
 }
 

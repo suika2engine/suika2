@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  *  - 2017/08/14 スイッチに対応
  *  - 2017/09/25 セリフの色付けに対応
  *  - 2017/10/31 スイッチのクリック音に対応
+ *  - 2019/09/17 NEWSに対応
  */
 
 #ifndef SUIKA_CONF_H
@@ -88,6 +89,13 @@ extern int conf_switch_margin_y;
 extern int conf_switch_text_margin_y;
 extern char *conf_switch_parent_click_se_file;
 extern char *conf_switch_child_click_se_file;
+
+/*
+ * NEWSの設定
+ */
+extern char *conf_news_bg_file;
+extern char *conf_news_fg_file;
+extern int conf_news_margin;
 
 /*
  * セーブ・ロード画面の設定

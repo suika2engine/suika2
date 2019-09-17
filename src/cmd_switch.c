@@ -2,7 +2,7 @@
 
 /*
  * Suika
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  * [Changes]
  *  - 2017/08/14 作成
  *  - 2017/10/31 効果音に対応
+ *  - 2019/09/17 NEWSに対応
  */
 
 #include "suika.h"
@@ -26,6 +27,12 @@
 #define CHILD_LABEL(p,c)	(SWITCH_PARAM_CHILD1_L1 + 16 * p + 2 * c)
 #define CHILD_MESSAGE(p,c)	(SWITCH_PARAM_CHILD1_M1 + 16 * p + 2 * c)
 
+/* NEWSコマンド時のswitchボックス開始オフセット */
+#define SWITCH_BASE	(4)
+
+/* 指定した親選択肢が無効であるか */
+#define IS_PARENT_DISABLED(n)	(parent_button[n].msg == NULL)
+
 /* 親選択肢のボタン */
 static struct parent_button {
 	const char *msg;
@@ -37,8 +44,6 @@ static struct parent_button {
 	int w;
 	int h;
 } parent_button[PARENT_COUNT];
-
-int parent_button_count;
 
 /* 子選択肢のボタン */
 static struct child_button {
@@ -135,16 +140,27 @@ bool init(void)
 static bool get_parents_info(void)
 {
 	const char *p;
-	int i;
+	int i, parent_button_count = 0;
+
+	memset(parent_button, 0, sizeof(parent_button));
 
 	/* 親選択肢の情報を取得する */
-	parent_button_count = 0;
 	for (i = 0; i < PARENT_COUNT; i++) {
-		/* 親選択肢のメッセージを取得し、"*"が現れたらスキップする */
+		/* 親選択肢のメッセージを取得する */
 		p = get_string_param(PARENT_MESSAGE(i));
 		assert(strcmp(p, "") != 0);
-		if (strcmp(p, "*") == 0)
-			break;
+
+		/* @switchの場合、"*"が現れたら親選択肢の読み込みを停止する */
+		if (get_command_type() == COMMAND_SWITCH) {
+			if (strcmp(p, "*") == 0)
+				break;
+		} else {
+			/* @newsの場合、"*"が現れたら選択肢をスキップする */
+			if (strcmp(p, "*") == 0)
+				continue;
+		}
+
+		/* メッセージを保存する */
 		parent_button[i].msg = p;
 
 		/* 子の最初のメッセージが"*"か省略なら、一階層のメニューと
@@ -170,28 +186,24 @@ static bool get_parents_info(void)
 		}
 
 		/* 座標を計算する */
-		get_switch_rect(i, &parent_button[i].x,
-				&parent_button[i].y,
-				&parent_button[i].w,
-				&parent_button[i].h);
+		if (get_command_type() == COMMAND_SWITCH) {
+			get_switch_rect(i, &parent_button[i].x,
+					&parent_button[i].y,
+					&parent_button[i].w,
+					&parent_button[i].h);
+		} else {
+			get_news_rect(i, &parent_button[i].x,
+				      &parent_button[i].y,
+				      &parent_button[i].w,
+				      &parent_button[i].h);
+		}
 
-		/* 親選択肢のボタン数をカウントする */
 		parent_button_count++;
 	}
 	if (parent_button_count == 0) {
 		log_script_switch_no_item();
 		log_script_exec_footer();
 		return false;
-	}
-	for (i = parent_button_count; i < PARENT_COUNT; i++) {
-		parent_button[i].msg = NULL;
-		parent_button[i].label = NULL;
-		parent_button[i].has_child = false;
-		parent_button[i].child_count = 0;
-		parent_button[i].x = 0;
-		parent_button[i].y = 0;
-		parent_button[i].w = 0;
-		parent_button[i].h = 0;
 	}
 	return true;
 }
@@ -202,20 +214,17 @@ static bool get_children_info(void)
 	const char *p;
 	int i, j;
 
+	memset(child_button, 0, sizeof(child_button));
+
 	/* 子選択肢の情報を取得する */
-	for (i = 0; i < parent_button_count; i++) {
-		/* 親選択肢が子選択肢を持たない場合、スキップする */
-		if (!parent_button[i].has_child) {
-			for (j = 0; j < CHILD_COUNT; j++) {
-				child_button[i][j].msg = NULL;
-				child_button[i][j].label = NULL;
-				child_button[i][j].x = 0;
-				child_button[i][j].y = 0;
-				child_button[i][j].w = 0;
-				child_button[i][j].h = 0;
-			}
+	for (i = 0; i < PARENT_COUNT; i++) {
+		/* 親選択肢が無効の場合、スキップする */
+		if (IS_PARENT_DISABLED(i))
 			continue;
-		}
+
+		/* 親選択肢が子選択肢を持たない場合、スキップする */
+		if (!parent_button[i].has_child)
+			continue;
 
 		/* 子選択肢の情報を取得する */
 		for (j = 0; j < CHILD_COUNT; j++) {
@@ -241,14 +250,6 @@ static bool get_children_info(void)
 					&child_button[i][j].h);
 		}
 		parent_button[i].child_count = j;
-		for (; j < CHILD_COUNT; j++) {
-			child_button[i][j].msg = NULL;
-			child_button[i][j].label = NULL;
-			child_button[i][j].x = 0;
-			child_button[i][j].y = 0;
-			child_button[i][j].w = 0;
-			child_button[i][j].h = 0;
-		}
 	}
 
 	return true;
@@ -387,7 +388,10 @@ static int get_pointed_parent_index(void)
 {
 	int i;
 
-	for (i = 0; i < parent_button_count; i++) {
+	for (i = 0; i < PARENT_COUNT; i++) {
+		if (IS_PARENT_DISABLED(i))
+			continue;
+
 		if (mouse_pos_x >= parent_button[i].x &&
 		    mouse_pos_x < parent_button[i].x + parent_button[i].w &&
 		    mouse_pos_y >= parent_button[i].y &&
@@ -431,14 +435,27 @@ void draw_switch_parent_images(int *x, int *y, int *w, int *h)
 {
 	int i;
 
-	for (i = 0; i < parent_button_count; i++) {
+	for (i = 0; i < PARENT_COUNT; i++) {
+		if (IS_PARENT_DISABLED(i))
+			continue;
+
 		/* FIレイヤにスイッチを描画する */
-		if (i == pointed_parent_index) {
-			draw_switch_fg_image(parent_button[i].x,
-					     parent_button[i].y);
+		if (get_command_type() == COMMAND_SWITCH || i >= SWITCH_BASE) {
+			if (i == pointed_parent_index) {
+				draw_switch_fg_image(parent_button[i].x,
+						     parent_button[i].y);
+			} else {
+				draw_switch_bg_image(parent_button[i].x,
+						     parent_button[i].y);
+			}
 		} else {
-			draw_switch_bg_image(parent_button[i].x,
-					     parent_button[i].y);
+			if (i == pointed_parent_index) {
+				draw_news_fg_image(parent_button[i].x,
+						   parent_button[i].y);
+			} else {
+				draw_news_bg_image(parent_button[i].x,
+						   parent_button[i].y);
+			}
 		}
 
 		/* テキストを描画する */

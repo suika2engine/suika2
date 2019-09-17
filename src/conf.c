@@ -2,13 +2,14 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/25 作成
  *  - 2017/08/14 スイッチに対応
+ *  - 2019/09/17 NEWSに対応
  */
 
 #include "suika.h"
@@ -83,6 +84,13 @@ int conf_switch_margin_y;
 int conf_switch_text_margin_y;
 char *conf_switch_parent_click_se_file;
 char *conf_switch_child_click_se_file;
+
+/*
+ * NEWSの設定
+ */
+char *conf_news_bg_file;
+char *conf_news_fg_file;
+int conf_news_margin;
 
 /*
  * セーブ・ロード画面の設定
@@ -206,6 +214,9 @@ struct rule {
 	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, false, false},
 	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, true, false},
 	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, true, false},
+	{"news.bg.file", 's', &conf_news_bg_file, false, false},
+	{"news.fg.file", 's', &conf_news_fg_file, false, false},
+	{"news.margin", 'i', &conf_news_margin, false, false},
 	{"save.bg.file", 's', &conf_save_bg_file, false, false},
 	{"save.fg.file", 's', &conf_save_fg_file, false, false},
 	{"save.save.x", 'i', &conf_save_save_x, false, false},

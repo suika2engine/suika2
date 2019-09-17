@@ -114,7 +114,7 @@ click.x=1170
 click.y=660
 
 # Click animation interval (seconds)
-# クリックアニメーションの時間感覚
+# クリックアニメーションの時間間隔
 click.interval=0.5
 
 ###
@@ -172,6 +172,23 @@ switch.parent.click.se.file=click.ogg
 # Click sound file when the child option is clicked (omissible)
 # スイッチの子選択肢を選択したときの効果音(省略可)
 switch.child.click.se.file=click.ogg
+
+###
+### NEWS(North/East/West/South) Command Settings
+### NEWSの設定
+###
+
+# NEWS box (non-selected) image file name
+# NEWS（非選択中）画像のファイル名
+news.bg.file=news-bg.png
+
+# NEWS box (selected) image file name
+# NEWS（選択中）画像のファイル名
+news.fg.file=news-fg.png
+
+# Space between NEWS box and window border
+# NEWSの選択肢とウィンドウ境界のマージン
+news.margin=20
 
 ###
 ### Save/Load Screen Settings

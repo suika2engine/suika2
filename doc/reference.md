@@ -103,11 +103,16 @@ Describe the process here.
 This command jumps to a label.
 Use `@goto` to make or break a loop.
 
-* Usage: Jumps to the label `abc` (loop).
+* Usage 1: Jumps to the label `abc` (loop).
 ```
 :abc
 Describe the process here.
 @goto abc
+```
+
+* Usage 2: Show load screen.
+```
+@goto $LOAD
 ```
 
 ## @if
@@ -133,6 +138,28 @@ Variable 1 is less than 10.
 :abc
 ```
 
+## Label
+
+This creates a label to be used as a jump target.
+Use with `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch`.
+
+* Usage:
+```
+:JumpTarget
+Show some messages.
+@goto JumpTarget
+```
+
+## @load
+
+This command jumps to another script.
+Script files need to be in the `txt` folder.
+
+* Usage: Jumps to the script file `001.txt`.
+```
+@load 001.txt
+```
+
 ## @menu
 
 This command displays a menu using two images.
@@ -150,18 +177,6 @@ Menus can't be canceled using right click.
 :START
 ```
 
-## Label
-
-This creates a label to be used as a jump target.
-Use with `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch`.
-
-* Usage:
-```
-:JumpTarget
-Show some messages.
-@goto JumpTarget
-```
-
 ## Message
 
 Prints text to the message box.
@@ -174,15 +189,12 @@ Prints text to the message box.
 Hello, world!
 ```
 
-## @load
+## @news
 
-This command jumps to another script.
-Script files need to be in the `txt` folder.
+This command is a variant of `@switch`. It shows first four options on
+north, east, west and south of screen.
 
-* Usage: Jumps to the script file `001.txt`.
-```
-@load 001.txt
-```
+Parent options are hidden when `*` is specified.
 
 ## @retrospect
 

@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -10,6 +10,7 @@
  *  - 2016/06/01 作成
  *  - 2017/08/14 スイッチに対応
  *  - 2018/07/21 gosubに対応
+ *  - 2019/09/17 NEWSに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -43,6 +44,7 @@ enum command_type {
 	COMMAND_SWITCH,
 	COMMAND_GOSUB,
 	COMMAND_RETURN,
+	COMMAND_NEWS,
 	COMMAND_MAX		/* invalid value */
 };
 

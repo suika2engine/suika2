@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -10,6 +10,7 @@
  *  - 2016/06/01 作成
  *  - 2017/08/13 スイッチに対応
  *  - 2018/07/21 gosubに対応
+ *  - 2019/09/17 NEWSに対応
  */
 
 #include "suika.h"
@@ -59,6 +60,7 @@ struct insn_item {
 	{"@select", COMMAND_SELECT, 6, 6},
 	{"@se", COMMAND_SE, 1, 1},
 	{"@menu", COMMAND_MENU, 7, 22},
+	{"@news", COMMAND_NEWS, 9, 136},
 	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
 	{"@switch", COMMAND_SWITCH, 9, 136},
 	{"@gosub", COMMAND_GOSUB, 1, 1},
