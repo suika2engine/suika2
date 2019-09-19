@@ -1101,23 +1101,23 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
 		*w = get_image_width(news_bg_image);
 		*h = get_image_height(news_bg_image);
 		*x = conf_window_width - *w - conf_news_margin;
-		*y = *h + conf_switch_margin_y;
+		*y = *h + conf_news_margin * 2;
 	} else if (index == WEST) {
 		*w = get_image_width(news_bg_image);
 		*h = get_image_height(news_bg_image);
 		*x = conf_news_margin;
-		*y = *h + conf_switch_margin_y;
+		*y = *h + conf_news_margin * 2;
 	} else if (index == SOUTH) {
 		*w = get_image_width(news_bg_image);
 		*h = get_image_height(news_bg_image);
 		*x = (conf_window_width - *w) / 2;
-		*y = *h * 2 + conf_switch_margin_y * 2;
+		*y = *h * 2 + conf_news_margin * 3;
 	} else {
 		*w = get_image_width(switch_bg_image);
 		*h = get_image_height(switch_bg_image);
 		*x = conf_switch_x;
-		*y = (get_image_height(news_bg_image) + conf_switch_margin_y) *
-			3 + conf_switch_margin_y +
+		*y = (get_image_height(news_bg_image) + conf_news_margin) * 3 +
+			conf_news_margin +
 			(*h + conf_switch_margin_y) * (index - SWITCH_BASE);
 	}
 }
