@@ -79,7 +79,7 @@ static int get_pointed_child_index(void);
 static void draw_switch_images(int *x, int *y, int *w, int *h);
 static void draw_switch_parent_images(int *x, int *y, int *w, int *h);
 static void draw_switch_child_images(int *x, int *y, int *w, int *h);
-static void draw_text(int x, int y, int w, const char *t);
+static void draw_text(int x, int y, int w, const char *t, bool is_news);
 static void play_se(bool is_parent);
 static bool cleanup(void);
 
@@ -434,13 +434,18 @@ static void draw_switch_images(int *x, int *y, int *w, int *h)
 void draw_switch_parent_images(int *x, int *y, int *w, int *h)
 {
 	int i;
+	bool is_news;
 
 	for (i = 0; i < PARENT_COUNT; i++) {
 		if (IS_PARENT_DISABLED(i))
 			continue;
 
+		/* NEWSの項目であるか調べる */
+		is_news = get_command_type() == COMMAND_NEWS &&
+			i < SWITCH_BASE;
+
 		/* FIレイヤにスイッチを描画する */
-		if (get_command_type() == COMMAND_SWITCH || i >= SWITCH_BASE) {
+		if (!is_news) {
 			if (i == pointed_parent_index) {
 				draw_switch_fg_image(parent_button[i].x,
 						     parent_button[i].y);
@@ -460,7 +465,8 @@ void draw_switch_parent_images(int *x, int *y, int *w, int *h)
 
 		/* テキストを描画する */
 		draw_text(parent_button[i].x, parent_button[i].y,
-			  parent_button[i].w, parent_button[i].msg);
+			  parent_button[i].w, parent_button[i].msg,
+			  is_news);
 
 		/* FIレイヤを含めてステージを更新する */
 		draw_stage_rect_with_switch(parent_button[i].x,
@@ -494,10 +500,8 @@ void draw_switch_child_images(int *x, int *y, int *w, int *h)
 		}
 
 		/* テキストを描画する */
-		draw_text(child_button[n][i].x,
-			  child_button[n][i].y,
-			  child_button[n][i].w,
-			  child_button[n][i].msg);
+		draw_text(child_button[n][i].x, child_button[n][i].y,
+			  child_button[n][i].w, child_button[n][i].msg, false);
 
 		/* FIレイヤを含めてステージを更新する */
 		draw_stage_rect_with_switch(child_button[n][i].x,
@@ -515,14 +519,14 @@ void draw_switch_child_images(int *x, int *y, int *w, int *h)
 }
 
 /* 選択肢のテキストを描画する */
-static void draw_text(int x, int y, int w, const char *t)
+static void draw_text(int x, int y, int w, const char *t, bool is_news)
 {
 	uint32_t c;
 	int mblen, xx, ww, hh;
 
 	/* 描画位置を決める */
 	xx = x + (w - get_utf8_width(t)) / 2;
-	y += conf_switch_text_margin_y;
+	y += is_news ? conf_news_text_margin_y : conf_switch_text_margin_y;
 
 	/* 1文字ずつ描画する */
 	while (*t != '\0') {

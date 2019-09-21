@@ -96,6 +96,7 @@ extern char *conf_switch_child_click_se_file;
 extern char *conf_news_bg_file;
 extern char *conf_news_fg_file;
 extern int conf_news_margin;
+extern int conf_news_text_margin_y;
 
 /*
  * セーブ・ロード画面の設定

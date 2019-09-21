@@ -91,6 +91,7 @@ char *conf_switch_child_click_se_file;
 char *conf_news_bg_file;
 char *conf_news_fg_file;
 int conf_news_margin;
+int conf_news_text_margin_y;
 
 /*
  * セーブ・ロード画面の設定
@@ -217,6 +218,7 @@ struct rule {
 	{"news.bg.file", 's', &conf_news_bg_file, false, false},
 	{"news.fg.file", 's', &conf_news_fg_file, false, false},
 	{"news.margin", 'i', &conf_news_margin, false, false},
+	{"news.text.margin.y", 'i', &conf_news_text_margin_y, false, false},
 	{"save.bg.file", 's', &conf_save_bg_file, false, false},
 	{"save.fg.file", 's', &conf_save_fg_file, false, false},
 	{"save.save.x", 'i', &conf_save_save_x, false, false},
