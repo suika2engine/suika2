@@ -116,27 +116,34 @@ static void clear_sse_flags_by_os_version(void)
 
 	/* Windowsのバージョンを取得する */
 	if (!GetVersionEx(&vi)) {
+		has_avx512 = false;
 		has_avx2 = false;
 		has_avx = false;
 		has_sse42 = false;
 		has_sse41 = false;
 		has_sse3 = false;
 		has_sse2 = false;
+		has_sse = false;
+		has_mmx = false;
 		return;
 	}
 	dwMajor = vi.dwMajorVersion;
 	dwMinor = vi.dwMinorVersion;
 	dwBuild = vi.dwBuildNumber;
 
-	/* Windows 98 SEより前の場合、全てのSSE系命令を無効にする */
+	/* Windows 98 SEより前の場合、全てのSIMD命令を無効にする */
 	if (dwMajor < 4 ||
 	    (dwMajor == 4 && dwMinor < 10) ||
 	    (dwMajor == 4 && dwMinor == 10 && dwBuild < 2222)) {
+		has_avx512 = false;
+		has_avx2 = false;
+		has_avx = false;
 		has_sse42 = false;
 		has_sse41 = false;
 		has_sse3 = false;
 		has_sse2 = false;
 		has_sse = false;
+		has_mmx = false;
 	}
 }
 #endif
