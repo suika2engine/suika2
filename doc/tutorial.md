@@ -54,7 +54,8 @@ As a first step, we'll change the background image.
 This is the most basic command.
 
 Replace the content of `init.txt` as follows.
-Note that the character encoding is UTF-8 without BOM.
+Note that the character encoding is UTF-8 without BOM,
+and you can't use Notepad.
 
 ```
 @bg roof.png 1.0
