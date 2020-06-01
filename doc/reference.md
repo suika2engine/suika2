@@ -177,6 +177,13 @@ Menus can't be canceled using right click.
 :START
 ```
 
+* Meaning of parameters:
+   * menu.png ... first image
+   * menu-selected.png ... second image
+   * START ... jump target label
+   * 640 480 ... top-left position of button
+   * 240 120 ... button size
+
 ## Message
 
 Prints text to the message box.
