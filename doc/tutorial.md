@@ -105,7 +105,7 @@ Hi, my name is Midori.
 After saving it, run `suika.exe`.
 Suika 2 will show a roof terrace, a character, three messages, and then exit.
 
-Any script lines which don't start with @ or * are recognized as messages.
+Any script lines which don't start with @ or \* are recognized as messages.
 
 ## Play BGM
 
