@@ -13,3 +13,8 @@ build/cocoa/libroot
 build/cocoa/Suika
 build/cocoa/suika2
 build/cocoa/suika-2.x.x-mac.zip
+build/netbsd/*.o
+build/netbsd/libroot
+build/netbsd/suika
+game/log.txt
+game/sav

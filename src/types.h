@@ -29,6 +29,8 @@
 #ifndef ANDROID
 #define ANDROID
 #endif
+#elif defined(__NetBSD__)
+#define NETBSD
 #else
 #define LINUX
 #endif
@@ -166,7 +168,7 @@ typedef unsigned long uintptr_t;
 #define snprintf		_snprintf
 #endif
 
-#endif /* MSCV */
+#endif /* MSVC */
 
 /* ストップウォッチ型(ミリ秒) */
 typedef uint64_t stop_watch_t;

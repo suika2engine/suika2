@@ -103,6 +103,7 @@ bool init_asound(void)
 
 		/* 条件変数を作成する */
 		pthread_cond_init(&req[n], NULL);
+		pthread_cond_init(&ack[n], NULL);
 
 		pthread_mutex_lock(&mutex[n]);
 		{
@@ -142,9 +143,10 @@ void cleanup_asound(void)
 			pthread_cond_signal(&req[n]);
 		}
 		pthread_mutex_unlock(&mutex[n]);
+printf("waiting for sound thread %d\n", n);
 
 		/* スレッドの終了を待つ */
-		pthread_join(thread[n], &p1);
+ pthread_join(thread[n], &p1);
 
 		/* デバイスをクローズする */
 		if (pcm[n] != NULL)
@@ -276,11 +278,13 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params_set_periods");
 		return false;
 	}
+#ifndef NETBSD
 	if (snd_pcm_hw_params_set_buffer_size(pcm[n], params, BUF_FRAMES) <
 	    0) {
 		log_api_error("snd_pcm_hw_params_set_buffer_size");
 		return false;
 	}
+#endif
 	if (snd_pcm_hw_params(pcm[n], params) < 0) {
 		log_api_error("snd_pcm_hw_params");
 		return false;
@@ -315,6 +319,7 @@ static void *sound_thread(void *p)
 
 		/* 再生ループを実行する */
 		while (playback_period(n)) {
+#if defined(LINUX)
 			/*
 			 * [重要]
 			 *  - コンテキストスイッチを明示的に行う
@@ -323,9 +328,20 @@ static void *sound_thread(void *p)
 			 *  - sched_yield()ではだめ
 			 */
 			sleep(0);
+#elif defined(NETBSD)
+			/*
+			 * [重要]
+			 *  - コンテキストスイッチを明示的に行う
+			 *  - これがないとメインスレッドでmutexを取得できない
+			 *  - NetBSD9.1で確認
+			 *  - sleep(0)ではだめ
+			 */
+			sched_yield();
+#endif
 		}
 	}
 
+printf("finish %d\n", n);
 	return (void *)0;
 }
 
