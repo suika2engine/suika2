@@ -82,7 +82,7 @@ include ../sse.mk
 #
 
 run: suika
-	cd ../../game; ../build/netbsd/suika
+	cd ../../game; ../build/freebsd/suika
 
 clean:
 	rm -rf *~ *.o suika log.txt sav tmp libroot
