@@ -9,7 +9,7 @@ Suika 2はWindowsとMacの両方で動くアドベンチャーゲームエンジ
 
 ## 移植性
 
-正確に言えば、Suika 2はWindowsとMac、Linux、そしてAndroidで動作します。
+正確に言えば、Suika 2はWindowsとMac, Linux, FreeBSD, NetBSD, そしてAndroidで動作します。
 
 Suika 2はプラットフォーム非依存部とハードウェア抽象化レイヤ(HAL)から成ります。プラットフォーム非依存部はANSI Cと少しのGCC pragmaで書かれています。HALは今のところ、C、Objective-C、アセンブラ、そしてJavaで書かれています。
 
@@ -44,3 +44,6 @@ build/BUILD.md を見てください。
     * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください。
     * ターミナルで `suika2` ディレクトリに入ってください。
     * `./suika-linux64` を実行してください。
+
+* FreeBSD/NetBSDでは:
+    * ソースからビルドしてください

@@ -33,6 +33,16 @@ How to build
         * Run `make package` to create release zip file.
         * Run `make run` to run Suika2.
 
+* FreeBSD Binary
+    * On FreeBSD 12.2, install following packages:
+        * gmake
+        * alsa-lib
+        * alsa-plugins
+    * In terminal, enter `build/freebsd` directory.
+        * Run `./build-libs.sh` to build libraries.
+        * Run `gmake` to build Suika2 binary.
+        * Run `gmake run` to run Suika2.
+
 * NetBSD Binary
     * On NetBSD 9.1, install following packages from pkgsrc:
         * gmake

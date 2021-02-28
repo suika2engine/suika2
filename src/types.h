@@ -31,6 +31,8 @@
 #endif
 #elif defined(__NetBSD__)
 #define NETBSD
+#elif defined(__FreeBSD__)
+#define FREEBSD
 #else
 #define LINUX
 #endif

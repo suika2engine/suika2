@@ -143,10 +143,9 @@ void cleanup_asound(void)
 			pthread_cond_signal(&req[n]);
 		}
 		pthread_mutex_unlock(&mutex[n]);
-printf("waiting for sound thread %d\n", n);
 
 		/* スレッドの終了を待つ */
- pthread_join(thread[n], &p1);
+		pthread_join(thread[n], &p1);
 
 		/* デバイスをクローズする */
 		if (pcm[n] != NULL)
@@ -278,7 +277,7 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params_set_periods");
 		return false;
 	}
-#ifndef NETBSD
+#if !defined(FREEBSD) && !defined(NETBSD)
 	if (snd_pcm_hw_params_set_buffer_size(pcm[n], params, BUF_FRAMES) <
 	    0) {
 		log_api_error("snd_pcm_hw_params_set_buffer_size");
@@ -333,7 +332,7 @@ static void *sound_thread(void *p)
 			 * [重要]
 			 *  - コンテキストスイッチを明示的に行う
 			 *  - これがないとメインスレッドでmutexを取得できない
-			 *  - NetBSD9.1で確認
+			 *  - NetBSD 9.1で確認
 			 *  - sleep(0)ではだめ
 			 */
 			sched_yield();
@@ -341,7 +340,6 @@ static void *sound_thread(void *p)
 		}
 	}
 
-printf("finish %d\n", n);
 	return (void *)0;
 }
 

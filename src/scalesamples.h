@@ -15,7 +15,7 @@
  *  - SCALE_SAMPLES
  */
 
-#if defined(LINUX) || defined(NETBSD)
+#if defined(LINUX) || defined(FREEBSD) || defined(NETBSD)
 
 #include <math.h>
 

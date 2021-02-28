@@ -9,7 +9,7 @@ Suika 2 is a portable game engine that runs on both Windows and Mac. You can enj
 
 ## Portability
 
-In a strict sense, Suika 2 runs on Windows, Mac, Linux, NetBSD and Android.
+In a strict sense, Suika 2 runs on Windows, Mac, Linux, FreeBSD, NetBSD and Android.
 
 Suika 2 consists of a platform independent part and a hardware abstraction layer (HAL). The platform independent part is written in ANSI C with some GCC pragmas. HALs are currently written in C, Objective-C and Java.
 
@@ -55,7 +55,7 @@ See game/COPYING.
 * On Android:
     * Build from source. Android Studio is needed.
 
-* On NetBSD:
+* On FreeBSD/NetBSD:
     * Build from source.
 
 ## Enable English mode

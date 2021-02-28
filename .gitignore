@@ -13,6 +13,9 @@ build/cocoa/libroot
 build/cocoa/Suika
 build/cocoa/suika2
 build/cocoa/suika-2.x.x-mac.zip
+build/freebsd/*.o
+build/freebsd/libroot
+build/freebsd/suika
 build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
