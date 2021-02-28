@@ -47,7 +47,7 @@ How to build
     * On NetBSD 9.1, install following packages from pkgsrc:
         * gmake
         * alsa-lib
-        * alsa-plugin-oss
+        * alsa-plugins-oss
     * export LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib
     * In terminal, enter `build/netbsd` directory.
         * Run `./build-libs.sh` to build libraries.
