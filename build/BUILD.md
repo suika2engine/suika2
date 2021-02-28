@@ -38,7 +38,11 @@ How to build
         * gmake
         * alsa-lib
         * alsa-plugin-oss
-    * To setup ALSA/OSS, create /etc/asound.conf. For example,
+    * In terminal, enter `build/netbsd` directory.
+        * Run `./build-libs.sh` to build libraries.
+        * Run `gmake` to build Suika2 binary.
+        * Run `gmake run` to run Suika2.
+    * To setup ALSA/OSS, create /etc/asound.conf
 ```
 pcm.!default {
 type oss
@@ -49,7 +53,3 @@ type oss
 device /dev/mixer
 }
 ```
-    * In terminal, enter `build/netbsd` directory.
-        * Run `./build-libs.sh` to build libraries.
-        * Run `gmake` to build Suika2 binary.
-        * Run `gmake run` to run Suika2.
