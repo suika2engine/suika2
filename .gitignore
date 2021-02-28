@@ -19,5 +19,6 @@ build/freebsd/suika
 build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
+build/android/.idea/caches
 game/log.txt
 game/sav
