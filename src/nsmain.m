@@ -179,8 +179,9 @@ static void closeLog(void)
 static BOOL initBackImage(void)
 {
 #ifndef SSE_VERSIONING
-    backImagePixels = malloc(conf_window_width * conf_window_height * 4);
-    if (pixels == NULL) {
+    backImagePixels = malloc((size_t)(conf_window_width * conf_window_height *
+                             4));
+    if (backImagePixels == NULL) {
         [NSApp terminate:nil];
         return false;
     }
