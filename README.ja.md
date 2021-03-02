@@ -9,7 +9,7 @@ Suika 2はWindowsとMacの両方で動くアドベンチャーゲームエンジ
 
 ## 移植性
 
-正確に言えば、Suika 2はWindowsとMac, Linux, FreeBSD, NetBSD, そしてAndroidで動作します。
+正確に言えば、Suika 2はWindows, Mac, Android, Linux, FreeBSD, NetBSDで動作します。
 
 Suika 2はプラットフォーム非依存部とハードウェア抽象化レイヤ(HAL)から成ります。プラットフォーム非依存部はANSI Cと少しのGCC pragmaで書かれています。HALは今のところ、C、Objective-C、アセンブラ、そしてJavaで書かれています。
 
@@ -30,20 +30,19 @@ build/BUILD.md を見てください。
 ## 使い方
 
 * Windowsでは:
-    * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください。
-    * `suika2` フォルダをエクスプローラで開いてください。
-    * `suika.exe` をダブルクリックして起動してください。
+    * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください
+    * `suika2` フォルダをエクスプローラで開いてください
+    * `suika.exe` をダブルクリックして起動してください
 
 * Macでは:
-    * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください。
-    * `suika2` フォルダをFinderで開いてください。
-    * `Suika` を `アプリケーション` フォルダにコピーしてください。このステップは必須です。
-    * `アプリケーション` の `Suika` をダブルクリックして起動してください。
+    * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください
+    * `suika2` フォルダをFinderで開いてください
+    * `suika` をダブルクリックして起動してください
 
-* Linuxでは:
-    * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください。
-    * ターミナルで `suika2` ディレクトリに入ってください。
-    * `./suika-linux64` を実行してください。
+* Androidでは:
+    * サンプルゲームがGoogle Playにあります。[公式サイト](https://luxion.jp/s2/)をご覧ください
+    * ご自身のゲームを作成するには、Android Studioを使用してソースからビルドする必要があります
 
-* FreeBSD/NetBSDでは:
+* Linux/FreeBSD/NetBSDでは:
     * ソースからビルドしてください
+    * `build/BUILD.md` を参照してください

@@ -1,37 +1,52 @@
 How to build
 ============
 
-* Windows Binary
+* Windows App
     * We use cross compiler to build Windows binary.
     * On Ubuntu 20.04, install following packages:
+        * build-essential
         * mingw-w64
-        * wine-stable
     * In terminal, enter `build/mingw` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `make` to build Suika2 binary.
-        * Run `make package` to create release zip file.
-        * Run `make run` to run Suika2 by Wine.
+        * Run `make` to build `suika.exe`.
+        * Run `make install` to copy `suika.exe` to `game` directory.
+    * To run Suika 2, double click `suika.exe` in `game` folder on Windows..
 
-* Mac Binary
-    * On Mac OS 10.13, install command line developer tools.
-    * In terminal, enter `build/cocoa` directory.
+* Mac App
+    * On macOS 11.2, install Xcode 12.4.
+    * In terminal, enter `build/macos` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `make` to build Suika2 binary.
-        * Run `make package` to create release zip file.
-    * In Finder, open `build/cocoa/suika2` folder.
-        * Copy `Suika.app` to `/Applications`
-        * Open `/Applications/Suika.app`
+    * In Finder, open `build/macos/suika.xcodeproj`.
+        * Build project.
+        * Copy `suika.app` to `game` folder.
+    * To run Suika 2, double click `suika.app` in `game` folder.
+
+* Release File
+    * Put Windows and Mac Apps into `game` folder.
+    * On Ubuntu 20.04, in terminal, enter `build/release` directory.
+        * Run `make`
+        * Rename `suika-2.x.x.zip`
+
+* Android App
+    * Install Android Studio 3.3.1 from Android Studio Archive.
+    * Select `Configure` on initial screen.
+        * Install `CMake`, `LLDB`, `NDK`.
+    * Open Suika 2 project (`build/android`).
+    * Build project.
+    * Run app on device or emulator.
 
 * Linux Binary
     * On Ubuntu 20.04, install following packages:
+        * build-essential
         * libasound2-dev
         * libX11-dev
         * libxpm-dev
     * In terminal, enter `build/linux` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `make` to build Suika2 binary.
-        * Run `make package` to create release zip file.
-        * Run `make run` to run Suika2.
+        * Run `make` to build Suika 2 binary.
+        * Run `make install` to copy binary `suika` to `game` directory.
+    * In terminal, enter `game` directory.
+	    * Run `./suika`
 
 * FreeBSD Binary
     * On FreeBSD 12.2, install following packages:
@@ -40,27 +55,31 @@ How to build
         * alsa-plugins
     * In terminal, enter `build/freebsd` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `gmake` to build Suika2 binary.
-        * Run `gmake run` to run Suika2.
+        * Run `gmake` to build Suika 2 binary.
+        * Run `gmake install` to copy binary `suika` to `game` directory.
+    * In terminal, enter `game` directory.
+        * Run `./suika`.
 
 * NetBSD Binary
-    * On NetBSD 9.1, install following packages from pkgsrc:
+    * On NetBSD 9.1, install following packages:
         * gmake
         * alsa-lib
         * alsa-plugins-oss
     * export LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib
     * In terminal, enter `build/netbsd` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `gmake` to build Suika2 binary.
-        * Run `gmake run` to run Suika2.
-    * To setup ALSA/OSS, create /etc/asound.conf
+        * Run `gmake` to build Suika 2 binary.
+        * Run `gmake install` to copy binary `suika` to `game` directory.
+    * In terminal, enter `game` directory.
+        * Run `./suika`.
+    * FYI: To setup ALSA/OSS, create /etc/asound.conf
 ```
 pcm.!default {
-type oss
-device /dev/audio
+    type oss
+    device /dev/audio
 }
 ctl.!default {
-type oss
-device /dev/mixer
+    type oss
+    device /dev/mixer
 }
 ```
