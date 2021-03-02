@@ -13,6 +13,8 @@
 #include "suika.h"
 #include "cpuid.h"
 
+#ifdef SSE_VERSIONING
+
 #ifdef WIN
 #include <windows.h>
 #endif
@@ -147,3 +149,5 @@ static void clear_sse_flags_by_os_version(void)
 	}
 }
 #endif
+
+#endif /* SSE_VERSIONING */
