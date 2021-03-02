@@ -1,3 +1,4 @@
+*.DS_Store
 build/linux/*.o
 build/linux/libroot
 build/linux/suika
@@ -8,11 +9,10 @@ build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/suika2
 build/mingw/suika-2.x.x-win.zip
-build/cocoa/*.o
-build/cocoa/libroot
-build/cocoa/Suika
-build/cocoa/suika2
-build/cocoa/suika-2.x.x-mac.zip
+build/macos/libroot
+build/macos/suika.xcodeproj/project.xcworkspace
+build/macos/suika.xcodeproj/xcshareddata
+build/macos/suika.xcodeproj/xcuserdata
 build/freebsd/*.o
 build/freebsd/libroot
 build/freebsd/suika

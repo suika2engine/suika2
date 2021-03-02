@@ -12,6 +12,8 @@
 
 #include "suika.h"
 
+#ifdef SSE_VERSIONING
+
 /* AVX2版の描画関数を定義する */
 #define DRAW_BLEND_NONE			draw_blend_none_avx2
 #define DRAW_BLEND_FAST			draw_blend_fast_avx2
@@ -31,3 +33,6 @@
 /* AVX2版mul_add_pcm()を定義する */
 #define MUL_ADD_PCM mul_add_pcm_avx2
 #include "muladdpcm.h"
+
+#endif /* SSE_VERSIONING */
+

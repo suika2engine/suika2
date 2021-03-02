@@ -10,8 +10,9 @@ Are you ready? Let's get started!
 
 ## Preparation
 
+We use Windows here.
+
 Firstly, [download](https://luxion.jp/s2/en/) the Suika 2 binary.
-We use the Windows version here.
 
 Extract the downloaded ZIP file. We see the following file and folders.
 `suika.exe` is the executable file of Suika 2. Other folders include a sample
@@ -28,6 +29,7 @@ game.
     * `se/` A folder to store sound effect files.
     * `tool/` A folder that includes the file packager.
     * `txt/` A folder to store script files.
+    * `suika.app/` Mac application.
     * `suika.exe` Executable application file for Windows.
 
 This tutorial makes changes to the sample game.

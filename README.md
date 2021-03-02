@@ -9,7 +9,7 @@ Suika 2 is a portable game engine that runs on both Windows and Mac. You can enj
 
 ## Portability
 
-In a strict sense, Suika 2 runs on Windows, Mac, Linux, FreeBSD, NetBSD and Android.
+In a strict sense, Suika 2 runs on Windows, Mac, Android, Linux, FreeBSD and NetBSD.
 
 Suika 2 consists of a platform independent part and a hardware abstraction layer (HAL). The platform independent part is written in ANSI C with some GCC pragmas. HALs are currently written in C, Objective-C and Java.
 
@@ -39,24 +39,19 @@ See game/COPYING.
 * On Windows:
     * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Explorer.
-    * Double click `suika.exe`
+    * Double click `suika.exe` application.
 
 * On Mac:
     * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Finder.
-    * Copy `Suika` to the `/Applications` folder. This step is necessary.
-    * Double click `Suika` in the `/Applications` folder.
-
-* On Linux:
-    * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
-    * Enter `suika2` directory in terminal.
-    * run `./suika-linux64`
+    * Double click `suika` application.
 
 * On Android:
-    * Build from source. Android Studio is needed.
+    * Sample game is available on Google Play. See [the official web site](https://luxion.jp/s2/)
+    * To make your own game, you should build from source code using Android Studio.
 
-* On FreeBSD/NetBSD:
-    * Build from source.
+* On Linux/FreeBSD/NetBSD:
+    * Build from source code. See build/BUILD.md
 
 ## Enable English mode
 

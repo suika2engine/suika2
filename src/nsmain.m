@@ -146,7 +146,8 @@ int main()
 static BOOL openLog(void)
 {
     // .appバンドルのあるパスを取得する
-    NSString *base = [[NSBundle mainBundle] bundlePath];
+    NSString *base = [[[NSBundle mainBundle] bundlePath]
+                         stringByDeletingLastPathComponent];
 
     // ログのパスを生成する
     const char *path = [[NSString stringWithFormat:@"%@/%s", base,
@@ -179,8 +180,9 @@ static void closeLog(void)
 static BOOL initBackImage(void)
 {
 #ifndef SSE_VERSIONING
-    backImagePixels = malloc(conf_window_width * conf_window_height * 4);
-    if (pixels == NULL) {
+    backImagePixels = malloc((size_t)(conf_window_width * conf_window_height *
+                             4));
+    if (backImagePixels == NULL) {
         [NSApp terminate:nil];
         return false;
     }
@@ -292,7 +294,8 @@ bool make_sav_dir(void)
 #else
     @autoreleasepool {
 #endif
-    NSString *basePath = [[NSBundle mainBundle] bundlePath];
+    NSString *basePath = [[[NSBundle mainBundle] bundlePath]
+                             stringByDeletingLastPathComponent];
     NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath,
                                    SAVE_DIR];
     NSError *error;
@@ -321,8 +324,8 @@ char *make_valid_path(const char *dir, const char *fname)
     @autoreleasepool {
 #endif
 
-    NSString *base = [[NSBundle mainBundle] bundlePath];
-
+    NSString *base = [[[NSBundle mainBundle] bundlePath]
+                         stringByDeletingLastPathComponent];
     NSString *path;
     if (dir != NULL)
         path = [NSString stringWithFormat:@"%@/%s/%s", base, dir, fname];

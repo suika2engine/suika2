@@ -83,13 +83,8 @@ include ../sse.mk
 # Phony
 #
 
-run: suika
-	cd ../../game; ../build/netbsd/suika
+install: suika
+	cp suika ../../game/
 
 clean:
 	rm -rf *~ *.o suika log.txt sav tmp libroot
-
-lines:
-	cat ../../src/*.[chm] | wc -l
-	grep -E '/\*|\*/|^([ \t]+\*)' ../../src/*.[cm] | wc -l
-	grep 'assert' ../../src/*.[chm] | wc -l

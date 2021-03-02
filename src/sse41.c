@@ -12,6 +12,8 @@
 
 #include "suika.h"
 
+#ifdef SSE_VERSIONING
+
 /* SSE4.1版の描画関数を定義する */
 #define DRAW_BLEND_NONE			draw_blend_none_sse41
 #define DRAW_BLEND_FAST			draw_blend_fast_sse41
@@ -31,3 +33,6 @@
 /* SSE4.1版mul_add_pcm()を定義する */
 #define MUL_ADD_PCM mul_add_pcm_sse41
 #include "muladdpcm.h"
+
+#endif /* SSE_VERSIONING */
+

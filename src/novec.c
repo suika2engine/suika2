@@ -12,6 +12,8 @@
 
 #include "suika.h"
 
+#ifdef SSE_VERSIONING
+
 /* 非ベクトル化版の描画関数を定義する */
 #define DRAW_BLEND_NONE			draw_blend_none_novec
 #define DRAW_BLEND_FAST			draw_blend_fast_novec
@@ -31,3 +33,5 @@
 /* 非ベクトル版mul_add_pcm()を定義する */
 #define MUL_ADD_PCM mul_add_pcm_novec
 #include "muladdpcm.h"
+
+#endif /* SSE_VERSIONING */
