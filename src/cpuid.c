@@ -113,7 +113,7 @@ static void clear_sse_flags_by_os_version(void)
 	OSVERSIONINFO vi;
 	DWORD dwMajor, dwMinor, dwBuild;
 
-	ZeroMemory(&vi, sizeof(OSVERSIONINFOEX));
+	ZeroMemory(&vi, sizeof(OSVERSIONINFO));
 	vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
 	/* Windowsのバージョンを取得する */
