@@ -145,12 +145,14 @@ int main()
 // ログをオープンする
 static BOOL openLog(void)
 {
-    // .appバンドルのあるパスを取得する
-    NSString *base = [[[NSBundle mainBundle] bundlePath]
-                         stringByDeletingLastPathComponent];
+    // .appバンドルのパスを取得する
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+
+    // .appバンドルの1つ上のディレクトリのパスを取得する
+    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
 
     // ログのパスを生成する
-    const char *path = [[NSString stringWithFormat:@"%@/%s", base,
+    const char *path = [[NSString stringWithFormat:@"%@/%s", basePath,
                                   LOG_FILE] UTF8String];
 
     // ログをオープンする
@@ -294,10 +296,17 @@ bool make_sav_dir(void)
 #else
     @autoreleasepool {
 #endif
-    NSString *basePath = [[[NSBundle mainBundle] bundlePath]
-                             stringByDeletingLastPathComponent];
+    // .appバンドルのパスを取得する
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+
+    // .appバンドルの1つ上のディレクトリのパスを取得する
+    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+
+    // savディレクトリのパスを作成する
     NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath,
                                    SAVE_DIR];
+
+    // savディレクトリを作成する
     NSError *error;
     [[NSFileManager defaultManager] createDirectoryAtPath:savePath
                               withIntermediateDirectories:NO
@@ -323,16 +332,21 @@ char *make_valid_path(const char *dir, const char *fname)
 #else
     @autoreleasepool {
 #endif
+    // .appバンドルのパスを取得する
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-    NSString *base = [[[NSBundle mainBundle] bundlePath]
-                         stringByDeletingLastPathComponent];
-    NSString *path;
+    // .appバンドルの1つ上のディレクトリのパスを取得する
+    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+
+    // ファイルのパスを作成する
+    NSString *filePath;
     if (dir != NULL)
-        path = [NSString stringWithFormat:@"%@/%s/%s", base, dir, fname];
+        filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir,
+                             fname];
     else
-        path = [NSString stringWithFormat:@"%@/%s", base, fname];
+        filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
 
-    const char *cstr = [path UTF8String];
+    const char *cstr = [filePath UTF8String];
     ret = strdup(cstr);
 
 #if !__has_feature(objc_arc)
