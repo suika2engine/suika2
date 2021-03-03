@@ -10,22 +10,25 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build `suika.exe`.
         * Run `make install` to copy `suika.exe` to `game` directory.
-    * To run Suika 2, double click `suika.exe` in `game` folder on Windows..
+    * To run Suika 2, double click `suika.exe` in `game` folder on Windows.
 
 * Mac App
     * On macOS 11.2, install Xcode 12.4.
     * In terminal, enter `build/macos` directory.
         * Run `./build-libs.sh` to build libraries.
-    * In Finder, open `build/macos/suika.xcodeproj`.
+    * In Xcode, open `build/macos`.
+        * Set your development team.
         * Build project.
-        * Copy `suika.app` to `game` folder.
+        * Archive project.
+        * Notarize application by `Distribute App` button.
+        * Press `Export Notarized App` to export app to `game` folder.
     * To run Suika 2, double click `suika.app` in `game` folder.
 
 * Release File
-    * Put Windows and Mac Apps into `game` folder.
-    * On Ubuntu 20.04, in terminal, enter `build/release` directory.
-        * Run `make`
-        * Rename `suika-2.x.x.zip`
+    * On macOS 11.2, in terminal, enter `build/release` directory.
+       * Modify SIGNATURE in `Makefile` to sign DMG file.
+       * Run `make` to create ZIP file.
+       * Rename `suika-2.x.x.zip`.
 
 * Android App
     * Install Android Studio 3.3.1 from Android Studio Archive.
