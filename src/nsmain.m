@@ -220,7 +220,7 @@ static BOOL initWindow(void)
     id quitMenuItem = [[NSMenuItem alloc]
                           initWithTitle:[NSString stringWithFormat:@"%@ %s",
                                                   @"Quit", conf_window_title]
-                                 action:@selector(terminate:)
+                                 action:@selector(performClose:)
                           keyEquivalent:@"q"];
     [appMenu addItem:quitMenuItem];
     [appMenuItem setSubmenu:appMenu];
