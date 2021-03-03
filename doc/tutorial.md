@@ -29,7 +29,6 @@ game.
     * `se/` A folder to store sound effect files.
     * `tool/` A folder that includes the file packager.
     * `txt/` A folder to store script files.
-    * `suika.app/` Mac application.
     * `suika.exe` Executable application file for Windows.
 
 This tutorial makes changes to the sample game.
