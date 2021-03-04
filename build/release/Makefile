@@ -12,7 +12,8 @@ suika-2.x.x.zip: ../../game/suika.exe mac.dmg
 	cp -Rv ../../game/cv suika2/
 	cp -Rv ../../game/font suika2/
 	cp -Rv ../../game/se suika2/
-	cp -Rv ../../tool suika2/
+	mkdir suika2/tool
+	cp -v ../../tool/package-win.exe suika2/tool
 	cp -Rv ../../game/txt suika2/
 	cp -v ../../game/COPYING suika2/
 	cp -v ../../game/readme.en.html suika2/
