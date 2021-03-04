@@ -32,12 +32,13 @@ build/BUILD.md を見てください。
 * Windowsでは:
     * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください
     * `suika2` フォルダをエクスプローラで開いてください
-    * `suika.exe` をダブルクリックして起動してください
+    * `suika.exe` を起動してください
 
 * Macでは:
     * [公式サイト](https://luxion.jp/s2/ja/) からZIPファイルをダウンロードして展開してください
     * `suika2` フォルダをFinderで開いてください
-    * `suika` をダブルクリックして起動してください
+    * `mac.dmg` の中にある `suika` アプリケーションを `suika2` フォルダにコピーしてください
+    * `suika2` フォルダにコピーした `suika` アプリケーションを起動してください
 
 * Androidでは:
     * サンプルゲームがGoogle Playにあります。[公式サイト](https://luxion.jp/s2/)をご覧ください

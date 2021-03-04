@@ -39,12 +39,13 @@ See game/COPYING.
 * On Windows:
     * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Explorer.
-    * Double click `suika.exe` application.
+    * Open `suika.exe` application.
 
 * On Mac:
     * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
     * Open `suika2` folder in Finder.
-    * Double click `suika` application.
+    * Copy `suika` application in `mac.dmg` to `suika2` folder.
+    * Open `suika` application in `suika2` folder.
 
 * On Android:
     * Sample game is available on Google Play. See [the official web site](https://luxion.jp/s2/)
