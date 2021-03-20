@@ -2,21 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 #ifndef SUIKA_TYPES_H
 #define SUIKA_TYPES_H
 
 #include <stddef.h>
-
-/*
- * With autotools
- */
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 /*
  * Target
@@ -40,7 +32,7 @@
 /*
  * For GCC
  */
-#if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
+#if defined(__GNUC__) && !defined(__llvm__)
 
 /* stdint.h */
 #include <stdint.h>
@@ -56,10 +48,7 @@
 #endif
 
 /* x86/x86_64のSSEバージョニングを行うか */
-#if defined(__GNUC__) && \
-    !defined(__INTEL_COMPILER) && \
-    (defined(__i386__) || defined(__x86_64__)) && \
-    !defined(ANDROID)
+#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID)
 #define SSE_VERSIONING
 #endif
 
@@ -97,7 +86,8 @@
 #endif
 
 /* x86/x86_64のSSEバージョニングを行うか */
-#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID) && !defined(XCODE)
+#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID) &&\
+    !defined(XCODE)
 #define SSE_VERSIONING
 #endif
 
