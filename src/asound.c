@@ -16,7 +16,7 @@
 #include <alsa/asoundlib.h>
 
 #ifdef SSE_VERSIONING
-#include "cpuid.h"
+#include "x86.h"
 #endif
 
 /*

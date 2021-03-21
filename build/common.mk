@@ -34,7 +34,7 @@ SRCS_COMMON = \
 	../../src/wave.c
 
 SRCS_SSE = \
-	../../src/cpuid.c \
+	../../src/x86.c \
 	../../src/novec.c \
 	../../src/sse.c \
 	../../src/sse2.c \

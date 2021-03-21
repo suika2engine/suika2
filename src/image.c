@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -19,7 +19,7 @@
 #include "suika.h"
 
 #ifdef SSE_VERSIONING
-#include "cpuid.h"
+#include "x86.h"
 #endif
 
 #if defined(SSE_VERSIONING) && defined(WIN)

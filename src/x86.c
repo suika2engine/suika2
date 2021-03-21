@@ -11,7 +11,7 @@
  */
 
 #include "suika.h"
-#include "cpuid.h"
+#include "x86.h"
 
 #ifdef SSE_VERSIONING
 
@@ -27,11 +27,61 @@ bool has_sse41;
 bool has_sse3;
 bool has_sse2;
 bool has_sse;
-bool has_mmx;
+
+static void asm_cpuid(uint32_t fn, uint32_t* eax, uint32_t* ebx, uint32_t* ecx,
+		      uint32_t* edx);
+static uint32_t asm_xgetbv(void);
 
 #ifdef WIN
 static void clear_sse_flags_by_os_version(void);
 #endif
+
+/*
+ * For gcc
+ */
+#ifdef __GNUC__
+
+static void asm_cpuid(uint32_t fn, uint32_t* eax, uint32_t* ebx, uint32_t* ecx,
+	uint32_t* edx)
+{
+	asm("cpuid" :
+	    "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx) :
+	    "a"(fn), "c"(0));
+}
+
+static uint32_t asm_xgetbv(void)
+{
+	uint32_t a;
+	asm("xgetbv": "=a"(a) : "c"(0));
+	return a;
+}
+
+#endif /* __GNUC__ */
+
+/*
+ * For Visual Studio
+ */
+#ifdef _MSC_VER
+
+#include <intrin.h>
+
+static void asm_cpuid(uint32_t fn, uint32_t* eax, uint32_t* ebx, uint32_t* ecx,
+	uint32_t* edx)
+{
+	uint32_t regs[4];
+	__cpuid(regs, fn);
+	*eax = regs[0];
+	*ebx = regs[1];
+	*ecx = regs[2];
+	*edx = regs[3];
+}
+
+uint32_t asm_xgetbv(void)
+{
+	return (uint32_t)_xgetbv(0);
+}
+
+#endif /* _MSC_VER */
 
 /*
  * ベクトル命令の対応状況を調べる
@@ -42,10 +92,10 @@ void x86_check_cpuid_flags(void)
 	bool has_osxsave;
 
 	/* CPUID命令でベクトル命令のサポートを調べる */
-	asm("cpuid": "=b"(b) : "a"(7), "c"(0));
+	asm_cpuid(7, &a, &b, &c, &d);
 	has_avx512 = b & (1 << 16);
 	has_avx2 = b & (1 << 5);
-	asm("cpuid": "=b"(b), "=c"(c), "=d"(d): "a"(1));
+	asm_cpuid(1, &a, &b, &c, &d);
 	has_avx = c & (1 << 28);
 	has_osxsave = c & (1 << 27);
 	has_sse42 = c & (1 << 20);
@@ -53,7 +103,6 @@ void x86_check_cpuid_flags(void)
 	has_sse3 = c & 1;
 	has_sse2 = d & (1 << 26);
 	has_sse = d & (1 << 25);
-	has_mmx = d & (1 << 23);
 
 #ifdef WIN
 	/* WindowsのバージョンによってSSEを無効化する */
@@ -62,46 +111,29 @@ void x86_check_cpuid_flags(void)
 
 	/* XGETBV命令がOSでサポートされている場合 */
 	if (has_osxsave) {
-		asm("xgetbv": "=a"(a) : "c"(0));
+		a = asm_xgetbv();
 
 		/* ZMMが保存されない場合 */
 		if (has_avx512 && (a & 0xc0) != 0xc0) {
-#ifndef NDEBUG
-			//printf("OS disables AVX512F.\n");
-#endif
+			/* OS disables AVX512F. */
 			has_avx512 = false;
 		}
 
 		/* YMMが保存されない場合 */
 		if ((has_avx2 || has_avx) && (a & 0x04) != 0x04) {
-#ifndef NDEBUG
-			//printf("OS doesn't support AVX/AVX2.\n");
-#endif
+			/* OS doesn't support AVX/AVX2. */
 			has_avx = false;
 			has_avx2 = false;
 		}
 	} else {
-#ifndef NDEBUG
-		//printf("OS doesn't support XGETBV.\n");
-#endif
+		/* OS doesn't support XGETBV. */
 		has_avx512 = false;
 		has_avx2 = false;
 		has_avx = false;
 	}
 
-#ifndef NDEBUG
-/*
-	printf("AVX512\t%d\n", has_avx512);
-	printf("AVX2\t%d\n", has_avx2);
-	printf("AVX\t%d\n", has_avx);
-	printf("SSE4.2\t%d\n", has_sse42);
-	printf("SSE4.1\t%d\n", has_sse41);
-	printf("SSE3\t%d\n", has_sse3);
-	printf("SSE2\t%d\n", has_sse2);
-	printf("SSE\t%d\n", has_sse);
-	printf("MMX\t%d\n", has_mmx);
-*/
-#endif
+	/* For now, disable AVX512 because I can't test it. */
+	has_avx512 = false;
 }
 
 #ifdef WIN
@@ -126,7 +158,6 @@ static void clear_sse_flags_by_os_version(void)
 		has_sse3 = false;
 		has_sse2 = false;
 		has_sse = false;
-		has_mmx = false;
 		return;
 	}
 	dwMajor = vi.dwMajorVersion;
@@ -145,7 +176,6 @@ static void clear_sse_flags_by_os_version(void)
 		has_sse3 = false;
 		has_sse2 = false;
 		has_sse = false;
-		has_mmx = false;
 	}
 }
 #endif

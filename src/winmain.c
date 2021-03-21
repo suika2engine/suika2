@@ -20,6 +20,10 @@
 /* リソースIDのため */
 #include "resource.h"
 
+#ifdef SSE_VERSIONING
+#include "x86.h"
+#endif
+
 /* VC6対応 */
 #ifndef WM_MOUSEWHEEL
 #define WM_MOUSEWHEEL	0x020A

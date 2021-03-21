@@ -140,7 +140,11 @@ typedef unsigned long uintptr_t;
 #endif
 
 /* x86/x86_64のSSEバージョニングを行うか */
-#undef SSE_VERSIONING
+#if _MSCVER >= 1920 /* VC2019 */
+#if defined(_M_IX86) || defined(_M_X64)
+#define SSE_VERSIONING
+#endif
+#endif
 
 /* キーワード */
 #define INLINE			__inline

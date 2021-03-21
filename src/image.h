@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -21,10 +21,6 @@
 #define SUIKA_IMAGE_H
 
 #include "types.h"
-
-#ifdef SSE_VERSIONING
-#include "cpuid.h"
-#endif
 
 /* ARGB/ABGRカラー形式のピクセル値 */
 typedef uint32_t pixel_t;
@@ -161,4 +157,4 @@ void draw_image(struct image * RESTRICT dst_image, int dst_left, int dst_top,
 		struct image * RESTRICT src_image, int width, int height,
 		int src_left, int src_top, int alpha, int bt);
 
-#endif /* _SUIKA_IMAGE_H_ */
+#endif /* SUIKA_IMAGE_H */
