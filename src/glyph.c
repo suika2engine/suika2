@@ -352,6 +352,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 #define DRAW_GLYPH_FUNC draw_glyph_func_avx
 #include "drawglyph.h"
 
+#if !defined(_MSC_VER)
+
 /* SSE4.2版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse42
@@ -366,6 +368,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse3
 #include "drawglyph.h"
+
+#endif /* !defined(_MSC_VER) */
 
 /* SSE2版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
@@ -410,6 +414,7 @@ void draw_glyph_func(unsigned char * RESTRICT font,
 				    margin_left, margin_top, image,
 				    image_width, image_height, image_x,
 				    image_y, color);
+#if !defined(_MSC_VER)
 	} else if (has_sse42) {
 		draw_glyph_func_sse42(font, font_width, font_height,
 				      margin_left, margin_top, image,
@@ -425,6 +430,7 @@ void draw_glyph_func(unsigned char * RESTRICT font,
 				     margin_left, margin_top, image,
 				     image_width, image_height, image_x,
 				     image_y, color);
+#endif
 	} else if (has_sse2) {
 		draw_glyph_func_sse2(font, font_width, font_height,
 				     margin_left, margin_top, image,
@@ -444,4 +450,3 @@ void draw_glyph_func(unsigned char * RESTRICT font,
 }
 
 #endif
-

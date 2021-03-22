@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -52,7 +52,7 @@ static void asm_cpuid(uint32_t fn, uint32_t* eax, uint32_t* ebx, uint32_t* ecx,
 static uint32_t asm_xgetbv(void)
 {
 	uint32_t a;
-	asm("xgetbv": "=a"(a) : "c"(0));
+	asm("xgetbv" : "=a"(a) : "c"(0));
 	return a;
 }
 

@@ -9,6 +9,7 @@ build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/suika2
 build/mingw/suika-2.x.x-win.zip
+build/mingw/res/resource.aps
 build/macos/libroot
 build/macos/suika.xcodeproj/project.xcworkspace
 build/macos/suika.xcodeproj/xcshareddata
@@ -20,5 +21,15 @@ build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
 build/android/.idea/caches
+build/msvc/.vs
+build/msvc/zlib
+build/msvc/libpng
+build/msvc/libogg
+build/msvc/libvorbis
+build/msvc/freetype
+build/msvc/Debug
+build/msvc/Release
+build/msvc/suika/Debug
+build/msvc/suika/Release
 game/log.txt
 game/sav

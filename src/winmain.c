@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,8 @@
  *  2016-05-29 作成 (suika)
  *  2017-11-07 フルスクリーンで解像度変更するように修正
  */
+
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <windows.h>
 
@@ -232,6 +234,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
 	wchar_t wszTitle[TITLE_BUF_SIZE];
 	WNDCLASSEX wcex;
+	RECT rc;
 	DWORD style;
 	int dw, dh, i, cch;
 
@@ -287,6 +290,15 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 							  NULL, NULL, hInstance, NULL);
 	if(!hWndMain)
 		return FALSE;
+
+	/* ウィンドウのサイズを調整する(for Windows 10) */
+	SetRectEmpty(&rc);
+	rc.right = conf_window_width;
+	rc.bottom = conf_window_height;
+	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndMain, GWL_STYLE), FALSE,
+					   (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
+	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+				 SWP_NOZORDER | SWP_NOMOVE);
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndMain, nCmdShow);

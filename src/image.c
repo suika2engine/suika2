@@ -14,6 +14,7 @@
  *  2016-05-27 gcc5.3.1のベクトル化に対応, 浮動小数点 [image@Suika]
  *  2016-06-11 SSEバージョニングを実装
  *  2016-06-16 OSX対応
+ *  2021-03-22 Visual Studio 2019対応
  */
 
 #include "suika.h"
@@ -512,6 +513,8 @@ static bool clip_by_dest(
 #define DRAW_BLEND_SUB			draw_blend_sub_avx
 #include "drawimage.h"
 
+#if !defined(_MSC_VER)
+
 /* SSE4.2版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_BLEND_NONE			draw_blend_none_sse42
@@ -538,6 +541,8 @@ static bool clip_by_dest(
 #define DRAW_BLEND_ADD			draw_blend_add_sse3
 #define DRAW_BLEND_SUB			draw_blend_sub_sse3
 #include "drawimage.h"
+
+#endif /* !defined(_MSC_VER) */
 
 /* SSE2版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
@@ -583,6 +588,7 @@ void draw_blend_none(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_avx) {
 		draw_blend_none_avx(dst_image, dst_left, dst_top, src_image,
 				    width, height, src_left, src_top);
+#if !defined(_MSC_VER)
 	} else if (has_sse42) {
 		draw_blend_none_sse42(dst_image, dst_left, dst_top, src_image,
 				      width, height, src_left, src_top);
@@ -592,6 +598,7 @@ void draw_blend_none(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_sse3) {
 		draw_blend_none_sse3(dst_image, dst_left, dst_top, src_image,
 				     width, height, src_left, src_top);
+#endif
 	} else if (has_sse2) {
 		draw_blend_none_sse2(dst_image, dst_left, dst_top, src_image,
 				     width, height, src_left, src_top);
@@ -619,6 +626,7 @@ void draw_blend_fast(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_avx) {
 		draw_blend_fast_avx(dst_image, dst_left, dst_top, src_image,
 				    width, height, src_left, src_top, alpha);
+#if !defined(_MSC_VER)
 	} else if (has_sse42) {
 		draw_blend_fast_sse42(dst_image, dst_left, dst_top, src_image,
 				      width, height, src_left, src_top, alpha);
@@ -628,6 +636,7 @@ void draw_blend_fast(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_sse3) {
 		draw_blend_fast_sse3(dst_image, dst_left, dst_top, src_image,
 				     width, height, src_left, src_top, alpha);
+#endif
 	} else if (has_sse2) {
 		draw_blend_fast_sse2(dst_image, dst_left, dst_top, src_image,
 				     width, height, src_left, src_top, alpha);
@@ -656,6 +665,7 @@ void draw_blend_normal(struct image *dst_image, int dst_left, int dst_top,
 		draw_blend_normal_avx(dst_image, dst_left, dst_top, src_image,
 				      width, height, src_left, src_top,
 				      alpha);
+#if !defined(_MSC_VER)
 	} else if (has_sse42) {
 		draw_blend_normal_sse42(dst_image, dst_left, dst_top,
 					src_image, width, height, src_left,
@@ -668,6 +678,7 @@ void draw_blend_normal(struct image *dst_image, int dst_left, int dst_top,
 		draw_blend_normal_sse3(dst_image, dst_left, dst_top, src_image,
 				       width, height, src_left, src_top,
 				       alpha);
+#endif
 	} else if (has_sse2) {
 		draw_blend_normal_sse2(dst_image, dst_left, dst_top, src_image,
 				       width, height, src_left, src_top,
@@ -696,6 +707,7 @@ void draw_blend_add(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_avx) {
 		draw_blend_add_avx(dst_image, dst_left, dst_top, src_image,
 				   width, height, src_left, src_top, alpha);
+#if !defined(_MSC_VER)
 	} else if (has_sse42) {
 		draw_blend_add_sse42(dst_image, dst_left, dst_top, src_image,
 				     width, height, src_left, src_top, alpha);
@@ -705,6 +717,7 @@ void draw_blend_add(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_sse3) {
 		draw_blend_add_sse3(dst_image, dst_left, dst_top, src_image,
 				    width, height, src_left, src_top, alpha);
+#endif
 	} else if (has_sse2) {
 		draw_blend_add_sse2(dst_image, dst_left, dst_top, src_image,
 				    width, height, src_left, src_top, alpha);
@@ -730,6 +743,7 @@ void draw_blend_sub(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_avx) {
 		draw_blend_sub_avx(dst_image, dst_left, dst_top, src_image,
 				   width, height, src_left, src_top, alpha);
+#if !defined(_MSC_VER)
 	} else if (has_sse42) {
 		draw_blend_sub_sse42(dst_image, dst_left, dst_top, src_image,
 				     width, height, src_left, src_top, alpha);
@@ -739,6 +753,7 @@ void draw_blend_sub(struct image *dst_image, int dst_left, int dst_top,
 	} else if (has_sse3) {
 		draw_blend_sub_sse3(dst_image, dst_left, dst_top, src_image,
 				    width, height, src_left, src_top, alpha);
+#endif
 	} else if (has_sse2) {
 		draw_blend_sub_sse2(dst_image, dst_left, dst_top, src_image,
 				    width, height, src_left, src_top, alpha);

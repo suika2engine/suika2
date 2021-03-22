@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -13,6 +13,7 @@
 #include "suika.h"
 
 #ifdef SSE_VERSIONING
+#ifndef _MSC_VER
 
 /* SSE4.1版の描画関数を定義する */
 #define DRAW_BLEND_NONE			draw_blend_none_sse41
@@ -35,4 +36,4 @@
 #include "muladdpcm.h"
 
 #endif /* SSE_VERSIONING */
-
+#endif /* _MSC_VER */

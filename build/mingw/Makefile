@@ -85,7 +85,7 @@ OBJS = \
 all: suika.exe
 
 suika.exe: $(OBJS)
-	$(CC) -o suika.exe $(OBJS) $(LDFLAGS)
+	$(CC) -s -o suika.exe $(OBJS) $(LDFLAGS)
 
 #
 # Feature specific source files.
