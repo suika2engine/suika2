@@ -21,7 +21,7 @@ Suika 2はプラットフォーム非依存部とハードウェア抽象化レ�
 
 ## ビルド
 
-build/BUILD.md を見てください。
+`build/README.md` を見てください。
 
 ## ライセンス
 
@@ -42,8 +42,8 @@ build/BUILD.md を見てください。
 
 * Androidでは:
     * サンプルゲームがGoogle Playにあります。[公式サイト](https://luxion.jp/s2/)をご覧ください
-    * ご自身のゲームを作成するには、Android Studioを使用してソースからビルドする必要があります
+    * ご自身のゲームを作成するには、Android Studioを使用してソースからビルドする必要があります。 `build/README.md` を参照してください
 
 * Linux/FreeBSD/NetBSDでは:
     * ソースからビルドしてください
-    * `build/BUILD.md` を参照してください
+    * `build/README.md` を参照してください

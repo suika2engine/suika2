@@ -20,13 +20,13 @@ If you want to port Suika 2 to a new target platform, it is only necessary to wr
 Please write an issue with a light heart. Any and all feedback is welcome.
 Pull requests that correct my English are especially welcome.
 
-## Prebuilt Binaries
+## Prebuilt Binary
 
-Download the binaries from [the official web site.](https://luxion.jp/s2/)
+Download the binary from [the official web site.](https://luxion.jp/s2/)
 
 ## Build from Source
 
-See build/BUILD.md
+See `build/README.md`
 
 ## License
 
@@ -49,10 +49,10 @@ See game/COPYING.
 
 * On Android:
     * Sample game is available on Google Play. See [the official web site](https://luxion.jp/s2/)
-    * To make your own game, you have to build from source code using Android Studio.
+    * To make your own game, you have to build from source code using Android Studio. See `build/README.md`
 
 * On Linux/FreeBSD/NetBSD:
-    * Build from source code. See build/BUILD.md
+    * Build from source code. See `build/README.md`
 
 ## Enable English mode
 
