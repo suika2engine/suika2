@@ -163,7 +163,7 @@ Script files need to be in the `txt` folder.
 ## @menu
 
 This command displays a menu using two images.
-`@menu` can create up to four buttons.
+`@menu` can create up to 16 buttons.
 
 Basically the first image is displayed,
 but while a button is pointed at by the mouse,
