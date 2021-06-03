@@ -63,7 +63,7 @@ struct insn_item {
 	{"@if", COMMAND_IF, 4, 4},
 	{"@select", COMMAND_SELECT, 6, 6},
 	{"@se", COMMAND_SE, 1, 1},
-	{"@menu", COMMAND_MENU, 7, 22},
+	{"@menu", COMMAND_MENU, 7, 83},
 	{"@news", COMMAND_NEWS, 9, 136},
 	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
 	{"@switch", COMMAND_SWITCH, 9, 136},

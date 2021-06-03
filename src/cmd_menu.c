@@ -18,7 +18,7 @@
 #define NEVER_COME_HERE	(0)
 
 /* ボタンの数 */
-#define BUTTON_COUNT	(4)
+#define BUTTON_COUNT	(16)
 
 /* コマンドの引数 */
 #define PARAM_LABEL(n)	(MENU_PARAM_LABEL1 + 5 * n)
