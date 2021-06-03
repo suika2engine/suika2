@@ -365,6 +365,11 @@ This command sets the sound volume.
     * `voice` for voice.
     * `se` for sound effects.
 
+Sound volumes of these three channels are stored in each local save file.
+You can change the volumes frequently for sound production purpose.
+
+If you want to set global master volumes which are common between save files, you can use CAPITAL name of channels. When you set global master volumes, set fading time to 0.
+
 * Usage 1: Sets BGM volume to 0.5 in 1 second.
 ```
 @vol bgm 0.5 1.0
@@ -373,6 +378,11 @@ This command sets the sound volume.
 * Usage 2: `bgm` can be abbreviated as `b`.
 ```
 @vol b 0.5 1.0
+```
+
+* Usage 3: Sets global master volume of BGM to 0.5
+```
+@vol BGM 0.5 0
 ```
 
 ## @wait

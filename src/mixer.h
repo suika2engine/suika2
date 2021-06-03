@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/28 作成
+ *  - 2021/06/03 マスターボリュームを追加
  */
 
 #ifndef SUIKA_MIXER_H
@@ -43,6 +44,12 @@ void set_mixer_volume(int n, float vol, float span);
 
 /* ボリュームを取得する */
 float get_mixer_volume(int n);
+
+/* マスターボリュームを設定する */
+void set_mixer_master_volume(int n, float vol);
+
+/* マスターボリュームを取得する */
+float get_mixer_master_volume(int n);
 
 /* サウンドのフェード処理を実行する */
 void process_sound_fading(void);

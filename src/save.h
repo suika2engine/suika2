@@ -44,7 +44,7 @@ bool is_save_mode(void);
 /* セーブ画面を実行する */
 bool run_save_mode(int *x, int *y, int *w, int *h);
 
-/* グローバル変数を保存する */
-void save_global_vars(void);
+/* グローバルデータを保存する */
+void save_global_data(void);
 
 #endif

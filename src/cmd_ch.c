@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -98,7 +98,7 @@ static bool init(void)
 		break;
 	default:
 		/* スクリプト実行エラー */
-		log_ch_position(pos);
+		log_script_ch_position(pos);
 		log_script_exec_footer();
 		return false;
 	}

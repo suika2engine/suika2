@@ -105,7 +105,7 @@ static bool deserialize_stage(struct rfile *rf);
 static bool deserialize_bgm(struct rfile *rf);
 static bool deserialize_volumes(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
-static void load_global_vars(void);
+static void load_global_data(void);
 
 /*
  * 初期化
@@ -127,8 +127,8 @@ bool init_save(void)
 	/* セーブデータからセーブ時刻を取得する */
 	load_save_time();
 
-	/* グローバル変数のロードを行う */
-	load_global_vars();
+	/* グローバルデータのロードを行う */
+	load_global_data();
 
 	return true;
 }
@@ -203,7 +203,7 @@ static void load_button_conf(void)
 void cleanup_save(void)
 {
 	/* グローバル変数のセーブを行う */
-	save_global_vars();
+	save_global_data();
 }
 
 /*
@@ -548,7 +548,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	/* セーブボタンの場合 */
 	if (new_pointed_index == BUTTON_SAVE) {
 		process_save();
-		save_global_vars();
+		save_global_data();
 		stop_save_mode(x, y, w, h);
 		restore_flag = true;
 	}
@@ -994,10 +994,11 @@ static void load_save_time(void)
  * グローバル変数
  */
 
-/* グローバル変数のロードを行う */
-static void load_global_vars(void)
+/* グローバルデータのロードを行う */
+static void load_global_data(void)
 {
 	struct rfile *rf;
+	float f;
 	int i;
 	int32_t n;
 
@@ -1013,16 +1014,28 @@ static void load_global_vars(void)
 		set_variable(GLOBAL_VAR_OFFSET + i, n);
 	}
 
+	/* マスターボリュームをデシリアライズする */
+	for (i = 0; i < MIXER_STREAMS; i++) {
+		if (read_rfile(rf, &f, sizeof(f)) < sizeof(f))
+			break;
+		set_mixer_master_volume(i, f);
+		/*
+		 * load_global_data()はinit_mixer()より後に呼ばれるので、
+		 * ここでset_mixer_master_volume()を呼んでも上書きされない。
+		 */
+	}
+
 	/* ファイルを閉じる */
 	close_rfile(rf);
 }
 
 /*
- * グローバル変数のセーブを行う
+ * グローバルデータのセーブを行う
  */
-void save_global_vars(void)
+void save_global_data(void)
 {
 	struct wfile *wf;
+	float f;
 	int i;
 	int32_t n;
 
@@ -1038,6 +1051,13 @@ void save_global_vars(void)
 	for (i = 0; i < GLOBAL_VAR_SIZE; i++) {
 		n = get_variable(GLOBAL_VAR_OFFSET + i);
 		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
+			break;
+	}
+
+	/* マスターボリュームをシリアライズする */
+	for (i = 0; i < MIXER_STREAMS; i++) {
+		f = get_mixer_master_volume(i);
+		if (write_wfile(wf, &f, sizeof(f)) < sizeof(f))
 			break;
 	}
 

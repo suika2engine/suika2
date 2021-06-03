@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -41,20 +41,6 @@ void log_audio_file_error(const char *dir, const char *file)
 	} else {
 		log_error("オーディオファイル\"%s/%s\"を読み込めません。\n",
 			  dir, conv_utf8_to_native(file));
-	}
-}
-
-/*
- * キャラの位置指定が間違っていることを記録する
- */
-void log_ch_position(const char *pos)
-{
-	if (is_english_mode()) {
-		log_error("Character position \"%s\" is invalid.\n",
-			  conv_utf8_to_native(pos));
-	} else {
-		log_error("キャラクタの位置指定\"%s\"は間違っています。\n",
-		  conv_utf8_to_native(pos));
 	}
 }
 
@@ -173,6 +159,20 @@ void log_script_empty_serif(void)
 		log_error("Character message is empty.\n");
 	else
 		log_error("セリフが空白です\n");
+}
+
+/*
+ * キャラの位置指定が間違っているエラーを記録する
+ */
+void log_script_ch_position(const char *pos)
+{
+	if (is_english_mode()) {
+		log_error("Character position \"%s\" is invalid.\n",
+			  conv_utf8_to_native(pos));
+	} else {
+		log_error("キャラクタの位置指定\"%s\"は間違っています。\n",
+		  conv_utf8_to_native(pos));
+	}
 }
 
 /*
@@ -382,6 +382,20 @@ void log_script_var_index(int index)
 		log_error("Variable index %d is out of range.\n", index);
 	else
 		log_error("変数インデックス%dは範囲外です。\n", index);
+}
+
+/*
+ * ミキサーのストリームの指定が間違っているエラーを記録する
+ */
+void log_script_mixer_stream(const char *stream)
+{
+	if (is_english_mode()) {
+		log_error("Invalid mixer stream name \"%s\".\n",
+			  conv_utf8_to_native(stream));
+	} else {
+		log_error("ミキサーのストリーム名\"%s\"は正しくありません。\n",
+			  conv_utf8_to_native(stream));
+	}
 }
 
 /*

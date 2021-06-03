@@ -541,8 +541,8 @@ bool title_dialog(void)
     // フレーム描画イベントを実行する
     int x = 0, y = 0, w = 0, h = 0;
     if (!on_event_frame(&x, &y, &w, &h)) {
-        // グローバル変数を保存する
-        save_global_vars();
+        // グローバルデータを保存する
+        save_global_data();
 
         [NSApp terminate:nil];
         return;
@@ -746,8 +746,8 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
         @"Quit?"];
     [alert setAlertStyle:NSWarningAlertStyle];
     if([alert runModal] == NSAlertFirstButtonReturn) {
-        // グローバル変数を保存する
-        save_global_vars();
+        // グローバルデータを保存する
+        save_global_data();
         return YES;
     } else {
         return NO;

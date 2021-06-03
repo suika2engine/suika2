@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/28 作成
+ *  - 2021/06/03 マスターボリュームを追加
  */
 
 #include "suika.h"
@@ -33,8 +34,11 @@ static float vol_span[MIXER_STREAMS];
 /* フェードの開始時刻 */
 static stop_watch_t sw[MIXER_STREAMS];
 
-/* セーブデータに書き込まれるべきボリュームの値 */
+/* ローカルセーブデータに書き込まれるべきボリュームの値 */
 static float vol_sav[MIXER_STREAMS];
+
+/* マスターボリューム */
+static float vol_master[MIXER_STREAMS];
 
 /* BGMファイル名 */
 static char *bgm_file_name;
@@ -49,6 +53,7 @@ void init_mixer(void)
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		vol_cur[n] = 1.0f;
 		vol_sav[n] = 1.0f;
+		vol_master[n] = 1.0f;
 		set_sound_volume(n, 1.0f);
 
 		/* Androidでは再利用されるので初期化する */
@@ -146,19 +151,43 @@ void set_mixer_volume(int n, float vol, float span)
 		is_fading[n] = false;
 		vol_cur[n] = vol;
 		vol_sav[n] = vol;
-		set_sound_volume(n, vol);
+		set_sound_volume(n, vol_master[n] * vol);
 	}
 }
 
 /*
  * ボリュームを取得する
- *  - セーブ用
+ *  - ローカルセーブデータ用
  */
 float get_mixer_volume(int n)
 {
 	assert(n < MIXER_STREAMS);
 
 	return vol_sav[n];
+}
+
+/*
+ * マスターボリュームを設定する
+ */
+void set_mixer_master_volume(int n, float vol)
+{
+	assert(n < MIXER_STREAMS);
+	assert(vol >= 0 && vol <= 1.0f);
+
+	vol_master[n] = vol;
+
+	set_sound_volume(n, vol_master[n] * vol_cur[n]);
+}
+
+/*
+ * マスターボリュームを取得する
+ *  - グローバルセーブデータ用
+ */
+float get_mixer_master_volume(int n)
+{
+	assert(n < MIXER_STREAMS);
+
+	return vol_master[n];
 }
 
 /*
@@ -187,6 +216,6 @@ void process_sound_fading(void)
 
 		/* ボリュームを設定する */
 		vol_cur[n] = vol;
-		set_sound_volume(n, vol);
+		set_sound_volume(n, vol_master[n] * vol_cur[n]);
 	}
 }
