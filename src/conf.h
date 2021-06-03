@@ -168,6 +168,11 @@ extern int conf_serif_color_r[SERIF_COLOR_COUNT];
 extern int conf_serif_color_g[SERIF_COLOR_COUNT];
 extern int conf_serif_color_b[SERIF_COLOR_COUNT];
 
+/*
+ * その他の設定
+ */
+extern int conf_voice_stop_off;
+
 
 /* コンフィグの初期化処理を行う */
 bool init_conf(void);

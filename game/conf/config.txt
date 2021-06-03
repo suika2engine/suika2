@@ -347,3 +347,12 @@ serif.color3.b=255
 
 # Continues to serif.color32, but omissible
 # 以降、serif.color32まで続くが省略可能
+
+###
+### Miscellaneous
+### その他
+###
+
+# Don't stop voice when clicked (1:non-stop, 0:stop)
+# クリックでボイスを止めない (1:止めない, 0:止める)
+voice.stop.off=0

@@ -156,7 +156,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 		draw_w = conf_window_width;
 		draw_h = conf_window_height;
 	} else if (!is_hidden) {
-		if (is_control_pressed)
+		if (!conf_voice_stop_off && is_control_pressed)
 			set_mixer_input(VOICE_STREAM, NULL);
 		if (drawn_chars < total_chars)
 			draw_msgbox();
@@ -647,7 +647,8 @@ static pixel_t get_message_color(void)
 static bool cleanup(void)
 {
 	/* PCMストリームの再生を終了する */
-	set_mixer_input(VOICE_STREAM, NULL);
+	if (!conf_voice_stop_off)
+		set_mixer_input(VOICE_STREAM, NULL);
 
 	/* メッセージを破棄する */
 	free(msg_top);

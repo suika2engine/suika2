@@ -166,6 +166,13 @@ int conf_serif_color_g[SERIF_COLOR_COUNT];
 int conf_serif_color_b[SERIF_COLOR_COUNT];
 
 /*
+ * その他の設定
+ */
+
+/* クリックでボイスを止めない */
+int conf_voice_stop_off;
+
+/*
  * 1行のサイズ
  */
 #define BUF_SIZE	(1024)
@@ -403,6 +410,7 @@ struct rule {
 	{"serif.color32.r", 'i', &conf_serif_color_r[31], true, false},
 	{"serif.color32.g", 'i', &conf_serif_color_g[31], true, false},
 	{"serif.color32.b", 'i', &conf_serif_color_b[31], true, false},
+	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))
