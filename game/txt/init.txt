@@ -120,8 +120,8 @@ Suika 2を利用してくださるゲーム開発者様がいらっしゃいま�
 @goto LOOP1
 
 :L1_ENV
-Windowsアプリでは、Windows XP以降で動くことを確認しています。最新のWindows 10タブレットにも対応しています。
-Macアプリでは、Mac OS X 10.6.8以降で動作することを確認しています。最新のEl Capitanにも対応しています。
+Windowsアプリでは、Windows 8.1以降で動くことを確認しています。最新のWindows 10タブレットにも対応しています。
+Macアプリでは、Mac OS X 10.9以降で動作することを確認しています。最新のBig SurやM1チップにも対応しています。
 さらにいうと、Linuxでも動きます。Suika 2はほとんどLinux上で開発されています。
 @set $2 = 1
 @ch c 001-fun.png 1.0
