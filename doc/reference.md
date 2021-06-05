@@ -33,6 +33,11 @@ character images vanish from the stage.
 @bg sample.png 1.5 c
 ```
 
+* Usage 4: Changes the background color with a 1.5 second fade-in time. Fading type is left curtain.
+```
+@bg sample.png 1.5 curtain-left
+```
+
 ## @bgm
 
 This command plays BGM.

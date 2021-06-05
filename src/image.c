@@ -15,6 +15,7 @@
  *  2016-06-11 SSEバージョニングを実装
  *  2016-06-16 OSX対応
  *  2021-03-22 Visual Studio 2019対応
+ *  2021-06-05 色指定のイメージ作成に対応
  */
 
 #include "suika.h"
@@ -148,6 +149,33 @@ struct image *create_image_with_pixels(int w, int h, pixel_t *buf)
 	img->need_free = false;
 
 	/* 成功 */
+	return img;
+}
+
+/*
+ * 文字列で色を指定してイメージを作成する
+ */
+struct image *create_image_from_color_string(int w, int h, const char *color)
+{
+	struct image *img;
+	int rgb, r, g, b;
+	pixel_t cl;
+
+	/* イメージを作成する */
+	img = create_image(w, h);
+	if (img == NULL)
+		return NULL;
+
+	/* 色指定文字列を読み込む */
+	sscanf(color, "%x", &rgb);
+	r = (rgb >> 16) & 0xff;
+	g = (rgb >> 8) & 0xff;
+	b = rgb & 0xff;
+	cl = make_pixel(0xff, r, g, b);
+
+	/* イメージを塗り潰す */
+	clear_image_color(img, cl);
+
 	return img;
 }
 

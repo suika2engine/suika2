@@ -882,6 +882,13 @@ static bool deserialize_stage(struct rfile *rf)
 	if (strcmp(s, "none") == 0) {
 		set_bg_file_name(NULL);
 		img = NULL;
+	} else if (s[0] == '#') {
+		set_bg_file_name(s);
+		img = create_image_from_color_string(conf_window_width,
+						     conf_window_height,
+						     &s[1]);
+		if (img == NULL)
+			return false;
 	} else {
 		set_bg_file_name(s);
 		img = create_image_from_file(BG_DIR, s);

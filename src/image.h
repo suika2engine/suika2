@@ -118,6 +118,9 @@ struct image *create_image_with_pixels(int w, int h, pixel_t *ptr);
 /* ファイル名を指定してイメージを作成する */
 struct image *create_image_from_file(const char *dir, const char *file);
 
+/* 文字列で色を指定してイメージを作成する */
+struct image *create_image_from_color_string(int w, int h, const char *color);
+
 /* イメージを削除する */
 void destroy_image(struct image *img);
 

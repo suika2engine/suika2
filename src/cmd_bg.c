@@ -73,8 +73,16 @@ static bool init(void)
 		return false;
 	}
 
-	/* イメージを読み込む */
-	img = create_image_from_file(BG_DIR, fname);
+	/* 色指定の場合 */
+	if (fname[0] == '#') {
+		/* 色を指定してイメージを作成する */
+		img = create_image_from_color_string(conf_window_width,
+						     conf_window_height,
+						     &fname[1]);
+	} else {
+		/* イメージを読み込む */
+		img = create_image_from_file(BG_DIR, fname);
+	}
 	if (img == NULL) {
 		log_script_exec_footer();
 		return false;
