@@ -16,12 +16,27 @@
 
 #include "image.h"
 
+/* キャラクタの立ち位置 */
 enum ch_position {
 	CH_BACK,
 	CH_LEFT,
 	CH_RIGHT,
 	CH_CENTER,
 	CH_LAYERS
+};
+
+/* 背景フェードメソッド */
+enum bg_fade_method {
+	BG_FADE_METHOD_INVALID,
+	BG_FADE_METHOD_NORMAL,
+	BG_FADE_METHOD_CURTAIN_RIGHT,
+	BG_FADE_METHOD_CURTAIN_LEFT,
+	BG_FADE_METHOD_CURTAIN_UP,
+	BG_FADE_METHOD_CURTAIN_DOWN,
+	BG_FADE_METHOD_SLIDE_RIGHT,
+	BG_FADE_METHOD_SLIDE_LEFT,
+	BG_FADE_METHOD_SLIDE_UP,
+	BG_FADE_METHOD_SLIDE_DOWN,
 };
 
 /*
@@ -45,7 +60,7 @@ void draw_stage(void);
 void draw_stage_rect(int x, int y, int w, int h);
 
 /* 背景フェードモードが有効な際のステージ描画を行う */
-void draw_stage_bg_fade(bool is_curtain);
+void draw_stage_bg_fade(int fade_method);
 
 /* キャラフェードモードが有効な際のステージ描画を行う */
 void draw_stage_ch_fade(void);

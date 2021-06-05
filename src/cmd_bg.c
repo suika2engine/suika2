@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -18,8 +18,8 @@ static stop_watch_t sw;
 /* コマンドの長さ(秒) */
 static float span;
 
-/* カーテンフェードであるか */
-static bool is_curtain;
+/* フェードメソッド */
+static int fade_method;
 
 /* フェードイン中のイメージ */
 static struct image *img;
@@ -30,6 +30,7 @@ static struct image *img;
 static bool init(void);
 static void draw(void);
 static bool cleanup(void);
+static int get_bg_fade_method(const char *method);
 
 /*
  * bgコマンド
@@ -65,13 +66,11 @@ static bool init(void)
 	method = get_string_param(BG_PARAM_METHOD);
 
 	/* 描画メソッドを識別する */
-	switch(method[0]) {
-	case 'c':	/* curtain */
-		is_curtain = true;
-		break;
-	default:
-		is_curtain = false;
-		break;
+	fade_method = get_bg_fade_method(method);
+	if (fade_method == BG_FADE_METHOD_INVALID) {
+		log_script_fade_method(method);
+		log_script_exec_footer();
+		return false;
 	}
 
 	/* イメージを読み込む */
@@ -148,7 +147,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_bg_fade(is_curtain);
+		draw_stage_bg_fade(fade_method);
 	else
 		draw_stage();
 }
@@ -161,4 +160,63 @@ static bool cleanup(void)
 		return false;
 
 	return true;
+}
+
+/* フェードメソッドを取得する */
+static int get_bg_fade_method(const char *method)
+{
+	/*
+	 * ノーマルフェード
+	 */
+
+	if (strcmp(method, "normal") == 0 ||
+	    strcmp(method, "n") == 0 ||
+	    strcmp(method, "") == 0)
+		return BG_FADE_METHOD_NORMAL;
+
+	/*
+	 * カーテンフェード
+	 */
+
+	/* カーテンが右方向だけだった頃との互換性のため、省略形が複数ある */
+	if (strcmp(method, "curtain-right") == 0 ||
+	    strcmp(method, "curtain") == 0 ||
+	    strcmp(method, "cr") == 0 ||
+	    strcmp(method, "c") == 0)
+		return BG_FADE_METHOD_CURTAIN_RIGHT;
+
+	if (strcmp(method, "curtain-left") == 0 ||
+	    strcmp(method, "cl") == 0)
+		return BG_FADE_METHOD_CURTAIN_LEFT;
+
+	if (strcmp(method, "curtain-up") == 0 ||
+	    strcmp(method, "cu") == 0)
+		return BG_FADE_METHOD_CURTAIN_UP;
+
+	if (strcmp(method, "curtain-down") == 0 ||
+	    strcmp(method, "cd") == 0)
+		return BG_FADE_METHOD_CURTAIN_DOWN;
+
+	/*
+	 * スライドフェード
+	 */
+
+	if (strcmp(method, "slide-right") == 0 ||
+	    strcmp(method, "sr") == 0)
+		return BG_FADE_METHOD_SLIDE_RIGHT;
+
+	if (strcmp(method, "slide-left") == 0 ||
+	    strcmp(method, "sl") == 0)
+		return BG_FADE_METHOD_SLIDE_LEFT;
+
+	if (strcmp(method, "slide-up") == 0 ||
+	    strcmp(method, "su") == 0)
+		return BG_FADE_METHOD_SLIDE_UP;
+
+	if (strcmp(method, "slide-down") == 0 ||
+	    strcmp(method, "sd") == 0)
+		return BG_FADE_METHOD_SLIDE_DOWN;
+
+	/* 不正なフェード指定 */
+	return BG_FADE_METHOD_INVALID;
 }

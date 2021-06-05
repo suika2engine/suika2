@@ -137,6 +137,28 @@ void log_package_file_error(void)
 }
 
 /*
+ * スクリプト実行エラーの位置を記録する
+ */
+void log_script_exec_footer(void)
+{
+	const char *file;
+	int line;
+
+	file = get_script_file_name();
+	assert(file != NULL);
+
+	line = get_line_num() + 1;
+
+	if (is_english_mode()) {
+		log_error("> Script execution error: %s:%d\n", file, line);
+		log_error("> %s\n", conv_utf8_to_native(get_line_string()));
+	} else {
+		log_error("> スクリプト実行エラー: %s %d行目\n", file, line);
+		log_error("> %s\n", conv_utf8_to_native(get_line_string()));
+	}
+}
+
+/*
  * コマンド名がみつからないエラーを記録する
  */
 void log_script_command_not_found(const char *name)
@@ -176,24 +198,16 @@ void log_script_ch_position(const char *pos)
 }
 
 /*
- * スクリプト実行エラーの位置を記録する
+ * 背景フェードの方法指定が間違っているエラーを記録する
  */
-void log_script_exec_footer(void)
+void log_script_fade_method(const char *method)
 {
-	const char *file;
-	int line;
-
-	file = get_script_file_name();
-	assert(file != NULL);
-
-	line = get_line_num() + 1;
-
 	if (is_english_mode()) {
-		log_error("> Script execution error: %s:%d\n", file, line);
-		log_error("> %s\n", conv_utf8_to_native(get_line_string()));
+		log_error("Background fade method \"%s\" is invalid.\n",
+			  conv_utf8_to_native(method));
 	} else {
-		log_error("> スクリプト実行エラー: %s %d行目\n", file, line);
-		log_error("> %s\n", conv_utf8_to_native(get_line_string()));
+		log_error("背景フェードの方法指定\"%s\"は間違っています。\n",
+		  conv_utf8_to_native(method));
 	}
 }
 

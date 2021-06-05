@@ -7,6 +7,17 @@ This command changes the background image.
 After changing the background image,
 character images vanish from the stage.
 
+* You can specify following effects:
+    * `normal`, `n` or not specified -> default alpha blending
+    * `curtain-right`, `curtain`, `cr` or `c` -> right curtain
+    * `curtain-left` or `cl` -> left curtain
+    * `curtain-up` or `cu` -> up curtain
+    * `curtain-down` or `cd` -> down curtain
+    * `slide-right` or `sr` -> right slide
+    * `slide-left` or `sl` -> left slide
+    * `slide-up` or `su` -> up slide
+    * `slide-down` or `sd` -> down slide
+
 * Usage 1: Changes the background image to `sample.png` with a 1.5 second fade-in time.
 ```
 @bg sample.png 1.5
@@ -17,7 +28,7 @@ character images vanish from the stage.
 @bg sample.png
 ```
 
-* Usage 3: Changes the background image to `sample.png` with a 1.5 second fade-in time. Fading type is curtain.
+* Usage 3: Changes the background image to `sample.png` with a 1.5 second fade-in time. Fading type is right curtain.
 ```
 @bg sample.png 1.5 c
 ```

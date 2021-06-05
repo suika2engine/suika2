@@ -17,7 +17,8 @@
 #include "suika.h"
 
 /* false assertion */
-#define BAD_POSITION	(0)
+#define BAD_POSITION		(0)
+#define INVALID_BG_FADE_METHOD	(0)
 
 /* カーテンフェードのカーテンの幅 */
 #define CURTAIN_WIDTH	(256)
@@ -155,7 +156,15 @@ static bool setup_news(void);
 static bool setup_save(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
-static void draw_stage_bg_fade_curtain(void);
+static void draw_stage_bg_fade_normal(void);
+static void draw_stage_bg_fade_curtain_right(void);
+static void draw_stage_bg_fade_curtain_left(void);
+static void draw_stage_bg_fade_curtain_up(void);
+static void draw_stage_bg_fade_curtain_down(void);
+static void draw_stage_bg_fade_slide_left(void);
+static void draw_stage_bg_fade_slide_right(void);
+static void draw_stage_bg_fade_slide_up(void);
+static void draw_stage_bg_fade_slide_down(void);
 static int pos_to_layer(int pos);
 static void draw_layer_image(struct image *target, int layer);
 static void draw_layer_image_rect(struct image *target, int layer, int x,
@@ -478,58 +487,289 @@ void draw_stage_rect(int x, int y, int w, int h)
 /*
  * 背景フェードモードが有効な際のステージ描画を行う
  */
-void draw_stage_bg_fade(bool is_curtain)
+void draw_stage_bg_fade(int fade_method)
 {
 	assert(!is_save_mode());
 	assert(is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
 
-	if (!is_curtain) {
-		draw_layer_image(back_image, LAYER_FO);
-		draw_layer_image(back_image, LAYER_BG_FI);
-	} else {
-		draw_stage_bg_fade_curtain();
+	switch (fade_method) {
+	case BG_FADE_METHOD_NORMAL:
+		draw_stage_bg_fade_normal();
+		break;
+	case BG_FADE_METHOD_CURTAIN_RIGHT:
+		draw_stage_bg_fade_curtain_right();
+		break;
+	case BG_FADE_METHOD_CURTAIN_LEFT:
+		draw_stage_bg_fade_curtain_left();
+		break;
+	case BG_FADE_METHOD_CURTAIN_UP:
+		draw_stage_bg_fade_curtain_up();
+		break;
+	case BG_FADE_METHOD_CURTAIN_DOWN:
+		draw_stage_bg_fade_curtain_down();
+		break;
+	case BG_FADE_METHOD_SLIDE_RIGHT:
+		draw_stage_bg_fade_slide_right();
+		break;
+	case BG_FADE_METHOD_SLIDE_LEFT:
+		draw_stage_bg_fade_slide_left();
+		break;
+	case BG_FADE_METHOD_SLIDE_UP:
+		draw_stage_bg_fade_slide_up();
+		break;
+	case BG_FADE_METHOD_SLIDE_DOWN:
+		draw_stage_bg_fade_slide_down();
+		break;
+	default:
+		assert(INVALID_BG_FADE_METHOD);
+		break;
 	}
 }
 
-/* カーテンフェードの描画を行う */
-static void draw_stage_bg_fade_curtain(void)
+/* デフォルトの背景フェードの描画を行う  */
+static void draw_stage_bg_fade_normal()
 {
-	int right, left, curtain, i;
+	draw_layer_image(back_image, LAYER_FO);
+	draw_layer_image(back_image, LAYER_BG_FI);
+}
 
-	/* フェードイン画像の右端を求める */
+/* 右方向カーテンフェードの描画を行う */
+static void draw_stage_bg_fade_curtain_right(void)
+{
+	int right, alpha, i;
+
+	/*
+	 * カーテンの右端を求める
+	 *  - カーテンの右端は0からconf_window_width+CURTAIN_WIDTHになる
+	 */
 	right = (int)((float)(conf_window_width + CURTAIN_WIDTH) *
 		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
-	if (right >= conf_window_width) {
-		curtain = CURTAIN_WIDTH - (right - conf_window_width);
-		right = conf_window_width;
-	} else {
-		curtain = CURTAIN_WIDTH;
+
+	/* カーテンが通り過ぎる前の背景をコピーする */
+	if (right < conf_window_width) {
+		draw_image(back_image, right, 0, layer_image[LAYER_FO],
+			   conf_window_width - right, conf_window_height,
+			   right, 0, 255, BLEND_NONE);
 	}
 
-	/* フェードイン画像の右端を求める */
-	left = right - conf_window_width;
-	(void)left;
-
-	/* 背景の非透過部分を描画する */
-	draw_image(back_image, right, 0, layer_image[LAYER_FO],
-		   conf_window_width - right, conf_window_height,
-		   right, 0, 255, BLEND_NONE);
-
-	/* 前景の非透過部分を描画する */
-	if (right - curtain > 0) {
+	/* カーテンが通り過ぎた後の背景を描画する */
+	if (right >= CURTAIN_WIDTH) {
 		draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
-			   right - curtain, conf_window_height,
-			   0, 0, 255, BLEND_NONE);
+			   right - CURTAIN_WIDTH, conf_window_height, 0, 0,
+			   255, BLEND_NONE);
 	}
 
-	/* 前景の透過部分を描画する */
-	for (i = curtain - 1; i >= 0; i--) {
-		if (right - i < 0 || right - i >= conf_window_width)
+	/* カーテンを描画する */
+	for (alpha = 0, i = right; i >= right - CURTAIN_WIDTH; i--, alpha++) {
+		if (i < 0 || i >= conf_window_width)
 			continue;
-		draw_image(back_image, right - i, 0, layer_image[LAYER_BG_FI],
-			   1, conf_window_height, right - i, 0, i, BLEND_FAST);
+		draw_image(back_image, i, 0, layer_image[LAYER_BG_FI], 1,
+			   conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
+}
+
+/* 左方向カーテンフェードの描画を行う */
+static void draw_stage_bg_fade_curtain_left(void)
+{
+	int left, alpha, i;
+
+	/*
+	 * カーテンの左端を求める
+	 *  - カーテンの左端はconf_window_widthから-CURTAIN_WIDTになる
+	 */
+	left = conf_window_width -
+		(int)((float)(conf_window_width + CURTAIN_WIDTH) *
+		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* カーテンが通り過ぎる前の背景をコピーする */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   left + CURTAIN_WIDTH, conf_window_height, 0, 0, 255,
+		   BLEND_NONE);
+
+	/* カーテンが通り過ぎた後の背景を描画する */
+	if (left <= conf_window_width - CURTAIN_WIDTH) {
+		draw_image(back_image, left + CURTAIN_WIDTH, 0,
+			   layer_image[LAYER_BG_FI],
+			   conf_window_width - left - CURTAIN_WIDTH,
+			   conf_window_height, left + CURTAIN_WIDTH, 0, 255,
+			   BLEND_NONE);
+	}
+
+	/* カーテンを描画する */
+	for (alpha = 0, i = left; i <= left + CURTAIN_WIDTH; i++, alpha++) {
+		if (i < 0 || i >= conf_window_width)
+			continue;
+		draw_image(back_image, i, 0, layer_image[LAYER_BG_FI], 1,
+			   conf_window_height, i, 0, alpha, BLEND_FAST);
+	}
+}
+
+/* 上方向カーテンフェードの描画を行う */
+static void draw_stage_bg_fade_curtain_up(void)
+{
+	int top, alpha, i;
+
+	/*
+	 * カーテンの左端を求める
+	 *  - カーテンの上端はconf_window_heightから-CURTAIN_WIDTHになる
+	 */
+	top = conf_window_height -
+		(int)((float)(conf_window_height + CURTAIN_WIDTH) *
+		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* カーテンが通り過ぎる前の背景をコピーする */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   conf_window_width, top + CURTAIN_WIDTH, 0, 0, 255,
+		   BLEND_NONE);
+
+	/* カーテンが通り過ぎた後の背景を描画する */
+	if (top <= conf_window_height - CURTAIN_WIDTH) {
+		draw_image(back_image, 0, top + CURTAIN_WIDTH,
+			   layer_image[LAYER_BG_FI],
+			   conf_window_width,
+			   conf_window_height - top - CURTAIN_WIDTH,
+			   0, top + CURTAIN_WIDTH, 255,
+			   BLEND_NONE);
+	}
+
+	/* カーテンを描画する */
+	for (alpha = 0, i = top; i <= top + CURTAIN_WIDTH; i++, alpha++) {
+		if (i < 0 || i >= conf_window_height)
+			continue;
+		draw_image(back_image, 0, i, layer_image[LAYER_BG_FI],
+			   conf_window_width, 1, 0, i, alpha, BLEND_FAST);
+	}
+}
+
+/* 下方向カーテンフェードの描画を行う */
+static void draw_stage_bg_fade_curtain_down(void)
+{
+	int bottom, alpha, i;
+
+	/*
+	 * カーテンの下端を求める
+	 *  - カーテンの下端は0からconf_window_height+CURTAIN_WIDTHになる
+	 */
+	bottom = (int)((float)(conf_window_height + CURTAIN_WIDTH) *
+		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* カーテンが通り過ぎる前の背景をコピーする */
+	if (bottom < conf_window_height) {
+		draw_image(back_image, 0, bottom, layer_image[LAYER_FO],
+			   conf_window_width, conf_window_height - bottom,
+			   0, bottom, 255, BLEND_NONE);
+	}
+
+	/* カーテンが通り過ぎた後の背景を描画する */
+	if (bottom >= CURTAIN_WIDTH) {
+		draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+			   conf_window_width, bottom - CURTAIN_WIDTH, 0, 0,
+			   255, BLEND_NONE);
+	}
+
+	/* カーテンを描画する */
+	for (alpha = 0, i = bottom; i >= bottom - CURTAIN_WIDTH;
+	     i--, alpha++) {
+		if (i < 0 || i >= conf_window_height)
+			continue;
+		draw_image(back_image, 0, i, layer_image[LAYER_BG_FI],
+			   conf_window_width, 1, 0, i, alpha, BLEND_FAST);
+	}
+}
+
+/* 右方向スライドフェードの描画を行う */
+static void draw_stage_bg_fade_slide_right(void)
+{
+	int right;
+
+	/*
+	 * スライドの右端を求める
+	 *  - スライドの右端は0からconf_window_widthになる
+	 */
+	right = (int)((float)conf_window_width *
+		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* 左側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+		   right, conf_window_height, conf_window_width - right, 0,
+		   255, BLEND_NONE);
+
+	/* 右側の背景を表示する */
+	draw_image(back_image, right, 0, layer_image[LAYER_FO],
+		   conf_window_width - right, conf_window_height, 0, 0, 255,
+		   BLEND_NONE);
+}
+
+/* 左方向スライドフェードの描画を行う */
+static void draw_stage_bg_fade_slide_left(void)
+{
+	int left;
+
+	/*
+	 * スライドの左端を求める
+	 *  - スライドの左端はconf_window_widthから0になる
+	 */
+	left = conf_window_width -
+		(int)((float)conf_window_width *
+		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* 右側の背景を表示する */
+	draw_image(back_image, left, 0, layer_image[LAYER_BG_FI],
+		   conf_window_width - left, conf_window_height, 0, 0, 255,
+		   BLEND_NONE);
+
+	/* 左側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   left, conf_window_height, conf_window_width - left, 0,
+		   255, BLEND_NONE);
+}
+
+/* 上方向スライドフェードの描画を行う */
+static void draw_stage_bg_fade_slide_up(void)
+{
+	int top;
+
+	/*
+	 * スライドの上端を求める
+	 *  - スライドの上端はconf_window_heightから0になる
+	 */
+	top = conf_window_height -
+		(int)((float)conf_window_height *
+		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* 上側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   conf_window_width, top, 0, conf_window_height - top,
+		   255, BLEND_NONE);
+
+	/* 下側の背景を表示する */
+	draw_image(back_image, 0, top, layer_image[LAYER_BG_FI],
+		   conf_window_width, conf_window_height - top, 0, 0, 255,
+		   BLEND_NONE);
+}
+
+/* 下方向スライドフェードの描画を行う */
+static void draw_stage_bg_fade_slide_down(void)
+{
+	int bottom;
+
+	/*
+	 * スライドの下端を求める
+	 *  - スライドの下端は0からconf_window_heightになる
+	 */
+	bottom = (int)((float)conf_window_height *
+		       (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* 上側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+		   conf_window_width, bottom, 0, conf_window_height - bottom,
+		   255, BLEND_NONE);
+
+	/* 下側の背景を表示する */
+	draw_image(back_image, 0, bottom, layer_image[LAYER_FO],
+		   conf_window_width, conf_window_height - bottom, 0, 0, 255,
+		   BLEND_NONE);
 }
 
 /*
