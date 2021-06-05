@@ -158,8 +158,9 @@ struct image *create_image_with_pixels(int w, int h, pixel_t *buf)
 struct image *create_image_from_color_string(int w, int h, const char *color)
 {
 	struct image *img;
-	int rgb, r, g, b;
+	uint32_t r, g, b;
 	pixel_t cl;
+	int rgb;
 
 	/* イメージを作成する */
 	img = create_image(w, h);
