@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/07/02 作成
+ *  - 2021/06/06 ボイスストリームでの再生に対応
  */
 
 #include "suika.h"
@@ -19,9 +20,22 @@ bool se_command(void)
 {
 	struct wave *w;
 	const char *fname;
+	const char *voice;
+	int stream;
 
 	/* パラメータを取得する */
 	fname = get_string_param(SE_PARAM_FILE);
+	voice = get_string_param(SE_PARAM_VOICE);
+
+	/*
+	 * voice指示の有無を確認する
+	 *  - マスターボリュームのフィードバック再生を行う際、テキスト表示なし
+	 *    でボイスを再生できるようにするための指示
+	 */
+	if (strcmp(voice, "voice") == 0)
+		stream = VOICE_STREAM;
+	else
+		stream = SE_STREAM;
 
 	/* 停止の指示でない場合 */
 	w = NULL;
@@ -35,7 +49,7 @@ bool se_command(void)
 	}
 
 	/* 再生を開始する */
-	set_mixer_input(SE_STREAM, w);
+	set_mixer_input(stream, w);
 
 	/* 次のコマンドへ移動する */
 	return move_to_next_command();

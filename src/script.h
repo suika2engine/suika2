@@ -130,6 +130,7 @@ enum select_command_param {
 /* seコマンドのパラメータ */
 enum se_command_param {
 	SE_PARAM_FILE = 1,
+	SE_PARAM_VOICE,
 };
 
 /* menuコマンドのパラメータ */
