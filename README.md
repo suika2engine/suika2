@@ -66,8 +66,8 @@ See game/COPYING.
 
 ## Manuals
 
-* [Tutorial](https://github.com/ktabata/suika2/blob/master/doc/tutorial.md)
-* [Command Reference](https://github.com/ktabata/suika2/blob/master/doc/reference.md)
+* [Tutorial](https://luxion.jp/s2/en/tutorial.html)
+* [Command Reference](https://luxion.jp/s2/en/reference.html)
 
 ## What does "suika" mean?
 

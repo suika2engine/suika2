@@ -274,6 +274,11 @@ Suika 2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 @se click.ogg
 ```
 
+* Special usage: Plays sound effect file on voice track to check voice volume without text message.
+```
+@se click.ogg voice
+```
+
 ## @select
 
 This command shows options and jumps to the specified label.

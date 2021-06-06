@@ -47,3 +47,9 @@ Suika 2はプラットフォーム非依存部とハードウェア抽象化レ�
 * Linux/FreeBSD/NetBSDでは:
     * ソースからビルドしてください
     * `build/README.md` を参照してください
+
+## マニュアル
+
+* [チュートリアル](https://luxion.jp/s2/en/tutorial.html)
+* [チュートリアル動画](https://www.youtube.com/watch?v=9ximIpY0NPo)
+* [コマンドリファレンス](https://luxion.jp/s2/en/reference.html)
