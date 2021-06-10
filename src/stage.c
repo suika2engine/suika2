@@ -1275,14 +1275,14 @@ void set_ch_anime_progress(float progress)
 			continue;
 
 		layer_alpha[i] = (uint8_t)get_anime_interpolation(progress,
-						layer_anime_alpha_from[i],
-						layer_anime_alpha_to[i]);
+					(float)layer_anime_alpha_from[i],
+					(float)layer_anime_alpha_to[i]);
 		layer_x[i] = (int)get_anime_interpolation(progress,
-						layer_anime_x_from[i],
-						layer_anime_x_to[i]);
+					(float)layer_anime_x_from[i],
+					(float)layer_anime_x_to[i]);
 		layer_y[i] = (int)get_anime_interpolation(progress,
-						layer_anime_y_from[i],
-						layer_anime_y_to[i]);
+					(float)layer_anime_y_from[i],
+					(float)layer_anime_y_to[i]);
 	}
 }
 
