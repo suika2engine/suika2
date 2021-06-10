@@ -11,6 +11,7 @@
  *  - 2017-08-14 スイッチに対応
  *  - 2021-06-05 背景フェードの追加
  *  - 2021-06-10 マスクつき描画の対応
+ *  - 2021-06-10 キャラクタのアルファ値に対応
  */
 
 #ifndef SUIKA_STAGE_H
@@ -125,11 +126,15 @@ const char *get_ch_file_name(int pos);
 /* キャラの座標を取得する */
 void get_ch_position(int pos, int *x, int *y);
 
+/* キャラのアルファ値を取得する */
+int get_ch_alpha(int pos);
+
 /* キャラをフェードせずにただちに切り替える */
-void change_ch_immediately(int pos, struct image *img, int x, int y);
+void change_ch_immediately(int pos, struct image *img, int x, int y,
+			   int alpha);
 
 /* キャラフェードモードを開始する */
-void start_ch_fade(int layer, struct image *img, int x, int y);
+void start_ch_fade(int layer, struct image *img, int x, int y, int alpha);
 
 /* キャラフェードモードの進捗率を設定する */
 void set_ch_fade_progress(float progress);

@@ -21,6 +21,7 @@ static bool init(void);
 static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 			 struct image *img);
 static bool get_fade(const char *method);
+static int get_alpha(const char *alpha);
 static void draw(void);
 static bool cleanup(void);
 
@@ -56,13 +57,17 @@ static bool init(void)
 	const char *fname;
 	const char *pos;
 	const char *method;
-	int xpos, ypos, chpos;
+	const char *alpha_s;
+	int xpos, ypos, chpos, ofs_x, ofs_y, alpha;
 
 	/* パラメータを取得する */
 	pos = get_string_param(CH_PARAM_POS);
 	fname = get_string_param(CH_PARAM_FILE);
 	span = get_float_param(CH_PARAM_SPAN);
 	method = get_string_param(CH_PARAM_METHOD);
+	ofs_x = get_int_param(CH_PARAM_OFFSET_X);
+	ofs_y = get_int_param(CH_PARAM_OFFSET_Y);
+	alpha_s = get_string_param(CH_PARAM_ALPHA);
 
 	/* イメージが指定された場合 */
 	if (strcmp(fname, "none") != 0) {
@@ -81,9 +86,15 @@ static bool init(void)
 	if (!get_position(&xpos, &ypos, &chpos, pos, img))
 		return false;
 
+	xpos += ofs_x;
+	ypos += ofs_y;
+
 	/* フェードの種類を求める */
 	if (!get_fade(method))
 		return false;
+
+	/* アルファ値を求める */
+	alpha = get_alpha(alpha_s);
 
 	/* キャラのファイル名を設定する */
 	if (!set_ch_file_name(chpos, strcmp(fname, "none") == 0 ? NULL :
@@ -93,13 +104,13 @@ static bool init(void)
 	/* Controlが押されているか、フェードしない場合 */
 	if (is_control_pressed || span == 0) {
 		/* フェードせず、すぐに切り替える */
-		change_ch_immediately(chpos, img, xpos, ypos);
+		change_ch_immediately(chpos, img, xpos, ypos, alpha);
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();
 
 		/* キャラフェードモードを有効にする */
-		start_ch_fade(chpos, img, xpos, ypos);
+		start_ch_fade(chpos, img, xpos, ypos, alpha);
 
 		/* 時間計測を開始する */
 		reset_stop_watch(&sw);
@@ -165,6 +176,18 @@ static bool get_fade(const char *method)
 		return false;
 	}
 	return true;
+}
+
+/* アルファ値を取得する */
+static int get_alpha(const char *alpha)
+{
+	if (strcmp(alpha, "show") == 0 ||
+	    strcmp(alpha, "") == 0)
+		return 255;
+	else if (strcmp(alpha, "hide") == 0)
+		return 0;
+	else
+		return atoi(alpha);
 }
 
 /* 描画を行う */

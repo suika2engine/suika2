@@ -706,7 +706,7 @@ static bool serialize_command(struct wfile *wf)
 static bool serialize_stage(struct wfile *wf)
 {
 	const char *s;
-	int i, m, n;
+	int i, m, n, o;
 
 	s = get_bg_file_name();
 	if (s == NULL)
@@ -716,9 +716,12 @@ static bool serialize_stage(struct wfile *wf)
 
 	for (i = CH_BACK; i <= CH_CENTER; i++) {
 		get_ch_position(i, &m, &n);
+		o = get_ch_alpha(i);
 		if (write_wfile(wf, &m, sizeof(m)) < sizeof(m))
 			return false;
 		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
+			return false;
+		if (write_wfile(wf, &o, sizeof(o)) < sizeof(o))
 			return false;
 
 		s = get_ch_file_name(i);
@@ -875,7 +878,7 @@ static bool deserialize_stage(struct rfile *rf)
 {
 	char s[1024];
 	struct image *img;
-	int m, n, i;
+	int m, n, o, i;
 
 	if (gets_rfile(rf, s, sizeof(s)) == NULL)
 		return false;
@@ -904,6 +907,8 @@ static bool deserialize_stage(struct rfile *rf)
 			return false;
 		if (read_rfile(rf, &n, sizeof(n)) < sizeof(m))
 			return false;
+		if (read_rfile(rf, &o, sizeof(o)) < sizeof(o))
+			return false;
 		if (gets_rfile(rf, s, sizeof(s)) == NULL)
 			return false;
 
@@ -918,7 +923,7 @@ static bool deserialize_stage(struct rfile *rf)
 				return false;
 		}
 
-		change_ch_immediately(i, img, m, n);
+		change_ch_immediately(i, img, m, n, o);
 	}
 
 	return true;

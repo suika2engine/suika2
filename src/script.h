@@ -12,6 +12,7 @@
  *  - 2018/07/21 @gosubに対応
  *  - 2019/09/17 @newsに対応
  *  - 2021/06/05 @menuのボタン数を増やした
+ *  - 2021/06/10 @chにエフェクトとオフセットとアルファを追加
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -80,6 +81,9 @@ enum ch_command_param {
 	CH_PARAM_FILE,
 	CH_PARAM_SPAN,
 	CH_PARAM_METHOD,
+	CH_PARAM_OFFSET_X,
+	CH_PARAM_OFFSET_Y,
+	CH_PARAM_ALPHA,
 };
 
 /* waitコマンドのパラメータ */

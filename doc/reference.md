@@ -72,7 +72,7 @@ This command changes the character.
     * `left`
     * `back` (back center)
 
-* Effets are:
+* Effects are:
     * `normal`, `n` or not-specified -> alpha blending
     * `mask` or `m` -> 28-level pointillism
 
@@ -99,6 +99,16 @@ This command changes the character.
 * Usage 5: Specify effect.
 ```
 @ch c sample.png 1.0 mask
+```
+
+* Usage 6: Specify offset of character position. Following example does 100-pixel right shift and 50-pixel down shift.
+```
+@ch c sample.png 1.0 n 100 50
+```
+
+* Usage 7: In order to set animation origin, load character image with alpha value. The range of alpha value is `0` to `255`. You can also specify `show` as `255` or `hide` as `0`.
+```
+@ch c sample.png 1.0 n 0 0 show
 ```
 
 ## @click

@@ -10,6 +10,7 @@
  *  - 2016/06/09 作成
  *  - 2021/06/05 フェードの種類を追加
  *  - 2021/06/10 マスクつき描画の対応
+ *  - 2021/06/10 キャラクタのアルファ値に対応
  */
 
 #include "suika.h"
@@ -106,10 +107,10 @@ static bool init(void)
 	if (span == 0 || is_control_pressed) {
 		/* フェードせず、すぐに切り替える */
 		change_bg_immediately(img);
-		change_ch_immediately(CH_BACK, NULL, 0, 0);
-		change_ch_immediately(CH_LEFT, NULL, 0, 0);
-		change_ch_immediately(CH_RIGHT, NULL, 0, 0);
-		change_ch_immediately(CH_CENTER, NULL, 0, 0);
+		change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
+		change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
+		change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
+		change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
 		return true;
 	} else {
 		/* 繰り返し動作を開始する */

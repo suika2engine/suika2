@@ -10,6 +10,7 @@
  *
  * [Changes]
  *  - 2016/07/04 作成
+ *  - 2021/06/10 キャラクタのアルファ値に対応
  */
 
 #include "suika.h"
@@ -256,10 +257,10 @@ static bool cleanup(void)
 
 	/* ステージの画像を無効にする */
 	change_bg_immediately(NULL);
-	change_ch_immediately(CH_BACK, NULL, 0, 0);
-	change_ch_immediately(CH_LEFT, NULL, 0, 0);
-	change_ch_immediately(CH_RIGHT, NULL, 0, 0);
-	change_ch_immediately(CH_CENTER, NULL, 0, 0);
+	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
+	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
+	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
+	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
 
 	/* メニューコマンドが完了したばかりであることを記録する */
 	menu_finished_flag = true;

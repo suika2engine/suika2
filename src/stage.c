@@ -1065,9 +1065,23 @@ void get_ch_position(int pos, int *x, int *y)
 }
 
 /*
+ * キャラのアルファ値を取得する
+ */
+int get_ch_alpha(int pos)
+{
+	int layer;
+
+	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
+	       pos == CH_CENTER);
+
+	layer = pos_to_layer(pos);
+	return layer_alpha[layer];
+}
+
+/*
  * キャラをフェードせずにただちに切り替える
  */
-void change_ch_immediately(int pos, struct image *img, int x, int y)
+void change_ch_immediately(int pos, struct image *img, int x, int y, int alpha)
 {
 	int layer;
 
@@ -1079,14 +1093,13 @@ void change_ch_immediately(int pos, struct image *img, int x, int y)
 	layer_image[layer] = img;
 	layer_x[layer] = x;
 	layer_y[layer] = y;
-
-	assert(layer_alpha[layer] == 255);
+	layer_alpha[layer] = alpha;
 }
 
 /*
  * キャラフェードモードを開始する
  */
-void start_ch_fade(int pos, struct image *img, int x, int y)
+void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 {
 	int layer;
 
@@ -1107,7 +1120,7 @@ void start_ch_fade(int pos, struct image *img, int x, int y)
 	layer = pos_to_layer(pos);
 	destroy_layer_image(layer);
 	layer_image[layer] = img;
-	layer_alpha[layer] = 255;
+	layer_alpha[layer] = alpha;
 	layer_x[layer] = x;
 	layer_y[layer] = y;
 
