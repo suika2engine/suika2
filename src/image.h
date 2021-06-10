@@ -15,6 +15,7 @@
  *  2016-06-11 SSEバージョニングを実装
  *  2016-06-16 OSX対応
  *  2016-08-05 Android NDK対応
+ *  2021-06-10 マスクつき描画対応
  */
 
 #ifndef SUIKA_IMAGE_H
@@ -36,6 +37,9 @@ enum blend_type {
 	BLEND_ADD,			/* 飽和加算ブレンド */
 	BLEND_SUB,			/* 飽和減算ブレンド */
 };
+
+/* draw_image_mask()のマスクの階調 */
+#define DRAW_IMAGE_MASK_LEVELS	(28)
 
 /* WindowsとX11とAndroidの場合はARGB形式(バイト順にBGRA) */
 #if defined(WIN) || defined(LINUX) || defined(ANDROID)
@@ -159,5 +163,10 @@ void clear_image_color_rect(struct image *img, int x, int y, int w, int h,
 void draw_image(struct image * RESTRICT dst_image, int dst_left, int dst_top,
 		struct image * RESTRICT src_image, int width, int height,
 		int src_left, int src_top, int alpha, int bt);
+
+/* イメージをマスクつきで描画する */
+void draw_image_mask(struct image * RESTRICT dst_image, int dst_left,
+		     int dst_top, struct image * RESTRICT src_image, int width,
+		     int height, int src_left, int src_top, int mask_level);
 
 #endif /* SUIKA_IMAGE_H */

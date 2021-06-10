@@ -8,7 +8,8 @@ After changing the background image,
 character images vanish from the stage.
 
 * You can specify following effects:
-    * `normal`, `n` or not specified -> default alpha blending
+    * `normal`, `n` or not-specified -> default alpha blending
+    * `mask` or `m` → 28-level pointillism
     * `curtain-right`, `curtain`, `cr` or `c` -> right curtain
     * `curtain-left` or `cl` -> left curtain
     * `curtain-up` or `cu` -> up curtain

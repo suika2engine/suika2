@@ -7,6 +7,7 @@ Suika 2 コマンドリファレンス
 
 * 背景のフェードには次のエフェクトを指定できます:
     * `normal`もしくは`n`あるいは指定なし → 標準のアルファブレンド
+    * `mask`もしくは`m` → 28段階の点描
     * `curtain-right`もしくは`curtain`もしくは`cr`あるいは`c` → 右方向カーテン
     * `curtain-left`もしくは`cl` → 左方向カーテン
     * `curtain-up`もしくは`cu` → 上方向カーテン
@@ -66,7 +67,7 @@ BGMを再生します。BGMファイルはフォルダ`bgm`に格納されてい
 @ch center sample.png 0.5
 ```
 
-* 使い方2: `center`はcと省略して構いません。
+* 使い方2: `center`は`c`と省略して構いません。
 ```
 @ch c sample.png 0.5
 ```

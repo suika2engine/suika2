@@ -43,7 +43,7 @@ void DRAW_BLEND_NONE(
 	src_ptr = get_image_pixels(src_image) + sw * src_top + src_left;
 	dst_ptr = get_image_pixels(dst_image) + dw * dst_top + dst_left;
 
-	for(y=0; y<height; y++) {
+	for(y = 0; y < height; y++) {
 		for(x = 0; x < width; x++)
 			*(dst_ptr + x) = *(src_ptr + x);
 		src_ptr += sw;
@@ -83,8 +83,8 @@ void DRAW_BLEND_FAST(
 	dst_line_inc = dw - width;
 	a = (float)alpha / 255.0f;
 
-	for(y=0; y<height; y++) {
-		for(x=0; x<width; x++) {
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++) {
 			/* 転送元と転送先のピクセルを取得する */
 			src_pix	= *src_ptr++;
 			dst_pix	= *dst_ptr;
@@ -145,8 +145,8 @@ void DRAW_BLEND_NORMAL(
 	dst_line_inc = dw - width;
 	a = (float)alpha / 255.0f;
 
-	for(y=0; y<height; y++) {
-		for(x=0; x<width; x++) {
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++) {
 			/* 転送元と転送先のピクセルを取得する */
 			src_pix	= *src_ptr++;
 			dst_pix	= *dst_ptr;
@@ -213,8 +213,8 @@ void DRAW_BLEND_ADD(
 	dst_line_inc = dw - width;
 	a = (float)alpha / 255.0f;
 
-	for(y=0; y<height; y++) {
-		for(x=0; x<width; x++, dst_ptr++) {
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++, dst_ptr++) {
 			/* 転送元ピクセルを取得する */
 			src_pix	= *src_ptr++;
 			src_a = get_pixel_a(src_pix);
@@ -287,8 +287,8 @@ void DRAW_BLEND_SUB(
 	dst_line_inc = dw - width;
 	a = (float)alpha / 255.0f;
 
-	for(y=0; y<height; y++) {
-		for(x=0; x<width; x++, dst_ptr++) {
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++, dst_ptr++) {
 			/* 転送元ピクセルとそのアルファ値を取得する */
 			src_pix	= *src_ptr++;
 			src_a = get_pixel_a(src_pix);

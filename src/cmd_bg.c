@@ -8,6 +8,8 @@
 /*
  * [Changes]
  *  - 2016/06/09 作成
+ *  - 2021/06/05 フェードの種類を追加
+ *  - 2021/06/10 マスクつき描画の対応
  */
 
 #include "suika.h"
@@ -181,6 +183,14 @@ static int get_bg_fade_method(const char *method)
 	    strcmp(method, "n") == 0 ||
 	    strcmp(method, "") == 0)
 		return BG_FADE_METHOD_NORMAL;
+
+	/*
+	 * マスクフェード
+	 */
+
+	if (strcmp(method, "mask") == 0 ||
+	    strcmp(method, "m") == 0)
+		return BG_FADE_METHOD_MASK;
 
 	/*
 	 * カーテンフェード

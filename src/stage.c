@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -12,6 +12,8 @@
  *  - 2017-09-25 セリフの色付けに対応
  *  - 2018-08-28 不要なエラーログの削除
  *  - 2019-09-17 NEWSに対応
+ *  - 2021-06-05 背景フェードの追加
+ *  - 2021-06-10 マスクつき描画の対応
  */
 
 #include "suika.h"
@@ -157,6 +159,7 @@ static bool setup_save(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
 static void draw_stage_bg_fade_normal(void);
+static void draw_stage_bg_fade_mask(void);
 static void draw_stage_bg_fade_curtain_right(void);
 static void draw_stage_bg_fade_curtain_left(void);
 static void draw_stage_bg_fade_curtain_up(void);
@@ -497,6 +500,9 @@ void draw_stage_bg_fade(int fade_method)
 	case BG_FADE_METHOD_NORMAL:
 		draw_stage_bg_fade_normal();
 		break;
+	case BG_FADE_METHOD_MASK:
+		draw_stage_bg_fade_mask();
+		break;
 	case BG_FADE_METHOD_CURTAIN_RIGHT:
 		draw_stage_bg_fade_curtain_right();
 		break;
@@ -532,6 +538,25 @@ static void draw_stage_bg_fade_normal()
 {
 	draw_layer_image(back_image, LAYER_FO);
 	draw_layer_image(back_image, LAYER_BG_FI);
+}
+
+
+/* マスクの背景フェードの描画を行う  */
+static void draw_stage_bg_fade_mask()
+{
+	int mask_index;
+
+	/* アルファ値からマスクインデックスを求める */
+	mask_index = (int)((float)DRAW_IMAGE_MASK_LEVELS *
+			   (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+
+	/* 古い背景を描画する */
+	draw_layer_image(back_image, LAYER_FO);
+
+	/* 新しい背景をマスクつきで描画する */
+	draw_image_mask(back_image, 0, 0, layer_image[LAYER_BG_FI],
+			conf_window_width, conf_window_height, 0, 0,
+			mask_index);
 }
 
 /* 右方向カーテンフェードの描画を行う */

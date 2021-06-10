@@ -2,13 +2,15 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016-06-14 作成
  *  - 2017-08-14 スイッチに対応
+ *  - 2021-06-05 背景フェードの追加
+ *  - 2021-06-10 マスクつき描画の対応
  */
 
 #ifndef SUIKA_STAGE_H
@@ -29,6 +31,7 @@ enum ch_position {
 enum bg_fade_method {
 	BG_FADE_METHOD_INVALID,
 	BG_FADE_METHOD_NORMAL,
+	BG_FADE_METHOD_MASK,
 	BG_FADE_METHOD_CURTAIN_RIGHT,
 	BG_FADE_METHOD_CURTAIN_LEFT,
 	BG_FADE_METHOD_CURTAIN_UP,
