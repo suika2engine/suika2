@@ -14,6 +14,7 @@
  *  - 2019-09-17 NEWSに対応
  *  - 2021-06-05 背景フェードの追加
  *  - 2021-06-10 マスクつき描画の対応
+ *  - 2021-06-10 キャラのアニメ対応
  */
 
 #include "suika.h"
@@ -141,11 +142,35 @@ static bool is_bg_fade_enabled;
 /* キャラフェードモードであるか */
 static bool is_ch_fade_enabled;
 
+/* キャラアニメモードであるか */
+static bool is_ch_anime_enabled;
+
 /* 背景イメージ名 */
 static char *bg_file_name;
 
 /* キャライメージ名 */
 static char *ch_file_name[CH_LAYERS];
+
+/*
+ * アニメ中の情報
+ *  - 現状キャラを1つずつ(1レイヤずつ)しか動かすことができない
+ *  - 将来複数レイヤを動かせるような設計として、下記の情報を保持する
+ */
+
+/* アニメ中のレイヤ */
+static bool layer_anime_run[STAGE_LAYERS];
+
+/* アニメ中のレイヤのx座標 */
+static int layer_anime_x_from[STAGE_LAYERS];
+static int layer_anime_x_to[STAGE_LAYERS];
+
+/* アニメ中のレイヤのy座標 */
+static int layer_anime_y_from[STAGE_LAYERS];
+static int layer_anime_y_to[STAGE_LAYERS];
+
+/* アニメ中のレイヤのアルファ値 */
+static int layer_anime_alpha_from[STAGE_LAYERS];
+static int layer_anime_alpha_to[STAGE_LAYERS];
 
 /*
  * 前方参照
@@ -172,6 +197,7 @@ static void draw_stage_bg_fade_slide_down(void);
 static void draw_stage_ch_fade_normal(void);
 static void draw_stage_ch_fade_mask(void);
 static int pos_to_layer(int pos);
+static float get_anime_interpolation(float progress, float from, float to);
 static void draw_layer_image(struct image *target, int layer);
 static void draw_layer_image_rect(struct image *target, int layer, int x,
 				  int y, int w, int h);
@@ -965,6 +991,8 @@ void change_bg_immediately(struct image *img)
 void start_bg_fade(struct image *img)
 {
 	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
+	assert(!is_ch_fade_enabled);
 
 	/* 背景フェードを有効にする */
 	is_bg_fade_enabled = true;
@@ -994,6 +1022,7 @@ void set_bg_fade_progress(float progress)
 {
 	assert(is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
 
 	layer_alpha[LAYER_BG_FI] = (uint8_t)(progress * 255.0f);
 }
@@ -1003,6 +1032,10 @@ void set_bg_fade_progress(float progress)
  */
 void stop_bg_fade(void)
 {
+	assert(is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
+
 	is_bg_fade_enabled = false;
 	destroy_layer_image(LAYER_BG);
 	layer_image[LAYER_BG] = layer_image[LAYER_BG_FI];
@@ -1097,6 +1130,22 @@ void change_ch_immediately(int pos, struct image *img, int x, int y, int alpha)
 }
 
 /*
+ * キャラの位置とアルファを設定する
+ */
+void change_ch_attributes(int pos, int x, int y, int alpha)
+{
+	int layer;
+
+	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
+	       pos == CH_CENTER);
+
+	layer = pos_to_layer(pos);
+	layer_x[layer] = x;
+	layer_y[layer] = y;
+	layer_alpha[layer] = alpha;
+}
+
+/*
  * キャラフェードモードを開始する
  */
 void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
@@ -1104,6 +1153,8 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	int layer;
 
 	assert(!is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
 	       pos == CH_CENTER);
 
@@ -1156,6 +1207,7 @@ void set_ch_fade_progress(float progress)
 {
 	assert(is_ch_fade_enabled);
 	assert(!is_bg_fade_enabled);
+	assert(!is_ch_anime_enabled);
 
 	layer_alpha[LAYER_FI] = (uint8_t)(progress * 255.0f);
 }
@@ -1167,8 +1219,102 @@ void stop_ch_fade(void)
 {
 	assert(is_ch_fade_enabled);
 	assert(!is_bg_fade_enabled);
+	assert(!is_ch_anime_enabled);
 
 	is_ch_fade_enabled = false;
+}
+
+/*
+ * キャラのアニメ
+ */
+
+/*
+ * キャラアニメを開始する
+ */
+void start_ch_anime(int pos, int to_x, int to_y, int to_alpha)
+{
+	int layer, i;
+
+	assert(!is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
+	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
+	       pos == CH_CENTER);
+
+	is_ch_anime_enabled = true;
+
+	/* 座標とアルファ値を保存する */
+	layer = pos_to_layer(pos);
+	layer_anime_alpha_from[layer] = layer_alpha[layer];
+	layer_anime_alpha_to[layer] = to_alpha;
+	layer_anime_x_from[layer] = layer_x[layer];
+	layer_anime_x_to[layer] = to_x;
+	layer_anime_y_from[layer] = layer_y[layer];
+	layer_anime_y_to[layer] = to_y;
+
+	/* アニメ中のレイヤを設定する */
+	for (i = 0; i < STAGE_LAYERS; i++)
+		layer_anime_run[i] = (i == layer) ? true : false;
+}
+
+/*
+ * キャラアニメモードの進捗率を設定する
+ */
+void set_ch_anime_progress(float progress)
+{
+	int i;
+
+	assert(is_ch_anime_enabled);
+	assert(!is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+
+	/* すべてのレイヤについて座標とアルファ値を更新する */
+	for (i = 0; i < STAGE_LAYERS; i++) {
+		/* アニメ中でない場合は更新しない */
+		if (!layer_anime_run[i])
+			continue;
+
+		layer_alpha[i] = (uint8_t)get_anime_interpolation(progress,
+						layer_anime_alpha_from[i],
+						layer_anime_alpha_to[i]);
+		layer_x[i] = (int)get_anime_interpolation(progress,
+						layer_anime_x_from[i],
+						layer_anime_x_to[i]);
+		layer_y[i] = (int)get_anime_interpolation(progress,
+						layer_anime_y_from[i],
+						layer_anime_y_to[i]);
+	}
+}
+
+/* アニメの補間を行う */
+static float get_anime_interpolation(float progress, float from, float to)
+{
+	return from + (to - from) * progress;
+}
+
+/*
+ * キャラアニメモードを終了する
+ */
+void stop_ch_anime(void)
+{
+	int i;
+
+	assert(is_ch_anime_enabled);
+	assert(!is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+
+	is_ch_anime_enabled = false;
+
+	/* すべてのレイヤについて座標とアルファ値を最終値に更新する */
+	for (i = 0; i < STAGE_LAYERS; i++) {
+		/* アニメ中でない場合は更新しない */
+		if (!layer_anime_run[i])
+			continue;
+
+		layer_alpha[i] = layer_anime_alpha_to[i];
+		layer_x[i] = layer_anime_x_to[i];
+		layer_y[i] = layer_anime_y_to[i];
+	}
 }
 
 /*

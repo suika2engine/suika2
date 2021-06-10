@@ -111,6 +111,32 @@ This command changes the character.
 @ch c sample.png 1.0 n 0 0 show
 ```
 
+## @cha
+
+This command moves a character image.
+Refer to `@ch` section for details of the specifier of character position and alpha value.
+
+* Usage 1: Moves the center character to 600-px left and hide it with a 1.0 second animation time.
+```
+@cha center 1.0 move -600 0 hide
+```
+
+* Usage 2: Same as Usage 1, but accelerates movement.
+```
+@cha center 1.0 accel -600 0 hide
+```
+
+* Usage 3: Same as Usage 1, but deaccelerates movement.
+```
+@cha center 1.0 brake -600 0 hide
+```
+
+* Usage 4: Before `@cha`, loads a character image outside the screen, then moves it into the screen.
+```
+@ch right sample.png 0 n 600 0 hide
+@cha right 2.0 move -600 0 show
+```
+
 ## @click
 
 This command instructs Suika 2 to wait for a click before continuing.

@@ -13,6 +13,7 @@
  *  - 2019/09/17 @newsに対応
  *  - 2021/06/05 @menuのボタン数を増やした
  *  - 2021/06/10 @chにエフェクトとオフセットとアルファを追加
+ *  - 2021/06/10 @chaに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -47,6 +48,7 @@ enum command_type {
 	COMMAND_GOSUB,
 	COMMAND_RETURN,
 	COMMAND_NEWS,
+	COMMAND_CHA,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -427,6 +429,16 @@ enum switch_command_param {
 /* gosubコマンドのパラメータ */
 enum gosub_command_param {
 	GOSUB_PARAM_LABEL = 1,
+};
+
+/* chaコマンドのパラメータ */
+enum cha_command_param {
+	CHA_PARAM_POS = 1,
+	CHA_PARAM_SPAN,
+	CHA_PARAM_ACCEL,
+	CHA_PARAM_OFFSET_X,
+	CHA_PARAM_OFFSET_Y,
+	CHA_PARAM_ALPHA,
 };
 
 /*

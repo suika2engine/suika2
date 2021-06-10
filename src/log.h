@@ -10,6 +10,7 @@
  *  - 2016/05/27 作成
  *  - 2017/08/13 スイッチに対応
  *  - 2021/06/05 @bg, @chのエフェクト名エラーを追加
+ *  - 2021/06/10 @chaの加速タイプ名エラーを追加
  */
 
 #ifndef SUIKA_LOG_H
@@ -48,6 +49,7 @@ void log_script_size(int size);
 void log_script_switch_no_item(void);
 void log_script_var_index(int index);
 void log_script_mixer_stream(const char *stream);
+void log_script_cha_accel(const char *accel);
 void log_undefined_conf(const char *key);
 void log_unknown_conf(const char *key);
 void log_wave_error(const char *fname);

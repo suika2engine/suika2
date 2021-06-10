@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2608233C26724676009D979A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
 		26A1782C25EE5DD0006A1ED4 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F425EE5DD0006A1ED4 /* script.c */; };
 		26A1782D25EE5DD0006A1ED4 /* nsmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F625EE5DD0006A1ED4 /* nsmain.m */; };
 		26A1782E25EE5DD0006A1ED4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F725EE5DD0006A1ED4 /* main.c */; };
@@ -46,6 +47,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
 		26A177F425EE5DD0006A1ED4 /* script.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = script.c; path = ../../../src/script.c; sourceTree = "<group>"; };
 		26A177F525EE5DD0006A1ED4 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = main.h; path = ../../../src/main.h; sourceTree = "<group>"; };
 		26A177F625EE5DD0006A1ED4 /* nsmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nsmain.m; path = ../../../src/nsmain.m; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				26A177FB25EE5DD0006A1ED4 /* cmd_bg.c */,
 				26A1781F25EE5DD0006A1ED4 /* cmd_bgm.c */,
 				26A1782925EE5DD0006A1ED4 /* cmd_ch.c */,
+				2608233B26724676009D979A /* cmd_cha.c */,
 				26A1782A25EE5DD0006A1ED4 /* cmd_click.c */,
 				26A177FA25EE5DD0006A1ED4 /* cmd_gosub.c */,
 				26A1781E25EE5DD0006A1ED4 /* cmd_goto.c */,
@@ -277,6 +280,7 @@
 				26A1784025EE5DD0006A1ED4 /* cmd_vol.c in Sources */,
 				26A1782D25EE5DD0006A1ED4 /* nsmain.m in Sources */,
 				26A1784325EE5DD0006A1ED4 /* save.c in Sources */,
+				2608233C26724676009D979A /* cmd_cha.c in Sources */,
 				26A1784225EE5DD0006A1ED4 /* event.c in Sources */,
 				26A1783025EE5DD0006A1ED4 /* cmd_gosub.c in Sources */,
 				26A1783325EE5DD0006A1ED4 /* readimage.c in Sources */,

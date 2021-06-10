@@ -26,7 +26,7 @@ static void draw(void);
 static bool cleanup(void);
 
 /*
- * 背景コマンド
+ * キャラクタコマンド
  */
 bool ch_command(int *x, int *y, int *w, int *h)
 {

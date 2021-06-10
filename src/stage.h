@@ -133,14 +133,26 @@ int get_ch_alpha(int pos);
 void change_ch_immediately(int pos, struct image *img, int x, int y,
 			   int alpha);
 
+/* キャラの位置とアルファを設定する */
+void change_ch_attributes(int pos, int x, int y, int alpha);
+
 /* キャラフェードモードを開始する */
-void start_ch_fade(int layer, struct image *img, int x, int y, int alpha);
+void start_ch_fade(int pos, struct image *img, int x, int y, int alpha);
 
 /* キャラフェードモードの進捗率を設定する */
 void set_ch_fade_progress(float progress);
 
 /* キャラフェードモードを終了する */
 void stop_ch_fade(void);
+
+/* キャラアニメを開始する */
+void start_ch_anime(int pos, int to_x, int to_y, int to_alpha);
+
+/* キャラアニメモードの進捗率を設定する */
+void set_ch_anime_progress(float progress);
+
+/* キャラアニメモードを終了する */
+void stop_ch_anime(void);
 
 /*
  * 名前ボックスの描画

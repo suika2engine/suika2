@@ -12,7 +12,8 @@
  *  - 2016/05/27 作成
  *  - 2017/08/13 スイッチに対応
  *  - 2018/07/21 gosubに対応
- *  - 2019/09/17 NEWSに対応
+ *  - 2019/09/17 newsに対応
+ *  - 2021/06/10 chaに対応
  */
 
 #include "suika.h"
@@ -201,6 +202,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 		break;
 	case COMMAND_RETURN:
 		if (!return_command())
+			return false;
+		break;
+	case COMMAND_CHA:
+		if (!cha_command(x, y, w, h))
 			return false;
 		break;
 	default:

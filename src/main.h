@@ -63,6 +63,7 @@ bool retrospect_command(int *x, int *y, int *w, int *h);
 bool switch_command(int *x, int *y, int *w, int *h);
 bool gosub_command(void);
 bool return_command(void);
+bool cha_command(int *x, int *y, int *w, int *h);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

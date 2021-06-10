@@ -11,6 +11,7 @@
  *  - 2017/08/13 スイッチに対応
  *  - 2018/08/28 Add English messages.
  *  - 2021/06/05 @bg, @chのエフェクト名エラーを追加
+ *  - 2021/06/10 @chaの加速タイプ名エラーを追加
  */
 
 #include <stddef.h>
@@ -410,6 +411,20 @@ void log_script_mixer_stream(const char *stream)
 	} else {
 		log_error("ミキサーのストリーム名\"%s\"は正しくありません。\n",
 			  conv_utf8_to_native(stream));
+	}
+}
+
+/*
+ * キャラアニメの加速タイプ名が間違っているエラーを記録する
+ */
+void log_script_cha_accel(const char *accel)
+{
+	if (is_english_mode()) {
+		log_error("Invalid movement type \"%s\".\n",
+			  conv_utf8_to_native(accel));
+	} else {
+		log_error("移動タイプ\"%s\"は正しくありません。\n",
+			  conv_utf8_to_native(accel));
 	}
 }
 
