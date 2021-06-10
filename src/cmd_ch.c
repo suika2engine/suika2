@@ -8,14 +8,19 @@
 /*
  * [Changes]
  *  - 2016/06/09 作成
+ *  - 2021/06/10 マスクつき描画の対応
  */
 
 #include "suika.h"
 
 static stop_watch_t sw;
 static float span;
+int ch_fade_method;
 
 static bool init(void);
+static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
+			 struct image *img);
+static bool get_fade(const char *method);
 static void draw(void);
 static bool cleanup(void);
 
@@ -50,12 +55,14 @@ static bool init(void)
 	struct image *img;
 	const char *fname;
 	const char *pos;
+	const char *method;
 	int xpos, ypos, chpos;
 
 	/* パラメータを取得する */
 	pos = get_string_param(CH_PARAM_POS);
 	fname = get_string_param(CH_PARAM_FILE);
 	span = get_float_param(CH_PARAM_SPAN);
+	method = get_string_param(CH_PARAM_METHOD);
 
 	/* イメージが指定された場合 */
 	if (strcmp(fname, "none") != 0) {
@@ -66,45 +73,17 @@ static bool init(void)
 			return false;
 		}
 	} else {
-		/* イメージが指定されなかった場合 */
+		/* イメージが指定されなかった場合(消す) */
 		img = NULL;
 	}
 
 	/* 位置を取得する */
-	xpos = 0;
-	switch (*pos) {
-	case 'b':
-		/* 中央に配置する */
-		chpos = CH_BACK;
-		if (img != NULL)
-			xpos = (conf_window_width - get_image_width(img)) / 2;
-		break;
-	case 'l':
-		/* 左に配置する */
-		chpos = CH_LEFT;
-		xpos = 0;
-		break;
-	case 'r':
-		/* 右に配置する */
-		chpos = CH_RIGHT;
-		if (img != NULL)
-			xpos = conf_window_width - get_image_width(img);
-		break;
-	case 'c':
-		/* 中央に配置する */
-		chpos = CH_CENTER;
-		if (img != NULL)
-			xpos = (conf_window_width - get_image_width(img)) / 2;
-		break;
-	default:
-		/* スクリプト実行エラー */
-		log_script_ch_position(pos);
-		log_script_exec_footer();
+	if (!get_position(&xpos, &ypos, &chpos, pos, img))
 		return false;
-	}
 
-	/* 縦方向の位置を求める */
-	ypos = img != NULL ? conf_window_height - get_image_height(img) : 0;
+	/* フェードの種類を求める */
+	if (!get_fade(method))
+		return false;
 
 	/* キャラのファイル名を設定する */
 	if (!set_ch_file_name(chpos, strcmp(fname, "none") == 0 ? NULL :
@@ -131,6 +110,60 @@ static bool init(void)
 	show_msgbox(false);
 	show_click(false);
 
+	return true;
+}
+
+/* キャラの横方向の位置を取得する */
+static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
+			 struct image *img)
+{
+	*xpos = 0;
+
+	if (strcmp(pos, "back") == 0 || strcmp(pos, "b") == 0 ) {
+		/* 中央に配置する */
+		*chpos = CH_BACK;
+		if (img != NULL)
+			*xpos = (conf_window_width - get_image_width(img)) / 2;
+	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0) {
+		/* 左に配置する */
+		*chpos = CH_LEFT;
+		*xpos = 0;
+	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0) {
+		/* 右に配置する */
+		*chpos = CH_RIGHT;
+		if (img != NULL)
+			*xpos = conf_window_width - get_image_width(img);
+	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "c") == 0) {
+		/* 中央に配置する */
+		*chpos = CH_CENTER;
+		if (img != NULL)
+			*xpos = (conf_window_width - get_image_width(img)) / 2;
+	} else {
+		/* スクリプト実行エラー */
+		log_script_ch_position(pos);
+		log_script_exec_footer();
+		return false;
+	}
+
+	/* 縦方向の位置を求める */
+	*ypos = img != NULL ? conf_window_height - get_image_height(img) : 0;
+	return true;
+}
+
+/* フェードの種類を取得する */
+static bool get_fade(const char *method)
+{
+	if (strcmp(method, "normal") == 0 || strcmp(method, "n") == 0 ||
+	    strcmp(method, "") == 0) {
+		ch_fade_method = CH_FADE_METHOD_NORMAL;
+	} else if (strcmp(method, "mask") == 0 || strcmp(method, "m") == 0) {
+		ch_fade_method = CH_FADE_METHOD_MASK;
+	} else {
+		/* スクリプト実行エラー */
+		log_script_fade_method(method);
+		log_script_exec_footer();
+		return false;
+	}
 	return true;
 }
 
@@ -164,7 +197,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_ch_fade();
+		draw_stage_ch_fade(ch_fade_method);
 	else
 		draw_stage();
 }

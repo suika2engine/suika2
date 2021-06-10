@@ -42,6 +42,13 @@ enum bg_fade_method {
 	BG_FADE_METHOD_SLIDE_DOWN,
 };
 
+/* キャラクタフェードメソッド */
+enum ch_fade_method {
+	CH_FADE_METHOD_INVALID,
+	CH_FADE_METHOD_NORMAL,
+	CH_FADE_METHOD_MASK,
+};
+
 /*
  * 初期化
  */
@@ -66,7 +73,7 @@ void draw_stage_rect(int x, int y, int w, int h);
 void draw_stage_bg_fade(int fade_method);
 
 /* キャラフェードモードが有効な際のステージ描画を行う */
-void draw_stage_ch_fade(void);
+void draw_stage_ch_fade(int fade_method);
 
 /* ステージの背景(FO)全体と、前景(FI)のうち2矩形を描画する */
 void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,

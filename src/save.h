@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  * [Changes]
  *  - 2016/06/30 作成
  *  - 2017/08/17 グローバル変数に対応
+ *  - 2021/06/05 マスターボリュームに対応
  */
 
 #ifndef SUIKA_SAVE_H

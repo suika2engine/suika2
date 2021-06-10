@@ -10,6 +10,7 @@
  *  - 2016/05/27 作成
  *  - 2017/08/13 スイッチに対応
  *  - 2018/08/28 Add English messages.
+ *  - 2021/06/05 @bg, @chのエフェクト名エラーを追加
  */
 
 #include <stddef.h>
@@ -198,15 +199,15 @@ void log_script_ch_position(const char *pos)
 }
 
 /*
- * 背景フェードの方法指定が間違っているエラーを記録する
+ * フェードの方法指定が間違っているエラーを記録する
  */
 void log_script_fade_method(const char *method)
 {
 	if (is_english_mode()) {
-		log_error("Background fade method \"%s\" is invalid.\n",
+		log_error("Fade method \"%s\" is invalid.\n",
 			  conv_utf8_to_native(method));
 	} else {
-		log_error("背景フェードの方法指定\"%s\"は間違っています。\n",
+		log_error("フェードの方法指定\"%s\"は間違っています。\n",
 		  conv_utf8_to_native(method));
 	}
 }

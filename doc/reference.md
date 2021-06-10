@@ -72,6 +72,10 @@ This command changes the character.
     * `left`
     * `back` (back center)
 
+* Effets are:
+    * `normal`, `n` or not-specified -> alpha blending
+    * `mask` or `m` -> 28-level pointillism
+
 * Usage 1: Displays `sample.png` in 0.5 seconds at front center.
 ```
 @ch center sample.png 0.5
@@ -90,6 +94,11 @@ This command changes the character.
 * Usage 4: Changes are applied immediately when the fade-in time is not specified.
 ```
 @ch c sample.png
+```
+
+* Usage 5: Specify effect.
+```
+@ch c sample.png 1.0 mask
 ```
 
 ## @click

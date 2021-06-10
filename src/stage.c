@@ -21,6 +21,7 @@
 /* false assertion */
 #define BAD_POSITION		(0)
 #define INVALID_BG_FADE_METHOD	(0)
+#define INVALID_CH_FADE_METHOD	(0)
 
 /* カーテンフェードのカーテンの幅 */
 #define CURTAIN_WIDTH	(256)
@@ -168,6 +169,8 @@ static void draw_stage_bg_fade_slide_left(void);
 static void draw_stage_bg_fade_slide_right(void);
 static void draw_stage_bg_fade_slide_up(void);
 static void draw_stage_bg_fade_slide_down(void);
+static void draw_stage_ch_fade_normal(void);
+static void draw_stage_ch_fade_mask(void);
 static int pos_to_layer(int pos);
 static void draw_layer_image(struct image *target, int layer);
 static void draw_layer_image_rect(struct image *target, int layer, int x,
@@ -800,14 +803,46 @@ static void draw_stage_bg_fade_slide_down(void)
 /*
  * キャラフェードモードが有効な際のステージ描画を行う
  */
-void draw_stage_ch_fade(void)
+void draw_stage_ch_fade(int fade_method)
 {
 	assert(!is_save_mode());
 	assert(!is_bg_fade_enabled);
 	assert(is_ch_fade_enabled);
 
+	switch (fade_method) {
+	case CH_FADE_METHOD_NORMAL:
+		draw_stage_ch_fade_normal();
+		break;
+	case CH_FADE_METHOD_MASK:
+		draw_stage_ch_fade_mask();
+		break;
+	default:
+		assert(INVALID_CH_FADE_METHOD);
+		break;
+	}
+}
+
+static void draw_stage_ch_fade_normal(void)
+{
 	draw_layer_image(back_image, LAYER_FO);
 	draw_layer_image(back_image, LAYER_FI);
+}
+
+static void draw_stage_ch_fade_mask(void)
+{
+	int mask_index;
+
+	/* アルファ値からマスクインデックスを求める */
+	mask_index = (int)((float)DRAW_IMAGE_MASK_LEVELS *
+			   (float)layer_alpha[LAYER_FI] / 255.0f);
+
+	/* 古い背景を描画する */
+	draw_layer_image(back_image, LAYER_FO);
+
+	/* 新しい背景をマスクつきで描画する */
+	draw_image_mask(back_image, 0, 0, layer_image[LAYER_FI],
+			conf_window_width, conf_window_height, 0, 0,
+			mask_index);
 }
 
 /*

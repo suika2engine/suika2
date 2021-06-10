@@ -9,8 +9,13 @@
  * [Changes]
  *  - 2016/06/01 作成
  *  - 2017/08/13 スイッチに対応
- *  - 2018/07/21 gosubに対応
- *  - 2019/09/17 NEWSに対応
+ *  - 2018/07/21 @gosubに対応
+ *  - 2019/09/17 @newsに対応
+ *  - 2021/06/05 @bgにエフェクトを追加
+ *  - 2021/06/05 @volにマスターボリュームを追加
+ *  - 2021/06/05 @menuのボタン数を増やした
+ *  - 2021/06/06 @seにボイスストリーム出力を追加
+ *  - 2021/06/10 @bgと@chにマスク描画を追加
  */
 
 #ifdef _MSC_VER
@@ -53,7 +58,7 @@ struct insn_item {
 } insn_tbl[] = {
 	{"@bg", COMMAND_BG, 1, 3},
 	{"@bgm", COMMAND_BGM, 1, 1},
-	{"@ch", COMMAND_CH, 1, 3},
+	{"@ch", COMMAND_CH, 1, 4},
 	{"@click", COMMAND_CLICK, 0, 1},
 	{"@wait", COMMAND_WAIT, 1, 1},
 	{"@goto", COMMAND_GOTO, 1, 1},
