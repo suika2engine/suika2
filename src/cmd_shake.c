@@ -124,7 +124,7 @@ static void draw(void)
 
 	/* 加速を処理する */
 	t = lap / span * 2 * PI;
-	s = amount * sinf(times * t);
+	s = (float)amount * sinf((float)times * t);
 
 	/* 進捗を設定する */
 	if (is_in_command_repetition()) {
