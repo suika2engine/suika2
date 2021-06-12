@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2018, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -10,6 +10,8 @@
  *  - 2016/05/27 作成
  *  - 2017/08/13 スイッチに対応
  *  - 2018/07/21 gosubに対応
+ *  - 2021/06/10 chaに対応
+ *  - 2021/06/12 shakeに対応
  */
 
 #ifndef SUIKA_MAIN_H
@@ -64,6 +66,7 @@ bool switch_command(int *x, int *y, int *w, int *h);
 bool gosub_command(void);
 bool return_command(void);
 bool cha_command(int *x, int *y, int *w, int *h);
+bool shake_command(int *x, int *y, int *w, int *h);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

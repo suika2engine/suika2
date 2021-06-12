@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2608233C26724676009D979A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
+		260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
 		26A1782C25EE5DD0006A1ED4 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F425EE5DD0006A1ED4 /* script.c */; };
 		26A1782D25EE5DD0006A1ED4 /* nsmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F625EE5DD0006A1ED4 /* nsmain.m */; };
 		26A1782E25EE5DD0006A1ED4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F725EE5DD0006A1ED4 /* main.c */; };
@@ -48,6 +49,7 @@
 
 /* Begin PBXFileReference section */
 		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
+		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
 		26A177F425EE5DD0006A1ED4 /* script.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = script.c; path = ../../../src/script.c; sourceTree = "<group>"; };
 		26A177F525EE5DD0006A1ED4 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = main.h; path = ../../../src/main.h; sourceTree = "<group>"; };
 		26A177F625EE5DD0006A1ED4 /* nsmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nsmain.m; path = ../../../src/nsmain.m; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 				26A1782725EE5DD0006A1ED4 /* cmd_se.c */,
 				26A1780B25EE5DD0006A1ED4 /* cmd_select.c */,
 				26A1780825EE5DD0006A1ED4 /* cmd_set.c */,
+				260F30512674A3C000AF8E21 /* cmd_shake.c */,
 				26A1780725EE5DD0006A1ED4 /* cmd_switch.c */,
 				26A1781425EE5DD0006A1ED4 /* cmd_vol.c */,
 				26A1782625EE5DD0006A1ED4 /* cmd_wait.c */,
@@ -283,6 +286,7 @@
 				2608233C26724676009D979A /* cmd_cha.c in Sources */,
 				26A1784225EE5DD0006A1ED4 /* event.c in Sources */,
 				26A1783025EE5DD0006A1ED4 /* cmd_gosub.c in Sources */,
+				260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */,
 				26A1783325EE5DD0006A1ED4 /* readimage.c in Sources */,
 				26A1784925EE5DD0006A1ED4 /* cmd_if.c in Sources */,
 				26A1783625EE5DD0006A1ED4 /* aunit.c in Sources */,
@@ -434,7 +438,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = (
@@ -448,7 +452,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.7.4;
+				MARKETING_VERSION = 2.7.5;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -477,7 +481,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = (
@@ -491,7 +495,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.7.4;
+				MARKETING_VERSION = 2.7.5;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",

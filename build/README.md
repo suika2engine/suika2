@@ -4,8 +4,8 @@ How to build
 * Windows App
     * We use cross compiler to build Windows binary.
     * On Ubuntu 20.04, install following packages:
-        * build-essential
-        * mingw-w64
+        * `build-essential`
+        * `mingw-w64`
     * In terminal, enter `build/mingw` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build `suika.exe`.
@@ -13,7 +13,7 @@ How to build
     * To run Suika 2, double click `suika.exe` in `game` folder on Windows.
 
 * Mac App
-    * On macOS 11.2, install Xcode 12.4.
+    * On macOS 11.4, install Xcode 12.5.
     * In terminal, enter `build/macos` directory.
         * Run `./build-libs.sh` to build libraries.
     * In Xcode, open `build/macos`.
@@ -25,8 +25,8 @@ How to build
     * To run Suika 2, double click `suika.app` in `game` folder.
 
 * Release File
-    * On macOS 11.2, in terminal, enter `build/release` directory.
-       * Modify SIGNATURE in `Makefile` to sign DMG file.
+    * On macOS 11.4, in terminal, enter `build/release` directory.
+       * Modify `SIGNATURE` in `Makefile` to sign `mac.dmg` file.
        * Run `make` to create ZIP file.
        * Rename `suika-2.x.x.zip`.
 
@@ -40,10 +40,10 @@ How to build
 
 * Linux Binary
     * On Ubuntu 20.04, install following packages:
-        * build-essential
-        * libasound2-dev
-        * libX11-dev
-        * libxpm-dev
+        * `build-essential`
+        * `libasound2-dev`
+        * `libX11-dev`
+        * `libxpm-dev`
     * In terminal, enter `build/linux` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika 2 binary.
@@ -53,9 +53,9 @@ How to build
 
 * FreeBSD Binary
     * On FreeBSD 12.2, install following packages:
-        * gmake
-        * alsa-lib
-        * alsa-plugins
+        * `gmake`
+        * `alsa-lib`
+        * `alsa-plugins`
     * In terminal, enter `build/freebsd` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `gmake` to build Suika 2 binary.
@@ -65,10 +65,10 @@ How to build
 
 * NetBSD Binary
     * On NetBSD 9.1, install following packages:
-        * gmake
-        * alsa-lib
-        * alsa-plugins-oss
-    * export LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib
+        * `gmake`
+        * `alsa-lib`
+        * `alsa-plugins-oss`
+    * `export LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib`
     * In terminal, enter `build/netbsd` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `gmake` to build Suika 2 binary.

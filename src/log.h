@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2017, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  *  - 2017/08/13 スイッチに対応
  *  - 2021/06/05 @bg, @chのエフェクト名エラーを追加
  *  - 2021/06/10 @chaの加速タイプ名エラーを追加
+ *  - 2021/06/12 @shakeの移動タイプ名エラーを追加
  */
 
 #ifndef SUIKA_LOG_H
@@ -29,6 +30,9 @@ void log_font_file_error(const char *font);
 void log_image_file_error(const char *dir, const char *file);
 void log_memory(void);
 void log_package_file_error(void);
+void log_undefined_conf(const char *key);
+void log_unknown_conf(const char *key);
+void log_wave_error(const char *fname);
 void log_script_exec_footer(void);
 void log_script_command_not_found(const char *name);
 void log_script_empty_serif(void);
@@ -50,8 +54,6 @@ void log_script_switch_no_item(void);
 void log_script_var_index(int index);
 void log_script_mixer_stream(const char *stream);
 void log_script_cha_accel(const char *accel);
-void log_undefined_conf(const char *key);
-void log_unknown_conf(const char *key);
-void log_wave_error(const char *fname);
+void log_script_shake_move(const char *move);
 
 #endif

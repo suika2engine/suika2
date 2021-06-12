@@ -15,6 +15,7 @@
  *  - 2021-06-05 背景フェードの追加
  *  - 2021-06-10 マスクつき描画の対応
  *  - 2021-06-10 キャラのアニメ対応
+ *  - 2021-06-12 画面揺らしモードの対応
  */
 
 #include "suika.h"
@@ -142,9 +143,6 @@ static bool is_bg_fade_enabled;
 /* キャラフェードモードであるか */
 static bool is_ch_fade_enabled;
 
-/* キャラアニメモードであるか */
-static bool is_ch_anime_enabled;
-
 /* 背景イメージ名 */
 static char *bg_file_name;
 
@@ -156,6 +154,9 @@ static char *ch_file_name[CH_LAYERS];
  *  - 現状キャラを1つずつ(1レイヤずつ)しか動かすことができない
  *  - 将来複数レイヤを動かせるような設計として、下記の情報を保持する
  */
+
+/* キャラアニメモードであるか */
+static bool is_ch_anime_enabled;
 
 /* アニメ中のレイヤ */
 static bool layer_anime_run[STAGE_LAYERS];
@@ -171,6 +172,17 @@ static int layer_anime_y_to[STAGE_LAYERS];
 /* アニメ中のレイヤのアルファ値 */
 static int layer_anime_alpha_from[STAGE_LAYERS];
 static int layer_anime_alpha_to[STAGE_LAYERS];
+
+/*
+ * 画面揺らしモード中の情報
+ */
+
+/* 画面揺らしモード中であるか */
+static bool is_shake_enabled;
+
+/* 画面表示オフセット */
+static int shake_offset_x;
+static int shake_offset_y;
 
 /*
  * 前方参照
@@ -872,6 +884,23 @@ static void draw_stage_ch_fade_mask(void)
 }
 
 /*
+ * 画面揺らしモードが有効な際のステージ描画を行う
+ */
+void draw_stage_shake(void)
+{
+	/* 背景を塗り潰す */
+	if (conf_window_white)
+		clear_image_white(back_image);
+	else
+		clear_image_black(back_image);
+
+	/* FOレイヤを描画する */
+	draw_image(back_image, shake_offset_x, shake_offset_y,
+		   layer_image[LAYER_FO], conf_window_width,
+		   conf_window_height, 0, 0, 255, BLEND_NONE);
+}
+
+/*
  * ステージの背景(FO)全体と、前景(FI)のうち2矩形を描画する
  */
 void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
@@ -993,6 +1022,7 @@ void start_bg_fade(struct image *img)
 	assert(!is_ch_fade_enabled);
 	assert(!is_ch_anime_enabled);
 	assert(!is_ch_fade_enabled);
+	assert(!is_shake_enabled);
 
 	/* 背景フェードを有効にする */
 	is_bg_fade_enabled = true;
@@ -1023,6 +1053,7 @@ void set_bg_fade_progress(float progress)
 	assert(is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
 	assert(!is_ch_anime_enabled);
+	assert(!is_shake_enabled);
 
 	layer_alpha[LAYER_BG_FI] = (uint8_t)(progress * 255.0f);
 }
@@ -1035,6 +1066,7 @@ void stop_bg_fade(void)
 	assert(is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
 	assert(!is_ch_anime_enabled);
+	assert(!is_shake_enabled);
 
 	is_bg_fade_enabled = false;
 	destroy_layer_image(LAYER_BG);
@@ -1155,6 +1187,7 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
 	assert(!is_ch_anime_enabled);
+	assert(!is_shake_enabled);
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
 	       pos == CH_CENTER);
 
@@ -1208,6 +1241,7 @@ void set_ch_fade_progress(float progress)
 	assert(is_ch_fade_enabled);
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_anime_enabled);
+	assert(!is_shake_enabled);
 
 	layer_alpha[LAYER_FI] = (uint8_t)(progress * 255.0f);
 }
@@ -1220,12 +1254,13 @@ void stop_ch_fade(void)
 	assert(is_ch_fade_enabled);
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_anime_enabled);
+	assert(!is_shake_enabled);
 
 	is_ch_fade_enabled = false;
 }
 
 /*
- * キャラのアニメ
+ * キャラアニメ
  */
 
 /*
@@ -1238,6 +1273,7 @@ void start_ch_anime(int pos, int to_x, int to_y, int to_alpha)
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
 	assert(!is_ch_anime_enabled);
+	assert(!is_shake_enabled);
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
 	       pos == CH_CENTER);
 
@@ -1267,6 +1303,7 @@ void set_ch_anime_progress(float progress)
 	assert(is_ch_anime_enabled);
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
+	assert(!is_shake_enabled);
 
 	/* すべてのレイヤについて座標とアルファ値を更新する */
 	for (i = 0; i < STAGE_LAYERS; i++) {
@@ -1302,6 +1339,7 @@ void stop_ch_anime(void)
 	assert(is_ch_anime_enabled);
 	assert(!is_bg_fade_enabled);
 	assert(!is_ch_fade_enabled);
+	assert(!is_shake_enabled);
 
 	is_ch_anime_enabled = false;
 
@@ -1315,6 +1353,51 @@ void stop_ch_anime(void)
 		layer_x[i] = layer_anime_x_to[i];
 		layer_y[i] = layer_anime_y_to[i];
 	}
+}
+
+/*
+ * 画面揺らしモード
+ */
+
+/* 画面揺らしモードを開始する */
+void start_shake(void)
+{
+	assert(!is_shake_enabled);
+	assert(!is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
+
+	is_shake_enabled = true;
+
+	/* フェードアウト用のレイヤにステージを描画する */
+	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+}
+
+/* 画面揺らしモードの表示オフセットを設定する */
+void set_shake_offset(int x, int y)
+{
+	assert(is_shake_enabled);
+	assert(!is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
+
+	shake_offset_x = x;
+	shake_offset_y = y;
+}
+
+/* 画面揺らしモードを終了する */
+void stop_shake(void)
+{
+	assert(is_shake_enabled);
+	assert(!is_bg_fade_enabled);
+	assert(!is_ch_fade_enabled);
+	assert(!is_ch_anime_enabled);
+
+	is_shake_enabled = false;
 }
 
 /*

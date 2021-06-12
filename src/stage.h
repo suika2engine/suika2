@@ -12,6 +12,7 @@
  *  - 2021-06-05 背景フェードの追加
  *  - 2021-06-10 マスクつき描画の対応
  *  - 2021-06-10 キャラクタのアルファ値に対応
+ *  - 2021-06-12 画面揺らしモードに対応
  */
 
 #ifndef SUIKA_STAGE_H
@@ -75,6 +76,9 @@ void draw_stage_bg_fade(int fade_method);
 
 /* キャラフェードモードが有効な際のステージ描画を行う */
 void draw_stage_ch_fade(int fade_method);
+
+/* 画面揺らしモードが有効な際のステージ描画を行う */
+void draw_stage_shake(void);
 
 /* ステージの背景(FO)全体と、前景(FI)のうち2矩形を描画する */
 void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
@@ -145,6 +149,10 @@ void set_ch_fade_progress(float progress);
 /* キャラフェードモードを終了する */
 void stop_ch_fade(void);
 
+/*
+ * キャラアニメ
+ */
+
 /* キャラアニメを開始する */
 void start_ch_anime(int pos, int to_x, int to_y, int to_alpha);
 
@@ -153,6 +161,19 @@ void set_ch_anime_progress(float progress);
 
 /* キャラアニメモードを終了する */
 void stop_ch_anime(void);
+
+/*
+ * 画面揺らしモード
+ */
+
+/* 画面揺らしモードを開始する */
+void start_shake(void);
+
+/* 画面揺らしモードのオフセットを設定する */
+void set_shake_offset(int x, int y);
+
+/* 画面揺らしモードを終了する */
+void stop_shake(void);
 
 /*
  * 名前ボックスの描画

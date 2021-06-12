@@ -407,6 +407,20 @@ The initial value of a variable is `0`.
 @set $1 += $2
 ```
 
+## @shake
+
+This command shakes screen.
+
+* Usage 1: Takes 1.0 second to shake screen 3 times horizontally 100px. `horizontal` can be abbreviated as `h`.
+```
+@shake horizontal 1.0 3 100
+```
+
+* Usage 2: Takes 1.0 second to shake screen 3 times vertically 100px. `vertical` can be abbreviated as `v`.
+```
+@shake vertical 1.0 3 100
+```
+
 ## @switch
 
 Shows up to two levels of options.

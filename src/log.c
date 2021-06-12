@@ -12,6 +12,7 @@
  *  - 2018/08/28 Add English messages.
  *  - 2021/06/05 @bg, @chのエフェクト名エラーを追加
  *  - 2021/06/10 @chaの加速タイプ名エラーを追加
+ *  - 2021/06/12 @shakeの移動タイプ名エラーを追加
  */
 
 #include <stddef.h>
@@ -20,6 +21,21 @@
 #include "suika.h"
 
 static bool is_english_mode(void);
+
+/* 英語モードであるかチェックする */
+static bool is_english_mode(void)
+{
+	/* コンフィグlanguageが未指定の場合は日本語モードである */
+	if (conf_language == NULL)
+		return false;
+
+	/* コンフィグlanguageがEnglishの場合は英語モードである */
+	if (strcmp(conf_language, "English") == 0)
+		return true;
+
+	/* その他の言語が指定された場合は日本語モードとする */
+	return false;
+}
 
 /*
  * APIのエラーを記録する
@@ -136,6 +152,47 @@ void log_package_file_error(void)
 		log_error("Failed to load the package file.\n");
 	else
 		log_error("パッケージファイルの読み込みに失敗しました。\n");
+}
+
+/*
+ * 未定義のコンフィグを記録する
+ */
+void log_undefined_conf(const char *key)
+{
+	if (is_english_mode())
+		log_error("Missing key \"%s\" in config.txt\n", key);
+	else
+		log_error("コンフィグに\"%s\"が記述されていません。\n", key);
+}
+
+/*
+ * 不明なコンフィグを記録する
+ */
+void log_unknown_conf(const char *key)
+{
+	if (is_english_mode()) {
+		log_error("Configuration key \"%s\" is not recognized.\n",
+			  conv_utf8_to_native(key));
+	} else {
+		log_error("コンフィグの\"%s\"は認識されません。\n",
+			  conv_utf8_to_native(key));
+	}
+}
+
+/*
+ * 音声ファイルの入力エラーを記録する
+ */
+void log_wave_error(const char *fname)
+{
+	assert(fname != NULL);
+
+	if (is_english_mode()) {
+		log_error("Failed to play \"%s\".\n",
+			  conv_utf8_to_native(fname));
+	} else {
+		log_error("ファイル\"%s\"の再生に失敗しました。\n",
+			  conv_utf8_to_native(fname));
+	}
 }
 
 /*
@@ -429,57 +486,15 @@ void log_script_cha_accel(const char *accel)
 }
 
 /*
- * 未定義のコンフィグを記録する
+ * 画面揺らしエフェクトの移動タイプ名が間違っているエラーを記録する
  */
-void log_undefined_conf(const char *key)
-{
-	if (is_english_mode())
-		log_error("Missing key \"%s\" in config.txt\n", key);
-	else
-		log_error("コンフィグに\"%s\"が記述されていません。\n", key);
-}
-
-/*
- * 不明なコンフィグを記録する
- */
-void log_unknown_conf(const char *key)
+void log_script_shake_move(const char *move)
 {
 	if (is_english_mode()) {
-		log_error("Configuration key \"%s\" is not recognized.\n",
-			  conv_utf8_to_native(key));
+		log_error("Invalid movement type \"%s\".\n",
+			  conv_utf8_to_native(move));
 	} else {
-		log_error("コンフィグの\"%s\"は認識されません。\n",
-			  conv_utf8_to_native(key));
+		log_error("移動タイプ\"%s\"は正しくありません。\n",
+			  conv_utf8_to_native(move));
 	}
-}
-
-/*
- * 音声ファイルの入力エラーを記録する
- */
-void log_wave_error(const char *fname)
-{
-	assert(fname != NULL);
-
-	if (is_english_mode()) {
-		log_error("Failed to play \"%s\".\n",
-			  conv_utf8_to_native(fname));
-	} else {
-		log_error("ファイル\"%s\"の再生に失敗しました。\n",
-			  conv_utf8_to_native(fname));
-	}
-}
-
-/* 英語モードであるかチェックする */
-static bool is_english_mode(void)
-{
-	/* コンフィグlanguageが未指定の場合は日本語モードである */
-	if (conf_language == NULL)
-		return false;
-
-	/* コンフィグlanguageがEnglishの場合は英語モードである */
-	if (strcmp(conf_language, "English") == 0)
-		return true;
-
-	/* その他の言語が指定された場合は日本語モードとする */
-	return false;
 }

@@ -14,6 +14,7 @@
  *  - 2021/06/05 @menuのボタン数を増やした
  *  - 2021/06/10 @chにエフェクトとオフセットとアルファを追加
  *  - 2021/06/10 @chaに対応
+ *  - 2021/06/12 @shakeに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -49,6 +50,7 @@ enum command_type {
 	COMMAND_RETURN,
 	COMMAND_NEWS,
 	COMMAND_CHA,
+	COMMAND_SHAKE,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -439,6 +441,14 @@ enum cha_command_param {
 	CHA_PARAM_OFFSET_X,
 	CHA_PARAM_OFFSET_Y,
 	CHA_PARAM_ALPHA,
+};
+
+/* shakeコマンドのパラメータ */
+enum shake_command_param {
+	SHAKE_PARAM_MOVE = 1,
+	SHAKE_PARAM_SPAN,
+	SHAKE_PARAM_TIMES,
+	SHAKE_PARAM_AMOUNT,
 };
 
 /*
