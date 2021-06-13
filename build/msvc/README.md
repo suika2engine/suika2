@@ -6,8 +6,8 @@ You can build Suika 2 using Visual Studio 2019.
 Note that this is currently debug purpose only because Visual Studio 2019
 doesn't generate SSE3/SSE4.1/SSE4.2 code.
 
-Make sure you run Visual Studio 2019 in codepage CP932, i.e. Japanese
-environment, to process Japanese strings in source code.
+If you use Suika 2 in Japanese mode, make sure you run Visual Studio 2019
+in Japanese environment in order to process Japanese strings.
 
 Prior to build Suika 2, you have to build libraries.
 

@@ -19,6 +19,10 @@
  *  2021-06-10 マスクつき描画に対応
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "suika.h"
 
 #ifdef SSE_VERSIONING

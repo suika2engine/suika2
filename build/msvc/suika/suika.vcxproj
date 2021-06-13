@@ -62,6 +62,7 @@
     <ClCompile Include="..\..\..\src\cmd_bg.c" />
     <ClCompile Include="..\..\..\src\cmd_bgm.c" />
     <ClCompile Include="..\..\..\src\cmd_ch.c" />
+    <ClCompile Include="..\..\..\src\cmd_cha.c" />
     <ClCompile Include="..\..\..\src\cmd_click.c" />
     <ClCompile Include="..\..\..\src\cmd_gosub.c" />
     <ClCompile Include="..\..\..\src\cmd_goto.c" />
@@ -74,6 +75,7 @@
     <ClCompile Include="..\..\..\src\cmd_se.c" />
     <ClCompile Include="..\..\..\src\cmd_select.c" />
     <ClCompile Include="..\..\..\src\cmd_set.c" />
+    <ClCompile Include="..\..\..\src\cmd_shake.c" />
     <ClCompile Include="..\..\..\src\cmd_switch.c" />
     <ClCompile Include="..\..\..\src\cmd_vol.c" />
     <ClCompile Include="..\..\..\src\cmd_wait.c" />
