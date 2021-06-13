@@ -3,7 +3,7 @@ BUILD
 
 You can build Suika 2 using Visual Studio 2019.
 
-Note that this is currently debug purpose only because Visual Studio 2019
+Note that this is currently for debug purpose only because Visual Studio 2019
 doesn't generate SSE3/SSE4.1/SSE4.2 code.
 
 If you use Suika 2 in Japanese mode, make sure you run Visual Studio 2019
