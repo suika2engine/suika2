@@ -8,25 +8,37 @@
       body {
           font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, Osaka, "Takao Pゴシック", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
           margin-top: 1.0em;
+          margin-left: 1.0em;
           line-height: 2.5em;
-      }
-      p {
-          font-size: 1.0em;
-          line-height: 1.8em;
-          margin-bottom: 1em;
       }
       h1 {
           font-size: 2.5em;
           font-weight: bold;
+          color: #364e96;
+          border: solid 3px #364e96;
+          padding: 0.5em;
+          border-radius: 0.5em;
       }
       h2, h3, h4 {
           font-size: 1.5em;
           font-weight: bold;
-          margin-top: 1em;
+          margin-top: 1.5em;
           margin-bottom: 0em;
+          margin-left: 0.5em;
+          color: #364e96;
+          padding: 0.5em 0;
+          border-top: solid 3px #364e96;
+          border-bottom: solid 3px #364e96;
+      }
+      p {
+          font-size: 1.0em;
+          line-height: 1.8em;
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
       }
       ul {
-          margin-bottom: 1em;
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
       }
   </style>
 </head>
@@ -38,8 +50,7 @@
 <h2>このソフトについて</h2>
 <ul>
   <li>自由に使えるアドベンチャーゲーム制作ツールです</li>
-  <li>Windows/Mac/Android/Linux/FreeBSD/NetBSDで動きます</li>
-  <li>2D/3Dアクセラレーションを使わないため、環境を選ばず動きます</li>
+  <li>WindowsとMacの両方で動きます</li>
 </ul>
 
 <h2>動作環境</h2>
@@ -64,24 +75,18 @@
       <li>macOS 11 Big Sur</li>
     </ul>
   </li>
-  <li>Android/Linux/FreeBSD/NetBSD
-    <ul>
-      <li>このZIPファイルには含まれません</li>
-      <li>Android 4.0.4以降, Ubuntu 18.04, Ubuntu 20.04, FreeBSD 12, NetBSD 9</li>
-    </ul>
 </ul>
 
 <h2>連絡先</h2>
 <ul>
-  <li>まだ公開したばかりなので、なんでも連絡してくださるとうれしいです</li>
-  <li>公式WEB <a href="https://luxion.jp/s2/ja/">https://luxion.jp/s2/ja/</a></li>
-  <li>連絡先1 tabata@luxion.jp</li>
-  <li>連絡先2 <a href="http://6822.teacup.com/suika2/bbs">BBS</a></li>
+  <li>活発に開発していますので、何でも連絡してくださるとうれしいです</li>
+  <li>連絡先 <a href="mailto:tabata@luxion.jp">tabata@luxion.jp</a> (Gmailから返信しますのでご承知おきください)</li>
+  <li>公式Web <a href="https://luxion.jp/s2/ja/">https://luxion.jp/s2/ja/</a></li>
 </ul>
 
 <h2>インストール/アンインストール</h2>
 <ul>
-  <li>ZIPファイルを展開したフォルダをそのままご使用ください</li>
+  <li>ZIPファイルを展開したフォルダ<code>suika2</code>をそのままご使用ください</li>
   <li>不要になりましたらフォルダごと削除してください</li>
 </ul>
 
@@ -90,10 +95,10 @@
   <li>Windowsでは、<code>suika.exe</code>を開いてください</li>
   <li>Macでは、
     <ul>
-      <li><code>mac.dmg</code>を開きます</li>
+      <li><code>mac.dmg</code>を開くと<code>suika-mac</code>が現れます</li>
       <li><code>suika-mac</code>の中にある<code>suika</code>を、元のフォルダである<code>suika2</code>にコピーします</li>
       <li><code>suika2</code>の中の<code>suika</code>をダブルクリックしてください</li>
-      <li>2回目以降は<code>mac.dmg</code>を開いてコピーする必要はありません</li>
+      <li>2回目以降はこのコピーの必要はありません</li>
     </ul>
   </li>
 </ul>
@@ -109,7 +114,7 @@
   <li>CV しぐれるぅ。 様</li>
   <li>音楽 80 様</li>
   <li>音楽 krol 様</li>
-  <li>画面デザイン heath 様, sima 様(改)</li>
+  <li>画面デザイン heath 様, sima 様 (改変)</li>
   <li>背景美術 r0cco 様</li>
 </ul>
 
@@ -117,13 +122,18 @@
 <ul>
   <li>アプリ本体はMITライセンスです</li>
   <li>アプリ本体と利用ライブラリを含めたすべてのライセンスを<a href="COPYING">COPYING</a>にまとめました</li>
-  <li>再配布の際にはCOPYINGファイルを同梱するだけでOKです</li>
-  <li>サンプルゲームのフォントにつきましては、再配布可能ですが別ライセンスですので、font/LICENSEファイルの同梱を推奨します</li>
-  <li>サンプルゲームの素材の2次利用につきましては、背景はbg/credit.txt、BGMはbgm/credit.txtをご覧ください</li>
+  <li>再配布の際には<a href="COPYING">COPYING</a>ファイルを同梱するだけでOKです</li>
+  <li>サンプルゲームのフォントにつきましては、再配布可能ですが別ライセンスですので、<a href="font/LICENSE">font/LICENSE</a>ファイルの同梱を推奨します</li>
+  <li>サンプルゲームの素材には2次利用できないものがありますので、背景は<a href="bg/credit.txt">bg/credit.txt</a>、BGMは<a href="bgm/credit.txt">bgm/credit.txt</a>をご覧ください</li>
 </ul>
 
 <h2>変更履歴</h2>
 <ul>
+  <li>Suika 2.7.6 2021/6/15 Thanks to マイマイさん
+    <ul>
+      <li>@setsaveコマンドを導入、セーブ・ロードの禁止区間を設定できるようにした</li>
+    </ul>
+  </li>
   <li>Suika 2.7.5 2021/6/12 Thanks to 藤崎さん
     <ul>
       <li>@shakeコマンドを導入、画面を揺らせるようにした</li>

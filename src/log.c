@@ -13,6 +13,7 @@
  *  - 2021/06/05 @bg, @chのエフェクト名エラーを追加
  *  - 2021/06/10 @chaの加速タイプ名エラーを追加
  *  - 2021/06/12 @shakeの移動タイプ名エラーを追加
+ *  - 2021/06/15 @setsaveのパラメタのエラーを追加
  */
 
 #include <stddef.h>
@@ -496,5 +497,21 @@ void log_script_shake_move(const char *move)
 	} else {
 		log_error("移動タイプ\"%s\"は正しくありません。\n",
 			  conv_utf8_to_native(move));
+	}
+}
+
+/*
+ * enableかdisableの引数に違う値が与えられたエラーを記録する
+ */
+void log_script_enable_disable(const char *param)
+{
+	if (is_english_mode()) {
+		log_error("Invalid parameter \"%s\". "
+			  "Specify enable or disable.\n",
+			  conv_utf8_to_native(param));
+	} else {
+		log_error("引数\"%s\"は正しくありません。"
+			  "enableかdisableを指定してください。\n",
+			  conv_utf8_to_native(param));
 	}
 }

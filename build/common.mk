@@ -15,6 +15,7 @@ SRCS_COMMON = \
 	../../src/cmd_se.c \
 	../../src/cmd_select.c \
 	../../src/cmd_set.c \
+    ../../src/cmd_setsave.c \
 	../../src/cmd_shake.c \
 	../../src/cmd_switch.c \
 	../../src/cmd_vol.c \

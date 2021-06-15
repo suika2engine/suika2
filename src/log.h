@@ -12,6 +12,7 @@
  *  - 2021/06/05 @bg, @chのエフェクト名エラーを追加
  *  - 2021/06/10 @chaの加速タイプ名エラーを追加
  *  - 2021/06/12 @shakeの移動タイプ名エラーを追加
+ *  - 2021/06/15 @setsaveのパラメタのエラーを追加
  */
 
 #ifndef SUIKA_LOG_H
@@ -55,5 +56,6 @@ void log_script_var_index(int index);
 void log_script_mixer_stream(const char *stream);
 void log_script_cha_accel(const char *accel);
 void log_script_shake_move(const char *move);
+void log_script_enable_disable(const char *param);
 
 #endif

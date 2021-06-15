@@ -10,35 +10,45 @@
           margin-top: 1.0em;
           line-height: 2.5em;
       }
-      p {
-          font-size: 1.0em;
-          line-height: 1.8em;
-          margin-bottom: 1em;
-      }
       h1 {
           font-size: 2.5em;
           font-weight: bold;
+          color: #364e96;
+          border: solid 3px #364e96;
+          padding: 0.5em;
+          border-radius: 0.5em;
       }
       h2, h3, h4 {
           font-size: 1.5em;
           font-weight: bold;
-          margin-top: 1em;
+          margin-top: 1.5em;
           margin-bottom: 0em;
+          margin-left: 0.5em;
+          color: #364e96;
+          padding: 0.5em 0;
+          border-top: solid 3px #364e96;
+          border-bottom: solid 3px #364e96;
+      }
+      p {
+          font-size: 1.0em;
+          line-height: 1.8em;
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
       }
       ul {
-          margin-bottom: 1em;
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
       }
   </style>
 </head>
 <body>
 
-<h1>Suika 2.7.5</h1>
+<h1>Suika 2.7.6</h1>
 <p>Copyright (C) 2001-2021 TABATA Keiichi. All rights reserved.</p>
 
 <h2>About Suika 2</h2>
 <p>
-Suika 2 is a portable game engine that runs on Windows, Mac, Android, 
-Linux, FreeBSD, NetBSD.
+Suika 2 is a portable game engine that runs on both Windows and Mac.
 You can enjoy producing impressive visual novels using Suika 2.
 </p>
 
@@ -46,10 +56,10 @@ You can enjoy producing impressive visual novels using Suika 2.
 <ul>
   <li>Simple. You can easily write scripts.</li>
   <li>Fast. It's a native application.</li>
-  <li>Free. It's an open source project hosted on <a href="https://github.com/ktabata/suika2">GitHub</a>.</li>
+  <li>Free. It's an open source project hosted on <a href="https://github.com/ktabata/suika2">github</a>.</li>
 </ul>
 
-<h2>Operating environments</h2>
+<h2>System Requirements</h2>
 <ul>
   <li>Windows
     <ul>
@@ -71,51 +81,53 @@ You can enjoy producing impressive visual novels using Suika 2.
       <li>macOS 11 Big Sur</li>
     </ul>
   </li>
-  <li>Android/Linux/FreeBSD/NetBSD
-    <ul>
-      <li>Not included in this ZIP file</li>
-      <li>Android 4.0.4 or later, Ubuntu 18.04, Ubuntu 20.04, FreeBSD 12, NetBSD 9</li>
-    </ul>
-  </li>
 </ul>
 
 <h2>Contact</h2>
 <ul>
   <li>Any and all feedback is welcome.</li>
-  <li>Official Web site <a href="https://luxion.jp/s2/en/">https://luxion.jp/s2/en/</a></li>
-  <li>Mail to tabata@luxion.jp</li>
+  <li>Write a mail to <a href="mailto:tabata@luxion.jp">tabata@luxion.jp</a>
+    <ul>
+      <li>Reply will be sent from Gmail address.</li>
+    </ul>
+  </li>
+  <li>Visit official web site <a href="https://luxion.jp/s2/en/">https://luxion.jp/s2/en/</a></li>
 </ul>
 
 <h2>Usage</h2>
 <ul>
-  <li>On Windows, open suika.exe</li>
-</li>
+  <li>On Windows, open <code>suika.exe</code></li>
   <li>On Mac,
     <ul>
-      <li>Open mac.dmg</li>
-      <li>Copy suika inside suika-mac to suika2 folder</li>
-      <li>Open suika inside suika2 folder</li>
-      <li>You don't need to open mac.dmg after the second time</li>
+      <li>Open <code>mac.dmg</code></li>
+      <li>Copy <code>suika</code> inside <code>suika-mac</code> to <code>suika2</code> folder</li>
+      <li>Open <code>suika</code> inside <code>suika2</code> folder</li>
+      <li>You don't need to open <code>mac.dmg</code> after the second time</li>
     </ul>
   </li>
 </ul>
 
-<h2>How to make game</h2>
+<h2>Enable English Mode</h2>
+<ul>
+  <li>Open <code>conf/config.txt</code> by a text editor other than Notepad.</li>
+  <li>You can find the line <code>#language=English</code></li>
+  <li>Delete the heading character <code>#</code> and save the file.</li>
+  <li>You'll get the messages in English.</li>
+</ul>
+
+<h2>How to Make Game</h2>
 <ul>
   <li>See <a href="https://luxion.jp/s2/en/tutorial.html">https://luxion.jp/s2/en/tutorial.html</a></li>
   <li>Command reference is <a href="https://luxion.jp/s2/en/reference.html">here</a></li>
 </ul>
 
-<h2>Enable English mode</h2>
+<h2>Release History</h2>
 <ul>
-  <li>Open conf/config.txt by a text editor other than Notepad.</li>
-  <li>You can find the line "#language=English"</li>
-  <li>Delete the heading character # and save the file.</li>
-  <li>You'll get the messages in English.</li>
-</ul>
-
-<h2>Release history</h2>
-<ul>
+  <li>Suika 2.7.6 June 15th, 2021 Thanks to MaiMai-san
+    <ul>
+      <li>Add @setsave command which inhibits the save and load screen</li>
+    </ul>
+  </li>
   <li>Suika 2.7.5 June 12th, 2021 Thanks to Fujisaki-san
     <ul>
       <li>Add @shake command which enables to shake screen</li>

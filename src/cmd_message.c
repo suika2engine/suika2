@@ -10,6 +10,7 @@
  *  - 2016/06/24 作成
  *  - 2017/01/30 "\n"対応
  *  - 2017/04/13 ワードラッピング対応
+ *  - 2021/06/15 @setsave対応
  */
 
 #include "suika.h"
@@ -118,7 +119,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 			return false;
 
 	/* セーブ画面への遷移を処理する */
-	if (is_right_button_pressed) {
+	if (is_right_button_pressed && is_save_load_enabled()) {
 		start_save_mode(false);
 		stop_command_repetition();
 		free(msg_top);

@@ -407,6 +407,20 @@ The initial value of a variable is `0`.
 @set $1 += $2
 ```
 
+## @setsave
+
+This command enables or disables the save and load screen which is invoked by right click while waiting for message click or option click.
+
+* Usage 1: Enables the save and load screen (by default)
+```
+@setsave enable
+```
+
+* Usage 2: Disables the save and load screen
+```
+@setsave disable
+```
+
 ## @shake
 
 This command shakes screen.

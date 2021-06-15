@@ -15,6 +15,7 @@
  *  - 2019/09/17 newsに対応
  *  - 2021/06/10 chaに対応
  *  - 2021/06/12 shakeに対応
+ *  - 2021/06/15 setsaveに対応
  */
 
 #include "suika.h"
@@ -51,6 +52,11 @@ static bool is_in_repetition;
 static bool flag_message_registered;
 
 /*
+ * セーブ・ロード画面が許可されているか
+ */
+static bool flag_save_load_enabled = true;
+
+/*
  * 前方参照
  */
 static bool dispatch_command(int *x, int *y, int *w, int *h);
@@ -75,6 +81,7 @@ void init_game_loop(void)
 	mouse_pos_y = 0;
 	is_in_repetition = false;
 	flag_message_registered = false;
+	flag_save_load_enabled = true;
 
 	/* Android NDK用に状態を初期化する */
 	check_menu_finish_flag();
@@ -213,6 +220,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 		if (!shake_command(x, y, w, h))
 			return false;
 		break;
+	case COMMAND_SETSAVE:
+		if (!setsave_command())
+			return false;
+		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */
 		assert(COMMAND_DISPATCH_NOT_IMPLEMENTED);
@@ -279,4 +290,20 @@ void clear_message_registered(void)
 bool is_message_registered(void)
 {
 	return flag_message_registered;
+}
+
+/*
+ * セーブ・ロード画面の許可を設定する
+ */
+void enable_save_load(bool enable)
+{
+	flag_save_load_enabled = enable;
+}
+
+/*
+ * セーブ・ロード画面の許可を取得する
+ */
+bool is_save_load_enabled(void)
+{
+	return flag_save_load_enabled;
 }

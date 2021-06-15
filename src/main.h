@@ -12,6 +12,7 @@
  *  - 2018/07/21 gosubに対応
  *  - 2021/06/10 chaに対応
  *  - 2021/06/12 shakeに対応
+ *  - 2021/06/15 setsaveに対応
  */
 
 #ifndef SUIKA_MAIN_H
@@ -67,6 +68,7 @@ bool gosub_command(void);
 bool return_command(void);
 bool cha_command(int *x, int *y, int *w, int *h);
 bool shake_command(int *x, int *y, int *w, int *h);
+bool setsave_command(void);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定
@@ -90,5 +92,12 @@ bool is_message_registered(void);
 
 bool check_menu_finish_flag(void);
 bool check_retrospect_finish_flag(void);
+
+/*
+ * セーブ・ロード画面の許可の設定
+ */
+
+void enable_save_load(bool enable);
+bool is_save_load_enabled(void);
 
 #endif

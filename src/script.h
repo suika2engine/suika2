@@ -15,6 +15,7 @@
  *  - 2021/06/10 @chにエフェクトとオフセットとアルファを追加
  *  - 2021/06/10 @chaに対応
  *  - 2021/06/12 @shakeに対応
+ *  - 2021/06/15 @setsaveに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -51,6 +52,7 @@ enum command_type {
 	COMMAND_NEWS,
 	COMMAND_CHA,
 	COMMAND_SHAKE,
+	COMMAND_SETSAVE,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -449,6 +451,11 @@ enum shake_command_param {
 	SHAKE_PARAM_SPAN,
 	SHAKE_PARAM_TIMES,
 	SHAKE_PARAM_AMOUNT,
+};
+
+/* setsaveコマンドのパラメータ */
+enum setsave_command_param {
+	SETSAVE_PARAM_MODE = 1,
 };
 
 /*

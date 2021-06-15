@@ -19,6 +19,7 @@
  *  - 2021/06/10 @chにオフセットとアルファを追加
  *  - 2021/06/10 @chaに対応
  *  - 2021/06/12 @shakeに対応
+ *  - 2021/06/15 @setsaveに対応
  */
 
 #ifdef _MSC_VER
@@ -79,6 +80,7 @@ struct insn_item {
 	{"@return", COMMAND_RETURN, 0, 0},
 	{"@cha", COMMAND_CHA, 6, 6},
 	{"@shake", COMMAND_SHAKE, 4, 4},
+	{"@setsave", COMMAND_SETSAVE, 1, 1},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))
