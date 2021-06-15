@@ -22,7 +22,7 @@ How to build
         * Archive project.
         * Notarize application by `Distribute App` button.
         * Press `Export Notarized App` to export app to `game` folder.
-    * To run Suika 2, double click `suika.app` in `game` folder.
+    * To run Suika2, double click `suika.app` in `game` folder.
 
 * Release File
     * On macOS 11.4, in terminal, enter `build/release` directory.
@@ -34,7 +34,7 @@ How to build
     * Install Android Studio 3.3.1 from Android Studio Archive.
     * Select `Configure` on initial screen.
         * Install `CMake`, `LLDB`, `NDK`.
-    * Open Suika 2 project (`build/android`).
+    * Open Suika2 project (`build/android`).
     * Build project.
     * Run app on device or emulator.
 
@@ -42,11 +42,23 @@ How to build
     * On Ubuntu 20.04, install following packages:
         * `build-essential`
         * `libasound2-dev`
-        * `libX11-dev`
+        * `libx11-dev`
         * `libxpm-dev`
     * In terminal, enter `build/linux` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `make` to build Suika 2 binary.
+        * Run `make` to build Suika2 binary.
+        * Run `make install` to copy binary `suika` to `game` directory.
+    * In terminal, enter `game` directory.
+	    * Run `./suika`
+
+* Raspberry Pi Binary
+    * On Raspberry Pi OS, install following packages:
+        * `libasound2-dev`
+        * `libx11-dev`
+        * `libxpm-dev`
+    * In terminal, enter `build/linux-arm` directory.
+        * Run `./build-libs.sh` to build libraries.
+        * Run `make` to build Suika2 binary.
         * Run `make install` to copy binary `suika` to `game` directory.
     * In terminal, enter `game` directory.
 	    * Run `./suika`
@@ -58,7 +70,7 @@ How to build
         * `alsa-plugins`
     * In terminal, enter `build/freebsd` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `gmake` to build Suika 2 binary.
+        * Run `gmake` to build Suika2 binary.
         * Run `gmake install` to copy binary `suika` to `game` directory.
     * In terminal, enter `game` directory.
         * Run `./suika`.
@@ -71,7 +83,7 @@ How to build
     * `export LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib`
     * In terminal, enter `build/netbsd` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Run `gmake` to build Suika 2 binary.
+        * Run `gmake` to build Suika2 binary.
         * Run `gmake install` to copy binary `suika` to `game` directory.
     * In terminal, enter `game` directory.
         * Run `./suika`.
