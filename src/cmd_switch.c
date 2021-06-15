@@ -94,7 +94,8 @@ bool switch_command(int *x, int *y, int *w, int *h)
 			return false;
 
 	/* セーブ画面への遷移を確認する */
-	if (selected_parent_index == -1 && is_right_button_pressed) {
+	if (selected_parent_index == -1 && is_right_button_pressed &&
+	    is_save_load_enabled()) {
 		start_save_mode(false);
 		stop_command_repetition();
 		return true;
