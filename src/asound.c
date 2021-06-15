@@ -277,7 +277,7 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params_set_periods");
 		return false;
 	}
-#if !defined(FREEBSD) && !defined(NETBSD)
+#if defined(LINUX) && (defined(X86) || defined(X86_64))
 	if (snd_pcm_hw_params_set_buffer_size(pcm[n], params, BUF_FRAMES) <
 	    0) {
 		log_api_error("snd_pcm_hw_params_set_buffer_size");

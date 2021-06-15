@@ -415,7 +415,8 @@ static bool create_back_image(void)
 
 	/* XDestroyImage()がピクセル列を解放してしまうので手動で確保する */
 #ifndef SSE_VERSIONING
-	pixels = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * BPP / 8);
+	pixels = malloc((size_t)(conf_window_width * conf_window_height *
+				 BPP / 8));
 	if (pixels == NULL)
 		return false;
 #else
