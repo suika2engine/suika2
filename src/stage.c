@@ -979,7 +979,7 @@ static void draw_stage_bg_fade_counterclockwise(void)
 		/* 第二象限を処理する */
 		scan_edge_min(0, 0, 0, hand_y);
 		scan_edge_min(center_x, center_y, hand_x, hand_y);
-		scan_edge_max(center_x, 0, center_x, center_y);
+		scan_edge_max(center_x - 1, 0, center_x - 1, center_y);
 	} else if (bg_fade_progress < 0.5f) {
 		/* 第三象限を処理する */
 		scan_edge_min(0, center_y, 0, conf_window_height);
