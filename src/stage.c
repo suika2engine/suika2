@@ -849,64 +849,166 @@ static void draw_stage_bg_fade_slide_down(void)
 /* 時計回りフェードの描画を行う */
 static void draw_stage_bg_fade_clockwise(void)
 {
-	float hand_x, hand_y;
 	const float PI = 3.14159265f;
-	int i, min, max;
+	float hand_len;
+	int hand_x, hand_y, center_x, center_y, i, min, max;
 
 	assert(bg_fade_progress >= 0 && bg_fade_progress <= 1.0f);
 
-	/* フェードアウトする背景を表示する */
+	/* フェードアウトする背景の描画を行う */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
 		   conf_window_width, conf_window_height, 0, 0, 255,
 		   BLEND_NONE);
 
-	/* 走査変換バッファをクリアする */
-	clear_scbuf();
-
 	/* 時計の針の位置を計算する */
-	hand_x = (conf_window_width / 2) * sin(2 * PI * bg_fade_progress);
-	hand_y = cos(2 * PI * bg_fade_progress) - (conf_window_height / 2);
+	center_x = conf_window_width / 2;
+	center_y = conf_window_height / 2;
+	hand_len = (conf_window_width > conf_window_height) ?
+		(float)conf_window_width : (float)conf_window_height;
+//		(float)100 : (float)100;
+	hand_x = center_x + (int)(hand_len *
+				  sinf(PI - 2.0f * PI * bg_fade_progress));
+	hand_y = center_y + (int)(hand_len *
+				  cosf(PI - 2.0f * PI * bg_fade_progress));
 
-	/* エッジをスキャンする */
-	scan_edge_min(conf_window_width / 2, conf_window_height / 2, hand_x,
-		      hand_y);
-
-	/* 第一象限の場合 */
-	if (bg_fade_progress < 0.25f) {
-		for (i = 0; i < conf_window_height / 2; i++) {
-			get_scan_line(i, &min, &max);
-			draw_image(back_image, min, i,
-				   layer_image[LAYER_BG_FI],
-				   max - conf_window_width / 2, 1, min, i,
-				   255, BLEND_NONE);
-		}
-		return;
-	}
+//	draw_image(back_image, hand_x, hand_y, layer_image[LAYER_BG_FI], 100, 100, 0, 0, 255, BLEND_NONE);
 
 	/* 第一象限を埋める */
-	draw_image(back_image, conf_window_width / 2, 0,
-		   layer_image[LAYER_BG_FI], conf_window_width / 2,
-		   conf_window_height / 2, conf_window_width / 2, 0, 255,
-		   BLEND_NONE);
-
-	/* 第四象限の場合 */
-	if (bg_fade_progress < 0.5f) {
-		return;
+	if (bg_fade_progress >= 0.25f) {
+		draw_image(back_image, center_x, 0, layer_image[LAYER_BG_FI],
+			   center_x, center_y, center_x, 0, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
-	
-	/* 第三象限の場合 */
-	if (bg_fade_progress < 0.75f) {
-		return;
+	if (bg_fade_progress >= 0.5f) {
+		draw_image(back_image, center_x, center_y,
+			   layer_image[LAYER_BG_FI], center_x, center_y,
+			   center_x, center_y, 255, BLEND_NONE);
 	}
 
-	/* 第二象限の場合 */
+	/* 第三象限を埋める */
+	if (bg_fade_progress >= 0.75f) {
+		draw_image(back_image, 0, center_y, layer_image[LAYER_BG_FI],
+			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
+	}
+
+	/* エッジをスキャンする */
+	clear_scbuf();
+	if (bg_fade_progress < 0.25f) {
+		/* 第一象限を処理する */
+		scan_edge_min(center_x, 0, center_x, conf_window_height);
+		scan_edge_max(conf_window_width, 0, conf_window_width, hand_y);
+		scan_edge_max(center_x, center_y, hand_x, hand_y);
+	} else if (bg_fade_progress < 0.5f) {
+		/* 第四象限を処理する */
+		scan_edge_min(center_x, center_y, hand_x, hand_y);
+		scan_edge_max(conf_window_width, center_y, conf_window_width,
+			      conf_window_height);
+	} else if (bg_fade_progress < 0.75f) {
+		/* 第三象限を処理する */
+		scan_edge_min(0, center_y, 0, conf_window_height);
+		scan_edge_min(center_x, center_y, hand_x, hand_y);
+		scan_edge_max(center_x, center_y, center_x, conf_window_height);
+	} else {
+		/* 第二象限を処理する */
+		scan_edge_min(0, 0, 0, center_y);
+		scan_edge_max(center_x, center_y, hand_x, hand_y);
+	}
+	
+	/* フェードインする背景の描画を行う */
+	for (i = 0; i < conf_window_height; i++) {
+		/* 走査線の範囲を取得する */
+		get_scan_line(i, &min, &max);
+		if (max < 0 || min >= conf_window_width)
+			continue;
+
+		/* 走査線を描画する */
+		draw_image(back_image, min, i, layer_image[LAYER_BG_FI],
+			   max - min + 1, 1, min, i, 255, BLEND_NONE);
+	}
 }
 
 /* 反時計回りフェードの描画を行う */
 static void draw_stage_bg_fade_counterclockwise(void)
 {
+	const float PI = 3.14159265f;
+	float hand_len;
+	int hand_x, hand_y, center_x, center_y, i, min, max;
+
+	assert(bg_fade_progress >= 0 && bg_fade_progress <= 1.0f);
+
+	/* フェードアウトする背景の描画を行う */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   conf_window_width, conf_window_height, 0, 0, 255,
+		   BLEND_NONE);
+
+	/* 時計の針の位置を計算する */
+	center_x = conf_window_width / 2;
+	center_y = conf_window_height / 2;
+	hand_len = (conf_window_width > conf_window_height) ?
+		(float)conf_window_width : (float)conf_window_height;
+	hand_x = center_x + (int)(hand_len *
+				  sinf(2.0f * PI * bg_fade_progress - PI));
+	hand_y = center_y + (int)(hand_len *
+				  cosf(2.0f * PI * bg_fade_progress - PI));
+
+	draw_image(back_image, hand_x, hand_y, layer_image[LAYER_BG_FI], 100, 100, 0, 0, 255, BLEND_NONE);
+
+	/* 第二象限を埋める */
+	if (bg_fade_progress >= 0.25f) {
+		draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+			   center_x, center_y, 0, 0, 255, BLEND_NONE);
+	}
+
+	/* 第三象限を埋める */
+	if (bg_fade_progress >= 0.5f) {
+		draw_image(back_image, 0, center_y, layer_image[LAYER_BG_FI],
+			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
+	}
+
+	/* 第四象限を埋める */
+	if (bg_fade_progress >= 0.75f) {
+		draw_image(back_image, center_x, center_y,
+			   layer_image[LAYER_BG_FI], center_x, center_y,
+			   center_x, center_y, 255, BLEND_NONE);
+	}
+
+	/* エッジをスキャンする */
+	clear_scbuf();
+	if (bg_fade_progress < 0.25f) {
+		/* 第二象限を処理する */
+		scan_edge_min(0, 0, 0, hand_y);
+		scan_edge_min(center_x, center_y, hand_x, hand_y);
+		scan_edge_max(center_x, 0, center_x, center_y);
+	} else if (bg_fade_progress < 0.5f) {
+		/* 第三象限を処理する */
+		scan_edge_min(0, center_y, 0, conf_window_height);
+		scan_edge_max(center_x, center_y, hand_x, hand_y);
+	} else if (bg_fade_progress < 0.75f) {
+		/* 第四象限を処理する */
+		scan_edge_min(center_x, center_y, center_x,
+			      conf_window_height);
+		scan_edge_max(conf_window_width, center_y, conf_window_width,
+			      conf_window_height);
+		scan_edge_max(center_x, center_y, hand_x, hand_y);
+	} else {
+		/* 第一象限を処理する */
+		scan_edge_min(center_x, center_y, hand_x, hand_y);
+		scan_edge_max(conf_window_width, 0, conf_window_width,
+			      center_y);
+	}
+	
+	/* フェードインする背景の描画を行う */
+	for (i = 0; i < conf_window_height; i++) {
+		/* 走査線の範囲を取得する */
+		get_scan_line(i, &min, &max);
+		if (max < 0 || min >= conf_window_width)
+			continue;
+	
+		/* 走査線を描画する */
+		draw_image(back_image, min, i, layer_image[LAYER_BG_FI],
+			   max - min + 1, 1, min, i, 255, BLEND_NONE);
+	}
 }
 
 /*

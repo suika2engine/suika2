@@ -35,7 +35,7 @@ struct sc_line {
 bool init_scbuf(void)
 {
 	/* 走査変換バッファを画面の高さだけ取得する */
-	sc_line = malloc(sizeof(struct sc_line) * conf_window_height);
+	sc_line = malloc(sizeof(struct sc_line) * (size_t)conf_window_height);
 	if (sc_line == NULL) {
 		log_memory();
 		return false;
@@ -85,7 +85,8 @@ void scan_edge_min(int x1, int y1, int x2, int y2)
 	int y;
 
 	/* X軸と平行な場合: 未対応 */
-	assert (y1 != y2);
+	if (y1 == y2)
+		return;
 
 	/*
 	 * 傾きがあるかY軸に平行な場合
@@ -96,10 +97,10 @@ void scan_edge_min(int x1, int y1, int x2, int y2)
 		int_swap(&x1, &x2);
 	}
 
-	delta_x = (float)(x2 - x1) / (y2 - y1);
+	delta_x = (float)(x2 - x1) / (float)(y2 - y1);
 	for (x = (float)x1, y = y1; y <= y2; x += delta_x, y++)
 		if (y >= 0 && y < conf_window_height)
-			sc_line[y].min = (float)x;
+			sc_line[y].min = (int)x;
 }
 
 /*
@@ -111,7 +112,8 @@ void scan_edge_max(int x1, int y1, int x2, int y2)
 	int y;
 
 	/* X軸と平行な場合: 未対応 */
-	assert (y1 != y2);
+	if (y1 == y2)
+		return;
 
 	/*
 	 * 傾きがあるかY軸に平行な場合
@@ -122,10 +124,10 @@ void scan_edge_max(int x1, int y1, int x2, int y2)
 		int_swap(&x1, &x2);
 	}
 
-	delta_x = (float)(x2 - x1) / (y2 - y1);
+	delta_x = (float)(x2 - x1) / (float)(y2 - y1);
 	for (x = (float)x1, y = y1; y <= y2; x += delta_x, y++)
 		if (y >= 0 && y < conf_window_height)
-			sc_line[y].max = (float)x;
+			sc_line[y].max = (int)x;
 }
 
 /*
