@@ -16,6 +16,8 @@ Suika 2 コマンドリファレンス
     * `slide-left`もしくは`sl` → 左方向スライド
     * `slide-up`もしくは`su` → 上方向スライド
     * `slide-down`もしくは`sd` → 下方向スライド
+    * `clockwise`もしくは`cw` → 時計回り
+    * `counterclockwise`もしくは`ccw` → 反時計回り
 
 * 使い方1: `sample.png`を1.5秒かけて背景にセットします。
 ```

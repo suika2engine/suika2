@@ -18,6 +18,8 @@ character images vanish from the stage.
     * `slide-left` or `sl` -> left slide
     * `slide-up` or `su` -> up slide
     * `slide-down` or `sd` -> down slide
+    * `clockwise` or `cw` -> clockwise
+    * `counterclockwise` or `ccw` -> counterclockwise
 
 * Usage 1: Changes the background image to `sample.png` with a 1.5 second fade-in time.
 ```
