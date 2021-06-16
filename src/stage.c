@@ -16,6 +16,7 @@
  *  - 2021-06-10 マスクつき描画の対応
  *  - 2021-06-10 キャラのアニメ対応
  *  - 2021-06-12 画面揺らしモードの対応
+ *  - 2021-06-16 時計フェードの対応
  */
 
 #include "suika.h"
@@ -149,6 +150,9 @@ static char *bg_file_name;
 /* キャライメージ名 */
 static char *ch_file_name[CH_LAYERS];
 
+/* 背景フェードの進捗 */
+static float bg_fade_progress;
+
 /*
  * アニメ中の情報
  *  - 現状キャラを1つずつ(1レイヤずつ)しか動かすことができない
@@ -206,6 +210,8 @@ static void draw_stage_bg_fade_slide_left(void);
 static void draw_stage_bg_fade_slide_right(void);
 static void draw_stage_bg_fade_slide_up(void);
 static void draw_stage_bg_fade_slide_down(void);
+static void draw_stage_bg_fade_clockwise(void);
+static void draw_stage_bg_fade_counterclockwise(void);
 static void draw_stage_ch_fade_normal(void);
 static void draw_stage_ch_fade_mask(void);
 static int pos_to_layer(int pos);
@@ -568,6 +574,12 @@ void draw_stage_bg_fade(int fade_method)
 	case BG_FADE_METHOD_SLIDE_DOWN:
 		draw_stage_bg_fade_slide_down();
 		break;
+	case BG_FADE_METHOD_CLOCKWISE:
+		draw_stage_bg_fade_clockwise();
+		break;
+	case BG_FADE_METHOD_COUNTERCLOCKWISE:
+		draw_stage_bg_fade_counterclockwise();
+		break;
 	default:
 		assert(INVALID_BG_FADE_METHOD);
 		break;
@@ -610,7 +622,7 @@ static void draw_stage_bg_fade_curtain_right(void)
 	 *  - カーテンの右端は0からconf_window_width+CURTAIN_WIDTHになる
 	 */
 	right = (int)((float)(conf_window_width + CURTAIN_WIDTH) *
-		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+		      bg_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (right < conf_window_width) {
@@ -646,7 +658,7 @@ static void draw_stage_bg_fade_curtain_left(void)
 	 */
 	left = conf_window_width -
 		(int)((float)(conf_window_width + CURTAIN_WIDTH) *
-		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+		      bg_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -682,7 +694,7 @@ static void draw_stage_bg_fade_curtain_up(void)
 	 */
 	top = conf_window_height -
 		(int)((float)(conf_window_height + CURTAIN_WIDTH) *
-		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+		      bg_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -718,7 +730,7 @@ static void draw_stage_bg_fade_curtain_down(void)
 	 *  - カーテンの下端は0からconf_window_height+CURTAIN_WIDTHになる
 	 */
 	bottom = (int)((float)(conf_window_height + CURTAIN_WIDTH) *
-		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+		       bg_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (bottom < conf_window_height) {
@@ -753,8 +765,7 @@ static void draw_stage_bg_fade_slide_right(void)
 	 * スライドの右端を求める
 	 *  - スライドの右端は0からconf_window_widthになる
 	 */
-	right = (int)((float)conf_window_width *
-		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+	right = (int)((float)conf_window_width * bg_fade_progress);
 
 	/* 左側の背景を表示する */
 	draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
@@ -777,8 +788,7 @@ static void draw_stage_bg_fade_slide_left(void)
 	 *  - スライドの左端はconf_window_widthから0になる
 	 */
 	left = conf_window_width -
-		(int)((float)conf_window_width *
-		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+		(int)((float)conf_window_width * bg_fade_progress);
 
 	/* 右側の背景を表示する */
 	draw_image(back_image, left, 0, layer_image[LAYER_BG_FI],
@@ -801,8 +811,7 @@ static void draw_stage_bg_fade_slide_up(void)
 	 *  - スライドの上端はconf_window_heightから0になる
 	 */
 	top = conf_window_height -
-		(int)((float)conf_window_height *
-		      (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+		(int)((float)conf_window_height * bg_fade_progress);
 
 	/* 上側の背景を表示する */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -824,8 +833,7 @@ static void draw_stage_bg_fade_slide_down(void)
 	 * スライドの下端を求める
 	 *  - スライドの下端は0からconf_window_heightになる
 	 */
-	bottom = (int)((float)conf_window_height *
-		       (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+	bottom = (int)((float)conf_window_height * bg_fade_progress);
 
 	/* 上側の背景を表示する */
 	draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
@@ -836,6 +844,69 @@ static void draw_stage_bg_fade_slide_down(void)
 	draw_image(back_image, 0, bottom, layer_image[LAYER_FO],
 		   conf_window_width, conf_window_height - bottom, 0, 0, 255,
 		   BLEND_NONE);
+}
+
+/* 時計回りフェードの描画を行う */
+static void draw_stage_bg_fade_clockwise(void)
+{
+	float hand_x, hand_y;
+	const float PI = 3.14159265f;
+	int i, min, max;
+
+	assert(bg_fade_progress >= 0 && bg_fade_progress <= 1.0f);
+
+	/* フェードアウトする背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   conf_window_width, conf_window_height, 0, 0, 255,
+		   BLEND_NONE);
+
+	/* 走査変換バッファをクリアする */
+	clear_scbuf();
+
+	/* 時計の針の位置を計算する */
+	hand_x = (conf_window_width / 2) * sin(2 * PI * bg_fade_progress);
+	hand_y = cos(2 * PI * bg_fade_progress) - (conf_window_height / 2);
+
+	/* エッジをスキャンする */
+	scan_edge_min(conf_window_width / 2, conf_window_height / 2, hand_x,
+		      hand_y);
+
+	/* 第一象限の場合 */
+	if (bg_fade_progress < 0.25f) {
+		for (i = 0; i < conf_window_height / 2; i++) {
+			get_scan_line(i, &min, &max);
+			draw_image(back_image, min, i,
+				   layer_image[LAYER_BG_FI],
+				   max - conf_window_width / 2, 1, min, i,
+				   255, BLEND_NONE);
+		}
+		return;
+	}
+
+	/* 第一象限を埋める */
+	draw_image(back_image, conf_window_width / 2, 0,
+		   layer_image[LAYER_BG_FI], conf_window_width / 2,
+		   conf_window_height / 2, conf_window_width / 2, 0, 255,
+		   BLEND_NONE);
+
+	/* 第四象限の場合 */
+	if (bg_fade_progress < 0.5f) {
+		return;
+	}
+
+	/* 第四象限を埋める */
+	
+	/* 第三象限の場合 */
+	if (bg_fade_progress < 0.75f) {
+		return;
+	}
+
+	/* 第二象限の場合 */
+}
+
+/* 反時計回りフェードの描画を行う */
+static void draw_stage_bg_fade_counterclockwise(void)
+{
 }
 
 /*
@@ -1055,6 +1126,10 @@ void set_bg_fade_progress(float progress)
 	assert(!is_ch_anime_enabled);
 	assert(!is_shake_enabled);
 
+	/* 進捗率を保存する */
+	bg_fade_progress = progress;
+
+	/* アルファ値に変換する */
 	layer_alpha[LAYER_BG_FI] = (uint8_t)(progress * 255.0f);
 }
 

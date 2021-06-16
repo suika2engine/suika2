@@ -33,6 +33,7 @@
 #include "main.h"
 #include "mixer.h"
 #include "platform.h"
+#include "scbuf.h"
 #include "script.h"
 #include "save.h"
 #include "stage.h"

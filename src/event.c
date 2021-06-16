@@ -12,6 +12,7 @@
  * [Changes]
  *  - 2016/05/27 作成
  *  - 2016/06/22 分割
+ *  - 2021/06/16 走査変換バッファに対応
  */
 
 #include "suika.h"
@@ -36,6 +37,10 @@ bool on_event_init(void)
 
 	/* ステージの初期化処理を行う */
 	if (!init_stage())
+		return false;
+
+	/* 走査変換バッファの初期化処理を行う */
+	if (!init_scbuf())
 		return false;
 
 	/* セーブデータの初期化処理を行う */
@@ -65,6 +70,9 @@ void on_event_cleanup(void)
 
 	/* デーブデータ関連の終了処理を行う */
 	cleanup_save();
+
+	/* 走査変換バッファの終了処理を行う */
+	cleanup_scbuf();
 
 	/* ステージの終了処理を行う */
 	cleanup_stage();

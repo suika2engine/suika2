@@ -11,6 +11,7 @@
  *  - 2021/06/05 フェードの種類を追加
  *  - 2021/06/10 マスクつき描画の対応
  *  - 2021/06/10 キャラクタのアルファ値に対応
+ *  - 2021/06/16 時計描画の対応
  */
 
 #include "suika.h"
@@ -235,6 +236,18 @@ static int get_bg_fade_method(const char *method)
 	if (strcmp(method, "slide-down") == 0 ||
 	    strcmp(method, "sd") == 0)
 		return BG_FADE_METHOD_SLIDE_DOWN;
+
+	/*
+	 * 時計フェード
+	 */
+
+	if (strcmp(method, "clockwise") == 0 ||
+	    strcmp(method, "cw") == 0)
+		return BG_FADE_METHOD_CLOCKWISE;
+
+	if (strcmp(method, "counterclockwise") == 0 ||
+	    strcmp(method, "ccw") == 0)
+		return BG_FADE_METHOD_COUNTERCLOCKWISE;
 
 	/* 不正なフェード指定 */
 	return BG_FADE_METHOD_INVALID;

@@ -46,6 +46,7 @@
 		26A1784D25EE5DD0006A1ED4 /* cmd_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782925EE5DD0006A1ED4 /* cmd_ch.c */; };
 		26A1784E25EE5DD0006A1ED4 /* cmd_click.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782A25EE5DD0006A1ED4 /* cmd_click.c */; };
 		26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
+		26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,6 +113,8 @@
 		26B8ACE525EE5846005D9C49 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26B8ACEA25EE5846005D9C49 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26B8ACED25EE5846005D9C49 /* suika.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = suika.entitlements; sourceTree = "<group>"; };
+		26C8A49D2679CB4B009FE156 /* scbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scbuf.c; path = ../../../src/scbuf.c; sourceTree = "<group>"; };
+		26C8A49E2679CB4B009FE156 /* scbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scbuf.h; path = ../../../src/scbuf.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,6 +199,8 @@
 				26A1780025EE5DD0006A1ED4 /* readimage.c */,
 				26A1781925EE5DD0006A1ED4 /* save.c */,
 				26A1782225EE5DD0006A1ED4 /* save.h */,
+				26C8A49D2679CB4B009FE156 /* scbuf.c */,
+				26C8A49E2679CB4B009FE156 /* scbuf.h */,
 				26A177F425EE5DD0006A1ED4 /* script.c */,
 				26A1782325EE5DD0006A1ED4 /* script.h */,
 				26A177FF25EE5DD0006A1ED4 /* stage.c */,
@@ -280,6 +285,7 @@
 				26A1783C25EE5DD0006A1ED4 /* conf.c in Sources */,
 				26A1783B25EE5DD0006A1ED4 /* cmd_select.c in Sources */,
 				26A1782C25EE5DD0006A1ED4 /* script.c in Sources */,
+				26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */,
 				26A1784B25EE5DD0006A1ED4 /* cmd_wait.c in Sources */,
 				26A1784125EE5DD0006A1ED4 /* vars.c in Sources */,
 				26A1784525EE5DD0006A1ED4 /* glyph.c in Sources */,
