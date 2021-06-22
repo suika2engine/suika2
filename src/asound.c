@@ -235,6 +235,7 @@ bool set_sound_volume(int n, float vol)
 static bool init_pcm(int n)
 {
 	snd_pcm_hw_params_t *params;
+	snd_pcm_uframes_t frames;
 	int ret;
 
 	/* デバイスをオープンする */
@@ -277,11 +278,16 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params_set_periods");
 		return false;
 	}
-#if defined(LINUX) && (defined(X86) || defined(X86_64))
+#if defined(LINUX)
 	if (snd_pcm_hw_params_set_buffer_size(pcm[n], params, BUF_FRAMES) <
 	    0) {
-		log_api_error("snd_pcm_hw_params_set_buffer_size");
-		return false;
+		frames = BUF_FRAMES;
+		if (snd_pcm_hw_params_set_buffer_size_near(pcm[n], params,
+							   &frames) < 0) {
+			log_api_error(
+				"snd_pcm_hw_params_set_buffer_size_near");
+			return false;
+		}
 	}
 #endif
 	if (snd_pcm_hw_params(pcm[n], params) < 0) {
