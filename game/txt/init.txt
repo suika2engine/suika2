@@ -13,7 +13,7 @@
 ###
 
 @vol bgm 1.0
-@bgm 01.ogg
+@bgm 00.ogg
 @bg menu.png 1.0
 
 :MENU
