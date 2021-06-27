@@ -89,6 +89,9 @@ static EM_BOOL loop_iter(double time, void * userData)
 	if (stop)
 		return EM_FALSE;
 
+	/* サウンドの処理を行う */
+	fill_sound_buffer();
+
 	/* フレームイベントを呼び出す */
 	x = y = w = h = 0;
 	if (!on_event_frame(&x, &y, &w, &h)) {
@@ -110,9 +113,6 @@ static EM_BOOL loop_iter(double time, void * userData)
 			imageData.data.set(data);
 			context.putImageData(imageData, 0, 0);
 		}, p, conf_window_width, conf_window_height);
-
-	/* サウンドの処理を行う */
-	fill_sound_buffer();
 
 	return EM_TRUE;
 }
