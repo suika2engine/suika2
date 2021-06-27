@@ -21,6 +21,7 @@ SRC = \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
 	../../src/conf.c \
+	../../src/emopenal.c \
 	../../src/event.c \
 	../../src/file.c \
 	../../src/glyph.c \
@@ -35,14 +36,12 @@ SRC = \
 	../../src/script.c \
 	../../src/stage.c \
 	../../src/vars.c \
+	../../src/wave.c \
 	../../src/emmain.c
 
 all:
 	rm -f html/index.*
-	emcc $(SRC) -o html/index.html -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1 -s TOTAL_MEMORY=536870912 -lz -lpng -lfreetype --shell-file shell.html --pre-js pre.js --use-preload-plugins
+	emcc $(SRC) -o html/index.html -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_FREETYPE=1 -s TOTAL_MEMORY=536870912 -lz -lpng -logg -lvorbis -lfreetype -lopenal --shell-file shell.html --pre-js pre.js --use-preload-plugins
 
 run:
 	python -m SimpleHTTPServer
-
-clean:
-	rm -rf html

@@ -6,6 +6,7 @@
 #include <sys/time.h>	/* gettimeofday() */
 
 #include "suika.h"
+#include "emopenal.h"
 
 /*
  * 背景イメージ
@@ -17,6 +18,15 @@ struct image *back_image;
  */
 static bool create_back_image(void);
 static EM_BOOL loop_iter(double time, void * userData);
+static EM_BOOL cb_mousemove(int eventType,
+			    const EmscriptenMouseEvent *mouseEvent,
+			    void *userData);
+static EM_BOOL cb_mousedown(int eventType,
+			    const EmscriptenMouseEvent *mouseEvent,
+			    void *userData);
+static EM_BOOL cb_mouseup(int eventType,
+			    const EmscriptenMouseEvent *mouseEvent,
+			    void *userData);
 
 int main(void)
 {
@@ -29,8 +39,9 @@ int main(void)
 		return 1;
 	
 	/* サウンドの初期化処理を行う */
-	/* TODO: */
-	
+	if (!init_openal())
+		return 1;
+
 	/* バックイメージを作成する */
 	if (!create_back_image())
 		return 1;
@@ -38,6 +49,11 @@ int main(void)
 	/* 初期化イベントを処理する */
 	if(!on_event_init())
 		return 1;
+
+	/* イベントの登録をする */
+	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
+	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
+	emscripten_set_mousemove_callback("canvas", 0, true, cb_mousemove);
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
@@ -67,11 +83,18 @@ static bool create_back_image(void)
 static EM_BOOL loop_iter(double time, void * userData)
 {
 	int x, y, w, h;
+	static bool stop = false;
+
+	/* 停止済みであれば */
+	if (stop)
+		return EM_FALSE;
 
 	/* フレームイベントを呼び出す */
 	x = y = w = h = 0;
-	if (!on_event_frame(&x, &y, &w, &h))
+	if (!on_event_frame(&x, &y, &w, &h)) {
+		stop = true;
 		EM_FALSE;	/* スクリプトの終端に達した */
+	}
 
 	/* 描画を行わない場合 */
 	if (w == 0 || h == 0)
@@ -80,13 +103,6 @@ static EM_BOOL loop_iter(double time, void * userData)
 	/* 描画を行う */
 	pixel_t *p;
 	p = get_image_pixels(back_image);
-
-	/*
-	 * for (int y=0; y<240; y++)
-	 * 	for (int x=0; x<320; x++)
-	 * 		p[1280*y + x]= 0xffff0000 | y;
-	 */
-
 	EM_ASM_({
 			let data = Module.HEAPU8.slice($0, $0 + $1 * $2 * 4);
 			let context = Module['canvas'].getContext('2d');
@@ -95,6 +111,51 @@ static EM_BOOL loop_iter(double time, void * userData)
 			context.putImageData(imageData, 0, 0);
 		}, p, conf_window_width, conf_window_height);
 
+	/* サウンドの処理を行う */
+	fill_sound_buffer();
+
+	return EM_TRUE;
+}
+
+/* mousemoveのコールバック */
+static EM_BOOL cb_mousemove(int eventType,
+			    const EmscriptenMouseEvent *mouseEvent,
+			    void *userData)
+{
+	on_event_mouse_move(mouseEvent->clientX, mouseEvent->clientY);
+	return EM_TRUE;
+}
+
+/* Mousedownのコールバック */
+static EM_BOOL cb_mousedown(int eventType,
+			    const EmscriptenMouseEvent *mouseEvent,
+			    void *userData)
+{
+	int button;
+
+	if (mouseEvent->button == 0)
+		button = MOUSE_LEFT;
+	else
+		button = MOUSE_RIGHT;
+
+	on_event_mouse_press(button, mouseEvent->clientX, mouseEvent->clientY);
+	return EM_TRUE;
+}
+
+/* mouseupのコールバック */
+static EM_BOOL cb_mouseup(int eventType,
+			    const EmscriptenMouseEvent *mouseEvent,
+			    void *userData)
+{
+	int button;
+
+	if (mouseEvent->button == 0)
+		button = MOUSE_LEFT;
+	else
+		button = MOUSE_RIGHT;
+
+	on_event_mouse_release(button, mouseEvent->clientX,
+			       mouseEvent->clientY);
 	return EM_TRUE;
 }
 
@@ -243,105 +304,4 @@ bool title_dialog(void)
 {
 	/* stub */
 	return true;
-}
-
-/*
- * サウンドを再生を開始する
- */
-bool play_sound(int n, struct wave *w)
-{
-	return true;
-}
-
-/*
- * サウンドの再生を停止する
- */
-bool stop_sound(int n)
-{
-	return true;
-}
-
-/* サウンドのボリュームを設定する */
-bool set_sound_volume(int n, float vol)
-{
-	return true;
-}
-
-/*
- * wave.cの代替実装
- */
-
-/*
- * 44.1kHz 16bit stereoのPCMストリーム
- */
-struct wave {
-	char *file;
-	bool loop;
-};
-
-/*
- * ファイルからPCMストリームを作成する
- */
-struct wave *create_wave_from_file(const char *dir, const char *file,
-				   bool loop)
-{
-	struct wave *w;
-	size_t len;
-
-	/* wave構造体のメモリを確保する */
-	w = malloc(sizeof(struct wave));
-	if (w == NULL) {
-		log_memory();
-		return NULL;
-	}
-
-        /* ファイル名を保存する */
-	len = strlen(dir) + 1 + strlen(file) + 1;
-        w->file = malloc(len);
-        if (w->file == NULL) {
-		log_memory();
-		free(w);
-		return NULL;
-        }
-	strcpy(w->file, dir);
-	strcat(w->file, "/");
-	strcat(w->file, file);
-
-	/* ループの有無を保存する */
-	w->loop = loop;
-
-	return w;
-}
-
-/*
- * PCMストリームのループ回数を設定する
- */
-void set_wave_repeat_times(struct wave *w, int n)
-{
-	/* FIXME */
-}
-
-/*
- * PCMストリームを破棄する
- */
-void destroy_wave(struct wave *w)
-{
-	free(w->file);
-	free(w);
-}
-
-/*
- * PCMストリームのファイル名を取得する(NDK)
- */
-const char *get_wave_file_name(struct wave *w)
-{
-	return w->file;
-}
-
-/*
- * PCMストリームがループ再生されるかを取得する(NDK)
- */
-bool is_wave_looped(struct wave *w)
-{
-	return w->loop;
 }

@@ -1,3 +1,9 @@
 Module['preRun'] = function () {
-  FS.createPreloadedFile('/', 'data01.arc', '/html/data01.arc', true, false);
+    FS.createPreloadedFile(
+	'/', 'data01.arc',
+
+	// Change here
+	'/html/data01.arc',
+
+	true, false);
 };
