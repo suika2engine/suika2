@@ -122,7 +122,14 @@ static EM_BOOL cb_mousemove(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData)
 {
-	on_event_mouse_move(mouseEvent->clientX, mouseEvent->clientY);
+	double w, h, scale;
+	int x, y;
+
+	emscripten_get_element_css_size("canvas", &w, &h);
+	scale = w / (double)conf_window_width;
+	x = (int)((double)mouseEvent->clientX / scale);
+	y = (int)((double)mouseEvent->clientY / scale);
+	on_event_mouse_move(x, y);
 	return EM_TRUE;
 }
 
@@ -131,14 +138,20 @@ static EM_BOOL cb_mousedown(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData)
 {
-	int button;
+	double w, h, scale;
+	int x, y, button;
+
+	emscripten_get_element_css_size("canvas", &w, &h);
+	scale = w / (double)conf_window_width;
+	x = (int)((double)mouseEvent->clientX / scale);
+	y = (int)((double)mouseEvent->clientY / scale);
 
 	if (mouseEvent->button == 0)
 		button = MOUSE_LEFT;
 	else
 		button = MOUSE_RIGHT;
 
-	on_event_mouse_press(button, mouseEvent->clientX, mouseEvent->clientY);
+	on_event_mouse_press(button, x, y);
 	return EM_TRUE;
 }
 
@@ -147,15 +160,20 @@ static EM_BOOL cb_mouseup(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData)
 {
-	int button;
+	double w, h, scale;
+	int x, y, button;
+
+	emscripten_get_element_css_size("canvas", &w, &h);
+	scale = w / (double)conf_window_width;
+	x = (int)((double)mouseEvent->clientX / scale);
+	y = (int)((double)mouseEvent->clientY / scale);
 
 	if (mouseEvent->button == 0)
 		button = MOUSE_LEFT;
 	else
 		button = MOUSE_RIGHT;
 
-	on_event_mouse_release(button, mouseEvent->clientX,
-			       mouseEvent->clientY);
+	on_event_mouse_release(button, x, y);
 	return EM_TRUE;
 }
 
