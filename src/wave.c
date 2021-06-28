@@ -42,7 +42,7 @@ struct wave {
 	char *file;
 	bool loop;
 	int times;	/* loop=trueのとき、-1なら無限、0以上は残り回数 */
-	bool monoral;
+	bool monaural;
 
 	/* 状態 */
 	bool eos;
@@ -59,7 +59,7 @@ static bool reopen(struct wave *w);
 static size_t read_func(void *ptr, size_t size, size_t nmemb,
 			void *datasource);
 static int close_func(void *datasource);
-static int get_wave_samples_monoral(struct wave *w, uint32_t *buf, int samples);
+static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples);
 static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples);
 
 /*
@@ -106,7 +106,7 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 	
 	/* TODO: ov_info()でサンプリングレートとチャンネル数をチェック */
 	vi = ov_info(&w->ovf, -1);
-	w->monoral = vi->channels == 1 ? true : false;
+	w->monaural = vi->channels == 1 ? true : false;
 
 	/* wave構造体を初期化する */
 	w->loop = loop;
@@ -216,15 +216,15 @@ int get_wave_samples(struct wave *w, uint32_t *buf, int samples)
 		return 0;
 
 	/* モノラルの場合 */
-	if (w->monoral)
-		return get_wave_samples_monoral(w, buf, samples);
+	if (w->monaural)
+		return get_wave_samples_monaural(w, buf, samples);
 
 	/* ステレオの場合 */
 	return get_wave_samples_stereo(w, buf, samples);
 }
 
 /* モノラルのサンプルを取得する */
-static int get_wave_samples_monoral(struct wave *w, uint32_t *buf, int samples)
+static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 {
 	unsigned char mbuf[IOSIZE];
 	long ret_bytes, last_ret_bytes;

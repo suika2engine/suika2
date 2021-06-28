@@ -25,6 +25,8 @@
 #define NETBSD
 #elif defined(__FreeBSD__)
 #define FREEBSD
+#elif defined(__EMSCRIPTEN__)
+#define EM
 #else
 #define LINUX
 #endif

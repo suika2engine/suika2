@@ -20,7 +20,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <freetype/ftsynth.h>
+/*#include <freetype/ftsynth.h>*/
 
 #define SCALE	(64)
 
