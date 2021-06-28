@@ -21,7 +21,7 @@
  * サンプリングレートとバッファのサンプル数
  */
 #define SAMPLING_RATE	(44100)
-#define SAMPLES		SAMPLING_RATE
+#define SAMPLES		(SAMPLING_RATE/4)
 
 /*
  * バッファ数
@@ -173,6 +173,7 @@ void fill_sound_buffer(void)
 			/* サンプルを取得する */
 			samples = get_wave_samples(stream[n], tmp_buf,
 						   SAMPLES);
+
 			/* バッファに書き込む */
 			alBufferData(buf, AL_FORMAT_STEREO16, tmp_buf,
 				     samples * sizeof(uint32_t),
