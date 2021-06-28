@@ -66,6 +66,7 @@ static bool create_back_image(void)
 {
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
+	EM_ASM_({resizeWindow(null);});
 
 	/* 背景イメージを作成する */
 	back_image = create_image(conf_window_width, conf_window_height);

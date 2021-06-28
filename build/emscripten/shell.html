@@ -6,14 +6,46 @@
   <title>Suika2</title>
   <meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1, initial-scale=1">
   <style>
-    html, body { padding 0; margin: 0; width: 100%; height: 100%; }
-    .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
-    textarea.emscripten { font-family: monospace; width: 80%; }
-    div.emscripten { text-align: center; }
-    div.emscripten_border { border: 0px; margin: auto; }
-    /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-    canvas.emscripten { border: 0px none; background-color: white; max-height: 100vh; max-width: 100vw; object-fit: scale-down; }
-
+    html, body {
+				padding 0;
+				margin: 0;
+				width: 100%;
+				height: 100%;
+				background-color: black;
+		}
+    .emscripten {
+				padding-right: 0;
+				margin-left: auto;
+				margin-right: auto;
+				display: block;
+		}
+    textarea.emscripten {
+				font-family: monospace;
+				width: 80%;
+		}
+    div.emscripten {
+				text-align: center;
+		}
+    div.emscripten_border {
+				border: 0px;
+				margin: auto;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+		}
+    canvas.emscripten {
+				border: 0px none;
+				background-color: white;
+				max-width: 100vw;
+				max-height: 100vh;
+				width: 0px;
+				height: 0px;
+				object-fit: contain;
+				display: table-cell;
+				vertical-align: middle;
+		}
     .spinner {
       height: 50px;
       width: 50px;
@@ -53,7 +85,6 @@
   <div class="emscripten">
     <progress value="0" max="100" id="progress" hidden=1></progress>  
   </div>
-
   <div class="emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
   </div>
@@ -136,6 +167,30 @@
       };
     };
   </script>
+  <script type="text/javascript">
+		function resizeWindow(event) {
+				canvas = document.getElementById('canvas');
+
+				cw = canvas.width;
+				ch = canvas.height;
+				aspect = cw / ch;
+
+				winw = window.innerWidth;
+				winh = window.innerHeight;
+
+				w = winw;
+				h = winw / aspect;
+
+				if(h > winh) {
+				 		h = winh;
+				 		w = winh * aspect;
+				}
+
+				canvas.style.width = w + 'px';
+				canvas.style.height = h + 'px';
+		}
+		window.addEventListener('resize', resizeWindow);
+	</script>
   {{{ SCRIPT }}}
 </body>
 </html>
