@@ -25,8 +25,11 @@ static EM_BOOL cb_mousedown(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData);
 static EM_BOOL cb_mouseup(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData);
+			  const EmscriptenMouseEvent *mouseEvent,
+			  void *userData);
+static EM_BOOL cb_wheel(int eventType,
+			const EmscriptenWheelEvent *wheelEvent,
+			void *userData);
 
 int main(void)
 {
@@ -54,6 +57,7 @@ int main(void)
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
 	emscripten_set_mousemove_callback("canvas", 0, true, cb_mousemove);
+	emscripten_set_wheel_callback("canvas", 0, true, cb_wheel);
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
@@ -177,6 +181,21 @@ static EM_BOOL cb_mouseup(int eventType,
 		button = MOUSE_RIGHT;
 
 	on_event_mouse_release(button, x, y);
+	return EM_TRUE;
+}
+
+/* wheelのコールバック */
+static EM_BOOL cb_wheel(int eventType,
+			const EmscriptenWheelEvent *wheelEvent,
+			void *userData)
+{
+	if (wheelEvent->deltaY > 0) {
+		on_event_key_press(KEY_DOWN);
+		on_event_key_release(KEY_DOWN);
+	} else {
+		on_event_key_press(KEY_UP);
+		on_event_key_release(KEY_UP);
+	}
 	return EM_TRUE;
 }
 
