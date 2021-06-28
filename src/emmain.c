@@ -287,9 +287,19 @@ static EM_BOOL cb_touchstart(int eventType,
 			     const EmscriptenTouchEvent *touchEvent,
 			     void *userData)
 {
+	double w, h, scale;
+	int x, y;
+
 	touch_start_x = touchEvent->touches[0].targetX;
 	touch_start_y = touchEvent->touches[0].targetY;
 	touch_last_y = touchEvent->touches[0].targetY;
+
+	/* マウス座標をスケーリングする */
+	emscripten_get_element_css_size("canvas", &w, &h);
+	scale = w / (double)conf_window_width;
+	x = (int)((double)touchEvent->touches[0].targetX / scale);
+	y = (int)((double)touchEvent->touches[0].targetY / scale);
+	on_event_mouse_move(x, y);
 
 	return EM_TRUE;
 }
@@ -299,8 +309,9 @@ static EM_BOOL cb_touchmove(int eventType,
 			    const EmscriptenTouchEvent *touchEvent,
 			    void *userData)
 {
-	int delta;
 	const int LINE_HEIGHT = 10;
+	double w, h, scale;
+	int delta, x, y;
 
 	delta = touchEvent->touches[0].targetY - touch_last_y;
 	touch_last_y = touchEvent->touches[0].targetY;
@@ -312,6 +323,13 @@ static EM_BOOL cb_touchmove(int eventType,
 		on_event_key_press(KEY_UP);
 		on_event_key_release(KEY_UP);
 	}
+
+	/* マウス座標をスケーリングする */
+	emscripten_get_element_css_size("canvas", &w, &h);
+	scale = w / (double)conf_window_width;
+	x = (int)((double)touchEvent->touches[0].targetX / scale);
+	y = (int)((double)touchEvent->touches[0].targetY / scale);
+	on_event_mouse_move(x, y);
 
 	return EM_TRUE;
 }
@@ -330,6 +348,7 @@ static EM_BOOL cb_touchend(int eventType,
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
+	on_event_mouse_move(x, y);
 
 	/* 2本指でタップした場合、右クリックとする */
 	if (touchEvent->numTouches == 2) {

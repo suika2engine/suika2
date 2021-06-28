@@ -11,7 +11,8 @@
         margin: 0;
         width: 100%;
         height: 100%;
-        background-color: black;
+        background-color: white;
+        position: fixed;
     }
     .emscripten {
         padding-right: 0;
@@ -201,6 +202,15 @@
         Module.ccall('setHidden', null, null, null);
       }
     }
+    function preventDefault(e) {
+				e.preventDefault();
+    }
+    window.ontouchmove = preventDefault;
+    window.onwheel = preventDefault;
+    document.ontouchmove = preventDefault;
+    document.onwheel = preventDefault;
+    document.body.addEventListener('touchmove', preventDefault, { passive: false });
+    document.body.addEventListener('wheel', preventDefault, { passive: false });
     window.addEventListener('resize', resizeWindow);
     document.addEventListener('visibilitychange', visibilityChange);
   </script>
