@@ -14,6 +14,13 @@
 struct image *back_image;
 
 /*
+ * タッチのY座標
+ */
+static int touch_start_x;
+static int touch_start_y;
+static int touch_last_y;
+
+/*
  * 前方参照
  */
 static bool create_back_image(void);
@@ -37,6 +44,15 @@ static EM_BOOL cb_keyup(int eventType,
 			const EmscriptenKeyboardEvent *keyEvent,
 			void *userData);
 static int get_keycode(const char *key);
+static EM_BOOL cb_touchstart(int eventType,
+			     const EmscriptenTouchEvent *touchEvent,
+			     void *userData);
+static EM_BOOL cb_touchmove(int eventType,
+			    const EmscriptenTouchEvent *touchEvent,
+			    void *userData);
+static EM_BOOL cb_touchend(int eventType,
+			   const EmscriptenTouchEvent *touchEvent,
+			   void *userData);
 
 int main(void)
 {
@@ -67,6 +83,9 @@ int main(void)
 	emscripten_set_wheel_callback("canvas", 0, true, cb_wheel);
 	emscripten_set_keydown_callback("canvas", 0, true, cb_keydown);
 	emscripten_set_keyup_callback("canvas", 0, true, cb_keyup);
+	emscripten_set_touchstart_callback("canvas", 0, true, cb_touchstart);
+	emscripten_set_touchmove_callback("canvas", 0, true, cb_touchmove);
+	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
@@ -261,6 +280,73 @@ static int get_keycode(const char *key)
 		return KEY_DOWN;
 	}
 	return -1;
+}
+
+/* touchstartのコールバック */
+static EM_BOOL cb_touchstart(int eventType,
+			     const EmscriptenTouchEvent *touchEvent,
+			     void *userData)
+{
+	touch_start_x = touchEvent->touches[0].targetX;
+	touch_start_y = touchEvent->touches[0].targetY;
+	touch_last_y = touchEvent->touches[0].targetY;
+
+	return EM_TRUE;
+}
+
+/* touchmoveのコールバック */
+static EM_BOOL cb_touchmove(int eventType,
+			    const EmscriptenTouchEvent *touchEvent,
+			    void *userData)
+{
+	int delta;
+	const int LINE_HEIGHT = 10;
+
+	delta = touchEvent->touches[0].targetY - touch_last_y;
+	touch_last_y = touchEvent->touches[0].targetY;
+
+	if (delta > LINE_HEIGHT) {
+		on_event_key_press(KEY_DOWN);
+		on_event_key_release(KEY_DOWN);
+	} else if (delta < -LINE_HEIGHT) {
+		on_event_key_press(KEY_UP);
+		on_event_key_release(KEY_UP);
+	}
+
+	return EM_TRUE;
+}
+
+/* touchendのコールバック */
+static EM_BOOL cb_touchend(int eventType,
+			   const EmscriptenTouchEvent *touchEvent,
+			   void *userData)
+{
+	const int OFS = 10;
+	double w, h, scale;
+	int x, y;
+
+	/* マウス座標をスケーリングする */
+	emscripten_get_element_css_size("canvas", &w, &h);
+	scale = w / (double)conf_window_width;
+	x = (int)((double)touchEvent->touches[0].targetX / scale);
+	y = (int)((double)touchEvent->touches[0].targetY / scale);
+
+	/* 2本指でタップした場合、右クリックとする */
+	if (touchEvent->numTouches == 2) {
+		on_event_mouse_press(MOUSE_RIGHT, x, y);
+		on_event_mouse_release(MOUSE_RIGHT, x, y);
+		return EM_TRUE;
+	}
+
+	/* 1本指でタップした場合、左クリックとする */
+	if (abs(touchEvent->touches[0].targetX - touch_start_x) < OFS &&
+	    abs(touchEvent->touches[0].targetY - touch_start_y) < OFS) {
+		on_event_mouse_press(MOUSE_LEFT, x, y);
+		on_event_mouse_release(MOUSE_LEFT, x, y);
+		return EM_TRUE;
+	}
+	
+	return EM_TRUE;
 }
 
 /*
