@@ -45,6 +45,8 @@
         object-fit: contain;
         display: table-cell;
         vertical-align: middle;
+        outline: none;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     }
     .spinner {
       height: 50px;
@@ -188,10 +190,13 @@
 
       canvas.style.width = w + 'px';
       canvas.style.height = h + 'px';
+
+      canvas.focus();
     }
     function visibilityChange() {
       if(document.visibilityState === 'visible') {
         Module.ccall('setVisible', null, null, null);
+        document.getElementById('canvas').focus();
       } else if(document.visibilityState === 'hidden') {
         Module.ccall('setHidden', null, null, null);
       }

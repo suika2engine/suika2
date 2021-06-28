@@ -30,6 +30,13 @@ static EM_BOOL cb_mouseup(int eventType,
 static EM_BOOL cb_wheel(int eventType,
 			const EmscriptenWheelEvent *wheelEvent,
 			void *userData);
+static EM_BOOL cb_keydown(int eventType,
+			  const EmscriptenKeyboardEvent *keyEvent,
+			  void *userData);
+static EM_BOOL cb_keyup(int eventType,
+			const EmscriptenKeyboardEvent *keyEvent,
+			void *userData);
+static int get_keycode(const char *key);
 
 int main(void)
 {
@@ -58,6 +65,8 @@ int main(void)
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
 	emscripten_set_mousemove_callback("canvas", 0, true, cb_mousemove);
 	emscripten_set_wheel_callback("canvas", 0, true, cb_wheel);
+	emscripten_set_keydown_callback("canvas", 0, true, cb_keydown);
+	emscripten_set_keyup_callback("canvas", 0, true, cb_keyup);
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
@@ -130,12 +139,18 @@ static EM_BOOL cb_mousemove(int eventType,
 	double w, h, scale;
 	int x, y;
 
-	printf("(%ld,%ld)\n", mouseEvent->targetX, mouseEvent->targetY);
-
+	/*
+	 * canvasのCSS上の大きさを取得する
+	 *  - canvasの描画領域のサイズではない
+	 *  - CSS上の大きさにスケールされて表示される
+	 */
 	emscripten_get_element_css_size("canvas", &w, &h);
+
+	/* マウス座標をスケーリングする */
 	scale = w / (double)conf_window_width;
 	x = (int)((double)mouseEvent->targetX / scale);
 	y = (int)((double)mouseEvent->targetY / scale);
+
 	on_event_mouse_move(x, y);
 	return EM_TRUE;
 }
@@ -148,6 +163,7 @@ static EM_BOOL cb_mousedown(int eventType,
 	double w, h, scale;
 	int x, y, button;
 
+	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
 	scale = w / (double)conf_window_width;
 	x = (int)((double)mouseEvent->targetX / scale);
@@ -170,6 +186,7 @@ static EM_BOOL cb_mouseup(int eventType,
 	double w, h, scale;
 	int x, y, button;
 
+	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
 	scale = w / (double)conf_window_width;
 	x = (int)((double)mouseEvent->targetX / scale);
@@ -199,15 +216,64 @@ static EM_BOOL cb_wheel(int eventType,
 	return EM_TRUE;
 }
 
+/* keydownのコールバック */
+static EM_BOOL cb_keydown(int eventType,
+			  const EmscriptenKeyboardEvent *keyEvent,
+			  void *userData)
+{
+	int keycode;
+
+	keycode = get_keycode(keyEvent->key);
+	if (keycode == -1)
+		return EM_TRUE;
+
+	on_event_key_press(keycode);
+	return EM_TRUE;
+}
+
+/* keyupのコールバック */
+static EM_BOOL cb_keyup(int eventType,
+			const EmscriptenKeyboardEvent *keyEvent,
+			void *userData)
+{
+	int keycode;
+
+	keycode = get_keycode(keyEvent->key);
+	if (keycode == -1)
+		return EM_TRUE;
+
+	on_event_key_release(keycode);
+	return EM_TRUE;
+}
+
+/* キーコードを取得する */
+static int get_keycode(const char *key)
+{
+	if (strcmp(key, "Enter") == 0) {
+		return KEY_RETURN;
+	} else if (strcmp(key, " ") == 0) {
+		return KEY_SPACE;
+	} else if (strcmp(key, "Control") == 0) {
+		return KEY_CONTROL;
+	} else if (strcmp(key, "ArrowUp") == 0) {
+		return KEY_UP;
+	} else if (strcmp(key, "ArrowDown") == 0) {
+		return KEY_DOWN;
+	}
+	return -1;
+}
+
 /*
  * JavaScriptからのコールバック
  */
 
+/* タブが表示された際のコールバック */
 void EMSCRIPTEN_KEEPALIVE setVisible(int argc, char *argv[])
 {
 	resume_sound();
 }
 
+/* タブが非表示にされた際のコールバック */
 void EMSCRIPTEN_KEEPALIVE setHidden(int argc, char *argv[])
 {
 	pause_sound();
