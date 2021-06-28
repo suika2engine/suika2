@@ -30,6 +30,9 @@ How to build
        * Run `make` to create ZIP file.
        * Rename `suika-2.x.x.zip`.
 
+* Web App
+    * See `emscripten/README.md`
+
 * Android App
     * Install Android Studio 3.3.1 from Android Studio Archive.
     * Select `Configure` on initial screen.
