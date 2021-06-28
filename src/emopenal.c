@@ -173,7 +173,6 @@ void fill_sound_buffer(void)
 			/* サンプルを取得する */
 			samples = get_wave_samples(stream[n], tmp_buf,
 						   SAMPLES);
-
 			/* バッファに書き込む */
 			alBufferData(buf, AL_FORMAT_STEREO16, tmp_buf,
 				     samples * sizeof(uint32_t),
@@ -183,4 +182,24 @@ void fill_sound_buffer(void)
 			alSourceQueueBuffers(source[n], 1, &buf);
 		}
 	}
+}
+
+/*
+ * サウンドを一時停止する
+ */
+void pause_sound(void)
+{
+	int i;
+	for (i = 0; i < MIXER_STREAMS; i++)
+		if (stream[i] != NULL)
+			alSourceStop(source[i]);
+}
+
+/* サウンドを再開する */
+void resume_sound(void)
+{
+	int i;
+	for (i = 0; i < MIXER_STREAMS; i++)
+		if (stream[i] != NULL)
+			alSourcePlay(source[i]);
 }

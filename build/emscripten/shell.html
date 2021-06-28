@@ -169,27 +169,35 @@
   </script>
   <script type="text/javascript">
     function resizeWindow(event) {
-        canvas = document.getElementById('canvas');
+      canvas = document.getElementById('canvas');
 
-        cw = canvas.width;
-        ch = canvas.height;
-        aspect = cw / ch;
+      cw = canvas.width;
+      ch = canvas.height;
+      aspect = cw / ch;
 
-        winw = window.innerWidth;
-        winh = window.innerHeight;
+      winw = window.innerWidth;
+      winh = window.innerHeight;
 
-        w = winw;
-        h = winw / aspect;
+      w = winw;
+      h = winw / aspect;
 
-        if(h > winh) {
-             h = winh;
-             w = winh * aspect;
-        }
+      if(h > winh) {
+           h = winh;
+           w = winh * aspect;
+      }
 
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+    }
+    function visibilityChange() {
+      if(document.visibilityState === 'visible') {
+        Module.ccall('setVisible', null, null, null);
+      } else if(document.visibilityState === 'hidden') {
+        Module.ccall('setHidden', null, null, null);
+      }
     }
     window.addEventListener('resize', resizeWindow);
+    document.addEventListener('visibilitychange', visibilityChange);
   </script>
   {{{ SCRIPT }}}
 </body>

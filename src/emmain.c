@@ -181,6 +181,20 @@ static EM_BOOL cb_mouseup(int eventType,
 }
 
 /*
+ * JavaScriptからのコールバック
+ */
+
+void EMSCRIPTEN_KEEPALIVE setVisible(int argc, char *argv[])
+{
+	resume_sound();
+}
+
+void EMSCRIPTEN_KEEPALIVE setHidden(int argc, char *argv[])
+{
+	pause_sound();
+}
+
+/*
  * platform.hの実装
  */
 

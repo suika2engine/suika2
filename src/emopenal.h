@@ -19,4 +19,10 @@ void cleanup_openal(void);
 /* サウンドのバッファを埋める */
 void fill_sound_buffer(void);
 
+/* サウンドを一時停止する */
+void pause_sound(void);
+
+/* サウンドを再開する */
+void resume_sound(void);
+
 #endif
