@@ -15,6 +15,3 @@ You can deploy your game as a Web application using Emscripten.
     * Copy your `data01.arc` to `suika2/build/emscripten/html/`
     * `make run`
     * Browse `http://localhost:8000/html/`
-
-* Additional step for real Web server
-    * Edit absolute path in `suika2/build/emscripten/pre.js`
