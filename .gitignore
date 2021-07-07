@@ -33,3 +33,7 @@ build/msvc/suika/Debug
 build/msvc/suika/Release
 game/log.txt
 game/sav
+game/suika.app
+game/suika.exe
+build/release/mac.dmg
+build/release/suika-2.x.x.zip

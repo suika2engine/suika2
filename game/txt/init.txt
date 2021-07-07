@@ -17,7 +17,7 @@
 @bg menu.png 1.0
 
 :MENU
-@menu menu.png menu_selected.png START 27 485 317 193 LOAD 357 493 318 213 QUIT 678 492 315 191
+@menu menu.png menu_selected.png START 2 495 314 192 LOAD 316 494 322 203 CONFIG 640 492 317 204 QUIT 960 497 317 201
 
 :START
 @se click.ogg
@@ -28,9 +28,66 @@
 @goto $LOAD
 @goto MENU
 
+:CONFIG
+@se click.ogg
+@bg config.png 1.0
+@goto CONFIG_SCREEN
+
 :QUIT
 @se click.ogg
 @goto END
+
+###
+### コンフィグ画面
+###
+
+:CONFIG_SCREEN
+@menu config.png config_selected.png BGM_STOP 468 170 149 62 VOICE_STOP 468 256 149 62 SE_STOP 468 340 149 62 BGM_MEDIUM 655 170 237 62 VOICE_MEDIUM 655 256 237 62 SE_MEDIUM 655 340 237 62 BGM_MAX 933 170 127 62 VOICE_MAX 933 256 127 62 SE_MAX 933 340 127 62 CONFIG_OK 524 598 219 73
+
+:BGM_STOP
+@vol BGM 0
+@goto CONFIG_SCREEN
+
+:VOICE_STOP
+@vol VOICE 0
+@goto CONFIG_SCREEN
+
+:SE_STOP
+@vol SE 0
+@goto CONFIG_SCREEN
+
+:BGM_MEDIUM
+@vol BGM 0.5
+@goto CONFIG_SCREEN
+
+:VOICE_MEDIUM
+@vol VOICE 0.5
+@se 025.ogg voice
+@goto CONFIG_SCREEN
+
+:SE_MEDIUM
+@vol SE 0.5
+@se click.ogg
+@goto CONFIG_SCREEN
+
+:BGM_MAX
+@vol BGM 1.0
+@goto CONFIG_SCREEN
+
+:VOICE_MAX
+@vol VOICE 1.0
+@se 025.ogg voice
+@goto CONFIG_SCREEN
+
+:SE_MAX
+@vol SE 1.0
+@se click.ogg
+@goto CONFIG_SCREEN
+
+:CONFIG_OK
+@se click.ogg
+@bg menu.png 1.0
+@goto MENU
 
 ###
 ### シーン1 (セリフとモノローグの交錯)
@@ -105,13 +162,13 @@
 @select L1_ADVANTAGE L1_ENV L1_NEXT 何が強みなの？ 動作環境は？ 次へ
 
 :L1_ADVANTAGE
-Suika 2の強みは、さまざまな環境で動作することです。
-第一に、WindowsアプリとMacアプリが用意されており、どちらでも同じように動きます。
+Suika 2の強みは、三つあります。
+第一は、移植性。WindowsアプリとMacアプリ、ブラウザ版が用意されており、どれでも同じように動きます。
 ゲーム開発者は、ユーザの利用しているOSを気にする必要がありません。
-第二に、GPUの互換性による問題が発生しません。
-画面への描画はCPUによって高速に処理されます。利用しているCPUに合わせた特別なチューニングが行われます。
-第三に、まだユーザが少ないことから、作者のサポートを無償で得られます。
-Suika 2を利用してくださるゲーム開発者様がいらっしゃいましたら、作者はよろこんでお手伝いします。
+さらに、ゲーム開発者自身の利用しているOSも気にする必要がありません。
+第二は、シンプルさ。誰でも簡単にスクリプトを書き始めることが可能です。
+第三は、自由さ。商用・非商用を問わず無償で自由に利用可能です。
+
 @set $1 = 1
 @ch c 001-fun.png 1.0
 *みどり*015.ogg*へー、そうだったんだ。私も知らなかったよ。
@@ -122,7 +179,8 @@ Suika 2を利用してくださるゲーム開発者様がいらっしゃいま�
 :L1_ENV
 Windowsアプリでは、Windows 8.1以降で動くことを確認しています。最新のWindows 10タブレットにも対応しています。
 Macアプリでは、Mac OS X 10.9以降で動作することを確認しています。最新のBig SurやM1チップにも対応しています。
-さらにいうと、Linuxでも動きます。Suika 2はほとんどLinux上で開発されています。
+ブラウザ版ではChrome, Safari, Firefox, Edgeに対応しています。
+さらにいうと、AndroidやLinuxでも動きます。Suika 2は初期にはほとんどLinux上で開発されていました。
 @set $2 = 1
 @ch c 001-fun.png 1.0
 *みどり*017.ogg*うんうん、そうなんだよね。
