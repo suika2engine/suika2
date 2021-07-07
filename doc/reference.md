@@ -179,6 +179,11 @@ Describe the process here.
 @goto $LOAD
 ```
 
+* Usage 3: Show save screen.
+```
+@goto $SAVE
+```
+
 ## @if
 
 This command jumps to the specified label if the specified condition is true.
@@ -412,6 +417,7 @@ The initial value of a variable is `0`.
 ## @setsave
 
 This command enables or disables the save and load screen which is invoked by right click while waiting for message click or option click.
+When you call `@goto $LOAD` or `@goto $SAVE`, `@setsave enable` is implicitly called.
 
 * Usage 1: Enables the save and load screen (by default)
 ```

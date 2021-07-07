@@ -12,6 +12,7 @@
  *  - 2016/06/30 作成
  *  - 2017/08/17 グローバル変数に対応
  *  - 2021/06/05 マスターボリュームに対応
+ *  - 2021/07/07 セーブ専用画面に対応
  */
 
 #ifndef SUIKA_SAVE_H
@@ -37,7 +38,7 @@ bool check_load_flag(void);
 bool check_restore_flag(void);
 
 /* セーブ画面を開始する */
-void start_save_mode(bool load_only);
+void start_save_mode(bool allow_save, bool allow_load);
 
 /* セーブ画面が有効であるかを返す */
 bool is_save_mode(void);

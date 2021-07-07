@@ -19,7 +19,7 @@ bool setsave_command(void)
 {
 	const char *param;
 
-	param = get_string_param(VOL_PARAM_STREAM);
+	param = get_string_param(SETSAVE_PARAM_MODE);
 
 	if (strcmp(param, "disable") == 0) {
 		enable_save_load(false);

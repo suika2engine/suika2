@@ -120,7 +120,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* セーブ画面への遷移を処理する */
 	if (is_right_button_pressed && is_save_load_enabled()) {
-		start_save_mode(false);
+		start_save_mode(true, true);
 		stop_command_repetition();
 		free(msg_top);
 		show_click(false);

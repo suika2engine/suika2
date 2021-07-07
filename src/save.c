@@ -13,6 +13,7 @@
  *  - 2017/08/17 グローバル変数に対応
  *  - 2018/07/22 gosubに対応
  *  - 2021/06/05 マスターボリュームに対応
+ *  - 2021/07/07 セーブ専用画面に対応
  */
 
 #ifdef _MSC_VER
@@ -67,8 +68,11 @@ static bool restore_flag;
 /* セーブ画面が有効であるか */
 static bool is_save_mode_enabled;
 
-/* ロード専用モードであるか */
-static bool is_load_only_mode;
+/* セーブ可能モードであるか */
+static bool is_save_allowed;
+
+/* ロード可能モードであるか */
+static bool is_load_allowed;
 
 /* 最初の描画であるか */
 static bool is_first_frame;
@@ -242,13 +246,14 @@ bool check_restore_flag(void)
 /*
  * セーブ画面を開始する
  */
-void start_save_mode(bool load_only)
+void start_save_mode(bool allow_save, bool allow_load)
 {
 	/* セーブ画面を開始する */
 	is_save_mode_enabled = true;
 
-	/* ロード専用モードであるかを記憶する */
-	is_load_only_mode = load_only;
+	/* セーブ・ロード別許可を記憶する */
+	is_save_allowed = allow_save;
+	is_load_allowed = allow_load;
 
 	/* 最初のフレームである */
 	is_first_frame = true;
@@ -371,8 +376,12 @@ static int get_pointed_index(void)
 	if (page == SAVE_PAGES - 1 && pointed == BUTTON_NEXT)
 		return -1;
 
-	/* ロード専用モードの場合、BUTTON_SAVEを無効にする */
-	if (is_load_only_mode && pointed == BUTTON_SAVE)
+	/* セーブが許可されていないモードの場合、BUTTON_SAVEを無効にする */
+	if (!is_save_allowed && pointed == BUTTON_SAVE)
+		return -1;
+
+	/* ロードが許可されていないモードの場合、BUTTON_LOADを無効にする */
+	if (!is_load_allowed && pointed == BUTTON_LOAD)
 		return -1;
 
 	/* 選択されたボタンがない場合、BUTTON_SAVEとBUTTON_LOADを無効にする */
@@ -687,14 +696,23 @@ static bool serialize_command(struct wfile *wf)
 	const char *s;
 	int n, m;
 
+	/* スクリプトファイル名を取得してシリアライズする */
 	s = get_script_file_name();
 	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
 		return false;
 
+	/* コマンドインデックスを取得する */
 	n = get_command_index();
+
+	/* '@goto $SAVE'の場合、1行先にセーブポイントを置く */
+	if (get_command_type() == COMMAND_GOTO)
+		n++;
+
+	/* コマンドインデックスをシリアライズする */
 	if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
 		return false;
 
+	/* '@gosub'のリターンポイントを取得してシリアライズする */
 	m = get_return_point();
 	if (write_wfile(wf, &m, sizeof(m)) < sizeof(m))
 		return false;
