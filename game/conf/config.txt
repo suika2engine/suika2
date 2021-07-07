@@ -345,8 +345,8 @@ serif.color3.r=200
 serif.color3.g=200
 serif.color3.b=255
 
-# Continues to serif.color32, but omissible
-# 以降、serif.color32まで続くが省略可能
+# Continues to serif.color64, but omissible
+# 以降、serif.color64まで続くが省略可能
 
 ###
 ### Miscellaneous

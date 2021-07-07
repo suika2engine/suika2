@@ -46,3 +46,6 @@ all:
 
 run:
 	python -m SimpleHTTPServer
+
+clean:
+	rm -rf html
