@@ -4,7 +4,6 @@
 
 @bg white.png 0
 @ch c suika.png 1.0
-@click
 @se suika.ogg
 @wait 2.0
 @ch c none 1.0
