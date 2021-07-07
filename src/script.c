@@ -20,6 +20,7 @@
  *  - 2021/06/10 @chaに対応
  *  - 2021/06/12 @shakeに対応
  *  - 2021/06/15 @setsaveに対応
+ *  - 2021/07/07 @goto $SAVEに対応
  */
 
 #ifdef _MSC_VER
@@ -304,6 +305,17 @@ bool set_return_point(int index)
 int get_return_point(void)
 {
 	return return_point;
+}
+
+/*
+ * 最後のコマンドであるかを取得する(@goto $SAVE用)
+ */
+bool is_final_command(void)
+{
+	if (cur_index == cmd_size - 1)
+		return true;
+
+	return false;
 }
 
 /*

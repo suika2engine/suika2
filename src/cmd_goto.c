@@ -43,6 +43,12 @@ bool goto_command(void)
 
 	/* セーブ画面への遷移を処理する */
 	if (strcmp(label, SAVE_LABEL) == 0) {
+		/* 最後のコマンドを実行中なら、セーブできない */
+		if (is_final_command()) {
+			log_script_final_command();
+			return false;
+		}
+
 		/* セーブロードを有効にする */
 		enable_save_load(true);
 

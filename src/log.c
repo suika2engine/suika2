@@ -14,6 +14,7 @@
  *  - 2021/06/10 @chaの加速タイプ名エラーを追加
  *  - 2021/06/12 @shakeの移動タイプ名エラーを追加
  *  - 2021/06/15 @setsaveのパラメタのエラーを追加
+ *  - 2021/07/07 @goto $SAVEのエラーを追加
  */
 
 #include <stddef.h>
@@ -513,5 +514,18 @@ void log_script_enable_disable(const char *param)
 		log_error("引数\"%s\"は正しくありません。"
 			  "enableかdisableを指定してください。\n",
 			  conv_utf8_to_native(param));
+	}
+}
+
+/*
+ * @goto $SAVEがスクリプトの最後のコマンドとして実行されたエラーを記録する
+ */
+void log_script_final_command(void)
+{
+	if (is_english_mode()) {
+		log_error("\'@goto $SAVE\' exists on "
+			  "the end of the script.\n");
+	} else {
+		log_error("\'@goto $SAVE\'がスクリプトの末尾にあります。\n");
 	}
 }

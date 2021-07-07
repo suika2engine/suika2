@@ -16,6 +16,7 @@
  *  - 2021/06/10 @chaに対応
  *  - 2021/06/12 @shakeに対応
  *  - 2021/06/15 @setsaveに対応
+ *  - 2021/07/07 @goto $SAVEに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -501,6 +502,9 @@ bool set_return_point(int index);
 
 /* gosubによるリターンポイントの行番号を取得する(セーブ用) */
 int get_return_point(void);
+
+/* 最後のコマンドであるかを取得する(@goto $SAVE用) */
+bool is_final_command(void);
 
 /* コマンドの行番号を取得する(ログ用) */
 int get_line_num(void);
