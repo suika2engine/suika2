@@ -98,6 +98,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			       int *h);
 static void process_left_press_save_button(int new_pointed_index, int *x,
 					   int *y, int *w, int *h);
+static bool is_single_function_mode(void);
 static bool process_save(void);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
@@ -307,7 +308,10 @@ bool run_save_mode(int *x, int *y, int *w, int *h)
 	/* 右クリックされた場合、セーブをキャンセルする */
 	if (is_right_button_pressed) {
 		stop_save_mode(x, y, w, h);
-		restore_flag = true;
+		if (is_single_function_mode())
+			restore_flag = false;
+		else
+			restore_flag = true;
 		return true;
 	}
 
@@ -560,7 +564,10 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 		process_save();
 		save_global_data();
 		stop_save_mode(x, y, w, h);
-		restore_flag = true;
+		if (is_single_function_mode())
+			restore_flag = false;
+		else
+			restore_flag = true;
 	}
 
 	/* ロードボタンの場合 */
@@ -622,6 +629,16 @@ static void process_left_press_save_button(int new_pointed_index, int *x,
 
 	/* ポイントされている項目を更新する */
 	pointed_index = new_pointed_index;
+}
+
+/* セーブまたはロードのどちらかのみを利用しているかを返す */
+static bool is_single_function_mode(void)
+{
+	if (is_save_allowed && !is_load_allowed)
+		return true;
+	if (!is_save_allowed && is_load_allowed)
+		return true;
+	return false;
 }
 
 /*
