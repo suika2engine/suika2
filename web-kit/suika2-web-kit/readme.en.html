@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Suika2 for Web Browsers Distribution Kit</title>
+  <style>
+      body {
+          font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, Osaka, "Takao Pゴシック", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+          margin-top: 1.0em;
+          margin-left: 1.0em;
+          line-height: 2.5em;
+      }
+      h1 {
+          font-size: 2.5em;
+          font-weight: bold;
+          color: #364e96;
+          border: solid 3px #364e96;
+          padding: 0.5em;
+          border-radius: 0.5em;
+      }
+      h2, h3, h4 {
+          font-size: 1.5em;
+          font-weight: bold;
+          margin-top: 1.5em;
+          margin-bottom: 0em;
+          margin-left: 0.5em;
+          color: #364e96;
+          padding: 0.5em 0;
+          border-top: solid 3px #364e96;
+          border-bottom: solid 3px #364e96;
+      }
+      p {
+          font-size: 1.0em;
+          line-height: 1.8em;
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
+      }
+      ul {
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
+      }
+  </style>
+</head>
+<body>
+
+<h1>Suika2 for Web Browsers Distribution Kit</h1>
+<p>Rev.3 (Supports Suika 2.7.9)</p>
+<p>Copyright (C) 2001-2021 TABATA Keiichi. All rights reserved.</p>
+
+<h2>About this kit</h2>
+<ul>
+  <li>This kit enables you to distribute your game for Web browsers.</li>
+  <li>Please upload files to your server by ftp.</li>
+  <li>You can't run game by opening HTML file on a local machine.</li>
+</ul>
+
+<h2>Steps</h2>
+<ol>
+  <li>Upload <code>game</code> folder to your Web site.</li>
+  <li>Access <code>http://your-server/game/</code> and check if sample game runs.</li>
+  <li>Generate your own <code>data01.arc</code> (Steps are described in <a href="https://luxion.jp/s2/en/tutorial.html">Tutorial</a>.)</li>
+  <li>Replace <code>game/data01.arc</code> to your version and upload it to server.</li>
+  <li>Access again, and check if game works.
+    <ul>
+      <li>Reload page or clear browser cache if you see sample game runs.</li>
+    </ul>
+	</li>
+</ol>
+
+<h2>Caution</h2>
+<ul>
+  <li>Users have to download whole game data whenever access.</li>
+  <li>Insert click wait by <code>@click</code> at the top of your game script because browsers allow sound output after first click.</li>
+  <li>For iPhone/iPad/Android, right click is mapped to two finger tap.</li>
+</ul>
+
+<h2>Contact</h2>
+<ul>
+  <li>Any and all feedback is welcome.</li>
+  <li>Write a mail to <a href="mailto:tabata@luxion.jp">tabata@luxion.jp</a>
+    <ul>
+      <li>Reply will be sent from Gmail address.</li>
+    </ul>
+  </li>
+  <li>Visit official Web site <a href="https://luxion.jp/s2/en/">https://luxion.jp/s2/en/</a></li>
+</ul>
+
+<h2>Revisions</h2>
+<ul>
+  <li>Rev.3 7th July 2021
+    <ul>
+      <li>Support Suika 2.7.9</li>
+    </ul>
+  </li>
+  <li>Rev.2 30th June 2021
+    <ul>
+      <li>Support relative path.</li>
+    </ul>
+  </li>
+  <li>Rev.1 29th June 2021
+    <ul>
+      <li>Initial release.</li>
+    </ul>
+  </li>
+</ul>
+
+</body>
+</html>
