@@ -1,4 +1,5 @@
 *.DS_Store
+*~
 build/linux/*.o
 build/linux/libroot
 build/linux/suika
@@ -37,3 +38,6 @@ game/suika.app
 game/suika.exe
 build/release/mac.dmg
 build/release/suika-2.x.x.zip
+build/emscripten/html
+web-kit/suika2-web-kit-XXX.zip
+web-kit/suika2-web-kit/game/index.*
