@@ -55,7 +55,11 @@ bool goto_command(void)
 		/* セーブ専用モードでセーブ画面を開始する */
 		start_save_mode(true, false);
 
-		/* 次のコマンドへ移動する */
+		/*
+		 * キャンセルかセーブされた場合のために
+		 * 次のコマンドへ移動しておく
+		 *  - これによりget_command_index()がインクリメントされる
+		 */
 		return move_to_next_command();
 	}
 

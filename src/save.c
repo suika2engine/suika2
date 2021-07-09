@@ -718,14 +718,8 @@ static bool serialize_command(struct wfile *wf)
 	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
 		return false;
 
-	/* コマンドインデックスを取得する */
+	/* コマンドインデックスを取得してシリアライズする */
 	n = get_command_index();
-
-	/* '@goto $SAVE'の場合、1行先にセーブポイントを置く */
-	if (get_command_type() == COMMAND_GOTO)
-		n++;
-
-	/* コマンドインデックスをシリアライズする */
 	if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
 		return false;
 
