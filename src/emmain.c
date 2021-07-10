@@ -129,7 +129,12 @@ static EM_BOOL loop_iter(double time, void * userData)
 	x = y = w = h = 0;
 	if (!on_event_frame(&x, &y, &w, &h)) {
 		stop = true;
-		EM_FALSE;	/* スクリプトの終端に達した */
+
+		/* グローバルデータを保存する */
+		save_global_data();
+
+		/* スクリプトの終端に達した */
+		EM_FALSE;
 	}
 
 	/* 描画を行わない場合 */
