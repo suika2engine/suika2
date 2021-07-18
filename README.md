@@ -22,7 +22,7 @@ Pull requests that correct my English are especially welcome.
 
 ## Prebuilt Binary
 
-Download the binary from [the official web site.](https://luxion.jp/s2/)
+Download the binary from [the official web site.](https://suika2.com/en/)
 
 ## Build from Source
 
@@ -37,18 +37,18 @@ See game/COPYING.
 ## Usage
 
 * On Windows:
-    * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
+    * Download the zip file from [the official web site](https://suika2.com/en/) and extract it.
     * Open `suika2` folder in Explorer.
     * Open `suika.exe` application.
 
 * On Mac:
-    * Download the zip file from [the official web site](https://luxion.jp/s2/) and extract it.
+    * Download the zip file from [the official web site](https://suika2.com/en/) and extract it.
     * Open `suika2` folder in Finder.
     * Copy `suika` application in `mac.dmg` to `suika2` folder.
     * Open `suika` application in `suika2` folder.
 
 * On Android:
-    * Sample game is available on Google Play. See [the official web site](https://luxion.jp/s2/)
+    * Sample game is available on Google Play. See [the official web site](https://suika2.com/en/)
     * To make your own game, you have to build from source code using Android Studio. See `build/README.md`
 
 * On Linux/FreeBSD/NetBSD:
@@ -66,8 +66,8 @@ See game/COPYING.
 
 ## Manuals
 
-* [Tutorial](https://luxion.jp/s2/en/tutorial.html)
-* [Command Reference](https://luxion.jp/s2/en/reference.html)
+* [Tutorial](https://suika2.com/en/tutorial.html)
+* [Command Reference](https://suika2.com/en/reference.html)
 
 ## What does "suika" mean?
 
