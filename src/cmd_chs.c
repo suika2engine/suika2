@@ -118,9 +118,15 @@ static bool init(void)
 		/* 表示位置を取得する */
 		if (i != BG_INDEX)
 			get_position(&x[i], &y[i], i, img[i]);
+	}
 
-		/* Controlが押されているか、フェードしない場合 */
-		if (is_control_pressed || span == 0) {
+	/* Controlが押されているか、フェードしない場合 */
+	if (is_control_pressed || span == 0) {
+		/* フェードせず、すぐに切り替える */
+		for (i = 0; i < PARAM_SIZE; i++) {
+			if (stay[i])
+				continue;
+
 			/* フェードせず、すぐに切り替える */
 			if (i != BG_INDEX)
 				change_ch_immediately(i, img[i], x[i], y[i],
@@ -128,11 +134,6 @@ static bool init(void)
 			else
 				change_bg_immediately(img[i]);
 		}
-	}
-
-	/* Controlが押されているか、フェードしない場合 */
-	if (is_control_pressed || span == 0) {
-		/* フェードせず、すぐに切り替える */
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();
