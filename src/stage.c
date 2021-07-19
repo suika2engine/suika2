@@ -17,6 +17,8 @@
  *  - 2021-06-10 キャラのアニメ対応
  *  - 2021-06-12 画面揺らしモードの対応
  *  - 2021-06-16 時計フェードの対応
+ *  - 2021-07-19 複数キャラ・背景同時変更の対応
+ *  - 2021-07-19 リファクタ
  */
 
 #include "suika.h"
@@ -78,6 +80,17 @@ enum {
 	STAGE_LAYERS
 };
 
+enum stage_mode {
+	STAGE_MODE_IDLE,
+	STAGE_MODE_BG_FADE,
+	STAGE_MODE_CH_FADE,
+	STAGE_MODE_CH_ANIME,
+	STAGE_MODE_SHAKE,
+};
+
+/* ステージの動作モード */
+static int stage_mode;
+
 /* 描画先イメージ */
 static struct image *back_image;
 
@@ -138,12 +151,6 @@ static int layer_alpha[STAGE_LAYERS];
 /* レイヤのブレンドタイプ */
 static int layer_blend[STAGE_LAYERS];
 
-/* 背景フェードモードであるか */
-static bool is_bg_fade_enabled;
-
-/* キャラフェードモードであるか */
-static bool is_ch_fade_enabled;
-
 /* 背景イメージ名 */
 static char *bg_file_name;
 
@@ -158,9 +165,6 @@ static float bg_fade_progress;
  *  - 現状キャラを1つずつ(1レイヤずつ)しか動かすことができない
  *  - 将来複数レイヤを動かせるような設計として、下記の情報を保持する
  */
-
-/* キャラアニメモードであるか */
-static bool is_ch_anime_enabled;
 
 /* アニメ中のレイヤ */
 static bool layer_anime_run[STAGE_LAYERS];
@@ -180,9 +184,6 @@ static int layer_anime_alpha_to[STAGE_LAYERS];
 /*
  * 画面揺らしモード中の情報
  */
-
-/* 画面揺らしモード中であるか */
-static bool is_shake_enabled;
 
 /* 画面表示オフセット */
 static int shake_offset_x;
@@ -494,8 +495,8 @@ static void destroy_layer_image(int layer)
 void draw_stage(void)
 {
 	assert(!is_save_mode());
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
+	assert(stage_mode != STAGE_MODE_BG_FADE);
+	assert(stage_mode != STAGE_MODE_CH_FADE);
 
 	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
 }
@@ -506,8 +507,8 @@ void draw_stage(void)
 void draw_stage_rect(int x, int y, int w, int h)
 {
 	assert(!is_save_mode());
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
+	assert(stage_mode != STAGE_MODE_BG_FADE);
+	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
 
 	if (w == 0 || h == 0)
@@ -540,8 +541,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 void draw_stage_bg_fade(int fade_method)
 {
 	assert(!is_save_mode());
-	assert(is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
+	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	switch (fade_method) {
 	case BG_FADE_METHOD_NORMAL:
@@ -865,13 +865,10 @@ static void draw_stage_bg_fade_clockwise(void)
 	center_y = conf_window_height / 2;
 	hand_len = (conf_window_width > conf_window_height) ?
 		(float)conf_window_width : (float)conf_window_height;
-//		(float)100 : (float)100;
 	hand_x = center_x + (int)(hand_len *
 				  sinf(PI - 2.0f * PI * bg_fade_progress));
 	hand_y = center_y + (int)(hand_len *
 				  cosf(PI - 2.0f * PI * bg_fade_progress));
-
-//	draw_image(back_image, hand_x, hand_y, layer_image[LAYER_BG_FI], 100, 100, 0, 0, 255, BLEND_NONE);
 
 	/* 第一象限を埋める */
 	if (bg_fade_progress >= 0.25f) {
@@ -1017,8 +1014,7 @@ static void draw_stage_bg_fade_counterclockwise(void)
 void draw_stage_ch_fade(int fade_method)
 {
 	assert(!is_save_mode());
-	assert(!is_bg_fade_enabled);
-	assert(is_ch_fade_enabled);
+	assert(stage_mode == STAGE_MODE_CH_FADE);
 
 	switch (fade_method) {
 	case CH_FADE_METHOD_NORMAL:
@@ -1079,8 +1075,7 @@ void draw_stage_shake(void)
 void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
 			     int w2, int h2)
 {
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
+	assert(stage_mode == STAGE_MODE_IDLE);
 
 	/* 背景を描画する */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -1104,8 +1099,8 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 				  int new_x, int new_y, int new_w, int new_h)
 {
 	assert(!is_save_mode());
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
+	assert(stage_mode != STAGE_MODE_BG_FADE);
+	assert(stage_mode != STAGE_MODE_CH_FADE);
 
 	/* 古いボタンを消す */
 	draw_image(back_image, old_x, old_y, layer_image[LAYER_FO], old_w,
@@ -1133,8 +1128,8 @@ void draw_stage_history(void)
 {
 	assert(is_history_mode());
 	assert(!is_save_mode());
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
+	assert(stage_mode != STAGE_MODE_BG_FADE);
+	assert(stage_mode != STAGE_MODE_CH_FADE);
 
 	/* 古いボタンを消す */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO], conf_window_width,
@@ -1192,13 +1187,10 @@ void change_bg_immediately(struct image *img)
  */
 void start_bg_fade(struct image *img)
 {
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_IDLE);
 
 	/* 背景フェードを有効にする */
-	is_bg_fade_enabled = true;
+	stage_mode = STAGE_MODE_BG_FADE;
 
 	/* フェードアウト用のレイヤにステージを描画する */
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
@@ -1223,10 +1215,7 @@ void start_bg_fade(struct image *img)
  */
 void set_bg_fade_progress(float progress)
 {
-	assert(is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	/* 進捗率を保存する */
 	bg_fade_progress = progress;
@@ -1240,12 +1229,9 @@ void set_bg_fade_progress(float progress)
  */
 void stop_bg_fade(void)
 {
-	assert(is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_BG_FADE);
 
-	is_bg_fade_enabled = false;
+	stage_mode = STAGE_MODE_IDLE;
 	destroy_layer_image(LAYER_BG);
 	layer_image[LAYER_BG] = layer_image[LAYER_BG_FI];
 	layer_image[LAYER_BG_FI] = NULL;
@@ -1361,14 +1347,11 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 {
 	int layer;
 
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_IDLE);
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
 	       pos == CH_CENTER);
 
-	is_ch_fade_enabled = true;
+	stage_mode = STAGE_MODE_CH_FADE;
 
 	/* キャラフェードアウトレイヤにステージを描画する */
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
@@ -1411,14 +1394,55 @@ static int pos_to_layer(int pos)
 }
 
 /*
+ * キャラフェードモード(複数,背景も)を開始する
+ */
+void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
+			 const int *y)
+{
+	int i, layer;
+
+	assert(stage_mode == STAGE_MODE_IDLE);
+
+	/* このフェードでもSTAGE_MODE_CH_FADEを利用する */
+	stage_mode = STAGE_MODE_CH_FADE;
+
+	/* キャラフェードアウトレイヤにステージを描画する */
+	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+
+	/* キャラを入れ替える */
+	for (i = 0; i < CH_LAYERS; i++) {
+		if (!stay[i]) {
+			layer = pos_to_layer(i);
+			destroy_layer_image(layer);
+			layer_image[layer] = img[i];
+			layer_alpha[layer] = 255;
+			layer_x[layer] = x[i];
+			layer_y[layer] = y[i];
+		}
+	}
+
+	/* 背景を入れ替える */
+	if (!stay[CH_LAYERS])
+		layer_image[LAYER_BG] = img[CH_LAYERS];
+
+	/* キャラフェードインレイヤにステージを描画する */
+	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+}
+
+/*
  * キャラフェードモードの進捗率を設定する
  */
 void set_ch_fade_progress(float progress)
 {
-	assert(is_ch_fade_enabled);
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_anime_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_CH_FADE);
 
 	layer_alpha[LAYER_FI] = (uint8_t)(progress * 255.0f);
 }
@@ -1428,12 +1452,9 @@ void set_ch_fade_progress(float progress)
  */
 void stop_ch_fade(void)
 {
-	assert(is_ch_fade_enabled);
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_anime_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_CH_FADE);
 
-	is_ch_fade_enabled = false;
+	stage_mode = STAGE_MODE_IDLE;
 }
 
 /*
@@ -1447,14 +1468,11 @@ void start_ch_anime(int pos, int to_x, int to_y, int to_alpha)
 {
 	int layer, i;
 
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_IDLE);
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
 	       pos == CH_CENTER);
 
-	is_ch_anime_enabled = true;
+	stage_mode = STAGE_MODE_CH_ANIME;
 
 	/* 座標とアルファ値を保存する */
 	layer = pos_to_layer(pos);
@@ -1477,10 +1495,7 @@ void set_ch_anime_progress(float progress)
 {
 	int i;
 
-	assert(is_ch_anime_enabled);
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_CH_ANIME);
 
 	/* すべてのレイヤについて座標とアルファ値を更新する */
 	for (i = 0; i < STAGE_LAYERS; i++) {
@@ -1513,12 +1528,9 @@ void stop_ch_anime(void)
 {
 	int i;
 
-	assert(is_ch_anime_enabled);
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_shake_enabled);
+	assert(stage_mode == STAGE_MODE_CH_ANIME);
 
-	is_ch_anime_enabled = false;
+	stage_mode = STAGE_MODE_IDLE;
 
 	/* すべてのレイヤについて座標とアルファ値を最終値に更新する */
 	for (i = 0; i < STAGE_LAYERS; i++) {
@@ -1539,12 +1551,9 @@ void stop_ch_anime(void)
 /* 画面揺らしモードを開始する */
 void start_shake(void)
 {
-	assert(!is_shake_enabled);
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
+	assert(stage_mode == STAGE_MODE_IDLE);
 
-	is_shake_enabled = true;
+	stage_mode = STAGE_MODE_SHAKE;
 
 	/* フェードアウト用のレイヤにステージを描画する */
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
@@ -1557,10 +1566,7 @@ void start_shake(void)
 /* 画面揺らしモードの表示オフセットを設定する */
 void set_shake_offset(int x, int y)
 {
-	assert(is_shake_enabled);
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
+	assert(stage_mode == STAGE_MODE_SHAKE);
 
 	shake_offset_x = x;
 	shake_offset_y = y;
@@ -1569,12 +1575,9 @@ void set_shake_offset(int x, int y)
 /* 画面揺らしモードを終了する */
 void stop_shake(void)
 {
-	assert(is_shake_enabled);
-	assert(!is_bg_fade_enabled);
-	assert(!is_ch_fade_enabled);
-	assert(!is_ch_anime_enabled);
+	assert(stage_mode == STAGE_MODE_SHAKE);
 
-	is_shake_enabled = false;
+	stage_mode = STAGE_MODE_IDLE;
 }
 
 /*

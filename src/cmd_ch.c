@@ -15,7 +15,7 @@
 
 static stop_watch_t sw;
 static float span;
-int ch_fade_method;
+static int ch_fade_method;
 
 static bool init(void);
 static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,

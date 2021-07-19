@@ -17,6 +17,7 @@
  *  - 2021/06/12 @shakeに対応
  *  - 2021/06/15 @setsaveに対応
  *  - 2021/07/07 @goto $SAVEに対応
+ *  - 2021/07/19 @chsに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -54,6 +55,7 @@ enum command_type {
 	COMMAND_CHA,
 	COMMAND_SHAKE,
 	COMMAND_SETSAVE,
+	COMMAND_CHS,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -457,6 +459,16 @@ enum shake_command_param {
 /* setsaveコマンドのパラメータ */
 enum setsave_command_param {
 	SETSAVE_PARAM_MODE = 1,
+};
+
+/* chsコマンドのパラメータ */
+enum chs_command_param {
+	CHS_PARAM_CENTER = 1,
+	CHS_PARAM_RIGHT,
+	CHS_PARAM_LEFT,
+	CHS_PARAM_BACK,
+	CHS_PARAM_SPAN,
+	CHS_PARAM_BG,
 };
 
 /*

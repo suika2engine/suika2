@@ -69,6 +69,7 @@ bool return_command(void);
 bool cha_command(int *x, int *y, int *w, int *h);
 bool shake_command(int *x, int *y, int *w, int *h);
 bool setsave_command(void);
+bool chs_command(int *x, int *y, int *w, int *h);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

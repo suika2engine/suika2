@@ -21,6 +21,7 @@
  *  - 2021/06/12 @shakeに対応
  *  - 2021/06/15 @setsaveに対応
  *  - 2021/07/07 @goto $SAVEに対応
+ *  - 2021/07/19 @chsに対応
  */
 
 #ifdef _MSC_VER
@@ -82,6 +83,7 @@ struct insn_item {
 	{"@cha", COMMAND_CHA, 6, 6},
 	{"@shake", COMMAND_SHAKE, 4, 4},
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
+	{"@chs", COMMAND_CHS, 5, 6},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))

@@ -139,6 +139,26 @@ Refer to `@ch` section for details of the specifier of character position and al
 @cha right 2.0 move -600 0 show
 ```
 
+## @chs
+
+Changes characters at once. In addition, changes background at the same time.
+Character specification order is `center`, `right`, `left` and `back`.
+
+* Usage 1: Changes center and right characters with a 1.0 second fade time. Other characters will not be changed.
+```
+@chs center.png right.png stay stay 1.0
+```
+
+* Usage 2: Vanish center character with a 1.0 second fade. Other characters will not be changed.
+```
+@chs none stay stay stay 1.0
+```
+
+* Usage 3: Change background without any changes on characters with a 1.0 second fade.
+```
+@chs stay stay stay stay 1.0 background.png
+```
+
 ## @click
 
 This command instructs Suika 2 to wait for a click before continuing.

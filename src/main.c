@@ -16,6 +16,7 @@
  *  - 2021/06/10 chaに対応
  *  - 2021/06/12 shakeに対応
  *  - 2021/06/15 setsaveに対応
+ *  - 2021/07/19 chsに対応
  */
 
 #include "suika.h"
@@ -222,6 +223,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 		break;
 	case COMMAND_SETSAVE:
 		if (!setsave_command())
+			return false;
+		break;
+	case COMMAND_CHS:
+		if (!chs_command(x, y, w, h))
 			return false;
 		break;
 	default:

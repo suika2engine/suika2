@@ -151,6 +151,10 @@ void set_ch_fade_progress(float progress);
 /* キャラフェードモードを終了する */
 void stop_ch_fade(void);
 
+/* キャラフェードモード(複数,背景も)を開始する */
+void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
+			 const int *y);
+
 /*
  * キャラアニメ
  */
