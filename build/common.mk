@@ -3,6 +3,7 @@ SRCS_COMMON = \
 	../../src/cmd_bgm.c \
 	../../src/cmd_ch.c \
 	../../src/cmd_cha.c \
+	../../src/cmd_chs.c \
 	../../src/cmd_click.c \
 	../../src/cmd_gosub.c \
 	../../src/cmd_goto.c \
