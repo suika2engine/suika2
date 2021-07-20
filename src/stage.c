@@ -19,14 +19,14 @@
  *  - 2021-06-16 時計フェードの対応
  *  - 2021-07-19 複数キャラ・背景同時変更の対応
  *  - 2021-07-19 リファクタ
+ *  - 2021-07-20 @chsにエフェクト追加
  */
 
 #include "suika.h"
 
 /* false assertion */
 #define BAD_POSITION		(0)
-#define INVALID_BG_FADE_METHOD	(0)
-#define INVALID_CH_FADE_METHOD	(0)
+#define INVALID_FADE_METHOD	(0)
 
 /* カーテンフェードのカーテンの幅 */
 #define CURTAIN_WIDTH	(256)
@@ -72,9 +72,6 @@ enum {
 	 *  - スイッチ
 	 */
 	LAYER_FI,	/* 特殊: 実体イメージあり */
-
-	/* 下記は背景のフェードモードでのみ有効 */
-	LAYER_BG_FI,
 
 	/* 総レイヤ数 */
 	STAGE_LAYERS
@@ -157,8 +154,11 @@ static char *bg_file_name;
 /* キャライメージ名 */
 static char *ch_file_name[CH_LAYERS];
 
-/* 背景フェードの進捗 */
-static float bg_fade_progress;
+/* STAGE_MODE_BG_FADEのときの新しい背景 */
+struct image *new_bg_img;
+
+/* FI/FOフェードの進捗 */
+static float fi_fo_fade_progress;
 
 /*
  * アニメ中の情報
@@ -201,20 +201,19 @@ static bool setup_news(void);
 static bool setup_save(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
-static void draw_stage_bg_fade_normal(void);
-static void draw_stage_bg_fade_mask(void);
-static void draw_stage_bg_fade_curtain_right(void);
-static void draw_stage_bg_fade_curtain_left(void);
-static void draw_stage_bg_fade_curtain_up(void);
-static void draw_stage_bg_fade_curtain_down(void);
-static void draw_stage_bg_fade_slide_left(void);
-static void draw_stage_bg_fade_slide_right(void);
-static void draw_stage_bg_fade_slide_up(void);
-static void draw_stage_bg_fade_slide_down(void);
-static void draw_stage_bg_fade_clockwise(void);
-static void draw_stage_bg_fade_counterclockwise(void);
-static void draw_stage_ch_fade_normal(void);
-static void draw_stage_ch_fade_mask(void);
+static void draw_stage_fi_fo_fade(int fade_method);
+static void draw_stage_fi_fo_fade_normal(void);
+static void draw_stage_fi_fo_fade_mask(void);
+static void draw_stage_fi_fo_fade_curtain_right(void);
+static void draw_stage_fi_fo_fade_curtain_left(void);
+static void draw_stage_fi_fo_fade_curtain_up(void);
+static void draw_stage_fi_fo_fade_curtain_down(void);
+static void draw_stage_fi_fo_fade_slide_left(void);
+static void draw_stage_fi_fo_fade_slide_right(void);
+static void draw_stage_fi_fo_fade_slide_up(void);
+static void draw_stage_fi_fo_fade_slide_down(void);
+static void draw_stage_fi_fo_fade_clockwise(void);
+static void draw_stage_fi_fo_fade_counterclockwise(void);
 static int pos_to_layer(int pos);
 static float get_anime_interpolation(float progress, float from, float to);
 static void draw_layer_image(struct image *target, int layer);
@@ -281,7 +280,6 @@ bool init_stage(void)
 	layer_blend[LAYER_SEL] = BLEND_FAST;
 	layer_blend[LAYER_FO] = BLEND_NONE;
 	layer_blend[LAYER_FI] = BLEND_FAST;
-	layer_blend[LAYER_BG_FI] = BLEND_FAST;
 
 	/* アルファ値を設定する */
 	for (i = LAYER_BG; i < STAGE_LAYERS; i++)
@@ -543,77 +541,94 @@ void draw_stage_bg_fade(int fade_method)
 	assert(!is_save_mode());
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
+	draw_stage_fi_fo_fade(fade_method);
+}
+
+/*
+ * キャラフェードモードが有効な際のステージ描画を行う
+ */
+void draw_stage_ch_fade(int fade_method)
+{
+	assert(!is_save_mode());
+	assert(stage_mode == STAGE_MODE_CH_FADE);
+
+	draw_stage_fi_fo_fade(fade_method);
+}
+
+/* FI/FOフェードを行う */
+static void draw_stage_fi_fo_fade(int fade_method)
+{
 	switch (fade_method) {
-	case BG_FADE_METHOD_NORMAL:
-		draw_stage_bg_fade_normal();
+	case FADE_METHOD_NORMAL:
+		draw_stage_fi_fo_fade_normal();
 		break;
-	case BG_FADE_METHOD_MASK:
-		draw_stage_bg_fade_mask();
+	case FADE_METHOD_MASK:
+		draw_stage_fi_fo_fade_mask();
 		break;
-	case BG_FADE_METHOD_CURTAIN_RIGHT:
-		draw_stage_bg_fade_curtain_right();
+	case FADE_METHOD_CURTAIN_RIGHT:
+		draw_stage_fi_fo_fade_curtain_right();
 		break;
-	case BG_FADE_METHOD_CURTAIN_LEFT:
-		draw_stage_bg_fade_curtain_left();
+	case FADE_METHOD_CURTAIN_LEFT:
+		draw_stage_fi_fo_fade_curtain_left();
 		break;
-	case BG_FADE_METHOD_CURTAIN_UP:
-		draw_stage_bg_fade_curtain_up();
+	case FADE_METHOD_CURTAIN_UP:
+		draw_stage_fi_fo_fade_curtain_up();
 		break;
-	case BG_FADE_METHOD_CURTAIN_DOWN:
-		draw_stage_bg_fade_curtain_down();
+	case FADE_METHOD_CURTAIN_DOWN:
+		draw_stage_fi_fo_fade_curtain_down();
 		break;
-	case BG_FADE_METHOD_SLIDE_RIGHT:
-		draw_stage_bg_fade_slide_right();
+	case FADE_METHOD_SLIDE_RIGHT:
+		draw_stage_fi_fo_fade_slide_right();
 		break;
-	case BG_FADE_METHOD_SLIDE_LEFT:
-		draw_stage_bg_fade_slide_left();
+	case FADE_METHOD_SLIDE_LEFT:
+		draw_stage_fi_fo_fade_slide_left();
 		break;
-	case BG_FADE_METHOD_SLIDE_UP:
-		draw_stage_bg_fade_slide_up();
+	case FADE_METHOD_SLIDE_UP:
+		draw_stage_fi_fo_fade_slide_up();
 		break;
-	case BG_FADE_METHOD_SLIDE_DOWN:
-		draw_stage_bg_fade_slide_down();
+	case FADE_METHOD_SLIDE_DOWN:
+		draw_stage_fi_fo_fade_slide_down();
 		break;
-	case BG_FADE_METHOD_CLOCKWISE:
-		draw_stage_bg_fade_clockwise();
+	case FADE_METHOD_CLOCKWISE:
+		draw_stage_fi_fo_fade_clockwise();
 		break;
-	case BG_FADE_METHOD_COUNTERCLOCKWISE:
-		draw_stage_bg_fade_counterclockwise();
+	case FADE_METHOD_COUNTERCLOCKWISE:
+		draw_stage_fi_fo_fade_counterclockwise();
 		break;
 	default:
-		assert(INVALID_BG_FADE_METHOD);
+		assert(INVALID_FADE_METHOD);
 		break;
 	}
 }
 
 /* デフォルトの背景フェードの描画を行う  */
-static void draw_stage_bg_fade_normal()
+static void draw_stage_fi_fo_fade_normal()
 {
 	draw_layer_image(back_image, LAYER_FO);
-	draw_layer_image(back_image, LAYER_BG_FI);
+	draw_layer_image(back_image, LAYER_FI);
 }
 
 
 /* マスクの背景フェードの描画を行う  */
-static void draw_stage_bg_fade_mask()
+static void draw_stage_fi_fo_fade_mask()
 {
 	int mask_index;
 
 	/* アルファ値からマスクインデックスを求める */
 	mask_index = (int)((float)DRAW_IMAGE_MASK_LEVELS *
-			   (float)layer_alpha[LAYER_BG_FI] / 255.0f);
+			   (float)layer_alpha[LAYER_FI] / 255.0f);
 
 	/* 古い背景を描画する */
 	draw_layer_image(back_image, LAYER_FO);
 
 	/* 新しい背景をマスクつきで描画する */
-	draw_image_mask(back_image, 0, 0, layer_image[LAYER_BG_FI],
+	draw_image_mask(back_image, 0, 0, layer_image[LAYER_FI],
 			conf_window_width, conf_window_height, 0, 0,
 			mask_index);
 }
 
 /* 右方向カーテンフェードの描画を行う */
-static void draw_stage_bg_fade_curtain_right(void)
+static void draw_stage_fi_fo_fade_curtain_right(void)
 {
 	int right, alpha, i;
 
@@ -622,7 +637,7 @@ static void draw_stage_bg_fade_curtain_right(void)
 	 *  - カーテンの右端は0からconf_window_width+CURTAIN_WIDTHになる
 	 */
 	right = (int)((float)(conf_window_width + CURTAIN_WIDTH) *
-		      bg_fade_progress);
+		      fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (right < conf_window_width) {
@@ -633,7 +648,7 @@ static void draw_stage_bg_fade_curtain_right(void)
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (right >= CURTAIN_WIDTH) {
-		draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+		draw_image(back_image, 0, 0, layer_image[LAYER_FI],
 			   right - CURTAIN_WIDTH, conf_window_height, 0, 0,
 			   255, BLEND_NONE);
 	}
@@ -642,13 +657,13 @@ static void draw_stage_bg_fade_curtain_right(void)
 	for (alpha = 0, i = right; i >= right - CURTAIN_WIDTH; i--, alpha++) {
 		if (i < 0 || i >= conf_window_width)
 			continue;
-		draw_image(back_image, i, 0, layer_image[LAYER_BG_FI], 1,
+		draw_image(back_image, i, 0, layer_image[LAYER_FI], 1,
 			   conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
 }
 
 /* 左方向カーテンフェードの描画を行う */
-static void draw_stage_bg_fade_curtain_left(void)
+static void draw_stage_fi_fo_fade_curtain_left(void)
 {
 	int left, alpha, i;
 
@@ -658,7 +673,7 @@ static void draw_stage_bg_fade_curtain_left(void)
 	 */
 	left = conf_window_width -
 		(int)((float)(conf_window_width + CURTAIN_WIDTH) *
-		      bg_fade_progress);
+		      fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -668,7 +683,7 @@ static void draw_stage_bg_fade_curtain_left(void)
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (left <= conf_window_width - CURTAIN_WIDTH) {
 		draw_image(back_image, left + CURTAIN_WIDTH, 0,
-			   layer_image[LAYER_BG_FI],
+			   layer_image[LAYER_FI],
 			   conf_window_width - left - CURTAIN_WIDTH,
 			   conf_window_height, left + CURTAIN_WIDTH, 0, 255,
 			   BLEND_NONE);
@@ -678,13 +693,13 @@ static void draw_stage_bg_fade_curtain_left(void)
 	for (alpha = 0, i = left; i <= left + CURTAIN_WIDTH; i++, alpha++) {
 		if (i < 0 || i >= conf_window_width)
 			continue;
-		draw_image(back_image, i, 0, layer_image[LAYER_BG_FI], 1,
+		draw_image(back_image, i, 0, layer_image[LAYER_FI], 1,
 			   conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
 }
 
 /* 上方向カーテンフェードの描画を行う */
-static void draw_stage_bg_fade_curtain_up(void)
+static void draw_stage_fi_fo_fade_curtain_up(void)
 {
 	int top, alpha, i;
 
@@ -694,7 +709,7 @@ static void draw_stage_bg_fade_curtain_up(void)
 	 */
 	top = conf_window_height -
 		(int)((float)(conf_window_height + CURTAIN_WIDTH) *
-		      bg_fade_progress);
+		      fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -704,7 +719,7 @@ static void draw_stage_bg_fade_curtain_up(void)
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (top <= conf_window_height - CURTAIN_WIDTH) {
 		draw_image(back_image, 0, top + CURTAIN_WIDTH,
-			   layer_image[LAYER_BG_FI],
+			   layer_image[LAYER_FI],
 			   conf_window_width,
 			   conf_window_height - top - CURTAIN_WIDTH,
 			   0, top + CURTAIN_WIDTH, 255,
@@ -715,13 +730,13 @@ static void draw_stage_bg_fade_curtain_up(void)
 	for (alpha = 0, i = top; i <= top + CURTAIN_WIDTH; i++, alpha++) {
 		if (i < 0 || i >= conf_window_height)
 			continue;
-		draw_image(back_image, 0, i, layer_image[LAYER_BG_FI],
+		draw_image(back_image, 0, i, layer_image[LAYER_FI],
 			   conf_window_width, 1, 0, i, alpha, BLEND_FAST);
 	}
 }
 
 /* 下方向カーテンフェードの描画を行う */
-static void draw_stage_bg_fade_curtain_down(void)
+static void draw_stage_fi_fo_fade_curtain_down(void)
 {
 	int bottom, alpha, i;
 
@@ -730,7 +745,7 @@ static void draw_stage_bg_fade_curtain_down(void)
 	 *  - カーテンの下端は0からconf_window_height+CURTAIN_WIDTHになる
 	 */
 	bottom = (int)((float)(conf_window_height + CURTAIN_WIDTH) *
-		       bg_fade_progress);
+		       fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (bottom < conf_window_height) {
@@ -741,7 +756,7 @@ static void draw_stage_bg_fade_curtain_down(void)
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (bottom >= CURTAIN_WIDTH) {
-		draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+		draw_image(back_image, 0, 0, layer_image[LAYER_FI],
 			   conf_window_width, bottom - CURTAIN_WIDTH, 0, 0,
 			   255, BLEND_NONE);
 	}
@@ -751,13 +766,13 @@ static void draw_stage_bg_fade_curtain_down(void)
 	     i--, alpha++) {
 		if (i < 0 || i >= conf_window_height)
 			continue;
-		draw_image(back_image, 0, i, layer_image[LAYER_BG_FI],
+		draw_image(back_image, 0, i, layer_image[LAYER_FI],
 			   conf_window_width, 1, 0, i, alpha, BLEND_FAST);
 	}
 }
 
 /* 右方向スライドフェードの描画を行う */
-static void draw_stage_bg_fade_slide_right(void)
+static void draw_stage_fi_fo_fade_slide_right(void)
 {
 	int right;
 
@@ -765,10 +780,10 @@ static void draw_stage_bg_fade_slide_right(void)
 	 * スライドの右端を求める
 	 *  - スライドの右端は0からconf_window_widthになる
 	 */
-	right = (int)((float)conf_window_width * bg_fade_progress);
+	right = (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 左側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
 		   right, conf_window_height, conf_window_width - right, 0,
 		   255, BLEND_NONE);
 
@@ -779,7 +794,7 @@ static void draw_stage_bg_fade_slide_right(void)
 }
 
 /* 左方向スライドフェードの描画を行う */
-static void draw_stage_bg_fade_slide_left(void)
+static void draw_stage_fi_fo_fade_slide_left(void)
 {
 	int left;
 
@@ -788,10 +803,10 @@ static void draw_stage_bg_fade_slide_left(void)
 	 *  - スライドの左端はconf_window_widthから0になる
 	 */
 	left = conf_window_width -
-		(int)((float)conf_window_width * bg_fade_progress);
+		(int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 右側の背景を表示する */
-	draw_image(back_image, left, 0, layer_image[LAYER_BG_FI],
+	draw_image(back_image, left, 0, layer_image[LAYER_FI],
 		   conf_window_width - left, conf_window_height, 0, 0, 255,
 		   BLEND_NONE);
 
@@ -802,7 +817,7 @@ static void draw_stage_bg_fade_slide_left(void)
 }
 
 /* 上方向スライドフェードの描画を行う */
-static void draw_stage_bg_fade_slide_up(void)
+static void draw_stage_fi_fo_fade_slide_up(void)
 {
 	int top;
 
@@ -811,7 +826,7 @@ static void draw_stage_bg_fade_slide_up(void)
 	 *  - スライドの上端はconf_window_heightから0になる
 	 */
 	top = conf_window_height -
-		(int)((float)conf_window_height * bg_fade_progress);
+		(int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -819,13 +834,13 @@ static void draw_stage_bg_fade_slide_up(void)
 		   255, BLEND_NONE);
 
 	/* 下側の背景を表示する */
-	draw_image(back_image, 0, top, layer_image[LAYER_BG_FI],
+	draw_image(back_image, 0, top, layer_image[LAYER_FI],
 		   conf_window_width, conf_window_height - top, 0, 0, 255,
 		   BLEND_NONE);
 }
 
 /* 下方向スライドフェードの描画を行う */
-static void draw_stage_bg_fade_slide_down(void)
+static void draw_stage_fi_fo_fade_slide_down(void)
 {
 	int bottom;
 
@@ -833,10 +848,10 @@ static void draw_stage_bg_fade_slide_down(void)
 	 * スライドの下端を求める
 	 *  - スライドの下端は0からconf_window_heightになる
 	 */
-	bottom = (int)((float)conf_window_height * bg_fade_progress);
+	bottom = (int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
 		   conf_window_width, bottom, 0, conf_window_height - bottom,
 		   255, BLEND_NONE);
 
@@ -847,13 +862,13 @@ static void draw_stage_bg_fade_slide_down(void)
 }
 
 /* 時計回りフェードの描画を行う */
-static void draw_stage_bg_fade_clockwise(void)
+static void draw_stage_fi_fo_fade_clockwise(void)
 {
 	const float PI = 3.14159265f;
 	float hand_len;
 	int hand_x, hand_y, center_x, center_y, i, min, max;
 
-	assert(bg_fade_progress >= 0 && bg_fade_progress <= 1.0f);
+	assert(fi_fo_fade_progress >= 0 && fi_fo_fade_progress <= 1.0f);
 
 	/* フェードアウトする背景の描画を行う */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -866,46 +881,47 @@ static void draw_stage_bg_fade_clockwise(void)
 	hand_len = (conf_window_width > conf_window_height) ?
 		(float)conf_window_width : (float)conf_window_height;
 	hand_x = center_x + (int)(hand_len *
-				  sinf(PI - 2.0f * PI * bg_fade_progress));
+				  sinf(PI - 2.0f * PI * fi_fo_fade_progress));
 	hand_y = center_y + (int)(hand_len *
-				  cosf(PI - 2.0f * PI * bg_fade_progress));
+				  cosf(PI - 2.0f * PI * fi_fo_fade_progress));
 
 	/* 第一象限を埋める */
-	if (bg_fade_progress >= 0.25f) {
-		draw_image(back_image, center_x, 0, layer_image[LAYER_BG_FI],
+	if (fi_fo_fade_progress >= 0.25f) {
+		draw_image(back_image, center_x, 0, layer_image[LAYER_FI],
 			   center_x, center_y, center_x, 0, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
-	if (bg_fade_progress >= 0.5f) {
+	if (fi_fo_fade_progress >= 0.5f) {
 		draw_image(back_image, center_x, center_y,
-			   layer_image[LAYER_BG_FI], center_x, center_y,
+			   layer_image[LAYER_FI], center_x, center_y,
 			   center_x, center_y, 255, BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
-	if (bg_fade_progress >= 0.75f) {
-		draw_image(back_image, 0, center_y, layer_image[LAYER_BG_FI],
+	if (fi_fo_fade_progress >= 0.75f) {
+		draw_image(back_image, 0, center_y, layer_image[LAYER_FI],
 			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* エッジをスキャンする */
 	clear_scbuf();
-	if (bg_fade_progress < 0.25f) {
+	if (fi_fo_fade_progress < 0.25f) {
 		/* 第一象限を処理する */
 		scan_edge_min(center_x, 0, center_x, conf_window_height);
 		scan_edge_max(conf_window_width, 0, conf_window_width, hand_y);
 		scan_edge_max(center_x, center_y, hand_x, hand_y);
-	} else if (bg_fade_progress < 0.5f) {
+	} else if (fi_fo_fade_progress < 0.5f) {
 		/* 第四象限を処理する */
 		scan_edge_min(center_x, center_y, hand_x, hand_y);
 		scan_edge_max(conf_window_width, center_y, conf_window_width,
 			      conf_window_height);
-	} else if (bg_fade_progress < 0.75f) {
+	} else if (fi_fo_fade_progress < 0.75f) {
 		/* 第三象限を処理する */
 		scan_edge_min(0, center_y, 0, conf_window_height);
 		scan_edge_min(center_x, center_y, hand_x, hand_y);
-		scan_edge_max(center_x, center_y, center_x, conf_window_height);
+		scan_edge_max(center_x, center_y, center_x,
+			      conf_window_height);
 	} else {
 		/* 第二象限を処理する */
 		scan_edge_min(0, 0, 0, center_y);
@@ -920,19 +936,19 @@ static void draw_stage_bg_fade_clockwise(void)
 			continue;
 
 		/* 走査線を描画する */
-		draw_image(back_image, min, i, layer_image[LAYER_BG_FI],
+		draw_image(back_image, min, i, layer_image[LAYER_FI],
 			   max - min + 1, 1, min, i, 255, BLEND_NONE);
 	}
 }
 
 /* 反時計回りフェードの描画を行う */
-static void draw_stage_bg_fade_counterclockwise(void)
+static void draw_stage_fi_fo_fade_counterclockwise(void)
 {
 	const float PI = 3.14159265f;
 	float hand_len;
 	int hand_x, hand_y, center_x, center_y, i, min, max;
 
-	assert(bg_fade_progress >= 0 && bg_fade_progress <= 1.0f);
+	assert(fi_fo_fade_progress >= 0 && fi_fo_fade_progress <= 1.0f);
 
 	/* フェードアウトする背景の描画を行う */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -945,43 +961,44 @@ static void draw_stage_bg_fade_counterclockwise(void)
 	hand_len = (conf_window_width > conf_window_height) ?
 		(float)conf_window_width : (float)conf_window_height;
 	hand_x = center_x + (int)(hand_len *
-				  sinf(2.0f * PI * bg_fade_progress - PI));
+				  sinf(2.0f * PI * fi_fo_fade_progress - PI));
 	hand_y = center_y + (int)(hand_len *
-				  cosf(2.0f * PI * bg_fade_progress - PI));
+				  cosf(2.0f * PI * fi_fo_fade_progress - PI));
 
-	draw_image(back_image, hand_x, hand_y, layer_image[LAYER_BG_FI], 100, 100, 0, 0, 255, BLEND_NONE);
+	draw_image(back_image, hand_x, hand_y, layer_image[LAYER_FI], 100,
+		   100, 0, 0, 255, BLEND_NONE);
 
 	/* 第二象限を埋める */
-	if (bg_fade_progress >= 0.25f) {
-		draw_image(back_image, 0, 0, layer_image[LAYER_BG_FI],
+	if (fi_fo_fade_progress >= 0.25f) {
+		draw_image(back_image, 0, 0, layer_image[LAYER_FI],
 			   center_x, center_y, 0, 0, 255, BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
-	if (bg_fade_progress >= 0.5f) {
-		draw_image(back_image, 0, center_y, layer_image[LAYER_BG_FI],
+	if (fi_fo_fade_progress >= 0.5f) {
+		draw_image(back_image, 0, center_y, layer_image[LAYER_FI],
 			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
-	if (bg_fade_progress >= 0.75f) {
+	if (fi_fo_fade_progress >= 0.75f) {
 		draw_image(back_image, center_x, center_y,
-			   layer_image[LAYER_BG_FI], center_x, center_y,
-			   center_x, center_y, 255, BLEND_NONE);
+			   layer_image[LAYER_FI], center_x, center_y, center_x,
+			   center_y, 255, BLEND_NONE);
 	}
 
 	/* エッジをスキャンする */
 	clear_scbuf();
-	if (bg_fade_progress < 0.25f) {
+	if (fi_fo_fade_progress < 0.25f) {
 		/* 第二象限を処理する */
 		scan_edge_min(0, 0, 0, hand_y);
 		scan_edge_min(center_x, center_y, hand_x, hand_y);
 		scan_edge_max(center_x - 1, 0, center_x - 1, center_y);
-	} else if (bg_fade_progress < 0.5f) {
+	} else if (fi_fo_fade_progress < 0.5f) {
 		/* 第三象限を処理する */
 		scan_edge_min(0, center_y, 0, conf_window_height);
 		scan_edge_max(center_x, center_y, hand_x, hand_y);
-	} else if (bg_fade_progress < 0.75f) {
+	} else if (fi_fo_fade_progress < 0.75f) {
 		/* 第四象限を処理する */
 		scan_edge_min(center_x, center_y, center_x,
 			      conf_window_height);
@@ -1003,53 +1020,9 @@ static void draw_stage_bg_fade_counterclockwise(void)
 			continue;
 	
 		/* 走査線を描画する */
-		draw_image(back_image, min, i, layer_image[LAYER_BG_FI],
+		draw_image(back_image, min, i, layer_image[LAYER_FI],
 			   max - min + 1, 1, min, i, 255, BLEND_NONE);
 	}
-}
-
-/*
- * キャラフェードモードが有効な際のステージ描画を行う
- */
-void draw_stage_ch_fade(int fade_method)
-{
-	assert(!is_save_mode());
-	assert(stage_mode == STAGE_MODE_CH_FADE);
-
-	switch (fade_method) {
-	case CH_FADE_METHOD_NORMAL:
-		draw_stage_ch_fade_normal();
-		break;
-	case CH_FADE_METHOD_MASK:
-		draw_stage_ch_fade_mask();
-		break;
-	default:
-		assert(INVALID_CH_FADE_METHOD);
-		break;
-	}
-}
-
-static void draw_stage_ch_fade_normal(void)
-{
-	draw_layer_image(back_image, LAYER_FO);
-	draw_layer_image(back_image, LAYER_FI);
-}
-
-static void draw_stage_ch_fade_mask(void)
-{
-	int mask_index;
-
-	/* アルファ値からマスクインデックスを求める */
-	mask_index = (int)((float)DRAW_IMAGE_MASK_LEVELS *
-			   (float)layer_alpha[LAYER_FI] / 255.0f);
-
-	/* 古い背景を描画する */
-	draw_layer_image(back_image, LAYER_FO);
-
-	/* 新しい背景をマスクつきで描画する */
-	draw_image_mask(back_image, 0, 0, layer_image[LAYER_FI],
-			conf_window_width, conf_window_height, 0, 0,
-			mask_index);
 }
 
 /*
@@ -1145,6 +1118,87 @@ void draw_stage_history(void)
  */
 
 /*
+ * 文字列からフェードメソッドを取得する
+ */
+int get_fade_method(const char *method)
+{
+	/*
+	 * ノーマルフェード
+	 */
+
+	if (strcmp(method, "normal") == 0 ||
+	    strcmp(method, "n") == 0 ||
+	    strcmp(method, "") == 0)
+		return FADE_METHOD_NORMAL;
+
+	/*
+	 * マスクフェード
+	 */
+
+	if (strcmp(method, "mask") == 0 ||
+	    strcmp(method, "m") == 0)
+		return FADE_METHOD_MASK;
+
+	/*
+	 * カーテンフェード
+	 */
+
+	/* カーテンが右方向だけだった頃との互換性のため、省略形が複数ある */
+	if (strcmp(method, "curtain-right") == 0 ||
+	    strcmp(method, "curtain") == 0 ||
+	    strcmp(method, "cr") == 0 ||
+	    strcmp(method, "c") == 0)
+		return FADE_METHOD_CURTAIN_RIGHT;
+
+	if (strcmp(method, "curtain-left") == 0 ||
+	    strcmp(method, "cl") == 0)
+		return FADE_METHOD_CURTAIN_LEFT;
+
+	if (strcmp(method, "curtain-up") == 0 ||
+	    strcmp(method, "cu") == 0)
+		return FADE_METHOD_CURTAIN_UP;
+
+	if (strcmp(method, "curtain-down") == 0 ||
+	    strcmp(method, "cd") == 0)
+		return FADE_METHOD_CURTAIN_DOWN;
+
+	/*
+	 * スライドフェード
+	 */
+
+	if (strcmp(method, "slide-right") == 0 ||
+	    strcmp(method, "sr") == 0)
+		return FADE_METHOD_SLIDE_RIGHT;
+
+	if (strcmp(method, "slide-left") == 0 ||
+	    strcmp(method, "sl") == 0)
+		return FADE_METHOD_SLIDE_LEFT;
+
+	if (strcmp(method, "slide-up") == 0 ||
+	    strcmp(method, "su") == 0)
+		return FADE_METHOD_SLIDE_UP;
+
+	if (strcmp(method, "slide-down") == 0 ||
+	    strcmp(method, "sd") == 0)
+		return FADE_METHOD_SLIDE_DOWN;
+
+	/*
+	 * 時計フェード
+	 */
+
+	if (strcmp(method, "clockwise") == 0 ||
+	    strcmp(method, "cw") == 0)
+		return FADE_METHOD_CLOCKWISE;
+
+	if (strcmp(method, "counterclockwise") == 0 ||
+	    strcmp(method, "ccw") == 0)
+		return FADE_METHOD_COUNTERCLOCKWISE;
+
+	/* 不正なフェード指定 */
+	return FADE_METHOD_INVALID;
+}
+
+/*
  * 背景のファイル名を設定する
  */
 bool set_bg_file_name(const char *file)
@@ -1200,7 +1254,11 @@ void start_bg_fade(struct image *img)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
 
 	/* フェードイン用のレイヤにイメージをセットする */
-	layer_image[LAYER_BG_FI] = img;
+	new_bg_img = img;
+
+	/* フェードイン用のレイヤに背景を描画する */
+	draw_image(layer_image[LAYER_FI], 0, 0, img, conf_window_width,
+		   conf_window_width, 0, 0, 255, BLEND_NONE);
 
 	/* 無効になるレイヤのイメージを破棄する */
 	destroy_layer_image(LAYER_BG);
@@ -1218,10 +1276,10 @@ void set_bg_fade_progress(float progress)
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	/* 進捗率を保存する */
-	bg_fade_progress = progress;
+	fi_fo_fade_progress = progress;
 
 	/* アルファ値に変換する */
-	layer_alpha[LAYER_BG_FI] = (uint8_t)(progress * 255.0f);
+	layer_alpha[LAYER_FI] = (uint8_t)(progress * 255.0f);
 }
 
 /*
@@ -1233,8 +1291,8 @@ void stop_bg_fade(void)
 
 	stage_mode = STAGE_MODE_IDLE;
 	destroy_layer_image(LAYER_BG);
-	layer_image[LAYER_BG] = layer_image[LAYER_BG_FI];
-	layer_image[LAYER_BG_FI] = NULL;
+	layer_image[LAYER_BG] = new_bg_img;
+	new_bg_img = NULL;
 }
 
 /*
@@ -1444,6 +1502,10 @@ void set_ch_fade_progress(float progress)
 {
 	assert(stage_mode == STAGE_MODE_CH_FADE);
 
+	/* 進捗率を保存する */
+	fi_fo_fade_progress = progress;
+
+	/* アルファ値に変換する */
 	layer_alpha[LAYER_FI] = (uint8_t)(progress * 255.0f);
 }
 

@@ -69,9 +69,9 @@ static bool init(void)
 	span = get_float_param(BG_PARAM_SPAN);
 	method = get_string_param(BG_PARAM_METHOD);
 
-	/* 描画メソッドを識別する */
-	fade_method = get_bg_fade_method(method);
-	if (fade_method == BG_FADE_METHOD_INVALID) {
+ 	/* 描画メソッドを識別する */
+	fade_method = get_fade_method(method);
+	if (fade_method == FADE_METHOD_INVALID) {
 		log_script_fade_method(method);
 		log_script_exec_footer();
 		return false;
@@ -172,83 +172,4 @@ static bool cleanup(void)
 		return false;
 
 	return true;
-}
-
-/* フェードメソッドを取得する */
-static int get_bg_fade_method(const char *method)
-{
-	/*
-	 * ノーマルフェード
-	 */
-
-	if (strcmp(method, "normal") == 0 ||
-	    strcmp(method, "n") == 0 ||
-	    strcmp(method, "") == 0)
-		return BG_FADE_METHOD_NORMAL;
-
-	/*
-	 * マスクフェード
-	 */
-
-	if (strcmp(method, "mask") == 0 ||
-	    strcmp(method, "m") == 0)
-		return BG_FADE_METHOD_MASK;
-
-	/*
-	 * カーテンフェード
-	 */
-
-	/* カーテンが右方向だけだった頃との互換性のため、省略形が複数ある */
-	if (strcmp(method, "curtain-right") == 0 ||
-	    strcmp(method, "curtain") == 0 ||
-	    strcmp(method, "cr") == 0 ||
-	    strcmp(method, "c") == 0)
-		return BG_FADE_METHOD_CURTAIN_RIGHT;
-
-	if (strcmp(method, "curtain-left") == 0 ||
-	    strcmp(method, "cl") == 0)
-		return BG_FADE_METHOD_CURTAIN_LEFT;
-
-	if (strcmp(method, "curtain-up") == 0 ||
-	    strcmp(method, "cu") == 0)
-		return BG_FADE_METHOD_CURTAIN_UP;
-
-	if (strcmp(method, "curtain-down") == 0 ||
-	    strcmp(method, "cd") == 0)
-		return BG_FADE_METHOD_CURTAIN_DOWN;
-
-	/*
-	 * スライドフェード
-	 */
-
-	if (strcmp(method, "slide-right") == 0 ||
-	    strcmp(method, "sr") == 0)
-		return BG_FADE_METHOD_SLIDE_RIGHT;
-
-	if (strcmp(method, "slide-left") == 0 ||
-	    strcmp(method, "sl") == 0)
-		return BG_FADE_METHOD_SLIDE_LEFT;
-
-	if (strcmp(method, "slide-up") == 0 ||
-	    strcmp(method, "su") == 0)
-		return BG_FADE_METHOD_SLIDE_UP;
-
-	if (strcmp(method, "slide-down") == 0 ||
-	    strcmp(method, "sd") == 0)
-		return BG_FADE_METHOD_SLIDE_DOWN;
-
-	/*
-	 * 時計フェード
-	 */
-
-	if (strcmp(method, "clockwise") == 0 ||
-	    strcmp(method, "cw") == 0)
-		return BG_FADE_METHOD_CLOCKWISE;
-
-	if (strcmp(method, "counterclockwise") == 0 ||
-	    strcmp(method, "ccw") == 0)
-		return BG_FADE_METHOD_COUNTERCLOCKWISE;
-
-	/* 不正なフェード指定 */
-	return BG_FADE_METHOD_INVALID;
 }

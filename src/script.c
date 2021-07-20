@@ -83,7 +83,7 @@ struct insn_item {
 	{"@cha", COMMAND_CHA, 6, 6},
 	{"@shake", COMMAND_SHAKE, 4, 4},
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
-	{"@chs", COMMAND_CHS, 5, 6},
+	{"@chs", COMMAND_CHS, 4, 7},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))

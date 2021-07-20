@@ -469,6 +469,7 @@ enum chs_command_param {
 	CHS_PARAM_BACK,
 	CHS_PARAM_SPAN,
 	CHS_PARAM_BG,
+	CHS_PARAM_METHOD,
 };
 
 /*

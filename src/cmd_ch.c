@@ -15,12 +15,11 @@
 
 static stop_watch_t sw;
 static float span;
-static int ch_fade_method;
+static int fade_method;
 
 static bool init(void);
 static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 			 struct image *img);
-static bool get_fade(const char *method);
 static int get_alpha(const char *alpha);
 static void draw(void);
 static bool cleanup(void);
@@ -90,8 +89,13 @@ static bool init(void)
 	ypos += ofs_y;
 
 	/* フェードの種類を求める */
-	if (!get_fade(method))
+	fade_method = get_fade_method(method);
+	if (fade_method == FADE_METHOD_INVALID) {
+		/* スクリプト実行エラー */
+		log_script_fade_method(method);
+		log_script_exec_footer();
 		return false;
+	}
 
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
@@ -161,23 +165,6 @@ static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 	return true;
 }
 
-/* フェードの種類を取得する */
-static bool get_fade(const char *method)
-{
-	if (strcmp(method, "normal") == 0 || strcmp(method, "n") == 0 ||
-	    strcmp(method, "") == 0) {
-		ch_fade_method = CH_FADE_METHOD_NORMAL;
-	} else if (strcmp(method, "mask") == 0 || strcmp(method, "m") == 0) {
-		ch_fade_method = CH_FADE_METHOD_MASK;
-	} else {
-		/* スクリプト実行エラー */
-		log_script_fade_method(method);
-		log_script_exec_footer();
-		return false;
-	}
-	return true;
-}
-
 /* アルファ値を取得する */
 static int get_alpha(const char *alpha)
 {
@@ -220,7 +207,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_ch_fade(ch_fade_method);
+		draw_stage_ch_fade(fade_method);
 	else
 		draw_stage();
 }

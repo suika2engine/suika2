@@ -18,6 +18,7 @@
 
 static stop_watch_t sw;
 static float span;
+static int fade_method;
 
 static bool init(void);
 static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
@@ -57,6 +58,7 @@ static bool init(void)
 	bool stay[PARAM_SIZE];
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
+	const char *method;
 	int i;
 
 	/* パラメータを取得する */
@@ -66,6 +68,15 @@ static bool init(void)
 	fname[CH_BACK] = get_string_param(CHS_PARAM_BACK);
 	fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
 	span = get_float_param(CHS_PARAM_SPAN);
+	method = get_string_param(CHS_PARAM_METHOD);
+
+	/* 描画メソッドを識別する */
+	fade_method = get_fade_method(method);
+	if (fade_method == FADE_METHOD_INVALID) {
+		log_script_fade_method(method);
+		log_script_exec_footer();
+		return false;
+	}
 
 	/* 各キャラと背景について */
 	for (i = 0; i < PARAM_SIZE; i++) {
@@ -210,7 +221,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_ch_fade(CH_FADE_METHOD_NORMAL);
+		draw_stage_ch_fade(fade_method);
 	else
 		draw_stage();
 }
