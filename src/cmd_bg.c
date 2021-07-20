@@ -34,7 +34,6 @@ static struct image *img;
 static bool init(void);
 static void draw(void);
 static bool cleanup(void);
-static int get_bg_fade_method(const char *method);
 
 /*
  * bgコマンド
