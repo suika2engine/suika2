@@ -1,9 +1,9 @@
-Suika 2 Tutorial
+Suika2 Tutorial
 ================
 
-Welcome to the world of Suika 2!
+Welcome to the world of Suika2!
 
-This document explains how to make a visual novel using Suika 2.
+This document explains how to make a visual novel using Suika2.
 The tutorial is very easy.
 
 Are you ready? Let's get started!
@@ -12,13 +12,13 @@ Are you ready? Let's get started!
 
 We use Windows here.
 
-Firstly, [download](https://luxion.jp/s2/en/) the Suika 2 binary.
+Firstly, [download](https://luxion.jp/s2/en/) the Suika2 binary.
 
 Extract the downloaded ZIP file. We see the following file and folders.
-`suika.exe` is the executable file of Suika 2. Other folders include a sample
+`suika.exe` is the executable file of Suika2. Other folders include a sample
 game.
 
-* `suika2`
+* `suika2/`
     * `bg/` A folder to store background image files.
     * `bgm/` A folder to store background music files.
     * `cg/` A folder to store system image files such as for message boxes.
@@ -45,7 +45,7 @@ This tutorial makes changes to the sample game.
 ## Open script file
 
 We can find a file named `init.txt` in the `txt` folder.
-This file is the first script file to be loaded after Suika 2 starts.
+This file is the first script file to be loaded after Suika2 starts.
 If you open this file with a text editor, you'll see that the script file is
 just a plain-text file.
 
@@ -64,7 +64,7 @@ and you can't use Notepad.
 ```
 
 After saving it, run `suika.exe`.
-Suika 2 will show a roof terrace, wait for a click, and then exit.
+Suika2 will show a roof terrace, wait for a click, and then exit.
 
 `@bg` is the command to show the background image.
 `roof.png` is a file inside the `bg` folder.
@@ -82,7 +82,7 @@ Replace the content of `init.txt` as follows.
 ```
 
 After saving it, run `suika.exe`.
-Suika 2 will show a roof terrace, a character, wait for a click, and then exit.
+Suika2 will show a roof terrace, a character, wait for a click, and then exit.
 
 `@ch` is the command to show a character.
 `center` is the horizontal position to show a character.
@@ -104,7 +104,7 @@ Hi, my name is Midori.
 ```
 
 After saving it, run `suika.exe`.
-Suika 2 will show a roof terrace, a character, three messages, and then exit.
+Suika2 will show a roof terrace, a character, three messages, and then exit.
 
 Any script lines which don't start with @ or \* are recognized as messages.
 
@@ -121,11 +121,11 @@ Playing BGM.
 ```
 
 After saving it, run `suika.exe`.
-Suika 2 will play music.
+Suika2 will play music.
 `@bgm` is the command to play BGM.
 `01.ogg` is a file inside the `bgm` folder.
 
-Suika 2 can only play sound files encoded using Ogg Vorbis 44.1kHz stereo or monaural format.
+Suika2 can only play sound files encoded using Ogg Vorbis 44.1kHz stereo or monaural format.
 
 ## Show options
 
@@ -149,7 +149,7 @@ I'm home sick from school.
 ```
 
 After saving it, run `suika.exe`.
-Suika 2 will show three options.
+Suika2 will show three options.
 `@select` is the command to show options.
 `label1`, `label2` and `label3` are jump destinations.
 Option messages follow labels.
@@ -183,7 +183,7 @@ I found money on the ground.
 ```
 
 After saving it, run `suika.exe`.
-Suika 2 will show three options.
+Suika2 will show three options.
 If you choose "By foot.", the message "I found money on the ground." is shown.
 
 Here, we use a combination of `@set` and `@if`.
@@ -221,7 +221,7 @@ Quit.
 ```
 
 After saving it, run `suika.exe`.
-Suika 2 will show the title screen of the sample game.
+Suika2 will show the title screen of the sample game.
 
 Let's look in more detail.
 
@@ -259,7 +259,7 @@ moved to second.txt
 ```
 
 After saving these files, run `suika.exe`.
-Suika 2 will show "moved to second.txt" after "inside init.txt".
+Suika2 will show "moved to second.txt" after "inside init.txt".
 
 `@load` is the command to jump to a specified script file.
 
@@ -272,4 +272,4 @@ on. Follow these steps.
 2. Double click `package-win.exe`. It will create a file, `data01.arc`.
 3. We should only distribute `suika.exe` and `data01.arc`.
 
-When we have the package and a normal file, Suika 2 uses the normal file.
+When we have the package and a normal file, Suika2 uses the normal file.

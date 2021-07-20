@@ -1,5 +1,5 @@
-Suika 2 Command Reference
-=========================
+Suika2 Command Reference
+========================
 
 ## @bg
 
@@ -45,7 +45,7 @@ character images vanish from the stage.
 
 This command plays BGM.
 BGM files need to be stored in the `bgm` folder.
-Suika 2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
+Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
 * Usage 1: Plays `sample.ogg`.
 ```
@@ -168,7 +168,7 @@ Effects specifiers are the same as `@bg`.
 
 ## @click
 
-This command instructs Suika 2 to wait for a click before continuing.
+This command instructs Suika2 to wait for a click before continuing.
 While waiting for a click, the message box is hidden.
 
 * Usage:
@@ -347,7 +347,7 @@ Describe the process here.
 
 This command plays sound effects.
 Sound effect files need to be in the `se` folder.
-Suika 2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
+Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
 * Usage:
 ```
@@ -382,9 +382,9 @@ Good evening.
 
 This prints text to the message box, and the character name to the name box.
 
-Suika 2 can play voice files when printing messages.
+Suika2 can play voice files when printing messages.
 Voice files need to be in the `voice` folder.
-Suika 2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
+Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
 * Usage 1: Prints a message with the character name.
 ```
@@ -517,8 +517,8 @@ If you want to set global master volumes which are common between save files, yo
 
 ## @wait
 
-This command instructs Suika 2 to wait for input from the keyboard or mouse before continuing.
-Input from the keyboard or mouse will interrupt `@wait` (thus allowing Suika 2 to continue).
+This command instructs Suika2 to wait for input from the keyboard or mouse before continuing.
+Input from the keyboard or mouse will interrupt `@wait` (thus allowing Suika2 to continue).
 While waiting for input, the message box is hidden.
 
 * Usage: Waits for 5 seconds.
