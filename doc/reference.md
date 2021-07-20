@@ -141,22 +141,29 @@ Refer to `@ch` section for details of the specifier of character position and al
 
 ## @chs
 
-Changes characters at once. In addition, changes background at the same time.
+This command changes the characters at once.
+In addition, it changes background at the same time.
 Character specification order is `center`, `right`, `left` and `back`.
+Effects specifiers are the same as `@bg`.
 
 * Usage 1: Changes center and right characters with a 1.0 second fade time. Other characters will not be changed.
 ```
 @chs center.png right.png stay stay 1.0
 ```
 
-* Usage 2: Vanish center character with a 1.0 second fade. Other characters will not be changed.
+* Usage 2: Vanishes center character with a 1.0 second fade time. Other characters will not be changed.
 ```
 @chs none stay stay stay 1.0
 ```
 
-* Usage 3: Change background without any changes on characters with a 1.0 second fade.
+* Usage 3: Changes background without any changes on characters with a 1.0 second fade time.
 ```
 @chs stay stay stay stay 1.0 background.png
+```
+
+* Usage 4: Changes center character and background with a 1.0 second fade time. Uses curtain effect.
+```
+@chs center.png stay stay stay 1.0 background.png curtain
 ```
 
 ## @click
