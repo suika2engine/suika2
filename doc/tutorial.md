@@ -4,7 +4,7 @@ Suika2 Tutorial
 Welcome to the world of Suika2!
 
 This document explains how to make a visual novel using Suika2.
-The tutorial is very easy.
+It's very easy.
 
 Are you ready? Let's get started!
 
@@ -15,7 +15,7 @@ We use Windows here.
 Firstly, [download](https://luxion.jp/s2/en/) the Suika2 binary.
 
 Extract the downloaded ZIP file. We see the following file and folders.
-`suika.exe` is the executable file of Suika2. Other folders include a sample
+`suika.exe` is the Sukia2 executable file. Other folders include a sample
 game.
 
 * `suika2/`
@@ -51,12 +51,12 @@ just a plain-text file.
 
 ## Show background image
 
-As a first step, we'll change the background image.
+For our first step, we'll change the background image.
 This is the most basic command.
 
-Replace the content of `init.txt` as follows.
-Note that the character encoding is UTF-8 without BOM,
-and you can't use Notepad.
+Replace the contents of `init.txt` as follows:
+(Note that the character encoding is UTF-8 without BOM,
+and you can't use Notepad.)
 
 ```
 @bg roof.png 1.0
@@ -66,14 +66,14 @@ and you can't use Notepad.
 After saving it, run `suika.exe`.
 Suika2 will show a roof terrace, wait for a click, and then exit.
 
-`@bg` is the command to show the background image.
+`@bg` is the command to show a background image.
 `roof.png` is a file inside the `bg` folder.
-`1.0` is the fade-in time counted by seconds.
+`1.0` is the fade-in time counted in seconds.
 
 ## Show character image
 
 Showing character images is mostly the same as the `@bg` command.
-Replace the content of `init.txt` as follows.
+Replace the contents of `init.txt` as follows:
 
 ```
 @bg roof.png 1.0
@@ -93,7 +93,7 @@ Suika2 will show a roof terrace, a character, wait for a click, and then exit.
 
 Showing dialogue is fundamental to visual novels.
 You can print text in the message box.
-Replace the content of `init.txt` as follows.
+Replace the contents of `init.txt` as follows:
 
 ```
 @bg roof.png 1.0
@@ -111,7 +111,7 @@ Any script lines which don't start with @ or \* are recognized as messages.
 ## Play BGM
 
 You can play BGM using the `@bgm` command.
-Replace the content of `init.txt` as follows.
+Replace the contents of `init.txt` as follows:
 
 ```
 @bgm 01.ogg
@@ -130,7 +130,7 @@ Suika2 can only play sound files encoded using Ogg Vorbis 44.1kHz stereo or mona
 ## Show options
 
 A game may have options for multiple endings.
-Replace the content of `init.txt` as follows.
+Replace the contents of `init.txt` as follows:
 
 ```
 @bg roof.png 1.0
@@ -157,10 +157,10 @@ Option messages follow labels.
 `:label1` is a label to specify a jump destination.
 Label lines are ignored when they are executed.
 
-## Set flag and branch
+## Set a flag and branch
 
-Next, we set flag and branch.
-Replace the content of `init.txt` as follows.
+Next, we set a flag and create a branch.
+Replace the contents of `init.txt` as follows:
 
 ```
 @bg roof.png 1.0
@@ -203,7 +203,7 @@ All variables are initially zero.
 ## Show menu
 
 You can make a menu screen.
-Replace the content of `init.txt` as follows.
+Replace the contents of `init.txt` as follows:
 
 ```
 :MENU
@@ -223,7 +223,7 @@ Quit.
 After saving it, run `suika.exe`.
 Suika2 will show the title screen of the sample game.
 
-Let's look in more detail.
+Let's look at this in more detail:
 
 `@menu` is the command to show the menu screen. It uses two images.
 `@menu menu.png menu_selected.png` means we use `menu.png` and `menu_selected.png` in the `bg` folder.
@@ -239,9 +239,9 @@ We can make up to four buttons.
 ## Split script file
 
 It is difficult for authors to maintain a single large script file.
-We have a way to split script files.
+Hence, we have a way to split script files.
 
-Replace the content of `init.txt` as follows.
+Replace the contents of `init.txt` as follows:
 
 * init.txt
 ```
@@ -266,10 +266,10 @@ Suika2 will show "moved to second.txt" after "inside init.txt".
 ## Create package
 
 We can create a single package file to contain scripts, images, sounds and so
-on. Follow these steps.
+on. Follow these steps:
 
 1. Move `package-win.exe` from the `tool` folder into the folder where `suika.exe` exists.
 2. Double click `package-win.exe`. It will create a file, `data01.arc`.
 3. We should only distribute `suika.exe` and `data01.arc`.
 
-When we have the package and a normal file, Suika2 uses the normal file.
+When we have both the package and a normal file, Suika2 uses the normal file.
