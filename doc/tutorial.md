@@ -6,11 +6,11 @@ Welcome to the world of Suika2!
 This document explains how to make a visual novel using Suika2.
 It's very easy.
 
-Are you ready? Let's get started!
+Ready? Let's get started!
 
 ## Preparation
 
-We use Windows here.
+We'll use Windows here.
 
 Firstly, [download](https://luxion.jp/s2/en/) the Suika2 binary.
 
