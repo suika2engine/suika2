@@ -5,11 +5,11 @@ Suika2 Command Reference
 
 This command changes the background image.
 After changing the background image,
-character images vanish from the stage.
+all character images vanish from the stage.
 
-* You can specify following effects:
-    * `normal`, `n` or not-specified -> default alpha blending
-    * `mask` or `m` → 28-level pointillism
+* You can specify the following effects:
+    * `normal`, `n` or not-specified -> fade/dissolve (alpha blending)
+    * `mask` or `m` -> dissolve from radiating points
     * `curtain-right`, `curtain`, `cr` or `c` -> right curtain
     * `curtain-left` or `cl` -> left curtain
     * `curtain-up` or `cu` -> up curtain
@@ -18,8 +18,8 @@ character images vanish from the stage.
     * `slide-left` or `sl` -> left slide
     * `slide-up` or `su` -> up slide
     * `slide-down` or `sd` -> down slide
-    * `clockwise` or `cw` -> clockwise
-    * `counterclockwise` or `ccw` -> counterclockwise
+    * `clockwise` or `cw` -> clockwise wipe
+    * `counterclockwise` or `ccw` -> counterclockwise wipe
 
 * Usage 1: Changes the background image to `sample.png` with a 1.5 second fade-in time.
 ```
@@ -69,14 +69,14 @@ Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 This command changes the character.
 
 * Character positions are:
-    * `center` (front center)
+    * `center` or `c` (front center)
     * `right`
     * `left`
     * `back` (back center)
 
 * Effects are:
-    * `normal`, `n` or not-specified -> alpha blending
-    * `mask` or `m` -> 28-level pointillism
+    * `normal`, `n` or not-specified -> fade/dissolve (alpha blending)
+    * `mask` or `m` -> dissolve from radiating points
 
 * Usage 1: Displays `sample.png` in 0.5 seconds at front center.
 ```
@@ -98,17 +98,17 @@ This command changes the character.
 @ch c sample.png
 ```
 
-* Usage 5: Specify effect.
+* Usage 5: Specifying an effect.
 ```
 @ch c sample.png 1.0 mask
 ```
 
-* Usage 6: Specify offset of character position. Following example does 100-pixel right shift and 50-pixel down shift.
+* Usage 6: Specifying offset of character position. Following example does 100-pixel right shift and 50-pixel down shift.
 ```
 @ch c sample.png 1.0 n 100 50
 ```
 
-* Usage 7: In order to set animation origin, load character image with alpha value. The range of alpha value is `0` to `255`. You can also specify `show` as `255` or `hide` as `0`.
+* Usage 7: In order to set animation origin, load character image with alpha value. The alpha value ranges from `0` to `255`. You can also specify `show` which is equivalent to `255` or `hide` which is `0`.
 ```
 @ch c sample.png 1.0 n 0 0 show
 ```
@@ -116,9 +116,9 @@ This command changes the character.
 ## @cha
 
 This command moves a character image.
-Refer to `@ch` section for details of the specifier of character position and alpha value.
+Refer to `@ch` section for details on how to specify character position and alpha value.
 
-* Usage 1: Moves the center character to 600-px left and hide it with a 1.0 second animation time.
+* Usage 1: Moves the center character to 600-px left and hides it with a 1.0 second animation time.
 ```
 @cha center 1.0 move -600 0 hide
 ```
@@ -201,12 +201,12 @@ Describe the process here.
 @goto abc
 ```
 
-* Usage 2: Show load screen.
+* Usage 2: Shows load screen.
 ```
 @goto $LOAD
 ```
 
-* Usage 3: Show save screen.
+* Usage 3: Shows save screen.
 ```
 @goto $SAVE
 ```
@@ -236,8 +236,8 @@ Variable 1 is less than 10.
 
 ## Label
 
-This creates a label to be used as a jump target.
-Use with `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch`.
+This creates a label, which can be used as a jump target.
+They are used with the `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch` commands.
 
 * Usage:
 ```
@@ -261,9 +261,9 @@ Script files need to be in the `txt` folder.
 This command displays a menu using two images.
 `@menu` can create up to 16 buttons.
 
-Basically the first image is displayed,
-but while a button is pointed at by the mouse,
-the area of the button is changed to the second image.
+Basically, the first image is displayed by default,
+but when a button is hovered over,
+its area will be changed to the second image.
 
 Menus can't be canceled using right click.
 
@@ -294,8 +294,8 @@ Hello, world!
 
 ## @news
 
-This command is a variant of `@switch`. It shows first four options on
-north, east, west and south of screen.
+This command is a variant of `@switch`. It shows the first four options on the
+north, east, west and south areas of screen.
 
 Parent options are hidden when `*` is specified.
 
@@ -406,10 +406,12 @@ Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 This sets a value to a variable.
 
 Local variables are `$0` to `$9999`.
-Local variables are stored in all save data.
+Local variables are stored independently in each save file.
 
 Global variables are `$10000` to `$10999`.
 Global variables are stored commonly across all save data.
+
+Note: all variables must be integers.
 
 * Available operators are:
     * `=` (assignment)
@@ -458,14 +460,14 @@ When you call `@goto $LOAD` or `@goto $SAVE`, `@setsave enable` is implicitly ca
 
 ## @shake
 
-This command shakes screen.
+This command shakes the screen.
 
-* Usage 1: Takes 1.0 second to shake screen 3 times horizontally 100px. `horizontal` can be abbreviated as `h`.
+* Usage 1: Takes 1.0 second to shake the screen 3 times horizontally by 100px. `horizontal` can be abbreviated as `h`.
 ```
 @shake horizontal 1.0 3 100
 ```
 
-* Usage 2: Takes 1.0 second to shake screen 3 times vertically 100px. `vertical` can be abbreviated as `v`.
+* Usage 2: Takes 1.0 second to shake the screen 3 times vertically by 100px. `vertical` can be abbreviated as `v`.
 ```
 @shake vertical 1.0 3 100
 ```
@@ -473,15 +475,15 @@ This command shakes screen.
 ## @switch
 
 Shows up to two levels of options.
-The number of parent options are eight,
+There are eight parent options,
 and each parent option has eight child options.
 
-* Usage 1: Shows one level option.
+* Usage 1: Shows one level of (two) options.
 ```
 @switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * *
 ```
 
-* Usage 2: Shows two level options.
+* Usage 2: Shows two levels of two options, four in total.
 ```
 @switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 "Child option 1" LABEL2 "Child option 2" * * * * * * * * * * * * LABEL3 "Child option 3" LABEL4 "Child option 4" * * * * * * * * * * * *
 ```
@@ -498,7 +500,7 @@ This command sets the sound volume.
 Sound volumes of these three channels are stored in each local save file.
 You can change the volumes frequently for sound production purpose.
 
-If you want to set global master volumes which are common between save files, you can use CAPITAL name of channels. When you set global master volumes, set fading time to 0.
+If you want to set global master volumes which are common between save files, you can use channel name in CAPITALS. When you set global master volumes, set fading time to 0.
 
 * Usage 1: Sets BGM volume to 0.5 in 1 second.
 ```
