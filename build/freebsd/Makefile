@@ -82,7 +82,7 @@ include ../sse.mk
 #
 
 install: suika
-	cp suika ../../game/
+	cp suika ../../
 
 clean:
 	rm -rf *~ *.o suika log.txt sav tmp libroot

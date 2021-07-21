@@ -3,13 +3,9 @@
 build/linux/*.o
 build/linux/libroot
 build/linux/suika
-build/linux/suika2
-build/linux/suika-2.x.x-linux64.zip
 build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
-build/mingw/suika2
-build/mingw/suika-2.x.x-win.zip
 build/mingw/res/resource.aps
 build/macos/libroot
 build/macos/suika.xcodeproj/project.xcworkspace
@@ -38,6 +34,7 @@ game/suika.app
 game/suika.exe
 build/release/mac.dmg
 build/release/suika-2.x.x.zip
+build/release/suika-2.x.x-en.zip
 build/emscripten/html
 web-kit/suika2-web-kit-XXX.zip
 web-kit/suika2-web-kit/game/index.*

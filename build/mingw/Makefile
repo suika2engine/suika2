@@ -98,7 +98,7 @@ include ../sse.mk
 #
 
 install: suika.exe
-	cp suika.exe ../../game/
+	cp suika.exe ../../
 
 clean:
 	rm -rf *.o *~ suika.exe log.txt sav tmp libroot suika2 suika-2.x.x-win.zip

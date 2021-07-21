@@ -81,7 +81,7 @@ include ../sse.mk
 #
 
 install: suika
-	cp suika ../../game/
+	cp suika ../../
 
 clean:
 	rm -rf *~ *.o suika log.txt sav tmp libroot suika2 suika-2.x.x-linux64.zip
