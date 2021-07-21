@@ -52,6 +52,7 @@ void log_script_parse_footer(const char *file, int line, const char *buf);
 void log_script_return_error(void);
 void log_script_rgb_negative(int val);
 void log_script_size(int size);
+void log_script_switch_no_label(void);
 void log_script_switch_no_item(void);
 void log_script_var_index(int index);
 void log_script_mixer_stream(const char *stream);

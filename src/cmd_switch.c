@@ -164,6 +164,14 @@ static bool get_parents_info(void)
 		/* メッセージを保存する */
 		parent_button[i].msg = p;
 
+		/* ラベルがなければならない Must have label */
+		p = get_string_param(CHILD_LABEL(i, 0));
+		if (strcmp(p, "*") == 0 || strcmp(p, "") == 0) {
+			log_script_switch_no_label();
+			log_script_exec_footer();
+			return false;
+		}
+
 		/* 子の最初のメッセージが"*"か省略なら、一階層のメニューと
 		   判断してラベルを取得する */
 		p = get_string_param(CHILD_MESSAGE(i, 0));
