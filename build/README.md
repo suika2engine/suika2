@@ -28,7 +28,7 @@ How to build
     * On macOS 11.4, in terminal, enter `build/release` directory.
        * Modify `SIGNATURE` in `Makefile` to sign `mac.dmg` file.
        * Run `make` to create ZIP file.
-       * Rename `suika-2.x.x.zip` and `suika-2.x.x-en.zip`.
+       * Rename `suika-2.x.x.zip`.
 
 * Web App
     * See `emscripten/README.md`

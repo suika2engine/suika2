@@ -1,5 +1,7 @@
 *.DS_Store
 *~
+suika.app
+suika.exe
 build/linux/*.o
 build/linux/libroot
 build/linux/suika
@@ -30,11 +32,12 @@ build/msvc/suika/Debug
 build/msvc/suika/Release
 game/log.txt
 game/sav
-game/suika.app
-game/suika.exe
+game-en/log.txt
+game-en/sav
+game-small/log.txt
+game-small/sav
 build/release/mac.dmg
 build/release/suika-2.x.x.zip
-build/release/suika-2.x.x-en.zip
 build/emscripten/html
 web-kit/suika2-web-kit-XXX.zip
 web-kit/suika2-web-kit/game/index.*

@@ -164,7 +164,7 @@ static bool get_parents_info(void)
 		/* メッセージを保存する */
 		parent_button[i].msg = p;
 
-		/* ラベルがなければならない Must have label */
+		/* ラベルがなければならない We must have a label */
 		p = get_string_param(CHILD_LABEL(i, 0));
 		if (strcmp(p, "*") == 0 || strcmp(p, "") == 0) {
 			log_script_switch_no_label();
@@ -177,14 +177,6 @@ static bool get_parents_info(void)
 		p = get_string_param(CHILD_MESSAGE(i, 0));
 		if (strcmp(p, "*") == 0 || strcmp(p, "") == 0) {
 			p = get_string_param(CHILD_LABEL(i, 0));
-
-			/* ラベルは省略できない */
-			if (strcmp(p, "*") == 0 || strcmp(p, "") == 0) {
-				log_script_switch_no_item();
-				log_script_exec_footer();
-				return false;
-			}
-
 			parent_button[i].label = p;
 			parent_button[i].has_child = false;
 			parent_button[i].child_count = 0;
@@ -258,6 +250,7 @@ static bool get_children_info(void)
 					&child_button[i][j].w,
 					&child_button[i][j].h);
 		}
+		assert(j > 0);
 		parent_button[i].child_count = j;
 	}
 

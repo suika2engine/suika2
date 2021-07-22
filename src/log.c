@@ -438,15 +438,15 @@ void log_script_size(int size)
 }
 
 /*
- * スイッチの親選択肢にラベルがないエラーを記録する
- * Record error that switch parent item has no label
+ * スイッチの選択肢にラベルがないエラーを記録する
+ * Record error that switch option has no label
  */
 void log_script_switch_no_label(void)
 {
 	if (is_english_mode())
-		log_error("No label for @switch parent item.");
+		log_error("No label for @switch option.");
 	else
-		log_error("スイッチの親選択肢にラベルがありません。");
+		log_error("スイッチの選択肢にラベルがありません。");
 }
 
 /*
