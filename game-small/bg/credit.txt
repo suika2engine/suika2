@@ -12,4 +12,3 @@ from http://minikle.onlinestores.jp/
 menu.png
 menu_selected.png
 by heath
-
