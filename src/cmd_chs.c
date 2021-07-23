@@ -80,7 +80,7 @@ static bool init(void)
 
 	/* 各キャラと背景について */
 	for (i = 0; i < PARAM_SIZE; i++) {
-		stay[i] = NULL;
+		stay[i] = false;
 		img[i] = NULL;
 		x[i] = 0;
 		y[i] = 0;
