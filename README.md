@@ -32,7 +32,7 @@ See `build/README.md`
 
 This software is released under the MIT license.
 You can redistribute this software commercially.
-See game/COPYING.
+See `COPYING`.
 
 ## Usage
 
@@ -53,16 +53,6 @@ See game/COPYING.
 
 * On Linux/FreeBSD/NetBSD:
     * Build from source code. See `build/README.md`
-
-## Enable English mode
-
-* Open `conf/config.txt` by a text editor other than Notepad.
-* You can find the following line:
-```
-#language=English
-```
-* Delete the heading character `#` and save the file.
-* You'll get the messages in English.
 
 ## Manuals
 

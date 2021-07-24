@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Suika2</title>
+  <style>
+      body {
+          font-family: Osaka, sans-serif;
+          margin-top: 1.0em;
+          line-height: 2.5em;
+      }
+      h1 {
+          font-size: 2.5em;
+          font-weight: bold;
+          color: #364e96;
+          border: solid 3px #364e96;
+          padding: 0.5em;
+          border-radius: 0.5em;
+      }
+      h2, h3, h4 {
+          font-size: 1.5em;
+          font-weight: bold;
+          margin-top: 1.5em;
+          margin-bottom: 0em;
+          margin-left: 0.5em;
+          color: #364e96;
+          padding: 0.5em 0;
+          border-top: solid 3px #364e96;
+          border-bottom: solid 3px #364e96;
+      }
+      p {
+          font-size: 1.0em;
+          line-height: 1.8em;
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
+      }
+      ul {
+          margin-bottom: 1.5em;
+          margin-left: 0.5em;
+      }
+  </style>
+</head>
+<body>
+
+<h1>Suika 2.8.3</h1>
+<p>Copyright (C) 2001-2021 LUXION SOFT. All rights reserved.</p>
+
+<h2>About Suika2</h2>
+<p>
+Suika2 is a portable game engine that runs on both Windows and Mac.
+You can enjoy producing impressive visual novels using Suika2.
+</p>
+
+<h2>Benefits</h2>
+<ul>
+  <li>Simple. You can easily write scripts.</li>
+  <li>Fast. It's a native application.</li>
+  <li>Free. It's an open source project hosted on <a href="https://github.com/ktabata/suika2">github</a>.</li>
+  <li>Diverse. You can develop games on Mac.</li>
+</ul>
+
+<h2>System Requirements</h2>
+<ul>
+  <li>Windows
+    <ul>
+      <li>Intel Core 2 Duo or later, RAM 4GB or above</li>
+      <li>Windows 8.1 (32bit/64bit)</li>
+      <li>Windows 10 (32bit/64bit)</li>
+    </ul>
+  </li>
+  <li>Mac
+    <ul>
+      <li>Mac with Apple Silicon or Intel Core</li>
+      <li>OS X 10.9 Mavericks</li>
+      <li>OS X 10.10 Yosemite</li>
+      <li>OS X 10.11 El Capitan</li>
+      <li>macOS 10.12 Sierra</li>
+      <li>macOS 10.13 High Sierra</li>
+      <li>macOS 10.14 Mojave</li>
+      <li>macOS 10.15 Catalina</li>
+      <li>macOS 11 Big Sur</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Contact</h2>
+<ul>
+  <li>Any and all feedback is welcome.</li>
+  <li>Write a mail to <a href="mailto:tabata@luxion.jp">tabata@luxion.jp</a>
+    <ul>
+      <li>Reply will be sent from Gmail address.</li>
+    </ul>
+  </li>
+  <li>Visit official Web site <a href="https://suika2.com/en/">https://suika2.com/en/</a></li>
+</ul>
+
+<h2>Usage</h2>
+<ul>
+  <li>On Windows, open <code>suika.exe</code></li>
+  <li>On Mac,
+    <ul>
+      <li>Open <code>mac.dmg</code></li>
+      <li>Copy <code>suika</code> inside <code>suika-mac</code> to <code>suika2</code> folder</li>
+      <li>Open <code>suika</code> inside <code>suika2</code> folder</li>
+      <li>You don't need to open <code>mac.dmg</code> after the second time</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>How to Make Game</h2>
+<ul>
+  <li>See <a href="https://suika2.com/en/tutorial.html">https://suika2.com/en/tutorial.html</a></li>
+  <li>Command reference is <a href="https://suika2.com/en/reference.html">here</a></li>
+</ul>
+
+<h2>Release History</h2>
+<ul>
+  <li>Suika 2.8.3 25th July 2021 Special Thanks to Loch!
+    <ul>
+      <li>Split English version and Japanese version.</li>
+      <li>Translate the demo to English (without character voice at this time)</li>
+      <li>Improve English word wrapping</li>
+    </ul>
+  </li>
+  <li>Suika 2.8.2 22nd July 2021
+    <ul>
+      <li>Fix error when * is specified for a label name in @switch command</li>
+    </ul>
+  </li>
+  <li>Suika 2.8.1 20th July 2021
+    <ul>
+      <li>Add effects to @chs command</li>
+    </ul>
+  </li>
+  <li>Suika 2.8.0 19th July 2021
+    <ul>
+      <li>Add @chs command</li>
+      <li>Enable multiple character change at once</li>
+      <li>Enable background change without character change</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.11 15th July 2021
+    <ul>
+      <li>Change Web site address</li>
+      <li>Change copyright notice</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.10 9th July 2021 Thanks to MaiMai-san
+    <ul>
+      <li>Fix bug (message shows without wait after cancellation of save/load)</li>
+      <li>Fix bug (<code>@goto $SAVE</code> saves one command forward)</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.9 7th July 2021 Thanks to MaiMai-san, Fujisaki-san
+    <ul>
+      <li>Add config screen to sample game</li>
+      <li>Increase the number of characters for color-coded messages</li>
+      <li>Add <code>@goto $SAVE</code></li>
+      <li><code>@goto $LOAD</code> and <code>@goto $SAVE</code> include <code>@setsave enable</code></li>
+    </ul>
+  </li>
+  <li>Suika 2.7.8 June 21st, 2021
+    <ul>
+      <li>Change BGM in sample game</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.7 June 16th, 2021 Thanks to MaiMai-san
+    <ul>
+      <li>Add clockwise/counterclockwise effects to @bg command</li>
+      <li>Fix @setsave command bug</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.6 June 15th, 2021 Thanks to MaiMai-san
+    <ul>
+      <li>Add @setsave command which inhibits the save and load screen</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.5 June 12th, 2021 Thanks to Fujisaki-san
+    <ul>
+      <li>Add @shake command which enables to shake screen</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.4 June 11th, 2021 Thanks to Fujisaki-san
+    <ul>
+      <li>Add character position offset to @ch command (for animation)</li>
+      <li>Add character alpha value to @ch command (for animation)</li>
+      <li>Add @cha command which enables to move a character</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.3 June 6th, 2021 Thanks to Fujisaki-san
+    <ul>
+      <li>Enable voice track output by @se command</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.2 June 5th, 2021 Thanks to Fujisaki-san
+    <ul>
+      <li>Add color specifier (like #ff0000) to @bg command</li>
+      <li>Add direction variations of curtain fade to @bg command</li>
+      <li>Add slide effects to @bg command</li>
+      <li>Add global master volume to @vol command</li>
+      <li>Increase max button count of @menu command to 16</li>
+      <li>Fix system requirements in sample game</li>
+      <li>Add config 'voice.stop.off' to prevent voice stop when clicked</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.1 April 11th, 2021
+    <ul>
+      <li>Fix palette to RGB conversion. (Thank you @minirop)</li>
+    </ul>
+  </li>
+  <li>Suika 2.7.0 March 3rd, 2021
+    <ul>
+      <li>Add M1 Mac support</li>
+      <li>Drop Windows XP/7/8 support</li>
+      <li>Drop Mac OS X 10.6/10.7/10.8 support</li>
+      <li>Drop Linux binary</li>
+      <li>Put Windows and Mac binaries together</li>
+    </ul>
+  </li>
+  <li>Suika 2.6.0 September 21st, 2019
+    <ul>
+      <li>Add @news command, a variant of @switch command. Special thanks to MaiMai-san.</li>
+    </ul>
+  </li>
+  <li>Suika 2.5.7 February 14th, 2019
+    <ul>
+      <li>Fix UTF-8 handling.</li>
+    </ul>
+  </li>
+  <li>Suika 2.5.6 February 3rd, 2019
+    <ul>
+      <li>Fix sound volume save.</li>
+      <li>Fix packager.</li>
+    </ul>
+  </li>
+  <li>Suika 2.5.5 September 12th, 2018
+    <ul>
+      <li>Fix line height in history mode.</li>
+    </ul>
+  </li>
+  <li>Suika 2.5.4 September 11th, 2018
+    <ul>
+      <li>Support Android Studio 3.1</li>
+      <li>Fix many bugs on Android</li>
+      <li>Fix a bug in history mode.</li>
+    </ul>
+  </li>
+  <li>Suika 2.5.3 August 28th, 2018
+    <ul>
+      <li>Add English mode.</li>
+      <li>Fix word wrap in history mode.</li>
+    </ul>
+  </li>
+</ul>
+
+</body>
+</html>

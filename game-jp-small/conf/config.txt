@@ -1,0 +1,277 @@
+###
+### ウィンドウの設定
+###
+
+# ウィンドウのタイトル
+window.title=Suika
+
+# ウィンドウの幅
+window.width=640
+
+# ウィンドウの高さ
+window.height=360
+
+# 背景を白にするか(1なら白、0なら黒)
+window.white=1
+
+###
+### フォントの設定
+###
+
+# フォントファイル名
+font.file=VL-PGothic-Regular.ttf
+
+# フォントサイズ
+font.size=19
+
+# フォントの色
+font.color.r=255
+font.color.g=255
+font.color.b=255
+
+###
+### 名前ボックスの設定
+###
+
+# 名前ボックス画像のファイル名
+namebox.file=namebox-blue.png
+
+# 名前ボックス画像を表示する位置
+namebox.x=35
+namebox.y=200
+
+# 名前ボックス画像内のテキスト上端マージン
+namebox.margin.top=9
+
+###
+### メッセージボックスの設定
+###
+
+# メッセージボックス画像のファイル名
+msgbox.file=msgbox-blue.png
+
+# メッセージボックス画像を表示する位置
+msgbox.x=0
+msgbox.y=248
+
+# メッセージボックス画像内のテキスト左端マージン
+msgbox.margin.left=40
+
+# メッセージボックス画像内のテキスト上端マージン
+msgbox.margin.top=20
+
+# メッセージボックス画像内のテキスト右端マージン
+msgbox.margin.right=40
+
+# メッセージの行間
+msgbox.margin.line=23
+
+# メッセージのスピード(x文字/秒)
+msgbox.speed=20.0
+
+###
+### クリックアニメーションの設定
+###
+
+# クリックアニメーション画像のファイル名
+click.file=click.png
+
+# クリックアニメーション画像の表示位置
+click.x=585
+click.y=330
+
+# クリックアニメーションの時間間隔
+click.interval=0.5
+
+###
+### 選択肢ボックスの設定
+###
+
+# 選択肢ボックス（非選択中）画像のファイル名
+selbox.bg.file=selbox-bg.png
+
+# 選択肢ボックス（選択中）画像のファイル名
+selbox.fg.file=selbox-fg.png
+
+# 選択肢ボックスの位置
+selbox.x=132
+selbox.y=100
+
+# 選択肢ボックス内の文字のY方向マージン
+selbox.margin.y=5
+
+###
+### スイッチの設定
+###
+
+# スイッチ（非選択中）画像のファイル名
+switch.bg.file=switch-bg.png
+
+# スイッチ（選択中）画像のファイル名
+switch.fg.file=switch-fg.png
+
+# スイッチの位置
+switch.x=132
+switch.y=60
+
+# スイッチの選択肢の間のマージン
+switch.margin.y=10
+
+# スイッチ内のテキストの縦方向マージン
+switch.text.margin.y=9
+
+# スイッチの親選択肢を選択したときの効果音(省略可)
+switch.parent.click.se.file=click.ogg
+
+# スイッチの子選択肢を選択したときの効果音(省略可)
+switch.child.click.se.file=click.ogg
+
+###
+### NEWS(North/East/West/South)の設定
+###
+
+# NEWS（非選択中）画像のファイル名
+news.bg.file=news-bg.png
+
+# NEWS（選択中）画像のファイル名
+news.fg.file=news-fg.png
+
+# NEWSの選択肢とウィンドウ境界のマージン
+news.margin=10
+
+# NEWS内のテキストの縦方向マージン
+news.text.margin.y=9
+
+###
+### セーブ・ロード画面の設定
+###
+
+# 非選択状態の画像
+save.bg.file=save-bg.png
+
+# 選択状態の画像
+save.fg.file=save-fg.png
+
+# セーブボタンの位置と大きさ
+save.save.x=224
+save.save.y=50
+save.save.width=64
+save.save.height=32
+
+# ロードボタンの位置と大きさ
+save.load.x=352
+save.load.y=50
+save.load.width=64
+save.load.height=32
+
+# 前ページボタンの位置と大きさ
+save.prev.x=0
+save.prev.y=0
+save.prev.width=64
+save.prev.height=32
+
+# 次ページボタンの位置と大きさ
+save.next.x=576
+save.next.y=0
+save.next.width=64
+save.next.height=32
+
+# セーブデータ項目の大きさ
+save.data.width=192
+save.data.height=32
+
+# セーブデータ項目内のテキストマージン
+save.data.margin.left=5
+save.data.margin.top=5
+
+# セーブデータ1の位置
+save.data1.x=224
+save.data1.y=96
+
+# セーブデータ2の位置
+save.data2.x=224
+save.data2.y=128
+
+# セーブデータ3の位置
+save.data3.x=224
+save.data3.y=160
+
+# セーブデータ4の位置
+save.data4.x=224
+save.data4.y=192
+
+# セーブデータ5の位置
+save.data5.x=224
+save.data5.y=224
+
+# セーブデータ6の位置
+save.data6.x=224
+save.data6.y=256
+
+# セーブ画面の終了ボタンの位置とサイズ
+save.exit.x=42
+save.exit.y=302
+save.exit.width=140
+save.exit.height=32
+
+# セーブ画面のタイトルへ戻るボタンの位置とサイズ
+save.title.x=457
+save.title.y=302
+save.title.width=140
+save.title.height=32
+
+# セーブ画面のタイトルへ戻るボタンのジャンプ先
+save.title.txt=init.txt
+
+###
+### ヒストリ画面の設定
+###
+
+# 背景色
+history.color.r=53
+history.color.g=90
+history.color.b=161
+history.color.a=128
+
+# 行間マージン
+history.margin.line=24
+
+# 画面左のマージン
+history.margin.left=10
+
+# 画面上のマージン
+history.margin.top=10
+
+# 画面右のマージン
+history.margin.right=10
+
+# 画面下のマージン
+history.margin.bottom=10
+
+###
+### セリフの色の設定
+###
+
+serif.color1.name=Haruka
+serif.color1.r=255
+serif.color1.g=200
+serif.color1.b=200
+
+serif.color2.name=Kana
+serif.color2.r=200
+serif.color2.g=255
+serif.color2.b=200
+
+serif.color3.name=Chiaki
+serif.color3.r=200
+serif.color3.g=200
+serif.color3.b=255
+
+# 以降、serif.color32まで続くが省略可能
+
+###
+### その他
+###
+
+# クリックでボイスを止めない (1:止めない, 0:止める)
+voice.stop.off=0

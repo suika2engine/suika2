@@ -2,7 +2,6 @@
 ### Language Setting
 ###
 
-# Uncomment this line to enable English mode.
 language=English
 
 ###
