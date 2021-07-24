@@ -192,7 +192,7 @@ If you have any items that you want to customize but you are unable to, please c
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*Midori*If you have any questions, send me an email at\nmidori@luxion.jp anytime.
+*Midori*If you have any questions, send me an email at midori@luxion.jp anytime.
 
 @vol bgm 0.5 1.0
 @ch c none 1.0

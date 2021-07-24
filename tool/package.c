@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 {
 	int i;
 
-	printf("Hello, this is Suika 2's packager.\n");
+	printf("Hello, this is Suika2's packager.\n");
 
 	/* ファイルの一覧を取得する */
 	printf("Searching files...\n");
