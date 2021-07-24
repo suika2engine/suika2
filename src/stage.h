@@ -30,7 +30,7 @@ enum ch_position {
 };
 
 /* フェードメソッド */
-enum bg_fade_method {
+enum fade_method {
 	FADE_METHOD_INVALID,
 	FADE_METHOD_NORMAL,
 	FADE_METHOD_MASK,
@@ -44,6 +44,8 @@ enum bg_fade_method {
 	FADE_METHOD_SLIDE_DOWN,
 	FADE_METHOD_CLOCKWISE,
 	FADE_METHOD_COUNTERCLOCKWISE,
+	FADE_METHOD_CLOCKWISE30,
+	FADE_METHOD_COUNTERCLOCKWISE30,
 };
 
 /*

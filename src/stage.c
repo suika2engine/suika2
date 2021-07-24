@@ -212,8 +212,9 @@ static void draw_stage_fi_fo_fade_slide_left(void);
 static void draw_stage_fi_fo_fade_slide_right(void);
 static void draw_stage_fi_fo_fade_slide_up(void);
 static void draw_stage_fi_fo_fade_slide_down(void);
-static void draw_stage_fi_fo_fade_clockwise(void);
-static void draw_stage_fi_fo_fade_counterclockwise(void);
+static void draw_stage_fi_fo_fade_clockwise(int method);
+static void draw_stage_fi_fo_fade_counterclockwise(int method);
+static float cw_step(int method, float progress);
 static int pos_to_layer(int pos);
 static float get_anime_interpolation(float progress, float from, float to);
 static void draw_layer_image(struct image *target, int layer);
@@ -590,10 +591,18 @@ static void draw_stage_fi_fo_fade(int fade_method)
 		draw_stage_fi_fo_fade_slide_down();
 		break;
 	case FADE_METHOD_CLOCKWISE:
-		draw_stage_fi_fo_fade_clockwise();
+		draw_stage_fi_fo_fade_clockwise(FADE_METHOD_CLOCKWISE);
 		break;
 	case FADE_METHOD_COUNTERCLOCKWISE:
-		draw_stage_fi_fo_fade_counterclockwise();
+		draw_stage_fi_fo_fade_counterclockwise(
+			FADE_METHOD_COUNTERCLOCKWISE);
+		break;
+	case FADE_METHOD_CLOCKWISE30:
+		draw_stage_fi_fo_fade_clockwise(FADE_METHOD_CLOCKWISE30);
+		break;
+	case FADE_METHOD_COUNTERCLOCKWISE30:
+		draw_stage_fi_fo_fade_counterclockwise(
+			FADE_METHOD_COUNTERCLOCKWISE30);
 		break;
 	default:
 		assert(INVALID_FADE_METHOD);
@@ -862,13 +871,15 @@ static void draw_stage_fi_fo_fade_slide_down(void)
 }
 
 /* 時計回りフェードの描画を行う */
-static void draw_stage_fi_fo_fade_clockwise(void)
+static void draw_stage_fi_fo_fade_clockwise(int method)
 {
 	const float PI = 3.14159265f;
-	float hand_len;
+	float progress, hand_len;
 	int hand_x, hand_y, center_x, center_y, i, min, max;
 
 	assert(fi_fo_fade_progress >= 0 && fi_fo_fade_progress <= 1.0f);
+	progress = cw_step(method, fi_fo_fade_progress);
+	assert(progress >= 0 && progress <= 1.0f);
 
 	/* フェードアウトする背景の描画を行う */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -881,42 +892,42 @@ static void draw_stage_fi_fo_fade_clockwise(void)
 	hand_len = (conf_window_width > conf_window_height) ?
 		(float)conf_window_width : (float)conf_window_height;
 	hand_x = center_x + (int)(hand_len *
-				  sinf(PI - 2.0f * PI * fi_fo_fade_progress));
+				  sinf(PI - 2.0f * PI * progress));
 	hand_y = center_y + (int)(hand_len *
-				  cosf(PI - 2.0f * PI * fi_fo_fade_progress));
+				  cosf(PI - 2.0f * PI * progress));
 
 	/* 第一象限を埋める */
-	if (fi_fo_fade_progress >= 0.25f) {
+	if (progress >= 0.25f) {
 		draw_image(back_image, center_x, 0, layer_image[LAYER_FI],
 			   center_x, center_y, center_x, 0, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
-	if (fi_fo_fade_progress >= 0.5f) {
+	if (progress >= 0.5f) {
 		draw_image(back_image, center_x, center_y,
 			   layer_image[LAYER_FI], center_x, center_y,
 			   center_x, center_y, 255, BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
-	if (fi_fo_fade_progress >= 0.75f) {
+	if (progress >= 0.75f) {
 		draw_image(back_image, 0, center_y, layer_image[LAYER_FI],
 			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* エッジをスキャンする */
 	clear_scbuf();
-	if (fi_fo_fade_progress < 0.25f) {
+	if (progress < 0.25f) {
 		/* 第一象限を処理する */
 		scan_edge_min(center_x, 0, center_x, conf_window_height);
 		scan_edge_max(conf_window_width, 0, conf_window_width, hand_y);
 		scan_edge_max(center_x, center_y, hand_x, hand_y);
-	} else if (fi_fo_fade_progress < 0.5f) {
+	} else if (progress < 0.5f) {
 		/* 第四象限を処理する */
 		scan_edge_min(center_x, center_y, hand_x, hand_y);
 		scan_edge_max(conf_window_width, center_y, conf_window_width,
 			      conf_window_height);
-	} else if (fi_fo_fade_progress < 0.75f) {
+	} else if (progress < 0.75f) {
 		/* 第三象限を処理する */
 		scan_edge_min(0, center_y, 0, conf_window_height);
 		scan_edge_min(center_x, center_y, hand_x, hand_y);
@@ -942,13 +953,15 @@ static void draw_stage_fi_fo_fade_clockwise(void)
 }
 
 /* 反時計回りフェードの描画を行う */
-static void draw_stage_fi_fo_fade_counterclockwise(void)
+static void draw_stage_fi_fo_fade_counterclockwise(int method)
 {
 	const float PI = 3.14159265f;
-	float hand_len;
+	float progress, hand_len;
 	int hand_x, hand_y, center_x, center_y, i, min, max;
 
 	assert(fi_fo_fade_progress >= 0 && fi_fo_fade_progress <= 1.0f);
+	progress = cw_step(method, fi_fo_fade_progress);
+	assert(progress >= 0 && progress <= 1.0f);
 
 	/* フェードアウトする背景の描画を行う */
 	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
@@ -961,27 +974,27 @@ static void draw_stage_fi_fo_fade_counterclockwise(void)
 	hand_len = (conf_window_width > conf_window_height) ?
 		(float)conf_window_width : (float)conf_window_height;
 	hand_x = center_x + (int)(hand_len *
-				  sinf(2.0f * PI * fi_fo_fade_progress - PI));
+				  sinf(2.0f * PI * progress - PI));
 	hand_y = center_y + (int)(hand_len *
-				  cosf(2.0f * PI * fi_fo_fade_progress - PI));
+				  cosf(2.0f * PI * progress - PI));
 
 	draw_image(back_image, hand_x, hand_y, layer_image[LAYER_FI], 100,
 		   100, 0, 0, 255, BLEND_NONE);
 
 	/* 第二象限を埋める */
-	if (fi_fo_fade_progress >= 0.25f) {
+	if (progress >= 0.25f) {
 		draw_image(back_image, 0, 0, layer_image[LAYER_FI],
 			   center_x, center_y, 0, 0, 255, BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
-	if (fi_fo_fade_progress >= 0.5f) {
+	if (progress >= 0.5f) {
 		draw_image(back_image, 0, center_y, layer_image[LAYER_FI],
 			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
-	if (fi_fo_fade_progress >= 0.75f) {
+	if (progress >= 0.75f) {
 		draw_image(back_image, center_x, center_y,
 			   layer_image[LAYER_FI], center_x, center_y, center_x,
 			   center_y, 255, BLEND_NONE);
@@ -989,16 +1002,16 @@ static void draw_stage_fi_fo_fade_counterclockwise(void)
 
 	/* エッジをスキャンする */
 	clear_scbuf();
-	if (fi_fo_fade_progress < 0.25f) {
+	if (progress < 0.25f) {
 		/* 第二象限を処理する */
 		scan_edge_min(0, 0, 0, hand_y);
 		scan_edge_min(center_x, center_y, hand_x, hand_y);
 		scan_edge_max(center_x - 1, 0, center_x - 1, center_y);
-	} else if (fi_fo_fade_progress < 0.5f) {
+	} else if (progress < 0.5f) {
 		/* 第三象限を処理する */
 		scan_edge_min(0, center_y, 0, conf_window_height);
 		scan_edge_max(center_x, center_y, hand_x, hand_y);
-	} else if (fi_fo_fade_progress < 0.75f) {
+	} else if (progress < 0.75f) {
 		/* 第四象限を処理する */
 		scan_edge_min(center_x, center_y, center_x,
 			      conf_window_height);
@@ -1023,6 +1036,34 @@ static void draw_stage_fi_fo_fade_counterclockwise(void)
 		draw_image(back_image, min, i, layer_image[LAYER_FI],
 			   max - min + 1, 1, min, i, 255, BLEND_NONE);
 	}
+}
+
+/* 時計回りの進捗をステップ化する Calc stepped progress of clockwise */
+static float cw_step(int method, float progress)
+{
+	const float step = 30.0f;
+	float f;
+
+	assert(method == FADE_METHOD_CLOCKWISE ||
+	       method == FADE_METHOD_COUNTERCLOCKWISE ||
+	       method == FADE_METHOD_CLOCKWISE30 ||
+	       method == FADE_METHOD_COUNTERCLOCKWISE30);
+	assert(progress >= 0.0f && progress <= 1.0f);
+
+	if (method == FADE_METHOD_CLOCKWISE ||
+	    method == FADE_METHOD_COUNTERCLOCKWISE)
+		return progress;
+
+	progress *= 360.0f;
+	for (f = 360.0f; f >= step; f -= step) {
+		if (progress >= f - step) {
+			progress = f;
+			break;
+		}
+	}
+	progress /= 360.0f;
+
+	return progress;
 }
 
 /*
@@ -1193,6 +1234,18 @@ int get_fade_method(const char *method)
 	if (strcmp(method, "counterclockwise") == 0 ||
 	    strcmp(method, "ccw") == 0)
 		return FADE_METHOD_COUNTERCLOCKWISE;
+
+	/*
+	 * 時計フェード(ステップ) Clockwise(stepped)
+	 */
+
+	if (strcmp(method, "clockwise30") == 0 ||
+	    strcmp(method, "cw30") == 0)
+		return FADE_METHOD_CLOCKWISE30;
+
+	if (strcmp(method, "counterclockwise30") == 0 ||
+	    strcmp(method, "ccw30") == 0)
+		return FADE_METHOD_COUNTERCLOCKWISE30;
 
 	/* 不正なフェード指定 */
 	return FADE_METHOD_INVALID;
