@@ -132,7 +132,7 @@ In addition, Suika2 runs on Android and Linux. Suika2 was initially written on L
 @set $2 = 1
 @ch c 001-fun.png 1.0
 *Midori*Yes! That's right.
-*Midori*The author says he wants you to ask more questions.
+*Midori*The author says he wants you to ask some more questions.
 @ch c none 1.0
 @goto LOOP1
 
@@ -143,7 +143,7 @@ In addition, Suika2 runs on Android and Linux. Suika2 was initially written on L
 ###
 
 @ch c 001-fun.png 1.0
-*Midori*Shall we step out and have a walk? Where should we go? Well, let's visit the coast.
+*Midori*Shall we step out and have a walk? Where should we go? Well, how about the coast?
 
 @vol bgm 0.0 1.0
 @bg coast.png 1.0 c
