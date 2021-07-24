@@ -460,7 +460,7 @@ static int get_en_word_width(const char *text)
 
 	m = text;
 	width = 0;
-	while (isalnum(*m))
+	while (isgraph(*m))
 		width += get_glyph_width((unsigned char)*m++);
 
 	return width;
