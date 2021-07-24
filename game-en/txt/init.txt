@@ -61,7 +61,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(There's no building near the school. I can see the coast line a short distance away. This is a country town in Hokkaido.)
+*???*(There aren't any buildings near the school. I can just see the coastline on the horizon. This is a country town in Hokkaido.)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
@@ -69,7 +69,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(Oh, I forgot to mention, I'm Midori. I'm a high school student in this country town. My parents are water melon farmers.)
+*???*(Oh, I forgot to mention, I'm Midori. I'm a high school student in this country town. My parents are watermelon farmers.)
 
 @vol bgm 1.0 1.0
 @ch c 001-angry.png 1.0
@@ -77,7 +77,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*(Oh, I have some important things to say. The reason why I'm here today is...)
+*Midori*(Oh, I have to tell you something important. The reason why I'm here today is...)
 
 @vol bgm 1.0 1.0
 @ch c 001-normal.png 1.0
@@ -96,7 +96,7 @@
 @ch c 001-happy.png 1.0
 *Midori*Hello! Thank you for using Suika2!
 *Midori*As you might know, Suika2 is a visual novel authoring tool.
-*Midori*It's free and runs on both Windows and Mac. Isn't it awesome?
+*Midori*It's free and runs on both Windows and Mac. Awesome, right?
 
 @ch c 001-fun.png 1.0
 *Midori*The author says he wants you to ask questions. Do you have any questions for him?
@@ -107,28 +107,28 @@
 ###
 
 :LOOP1
-@select L1_ADVANTAGE L1_ENV L1_NEXT "What's the advantages?" "What are system requirements?" Next
+@select L1_ADVANTAGE L1_ENV L1_NEXT "Why choose Suika2?" "What are the system requirements?" Next
 
 :L1_ADVANTAGE
 Suika2 has three advantages.
-First of all, portability. We have Windows app, Mac app and Web browser version. All of them work just the same way.
+First of all, portability. We have Windows and Mac apps and a Web browser version. All of them work just the same way.
 Game developers don't need to bother about the users' OSes.
-In addition, game developer can use favorite OS to develop a game.
-Second, simplicity. Anyone can start writing scripts easily.
+In addition, game developers can use their favorite OS to develop a game.
+Secondly, simplicity. Anyone can start writing scripts easily.
 Last but not least, freedom. You can use Suika2 commercially for free.
 
 @set $1 = 1
 @ch c 001-fun.png 1.0
-*Midori*Oh, wow! I didn't know that. It's so cool.
+*Midori*Oh, wow! I didn't know that. Very cool.
 *Midori*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP1
 
 :L1_ENV
 For Windows, we support Windows 8.1 and later. We also support the latest Windows 10 tablets.
-For Mac, we support macOS 10.9 and later. We surely support the latest Big Sur and M1 chip.
+For Mac, we support macOS 10.9 and later. We certainly support the latest Big Sur release and M1 chip.
 For Web browsers, we support Chrome, Safari, Firefox and Edge.
-In addition, Suika2 runs on Android and Linux. Suika2 was written on Linux initially.
+In addition, Suika2 runs on Android and Linux. Suika2 was initially written on Linux.
 @set $2 = 1
 @ch c 001-fun.png 1.0
 *Midori*Yes! That's right.
@@ -143,7 +143,7 @@ In addition, Suika2 runs on Android and Linux. Suika2 was written on Linux initi
 ###
 
 @ch c 001-fun.png 1.0
-*Midori*Shall we step out and have a walk. Where do we go? Well, let's go to the coast.
+*Midori*Shall we step out and have a walk? Where should we go? Well, let's visit the coast.
 
 @vol bgm 0.0 1.0
 @bg coast.png 1.0 c
@@ -167,8 +167,8 @@ At 2.0.0, he removed the visual editor and "Studio" naming.
 @goto LOOP2
 
 :L2_CUSTOMIZE
-Basically you can customize the engine with relatively little effort. For example, font, text box and save screen are customizable.
-If you have any items that you want to customize but you\ncan't do, please contact the author.
+Basically you can customize the engine with relatively little effort. This includes the font, text box and save screen.
+If you have any items that you want to customize but you are unable to, please contact the author.
 @set $4 = 1
 @ch c 001-fun.png 1.0
 *Midori*Oh, yes!
@@ -184,7 +184,7 @@ If you have any items that you want to customize but you\ncan't do, please conta
 ###
 
 @ch c 001-fun.png 1.0
-*Midori*Thanks for asking a lot today.
+*Midori*Thanks for asking so many questions today!
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
@@ -192,7 +192,7 @@ If you have any items that you want to customize but you\ncan't do, please conta
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*Midori*If you have any questions, send me an email to\nmidori@luxion.jp anytime.
+*Midori*If you have any questions, send me an email at\nmidori@luxion.jp anytime.
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
