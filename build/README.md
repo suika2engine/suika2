@@ -2,18 +2,20 @@ How to build
 ============
 
 * Windows App
-    * We use cross compiler to build Windows binary.
+    * We'll use cross compiler to build Windows binary.
     * On Ubuntu 20.04, install following packages:
         * `build-essential`
+        * `mingw-w64`
+    * Alternatively, on macOS 11, install Homebrew and following package:
         * `mingw-w64`
     * In terminal, enter `build/mingw` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build `suika.exe`.
         * Run `make install` to copy `suika.exe` to `suika2` directory.
-    * To run Suika2, copy `suika.exe` to `game` folder or `game-en` folder, then double click it.
+    * To run Suika2, copy `suika.exe` to `game-en` folder or `game-jp` folder, then double click it.
 
 * Mac App
-    * On macOS 11.4, install Xcode 12.5.
+    * On macOS 11, install Xcode 12.
     * In terminal, enter `build/macos` directory.
         * Run `./build-libs.sh` to build libraries.
     * In Xcode, open `build/macos`.
@@ -22,16 +24,22 @@ How to build
         * Archive project.
         * Notarize application by `Distribute App` button.
         * Press `Export Notarized App` to export app to `suika2` folder.
-    * To run Suika2, copy `suika.app` to `game` folder or `game-en` folder, then double click it.
+    * To run Suika2, copy `suika.app` to `game-en` folder or `game-jp` folder, then double click it.
 
-* Release File
-    * On macOS 11.4, in terminal, enter `build/release` directory.
+* Release Files
+    * On macOS 11, in terminal, enter `build/release` directory.
        * Modify `SIGNATURE` in `Makefile` to sign `mac.dmg` file.
-       * Run `make` to create ZIP file.
-       * Rename `suika-2.x.x.zip`.
+       * Run `make` to create ZIP files.
+       * Rename `suika-2.x.x-en.zip` and `suika-2.x.x-jp.zip`.
 
 * Web App
     * See `emscripten/README.md`
+
+* Web Kit Distribution Files
+    * Please run `make` in `build/emscripten` first.
+    * In terminal, enter `build/web-kit` directory.
+        * Run `make` to create ZIP files.
+        * Rename `suika2-web-kit-2.x-x-en.zip` and `suika2-web-kit-2.x-x-jp.zip`.
 
 * Android App
     * Install Android Studio 3.3.1 from Android Studio Archive.
@@ -51,8 +59,8 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to copy binary `suika` to `suika2` directory.
-        * Copy `suika` to `game` directory or `game-en` directory.
-    * In terminal, enter `game` directory or `game-en` directory.
+        * Copy `suika` to `game-en` directory or `game-jp` directory.
+    * In terminal, enter `game-en` directory or `game-jp` directory.
         * Run `./suika`
 
 * Raspberry Pi Binary
@@ -64,8 +72,8 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to copy binary `suika` to `suika2` directory.
-        * Copy `suika` to `game-small` directory.
-    * In terminal, enter `game-small` directory.
+        * Copy `suika` to `game-en-small` directory or `game-jp-small` directory.
+    * In terminal, enter `game-en-small` or `game-jp-small` directory.
 	    * Run `./suika`
 
 * FreeBSD Binary
@@ -77,8 +85,8 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `gmake` to build Suika2 binary.
         * Run `gmake install` to copy binary `suika` to `suika2` directory.
-        * Copy `suika` to `game` directory or `game-en` directory
-    * In terminal, enter `game` directory or `game-en` directory.
+        * Copy `suika` to `game-en` directory or `game-jp` directory
+    * In terminal, enter `game-en` directory or `game-jp` directory.
         * Run `./suika`.
 
 * NetBSD Binary
@@ -91,8 +99,8 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `gmake` to build Suika2 binary.
         * Run `gmake install` to copy binary `suika` to `suika2` directory.
-        * Copy `suika` to `game` directory or `game-en` directory
-    * In terminal, enter `game` directory or `game-en` directory.
+        * Copy `suika` to `game-en` directory or `game-jp` directory
+    * In terminal, enter `game-en` directory or `game-jp` directory.
         * Run `./suika`.
     * FYI: To setup ALSA/OSS, create /etc/asound.conf
 ```
