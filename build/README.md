@@ -26,17 +26,17 @@ How to build
         * Press `Export Notarized App` to export app to `suika2` folder.
     * To run Suika2, copy `suika.app` to `game-en` folder or `game-jp` folder, then double click it.
 
+* Web App
+    * See `emscripten/README.md`
+
 * Release Files
     * On macOS 11, in terminal, enter `build/release` directory.
        * Modify `SIGNATURE` in `Makefile` to sign `mac.dmg` file.
        * Run `make` to create ZIP files.
        * Rename `suika-2.x.x-en.zip` and `suika-2.x.x-jp.zip`.
 
-* Web App
-    * See `emscripten/README.md`
-
 * Web Kit Distribution Files
-    * Please run `make` in `build/emscripten` first.
+    * Run `make` in `build/emscripten` first. (See `emscripten/README.md`.)
     * In terminal, enter `build/web-kit` directory.
         * Run `make` to create ZIP files.
         * Rename `suika2-web-kit-2.x-x-en.zip` and `suika2-web-kit-2.x-x-jp.zip`.

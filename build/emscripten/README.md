@@ -8,10 +8,11 @@ You can deploy your game as a Web application using Emscripten.
         * You need `make` and `python`
     * Install Emscripten (`emcc` command)
     * Generate `data01.arc` file using package-win.exe
+        * Steps are described in `doc/tutorial.md`
 
-* Steps for local Web server
-    * `cd suika2/build/emscripten`
+* Instructions
+    * `cd build/emscripten`
     * `make`
-    * Copy your `data01.arc` to `suika2/build/emscripten/html/`
+    * Copy your `data01.arc` to `build/emscripten/html/`
     * `make run`
-    * Browse `http://localhost:8000/html/`
+    * Visit `http://localhost:8000/html/` by a browser
