@@ -18,8 +18,16 @@ all character images vanish from the stage.
     * `slide-left` or `sl` -> left slide
     * `slide-up` or `su` -> up slide
     * `slide-down` or `sd` -> down slide
+    * `shutter-right` or `shr` -> right shutter
+    * `shutter-left` or `shl` -> left shutter
+    * `shutter-up` or `shu` -> up shutter
+    * `shutter-down` or `shd` -> down shutter
     * `clockwise` or `cw` -> clockwise wipe
     * `counterclockwise` or `ccw` -> counterclockwise wipe
+    * `clockwise20` or `cw20` -> clockwise wipe (20 degrees stepped)
+    * `counterclockwise20` or `ccw20` -> counterclockwise wipe (20 degrees stepped)
+    * `clockwise30` or `cw30` -> clockwise wipe (30 degrees stepped)
+    * `counterclockwise30` or `ccw30` -> counterclockwise wipe (30 degrees stepped)
 
 * Usage 1: Changes the background image to `sample.png` with a 1.5 second fade-in time.
 ```
@@ -70,13 +78,11 @@ This command changes the character.
 
 * Character positions are:
     * `center` or `c` (front center)
-    * `right`
-    * `left`
-    * `back` (back center)
+    * `right or `r``
+    * `left` or `l`
+    * `back` or `b` (back center)
 
-* Effects are:
-    * `normal`, `n` or not-specified -> fade/dissolve (alpha blending)
-    * `mask` or `m` -> dissolve from radiating points
+Effects are the same as `@bg`.
 
 * Usage 1: Displays `sample.png` in 0.5 seconds at front center.
 ```

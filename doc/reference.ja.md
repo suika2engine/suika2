@@ -16,8 +16,16 @@ Suika2 コマンドリファレンス
     * `slide-left`もしくは`sl` → 左方向スライド
     * `slide-up`もしくは`su` → 上方向スライド
     * `slide-down`もしくは`sd` → 下方向スライド
+    * `shutter-right`もしくは`shr` → 右方向シャッター
+    * `shutter-left`もしくは`shl` → 左方向シャッター
+    * `shutter-up`もしくは`shu` → 上方向シャッター
+    * `shutter-down`もしくは`shd` → 下方向シャッター
     * `clockwise`もしくは`cw` → 時計回り
     * `counterclockwise`もしくは`ccw` → 反時計回り
+    * `clockwise20`もしくは`cw20` → 時計回り(20°刻み)
+    * `counterclockwise20`もしくは`ccw20` → 反時計回り(20°刻み)
+    * `clockwise30`もしくは`cw30` → 時計回り(30°刻み)
+    * `counterclockwise30`もしくは`ccw30` → 反時計回り(30°刻み)
 
 * 使い方1: `sample.png`を1.5秒かけて背景にセットします。
 ```
@@ -63,6 +71,7 @@ BGMを再生します。BGMファイルはフォルダ`bgm`に格納されてい
 ## @ch
 
 キャラクタを変更します。キャラクタの位置は、上位レイヤから順に、中央前面(center)、右(right)、左(left)、中央背面(back)の4つがあります。
+エフェクトの種類は`@bg`と同じです。
 
 * 使い方1: `sample.png`を0.5秒かけて中央前面にセットします。
 ```

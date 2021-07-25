@@ -208,10 +208,14 @@ static void draw_stage_fi_fo_fade_curtain_right(void);
 static void draw_stage_fi_fo_fade_curtain_left(void);
 static void draw_stage_fi_fo_fade_curtain_up(void);
 static void draw_stage_fi_fo_fade_curtain_down(void);
-static void draw_stage_fi_fo_fade_slide_left(void);
 static void draw_stage_fi_fo_fade_slide_right(void);
+static void draw_stage_fi_fo_fade_slide_left(void);
 static void draw_stage_fi_fo_fade_slide_up(void);
 static void draw_stage_fi_fo_fade_slide_down(void);
+static void draw_stage_fi_fo_fade_shutter_right(void);
+static void draw_stage_fi_fo_fade_shutter_left(void);
+static void draw_stage_fi_fo_fade_shutter_up(void);
+static void draw_stage_fi_fo_fade_shutter_down(void);
 static void draw_stage_fi_fo_fade_clockwise(int method);
 static void draw_stage_fi_fo_fade_counterclockwise(int method);
 static float cw_step(int method, float progress);
@@ -590,12 +594,31 @@ static void draw_stage_fi_fo_fade(int fade_method)
 	case FADE_METHOD_SLIDE_DOWN:
 		draw_stage_fi_fo_fade_slide_down();
 		break;
+	case FADE_METHOD_SHUTTER_RIGHT:
+		draw_stage_fi_fo_fade_shutter_right();
+		break;
+	case FADE_METHOD_SHUTTER_LEFT:
+		draw_stage_fi_fo_fade_shutter_left();
+		break;
+	case FADE_METHOD_SHUTTER_UP:
+		draw_stage_fi_fo_fade_shutter_up();
+		break;
+	case FADE_METHOD_SHUTTER_DOWN:
+		draw_stage_fi_fo_fade_shutter_down();
+		break;
 	case FADE_METHOD_CLOCKWISE:
 		draw_stage_fi_fo_fade_clockwise(FADE_METHOD_CLOCKWISE);
 		break;
 	case FADE_METHOD_COUNTERCLOCKWISE:
 		draw_stage_fi_fo_fade_counterclockwise(
 			FADE_METHOD_COUNTERCLOCKWISE);
+		break;
+	case FADE_METHOD_CLOCKWISE20:
+		draw_stage_fi_fo_fade_clockwise(FADE_METHOD_CLOCKWISE20);
+		break;
+	case FADE_METHOD_COUNTERCLOCKWISE20:
+		draw_stage_fi_fo_fade_counterclockwise(
+			FADE_METHOD_COUNTERCLOCKWISE20);
 		break;
 	case FADE_METHOD_CLOCKWISE30:
 		draw_stage_fi_fo_fade_clockwise(FADE_METHOD_CLOCKWISE30);
@@ -870,6 +893,94 @@ static void draw_stage_fi_fo_fade_slide_down(void)
 		   BLEND_NONE);
 }
 
+/* 右方向シャッターフェードの描画を行う Right direction shutter fade */
+static void draw_stage_fi_fo_fade_shutter_right(void)
+{
+	int right;
+
+	/*
+	 * スライドの右端を求める
+	 *  - スライドの右端は0からconf_window_widthになる
+	 */
+	right = (int)((float)conf_window_width * fi_fo_fade_progress);
+
+	/* 左側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
+		   right, conf_window_height, conf_window_width - right, 0,
+		   255, BLEND_NONE);
+
+	/* 右側の背景を表示する */
+	draw_image(back_image, right, 0, layer_image[LAYER_FO],
+		   conf_window_width - right, conf_window_height, right, 0,
+		   255, BLEND_NONE);
+}
+
+/* 左方向シャッターフェードの描画を行う Left direction shutter fade */
+static void draw_stage_fi_fo_fade_shutter_left(void)
+{
+	int left;
+
+	/*
+	 * スライドの左端を求める
+	 *  - スライドの左端はconf_window_widthから0になる
+	 */
+	left = conf_window_width -
+		(int)((float)conf_window_width * fi_fo_fade_progress);
+
+	/* 右側の背景を表示する */
+	draw_image(back_image, left, 0, layer_image[LAYER_FI],
+		   conf_window_width - left, conf_window_height, 0, 0, 255,
+		   BLEND_NONE);
+
+	/* 左側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   left, conf_window_height, 0, 0, 255, BLEND_NONE);
+}
+
+/* 上方向シャッターフェードの描画を行う Up direction shutter fade */
+static void draw_stage_fi_fo_fade_shutter_up(void)
+{
+	int top;
+
+	/*
+	 * スライドの上端を求める
+	 *  - スライドの上端はconf_window_heightから0になる
+	 */
+	top = conf_window_height -
+		(int)((float)conf_window_height * fi_fo_fade_progress);
+
+	/* 上側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
+		   conf_window_width, top, 0, 0, 255, BLEND_NONE);
+
+	/* 下側の背景を表示する */
+	draw_image(back_image, 0, top, layer_image[LAYER_FI],
+		   conf_window_width, conf_window_height - top, 0, 0, 255,
+		   BLEND_NONE);
+}
+
+/* 下方向シャッターフェードの描画を行う Down direction shutter fade */
+static void draw_stage_fi_fo_fade_shutter_down(void)
+{
+	int bottom;
+
+	/*
+	 * スライドの下端を求める
+	 *  - スライドの下端は0からconf_window_heightになる
+	 */
+	bottom = (int)((float)conf_window_height * fi_fo_fade_progress);
+
+	/* 上側の背景を表示する */
+	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
+		   conf_window_width, bottom, 0, conf_window_height - bottom,
+		   255, BLEND_NONE);
+
+	/* 下側の背景を表示する */
+	draw_image(back_image, 0, bottom, layer_image[LAYER_FO],
+		   conf_window_width, conf_window_height - bottom, 0, bottom,
+		   255, BLEND_NONE);
+}
+
 /* 時計回りフェードの描画を行う */
 static void draw_stage_fi_fo_fade_clockwise(int method)
 {
@@ -1041,11 +1152,12 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 /* 時計回りの進捗をステップ化する Calc stepped progress of clockwise */
 static float cw_step(int method, float progress)
 {
-	const float step = 30.0f;
-	float f;
+	float step, f;
 
 	assert(method == FADE_METHOD_CLOCKWISE ||
 	       method == FADE_METHOD_COUNTERCLOCKWISE ||
+	       method == FADE_METHOD_CLOCKWISE20 ||
+	       method == FADE_METHOD_COUNTERCLOCKWISE20 ||
 	       method == FADE_METHOD_CLOCKWISE30 ||
 	       method == FADE_METHOD_COUNTERCLOCKWISE30);
 	assert(progress >= 0.0f && progress <= 1.0f);
@@ -1053,6 +1165,11 @@ static float cw_step(int method, float progress)
 	if (method == FADE_METHOD_CLOCKWISE ||
 	    method == FADE_METHOD_COUNTERCLOCKWISE)
 		return progress;
+	else if (method == FADE_METHOD_CLOCKWISE20 ||
+		 method == FADE_METHOD_COUNTERCLOCKWISE20)
+		step = 20.0f;
+	else
+		step = 30.0f;
 
 	progress *= 360.0f;
 	for (f = 360.0f; f >= step; f -= step) {
@@ -1224,6 +1341,26 @@ int get_fade_method(const char *method)
 		return FADE_METHOD_SLIDE_DOWN;
 
 	/*
+	 * シャッターフェード Shutter fade
+	 */
+
+	if (strcmp(method, "shutter-right") == 0 ||
+	    strcmp(method, "shr") == 0)
+		return FADE_METHOD_SHUTTER_RIGHT;
+
+	if (strcmp(method, "shutter-left") == 0 ||
+	    strcmp(method, "shl") == 0)
+		return FADE_METHOD_SHUTTER_LEFT;
+
+	if (strcmp(method, "shutter-up") == 0 ||
+	    strcmp(method, "shu") == 0)
+		return FADE_METHOD_SHUTTER_UP;
+
+	if (strcmp(method, "shutter-down") == 0 ||
+	    strcmp(method, "shd") == 0)
+		return FADE_METHOD_SHUTTER_DOWN;
+
+	/*
 	 * 時計フェード
 	 */
 
@@ -1236,7 +1373,19 @@ int get_fade_method(const char *method)
 		return FADE_METHOD_COUNTERCLOCKWISE;
 
 	/*
-	 * 時計フェード(ステップ) Clockwise(stepped)
+	 * 時計フェード(ステップ20°) Clockwise(20 degrees stepped)
+	 */
+
+	if (strcmp(method, "clockwise20") == 0 ||
+	    strcmp(method, "cw20") == 0)
+		return FADE_METHOD_CLOCKWISE20;
+
+	if (strcmp(method, "counterclockwise20") == 0 ||
+	    strcmp(method, "ccw20") == 0)
+		return FADE_METHOD_COUNTERCLOCKWISE20;
+
+	/*
+	 * 時計フェード(ステップ30°) Clockwise(30 degrees stepped)
 	 */
 
 	if (strcmp(method, "clockwise30") == 0 ||

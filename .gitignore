@@ -42,5 +42,5 @@ build/release/mac.dmg
 build/release/suika-2.x.x-jp.zip
 build/release/suika-2.x.x-en.zip
 build/emscripten/html
-web-kit/suika2-web-kit-XXX.zip
-web-kit/suika2-web-kit/game/index.*
+web-kit/suika2-web-kit-2.X.X-en.zip
+web-kit/suika2-web-kit-2.X.X-jp.zip
