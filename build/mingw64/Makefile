@@ -5,12 +5,8 @@ include ../common.mk
 #
 
 # For cross compilation
-CC = i686-w64-mingw32-gcc
-WINDRES = i686-w64-mingw32-windres
-
-# For native compilation
-#CC = gcc
-#WINDRES = windres
+CC = x86_64-w64-mingw32-gcc
+WINDRES = x86_64-w64-mingw32-windres
 
 #
 # CPPFLAGS
@@ -18,7 +14,7 @@ WINDRES = i686-w64-mingw32-windres
 
 CPPFLAGS = \
 	-I. \
-	-Ires \
+	-I../mingw/res \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -62,7 +58,7 @@ SRCS_C = \
 	../../src/winmain.c \
 	../../src/dsound.c
 
-SRCS_R = res/resource.rc
+SRCS_R = ../mingw/res/resource.rc
 
 #
 # .c.o compilation rules
@@ -70,22 +66,22 @@ SRCS_R = res/resource.rc
 
 OBJS = \
 	$(SRCS_C:../../src/%.c=%.o) \
-	$(SRCS_R:res/%.rc=%.o)
+	$(SRCS_R:../mingw/res/%.rc=%.o)
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
-%.o: res/%.rc
+%.o: ../mingw/res/%.rc
 	$(WINDRES) $< $@
 
 #
 # Target
 #
 
-all: suika.exe
+all: suika64.exe
 
-suika.exe: $(OBJS)
-	$(CC) -s -o suika.exe $(OBJS) $(LDFLAGS)
+suika64.exe: $(OBJS)
+	$(CC) -s -o suika64.exe $(OBJS) $(LDFLAGS)
 
 #
 # Feature specific source files.
@@ -97,8 +93,8 @@ include ../sse.mk
 # Phony
 #
 
-install: suika.exe
-	cp suika.exe ../../
+install: suika64.exe
+	cp suika64.exe ../../
 
 clean:
-	rm -rf *.o *~ suika.exe log.txt sav tmp libroot
+	rm -rf *.o *~ suika64.exe log.txt sav tmp libroot

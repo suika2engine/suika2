@@ -9,6 +9,9 @@ build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/res/resource.aps
+build/mingw64/*.o
+build/mingw64/libroot
+build/mingw64/suika64.exe
 build/macos/libroot
 build/macos/suika.xcodeproj/project.xcworkspace
 build/macos/suika.xcodeproj/xcshareddata
