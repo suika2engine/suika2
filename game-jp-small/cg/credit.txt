@@ -2,4 +2,10 @@
 
 save-bg.png by heath, sima
 save-fg.png by heath, sima
+namebox-blue.png by heath
+msgbox-blue.png by heath
+selbox-bg.png by heath
+selbox-fg.png by heath
+switch-bg.png by heath
+switch-fg.png by heath
 click.png by heath
