@@ -638,9 +638,12 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 					(uint32_t)conf_serif_color_r[i],
 					(uint32_t)conf_serif_color_g[i],
 					(uint32_t)conf_serif_color_b[i]);
-
-				/* FIXME: */
-				*outline_color = 0;
+				*outline_color = make_pixel(
+					0xff,
+					(uint32_t)conf_serif_outline_color_r[i],
+					(uint32_t)conf_serif_outline_color_g[i],
+					(uint32_t)conf_serif_outline_color_b[i]);
+				return;
 			}
 		}
 	}

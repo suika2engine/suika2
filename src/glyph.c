@@ -350,6 +350,45 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	return true;
 }
 
+#if 0
+static bool draw_glyph_old(struct image *img, int x, int y, pixel_t color,
+			   uint32_t codepoint, int *w, int *h)
+{
+	FT_Error err;
+	int descent;
+
+	/* 文字をグレースケールビットマップとして取得する */
+	err = FT_Load_Char(face, codepoint, FT_LOAD_RENDER);
+	if (err != 0) {
+		log_api_error("FT_Load_Char");
+		return false;
+	}
+
+	/* 文字のビットマップを対象イメージに描画する */
+	if (img != NULL) {
+		draw_glyph_func(face->glyph->bitmap.buffer,
+				(int)face->glyph->bitmap.width,
+				(int)face->glyph->bitmap.rows,
+				face->glyph->bitmap_left,
+				conf_font_size - face->glyph->bitmap_top,
+				get_image_pixels(img),
+				get_image_width(img),
+				get_image_height(img),
+				x,
+				y,
+				color);
+	}
+
+	/* descentを求める */
+	descent = (int)(face->glyph->metrics.height / SCALE) -
+		  (int)(face->glyph->metrics.horiBearingY / SCALE);
+
+	/* 描画した幅と高さを求める */
+	*w = (int)face->glyph->advance.x / SCALE;
+	*h = conf_font_size + descent;
+}
+#endif
+
 /*
  * SSEバージョニングを行わない場合
  */
