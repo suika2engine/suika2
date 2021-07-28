@@ -37,6 +37,6 @@ int get_utf8_width(const char *mbs);
 
 /* 文字の描画を行う */
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
-		uint32_t codepoint, int *w, int *h);
+		pixel_t outline_color, uint32_t codepoint, int *w, int *h);
 
 #endif

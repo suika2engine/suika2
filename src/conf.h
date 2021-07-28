@@ -40,6 +40,9 @@ extern int conf_font_size;
 extern int conf_font_color_r;
 extern int conf_font_color_g;
 extern int conf_font_color_b;
+extern int conf_font_outline_color_r;
+extern int conf_font_outline_color_g;
+extern int conf_font_outline_color_b;
 
 /*
  * 名前ボックスの設定
@@ -167,6 +170,9 @@ extern char *conf_serif_color_name[SERIF_COLOR_COUNT];
 extern int conf_serif_color_r[SERIF_COLOR_COUNT];
 extern int conf_serif_color_g[SERIF_COLOR_COUNT];
 extern int conf_serif_color_b[SERIF_COLOR_COUNT];
+extern int conf_serif_outline_color_r[SERIF_COLOR_COUNT];
+extern int conf_serif_outline_color_g[SERIF_COLOR_COUNT];
+extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 
 /*
  * その他の設定

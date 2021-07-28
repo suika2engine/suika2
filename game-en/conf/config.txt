@@ -35,6 +35,11 @@ font.color.r=255
 font.color.g=255
 font.color.b=255
 
+# Font outline color
+font.outline.color.r=128
+font.outline.color.g=128
+font.outline.color.b=128
+
 ###
 ### Name Box Settings
 ###
@@ -262,16 +267,25 @@ serif.color1.name=Haruka
 serif.color1.r=255
 serif.color1.g=200
 serif.color1.b=200
+serif.color1.outline.r=0
+serif.color1.outline.g=0
+serif.color1.outline.b=0
 
 serif.color2.name=Kana
 serif.color2.r=200
 serif.color2.g=255
 serif.color2.b=200
+serif.color2.outline.r=0
+serif.color2.outline.g=0
+serif.color2.outline.b=0
 
 serif.color3.name=Chiaki
 serif.color3.r=200
 serif.color3.g=200
 serif.color3.b=255
+serif.color3.outline.r=0
+serif.color3.outline.g=0
+serif.color3.outline.b=0
 
 # Continues to serif.color64, but omissible
 

@@ -225,7 +225,8 @@ static void draw_layer_image(struct image *target, int layer);
 static void draw_layer_image_rect(struct image *target, int layer, int x,
 				  int y, int w, int h);
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
-			       pixel_t color, int *w, int *h);
+			       pixel_t color, pixel_t outline_color,int *w,
+			       int *h);
 
 /*
  * 初期化
@@ -1885,11 +1886,12 @@ void show_namebox(bool show)
  * メッセージボックスに文字を描画する
  *  - 描画した幅を返す
  */
-int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color)
+int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
+			 pixel_t outline_color)
 {
 	int w, h;
 
-	draw_char_on_layer(LAYER_NAME, x, y, wc, color, &w, &h);
+	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h);
 
 	return w;
 }
@@ -1935,11 +1937,12 @@ void show_msgbox(bool show)
  * メッセージボックスに文字を描画する
  *  - 描画した高さを返す
  */
-int draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color)
+int draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
+			pixel_t outline_color)
 {
 	int w, h;
 
-	draw_char_on_layer(LAYER_MSG, x, y, wc, color, &w, &h);
+	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, &w, &h);
 
 	return h;
 }
@@ -2009,14 +2012,17 @@ void show_selbox(bool show)
  */
 int draw_char_on_selbox(int x, int y, uint32_t wc)
 {
-	pixel_t color;
+	pixel_t color, outline_color;
 	int w, h;
 
 	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
 			   (pixel_t)conf_font_color_g,
 			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
-	draw_char_on_layer(LAYER_SEL, x, y, wc, color, &w, &h);
+	draw_char_on_layer(LAYER_SEL, x, y, wc, color, outline_color, &w, &h);
 
 	return w;
 }
@@ -2152,15 +2158,18 @@ void clear_save_stage(void)
 /* FO/FIの2レイヤに文字を描画する */
 int draw_char_on_fo_fi(int x, int y, uint32_t wc)
 {
-	pixel_t color;
+	pixel_t color, outline_color;
 	int w, h;
 
 	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
 			   (pixel_t)conf_font_color_g,
 			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
-	draw_char_on_layer(LAYER_FO, x, y, wc, color, &w, &h);
-	draw_char_on_layer(LAYER_FI, x, y, wc, color, &w, &h);
+	draw_char_on_layer(LAYER_FO, x, y, wc, color, outline_color, &w, &h);
+	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, &w, &h);
 
 	return w;
 }
@@ -2229,13 +2238,16 @@ void draw_history_fi(pixel_t color)
  */
 void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
 {
-	pixel_t color;
+	pixel_t color, outline_color;
 
 	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
 			   (pixel_t)conf_font_color_g,
 			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
-	draw_char_on_layer(LAYER_FI, x, y, wc, color, w, h);
+	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, w, h);
 }
 
 /*
@@ -2296,10 +2308,12 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 
 /* レイヤに文字を描画する */
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
-			       pixel_t color, int *w, int *h)
+			       pixel_t color, pixel_t outline_color, int *w,
+			       int *h)
 {
-	/* 文字を描画する */
-	if (!draw_glyph(layer_image[layer], x, y, color, wc, w, h)) {
+	/* 文字の縁取りを描画する Draw outline. */
+	if (!draw_glyph(layer_image[layer], x, y, color, outline_color, wc, w,
+			h)) {
 		/* グリフがない、コードポイントがおかしい、など */
 		return false;
 	}

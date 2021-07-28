@@ -69,6 +69,9 @@ static const char *msg;
 /* 文字の色 */
 static pixel_t color;
 
+/* 文字の縁取りの色 */
+static pixel_t outline_color;
+
 /* クリックアニメーションの初回描画を処理すべきか */
 static bool process_click_first;
 
@@ -100,7 +103,7 @@ static void draw_msgbox(void);
 static int get_frame_chars(void);
 static void draw_click(void);
 static int get_en_word_width(void);
-static pixel_t get_message_color(void);
+static void get_message_color(pixel_t *color, pixel_t *outline_color);
 static bool cleanup(void);
 
 /*
@@ -198,7 +201,7 @@ static bool init(void)
 		return false;
 
 	/* 文字色を求める */
-	color = get_message_color();
+	get_message_color(&color, &outline_color);
 
 	/* セリフの場合を処理する */
 	if (!process_serif_command())
@@ -361,7 +364,8 @@ static void draw_namebox(void)
 			return;
 
 		/* 描画する */
-		w = draw_char_on_namebox(x, conf_namebox_margin_top, c, color);
+		w = draw_char_on_namebox(x, conf_namebox_margin_top, c, color,
+					 outline_color);
 
 		/* 次の文字へ移動する */
 		x += w;
@@ -487,7 +491,7 @@ static void draw_msgbox(void)
 		}
 
 		/* 描画する */
-		h = draw_char_on_msgbox(pen_x, pen_y, c, color);
+		h = draw_char_on_msgbox(pen_x, pen_y, c, color, outline_color);
 
 		/* 更新領域を求める */
 		union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y,
@@ -614,7 +618,7 @@ static int get_en_word_width(void)
 }
 
 /* 文字色を求める */
-static pixel_t get_message_color(void)
+static void get_message_color(pixel_t *color, pixel_t *outline_color)
 {
 	int i;
 	const char *name;
@@ -629,19 +633,25 @@ static pixel_t get_message_color(void)
 				continue;
 			if (strcmp(name, conf_serif_color_name[i]) == 0) {
 				/* コンフィグで指定された色にする */
-				return make_pixel(
+				*color = make_pixel(
 					0xff,
 					(uint32_t)conf_serif_color_r[i],
 					(uint32_t)conf_serif_color_g[i],
 					(uint32_t)conf_serif_color_b[i]);
+
+				/* FIXME: */
+				*outline_color = 0;
 			}
 		}
 	}
 
 	/* セリフでないかコンフィグで名前が指定されていない場合 */
-	return make_pixel(0xff, (pixel_t)conf_font_color_r,
-			  (pixel_t)conf_font_color_g,
-			  (pixel_t)conf_font_color_b);
+	*color =  make_pixel(0xff, (pixel_t)conf_font_color_r,
+			     (pixel_t)conf_font_color_g,
+			     (pixel_t)conf_font_color_b);
+	*outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
+				    (pixel_t)conf_font_outline_color_g,
+				    (pixel_t)conf_font_outline_color_b);
 }
 
 /* 終了処理を行う */

@@ -19,7 +19,7 @@ window.white=1
 ###
 
 # フォントファイル名
-font.file=VL-PGothic-Regular.ttf
+font.file=yasashisa.ttf
 
 # フォントサイズ
 font.size=19
@@ -28,6 +28,11 @@ font.size=19
 font.color.r=255
 font.color.g=255
 font.color.b=255
+
+# フォントの縁取りの色
+font.outline.color.r=128
+font.outline.color.g=128
+font.outline.color.b=128
 
 ###
 ### 名前ボックスの設定
@@ -256,18 +261,27 @@ serif.color1.name=Haruka
 serif.color1.r=255
 serif.color1.g=200
 serif.color1.b=200
+serif.color1.outline.r=0
+serif.color1.outline.g=0
+serif.color1.outline.b=0
 
 serif.color2.name=Kana
 serif.color2.r=200
 serif.color2.g=255
 serif.color2.b=200
+serif.color2.outline.r=0
+serif.color2.outline.g=0
+serif.color2.outline.b=0
 
 serif.color3.name=Chiaki
 serif.color3.r=200
 serif.color3.g=200
 serif.color3.b=255
+serif.color3.outline.r=0
+serif.color3.outline.g=0
+serif.color3.outline.b=0
 
-# 以降、serif.color32まで続くが省略可能
+# 以降、serif.color64まで続くが省略可能
 
 ###
 ### その他

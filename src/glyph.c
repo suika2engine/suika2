@@ -20,7 +20,11 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-/*#include <freetype/ftsynth.h>*/
+#ifdef EM
+#include <ftstroke.h>
+#else
+#include <freetype/ftstroke.h>
+#endif
 
 #define SCALE	(64)
 
@@ -285,32 +289,34 @@ int get_utf8_width(const char *mbs)
  * 文字の描画を行う
  */
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
-		uint32_t codepoint, int *w, int *h)
+		pixel_t outline_color, uint32_t codepoint, int *w, int *h)
 {
-	FT_Error err;
+	FT_Stroker stroker;
+	FT_UInt glyphIndex;
+	FT_Glyph glyph;
+	FT_BitmapGlyph bitmapGlyph;
 	int descent;
 
-	/* 文字をグレースケールビットマップとして取得する */
-	err = FT_Load_Char(face, codepoint, FT_LOAD_RENDER);
-	if (err != 0) {
-		log_api_error("FT_Load_Char");
-		return false;
-	}
-
-	/* 文字のビットマップを対象イメージに描画する */
-	if (img != NULL) {
-		draw_glyph_func(face->glyph->bitmap.buffer,
-				(int)face->glyph->bitmap.width,
-				(int)face->glyph->bitmap.rows,
-				face->glyph->bitmap_left,
-				conf_font_size - face->glyph->bitmap_top,
-				get_image_pixels(img),
-				get_image_width(img),
-				get_image_height(img),
-				x,
-				y,
-				color);
-	}
+	/* アウトラインを描画する Draw outline. */
+	FT_Stroker_New(library, &stroker);
+	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+	glyphIndex = FT_Get_Char_Index(face, codepoint);
+	FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face->glyph, &glyph);
+	FT_Glyph_StrokeBorder(&glyph, stroker, false, true);
+	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
+	bitmapGlyph = (FT_BitmapGlyph)glyph;
+	draw_glyph_func(bitmapGlyph->bitmap.buffer,
+			(int)bitmapGlyph->bitmap.width,
+			(int)bitmapGlyph->bitmap.rows,
+			bitmapGlyph->left,
+			conf_font_size - bitmapGlyph->top,
+			get_image_pixels(img),
+			get_image_width(img),
+			get_image_height(img),
+			x,
+			y,
+			outline_color);
 
 	/* descentを求める */
 	descent = (int)(face->glyph->metrics.height / SCALE) -
@@ -318,7 +324,27 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 
 	/* 描画した幅と高さを求める */
 	*w = (int)face->glyph->advance.x / SCALE;
-	*h = conf_font_size + descent;
+	*h = conf_font_size + descent + 2;
+
+	/* 中身を描画する Draw body. */
+	FT_Stroker_New(library, &stroker);
+	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+	glyphIndex = FT_Get_Char_Index(face, codepoint);
+	FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face->glyph, &glyph);
+	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
+	bitmapGlyph = (FT_BitmapGlyph)glyph;
+	draw_glyph_func(bitmapGlyph->bitmap.buffer,
+			(int)bitmapGlyph->bitmap.width,
+			(int)bitmapGlyph->bitmap.rows,
+			bitmapGlyph->left,
+			conf_font_size - bitmapGlyph->top,
+			get_image_pixels(img),
+			get_image_width(img),
+			get_image_height(img),
+			x,
+			y,
+			color);
 
 	/* 成功 */
 	return true;
