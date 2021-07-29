@@ -168,7 +168,8 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* セーブ画面への遷移を処理する */
 	if (is_save_load_enabled() &&
-	    (is_left_button_pressed && pointed_index == BTN_SAVE)) {
+	    (is_right_button_pressed ||
+	     (is_left_button_pressed && pointed_index == BTN_SAVE))) {
 		play_se();
 		start_save_mode(false);
 		stop_command_repetition();
@@ -191,7 +192,8 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* ヒストリ画面への遷移を処理する */
 	if (is_up_pressed ||
 	    (is_left_button_pressed && pointed_index == BTN_LOG)) {
-		play_se();
+		if (is_left_button_pressed)
+			play_se();
 		start_history_mode();
 		stop_command_repetition();
 		free(msg_top);

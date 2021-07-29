@@ -105,6 +105,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 static void process_left_press_save_button(int new_pointed_index, int *x,
 					   int *y, int *w, int *h);
 static bool have_save_data(int new_pointed_index);
+static void play_se(const char *file);
 static bool process_save(int new_pointed_index);
 static bool serialize_all(const char *fname, int index);
 static bool serialize_command(struct wfile *wf);
@@ -318,13 +319,23 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 		return true;
 	}
 
-	/* 右クリックされた場合、セーブをキャンセルする */
+	/* 右クリックされた場合 */
 	if (is_right_button_pressed) {
 		if (!is_goto) {
-			if (is_save_mode)
+			/* セーブ・ロードを入れ替える Swap save and load. */
+			if (is_save_mode) {
+				play_se(conf_save_savetoload_se);
 				start_load_mode(is_goto);
-			else
+			} else {
+				play_se(conf_save_loadtosave_se);
 				start_save_mode(is_goto);
+			}
+		} else {
+			/* セーブ・ロードをキャンセルする */
+			play_se(is_save_mode ? conf_save_cancel_save_se :
+				conf_save_cancel_load_se);
+			stop_save_load_mode(x, y, w, h);
+			restore_flag = false;
 		}
 		return true;
 	}
@@ -521,10 +532,12 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	    new_pointed_index <= BUTTON_SIX) {
 		process_left_press_save_button(new_pointed_index, x, y, w, h);
 		if (is_save_mode) {
+			play_se(conf_save_data_save_se);
 			process_save(new_pointed_index);
 			save_global_data();
 			draw_page(x, y, w, h);
 		} else if (have_save_data(new_pointed_index)){
+			play_se(conf_save_data_load_se);
 			process_load(new_pointed_index);
 			stop_save_load_mode(x, y, w, h);
 		}
@@ -534,6 +547,10 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	/* 前ページ、次ページボタンの場合 */
 	if (new_pointed_index == BUTTON_PREV ||
 	    new_pointed_index == BUTTON_NEXT) {
+		if (new_pointed_index == BUTTON_PREV)
+			play_se(conf_save_prev_se);
+		else
+			play_se(conf_save_next_se);
 		page += new_pointed_index == BUTTON_PREV ? -1 : 1;
 		draw_page(x, y, w, h);
 		return true;
@@ -541,6 +558,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 
 	/* 終了ボタンの場合 */
 	if (new_pointed_index == BUTTON_EXIT) {
+		play_se(conf_save_exit_se);
 		stop_save_load_mode(x, y, w, h);
 		if (is_goto)
 			restore_flag = false;
@@ -551,6 +569,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 
 	/* タイトルへ戻るボタンの場合 */
 	if (new_pointed_index == BUTTON_TITLE) {
+		play_se(conf_save_title_se);
 		if (title_dialog()) {
 			if (!load_script(conf_save_title_txt))
 				return false;
@@ -604,20 +623,24 @@ static bool have_save_data(int new_pointed_index)
 	return true;
 }
 
+/* SEを再生する */
+static void play_se(const char *file)
+{
+	struct wave *w;
+
+	if (strcmp(file, "") == 0)
+		return;
+
+	w = create_wave_from_file(SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SE_STREAM, w);
+}
+
 /*
  * セーブの実際の処理
  */
-
-/*
- * クイックセーブデータがあるか
- */
-bool have_quick_save_data(void)
-{
-	if (quick_save_time == 0)
-		return false;
-
-	return true;
-}
 
 /*
  * クイックセーブを行う Do quick save
@@ -809,6 +832,17 @@ static bool serialize_vars(struct wfile *wf)
 /*
  * ロードの実際の処理
  */
+
+/*
+ * クイックセーブデータがあるか
+ */
+bool have_quick_save_data(void)
+{
+	if (quick_save_time == 0)
+		return false;
+
+	return true;
+}
 
 /*
  * クイックロードを行う Do quick load

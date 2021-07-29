@@ -217,20 +217,28 @@ save.load.bg.file=load-bg.png
 # ロード画面(選択状態の画像)
 save.load.fg.file=load-fg.png
 
-# 前ページボタンの位置と大きさ
+# 前ページボタン
+save.prev.se=click.ogg
 save.prev.x=416
 save.prev.y=112
 save.prev.width=70
 save.prev.height=64
 
-# 次ページボタンの位置と大きさ
+# 次ページボタン
+save.next.se=click.ogg
 save.next.x=416
 save.next.y=470
 save.next.width=70
 save.next.height=64
 
+# セーブ時のSE
+save.data.save.se=click.ogg
+
+# ロード時のSE
+save.data.load.se=click.ogg
+
 # セーブデータ項目の大きさ
-save.data.width=384
+save.data.width=382
 save.data.height=64
 
 # セーブデータ項目内のテキストマージン
@@ -262,19 +270,33 @@ save.data6.x=34
 save.data6.y=451
 
 # セーブ画面の終了ボタンの位置とサイズ
+save.exit.se=click.ogg
 save.exit.x=33
 save.exit.y=623
 save.exit.width=170
 save.exit.height=64
 
-# セーブ画面のタイトルへ戻るボタンの位置とサイズ
+# セーブ・ロード画面のタイトルへ戻るボタン
+save.title.se=click.ogg
 save.title.x=244
 save.title.y=623
 save.title.width=170
 save.title.height=64
 
-# セーブ画面のタイトルへ戻るボタンのジャンプ先
+# セーブ・ロード画面のタイトルへ戻るボタンのジャンプ先
 save.title.txt=init.txt
+
+# ロード画面からセーブ画面に移るときのSE
+save.loadtosave.se=click.ogg
+
+# セーブ画面からロード画面に移るときのSE
+save.savetoload.se=click.ogg
+
+# セーブ画面(@goto $SAVE)を右クリックでキャンセルするときのSE
+save.cancel.save.se=click.ogg
+
+# ロード画面(@goto $LOAD)を右クリックでキャンセルするときのSE
+save.cancel.load.se=click.ogg
 
 ###
 ### ヒストリ画面の設定

@@ -144,14 +144,18 @@ char *conf_save_save_bg_file;
 char *conf_save_save_fg_file;
 char *conf_save_load_bg_file;
 char *conf_save_load_fg_file;
+char *conf_save_prev_se;
 int conf_save_prev_x;
 int conf_save_prev_y;
 int conf_save_prev_width;
 int conf_save_prev_height;
+char *conf_save_next_se;
 int conf_save_next_x;
 int conf_save_next_y;
 int conf_save_next_width;
 int conf_save_next_height;
+char *conf_save_data_save_se;
+char *conf_save_data_load_se;
 int conf_save_data_width;
 int conf_save_data_height;
 int conf_save_data_margin_left;
@@ -168,15 +172,21 @@ int conf_save_data5_x;
 int conf_save_data5_y;
 int conf_save_data6_x;
 int conf_save_data6_y;
+char *conf_save_exit_se;
 int conf_save_exit_x;
 int conf_save_exit_y;
 int conf_save_exit_width;
 int conf_save_exit_height;
+char *conf_save_title_se;
 int conf_save_title_x;
 int conf_save_title_y;
 int conf_save_title_width;
 int conf_save_title_height;
 char *conf_save_title_txt;
+char *conf_save_loadtosave_se;
+char *conf_save_savetoload_se;
+char *conf_save_cancel_save_se;
+char *conf_save_cancel_load_se;
 
 /*
  * ヒストリ画面の設定
@@ -310,14 +320,18 @@ struct rule {
 	{"save.save.fg.file", 's', &conf_save_save_fg_file, false, false},
 	{"save.load.bg.file", 's', &conf_save_load_bg_file, false, false},
 	{"save.load.fg.file", 's', &conf_save_load_fg_file, false, false},
+	{"save.prev.se", 's', &conf_save_prev_se, false, false},
 	{"save.prev.x", 'i', &conf_save_prev_x, false, false},
 	{"save.prev.y", 'i', &conf_save_prev_y, false, false},
 	{"save.prev.width", 'i', &conf_save_prev_width, false, false},
 	{"save.prev.height", 'i', &conf_save_prev_height, false, false},
+	{"save.next.se", 's', &conf_save_next_se, false, false},
 	{"save.next.x", 'i', &conf_save_next_x, false, false},
 	{"save.next.y", 'i', &conf_save_next_y, false, false},
 	{"save.next.width", 'i', &conf_save_next_width, false, false},
 	{"save.next.height", 'i', &conf_save_next_height, false, false},
+	{"save.data.save.se", 's', &conf_save_data_save_se, false, false},
+	{"save.data.load.se", 's', &conf_save_data_load_se, false, false},
 	{"save.data.width", 'i', &conf_save_data_width, false, false},
 	{"save.data.height", 'i', &conf_save_data_height, false, false},
 	{"save.data.margin.left", 'i', &conf_save_data_margin_left, false, false},
@@ -334,15 +348,21 @@ struct rule {
 	{"save.data5.y", 'i', &conf_save_data5_y, false, false},
 	{"save.data6.x", 'i', &conf_save_data6_x, false, false},
 	{"save.data6.y", 'i', &conf_save_data6_y, false, false},
+	{"save.exit.se", 's', &conf_save_exit_se, false, false},
 	{"save.exit.x", 'i', &conf_save_exit_x, false, false},
 	{"save.exit.y", 'i', &conf_save_exit_y, false, false},
 	{"save.exit.width", 'i', &conf_save_exit_width, false, false},
 	{"save.exit.height", 'i',  &conf_save_exit_height, false, false},
+	{"save.title.se", 's', &conf_save_title_se, false, false},
 	{"save.title.x", 'i', &conf_save_title_x, false, false},
 	{"save.title.y", 'i', &conf_save_title_y, false, false},
 	{"save.title.width", 'i', &conf_save_title_width, false, false},
 	{"save.title.height", 'i', &conf_save_title_height, false, false},
 	{"save.title.txt", 's', &conf_save_title_txt, false, false},
+	{"save.loadtosave.se", 's', &conf_save_loadtosave_se, false, false},
+	{"save.savetoload.se", 's', &conf_save_savetoload_se, false, false},
+	{"save.cancel.save.se", 's', &conf_save_cancel_save_se, false, false},
+	{"save.cancel.load.se", 's', &conf_save_cancel_load_se, false, false},
 	{"history.color.r", 'i', &conf_history_color_r, false, false},
 	{"history.color.g", 'i', &conf_history_color_g, false, false},
 	{"history.color.b", 'i', &conf_history_color_b, false, false},
