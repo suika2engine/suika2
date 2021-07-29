@@ -80,44 +80,44 @@ msgbox.speed=20.0
 # QSAVEボタンの座標(メッセージボックス内の座標)
 msgbox.btn.qsave.x=740
 msgbox.btn.qsave.y=0
-msgbox.btn.qsave.w=79
-msgbox.btn.qsave.h=23
+msgbox.btn.qsave.width=79
+msgbox.btn.qsave.height=23
 
 # QLOADボタンの座標(メッセージボックス内の座標)
 msgbox.btn.qload.x=820
 msgbox.btn.qload.y=0
-msgbox.btn.qload.w=81
-msgbox.btn.qload.h=23
+msgbox.btn.qload.width=81
+msgbox.btn.qload.height=23
 
 # SAVEボタンの座標(メッセージボックス内の座標)
 msgbox.btn.save.x=901
 msgbox.btn.save.y=0
-msgbox.btn.save.w=62
-msgbox.btn.save.h=23
+msgbox.btn.save.width=62
+msgbox.btn.save.height=23
 
 # LOADボタンの座標(メッセージボックス内の座標)
 msgbox.btn.load.x=963
 msgbox.btn.load.y=0
-msgbox.btn.load.w=66
-msgbox.btn.load.h=23
+msgbox.btn.load.width=66
+msgbox.btn.load.height=23
 
 # AUTOボタンの座標(メッセージボックス内の座標)
 msgbox.btn.auto.x=1029
 msgbox.btn.auto.y=0
-msgbox.btn.auto.w=68
-msgbox.btn.auto.h=23
+msgbox.btn.auto.width=68
+msgbox.btn.auto.height=23
 
 # SKIPボタンの座標(メッセージボックス内の座標)
 msgbox.btn.skip.x=1096
 msgbox.btn.skip.y=0
-msgbox.btn.skip.w=59
-msgbox.btn.skip.h=23
+msgbox.btn.skip.width=59
+msgbox.btn.skip.height=23
 
 # LOGボタンの座標(メッセージボックス内の座標)
 msgbox.btn.log.x=1156
 msgbox.btn.log.y=0
-msgbox.btn.log.w=53
-msgbox.btn.log.h=23
+msgbox.btn.log.width=53
+msgbox.btn.log.height=23
 
 # ボタンが押されたときのSE
 msgbox.btn.qsave.se=click.ogg
@@ -205,35 +205,29 @@ news.text.margin.y=18
 ### セーブ・ロード画面の設定
 ###
 
-# 非選択状態の画像
-save.bg.file=save-bg.png
+# セーブ画面(非選択状態の画像)
+save.save.bg.file=save-bg.png
 
-# 選択状態の画像
-save.fg.file=save-fg.png
+# セーブ画面(選択状態の画像)
+save.save.fg.file=save-fg.png
 
-# セーブボタンの位置と大きさ
-save.save.x=448
-save.save.y=100
-save.save.width=128
-save.save.height=64
+# ロード画面(非選択状態の画像)
+save.load.bg.file=load-bg.png
 
-# ロードボタンの位置と大きさ
-save.load.x=704
-save.load.y=100
-save.load.width=128
-save.load.height=64
+# ロード画面(選択状態の画像)
+save.load.fg.file=load-fg.png
 
 # 前ページボタンの位置と大きさ
-save.prev.x=0
-save.prev.y=0
-save.prev.width=128
-save.prev.height=64
+save.prev.x=836
+save.prev.y=187
+save.prev.width=69
+save.prev.height=65
 
 # 次ページボタンの位置と大きさ
-save.next.x=1152
-save.next.y=0
-save.next.width=128
-save.next.height=64
+save.next.x=836
+save.next.y=517
+save.next.width=69
+save.next.height=65
 
 # セーブデータ項目の大きさ
 save.data.width=384

@@ -68,7 +68,8 @@ enum {
 	 * 下記のレイヤは次の場合に有効
 	 *  - キャラフェード
 	 *  - イメージボタン
-	 *  - セーブ・ロード
+	 *  - セーブ
+	 *  - ロード
 	 *  - スイッチ
 	 */
 	LAYER_FI,	/* 特殊: 実体イメージあり */
@@ -138,6 +139,12 @@ static struct image *save_bg_image;
 
 /* セーブ画面(選択)のイメージ */
 static struct image *save_fg_image;
+
+/* ロード画面(非選択)のイメージ */
+static struct image *load_bg_image;
+
+/* ロード画面(選択)のイメージ */
+static struct image *load_fg_image;
 
 /* レイヤのx座標 */
 static int layer_x[STAGE_LAYERS];
@@ -445,13 +452,23 @@ static bool setup_news(void)
 static bool setup_save(void)
 {
 	/* セーブ画面(非選択)の画像を読み込む */
-	save_bg_image = create_image_from_file(CG_DIR, conf_save_bg_file);
+	save_bg_image = create_image_from_file(CG_DIR, conf_save_save_bg_file);
 	if (save_bg_image == NULL)
 		return false;
 
 	/* セーブ画面(非選択)の画像を読み込む */
-	save_fg_image = create_image_from_file(CG_DIR, conf_save_fg_file);
+	save_fg_image = create_image_from_file(CG_DIR, conf_save_save_fg_file);
 	if (save_fg_image == NULL)
+		return false;
+
+	/* セーブ画面(非選択)の画像を読み込む */
+	load_bg_image = create_image_from_file(CG_DIR, conf_save_load_bg_file);
+	if (load_bg_image == NULL)
+		return false;
+
+	/* セーブ画面(非選択)の画像を読み込む */
+	load_fg_image = create_image_from_file(CG_DIR, conf_save_load_fg_file);
+	if (load_fg_image == NULL)
 		return false;
 
 	return true;
@@ -521,7 +538,7 @@ static void destroy_layer_image(int layer)
 /* ステージを描画する */
 void draw_stage(void)
 {
-	assert(!is_save_mode());
+	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -533,7 +550,7 @@ void draw_stage(void)
  */
 void draw_stage_rect(int x, int y, int w, int h)
 {
-	assert(!is_save_mode());
+	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
@@ -567,7 +584,7 @@ void draw_stage_rect(int x, int y, int w, int h)
  */
 void draw_stage_bg_fade(int fade_method)
 {
-	assert(!is_save_mode());
+	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
@@ -578,7 +595,7 @@ void draw_stage_bg_fade(int fade_method)
  */
 void draw_stage_ch_fade(int fade_method)
 {
-	assert(!is_save_mode());
+	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_CH_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
@@ -1253,7 +1270,7 @@ void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
 void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 				  int new_x, int new_y, int new_w, int new_h)
 {
-	assert(!is_save_mode());
+	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -1282,7 +1299,7 @@ void draw_stage_rect_with_switch(int x, int y, int w, int h)
 void draw_stage_history(void)
 {
 	assert(is_history_mode());
-	assert(!is_save_mode());
+	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -2197,6 +2214,21 @@ void clear_save_stage(void)
 		   get_image_height(layer_image[LAYER_FO]),
 		   0, 0, 255, BLEND_NONE);
 	draw_image(layer_image[LAYER_FI], 0, 0, save_fg_image,
+		   get_image_width(layer_image[LAYER_FI]),
+		   get_image_height(layer_image[LAYER_FI]),
+		   0, 0, 255, BLEND_NONE);
+}
+
+/*
+ * ロード画面用にFI/FOレイヤをクリアする
+ */
+void clear_load_stage(void)
+{
+	draw_image(layer_image[LAYER_FO], 0, 0, load_bg_image,
+		   get_image_width(layer_image[LAYER_FO]),
+		   get_image_height(layer_image[LAYER_FO]),
+		   0, 0, 255, BLEND_NONE);
+	draw_image(layer_image[LAYER_FI], 0, 0, load_fg_image,
 		   get_image_width(layer_image[LAYER_FI]),
 		   get_image_height(layer_image[LAYER_FI]),
 		   0, 0, 255, BLEND_NONE);

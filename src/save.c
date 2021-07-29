@@ -75,13 +75,13 @@ static bool load_flag;
 static bool restore_flag;
 
 /* セーブ画面が有効であるか */
-static bool is_save_mode_enabled;
+static bool is_save_load_mode_enabled;
 
-/* セーブ可能モードであるか */
-static bool is_save_allowed;
+/* セーブモードであるか (falseならロードモード) */
+static bool is_save_mode;
 
-/* ロード可能モードであるか */
-static bool is_load_allowed;
+/* goto $LOADまたはgoto $SAVEであるか */
+static bool is_goto;
 
 /* 最初の描画であるか */
 static bool is_first_frame;
@@ -91,9 +91,6 @@ static int page;
 
 /* ポイントされている項目のインデックス */
 static int pointed_index;
-
-/* 選択が固定されているか */
-static int selected_index;
 
 /* 前方参照 */
 static void load_button_conf(void);
@@ -107,15 +104,15 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			       int *h);
 static void process_left_press_save_button(int new_pointed_index, int *x,
 					   int *y, int *w, int *h);
-static bool is_single_function_mode(void);
-static bool process_save(void);
+static bool have_save_data(int new_pointed_index);
+static bool process_save(int new_pointed_index);
 static bool serialize_all(const char *fname, int index);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
 static bool serialize_bgm(struct wfile *wf);
 static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
-static bool process_load(void);
+static bool process_load(int new_pointed_index);
 static bool deserialize_all(const char *fname);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
@@ -136,7 +133,7 @@ bool init_save(void)
 	/* 再利用時のための初期化を行う */
 	load_flag = false;
 	restore_flag = false;
-	is_save_mode_enabled = false;
+	is_save_load_mode_enabled = false;
 
 	/* コンフィグからボタンの位置と大きさをロードする */
 	load_button_conf();
@@ -193,16 +190,6 @@ static void load_button_conf(void)
 	button[BUTTON_NEXT].w = conf_save_next_width;
 	button[BUTTON_NEXT].h = conf_save_next_height;
 
-	button[BUTTON_SAVE].x = conf_save_save_x;
-	button[BUTTON_SAVE].y = conf_save_save_y;
-	button[BUTTON_SAVE].w = conf_save_save_width;
-	button[BUTTON_SAVE].h = conf_save_save_height;
-
-	button[BUTTON_LOAD].x = conf_save_load_x;
-	button[BUTTON_LOAD].y = conf_save_load_y;
-	button[BUTTON_LOAD].w = conf_save_load_width;
-	button[BUTTON_LOAD].h = conf_save_load_height;
-
 	button[BUTTON_EXIT].x = conf_save_exit_x;
 	button[BUTTON_EXIT].y = conf_save_exit_y;
 	button[BUTTON_EXIT].w = conf_save_exit_width;
@@ -258,14 +245,12 @@ bool check_restore_flag(void)
 /*
  * セーブ画面を開始する
  */
-void start_save_mode(bool allow_save, bool allow_load)
+void start_save_mode(bool is_goto_save)
 {
 	/* セーブ画面を開始する */
-	is_save_mode_enabled = true;
-
-	/* セーブ・ロード別許可を記憶する */
-	is_save_allowed = allow_save;
-	is_load_allowed = allow_load;
+	is_save_load_mode_enabled = true;
+	is_save_mode = true;
+	is_goto = is_goto_save;
 
 	/* 最初のフレームである */
 	is_first_frame = true;
@@ -273,18 +258,35 @@ void start_save_mode(bool allow_save, bool allow_load)
 	/* 選択項目を無効とする */
 	pointed_index = -1;
 
-	/* セーブデータの選択を無効とする */
-	selected_index = -1;
+	/* 0ページ目を表示する */
+	page = 0;
+}
+
+/*
+ * ロード画面を開始する
+ */
+void start_load_mode(bool is_goto_load)
+{
+	/* セーブ画面を開始する */
+	is_save_load_mode_enabled = true;
+	is_save_mode = false;
+	is_goto = is_goto_load;
+
+	/* 最初のフレームである */
+	is_first_frame = true;
+
+	/* 選択項目を無効とする */
+	pointed_index = -1;
 
 	/* 0ページ目を表示する */
 	page = 0;
 }
 
 /* セーブ画面を終了する */
-static void stop_save_mode(int *x, int *y, int *w, int *h)
+static void stop_save_load_mode(int *x, int *y, int *w, int *h)
 {
 	/* セーブ画面を終了する */
-	is_save_mode_enabled = false;
+	is_save_load_mode_enabled = false;
 
 	/* ステージを再描画する */
 	draw_stage();
@@ -299,15 +301,15 @@ static void stop_save_mode(int *x, int *y, int *w, int *h)
 /*
  * セーブ画面が有効であるかを返す
  */
-bool is_save_mode(void)
+bool is_save_load_mode(void)
 {
-	return is_save_mode_enabled;
+	return is_save_load_mode_enabled;
 }
 
 /*
  * セーブ画面の1フレームを実行する
  */
-bool run_save_mode(int *x, int *y, int *w, int *h)
+bool run_save_load_mode(int *x, int *y, int *w, int *h)
 {
 	/* 最初のフレームを実行する */
 	if (is_first_frame) {
@@ -318,8 +320,8 @@ bool run_save_mode(int *x, int *y, int *w, int *h)
 
 	/* 右クリックされた場合、セーブをキャンセルする */
 	if (is_right_button_pressed) {
-		stop_save_mode(x, y, w, h);
-		if (is_single_function_mode())
+		stop_save_load_mode(x, y, w, h);
+		if (is_goto)
 			restore_flag = false;
 		else
 			restore_flag = true;
@@ -338,8 +340,10 @@ bool run_save_mode(int *x, int *y, int *w, int *h)
 static void draw_page(int *x, int *y, int *w, int *h)
 {
 	/* ステージのレイヤの背景を描画する */
-	/* FIXME: draw_image_to_fi/foに変更するか？ */
-	clear_save_stage();
+	if (is_save_mode)
+		clear_save_stage();
+	else
+		clear_load_stage();
 
 	/* セーブデータのテキストを描画する */
 	draw_all_text_items();
@@ -389,25 +393,6 @@ static int get_pointed_index(void)
 
 	/* 最後のページの場合、BUTTON_NEXTを無効にする */
 	if (page == SAVE_PAGES - 1 && pointed == BUTTON_NEXT)
-		return -1;
-
-	/* セーブが許可されていないモードの場合、BUTTON_SAVEを無効にする */
-	if (!is_save_allowed && pointed == BUTTON_SAVE)
-		return -1;
-
-	/* ロードが許可されていないモードの場合、BUTTON_LOADを無効にする */
-	if (!is_load_allowed && pointed == BUTTON_LOAD)
-		return -1;
-
-	/* 選択されたボタンがない場合、BUTTON_SAVEとBUTTON_LOADを無効にする */
-	if (selected_index == -1 && pointed == BUTTON_SAVE)
-		return -1;
-	if (selected_index == -1 && pointed == BUTTON_LOAD)
-		return -1;
-
-	/* 選択されたボタンにセーブデータがない場合、BUTTON_LOADを無効にする */
-	if (selected_index != -1 && pointed == BUTTON_LOAD &&
-	    save_time[selected_index - BUTTON_ONE] == 0)
 		return -1;
 
 	/* ポイントされたボタンを返す */
@@ -485,40 +470,16 @@ bool update_pointed_index(int *x, int *y, int *w, int *h)
 
 	/* 選択されたボタンとポイントされたボタンをバックイメージに描画する */
 	if (new_pointed_index != -1) {
-		/* 選択中のボタンがある場合 */
-		if (selected_index != -1 &&
-		    selected_index != new_pointed_index) {
-			draw_stage_with_buttons(
-				button[new_pointed_index].x,
-				button[new_pointed_index].y,
-				button[new_pointed_index].w,
-				button[new_pointed_index].h,
-				button[selected_index].x,
-				button[selected_index].y,
-				button[selected_index].w,
-				button[selected_index].h);
-		} else {
-			/* 選択中のボタンがない場合 */
-			draw_stage_with_buttons(
-				button[new_pointed_index].x,
-				button[new_pointed_index].y,
-				button[new_pointed_index].w,
-				button[new_pointed_index].h,
-				0, 0, 0, 0);
-		}
+		/* 選択中のボタンがない場合 */
+		draw_stage_with_buttons(
+			button[new_pointed_index].x,
+			button[new_pointed_index].y,
+			button[new_pointed_index].w,
+			button[new_pointed_index].h,
+			0, 0, 0, 0);
 	} else {
-		/* 選択中のボタンがある場合 */
-		if (selected_index != -1) {
-			draw_stage_with_buttons(
-				button[selected_index].x,
-				button[selected_index].y,
-				button[selected_index].w,
-				button[selected_index].h,
-				0, 0, 0, 0);
-		} else {
-			/* 選択中のボタンがない場合 */
-			draw_stage_with_buttons(0, 0, 0, 0, 0, 0, 0, 0);
-		}
+		/* 選択中のボタンがない場合 */
+		draw_stage_with_buttons(0, 0, 0, 0, 0, 0, 0, 0);
 	}
 
 	/* ウィンドウの更新領域を求める */
@@ -554,10 +515,18 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	if (new_pointed_index == -1)
 		return true;
 
-	/* セーブデータのボタンの場合、選択する */
+	/* セーブデータのボタンの場合、セーブかロードを実行する */
 	if (new_pointed_index >= BUTTON_ONE &&
 	    new_pointed_index <= BUTTON_SIX) {
 		process_left_press_save_button(new_pointed_index, x, y, w, h);
+		if (is_save_mode) {
+			process_save(new_pointed_index);
+			save_global_data();
+			draw_page(x, y, w, h);
+		} else if (have_save_data(new_pointed_index)){
+			process_load(new_pointed_index);
+			stop_save_load_mode(x, y, w, h);
+		}
 		return true;
 	}
 
@@ -565,11 +534,11 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	if (new_pointed_index == BUTTON_PREV ||
 	    new_pointed_index == BUTTON_NEXT) {
 		page += new_pointed_index == BUTTON_PREV ? -1 : 1;
-		selected_index = -1;
 		draw_page(x, y, w, h);
 		return true;
 	}
 
+#if 0
 	/* セーブボタンの場合 */
 	if (new_pointed_index == BUTTON_SAVE) {
 		process_save();
@@ -583,9 +552,10 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 
 	/* ロードボタンの場合 */
 	if (new_pointed_index == BUTTON_LOAD) {
-		process_load();
+ 		process_load();
 		stop_save_mode(x, y, w, h);
 	}
+#endif
 
 	/* 終了ボタンの場合 */
 	if (new_pointed_index == BUTTON_EXIT) {
@@ -604,7 +574,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			show_namebox(false);
 			show_msgbox(false);
 			show_selbox(false);
-			stop_save_mode(x, y, w, h);
+			stop_save_load_mode(x, y, w, h);
 			return true;
 		}
 	}
@@ -630,26 +600,22 @@ static void process_left_press_save_button(int new_pointed_index, int *x,
 		   button[new_pointed_index].y,
 		   button[new_pointed_index].w,
 		   button[new_pointed_index].h,
-		   button[selected_index].x,
-		   button[selected_index].y,
-		   button[selected_index].w,
-		   button[selected_index].h);
-
-	/* 選択されている項目を更新する */
-	selected_index = new_pointed_index;
+		   0, 0, 0, 0);
 
 	/* ポイントされている項目を更新する */
 	pointed_index = new_pointed_index;
 }
 
-/* セーブまたはロードのどちらかのみを利用しているかを返す */
-static bool is_single_function_mode(void)
+/* 選択された項目にセーブデータがあるか調べる */
+static bool have_save_data(int new_pointed_index)
 {
-	if (is_save_allowed && !is_load_allowed)
-		return true;
-	if (!is_save_allowed && is_load_allowed)
-		return true;
-	return false;
+	int index;
+
+	index = PAGE_SLOTS * page + new_pointed_index;
+	if (save_time[index] == 0)
+		return false;
+
+	return true;
 }
 
 /*
@@ -679,13 +645,13 @@ bool quick_save(void)
 }
 
 /* セーブを処理する */
-static bool process_save(void)
+static bool process_save(int new_pointed_index)
 {
 	char s[128];
 	int index;
 
 	/* ファイル名を求める */
-	index = page * PAGE_SLOTS + (selected_index - BUTTON_ONE);
+	index = page * PAGE_SLOTS + (new_pointed_index - BUTTON_ONE);
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
 	/* シリアライズを行う */
@@ -870,13 +836,13 @@ bool quick_load(void)
 }
 
 /* ロードを処理する */
-static bool process_load(void)
+static bool process_load(int new_pointed_index)
 {
 	char s[128];
 	int index;
 
 	/* ファイル名を求める */
-	index = page * PAGE_SLOTS + (selected_index - BUTTON_ONE);
+	index = page * PAGE_SLOTS + (new_pointed_index - BUTTON_ONE);
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
 	/* すべてをデシリアライズする */

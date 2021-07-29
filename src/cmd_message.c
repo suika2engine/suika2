@@ -168,11 +168,20 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* セーブ画面への遷移を処理する */
 	if (is_save_load_enabled() &&
-	    (is_right_button_pressed ||
-	     (is_left_button_pressed && pointed_index == BTN_SAVE))) {
-		if (is_left_button_pressed && pointed_index == BTN_SAVE)
-			play_se();
-		start_save_mode(true, true);
+	    (is_left_button_pressed && pointed_index == BTN_SAVE)) {
+		play_se();
+		start_save_mode(false);
+		stop_command_repetition();
+		free(msg_top);
+		show_click(false);
+		return true;
+	}
+
+	/* ロード画面への遷移を処理する */
+	if (is_save_load_enabled() &&
+	    (is_left_button_pressed && pointed_index == BTN_LOAD)) {
+		play_se();
+		start_load_mode(false);
 		stop_command_repetition();
 		free(msg_top);
 		show_click(false);
@@ -789,44 +798,44 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 	case BTN_QSAVE:
 		*x = conf_msgbox_btn_qsave_x;
 		*y = conf_msgbox_btn_qsave_y;
-		*w = conf_msgbox_btn_qsave_w;
-		*h = conf_msgbox_btn_qsave_h;
+		*w = conf_msgbox_btn_qsave_width;
+		*h = conf_msgbox_btn_qsave_height;
 		break;
 	case BTN_QLOAD:
 		*x = conf_msgbox_btn_qload_x;
 		*y = conf_msgbox_btn_qload_y;
-		*w = conf_msgbox_btn_qload_w;
-		*h = conf_msgbox_btn_qload_h;
+		*w = conf_msgbox_btn_qload_width;
+		*h = conf_msgbox_btn_qload_height;
 		break;
 	case BTN_SAVE:
 		*x = conf_msgbox_btn_save_x;
 		*y = conf_msgbox_btn_save_y;
-		*w = conf_msgbox_btn_save_w;
-		*h = conf_msgbox_btn_save_h;
+		*w = conf_msgbox_btn_save_width;
+		*h = conf_msgbox_btn_save_height;
 		break;
 	case BTN_LOAD:
 		*x = conf_msgbox_btn_load_x;
 		*y = conf_msgbox_btn_load_y;
-		*w = conf_msgbox_btn_load_w;
-		*h = conf_msgbox_btn_load_h;
+		*w = conf_msgbox_btn_load_width;
+		*h = conf_msgbox_btn_load_height;
 		break;
 	case BTN_AUTO:
 		*x = conf_msgbox_btn_auto_x;
 		*y = conf_msgbox_btn_auto_y;
-		*w = conf_msgbox_btn_auto_w;
-		*h = conf_msgbox_btn_auto_h;
+		*w = conf_msgbox_btn_auto_width;
+		*h = conf_msgbox_btn_auto_height;
 		break;
 	case BTN_SKIP:
 		*x = conf_msgbox_btn_skip_x;
 		*y = conf_msgbox_btn_skip_y;
-		*w = conf_msgbox_btn_skip_w;
-		*h = conf_msgbox_btn_skip_h;
+		*w = conf_msgbox_btn_skip_width;
+		*h = conf_msgbox_btn_skip_height;
 		break;
 	case BTN_LOG:
 		*x = conf_msgbox_btn_log_x;
 		*y = conf_msgbox_btn_log_y;
-		*w = conf_msgbox_btn_log_w;
-		*h = conf_msgbox_btn_log_h;
+		*w = conf_msgbox_btn_log_width;
+		*h = conf_msgbox_btn_log_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);

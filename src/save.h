@@ -38,13 +38,16 @@ bool check_load_flag(void);
 bool check_restore_flag(void);
 
 /* セーブ画面を開始する */
-void start_save_mode(bool allow_save, bool allow_load);
+void start_save_mode(bool is_goto_save);
+
+/* ロード画面を開始する */
+void start_load_mode(bool is_goto_load);
 
 /* セーブ画面が有効であるかを返す */
-bool is_save_mode(void);
+bool is_save_load_mode(void);
 
 /* セーブ画面を実行する */
-bool run_save_mode(int *x, int *y, int *w, int *h);
+bool run_save_load_mode(int *x, int *y, int *w, int *h);
 
 /* グローバルデータを保存する */
 void save_global_data(void);

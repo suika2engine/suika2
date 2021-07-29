@@ -66,32 +66,32 @@ int conf_msgbox_margin_line;
 float conf_msgbox_speed;
 int conf_msgbox_btn_qsave_x;
 int conf_msgbox_btn_qsave_y;
-int conf_msgbox_btn_qsave_w;
-int conf_msgbox_btn_qsave_h;
+int conf_msgbox_btn_qsave_width;
+int conf_msgbox_btn_qsave_height;
 int conf_msgbox_btn_qload_x;
 int conf_msgbox_btn_qload_y;
-int conf_msgbox_btn_qload_w;
-int conf_msgbox_btn_qload_h;
+int conf_msgbox_btn_qload_width;
+int conf_msgbox_btn_qload_height;
 int conf_msgbox_btn_save_x;
 int conf_msgbox_btn_save_y;
-int conf_msgbox_btn_save_w;
-int conf_msgbox_btn_save_h;
+int conf_msgbox_btn_save_width;
+int conf_msgbox_btn_save_height;
 int conf_msgbox_btn_load_x;
 int conf_msgbox_btn_load_y;
-int conf_msgbox_btn_load_w;
-int conf_msgbox_btn_load_h;
+int conf_msgbox_btn_load_width;
+int conf_msgbox_btn_load_height;
 int conf_msgbox_btn_auto_x;
 int conf_msgbox_btn_auto_y;
-int conf_msgbox_btn_auto_w;
-int conf_msgbox_btn_auto_h;
+int conf_msgbox_btn_auto_width;
+int conf_msgbox_btn_auto_height;
 int conf_msgbox_btn_skip_x;
 int conf_msgbox_btn_skip_y;
-int conf_msgbox_btn_skip_w;
-int conf_msgbox_btn_skip_h;
+int conf_msgbox_btn_skip_width;
+int conf_msgbox_btn_skip_height;
 int conf_msgbox_btn_log_x;
 int conf_msgbox_btn_log_y;
-int conf_msgbox_btn_log_w;
-int conf_msgbox_btn_log_h;
+int conf_msgbox_btn_log_width;
+int conf_msgbox_btn_log_height;
 const char *conf_msgbox_btn_qsave_se;
 const char *conf_msgbox_btn_qload_se;
 const char *conf_msgbox_btn_save_se;
@@ -140,16 +140,10 @@ int conf_news_text_margin_y;
 /*
  * セーブ・ロード画面の設定
  */
-char *conf_save_bg_file;
-char *conf_save_fg_file;
-int conf_save_save_x;
-int conf_save_save_y;
-int conf_save_save_width;
-int conf_save_save_height;
-int conf_save_load_x;
-int conf_save_load_y;
-int conf_save_load_width;
-int conf_save_load_height;
+char *conf_save_save_bg_file;
+char *conf_save_save_fg_file;
+char *conf_save_load_bg_file;
+char *conf_save_load_fg_file;
 int conf_save_prev_x;
 int conf_save_prev_y;
 int conf_save_prev_width;
@@ -258,32 +252,32 @@ struct rule {
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
 	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
 	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, true, false},
-	{"msgbox.btn.qsave.w", 'i', &conf_msgbox_btn_qsave_w, true, false},
-	{"msgbox.btn.qsave.h", 'i', &conf_msgbox_btn_qsave_h, true, false},
+	{"msgbox.btn.qsave.width", 'i', &conf_msgbox_btn_qsave_width, true, false},
+	{"msgbox.btn.qsave.height", 'i', &conf_msgbox_btn_qsave_height, true, false},
 	{"msgbox.btn.qload.x", 'i', &conf_msgbox_btn_qload_x, true, false},
 	{"msgbox.btn.qload.y", 'i', &conf_msgbox_btn_qload_y, true, false},
-	{"msgbox.btn.qload.w", 'i', &conf_msgbox_btn_qload_w, true, false},
-	{"msgbox.btn.qload.h", 'i', &conf_msgbox_btn_qload_h, true, false},
+	{"msgbox.btn.qload.width", 'i', &conf_msgbox_btn_qload_width, true, false},
+	{"msgbox.btn.qload.height", 'i', &conf_msgbox_btn_qload_height, true, false},
 	{"msgbox.btn.save.x", 'i', &conf_msgbox_btn_save_x, true, false},
 	{"msgbox.btn.save.y", 'i', &conf_msgbox_btn_save_y, true, false},
-	{"msgbox.btn.save.w", 'i', &conf_msgbox_btn_save_w, true, false},
-	{"msgbox.btn.save.h", 'i', &conf_msgbox_btn_save_h, true, false},
+	{"msgbox.btn.save.width", 'i', &conf_msgbox_btn_save_width, true, false},
+	{"msgbox.btn.save.height", 'i', &conf_msgbox_btn_save_height, true, false},
 	{"msgbox.btn.load.x", 'i', &conf_msgbox_btn_load_x, true, false},
 	{"msgbox.btn.load.y", 'i', &conf_msgbox_btn_load_y, true, false},
-	{"msgbox.btn.load.w", 'i', &conf_msgbox_btn_load_w, true, false},
-	{"msgbox.btn.load.h", 'i', &conf_msgbox_btn_load_h, true, false},
+	{"msgbox.btn.load.width", 'i', &conf_msgbox_btn_load_width, true, false},
+	{"msgbox.btn.load.height", 'i', &conf_msgbox_btn_load_height, true, false},
 	{"msgbox.btn.auto.x", 'i', &conf_msgbox_btn_auto_x, true, false},
 	{"msgbox.btn.auto.y", 'i', &conf_msgbox_btn_auto_y, true, false},
-	{"msgbox.btn.auto.w", 'i', &conf_msgbox_btn_auto_w, true, false},
-	{"msgbox.btn.auto.h", 'i', &conf_msgbox_btn_auto_h, true, false},
+	{"msgbox.btn.auto.width", 'i', &conf_msgbox_btn_auto_width, true, false},
+	{"msgbox.btn.auto.height", 'i', &conf_msgbox_btn_auto_height, true, false},
 	{"msgbox.btn.skip.x", 'i', &conf_msgbox_btn_skip_x, true, false},
 	{"msgbox.btn.skip.y", 'i', &conf_msgbox_btn_skip_y, true, false},
-	{"msgbox.btn.skip.w", 'i', &conf_msgbox_btn_skip_w, true, false},
-	{"msgbox.btn.skip.h", 'i', &conf_msgbox_btn_skip_h, true, false},
+	{"msgbox.btn.skip.width", 'i', &conf_msgbox_btn_skip_width, true, false},
+	{"msgbox.btn.skip.height", 'i', &conf_msgbox_btn_skip_height, true, false},
 	{"msgbox.btn.log.x", 'i', &conf_msgbox_btn_log_x, true, false},
 	{"msgbox.btn.log.y", 'i', &conf_msgbox_btn_log_y, true, false},
-	{"msgbox.btn.log.w", 'i', &conf_msgbox_btn_log_w, true, false},
-	{"msgbox.btn.log.h", 'i', &conf_msgbox_btn_log_h, true, false},
+	{"msgbox.btn.log.width", 'i', &conf_msgbox_btn_log_width, true, false},
+	{"msgbox.btn.log.height", 'i', &conf_msgbox_btn_log_height, true, false},
 	{"msgbox.btn.qsave.se", 's', &conf_msgbox_btn_qsave_se, true, false},
 	{"msgbox.btn.qload.se", 's', &conf_msgbox_btn_qload_se, true, false},
 	{"msgbox.btn.save.se", 's', &conf_msgbox_btn_save_se, true, false},
@@ -312,16 +306,10 @@ struct rule {
 	{"news.fg.file", 's', &conf_news_fg_file, false, false},
 	{"news.margin", 'i', &conf_news_margin, false, false},
 	{"news.text.margin.y", 'i', &conf_news_text_margin_y, false, false},
-	{"save.bg.file", 's', &conf_save_bg_file, false, false},
-	{"save.fg.file", 's', &conf_save_fg_file, false, false},
-	{"save.save.x", 'i', &conf_save_save_x, false, false},
-	{"save.save.y", 'i', &conf_save_save_y, false, false},
-	{"save.save.width", 'i', &conf_save_save_width, false, false},
-	{"save.save.height", 'i', &conf_save_save_height, false, false},
-	{"save.load.x", 'i', &conf_save_load_x, false, false},
-	{"save.load.y", 'i', &conf_save_load_y, false, false},
-	{"save.load.width", 'i', &conf_save_load_width, false, false},
-	{"save.load.height", 'i', &conf_save_load_height, false, false},
+	{"save.save.bg.file", 's', &conf_save_save_bg_file, false, false},
+	{"save.save.fg.file", 's', &conf_save_save_fg_file, false, false},
+	{"save.load.bg.file", 's', &conf_save_load_bg_file, false, false},
+	{"save.load.fg.file", 's', &conf_save_load_fg_file, false, false},
 	{"save.prev.x", 'i', &conf_save_prev_x, false, false},
 	{"save.prev.y", 'i', &conf_save_prev_y, false, false},
 	{"save.prev.width", 'i', &conf_save_prev_width, false, false},

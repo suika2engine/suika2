@@ -34,8 +34,8 @@ bool goto_command(void)
 		/* セーブロードを有効にする */
 		enable_save_load(true);
 
-		/* ロード専用モードでセーブ画面を開始する */
-		start_save_mode(false, true);
+		/* ロード画面を開始する */
+		start_load_mode(true);
 
 		/* キャンセルされた場合のために次のコマンドへ移動しておく */
 		return move_to_next_command();
@@ -52,8 +52,8 @@ bool goto_command(void)
 		/* セーブロードを有効にする */
 		enable_save_load(true);
 
-		/* セーブ専用モードでセーブ画面を開始する */
-		start_save_mode(true, false);
+		/* セーブ画面を開始する */
+		start_save_mode(true);
 
 		/*
 		 * キャンセルかセーブされた場合のために
