@@ -119,6 +119,15 @@ msgbox.btn.log.y=0
 msgbox.btn.log.w=53
 msgbox.btn.log.h=23
 
+# ボタンが押されたときのSE
+msgbox.btn.qsave.se=click.ogg
+msgbox.btn.qload.se=click.ogg
+msgbox.btn.save.se=click.ogg
+msgbox.btn.load.se=click.ogg
+msgbox.btn.auto.se=click.ogg
+msgbox.btn.skip.se=click.ogg
+msgbox.btn.log.se=click.ogg
+
 ###
 ### クリックアニメーションの設定
 ###

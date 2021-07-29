@@ -123,6 +123,7 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color);
 static void draw_buttons(void);
 static int get_pointed_button(void);
 static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
+static void play_se(void);
 static bool cleanup(void);
 
 /*
@@ -146,17 +147,31 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* クイックセーブを処理する */
 	if (is_save_load_enabled() &&
 	    (is_left_button_pressed && pointed_index == BTN_QSAVE)) {
+		quick_save();
+		play_se();
+		is_left_button_pressed = false;
 	}
 
 	/* クイックロードを処理する */
 	if (is_save_load_enabled() &&
 	    (is_left_button_pressed && pointed_index == BTN_QLOAD)) {
+		if (quick_load()) {
+			play_se();
+			stop_command_repetition();
+			free(msg_top);
+			show_click(false);
+			draw_stage();
+			return true;
+		}
+		is_left_button_pressed = false;
 	}
 
 	/* セーブ画面への遷移を処理する */
 	if (is_save_load_enabled() &&
 	    (is_right_button_pressed ||
 	     (is_left_button_pressed && pointed_index == BTN_SAVE))) {
+		if (is_left_button_pressed && pointed_index == BTN_SAVE)
+			play_se();
 		start_save_mode(true, true);
 		stop_command_repetition();
 		free(msg_top);
@@ -167,6 +182,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* ヒストリ画面への遷移を処理する */
 	if (is_up_pressed ||
 	    (is_left_button_pressed && pointed_index == BTN_LOG)) {
+		play_se();
 		start_history_mode();
 		stop_command_repetition();
 		free(msg_top);
@@ -303,15 +319,18 @@ static bool init(void)
 
 	/* ボタンの選択状態を取得する */
 	pointed_index = get_pointed_button();
-	if (pointed_index != BTN_NONE &&
-	    (is_save_load_enabled() ||
-	     (pointed_index != BTN_QSAVE &&
-	      pointed_index != BTN_QLOAD &&
-	      pointed_index != BTN_SAVE &&
-	      pointed_index != BTN_LOAD))) {
-		get_button_rect(pointed_index, &x, &y, &w, &h);
-		clear_msgbox_rect_with_fg(x, y, w, h);
-	}
+	if (pointed_index == BTN_NONE)
+		return true;
+	if (!is_save_load_enabled() &&
+	     (pointed_index == BTN_QSAVE &&
+	      pointed_index == BTN_QLOAD &&
+	      pointed_index == BTN_SAVE &&
+	      pointed_index == BTN_LOAD))
+		return true;
+	if (!have_quick_save_data() && pointed_index == BTN_QLOAD)
+		return true;
+	get_button_rect(pointed_index, &x, &y, &w, &h);
+	clear_msgbox_rect_with_fg(x, y, w, h);
 
 	return true;
 }
@@ -735,6 +754,8 @@ static void draw_buttons(void)
 		    (pointed_index == BTN_SAVE || pointed_index == BTN_QSAVE ||
 		     pointed_index == BTN_LOAD || pointed_index == BTN_QLOAD))
 			return;
+		if (!have_quick_save_data() && pointed_index == BTN_QLOAD)
+			return;
 
 		get_button_rect(pointed_index, &bx, &by, &bw, &bh);
 		clear_msgbox_rect_with_fg(bx, by, bw, bh);
@@ -811,6 +832,50 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 		assert(ASSERT_INVALID_BTN_INDEX);
 		break;
 	}
+}
+
+/* SEを再生する */
+static void play_se(void)
+{
+	struct wave *w;
+	const char *se;
+
+	switch (pointed_index) {
+	case BTN_QSAVE:
+		se = conf_msgbox_btn_qsave_se;
+		break;
+	case BTN_QLOAD:
+		se = conf_msgbox_btn_qload_se;
+		break;
+	case BTN_SAVE:
+		se = conf_msgbox_btn_save_se;
+		break;
+	case BTN_LOAD:
+		se = conf_msgbox_btn_load_se;
+		break;
+	case BTN_AUTO:
+		se = conf_msgbox_btn_auto_se;
+		break;
+	case BTN_SKIP:
+		se = conf_msgbox_btn_skip_se;
+		break;
+	case BTN_LOG:
+		se = conf_msgbox_btn_log_se;
+		break;
+	default:
+		assert(ASSERT_INVALID_BTN_INDEX);
+		se = NULL;
+		break;
+	}
+
+	if (strcmp(se, "") == 0)
+		return;
+
+	w = create_wave_from_file(SE_DIR, se, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SE_STREAM, w);
 }
 
 /* 終了処理を行う */

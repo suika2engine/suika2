@@ -22,6 +22,12 @@
 
 #include "suika.h"
 
+/* クイックセーブのファイル名 */
+#define QUICK_SAVE_FILE_NAME	"q000.sav"
+
+/* クイックセーブのインデックス */
+#define QUICK_SAVE_INDEX	(-1)
+
 /* セーブデータ数 */
 #define SAVE_SLOTS	(30)
 
@@ -50,6 +56,9 @@
 
 /* セーブデータの日付 */
 static time_t save_time[SAVE_SLOTS];
+
+/* クイックセーブデータの日付 */
+static time_t quick_save_time;
 
 /* ボタンの座標 */
 static struct button {
@@ -100,12 +109,14 @@ static void process_left_press_save_button(int new_pointed_index, int *x,
 					   int *y, int *w, int *h);
 static bool is_single_function_mode(void);
 static bool process_save(void);
+static bool serialize_all(const char *fname, int index);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
 static bool serialize_bgm(struct wfile *wf);
 static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
 static bool process_load(void);
+static bool deserialize_all(const char *fname);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
 static bool deserialize_bgm(struct rfile *rf);
@@ -645,24 +656,57 @@ static bool is_single_function_mode(void)
  * セーブの実際の処理
  */
 
+/*
+ * クイックセーブデータがあるか
+ */
+bool have_quick_save_data(void)
+{
+	if (quick_save_time == 0)
+		return false;
+
+	return true;
+}
+
+/*
+ * クイックセーブを行う Do quick save
+ */
+bool quick_save(void)
+{
+	if (!serialize_all(QUICK_SAVE_FILE_NAME, QUICK_SAVE_INDEX))
+		return false;
+
+	return true;
+}
+
 /* セーブを処理する */
 static bool process_save(void)
 {
-	char file[128];
+	char s[128];
+	int index;
+
+	/* ファイル名を求める */
+	index = page * PAGE_SLOTS + (selected_index - BUTTON_ONE);
+	snprintf(s, sizeof(s), "%03d.sav", index);
+
+	/* シリアライズを行う */
+	if (!serialize_all(s, index))
+		return false;
+
+	return true;
+}
+
+/* すべてのシリアライズを行う */
+static bool serialize_all(const char *fname, int index)
+{
 	struct wfile *wf;
 	uint64_t t;
-	int index;
 	bool success;
 
 	/* セーブディレクトリを作成する */
 	make_sav_dir();
 
-	/* ファイル名を求める */
-	index = page * PAGE_SLOTS + (selected_index - BUTTON_ONE);
-	snprintf(file, sizeof(file), "%03d.sav", index);
-
 	/* ファイルを開く */
-	wf = open_wfile(SAVE_DIR, file);
+	wf = open_wfile(SAVE_DIR, fname);
 	if (wf == NULL)
 		return false;
 
@@ -701,8 +745,12 @@ static bool process_save(void)
 	close_wfile(wf);
 
 	/* 時刻を保存する */
-	if (success)
-		save_time[index] = (time_t)t;
+	if (success) {
+		if (index == QUICK_SAVE_INDEX)
+			quick_save_time = (time_t)t;
+		else
+			save_time[index] = (time_t)t;
+	}
 
 	return success;
 }
@@ -810,21 +858,43 @@ static bool serialize_vars(struct wfile *wf)
  * ロードの実際の処理
  */
 
+/*
+ * クイックロードを行う Do quick load
+ */
+bool quick_load(void)
+{
+	if (!deserialize_all(QUICK_SAVE_FILE_NAME))
+		return false;
+
+	return true;
+}
+
 /* ロードを処理する */
 static bool process_load(void)
 {
 	char s[128];
-	struct rfile *rf;
-	uint64_t t;
 	int index;
-	bool success;
 
 	/* ファイル名を求める */
 	index = page * PAGE_SLOTS + (selected_index - BUTTON_ONE);
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
+	/* すべてをデシリアライズする */
+	if (!deserialize_all(s))
+		return false;
+
+	return true;
+}
+
+/* すべてをデシリアライズする */
+static bool deserialize_all(const char *fname)
+{
+	struct rfile *rf;
+	uint64_t t;
+	bool success;
+
 	/* ファイルを開く */
-	rf = open_rfile(SAVE_DIR, s, false);
+	rf = open_rfile(SAVE_DIR, fname, false);
 	if (rf == NULL)
 		return false;
 
@@ -868,9 +938,11 @@ static bool process_load(void)
 	close_rfile(rf);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
-	show_namebox(false);
-	show_msgbox(false);
-	show_selbox(false);
+	if (success) {
+		show_namebox(false);
+		show_msgbox(false);
+		show_selbox(false);
+	}
 
 	return success;
 }
@@ -1029,6 +1101,15 @@ static void load_save_time(void)
 				save_time[i] = (time_t)t;
 			close_rfile(rf);
 		}
+	}
+
+	/* セーブデータファイルを開く */
+	rf = open_rfile(SAVE_DIR, QUICK_SAVE_FILE_NAME, true);
+	if (rf != NULL) {
+		/* セーブ時刻を取得する */
+		if (read_rfile(rf, &t, sizeof(t)) == sizeof(t))
+			quick_save_time = (time_t)t;
+		close_rfile(rf);
 	}
 }
 

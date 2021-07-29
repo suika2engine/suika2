@@ -49,4 +49,13 @@ bool run_save_mode(int *x, int *y, int *w, int *h);
 /* グローバルデータを保存する */
 void save_global_data(void);
 
+/* クイックセーブデータがあるか */
+bool have_quick_save_data(void);
+
+/* クイックセーブを行う Do quick save */
+bool quick_save(void);
+
+/* クイックロードを行う Do quick load */
+bool quick_load(void);
+
 #endif

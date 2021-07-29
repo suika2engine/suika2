@@ -92,6 +92,13 @@ int conf_msgbox_btn_log_x;
 int conf_msgbox_btn_log_y;
 int conf_msgbox_btn_log_w;
 int conf_msgbox_btn_log_h;
+const char *conf_msgbox_btn_qsave_se;
+const char *conf_msgbox_btn_qload_se;
+const char *conf_msgbox_btn_save_se;
+const char *conf_msgbox_btn_load_se;
+const char *conf_msgbox_btn_auto_se;
+const char *conf_msgbox_btn_skip_se;
+const char *conf_msgbox_btn_log_se;
 
 /*
  * クリックアニメーションの設定
@@ -277,6 +284,13 @@ struct rule {
 	{"msgbox.btn.log.y", 'i', &conf_msgbox_btn_log_y, true, false},
 	{"msgbox.btn.log.w", 'i', &conf_msgbox_btn_log_w, true, false},
 	{"msgbox.btn.log.h", 'i', &conf_msgbox_btn_log_h, true, false},
+	{"msgbox.btn.qsave.se", 's', &conf_msgbox_btn_qsave_se, true, false},
+	{"msgbox.btn.qload.se", 's', &conf_msgbox_btn_qload_se, true, false},
+	{"msgbox.btn.save.se", 's', &conf_msgbox_btn_save_se, true, false},
+	{"msgbox.btn.load.se", 's', &conf_msgbox_btn_load_se, true, false},
+	{"msgbox.btn.auto.se", 's', &conf_msgbox_btn_auto_se, true, false},
+	{"msgbox.btn.skip.se", 's', &conf_msgbox_btn_skip_se, true, false},
+	{"msgbox.btn.log.se", 's', &conf_msgbox_btn_log_se, true, false},
 	{"click.file", 's', &conf_click_file, false, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
