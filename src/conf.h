@@ -88,17 +88,19 @@ extern int conf_msgbox_btn_skip_x;
 extern int conf_msgbox_btn_skip_y;
 extern int conf_msgbox_btn_skip_width;
 extern int conf_msgbox_btn_skip_height;
-extern int conf_msgbox_btn_log_x;
-extern int conf_msgbox_btn_log_y;
-extern int conf_msgbox_btn_log_width;
-extern int conf_msgbox_btn_log_height;
+extern int conf_msgbox_btn_history_x;
+extern int conf_msgbox_btn_history_y;
+extern int conf_msgbox_btn_history_width;
+extern int conf_msgbox_btn_history_height;
 extern const char *conf_msgbox_btn_qsave_se;
 extern const char *conf_msgbox_btn_qload_se;
 extern const char *conf_msgbox_btn_save_se;
 extern const char *conf_msgbox_btn_load_se;
 extern const char *conf_msgbox_btn_auto_se;
 extern const char *conf_msgbox_btn_skip_se;
-extern const char *conf_msgbox_btn_log_se;
+extern const char *conf_msgbox_btn_history_se;
+extern const char *conf_msgbox_save_se;
+extern const char *conf_msgbox_history_se;
 
 /*
  * クリックアニメーションの設定

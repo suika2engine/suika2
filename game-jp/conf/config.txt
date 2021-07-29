@@ -114,10 +114,10 @@ msgbox.btn.skip.width=59
 msgbox.btn.skip.height=23
 
 # LOGボタンの座標(メッセージボックス内の座標)
-msgbox.btn.log.x=1156
-msgbox.btn.log.y=0
-msgbox.btn.log.width=53
-msgbox.btn.log.height=23
+msgbox.btn.history.x=1156
+msgbox.btn.history.y=0
+msgbox.btn.history.width=53
+msgbox.btn.history.height=23
 
 # ボタンが押されたときのSE
 msgbox.btn.qsave.se=click.ogg
@@ -126,7 +126,13 @@ msgbox.btn.save.se=click.ogg
 msgbox.btn.load.se=click.ogg
 msgbox.btn.auto.se=click.ogg
 msgbox.btn.skip.se=click.ogg
-msgbox.btn.log.se=click.ogg
+msgbox.btn.history.se=click.ogg
+
+# 右クリックでセーブ画面を呼び出すときのSE
+msgbox.save.se=click.ogg
+
+# 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE
+msgbox.history.se=click.ogg
 
 ###
 ### クリックアニメーションの設定

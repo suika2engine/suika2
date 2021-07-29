@@ -42,7 +42,7 @@
 #define BTN_LOAD	(3)
 #define BTN_AUTO	(4)
 #define BTN_SKIP	(5)
-#define BTN_LOG		(6)
+#define BTN_HISTORY	(6)
 
 /* コマンドの経過時刻を表すストップウォッチ */
 static stop_watch_t sw;
@@ -123,7 +123,7 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color);
 static void draw_buttons(void);
 static int get_pointed_button(void);
 static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
-static void play_se(void);
+static void play_se(const char *file);
 static bool cleanup(void);
 
 /*
@@ -148,7 +148,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (is_save_load_enabled() &&
 	    (is_left_button_pressed && pointed_index == BTN_QSAVE)) {
 		quick_save();
-		play_se();
+		play_se(conf_msgbox_btn_qsave_se);
 		is_left_button_pressed = false;
 	}
 
@@ -156,7 +156,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (is_save_load_enabled() &&
 	    (is_left_button_pressed && pointed_index == BTN_QLOAD)) {
 		if (quick_load()) {
-			play_se();
+			play_se(conf_msgbox_btn_qload_se);
 			stop_command_repetition();
 			free(msg_top);
 			show_click(false);
@@ -170,7 +170,10 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (is_save_load_enabled() &&
 	    (is_right_button_pressed ||
 	     (is_left_button_pressed && pointed_index == BTN_SAVE))) {
-		play_se();
+		if (is_right_button_pressed)
+			play_se(conf_msgbox_save_se);
+		else
+			play_se(conf_msgbox_btn_save_se);
 		start_save_mode(false);
 		stop_command_repetition();
 		free(msg_top);
@@ -181,7 +184,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* ロード画面への遷移を処理する */
 	if (is_save_load_enabled() &&
 	    (is_left_button_pressed && pointed_index == BTN_LOAD)) {
-		play_se();
+		play_se(conf_msgbox_btn_load_se);
 		start_load_mode(false);
 		stop_command_repetition();
 		free(msg_top);
@@ -191,9 +194,11 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* ヒストリ画面への遷移を処理する */
 	if (is_up_pressed ||
-	    (is_left_button_pressed && pointed_index == BTN_LOG)) {
-		if (is_left_button_pressed)
-			play_se();
+	    (is_left_button_pressed && pointed_index == BTN_HISTORY)) {
+		if (is_up_pressed)
+			play_se(conf_msgbox_history_se);
+		else
+			play_se(conf_msgbox_btn_history_se);
 		start_history_mode();
 		stop_command_repetition();
 		free(msg_top);
@@ -784,7 +789,7 @@ static int get_pointed_button(void)
 	rx = mouse_pos_x - conf_msgbox_x;
 	ry = mouse_pos_y - conf_msgbox_y;
 
-	for (i = BTN_QSAVE; i <= BTN_LOG; i++) {
+	for (i = BTN_QSAVE; i <= BTN_HISTORY; i++) {
 		get_button_rect(i, &bx, &by, &w, &h);
 		if ((rx >= bx && rx < bx + w) && (ry >= by && ry < by + h))
 			return i;
@@ -833,11 +838,11 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*w = conf_msgbox_btn_skip_width;
 		*h = conf_msgbox_btn_skip_height;
 		break;
-	case BTN_LOG:
-		*x = conf_msgbox_btn_log_x;
-		*y = conf_msgbox_btn_log_y;
-		*w = conf_msgbox_btn_log_width;
-		*h = conf_msgbox_btn_log_height;
+	case BTN_HISTORY:
+		*x = conf_msgbox_btn_history_x;
+		*y = conf_msgbox_btn_history_y;
+		*w = conf_msgbox_btn_history_width;
+		*h = conf_msgbox_btn_history_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
@@ -846,43 +851,14 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 }
 
 /* SEを再生する */
-static void play_se(void)
+static void play_se(const char *file)
 {
 	struct wave *w;
-	const char *se;
 
-	switch (pointed_index) {
-	case BTN_QSAVE:
-		se = conf_msgbox_btn_qsave_se;
-		break;
-	case BTN_QLOAD:
-		se = conf_msgbox_btn_qload_se;
-		break;
-	case BTN_SAVE:
-		se = conf_msgbox_btn_save_se;
-		break;
-	case BTN_LOAD:
-		se = conf_msgbox_btn_load_se;
-		break;
-	case BTN_AUTO:
-		se = conf_msgbox_btn_auto_se;
-		break;
-	case BTN_SKIP:
-		se = conf_msgbox_btn_skip_se;
-		break;
-	case BTN_LOG:
-		se = conf_msgbox_btn_log_se;
-		break;
-	default:
-		assert(ASSERT_INVALID_BTN_INDEX);
-		se = NULL;
-		break;
-	}
-
-	if (strcmp(se, "") == 0)
+	if (strcmp(file, "") == 0)
 		return;
 
-	w = create_wave_from_file(SE_DIR, se, false);
+	w = create_wave_from_file(SE_DIR, file, false);
 	if (w == NULL)
 		return;
 
