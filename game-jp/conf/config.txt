@@ -39,7 +39,7 @@ font.outline.color.b=128
 ###
 
 # 名前ボックス画像のファイル名
-namebox.file=namebox-blue.png
+namebox.file=namebox.png
 
 # 名前ボックス画像を表示する位置
 namebox.x=70
@@ -52,8 +52,11 @@ namebox.margin.top=18
 ### メッセージボックスの設定
 ###
 
-# メッセージボックス画像のファイル名
-msgbox.file=msgbox-blue.png
+# メッセージボックスの背景の画像ファイル名
+msgbox.bg.file=msgbox-bg.png
+
+# メッセージボックスの前景の画像ファイル名
+msgbox.fg.file=msgbox-fg.png
 
 # メッセージボックス画像を表示する位置
 msgbox.x=0
@@ -73,6 +76,48 @@ msgbox.margin.line=47
 
 # メッセージのスピード(x文字/秒)
 msgbox.speed=20.0
+
+# QSAVEボタンの座標(メッセージボックス内の座標)
+msgbox.btn.qsave.x=740
+msgbox.btn.qsave.y=0
+msgbox.btn.qsave.w=79
+msgbox.btn.qsave.h=23
+
+# QLOADボタンの座標(メッセージボックス内の座標)
+msgbox.btn.qload.x=820
+msgbox.btn.qload.y=0
+msgbox.btn.qload.w=81
+msgbox.btn.qload.h=23
+
+# SAVEボタンの座標(メッセージボックス内の座標)
+msgbox.btn.save.x=901
+msgbox.btn.save.y=0
+msgbox.btn.save.w=62
+msgbox.btn.save.h=23
+
+# LOADボタンの座標(メッセージボックス内の座標)
+msgbox.btn.load.x=963
+msgbox.btn.load.y=0
+msgbox.btn.load.w=66
+msgbox.btn.load.h=23
+
+# AUTOボタンの座標(メッセージボックス内の座標)
+msgbox.btn.auto.x=1029
+msgbox.btn.auto.y=0
+msgbox.btn.auto.w=68
+msgbox.btn.auto.h=23
+
+# SKIPボタンの座標(メッセージボックス内の座標)
+msgbox.btn.skip.x=1096
+msgbox.btn.skip.y=0
+msgbox.btn.skip.w=59
+msgbox.btn.skip.h=23
+
+# LOGボタンの座標(メッセージボックス内の座標)
+msgbox.btn.log.x=1156
+msgbox.btn.log.y=0
+msgbox.btn.log.w=53
+msgbox.btn.log.h=23
 
 ###
 ### クリックアニメーションの設定

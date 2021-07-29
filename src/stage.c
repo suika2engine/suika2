@@ -94,8 +94,11 @@ static struct image *back_image;
 /* レイヤのイメージ */
 static struct image *layer_image[STAGE_LAYERS];
 
-/* メッセージボックスのイメージ */
-static struct image *msgbox_image;
+/* メッセージボックスの背景イメージ */
+static struct image *msgbox_bg_image;
+
+/* メッセージボックスの背景イメージ */
+static struct image *msgbox_fg_image;
 
 /* メッセージボックスを表示するか */
 static bool is_msgbox_visible;
@@ -325,14 +328,29 @@ static bool setup_msgbox(void)
 {
 	is_msgbox_visible = false;
 
-	/* メッセージボックスの画像を読み込む */
-	msgbox_image = create_image_from_file(CG_DIR, conf_msgbox_file);
-	if (msgbox_image == NULL)
+	/* メッセージボックスの背景画像を読み込む */
+	msgbox_bg_image = create_image_from_file(CG_DIR, conf_msgbox_bg_file);
+	if (msgbox_bg_image == NULL)
 		return false;
 
+	/* メッセージボックスの前景画像を読み込む */
+	msgbox_fg_image = create_image_from_file(CG_DIR, conf_msgbox_fg_file);
+	if (msgbox_fg_image == NULL)
+		return false;
+
+	/* メッセージボックスの前景と背景が同じサイズであることを確認する */
+	if (get_image_width(msgbox_bg_image) !=
+	    get_image_width(msgbox_fg_image) ||
+	    get_image_height(msgbox_bg_image) !=
+	    get_image_height(msgbox_fg_image)) {
+		log_invalid_msgbox_size();
+		return false;
+	}
+
 	/* メッセージボックスのレイヤのイメージを作成する */
-	layer_image[LAYER_MSG] = create_image(get_image_width(msgbox_image),
-					      get_image_height(msgbox_image));
+	layer_image[LAYER_MSG] = create_image(
+		get_image_width(msgbox_bg_image),
+		get_image_height(msgbox_bg_image));
 	if (layer_image[LAYER_MSG] == NULL)
 		return false;
 
@@ -472,9 +490,14 @@ void cleanup_stage(void)
 		namebox_image = NULL;
 	}
 
-	if (msgbox_image != NULL) {
-		destroy_image(msgbox_image);
-		msgbox_image = NULL;
+	if (msgbox_fg_image != NULL) {
+		destroy_image(msgbox_fg_image);
+		msgbox_fg_image = NULL;
+	}
+
+	if (msgbox_bg_image != NULL) {
+		destroy_image(msgbox_bg_image);
+		msgbox_bg_image = NULL;
 	}
 }
 
@@ -1912,17 +1935,41 @@ void get_msgbox_rect(int *x, int *y, int *w, int *h)
 }
 
 /*
- * メッセージボックスをクリアする
+ * メッセージボックスを背景でクリアする
  */
 void clear_msgbox(void)
 {
-	if (msgbox_image == NULL)
+	if (msgbox_bg_image == NULL)
 		return;
 
-	draw_image(layer_image[LAYER_MSG], 0, 0, msgbox_image,
+	draw_image(layer_image[LAYER_MSG], 0, 0, msgbox_bg_image,
 		   get_image_width(layer_image[LAYER_MSG]),
 		   get_image_height(layer_image[LAYER_MSG]),
 		   0, 0, 255, BLEND_NONE);
+}
+
+/*
+ * メッセージボックスの矩形を背景でクリアする
+ */
+void clear_msgbox_rect_with_bg(int x, int y, int w, int h)
+{
+	if (msgbox_bg_image == NULL)
+		return;
+
+	draw_image(layer_image[LAYER_MSG], x, y, msgbox_bg_image, w, h, x, y,
+		   255, BLEND_NONE);
+}
+
+/*
+ * メッセージボックスの矩形を前景でクリアする
+ */
+void clear_msgbox_rect_with_fg(int x, int y, int w, int h)
+{
+	if (msgbox_fg_image == NULL)
+		return;
+
+	draw_image(layer_image[LAYER_MSG], x, y, msgbox_fg_image, w, h, x, y,
+		   255, BLEND_NONE);
 }
 
 /*

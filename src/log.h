@@ -35,6 +35,7 @@ void log_package_file_error(void);
 void log_undefined_conf(const char *key);
 void log_unknown_conf(const char *key);
 void log_wave_error(const char *fname);
+void log_invalid_msgbox_size(void);
 void log_script_exec_footer(void);
 void log_script_command_not_found(const char *name);
 void log_script_empty_serif(void);

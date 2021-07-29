@@ -11,10 +11,13 @@
  *  - 2017/01/30 "\n"対応
  *  - 2017/04/13 ワードラッピング対応
  *  - 2021/06/15 @setsave対応
+ *  - 2021/07/29 メッセージボックスボタン対応
  */
 
 #include "suika.h"
 #include <ctype.h>
+
+#define ASSERT_INVALID_BTN_INDEX (0)
 
 /* Unicodeコードポイント */
 #define CHAR_SPACE	(0x0020)
@@ -30,6 +33,16 @@
 
 /* ビープ音ファイルあたりの文字数 */
 #define BEEP_CHARS	(6)
+
+/* メッセージボックスボタンのインデックス */
+#define BTN_NONE	(-1)
+#define BTN_QSAVE	(0)
+#define BTN_QLOAD	(1)
+#define BTN_SAVE	(2)
+#define BTN_LOAD	(3)
+#define BTN_AUTO	(4)
+#define BTN_SKIP	(5)
+#define BTN_LOG		(6)
 
 /* コマンドの経過時刻を表すストップウォッチ */
 static stop_watch_t sw;
@@ -90,6 +103,9 @@ static bool restore_flag;
 /* 文字列がエスケープ中か */
 static bool escaped;
 
+/* ポイント中のボタン */
+static int pointed_index;
+
 /*
  * 前方参照
  */
@@ -104,6 +120,9 @@ static int get_frame_chars(void);
 static void draw_click(void);
 static int get_en_word_width(void);
 static void get_message_color(pixel_t *color, pixel_t *outline_color);
+static void draw_buttons(void);
+static int get_pointed_button(void);
+static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
 static bool cleanup(void);
 
 /*
@@ -121,8 +140,23 @@ bool message_command(int *x, int *y, int *w, int *h)
 		if (!init())
 			return false;
 
+	/* ボタンの描画を行う */
+	draw_buttons();
+
+	/* クイックセーブを処理する */
+	if (is_save_load_enabled() &&
+	    (is_left_button_pressed && pointed_index == BTN_QSAVE)) {
+	}
+
+	/* クイックロードを処理する */
+	if (is_save_load_enabled() &&
+	    (is_left_button_pressed && pointed_index == BTN_QLOAD)) {
+	}
+
 	/* セーブ画面への遷移を処理する */
-	if (is_right_button_pressed && is_save_load_enabled()) {
+	if (is_save_load_enabled() &&
+	    (is_right_button_pressed ||
+	     (is_left_button_pressed && pointed_index == BTN_SAVE))) {
 		start_save_mode(true, true);
 		stop_command_repetition();
 		free(msg_top);
@@ -131,7 +165,8 @@ bool message_command(int *x, int *y, int *w, int *h)
 	}
 
 	/* ヒストリ画面への遷移を処理する */
-	if (is_up_pressed) {
+	if (is_up_pressed ||
+	    (is_left_button_pressed && pointed_index == BTN_LOG)) {
 		start_history_mode();
 		stop_command_repetition();
 		free(msg_top);
@@ -166,6 +201,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 			draw_msgbox();
 		else
 			draw_click();
+		
 	}
 
 	/* 終了処理を行う */
@@ -189,6 +225,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 static bool init(void)
 {
 	const char *raw_msg;
+	int x, y, w, h;
 
 	/* メッセージを取得する */
 	raw_msg = get_command_type() == COMMAND_MESSAGE ?
@@ -263,6 +300,19 @@ static bool init(void)
 			   draw_w, draw_h, msgbox_x, msgbox_y, msgbox_w,
 			   msgbox_h);
 	}
+
+	/* ボタンの選択状態を取得する */
+	pointed_index = get_pointed_button();
+	if (pointed_index != BTN_NONE &&
+	    (is_save_load_enabled() ||
+	     (pointed_index != BTN_QSAVE &&
+	      pointed_index != BTN_QLOAD &&
+	      pointed_index != BTN_SAVE &&
+	      pointed_index != BTN_LOAD))) {
+		get_button_rect(pointed_index, &x, &y, &w, &h);
+		clear_msgbox_rect_with_fg(x, y, w, h);
+	}
+
 	return true;
 }
 
@@ -655,6 +705,112 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 	*outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
 				    (pixel_t)conf_font_outline_color_g,
 				    (pixel_t)conf_font_outline_color_b);
+}
+
+/* ボタンを描画する */
+static void draw_buttons(void)
+{
+	int last_pointed_index, bx, by, bw, bh;;
+
+	/* 選択中のボタンを取得する */
+	last_pointed_index = pointed_index;
+	pointed_index = get_pointed_button();
+
+	/* 選択状態に変更がなければ終了する */
+	if (pointed_index == last_pointed_index)
+		return;
+
+	/* 非アクティブになるボタンを描画する */
+	if (last_pointed_index != BTN_NONE) {
+		get_button_rect(last_pointed_index, &bx, &by, &bw, &bh);
+		clear_msgbox_rect_with_bg(bx, by, bw, bh);
+		union_rect(&draw_x, &draw_y, &draw_w, &draw_h,
+			   draw_x, draw_y, draw_w, draw_h,
+			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
+	}
+
+	/* アクティブになるボタンを描画する */
+	if (pointed_index != BTN_NONE) {
+		if (!is_save_load_enabled() &&
+		    (pointed_index == BTN_SAVE || pointed_index == BTN_QSAVE ||
+		     pointed_index == BTN_LOAD || pointed_index == BTN_QLOAD))
+			return;
+
+		get_button_rect(pointed_index, &bx, &by, &bw, &bh);
+		clear_msgbox_rect_with_fg(bx, by, bw, bh);
+		union_rect(&draw_x, &draw_y, &draw_w, &draw_h,
+			   draw_x, draw_y, draw_w, draw_h,
+			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
+	}
+}
+
+/* 選択中のボタンを取得する */
+static int get_pointed_button(void)
+{
+	int rx, ry, bx, by, w, h, i;
+
+	rx = mouse_pos_x - conf_msgbox_x;
+	ry = mouse_pos_y - conf_msgbox_y;
+
+	for (i = BTN_QSAVE; i <= BTN_LOG; i++) {
+		get_button_rect(i, &bx, &by, &w, &h);
+		if ((rx >= bx && rx < bx + w) && (ry >= by && ry < by + h))
+			return i;
+	}
+
+	return BTN_NONE;
+}
+
+/* ボタンの座標を取得する */
+static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
+{
+	switch (btn) {
+	case BTN_QSAVE:
+		*x = conf_msgbox_btn_qsave_x;
+		*y = conf_msgbox_btn_qsave_y;
+		*w = conf_msgbox_btn_qsave_w;
+		*h = conf_msgbox_btn_qsave_h;
+		break;
+	case BTN_QLOAD:
+		*x = conf_msgbox_btn_qload_x;
+		*y = conf_msgbox_btn_qload_y;
+		*w = conf_msgbox_btn_qload_w;
+		*h = conf_msgbox_btn_qload_h;
+		break;
+	case BTN_SAVE:
+		*x = conf_msgbox_btn_save_x;
+		*y = conf_msgbox_btn_save_y;
+		*w = conf_msgbox_btn_save_w;
+		*h = conf_msgbox_btn_save_h;
+		break;
+	case BTN_LOAD:
+		*x = conf_msgbox_btn_load_x;
+		*y = conf_msgbox_btn_load_y;
+		*w = conf_msgbox_btn_load_w;
+		*h = conf_msgbox_btn_load_h;
+		break;
+	case BTN_AUTO:
+		*x = conf_msgbox_btn_auto_x;
+		*y = conf_msgbox_btn_auto_y;
+		*w = conf_msgbox_btn_auto_w;
+		*h = conf_msgbox_btn_auto_h;
+		break;
+	case BTN_SKIP:
+		*x = conf_msgbox_btn_skip_x;
+		*y = conf_msgbox_btn_skip_y;
+		*w = conf_msgbox_btn_skip_w;
+		*h = conf_msgbox_btn_skip_h;
+		break;
+	case BTN_LOG:
+		*x = conf_msgbox_btn_log_x;
+		*y = conf_msgbox_btn_log_y;
+		*w = conf_msgbox_btn_log_w;
+		*h = conf_msgbox_btn_log_h;
+		break;
+	default:
+		assert(ASSERT_INVALID_BTN_INDEX);
+		break;
+	}
 }
 
 /* 終了処理を行う */

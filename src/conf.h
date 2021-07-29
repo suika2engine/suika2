@@ -55,7 +55,8 @@ extern int conf_namebox_margin_top;
 /*
  * メッセージボックスの設定
  */
-extern char *conf_msgbox_file;
+extern char *conf_msgbox_bg_file;
+extern char *conf_msgbox_fg_file;
 extern int conf_msgbox_x;
 extern int conf_msgbox_y;
 extern int conf_msgbox_margin_left;
@@ -63,6 +64,34 @@ extern int conf_msgbox_margin_top;
 extern int conf_msgbox_margin_right;
 extern int conf_msgbox_margin_line;
 extern float conf_msgbox_speed;
+extern int conf_msgbox_btn_qsave_x;
+extern int conf_msgbox_btn_qsave_y;
+extern int conf_msgbox_btn_qsave_w;
+extern int conf_msgbox_btn_qsave_h;
+extern int conf_msgbox_btn_qload_x;
+extern int conf_msgbox_btn_qload_y;
+extern int conf_msgbox_btn_qload_w;
+extern int conf_msgbox_btn_qload_h;
+extern int conf_msgbox_btn_save_x;
+extern int conf_msgbox_btn_save_y;
+extern int conf_msgbox_btn_save_w;
+extern int conf_msgbox_btn_save_h;
+extern int conf_msgbox_btn_load_x;
+extern int conf_msgbox_btn_load_y;
+extern int conf_msgbox_btn_load_w;
+extern int conf_msgbox_btn_load_h;
+extern int conf_msgbox_btn_auto_x;
+extern int conf_msgbox_btn_auto_y;
+extern int conf_msgbox_btn_auto_w;
+extern int conf_msgbox_btn_auto_h;
+extern int conf_msgbox_btn_skip_x;
+extern int conf_msgbox_btn_skip_y;
+extern int conf_msgbox_btn_skip_w;
+extern int conf_msgbox_btn_skip_h;
+extern int conf_msgbox_btn_log_x;
+extern int conf_msgbox_btn_log_y;
+extern int conf_msgbox_btn_log_w;
+extern int conf_msgbox_btn_log_h;
 
 /*
  * クリックアニメーションの設定

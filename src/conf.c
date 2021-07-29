@@ -55,7 +55,8 @@ int conf_namebox_margin_top;
 /*
  * メッセージボックスの設定
  */
-char *conf_msgbox_file;
+char *conf_msgbox_bg_file;
+char *conf_msgbox_fg_file;
 int conf_msgbox_x;
 int conf_msgbox_y;
 int conf_msgbox_margin_left;
@@ -63,6 +64,34 @@ int conf_msgbox_margin_top;
 int conf_msgbox_margin_right;
 int conf_msgbox_margin_line;
 float conf_msgbox_speed;
+int conf_msgbox_btn_qsave_x;
+int conf_msgbox_btn_qsave_y;
+int conf_msgbox_btn_qsave_w;
+int conf_msgbox_btn_qsave_h;
+int conf_msgbox_btn_qload_x;
+int conf_msgbox_btn_qload_y;
+int conf_msgbox_btn_qload_w;
+int conf_msgbox_btn_qload_h;
+int conf_msgbox_btn_save_x;
+int conf_msgbox_btn_save_y;
+int conf_msgbox_btn_save_w;
+int conf_msgbox_btn_save_h;
+int conf_msgbox_btn_load_x;
+int conf_msgbox_btn_load_y;
+int conf_msgbox_btn_load_w;
+int conf_msgbox_btn_load_h;
+int conf_msgbox_btn_auto_x;
+int conf_msgbox_btn_auto_y;
+int conf_msgbox_btn_auto_w;
+int conf_msgbox_btn_auto_h;
+int conf_msgbox_btn_skip_x;
+int conf_msgbox_btn_skip_y;
+int conf_msgbox_btn_skip_w;
+int conf_msgbox_btn_skip_h;
+int conf_msgbox_btn_log_x;
+int conf_msgbox_btn_log_y;
+int conf_msgbox_btn_log_w;
+int conf_msgbox_btn_log_h;
 
 /*
  * クリックアニメーションの設定
@@ -211,7 +240,8 @@ struct rule {
 	{"namebox.x", 'i', &conf_namebox_x, false, false},
 	{"namebox.y", 'i', &conf_namebox_y, false, false},
 	{"namebox.margin.top", 'i', &conf_namebox_margin_top, false, false},
-	{"msgbox.file", 's', &conf_msgbox_file, false, false},
+	{"msgbox.bg.file", 's', &conf_msgbox_bg_file, false, false},
+	{"msgbox.fg.file", 's', &conf_msgbox_fg_file, false, false},
 	{"msgbox.x", 'i', &conf_msgbox_x, false, false},
 	{"msgbox.y", 'i', &conf_msgbox_y, false, false},
 	{"msgbox.margin.left", 'i', &conf_msgbox_margin_left, false, false},
@@ -219,6 +249,34 @@ struct rule {
 	{"msgbox.margin.right", 'i', &conf_msgbox_margin_right, false, false},
 	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
+	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
+	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, true, false},
+	{"msgbox.btn.qsave.w", 'i', &conf_msgbox_btn_qsave_w, true, false},
+	{"msgbox.btn.qsave.h", 'i', &conf_msgbox_btn_qsave_h, true, false},
+	{"msgbox.btn.qload.x", 'i', &conf_msgbox_btn_qload_x, true, false},
+	{"msgbox.btn.qload.y", 'i', &conf_msgbox_btn_qload_y, true, false},
+	{"msgbox.btn.qload.w", 'i', &conf_msgbox_btn_qload_w, true, false},
+	{"msgbox.btn.qload.h", 'i', &conf_msgbox_btn_qload_h, true, false},
+	{"msgbox.btn.save.x", 'i', &conf_msgbox_btn_save_x, true, false},
+	{"msgbox.btn.save.y", 'i', &conf_msgbox_btn_save_y, true, false},
+	{"msgbox.btn.save.w", 'i', &conf_msgbox_btn_save_w, true, false},
+	{"msgbox.btn.save.h", 'i', &conf_msgbox_btn_save_h, true, false},
+	{"msgbox.btn.load.x", 'i', &conf_msgbox_btn_load_x, true, false},
+	{"msgbox.btn.load.y", 'i', &conf_msgbox_btn_load_y, true, false},
+	{"msgbox.btn.load.w", 'i', &conf_msgbox_btn_load_w, true, false},
+	{"msgbox.btn.load.h", 'i', &conf_msgbox_btn_load_h, true, false},
+	{"msgbox.btn.auto.x", 'i', &conf_msgbox_btn_auto_x, true, false},
+	{"msgbox.btn.auto.y", 'i', &conf_msgbox_btn_auto_y, true, false},
+	{"msgbox.btn.auto.w", 'i', &conf_msgbox_btn_auto_w, true, false},
+	{"msgbox.btn.auto.h", 'i', &conf_msgbox_btn_auto_h, true, false},
+	{"msgbox.btn.skip.x", 'i', &conf_msgbox_btn_skip_x, true, false},
+	{"msgbox.btn.skip.y", 'i', &conf_msgbox_btn_skip_y, true, false},
+	{"msgbox.btn.skip.w", 'i', &conf_msgbox_btn_skip_w, true, false},
+	{"msgbox.btn.skip.h", 'i', &conf_msgbox_btn_skip_h, true, false},
+	{"msgbox.btn.log.x", 'i', &conf_msgbox_btn_log_x, true, false},
+	{"msgbox.btn.log.y", 'i', &conf_msgbox_btn_log_y, true, false},
+	{"msgbox.btn.log.w", 'i', &conf_msgbox_btn_log_w, true, false},
+	{"msgbox.btn.log.h", 'i', &conf_msgbox_btn_log_h, true, false},
 	{"click.file", 's', &conf_click_file, false, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},

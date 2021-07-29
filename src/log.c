@@ -198,6 +198,19 @@ void log_wave_error(const char *fname)
 }
 
 /*
+ * メッセージボックスの前景と背景が異なるサイズであるエラーを記録する
+ */
+void log_invalid_msgbox_size(void)
+{
+	if (is_english_mode()) {
+		log_error("The sizes of message box bg and fg differ.\n");
+	} else {
+		log_error("メッセージボックスのBGとFGで"
+			  "サイズが異なります。.\n");
+	}
+}
+
+/*
  * スクリプト実行エラーの位置を記録する
  */
 void log_script_exec_footer(void)

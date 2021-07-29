@@ -210,8 +210,14 @@ int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
 /* メッセージボックスの矩形を取得する */
 void get_msgbox_rect(int *x, int *y, int *w, int *h);
 
-/* メッセージボックスをクリアする */
+/* メッセージボックスを背景でクリアする */
 void clear_msgbox(void);
+
+/* メッセージボックスの矩形を背景でクリアする */
+void clear_msgbox_rect_with_bg(int x, int y, int w, int h);
+
+/* メッセージボックスの矩形を前景でクリアする */
+void clear_msgbox_rect_with_fg(int x, int y, int w, int h);
 
 /* メッセージボックスの表示・非表示を設定する */
 void show_msgbox(bool show);
