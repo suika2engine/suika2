@@ -218,16 +218,16 @@ save.load.bg.file=load-bg.png
 save.load.fg.file=load-fg.png
 
 # 前ページボタンの位置と大きさ
-save.prev.x=836
-save.prev.y=187
-save.prev.width=69
-save.prev.height=65
+save.prev.x=416
+save.prev.y=112
+save.prev.width=70
+save.prev.height=64
 
 # 次ページボタンの位置と大きさ
-save.next.x=836
-save.next.y=517
-save.next.width=69
-save.next.height=65
+save.next.x=416
+save.next.y=470
+save.next.width=70
+save.next.height=64
 
 # セーブデータ項目の大きさ
 save.data.width=384
@@ -238,40 +238,40 @@ save.data.margin.left=10
 save.data.margin.top=10
 
 # セーブデータ1の位置
-save.data1.x=448
-save.data1.y=192
+save.data1.x=34
+save.data1.y=131
 
 # セーブデータ2の位置
-save.data2.x=448
-save.data2.y=256
+save.data2.x=34
+save.data2.y=195
 
 # セーブデータ3の位置
-save.data3.x=448
-save.data3.y=320
+save.data3.x=34
+save.data3.y=259
 
 # セーブデータ4の位置
-save.data4.x=448
-save.data4.y=384
+save.data4.x=34
+save.data4.y=323
 
 # セーブデータ5の位置
-save.data5.x=448
-save.data5.y=448
+save.data5.x=34
+save.data5.y=387
 
 # セーブデータ6の位置
-save.data6.x=448
-save.data6.y=512
+save.data6.x=34
+save.data6.y=451
 
 # セーブ画面の終了ボタンの位置とサイズ
-save.exit.x=85
-save.exit.y=605
-save.exit.width=280
-save.exit.height=65
+save.exit.x=33
+save.exit.y=623
+save.exit.width=170
+save.exit.height=64
 
 # セーブ画面のタイトルへ戻るボタンの位置とサイズ
-save.title.x=915
-save.title.y=605
-save.title.width=280
-save.title.height=65
+save.title.x=244
+save.title.y=623
+save.title.width=170
+save.title.height=64
 
 # セーブ画面のタイトルへ戻るボタンのジャンプ先
 save.title.txt=init.txt

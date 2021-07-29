@@ -320,11 +320,12 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 
 	/* 右クリックされた場合、セーブをキャンセルする */
 	if (is_right_button_pressed) {
-		stop_save_load_mode(x, y, w, h);
-		if (is_goto)
-			restore_flag = false;
-		else
-			restore_flag = true;
+		if (!is_goto) {
+			if (is_save_mode)
+				start_load_mode(is_goto);
+			else
+				start_save_mode(is_goto);
+		}
 		return true;
 	}
 
@@ -538,29 +539,14 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 		return true;
 	}
 
-#if 0
-	/* セーブボタンの場合 */
-	if (new_pointed_index == BUTTON_SAVE) {
-		process_save();
-		save_global_data();
-		stop_save_mode(x, y, w, h);
-		if (is_single_function_mode())
+	/* 終了ボタンの場合 */
+	if (new_pointed_index == BUTTON_EXIT) {
+		stop_save_load_mode(x, y, w, h);
+		if (is_goto)
 			restore_flag = false;
 		else
 			restore_flag = true;
-	}
-
-	/* ロードボタンの場合 */
-	if (new_pointed_index == BUTTON_LOAD) {
- 		process_load();
-		stop_save_mode(x, y, w, h);
-	}
-#endif
-
-	/* 終了ボタンの場合 */
-	if (new_pointed_index == BUTTON_EXIT) {
-		if (exit_dialog())
-			return false;
+		return true;
 	}
 
 	/* タイトルへ戻るボタンの場合 */

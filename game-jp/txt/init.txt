@@ -25,11 +25,15 @@
 
 :LOAD
 @se click.ogg
+@bg menu.png
+@bg load-bg.png 1.0
 @goto $LOAD
+@bg menu.png 1.0
 @goto MENU
 
 :CONFIG
 @se click.ogg
+@bg menu.png
 @bg config.png 1.0
 @goto CONFIG_SCREEN
 
