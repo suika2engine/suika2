@@ -73,6 +73,9 @@ static bool quit[MIXER_STREAMS];
 /* ボリューム */
 static float volume[MIXER_STREAMS];
 
+/* 再生終了フラグ */
+static bool finish[MIXER_STREAMS];
+
 /*
  * 前方参照
  */
@@ -93,7 +96,8 @@ bool init_asound(void)
 		wave[n] = NULL;
 		quit[n] = false;
 		volume[n] = 1.0f;
-		
+		finish[n] = false;
+
 		/* デバイスを初期化する */
 		if (!init_pcm(n))
 			return false;
@@ -229,6 +233,17 @@ bool set_sound_volume(int n, float vol)
  *	pthread_mutex_unlock(&mutex[n]);
  */
 	return true;
+}
+
+/*
+ * サウンドが再生終了したか調べる
+ */
+bool is_sound_finished(int n)
+{
+	if (finish[n])
+		return true;
+
+	return false;
 }
 
 /* デバイスを初期化する */
@@ -381,6 +396,7 @@ static bool playback_period(int n)
 		/* 終端まで再生した場合 */
 		if (is_wave_eos(wave[n])) {
 			wave[n] = NULL;
+			finish[n] = true;
 			pthread_mutex_unlock(&mutex[n]);
 			return false;
 		}

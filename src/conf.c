@@ -64,6 +64,7 @@ int conf_msgbox_margin_top;
 int conf_msgbox_margin_right;
 int conf_msgbox_margin_line;
 float conf_msgbox_speed;
+float conf_msgbox_auto_speed;
 int conf_msgbox_btn_qsave_x;
 int conf_msgbox_btn_qsave_y;
 int conf_msgbox_btn_qsave_width;
@@ -266,6 +267,7 @@ struct rule {
 	{"msgbox.margin.right", 'i', &conf_msgbox_margin_right, false, false},
 	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
+	{"msgbox.auto.speed", 'f', &conf_msgbox_auto_speed, true, false},
 	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
 	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, true, false},
 	{"msgbox.btn.qsave.width", 'i', &conf_msgbox_btn_qsave_width, true, false},

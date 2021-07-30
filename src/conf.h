@@ -64,6 +64,7 @@ extern int conf_msgbox_margin_top;
 extern int conf_msgbox_margin_right;
 extern int conf_msgbox_margin_line;
 extern float conf_msgbox_speed;
+extern float conf_msgbox_auto_speed;
 extern int conf_msgbox_btn_qsave_x;
 extern int conf_msgbox_btn_qsave_y;
 extern int conf_msgbox_btn_qsave_width;

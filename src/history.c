@@ -217,6 +217,10 @@ bool check_history_flag(void)
  */
 void start_history_mode(void)
 {
+	/* オートモードを解除する */
+	if (is_auto_mode())
+		stop_auto_mode();
+
 	/* ヒストリ画面を開始する */
 	is_history_mode_enabled = true;
 

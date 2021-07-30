@@ -25,9 +25,6 @@
 /* クイックセーブのファイル名 */
 #define QUICK_SAVE_FILE_NAME	"q000.sav"
 
-/* クイックセーブのインデックス */
-#define QUICK_SAVE_INDEX	(-1)
-
 /* セーブデータ数 */
 #define SAVE_SLOTS	(30)
 
@@ -107,7 +104,7 @@ static void process_left_press_save_button(int new_pointed_index, int *x,
 static bool have_save_data(int new_pointed_index);
 static void play_se(const char *file);
 static bool process_save(int new_pointed_index);
-static bool serialize_all(const char *fname, int index);
+static bool serialize_all(const char *fname, uint64_t *timestamp);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
 static bool serialize_bgm(struct wfile *wf);
@@ -248,6 +245,10 @@ bool check_restore_flag(void)
  */
 void start_save_mode(bool is_goto_save)
 {
+	/* オートモードを解除する */
+	if (is_auto_mode())
+		stop_auto_mode();
+
 	/* セーブ画面を開始する */
 	is_save_load_mode_enabled = true;
 	is_save_mode = true;
@@ -268,6 +269,10 @@ void start_save_mode(bool is_goto_save)
  */
 void start_load_mode(bool is_goto_load)
 {
+	/* オートモードを解除する */
+	if (is_auto_mode())
+		stop_auto_mode();
+
 	/* セーブ画面を開始する */
 	is_save_load_mode_enabled = true;
 	is_save_mode = false;
@@ -649,8 +654,12 @@ static void play_se(const char *file)
  */
 bool quick_save(void)
 {
-	if (!serialize_all(QUICK_SAVE_FILE_NAME, QUICK_SAVE_INDEX))
+	uint64_t timestamp;
+
+	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp))
 		return false;
+
+	quick_save_time = (time_t)timestamp;
 
 	return true;
 }
@@ -659,6 +668,7 @@ bool quick_save(void)
 static bool process_save(int new_pointed_index)
 {
 	char s[128];
+	uint64_t timestamp;
 	int index;
 
 	/* ファイル名を求める */
@@ -666,14 +676,17 @@ static bool process_save(int new_pointed_index)
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
 	/* シリアライズを行う */
-	if (!serialize_all(s, index))
+	if (!serialize_all(s, &timestamp))
 		return false;
+
+	/* 時刻を保存する */
+	save_time[index] = (time_t)timestamp;
 
 	return true;
 }
 
 /* すべてのシリアライズを行う */
-static bool serialize_all(const char *fname, int index)
+static bool serialize_all(const char *fname, uint64_t *timestamp)
 {
 	struct wfile *wf;
 	uint64_t t;
@@ -722,12 +735,7 @@ static bool serialize_all(const char *fname, int index)
 	close_wfile(wf);
 
 	/* 時刻を保存する */
-	if (success) {
-		if (index == QUICK_SAVE_INDEX)
-			quick_save_time = (time_t)t;
-		else
-			save_time[index] = (time_t)t;
-	}
+	*timestamp = t;
 
 	return success;
 }
@@ -854,6 +862,15 @@ bool quick_load(void)
 	if (!deserialize_all(QUICK_SAVE_FILE_NAME))
 		return false;
 
+	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
+	show_namebox(false);
+	show_msgbox(false);
+	show_selbox(false);
+
+	/* オートモードをやめる */
+	if (is_auto_mode())
+		stop_auto_mode();
+
 	return true;
 }
 
@@ -870,6 +887,15 @@ static bool process_load(int new_pointed_index)
 	/* すべてをデシリアライズする */
 	if (!deserialize_all(s))
 		return false;
+
+	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
+	show_namebox(false);
+	show_msgbox(false);
+	show_selbox(false);
+
+	/* オートモードをやめる */
+	if (is_auto_mode())
+		stop_auto_mode();
 
 	return true;
 }
@@ -924,17 +950,6 @@ static bool deserialize_all(const char *fname)
 
 	/* ファイルをクローズする */
 	close_rfile(rf);
-
-	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
-	if (success) {
-		show_namebox(false);
-		show_msgbox(false);
-		show_selbox(false);
-	}
-
-	/* オートモードをやめる */
-	if (is_auto_mode())
-		stop_auto_mode();
 
 	return success;
 }

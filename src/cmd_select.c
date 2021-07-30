@@ -56,6 +56,15 @@ bool select_command(int *x, int *y, int *w, int *h)
 		return true;
 	}
 
+	/* ヒストリ画面への遷移を確認する */
+	if (is_up_pressed) {
+		if (is_up_pressed)
+			play_se(conf_msgbox_history_se);
+		start_history_mode();
+		stop_command_repetition();
+		return true;
+	}
+
 	/* 繰り返し動作を行う */
 	draw_frame(x, y, w, h);
 

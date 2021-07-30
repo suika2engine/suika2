@@ -74,52 +74,55 @@ msgbox.margin.right=80
 # メッセージの行間
 msgbox.margin.line=47
 
-# メッセージのスピード(x文字/秒)
+# メッセージのスピード(毎秒x文字表示する)
 msgbox.speed=20.0
 
-# QSAVEボタンの座標(メッセージボックス内の座標)
+# オートモードのスピード(1文字あたりx秒待つ, 省略可)
+msgbox.auto.speed=0.15
+
+# QSAVEボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.qsave.x=740
 msgbox.btn.qsave.y=0
 msgbox.btn.qsave.width=79
 msgbox.btn.qsave.height=23
 
-# QLOADボタンの座標(メッセージボックス内の座標)
+# QLOADボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.qload.x=820
 msgbox.btn.qload.y=0
 msgbox.btn.qload.width=81
 msgbox.btn.qload.height=23
 
-# SAVEボタンの座標(メッセージボックス内の座標)
+# SAVEボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.save.x=901
 msgbox.btn.save.y=0
 msgbox.btn.save.width=62
 msgbox.btn.save.height=23
 
-# LOADボタンの座標(メッセージボックス内の座標)
+# LOADボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.load.x=963
 msgbox.btn.load.y=0
 msgbox.btn.load.width=66
 msgbox.btn.load.height=23
 
-# AUTOボタンの座標(メッセージボックス内の座標)
+# AUTOボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.auto.x=1029
 msgbox.btn.auto.y=0
 msgbox.btn.auto.width=68
 msgbox.btn.auto.height=23
 
-# SKIPボタンの座標(メッセージボックス内の座標)
+# SKIPボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.skip.x=1096
 msgbox.btn.skip.y=0
 msgbox.btn.skip.width=59
 msgbox.btn.skip.height=23
 
-# LOGボタンの座標(メッセージボックス内の座標)
+# LOGボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.history.x=1156
 msgbox.btn.history.y=0
 msgbox.btn.history.width=53
 msgbox.btn.history.height=23
 
-# ボタンが押されたときのSE
+# ボタンが押されたときのSE(省略可)
 msgbox.btn.qsave.se=click.ogg
 msgbox.btn.qload.se=click.ogg
 msgbox.btn.save.se=click.ogg
@@ -128,13 +131,13 @@ msgbox.btn.auto.se=click.ogg
 msgbox.btn.skip.se=click.ogg
 msgbox.btn.history.se=click.ogg
 
-# ポイントされているボタンが変更されたときのSE
+# ポイントされているボタンが変更されたときのSE(省略可)
 msgbox.btn.change.se=btn-change.ogg
 
-# 右クリックでセーブ画面を呼び出すときのSE
+# 右クリックでセーブ画面を呼び出すときのSE(省略可)
 msgbox.save.se=click.ogg
 
-# 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE
+# 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
 msgbox.history.se=click.ogg
 
 ###
@@ -168,7 +171,7 @@ selbox.y=200
 # 選択肢ボックス内の文字のY方向マージン
 selbox.margin.y=10
 
-# ポイントされている選択肢が変わったときのSE
+# ポイントされている選択肢が変わったときのSE(省略可)
 selbox.change.se=select-change.ogg
 
 ###
@@ -197,7 +200,7 @@ switch.parent.click.se.file=click.ogg
 # スイッチの子選択肢を選択したときの効果音(省略可)
 switch.child.click.se.file=click.ogg
 
-# スイッチの選択項目が変更されたときのSE
+# スイッチの選択項目が変更されたときのSE(省略可)
 switch.change.se=select-change.ogg
 
 ###
@@ -233,23 +236,27 @@ save.load.bg.file=load-bg.png
 save.load.fg.file=load-fg.png
 
 # 前ページボタン
-save.prev.se=click.ogg
 save.prev.x=416
 save.prev.y=112
 save.prev.width=70
 save.prev.height=64
 
+# 前ページボタンがクリックされたときのSE(省略可)
+save.prev.se=click.ogg
+
 # 次ページボタン
-save.next.se=click.ogg
 save.next.x=416
 save.next.y=470
 save.next.width=70
 save.next.height=64
 
-# セーブ時のSE
+# 次ページボタンがクリックされたときのSE(省略可)
+save.next.se=click.ogg
+
+# セーブ時のSE(省略可)
 save.data.save.se=save-done.ogg
 
-# ロード時のSE
+# ロード時のSE(省略可)
 save.data.load.se=click.ogg
 
 # セーブデータ項目の大きさ
@@ -284,36 +291,40 @@ save.data5.y=387
 save.data6.x=34
 save.data6.y=451
 
-# セーブ画面の終了ボタンの位置とサイズ
-save.exit.se=click.ogg
+# 戻るボタンの位置とサイズ
 save.exit.x=33
 save.exit.y=623
 save.exit.width=170
 save.exit.height=64
 
-# セーブ・ロード画面のタイトルへ戻るボタン
-save.title.se=click.ogg
+# 戻るボタンがクリックされたときのSE(省略可)
+save.exit.se=click.ogg
+
+# タイトルへ戻るボタンの位置とサイズ
 save.title.x=244
 save.title.y=623
 save.title.width=170
 save.title.height=64
 
-# セーブ・ロード画面のタイトルへ戻るボタンのジャンプ先
+# タイトルへ戻るボタンがクリックされたときのSE(省略可)
+save.title.se=click.ogg
+
+# タイトルへ戻るボタンがクリックされたときのジャンプ先ファイル名
 save.title.txt=init.txt
 
-# ロード画面からセーブ画面に移るときのSE
+# ロード画面からセーブ画面に移るときのSE(省略可)
 save.loadtosave.se=click.ogg
 
-# セーブ画面からロード画面に移るときのSE
+# セーブ画面からロード画面に移るときのSE(省略可)
 save.savetoload.se=click.ogg
 
-# セーブ画面(@goto $SAVE)を右クリックでキャンセルするときのSE
+# セーブ画面(@goto $SAVE)を右クリックでキャンセルするときのSE(省略可)
 save.cancel.save.se=click.ogg
 
-# ロード画面(@goto $LOAD)を右クリックでキャンセルするときのSE
+# ロード画面(@goto $LOAD)を右クリックでキャンセルするときのSE(省略可)
 save.cancel.load.se=click.ogg
 
-# セーブ・ロード画面で選択項目が変わったときのSE
+# セーブ・ロード画面で選択項目が変わったときのSE(省略可)
 save.change.se=btn-change.ogg
 
 ###
