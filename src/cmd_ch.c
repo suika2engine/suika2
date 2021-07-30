@@ -106,7 +106,7 @@ static bool init(void)
 	    return false;
 
 	/* Controlが押されているか、フェードしない場合 */
-	if (is_control_pressed || span == 0) {
+	if (is_skip_mode() || is_control_pressed || span == 0) {
 		/* フェードせず、すぐに切り替える */
 		change_ch_immediately(chpos, img, xpos, ypos, alpha);
 	} else {

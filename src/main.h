@@ -103,6 +103,14 @@ void stop_auto_mode(void);
 bool is_auto_mode(void);
 
 /*
+ * スキップモードの設定
+ */
+
+void start_skip_mode(void);
+void stop_skip_mode(void);
+bool is_skip_mode(void);
+
+/*
  * セーブ・ロード画面の許可の設定
  */
 

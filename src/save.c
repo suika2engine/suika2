@@ -14,6 +14,7 @@
  *  - 2018/07/22 gosubに対応
  *  - 2021/06/05 マスターボリュームに対応
  *  - 2021/07/07 セーブ専用画面に対応
+ *  - 2021/07/29 クイックセーブ・ロードに対応
  */
 
 #ifdef _MSC_VER
@@ -249,6 +250,10 @@ void start_save_mode(bool is_goto_save)
 	if (is_auto_mode())
 		stop_auto_mode();
 
+	/* スキップモードを解除する */
+	if (is_skip_mode())
+		stop_skip_mode();
+
 	/* セーブ画面を開始する */
 	is_save_load_mode_enabled = true;
 	is_save_mode = true;
@@ -272,6 +277,10 @@ void start_load_mode(bool is_goto_load)
 	/* オートモードを解除する */
 	if (is_auto_mode())
 		stop_auto_mode();
+
+	/* スキップモードを解除する */
+	if (is_skip_mode())
+		stop_skip_mode();
 
 	/* セーブ画面を開始する */
 	is_save_load_mode_enabled = true;
@@ -867,9 +876,13 @@ bool quick_load(void)
 	show_msgbox(false);
 	show_selbox(false);
 
-	/* オートモードをやめる */
+	/* オートモードを解除する */
 	if (is_auto_mode())
 		stop_auto_mode();
+
+	/* スキップモードを解除する */
+	if (is_skip_mode())
+		stop_skip_mode();
 
 	return true;
 }
@@ -892,10 +905,6 @@ static bool process_load(int new_pointed_index)
 	show_namebox(false);
 	show_msgbox(false);
 	show_selbox(false);
-
-	/* オートモードをやめる */
-	if (is_auto_mode())
-		stop_auto_mode();
 
 	return true;
 }

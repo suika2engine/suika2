@@ -87,7 +87,7 @@ static bool init(void)
 	y += ofs_y;
 
 	/* Controlが押されているか、フェードしない場合 */
-	if (is_control_pressed || span == 0) {
+	if (is_skip_mode() || is_control_pressed || span == 0) {
 		/* フェードせず、すぐに切り替える */
 		change_ch_attributes(chpos, x, y, alpha);
 	} else {

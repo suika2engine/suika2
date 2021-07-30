@@ -93,16 +93,18 @@ extern int conf_msgbox_btn_history_x;
 extern int conf_msgbox_btn_history_y;
 extern int conf_msgbox_btn_history_width;
 extern int conf_msgbox_btn_history_height;
-extern const char *conf_msgbox_btn_qsave_se;
-extern const char *conf_msgbox_btn_qload_se;
-extern const char *conf_msgbox_btn_save_se;
-extern const char *conf_msgbox_btn_load_se;
-extern const char *conf_msgbox_btn_auto_se;
-extern const char *conf_msgbox_btn_skip_se;
-extern const char *conf_msgbox_btn_history_se;
-extern const char *conf_msgbox_btn_change_se;
-extern const char *conf_msgbox_save_se;
-extern const char *conf_msgbox_history_se;
+extern char *conf_msgbox_btn_qsave_se;
+extern char *conf_msgbox_btn_qload_se;
+extern char *conf_msgbox_btn_save_se;
+extern char *conf_msgbox_btn_load_se;
+extern char *conf_msgbox_btn_auto_se;
+extern char *conf_msgbox_btn_skip_se;
+extern char *conf_msgbox_btn_history_se;
+extern char *conf_msgbox_btn_change_se;
+extern char *conf_msgbox_save_se;
+extern char *conf_msgbox_history_se;
+extern char *conf_msgbox_auto_cancel_se;
+extern char *conf_msgbox_skip_cancel_se;
 
 /*
  * クリックアニメーションの設定
@@ -207,6 +209,7 @@ extern int conf_history_margin_left;
 extern int conf_history_margin_top;
 extern int conf_history_margin_right;
 extern int conf_history_margin_bottom;
+extern char *conf_history_cancel_se;
 
 /*
  * セリフの色付け

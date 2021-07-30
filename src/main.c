@@ -17,6 +17,8 @@
  *  - 2021/06/12 shakeに対応
  *  - 2021/06/15 setsaveに対応
  *  - 2021/07/19 chsに対応
+ *  - 2021/07/30 オートモードに対応
+ *  - 2021/07/31 スキップモードに対応
  */
 
 #include "suika.h"
@@ -56,6 +58,11 @@ static bool flag_message_registered;
  * オートモードが実行中であるか
  */
 static bool flag_auto_mode;
+
+/*
+ * スキップモードが実行中であるか
+ */
+static bool flag_skip_mode;
 
 /*
  * セーブ・ロード画面が許可されているか
@@ -309,6 +316,7 @@ bool is_message_registered(void)
 void start_auto_mode(void)
 {
 	assert(!flag_auto_mode);
+	assert(!flag_skip_mode);
 	flag_auto_mode = true;
 }
 
@@ -318,6 +326,7 @@ void start_auto_mode(void)
 void stop_auto_mode(void)
 {
 	assert(flag_auto_mode);
+	assert(!flag_skip_mode);
 	flag_auto_mode = false;
 }
 
@@ -327,6 +336,34 @@ void stop_auto_mode(void)
 bool is_auto_mode(void)
 {
 	return flag_auto_mode;
+}
+
+/*
+ * スキップモードを開始する
+ */
+void start_skip_mode(void)
+{
+	assert(!flag_skip_mode);
+	assert(!flag_auto_mode);
+	flag_skip_mode = true;
+}
+
+/*
+ * スキップモードを終了する
+ */
+void stop_skip_mode(void)
+{
+	assert(flag_skip_mode);
+	assert(!flag_auto_mode);
+	flag_skip_mode = false;
+}
+
+/*
+ * スキップモードであるか調べる
+ */
+bool is_skip_mode(void)
+{
+	return flag_skip_mode;
 }
 
 /*

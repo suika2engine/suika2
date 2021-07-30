@@ -140,6 +140,12 @@ msgbox.save.se=click.ogg
 # 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
 msgbox.history.se=click.ogg
 
+# オートモードをキャンセルするときのSE(省略可)
+msgbox.auto.cancel.se=click.ogg
+
+# スキップモードをキャンセルするときのSE(省略可)
+msgbox.skip.cancel.se=click.ogg
+
 ###
 ### クリックアニメーションの設定
 ###
@@ -351,6 +357,9 @@ history.margin.right=20
 
 # 画面下のマージン
 history.margin.bottom=20
+
+# ヒストリ画面から戻るときのSE(省略可)
+history.cancel.se=click.ogg
 
 ###
 ### セリフの色の設定

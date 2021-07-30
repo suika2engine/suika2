@@ -72,7 +72,8 @@ static void draw_page(int *x, int *y, int *w, int *h);
 static bool draw_message(int *pen_x, int *pen_y, int index);
 static int get_en_word_width(const char *text);
 static void update_pointed_index(void);
-static bool play_voice(void);
+static void play_voice(void);
+static void play_se(const char *file);
 
 /*
  * 初期化
@@ -240,6 +241,9 @@ void start_history_mode(void)
 /* セーブ画面を終了する */
 static void stop_history_mode(int *x, int *y, int *w, int *h)
 {
+	/* SEを再生する */
+	play_se(conf_history_cancel_se);
+
 	/* セーブ画面を終了する */
 	is_history_mode_enabled = false;
 
@@ -507,7 +511,7 @@ static void update_pointed_index(void)
 }
 
 /* ボイスを再生する */
-static bool play_voice(void)
+static void play_voice(void)
 {
 	struct wave *w;
 	const char *voice;
@@ -515,17 +519,30 @@ static bool play_voice(void)
 	/* ボイスのファイル名を取得する */
 	voice = history[pointed_index].voice;
 	if (strcmp(voice, "") == 0)
-		return true;
+		return;
 	if (voice[0] == '@')
-		return true;
+		return;
 
 	/* PCMストリームを開く */
 	w = create_wave_from_file(CV_DIR, voice, false);
 	if (w == NULL)
-		return false;
+		return;
 
 	/* PCMストリームを再生する */
 	set_mixer_input(VOICE_STREAM, w);
+}
 
-	return true;
+/* SEを再生する */
+static void play_se(const char *file)
+{
+	struct wave *w;
+
+	if (file == NULL || strcmp(file, "") == 0)
+		return;
+
+	w = create_wave_from_file(SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SE_STREAM, w);
 }

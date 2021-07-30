@@ -152,6 +152,10 @@ bool init(void)
 	if (is_auto_mode())
 		stop_auto_mode();
 
+	/* スキップモードを終了する */
+	if (is_skip_mode())
+		stop_skip_mode();
+
 	return true;
 }
 

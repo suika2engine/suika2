@@ -104,7 +104,7 @@ static bool init(void)
 		return false;
 
 	/* フェードしない場合か、Controlが押されている場合 */
-	if (span == 0 || is_control_pressed) {
+	if (span == 0 || is_control_pressed || is_skip_mode()) {
 		/* フェードせず、すぐに切り替える */
 		change_bg_immediately(img);
 		change_ch_immediately(CH_BACK, NULL, 0, 0, 0);

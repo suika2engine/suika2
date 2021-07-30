@@ -12,6 +12,8 @@
  *  - 2017/04/13 ワードラッピング対応
  *  - 2021/06/15 @setsave対応
  *  - 2021/07/29 メッセージボックスボタン対応
+ *  - 2021/07/30 オートモード対応
+ *  - 2021/07/31 スキップモード対応
  */
 
 #include "suika.h"
@@ -51,7 +53,7 @@
 #define AUTO_MODE_TEXT_WAIT_SCALE	(0.15f)
 
 /* コマンドの経過時刻を表すストップウォッチ */
-static stop_watch_t sw;
+static stop_watch_t click_sw;
 
 /* 描画する文字の総数 */
 static int total_chars;
@@ -126,6 +128,7 @@ static int pointed_index;
  */
 
 static bool init(void);
+static void init_skip_mode(void);
 static bool register_message_for_history(void);
 static bool process_serif_command(void);
 static void draw_namebox(void);
@@ -136,7 +139,10 @@ static int get_frame_chars(void);
 static void draw_click(void);
 static int get_en_word_width(void);
 static void get_message_color(pixel_t *color, pixel_t *outline_color);
-static void frame_draw_buttons(void);
+static void init_pointed_index(void);
+static void init_first_draw_area(void);
+static void init_repetition(void);
+static void frame_draw_buttons(bool se);
 static int get_pointed_button(void);
 static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
 static void frame_quick_save(void);
@@ -147,8 +153,10 @@ static bool frame_history(void);
 static void frame_auto_mode(void);
 static bool check_auto_play_condition(void);
 static int get_wait_time(void);
+static void frame_skip_mode(void);
 static void frame_main(void);
 static void play_se(const char *file);
+static bool is_skippable(void);
 static bool cleanup(void);
 
 /*
@@ -167,7 +175,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 			return false;
 
 	/* ボタンの描画を行う */
-	frame_draw_buttons();
+	frame_draw_buttons(true);
 
 	/* クイックセーブを処理する */
 	frame_quick_save();
@@ -191,6 +199,9 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* オートモードを処理する */
 	frame_auto_mode();
 	
+	/* スキップモードを処理する */
+	frame_skip_mode();
+
 	/* メイン表示処理を行う */
 	frame_main();
 
@@ -215,7 +226,9 @@ bool message_command(int *x, int *y, int *w, int *h)
 static bool init(void)
 {
 	const char *raw_msg;
-	int x, y, w, h;
+
+	/* スキップモード中にクリックされた場合を処理する */
+	init_skip_mode();
 
 	/* メッセージを取得する */
 	raw_msg = get_command_type() == COMMAND_MESSAGE ?
@@ -267,49 +280,39 @@ static bool init(void)
 	is_hidden = false;
 	
 	/* 繰り返し動作を設定する */
-	if (is_control_pressed) {
-		/* 繰り返し動作せず、すぐに表示する */
-	} else {
-		/* コマンドが繰り返し呼び出されるようにする */
-		start_command_repetition();
-
-		/* 時間計測を開始する */
-		reset_stop_watch(&sw);
-	}
+	init_repetition();
 
 	/* 初回に描画する矩形を求める */
-	if (check_menu_finish_flag() || check_retrospect_finish_flag()) {
-		/* メニューコマンドが終了したばかりの場合 */
-		draw_x = 0;
-		draw_y = 0;
-		draw_w = conf_window_width;
-		draw_h = conf_window_height;
-	} else {
-		/* それ以外の場合 */
-		union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y,
-			   draw_w, draw_h, msgbox_x, msgbox_y, msgbox_w,
-			   msgbox_h);
-	}
+	init_first_draw_area();
 
 	/* オートモードの設定をする */
-	if (is_auto_mode())
-		is_auto_mode_wait = false;
+	is_auto_mode_wait = false;
 
 	/* ボタンの選択状態を取得する */
-	pointed_index = get_pointed_button();
-	if (pointed_index == BTN_NONE)
-		return true;
-	if (!is_save_load_enabled() &&
-	     (pointed_index == BTN_QSAVE &&
-	      pointed_index == BTN_QLOAD &&
-	      pointed_index == BTN_SAVE &&
-	      pointed_index == BTN_LOAD))
-		return true;
-	if (!have_quick_save_data() && pointed_index == BTN_QLOAD)
-		return true;
-	get_button_rect(pointed_index, &x, &y, &w, &h);
-	clear_msgbox_rect_with_fg(x, y, w, h);
+	init_pointed_index();
+
 	return true;
+}
+
+/* 初期化処理のスキップモードの部分を行う */
+static void init_skip_mode(void)
+{
+	/* スキップモードでなければ何もしない */
+	if (!is_skip_mode())
+		return;
+
+	/* クリックされた場合 */
+	if (is_right_button_pressed || is_left_button_pressed) {
+		/* SEを再生する */
+		play_se(conf_msgbox_skip_cancel_se);
+
+		/* スキップモードを終了する */
+		stop_skip_mode();
+
+		/* 以降のクリック処理を行わない */
+		is_right_button_pressed = false;
+		is_left_button_pressed = false;
+	}
 }
 
 /* ヒストリ画面用にメッセージ履歴を登録する */
@@ -369,8 +372,8 @@ static bool process_serif_command(void)
 	}
 
 	/* ボイスを再生する */
-	if (!is_control_pressed && !history_flag &&
-	    (!restore_flag || !is_message_registered())) {
+	if (!(is_skip_mode() && is_skippable()) && !is_control_pressed &&
+	    !history_flag && (!restore_flag || !is_message_registered())) {
 		/* いったんボイスなしにしておく */
 		have_voice = false;
 
@@ -580,7 +583,7 @@ static int get_frame_chars(void)
 	}
 
 	/* 入力によりスキップされた場合 */
-	if (is_control_pressed) {
+	if (is_skippable() && is_control_pressed) {
 		/* 繰り返し動作を停止する */
 		stop_command_repetition();
 
@@ -597,7 +600,7 @@ static int get_frame_chars(void)
 	}
 
 	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
+	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f;
 
 	/* 今回描画する文字数を取得する */
 	char_count = (int)ceil(conf_msgbox_speed * lap) - drawn_chars;
@@ -614,7 +617,7 @@ static void draw_click(void)
 	int lap;
 
 	/* 入力があったら終了する */
-	if (is_control_pressed) {
+	if (is_skippable() && is_control_pressed) {
 		stop_command_repetition();
 		return;
 	}
@@ -629,11 +632,11 @@ static void draw_click(void)
 		process_click_first = false;
 
 		/* 時間計測を開始する */
-		reset_stop_watch(&sw);
+		reset_stop_watch(&click_sw);
 	}
 
 	/* 経過時間を取得する */
-	lap = get_stop_watch_lap(&sw);
+	lap = get_stop_watch_lap(&click_sw);
 
 	/* クリックアニメーションの点滅を行う */
 	if (lap % (int)(conf_click_interval * 2 * 1000) <
@@ -713,8 +716,69 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 				    (pixel_t)conf_font_outline_color_b);
 }
 
+/* 初期化処理においてポイントされているボタンを求め描画する */
+static void init_pointed_index(void)
+{
+	int x, y, w, h;
+
+	/* ポイントされているボタンを求める */
+	pointed_index = get_pointed_button();
+	if (pointed_index == BTN_NONE)
+		return;
+
+	/* セーブロードが無効な場合にセーブロードのボタンを無効化する */
+	if (!is_save_load_enabled() &&
+	     (pointed_index == BTN_QSAVE || pointed_index == BTN_QLOAD ||
+	      pointed_index == BTN_SAVE || pointed_index == BTN_LOAD)) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
+	/* クイックセーブデータがない場合にQLOADボタンを無効化する */
+	if (!have_quick_save_data() && pointed_index == BTN_QLOAD) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
+	/* ボタンを描画する */
+	get_button_rect(pointed_index, &x, &y, &w, &h);
+	clear_msgbox_rect_with_fg(x, y, w, h);
+}
+
+/* 初期化処理において、繰り返し動作を設定する */
+static void init_repetition(void)
+{
+	if (is_skippable() && (is_skip_mode() || is_control_pressed)) {
+		/* 繰り返し動作せず、すぐに表示する */
+	} else {
+		/* コマンドが繰り返し呼び出されるようにする */
+		start_command_repetition();
+
+		/* 時間計測を開始する */
+		reset_stop_watch(&click_sw);
+	}
+}
+
+/* 初期化処理において、初回に描画する矩形を求める */
+static void init_first_draw_area(void)
+{
+	/* 初回に描画する矩形を求める */
+	if (check_menu_finish_flag() || check_retrospect_finish_flag()) {
+		/* メニューコマンドが終了したばかりの場合 */
+		draw_x = 0;
+		draw_y = 0;
+		draw_w = conf_window_width;
+		draw_h = conf_window_height;
+	} else {
+		/* それ以外の場合 */
+		union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y,
+			   draw_w, draw_h, msgbox_x, msgbox_y, msgbox_w,
+			   msgbox_h);
+	}
+}
+
 /* ボタンを描画する */
-static void frame_draw_buttons(void)
+static void frame_draw_buttons(bool se)
 {
 	int last_pointed_index, bx, by, bw, bh;;
 
@@ -756,7 +820,8 @@ static void frame_draw_buttons(void)
 			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
 
 		/* SEを再生する */
-		play_se(conf_msgbox_btn_change_se);
+		if (se)
+			play_se(conf_msgbox_btn_change_se);
 	}
 }
 
@@ -765,9 +830,15 @@ static int get_pointed_button(void)
 {
 	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
 
+	assert(!(is_auto_mode() && is_skip_mode()));
+
 	/* オートモード時はAUTOボタンを選択中とする */
 	if (is_auto_mode())
 		return BTN_AUTO;
+
+	/* スキップモード時はSKIPボタンを選択中とする */
+	if (is_skip_mode())
+		return BTN_SKIP;
 
 	/* マウス座標からメッセージボックス内座標に変換する */
 	rx = mouse_pos_x - conf_msgbox_x;
@@ -982,6 +1053,10 @@ static void frame_auto_mode(void)
 {
 	int lap;
 
+	/* スキップモードの場合、何もしない */
+	if (is_skip_mode())
+		return;
+
 	/* オートモードでない場合 */
 	if (!is_auto_mode()) {
 		/* AUTOボタンが押下された場合 */
@@ -1004,11 +1079,17 @@ static void frame_auto_mode(void)
 	if (is_auto_mode()) {
 		/* 左クリックされた場合 */
 		if (is_left_button_pressed) {
+			/* SEを再生する */
+			play_se(conf_msgbox_auto_cancel_se);
+
 			/* オートモードを終了する */
 			stop_auto_mode();
 
 			/* メッセージ表示とボイス再生を未完了にする */
 			is_auto_mode_wait = false;
+
+			/* ボタンを再描画する */
+			frame_draw_buttons(false);
 
 			/* 以降のクリック処理を行わない */
 			is_left_button_pressed = false;
@@ -1086,6 +1167,27 @@ static int get_wait_time(void)
 	return (int)((float)total_chars * scale * 1000.0f);
 }
 
+/* フレーム描画中のスキップモードの処理を行う */
+static void frame_skip_mode(void)
+{
+	/* オートモードの場合、何もしない */
+	if (is_auto_mode())
+		return;
+
+	/* スキップモードではない場合 */
+	if (!is_skip_mode()) {
+		/* SKIPボタンが押下された場合 */
+		if (is_left_button_pressed && pointed_index == BTN_SKIP) {
+			/* SEを再生する */
+			play_se(conf_msgbox_btn_skip_se);
+
+			/* オートモードを開始する */
+			start_skip_mode();
+		}
+		return;
+	}
+}
+
 /* フレーム描画中のメイン処理を行う */
 static void frame_main(void)
 {
@@ -1142,6 +1244,13 @@ static void play_se(const char *file)
 		return;
 
 	set_mixer_input(SE_STREAM, w);
+}
+
+/* 既読であるか調べる */
+static bool is_skippable(void)
+{
+	/* FIXME */
+	return true;
 }
 
 /* 終了処理を行う */

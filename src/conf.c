@@ -93,16 +93,18 @@ int conf_msgbox_btn_history_x;
 int conf_msgbox_btn_history_y;
 int conf_msgbox_btn_history_width;
 int conf_msgbox_btn_history_height;
-const char *conf_msgbox_btn_qsave_se;
-const char *conf_msgbox_btn_qload_se;
-const char *conf_msgbox_btn_save_se;
-const char *conf_msgbox_btn_load_se;
-const char *conf_msgbox_btn_auto_se;
-const char *conf_msgbox_btn_skip_se;
-const char *conf_msgbox_btn_history_se;
-const char *conf_msgbox_btn_change_se;
-const char *conf_msgbox_save_se;
-const char *conf_msgbox_history_se;
+char *conf_msgbox_btn_qsave_se;
+char *conf_msgbox_btn_qload_se;
+char *conf_msgbox_btn_save_se;
+char *conf_msgbox_btn_load_se;
+char *conf_msgbox_btn_auto_se;
+char *conf_msgbox_btn_skip_se;
+char *conf_msgbox_btn_history_se;
+char *conf_msgbox_btn_change_se;
+char *conf_msgbox_save_se;
+char *conf_msgbox_history_se;
+char *conf_msgbox_auto_cancel_se;
+char *conf_msgbox_skip_cancel_se;
 
 /*
  * クリックアニメーションの設定
@@ -207,6 +209,7 @@ int conf_history_margin_left;
 int conf_history_margin_top;
 int conf_history_margin_right;
 int conf_history_margin_bottom;
+char *conf_history_cancel_se;
 
 /*
  * セリフの色付け
@@ -306,6 +309,8 @@ struct rule {
 	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, true, false},
 	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false},
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
+	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, true, false},
+	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, true, false},
 	{"click.file", 's', &conf_click_file, false, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
@@ -386,6 +391,7 @@ struct rule {
 	{"history.margin.top", 'i', &conf_history_margin_top, false, false},
 	{"history.margin.right", 'i', &conf_history_margin_right, false, false},
 	{"history.margin.bottom", 'i', &conf_history_margin_bottom, false, false},
+	{"history.cancel.se", 's', &conf_history_cancel_se, true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},
