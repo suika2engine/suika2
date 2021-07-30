@@ -108,6 +108,10 @@ static bool init(void)
 	show_namebox(false);
 	show_msgbox(false);
 
+	/* オートモードを終了する */
+	if (is_auto_mode())
+		stop_auto_mode();
+
 	return true;
 }
 
