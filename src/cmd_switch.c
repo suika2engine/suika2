@@ -58,6 +58,9 @@ static struct child_button {
 /* 最初の描画であるか */
 static bool is_first_frame;
 
+/* 子選択肢の最初の描画であるか */
+static bool is_child_first_frame;
+
 /* ポイントされている親項目のインデックス */
 static int pointed_parent_index;
 
@@ -131,6 +134,7 @@ bool init(void)
 	pointed_parent_index = -1;
 	selected_parent_index = -1;
 	pointed_child_index = -1;
+	is_child_first_frame = false;
 
 	/* 親選択肢の情報を取得する */
 	if (!get_parents_info())
@@ -285,16 +289,17 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 
 	/* 初回描画の場合 */
 	if (is_first_frame) {
+		pointed_parent_index = get_pointed_parent_index();
+
 		/* 名前ボックス、メッセージボックスを消すため再描画する */
 		draw_stage();
 		*x = 0;
 		*y = 0;
 		*w = conf_window_width;
 		*h = conf_window_height;
-
 		draw_switch_images(x, y, w, h);
+
 		is_first_frame = false;
-		return;
 	}
 
 	/* 親選択肢を選んでいる最中の場合 */
@@ -321,13 +326,17 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		/* ボタンを描画する */
 		pointed_parent_index = new_pointed_index;
 		draw_switch_images(x, y, w, h);
-		if (!is_left_button_pressed)
+
+		/* SEを再生する */
+		if (new_pointed_index != -1 && !is_left_button_pressed)
 			play_se(conf_switch_change_se);
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
 	if (new_pointed_index != -1 && is_left_button_pressed) {
 		selected_parent_index = new_pointed_index;
+		pointed_child_index = -1;
+		is_child_first_frame = true;
 
 		/* ステージをボタンなしで描画しなおす */
 		draw_stage();
@@ -374,7 +383,13 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 
 	new_pointed_index = get_pointed_child_index();
 
-	if (new_pointed_index == -1 && pointed_child_index == -1) {
+	if (is_child_first_frame) {
+		is_child_first_frame = false;
+
+		/* ボタンを描画する */
+		pointed_child_index = new_pointed_index;
+		draw_switch_images(x, y, w, h);
+	} else if (new_pointed_index == -1 && pointed_child_index == -1) {
 		/* 何もしない */
 	} else if (new_pointed_index == pointed_child_index) {
 		/* 何もしない */
@@ -382,7 +397,9 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 		/* ボタンを描画する */
 		pointed_child_index = new_pointed_index;
 		draw_switch_images(x, y, w, h);
-		if (!is_left_button_pressed)
+
+		/* SEを再生する */
+		if (new_pointed_index != -1 && !is_left_button_pressed)
 			play_se(conf_switch_change_se);
 	}
 
