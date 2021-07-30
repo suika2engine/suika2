@@ -179,6 +179,9 @@ bool play_sound(int n, struct wave *w)
 		/* PCMストリームを設定する */
 		wave[n] = w;
 
+		/* 再生終了状態をリセットする */
+		finish[n] = false;
+
 		/* 再生開始の要求を行う */
 		pthread_cond_signal(&req[n]);
 	}
