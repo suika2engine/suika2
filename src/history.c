@@ -294,12 +294,13 @@ void run_history_mode(int *x, int *y, int *w, int *h)
 
 	/* 下キーが押された場合、描画開始項目のオフセットを1つ下にする */
 	if (is_down_pressed) {
+#if 0
 		/* ただしオフセットが0の場合はヒストリ画面を終了する */
 		if (start_offset == 0) {
 			stop_history_mode(x, y, w, h);
 			return;
 		}
-
+#endif
 		/* オフセットを1つ下にする */
 		ofs = start_offset == 0 ? 0 : start_offset - 1;
 		if (ofs != start_offset) {
@@ -414,7 +415,6 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 			/* 不明なエスケープシーケンスの場合 */
 			escaped = false;
 		}
-
 
 		/* 描画する文字の幅を取得する */
 		width = get_glyph_width(c);

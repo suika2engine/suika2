@@ -772,12 +772,12 @@ static void draw_buttons(void)
 			return;
 		if (!have_quick_save_data() && pointed_index == BTN_QLOAD)
 			return;
-
 		get_button_rect(pointed_index, &bx, &by, &bw, &bh);
 		clear_msgbox_rect_with_fg(bx, by, bw, bh);
 		union_rect(&draw_x, &draw_y, &draw_w, &draw_h,
 			   draw_x, draw_y, draw_w, draw_h,
 			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
+		play_se(conf_msgbox_btn_change_se);
 	}
 }
 
@@ -855,7 +855,7 @@ static void play_se(const char *file)
 {
 	struct wave *w;
 
-	if (strcmp(file, "") == 0)
+	if (file == NULL || strcmp(file, "") == 0)
 		return;
 
 	w = create_wave_from_file(SE_DIR, file, false);

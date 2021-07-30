@@ -468,6 +468,8 @@ bool update_pointed_index(int *x, int *y, int *w, int *h)
 
 	/* 現在ポイントされている項目を取得する */
 	new_pointed_index = get_pointed_index();
+	if (new_pointed_index != -1 && new_pointed_index != pointed_index)
+		play_se(conf_save_change_se);
 
 	/* 左クリックされた場合 */
 	if (is_left_button_pressed) {
@@ -628,7 +630,7 @@ static void play_se(const char *file)
 {
 	struct wave *w;
 
-	if (strcmp(file, "") == 0)
+	if (file == NULL || strcmp(file, "") == 0)
 		return;
 
 	w = create_wave_from_file(SE_DIR, file, false);

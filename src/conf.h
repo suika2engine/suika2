@@ -99,6 +99,7 @@ extern const char *conf_msgbox_btn_load_se;
 extern const char *conf_msgbox_btn_auto_se;
 extern const char *conf_msgbox_btn_skip_se;
 extern const char *conf_msgbox_btn_history_se;
+extern const char *conf_msgbox_btn_change_se;
 extern const char *conf_msgbox_save_se;
 extern const char *conf_msgbox_history_se;
 
@@ -118,6 +119,7 @@ extern char *conf_selbox_fg_file;
 extern int conf_selbox_x;
 extern int conf_selbox_y;
 extern int conf_selbox_margin_y;
+extern char *conf_selbox_change_se;
 
 /*
  * スイッチの設定
@@ -130,6 +132,7 @@ extern int conf_switch_margin_y;
 extern int conf_switch_text_margin_y;
 extern char *conf_switch_parent_click_se_file;
 extern char *conf_switch_child_click_se_file;
+extern char *conf_switch_change_se;
 
 /*
  * NEWSの設定
@@ -189,6 +192,7 @@ extern char *conf_save_loadtosave_se;
 extern char *conf_save_savetoload_se;
 extern char *conf_save_cancel_save_se;
 extern char *conf_save_cancel_load_se;
+extern char *conf_save_change_se;
 
 /*
  * ヒストリ画面の設定

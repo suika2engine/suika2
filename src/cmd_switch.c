@@ -80,7 +80,7 @@ static void draw_switch_images(int *x, int *y, int *w, int *h);
 static void draw_switch_parent_images(int *x, int *y, int *w, int *h);
 static void draw_switch_child_images(int *x, int *y, int *w, int *h);
 static void draw_text(int x, int y, int w, const char *t, bool is_news);
-static void play_se(bool is_parent);
+static void play_se(const char *file);
 static bool cleanup(void);
 
 /*
@@ -96,6 +96,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	/* セーブ画面への遷移を確認する */
 	if (selected_parent_index == -1 && is_right_button_pressed &&
 	    is_save_load_enabled()) {
+		play_se(conf_msgbox_save_se);
 		start_save_mode(false);
 		stop_command_repetition();
 		return true;
@@ -307,6 +308,8 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		/* ボタンを描画する */
 		pointed_parent_index = new_pointed_index;
 		draw_switch_images(x, y, w, h);
+		if (!is_left_button_pressed)
+			play_se(conf_switch_change_se);
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
@@ -322,13 +325,13 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 
 		if (parent_button[new_pointed_index].has_child) {
 			/* SEを鳴らす */
-			play_se(true);
+			play_se(conf_switch_parent_click_se_file);
 
 			/* 子選択肢の描画を行う */
 			draw_switch_images(x, y, w, h);
 		} else {
 			/* SEを鳴らす */
-			play_se(false);
+			play_se(conf_switch_child_click_se_file);
 
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
@@ -366,12 +369,14 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 		/* ボタンを描画する */
 		pointed_child_index = new_pointed_index;
 		draw_switch_images(x, y, w, h);
+		if (!is_left_button_pressed)
+			play_se(conf_switch_change_se);
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
 	if (new_pointed_index != -1 && is_left_button_pressed) {
 		/* SEを鳴らす */
-		play_se(false);
+		play_se(conf_switch_child_click_se_file);
 
 		/* ステージをボタンなしで描画しなおす */
 		draw_stage();
@@ -547,23 +552,17 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 }
 
 /* SEを再生する */
-static void play_se(bool is_parent)
+static void play_se(const char *file)
 {
 	struct wave *w;
 
-	if (is_parent && conf_switch_parent_click_se_file == NULL)
-		return;
-	if (!is_parent && conf_switch_child_click_se_file == NULL)
+	if (file == NULL || strcmp(file, "") == 0)
 		return;
 
-	/* PCMストリームを開く */
-	w = create_wave_from_file(SE_DIR, is_parent ?
-				  conf_switch_parent_click_se_file :
-				  conf_switch_child_click_se_file, false);
+	w = create_wave_from_file(SE_DIR, file, false);
 	if (w == NULL)
 		return;
 
-	/* PCMストリームを再生する */
 	set_mixer_input(SE_STREAM, w);
 }
 

@@ -99,6 +99,7 @@ const char *conf_msgbox_btn_load_se;
 const char *conf_msgbox_btn_auto_se;
 const char *conf_msgbox_btn_skip_se;
 const char *conf_msgbox_btn_history_se;
+const char *conf_msgbox_btn_change_se;
 const char *conf_msgbox_save_se;
 const char *conf_msgbox_history_se;
 
@@ -118,6 +119,7 @@ char *conf_selbox_bg_file;
 int conf_selbox_x;
 int conf_selbox_y;
 int conf_selbox_margin_y;
+char *conf_selbox_change_se;
 
 /*
  * スイッチの設定
@@ -130,6 +132,7 @@ int conf_switch_margin_y;
 int conf_switch_text_margin_y;
 char *conf_switch_parent_click_se_file;
 char *conf_switch_child_click_se_file;
+char *conf_switch_change_se;
 
 /*
  * NEWSの設定
@@ -189,6 +192,7 @@ char *conf_save_loadtosave_se;
 char *conf_save_savetoload_se;
 char *conf_save_cancel_save_se;
 char *conf_save_cancel_load_se;
+char *conf_save_change_se;
 
 /*
  * ヒストリ画面の設定
@@ -297,6 +301,7 @@ struct rule {
 	{"msgbox.btn.load.se", 's', &conf_msgbox_btn_load_se, true, false},
 	{"msgbox.btn.auto.se", 's', &conf_msgbox_btn_auto_se, true, false},
 	{"msgbox.btn.history.se", 's', &conf_msgbox_btn_history_se, true, false},
+	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, true, false},
 	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false},
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
 	{"click.file", 's', &conf_click_file, false, false},
@@ -308,6 +313,7 @@ struct rule {
 	{"selbox.x", 'i', &conf_selbox_x, false, false},
 	{"selbox.y", 'i', &conf_selbox_y, false, false},
 	{"selbox.margin.y", 'i', &conf_selbox_margin_y, false, false},
+	{"selbox.change.se", 's', &conf_selbox_change_se, true, false},
 	{"switch.bg.file", 's', &conf_switch_bg_file, false, false},
 	{"switch.fg.file", 's', &conf_switch_fg_file, false, false},
 	{"switch.x", 'i', &conf_switch_x, false, false},
@@ -316,6 +322,7 @@ struct rule {
 	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, false, false},
 	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, true, false},
 	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, true, false},
+	{"switch.change.se", 's', &conf_switch_change_se, true, false},
 	{"news.bg.file", 's', &conf_news_bg_file, false, false},
 	{"news.fg.file", 's', &conf_news_fg_file, false, false},
 	{"news.margin", 'i', &conf_news_margin, false, false},
@@ -365,8 +372,9 @@ struct rule {
 	{"save.title.txt", 's', &conf_save_title_txt, false, false},
 	{"save.loadtosave.se", 's', &conf_save_loadtosave_se, true, false},
 	{"save.savetoload.se", 's', &conf_save_savetoload_se, true, false},
-	{"save.cancel.save.se", 's', &conf_save_cancel_save_se, false, false},
-	{"save.cancel.load.se", 's', &conf_save_cancel_load_se, false, false},
+	{"save.cancel.save.se", 's', &conf_save_cancel_save_se, true, false},
+	{"save.cancel.load.se", 's', &conf_save_cancel_load_se, true, false},
+	{"save.change.se", 's', &conf_save_change_se, true, false},
 	{"history.color.r", 'i', &conf_history_color_r, false, false},
 	{"history.color.g", 'i', &conf_history_color_g, false, false},
 	{"history.color.b", 'i', &conf_history_color_b, false, false},

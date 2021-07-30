@@ -38,6 +38,7 @@ static int get_selected_item(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
 static void draw_selbox(int sel);
 static void draw_text(int y, const char *t);
+static void play_se(const char *file);
 
 /*
  * selectコマンドの実装
@@ -159,6 +160,8 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	new_selected_item = get_selected_item();
 	if (!is_first_frame && new_selected_item == selected_item)
 		return;
+	if (new_selected_item != -1 && new_selected_item != selected_item)
+		play_se(conf_selbox_change_se);
 
 	/* 選択項目を変更する */
 	selected_item = new_selected_item;
@@ -254,4 +257,19 @@ static void draw_text(int y, const char *t)
 		/* 次の文字へ移動する */
 		t += mblen;
 	}
+}
+
+/* SEを再生する */
+static void play_se(const char *file)
+{
+	struct wave *w;
+
+	if (file == NULL || strcmp(file, "") == 0)
+		return;
+
+	w = create_wave_from_file(SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SE_STREAM, w);
 }

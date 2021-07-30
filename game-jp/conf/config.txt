@@ -120,13 +120,16 @@ msgbox.btn.history.width=53
 msgbox.btn.history.height=23
 
 # ボタンが押されたときのSE
-msgbox.btn.qsave.se=click.ogg
+msgbox.btn.qsave.se=save-done.ogg
 msgbox.btn.qload.se=click.ogg
 msgbox.btn.save.se=click.ogg
 msgbox.btn.load.se=click.ogg
 msgbox.btn.auto.se=click.ogg
 msgbox.btn.skip.se=click.ogg
 msgbox.btn.history.se=click.ogg
+
+# ポイントされているボタンが変更されたときのSE
+msgbox.btn.change.se=btn-change.ogg
 
 # 右クリックでセーブ画面を呼び出すときのSE
 msgbox.save.se=click.ogg
@@ -165,6 +168,9 @@ selbox.y=200
 # 選択肢ボックス内の文字のY方向マージン
 selbox.margin.y=10
 
+# ポイントされている選択肢が変わったときのSE
+selbox.change.se=select-change.ogg
+
 ###
 ### スイッチの設定
 ###
@@ -190,6 +196,9 @@ switch.parent.click.se.file=click.ogg
 
 # スイッチの子選択肢を選択したときの効果音(省略可)
 switch.child.click.se.file=click.ogg
+
+# スイッチの選択項目が変更されたときのSE
+switch.change.se=select-change.ogg
 
 ###
 ### NEWS(North/East/West/South)の設定
@@ -238,7 +247,7 @@ save.next.width=70
 save.next.height=64
 
 # セーブ時のSE
-save.data.save.se=click.ogg
+save.data.save.se=save-done.ogg
 
 # ロード時のSE
 save.data.load.se=click.ogg
@@ -303,6 +312,9 @@ save.cancel.save.se=click.ogg
 
 # ロード画面(@goto $LOAD)を右クリックでキャンセルするときのSE
 save.cancel.load.se=click.ogg
+
+# セーブ・ロード画面で選択項目が変わったときのSE
+save.change.se=btn-change.ogg
 
 ###
 ### ヒストリ画面の設定
