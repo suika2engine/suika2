@@ -191,6 +191,17 @@ float get_mixer_master_volume(int n)
 }
 
 /*
+ * サウンドを再生し終わったかを取得する
+*/
+bool is_mixer_sound_finished(int n)
+{
+	if (is_sound_finished(n))
+		return true;
+
+	return false;
+}
+
+/*
  * サウンドのフェード処理を実行する
  *  - 毎フレーム呼び出される
  */

@@ -47,13 +47,16 @@ void reset_stop_watch(stop_watch_t *t);
 int get_stop_watch_lap(stop_watch_t *t);
 
 /* サウンドを再生を開始する */
-bool play_sound(int n, struct wave *w);
+bool play_sound(int stream, struct wave *w);
 
 /* サウンドの再生を停止する */
-bool stop_sound(int n);
+bool stop_sound(int stream);
 
 /* サウンドのボリュームを設定する */
-bool set_sound_volume(int n, float vol);
+bool set_sound_volume(int stream, float vol);
+
+/* サウンドが再生終了したか調べる */
+bool is_sound_finished(int stream);
 
 /* 終了ダイアログを表示する */
 bool exit_dialog(void);

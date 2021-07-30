@@ -54,6 +54,11 @@ static ALuint source[MIXER_STREAMS];
 static struct wave *stream[MIXER_STREAMS];
 
 /*
+ * 再生終了フラグ
+ */
+static bool finish[MIXER_STREAMS];
+
+/*
  * サンプルの一時格納場所
  */
 static uint32_t tmp_buf[SAMPLES];
@@ -113,9 +118,16 @@ bool play_sound(int n, struct wave *w)
 	/* ストリームを保持する */
 	stream[n] = w;
 
+	/* 再生終了フラグをクリアする */
+	finish[n] = false;
+
 	/* バッファを埋める */
 	for (i = 0; i < BUFFER_COUNT; i++) {
 		samples = get_wave_samples(stream[n], tmp_buf, SAMPLES);
+		if (samples < SAMPLES) {
+			/* 再生終了フラグをセットする */
+			finish[n] = true;
+		}
 		alBufferData(buffer[n][i], AL_FORMAT_STEREO16, tmp_buf,
 			     samples * sizeof(uint32_t), SAMPLING_RATE);
 	}
@@ -154,6 +166,17 @@ bool set_sound_volume(int n, float vol)
 }
 
 /*
+ * サウンドが再生終了したか調べる
+ */
+bool is_sound_finished(int n)
+{
+	if(finish[n])
+		return true;
+
+	return false;
+}
+
+/*
  * サウンドのバッファを埋める
  */
 void fill_sound_buffer(void)
@@ -173,6 +196,10 @@ void fill_sound_buffer(void)
 			/* サンプルを取得する */
 			samples = get_wave_samples(stream[n], tmp_buf,
 						   SAMPLES);
+			if (samples < SAMPLES) {
+				/* 再生終了フラグをセットする */
+				finish[n] = true;
+			}
 
 			/* バッファに書き込む */
 			alBufferData(buf, AL_FORMAT_STEREO16, tmp_buf,

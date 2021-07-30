@@ -53,6 +53,11 @@ static bool is_in_repetition;
 static bool flag_message_registered;
 
 /*
+ * オートモードが実行中であるか
+ */
+static bool flag_auto_mode;
+
+/*
  * セーブ・ロード画面が許可されているか
  */
 static bool flag_save_load_enabled = true;
@@ -82,6 +87,7 @@ void init_game_loop(void)
 	mouse_pos_y = 0;
 	is_in_repetition = false;
 	flag_message_registered = false;
+	flag_auto_mode = false;
 	flag_save_load_enabled = true;
 
 	/* Android NDK用に状態を初期化する */
@@ -298,9 +304,35 @@ bool is_message_registered(void)
 }
 
 /*
+ * オートモードを開始する
+ */
+void start_auto_mode(void)
+{
+	assert(!flag_auto_mode);
+	flag_auto_mode = true;
+}
+
+/*
+ * オートモードを終了する
+ */
+void stop_auto_mode(void)
+{
+	assert(flag_auto_mode);
+	flag_auto_mode = false;
+}
+
+/*
+ * オートモードであるか調べる
+ */
+bool is_auto_mode(void)
+{
+	return flag_auto_mode;
+}
+
+/*
  * セーブ・ロード画面の許可を設定する
  */
-void enable_save_load(bool enable)
+void set_save_load(bool enable)
 {
 	flag_save_load_enabled = enable;
 }

@@ -73,6 +73,11 @@ static struct wave *pStream[MIXER_STREAMS];
 static CRITICAL_SECTION	StreamCritical;
 
 /*
+ * 各チャネルの再生終了フラグ
+ */
+static BOOL bFinish[MIXER_STREAMS];
+
+/*
  * 各ストリームの現在の更新エリア
  *  - 初回の更新の際は-1となる
  */
@@ -251,6 +256,17 @@ bool set_sound_volume(int stream, float vol)
 }
 
 /*
+ * サウンドが再生中か調べる
+ */
+bool is_sound_finished(int stream)
+{
+    if (bFinish[stream])
+        return true;
+
+    return false;
+}
+
+/*
  * 内部関数
  */
 
@@ -395,6 +411,9 @@ static BOOL PlaySoundBuffer(int nBuffer, struct wave *pStr)
 	/* バッファがロストしていれば修復する */
 	if(!RestoreBuffers(nBuffer))
 		return FALSE;
+
+	/* 再生終了フラグをクリアする */
+	bFinish[nBuffer] = FALSE;
 
 	/*
 	 * イベントスレッドと排他制御する
@@ -544,6 +563,9 @@ static BOOL WriteNext(int nBuffer)
 		{
 			/* 再生終了位置を記憶する */
 			nPosEndArea[nBuffer] = nArea == 0 ? BUF_AREAS - 1 : nArea - 1;
+
+			/* 再生終了フラグをセットする */
+			bFinish[nBuffer] = TRUE;
 		}
 		else if(nSamples != AREA_SAMPLES)
 		{
@@ -553,6 +575,9 @@ static BOOL WriteNext(int nBuffer)
 
 			/* 再生終了位置を記憶する */
 			nPosEndArea[nBuffer] = nArea;
+
+			/* 再生終了フラグをセットする */
+			bFinish[nBuffer] = TRUE;
 		}
 	}
 	else 

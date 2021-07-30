@@ -932,6 +932,10 @@ static bool deserialize_all(const char *fname)
 		show_selbox(false);
 	}
 
+	/* オートモードをやめる */
+	if (is_auto_mode())
+		stop_auto_mode();
+
 	return success;
 }
 

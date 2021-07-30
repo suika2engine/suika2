@@ -22,9 +22,9 @@ bool setsave_command(void)
 	param = get_string_param(SETSAVE_PARAM_MODE);
 
 	if (strcmp(param, "disable") == 0) {
-		enable_save_load(false);
+		set_save_load(false);
 	} else if (strcmp(param, "enable") == 0) {
-		enable_save_load(true);
+		set_save_load(true);
 	} else {
 		log_script_enable_disable(param);
 		log_script_exec_footer();

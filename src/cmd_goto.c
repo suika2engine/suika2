@@ -32,7 +32,7 @@ bool goto_command(void)
 	/* ロード画面への遷移を処理する */
 	if (strcmp(label, LOAD_LABEL) == 0) {
 		/* セーブロードを有効にする */
-		enable_save_load(true);
+		set_save_load(true);
 
 		/* ロード画面を開始する */
 		start_load_mode(true);
@@ -50,7 +50,7 @@ bool goto_command(void)
 		}
 
 		/* セーブロードを有効にする */
-		enable_save_load(true);
+		set_save_load(true);
 
 		/* セーブ画面を開始する */
 		start_save_mode(true);

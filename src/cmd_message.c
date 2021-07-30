@@ -44,6 +44,9 @@
 #define BTN_SKIP	(5)
 #define BTN_HISTORY	(6)
 
+/* オートモードで表示再生完了後の待ち時間 */
+#define AUTO_MODE_LAP	(3000)
+
 /* コマンドの経過時刻を表すストップウォッチ */
 static stop_watch_t sw;
 
@@ -58,6 +61,15 @@ static bool is_after_space;
 
 /* ビープ音再生中であるか */
 static bool is_beep;
+
+/* ボイスがあるか */
+static bool have_voice;
+
+/* オートモードの待ち時間中か */
+static bool is_auto_mode_wait;
+
+/* オートモードの経過時刻を表すストップウォッチ */
+static stop_watch_t auto_sw;
 
 /* 描画位置 */
 static int pen_x;
@@ -109,6 +121,17 @@ static int pointed_index;
 /*
  * 前方参照
  */
+static void frame_draw_buttons(void);
+static int get_pointed_button(void);
+static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
+static void frame_quick_save(void);
+static bool frame_quick_load(void);
+static bool frame_save(void);
+static bool frame_load(void);
+static bool frame_history(void);
+static void frame_auto_mode(void);
+static bool check_auto_play_condition(void);
+static void frame_main(void);
 static bool init(void);
 static bool register_message_for_history(void);
 static bool process_serif_command(void);
@@ -120,9 +143,6 @@ static int get_frame_chars(void);
 static void draw_click(void);
 static int get_en_word_width(void);
 static void get_message_color(pixel_t *color, pixel_t *outline_color);
-static void draw_buttons(void);
-static int get_pointed_button(void);
-static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
 static void play_se(const char *file);
 static bool cleanup(void);
 
@@ -142,99 +162,32 @@ bool message_command(int *x, int *y, int *w, int *h)
 			return false;
 
 	/* ボタンの描画を行う */
-	draw_buttons();
+	frame_draw_buttons();
 
 	/* クイックセーブを処理する */
-	if (is_save_load_enabled() &&
-	    (is_left_button_pressed && pointed_index == BTN_QSAVE)) {
-		quick_save();
-		play_se(conf_msgbox_btn_qsave_se);
-		is_left_button_pressed = false;
-	}
+	frame_quick_save();
 
 	/* クイックロードを処理する */
-	if (is_save_load_enabled() &&
-	    (is_left_button_pressed && pointed_index == BTN_QLOAD)) {
-		if (quick_load()) {
-			play_se(conf_msgbox_btn_qload_se);
-			stop_command_repetition();
-			free(msg_top);
-			show_click(false);
-			draw_stage();
-			return true;
-		}
-		is_left_button_pressed = false;
-	}
+	if (frame_quick_load())
+		return true;
 
 	/* セーブ画面への遷移を処理する */
-	if (is_save_load_enabled() &&
-	    (is_right_button_pressed ||
-	     (is_left_button_pressed && pointed_index == BTN_SAVE))) {
-		if (is_right_button_pressed)
-			play_se(conf_msgbox_save_se);
-		else
-			play_se(conf_msgbox_btn_save_se);
-		start_save_mode(false);
-		stop_command_repetition();
-		free(msg_top);
-		show_click(false);
+	if (frame_save())
 		return true;
-	}
 
 	/* ロード画面への遷移を処理する */
-	if (is_save_load_enabled() &&
-	    (is_left_button_pressed && pointed_index == BTN_LOAD)) {
-		play_se(conf_msgbox_btn_load_se);
-		start_load_mode(false);
-		stop_command_repetition();
-		free(msg_top);
-		show_click(false);
+	if (frame_load())
 		return true;
-	}
 
 	/* ヒストリ画面への遷移を処理する */
-	if (is_up_pressed ||
-	    (is_left_button_pressed && pointed_index == BTN_HISTORY)) {
-		if (is_up_pressed)
-			play_se(conf_msgbox_history_se);
-		else
-			play_se(conf_msgbox_btn_history_se);
-		start_history_mode();
-		stop_command_repetition();
-		free(msg_top);
+	if (frame_history())
 		return true;
-	}
 
-	/* 繰り返し動作を行う */
-	if (!is_hidden && is_space_pressed) {
-		is_hidden = true;
-		if (get_command_type() == COMMAND_SERIF)
-			show_namebox(false);
-		show_msgbox(false);
-		show_click(false);
-		draw_x = 0;
-		draw_y = 0;
-		draw_w = conf_window_width;
-		draw_h = conf_window_height;
-	} else if(is_hidden && !is_space_pressed) {
-		is_hidden = false;
-		if (get_command_type() == COMMAND_SERIF)
-			show_namebox(true);
-		show_msgbox(true);
-		show_click(true);
-		draw_x = 0;
-		draw_y = 0;
-		draw_w = conf_window_width;
-		draw_h = conf_window_height;
-	} else if (!is_hidden) {
-		if (!conf_voice_stop_off && is_control_pressed)
-			set_mixer_input(VOICE_STREAM, NULL);
-		if (drawn_chars < total_chars)
-			draw_msgbox();
-		else
-			draw_click();
-		
-	}
+	/* オートモードを処理する */
+	frame_auto_mode();
+	
+	/* メイン表示処理を行う */
+	frame_main();
 
 	/* 終了処理を行う */
 	if (!is_in_command_repetition())
@@ -333,6 +286,10 @@ static bool init(void)
 			   msgbox_h);
 	}
 
+	/* オートモードの設定をする */
+	if (is_auto_mode())
+		is_auto_mode_wait = false;
+
 	/* ボタンの選択状態を取得する */
 	pointed_index = get_pointed_button();
 	if (pointed_index == BTN_NONE)
@@ -347,7 +304,6 @@ static bool init(void)
 		return true;
 	get_button_rect(pointed_index, &x, &y, &w, &h);
 	clear_msgbox_rect_with_fg(x, y, w, h);
-
 	return true;
 }
 
@@ -407,6 +363,7 @@ static bool process_serif_command(void)
 	/* ボイスを再生する */
 	if (!is_control_pressed && !history_flag &&
 	    (!restore_flag || !is_message_registered())) {
+		have_voice = false;
 		if (!play_voice())
 			return false;
 	}
@@ -502,6 +459,9 @@ static bool play_voice(void)
 
 	/* PCMストリームを再生する */
 	set_mixer_input(VOICE_STREAM, w);
+
+	/* ボイスありにする */
+	have_voice = true;
 
 	return true;
 }
@@ -743,7 +703,7 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 }
 
 /* ボタンを描画する */
-static void draw_buttons(void)
+static void frame_draw_buttons(void)
 {
 	int last_pointed_index, bx, by, bw, bh;;
 
@@ -785,6 +745,9 @@ static void draw_buttons(void)
 static int get_pointed_button(void)
 {
 	int rx, ry, bx, by, w, h, i;
+
+	if (is_auto_mode())
+		return BTN_AUTO;
 
 	rx = mouse_pos_x - conf_msgbox_x;
 	ry = mouse_pos_y - conf_msgbox_y;
@@ -847,6 +810,221 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
 		break;
+	}
+}
+
+/* フレーム描画中のクイックセーブボタン押下を処理する */
+static void frame_quick_save(void)
+{
+	if (is_save_load_enabled() &&
+	    (is_left_button_pressed && pointed_index == BTN_QSAVE)) {
+		quick_save();
+		play_se(conf_msgbox_btn_qsave_se);
+		is_left_button_pressed = false;
+	}
+}
+
+/* フレーム描画中のクイックロードボタン押下を処理する */
+static bool frame_quick_load(void)
+{
+	if (is_save_load_enabled() &&
+	    (is_left_button_pressed && pointed_index == BTN_QLOAD)) {
+		if (quick_load()) {
+			play_se(conf_msgbox_btn_qload_se);
+			stop_command_repetition();
+			free(msg_top);
+			show_click(false);
+			draw_stage();
+			return true;
+		}
+		is_left_button_pressed = false;
+	}
+	return false;
+}
+
+/* フレーム描画中のセーブボタン押下および右クリックを処理する */
+static bool frame_save(void)
+{
+	if (is_save_load_enabled() &&
+	    (is_right_button_pressed ||
+	     (is_left_button_pressed && pointed_index == BTN_SAVE))) {
+		if (is_right_button_pressed)
+			play_se(conf_msgbox_save_se);
+		else
+			play_se(conf_msgbox_btn_save_se);
+
+		set_mixer_input(VOICE_STREAM, NULL);
+
+		if (is_auto_mode())
+			stop_auto_mode();
+
+		start_save_mode(false);
+		stop_command_repetition();
+		free(msg_top);
+		show_click(false);
+		return true;
+	}
+	return false;
+}
+
+/* フレーム描画中のロードボタン押下を処理する */
+static bool frame_load(void)
+{
+	if (is_save_load_enabled() &&
+	    (is_left_button_pressed && pointed_index == BTN_LOAD)) {
+		play_se(conf_msgbox_btn_load_se);
+
+		set_mixer_input(VOICE_STREAM, NULL);
+
+		if (is_auto_mode())
+			stop_auto_mode();
+
+		start_load_mode(false);
+		stop_command_repetition();
+		free(msg_top);
+		show_click(false);
+		return true;
+	}
+	return false;
+}
+
+/* フレーム描画中のヒストリボタン押下および上キー押下および
+ * マウスホイール上押下を処理する */
+static bool frame_history(void)
+{
+	if (is_up_pressed ||
+	    (is_left_button_pressed && pointed_index == BTN_HISTORY)) {
+		if (is_up_pressed)
+			play_se(conf_msgbox_history_se);
+		else
+			play_se(conf_msgbox_btn_history_se);
+
+		set_mixer_input(VOICE_STREAM, NULL);
+
+		if (is_auto_mode())
+			stop_auto_mode();
+
+		start_history_mode();
+		stop_command_repetition();
+		free(msg_top);
+		return true;
+	}
+	return false;
+}
+
+/* フレーム描画中のオートボタン押下およびオートモード制御を処理する */
+static void frame_auto_mode(void)
+{
+	int lap;
+
+	if (!is_auto_mode()) {
+		if (is_left_button_pressed && pointed_index == BTN_AUTO) {
+			play_se(conf_msgbox_btn_auto_se);
+			start_auto_mode();
+			is_auto_mode_wait = false;
+			is_left_button_pressed = false;
+		}
+	}
+
+	if (is_auto_mode()) {
+		if (is_left_button_pressed) {
+			/* オートモードを解除する */
+			stop_auto_mode();
+			is_auto_mode_wait = false;
+			is_left_button_pressed = false;
+			return;
+		}
+
+		if (!is_auto_mode_wait) {
+			/* すでに表示が完了していれば */
+			if (check_auto_play_condition()) {
+				/* オートモードの待ち時間に入る */
+				is_auto_mode_wait = true;
+
+				/* 時間計測を開始する */
+				reset_stop_watch(&auto_sw);
+			}
+		} else {
+			/* 時間を計測する */
+			lap = get_stop_watch_lap(&sw);
+			if (lap >= AUTO_MODE_LAP)
+				stop_command_repetition();
+		}
+	}
+}
+
+/* オートプレイ用の表示完了チェックを行う */
+static bool check_auto_play_condition(void)
+{
+	/*
+	 * セーブ画面およびヒストリ画面から戻った場合
+	 *  - 表示は瞬時に終わり、ボイスも再生されていない
+	 *  - すでに表示完了しているとみなす
+	 */
+	if (restore_flag || history_flag)
+		return true;
+
+	/*
+	 * ボイスありの場合
+	 *  - ボイスの再生完了と文字の表示完了をチェックする
+	 */
+	if (have_voice) {
+		if (is_mixer_sound_finished(VOICE_STREAM) &&
+		    drawn_chars == total_chars)
+			return true;
+		return false;
+	}
+
+	/*
+	 * ボイスなしの場合
+	 *  - 文字の表示完了をチェックする
+	 */
+	if (drawn_chars == total_chars)
+		return true;
+
+	return false;
+}
+
+/* フレーム描画中のメイン処理を行う */
+static void frame_main(void)
+{
+	/* スペースキーの押下を処理する */
+	if (!is_hidden && is_space_pressed) {
+		is_hidden = true;
+		if (get_command_type() == COMMAND_SERIF)
+			show_namebox(false);
+		show_msgbox(false);
+		show_click(false);
+		draw_x = 0;
+		draw_y = 0;
+		draw_w = conf_window_width;
+		draw_h = conf_window_height;
+		return;
+	}
+
+	/* スペースキーの解放を処理する */
+	if(is_hidden && !is_space_pressed) {
+		is_hidden = false;
+		if (get_command_type() == COMMAND_SERIF)
+			show_namebox(true);
+		show_msgbox(true);
+		show_click(true);
+		draw_x = 0;
+		draw_y = 0;
+		draw_w = conf_window_width;
+		draw_h = conf_window_height;
+		return;
+	}
+
+	/* メインの表示処理を行う */
+	if (!is_hidden) {
+		if (!conf_voice_stop_off && is_control_pressed)
+			set_mixer_input(VOICE_STREAM, NULL);
+		if (drawn_chars < total_chars)
+			draw_msgbox();
+		else
+			draw_click();
+		
 	}
 }
 

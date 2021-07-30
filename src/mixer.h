@@ -51,6 +51,9 @@ void set_mixer_master_volume(int n, float vol);
 /* マスターボリュームを取得する */
 float get_mixer_master_volume(int n);
 
+/* サウンドを再生し終わったかを取得する */
+bool is_mixer_sound_finished(int n);
+
 /* サウンドのフェード処理を実行する */
 void process_sound_fading(void);
 

@@ -95,10 +95,18 @@ bool check_menu_finish_flag(void);
 bool check_retrospect_finish_flag(void);
 
 /*
+ * オートモードの設定
+ */
+
+void start_auto_mode(void);
+void stop_auto_mode(void);
+bool is_auto_mode(void);
+
+/*
  * セーブ・ロード画面の許可の設定
  */
 
-void enable_save_load(bool enable);
+void set_save_load(bool enable);
 bool is_save_load_enabled(void);
 
 #endif

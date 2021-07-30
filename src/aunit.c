@@ -40,6 +40,9 @@ static struct wave *wave[MIXER_STREAMS];
 /* ボリューム */
 static float volume[MIXER_STREAMS];
 
+/* 再生終了フラグ */
+static bool finish[MIXER_STREAMS];
+
 /* サンプルの一時保管場所 */
 static uint32_t tmpBuf[TMP_SAMPLES];
 
@@ -155,7 +158,7 @@ static void destroy_audio_unit(void)
 /*
  * サウンドを再生を開始する
  */
-bool play_sound(int n, struct wave *w)
+bool play_sound(int stream, struct wave *w)
 {
     bool isPlaying;
     bool ret;
@@ -169,7 +172,10 @@ bool play_sound(int n, struct wave *w)
                     wave[SE_STREAM] != NULL;
 
         /* 再生中のストリームをセットする */
-        wave[n] = w;
+        wave[stream] = w;
+
+        /* 再生終了フラグをクリアする */
+        finish[stream] = false;
 
         /* まだ再生中でなければ、再生を開始する */
         if(!isPlaying) {
@@ -186,7 +192,7 @@ bool play_sound(int n, struct wave *w)
 /*
  * サウンドの再生を停止する
  */
-bool stop_sound(int n)
+bool stop_sound(int stream)
 {
     bool ret, isPlaying;
 
@@ -194,7 +200,10 @@ bool stop_sound(int n)
     pthread_mutex_lock(&mutex);
     {
         /* 再生中のストリームをなしとする */
-        wave[n] = NULL;
+        wave[stream] = NULL;
+
+        /* 再生終了フラグをセットする */
+        finish[stream] = true;
 
         /* 再生中のストリームが残っているか調べる */
         isPlaying = wave[BGM_STREAM] != NULL ||
@@ -213,14 +222,14 @@ bool stop_sound(int n)
 /*
  * サウンドのボリュームを設定する
  */
-bool set_sound_volume(int n, float vol)
+bool set_sound_volume(int stream, float vol)
 {
     /*
      * pthread_mutex_lock(&mutex);
      * {
      */
 
-    volume[n] = vol;
+    volume[stream] = vol;
 
     /* 
      * }
@@ -228,6 +237,17 @@ bool set_sound_volume(int n, float vol)
      */
 
     return true;
+}
+
+/*
+ * サウンドが再生終了したか調べる
+ */
+bool is_sound_finished(int stream)
+{
+    if (finish[stream])
+        return true;
+
+    return false;
 }
 
 /*
@@ -243,7 +263,7 @@ static OSStatus callback(void *inRef,
                          AudioBufferList *ioData)
 {
     uint32_t *samplePtr;
-    int n, ret, remain, readSamples;
+    int stream, ret, remain, readSamples;
     bool isPlaying;
 
     UNUSED_PARAMETER(inRef);
@@ -263,13 +283,13 @@ static OSStatus callback(void *inRef,
             readSamples = remain > TMP_SAMPLES ? TMP_SAMPLES : remain;
 
             /* 各ストリームについて */
-            for (n = 0; n < MIXER_STREAMS; n++) {
+            for (stream = 0; stream < MIXER_STREAMS; stream++) {
                 /* 再生中でなければサンプルを取得しない */
-                if (wave[n] == NULL)
+                if (wave[stream] == NULL)
                     continue;
 
                 /* 入力ストリームからサンプルを取得する */
-                ret = get_wave_samples(wave[n], tmpBuf, readSamples);
+                ret = get_wave_samples(wave[stream], tmpBuf, readSamples);
 
                 /* ストリームの終端に達した場合 */
                 if(ret < readSamples) {
@@ -278,7 +298,10 @@ static OSStatus callback(void *inRef,
                            (size_t)(readSamples - ret) * sizeof(uint32_t));
 
                     /* 再生中のストリームをなしとする */
-                    wave[n] = NULL;
+                    wave[stream] = NULL;
+
+                    /* 再生終了フラグをセットする */
+                    finish[stream] = true;
 
                     /* 再生中のストリームが残っているか調べる */
                     isPlaying = wave[BGM_STREAM] != NULL ||
@@ -292,7 +315,7 @@ static OSStatus callback(void *inRef,
                 }
 
                 /* ミキシングを行う */
-                mul_add_pcm(samplePtr, tmpBuf, volume[n], readSamples);
+                mul_add_pcm(samplePtr, tmpBuf, volume[stream], readSamples);
             }
 
             /* 書き込み位置を進める */

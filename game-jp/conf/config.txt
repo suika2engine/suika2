@@ -120,7 +120,7 @@ msgbox.btn.history.width=53
 msgbox.btn.history.height=23
 
 # ボタンが押されたときのSE
-msgbox.btn.qsave.se=save-done.ogg
+msgbox.btn.qsave.se=click.ogg
 msgbox.btn.qload.se=click.ogg
 msgbox.btn.save.se=click.ogg
 msgbox.btn.load.se=click.ogg
