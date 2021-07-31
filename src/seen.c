@@ -173,7 +173,7 @@ static char hex(int c)
 	assert(c >= 0 && c <= 15);
 
 	if (c >= 0 && c <= 9)
-		return '0' + (char)c;
+		return (char)('0' + (char)c);
 	else
-		return 'a' + (char)(c - 10);
+		return (char)('a' + (char)(c - 10));
 }
