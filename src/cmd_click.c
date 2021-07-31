@@ -18,7 +18,7 @@
 bool click_command(void)
 {
 	/* 入力がない場合はclickコマンドを継続する */
-	if (!is_control_pressed && !is_return_pressed &&
+	if (!is_control_pressed && !is_return_pressed && !is_down_pressed &&
 	    !is_left_button_pressed) {
 		show_msgbox(false);
 		return true;
