@@ -378,7 +378,8 @@ static bool process_serif_command(void)
 	}
 
 	/* ボイスを再生する */
-	if (!(is_skip_mode() && is_skippable()) && !is_control_pressed &&
+	if (!(is_skip_mode() && is_skippable()) &&
+	    !is_control_pressed && !is_down_pressed &&
 	    !history_flag && (!restore_flag || !is_message_registered())) {
 		/* いったんボイスなしにしておく */
 		have_voice = false;
