@@ -146,6 +146,9 @@ msgbox.auto.cancel.se=click.ogg
 # スキップモードをキャンセルするときのSE(省略可)
 msgbox.skip.cancel.se=click.ogg
 
+# 未読でもスキップする (1:スキップする, 0: スキップしない, 省略時0)
+msgbox.skip.unseen=0
+
 ###
 ### クリックアニメーションの設定
 ###
@@ -365,6 +368,7 @@ history.cancel.se=click.ogg
 ### メニュー画面の設定
 ###
 
+# メニューのポイントされている項目が変わったときのSE(省略可)
 menu.change.se=btn-change.ogg
 
 ###

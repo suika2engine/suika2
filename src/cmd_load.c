@@ -36,5 +36,8 @@ bool load_command(void)
 	}
 	free(file);
 
+	/* 既読フラグをロードする */
+	load_seen();
+
 	return true;
 }

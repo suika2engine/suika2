@@ -193,7 +193,7 @@ static void draw(void)
 		 * 入力によりスキップされた場合
 		 */
 		if (lap >= span || is_control_pressed || is_return_pressed ||
-		    is_left_button_pressed) {
+		    is_down_pressed || is_left_button_pressed) {
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 

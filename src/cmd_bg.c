@@ -103,7 +103,7 @@ static bool init(void)
 	if (!set_ch_file_name(CH_CENTER, NULL))
 		return false;
 
-	/* フェードしない場合か、Controlが押されている場合 */
+	/* フェードしない場合か、キーが押されている場合 */
 	if (span == 0 || is_control_pressed || is_skip_mode()) {
 		/* フェードせず、すぐに切り替える */
 		change_bg_immediately(img);
@@ -144,7 +144,7 @@ static void draw(void)
 	/* 経過時間が一定値を超えた場合と、入力によりスキップされた場合 */
 	if (is_in_command_repetition()) {
 		if (lap >= span || is_control_pressed || is_return_pressed ||
-		    is_left_button_pressed) {
+		    is_down_pressed || is_left_button_pressed) {
 			/* 繰り返し動作を停止する */
 			stop_command_repetition();
 

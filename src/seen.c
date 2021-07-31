@@ -21,6 +21,7 @@ bool seen_flag[SCRIPT_CMD_SIZE];
 
 /* 前方参照 */
 static const char *hash(const char *file);
+static char hex(int c);
 
 /*
  * 既読フラグ管理を初期化する
@@ -58,7 +59,7 @@ bool load_seen(void)
 	fname = hash(get_script_file_name());
 
 	/* ファイルを開く */
-	rf = open_rfile(SAVE_DIR, fname, false);
+	rf = open_rfile(SAVE_DIR, fname, true);
 	if (rf == NULL)
 		return false;
 
@@ -150,9 +151,29 @@ void set_seen(void)
 static const char *hash(const char *file)
 {
 	static char h[129];
+	int len, i;
 
-	strncpy(h, file, 128);
-	h[128] = '\0';
+	len = (int)strlen(file);
+	if (len > 128)
+		len = 128;
+
+	memset(h, 0, sizeof(h));
+
+	for (i = 0; i < len; i++) {
+		h[i * 2] = hex(file[i] >> 4);
+		h[i * 2 + 1] = hex(file[i] & 0x0f);
+	}
 
 	return h;
+}
+
+/* 十六進文字を取得する */
+static char hex(int c)
+{
+	assert(c >= 0 && c <= 15);
+
+	if (c >= 0 && c <= 9)
+		return '0' + (char)c;
+	else
+		return 'a' + (char)(c - 10);
 }

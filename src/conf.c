@@ -105,6 +105,7 @@ char *conf_msgbox_save_se;
 char *conf_msgbox_history_se;
 char *conf_msgbox_auto_cancel_se;
 char *conf_msgbox_skip_cancel_se;
+int conf_msgbox_skip_unseen;
 
 /*
  * クリックアニメーションの設定
@@ -316,6 +317,7 @@ struct rule {
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
 	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, true, false},
 	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, true, false},
+	{"msgbox.skip.unseen", 'i', &conf_msgbox_skip_unseen, true, false},
 	{"click.file", 's', &conf_click_file, false, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},

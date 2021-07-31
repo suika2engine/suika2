@@ -105,6 +105,7 @@ extern char *conf_msgbox_save_se;
 extern char *conf_msgbox_history_se;
 extern char *conf_msgbox_auto_cancel_se;
 extern char *conf_msgbox_skip_cancel_se;
+extern int conf_msgbox_skip_unseen;
 
 /*
  * クリックアニメーションの設定

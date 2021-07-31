@@ -302,7 +302,7 @@ static void init_skip_mode(void)
 		return;
 
 	/* 未読に到達した場合、スキップモードを終了する */
-	if (!get_seen()) {
+	if (!is_skippable()) {
 		stop_skip_mode();
 		return;
 	}
@@ -749,7 +749,7 @@ static void init_pointed_index(void)
 	}
 
 	/* 未読の場合にSKIPボタンを無効化する */
-	if (!get_seen() && pointed_index == BTN_SKIP) {
+	if (!is_skippable() && pointed_index == BTN_SKIP) {
 		pointed_index = BTN_NONE;
 		return;
 	}
@@ -827,7 +827,7 @@ static void frame_draw_buttons(bool se)
 			return;
 
 		/* 未読の場合のSKIPボタンの場合 */
-		if (!get_seen() && pointed_index == BTN_SKIP)
+		if (!is_skippable() && pointed_index == BTN_SKIP)
 			return;
 
 		/* ボタンを描画する */
@@ -954,6 +954,10 @@ static bool frame_quick_load(void)
 {
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
+		return false;
+
+	/* クイックセーブデータがない場合は処理しない */
+	if (!have_quick_save_data())
 		return false;
 
 	/* QLOADボタンが押下されたとき */
@@ -1197,7 +1201,7 @@ static void frame_skip_mode(void)
 		return;
 
 	/* 未読の場合 */
-	if (!get_seen())
+	if (!is_skippable())
 		return;
 
 	/* SKIPボタンが押下された場合 */
@@ -1278,6 +1282,11 @@ static void play_se(const char *file)
 /* 既読であるか調べる */
 static bool is_skippable(void)
 {
+	/* コンフィグで未読スキップが指定されている場合 */
+	if (conf_msgbox_skip_unseen)
+		return true;
+
+	/* 既読である場合 */
 	if (get_seen())
 		return true;
 
