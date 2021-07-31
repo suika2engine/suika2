@@ -25,6 +25,9 @@
 
 #include "types.h"
 
+/* コマンドの最大数 */
+#define SCRIPT_CMD_SIZE	(65536)
+
 /* コマンド構造体 */
 struct command;
 

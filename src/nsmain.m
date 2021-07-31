@@ -544,6 +544,9 @@ bool title_dialog(void)
         // グローバルデータを保存する
         save_global_data();
 
+        // 既読フラグを保存する
+        save_seen();
+
         [NSApp terminate:nil];
         return;
     }
@@ -748,6 +751,9 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     if([alert runModal] == NSAlertFirstButtonReturn) {
         // グローバルデータを保存する
         save_global_data();
+
+        // 既読フラグを保存する
+        save_seen();
         return YES;
     } else {
         return NO;

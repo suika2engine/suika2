@@ -665,9 +665,17 @@ bool quick_save(void)
 {
 	uint64_t timestamp;
 
+	/* ローカルデータのシリアライズを行う */
 	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp))
 		return false;
 
+	/* 既読フラグのセーブを行う */
+	save_seen();
+
+	/* グローバル変数のセーブを行う */
+	save_global_data();
+
+	/* クイックセーブの時刻を更新する */
 	quick_save_time = (time_t)timestamp;
 
 	return true;
@@ -684,9 +692,15 @@ static bool process_save(int new_pointed_index)
 	index = page * PAGE_SLOTS + (new_pointed_index - BUTTON_ONE);
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
-	/* シリアライズを行う */
+	/* ローカルデータのシリアライズを行う */
 	if (!serialize_all(s, &timestamp))
 		return false;
+
+	/* 既読フラグのセーブを行う */
+	save_seen();
+
+	/* グローバル変数のセーブを行う */
+	save_global_data();
 
 	/* 時刻を保存する */
 	save_time[index] = (time_t)timestamp;
@@ -868,8 +882,15 @@ bool have_quick_save_data(void)
  */
 bool quick_load(void)
 {
+	/* 既読フラグのセーブを行う */
+	save_seen();
+
+	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(QUICK_SAVE_FILE_NAME))
 		return false;
+
+	/* 既読フラグのロードを行う */
+	load_seen();
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
@@ -897,9 +918,15 @@ static bool process_load(int new_pointed_index)
 	index = page * PAGE_SLOTS + (new_pointed_index - BUTTON_ONE);
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
-	/* すべてをデシリアライズする */
+	/* 既読フラグのセーブを行う */
+	save_seen();
+
+	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(s))
 		return false;
+
+	/* 既読フラグのロードを行う */
+	load_seen();
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);

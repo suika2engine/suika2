@@ -51,6 +51,10 @@ bool on_event_init(void)
 	if (!init_script())
 		return false;
 
+	/* 既読フラグ管理の初期化を行う */
+	if (!init_seen())
+		return false;
+
 	/* ゲームループの初期化処理を行う */
 	init_game_loop();
 
@@ -64,6 +68,9 @@ void on_event_cleanup(void)
 {
 	/* ゲームループの終了処理を行う */
 	cleanup_game_loop();
+
+	/* 既読フラグ管理の終了処理を行う */
+	cleanup_seen();
 
 	/* スクリプトの終了処理を行う */
 	cleanup_script();

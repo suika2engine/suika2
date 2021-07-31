@@ -26,6 +26,9 @@ bool load_command(void)
 		return false;
 	}
 
+	/* 既読フラグをセーブする */
+	save_seen();
+
 	/* スクリプトをロードする */
 	if (!load_script(file)) {
 		free(file);

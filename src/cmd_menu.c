@@ -50,6 +50,7 @@ static bool menu_finished_flag;
 static bool init(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
 static int get_pointed_index(void);
+static void play_se(const char *file);
 static bool cleanup(void);
 
 /*
@@ -164,7 +165,11 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	}
 
 	/* ポイントされている項目が変更された場合 */
-	if (new_pointed_index != -1 && pointed_index != -1) {
+	if (new_pointed_index != -1 && pointed_index != -1 &&
+	    new_pointed_index != pointed_index) {
+		/* SEを再生する */
+		play_se(conf_menu_change_se);
+
 		/* 古いボタンを消して新しいボタンを描画する */
 		draw_stage_rect_with_buttons(button[pointed_index].x,
 					     button[pointed_index].y,
@@ -191,8 +196,11 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		return;
 	}
 
-	/* ポイントされてい状態からポイントされている状態に変化した場合 */
+	/* ポイントされていない状態からポイントされている状態に変化した場合 */
 	if (new_pointed_index != -1 && pointed_index == -1) {
+		/* SEを再生する */
+		play_se(conf_menu_change_se);
+
 		/* 新しいボタンを描画する */
 		draw_stage_rect_with_buttons(0, 0, 0, 0,
 					     button[new_pointed_index].x,
@@ -248,6 +256,21 @@ static int get_pointed_index(void)
 			return i;
 	}
 	return -1;
+}
+
+/* SEを再生する */
+static void play_se(const char *file)
+{
+	struct wave *w;
+
+	if (file == NULL || strcmp(file, "") == 0)
+		return;
+
+	w = create_wave_from_file(SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SE_STREAM, w);
 }
 
 /* コマンドを終了する */

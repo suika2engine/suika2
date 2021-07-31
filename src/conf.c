@@ -212,6 +212,11 @@ int conf_history_margin_bottom;
 char *conf_history_cancel_se;
 
 /*
+ * メニューの設定
+ */
+char *conf_menu_change_se;
+
+/*
  * セリフの色付け
  */
 char *conf_serif_color_name[SERIF_COLOR_COUNT];
@@ -392,6 +397,7 @@ struct rule {
 	{"history.margin.right", 'i', &conf_history_margin_right, false, false},
 	{"history.margin.bottom", 'i', &conf_history_margin_bottom, false, false},
 	{"history.cancel.se", 's', &conf_history_cancel_se, true, false},
+	{"menu.change.se", 's', &conf_menu_change_se, true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},

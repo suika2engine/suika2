@@ -260,7 +260,7 @@ save.next.height=64
 save.next.se=click.ogg
 
 # セーブ時のSE(省略可)
-save.data.save.se=save-done.ogg
+save.data.save.se=click.ogg
 
 # ロード時のSE(省略可)
 save.data.load.se=click.ogg
@@ -360,6 +360,12 @@ history.margin.bottom=20
 
 # ヒストリ画面から戻るときのSE(省略可)
 history.cancel.se=click.ogg
+
+###
+### メニュー画面の設定
+###
+
+menu.change.se=btn-change.ogg
 
 ###
 ### セリフの色の設定

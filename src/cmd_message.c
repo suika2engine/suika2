@@ -227,7 +227,7 @@ static bool init(void)
 {
 	const char *raw_msg;
 
-	/* スキップモード中にクリックされた場合を処理する */
+	/* 初期化処理のスキップモードの部分を行う */
 	init_skip_mode();
 
 	/* メッセージを取得する */
@@ -300,6 +300,12 @@ static void init_skip_mode(void)
 	/* スキップモードでなければ何もしない */
 	if (!is_skip_mode())
 		return;
+
+	/* 未読に到達した場合、スキップモードを終了する */
+	if (!get_seen()) {
+		stop_skip_mode();
+		return;
+	}
 
 	/* クリックされた場合 */
 	if (is_right_button_pressed || is_left_button_pressed) {
@@ -583,14 +589,15 @@ static int get_frame_chars(void)
 	}
 
 	/* 入力によりスキップされた場合 */
-	if (is_skippable() && is_control_pressed) {
+	if (is_skippable() && (is_skip_mode() || is_control_pressed)) {
 		/* 繰り返し動作を停止する */
 		stop_command_repetition();
 
 		/* 残りの文字をすべて描画する */
 		return total_chars - drawn_chars;
 	}
-	if (is_return_pressed || is_down_pressed || is_left_button_pressed) {
+	if (is_return_pressed || is_down_pressed ||
+	    (pointed_index != BTN_NONE && is_left_button_pressed)) {
 		/* ビープの再生を止める */
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
@@ -617,12 +624,13 @@ static void draw_click(void)
 	int lap;
 
 	/* 入力があったら終了する */
-	if (is_skippable() && is_control_pressed) {
+	if (is_skippable() && (is_skip_mode() || is_control_pressed)) {
 		stop_command_repetition();
 		return;
 	}
 	if (!process_click_first &&
-	    (is_return_pressed || is_down_pressed || is_left_button_pressed)) {
+	    (is_return_pressed || is_down_pressed ||
+	     (pointed_index == BTN_NONE && is_left_button_pressed))) {
 		stop_command_repetition();
 		return;
 	}
@@ -740,6 +748,12 @@ static void init_pointed_index(void)
 		return;
 	}
 
+	/* 未読の場合にSKIPボタンを無効化する */
+	if (!get_seen() && pointed_index == BTN_SKIP) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
 	/* ボタンを描画する */
 	get_button_rect(pointed_index, &x, &y, &w, &h);
 	clear_msgbox_rect_with_fg(x, y, w, h);
@@ -810,6 +824,10 @@ static void frame_draw_buttons(bool se)
 
 		/* クイックセーブデータがない時のQLOADボタンの場合 */
 		if (!have_quick_save_data() && pointed_index == BTN_QLOAD)
+			return;
+
+		/* 未読の場合のSKIPボタンの場合 */
+		if (!get_seen() && pointed_index == BTN_SKIP)
 			return;
 
 		/* ボタンを描画する */
@@ -1174,17 +1192,24 @@ static void frame_skip_mode(void)
 	if (is_auto_mode())
 		return;
 
-	/* スキップモードではない場合 */
-	if (!is_skip_mode()) {
-		/* SKIPボタンが押下された場合 */
-		if (is_left_button_pressed && pointed_index == BTN_SKIP) {
-			/* SEを再生する */
-			play_se(conf_msgbox_btn_skip_se);
-
-			/* オートモードを開始する */
-			start_skip_mode();
-		}
+	/* スキップモードの場合、何もしない */
+	if (is_skip_mode())
 		return;
+
+	/* 未読の場合 */
+	if (!get_seen())
+		return;
+
+	/* SKIPボタンが押下された場合 */
+	if (is_left_button_pressed && pointed_index == BTN_SKIP) {
+		/* SEを再生する */
+		play_se(conf_msgbox_btn_skip_se);
+
+		/* オートモードを開始する */
+		start_skip_mode();
+
+		/* 以降のクリック処理を行わない */
+		is_left_button_pressed = false;
 	}
 }
 
@@ -1221,8 +1246,12 @@ static void frame_main(void)
 
 	/* メインの表示処理を行う */
 	if (!is_hidden) {
-		if (!conf_voice_stop_off && is_control_pressed)
+		/* 入力があったらボイスを止める */
+		if (!conf_voice_stop_off &&
+		    (is_skippable() && (is_skip_mode() || is_control_pressed)))
 			set_mixer_input(VOICE_STREAM, NULL);
+
+		/* 文字かクリックアニメーションを描画する */
 		if (drawn_chars < total_chars)
 			draw_msgbox();
 		else
@@ -1249,8 +1278,10 @@ static void play_se(const char *file)
 /* 既読であるか調べる */
 static bool is_skippable(void)
 {
-	/* FIXME */
-	return true;
+	if (get_seen())
+		return true;
+
+	return false;
 }
 
 /* 終了処理を行う */
@@ -1268,6 +1299,9 @@ static bool cleanup(void)
 
 	/* 表示中のメッセージをなしとする */
 	clear_message_registered();
+
+	/* 既読にする */
+	set_seen();
 
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())

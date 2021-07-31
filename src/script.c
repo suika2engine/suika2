@@ -37,9 +37,6 @@
  * コマンド配列
  */
 
-/* コマンドの最大数 */
-#define CMD_SIZE	(65536)
-
 /* コマンドの引数の最大数(コマンド名も含める) */
 #define PARAM_SIZE	(137)
 
@@ -49,7 +46,7 @@ static struct command {
 	int line;
 	char *text;
 	char *param[PARAM_SIZE];
-} cmd[CMD_SIZE];
+} cmd[SCRIPT_CMD_SIZE];
 static int cmd_size;
 
 /*
@@ -131,7 +128,7 @@ void cleanup_script(void)
 {
 	int i, j;
 
-	for (i = 0; i < CMD_SIZE; i++) {
+	for (i = 0; i < SCRIPT_CMD_SIZE; i++) {
 		/* コマンドタイプをクリアする */
 		cmd[i].type = COMMAND_MIN;
 
@@ -446,8 +443,8 @@ static bool read_script_from_file(const char *fname)
 			break;
 
 		/* 最大コマンド数をチェックする */
-		if (line >= CMD_SIZE) {
-			log_script_size(CMD_SIZE);
+		if (line >= SCRIPT_CMD_SIZE) {
+			log_script_size(SCRIPT_CMD_SIZE);
 			result = false;
 			break;
 		}

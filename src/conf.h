@@ -212,6 +212,11 @@ extern int conf_history_margin_bottom;
 extern char *conf_history_cancel_se;
 
 /*
+ * メニューの設定
+ */
+extern char *conf_menu_change_se;
+
+/*
  * セリフの色付け
  */
 #define SERIF_COLOR_COUNT	(64)
