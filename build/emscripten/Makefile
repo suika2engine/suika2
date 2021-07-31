@@ -35,6 +35,7 @@ SRC = \
 	../../src/save.c \
 	../../src/scbuf.c \
 	../../src/script.c \
+	../../src/seen.c \
 	../../src/stage.c \
 	../../src/vars.c \
 	../../src/wave.c \

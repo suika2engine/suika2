@@ -181,7 +181,7 @@ selbox.y=200
 selbox.margin.y=10
 
 # ポイントされている選択肢が変わったときのSE(省略可)
-selbox.change.se=select-change.ogg
+selbox.change.se=btn-change.ogg
 
 ###
 ### スイッチの設定

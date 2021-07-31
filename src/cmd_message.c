@@ -598,7 +598,7 @@ static int get_frame_chars(void)
 		return total_chars - drawn_chars;
 	}
 	if (is_return_pressed || is_down_pressed ||
-	    (pointed_index != BTN_NONE && is_left_button_pressed)) {
+	    (pointed_index == BTN_NONE && is_left_button_pressed)) {
 		/* ビープの再生を止める */
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
