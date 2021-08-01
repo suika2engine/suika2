@@ -116,6 +116,14 @@ bool init(void)
 	/* 初回の描画であることを記録する */
 	is_first_frame = true;
 
+	/* オートモードを終了する */
+	if (is_auto_mode())
+		stop_auto_mode();
+
+	/* スキップモードを終了する */
+	if (is_skip_mode())
+		stop_skip_mode();
+
 	return true;
 }
 
