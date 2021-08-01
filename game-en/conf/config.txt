@@ -275,17 +275,17 @@ save.next.y=470
 save.next.width=70
 save.next.height=64
 
+# Sound effect when next page button clicked (optional)
+save.next.se=click.ogg
+
 # Sound effect when saved (optional)
 save.data.save.se=click.ogg
 
 # Sound effect when loaded (optional)
 save.data.load.se=click.ogg
 
-# Sound effect when next page button clicked (optional)
-save.next.se=click.ogg
-
 # Size of each save data item
-save.data.width=384
+save.data.width=382
 save.data.height=64
 
 # Text margin in each save data item
