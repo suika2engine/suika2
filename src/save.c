@@ -548,11 +548,12 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	    new_pointed_index <= BUTTON_SIX) {
 		process_left_press_save_button(new_pointed_index, x, y, w, h);
 		if (is_save_mode) {
+			/* セーブを行う */
 			play_se(conf_save_data_save_se);
 			process_save(new_pointed_index);
-			save_global_data();
 			draw_page(x, y, w, h);
 		} else if (have_save_data(new_pointed_index)){
+			/* ロードを行う */
 			play_se(conf_save_data_load_se);
 			process_load(new_pointed_index);
 			stop_save_load_mode(x, y, w, h);
@@ -572,7 +573,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 		return true;
 	}
 
-	/* 終了ボタンの場合 */
+	/* 戻るボタンの場合 */
 	if (new_pointed_index == BUTTON_EXIT) {
 		play_se(conf_save_exit_se);
 		stop_save_load_mode(x, y, w, h);
@@ -587,6 +588,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	if (new_pointed_index == BUTTON_TITLE) {
 		play_se(conf_save_title_se);
 		if (title_dialog()) {
+			save_seen();
 			if (!load_script(conf_save_title_txt))
 				return false;
 			set_mixer_input(BGM_STREAM, NULL);

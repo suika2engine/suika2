@@ -51,7 +51,7 @@ bool on_event_init(void)
 	if (!init_script())
 		return false;
 
-	/* 既読フラグ管理の初期化を行う */
+	/* 既読フラグをロードする */
 	if (!init_seen())
 		return false;
 
