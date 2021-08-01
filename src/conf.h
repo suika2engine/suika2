@@ -145,6 +145,12 @@ extern char *conf_news_bg_file;
 extern char *conf_news_fg_file;
 extern int conf_news_margin;
 extern int conf_news_text_margin_y;
+extern char *conf_news_change_se;
+
+/*
+ * 回想画面(@retrospect)の設定
+ */
+extern char *conf_retrospect_change_se;
 
 /*
  * セーブ・ロード画面の設定

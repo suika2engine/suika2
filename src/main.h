@@ -91,7 +91,9 @@ bool is_message_registered(void);
  * コマンドが終了した直後であるかのチェック
  */
 
+void set_menu_finish_flag(void);
 bool check_menu_finish_flag(void);
+void set_retrospect_finish_flag(void);
 bool check_retrospect_finish_flag(void);
 
 /*

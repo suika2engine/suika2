@@ -332,8 +332,12 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		draw_switch_images(x, y, w, h);
 
 		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_button_pressed)
-			play_se(conf_switch_change_se);
+		if (new_pointed_index != -1 && !is_left_button_pressed) {
+			if (get_command_type() == COMMAND_SWITCH)
+				play_se(conf_switch_change_se);
+			else
+				play_se(conf_news_change_se);
+		}
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */

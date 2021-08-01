@@ -209,8 +209,8 @@ switch.parent.click.se.file=click.ogg
 # スイッチの子選択肢を選択したときの効果音(省略可)
 switch.child.click.se.file=click.ogg
 
-# スイッチの選択項目が変更されたときのSE(省略可)
-switch.change.se=select-change.ogg
+# 選択項目が変更されたときのSE(省略可)
+switch.change.se=btn-change.ogg
 
 ###
 ### NEWS(North/East/West/South)の設定
@@ -227,6 +227,16 @@ news.margin=20
 
 # NEWS内のテキストの縦方向マージン
 news.text.margin.y=18
+
+# 選択項目が変更されたときのSE(省略可)
+news.change.se=btn-change.ogg
+
+###
+### 回想画面(@retrospect)の設定
+###
+
+# 選択項目が変更されたときのSE(省略可)
+retrospect.change.se=btn-change.ogg
 
 ###
 ### セーブ・ロード画面の設定

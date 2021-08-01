@@ -43,9 +43,6 @@ static bool is_first_frame;
 /* ポイントされている項目のインデックス */
 static int pointed_index;
 
-/* menuコマンドが完了したばかりであるかのフラグ */
-static bool menu_finished_flag;
-
 /* 前方参照 */
 static bool init(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
@@ -286,21 +283,8 @@ static bool cleanup(void)
 	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
 
 	/* メニューコマンドが完了したばかりであることを記録する */
-	menu_finished_flag = true;
+	set_menu_finish_flag();
 	
 	/* ラベルにジャンプする */
 	return move_to_label(button[pointed_index].label);
-}
-
-/*
- * メニューコマンドが完了したばかりであるかをチェックする
- */
-bool check_menu_finish_flag(void)
-{
-	bool ret;
-
-	ret = menu_finished_flag;
-	menu_finished_flag = false;
-
-	return ret;
 }

@@ -52,9 +52,6 @@ static bool is_first_frame;
 /* ポイントされている項目のインデックス */
 static int pointed_index;
 
-/* retrospectコマンドが完了したばかりであるかのフラグ */
-static bool retrospect_finished_flag;
-
 /* 前方参照 */
 static bool init(void);
 static bool load_images(void);
@@ -64,6 +61,7 @@ static bool load_thumbnail_params(void);
 static void fill_thumbnail_rects(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
 static int get_pointed_index(void);
+static void play_se(const char *file);
 static bool cleanup(void);
 static bool cancel(void);
 
@@ -299,7 +297,11 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	}
 
 	/* ポイントされている項目が変更された場合 */
-	if (new_pointed_index != -1 && pointed_index != -1) {
+	if (new_pointed_index != -1 && pointed_index != -1 &&
+	    new_pointed_index != pointed_index) {
+		/* SEを再生する */
+		play_se(conf_retrospect_change_se);
+
 		/* 古いサムネイルを消して新しいサムネイルを描画する */
 		draw_stage_rect_with_buttons(thumbnail[pointed_index].x,
 					     thumbnail[pointed_index].y,
@@ -326,8 +328,11 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		return;
 	}
 
-	/* ポイントされてい状態からポイントされている状態に変化した場合 */
+	/* ポイントされていない状態からポイントされている状態に変化した場合 */
 	if (new_pointed_index != -1 && pointed_index == -1) {
+		/* SEを再生する */
+		play_se(conf_retrospect_change_se);
+
 		/* 新しいサムネイルを描画する */
 		draw_stage_rect_with_buttons(0, 0, 0, 0,
 					     thumbnail[new_pointed_index].x,
@@ -400,7 +405,7 @@ static bool cleanup(void)
 	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
 
 	/* メニューコマンドが完了したばかりであることを記録する */
-	retrospect_finished_flag = true;
+	set_retrospect_finish_flag();
 
 	/* ラベルにジャンプする */
 	return move_to_label(thumbnail[pointed_index].label);
@@ -419,7 +424,7 @@ static bool cancel(void)
 	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
 
 	/* メニューコマンドが完了したばかりであることを記録する */
-	retrospect_finished_flag = true;
+	set_retrospect_finish_flag();
 
 	/* 繰り返し動作を終了する */
 	stop_command_repetition();
@@ -428,15 +433,17 @@ static bool cancel(void)
 	return move_to_next_command();
 }
 
-/*
- * メニューコマンドが完了したばかりであるかをチェックする
- */
-bool check_retrospect_finish_flag(void)
+/* SEを再生する */
+static void play_se(const char *file)
 {
-	bool ret;
+	struct wave *w;
 
-	ret = retrospect_finished_flag;
-	retrospect_finished_flag = false;
+	if (file == NULL || strcmp(file, "") == 0)
+		return;
 
-	return ret;
+	w = create_wave_from_file(SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SE_STREAM, w);
 }

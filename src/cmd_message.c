@@ -859,6 +859,10 @@ static int get_pointed_button(void)
 	if (is_skip_mode())
 		return BTN_SKIP;
 
+	/* メッセージボックスを隠している間はボタンを選択しない */
+	if (is_hidden)
+		return BTN_NONE;
+
 	/* マウス座標からメッセージボックス内座標に変換する */
 	rx = mouse_pos_x - conf_msgbox_x;
 	ry = mouse_pos_y - conf_msgbox_y;

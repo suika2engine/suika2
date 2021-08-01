@@ -31,6 +31,7 @@
  *  - ControlキーとSpaceキーは、フレームをまたがって押下状態になる
  *  - その他のキー・マウスボタンはフレームごとに押下状態がクリアされる
  */
+
 bool is_left_button_pressed;
 bool is_right_button_pressed;
 bool is_return_pressed;
@@ -44,15 +45,17 @@ bool is_control_pressed;
 int mouse_pos_x;
 int mouse_pos_y;
 
-/*
- * 複数のイテレーションに渡るコマンドの実行中であるか
- */
+/* 複数のイテレーションに渡るコマンドの実行中であるか */
 static bool is_in_repetition;
 
-/*
- * 現在表示中のメッセージがヒストリに登録済みであるか
- */
+/* 現在表示中のメッセージがヒストリに登録済みであるか */
 static bool flag_message_registered;
+
+/* menuコマンドが完了したばかりであるか */
+static bool flag_menu_finished;
+
+/* retrospectコマンドが完了したばかりであるか */
+static bool flag_retrospect_finished;
 
 /*
  * オートモードが実行中であるか
@@ -94,6 +97,8 @@ void init_game_loop(void)
 	mouse_pos_y = 0;
 	is_in_repetition = false;
 	flag_message_registered = false;
+	flag_menu_finished = false;
+	flag_retrospect_finished = false;
 	flag_auto_mode = false;
 	flag_save_load_enabled = true;
 
@@ -308,6 +313,48 @@ void clear_message_registered(void)
 bool is_message_registered(void)
 {
 	return flag_message_registered;
+}
+
+/*
+ * メニューコマンドが完了したばかりであることを記憶する
+ */
+void set_menu_finish_flag(void)
+{
+	flag_menu_finished = true;
+}
+
+/*
+ * メニューコマンドが完了したばかりであるかをチェックする
+ */
+bool check_menu_finish_flag(void)
+{
+	bool ret;
+
+	ret = flag_menu_finished;
+	flag_menu_finished = false;
+
+	return ret;
+}
+
+/*
+ * 回想コマンドが完了したばかりであることを記憶する
+ */
+void set_retrospect_finish_flag(void)
+{
+	flag_retrospect_finished = true;
+}
+
+/*
+ * 回想コマンドが完了したばかりであるかをチェックする
+ */
+bool check_retrospect_finish_flag(void)
+{
+	bool ret;
+
+	ret = flag_retrospect_finished;
+	flag_retrospect_finished = false;
+
+	return ret;
 }
 
 /*
