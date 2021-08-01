@@ -266,6 +266,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 
 :CONFIG_OK
 @se click.ogg
+@bg config.png
 @bg menu.png 1.0
 @goto MENU
 

@@ -25,11 +25,15 @@
 
 :LOAD
 @se click.ogg
+@bg menu.png
+@bg load-bg.png 1.0
 @goto $LOAD
+@bg menu.png 1.0
 @goto MENU
 
 :CONFIG
 @se click.ogg
+@bg menu.png
 @bg config.png 1.0
 @goto CONFIG_SCREEN
 
@@ -262,6 +266,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 
 :CONFIG_OK
 @se click.ogg
+@bg config.png
 @bg menu.png 1.0
 @goto MENU
 
