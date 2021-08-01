@@ -157,6 +157,17 @@ void log_package_file_error(void)
 }
 
 /*
+ * 重複したコンフィグを記録する
+ */
+void log_duplicated_conf(const char *key)
+{
+	if (is_english_mode())
+		log_error("Config key \"%s\" already exists.\n", key);
+	else
+		log_error("コンフィグで\"%s\"が重複しています。\n", key);
+}
+
+/*
  * 未定義のコンフィグを記録する
  */
 void log_undefined_conf(const char *key)

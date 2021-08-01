@@ -930,6 +930,12 @@ static bool save_value(const char *k, const char *v)
 		if (strcmp(rule_tbl[i].key, k) != 0)
 			continue;
 
+		/* すでに値が設定されたキーの場合 */
+		if (rule_tbl[i].loaded) {
+			log_duplicated_conf(k);
+			return false;
+		}
+
 		/* 型ごとに変換する */
 		if (rule_tbl[i].type == 'i') {
 			*(int *)rule_tbl[i].val = atoi(v);
