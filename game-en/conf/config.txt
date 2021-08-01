@@ -45,7 +45,7 @@ font.outline.color.b=128
 ###
 
 # Name box image file name
-namebox.file=namebox-blue.png
+namebox.file=namebox.png
 
 # Position to show the name box image
 namebox.x=70
@@ -58,8 +58,11 @@ namebox.margin.top=18
 ### Message Box Settings
 ###
 
-# Message box image file name
-msgbox.file=msgbox-blue.png
+# Message box (background) image file name
+msgbox.bg.file=msgbox-bg.png
+
+# Message box (foreground) image file name
+msgbox.fg.file=msgbox-fg.png
 
 # Position to show the message box image
 msgbox.x=0
@@ -80,6 +83,78 @@ msgbox.margin.line=47
 # Message speed (x characters per second)
 msgbox.speed=20.0
 
+# Auto mode speed (x seconds per character, optional)
+msgbox.auto.speed=0.15
+
+# Position of QSAVE button (position inside message box, optional)
+msgbox.btn.qsave.x=740
+msgbox.btn.qsave.y=0
+msgbox.btn.qsave.width=79
+msgbox.btn.qsave.height=23
+
+# Position of QLOAD button (position inside message box, optional)
+msgbox.btn.qload.x=820
+msgbox.btn.qload.y=0
+msgbox.btn.qload.width=81
+msgbox.btn.qload.height=23
+
+# Position of SAVE button (position inside message box, optional)
+msgbox.btn.save.x=901
+msgbox.btn.save.y=0
+msgbox.btn.save.width=62
+msgbox.btn.save.height=23
+
+# Position of LOAD button (position inside message box, optional)
+msgbox.btn.load.x=963
+msgbox.btn.load.y=0
+msgbox.btn.load.width=66
+msgbox.btn.load.height=23
+
+# Position of AUTO button (position inside message box, optional)
+msgbox.btn.auto.x=1029
+msgbox.btn.auto.y=0
+msgbox.btn.auto.width=68
+msgbox.btn.auto.height=23
+
+# Position of SKIP button (position inside message box, optional)
+msgbox.btn.skip.x=1096
+msgbox.btn.skip.y=0
+msgbox.btn.skip.width=59
+msgbox.btn.skip.height=23
+
+# Position of LOG button (position inside message box, optional)
+msgbox.btn.history.x=1156
+msgbox.btn.history.y=0
+msgbox.btn.history.width=53
+msgbox.btn.history.height=23
+
+# Sound effects when button pressed (optional)
+msgbox.btn.qsave.se=click.ogg
+msgbox.btn.qload.se=click.ogg
+msgbox.btn.save.se=click.ogg
+msgbox.btn.load.se=click.ogg
+msgbox.btn.auto.se=click.ogg
+msgbox.btn.skip.se=click.ogg
+msgbox.btn.history.se=click.ogg
+
+# Sound effect when pointed button changed (optional)
+msgbox.btn.change.se=btn-change.ogg
+
+# Sound effect when call save screen by right click (optional)
+msgbox.save.se=click.ogg
+
+# Sound effect when call history screen by up arrow key or mouse wheel up (optional)
+msgbox.history.se=click.ogg
+
+# Sound effect when cancel auto mode (optional)
+msgbox.auto.cancel.se=click.ogg
+
+# Sound effect when cancel skip mode (optional)
+msgbox.skip.cancel.se=click.ogg
+
+# Skip unseen messages (1: skip, 0: don't skip, default:0)
+msgbox.skip.unseen=0
+
 ###
 ### Click Animation Settings
 ###
@@ -95,21 +170,24 @@ click.y=660
 click.interval=0.5
 
 ###
-### Option Box Settings
+### Select Box Settings
 ###
 
-# Option box (non-selected) image file name
+# Select box (non-selected) image file name
 selbox.bg.file=selbox-bg.png
 
-# Option box (selected) image file name
+# Select box (selected) image file name
 selbox.fg.file=selbox-fg.png
 
-# Position of the option box
+# Position of the select box
 selbox.x=265
 selbox.y=200
 
-# Top margin of text in the option box
+# Top margin of text in the select box
 selbox.margin.y=10
+
+# Sound effect when pointed item changed (optional)
+selbox.change.se=btn-change.ogg
 
 ###
 ### Switch Settings
@@ -137,6 +215,9 @@ switch.parent.click.se.file=click.ogg
 # Click sound file when the child option is clicked (omissible)
 switch.child.click.se.file=click.ogg
 
+# Sound effect when pointed item changed (optional)
+switch.change.se=btn-change.ogg
+
 ###
 ### NEWS(North/East/West/South) Command Settings
 ###
@@ -153,39 +234,55 @@ news.margin=20
 # Top margin of text in the NEWS box image
 news.text.margin.y=18
 
+# Sound effect when pointed item changed (optional)
+news.change.se=btn-change.ogg
+
+###
+### Retrospect Screen Settings
+###
+
+# Sound effect when pointed item changed (optional)
+retrospect.change.se=btn-change.ogg
+
 ###
 ### Save/Load Screen Settings
 ###
 
-# Save/load screen (non-selected) image file name
-save.bg.file=save-bg.png
+# Save screen (non-selected) image file name
+save.save.bg.file=save-bg.png
 
-# Save/load screen (selected) image file name
-save.fg.file=save-fg.png
+# Save screen (selected) image file name
+save.save.fg.file=save-fg.png
 
-# Position and size of the save button
-save.save.x=448
-save.save.y=100
-save.save.width=128
-save.save.height=64
+# Load screen (non-selected) image file name
+save.load.bg.file=load-bg.png
 
-# Position and size of the load button
-save.load.x=704
-save.load.y=100
-save.load.width=128
-save.load.height=64
+# Load screen (selected) image file name
+save.load.fg.file=load-fg.png
 
 # Position and size of the previous page button
-save.prev.x=0
-save.prev.y=0
-save.prev.width=128
+save.prev.x=416
+save.prev.y=112
+save.prev.width=70
 save.prev.height=64
 
+# Sound effect when previous page button clicked (optional)
+save.prev.se=click.ogg
+
 # Position and size of the next page button
-save.next.x=1152
-save.next.y=0
-save.next.width=128
+save.next.x=416
+save.next.y=470
+save.next.width=70
 save.next.height=64
+
+# Sound effect when saved (optional)
+save.data.save.se=click.ogg
+
+# Sound effect when loaded (optional)
+save.data.load.se=click.ogg
+
+# Sound effect when next page button clicked (optional)
+save.next.se=click.ogg
 
 # Size of each save data item
 save.data.width=384
@@ -196,43 +293,64 @@ save.data.margin.left=10
 save.data.margin.top=10
 
 # Position of the save data 1
-save.data1.x=448
-save.data1.y=192
+save.data1.x=34
+save.data1.y=131
 
 # Position of the save data 2
-save.data2.x=448
-save.data2.y=256
+save.data2.x=34
+save.data2.y=195
 
 # Position of the save data 3
-save.data3.x=448
-save.data3.y=320
+save.data3.x=34
+save.data3.y=259
 
 # Position of the save data 4
-save.data4.x=448
-save.data4.y=384
+save.data4.x=34
+save.data4.y=323
 
 # Position of the save data 5
-save.data5.x=448
-save.data5.y=448
+save.data5.x=34
+save.data5.y=387
 
 # Position of the save data 6
-save.data6.x=448
-save.data6.y=512
+save.data6.x=34
+save.data6.y=451
 
 # Position and size of the exit button
-save.exit.x=85
-save.exit.y=605
-save.exit.width=280
-save.exit.height=65
+save.exit.x=33
+save.exit.y=623
+save.exit.width=170
+save.exit.height=64
+
+# Sound effect when exit button clicked (optional)
+save.exit.se=click.ogg
 
 # Position and size of the 'return to title' button
-save.title.x=915
-save.title.y=605
-save.title.width=280
-save.title.height=65
+save.title.x=244
+save.title.y=623
+save.title.width=170
+save.title.height=64
+
+# Sound effect when 'retur to title' button clicked (optional)
+save.title.se=click.ogg
 
 # Jump target file of the 'return to title' button
 save.title.txt=init.txt
+
+# Sound effect when go to save screen from load screen (optional)
+save.loadtosave.se=click.ogg
+
+# Sound effect when go to load screen from save screen (optional)
+save.savetoload.se=click.ogg
+
+# Sound effect when cancel save screen (@goto $SAVE) by right click (optional)
+save.cancel.save.se=click.ogg
+
+# Sound effect when cancel load screen (@goto $LOAD) by right click (optional)
+save.cancel.load.se=click.ogg
+
+# Sound effect when pointed item changed in save/load screen (optional)
+save.change.se=btn-change.ogg
 
 ###
 ### History Settings
@@ -258,6 +376,16 @@ history.margin.right=20
 
 # Bottom margin
 history.margin.bottom=20
+
+# Sound effect when go back from history screen (optional)
+history.cancel.se=click.ogg
+
+###
+### Menu Screen Settings
+###
+
+# Sound effect when pointed index changed (optional)
+menu.change.se=btn-change.ogg
 
 ###
 ### Character Message Colors

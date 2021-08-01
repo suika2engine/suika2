@@ -146,7 +146,7 @@ msgbox.auto.cancel.se=click.ogg
 # スキップモードをキャンセルするときのSE(省略可)
 msgbox.skip.cancel.se=click.ogg
 
-# 未読でもスキップする (1:スキップする, 0: スキップしない, 省略時0)
+# 未読でもスキップする (1: スキップする, 0: スキップしない, 省略時0)
 msgbox.skip.unseen=0
 
 ###
@@ -254,7 +254,7 @@ save.load.bg.file=load-bg.png
 # ロード画面(選択状態の画像)
 save.load.fg.file=load-fg.png
 
-# 前ページボタン
+# 前ページボタンの位置と大きさ
 save.prev.x=416
 save.prev.y=112
 save.prev.width=70
@@ -263,7 +263,7 @@ save.prev.height=64
 # 前ページボタンがクリックされたときのSE(省略可)
 save.prev.se=click.ogg
 
-# 次ページボタン
+# 次ページボタンの位置と大きさ
 save.next.x=416
 save.next.y=470
 save.next.width=70
