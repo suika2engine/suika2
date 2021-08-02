@@ -128,6 +128,7 @@ static int pointed_index;
  */
 
 static bool init(void);
+static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool register_message_for_history(void);
 static bool process_serif_command(void);
@@ -228,6 +229,9 @@ static bool init(void)
 	const char *raw_msg;
 
 	/* 初期化処理のスキップモードの部分を行う */
+	init_auto_mode();
+
+	/* 初期化処理のスキップモードの部分を行う */
 	init_skip_mode();
 
 	/* メッセージを取得する */
@@ -292,6 +296,17 @@ static bool init(void)
 	init_pointed_index();
 
 	return true;
+}
+
+/* 初期化処理のスキップモードの部分を行う */
+static void init_auto_mode(void)
+{
+	/* オートモードの場合 */
+	if (is_auto_mode()) {
+		/* リターンキー、下キーの入力を無効にする */
+		is_return_pressed = false;
+		is_down_pressed = false;
+	}
 }
 
 /* 初期化処理のスキップモードの部分を行う */
@@ -1104,6 +1119,10 @@ static void frame_auto_mode(void)
 
 	/* オートモードの場合 */
 	if (is_auto_mode()) {
+		/* リターンキーと下キーの入力を処理しない */
+		is_return_pressed = false;
+		is_down_pressed = false;
+
 		/* 左クリックされた場合 */
 		if (is_left_button_pressed) {
 			/* SEを再生する */

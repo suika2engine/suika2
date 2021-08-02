@@ -132,8 +132,9 @@ static bool init(void)
 	}
 
 	/* キーが押されているか、フェードしない場合 */
-	if (is_skip_mode() || is_down_pressed || is_return_pressed ||
-	    is_control_pressed || span == 0) {
+	if (is_skip_mode() ||
+	    (!is_auto_mode() && is_control_pressed) ||
+	    span == 0) {
 		/* フェードせず、すぐに切り替える */
 		for (i = 0; i < PARAM_SIZE; i++) {
 			if (stay[i])
@@ -207,8 +208,10 @@ static void draw(void)
 		 * 経過時間が一定値を超えた場合と、
 		 * 入力によりスキップされた場合
 		 */
-		if (lap >= span || is_control_pressed || is_return_pressed ||
-		    is_left_button_pressed) {
+		if (lap >= span ||
+		    (!is_auto_mode() &&
+		     (is_control_pressed || is_return_pressed ||
+		      is_left_button_pressed || is_down_pressed))) {
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 
