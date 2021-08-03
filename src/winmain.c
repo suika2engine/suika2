@@ -14,9 +14,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <windows.h>
-
 #include "suika.h"
+#include "d3drender.h"
 #include "dsound.h"
 
 /* リソースIDのため */
@@ -162,6 +161,10 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 	/* ウィンドウを作成する */
 	if(!InitWindow(hInstance, nCmdShow))
+		return FALSE;
+
+	/* Direct3Dを初期化する */
+	if(!D3DInitialize(hWndMain))
 		return FALSE;
 
 	/* DirectSoundを初期化する */
