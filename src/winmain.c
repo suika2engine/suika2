@@ -178,7 +178,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if(!DSInitialize(hWndMain))
 		return FALSE;
 
-#if !USE_DIRECT3D
+#if !USE_DIRECT3D 
 	/* バックイメージを作成する */
 	if(!CreateBackImage())
 		return FALSE;
@@ -206,9 +206,11 @@ static void CleanupApp(void)
 	if(hBitmapDC != NULL)
 		DeleteDC(hBitmapDC);
 
+#if !USE_DIRECT3D
 	/* バックイメージを破棄する */
 	if(BackImage != NULL)
 		destroy_image(BackImage);
+#endif
 
 #if USE_DIRECT3D
 	D3DCleanup();
@@ -374,6 +376,7 @@ static BOOL CreateBackImage(void)
 static void GameLoop(void)
 {
 	int x, y, w, h;
+	BOOL bBreak;
 
 	/* 最初にイベントを処理してしまう */
 	if(!SyncEvents())
@@ -386,20 +389,33 @@ static void GameLoop(void)
 #if USE_DIRECT3D
 		/* フレームの描画を開始する */
 		D3DStartFrame();
+#else
+		/* バックイメージのロックを行う */
+		lock_image(BackImage);
 #endif
 
 		/* 描画を行う */
+		bBreak = FALSE;
 		if(!on_event_frame(&x, &y, &w, &h))
-			break;	/* スクリプトの終端に達した */
+		{
+			/* スクリプトの終端に達した */
+			bBreak = TRUE;
+		}
 
 #if USE_DIRECT3D
 		/* フレームの描画を終了する */
 		D3DEndFrame();
 #else
+		/* バックイメージのアンロックを行う */
+		lock_image(BackImage);
+
 		/* 描画を反映する */
 		if(w !=0 && h !=0)
 			SyncBackImage(x, y, w, h);
 #endif
+
+		if(bBreak)
+			break;
 
 		/* 次の描画までスリープする */
 		if(!WaitForNextFrame())
