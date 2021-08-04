@@ -200,6 +200,7 @@ static void CleanupApp(void)
 	if(hWndDC != NULL)
 		ReleaseDC(hWndMain, hWndDC);
 
+#if !USE_DIRECT3D
 	/* バックイメージのビットマップを破棄する */
 	if(hBitmap != NULL)
 		DeleteObject(hBitmap);
@@ -208,7 +209,6 @@ static void CleanupApp(void)
 	if(hBitmapDC != NULL)
 		DeleteDC(hBitmapDC);
 
-#if !USE_DIRECT3D
 	/* バックイメージを破棄する */
 	if(BackImage != NULL)
 		destroy_image(BackImage);
@@ -726,11 +726,11 @@ static void ResetDisplayMode(void)
 /* ウィンドウの内容を更新する */
 static void OnPaint(void)
 {
-#if !USE_DIRECT3D
-	PAINTSTRUCT ps;
 	HDC hDC;
+	PAINTSTRUCT ps;
 
 	hDC = BeginPaint(hWndMain, &ps);
+#if !USE_DIRECT3D
 	BitBlt(hDC,
 		   ps.rcPaint.left,
 		   ps.rcPaint.top,
@@ -740,8 +740,10 @@ static void OnPaint(void)
 		   ps.rcPaint.left - nOffsetX,
 		   ps.rcPaint.top - nOffsetY,
 		   SRCCOPY);
-	EndPaint(hWndMain, &ps);
+#else
+	UNUSED_PARAMETER(hDC);
 #endif
+	EndPaint(hWndMain, &ps);
 }
 
 /*
