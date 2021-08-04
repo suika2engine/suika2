@@ -60,8 +60,10 @@ static char mbszTitle[TITLE_BUF_SIZE];
 /* Windowsオブジェクト */
 static HWND hWndMain;
 static HDC hWndDC;
+#if !USE_DIRECT3D
 static HDC hBitmapDC;
 static HBITMAP hBitmap;
+#endif
 
 /* イメージオブジェクト */
 static struct image *BackImage;
@@ -365,8 +367,11 @@ static BOOL CreateBackImage(void)
 										 pixels);
 	if(BackImage == NULL)
 		return FALSE;
-	if(conf_window_white)
+	if(conf_window_white) {
+		lock_image(BackImage);
 		clear_image_white(BackImage);
+		unlock_image(BackImage);
+	}
 
 	return TRUE;
 }
