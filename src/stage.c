@@ -89,9 +89,6 @@ enum stage_mode {
 /* ステージの動作モード */
 static int stage_mode;
 
-/* 描画先イメージ */
-static struct image *back_image;
-
 /* レイヤのイメージ */
 static struct image *layer_image[STAGE_LAYERS];
 
@@ -231,7 +228,9 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method);
 static float cw_step(int method, float progress);
 static int pos_to_layer(int pos);
 static float get_anime_interpolation(float progress, float from, float to);
+static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
+static void render_layer_image_rect(int layer, int x, int y, int w, int h);
 static void draw_layer_image_rect(struct image *target, int layer, int x,
 				  int y, int w, int h);
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
@@ -248,9 +247,6 @@ static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 bool init_stage(void)
 {
 	int i;
-
-	/* 描画先を取得する */
-	back_image = get_back_image();
 
 	/* 名前ボックスをセットアップする */
 	if (!setup_namebox())
@@ -564,19 +560,19 @@ void draw_stage_rect(int x, int y, int w, int h)
 	if (y + h >= conf_window_height)
 		h = conf_window_height - y;
 
-	draw_layer_image_rect(back_image, LAYER_BG, x, y, w, h);
-	draw_layer_image_rect(back_image, LAYER_CHB, x, y, w, h);
-	draw_layer_image_rect(back_image, LAYER_CHL, x, y, w, h);
-	draw_layer_image_rect(back_image, LAYER_CHR, x, y, w, h);
-	draw_layer_image_rect(back_image, LAYER_CHC, x, y, w, h);
+	render_layer_image_rect(LAYER_BG, x, y, w, h);
+	render_layer_image_rect(LAYER_CHB, x, y, w, h);
+	render_layer_image_rect(LAYER_CHL, x, y, w, h);
+	render_layer_image_rect(LAYER_CHR, x, y, w, h);
+	render_layer_image_rect(LAYER_CHC, x, y, w, h);
 	if (is_msgbox_visible)
-		draw_layer_image_rect(back_image, LAYER_MSG, x, y, w, h);
+		render_layer_image_rect(LAYER_MSG, x, y, w, h);
 	if (is_namebox_visible)
-		draw_layer_image_rect(back_image, LAYER_NAME, x, y, w,h);
+		render_layer_image_rect(LAYER_NAME, x, y, w,h);
 	if (is_click_visible)
-		draw_layer_image_rect(back_image, LAYER_CLICK, x, y, w, h);
+		render_layer_image_rect(LAYER_CLICK, x, y, w, h);
 	if (is_selbox_visible)
-		draw_layer_image_rect(back_image, LAYER_SEL, x, y, w, h);
+		render_layer_image_rect(LAYER_SEL, x, y, w, h);
 }
 
 /*
@@ -677,8 +673,8 @@ static void draw_stage_fi_fo_fade(int fade_method)
 /* デフォルトの背景フェードの描画を行う  */
 static void draw_stage_fi_fo_fade_normal()
 {
-	draw_layer_image(back_image, LAYER_FO);
-	draw_layer_image(back_image, LAYER_FI);
+	render_layer_image(LAYER_FO);
+	render_layer_image(LAYER_FI);
 }
 
 
@@ -692,12 +688,11 @@ static void draw_stage_fi_fo_fade_mask()
 			   (float)layer_alpha[LAYER_FI] / 255.0f);
 
 	/* 古い背景を描画する */
-	draw_layer_image(back_image, LAYER_FO);
+	render_layer_image(LAYER_FO);
 
 	/* 新しい背景をマスクつきで描画する */
-	draw_image_mask(back_image, 0, 0, layer_image[LAYER_FI],
-			conf_window_width, conf_window_height, 0, 0,
-			mask_index);
+	render_image_mask(0, 0, layer_image[LAYER_FI], conf_window_width,
+			  conf_window_height, 0, 0, mask_index);
 }
 
 /* 右方向カーテンフェードの描画を行う */
@@ -714,24 +709,24 @@ static void draw_stage_fi_fo_fade_curtain_right(void)
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (right < conf_window_width) {
-		draw_image(back_image, right, 0, layer_image[LAYER_FO],
-			   conf_window_width - right, conf_window_height,
-			   right, 0, 255, BLEND_NONE);
+		render_image(right, 0, layer_image[LAYER_FO],
+			     conf_window_width - right, conf_window_height,
+			     right, 0, 255, BLEND_NONE);
 	}
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (right >= CURTAIN_WIDTH) {
-		draw_image(back_image, 0, 0, layer_image[LAYER_FI],
-			   right - CURTAIN_WIDTH, conf_window_height, 0, 0,
-			   255, BLEND_NONE);
+		render_image(0, 0, layer_image[LAYER_FI],
+			     right - CURTAIN_WIDTH, conf_window_height, 0, 0,
+			     255, BLEND_NONE);
 	}
 
 	/* カーテンを描画する */
 	for (alpha = 0, i = right; i >= right - CURTAIN_WIDTH; i--, alpha++) {
 		if (i < 0 || i >= conf_window_width)
 			continue;
-		draw_image(back_image, i, 0, layer_image[LAYER_FI], 1,
-			   conf_window_height, i, 0, alpha, BLEND_FAST);
+		render_image(i, 0, layer_image[LAYER_FI], 1,
+			     conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
 }
 
@@ -749,14 +744,12 @@ static void draw_stage_fi_fo_fade_curtain_left(void)
 		      fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   left + CURTAIN_WIDTH, conf_window_height, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], left + CURTAIN_WIDTH,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (left <= conf_window_width - CURTAIN_WIDTH) {
-		draw_image(back_image, left + CURTAIN_WIDTH, 0,
-			   layer_image[LAYER_FI],
+		render_image(left + CURTAIN_WIDTH, 0, layer_image[LAYER_FI],
 			   conf_window_width - left - CURTAIN_WIDTH,
 			   conf_window_height, left + CURTAIN_WIDTH, 0, 255,
 			   BLEND_NONE);
@@ -766,8 +759,8 @@ static void draw_stage_fi_fo_fade_curtain_left(void)
 	for (alpha = 0, i = left; i <= left + CURTAIN_WIDTH; i++, alpha++) {
 		if (i < 0 || i >= conf_window_width)
 			continue;
-		draw_image(back_image, i, 0, layer_image[LAYER_FI], 1,
-			   conf_window_height, i, 0, alpha, BLEND_FAST);
+		render_image(i, 0, layer_image[LAYER_FI], 1,
+			     conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
 }
 
@@ -785,26 +778,23 @@ static void draw_stage_fi_fo_fade_curtain_up(void)
 		      fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   conf_window_width, top + CURTAIN_WIDTH, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
+		     top + CURTAIN_WIDTH, 0, 0, 255, BLEND_NONE);
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (top <= conf_window_height - CURTAIN_WIDTH) {
-		draw_image(back_image, 0, top + CURTAIN_WIDTH,
-			   layer_image[LAYER_FI],
+		render_image(0, top + CURTAIN_WIDTH, layer_image[LAYER_FI],
 			   conf_window_width,
 			   conf_window_height - top - CURTAIN_WIDTH,
-			   0, top + CURTAIN_WIDTH, 255,
-			   BLEND_NONE);
+			   0, top + CURTAIN_WIDTH, 255, BLEND_NONE);
 	}
 
 	/* カーテンを描画する */
 	for (alpha = 0, i = top; i <= top + CURTAIN_WIDTH; i++, alpha++) {
 		if (i < 0 || i >= conf_window_height)
 			continue;
-		draw_image(back_image, 0, i, layer_image[LAYER_FI],
-			   conf_window_width, 1, 0, i, alpha, BLEND_FAST);
+		render_image(0, i, layer_image[LAYER_FI],
+			     conf_window_width, 1, 0, i, alpha, BLEND_FAST);
 	}
 }
 
@@ -822,16 +812,15 @@ static void draw_stage_fi_fo_fade_curtain_down(void)
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (bottom < conf_window_height) {
-		draw_image(back_image, 0, bottom, layer_image[LAYER_FO],
-			   conf_window_width, conf_window_height - bottom,
-			   0, bottom, 255, BLEND_NONE);
+		render_image(0, bottom, layer_image[LAYER_FO],
+			     conf_window_width, conf_window_height - bottom,
+			     0, bottom, 255, BLEND_NONE);
 	}
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (bottom >= CURTAIN_WIDTH) {
-		draw_image(back_image, 0, 0, layer_image[LAYER_FI],
-			   conf_window_width, bottom - CURTAIN_WIDTH, 0, 0,
-			   255, BLEND_NONE);
+		render_image(0, 0, layer_image[LAYER_FI], conf_window_width,
+			     bottom - CURTAIN_WIDTH, 0, 0, 255, BLEND_NONE);
 	}
 
 	/* カーテンを描画する */
@@ -839,8 +828,8 @@ static void draw_stage_fi_fo_fade_curtain_down(void)
 	     i--, alpha++) {
 		if (i < 0 || i >= conf_window_height)
 			continue;
-		draw_image(back_image, 0, i, layer_image[LAYER_FI],
-			   conf_window_width, 1, 0, i, alpha, BLEND_FAST);
+		render_image(0, i, layer_image[LAYER_FI],
+			     conf_window_width, 1, 0, i, alpha, BLEND_FAST);
 	}
 }
 
@@ -856,14 +845,13 @@ static void draw_stage_fi_fo_fade_slide_right(void)
 	right = (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 左側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
-		   right, conf_window_height, conf_window_width - right, 0,
-		   255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FI], right, conf_window_height,
+		     conf_window_width - right, 0, 255, BLEND_NONE);
 
 	/* 右側の背景を表示する */
-	draw_image(back_image, right, 0, layer_image[LAYER_FO],
-		   conf_window_width - right, conf_window_height, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(right, 0, layer_image[LAYER_FO],
+		     conf_window_width - right, conf_window_height, 0, 0, 255,
+		     BLEND_NONE);
 }
 
 /* 左方向スライドフェードの描画を行う */
@@ -879,14 +867,12 @@ static void draw_stage_fi_fo_fade_slide_left(void)
 		(int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 右側の背景を表示する */
-	draw_image(back_image, left, 0, layer_image[LAYER_FI],
-		   conf_window_width - left, conf_window_height, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(left, 0, layer_image[LAYER_FI], conf_window_width - left,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
 
 	/* 左側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   left, conf_window_height, conf_window_width - left, 0,
-		   255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], left, conf_window_height,
+		     conf_window_width - left, 0, 255, BLEND_NONE);
 }
 
 /* 上方向スライドフェードの描画を行う */
@@ -902,14 +888,12 @@ static void draw_stage_fi_fo_fade_slide_up(void)
 		(int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   conf_window_width, top, 0, conf_window_height - top,
-		   255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width, top, 0,
+		     conf_window_height - top, 255, BLEND_NONE);
 
 	/* 下側の背景を表示する */
-	draw_image(back_image, 0, top, layer_image[LAYER_FI],
-		   conf_window_width, conf_window_height - top, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(0, top, layer_image[LAYER_FI], conf_window_width,
+		     conf_window_height - top, 0, 0, 255, BLEND_NONE);
 }
 
 /* 下方向スライドフェードの描画を行う */
@@ -924,14 +908,12 @@ static void draw_stage_fi_fo_fade_slide_down(void)
 	bottom = (int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
-		   conf_window_width, bottom, 0, conf_window_height - bottom,
-		   255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FI], conf_window_width, bottom, 0,
+		     conf_window_height - bottom, 255, BLEND_NONE);
 
 	/* 下側の背景を表示する */
-	draw_image(back_image, 0, bottom, layer_image[LAYER_FO],
-		   conf_window_width, conf_window_height - bottom, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(0, bottom, layer_image[LAYER_FO], conf_window_width,
+		     conf_window_height - bottom, 0, 0, 255, BLEND_NONE);
 }
 
 /* 右方向シャッターフェードの描画を行う Right direction shutter fade */
@@ -946,14 +928,13 @@ static void draw_stage_fi_fo_fade_shutter_right(void)
 	right = (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 左側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
-		   right, conf_window_height, conf_window_width - right, 0,
-		   255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FI], right, conf_window_height,
+		     conf_window_width - right, 0, 255, BLEND_NONE);
 
 	/* 右側の背景を表示する */
-	draw_image(back_image, right, 0, layer_image[LAYER_FO],
-		   conf_window_width - right, conf_window_height, right, 0,
-		   255, BLEND_NONE);
+	render_image(right, 0, layer_image[LAYER_FO],
+		     conf_window_width - right, conf_window_height, right, 0,
+		     255, BLEND_NONE);
 }
 
 /* 左方向シャッターフェードの描画を行う Left direction shutter fade */
@@ -969,13 +950,12 @@ static void draw_stage_fi_fo_fade_shutter_left(void)
 		(int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 右側の背景を表示する */
-	draw_image(back_image, left, 0, layer_image[LAYER_FI],
-		   conf_window_width - left, conf_window_height, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(left, 0, layer_image[LAYER_FI], conf_window_width - left,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
 
 	/* 左側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   left, conf_window_height, 0, 0, 255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], left, conf_window_height, 0,
+		     0, 255, BLEND_NONE);
 }
 
 /* 上方向シャッターフェードの描画を行う Up direction shutter fade */
@@ -991,13 +971,12 @@ static void draw_stage_fi_fo_fade_shutter_up(void)
 		(int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   conf_window_width, top, 0, 0, 255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width, top, 0, 0,
+		     255, BLEND_NONE);
 
 	/* 下側の背景を表示する */
-	draw_image(back_image, 0, top, layer_image[LAYER_FI],
-		   conf_window_width, conf_window_height - top, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(0, top, layer_image[LAYER_FI], conf_window_width,
+		     conf_window_height - top, 0, 0, 255, BLEND_NONE);
 }
 
 /* 下方向シャッターフェードの描画を行う Down direction shutter fade */
@@ -1012,14 +991,12 @@ static void draw_stage_fi_fo_fade_shutter_down(void)
 	bottom = (int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FI],
-		   conf_window_width, bottom, 0, conf_window_height - bottom,
-		   255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FI], conf_window_width, bottom, 0,
+		     conf_window_height - bottom, 255, BLEND_NONE);
 
 	/* 下側の背景を表示する */
-	draw_image(back_image, 0, bottom, layer_image[LAYER_FO],
-		   conf_window_width, conf_window_height - bottom, 0, bottom,
-		   255, BLEND_NONE);
+	render_image(0, bottom, layer_image[LAYER_FO], conf_window_width,
+		     conf_window_height - bottom, 0, bottom, 255, BLEND_NONE);
 }
 
 /* 時計回りフェードの描画を行う */
@@ -1034,9 +1011,8 @@ static void draw_stage_fi_fo_fade_clockwise(int method)
 	assert(progress >= 0 && progress <= 1.0f);
 
 	/* フェードアウトする背景の描画を行う */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   conf_window_width, conf_window_height, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
 
 	/* 時計の針の位置を計算する */
 	center_x = conf_window_width / 2;
@@ -1050,21 +1026,21 @@ static void draw_stage_fi_fo_fade_clockwise(int method)
 
 	/* 第一象限を埋める */
 	if (progress >= 0.25f) {
-		draw_image(back_image, center_x, 0, layer_image[LAYER_FI],
-			   center_x, center_y, center_x, 0, 255, BLEND_NONE);
+		render_image(center_x, 0, layer_image[LAYER_FI], center_x,
+			     center_y, center_x, 0, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
 	if (progress >= 0.5f) {
-		draw_image(back_image, center_x, center_y,
-			   layer_image[LAYER_FI], center_x, center_y,
-			   center_x, center_y, 255, BLEND_NONE);
+		render_image(center_x, center_y, layer_image[LAYER_FI],
+			     center_x, center_y, center_x, center_y, 255,
+			     BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
 	if (progress >= 0.75f) {
-		draw_image(back_image, 0, center_y, layer_image[LAYER_FI],
-			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
+		render_image(0, center_y, layer_image[LAYER_FI], center_x,
+			     center_y, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* エッジをスキャンする */
@@ -1099,8 +1075,8 @@ static void draw_stage_fi_fo_fade_clockwise(int method)
 			continue;
 
 		/* 走査線を描画する */
-		draw_image(back_image, min, i, layer_image[LAYER_FI],
-			   max - min + 1, 1, min, i, 255, BLEND_NONE);
+		render_image(min, i, layer_image[LAYER_FI], max - min + 1,
+			     1, min, i, 255, BLEND_NONE);
 	}
 }
 
@@ -1116,9 +1092,8 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 	assert(progress >= 0 && progress <= 1.0f);
 
 	/* フェードアウトする背景の描画を行う */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   conf_window_width, conf_window_height, 0, 0, 255,
-		   BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
 
 	/* 時計の針の位置を計算する */
 	center_x = conf_window_width / 2;
@@ -1130,26 +1105,26 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 	hand_y = center_y + (int)(hand_len *
 				  cosf(2.0f * PI * progress - PI));
 
-	draw_image(back_image, hand_x, hand_y, layer_image[LAYER_FI], 100,
-		   100, 0, 0, 255, BLEND_NONE);
+	render_image(hand_x, hand_y, layer_image[LAYER_FI], 100, 100, 0, 0,
+		     255, BLEND_NONE);
 
 	/* 第二象限を埋める */
 	if (progress >= 0.25f) {
-		draw_image(back_image, 0, 0, layer_image[LAYER_FI],
-			   center_x, center_y, 0, 0, 255, BLEND_NONE);
+		render_image(0, 0, layer_image[LAYER_FI], center_x, center_y,
+			     0, 0, 255, BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
 	if (progress >= 0.5f) {
-		draw_image(back_image, 0, center_y, layer_image[LAYER_FI],
-			   center_x, center_y, 0, center_y, 255, BLEND_NONE);
+		render_image(0, center_y, layer_image[LAYER_FI], center_x,
+			     center_y, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
 	if (progress >= 0.75f) {
-		draw_image(back_image, center_x, center_y,
-			   layer_image[LAYER_FI], center_x, center_y, center_x,
-			   center_y, 255, BLEND_NONE);
+		render_image(center_x, center_y, layer_image[LAYER_FI],
+			     center_x, center_y, center_x, center_y, 255,
+			     BLEND_NONE);
 	}
 
 	/* エッジをスキャンする */
@@ -1185,8 +1160,8 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 			continue;
 	
 		/* 走査線を描画する */
-		draw_image(back_image, min, i, layer_image[LAYER_FI],
-			   max - min + 1, 1, min, i, 255, BLEND_NONE);
+		render_image(min, i, layer_image[LAYER_FI], max - min + 1, 1,
+			     min, i, 255, BLEND_NONE);
 	}
 }
 
@@ -1230,15 +1205,18 @@ static float cw_step(int method, float progress)
 void draw_stage_shake(void)
 {
 	/* 背景を塗り潰す */
-	if (conf_window_white)
-		clear_image_white(back_image);
-	else
-		clear_image_black(back_image);
+	if (conf_window_white) {
+		render_clear(0, 0, conf_window_width, conf_window_height,
+			     make_pixel(0xff, 0xff, 0xff, 0xff));
+	} else {
+		render_clear(0, 0, conf_window_width, conf_window_height,
+			     make_pixel(0xff, 0, 0, 0));
+	}
 
 	/* FOレイヤを描画する */
-	draw_image(back_image, shake_offset_x, shake_offset_y,
-		   layer_image[LAYER_FO], conf_window_width,
-		   conf_window_height, 0, 0, 255, BLEND_NONE);
+	render_image(shake_offset_x, shake_offset_y,
+		     layer_image[LAYER_FO], conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
 }
 
 /*
@@ -1250,18 +1228,18 @@ void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
 	assert(stage_mode == STAGE_MODE_IDLE);
 
 	/* 背景を描画する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO],
-		   get_image_width(layer_image[LAYER_FO]),
-		   get_image_height(layer_image[LAYER_FO]),
-		   0, 0, 255, BLEND_NONE);
+	render_image(0, 0, layer_image[LAYER_FO],
+		     get_image_width(layer_image[LAYER_FO]),
+		     get_image_height(layer_image[LAYER_FO]),
+		     0, 0, 255, BLEND_NONE);
 
 	/* 1つめのボタンを描画する */
-	draw_image(back_image, x1, y1, layer_image[LAYER_FI], w1, h1, x1, y1,
-		   255, BLEND_NONE);
+	render_image(x1, y1, layer_image[LAYER_FI], w1, h1, x1, y1, 255,
+		     BLEND_NONE);
 
 	/* 2つめのボタンを描画する */
-	draw_image(back_image, x2, y2, layer_image[LAYER_FI], w2, h2, x2, y2,
-		   255, BLEND_NONE);
+	render_image(x2, y2, layer_image[LAYER_FI], w2, h2, x2, y2, 255,
+		     BLEND_NONE);
 }
 
 /*
@@ -1275,12 +1253,12 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
 	/* 古いボタンを消す */
-	draw_image(back_image, old_x, old_y, layer_image[LAYER_FO], old_w,
-		   old_h, old_x, old_y, 255, BLEND_NONE);
+	render_image(old_x, old_y, layer_image[LAYER_FO], old_w, old_h, old_x,
+		     old_y, 255, BLEND_NONE);
 
 	/* 新しいボタンを描画する */
-	draw_image(back_image, new_x, new_y, layer_image[LAYER_FI], new_w,
-		   new_h, new_x, new_y, 255, BLEND_NONE);
+	render_image(new_x, new_y, layer_image[LAYER_FI], new_w, new_h, new_x,
+		     new_y, 255, BLEND_NONE);
 }
 
 /*
@@ -1289,8 +1267,7 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 void draw_stage_rect_with_switch(int x, int y, int w, int h)
 {
 	draw_stage_rect(x, y, w, h);
-	draw_image(back_image, x, y, layer_image[LAYER_FI], w, h, x, y, 255,
-		   BLEND_FAST);
+	render_image(x, y, layer_image[LAYER_FI], w, h, x, y, 255, BLEND_FAST);
 }
 
 /*
@@ -1303,13 +1280,13 @@ void draw_stage_history(void)
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
-	/* 古いボタンを消す */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FO], conf_window_width,
-		   conf_window_height, 0, 0, 255, BLEND_NONE);
+	/* ステージを描画する */
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
 
-	/* 新しいボタンを描画する */
-	draw_image(back_image, 0, 0, layer_image[LAYER_FI], conf_window_width,
-		   conf_window_height, 0, 0, 255, BLEND_FAST);
+	/* 文字レイヤを描画する */
+	render_image(0, 0, layer_image[LAYER_FI], conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_FAST);
 }
 
 /*
@@ -2333,6 +2310,39 @@ void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
  * 共通ルーチン
  */
 
+/* レイヤをレンダリングする */
+static void render_layer_image(int layer)
+{
+	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
+
+	/* 背景イメージがセットされていなければクリアする */
+	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
+		if (conf_window_white) {
+			render_clear(0, 0, conf_window_width,
+				     conf_window_height,
+				     make_pixel(0xff, 0xff, 0xff, 0xff));
+		} else {
+			render_clear(0, 0, conf_window_width,
+				     conf_window_height,
+				     make_pixel(0xff, 0, 0, 0));
+		}
+		return;
+	}
+
+	/* その他のレイヤはイメージがセットされていれば描画する */
+	if (layer_image[layer] != NULL) {
+		render_image(layer_x[layer],
+			     layer_y[layer],
+			     layer_image[layer],
+			     get_image_width(layer_image[layer]),
+			     get_image_height(layer_image[layer]),
+			     0,
+			     0,
+			     layer_alpha[layer],
+			     layer_blend[layer]);
+	}
+}
+
 /* レイヤを描画する */
 static void draw_layer_image(struct image *target, int layer)
 {
@@ -2359,6 +2369,33 @@ static void draw_layer_image(struct image *target, int layer)
 			   0,
 			   layer_alpha[layer],
 			   layer_blend[layer]);
+	}
+}
+
+/* レイヤの矩形をレンダリングする */
+static void render_layer_image_rect(int layer, int x, int y, int w, int h)
+{
+	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
+
+	/* 背景イメージがセットされていなければクリアする */
+	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
+		if (conf_window_white) {
+			render_clear(x, y, conf_window_width,
+				     conf_window_height,
+				     make_pixel(0xff, 0xff, 0xff, 0xff));
+		} else {
+			render_clear(x, y, conf_window_width,
+				     conf_window_height,
+				     make_pixel(0, 0, 0, 0));
+		}
+		return;
+	}
+
+	/* その他のレイヤはイメージがセットされていれば描画する */
+	if (layer_image[layer] != NULL) {
+		render_image(x, y, layer_image[layer], w, h,
+			     x - layer_x[layer], y - layer_y[layer],
+			     layer_alpha[layer], layer_blend[layer]);
 	}
 }
 

@@ -799,6 +799,37 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 /*
+ * イメージをレンダリングする
+ */
+void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
+                  int width, int height, int src_left, int src_top, int alpha,
+                  int bt)
+{
+	draw_image(BackImage, dst_left, dst_top, src_image, width, height,
+			   src_left, src_top, alpha, bt);
+}
+
+/*
+ * イメージをマスク描画でレンダリングする
+ */
+void render_image_mask(int dst_left, int dst_top,
+                       struct image * RESTRICT src_image,
+                       int width, int height, int src_left, int src_top,
+                       int mask)
+{
+	draw_image_mask(BackImage, dst_left, dst_top, src_image, width, height,
+					src_left, src_top, mask);
+}
+
+/*
+ * 画面をクリアする
+ */
+void render_clear(int left, int top, int width, int height, pixel_t color)
+{
+	clear_image_color_rect(BackImage, left, top, width, height, color);
+}
+
+/*
  * セーブディレクトリを作成する
  */
 bool make_sav_dir(void)
