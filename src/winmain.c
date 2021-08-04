@@ -726,7 +726,7 @@ static void ResetDisplayMode(void)
 /* ウィンドウの内容を更新する */
 static void OnPaint(void)
 {
-#if USE_DIRECT3D
+#if !USE_DIRECT3D
 	PAINTSTRUCT ps;
 	HDC hDC;
 
