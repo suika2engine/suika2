@@ -412,7 +412,7 @@ static void GameLoop(void)
 		D3DEndFrame();
 #else
 		/* バックイメージのアンロックを行う */
-		lock_image(BackImage);
+		unlock_image(BackImage);
 
 		/* 描画を反映する */
 		if(w !=0 && h !=0)
