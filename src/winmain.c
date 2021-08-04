@@ -30,6 +30,9 @@
 #define WM_MOUSEWHEEL	0x020A
 #endif
 
+/* Direct3Dを使うか */
+#define USE_DIRECT3D	(0)
+
 /* ウィンドウタイトルのバッファサイズ */
 #define TITLE_BUF_SIZE	(1024)
 
@@ -90,9 +93,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL OpenLogFile(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
-static BOOL CreateBackImage(void);
 static void GameLoop(void);
-static void SyncBackImage(int x, int y, int w, int h);
 static BOOL SyncEvents(void);
 static BOOL WaitForNextFrame();
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
@@ -102,6 +103,10 @@ static void ToggleFullScreen(void);
 static void ChangeDisplayMode(void);
 static void ResetDisplayMode(void);
 static void OnPaint(void);
+#if !USE_DIRECT3D
+static BOOL CreateBackImage(void);
+static void SyncBackImage(int x, int y, int w, int h);
+#endif
 
 /*
  * WinMain
@@ -163,17 +168,21 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if(!InitWindow(hInstance, nCmdShow))
 		return FALSE;
 
+#if USE_DIRECT3D
 	/* Direct3Dを初期化する */
 	if(!D3DInitialize(hWndMain))
 		return FALSE;
+#endif
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
 		return FALSE;
 
+#if !USE_DIRECT3D
 	/* バックイメージを作成する */
 	if(!CreateBackImage())
 		return FALSE;
+#endif
 
 	return TRUE;
 }
@@ -200,6 +209,10 @@ static void CleanupApp(void)
 	/* バックイメージを破棄する */
 	if(BackImage != NULL)
 		destroy_image(BackImage);
+
+#if USE_DIRECT3D
+	D3DCleanup();
+#endif
 
 	/* DirectSoundの終了処理を行う */
 	DSCleanup();
@@ -319,6 +332,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
+#if !USE_DIRECT3D
 /* バックイメージを作成する */
 static BOOL CreateBackImage(void)
 {
@@ -354,6 +368,7 @@ static BOOL CreateBackImage(void)
 
 	return TRUE;
 }
+#endif
 
 /* ゲームループを実行する */
 static void GameLoop(void)
@@ -368,13 +383,23 @@ static void GameLoop(void)
 	dwStartTime = GetTickCount();
 	while(TRUE)
 	{
+#if USE_DIRECT3D
+		/* フレームの描画を開始する */
+		D3DStartFrame();
+#endif
+
 		/* 描画を行う */
 		if(!on_event_frame(&x, &y, &w, &h))
 			break;	/* スクリプトの終端に達した */
 
+#if USE_DIRECT3D
+		/* フレームの描画を終了する */
+		D3DEndFrame();
+#else
 		/* 描画を反映する */
 		if(w !=0 && h !=0)
 			SyncBackImage(x, y, w, h);
+#endif
 
 		/* 次の描画までスリープする */
 		if(!WaitForNextFrame())
@@ -385,11 +410,13 @@ static void GameLoop(void)
 	}
 }
 
+#if! USE_DIRECT3D
 /* ウィンドウにバックイメージを転送する */
 static void SyncBackImage(int x, int y, int w, int h)
 {
 	BitBlt(hWndDC, x + nOffsetX, y + nOffsetY, w, h, hBitmapDC, x, y, SRCCOPY);
 }
+#endif
 
 /* キューにあるイベントを処理する */
 static BOOL SyncEvents(void)
@@ -678,6 +705,7 @@ static void ResetDisplayMode(void)
 /* ウィンドウの内容を更新する */
 static void OnPaint(void)
 {
+#if USE_DIRECT3D
 	PAINTSTRUCT ps;
 	HDC hDC;
 
@@ -692,6 +720,7 @@ static void OnPaint(void)
 		   ps.rcPaint.top - nOffsetY,
 		   SRCCOPY);
 	EndPaint(hWndMain, &ps);
+#endif
 }
 
 /*
@@ -799,14 +828,75 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 /*
+ * テクスチャをロックする
+ */
+bool lock_texture(int width, int height, pixel_t *pixels,
+				  pixel_t **locked_pixels, void **texture)
+{
+#if USE_DIRECT3D
+	if (!D3DLockTexture(width, height, pixels, locked_pixels, texture))
+		return false;
+
+	return true;
+#else
+	assert(*locked_pixels == NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = pixels;
+
+    return true;
+#endif
+}
+
+/*
+ * テクスチャをアンロックする
+ */
+void unlock_texture(int width, int height, pixel_t *pixels,
+					pixel_t **locked_pixels, void **texture)
+{
+#if USE_DIRECT3D
+	D3DUnlockTexture(width, height, pixels, locked_pixels, texture);
+#else
+	assert(*locked_pixels != NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(pixels);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = NULL;
+#endif
+}
+
+/*
+ * テクスチャを破棄する
+ */
+void destroy_texture(void *texture)
+{
+#if USE_DIRECT3D
+	D3DDestroyTexture(texture);
+#else
+    UNUSED_PARAMETER(texture);
+#endif
+}
+
+/*
  * イメージをレンダリングする
  */
 void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
+#if USE_DIRECT3D
+	D3DRenderImage(dst_left, dst_top, src_image, width, height,
+				   src_left, src_top, alpha, bt);
+#else
 	draw_image(BackImage, dst_left, dst_top, src_image, width, height,
 			   src_left, src_top, alpha, bt);
+#endif
 }
 
 /*
@@ -817,8 +907,13 @@ void render_image_mask(int dst_left, int dst_top,
                        int width, int height, int src_left, int src_top,
                        int mask)
 {
+#if USE_DIRECT3D
+	D3DRenderImageMask(dst_left, dst_top, src_image, width, height,
+					   src_left, src_top, mask);
+#else
 	draw_image_mask(BackImage, dst_left, dst_top, src_image, width, height,
 					src_left, src_top, mask);
+#endif
 }
 
 /*
@@ -826,7 +921,11 @@ void render_image_mask(int dst_left, int dst_top,
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
+#if USE_DIRECT3D
+	D3DRenderClear(left, top, width, height, color);
+#else
 	clear_image_color_rect(BackImage, left, top, width, height, color);
+#endif
 }
 
 /*

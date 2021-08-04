@@ -17,6 +17,7 @@
  *  2021-03-22 Visual Studio 2019対応
  *  2021-06-05 色指定のイメージ作成に対応
  *  2021-06-10 マスクつき描画に対応
+ *  2021-08-04 Direct3Dに対応
  */
 
 #ifdef _MSC_VER
@@ -45,11 +46,15 @@ struct image {
 	ALIGN_DECL(SSE_ALIGN, pixel_t * RESTRICT pixels);
 #endif
 	bool need_free;			/* pixelsを解放する必要があるか */
+	pixel_t *locked_pixels;		/* ロック済みのピクセル列 */
+	void *texture;			/* テクスチャへのポインタ */
 };
 
 /*
  * 前方参照
  */
+
+static struct image *create_image_helper(int w, int h);
 static bool clip_by_source(int src_cx, int src_cy, int *cx, int *cy,
 			   int *dst_x, int *dst_y, int *src_x, int *src_y);
 static bool clip_by_dest(int dst_cx, int dst_cy, int *cx, int *cy, int *dst_x,
@@ -82,6 +87,20 @@ static void draw_blend_sub(struct image * RESTRICT dst_image, int dst_left,
  * イメージを作成する
  */
 struct image *create_image(int w, int h)
+{
+	struct image *img;
+
+	/* イメージを作成する */
+	img = create_image_helper(w, h);
+	if (img == NULL)
+		return NULL;
+
+	/* 成功 */
+	return img;
+}
+
+/* イメージを作成する */
+static struct image *create_image_helper(int w, int h)
 {
 	struct image *img;
 	pixel_t *pixels;
@@ -125,8 +144,9 @@ struct image *create_image(int w, int h)
 	img->height = h;
 	img->pixels = pixels;
 	img->need_free = true;
+	img->locked_pixels = NULL;
+	img->texture = NULL;
 
-	/* 成功 */
 	return img;
 }
 
@@ -152,6 +172,7 @@ struct image *create_image_with_pixels(int w, int h, pixel_t *buf)
 	img->height = h;
 	img->pixels = buf;
 	img->need_free = false;
+	img->locked_pixels = NULL;
 
 	/* 成功 */
 	return img;
@@ -168,7 +189,7 @@ struct image *create_image_from_color_string(int w, int h, const char *color)
 	int rgb;
 
 	/* イメージを作成する */
-	img = create_image(w, h);
+	img = create_image_helper(w, h);
 	if (img == NULL)
 		return NULL;
 
@@ -193,10 +214,14 @@ void destroy_image(struct image *img)
 	assert(img != NULL);
 	assert(img->width > 0 && img->height > 0);
 	assert(img->pixels != NULL);
+	assert(img->locked_pixels == NULL);
+
+	/* テクスチャを削除する */
+	destroy_texture(img->texture);
 
 	/* ピクセル列のメモリを解放する */
 	if (img->need_free) {
-#if defined(SSE_VERSIONING) && defined(_WIN32)
+#if defined(SSE_VERSIONING) && defined(WIN)
 		_aligned_free(img->pixels);
 #else
 		free(img->pixels);
@@ -208,19 +233,57 @@ void destroy_image(struct image *img)
 	free(img);
 }
 
-/* ピクセルへのポインタを取得する */
+/*
+ * ロック操作
+ */
+
+/*
+ * イメージをロックする
+ */
+bool lock_image(struct image *img)
+{
+	if (!lock_texture(img->width, img->height, img->pixels,
+			  &img->locked_pixels, &img->texture))
+		return false;
+
+	return true;
+}
+
+/*
+ * イメージをアンロックする
+ */
+void unlock_image(struct image *img)
+{
+	unlock_texture(img->width, img->height, img->pixels,
+		       &img->locked_pixels, &img->texture);
+}
+
+/*
+ * 情報の取得
+ */
+
+/*
+ * ピクセルへのポインタを取得する
+ */
 pixel_t *get_image_pixels(struct image *img)
 {
+	if (img->locked_pixels != NULL)
+		return img->locked_pixels;
+
 	return img->pixels;
 }
 
-/* イメージの幅を取得する */
+/*
+ * イメージの幅を取得する
+ */
 int get_image_width(struct image *img)
 {
 	return img->width;
 }
 
-/* イメージの高さを取得する */
+/*
+ * イメージの高さを取得する
+ */
 int get_image_height(struct image *img)
 {
 	assert(img != NULL);
@@ -229,10 +292,24 @@ int get_image_height(struct image *img)
 }
 
 /*
+ * テクスチャを取得する
+ */
+void *get_texture_object(struct image *img)
+{
+	return img->texture;
+}
+
+/*
+ * クリア
+ */
+
+/*
  * イメージを黒色でクリアする
  */
 void clear_image_black(struct image *img)
 {
+	assert(img->locked_pixels != NULL);
+
 	clear_image_color_rect(img, 0, 0, img->width, img->height,
 			       make_pixel(0xff, 0, 0, 0));
 }
@@ -242,6 +319,8 @@ void clear_image_black(struct image *img)
  */
 void clear_image_black_rect(struct image *img, int x, int y, int w, int h)
 {
+	assert(img->locked_pixels != NULL);
+
 	clear_image_color_rect(img, x, y, w, h, make_pixel(0xff, 0, 0, 0));
 }
 
@@ -250,6 +329,8 @@ void clear_image_black_rect(struct image *img, int x, int y, int w, int h)
  */
 void clear_image_white(struct image *img)
 {
+	assert(img->locked_pixels != NULL);
+
 	clear_image_color_rect(img, 0, 0, img->width, img->height,
 			       make_pixel(0xff, 0xff, 0xff, 0xff));
 }
@@ -259,6 +340,8 @@ void clear_image_white(struct image *img)
  */
 void clear_image_white_rect(struct image *img, int x, int y, int w, int h)
 {
+	assert(img->locked_pixels != NULL);
+
 	clear_image_color_rect(img, x, y, w, h,
 			       make_pixel(0xff, 0xff, 0xff, 0xff));
 }
@@ -268,6 +351,8 @@ void clear_image_white_rect(struct image *img, int x, int y, int w, int h)
  */
 void clear_image_color(struct image *img, pixel_t color)
 {
+	assert(img->locked_pixels != NULL);
+
 	clear_image_color_rect(img, 0, 0, img->width, img->height, color);
 }
 
@@ -286,6 +371,7 @@ void clear_image_color_rect(struct image *img, int x, int y, int w, int h,
 	assert(w >= 0 && x + w <= img->width);
 	assert(y >= 0 && y < img->height);
 	assert(h >= 0 && y + h <= img->height);
+	assert(img->locked_pixels != NULL);
 
 	/* ピクセル列の矩形をクリアする */
 	for (i = y; i < y + h; i++)
@@ -315,6 +401,7 @@ void draw_image(struct image * RESTRICT dst_image, int dst_left, int dst_top,
 	assert(width >= 0 && height >= 0);
 	assert(bt == BLEND_NONE || bt == BLEND_FAST || bt == BLEND_NORMAL ||
 	       bt == BLEND_ADD || bt == BLEND_SUB);
+	assert(dst_image->locked_pixels != NULL);
 
 	/* 描画の必要があるか判定する */
 	if(alpha == 0 || width == 0 || height == 0)
@@ -513,7 +600,7 @@ static bool clip_by_dest(
  *  -- sse41.c ... Core 2 (Penryn)
  *  -- sse42.c ... Core i (Nehalem)
  *  -- avx.c ... Core i (Sandy Bridge)
- *  -- avx2.c ... Core i (Hasswell)
+ *  -- avx2.c ... Core i (Haswell)
  *  - MMXの最適化はgcc/clangにないし、需要もないので、ベクトル化なしとした
  *  - Mac向けではIntelでSSE3, Apple SiliconでNEONが固定で使われる
  */
@@ -625,9 +712,9 @@ static bool clip_by_dest(
  * 描画関数のディスパッチ
  */
 
-void draw_blend_none(struct image *dst_image, int dst_left, int dst_top,
-		     struct image *src_image, int width, int height,
-		     int src_left, int src_top)
+static void draw_blend_none(struct image *dst_image, int dst_left, int dst_top,
+			    struct image *src_image, int width, int height,
+			    int src_left, int src_top)
 {
 	if (has_avx512) {
 		draw_blend_none_avx512(dst_image, dst_left, dst_top, src_image,
@@ -661,9 +748,9 @@ void draw_blend_none(struct image *dst_image, int dst_left, int dst_top,
 	}
 }
 
-void draw_blend_fast(struct image *dst_image, int dst_left, int dst_top,
-		     struct image *src_image, int width, int height,
-		     int src_left, int src_top, int alpha)
+static void draw_blend_fast(struct image *dst_image, int dst_left, int dst_top,
+			    struct image *src_image, int width, int height,
+			    int src_left, int src_top, int alpha)
 {
 	if (has_avx512) {
 		draw_blend_fast_avx512(dst_image, dst_left, dst_top, src_image,
@@ -699,9 +786,9 @@ void draw_blend_fast(struct image *dst_image, int dst_left, int dst_top,
 	}
 }
 
-void draw_blend_normal(struct image *dst_image, int dst_left, int dst_top,
-		       struct image *src_image, int width, int height,
-		       int src_left, int src_top, int alpha)
+static void draw_blend_normal(struct image *dst_image, int dst_left,
+			      int dst_top, struct image *src_image, int width,
+			      int height, int src_left, int src_top, int alpha)
 {
 	if (has_avx512) {
 		draw_blend_normal_avx512(dst_image, dst_left, dst_top,
@@ -744,9 +831,9 @@ void draw_blend_normal(struct image *dst_image, int dst_left, int dst_top,
 	}
 }
 
-void draw_blend_add(struct image *dst_image, int dst_left, int dst_top,
-		     struct image *src_image, int width, int height,
-		     int src_left, int src_top, int alpha)
+static void draw_blend_add(struct image *dst_image, int dst_left, int dst_top,
+			   struct image *src_image, int width, int height,
+			   int src_left, int src_top, int alpha)
 {
 	if (has_avx512) {
 		draw_blend_add_avx512(dst_image, dst_left, dst_top, src_image,
@@ -780,9 +867,9 @@ void draw_blend_add(struct image *dst_image, int dst_left, int dst_top,
 	}
 }
 
-void draw_blend_sub(struct image *dst_image, int dst_left, int dst_top,
-		    struct image *src_image, int width, int height,
-		    int src_left, int src_top, int alpha)
+static void draw_blend_sub(struct image *dst_image, int dst_left, int dst_top,
+			   struct image *src_image, int width, int height,
+			   int src_left, int src_top, int alpha)
 {
 	if (has_avx512) {
 		draw_blend_sub_avx512(dst_image, dst_left, dst_top, src_image,
@@ -880,6 +967,7 @@ void draw_image_mask(
 	assert(dst_left == src_left && dst_top == src_top);
 	assert(dst_image->width == width && dst_image->height == height);
 	assert(src_image->width == width && src_image->height == height);
+	assert(dst_image->locked_pixels != NULL);
 
 	sw = get_image_width(src_image);
 	dw = get_image_width(dst_image);

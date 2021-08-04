@@ -106,8 +106,11 @@ static bool create_back_image(void)
 		return false;
 
 	/* 初期状態でバックイメージを白く塗り潰す */
-	if (conf_window_white)
+	if (conf_window_white) {
+		lock_image(back_image);
 		clear_image_white(back_image);
+		unlock_image(back_image);
+	}
 
 	return true;
 }
@@ -125,6 +128,9 @@ static EM_BOOL loop_iter(double time, void * userData)
 	/* サウンドの処理を行う */
 	fill_sound_buffer();
 
+	/* バックイメージをロックする */
+	lock_image(back_image);
+
 	/* フレームイベントを呼び出す */
 	x = y = w = h = 0;
 	if (!on_event_frame(&x, &y, &w, &h)) {
@@ -136,6 +142,9 @@ static EM_BOOL loop_iter(double time, void * userData)
 		/* スクリプトの終端に達した */
 		EM_FALSE;
 	}
+
+	/* バックイメージをアンロックする */
+	unlock_image(back_image);
 
 	/* 描画を行わない場合 */
 	if (w == 0 || h == 0)
@@ -435,6 +444,78 @@ bool log_error(const char *s, ...)
 const char *conv_utf8_to_native(const char *utf8_message)
 {
 	return utf8_message;
+}
+
+/*
+ * テクスチャをロックする
+ */
+bool lock_texture(int width, int height, pixel_t *pixels,
+				  pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels == NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = pixels;
+
+	return true;
+}
+
+/*
+ * テクスチャをアンロックする
+ */
+void unlock_texture(int width, int height, pixel_t *pixels,
+					pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels != NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(pixels);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = NULL;
+}
+
+/*
+ * テクスチャを破棄する
+ */
+void destroy_texture(void *texture)
+{
+	UNUSED_PARAMETER(texture);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
+                  int width, int height, int src_left, int src_top, int alpha,
+                  int bt)
+{
+	draw_image(back_image, dst_left, dst_top, src_image, width, height,
+		   src_left, src_top, alpha, bt);
+}
+
+/*
+ * イメージをマスク描画でレンダリングする
+ */
+void render_image_mask(int dst_left, int dst_top,
+                       struct image * RESTRICT src_image,
+                       int width, int height, int src_left, int src_top,
+                       int mask)
+{
+	draw_image_mask(back_image, dst_left, dst_top, src_image, width,
+			height, src_left, src_top, mask);
+}
+
+/*
+ * 画面をクリアする
+ */
+void render_clear(int left, int top, int width, int height, pixel_t color)
+{
+	clear_image_color_rect(back_image, left, top, width, height, color);
 }
 
 /*

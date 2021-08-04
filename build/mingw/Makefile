@@ -67,7 +67,6 @@ LDFLAGS = \
 	-lole32 \
 	-ldxguid \
 	-ldsound \
-	-ld3d9 \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 
@@ -81,8 +80,8 @@ SRCS_C = \
 	../../src/winmain.c \
 	../../src/dsound.c
 
-SRCS_CC = \
-	../../src/d3drender.cc
+# SRCS_CC = \
+# 	../../src/d3drender.cc
 
 SRCS_R = res/resource.rc
 

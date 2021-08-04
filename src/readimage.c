@@ -96,10 +96,15 @@ static bool read_image_file(const char *dir, const char *file)
 	if (image == NULL)
 		return false;
 
+	lock_image(image);
+
 	if (!read_body()) {
 		log_image_file_error(dir, file);
+		unlock_image(image);
 		return false;
 	}
+
+	unlock_image(image);
 
 	return true;
 }

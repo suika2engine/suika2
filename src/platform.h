@@ -37,6 +37,17 @@ bool make_sav_dir(void);
 /* データのディレクトリ名とファイル名を指定して有効なパスを取得する */
 char *make_valid_path(const char *dir, const char *fname);
 
+/* テクスチャをロックする */
+bool lock_texture(int width, int height, pixel_t *pixels,
+		  pixel_t **locked_pixels, void **texture);
+
+/* テクスチャをアンロックする */
+void unlock_texture(int width, int height, pixel_t *pixels,
+		    pixel_t **locked_pixels, void **texture);
+
+/* テクスチャを破棄する */
+void destroy_texture(void *texture);
+
 /* 画面にイメージをレンダリングする */
 void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 		  int width, int height, int src_left, int src_top, int alpha,

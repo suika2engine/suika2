@@ -128,17 +128,26 @@ struct image *create_image_from_color_string(int w, int h, const char *color);
 /* イメージを削除する */
 void destroy_image(struct image *img);
 
+/* イメージをロックする */
+bool lock_image(struct image *img);
+
+/* イメージをアンロックする */
+void unlock_image(struct image *img);
+
 /* ピクセルへのポインタを取得する(for glyph.c) */
 pixel_t *get_image_pixels(struct image *img);
-
-/* イメージに関連付けられたオブジェクトを取得する(for NDK, iOS) */
-void *get_image_object(struct image *img);
 
 /* イメージの幅を取得する */
 int get_image_width(struct image *img);
 
 /* イメージの高さを取得する */
 int get_image_height(struct image *img);
+
+/* テクスチャを取得する */
+void *get_texture_object(struct image *img);
+
+/* イメージに関連付けられたオブジェクトを取得する(for NDK, iOS) */
+void *get_image_object(struct image *img);
 
 /* イメージを黒色でクリアする */
 void clear_image_black(struct image *img);

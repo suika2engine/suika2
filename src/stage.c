@@ -1467,18 +1467,22 @@ void start_bg_fade(struct image *img)
 	stage_mode = STAGE_MODE_BG_FADE;
 
 	/* フェードアウト用のレイヤにステージを描画する */
+	lock_image(layer_image[LAYER_FO]);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FO]);
 
 	/* フェードイン用のレイヤにイメージをセットする */
 	new_bg_img = img;
 
 	/* フェードイン用のレイヤに背景を描画する */
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, img, conf_window_width,
 		   conf_window_width, 0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 
 	/* 無効になるレイヤのイメージを破棄する */
 	destroy_layer_image(LAYER_BG);
@@ -1632,11 +1636,13 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	stage_mode = STAGE_MODE_CH_FADE;
 
 	/* キャラフェードアウトレイヤにステージを描画する */
+	lock_image(layer_image[LAYER_FO]);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
 	layer = pos_to_layer(pos);
@@ -1647,11 +1653,13 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	layer_y[layer] = y;
 
 	/* キャラフェードインレイヤにステージを描画する */
+	lock_image(layer_image[LAYER_FI]);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /* キャラの位置をレイヤインデックスに変換する */
@@ -1685,11 +1693,13 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 	stage_mode = STAGE_MODE_CH_FADE;
 
 	/* キャラフェードアウトレイヤにステージを描画する */
+	lock_image(layer_image[LAYER_FO]);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
 	for (i = 0; i < CH_LAYERS; i++) {
@@ -1708,11 +1718,13 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 		layer_image[LAYER_BG] = img[CH_LAYERS];
 
 	/* キャラフェードインレイヤにステージを描画する */
+	lock_image(layer_image[LAYER_FI]);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -1838,11 +1850,13 @@ void start_shake(void)
 	stage_mode = STAGE_MODE_SHAKE;
 
 	/* フェードアウト用のレイヤにステージを描画する */
+	lock_image(layer_image[LAYER_FO]);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FO]);
 }
 
 /* 画面揺らしモードの表示オフセットを設定する */
@@ -1885,10 +1899,12 @@ void clear_namebox(void)
 	if (namebox_image == NULL)
 		return;
 
+	lock_image(layer_image[LAYER_NAME]);
 	draw_image(layer_image[LAYER_NAME], 0, 0, namebox_image,
 		   get_image_width(layer_image[LAYER_NAME]),
 		   get_image_height(layer_image[LAYER_NAME]),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_NAME]);
 }
 
 /*
@@ -1936,10 +1952,12 @@ void clear_msgbox(void)
 	if (msgbox_bg_image == NULL)
 		return;
 
+	lock_image(layer_image[LAYER_MSG]);
 	draw_image(layer_image[LAYER_MSG], 0, 0, msgbox_bg_image,
 		   get_image_width(layer_image[LAYER_MSG]),
 		   get_image_height(layer_image[LAYER_MSG]),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_MSG]);
 }
 
 /*
@@ -1950,8 +1968,10 @@ void clear_msgbox_rect_with_bg(int x, int y, int w, int h)
 	if (msgbox_bg_image == NULL)
 		return;
 
+	lock_image(layer_image[LAYER_MSG]);
 	draw_image(layer_image[LAYER_MSG], x, y, msgbox_bg_image, w, h, x, y,
 		   255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_MSG]);
 }
 
 /*
@@ -1962,8 +1982,10 @@ void clear_msgbox_rect_with_fg(int x, int y, int w, int h)
 	if (msgbox_fg_image == NULL)
 		return;
 
+	lock_image(layer_image[LAYER_MSG]);
 	draw_image(layer_image[LAYER_MSG], x, y, msgbox_fg_image, w, h, x, y,
 		   255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_MSG]);
 }
 
 /*
@@ -1983,7 +2005,9 @@ int draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
 {
 	int w, h;
 
+	lock_image(layer_image[LAYER_MSG]);
 	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, &w, &h);
+	unlock_image(layer_image[LAYER_MSG]);
 
 	return h;
 }
@@ -2031,12 +2055,14 @@ void get_selbox_rect(int *x, int *y, int *w, int *h)
  */
 void clear_selbox(int fg_x, int fg_y, int fg_w, int fg_h)
 {
+	lock_image(layer_image[LAYER_SEL]);
 	draw_image(layer_image[LAYER_SEL], 0, 0, selbox_bg_image,
 		   get_image_width(layer_image[LAYER_SEL]),
 		   get_image_height(layer_image[LAYER_SEL]),
 		   0, 0, 255, BLEND_NONE);
 	draw_image(layer_image[LAYER_SEL], fg_x, fg_y, selbox_fg_image, fg_w,
 		   fg_h, fg_x, fg_y, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_SEL]);
 }
 
 /*
@@ -2063,7 +2089,9 @@ int draw_char_on_selbox(int x, int y, uint32_t wc)
 				   (pixel_t)conf_font_outline_color_g,
 				   (pixel_t)conf_font_outline_color_b);
 
+	lock_image(layer_image[LAYER_SEL]);
 	draw_char_on_layer(LAYER_SEL, x, y, wc, color, outline_color, &w, &h);
+	unlock_image(layer_image[LAYER_SEL]);
 
 	return w;
 }
@@ -2093,10 +2121,12 @@ void get_switch_rect(int index, int *x, int *y, int *w, int *h)
  */
 void draw_switch_bg_image(int x, int y)
 {
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], x, y, switch_bg_image,
 		   get_image_width(switch_bg_image),
 		   get_image_height(switch_bg_image),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2104,10 +2134,12 @@ void draw_switch_bg_image(int x, int y)
  */
 void draw_switch_fg_image(int x, int y)
 {
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], x, y, switch_fg_image,
 		   get_image_width(switch_fg_image),
 		   get_image_height(switch_fg_image),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2160,10 +2192,12 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
  */
 void draw_news_bg_image(int x, int y)
 {
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], x, y, news_bg_image,
 		   get_image_width(news_bg_image),
 		   get_image_height(news_bg_image),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2171,10 +2205,12 @@ void draw_news_bg_image(int x, int y)
  */
 void draw_news_fg_image(int x, int y)
 {
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], x, y, news_fg_image,
 		   get_image_width(news_fg_image),
 		   get_image_height(news_fg_image),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2186,14 +2222,19 @@ void draw_news_fg_image(int x, int y)
  */
 void clear_save_stage(void)
 {
+	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], 0, 0, save_bg_image,
 		   get_image_width(layer_image[LAYER_FO]),
 		   get_image_height(layer_image[LAYER_FO]),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FO]);
+
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, save_fg_image,
 		   get_image_width(layer_image[LAYER_FI]),
 		   get_image_height(layer_image[LAYER_FI]),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2201,14 +2242,19 @@ void clear_save_stage(void)
  */
 void clear_load_stage(void)
 {
+	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], 0, 0, load_bg_image,
 		   get_image_width(layer_image[LAYER_FO]),
 		   get_image_height(layer_image[LAYER_FO]),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FO]);
+
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, load_fg_image,
 		   get_image_width(layer_image[LAYER_FI]),
 		   get_image_height(layer_image[LAYER_FI]),
 		   0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /* FO/FIの2レイヤに文字を描画する */
@@ -2224,8 +2270,13 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc)
 				   (pixel_t)conf_font_outline_color_g,
 				   (pixel_t)conf_font_outline_color_b);
 
+	lock_image(layer_image[LAYER_FO]);
 	draw_char_on_layer(LAYER_FO, x, y, wc, color, outline_color, &w, &h);
+	unlock_image(layer_image[LAYER_FO]);
+
+	lock_image(layer_image[LAYER_FI]);
 	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, &w, &h);
+	unlock_image(layer_image[LAYER_FI]);
 
 	return w;
 }
@@ -2239,8 +2290,10 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc)
  */
 void draw_image_to_fo(struct image *img)
 {
+	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], 0, 0, img, get_image_width(img),
 		   get_image_height(img), 0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2248,8 +2301,10 @@ void draw_image_to_fo(struct image *img)
  */
 void draw_image_to_fi(struct image *img)
 {
+	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, img, get_image_width(img),
 		   get_image_height(img), 0, 0, 255, BLEND_NONE);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2257,7 +2312,9 @@ void draw_image_to_fi(struct image *img)
  */
 void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color)
 {
+	lock_image(layer_image[LAYER_FO]);
 	clear_image_color_rect(layer_image[LAYER_FO], x, y, w, h, color);
+	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2269,6 +2326,7 @@ void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color)
  */
 void draw_history_fo(void)
 {
+	lock_image(layer_image[LAYER_FO]);
 	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_BG, 0, 0,
 			      conf_window_width, conf_window_height);
 	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHB, 0, 0,
@@ -2279,6 +2337,7 @@ void draw_history_fo(void)
 			      conf_window_width, conf_window_height);
 	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHC, 0, 0,
 			      conf_window_width, conf_window_height);
+	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2286,7 +2345,9 @@ void draw_history_fo(void)
  */
 void draw_history_fi(pixel_t color)
 {
+	lock_image(layer_image[LAYER_FI]);
 	clear_image_color(layer_image[LAYER_FI], color);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2303,7 +2364,9 @@ void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
 				   (pixel_t)conf_font_outline_color_g,
 				   (pixel_t)conf_font_outline_color_b);
 
+	lock_image(layer_image[LAYER_FI]);
 	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, w, h);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*

@@ -16,7 +16,6 @@
 
 #import "suika.h"
 #import "aunit.h"
-#import "softrender.h"
 
 #ifdef SSE_VERSIONING
 #import "x86.h"
@@ -199,8 +198,11 @@ static BOOL initBackImage(void)
 
     backImage = create_image_with_pixels(conf_window_width, conf_window_height,
                                          (pixel_t *)backImagePixels);
-	if(conf_window_white)
+	if(conf_window_white) {
+        lock_image(backImage);
 		clear_image_white(backImage);
+        unlock_image(backImage);
+    }
 
     return YES;
 }
@@ -449,6 +451,38 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 //
+// テクスチャをロックする
+//
+bool lock_texture(int width, int height, pixel_t *pixels,
+                  pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels == NULL);
+
+	*locked_pixels = pixels;
+
+    return true;
+}
+
+//
+// テクスチャをアンロックする
+//
+void unlock_texture(int width, int height, pixel_t *pixels,
+                    pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels != NULL);
+
+	*locked_pixels = NULL;
+}
+
+//
+// テクスチャを破棄する
+//
+void destroy_texture(void *texture)
+{
+    UNUSED_PARAMETER(texture);
+}
+
+//
 // イメージをレンダリングする
 //
 void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
@@ -564,6 +598,7 @@ bool title_dialog(void)
 
     // フレーム描画イベントを実行する
     int x = 0, y = 0, w = 0, h = 0;
+    lock_image(backImage);
     if (!on_event_frame(&x, &y, &w, &h)) {
         // グローバルデータを保存する
         save_global_data();
@@ -574,7 +609,8 @@ bool title_dialog(void)
         [NSApp terminate:nil];
         return;
     }
-    
+    unlock_image(backImage);
+
     // 描画範囲があればウィンドウへの再描画を行う
     if (w != 0 && h != 0)
         [self setNeedsDisplay:YES];
