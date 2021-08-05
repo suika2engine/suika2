@@ -24,14 +24,16 @@ extern "C" {
 #include <d3d9.h>
 
 // テクスチャなし座標変換済み頂点
-struct VertexRHWColor {
+struct VertexRHW {
 	float x, y, z, rhw;
 	DWORD color;
 };
 
 // テクスチャあり座標変換済み頂点
 struct VertexRHWTex {
-	float x, y, z, rhw, u, v;
+	float x, y, z, rhw;
+	DWORD color;
+	float u, v;
 };
 
 // Direct3Dオブジェクト
@@ -65,7 +67,7 @@ BOOL D3DInitialize(HWND hWnd)
 								 &pD3DDevice);
     if(FAILED(hResult))
     {
-        hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF,
+		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF,
 									 hWnd, D3DCREATE_MIXED_VERTEXPROCESSING,
 									 &d3dpp, &pD3DDevice);
 		if(FAILED(hResult))
@@ -177,15 +179,6 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)get_texture_object(src_image);
 	assert(pTex != NULL);
 
-	UNUSED_PARAMETER(dst_left);
-	UNUSED_PARAMETER(dst_top);
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(src_left);
-	UNUSED_PARAMETER(src_top);
-	UNUSED_PARAMETER(alpha);
-	UNUSED_PARAMETER(bt);
-
 	/* 描画の必要があるか判定する */
 	if(alpha == 0 || width == 0 || height == 0)
 		return;	/* 描画の必要がない*/
@@ -200,46 +193,76 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	float img_w = (float)get_image_width(src_image);
 	float img_h = (float)get_image_height(src_image);
 
-	VertexRHWTex vtx[4] = {
-		{(float)dst_left, (float)dst_top, 0.0f, 1.0f, (float)src_left/img_w, (float)src_top/img_h},
-		{(float)(dst_left + width - 1), (float)dst_top, 0.0f, 1.0f, (float)(src_left + width)/img_w, (float)src_top/img_h},
-		{(float)dst_left, (float)(dst_top + height - 1), 0.0f, 1.0f, (float)src_left/img_w, (float)(src_top+height)/img_h},
-		{(float)(dst_left + width - 1), (float)(dst_top + height - 1), 0.0f, 1.0f, (float)(src_left + width)/img_w, (float)(src_top + height)/img_h},
-	};
+	VertexRHWTex v[4];
+	v[0].x = (float)dst_left;
+	v[0].y = (float)dst_top;
+	v[0].z = 0.0f;
+	v[0].rhw = 1.0f;
+	v[0].u = (float)src_left / img_w;
+	v[0].v = (float)src_top / img_h;
+	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
+	v[1].x = (float)(dst_left + width - 1);
+	v[1].y = (float)dst_top;
+	v[1].z = 0.0f;
+	v[1].rhw = 1.0f;
+	v[1].u = (float)(src_left + width) / img_w;
+	v[1].v = (float)src_top / img_h;
+	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
+	v[2].x = (float)dst_left;
+	v[2].y = (float)(dst_top + height - 1);
+	v[2].z = 0.0f;
+	v[2].rhw = 1.0f;
+	v[2].u = (float)src_left / img_w;
+	v[2].v = (float)(src_top + height) / img_h;
+	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
+	v[3].x = (float)(dst_left + width - 1);
+	v[3].y = (float)(dst_top + height - 1);
+	v[3].z = 0.0f;
+	v[3].rhw = 1.0f;
+	v[3].u = (float)(src_left + width) / img_w;
+	v[3].v = (float)(src_top + height) / img_h;
+	v[3].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
-	// VertexRHWTex vtx[4] = {
-	// 	{(float)dst_left, (float)dst_top, 0.0f, 1.0f, 0.0f, 0.0f},
-	// 	{(float)(dst_left + width), (float)dst_top, 0.0f, 1.0f, 1.0f, 0.0f},
-	// 	{(float)dst_left, (float)(dst_top + height), 0.0f, 1.0f, 0.0f, 1.0f},
-	// 	{(float)(dst_left + width), (float)(dst_top + height), 0.0f, 1.0f, 1.0f, 1.0f},
-	// };
-
-	// int posx = conf_window_width / 2;
-	// int posy = conf_window_height / 2;
-	// int w = 256;
-	// int h = 256;
-	// VertexRHWTex vtx[4]={
-	// 	{ (float)(posx + w/2), (float)(posy - h/2), 0.0f, 1.0f, 1.0f, 0.0f},
-	// 	{ (float)(posx + w/2), (float)(posy + h/2), 0.0f, 1.0f, 1.0f, 1.0f},
-	// 	{ (float)(posx - w/2), (float)(posy - h/2), 0.0f, 1.0f, 0.0f, 0.0f},
-	// 	{ (float)(posx - w/2), (float)(posy + h/2), 0.0f, 1.0f, 0.0f, 1.0f}
-	// };
-
-	// if(bt != BLEND_NONE)
-	// {
+	if(bt != BLEND_NONE)
+	{
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	// }
-	// else
-	// {
-	//	pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	// }
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLOROP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+	}
+	else
+	{
+		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	}
 
 	pD3DDevice->SetTexture(0, pTex);
-	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
-	pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vtx,
-								sizeof(VertexRHWTex));
+	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
+
+	if(width == 1 && height == 1)
+	{
+		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v,
+									sizeof(VertexRHWTex));
+	}
+	else if(width == 1)
+	{
+		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v + 1,
+									sizeof(VertexRHWTex));
+	}
+	else if(height == 1)
+	{
+		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v,
+									sizeof(VertexRHWTex));
+	}
+	else
+	{
+		pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v,
+									sizeof(VertexRHWTex));
+	}
 }
 
 VOID D3DRenderImageMask(int dst_left, int dst_top,
@@ -250,30 +273,41 @@ VOID D3DRenderImageMask(int dst_left, int dst_top,
 		(IDirect3DTexture9 *)get_texture_object(src_image);
 	assert(pTex != NULL);
 
-	UNUSED_PARAMETER(dst_left);
-	UNUSED_PARAMETER(dst_top);
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(src_left);
-	UNUSED_PARAMETER(src_top);
-	UNUSED_PARAMETER(mask);
+	// TODO: implement
+	int a = (int)(255.0f * ((float)mask / 27.0f));
+	D3DRenderImageMask(dst_left, dst_top, src_image, width, height, src_left,
+					   src_top, a);
 }
 
 VOID D3DRenderClear(int left, int top, int width, int height, pixel_t color)
 {
-	UNUSED_PARAMETER(left);
-	UNUSED_PARAMETER(top);
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(color);
+	D3DCOLOR d3dcolor = D3DCOLOR_ARGB(get_pixel_a(color),
+									  get_pixel_r(color),
+									  get_pixel_g(color),
+									  get_pixel_b(color));
 
-	VertexRHWColor vtx[4] = {
-		{(float)left, (float)top, 0.0f, 1.0f, color},
-		{(float)(left + width), (float)top, 0.0f, 1.0f, color},
-		{(float)left, (float)(top + height), 0.0f, 1.0f, color},
-		{(float)(left + width), (float)(top + height), 0.0f, 1.0f, color},
-	};
+	VertexRHW v[4];
+	v[0].x = (float)left;
+	v[0].y = (float)top;
+	v[0].z = 0.0f;
+	v[0].rhw = 1.0f;
+	v[0].color = d3dcolor;
+	v[1].x = (float)(left + width);
+	v[1].y = (float)top;
+	v[1].z = 0.0f;
+	v[1].rhw = 1.0f;
+	v[1].color = d3dcolor;
+	v[2].x = (float)left;
+	v[2].y = (float)(top + height);
+	v[2].z = 0.0f;
+	v[2].rhw = 1.0f;
+	v[2].color = d3dcolor;
+	v[3].x = (float)(left + width);
+	v[3].y = (float)(top + height);
+	v[3].z = 0.0f;
+	v[3].rhw = 1.0f;
+	v[3].color = d3dcolor;
 
 	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
-	pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vtx, sizeof(VertexRHWColor));
+	pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(VertexRHW));
 }
