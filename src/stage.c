@@ -1924,7 +1924,9 @@ int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
 {
 	int w, h;
 
+	lock_image(layer_image[LAYER_NAME]);
 	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h);
+	unlock_image(layer_image[LAYER_NAME]);
 
 	return w;
 }

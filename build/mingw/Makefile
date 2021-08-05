@@ -28,10 +28,9 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O3 \
+	-O0 -g3 \
 	-ffast-math \
 	-fopt-info-vec \
-	-std=gnu89 \
 	-finput-charset=utf-8 \
 	-fexec-charset=cp932 \
 	-Wall \
@@ -80,8 +79,8 @@ SRCS_C = \
 	../../src/winmain.c \
 	../../src/dsound.c
 
-# SRCS_CC = \
-# 	../../src/d3drender.cc
+#SRCS_CC = \
+#	../../src/d3drender.cc
 
 SRCS_R = res/resource.rc
 
@@ -110,7 +109,7 @@ OBJS = \
 all: suika.exe
 
 suika.exe: $(OBJS)
-	$(CC) -s -o suika.exe $(OBJS) $(LDFLAGS)
+	$(CC) -o suika.exe $(OBJS) $(LDFLAGS)
 
 #
 # Feature specific source files.
