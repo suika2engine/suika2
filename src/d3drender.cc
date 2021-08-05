@@ -202,9 +202,9 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 
 	VertexRHWTex vtx[4] = {
 		{(float)dst_left, (float)dst_top, 0.0f, 1.0f, (float)src_left/img_w, (float)src_top/img_h},
-		{(float)(dst_left + width), (float)dst_top, 0.0f, 1.0f, (float)(src_left + width)/img_w, (float)src_top/img_h},
-		{(float)dst_left, (float)(dst_top + height), 0.0f, 1.0f, (float)src_left/img_w, (float)(src_top+height)/img_h},
-		{(float)(dst_left + width), (float)(dst_top + height), 0.0f, 1.0f, (float)(src_left + width)/img_w, (float)(src_top + height)/img_h},
+		{(float)(dst_left + width - 1), (float)dst_top, 0.0f, 1.0f, (float)(src_left + width)/img_w, (float)src_top/img_h},
+		{(float)dst_left, (float)(dst_top + height - 1), 0.0f, 1.0f, (float)src_left/img_w, (float)(src_top+height)/img_h},
+		{(float)(dst_left + width - 1), (float)(dst_top + height - 1), 0.0f, 1.0f, (float)(src_left + width)/img_w, (float)(src_top + height)/img_h},
 	};
 
 	// VertexRHWTex vtx[4] = {
