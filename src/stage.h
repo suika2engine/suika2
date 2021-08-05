@@ -314,6 +314,12 @@ void draw_history_fo(void);
 /* FIレイヤを色で塗り潰す */
 void draw_history_fi(pixel_t color);
 
+/* FIレイヤをロックする */
+void lock_fi_layer_for_history(void);
+
+/* FIレイヤをアンロックする */
+void unlock_fi_layer_for_history(void);
+
 /* FIレイヤに文字を描画する */
 void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h);
 

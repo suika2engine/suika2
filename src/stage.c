@@ -2353,6 +2353,22 @@ void draw_history_fi(pixel_t color)
 }
 
 /*
+ * FIレイヤをロックする
+ */
+void lock_fi_layer_for_history(void)
+{
+	lock_image(layer_image[LAYER_FI]);
+}
+
+/*
+ * FIレイヤをアンロックする
+ */
+void unlock_fi_layer_for_history(void)
+{
+	unlock_image(layer_image[LAYER_FI]);
+}
+
+/*
  * FIレイヤに文字を描画する
  */
 void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
@@ -2366,9 +2382,7 @@ void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
 				   (pixel_t)conf_font_outline_color_g,
 				   (pixel_t)conf_font_outline_color_b);
 
-	lock_image(layer_image[LAYER_FI]);
 	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, w, h);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*

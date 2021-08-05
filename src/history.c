@@ -338,6 +338,9 @@ static void draw_page(int *x, int *y, int *w, int *h)
 				   (uint8_t)conf_history_color_g,
 				   (uint8_t)conf_history_color_b));
 
+	/* FIレイヤをロックする */
+	lock_fi_layer_for_history();
+
 	/* テキストを描画する */
 	index = (history_index - start_offset + HISTORY_SIZE - 1) %
 		HISTORY_SIZE;
@@ -362,6 +365,9 @@ static void draw_page(int *x, int *y, int *w, int *h)
 		if (index == history_index)
 			break;
 	}
+
+	/* FIレイヤをアンロックする */
+	unlock_fi_layer_for_history();
 
 	/* ステージを描画する */
 	draw_stage_history();
