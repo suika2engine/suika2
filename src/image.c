@@ -358,6 +358,7 @@ void clear_image_color(struct image *img, pixel_t color)
 void clear_image_color_rect(struct image *img, int x, int y, int w, int h,
 			    pixel_t color)
 {
+	pixel_t *pixels;
 	int i, j;
 
 	assert(img != NULL);
@@ -369,10 +370,12 @@ void clear_image_color_rect(struct image *img, int x, int y, int w, int h,
 	assert(h >= 0 && y + h <= img->height);
 	assert(img->locked_pixels != NULL);
 
+	pixels = img->locked_pixels;
+
 	/* ピクセル列の矩形をクリアする */
 	for (i = y; i < y + h; i++)
 		for (j = x; j < x + w; j++)
-			img->pixels[img->width * i + j] = color;
+			pixels[img->width * i + j] = color;
 }
 
 /*

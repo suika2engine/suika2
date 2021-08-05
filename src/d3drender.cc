@@ -225,16 +225,16 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	// 	{ (float)(posx - w/2), (float)(posy + h/2), 0.0f, 1.0f, 0.0f, 1.0f}
 	// };
 
-	if(bt != BLEND_NONE)
-	{
+	// if(bt != BLEND_NONE)
+	// {
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	}
-	else
-	{
-		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	}
+	// }
+	// else
+	// {
+	//	pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	// }
 
 	pD3DDevice->SetTexture(0, pTex);
 	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);

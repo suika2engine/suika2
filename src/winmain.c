@@ -31,7 +31,7 @@
 #endif
 
 /* Direct3Dを使うか */
-#define USE_DIRECT3D	(0)
+#define USE_DIRECT3D	(1)
 
 /* ウィンドウタイトルのバッファサイズ */
 #define TITLE_BUF_SIZE	(1024)
