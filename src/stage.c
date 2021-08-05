@@ -1004,11 +1004,14 @@ static void draw_stage_fi_fo_fade_clockwise(int method)
 {
 	const float PI = 3.14159265f;
 	float progress, hand_len;
-	int hand_x, hand_y, center_x, center_y, i, min, max;
+	int hand_x, hand_y, center_x, center_y, i, min, max, half_w, half_h;
 
 	assert(fi_fo_fade_progress >= 0 && fi_fo_fade_progress <= 1.0f);
 	progress = cw_step(method, fi_fo_fade_progress);
 	assert(progress >= 0 && progress <= 1.0f);
+
+	half_w = conf_window_width / 2;
+	half_h = conf_window_height / 2;
 
 	/* フェードアウトする背景の描画を行う */
 	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
@@ -1026,21 +1029,21 @@ static void draw_stage_fi_fo_fade_clockwise(int method)
 
 	/* 第一象限を埋める */
 	if (progress >= 0.25f) {
-		render_image(center_x, 0, layer_image[LAYER_FI], center_x,
-			     center_y, center_x, 0, 255, BLEND_NONE);
+		render_image(center_x, 0, layer_image[LAYER_FI], half_w,
+			     half_h + 1, center_x, 0, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
 	if (progress >= 0.5f) {
 		render_image(center_x, center_y, layer_image[LAYER_FI],
-			     center_x, center_y, center_x, center_y, 255,
+			     half_w, half_h, center_x, center_y, 255,
 			     BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
 	if (progress >= 0.75f) {
-		render_image(0, center_y, layer_image[LAYER_FI], center_x,
-			     center_y, 0, center_y, 255, BLEND_NONE);
+		render_image(0, center_y, layer_image[LAYER_FI], half_w + 1,
+			     half_h, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* エッジをスキャンする */
@@ -1085,11 +1088,14 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 {
 	const float PI = 3.14159265f;
 	float progress, hand_len;
-	int hand_x, hand_y, center_x, center_y, i, min, max;
+	int hand_x, hand_y, center_x, center_y, i, min, max, half_w, half_h;
 
 	assert(fi_fo_fade_progress >= 0 && fi_fo_fade_progress <= 1.0f);
 	progress = cw_step(method, fi_fo_fade_progress);
 	assert(progress >= 0 && progress <= 1.0f);
+
+	half_w = conf_window_width / 2;
+	half_h = conf_window_height / 2;
 
 	/* フェードアウトする背景の描画を行う */
 	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
@@ -1110,20 +1116,20 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 
 	/* 第二象限を埋める */
 	if (progress >= 0.25f) {
-		render_image(0, 0, layer_image[LAYER_FI], center_x, center_y,
+		render_image(0, 0, layer_image[LAYER_FI], half_w, half_h + 1,
 			     0, 0, 255, BLEND_NONE);
 	}
 
 	/* 第三象限を埋める */
 	if (progress >= 0.5f) {
-		render_image(0, center_y, layer_image[LAYER_FI], center_x,
-			     center_y, 0, center_y, 255, BLEND_NONE);
+		render_image(0, center_y, layer_image[LAYER_FI], half_w + 1,
+			     half_h, 0, center_y, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
 	if (progress >= 0.75f) {
 		render_image(center_x, center_y, layer_image[LAYER_FI],
-			     center_x, center_y, center_x, center_y, 255,
+			     half_w, half_h, center_x, center_y, 255,
 			     BLEND_NONE);
 	}
 
