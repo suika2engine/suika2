@@ -178,4 +178,12 @@ void draw_image_mask(struct image * RESTRICT dst_image, int dst_left,
 		     int dst_top, struct image * RESTRICT src_image, int width,
 		     int height, int src_left, int src_top, int mask_level);
 
+/* 転送元領域のサイズを元に矩形のクリッピングを行う */
+bool clip_by_source(int src_cx, int src_cy, int *cx, int *cy, int *dst_x,
+		    int *dst_y, int *src_x, int *src_y);
+
+/* 転送先領域のサイズを元に矩形のクリッピングを行う */
+bool clip_by_dest(int dst_cx, int dst_cy, int *cx, int *cy, int *dst_x,
+		  int *dst_y, int *src_x, int *src_y);
+
 #endif /* SUIKA_IMAGE_H */

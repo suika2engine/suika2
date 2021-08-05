@@ -55,10 +55,6 @@ struct image {
  */
 
 static struct image *create_image_helper(int w, int h);
-static bool clip_by_source(int src_cx, int src_cy, int *cx, int *cy,
-			   int *dst_x, int *dst_y, int *src_x, int *src_y);
-static bool clip_by_dest(int dst_cx, int dst_cy, int *cx, int *cy, int *dst_x,
-			 int *dst_y, int *src_x, int *src_y);
 static void draw_blend_none(struct image * RESTRICT dst_image, int dst_left,
 			    int dst_top, struct image * RESTRICT src_image,
 			    int width, int height, int src_left, int src_top);
@@ -454,7 +450,7 @@ void draw_image(struct image * RESTRICT dst_image, int dst_left, int dst_top,
  *  - 転送矩形が転送元領域の有効な座標範囲から完全に外れている場合、偽を返す。
  *    それ以外の場合、真を返す。
  */
-static bool clip_by_source(
+bool clip_by_source(
 	int src_cx,	/* 転送元領域の幅 */
 	int src_cy,	/* 転送元領域の高さ */
 	int *cx,	/* 転送矩形の幅 */
@@ -526,7 +522,7 @@ static bool clip_by_source(
  *  - 転送矩形が転送先領域の有効な座標範囲から完全に外れている場合、偽を返す。
  *    それ以外の場合、真を返す
  */
-static bool clip_by_dest(
+bool clip_by_dest(
 	int dst_cx,	/* 転送先領域の幅 */
 	int dst_cy,	/* 転送先領域の高さ */
 	int *cx,	/* [IN/OUT] 転送矩形の幅 */
