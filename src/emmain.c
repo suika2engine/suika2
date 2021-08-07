@@ -1,3 +1,21 @@
+/* -*- tab-width: 8; indent-tabs-mode: t; -*- */
+
+/*
+ * Suika 2
+ * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ */
+
+/*
+ * [Changes]
+ *  2021-06-26 Created.
+ */
+
+/* OpenGLを使うか */
+#undef USE_OPENGL
+
+/* デバッグ用にデフォルトのシェルを使うか */
+#undef DEFAULT_SHELL
+
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 
@@ -8,10 +26,16 @@
 #include "suika.h"
 #include "emopenal.h"
 
+#ifdef USE_OPENGL
+#include "emglrender.h"
+#endif
+
+#ifndef USE_OPENGL
 /*
  * 背景イメージ
  */
 struct image *back_image;
+#endif
 
 /*
  * タッチのY座標
@@ -68,10 +92,22 @@ int main(void)
 	if (!init_openal())
 		return 1;
 
+	/* キャンバスサイズを設定する */
+	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
+#ifndef DEFAULT_SHELL
+	EM_ASM_({resizeWindow(null);});
+#endif
+
+#ifndef USE_OPENGL
 	/* バックイメージを作成する */
 	if (!create_back_image())
 		return 1;
-	
+#else
+	/* OpenGLレンダを初期化する */
+	if (!init_opengl())
+		return 1;
+#endif
+
 	/* 初期化イベントを処理する */
 	if(!on_event_init())
 		return 1;
@@ -93,13 +129,10 @@ int main(void)
 	return 0;
 }
 
+#ifndef USE_OPENGL
 /* 背景イメージを作成する */
 static bool create_back_image(void)
 {
-	/* キャンバスサイズを設定する */
-	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-	EM_ASM_({resizeWindow(null);});
-
 	/* 背景イメージを作成する */
 	back_image = create_image(conf_window_width, conf_window_height);
 	if (back_image == NULL)
@@ -114,6 +147,7 @@ static bool create_back_image(void)
 
 	return true;
 }
+#endif
 
 /* フレームを処理する */
 static EM_BOOL loop_iter(double time, void * userData)
@@ -128,8 +162,13 @@ static EM_BOOL loop_iter(double time, void * userData)
 	/* サウンドの処理を行う */
 	fill_sound_buffer();
 
+#ifndef USE_OPENGL
 	/* バックイメージをロックする */
 	lock_image(back_image);
+#else
+	/* フレームのレンダリングを開始する */
+	start_rendering();
+#endif
 
 	/* フレームイベントを呼び出す */
 	x = y = w = h = 0;
@@ -143,6 +182,7 @@ static EM_BOOL loop_iter(double time, void * userData)
 		EM_FALSE;
 	}
 
+#ifndef USE_OPENGL
 	/* バックイメージをアンロックする */
 	unlock_image(back_image);
 
@@ -154,12 +194,16 @@ static EM_BOOL loop_iter(double time, void * userData)
 	pixel_t *p;
 	p = get_image_pixels(back_image);
 	EM_ASM_({
-			let data = Module.HEAPU8.slice($0, $0 + $1 * $2 * 4);
-			let context = Module['canvas'].getContext('2d');
-			let imageData = context.getImageData(0, 0, $1, $2);
-			imageData.data.set(data);
-			context.putImageData(imageData, 0, 0);
-		}, p, conf_window_width, conf_window_height);
+		let data = Module.HEAPU8.slice($0, $0 + $1 * $2 * 4);
+		let context = Module['canvas'].getContext('2d');
+		let imageData = context.getImageData(0, 0, $1, $2);
+		imageData.data.set(data);
+		context.putImageData(imageData, 0, 0);
+	}, p, conf_window_width, conf_window_height);
+#else
+	/* フレームのレンダリングを終了する */
+	end_rendering();
+#endif
 
 	return EM_TRUE;
 }
@@ -452,6 +496,13 @@ const char *conv_utf8_to_native(const char *utf8_message)
 bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
+#ifdef USE_OPENGL
+	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
+				 texture))
+		return false;
+
+	return true;
+#else
 	assert(*locked_pixels == NULL);
 
 	UNUSED_PARAMETER(width);
@@ -461,6 +512,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 	*locked_pixels = pixels;
 
 	return true;
+#endif
 }
 
 /*
@@ -469,6 +521,9 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
+#ifdef USE_OPENGL
+	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
+#else
 	assert(*locked_pixels != NULL);
 
 	UNUSED_PARAMETER(width);
@@ -477,6 +532,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 	UNUSED_PARAMETER(texture);
 
 	*locked_pixels = NULL;
+#endif
 }
 
 /*
@@ -484,7 +540,11 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
+#ifdef USE_OPENGL
+	opengl_destroy_texture(texture);
+#else
 	UNUSED_PARAMETER(texture);
+#endif
 }
 
 /*
@@ -494,8 +554,13 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
+#ifdef USE_OPENGL
+	opengl_render_image(dst_left, dst_top, src_image, width, height,
+			    src_left, src_top, alpha, bt);
+#else
 	draw_image(back_image, dst_left, dst_top, src_image, width, height,
 		   src_left, src_top, alpha, bt);
+#endif
 }
 
 /*
@@ -506,8 +571,13 @@ void render_image_mask(int dst_left, int dst_top,
                        int width, int height, int src_left, int src_top,
                        int mask)
 {
+#ifdef USE_OPENGL
+	opengl_render_image_mask(dst_left, dst_top, src_image, width,
+				 height, src_left, src_top, mask);
+#else
 	draw_image_mask(back_image, dst_left, dst_top, src_image, width,
 			height, src_left, src_top, mask);
+#endif
 }
 
 /*
@@ -515,7 +585,11 @@ void render_image_mask(int dst_left, int dst_top,
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
+#ifdef USE_OPENGL
+	opengl_render_clear(left, top, width, height, color);
+#else
 	clear_image_color_rect(back_image, left, top, width, height, color);
+#endif
 }
 
 /*
