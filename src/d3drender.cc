@@ -179,21 +179,23 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)get_texture_object(src_image);
 	assert(pTex != NULL);
 
-	/* 描画の必要があるか判定する */
+	// 描画の必要があるか判定する
 	if(alpha == 0 || width == 0 || height == 0)
-		return;	/* 描画の必要がない*/
+		return;	// 描画の必要がない
 	if(!clip_by_source(get_image_width(src_image), get_image_height(src_image),
 					   &width, &height, &dst_left, &dst_top, &src_left,
 					   &src_top))
-		return;	/* 描画範囲外 */
+		return;	// 描画範囲外
 	if(!clip_by_dest(conf_window_width, conf_window_height, &width, &height,
 					 &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
+		return;	// 描画範囲外
 
 	float img_w = (float)get_image_width(src_image);
 	float img_h = (float)get_image_height(src_image);
 
 	VertexRHWTex v[4];
+
+	// 左上
 	v[0].x = (float)dst_left;
 	v[0].y = (float)dst_top;
 	v[0].z = 0.0f;
@@ -201,6 +203,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[0].u = (float)src_left / img_w;
 	v[0].v = (float)src_top / img_h;
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
+
+	// 右上
 	v[1].x = (float)(dst_left + width - 1);
 	v[1].y = (float)dst_top;
 	v[1].z = 0.0f;
@@ -208,6 +212,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[1].u = (float)(src_left + width) / img_w;
 	v[1].v = (float)src_top / img_h;
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
+
+	// 左下
 	v[2].x = (float)dst_left;
 	v[2].y = (float)(dst_top + height - 1);
 	v[2].z = 0.0f;
@@ -215,6 +221,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[2].u = (float)src_left / img_w;
 	v[2].v = (float)(src_top + height) / img_h;
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
+
+	// 右下
 	v[3].x = (float)(dst_left + width - 1);
 	v[3].y = (float)(dst_top + height - 1);
 	v[3].z = 0.0f;

@@ -551,6 +551,13 @@ void draw_stage_rect(int x, int y, int w, int h)
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
 
+#ifdef USE_OPENGL
+	x = 0;
+	y = 0;
+	w = conf_window_width;
+	h = conf_window_height;
+#endif
+
 	if (w == 0 || h == 0)
 		return;
 	if (x >= conf_window_width || y >= conf_window_height)
@@ -1258,9 +1265,17 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
+#ifdef USE_OPENGL
+	/* 背景を描画する */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     get_image_width(layer_image[LAYER_FO]),
+		     get_image_height(layer_image[LAYER_FO]),
+		     0, 0, 255, BLEND_NONE);
+#else
 	/* 古いボタンを消す */
 	render_image(old_x, old_y, layer_image[LAYER_FO], old_w, old_h, old_x,
 		     old_y, 255, BLEND_NONE);
+#endif
 
 	/* 新しいボタンを描画する */
 	render_image(new_x, new_y, layer_image[LAYER_FI], new_w, new_h, new_x,

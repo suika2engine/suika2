@@ -10,11 +10,8 @@
  *  2021-06-26 Created.
  */
 
-/* OpenGLを使うか */
-#undef USE_OPENGL
-
 /* デバッグ用にデフォルトのシェルを使うか */
-#undef DEFAULT_SHELL
+#define DEFAULT_SHELL
 
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
@@ -27,7 +24,7 @@
 #include "emopenal.h"
 
 #ifdef USE_OPENGL
-#include "emglrender.h"
+#include "glesrender.h"
 #endif
 
 #ifndef USE_OPENGL
@@ -104,6 +101,13 @@ int main(void)
 		return 1;
 #else
 	/* OpenGLレンダを初期化する */
+	EmscriptenWebGLContextAttributes attr;
+	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context;
+	emscripten_webgl_init_context_attributes(&attr);
+	attr.majorVersion = 2;
+	attr.minorVersion = 0;
+	context = emscripten_webgl_create_context("canvas", &attr);
+	emscripten_webgl_make_context_current(context);
 	if (!init_opengl())
 		return 1;
 #endif
@@ -167,7 +171,7 @@ static EM_BOOL loop_iter(double time, void * userData)
 	lock_image(back_image);
 #else
 	/* フレームのレンダリングを開始する */
-	start_rendering();
+	opengl_start_rendering();
 #endif
 
 	/* フレームイベントを呼び出す */
@@ -202,7 +206,7 @@ static EM_BOOL loop_iter(double time, void * userData)
 	}, p, conf_window_width, conf_window_height);
 #else
 	/* フレームのレンダリングを終了する */
-	end_rendering();
+	opengl_end_rendering();
 #endif
 
 	return EM_TRUE;
@@ -632,6 +636,7 @@ char *make_valid_path(const char *dir, const char *fname)
 	return buf;
 }
 
+#ifndef USE_OPENGL
 /*
  * バックイメージを取得する
  */
@@ -639,6 +644,7 @@ struct image *get_back_image(void)
 {
 	return back_image;
 }
+#endif
 
 /*
  * タイマをリセットする
