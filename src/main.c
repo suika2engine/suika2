@@ -75,7 +75,7 @@ static bool flag_save_load_enabled = true;
 /*
  * 前方参照
  */
-static bool dispatch_command(int *x, int *y, int *w, int *h);
+static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont);
 
 /*
  * ゲームループの初期化処理を実行する
@@ -114,6 +114,8 @@ void init_game_loop(void)
  */
 bool game_loop_iter(int *x, int *y, int *w, int *h)
 {
+	bool cont;
+
 	if (is_save_load_mode()) {
 		/* セーブ画面を実行する */
 		if (!run_save_load_mode(x, y, w, h))
@@ -123,8 +125,10 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 		run_history_mode(x, y, w, h);
 	} else {
 		/* コマンドを実行する */
-		if (!dispatch_command(x, y, w, h))
-			return false;
+		do {
+			if (!dispatch_command(x, y, w, h, &cont))
+				return false;
+		} while (cont);
 	}
 
 	/* サウンドのフェード処理を実行する */
@@ -147,14 +151,17 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 /*
  * コマンドをディスパッチする
  */
-static bool dispatch_command(int *x, int *y, int *w, int *h)
+static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 {
 	/* ラベルをスキップする */
 	while (get_command_type() == COMMAND_LABEL) {
 		if (!move_to_next_command())
 			return false;
 	}
-	
+
+	/* 次のコマンドを同じフレーム内で実行するか */
+	*cont = false;
+
 	/* コマンドをディスパッチする */
 	switch (get_command_type()) {
 	case COMMAND_MESSAGE:
@@ -169,6 +176,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 	case COMMAND_BGM:
 		if (!bgm_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_CH:
 		if (!ch_command(x, y, w, h))
@@ -185,22 +193,27 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 	case COMMAND_GOTO:
 		if (!goto_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_LOAD:
 		if (!load_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_VOL:
 		if (!vol_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_SET:
 		if (!set_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_IF:
 		if (!if_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_SELECT:
 		if (!select_command(x, y, w, h))
@@ -209,6 +222,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 	case COMMAND_SE:
 		if (!se_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_MENU:
 		if (!menu_command(x, y, w, h))
@@ -226,10 +240,12 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 	case COMMAND_GOSUB:
 		if (!gosub_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_RETURN:
 		if (!return_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_CHA:
 		if (!cha_command(x, y, w, h))
@@ -242,6 +258,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h)
 	case COMMAND_SETSAVE:
 		if (!setsave_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_CHS:
 		if (!chs_command(x, y, w, h))
