@@ -91,6 +91,10 @@ void draw_stage_shake(void);
 void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
 			     int w2, int h2);
 
+/* ステージの背景(FO)全体と、前景(FI)のうち2矩形を描画する(GPU用) */
+void draw_stage_with_buttons_keep(int x1, int y1, int w1, int h1, int x2,
+				  int y2, int w2, int h2);
+
 /* ステージの背景(FO)のうち1矩形と、前景(FI)のうち1矩形を描画する */
 void draw_stage_rect_with_buttons(int old_x1, int old_y1, int old_w1,
 				  int old_h1, int new_x2, int new_y2,
@@ -101,6 +105,9 @@ void draw_stage_rect_with_switch(int x, int y, int w, int h);
 
 /* ステージの背景(FO)と前景(FI)を描画する */
 void draw_stage_history(void);
+
+/* ステージの背景(FO)と前景(FI)を描画する(GPU用) */
+void draw_stage_history_keep(void);
 
 /*
  * 背景の変更

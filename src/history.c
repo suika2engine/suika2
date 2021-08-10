@@ -285,6 +285,9 @@ void run_history_mode(int *x, int *y, int *w, int *h)
 	/* 右クリックされた場合、ヒストリ画面を終了する */
 	if (is_right_button_pressed) {
 		stop_history_mode(x, y, w, h);
+
+		/* 描画を行う(GPU用) */
+		draw_stage_history_keep();
 		return;
 	}
 
@@ -296,6 +299,9 @@ void run_history_mode(int *x, int *y, int *w, int *h)
 		if (ofs != start_offset) {
 			start_offset = ofs;
 			draw_page(x, y, w, h);
+		} else {
+			/* 描画を行う(GPU用) */
+			draw_stage_history_keep();
 		}
 		return;
 	}
@@ -314,12 +320,18 @@ void run_history_mode(int *x, int *y, int *w, int *h)
 		if (ofs != start_offset) {
 			start_offset = ofs;
 			draw_page(x, y, w, h);
+		} else {
+			/* 描画を行う(GPU用) */
+			draw_stage_history_keep();
 		}
 		return;
 	}
 
 	/* ポイントされているテキスト項目を更新する */
 	update_pointed_index();
+
+	/* 描画を行う(GPU用) */
+	draw_stage_history_keep();
 
 	/* ポイントされているテキスト項目があり、左ボタンが押された場合 */
 	if (pointed_index != -1 && is_left_button_pressed) {

@@ -1268,6 +1268,17 @@ void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
 }
 
 /*
+ * ステージの背景(FO)全体と、前景(FI)のうち2矩形を描画する(GPU用)
+ */
+void draw_stage_with_buttons_keep(int x1, int y1, int w1, int h1, int x2,
+				  int y2, int w2, int h2)
+{
+#ifdef USE_OPENGL
+	draw_stage_with_buttons(x1, y1, w1, h1, x2, y2, w2, h2);
+#endif
+}
+
+/*
  * ステージの背景(FO)のうち1矩形と、前景(FI)のうち1矩形を描画する
  */
 void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
@@ -1325,6 +1336,16 @@ void draw_stage_history(void)
 	/* 文字レイヤを描画する */
 	render_image(0, 0, layer_image[LAYER_FI], conf_window_width,
 		     conf_window_height, 0, 0, 255, BLEND_FAST);
+}
+
+/*
+ * ステージの背景(FO)と前景(FI)を描画する(GPU用)
+ */
+void draw_stage_history_keep(void)
+{
+#ifdef USE_OPENGL
+	draw_stage_history();
+#endif
 }
 
 /*
