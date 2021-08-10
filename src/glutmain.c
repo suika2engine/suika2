@@ -6,6 +6,7 @@
 
 #if defined(OSX)
 #include "aunit.h"
+#define GL_SILENCE_DEPRECATION
 #include <GLUT/glut.h>
 #elif defined(LINUX)
 #include "asound.h"

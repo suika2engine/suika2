@@ -14,7 +14,8 @@
 #include "glesrender.h"
 
 #ifdef OSX
-#include <OpenGL/OpenGL.h>
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl.h>
 #else
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
