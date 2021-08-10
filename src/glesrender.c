@@ -46,19 +46,6 @@ static const char *s_fShaderStr =
 	"  gl_FragColor = texture2D(s_texture, vec2(v_texCoord.s, v_texCoord.t));\n"
 	"}                                                   \n";
 
-/*
- * static const GLfloat s_vertices[] = {
- * 	-1.0f,  1.0f, 0.0f,		// Position 0
- * 	0.0f,  0.0f,			// TexCoord 0
- * 	-1.0f, -1.0f, 0.0f,
- * 	0.0f,  0.0625f,
- * 	1.0f, -1.0f, 0.0f,
- * 	0.75f, 0.0625f,
- * 	1.0f,  1.0f, 0.0f,
- * 	0.75f, 0.0f,
- * };
- */
-
 struct texture {
 	GLuint id;
 	bool is_initialized;
@@ -206,11 +193,12 @@ void opengl_destroy_texture(void *texture)
 {
 	struct texture *tex;
 
-	assert(texture != NULL);
-
-	tex = (struct texture *)texture;
-
-	glDeleteTextures(1, &tex->id);
+	if (texture != NULL) {
+		tex = (struct texture *)texture;
+		if (tex->is_initialized)
+			glDeleteTextures(1, &tex->id);
+		free(tex);
+	}
 }
 
 /* 画面にイメージをレンダリングする */

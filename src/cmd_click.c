@@ -21,6 +21,7 @@ bool click_command(void)
 	if (!is_control_pressed && !is_return_pressed && !is_down_pressed &&
 	    !is_left_button_pressed) {
 		show_msgbox(false);
+		draw_stage_keep();
 		return true;
 	}
 

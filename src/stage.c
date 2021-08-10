@@ -531,7 +531,9 @@ static void destroy_layer_image(int layer)
  * ステージの描画
  */
 
-/* ステージを描画する */
+/*
+ * ステージを描画する
+ */
 void draw_stage(void)
 {
 	assert(!is_save_load_mode());
@@ -539,6 +541,16 @@ void draw_stage(void)
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
 	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
+}
+
+/*
+ * ステージ全体を描画する(GPU用)
+ */
+void draw_stage_keep(void)
+{
+#ifdef USE_OPENGL
+	draw_stage();
+#endif
 }
 
 /*

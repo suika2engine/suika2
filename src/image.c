@@ -197,7 +197,9 @@ struct image *create_image_from_color_string(int w, int h, const char *color)
 	cl = make_pixel(0xff, r, g, b);
 
 	/* イメージを塗り潰す */
+	lock_image(img);
 	clear_image_color(img, cl);
+	unlock_image(img);
 
 	return img;
 }

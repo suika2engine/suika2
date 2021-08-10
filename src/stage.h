@@ -72,6 +72,9 @@ void cleanup_stage(void);
 /* ステージ全体を描画する */
 void draw_stage(void);
 
+/* ステージ全体を描画する(GPU用) */
+void draw_stage_keep(void);
+
 /* ステージの矩形を描画する */
 void draw_stage_rect(int x, int y, int w, int h);
 
