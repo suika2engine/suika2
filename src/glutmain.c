@@ -39,7 +39,8 @@ static bool open_log_file(void);
 static void close_log_file(void);
 static void resize(int width, int height);
 static void display(void);
-static void mouse(int button, int state, int x, int y);
+static void button(int button, int state, int x, int y);
+static void move(int mx, int my);
 
 int main(int argc, char *argv[])
 {
@@ -116,7 +117,9 @@ static bool init(int argc, char *argv[])
 	glutCreateWindow(conv_utf8_to_native(conf_window_title));
 	glutReshapeFunc(resize);
 	glutDisplayFunc(display);
-	glutMouseFunc(mouse);
+	glutMouseFunc(button);
+	glutMotionFunc(move);
+	glutPassiveMotionFunc(move);
 
 	init_opengl();
 
@@ -208,8 +211,8 @@ static void display(void)
 	}
 }
 
-/* マウスイベント */
-static void mouse(int button , int state , int x , int y)
+/* マウスクリックイベント */
+static void button(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 		on_event_mouse_press(MOUSE_LEFT, x, y);
@@ -225,11 +228,15 @@ static void mouse(int button , int state , int x , int y)
 	} else if (button == 4 && state == GLUT_DOWN) {
 		on_event_key_press(KEY_DOWN);
 		on_event_key_release(KEY_DOWN);
-	} else {
-		on_event_mouse_move(x, y);
 	}
 
 	glutPostRedisplay();
+}
+
+/* マウスムーヴイベント */
+static void move(int x, int y)
+{
+	on_event_mouse_move(x, y);
 }
 
 /*
