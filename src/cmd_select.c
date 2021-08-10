@@ -51,6 +51,7 @@ bool select_command(int *x, int *y, int *w, int *h)
 
 	/* セーブ画面への遷移を確認する */
 	if (is_right_button_pressed && is_save_load_enabled()) {
+		draw_stage_keep();
 		start_save_mode(false);
 		stop_command_repetition();
 		return true;
@@ -58,8 +59,8 @@ bool select_command(int *x, int *y, int *w, int *h)
 
 	/* ヒストリ画面への遷移を確認する */
 	if (is_up_pressed) {
-		if (is_up_pressed)
-			play_se(conf_msgbox_history_se);
+		draw_stage_keep();
+		play_se(conf_msgbox_history_se);
 		start_history_mode();
 		stop_command_repetition();
 		return true;
@@ -175,8 +176,10 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 
 	/* 選択項目が変わったか調べる */
 	new_selected_item = get_selected_item();
-	if (!is_first_frame && new_selected_item == selected_item)
+	if (!is_first_frame && new_selected_item == selected_item) {
+		draw_stage_keep();
 		return;
+	}
 	if (new_selected_item != -1 && new_selected_item != selected_item)
 		play_se(conf_selbox_change_se);
 
