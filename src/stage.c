@@ -733,6 +733,11 @@ static void draw_stage_fi_fo_fade_curtain_right(void)
 			     right, 0, 255, BLEND_NONE);
 	}
 
+	/* カーテンの部分の背景をコピーする */
+	render_image(right - CURTAIN_WIDTH, 0, layer_image[LAYER_FO],
+		     CURTAIN_WIDTH, conf_window_height,
+		     right - CURTAIN_WIDTH, 0, 255, BLEND_NONE);
+
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (right >= CURTAIN_WIDTH) {
 		render_image(0, 0, layer_image[LAYER_FI],
@@ -744,7 +749,7 @@ static void draw_stage_fi_fo_fade_curtain_right(void)
 	for (alpha = 0, i = right; i >= right - CURTAIN_WIDTH; i--, alpha++) {
 		if (i < 0 || i >= conf_window_width)
 			continue;
-		render_image(i, 0, layer_image[LAYER_FI], 1,
+		render_image(i, 0, layer_image[LAYER_FI], 2,
 			     conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
 }
@@ -835,6 +840,11 @@ static void draw_stage_fi_fo_fade_curtain_down(void)
 			     conf_window_width, conf_window_height - bottom,
 			     0, bottom, 255, BLEND_NONE);
 	}
+
+	/* カーテンの部分の背景をコピーする */
+	render_image(0, bottom - CURTAIN_WIDTH, layer_image[LAYER_FO],
+		     conf_window_width, CURTAIN_WIDTH,
+		     0, bottom - CURTAIN_WIDTH, 255, BLEND_NONE);
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (bottom >= CURTAIN_WIDTH) {
