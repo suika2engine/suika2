@@ -31,6 +31,9 @@ bool wait_command(void)
 		reset_stop_watch(&sw);
 	}
 
+	/* 描画を行う(GPU用) */
+	draw_stage_keep();
+
 	/* 時間が経過した場合か、入力があった場合 */
 	if ((float)get_stop_watch_lap(&sw) / 1000.0f >= span ||
 	    is_control_pressed || is_return_pressed ||
