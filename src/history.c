@@ -284,10 +284,10 @@ void run_history_mode(int *x, int *y, int *w, int *h)
 
 	/* 右クリックされた場合、ヒストリ画面を終了する */
 	if (is_right_button_pressed) {
-		stop_history_mode(x, y, w, h);
-
 		/* 描画を行う(GPU用) */
 		draw_stage_history_keep();
+
+		stop_history_mode(x, y, w, h);
 		return;
 	}
 
