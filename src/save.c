@@ -94,6 +94,7 @@ static int pointed_index;
 static void load_button_conf(void);
 static void load_save_time(void);
 static void draw_page(int *x, int *y, int *w, int *h);
+static void draw_page_keep(void);
 static int get_pointed_index(void);
 static void draw_all_text_items(void);
 static void draw_text_item(int x, int y, const char *text);
@@ -335,6 +336,7 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 
 	/* 右クリックされた場合 */
 	if (is_right_button_pressed) {
+		draw_page_keep();
 		if (!is_goto) {
 			/* セーブ・ロードを入れ替える Swap save and load. */
 			if (is_save_mode) {
@@ -355,10 +357,13 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 	}
 
 	/* ポイントされている項目を更新する */
-	if (!update_pointed_index(x, y, w, h))
+	if (!update_pointed_index(x, y, w, h)) {
+		draw_page_keep();
 		return false;	/* 終了ボタンが押下された */
+	}
 
 	/* セーブ画面を継続する */
+	draw_page_keep();
 	return true;
 }
 
@@ -392,6 +397,24 @@ static void draw_page(int *x, int *y, int *w, int *h)
 	*y = 0;
 	*w = conf_window_width;
 	*h = conf_window_height;
+}
+
+/* ページの描画を行う */
+static void draw_page_keep(void)
+{
+	/* 現在選択されている項目を取得する */
+	pointed_index = get_pointed_index();
+	if (pointed_index != -1) {
+		/* 選択されているボタンがある場合 */
+		draw_stage_with_buttons_keep(button[pointed_index].x,
+					     button[pointed_index].y,
+					     button[pointed_index].w,
+					     button[pointed_index].h,
+					     0, 0, 0, 0);
+	} else {
+		/* 選択されているボタンがない場合 */
+		draw_stage_with_buttons_keep(0, 0, 0, 0, 0, 0, 0, 0);
+	}
 }
 
 /* ポイントされているボタンを返す */

@@ -182,8 +182,10 @@ bool message_command(int *x, int *y, int *w, int *h)
 	frame_quick_save();
 
 	/* クイックロードを処理する */
-	if (frame_quick_load())
+	if (frame_quick_load()) {
+		draw_stage_keep();
 		return true;
+	}
 
 	/* セーブ画面への遷移を処理する */
 	if (frame_save())
@@ -1012,6 +1014,9 @@ static bool frame_save(void)
 	/* 右クリックかQLOADボタンが押下されたとき */
 	if (is_right_button_pressed ||
 	    (is_left_button_pressed && pointed_index == BTN_SAVE)) {
+		/* 描画する(GPU用) */
+		draw_stage_keep();
+
 		/* SEを再生する */
 		if (is_right_button_pressed)
 			play_se(conf_msgbox_save_se);
@@ -1043,6 +1048,9 @@ static bool frame_load(void)
 
 	/* LOADボタンが押下されたとき */
 	if (is_left_button_pressed && pointed_index == BTN_LOAD) {
+		/* 描画する(GPU用) */
+		draw_stage_keep();
+
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_load_se);
 
@@ -1069,6 +1077,9 @@ static bool frame_history(void)
 	/* 上キーかHISTORYボタンが押された場合 */
 	if (is_up_pressed ||
 	    (is_left_button_pressed && pointed_index == BTN_HISTORY)) {
+		/* 描画する(GPU用) */
+		draw_stage_keep();
+
 		/* SEを再生する */
 		if (is_up_pressed)
 			play_se(conf_msgbox_history_se);
