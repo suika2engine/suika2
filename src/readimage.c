@@ -164,7 +164,8 @@ static bool read_header(void)
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_PALETTE:
-#if defined(WIN) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD)
+#if defined(WIN) || (!defined(USE_OPENGL) && \
+		     (defined(LINUX) || defined(FREEBSD) || defined(NETBSD)))
 		png_set_bgr(png_ptr);
 #endif
 		png_set_palette_to_rgb(png_ptr);
@@ -172,7 +173,8 @@ static bool read_header(void)
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_RGB:
-#if defined(WIN) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD)
+#if defined(WIN) || (!defined(USE_OPENGL) && \
+		     (defined(LINUX) || defined(FREEBSD) || defined(NETBSD)))
 		png_set_bgr(png_ptr);
 #endif
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
@@ -183,7 +185,8 @@ static bool read_header(void)
 		}
 		break;
 	case PNG_COLOR_TYPE_RGB_ALPHA:
-#if defined(WIN) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD)
+#if defined(WIN) || (!defined(USE_OPENGL) && \
+		     (defined(LINUX) || defined(FREEBSD) || defined(NETBSD)))
 		png_set_bgr(png_ptr);
 #endif
 		break;

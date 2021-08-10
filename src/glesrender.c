@@ -13,8 +13,12 @@
 #include "suika.h"
 #include "glesrender.h"
 
+#ifdef OSX
+#include <OpenGL/OpenGL.h>
+#else
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
+#endif
 
 GLuint program;
 GLuint vertex_shader;
@@ -41,24 +45,26 @@ static const char *s_fShaderStr =
 	"  gl_FragColor = texture2D(s_texture, vec2(v_texCoord.s, v_texCoord.t));\n"
 	"}                                                   \n";
 
-static const GLfloat s_vertices[] = {
-	-1.0f,  1.0f, 0.0f,		// Position 0
-	0.0f,  0.0f,			// TexCoord 0
-	-1.0f, -1.0f, 0.0f,
-	0.0f,  0.0625f,
-	1.0f, -1.0f, 0.0f,
-	0.75f, 0.0625f,
-	1.0f,  1.0f, 0.0f,
-	0.75f, 0.0f,
-};
+/*
+ * static const GLfloat s_vertices[] = {
+ * 	-1.0f,  1.0f, 0.0f,		// Position 0
+ * 	0.0f,  0.0f,			// TexCoord 0
+ * 	-1.0f, -1.0f, 0.0f,
+ * 	0.0f,  0.0625f,
+ * 	1.0f, -1.0f, 0.0f,
+ * 	0.75f, 0.0625f,
+ * 	1.0f,  1.0f, 0.0f,
+ * 	0.75f, 0.0f,
+ * };
+ */
 
 struct texture {
 	GLuint id;
 	bool is_initialized;
 };
 
-static void setup_vtx(GLuint positionLoc, GLuint texCoordLoc, GLuint samplerLoc);
-static GLuint load_shader(GLenum type, const char *src);
+//static void setup_vtx(GLuint positionLoc, GLuint texCoordLoc, GLuint samplerLoc);
+//static GLuint load_shader(GLenum type, const char *src);
 
 /*
  * OpenGLの初期化処理を行う
@@ -66,7 +72,7 @@ static GLuint load_shader(GLenum type, const char *src);
 bool init_opengl(void)
 {
 	const GLushort indices[] = {0, 1, 2, 3};
-	GLuint pos_loc, tex_loc, sampler_loc;
+	GLint pos_loc, tex_loc, sampler_loc;
 
 	/* ビューポートを設定する */
 	glViewport(0, 0, conf_window_width, conf_window_height);
@@ -92,9 +98,9 @@ bool init_opengl(void)
 	glGenBuffers(1, &vertex_buf);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 	pos_loc = glGetAttribLocation(program, "a_position");
-	glVertexAttribPointer(pos_loc, 3, GL_FLOAT, GL_FALSE, 5 * 4, 0);
+	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 5 * 4, 0);
 	tex_loc = glGetAttribLocation(program, "a_texCoord");
-	glVertexAttribPointer(tex_loc, 2, GL_FLOAT, GL_FALSE, 5 * 4,
+	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 5 * 4,
 			      (const GLvoid *)(3 * sizeof(GLfloat)));
 
 	/* 頂点のインデックスを用意する */
@@ -102,8 +108,8 @@ bool init_opengl(void)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(pos_loc);
-	glEnableVertexAttribArray(tex_loc);
+	glEnableVertexAttribArray((GLuint)pos_loc);
+	glEnableVertexAttribArray((GLuint)tex_loc);
 	sampler_loc = glGetUniformLocation(program, "s_texture");
 	glUniform1i(sampler_loc, 0);
 
@@ -126,7 +132,7 @@ void cleanup_opengl(void)
 /* フレームのレンダリングを開始する */
 void opengl_start_rendering(void)
 {
-//	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 /* フレームのレンダリングを終了する */
@@ -140,6 +146,9 @@ bool opengl_lock_texture(int width, int height, pixel_t *pixels,
 			 pixel_t **locked_pixels, void **texture)
 {
 	struct texture *tex;
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
 
 	assert(*locked_pixels == NULL);
 
@@ -165,6 +174,8 @@ void opengl_unlock_texture(int width, int height, pixel_t *pixels,
 			   pixel_t **locked_pixels, void **texture)
 {
 	struct texture *tex;
+
+	UNUSED_PARAMETER(pixels);
 
 	assert(*locked_pixels != NULL);
 
@@ -209,6 +220,8 @@ void opengl_render_image(int dst_left, int dst_top,
 {
 	GLfloat pos[20];
 	struct texture *tex;
+
+	UNUSED_PARAMETER(bt);
 
 	/* struct textureを取得する */
 	tex = get_texture_object(src_image);
@@ -280,8 +293,6 @@ void opengl_render_image(int dst_left, int dst_top,
 	} else {
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 	}
-
-
 }
 
 /* 画面にイメージをマスク描画でレンダリングする */
@@ -289,43 +300,18 @@ void opengl_render_image_mask(int dst_left, int dst_top,
 			      struct image * RESTRICT src_image, int width,
 			      int height, int src_left, int src_top, int mask)
 {
+	UNUSED_PARAMETER(mask);
+	opengl_render_image(dst_left, dst_top, src_image, width, height,
+			    src_left, src_top, 255, BLEND_NONE);
 }
 
 /* 画面をクリアする */
 void opengl_render_clear(int left, int top, int width, int height,
 			 pixel_t color)
 {
+	UNUSED_PARAMETER(left);
+	UNUSED_PARAMETER(top);
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(color);
 }
-
-static GLuint load_shader(GLenum type, const char *src)
-{
-	GLuint shader;
-
-	shader = glCreateShader(type);
-	glShaderSource(shader, 1, &src, NULL);
-	glCompileShader(shader);
-
-	return shader;
-}
-
-/*
- * static void setup_vtx(GLuint positionLoc, GLuint texCoordLoc, GLuint samplerLoc)
- * {
- * 	const GLushort indices[] = {0, 1, 2, 3};
- * 
- * 	glGenBuffers(1, &s_vertexPosObject);
- * 	glBindBuffer(GL_ARRAY_BUFFER, s_vertexPosObject);
- * 	glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 5 * 4, 0);
- * 	glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, 5 * 4, (const GLvoid *)(3 * 4));
- * 
- * 	glGenBuffers(1, &s_indexObject);
- * 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_indexObject);
- * 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
- * 
- * 	glEnableVertexAttribArray(positionLoc);
- * 	glEnableVertexAttribArray(texCoordLoc);
- * 
- * 	glUniform1i(samplerLoc, 0);
- * 
- * }
- */

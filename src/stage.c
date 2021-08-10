@@ -1266,6 +1266,11 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
 #ifdef USE_OPENGL
+	UNUSED_PARAMETER(old_x);
+	UNUSED_PARAMETER(old_y);
+	UNUSED_PARAMETER(old_w);
+	UNUSED_PARAMETER(old_h);
+
 	/* 背景を描画する */
 	render_image(0, 0, layer_image[LAYER_FO],
 		     get_image_width(layer_image[LAYER_FO]),

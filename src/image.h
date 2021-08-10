@@ -42,7 +42,7 @@ enum blend_type {
 #define DRAW_IMAGE_MASK_LEVELS	(28)
 
 /* WindowsとX11とAndroidの場合はARGB形式(バイト順にBGRA) */
-#if defined(WIN) || defined(LINUX) || defined(ANDROID)
+#if defined(WIN) || (defined(LINUX) && !defined(USE_OPENGL)) || defined(ANDROID)
 
 /* ピクセル値を合成する */
 static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g,

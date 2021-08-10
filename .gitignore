@@ -22,6 +22,9 @@ build/freebsd/suika
 build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
+build/glut-linux/*.o
+build/glut-linux/libroot
+build/glut-linux/suika
 build/android/.idea/caches
 build/msvc/.vs
 build/msvc/zlib
