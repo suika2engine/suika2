@@ -20,10 +20,16 @@ bool click_command(void)
 	/* 入力がない場合はclickコマンドを継続する */
 	if (!is_control_pressed && !is_return_pressed && !is_down_pressed &&
 	    !is_left_button_pressed) {
+		/* メッセージボックスを非表示にする */
 		show_msgbox(false);
+
+		/* ステージの描画を維持する */
 		draw_stage_keep();
 		return true;
 	}
+
+	/* ステージの描画を維持する */
+	draw_stage_keep();
 
 	/* 次のコマンドへ移動する */
 	return move_to_next_command();

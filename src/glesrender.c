@@ -30,20 +30,26 @@ GLuint index_buf;
 static const char *s_vShaderStr =
 	"attribute vec4 a_position;   \n"
 	"attribute vec2 a_texCoord;   \n"
+	"attribute float a_alpha;     \n"
 	"varying vec2 v_texCoord;     \n"
+	"varying float v_alpha;       \n"
 	"void main()                  \n"
 	"{                            \n"
 	"   gl_Position = a_position; \n"
 	"   v_texCoord = a_texCoord;  \n"
+	"   v_alpha = a_alpha;        \n"
 	"}                            \n";
 
 static const char *s_fShaderStr =
 	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
+	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
 	"void main()                                         \n"
 	"{                                                   \n"
-	"  gl_FragColor = texture2D(s_texture, vec2(v_texCoord.s, v_texCoord.t));\n"
+	"  vec4 tex = texture2D(s_texture, v_texCoord);      \n"
+	"  tex.a = tex.a * v_alpha;                          \n"
+	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
 struct texture {
@@ -51,8 +57,13 @@ struct texture {
 	bool is_initialized;
 };
 
-//static void setup_vtx(GLuint positionLoc, GLuint texCoordLoc, GLuint samplerLoc);
-//static GLuint load_shader(GLenum type, const char *src);
+#if 0
+struct vertex {
+	float x, y, z;
+	float u, v;
+	float alpha;
+};
+#endif
 
 /*
  * OpenGLの初期化処理を行う
@@ -60,7 +71,7 @@ struct texture {
 bool init_opengl(void)
 {
 	const GLushort indices[] = {0, 1, 2, 3};
-	GLint pos_loc, tex_loc, sampler_loc;
+	GLint pos_loc, tex_loc, alpha_loc, sampler_loc;
 
 	/* ビューポートを設定する */
 	glViewport(0, 0, conf_window_width, conf_window_height);
@@ -82,24 +93,25 @@ bool init_opengl(void)
 	glLinkProgram(program);
 	glUseProgram(program);
 
-	/* 頂点を用意する */
+	/* シェーダのセットアップを行う */
 	glGenBuffers(1, &vertex_buf);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 	pos_loc = glGetAttribLocation(program, "a_position");
-	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 5 * 4, 0);
+	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+	glEnableVertexAttribArray((GLuint)pos_loc);
 	tex_loc = glGetAttribLocation(program, "a_texCoord");
-	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 5 * 4,
-			      (const GLvoid *)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)tex_loc);
+	alpha_loc = glGetAttribLocation(program, "a_alpha");
+	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)alpha_loc);
+	sampler_loc = glGetUniformLocation(program, "s_texture");
+	glUniform1i(sampler_loc, 0);
 
 	/* 頂点のインデックスを用意する */
 	glGenBuffers(1, &index_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray((GLuint)pos_loc);
-	glEnableVertexAttribArray((GLuint)tex_loc);
-	sampler_loc = glGetUniformLocation(program, "s_texture");
-	glUniform1i(sampler_loc, 0);
 
 	/* 透過を有効にする */
 	glEnable(GL_BLEND);
@@ -207,8 +219,9 @@ void opengl_render_image(int dst_left, int dst_top,
 			 int height, int src_left, int src_top, int alpha,
 			 int bt)
 {
-	GLfloat pos[20];
+	GLfloat pos[24];
 	struct texture *tex;
+	float hw, hh, tw, th;
 
 	UNUSED_PARAMETER(bt);
 
@@ -229,12 +242,12 @@ void opengl_render_image(int dst_left, int dst_top,
 		return;	/* 描画範囲外 */
 
 	/* ウィンドウサイズの半分を求める */
-	float hw = (float)conf_window_width / 2.0f;
-	float hh = (float)conf_window_height / 2.0f;
+	hw = (float)conf_window_width / 2.0f;
+	hh = (float)conf_window_height / 2.0f;
 
 	/* テキスチャサイズを求める */
-	float tw = (float)get_image_width(src_image);
-	float th = (float)get_image_height(src_image);
+	tw = (float)get_image_width(src_image);
+	th = (float)get_image_height(src_image);
 
 	/* 左上 */
 	pos[0] = ((float)dst_left - hw) / hw;
@@ -242,27 +255,31 @@ void opengl_render_image(int dst_left, int dst_top,
 	pos[2] = 0.0f;
 	pos[3] = (float)src_left / tw;
 	pos[4] = (float)src_top / th;
-	
+	pos[5] = (float)alpha / 255.0f;
+
 	/* 右上 */
-	pos[5] = ((float)dst_left + (float)width - hw) / hw;
-	pos[6] = -((float)dst_top - hh) / hh;
-	pos[7] = 0.0f;
-	pos[8] = (float)(src_left + width) / tw;
-	pos[9] = (float)(src_top) / th;
-	
+	pos[6] = ((float)dst_left + (float)width - hw) / hw;
+	pos[7] = -((float)dst_top - hh) / hh;
+	pos[8] = 0.0f;
+	pos[9] = (float)(src_left + width) / tw;
+	pos[10] = (float)(src_top) / th;
+	pos[11] = (float)alpha / 255.0f;
+
 	/* 左下 */
-	pos[10] = ((float)dst_left - hw) / hw;
-	pos[11] = -((float)dst_top + (float)height - hh) / hh;
-	pos[12] = 0.0f;
-	pos[13] = (float)src_left / tw;
-	pos[14] = (float)(src_top + height) / th;
-	
+	pos[12] = ((float)dst_left - hw) / hw;
+	pos[13] = -((float)dst_top + (float)height - hh) / hh;
+	pos[14] = 0.0f;
+	pos[15] = (float)src_left / tw;
+	pos[16] = (float)(src_top + height) / th;
+	pos[17] = (float)alpha / 255.0f;
+
 	/* 右下 */
-	pos[15] = ((float)dst_left + (float)width - hw) / hw;
-	pos[16] = -((float)dst_top + (float)height - hh) / hh;
-	pos[17] = 0.0f;
-	pos[18] = (float)(src_left + width) / tw;
-	pos[19] = (float)(src_top + height) / th;
+	pos[18] = ((float)dst_left + (float)width - hw) / hw;
+	pos[19] = -((float)dst_top + (float)height - hh) / hh;
+	pos[20] = 0.0f;
+	pos[21] = (float)(src_left + width) / tw;
+	pos[22] = (float)(src_top + height) / th;
+	pos[23] = (float)alpha / 255.0f;
 
 	/* 頂点バッファに書き込む */
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
