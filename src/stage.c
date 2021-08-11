@@ -1159,8 +1159,8 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 
 	/* 第三象限を埋める */
 	if (progress >= 0.5f) {
-		render_image(0, center_y, layer_image[LAYER_FI], half_w + 1,
-			     half_h, 0, center_y, 255, BLEND_NONE);
+		render_image(0, center_y + 1, layer_image[LAYER_FI], half_w + 1,
+			     half_h, 0, center_y + 1, 255, BLEND_NONE);
 	}
 
 	/* 第四象限を埋める */
@@ -1180,7 +1180,7 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 	} else if (progress < 0.5f) {
 		/* 第三象限を処理する */
 		scan_edge_min(0, center_y, 0, conf_window_height);
-		scan_edge_max(center_x - 1, center_y, hand_x, hand_y);
+		scan_edge_max(center_x, center_y, hand_x, hand_y);
 	} else if (progress < 0.75f) {
 		/* 第四象限を処理する */
 		scan_edge_min(center_x, center_y, center_x,

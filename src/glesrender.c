@@ -230,14 +230,14 @@ void opengl_render_image(int dst_left, int dst_top,
 	assert(tex != NULL);
 
 	/* 描画の必要があるか判定する */
-	if(alpha == 0 || width == 0 || height == 0)
+	if (alpha == 0 || width == 0 || height == 0)
 		return;	/* 描画の必要がない */
-	if(!clip_by_source(get_image_width(src_image),
+	if (!clip_by_source(get_image_width(src_image),
 			   get_image_height(src_image),
 			   &width, &height, &dst_left, &dst_top, &src_left,
 			   &src_top))
 		return;	/* 描画範囲外 */
-	if(!clip_by_dest(conf_window_width, conf_window_height, &width,
+	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
 			 &height, &dst_left, &dst_top, &src_left, &src_top))
 		return;	/* 描画範囲外 */
 
@@ -289,13 +289,13 @@ void opengl_render_image(int dst_left, int dst_top,
 	glBindTexture(GL_TEXTURE_2D, tex->id);
 
 	/* 図形を描画する */
-	if(width == 1 && height == 1) {
+	if (width == 1 && height == 1) {
 		glDrawElements(GL_POINTS, 1, GL_UNSIGNED_SHORT, 0);
-	} else if(width == 1) {
-		glDrawElements(GL_LINE_STRIP, 2, GL_UNSIGNED_SHORT,
+	} else if (width == 1) {
+		glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT,
 			       (const GLvoid *)(1 * sizeof(GLushort)));
-	} else if(height == 1) {
-		glDrawElements(GL_LINE_STRIP, 2, GL_UNSIGNED_SHORT, 0);
+	} else if (height == 1 && alpha < 255) {
+		glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, 0);
 	} else {
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 	}
