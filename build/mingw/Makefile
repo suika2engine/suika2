@@ -9,10 +9,6 @@ CC = i686-w64-mingw32-gcc
 CXX = i686-w64-mingw32-g++
 WINDRES = i686-w64-mingw32-windres
 
-# For native compilation
-#CC = gcc
-#WINDRES = windres
-
 #
 # CPPFLAGS
 #
@@ -28,26 +24,9 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O0 -g3 \
-	-ffast-math \
-	-fopt-info-vec \
-	-finput-charset=utf-8 \
-	-fexec-charset=cp932 \
-	-Wall \
-	-Werror \
-	-Wextra \
-	-Wundef \
-	-Wconversion
-
-#
-# CXXFLAGS
-#
-
-CXXFLAGS = \
 	-O3 \
 	-ffast-math \
 	-fopt-info-vec \
-	-std=c++14 \
 	-finput-charset=utf-8 \
 	-fexec-charset=cp932 \
 	-Wall \
@@ -60,7 +39,6 @@ CXXFLAGS = \
 # LDFLAGS
 #
 
-# Add -ld3d9 to use Direct3D render.
 LDFLAGS = \
 	-mwindows \
 	-lgdi32 \
@@ -79,10 +57,6 @@ SRCS_C = \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
 	../../src/dsound.c
-
-# Uncomment here to use Direct3D render.
-#SRCS_CC = \
-#	../../src/d3drender.cc
 
 SRCS_R = res/resource.rc
 

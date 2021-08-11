@@ -548,7 +548,7 @@ void draw_stage(void)
  */
 void draw_stage_keep(void)
 {
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
 	draw_stage();
 #endif
 }
@@ -563,7 +563,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
 
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
 	x = 0;
 	y = 0;
 	w = conf_window_width;
@@ -1291,7 +1291,7 @@ void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
 void draw_stage_with_buttons_keep(int x1, int y1, int w1, int h1, int x2,
 				  int y2, int w2, int h2)
 {
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
 	draw_stage_with_buttons(x1, y1, w1, h1, x2, y2, w2, h2);
 #else
 	UNUSED_PARAMETER(x1);
@@ -1315,7 +1315,7 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
 	UNUSED_PARAMETER(old_x);
 	UNUSED_PARAMETER(old_y);
 	UNUSED_PARAMETER(old_w);
@@ -1361,7 +1361,7 @@ void draw_stage_history(void)
  */
 void draw_stage_history_keep(void)
 {
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
 	draw_stage_history();
 #endif
 }

@@ -30,9 +30,6 @@
 #define WM_MOUSEWHEEL	0x020A
 #endif
 
-/* Direct3Dを使うか */
-#define USE_DIRECT3D	(0)
-
 /* ウィンドウタイトルのバッファサイズ */
 #define TITLE_BUF_SIZE	(1024)
 
