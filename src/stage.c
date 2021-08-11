@@ -409,6 +409,12 @@ static bool setup_selbox(void)
 	layer_x[LAYER_SEL] = conf_selbox_x;
 	layer_y[LAYER_SEL] = conf_selbox_y;
 
+#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
+	/* 時間のかかるGPUテクスチャ生成を先に行っておく */
+	lock_image(layer_image[LAYER_SEL]);
+	unlock_image(layer_image[LAYER_SEL]);
+#endif
+
 	return true;
 }
 
@@ -484,6 +490,14 @@ static bool create_fade_layer_images(void)
 					     conf_window_height);
 	if (layer_image[LAYER_FI] == NULL)
 		return false;
+
+#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
+	/* 時間のかかるGPUテクスチャ生成を先に行っておく */
+	lock_image(layer_image[LAYER_FO]);
+	unlock_image(layer_image[LAYER_FO]);
+	lock_image(layer_image[LAYER_FI]);
+	unlock_image(layer_image[LAYER_FI]);
+#endif
 
 	return true;
 }
@@ -2360,7 +2374,27 @@ void clear_load_stage(void)
 	unlock_image(layer_image[LAYER_FI]);
 }
 
-/* FO/FIの2レイヤに文字を描画する */
+/*
+ * FO/FIの2レイヤに文字を描画する前にロックする
+ */
+void lock_draw_char_on_fo_fi(void)
+{
+	lock_image(layer_image[LAYER_FO]);
+	lock_image(layer_image[LAYER_FI]);
+}
+
+/*
+ * FO/FIの2レイヤに文字を描画した後にアンロックする
+ */
+void unlock_draw_char_on_fo_fi(void)
+{
+	unlock_image(layer_image[LAYER_FI]);
+	unlock_image(layer_image[LAYER_FO]);
+}
+
+/*
+ * FO/FIの2レイヤに文字を描画する
+ */
 int draw_char_on_fo_fi(int x, int y, uint32_t wc)
 {
 	pixel_t color, outline_color;
@@ -2373,13 +2407,9 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc)
 				   (pixel_t)conf_font_outline_color_g,
 				   (pixel_t)conf_font_outline_color_b);
 
-	lock_image(layer_image[LAYER_FO]);
 	draw_char_on_layer(LAYER_FO, x, y, wc, color, outline_color, &w, &h);
-	unlock_image(layer_image[LAYER_FO]);
 
-	lock_image(layer_image[LAYER_FI]);
 	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, &w, &h);
-	unlock_image(layer_image[LAYER_FI]);
 
 	return w;
 }

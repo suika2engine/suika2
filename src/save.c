@@ -455,6 +455,9 @@ static void draw_all_text_items(void)
 	char text[128];
 	int i, j;
 
+	/* FO/FIレイヤをロックする */
+	lock_draw_char_on_fo_fi();
+
 	/* 先頭のセーブデータの番号を求める */
 	j = page * PAGE_SLOTS;
 
@@ -473,6 +476,9 @@ static void draw_all_text_items(void)
 			       button[i].y + conf_save_data_margin_top,
 			       text);
 	}
+
+	/* FO/FIレイヤをアンロックする */
+	unlock_draw_char_on_fo_fi();
 }
 
 /* セーブデータのテキストを描画する */

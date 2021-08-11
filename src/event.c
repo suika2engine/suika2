@@ -58,6 +58,11 @@ bool on_event_init(void)
 	/* ゲームループの初期化処理を行う */
 	init_game_loop();
 
+	/* フォントのプリロードを行う */
+	lock_draw_char_on_fo_fi();
+	draw_char_on_fo_fi(0, 0, 'A');
+	unlock_draw_char_on_fo_fi();
+
 	return true;
 }
 

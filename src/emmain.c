@@ -501,10 +501,11 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
 #ifdef USE_OPENGL
+	fill_sound_buffer();
 	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
 				 texture))
 		return false;
-
+	fill_sound_buffer();
 	return true;
 #else
 	assert(*locked_pixels == NULL);
@@ -526,7 +527,9 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
 #ifdef USE_OPENGL
+	fill_sound_buffer();
 	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
+	fill_sound_buffer();
 #else
 	assert(*locked_pixels != NULL);
 

@@ -298,6 +298,12 @@ void clear_save_stage(void);
 /* ロード画面用にFI/FOレイヤをクリアする */
 void clear_load_stage(void);
 
+/* FO/FIの2レイヤに文字を描画する前にロックする */
+void lock_draw_char_on_fo_fi(void);
+
+/* FO/FIの2レイヤに文字を描画した後にアンロックする */
+void unlock_draw_char_on_fo_fi(void);
+
 /* FO/FIの2レイヤに文字を描画する */
 int draw_char_on_fo_fi(int x, int y, uint32_t wc);
 
