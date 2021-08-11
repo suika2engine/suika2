@@ -34,6 +34,9 @@ bool goto_command(bool *cont)
 		/* コマンドを連続実行しない */
 		*cont = false;
 
+		/* 画面を描画する */
+		draw_stage();
+
 		/* セーブロードを有効にする */
 		set_save_load(true);
 
@@ -48,6 +51,9 @@ bool goto_command(bool *cont)
 	if (strcmp(label, SAVE_LABEL) == 0) {
 		/* コマンドを連続実行しない */
 		*cont = false;
+
+		/* 画面を描画する */
+		draw_stage();
 
 		/* 最後のコマンドを実行中なら、セーブできない */
 		if (is_final_command()) {
