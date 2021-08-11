@@ -1180,7 +1180,7 @@ static void draw_stage_fi_fo_fade_counterclockwise(int method)
 	} else if (progress < 0.5f) {
 		/* 第三象限を処理する */
 		scan_edge_min(0, center_y, 0, conf_window_height);
-		scan_edge_max(center_x, center_y, hand_x, hand_y);
+		scan_edge_max(center_x - 1, center_y, hand_x, hand_y);
 	} else if (progress < 0.75f) {
 		/* 第四象限を処理する */
 		scan_edge_min(center_x, center_y, center_x,
