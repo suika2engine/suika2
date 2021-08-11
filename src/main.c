@@ -191,9 +191,8 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		break;
 	case COMMAND_GOTO:
-		if (!goto_command())
+		if (!goto_command(cont))
 			return false;
-		*cont = true;
 		break;
 	case COMMAND_LOAD:
 		if (!load_command())

@@ -488,15 +488,25 @@ static void destroy_back_image(void)
 static void run_game_loop(void)
 {
 	int x, y, w, h;
+	bool cont;
 
 	/* フレームの開始時刻を取得する */
 	gettimeofday(&tv_start, NULL);
 
 	while (1) {
+		/* バックイメージをロックする */
+		lock_image(back_image);
+
 		/* フレームイベントを呼び出す */
 		x = y = w = h = 0;
-		if (!on_event_frame(&x, &y, &w, &h))
-			break;	/* スクリプトの終端に達した */
+		cont = on_event_frame(&x, &y, &w, &h);
+
+		/* バックイメージをアンロックする */
+		unlock_image(back_image);
+
+		/* スクリプトの終端に達した */
+		if (!cont)
+			break;
 
 		/* 描画を行う */
 		if (w != 0 && h != 0)
@@ -796,6 +806,79 @@ const char *conv_utf8_to_native(const char *utf8_message)
 	assert(utf8_message != NULL);
 	return utf8_message;
 }
+
+/*
+ * テクスチャをロックする
+ */
+bool lock_texture(int width, int height, pixel_t *pixels,
+				  pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels == NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = pixels;
+
+	return true;
+}
+
+/*
+ * テクスチャをアンロックする
+ */
+void unlock_texture(int width, int height, pixel_t *pixels,
+					pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels != NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(pixels);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = NULL;
+}
+
+/*
+ * テクスチャを破棄する
+ */
+void destroy_texture(void *texture)
+{
+	UNUSED_PARAMETER(texture);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
+                  int width, int height, int src_left, int src_top, int alpha,
+                  int bt)
+{
+	draw_image(back_image, dst_left, dst_top, src_image, width, height,
+			   src_left, src_top, alpha, bt);
+}
+
+/*
+ * イメージをマスク描画でレンダリングする
+ */
+void render_image_mask(int dst_left, int dst_top,
+                       struct image * RESTRICT src_image,
+                       int width, int height, int src_left, int src_top,
+                       int mask)
+{
+	draw_image_mask(back_image, dst_left, dst_top, src_image, width, height,
+			src_left, src_top, mask);
+}
+
+/*
+ * 画面をクリアする
+ */
+void render_clear(int left, int top, int width, int height, pixel_t color)
+{
+	clear_image_color_rect(back_image, left, top, width, height, color);
+}
+
 
 /*
  * セーブディレクトリを作成する

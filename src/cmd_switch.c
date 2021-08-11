@@ -530,8 +530,11 @@ void update_switch_parent(int *x, int *y, int *w, int *h)
 	/* FOレイヤ全体とFIレイヤの矩形を画面に描画する */
 	draw_stage_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
 
-	/* 更新範囲を求める */
-	union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
+	/* 更新範囲を設定する */
+	*x = 0;
+	*y = 0;
+	*w = conf_window_width;
+	*h = conf_window_height;
 }
 
 /* 子選択肢のイメージを描画する */
@@ -578,8 +581,11 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 	/* FO全体とFIの1矩形を描画する(GPU用) */
 	draw_stage_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
 
-	/* 更新範囲を求める */
-	union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
+	/* 更新範囲を設定する */
+	*x = 0;
+	*y = 0;
+	*w = conf_window_width;
+	*h = conf_window_height;
 }
 
 /* 選択肢のテキストを描画する */

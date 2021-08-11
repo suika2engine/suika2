@@ -361,11 +361,19 @@ void clear_image_color_rect(struct image *img, int x, int y, int w, int h,
 			    pixel_t color)
 {
 	pixel_t *pixels;
-	int i, j;
+	int i, j, sx, sy;
 
 	assert(img != NULL);
 	assert(img->width > 0 && img->height > 0);
 	assert(img->pixels != NULL);
+
+	/* 描画の必要があるか判定する */
+	if(w == 0 || h == 0)
+		return;	/* 描画の必要がない*/
+	sx = sy = 0;
+	if(!clip_by_dest(img->width, img->height, &w, &h, &x, &y, &sx, &sy))
+		return;	/* 描画範囲外 */
+
 	assert(x >= 0 && x < img->width);
 	assert(w >= 0 && x + w <= img->width);
 	assert(y >= 0 && y < img->height);

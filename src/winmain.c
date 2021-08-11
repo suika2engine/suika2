@@ -870,7 +870,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 
 	*locked_pixels = pixels;
 
-    return true;
+	return true;
 #endif
 }
 
@@ -902,7 +902,7 @@ void destroy_texture(void *texture)
 #if USE_DIRECT3D
 	D3DDestroyTexture(texture);
 #else
-    UNUSED_PARAMETER(texture);
+	UNUSED_PARAMETER(texture);
 #endif
 }
 

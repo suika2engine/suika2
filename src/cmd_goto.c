@@ -22,7 +22,7 @@
 /*
  * gotoコマンド
  */
-bool goto_command(void)
+bool goto_command(bool *cont)
 {
 	const char *label;
 
@@ -31,6 +31,9 @@ bool goto_command(void)
 
 	/* ロード画面への遷移を処理する */
 	if (strcmp(label, LOAD_LABEL) == 0) {
+		/* コマンドを連続実行しない */
+		*cont = false;
+
 		/* セーブロードを有効にする */
 		set_save_load(true);
 
@@ -43,6 +46,9 @@ bool goto_command(void)
 
 	/* セーブ画面への遷移を処理する */
 	if (strcmp(label, SAVE_LABEL) == 0) {
+		/* コマンドを連続実行しない */
+		*cont = false;
+
 		/* 最後のコマンドを実行中なら、セーブできない */
 		if (is_final_command()) {
 			log_script_final_command();
@@ -62,6 +68,9 @@ bool goto_command(void)
 		 */
 		return move_to_next_command();
 	}
+
+	/* コマンドを連続実行する */
+	*cont = true;
 
 	/* ラベルの次のコマンドへ移動する */
 	if (!move_to_label(label))

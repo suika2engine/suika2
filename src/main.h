@@ -54,7 +54,7 @@ bool bgm_command(void);
 bool ch_command(int *x, int *y, int *w, int *h);
 bool click_command(void);
 bool wait_command(void);
-bool goto_command(void);
+bool goto_command(bool *cont);
 bool load_command(void);
 bool vol_command(void);
 bool set_command(void);

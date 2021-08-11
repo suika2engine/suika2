@@ -749,6 +749,8 @@ static void draw_stage_fi_fo_fade_curtain_right(void)
 	for (alpha = 0, i = right; i >= right - CURTAIN_WIDTH; i--, alpha++) {
 		if (i < 0 || i >= conf_window_width)
 			continue;
+		if (alpha > 255)
+			alpha = 255;
 		render_image(i, 0, layer_image[LAYER_FI], 2,
 			     conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
@@ -783,6 +785,8 @@ static void draw_stage_fi_fo_fade_curtain_left(void)
 	for (alpha = 0, i = left; i <= left + CURTAIN_WIDTH; i++, alpha++) {
 		if (i < 0 || i >= conf_window_width)
 			continue;
+		if (alpha > 255)
+			alpha = 255;
 		render_image(i, 0, layer_image[LAYER_FI], 1,
 			     conf_window_height, i, 0, alpha, BLEND_FAST);
 	}
@@ -817,6 +821,8 @@ static void draw_stage_fi_fo_fade_curtain_up(void)
 	for (alpha = 0, i = top; i <= top + CURTAIN_WIDTH; i++, alpha++) {
 		if (i < 0 || i >= conf_window_height)
 			continue;
+		if (alpha > 255)
+			alpha = 255;
 		render_image(0, i, layer_image[LAYER_FI],
 			     conf_window_width, 1, 0, i, alpha, BLEND_FAST);
 	}
@@ -857,6 +863,8 @@ static void draw_stage_fi_fo_fade_curtain_down(void)
 	     i--, alpha++) {
 		if (i < 0 || i >= conf_window_height)
 			continue;
+		if (alpha > 255)
+			alpha = 255;
 		render_image(0, i, layer_image[LAYER_FI],
 			     conf_window_width, 1, 0, i, alpha, BLEND_FAST);
 	}
@@ -1285,6 +1293,15 @@ void draw_stage_with_buttons_keep(int x1, int y1, int w1, int h1, int x2,
 {
 #ifdef USE_OPENGL
 	draw_stage_with_buttons(x1, y1, w1, h1, x2, y2, w2, h2);
+#else
+	UNUSED_PARAMETER(x1);
+	UNUSED_PARAMETER(y1);
+	UNUSED_PARAMETER(w1);
+	UNUSED_PARAMETER(h1);
+	UNUSED_PARAMETER(x2);
+	UNUSED_PARAMETER(y2);
+	UNUSED_PARAMETER(w2);
+	UNUSED_PARAMETER(h2);
 #endif
 }
 
