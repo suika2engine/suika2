@@ -11,7 +11,7 @@
  */
 
 /* デバッグ用にデフォルトのシェルを使うか */
-#define DEFAULT_SHELL
+#undef DEFAULT_SHELL
 
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
