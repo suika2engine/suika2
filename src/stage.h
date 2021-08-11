@@ -100,14 +100,14 @@ void draw_stage_rect_with_buttons(int old_x1, int old_y1, int old_w1,
 				  int old_h1, int new_x2, int new_y2,
 				  int new_w2, int new_h2);
 
-/* ステージの指定された矩形とスイッチを描画する */
-void draw_stage_rect_with_switch(int x, int y, int w, int h);
-
 /* ステージの背景(FO)と前景(FI)を描画する */
 void draw_stage_history(void);
 
 /* ステージの背景(FO)と前景(FI)を描画する(GPU用) */
 void draw_stage_history_keep(void);
+
+/* ステージの背景(FO)と前景(FI)にステージ全体を描画する */
+void draw_stage_fo_fi(void);
 
 /*
  * 背景の変更
@@ -269,7 +269,7 @@ int draw_char_on_selbox(int x, int y, uint32_t wc);
 /* スイッチの親選択肢の矩形を取得する */
 void get_switch_rect(int index, int *x, int *y, int *w, int *h);
 
-/* FIレイヤにスイッチの非選択イメージを描画する */
+/* FOレイヤにスイッチの非選択イメージを描画する */
 void draw_switch_bg_image(int x, int y);
 
 /* FIレイヤにスイッチの選択イメージを描画する */

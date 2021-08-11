@@ -1321,15 +1321,6 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 }
 
 /*
- * ステージの指定された矩形とスイッチを描画する
- */
-void draw_stage_rect_with_switch(int x, int y, int w, int h)
-{
-	draw_stage_rect(x, y, w, h);
-	render_image(x, y, layer_image[LAYER_FI], w, h, x, y, 255, BLEND_FAST);
-}
-
-/*
  * ステージの背景(FO)と前景(FI)を描画する
  */
 void draw_stage_history(void)
@@ -1356,6 +1347,30 @@ void draw_stage_history_keep(void)
 #ifdef USE_OPENGL
 	draw_stage_history();
 #endif
+}
+
+/*
+ * ステージの背景(FO)と前景(FI)にステージ全体を描画する
+ */
+void draw_stage_fo_fi(void)
+{
+	/* FOレイヤを描画する */
+	lock_image(layer_image[LAYER_FO]);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FO]);
+
+	/* FIレイヤを描画する */
+	lock_image(layer_image[LAYER_FI]);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2188,16 +2203,16 @@ void get_switch_rect(int index, int *x, int *y, int *w, int *h)
 }
 
 /*
- * FIレイヤにスイッチの非選択イメージを描画する
+ * FOレイヤにスイッチの非選択イメージを描画する
  */
 void draw_switch_bg_image(int x, int y)
 {
-	lock_image(layer_image[LAYER_FI]);
-	draw_image(layer_image[LAYER_FI], x, y, switch_bg_image,
+	lock_image(layer_image[LAYER_FO]);
+	draw_image(layer_image[LAYER_FO], x, y, switch_bg_image,
 		   get_image_width(switch_bg_image),
 		   get_image_height(switch_bg_image),
-		   0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FI]);
+		   0, 0, 255, BLEND_NORMAL);
+	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2209,7 +2224,7 @@ void draw_switch_fg_image(int x, int y)
 	draw_image(layer_image[LAYER_FI], x, y, switch_fg_image,
 		   get_image_width(switch_fg_image),
 		   get_image_height(switch_fg_image),
-		   0, 0, 255, BLEND_NONE);
+		   0, 0, 255, BLEND_NORMAL);
 	unlock_image(layer_image[LAYER_FI]);
 }
 
@@ -2259,16 +2274,16 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
 }
 
 /*
- * FIレイヤにNEWSの非選択イメージを描画する
+ * FOレイヤにNEWSの非選択イメージを描画する
  */
 void draw_news_bg_image(int x, int y)
 {
-	lock_image(layer_image[LAYER_FI]);
-	draw_image(layer_image[LAYER_FI], x, y, news_bg_image,
+	lock_image(layer_image[LAYER_FO]);
+	draw_image(layer_image[LAYER_FO], x, y, news_bg_image,
 		   get_image_width(news_bg_image),
 		   get_image_height(news_bg_image),
-		   0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FI]);
+		   0, 0, 255, BLEND_NORMAL);
+	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2280,7 +2295,7 @@ void draw_news_fg_image(int x, int y)
 	draw_image(layer_image[LAYER_FI], x, y, news_fg_image,
 		   get_image_width(news_fg_image),
 		   get_image_height(news_fg_image),
-		   0, 0, 255, BLEND_NONE);
+		   0, 0, 255, BLEND_NORMAL);
 	unlock_image(layer_image[LAYER_FI]);
 }
 

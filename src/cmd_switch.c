@@ -79,10 +79,12 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h);
 static void draw_frame_child(int *x, int *y, int *w, int *h);
 static int get_pointed_parent_index(void);
 static int get_pointed_child_index(void);
-static void draw_switch_images(int *x, int *y, int *w, int *h);
-static void draw_switch_parent_images(int *x, int *y, int *w, int *h);
-static void draw_switch_child_images(int *x, int *y, int *w, int *h);
+static void draw_switch_parent_images(void);
+static void update_switch_parent(int *x, int *y, int *w, int *h);
+static void draw_switch_child_images(void);
+static void update_switch_child(int *x, int *y, int *w, int *h);
 static void draw_text(int x, int y, int w, const char *t, bool is_news);
+static void draw_keep(void);
 static void play_se(const char *file);
 static bool cleanup(void);
 
@@ -99,6 +101,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	/* セーブ画面への遷移を確認する */
 	if (selected_parent_index == -1 && is_right_button_pressed &&
 	    is_save_load_enabled()) {
+		draw_keep();
 		play_se(conf_msgbox_save_se);
 		start_save_mode(false);
 		stop_command_repetition();
@@ -107,8 +110,8 @@ bool switch_command(int *x, int *y, int *w, int *h)
 
 	/* ヒストリ画面への遷移を確認する */
 	if (is_up_pressed) {
-		if (is_up_pressed)
-			play_se(conf_msgbox_history_se);
+		draw_keep();
+		play_se(conf_msgbox_history_se);
 		start_history_mode();
 		stop_command_repetition();
 		return true;
@@ -295,15 +298,19 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	if (is_first_frame) {
 		pointed_parent_index = get_pointed_parent_index();
 
+		/* 親選択肢の描画を行う */
+		draw_stage_fo_fi();
+		draw_switch_parent_images();
+		update_switch_parent(x, y, w, h);
+
 		/* 名前ボックス、メッセージボックスを消すため再描画する */
-		draw_stage();
 		*x = 0;
 		*y = 0;
 		*w = conf_window_width;
 		*h = conf_window_height;
-		draw_switch_images(x, y, w, h);
 
 		is_first_frame = false;
+		return;
 	}
 
 	/* 親選択肢を選んでいる最中の場合 */
@@ -323,13 +330,13 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 	new_pointed_index = get_pointed_parent_index();
 
 	if (new_pointed_index == -1 && pointed_parent_index == -1) {
-		/* 何もしない */
+		draw_keep();
 	} else if (new_pointed_index == pointed_parent_index) {
-		/* 何もしない */
+		draw_keep();
 	} else {
 		/* ボタンを描画する */
 		pointed_parent_index = new_pointed_index;
-		draw_switch_images(x, y, w, h);
+		update_switch_parent(x, y, w, h);
 
 		/* SEを再生する */
 		if (new_pointed_index != -1 && !is_left_button_pressed) {
@@ -346,26 +353,30 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		pointed_child_index = -1;
 		is_child_first_frame = true;
 
-		/* ステージをボタンなしで描画しなおす */
-		draw_stage();
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
-
 		if (parent_button[new_pointed_index].has_child) {
+			/* 子選択肢の描画を行う */
+			draw_stage_fo_fi();
+			draw_switch_child_images();
+			update_switch_child(x, y, w, h);
+
 			/* SEを鳴らす */
 			play_se(conf_switch_parent_click_se_file);
-
-			/* 子選択肢の描画を行う */
-			draw_switch_images(x, y, w, h);
 		} else {
+			/* ステージをボタンなしで描画しなおす */
+			draw_stage();
+
 			/* SEを鳴らす */
 			play_se(conf_switch_child_click_se_file);
 
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 		}
+
+		/* ステージ全体を再描画する */
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
 	}
 }
 
@@ -377,15 +388,10 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 	if (is_right_button_pressed) {
 		selected_parent_index = -1;
 
-		/* ステージをボタンなしで描画しなおす */
-		draw_stage();
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
-
 		/* 親選択肢の描画を行う */
-		draw_switch_images(x, y, w, h);
+		draw_stage_fo_fi();
+		draw_switch_parent_images();
+		update_switch_parent(x, y, w, h);
 		return;
 	}
 
@@ -396,15 +402,15 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 
 		/* ボタンを描画する */
 		pointed_child_index = new_pointed_index;
-		draw_switch_images(x, y, w, h);
+		update_switch_child(x, y, w, h);
 	} else if (new_pointed_index == -1 && pointed_child_index == -1) {
-		/* 何もしない */
+		draw_keep();
 	} else if (new_pointed_index == pointed_child_index) {
-		/* 何もしない */
+		draw_keep();
 	} else {
 		/* ボタンを描画する */
 		pointed_child_index = new_pointed_index;
-		draw_switch_images(x, y, w, h);
+		update_switch_child(x, y, w, h);
 
 		/* SEを再生する */
 		if (new_pointed_index != -1 && !is_left_button_pressed)
@@ -466,20 +472,13 @@ static int get_pointed_child_index(void)
 	return -1;
 }
 
-/* FIレイヤにスイッチのイメージを描画する */
-static void draw_switch_images(int *x, int *y, int *w, int *h)
-{
-	if (selected_parent_index == -1)
-		draw_switch_parent_images(x, y, w, h);
-	else
-		draw_switch_child_images(x, y, w, h);
-}
-
 /* 親選択肢のイメージを描画する */
-void draw_switch_parent_images(int *x, int *y, int *w, int *h)
+void draw_switch_parent_images(void)
 {
 	int i;
 	bool is_news;
+
+	assert(selected_parent_index == -1);
 
 	for (i = 0; i < PARENT_COUNT; i++) {
 		if (IS_PARENT_DISABLED(i))
@@ -489,23 +488,17 @@ void draw_switch_parent_images(int *x, int *y, int *w, int *h)
 		is_news = get_command_type() == COMMAND_NEWS &&
 			i < SWITCH_BASE;
 
-		/* FIレイヤにスイッチを描画する */
+		/* FO/FIレイヤにスイッチを描画する */
 		if (!is_news) {
-			if (i == pointed_parent_index) {
-				draw_switch_fg_image(parent_button[i].x,
-						     parent_button[i].y);
-			} else {
-				draw_switch_bg_image(parent_button[i].x,
-						     parent_button[i].y);
-			}
+			draw_switch_fg_image(parent_button[i].x,
+					     parent_button[i].y);
+			draw_switch_bg_image(parent_button[i].x,
+					     parent_button[i].y);
 		} else {
-			if (i == pointed_parent_index) {
-				draw_news_fg_image(parent_button[i].x,
-						   parent_button[i].y);
-			} else {
-				draw_news_bg_image(parent_button[i].x,
-						   parent_button[i].y);
-			}
+			draw_news_fg_image(parent_button[i].x,
+					   parent_button[i].y);
+			draw_news_bg_image(parent_button[i].x,
+					   parent_button[i].y);
 		}
 
 		/* テキストを描画する */
@@ -513,61 +506,87 @@ void draw_switch_parent_images(int *x, int *y, int *w, int *h)
 			  parent_button[i].w, parent_button[i].msg,
 			  is_news);
 
-		/* FIレイヤを含めてステージを更新する */
-		draw_stage_rect_with_switch(parent_button[i].x,
-					    parent_button[i].y,
-					    parent_button[i].w,
-					    parent_button[i].h);
-
-		/* 更新範囲を求める */
-		union_rect(x, y, w, h, *x, *y, *w, *h,
-			   parent_button[i].x, parent_button[i].y,
-			   parent_button[i].w, parent_button[i].h);
 	}
 }
 
-/* 子選択肢のイメージを描画する */
-void draw_switch_child_images(int *x, int *y, int *w, int *h)
+/* 親選択肢を画面に描画する */
+void update_switch_parent(int *x, int *y, int *w, int *h)
 {
-	int i, n;
+	int i, bx, by, bw, bh;
 
+	assert(selected_parent_index == -1);
+
+	i = pointed_parent_index;
+
+	/* 描画するFIレイヤの矩形を求める */
+	bx = by = bw = bh = 0;
+	if (i != -1) {
+		bx = parent_button[i].x;
+		by = parent_button[i].y;
+		bw = parent_button[i].w;
+		bh = parent_button[i].h;
+	}
+
+	/* FOレイヤ全体とFIレイヤの矩形を画面に描画する */
+	draw_stage_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
+
+	/* 更新範囲を求める */
+	union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
+}
+
+/* 子選択肢のイメージを描画する */
+void draw_switch_child_images(void)
+{
+	int i, j;
+
+	assert(selected_parent_index != -1);
 	assert(parent_button[selected_parent_index].child_count > 0);
 
-	n = selected_parent_index;
-	for (i = 0; i < parent_button[n].child_count; i++) {
-		/* FIレイヤにスイッチを描画する */
-		if (i == pointed_child_index) {
-			draw_switch_fg_image(child_button[n][i].x,
-					     child_button[n][i].y);
-		} else {
-			draw_switch_bg_image(child_button[n][i].x,
-					     child_button[n][i].y);
-		}
+	i = selected_parent_index;
+	for (j = 0; j < parent_button[i].child_count; j++) {
+		/* FO/FIレイヤにスイッチを描画する */
+		draw_switch_fg_image(child_button[i][j].x,
+				     child_button[i][j].y);
+		draw_switch_bg_image(child_button[i][j].x,
+				     child_button[i][j].y);
 
 		/* テキストを描画する */
-		draw_text(child_button[n][i].x, child_button[n][i].y,
-			  child_button[n][i].w, child_button[n][i].msg, false);
-
-		/* FIレイヤを含めてステージを更新する */
-		draw_stage_rect_with_switch(child_button[n][i].x,
-					    child_button[n][i].y,
-					    child_button[n][i].w,
-					    child_button[n][i].h);
-
-		/* 更新範囲を求める */
-		union_rect(x, y, w, h, *x, *y, *w, *h,
-			   child_button[n][i].x,
-			   child_button[n][i].y,
-			   child_button[n][i].w,
-			   child_button[n][i].h);
+		draw_text(child_button[i][j].x, child_button[i][j].y,
+			  child_button[i][j].w, child_button[i][j].msg, false);
 	}
+}
+
+/* 親選択肢を画面に描画する */
+void update_switch_child(int *x, int *y, int *w, int *h)
+{
+	int i, j, bx, by, bw, bh;
+
+	assert(selected_parent_index != -1);
+
+	i = selected_parent_index;
+	j = pointed_child_index;
+
+	/* 描画するFIレイヤの矩形を求める */
+	bx = by = bw = bh = 0;
+	if (j != -1) {
+		bx = child_button[i][j].x;
+		by = child_button[i][j].y;
+		bw = child_button[i][j].w;
+		bh = child_button[i][j].h;
+	}
+
+	/* FO全体とFIの1矩形を描画する(GPU用) */
+	draw_stage_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
+
+	/* 更新範囲を求める */
+	union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
 }
 
 /* 選択肢のテキストを描画する */
 static void draw_text(int x, int y, int w, const char *t, bool is_news)
 {
 	uint32_t c;
-	int mblen, xx, ww, hh;
+	int mblen, xx;
 
 	/* 描画位置を決める */
 	xx = x + (w - get_utf8_width(t)) / 2;
@@ -581,12 +600,40 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 			return;
 
 		/* 描画する */
-		draw_char_on_fi(xx, y, c, &ww, &hh);
-		xx += ww;
+		xx += draw_char_on_fo_fi(xx, y, c);
 
 		/* 次の文字へ移動する */
 		t += mblen;
 	}
+}
+
+/* 描画する(GPU用) */
+static void draw_keep(void)
+{
+	int x, y, w, h, i, j;
+
+	x = y = w = h = 0;
+	if (selected_parent_index == -1) {
+		i = pointed_parent_index;
+		if (i != -1) {
+			x = parent_button[i].x;
+			y = parent_button[i].y;
+			w = parent_button[i].w;
+			h = parent_button[i].h;
+		}
+	} else {
+		i = selected_parent_index;
+		j = pointed_child_index;
+		if (j != -1) {
+			x = child_button[i][j].x;
+			y = child_button[i][j].y;
+			w = child_button[i][j].w;
+			h = child_button[i][j].h;
+		}
+	}
+
+	/* FO全体とFIの1矩形を描画する(GPU用) */
+	draw_stage_with_buttons_keep(x, y, w, h, 0, 0, 0, 0);
 }
 
 /* SEを再生する */
