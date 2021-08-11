@@ -57,7 +57,7 @@ static char mbszTitle[TITLE_BUF_SIZE];
 /* Windowsオブジェクト */
 static HWND hWndMain;
 static HDC hWndDC;
-#if !USE_DIRECT3D
+#ifndef USE_DIRECT3D
 static HDC hBitmapDC;
 static HBITMAP hBitmap;
 #endif
@@ -65,7 +65,6 @@ static HBITMAP hBitmap;
 /* イメージオブジェクト */
 static struct image *BackImage;
 
-/* 計測用の時刻 */
 static DWORD dwStartTime;
 
 /* ログファイル */
@@ -94,7 +93,7 @@ static BOOL OpenLogFile(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
 static void GameLoop(void);
 static BOOL SyncEvents(void);
-static BOOL WaitForNextFrame();
+static BOOL WaitForNextFrame(void);
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 								LPARAM lParam);
 static int ConvertKeyCode(int nVK);
@@ -102,7 +101,7 @@ static void ToggleFullScreen(void);
 static void ChangeDisplayMode(void);
 static void ResetDisplayMode(void);
 static void OnPaint(void);
-#if !USE_DIRECT3D
+#ifndef USE_DIRECT3D
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
 #endif
@@ -167,7 +166,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if(!InitWindow(hInstance, nCmdShow))
 		return FALSE;
 
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	/* Direct3Dを初期化する */
 	if(!D3DInitialize(hWndMain))
 		return FALSE;
@@ -177,7 +176,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if(!DSInitialize(hWndMain))
 		return FALSE;
 
-#if !USE_DIRECT3D 
+#ifndef USE_DIRECT3D 
 	/* バックイメージを作成する */
 	if(!CreateBackImage())
 		return FALSE;
@@ -197,7 +196,7 @@ static void CleanupApp(void)
 	if(hWndDC != NULL)
 		ReleaseDC(hWndMain, hWndDC);
 
-#if !USE_DIRECT3D
+#ifndef USE_DIRECT3D
 	/* バックイメージのビットマップを破棄する */
 	if(hBitmap != NULL)
 		DeleteObject(hBitmap);
@@ -211,7 +210,7 @@ static void CleanupApp(void)
 		destroy_image(BackImage);
 #endif
 
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	D3DCleanup();
 #endif
 
@@ -327,13 +326,14 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 
 	/* 0.1秒間(3フレーム)でウィンドウに関連するイベントを処理してしまう */
+	dwStartTime = GetTickCount();
 	for(i = 0; i < FPS / 10; i++)
 		WaitForNextFrame();
 
 	return TRUE;
 }
 
-#if !USE_DIRECT3D
+#ifndef USE_DIRECT3D
 /* バックイメージを作成する */
 static BOOL CreateBackImage(void)
 {
@@ -384,11 +384,14 @@ static void GameLoop(void)
 	if(!SyncEvents())
 		return;
 
+#if 0
 	/* 最初のフレームの開始時刻を取得する */
 	dwStartTime = GetTickCount();
+#endif
+
 	while(TRUE)
 	{
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 		/* フレームの描画を開始する */
 		D3DStartFrame();
 #else
@@ -404,7 +407,7 @@ static void GameLoop(void)
 			bBreak = TRUE;
 		}
 
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 		/* フレームの描画を終了する */
 		D3DEndFrame();
 #else
@@ -419,16 +422,22 @@ static void GameLoop(void)
 		if(bBreak)
 			break;
 
+		/* イベントを処理する */
+		if(!SyncEvents())
+			break;
+
+#if 0
 		/* 次の描画までスリープする */
 		if(!WaitForNextFrame())
 			break;	/* 閉じるボタンが押された */
 
 		/* 次のフレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
+#endif
 	}
 }
 
-#if! USE_DIRECT3D
+#ifndef USE_DIRECT3D
 /* ウィンドウにバックイメージを転送する */
 static void SyncBackImage(int x, int y, int w, int h)
 {
@@ -727,7 +736,7 @@ static void OnPaint(void)
 	PAINTSTRUCT ps;
 
 	hDC = BeginPaint(hWndMain, &ps);
-#if !USE_DIRECT3D
+#ifndef USE_DIRECT3D
 	BitBlt(hDC,
 		   ps.rcPaint.left,
 		   ps.rcPaint.top,
@@ -853,7 +862,7 @@ const char *conv_utf8_to_native(const char *utf8_message)
 bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	if (!D3DLockTexture(width, height, pixels, locked_pixels, texture))
 		return false;
 
@@ -877,7 +886,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	D3DUnlockTexture(width, height, pixels, locked_pixels, texture);
 #else
 	assert(*locked_pixels != NULL);
@@ -896,7 +905,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	D3DDestroyTexture(texture);
 #else
 	UNUSED_PARAMETER(texture);
@@ -910,7 +919,7 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	D3DRenderImage(dst_left, dst_top, src_image, width, height,
 				   src_left, src_top, alpha, bt);
 #else
@@ -927,7 +936,7 @@ void render_image_mask(int dst_left, int dst_top,
                        int width, int height, int src_left, int src_top,
                        int mask)
 {
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	D3DRenderImageMask(dst_left, dst_top, src_image, width, height,
 					   src_left, src_top, mask);
 #else
@@ -941,7 +950,7 @@ void render_image_mask(int dst_left, int dst_top,
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
-#if USE_DIRECT3D
+#ifdef USE_DIRECT3D
 	D3DRenderClear(left, top, width, height, color);
 #else
 	clear_image_color_rect(BackImage, left, top, width, height, color);

@@ -9,6 +9,9 @@ build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/res/resource.aps
+build/mingw-3d/*.o
+build/mingw-3d/libroot
+build/mingw-3d/suika-3d.exe
 build/mingw64/*.o
 build/mingw64/libroot
 build/mingw64/suika64.exe
