@@ -306,9 +306,14 @@ void opengl_render_image_mask(int dst_left, int dst_top,
 			      struct image * RESTRICT src_image, int width,
 			      int height, int src_left, int src_top, int mask)
 {
+	int alpha;
+
 	UNUSED_PARAMETER(mask);
+
+	alpha = (float)((float)mask / 27.0f * 255.0f);
+
 	opengl_render_image(dst_left, dst_top, src_image, width, height,
-			    src_left, src_top, 255, BLEND_NONE);
+			    src_left, src_top, alpha, BLEND_NONE);
 }
 
 /* 画面をクリアする */

@@ -117,6 +117,8 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 		pTex = (IDirect3DTexture9 *)*texture;
 	}
 
+	// FIXME: ロック時にコピーをやらない
+
 	// テクスチャをロックする
 	D3DLOCKED_RECT lockedRect;
 	HRESULT hResult = pTex->LockRect(0, &lockedRect, NULL, 0);

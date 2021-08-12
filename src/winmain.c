@@ -433,6 +433,9 @@ static void GameLoop(void)
 
 		/* 次のフレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
+#else
+		/* CPU使用率を下げる */
+		Sleep(1);
 #endif
 	}
 }
