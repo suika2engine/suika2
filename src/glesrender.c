@@ -310,7 +310,7 @@ void opengl_render_image_mask(int dst_left, int dst_top,
 
 	UNUSED_PARAMETER(mask);
 
-	alpha = (float)((float)mask / 27.0f * 255.0f);
+	alpha = (int)((float)mask / 27.0f * 255.0f);
 
 	opengl_render_image(dst_left, dst_top, src_image, width, height,
 			    src_left, src_top, alpha, BLEND_NONE);
