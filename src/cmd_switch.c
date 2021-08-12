@@ -79,8 +79,10 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h);
 static void draw_frame_child(int *x, int *y, int *w, int *h);
 static int get_pointed_parent_index(void);
 static int get_pointed_child_index(void);
+static void draw_fo_fi_parent(void);
 static void draw_switch_parent_images(void);
 static void update_switch_parent(int *x, int *y, int *w, int *h);
+static void draw_fo_fi_child(void);
 static void draw_switch_child_images(void);
 static void update_switch_child(int *x, int *y, int *w, int *h);
 static void draw_text(int x, int y, int w, const char *t, bool is_news);
@@ -299,8 +301,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		pointed_parent_index = get_pointed_parent_index();
 
 		/* 親選択肢の描画を行う */
-		draw_stage_fo_fi();
-		draw_switch_parent_images();
+		draw_fo_fi_parent();
 		update_switch_parent(x, y, w, h);
 
 		/* 名前ボックス、メッセージボックスを消すため再描画する */
@@ -355,8 +356,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 
 		if (parent_button[new_pointed_index].has_child) {
 			/* 子選択肢の描画を行う */
-			draw_stage_fo_fi();
-			draw_switch_child_images();
+			draw_fo_fi_child();
 			update_switch_child(x, y, w, h);
 
 			/* SEを鳴らす */
@@ -389,8 +389,7 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 		selected_parent_index = -1;
 
 		/* 親選択肢の描画を行う */
-		draw_stage_fo_fi();
-		draw_switch_parent_images();
+		draw_fo_fi_parent();
 		update_switch_parent(x, y, w, h);
 		return;
 	}
@@ -472,6 +471,15 @@ static int get_pointed_child_index(void)
 	return -1;
 }
 
+/* 親選択肢のFO/FIレイヤを描画する */
+static void draw_fo_fi_parent(void)
+{
+	lock_draw_char_on_fo_fi();
+	draw_stage_fo_fi();
+	draw_switch_parent_images();
+	unlock_draw_char_on_fo_fi();
+}
+
 /* 親選択肢のイメージを描画する */
 void draw_switch_parent_images(void)
 {
@@ -505,7 +513,6 @@ void draw_switch_parent_images(void)
 		draw_text(parent_button[i].x, parent_button[i].y,
 			  parent_button[i].w, parent_button[i].msg,
 			  is_news);
-
 	}
 }
 
@@ -535,6 +542,15 @@ void update_switch_parent(int *x, int *y, int *w, int *h)
 	*y = 0;
 	*w = conf_window_width;
 	*h = conf_window_height;
+}
+
+/* 子選択肢のFO/FIレイヤを描画する */
+static void draw_fo_fi_child(void)
+{
+	lock_draw_char_on_fo_fi();
+	draw_stage_fo_fi();
+	draw_switch_child_images();
+	unlock_draw_char_on_fo_fi();
 }
 
 /* 子選択肢のイメージを描画する */

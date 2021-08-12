@@ -1386,22 +1386,18 @@ void draw_stage_history_keep(void)
 void draw_stage_fo_fi(void)
 {
 	/* FOレイヤを描画する */
-	lock_image(layer_image[LAYER_FO]);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
-	unlock_image(layer_image[LAYER_FO]);
 
 	/* FIレイヤを描画する */
-	lock_image(layer_image[LAYER_FI]);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2238,12 +2234,10 @@ void get_switch_rect(int index, int *x, int *y, int *w, int *h)
  */
 void draw_switch_bg_image(int x, int y)
 {
-	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], x, y, switch_bg_image,
 		   get_image_width(switch_bg_image),
 		   get_image_height(switch_bg_image),
 		   0, 0, 255, BLEND_NORMAL);
-	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2251,12 +2245,10 @@ void draw_switch_bg_image(int x, int y)
  */
 void draw_switch_fg_image(int x, int y)
 {
-	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], x, y, switch_fg_image,
 		   get_image_width(switch_fg_image),
 		   get_image_height(switch_fg_image),
 		   0, 0, 255, BLEND_NORMAL);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
