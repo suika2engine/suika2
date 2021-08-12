@@ -2411,14 +2411,30 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc)
  */
 
 /*
+ * FO/FIレイヤをロックする
+ */
+void lock_fo_fi_for_menu(void)
+{
+	lock_image(layer_image[LAYER_FO]);
+	lock_image(layer_image[LAYER_FI]);
+}
+
+/*
+ * FO/FIレイヤをアンロックする
+ */
+void unlock_fo_fi_for_menu(void)
+{
+	unlock_image(layer_image[LAYER_FI]);
+	unlock_image(layer_image[LAYER_FO]);
+}
+
+/*
  * FOレイヤにイメージを描画する
  */
 void draw_image_to_fo(struct image *img)
 {
-	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], 0, 0, img, get_image_width(img),
 		   get_image_height(img), 0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2426,10 +2442,8 @@ void draw_image_to_fo(struct image *img)
  */
 void draw_image_to_fi(struct image *img)
 {
-	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, img, get_image_width(img),
 		   get_image_height(img), 0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2437,9 +2451,7 @@ void draw_image_to_fi(struct image *img)
  */
 void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color)
 {
-	lock_image(layer_image[LAYER_FO]);
 	clear_image_color_rect(layer_image[LAYER_FO], x, y, w, h, color);
-	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*

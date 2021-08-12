@@ -311,6 +311,12 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc);
  * メニュー画面・CG回想画面の描画
  */
 
+/* FO/FIレイヤをロックする */
+void lock_fo_fi_for_menu(void);
+
+/* FO/FIレイヤをアンロックする */
+void unlock_fo_fi_for_menu(void);
+
 /* FOレイヤにイメージを描画する */
 void draw_image_to_fo(struct image *img);
 

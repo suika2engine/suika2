@@ -93,24 +93,38 @@ bool retrospect_command(int *x, int *y, int *w, int *h)
 /* コマンドの初期化処理を行う */
 bool init(void)
 {
+	/* FO/FIレイヤをロックする */
+	lock_fo_fi_for_menu();
+
 	/* 画像を読み込む */
-	if (!load_images())
+	if (!load_images()) {
+		unlock_fo_fi_for_menu();
 		return false;
+	}
 
 	/* サムネイルを隠す色を取得する */
-	if (!load_hide_color())
+	if (!load_hide_color()) {
+		unlock_fo_fi_for_menu();
 		return false;
+	}
 
 	/* サムネイルのサイズを取得する */
-	if (!load_thumbnail_size())
+	if (!load_thumbnail_size()) {
+		unlock_fo_fi_for_menu();
 		return false;
+	}
 
 	/* サムネイルの情報を取得する */
-	if (!load_thumbnail_params())
+	if (!load_thumbnail_params()) {
+		unlock_fo_fi_for_menu();
 		return false;
+	}
 
 	/* フラグの値が0であるサムネイルを色で塗り潰す */
 	fill_thumbnail_rects();
+
+	/* FO/FIレイヤをアンロックする */
+	unlock_fo_fi_for_menu();
 
 	/* 繰り返し動作を開始する */
 	start_command_repetition();
@@ -290,6 +304,13 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 
 	/* クリックされた場合 */
 	if (new_pointed_index != -1 && is_left_button_pressed) {
+		/* 背景全体とボタンを1つ描画する */
+		draw_stage_with_buttons(thumbnail[new_pointed_index].x,
+					thumbnail[new_pointed_index].y,
+					thumbnail_width,
+					thumbnail_height,
+					0, 0, 0, 0);
+
 		/* 繰り返し動作を終了する */
 		pointed_index = new_pointed_index;
 		stop_command_repetition();
@@ -373,6 +394,18 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 
 	/* 選択に変更がない */
 	assert(new_pointed_index == pointed_index);
+
+	if (new_pointed_index != -1) {
+		/* 背景全体とボタンを1つ描画する */
+		draw_stage_with_buttons_keep(thumbnail[new_pointed_index].x,
+					     thumbnail[new_pointed_index].y,
+					     thumbnail_width,
+					     thumbnail_height,
+					     0, 0, 0, 0);
+	} else {
+		/* 背景全体を描画する */
+		draw_stage_with_buttons_keep(0, 0, 0, 0, 0, 0, 0, 0);
+	}
 }
 
 /* ポイントされているサムネイルを取得する */

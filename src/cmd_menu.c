@@ -78,11 +78,15 @@ bool init(void)
 	struct image *img;
 	int i;
 
+	/* FO/FIレイヤをロックする */
+	lock_fo_fi_for_menu();
+
 	/* 背景を読み込んでFOレイヤに描画する */
 	file = get_string_param(MENU_PARAM_BG_FILE);
 	img = create_image_from_file(BG_DIR, file);
 	if (img == NULL) {
 		log_script_exec_footer();
+		unlock_fo_fi_for_menu();
 		return false;
 	}
 	draw_image_to_fo(img);
@@ -93,10 +97,14 @@ bool init(void)
 	img = create_image_from_file(BG_DIR, file);
 	if (img == NULL) {
 		log_script_exec_footer();
+		unlock_fo_fi_for_menu();
 		return false;
 	}
 	draw_image_to_fi(img);
 	destroy_image(img);
+
+	/* FO/FIレイヤをアンロックする */
+	unlock_fo_fi_for_menu();
 
 	/* ボタンのラベルと座標をロードする */
 	for (i = 0; i < BUTTON_COUNT; i++) {
