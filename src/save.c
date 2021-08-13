@@ -370,6 +370,9 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 /* ページの描画を行う */
 static void draw_page(int *x, int *y, int *w, int *h)
 {
+	/* FO/FIレイヤをロックする */
+	lock_draw_char_on_fo_fi();
+
 	/* ステージのレイヤの背景を描画する */
 	if (is_save_mode)
 		clear_save_stage();
@@ -378,6 +381,9 @@ static void draw_page(int *x, int *y, int *w, int *h)
 
 	/* セーブデータのテキストを描画する */
 	draw_all_text_items();
+
+	/* FO/FIレイヤをアンロックする */
+	unlock_draw_char_on_fo_fi();
 
 	/* 現在選択されている項目を取得する */
 	pointed_index = get_pointed_index();
@@ -455,9 +461,6 @@ static void draw_all_text_items(void)
 	char text[128];
 	int i, j;
 
-	/* FO/FIレイヤをロックする */
-	lock_draw_char_on_fo_fi();
-
 	/* 先頭のセーブデータの番号を求める */
 	j = page * PAGE_SLOTS;
 
@@ -476,9 +479,6 @@ static void draw_all_text_items(void)
 			       button[i].y + conf_save_data_margin_top,
 			       text);
 	}
-
-	/* FO/FIレイヤをアンロックする */
-	unlock_draw_char_on_fo_fi();
 }
 
 /* セーブデータのテキストを描画する */

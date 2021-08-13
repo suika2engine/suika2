@@ -2331,19 +2331,15 @@ void draw_news_fg_image(int x, int y)
  */
 void clear_save_stage(void)
 {
-	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], 0, 0, save_bg_image,
 		   get_image_width(layer_image[LAYER_FO]),
 		   get_image_height(layer_image[LAYER_FO]),
 		   0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FO]);
 
-	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, save_fg_image,
 		   get_image_width(layer_image[LAYER_FI]),
 		   get_image_height(layer_image[LAYER_FI]),
 		   0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
@@ -2351,19 +2347,15 @@ void clear_save_stage(void)
  */
 void clear_load_stage(void)
 {
-	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], 0, 0, load_bg_image,
 		   get_image_width(layer_image[LAYER_FO]),
 		   get_image_height(layer_image[LAYER_FO]),
 		   0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FO]);
 
-	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, load_fg_image,
 		   get_image_width(layer_image[LAYER_FI]),
 		   get_image_height(layer_image[LAYER_FI]),
 		   0, 0, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
