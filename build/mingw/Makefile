@@ -6,7 +6,6 @@ include ../common.mk
 
 # For cross compilation
 CC = i686-w64-mingw32-gcc
-CXX = i686-w64-mingw32-g++
 WINDRES = i686-w64-mingw32-windres
 
 #
@@ -86,7 +85,7 @@ OBJS = \
 all: suika.exe
 
 suika.exe: $(OBJS)
-	$(CC) -o suika.exe $(OBJS) $(LDFLAGS)
+	$(CC) -s -o suika.exe $(OBJS) $(LDFLAGS)
 
 #
 # Feature specific source files.
