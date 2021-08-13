@@ -118,7 +118,7 @@ int WINAPI WinMain(
 	int result = 1;
 
 	/* Sleep()の分解能を設定する */
-	timeBeginPeriod(SLEEP_MILLI);
+	timeBeginPeriod(1);
 
 	/* 基盤レイヤの初期化処理を行う */
 	if(InitApp(hInstance, nCmdShow))
@@ -140,7 +140,7 @@ int WINAPI WinMain(
 	CleanupApp();
 
 	/* Sleep()の分解能を元に戻す */
-	timeEndPeriod(SLEEP_MILLI);
+	timeEndPeriod(1);
 
 	return result;
 }
