@@ -45,6 +45,7 @@ LDFLAGS = \
 	-lole32 \
 	-ldxguid \
 	-ldsound \
+	-lwinmm \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 

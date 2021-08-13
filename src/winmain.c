@@ -117,6 +117,9 @@ int WINAPI WinMain(
 {
 	int result = 1;
 
+	/* Sleep()の分解能を設定する */
+	timeBeginPeriod(SLEEP_MILLI);
+
 	/* 基盤レイヤの初期化処理を行う */
 	if(InitApp(hInstance, nCmdShow))
 	{
@@ -135,6 +138,9 @@ int WINAPI WinMain(
 
 	/* 互換レイヤの終了処理を行う */
 	CleanupApp();
+
+	/* Sleep()の分解能を元に戻す */
+	timeEndPeriod(SLEEP_MILLI);
 
 	return result;
 }
@@ -384,7 +390,7 @@ static void GameLoop(void)
 	if(!SyncEvents())
 		return;
 
-#if 0
+#if 1
 	/* 最初のフレームの開始時刻を取得する */
 	dwStartTime = GetTickCount();
 #endif
@@ -426,17 +432,12 @@ static void GameLoop(void)
 		if(!SyncEvents())
 			break;
 
-#if 0
 		/* 次の描画までスリープする */
 		if(!WaitForNextFrame())
 			break;	/* 閉じるボタンが押された */
 
 		/* 次のフレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
-#else
-		/* CPU使用率を下げる */
-		Sleep(1);
-#endif
 	}
 }
 
