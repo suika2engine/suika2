@@ -23,14 +23,26 @@ extern "C" {
 
 #include <d3d9.h>
 
+// テクスチャ管理用構造体
+struct Texture
+{
+	// テクスチャ作成時のDirect3Dデバイス(全画面切り替えの対応用)
+	LPDIRECT3DDEVICE9 pD3DDevice;
+
+	// テクスチャ
+	IDirect3DTexture9 *pTex;	
+};
+
 // テクスチャなし座標変換済み頂点
-struct VertexRHW {
+struct VertexRHW
+{
 	float x, y, z, rhw;
 	DWORD color;
 };
 
 // テクスチャあり座標変換済み頂点
-struct VertexRHWTex {
+struct VertexRHWTex
+{
 	float x, y, z, rhw;
 	DWORD color;
 	float u, v;
@@ -40,12 +52,19 @@ struct VertexRHWTex {
 static LPDIRECT3D9 pD3D;
 static LPDIRECT3DDEVICE9 pD3DDevice;
 
+// 全画面用の表示オフセット
+int nDisplayOffsetX;
+int nDisplayOffsetY;
+
 //
 // Direct3Dの初期化を行う
 //
-BOOL D3DInitialize(HWND hWnd)
+BOOL D3DInitialize(HWND hWnd, int nOffsetX, int nOffsetY)
 {
 	HRESULT hResult;
+
+	nDisplayOffsetX = nOffsetX;
+	nDisplayOffsetY = nOffsetY;
 
 	// Direct3Dの作成を行う
 	pD3D = Direct3DCreate9(D3D_SDK_VERSION);
@@ -94,45 +113,28 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 {
 	assert(*locked_pixels == NULL);
 
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
 	UNUSED_PARAMETER(pixels);
 
-	IDirect3DTexture9 *pTex = NULL;
 	if(*texture == NULL)
 	{
-		// テクスチャを作成する
-		HRESULT hResult = pD3DDevice->CreateTexture(width, height, 1, 0,
-													D3DFMT_A8R8G8B8,
-													D3DPOOL_MANAGED, &pTex,
-													NULL);
-		if(FAILED(hResult))
-		{
-			log_api_error("Direct3DDevice9::CreateTexture");
+		struct Texture *tex = (struct Texture *)malloc(sizeof(struct Texture));
+		if(tex == NULL)
 			return FALSE;
-		}
-		*texture = pTex;
-	}
-	else
-	{
-		// 既存テクスチャを取得する
-		pTex = (IDirect3DTexture9 *)*texture;
+
+		tex->pD3DDevice = NULL;
+		tex->pTex = NULL;
+
+		*texture = tex;
 	}
 
-	// FIXME: ロック時にコピーをやらない
-
-	// テクスチャをロックする
-	D3DLOCKED_RECT lockedRect;
-	HRESULT hResult = pTex->LockRect(0, &lockedRect, NULL, 0);
-	if(FAILED(hResult))
-		return FALSE;
-	*locked_pixels = (pixel_t *)lockedRect.pBits;
-
-	// コピーする
-	memcpy(*locked_pixels, pixels, width * height * sizeof(pixel_t));
+	*locked_pixels = pixels;
 
 	return TRUE;
 }
 
-VOID D3DUnlockTexture(int width, int height, pixel_t *pixels,
+BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 					  pixel_t **locked_pixels, void **texture)
 {
 	assert(*locked_pixels != NULL);
@@ -142,21 +144,47 @@ VOID D3DUnlockTexture(int width, int height, pixel_t *pixels,
 	UNUSED_PARAMETER(height);
 	UNUSED_PARAMETER(pixels);
 
+	struct Texture *tex = (struct Texture *)*texture;
+	if(tex->pTex == NULL || tex->pD3DDevice != pD3DDevice)
+	{
+		// テクスチャを作成する
+		HRESULT hResult = pD3DDevice->CreateTexture(width, height, 1, 0,
+													D3DFMT_A8R8G8B8,
+													D3DPOOL_MANAGED,
+													&tex->pTex,
+													NULL);
+		if(FAILED(hResult))
+		{
+			log_api_error("Direct3DDevice9::CreateTexture");
+			return FALSE;
+		}
+
+		// テクスチャ作成時のDirect3Dデバイスを保持する(全画面切り替え用)
+		tex->pD3DDevice = pD3DDevice;
+	}
+
+	// テクスチャをロックする
+	D3DLOCKED_RECT lockedRect;
+	HRESULT hResult = tex->pTex->LockRect(0, &lockedRect, NULL, 0);
+	if(FAILED(hResult))
+		return FALSE;
+
 	// コピーする
-	memcpy(pixels, *locked_pixels, width * height * sizeof(pixel_t));
+	memcpy(lockedRect.pBits, *locked_pixels, width * height * sizeof(pixel_t));
 
 	// アンロックする
-	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)*texture;
-	pTex->UnlockRect(0);
+	tex->pTex->UnlockRect(0);
 
 	*locked_pixels = NULL;
+
+	return TRUE;
 }
 
 VOID D3DDestroyTexture(void *texture)
 {
 	if(texture != NULL) {
-		IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)texture;
-		pTex->Release();
+		struct Texture *tex = (struct Texture *)texture;
+		tex->pTex->Release();
 	}
 }
 
@@ -178,8 +206,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 					struct image * RESTRICT src_image, int width, int height,
 					int src_left, int src_top, int alpha, int bt)
 {
-	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)get_texture_object(src_image);
-	assert(pTex != NULL);
+	struct Texture *tex = (struct Texture *)get_texture_object(src_image);
+	assert(tex != NULL);
 
 	// 描画の必要があるか判定する
 	if(alpha == 0 || width == 0 || height == 0)
@@ -250,7 +278,7 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
 
-	pD3DDevice->SetTexture(0, pTex);
+	pD3DDevice->SetTexture(0, tex->pTex);
 	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
 
 	if(width == 1 && height == 1)
@@ -279,14 +307,9 @@ VOID D3DRenderImageMask(int dst_left, int dst_top,
 						struct image * RESTRICT src_image, int width,
 						int height, int src_left, int src_top, int mask)
 {
-	IDirect3DTexture9 *pTex =
-		(IDirect3DTexture9 *)get_texture_object(src_image);
-	assert(pTex != NULL);
-
-	// TODO: implement
 	int a = (int)(255.0f * ((float)mask / 27.0f));
-	D3DRenderImageMask(dst_left, dst_top, src_image, width, height, src_left,
-					   src_top, a);
+	D3DRenderImage(dst_left, dst_top, src_image, width, height, src_left,
+				   src_top, a, BLEND_NONE);
 }
 
 VOID D3DRenderClear(int left, int top, int width, int height, pixel_t color)

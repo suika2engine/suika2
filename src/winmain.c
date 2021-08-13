@@ -117,8 +117,10 @@ int WINAPI WinMain(
 {
 	int result = 1;
 
+#ifndef USE_DIRECT3D
 	/* Sleep()の分解能を設定する */
 	timeBeginPeriod(1);
+#endif
 
 	/* 基盤レイヤの初期化処理を行う */
 	if(InitApp(hInstance, nCmdShow))
@@ -139,8 +141,10 @@ int WINAPI WinMain(
 	/* 互換レイヤの終了処理を行う */
 	CleanupApp();
 
+#ifndef USE_DIRECT3D
 	/* Sleep()の分解能を元に戻す */
 	timeEndPeriod(1);
+#endif
 
 	return result;
 }
@@ -174,7 +178,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 #ifdef USE_DIRECT3D
 	/* Direct3Dを初期化する */
-	if(!D3DInitialize(hWndMain))
+	if(!D3DInitialize(hWndMain, 0, 0))
 		return FALSE;
 #endif
 
@@ -629,6 +633,10 @@ static void ToggleFullScreen(void)
 	{
 		bFullScreen = TRUE;
 
+#ifdef USE_DIRECT3D
+		D3DCleanup();
+#endif
+
 		ChangeDisplayMode();
 
 		cx = GetSystemMetrics(SM_CXSCREEN);
@@ -643,10 +651,18 @@ static void ToggleFullScreen(void)
 		MoveWindow(hWndMain, 0, 0, cx, cy, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
+
+#ifdef USE_DIRECT3D
+		D3DInitialize(hWndMain, nOffsetX, nOffsetY);
+#endif
 	}
 	else
 	{
 		bFullScreen = FALSE;
+
+#ifdef USE_DIRECT3D
+		D3DCleanup();
+#endif
 
 		ResetDisplayMode();
 
@@ -665,6 +681,10 @@ static void ToggleFullScreen(void)
 				   rectWindow.bottom - rectWindow.top, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
+
+#ifdef USE_DIRECT3D
+		D3DInitialize(hWndMain, 0, 0);
+#endif
 	}
 }
 

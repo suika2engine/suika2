@@ -17,11 +17,11 @@
 
 #include <windows.h>
 
-BOOL D3DInitialize(HWND hWnd);
+BOOL D3DInitialize(HWND hWnd, int nOffsetX, int nOffsetY);
 VOID D3DCleanup(void);
 BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture);
-VOID D3DUnlockTexture(int width, int height, pixel_t *pixels,
+BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 					  pixel_t **locked_pixels, void **texture);
 VOID D3DDestroyTexture(void *texture);
 VOID D3DStartFrame(void);
