@@ -147,7 +147,7 @@ void cleanup_glyph(void)
 
 /*
  * utf-8文字列の先頭文字をutf-32文字に変換する
- * FIXME: サロゲートペア、合字
+ * XXX: サロゲートペア、合字は処理しない
  */
 int utf8_to_utf32(const char *mbs, uint32_t *wc)
 {
@@ -318,8 +318,10 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 			x,
 			y,
 			outline_color);
+	FT_Done_Glyph(glyph);
+	FT_Stroker_Done(stroker);
 
-	/* descentを求める */
+	/* Descentを求める */
 	descent = (int)(face->glyph->metrics.height / SCALE) -
 		  (int)(face->glyph->metrics.horiBearingY / SCALE);
 
@@ -346,6 +348,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 			x,
 			y,
 			color);
+	FT_Done_Glyph(glyph);
+	FT_Stroker_Done(stroker);
 
 	/* 成功 */
 	return true;
