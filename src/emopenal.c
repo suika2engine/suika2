@@ -182,9 +182,15 @@ bool is_sound_finished(int n)
 void fill_sound_buffer(void)
 {
 	ALuint buf;
+	ALint state;
 	int n, processed, samples;
 
 	for (n = 0; n < MIXER_STREAMS; n++) {
+		/* 高負荷による処理落ちで再生が停止している場合、再開する */
+		alGetSourcei(source[n], AL_SOURCE_STATE, &state);
+		if (state != AL_PLAYING && !finish[n])
+			alSourcePlay(source[n]);
+
 		/* 処理済みのバッファ数を取得する */
 		alGetSourcei(source[n], AL_BUFFERS_PROCESSED, &processed);
 

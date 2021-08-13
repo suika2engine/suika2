@@ -2474,9 +2474,7 @@ void draw_history_fo(void)
  */
 void draw_history_fi(pixel_t color)
 {
-	lock_image(layer_image[LAYER_FI]);
 	clear_image_color(layer_image[LAYER_FI], color);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*
