@@ -26,10 +26,11 @@ extern "C" {
 // テクスチャ管理用構造体
 struct Texture
 {
-	// テクスチャ
+	// Direct3Dのテクスチャオブジェクト
 	IDirect3DTexture9 *pTex;	
 
-	// TODO: テクスチャ管理用データを追加する
+	// リンクリスト
+	Texture *pNext;
 };
 
 // テクスチャなし座標変換済み頂点
@@ -51,17 +52,22 @@ struct VertexRHWTex
 static LPDIRECT3D9 pD3D;
 static LPDIRECT3DDEVICE9 pD3DDevice;
 
+// テクスチャリストの先頭
+static Texture *pTexList;
+
 // 全画面用の表示オフセット
-int nDisplayOffsetX;
-int nDisplayOffsetY;
+static int nDisplayOffsetX;
+static int nDisplayOffsetY;
+
+// 前方参照
+static BOOL CreateDevice(HWND hWnd);
+static VOID DestroyTextureObjects();
 
 //
 // Direct3Dの初期化を行う
 //
 BOOL D3DInitialize(HWND hWnd)
 {
-	HRESULT hResult;
-
 	// Direct3Dの作成を行う
 	pD3D = Direct3DCreate9(D3D_SDK_VERSION);
 	if(pD3D == NULL)
@@ -70,13 +76,73 @@ BOOL D3DInitialize(HWND hWnd)
         return FALSE;
     }
 
-    // Direct3Dデバイスを作成する
-    D3DPRESENT_PARAMETERS d3dpp;
-    ZeroMemory(&d3dpp, sizeof(d3dpp));
-    d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-    d3dpp.BackBufferCount = 1;
-    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    d3dpp.Windowed = TRUE;
+	// Direct3Dデバイスを作成する
+	if (!CreateDevice(hWnd))
+		return FALSE;
+
+    return TRUE;
+}
+
+//
+// Direct3Dの再初期化を行う
+//
+BOOL D3DReinitialize(HWND hWnd, int nOffsetX, int nOffsetY)
+{
+	// すべてのDirect3Dテクスチャオブジェクトを破棄する
+	DestroyTextureObjects();
+
+	// Direct3Dデバイスを破棄する
+	if(pD3DDevice != NULL)
+	{
+		pD3DDevice->Release();
+		pD3DDevice = NULL;
+	}
+
+	// Direct3Dデバイスを作成する
+	if (!CreateDevice(hWnd))
+		return FALSE;
+
+	nDisplayOffsetX = nOffsetX;
+	nDisplayOffsetY = nOffsetY;
+
+	return TRUE;
+}
+
+//
+// Direct3Dの終了処理を行う
+//
+VOID D3DCleanup(void)
+{
+	// すべてのDirect3Dテクスチャオブジェクトを破棄する
+	DestroyTextureObjects();
+
+	// Direct3Dデバイスを破棄する
+	if(pD3DDevice != NULL)
+	{
+		pD3DDevice->Release();
+		pD3DDevice = NULL;
+	}
+
+	// Direct3Dオブジェクトを破棄する
+	if(pD3D != NULL)
+	{
+		pD3D->Release();
+		pD3D = NULL;
+	}
+}
+
+// Direct3Dデバイスを作成する
+static BOOL CreateDevice(HWND hWnd)
+{
+	HRESULT hResult;
+
+	// Direct3Dデバイスを作成する
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.Windowed = TRUE;
 	hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 								 D3DCREATE_MIXED_VERTEXPROCESSING, &d3dpp,
 								 &pD3DDevice);
@@ -92,25 +158,7 @@ BOOL D3DInitialize(HWND hWnd)
         }
     }
 
-    return TRUE;
-}
-
-//
-// Direct3Dの終了処理を行う
-//
-VOID D3DCleanup(void)
-{
-	if(pD3DDevice != NULL)
-	{
-		pD3DDevice->Release();
-		pD3DDevice = NULL;
-	}
-
-	if(pD3D != NULL)
-	{
-		pD3D->Release();
-		pD3D = NULL;
-	}
+	return TRUE;
 }
 
 //
@@ -118,8 +166,11 @@ VOID D3DCleanup(void)
 //
 VOID D3DSetFullScreen(int nOffsetX, int nOffsetY)
 {
-	nDisplayOffsetX = nOffsetX;
-	nDisplayOffsetY = nOffsetY;
+	UNUSED_PARAMETER(nOffsetX);
+	UNUSED_PARAMETER(nOffsetY);
+
+//	nDisplayOffsetX = nOffsetX;
+//	nDisplayOffsetY = nOffsetY;
 }
 
 //
@@ -137,15 +188,21 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 
 	if(*texture == NULL)
 	{
-		struct Texture *tex = (struct Texture *)malloc(sizeof(struct Texture));
-		if(tex == NULL)
+		// テクスチャ管理用オブジェクトを作成する
+		Texture *t = (Texture *)malloc(sizeof(Texture));
+		if(t == NULL)
 			return FALSE;
 
-		tex->pTex = NULL;
+		// 初期化してリストの先頭に加える
+		t->pTex = NULL;
+		t->pNext = pTexList;
+		pTexList = t;
 
-		*texture = tex;
+		// ポインタを設定する
+		*texture = t;
 	}
 
+	// ロック中の描画先ポインタを設定する
 	*locked_pixels = pixels;
 
 	return TRUE;
@@ -165,14 +222,14 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 	UNUSED_PARAMETER(height);
 	UNUSED_PARAMETER(pixels);
 
-	struct Texture *tex = (struct Texture *)*texture;
-	if(tex->pTex == NULL)
+	Texture *t = (Texture *)*texture;
+	if(t->pTex == NULL)
 	{
-		// テクスチャを作成する
+		// Direct3Dテクスチャオブジェクトを作成する
 		HRESULT hResult = pD3DDevice->CreateTexture(width, height, 1, 0,
 													D3DFMT_A8R8G8B8,
 													D3DPOOL_MANAGED,
-													&tex->pTex,
+													&t->pTex,
 													NULL);
 		if(FAILED(hResult))
 		{
@@ -181,18 +238,19 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 		}
 	}
 
-	// テクスチャをロックする
+	// Direct3Dテクスチャオブジェクトの矩形をロックする
 	D3DLOCKED_RECT lockedRect;
-	HRESULT hResult = tex->pTex->LockRect(0, &lockedRect, NULL, 0);
+	HRESULT hResult = t->pTex->LockRect(0, &lockedRect, NULL, 0);
 	if(FAILED(hResult))
 		return FALSE;
 
-	// コピーする
+	// ピクセルデータをコピーする
 	memcpy(lockedRect.pBits, *locked_pixels, width * height * sizeof(pixel_t));
 
-	// アンロックする
-	tex->pTex->UnlockRect(0);
+	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
+	t->pTex->UnlockRect(0);
 
+	// ロック中の描画先ポインタをクリアする
 	*locked_pixels = NULL;
 
 	return TRUE;
@@ -204,10 +262,43 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 //
 VOID D3DDestroyTexture(void *texture)
 {
-	if(texture != NULL)
+	// テクスチャ管理用オブジェクトが作成されていなければ何もしない
+	if(texture == NULL)
+		return;
+
+	// Direct3Dテクスチャオブジェクトを破棄する
+	Texture *t = (Texture *)texture;
+	t->pTex->Release();
+
+	// テクスチャ管理用オブジェクトのリストから外す
+	Texture *p = pTexList;
+	if(p == t)
 	{
-		struct Texture *tex = (struct Texture *)texture;
-		tex->pTex->Release();
+		pTexList = t->pNext;
+	}
+	else
+	{
+		while(p->pNext != NULL)
+			if(p->pNext == t)
+				p->pNext = t->pNext;
+	}
+
+	// テクスチャ管理用オブジェクトを破棄する
+	free(t);
+}
+
+// すべてのDirect3Dテクスチャオブジェクトを破棄する
+static VOID DestroyTextureObjects()
+{
+	Texture *t = pTexList;
+	while(t != NULL)
+	{
+		if(t->pTex != NULL)
+		{
+			t->pTex->Release();
+			t->pTex = NULL;
+		}
+		t = t->pNext;
 	}
 }
 

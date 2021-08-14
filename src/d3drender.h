@@ -18,8 +18,8 @@
 #include <windows.h>
 
 BOOL D3DInitialize(HWND hWnd);
+BOOL D3DReinitialize(HWND hWnd, int nOffsetX, int nOffsetY);
 VOID D3DCleanup(void);
-VOID D3DSetFullScreen(int nOffsetX, int nOffsetY);
 BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture);
 BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
