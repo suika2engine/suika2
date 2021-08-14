@@ -268,7 +268,8 @@ VOID D3DDestroyTexture(void *texture)
 
 	// Direct3Dテクスチャオブジェクトを破棄する
 	Texture *t = (Texture *)texture;
-	t->pTex->Release();
+	if(t->pTex != NULL)
+		t->pTex->Release();
 
 	// テクスチャ管理用オブジェクトのリストから外す
 	Texture *p = pTexList;
