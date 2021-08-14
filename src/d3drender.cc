@@ -26,11 +26,10 @@ extern "C" {
 // テクスチャ管理用構造体
 struct Texture
 {
-	// テクスチャ作成時のDirect3Dデバイス(全画面切り替えの対応用)
-	LPDIRECT3DDEVICE9 pD3DDevice;
-
 	// テクスチャ
 	IDirect3DTexture9 *pTex;	
+
+	// TODO: テクスチャ管理用データを追加する
 };
 
 // テクスチャなし座標変換済み頂点
@@ -59,12 +58,9 @@ int nDisplayOffsetY;
 //
 // Direct3Dの初期化を行う
 //
-BOOL D3DInitialize(HWND hWnd, int nOffsetX, int nOffsetY)
+BOOL D3DInitialize(HWND hWnd)
 {
 	HRESULT hResult;
-
-	nDisplayOffsetX = nOffsetX;
-	nDisplayOffsetY = nOffsetY;
 
 	// Direct3Dの作成を行う
 	pD3D = Direct3DCreate9(D3D_SDK_VERSION);
@@ -99,15 +95,37 @@ BOOL D3DInitialize(HWND hWnd, int nOffsetX, int nOffsetY)
     return TRUE;
 }
 
+//
+// Direct3Dの終了処理を行う
+//
 VOID D3DCleanup(void)
 {
 	if(pD3DDevice != NULL)
+	{
 		pD3DDevice->Release();
+		pD3DDevice = NULL;
+	}
 
 	if(pD3D != NULL)
+	{
 		pD3D->Release();
+		pD3D = NULL;
+	}
 }
 
+//
+// フルスクリーン表示の設定を行う
+//
+VOID D3DSetFullScreen(int nOffsetX, int nOffsetY)
+{
+	nDisplayOffsetX = nOffsetX;
+	nDisplayOffsetY = nOffsetY;
+}
+
+//
+// テクスチャをロックする
+// (lock_texture()のDirect3D版実装)
+//
 BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
@@ -123,9 +141,6 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 		if(tex == NULL)
 			return FALSE;
 
-		tex->pD3DDevice = NULL;
-		tex->pTex = NULL;
-
 		*texture = tex;
 	}
 
@@ -134,6 +149,10 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 	return TRUE;
 }
 
+//
+// テクスチャをアンロックする
+// (unlock_texture()のDirect3D版実装)
+//
 BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 					  pixel_t **locked_pixels, void **texture)
 {
@@ -145,7 +164,7 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 	UNUSED_PARAMETER(pixels);
 
 	struct Texture *tex = (struct Texture *)*texture;
-	if(tex->pTex == NULL || tex->pD3DDevice != pD3DDevice)
+	if(tex->pTex == NULL)
 	{
 		// テクスチャを作成する
 		HRESULT hResult = pD3DDevice->CreateTexture(width, height, 1, 0,
@@ -158,9 +177,6 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 			log_api_error("Direct3DDevice9::CreateTexture");
 			return FALSE;
 		}
-
-		// テクスチャ作成時のDirect3Dデバイスを保持する(全画面切り替え用)
-		tex->pD3DDevice = pD3DDevice;
 	}
 
 	// テクスチャをロックする
@@ -180,14 +196,22 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 	return TRUE;
 }
 
+//
+// テクスチャを破棄する
+// (destroy_texture()のDirect3D版実装)
+//
 VOID D3DDestroyTexture(void *texture)
 {
-	if(texture != NULL) {
+	if(texture != NULL)
+	{
 		struct Texture *tex = (struct Texture *)texture;
 		tex->pTex->Release();
 	}
 }
 
+//
+// フレームの描画を開始する
+//
 VOID D3DStartFrame(void)
 {
 	pD3DDevice->Clear(0, NULL,
@@ -196,12 +220,19 @@ VOID D3DStartFrame(void)
 	pD3DDevice->BeginScene();
 }
 
+//
+// フレームの描画を終了する
+//
 VOID D3DEndFrame(void)
 {
 	pD3DDevice->EndScene();
 	pD3DDevice->Present(NULL, NULL, NULL, NULL);
 }
 
+//
+// イメージをレンダリングする
+// (render_image()のDirect3D版実装)
+//
 VOID D3DRenderImage(int dst_left, int dst_top,
 					struct image * RESTRICT src_image, int width, int height,
 					int src_left, int src_top, int alpha, int bt)
@@ -226,8 +257,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	VertexRHWTex v[4];
 
 	// 左上
-	v[0].x = (float)dst_left;
-	v[0].y = (float)dst_top;
+	v[0].x = (float)(dst_left + nDisplayOffsetX);
+	v[0].y = (float)(dst_top + nDisplayOffsetY);
 	v[0].z = 0.0f;
 	v[0].rhw = 1.0f;
 	v[0].u = (float)src_left / img_w;
@@ -235,8 +266,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)(dst_left + width - 1);
-	v[1].y = (float)dst_top;
+	v[1].x = (float)(dst_left + width - 1 - nDisplayOffsetX);
+	v[1].y = (float)(dst_top + nDisplayOffsetY);
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
 	v[1].u = (float)(src_left + width) / img_w;
@@ -244,8 +275,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 左下
-	v[2].x = (float)dst_left;
-	v[2].y = (float)(dst_top + height - 1);
+	v[2].x = (float)(dst_left + nDisplayOffsetX);
+	v[2].y = (float)(dst_top + height - 1 - nDisplayOffsetY);
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u = (float)src_left / img_w;
@@ -253,8 +284,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)(dst_left + width - 1);
-	v[3].y = (float)(dst_top + height - 1);
+	v[3].x = (float)(dst_left + width - 1 - nDisplayOffsetX);
+	v[3].y = (float)(dst_top + height - 1 - nDisplayOffsetY);
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
 	v[3].u = (float)(src_left + width) / img_w;
@@ -303,6 +334,10 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	}
 }
 
+//
+// イメージをマスク描画でレンダリングする
+// (render_image_mask()のDirect3D版実装)
+//
 VOID D3DRenderImageMask(int dst_left, int dst_top,
 						struct image * RESTRICT src_image, int width,
 						int height, int src_left, int src_top, int mask)
@@ -312,14 +347,27 @@ VOID D3DRenderImageMask(int dst_left, int dst_top,
 				   src_top, a, BLEND_NONE);
 }
 
+//
+// 矩形をクリアする
+// (render_clear()のDirect3D版実装)
+//
 VOID D3DRenderClear(int left, int top, int width, int height, pixel_t color)
 {
+	UNUSED_PARAMETER(left);
+	UNUSED_PARAMETER(top);
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(color);
+
+/*
 	D3DCOLOR d3dcolor = D3DCOLOR_ARGB(get_pixel_a(color),
 									  get_pixel_r(color),
 									  get_pixel_g(color),
 									  get_pixel_b(color));
 
 	VertexRHW v[4];
+
+	// 左上
 	v[0].x = (float)left;
 	v[0].y = (float)top;
 	v[0].z = 0.0f;
@@ -343,4 +391,5 @@ VOID D3DRenderClear(int left, int top, int width, int height, pixel_t color)
 
 	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 	pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(VertexRHW));
+*/
 }

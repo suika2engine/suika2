@@ -73,8 +73,10 @@ static FILE *pLogFile;
 /* フルスクリーンモードであるか */
 static BOOL bFullScreen;
 
+#ifndef USE_DIRECT3D
 /* ディスプレイセッティングを変更中か */
 static BOOL bDisplaySettingsChanged;
+#endif
 
 /* ウィンドウモードでの座標 */
 static RECT rectWindow;
@@ -98,8 +100,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 								LPARAM lParam);
 static int ConvertKeyCode(int nVK);
 static void ToggleFullScreen(void);
+#ifndef USE_DIRECT3D
 static void ChangeDisplayMode(void);
 static void ResetDisplayMode(void);
+#endif
 static void OnPaint(void);
 #ifndef USE_DIRECT3D
 static BOOL CreateBackImage(void);
@@ -178,7 +182,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 #ifdef USE_DIRECT3D
 	/* Direct3Dを初期化する */
-	if(!D3DInitialize(hWndMain, 0, 0))
+	if(!D3DInitialize(hWndMain))
 		return FALSE;
 #endif
 
@@ -633,11 +637,9 @@ static void ToggleFullScreen(void)
 	{
 		bFullScreen = TRUE;
 
-#ifdef USE_DIRECT3D
-		D3DCleanup();
-#endif
-
+#ifndef USE_DIRECT3D
 		ChangeDisplayMode();
+#endif
 
 		cx = GetSystemMetrics(SM_CXSCREEN);
 		cy = GetSystemMetrics(SM_CYSCREEN);
@@ -653,18 +655,16 @@ static void ToggleFullScreen(void)
 		InvalidateRect(NULL, NULL, TRUE);
 
 #ifdef USE_DIRECT3D
-		D3DInitialize(hWndMain, nOffsetX, nOffsetY);
+		D3DSetFullScreen(nOffsetX, nOffsetY);
 #endif
 	}
 	else
 	{
 		bFullScreen = FALSE;
 
-#ifdef USE_DIRECT3D
-		D3DCleanup();
-#endif
-
+#ifndef USE_DIRECT3D
 		ResetDisplayMode();
+#endif
 
 		nOffsetX = 0;
 		nOffsetY = 0;
@@ -683,11 +683,12 @@ static void ToggleFullScreen(void)
 		InvalidateRect(NULL, NULL, TRUE);
 
 #ifdef USE_DIRECT3D
-		D3DInitialize(hWndMain, 0, 0);
+		D3DSetFullScreen(0, 0);
 #endif
 	}
 }
 
+#ifndef USE_DIRECT3D
 /* 画面のサイズを変更する */
 static void ChangeDisplayMode(void)
 {
@@ -752,6 +753,7 @@ static void ResetDisplayMode(void)
 		bDisplaySettingsChanged = FALSE;
 	}
 }
+#endif
 
 /* ウィンドウの内容を更新する */
 static void OnPaint(void)
