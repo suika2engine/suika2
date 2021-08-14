@@ -141,6 +141,8 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 		if(tex == NULL)
 			return FALSE;
 
+		tex->pTex = NULL;
+
 		*texture = tex;
 	}
 
