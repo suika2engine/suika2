@@ -110,7 +110,7 @@ BOOL D3DReinitialize(int nOffsetX, int nOffsetY)
 	HRESULT hResult;
 
 	// すべてのDirect3Dテクスチャオブジェクトを破棄する
-	DestroyDirect3DTextureObjects();
+//	DestroyDirect3DTextureObjects();
 
 	// Direct3Dデバイスをリセットする
 	D3DPRESENT_PARAMETERS d3dpp;
@@ -305,7 +305,13 @@ VOID D3DStartFrame(void)
 VOID D3DEndFrame(void)
 {
 	pD3DDevice->EndScene();
-	pD3DDevice->Present(NULL, NULL, NULL, NULL);
+	if(pD3DDevice->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST)
+	{
+		if(pD3DDevice->TestCooperativeLevel() != D3DERR_DEVICENOTRESET)
+			return;
+
+		D3DReinitialize();		
+	}
 }
 
 //
