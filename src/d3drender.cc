@@ -310,7 +310,7 @@ VOID D3DEndFrame(void)
 		if(pD3DDevice->TestCooperativeLevel() != D3DERR_DEVICENOTRESET)
 			return;
 
-		D3DReinitialize();		
+		D3DReinitialize(0, 0);
 	}
 }
 
