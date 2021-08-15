@@ -259,8 +259,11 @@ VOID D3DDestroyTexture(void *texture)
 	else
 	{
 		while(p->pNext != NULL)
+		{
 			if(p->pNext == t)
 				p->pNext = t->pNext;
+			p = p->pNext;
+		}
 	}
 
 	// テクスチャ管理用オブジェクトを破棄する
