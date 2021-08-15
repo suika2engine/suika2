@@ -24,13 +24,13 @@ extern "C" {
 #include <d3d9.h>
 
 // テクスチャ管理用構造体
-struct Texture
+struct TextureListNode
 {
 	// Direct3Dのテクスチャオブジェクト
 	IDirect3DTexture9 *pTex;	
 
 	// リンクリスト
-	Texture *pNext;
+	TextureListNode *pNext;
 };
 
 // テクスチャなし座標変換済み頂点
@@ -53,7 +53,7 @@ static LPDIRECT3D9 pD3D;
 static LPDIRECT3DDEVICE9 pD3DDevice;
 
 // テクスチャリストの先頭
-static Texture *pTexList;
+static TextureListNode *pTexList;
 
 // 全画面用の表示オフセット
 static int nDisplayOffsetX;
@@ -103,33 +103,6 @@ BOOL D3DInitialize(HWND hWnd)
 }
 
 //
-// Direct3Dの再初期化を行う
-//
-BOOL D3DReinitialize(int nOffsetX, int nOffsetY)
-{
-	HRESULT hResult;
-
-	// すべてのDirect3Dテクスチャオブジェクトを破棄する
-//	DestroyDirect3DTextureObjects();
-
-	// Direct3Dデバイスをリセットする
-	D3DPRESENT_PARAMETERS d3dpp;
-	ZeroMemory(&d3dpp, sizeof(d3dpp));
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.BackBufferCount = 1;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dpp.Windowed = TRUE;
-	hResult = pD3DDevice->Reset(&d3dpp);
-    if(FAILED(hResult))
-		return FALSE;
-
-	nDisplayOffsetX = nOffsetX;
-	nDisplayOffsetY = nOffsetY;
-
-	return TRUE;
-}
-
-//
 // Direct3Dの終了処理を行う
 //
 VOID D3DCleanup(void)
@@ -153,6 +126,17 @@ VOID D3DCleanup(void)
 }
 
 //
+// フルスクリーン表示用のオフセットを設定する
+//
+BOOL D3DSetDisplayOffset(int nOffsetX, int nOffsetY)
+{
+	nDisplayOffsetX = nOffsetX;
+	nDisplayOffsetY = nOffsetY;
+
+	return TRUE;
+}
+
+//
 // テクスチャをロックする
 // (lock_texture()のDirect3D版実装)
 //
@@ -168,7 +152,8 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 	if(*texture == NULL)
 	{
 		// テクスチャ管理用オブジェクトを作成する
-		Texture *t = (Texture *)malloc(sizeof(Texture));
+		TextureListNode *t = (TextureListNode *)
+			malloc(sizeof(TextureListNode));
 		if(t == NULL)
 			return FALSE;
 
@@ -201,10 +186,11 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 	UNUSED_PARAMETER(height);
 	UNUSED_PARAMETER(pixels);
 
-	Texture *t = (Texture *)*texture;
+	TextureListNode *t = (TextureListNode *)*texture;
 	if(t->pTex == NULL)
 	{
 		// Direct3Dテクスチャオブジェクトを作成する
+		// TODO: managedでなくする
 		HRESULT hResult = pD3DDevice->CreateTexture(width, height, 1, 0,
 													D3DFMT_A8R8G8B8,
 													D3DPOOL_MANAGED,
@@ -246,12 +232,12 @@ VOID D3DDestroyTexture(void *texture)
 		return;
 
 	// Direct3Dテクスチャオブジェクトを破棄する
-	Texture *t = (Texture *)texture;
+	TextureListNode *t = (TextureListNode *)texture;
 	if(t->pTex != NULL)
 		t->pTex->Release();
 
 	// テクスチャ管理用オブジェクトのリストから外す
-	Texture *p = pTexList;
+	TextureListNode *p = pTexList;
 	if(p == t)
 	{
 		pTexList = t->pNext;
@@ -276,7 +262,7 @@ VOID D3DDestroyTexture(void *texture)
 // すべてのDirect3Dテクスチャオブジェクトを破棄する
 static VOID DestroyDirect3DTextureObjects()
 {
-	Texture *t = pTexList;
+	TextureListNode *t = pTexList;
 	while(t != NULL)
 	{
 		if(t->pTex != NULL)
@@ -293,9 +279,12 @@ static VOID DestroyDirect3DTextureObjects()
 //
 VOID D3DStartFrame(void)
 {
+	// クリアする
 	pD3DDevice->Clear(0, NULL,
 					  D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER,
 					  D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+	// 描画を開始する
 	pD3DDevice->BeginScene();
 }
 
@@ -304,13 +293,25 @@ VOID D3DStartFrame(void)
 //
 VOID D3DEndFrame(void)
 {
+	// 描画を完了する
 	pD3DDevice->EndScene();
+
+	// 表示する
 	if(pD3DDevice->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST)
 	{
+		// Direct3Dデバイスがロストしている
+		// リセット可能な状態になるまで、メッセージループを回す必要がある
 		if(pD3DDevice->TestCooperativeLevel() != D3DERR_DEVICENOTRESET)
 			return;
 
-		D3DReinitialize(0, 0);
+		// Direct3Dデバイスをリセットする
+		D3DPRESENT_PARAMETERS d3dpp;
+		ZeroMemory(&d3dpp, sizeof(d3dpp));
+		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+		d3dpp.BackBufferCount = 1;
+		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		d3dpp.Windowed = TRUE;
+		pD3DDevice->Reset(&d3dpp);
 	}
 }
 
@@ -322,7 +323,7 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 					struct image * RESTRICT src_image, int width, int height,
 					int src_left, int src_top, int alpha, int bt)
 {
-	struct Texture *tex = (struct Texture *)get_texture_object(src_image);
+	TextureListNode *tex = (TextureListNode *)get_texture_object(src_image);
 	assert(tex != NULL);
 
 	// 描画の必要があるか判定する
