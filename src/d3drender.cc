@@ -61,7 +61,7 @@ static int nDisplayOffsetY;
 
 // 前方参照
 static BOOL CreateDevice(HWND hWnd);
-static VOID DestroyTextureObjects();
+static VOID DestroyDirect3DTextureObjects();
 
 //
 // Direct3Dの初期化を行う
@@ -89,7 +89,7 @@ BOOL D3DInitialize(HWND hWnd)
 BOOL D3DReinitialize(HWND hWnd, int nOffsetX, int nOffsetY)
 {
 	// すべてのDirect3Dテクスチャオブジェクトを破棄する
-	DestroyTextureObjects();
+	DestroyDirect3DTextureObjects();
 
 	// Direct3Dデバイスを破棄する
 	if(pD3DDevice != NULL)
@@ -114,7 +114,7 @@ BOOL D3DReinitialize(HWND hWnd, int nOffsetX, int nOffsetY)
 VOID D3DCleanup(void)
 {
 	// すべてのDirect3Dテクスチャオブジェクトを破棄する
-	DestroyTextureObjects();
+	DestroyDirect3DTextureObjects();
 
 	// Direct3Dデバイスを破棄する
 	if(pD3DDevice != NULL)
@@ -159,18 +159,6 @@ static BOOL CreateDevice(HWND hWnd)
     }
 
 	return TRUE;
-}
-
-//
-// フルスクリーン表示の設定を行う
-//
-VOID D3DSetFullScreen(int nOffsetX, int nOffsetY)
-{
-	UNUSED_PARAMETER(nOffsetX);
-	UNUSED_PARAMETER(nOffsetY);
-
-//	nDisplayOffsetX = nOffsetX;
-//	nDisplayOffsetY = nOffsetY;
 }
 
 //
@@ -289,7 +277,7 @@ VOID D3DDestroyTexture(void *texture)
 }
 
 // すべてのDirect3Dテクスチャオブジェクトを破棄する
-static VOID DestroyTextureObjects()
+static VOID DestroyDirect3DTextureObjects()
 {
 	Texture *t = pTexList;
 	while(t != NULL)
