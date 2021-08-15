@@ -207,8 +207,7 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 		// Direct3Dテクスチャオブジェクトを作成する
 		HRESULT hResult = pD3DDevice->CreateTexture(width, height, 1, 0,
 													D3DFMT_A8R8G8B8,
-//													D3DPOOL_MANAGED,
-													D3DPOOL_DEFAULT,
+													D3DPOOL_MANAGED,
 													&t->pTex,
 													NULL);
 		if(FAILED(hResult))
