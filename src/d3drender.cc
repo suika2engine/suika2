@@ -261,7 +261,10 @@ VOID D3DDestroyTexture(void *texture)
 		while(p->pNext != NULL)
 		{
 			if(p->pNext == t)
+			{
 				p->pNext = t->pNext;
+				break;
+			}
 			p = p->pNext;
 		}
 	}
