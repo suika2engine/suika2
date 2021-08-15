@@ -25,7 +25,7 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O3 \
+	-O0 -g3 \
 	-ffast-math \
 	-fopt-info-vec \
 	-finput-charset=utf-8 \
@@ -41,7 +41,7 @@ CFLAGS = \
 #
 
 CXXFLAGS = \
-	-O3 \
+	-O0 -g3 \
 	-ffast-math \
 	-fopt-info-vec \
 	-std=c++14 \
@@ -107,7 +107,7 @@ OBJS = \
 all: suika-3d.exe
 
 suika-3d.exe: $(OBJS)
-	$(CC) -s -o suika-3d.exe $(OBJS) $(LDFLAGS)
+	$(CC) -o suika-3d.exe $(OBJS) $(LDFLAGS)
 
 #
 # Feature specific source files.

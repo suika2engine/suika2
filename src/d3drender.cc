@@ -60,7 +60,6 @@ static int nDisplayOffsetX;
 static int nDisplayOffsetY;
 
 // 前方参照
-static BOOL CreateDevice(HWND hWnd);
 static VOID DestroyDirect3DTextureObjects();
 
 //
@@ -68,6 +67,8 @@ static VOID DestroyDirect3DTextureObjects();
 //
 BOOL D3DInitialize(HWND hWnd)
 {
+	HRESULT hResult;
+
 	// Direct3Dの作成を行う
 	pD3D = Direct3DCreate9(D3D_SDK_VERSION);
 	if(pD3D == NULL)
@@ -77,8 +78,26 @@ BOOL D3DInitialize(HWND hWnd)
     }
 
 	// Direct3Dデバイスを作成する
-	if (!CreateDevice(hWnd))
-		return FALSE;
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.Windowed = TRUE;
+	hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
+								 D3DCREATE_MIXED_VERTEXPROCESSING, &d3dpp,
+								 &pD3DDevice);
+    if(FAILED(hResult))
+    {
+		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF,
+									 hWnd, D3DCREATE_MIXED_VERTEXPROCESSING,
+									 &d3dpp, &pD3DDevice);
+		if(FAILED(hResult))
+        {
+			log_api_error("Direct3D::CreateDevice");
+            return FALSE;
+        }
+    }
 
     return TRUE;
 }
@@ -86,20 +105,22 @@ BOOL D3DInitialize(HWND hWnd)
 //
 // Direct3Dの再初期化を行う
 //
-BOOL D3DReinitialize(HWND hWnd, int nOffsetX, int nOffsetY)
+BOOL D3DReinitialize(int nOffsetX, int nOffsetY)
 {
+	HRESULT hResult;
+
 	// すべてのDirect3Dテクスチャオブジェクトを破棄する
 	DestroyDirect3DTextureObjects();
 
-	// Direct3Dデバイスを破棄する
-	if(pD3DDevice != NULL)
-	{
-		pD3DDevice->Release();
-		pD3DDevice = NULL;
-	}
-
-	// Direct3Dデバイスを作成する
-	if (!CreateDevice(hWnd))
+	// Direct3Dデバイスをリセットする
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.Windowed = TRUE;
+	hResult = pD3DDevice->Reset(&d3dpp);
+    if(FAILED(hResult))
 		return FALSE;
 
 	nDisplayOffsetX = nOffsetX;
@@ -129,36 +150,6 @@ VOID D3DCleanup(void)
 		pD3D->Release();
 		pD3D = NULL;
 	}
-}
-
-// Direct3Dデバイスを作成する
-static BOOL CreateDevice(HWND hWnd)
-{
-	HRESULT hResult;
-
-	// Direct3Dデバイスを作成する
-	D3DPRESENT_PARAMETERS d3dpp;
-	ZeroMemory(&d3dpp, sizeof(d3dpp));
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.BackBufferCount = 1;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dpp.Windowed = TRUE;
-	hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-								 D3DCREATE_MIXED_VERTEXPROCESSING, &d3dpp,
-								 &pD3DDevice);
-    if(FAILED(hResult))
-    {
-		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF,
-									 hWnd, D3DCREATE_MIXED_VERTEXPROCESSING,
-									 &d3dpp, &pD3DDevice);
-		if(FAILED(hResult))
-        {
-			log_api_error("Direct3D::CreateDevice");
-            return FALSE;
-        }
-    }
-
-	return TRUE;
 }
 
 //

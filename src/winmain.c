@@ -649,7 +649,7 @@ static void ToggleFullScreen(void)
 		InvalidateRect(NULL, NULL, TRUE);
 
 #ifdef USE_DIRECT3D
-		D3DReinitialize(hWndMain, nOffsetX, nOffsetY);
+		D3DReinitialize(nOffsetX, nOffsetY);
 #endif
 	}
 	else
@@ -675,7 +675,7 @@ static void ToggleFullScreen(void)
 		InvalidateRect(NULL, NULL, TRUE);
 
 #ifdef USE_DIRECT3D
-		D3DReinitialize(hWndMain, 0, 0);
+		D3DReinitialize(0, 0);
 #endif
 	}
 }
