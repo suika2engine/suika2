@@ -10,5 +10,8 @@
 // Our iOS view controller
 @interface GameViewController : UIViewController
 {
+    BOOL animating;
+    NSInteger animationFrameInterval;
+    CADisplayLink *displayLink;
 }
 @end

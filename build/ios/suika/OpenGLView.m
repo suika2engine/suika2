@@ -75,7 +75,7 @@
     glClear(GL_COLOR_BUFFER_BIT);
     [_context presentRenderbuffer:GL_RENDERBUFFER];
 
-    f += 0.1f;
+    f += 0.01f;
     if(f > 1.0f)
         f = 0.0f;
 }

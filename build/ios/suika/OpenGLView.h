@@ -22,4 +22,6 @@
     GLuint _frameBuffer;
     NSTimer *_timer;
 }
+
+- (void)render;
 @end
