@@ -11,29 +11,9 @@
 #import <sys/time.h>    // gettimeofday()
 
 #import "suika.h"
-#import "aunit.h"
 #import "glesrender.h"
 
 int main(int argc, char * argv[]) {
-    if(!init_file()) {
-        NSLog(@"File error.");
-        return 1;
-    }
-
-    if(!init_conf()) {
-        NSLog(@"Config error.");
-    }
-    
-    if(!init_aunit()) {
-        NSLog(@"Audio error.");
-        return 1;
-    }
-
-    if(!on_event_init()) {
-        NSLog(@"Init event error.");
-        return 1;
-    }
-
     NSString * appDelegateClassName;
     @autoreleasepool {
         // Setup code that might create autoreleased objects goes here.

@@ -12,6 +12,7 @@
 
 #import "OpenGLView.h"
 #import "suika.h"
+#import "aunit.h"
 #import "glesrender.h"
 
 @interface OpenGLView()
@@ -51,8 +52,31 @@
     _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:_context];
 
+    if(!init_file()) {
+        NSLog(@"File error.");
+        exit(1);
+    }
+
+    if(!init_conf()) {
+        NSLog(@"Config error.");
+        exit(1);
+    }
+    
+    if(!init_aunit()) {
+        NSLog(@"Audio error.");
+        exit(1);
+    }
+
+    if(!on_event_init()) {
+        NSLog(@"Init event error.");
+        exit(1);
+    }
+
     // Suika2のOpenGL ESレンダラを初期化する
-    init_opengl();
+    if(!init_opengl()) {
+        NSLog(@"Init OpenGL error.");
+        exit(1);
+    }
 }
 
 - (void)layoutSubviews
