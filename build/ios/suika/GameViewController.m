@@ -22,6 +22,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    self.view.multipleTouchEnabled = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
