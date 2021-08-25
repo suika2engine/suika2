@@ -14,7 +14,12 @@
  * Target
  */
 #if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if defined(TARGET_OS_IPHONE)
+#define IOS
+#else
 #define OSX
+#endif
 #elif defined(_WIN32)
 #define WIN
 #elif defined(__ANDROID__)
@@ -122,7 +127,7 @@ typedef unsigned __int8 uint8_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
-typedef unsigned long uintptr_t;
+typedef unsigned long uintptr_t;    /* VC2010以前では64bitコンパイルしないこと */
 #endif
 
 /* stdbool.h */

@@ -86,7 +86,11 @@ static bool create_audio_unit(void)
 
     /* オーディオコンポーネントを取得する */
     cd.componentType = kAudioUnitType_Output;
+#ifdef IOS
+    cd.componentSubType = kAudioUnitSubType_GenericOutput;
+#else
     cd.componentSubType = kAudioUnitSubType_DefaultOutput;
+#endif
     cd.componentManufacturer = kAudioUnitManufacturer_Apple;
     cd.componentFlags = 0;
     cd.componentFlagsMask = 0;
@@ -326,7 +330,7 @@ static OSStatus callback(void *inRef,
     pthread_mutex_unlock(&mutex);
 
     return noErr;
-}		
+}
 
 /*
  * SSEバージョニングを行わない場合

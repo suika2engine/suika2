@@ -564,7 +564,9 @@ bool exit_dialog(void)
     return false;
 }    
 
-/* タイトルに戻るダイアログを表示する */
+//
+// タイトルに戻るダイアログを表示する
+//
 bool title_dialog(void)
 {
     NSAlert *alert = [[NSAlert alloc] init];

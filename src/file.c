@@ -82,7 +82,13 @@ bool init_file(void)
 	if (fp == NULL) {
 		free(package_path);
 		package_path = NULL;
-		return true;	/* 開けなくてもよい */
+#if defined(IOS) || defined(EM)
+		/* 開ける必要がある */
+		return false;
+#else
+		/* 開けなくてもよい */
+		return true;
+#endif
 	}
 
 	/* パッケージのファイルエントリ数を取得する */

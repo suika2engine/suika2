@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8-unix; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -16,7 +16,7 @@
  *  - PROTOTYPE_ONLY
  */
 
-#ifdef OSX
+#if defined(OSX) || defined(IOS)
 
 /* ミキシングを行う */
 void MUL_ADD_PCM(uint32_t *dst, uint32_t *src, float vol, int samples)

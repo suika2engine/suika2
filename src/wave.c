@@ -83,23 +83,23 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 		return NULL;
 	}
 
-        /* ディレクトリ名を保存する */
-        w->dir = strdup(dir);
-        if (w->dir == NULL) {
+	/* ディレクトリ名を保存する */
+	w->dir = strdup(dir);
+	if (w->dir == NULL) {
 		log_memory();
 		free(w);
 		return NULL;
-        }
+	}
 
-        /* ファイル名を保存する */
-        w->file = strdup(fname);
-        if (w->file == NULL) {
+	/* ファイル名を保存する */
+	w->file = strdup(fname);
+	if (w->file == NULL) {
 		log_memory();
 		free(w->dir);
 		free(w);
 		return NULL;
-        }
-          
+	}
+
 	/* ファイルをオープンする */
 	if (!reopen(w))
 		return NULL;
