@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		268B09DB26D6082D0074577E /* OpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09DA26D6082D0074577E /* OpenGLView.m */; };
+		268B09DE26D6206C0074577E /* glesrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 268B09DD26D6206C0074577E /* glesrender.c */; };
 		26A4EADA26D116CE00C3C140 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EAD926D116CE00C3C140 /* AppDelegate.m */; };
 		26A4EAE026D116CE00C3C140 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EADF26D116CE00C3C140 /* GameViewController.m */; };
 		26A4EAE626D116CE00C3C140 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE426D116CE00C3C140 /* Main.storyboard */; };
@@ -59,6 +60,8 @@
 /* Begin PBXFileReference section */
 		268B09D926D6082D0074577E /* OpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLView.h; sourceTree = "<group>"; };
 		268B09DA26D6082D0074577E /* OpenGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLView.m; sourceTree = "<group>"; };
+		268B09DC26D6206C0074577E /* glesrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glesrender.h; path = ../../src/glesrender.h; sourceTree = "<group>"; };
+		268B09DD26D6206C0074577E /* glesrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glesrender.c; path = ../../src/glesrender.c; sourceTree = "<group>"; };
 		26A4EAD526D116CE00C3C140 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A4EAD826D116CE00C3C140 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		26A4EAD926D116CE00C3C140 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -184,6 +187,8 @@
 		26B3857C26D13263000A7A1C /* common */ = {
 			isa = PBXGroup;
 			children = (
+				268B09DD26D6206C0074577E /* glesrender.c */,
+				268B09DC26D6206C0074577E /* glesrender.h */,
 				26B385B826D134EE000A7A1C /* aunit.c */,
 				26B385B326D134EE000A7A1C /* aunit.h */,
 				26B385A526D134EE000A7A1C /* cmd_bg.c */,
@@ -350,6 +355,7 @@
 				26B385CB26D134EE000A7A1C /* save.c in Sources */,
 				26B385C126D134EE000A7A1C /* vars.c in Sources */,
 				26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */,
+				268B09DE26D6206C0074577E /* glesrender.c in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,
 				26B385D826D134EE000A7A1C /* script.c in Sources */,
 				26B385BD26D134EE000A7A1C /* cmd_chs.c in Sources */,
@@ -528,6 +534,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 7S742FWR63;
+				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -547,6 +554,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 7S742FWR63;
+				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (

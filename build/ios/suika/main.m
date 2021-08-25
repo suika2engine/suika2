@@ -12,6 +12,7 @@
 
 #import "suika.h"
 #import "aunit.h"
+#import "glesrender.h"
 
 int main(int argc, char * argv[]) {
     if(!init_file()) {
@@ -163,8 +164,8 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 {
     assert(*locked_pixels == NULL);
 
-    // TODO: Implement
-    *locked_pixels = pixels;
+    if (!opengl_lock_texture(width, height, pixels, locked_pixels, texture))
+        return false;
 
     return true;
 }
@@ -177,8 +178,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 {
     assert(*locked_pixels != NULL);
 
-    // TODO: Implement
-    *locked_pixels = NULL;
+    opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
 }
 
 //
@@ -186,7 +186,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 //
 void destroy_texture(void *texture)
 {
-    // TODO: Implement
+    opengl_destroy_texture(texture);
 }
 
 //
@@ -196,7 +196,8 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-    // TODO: Implement
+    opengl_render_image(dst_left, dst_top, src_image, width, height,
+                        src_left, src_top, alpha, bt);
 }
 
 //
@@ -207,7 +208,8 @@ void render_image_mask(int dst_left, int dst_top,
                        int width, int height, int src_left, int src_top,
                        int mask)
 {
-    // TODO: Implement
+    opengl_render_image_mask(dst_left, dst_top, src_image, width,
+                             height, src_left, src_top, mask);
 }
 
 //
@@ -215,7 +217,7 @@ void render_image_mask(int dst_left, int dst_top,
 //
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
-    // TODO: Implement
+    opengl_render_clear(left, top, width, height, color);
 }
 
 //

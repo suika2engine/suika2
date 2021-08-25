@@ -13,9 +13,10 @@
 #include "suika.h"
 #include "glesrender.h"
 
-#ifdef OSX
+#ifdef IOS
 #define GL_SILENCE_DEPRECATION
-#include <OpenGL/gl.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
 #else
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>

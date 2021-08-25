@@ -11,6 +11,8 @@
  */
 
 #import "OpenGLView.h"
+#import "suika.h"
+#import "glesrender.h"
 
 @interface OpenGLView()
 - (void)setupBuffers;
@@ -45,12 +47,8 @@
     // バッファを作成する
     [self setupBuffers];
 
-    // 描画タイマをセットする
-    _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f/30.0f
-                      target:self
-                      selector:@selector(setNeedsDisplay)
-                      userInfo:nil
-                      repeats:YES];
+    // Suika2のOpenGL ESレンダラを初期化する
+    init_opengl();
 }
 
 - (void)layoutSubviews
@@ -61,11 +59,13 @@
     [self render];
 }
 
+/*
 - (void)drawRect:(CGRect)rect
 {
     [EAGLContext setCurrentContext:_context];
     [self render];
 }
+*/
 
 - (void)render
 {
@@ -73,6 +73,10 @@
 
     glClearColor(0, 1.0, f, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    int x, y, w, h;
+    on_event_frame(&x, &y, &w, &h);
+
     [_context presentRenderbuffer:GL_RENDERBUFFER];
 
     f += 0.01f;
