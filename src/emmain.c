@@ -236,7 +236,7 @@ static EM_BOOL cb_mousemove(int eventType,
 	return EM_TRUE;
 }
 
-/* Mousedownのコールバック */
+/* mousedownのコールバック */
 static EM_BOOL cb_mousedown(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData)

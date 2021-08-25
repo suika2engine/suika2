@@ -29,9 +29,13 @@
 {
     [super awakeFromNib];
 
-    // レイヤをセットする
+    // ビューの設定を行う
+//    self.opaque = NO;
+//    self.backgroundColor = [UIColor clearColor];
+
+    // レイヤの設定を行う
     _eaglLayer = (CAEAGLLayer*) self.layer;
-    _eaglLayer.opaque = YES;
+    _eaglLayer.opaque = NO;
     _eaglLayer.drawableProperties =
         [NSDictionary dictionaryWithObjectsAndKeys:
                           [NSNumber numberWithBool:NO],
@@ -39,13 +43,13 @@
                       kEAGLColorFormatRGBA8,
                       kEAGLDrawablePropertyColorFormat,
                       nil];
+//    const CGFloat black[] = {0.0, 0.0, 0.0, 0.0};
+//    _eaglLayer.backgroundColor = CGColorCreate(CGColorSpaceCreateDeviceRGB(),
+//                                               black);
 
-    // コンテキストをセットする
+    // コンテキストの設定を行う
     _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:_context];
-
-    // バッファを作成する
-    [self setupBuffers];
 
     // Suika2のOpenGL ESレンダラを初期化する
     init_opengl();
@@ -56,32 +60,28 @@
     [EAGLContext setCurrentContext:_context];
     [self destroyBuffers];
     [self setupBuffers];
-    [self render];
-}
 
-/*
-- (void)drawRect:(CGRect)rect
-{
-    [EAGLContext setCurrentContext:_context];
-    [self render];
+    float aspect = (float)conf_window_height / (float)conf_window_width;
+    float w = self.bounds.size.width * self.contentScaleFactor;
+    float h = w * aspect;
+    float y = (self.bounds.size.height * self.contentScaleFactor - h) / 2.0f;
+
+    glViewport(0, y, w, h);
+
+    _top = (int)y;
+    _scale = (float)conf_window_width / w;
 }
-*/
 
 - (void)render
 {
-    static float f = 0.0f;
-
-    glClearColor(0, 1.0, f, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    opengl_start_rendering();
 
     int x, y, w, h;
     on_event_frame(&x, &y, &w, &h);
 
-    [_context presentRenderbuffer:GL_RENDERBUFFER];
+    opengl_end_rendering();
 
-    f += 0.01f;
-    if(f > 1.0f)
-        f = 0.0f;
+    [_context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 - (void)setupBuffers
@@ -98,10 +98,56 @@
 
 - (void)destroyBuffers
 {
-    glDeleteFramebuffers(1, &_frameBuffer);
-    glDeleteRenderbuffers(1, &_renderBuffer);
-    _frameBuffer = 0;
-    _renderBuffer = 0;
+    if(_frameBuffer != 0) {
+        glDeleteFramebuffers(1, &_frameBuffer);
+        _frameBuffer = 0;
+    }
+    if(_renderBuffer != 0) {
+        glDeleteRenderbuffers(1, &_renderBuffer);
+        _renderBuffer = 0;
+    }
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = [[event allTouches] anyObject];
+    CGPoint touchLocation = [touch locationInView:self];
+
+    _isTouch = YES;
+    _touchStartX = touchLocation.x * _scale;
+    _touchStartY = touchLocation.y * _scale - _top;
+    _touchLastY = _touchStartY;
+
+    on_event_mouse_move((int)_touchStartX, (int)_touchStartY);
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = [[event allTouches] anyObject];
+    CGPoint touchLocation = [touch locationInView:self];
+
+    float touchX = touchLocation.x * _scale;
+    float touchY = touchLocation.y * _scale - _top;
+
+    _touchLastY = touchY;
+
+    on_event_mouse_move((int)touchX, (int)touchY);
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = [[event allTouches] anyObject];
+    CGPoint touchLocation = [touch locationInView:self];
+
+    float touchEndX = touchLocation.x * _scale;
+    float touchEndY = touchLocation.y * _scale - _top;
+
+    if([touches count] == 1)
+        on_event_mouse_press(MOUSE_LEFT, (int)touchEndX, (int)touchEndY);
+    else
+        on_event_mouse_press(MOUSE_RIGHT, (int)touchEndX, (int)touchEndY);
+
+    _isTouch = NO;
 }
 
 @end

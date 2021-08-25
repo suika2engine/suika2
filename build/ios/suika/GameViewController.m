@@ -46,7 +46,6 @@
         [aDisplayLink setFrameInterval:animationFrameInterval];
         [aDisplayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
         displayLink = aDisplayLink;
-        
         animating = TRUE;
     }
 }
@@ -67,3 +66,4 @@
 }
 
 @end
+

@@ -20,8 +20,12 @@
     EAGLContext* _context;
     GLuint _renderBuffer;
     GLuint _frameBuffer;
-    NSTimer *_timer;
-}
 
+    int _top;
+    float _scale;
+
+    BOOL _isTouch;
+    float _touchStartX, _touchStartY, _touchLastY;
+}
 - (void)render;
 @end
