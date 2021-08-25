@@ -7,10 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		268B09DB26D6082D0074577E /* OpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09DA26D6082D0074577E /* OpenGLView.m */; };
 		26A4EADA26D116CE00C3C140 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EAD926D116CE00C3C140 /* AppDelegate.m */; };
-		26A4EADD26D116CE00C3C140 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EADC26D116CE00C3C140 /* Renderer.m */; };
 		26A4EAE026D116CE00C3C140 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EADF26D116CE00C3C140 /* GameViewController.m */; };
-		26A4EAE226D116CE00C3C140 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EAE126D116CE00C3C140 /* Shaders.metal */; };
 		26A4EAE626D116CE00C3C140 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE426D116CE00C3C140 /* Main.storyboard */; };
 		26A4EAE826D116D000C3C140 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE726D116D000C3C140 /* Assets.xcassets */; };
 		26A4EAEB26D116D000C3C140 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EAEA26D116D000C3C140 /* main.m */; };
@@ -58,15 +57,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		268B09D926D6082D0074577E /* OpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLView.h; sourceTree = "<group>"; };
+		268B09DA26D6082D0074577E /* OpenGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLView.m; sourceTree = "<group>"; };
 		26A4EAD526D116CE00C3C140 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A4EAD826D116CE00C3C140 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		26A4EAD926D116CE00C3C140 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		26A4EADB26D116CE00C3C140 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
-		26A4EADC26D116CE00C3C140 /* Renderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Renderer.m; sourceTree = "<group>"; };
 		26A4EADE26D116CE00C3C140 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
 		26A4EADF26D116CE00C3C140 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
-		26A4EAE126D116CE00C3C140 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
-		26A4EAE326D116CE00C3C140 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
 		26A4EAE526D116CE00C3C140 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		26A4EAE726D116D000C3C140 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26A4EAE926D116D000C3C140 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -172,12 +169,10 @@
 				26B385E526D13510000A7A1C /* data01.arc */,
 				26A4EAD826D116CE00C3C140 /* AppDelegate.h */,
 				26A4EAD926D116CE00C3C140 /* AppDelegate.m */,
-				26A4EADB26D116CE00C3C140 /* Renderer.h */,
-				26A4EADC26D116CE00C3C140 /* Renderer.m */,
 				26A4EADE26D116CE00C3C140 /* GameViewController.h */,
 				26A4EADF26D116CE00C3C140 /* GameViewController.m */,
-				26A4EAE126D116CE00C3C140 /* Shaders.metal */,
-				26A4EAE326D116CE00C3C140 /* ShaderTypes.h */,
+				268B09D926D6082D0074577E /* OpenGLView.h */,
+				268B09DA26D6082D0074577E /* OpenGLView.m */,
 				26A4EAE426D116CE00C3C140 /* Main.storyboard */,
 				26A4EAE726D116D000C3C140 /* Assets.xcassets */,
 				26A4EAE926D116D000C3C140 /* Info.plist */,
@@ -333,6 +328,7 @@
 				26B385C026D134EE000A7A1C /* conf.c in Sources */,
 				26B385CC26D134EE000A7A1C /* file.c in Sources */,
 				26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */,
+				268B09DB26D6082D0074577E /* OpenGLView.m in Sources */,
 				26B385DD26D134EE000A7A1C /* cmd_select.c in Sources */,
 				26B385BE26D134EE000A7A1C /* cmd_cha.c in Sources */,
 				26B385CF26D134EE000A7A1C /* cmd_se.c in Sources */,
@@ -349,13 +345,11 @@
 				26B385D426D134EE000A7A1C /* wave.c in Sources */,
 				26B385D226D134EE000A7A1C /* mixer.c in Sources */,
 				26B385DF26D134EE000A7A1C /* scbuf.c in Sources */,
-				26A4EAE226D116CE00C3C140 /* Shaders.metal in Sources */,
 				26B385CD26D134EE000A7A1C /* history.c in Sources */,
 				26B385C226D134EE000A7A1C /* readimage.c in Sources */,
 				26B385CB26D134EE000A7A1C /* save.c in Sources */,
 				26B385C126D134EE000A7A1C /* vars.c in Sources */,
 				26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */,
-				26A4EADD26D116CE00C3C140 /* Renderer.m in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,
 				26B385D826D134EE000A7A1C /* script.c in Sources */,
 				26B385BD26D134EE000A7A1C /* cmd_chs.c in Sources */,
