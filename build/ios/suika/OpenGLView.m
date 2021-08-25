@@ -176,7 +176,7 @@
     float touchEndX = touchLocation.x * _scale;
     float touchEndY = touchLocation.y * _scale - _top;
 
-    if([touches count] == 1)
+    if([[event allTouches] count] == 1)
         on_event_mouse_press(MOUSE_LEFT, (int)touchEndX, (int)touchEndY);
     else
         on_event_mouse_press(MOUSE_RIGHT, (int)touchEndX, (int)touchEndY);
