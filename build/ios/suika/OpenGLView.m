@@ -129,6 +129,16 @@
     float touchX = touchLocation.x * _scale;
     float touchY = touchLocation.y * _scale - _top;
 
+    const float LINE_HEIGHT = 10;
+    float delta = touchY - _touchLastY;
+    if (delta > LINE_HEIGHT) {
+        on_event_key_press(KEY_DOWN);
+        on_event_key_release(KEY_DOWN);
+    } else if (delta < -LINE_HEIGHT) {
+        on_event_key_press(KEY_UP);
+        on_event_key_release(KEY_UP);
+    }
+
     _touchLastY = touchY;
 
     on_event_mouse_move((int)touchX, (int)touchY);
