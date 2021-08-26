@@ -38,7 +38,7 @@ bool make_sav_dir(void)
         NSFileManager *manager = [NSFileManager defaultManager];
         NSError *error;
         if(![manager createDirectoryAtPath:path
-               withIntermediateDirectories:NO
+               withIntermediateDirectories:YES
                                 attributes:nil
                                      error:&error]) {
             NSLog(@"createDirectoryAtPath error: %@", error);

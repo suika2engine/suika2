@@ -31,8 +31,8 @@
     [super awakeFromNib];
 
     // ビューの設定を行う
-//    self.opaque = NO;
-//    self.backgroundColor = [UIColor clearColor];
+    self.opaque = NO;
+    self.backgroundColor = [UIColor clearColor];
 
     // レイヤの設定を行う
     _eaglLayer = (CAEAGLLayer*) self.layer;
@@ -44,37 +44,38 @@
                       kEAGLColorFormatRGBA8,
                       kEAGLDrawablePropertyColorFormat,
                       nil];
-//    const CGFloat black[] = {0.0, 0.0, 0.0, 0.0};
-//    _eaglLayer.backgroundColor = CGColorCreate(CGColorSpaceCreateDeviceRGB(),
-//                                               black);
 
     // コンテキストの設定を行う
     _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:_context];
 
+    // data01.arcを読み込む
     if(!init_file()) {
         NSLog(@"File error.");
         exit(1);
     }
 
+    // コンフィグファイルをパースする
     if(!init_conf()) {
         NSLog(@"Config error.");
         exit(1);
     }
-    
+
+    // オーディオを初期化する
     if(!init_aunit()) {
         NSLog(@"Audio error.");
-        exit(1);
-    }
-
-    if(!on_event_init()) {
-        NSLog(@"Init event error.");
         exit(1);
     }
 
     // Suika2のOpenGL ESレンダラを初期化する
     if(!init_opengl()) {
         NSLog(@"Init OpenGL error.");
+        exit(1);
+    }
+
+    // 初期化イベントを処理する
+    if(!on_event_init()) {
+        NSLog(@"Init event error.");
         exit(1);
     }
 }
@@ -155,10 +156,10 @@
 
     const float LINE_HEIGHT = 10;
     float delta = touchY - _touchLastY;
-    if (delta > LINE_HEIGHT) {
+    if(delta > LINE_HEIGHT) {
         on_event_key_press(KEY_DOWN);
         on_event_key_release(KEY_DOWN);
-    } else if (delta < -LINE_HEIGHT) {
+    } else if(delta < -LINE_HEIGHT) {
         on_event_key_press(KEY_UP);
         on_event_key_release(KEY_UP);
     }

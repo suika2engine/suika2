@@ -87,7 +87,7 @@ static bool create_audio_unit(void)
     /* オーディオコンポーネントを取得する */
     cd.componentType = kAudioUnitType_Output;
 #ifdef IOS
-    cd.componentSubType = kAudioUnitSubType_GenericOutput;
+    cd.componentSubType = kAudioUnitSubType_RemoteIO;
 #else
     cd.componentSubType = kAudioUnitSubType_DefaultOutput;
 #endif
@@ -96,7 +96,7 @@ static bool create_audio_unit(void)
     cd.componentFlagsMask = 0;
     comp = AudioComponentFindNext(NULL, &cd);
     if(comp == NULL) {
-        log_api_error("AudioComponentFindNex");
+        log_api_error("AudioComponentFindNext");
         return false;
     }
     if(AudioComponentInstanceNew(comp, &au) != noErr) {

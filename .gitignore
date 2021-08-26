@@ -19,6 +19,7 @@ build/macos/libroot
 build/macos/suika.xcodeproj/project.xcworkspace
 build/macos/suika.xcodeproj/xcshareddata
 build/macos/suika.xcodeproj/xcuserdata
+build/ios/libroot
 build/ios/suika.xcodeproj/project.xcworkspace
 build/ios/suika.xcodeproj/xcuserdata
 build/ios/suika.xcodeproj/xcshareddata
