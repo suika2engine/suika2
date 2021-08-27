@@ -12,6 +12,7 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build `suika.exe`.
         * Run `make install` to copy `suika.exe` to `suika2` directory.
+        * Sign `suika.exe` using your certificate if you need.
     * To run Suika2, copy `suika.exe` to `game-en` folder or `game-jp` folder, then double click it.
 
 * Mac App
@@ -25,6 +26,17 @@ How to build
         * Notarize application by `Distribute App` button.
         * Press `Export Notarized App` to export app to `suika2` folder.
     * To run Suika2, copy `suika.app` to `game-en` folder or `game-jp` folder, then double click it.
+
+* iOS App
+    * On macOS 11, install Xcode 12.
+    * In terminal, enter `build/ios` directory.
+        * Run `./build-libs.sh` to build libraries.
+        * Alternatively, you can run `./build-libs-sim.sh` for use with simulators on Apple Silicon.
+    * In Xcode, open `build/ios`.
+        * In "Signing & Capabilities" tab, check `Automatically manage signing`.
+        * Plug in the iOS device and build project for the device.
+        * Run on the iOS device.
+        * Replace `build/ios/suika/data01.arc` and enjoy your game.
 
 * Web App
     * See `emscripten/README.md`
@@ -72,9 +84,9 @@ How to build
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to copy binary `suika` to `suika2` directory.
-        * Copy `suika` to `game-en-small` directory or `game-jp-small` directory.
-    * In terminal, enter `game-en-small` or `game-jp-small` directory.
-	    * Run `./suika`
+        * Copy `suika` to `game-en` directory or `game-jp` directory.
+    * In terminal, enter `game-en` or `game-jp` directory.
+        * Run `./suika`
 
 * FreeBSD Binary
     * On FreeBSD 12.2, install following packages:
