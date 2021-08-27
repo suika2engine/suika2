@@ -7,13 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		268B09DB26D6082D0074577E /* OpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09DA26D6082D0074577E /* OpenGLView.m */; };
 		268B09DE26D6206C0074577E /* glesrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 268B09DD26D6206C0074577E /* glesrender.c */; };
-		26A4EADA26D116CE00C3C140 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EAD926D116CE00C3C140 /* AppDelegate.m */; };
-		26A4EAE026D116CE00C3C140 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EADF26D116CE00C3C140 /* GameViewController.m */; };
+		268B09E126D89FE40074577E /* iosmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09E026D89FE40074577E /* iosmain.m */; };
 		26A4EAE626D116CE00C3C140 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE426D116CE00C3C140 /* Main.storyboard */; };
 		26A4EAE826D116D000C3C140 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE726D116D000C3C140 /* Assets.xcassets */; };
-		26A4EAEB26D116D000C3C140 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A4EAEA26D116D000C3C140 /* main.m */; };
 		26B385BD26D134EE000A7A1C /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3857D26D134ED000A7A1C /* cmd_chs.c */; };
 		26B385BE26D134EE000A7A1C /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3857E26D134ED000A7A1C /* cmd_cha.c */; };
 		26B385BF26D134EE000A7A1C /* cmd_switch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858126D134EE000A7A1C /* cmd_switch.c */; };
@@ -58,19 +55,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		268B09D926D6082D0074577E /* OpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLView.h; sourceTree = "<group>"; };
-		268B09DA26D6082D0074577E /* OpenGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLView.m; sourceTree = "<group>"; };
 		268B09DC26D6206C0074577E /* glesrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glesrender.h; path = ../../src/glesrender.h; sourceTree = "<group>"; };
 		268B09DD26D6206C0074577E /* glesrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glesrender.c; path = ../../src/glesrender.c; sourceTree = "<group>"; };
+		268B09E026D89FE40074577E /* iosmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iosmain.m; path = ../../src/iosmain.m; sourceTree = "<group>"; };
 		26A4EAD526D116CE00C3C140 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		26A4EAD826D116CE00C3C140 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		26A4EAD926D116CE00C3C140 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		26A4EADE26D116CE00C3C140 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		26A4EADF26D116CE00C3C140 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
 		26A4EAE526D116CE00C3C140 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		26A4EAE726D116D000C3C140 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26A4EAE926D116D000C3C140 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		26A4EAEA26D116D000C3C140 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		26B3857D26D134ED000A7A1C /* cmd_chs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chs.c; path = ../../src/cmd_chs.c; sourceTree = "<group>"; };
 		26B3857E26D134ED000A7A1C /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../src/cmd_cha.c; sourceTree = "<group>"; };
 		26B3857F26D134ED000A7A1C /* muladdpcm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = muladdpcm.h; path = ../../src/muladdpcm.h; sourceTree = "<group>"; };
@@ -170,16 +161,9 @@
 			isa = PBXGroup;
 			children = (
 				26B385E526D13510000A7A1C /* data01.arc */,
-				26A4EAD826D116CE00C3C140 /* AppDelegate.h */,
-				26A4EAD926D116CE00C3C140 /* AppDelegate.m */,
-				26A4EADE26D116CE00C3C140 /* GameViewController.h */,
-				26A4EADF26D116CE00C3C140 /* GameViewController.m */,
-				268B09D926D6082D0074577E /* OpenGLView.h */,
-				268B09DA26D6082D0074577E /* OpenGLView.m */,
 				26A4EAE426D116CE00C3C140 /* Main.storyboard */,
 				26A4EAE726D116D000C3C140 /* Assets.xcassets */,
 				26A4EAE926D116D000C3C140 /* Info.plist */,
-				26A4EAEA26D116D000C3C140 /* main.m */,
 			);
 			path = suika;
 			sourceTree = "<group>";
@@ -187,6 +171,7 @@
 		26B3857C26D13263000A7A1C /* common */ = {
 			isa = PBXGroup;
 			children = (
+				268B09E026D89FE40074577E /* iosmain.m */,
 				26B385B826D134EE000A7A1C /* aunit.c */,
 				26B385B326D134EE000A7A1C /* aunit.h */,
 				26B385A526D134EE000A7A1C /* cmd_bg.c */,
@@ -328,16 +313,15 @@
 			files = (
 				26B385E426D134EE000A7A1C /* cmd_bgm.c in Sources */,
 				26B385DC26D134EE000A7A1C /* cmd_menu.c in Sources */,
+				268B09E126D89FE40074577E /* iosmain.m in Sources */,
 				26B385DB26D134EE000A7A1C /* stage.c in Sources */,
 				26B385C526D134EE000A7A1C /* glyph.c in Sources */,
 				26B385C026D134EE000A7A1C /* conf.c in Sources */,
 				26B385CC26D134EE000A7A1C /* file.c in Sources */,
 				26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */,
-				268B09DB26D6082D0074577E /* OpenGLView.m in Sources */,
 				26B385DD26D134EE000A7A1C /* cmd_select.c in Sources */,
 				26B385BE26D134EE000A7A1C /* cmd_cha.c in Sources */,
 				26B385CF26D134EE000A7A1C /* cmd_se.c in Sources */,
-				26A4EAEB26D116D000C3C140 /* main.m in Sources */,
 				26B385C426D134EE000A7A1C /* cmd_return.c in Sources */,
 				26B385CA26D134EE000A7A1C /* image.c in Sources */,
 				26B385C326D134EE000A7A1C /* cmd_ch.c in Sources */,
@@ -364,10 +348,8 @@
 				26B385D926D134EE000A7A1C /* cmd_load.c in Sources */,
 				26B385C926D134EE000A7A1C /* cmd_click.c in Sources */,
 				26B385E226D134EE000A7A1C /* cmd_if.c in Sources */,
-				26A4EAE026D116CE00C3C140 /* GameViewController.m in Sources */,
 				26B385D726D134EE000A7A1C /* cmd_shake.c in Sources */,
 				26B385D626D134EE000A7A1C /* cmd_bg.c in Sources */,
-				26A4EADA26D116CE00C3C140 /* AppDelegate.m in Sources */,
 				26B385C726D134EE000A7A1C /* cmd_gosub.c in Sources */,
 				26B385E026D134EE000A7A1C /* cmd_set.c in Sources */,
 				26B385C826D134EE000A7A1C /* seen.c in Sources */,
