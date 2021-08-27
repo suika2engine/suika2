@@ -32,6 +32,9 @@ void clear_history(void);
 /* ヒストリ画面から復帰したかばかりかを確認する */
 bool check_history_flag(void);
 
+/* ヒストリが空であるかを返す */
+bool is_history_empty(void);
+
 /* ヒストリ画面を開始する */
 void start_history_mode(void);
 

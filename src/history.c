@@ -210,6 +210,17 @@ bool check_history_flag(void)
 }
 
 /*
+ * ヒストリが空であるかを返す
+ */
+bool is_history_empty(void)
+{
+	if (history_count == 0)
+		return true;
+
+	return false;
+}
+
+/*
  * ヒストリ画面
  */
 

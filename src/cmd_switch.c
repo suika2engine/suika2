@@ -111,7 +111,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	}
 
 	/* ヒストリ画面への遷移を確認する */
-	if (is_up_pressed) {
+	if (is_up_pressed && !is_history_empty()) {
 		draw_keep();
 		play_se(conf_msgbox_history_se);
 		start_history_mode();
