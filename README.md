@@ -9,7 +9,7 @@ Suika2 is a portable game engine that runs on both Windows and Mac. You can enjo
 
 ## Portability
 
-In a strict sense, Suika2 runs on Windows, Mac, Web browsers, Android, Linux, FreeBSD and NetBSD.
+In a strict sense, Suika2 runs on Windows, Mac, Web browsers, iPhone, iPad, Android, Linux, FreeBSD and NetBSD.
 
 Suika2 consists of platform independent part and hardware abstraction layer (HAL). The platform independent part is written in ANSI C. HALs are currently written in C, Objective-C and Java.
 
@@ -46,6 +46,10 @@ See `COPYING`.
     * Open `suika2` folder in Finder.
     * Copy `suika` application in `mac.dmg` to `suika2` folder.
     * Open `suika` application in `suika2` folder.
+
+* On iPhone/iPad:
+    * Sample game is going to be available on App Store. Please wait for a while. See [the official web site](https://suika2.com/en/)
+    * To make your own game, you have to build from source code using Xcode. See `build/README.md`
 
 * On Android:
     * Sample game is available on Google Play. See [the official web site](https://suika2.com/en/)
