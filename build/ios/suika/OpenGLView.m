@@ -99,14 +99,27 @@
 
 - (void)render
 {
+    // レンダリングを開始する
     opengl_start_rendering();
 
+    // フレーム描画イベントを実行する
+    //  - 更新領域 x, y, w, h は無視する
     int x, y, w, h;
-    on_event_frame(&x, &y, &w, &h);
+    bool cont = on_event_frame(&x, &y, &w, &h);
 
+    // レンダリングを終了する
     opengl_end_rendering();
 
     [_context presentRenderbuffer:GL_RENDERBUFFER];
+
+    // スクリプトの末尾まで実行し終わった場合
+    if(!cont) {
+        // 初期スクリプトをロードする
+        if(!load_script("init.txt")) {
+            NSLog(@"load_script error.");
+            exit(1);
+        }
+    }
 }
 
 - (void)setupBuffers

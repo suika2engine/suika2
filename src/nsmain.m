@@ -60,6 +60,7 @@ NSWindow *theWindow;
 // ビュー
 //
 @interface SuikaView : NSView <NSWindowDelegate, NSApplicationDelegate>
+- (void)timerFired:(NSTimer *)timer;
 @end
 SuikaView *theView;
 

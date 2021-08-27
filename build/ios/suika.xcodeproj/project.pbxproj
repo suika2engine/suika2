@@ -187,8 +187,6 @@
 		26B3857C26D13263000A7A1C /* common */ = {
 			isa = PBXGroup;
 			children = (
-				268B09DD26D6206C0074577E /* glesrender.c */,
-				268B09DC26D6206C0074577E /* glesrender.h */,
 				26B385B826D134EE000A7A1C /* aunit.c */,
 				26B385B326D134EE000A7A1C /* aunit.h */,
 				26B385A526D134EE000A7A1C /* cmd_bg.c */,
@@ -221,6 +219,8 @@
 				26B3858626D134EE000A7A1C /* event.h */,
 				26B3859226D134EE000A7A1C /* file.c */,
 				26B3858026D134EE000A7A1C /* file.h */,
+				268B09DD26D6206C0074577E /* glesrender.c */,
+				268B09DC26D6206C0074577E /* glesrender.h */,
 				26B3858A26D134EE000A7A1C /* glyph.c */,
 				26B3859426D134EE000A7A1C /* glyph.h */,
 				26B3859326D134EE000A7A1C /* history.c */,
@@ -443,7 +443,7 @@
 					./libroot/include,
 					./libroot/include/freetype2,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				"LD_MAP_FILE_PATH[arch=*]" = "$(TARGET_TEMP_DIR)/$(PRODUCT_NAME)-LinkMap-$(CURRENT_VARIANT)-$(CURRENT_ARCH).txt";
 				LIBRARY_SEARCH_PATHS = ./libroot/lib;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -510,7 +510,7 @@
 					./libroot/include,
 					./libroot/include/freetype2,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = ./libroot/lib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -536,12 +536,12 @@
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika2demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -556,12 +556,12 @@
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika2demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
