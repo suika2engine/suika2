@@ -43,7 +43,7 @@
     GLuint _renderBuffer;
     GLuint _frameBuffer;
 
-    int _top;
+    int _left, _top;
     float _scale;
 
     BOOL _isTouch;
@@ -243,15 +243,33 @@ int main(int argc, char * argv[]) {
     [self destroyBuffers];
     [self setupBuffers];
 
+    // ゲーム画面のアスペクト比を求める
     float aspect = (float)conf_window_height / (float)conf_window_width;
-    float w = self.bounds.size.width * self.contentScaleFactor;
-    float h = w * aspect;
+
+    // ビューのサイズを取得する
+    float vw = self.bounds.size.width * self.contentScaleFactor;
+    float vh = self.bounds.size.height * self.contentScaleFactor;
+
+    // 横幅優先で高さを仮決めする
+    float w = vw;
+    float h = vw * aspect;
+    _scale = (float)conf_window_width / w;
+
+    // 高さが足りなければ、縦幅優先で横幅を決める
+    if(h > vh) {
+        h = vh;
+        w = vh / aspect;
+        _scale = (float)conf_window_height / h;
+    }
+
+    // スクリーンの原点を決める
+    float x = (self.bounds.size.width * self.contentScaleFactor - w) / 2.0f;
     float y = (self.bounds.size.height * self.contentScaleFactor - h) / 2.0f;
 
-    glViewport(0, y, w, h);
+    glViewport(x, y, w, h);
 
+    _left = (int)x;
     _top = (int)y;
-    _scale = (float)conf_window_width / w;
 }
 
 - (void)render
@@ -315,7 +333,7 @@ int main(int argc, char * argv[]) {
     CGPoint touchLocation = [touch locationInView:self];
 
     _isTouch = YES;
-    _touchStartX = touchLocation.x * _scale;
+    _touchStartX = touchLocation.x * _scale - _left;
     _touchStartY = touchLocation.y * _scale - _top;
     _touchLastY = _touchStartY;
 
@@ -327,7 +345,7 @@ int main(int argc, char * argv[]) {
     UITouch *touch = [[event allTouches] anyObject];
     CGPoint touchLocation = [touch locationInView:self];
 
-    float touchX = touchLocation.x * _scale;
+    float touchX = touchLocation.x * _scale - _left;
     float touchY = touchLocation.y * _scale - _top;
 
     const float LINE_HEIGHT = 10;
@@ -350,7 +368,7 @@ int main(int argc, char * argv[]) {
     UITouch *touch = [[event allTouches] anyObject];
     CGPoint touchLocation = [touch locationInView:self];
 
-    float touchEndX = touchLocation.x * _scale;
+    float touchEndX = touchLocation.x * _scale - _left;
     float touchEndY = touchLocation.y * _scale - _top;
 
     if([[event allTouches] count] == 1)
