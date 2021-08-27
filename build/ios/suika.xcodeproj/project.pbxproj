@@ -545,9 +545,9 @@
 					"@executable_path/Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika2demo;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika2ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Suika2 Demo Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "Suika2 iOS";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
