@@ -41,15 +41,17 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_wait.c
              src/main/cpp/conf.c
              src/main/cpp/event.c
+             src/main/cpp/glesrender.c
+             src/main/cpp/glyph.c
              src/main/cpp/history.c
+             src/main/cpp/image.c
              src/main/cpp/log.c
              src/main/cpp/main.c
              src/main/cpp/mixer.c
              src/main/cpp/ndkfile.c
-             src/main/cpp/ndkglyph.c
-             src/main/cpp/ndkimage.c
              src/main/cpp/ndkmain.c
              src/main/cpp/ndkwave.c
+             src/main/cpp/readimage.c
              src/main/cpp/save.c
              src/main/cpp/scbuf.c
              src/main/cpp/script.c
@@ -76,7 +78,7 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        suika
-                       jnigraphics
+                       GLESv2
                        z
                        png
                        freetype
@@ -85,10 +87,14 @@ target_link_libraries( # Specifies the target library.
                        # included in the NDK.
                        ${log-lib} )
 
+add_definitions(-DUSE_OPENGL)
+
 # libpng
 option(HAVE_LD_VERSION_SCRIPT OFF)
 set(HAVE_LD_VERSION_SCRIPT OFF)
 add_subdirectory(src/main/cpp/libpng)
+include_directories(src/main/cpp/libpng)
 
 # freetype
 add_subdirectory(src/main/cpp/freetype)
+include_directories(src/main/cpp/freetype/include)

@@ -41,8 +41,13 @@ enum blend_type {
 /* draw_image_mask()のマスクの階調 */
 #define DRAW_IMAGE_MASK_LEVELS	(28)
 
-/* WindowsとX11とAndroidの場合はARGB形式(バイト順にBGRA) */
-#if defined(WIN) || (defined(LINUX) && !defined(USE_OPENGL)) || defined(ANDROID)
+/*
+ * WindowsとX11とAndroidの場合はARGB形式(バイト順にBGRA)
+ * (ただしOpenGLの場合を除く)
+ */
+#if (defined(WIN) && !defined(USE_OPENGL)) ||\
+    (defined(LINUX) && !defined(USE_OPENGL)) ||	\
+    (defined(ANDROID) && !defined(USE_OPENGL))
 
 /* ピクセル値を合成する */
 static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g,
@@ -76,7 +81,7 @@ static INLINE uint32_t get_pixel_a(pixel_t p)
 	return p >> 24;
 }
 
-/* Macの場合はABGR形式(バイト順にRGBA) */
+/* MacとOpenGLの場合はABGR形式(バイト順にRGBA) */
 #else
 
 /* ピクセル値を合成する */

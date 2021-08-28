@@ -33,6 +33,9 @@ build/glut-linux/*.o
 build/glut-linux/libroot
 build/glut-linux/suika
 build/android/.idea/caches
+build/android/app/.cxx
+build/android/app/src/main/cpp/freetype
+build/android/app/src/main/cpp/libpng
 build/msvc/.vs
 build/msvc/zlib
 build/msvc/libpng
@@ -47,10 +50,6 @@ game-jp/log.txt
 game-jp/sav
 game-en/log.txt
 game-en/sav
-game-jp-small/log.txt
-game-jp-small/sav
-game-en-small/log.txt
-game-en-small/sav
 build/release/mac.dmg
 build/release/suika-2.x.x-jp.zip
 build/release/suika-2.x.x-en.zip

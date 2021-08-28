@@ -10,18 +10,15 @@ package jp.luxion.suika;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.AttributeSet;
+import android.opengl.GLSurfaceView;
+import android.opengl.GLSurfaceView.Renderer;
+import android.opengl.GLES20;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -32,6 +29,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
+/*
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+*/
 
 public class MainActivity extends Activity {
 	static {
@@ -44,14 +54,8 @@ public class MainActivity extends Activity {
 	/** 仮想ビューポートの高さです。 */
 	private static final int VIEWPORT_HEIGHT = 720;
 
-	/** 60fpsを実現するための待ち時間です。 */
-	private static final int DELAY = 0;
-
-	/** タッチをホールドと判断する時間[ms]です */
-	private static final int HOLD_TIME_MIN = 700;
-
-	/** タッチをホールドと判断する時間[ms]です */
-	private static final int HOLD_TIME_MAX = 2000;
+	/** タッチスクロールの1行分の移動距離です */
+	private static final int LINE_HEIGHT = 10;
 
 	/** ミキサのストリーム数です。 */
 	private static final int MIXER_STREAMS = 3;
@@ -68,12 +72,6 @@ public class MainActivity extends Activity {
 	/** Viewです。 */
 	private MainView view;
 
-	/** フレームを処理するためのHandlerです。 */
-	private Handler handler;
-
-	/** 背景ビットマップです。 */
-	private Bitmap backBitmap;
-
 	/** ビューポートサイズを1としたときの、レンダリング先の拡大率です。 */
 	private float scale;
 
@@ -83,17 +81,11 @@ public class MainActivity extends Activity {
 	/** レンダリング先のXオフセットです。 */
 	private int offsetY;
 
-	/** レンダリング先の幅です。 */
-	private int width;
+	/** タッチ座標です。 */
+	private int touchStartX, touchStartY, touchLastY;
 
-	/** レンダリング先の高さです。 */
-	private int height;
-
-	/** invalidateされたかを表します。 */
-	private boolean isInvalidated;
-
-	/** 前回タッチされていた箇所の数です。 */
-	private int lastPointedCount;
+	/** タッチされている指の数です。 */
+	private int touchCount;
 
 	/** BE/VOICE/SEのMediaPlayerです。 */
 	private MediaPlayer[] player = new MediaPlayer[MIXER_STREAMS];
@@ -111,100 +103,85 @@ public class MainActivity extends Activity {
 
 		// ビューを作成してセットする
 		view = new MainView(this);
-		view.setBackgroundColor(0xff000000);
+//		view.setBackgroundColor(0xff000000);
 		setContentView(view);
-
-		// JNIコードで初期化処理を実行する
-		backBitmap = init();
-		if (backBitmap == null)
-			throw new RuntimeException("onCreate() returned false");
 	}
 
 	/**
 	 * ビューです。
 	 */
-	private class MainView extends View implements View.OnTouchListener {
+	private class MainView extends GLSurfaceView implements
+												 View.OnTouchListener,
+												 Renderer {
 		/**
 		 * コンストラクタです。
 		 */
 		public MainView(Context context) {
 			super(context);
+
 			setFocusable(true);
 			setOnTouchListener(this);
+			setEGLConfigChooser(8, 8, 8, 8, 0, 0);
+			setEGLContextClientVersion(2);
+			setRenderer(this);
+		}
+
+		/**
+		 * ビューが作成されるときに呼ばれます。
+		 */
+		@Override
+		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+			// JNIコードで初期化処理を実行する
+			init();
 		}
 
 		/**
 		 * ビューのサイズが決定した際に呼ばれます。
 		 */
 		@Override
-		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-			// ビューポートの拡大率を求める
-			float scaleX = (float) w / VIEWPORT_WIDTH;
-			float scaleY = (float) h / VIEWPORT_HEIGHT;
-			scale = scaleX > scaleY ? scaleY : scaleX;
+		public void onSurfaceChanged(GL10 gl, int width, int height) {
+			// ゲーム画面のアスペクト比を求める
+			float aspect = (float)VIEWPORT_HEIGHT / (float)VIEWPORT_WIDTH;
 
-			// 実際に描画する領域のサイズを求める
-			width = (int) (VIEWPORT_WIDTH * scale);
-			height = (int) (VIEWPORT_HEIGHT * scale);
+			// 横幅優先で高さを仮決めする
+			float w = width;
+			float h = width * aspect;
+			scale = w / (float)VIEWPORT_WIDTH;
+			offsetX = 0;
+			offsetY = (int)((float)(height - h) / 2.0f);
 
-			// 実際に描画する領域のオフセットを求める
-			offsetX = (w - width) / 2;
-			offsetY = (h - height) / 2;
+			// 高さが足りなければ、縦幅優先で横幅を決める
+			if(h > height) {
+				h = height;
+				w = height / aspect;
+				scale = h / (float)VIEWPORT_HEIGHT;
+				offsetX = (int)((float)(width - w) / 2.0f);
+				offsetY = 0;
+			}
+
+			// ビューポートを更新する
+			GLES20.glViewport(offsetX, offsetY, width, height);
 		}
 
 		/**
 		 * 表示される際に呼ばれます。
 		 */
 		@Override
-		protected void onAttachedToWindow() {
-			handler = new Handler() {
-				public void handleMessage(Message msg) {
-					// ビューがデタッチされた場合は処理しない
-					if (handler == null)
-						return;
+		public void onDrawFrame(GL10 gl) {
+			// JNIコードでフレームを処理する
+			if (!frame()) {
+				// JNIコードで終了処理を行う
+				cleanup();
 
-					// JNIコードでフレームを処理する
-					if (!frame()) {
-						// 終了する
-						finish();
-					} else {
-						// 更新領域がない場合、タイマをセットする
-						if (!isInvalidated)
-							sendEmptyMessageDelayed(0, DELAY);
-					}
-				}
-			};
-			handler.sendEmptyMessage(0);
-			super.onAttachedToWindow();
-		}
+				// アプリケーションを終了する
+				finish();
+			}
 
-		/**
-		 * 表示されなくなる際に呼ばれます。
-		 */
-		@Override
-		protected void onDetachedFromWindow() {
-			handler = null;
-			super.onDetachedFromWindow();
-
-			// 終了処理を行う
-			cleanup();
-		}
-
-		/**
-		 * ビューへの描画を行う際に呼ばれます。
-		 */
-		@Override
-		protected void onDraw(Canvas canvas) {
-			isInvalidated = false;
-
-			// 描画を行う
-			Paint paint = new Paint();
-			Rect srcRect = new Rect(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-			Rect dstRect = new Rect(offsetX, offsetY, offsetX + width, offsetY + height);
-			canvas.drawBitmap(backBitmap, srcRect, dstRect, paint);
-
-			// フレーム処理時刻を更新する
-			handler.sendEmptyMessageDelayed(0, DELAY);
+/*
+			GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+			GLES20.glClear(GL10.GL_COLOR_BUFFER_BIT);
+			GLES20.glFlush();
+*/
 		}
 
 		/**
@@ -212,37 +189,38 @@ public class MainActivity extends Activity {
 		 */
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
-			int x = (int) (event.getX() / scale);
-			int y = (int) (event.getY() / scale);
+			int x = (int)(event.getX() / scale) - offsetX;
+			int y = (int)(event.getY() / scale) - offsetY;
 			int pointed = event.getPointerCount();
-			long hold = event.getEventTime() - event.getDownTime();
+			int delta = y - touchLastY;
 
 			switch(event.getActionMasked()) {
+			case MotionEvent.ACTION_DOWN:
+				touchStartX = x;
+				touchStartY = y;
+				touchLastY = y;
+				touchMove(x, y);
+				break;
 			case MotionEvent.ACTION_MOVE:
-//			case MotionEvent.ACTION_DOWN:
-//			case MotionEvent.ACTION_CANCEL:
-				if(pointed == 1) {
-					Log.i("Suika", "touchMove");
-					touchMove(x, y);
+				touchStartX = x;
+				touchStartY = y;
+				if(delta > LINE_HEIGHT) {
+					touchScrollDown();
 				} else {
-					Log.i("Suika", "touchScroll " + y);
-					touchScroll(x, y);
+					touchScrollUp();
 				}
+				touchLastY = y;
+				touchMove(x, y);
 				break;
 			case MotionEvent.ACTION_UP:
-				if(lastPointedCount == 1) {
-					if(hold >= HOLD_TIME_MIN && hold <= HOLD_TIME_MAX) {
-						Log.i("Suika", "touchHold");
-						touchHold(x, y);
-					} else {
-						Log.i("Suika", "touchUp");
-						touchUp(x, y);
-					}
-				}
+				if(touchCount == 1)
+					touchLeftClick(x, y);
+				else
+					touchRightClick(x, y);
 				break;
 			}
 
-			lastPointedCount = pointed;
+			touchCount = pointed;
 			return true;
 		}
 	}
@@ -284,7 +262,7 @@ public class MainActivity extends Activity {
 	 */
 
 	/** 初期化処理を行います。	*/
-	private native Bitmap init();
+	private native void init();
 
 	/** 終了処理を行います。 */
 	private native void cleanup();
@@ -295,24 +273,21 @@ public class MainActivity extends Activity {
 	/** タッチ(移動)を処理します。 */
 	private native void touchMove(int x, int y);
 
-	/** タッチ(解放)を処理します。 */
-	private native void touchUp(int x, int y);
+	/** タッチ(上スクロール)を処理します。 */
+	private native void touchScrollUp();
 
-	/** タッチ(ホールド)を処理します。 */
-	private native void touchHold(int x, int y);
+	/** タッチ(下スクロール)を処理します。 */
+	private native void touchScrollDown();
 
-	/** タッチ(スクロール)を処理します。 */
-	private native void touchScroll(int x, int y);
+	/** タッチ(左クリック)を処理します。 */
+	private native void touchLeftClick(int x, int y);
+
+	/** タッチ(右クリック)を処理します。 */
+	private native void touchRightClick(int x, int y);
 
 	/*
 	 * ndkmain.cのためのユーティリティ
 	 */
-
-	/** 再描画を行います。 */
-	private void invalidateView() {
-		isInvalidated = true;
-		view.invalidate();
-	}
 
 	/** 音声の再生を開始します。 */
 	private void playSound(int stream, String fileName, boolean loop) {
@@ -352,68 +327,6 @@ public class MainActivity extends Activity {
 
 		if(player[stream] != null)
 			player[stream].setVolume(vol, vol);
-	}
-
-	/*
-	 * ndkimage.cのためのユーティリティ
-	 */
-
-	/**
-	 * ビットマップを作成します。
-	 */
-	private Bitmap createBitmap(int w, int h) {
-		return Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-	}
-
-	/**
-	 * assetからビットマップを作成します。
-	 */
-	private Bitmap loadBitmap(String fileName) {
-		try {
-			InputStream is = getResources().getAssets().open(fileName);
-			return BitmapFactory.decodeStream(is);
-		} catch (IOException e) {
-			Log.e("Suika", "Failed to load image " + fileName);
-			return null;
-		}
-	}
-
-	/**
-	 * Bitmapに矩形を描画します。
-	 */
-	private void drawRect(Bitmap bm, int x, int y, int w, int h, int color) {
-		Canvas canvas = new Canvas(bm);
-		Paint paint = new Paint();
-		Rect rect = new Rect(x, y, x + w, y + h);
-		paint.setColor(color);
-		paint.setStyle(Paint.Style.FILL);
-		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-		canvas.drawRect(rect, paint);
-	}
-
-	/**
-	 * BitmapにBitmapを描画します。
-	 */
-	private void drawBitmapAlpha(Bitmap dst, int dx, int dy, Bitmap src, int w, int h, int sx, int sy, int alpha) {
-		Canvas canvas = new Canvas(dst);
-		Rect dstRect = new Rect(dx, dy, dx + w, dy + h);
-		Rect srcRect = new Rect(sx, sy, sx + w, sy + h);
-		Paint paint = new Paint();
-		paint.setAlpha(alpha);
-		canvas.drawBitmap(src, srcRect, dstRect, paint);
-	}
-
-	/**
-	 * BitmapにBitmapを描画します。
-	 */
-	private void drawBitmapCopy(Bitmap dst, int dx, int dy, Bitmap src, int w, int h, int sx, int sy) {
-		Canvas canvas = new Canvas(dst);
-		Rect dstRect = new Rect(dx, dy, dx + w, dy + h);
-		Rect srcRect = new Rect(sx, sy, sx + w, sy + h);
-		Paint paint = new Paint();
-		paint.setAlpha(255);
-		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-		canvas.drawBitmap(src, srcRect, dstRect, paint);
 	}
 
 	/*
@@ -484,42 +397,5 @@ public class MainActivity extends Activity {
 		} catch(IOException e) {
 			Log.e("Suika", "Failed to write file.");
 		}
-	}
-
-	/*
-	 * ndkglyph.cのためのユーティリティ
-	 */
-
-	/** Bitmapに文字を描画します。 */
-	private int drawGlyph(Bitmap bm, int x, int y, int size, int color, int codepoint) {
-		String s = "" + (char)codepoint;
-		Canvas canvas = new Canvas(bm);
-		Paint paint = new Paint();
-		paint.setTextSize(size);
-		paint.setStyle(Paint.Style.FILL);
-		paint.setTextAlign(Paint.Align.LEFT);
-		paint.setColor(0xff000000 | color);
-		paint.setAntiAlias(true);
-		Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-		canvas.drawText(s, x, y - fontMetrics.ascent, paint);
-		return (int)paint.measureText(s);
-	}
-
-	/** 文字を描画したときの幅を取得します。 */
-	private int getGlyphWidth(int size, int codepoint) {
-		String s = "" + (char)codepoint;
-		Paint paint = new Paint();
-		paint.setTextSize(size);
-		paint.setAntiAlias(true);
-		return (int)paint.measureText(s);
-	}
-
-	/** 文字を描画したときの幅を取得します。 */
-	private int getGlyphHeight(int size, int codepoint) {
-		Paint paint = new Paint();
-		paint.setTextSize(size);
-		paint.setAntiAlias(true);
-		Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-		return (int)(-fontMetrics.ascent + fontMetrics.descent);
 	}
 }

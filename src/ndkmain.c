@@ -11,6 +11,7 @@
 
 #include "suika.h"
 #include "ndkmain.h"
+#include "glesrender.h"
 
 #include <android/log.h>
 
@@ -28,42 +29,39 @@ JNIEnv *jni_env;
 jobject main_activity;
 
 /*
- * 背景イメージ
- */
-static struct image *back_image;
-
-/*
  * 初期化処理を行います。
  */
-JNIEXPORT jobject JNICALL
+JNIEXPORT void JNICALL
 Java_jp_luxion_suika_MainActivity_init(
 	JNIEnv *env,
-	jobject instance,
-	jobject assetManager)
+	jobject instance)
 {
-	jobject back_bitmap;
+	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
+	jni_env = env;
 
 	/* Activityを保持する */
 	main_activity = (*env)->NewGlobalRef(env, instance);
 
-	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
-	jni_env = env;
-
 	/* コンフィグの初期化処理を行う */
-	if (!init_conf())
-		return NULL;
+	if (!init_conf()) {
+		log_error("Failed to initialize config.");
+		return;
+	}
 
-	/* 背景イメージを作成する */
-	back_image = create_image(1280, 720);
-	back_bitmap = (jobject)get_image_object(back_image);
+	/* OpenGL ESの初期化を行う */
+	if (!init_opengl()) {
+		log_error("Failed to initialize OpenGL.");
+		return;
+	}
 
 	/* アプリケーション本体の初期化処理を行う */
-	on_event_init();
+	if (!on_event_init()) {
+		log_error("Failed to initialize event loop.");
+		return;
+	}
 
 	/* envをグローバル変数で参照するのを終了する */
 	jni_env = NULL;
-
-	return back_bitmap;
 }
 
 /*
@@ -82,12 +80,6 @@ Java_jp_luxion_suika_MainActivity_cleanup(
 
 	/* コンフィグの終了処理を行う */
 	cleanup_conf();
-
-	/* 背景イメージの破棄を行う */
-	if (back_image != NULL) {
-		destroy_image(back_image);
-		back_image = NULL;
-	}
 
 	/* MainActivityの保持を終了する */
 	if (main_activity != NULL) {
@@ -115,16 +107,14 @@ Java_jp_luxion_suika_MainActivity_frame(
 	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
 	jni_env = env;
 
-	if (!on_event_frame(&x, &y, &w, &h)) {
+	opengl_start_rendering();
+
+	if (!on_event_frame(&x, &y, &w, &h))
 		ret = JNI_FALSE;
-	} else {
+	else
 		ret = JNI_TRUE;
 
-		// 再描画を行う
-		cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-		mid = (*jni_env)->GetMethodID(jni_env, cls, "invalidateView", "()V");
-		(*jni_env)->CallVoidMethod(jni_env, main_activity, mid);
-	}
+	opengl_end_rendering();
 
 	/* envをグローバル変数で参照するのを終了する */
 	jni_env = NULL;
@@ -142,61 +132,57 @@ Java_jp_luxion_suika_MainActivity_touchMove(
 	jint x,
 	jint y)
 {
-	mouse_pos_x = (int)x;
-	mouse_pos_y = (int)y;
+	on_event_mouse_move(x, y);
 }
 
 /*
- * タッチ(解放)を処理します。
+ * タッチ(上スクロール)を処理します。
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchUp(
+Java_jp_luxion_suika_MainActivity_touchScrollUp(
+	JNIEnv *env,
+	jobject instance)
+{
+        on_event_key_press(KEY_UP);
+        on_event_key_release(KEY_UP);
+}
+
+/*
+ * タッチ(下スクロール)を処理します。
+ */
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_touchScrollDown(
+	JNIEnv *env,
+	jobject instance)
+{
+        on_event_key_press(KEY_DOWN);
+        on_event_key_release(KEY_DOWN);
+}
+
+/*
+ * タッチ(左クリック)を処理します。
+ */
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_touchLeftClick(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
-	mouse_pos_x = (int)x;
-	mouse_pos_y = (int)y;
-	is_left_button_pressed = true;
+        on_event_mouse_press(MOUSE_LEFT, x, y);
 }
 
 /*
- * タッチ(ホールド)を処理します。
+ * タッチ(右クリック)を処理します。
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchHold(
+Java_jp_luxion_suika_MainActivity_touchRightClick(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
-	mouse_pos_x = (int)x;
-	mouse_pos_y = (int)y;
-	is_right_button_pressed = true;
-}
-
-/*
- * タッチ(スクロール)を処理します。
- */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchScroll(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	int dy;
-
-	dy = y - mouse_pos_y;
-
-	mouse_pos_x = (int)x;
-	mouse_pos_y = (int)y;
-
-	if (dy < 0)
-		is_up_pressed = true;
-	else if (dy > SCROLL_DOWN_MARGIN)
-		is_down_pressed = true;
+        on_event_mouse_press(MOUSE_RIGHT, x, y);
 }
 
 /*
@@ -265,11 +251,9 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 {
 	assert(*locked_pixels == NULL);
 
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = pixels;
+	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
+				 texture))
+		return false;
 
 	return true;
 }
@@ -282,12 +266,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 {
 	assert(*locked_pixels != NULL);
 
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = NULL;
+	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
 }
 
 /*
@@ -295,7 +274,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-	UNUSED_PARAMETER(texture);
+	opengl_destroy_texture(texture);
 }
 
 /*
@@ -305,8 +284,8 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-	draw_image(back_image, dst_left, dst_top, src_image, width, height,
-			   src_left, src_top, alpha, bt);
+	opengl_render_image(dst_left, dst_top, src_image, width, height,
+			    src_left, src_top, alpha, bt);
 }
 
 /*
@@ -317,8 +296,8 @@ void render_image_mask(int dst_left, int dst_top,
                        int width, int height, int src_left, int src_top,
                        int mask)
 {
-	draw_image_mask(back_image, dst_left, dst_top, src_image, width,
-			height, src_left, src_top, mask);
+	opengl_render_image_mask(dst_left, dst_top, src_image, width,
+				 height, src_left, src_top, mask);
 }
 
 /*
@@ -326,7 +305,7 @@ void render_image_mask(int dst_left, int dst_top,
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
-	clear_image_color_rect(back_image, left, top, width, height, color);
+	opengl_render_clear(left, top, width, height, color);
 }
 
 /*
@@ -334,6 +313,8 @@ void render_clear(int left, int top, int width, int height, pixel_t color)
  */
 bool make_sav_dir(void)
 {
+	/* NDKでは使用しない */
+	assert(0);
 	return true;
 }
 
@@ -345,14 +326,6 @@ char *make_valid_path(const char *dir, const char *fname)
 	/* NDKでは使用しない */
 	assert(0);
 	return NULL;
-}
-
-/*
- * バックイメージを取得する
- */
-struct image *get_back_image(void)
-{
-	return back_image;
 }
 
 /*
