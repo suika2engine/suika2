@@ -10,6 +10,7 @@ package jp.luxion.suika;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
@@ -21,8 +22,10 @@ import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.GLES20;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
+import android.graphics.Point;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -100,10 +103,9 @@ public class MainActivity extends Activity {
 		// フルスクリーンにする
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+		
 		// ビューを作成してセットする
 		view = new MainView(this);
-//		view.setBackgroundColor(0xff000000);
 		setContentView(view);
 	}
 
@@ -150,7 +152,7 @@ public class MainActivity extends Activity {
 			offsetX = 0;
 			offsetY = (int)((float)(height - h) / 2.0f);
 
-			// 高さが足りなければ、縦幅優先で横幅を決める
+			// 高さが足りなければ、高さ優先で横幅を決める
 			if(h > height) {
 				h = height;
 				w = height / aspect;
@@ -160,7 +162,7 @@ public class MainActivity extends Activity {
 			}
 
 			// ビューポートを更新する
-			GLES20.glViewport(offsetX, offsetY, width, height);
+			GLES20.glViewport(offsetX, offsetY, (int)w, (int)h);
 		}
 
 		/**
@@ -176,12 +178,6 @@ public class MainActivity extends Activity {
 				// アプリケーションを終了する
 				finish();
 			}
-
-/*
-			GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-			GLES20.glClear(GL10.GL_COLOR_BUFFER_BIT);
-			GLES20.glFlush();
-*/
 		}
 
 		/**
@@ -189,8 +185,8 @@ public class MainActivity extends Activity {
 		 */
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
-			int x = (int)(event.getX() / scale) - offsetX;
-			int y = (int)(event.getY() / scale) - offsetY;
+			int x = (int)((event.getX() - offsetX) / scale);
+			int y = (int)((event.getY() - offsetY) / scale);
 			int pointed = event.getPointerCount();
 			int delta = y - touchLastY;
 

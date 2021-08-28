@@ -313,8 +313,6 @@ void render_clear(int left, int top, int width, int height, pixel_t color)
  */
 bool make_sav_dir(void)
 {
-	/* NDKでは使用しない */
-	assert(0);
 	return true;
 }
 
