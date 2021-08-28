@@ -32,7 +32,7 @@ void cleanup_glyph(void)
 
 /*
  * utf-8文字列の先頭文字をutf-32文字に変換する
- * FIXME: サロゲートペア、合字
+ * XXX: サロゲートペア、合字は処理しない
  */
 int utf8_to_utf32(const char *mbs, uint32_t *wc)
 {
@@ -175,7 +175,7 @@ int get_utf8_width(const char *mbs)
  * 文字の描画を行う
  */
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
-		uint32_t codepoint, int *w, int *h)
+		pixel_t outline_color, uint32_t codepoint, int *w, int *h)
 {
 	jclass cls;
 	jmethodID mid;

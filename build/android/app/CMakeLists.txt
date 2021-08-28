@@ -20,6 +20,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_bg.c
              src/main/cpp/cmd_bgm.c
              src/main/cpp/cmd_ch.c
+             src/main/cpp/cmd_cha.c
+             src/main/cpp/cmd_chs.c
              src/main/cpp/cmd_click.c
              src/main/cpp/cmd_gosub.c
              src/main/cpp/cmd_goto.c
@@ -32,6 +34,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_se.c
              src/main/cpp/cmd_select.c
              src/main/cpp/cmd_set.c
+             src/main/cpp/cmd_setsave.c
+             src/main/cpp/cmd_shake.c
              src/main/cpp/cmd_switch.c
              src/main/cpp/cmd_vol.c
              src/main/cpp/cmd_wait.c
@@ -47,7 +51,9 @@ add_library( # Sets the name of the library.
              src/main/cpp/ndkmain.c
              src/main/cpp/ndkwave.c
              src/main/cpp/save.c
+             src/main/cpp/scbuf.c
              src/main/cpp/script.c
+             src/main/cpp/seen.c
              src/main/cpp/stage.c
              src/main/cpp/vars.c )
 
@@ -71,7 +77,18 @@ find_library( # Sets the name of the path variable.
 target_link_libraries( # Specifies the target library.
                        suika
                        jnigraphics
+                       z
+                       png
+                       freetype
 
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib} )
+
+# libpng
+option(HAVE_LD_VERSION_SCRIPT OFF)
+set(HAVE_LD_VERSION_SCRIPT OFF)
+add_subdirectory(src/main/cpp/libpng)
+
+# freetype
+add_subdirectory(src/main/cpp/freetype)

@@ -258,6 +258,78 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 /*
+ * テクスチャをロックする
+ */
+bool lock_texture(int width, int height, pixel_t *pixels,
+				  pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels == NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = pixels;
+
+	return true;
+}
+
+/*
+ * テクスチャをアンロックする
+ */
+void unlock_texture(int width, int height, pixel_t *pixels,
+					pixel_t **locked_pixels, void **texture)
+{
+	assert(*locked_pixels != NULL);
+
+	UNUSED_PARAMETER(width);
+	UNUSED_PARAMETER(height);
+	UNUSED_PARAMETER(pixels);
+	UNUSED_PARAMETER(texture);
+
+	*locked_pixels = NULL;
+}
+
+/*
+ * テクスチャを破棄する
+ */
+void destroy_texture(void *texture)
+{
+	UNUSED_PARAMETER(texture);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
+                  int width, int height, int src_left, int src_top, int alpha,
+                  int bt)
+{
+	draw_image(back_image, dst_left, dst_top, src_image, width, height,
+			   src_left, src_top, alpha, bt);
+}
+
+/*
+ * イメージをマスク描画でレンダリングする
+ */
+void render_image_mask(int dst_left, int dst_top,
+                       struct image * RESTRICT src_image,
+                       int width, int height, int src_left, int src_top,
+                       int mask)
+{
+	draw_image_mask(back_image, dst_left, dst_top, src_image, width,
+			height, src_left, src_top, mask);
+}
+
+/*
+ * 画面をクリアする
+ */
+void render_clear(int left, int top, int width, int height, pixel_t color)
+{
+	clear_image_color_rect(back_image, left, top, width, height, color);
+}
+
+/*
  * セーブディレクトリを作成する
  */
 bool make_sav_dir(void)
@@ -332,10 +404,11 @@ bool play_sound(int n, struct wave *w)
 	loop = is_wave_looped(w);
 
 	/* サウンドの再生を開始する */
+/*
 	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
 	mid = (*jni_env)->GetMethodID(jni_env, cls, "playSound", "(ILjava/lang/String;Z)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, n, (*jni_env)->NewStringUTF(jni_env, file), loop ? JNI_TRUE : JNI_FALSE);
-
+*/
 	return true;
 }
 
@@ -348,10 +421,11 @@ bool stop_sound(int n)
 	jmethodID mid;
 
 	/* サウンドの再生を停止する */
+/*
 	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
 	mid = (*jni_env)->GetMethodID(jni_env, cls, "stopSound", "(I)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, n);
-
+*/
 	return true;
 }
 
@@ -364,10 +438,11 @@ bool set_sound_volume(int n, float vol)
 	jmethodID mid;
 
 	/* サウンドの再生を停止する */
+/*
 	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
 	mid = (*jni_env)->GetMethodID(jni_env, cls, "setVolume", "(IF)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, n, vol);
-
+*/
 	return true;
 }
 
@@ -387,4 +462,10 @@ bool title_dialog(void)
 {
 	/* stub */
 	return true;
+}
+
+/* サウンドが再生終了したか調べる */
+bool is_sound_finished(int stream)
+{
+	return false;
 }

@@ -97,6 +97,36 @@ struct image *create_image_from_file(const char *dir, const char *file)
 }
 
 /*
+ * 文字列で色を指定してイメージを作成する
+ */
+struct image *create_image_from_color_string(int w, int h, const char *color)
+{
+	struct image *img;
+	uint32_t r, g, b;
+	pixel_t cl;
+	int rgb;
+
+	/* イメージを作成する */
+	img = create_image(w, h);
+	if (img == NULL)
+		return NULL;
+
+	/* 色指定文字列を読み込む */
+	sscanf(color, "%x", &rgb);
+	r = (rgb >> 16) & 0xff;
+	g = (rgb >> 8) & 0xff;
+	b = rgb & 0xff;
+	cl = make_pixel(0xff, r, g, b);
+
+	/* イメージを塗り潰す */
+	lock_image(img);
+	clear_image_color(img, cl);
+	unlock_image(img);
+
+	return img;
+}
+
+/*
  * イメージを削除する
  */
 void destroy_image(struct image *img)
@@ -129,6 +159,21 @@ int get_image_width(struct image *img)
 int get_image_height(struct image *img)
 {
 	return img->height;
+}
+
+/*
+ * イメージをロックする
+ */
+bool lock_image(struct image *img)
+{
+	return true;
+}
+
+/*
+ * イメージをアンロックする
+ */
+void unlock_image(struct image *img)
+{
 }
 
 /*
@@ -210,4 +255,15 @@ void draw_image(struct image * RESTRICT dst_image, int dst_left, int dst_top,
 	} else {
 		assert(0);
 	}
+}
+
+/* イメージをマスクつきで描画する */
+void draw_image_mask(struct image * RESTRICT dst_image, int dst_left,
+		     int dst_top, struct image * RESTRICT src_image, int width,
+		     int height, int src_left, int src_top, int mask_level)
+{
+	int alpha = (int)(((float)mask_level / 27.0f) * 255.0f);
+
+	draw_image(dst_image, dst_left, dst_top, src_image, width, height,
+		   src_left, src_top, alpha, BLEND_NORMAL);
 }
