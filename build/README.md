@@ -38,6 +38,15 @@ How to build
         * Run on the iOS device.
         * Replace `build/ios/suika/data01.arc` and enjoy your game.
 
+* Android App
+    * Install Android Studio.
+    * Install CMake and NDK.
+    * In terminal, enter `build/android` directory.
+        * Run `./prepare-libs.sh` to decompress libraries.
+    * Open Suika2 project (`build/android`).
+    * Build project.
+    * Run app on your device or emulator.
+
 * Web App
     * See `emscripten/README.md`
 
@@ -52,14 +61,6 @@ How to build
     * In terminal, enter `build/web-kit` directory.
         * Run `make` to create ZIP files.
         * Rename `suika2-web-kit-2.x-x-en.zip` and `suika2-web-kit-2.x-x-jp.zip`.
-
-* Android App
-    * Install Android Studio 3.3.1 from Android Studio Archive.
-    * Select `Configure` on initial screen.
-        * Install `CMake`, `LLDB`, `NDK`.
-    * Open Suika2 project (`build/android`).
-    * Build project.
-    * Run app on device or emulator.
 
 * Linux Binary
     * On Ubuntu 20.04, install following packages:

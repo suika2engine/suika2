@@ -36,16 +36,6 @@ import java.io.OutputStream;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-/*
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-*/
-
 public class MainActivity extends Activity {
 	static {
 		System.loadLibrary("suika");
@@ -89,6 +79,9 @@ public class MainActivity extends Activity {
 
 	/** タッチされている指の数です。 */
 	private int touchCount;
+
+	/** 終了処理が完了しているかを表します。 */
+	private boolean isFinished;
 
 	/** BE/VOICE/SEのMediaPlayerです。 */
 	private MediaPlayer[] player = new MediaPlayer[MIXER_STREAMS];
@@ -170,13 +163,17 @@ public class MainActivity extends Activity {
 		 */
 		@Override
 		public void onDrawFrame(GL10 gl) {
+			if(isFinished)
+				return;
+
 			// JNIコードでフレームを処理する
-			if (!frame()) {
+			if(!frame()) {
 				// JNIコードで終了処理を行う
 				cleanup();
 
 				// アプリケーションを終了する
 				finish();
+				isFinished = true;
 			}
 		}
 
@@ -200,11 +197,10 @@ public class MainActivity extends Activity {
 			case MotionEvent.ACTION_MOVE:
 				touchStartX = x;
 				touchStartY = y;
-				if(delta > LINE_HEIGHT) {
+				if(delta > LINE_HEIGHT)
 					touchScrollDown();
-				} else {
+				else if(delta < -LINE_HEIGHT)
 					touchScrollUp();
-				}
 				touchLastY = y;
 				touchMove(x, y);
 				break;
@@ -287,7 +283,7 @@ public class MainActivity extends Activity {
 
 	/** 音声の再生を開始します。 */
 	private void playSound(int stream, String fileName, boolean loop) {
-		assert stream > 0 && stream < MIXER_STREAMS;
+		assert stream >= 0 && stream < MIXER_STREAMS;
 
 		stopSound(stream);
 
@@ -306,7 +302,7 @@ public class MainActivity extends Activity {
 
 	/** 音声の再生を停止します。 */
 	private void stopSound(int stream) {
-		assert stream > 0 && stream < MIXER_STREAMS;
+		assert stream >= 0 && stream < MIXER_STREAMS;
 
 		if(player[stream] != null) {
 			player[stream].stop();
@@ -318,7 +314,7 @@ public class MainActivity extends Activity {
 
 	/** 音量を設定します。 */
 	private void setVolume(int stream, float vol) {
-		assert stream > 0 && stream < MIXER_STREAMS;
+		assert stream >= 0 && stream < MIXER_STREAMS;
 		assert vol >= 0.0f && vol <= 1.0f;
 
 		if(player[stream] != null)

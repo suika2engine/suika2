@@ -81,6 +81,9 @@ target_link_libraries( # Specifies the target library.
                        GLESv2
                        z
                        png
+#                       ogg
+#                       vorbis
+#                       vorbisfile
                        freetype
 
                        # Links the target library to the log library
@@ -98,3 +101,12 @@ include_directories(src/main/cpp/libpng)
 # freetype
 add_subdirectory(src/main/cpp/freetype)
 include_directories(src/main/cpp/freetype/include)
+
+# libogg
+#add_subdirectory(src/main/cpp/libogg)
+#include_directories(src/main/cpp/libogg/include)
+
+# libvorbis
+#set(OGG_INCLUDE_DIR src/main/cpp/libogg)
+#add_subdirectory(src/main/cpp/libvorbis)
+#include_directories(src/main/cpp/libvorbis/include)
