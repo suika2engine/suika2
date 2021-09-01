@@ -78,7 +78,7 @@ This command changes the character.
 
 * Character positions are:
     * `center` or `c` (front center)
-    * `right or `r``
+    * `right or `r`
     * `left` or `l`
     * `back` or `b` (back center)
 
