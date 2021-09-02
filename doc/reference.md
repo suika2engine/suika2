@@ -78,7 +78,7 @@ This command changes the character.
 
 * Character positions are:
     * `center` or `c` (front center)
-    * `right or `r``
+    * `right or `r`
     * `left` or `l`
     * `back` or `b` (back center)
 
@@ -134,7 +134,7 @@ Refer to `@ch` section for details on how to specify character position and alph
 @cha center 1.0 accel -600 0 hide
 ```
 
-* Usage 3: Same as Usage 1, but deaccelerates movement.
+* Usage 3: Same as Usage 1, but decelerates movement.
 ```
 @cha center 1.0 brake -600 0 hide
 ```
@@ -268,10 +268,12 @@ This command displays a menu using two images.
 `@menu` can create up to 16 buttons.
 
 Basically, the first image is displayed by default,
-but when a button is hovered over,
-its area will be changed to the second image.
+with the second image being substituted when a button
+is hovered over.
 
-Menus can't be canceled using right click.
+See the demo game for a helpful example!
+
+NB: Menus cannot be canceled using right click.
 
 * Usage:
 ```
@@ -283,8 +285,8 @@ Menus can't be canceled using right click.
    * menu.png ... first image
    * menu-selected.png ... second image
    * START ... jump target label
-   * 640 480 ... top-left position of button
-   * 240 120 ... button size
+   * 640 480 ... top-left position of button (x, y)
+   * 240 120 ... button size (width, height)
 
 ## Message
 
@@ -300,15 +302,19 @@ Hello, world!
 
 ## @news
 
-This command is a variant of `@switch`. It shows the first four options on the
-north, east, west and south areas of screen.
+This command is a variant of `@switch`. It shows the first four options
+on the north, east, west and south areas of the screen.
 
 Parent options are hidden when `*` is specified.
 
 ## @retrospect
 
-This command executes event image catalog mode.
-Similarly to `@menu`, `@retrospect` uses two images.
+This command executes "event image catalog mode".
+You could use it, for example, to display the CG artwork 
+that a player has unlocked.
+
+`@retrospect` is similar to `@menu` in its use of two images,
+however it has some more advanced parameter options.
 
 * The difference between `@menu` and `@retrospect` is:
     * `@retrospect` can create up to twelve buttons.
@@ -427,9 +433,9 @@ Note: all variables must be integers.
     * `/=` (division)
     * `%=` (remainder)
 
-The initial value of a variable is `0`.
+The variables are initialised to `0`.
 
-* Usage 1: Sets a value of `1` to the variable `$0`.
+* Usage 1: Sets the value of `1` to the variable `$0`.
 ```
 @set $0 = 1
 ```
