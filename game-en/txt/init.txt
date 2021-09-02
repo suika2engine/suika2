@@ -57,15 +57,16 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(I'm on the roof of my school. I've skipped the remedial class.)
+*???*(I'm on the roof of my school, having skipped the remedial class.)
 
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
-*???*But it's OK, they don't call the roll.
+*???*Hey, it's fine, they don't call the roll.
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(There aren't any buildings near the school. I can just see the coastline on the horizon. This is a country town in Hokkaido.)
+*???*(This is a country town in Hokkaido. I can just see the
+coastline on the horizon, since there aren't any buildings near the school.)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
@@ -73,7 +74,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(Oh, I forgot to mention, I'm Midori. I'm a high school student in this country town. My parents are watermelon farmers.)
+*???*(Oh - I forgot to mention, I'm Midori. I'm a high school student in this country town. My parents are watermelon farmers.)
 
 @vol bgm 1.0 1.0
 @ch c 001-angry.png 1.0
@@ -85,11 +86,11 @@
 
 @vol bgm 1.0 1.0
 @ch c 001-normal.png 1.0
-*Midori*I want you to...
+*Midori*I want to...
 
 @vol bgm 0.0 1.0
 @ch c 001-happy.png 1.0
-*Midori*I want you to know about Suika2!
+*Midori*I want to tell you about Suika2!
 
 ###
 ### Scene2 (Greetings on the roof)
@@ -132,7 +133,8 @@ Last but not least, freedom. You can use Suika2 commercially for free.
 For Windows, we support Windows 8.1 and later. We also support the latest Windows 10 tablets.
 For Mac, we support macOS 10.9 and later. We certainly support the latest Big Sur release and M1 chip.
 For Web browsers, we support Chrome, Safari, Firefox and Edge.
-In addition, Suika2 runs on Android and Linux. Suika2 was initially written on Linux.
+In addition, Suika2 runs on Android and Linux. Actually, Suika2 was initially
+written on Linux!
 @set $2 = 1
 @ch c 001-fun.png 1.0
 *Midori*Yes! That's right.
@@ -147,7 +149,7 @@ In addition, Suika2 runs on Android and Linux. Suika2 was initially written on L
 ###
 
 @ch c 001-fun.png 1.0
-*Midori*Shall we step out and have a walk? Where should we go? Well, how about the coast?
+*Midori*Shall we step out and have a walk? Where should we go? ...Well, how about the coast?
 
 @vol bgm 0.0 1.0
 @bg coast.png 1.0 c
@@ -161,7 +163,8 @@ In addition, Suika2 runs on Android and Linux. Suika2 was initially written on L
 @select L2_OLD L2_CUSTOMIZE L2_NEXT "Do you have Suika1?" "Can I customize it?" Next
 
 :L2_OLD
-Versions before 2.0.0 was named Suika Studio. The author developed it when he was a high school student.
+Versions before 2.0.0 was named Suika Studio. The author developed it when he
+was just a high school student.
 At 2.0.0, he removed the visual editor and "Studio" naming.
 @set $3 = 1
 @ch c 001-fun.png 1.0
@@ -171,8 +174,8 @@ At 2.0.0, he removed the visual editor and "Studio" naming.
 @goto LOOP2
 
 :L2_CUSTOMIZE
-Basically you can customize the engine with relatively little effort. This includes the font, text box and save screen.
-If you have any items that you want to customize but you are unable to, please contact the author.
+You can customize the engine with relatively little effort. This includes the font, text box and save screen.
+If there's anything you want to customize but can't, please contact the author.
 @set $4 = 1
 @ch c 001-fun.png 1.0
 *Midori*Oh, yes!
@@ -192,7 +195,7 @@ If you have any items that you want to customize but you are unable to, please c
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*(I just wanted you to know about Suika2...)
+*Midori*(I just wanted to tell you about Suika2...)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
@@ -200,7 +203,7 @@ If you have any items that you want to customize but you are unable to, please c
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*(Don't hesitate to send me an email. I'll be waiting for your comment.)
+*Midori*(Don't hesitate to send me an email. I'll be waiting for your comments.)
 
 @vol bgm 0.0 1.0
 @ch c 001-fun.png 1.0
