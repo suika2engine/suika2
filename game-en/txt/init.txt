@@ -65,8 +65,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(This is a country town in Hokkaido. I can just see the
-coastline on the horizon, since there aren't any buildings near the school.)
+*???*(This is a country town in Hokkaido. I can just see the coastline on the horizon, since there aren't any buildings near the school.)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
@@ -115,7 +114,7 @@ coastline on the horizon, since there aren't any buildings near the school.)
 @select L1_ADVANTAGE L1_ENV L1_NEXT "Why choose Suika2?" "What are the system requirements?" Next
 
 :L1_ADVANTAGE
-Suika2 has three advantages.First of all, portability. We have Windows and Mac apps and a Web browser version. All of them work just the same way.
+Suika2 has three advantages. First of all, portability. We have Windows and Mac apps and a Web browser version. All of them work just the same way.
 Game developers don't need to bother about the users' OSes.
 In addition, game developers can use their favorite OS to develop a game.
 Secondly, simplicity. Anyone can start writing scripts easily.
@@ -132,7 +131,7 @@ Last but not least, freedom. You can use Suika2 commercially for free.
 For Windows, we support Windows 8.1 and later. We also support the latest Windows 10 tablets.
 For Mac, we support macOS 10.9 and later. We certainly support the latest Big Sur release and M1 chip.
 For Web browsers, we support Chrome, Safari, Firefox and Edge.
-In addition, Suika2 runs on Android and Linux. Actually, Suika2 was initially written on Linux!
+In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 was initially written on Linux!
 @set $2 = 1
 @ch c 001-fun.png 1.0
 *Midori*Yes! That's right.
@@ -276,6 +275,7 @@ Thank you for selecting all the options.
 ###
 
 :END
+@vol bgm 0.0 2.0
 @bg white.png 1.0
 @ch c luxion.png 0.5
 @wait 1.0
