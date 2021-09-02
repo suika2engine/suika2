@@ -2301,12 +2301,10 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
  */
 void draw_news_bg_image(int x, int y)
 {
-	lock_image(layer_image[LAYER_FO]);
 	draw_image(layer_image[LAYER_FO], x, y, news_bg_image,
 		   get_image_width(news_bg_image),
 		   get_image_height(news_bg_image),
 		   0, 0, 255, BLEND_NORMAL);
-	unlock_image(layer_image[LAYER_FO]);
 }
 
 /*
@@ -2314,12 +2312,10 @@ void draw_news_bg_image(int x, int y)
  */
 void draw_news_fg_image(int x, int y)
 {
-	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], x, y, news_fg_image,
 		   get_image_width(news_fg_image),
 		   get_image_height(news_fg_image),
 		   0, 0, 255, BLEND_NORMAL);
-	unlock_image(layer_image[LAYER_FI]);
 }
 
 /*

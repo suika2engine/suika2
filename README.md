@@ -48,8 +48,7 @@ See `COPYING`.
     * Open `suika` application in `suika2` folder.
 
 * On iPhone/iPad:
-    * Sample game is going to be available on App Store. Please wait for a while. See [the official web site](https://suika2.com/en/)
-    * To make your own game, you have to build from source code using Xcode. See `build/README.md`
+    * Build from source code using Xcode. See `build/README.md`
 
 * On Android:
     * Sample game is available on Google Play. See [the official web site](https://suika2.com/en/)

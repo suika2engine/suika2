@@ -9,7 +9,7 @@ Suika2はWindowsとMacの両方で動くアドベンチャーゲームエンジ�
 
 ## 移植性
 
-正確に言えば、Suika2はWindows, Mac, Webブラウザ, Android, Linux, FreeBSD, NetBSDで動作します。
+正確に言えば、Suika2はWindows, Mac, Webブラウザ, iPhone, iPad, Android, Linux, FreeBSD, NetBSDで動作します。
 
 Suika2はプラットフォーム非依存部とハードウェア抽象化レイヤ(HAL)から成ります。プラットフォーム非依存部はANSI Cで書かれています。HALは今のところ、C、Objective-C、そしてJavaで書かれています。
 
@@ -39,6 +39,9 @@ Suika2はプラットフォーム非依存部とハードウェア抽象化レ�
     * `suika2` フォルダをFinderで開いてください
     * `mac.dmg` の中にある `suika` アプリケーションを `suika2` フォルダにコピーしてください
     * `suika2` フォルダにコピーした `suika` アプリケーションを起動してください
+
+* iPhone/iPadでは:
+    * Xcodeを使用してソースからビルドする必要があります。 `build/README.md` を参照してください
 
 * Androidでは:
     * サンプルゲームがGoogle Playにあります。[公式サイト](https://suika2.com/)をご覧ください
