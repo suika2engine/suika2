@@ -1,7 +1,7 @@
 ![icon](https://github.com/ktabata/suika2/raw/master/doc/icon.png "icon") Suika2
 =================================================================================
 
-Suika2 is a portable game engine that runs on both Windows and Mac. You can enjoy producing impressive visual novels using Suika2.
+Suika2 is a portable game engine that runs on both Windows and Mac. You can produce impressive visual novels using Suika2 - and have fun doing it too!
 
 ## Demo
 
@@ -17,7 +17,7 @@ If you want to port Suika2 to a new target platform, it is only necessary to wri
 
 ## Contribution
 
-Please write an issue with a light heart. Any and all feedback is welcome.
+Please submit issues light-heartedly - any and all feedback is welcome.
 Pull requests that correct my English are especially welcome.
 
 ## Prebuilt Binary
