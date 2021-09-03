@@ -160,8 +160,7 @@ In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 wa
 @select L2_OLD L2_CUSTOMIZE L2_NEXT "Do you have Suika1?" "Can I customize it?" Next
 
 :L2_OLD
-Versions before 2.0.0 was named Suika Studio. The author developed it when he
-was just a high school student.
+Versions before 2.0.0 was named Suika Studio. The author developed it when he was just a high school student.
 At 2.0.0, he removed the visual editor and "Studio" naming.
 @set $3 = 1
 @ch c 001-fun.png 1.0
