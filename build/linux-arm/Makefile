@@ -17,6 +17,8 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
+	-mfpu=neon \
+	-march=armv7-a \
 	-O3 \
 	-ffast-math \
 	-ftree-vectorize \
