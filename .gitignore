@@ -46,6 +46,7 @@ build/msvc/Debug
 build/msvc/Release
 build/msvc/suika/Debug
 build/msvc/suika/Release
+build/emscripten/data01.arc
 game-jp/log.txt
 game-jp/sav
 game-en/log.txt
