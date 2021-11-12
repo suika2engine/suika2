@@ -225,6 +225,8 @@ static void draw_stage_fi_fo_fade_shutter_up(void);
 static void draw_stage_fi_fo_fade_shutter_down(void);
 static void draw_stage_fi_fo_fade_clockwise(int method);
 static void draw_stage_fi_fo_fade_counterclockwise(int method);
+static void draw_stage_fi_fo_fade_open(void);
+static void draw_stage_fi_fo_fade_close(void);
 static float cw_step(int method, float progress);
 static int pos_to_layer(int pos);
 static float get_anime_interpolation(float progress, float from, float to);
@@ -696,6 +698,12 @@ static void draw_stage_fi_fo_fade(int fade_method)
 	case FADE_METHOD_COUNTERCLOCKWISE30:
 		draw_stage_fi_fo_fade_counterclockwise(
 			FADE_METHOD_COUNTERCLOCKWISE30);
+		break;
+	case FADE_METHOD_OPEN:
+		draw_stage_fi_fo_fade_open();
+		break;
+	case FADE_METHOD_CLOSE:
+		draw_stage_fi_fo_fade_close();
 		break;
 	default:
 		assert(INVALID_FADE_METHOD);
@@ -1256,6 +1264,85 @@ static float cw_step(int method, float progress)
 	return progress;
 }
 
+/* 目開きフェードの描画を行う */
+static void draw_stage_fi_fo_fade_open(void)
+{
+	int up, down, i, a;
+	const int ALPHA_STEP = 4;
+
+	/* 上幕の下端を求める */
+	up = (int)((float)((conf_window_height / 2) - 1) -
+		   (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 下幕の上端を求める */
+	down = (int)((float)(conf_window_height / 2) +
+		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎた後の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FI],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 上幕の描画を行う */
+	for (i = up, a = 0; i >= 0; i--) {
+		render_image(0, i, layer_image[LAYER_FO],
+			     conf_window_width, 1,
+			     0, i, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+
+	/* 下幕の描画を行う */
+	for (i = down, a = 0; i <= conf_window_height - 1; i++) {
+		render_image(0, i, layer_image[LAYER_FO],
+			     conf_window_width, 1,
+			     0, i, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+}
+
+/* 目閉じフェードの描画を行う */
+static void draw_stage_fi_fo_fade_close(void)
+{
+	int up, down, i, a;
+	const int ALPHA_STEP = 4;
+
+	/* 上幕の下端を求める */
+	up = (int)((float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 下幕の上端を求める */
+	down = (int)((float)conf_window_height -
+		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎる前の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 上幕の描画を行う */
+	for (i = up, a = 0; i >= 0; i--) {
+		render_image(0, i, layer_image[LAYER_FI],
+			     conf_window_width, 1,
+			     0, i, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+
+	/* 下幕の描画を行う */
+	for (i = down, a = 0; i <= conf_window_height - 1; i++) {
+		render_image(0, i, layer_image[LAYER_FI],
+			     conf_window_width, 1,
+			     0, i, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+}
+
 /*
  * 画面揺らしモードが有効な際のステージ描画を行う
  */
@@ -1524,6 +1611,16 @@ int get_fade_method(const char *method)
 	if (strcmp(method, "counterclockwise30") == 0 ||
 	    strcmp(method, "ccw30") == 0)
 		return FADE_METHOD_COUNTERCLOCKWISE30;
+
+	/*
+	 * 目開き/目閉じフェード eye-open/eye-close
+	 */
+
+	if (strcmp(method, "open") == 0)
+		return FADE_METHOD_OPEN;
+
+	if (strcmp(method, "close") == 0)
+		return FADE_METHOD_CLOSE;
 
 	/* 不正なフェード指定 */
 	return FADE_METHOD_INVALID;
