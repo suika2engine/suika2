@@ -36,9 +36,9 @@ static const char *s_vShaderStr =
 	"varying float v_alpha;       \n"
 	"void main()                  \n"
 	"{                            \n"
-	"   gl_Position = a_position; \n"
-	"   v_texCoord = a_texCoord;  \n"
-	"   v_alpha = a_alpha;        \n"
+	"  gl_Position = a_position;  \n"
+	"  v_texCoord = a_texCoord;   \n"
+	"  v_alpha = a_alpha;         \n"
 	"}                            \n";
 
 static const char *s_fShaderStr =

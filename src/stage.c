@@ -225,9 +225,15 @@ static void draw_stage_fi_fo_fade_shutter_up(void);
 static void draw_stage_fi_fo_fade_shutter_down(void);
 static void draw_stage_fi_fo_fade_clockwise(int method);
 static void draw_stage_fi_fo_fade_counterclockwise(int method);
-static void draw_stage_fi_fo_fade_open(void);
-static void draw_stage_fi_fo_fade_close(void);
 static float cw_step(int method, float progress);
+static void draw_stage_fi_fo_fade_eye_open(void);
+static void draw_stage_fi_fo_fade_eye_close(void);
+static void draw_stage_fi_fo_fade_eye_open_v(void);
+static void draw_stage_fi_fo_fade_eye_close_v(void);
+static void draw_stage_fi_fo_fade_slit_open(void);
+static void draw_stage_fi_fo_fade_slit_close(void);
+static void draw_stage_fi_fo_fade_slit_open_v(void);
+static void draw_stage_fi_fo_fade_slit_close_v(void);
 static int pos_to_layer(int pos);
 static float get_anime_interpolation(float progress, float from, float to);
 static void render_layer_image(int layer);
@@ -699,11 +705,29 @@ static void draw_stage_fi_fo_fade(int fade_method)
 		draw_stage_fi_fo_fade_counterclockwise(
 			FADE_METHOD_COUNTERCLOCKWISE30);
 		break;
-	case FADE_METHOD_OPEN:
-		draw_stage_fi_fo_fade_open();
+	case FADE_METHOD_EYE_OPEN:
+		draw_stage_fi_fo_fade_eye_open();
 		break;
-	case FADE_METHOD_CLOSE:
-		draw_stage_fi_fo_fade_close();
+	case FADE_METHOD_EYE_CLOSE:
+		draw_stage_fi_fo_fade_eye_close();
+		break;
+	case FADE_METHOD_EYE_OPEN_V:
+		draw_stage_fi_fo_fade_eye_open_v();
+		break;
+	case FADE_METHOD_EYE_CLOSE_V:
+		draw_stage_fi_fo_fade_eye_close_v();
+		break;
+	case FADE_METHOD_SLIT_OPEN:
+		draw_stage_fi_fo_fade_slit_open();
+		break;
+	case FADE_METHOD_SLIT_CLOSE:
+		draw_stage_fi_fo_fade_slit_close();
+		break;
+	case FADE_METHOD_SLIT_OPEN_V:
+		draw_stage_fi_fo_fade_slit_open_v();
+		break;
+	case FADE_METHOD_SLIT_CLOSE_V:
+		draw_stage_fi_fo_fade_slit_close_v();
 		break;
 	default:
 		assert(INVALID_FADE_METHOD);
@@ -717,7 +741,6 @@ static void draw_stage_fi_fo_fade_normal()
 	render_layer_image(LAYER_FO);
 	render_layer_image(LAYER_FI);
 }
-
 
 /* マスクの背景フェードの描画を行う  */
 static void draw_stage_fi_fo_fade_mask()
@@ -1265,13 +1288,13 @@ static float cw_step(int method, float progress)
 }
 
 /* 目開きフェードの描画を行う */
-static void draw_stage_fi_fo_fade_open(void)
+static void draw_stage_fi_fo_fade_eye_open(void)
 {
 	int up, down, i, a;
 	const int ALPHA_STEP = 4;
 
 	/* 上幕の下端を求める */
-	up = (int)((float)((conf_window_height / 2) - 1) -
+	up = (int)((float)(conf_window_height / 2 - 1) -
 		   (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
 
 	/* 下幕の上端を求める */
@@ -1305,7 +1328,7 @@ static void draw_stage_fi_fo_fade_open(void)
 }
 
 /* 目閉じフェードの描画を行う */
-static void draw_stage_fi_fo_fade_close(void)
+static void draw_stage_fi_fo_fade_eye_close(void)
 {
 	int up, down, i, a;
 	const int ALPHA_STEP = 4;
@@ -1314,7 +1337,7 @@ static void draw_stage_fi_fo_fade_close(void)
 	up = (int)((float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
 
 	/* 下幕の上端を求める */
-	down = (int)((float)conf_window_height -
+	down = (int)((float)(conf_window_height - 1) -
 		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎる前の背景をコピーする */
@@ -1341,6 +1364,196 @@ static void draw_stage_fi_fo_fade_close(void)
 		if (a > 255)
 			a = 255;
 	}
+}
+
+/* 目開きフェード(垂直)の描画を行う */
+static void draw_stage_fi_fo_fade_eye_open_v(void)
+{
+	int left, right, i, a;
+	const int ALPHA_STEP = 4;
+
+	/* 左幕の右端を求める */
+	left = (int)((float)(conf_window_width / 2 - 1) -
+		     (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 右幕の左端を求める */
+	right = (int)((float)(conf_window_width / 2) +
+		     (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎた後の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FI],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 左幕の描画を行う */
+	for (i = left, a = 0; i >= 0; i--) {
+		render_image(i, 0, layer_image[LAYER_FO],
+			     1, conf_window_height,
+			     i, 0, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+
+	/* 下幕の描画を行う */
+	for (i = right, a = 0; i <= conf_window_width - 1; i++) {
+		render_image(i, 0, layer_image[LAYER_FO],
+			     1, conf_window_height,
+			     i, 0, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+}
+
+/* 目閉じフェード(垂直)の描画を行う */
+static void draw_stage_fi_fo_fade_eye_close_v(void)
+{
+	int left, right, i, a;
+	const int ALPHA_STEP = 4;
+
+	/* 左幕の右端を求める */
+	left = (int)((float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 右幕の左端を求める */
+	right = (int)((float)(conf_window_width - 1) -
+		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎる前の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 左幕の描画を行う */
+	for (i = left, a = 0; i >= 0; i--) {
+		render_image(i, 0, layer_image[LAYER_FI],
+			     1, conf_window_height,
+			     i, 0, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+
+	/* 右幕の描画を行う */
+	for (i = right, a = 0; i <= conf_window_width - 1; i++) {
+		render_image(i, 0, layer_image[LAYER_FI],
+			     1, conf_window_height,
+			     i, 0, a, BLEND_FAST);
+		a += ALPHA_STEP;
+		if (a > 255)
+			a = 255;
+	}
+}
+
+/* スリット開きフェードの描画を行う */
+static void draw_stage_fi_fo_fade_slit_open(void)
+{
+	int up, down;
+
+	/* 上幕の下端を求める */
+	up = (int)((float)(conf_window_height / 2 - 1) -
+		   (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 下幕の上端を求める */
+	down = (int)((float)(conf_window_height / 2) +
+		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎた後の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FI],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 上幕の描画を行う */
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width, up + 1,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 下幕の描画を行う */
+	render_image(0, down, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height - down + 1,
+		     0, down, 255, BLEND_NONE);
+}
+
+/* スリット閉じフェードの描画を行う */
+static void draw_stage_fi_fo_fade_slit_close(void)
+{
+	int up, down;
+
+	/* 上幕の下端を求める */
+	up = (int)((float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 下幕の上端を求める */
+	down = (int)((float)(conf_window_height - 1) -
+		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎる前の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 上幕の描画を行う */
+	render_image(0, 0, layer_image[LAYER_FI], conf_window_width, up + 1,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 下幕の描画を行う */
+	render_image(0, down, layer_image[LAYER_FI],
+		     conf_window_width, conf_window_height - down + 1,
+		     0, down, 255, BLEND_NONE);
+}
+
+/* スリット開きフェード(垂直)の描画を行う */
+static void draw_stage_fi_fo_fade_slit_open_v(void)
+{
+	int left, right;
+
+	/* 左幕の右端を求める */
+	left = (int)((float)(conf_window_width / 2 - 1) -
+		     (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 右幕の左端を求める */
+	right = (int)((float)(conf_window_width / 2) +
+		     (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎた後の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FI],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 左幕の描画を行う */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     left + 1, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 下幕の描画を行う */
+	render_image(right, 0, layer_image[LAYER_FO],
+		     conf_window_width - right + 1, conf_window_height,
+		     right, 0, 255, BLEND_NONE);
+}
+
+/* スリット開きフェード(垂直)の描画を行う */
+static void draw_stage_fi_fo_fade_slit_close_v(void)
+{
+	int left, right;
+
+	/* 左幕の右端を求める */
+	left = (int)((float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 右幕の左端を求める */
+	right = (int)((float)(conf_window_width - 1) -
+		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+
+	/* 幕が通り過ぎる前の背景をコピーする */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 左幕の描画を行う */
+	render_image(0, 0, layer_image[LAYER_FI], left + 1, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* 下幕の描画を行う */
+	render_image(right, 0, layer_image[LAYER_FI],
+		     conf_window_width - right + 1, conf_window_height,
+		     right, 0, 255, BLEND_NONE);
 }
 
 /*
@@ -1616,11 +1829,33 @@ int get_fade_method(const char *method)
 	 * 目開き/目閉じフェード eye-open/eye-close
 	 */
 
-	if (strcmp(method, "open") == 0)
-		return FADE_METHOD_OPEN;
+	if (strcmp(method, "eye-open") == 0)
+		return FADE_METHOD_EYE_OPEN;
 
-	if (strcmp(method, "close") == 0)
-		return FADE_METHOD_CLOSE;
+	if (strcmp(method, "eye-close") == 0)
+		return FADE_METHOD_EYE_CLOSE;
+
+	if (strcmp(method, "eye-open-v") == 0)
+		return FADE_METHOD_EYE_OPEN_V;
+
+	if (strcmp(method, "eye-close-v") == 0)
+		return FADE_METHOD_EYE_CLOSE_V;
+
+	/*
+	 * スリット開き/スリット閉じフェード slit-open/slit-close
+	 */
+
+	if (strcmp(method, "slit-open") == 0)
+		return FADE_METHOD_SLIT_OPEN;
+
+	if (strcmp(method, "slit-close") == 0)
+		return FADE_METHOD_SLIT_CLOSE;
+
+	if (strcmp(method, "slit-open-v") == 0)
+		return FADE_METHOD_SLIT_OPEN_V;
+
+	if (strcmp(method, "slit-close-v") == 0)
+		return FADE_METHOD_SLIT_CLOSE_V;
 
 	/* 不正なフェード指定 */
 	return FADE_METHOD_INVALID;

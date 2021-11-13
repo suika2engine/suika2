@@ -28,6 +28,14 @@ all character images vanish from the stage.
     * `counterclockwise20` or `ccw20` -> counterclockwise wipe (20 degrees stepped)
     * `clockwise30` or `cw30` -> clockwise wipe (30 degrees stepped)
     * `counterclockwise30` or `ccw30` -> counterclockwise wipe (30 degrees stepped)
+    * `eye-open` -> open eyes
+    * `eye-close` -> close eyes
+    * `eye-open-v` -> open eyes (vertical)
+    * `eye-close-v` -> close eyes (vertical)
+    * `slit-open` -> open slit
+    * `slit-close` → close slit
+    * `slit-open-v` → open slit (vertical)
+    * `slit-close-v` → close slit (vertical)
 
 * Usage 1: Changes the background image to `sample.png` with a 1.5 second fade-in time.
 ```
@@ -48,6 +56,18 @@ all character images vanish from the stage.
 ```
 @bg sample.png 1.5 curtain-left
 ```
+
+* Usage 5: Close eyes.
+```
+@bg #000000 1.5 eye-close
+```
+
+* Usage 6: Open eyes.
+```
+@bg #000000 0
+@bg sample.png 1.5 eye-open
+```
+
 
 ## @bgm
 
