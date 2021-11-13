@@ -4,7 +4,7 @@ on:
     branches: [master,actions]
   pull_request:
     branches: [master,actions]
-job:
+jobs:
   linux:
     runs-on: "ubuntu-latest"
     name: linux
@@ -13,8 +13,8 @@ job:
     #clone suika2
       - uses: actions/checkout@v2
         with:
-        repository: ktabata/suika2
-        ref: master
+          repository: ktabata/suika2
+          ref: master
     #build-essential
       - name: build
         run: |
