@@ -1,0 +1,31 @@
+name: suika-linux
+on:
+  push:
+    branches: [master,actions]
+  pull_request:
+    branches: [master,actions]
+job:
+  linux:
+    runs-on: "ubuntu-latest"
+    name: linux
+
+    steps:
+    #clone suika2
+      - uses: actions/checkout@v2
+        with:
+        repository: ktabata/suika2
+        ref: master
+    #build-essential
+      - name: build
+        run: |
+          sudo apt update
+          sudo apt install -y libasound2-dev libx11-dev libxpm-dev 
+          cd build/linux
+          ./build-libs.sh
+          make
+          make install
+          ls -l
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: suika
+          path: suika
