@@ -381,12 +381,17 @@ This command plays sound effects.
 Sound effect files need to be in the `se` folder.
 Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
-* Usage:
+* Usage 1: Plays a sound effect file.
 ```
 @se click.ogg
 ```
 
-* Special usage: Plays sound effect file on voice track to check voice volume without text message.
+* Usage 2: Stops sound effect.
+```
+@se stop
+```
+
+* Special usage: Plays a sound effect file on voice track to check voice volume without text message.
 ```
 @se click.ogg voice
 ```
