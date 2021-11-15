@@ -26,7 +26,7 @@ jobs:
           ls -l
       - uses: actions/upload-artifact@v2
         with: 
-          name: suika2-64
+          name: suika2-64.exe
           path: suika.exe
           #game-en/suika
     #  - uses: actions/upload-artifact@v2
