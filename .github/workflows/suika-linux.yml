@@ -31,8 +31,8 @@ jobs:
           #tree
       - name: publish
         run: |
-          cp suika ../../game-en/suika
-          cp suika ../../game-jp/suika
+          sudo cp suika ../../game-en/suika
+          sudo cp suika ../../game-jp/suika
       - uses: actions/upload-artifact@v2
         with: 
           name: suika2-en-64
