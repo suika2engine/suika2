@@ -24,8 +24,10 @@ jobs:
           ./build-libs.sh
           make
           make install
+          echo now is in build/linux dir
           tree
-          cd ${{GITHUB_WORKSPACE}}
+          cd ../
+          echo now is in build/dir
           tree
           cp suika game-en/suika
           cp suika game-jp/suika
