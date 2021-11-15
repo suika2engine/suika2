@@ -26,13 +26,13 @@ jobs:
           make install
           echo now is in build/linux dir
           tree
-          cd ../
+          #cd ../
           #echo now is in build/dir
           #tree
       - name: publish
         run: |
-          cp suika ../../game-en/suika/
-          cp suika ../../game-jp/suika/
+          cp suika ../../game-en/suika
+          cp suika ../../game-jp/suika
       - uses: actions/upload-artifact@v2
         with: 
           name: suika2-en-64
