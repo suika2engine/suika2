@@ -24,8 +24,14 @@ jobs:
           ./build-libs.sh
           make
           make install
+          cp suika game-en/suika
+          cp suika game-jp/suika
           ls -l
       - uses: actions/upload-artifact@v2
         with: 
-          name: suika
-          path: suika
+          name: suika2-en-64
+          path: game-en/suika
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sukka2-jp-64
+          path: game-jp/suika
