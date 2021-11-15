@@ -29,8 +29,10 @@ jobs:
           cd ../
           #echo now is in build/dir
           #tree
-          cp suika ../../game-en/suika
-          cp suika ../../game-jp/suika
+      - name: publish
+        run: |
+          cp suika ../../game-en/suika/
+          cp suika ../../game-jp/suika/
       - uses: actions/upload-artifact@v2
         with: 
           name: suika2-en-64
