@@ -18,7 +18,7 @@ jobs:
       - name: build
         run: |
           sudo apt update
-          sudo apt install -y libasound2-dev libx11-dev libxpm-dev mingw-w64
+          sudo apt install -y mingw-w64
           cd build/mingw
           ./build-libs.sh
           make
@@ -26,11 +26,5 @@ jobs:
           ls -l
       - uses: actions/upload-artifact@v2
         with: 
-          name: suika2-64.exe
+          name: suika2-32.exe
           path: suika.exe
-          #game-en/suika
-    #  - uses: actions/upload-artifact@v2
-     #   with:
-      #    name: sukka2-jp-64
-         # path: 
-          #game-jp/suika
