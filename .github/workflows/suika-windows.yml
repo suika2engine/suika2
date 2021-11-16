@@ -1,0 +1,36 @@
+name: suika-windows
+on:
+  push:
+    branches: [master,actions]
+  pull_request:
+    branches: [master,actions]
+jobs:
+  linux:
+    runs-on: "ubuntu-latest"
+    name: windows
+    steps:
+    #clone suika2
+      - uses: actions/checkout@v2
+        with:
+          repository: ktabata/suika2
+          ref: master
+    #build-essential
+      - name: build
+        run: |
+          sudo apt update
+          sudo apt install -y libasound2-dev libx11-dev libxpm-dev mingw-w64
+          cd build/mingw
+          ./build-libs.sh
+          make
+          make install
+          ls -l
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: suika2-64.exe
+          path: suika.exe
+          #game-en/suika
+    #  - uses: actions/upload-artifact@v2
+     #   with:
+      #    name: sukka2-jp-64
+         # path: 
+          #game-jp/suika

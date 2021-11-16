@@ -24,8 +24,31 @@ jobs:
           ./build-libs.sh
           make
           make install
-          ls -l
+          echo now is in build/linux dir
+          tree
+          #cd ../
+          #echo now is in build/dir
+          #tree
+      - name: publish-en
+        uses: canastro/copy-file-action@master
+        with:
+          source: "build/linux/suika"
+          target: "game-en/suika"
+      - name: publish-jp
+        uses: canastro/copy-file-action@master
+        with:
+          source: "build/linux/suika"
+          target: "game-jp/suika"
+        #run: |
+          #chomd 777 ../../game-en/
+          #chmod 777 ../../game-jp/
+          #sudo cp suika ../../game-en/suika
+         # sudo cp suika ../../game-jp/suika
       - uses: actions/upload-artifact@v2
         with: 
-          name: suika
-          path: suika
+          name: suika2-en-64
+          path: game-en/
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sukka2-jp-64
+          path: game-jp/
