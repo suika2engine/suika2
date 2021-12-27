@@ -30,7 +30,7 @@
 /*
  * 再生バッファ
  */
-#define BUF_FRAMES		(SAMPLING_RATE)
+#define BUF_FRAMES		(SAMPLING_RATE / 8)
 #define BUF_SIZE		(BUF_FRAMES * FRAME_SIZE)
 #define PERIODS			(4)
 #define PERIOD_FRAMES		(BUF_FRAMES / PERIODS)
@@ -273,7 +273,7 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params_any");
 		return false;
 	}
-	
+
 	if (snd_pcm_hw_params_set_access(pcm[n], params,
 					 SND_PCM_ACCESS_RW_INTERLEAVED) < 0) {
 		log_api_error("snd_pcm_hw_params_set_access");
