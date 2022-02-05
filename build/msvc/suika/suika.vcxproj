@@ -45,6 +45,7 @@
     <ClInclude Include="..\..\..\src\save.h" />
     <ClInclude Include="..\..\..\src\scbuf.h" />
     <ClInclude Include="..\..\..\src\script.h" />
+    <ClInclude Include="..\..\..\src\seen.h" />
     <ClInclude Include="..\..\..\src\stage.h" />
     <ClInclude Include="..\..\..\src\suika.h" />
     <ClInclude Include="..\..\..\src\types.h" />
@@ -56,9 +57,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <ClCompile Include="..\..\..\src\avx2.c">
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_bg.c" />
     <ClCompile Include="..\..\..\src\cmd_bgm.c" />
@@ -97,11 +100,14 @@
     <ClCompile Include="..\..\..\src\save.c" />
     <ClCompile Include="..\..\..\src\scbuf.c" />
     <ClCompile Include="..\..\..\src\script.c" />
+    <ClCompile Include="..\..\..\src\seen.c" />
     <ClCompile Include="..\..\..\src\sse.c">
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <ClCompile Include="..\..\..\src\sse2.c">
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ClCompile Include="..\..\..\src\stage.c" />
     <ClCompile Include="..\..\..\src\vars.c" />
@@ -184,7 +190,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease;..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs\Win32\Release Static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -205,7 +211,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs\Win32\Release Static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

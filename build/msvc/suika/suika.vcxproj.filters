@@ -102,6 +102,9 @@
     <ClInclude Include="..\..\..\src\scbuf.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\seen.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -240,6 +243,9 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_setsave.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\seen.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>
