@@ -85,6 +85,11 @@ Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 @bgm stop
 ```
 
+* Usage 3: Plays BGM once.
+```
+@bgm sample.ogg once
+```
+
 * Application: Fade-out BGM in 2 seconds.
 ```
 @vol bgm 0 2
@@ -389,6 +394,11 @@ Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 * Usage 2: Stops sound effect.
 ```
 @se stop
+```
+
+* Usage 3: Plays sound effect repeatedly.
+```
+@se sample.ogg loop
 ```
 
 * Special usage: Plays a sound effect file on voice track to check voice volume without text message.

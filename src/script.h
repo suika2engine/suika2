@@ -85,6 +85,7 @@ enum bg_command_param {
 /* bgmコマンドのパラメータ */
 enum bgm_command_param {
 	BGM_PARAM_FILE = 1,
+	BGM_PARAM_ONCE,
 };
 
 /* chコマンドのパラメータ */
@@ -148,7 +149,7 @@ enum select_command_param {
 /* seコマンドのパラメータ */
 enum se_command_param {
 	SE_PARAM_FILE = 1,
-	SE_PARAM_VOICE,
+	SE_PARAM_OPTION,
 };
 
 /* menuコマンドのパラメータ */

@@ -19,15 +19,23 @@ bool bgm_command(void)
 {
 	struct wave *w;
 	const char *fname;
+	const char *once;
+	bool loop;
 
 	/* パラメータを取得する */
-	fname = get_string_param(BG_PARAM_FILE);
+	fname = get_string_param(BGM_PARAM_FILE);
+	once = get_string_param(BGM_PARAM_ONCE);
+
+	if (strcmp(once, "once") == 0)
+		loop = false;
+	else
+		loop = true;
 
 	/* 停止の指示でない場合 */
 	w = NULL;
 	if (strcmp(fname, "stop") != 0) {
 		/* PCMストリームをオープンする */
-		w = create_wave_from_file(BGM_DIR, fname, true);
+		w = create_wave_from_file(BGM_DIR, fname, loop);
 		if (w == NULL) {
 			log_script_exec_footer();
 			return false;

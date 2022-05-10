@@ -60,7 +60,7 @@ struct insn_item {
 	int max;		/* 最大のパラメータ数 */
 } insn_tbl[] = {
 	{"@bg", COMMAND_BG, 1, 3},
-	{"@bgm", COMMAND_BGM, 1, 1},
+	{"@bgm", COMMAND_BGM, 1, 2},
 	{"@ch", COMMAND_CH, 1, 7},
 	{"@click", COMMAND_CLICK, 0, 1},
 	{"@wait", COMMAND_WAIT, 1, 1},

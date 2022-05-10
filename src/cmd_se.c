@@ -20,28 +20,36 @@ bool se_command(void)
 {
 	struct wave *w;
 	const char *fname;
-	const char *voice;
+	const char *option;
 	int stream;
+	bool loop;
 
 	/* パラメータを取得する */
 	fname = get_string_param(SE_PARAM_FILE);
-	voice = get_string_param(SE_PARAM_VOICE);
+	option = get_string_param(SE_PARAM_OPTION);
 
 	/*
-	 * voice指示の有無を確認する
+	 * 1. voice指示の有無を確認する
 	 *  - マスターボリュームのフィードバック再生を行う際、テキスト表示なし
 	 *    でボイスを再生できるようにするための指示
+	 * 2. ループ再生するかを確認する
 	 */
-	if (strcmp(voice, "voice") == 0)
+	if (strcmp(option, "voice") == 0) {
 		stream = VOICE_STREAM;
-	else
+		loop = false;
+	} else if (strcmp(option, "loop") == 0) {
 		stream = SE_STREAM;
+		loop = true;
+	} else {
+		stream = SE_STREAM;
+		loop = false;
+	}
 
 	/* 停止の指示でない場合 */
 	w = NULL;
 	if (strcmp(fname, "stop") != 0) {
 		/* PCMストリームをオープンする */
-		w = create_wave_from_file(SE_DIR, fname, false);
+		w = create_wave_from_file(SE_DIR, fname, loop);
 		if (w == NULL) {
 			log_script_exec_footer();
 			return false;
