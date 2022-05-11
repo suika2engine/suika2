@@ -585,6 +585,15 @@ bool title_dialog(void)
 }
 
 //
+// ビデオを再生する
+//
+bool play_video(const char *fname)
+{
+	// stub
+	return true;
+}
+
+//
 // ビューの実装
 //
 @implementation SuikaView

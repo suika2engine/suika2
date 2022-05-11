@@ -13,6 +13,7 @@
  *  - 2021/06/10 chaに対応
  *  - 2021/06/12 shakeに対応
  *  - 2021/06/15 setsaveに対応
+ *  - 2022/05/11 動画再生に対応
  */
 
 #ifndef SUIKA_MAIN_H
@@ -70,6 +71,7 @@ bool cha_command(int *x, int *y, int *w, int *h);
 bool shake_command(int *x, int *y, int *w, int *h);
 bool setsave_command(void);
 bool chs_command(int *x, int *y, int *w, int *h);
+bool video_command(void);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

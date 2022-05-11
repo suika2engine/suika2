@@ -559,9 +559,23 @@ void log_script_enable_disable(const char *param)
 void log_script_final_command(void)
 {
 	if (is_english_mode()) {
-		log_error("\'@goto $SAVE\' exists on "
+		log_error("You can't put this command on "
 			  "the end of the script.\n");
 	} else {
-		log_error("\'@goto $SAVE\'がスクリプトの末尾にあります。\n");
+		log_error("このコマンドはスクリプトの末尾に置けません。\n");
+	}
+}
+
+/*
+ * ビデオ再生に失敗した際のエラーを記録する
+ */
+void log_video_error(const char *reason)
+{
+	if (is_english_mode()) {
+		log_error("Video playback error: \"%s\"",
+			  conv_utf8_to_native(reason));
+	} else {
+		log_error("ビデオ再生エラー: \"%s\"",
+			  conv_utf8_to_native(reason));
 	}
 }

@@ -15,8 +15,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "suika.h"
-#include "d3drender.h"
 #include "dsound.h"
+#include "dsvideo.h"
+
+#ifdef USE_DIRECT3D
+#include "d3drender.h"
+#endif
 
 /* リソースIDのため */
 #include "resource.h"
@@ -82,6 +86,9 @@ static RECT rectWindow;
 /* フルスクリーンモード時の描画オフセット */
 static int nOffsetX;
 static int nOffsetY;
+
+/* DirectShowでビデオを再生中か */
+static BOOL bDShowMode;
 
 /* UTF-8からSJISへの変換バッファ */
 static char szNativeMessage[NATIVE_MESSAGE_SIZE];
@@ -401,11 +408,29 @@ static void GameLoop(void)
 
 	while(TRUE)
 	{
+		/* DirectShowで動画を再生中の場合 */
+		if(bDShowMode)
+		{
+			/* イベントを処理する */
+			if(!SyncEvents())
+				break;
+
+			/* 次の描画までスリープする */
+			if(!WaitForNextFrame())
+				break;	/* 閉じるボタンが押された */
+
+			/* 次のフレームの開始時刻を取得する */
+			dwStartTime = GetTickCount();
+
+			continue;
+		}
+
 #ifdef USE_DIRECT3D
 		/* フレームの描画を開始する */
 		D3DStartFrame();
 #else
 		/* バックイメージのロックを行う */
+	
 		lock_image(BackImage);
 #endif
 
@@ -597,6 +622,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	case WM_PAINT:
 		OnPaint();
 		return 0;
+	case WM_GRAPHNOTIFY:
+		if(!DShowProcessEvent())
+			bDShowMode = FALSE;
+		break;
 	default:
 		break;
 	}
@@ -1055,4 +1084,25 @@ bool title_dialog(void)
 		== IDOK)
 		return true;
 	return false;
+}
+
+/*
+ * ビデオを再生する
+ */
+bool play_video(const char *fname)
+{
+	char *path;
+
+	path = make_valid_path(MOV_DIR, fname);
+
+	/* イベントループをDirectShow再生モードに設定する */
+	bDShowMode = TRUE;
+
+	/* ビデオの再生を開始する */
+	BOOL ret = DShowPlayVideo(hWndMain, path);
+	if(!ret)
+		bDShowMode = FALSE;
+
+	free(path);
+	return ret;
 }

@@ -18,6 +18,7 @@
  *  - 2021/06/15 @setsaveに対応
  *  - 2021/07/07 @goto $SAVEに対応
  *  - 2021/07/19 @chsに対応
+ *  - 2022/05/11 @videoに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -59,6 +60,7 @@ enum command_type {
 	COMMAND_SHAKE,
 	COMMAND_SETSAVE,
 	COMMAND_CHS,
+	COMMAND_VIDEO,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -474,6 +476,11 @@ enum chs_command_param {
 	CHS_PARAM_SPAN,
 	CHS_PARAM_BG,
 	CHS_PARAM_METHOD,
+};
+
+/* videoコマンドのパラメータ */
+enum video_command_param {
+	VIDEO_PARAM_FILE = 1,
 };
 
 /*

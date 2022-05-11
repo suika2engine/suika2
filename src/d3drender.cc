@@ -10,16 +10,12 @@
  *  2021-08-03 作成
  */
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 #include "suika.h"
 #include "d3drender.h"
 
-#ifdef __cplusplus
 };
-#endif
 
 #include <d3d9.h>
 

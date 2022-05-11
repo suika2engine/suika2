@@ -15,6 +15,7 @@
 
 /*
  * seコマンド
+ *  - 2022/5/10 loopオプションを追加
  */
 bool se_command(void)
 {

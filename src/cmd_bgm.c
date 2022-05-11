@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -14,6 +14,7 @@
 
 /*
  * bgmコマンド
+ *  - 2022/5/10 onceオプションを追加
  */
 bool bgm_command(void)
 {

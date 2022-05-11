@@ -19,6 +19,7 @@ SRC = \
 	../../src/cmd_setsave.c \
 	../../src/cmd_shake.c \
 	../../src/cmd_switch.c \
+	../../src/cmd_video.c \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
 	../../src/conf.c \

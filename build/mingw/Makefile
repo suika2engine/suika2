@@ -6,6 +6,7 @@ include ../common.mk
 
 # For cross compilation
 CC = i686-w64-mingw32-gcc
+CXX = i686-w64-mingw32-g++
 WINDRES = i686-w64-mingw32-windres
 
 #
@@ -44,6 +45,7 @@ LDFLAGS = \
 	-lole32 \
 	-ldxguid \
 	-ldsound \
+	-lstrmiids \
 	-lwinmm \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
@@ -57,6 +59,9 @@ SRCS_C = \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
 	../../src/dsound.c
+
+SRCS_CC = \
+	../../src/dsvideo.cc
 
 SRCS_R = res/resource.rc
 

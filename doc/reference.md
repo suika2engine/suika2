@@ -535,6 +535,20 @@ and each parent option has eight child options.
 @switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 "Child option 1" LABEL2 "Child option 2" * * * * * * * * * * * * LABEL3 "Child option 3" LABEL4 "Child option 4" * * * * * * * * * * * *
 ```
 
+## @video
+
+This command plays a video file.
+At the moment, this functionality is enabled on Windows only.
+Recommended video file format is .WMV file.
+.AVI file which contains H.264+AAC is also supported on Windows 10/11.
+Video files are stored in `mov` directory.
+`mov` directory is not stored in `.arc` file.
+
+* Usage: Plays a video file.
+```
+@video sample.avi
+```
+
 ## @vol
 
 This command sets the sound volume.

@@ -978,3 +978,12 @@ bool title_dialog(void)
 	/* stub */
 	return true;
 }
+
+/*
+ * ビデオを再生する
+ */
+bool play_video(const char *fname)
+{
+	/* stub */
+	return true;
+}

@@ -25,7 +25,7 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O0 -g3 \
+	-O3 \
 	-ffast-math \
 	-fopt-info-vec \
 	-finput-charset=utf-8 \
@@ -41,7 +41,7 @@ CFLAGS = \
 #
 
 CXXFLAGS = \
-	-O0 -g3 \
+	-O3 \
 	-ffast-math \
 	-fopt-info-vec \
 	-std=c++14 \
@@ -64,6 +64,7 @@ LDFLAGS = \
 	-ldxguid \
 	-ld3d9 \
 	-ldsound \
+	-lstrmiids \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 
@@ -78,7 +79,8 @@ SRCS_C = \
 	../../src/dsound.c
 
 SRCS_CC = \
-	../../src/d3drender.cc
+	../../src/d3drender.cc \
+	../../src/dsvideo.cc
 
 SRCS_R = ../mingw/res/resource.rc
 

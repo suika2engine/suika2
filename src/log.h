@@ -62,5 +62,6 @@ void log_script_cha_accel(const char *accel);
 void log_script_shake_move(const char *move);
 void log_script_enable_disable(const char *param);
 void log_script_final_command(void);
+void log_video_error(const char *reason);
 
 #endif

@@ -75,6 +75,9 @@
 /* セーブデータのディレクトリ */
 #define SAVE_DIR	"sav"
 
+/* 動画データのディレクトリ */
+#define MOV_DIR		"mov"
+
 /*
  * 固定のファイル名
  */

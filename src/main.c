@@ -19,6 +19,7 @@
  *  - 2021/07/19 chsに対応
  *  - 2021/07/30 オートモードに対応
  *  - 2021/07/31 スキップモードに対応
+ *  - 2022/05/11 動画再生に対応
  */
 
 #include "suika.h"
@@ -261,6 +262,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		break;
 	case COMMAND_CHS:
 		if (!chs_command(x, y, w, h))
+			return false;
+		break;
+	case COMMAND_VIDEO:
+		if (!video_command())
 			return false;
 		break;
 	default:

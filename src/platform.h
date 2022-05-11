@@ -85,4 +85,7 @@ bool exit_dialog(void);
 /* タイトルに戻るダイアログを表示する */
 bool title_dialog(void);
 
+/* ビデオを再生する */
+bool play_video(const char *fname);
+
 #endif

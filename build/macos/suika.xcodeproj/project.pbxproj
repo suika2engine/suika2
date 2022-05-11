@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2608233C26724676009D979A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
 		260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
+		2617E957282BF6F500637615 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
 		26557B0E26785269000CDD10 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26557B0D26785269000CDD10 /* cmd_setsave.c */; };
 		26616DC926B4CED20094B23C /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
 		268C79C326A56A7000981FB1 /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 268C79C226A56A7000981FB1 /* cmd_chs.c */; };
@@ -54,6 +55,7 @@
 /* Begin PBXFileReference section */
 		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
 		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
+		2617E956282BF6F500637615 /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../../src/cmd_video.c; sourceTree = "<group>"; };
 		26557B0D26785269000CDD10 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		26616DC726B4CED20094B23C /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../../src/seen.h; sourceTree = "<group>"; };
 		26616DC826B4CED20094B23C /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../../src/seen.c; sourceTree = "<group>"; };
@@ -177,6 +179,7 @@
 				26557B0D26785269000CDD10 /* cmd_setsave.c */,
 				260F30512674A3C000AF8E21 /* cmd_shake.c */,
 				26A1780725EE5DD0006A1ED4 /* cmd_switch.c */,
+				2617E956282BF6F500637615 /* cmd_video.c */,
 				26A1781425EE5DD0006A1ED4 /* cmd_vol.c */,
 				26A1782625EE5DD0006A1ED4 /* cmd_wait.c */,
 				26A1780D25EE5DD0006A1ED4 /* conf.c */,
@@ -326,6 +329,7 @@
 				26A1783A25EE5DD0006A1ED4 /* mixer.c in Sources */,
 				26557B0E26785269000CDD10 /* cmd_setsave.c in Sources */,
 				26A1782E25EE5DD0006A1ED4 /* main.c in Sources */,
+				2617E957282BF6F500637615 /* cmd_video.c in Sources */,
 				26A1783525EE5DD0006A1ED4 /* cmd_return.c in Sources */,
 				26A1782F25EE5DD0006A1ED4 /* file.c in Sources */,
 				26616DC926B4CED20094B23C /* seen.c in Sources */,
@@ -472,7 +476,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.8.13;
+				MARKETING_VERSION = 2.9.0;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -515,7 +519,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.8.13;
+				MARKETING_VERSION = 2.9.0;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
