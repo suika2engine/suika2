@@ -17,7 +17,7 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O0 -g3 \
+	-O3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-fopt-info-vec \
