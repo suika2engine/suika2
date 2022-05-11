@@ -984,6 +984,8 @@ bool title_dialog(void)
  */
 bool play_video(const char *fname)
 {
+	UNUSED_PARAMETER(fname);
+
 	/* stub */
 	return true;
 }
