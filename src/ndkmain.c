@@ -429,8 +429,21 @@ bool title_dialog(void)
 	return true;
 }
 
-/* サウンドが再生終了したか調べる */
+/*
+ * サウンドが再生終了したか調べる
+ */
 bool is_sound_finished(int stream)
 {
 	return false;
+}
+
+/*
+ * ビデオを再生する
+ */
+bool play_video(const char *fname)
+{
+	UNUSED_PARAMETER(fname);
+
+	/* stub */
+	return true;
 }
