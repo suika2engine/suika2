@@ -2,14 +2,15 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
- * パッケージャ
+ * Packager
  *
  * [Changes]
- *  - 2016/07/14 作成
+ *  - 2016/07/14 Created
+ *  - 2022/05/24 Add obfuscation
  */
 
 #include <stdio.h>
@@ -23,54 +24,73 @@
 #include <dirent.h>
 #endif
 
-/* ファイルエントリの最大数 */
+/*
+
+Archive file design
+
+struct header {
+    u64 file_count;
+    struct entry {
+        u8  file_name[256]; // This is obfuscated by XOR
+        u64 file_size;
+        u64 file_offset;
+    } [file_count];
+};
+u8 file_body[file_count][]; // These are obfuscated by XOR
+
+*/
+
+/* Maximum number of file entries */
 #define ENTRY_SIZE		(65536)
 
-/* ファイル名のサイズ */
+/* Size of file name */
 #define FILE_NAME_SIZE		(256)
 
-/* アーカイブ先頭に書き出すファイル数のバイト数 */
+/* Size of file count which is written at top of an archive */
 #define FILE_COUNT_BYTES	(8)
 
-/* ファイルエントリのサイズ */
+/* Size of file entry */
 #define ENTRY_BYTES		(256 + 8 + 8)
 
-/* パッケージファイル名 */
+/* Obfuscating XOR magic number */
+#define XOR			(0x1e)
+
+/* Package file name */
 #define PACKAGE_FILE_NAME	"data01.arc"
 
-/* ディレクトリ名 */
+/* Directory names */
 const char *dir_names[] = {
 	"bg", "bgm", "ch", "cg", "cv", "conf", "font", "se", "txt"
 };
 
-/* ディレクトリ名の数 */
+/* Size of directory names */
 #define DIR_COUNT	(sizeof(dir_names) / sizeof(const char *))
 
-/* ファイルエントリ */
+/* File entry */
 struct entry {
-	/* ファイル名 */
+	/* File name */
 	char name[FILE_NAME_SIZE];
 
-	/* ファイルサイズ */
+	/* File size */
 	uint64_t size;
 
-	/* ファイルのアーカイブ内でのオフセット */
+	/* File offset in archive file */
 	uint64_t offset;
 } entry[ENTRY_SIZE];
 
-/* ファイル数 */
+/* File count */
 uint64_t file_count;
 
-/* 現在処理中のファイルのアーカイブ内でのオフセット */
+/* Current processing file's offset in archive file */
 uint64_t offset;
 
-/* 前方参照 */
-bool write_file_entries(FILE *fp);
-bool write_file_bodies(FILE *fp);
+/* forward declaration */
+static bool write_file_entries(FILE *fp);
+static bool write_file_bodies(FILE *fp);
 
 #ifdef _WIN32
 /*
- * ディレクトリのファイル一覧を取得する(Windows版)
+ * Get file list in directory(for Windows)
  */
 bool get_file_names(const char *dir)
 {
@@ -78,7 +98,7 @@ bool get_file_names(const char *dir)
     HANDLE hFind;
     WIN32_FIND_DATA wfd;
 
-    /* ディレクトリの内容を取得する */
+    /* Get directory content. */
     snprintf(path, sizeof(path), "%s\\*.*", dir);
     hFind = FindFirstFile(path, &wfd);
     if(hFind == INVALID_HANDLE_VALUE)
@@ -102,7 +122,7 @@ bool get_file_names(const char *dir)
 }
 #else
 /*
- * ディレクトリのファイル一覧を取得する(UNIX版)
+ * Get directory file list(for UNIX)
  */
 bool get_file_names(const char *dir)
 {
@@ -110,7 +130,7 @@ bool get_file_names(const char *dir)
 	struct dirent **names;
 	int i, count;
 
-	/* ディレクトリの内容を取得する */
+	/* Get directory content. */
 	count = scandir(dir, &names, NULL, alphasort);
 	if (count < 0) {
 		printf("Directory %s not found.\n", dir);
@@ -137,14 +157,14 @@ bool get_file_names(const char *dir)
 #endif
 
 /*
- * 各ファイルのサイズを求める
+ * Get sizes of each files.
  */
 bool get_file_sizes(void)
 {
 	uint64_t i;
 	FILE *fp;
 
-	/* 各ファイルのサイズを求め、オフセットを計算する */
+	/* Get each file size, and calc offsets. */
 	offset = FILE_COUNT_BYTES + ENTRY_BYTES * file_count;
 	for (i = 0; i < file_count; i++) {
 #ifdef _WIN32
@@ -170,7 +190,9 @@ bool get_file_sizes(void)
 	return true;
 }
 
-/* アーカイブファイルを書き出す */
+/*
+ * Write archive file.
+ */
 bool write_archive_file(void)
 {
 	FILE *fp;
@@ -195,13 +217,19 @@ bool write_archive_file(void)
 	return true;
 }
 
-/* ファイルのエントリを出力する */
-bool write_file_entries(FILE *fp)
+/*
+ * Write file entries.
+ */
+static bool write_file_entries(FILE *fp)
 {
+	char xor[FILE_NAME_SIZE];
 	uint64_t i;
+	int j;
 
 	for (i = 0; i < file_count; i++) {
-		if (fwrite(&entry[i].name, FILE_NAME_SIZE, 1, fp) < 1)
+		for (j = 0; j < FILE_NAME_SIZE; j++)
+			xor[j] = entry[i].name[j] ^ XOR;
+		if (fwrite(xor, FILE_NAME_SIZE, 1, fp) < 1)
 			return false;
 		if (fwrite(&entry[i].size, sizeof(uint64_t), 1, fp) < 1)
 			return false;
@@ -211,13 +239,15 @@ bool write_file_entries(FILE *fp)
 	return true;
 }
 
-/* ファイルのエントリを出力する */
-bool write_file_bodies(FILE *fp)
+/*
+ * Write file bodies.
+ */
+static bool write_file_bodies(FILE *fp)
 {
 	char buf[8192];
 	FILE *fpin;
 	uint64_t i;
-	size_t len;
+	size_t len, obf;
 
 	for (i = 0; i < file_count; i++) {
 #ifdef _WIN32
@@ -233,9 +263,12 @@ bool write_file_bodies(FILE *fp)
 		}
 		do  {
 			len = fread(buf, 1, sizeof(buf), fpin);
-			if (len > 0)
+			if (len > 0) {
+				for (obf = 0; obf < len; obf++)
+					buf[obf] ^= XOR;
 				if (fwrite(buf, len, 1, fp) < 1)
 					return false;
+			}
 		} while (len == sizeof(buf));
 #ifdef _WIN32
 		free(path);
@@ -251,18 +284,18 @@ int main(int argc, char *argv[])
 
 	printf("Hello, this is Suika2's packager.\n");
 
-	/* ファイルの一覧を取得する */
+	/* Get list of files. */
 	printf("Searching files...\n");
 	for (i = 0; i < DIR_COUNT; i++)
 		if (!get_file_names(dir_names[i]))
 			return 1;
 
-	/* ファイルのサイズを取得し、アーカイブ内でのオフセットを決定する */
+	/* Get all file sizes and decide all offsets in archive. */
 	printf("Checking file sizes...\n");
 	if (!get_file_sizes())
 		return 1;
 
-	/* アーカイブファイルを書き出す */
+	/* Write archive file. */
 	printf("Writing archive files...\n");
 	if (!write_archive_file())
 		return 1;

@@ -252,7 +252,7 @@
 		26B8ACD725EE5845005D9C49 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1250;
+				LastUpgradeCheck = 1330;
 				TargetAttributes = {
 					26B8ACDE25EE5845005D9C49 = {
 						CreatedOnToolsVersion = 12.4;
@@ -476,7 +476,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.0;
+				MARKETING_VERSION = 2.9.1;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -519,7 +519,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.0;
+				MARKETING_VERSION = 2.9.1;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",

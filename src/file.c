@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -15,6 +15,25 @@
 #endif
 
 #include "suika.h"
+
+/*
+
+Archive file design
+
+struct header {
+    u64 file_count;
+    struct entry {
+        u8  file_name[256]; // This is obfuscated by XOR
+        u64 file_size;
+        u64 file_offset;
+    } [file_count];
+};
+u8 file_body[file_count][]; // These are obfuscated by XOR
+
+*/
+
+/* 難読化のためのXOR値 */
+#define XOR			(0x1e)
 
 /* パッケージ内のファイルエントリの最大数 */
 #define ENTRY_SIZE		(65536)
@@ -71,6 +90,7 @@ bool init_file(void)
 {
 	FILE *fp;
 	uint64_t i;
+	int j;
 
 	/* パッケージファイルのパスを求める */
 	package_path = make_valid_path(NULL, PACKAGE_FILE);
@@ -107,6 +127,8 @@ bool init_file(void)
 	for (i = 0; i < entry_count; i++) {
 		if (fread(&entry[i].name, FILE_NAME_SIZE, 1, fp) < 1)
 			break;
+		for (j = 0; j < FILE_NAME_SIZE; j++)
+			entry[i].name[j] ^= XOR;
 		if (fread(&entry[i].size, sizeof(uint64_t), 1, fp) < 1)
 			break;
 		if (fread(&entry[i].offset, sizeof(uint64_t), 1, fp) < 1)
@@ -265,7 +287,7 @@ size_t get_rfile_size(struct rfile *rf)
  */
 size_t read_rfile(struct rfile *rf, void *buf, size_t size)
 {
-	size_t len;
+	size_t len, obf;
 
 	assert(rf != NULL);
 	assert(rf->fp != NULL);
@@ -283,6 +305,8 @@ size_t read_rfile(struct rfile *rf, void *buf, size_t size)
 		return 0;
 	len = fread(buf, 1, size, rf->fp);
 	rf->pos += len;
+	for (obf = 0; obf < len; obf++)
+		*(((char *)buf) + obf) ^= XOR;
 	return len;
 }
 
