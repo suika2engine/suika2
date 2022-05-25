@@ -33,6 +33,7 @@
     <ClInclude Include="..\..\..\src\drawglyph.h" />
     <ClInclude Include="..\..\..\src\drawimage.h" />
     <ClInclude Include="..\..\..\src\dsound.h" />
+    <ClInclude Include="..\..\..\src\dsvideo.h" />
     <ClInclude Include="..\..\..\src\event.h" />
     <ClInclude Include="..\..\..\src\file.h" />
     <ClInclude Include="..\..\..\src\glyph.h" />
@@ -83,10 +84,12 @@
     <ClCompile Include="..\..\..\src\cmd_setsave.c" />
     <ClCompile Include="..\..\..\src\cmd_shake.c" />
     <ClCompile Include="..\..\..\src\cmd_switch.c" />
+    <ClCompile Include="..\..\..\src\cmd_video.c" />
     <ClCompile Include="..\..\..\src\cmd_vol.c" />
     <ClCompile Include="..\..\..\src\cmd_wait.c" />
     <ClCompile Include="..\..\..\src\conf.c" />
     <ClCompile Include="..\..\..\src\dsound.c" />
+    <ClCompile Include="..\..\..\src\dsvideo.cc" />
     <ClCompile Include="..\..\..\src\event.c" />
     <ClCompile Include="..\..\..\src\file.c" />
     <ClCompile Include="..\..\..\src\glyph.c" />
@@ -126,26 +129,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -190,7 +193,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease;..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs\Win32\Release Static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -211,7 +214,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs\Win32\Release Static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
