@@ -339,8 +339,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	VertexRHWTex v[4];
 
 	// 左上
-	v[0].x = (float)(dst_left + nDisplayOffsetX);
-	v[0].y = (float)(dst_top + nDisplayOffsetY);
+	v[0].x = (float)(dst_left + nDisplayOffsetX) - 0.5f;
+	v[0].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
 	v[0].z = 0.0f;
 	v[0].rhw = 1.0f;
 	v[0].u = (float)src_left / img_w;
@@ -348,8 +348,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)(dst_left + width - 1 - nDisplayOffsetX);
-	v[1].y = (float)(dst_top + nDisplayOffsetY);
+	v[1].x = (float)(dst_left + width - 1 - nDisplayOffsetX) + 0.5f;
+	v[1].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
 	v[1].u = (float)(src_left + width) / img_w;
@@ -357,8 +357,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 左下
-	v[2].x = (float)(dst_left + nDisplayOffsetX);
-	v[2].y = (float)(dst_top + height - 1 - nDisplayOffsetY);
+	v[2].x = (float)(dst_left + nDisplayOffsetX) - 0.5f;
+	v[2].y = (float)(dst_top + height - 1 - nDisplayOffsetY) + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u = (float)src_left / img_w;
@@ -366,8 +366,8 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)(dst_left + width - 1 - nDisplayOffsetX);
-	v[3].y = (float)(dst_top + height - 1 - nDisplayOffsetY);
+	v[3].x = (float)(dst_left + width - 1 - nDisplayOffsetX) + 0.5f;
+	v[3].y = (float)(dst_top + height - 1 - nDisplayOffsetY) + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
 	v[3].u = (float)(src_left + width) / img_w;
