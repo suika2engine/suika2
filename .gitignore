@@ -46,6 +46,16 @@ build/msvc/Debug
 build/msvc/Release
 build/msvc/suika/Debug
 build/msvc/suika/Release
+build/msvc-3d/.vs
+build/msvc-3d/zlib
+build/msvc-3d/libpng
+build/msvc-3d/libogg
+build/msvc-3d/libvorbis
+build/msvc-3d/freetype
+build/msvc-3d/Debug
+build/msvc-3d/Release
+build/msvc-3d/suika/Debug
+build/msvc-3d/suika/Release
 build/emscripten/data01.arc
 game-jp/log.txt
 game-jp/sav

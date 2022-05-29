@@ -1,0 +1,267 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header File">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source File">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource File">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\mingw\res\manifest.xml">
+      <Filter>Resource File</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\mingw\res\resource.rc">
+      <Filter>Resource File</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\mingw\res\small.ico">
+      <Filter>Resource File</Filter>
+    </Image>
+    <Image Include="..\..\mingw\res\suika.ico">
+      <Filter>Resource File</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\mingw\res\resource.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\x86.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\wave.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\vars.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\stage.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\suika.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\script.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\save.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\platform.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\mixer.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\main.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\log.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\image.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\history.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\glyph.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\file.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\event.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\dsound.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\drawimage.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\drawglyph.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\conf.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\scbuf.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\seen.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\dsvideo.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\d3drender.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\avx.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\avx2.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_bg.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_bgm.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_ch.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_click.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_gosub.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_goto.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_if.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_load.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_menu.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_message.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_retrospect.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_return.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_se.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_select.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_set.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_switch.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_vol.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_wait.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\conf.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\dsound.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\event.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\file.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\glyph.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\history.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\image.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\log.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\main.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\mixer.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\novec.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\readimage.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\save.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\script.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sse.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sse2.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\stage.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\vars.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\wave.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\winmain.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\x86.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_cha.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_shake.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_chs.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\scbuf.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_setsave.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\seen.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_video.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\dsvideo.cc">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\d3drender.cc">
+      <Filter>Source File</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
