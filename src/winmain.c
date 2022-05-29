@@ -69,6 +69,7 @@ static HBITMAP hBitmap;
 /* イメージオブジェクト */
 static struct image *BackImage;
 
+/* WaitForNextFrame()の時間管理用 */
 static DWORD dwStartTime;
 
 /* ログファイル */
@@ -415,13 +416,6 @@ static void GameLoop(void)
 			if(!SyncEvents())
 				break;
 
-			/* 次の描画までスリープする */
-			if(!WaitForNextFrame())
-				break;	/* 閉じるボタンが押された */
-
-			/* 次のフレームの開始時刻を取得する */
-			dwStartTime = GetTickCount();
-
 			continue;
 		}
 
@@ -430,7 +424,6 @@ static void GameLoop(void)
 		D3DStartFrame();
 #else
 		/* バックイメージのロックを行う */
-	
 		lock_image(BackImage);
 #endif
 
@@ -462,11 +455,13 @@ static void GameLoop(void)
 			break;
 
 		/* 次の描画までスリープする */
+#ifndef USE_DIRECT3D
 		if(!WaitForNextFrame())
 			break;	/* 閉じるボタンが押された */
 
 		/* 次のフレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
+#endif
 	}
 }
 
