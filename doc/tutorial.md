@@ -12,7 +12,7 @@ Ready? Let's get started!
 
 We'll use Windows here.
 
-Firstly, [download](https://luxion.jp/s2/en/) the Suika2 binary.
+Firstly, [download](https://suika2.com/en/) the Suika2 binary.
 
 Extract the downloaded ZIP file. We see the following file and folders.
 `suika.exe` is the Sukia2 executable file. Other folders include a sample
@@ -35,7 +35,7 @@ This tutorial makes changes to the sample game.
 
 ## Enable English mode
 
-* Open `conf/config.txt` by a text editor other than Notepad.
+* Open `conf/config.txt` by a text editor.
 * You can find the following line:
 ```
 #language=English
@@ -55,8 +55,6 @@ For our first step, we'll change the background image.
 This is the most basic command.
 
 Replace the contents of `init.txt` as follows:
-(Note that the character encoding is UTF-8 without BOM,
-and you can't use Notepad.)
 
 ```
 @bg roof.png 1.0
@@ -106,7 +104,7 @@ Hi, my name is Midori.
 After saving it, run `suika.exe`.
 Suika2 will show a roof terrace, a character, three messages, and then exit.
 
-Any script lines which don't start with @ or \* are recognized as messages.
+Any script lines which don't start with @, : or \* are recognized as messages.
 
 ## Play BGM
 
@@ -206,18 +204,11 @@ You can make a menu screen.
 Replace the contents of `init.txt` as follows:
 
 ```
-:MENU
-@menu menu.png menu_selected.png START 27 485 317 193 LOAD 357 493 318 213 QUIT 678 492 315 191
+@menu menu.png menu_selected.png START 2 495 314 192 LOAD 316 494 322 203 CONFIG 640 492 317 204 QUIT 960 497 317 201
 :START
-Start.
-@goto END
 :LOAD
-Load.
-@goto $LOAD
-@goto MENU
+:CONFIG
 :QUIT
-Quit.
-:END
 ```
 
 After saving it, run `suika.exe`.
@@ -231,10 +222,9 @@ Compare these images.
 `menu.png` is an image for when the button isn't being pointed at by the mouse.
 `menu_selected.png` is an image for when the button is being pointed at by the mouse.
 
-`START 27 485 317 193` creates a button.
+`START 2 495 314 192` creates a button.
 `START` is the jump destination label.
-`27 485 317 193` means creating a button with 317x193 size at position (27, 485).
-We can make up to four buttons.
+`2 495 314 192` means creating a button with 314x192 size at position (2, 495).
 
 ## Split script file
 
