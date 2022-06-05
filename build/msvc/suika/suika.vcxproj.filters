@@ -257,5 +257,8 @@
     <ClCompile Include="..\..\..\src\dsvideo.cc">
       <Filter>Source File</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_skip.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
