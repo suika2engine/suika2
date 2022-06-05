@@ -87,10 +87,11 @@ static bool init(void)
 	y += ofs_y;
 
 	/* Controlが押されているか、フェードしない場合 */
-	if ((is_skip_mode() && !is_non_interruptible()) ||
-	    (!is_auto_mode() && !is_non_interruptible() &&
-	     is_control_pressed) ||
-	    span == 0) {
+	if ((span == 0)
+	    ||
+	    (!is_non_interruptible() && is_skip_mode())
+	    ||
+	    (!is_non_interruptible() && !is_auto_mode() && is_control_pressed)) {
 		/* フェードせず、すぐに切り替える */
 		change_ch_attributes(chpos, x, y, alpha);
 	} else {
@@ -203,8 +204,9 @@ static void draw(void)
 		 * 経過時間が一定値を超えた場合と、
 		 * 入力によりスキップされた場合
 		 */
-		if (lap >= span ||
-		    (!is_auto_mode() && !is_non_interruptible() &&
+		if ((lap >= span)
+		    ||
+		    (!is_non_interruptible() && !is_auto_mode() &&
 		     (is_control_pressed || is_return_pressed ||
 		      is_left_button_pressed || is_down_pressed))) {
 			/* 繰り返し動作を終了する */

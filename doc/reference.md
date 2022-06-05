@@ -598,7 +598,9 @@ If you want to set global master volumes which are common between save files, yo
 
 This command instructs Suika2 to wait for input from the keyboard or mouse before continuing.
 Input from the keyboard or mouse will interrupt `@wait` (thus allowing Suika2 to continue).
-While waiting for input, the message box is hidden.
+
+If the previous command is a message, the message box is visible while waiting for input.
+Otherwise, the message box is hidden while waiting for input.
 
 * Usage: Waits for 5 seconds.
 ```

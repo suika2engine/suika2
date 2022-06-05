@@ -395,10 +395,16 @@ static bool process_serif_command(void)
 	}
 
 	/* ボイスを再生する */
-	if (!(is_skip_mode() && is_skippable()) &&
-	    !is_control_pressed && !is_down_pressed &&
-	    !history_flag && (!restore_flag || !is_message_registered())) {
-		/* いったんボイスなしにしておく */
+	if ((is_non_interruptible() &&
+	     (!history_flag &&
+	      (!restore_flag || !is_message_registered())))
+	    ||
+	    (!is_non_interruptible() &&
+	     !(is_skip_mode() && is_skippable()) &&
+	     (!is_control_pressed &&
+	      !history_flag &&
+	      (!restore_flag || !is_message_registered())))) {
+		/* いったんボイスなしの判断にしておく(あとで変更する) */
 		have_voice = false;
 
 		/* ボイスを再生する */
@@ -498,7 +504,7 @@ static bool play_voice(void)
 	/* PCMストリームを再生する */
 	set_mixer_input(VOICE_STREAM, w);
 
-	/* ボイスありにする */
+	/* ボイスありの判断にする */
 	have_voice = true;
 
 	return true;
@@ -607,15 +613,17 @@ static int get_frame_chars(void)
 	}
 
 	/* 入力によりスキップされた場合 */
-	if (is_skippable() && (is_skip_mode() || is_control_pressed)) {
+	if (is_skippable() && !is_non_interruptible() &&
+	    (is_skip_mode() || is_control_pressed)) {
 		/* 繰り返し動作を停止する */
 		stop_command_repetition();
 
 		/* 残りの文字をすべて描画する */
 		return total_chars - drawn_chars;
 	}
-	if (is_return_pressed || is_down_pressed ||
-	    (pointed_index == BTN_NONE && is_left_button_pressed)) {
+	if (!is_non_interruptible() &&
+	    (is_return_pressed || is_down_pressed ||
+	     (pointed_index == BTN_NONE && is_left_button_pressed))) {
 		/* ビープの再生を止める */
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
@@ -642,15 +650,27 @@ static void draw_click(void)
 	int lap;
 
 	/* 入力があったら終了する */
-	if (is_skippable() && (is_skip_mode() || is_control_pressed)) {
-		stop_command_repetition();
-		return;
-	}
-	if (!process_click_first &&
-	    (is_return_pressed || is_down_pressed ||
-	     (pointed_index == BTN_NONE && is_left_button_pressed))) {
-		stop_command_repetition();
-		return;
+	if (is_skippable() && !is_auto_mode() &&
+	    (is_skip_mode() || is_control_pressed)) {
+		if (!is_non_interruptible()) {
+			stop_command_repetition();
+		} else {
+			if (!have_voice ||
+			    (have_voice &&
+			     is_mixer_sound_finished(VOICE_STREAM)))
+				stop_command_repetition();
+		}
+	} else if (!process_click_first &&
+		   (is_return_pressed || is_down_pressed ||
+		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
+		if (!is_non_interruptible()) {
+			stop_command_repetition();
+		} else {
+			if (!have_voice ||
+			    (have_voice &&
+			     is_mixer_sound_finished(VOICE_STREAM)))
+				stop_command_repetition();
+		}
 	}
 
 	/* クリックアニメーションの初回表示のとき */
@@ -780,7 +800,8 @@ static void init_pointed_index(void)
 /* 初期化処理において、繰り返し動作を設定する */
 static void init_repetition(void)
 {
-	if (is_skippable() && (is_skip_mode() || is_control_pressed)) {
+	if (is_skippable() && !is_non_interruptible() &&
+	    (is_skip_mode() || is_control_pressed)) {
 		/* 繰り返し動作せず、すぐに表示する */
 	} else {
 		/* コマンドが繰り返し呼び出されるようにする */
@@ -1287,7 +1308,8 @@ static void frame_main(void)
 	if (!is_hidden) {
 		/* 入力があったらボイスを止める */
 		if (!conf_voice_stop_off &&
-		    (is_skippable() && (is_skip_mode() || is_control_pressed)))
+		    (is_skippable() && !is_non_interruptible() &&
+		     (is_skip_mode() || is_control_pressed)))
 			set_mixer_input(VOICE_STREAM, NULL);
 
 		/* 文字かクリックアニメーションを描画する */

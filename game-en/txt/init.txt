@@ -2,6 +2,8 @@
 ### Logo
 ###
 
+@skip disable
+
 @bg white.png 0
 @ch c suika.png 1.0
 @se suika.ogg
@@ -46,6 +48,8 @@
 ###
 
 :SCENE1
+
+@skip enable
 
 @vol bgm 0.0 1.0
 @bg white.png 1.0
@@ -274,6 +278,7 @@ Thank you for selecting all the options.
 ###
 
 :END
+@skip disable
 @vol bgm 0.0 2.0
 @bg white.png 1.0
 @ch c luxion.png 0.5
