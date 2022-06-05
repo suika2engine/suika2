@@ -3,10 +3,10 @@ How to build
 
 * Windows App
     * We'll use cross compiler to build Windows binary.
-    * On Ubuntu 20.04, install following packages:
+    * On Ubuntu 22.04, install following packages:
         * `build-essential`
         * `mingw-w64`
-    * Alternatively, on macOS 11, install Homebrew and following package:
+    * Alternatively, on macOS 12, install Homebrew and following package:
         * `mingw-w64`
     * In terminal, enter `build/mingw` directory.
         * Run `./build-libs.sh` to build libraries.
@@ -16,7 +16,7 @@ How to build
     * To run Suika2, copy `suika.exe` to `game-en` folder or `game-jp` folder, then double click it.
 
 * Mac App
-    * On macOS 11, install Xcode 12.
+    * On macOS 12, install Xcode 13.
     * In terminal, enter `build/macos` directory.
         * Run `./build-libs.sh` to build libraries.
     * In Xcode, open `build/macos`.
@@ -28,10 +28,10 @@ How to build
     * To run Suika2, copy `suika.app` to `game-en` folder or `game-jp` folder, then double click it.
 
 * iOS App
-    * On macOS 11, install Xcode 12.
+    * On macOS 12, install Xcode 13.
     * In terminal, enter `build/ios` directory.
         * Run `./build-libs.sh` to build libraries.
-        * Alternatively, you can run `./build-libs-sim.sh` for use with simulators on Apple Silicon.
+        * Alternatively, you can run `./build-libs-sim.sh` for use with simulators on Apple Silicon Mac.
     * In Xcode, open `build/ios`.
         * In "Signing & Capabilities" tab, check `Automatically manage signing`.
         * Plug in the iOS device and build project for the device.
@@ -48,10 +48,10 @@ How to build
     * Run app on your device or emulator.
 
 * Web App
-    * See `emscripten/README.md`
+    * See `build/emscripten/README.md`
 
 * Release Files
-    * On macOS 11, in terminal, enter `build/release` directory.
+    * On macOS 12, in terminal, enter `build/release` directory.
        * Modify `SIGNATURE` in `Makefile` to sign `mac.dmg` file.
        * Run `make` to create ZIP files.
        * Rename `suika-2.x.x-en.zip` and `suika-2.x.x-jp.zip`.
@@ -63,7 +63,7 @@ How to build
         * Rename `suika2-web-kit-2.x-x-en.zip` and `suika2-web-kit-2.x-x-jp.zip`.
 
 * Linux Binary
-    * On Ubuntu 20.04, install following packages:
+    * On Ubuntu 22.04, install following packages:
         * `build-essential`
         * `libasound2-dev`
         * `libx11-dev`
@@ -90,7 +90,7 @@ How to build
         * Run `./suika`
 
 * FreeBSD Binary
-    * On FreeBSD 12.2, install following packages:
+    * On FreeBSD 12, install following packages:
         * `gmake`
         * `alsa-lib`
         * `alsa-plugins`
@@ -103,7 +103,7 @@ How to build
         * Run `./suika`.
 
 * NetBSD Binary
-    * On NetBSD 9.1, install following packages:
+    * On NetBSD 9, install following packages:
         * `gmake`
         * `alsa-lib`
         * `alsa-plugins-oss`

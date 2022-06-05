@@ -36,6 +36,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_set.c
              src/main/cpp/cmd_setsave.c
              src/main/cpp/cmd_shake.c
+             src/main/cpp/cmd_skip.c
              src/main/cpp/cmd_switch.c
              src/main/cpp/cmd_video.c
              src/main/cpp/cmd_vol.c
