@@ -292,7 +292,7 @@ void set_random_seed(uint64_t index)
 	for (i = 0; i < index; i++) {
 		rotate_bit = next_random >> 63;
 		next_random = (next_random << 1) | rotate_bit;
-		next_random ^= 0xff << (index % 64);
+		next_random ^= 0xffLL << (index % 64);
 	}
 }
 

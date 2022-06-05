@@ -403,7 +403,7 @@ static void set_random_seed(uint64_t index, uint64_t *next_random)
 	for (i = 0; i < index; i++) {
 		rotate_bit = next >> 63;
 		next = (next << 1) | rotate_bit;
-		next ^= 0xff << (index % 64);
+		next ^= 0xffLL << (index % 64);
 	}
 
 	*next_random = next;
