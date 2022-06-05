@@ -519,6 +519,22 @@ This command shakes the screen.
 @shake vertical 1.0 3 100
 ```
 
+## @skip
+
+This command enables or disables skip of timed commands by user interaction.
+
+It is useful to show brand logo on boot time.
+
+* Usage 1: Enables skip. (default)
+```
+@skip enable
+```
+
+* Usage 2: Disables skip.
+```
+@skip disable
+```
+
 ## @switch
 
 Shows up to two levels of options.

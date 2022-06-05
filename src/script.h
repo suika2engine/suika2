@@ -61,6 +61,7 @@ enum command_type {
 	COMMAND_SETSAVE,
 	COMMAND_CHS,
 	COMMAND_VIDEO,
+	COMMAND_SKIP,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -481,6 +482,11 @@ enum chs_command_param {
 /* videoコマンドのパラメータ */
 enum video_command_param {
 	VIDEO_PARAM_FILE = 1,
+};
+
+/* skipコマンドのパラメータ */
+enum skip_command_param {
+	SKIP_PARAM_MODE = 1,
 };
 
 /*

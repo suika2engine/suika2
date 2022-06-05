@@ -106,8 +106,9 @@ static bool init(void)
 	    return false;
 
 	/* Controlが押されているか、フェードしない場合 */
-	if (is_skip_mode() ||
-	    (!is_auto_mode() && is_control_pressed) ||
+	if ((is_skip_mode() && !is_non_interruptible()) ||
+	    (!is_auto_mode() && is_control_pressed &&
+	     !is_non_interruptible()) ||
 	    span == 0) {
 		/* フェードせず、すぐに切り替える */
 		change_ch_immediately(chpos, img, xpos, ypos, alpha);
@@ -196,6 +197,7 @@ static void draw(void)
 		 */
 		if (lap >= span ||
 		    (!is_auto_mode() &&
+		     !is_non_interruptible() &&
 		     (is_control_pressed || is_return_pressed ||
 		      is_left_button_pressed || is_down_pressed))) {
 			/* 繰り返し動作を終了する */

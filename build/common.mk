@@ -18,6 +18,7 @@ SRCS_COMMON = \
 	../../src/cmd_set.c \
 	../../src/cmd_setsave.c \
 	../../src/cmd_shake.c \
+	../../src/cmd_skip.c \
 	../../src/cmd_switch.c \
 	../../src/cmd_video.c \
 	../../src/cmd_vol.c \

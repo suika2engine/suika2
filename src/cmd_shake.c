@@ -73,7 +73,7 @@ static bool init(void)
 		return false;
 
 	/* Controlが押されているか、spanが0の場合 */
-	if (is_control_pressed || span == 0) {
+	if ((!is_non_interruptible() && is_control_pressed) || span == 0) {
 		/* 繰り返し動作を開始しない */
 	} else {
 		/* 繰り返し動作を開始する */
@@ -132,8 +132,10 @@ static void draw(void)
 		 * 経過時間が一定値を超えた場合と、
 		 * 入力によりスキップされた場合
 		 */
-		if (lap >= span || is_control_pressed || is_return_pressed ||
-		    is_left_button_pressed) {
+		if (lap >= span ||
+		    (!is_non_interruptible() &&
+		     (is_control_pressed || is_return_pressed ||
+		      is_left_button_pressed))){
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 

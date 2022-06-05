@@ -106,7 +106,7 @@ static bool init(void)
 	/* フェードしない場合か、キーが押されている場合 */
 	if (span == 0 ||
 	    (!is_auto_mode() && is_control_pressed) ||
-	    is_skip_mode()) {
+	    (is_skip_mode() && !is_non_interruptible())) {
 		/* フェードせず、すぐに切り替える */
 		change_bg_immediately(img);
 		change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
@@ -147,6 +147,7 @@ static void draw(void)
 	if (is_in_command_repetition()) {
 		if (lap >= span ||
 		    (!is_auto_mode() &&
+		     !is_non_interruptible() &&
 		     (is_control_pressed || is_return_pressed ||
 		      is_left_button_pressed || is_down_pressed))) {
 			/* 繰り返し動作を停止する */

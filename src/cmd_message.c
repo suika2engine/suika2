@@ -369,7 +369,7 @@ static bool register_message_for_history(void)
 
 	return true;
 }
-		
+
 /* セリフコマンドを処理する */
 static bool process_serif_command(void)
 {

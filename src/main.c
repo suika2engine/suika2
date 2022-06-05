@@ -58,20 +58,17 @@ static bool flag_menu_finished;
 /* retrospectコマンドが完了したばかりであるか */
 static bool flag_retrospect_finished;
 
-/*
- * オートモードが実行中であるか
- */
+/* オートモードが実行中であるか */
 static bool flag_auto_mode;
 
-/*
- * スキップモードが実行中であるか
- */
+/* スキップモードが実行中であるか */
 static bool flag_skip_mode;
 
-/*
- * セーブ・ロード画面が許可されているか
- */
+/* セーブ・ロード画面が許可されているか */
 static bool flag_save_load_enabled = true;
+
+/* 割り込み不可モードであるか */
+static bool flag_non_interruptible;
 
 /*
  * 前方参照
@@ -102,6 +99,7 @@ void init_game_loop(void)
 	flag_retrospect_finished = false;
 	flag_auto_mode = false;
 	flag_save_load_enabled = true;
+	flag_non_interruptible = false;
 
 	/* Android NDK用に状態を初期化する */
 	check_menu_finish_flag();
@@ -267,6 +265,11 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 	case COMMAND_VIDEO:
 		if (!video_command())
 			return false;
+		break;
+	case COMMAND_SKIP:
+		if (!skip_command())
+			return false;
+		*cont = true;
 		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */
@@ -448,4 +451,20 @@ void set_save_load(bool enable)
 bool is_save_load_enabled(void)
 {
 	return flag_save_load_enabled;
+}
+
+/*
+ * 割り込み不可モードを設定する
+ */
+void set_non_interruptible(bool mode)
+{
+	flag_non_interruptible = mode;
+}
+
+/*
+ * 割り込み不可モードを取得する
+ */
+bool is_non_interruptible(void)
+{
+	return flag_non_interruptible;
 }

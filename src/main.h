@@ -72,6 +72,7 @@ bool shake_command(int *x, int *y, int *w, int *h);
 bool setsave_command(void);
 bool chs_command(int *x, int *y, int *w, int *h);
 bool video_command(void);
+bool skip_command(void);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定
@@ -120,5 +121,12 @@ bool is_skip_mode(void);
 
 void set_save_load(bool enable);
 bool is_save_load_enabled(void);
+
+/*
+ * 割り込み不可モードの設定
+ */
+
+void set_non_interruptible(bool mode);
+bool is_non_interruptible(void);
 
 #endif
