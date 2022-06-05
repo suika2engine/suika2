@@ -7,6 +7,46 @@ This command changes the background image.
 After changing the background image,
 all character images vanish from the stage.
 
+### Usage 1
+Changes the background image to `sample.png` with a 1.5 second fade-in time.
+```
+@bg sample.png 1.5
+```
+
+### Usage 2
+Changes the background image to `sample.png` immediately.
+```
+@bg sample.png
+```
+
+### Usage 3
+Changes the background image to `sample.png` with a 1.5 second fade-in time.
+Fading type is right curtain.
+```
+@bg sample.png 1.5 c
+```
+
+### Usage 4
+Changes the background color with a 1.5 second fade-in time.
+Fading type is left curtain.
+```
+@bg sample.png 1.5 curtain-left
+```
+
+### Usage 5
+Close eyes.
+```
+@bg #000000 1.5 eye-close
+```
+
+### Usage 6
+Open eyes.
+```
+@bg #000000 0
+@bg sample.png 1.5 eye-open
+```
+
+### Effects
 * You can specify the following effects:
     * `normal`, `n` or not-specified -> fade/dissolve (alpha blending)
     * `mask` or `m` -> dissolve from radiating points
@@ -37,60 +77,32 @@ all character images vanish from the stage.
     * `slit-open-v` → open slit (vertical)
     * `slit-close-v` → close slit (vertical)
 
-* Usage 1: Changes the background image to `sample.png` with a 1.5 second fade-in time.
-```
-@bg sample.png 1.5
-```
-
-* Usage 2: Changes the background image to `sample.png` immediately.
-```
-@bg sample.png
-```
-
-* Usage 3: Changes the background image to `sample.png` with a 1.5 second fade-in time. Fading type is right curtain.
-```
-@bg sample.png 1.5 c
-```
-
-* Usage 4: Changes the background color with a 1.5 second fade-in time. Fading type is left curtain.
-```
-@bg sample.png 1.5 curtain-left
-```
-
-* Usage 5: Close eyes.
-```
-@bg #000000 1.5 eye-close
-```
-
-* Usage 6: Open eyes.
-```
-@bg #000000 0
-@bg sample.png 1.5 eye-open
-```
-
-
 ## @bgm
 
 This command plays BGM.
 BGM files need to be stored in the `bgm` folder.
 Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
-* Usage 1: Plays `sample.ogg`.
+### Usage 1
+Plays `sample.ogg`.
 ```
 @bgm sample.ogg
 ```
 
-* Usage 2: Stops BGM.
+### Usage 2
+Stops BGM.
 ```
 @bgm stop
 ```
 
-* Usage 3: Plays BGM once.
+### Usage 3
+Plays BGM once.
 ```
 @bgm sample.ogg once
 ```
 
-* Application: Fade-out BGM in 2 seconds.
+### Application
+Fade-out BGM in 2 seconds.
 ```
 @vol bgm 0 2
 @wait 2
@@ -109,37 +121,47 @@ This command changes the character.
 
 Effects are the same as `@bg`.
 
-* Usage 1: Displays `sample.png` in 0.5 seconds at front center.
+### Usage 1
+Displays `sample.png` in 0.5 seconds at front center.
 ```
 @ch center sample.png 0.5
 ```
 
-* Usage 2: `center` can be abbreviated as `c`.
+### Usage 2
+`center` can be abbreviated as `c`.
 ```
 @ch c sample.png 0.5
 ```
 
-* Usage 3: Specifying `none` will cause the character to vanish.
+### Usage 3
+Specifying `none` will cause the character to vanish.
 ```
 @ch c none 0.5
 ```
 
-* Usage 4: Changes are applied immediately when the fade-in time is not specified.
+### Usage 4
+Changes are applied immediately when the fade-in time is not specified.
 ```
 @ch c sample.png
 ```
 
-* Usage 5: Specifying an effect.
+### Usage 5
+Specifying an effect.
 ```
 @ch c sample.png 1.0 mask
 ```
 
-* Usage 6: Specifying offset of character position. Following example does 100-pixel right shift and 50-pixel down shift.
+### Usage 6
+Specifying offset of character position.
+Following example does 100-pixel right shift and 50-pixel down shift.
 ```
 @ch c sample.png 1.0 n 100 50
 ```
 
-* Usage 7: In order to set animation origin, load character image with alpha value. The alpha value ranges from `0` to `255`. You can also specify `show` which is equivalent to `255` or `hide` which is `0`.
+### Usage 7
+In order to set animation origin, load character image with alpha value.
+The alpha value ranges from `0` to `255`.
+You can also specify `show` which is equivalent to `255` or `hide` which is `0`.
 ```
 @ch c sample.png 1.0 n 0 0 show
 ```
@@ -149,22 +171,26 @@ Effects are the same as `@bg`.
 This command moves a character image.
 Refer to `@ch` section for details on how to specify character position and alpha value.
 
-* Usage 1: Moves the center character to 600-px left and hides it with a 1.0 second animation time.
+### Usage 1
+Moves the center character to 600-px left and hides it with a 1.0 second animation time.
 ```
 @cha center 1.0 move -600 0 hide
 ```
 
-* Usage 2: Same as Usage 1, but accelerates movement.
+### Usage 2
+Same as Usage 1, but accelerates movement.
 ```
 @cha center 1.0 accel -600 0 hide
 ```
 
-* Usage 3: Same as Usage 1, but decelerates movement.
+### Usage 3
+Same as Usage 1, but decelerates movement.
 ```
 @cha center 1.0 brake -600 0 hide
 ```
 
-* Usage 4: Before `@cha`, loads a character image outside the screen, then moves it into the screen.
+### Usage 4
+Before `@cha`, loads a character image outside the screen, then moves it into the screen.
 ```
 @ch right sample.png 0 n 600 0 hide
 @cha right 2.0 move -600 0 show
@@ -177,22 +203,29 @@ In addition, it changes background at the same time.
 Character specification order is `center`, `right`, `left` and `back`.
 Effects specifiers are the same as `@bg`.
 
-* Usage 1: Changes center and right characters with a 1.0 second fade time. Other characters will not be changed.
+### Usage 1
+Changes center and right characters with a 1.0 second fade time.
+Other characters will not be changed.
 ```
 @chs center.png right.png stay stay 1.0
 ```
 
-* Usage 2: Vanishes center character with a 1.0 second fade time. Other characters will not be changed.
+### Usage 2
+Vanishes center character with a 1.0 second fade time.
+Other characters will not be changed.
 ```
 @chs none stay stay stay 1.0
 ```
 
-* Usage 3: Changes background without any changes on characters with a 1.0 second fade time.
+### Usage 3
+Changes background without any changes on characters with a 1.0 second fade time.
 ```
 @chs stay stay stay stay 1.0 background.png
 ```
 
-* Usage 4: Changes center character and background with a 1.0 second fade time. Uses curtain effect.
+### Usage 4
+Changes center character and background with a 1.0 second fade time.
+Uses curtain effect.
 ```
 @chs center.png stay stay stay 1.0 background.png curtain
 ```
@@ -202,7 +235,7 @@ Effects specifiers are the same as `@bg`.
 This command instructs Suika2 to wait for a click before continuing.
 While waiting for a click, the message box is hidden.
 
-* Usage:
+### Usage
 ```
 @click
 ```
@@ -211,7 +244,8 @@ While waiting for a click, the message box is hidden.
 
 This command jumps to the specified subroutine. Use `@return` to return.
 
-* Usage: Runs subroutine `SUB`.
+### Usage
+Runs subroutine `SUB`.
 ```
 @gosub SUB
 
@@ -225,19 +259,22 @@ Describe the process here.
 This command jumps to a label.
 Use `@goto` to make or break a loop.
 
-* Usage 1: Jumps to the label `abc` (loop).
+### Usage 1
+Jumps to the label `abc` (loop).
 ```
 :abc
 Describe the process here.
 @goto abc
 ```
 
-* Usage 2: Shows load screen.
+### Usage 2
+Shows load screen.
 ```
 @goto $LOAD
 ```
 
-* Usage 3: Shows save screen.
+### Usage 3
+Shows save screen.
 ```
 @goto $SAVE
 ```
@@ -254,14 +291,15 @@ This command jumps to the specified label if the specified condition is true.
     * `<` less than
     * `!=` not equal to
 
-* LHS must be a variable name (e.g., `$1`).
+LHS must be a variable name (e.g., `$1`).
 
-* RHS must be an integer or a variable name.
+RHS must be an integer or a variable name.
 
-* Usage 1: Jumps to the label `abc` if the variable at number 1 is greater than or equal to 10.
+### Usage
+Jumps to the label `abc` if the variable at number 1 is equal to 1.
 ```
-@if $1 >= 10 abc
-Variable 1 is less than 10.
+@if $1 == 1 abc
+Variable 1 is not 1.
 :abc
 ```
 
@@ -270,7 +308,7 @@ Variable 1 is less than 10.
 This creates a label, which can be used as a jump target.
 They are used with the `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch` commands.
 
-* Usage:
+### Usage
 ```
 :JumpTarget
 Show some messages.
@@ -282,7 +320,8 @@ Show some messages.
 This command jumps to another script.
 Script files need to be in the `txt` folder.
 
-* Usage: Jumps to the script file `001.txt`.
+### Usage
+Jumps to the script file `001.txt`.
 ```
 @load 001.txt
 ```
@@ -300,7 +339,7 @@ See the demo game for a helpful example!
 
 NB: Menus cannot be canceled using right click.
 
-* Usage:
+### Usage
 ```
 @menu menu.png menu-selected.png START 640 480 240 120
 :START
@@ -318,9 +357,9 @@ NB: Menus cannot be canceled using right click.
 Prints text to the message box.
 
 * Use `\n` to insert a line feed.
-* Use `$ + number` to show the value of a variable (e.g., $1).
+* Use `$ + number` to show the value of a variable (e.g., `$1`).
 
-* Usage:
+### Usage
 ```
 Hello, world!
 ```
@@ -356,7 +395,7 @@ however it has some more advanced parameter options.
         * The variable to check.
         * The X and Y position of the button.
 
-* Usage:
+### Usage
 ```
 @retrospect menu.png menu-selected.png 0 0 0 320 240 PICTURE1 $1 320 240
 Canceled.
@@ -371,7 +410,7 @@ Canceled.
 
 This is used to return from subroutines.
 
-* Usage:
+### Usage
 ```
 @gosub SUB
 
@@ -386,22 +425,26 @@ This command plays sound effects.
 Sound effect files need to be in the `se` folder.
 Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
-* Usage 1: Plays a sound effect file.
+### Usage 1
+Plays a sound effect file.
 ```
 @se click.ogg
 ```
 
-* Usage 2: Stops sound effect.
+### Usage 2
+Stops sound effect.
 ```
 @se stop
 ```
 
-* Usage 3: Plays sound effect repeatedly.
+### Usage 3
+Plays sound effect repeatedly.
 ```
 @se sample.ogg loop
 ```
 
-* Special usage: Plays a sound effect file on voice track to check voice volume without text message.
+### Special usage
+Plays a sound effect file on voice track to check voice volume without text message.
 ```
 @se click.ogg voice
 ```
@@ -410,8 +453,9 @@ Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
 This command shows options and jumps to the specified label.
 The number of options is fixed to three.
+If you want to use one, two, or more than four options, use `@switch`.
 
-* Usage:
+### Usage
 ```
 @select label1 label2 label3 "Good morning." "Good afternoon." "Good evening."
 :label1
@@ -433,17 +477,20 @@ Suika2 can play voice files when printing messages.
 Voice files need to be in the `voice` folder.
 Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
 
-* Usage 1: Prints a message with the character name.
+### Usage 1
+Prints a message with the character name.
 ```
 *Name*Hello, world!
 ```
 
-* Usage 2: Prints a message with the character name and plays the character's voice.
+### Usage 2
+Prints a message with the character name and plays the character's voice.
 ```
 *Name*001.ogg*Hello, world!
 ```
 
-* Usage 3: Prints a message with the character name and plays a beep.
+### Usage 3
+Prints a message with the character name and plays a beep.
 ```
 *Name*@beep.ogg*Hello, world!
 ```
@@ -468,24 +515,28 @@ Note: all variables must be integers.
     * `/=` (division)
     * `%=` (remainder)
 
-The variables are initialised to `0`.
+The variables are initialized to `0`.
 
-* Usage 1: Sets the value of `1` to the variable `$0`.
+### Usage 1
+Sets the value of `1` to the variable `$0`.
 ```
 @set $0 = 1
 ```
 
-* Usage 2: Adds the value `23` to the variable `$10`.
+### Usage 2
+Adds the value `23` to the variable `$10`.
 ```
 @set $10 += 23
 ```
 
-* Usage 3: Sets a random number (from 0 to 2147483647) to the variable `$0`.
+### Usage 3
+Sets a random number (from 0 to 2147483647) to the variable `$0`.
 ```
 @set $0 = $RAND
 ```
 
-* Usage 4: Adds the value of the variable `$2` to the variable `$1`.
+### Usage 4
+Adds the value of the variable `$2` to the variable `$1`.
 ```
 @set $1 += $2
 ```
@@ -495,12 +546,14 @@ The variables are initialised to `0`.
 This command enables or disables the save and load screen which is invoked by right click while waiting for message click or option click.
 When you call `@goto $LOAD` or `@goto $SAVE`, `@setsave enable` is implicitly called.
 
-* Usage 1: Enables the save and load screen (by default)
+### Usage 1
+Enables the save and load screen (by default).
 ```
 @setsave enable
 ```
 
-* Usage 2: Disables the save and load screen
+### Usage 2
+Disables the save and load screen.
 ```
 @setsave disable
 ```
@@ -509,12 +562,16 @@ When you call `@goto $LOAD` or `@goto $SAVE`, `@setsave enable` is implicitly ca
 
 This command shakes the screen.
 
-* Usage 1: Takes 1.0 second to shake the screen 3 times horizontally by 100px. `horizontal` can be abbreviated as `h`.
+### Usage 1
+Takes 1.0 second to shake the screen 3 times horizontally by 100px.
+`horizontal` can be abbreviated as `h`.
 ```
 @shake horizontal 1.0 3 100
 ```
 
-* Usage 2: Takes 1.0 second to shake the screen 3 times vertically by 100px. `vertical` can be abbreviated as `v`.
+### Usage 2
+Takes 1.0 second to shake the screen 3 times vertically by 100px.
+`vertical` can be abbreviated as `v`.
 ```
 @shake vertical 1.0 3 100
 ```
@@ -525,15 +582,22 @@ This command enables or disables skip of timed commands by user interaction.
 
 It is useful to show brand logo on boot time.
 
-You can inhibit skip of messages, but in this case, use `@setsave disable` to inhibit save/load screen.
-In addition, don't use `@goto $LOAD` and `@goto $SAVE` while non-skippable mode.
+You can inhibit mid-flight skip of message display,
+but in this case,
+you have to use `@setsave disable` to inhibit save/load screen,
+because non-skippable mode is not saved to the save files.
 
-* Usage 1: Enables skip. (default)
+In addition, don't use `@goto $LOAD` and `@goto $SAVE` while non-skippable mode.
+The reason is same as above.
+
+### Usage 1
+Enables skip. (default)
 ```
 @skip enable
 ```
 
-* Usage 2: Disables skip.
+### Usage 2
+Disables skip.
 ```
 @skip disable
 ```
@@ -544,26 +608,112 @@ Shows up to two levels of options.
 There are eight parent options,
 and each parent option has eight child options.
 
-* Usage 1: Shows one level of (two) options.
+### Usage 1
+Shows one option.
 ```
-@switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * *
+@switch "Option 1" * * * * * * * LABEL1 * * * * * * * * * * * * * * *
+:LABEL1
 ```
 
-* Usage 2: Shows two levels of two options, four in total.
+### Usage 2
+Shows two options.
+```
+@switch "Option 1" "Option 2" * * * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+```
+
+### Usage 3
+Shows three options.
+```
+@switch "Option 1" "Option 2" "Option3" * * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+```
+
+### Usage 4
+Shows four options.
+```
+@switch "Option 1" "Option 2" "Option 3" "Option 4" * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL4
+```
+
+### Usage 5
+Shows five options.
+```
+@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+:LABEL4
+:LABEL5
+```
+
+### Usage 6
+Shows six options.
+```
+@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" "Option 6" * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * * LABEL6 * * * * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+:LABEL4
+:LABEL5
+:LABEL6
+```
+
+### Usage 7
+Shows seven options.
+```
+@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" "Option 6" "Option 7" * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * * LABEL6 * * * * * * * * * * * * * * * LABEL7 * * * * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+:LABEL4
+:LABEL5
+:LABEL6
+:LABEL7
+```
+
+### Usage 8
+Shows eight options. (max)
+```
+@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" "Option 6" "Option 7" "Option 8" LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * * LABEL6 * * * * * * * * * * * * * * * LABEL7 * * * * * * * * * * * * * * * LABEL8 * * * * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+:LABEL4
+:LABEL5
+:LABEL6
+:LABEL7
+:LABEL8
+```
+
+### Usage 9
+Shows two levels of two options, four in total.
 ```
 @switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 "Child option 1" LABEL2 "Child option 2" * * * * * * * * * * * * LABEL3 "Child option 3" LABEL4 "Child option 4" * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+:LABEL4
 ```
 
 ## @video
 
 This command plays a video file.
 At the moment, this functionality is enabled on Windows only.
-Recommended video file format is .WMV file.
-.AVI file which contains H.264+AAC is also supported on Windows 10/11.
-Video files are stored in `mov` directory.
-`mov` directory is not stored in `.arc` file.
 
-* Usage: Plays a video file.
+Recommended video file format is `.WMV` file because of royalty fee.
+It is not recommended, but `.AVI` file which contains `H.264` + `AAC` is also supported on Windows 10/11.
+
+Video files are stored in `mov` directory.
+`mov` directory is not stored in `data01.arc` file.
+
+### Usage
+Plays a video file.
 ```
 @video sample.avi
 ```
@@ -580,19 +730,24 @@ This command sets the sound volume.
 Sound volumes of these three channels are stored in each local save file.
 You can change the volumes frequently for sound production purpose.
 
-If you want to set global master volumes which are common between save files, you can use channel name in CAPITALS. When you set global master volumes, set fading time to 0.
+If you want to set "global volumes" which are common between save files,
+you can use channel name in CAPITALS.
+When you set global volumes, set fading time to 0.
 
-* Usage 1: Sets BGM volume to 0.5 in 1 second.
+### Usage 1
+Sets BGM volume to 0.5 in 1.0 second.
 ```
 @vol bgm 0.5 1.0
 ```
 
-* Usage 2: `bgm` can be abbreviated as `b`.
+### Usage 2
+`bgm` can be abbreviated as `b`.
 ```
 @vol b 0.5 1.0
 ```
 
-* Usage 3: Sets global master volume of BGM to 0.5
+### Usage 3
+Sets global volume of BGM to 0.5 (this is useful when you create sound config menu.)
 ```
 @vol BGM 0.5 0
 ```
@@ -605,7 +760,8 @@ Input from the keyboard or mouse will interrupt `@wait` (thus allowing Suika2 to
 If the previous command is a message, the message box is visible while waiting for input.
 Otherwise, the message box is hidden while waiting for input.
 
-* Usage: Waits for 5 seconds.
+### Usage
+Waits for 5 seconds.
 ```
 @wait 5.0
 ```
