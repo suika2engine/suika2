@@ -397,13 +397,13 @@ void close_rfile(struct rfile *rf)
 /* ファイルの乱数シードを設定する */
 static void set_random_seed(uint64_t index, uint64_t *next_random)
 {
-	uint64_t i, next, rotate_bit;
+	uint64_t i, next, lsb;
 
 	next = ENCRYPTION_KEY;
 	for (i = 0; i < index; i++) {
-		rotate_bit = next >> 63;
-		next = (next << 1) | rotate_bit;
-		next ^= 0xffULL << (index % 64);
+		next ^= 0xafcb8f2ff4fff33f;
+		lsb = next >> 63;
+		next = (next << 1) | lsb;
 	}
 
 	*next_random = next;
@@ -412,17 +412,18 @@ static void set_random_seed(uint64_t index, uint64_t *next_random)
 /* 乱数を取得する */
 static char get_next_random(uint64_t *next_random, uint64_t *prev_random)
 {
+	uint64_t next;
 	char ret;
 
 	/* ungetc()用 */
 	if (prev_random != NULL)
 		*prev_random = *next_random;
 
-	ret = (char)*next_random;
-
-	*next_random = (((ENCRYPTION_KEY & 0xff00) * *next_random +
-			(ENCRYPTION_KEY & 0xff)) % ENCRYPTION_KEY) ^
-		       0xfcbfaff8f2f4f3f0;
+	ret = (char)(*next_random);
+	next = *next_random;
+	next = (((ENCRYPTION_KEY & 0xff00) * next + (ENCRYPTION_KEY & 0xff)) %
+		ENCRYPTION_KEY) ^ 0xfcbfaff8f2f4f3f0;
+	*next_random = next;
 
 	return ret;
 }

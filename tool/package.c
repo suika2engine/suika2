@@ -286,13 +286,13 @@ bool write_file_bodies(FILE *fp)
 /* Set random seed. */
 void set_random_seed(uint64_t index)
 {
-	uint64_t i, rotate_bit;
+	uint64_t i, lsb;
 
 	next_random = ENCRYPTION_KEY;
 	for (i = 0; i < index; i++) {
-		rotate_bit = next_random >> 63;
-		next_random = (next_random << 1) | rotate_bit;
-		next_random ^= 0xffULL << (index % 64);
+		next_random ^= 0xafcb8f2ff4fff33fULL;
+		lsb = next_random >> 63;
+		next_random = (next_random << 1) | lsb;
 	}
 }
 
