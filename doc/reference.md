@@ -525,6 +525,9 @@ This command enables or disables skip of timed commands by user interaction.
 
 It is useful to show brand logo on boot time.
 
+You can inhibit skip of messages, but in this case, use `@setsave disable` to inhibit save/load screen.
+In addition, don't use `@goto $LOAD` and `@goto $SAVE` while non-skippable mode.
+
 * Usage 1: Enables skip. (default)
 ```
 @skip enable
