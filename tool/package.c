@@ -24,6 +24,8 @@
 #include <dirent.h>
 #endif
 
+#include "key.h"
+
 /*
 
 Archive file design
@@ -31,12 +33,12 @@ Archive file design
 struct header {
     u64 file_count;
     struct entry {
-        u8  file_name[256]; // This is obfuscated by XOR
+        u8  file_name[256]; // This is encrypted
         u64 file_size;
         u64 file_offset;
     } [file_count];
 };
-u8 file_body[file_count][]; // These are obfuscated by XOR
+u8 file_body[file_count][]; // These are encrypted
 
 */
 
@@ -51,9 +53,6 @@ u8 file_body[file_count][]; // These are obfuscated by XOR
 
 /* Size of file entry */
 #define ENTRY_BYTES		(256 + 8 + 8)
-
-/* Obfuscating XOR magic number */
-#define XOR			(0x1e)
 
 /* Package file name */
 #define PACKAGE_FILE_NAME	"data01.arc"
@@ -84,9 +83,14 @@ uint64_t file_count;
 /* Current processing file's offset in archive file */
 uint64_t offset;
 
+/* Next random number. */
+uint64_t next_random;
+
 /* forward declaration */
-static bool write_file_entries(FILE *fp);
-static bool write_file_bodies(FILE *fp);
+bool write_file_entries(FILE *fp);
+bool write_file_bodies(FILE *fp);
+void set_random_seed(uint64_t index);
+char get_next_random(void);
 
 #ifdef _WIN32
 /*
@@ -217,18 +221,18 @@ bool write_archive_file(void)
 	return true;
 }
 
-/*
- * Write file entries.
- */
-static bool write_file_entries(FILE *fp)
+/* Write file entries. */
+bool write_file_entries(FILE *fp)
 {
 	char xor[FILE_NAME_SIZE];
 	uint64_t i;
 	int j;
 
 	for (i = 0; i < file_count; i++) {
+		set_random_seed(i);
 		for (j = 0; j < FILE_NAME_SIZE; j++)
-			xor[j] = entry[i].name[j] ^ XOR;
+			xor[j] = entry[i].name[j] ^ get_next_random();
+
 		if (fwrite(xor, FILE_NAME_SIZE, 1, fp) < 1)
 			return false;
 		if (fwrite(&entry[i].size, sizeof(uint64_t), 1, fp) < 1)
@@ -242,7 +246,7 @@ static bool write_file_entries(FILE *fp)
 /*
  * Write file bodies.
  */
-static bool write_file_bodies(FILE *fp)
+bool write_file_bodies(FILE *fp)
 {
 	char buf[8192];
 	FILE *fpin;
@@ -261,11 +265,12 @@ static bool write_file_bodies(FILE *fp)
 			printf("Can't open %s\n", entry[i].name);
 			return false;
 		}
+		set_random_seed(i);
 		do  {
 			len = fread(buf, 1, sizeof(buf), fpin);
 			if (len > 0) {
 				for (obf = 0; obf < len; obf++)
-					buf[obf] ^= XOR;
+					buf[obf] ^= get_next_random();
 				if (fwrite(buf, len, 1, fp) < 1)
 					return false;
 			}
@@ -276,6 +281,33 @@ static bool write_file_bodies(FILE *fp)
 		fclose(fpin);
 	}
 	return true;
+}
+
+/* Set random seed. */
+void set_random_seed(uint64_t index)
+{
+	uint64_t i, rotate_bit;
+
+	next_random = ENCRYPTION_KEY;
+	for (i = 0; i < index; i++) {
+		rotate_bit = next_random >> 63;
+		next_random = (next_random << 1) | rotate_bit;
+		next_random ^= 0xff << (index % 64);
+	}
+}
+
+/* Get next random number. */
+char get_next_random(void)
+{
+	char ret;
+
+	ret = (char)next_random;
+
+	next_random = (((ENCRYPTION_KEY & 0xff00) * next_random +
+			(ENCRYPTION_KEY & 0xff)) % ENCRYPTION_KEY) ^
+		      0xfcbfaff8f2f4f3f0;
+
+	return ret;
 }
 
 int main(int argc, char *argv[])

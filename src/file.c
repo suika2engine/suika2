@@ -16,6 +16,9 @@
 
 #include "suika.h"
 
+/* 暗号化キー */
+#include "../tool/key.h"
+
 /*
 
 Archive file design
@@ -23,17 +26,14 @@ Archive file design
 struct header {
     u64 file_count;
     struct entry {
-        u8  file_name[256]; // This is obfuscated by XOR
+        u8  file_name[256]; // This is encrypted
         u64 file_size;
         u64 file_offset;
     } [file_count];
 };
-u8 file_body[file_count][]; // These are obfuscated by XOR
+u8 file_body[file_count][]; // These are encrypted
 
 */
-
-/* 難読化のためのXOR値 */
-#define XOR			(0x1e)
 
 /* パッケージ内のファイルエントリの最大数 */
 #define ENTRY_SIZE		(65536)
@@ -50,9 +50,12 @@ struct rfile {
 	FILE *fp;
 
 	/* パッケージ内のファイルを使う場合にのみ用いる情報 */
+	uint64_t index;
 	uint64_t size;
 	uint64_t offset;
 	uint64_t pos;
+	uint64_t next_random;
+	uint64_t prev_random;
 };
 
 /* ファイル書き込みストリーム (TODO: 難読化をサポートする) */
@@ -78,6 +81,9 @@ static char *package_path;
  */
 static bool check_file_name(const char *file);
 static void ungetc_rfile(struct rfile *rf, char c);
+static void set_random_seed(uint64_t index, uint64_t *next_random);
+static char get_next_random(uint64_t *next_random, uint64_t *prev_random);
+static void rewind_random(uint64_t *next_random, uint64_t *prev_random);
 
 /*
  * 初期化
@@ -89,7 +95,7 @@ static void ungetc_rfile(struct rfile *rf, char c);
 bool init_file(void)
 {
 	FILE *fp;
-	uint64_t i;
+	uint64_t i, next_random;
 	int j;
 
 	/* パッケージファイルのパスを求める */
@@ -127,8 +133,9 @@ bool init_file(void)
 	for (i = 0; i < entry_count; i++) {
 		if (fread(&entry[i].name, FILE_NAME_SIZE, 1, fp) < 1)
 			break;
+		set_random_seed(i, &next_random);
 		for (j = 0; j < FILE_NAME_SIZE; j++)
-			entry[i].name[j] ^= XOR;
+			entry[i].name[j] ^= get_next_random(&next_random, NULL);
 		if (fread(&entry[i].size, sizeof(uint64_t), 1, fp) < 1)
 			break;
 		if (fread(&entry[i].offset, sizeof(uint64_t), 1, fp) < 1)
@@ -239,9 +246,12 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	}
 
 	rf->is_packaged = true;
+	rf->index = i;
 	rf->size = entry[i].size;
 	rf->offset = entry[i].offset;
 	rf->pos = 0;
+	set_random_seed(i, &rf->next_random);
+	rf->prev_random = 0;
 
 	return rf;
 }
@@ -305,26 +315,11 @@ size_t read_rfile(struct rfile *rf, void *buf, size_t size)
 		return 0;
 	len = fread(buf, 1, size, rf->fp);
 	rf->pos += len;
-	for (obf = 0; obf < len; obf++)
-		*(((char *)buf) + obf) ^= XOR;
-	return len;
-}
-
-/* ファイル読み込みストリームに1文字戻す */
-static void ungetc_rfile(struct rfile *rf, char c)
-{
-	assert(rf != NULL);
-	assert(rf->fp != NULL);
-
-	if (rf->fp != NULL) {
-		/* ファイルシステム上のファイルの場合 */
-		ungetc(c, rf->fp);
-	} else {
-		/* パッケージ内のファイルの場合 */
-		assert(rf->pos != 0);
-		ungetc(c, rf->fp);
-		rf->pos--;
+	for (obf = 0; obf < len; obf++) {
+		*(((char *)buf) + obf) ^= get_next_random(&rf->next_random,
+							  &rf->prev_random);
 	}
+	return len;
 }
 
 /*
@@ -352,7 +347,6 @@ const char *gets_rfile(struct rfile *rf, char *buf, size_t size)
 		}
 		if (c == '\r') {
 			if (read_rfile(rf, &c, 1) != 1) {
-				ungetc_rfile(rf, c);
 				*ptr = '\0';
 				return buf;
 			}
@@ -370,6 +364,24 @@ const char *gets_rfile(struct rfile *rf, char *buf, size_t size)
 	return buf;
 }
 
+/* ファイル読み込みストリームに1文字戻す */
+static void ungetc_rfile(struct rfile *rf, char c)
+{
+	assert(rf != NULL);
+	assert(rf->fp != NULL);
+
+	if (rf->fp != NULL) {
+		/* ファイルシステム上のファイルの場合 */
+		ungetc(c, rf->fp);
+	} else {
+		/* パッケージ内のファイルの場合 */
+		assert(rf->pos != 0);
+		ungetc(c, rf->fp);
+		rf->pos--;
+		rewind_random(&rf->next_random, &rf->prev_random);
+	}
+}
+
 /*
  * ファイル読み込みストリームを閉じる
  */
@@ -380,6 +392,46 @@ void close_rfile(struct rfile *rf)
 
 	fclose(rf->fp);
 	free(rf);
+}
+
+/* ファイルの乱数シードを設定する */
+static void set_random_seed(uint64_t index, uint64_t *next_random)
+{
+	uint64_t i, next, rotate_bit;
+
+	next = ENCRYPTION_KEY;
+	for (i = 0; i < index; i++) {
+		rotate_bit = next >> 63;
+		next = (next << 1) | rotate_bit;
+		next ^= 0xff << (index % 64);
+	}
+
+	*next_random = next;
+}
+
+/* 乱数を取得する */
+static char get_next_random(uint64_t *next_random, uint64_t *prev_random)
+{
+	char ret;
+
+	/* ungetc()用 */
+	if (prev_random != NULL)
+		*prev_random = *next_random;
+
+	ret = (char)*next_random;
+
+	*next_random = (((ENCRYPTION_KEY & 0xff00) * *next_random +
+			(ENCRYPTION_KEY & 0xff)) % ENCRYPTION_KEY) ^
+		       0xfcbfaff8f2f4f3f0;
+
+	return ret;
+}
+
+/* 乱数を1つ元に戻す */
+static void rewind_random(uint64_t *next_random, uint64_t *prev_random)
+{
+	*next_random = *prev_random;
+	*prev_random = 0;
 }
 
 /*

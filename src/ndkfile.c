@@ -123,7 +123,7 @@ size_t read_rfile(struct rfile *rf, void *buf, size_t size)
 /* ファイル読み込みストリームに1文字戻す */
 static void ungetc_rfile(struct rfile *rf, char c)
 {
-	/* FIXME: cを戻していない */
+	/* HINT: cを戻していないがcは参考情報ということで */
 	assert(rf->pos != 0);
 	rf->pos--;
 }
@@ -150,7 +150,6 @@ const char *gets_rfile(struct rfile *rf, char *buf, size_t size)
 		}
 		if (c == '\r') {
 			if (read_rfile(rf, &c, 1) != 1) {
-				ungetc_rfile(rf, c);
 				*ptr = '\0';
 				return buf;
 			}
