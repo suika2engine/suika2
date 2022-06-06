@@ -125,6 +125,11 @@ static void SyncBackImage(int x, int y, int w, int h);
 #define BTN_READ			(6)
 #define BTN_WRITE			(7)
 
+/* バージョン文字列 */
+static char szVersion[] =
+	"Suika Studio 0.6 (under development)\n"
+	"Copyright (c) 2022, LUXION SOFT. All rights reserved.";
+
 /* デバッガウィンドウ */
 static HWND hWndDebug;
 
@@ -1353,11 +1358,22 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 									 WPARAM wParam,
 									 LPARAM lParam)
 {
+	int nId;
+	/* int nEvent; */
+
 	switch(message)
 	{
 	case WM_COMMAND:
-		switch(LOWORD(wParam))
+		nId = LOWORD(wParam);
+		/* nEvent = HIWORD(wParam); */
+		switch(nId)
 		{
+		case IDM_EXIT:
+			DestroyWindow(hWndMain);
+			break;
+		case IDM_ABOUT:
+			MessageBox(hWndMain, szVersion, "About", MB_OK | MB_ICONINFORMATION);
+			break;
 		case BTN_RESUME:
 			bResumePressed = TRUE;
 			break;
@@ -1379,6 +1395,8 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		case BTN_WRITE:
 			bWritePressed = TRUE;
 			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		return 0;
 	default:
@@ -1469,8 +1487,14 @@ void set_running_state(bool running, bool request_stop)
 		/* 実行中のときは停止ボタンを有効にする */
 		EnableWindow(hWndBtnPause, TRUE);
 
+		/* 実行中のときはスクリプトテキストボックスを無効にする */
+		EnableWindow(hWndTextboxScript, FALSE);
+
 		/* 実行中のときはスクリプト変更ボタンを無効にする */
 		EnableWindow(hWndBtnChangeScript, FALSE);
+
+		/* 実行中のときは行番号テキストボックスを無効にする */
+		EnableWindow(hWndTextboxLine, FALSE);
 
 		/* 実行中のときは行番号変更ボタンを無効にする */
 		EnableWindow(hWndBtnChangeLine, FALSE);
