@@ -271,7 +271,7 @@ bool move_to_label(const char *label)
 
 		/* ラベルがみつかった場合 */
 		if (strcmp(c->param[LABEL_PARAM_LABEL], label) == 0) {
-			cur_index = i + 1;
+			cur_index = i;
 
 #ifdef USE_DEBUGGER
 			if (dbg_is_stop_requested())

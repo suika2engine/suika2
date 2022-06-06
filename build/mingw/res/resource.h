@@ -12,8 +12,7 @@
 #endif
 
 #define IDR_MENU			150
-#define IDM_EXIT			151
-#define IDM_ABOUT			152
+#define IDM_SOMETHING			151
 
 // Next default values for new objects
 // 

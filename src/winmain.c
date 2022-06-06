@@ -367,6 +367,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	/* フレームのサイズを取得する */
 	dw = GetSystemMetrics(SM_CXFIXEDFRAME) * 2;
 	dh = GetSystemMetrics(SM_CYCAPTION) +
+		 GetSystemMetrics(SM_CYMENU) +
 		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
 	/* ウィンドウのタイトルをUTF-8からShiftJISに変換する */
@@ -388,6 +389,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	SetRectEmpty(&rc);
 	rc.right = conf_window_width;
 	rc.bottom = conf_window_height;
+#ifdef USE_DEBUGGER
+	rc.bottom += GetSystemMetrics(SM_CYMENU);
+#endif
 	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndMain, GWL_STYLE), FALSE,
 					   (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
 	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
@@ -612,6 +616,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 		PostQuitMessage(0);
 		return 0;
 	case WM_CLOSE:
+#ifdef USE_DEBUGGER
+		DestroyWindow(hWnd);
+		break;
+#endif
 		if (MessageBox(hWnd, conf_language == NULL ?
 					   "終了しますか？" : "Quit?",
 					   mbszTitle, MB_OKCANCEL) == IDOK)
@@ -728,6 +736,10 @@ static int ConvertKeyCode(int nVK)
 static void ToggleFullScreen(void)
 {
 	int cx, cy;
+
+#ifdef USE_DEBUGGER
+	return;
+#endif
 
 	if(!bFullScreen)
 	{
@@ -1462,6 +1474,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 実行中のときは行番号変更ボタンを無効にする */
 		EnableWindow(hWndBtnChangeLine, FALSE);
+
+		/* 実行中のときはコマンドテキストボックスを無効にする */
+		EnableWindow(hWndTextboxCommand, FALSE);
 	}
 	else
 	{
@@ -1484,6 +1499,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 停止中のときは行番号変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeLine, TRUE);
+
+		/* 実行中のときはコマンドテキストボックスを有効にする */
+		EnableWindow(hWndTextboxCommand, TRUE);
 	}
 }
 
