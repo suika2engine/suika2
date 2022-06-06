@@ -1207,6 +1207,7 @@ static VOID InitMenu(void)
 	BOOL bEnglish = conf_language == NULL ? FALSE : TRUE;
 	HMENU hMenu = CreateMenu();
 	HMENU hMenuFile = CreatePopupMenu();
+	HMENU hMenuScript = CreatePopupMenu();
 	HMENU hMenuHelp = CreatePopupMenu();
     MENUITEMINFO mi;
 
@@ -1222,10 +1223,15 @@ static VOID InitMenu(void)
 	mi.dwTypeData = bEnglish ? "File(&F)": "ファイル(&F)";
 	InsertMenuItem(hMenu, 0, TRUE, &mi);
 
+	/* スクリプト(S)を作成する */
+	mi.hSubMenu = hMenuScript;
+	mi.dwTypeData = bEnglish ? "Script(&S)": "スクリプト(&S)";
+	InsertMenuItem(hMenu, 1, TRUE, &mi);
+
 	/* ヘルプ(H)を作成する */
 	mi.hSubMenu = hMenuHelp;
 	mi.dwTypeData = bEnglish ? "Help(&H)": "ヘルプ(&H)";
-	InsertMenuItem(hMenu, 1, TRUE, &mi);
+	InsertMenuItem(hMenu, 2, TRUE, &mi);
 
 	/* 2階層目を作成する準備を行う */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
@@ -1234,6 +1240,21 @@ static VOID InitMenu(void)
 	mi.wID = MENU_QUIT;
 	mi.dwTypeData = bEnglish ? "Quit(&Q)" : "終了(&Q)";
 	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+
+	/* 続ける(C)を作成する */
+	mi.wID = BTN_RESUME;
+	mi.dwTypeData = bEnglish ? "Continue(&R)" : "続ける(&C)";
+	InsertMenuItem(hMenuScript, 0, TRUE, &mi);
+
+	/* 次へ(N)を作成する */
+	mi.wID = BTN_NEXT;
+	mi.dwTypeData = bEnglish ? "Next(&N)" : "次へ(&N)";
+	InsertMenuItem(hMenuScript, 1, TRUE, &mi);
+
+	/* 停止(P)を作成する */
+	mi.wID = BTN_PAUSE;
+	mi.dwTypeData = bEnglish ? "Pause(&P)" : "停止(&P)";
+	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
 
 	/* バージョン(V)を作成する */
 	mi.wID = MENU_VERSION;
@@ -1249,6 +1270,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 {
 	const char szWndClass[] = "suikadebug";
 	WNDCLASSEX wcex;
+	RECT rc;
 	DWORD style;
 	int dw, dh;
 	BOOL bEnglish;
@@ -1277,9 +1299,12 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	dh = GetSystemMetrics(SM_CYCAPTION) +
 		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
+	/* メインウィンドウの矩形を取得する */
+	GetWindowRect(hWndMain, &rc);
+
 	/* ウィンドウを作成する */
 	hWndDebug = CreateWindowEx(0, szWndClass, "Suika Studio - Stopped", style,
-							   (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+							   rc.right + 10, rc.top,
 							   440 + dw, 640 + dh,
 							   NULL, NULL, GetModuleHandle(NULL), NULL);
 	if(!hWndDebug)
@@ -1569,7 +1594,7 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnChangeScript, TRUE);
 
 		/* 停止中のときは行番号テキストボックスを有効にする */
-		EnableWindow(hWndTextboxLine, FALSE);
+		EnableWindow(hWndTextboxLine, TRUE);
 
 		/* 停止中のときは行番号変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeLine, TRUE);
