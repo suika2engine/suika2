@@ -103,8 +103,8 @@ include ../sse.mk
 # Phony
 #
 
-install: suika.exe
-	cp suika.exe ../../
+install: suika-debug.exe
+	cp suika-debug.exe ../../
 
 clean:
-	rm -rf *.o *~ suika.exe log.txt sav tmp libroot
+	rm -rf *.o *~ suika-debug.exe log.txt sav tmp libroot
