@@ -477,8 +477,10 @@ int get_command_index_from_line_number(int line)
  */
 const char *get_line_string_at_line_num(int line)
 {
+#ifdef USE_DEBUGGER
 	if (comment_text[line] != NULL)
 		return comment_text[line];
+#endif
 
 	return cmd[get_command_index_from_line_number(line)].text;
 }
