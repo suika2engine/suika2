@@ -125,6 +125,10 @@ static void SyncBackImage(int x, int y, int w, int h);
 #define BTN_READ			(6)
 #define BTN_WRITE			(7)
 
+/* メニューのID */
+#define MENU_QUIT			(8)
+#define MENU_VERSION		(9)
+
 /* バージョン文字列 */
 static char szVersion[] =
 	"Suika Studio 0.6 (under development)\n"
@@ -163,7 +167,8 @@ static BOOL bReadPressed;
 static BOOL bWritePressed;
 
 /* 前方参照 */
-static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow);
+static VOID InitMenu(void);
+static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow);
 static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
 #endif
@@ -255,8 +260,8 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 #endif
 
 #ifdef USE_DEBUGGER
-	/* デバッガウィンドウを初期化する */
-	if(!InitDebugWindow(hInstance, nCmdShow))
+	/* デバッガを初期化する */
+	if(!InitDebugger(hInstance, nCmdShow))
 		return FALSE;
 #endif
 
@@ -355,11 +360,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ?
 												 WHITE_BRUSH : BLACK_BRUSH);
-#ifdef USE_DEBUGGER
-	wcex.lpszMenuName   = MAKEINTRESOURCE(IDR_MENU),
-#else
 	wcex.lpszMenuName   = NULL;
-#endif
 	wcex.lpszClassName  = szWindowClass;
 	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
 	if(!RegisterClassEx(&wcex))
@@ -401,6 +402,11 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 					   (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
 	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
+
+#ifdef USE_DEBUGGER
+	/* メニューを作成する */
+	InitMenu();
+#endif
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndMain, nCmdShow);
@@ -600,18 +606,13 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	int kc;
 
 #ifdef USE_DEBUGGER
-	/* デバッグウィンドウの場合 */
+	/* デバッグウィンドウと子ウィンドウ、あるいはWM_COMMANDの場合 */
 	if(hWnd == hWndDebug || hWnd == hWndBtnResume || hWnd == hWndBtnNext ||
 	   hWnd == hWndBtnPause || hWnd == hWndLabelScript ||
 	   hWnd == hWndTextboxScript || hWnd == hWndBtnChangeScript ||
 	   hWnd == hWndLabelLine || hWnd == hWndTextboxLine ||
 	   hWnd == hWndBtnChangeLine || hWnd == hWndLabelCommand ||
-	   hWnd == hWndTextboxCommand
-/*
-	   hWnd == hWndLabelVar || hWnd == hWndTextboxVar || hWnd == hWndBtnRead ||
-	   hWnd == hWndTextboxVal || hWnd == hWndBtnWrite
-*/
-		)
+	   hWnd == hWndTextboxCommand || message == WM_COMMAND)
 		return WndProcDebug(hWnd, message, wParam, lParam);
 #endif
 
@@ -1200,8 +1201,51 @@ bool play_video(const char *fname)
  */
 #ifdef USE_DEBUGGER
 
-/* デバッガウィンドウを初期化する */
-static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
+/* メニューを作成する */
+static VOID InitMenu(void)
+{
+	BOOL bEnglish = conf_language == NULL ? FALSE : TRUE;
+	HMENU hMenu = CreateMenu();
+	HMENU hMenuFile = CreatePopupMenu();
+	HMENU hMenuHelp = CreatePopupMenu();
+    MENUITEMINFO mi;
+
+	/* 1階層目を作成する準備を行う */
+	ZeroMemory(&mi, sizeof(MENUITEMINFO));
+	mi.cbSize = sizeof(MENUITEMINFO);
+	mi.fMask = MIIM_TYPE | MIIM_SUBMENU;
+	mi.fType = MFT_STRING;
+	mi.fState = MFS_ENABLED;
+
+	/* ファイル(F)を作成する */
+	mi.hSubMenu = hMenuFile;
+	mi.dwTypeData = bEnglish ? "File(&F)": "ファイル(&F)";
+	InsertMenuItem(hMenu, 0, TRUE, &mi);
+
+	/* ヘルプ(H)を作成する */
+	mi.hSubMenu = hMenuHelp;
+	mi.dwTypeData = bEnglish ? "Help(&H)": "ヘルプ(&H)";
+	InsertMenuItem(hMenu, 1, TRUE, &mi);
+
+	/* 2階層目を作成する準備を行う */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+
+	/* 終了(Q)を作成する */
+	mi.wID = MENU_QUIT;
+	mi.dwTypeData = bEnglish ? "Quit(&Q)" : "終了(&Q)";
+	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+
+	/* バージョン(V)を作成する */
+	mi.wID = MENU_VERSION;
+	mi.dwTypeData = bEnglish ? "Version(&V)" : "バージョン(&V)";
+	InsertMenuItem(hMenuHelp, 0, TRUE, &mi);
+
+	/* メニューをセットする */
+	SetMenu(hWndMain, hMenu);
+}
+
+/* デバッガを初期化する */
+static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 {
 	const char szWndClass[] = "suikadebug";
 	WNDCLASSEX wcex;
@@ -1368,10 +1412,10 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		/* nEvent = HIWORD(wParam); */
 		switch(nId)
 		{
-		case IDM_EXIT:
+		case MENU_QUIT:
 			DestroyWindow(hWndMain);
 			break;
-		case IDM_ABOUT:
+		case MENU_VERSION:
 			MessageBox(hWndMain, szVersion, "About", MB_OK | MB_ICONINFORMATION);
 			break;
 		case BTN_RESUME:
@@ -1518,8 +1562,14 @@ void set_running_state(bool running, bool request_stop)
 		/* 停止中のときは停止ボタンを無効にする */
 		EnableWindow(hWndBtnPause, FALSE);
 
+		/* 停止中のときはスクリプトテキストボックスを有効にする */
+		EnableWindow(hWndTextboxScript, TRUE);
+
 		/* 停止中のときはスクリプト変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeScript, TRUE);
+
+		/* 停止中のときは行番号テキストボックスを有効にする */
+		EnableWindow(hWndTextboxLine, FALSE);
 
 		/* 停止中のときは行番号変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeLine, TRUE);
