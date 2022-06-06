@@ -211,7 +211,7 @@ static bool pre_dispatch(void)
 		if (is_pause_pushed()) {
 			/* 停止が押された場合 */
 			dbg_request_stop = true;
-			set_running_state(false, true);
+			set_running_state(dbg_running, true);
 		}
 	}
 

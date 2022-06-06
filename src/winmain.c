@@ -124,6 +124,9 @@ static char szVersion[] =
 	"Suika Studio 0.6 (under development)\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.";
 
+/* メニュー */
+static HMENU hMenu;
+
 /* デバッガウィンドウ */
 static HWND hWndDebug;
 
@@ -614,10 +617,19 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
+	case WM_SYSKEYDOWN:
+		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
+		{
+			ToggleFullScreen();
+			return 0;
+		}
+		if(wParam != VK_F4)
+			break;
+		/* ALT+F4のとき */
+		/* fall-thru */
 	case WM_CLOSE:
 #ifdef USE_DEBUGGER
 		DestroyWindow(hWnd);
-		break;
 #endif
 		if (MessageBox(hWnd, conf_language == NULL ?
 					   "終了しますか？" : "Quit?",
@@ -674,13 +686,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 			on_event_key_release(KEY_DOWN);
 		}
 		return 0;
-	case WM_SYSKEYDOWN:
-		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
-		{
-			ToggleFullScreen();
-			return 0;
-		}
-		break;
 	case WM_SYSCHAR:
 		return 0;
 	case WM_NCLBUTTONDBLCLK:
@@ -1198,11 +1203,13 @@ bool play_video(const char *fname)
 static VOID InitMenu(void)
 {
 	BOOL bEnglish = conf_language == NULL ? FALSE : TRUE;
-	HMENU hMenu = CreateMenu();
 	HMENU hMenuFile = CreatePopupMenu();
 	HMENU hMenuScript = CreatePopupMenu();
 	HMENU hMenuHelp = CreatePopupMenu();
     MENUITEMINFO mi;
+
+	/* メニューを作成する */
+	hMenu = CreateMenu();
 
 	/* 1階層目を作成する準備を行う */
 	ZeroMemory(&mi, sizeof(MENUITEMINFO));
@@ -1231,27 +1238,28 @@ static VOID InitMenu(void)
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
-	mi.dwTypeData = bEnglish ? "Quit(&Q)" : "終了(&Q)";
+	mi.dwTypeData = bEnglish ? "Quit(&Q)\tAlt+Q" : "終了(&Q)\tAlt+Q";
 	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
-	mi.dwTypeData = bEnglish ? "Resume(&R)" : "続ける(&R)";
+	mi.dwTypeData = bEnglish ? "Resume(&R)\tAlt+R" : "続ける(&R)\tAlt+R";
 	InsertMenuItem(hMenuScript, 0, TRUE, &mi);
 
 	/* 次へ(N)を作成する */
 	mi.wID = ID_NEXT;
-	mi.dwTypeData = bEnglish ? "Next(&N)" : "次へ(&N)";
+	mi.dwTypeData = bEnglish ? "Next(&N)\tAlt+N" : "次へ(&N)\tAlt+N";
 	InsertMenuItem(hMenuScript, 1, TRUE, &mi);
 
 	/* 停止(P)を作成する */
 	mi.wID = ID_PAUSE;
-	mi.dwTypeData = bEnglish ? "Pause(&P)" : "停止(&P)";
+	mi.dwTypeData = bEnglish ? "Pause(&P)\tAlt+P" : "停止(&P)\tAlt+P";
 	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 
 	/* バージョン(V)を作成する */
 	mi.wID = ID_VERSION;
-	mi.dwTypeData = bEnglish ? "Version(&V)" : "バージョン(&V)";
+	mi.dwTypeData = bEnglish ? "Version(&V)" : "バージョン(&V)\tAlt+V";
 	InsertMenuItem(hMenuHelp, 0, TRUE, &mi);
 
 	/* メニューをセットする */
@@ -1296,9 +1304,11 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	GetWindowRect(hWndMain, &rc);
 
 	/* ウィンドウを作成する */
-	hWndDebug = CreateWindowEx(0, szWndClass, "Suika Studio - Stopped", style,
-							   rc.right + 10, rc.top,
-							   440 + dw, 640 + dh,
+	hWndDebug = CreateWindowEx(0, szWndClass, bEnglish ?
+							   "Stopped - Suika Studio" :
+							   "停止中 - Suika Studio",
+							   style,
+							   rc.right + 10, rc.top, 440 + dw, 480 + dh,
 							   NULL, NULL, GetModuleHandle(NULL), NULL);
 	if(!hWndDebug)
 		return FALSE;
@@ -1405,7 +1415,6 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 300, 420, 100,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
-	EnableWindow(hWndTextboxCommand, FALSE);
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
@@ -1425,6 +1434,12 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 
 	switch(message)
 	{
+	case WM_SYSKEYDOWN:
+		if(wParam == VK_F4)
+			return 0;
+		break;
+	case WM_CLOSE:
+		return 0;
 	case WM_COMMAND:
 		nId = LOWORD(wParam);
 		/* nEvent = HIWORD(wParam); */
@@ -1535,65 +1550,133 @@ int get_changed_line(void)
  */
 void set_running_state(bool running, bool request_stop)
 {
-	if(running)
-	{
-		/* 実行中のときのウィンドウのタイトルを設定する */
-		SetWindowText(hWndDebug, "Suika Studio - Running...");
+	BOOL bEnglish;
 
-		/* 実行中のときは続けるボタンを無効にする */
+	/* 英語モードかどうかチェックする */
+	bEnglish = conf_language != NULL;
+
+	/* 停止によりコマンドの完了を待機中のとき */
+	if(request_stop)
+	{
+		/* ウィンドウのタイトルを設定する */
+		SetWindowText(hWndDebug, bEnglish ?
+					  "Waiting for finish command... - Suika Studio" :
+					  "コマンドの完了を待機中... - Suika Studio");
+
+		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
 
-		/* 実行中のときは次へボタンを無効にする */
+		/* 次へボタンを無効にする */
 		EnableWindow(hWndBtnNext, FALSE);
 
-		/* 実行中のときは停止ボタンを有効にする */
-		EnableWindow(hWndBtnPause, TRUE);
-
-		/* 実行中のときはスクリプトテキストボックスを無効にする */
-		EnableWindow(hWndTextboxScript, FALSE);
-
-		/* 実行中のときはスクリプト変更ボタンを無効にする */
-		EnableWindow(hWndBtnChangeScript, FALSE);
-
-		/* 実行中のときは行番号テキストボックスを無効にする */
-		EnableWindow(hWndTextboxLine, FALSE);
-
-		/* 実行中のときは行番号変更ボタンを無効にする */
-		EnableWindow(hWndBtnChangeLine, FALSE);
-
-		/* 実行中のときはコマンドテキストボックスを無効にする */
-		EnableWindow(hWndTextboxCommand, FALSE);
-	}
-	else
-	{
-		/* 停止中のときのウィンドウのタイトルを設定する */
-		SetWindowText(hWndDebug, request_stop ?
-					  "Suika Studio - Waiting..." :
-					  "Suika Studio - Stopped");
-
-		/* 停止中のときは続けるボタンを有効にする(停止予約中は無効にする) */
-		EnableWindow(hWndBtnResume, request_stop ? FALSE : TRUE);
-
-		/* 停止中のときは次へボタンを有効にする(停止予約中は無効にする) */
-		EnableWindow(hWndBtnNext, request_stop ? FALSE : TRUE);
-
-		/* 停止中のときは停止ボタンを無効にする */
+		/* 停止ボタンを無効にする */
 		EnableWindow(hWndBtnPause, FALSE);
 
-		/* 停止中のときはスクリプトテキストボックスを有効にする */
+		/* スクリプトテキストボックスを無効にする */
+		EnableWindow(hWndTextboxScript, FALSE);
+
+		/* スクリプト変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeScript, FALSE);
+
+		/* 行番号テキストボックスを無効にする */
+		EnableWindow(hWndTextboxLine, FALSE);
+
+		/* 行番号変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeLine, FALSE);
+
+		/* コマンドテキストボックスを無効にする */
+		EnableWindow(hWndTextboxCommand, FALSE);
+
+		/* 続けるメニューを無効にする */
+		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
+
+		/* 次へメニューを無効にする */
+		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
+
+		/* 停止メニューを無効にする */
+		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
+	}
+	/* 実行中のとき */
+	else if(running)
+	{
+		/* ウィンドウのタイトルを設定する */
+		SetWindowText(hWndDebug, bEnglish ?
+					  "Running... - Suika Studio" :
+					  "実行中... - Suika Studio");
+
+		/* 続けるボタンを無効にする */
+		EnableWindow(hWndBtnResume, FALSE);
+
+		/* 次へボタンを無効にする */
+		EnableWindow(hWndBtnNext, FALSE);
+
+		/* 停止ボタンを有効にする */
+		EnableWindow(hWndBtnPause, TRUE);
+
+		/* スクリプトテキストボックスを無効にする */
+		EnableWindow(hWndTextboxScript, FALSE);
+
+		/* スクリプト変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeScript, FALSE);
+
+		/* 行番号テキストボックスを無効にする */
+		EnableWindow(hWndTextboxLine, FALSE);
+
+		/* 行番号変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeLine, FALSE);
+
+		/* コマンドテキストボックスを無効にする */
+		EnableWindow(hWndTextboxCommand, FALSE);
+
+		/* 続けるメニューを無効にする */
+		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
+
+		/* 次へメニューを無効にする */
+		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
+
+		/* 停止メニューを有効にする */
+		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);
+	}
+	/* 完全に停止中のとき */
+	else
+	{
+		/* ウィンドウのタイトルを設定する */
+		SetWindowText(hWndDebug, bEnglish ?
+					  "Stopped - Suika Studio" :
+					  "停止中 - Suika Studio");
+
+		/* 続けるボタンを有効にする */
+		EnableWindow(hWndBtnResume, TRUE);
+
+		/* 次へボタンを有効にする */
+		EnableWindow(hWndBtnNext, TRUE);
+
+		/* 停止ボタンを無効にする */
+		EnableWindow(hWndBtnPause, FALSE);
+
+		/* スクリプトテキストボックスを有効にする */
 		EnableWindow(hWndTextboxScript, TRUE);
 
-		/* 停止中のときはスクリプト変更ボタンを有効にする */
+		/* スクリプト変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeScript, TRUE);
 
-		/* 停止中のときは行番号テキストボックスを有効にする */
+		/* 行番号テキストボックスを有効にする */
 		EnableWindow(hWndTextboxLine, TRUE);
 
-		/* 停止中のときは行番号変更ボタンを有効にする */
+		/* 行番号変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeLine, TRUE);
 
-		/* 実行中のときはコマンドテキストボックスを有効にする */
+		/* コマンドテキストボックスを有効にする */
 		EnableWindow(hWndTextboxCommand, TRUE);
+
+		/* 続けるメニューを有効にする */
+		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);
+
+		/* 次へメニューを有効にする */
+		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
+
+		/* 停止メニューを無効にする */
+		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 	}
 }
 
