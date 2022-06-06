@@ -573,7 +573,7 @@ static bool read_script_from_file(const char *fname)
 		line++;
 	}		
 
-	script_lines = line == 0 ? 0 : (line - 1);
+	script_lines = line;
 
 	close_rfile(rf);
 	return result;

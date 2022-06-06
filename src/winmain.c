@@ -168,6 +168,7 @@ static VOID InitMenu(void);
 static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow);
 static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
+static VOID OnClickListBox(void);
 #endif
 
 /*
@@ -612,7 +613,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	   hWnd == hWndTextboxScript || hWnd == hWndBtnChangeScript ||
 	   hWnd == hWndLabelLine || hWnd == hWndTextboxLine ||
 	   hWnd == hWndBtnChangeLine || hWnd == hWndLabelCommand ||
-	   hWnd == hWndTextboxCommand || message == WM_COMMAND)
+	   hWnd == hWndTextboxCommand || hWnd == hWndListbox ||
+	   message == WM_COMMAND)
 		return WndProcDebug(hWnd, message, wParam, lParam);
 #endif
 
@@ -1443,7 +1445,6 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 									 WPARAM wParam,
 									 LPARAM lParam)
 {
-	char line[10];
 	int nId;
 	int nEvent;
 
@@ -1459,19 +1460,20 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 	case WM_CLOSE:
 		DestroyWindow(hWndMain);
 		return 0;
+	case WM_KEYDOWN:
+		if(hWnd == hWndListbox)
+//		if(hWnd == hWndListbox && wParam == VK_RETURN)
+		{
+			OnClickListBox();
+			return 0;
+		}
+		break;
 	case WM_COMMAND:
 		nId = LOWORD(wParam);
 		nEvent = HIWORD(wParam);
 		if(nEvent == LBN_DBLCLK)
 		{
-			if(!bRunning)
-			{
-				snprintf(line, sizeof(line), "%d",
-						 (int)SendMessage(hWndListbox, LB_GETCURSEL, 0, 0) +
-						 1);
-				SetWindowText(hWndTextboxLine, line);
-				bChangeLinePressed = TRUE;
-			}
+			OnClickListBox();
 			return 0;
 		}
 		switch(nId)
@@ -1511,6 +1513,20 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+/* リストボックスのクリックと改行キー入力を処理する */
+static VOID OnClickListBox(void)
+{
+	char line[10];
+	if(!bRunning)
+	{
+		snprintf(line, sizeof(line), "%d",
+				 (int)SendMessage(hWndListbox, LB_GETCURSEL, 0, 0) +
+				 1);
+		SetWindowText(hWndTextboxLine, line);
+		bChangeLinePressed = TRUE;
+	}
 }
 
 /* 再開ボタンが押されたか調べる */
@@ -1740,7 +1756,7 @@ void update_debug_info(bool script_changed)
 		{
 			command = get_line_string_at_line_num(line_num);
 			command = conv_utf8_to_native(command);
-			SendMessage(hWndListbox , LB_ADDSTRING , 0, (LPARAM)command);
+			SendMessage(hWndListbox, LB_ADDSTRING, 0, (LPARAM)command);
 		}
 	}
 	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)get_line_num(), 0);
