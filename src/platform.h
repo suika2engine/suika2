@@ -88,4 +88,37 @@ bool title_dialog(void);
 /* ビデオを再生する */
 bool play_video(const char *fname);
 
+/*
+ * デバッガの場合のみ
+ */
+#ifdef USE_DEBUGGER
+
+/* 再開ボタンが押されたか調べる */
+bool is_resume_pushed(void);
+
+/* 次へボタンが押されたか調べる */
+bool is_next_pushed(void);
+
+/* 停止ボタンが押されたか調べる */
+bool is_pause_pushed(void);
+
+/* 実行するスクリプトファイルが変更されたか調べる */
+bool is_script_changed(void);
+
+/* 変更された実行するスクリプトファイル名を取得する */
+const char *get_changed_script(void);
+
+/* 実行する行番号が変更されたか調べる */
+bool is_line_changed(void);
+
+/* 変更された実行するスクリプトファイル名を取得する */
+int get_changed_line(void);
+
+/* コマンドの実行中状態を設定する */
+void set_running_state(bool running, bool request_stop);
+
+/* デバッグ情報を更新する */
+void update_debug_info(void);
+#endif
+
 #endif

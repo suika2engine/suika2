@@ -219,6 +219,13 @@ bool move_to_command_index(int index)
 		return false;
 
 	cur_index = index;
+
+#ifdef USE_DEBUGGER
+	if (dbg_is_stop_requested())
+		dbg_stop();
+	update_debug_info();
+#endif
+
 	return true;
 }
 
@@ -232,6 +239,12 @@ bool move_to_next_command(void)
 	/* スクリプトの末尾に達した場合 */
 	if (++cur_index == cmd_size)
 		return false;
+
+#ifdef USE_DEBUGGER
+	if (dbg_is_stop_requested())
+		dbg_stop();
+	update_debug_info();
+#endif
 
 	return true;
 }
@@ -254,6 +267,12 @@ bool move_to_label(const char *label)
 		/* ラベルがみつかった場合 */
 		if (strcmp(c->param[LABEL_PARAM_LABEL], label) == 0) {
 			cur_index = i + 1;
+
+#ifdef USE_DEBUGGER
+			if (dbg_is_stop_requested())
+				dbg_stop();
+			update_debug_info();
+#endif
 
 			/* スクリプトの末尾に達した場合 */
 			if (cur_index == cmd_size)

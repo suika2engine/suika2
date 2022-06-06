@@ -17,13 +17,11 @@
 #include "suika.h"
 #include "dsound.h"
 #include "dsvideo.h"
+#include "resource.h"
 
 #ifdef USE_DIRECT3D
 #include "d3drender.h"
 #endif
-
-/* リソースIDのため */
-#include "resource.h"
 
 #ifdef SSE_VERSIONING
 #include "x86.h"
@@ -115,6 +113,57 @@ static void SyncBackImage(int x, int y, int w, int h);
 #endif
 
 /*
+ * デバッガを使う場合
+ */
+#ifdef USE_DEBUGGER
+/* ボタンのID */
+#define BTN_RESUME			(1)
+#define BTN_NEXT			(2)
+#define BTN_PAUSE			(3)
+#define BTN_CHANGE_SCRIPT	(4)
+#define BTN_CHANGE_LINE		(5)
+#define BTN_READ			(6)
+#define BTN_WRITE			(7)
+
+/* デバッガウィンドウ */
+static HWND hWndDebug;
+
+/* デバッガウィンドウのコンポーネント */
+static HWND hWndBtnResume;
+static HWND hWndBtnNext;
+static HWND hWndBtnPause;
+static HWND hWndLabelScript;
+static HWND hWndTextboxScript;
+static HWND hWndBtnChangeScript;
+static HWND hWndLabelLine;
+static HWND hWndTextboxLine;
+static HWND hWndBtnChangeLine;
+static HWND hWndLabelCommand;
+static HWND hWndTextboxCommand;
+/*
+static HWND hWndLabelVar;
+static HWND hWndTextboxVar;
+static HWND hWndBtnRead;
+static HWND hWndTextboxVal;
+static HWND hWndBtnWrite;
+*/
+
+/* ボタンが押下されたか */
+static BOOL bResumePressed;
+static BOOL bNextPressed;
+static BOOL bPausePressed;
+static BOOL bChangeScriptPressed;
+static BOOL bChangeLinePressed;
+static BOOL bReadPressed;
+static BOOL bWritePressed;
+
+/* 前方参照 */
+static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow);
+static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
+									 LPARAM lParam);
+#endif
+
+/*
  * WinMain
  */
 int WINAPI WinMain(
@@ -197,6 +246,12 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 #ifndef USE_DIRECT3D 
 	/* バックイメージを作成する */
 	if(!CreateBackImage())
+		return FALSE;
+#endif
+
+#ifdef USE_DEBUGGER
+	/* デバッガウィンドウを初期化する */
+	if(!InitDebugWindow(hInstance, nCmdShow))
 		return FALSE;
 #endif
 
@@ -530,6 +585,23 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 								LPARAM lParam)
 {
 	int kc;
+
+#ifdef USE_DEBUGGER
+	/* デバッグウィンドウの場合 */
+	if(hWnd == hWndDebug || hWnd == hWndBtnResume || hWnd == hWndBtnNext ||
+	   hWnd == hWndBtnPause || hWnd == hWndLabelScript ||
+	   hWnd == hWndTextboxScript || hWnd == hWndBtnChangeScript ||
+	   hWnd == hWndLabelLine || hWnd == hWndTextboxLine ||
+	   hWnd == hWndBtnChangeLine || hWnd == hWndLabelCommand ||
+	   hWnd == hWndTextboxCommand
+/*
+	   hWnd == hWndLabelVar || hWnd == hWndTextboxVar || hWnd == hWndBtnRead ||
+	   hWnd == hWndTextboxVal || hWnd == hWndBtnWrite
+*/
+		)
+		return WndProcDebug(hWnd, message, wParam, lParam);
+#endif
+
 	switch(message)
 	{
 	case WM_DESTROY:
@@ -890,8 +962,8 @@ const char *conv_utf8_to_native(const char *utf8_message)
 	wszMessage[cch] = L'\0';
 
 	/* ワイド文字からSJISに変換する */
-	WideCharToMultiByte(CP_THREAD_ACP, 0, wszMessage, (int)wcslen(wszMessage),
-						szNativeMessage, NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
+	WideCharToMultiByte(CP_THREAD_ACP, 0, wszMessage, -1, szNativeMessage,
+						NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
 
 	return szNativeMessage;
 }
@@ -1101,3 +1173,316 @@ bool play_video(const char *fname)
 	free(path);
 	return ret;
 }
+
+/*
+ * デバッガの実装
+ */
+#ifdef USE_DEBUGGER
+
+/* デバッガウィンドウを初期化する */
+static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
+{
+	const char szWndClass[] = "suikadebug";
+	WNDCLASSEX wcex;
+	DWORD style;
+	int dw, dh;
+	BOOL bEnglish;
+
+	/* ウィンドウクラスを登録する */
+	wcex.cbSize			= sizeof(WNDCLASSEX);
+	wcex.style          = 0;
+	wcex.lpfnWndProc    = WndProc;
+	wcex.cbClsExtra     = 0;
+	wcex.cbWndExtra     = 0;
+	wcex.hInstance      = hInstance;
+	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SUIKA));
+	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground  = (HBRUSH)COLOR_BACKGROUND + 1;
+	wcex.lpszMenuName   = NULL;
+	wcex.lpszClassName  = szWndClass;
+	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	if(!RegisterClassEx(&wcex))
+		return FALSE;
+
+	/* ウィンドウのスタイルを決める */
+	style = WS_CAPTION | WS_OVERLAPPED;
+
+	/* フレームのサイズを取得する */
+	dw = GetSystemMetrics(SM_CXFIXEDFRAME) * 2;
+	dh = GetSystemMetrics(SM_CYCAPTION) +
+		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
+
+	/* ウィンドウを作成する */
+	hWndDebug = CreateWindowEx(0, szWndClass, "Stopped", style,
+							   (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+							   480 + dw, 640 + dh,
+							   NULL, NULL, GetModuleHandle(NULL), NULL);
+	if(!hWndDebug)
+		return FALSE;
+
+	/* 英語モードかどうかチェックする */
+	bEnglish = conf_language != NULL;
+
+	/* 続けるボタンを作成する */
+	hWndBtnResume = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Continue" : "続ける",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		10, 10, 100, 40,
+		hWndDebug, (HMENU)BTN_RESUME,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* 次へボタンを作成する */
+	hWndBtnNext = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Next" : "次へ",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		120, 10, 100, 40,
+		hWndDebug, (HMENU)BTN_NEXT,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* 停止ボタンを作成する */
+	hWndBtnPause = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Pause" : "停止",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		230, 10, 100, 40,
+		hWndDebug, (HMENU)BTN_PAUSE,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	EnableWindow(hWndBtnPause, FALSE);
+
+	/* スクリプトラベルを作成する */
+	hWndLabelScript = CreateWindow(
+		"STATIC",
+		bEnglish ? "Script:" : "スクリプト",
+		WS_VISIBLE | WS_CHILD,
+		10, 70, 100, 30,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* スクリプト名のテキストボックスを作成する */
+	hWndTextboxScript = CreateWindow(
+		"EDIT",
+		NULL,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER,
+		10, 100, 300, 30,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* スクリプトの変更ボタンを作成する */
+	hWndBtnChangeScript = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Change" : "変更",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		320, 100, 80, 30,
+		hWndDebug, (HMENU)BTN_CHANGE_SCRIPT,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* 行番号ラベルを作成する */
+	hWndLabelLine = CreateWindow(
+		"STATIC",
+		bEnglish ? "Line:" : "行番号:",
+		WS_VISIBLE | WS_CHILD,
+		10, 150, 100, 30,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* 行番号のテキストボックスを作成する */
+	hWndTextboxLine = CreateWindow(
+		"EDIT",
+		NULL,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER,
+		10, 180, 80, 30,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* 行番号の変更ボタンを作成する */
+	hWndBtnChangeLine = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Change" : "変更",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		100, 180, 80, 30,
+		hWndDebug, (HMENU)BTN_CHANGE_LINE,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* コマンドのラベルを作成する */
+	hWndLabelCommand = CreateWindow(
+		"STATIC",
+		bEnglish ? "Command:" : "コマンド:",
+		WS_VISIBLE | WS_CHILD,
+		10, 230, 100, 30,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* コマンドのテキストボックスを作成する */
+	hWndTextboxCommand = CreateWindow(
+		"EDIT",
+		NULL,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE,
+		10, 260, 460, 100,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* ウィンドウを表示する */
+	ShowWindow(hWndDebug, nCmdShow);
+	UpdateWindow(hWndDebug);
+
+	return TRUE;
+}
+
+/* デバッガ関連のウィンドウプロシージャの処理 */
+static LRESULT CALLBACK WndProcDebug(HWND hWnd,
+									 UINT message,
+									 WPARAM wParam,
+									 LPARAM lParam)
+{
+	switch(message)
+	{
+	case WM_COMMAND:
+		switch(LOWORD(wParam))
+		{
+		case BTN_RESUME:
+			bResumePressed = TRUE;
+			break;
+		case BTN_NEXT:
+			bNextPressed = TRUE;
+			break;
+		case BTN_PAUSE:
+			bPausePressed = TRUE;
+			break;
+		case BTN_CHANGE_SCRIPT:
+			bChangeScriptPressed = TRUE;
+			break;
+		case BTN_CHANGE_LINE:
+			bChangeLinePressed = TRUE;
+			break;
+		case BTN_READ:
+			bReadPressed = TRUE;
+			break;
+		case BTN_WRITE:
+			bWritePressed = TRUE;
+			break;
+		}
+		return 0;
+	default:
+		break;
+	}
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+/* 再開ボタンが押されたか調べる */
+bool is_resume_pushed(void)
+{
+	bool ret = bResumePressed;
+	bResumePressed = FALSE;
+	return ret;
+}
+
+/* 次へボタンが押されたか調べる */
+bool is_next_pushed(void)
+{
+	bool ret = bNextPressed;
+	bNextPressed = FALSE;
+	return ret;
+}
+
+/* 停止ボタンが押されたか調べる */
+bool is_pause_pushed(void)
+{
+	bool ret = bPausePressed;
+	bPausePressed = FALSE;
+	return ret;
+}
+
+/* 実行するスクリプトファイルが変更されたか調べる */
+bool is_script_changed(void)
+{
+	bool ret = bChangeScriptPressed;
+	bChangeScriptPressed = FALSE;
+	return ret;
+}
+
+/* 変更された実行するスクリプトファイル名を取得する */
+const char *get_changed_script(void)
+{
+	static char script[256];
+
+	GetWindowText(hWndTextboxScript, script, sizeof(script) - 1);
+
+	return script;
+}
+
+/* 実行する行番号が変更されたか調べる */
+bool is_line_changed(void)
+{
+	bool ret = bChangeLinePressed;
+	bChangeLinePressed = FALSE;
+	return ret;
+}
+
+/* 変更された実行するスクリプトファイル名を取得する */
+int get_changed_line(void)
+{
+	static char text[256];
+	int line;
+
+	GetWindowText(hWndTextboxLine, text, sizeof(text) - 1);
+
+	line = atoi(text);
+
+	return line;
+}
+
+/*
+ * コマンドの実行中状態を設定する
+ */
+void set_running_state(bool running, bool request_stop)
+{
+	if(running)
+	{
+		/* 実行中のときはウィンドウのタイトルをRunningにする */
+		SetWindowText(hWndDebug, "Running");
+
+		/* 実行中のときは続けるボタンを無効にする */
+		EnableWindow(hWndBtnResume, FALSE);
+
+		/* 実行中のときは次へボタンを無効にする */
+		EnableWindow(hWndBtnNext, FALSE);
+
+		/* 実行中のときは停止ボタンを有効にする */
+		EnableWindow(hWndBtnPause, TRUE);
+	}
+	else
+	{
+		/* 停止中のときはウィンドウのタイトルをStoppedかStoppingにする */
+		SetWindowText(hWndDebug, request_stop ? "Stopping" : "Stopped");
+
+		/* 停止中のときは続けるボタンを有効にする(停止予約中は無効にする) */
+		EnableWindow(hWndBtnResume, request_stop ? FALSE : TRUE);
+
+		/* 停止中のときは次へボタンを有効にする(停止予約中は無効にする) */
+		EnableWindow(hWndBtnNext, request_stop ? FALSE : TRUE);
+
+		/* 停止中のときは停止ボタンを無効にする */
+		EnableWindow(hWndBtnPause, FALSE);
+	}
+}
+
+/*
+ * デバッグ情報を更新する
+ */
+void update_debug_info(void)
+{
+	char line[10];
+
+	/* スクリプトファイル名を設定する */
+	SetWindowText(hWndTextboxScript, get_script_file_name());
+
+	/* 行番号を設定する */
+	snprintf(line, sizeof(line), "%d", get_line_num() + 1);
+	SetWindowText(hWndTextboxLine, line);
+
+	/* コマンド文字列を設定する */
+	SetWindowText(hWndTextboxCommand, conv_utf8_to_native(get_line_string()));
+}
+#endif

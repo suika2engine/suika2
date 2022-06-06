@@ -129,4 +129,13 @@ bool is_save_load_enabled(void);
 void set_non_interruptible(bool mode);
 bool is_non_interruptible(void);
 
+/*
+ * デバッガ
+ */
+#ifdef USE_DEBUGGER
+bool dbg_is_running(void);
+void dbg_stop(void);
+bool dbg_is_stop_requested(void);
+#endif
+
 #endif

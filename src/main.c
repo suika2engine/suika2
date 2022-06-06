@@ -70,10 +70,19 @@ static bool flag_save_load_enabled = true;
 /* 割り込み不可モードであるか */
 static bool flag_non_interruptible;
 
-/*
- * 前方参照
- */
+/* 前方参照 */
 static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont);
+
+#ifdef USE_DEBUGGER
+/* 実行中であるか */
+static bool dbg_running;
+
+/* 停止が要求されているか */
+static bool dbg_request_stop;
+
+/* 前方参照 */
+static bool pre_dispatch(void);
+#endif
 
 /*
  * ゲームループの初期化処理を実行する
@@ -106,6 +115,11 @@ void init_game_loop(void)
 	check_retrospect_finish_flag();
 	check_load_flag();
 	check_restore_flag();
+
+#ifdef USE_DEBUGGER
+	dbg_running = false;
+	update_debug_info();
+#endif
 }
 
 /*
@@ -125,6 +139,11 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	} else {
 		/* コマンドを実行する */
 		do {
+#ifdef USE_DEBUGGER
+			/* 実行中になるまでディスパッチに進めない */
+			if (!pre_dispatch())
+				break;
+#endif
 			if (!dispatch_command(x, y, w, h, &cont))
 				return false;
 		} while (cont);
@@ -147,22 +166,55 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	return true;
 }
 
-/*
- * コマンドをディスパッチする
- */
-static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
+/* デバッガ用のコマンドディスパッチの前処理 */
+static bool pre_dispatch(void)
 {
-	/* ラベルをスキップする */
-	while (get_command_type() == COMMAND_LABEL) {
-		if (!move_to_next_command())
-			return false;
+	if (!dbg_running) {
+		/* 停止中の場合 */
+		if (is_resume_pushed()) {
+			/* 続けるが押された場合 */
+			dbg_running = true;
+			set_running_state(true, false);
+
+			/* コマンドディスパッチへ進む */
+			return true;
+		} else if (is_next_pushed()) {
+			/* 次へが押された場合 */
+			dbg_running = true;
+			dbg_request_stop = true;
+			set_running_state(true, true);
+
+			/* コマンドディスパッチへ進む */
+			return true;
+		}
+		/* 続けるか次へが押されるまでコマンドディスパッチへ進まない */
+		return false;
+	} else {
+		/* 実行中の場合 */
+		if (is_pause_pushed()) {
+			/* 停止が押された場合 */
+			dbg_request_stop = true;
+			set_running_state(false, true);
+		}
 	}
 
+	/* コマンドディスパッチへ進む */
+	return true;
+}
+
+/* コマンドをディスパッチする */
+static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
+{
 	/* 次のコマンドを同じフレーム内で実行するか */
 	*cont = false;
 
 	/* コマンドをディスパッチする */
 	switch (get_command_type()) {
+	case COMMAND_LABEL:
+		*cont = true;
+		if (!move_to_next_command())
+			return false;
+		break;
 	case COMMAND_MESSAGE:
 	case COMMAND_SERIF:
 		if (!message_command(x, y, w, h))
@@ -276,6 +328,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		assert(COMMAND_DISPATCH_NOT_IMPLEMENTED);
 		break;
 	}
+
+#ifdef USE_DEBUGGER
+	*cont = false;
+#endif
 
 	return true;
 }
@@ -468,3 +524,33 @@ bool is_non_interruptible(void)
 {
 	return flag_non_interruptible;
 }
+
+#ifdef USE_DEBUGGER
+/*
+ * デバッガの実行状態を取得する
+ */
+bool dbg_is_running(void)
+{
+	return dbg_running;
+}
+
+/*
+ * デバッガの実行状態を停止にする
+ */
+void dbg_stop(void)
+{
+	dbg_running = false;
+	dbg_request_stop = false;
+
+	/* デバッグウィンドウの状態を変更する */
+	set_running_state(false, false);
+}
+
+/*
+ * デバッガで停止がリクエストされたか取得する
+ */
+bool dbg_is_stop_requested(void)
+{
+	return dbg_request_stop;
+}
+#endif
