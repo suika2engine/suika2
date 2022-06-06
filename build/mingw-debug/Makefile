@@ -82,7 +82,7 @@ OBJS = \
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
 %.o: ../mingw/res/%.rc
-	$(WINDRES) $< $@
+	$(WINDRES) -DUSE_DEBUGGER $< $@
 
 #
 # Target

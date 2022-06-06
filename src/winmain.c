@@ -350,7 +350,11 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ?
 												 WHITE_BRUSH : BLACK_BRUSH);
+#ifdef USE_DEBUGGER
+	wcex.lpszMenuName   = MAKEINTRESOURCE(IDR_MENU),
+#else
 	wcex.lpszMenuName   = NULL;
+#endif
 	wcex.lpszClassName  = szWindowClass;
 	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
 	if(!RegisterClassEx(&wcex))
@@ -1323,18 +1327,6 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	EnableWindow(hWndTextboxCommand, FALSE);
-
-	/* フォントを設定する */
-/*
-	LOGFONT logfont;
-	ZeroMemory(&logfont, sizeof(LOGFONT));
-	logfont.lfCharSet = DEFAULT_CHARSET;
-	logfont.lfHeight = -30;
-	HFONT hFont = CreateFontIndirect(&logfont);
-	SendMessage(hWndTextboxScript, WM_SETFONT, (WPARAM)hFont, TRUE);
-	SendMessage(hWndTextboxLine, WM_SETFONT, (WPARAM)hFont, TRUE);
-	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFont, TRUE);
-*/
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);

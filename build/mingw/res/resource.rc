@@ -41,6 +41,25 @@ IDI_SMALL               ICON    DISCARDABLE     "small.ico"
 
 CREATE_PROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "manifest.xml"
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+#ifdef USE_DEBUGGER
+IDR_MENU MENU DISCARDABLE
+BEGIN
+    POPUP "ファイル(&F)"
+    BEGIN
+        MENUITEM "アプリケーションの終了(&X)", IDM_EXIT
+    END
+
+    POPUP "ヘルプ(&H)"
+    BEGIN
+        MENUITEM "バージョン情報(&A)...", IDM_ABOUT
+    END
+END
+#endif
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
