@@ -1213,9 +1213,9 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
 	/* ウィンドウを作成する */
-	hWndDebug = CreateWindowEx(0, szWndClass, "Stopped", style,
+	hWndDebug = CreateWindowEx(0, szWndClass, "Suika Studio - Stopped", style,
 							   (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
-							   480 + dw, 640 + dh,
+							   440 + dw, 640 + dh,
 							   NULL, NULL, GetModuleHandle(NULL), NULL);
 	if(!hWndDebug)
 		return FALSE;
@@ -1228,7 +1228,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Continue" : "続ける",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		10, 10, 100, 40,
+		10, 10, 100, 80,
 		hWndDebug, (HMENU)BTN_RESUME,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1237,7 +1237,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Next" : "次へ",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		120, 10, 100, 40,
+		120, 10, 100, 80,
 		hWndDebug, (HMENU)BTN_NEXT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1246,7 +1246,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Pause" : "停止",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		230, 10, 100, 40,
+		230, 10, 100, 80,
 		hWndDebug, (HMENU)BTN_PAUSE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	EnableWindow(hWndBtnPause, FALSE);
@@ -1254,9 +1254,9 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 	/* スクリプトラベルを作成する */
 	hWndLabelScript = CreateWindow(
 		"STATIC",
-		bEnglish ? "Script:" : "スクリプト",
+		bEnglish ? "Script:" : "スクリプト:",
 		WS_VISIBLE | WS_CHILD,
-		10, 70, 100, 30,
+		10, 110, 100, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1265,7 +1265,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER,
-		10, 100, 300, 30,
+		10, 140, 300, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1274,7 +1274,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Change" : "変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		320, 100, 80, 30,
+		320, 140, 80, 30,
 		hWndDebug, (HMENU)BTN_CHANGE_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1283,7 +1283,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"STATIC",
 		bEnglish ? "Line:" : "行番号:",
 		WS_VISIBLE | WS_CHILD,
-		10, 150, 100, 30,
+		10, 190, 100, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1292,7 +1292,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER,
-		10, 180, 80, 30,
+		10, 220, 80, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1301,7 +1301,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Change" : "変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		100, 180, 80, 30,
+		100, 220, 80, 30,
 		hWndDebug, (HMENU)BTN_CHANGE_LINE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1310,7 +1310,7 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"STATIC",
 		bEnglish ? "Command:" : "コマンド:",
 		WS_VISIBLE | WS_CHILD,
-		10, 230, 100, 30,
+		10, 270, 100, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
@@ -1319,9 +1319,22 @@ static BOOL InitDebugWindow(HINSTANCE hInstance, int nCmdShow)
 		"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE,
-		10, 260, 460, 100,
+		10, 300, 420, 100,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	EnableWindow(hWndTextboxCommand, FALSE);
+
+	/* フォントを設定する */
+/*
+	LOGFONT logfont;
+	ZeroMemory(&logfont, sizeof(LOGFONT));
+	logfont.lfCharSet = DEFAULT_CHARSET;
+	logfont.lfHeight = -30;
+	HFONT hFont = CreateFontIndirect(&logfont);
+	SendMessage(hWndTextboxScript, WM_SETFONT, (WPARAM)hFont, TRUE);
+	SendMessage(hWndTextboxLine, WM_SETFONT, (WPARAM)hFont, TRUE);
+	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFont, TRUE);
+*/
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
@@ -1428,7 +1441,7 @@ int get_changed_line(void)
 
 	GetWindowText(hWndTextboxLine, text, sizeof(text) - 1);
 
-	line = atoi(text);
+	line = atoi(text) - 1;
 
 	return line;
 }
@@ -1440,8 +1453,8 @@ void set_running_state(bool running, bool request_stop)
 {
 	if(running)
 	{
-		/* 実行中のときはウィンドウのタイトルをRunningにする */
-		SetWindowText(hWndDebug, "Running");
+		/* 実行中のときのウィンドウのタイトルを設定する */
+		SetWindowText(hWndDebug, "Suika Studio - Running...");
 
 		/* 実行中のときは続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
@@ -1451,11 +1464,19 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 実行中のときは停止ボタンを有効にする */
 		EnableWindow(hWndBtnPause, TRUE);
+
+		/* 実行中のときはスクリプト変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeScript, FALSE);
+
+		/* 実行中のときは行番号変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeLine, FALSE);
 	}
 	else
 	{
-		/* 停止中のときはウィンドウのタイトルをStoppedかStoppingにする */
-		SetWindowText(hWndDebug, request_stop ? "Stopping" : "Stopped");
+		/* 停止中のときのウィンドウのタイトルを設定する */
+		SetWindowText(hWndDebug, request_stop ?
+					  "Suika Studio - Waiting..." :
+					  "Suika Studio - Stopped");
 
 		/* 停止中のときは続けるボタンを有効にする(停止予約中は無効にする) */
 		EnableWindow(hWndBtnResume, request_stop ? FALSE : TRUE);
@@ -1465,6 +1486,12 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 停止中のときは停止ボタンを無効にする */
 		EnableWindow(hWndBtnPause, FALSE);
+
+		/* 停止中のときはスクリプト変更ボタンを有効にする */
+		EnableWindow(hWndBtnChangeScript, TRUE);
+
+		/* 停止中のときは行番号変更ボタンを有効にする */
+		EnableWindow(hWndBtnChangeLine, TRUE);
 	}
 }
 

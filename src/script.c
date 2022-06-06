@@ -191,6 +191,11 @@ bool load_script(const char *fname)
 
 	/* リターンポイントを無効にする */
 	set_return_point(-1);
+
+#ifdef USE_DEBUGGER
+	update_debug_info();
+#endif
+
 	return true;
 }
 
@@ -433,6 +438,20 @@ float get_float_param(int index)
 
 	/* 浮動小数点数に変換して返す */
 	return (float)atof(c->param[index]);
+}
+
+/*
+ * 指定した行番号以降の最初のコマンドインデックスを取得する
+ */
+int get_command_index_from_line_number(int line)
+{
+	int i;
+
+	for (i = 0; i < cmd_size; i++)
+		if (cmd[i].line >= line)
+			return i;
+
+	return -1;
 }
 
 /*

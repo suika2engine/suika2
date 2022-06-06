@@ -554,4 +554,7 @@ int get_int_param(int index);
 /* 浮動小数点数のコマンドパラメータを取得する */
 float get_float_param(int index);
 
+/* 指定した行番号以降の最初のコマンドインデックスを取得する */
+int get_command_index_from_line_number(int line);
+
 #endif

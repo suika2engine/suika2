@@ -166,6 +166,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	return true;
 }
 
+#ifdef USE_DEBUGGER
 /* デバッガ用のコマンドディスパッチの前処理 */
 static bool pre_dispatch(void)
 {
@@ -186,7 +187,23 @@ static bool pre_dispatch(void)
 
 			/* コマンドディスパッチへ進む */
 			return true;
+		} else if (is_script_changed()) {
+			/* 実行するスクリプトが変更された場合 */
+			const char *script = get_changed_script();
+			struct rfile *rf = open_rfile(SCRIPT_DIR, script, false);
+			if (rf == NULL)
+				return false;
+			else if (!load_script(script))
+				exit(1); /* 救済措置はない */
+			close_rfile(rf);
+		} else if (is_line_changed()) {
+			/* 行番号が変更された場合 */
+			int index = get_command_index_from_line_number(
+				get_changed_line());
+			if (index != -1)
+				move_to_command_index(index);
 		}
+
 		/* 続けるか次へが押されるまでコマンドディスパッチへ進まない */
 		return false;
 	} else {
@@ -201,6 +218,7 @@ static bool pre_dispatch(void)
 	/* コマンドディスパッチへ進む */
 	return true;
 }
+#endif
 
 /* コマンドをディスパッチする */
 static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
