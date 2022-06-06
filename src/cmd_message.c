@@ -650,6 +650,13 @@ static void draw_click(void)
 	int lap;
 
 	/* 入力があったら終了する */
+#ifdef USE_DEBUGGER
+	if (!process_click_first && dbg_is_stop_requested()) {
+		if (!have_voice ||
+		    (have_voice && is_mixer_sound_finished(VOICE_STREAM)))
+			stop_command_repetition();
+	} else
+#endif
 	if (is_skippable() && !is_auto_mode() &&
 	    (is_skip_mode() || is_control_pressed)) {
 		if (!is_non_interruptible()) {
