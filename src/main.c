@@ -118,7 +118,7 @@ void init_game_loop(void)
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
-	update_debug_info();
+	update_debug_info(true);
 #endif
 }
 

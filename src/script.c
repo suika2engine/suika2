@@ -24,6 +24,7 @@
  *  - 2021/07/19 @chsに対応
  *  - 2022/05/11 @videoに対応
  *  - 2022/06/05 @skipに対応
+ *  - 2022/06/06 デバッガに対応
  */
 
 #ifdef _MSC_VER
@@ -50,6 +51,14 @@ static struct command {
 	char *param[PARAM_SIZE];
 } cmd[SCRIPT_CMD_SIZE];
 static int cmd_size;
+
+#ifdef USE_DEBUGGER
+/* コメント行のテキスト */
+static char *comment_text[SCRIPT_CMD_SIZE];
+#endif
+
+/* 行数 */
+int script_lines;
 
 /*
  * 命令の種類
@@ -153,6 +162,15 @@ void cleanup_script(void)
 			cmd[i].param[j] = NULL;
 	}
 
+#ifdef USE_DEBUGGER
+	for (i = 0; i < SCRIPT_CMD_SIZE; i++) {
+		if (comment_text[i] != NULL) {
+			free(comment_text[i]);
+			comment_text[i] = NULL;
+		}
+	}
+#endif
+
 	if (cur_script != NULL) {
 		free(cur_script);
 		cur_script = NULL;
@@ -193,7 +211,7 @@ bool load_script(const char *fname)
 	set_return_point(-1);
 
 #ifdef USE_DEBUGGER
-	update_debug_info();
+	update_debug_info(true);
 #endif
 
 	return true;
@@ -228,7 +246,7 @@ bool move_to_command_index(int index)
 #ifdef USE_DEBUGGER
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info();
+	update_debug_info(false);
 #endif
 
 	return true;
@@ -248,7 +266,7 @@ bool move_to_next_command(void)
 #ifdef USE_DEBUGGER
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info();
+	update_debug_info(false);
 #endif
 
 	return true;
@@ -276,7 +294,7 @@ bool move_to_label(const char *label)
 #ifdef USE_DEBUGGER
 			if (dbg_is_stop_requested())
 				dbg_stop();
-			update_debug_info();
+			update_debug_info(false);
 #endif
 
 			/* スクリプトの末尾に達した場合 */
@@ -455,6 +473,25 @@ int get_command_index_from_line_number(int line)
 }
 
 /*
+ *  指定した行番号の行全体を取得する
+ */
+const char *get_line_string_at_line_num(int line)
+{
+	if (comment_text[line] != NULL)
+		return comment_text[line];
+
+	return cmd[get_command_index_from_line_number(line)].text;
+}
+
+/*
+ * 行の数を取得する
+ */
+int get_line_count(void)
+{
+	return script_lines;
+}
+
+/*
  * スクリプトファイルの読み込み
  */
 
@@ -496,6 +533,13 @@ static bool read_script_from_file(const char *fname)
 		case '\0':
 		case '#':
 			/* 空行とコメント行を読み飛ばす */
+#ifdef USE_DEBUGGER
+			comment_text[line] = strdup(buf);
+			if (comment_text[line] == NULL) {
+				log_memory();
+				return false;
+			}
+#endif
 			break;
 		case '@':
 			/* 命令行をパースする */
@@ -528,6 +572,8 @@ static bool read_script_from_file(const char *fname)
 		}
 		line++;
 	}		
+
+	script_lines = line == 0 ? 0 : (line - 1);
 
 	close_rfile(rf);
 	return result;

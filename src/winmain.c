@@ -124,6 +124,9 @@ static char szVersion[] =
 	"Suika Studio 0.6 (under development)\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.";
 
+/* 実行状態 */
+BOOL bRunning;
+
 /* メニュー */
 static HMENU hMenu;
 
@@ -142,6 +145,7 @@ static HWND hWndTextboxLine;
 static HWND hWndBtnChangeLine;
 static HWND hWndLabelCommand;
 static HWND hWndTextboxCommand;
+static HWND hWndListbox;
 /*
 static HWND hWndLabelVar;
 static HWND hWndTextboxVar;
@@ -1308,7 +1312,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 							   "Stopped - Suika Studio" :
 							   "停止中 - Suika Studio",
 							   style,
-							   rc.right + 10, rc.top, 440 + dw, 410 + dh,
+							   rc.right + 10, rc.top, 440 + dw, 720 + dh,
 							   NULL, NULL, GetModuleHandle(NULL), NULL);
 	if(!hWndDebug)
 		return FALSE;
@@ -1416,6 +1420,16 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
+	/* スクリプトのテキストボックスを作成する */
+	hWndListbox = CreateWindow(
+		"LISTBOX",
+		NULL,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_VSCROLL |
+		LBS_NOTIFY,
+		10, 420, 420, 300,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
 	UpdateWindow(hWndDebug);
@@ -1429,20 +1443,37 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 									 WPARAM wParam,
 									 LPARAM lParam)
 {
+	char line[10];
 	int nId;
-	/* int nEvent; */
+	int nEvent;
 
 	switch(message)
 	{
 	case WM_SYSKEYDOWN:
 		if(wParam == VK_F4)
+		{
+			DestroyWindow(hWndMain);
 			return 0;
+		}
 		break;
 	case WM_CLOSE:
+		DestroyWindow(hWndMain);
 		return 0;
 	case WM_COMMAND:
 		nId = LOWORD(wParam);
-		/* nEvent = HIWORD(wParam); */
+		nEvent = HIWORD(wParam);
+		if(nEvent == LBN_DBLCLK)
+		{
+			if(!bRunning)
+			{
+				snprintf(line, sizeof(line), "%d",
+						 (int)SendMessage(hWndListbox, LB_GETCURSEL, 0, 0) +
+						 1);
+				SetWindowText(hWndTextboxLine, line);
+				bChangeLinePressed = TRUE;
+			}
+			return 0;
+		}
 		switch(nId)
 		{
 		case ID_QUIT:
@@ -1551,6 +1582,8 @@ int get_changed_line(void)
 void set_running_state(bool running, bool request_stop)
 {
 	BOOL bEnglish;
+
+	bRunning = running;
 
 	/* 英語モードかどうかチェックする */
 	bEnglish = conf_language != NULL;
@@ -1683,9 +1716,11 @@ void set_running_state(bool running, bool request_stop)
 /*
  * デバッグ情報を更新する
  */
-void update_debug_info(void)
+void update_debug_info(bool script_changed)
 {
 	char line[10];
+	const char *command;
+	int line_num;
 
 	/* スクリプトファイル名を設定する */
 	SetWindowText(hWndTextboxScript, get_script_file_name());
@@ -1696,5 +1731,18 @@ void update_debug_info(void)
 
 	/* コマンド文字列を設定する */
 	SetWindowText(hWndTextboxCommand, conv_utf8_to_native(get_line_string()));
+
+	/* スクリプトのリストボックスを設定する */
+	if(script_changed)
+	{
+		SendMessage(hWndListbox, LB_RESETCONTENT, 0 , 0);
+		for(line_num = 0; line_num < get_line_count(); line_num++)
+		{
+			command = get_line_string_at_line_num(line_num);
+			command = conv_utf8_to_native(command);
+			SendMessage(hWndListbox , LB_ADDSTRING , 0, (LPARAM)command);
+		}
+	}
+	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)get_line_num(), 0);
 }
 #endif

@@ -118,7 +118,7 @@ int get_changed_line(void);
 void set_running_state(bool running, bool request_stop);
 
 /* デバッグ情報を更新する */
-void update_debug_info(void);
+void update_debug_info(bool script_changed);
 #endif
 
 #endif
