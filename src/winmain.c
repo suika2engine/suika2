@@ -1308,7 +1308,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 							   "Stopped - Suika Studio" :
 							   "停止中 - Suika Studio",
 							   style,
-							   rc.right + 10, rc.top, 440 + dw, 480 + dh,
+							   rc.right + 10, rc.top, 440 + dw, 410 + dh,
 							   NULL, NULL, GetModuleHandle(NULL), NULL);
 	if(!hWndDebug)
 		return FALSE;
@@ -1339,7 +1339,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Pause" : "停止",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		230, 10, 100, 80,
+		330, 10, 100, 80,
 		hWndDebug, (HMENU)ID_PAUSE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	EnableWindow(hWndBtnPause, FALSE);
