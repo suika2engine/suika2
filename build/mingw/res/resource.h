@@ -21,3 +21,15 @@
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
+
+#define IDR_ACCEL		(149)
+
+#define ID_RESUME		(1150)
+#define ID_NEXT			(1151)
+#define ID_PAUSE		(1152)
+#define ID_CHANGE_SCRIPT	(1153)
+#define ID_CHANGE_LINE		(1154)
+#define ID_READ			(1155)
+#define ID_WRITE		(1156)
+#define ID_QUIT			(1157)
+#define ID_VERSION		(1158)

@@ -41,6 +41,22 @@ IDI_SMALL               ICON    DISCARDABLE     "small.ico"
 
 CREATE_PROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "manifest.xml"
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerators
+//
+
+#ifdef USE_DEBUGGER
+IDR_ACCEL ACCELERATORS
+BEGIN
+	"q", ID_QUIT, ALT
+	"r", ID_RESUME, ALT
+	"n", ID_NEXT, ALT
+	"p", ID_PAUSE, ALT
+	"v", ID_VERSION, ALT
+END
+#endif
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //

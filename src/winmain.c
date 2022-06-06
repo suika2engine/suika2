@@ -64,6 +64,9 @@ static HDC hBitmapDC;
 static HBITMAP hBitmap;
 #endif
 
+/* アクセラレータ */
+static HACCEL hAccel;
+
 /* イメージオブジェクト */
 static struct image *BackImage;
 
@@ -116,19 +119,6 @@ static void SyncBackImage(int x, int y, int w, int h);
  * デバッガを使う場合
  */
 #ifdef USE_DEBUGGER
-/* ボタンのID */
-#define BTN_RESUME			(1)
-#define BTN_NEXT			(2)
-#define BTN_PAUSE			(3)
-#define BTN_CHANGE_SCRIPT	(4)
-#define BTN_CHANGE_LINE		(5)
-#define BTN_READ			(6)
-#define BTN_WRITE			(7)
-
-/* メニューのID */
-#define MENU_QUIT			(8)
-#define MENU_VERSION		(9)
-
 /* バージョン文字列 */
 static char szVersion[] =
 	"Suika Studio 0.6 (under development)\n"
@@ -406,6 +396,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #ifdef USE_DEBUGGER
 	/* メニューを作成する */
 	InitMenu();
+
+	/* アクセラレータをロードする */
+	hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
 #endif
 
 	/* ウィンドウを表示する */
@@ -556,7 +549,7 @@ static BOOL SyncEvents(void)
 	{
 		if(msg.message == WM_QUIT)
 			return FALSE;
-		if(!TranslateAccelerator(msg.hwnd, NULL, &msg))
+		if(!TranslateAccelerator(msg.hwnd, hAccel, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -1237,27 +1230,27 @@ static VOID InitMenu(void)
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 
 	/* 終了(Q)を作成する */
-	mi.wID = MENU_QUIT;
+	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? "Quit(&Q)" : "終了(&Q)";
 	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
-	mi.wID = BTN_RESUME;
-	mi.dwTypeData = bEnglish ? "Continue(&R)" : "続ける(&C)";
+	mi.wID = ID_RESUME;
+	mi.dwTypeData = bEnglish ? "Resume(&R)" : "続ける(&R)";
 	InsertMenuItem(hMenuScript, 0, TRUE, &mi);
 
 	/* 次へ(N)を作成する */
-	mi.wID = BTN_NEXT;
+	mi.wID = ID_NEXT;
 	mi.dwTypeData = bEnglish ? "Next(&N)" : "次へ(&N)";
 	InsertMenuItem(hMenuScript, 1, TRUE, &mi);
 
 	/* 停止(P)を作成する */
-	mi.wID = BTN_PAUSE;
+	mi.wID = ID_PAUSE;
 	mi.dwTypeData = bEnglish ? "Pause(&P)" : "停止(&P)";
 	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
 
 	/* バージョン(V)を作成する */
-	mi.wID = MENU_VERSION;
+	mi.wID = ID_VERSION;
 	mi.dwTypeData = bEnglish ? "Version(&V)" : "バージョン(&V)";
 	InsertMenuItem(hMenuHelp, 0, TRUE, &mi);
 
@@ -1319,7 +1312,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		bEnglish ? "Continue" : "続ける",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		10, 10, 100, 80,
-		hWndDebug, (HMENU)BTN_RESUME,
+		hWndDebug, (HMENU)ID_RESUME,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
 	/* 次へボタンを作成する */
@@ -1328,7 +1321,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		bEnglish ? "Next" : "次へ",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		120, 10, 100, 80,
-		hWndDebug, (HMENU)BTN_NEXT,
+		hWndDebug, (HMENU)ID_NEXT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
 	/* 停止ボタンを作成する */
@@ -1337,7 +1330,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		bEnglish ? "Pause" : "停止",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		230, 10, 100, 80,
-		hWndDebug, (HMENU)BTN_PAUSE,
+		hWndDebug, (HMENU)ID_PAUSE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	EnableWindow(hWndBtnPause, FALSE);
 
@@ -1365,7 +1358,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		bEnglish ? "Change" : "変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		320, 140, 80, 30,
-		hWndDebug, (HMENU)BTN_CHANGE_SCRIPT,
+		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
 	/* 行番号ラベルを作成する */
@@ -1392,7 +1385,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		bEnglish ? "Change" : "変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		100, 220, 80, 30,
-		hWndDebug, (HMENU)BTN_CHANGE_LINE,
+		hWndDebug, (HMENU)ID_CHANGE_LINE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
 	/* コマンドのラベルを作成する */
@@ -1437,31 +1430,31 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		/* nEvent = HIWORD(wParam); */
 		switch(nId)
 		{
-		case MENU_QUIT:
+		case ID_QUIT:
 			DestroyWindow(hWndMain);
 			break;
-		case MENU_VERSION:
+		case ID_VERSION:
 			MessageBox(hWndMain, szVersion, "About", MB_OK | MB_ICONINFORMATION);
 			break;
-		case BTN_RESUME:
+		case ID_RESUME:
 			bResumePressed = TRUE;
 			break;
-		case BTN_NEXT:
+		case ID_NEXT:
 			bNextPressed = TRUE;
 			break;
-		case BTN_PAUSE:
+		case ID_PAUSE:
 			bPausePressed = TRUE;
 			break;
-		case BTN_CHANGE_SCRIPT:
+		case ID_CHANGE_SCRIPT:
 			bChangeScriptPressed = TRUE;
 			break;
-		case BTN_CHANGE_LINE:
+		case ID_CHANGE_LINE:
 			bChangeLinePressed = TRUE;
 			break;
-		case BTN_READ:
+		case ID_READ:
 			bReadPressed = TRUE;
 			break;
-		case BTN_WRITE:
+		case ID_WRITE:
 			bWritePressed = TRUE;
 			break;
 		default:
