@@ -1325,7 +1325,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	/* 続けるボタンを作成する */
 	hWndBtnResume = CreateWindow(
 		"BUTTON",
-		bEnglish ? "Continue" : "続ける",
+		bEnglish ? "Resume" : "続ける",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		10, 10, 100, 80,
 		hWndDebug, (HMENU)ID_RESUME,
@@ -1343,7 +1343,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	/* 停止ボタンを作成する */
 	hWndBtnPause = CreateWindow(
 		"BUTTON",
-		bEnglish ? "Pause" : "停止",
+		bEnglish ? "(Paused)" : "(停止中)",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		330, 10, 100, 80,
 		hWndDebug, (HMENU)ID_PAUSE,
@@ -1427,7 +1427,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"LISTBOX",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_VSCROLL |
-		LBS_NOTIFY,
+		LBS_NOTIFY | LBS_WANTKEYBOARDINPUT,
 		10, 420, 420, 300,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1460,9 +1460,8 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 	case WM_CLOSE:
 		DestroyWindow(hWndMain);
 		return 0;
-	case WM_KEYDOWN:
-		if(hWnd == hWndListbox)
-//		if(hWnd == hWndListbox && wParam == VK_RETURN)
+	case WM_VKEYTOITEM:
+		if(hWnd == hWndDebug && LOWORD(wParam) == VK_RETURN)
 		{
 			OnClickListBox();
 			return 0;
@@ -1614,12 +1613,15 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
+		SetWindowText(hWndBtnResume, bEnglish ? "(Resume)" : "(続ける)");
 
 		/* 次へボタンを無効にする */
 		EnableWindow(hWndBtnNext, FALSE);
+		SetWindowText(hWndBtnNext, bEnglish ? "(Next)" : "(次へ)");
 
 		/* 停止ボタンを無効にする */
 		EnableWindow(hWndBtnPause, FALSE);
+		SetWindowText(hWndBtnPause, bEnglish ? "(Waiting)" : "(完了待ち)");
 
 		/* スクリプトテキストボックスを無効にする */
 		EnableWindow(hWndTextboxScript, FALSE);
@@ -1655,12 +1657,15 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
+		SetWindowText(hWndBtnResume, bEnglish ? "(Resume)" : "(続ける)");
 
 		/* 次へボタンを無効にする */
 		EnableWindow(hWndBtnNext, FALSE);
+		SetWindowText(hWndBtnNext, bEnglish ? "(Next)" : "(次へ)");
 
 		/* 停止ボタンを有効にする */
 		EnableWindow(hWndBtnPause, TRUE);
+		SetWindowText(hWndBtnPause, bEnglish ? "Pause" : "停止");
 
 		/* スクリプトテキストボックスを無効にする */
 		EnableWindow(hWndTextboxScript, FALSE);
@@ -1696,12 +1701,15 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 続けるボタンを有効にする */
 		EnableWindow(hWndBtnResume, TRUE);
+		SetWindowText(hWndBtnResume, bEnglish ? "Resume" : "続ける");
 
 		/* 次へボタンを有効にする */
 		EnableWindow(hWndBtnNext, TRUE);
+		SetWindowText(hWndBtnNext, bEnglish ? "Next" : "次へ");
 
 		/* 停止ボタンを無効にする */
 		EnableWindow(hWndBtnPause, FALSE);
+		SetWindowText(hWndBtnPause, bEnglish ? "(Pausing)" : "(停止中)");
 
 		/* スクリプトテキストボックスを有効にする */
 		EnableWindow(hWndTextboxScript, TRUE);
@@ -1737,6 +1745,7 @@ void update_debug_info(bool script_changed)
 	char line[10];
 	const char *command;
 	int line_num;
+	int top;
 
 	/* スクリプトファイル名を設定する */
 	SetWindowText(hWndTextboxScript, get_script_file_name());
@@ -1759,6 +1768,9 @@ void update_debug_info(bool script_changed)
 			SendMessage(hWndListbox, LB_ADDSTRING, 0, (LPARAM)command);
 		}
 	}
-	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)get_line_num(), 0);
+	line_num = get_line_num();
+	top = (line_num - 8 < 0) ? 0 : (line_num - 8);
+	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
+	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
 }
 #endif
