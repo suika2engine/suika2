@@ -146,13 +146,6 @@ static HWND hWndBtnChangeLine;
 static HWND hWndLabelCommand;
 static HWND hWndTextboxCommand;
 static HWND hWndListbox;
-/*
-static HWND hWndLabelVar;
-static HWND hWndTextboxVar;
-static HWND hWndBtnRead;
-static HWND hWndTextboxVal;
-static HWND hWndBtnWrite;
-*/
 
 /* ボタンが押下されたか */
 static BOOL bResumePressed;
