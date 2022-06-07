@@ -1430,7 +1430,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndTextboxLine = CreateWindow(
 		"EDIT",
 		NULL,
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER,
+		WS_TABSTOP | ES_NUMBER | WS_VISIBLE | WS_CHILD | WS_BORDER,
 		10, 190, 80, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1460,7 +1460,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndTextboxCommand = CreateWindow(
 		"EDIT",
 		NULL,
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOVSCROLL |
+		ES_MULTILINE | ES_READONLY,
 		10, 250, 420, 100,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
