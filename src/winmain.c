@@ -387,10 +387,12 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	SetRectEmpty(&rc);
 	rc.right = conf_window_width;
 	rc.bottom = conf_window_height;
+	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndMain, GWL_STYLE),
 #ifdef USE_DEBUGGER
-	rc.bottom += GetSystemMetrics(SM_CYMENU);
+					   TRUE,
+#else
+					   FALSE,
 #endif
-	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndMain, GWL_STYLE), FALSE,
 					   (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
 	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
@@ -1320,8 +1322,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 
 	/* ウィンドウのサイズを調整する(for Windows 10) */
 	SetRectEmpty(&rc);
-	rc.right = WIN_WIDTH + dw;
-	rc.bottom = WIN_HEIGHT + dh;
+	rc.right = WIN_WIDTH;
+	rc.bottom = WIN_HEIGHT;
 	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndDebug, GWL_STYLE), FALSE,
 					   (DWORD)GetWindowLong(hWndDebug, GWL_EXSTYLE));
 	SetWindowPos(hWndDebug, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
