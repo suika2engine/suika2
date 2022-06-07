@@ -566,4 +566,9 @@ int get_line_count(void);
 /* コマンドの数を取得する */
 int get_command_count(void);
 
+#ifdef USE_DEBUGGER
+/* デバッグ用の仮のスクリプトをロードする */
+bool load_debug_script(void);
+#endif
+
 #endif

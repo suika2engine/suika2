@@ -161,8 +161,7 @@ static BOOL bNextPressed;
 static BOOL bPausePressed;
 static BOOL bChangeScriptPressed;
 static BOOL bChangeLinePressed;
-static BOOL bReadPressed;
-static BOOL bWritePressed;
+static BOOL bReloadPressed;
 
 /* 前方参照 */
 static VOID InitMenu(void);
@@ -171,7 +170,6 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
-static VOID OnReload(void);
 #endif
 
 /*
@@ -1247,10 +1245,17 @@ static VOID InitMenu(void)
 	/* 2階層目を作成する準備を行う */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 
+	/* スクリプトを開く(Q)を作成する */
+	mi.wID = ID_SELECT_SCRIPT;
+	mi.dwTypeData = bEnglish ?
+		"Open script(&Q)\tAlt+O" :
+		"スクリプトを開く(&O)\tAlt+O";
+	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? "Quit(&Q)\tAlt+Q" : "終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
@@ -1577,14 +1582,8 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		case ID_CHANGE_LINE:
 			bChangeLinePressed = TRUE;
 			break;
-		case ID_READ:
-			bReadPressed = TRUE;
-			break;
-		case ID_WRITE:
-			bWritePressed = TRUE;
-			break;
 		case ID_RELOAD:
-			OnReload();
+			bReloadPressed = TRUE;
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -1620,7 +1619,7 @@ static VOID OnSelectScript(void)
 
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = hWndDebug;
+	ofn.hwndOwner = hWndMain;
 	ofn.lpstrFilter = conf_language == NULL ?
 		"テキストファイル\0*.txt;\0すべてのファイル(*.*)\0*.*\0\0" :
 		"Text Files\0*.txt;\0All Files(*.*)\0*.*\0\0";
@@ -1642,34 +1641,9 @@ static VOID OnSelectScript(void)
 	}
 }
 
-/* 再読み込みを実行する */
-VOID OnReload(void)
-{
-	int line, cmd;
-
-	line = get_line_num();
-
-	/* リロードする */
-	if (!load_script(get_script_file_name())) {
-		DestroyWindow(hWndMain);
-		return;
-	}
-
-	/* 元の行の最寄りコマンドにジャンプする */
-	cmd = get_command_index_from_line_number(line);
-	if (cmd == -1) {
-		/* 削除された末尾の場合、最終行にする */
-		cmd = get_command_count() - 1;
-	}
-
-	/* ジャンプする */
-	move_to_command_index(cmd);
-
-	/* UIを更新する */
-	update_debug_info(true);
-}
-
-/* 再開ボタンが押されたか調べる */
+/*
+ * 再開ボタンが押されたか調べる
+ */
 bool is_resume_pushed(void)
 {
 	bool ret = bResumePressed;
@@ -1677,7 +1651,9 @@ bool is_resume_pushed(void)
 	return ret;
 }
 
-/* 次へボタンが押されたか調べる */
+/*
+ * 次へボタンが押されたか調べる
+ */
 bool is_next_pushed(void)
 {
 	bool ret = bNextPressed;
@@ -1685,7 +1661,9 @@ bool is_next_pushed(void)
 	return ret;
 }
 
-/* 停止ボタンが押されたか調べる */
+/*
+ * 停止ボタンが押されたか調べる
+ */
 bool is_pause_pushed(void)
 {
 	bool ret = bPausePressed;
@@ -1693,7 +1671,9 @@ bool is_pause_pushed(void)
 	return ret;
 }
 
-/* 実行するスクリプトファイルが変更されたか調べる */
+/*
+ * 実行するスクリプトファイルが変更されたか調べる
+ */
 bool is_script_changed(void)
 {
 	bool ret = bChangeScriptPressed;
@@ -1701,7 +1681,9 @@ bool is_script_changed(void)
 	return ret;
 }
 
-/* 変更された実行するスクリプトファイル名を取得する */
+/*
+ * 変更された実行するスクリプトファイル名を取得する
+ */
 const char *get_changed_script(void)
 {
 	static char script[256];
@@ -1711,7 +1693,9 @@ const char *get_changed_script(void)
 	return script;
 }
 
-/* 実行する行番号が変更されたか調べる */
+/*
+ * 実行する行番号が変更されたか調べる
+ */
 bool is_line_changed(void)
 {
 	bool ret = bChangeLinePressed;
@@ -1719,7 +1703,9 @@ bool is_line_changed(void)
 	return ret;
 }
 
-/* 変更された実行するスクリプトファイル名を取得する */
+/*
+ * 変更された実行するスクリプトファイル名を取得する
+ */
 int get_changed_line(void)
 {
 	static char text[256];
@@ -1730,6 +1716,16 @@ int get_changed_line(void)
 	line = atoi(text) - 1;
 
 	return line;
+}
+
+/*
+ * スクリプトがアップデートされたかを調べる
+ */
+bool is_script_updated(void)
+{
+	bool ret = bReloadPressed;
+	bReloadPressed = FALSE;
+	return ret;
 }
 
 /*
@@ -1794,6 +1790,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
+
+		/* スクリプトを開くメニューを無効にする */
+		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
 
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
@@ -1863,6 +1862,9 @@ void set_running_state(bool running, bool request_stop)
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
 
+		/* スクリプトを開くメニューを無効にする */
+		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
+
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 
@@ -1928,6 +1930,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 再読み込みボタンを有効にする */
 		EnableWindow(hWndBtnReload, TRUE);
+
+		/* スクリプトを開くメニューを有効にする */
+		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_ENABLED);
 
 		/* 続けるメニューを有効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);

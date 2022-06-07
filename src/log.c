@@ -412,6 +412,7 @@ void log_script_op_error(const char *op)
  */
 void log_script_parse_footer(const char *file, int line, const char *buf)
 {
+	line++;
 	if (is_english_mode()) {
 		log_error("> Script format error: %s:%d\n", file, line);
 		log_error("> %s\n", conv_utf8_to_native(buf));

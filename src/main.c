@@ -170,6 +170,9 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 /* デバッガ用のコマンドディスパッチの前処理 */
 static bool pre_dispatch(void)
 {
+	char *scr;
+	int line, cmd;
+
 	if (!dbg_running) {
 		/* 停止中の場合 */
 		if (is_resume_pushed()) {
@@ -189,19 +192,60 @@ static bool pre_dispatch(void)
 			return true;
 		} else if (is_script_changed()) {
 			/* 実行するスクリプトが変更された場合 */
-			const char *script = get_changed_script();
-			struct rfile *rf = open_rfile(SCRIPT_DIR, script, false);
-			if (rf == NULL)
+			scr = strdup(get_changed_script());
+			if (scr == NULL) {
+				log_memory();
 				return false;
-			else if (!load_script(script))
-				exit(1); /* 救済措置はない */
-			close_rfile(rf);
+			}
+			if (strcmp(scr, "ERROR") == 0) {
+				free(scr);
+				return false;
+			}
+			if (!load_script(scr)) {
+				free(scr);
+				if (!load_debug_script())
+					return false;
+			}
+			free(scr);
 		} else if (is_line_changed()) {
 			/* 行番号が変更された場合 */
 			int index = get_command_index_from_line_number(
 				get_changed_line());
 			if (index != -1)
 				move_to_command_index(index);
+		} else if (is_script_updated()) {
+			/* 実行中のスクリプトファイル名を取得する */
+			scr = strdup(get_script_file_name());
+			if (scr == NULL) {
+				log_memory();
+				return false;
+			}
+			if (strcmp(scr, "ERROR") == 0) {
+				free(scr);
+				return false;
+			}
+
+			/* 現在実行中の行番号を取得する */
+			line = get_line_num();
+
+			/* 同じファイルを再度読み込みする */
+			if (!load_script(scr)) {
+				free(scr);
+				/* エラー時の仮スクリプトを読み込む */
+				if (!load_debug_script())
+					return false;
+			}
+			free(scr);
+
+			/* 元の行番号の最寄りコマンドを取得する */
+			cmd = get_command_index_from_line_number(line);
+			if (cmd == -1) {
+				/* 削除された末尾の場合、最終コマンドにする */
+				cmd = get_command_count() - 1;
+			}
+
+			/* ジャンプする */
+			move_to_command_index(cmd);
 		}
 
 		/* 続けるか次へが押されるまでコマンドディスパッチへ進まない */

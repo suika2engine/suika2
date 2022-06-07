@@ -199,12 +199,20 @@ bool load_script(const char *fname)
 
 	/* スクリプトファイルを読み込む */
 	if (!read_script_from_file(fname))
+#ifdef USE_DEBUGGER
+		return load_debug_script();
+#else
 		return false;
+#endif
 
 	/* コマンドが含まれない場合 */
 	if (cmd_size == 0) {
 		log_script_no_command(fname);
+#ifdef USE_DEBUGGER
+		return load_debug_script();
+#else
 		return false;
+#endif
 	}
 
 	/* リターンポイントを無効にする */
@@ -786,3 +794,41 @@ static bool parse_label(int index, const char *file, int line, const char *buf)
 	/* 成功 */
 	return true;
 }
+
+#ifdef USE_DEBUGGER
+/*
+ * デバッグ用の仮のスクリプトをロードする
+ */
+bool load_debug_script(void)
+{
+	cleanup_script();
+
+	cur_script = strdup("ERROR");
+	if (cur_script == NULL) {
+		log_memory();
+		cleanup_script();
+		return false;
+	}
+
+	cur_index = 0;
+	cmd_size = 1;
+	script_lines = 1;
+
+	cmd[0].type = COMMAND_MESSAGE;
+	cmd[0].line = 0;
+	cmd[0].text = strdup(conf_language == NULL ?
+			     /* "エラーが発生しました" (in utf-8) */
+			     "\xe3\x82\xa8\xe3\x83\xa9\xe3\x83\xbc\xe3\x81\x8c"
+			     "\xe7\x99\xba\xe7\x94\x9f\xe3\x81\x97\xe3\x81\xbe"
+			     "\xe3\x81\x97\xe3\x81\x9f" :
+			     "Error occured.");
+	if (cmd[0].text == NULL) {
+		log_memory();
+		cleanup_script();
+		return false;
+	}
+
+	update_debug_info(true);
+	return true;
+}
+#endif

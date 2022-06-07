@@ -114,6 +114,9 @@ bool is_line_changed(void);
 /* 変更された実行するスクリプトファイル名を取得する */
 int get_changed_line(void);
 
+/* スクリプトがアップデートされたかを調べる  */
+bool is_script_updated(void);
+
 /* コマンドの実行中状態を設定する */
 void set_running_state(bool running, bool request_stop);
 
