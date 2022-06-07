@@ -34,3 +34,4 @@
 #define ID_WRITE		157
 #define ID_QUIT			158
 #define ID_VERSION		159
+#define ID_RELOAD		160

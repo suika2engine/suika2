@@ -151,6 +151,7 @@ static HWND hWndLabelCommand;
 static HWND hWndTextboxCommand;
 static HWND hWndLabelContent;
 static HWND hWndListbox;
+static HWND hWndBtnReload;
 
 /* ボタンが押下されたか */
 static BOOL bResumePressed;
@@ -168,6 +169,7 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
+static VOID OnReload(void);
 #endif
 
 /*
@@ -1284,7 +1286,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	int dw, dh;
 	BOOL bEnglish;
 	const int WIN_WIDTH = 440;
-	const int WIN_HEIGHT = 700;
+	const int WIN_HEIGHT = 735;
 
 	/* 英語モードかどうかチェックする */
 	bEnglish = conf_language == NULL ? FALSE : TRUE;
@@ -1473,7 +1475,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"STATIC",
 		bEnglish ? "Script content:" : "スクリプトの内容:",
 		WS_VISIBLE | WS_CHILD,
-		10, 360, 100, 30,
+		10, 360, 100, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelContent, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1488,6 +1490,16 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndListbox, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
+
+	/* 再読み込みボタンを作成する */
+	hWndBtnReload = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Reload" : "再読み込み",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WIN_WIDTH - 10 - 80, WIN_HEIGHT - 10 - 30, 80, 30,
+		hWndDebug, (HMENU)ID_RELOAD,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
@@ -1564,6 +1576,9 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		case ID_WRITE:
 			bWritePressed = TRUE;
 			break;
+		case ID_RELOAD:
+			OnReload();
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -1618,6 +1633,33 @@ static VOID OnSelectScript(void)
 		SetWindowText(hWndTextboxScript, file_ptr);
 		bChangeScriptPressed = TRUE;
 	}
+}
+
+/* 再読み込みを実行する */
+VOID OnReload(void)
+{
+	int line, cmd;
+
+	line = get_line_num();
+
+	/* リロードする */
+	if (!load_script(get_script_file_name())) {
+		DestroyWindow(hWndMain);
+		return;
+	}
+
+	/* 元の行の最寄りコマンドにジャンプする */
+	cmd = get_command_index_from_line_number(line);
+	if (cmd == -1) {
+		/* 削除された末尾の場合、最終行にする */
+		cmd = get_command_count() - 1;
+	}
+
+	/* ジャンプする */
+	move_to_command_index(cmd);
+
+	/* UIを更新する */
+	update_debug_info(true);
 }
 
 /* 再開ボタンが押されたか調べる */
@@ -1746,6 +1788,9 @@ void set_running_state(bool running, bool request_stop)
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
 
+		/* 再読み込みボタンを無効にする */
+		EnableWindow(hWndBtnReload, FALSE);
+
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 
@@ -1804,6 +1849,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
+
+		/* 再読み込みボタンを無効にする */
+		EnableWindow(hWndBtnReload, FALSE);
 
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
@@ -1864,6 +1912,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, TRUE);
+
+		/* 再読み込みボタンを有効にする */
+		EnableWindow(hWndBtnReload, TRUE);
 
 		/* 続けるメニューを有効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);

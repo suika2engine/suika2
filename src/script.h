@@ -563,4 +563,7 @@ const char *get_line_string_at_line_num(int line);
 /* 行の数を取得する */
 int get_line_count(void);
 
+/* コマンドの数を取得する */
+int get_command_count(void);
+
 #endif

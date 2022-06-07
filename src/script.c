@@ -496,6 +496,14 @@ int get_line_count(void)
 }
 
 /*
+ * コマンドの数を取得する
+ */
+int get_command_count(void)
+{
+	return cmd_size;
+}
+
+/*
  * スクリプトファイルの読み込み
  */
 
