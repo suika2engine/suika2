@@ -1278,6 +1278,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	const char szWndClass[] = "suikadebug";
 	WNDCLASSEX wcex;
 	RECT rc;
+	HFONT hFont, hFontFixed;
 	DWORD style;
 	int dw, dh;
 	BOOL bEnglish;
@@ -1334,6 +1335,16 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	SetWindowPos(hWndDebug, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
 
+	/* フォントを作成する */
+	hFont = CreateFont(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
+					   ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+					   DEFAULT_QUALITY,
+					   DEFAULT_PITCH | FF_DONTCARE, "Yu Gothic UI");
+	hFontFixed = CreateFont(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
+							ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+							PROOF_QUALITY,
+							DEFAULT_PITCH | FF_DONTCARE, "Yu Gothic");
+
 	/* 続けるボタンを作成する */
 	hWndBtnResume = CreateWindow(
 		"BUTTON",
@@ -1342,6 +1353,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 10, 100, 80,
 		hWndDebug, (HMENU)ID_RESUME,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnResume, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* 次へボタンを作成する */
 	hWndBtnNext = CreateWindow(
@@ -1351,6 +1363,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		120, 10, 100, 80,
 		hWndDebug, (HMENU)ID_NEXT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnNext, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* 停止ボタンを作成する */
 	hWndBtnPause = CreateWindow(
@@ -1361,6 +1374,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_PAUSE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	EnableWindow(hWndBtnPause, FALSE);
+	SendMessage(hWndBtnPause, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* スクリプトラベルを作成する */
 	hWndLabelScript = CreateWindow(
@@ -1370,6 +1384,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 110, 100, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndLabelScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* スクリプト名のテキストボックスを作成する */
 	hWndTextboxScript = CreateWindow(
@@ -1379,6 +1394,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 140, 300, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndTextboxScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* スクリプトの変更ボタンを作成する */
 	hWndBtnChangeScript = CreateWindow(
@@ -1388,6 +1404,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		320, 140, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnChangeScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* スクリプトの選択ボタンを作成する */
 	hWndBtnSelectScript = CreateWindow(
@@ -1396,6 +1413,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		405, 140, 25, 30,
 		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnSelectScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* 行番号ラベルを作成する */
 	hWndLabelLine = CreateWindow(
@@ -1405,6 +1423,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 190, 100, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndLabelLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* 行番号のテキストボックスを作成する */
 	hWndTextboxLine = CreateWindow(
@@ -1414,6 +1433,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 220, 80, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndTextboxLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* 行番号の変更ボタンを作成する */
 	hWndBtnChangeLine = CreateWindow(
@@ -1423,6 +1443,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		100, 220, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_LINE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnChangeLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* コマンドのラベルを作成する */
 	hWndLabelCommand = CreateWindow(
@@ -1432,6 +1453,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 270, 100, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndLabelCommand, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* コマンドのテキストボックスを作成する */
 	hWndTextboxCommand = CreateWindow(
@@ -1441,6 +1463,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 300, 420, 100,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFontFixed,
+				(LPARAM)TRUE);
 
 	/* スクリプトのテキストボックスを作成する */
 	hWndListbox = CreateWindow(
@@ -1451,6 +1475,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		10, 420, 420, 300,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndListbox, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
