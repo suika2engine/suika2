@@ -125,6 +125,8 @@ static void SyncBackImage(int x, int y, int w, int h);
 /* バージョン文字列 */
 static char szVersion[] =
 	"Suika2 Debug Tool\n"
+	"Version 0.6.0\n"
+	"\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.";
 
 /* 実行状態 */
@@ -1266,6 +1268,11 @@ static VOID InitMenu(void)
 	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
 	EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 
+	/* 再読み込み(R)を作成する */
+	mi.wID = ID_RELOAD;
+	mi.dwTypeData = bEnglish ? "Reload(&R)\tF5" : "再読み込み(&R)\tF5";
+	InsertMenuItem(hMenuScript, 3, TRUE, &mi);
+
 	/* バージョン(V)を作成する */
 	mi.wID = ID_VERSION;
 	mi.dwTypeData = bEnglish ? "Version(&V)" : "バージョン(&V)\tAlt+V";
@@ -1799,6 +1806,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 停止メニューを無効にする */
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
+
+		/* 再読み込みメニューを無効にする */
+		EnableMenuItem(hMenu, ID_RELOAD, MF_GRAYED);
 	}
 	/* 実行中のとき */
 	else if(running)
@@ -1861,6 +1871,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 停止メニューを有効にする */
 		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);
+
+		/* 再読み込みメニューを無効にする */
+		EnableMenuItem(hMenu, ID_RELOAD, MF_GRAYED);
 	}
 	/* 完全に停止中のとき */
 	else
@@ -1924,6 +1937,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 停止メニューを無効にする */
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
+
+		/* 再読み込みメニューを有効にする */
+		EnableMenuItem(hMenu, ID_RELOAD, MF_ENABLED);
 	}
 }
 
