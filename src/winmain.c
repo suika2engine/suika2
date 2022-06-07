@@ -124,7 +124,7 @@ static void SyncBackImage(int x, int y, int w, int h);
 #ifdef USE_DEBUGGER
 /* バージョン文字列 */
 static char szVersion[] =
-	"Suika Studio 0.6 (under development)\n"
+	"Suika2 Debug Tool\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.";
 
 /* 実行状態 */
@@ -1316,8 +1316,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 
 	/* ウィンドウを作成する */
 	hWndDebug = CreateWindowEx(0, szWndClass, bEnglish ?
-							   "Stopped - Suika Studio" :
-							   "停止中 - Suika Studio",
+							   "Stopped - Suika" :
+							   "停止中 - Suika",
 							   style,
 							   rc.right + 10, rc.top,
 							   WIN_WIDTH + dw, WIN_HEIGHT + dh,
@@ -1663,8 +1663,8 @@ void set_running_state(bool running, bool request_stop)
 	{
 		/* ウィンドウのタイトルを設定する */
 		SetWindowText(hWndDebug, bEnglish ?
-					  "Waiting for finish command... - Suika Studio" :
-					  "コマンドの完了を待機中... - Suika Studio");
+					  "Waiting for command finish... - Suika" :
+					  "□コマンドの完了を待機中... - Suika");
 
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
@@ -1710,8 +1710,7 @@ void set_running_state(bool running, bool request_stop)
 	{
 		/* ウィンドウのタイトルを設定する */
 		SetWindowText(hWndDebug, bEnglish ?
-					  "Running... - Suika Studio" :
-					  "実行中... - Suika Studio");
+					  "Running... - Suika" : "●実行中... - Suika");
 
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
@@ -1757,8 +1756,8 @@ void set_running_state(bool running, bool request_stop)
 	{
 		/* ウィンドウのタイトルを設定する */
 		SetWindowText(hWndDebug, bEnglish ?
-					  "Stopped - Suika Studio" :
-					  "停止中 - Suika Studio");
+					  "Stopped - Suika" :
+					  "■停止中 - Suika");
 
 		/* 続けるボタンを有効にする */
 		EnableWindow(hWndBtnResume, TRUE);
