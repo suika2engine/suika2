@@ -98,6 +98,11 @@ bool init_file(void)
 	uint64_t i, next_random;
 	int j;
 
+#ifdef USE_DEBUGGER
+	/* ユーザの気持ちを考えて、デバッガ版ではパッケージを開けない */
+	return true;
+#endif
+
 	/* パッケージファイルのパスを求める */
 	package_path = make_valid_path(NULL, PACKAGE_FILE);
 	if (package_path == NULL)

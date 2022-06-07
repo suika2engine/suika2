@@ -128,9 +128,8 @@ static void SyncBackImage(int x, int y, int w, int h);
 /* バージョン文字列 */
 static char szVersion[] =
 	"Suika2 Debug Tool\n"
-	"Version 0.6.0\n"
-	"\n"
-	"Copyright (c) 2022, LUXION SOFT. All rights reserved.";
+	"Beta r1\n"
+	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n";
 
 /* 実行状態 */
 BOOL bRunning;
@@ -155,6 +154,7 @@ static HWND hWndBtnChangeLine;
 static HWND hWndLabelCommand;
 static HWND hWndTextboxCommand;
 static HWND hWndBtnUpdate;
+static HWND hWndBtnReset;
 static HWND hWndLabelContent;
 static HWND hWndListbox;
 static HWND hWndBtnReload;
@@ -175,6 +175,7 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
+static VOID OnPressReset(void);
 const char *ConvNativeToUtf8(const char *lpszNativeMessage);
 #endif
 
@@ -623,7 +624,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	   hWnd == hWndLabelLine || hWnd == hWndTextboxLine ||
 	   hWnd == hWndBtnChangeLine || hWnd == hWndLabelCommand ||
 	   hWnd == hWndTextboxCommand || hWnd == hWndBtnUpdate ||
-	   hWnd == hWndListbox || message == WM_COMMAND)
+	   hWnd == hWndBtnReset || hWnd == hWndListbox || message == WM_COMMAND)
 		return WndProcDebug(hWnd, message, wParam, lParam);
 #endif
 
@@ -1488,7 +1489,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFontFixed,
 				(LPARAM)TRUE);
 
-	/* ファイル更新のボタンを作成する */
+	/* コマンドアップデートのボタンを作成する */
 	hWndBtnUpdate = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Update" : "更新",
@@ -1497,6 +1498,16 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_UPDATE_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnUpdate, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+
+	/* コマンドリセットのボタンを作成する */
+	hWndBtnReset = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Reset" : "リセット",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WIN_WIDTH - 10 - 80, 290, 80, 30,
+		hWndDebug, (HMENU)ID_RESET_COMMAND,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnReset, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* スクリプト内容のラベルを作成する */
 	hWndLabelContent = CreateWindow(
@@ -1601,6 +1612,9 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		case ID_UPDATE_COMMAND:
 			bUpdatePressed = TRUE;
 			break;
+		case ID_RESET_COMMAND:
+			OnPressReset();
+			break;
 		case ID_RELOAD:
 			bReloadPressed = TRUE;
 			break;
@@ -1658,6 +1672,13 @@ static VOID OnSelectScript(void)
 		SetWindowText(hWndTextboxScript, file_ptr);
 		bChangeScriptPressed = TRUE;
 	}
+}
+
+/* コマンドリセットボタンがあ押下された場合の処理を行う */
+static VOID OnPressReset(void)
+{
+	/* コマンド文字列を設定する */
+	SetWindowText(hWndTextboxCommand, conv_utf8_to_native(get_line_string()));
 }
 
 /*
@@ -1861,8 +1882,11 @@ void set_running_state(bool running, bool request_stop)
 		/* コマンドテキストボックスを無効にする */
 		EnableWindow(hWndTextboxCommand, FALSE);
 
-		/* コマンド更新ボタンを無効にする */
+		/* コマンドアップデートボタンを無効にする */
 		EnableWindow(hWndBtnUpdate, FALSE);
+
+		/* コマンドリセットボタンを無効にする */
+		EnableWindow(hWndBtnReset, FALSE);
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
@@ -1932,8 +1956,11 @@ void set_running_state(bool running, bool request_stop)
 		/* コマンドテキストボックスを無効にする */
 		EnableWindow(hWndTextboxCommand, FALSE);
 
-		/* コマンド更新ボタンを無効にする */
+		/* コマンドアップデートボタンを無効にする */
 		EnableWindow(hWndBtnUpdate, FALSE);
+
+		/* コマンドリセットボタンを無効にする */
+		EnableWindow(hWndBtnReset, FALSE);
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
@@ -2004,8 +2031,11 @@ void set_running_state(bool running, bool request_stop)
 		/* コマンドテキストボックスを有効にする */
 		EnableWindow(hWndTextboxCommand, TRUE);
 
-		/* コマンド更新ボタンを有効にする */
+		/* コマンドアップデートボタンを有効にする */
 		EnableWindow(hWndBtnUpdate, TRUE);
+
+		/* コマンドリセットボタンを有効にする */
+		EnableWindow(hWndBtnReset, TRUE);
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, TRUE);
