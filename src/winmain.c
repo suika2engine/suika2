@@ -1375,7 +1375,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndTextboxScript = CreateWindow(
 		"EDIT",
 		NULL,
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
 		10, 140, 300, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
