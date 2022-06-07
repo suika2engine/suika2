@@ -49,6 +49,16 @@ build/msvc/Debug
 build/msvc/Release
 build/msvc/suika/Debug
 build/msvc/suika/Release
+build/msvc-debug/.vs
+build/msvc-debug/zlib
+build/msvc-debug/libpng
+build/msvc-debug/libogg
+build/msvc-debug/libvorbis
+build/msvc-debug/freetype
+build/msvc-debug/Debug
+build/msvc-debug/Release
+build/msvc-debug/suika/Debug
+build/msvc-debug/suika/Release
 build/msvc-3d/.vs
 build/msvc-3d/zlib
 build/msvc-3d/libpng

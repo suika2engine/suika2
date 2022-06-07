@@ -41,11 +41,13 @@ static BOOL DisplayRenderFileErrorMessage(HRESULT hr);
 //
 BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName)
 {
+	HRESULT hRes;
+
 	hWndMain = hWnd;
 
 	// IGraphBuilderのインスタンスを取得する
-	CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,
-					 IID_IGraphBuilder, (void**)&pBuilder);
+	hRes = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,
+							IID_IGraphBuilder, (void**)&pBuilder);
 	if(!pBuilder)
 	{
 		log_api_error("CoCreateInstance");

@@ -13,6 +13,9 @@
  */
 
 #define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #include "suika.h"
 #include "dsound.h"
@@ -1274,6 +1277,10 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	DWORD style;
 	int dw, dh;
 	BOOL bEnglish;
+	const int WIN_WIDTH = 440;
+	const int WIN_HEIGHT = 720;
+
+	bEnglish = conf_language == NULL ? FALSE : TRUE;
 
 	/* ウィンドウクラスを登録する */
 	wcex.cbSize			= sizeof(WNDCLASSEX);
@@ -1307,10 +1314,20 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 							   "Stopped - Suika Studio" :
 							   "停止中 - Suika Studio",
 							   style,
-							   rc.right + 10, rc.top, 440 + dw, 720 + dh,
+							   rc.right + 10, rc.top,
+							   WIN_WIDTH + dw, WIN_HEIGHT + dh,
 							   NULL, NULL, GetModuleHandle(NULL), NULL);
 	if(!hWndDebug)
 		return FALSE;
+
+	/* ウィンドウのサイズを調整する(for Windows 10) */
+	SetRectEmpty(&rc);
+	rc.right = WIN_WIDTH + dw;
+	rc.bottom = WIN_HEIGHT + dh;
+	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndDebug, GWL_STYLE), FALSE,
+					   (DWORD)GetWindowLong(hWndDebug, GWL_EXSTYLE));
+	SetWindowPos(hWndDebug, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+				 SWP_NOZORDER | SWP_NOMOVE);
 
 	/* 英語モードかどうかチェックする */
 	bEnglish = conf_language != NULL;
