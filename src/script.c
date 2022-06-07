@@ -211,6 +211,8 @@ bool load_script(const char *fname)
 	set_return_point(-1);
 
 #ifdef USE_DEBUGGER
+	if (dbg_is_stop_requested())
+		dbg_stop();
 	update_debug_info(true);
 #endif
 

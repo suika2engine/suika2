@@ -1451,7 +1451,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"STATIC",
 		bEnglish ? "Next command to be executed:" : "次に実行されるコマンド:",
 		WS_VISIBLE | WS_CHILD,
-		10, 230, 300, 30,
+		10, 230, 300, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelCommand, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
