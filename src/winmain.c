@@ -149,6 +149,7 @@ static HWND hWndTextboxLine;
 static HWND hWndBtnChangeLine;
 static HWND hWndLabelCommand;
 static HWND hWndTextboxCommand;
+static HWND hWndLabelContent;
 static HWND hWndListbox;
 
 /* ボタンが押下されたか */
@@ -1283,7 +1284,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	int dw, dh;
 	BOOL bEnglish;
 	const int WIN_WIDTH = 440;
-	const int WIN_HEIGHT = 720;
+	const int WIN_HEIGHT = 700;
 
 	/* 英語モードかどうかチェックする */
 	bEnglish = conf_language == NULL ? FALSE : TRUE;
@@ -1379,9 +1380,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	/* スクリプトラベルを作成する */
 	hWndLabelScript = CreateWindow(
 		"STATIC",
-		bEnglish ? "Script:" : "スクリプト:",
+		bEnglish ? "Script file name:" : "スクリプトファイル名:",
 		WS_VISIBLE | WS_CHILD,
-		10, 110, 100, 30,
+		10, 110, 100, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1391,7 +1392,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
-		10, 140, 300, 30,
+		10, 130, 300, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1401,7 +1402,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Change" : "変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		320, 140, 80, 30,
+		320, 130, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnChangeScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1410,7 +1411,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnSelectScript = CreateWindow(
 		"BUTTON", "...",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		405, 140, 25, 30,
+		405, 130, 25, 30,
 		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSelectScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1418,9 +1419,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	/* 行番号ラベルを作成する */
 	hWndLabelLine = CreateWindow(
 		"STATIC",
-		bEnglish ? "Line:" : "行番号:",
+		bEnglish ? "Next line to be executed:" : "次に実行される行番号:",
 		WS_VISIBLE | WS_CHILD,
-		10, 190, 100, 30,
+		10, 170, 300, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1430,7 +1431,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER,
-		10, 220, 80, 30,
+		10, 190, 80, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1440,7 +1441,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Change" : "変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		100, 220, 80, 30,
+		100, 190, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_LINE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnChangeLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1448,9 +1449,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	/* コマンドのラベルを作成する */
 	hWndLabelCommand = CreateWindow(
 		"STATIC",
-		bEnglish ? "Command:" : "コマンド:",
+		bEnglish ? "Next command to be executed:" : "次に実行されるコマンド:",
 		WS_VISIBLE | WS_CHILD,
-		10, 270, 100, 30,
+		10, 230, 300, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelCommand, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1460,19 +1461,29 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE,
-		10, 300, 420, 100,
+		10, 250, 420, 100,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFontFixed,
 				(LPARAM)TRUE);
 
-	/* スクリプトのテキストボックスを作成する */
+	/* スクリプト内容のラベルを作成する */
+	hWndLabelContent = CreateWindow(
+		"STATIC",
+		bEnglish ? "Script content:" : "スクリプトの内容:",
+		WS_VISIBLE | WS_CHILD,
+		10, 360, 100, 30,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndLabelContent, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+
+	/* スクリプトのリストボックスを作成する */
 	hWndListbox = CreateWindow(
 		"LISTBOX",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_VSCROLL |
 		LBS_NOTIFY | LBS_WANTKEYBOARDINPUT,
-		10, 420, 420, 300,
+		10, 380, 420, 310,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndListbox, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
@@ -1712,14 +1723,27 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプト選択ボタンを無効にする */
 		EnableWindow(hWndBtnSelectScript, FALSE);
 
+		/* 行番号ラベルを設定する */
+		SetWindowText(hWndLabelLine, bEnglish ?
+					  "Current waiting line:" :
+					  "現在完了待ちの行番号:");
+
 		/* 行番号テキストボックスを無効にする */
 		EnableWindow(hWndTextboxLine, FALSE);
 
 		/* 行番号変更ボタンを無効にする */
 		EnableWindow(hWndBtnChangeLine, FALSE);
 
+		/* コマンドラベルを設定する */
+		SetWindowText(hWndLabelCommand, bEnglish ?
+					  "Current waiting command:" :
+					  "現在完了待ちのコマンド:");
+
 		/* コマンドテキストボックスを無効にする */
 		EnableWindow(hWndTextboxCommand, FALSE);
+
+		/* リストボックスを有効にする */
+		EnableWindow(hWndListbox, FALSE);
 
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
@@ -1758,14 +1782,27 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプト選択ボタンを無効にする */
 		EnableWindow(hWndBtnSelectScript, FALSE);
 
+		/* 行番号ラベルを設定する */
+		SetWindowText(hWndLabelLine, bEnglish ?
+					  "Current running line:" :
+					  "現在実行中の行番号:");
+
 		/* 行番号テキストボックスを無効にする */
 		EnableWindow(hWndTextboxLine, FALSE);
 
 		/* 行番号変更ボタンを無効にする */
 		EnableWindow(hWndBtnChangeLine, FALSE);
 
+		/* コマンドラベルを設定する */
+		SetWindowText(hWndLabelCommand, bEnglish ?
+					  "Current running command:" :
+					  "現在実行中のコマンド:");
+
 		/* コマンドテキストボックスを無効にする */
 		EnableWindow(hWndTextboxCommand, FALSE);
+
+		/* リストボックスを有効にする */
+		EnableWindow(hWndListbox, FALSE);
 
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
@@ -1805,14 +1842,27 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプト選択ボタンを有効にする */
 		EnableWindow(hWndBtnSelectScript, TRUE);
 
+		/* 行番号ラベルを設定する */
+		SetWindowText(hWndLabelLine, bEnglish ?
+					  "Next line to be executed:" :
+					  "次に実行される行番号:");
+
 		/* 行番号テキストボックスを有効にする */
 		EnableWindow(hWndTextboxLine, TRUE);
 
 		/* 行番号変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeLine, TRUE);
 
+		/* コマンドラベルを設定する */
+		SetWindowText(hWndLabelCommand, bEnglish ?
+					  "Next command to be executed:" :
+					  "次に実行されるコマンド:");
+
 		/* コマンドテキストボックスを有効にする */
 		EnableWindow(hWndTextboxCommand, TRUE);
+
+		/* リストボックスを有効にする */
+		EnableWindow(hWndListbox, TRUE);
 
 		/* 続けるメニューを有効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);
@@ -1857,7 +1907,7 @@ void update_debug_info(bool script_changed)
 		}
 	}
 	line_num = get_line_num();
-	top = (line_num - 8 < 0) ? 0 : (line_num - 8);
+	top = (line_num - 9 < 0) ? 0 : (line_num - 9);
 	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
 	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
 }
