@@ -678,6 +678,11 @@ static void draw_click(void)
 			     is_mixer_sound_finished(VOICE_STREAM)))
 				stop_command_repetition();
 		}
+	} else if ((restore_flag || history_flag) &&
+		   !process_click_first &&
+		   (is_return_pressed || is_down_pressed ||
+		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
+		stop_command_repetition();
 	} else if (!process_click_first &&
 		   (is_return_pressed || is_down_pressed ||
 		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
