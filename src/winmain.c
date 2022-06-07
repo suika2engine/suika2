@@ -131,7 +131,7 @@ static char szVersion[] =
 	"Beta r1\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n"
 	"\n"
-	"Developpers\n"
+	"Developers\n"
 	"Keiichi TABATA (Programmer)\n"
 	"Seiji Matsuno (Director)\n";
 

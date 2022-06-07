@@ -660,7 +660,9 @@ static void draw_click(void)
 	if (!process_click_first && dbg_is_stop_requested()) {
 		if (!have_voice)
 			stop_command_repetition();
-		else if (have_voice && is_mixer_sound_finished(VOICE_STREAM))
+		else if (have_voice &&
+			 (is_mixer_sound_finished(VOICE_STREAM) ||
+			  (restore_flag || history_flag))
 			stop_command_repetition();
 		else if (have_voice &&
 			 (is_left_button_pressed || is_down_pressed ||
