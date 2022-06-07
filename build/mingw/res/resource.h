@@ -28,8 +28,9 @@
 #define ID_NEXT			151
 #define ID_PAUSE		152
 #define ID_CHANGE_SCRIPT	153
-#define ID_CHANGE_LINE		154
-#define ID_READ			155
-#define ID_WRITE		156
-#define ID_QUIT			157
-#define ID_VERSION		158
+#define ID_SELECT_SCRIPT	154
+#define ID_CHANGE_LINE		155
+#define ID_READ			156
+#define ID_WRITE		157
+#define ID_QUIT			158
+#define ID_VERSION		159

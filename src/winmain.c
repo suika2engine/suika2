@@ -143,6 +143,7 @@ static HWND hWndBtnPause;
 static HWND hWndLabelScript;
 static HWND hWndTextboxScript;
 static HWND hWndBtnChangeScript;
+static HWND hWndBtnSelectScript;
 static HWND hWndLabelLine;
 static HWND hWndTextboxLine;
 static HWND hWndBtnChangeLine;
@@ -165,6 +166,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow);
 static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
 static VOID OnClickListBox(void);
+static VOID OnSelectScript(void);
 #endif
 
 /*
@@ -1282,6 +1284,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	const int WIN_WIDTH = 440;
 	const int WIN_HEIGHT = 720;
 
+	/* 英語モードかどうかチェックする */
 	bEnglish = conf_language == NULL ? FALSE : TRUE;
 
 	/* ウィンドウクラスを登録する */
@@ -1330,9 +1333,6 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 					   (DWORD)GetWindowLong(hWndDebug, GWL_EXSTYLE));
 	SetWindowPos(hWndDebug, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
-
-	/* 英語モードかどうかチェックする */
-	bEnglish = conf_language != NULL;
 
 	/* 続けるボタンを作成する */
 	hWndBtnResume = CreateWindow(
@@ -1387,6 +1387,14 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		320, 140, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+
+	/* スクリプトの選択ボタンを作成する */
+	hWndBtnSelectScript = CreateWindow(
+		"BUTTON", "...",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		405, 140, 25, 30,
+		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 
 	/* 行番号ラベルを作成する */
@@ -1507,6 +1515,9 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		case ID_CHANGE_SCRIPT:
 			bChangeScriptPressed = TRUE;
 			break;
+		case ID_SELECT_SCRIPT:
+			OnSelectScript();
+			break;
 		case ID_CHANGE_LINE:
 			bChangeLinePressed = TRUE;
 			break;
@@ -1537,6 +1548,38 @@ static VOID OnClickListBox(void)
 				 1);
 		SetWindowText(hWndTextboxLine, line);
 		bChangeLinePressed = TRUE;
+	}
+}
+
+/* スクリプト選択ボタンが押された場合の処理を行う */
+static VOID OnSelectScript(void)
+{
+	OPENFILENAME ofn;
+	char szPath[1024];
+
+	szPath[0] = '\0';
+
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWndDebug;
+	ofn.lpstrFilter = conf_language == NULL ?
+		"テキストファイル\0*.txt;\0すべてのファイル(*.*)\0*.*\0\0" :
+		"Text Files\0*.txt;\0All Files(*.*)\0*.*\0\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = szPath;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrInitialDir = SCRIPT_DIR;
+	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	ofn.lpstrDefExt = "txt";
+	ofn.nMaxFileTitle = 255;
+	GetOpenFileName(&ofn);
+	if(ofn.lpstrFile[0])
+	{
+		char file[1024];
+		char *file_ptr;
+		GetFullPathName(szPath, sizeof(file), file, &file_ptr);
+		SetWindowText(hWndTextboxScript, file_ptr);
+		bChangeScriptPressed = TRUE;
 	}
 }
 
@@ -1641,6 +1684,9 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプト変更ボタンを無効にする */
 		EnableWindow(hWndBtnChangeScript, FALSE);
 
+		/* スクリプト選択ボタンを無効にする */
+		EnableWindow(hWndBtnSelectScript, FALSE);
+
 		/* 行番号テキストボックスを無効にする */
 		EnableWindow(hWndTextboxLine, FALSE);
 
@@ -1685,6 +1731,9 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプト変更ボタンを無効にする */
 		EnableWindow(hWndBtnChangeScript, FALSE);
 
+		/* スクリプト選択ボタンを無効にする */
+		EnableWindow(hWndBtnSelectScript, FALSE);
+
 		/* 行番号テキストボックスを無効にする */
 		EnableWindow(hWndTextboxLine, FALSE);
 
@@ -1728,6 +1777,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* スクリプト変更ボタンを有効にする */
 		EnableWindow(hWndBtnChangeScript, TRUE);
+
+		/* スクリプト選択ボタンを有効にする */
+		EnableWindow(hWndBtnSelectScript, TRUE);
 
 		/* 行番号テキストボックスを有効にする */
 		EnableWindow(hWndTextboxLine, TRUE);
