@@ -567,6 +567,9 @@ int get_line_count(void);
 int get_command_count(void);
 
 #ifdef USE_DEBUGGER
+/*  デバッグ用に1コマンドだけ書き換える */
+bool update_command(int index, const char *cmd_str);
+
 /* デバッグ用の仮のスクリプトをロードする */
 bool load_debug_script(void);
 #endif

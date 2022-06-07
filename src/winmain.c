@@ -98,6 +98,9 @@ static BOOL bDShowMode;
 /* UTF-8からSJISへの変換バッファ */
 static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
+/* SJISからUTF-8への変換バッファ */
+static char szUtf8Message[NATIVE_MESSAGE_SIZE];
+
 /* 前方参照 */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
@@ -151,6 +154,7 @@ static HWND hWndTextboxLine;
 static HWND hWndBtnChangeLine;
 static HWND hWndLabelCommand;
 static HWND hWndTextboxCommand;
+static HWND hWndBtnUpdate;
 static HWND hWndLabelContent;
 static HWND hWndListbox;
 static HWND hWndBtnReload;
@@ -161,6 +165,7 @@ static BOOL bNextPressed;
 static BOOL bPausePressed;
 static BOOL bChangeScriptPressed;
 static BOOL bChangeLinePressed;
+static BOOL bUpdatePressed;
 static BOOL bReloadPressed;
 
 /* 前方参照 */
@@ -170,6 +175,7 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
+const char *ConvNativeToUtf8(const char *lpszNativeMessage);
 #endif
 
 /*
@@ -616,8 +622,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	   hWnd == hWndTextboxScript || hWnd == hWndBtnChangeScript ||
 	   hWnd == hWndLabelLine || hWnd == hWndTextboxLine ||
 	   hWnd == hWndBtnChangeLine || hWnd == hWndLabelCommand ||
-	   hWnd == hWndTextboxCommand || hWnd == hWndListbox ||
-	   message == WM_COMMAND)
+	   hWnd == hWndTextboxCommand || hWnd == hWndBtnUpdate ||
+	   hWnd == hWndListbox || message == WM_COMMAND)
 		return WndProcDebug(hWnd, message, wParam, lParam);
 #endif
 
@@ -1475,12 +1481,22 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOVSCROLL |
-		ES_MULTILINE | ES_READONLY,
-		10, 250, 420, 100,
+		ES_MULTILINE | ES_WANTRETURN, // ES_READONLY
+		10, 250, 330, 100,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFontFixed,
 				(LPARAM)TRUE);
+
+	/* ファイル更新のボタンを作成する */
+	hWndBtnUpdate = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Update" : "更新",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WIN_WIDTH - 10 - 80, 250, 80, 30,
+		hWndDebug, (HMENU)ID_UPDATE_COMMAND,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnUpdate, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 
 	/* スクリプト内容のラベルを作成する */
 	hWndLabelContent = CreateWindow(
@@ -1581,6 +1597,9 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 			break;
 		case ID_CHANGE_LINE:
 			bChangeLinePressed = TRUE;
+			break;
+		case ID_UPDATE_COMMAND:
+			bUpdatePressed = TRUE;
 			break;
 		case ID_RELOAD:
 			bReloadPressed = TRUE;
@@ -1729,6 +1748,60 @@ bool is_script_updated(void)
 }
 
 /*
+ * コマンドがアップデートされたかを調べる
+ */
+bool is_command_updated(void)
+{
+	bool ret = bUpdatePressed;
+	bUpdatePressed = FALSE;
+	return ret;
+}
+
+/*
+ * アップデートされたコマンド文字列を取得する
+ */
+const char *get_updated_command()
+{
+	static char text[4096];
+	char *p;
+
+	GetWindowText(hWndTextboxCommand, text, sizeof(text) - 1);
+
+	/* 改行をスペースに置き換える */
+	p = text;
+	while(*p)
+	{
+		if(*p == '\r' || *p == '\n')
+			*p = ' ';
+		p++;
+	}
+
+	return ConvNativeToUtf8(text);
+}
+
+/*
+ * ネイティブ文字コードのメッセージをUtf-8文字コードに変換する
+ */
+const char *ConvNativeToUtf8(const char *lpszNativeMessage)
+{
+	wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
+	int cch;
+
+	assert(lpszNativeMessage != NULL);
+
+	/* ネイティブ文字コードからワイド文字に変換する */
+	cch = MultiByteToWideChar(CP_THREAD_ACP, 0, lpszNativeMessage, -1,
+							  wszMessage, NATIVE_MESSAGE_SIZE - 1);
+	wszMessage[cch] = L'\0';
+
+	/* ワイド文字からSJISに変換する */
+	WideCharToMultiByte(CP_UTF8, 0, wszMessage, -1, szUtf8Message,
+						NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
+
+	return szUtf8Message;
+}
+
+/*
  * コマンドの実行中状態を設定する
  */
 void set_running_state(bool running, bool request_stop)
@@ -1787,6 +1860,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* コマンドテキストボックスを無効にする */
 		EnableWindow(hWndTextboxCommand, FALSE);
+
+		/* コマンド更新ボタンを無効にする */
+		EnableWindow(hWndBtnUpdate, FALSE);
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
@@ -1856,6 +1932,9 @@ void set_running_state(bool running, bool request_stop)
 		/* コマンドテキストボックスを無効にする */
 		EnableWindow(hWndTextboxCommand, FALSE);
 
+		/* コマンド更新ボタンを無効にする */
+		EnableWindow(hWndBtnUpdate, FALSE);
+
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
 
@@ -1924,6 +2003,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* コマンドテキストボックスを有効にする */
 		EnableWindow(hWndTextboxCommand, TRUE);
+
+		/* コマンド更新ボタンを有効にする */
+		EnableWindow(hWndBtnUpdate, TRUE);
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, TRUE);

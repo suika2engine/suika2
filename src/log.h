@@ -64,4 +64,8 @@ void log_script_enable_disable(const char *param);
 void log_script_final_command(void);
 void log_video_error(const char *reason);
 
+#ifdef USE_DEBUGGER
+void log_command_update_error(void);
+#endif
+
 #endif

@@ -118,6 +118,9 @@ static bool parse_message(int index, const char *fname, int line,
 			  const char *buf);
 static bool parse_label(int index, const char *fname, int line,
 			const char *buf);
+#ifdef USE_DEBUGGER
+void set_error_command(int index, char *text);
+#endif
 
 /*
  * 初期化
@@ -515,9 +518,7 @@ int get_command_count(void)
  * スクリプトファイルの読み込み
  */
 
-/*
- * ファイルを読み込む
- */
+/* ファイルを読み込む */
 static bool read_script_from_file(const char *fname)
 {
 	char buf[LINE_BUF_SIZE];
@@ -591,7 +592,7 @@ static bool read_script_from_file(const char *fname)
 			break;
 		}
 		line++;
-	}		
+	}
 
 	script_lines = line;
 
@@ -796,6 +797,67 @@ static bool parse_label(int index, const char *file, int line, const char *buf)
 }
 
 #ifdef USE_DEBUGGER
+/*
+ * デバッグ用に1コマンドだけ書き換える
+ */
+bool update_command(int index, const char *cmd_str)
+{
+	char *err_cmd;
+	int line;
+
+	line = cmd[index].line;
+	err_cmd = strdup(cmd_str);
+	if (err_cmd == NULL) {
+		log_memory();
+		return false;
+	}
+
+	/* 行頭の文字で仕分けする */
+	switch (cmd_str[0]) {
+	case '@':
+		if (!parse_insn(index, cur_script, line, cmd_str)) {
+			set_error_command(index, err_cmd);
+			return false;
+		}
+		return true;
+	case '*':
+		if (!parse_serif(index, cur_script, line, cmd_str)) {
+			set_error_command(index, err_cmd);
+			return false;
+		}
+		return true;
+	case ':':
+		if (!parse_label(index, cur_script, line, cmd_str)) {
+			set_error_command(index, err_cmd);
+			return false;
+		}
+		return true;
+	case '\0':
+		/* 空行は空白1つに変換する */
+		cmd_str = " ";
+		/* fall-thru */
+	case '#':
+		/* コメントもメッセージにする */
+		/* fall-thru */
+	default:
+		if (!parse_message(index, cur_script, line, cmd_str)) {
+			set_error_command(index, err_cmd);
+			return false;
+		}
+		return true;
+	}
+	return true;
+}
+
+/* エラー時のコマンドを設定する */
+void set_error_command(int index, char *text)
+{
+	cmd[index].type = COMMAND_MESSAGE;
+	cmd[index].text = text;
+
+	log_command_update_error();
+}
+
 /*
  * デバッグ用の仮のスクリプトをロードする
  */

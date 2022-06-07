@@ -213,6 +213,12 @@ static bool pre_dispatch(void)
 				get_changed_line());
 			if (index != -1)
 				move_to_command_index(index);
+		} else if (is_command_updated()) {
+			/* コマンドが更新された場合 */
+			update_command(get_command_index(),
+				       get_updated_command());
+			update_debug_info(true);
+			return false;
 		} else if (is_script_updated()) {
 			/* 実行中のスクリプトファイル名を取得する */
 			scr = strdup(get_script_file_name());

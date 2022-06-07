@@ -580,3 +580,18 @@ void log_video_error(const char *reason)
 			  conv_utf8_to_native(reason));
 	}
 }
+
+#ifdef USE_DEBUGGER
+/*
+ * コマンドのアップデートに失敗した際のエラーを記録する
+ */
+void log_command_update_error(void)
+{
+	if (is_english_mode())
+		log_info("This command is changed to a message.\n"
+			 "You can reconvert it to an @ command by editting.");
+	else
+		log_info("このコマンドはメッセージに変換されました。\n"
+			 "再編集で@コマンドに変換できます。");
+}
+#endif

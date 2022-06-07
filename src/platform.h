@@ -117,6 +117,12 @@ int get_changed_line(void);
 /* スクリプトがアップデートされたかを調べる  */
 bool is_script_updated(void);
 
+/* コマンドがアップデートされたかを調べる */
+bool is_command_updated(void);
+
+/* アップデートされたコマンド文字列を取得する */
+const char *get_updated_command();
+
 /* コマンドの実行中状態を設定する */
 void set_running_state(bool running, bool request_stop);
 
