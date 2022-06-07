@@ -163,7 +163,7 @@ void cleanup_script(void)
 	}
 
 #ifdef USE_DEBUGGER
-	for (i = 0; i < SCRIPT_CMD_SIZE; i++) {
+	for (i = 0; i < script_lines; i++) {
 		if (comment_text[i] != NULL) {
 			free(comment_text[i]);
 			comment_text[i] = NULL;
