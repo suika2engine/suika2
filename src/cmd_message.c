@@ -14,6 +14,7 @@
  *  - 2021/07/29 メッセージボックスボタン対応
  *  - 2021/07/30 オートモード対応
  *  - 2021/07/31 スキップモード対応
+ *  - 2022/06/06 デバッグモードに対応
  */
 
 #include "suika.h"
@@ -628,6 +629,11 @@ static int get_frame_chars(void)
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
 
+#ifdef USE_DEBUGGER
+		if (dbg_is_stop_requested())
+			stop_command_repetition();
+#endif
+
 		/* 残りの文字をすべて描画する */
 		return total_chars - drawn_chars;
 	}
@@ -652,8 +658,13 @@ static void draw_click(void)
 	/* 入力があったら終了する */
 #ifdef USE_DEBUGGER
 	if (!process_click_first && dbg_is_stop_requested()) {
-		if (!have_voice ||
-		    (have_voice && is_mixer_sound_finished(VOICE_STREAM)))
+		if (!have_voice)
+			stop_command_repetition();
+		else if (have_voice && is_mixer_sound_finished(VOICE_STREAM))
+			stop_command_repetition();
+		else if (have_voice &&
+			 (is_left_button_pressed || is_down_pressed ||
+			  is_return_pressed))
 			stop_command_repetition();
 	} else
 #endif
