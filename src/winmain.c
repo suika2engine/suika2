@@ -127,9 +127,13 @@ static void SyncBackImage(int x, int y, int w, int h);
 #ifdef USE_DEBUGGER
 /* バージョン文字列 */
 static char szVersion[] =
-	"Suika2 Debug Tool\n"
+	"Suika2 Debug Studio\n"
 	"Beta r1\n"
-	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n";
+	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n"
+	"\n"
+	"Developpers\n"
+	"Keiichi TABATA (Programmer)\n"
+	"Seiji Matsuno (Director)\n";
 
 /* 実行状態 */
 BOOL bRunning;
