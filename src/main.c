@@ -151,9 +151,18 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 			if (!dispatch_command(x, y, w, h, &cont)) {
 #ifdef USE_DEBUGGER
 				if (dbg_error_state) {
+					/* エラーによる終了をキャンセルする */
+					dbg_error_state = false;
+					dbg_stop();
+					return true;
+				} else {
+					/* 最後まで実行した */
+					if (!load_debug_script())
+						return false;
 					dbg_stop();
 					return true;
 				}
+				return false;
 #else
 				return false;
 #endif
@@ -227,7 +236,7 @@ static bool pre_dispatch(void)
 			log_memory();
 			return false;
 		}
-		if (strcmp(scr, "ERROR") == 0) {
+		if (strcmp(scr, "DEBUG") == 0) {
 			free(scr);
 			return false;
 		}
@@ -262,7 +271,7 @@ static bool pre_dispatch(void)
 			log_memory();
 			return false;
 		}
-		if (strcmp(scr, "ERROR") == 0) {
+		if (strcmp(scr, "DEBUG") == 0) {
 			free(scr);
 			return false;
 		}

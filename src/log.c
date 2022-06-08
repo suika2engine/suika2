@@ -604,6 +604,6 @@ void log_command_update_error(void)
 			 "You can reconvert it to an @ command by editting.");
 	else
 		log_info("このコマンドはメッセージに変換されました。\n"
-			 "再編集で@コマンドに変換できます。");
+			 "編集と更新で @ コマンドに再変換できます。");
 }
 #endif

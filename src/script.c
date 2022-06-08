@@ -670,6 +670,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
 		set_error_command(index, cmd[index].text);
+		log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -689,6 +690,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
 		set_error_command(index, cmd[index].text);
+		log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -699,6 +701,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
 		set_error_command(index, cmd[index].text);
+		log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -784,6 +787,7 @@ static bool parse_serif(int index, const char *file, int line, const char *buf)
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
 		set_error_command(index, cmd[index].text);
+		log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -868,22 +872,16 @@ bool update_command(int index, const char *cmd_str)
 	/* 行頭の文字で仕分けする */
 	switch (cmd_str[0]) {
 	case '@':
-		if (!parse_insn(index, cur_script, line, cmd_str)) {
-			set_error_command(index, err_cmd);
+		if (!parse_insn(index, cur_script, line, cmd_str))
 			return false;
-		}
 		return true;
 	case '*':
-		if (!parse_serif(index, cur_script, line, cmd_str)) {
-			set_error_command(index, err_cmd);
+		if (!parse_serif(index, cur_script, line, cmd_str))
 			return false;
-		}
 		return true;
 	case ':':
-		if (!parse_label(index, cur_script, line, cmd_str)) {
-			set_error_command(index, err_cmd);
+		if (!parse_label(index, cur_script, line, cmd_str))
 			return false;
-		}
 		return true;
 	case '\0':
 		/* 空行は空白1つに変換する */
@@ -893,10 +891,8 @@ bool update_command(int index, const char *cmd_str)
 		/* コメントもメッセージにする */
 		/* fall-thru */
 	default:
-		if (!parse_message(index, cur_script, line, cmd_str)) {
-			set_error_command(index, err_cmd);
+		if (!parse_message(index, cur_script, line, cmd_str))
 			return false;
-		}
 		return true;
 	}
 	return true;
@@ -909,8 +905,6 @@ void set_error_command(int index, char *text)
 {
 	cmd[index].type = COMMAND_MESSAGE;
 	cmd[index].text = text;
-
-	log_command_update_error();
 }
 
 /*
@@ -920,7 +914,7 @@ bool load_debug_script(void)
 {
 	cleanup_script();
 
-	cur_script = strdup("ERROR");
+	cur_script = strdup("DEBUG");
 	if (cur_script == NULL) {
 		log_memory();
 		cleanup_script();
@@ -934,11 +928,11 @@ bool load_debug_script(void)
 	cmd[0].type = COMMAND_MESSAGE;
 	cmd[0].line = 0;
 	cmd[0].text = strdup(conf_language == NULL ?
-			     /* "エラーが発生しました" (in utf-8) */
-			     "\xe3\x82\xa8\xe3\x83\xa9\xe3\x83\xbc\xe3\x81\x8c"
-			     "\xe7\x99\xba\xe7\x94\x9f\xe3\x81\x97\xe3\x81\xbe"
-			     "\xe3\x81\x97\xe3\x81\x9f" :
-			     "Error occured.");
+			     /* "実行を終了しました" (utf-8) */
+			     "\xe5\xae\x9f\xe8\xa1\x8c\xe3\x82\x92\xe7\xb5\x82"
+			     "\xe4\xba\x86\xe3\x81\x97\xe3\x81\xbe\xe3\x81\x97"
+			     "\xe3\x81\x9f" :
+			     "Execution finished.");
 	if (cmd[0].text == NULL) {
 		log_memory();
 		cleanup_script();
