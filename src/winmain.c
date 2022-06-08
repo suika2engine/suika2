@@ -2014,7 +2014,7 @@ static VOID OnPressWriteVars(void)
 
 	/* パースする */
 	p = szTextboxVar;
-	while(*p == '\0')
+	while(*p)
 	{
 		/* 空行を読み飛ばす */
 		if(*p == '\n')
@@ -2027,7 +2027,7 @@ static VOID OnPressWriteVars(void)
 		next_line = p;
 		while(*next_line)
 		{
-			if(*next_line == '\n')
+			if(*next_line == '\r')
 			{
 				*next_line = '\0';
 				next_line++;
@@ -2049,6 +2049,8 @@ static VOID OnPressWriteVars(void)
 		/* 次の行へポインタを進める */
 		p = next_line;
 	}
+
+	UpdateVariableTextBox();
 }
 
 /*
@@ -2502,7 +2504,7 @@ static VOID UpdateVariableTextBox(void)
 			continue;
 
 		/* 行を追加する */
-		snprintf(line, sizeof(line), "$%d=%d\n", index, val);
+		snprintf(line, sizeof(line), "$%d=%d\r\n", index, val);
 		strcat(szTextboxVar, line);
 	}
 
