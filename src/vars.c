@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -79,8 +79,20 @@ void set_variable(int index, int32_t val)
 #ifdef USE_DEBUGGER
 	flag_var_updated = true;
 	updated_index = index;
+	is_var_changed[index] = true;
 #endif
 
+	if (index < GLOBAL_VAR_OFFSET)
+		local_var_tbl[index] = val;
+	else
+		global_var_tbl[index - GLOBAL_VAR_OFFSET] = val;
+}
+
+/*
+ * ロードされた変数を設定する
+ */
+void set_loaded_variable(int index, int32_t val)
+{
 	if (index < GLOBAL_VAR_OFFSET)
 		local_var_tbl[index] = val;
 	else

@@ -131,7 +131,10 @@ const char *ConvNativeToUtf8(const char *lpszNativeMessage);
  */
 #ifdef USE_DEBUGGER
 /* メッセージボックスのタイトル */
-#define MSGBOX_TITLE	"Suika STUDIO Debug"
+#define MSGBOX_TITLE		"Suika STUDIO Debug"
+
+/* 変数テキストボックスのテキストの最大長(形: "$00001=12345678901\n") */
+#define VAR_TEXTBOX_MAX		(11000 * (1 + 5 + 1 + 11 + 2))
 
 /* バージョン文字列 */
 static char szVersion[] =
@@ -172,6 +175,9 @@ static HWND hWndListbox;
 static HWND hWndBtnError;
 static HWND hWndBtnSave;
 static HWND hWndBtnReload;
+static HWND hWndLabelVar;
+static HWND hWndTextboxVar;
+static HWND hWndBtnVar;
 
 /* ボタンが押下されたか */
 static BOOL bResumePressed;
@@ -181,6 +187,9 @@ static BOOL bChangeScriptPressed;
 static BOOL bChangeLinePressed;
 static BOOL bUpdatePressed;
 static BOOL bReloadPressed;
+
+/* 変数のテキストボックスの内容 */
+static char szTextboxVar[VAR_TEXTBOX_MAX + 1];
 
 /* 前方参照 */
 static VOID InitMenu(void);
@@ -192,6 +201,8 @@ static VOID OnSelectScript(void);
 static VOID OnPressReset(void);
 static VOID OnPressSave(void);
 static VOID OnPressError(void);
+static VOID UpdateVariableTextBox(void);
+static VOID OnPressWriteVars(void);
 #endif
 
 /*
@@ -419,7 +430,11 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 
 	/* ウィンドウを作成する */
 	hWndMain = CreateWindowEx(0, szWindowClass, mbszTitle, style,
+#ifdef USE_DEBUGGER
+							  10, 10,
+#else
 							  (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+#endif
 							  conf_window_width + dw, conf_window_height + dh,
 							  NULL, NULL, hInstance, NULL);
 	if(!hWndMain)
@@ -1380,7 +1395,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	int dw, dh;
 	BOOL bEnglish;
 	const int WIN_WIDTH = 440;
-	const int WIN_HEIGHT = 735;
+	const int WIN_HEIGHT = 905;
 
 	InitCommonControls();
 
@@ -1651,7 +1666,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Search for error" : "エラーを探す",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		10, WIN_HEIGHT - 10 - 30, 120, 30,
+		10, 735 - 10 - 30, 120, 30,
 		hWndDebug, (HMENU)ID_ERROR,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnError, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1664,7 +1679,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Overwrite" : "上書き保存",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		WIN_WIDTH - 10 - 80 - 10 - 80, WIN_HEIGHT - 10 - 30, 80, 30,
+		WIN_WIDTH - 10 - 80 - 10 - 80, 735 - 10 - 30, 80, 30,
 		hWndDebug, (HMENU)ID_SAVE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1677,13 +1692,52 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		"BUTTON",
 		bEnglish ? "Reload" : "再読み込み",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		WIN_WIDTH - 10 - 80, WIN_HEIGHT - 10 - 30, 80, 30,
+		WIN_WIDTH - 10 - 80, 735 - 10 - 30, 80, 30,
 		hWndDebug, (HMENU)ID_RELOAD,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnReload,
 				  "Reload the script from file.",
 				  "スクリプトファイルの内容を再読み込みします。");
+
+	/* 変数のラベルを作成する */
+	hWndLabelVar = CreateWindow(
+		"STATIC",
+		bEnglish ?
+		"Variables (non-initial values):" :
+		"変数 (初期値でない):",
+		WS_VISIBLE | WS_CHILD,
+		10, 735, 200, 16,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndLabelVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+
+	/* 変数のテキストボックスを作成する */
+	hWndTextboxVar = CreateWindow(
+		"EDIT",
+		NULL,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOVSCROLL |
+		ES_MULTILINE | ES_WANTRETURN, // ES_READONLY
+		10, 755, 420, 100,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndTextboxVar, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
+	CreateTooltip(hWndTextboxVar,
+				  "List of variables which have non-initial values.",
+				  "初期値から変更された変数の一覧です。");
+
+	/* 値を書き込むボタンを作成する */
+	hWndBtnVar = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Write values" : "値を書き込む",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+		WIN_WIDTH - 10 - 120, WIN_HEIGHT - 10 - 30, 120, 30,
+		hWndDebug, (HMENU)ID_WRITE,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnVar,
+				  " the script from file.",
+				  "変数の内容を書き込みます。");
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
@@ -1794,6 +1848,9 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 			break;
 		case ID_RELOAD:
 			bReloadPressed = TRUE;
+			break;
+		case ID_WRITE:
+			OnPressWriteVars();
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -1944,6 +2001,54 @@ static VOID OnPressError(void)
 	MessageBox(hWndDebug, conf_language == NULL ?
 			   "エラーはありません。" : "No error.",
 			   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
+}
+
+/* 変数の書き込みボタンが押下された場合を処理する */
+static VOID OnPressWriteVars(void)
+{
+	char *p, *next_line;
+	int index, val;
+
+	/* テキストボックスの内容を取得する */
+	GetWindowText(hWndTextboxVar, szTextboxVar, sizeof(szTextboxVar) - 1);
+
+	/* パースする */
+	p = szTextboxVar;
+	while(*p == '\0')
+	{
+		/* 空行を読み飛ばす */
+		if(*p == '\n')
+		{
+			p++;
+			continue;
+		}
+
+		/* 次の行の開始文字を探す */
+		next_line = p;
+		while(*next_line)
+		{
+			if(*next_line == '\n')
+			{
+				*next_line = '\0';
+				next_line++;
+				break;
+			}
+			next_line++;
+		}
+
+		/* パースする */
+		if(sscanf(p, "$%d=%d", &index, &val) != 2)
+			index = -1, val = -1;
+		if(index >= LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE)
+			index = -1;
+
+		/* 変数を設定する */
+		if(index != -1)
+			set_variable(index, val);
+
+		/* 次の行へポインタを進める */
+		p = next_line;
+	}
 }
 
 /*
@@ -2374,5 +2479,34 @@ void update_debug_info(bool script_changed)
 	top = (line_num - 9 < 0) ? 0 : (line_num - 9);
 	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
 	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
+
+	/* 変数の情報を更新する */
+	if(check_variable_updated())
+		UpdateVariableTextBox();
+}
+
+/* 変数の情報を更新する */
+static VOID UpdateVariableTextBox(void)
+{
+	char line[1024];
+	int index;
+	int val;
+
+	szTextboxVar[0] = '\0';
+
+	for(index = 0; index < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; index++)
+	{
+		/* 変数が初期値の場合 */
+		val = get_variable(index);
+		if(val == 0 && !is_variable_changed(index))
+			continue;
+
+		/* 行を追加する */
+		snprintf(line, sizeof(line), "$%d=%d\n", index, val);
+		strcat(szTextboxVar, line);
+	}
+
+	/* テキストボックスにセットする */
+	SetWindowText(hWndTextboxVar, szTextboxVar);
 }
 #endif

@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -15,6 +15,7 @@
  *  - 2021/06/05 マスターボリュームに対応
  *  - 2021/07/07 セーブ専用画面に対応
  *  - 2021/07/29 クイックセーブ・ロードに対応
+ *  - 2022/06/09 デバッガに対応
  */
 
 #ifdef _MSC_VER
@@ -1151,7 +1152,7 @@ static bool deserialize_vars(struct rfile *rf)
 	for (i = 0; i < LOCAL_VAR_SIZE; i++) {
 		if (read_rfile(rf, &n, sizeof(n)) < sizeof(n))
 			return false;
-		set_variable(i, n);
+		set_loaded_variable(i, n);
 	}
 
 	return true;
@@ -1208,7 +1209,7 @@ static void load_global_data(void)
 	for (i = 0; i < GLOBAL_VAR_SIZE; i++) {
 		if (read_rfile(rf, &n, sizeof(n)) < sizeof(n))
 			break;
-		set_variable(GLOBAL_VAR_OFFSET + i, n);
+		set_loaded_variable(GLOBAL_VAR_OFFSET + i, n);
 	}
 
 	/* マスターボリュームをデシリアライズする */
