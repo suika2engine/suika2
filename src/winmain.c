@@ -152,6 +152,9 @@ BOOL bRunning;
 /* メニュー */
 static HMENU hMenu;
 
+/* ステータスバー */
+static HWND hWndStatus;
+
 /* デバッガウィンドウ */
 static HWND hWndDebug;
 
@@ -193,7 +196,10 @@ static char szTextboxVar[VAR_TEXTBOX_MAX + 1];
 
 /* 前方参照 */
 static VOID InitMenu(void);
+static VOID InitStatusBar(void);
 static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow);
+static HWND CreateTooltip(HWND hWndBtn, const char *pszTextEnglish,
+						  const char *pszTextJapanese);
 static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 									 LPARAM lParam);
 static VOID OnClickListBox(void);
@@ -219,6 +225,10 @@ int WINAPI WinMain(
 #ifndef USE_DIRECT3D
 	/* Sleep()の分解能を設定する */
 	timeBeginPeriod(1);
+#endif
+
+#ifdef USE_DEBUGGER
+	InitCommonControls();
 #endif
 
 	/* 基盤レイヤの初期化処理を行う */
@@ -458,6 +468,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	/* メニューを作成する */
 	InitMenu();
 
+	/* ステータスバーを作成する */
+	InitStatusBar();
+
 	/* アクセラレータをロードする */
 	hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
 #endif
@@ -696,6 +709,12 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 					   "終了しますか？" : "Quit?",
 					   mbszTitle, MB_OKCANCEL) == IDOK)
 			DestroyWindow(hWnd);
+		return 0;
+#endif
+#ifdef USE_DEBUGGER
+	case WM_SIZE:
+		/* ステータスバーの位置を正しくする */
+		SendMessage(hWndStatus, WM_SIZE, wParam, lParam);
 		return 0;
 #endif
 	case WM_LBUTTONDOWN:
@@ -1382,7 +1401,37 @@ static VOID InitMenu(void)
 	SetMenu(hWndMain, hMenu);
 }
 
-HWND CreateTooltip(HWND hWndBtn, const char *pszTextEnglish, const char *pszTextJapanese);
+/* ステータスバーを作成する */
+VOID InitStatusBar(void)
+{
+	int sizes[] = {200, 400, -1};
+	RECT rcBar, rcMain;
+
+	/* ステータスバーを作成する */
+	hWndStatus = CreateWindowEx(0, STATUSCLASSNAME, NULL,
+								WS_CHILD | CCS_BOTTOM |
+								WS_VISIBLE,
+								0, 0, 0, 0,
+								hWndMain, (HMENU)ID_STATUS,
+								GetModuleHandle(NULL), NULL);
+//	SendMessage(hWndStatus, SB_SIMPLE, TRUE, 0);
+//	SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(SB_SIMPLEID | 0),
+	SendMessage(hWndStatus, SB_SETPARTS, (WPARAM)3, (LPARAM)(LPINT)sizes);
+	SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 0),
+				(LPARAM)(conf_language == NULL ? "停止中" : "Stopped"));
+	SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 1), (LPARAM)"init.txt");
+	SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 2), (LPARAM)"1");
+	GetWindowRect(hWndStatus, &rcBar);
+
+	/* ウィンドウのサイズを調整する */
+	SetRectEmpty(&rcMain);
+	rcMain.right = conf_window_width;
+	rcMain.bottom = conf_window_height + (rcBar.bottom - rcBar.top);
+	AdjustWindowRectEx(&rcMain, (DWORD)GetWindowLong(hWndMain, GWL_STYLE),
+					   TRUE, (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
+	SetWindowPos(hWndMain, NULL, 0, 0, rcMain.right - rcMain.left,
+				 rcMain.bottom - rcMain.top, SWP_NOZORDER | SWP_NOMOVE);
+}
 
 /* デバッガを初期化する */
 static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
@@ -1396,8 +1445,6 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	BOOL bEnglish;
 	const int WIN_WIDTH = 440;
 	const int WIN_HEIGHT = 905;
-
-	InitCommonControls();
 
 	/* 英語モードかどうかチェックする */
 	bEnglish = conf_language == NULL ? FALSE : TRUE;
@@ -1736,7 +1783,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnVar,
-				  " the script from file.",
+				  "Write to the variables.",
 				  "変数の内容を書き込みます。");
 
 	/* ウィンドウを表示する */
@@ -1746,7 +1793,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-HWND CreateTooltip(HWND hWndBtn, const char *pszTextEnglish,
+/* ツールチップを作成する */
+static HWND CreateTooltip(HWND hWndBtn, const char *pszTextEnglish,
 				   const char *pszTextJapanese)
 {
 	TOOLINFO ti;
@@ -2187,10 +2235,16 @@ void set_running_state(bool running, bool request_stop)
 	/* 停止によりコマンドの完了を待機中のとき */
 	if(request_stop)
 	{
+		/* ステータスバーを設定します */
+		SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 0),
+					(LPARAM)(bEnglish ?
+							 "Waiting for command finish..." :
+							 "コマンドの完了を待機中..."));
+
 		/* ウィンドウのタイトルを設定する */
 		SetWindowText(hWndDebug, bEnglish ?
-					  "Waiting for command finish... - Suika" :
-					  "□コマンドの完了を待機中... - Suika");
+					  "Waiting for command finish..." :
+					  "コマンドの完了を待機中...");
 
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
@@ -2280,9 +2334,14 @@ void set_running_state(bool running, bool request_stop)
 	/* 実行中のとき */
 	else if(running)
 	{
+		/* ステータスバーを設定します */
+		SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 0),
+					(LPARAM)(bEnglish ?
+							 "Running command..." :
+							 "コマンドを実行中..."));
+
 		/* ウィンドウのタイトルを設定する */
-		SetWindowText(hWndDebug, bEnglish ?
-					  "Running... - Suika" : "●実行中... - Suika");
+		SetWindowText(hWndDebug, bEnglish ? "Running..." : "実行中...");
 
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
@@ -2372,10 +2431,12 @@ void set_running_state(bool running, bool request_stop)
 	/* 完全に停止中のとき */
 	else
 	{
+		/* ステータスバーを設定します */
+		SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 0),
+					(LPARAM)(bEnglish ? "Stopped" : "停止中"));
+
 		/* ウィンドウのタイトルを設定する */
-		SetWindowText(hWndDebug, bEnglish ?
-					  "Stopped - Suika" :
-					  "■停止中 - Suika");
+		SetWindowText(hWndDebug, bEnglish ? "Stopped" : "停止中");
 
 		/* 続けるボタンを有効にする */
 		EnableWindow(hWndBtnResume, TRUE);
@@ -2476,10 +2537,13 @@ void update_debug_info(bool script_changed)
 
 	/* スクリプトファイル名を設定する */
 	SetWindowText(hWndTextboxScript, get_script_file_name());
+	SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 1),
+				(LPARAM)get_script_file_name());
 
 	/* 行番号を設定する */
 	snprintf(line, sizeof(line), "%d", get_line_num() + 1);
 	SetWindowText(hWndTextboxLine, line);
+	SendMessage(hWndStatus, SB_SETTEXT, (WPARAM)(0 | 2), (LPARAM)line);
 
 	/* コマンド文字列を設定する */
 	SetWindowText(hWndTextboxCommand, conv_utf8_to_native(get_line_string()));

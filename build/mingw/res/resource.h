@@ -38,3 +38,4 @@
 #define ID_RESET_COMMAND	161
 #define ID_SAVE			162
 #define ID_ERROR		163
+#define ID_STATUS		164
