@@ -327,6 +327,7 @@ static void CleanupApp(void)
 /* ログをオープンする */
 static BOOL OpenLogFile(void)
 {
+#ifndef USE_DEBUGGER
 	if (pLogFile == NULL)
 	{
 		pLogFile = fopen(LOG_FILE, "w");
@@ -341,6 +342,7 @@ static BOOL OpenLogFile(void)
 			return FALSE;
 		}
 	}
+#endif
 	return TRUE;
 }
 
@@ -945,19 +947,21 @@ bool log_info(const char *s, ...)
 	va_list ap;
 
 	va_start(ap, s);
+
+	/* メッセージボックスを表示する */
+	vsnprintf(buf, sizeof(buf), s, ap);
+	MessageBox(hWndMain, buf, conf_language == NULL ? "情報" : "Info",
+			   MB_OK | MB_ICONINFORMATION);
+
 	if(pLogFile != NULL)
 	{
-		/* メッセージボックスを表示する */
-		vsnprintf(buf, sizeof(buf), s, ap);
-		MessageBox(hWndMain, buf, conf_language == NULL ? "情報" : "Info",
-				   MB_OK | MB_ICONINFORMATION);
-
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
 	}
+
 	va_end(ap);
 	return true;
 }
@@ -971,19 +975,21 @@ bool log_warn(const char *s, ...)
 	va_list ap;
 
 	va_start(ap, s);
+
+	/* メッセージボックスを表示する */
+	vsnprintf(buf, sizeof(buf), s, ap);
+	MessageBox(hWndMain, buf, conf_language == NULL ? "警告" : "Warning",
+			   MB_OK | MB_ICONWARNING);
+
 	if(pLogFile != NULL)
 	{
-		/* メッセージボックスを表示する */
-		vsnprintf(buf, sizeof(buf), s, ap);
-		MessageBox(hWndMain, buf, conf_language == NULL ? "警告" : "Warning",
-				   MB_OK | MB_ICONWARNING);
-
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
 	}
+
 	va_end(ap);
 	return true;
 }
@@ -997,19 +1003,21 @@ bool log_error(const char *s, ...)
 	va_list ap;
 
 	va_start(ap, s);
+
+	/* メッセージボックスを表示する */
+	vsnprintf(buf, sizeof(buf), s, ap);
+	MessageBox(hWndMain, buf, conf_language == NULL ? "エラー" : "Error",
+			   MB_OK | MB_ICONERROR);
+
 	if(pLogFile != NULL)
 	{
-		/* メッセージボックスを表示する */
-		vsnprintf(buf, sizeof(buf), s, ap);
-		MessageBox(hWndMain, buf, conf_language == NULL ? "エラー" : "Error",
-				   MB_OK | MB_ICONERROR);
-
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
 	}
+
 	va_end(ap);
 	return true;
 }
