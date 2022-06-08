@@ -166,6 +166,7 @@ static HWND hWndBtnUpdate;
 static HWND hWndBtnReset;
 static HWND hWndLabelContent;
 static HWND hWndListbox;
+static HWND hWndBtnError;
 static HWND hWndBtnSave;
 static HWND hWndBtnReload;
 
@@ -637,7 +638,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	   hWnd == hWndLabelLine || hWnd == hWndTextboxLine ||
 	   hWnd == hWndBtnChangeLine || hWnd == hWndLabelCommand ||
 	   hWnd == hWndTextboxCommand || hWnd == hWndBtnUpdate ||
-	   hWnd == hWndBtnReset || hWnd == hWndListbox || message == WM_COMMAND)
+	   hWnd == hWndBtnReset || hWnd == hWndListbox || hWnd == hWndBtnError ||
+	   message == WM_COMMAND)
 		return WndProcDebug(hWnd, message, wParam, lParam);
 #endif
 
@@ -1628,12 +1630,25 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 				  "Script content which is loaded at this point.",
 				  "現在読み込まれているスクリプトの内容です。");
 
+	/* エラーを探すを有効にする */
+	hWndBtnError = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Search for error" : "エラーを探す",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		10, WIN_HEIGHT - 10 - 30, 120, 30,
+		hWndDebug, (HMENU)ID_ERROR,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnError, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnError,
+				  "Search for a next error.",
+				  "次のエラー箇所を探します。");
+
 	/* 上書き保存ボタンを作成する */
 	hWndBtnSave = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Overwrite" : "上書き保存",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		10, WIN_HEIGHT - 10 - 30, 80, 30,
+		WIN_WIDTH - 10 - 80 - 10 - 80, WIN_HEIGHT - 10 - 30, 80, 30,
 		hWndDebug, (HMENU)ID_SAVE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -1731,7 +1746,8 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 			DestroyWindow(hWndMain);
 			break;
 		case ID_VERSION:
-			MessageBox(hWndMain, szVersion, "About", MB_OK | MB_ICONINFORMATION);
+			MessageBox(hWndMain, szVersion, "About",
+					   MB_OK | MB_ICONINFORMATION);
 			break;
 		case ID_RESUME:
 			bResumePressed = TRUE;
@@ -1906,6 +1922,10 @@ static VOID OnPressError(void)
 			
 		}
 	}
+
+	MessageBox(hWndDebug, conf_language == NULL ?
+			   "エラーはありません。" : "No error.",
+			   "Suika", MB_OK | MB_ICONINFORMATION);
 }
 
 /*
@@ -2096,6 +2116,9 @@ void set_running_state(bool running, bool request_stop)
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
 
+		/* エラーを探すを有効にする */
+		EnableWindow(hWndBtnError, TRUE);
+
 		/* 上書き保存ボタンを無効にする */
 		EnableWindow(hWndBtnSave, FALSE);
 
@@ -2178,6 +2201,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
+
+		/* エラーを探すを無効にする */
+		EnableWindow(hWndBtnError, FALSE);
 
 		/* 上書きボタンを無効にする */
 		EnableWindow(hWndBtnSave, FALSE);
@@ -2262,6 +2288,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, TRUE);
+
+		/* エラーを探すを有効にする */
+		EnableWindow(hWndBtnError, TRUE);
 
 		/* 上書き保存ボタンを有効にする */
 		EnableWindow(hWndBtnSave, TRUE);
