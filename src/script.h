@@ -570,6 +570,9 @@ int get_command_count(void);
 /*  デバッグ用に1コマンドだけ書き換える */
 bool update_command(int index, const char *cmd_str);
 
+/* エラー時のコマンドを設定する */
+void set_error_command(int index, char *text);
+
 /* デバッグ用の仮のスクリプトをロードする */
 bool load_debug_script(void);
 #endif

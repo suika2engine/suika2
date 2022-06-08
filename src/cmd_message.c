@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -14,7 +14,7 @@
  *  - 2021/07/29 メッセージボックスボタン対応
  *  - 2021/07/30 オートモード対応
  *  - 2021/07/31 スキップモード対応
- *  - 2022/06/06 デバッグモードに対応
+ *  - 2022/06/06 デバッガに対応
  */
 
 #include "suika.h"

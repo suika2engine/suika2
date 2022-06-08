@@ -92,7 +92,6 @@ bool play_video(const char *fname);
  * デバッガの場合のみ
  */
 #ifdef USE_DEBUGGER
-
 /* 再開ボタンが押されたか調べる */
 bool is_resume_pushed(void);
 

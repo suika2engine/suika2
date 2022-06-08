@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -20,6 +20,7 @@
  *  - 2021/07/30 オートモードに対応
  *  - 2021/07/31 スキップモードに対応
  *  - 2022/05/11 動画再生に対応
+ *  - 2022/06/06 デバッガに対応
  */
 
 #include "suika.h"
@@ -79,6 +80,9 @@ static bool dbg_running;
 
 /* 停止が要求されているか */
 static bool dbg_request_stop;
+
+/* エラー状態であるか */
+static bool dbg_error_state;
 
 /* 前方参照 */
 static bool pre_dispatch(void);
@@ -144,8 +148,16 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 			if (!pre_dispatch())
 				break;
 #endif
-			if (!dispatch_command(x, y, w, h, &cont))
+			if (!dispatch_command(x, y, w, h, &cont)) {
+#ifdef USE_DEBUGGER
+				if (dbg_error_state) {
+					dbg_stop();
+					return true;
+				}
+#else
 				return false;
+#endif
+			}
 		} while (cont);
 	}
 
@@ -189,23 +201,27 @@ static bool pre_dispatch(void)
 	 * 停止中の場合
 	 */
 
+	/* 続けるが押された場合 */
 	if (is_resume_pushed()) {
-		/* 続けるが押された場合 */
 		dbg_running = true;
 		set_running_state(true, false);
 
 		/* コマンドディスパッチへ進む */
 		return true;
-	} else if (is_next_pushed()) {
-		/* 次へが押された場合 */
+	}
+
+	/* 次へが押された場合 */
+	if (is_next_pushed()) {
 		dbg_running = true;
 		dbg_request_stop = true;
 		set_running_state(true, true);
 
 		/* コマンドディスパッチへ進む */
 		return true;
-	} else if (is_script_changed()) {
-		/* 実行するスクリプトが変更された場合 */
+	}
+
+	/* 実行するスクリプトが変更された場合 */
+	if (is_script_changed()) {
 		scr = strdup(get_changed_script());
 		if (scr == NULL) {
 			log_memory();
@@ -221,20 +237,26 @@ static bool pre_dispatch(void)
 				return false;
 		}
 		free(scr);
-	} else if (is_line_changed()) {
-		/* 行番号が変更された場合 */
+	}
+
+	/* 行番号が変更された場合 */
+	if (is_line_changed()) {
 		int index = get_command_index_from_line_number(
 			get_changed_line());
 		if (index != -1)
 			move_to_command_index(index);
-	} else if (is_command_updated()) {
-		/* コマンドが更新された場合 */
+	}
+
+	/* コマンドが更新された場合 */
+	if (is_command_updated()) {
 		update_command(get_command_index(),
 			       get_updated_command());
 		update_debug_info(true);
 		return false;
-	} else if (is_script_updated()) {
-		/* 実行中のスクリプトファイル名を取得する */
+	}
+
+	/* 実行中のスクリプトファイル名を取得する */
+	if (is_script_updated()) {
 		scr = strdup(get_script_file_name());
 		if (scr == NULL) {
 			log_memory();
@@ -623,5 +645,13 @@ void dbg_stop(void)
 bool dbg_is_stop_requested(void)
 {
 	return dbg_request_stop;
+}
+
+/*
+ * エラー状態を設定する
+ */
+void dbg_set_error_state(void)
+{
+	dbg_error_state = true;
 }
 #endif

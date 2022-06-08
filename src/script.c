@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -849,7 +849,9 @@ bool update_command(int index, const char *cmd_str)
 	return true;
 }
 
-/* エラー時のコマンドを設定する */
+/*
+ * エラー時のコマンドを設定する
+ */
 void set_error_command(int index, char *text)
 {
 	cmd[index].type = COMMAND_MESSAGE;

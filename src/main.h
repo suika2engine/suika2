@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -14,6 +14,7 @@
  *  - 2021/06/12 shakeに対応
  *  - 2021/06/15 setsaveに対応
  *  - 2022/05/11 動画再生に対応
+ *  - 2022/06/06 デバッガに対応
  */
 
 #ifndef SUIKA_MAIN_H
@@ -136,6 +137,7 @@ bool is_non_interruptible(void);
 bool dbg_is_running(void);
 void dbg_stop(void);
 bool dbg_is_stop_requested(void);
+void dbg_set_error_state(void);
 #endif
 
 #endif

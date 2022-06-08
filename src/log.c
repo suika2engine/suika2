@@ -226,6 +226,7 @@ void log_invalid_msgbox_size(void)
  */
 void log_script_exec_footer(void)
 {
+#ifndef USE_DEBUGGER
 	const char *file;
 	int line;
 
@@ -241,6 +242,17 @@ void log_script_exec_footer(void)
 		log_error("> スクリプト実行エラー: %s %d行目\n", file, line);
 		log_error("> %s\n", conv_utf8_to_native(get_line_string()));
 	}
+#else
+	char *line;
+
+	/* コマンドをメッセージに変換する */
+	line = strdup(get_line_string());
+	if (line == NULL)
+		log_memory();
+	else
+		set_error_command(get_command_index(), line);
+	dbg_set_error_state();
+#endif
 }
 
 /*
