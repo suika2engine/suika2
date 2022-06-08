@@ -1432,7 +1432,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnResume = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Resume" : "続ける",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		10, 10, 100, 80,
 		hWndDebug, (HMENU)ID_RESUME,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1445,7 +1445,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnNext = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Next" : "次へ",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		120, 10, 100, 80,
 		hWndDebug, (HMENU)ID_NEXT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1458,7 +1458,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnPause = CreateWindow(
 		"BUTTON",
 		bEnglish ? "(Paused)" : "(停止中)",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		330, 10, 100, 80,
 		hWndDebug, (HMENU)ID_PAUSE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1495,7 +1495,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnChangeScript = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Change" : "変更",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		320, 130, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1507,7 +1507,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	/* スクリプトの選択ボタンを作成する */
 	hWndBtnSelectScript = CreateWindow(
 		"BUTTON", "...",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		405, 130, 25, 30,
 		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1543,7 +1543,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnChangeLine = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Change" : "変更",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		100, 190, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_LINE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1582,7 +1582,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnUpdate = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Update" : "更新",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		WIN_WIDTH - 10 - 80, 250, 80, 30,
 		hWndDebug, (HMENU)ID_UPDATE_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1597,7 +1597,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnReset = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Reset" : "リセット",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		WIN_WIDTH - 10 - 80, 290, 80, 30,
 		hWndDebug, (HMENU)ID_RESET_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1634,7 +1634,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnError = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Search for error" : "エラーを探す",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		10, WIN_HEIGHT - 10 - 30, 120, 30,
 		hWndDebug, (HMENU)ID_ERROR,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1647,7 +1647,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnSave = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Overwrite" : "上書き保存",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		WIN_WIDTH - 10 - 80 - 10 - 80, WIN_HEIGHT - 10 - 30, 80, 30,
 		hWndDebug, (HMENU)ID_SAVE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -1661,7 +1661,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnReload = CreateWindow(
 		"BUTTON",
 		bEnglish ? "Reload" : "再読み込み",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		WIN_WIDTH - 10 - 80, WIN_HEIGHT - 10 - 30, 80, 30,
 		hWndDebug, (HMENU)ID_RELOAD,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
