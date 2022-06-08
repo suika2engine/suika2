@@ -131,15 +131,14 @@ const char *ConvNativeToUtf8(const char *lpszNativeMessage);
  */
 #ifdef USE_DEBUGGER
 /* メッセージボックスのタイトル */
-#define MSGBOX_TITLE		"Suika STUDIO Debug"
+#define MSGBOX_TITLE		"Suika2 Pro"
 
-/* 変数テキストボックスのテキストの最大長(形: "$00001=12345678901\n") */
+/* 変数テキストボックスのテキストの最大長(形: "$00001=12345678901\r\n") */
 #define VAR_TEXTBOX_MAX		(11000 * (1 + 5 + 1 + 11 + 2))
 
 /* バージョン文字列 */
 static char szVersion[] =
-	"Suika STUDIO Debug\n"
-	"Beta r1\n"
+	"Suika2 Pro\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n"
 	"\n"
 	"Contributors:\n"
@@ -1477,9 +1476,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	GetWindowRect(hWndMain, &rc);
 
 	/* ウィンドウを作成する */
-	hWndDebug = CreateWindowEx(0, szWndClass, bEnglish ?
-							   "Stopped - Suika" :
-							   "停止中 - Suika",
+	hWndDebug = CreateWindowEx(0, szWndClass, bEnglish ? "Stopped" : "停止中",
 							   style,
 							   rc.right + 10, rc.top,
 							   WIN_WIDTH + dw, WIN_HEIGHT + dh,
