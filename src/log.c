@@ -275,9 +275,9 @@ void log_script_command_not_found(const char *name)
 void log_script_empty_serif(void)
 {
 	if (is_english_mode())
-		log_error("Character message is empty.\n");
+		log_error("Character message or name is empty.\n");
 	else
-		log_error("セリフが空白です\n");
+		log_error("セリフか名前が空白です\n");
 }
 
 /*
@@ -599,11 +599,12 @@ void log_video_error(const char *reason)
  */
 void log_command_update_error(void)
 {
-	if (is_english_mode())
-		log_info("This command is changed to a message.\n"
-			 "You can reconvert it to an @ command by editting.");
-	else
-		log_info("このコマンドはメッセージに変換されました。\n"
-			 "編集と更新で @ コマンドに再変換できます。");
+	if (is_english_mode()) {
+		log_info("This command is changed to a message which starts with '!'\n"
+			 "Edit and update it to reconvert to a correct command.");
+	} else {
+		log_info("このコマンドは'!'で始まるメッセージに変換されました。\n"
+			 "編集と更新で正しいコマンドに戻すことが可能です。");
+	}
 }
 #endif

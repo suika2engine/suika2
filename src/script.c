@@ -554,31 +554,79 @@ static bool read_script_from_file(const char *fname)
 			break;
 		case '@':
 			/* 命令行をパースする */
-			if (!parse_insn(cmd_size, fname, line, buf))
+			if (!parse_insn(cmd_size, fname, line, buf)) {
+#ifdef USE_DEBUGGER
+				if (is_parse_error) {
+					log_script_parse_footer(fname, line,
+								buf);
+					cmd_size++;
+					is_parse_error = false;
+				} else {
+					result = false;
+				}
+#else
 				result = false;
-			else
+#endif
+			} else {
 				cmd_size++;
+			}
 			break;
 		case '*':
 			/* セリフ行をパースする */
-			if (!parse_serif(cmd_size, fname, line, buf))
+			if (!parse_serif(cmd_size, fname, line, buf)) {
+#ifdef USE_DEBUGGER
+				if (is_parse_error) {
+					log_script_parse_footer(fname, line,
+								buf);
+					cmd_size++;
+					is_parse_error = false;
+				} else {
+					result = false;
+				}
+#else
 				result = false;
-			else
+#endif
+			} else {
 				cmd_size++;
+			}
 			break;
 		case ':':
 			/* ラベル行をパースする */
-			if (!parse_label(cmd_size, fname, line, buf))
+			if (!parse_label(cmd_size, fname, line, buf)) {
+#ifdef USE_DEBUGGER
+				if (is_parse_error) {
+					log_script_parse_footer(fname, line,
+								buf);
+					cmd_size++;
+					is_parse_error = false;
+				} else {
+					result = false;
+				}
+#else
 				result = false;
-			else
+#endif
+			} else {
 				cmd_size++;
+			}
 			break;
 		default:
 			/* メッセージ行をパースする */
-			if (!parse_message(cmd_size, fname, line, buf))
+			if (!parse_message(cmd_size, fname, line, buf)) {
+#ifdef USE_DEBUGGER
+				if (is_parse_error) {
+					log_script_parse_footer(fname, line,
+								buf);
+					cmd_size++;
+					is_parse_error = false;
+				} else {
+					result = false;
+				}
+#else
 				result = false;
-			else
+#endif
+			} else {
 				cmd_size++;
+			}
 			break;
 		}
 		line++;
@@ -588,17 +636,7 @@ static bool read_script_from_file(const char *fname)
 
 	close_rfile(rf);
 
-#ifdef USE_DEBUGGER
-	if (result)
-		return true;
-	if (is_parse_error) {
-		cmd_size++;
-		return true;
-	}
-	return false;
-#else
 	return result;
-#endif
 }
 
 /* 命令行をパースする */
@@ -645,6 +683,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 		log_script_command_not_found(c->param[0]);
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
+		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
 		log_command_update_error();
 #else
@@ -665,6 +704,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 		log_script_too_few_param(min, i - 1);
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
+		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
 		log_command_update_error();
 #else
@@ -676,6 +716,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 		log_script_too_many_param(max, i - 1);
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
+		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
 		log_command_update_error();
 #else
@@ -762,6 +803,7 @@ static bool parse_serif(int index, const char *file, int line, const char *buf)
 		log_script_empty_serif();
 #ifdef USE_DEBUGGER
 		is_parse_error = true;
+		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
 		log_command_update_error();
 #else
