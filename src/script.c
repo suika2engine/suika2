@@ -50,6 +50,8 @@ static struct command {
 	char *text;
 	char *param[PARAM_SIZE];
 } cmd[SCRIPT_CMD_SIZE];
+
+/* コマンドの数 */
 static int cmd_size;
 
 /* 行数 */
@@ -213,12 +215,13 @@ bool load_script(const char *fname)
 	}
 
 	/* スクリプトファイルを読み込む */
-	if (!read_script_from_file(fname))
+	if (!read_script_from_file(fname)) {
 #ifndef USE_DEBUGGER
-		; /* エラーの行まで読み込まれる */
+		/* エラーの行まで読み込まれる */
 #else
 		return false;
 #endif
+	}
 
 	/* コマンドが含まれない場合 */
 	if (cmd_size == 0) {
@@ -481,33 +484,6 @@ float get_float_param(int index)
 
 	/* 浮動小数点数に変換して返す */
 	return (float)atof(c->param[index]);
-}
-
-/*
- * 指定した行番号以降の最初のコマンドインデックスを取得する
- */
-int get_command_index_from_line_number(int line)
-{
-	int i;
-
-	for (i = 0; i < cmd_size; i++)
-		if (cmd[i].line >= line)
-			return i;
-
-	return -1;
-}
-
-/*
- *  指定した行番号の行全体を取得する
- */
-const char *get_line_string_at_line_num(int line)
-{
-#ifdef USE_DEBUGGER
-	if (comment_text[line] != NULL)
-		return comment_text[line];
-#endif
-
-	return cmd[get_command_index_from_line_number(line)].text;
 }
 
 /*
@@ -854,6 +830,43 @@ static bool parse_label(int index, const char *file, int line, const char *buf)
 }
 
 #ifdef USE_DEBUGGER
+/*
+ * 指定した行番号以降の最初のコマンドインデックスを取得する
+ */
+int get_command_index_from_line_number(int line)
+{
+	int i;
+
+	for (i = 0; i < cmd_size; i++)
+		if (cmd[i].line >= line)
+			return i;
+
+	return -1;
+}
+
+/*
+ *  指定した行番号の行全体を取得する
+ */
+const char *get_line_string_at_line_num(int line)
+{
+	int i;
+
+	/* コメント行の場合 */
+	if (comment_text[line] != NULL)
+		return comment_text[line];
+
+	/* コマンドを探す */
+	for (i = 0; i < cmd_size; i++) {
+		if (cmd[i].line == line)
+			return cmd[i].text;
+		if (cmd[i].line > line)
+			break;
+	}
+
+	/* 空行のreturn */
+	return "";
+}
+
 /*
  * デバッグ用に1コマンドだけ書き換える
  */

@@ -162,6 +162,7 @@ static HWND hWndBtnUpdate;
 static HWND hWndBtnReset;
 static HWND hWndLabelContent;
 static HWND hWndListbox;
+static HWND hWndBtnSave;
 static HWND hWndBtnReload;
 
 /* ボタンが押下されたか */
@@ -181,6 +182,7 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
 static VOID OnPressReset(void);
+static VOID OnPressSave(void);
 #endif
 
 /*
@@ -1285,6 +1287,13 @@ static VOID InitMenu(void)
 		"スクリプトを開く(&O)\tAlt+O";
 	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
 
+	/* スクリプトを上書き保存する(S)を作成する */
+	mi.wID = ID_SAVE;
+	mi.dwTypeData = bEnglish ?
+		"Overwrite script(&S)\tAlt+S" :
+		"スクリプトを上書き保存する(&S)\tAlt+S";
+	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? "Quit(&Q)\tAlt+Q" : "終了(&Q)\tAlt+Q";
@@ -1556,6 +1565,16 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndListbox, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
 
+	/* 上書き保存ボタンを作成する */
+	hWndBtnSave = CreateWindow(
+		"BUTTON",
+		bEnglish ? "Overwrite" : "上書き保存",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		10, WIN_HEIGHT - 10 - 30, 80, 30,
+		hWndDebug, (HMENU)ID_SAVE,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+
 	/* 再読み込みボタンを作成する */
 	hWndBtnReload = CreateWindow(
 		"BUTTON",
@@ -1641,6 +1660,9 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		case ID_RESET_COMMAND:
 			OnPressReset();
 			break;
+		case ID_SAVE:
+			OnPressSave();
+			break;
 		case ID_RELOAD:
 			bReloadPressed = TRUE;
 			break;
@@ -1700,11 +1722,56 @@ static VOID OnSelectScript(void)
 	}
 }
 
-/* コマンドリセットボタンがあ押下された場合の処理を行う */
+/* コマンドリセットボタンが押下された場合の処理を行う */
 static VOID OnPressReset(void)
 {
 	/* コマンド文字列を設定する */
 	SetWindowText(hWndTextboxCommand, conv_utf8_to_native(get_line_string()));
+}
+
+/* 上書き保存ボタンが押された場合の処理を行う */
+static VOID OnPressSave(void)
+{
+	FILE *fp;
+	char *path;
+	int i;
+
+	if (MessageBox(hWndMain, conf_language == NULL ?
+				   "スクリプトファイルを上書き保存します。\n"
+				   "よろしいですか？" :
+				   "Are you sure you want to overwrite the script file?",
+				   "Suika", MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	path = make_valid_path(SCRIPT_DIR, get_script_file_name());
+
+	fp = fopen(path, "w");
+	if (fp == NULL)
+	{
+		free(path);
+		MessageBox(hWndMain, conf_language == NULL ?
+				   "ファイルに書き込めません。" :
+				   "Cannot write to file.",
+				   "Suika", MB_OK | MB_ICONERROR);
+		return;
+	}
+	free(path);
+
+	for(i=0; i<get_line_count(); i++)
+	{
+		int body = fputs(get_line_string_at_line_num(i), fp);
+		int crlf = fputs("\n", fp);
+		if(body < 0 || crlf < 0)
+		{
+			MessageBox(hWndMain, conf_language == NULL ?
+					   "ファイルに書き込めません。" :
+					   "Cannot write to file.",
+					   "Suika", MB_OK | MB_ICONERROR);
+			fclose(fp);
+			return;
+		}			
+	}
+	fclose(fp);
 }
 
 /*
@@ -1895,11 +1962,17 @@ void set_running_state(bool running, bool request_stop)
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
 
-		/* スクリプトを開くメニューを無効にする */
-		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
+		/* 上書き保存ボタンを無効にする */
+		EnableWindow(hWndBtnSave, FALSE);
 
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
+
+		/* スクリプトを開くメニューを無効にする */
+		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
+
+		/* 上書き保存メニューを無効にする */
+		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
@@ -1969,11 +2042,17 @@ void set_running_state(bool running, bool request_stop)
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
 
+		/* 上書きボタンを無効にする */
+		EnableWindow(hWndBtnSave, FALSE);
+
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
 
 		/* スクリプトを開くメニューを無効にする */
 		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
+
+		/* 上書き保存メニューを無効にする */
+		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
@@ -2044,11 +2123,17 @@ void set_running_state(bool running, bool request_stop)
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, TRUE);
 
+		/* 上書き保存ボタンを有効にする */
+		EnableWindow(hWndBtnSave, TRUE);
+
 		/* 再読み込みボタンを有効にする */
 		EnableWindow(hWndBtnReload, TRUE);
 
 		/* スクリプトを開くメニューを有効にする */
 		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_ENABLED);
+
+		/* 上書き保存メニューを有効にする */
+		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
 
 		/* 続けるメニューを有効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);

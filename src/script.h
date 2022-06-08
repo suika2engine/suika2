@@ -554,12 +554,6 @@ int get_int_param(int index);
 /* 浮動小数点数のコマンドパラメータを取得する */
 float get_float_param(int index);
 
-/* 指定した行番号以降の最初のコマンドインデックスを取得する */
-int get_command_index_from_line_number(int line);
-
-/* 指定した行番号のコマンドの行全体を取得する */
-const char *get_line_string_at_line_num(int line);
-
 /* 行の数を取得する */
 int get_line_count(void);
 
@@ -567,6 +561,12 @@ int get_line_count(void);
 int get_command_count(void);
 
 #ifdef USE_DEBUGGER
+/* 指定した行番号以降の最初のコマンドインデックスを取得する */
+int get_command_index_from_line_number(int line);
+
+/* 指定した行番号の行全体を取得する */
+const char *get_line_string_at_line_num(int line);
+
 /*  デバッグ用に1コマンドだけ書き換える */
 bool update_command(int index, const char *cmd_str);
 

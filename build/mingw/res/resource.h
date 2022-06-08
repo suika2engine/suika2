@@ -37,3 +37,4 @@
 #define ID_RELOAD		160
 #define ID_UPDATE_COMMAND	161
 #define ID_RESET_COMMAND	162
+#define ID_SAVE			163

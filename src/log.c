@@ -35,8 +35,8 @@ static bool is_english_mode(void)
 	if (strcmp(conf_language, "English") == 0)
 		return true;
 
-	/* その他の言語が指定された場合は日本語モードとする */
-	return false;
+	/* その他の言語が指定された場合は英語モードとする */
+	return true;
 }
 
 /*
