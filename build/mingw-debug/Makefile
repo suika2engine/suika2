@@ -48,6 +48,7 @@ LDFLAGS = \
 	-ldsound \
 	-lstrmiids \
 	-lwinmm \
+	-lcomctl32 \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 

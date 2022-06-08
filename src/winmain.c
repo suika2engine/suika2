@@ -22,6 +22,10 @@
 #include "dsvideo.h"
 #include "resource.h"
 
+#ifdef USE_DEBUGGER
+#include <commctrl.h>
+#endif
+
 #ifdef USE_DIRECT3D
 #include "d3drender.h"
 #endif
@@ -1292,12 +1296,12 @@ static VOID InitMenu(void)
 	mi.dwTypeData = bEnglish ?
 		"Overwrite script(&S)\tAlt+S" :
 		"スクリプトを上書き保存する(&S)\tAlt+S";
-	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? "Quit(&Q)\tAlt+Q" : "終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
@@ -1329,6 +1333,8 @@ static VOID InitMenu(void)
 	SetMenu(hWndMain, hMenu);
 }
 
+HWND CreateTooltip(HWND hWndBtn, const char *pszTextEnglish, const char *pszTextJapanese);
+
 /* デバッガを初期化する */
 static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 {
@@ -1341,6 +1347,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	BOOL bEnglish;
 	const int WIN_WIDTH = 440;
 	const int WIN_HEIGHT = 735;
+
+	InitCommonControls();
 
 	/* 英語モードかどうかチェックする */
 	bEnglish = conf_language == NULL ? FALSE : TRUE;
@@ -1411,6 +1419,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_RESUME,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnResume, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnResume,
+				  "Start executing script and run continuosly.",
+				  "スクリプトの実行を開始し、継続して実行します。");
 
 	/* 次へボタンを作成する */
 	hWndBtnNext = CreateWindow(
@@ -1421,6 +1432,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_NEXT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnNext, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnNext,
+				  "Run only one command and stop after it.",
+				  "コマンドを1個だけ実行し、停止します。");
 
 	/* 停止ボタンを作成する */
 	hWndBtnPause = CreateWindow(
@@ -1432,6 +1446,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	EnableWindow(hWndBtnPause, FALSE);
 	SendMessage(hWndBtnPause, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnPause,
+				  "Stop script execution.",
+				  "コマンドの実行を停止します。");
 
 	/* スクリプトラベルを作成する */
 	hWndLabelScript = CreateWindow(
@@ -1452,6 +1469,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndTextboxScript,
+				  "Write script file name to be jumped to.",
+				  "ジャンプしたいスクリプトファイル名を書きます。");
 
 	/* スクリプトの変更ボタンを作成する */
 	hWndBtnChangeScript = CreateWindow(
@@ -1462,6 +1482,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnChangeScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnChangeScript,
+				  "Jump to the script written in the left text box.",
+				  "左のテキストボックスに書いたスクリプトにジャンプします。");
 
 	/* スクリプトの選択ボタンを作成する */
 	hWndBtnSelectScript = CreateWindow(
@@ -1471,6 +1494,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSelectScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnSelectScript,
+				  "Select a script file and jump to it.",
+				  "スクリプトファイルを選択してジャンプします。");
 
 	/* 行番号ラベルを作成する */
 	hWndLabelLine = CreateWindow(
@@ -1491,6 +1517,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndTextboxLine,
+				  "Write line number to be jumped to.",
+				  "ジャンプしたい行番号を書きます。");
 
 	/* 行番号の変更ボタンを作成する */
 	hWndBtnChangeLine = CreateWindow(
@@ -1501,6 +1530,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_CHANGE_LINE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnChangeLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnChangeLine,
+				  "Jump to the line written in the left text box.",
+				  "左のテキストボックスに書いた行にジャンプします。");
 
 	/* コマンドのラベルを作成する */
 	hWndLabelCommand = CreateWindow(
@@ -1523,6 +1555,10 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFontFixed,
 				(LPARAM)TRUE);
+	CreateTooltip(hWndTextboxCommand,
+				  "This is a command text to be executed next.",
+				  "次に実行されるコマンドのテキストです。"
+				  "編集することで書き換えることができます。");
 
 	/* コマンドアップデートのボタンを作成する */
 	hWndBtnUpdate = CreateWindow(
@@ -1533,6 +1569,11 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_UPDATE_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnUpdate, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnUpdate,
+				  "Reflect command text for execution. "
+				  "Script file will not be overwritten at this point.",
+				  "編集したコマンドを実行に反映します。"
+				  "ここで反映しただけではファイルには書き込まれません。");
 
 	/* コマンドリセットのボタンを作成する */
 	hWndBtnReset = CreateWindow(
@@ -1543,6 +1584,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_RESET_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReset, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnReset,
+				  "Undo and clear the edit of command text.",
+				  "編集したコマンドを元に戻します。");
 
 	/* スクリプト内容のラベルを作成する */
 	hWndLabelContent = CreateWindow(
@@ -1564,6 +1608,9 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndListbox, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
+	CreateTooltip(hWndListbox,
+				  "Script content which is loaded at this point.",
+				  "現在読み込まれているスクリプトの内容です。");
 
 	/* 上書き保存ボタンを作成する */
 	hWndBtnSave = CreateWindow(
@@ -1574,6 +1621,10 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_SAVE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnSave,
+				  "Overwrite the contents of the modified script.",
+				  "変更されたスクリプトの内容をスクリプトファイルに"
+				  "上書き保存します。");
 
 	/* 再読み込みボタンを作成する */
 	hWndBtnReload = CreateWindow(
@@ -1584,12 +1635,42 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		hWndDebug, (HMENU)ID_RELOAD,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnReload,
+				  "Reload the script file which may be editted by the "
+				  "external text editor.",
+				  "外部のテキストエディタで編集されたスクリプトファイルの"
+				  "内容を再読み込みします。");
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
 	UpdateWindow(hWndDebug);
 
 	return TRUE;
+}
+
+HWND CreateTooltip(HWND hWndBtn, const char *pszTextEnglish,
+				   const char *pszTextJapanese)
+{
+	TOOLINFO ti;
+
+	/* ツールチップを作成する */
+	HWND hWndTip = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, TTS_ALWAYSTIP,
+								  CW_USEDEFAULT, CW_USEDEFAULT,
+								  CW_USEDEFAULT, CW_USEDEFAULT,
+								  hWndDebug, NULL, GetModuleHandle(NULL),
+								  NULL);
+
+	/* ツールチップをボタンに紐付ける */
+	ZeroMemory(&ti, sizeof(ti));
+	ti.cbSize = sizeof(ti);
+	ti.uFlags = TTF_SUBCLASS;
+	ti.hwnd = hWndBtn;
+	ti.lpszText = (char *)(conf_language == NULL ?
+						   pszTextJapanese : pszTextEnglish);
+	GetClientRect(hWndBtn, &ti.rect);
+	SendMessage(hWndTip, TTM_ADDTOOL, 0, (LPARAM)&ti);
+
+	return hWndTip;
 }
 
 /* デバッガ関連のウィンドウプロシージャの処理 */
