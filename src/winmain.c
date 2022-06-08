@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
+﻿/* -*- Coding: utf-8-with-signature; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
 
 /*
  * Suika 2
@@ -130,15 +130,18 @@ const char *ConvNativeToUtf8(const char *lpszNativeMessage);
  * デバッガを使う場合
  */
 #ifdef USE_DEBUGGER
+/* メッセージボックスのタイトル */
+#define MSGBOX_TITLE	"Suika STUDIO Debug"
+
 /* バージョン文字列 */
 static char szVersion[] =
-	"Suika2 Debug Studio\n"
+	"Suika STUDIO Debug\n"
 	"Beta r1\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n"
 	"\n"
 	"Contributors:\n"
 	"TABATA Keiichi (Programmer)\n"
-	"MATSUNO Seiji (Advisor)\n";
+	"MATSUNO Seiji (Supervisor)\n";
 
 /* 実行状態 */
 BOOL bRunning;
@@ -397,11 +400,22 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
 	/* ウィンドウのタイトルをUTF-8からShiftJISに変換する */
+#ifdef USE_DEBUGGER
+	strcpy(mbszTitle, MSGBOX_TITLE);
+	strcat(mbszTitle, " - ");
+#endif
 	cch = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 							  TITLE_BUF_SIZE - 1);
 	wszTitle[cch] = L'\0';
 	WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle, (int)wcslen(wszTitle),
-						mbszTitle, TITLE_BUF_SIZE - 1, NULL, NULL);
+#ifdef USE_DEBUGGER
+						mbszTitle + strlen(MSGBOX_TITLE) + 3,
+						TITLE_BUF_SIZE - strlen(MSGBOX_TITLE)  - 3 - 1,
+#else
+						mbszTitle,
+						TITLE_BUF_SIZE - 1,
+#endif
+						NULL, NULL);
 
 	/* ウィンドウを作成する */
 	hWndMain = CreateWindowEx(0, szWindowClass, mbszTitle, style,
@@ -661,12 +675,14 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 	case WM_CLOSE:
 #ifdef USE_DEBUGGER
 		DestroyWindow(hWnd);
-#endif
+		return 0;
+#else
 		if (MessageBox(hWnd, conf_language == NULL ?
 					   "終了しますか？" : "Quit?",
 					   mbszTitle, MB_OKCANCEL) == IDOK)
 			DestroyWindow(hWnd);
 		return 0;
+#endif
 	case WM_LBUTTONDOWN:
 		on_event_mouse_press(MOUSE_LEFT, LOWORD(lParam) - nOffsetX,
 							 HIWORD(lParam) - nOffsetY);
@@ -1603,7 +1619,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReset, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnReset,
-				  "Undo and clear the edit of command text.",
+				  "Reset the command text.",
 				  "編集したコマンドを元に戻します。");
 
 	/* スクリプト内容のラベルを作成する */
@@ -1627,8 +1643,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndListbox, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
 	CreateTooltip(hWndListbox,
-				  "Script content which is loaded at this point.",
-				  "現在読み込まれているスクリプトの内容です。");
+				  "Current script content.",
+				  "実行中のスクリプトの内容です。");
 
 	/* エラーを探すを有効にする */
 	hWndBtnError = CreateWindow(
@@ -1654,8 +1670,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnSave,
 				  "Overwrite the contents of the modified script.",
-				  "変更されたスクリプトの内容をスクリプトファイルに"
-				  "上書き保存します。");
+				  "スクリプトの内容をファイルに上書き保存します。");
 
 	/* 再読み込みボタンを作成する */
 	hWndBtnReload = CreateWindow(
@@ -1667,10 +1682,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnReload,
-				  "Reload the script file which may be editted by the "
-				  "external text editor.",
-				  "外部のテキストエディタで編集されたスクリプトファイルの"
-				  "内容を再読み込みします。");
+				  "Reload the script from file.",
+				  "スクリプトファイルの内容を再読み込みします。");
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndDebug, nCmdShow);
@@ -1746,7 +1759,7 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 			DestroyWindow(hWndMain);
 			break;
 		case ID_VERSION:
-			MessageBox(hWndMain, szVersion, "About",
+			MessageBox(hWndMain, szVersion, MSGBOX_TITLE,
 					   MB_OK | MB_ICONINFORMATION);
 			break;
 		case ID_RESUME:
@@ -1850,16 +1863,21 @@ static VOID OnPressSave(void)
 {
 	FILE *fp;
 	char *path;
+	const char *scr;
 	int i;
+
+	scr = get_script_file_name();
+	if(strcmp(scr, "DEBUG") == 0)
+		return;
 
 	if (MessageBox(hWndMain, conf_language == NULL ?
 				   "スクリプトファイルを上書き保存します。\n"
 				   "よろしいですか？" :
 				   "Are you sure you want to overwrite the script file?",
-				   "Suika", MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
-	path = make_valid_path(SCRIPT_DIR, get_script_file_name());
+	path = make_valid_path(SCRIPT_DIR, scr);
 
 	fp = fopen(path, "w");
 	if (fp == NULL)
@@ -1868,7 +1886,7 @@ static VOID OnPressSave(void)
 		MessageBox(hWndMain, conf_language == NULL ?
 				   "ファイルに書き込めません。" :
 				   "Cannot write to file.",
-				   "Suika", MB_OK | MB_ICONERROR);
+				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 		return;
 	}
 	free(path);
@@ -1882,7 +1900,7 @@ static VOID OnPressSave(void)
 			MessageBox(hWndMain, conf_language == NULL ?
 					   "ファイルに書き込めません。" :
 					   "Cannot write to file.",
-					   "Suika", MB_OK | MB_ICONERROR);
+					   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 			fclose(fp);
 			return;
 		}			
@@ -1925,7 +1943,7 @@ static VOID OnPressError(void)
 
 	MessageBox(hWndDebug, conf_language == NULL ?
 			   "エラーはありません。" : "No error.",
-			   "Suika", MB_OK | MB_ICONINFORMATION);
+			   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
 }
 
 /*
