@@ -49,4 +49,15 @@ bool set_variable_by_string(const char *var, int32_t val);
 /* 文字列の中の変数を展開して返す */
 char *expand_variable(const char *msg);
 
+#ifdef USE_DEBUGGER
+/* 変数の値が更新されたかをチェックする */
+bool check_variable_updated(void);
+
+/* 更新された変数のインデックスを取得する */
+int get_updated_variable_index(void);
+
+/* 変数が初期値から更新されているかを調べる */
+bool is_variable_changed(int index);
+#endif
+
 #endif

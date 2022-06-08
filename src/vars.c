@@ -9,6 +9,7 @@
  * [Changes]
  *  - 2016/06/29 作成
  *  - 2017/08/17 グローバル変数に対応
+ *  - 2022/06/09 デバッガに対応
  */
 
 #include "suika.h"
@@ -23,6 +24,12 @@ static int32_t local_var_tbl[LOCAL_VAR_SIZE];
  */
 static int32_t global_var_tbl[GLOBAL_VAR_SIZE];
 
+#ifdef USE_DEBUGGER
+static bool flag_var_updated;
+static int updated_index;
+static bool is_var_changed[LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE];
+#endif
+
 /*
  * 変数の初期化処理を行う
  */
@@ -35,6 +42,11 @@ void init_vars(void)
 		local_var_tbl[i] = 0;
 	for (i = 0; i < GLOBAL_VAR_SIZE; i++)
 		global_var_tbl[i] = 0;
+#ifdef USE_DEBUGGER
+	flag_var_updated = false;
+	for (i = 0; i < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; i++)
+		is_var_changed[i] = false;
+#endif
 }
 
 /*
@@ -63,6 +75,11 @@ int32_t get_variable(int index)
 void set_variable(int index, int32_t val)
 {
 	assert(index < VAR_SIZE);
+
+#ifdef USE_DEBUGGER
+	flag_var_updated = true;
+	updated_index = index;
+#endif
 
 	if (index < GLOBAL_VAR_OFFSET)
 		local_var_tbl[index] = val;
@@ -170,3 +187,34 @@ char *expand_variable(const char *msg)
 	*d = '\0';
 	return strdup(dst);
 }
+
+/*
+ * デバッガ用
+ */
+#ifdef USE_DEBUGGER
+/*
+ * 変数の値が更新されたかをチェックする
+ */
+bool check_variable_updated(void)
+{
+	bool ret = flag_var_updated;
+	flag_var_updated = false;
+	return ret;
+}
+
+/*
+ * 更新された変数のインデックスを取得する
+ */
+int get_updated_variable_index(void)
+{
+	return updated_index;
+}
+
+/*
+ * 変数が初期値から更新されているかを調べる
+ */
+bool is_variable_changed(int index)
+{
+	return is_var_changed[index];
+}
+#endif
