@@ -52,13 +52,13 @@ static struct command {
 } cmd[SCRIPT_CMD_SIZE];
 static int cmd_size;
 
+/* 行数 */
+int script_lines;
+
 #ifdef USE_DEBUGGER
 /* コメント行のテキスト */
 static char *comment_text[SCRIPT_CMD_SIZE];
 #endif
-
-/* 行数 */
-int script_lines;
 
 /*
  * 命令の種類
@@ -101,9 +101,24 @@ struct insn_item {
 /*
  * コマンド実行ポインタ
  */
-static char *cur_script;	/* 実行中のスクリプト名 */
-static int cur_index;		/* 実行中の行番号 */
-static int return_point;	/* 最後にgosubが実行された行番号 */
+
+/* 実行中のスクリプト名 */
+static char *cur_script;
+
+/* 実行中の行番号 */
+static int cur_index;
+
+/* 最後にgosubが実行された行番号 */
+static int return_point;
+
+#ifdef USE_DEBUGGER
+/*
+ * その他
+ */
+
+/* パースエラー状態 */
+static bool is_parse_error;
+#endif
 
 /*
  * 前方参照
@@ -118,9 +133,6 @@ static bool parse_message(int index, const char *fname, int line,
 			  const char *buf);
 static bool parse_label(int index, const char *fname, int line,
 			const char *buf);
-#ifdef USE_DEBUGGER
-void set_error_command(int index, char *text);
-#endif
 
 /*
  * 初期化
@@ -202,8 +214,8 @@ bool load_script(const char *fname)
 
 	/* スクリプトファイルを読み込む */
 	if (!read_script_from_file(fname))
-#ifdef USE_DEBUGGER
-		return load_debug_script();
+#ifndef USE_DEBUGGER
+		; /* エラーの行まで読み込まれる */
 #else
 		return false;
 #endif
@@ -553,13 +565,15 @@ static bool read_script_from_file(const char *fname)
 		switch (buf[0]) {
 		case '\0':
 		case '#':
-			/* 空行とコメント行を読み飛ばす */
 #ifdef USE_DEBUGGER
+			/* コメントを保存する */
 			comment_text[line] = strdup(buf);
 			if (comment_text[line] == NULL) {
 				log_memory();
 				return false;
 			}
+#else
+			/* 空行とコメント行を読み飛ばす */
 #endif
 			break;
 		case '@':
@@ -597,7 +611,18 @@ static bool read_script_from_file(const char *fname)
 	script_lines = line;
 
 	close_rfile(rf);
+
+#ifdef USE_DEBUGGER
+	if (result)
+		return true;
+	if (is_parse_error) {
+		cmd_size++;
+		return true;
+	}
+	return false;
+#else
 	return result;
+#endif
 }
 
 /* 命令行をパースする */
@@ -606,6 +631,10 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 	struct command *c;
 	char *tp;
 	int i, min = 0, max = 0;
+
+#ifdef USE_DEBUGGER
+	UNUSED_PARAMETER(file);
+#endif
 
 	c = &cmd[index];
 
@@ -638,7 +667,12 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 	}
 	if (i == INSN_TBL_SIZE) {
 		log_script_command_not_found(c->param[0]);
+#ifdef USE_DEBUGGER
+		is_parse_error = true;
+		set_error_command(index, cmd[index].text);
+#else
 		log_script_parse_footer(file, line, buf);
+#endif
 		return false;
 	}
 
@@ -652,12 +686,22 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 	/* パラメータの数をチェックする */
 	if (i - 1 < min) {
 		log_script_too_few_param(min, i - 1);
+#ifdef USE_DEBUGGER
+		is_parse_error = true;
+		set_error_command(index, cmd[index].text);
+#else
 		log_script_parse_footer(file, line, buf);
+#endif
 		return false;
 	}
 	if (i - 1 > max) {
 		log_script_too_many_param(max, i - 1);
+#ifdef USE_DEBUGGER
+		is_parse_error = true;
+		set_error_command(index, cmd[index].text);
+#else
 		log_script_parse_footer(file, line, buf);
+#endif
 		return false;
 	}
 
@@ -711,6 +755,10 @@ static bool parse_serif(int index, const char *file, int line, const char *buf)
 
 	assert(buf[0] == '*');
 
+#ifdef USE_DEBUGGER
+	UNUSED_PARAMETER(file);
+#endif
+
 	/* 行番号とオリジナルの行を保存しておく */
 	cmd[index].type = COMMAND_SERIF;
 	cmd[index].line = line;
@@ -733,7 +781,12 @@ static bool parse_serif(int index, const char *file, int line, const char *buf)
 	third = strtok(NULL, "*");
 	if (first == NULL || second == NULL) {
 		log_script_empty_serif();
+#ifdef USE_DEBUGGER
+		is_parse_error = true;
+		set_error_command(index, cmd[index].text);
+#else
 		log_script_parse_footer(file, line, buf);
+#endif
 		return false;
 	}
 
