@@ -119,6 +119,7 @@ static void OnPaint(void);
 #ifndef USE_DIRECT3D
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
+const char *ConvNativeToUtf8(const char *lpszNativeMessage);
 #endif
 
 /*
@@ -180,7 +181,6 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
 static VOID OnPressReset(void);
-const char *ConvNativeToUtf8(const char *lpszNativeMessage);
 #endif
 
 /*
@@ -902,6 +902,28 @@ static void OnPaint(void)
 	UNUSED_PARAMETER(hDC);
 #endif
 	EndPaint(hWndMain, &ps);
+}
+
+/*
+ * ネイティブ文字コードのメッセージをUtf-8文字コードに変換する
+ */
+const char *ConvNativeToUtf8(const char *lpszNativeMessage)
+{
+	wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
+	int cch;
+
+	assert(lpszNativeMessage != NULL);
+
+	/* ネイティブ文字コードからワイド文字に変換する */
+	cch = MultiByteToWideChar(CP_THREAD_ACP, 0, lpszNativeMessage, -1,
+							  wszMessage, NATIVE_MESSAGE_SIZE - 1);
+	wszMessage[cch] = L'\0';
+
+	/* ワイド文字からSJISに変換する */
+	WideCharToMultiByte(CP_UTF8, 0, wszMessage, -1, szUtf8Message,
+						NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
+
+	return szUtf8Message;
 }
 
 /*
@@ -1802,28 +1824,6 @@ const char *get_updated_command()
 	}
 
 	return ConvNativeToUtf8(text);
-}
-
-/*
- * ネイティブ文字コードのメッセージをUtf-8文字コードに変換する
- */
-const char *ConvNativeToUtf8(const char *lpszNativeMessage)
-{
-	wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
-	int cch;
-
-	assert(lpszNativeMessage != NULL);
-
-	/* ネイティブ文字コードからワイド文字に変換する */
-	cch = MultiByteToWideChar(CP_THREAD_ACP, 0, lpszNativeMessage, -1,
-							  wszMessage, NATIVE_MESSAGE_SIZE - 1);
-	wszMessage[cch] = L'\0';
-
-	/* ワイド文字からSJISに変換する */
-	WideCharToMultiByte(CP_UTF8, 0, wszMessage, -1, szUtf8Message,
-						NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
-
-	return szUtf8Message;
 }
 
 /*

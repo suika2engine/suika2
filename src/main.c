@@ -173,100 +173,103 @@ static bool pre_dispatch(void)
 	char *scr;
 	int line, cmd;
 
-	if (!dbg_running) {
-		/* 停止中の場合 */
-		if (is_resume_pushed()) {
-			/* 続けるが押された場合 */
-			dbg_running = true;
-			set_running_state(true, false);
-
-			/* コマンドディスパッチへ進む */
-			return true;
-		} else if (is_next_pushed()) {
-			/* 次へが押された場合 */
-			dbg_running = true;
+	/* 実行中の場合 */
+	if (dbg_running) {
+		/* 停止が押された場合 */
+		if (is_pause_pushed()) {
 			dbg_request_stop = true;
 			set_running_state(true, true);
-
-			/* コマンドディスパッチへ進む */
-			return true;
-		} else if (is_script_changed()) {
-			/* 実行するスクリプトが変更された場合 */
-			scr = strdup(get_changed_script());
-			if (scr == NULL) {
-				log_memory();
-				return false;
-			}
-			if (strcmp(scr, "ERROR") == 0) {
-				free(scr);
-				return false;
-			}
-			if (!load_script(scr)) {
-				free(scr);
-				if (!load_debug_script())
-					return false;
-			}
-			free(scr);
-		} else if (is_line_changed()) {
-			/* 行番号が変更された場合 */
-			int index = get_command_index_from_line_number(
-				get_changed_line());
-			if (index != -1)
-				move_to_command_index(index);
-		} else if (is_command_updated()) {
-			/* コマンドが更新された場合 */
-			update_command(get_command_index(),
-				       get_updated_command());
-			update_debug_info(true);
-			return false;
-		} else if (is_script_updated()) {
-			/* 実行中のスクリプトファイル名を取得する */
-			scr = strdup(get_script_file_name());
-			if (scr == NULL) {
-				log_memory();
-				return false;
-			}
-			if (strcmp(scr, "ERROR") == 0) {
-				free(scr);
-				return false;
-			}
-
-			/* 現在実行中の行番号を取得する */
-			line = get_line_num();
-
-			/* 同じファイルを再度読み込みする */
-			if (!load_script(scr)) {
-				free(scr);
-				/* エラー時の仮スクリプトを読み込む */
-				if (!load_debug_script())
-					return false;
-			}
-			free(scr);
-
-			/* 元の行番号の最寄りコマンドを取得する */
-			cmd = get_command_index_from_line_number(line);
-			if (cmd == -1) {
-				/* 削除された末尾の場合、最終コマンドにする */
-				cmd = get_command_count() - 1;
-			}
-
-			/* ジャンプする */
-			move_to_command_index(cmd);
 		}
 
-		/* 続けるか次へが押されるまでコマンドディスパッチへ進まない */
-		return false;
-	} else {
-		/* 実行中の場合 */
-		if (is_pause_pushed()) {
-			/* 停止が押された場合 */
-			dbg_request_stop = true;
-			set_running_state(dbg_running, true);
-		}
+		/* コマンドディスパッチへ進む */
+		return true;
 	}
 
-	/* コマンドディスパッチへ進む */
-	return true;
+	/*
+	 * 停止中の場合
+	 */
+
+	if (is_resume_pushed()) {
+		/* 続けるが押された場合 */
+		dbg_running = true;
+		set_running_state(true, false);
+
+		/* コマンドディスパッチへ進む */
+		return true;
+	} else if (is_next_pushed()) {
+		/* 次へが押された場合 */
+		dbg_running = true;
+		dbg_request_stop = true;
+		set_running_state(true, true);
+
+		/* コマンドディスパッチへ進む */
+		return true;
+	} else if (is_script_changed()) {
+		/* 実行するスクリプトが変更された場合 */
+		scr = strdup(get_changed_script());
+		if (scr == NULL) {
+			log_memory();
+			return false;
+		}
+		if (strcmp(scr, "ERROR") == 0) {
+			free(scr);
+			return false;
+		}
+		if (!load_script(scr)) {
+			free(scr);
+			if (!load_debug_script())
+				return false;
+		}
+		free(scr);
+	} else if (is_line_changed()) {
+		/* 行番号が変更された場合 */
+		int index = get_command_index_from_line_number(
+			get_changed_line());
+		if (index != -1)
+			move_to_command_index(index);
+	} else if (is_command_updated()) {
+		/* コマンドが更新された場合 */
+		update_command(get_command_index(),
+			       get_updated_command());
+		update_debug_info(true);
+		return false;
+	} else if (is_script_updated()) {
+		/* 実行中のスクリプトファイル名を取得する */
+		scr = strdup(get_script_file_name());
+		if (scr == NULL) {
+			log_memory();
+			return false;
+		}
+		if (strcmp(scr, "ERROR") == 0) {
+			free(scr);
+			return false;
+		}
+
+		/* 現在実行中の行番号を取得する */
+		line = get_line_num();
+
+		/* 同じファイルを再度読み込みする */
+		if (!load_script(scr)) {
+			free(scr);
+			/* エラー時の仮スクリプトを読み込む */
+			if (!load_debug_script())
+				return false;
+		}
+		free(scr);
+
+		/* 元の行番号の最寄りコマンドを取得する */
+		cmd = get_command_index_from_line_number(line);
+		if (cmd == -1) {
+			/* 削除された末尾の場合、最終コマンドにする */
+			cmd = get_command_count() - 1;
+		}
+
+		/* ジャンプする */
+		move_to_command_index(cmd);
+	}
+
+	/* 続けるか次へが押されるまでコマンドディスパッチへ進まない */
+	return false;
 }
 #endif
 

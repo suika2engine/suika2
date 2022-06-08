@@ -139,6 +139,7 @@ static bool play_voice(void);
 static void draw_msgbox(void);
 static int get_frame_chars(void);
 static void draw_click(void);
+static void check_stop_click_animation(void);
 static int get_en_word_width(void);
 static void get_message_color(pixel_t *color, pixel_t *outline_color);
 static void init_pointed_index(void);
@@ -655,48 +656,8 @@ static void draw_click(void)
 	int click_x, click_y, click_w, click_h;
 	int lap;
 
-	/* 入力があったら終了する */
-#ifdef USE_DEBUGGER
-	if (!process_click_first && dbg_is_stop_requested()) {
-		if (!have_voice)
-			stop_command_repetition();
-		else if (have_voice &&
-			 (is_mixer_sound_finished(VOICE_STREAM) ||
-			  (restore_flag || history_flag))
-			stop_command_repetition();
-		else if (have_voice &&
-			 (is_left_button_pressed || is_down_pressed ||
-			  is_return_pressed))
-			stop_command_repetition();
-	} else
-#endif
-	if (is_skippable() && !is_auto_mode() &&
-	    (is_skip_mode() || is_control_pressed)) {
-		if (!is_non_interruptible()) {
-			stop_command_repetition();
-		} else {
-			if (!have_voice ||
-			    (have_voice &&
-			     is_mixer_sound_finished(VOICE_STREAM)))
-				stop_command_repetition();
-		}
-	} else if ((restore_flag || history_flag) &&
-		   !process_click_first &&
-		   (is_return_pressed || is_down_pressed ||
-		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
-		stop_command_repetition();
-	} else if (!process_click_first &&
-		   (is_return_pressed || is_down_pressed ||
-		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
-		if (!is_non_interruptible()) {
-			stop_command_repetition();
-		} else {
-			if (!have_voice ||
-			    (have_voice &&
-			     is_mixer_sound_finished(VOICE_STREAM)))
-				stop_command_repetition();
-		}
-	}
+	/* 入力があったら繰り返しを終了する */
+	check_stop_click_animation();
 
 	/* クリックアニメーションの初回表示のとき */
 	if (process_click_first) {
@@ -731,6 +692,56 @@ static void draw_click(void)
 	get_click_rect(&click_x, &click_y, &click_w, &click_h);
 	union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y, draw_w,
 		   draw_h, click_x, click_y, click_w, click_h);
+}
+
+/* クリックアニメーションで入力があったら繰り返しを終了する */
+static void check_stop_click_animation(void)
+{
+#ifdef USE_DEBUGGER
+	if (!process_click_first && dbg_is_stop_requested()) {
+		if (!have_voice && (restore_flag || history_flag) &&
+		    (is_return_pressed || is_down_pressed ||
+		     (pointed_index == BTN_NONE && is_left_button_pressed)))
+			stop_command_repetition();
+		else if (!have_voice)
+			stop_command_repetition();
+		else if (have_voice &&
+			 (is_mixer_sound_finished(VOICE_STREAM) ||
+			  (restore_flag || history_flag)))
+			stop_command_repetition();
+		else if (have_voice &&
+			 (is_left_button_pressed || is_down_pressed ||
+			  is_return_pressed))
+			stop_command_repetition();
+	} else
+#endif
+	if (is_skippable() && !is_auto_mode() &&
+	    (is_skip_mode() || is_control_pressed)) {
+		if (!is_non_interruptible()) {
+			stop_command_repetition();
+		} else {
+			if (!have_voice ||
+			    (have_voice &&
+			     is_mixer_sound_finished(VOICE_STREAM)))
+				stop_command_repetition();
+		}
+	} else if ((restore_flag || history_flag) &&
+		   !process_click_first &&
+		   (is_return_pressed || is_down_pressed ||
+		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
+		stop_command_repetition();
+	} else if (!process_click_first &&
+		   (is_return_pressed || is_down_pressed ||
+		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
+		if (!is_non_interruptible()) {
+			stop_command_repetition();
+		} else {
+			if (!have_voice ||
+			    (have_voice &&
+			     is_mixer_sound_finished(VOICE_STREAM)))
+				stop_command_repetition();
+		}
+	}
 }
 
 /* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
