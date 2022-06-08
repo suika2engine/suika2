@@ -424,13 +424,21 @@ void log_script_op_error(const char *op)
  */
 void log_script_parse_footer(const char *file, int line, const char *buf)
 {
+	char tmp[4096];
+
 	line++;
 	if (is_english_mode()) {
-		log_error("> Script format error: %s:%d\n", file, line);
-		log_error("> %s\n", conv_utf8_to_native(buf));
+		snprintf(tmp, sizeof(tmp),
+			 "> Script format error: %s:%d\n"
+			 "> %s\n",
+			 file, line, conv_utf8_to_native(buf));
+		log_error(tmp);
 	} else {
-		log_error("> スクリプト書式エラー: %s %d行目\n", file, line);
-		log_error("> %s\n", conv_utf8_to_native(buf));
+		snprintf(tmp, sizeof(tmp),
+			 "> スクリプト書式エラー: %s %d行目\n"
+			 "> %s\n",
+			 file, line, conv_utf8_to_native(buf));
+		log_error(tmp);
 	}
 }
 
@@ -600,10 +608,12 @@ void log_video_error(const char *reason)
 void log_command_update_error(void)
 {
 	if (is_english_mode()) {
-		log_info("This command is changed to a message which starts with '!'\n"
+		log_info("Incorrect commands are changed to messages which start with '!'\n"
+			 "You can search it from menu.\n"
 			 "Edit and update it to reconvert to a correct command.");
 	} else {
-		log_info("このコマンドは'!'で始まるメッセージに変換されました。\n"
+		log_info("エラーを含むコマンドは'!'で始まるメッセージに変換されます。\n"
+			 "メニューから検索できます。\n"
 			 "編集と更新で正しいコマンドに戻すことが可能です。");
 	}
 }

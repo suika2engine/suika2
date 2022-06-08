@@ -187,6 +187,7 @@ static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
 static VOID OnPressReset(void);
 static VOID OnPressSave(void);
+static VOID OnPressError(void);
 #endif
 
 /*
@@ -1327,10 +1328,17 @@ static VOID InitMenu(void)
 	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
 	EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 
+	/* 次のエラー箇所へ移動(E)を作成する */
+	mi.wID = ID_ERROR;
+	mi.dwTypeData = bEnglish ?
+		"Go to next error(&E)\tAlt+E" :
+		"次のエラー箇所へ移動(&E)\tAlt+E";
+	InsertMenuItem(hMenuScript, 3, TRUE, &mi);
+
 	/* 再読み込み(R)を作成する */
 	mi.wID = ID_RELOAD;
 	mi.dwTypeData = bEnglish ? "Reload(&R)\tF5" : "再読み込み(&R)\tF5";
-	InsertMenuItem(hMenuScript, 3, TRUE, &mi);
+	InsertMenuItem(hMenuScript, 4, TRUE, &mi);
 
 	/* バージョン(V)を作成する */
 	mi.wID = ID_VERSION;
@@ -1749,6 +1757,9 @@ static LRESULT CALLBACK WndProcDebug(HWND hWnd,
 		case ID_RESET_COMMAND:
 			OnPressReset();
 			break;
+		case ID_ERROR:
+			OnPressError();
+			break;
 		case ID_SAVE:
 			OnPressSave();
 			break;
@@ -1861,6 +1872,40 @@ static VOID OnPressSave(void)
 		}			
 	}
 	fclose(fp);
+}
+
+/* 次のエラー箇所へ移動ボタンが押下されたとき */
+static VOID OnPressError(void)
+{
+	const char *text;
+	int start, lines;
+	int i;
+
+	lines = get_line_count();
+	start = (int)SendMessage(hWndListbox, LB_GETCURSEL, 0, 0);
+
+	for(i=start+1; i<lines; i++)
+	{
+		text = get_line_string_at_line_num(i);
+		if(text[0] == '!')
+		{
+			SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)i, 0);
+			return;
+		}
+	}
+	if(start != 0)
+	{
+		for(i=0; i<start; i++)
+		{
+			text = get_line_string_at_line_num(i);
+			if(text[0] == '!')
+			{
+				SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)i, 0);
+				return;
+			}
+			
+		}
+	}
 }
 
 /*
@@ -2072,6 +2117,9 @@ void set_running_state(bool running, bool request_stop)
 		/* 停止メニューを無効にする */
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 
+		/* 次のエラー箇所へメニューを無効にする */
+		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
+
 		/* 再読み込みメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RELOAD, MF_GRAYED);
 	}
@@ -2151,6 +2199,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 停止メニューを有効にする */
 		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);
+
+		/* 次のエラー箇所へメニューを無効にする */
+		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
 
 		/* 再読み込みメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RELOAD, MF_GRAYED);
@@ -2232,6 +2283,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 停止メニューを無効にする */
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
+
+		/* 次のエラー箇所へメニューを有効にする */
+		EnableMenuItem(hMenu, ID_ERROR, MF_ENABLED);
 
 		/* 再読み込みメニューを有効にする */
 		EnableMenuItem(hMenu, ID_RELOAD, MF_ENABLED);

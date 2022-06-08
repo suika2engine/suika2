@@ -60,6 +60,9 @@ int script_lines;
 #ifdef USE_DEBUGGER
 /* コメント行のテキスト */
 static char *comment_text[SCRIPT_CMD_SIZE];
+
+/* エラーの数 */
+static int error_count;
 #endif
 
 /*
@@ -514,6 +517,10 @@ static bool read_script_from_file(const char *fname)
 	int line;
 	bool result;
 
+#ifdef USE_DEBUGGER
+	error_count = 0;
+#endif
+
 	/* ファイルをオープンする */
 	rf = open_rfile(SCRIPT_DIR, fname, false);
 	if (rf == NULL) {
@@ -557,8 +564,7 @@ static bool read_script_from_file(const char *fname)
 			if (!parse_insn(cmd_size, fname, line, buf)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					log_script_parse_footer(fname, line,
-								buf);
+					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -576,8 +582,7 @@ static bool read_script_from_file(const char *fname)
 			if (!parse_serif(cmd_size, fname, line, buf)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					log_script_parse_footer(fname, line,
-								buf);
+					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -595,8 +600,7 @@ static bool read_script_from_file(const char *fname)
 			if (!parse_label(cmd_size, fname, line, buf)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					log_script_parse_footer(fname, line,
-								buf);
+					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -614,8 +618,7 @@ static bool read_script_from_file(const char *fname)
 			if (!parse_message(cmd_size, fname, line, buf)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					log_script_parse_footer(fname, line,
-								buf);
+					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -685,7 +688,8 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 		is_parse_error = true;
 		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
-		log_command_update_error();
+		if(error_count++ == 0)
+			log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -706,7 +710,8 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 		is_parse_error = true;
 		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
-		log_command_update_error();
+		if(error_count++ == 0)
+			log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -718,7 +723,8 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 		is_parse_error = true;
 		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
-		log_command_update_error();
+		if(error_count++ == 0)
+			log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -805,7 +811,8 @@ static bool parse_serif(int index, const char *file, int line, const char *buf)
 		is_parse_error = true;
 		cmd[index].text[0] = '!';
 		set_error_command(index, cmd[index].text);
-		log_command_update_error();
+		if(error_count++ == 0)
+			log_command_update_error();
 #else
 		log_script_parse_footer(file, line, buf);
 #endif
@@ -905,7 +912,7 @@ const char *get_line_string_at_line_num(int line)
 			break;
 	}
 
-	/* 空行のreturn */
+	/* 空行の場合 */
 	return "";
 }
 
@@ -916,6 +923,8 @@ bool update_command(int index, const char *cmd_str)
 {
 	char *err_cmd;
 	int line;
+
+	error_count = 0;
 
 	line = cmd[index].line;
 	err_cmd = strdup(cmd_str);
