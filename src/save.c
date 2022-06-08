@@ -937,6 +937,9 @@ bool quick_load(void)
 	if (is_skip_mode())
 		stop_skip_mode();
 
+#ifdef USE_DEBUGGER
+	update_debug_info(true);
+#endif
 	return true;
 }
 
@@ -965,6 +968,9 @@ static bool process_load(int new_pointed_index)
 	show_msgbox(false);
 	show_selbox(false);
 
+#ifdef USE_DEBUGGER
+	update_debug_info(true);
+#endif
 	return true;
 }
 

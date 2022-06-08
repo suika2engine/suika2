@@ -2250,6 +2250,12 @@ void set_running_state(bool running, bool request_stop)
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
 
+		/* 変数のテキストボックスを無効にする */
+		EnableWindow(hWndTextboxVar, FALSE);
+
+		/* 変数の書き込みボタンを無効にする */
+		EnableWindow(hWndBtnVar, FALSE);
+
 		/* スクリプトを開くメニューを無効にする */
 		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
 
@@ -2335,6 +2341,12 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
+
+		/* 変数のテキストボックスを無効にする */
+		EnableWindow(hWndTextboxVar, FALSE);
+
+		/* 変数の書き込みボタンを無効にする */
+		EnableWindow(hWndBtnVar, FALSE);
 
 		/* スクリプトを開くメニューを無効にする */
 		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
@@ -2423,6 +2435,12 @@ void set_running_state(bool running, bool request_stop)
 		/* 再読み込みボタンを有効にする */
 		EnableWindow(hWndBtnReload, TRUE);
 
+		/* 変数のテキストボックスを有効にする */
+		EnableWindow(hWndTextboxVar, TRUE);
+
+		/* 変数の書き込みボタンを有効にする */
+		EnableWindow(hWndBtnVar, TRUE);
+
 		/* スクリプトを開くメニューを有効にする */
 		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_ENABLED);
 
@@ -2483,7 +2501,7 @@ void update_debug_info(bool script_changed)
 	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
 
 	/* 変数の情報を更新する */
-	if(check_variable_updated())
+	if(check_variable_updated() || script_changed)
 		UpdateVariableTextBox();
 }
 
