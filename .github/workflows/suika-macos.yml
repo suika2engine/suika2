@@ -1,4 +1,4 @@
-name: suika-windows
+name: suika-macos
 on:
   push:
     branches: [master,actions]
