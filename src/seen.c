@@ -20,8 +20,10 @@
 bool seen_flag[SCRIPT_CMD_SIZE];
 
 /* 前方参照 */
+#ifndef USE_DEBUGGER
 static const char *hash(const char *file);
 static char hex(int c);
+#endif
 
 /*
  * 既読フラグ管理を初期化する
@@ -48,6 +50,9 @@ void cleanup_seen(void)
  */
 bool load_seen(void)
 {
+#ifdef USE_DEBUGGER
+	return true;
+#else
 	struct rfile *rf;
 	const char *fname;
 	bool success;
@@ -82,6 +87,7 @@ bool load_seen(void)
 		memset(seen_flag, 0, sizeof(seen_flag));
 
 	return success;
+#endif
 }
 
 /*
@@ -89,6 +95,9 @@ bool load_seen(void)
  */
 bool save_seen(void)
 {
+#ifdef USE_DEBUGGER
+	return true;
+#else
 	struct wfile *wf;
 	const char *fname;
 	bool success;
@@ -119,6 +128,7 @@ bool save_seen(void)
 	close_wfile(wf);
 
 	return success;
+#endif
 }
 
 /*
@@ -126,12 +136,16 @@ bool save_seen(void)
  */
 bool get_seen(void)
 {
+#ifdef USE_DEBUGGER
+	return true;
+#else
 	int index;
 
 	index = get_command_index();
 	assert(index >= 0 && index < SCRIPT_CMD_SIZE);
 
 	return seen_flag[index];
+#endif
 }
 
 /*
@@ -139,14 +153,17 @@ bool get_seen(void)
  */
 void set_seen(void)
 {
+#ifndef USE_DEBUGGER
 	int index;
 
 	index = get_command_index();
 	assert(index >= 0 && index < SCRIPT_CMD_SIZE);
 
 	seen_flag[index] = true;
+#endif
 }
 
+#ifndef USE_DEBUGGER
 /* スクリプトファイル名からハッシュを求める */
 static const char *hash(const char *file)
 {
@@ -177,3 +194,4 @@ static char hex(int c)
 	else
 		return (char)('a' + (char)(c - 10));
 }
+#endif
