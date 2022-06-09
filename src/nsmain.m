@@ -82,14 +82,7 @@ int main()
     x86_check_cpuid_flags();
 #endif
 
-#if !__has_feature(objc_arc)
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-#else
     @autoreleasepool {
-#endif
-
-    // ログをオープンする
-    if (openLog()) {
         // パッケージの初期化処理を行う
         if (init_file()) {
             // コンフィグの初期化処理を行う
@@ -128,17 +121,11 @@ int main()
 
             // パッケージの終了処理を行う
             cleanup_file();
+
+            // ログをクローズする
+            closeLog();
         }
-
-        // ログをクローズする
-        closeLog();
     }
-
-#if !__has_feature(objc_arc)
-    [pool release];
-#else
-    }
-#endif
 
 	return 0;
 }
@@ -146,6 +133,10 @@ int main()
 // ログをオープンする
 static BOOL openLog(void)
 {
+    // すでにオープン済みの場合、成功とする
+    if(logFp != NULL)
+        return TRUE;
+
     // .appバンドルのパスを取得する
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
@@ -159,15 +150,15 @@ static BOOL openLog(void)
     // ログをオープンする
     logFp = fopen(path, "w");
     if(logFp == NULL) {
+        // 失敗
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:@"Error"];
         [alert setInformativeText:@"Cannot open log file."];
         [alert runModal];
-#if !__has_feature(objc_arc)
-        [alert autorelease];
-#endif
         return NO;
     }
+
+    // 成功
     return YES;
 }
 
@@ -266,22 +257,11 @@ static BOOL initWindow(void)
                                                selector:@selector(timerFired:)
                                                userInfo:nil
                                                 repeats:YES];
+    (void)timer;
 
     // Hack: コマンドラインから起動された際にメニューを有効にする
     ProcessSerialNumber psn = {0, kCurrentProcess};
     TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-
-#if !__has_feature(objc_arc)
-    [menuBar autorelease];
-    [appMenuItem autorelease];
-    [appMenu autorelease];
-    [appMenuItem autorelease];
-    [theWindow autorelease];
-    [theView autorelease];
-    [timer autorelease];
-#else
-    (void)timer;
-#endif
 
     return YES;
 }
@@ -295,32 +275,24 @@ static BOOL initWindow(void)
 //
 bool make_sav_dir(void)
 {
-#if !__has_feature(objc_arc)
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-#else
     @autoreleasepool {
-#endif
-    // .appバンドルのパスを取得する
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+        // .appバンドルのパスを取得する
+        NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-    // .appバンドルの1つ上のディレクトリのパスを取得する
-    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+        // .appバンドルの1つ上のディレクトリのパスを取得する
+        NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
 
-    // savディレクトリのパスを作成する
-    NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath,
-                                   SAVE_DIR];
+        // savディレクトリのパスを作成する
+        NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath,
+                                       SAVE_DIR];
 
-    // savディレクトリを作成する
-    NSError *error;
-    [[NSFileManager defaultManager] createDirectoryAtPath:savePath
-                              withIntermediateDirectories:NO
-                                               attributes:nil
-                                                    error:&error];
-#if !__has_feature(objc_arc)
-    [pool release];
-#else
+        // savディレクトリを作成する
+        NSError *error;
+        [[NSFileManager defaultManager] createDirectoryAtPath:savePath
+                                  withIntermediateDirectories:NO
+                                                   attributes:nil
+                                                        error:&error];
     }
-#endif
 	return true;
 }
 
@@ -331,33 +303,24 @@ char *make_valid_path(const char *dir, const char *fname)
 {
     char *ret;
 
-#if !__has_feature(objc_arc)
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-#else
     @autoreleasepool {
-#endif
-    // .appバンドルのパスを取得する
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+        // .appバンドルのパスを取得する
+        NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-    // .appバンドルの1つ上のディレクトリのパスを取得する
-    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+        // .appバンドルの1つ上のディレクトリのパスを取得する
+        NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
 
-    // ファイルのパスを作成する
-    NSString *filePath;
-    if (dir != NULL)
-        filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir,
-                             fname];
-    else
-        filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
+        // ファイルのパスを作成する
+        NSString *filePath;
+        if (dir != NULL)
+            filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir,
+                                 fname];
+        else
+            filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
 
-    const char *cstr = [filePath UTF8String];
-    ret = strdup(cstr);
-
-#if !__has_feature(objc_arc)
-    [pool release];
-#else
+        const char *cstr = [filePath UTF8String];
+        ret = strdup(cstr);
     }
-#endif
 
     if(ret == NULL) {
         log_memory();
@@ -379,6 +342,8 @@ bool log_info(const char *s, ...)
     va_end(ap);
 
     // ログファイルに出力する
+    if(!openLog())
+        return false;
     if (logFp != NULL) {
         fprintf(stderr, "%s", buf);
         fprintf(logFp, "%s", buf);
@@ -402,6 +367,8 @@ bool log_warn(const char *s, ...)
     va_end(ap);
 
     // ログファイルに出力する
+    if(!openLog())
+        return false;
     if (logFp != NULL) {
         fprintf(stderr, "%s", buf);
         fprintf(logFp, "%s", buf);
@@ -431,13 +398,14 @@ bool log_error(const char *s, ...)
     [alert runModal];
 
     // ログファイルに出力する
-    if (logFp != NULL) {
-        fprintf(stderr, "%s", buf);
-        fprintf(logFp, "%s", buf);
-        fflush(logFp);
-        if (ferror(logFp))
-            return false;
-    }
+    if (!openLog())
+        return false;
+    assert(logFp != NULL);
+    fprintf(stderr, "%s", buf);
+    fprintf(logFp, "%s", buf);
+    fflush(logFp);
+    if (ferror(logFp))
+        return false;
     return true;
 }
 
@@ -552,13 +520,10 @@ int get_stop_watch_lap(stop_watch_t *t)
 bool exit_dialog(void)
 {
     NSAlert *alert = [[NSAlert alloc] init];
-#if !__has_feature(objc_arc)
-    [alert autorelease];
-#endif
     [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
     [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-    [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
-               @"Quit?"];
+    [alert setMessageText:conf_language == NULL ?
+              @"終了しますか？" : @"Quit?"];
     [alert setAlertStyle:NSWarningAlertStyle];
     if([alert runModal] == NSAlertFirstButtonReturn)
         return true;
@@ -571,9 +536,6 @@ bool exit_dialog(void)
 bool title_dialog(void)
 {
     NSAlert *alert = [[NSAlert alloc] init];
-#if !__has_feature(objc_arc)
-    [alert autorelease];
-#endif
     [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
     [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
     [alert setMessageText:conf_language == NULL ? @"タイトルへ戻りますか？" :
@@ -602,39 +564,29 @@ bool play_video(const char *fname)
 - (void)timerFired:(NSTimer *)timer {
     UNUSED_PARAMETER(timer);
     
-#if !__has_feature(objc_arc)
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-#else
     @autoreleasepool {
-#endif
+        // フレーム描画イベントを実行する
+        int x = 0, y = 0, w = 0, h = 0;
+        lock_image(backImage);
+        if (!on_event_frame(&x, &y, &w, &h)) {
+            // グローバルデータを保存する
+            save_global_data();
 
-    // フレーム描画イベントを実行する
-    int x = 0, y = 0, w = 0, h = 0;
-    lock_image(backImage);
-    if (!on_event_frame(&x, &y, &w, &h)) {
-        // グローバルデータを保存する
-        save_global_data();
+            // 既読フラグを保存する
+            save_seen();
 
-        // 既読フラグを保存する
-        save_seen();
+            [NSApp terminate:nil];
+            return;
+        }
+        unlock_image(backImage);
 
-        [NSApp terminate:nil];
-        return;
+        // 描画範囲があればウィンドウへの再描画を行う
+        // FIXME:
+        //  - Wanna use [self setNeedsDisplayInRect:NSMakeRect(x, y, w, h)]
+        //  - It doesn't works.
+        if (w != 0 && h != 0)
+            [self setNeedsDisplay:YES];
     }
-    unlock_image(backImage);
-
-    // 描画範囲があればウィンドウへの再描画を行う
-    if (w != 0 && h != 0)
-        [self setNeedsDisplay:YES];
-    
-#if !__has_feature(objc_arc)
-    [pool release];
-#else
-    }
-#endif
-
-    // FIXME:
-    // [self setNeedsDisplayInRect:NSMakeRect(x, y, w, h)];
 }
 
 - (void)drawRect:(NSRect)rect {
@@ -643,12 +595,7 @@ bool play_video(const char *fname)
         return;
     
     // 描画オブジェクトの解放用にプールを作成する
-#if !__has_feature(objc_arc)
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-#else
     @autoreleasepool {
-#endif
-
         // NSBitmapImageRepを作成する
         unsigned char *array[1];
         array[0] = backImagePixels;
@@ -678,14 +625,7 @@ bool play_video(const char *fname)
                                     conf_window_height)
                operation:NSCompositeCopy
                 fraction:1.0];
-
-#if !__has_feature(objc_arc)
-        [img autorelease];
-        [rep autorelease];
-        [pool release];
-#else
     }
-#endif
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
@@ -812,9 +752,6 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     UNUSED_PARAMETER(sender);
 
     NSAlert *alert = [[NSAlert alloc] init];
-#if !__has_feature(objc_arc)
-    [alert autorelease];
-#endif
     [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
     [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
     [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
