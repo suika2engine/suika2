@@ -24,16 +24,16 @@ echo "Checking for Mac app."
 
 echo "Building suika.exe"
 cd build/mingw
-#make clean
-#./build-libs.sh
+make clean
+./build-libs.sh
 make
 cp suika.exe ../../fileserver/
 cd ../../
 
 echo "Building suika-pro.exe"
 cd build/mingw-pro
-#make clean
-#./build-libs.sh
+make clean
+./build-libs.sh
 make
 cp suika-pro.exe ../../fileserver/
 cd ../../
