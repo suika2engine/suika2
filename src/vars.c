@@ -44,8 +44,7 @@ void init_vars(void)
 		global_var_tbl[i] = 0;
 #ifdef USE_DEBUGGER
 	flag_var_updated = false;
-	for (i = 0; i < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; i++)
-		is_var_changed[i] = false;
+	clear_variable_changed();
 #endif
 }
 
@@ -228,5 +227,16 @@ int get_updated_variable_index(void)
 bool is_variable_changed(int index)
 {
 	return is_var_changed[index];
+}
+
+/*
+ * 変数の更新状態をクリアする
+ */
+void clear_variable_changed(void)
+{
+	int i;
+
+	for (i = 0; i < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; i++)
+		is_var_changed[i] = false;
 }
 #endif

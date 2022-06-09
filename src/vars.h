@@ -61,6 +61,9 @@ int get_updated_variable_index(void);
 
 /* 変数が初期値から更新されているかを調べる */
 bool is_variable_changed(int index);
+
+/* 変数の更新状態をクリアする */
+void clear_variable_changed(void);
 #endif
 
 #endif

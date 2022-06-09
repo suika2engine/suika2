@@ -938,6 +938,7 @@ bool quick_load(void)
 		stop_skip_mode();
 
 #ifdef USE_DEBUGGER
+	clear_variable_changed();
 	update_debug_info(true);
 #endif
 	return true;
@@ -969,6 +970,7 @@ static bool process_load(int new_pointed_index)
 	show_selbox(false);
 
 #ifdef USE_DEBUGGER
+	clear_variable_changed();
 	update_debug_info(true);
 #endif
 	return true;
