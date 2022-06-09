@@ -23,7 +23,6 @@ jobs:
           ./build-libs.sh
           make
           make install
-          ls -l
       - uses: actions/upload-artifact@v2
         with: 
           name: suika-3d.exe
