@@ -268,10 +268,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	/* COMの初期化を行う */
 	CoInitialize(0);
 
-	/* ログファイルをオープンする */
-	if(!OpenLogFile())
-		return FALSE;
-
 	/* パッケージの初期化処理を行う */
 	if(!init_file())
 		return FALSE;
@@ -352,23 +348,30 @@ static void CleanupApp(void)
 /* ログをオープンする */
 static BOOL OpenLogFile(void)
 {
-#ifndef USE_DEBUGGER
+#ifdef USE_DEBUGGER
+	return TRUE;
+#else
+	/* すでにオープンされていれば成功とする */
+	if(pLogFile != NULL)
+		return TRUE;
+
+	/* オープンする */
+	pLogFile = fopen(LOG_FILE, "w");
 	if (pLogFile == NULL)
 	{
-		pLogFile = fopen(LOG_FILE, "w");
-		if (pLogFile == NULL)
-		{
-			MessageBox(NULL,
-					   conf_language == NULL ?
-					   "ログファイルをオープンできません。" :
-					   "Cannot open log file.",
-					   conf_language == NULL ? "エラー" : "Error",
-					   MB_OK | MB_ICONWARNING);
-			return FALSE;
-		}
+		/* 失敗 */
+		MessageBox(NULL,
+				   conf_language == NULL ?
+				   "ログファイルをオープンできません。" :
+				   "Cannot open log file.",
+				   conf_language == NULL ? "エラー" : "Error",
+				   MB_OK | MB_ICONWARNING);
+		return FALSE;
 	}
-#endif
+
+	/* 成功 */
 	return TRUE;
+#endif
 }
 
 /* ウィンドウを作成する */
@@ -998,13 +1001,18 @@ bool log_info(const char *s, ...)
 	char buf[LOG_BUF_SIZE];
 	va_list ap;
 
-	va_start(ap, s);
+	/* 必要ならログファイルをオープンする */
+	if(!OpenLogFile())
+		return false;
 
 	/* メッセージボックスを表示する */
+	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
+	va_end(ap);
 	MessageBox(hWndMain, buf, conf_language == NULL ? "情報" : "Info",
 			   MB_OK | MB_ICONINFORMATION);
 
+	/* ログファイルがオープンされている場合 */
 	if(pLogFile != NULL)
 	{
 		/* ファイルへ出力する */
@@ -1013,8 +1021,6 @@ bool log_info(const char *s, ...)
 		if(ferror(pLogFile))
 			return false;
 	}
-
-	va_end(ap);
 	return true;
 }
 
@@ -1026,13 +1032,18 @@ bool log_warn(const char *s, ...)
 	char buf[LOG_BUF_SIZE];
 	va_list ap;
 
-	va_start(ap, s);
+	/* 必要ならログファイルをオープンする */
+	if(!OpenLogFile())
+		return false;
 
 	/* メッセージボックスを表示する */
+	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
+	va_end(ap);
 	MessageBox(hWndMain, buf, conf_language == NULL ? "警告" : "Warning",
 			   MB_OK | MB_ICONWARNING);
 
+	/* ログファイルがオープンされている場合 */
 	if(pLogFile != NULL)
 	{
 		/* ファイルへ出力する */
@@ -1041,8 +1052,6 @@ bool log_warn(const char *s, ...)
 		if(ferror(pLogFile))
 			return false;
 	}
-
-	va_end(ap);
 	return true;
 }
 
@@ -1054,13 +1063,18 @@ bool log_error(const char *s, ...)
 	char buf[LOG_BUF_SIZE];
 	va_list ap;
 
-	va_start(ap, s);
+	/* 必要ならログファイルをオープンする */
+	if(!OpenLogFile())
+		return false;
 
 	/* メッセージボックスを表示する */
+	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
+	va_end(ap);
 	MessageBox(hWndMain, buf, conf_language == NULL ? "エラー" : "Error",
 			   MB_OK | MB_ICONERROR);
 
+	/* ログファイルがオープンされている場合 */
 	if(pLogFile != NULL)
 	{
 		/* ファイルへ出力する */
@@ -1069,8 +1083,6 @@ bool log_error(const char *s, ...)
 		if(ferror(pLogFile))
 			return false;
 	}
-
-	va_end(ap);
 	return true;
 }
 
