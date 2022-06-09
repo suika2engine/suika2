@@ -48,12 +48,11 @@ BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName)
 	// IGraphBuilderのインスタンスを取得する
 	hRes = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,
 							IID_IGraphBuilder, (void**)&pBuilder);
-	if(!pBuilder)
+	if(hRes != S_OK || !pBuilder)
 	{
 		log_api_error("CoCreateInstance");
 		return FALSE;
 	}
-	(void)hRes;
 
 	// フィルタグラフを生成する
 	WCHAR wFileName[PATH_SIZE];
