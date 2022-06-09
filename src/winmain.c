@@ -1457,7 +1457,7 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	wcex.hInstance      = hInstance;
 	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SUIKA));
 	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground  = (HBRUSH)COLOR_BACKGROUND + 1;
+	wcex.hbrBackground  = (HBRUSH)(COLOR_BTNFACE + 1);
 	wcex.lpszMenuName   = NULL;
 	wcex.lpszClassName  = szWndClass;
 	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
