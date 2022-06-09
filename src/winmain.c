@@ -1770,8 +1770,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 	hWndTextboxVar = CreateWindow(
 		"EDIT",
 		NULL,
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOVSCROLL |
-		ES_MULTILINE | ES_WANTRETURN, // ES_READONLY
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_VSCROLL |
+		ES_AUTOVSCROLL | ES_MULTILINE | ES_WANTRETURN,
 		10, 755, 420, 100,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
@@ -2312,7 +2312,7 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnReload, FALSE);
 
 		/* 変数のテキストボックスを無効にする */
-		EnableWindow(hWndTextboxVar, FALSE);
+		SendMessage(hWndTextboxVar, EM_SETREADONLY, TRUE, 0);
 
 		/* 変数の書き込みボタンを無効にする */
 		EnableWindow(hWndBtnVar, FALSE);
@@ -2409,7 +2409,7 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnReload, FALSE);
 
 		/* 変数のテキストボックスを無効にする */
-		EnableWindow(hWndTextboxVar, FALSE);
+		SendMessage(hWndTextboxVar, EM_SETREADONLY, TRUE, 0);
 
 		/* 変数の書き込みボタンを無効にする */
 		EnableWindow(hWndBtnVar, FALSE);
@@ -2504,7 +2504,7 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnReload, TRUE);
 
 		/* 変数のテキストボックスを有効にする */
-		EnableWindow(hWndTextboxVar, TRUE);
+		SendMessage(hWndTextboxVar, EM_SETREADONLY, FALSE, 0);
 
 		/* 変数の書き込みボタンを有効にする */
 		EnableWindow(hWndBtnVar, TRUE);
