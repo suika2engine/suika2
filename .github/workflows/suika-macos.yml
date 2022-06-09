@@ -6,7 +6,7 @@ on:
     branches: [master,actions]
 jobs:
   linux:
-    runs-on: "ubuntu-latest"
+    runs-on: "macos-12"
     name: windows
     steps:
     #clone suika2

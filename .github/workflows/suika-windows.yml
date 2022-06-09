@@ -6,7 +6,7 @@ on:
     branches: [master,actions]
 jobs:
   linux:
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-22.04"
     name: windows
     steps:
     #clone suika2
@@ -26,5 +26,5 @@ jobs:
           ls -l
       - uses: actions/upload-artifact@v2
         with: 
-          name: suika2-32.exe
+          name: suika.exe
           path: suika.exe
