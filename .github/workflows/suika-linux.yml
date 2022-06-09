@@ -1,9 +1,7 @@
 name: suika-linux
 on:
   push:
-    branches: [synchronize,actions]
   pull_request:
-    branches: [synchronize,actions]
 jobs:
   linux:
     runs-on: "ubuntu-latest"
