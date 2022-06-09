@@ -2,6 +2,9 @@
 *~
 suika.app
 suika.exe
+suika-pro.exe
+fileserver
+ftplocal
 build/linux/*.o
 build/linux/libroot
 build/linux/suika
