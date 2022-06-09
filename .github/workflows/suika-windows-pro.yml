@@ -1,0 +1,30 @@
+name: suika-windows-pro
+on:
+  push:
+    branches: [master,actions]
+  pull_request:
+    branches: [master,actions]
+jobs:
+  linux:
+    runs-on: "ubuntu-latest"
+    name: windows
+    steps:
+    #clone suika2
+      - uses: actions/checkout@v2
+        with:
+          repository: ktabata/suika2
+          ref: master
+    #build-essential
+      - name: build
+        run: |
+          sudo apt update
+          sudo apt install -y mingw-w64
+          cd build/mingw-pro
+          ./build-libs.sh
+          make
+          make install
+          ls -l
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: suika-pro.exe
+          path: suika-pro.exe
