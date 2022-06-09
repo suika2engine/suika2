@@ -138,7 +138,7 @@ const char *ConvNativeToUtf8(const char *lpszNativeMessage);
 
 /* バージョン文字列 */
 static char szVersion[] =
-	"Suika2 Pro\n"
+	"Suika2 Pro for Creators\n"
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n"
 	"\n"
 	"Contributors:\n"
