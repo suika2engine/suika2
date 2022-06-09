@@ -219,8 +219,8 @@ bool load_script(const char *fname)
 
 	/* スクリプトファイルを読み込む */
 	if (!read_script_from_file(fname)) {
-#ifndef USE_DEBUGGER
-		/* エラーの行まで読み込まれる */
+#ifdef USE_DEBUGGER
+		/* 最後の行まで読み込まれる */
 #else
 		return false;
 #endif

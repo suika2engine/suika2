@@ -226,23 +226,7 @@ void log_invalid_msgbox_size(void)
  */
 void log_script_exec_footer(void)
 {
-#ifndef USE_DEBUGGER
-	const char *file;
-	int line;
-
-	file = get_script_file_name();
-	assert(file != NULL);
-
-	line = get_line_num() + 1;
-
-	if (is_english_mode()) {
-		log_error("> Script execution error: %s:%d\n", file, line);
-		log_error("> %s\n", conv_utf8_to_native(get_line_string()));
-	} else {
-		log_error("> スクリプト実行エラー: %s %d行目\n", file, line);
-		log_error("> %s\n", conv_utf8_to_native(get_line_string()));
-	}
-#else
+#ifdef USE_DEBUGGER
 	char *line;
 
 	/* コマンドをメッセージに変換する */
@@ -252,6 +236,29 @@ void log_script_exec_footer(void)
 	else
 		set_error_command(get_command_index(), line);
 	dbg_set_error_state();
+#else
+	char tmp[4096];
+	const char *file;
+	int line;
+
+	file = get_script_file_name();
+	assert(file != NULL);
+
+	line = get_line_num() + 1;
+
+	if (is_english_mode()) {
+		snprintf(tmp, sizeof(tmp),
+			 "> Script execution error: %s:%d\n"
+			 "> %s\n",
+			 file, line, conv_utf8_to_native(get_line_string()));
+		log_error(tmp);
+	} else {
+		snprintf(tmp, sizeof(tmp),
+			 "> スクリプト実行エラー: %s %d行目\n"
+			 "> %s\n",
+			 file, line, conv_utf8_to_native(get_line_string()));
+		log_error(tmp);
+	}
 #endif
 }
 

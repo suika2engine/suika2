@@ -132,8 +132,8 @@ Last but not least, freedom. You can use Suika2 commercially for free.
 @goto LOOP1
 
 :L1_ENV
-For Windows, we support Windows 8.1 and later. We also support the latest Windows 10 tablets.
-For Mac, we support macOS 10.9 and later. We certainly support the latest Big Sur release and M1 chip.
+For Windows, we support from old Windows XP to latest Windows 11.
+For Mac, we support macOS 10.9 and later. We certainly support the latest Monterey release and M2 chip.
 For Web browsers, we support Chrome, Safari, Firefox and Edge.
 In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 was initially written on Linux!
 @set $2 = 1

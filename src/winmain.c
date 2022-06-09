@@ -1663,10 +1663,8 @@ static BOOL InitDebugger(HINSTANCE hInstance, int nCmdShow)
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnUpdate, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnUpdate,
-				  "Reflect command text for execution. "
-				  "Script file will not be overwritten at this point.",
-				  "編集したコマンドを実行に反映します。"
-				  "ここで反映しただけではファイルには書き込まれません。");
+				  "Reflect edited command for execution. ",
+				  "編集したコマンドを実行に反映します。");
 
 	/* コマンドリセットのボタンを作成する */
 	hWndBtnReset = CreateWindow(
@@ -2031,7 +2029,7 @@ static VOID OnPressError(void)
 	}
 	if(start != 0)
 	{
-		for(i=0; i<start; i++)
+		for(i=0; i<=start; i++)
 		{
 			text = get_line_string_at_line_num(i);
 			if(text[0] == '!')
