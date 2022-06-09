@@ -143,7 +143,8 @@ BOOL DShowProcessEvent(void)
 	assert(pEvent != NULL);
 
 	// 再生完了イベントを取得する(それ以外のイベントは処理しない)
-	LONG code, p, q;
+	LONG code;
+	LONG_PTR p, q;
 	BOOL bContinue = TRUE;
 	while(SUCCEEDED(pEvent->GetEvent(&code, &p, &q, 0)))
 	{

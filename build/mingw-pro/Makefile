@@ -89,10 +89,10 @@ OBJS = \
 # Target
 #
 
-all: suika-debug.exe
+all: suika-pro.exe
 
-suika-debug.exe: $(OBJS)
-	$(CC) -s -o suika-debug.exe $(OBJS) $(LDFLAGS)
+suika-pro.exe: $(OBJS)
+	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS)
 
 #
 # Feature specific source files.
@@ -104,8 +104,8 @@ include ../sse.mk
 # Phony
 #
 
-install: suika-debug.exe
-	cp suika-debug.exe ../../
+install: suika-pro.exe
+	cp suika-pro.exe ../../
 
 clean:
-	rm -rf *.o *~ suika-debug.exe log.txt sav tmp libroot
+	rm -rf *.o *~ suika-pro.exe log.txt sav tmp libroot
