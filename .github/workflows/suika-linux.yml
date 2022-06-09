@@ -4,44 +4,15 @@ on:
   pull_request:
 jobs:
   linux:
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-22.04"
     name: linux
-
     steps:
-    #clone suika2
-      - uses: actions/checkout@v2
-        with:
-          repository: ktabata/suika2
-          ref: master
-    #build-essential
-      - name: build
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
         run: |
           sudo apt update
           sudo apt install -y libasound2-dev libx11-dev libxpm-dev 
           cd build/linux
           ./build-libs.sh
           make
-          make install
-          echo now is in build/linux dir
-          tree
-          #cd ../
-          #echo now is in build/dir
-          #tree
-      - name: publish-en
-        uses: canastro/copy-file-action@master
-        with:
-          source: "build/linux/suika"
-          target: "game-en/suika"
-      - name: publish-jp
-        uses: canastro/copy-file-action@master
-        with:
-          source: "build/linux/suika"
-          target: "game-jp/suika"
-      - uses: actions/upload-artifact@v2
-        with: 
-          name: suika2-en-64
-          path: game-en/
-      - uses: actions/upload-artifact@v2
-        with:
-          name: suika2-jp-64
-          path: game-jp/

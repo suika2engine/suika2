@@ -7,21 +7,18 @@ jobs:
     runs-on: "ubuntu-22.04"
     name: windows
     steps:
-    #clone suika2
-      - uses: actions/checkout@v2
-        with:
-          repository: ktabata/suika2
-          ref: master
-    #build-essential
-      - name: build
-        run: |
-          sudo apt update
-          sudo apt install -y mingw-w64
-          cd build/mingw-pro
-          ./build-libs.sh
-          make
-          make install
-      - uses: actions/upload-artifact@v2
-        with: 
-          name: suika-pro.exe
-          path: suika-pro.exe
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name Build
+      run: |
+        sudo apt update
+        sudo apt install -y mingw-w64
+        cd build/mingw-pro
+        ./build-libs.sh
+        make
+        make install
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: suika-pro.exe
+        path: suika-pro.exe
