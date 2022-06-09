@@ -1,9 +1,9 @@
 name: suika-windows-pro
 on:
   push:
-    branches: [master,actions]
+    branches: [synchronize,actions]
   pull_request:
-    branches: [master,actions]
+    branches: [synchronize,actions]
 jobs:
   linux:
     runs-on: "ubuntu-22.04"
