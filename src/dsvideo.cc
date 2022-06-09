@@ -53,6 +53,7 @@ BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName)
 		log_api_error("CoCreateInstance");
 		return FALSE;
 	}
+	(void)hRes;
 
 	// フィルタグラフを生成する
 	WCHAR wFileName[PATH_SIZE];
