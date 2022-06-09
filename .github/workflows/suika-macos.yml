@@ -1,0 +1,27 @@
+name: suika-windows
+on:
+  push:
+    branches: [master,actions]
+  pull_request:
+    branches: [master,actions]
+jobs:
+  linux:
+    runs-on: "ubuntu-latest"
+    name: windows
+    steps:
+    #clone suika2
+      - uses: actions/checkout@v2
+        with:
+          repository: ktabata/suika2
+          ref: master
+    #build-essential
+      - name: build
+        run: |
+          cd build/macos
+          ./build-libs.sh
+          xcodebuild
+          zip -r build/macos/build/Release/suika.app ../../suika-mac.zip
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: suika-mac.zip
+          path: suika-mac.zip
