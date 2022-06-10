@@ -1,9 +1,12 @@
 ![icon](https://github.com/ktabata/suika2/raw/master/doc/icon.png "icon") Suika2
 =================================================================================
 
-Suika2 is a portable game engine that runs on both Windows and Mac. You can produce impressive visual novels using Suika2 - and have fun doing it too!
+`Suika2` is a portable visual novel game engine that runs on Windows, Mac, iOS and Android.
+You can produce impressive visual novels using `Suika2` - and have fun doing it too!
 
 ## Demo
+
+[Click HERE to start Web demo.](https://suika2.com/game-en/)
 
 ![demo](https://github.com/ktabata/suika2/raw/master/doc/screenshot-en.jpg "screenshot")
 
@@ -14,6 +17,10 @@ In a strict sense, Suika2 runs on Windows, Mac, Web browsers, iPhone, iPad, Andr
 Suika2 consists of a platform independent part and a hardware abstraction layer (HAL). The platform independent part is written in ANSI C. HALs are currently written in C, Objective-C and Java.
 
 If you want to port Suika2 to a new target platform, it is only necessary to write a HAL.
+
+## Suika2 Pro for Creators
+
+`Suika2 Pro for Creators` is a visual debugger for Windows.
 
 ## Contribution
 

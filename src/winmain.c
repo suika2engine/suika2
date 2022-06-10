@@ -131,7 +131,7 @@ const char *ConvNativeToUtf8(const char *lpszNativeMessage);
  */
 #ifdef USE_DEBUGGER
 /* メッセージボックスのタイトル */
-#define MSGBOX_TITLE		"Suika2 Pro"
+#define MSGBOX_TITLE		"Suika2 Pro for Creators"
 
 /* 変数テキストボックスのテキストの最大長(形: "$00001=12345678901\r\n") */
 #define VAR_TEXTBOX_MAX		(11000 * (1 + 5 + 1 + 11 + 2))
