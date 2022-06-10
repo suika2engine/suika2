@@ -59,7 +59,8 @@ int script_lines;
 
 #ifdef USE_DEBUGGER
 /* コメント行のテキスト */
-static char *comment_text[SCRIPT_CMD_SIZE];
+#define SCRIPT_LINE_SIZE	(65536)
+static char *comment_text[SCRIPT_LINE_SIZE];
 
 /* エラーの数 */
 static int error_count;
@@ -533,6 +534,14 @@ static bool read_script_from_file(const char *fname)
 	line = 0;
 	result = true;
 	while (result) {
+#ifdef USE_DEBUGGER
+		if (line > SCRIPT_LINE_SIZE) {
+			log_script_line_size();
+			result = false;
+			break;
+		}
+#endif
+
 		/* 行を読み込む */
 		if (gets_rfile(rf, buf, sizeof(buf)) == NULL)
 			break;

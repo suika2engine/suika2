@@ -624,4 +624,15 @@ void log_command_update_error(void)
 			 "編集と更新で正しいコマンドに戻すことが可能です。");
 	}
 }
+
+/*
+ * スクリプトの行数が既定値を超えた際のエラーを記録する
+ */
+void log_script_line_size(void)
+{
+	if (is_english_mode())
+		log_info("Too many lines in script.");
+	else
+		log_info("スクリプトの行数が大きすぎます。");
+}
 #endif

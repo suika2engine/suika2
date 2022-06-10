@@ -66,6 +66,7 @@ void log_video_error(const char *reason);
 
 #ifdef USE_DEBUGGER
 void log_command_update_error(void);
+void log_script_line_size(void);
 #endif
 
 #endif
