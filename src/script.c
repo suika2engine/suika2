@@ -930,19 +930,23 @@ const char *get_line_string_at_line_num(int line)
  */
 bool update_command(int index, const char *cmd_str)
 {
-	char *err_cmd;
 	int line;
 
+	/* メッセージに変換されるメッセージボックスを表示するようにする */
 	error_count = 0;
 
-	line = cmd[index].line;
-	err_cmd = strdup(cmd_str);
-	if (err_cmd == NULL) {
-		log_memory();
-		return false;
+	/* コマンドのメモリを解放する */
+	if (cmd[index].text != NULL) {
+		free(cmd[index].text);
+		cmd[index].text = NULL;
+	}
+	if (cmd[index].param[0] != NULL) {
+		free(cmd[index].param[0]);
+		cmd[index].param[0] = NULL;
 	}
 
 	/* 行頭の文字で仕分けする */
+	line = cmd[index].line;
 	switch (cmd_str[0]) {
 	case '@':
 		if (!parse_insn(index, cur_script, line, cmd_str))
