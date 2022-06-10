@@ -15,5 +15,4 @@ jobs:
           cd build/vs
           powershell -command "Expand-Archive libs.zip -DestinationPath ."
           cd suika
-          cl.exe /version
           msbuild /p:Configuration=Release;Platform="x86"
