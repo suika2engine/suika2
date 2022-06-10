@@ -13,7 +13,7 @@ jobs:
         with:
           vs-version: '17.1'
       - run: |
-          cd build/vs
-          powershell -command "Expand-Archive libs.zip -DestinationPath ."
-          cd suika
-          msbuild /p:Configuration=Release;Platform="x86"
+        cd build/vs
+        powershell -command "Expand-Archive libs.zip -DestinationPath ."
+        cd suika
+        msbuild /p:Configuration=Release;Platform="x86"
