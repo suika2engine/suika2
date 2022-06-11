@@ -40,6 +40,9 @@
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" size="13" name=".HiraKakuInterface-W3"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="onPauseButton:" target="-2" id="Fql-IJ-4yw"/>
+                        </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ISB-QZ-Nua">
                         <rect key="frame" x="82" y="692" width="71" height="32"/>
@@ -48,6 +51,9 @@
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" size="13" name=".HiraKakuInterface-W3"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="onNextButton:" target="-2" id="gqU-gU-ILC"/>
+                        </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mE8-fK-83R">
                         <rect key="frame" x="20" y="665" width="175" height="16"/>

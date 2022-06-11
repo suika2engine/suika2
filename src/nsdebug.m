@@ -15,6 +15,8 @@
 DebugWindowController *debugWindowController;
 
 BOOL isResumePressed;
+BOOL isNextPressed;
+BOOL isPausePressed;
 
 //
 // DebugWindowController
@@ -32,6 +34,16 @@ BOOL isResumePressed;
 - (IBAction) onResumeButton:(id)sender
 {
     isResumePressed = TRUE;
+}
+
+- (IBAction) onNextButton:(id)sender
+{
+    isNextPressed = TRUE;
+}
+
+- (IBAction) onPauseButton:(id)sender
+{
+    isPausePressed = TRUE;
 }
 
 @end
@@ -76,7 +88,9 @@ bool is_resume_pushed(void)
  */
 bool is_next_pushed(void)
 {
-    return false;
+    BOOL ret = isNextPressed;
+    isNextPressed = FALSE;
+    return ret;
 }
 
 /*
@@ -84,7 +98,9 @@ bool is_next_pushed(void)
  */
 bool is_pause_pushed(void)
 {
-    return false;
+    BOOL ret = isPausePressed;
+    isPausePressed = FALSE;
+    return ret;
 }
 
 /*
