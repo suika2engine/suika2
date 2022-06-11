@@ -94,14 +94,13 @@ static void rewind_random(uint64_t *next_random, uint64_t *prev_random);
  */
 bool init_file(void)
 {
-	FILE *fp;
-	uint64_t i, next_random;
-	int j;
-
 #ifdef USE_DEBUGGER
 	/* ユーザの気持ちを考えて、デバッガ版ではパッケージを開けない */
 	return true;
-#endif
+#else
+	FILE *fp;
+	uint64_t i, next_random;
+	int j;
 
 	/* パッケージファイルのパスを求める */
 	package_path = make_valid_path(NULL, PACKAGE_FILE);
@@ -154,6 +153,7 @@ bool init_file(void)
 
 	fclose(fp);
 	return true;
+#endif
 }
 
 /*

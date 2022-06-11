@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changed]
  *  - 2016/06/15 Created.
+ *  - 2020/06/11 Add debugger.
  */
 
 #import <Cocoa/Cocoa.h>
@@ -19,6 +20,10 @@
 
 #ifdef SSE_VERSIONING
 #import "x86.h"
+#endif
+
+#ifdef USE_DEBUGGER
+#import "nsdebug.h"
 #endif
 
 //
@@ -95,12 +100,18 @@ int main()
                         if(on_event_init()) {
                             // ウィンドウを作成する
                             if(initWindow()) {
-                                // メインループを実行する
-                                [NSApp activateIgnoringOtherApps:YES];
-                                [NSApp run];
+#ifdef USE_DEBUGGER
+                                if(initDebugWindow()) {
+#else
+                                {
+#endif
+                                    // メインループを実行する
+                                    [NSApp activateIgnoringOtherApps:YES];
+                                    [NSApp run];
 
-                                // アプリケーション本体の終了処理を行う
-                                on_event_cleanup();
+                                    // アプリケーション本体の終了処理を行う
+                                    on_event_cleanup();
+                                }
                             }
 
                             // TODO: How to destroy theView?

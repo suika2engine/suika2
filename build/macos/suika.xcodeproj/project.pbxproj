@@ -7,6 +7,51 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		260349482854B29800037370 /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780D25EE5DD0006A1ED4 /* conf.c */; };
+		260349492854B29800037370 /* cmd_select.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780B25EE5DD0006A1ED4 /* cmd_select.c */; };
+		2603494A2854B29800037370 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F425EE5DD0006A1ED4 /* script.c */; };
+		2603494B2854B29800037370 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
+		2603494C2854B29800037370 /* cmd_wait.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782625EE5DD0006A1ED4 /* cmd_wait.c */; };
+		2603494D2854B29800037370 /* vars.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781725EE5DD0006A1ED4 /* vars.c */; };
+		2603494E2854B29800037370 /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781B25EE5DD0006A1ED4 /* glyph.c */; };
+		2603494F2854B29800037370 /* cmd_vol.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781425EE5DD0006A1ED4 /* cmd_vol.c */; };
+		260349502854B29800037370 /* nsmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F625EE5DD0006A1ED4 /* nsmain.m */; };
+		260349512854B29800037370 /* save.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781925EE5DD0006A1ED4 /* save.c */; };
+		260349522854B29800037370 /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
+		260349532854B29800037370 /* event.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781825EE5DD0006A1ED4 /* event.c */; };
+		260349542854B29800037370 /* cmd_gosub.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177FA25EE5DD0006A1ED4 /* cmd_gosub.c */; };
+		260349552854B29800037370 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
+		260349562854B29800037370 /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780025EE5DD0006A1ED4 /* readimage.c */; };
+		260349572854B29800037370 /* cmd_if.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782125EE5DD0006A1ED4 /* cmd_if.c */; };
+		260349582854B29800037370 /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780525EE5DD0006A1ED4 /* aunit.c */; };
+		260349592854B29800037370 /* cmd_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780825EE5DD0006A1ED4 /* cmd_set.c */; };
+		2603495A2854B29800037370 /* cmd_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782925EE5DD0006A1ED4 /* cmd_ch.c */; };
+		2603495B2854B29800037370 /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 268C79C226A56A7000981FB1 /* cmd_chs.c */; };
+		2603495C2854B29800037370 /* cmd_bg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177FB25EE5DD0006A1ED4 /* cmd_bg.c */; };
+		2603495D2854B29800037370 /* cmd_click.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782A25EE5DD0006A1ED4 /* cmd_click.c */; };
+		2603495E2854B29800037370 /* stage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177FF25EE5DD0006A1ED4 /* stage.c */; };
+		2603495F2854B29800037370 /* cmd_message.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780125EE5DD0006A1ED4 /* cmd_message.c */; };
+		260349602854B29800037370 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781225EE5DD0006A1ED4 /* image.c */; };
+		260349612854B29800037370 /* cmd_se.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782725EE5DD0006A1ED4 /* cmd_se.c */; };
+		260349622854B29800037370 /* history.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781A25EE5DD0006A1ED4 /* history.c */; };
+		260349632854B29800037370 /* cmd_bgm.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781F25EE5DD0006A1ED4 /* cmd_bgm.c */; };
+		260349642854B29800037370 /* wave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780F25EE5DD0006A1ED4 /* wave.c */; };
+		260349652854B29800037370 /* cmd_skip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2646C360284C635D00DF86E1 /* cmd_skip.c */; };
+		260349662854B29800037370 /* cmd_goto.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781E25EE5DD0006A1ED4 /* cmd_goto.c */; };
+		260349672854B29800037370 /* cmd_load.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781C25EE5DD0006A1ED4 /* cmd_load.c */; };
+		260349682854B29800037370 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782425EE5DD0006A1ED4 /* log.c */; };
+		260349692854B29800037370 /* cmd_retrospect.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780E25EE5DD0006A1ED4 /* cmd_retrospect.c */; };
+		2603496A2854B29800037370 /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780A25EE5DD0006A1ED4 /* mixer.c */; };
+		2603496B2854B29800037370 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26557B0D26785269000CDD10 /* cmd_setsave.c */; };
+		2603496C2854B29800037370 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F725EE5DD0006A1ED4 /* main.c */; };
+		2603496D2854B29800037370 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
+		2603496E2854B29800037370 /* cmd_return.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780225EE5DD0006A1ED4 /* cmd_return.c */; };
+		2603496F2854B29800037370 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F925EE5DD0006A1ED4 /* file.c */; };
+		260349702854B29800037370 /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
+		260349712854B29800037370 /* cmd_switch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780725EE5DD0006A1ED4 /* cmd_switch.c */; };
+		260349722854B29800037370 /* cmd_menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780625EE5DD0006A1ED4 /* cmd_menu.c */; };
+		260349752854B29800037370 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
+		2603497D2854B61F00037370 /* nsdebug.m in Sources */ = {isa = PBXBuildFile; fileRef = 2603497C2854B61F00037370 /* nsdebug.m */; };
 		2608233C26724676009D979A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
 		260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
 		2617E957282BF6F500637615 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
@@ -54,6 +99,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		260349792854B29800037370 /* suika-pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "suika-pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2603497A2854B29800037370 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "suika-pro/Info.plist"; sourceTree = SOURCE_ROOT; };
+		2603497B2854B5FF00037370 /* nsdebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nsdebug.h; path = ../../../src/nsdebug.h; sourceTree = "<group>"; };
+		2603497C2854B61F00037370 /* nsdebug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nsdebug.m; path = ../../../src/nsdebug.m; sourceTree = "<group>"; };
 		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
 		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
 		2617E956282BF6F500637615 /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../../src/cmd_video.c; sourceTree = "<group>"; };
@@ -127,6 +176,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		260349732854B29800037370 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		26B8ACDC25EE5845005D9C49 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -149,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				26B8ACDF25EE5845005D9C49 /* suika.app */,
+				260349792854B29800037370 /* suika-pro.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -158,6 +215,7 @@
 			children = (
 				26B8ACE525EE5846005D9C49 /* Assets.xcassets */,
 				26B8ACEA25EE5846005D9C49 /* Info.plist */,
+				2603497A2854B29800037370 /* Info.plist */,
 				26B8ACED25EE5846005D9C49 /* suika.entitlements */,
 				26A1780525EE5DD0006A1ED4 /* aunit.c */,
 				26A1782B25EE5DD0006A1ED4 /* aunit.h */,
@@ -206,6 +264,8 @@
 				26A1780A25EE5DD0006A1ED4 /* mixer.c */,
 				26A1780925EE5DD0006A1ED4 /* mixer.h */,
 				26A1782025EE5DD0006A1ED4 /* muladdpcm.h */,
+				2603497B2854B5FF00037370 /* nsdebug.h */,
+				2603497C2854B61F00037370 /* nsdebug.m */,
 				26A177F625EE5DD0006A1ED4 /* nsmain.m */,
 				26A177FE25EE5DD0006A1ED4 /* platform.h */,
 				26A1780025EE5DD0006A1ED4 /* readimage.c */,
@@ -232,6 +292,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		260349462854B29800037370 /* suika-pro */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 260349762854B29800037370 /* Build configuration list for PBXNativeTarget "suika-pro" */;
+			buildPhases = (
+				260349472854B29800037370 /* Sources */,
+				260349732854B29800037370 /* Frameworks */,
+				260349742854B29800037370 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "suika-pro";
+			productName = suika;
+			productReference = 260349792854B29800037370 /* suika-pro.app */;
+			productType = "com.apple.product-type.application";
+		};
 		26B8ACDE25EE5845005D9C49 /* suika */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 26B8ACF025EE5846005D9C49 /* Build configuration list for PBXNativeTarget "suika" */;
@@ -276,11 +353,20 @@
 			projectRoot = "";
 			targets = (
 				26B8ACDE25EE5845005D9C49 /* suika */,
+				260349462854B29800037370 /* suika-pro */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		260349742854B29800037370 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				260349752854B29800037370 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		26B8ACDD25EE5845005D9C49 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -292,6 +378,57 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		260349472854B29800037370 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				260349482854B29800037370 /* conf.c in Sources */,
+				260349492854B29800037370 /* cmd_select.c in Sources */,
+				2603494A2854B29800037370 /* script.c in Sources */,
+				2603494B2854B29800037370 /* scbuf.c in Sources */,
+				2603494C2854B29800037370 /* cmd_wait.c in Sources */,
+				2603494D2854B29800037370 /* vars.c in Sources */,
+				2603494E2854B29800037370 /* glyph.c in Sources */,
+				2603494F2854B29800037370 /* cmd_vol.c in Sources */,
+				260349502854B29800037370 /* nsmain.m in Sources */,
+				260349512854B29800037370 /* save.c in Sources */,
+				260349522854B29800037370 /* cmd_cha.c in Sources */,
+				260349532854B29800037370 /* event.c in Sources */,
+				260349542854B29800037370 /* cmd_gosub.c in Sources */,
+				260349552854B29800037370 /* cmd_shake.c in Sources */,
+				260349562854B29800037370 /* readimage.c in Sources */,
+				260349572854B29800037370 /* cmd_if.c in Sources */,
+				260349582854B29800037370 /* aunit.c in Sources */,
+				260349592854B29800037370 /* cmd_set.c in Sources */,
+				2603495A2854B29800037370 /* cmd_ch.c in Sources */,
+				2603495B2854B29800037370 /* cmd_chs.c in Sources */,
+				2603495C2854B29800037370 /* cmd_bg.c in Sources */,
+				2603495D2854B29800037370 /* cmd_click.c in Sources */,
+				2603495E2854B29800037370 /* stage.c in Sources */,
+				2603495F2854B29800037370 /* cmd_message.c in Sources */,
+				260349602854B29800037370 /* image.c in Sources */,
+				260349612854B29800037370 /* cmd_se.c in Sources */,
+				260349622854B29800037370 /* history.c in Sources */,
+				260349632854B29800037370 /* cmd_bgm.c in Sources */,
+				260349642854B29800037370 /* wave.c in Sources */,
+				260349652854B29800037370 /* cmd_skip.c in Sources */,
+				260349662854B29800037370 /* cmd_goto.c in Sources */,
+				260349672854B29800037370 /* cmd_load.c in Sources */,
+				260349682854B29800037370 /* log.c in Sources */,
+				260349692854B29800037370 /* cmd_retrospect.c in Sources */,
+				2603496A2854B29800037370 /* mixer.c in Sources */,
+				2603496B2854B29800037370 /* cmd_setsave.c in Sources */,
+				2603497D2854B61F00037370 /* nsdebug.m in Sources */,
+				2603496C2854B29800037370 /* main.c in Sources */,
+				2603496D2854B29800037370 /* cmd_video.c in Sources */,
+				2603496E2854B29800037370 /* cmd_return.c in Sources */,
+				2603496F2854B29800037370 /* file.c in Sources */,
+				260349702854B29800037370 /* seen.c in Sources */,
+				260349712854B29800037370 /* cmd_switch.c in Sources */,
+				260349722854B29800037370 /* cmd_menu.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		26B8ACDB25EE5845005D9C49 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -345,6 +482,95 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		260349772854B29800037370 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = suika/suika.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7S742FWR63;
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = (
+					libroot/include,
+					libroot/include/freetype2,
+				);
+				INFOPLIST_FILE = "suika-pro/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = libroot/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MARKETING_VERSION = 2.9.5;
+				OTHER_CFLAGS = (
+					"-DXCODE",
+					"-DUSE_DEBUGGER",
+					"-ffast-math",
+					"-fvectorize",
+				);
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lpng",
+					"-logg",
+					"-lvorbis",
+					"-lvorbisfile",
+					"-lfreetype",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suikapro;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		260349782854B29800037370 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = suika/suika.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7S742FWR63;
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = (
+					libroot/include,
+					libroot/include/freetype2,
+				);
+				INFOPLIST_FILE = "suika-pro/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = libroot/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MARKETING_VERSION = 2.9.5;
+				OTHER_CFLAGS = (
+					"-DXCODE",
+					"-DUSE_DEBUGGER",
+					"-ffast-math",
+					"-fvectorize",
+				);
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lpng",
+					"-logg",
+					"-lvorbis",
+					"-lvorbisfile",
+					"-lfreetype",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suikapro;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Release;
+		};
 		26B8ACEE25EE5846005D9C49 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -480,7 +706,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.4;
+				MARKETING_VERSION = 2.9.5;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -523,7 +749,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.4;
+				MARKETING_VERSION = 2.9.5;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -546,6 +772,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		260349762854B29800037370 /* Build configuration list for PBXNativeTarget "suika-pro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				260349772854B29800037370 /* Debug */,
+				260349782854B29800037370 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		26B8ACDA25EE5845005D9C49 /* Build configuration list for PBXProject "suika" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
