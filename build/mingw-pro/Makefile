@@ -60,6 +60,7 @@ SRCS_C = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
+	../../src/windebug.c \
 	../../src/dsound.c
 
 SRCS_CC = \
