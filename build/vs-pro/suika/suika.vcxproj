@@ -52,6 +52,7 @@
     <ClInclude Include="..\..\..\src\types.h" />
     <ClInclude Include="..\..\..\src\vars.h" />
     <ClInclude Include="..\..\..\src\wave.h" />
+    <ClInclude Include="..\..\..\src\windebug.h" />
     <ClInclude Include="..\..\..\src\x86.h" />
     <ClInclude Include="..\..\mingw\res\resource.h" />
   </ItemGroup>
@@ -116,6 +117,7 @@
     <ClCompile Include="..\..\..\src\stage.c" />
     <ClCompile Include="..\..\..\src\vars.c" />
     <ClCompile Include="..\..\..\src\wave.c" />
+    <ClCompile Include="..\..\..\src\windebug.c" />
     <ClCompile Include="..\..\..\src\winmain.c" />
     <ClCompile Include="..\..\..\src\x86.c" />
   </ItemGroup>

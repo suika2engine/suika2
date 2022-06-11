@@ -108,6 +108,9 @@
     <ClInclude Include="..\..\..\src\dsvideo.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\windebug.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -258,6 +261,9 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_skip.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\windebug.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>
