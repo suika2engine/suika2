@@ -14,8 +14,10 @@
 #define SUIKA_NSDEBUG_H
 
 #import <Cocoa/Cocoa.h>
+#import "suika.h"
 
-#include "suika.h"
+@interface DebugWindowController : NSWindowController <NSWindowDelegate, NSApplicationDelegate>
+@end
 
 BOOL initDebugWindow(void);
 

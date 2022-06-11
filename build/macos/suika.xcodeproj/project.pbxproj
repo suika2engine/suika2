@@ -56,6 +56,7 @@
 		260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
 		2617E957282BF6F500637615 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
 		2646C361284C635D00DF86E1 /* cmd_skip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2646C360284C635D00DF86E1 /* cmd_skip.c */; };
+		2649E0D62854C239006831C5 /* DebugWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2649E0D52854C239006831C5 /* DebugWindow.xib */; };
 		26557B0E26785269000CDD10 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26557B0D26785269000CDD10 /* cmd_setsave.c */; };
 		26616DC926B4CED20094B23C /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
 		268C79C326A56A7000981FB1 /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 268C79C226A56A7000981FB1 /* cmd_chs.c */; };
@@ -107,6 +108,7 @@
 		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
 		2617E956282BF6F500637615 /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../../src/cmd_video.c; sourceTree = "<group>"; };
 		2646C360284C635D00DF86E1 /* cmd_skip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_skip.c; path = ../../../src/cmd_skip.c; sourceTree = "<group>"; };
+		2649E0D52854C239006831C5 /* DebugWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = DebugWindow.xib; path = "suika-pro/DebugWindow.xib"; sourceTree = SOURCE_ROOT; };
 		26557B0D26785269000CDD10 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		26616DC726B4CED20094B23C /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../../src/seen.h; sourceTree = "<group>"; };
 		26616DC826B4CED20094B23C /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../../src/seen.c; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 			isa = PBXGroup;
 			children = (
 				26B8ACE525EE5846005D9C49 /* Assets.xcassets */,
+				2649E0D52854C239006831C5 /* DebugWindow.xib */,
 				26B8ACEA25EE5846005D9C49 /* Info.plist */,
 				2603497A2854B29800037370 /* Info.plist */,
 				26B8ACED25EE5846005D9C49 /* suika.entitlements */,
@@ -364,6 +367,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				260349752854B29800037370 /* Assets.xcassets in Resources */,
+				2649E0D62854C239006831C5 /* DebugWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

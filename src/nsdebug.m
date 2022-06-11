@@ -10,10 +10,50 @@
  *  - 2020/06/11 Created.
  */
 
-#include "nsdebug.h"
+#import "nsdebug.h"
 
+DebugWindowController *debugWindowController;
+
+BOOL isResumePressed;
+
+//
+// DebugWindowController
+//
+
+@interface DebugWindowController ()
+@end
+
+@implementation DebugWindowController
+
+- (void)windowDidLoad {
+    [super windowDidLoad];
+}
+
+- (IBAction) onResumeButton:(id)sender
+{
+    isResumePressed = TRUE;
+}
+
+@end
+
+//
+// nsmain.cへ提供する機能
+//
+
+//
+// デバッグウィンドウを初期化する
+//
 BOOL initDebugWindow(void)
 {
+    assert(debugWindowController == NULL);
+
+    debugWindowController = [[DebugWindowController alloc]
+                                  initWithWindowNibName:@"DebugWindow"];
+    if(debugWindowController == NULL)
+        return FALSE;
+
+    [debugWindowController showWindow:debugWindowController];
+
 	return TRUE;
 }
 
@@ -26,7 +66,9 @@ BOOL initDebugWindow(void)
  */
 bool is_resume_pushed(void)
 {
-    return false;
+    BOOL ret = isResumePressed;
+    isResumePressed = FALSE;
+    return ret;
 }
 
 /*
