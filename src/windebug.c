@@ -239,7 +239,6 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 	HFONT hFont, hFontFixed;
 	DWORD style;
 	int dw, dh;
-	BOOL bEnglish;
 	const int WIN_WIDTH = 440;
 	const int WIN_HEIGHT = 905;
 
@@ -1091,8 +1090,6 @@ const char *get_updated_command()
  */
 void set_running_state(bool running, bool request_stop)
 {
-	BOOL bEnglish;
-
 	bRunning = running;
 
 	/* 停止によりコマンドの完了を待機中のとき */
