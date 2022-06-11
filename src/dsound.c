@@ -563,9 +563,6 @@ static BOOL WriteNext(int nBuffer)
 		{
 			/* 再生終了位置を記憶する */
 			nPosEndArea[nBuffer] = nArea == 0 ? BUF_AREAS - 1 : nArea - 1;
-
-			/* 再生終了フラグをセットする */
-			bFinish[nBuffer] = TRUE;
 		}
 		else if(nSamples != AREA_SAMPLES)
 		{
@@ -575,9 +572,6 @@ static BOOL WriteNext(int nBuffer)
 
 			/* 再生終了位置を記憶する */
 			nPosEndArea[nBuffer] = nArea;
-
-			/* 再生終了フラグをセットする */
-			bFinish[nBuffer] = TRUE;
 		}
 	}
 	else 
@@ -667,6 +661,10 @@ static VOID OnNotifyPlayPos(int nBuffer)
 
 		/* ストリームを停止状態にする */
 		pStream[nBuffer] = NULL;
+
+		/* 再生終了フラグをセットする */
+		bFinish[nBuffer] = TRUE;
+
 		return;	// 再生終了
 	}
 
