@@ -66,6 +66,21 @@ static NSString *parseint(int num);
 - (void)windowDidLoad {
     [super windowDidLoad];
     [[self window] setDelegate:self];
+
+    // メインスクリーンの位置とサイズを取得する
+    NSRect sr = [[NSScreen mainScreen] visibleFrame];
+
+    // ウィンドウの位置とサイズを取得する
+    NSRect wr = [[[self window] contentView] frame];
+
+    // ウィンドウの座標を計算する
+    NSRect cr = NSMakeRect(sr.origin.x + sr.size.width - wr.size.width,
+                           sr.origin.y + sr.size.height - wr.size.height,
+                           wr.size.width,
+                           wr.size.height);
+
+    // ウィンドウを移動する
+    [[self window] setFrame:cr display:YES animate:NO];
 }
 
 // ウィンドウが閉じられるときのイベント
