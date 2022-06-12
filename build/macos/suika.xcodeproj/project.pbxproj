@@ -219,6 +219,7 @@
 			isa = PBXGroup;
 			children = (
 				26B8ACE525EE5846005D9C49 /* Assets.xcassets */,
+				2649E0D828559C26006831C5 /* MainMenu.xib */,
 				2649E0D52854C239006831C5 /* DebugWindow.xib */,
 				26B8ACEA25EE5846005D9C49 /* Info.plist */,
 				2603497A2854B29800037370 /* Info.plist */,
@@ -292,7 +293,6 @@
 				26A1780C25EE5DD0006A1ED4 /* vars.h */,
 				26A1780F25EE5DD0006A1ED4 /* wave.c */,
 				26A1781025EE5DD0006A1ED4 /* wave.h */,
-				2649E0D828559C26006831C5 /* MainMenu.xib */,
 			);
 			path = suika;
 			sourceTree = "<group>";

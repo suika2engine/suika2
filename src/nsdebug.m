@@ -23,9 +23,14 @@ BOOL isPausePressed;
 //
 
 @interface DebugWindowController ()
+@property (weak) IBOutlet NSTextField *textFieldScriptName;
 @end
 
 @implementation DebugWindowController
+
+//
+// コールバック
+//
 
 - (void)windowDidLoad {
     [super windowDidLoad];
@@ -46,6 +51,13 @@ BOOL isPausePressed;
     isPausePressed = TRUE;
 }
 
+//
+// ビューの設定
+//
+
+- (void)setScriptName:(NSString *)name {
+    [[self textFieldScriptName] setStringValue:name];
+}
 @end
 
 //
@@ -59,7 +71,7 @@ BOOL initDebugWindow(void)
 {
     assert(debugWindowController == NULL);
 
-    // メニューをロードする
+    // メニューのXibをロードする
     [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
 
     // デバッグウィンドウのXibファイルをロードする
@@ -174,4 +186,7 @@ void set_running_state(bool running, bool request_stop)
 /* デバッグ情報を更新する */
 void update_debug_info(bool script_changed)
 {
+    NSString *scriptName = [[NSString alloc] initWithUTF8String:
+                                                 get_script_file_name()];
+    [debugWindowController setScriptName:scriptName];
 }

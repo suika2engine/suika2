@@ -8,6 +8,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="DebugWindowController">
             <connections>
+                <outlet property="textFieldScriptName" destination="4Ai-a0-qqO" id="b6c-VL-VF7"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="eD9-Cz-eCB"/>
             </connections>
         </customObject>
