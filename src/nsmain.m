@@ -482,11 +482,20 @@ static BOOL initWindow(void)
     [appMenuItem setSubmenu:appMenu];
 #endif
 
+    // メインスクリーンの位置とサイズを取得する
+    NSRect sr = [[NSScreen mainScreen] visibleFrame];
+
+    // ウィンドウの座標を計算する
+    NSRect cr = NSMakeRect(sr.origin.x +
+                           (sr.size.width - conf_window_width) / 2,
+                           sr.origin.y +
+                           (sr.size.height - conf_window_height) / 2,
+                           conf_window_width,
+                           conf_window_height);
+
     // ウィンドウを作成する
     theWindow = [[NSWindow alloc]
-                     initWithContentRect:NSMakeRect(0, 0,
-                                                    conf_window_width,
-                                                    conf_window_height)
+                     initWithContentRect:cr
                                styleMask:NSTitledWindowMask |
                                          NSClosableWindowMask |
                                          NSMiniaturizableWindowMask
@@ -494,8 +503,7 @@ static BOOL initWindow(void)
                                    defer:NO];
     [theWindow setCollectionBehavior:
                    [theWindow collectionBehavior] |
-                   NSWindowCollectionBehaviorFullScreenPrimary];
-    [theWindow cascadeTopLeftFromPoint:NSMakePoint(20,20)];
+               NSWindowCollectionBehaviorFullScreenPrimary];
     [theWindow setTitle:[[NSString alloc]
                             initWithUTF8String:conf_window_title]];
     [theWindow makeKeyAndOrderFront:nil];

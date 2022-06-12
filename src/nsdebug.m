@@ -24,6 +24,8 @@ static bool isResumePressed;
 static bool isNextPressed;
 static bool isPausePressed;
 static bool isChangeScriptPressed;
+static bool isLineChangePressed;
+static bool isCommandUpdatePressed;
 static bool isReloadPressed;
 
 // 前方参照
@@ -35,6 +37,7 @@ static NSString *parseint(int num);
 //
 
 @interface DebugWindowController ()
+@property (strong) IBOutlet NSWindow *debugWindow;
 @property (weak) IBOutlet NSButton *buttonResume;
 @property (weak) IBOutlet NSButton *buttonNext;
 @property (weak) IBOutlet NSButton *buttonPause;
@@ -56,12 +59,13 @@ static NSString *parseint(int num);
 @implementation DebugWindowController
 
 //
-// コールバック
+// NSWindowDelegate
 //
 
 // ウィンドウがロードされたときのイベント
 - (void)windowDidLoad {
     [super windowDidLoad];
+    [[self window] setDelegate:self];
 }
 
 // ウィンドウが閉じられるときのイベント
@@ -71,20 +75,36 @@ static NSString *parseint(int num);
     return NO;
 }
 
-- (IBAction) onResumeButton:(id)sender {
+//
+// NSApplicationDelegate
+//
+
+// 続けるボタンが押下されたイベント
+- (IBAction) onResumeButton:(id)sender
+{
     isResumePressed = true;
 }
 
-- (IBAction) onNextButton:(id)sender {
+// 次へボタンが押下されたイベント
+- (IBAction) onNextButton:(id)sender
+{
     isNextPressed = true;
 }
 
-- (IBAction) onPauseButton:(id)sender {
+// 停止ボタンが押下されたイベント
+- (IBAction) onPauseButton:(id)sender
+{
     isPausePressed = true;
 }
 
-- (IBAction)onTextFieldScriptNameReturn:(id)sender {
+// スクリプトファイル名の反映ボタンが押下されたイベント
+- (IBAction)onUpdateScriptNameButton:(id)sender {
     isChangeScriptPressed = true;
+}
+
+// 行番号の反映ボタンが押下されたイベント
+- (IBAction)onUpdateCommandTextButton:(id)sender {
+    isLineChangePressed = true;
 }
 
 //
@@ -96,7 +116,7 @@ static NSString *parseint(int num);
     [[self textFieldScriptName] setStringValue:name];
 }
 
-// スクリプト名のテキストフィールドの値を設定する
+// スクリプト名のテキストフィールドの値を取得する
 - (NSString *)getScriptName {
     return [[self textFieldScriptName] stringValue];
 }
@@ -112,6 +132,16 @@ static NSString *parseint(int num);
     NSString *s = [[self textFieldScriptLine] stringValue];
     int num = atoi([s UTF8String]);
     return num;
+}
+
+// コマンドのテキストフィールドの値を設定する
+- (void)setCommandText:(NSString *)text {
+    [[self textFieldCommand] setString:text];
+}
+
+// コマンドのテキストフィールドの値を取得する
+- (NSString *)getCommandText {
+    return [[[self textFieldCommand] textStorage] string];
 }
 
 @end
@@ -170,7 +200,7 @@ static NSString *parseint(int num)
 //
 
 /*
- *再開ボタンが押されたか調べる
+ * 再開ボタンが押されたか調べる
  */
 bool is_resume_pushed(void)
 {
@@ -225,7 +255,9 @@ const char *get_changed_script(void)
  */
 bool is_line_changed(void)
 {
-    return false;
+    bool ret = isLineChangePressed;
+    isLineChangePressed = false;
+    return ret;
 }
 
 /*
@@ -237,21 +269,13 @@ int get_changed_line(void)
 }
 
 /*
- * スクリプトがリロードされたかを調べる
- */
-bool is_script_reloaded(void)
-{
-    bool ret = isReloadPressed;
-    isReloadPressed = false;
-    return ret;
-}
-
-/*
  * コマンドがアップデートされたかを調べる
  */
 bool is_command_updated(void)
 {
-    return false;
+    bool ret = isCommandUpdatePressed;
+    isCommandUpdatePressed = false;
+    return ret;
 }
 
 /*
@@ -259,7 +283,20 @@ bool is_command_updated(void)
  */
 const char *get_updated_command(void)
 {
-    return "";
+    static char command[4096];
+    snprintf(command, sizeof(command), "%s",
+             [[debugWindowController getCommandText] UTF8String]);
+    return command;
+}
+
+/*
+ * スクリプトがリロードされたかを調べる
+ */
+bool is_script_reloaded(void)
+{
+    bool ret = isReloadPressed;
+    isReloadPressed = false;
+    return ret;
 }
 
 /*
@@ -274,4 +311,5 @@ void update_debug_info(bool script_changed)
 {
     [debugWindowController setScriptName:nsstr(get_script_file_name())];
     [debugWindowController setScriptLine:get_line_num()];
+    [debugWindowController setCommandText:nsstr(get_line_string())];
 }
