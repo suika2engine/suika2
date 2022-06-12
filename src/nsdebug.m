@@ -19,6 +19,9 @@
 // デバッグウィンドウのコントローラ
 static DebugWindowController *debugWindowController;
 
+// 実行中か
+static bool isRunning;
+
 // ボタンが押下されたか
 static bool isResumePressed;
 static bool isNextPressed;
@@ -30,7 +33,6 @@ static bool isReloadPressed;
 
 // 前方参照
 static NSString *nsstr(const char *utf8str);
-static NSString *parseint(int num);
 
 //
 // DebugWindowController
@@ -54,6 +56,7 @@ static NSString *parseint(int num);
 @property (weak) IBOutlet NSButton *buttonOverwriteScript;
 @property (weak) IBOutlet NSButton *buttonReloadScript;
 @property (unsafe_unretained) IBOutlet NSTextView *textFieldVariables;
+@property (weak) IBOutlet NSButton *buttonUpdateVariables;
 @end
 
 @implementation DebugWindowController
@@ -95,20 +98,17 @@ static NSString *parseint(int num);
 //
 
 // 続けるボタンが押下されたイベント
-- (IBAction) onResumeButton:(id)sender
-{
+- (IBAction) onResumeButton:(id)sender {
     isResumePressed = true;
 }
 
 // 次へボタンが押下されたイベント
-- (IBAction) onNextButton:(id)sender
-{
+- (IBAction) onNextButton:(id)sender {
     isNextPressed = true;
 }
 
 // 停止ボタンが押下されたイベント
-- (IBAction) onPauseButton:(id)sender
-{
+- (IBAction) onPauseButton:(id)sender {
     isPausePressed = true;
 }
 
@@ -118,8 +118,13 @@ static NSString *parseint(int num);
 }
 
 // 行番号の反映ボタンが押下されたイベント
-- (IBAction)onUpdateCommandTextButton:(id)sender {
+- (IBAction)onUpdateLineNumber:(id)sender {
     isLineChangePressed = true;
+}
+
+// コマンドの反映ボタンが押下されたイベント
+- (IBAction)onUpdateCommandTextButton:(id)sender {
+    isCommandUpdatePressed = true;
 }
 
 //
@@ -203,20 +208,13 @@ static NSString *nsstr(const char *utf8str)
     return s;
 }
 
-// intをNSStringに変換する
-static NSString *parseint(int num)
-{
-    NSString *s = [NSString stringWithFormat:@"%d", num];
-    return s;
-}
-
 //
 // platform.h
 //
 
-/*
- * 再開ボタンが押されたか調べる
- */
+//
+// 再開ボタンが押されたか調べる
+//
 bool is_resume_pushed(void)
 {
     bool ret = isResumePressed;
@@ -224,9 +222,9 @@ bool is_resume_pushed(void)
     return ret;
 }
 
-/*
- * 次へボタンが押されたか調べる
- */
+//
+// 次へボタンが押されたか調べる
+//
 bool is_next_pushed(void)
 {
     bool ret = isNextPressed;
@@ -234,9 +232,9 @@ bool is_next_pushed(void)
     return ret;
 }
 
-/*
- * 停止ボタンが押されたか調べる
- */
+//
+// 停止ボタンが押されたか調べる
+//
 bool is_pause_pushed(void)
 {
     bool ret = isPausePressed;
@@ -265,9 +263,9 @@ const char *get_changed_script(void)
     return script;
 }
 
-/*
- * 実行する行番号が変更されたか調べる
- */
+//
+// 実行する行番号が変更されたか調べる
+//
 bool is_line_changed(void)
 {
     bool ret = isLineChangePressed;
@@ -275,17 +273,17 @@ bool is_line_changed(void)
     return ret;
 }
 
-/*
- * 変更された行番号を取得する
- */
+//
+// 変更された行番号を取得する
+//
 int get_changed_line(void)
 {
     return [debugWindowController getScriptLine];
 }
 
-/*
- * コマンドがアップデートされたかを調べる
- */
+//
+// コマンドがアップデートされたかを調べる
+//
 bool is_command_updated(void)
 {
     bool ret = isCommandUpdatePressed;
@@ -293,20 +291,22 @@ bool is_command_updated(void)
     return ret;
 }
 
-/*
- * アップデートされたコマンド文字列を取得する
- */
+//
+// アップデートされたコマンド文字列を取得する
+//
 const char *get_updated_command(void)
 {
-    static char command[4096];
-    snprintf(command, sizeof(command), "%s",
-             [[debugWindowController getCommandText] UTF8String]);
-    return command;
+    @autoreleasepool {
+        static char command[4096];
+        snprintf(command, sizeof(command), "%s",
+                 [[debugWindowController getCommandText] UTF8String]);
+        return command;
+    }
 }
 
-/*
- * スクリプトがリロードされたかを調べる
- */
+//
+// スクリプトがリロードされたかを調べる
+//
 bool is_script_reloaded(void)
 {
     bool ret = isReloadPressed;
@@ -314,14 +314,20 @@ bool is_script_reloaded(void)
     return ret;
 }
 
-/*
- * コマンドの実行中状態を設定する
- */
+//
+// コマンドの実行中状態を設定する
+//
 void set_running_state(bool running, bool request_stop)
 {
+    isRunning = running;
+
+    // 
+    
 }
 
-/* デバッグ情報を更新する */
+//
+// デバッグ情報を更新する
+//
 void update_debug_info(bool script_changed)
 {
     [debugWindowController setScriptName:nsstr(get_script_file_name())];

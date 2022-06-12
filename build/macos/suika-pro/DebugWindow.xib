@@ -17,6 +17,7 @@
                 <outlet property="buttonScriptLine" destination="9v1-BI-Tx4" id="WAS-Od-Q6F"/>
                 <outlet property="buttonScriptNameUpdate" destination="PRk-Kc-TmF" id="VpH-MI-tM3"/>
                 <outlet property="buttonSearchError" destination="AkE-HX-gLq" id="wno-BW-OmR"/>
+                <outlet property="buttonUpdateVariables" destination="afS-EC-781" id="E50-RG-kOV"/>
                 <outlet property="debugWindow" destination="QvC-M9-y7g" id="h0n-S3-9yw"/>
                 <outlet property="labelCommand" destination="nu4-kU-gSk" id="cxf-bY-RNk"/>
                 <outlet property="labelScriptLine" destination="aGv-se-Tu4" id="jUt-lu-RLX"/>
@@ -251,6 +252,9 @@
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="onUpdateLineNumber:" target="-2" id="wxA-KS-jrW"/>
+                        </connections>
                     </button>
                     <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="24" horizontalPageScroll="10" verticalLineScroll="24" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0tc-Gk-SzC">
                         <rect key="frame" x="16" y="222" width="442" height="234"/>
