@@ -71,7 +71,7 @@ static NSString *parseint(int num);
     NSRect sr = [[NSScreen mainScreen] visibleFrame];
 
     // ウィンドウの位置とサイズを取得する
-    NSRect wr = [[[self window] contentView] frame];
+    NSRect wr = [[self window] frame];
 
     // ウィンドウの座標を計算する
     NSRect cr = NSMakeRect(sr.origin.x + sr.size.width - wr.size.width,
