@@ -16,7 +16,7 @@
 #import <Cocoa/Cocoa.h>
 #import "suika.h"
 
-@interface DebugWindowController : NSWindowController <NSWindowDelegate, NSApplicationDelegate>
+@interface DebugWindowController : NSWindowController <NSWindowDelegate, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate>
 @end
 
 BOOL initDebugWindow(void);

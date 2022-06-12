@@ -75,6 +75,8 @@ static void setStoppedState(void);
 - (void)windowDidLoad {
     [super windowDidLoad];
     [[self window] setDelegate:self];
+    [[self tableViewScript] setDataSource:self];
+    [[self tableViewScript] setDelegate:self];
 
     // メインスクリーンの位置とサイズを取得する
     NSRect sr = [[NSScreen mainScreen] visibleFrame];
@@ -131,6 +133,41 @@ static void setStoppedState(void);
 // コマンドの反映ボタンが押下されたイベント
 - (IBAction)onUpdateCommandTextButton:(id)sender {
     isCommandUpdatePressed = true;
+}
+
+// エラーを探すボタンが押下されたイベント
+- (IBAction)onNextErrorButton:(id)sender {
+    // TODO
+}
+
+// 上書き保存ボタンが押下されたイベント
+- (IBAction)onOverwriteButton:(id)sender {
+    // TODO
+}
+
+// 再読み込みボタンが押下されたイベント
+- (IBAction)onReloadButton:(id)sender {
+    // TODO
+}
+
+// 変数の反映ボタンが押下されたイベント
+- (IBAction)onUpdateVariablesButton:(id)sender {
+    // TODO
+}
+
+//
+// NSTableViewDataSource
+//
+
+// テーブルビューの行数を返す
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
+{
+    return get_line_count();
+}
+
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
+{
+    return nsstr(get_line_string_at_line_num((int)rowIndex));
 }
 
 //
@@ -264,13 +301,20 @@ static void setStoppedState(void);
 }
 
 ///
-/// テーブルビュー
+/// スクリプトのテーブルビュー
 ///
 
+// スクリプトのテキストビューの内容を更新する
 - (void)updateScriptTableView {
+    [[self tableViewScript] reloadData];
 }
 
+// スクリプトのテーブルビューをスクロールする
 - (void)scrollScriptTableView {
+    int line = get_line_num();
+    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:line];
+    [[self tableViewScript] selectRowIndexes:indexSet byExtendingSelection:NO];
+    [[self tableViewScript] scrollRowToVisible:line];
 }
 
 //
