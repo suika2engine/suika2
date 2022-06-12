@@ -67,18 +67,22 @@ BOOL isControlPressed;
     UNUSED_PARAMETER(timer);
 
     @autoreleasepool {
-#ifndef USE_DEBUGGER
         // メニューのタイトルを変更する
         if (!isMenuSet) {
             // https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
             NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
             NSString *title = [[NSString alloc]
-                                  initWithUTF8String:conf_window_title];
+                                  initWithUTF8String:
+#ifdef USE_DEBUGGER
+                                      "Suika2 Pro for Creators"
+#else
+                                      conf_window_title
+#endif
+            ];
             title = [title stringByAppendingString:@"\x1b"];
             [menu setTitle:title];
             isMenuSet = TRUE;
         }
-#endif
 
         // フレーム描画イベントを実行する
         int x = 0, y = 0, w = 0, h = 0;

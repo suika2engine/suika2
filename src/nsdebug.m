@@ -12,11 +12,16 @@
 
 #import "nsdebug.h"
 
-DebugWindowController *debugWindowController;
+// デバッグウィンドウのコントローラ
+static DebugWindowController *debugWindowController;
 
-BOOL isResumePressed;
-BOOL isNextPressed;
-BOOL isPausePressed;
+// ボタンが押下されたか
+static BOOL isResumePressed;
+static BOOL isNextPressed;
+static BOOL isPausePressed;
+
+// 前方参照
+static NSString *nsstr(const char *utf8str);
 
 //
 // DebugWindowController
@@ -83,7 +88,21 @@ BOOL initDebugWindow(void)
     // デバッグウィンドウを表示する
     [debugWindowController showWindow:debugWindowController];
 
+    // デバッグ情報表示を更新する
+    update_debug_info(true);
+
 	return TRUE;
+}
+
+//
+// ヘルパー
+//
+
+// UTF-8文字列をNSStringに変換する
+static NSString *nsstr(const char *utf8str)
+{
+    NSString *s = [[NSString alloc] initWithUTF8String:utf8str];
+    return s;
 }
 
 /*
@@ -186,7 +205,5 @@ void set_running_state(bool running, bool request_stop)
 /* デバッグ情報を更新する */
 void update_debug_info(bool script_changed)
 {
-    NSString *scriptName = [[NSString alloc] initWithUTF8String:
-                                                 get_script_file_name()];
-    [debugWindowController setScriptName:scriptName];
+    [debugWindowController setScriptName:nsstr(get_script_file_name())];
 }
