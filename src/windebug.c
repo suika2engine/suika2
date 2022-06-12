@@ -1155,8 +1155,8 @@ void set_running_state(bool running, bool request_stop)
 		/* リストボックスを有効にする */
 		EnableWindow(hWndListbox, FALSE);
 
-		/* エラーを探すを有効にする */
-		EnableWindow(hWndBtnError, TRUE);
+		/* エラーを探すを無効にする */
+		EnableWindow(hWndBtnError, FALSE);
 
 		/* 上書き保存ボタンを無効にする */
 		EnableWindow(hWndBtnSave, FALSE);
@@ -1249,7 +1249,7 @@ void set_running_state(bool running, bool request_stop)
 		/* コマンドリセットボタンを無効にする */
 		EnableWindow(hWndBtnReset, FALSE);
 
-		/* リストボックスを有効にする */
+		/* リストボックスを無効にする */
 		EnableWindow(hWndListbox, FALSE);
 
 		/* エラーを探すを無効にする */

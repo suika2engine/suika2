@@ -19,6 +19,9 @@
 // デバッグウィンドウのコントローラ
 static DebugWindowController *debugWindowController;
 
+// 英語モードか
+static bool isEnglish;
+
 // 実行中か
 static bool isRunning;
 
@@ -33,6 +36,9 @@ static bool isReloadPressed;
 
 // 前方参照
 static NSString *nsstr(const char *utf8str);
+static void setWaitingState(void);
+static void setRunningState(void);
+static void setStoppedState(void);
 
 //
 // DebugWindowController
@@ -128,8 +134,36 @@ static NSString *nsstr(const char *utf8str);
 }
 
 //
-// ビューの設定/取得
+// ウィンドウ/ビューの設定/取得
 //
+
+// ウィンドウのタイトルを設定する
+- (void)setTitle:(NSString *)title {
+    [[self window] setTitle:title];
+}
+
+// 続けるボタンを設定する
+- (void)setResumeButton:(BOOL)enabled text:(NSString *)text {
+    [[self buttonResume] setEnabled:enabled];
+    [[self buttonResume] setTitle:text];
+}
+
+// 次へボタンを設定する
+- (void)setNextButton:(BOOL)enabled text:(NSString *)text {
+    [[self buttonNext] setEnabled:enabled];
+    [[self buttonNext] setTitle:text];
+}
+
+// 停止ボタンを設定する
+- (void)setPauseButton:(BOOL)enabled text:(NSString *)text {
+    [[self buttonPause] setEnabled:enabled];
+    [[self buttonPause] setTitle:text];
+}
+
+// スクリプト名のテキストフィールの有効状態を設定する
+- (void)enableScriptTextField:(BOOL)state {
+    [[self textFieldScriptName] setEnabled:state];
+}
 
 // スクリプト名のテキストフィールドの値を設定する
 - (void)setScriptName:(NSString *)name {
@@ -139,6 +173,21 @@ static NSString *nsstr(const char *utf8str);
 // スクリプト名のテキストフィールドの値を取得する
 - (NSString *)getScriptName {
     return [[self textFieldScriptName] stringValue];
+}
+
+// スクリプト変更ボタンの有効状態を設定する
+- (void)enableScriptUpdateButton:(BOOL)state {
+    [[self buttonScriptNameUpdate] setEnabled:state];
+}
+
+// スクリプト行番号ラベルを設定する
+- (void)setLineNumberLabel:(NSString *)text {
+    [[self labelScriptLine] setStringValue:text];
+}
+
+// スクリプト行番号のテキストフィールドの有効状態を設定する
+- (void)enableLineNumberTextField:(BOOL)state {
+    [[self textFieldScriptLine] setEnabled:state];
 }
 
 // スクリプト行番号のテキストフィールドの値を設定する
@@ -154,6 +203,21 @@ static NSString *nsstr(const char *utf8str);
     return num;
 }
 
+// スクリプト行番号変更ボタンの有効状態を設定する
+- (void)enableLineNumberUpdateButton:(BOOL)state {
+    [[self buttonScriptLine] setEnabled:state];
+}
+
+// コマンドのラベルのテキストを設定する
+- (void)setCommandLabel:(NSString *)text {
+    [[self labelCommand] setStringValue:text];
+}
+
+// コマンドのテキストフィールドの有効状態を設定する
+- (void)enableCommandTextField:(BOOL)state {
+    [[self textFieldCommand] setEditable:state];
+}
+
 // コマンドのテキストフィールドの値を設定する
 - (void)setCommandText:(NSString *)text {
     [[self textFieldCommand] setString:text];
@@ -162,6 +226,41 @@ static NSString *nsstr(const char *utf8str);
 // コマンドのテキストフィールドの値を取得する
 - (NSString *)getCommandText {
     return [[[self textFieldCommand] textStorage] string];
+}
+
+// コマンド反映ボタンの有効状態を設定する
+- (void)enableCommandUpdateButton:(BOOL)state {
+    [[self buttonCommandUpdate] setEnabled:state];
+}
+
+// スクリプトテーブルビューの有効状態を設定する
+- (void)enableScriptTableView:(BOOL)state {
+    [[self tableViewScript] setEnabled:state];
+}
+
+// エラーを探すボタンの有効状態を設定する
+- (void)enableNextErrorButton:(BOOL)state {
+    [[self buttonSearchError] setEnabled:state];
+}
+
+// 上書きボタンの有効状態を設定する
+- (void)enableOverwriteButton:(BOOL)state {
+    [[self buttonOverwriteScript] setEnabled:state];
+}
+
+// リロードボタンの有効状態を設定する
+- (void)enableReloadButton:(BOOL)state {
+    [[self buttonReloadScript] setEnabled:state];
+}
+
+// 変数のテキストフィールドの有効状態を設定する
+- (void)enableVariableTextField:(BOOL)state {
+    [[self textFieldVariables] setEditable:state];
+}
+
+// 変数の書き込みボタンの有効状態を設定する
+- (void)enableVariableUpdateButton:(BOOL)state {
+    [[self buttonUpdateVariables] setEnabled:state];
 }
 
 @end
@@ -177,6 +276,9 @@ BOOL initDebugWindow(void)
 {
     assert(debugWindowController == NULL);
 
+    // 英語モードかどうかを調べる
+    isEnglish = conf_language == NULL ? false : true;
+
     // メニューのXibをロードする
     NSBundle *bundle  = [NSBundle mainBundle];
     NSArray  *objects = [NSArray new];
@@ -190,6 +292,9 @@ BOOL initDebugWindow(void)
 
     // デバッグウィンドウを表示する
     [debugWindowController showWindow:debugWindowController];
+
+    // ビューを更新する
+    set_running_state(false, false);
 
     // デバッグ情報表示を更新する
     update_debug_info(true);
@@ -319,10 +424,290 @@ bool is_script_reloaded(void)
 //
 void set_running_state(bool running, bool request_stop)
 {
+    // 実行状態を保存する
     isRunning = running;
 
-    // 
-    
+    // 停止によりコマンドの完了を待機中のとき
+    if(request_stop) {
+        setWaitingState();
+        return;
+    }
+
+    // 実行中のとき 
+    if(running) {
+        setRunningState();
+        return;
+    }
+
+    /* 完全に停止中のとき */
+    setStoppedState();
+}
+
+// 停止によりコマンドの完了を待機中のときのビューの状態を設定する
+static void setWaitingState(void)
+{
+    // ウィンドウのタイトルを設定する
+    [debugWindowController setTitle:isEnglish ?
+                           nsstr("Waiting for command finish...") :
+                           nsstr("コマンドの完了を待機中...")];
+
+    // 続けるボタンを無効にする
+    [debugWindowController setResumeButton:NO text:isEnglish ?
+                           nsstr("(Resume)") : nsstr("(続ける)")];
+
+    // 次へボタンを無効にする
+    [debugWindowController setNextButton:NO text:isEnglish ?
+                           nsstr("(Next)") : nsstr("(次へ)")];
+
+    // 停止ボタンを無効にする
+    [debugWindowController setPauseButton:NO text:isEnglish ?
+                           nsstr("(Waiting)") : nsstr("(完了待ち)")];
+
+    // スクリプトテキストボックスを無効にする
+    [debugWindowController enableScriptTextField:NO];
+
+    // スクリプト変更ボタンを無効にする
+    [debugWindowController enableScriptUpdateButton:NO];
+
+    // スクリプト選択ボタンを無効にする
+    //[debugWindowController enableScriptOpenButton:NO];
+
+    // 行番号ラベルを設定する
+    [debugWindowController setLineNumberLabel:isEnglish ?
+                           nsstr("Current waiting line:") :
+                           nsstr("現在完了待ちの行番号:")];
+
+    // 行番号テキストボックスを無効にする
+    [debugWindowController enableLineNumberTextField:NO];
+
+    // 行番号変更ボタンを無効にする
+    [debugWindowController enableLineNumberUpdateButton:NO];
+
+    // コマンドラベルを設定する
+    [debugWindowController setCommandLabel:isEnglish ?
+                           nsstr("Current waiting command:") :
+                           nsstr("現在完了待ちのコマンド:")];
+
+    // コマンドテキストボックスを無効にする
+    [debugWindowController enableCommandTextField:NO];
+
+    // コマンドアップデートボタンを無効にする
+    [debugWindowController enableCommandUpdateButton:NO];
+
+    // コマンドリセットボタンを無効にする
+    //[debugWindowController enableCommandResetButton:NO];
+
+    // リストボックスを有効にする
+    [debugWindowController enableScriptTableView:NO];
+
+    // エラーを探すを無効にする
+    [debugWindowController enableNextErrorButton:NO];
+
+    // 上書き保存ボタンを無効にする
+    [debugWindowController enableOverwriteButton:NO];
+
+    // 再読み込みボタンを無効にする */
+    [debugWindowController enableReloadButton:NO];
+
+    // 変数のテキストボックスを無効にする
+    [debugWindowController enableVariableTextField:NO];
+
+    // 変数の書き込みボタンを無効にする
+    [debugWindowController enableVariableUpdateButton:NO];
+
+    // TODO: スクリプトを開くメニューを無効にする
+
+    // TODO: 上書き保存メニューを無効にする
+
+    // TODO: 続けるメニューを無効にする
+
+    // TODO: 次へメニューを無効にする
+
+    // TODO: 停止メニューを無効にする
+
+    // TODO: 次のエラー箇所へメニューを無効にする
+
+    // TODO: 再読み込みメニューを無効にする
+}
+
+// 実行中のときのビューの状態を設定する
+static void setRunningState(void)
+{
+    // ウィンドウのタイトルを設定する
+    [debugWindowController setTitle:isEnglish ?
+                           nsstr("Running...") :
+                           nsstr("実行中...")];
+
+    // 続けるボタンを無効にする
+    [debugWindowController setResumeButton:NO text:isEnglish ?
+                           nsstr("(Resume)") :
+                           nsstr("(続ける)")];
+
+    /* 次へボタンを無効にする */
+    [debugWindowController setNextButton:NO text:isEnglish ?
+                           nsstr("(Next)") :
+                           nsstr("(次へ)")];
+
+    /* 停止ボタンを有効にする */
+    [debugWindowController setPauseButton:TRUE text:isEnglish ?
+                           nsstr("Pause") :
+                           nsstr("停止")];
+
+    // スクリプトテキストボックスを無効にする
+    [debugWindowController enableScriptTextField:NO];
+
+    // スクリプト変更ボタンを無効にする
+    [debugWindowController enableScriptUpdateButton:NO];
+
+    // スクリプト選択ボタンを無効にする
+    //[debugWindowController enableScriptOpenButton:NO];
+
+    // 行番号ラベルを設定する
+    [debugWindowController setLineNumberLabel:isEnglish ?
+                           nsstr("Current running line:") :
+                           nsstr("現在実行中の行番号:")];
+
+    // 行番号テキストボックスを無効にする
+    [debugWindowController enableLineNumberTextField:NO];
+
+    // 行番号変更ボタンを無効にする
+    [debugWindowController enableLineNumberUpdateButton:NO];
+
+    // コマンドラベルを設定する
+    [debugWindowController setCommandLabel:isEnglish ?
+                           nsstr("Current running command:") :
+                           nsstr("現在実行中のコマンド:")];
+
+    // コマンドテキストボックスを無効にする
+    [debugWindowController enableCommandTextField:NO];
+
+    // コマンドアップデートボタンを無効にする
+    [debugWindowController enableCommandUpdateButton:NO];
+
+    // コマンドリセットボタンを無効にする
+    //[debugWindowController enableCommandResetButton:NO];
+
+    // リストボックスを有効にする
+    [debugWindowController enableScriptTableView:NO];
+
+    // エラーを探すを無効にする
+    [debugWindowController enableNextErrorButton:NO];
+
+    // 上書きボタンを無効にする
+    [debugWindowController enableOverwriteButton:NO];
+
+    // 再読み込みボタンを無効にする
+    [debugWindowController enableReloadButton:NO];
+
+    // 変数のテキストボックスを無効にする
+    [debugWindowController enableVariableTextField:NO];
+
+    // 変数の書き込みボタンを無効にする
+    [debugWindowController enableVariableUpdateButton:NO];
+
+    // TODO: スクリプトを開くメニューを無効にする
+
+    // TODO: 上書き保存メニューを無効にする
+
+    // TODO: 続けるメニューを無効にする
+
+    // TODO: 次へメニューを無効にする
+
+    // TODO: 停止メニューを有効にする
+
+    // TODO: 次のエラー箇所へメニューを無効にする
+
+    // TODO: 再読み込みメニューを無効にする
+}
+
+// 完全に停止中のときのビューの状態を設定する
+static void setStoppedState(void)
+{
+    // ウィンドウのタイトルを設定する
+    [debugWindowController setTitle:isEnglish ?
+                           nsstr("Stopped") :
+                           nsstr("停止中")];
+
+    // 続けるボタンを有効にする
+    [debugWindowController setResumeButton:YES text:isEnglish ?
+                           nsstr("Resume") :
+                           nsstr("続ける")];
+
+    // 次へボタンを有効にする
+    [debugWindowController setNextButton:YES text:isEnglish ?
+                           nsstr("Next") :
+                           nsstr("次へ")];
+
+    // 停止ボタンを無効にする
+    [debugWindowController setPauseButton:NO text:isEnglish ?
+                           nsstr("(Pausing)") :
+                           nsstr("(停止中)")];
+
+    // スクリプトテキストボックスを有効にする
+    [debugWindowController enableScriptTextField:YES];
+
+    // スクリプト変更ボタンを有効にする
+    [debugWindowController enableScriptUpdateButton:YES];
+
+    // スクリプト選択ボタンを有効にする
+    //[debugWindowController enableScriptOpenButton:YES];
+
+    // 行番号ラベルを設定する
+    [debugWindowController setLineNumberLabel:isEnglish ?
+                           nsstr("Next line to be executed:") :
+                           nsstr("次に実行される行番号:")];
+
+    // 行番号テキストボックスを有効にする
+    [debugWindowController enableLineNumberTextField:YES];
+
+    // 行番号変更ボタンを有効にする
+    [debugWindowController enableLineNumberUpdateButton:YES];
+
+    // コマンドラベルを設定する
+    [debugWindowController setCommandLabel:isEnglish ?
+                           nsstr("Next command to be executed:") :
+                           nsstr("次に実行されるコマンド:")];
+
+    // コマンドテキストボックスを有効にする
+    [debugWindowController enableCommandTextField:YES];
+
+    // コマンドアップデートボタンを有効にする
+    [debugWindowController enableCommandUpdateButton:YES];
+
+    // コマンドリセットボタンを有効にする
+    //[debugWindowController enableCommandResetButton:YES];
+
+    // リストボックスを有効にする
+    [debugWindowController enableScriptTableView:YES];
+
+    // エラーを探すを有効にする
+    [debugWindowController enableNextErrorButton:YES];
+
+    // 上書き保存ボタンを有効にする
+    [debugWindowController enableOverwriteButton:YES];
+
+    // 再読み込みボタンを有効にする
+    [debugWindowController enableReloadButton:YES];
+
+    // 変数のテキストボックスを有効にする
+    [debugWindowController enableVariableTextField:YES];
+
+    // 変数の書き込みボタンを有効にする
+    [debugWindowController enableVariableUpdateButton:YES];
+
+    // TODO: スクリプトを開くメニューを有効にする
+
+    // TODO: 上書き保存メニューを有効にする
+
+    // TODO: 続けるメニューを有効にする
+
+    // TODO: 次へメニューを有効にする
+
+    // TODO: 停止メニューを無効にする
+
+    // TODO: 次のエラー箇所へメニューを有効にする
+
+    // TODO: 再読み込みメニューを有効にする
 }
 
 //
