@@ -263,6 +263,40 @@ static void setStoppedState(void);
     [[self buttonUpdateVariables] setEnabled:state];
 }
 
+///
+/// テーブルビュー
+///
+
+- (void)updateScriptTableView {
+}
+
+- (void)scrollScriptTableView {
+}
+
+//
+// 変数のテキストフィールド
+//
+
+- (void)updateVariableTextField {
+    @autoreleasepool {
+        int index, val;
+        NSMutableString *text = [NSMutableString new];
+
+        for (index = 0; index < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; index++) {
+            // 変数が初期値の場合
+            val = get_variable(index);
+            if(val == 0 && !is_variable_changed(index))
+                continue;
+
+            // 行を追加する
+            [text appendString:
+                      [NSString stringWithFormat:@"$%d=%d\n", index, val]];
+        }
+
+        [[self textFieldVariables] setString:text];
+    }
+}
+
 @end
 
 //
@@ -718,4 +752,12 @@ void update_debug_info(bool script_changed)
     [debugWindowController setScriptName:nsstr(get_script_file_name())];
     [debugWindowController setScriptLine:get_line_num()];
     [debugWindowController setCommandText:nsstr(get_line_string())];
+
+    if (script_changed)
+        [debugWindowController updateScriptTableView];
+
+    [debugWindowController scrollScriptTableView];
+    
+	if (check_variable_updated() || script_changed)
+		[debugWindowController updateVariableTextField];
 }
