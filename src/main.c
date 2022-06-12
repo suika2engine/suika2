@@ -264,8 +264,8 @@ static bool pre_dispatch(void)
 		return false;
 	}
 
-	/* 実行中のスクリプトファイル名を取得する */
-	if (is_script_updated()) {
+	/* 実行中のスクリプトがリロードされば場合 */
+	if (is_script_reloaded()) {
 		scr = strdup(get_script_file_name());
 		if (scr == NULL) {
 			log_memory();

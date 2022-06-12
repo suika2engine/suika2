@@ -39,13 +39,17 @@ static struct image *backImage;
 static unsigned char *backImagePixels;
 
 // ログファイル
+#ifndef USE_DEBUGGER
 static FILE *logFp;
+#endif
 
 // 前方参照
 static BOOL initWindow(void);
 static BOOL initBackImage(void);
+#ifndef USE_DEBUGGER
 static BOOL openLog(void);
 static void closeLog(void);
+#endif
 
 //
 // ビュー
@@ -88,13 +92,10 @@ BOOL isControlPressed;
         int x = 0, y = 0, w = 0, h = 0;
         lock_image(backImage);
         if (!on_event_frame(&x, &y, &w, &h)) {
-            // グローバルデータを保存する
-            save_global_data();
-
-            // 既読フラグを保存する
-            save_seen();
-
-            [NSApp terminate:nil];
+            // 実行が終了した場合、タイマを停止してメインループから抜ける
+            [timer invalidate];
+            [NSApp stop:nil];
+            unlock_image(backImage);
             return;
         }
         unlock_image(backImage);
@@ -102,7 +103,7 @@ BOOL isControlPressed;
         // 描画範囲があればウィンドウへの再描画を行う
         // FIXME:
         //  - Wanna use [self setNeedsDisplayInRect:NSMakeRect(x, y, w, h)]
-        //  - It doesn't works.
+        //  - It doesn't work.
         if (w != 0 && h != 0)
             [self setNeedsDisplay:YES];
     }
@@ -283,22 +284,26 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 - (BOOL)windowShouldClose:(id)sender {
     UNUSED_PARAMETER(sender);
 
+#ifdef USE_DEBUGGER
+    return YES;
+#else
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
     [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
     [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
         @"Quit?"];
     [alert setAlertStyle:NSWarningAlertStyle];
-    if([alert runModal] == NSAlertFirstButtonReturn) {
-        // グローバルデータを保存する
-        save_global_data();
-
-        // 既読フラグを保存する
-        save_seen();
+    if([alert runModal] == NSAlertFirstButtonReturn)
         return YES;
-    } else {
+    else
         return NO;
-    }
+#endif
+}
+
+// ウィンドウが閉じられるイベント
+- (void)windowWillClose:(NSNotification *)notification {
+    // メインループから抜ける
+    [NSApp stop:nil];
 }
 
 // 最後のウィンドウが閉じられたあと終了するか
@@ -351,8 +356,7 @@ int main()
                                 }
                             }
 
-                            // TODO: How to destroy theView?
-                            [theWindow close];
+                            // TODO: How to destroy theWindow and theView?
                         }
 
                         // 背景イメージの破棄を行う
@@ -370,14 +374,18 @@ int main()
             // パッケージの終了処理を行う
             cleanup_file();
 
+#ifndef USE_DEBUGGER
             // ログをクローズする
             closeLog();
+#endif
         }
     }
 
+    [NSApp terminate:nil];
 	return 0;
 }
 
+#ifndef USE_DEBUGGER
 // ログをオープンする
 static BOOL openLog(void)
 {
@@ -417,6 +425,7 @@ static void closeLog(void)
     if(logFp != NULL)
         fclose(logFp);
 }
+#endif
 
 // イメージの作成を行う
 static BOOL initBackImage(void)
@@ -502,13 +511,11 @@ static BOOL initWindow(void)
     [theWindow setDelegate:theView];
 
     // タイマをセットする
-    NSTimer *timer = [NSTimer
-                         scheduledTimerWithTimeInterval:1.0/30.0
-                                                 target:theView
-                                               selector:@selector(timerFired:)
-                                               userInfo:nil
-                                                repeats:YES];
-    (void)timer;
+    [NSTimer scheduledTimerWithTimeInterval:1.0/30.0
+                                     target:theView
+                                   selector:@selector(timerFired:)
+                                   userInfo:nil
+                                    repeats:YES];
 
     // Hack: コマンドラインから起動された際にメニューを有効にする
     ProcessSerialNumber psn = {0, kCurrentProcess};
@@ -592,6 +599,13 @@ bool log_info(const char *s, ...)
     vsnprintf(buf, sizeof(buf), s, ap);
     va_end(ap);
 
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:conf_language == NULL ? @"情報" : @"Information"];
+    [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
+    [alert runModal];
+
+#ifndef USE_DEBUGGER
     // ログファイルに出力する
     if(!openLog())
         return false;
@@ -602,6 +616,8 @@ bool log_info(const char *s, ...)
         if (ferror(logFp))
             return false;
     }
+#endif
+
     return true;
 }
 
@@ -617,6 +633,13 @@ bool log_warn(const char *s, ...)
     vsnprintf(buf, sizeof(buf), s, ap);
     va_end(ap);
 
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:conf_language == NULL ? @"情報" : @"Information"];
+    [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
+    [alert runModal];
+
+#ifndef USE_DEBUGGER
     // ログファイルに出力する
     if(!openLog())
         return false;
@@ -627,6 +650,8 @@ bool log_warn(const char *s, ...)
         if (ferror(logFp))
             return false;
     }
+#endif
+
     return true;
 }
 
@@ -648,6 +673,7 @@ bool log_error(const char *s, ...)
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
+#ifndef USE_DEBUGGER
     // ログファイルに出力する
     if (!openLog())
         return false;
@@ -657,6 +683,8 @@ bool log_error(const char *s, ...)
     fflush(logFp);
     if (ferror(logFp))
         return false;
+#endif
+
     return true;
 }
 

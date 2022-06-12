@@ -524,10 +524,8 @@ static bool read_script_from_file(const char *fname)
 
 	/* ファイルをオープンする */
 	rf = open_rfile(SCRIPT_DIR, fname, false);
-	if (rf == NULL) {
-		log_dir_file_open(SCRIPT_DIR, fname);
+	if (rf == NULL)
 		return false;
-	}
 
 	/* 行ごとに処理する */
 	cmd_size = 0;

@@ -1044,16 +1044,6 @@ int get_changed_line(void)
 }
 
 /*
- * スクリプトがアップデートされたかを調べる
- */
-bool is_script_updated(void)
-{
-	bool ret = bReloadPressed;
-	bReloadPressed = FALSE;
-	return ret;
-}
-
-/*
  * コマンドがアップデートされたかを調べる
  */
 bool is_command_updated(void)
@@ -1083,6 +1073,16 @@ const char *get_updated_command()
 	}
 
 	return ConvNativeToUtf8(text);
+}
+
+/*
+ * スクリプトがリロードされたかを調べる
+ */
+bool is_script_reloaded(void)
+{
+	bool ret = bReloadPressed;
+	bReloadPressed = FALSE;
+	return ret;
 }
 
 /*

@@ -11,16 +11,20 @@
  */
 
 #import <stdio.h>
+#import <stdlib.h>
+#import <string.h>
+#import "suika.h"
 #import "nsdebug.h"
 
 // デバッグウィンドウのコントローラ
 static DebugWindowController *debugWindowController;
 
 // ボタンが押下されたか
-static BOOL isResumePressed;
-static BOOL isNextPressed;
-static BOOL isPausePressed;
-static BOOL isChangeScriptPressed;
+static bool isResumePressed;
+static bool isNextPressed;
+static bool isPausePressed;
+static bool isChangeScriptPressed;
+static bool isReloadPressed;
 
 // 前方参照
 static NSString *nsstr(const char *utf8str);
@@ -55,27 +59,32 @@ static NSString *parseint(int num);
 // コールバック
 //
 
+// ウィンドウがロードされたときのイベント
 - (void)windowDidLoad {
     [super windowDidLoad];
 }
 
-- (IBAction) onResumeButton:(id)sender
-{
-    isResumePressed = TRUE;
+// ウィンドウが閉じられるときのイベント
+- (BOOL)windowShouldClose:(id)sender {
+    // メインループから抜ける
+    [NSApp stop:nil];
+    return NO;
 }
 
-- (IBAction) onNextButton:(id)sender
-{
-    isNextPressed = TRUE;
+- (IBAction) onResumeButton:(id)sender {
+    isResumePressed = true;
 }
 
-- (IBAction) onPauseButton:(id)sender
-{
-    isPausePressed = TRUE;
+- (IBAction) onNextButton:(id)sender {
+    isNextPressed = true;
+}
+
+- (IBAction) onPauseButton:(id)sender {
+    isPausePressed = true;
 }
 
 - (IBAction)onTextFieldScriptNameReturn:(id)sender {
-    isChangeScriptPressed = TRUE;
+    isChangeScriptPressed = true;
 }
 
 //
@@ -96,6 +105,13 @@ static NSString *parseint(int num);
 - (void)setScriptLine:(int)num {
     NSString *s = [NSString stringWithFormat:@"%d", num];
     [[self textFieldScriptLine] setStringValue:s];
+}
+
+// スクリプト行番号のテキストフィールドの値を取得する
+- (int)getScriptLine {
+    NSString *s = [[self textFieldScriptLine] stringValue];
+    int num = atoi([s UTF8String]);
+    return num;
 }
 
 @end
@@ -158,8 +174,8 @@ static NSString *parseint(int num)
  */
 bool is_resume_pushed(void)
 {
-    BOOL ret = isResumePressed;
-    isResumePressed = FALSE;
+    bool ret = isResumePressed;
+    isResumePressed = false;
     return ret;
 }
 
@@ -168,8 +184,8 @@ bool is_resume_pushed(void)
  */
 bool is_next_pushed(void)
 {
-    BOOL ret = isNextPressed;
-    isNextPressed = FALSE;
+    bool ret = isNextPressed;
+    isNextPressed = false;
     return ret;
 }
 
@@ -178,8 +194,8 @@ bool is_next_pushed(void)
  */
 bool is_pause_pushed(void)
 {
-    BOOL ret = isPausePressed;
-    isPausePressed = FALSE;
+    bool ret = isPausePressed;
+    isPausePressed = false;
     return ret;
 }
 
@@ -188,8 +204,8 @@ bool is_pause_pushed(void)
 //
 bool is_script_changed(void)
 {
-    BOOL ret = isChangeScriptPressed;
-    isChangeScriptPressed = FALSE;
+    bool ret = isChangeScriptPressed;
+    isChangeScriptPressed = false;
     return ret;
 }
 
@@ -199,7 +215,8 @@ bool is_script_changed(void)
 const char *get_changed_script(void)
 {
     static char script[256];
-    snprintf(script, sizeof(script), "%s", [[debugWindowController getScriptName] UTF8String]);
+    snprintf(script, sizeof(script), "%s",
+             [[debugWindowController getScriptName] UTF8String]);
     return script;
 }
 
@@ -212,19 +229,21 @@ bool is_line_changed(void)
 }
 
 /*
- * 変更された実行するスクリプトファイル名を取得する
+ * 変更された行番号を取得する
  */
 int get_changed_line(void)
 {
-    return 0;
+    return [debugWindowController getScriptLine];
 }
 
 /*
- * スクリプトがアップデートされたかを調べる
+ * スクリプトがリロードされたかを調べる
  */
-bool is_script_updated(void)
+bool is_script_reloaded(void)
 {
-    return false;
+    bool ret = isReloadPressed;
+    isReloadPressed = false;
+    return ret;
 }
 
 /*
