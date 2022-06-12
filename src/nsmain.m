@@ -101,11 +101,10 @@ BOOL isControlPressed;
         unlock_image(backImage);
 
         // 描画範囲があればウィンドウへの再描画を行う
-        // FIXME:
-        //  - Wanna use [self setNeedsDisplayInRect:NSMakeRect(x, y, w, h)]
-        //  - It doesn't work.
-        if (w != 0 && h != 0)
-            [self setNeedsDisplay:YES];
+        if (w != 0 && h != 0) {
+            [self setNeedsDisplayInRect:
+                      NSMakeRect(x, conf_window_height - y - h, w, h)];
+        }
     }
 }
 
