@@ -77,6 +77,8 @@ static void setStoppedState(void);
     [[self window] setDelegate:self];
     [[self tableViewScript] setDataSource:self];
     [[self tableViewScript] setDelegate:self];
+    [[self tableViewScript] setTarget:self];
+    [[self tableViewScript] setDoubleAction:@selector(doubleClickTableView:)];
 
     // メインスクリーンの位置とサイズを取得する
     NSRect sr = [[NSScreen mainScreen] visibleFrame];
@@ -156,19 +158,27 @@ static void setStoppedState(void);
 }
 
 //
-// NSTableViewDataSource
+// NSTableViewDataSourceおよびNSTableViewのダブルクリックアクション
 //
 
 // テーブルビューの行数を返す
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
     return get_line_count();
 }
 
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
+// テーブルビューの行の文字列を返す
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     return nsstr(get_line_string_at_line_num((int)rowIndex));
 }
+
+// ダブルクリックされたときのイベント
+- (void)doubleClickTableView:(id)object {
+    NSInteger line = [[self tableViewScript] clickedRow];
+    [[self textFieldScriptLine] setStringValue:
+                                    [NSString stringWithFormat:@"%ld", line]];
+    isLineChangePressed = true;
+}
+
 
 //
 // ウィンドウ/ビューの設定/取得

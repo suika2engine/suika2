@@ -17,6 +17,7 @@
 #import "suika.h"
 
 @interface DebugWindowController : NSWindowController <NSWindowDelegate, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate>
+- (void)doubleClickTableView:(id)nid;
 @end
 
 BOOL initDebugWindow(void);
