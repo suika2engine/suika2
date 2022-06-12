@@ -10,6 +10,7 @@
  *  - 2020/06/11 Created.
  */
 
+#import <stdio.h>
 #import "nsdebug.h"
 
 // デバッグウィンドウのコントローラ
@@ -19,16 +20,33 @@ static DebugWindowController *debugWindowController;
 static BOOL isResumePressed;
 static BOOL isNextPressed;
 static BOOL isPausePressed;
+static BOOL isChangeScriptPressed;
 
 // 前方参照
 static NSString *nsstr(const char *utf8str);
+static NSString *parseint(int num);
 
 //
 // DebugWindowController
 //
 
 @interface DebugWindowController ()
+@property (weak) IBOutlet NSButton *buttonResume;
+@property (weak) IBOutlet NSButton *buttonNext;
+@property (weak) IBOutlet NSButton *buttonPause;
 @property (weak) IBOutlet NSTextField *textFieldScriptName;
+@property (weak) IBOutlet NSButton *buttonScriptNameUpdate;
+@property (weak) IBOutlet NSTextField *labelScriptLine;
+@property (weak) IBOutlet NSTextField *textFieldScriptLine;
+@property (weak) IBOutlet NSButton *buttonScriptLine;
+@property (weak) IBOutlet NSTextField *labelCommand;
+@property (unsafe_unretained) IBOutlet NSTextView *textFieldCommand;
+@property (weak) IBOutlet NSButtonCell *buttonCommandUpdate;
+@property (weak) IBOutlet NSTableView *tableViewScript;
+@property (weak) IBOutlet NSButton *buttonSearchError;
+@property (weak) IBOutlet NSButton *buttonOverwriteScript;
+@property (weak) IBOutlet NSButton *buttonReloadScript;
+@property (unsafe_unretained) IBOutlet NSTextView *textFieldVariables;
 @end
 
 @implementation DebugWindowController
@@ -56,13 +74,30 @@ static NSString *nsstr(const char *utf8str);
     isPausePressed = TRUE;
 }
 
+- (IBAction)onTextFieldScriptNameReturn:(id)sender {
+    isChangeScriptPressed = TRUE;
+}
+
 //
-// ビューの設定
+// ビューの設定/取得
 //
 
+// スクリプト名のテキストフィールドの値を設定する
 - (void)setScriptName:(NSString *)name {
     [[self textFieldScriptName] setStringValue:name];
 }
+
+// スクリプト名のテキストフィールドの値を設定する
+- (NSString *)getScriptName {
+    return [[self textFieldScriptName] stringValue];
+}
+
+// スクリプト行番号のテキストフィールドの値を設定する
+- (void)setScriptLine:(int)num {
+    NSString *s = [NSString stringWithFormat:@"%d", num];
+    [[self textFieldScriptLine] setStringValue:s];
+}
+
 @end
 
 //
@@ -77,7 +112,9 @@ BOOL initDebugWindow(void)
     assert(debugWindowController == NULL);
 
     // メニューのXibをロードする
-    [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
+    NSBundle *bundle  = [NSBundle mainBundle];
+    NSArray  *objects = [NSArray new];
+    [bundle loadNibNamed:@"MainMenu" owner:NSApp topLevelObjects:&objects];
 
     // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]
@@ -105,9 +142,16 @@ static NSString *nsstr(const char *utf8str)
     return s;
 }
 
-/*
- * platform.h
- */
+// intをNSStringに変換する
+static NSString *parseint(int num)
+{
+    NSString *s = [NSString stringWithFormat:@"%d", num];
+    return s;
+}
+
+//
+// platform.h
+//
 
 /*
  *再開ボタンが押されたか調べる
@@ -139,20 +183,24 @@ bool is_pause_pushed(void)
     return ret;
 }
 
-/*
- * 実行するスクリプトファイルが変更されたか調べる
- */
+//
+// 実行するスクリプトファイルが変更されたか調べる
+//
 bool is_script_changed(void)
 {
-    return false;
+    BOOL ret = isChangeScriptPressed;
+    isChangeScriptPressed = FALSE;
+    return ret;
 }
 
-/*
- * 変更された実行するスクリプトファイル名を取得する
- */
+//
+// 変更された実行するスクリプトファイル名を取得する
+//
 const char *get_changed_script(void)
 {
-    return "";
+    static char script[256];
+    snprintf(script, sizeof(script), "%s", [[debugWindowController getScriptName] UTF8String]);
+    return script;
 }
 
 /*
@@ -206,4 +254,5 @@ void set_running_state(bool running, bool request_stop)
 void update_debug_info(bool script_changed)
 {
     [debugWindowController setScriptName:nsstr(get_script_file_name())];
+    [debugWindowController setScriptLine:get_line_num()];
 }
