@@ -59,11 +59,16 @@ BOOL initDebugWindow(void)
 {
     assert(debugWindowController == NULL);
 
+    // メニューをロードする
+    [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
+
+    // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]
                                   initWithWindowNibName:@"DebugWindow"];
     if(debugWindowController == NULL)
         return FALSE;
 
+    // デバッグウィンドウを表示する
     [debugWindowController showWindow:debugWindowController];
 
 	return TRUE;

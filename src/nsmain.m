@@ -67,6 +67,7 @@ BOOL isControlPressed;
     UNUSED_PARAMETER(timer);
 
     @autoreleasepool {
+#ifndef USE_DEBUGGER
         // メニューのタイトルを変更する
         if (!isMenuSet) {
             // https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
@@ -77,6 +78,7 @@ BOOL isControlPressed;
             [menu setTitle:title];
             isMenuSet = TRUE;
         }
+#endif
 
         // フレーム描画イベントを実行する
         int x = 0, y = 0, w = 0, h = 0;
@@ -454,15 +456,18 @@ static BOOL initWindow(void)
     [menuBar addItem:appMenuItem];
     [NSApp setMainMenu:menuBar];
 
+#ifndef USE_DEBUGGER
     // アプリケーションのメニューを作成する
     //  - 最初のタイマイベントでアプリケーション名を変更する
     id appMenu = [NSMenu new];
     id quitMenuItem = [[NSMenuItem alloc]
-                          initWithTitle:@"Quit"
+                          initWithTitle:
+                              conf_language == NULL ? @"終了する" : @"Quit"
                                  action:@selector(performClose:)
                           keyEquivalent:@"q"];
     [appMenu addItem:quitMenuItem];
     [appMenuItem setSubmenu:appMenu];
+#endif
 
     // ウィンドウを作成する
     theWindow = [[NSWindow alloc]
