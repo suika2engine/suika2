@@ -137,12 +137,10 @@ BOOL isControlPressed;
         NSImage *img = [[NSImage alloc] initWithSize:rep.size];
         assert(img != NULL);
         [img addRepresentation:rep];
-        
+
         // 描画を行う
-        [img drawAtPoint:NSMakePoint(0, 0)
-                fromRect:NSMakeRect(0, 0,
-                                    conf_window_width,
-                                    conf_window_height)
+        [img drawAtPoint:rect.origin
+                fromRect:rect
                operation:NSCompositeCopy
                 fraction:1.0];
     }
