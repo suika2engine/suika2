@@ -12,10 +12,10 @@
  */
 
 #import <Cocoa/Cocoa.h>
-
-#import "sys/time.h"
+#import <sys/time.h>
 
 #import "suika.h"
+#import "nsmain.h"
 #import "aunit.h"
 
 #ifdef SSE_VERSIONING
@@ -26,56 +26,287 @@
 #import "nsdebug.h"
 #endif
 
-//
-// キーコード
-//
-enum {
-    KC_SPACE = 49,
-    KC_RETURN = 36,
-    KC_UP = 126,
-    KC_DOWN = 125,
-};
+// ウィンドウ
+static NSWindow *theWindow;
 
-//
+// ビュー
+static SuikaView *theView;
+
 // 背景イメージ
-//
 static struct image *backImage;
 
-//
 // 背景イメージのピクセル
-//
 static unsigned char *backImagePixels;
 
-//
-// コントロールキーの状態
-//
-static BOOL isControlPressed;
-
-//
 // ログファイル
-//
-FILE *logFp;
+static FILE *logFp;
 
-//
-// ウィンドウ
-//
-NSWindow *theWindow;
-
-//
-// ビュー
-//
-@interface SuikaView : NSView <NSWindowDelegate, NSApplicationDelegate>
-- (void)timerFired:(NSTimer *)timer;
-@end
-SuikaView *theView;
-
-//
 // 前方参照
-//
 static BOOL initWindow(void);
 static BOOL initBackImage(void);
 static BOOL openLog(void);
 static void closeLog(void);
+
+//
+// ビュー
+//
+
+@interface SuikaView ()
+@end
+
+@implementation SuikaView
+
+// メニューのタイトルを設定したか
+BOOL isMenuSet;
+
+// コントロールキーが押下されているか
+BOOL isControlPressed;
+
+// タイマコールバック
+- (void)timerFired:(NSTimer *)timer {
+    UNUSED_PARAMETER(timer);
+
+    @autoreleasepool {
+        // メニューのタイトルを変更する
+        if (!isMenuSet) {
+            // https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
+            NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
+            NSString *title = [[NSString alloc]
+                                  initWithUTF8String:conf_window_title];
+            title = [title stringByAppendingString:@"\x1b"];
+            [menu setTitle:title];
+            isMenuSet = TRUE;
+        }
+
+        // フレーム描画イベントを実行する
+        int x = 0, y = 0, w = 0, h = 0;
+        lock_image(backImage);
+        if (!on_event_frame(&x, &y, &w, &h)) {
+            // グローバルデータを保存する
+            save_global_data();
+
+            // 既読フラグを保存する
+            save_seen();
+
+            [NSApp terminate:nil];
+            return;
+        }
+        unlock_image(backImage);
+
+        // 描画範囲があればウィンドウへの再描画を行う
+        // FIXME:
+        //  - Wanna use [self setNeedsDisplayInRect:NSMakeRect(x, y, w, h)]
+        //  - It doesn't works.
+        if (w != 0 && h != 0)
+            [self setNeedsDisplay:YES];
+    }
+}
+
+// 描画イベント
+- (void)drawRect:(NSRect)rect {
+    // 描画範囲がない場合
+    if (rect.size.width == 0 || rect.size.height == 0)
+        return;
+    
+    // 描画オブジェクトの解放用
+    @autoreleasepool {
+        // NSBitmapImageRepを作成する
+        unsigned char *array[1];
+        array[0] = backImagePixels;
+        NSBitmapImageRep *rep =
+        [[NSBitmapImageRep alloc]
+         initWithBitmapDataPlanes:array
+                       pixelsWide:conf_window_width
+                       pixelsHigh:conf_window_height
+                    bitsPerSample:8
+                  samplesPerPixel:4
+                         hasAlpha:YES
+                         isPlanar:NO
+                   colorSpaceName:NSDeviceRGBColorSpace
+                      bytesPerRow:conf_window_width * 4
+                    bitsPerPixel:32];
+        assert(rep != NULL);
+
+        // NSImageに変換する
+        NSImage *img = [[NSImage alloc] initWithSize:rep.size];
+        assert(img != NULL);
+        [img addRepresentation:rep];
+        
+        // 描画を行う
+        [img drawAtPoint:NSMakePoint(0, 0)
+                fromRect:NSMakeRect(0, 0,
+                                    conf_window_width,
+                                    conf_window_height)
+               operation:NSCompositeCopy
+                fraction:1.0];
+    }
+}
+
+// マウス押下イベント
+- (void)mouseDown:(NSEvent *)theEvent {
+    NSPoint pos = [theEvent locationInWindow];
+    if(pos.x < 0 && pos.x >= conf_window_width)
+        return;
+    if(pos.y < 0 && pos.y >= conf_window_height)
+        return;
+        
+	on_event_mouse_press(MOUSE_LEFT, (int)pos.x,
+                         conf_window_height - (int)pos.y);
+}
+
+// マウス解放イベント
+- (void)mouseUp:(NSEvent *)theEvent {
+    NSPoint pos = [theEvent locationInWindow];
+    if(pos.x < 0 && pos.x >= conf_window_width)
+        return;
+    if(pos.y < 0 && pos.y >= conf_window_height)
+        return;
+
+	on_event_mouse_release(MOUSE_LEFT, (int)pos.x,
+                           conf_window_height - (int)pos.y);
+}
+
+// マウス右ボタン押下イベント
+- (void)rightMouseDown:(NSEvent *)theEvent {
+    NSPoint pos = [theEvent locationInWindow];
+    if(pos.x < 0 && pos.x >= conf_window_width)
+        return;
+    if(pos.y < 0 && pos.y >= conf_window_height)
+        return;
+        
+	on_event_mouse_press(MOUSE_RIGHT, (int)pos.x,
+                         conf_window_height - (int)pos.y);
+}
+
+// マウス右ボタン解放イベント
+- (void)rightMouseUp:(NSEvent *)theEvent {
+    NSPoint pos = [theEvent locationInWindow];
+    if(pos.x < 0 && pos.x >= conf_window_width)
+        return;
+    if(pos.y < 0 && pos.y >= conf_window_height)
+        return;
+
+	on_event_mouse_release(MOUSE_RIGHT, (int)pos.x,
+                           conf_window_height - (int)pos.y);
+}
+
+// マウス移動イベント
+- (void)mouseMoved:(NSEvent *)theEvent {
+    NSPoint pos = [theEvent locationInWindow];
+    if(pos.x < 0 && pos.x >= conf_window_width)
+        return;
+    if(pos.y < 0 && pos.y >= conf_window_height)
+        return;
+
+	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
+}
+
+// マウスホイールイベント
+- (void)scrollWheel:(NSEvent *)theEvent {
+    if([theEvent deltaY] > 0) {
+        on_event_key_press(KEY_UP);
+        on_event_key_release(KEY_UP);
+    } else if([theEvent deltaY] < 0) {
+        on_event_key_press(KEY_DOWN);
+        on_event_key_release(KEY_DOWN);
+    }
+}
+
+// キーボード修飾変化イベント
+- (void)flagsChanged:(NSEvent *)theEvent {
+    // Controlキーの状態を取得する
+    BOOL bit = ([theEvent modifierFlags] & NSControlKeyMask) ==
+        NSControlKeyMask;
+    
+    // Controlキーの状態が変化した場合は通知する
+    if(!isControlPressed && bit) {
+        isControlPressed = YES;
+        on_event_key_press(KEY_CONTROL);
+    } else if(isControlPressed && !bit) {
+        isControlPressed = NO;
+        on_event_key_release(KEY_CONTROL);
+    }
+}
+
+// キー押下イベント
+- (void)keyDown:(NSEvent *)theEvent {
+    if([theEvent isARepeat])
+        return;
+
+    int kc = [self convertKeyCode:[theEvent keyCode]];
+    if(kc != -1)
+        on_event_key_press(kc);
+}
+
+// キー解放イベント
+- (void)keyUp:(NSEvent *)theEvent {
+    int kc = [self convertKeyCode:[theEvent keyCode]];
+    if(kc != -1)
+        on_event_key_release(kc);
+}
+
+// キーコードを変換する
+- (int)convertKeyCode:(int)keyCode {
+    switch(keyCode) {
+        case KC_SPACE:
+            return KEY_SPACE;
+        case KC_RETURN:
+            return KEY_RETURN;
+        case KC_UP:
+            return KEY_UP;
+        case KC_DOWN:
+            return KEY_DOWN;
+    }
+    return -1;
+}
+
+// フルスクリーンイベント
+- (NSSize)window:(NSWindow *)window
+willUseFullScreenContentSize:(NSSize)proposedSize {
+    UNUSED_PARAMETER(window);
+    UNUSED_PARAMETER(proposedSize);
+
+    NSSize modSize;
+    modSize.width = conf_window_width;
+    modSize.height = conf_window_height;
+
+    return modSize;
+}
+
+// 閉じるボタンイベント
+- (BOOL)windowShouldClose:(id)sender {
+    UNUSED_PARAMETER(sender);
+
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+    [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
+        @"Quit?"];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    if([alert runModal] == NSAlertFirstButtonReturn) {
+        // グローバルデータを保存する
+        save_global_data();
+
+        // 既読フラグを保存する
+        save_seen();
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+// 最後のウィンドウが閉じられたあと終了するか
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app {
+    UNUSED_PARAMETER(app);
+    return YES;
+}
+
+// First Responderとなるか
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+@end
 
 //
 // メイン
@@ -224,10 +455,10 @@ static BOOL initWindow(void)
     [NSApp setMainMenu:menuBar];
 
     // アプリケーションのメニューを作成する
+    //  - 最初のタイマイベントでアプリケーション名を変更する
     id appMenu = [NSMenu new];
     id quitMenuItem = [[NSMenuItem alloc]
-                          initWithTitle:[NSString stringWithFormat:@"%@ %s",
-                                                  @"Quit", conf_window_title]
+                          initWithTitle:@"Quit"
                                  action:@selector(performClose:)
                           keyEquivalent:@"q"];
     [appMenu addItem:quitMenuItem];
@@ -248,7 +479,7 @@ static BOOL initWindow(void)
                    NSWindowCollectionBehaviorFullScreenPrimary];
     [theWindow cascadeTopLeftFromPoint:NSMakePoint(20,20)];
     [theWindow setTitle:[[NSString alloc]
-     initWithUTF8String:conf_window_title]];
+                            initWithUTF8String:conf_window_title]];
     [theWindow makeKeyAndOrderFront:nil];
     [theWindow setAcceptsMouseMovedEvents:YES];
 
@@ -565,228 +796,3 @@ bool play_video(const char *fname)
 	// stub
 	return true;
 }
-
-//
-// ビューの実装
-//
-@implementation SuikaView
-
-// タイマコールバック
-- (void)timerFired:(NSTimer *)timer {
-    UNUSED_PARAMETER(timer);
-    
-    @autoreleasepool {
-        // フレーム描画イベントを実行する
-        int x = 0, y = 0, w = 0, h = 0;
-        lock_image(backImage);
-        if (!on_event_frame(&x, &y, &w, &h)) {
-            // グローバルデータを保存する
-            save_global_data();
-
-            // 既読フラグを保存する
-            save_seen();
-
-            [NSApp terminate:nil];
-            return;
-        }
-        unlock_image(backImage);
-
-        // 描画範囲があればウィンドウへの再描画を行う
-        // FIXME:
-        //  - Wanna use [self setNeedsDisplayInRect:NSMakeRect(x, y, w, h)]
-        //  - It doesn't works.
-        if (w != 0 && h != 0)
-            [self setNeedsDisplay:YES];
-    }
-}
-
-- (void)drawRect:(NSRect)rect {
-    // 描画範囲がない場合
-    if (rect.size.width == 0 || rect.size.height == 0)
-        return;
-    
-    // 描画オブジェクトの解放用にプールを作成する
-    @autoreleasepool {
-        // NSBitmapImageRepを作成する
-        unsigned char *array[1];
-        array[0] = backImagePixels;
-        NSBitmapImageRep *rep =
-        [[NSBitmapImageRep alloc]
-         initWithBitmapDataPlanes:array
-                       pixelsWide:conf_window_width
-                       pixelsHigh:conf_window_height
-                    bitsPerSample:8
-                  samplesPerPixel:4
-                         hasAlpha:YES
-                         isPlanar:NO
-                   colorSpaceName:NSDeviceRGBColorSpace
-                      bytesPerRow:conf_window_width * 4
-                    bitsPerPixel:32];
-        assert(rep != NULL);
-
-        // NSImageに変換する
-        NSImage *img = [[NSImage alloc] initWithSize:rep.size];
-        assert(img != NULL);
-        [img addRepresentation:rep];
-        
-        // 描画を行う
-        [img drawAtPoint:NSMakePoint(0, 0)
-                fromRect:NSMakeRect(0, 0,
-                                    conf_window_width,
-                                    conf_window_height)
-               operation:NSCompositeCopy
-                fraction:1.0];
-    }
-}
-
-- (void)mouseDown:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
-        return;
-        
-	on_event_mouse_press(MOUSE_LEFT, (int)pos.x,
-                         conf_window_height - (int)pos.y);
-}
-
-- (void)mouseUp:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-	on_event_mouse_release(MOUSE_LEFT, (int)pos.x,
-                           conf_window_height - (int)pos.y);
-}
-
-- (void)rightMouseDown:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
-        return;
-        
-	on_event_mouse_press(MOUSE_RIGHT, (int)pos.x,
-                         conf_window_height - (int)pos.y);
-}
-
-- (void)rightMouseUp:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-	on_event_mouse_release(MOUSE_RIGHT, (int)pos.x,
-                           conf_window_height - (int)pos.y);
-}
-
-- (void)mouseMoved:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
-}
-
-- (void)scrollWheel:(NSEvent *)theEvent {
-    if([theEvent deltaY] > 0) {
-        on_event_key_press(KEY_UP);
-        on_event_key_release(KEY_UP);
-    } else if([theEvent deltaY] < 0) {
-        on_event_key_press(KEY_DOWN);
-        on_event_key_release(KEY_DOWN);
-    }
-}
-
-- (void)flagsChanged:(NSEvent *)theEvent {
-    // Controlキーの状態を取得する
-    BOOL bit = ([theEvent modifierFlags] & NSControlKeyMask) ==
-    NSControlKeyMask;
-    
-    // Controlキーの状態が変化した場合は通知する
-    if(!isControlPressed && bit) {
-        isControlPressed = YES;
-        on_event_key_press(KEY_CONTROL);
-    } else if(isControlPressed && !bit) {
-        isControlPressed = NO;
-        on_event_key_release(KEY_CONTROL);
-    }
-}
-
-- (void)keyDown:(NSEvent *)theEvent {
-    if([theEvent isARepeat])
-        return;
-
-    int kc = [self convertKeyCode:[theEvent keyCode]];
-    if(kc != -1)
-        on_event_key_press(kc);
-}
-
-- (void)keyUp:(NSEvent *)theEvent {
-    int kc = [self convertKeyCode:[theEvent keyCode]];
-    if(kc != -1)
-        on_event_key_release(kc);
-}
-
-- (int)convertKeyCode:(int)keyCode {
-    switch(keyCode) {
-        case KC_SPACE:
-            return KEY_SPACE;
-        case KC_RETURN:
-            return KEY_RETURN;
-        case KC_UP:
-            return KEY_UP;
-        case KC_DOWN:
-            return KEY_DOWN;
-    }
-    return -1;
-}
-
-- (NSSize)window:(NSWindow *)window
-willUseFullScreenContentSize:(NSSize)proposedSize {
-    UNUSED_PARAMETER(window);
-    UNUSED_PARAMETER(proposedSize);
-
-    NSSize modSize;
-    modSize.width = conf_window_width;
-    modSize.height = conf_window_height;
-
-    return modSize;
-}
-
-- (BOOL)windowShouldClose:(id)sender {
-    UNUSED_PARAMETER(sender);
-
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-    [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
-        @"Quit?"];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    if([alert runModal] == NSAlertFirstButtonReturn) {
-        // グローバルデータを保存する
-        save_global_data();
-
-        // 既読フラグを保存する
-        save_seen();
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app {
-    UNUSED_PARAMETER(app);
-    return YES;
-}
-
-- (BOOL)acceptsFirstResponder {
-    return YES;
-}
-
-@end
