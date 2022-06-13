@@ -770,18 +770,25 @@ static void setWaitingState(void)
     [debugWindowController enableVariableUpdateButton:NO];
 
     // TODO: スクリプトを開くメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
 
     // TODO: 上書き保存メニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
 
     // TODO: 続けるメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
 
     // TODO: 次へメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
 
     // TODO: 停止メニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
 
     // TODO: 次のエラー箇所へメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
 
     // TODO: 再読み込みメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:106] setEnabled:NO];
 }
 
 // 実行中のときのビューの状態を設定する
@@ -860,18 +867,25 @@ static void setRunningState(void)
     [debugWindowController enableVariableUpdateButton:NO];
 
     // TODO: スクリプトを開くメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
 
     // TODO: 上書き保存メニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
 
     // TODO: 続けるメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
 
     // TODO: 次へメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
 
     // TODO: 停止メニューを有効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:YES];
 
     // TODO: 次のエラー箇所へメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
 
     // TODO: 再読み込みメニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:106] setEnabled:NO];
 }
 
 // 完全に停止中のときのビューの状態を設定する
@@ -950,18 +964,25 @@ static void setStoppedState(void)
     [debugWindowController enableVariableUpdateButton:YES];
 
     // TODO: スクリプトを開くメニューを有効にする
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:YES];
 
     // TODO: 上書き保存メニューを有効にする
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
 
     // TODO: 続けるメニューを有効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:YES];
 
     // TODO: 次へメニューを有効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:YES];
 
     // TODO: 停止メニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
 
     // TODO: 次のエラー箇所へメニューを有効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:YES];
 
     // TODO: 再読み込みメニューを有効にする
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:106] setEnabled:YES];
 }
 
 //

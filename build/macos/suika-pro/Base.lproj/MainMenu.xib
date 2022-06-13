@@ -9,7 +9,7 @@
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-        <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
+        <menu title="Main Menu" systemMenu="main" autoenablesItems="NO" id="AYu-sK-qS6">
             <items>
                 <menuItem title="Suika2 Pro for Creators" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
@@ -50,9 +50,9 @@
                 </menuItem>
                 <menuItem title="File" id="dMs-cI-mzQ">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="File" id="bib-Uj-vzu">
+                    <menu key="submenu" title="File" autoenablesItems="NO" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Open Script…" keyEquivalent="o" mirroring="NO" id="IAo-SY-fd9">
+                            <menuItem title="Open Script…" tag="100" keyEquivalent="o" mirroring="NO" id="IAo-SY-fd9">
                                 <connections>
                                     <action selector="onMenuScriptOpen:" target="-2" id="rek-pf-ZSZ"/>
                                 </connections>
@@ -71,7 +71,7 @@
                                 </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="Overwrite Script…" keyEquivalent="s" id="pxx-59-PXV">
+                            <menuItem title="Overwrite Script…" tag="101" keyEquivalent="s" id="pxx-59-PXV">
                                 <connections>
                                     <action selector="onMenuScriptOverwrite:" target="-2" id="dL5-C0-hgh"/>
                                 </connections>
@@ -81,30 +81,30 @@
                 </menuItem>
                 <menuItem title="Script" id="Xnv-4q-Vne">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Script" id="3xf-2b-yxB">
+                    <menu key="submenu" title="Script" autoenablesItems="NO" id="3xf-2b-yxB">
                         <items>
-                            <menuItem title="Resume" keyEquivalent="r" id="aOM-hV-OJg">
+                            <menuItem title="Resume" tag="102" keyEquivalent="r" id="aOM-hV-OJg">
                                 <connections>
                                     <action selector="onMenuResume:" target="-2" id="fSQ-lA-VUO"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Next" keyEquivalent="n" id="muO-89-8uf">
+                            <menuItem title="Next" tag="103" keyEquivalent="n" id="muO-89-8uf">
                                 <connections>
                                     <action selector="onMenuNext:" target="-2" id="zlA-iR-EcO"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Pause" keyEquivalent="p" id="37C-jP-LaG">
+                            <menuItem title="Pause" tag="104" keyEquivalent="p" id="37C-jP-LaG">
                                 <connections>
                                     <action selector="onMenuPause:" target="-2" id="jcL-FY-wwc"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="DWg-C7-L6o"/>
-                            <menuItem title="Move to Next Error" keyEquivalent="e" id="tPu-jq-7QC">
+                            <menuItem title="Move to Next Error" tag="105" keyEquivalent="e" id="tPu-jq-7QC">
                                 <connections>
                                     <action selector="onMenuNextError:" target="-2" id="Bc6-Wz-U95"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Reload" keyEquivalent="l" id="oP0-Ye-yQC">
+                            <menuItem title="Reload" tag="106" keyEquivalent="l" id="oP0-Ye-yQC">
                                 <connections>
                                     <action selector="onMenuReload:" target="-2" id="TRc-wU-SGn"/>
                                 </connections>
