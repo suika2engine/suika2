@@ -601,6 +601,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 	if (y + h >= conf_window_height)
 		h = conf_window_height - y;
 
+	/* レイヤを描画する */
 	render_layer_image_rect(LAYER_BG, x, y, w, h);
 	render_layer_image_rect(LAYER_CHB, x, y, w, h);
 	render_layer_image_rect(LAYER_CHL, x, y, w, h);
@@ -2445,16 +2446,12 @@ void show_msgbox(bool show)
  * メッセージボックスに文字を描画する
  *  - 描画した高さを返す
  */
-int draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			pixel_t outline_color)
+void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
+			 pixel_t outline_color, int *w, int *h)
 {
-	int w, h;
-
 	lock_image(layer_image[LAYER_MSG]);
-	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, &w, &h);
+	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, w, h);
 	unlock_image(layer_image[LAYER_MSG]);
-
-	return h;
 }
 
 /*
@@ -2912,12 +2909,10 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 	/* 背景イメージがセットされていなければクリアする */
 	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
 		if (conf_window_white) {
-			render_clear(x, y, conf_window_width,
-				     conf_window_height,
+			render_clear(x, y, w, h,
 				     make_pixel(0xff, 0xff, 0xff, 0xff));
 		} else {
-			render_clear(x, y, conf_window_width,
-				     conf_window_height,
+			render_clear(x, y, w, h,
 				     make_pixel(0xff, 0, 0, 0));
 		}
 		return;
@@ -2975,6 +2970,9 @@ static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 		int x2, int y2, int w2, int h2)
 {
+	int right1, right2, bottom1, bottom2;
+
+	/* 幅、高さがゼロの場合 */
 	if ((w1 == 0 || h1 == 0) && (w2 == 0 || h2 == 0)) {
 		*x = 0;
 		*y = 0;
@@ -2997,13 +2995,31 @@ void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 		return;
 	}
 
-	w1 = x1 + w1 - 1;
-	h1 = y1 + h1 - 1;
-	w2 = x2 + w2 - 1;
-	h2 = y2 + h2 - 1;
+	/* 左端を求める */
+	if (x1 < x2)
+		*x = x1;
+	else
+		*x = x2;
 
-	*x = x1 < x2 ? x1 : x2;
-	*y = y1 < y2 ? y1 : y2;
-	*w = w1 > w2 ? w1 - *x + 1 : w2 - *x + 1;
-	*h = h1 > h2 ? h1 - *y + 1 : h2 - *y + 1;
+	/* 上端を求める */
+	if (y1 < y2)
+		*y = y1;
+	else
+		*y = y2;
+
+	/* 右端を求める */
+	right1 = x1 + w1 - 1;
+	right2 = x2 + w2 - 1;
+	if (right1 > right2)
+		*w = right1 - *x + 1;
+	else
+		*w = right2 - *x + 1;
+
+	/* 下端を求める */
+	bottom1 = y1 + h1 - 1;
+	bottom2 = y2 + h2 - 1;
+	if (bottom1 > bottom2)
+		*h = bottom1 - *y + 1;
+	else
+		*h = bottom2 - *y + 1;
 }

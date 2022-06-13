@@ -81,17 +81,11 @@ static stop_watch_t auto_sw;
 static int pen_x;
 static int pen_y;
 
-/* メッセージボックスの幅 */
+/* メッセージボックスの位置とサイズ */
 static int msgbox_x;
 static int msgbox_y;
 static int msgbox_w;
 static int msgbox_h;
-
-/* 描画する矩形 */
-static int draw_x;
-static int draw_y;
-static int draw_w;
-static int draw_h;
 
 /* 描画するメッセージ */
 static char *msg_top;
@@ -128,24 +122,24 @@ static int pointed_index;
  * 前方参照
  */
 
-static bool init(void);
+static bool init(int *x, int *y, int *w, int *h);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool register_message_for_history(void);
-static bool process_serif_command(void);
+static bool process_serif_command(int *x, int *y, int *w, int *h);
 static void draw_namebox(void);
 static int get_namebox_width(void);
 static bool play_voice(void);
-static void draw_msgbox(void);
+static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
-static void draw_click(void);
+static void draw_click(int *x, int *y, int *w, int *h);
 static void check_stop_click_animation(void);
 static int get_en_word_width(void);
 static void get_message_color(pixel_t *color, pixel_t *outline_color);
 static void init_pointed_index(void);
-static void init_first_draw_area(void);
+static void init_first_draw_area(int *x, int *y, int *w, int *h);
 static void init_repetition(void);
-static void frame_draw_buttons(bool se);
+static void frame_draw_buttons(bool se, int *x, int *y, int *w, int *h);
 static int get_pointed_button(void);
 static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
 static void frame_quick_save(void);
@@ -153,11 +147,11 @@ static bool frame_quick_load(void);
 static bool frame_save(void);
 static bool frame_load(void);
 static bool frame_history(void);
-static void frame_auto_mode(void);
+static void frame_auto_mode(int *x, int *y, int *w, int *h);
 static bool check_auto_play_condition(void);
 static int get_wait_time(void);
 static void frame_skip_mode(void);
-static void frame_main(void);
+static void frame_main(int *x, int *y, int *w, int *h);
 static void play_se(const char *file);
 static bool is_skippable(void);
 static bool cleanup(void);
@@ -167,18 +161,13 @@ static bool cleanup(void);
  */
 bool message_command(int *x, int *y, int *w, int *h)
 {
-	draw_x = 0;
-	draw_y = 0;
-	draw_w = 0;
-	draw_h = 0;
-
 	/* 初期化処理を行う */
 	if (!is_in_command_repetition())
-		if (!init())
+		if (!init(x, y, w, h))
 			return false;
 
 	/* ボタンの描画を行う */
-	frame_draw_buttons(true);
+	frame_draw_buttons(true, x, y, w, h);
 
 	/* クイックセーブを処理する */
 	frame_quick_save();
@@ -202,13 +191,13 @@ bool message_command(int *x, int *y, int *w, int *h)
 		return true;
 
 	/* オートモードを処理する */
-	frame_auto_mode();
+	frame_auto_mode(x, y, w, h);
 	
 	/* スキップモードを処理する */
 	frame_skip_mode();
 
 	/* メイン表示処理を行う */
-	frame_main();
+	frame_main(x, y, w, h);
 
 	/* 終了処理を行う */
 	if (!is_in_command_repetition())
@@ -216,19 +205,13 @@ bool message_command(int *x, int *y, int *w, int *h)
 			return false;
 
 	/* ステージを描画する */
-	draw_stage_rect(draw_x, draw_y, draw_w, draw_h);
-
-	/* 描画した範囲をウィンドウの更新範囲とする */
-	*x = draw_x;
-	*y = draw_y;
-	*w = draw_w;
-	*h = draw_h;
+	draw_stage_rect(*x, *y, *w, *h);
 
 	return true;
 }
 
 /* 初期化処理を行う */
-static bool init(void)
+static bool init(int *x, int *y, int *w, int *h)
 {
 	const char *raw_msg;
 
@@ -252,7 +235,7 @@ static bool init(void)
 	get_message_color(&color, &outline_color);
 
 	/* セリフの場合を処理する */
-	if (!process_serif_command())
+	if (!process_serif_command(x, y, w, h))
 		return false;
 
 	/* セリフが登録・表示されたことを記録する */
@@ -272,6 +255,9 @@ static bool init(void)
 
 	/* メッセージボックスの矩形を取得する */
 	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 
 	/* メッセージボックスをクリアする */
 	clear_msgbox();
@@ -291,7 +277,7 @@ static bool init(void)
 	init_repetition();
 
 	/* 初回に描画する矩形を求める */
-	init_first_draw_area();
+	init_first_draw_area(x, y, w, h);
 
 	/* オートモードの設定をする */
 	is_auto_mode_wait = false;
@@ -373,7 +359,7 @@ static bool register_message_for_history(void)
 }
 
 /* セリフコマンドを処理する */
-static bool process_serif_command(void)
+static bool process_serif_command(int *x, int *y, int *w, int *h)
 {
 	int namebox_x, namebox_y, namebox_w, namebox_h;
 
@@ -382,8 +368,9 @@ static bool process_serif_command(void)
 	 *  - セリフコマンド以外でも、名前ボックス領域を消すために描画する
 	 */
 	get_namebox_rect(&namebox_x, &namebox_y, &namebox_w, &namebox_h);
-	union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y, draw_w,
-		   draw_h, namebox_x, namebox_y, namebox_w, namebox_h);
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   namebox_x, namebox_y, namebox_w, namebox_h);
 
 	/* セリフコマンドではない場合 */
 	if (get_command_type() != COMMAND_SERIF) {
@@ -513,10 +500,10 @@ static bool play_voice(void)
 }
 
 /* メッセージボックスの描画を行う */
-static void draw_msgbox(void)
+static void draw_msgbox(int *x, int *y, int *w, int *h)
 {
 	uint32_t c;
-	int char_count, mblen, w, h, i;
+	int char_count, mblen, cw, ch, i;
 
 	/* 今回のフレームで描画する文字数を取得する */
 	char_count = get_frame_chars();
@@ -567,13 +554,13 @@ static void draw_msgbox(void)
 		}
 
 		/* 描画する文字の幅を取得する */
-		w = get_glyph_width(c);
+		cw = get_glyph_width(c);
 
 		/*
 		 * メッセージボックスの幅を超える場合、改行する。
 		 * ただし行頭禁則文字の場合は改行しない。
 		 */
-		if ((pen_x + w >= msgbox_w - conf_msgbox_margin_right) &&
+		if ((pen_x + cw >= msgbox_w - conf_msgbox_margin_right) &&
 		    (c != CHAR_SPACE && c != CHAR_COMMA && c != CHAR_PERIOD &&
 		     c != CHAR_COLON && c != CHAR_SEMICOLON &&
 		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
@@ -582,15 +569,16 @@ static void draw_msgbox(void)
 		}
 
 		/* 描画する */
-		h = draw_char_on_msgbox(pen_x, pen_y, c, color, outline_color);
+		draw_char_on_msgbox(pen_x, pen_y, c, color, outline_color, &cw,
+				    &ch);
 
 		/* 更新領域を求める */
-		union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y,
-			   draw_w, draw_h, msgbox_x + pen_x, msgbox_y + pen_y,
-			   w, h);
+		union_rect(x, y, w, h,
+			   *x, *y, *w, *h,
+			   msgbox_x + pen_x, msgbox_y + pen_y, cw, ch);
 
 		/* 次の文字へ移動する */
-		pen_x += w;
+		pen_x += cw;
 		msg += mblen;
 		drawn_chars++;
 	}
@@ -651,7 +639,7 @@ static int get_frame_chars(void)
 }
 
 /* クリックアニメーションを描画する */
-static void draw_click(void)
+static void draw_click(int *x, int *y, int *w, int *h)
 {
 	int click_x, click_y, click_w, click_h;
 	int lap;
@@ -690,8 +678,9 @@ static void draw_click(void)
 
 	/* 描画範囲を求める */
 	get_click_rect(&click_x, &click_y, &click_w, &click_h);
-	union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y, draw_w,
-		   draw_h, click_x, click_y, click_w, click_h);
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   click_x, click_y, click_w, click_h);
 }
 
 /* クリックアニメーションで入力があったら繰り返しを終了する */
@@ -801,7 +790,7 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 /* 初期化処理においてポイントされているボタンを求め描画する */
 static void init_pointed_index(void)
 {
-	int x, y, w, h;
+	int bx, by, bw, bh;
 
 	/* ポイントされているボタンを求める */
 	pointed_index = get_pointed_button();
@@ -829,8 +818,8 @@ static void init_pointed_index(void)
 	}
 
 	/* ボタンを描画する */
-	get_button_rect(pointed_index, &x, &y, &w, &h);
-	clear_msgbox_rect_with_fg(x, y, w, h);
+	get_button_rect(pointed_index, &bx, &by, &bw, &bh);
+	clear_msgbox_rect_with_fg(bx, by, bw, bh);
 }
 
 /* 初期化処理において、繰り返し動作を設定する */
@@ -849,25 +838,25 @@ static void init_repetition(void)
 }
 
 /* 初期化処理において、初回に描画する矩形を求める */
-static void init_first_draw_area(void)
+static void init_first_draw_area(int *x, int *y, int *w, int *h)
 {
 	/* 初回に描画する矩形を求める */
 	if (check_menu_finish_flag() || check_retrospect_finish_flag()) {
 		/* メニューコマンドが終了したばかりの場合 */
-		draw_x = 0;
-		draw_y = 0;
-		draw_w = conf_window_width;
-		draw_h = conf_window_height;
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
 	} else {
 		/* それ以外の場合 */
-		union_rect(&draw_x, &draw_y, &draw_w, &draw_h, draw_x, draw_y,
-			   draw_w, draw_h, msgbox_x, msgbox_y, msgbox_w,
-			   msgbox_h);
+		union_rect(x, y, w, h,
+			   *x, *y, *w, *h,
+			   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 	}
 }
 
 /* ボタンを描画する */
-static void frame_draw_buttons(bool se)
+static void frame_draw_buttons(bool se, int *x, int *y, int *w, int *h)
 {
 	int last_pointed_index, bx, by, bw, bh;;
 
@@ -884,8 +873,8 @@ static void frame_draw_buttons(bool se)
 		/* ボタンを描画する */
 		get_button_rect(last_pointed_index, &bx, &by, &bw, &bh);
 		clear_msgbox_rect_with_bg(bx, by, bw, bh);
-		union_rect(&draw_x, &draw_y, &draw_w, &draw_h,
-			   draw_x, draw_y, draw_w, draw_h,
+		union_rect(x, y, w, h,
+			   *x, *y, *w, *h,
 			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
 	}
 
@@ -908,8 +897,8 @@ static void frame_draw_buttons(bool se)
 		/* ボタンを描画する */
 		get_button_rect(pointed_index, &bx, &by, &bw, &bh);
 		clear_msgbox_rect_with_fg(bx, by, bw, bh);
-		union_rect(&draw_x, &draw_y, &draw_w, &draw_h,
-			   draw_x, draw_y, draw_w, draw_h,
+		union_rect(x, y, w, h,
+			   *x, *y, *w, *h,
 			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
 
 		/* SEを再生する */
@@ -1159,7 +1148,7 @@ static bool frame_history(void)
 }
 
 /* フレーム描画中のオートボタン押下およびオートモード制御を処理する */
-static void frame_auto_mode(void)
+static void frame_auto_mode(int *x, int *y, int *w, int *h)
 {
 	int lap;
 
@@ -1203,7 +1192,7 @@ static void frame_auto_mode(void)
 			is_auto_mode_wait = false;
 
 			/* ボタンを再描画する */
-			frame_draw_buttons(false);
+			frame_draw_buttons(false, x, y, w, h);
 
 			/* 以降のクリック処理を行わない */
 			is_left_button_pressed = false;
@@ -1310,7 +1299,7 @@ static void frame_skip_mode(void)
 }
 
 /* フレーム描画中のメイン処理を行う */
-static void frame_main(void)
+static void frame_main(int *x, int *y, int *w, int *h)
 {
 	/* スペースキーの押下を処理する */
 	if (!is_hidden && is_space_pressed) {
@@ -1319,10 +1308,10 @@ static void frame_main(void)
 			show_namebox(false);
 		show_msgbox(false);
 		show_click(false);
-		draw_x = 0;
-		draw_y = 0;
-		draw_w = conf_window_width;
-		draw_h = conf_window_height;
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
 		return;
 	}
 
@@ -1333,10 +1322,10 @@ static void frame_main(void)
 			show_namebox(true);
 		show_msgbox(true);
 		show_click(true);
-		draw_x = 0;
-		draw_y = 0;
-		draw_w = conf_window_width;
-		draw_h = conf_window_height;
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
 		return;
 	}
 
@@ -1350,10 +1339,9 @@ static void frame_main(void)
 
 		/* 文字かクリックアニメーションを描画する */
 		if (drawn_chars < total_chars)
-			draw_msgbox();
+			draw_msgbox(x, y, w, h);
 		else
-			draw_click();
-		
+			draw_click(x, y, w, h);
 	}
 }
 

@@ -241,8 +241,8 @@ void clear_msgbox_rect_with_fg(int x, int y, int w, int h);
 void show_msgbox(bool show);
 
 /* メッセージボックスに文字を描画する */
-int draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			pixel_t outline_color);
+void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
+			 pixel_t outline_color, int *w, int *h);
 
 /*
  * クリックアニメーションの描画

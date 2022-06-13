@@ -114,7 +114,6 @@ static bool init(void)
 		change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
 		change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
 		change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
-		return true;
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();
@@ -130,7 +129,6 @@ static bool init(void)
 	show_namebox(false);
 	show_msgbox(false);
 	show_click(false);
-
 	return true;
 }
 

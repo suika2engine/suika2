@@ -298,7 +298,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	FT_BitmapGlyph bitmapGlyph;
 	int descent;
 
-	/* アウトラインを描画する Draw outline. */
+	/* アウトラインを描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 	glyphIndex = FT_Get_Char_Index(face, codepoint);
@@ -318,18 +318,14 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 			x,
 			y,
 			outline_color);
+	descent = (int)(face->glyph->metrics.height / SCALE) -
+		  (int)(face->glyph->metrics.horiBearingY / SCALE);
+	*w = (int)face->glyph->advance.x / SCALE;
+	*h = conf_font_size + descent + 2;
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
 
-	/* Descentを求める */
-	descent = (int)(face->glyph->metrics.height / SCALE) -
-		  (int)(face->glyph->metrics.horiBearingY / SCALE);
-
-	/* 描画した幅と高さを求める */
-	*w = (int)face->glyph->advance.x / SCALE;
-	*h = conf_font_size + descent + 2;
-
-	/* 中身を描画する Draw body. */
+	/* 中身を描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 	glyphIndex = FT_Get_Char_Index(face, codepoint);

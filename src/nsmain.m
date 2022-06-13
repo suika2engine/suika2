@@ -102,6 +102,7 @@ BOOL isControlPressed;
 
         // 描画範囲があればウィンドウへの再描画を行う
         if (w != 0 && h != 0) {
+//          [self setNeedsDisplay:YES];
             [self setNeedsDisplayInRect:
                       NSMakeRect(x, conf_window_height - y - h, w, h)];
         }
