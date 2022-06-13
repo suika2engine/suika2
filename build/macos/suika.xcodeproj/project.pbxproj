@@ -117,9 +117,9 @@
 		265EA7CD2857372300A02167 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = "suika-pro/InfoPlist.strings"; sourceTree = SOURCE_ROOT; };
 		26616DC726B4CED20094B23C /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../../src/seen.h; sourceTree = "<group>"; };
 		26616DC826B4CED20094B23C /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../../src/seen.c; sourceTree = "<group>"; };
-		266DFD9428573DAD00204850 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		266DFD9428573DAD00204850 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = MainMenu.xib; sourceTree = "<group>"; };
 		266DFD9928573DB400204850 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
-		266DFD9B28574AF100204850 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DebugWindow.xib; sourceTree = "<group>"; };
+		266DFD9B28574AF100204850 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = DebugWindow.xib; sourceTree = "<group>"; };
 		266DFD9E28574AF600204850 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/DebugWindow.strings; sourceTree = "<group>"; };
 		268C79C226A56A7000981FB1 /* cmd_chs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chs.c; path = ../../../src/cmd_chs.c; sourceTree = "<group>"; };
 		26A177F425EE5DD0006A1ED4 /* script.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = script.c; path = ../../../src/script.c; sourceTree = "<group>"; };
