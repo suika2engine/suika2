@@ -139,22 +139,133 @@ static void setStoppedState(void);
 
 // エラーを探すボタンが押下されたイベント
 - (IBAction)onNextErrorButton:(id)sender {
-    // TODO
+    // 行数を取得する
+	int lines = get_line_count();
+
+    // 選択されている行を取得する
+	int start = (int)[[self tableViewScript] selectedRow];
+
+    // 選択されている行より下を検索する
+	for (int i = start + 1; i < lines; i++) {
+        const char *text = get_line_string_at_line_num(i);
+		if(text[0] == '!') {
+            // みつかったので選択する
+            NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:i];
+            [[self tableViewScript] selectRowIndexes:indexSet
+                                byExtendingSelection:NO];
+            [[self tableViewScript] scrollRowToVisible:i];
+			return;
+		}
+	}
+
+    // 先頭行から、選択されている行までを検索する
+	if (start != 0) {
+		for (int i = 0; i <= start; i++) {
+			const char *text = get_line_string_at_line_num(i);
+			if(text[0] == '!') {
+                // みつかったので選択する
+                NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:i];
+                [[self tableViewScript] selectRowIndexes:indexSet
+                                    byExtendingSelection:NO];
+                [[self tableViewScript] scrollRowToVisible:i];
+                return;
+			}
+		}
+	}
+
+    log_info(isEnglish ? "No error." : "エラーはありません。");
 }
 
 // 上書き保存ボタンが押下されたイベント
 - (IBAction)onOverwriteButton:(id)sender {
-    // TODO
+    // スクリプトファイル名を取得する
+	const char *scr = get_script_file_name();
+	if(strcmp(scr, "DEBUG") == 0)
+		return;
+
+    // 確認のダイアログを開く
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+    [alert setMessageText:isEnglish ?
+           @"Are you sure you want to overwrite the script file?" :
+           @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    if([alert runModal] != NSAlertFirstButtonReturn)
+        return;
+
+    // ファイルを開く
+	char *path = make_valid_path(SCRIPT_DIR, scr);
+    if (path == NULL)
+        return;
+    FILE *fp = fopen(path, "w");
+    free(path);
+    if (fp == NULL)	{
+        log_error(isEnglish ?
+                  "Cannot write to file." : "ファイルに書き込めません。");
+        return;
+    }
+
+    // 書き出す
+	for (int i = 0; i < get_line_count(); i++) {
+		int body = fputs(get_line_string_at_line_num(i), fp);
+		int lf = fputs("\n", fp);
+		if (body < 0 || lf < 0) {
+            log_error(isEnglish ?
+                      "Cannot write to file." : "ファイルに書き込めません。");
+            break;
+		}
+	}
+	fclose(fp);
 }
 
 // 再読み込みボタンが押下されたイベント
 - (IBAction)onReloadButton:(id)sender {
-    // TODO
+    isReloadPressed = true;
 }
 
 // 変数の反映ボタンが押下されたイベント
 - (IBAction)onUpdateVariablesButton:(id)sender {
-    // TODO
+	// テキストフィールドの内容を取得する
+	NSString *text = [self getVariablesText];
+
+	// パースする
+	const char *p = [text UTF8String];
+    const char *next_line;
+	while (*p) {
+		/* 空行を読み飛ばす */
+		if (*p == '\n') {
+			p++;
+			continue;
+		}
+
+		// 次の行の開始文字を探す
+		next_line = p;
+		while (*next_line) {
+			if (*next_line == '\n') {
+				next_line++;
+				break;
+			}
+			next_line++;
+		}
+
+		// パースする
+        int index, val;
+		if (sscanf(p, "$%d=%d\n", &index, &val) != 2)
+			index = val = -1;
+		if (index >= LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE)
+			index = -1;
+
+		// 変数を設定する
+		if (index != -1)
+			set_variable(index, val);
+
+		// 次の行へポインタを進める
+		p = next_line;
+	}
+
+    // 変更された後の変数でテキストフィールドを更新する
+	[self updateVariableTextField];
 }
 
 //
@@ -307,6 +418,16 @@ static void setStoppedState(void);
 // 変数の書き込みボタンの有効状態を設定する
 - (void)enableVariableUpdateButton:(BOOL)state {
     [[self buttonUpdateVariables] setEnabled:state];
+}
+
+// 変数のテキストフィールドの値を設定する
+- (void)setVariablesText:(NSString *)text {
+    [[self textFieldVariables] setString:text];
+}
+
+// 変数のテキストフィールドの値を取得する
+- (NSString *)getVariablesText {
+    return [[[self textFieldVariables] textStorage] string];
 }
 
 ///
