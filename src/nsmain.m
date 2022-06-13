@@ -500,9 +500,11 @@ static BOOL initWindow(void)
                                          NSMiniaturizableWindowMask
                                  backing:NSBackingStoreBuffered
                                    defer:NO];
+#ifndef USE_DEBUGGER
     [theWindow setCollectionBehavior:
                    [theWindow collectionBehavior] |
                NSWindowCollectionBehaviorFullScreenPrimary];
+#endif
     [theWindow setTitle:[[NSString alloc]
                             initWithUTF8String:conf_window_title]];
     [theWindow makeKeyAndOrderFront:nil];

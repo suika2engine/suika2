@@ -61,7 +61,7 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Open Recent" systemMenu="recentDocuments" id="oas-Oc-fiZ">
                                     <items>
-                                        <menuItem title="メニューを消去" id="vNY-rz-j42">
+                                        <menuItem title="Clear Menu" id="vNY-rz-j42">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="clearRecentDocuments:" target="-1" id="Daa-9d-B3U"/>

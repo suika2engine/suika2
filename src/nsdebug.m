@@ -524,14 +524,14 @@ BOOL initDebugWindow(void)
 
     // 英語モードかどうかをロケールから決定する
     NSString *lang = [[NSLocale preferredLanguages] objectAtIndex:0];
-    isEnglish = [lang isEqualToString:@"Japanese"] ? false : true;
+    isEnglish = [lang isEqualToString:@"ja-JP"] ? false : true;
     if (isEnglish)
         conf_language = strdup("English");
 
     // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]
                                   initWithWindowNibName:@"DebugWindow"];
-    if(debugWindowController == NULL)
+    if (debugWindowController == NULL)
         return FALSE;
 
     // メニューのXibをロードする
