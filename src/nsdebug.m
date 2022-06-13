@@ -104,7 +104,7 @@ static void setStoppedState(void);
 }
 
 //
-// NSApplicationDelegate
+// IBAction (Buttons)
 //
 
 // 続けるボタンが押下されたイベント
@@ -266,6 +266,44 @@ static void setStoppedState(void);
 
     // 変更された後の変数でテキストフィールドを更新する
 	[self updateVariableTextField];
+}
+
+//
+// IBAction (Menus)
+//
+
+// スクリプトを開くメニューが押下されたイベント
+- (IBAction)onMenuScriptOpen:(id)sender {
+}
+
+// スクリプトを上書き保存するメニューが押下されたイベント
+- (IBAction)onMenuScriptOverwrite:(id)sender {
+    [self onOverwriteButton:sender];
+}
+
+// 続けるメニューが押下されたイベント
+- (IBAction)onMenuResume:(id)sender {
+    [self onResumeButton:sender];
+}
+
+// 次へメニューが押下されたイベント
+- (IBAction)onMenuNext:(id)sender {
+    [self onNextButton:sender];
+}
+
+// 停止メニューが押下されたイベント
+- (IBAction)onMenuPause:(id)sender {
+    [self onPauseButton:sender];
+}
+
+// 次のエラー箇所へ移動メニューが押下されたイベント
+- (IBAction)onMenuNextError:(id)sender {
+    [self onNextErrorButton:sender];
+}
+
+// 再読み込みが押下されたイベント
+- (IBAction)onMenuReload:(id)sender {
+    [self onReloadButton:sender];
 }
 
 //
@@ -487,16 +525,18 @@ BOOL initDebugWindow(void)
     // 英語モードかどうかを調べる
     isEnglish = conf_language == NULL ? false : true;
 
-    // メニューのXibをロードする
-    NSBundle *bundle  = [NSBundle mainBundle];
-    NSArray  *objects = [NSArray new];
-    [bundle loadNibNamed:@"MainMenu" owner:NSApp topLevelObjects:&objects];
-
     // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]
                                   initWithWindowNibName:@"DebugWindow"];
     if(debugWindowController == NULL)
         return FALSE;
+
+    // メニューのXibをロードする
+    NSBundle *bundle  = [NSBundle mainBundle];
+    NSArray  *objects = [NSArray new];
+    [bundle loadNibNamed:@"MainMenu"
+                   owner:debugWindowController
+         topLevelObjects:&objects];
 
     // デバッグウィンドウを表示する
     [debugWindowController showWindow:debugWindowController];

@@ -16,7 +16,7 @@
 #import <Cocoa/Cocoa.h>
 #import "suika.h"
 
-@interface DebugWindowController : NSWindowController <NSWindowDelegate, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate>
+@interface DebugWindowController : NSWindowController <NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate>
 - (void)doubleClickTableView:(id)nid;
 @end
 

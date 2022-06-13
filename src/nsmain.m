@@ -462,13 +462,13 @@ static BOOL initWindow(void)
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
+#ifndef USE_DEBUGGER
     // メニューバーを作成する
     NSMenu *menuBar = [NSMenu new];
     NSMenuItem *appMenuItem = [NSMenuItem new];
     [menuBar addItem:appMenuItem];
     [NSApp setMainMenu:menuBar];
 
-#ifndef USE_DEBUGGER
     // アプリケーションのメニューを作成する
     //  - 最初のタイマイベントでアプリケーション名を変更する
     id appMenu = [NSMenu new];
