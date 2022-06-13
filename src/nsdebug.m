@@ -522,8 +522,11 @@ BOOL initDebugWindow(void)
 {
     assert(debugWindowController == NULL);
 
-    // 英語モードかどうかを調べる
-    isEnglish = conf_language == NULL ? false : true;
+    // 英語モードかどうかをロケールから決定する
+    NSString *lang = [[NSLocale preferredLanguages] objectAtIndex:0];
+    isEnglish = [lang isEqualToString:@"Japanese"] ? false : true;
+    if (isEnglish)
+        conf_language = strdup("English");
 
     // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]
@@ -687,7 +690,7 @@ void set_running_state(bool running, bool request_stop)
         return;
     }
 
-    /* 完全に停止中のとき */
+    // 完全に停止中のとき
     setStoppedState();
 }
 
@@ -696,20 +699,23 @@ static void setWaitingState(void)
 {
     // ウィンドウのタイトルを設定する
     [debugWindowController setTitle:isEnglish ?
-                           nsstr("Waiting for command finish...") :
-                           nsstr("コマンドの完了を待機中...")];
+                           @"Waiting for command finish..." :
+                           @"コマンドの完了を待機中..."];
 
     // 続けるボタンを無効にする
     [debugWindowController setResumeButton:NO text:isEnglish ?
-                           nsstr("(Resume)") : nsstr("(続ける)")];
+                           @"Resume" :
+                           @"続ける"];
 
     // 次へボタンを無効にする
     [debugWindowController setNextButton:NO text:isEnglish ?
-                           nsstr("(Next)") : nsstr("(次へ)")];
+                           @"Next" :
+                           @"次へ"];
 
     // 停止ボタンを無効にする
     [debugWindowController setPauseButton:NO text:isEnglish ?
-                           nsstr("(Waiting)") : nsstr("(完了待ち)")];
+                           @"Pause" :
+                           @"停止"];
 
     // スクリプトテキストボックスを無効にする
     [debugWindowController enableScriptTextField:NO];
@@ -722,8 +728,8 @@ static void setWaitingState(void)
 
     // 行番号ラベルを設定する
     [debugWindowController setLineNumberLabel:isEnglish ?
-                           nsstr("Current waiting line:") :
-                           nsstr("現在完了待ちの行番号:")];
+                           @"Current Waiting Line:" :
+                           @"現在完了待ちの行番号:"];
 
     // 行番号テキストボックスを無効にする
     [debugWindowController enableLineNumberTextField:NO];
@@ -733,8 +739,8 @@ static void setWaitingState(void)
 
     // コマンドラベルを設定する
     [debugWindowController setCommandLabel:isEnglish ?
-                           nsstr("Current waiting command:") :
-                           nsstr("現在完了待ちのコマンド:")];
+                           @"Current Waiting Command:" :
+                           @"現在完了待ちのコマンド:"];
 
     // コマンドテキストボックスを無効にする
     [debugWindowController enableCommandTextField:NO];
@@ -783,23 +789,23 @@ static void setRunningState(void)
 {
     // ウィンドウのタイトルを設定する
     [debugWindowController setTitle:isEnglish ?
-                           nsstr("Running...") :
-                           nsstr("実行中...")];
+                           @"Running..." :
+                           @"実行中..."];
 
     // 続けるボタンを無効にする
     [debugWindowController setResumeButton:NO text:isEnglish ?
-                           nsstr("(Resume)") :
-                           nsstr("(続ける)")];
+                           @"Resume" :
+                           @"続ける"];
 
     /* 次へボタンを無効にする */
     [debugWindowController setNextButton:NO text:isEnglish ?
-                           nsstr("(Next)") :
-                           nsstr("(次へ)")];
+                           @"Next" :
+                           @"次へ"];
 
     /* 停止ボタンを有効にする */
     [debugWindowController setPauseButton:TRUE text:isEnglish ?
-                           nsstr("Pause") :
-                           nsstr("停止")];
+                           @"Pause" :
+                           @"停止"];
 
     // スクリプトテキストボックスを無効にする
     [debugWindowController enableScriptTextField:NO];
@@ -812,8 +818,8 @@ static void setRunningState(void)
 
     // 行番号ラベルを設定する
     [debugWindowController setLineNumberLabel:isEnglish ?
-                           nsstr("Current running line:") :
-                           nsstr("現在実行中の行番号:")];
+                           @"Current Running Line:" :
+                           @"現在実行中の行番号:"];
 
     // 行番号テキストボックスを無効にする
     [debugWindowController enableLineNumberTextField:NO];
@@ -823,8 +829,8 @@ static void setRunningState(void)
 
     // コマンドラベルを設定する
     [debugWindowController setCommandLabel:isEnglish ?
-                           nsstr("Current running command:") :
-                           nsstr("現在実行中のコマンド:")];
+                           @"Current Running Command:" :
+                           @"現在実行中のコマンド:"];
 
     // コマンドテキストボックスを無効にする
     [debugWindowController enableCommandTextField:NO];
@@ -873,23 +879,23 @@ static void setStoppedState(void)
 {
     // ウィンドウのタイトルを設定する
     [debugWindowController setTitle:isEnglish ?
-                           nsstr("Stopped") :
-                           nsstr("停止中")];
+                           @"Stopped" :
+                           @"停止中"];
 
     // 続けるボタンを有効にする
     [debugWindowController setResumeButton:YES text:isEnglish ?
-                           nsstr("Resume") :
-                           nsstr("続ける")];
+                           @"Resume" :
+                           @"続ける"];
 
     // 次へボタンを有効にする
     [debugWindowController setNextButton:YES text:isEnglish ?
-                           nsstr("Next") :
-                           nsstr("次へ")];
+                           @"Next" :
+                           @"次へ"];
 
     // 停止ボタンを無効にする
     [debugWindowController setPauseButton:NO text:isEnglish ?
-                           nsstr("(Pausing)") :
-                           nsstr("(停止中)")];
+                           @"Pause" :
+                           @"停止"];
 
     // スクリプトテキストボックスを有効にする
     [debugWindowController enableScriptTextField:YES];
@@ -902,8 +908,8 @@ static void setStoppedState(void)
 
     // 行番号ラベルを設定する
     [debugWindowController setLineNumberLabel:isEnglish ?
-                           nsstr("Next line to be executed:") :
-                           nsstr("次に実行される行番号:")];
+                           @"Next Line to be Executed:" :
+                           @"次に実行される行番号:"];
 
     // 行番号テキストボックスを有効にする
     [debugWindowController enableLineNumberTextField:YES];
@@ -913,8 +919,8 @@ static void setStoppedState(void)
 
     // コマンドラベルを設定する
     [debugWindowController setCommandLabel:isEnglish ?
-                           nsstr("Next command to be executed:") :
-                           nsstr("次に実行されるコマンド:")];
+                           @"Next Command to be Executed:" :
+                           @"次に実行されるコマンド:"];
 
     // コマンドテキストボックスを有効にする
     [debugWindowController enableCommandTextField:YES];

@@ -15,32 +15,32 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Suika2 Pro for Creators" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="Suika2 Pro for Creatorsについて" id="5kV-Vb-QxS">
+                            <menuItem title="About Suika2 Pro for Creators" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-1" id="Exp-CZ-Vem"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Suika2 Pro for Creatorsを非表示" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide Suika2 Pro for Creators" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="ほかを非表示" keyEquivalent="h" id="Vdr-fp-XzO">
+                            <menuItem title="Hide Others" keyEquivalent="h" id="Vdr-fp-XzO">
                                 <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>
                                     <action selector="hideOtherApplications:" target="-1" id="VT4-aY-XCT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="すべてを表示" id="Kd2-mp-pUS">
+                            <menuItem title="Show All" id="Kd2-mp-pUS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="unhideAllApplications:" target="-1" id="Dhg-Le-xox"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                            <menuItem title="Suika2 Pro for Creatorsを終了" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit Suika2 Pro for Creators" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="terminate:" target="-1" id="Te7-pn-YzF"/>
                                 </connections>
@@ -48,18 +48,18 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="ファイル" id="dMs-cI-mzQ">
+                <menuItem title="File" id="dMs-cI-mzQ">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="ファイル" id="bib-Uj-vzu">
+                    <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="スクリプトを開く…" keyEquivalent="o" mirroring="NO" id="IAo-SY-fd9">
+                            <menuItem title="Open Script…" keyEquivalent="o" mirroring="NO" id="IAo-SY-fd9">
                                 <connections>
                                     <action selector="onMenuScriptOpen:" target="-2" id="rek-pf-ZSZ"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="最近使った項目を開く" id="tXI-mr-wws">
+                            <menuItem title="Open Recent" id="tXI-mr-wws">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="最近使った項目を開く" systemMenu="recentDocuments" id="oas-Oc-fiZ">
+                                <menu key="submenu" title="Open Recent" systemMenu="recentDocuments" id="oas-Oc-fiZ">
                                     <items>
                                         <menuItem title="メニューを消去" id="vNY-rz-j42">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -71,7 +71,7 @@
                                 </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="スクリプトを上書き保存する…" keyEquivalent="s" id="pxx-59-PXV">
+                            <menuItem title="Overwrite Script…" keyEquivalent="s" id="pxx-59-PXV">
                                 <connections>
                                     <action selector="onMenuScriptOverwrite:" target="-2" id="dL5-C0-hgh"/>
                                 </connections>
@@ -79,32 +79,32 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="スクリプト" id="Xnv-4q-Vne">
+                <menuItem title="Script" id="Xnv-4q-Vne">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="スクリプト" id="3xf-2b-yxB">
+                    <menu key="submenu" title="Script" id="3xf-2b-yxB">
                         <items>
-                            <menuItem title="続ける" keyEquivalent="r" id="aOM-hV-OJg">
+                            <menuItem title="Resume" keyEquivalent="r" id="aOM-hV-OJg">
                                 <connections>
                                     <action selector="onMenuResume:" target="-2" id="fSQ-lA-VUO"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="次へ" keyEquivalent="n" id="muO-89-8uf">
+                            <menuItem title="Next" keyEquivalent="n" id="muO-89-8uf">
                                 <connections>
                                     <action selector="onMenuNext:" target="-2" id="zlA-iR-EcO"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="停止" keyEquivalent="p" id="37C-jP-LaG">
+                            <menuItem title="Pause" keyEquivalent="p" id="37C-jP-LaG">
                                 <connections>
                                     <action selector="onMenuPause:" target="-2" id="jcL-FY-wwc"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="DWg-C7-L6o"/>
-                            <menuItem title="次のエラー箇所へ移動" keyEquivalent="e" id="tPu-jq-7QC">
+                            <menuItem title="Move to Next Error" keyEquivalent="e" id="tPu-jq-7QC">
                                 <connections>
                                     <action selector="onMenuNextError:" target="-2" id="Bc6-Wz-U95"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="再読み込み" keyEquivalent="l" id="oP0-Ye-yQC">
+                            <menuItem title="Reload" keyEquivalent="l" id="oP0-Ye-yQC">
                                 <connections>
                                     <action selector="onMenuReload:" target="-2" id="TRc-wU-SGn"/>
                                 </connections>
@@ -112,38 +112,26 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="ウィンドウ" id="aUF-d1-5bR">
+                <menuItem title="Window" id="aUF-d1-5bR">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="ウィンドウ" systemMenu="window" id="Td7-aD-5lo">
+                    <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
                         <items>
-                            <menuItem title="最小化する" keyEquivalent="m" id="OY7-WF-poV">
+                            <menuItem title="Minimize" keyEquivalent="m" id="OY7-WF-poV">
                                 <connections>
                                     <action selector="performMiniaturize:" target="-1" id="VwT-WD-YPe"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="ズーム" id="R4o-n2-Eq4">
+                            <menuItem title="Zoom" id="R4o-n2-Eq4">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="performZoom:" target="-1" id="DIl-cC-cCs"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
-                            <menuItem title="最前面にする" id="LE2-aR-0XJ">
+                            <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="arrangeInFront:" target="-1" id="DRN-fu-gQh"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
-                </menuItem>
-                <menuItem title="ヘルプ" id="wpr-3q-Mcd">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="ヘルプ" systemMenu="help" id="F2S-fz-NVQ">
-                        <items>
-                            <menuItem title="バージョン情報" keyEquivalent="?" id="FKE-Sm-Kum">
-                                <connections>
-                                    <action selector="showHelp:" target="-1" id="y7X-2Q-9no"/>
                                 </connections>
                             </menuItem>
                         </items>
