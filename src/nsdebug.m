@@ -179,7 +179,6 @@ static void setStoppedState(void);
     isLineChangePressed = true;
 }
 
-
 //
 // ウィンドウ/ビューの設定/取得
 //

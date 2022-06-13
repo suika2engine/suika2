@@ -2918,7 +2918,7 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 		} else {
 			render_clear(x, y, conf_window_width,
 				     conf_window_height,
-				     make_pixel(0, 0, 0, 0));
+				     make_pixel(0xff, 0, 0, 0));
 		}
 		return;
 	}

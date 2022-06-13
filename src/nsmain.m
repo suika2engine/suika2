@@ -130,7 +130,7 @@ BOOL isControlPressed;
                          isPlanar:NO
                    colorSpaceName:NSDeviceRGBColorSpace
                       bytesPerRow:conf_window_width * 4
-                    bitsPerPixel:32];
+                     bitsPerPixel:32];
         assert(rep != NULL);
 
         // NSImageに変換する
@@ -444,11 +444,12 @@ static BOOL initBackImage(void)
 
     backImage = create_image_with_pixels(conf_window_width, conf_window_height,
                                          (pixel_t *)backImagePixels);
-	if(conf_window_white) {
-        lock_image(backImage);
+    lock_image(backImage);
+	if(conf_window_white)
 		clear_image_white(backImage);
-        unlock_image(backImage);
-    }
+    else
+        clear_image_black(backImage);
+    unlock_image(backImage);
 
     return YES;
 }
