@@ -59,6 +59,8 @@
 		2649E0D62854C239006831C5 /* DebugWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2649E0D52854C239006831C5 /* DebugWindow.xib */; };
 		2649E0D928559C26006831C5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2649E0D828559C26006831C5 /* MainMenu.xib */; };
 		26557B0E26785269000CDD10 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26557B0D26785269000CDD10 /* cmd_setsave.c */; };
+		265EA7CC285732E000A02167 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CB285732E000A02167 /* Credits.rtf */; };
+		265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CD2857372300A02167 /* InfoPlist.strings */; };
 		26616DC926B4CED20094B23C /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
 		268C79C326A56A7000981FB1 /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 268C79C226A56A7000981FB1 /* cmd_chs.c */; };
 		26A1782C25EE5DD0006A1ED4 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F425EE5DD0006A1ED4 /* script.c */; };
@@ -113,6 +115,8 @@
 		2649E0D728558837006831C5 /* nsmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nsmain.h; path = ../../../src/nsmain.h; sourceTree = "<group>"; };
 		2649E0D828559C26006831C5 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainMenu.xib; path = "suika-pro/MainMenu.xib"; sourceTree = SOURCE_ROOT; };
 		26557B0D26785269000CDD10 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../../src/cmd_setsave.c; sourceTree = "<group>"; };
+		265EA7CB285732E000A02167 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Credits.rtf; path = "suika-pro/Credits.rtf"; sourceTree = SOURCE_ROOT; };
+		265EA7CD2857372300A02167 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = "suika-pro/InfoPlist.strings"; sourceTree = SOURCE_ROOT; };
 		26616DC726B4CED20094B23C /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../../src/seen.h; sourceTree = "<group>"; };
 		26616DC826B4CED20094B23C /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../../src/seen.c; sourceTree = "<group>"; };
 		268C79C226A56A7000981FB1 /* cmd_chs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chs.c; path = ../../../src/cmd_chs.c; sourceTree = "<group>"; };
@@ -221,6 +225,8 @@
 				26B8ACE525EE5846005D9C49 /* Assets.xcassets */,
 				2649E0D828559C26006831C5 /* MainMenu.xib */,
 				2649E0D52854C239006831C5 /* DebugWindow.xib */,
+				265EA7CB285732E000A02167 /* Credits.rtf */,
+				265EA7CD2857372300A02167 /* InfoPlist.strings */,
 				26B8ACEA25EE5846005D9C49 /* Info.plist */,
 				2603497A2854B29800037370 /* Info.plist */,
 				26B8ACED25EE5846005D9C49 /* suika.entitlements */,
@@ -374,6 +380,8 @@
 				260349752854B29800037370 /* Assets.xcassets in Resources */,
 				2649E0D62854C239006831C5 /* DebugWindow.xib in Resources */,
 				2649E0D928559C26006831C5 /* MainMenu.xib in Resources */,
+				265EA7CC285732E000A02167 /* Credits.rtf in Resources */,
+				265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
