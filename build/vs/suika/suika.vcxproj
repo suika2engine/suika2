@@ -39,6 +39,7 @@
     <ClInclude Include="..\..\..\src\glyph.h" />
     <ClInclude Include="..\..\..\src\history.h" />
     <ClInclude Include="..\..\..\src\image.h" />
+    <ClInclude Include="..\..\..\src\key.h" />
     <ClInclude Include="..\..\..\src\log.h" />
     <ClInclude Include="..\..\..\src\main.h" />
     <ClInclude Include="..\..\..\src\mixer.h" />

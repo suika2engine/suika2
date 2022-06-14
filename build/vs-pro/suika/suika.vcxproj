@@ -39,9 +39,11 @@
     <ClInclude Include="..\..\..\src\glyph.h" />
     <ClInclude Include="..\..\..\src\history.h" />
     <ClInclude Include="..\..\..\src\image.h" />
+    <ClInclude Include="..\..\..\src\key.h" />
     <ClInclude Include="..\..\..\src\log.h" />
     <ClInclude Include="..\..\..\src\main.h" />
     <ClInclude Include="..\..\..\src\mixer.h" />
+    <ClInclude Include="..\..\..\src\package.h" />
     <ClInclude Include="..\..\..\src\platform.h" />
     <ClInclude Include="..\..\..\src\save.h" />
     <ClInclude Include="..\..\..\src\scbuf.h" />
@@ -101,6 +103,7 @@
     <ClCompile Include="..\..\..\src\main.c" />
     <ClCompile Include="..\..\..\src\mixer.c" />
     <ClCompile Include="..\..\..\src\novec.c" />
+    <ClCompile Include="..\..\..\src\package.c" />
     <ClCompile Include="..\..\..\src\readimage.c" />
     <ClCompile Include="..\..\..\src\save.c" />
     <ClCompile Include="..\..\..\src\scbuf.c" />

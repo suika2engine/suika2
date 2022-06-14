@@ -14,6 +14,10 @@
  *  - 2022/06/14 Move to Suika2 Pro for Creators
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "suika.h"
 #include "package.h"
 
