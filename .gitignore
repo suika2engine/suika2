@@ -1,6 +1,7 @@
 *.DS_Store
 *~
 suika.app
+suika-pro.app
 suika.exe
 suika-pro.exe
 fileserver
@@ -78,6 +79,7 @@ game-jp/sav
 game-en/log.txt
 game-en/sav
 build/release/mac.dmg
+build/release/mac-pro.dmg
 build/release/suika-2.x.x-jp.zip
 build/release/suika-2.x.x-en.zip
 build/emscripten/html
