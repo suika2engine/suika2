@@ -11,42 +11,20 @@
  * [Changes]
  *  - 2016/07/14 Created
  *  - 2022/05/24 Add obfuscation
+ *  - 2022/06/14 Move to Suika2 Pro for Creators
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include "suika.h"
+#include "package.h"
 
-#ifdef _WIN32
+/* Encryption Key */
+#include "key.h"
+
+#ifdef WIN
 #include <windows.h>
 #else
 #include <dirent.h>
 #endif
-
-#include "key.h"
-
-/*
-
-Archive file design
-
-struct header {
-    u64 file_count;
-    struct entry {
-        u8  file_name[256]; // This is encrypted
-        u64 file_size;
-        u64 file_offset;
-    } [file_count];
-};
-u8 file_body[file_count][]; // These are encrypted
-
-*/
-
-/* Maximum number of file entries */
-#define ENTRY_SIZE		(65536)
-
-/* Size of file name */
-#define FILE_NAME_SIZE		(256)
 
 /* Size of file count which is written at top of an archive */
 #define FILE_COUNT_BYTES	(8)
@@ -54,60 +32,78 @@ u8 file_body[file_count][]; // These are encrypted
 /* Size of file entry */
 #define ENTRY_BYTES		(256 + 8 + 8)
 
-/* Package file name */
-#define PACKAGE_FILE_NAME	"data01.arc"
-
 /* Directory names */
 const char *dir_names[] = {
 	"bg", "bgm", "ch", "cg", "cv", "conf", "font", "se", "txt"
 };
 
 /* Size of directory names */
-#define DIR_COUNT	(sizeof(dir_names) / sizeof(const char *))
+#define DIR_COUNT	((int)(sizeof(dir_names) / sizeof(const char *)))
 
 /* File entry */
-struct entry {
-	/* File name */
-	char name[FILE_NAME_SIZE];
-
-	/* File size */
-	uint64_t size;
-
-	/* File offset in archive file */
-	uint64_t offset;
-} entry[ENTRY_SIZE];
+struct file_entry entry[FILE_ENTRY_SIZE];
 
 /* File count */
-uint64_t file_count;
+static uint64_t file_count;
 
 /* Current processing file's offset in archive file */
-uint64_t offset;
+static uint64_t offset;
 
 /* Next random number. */
-uint64_t next_random;
+static uint64_t next_random;
 
 /* forward declaration */
-bool write_file_entries(FILE *fp);
-bool write_file_bodies(FILE *fp);
-void set_random_seed(uint64_t index);
-char get_next_random(void);
+static bool get_file_names(const char *base_dir, const char *dir);
+static bool get_file_sizes(const char *base_dir);
+static bool write_archive_file(const char *base_dir);
+static bool write_file_entries(FILE *fp);
+static bool write_file_bodies(const char *base_dir, FILE *fp);
+static void set_random_seed(uint64_t index);
+static char get_next_random(void);
 
-#ifdef _WIN32
 /*
- * Get file list in directory(for Windows)
+ * Create package.
  */
-bool get_file_names(const char *dir)
+bool create_package(const char *base_dir)
+{
+	int i;
+
+	file_count = 0;
+	offset = 0;
+	next_random = 0;
+
+	/* Get list of files. */
+	for (i = 0; i < DIR_COUNT; i++)
+		if (!get_file_names(base_dir, dir_names[i]))
+			return false;
+
+	/* Get all file sizes and decide all offsets in archive. */
+	if (!get_file_sizes(base_dir))
+		return false;
+
+	/* Write archive file. */
+	if (!write_archive_file(base_dir))
+		return false;
+
+	return true;
+}
+
+#ifdef WIN
+/* Get file list in directory (for Windows) */
+static bool get_file_names(const char *base_dir, const char *dir)
 {
     char path[256];
     HANDLE hFind;
     WIN32_FIND_DATA wfd;
+
+    UNUSED_PARAMETER(base_dir);
 
     /* Get directory content. */
     snprintf(path, sizeof(path), "%s\\*.*", dir);
     hFind = FindFirstFile(path, &wfd);
     if(hFind == INVALID_HANDLE_VALUE)
     {
-        printf("Directory %s not found.\n", dir);
+        log_dir_not_found(dir);
         return false;
     }
     do
@@ -116,42 +112,44 @@ bool get_file_names(const char *dir)
         {
             snprintf(entry[file_count].name, FILE_NAME_SIZE,
                      "%s/%s", dir, wfd.cFileName);
-            printf("  %s\n", entry[file_count].name);
             file_count++;
 	}
-    } while (FindNextFile(hFind, &wfd));
+    } while(FindNextFile(hFind, &wfd));
 
     FindClose(hFind);
     return true;
 }
 #else
-/*
- * Get directory file list(for UNIX)
- */
-bool get_file_names(const char *dir)
+/* Get directory file list (for Mac) */
+static bool get_file_names(const char *base_dir, const char *dir)
 {
-	char path[FILE_NAME_SIZE];
+	char abspath[1024];
 	struct dirent **names;
 	int i, count;
 
+	/* Make path. */
+	snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, dir);
+
 	/* Get directory content. */
-	count = scandir(dir, &names, NULL, alphasort);
+	count = scandir(abspath, &names, NULL, alphasort);
 	if (count < 0) {
-		printf("Directory %s not found.\n", dir);
+		log_dir_not_found(dir);
 		return false;
 	}
-	if (count > ENTRY_SIZE) {
-		printf("Too many files.");
-		return false;	/* Intentional memory leak. */
+	if (count > FILE_ENTRY_SIZE) {
+		log_too_many_files();
+		for (i = 0; i < count; i++)
+			free(names[i]);
+		free(names);
+		return false;
 	}
 	for (i = 0; i < count; i++) {
-		if (names[i]->d_name[0] == '.')
+		if (names[i]->d_name[0] == '.') {
+			free(names[i]);
 			continue;
-
-		snprintf(entry[file_count].name, FILE_NAME_SIZE,
-			 "%s/%s", dir, names[i]->d_name);
-
-		printf("  %s\n", entry[file_count].name);
+		}
+		snprintf(entry[file_count].name, FILE_NAME_SIZE, "%s/%s", dir,
+			 names[i]->d_name);
 		free(names[i]);
 		file_count++;
 	}
@@ -160,33 +158,35 @@ bool get_file_names(const char *dir)
 }
 #endif
 
-/*
- * Get sizes of each files.
- */
-bool get_file_sizes(void)
+/* Get sizes of each files. */
+static bool get_file_sizes(const char *base_dir)
 {
-	uint64_t i;
 	FILE *fp;
+	uint64_t i;
 
 	/* Get each file size, and calc offsets. */
 	offset = FILE_COUNT_BYTES + ENTRY_BYTES * file_count;
 	for (i = 0; i < file_count; i++) {
-#ifdef _WIN32
+#ifdef WIN
+		UNUSED_PARAMETER(base_dir);
 		char *path = strdup(entry[i].name);
 		*strchr(path, '/') = '\\';
 		fp = fopen(path, "rb");
 #else
-		fp = fopen(entry[i].name, "r");
+		char abspath[1024];
+		snprintf(abspath, sizeof(abspath), "%s/%s", base_dir,
+			 entry[i].name);
+		fp = fopen(abspath, "r");
 #endif
 		if (fp == NULL) {
-			printf("Can't open file %s\n", entry[i].name);
+			log_file_open(entry[i].name);
 			return false;
 		}
 		fseek(fp, 0, SEEK_END);
-		entry[i].size = ftell(fp);
+		entry[i].size = (uint64_t)ftell(fp);
 		entry[i].offset = offset;
 		fclose(fp);
-#ifdef _WIN32
+#ifdef WIN
 		free(path);
 #endif
 		offset += entry[i].size;
@@ -194,17 +194,22 @@ bool get_file_sizes(void)
 	return true;
 }
 
-/*
- * Write archive file.
- */
-bool write_archive_file(void)
+/* Write archive file. */
+static bool write_archive_file(const char *base_dir)
 {
 	FILE *fp;
 	bool success;
 
-	fp = fopen(PACKAGE_FILE_NAME, "wb");
+#ifdef WIN
+	fp = fopen(PACKAGE_FILE, "wb");
+	UNUSED_PARAMETER(base_dir);
+#else
+	char abspath[1024];
+	snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, PACKAGE_FILE);
+	fp = fopen(abspath, "wb");
+#endif
 	if (fp == NULL) {
-		printf("Can't open %s\n", PACKAGE_FILE_NAME);
+		log_file_open(PACKAGE_FILE);
 		return false;
 	}
 
@@ -214,15 +219,19 @@ bool write_archive_file(void)
 			break;
 		if (!write_file_entries(fp))
 			break;
-		if (!write_file_bodies(fp))
+		if (!write_file_bodies(base_dir, fp))
 			break;
+		success = true;
 	} while (0);
+
+	if (!success)
+		log_file_write(PACKAGE_FILE);
 
 	return true;
 }
 
 /* Write file entries. */
-bool write_file_entries(FILE *fp)
+static bool write_file_entries(FILE *fp)
 {
 	char xor[FILE_NAME_SIZE];
 	uint64_t i;
@@ -243,10 +252,8 @@ bool write_file_entries(FILE *fp)
 	return true;
 }
 
-/*
- * Write file bodies.
- */
-bool write_file_bodies(FILE *fp)
+/* Write file bodies. */
+static bool write_file_bodies(const char *base_dir, FILE *fp)
 {
 	char buf[8192];
 	FILE *fpin;
@@ -254,15 +261,19 @@ bool write_file_bodies(FILE *fp)
 	size_t len, obf;
 
 	for (i = 0; i < file_count; i++) {
-#ifdef _WIN32
+#ifdef WIN
 		char *path = strdup(entry[i].name);
 		*strchr(path, '/') = '\\';
 		fpin = fopen(path, "rb");
+		UNUSED_PARAMETER(base_dir);
 #else
-		fpin = fopen(entry[i].name, "rb");
+		char abspath[1024];
+		snprintf(abspath, sizeof(abspath), "%s/%s", base_dir,
+			 entry[i].name);
+		fpin = fopen(abspath, "rb");
 #endif
 		if (fpin == NULL) {
-			printf("Can't open %s\n", entry[i].name);
+			log_file_open(entry[i].name);
 			return false;
 		}
 		set_random_seed(i);
@@ -271,8 +282,10 @@ bool write_file_bodies(FILE *fp)
 			if (len > 0) {
 				for (obf = 0; obf < len; obf++)
 					buf[obf] ^= get_next_random();
-				if (fwrite(buf, len, 1, fp) < 1)
+				if (fwrite(buf, len, 1, fp) < 1) {
+					log_file_write(entry[i].name);
 					return false;
+				}
 			}
 		} while (len == sizeof(buf));
 #ifdef _WIN32
@@ -284,7 +297,7 @@ bool write_file_bodies(FILE *fp)
 }
 
 /* Set random seed. */
-void set_random_seed(uint64_t index)
+static void set_random_seed(uint64_t index)
 {
 	uint64_t i, lsb;
 
@@ -308,30 +321,4 @@ char get_next_random(void)
 		      0xfcbfaff8f2f4f3f0;
 
 	return ret;
-}
-
-int main(int argc, char *argv[])
-{
-	int i;
-
-	printf("Hello, this is Suika2's packager.\n");
-
-	/* Get list of files. */
-	printf("Searching files...\n");
-	for (i = 0; i < DIR_COUNT; i++)
-		if (!get_file_names(dir_names[i]))
-			return 1;
-
-	/* Get all file sizes and decide all offsets in archive. */
-	printf("Checking file sizes...\n");
-	if (!get_file_sizes())
-		return 1;
-
-	/* Write archive file. */
-	printf("Writing archive files...\n");
-	if (!write_archive_file())
-		return 1;
-
-	printf("Done.\n");
-	return 0;
 }

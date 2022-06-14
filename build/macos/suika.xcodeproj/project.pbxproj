@@ -62,6 +62,7 @@
 		26616DC926B4CED20094B23C /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
 		2679EC7928575DA000C20499 /* DebugWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7B28575DA000C20499 /* DebugWindow.xib */; };
 		2679EC7C28575DC200C20499 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7E28575DC200C20499 /* MainMenu.xib */; };
+		2679EC85285813B000C20499 /* package.c in Sources */ = {isa = PBXBuildFile; fileRef = 2679EC84285813B000C20499 /* package.c */; };
 		268C79C326A56A7000981FB1 /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 268C79C226A56A7000981FB1 /* cmd_chs.c */; };
 		26A1782C25EE5DD0006A1ED4 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F425EE5DD0006A1ED4 /* script.c */; };
 		26A1782D25EE5DD0006A1ED4 /* nsmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F625EE5DD0006A1ED4 /* nsmain.m */; };
@@ -120,7 +121,10 @@
 		2679EC7A28575DA000C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DebugWindow.xib; sourceTree = "<group>"; };
 		2679EC7D28575DC200C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2679EC8028575DD100C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/DebugWindow.strings; sourceTree = "<group>"; };
-		2679EC8328575E8C00C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		2679EC84285813B000C20499 /* package.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = package.c; path = ../../../src/package.c; sourceTree = "<group>"; };
+		2679EC8B2858242200C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		2679EC8C2858258600C20499 /* key.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = key.h; path = ../../../src/key.h; sourceTree = "<group>"; };
+		2679EC8D285825A800C20499 /* package.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = package.h; path = ../../../src/package.h; sourceTree = "<group>"; };
 		268C79C226A56A7000981FB1 /* cmd_chs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chs.c; path = ../../../src/cmd_chs.c; sourceTree = "<group>"; };
 		26A177F425EE5DD0006A1ED4 /* script.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = script.c; path = ../../../src/script.c; sourceTree = "<group>"; };
 		26A177F525EE5DD0006A1ED4 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = main.h; path = ../../../src/main.h; sourceTree = "<group>"; };
@@ -272,6 +276,7 @@
 				26A1781625EE5DD0006A1ED4 /* history.h */,
 				26A1781225EE5DD0006A1ED4 /* image.c */,
 				26A1781D25EE5DD0006A1ED4 /* image.h */,
+				2679EC8C2858258600C20499 /* key.h */,
 				26A1782425EE5DD0006A1ED4 /* log.c */,
 				26A1781125EE5DD0006A1ED4 /* log.h */,
 				26A177F725EE5DD0006A1ED4 /* main.c */,
@@ -283,6 +288,8 @@
 				2603497B2854B5FF00037370 /* nsdebug.h */,
 				26A177F625EE5DD0006A1ED4 /* nsmain.m */,
 				2649E0D728558837006831C5 /* nsmain.h */,
+				2679EC84285813B000C20499 /* package.c */,
+				2679EC8D285825A800C20499 /* package.h */,
 				26A177FE25EE5DD0006A1ED4 /* platform.h */,
 				26A1780025EE5DD0006A1ED4 /* readimage.c */,
 				26A1781925EE5DD0006A1ED4 /* save.c */,
@@ -408,6 +415,7 @@
 				2603494A2854B29800037370 /* script.c in Sources */,
 				2603494B2854B29800037370 /* scbuf.c in Sources */,
 				2603494C2854B29800037370 /* cmd_wait.c in Sources */,
+				2679EC85285813B000C20499 /* package.c in Sources */,
 				2603494D2854B29800037370 /* vars.c in Sources */,
 				2603494E2854B29800037370 /* glyph.c in Sources */,
 				2603494F2854B29800037370 /* cmd_vol.c in Sources */,
@@ -517,7 +525,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				2679EC7D28575DC200C20499 /* Base */,
-				2679EC8328575E8C00C20499 /* ja */,
+				2679EC8B2858242200C20499 /* ja */,
 			);
 			name = MainMenu.xib;
 			path = "suika-pro";

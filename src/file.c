@@ -16,30 +16,8 @@
 
 #include "suika.h"
 
-/* 暗号化キー */
-#include "../tool/key.h"
-
-/*
-
-Archive file design
-
-struct header {
-    u64 file_count;
-    struct entry {
-        u8  file_name[256]; // This is encrypted
-        u64 file_size;
-        u64 file_offset;
-    } [file_count];
-};
-u8 file_body[file_count][]; // These are encrypted
-
-*/
-
-/* パッケージ内のファイルエントリの最大数 */
-#define ENTRY_SIZE		(65536)
-
-/* パッケージ内のファイル名のサイズ */
-#define FILE_NAME_SIZE		(256)
+/* Encryption Key */
+#include "key.h"
 
 /* ファイル読み込みストリーム */
 struct rfile {
@@ -64,11 +42,7 @@ struct wfile {
 };
 
 /* パッケージのファイルエントリ */
-static struct file_entry {
-	char name[FILE_NAME_SIZE];
-	uint64_t size;
-	uint64_t offset;
-} entry[ENTRY_SIZE];
+static struct file_entry entry[FILE_ENTRY_SIZE];
 
 /* パッケージのファイルエントリ数 */
 static uint64_t entry_count;
@@ -127,7 +101,7 @@ bool init_file(void)
 		fclose(fp);
 		return false;
 	}
-	if (entry_count > ENTRY_SIZE) {
+	if (entry_count > FILE_ENTRY_SIZE) {
 		log_package_file_error();
 		fclose(fp);
 		return false;

@@ -25,7 +25,7 @@
 	"Suika2 Pro for Creators\n" \
 	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n" \
 	"\n" \
-	"Contributors:\n" \
+	"Developers:\n" \
 	"TABATA Keiichi (Programmer)\n" \
 	"MATSUNO Seiji (Supervisor)\n"
 

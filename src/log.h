@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -14,6 +14,7 @@
  *  - 2021/06/12 @shakeの移動タイプ名エラーを追加
  *  - 2021/06/15 @setsaveのパラメタのエラーを追加
  *  - 2021/07/07 @goto $SAVEのエラーを追加
+ *  - 2022/06/14 Suika2 Pro for Creators
  */
 
 #ifndef SUIKA_LOG_H
@@ -63,10 +64,13 @@ void log_script_shake_move(const char *move);
 void log_script_enable_disable(const char *param);
 void log_script_final_command(void);
 void log_video_error(const char *reason);
+void log_file_write(const char *file);
 
 #ifdef USE_DEBUGGER
 void log_command_update_error(void);
 void log_script_line_size(void);
+void log_dir_not_found(const char *dir);
+void log_too_many_files(void);
 #endif
 
 #endif

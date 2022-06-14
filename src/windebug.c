@@ -18,6 +18,7 @@
 
 #include "suika.h"
 #include "windebug.h"
+#include "package.h"
 #include "resource.h"
 
 #include <commctrl.h>
@@ -94,6 +95,7 @@ static VOID OnPressReset(void);
 static VOID OnPressSave(void);
 static VOID OnPressError(void);
 static VOID OnPressWriteVars(void);
+static VOID OnExportPackage(void);
 static VOID UpdateVariableTextBox(void);
 static const char *ConvNativeToUtf8(const char *lpszNativeMessage);
 
@@ -152,10 +154,17 @@ VOID InitMenu(HWND hWnd)
 		"スクリプトを上書き保存する(&S)\tAlt+S";
 	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
 
+	/* パッケージをエクスポートする(X)を作成する */
+	mi.wID = ID_EXPORT;
+	mi.dwTypeData = bEnglish ?
+		"Export package(&X)" :
+		"パッケージをエクスポートする(&X)";
+	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
+
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? "Quit(&Q)\tAlt+Q" : "終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 3, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
@@ -714,6 +723,9 @@ LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
 		case ID_WRITE:
 			OnPressWriteVars();
 			break;
+		case ID_EXPORT:
+			OnExportPackage();
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -789,7 +801,7 @@ static VOID OnPressSave(void)
 	if(strcmp(scr, "DEBUG") == 0)
 		return;
 
-	if (MessageBox(hWndMain, bEnglish  ?
+	if (MessageBox(hWndMain, bEnglish ?
 				   "Are you sure you want to overwrite the script file?" :
 				   "スクリプトファイルを上書き保存します。\n"
 				   "よろしいですか？",
@@ -913,6 +925,26 @@ static VOID OnPressWriteVars(void)
 	}
 
 	UpdateVariableTextBox();
+}
+
+/* パッケージを作成メニューが押下されたときの処理を行う */
+VOID OnExportPackage(void)
+{
+	if (MessageBox(hWndMain, bEnglish ?
+				   "Are you sure you want to export the package file?\n"
+				   "This may take a while." :
+				   "パッケージをエクスポートします。\n"
+				   "この処理には時間がかかります。\n"
+				   "よろしいですか？",
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	/* パッケージを作成する */
+	if (create_package(NULL)) {
+		log_info(bEnglish ?
+				 "Successfully exported data01.arc" :
+				 "data01.arcのエクスポートに成功しました。");
+	}
 }
 
 /* 変数の情報を更新する */
@@ -1176,6 +1208,9 @@ void set_running_state(bool running, bool request_stop)
 		/* 上書き保存メニューを無効にする */
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 
+		/* エクスポートメニューを無効にする */
+		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
+
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 
@@ -1273,6 +1308,9 @@ void set_running_state(bool running, bool request_stop)
 		/* 上書き保存メニューを無効にする */
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 
+		/* エクスポートメニューを無効にする */
+		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
+
 		/* 続けるメニューを無効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 
@@ -1367,6 +1405,9 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 上書き保存メニューを有効にする */
 		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
+
+		/* エクスポートメニューを有効にする */
+		EnableMenuItem(hMenu, ID_EXPORT, MF_ENABLED);
 
 		/* 続けるメニューを有効にする */
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);

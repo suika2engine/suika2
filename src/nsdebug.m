@@ -15,6 +15,7 @@
 #import <string.h>
 #import "suika.h"
 #import "nsdebug.h"
+#import "package.h"
 
 // デバッグウィンドウのコントローラ
 static DebugWindowController *debugWindowController;
@@ -325,6 +326,22 @@ static void setStoppedState(void);
 // 再読み込みが押下されたイベント
 - (IBAction)onMenuReload:(id)sender {
     [self onReloadButton:sender];
+}
+
+// パッケージのエクスポートが押下されたイベント
+- (IBAction)onMenuExportPackage:(id)sender {
+    // .appバンドルのパスを取得する
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+
+    // .appバンドルの1つ上のディレクトリのパスを取得する
+    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+
+    // パッケージを作成する
+    if (create_package([basePath UTF8String])) {
+        log_info(isEnglish ?
+                 "Successfully exported data01.arc" :
+                 "data01.arcのエクスポートに成功しました。");
+    }
 }
 
 //
@@ -798,6 +815,10 @@ static void setWaitingState(void)
     [[[[[NSApp mainMenu]
            itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
 
+    // パッケージエクスポートメニューを無効にする
+    [[[[[NSApp mainMenu]
+           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
+
     // 続けるメニューを無効にする
     [[[[[NSApp mainMenu]
            itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
@@ -902,6 +923,10 @@ static void setRunningState(void)
     [[[[[NSApp mainMenu]
            itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
 
+    // パッケージエクスポートメニューを無効にする
+    [[[[[NSApp mainMenu]
+           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
+
     // 続けるメニューを無効にする
     [[[[[NSApp mainMenu]
            itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
@@ -1005,6 +1030,10 @@ static void setStoppedState(void)
     // 上書き保存メニューを有効にする
     [[[[[NSApp mainMenu]
            itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
+
+    // パッケージエクスポートメニューを有効にする
+    [[[[[NSApp mainMenu]
+           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:YES];
 
     // 続けるメニューを有効にする
     [[[[[NSApp mainMenu]

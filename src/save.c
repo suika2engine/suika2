@@ -792,6 +792,9 @@ static bool serialize_all(const char *fname, uint64_t *timestamp)
 	/* 時刻を保存する */
 	*timestamp = t;
 
+	if (!success)
+		log_file_write(fname);
+
 	return success;
 }
 

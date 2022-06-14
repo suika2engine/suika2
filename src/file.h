@@ -16,6 +16,49 @@
 #include "types.h"
 
 /*
+ * [Archive File Design]
+ * 
+ * struct header {
+ *     u64 file_count;
+ *     struct file_entry {
+ *         u8  file_name[256]; // Encrypted
+ *         u64 file_size;
+ *         u64 file_offset;
+ *     } [file_count];
+ * };
+ * u8 file_body[file_count][file_length]; // Encrypted
+ */
+
+/*
+ * パッケージファイル名
+ */
+#define PACKAGE_FILE		"data01.arc"
+
+/*
+ * パッケージ内のファイルエントリの最大数
+ */
+#define FILE_ENTRY_SIZE		(65536)
+
+/*
+ * パッケージ内のファイル名のサイズ
+ */
+#define FILE_NAME_SIZE		(256)
+
+/*
+ * パッケージ内のファイルエントリ
+ */
+struct file_entry {
+	/* ファイル名 */
+	char name[FILE_NAME_SIZE];
+
+	/* ファイルサイズ */
+	uint64_t size;
+
+	/* パッケージ内のファイルオフセット */
+	uint64_t offset;
+};
+
+/*
  * ファイル読み込みストリーム
  */
 struct rfile;

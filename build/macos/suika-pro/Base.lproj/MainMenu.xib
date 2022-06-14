@@ -76,6 +76,12 @@
                                     <action selector="onMenuScriptOverwrite:" target="-2" id="dL5-C0-hgh"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Export Package" tag="107" id="anQ-dO-GI5">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="onMenuExportPackage:" target="-2" id="tVJ-6b-ZNW"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

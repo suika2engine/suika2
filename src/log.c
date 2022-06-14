@@ -15,6 +15,7 @@
  *  - 2021/06/12 @shakeの移動タイプ名エラーを追加
  *  - 2021/06/15 @setsaveのパラメタのエラーを追加
  *  - 2021/07/07 @goto $SAVEのエラーを追加
+ *  - 2022/06/14 Suika2 Pro for Creators
  */
 
 #include <stddef.h>
@@ -608,6 +609,17 @@ void log_video_error(const char *reason)
 	}
 }
 
+/*
+ * ファイルの書き込みに失敗した際のエラーを記録する
+ */
+void log_file_write(const char *file)
+{
+	if (is_english_mode())
+		log_info("Cannot write to \'%s\'.", file);
+	else
+		log_info("\'%s\'へ書き込みできません。", file);
+}
+
 #ifdef USE_DEBUGGER
 /*
  * コマンドのアップデートに失敗した際のエラーを記録する
@@ -634,5 +646,27 @@ void log_script_line_size(void)
 		log_info("Too many lines in script.");
 	else
 		log_info("スクリプトの行数が大きすぎます。");
+}
+
+/*
+ * ディレクトリがみつからない際のエラーを記録する
+ */
+void log_dir_not_found(const char *dir)
+{
+	if (is_english_mode())
+		log_info("Folder \'%s\' not found.", dir);
+	else
+		log_info("フォルダ\'%s\'がみつかりません。", dir);
+}
+
+/*
+ * パッケージするファイルの数が多すぎる際のエラーを記録する
+ */
+void log_too_many_files(void)
+{
+	if (is_english_mode())
+		log_info("Too many files to package.");
+	else
+		log_info("パッケージするファイル数が多すぎます。");
 }
 #endif
