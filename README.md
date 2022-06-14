@@ -20,7 +20,7 @@ If you want to port Suika2 to a new target platform, it is only necessary to wri
 
 ## Suika2 Pro for Creators
 
-`Suika2 Pro for Creators` is a visual debugger for Windows.
+`Suika2 Pro for Creators` is a visual development tool for Windows and Mac.
 
 ## Contribution
 
