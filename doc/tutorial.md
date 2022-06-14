@@ -258,8 +258,8 @@ Suika2 will show "moved to second.txt" after "inside init.txt".
 We can create a single package file to contain scripts, images, sounds and so
 on. Follow these steps:
 
-1. Move `package-win.exe` from the `tool` folder into the folder where `suika.exe` exists.
-2. Double click `package-win.exe`. It will create a file, `data01.arc`.
+1. Double click `suika-pro.exe`. `Suika2 Pro for Creators` will open.
+2. Click `File` in the menu, then click `Export package`. It will create a file, `data01.arc`.
 3. We should only distribute `suika.exe` and `data01.arc`.
 
 When we have both the package and a normal file, Suika2 uses the normal file.
