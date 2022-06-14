@@ -3,7 +3,7 @@ SIGNATURE="Developer ID Application: Keiichi TABATA"
 
 all: suika-2.x.x-en.zip suika-2.x.x-jp.zip
 
-suika-2.x.x-en.zip: ../../suika.exe mac.dmg
+suika-2.x.x-en.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	rm -rf suika2 suika-2.x.x-en.zip
 	mkdir suika2
 	mkdir suika2/bg
@@ -22,9 +22,6 @@ suika-2.x.x-en.zip: ../../suika.exe mac.dmg
 	cp -Rv ../../game-en/font/* suika2/font/
 	mkdir suika2/se
 	cp -Rv ../../game-en/se/* suika2/se/
-	mkdir suika2/tool
-	cp -v ../../tool/package-win.exe suika2/tool/
-	cp -v ../../tool/package-mac suika2/tool/
 	mkdir suika2/txt
 	cp -Rv ../../game-en/txt/* suika2/txt/
 	cp -v ../../COPYING suika2/
@@ -32,6 +29,7 @@ suika-2.x.x-en.zip: ../../suika.exe mac.dmg
 	cp -v ../../suika.exe suika2/
 	cp -v ../../suika-pro.exe suika2/
 	cp -v mac.dmg suika2/
+	cp -v mac-pro.dmg suika2/
 	zip -r suika-2.x.x-en.zip suika2
 	rm -rf suika2
 
@@ -54,9 +52,6 @@ suika-2.x.x-jp.zip: ../../suika.exe mac.dmg
 	cp -Rv ../../game-jp/font/* suika2/font/
 	mkdir suika2/se
 	cp -Rv ../../game-jp/se/* suika2/se/
-	mkdir suika2/tool
-	cp -v ../../tool/package-win.exe suika2/tool/
-	cp -v ../../tool/package-mac suika2/tool/
 	mkdir suika2/txt
 	cp -Rv ../../game-jp/txt/* suika2/txt/
 	cp -v ../../COPYING suika2/
@@ -64,6 +59,7 @@ suika-2.x.x-jp.zip: ../../suika.exe mac.dmg
 	cp -v ../../suika.exe suika2/
 	cp -v ../../suika-pro.exe suika2/
 	cp -v mac.dmg suika2/
+	cp -v mac-pro.dmg suika2/
 	zip -r suika-2.x.x-jp.zip suika2
 	rm -rf suika2
 
@@ -75,5 +71,13 @@ mac.dmg: ../../suika.app
 	codesign --sign $(SIGNATURE) mac.dmg
 	rm -rf tmp
 
+mac-pro.dmg: ../../suika-pro.app
+	rm -rf tmp mac-pro.dmg
+	mkdir tmp
+	cp -Rv ../../suika-pro.app tmp/
+	hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-pro-mac mac-pro.dmg
+	codesign --sign $(SIGNATURE) mac-pro.dmg
+	rm -rf tmp
+
 clean:
-	rm -rf suika2 suika-2.x.x-en.zip suika-2.x.x-jp.zip mac.dmg
+	rm -rf suika2 suika-2.x.x-en.zip suika-2.x.x-jp.zip mac.dmg mac-pro.dmg
