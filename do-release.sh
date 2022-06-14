@@ -19,8 +19,9 @@ echo "Checking for symbolic link to ftp local directory."
 echo "Waiting for Mac app. (press return)"
 read str
 
-echo "Checking for Mac app."
+echo "Checking for Mac apps."
 [ -d suika.app ]
+[ -d suika-pro.app ]
 
 echo "Building suika.exe"
 cd build/mingw
