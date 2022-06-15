@@ -1,0 +1,16 @@
+name: suika-mac
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode
+      run: sudo xcode-select -s '/Applications/Xcode_13.1.app/Contentes/Developer'
+    - name: Build
+      run: |
+        cd build/macos
+	./build-libs.sh
+	xcodebuild -target suika
