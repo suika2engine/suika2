@@ -4,6 +4,8 @@
 `Suika2` is a portable visual novel game engine that runs on Windows, Mac, iOS and Android.
 You can produce impressive visual novels using `Suika2` - and have fun doing it too!
 
+[Join our Discord server!](https://discord.gg/ZmvXxE8GFg)
+
 ## Demo
 
 [Click HERE to start Web demo.](https://suika2.com/game-en/)
