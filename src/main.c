@@ -386,6 +386,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		break;
 	case COMMAND_SWITCH:
 	case COMMAND_NEWS:
+	case COMMAND_CHOOSE:
 		if (!switch_command(x, y, w, h))
 			return false;
 		break;

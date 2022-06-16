@@ -610,6 +610,28 @@ void log_video_error(const char *reason)
 }
 
 /*
+ * 選択肢コマンドの引数が足りないエラーを記録する
+ */	
+void log_script_choose_no_message(void)
+{
+	if (is_english_mode())
+		log_info("Too few arguments.");
+	else
+		log_info("選択肢の指定が足りません。");
+}
+
+/*
+ * コマンドの引数に空文字列""が指定されたエラーを記録する
+ */
+void log_script_empty_string(void)
+{
+	if (is_english_mode())
+		log_info("Empty string \"\" is not allowed.");
+	else
+		log_info("空文字列\"\"は利用できません。");
+}
+
+/*
  * ファイルの書き込みに失敗した際のエラーを記録する
  */
 void log_file_write(const char *file)

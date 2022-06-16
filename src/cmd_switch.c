@@ -26,6 +26,8 @@
 #define PARENT_MESSAGE(n)	(SWITCH_PARAM_PARENT_M1 + n)
 #define CHILD_LABEL(p,c)	(SWITCH_PARAM_CHILD1_L1 + 16 * p + 2 * c)
 #define CHILD_MESSAGE(p,c)	(SWITCH_PARAM_CHILD1_M1 + 16 * p + 2 * c)
+#define CHOOSE_LABEL(n)		(CHOOSE_PARAM_LABEL1 + n * 2)
+#define CHOOSE_MESSAGE(n)	(CHOOSE_PARAM_LABEL1 + n * 2 + 1)
 
 /* NEWSコマンド時のswitchボックス開始オフセット */
 #define SWITCH_BASE	(4)
@@ -72,6 +74,7 @@ static int pointed_child_index;
 
 /* 前方参照 */
 static bool init(void);
+static bool get_choose_info(void);
 static bool get_parents_info(void);
 static bool get_children_info(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
@@ -141,13 +144,19 @@ bool init(void)
 	pointed_child_index = -1;
 	is_child_first_frame = false;
 
-	/* 親選択肢の情報を取得する */
-	if (!get_parents_info())
-		return false;
+	if (get_command_type() == COMMAND_CHOOSE) {
+		/* @chooseコマンドの引数情報を取得する */
+		if (!get_choose_info())
+			return false;
+	} else {
+		/* 親選択肢の情報を取得する */
+		if (!get_parents_info())
+			return false;
 
-	/* 子選択肢の情報を取得する */
-	if (!get_children_info())
-		return false;
+		/* 子選択肢の情報を取得する */
+		if (!get_children_info())
+			return false;
+	}
 
 	/* 名前ボックス、メッセージボックスを非表示にする */
 	show_namebox(false);
@@ -160,6 +169,45 @@ bool init(void)
 	/* スキップモードを終了する */
 	if (is_skip_mode())
 		stop_skip_mode();
+
+	return true;
+}
+
+/* @chooseコマンドの引数情報を取得する */
+static bool get_choose_info(void)
+{
+	const char *label, *msg;
+	int i;
+
+	memset(parent_button, 0, sizeof(parent_button));
+	memset(child_button, 0, sizeof(child_button));
+
+	/* 選択肢の情報を取得する */
+	for (i = 0; i < PARENT_COUNT; i++) {
+		/* ラベルを取得する */
+		label = get_string_param(CHOOSE_LABEL(i));
+		if (strcmp(label, "") == 0)
+			break;
+
+		/* メッセージを取得する */
+		msg = get_string_param(CHOOSE_MESSAGE(i));
+		if (strcmp(msg, "") == 0) {
+			log_script_choose_no_message();
+			break;
+		}
+
+		/* ボタンの情報を保存する */
+		parent_button[i].msg = msg;
+		parent_button[i].label = label;
+		parent_button[i].has_child = false;
+		parent_button[i].child_count = 0;
+
+		/* 座標を計算する */
+		get_switch_rect(i, &parent_button[i].x,
+				&parent_button[i].y,
+				&parent_button[i].w,
+				&parent_button[i].h);
+	}
 
 	return true;
 }
@@ -191,7 +239,7 @@ static bool get_parents_info(void)
 		/* メッセージを保存する */
 		parent_button[i].msg = p;
 
-		/* ラベルがなければならない We must have a label */
+		/* ラベルがなければならない */
 		p = get_string_param(CHILD_LABEL(i, 0));
 		if (strcmp(p, "*") == 0 || strcmp(p, "") == 0) {
 			log_script_switch_no_label();

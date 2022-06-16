@@ -25,6 +25,7 @@
  *  - 2022/05/11 @videoに対応
  *  - 2022/06/05 @skipに対応
  *  - 2022/06/06 デバッガに対応
+ *  - 2022/06/17 @chooseに対応
  */
 
 #ifdef _MSC_VER
@@ -100,6 +101,7 @@ struct insn_item {
 	{"@chs", COMMAND_CHS, 4, 7},
 	{"@video", COMMAND_VIDEO, 1, 1},
 	{"@skip", COMMAND_SKIP, 1, 1},
+	{"@choose", COMMAND_CHOOSE, 2, 16},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))
@@ -706,6 +708,19 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 	/* 2番目以降のトークンを取得する */
 	i = 1;
 	while ((tp = strtok_escape(NULL))  != NULL && i < PARAM_SIZE) {
+		if (strcmp(tp, "") == 0) {
+			log_script_empty_string();
+#ifdef USE_DEBUGGER
+			is_parse_error = true;
+			cmd[index].text[0] = '!';
+			set_error_command(index, cmd[index].text);
+			if(error_count++ == 0)
+				log_command_update_error();
+#else
+			log_script_parse_footer(file, line, buf);
+#endif
+			return false;
+		}
 		c->param[i] = tp;
 		i++;
 	}
@@ -772,7 +787,7 @@ static char *strtok_escape(char *buf)
 		return result;
 	}
 	
-	/* エスケーブされていない場合 */
+	/* エスケープされていない場合 */
 	result = top;
 	for (; *top != '\0' && *top != ' '; top++)
 		;
