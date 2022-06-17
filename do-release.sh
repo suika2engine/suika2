@@ -16,7 +16,7 @@ echo "Checking for symbolic link to Windows file sharing."
 echo "Checking for symbolic link to ftp local directory."
 [ -e ftplocal ]
   
-echo "Waiting for Mac app. (press return)"
+echo "Waiting for Mac apps. (press return)"
 read str
 
 echo "Checking for Mac apps."
