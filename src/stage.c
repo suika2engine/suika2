@@ -51,9 +51,6 @@ enum {
 	/* クリックアニメーション */
 	LAYER_CLICK,
 
-	/* 選択肢レイヤ */
-	LAYER_SEL,	/* 特殊: 実体イメージあり */
-
 	/*
 	 * 下記のレイヤは次の場合に有効
 	 *  - 背景フェード
@@ -110,26 +107,11 @@ static bool is_namebox_visible;
 /* クリックアニメーションを表示するか */
 static bool is_click_visible;
 
-/* 選択肢ボックス(非選択)のイメージ */
-static struct image *selbox_bg_image;
-
-/* 選択肢ボックス(選択)のイメージ */
-static struct image *selbox_fg_image;
-
-/* 選択肢ボックスを表示するか */
-static bool is_selbox_visible;
-
-/* スイッチ(非選択)のイメージ */
+/* 選択肢(非選択時)のイメージ */
 static struct image *switch_bg_image;
 
-/* スイッチ(選択)のイメージ */
+/* 選択肢(選択時)のイメージ */
 static struct image *switch_fg_image;
-
-/* NEWS(非選択)のイメージ */
-static struct image *news_bg_image;
-
-/* NEWS(選択)のイメージ */
-static struct image *news_fg_image;
 
 /* セーブ画面(非選択)のイメージ */
 static struct image *save_bg_image;
@@ -202,9 +184,7 @@ static int shake_offset_y;
 static bool setup_namebox(void);
 static bool setup_msgbox(void);
 static bool setup_click(void);
-static bool setup_selbox(void);
 static bool setup_switch(void);
-static bool setup_news(void);
 static bool setup_save(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
@@ -268,16 +248,8 @@ bool init_stage(void)
 	if (!setup_click())
 		return false;
 
-	/* 選択肢ボックスをセットアップする */
-	if (!setup_selbox())
-		return false;
-
 	/* スイッチをセットアップする */
 	if (!setup_switch())
-		return false;
-
-	/* NEWSをセットアップする */
-	if (!setup_news())
 		return false;
 
 	/* セーブ画面をセットアップする */
@@ -297,7 +269,6 @@ bool init_stage(void)
 	layer_blend[LAYER_MSG] = BLEND_FAST;
 	layer_blend[LAYER_NAME] = BLEND_FAST;
 	layer_blend[LAYER_CLICK] = BLEND_FAST;
-	layer_blend[LAYER_SEL] = BLEND_FAST;
 	layer_blend[LAYER_FO] = BLEND_NONE;
 	layer_blend[LAYER_FI] = BLEND_FAST;
 
@@ -393,40 +364,7 @@ static bool setup_click(void)
 	return true;
 }
 
-/* 選択肢ボックスをセットアップする */
-static bool setup_selbox(void)
-{
-	is_selbox_visible = false;
-
-	/* 選択肢ボックスの画像を読み込む */
-	selbox_bg_image = create_image_from_file(CG_DIR, conf_selbox_bg_file);
-	if (selbox_bg_image == NULL)
-		return false;
-	selbox_fg_image = create_image_from_file(CG_DIR, conf_selbox_fg_file);
-	if (selbox_fg_image == NULL)
-		return false;
-
-	/* 選択肢ボックスのレイヤのイメージを作成する */
-	layer_image[LAYER_SEL] = create_image(get_image_width(selbox_bg_image),
-					      get_image_height(
-						      selbox_bg_image));
-	if (layer_image[LAYER_SEL] == NULL)
-		return false;
-
-	/* 選択肢ボックスのレイヤの配置を行う */
-	layer_x[LAYER_SEL] = conf_selbox_x;
-	layer_y[LAYER_SEL] = conf_selbox_y;
-
-#if defined(USE_OPENGL) || defined(USE_DIRECT3D)
-	/* 時間のかかるGPUテクスチャ生成を先に行っておく */
-	lock_image(layer_image[LAYER_SEL]);
-	unlock_image(layer_image[LAYER_SEL]);
-#endif
-
-	return true;
-}
-
-/* スイッチをセットアップする */
+/* 選択肢をセットアップする */
 static bool setup_switch(void)
 {
 	/* スイッチの非選択イメージを読み込む */
@@ -437,22 +375,6 @@ static bool setup_switch(void)
 	/* スイッチの選択イメージを読み込む */
 	switch_fg_image = create_image_from_file(CG_DIR, conf_switch_fg_file);
 	if (switch_fg_image == NULL)
-		return false;
-
-	return true;
-}
-
-/* NEWSをセットアップする */
-static bool setup_news(void)
-{
-	/* NEWSの非選択イメージを読み込む */
-	news_bg_image = create_image_from_file(CG_DIR, conf_news_bg_file);
-	if (news_bg_image == NULL)
-		return false;
-
-	/* NEWSの選択イメージを読み込む */
-	news_fg_image = create_image_from_file(CG_DIR, conf_news_fg_file);
-	if (news_fg_image == NULL)
 		return false;
 
 	return true;
@@ -613,8 +535,6 @@ void draw_stage_rect(int x, int y, int w, int h)
 		render_layer_image_rect(LAYER_NAME, x, y, w,h);
 	if (is_click_visible)
 		render_layer_image_rect(LAYER_CLICK, x, y, w, h);
-	if (is_selbox_visible)
-		render_layer_image_rect(LAYER_SEL, x, y, w, h);
 }
 
 /*
@@ -2478,68 +2398,7 @@ void show_click(bool show)
 }
 
 /*
- * 選択肢ボックスの描画
- */
-
-/*
- * 選択肢ボックスの矩形を取得する
- */
-void get_selbox_rect(int *x, int *y, int *w, int *h)
-{
-	*x = layer_x[LAYER_SEL];
-	*y = layer_y[LAYER_SEL];
-	*w = get_image_width(layer_image[LAYER_SEL]);
-	*h = get_image_height(layer_image[LAYER_SEL]);
-}
-
-/*
- * 選択肢ボックスをクリアする
- */
-void clear_selbox(int fg_x, int fg_y, int fg_w, int fg_h)
-{
-	lock_image(layer_image[LAYER_SEL]);
-	draw_image(layer_image[LAYER_SEL], 0, 0, selbox_bg_image,
-		   get_image_width(layer_image[LAYER_SEL]),
-		   get_image_height(layer_image[LAYER_SEL]),
-		   0, 0, 255, BLEND_NONE);
-	draw_image(layer_image[LAYER_SEL], fg_x, fg_y, selbox_fg_image, fg_w,
-		   fg_h, fg_x, fg_y, 255, BLEND_NONE);
-	unlock_image(layer_image[LAYER_SEL]);
-}
-
-/*
- * 選択肢ボックスの表示・非表示を設定する
- */
-void show_selbox(bool show)
-{
-	is_selbox_visible = show;
-}
-
-/*
- * 選択肢ボックスに文字を描画する
- *  - 描画した幅を返す
- */
-int draw_char_on_selbox(int x, int y, uint32_t wc)
-{
-	pixel_t color, outline_color;
-	int w, h;
-
-	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
-			   (pixel_t)conf_font_color_g,
-			   (pixel_t)conf_font_color_b);
-	outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
-				   (pixel_t)conf_font_outline_color_g,
-				   (pixel_t)conf_font_outline_color_b);
-
-	lock_image(layer_image[LAYER_SEL]);
-	draw_char_on_layer(LAYER_SEL, x, y, wc, color, outline_color, &w, &h);
-	unlock_image(layer_image[LAYER_SEL]);
-
-	return w;
-}
-
-/*
- * スイッチの描画
+ * スイッチ(@choose, @select, @switch)の描画
  */
 
 /*
@@ -2581,10 +2440,6 @@ void draw_switch_fg_image(int x, int y)
 }
 
 /*
- * NEWSの描画
- */
-
-/*
  * NEWSの親選択肢の矩形を取得する
  */
 void get_news_rect(int index, int *x, int *y, int *w, int *h)
@@ -2596,55 +2451,34 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
 	const int SWITCH_BASE = 4;
 
 	if (index == NORTH) {
-		*w = get_image_width(news_bg_image);
-		*h = get_image_height(news_bg_image);
+		*w = get_image_width(switch_bg_image);
+		*h = get_image_height(switch_bg_image);
 		*x = (conf_window_width - *w) / 2;
-		*y = conf_news_margin;
+		*y = conf_switch_margin_y;
 	} else if (index == EAST) {
-		*w = get_image_width(news_bg_image);
-		*h = get_image_height(news_bg_image);
-		*x = conf_window_width - *w - conf_news_margin;
-		*y = *h + conf_news_margin * 2;
+		*w = get_image_width(switch_bg_image);
+		*h = get_image_height(switch_bg_image);
+		*x = conf_window_width - *w - conf_switch_margin_y;
+		*y = *h + conf_switch_margin_y * 2;
 	} else if (index == WEST) {
-		*w = get_image_width(news_bg_image);
-		*h = get_image_height(news_bg_image);
-		*x = conf_news_margin;
-		*y = *h + conf_news_margin * 2;
+		*w = get_image_width(switch_bg_image);
+		*h = get_image_height(switch_bg_image);
+		*x = conf_switch_margin_y;
+		*y = *h + conf_switch_margin_y * 2;
 	} else if (index == SOUTH) {
-		*w = get_image_width(news_bg_image);
-		*h = get_image_height(news_bg_image);
+		*w = get_image_width(switch_bg_image);
+		*h = get_image_height(switch_bg_image);
 		*x = (conf_window_width - *w) / 2;
-		*y = *h * 2 + conf_news_margin * 3;
+		*y = *h * 2 + conf_switch_margin_y * 3;
 	} else {
 		*w = get_image_width(switch_bg_image);
 		*h = get_image_height(switch_bg_image);
 		*x = conf_switch_x;
-		*y = (get_image_height(news_bg_image) + conf_news_margin) * 3 +
-			conf_news_margin +
+		*y = (get_image_height(switch_bg_image) +
+		      conf_switch_margin_y) * 3 +
+			conf_switch_margin_y +
 			(*h + conf_switch_margin_y) * (index - SWITCH_BASE);
 	}
-}
-
-/*
- * FOレイヤにNEWSの非選択イメージを描画する
- */
-void draw_news_bg_image(int x, int y)
-{
-	draw_image(layer_image[LAYER_FO], x, y, news_bg_image,
-		   get_image_width(news_bg_image),
-		   get_image_height(news_bg_image),
-		   0, 0, 255, BLEND_NORMAL);
-}
-
-/*
- * FIレイヤにスイッチの選択イメージを描画する
- */
-void draw_news_fg_image(int x, int y)
-{
-	draw_image(layer_image[LAYER_FI], x, y, news_fg_image,
-		   get_image_width(news_fg_image),
-		   get_image_height(news_fg_image),
-		   0, 0, 255, BLEND_NORMAL);
 }
 
 /*

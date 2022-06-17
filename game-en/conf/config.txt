@@ -170,72 +170,33 @@ click.y=660
 click.interval=0.5
 
 ###
-### Select Box Settings
+### Options Settings (@choose, @select, @switch, @news)
 ###
 
-# Select box (non-selected) image file name
-selbox.bg.file=selbox-bg.png
-
-# Select box (selected) image file name
-selbox.fg.file=selbox-fg.png
-
-# Position of the select box
-selbox.x=265
-selbox.y=200
-
-# Top margin of text in the select box
-selbox.margin.y=10
-
-# Sound effect when pointed item changed (optional)
-selbox.change.se=btn-change.ogg
-
-###
-### Switch Settings
-###
-
-# Switch box (non-selected) image file name
+# Option box (non-selected) image file name
 switch.bg.file=switch-bg.png
 
-# Switch box (selected) image file name
+# Option box (selected) image file name
 switch.fg.file=switch-fg.png
 
-# Position of the first switch box
+# Position of the first option box
 switch.x=265
 switch.y=120
 
-# Vertical space between the switch box images
+# Vertical space between the option box images
 switch.margin.y=20
 
-# Top margin of text in the switch box image
+# Top margin of text in the option box image
 switch.text.margin.y=18
 
-# Click sound file when the parent option is clicked (omissible)
+# Click sound file when the option is clicked (omissible)
 switch.parent.click.se.file=click.ogg
 
-# Click sound file when the child option is clicked (omissible)
+# (For only @switch) Click sound file when the second level option is clicked (omissible)
 switch.child.click.se.file=click.ogg
 
 # Sound effect when pointed item changed (optional)
 switch.change.se=btn-change.ogg
-
-###
-### NEWS(North/East/West/South) Command Settings
-###
-
-# NEWS box (non-selected) image file name
-news.bg.file=news-bg.png
-
-# NEWS box (selected) image file name
-news.fg.file=news-fg.png
-
-# Space between NEWS box and window border
-news.margin=20
-
-# Top margin of text in the NEWS box image
-news.text.margin.y=18
-
-# Sound effect when pointed item changed (optional)
-news.change.se=btn-change.ogg
 
 ###
 ### Retrospect Screen Settings

@@ -33,7 +33,7 @@ suika-2.x.x-en.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	zip -r suika-2.x.x-en.zip suika2
 	rm -rf suika2
 
-suika-2.x.x-jp.zip: ../../suika.exe mac.dmg
+suika-2.x.x-jp.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	rm -rf suika2 suika-2.x.x-jp.zip
 	mkdir suika2
 	mkdir suika2/bg

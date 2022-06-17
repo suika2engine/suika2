@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		260349482854B29800037370 /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780D25EE5DD0006A1ED4 /* conf.c */; };
-		260349492854B29800037370 /* cmd_select.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780B25EE5DD0006A1ED4 /* cmd_select.c */; };
 		2603494A2854B29800037370 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F425EE5DD0006A1ED4 /* script.c */; };
 		2603494B2854B29800037370 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
 		2603494C2854B29800037370 /* cmd_wait.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782625EE5DD0006A1ED4 /* cmd_wait.c */; };
@@ -79,7 +78,6 @@
 		26A1783825EE5DD0006A1ED4 /* cmd_switch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780725EE5DD0006A1ED4 /* cmd_switch.c */; };
 		26A1783925EE5DD0006A1ED4 /* cmd_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780825EE5DD0006A1ED4 /* cmd_set.c */; };
 		26A1783A25EE5DD0006A1ED4 /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780A25EE5DD0006A1ED4 /* mixer.c */; };
-		26A1783B25EE5DD0006A1ED4 /* cmd_select.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780B25EE5DD0006A1ED4 /* cmd_select.c */; };
 		26A1783C25EE5DD0006A1ED4 /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780D25EE5DD0006A1ED4 /* conf.c */; };
 		26A1783D25EE5DD0006A1ED4 /* cmd_retrospect.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780E25EE5DD0006A1ED4 /* cmd_retrospect.c */; };
 		26A1783E25EE5DD0006A1ED4 /* wave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780F25EE5DD0006A1ED4 /* wave.c */; };
@@ -149,7 +147,6 @@
 		26A1780825EE5DD0006A1ED4 /* cmd_set.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_set.c; path = ../../../src/cmd_set.c; sourceTree = "<group>"; };
 		26A1780925EE5DD0006A1ED4 /* mixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mixer.h; path = ../../../src/mixer.h; sourceTree = "<group>"; };
 		26A1780A25EE5DD0006A1ED4 /* mixer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mixer.c; path = ../../../src/mixer.c; sourceTree = "<group>"; };
-		26A1780B25EE5DD0006A1ED4 /* cmd_select.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_select.c; path = ../../../src/cmd_select.c; sourceTree = "<group>"; };
 		26A1780C25EE5DD0006A1ED4 /* vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vars.h; path = ../../../src/vars.h; sourceTree = "<group>"; };
 		26A1780D25EE5DD0006A1ED4 /* conf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = conf.c; path = ../../../src/conf.c; sourceTree = "<group>"; };
 		26A1780E25EE5DD0006A1ED4 /* cmd_retrospect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_retrospect.c; path = ../../../src/cmd_retrospect.c; sourceTree = "<group>"; };
@@ -253,7 +250,6 @@
 				26A1780E25EE5DD0006A1ED4 /* cmd_retrospect.c */,
 				26A1780225EE5DD0006A1ED4 /* cmd_return.c */,
 				26A1782725EE5DD0006A1ED4 /* cmd_se.c */,
-				26A1780B25EE5DD0006A1ED4 /* cmd_select.c */,
 				26A1780825EE5DD0006A1ED4 /* cmd_set.c */,
 				26557B0D26785269000CDD10 /* cmd_setsave.c */,
 				260F30512674A3C000AF8E21 /* cmd_shake.c */,
@@ -411,7 +407,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				260349482854B29800037370 /* conf.c in Sources */,
-				260349492854B29800037370 /* cmd_select.c in Sources */,
 				2603494A2854B29800037370 /* script.c in Sources */,
 				2603494B2854B29800037370 /* scbuf.c in Sources */,
 				2603494C2854B29800037370 /* cmd_wait.c in Sources */,
@@ -463,7 +458,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				26A1783C25EE5DD0006A1ED4 /* conf.c in Sources */,
-				26A1783B25EE5DD0006A1ED4 /* cmd_select.c in Sources */,
 				26A1782C25EE5DD0006A1ED4 /* script.c in Sources */,
 				26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */,
 				26A1784B25EE5DD0006A1ED4 /* cmd_wait.c in Sources */,
@@ -558,7 +552,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.5;
+				MARKETING_VERSION = 2.9.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -602,7 +596,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.5;
+				MARKETING_VERSION = 2.9.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -758,7 +752,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.5;
+				MARKETING_VERSION = 2.9.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -801,7 +795,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.9.5;
+				MARKETING_VERSION = 2.9.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",

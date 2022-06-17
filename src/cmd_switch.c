@@ -6,21 +6,25 @@
  */
 
 /*
- * @switchコマンド
+ * @choose, @select, @switchコマンド
  *
  * [Changes]
  *  - 2017/08/14 作成
  *  - 2017/10/31 効果音に対応
  *  - 2019/09/17 NEWSに対応
+ *  - 2022/06/17 @chooseに対応、@newsの設定項目を@switchに統合
  */
 
 #include "suika.h"
 
 /* 親ボタンの最大数 */
-#define PARENT_COUNT	(8)
+#define PARENT_COUNT		(8)
 
 /* 親ボタン1つあたりの子ボタンの最大数 */
-#define CHILD_COUNT	(8)
+#define CHILD_COUNT		(8)
+
+/* @selectの選択肢の数 */
+#define SELECT_OPTION_COUNT	(3)
 
 /* コマンドの引数 */
 #define PARENT_MESSAGE(n)	(SWITCH_PARAM_PARENT_M1 + n)
@@ -28,6 +32,8 @@
 #define CHILD_MESSAGE(p,c)	(SWITCH_PARAM_CHILD1_M1 + 16 * p + 2 * c)
 #define CHOOSE_LABEL(n)		(CHOOSE_PARAM_LABEL1 + n * 2)
 #define CHOOSE_MESSAGE(n)	(CHOOSE_PARAM_LABEL1 + n * 2 + 1)
+#define SELECT_LABEL(n)		(SELECT_PARAM_LABEL1 + n)
+#define SELECT_MESSAGE(n)	(SELECT_PARAM_TEXT1 + n)
 
 /* NEWSコマンド時のswitchボックス開始オフセット */
 #define SWITCH_BASE	(4)
@@ -75,6 +81,7 @@ static int pointed_child_index;
 /* 前方参照 */
 static bool init(void);
 static bool get_choose_info(void);
+static void get_select_info(void);
 static bool get_parents_info(void);
 static bool get_children_info(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
@@ -88,7 +95,7 @@ static void update_switch_parent(int *x, int *y, int *w, int *h);
 static void draw_fo_fi_child(void);
 static void draw_switch_child_images(void);
 static void update_switch_child(int *x, int *y, int *w, int *h);
-static void draw_text(int x, int y, int w, const char *t, bool is_news);
+static void draw_text(int x, int y, int w, const char *t);
 static void draw_keep(void);
 static void play_se(const char *file);
 static bool cleanup(void);
@@ -136,6 +143,8 @@ bool switch_command(int *x, int *y, int *w, int *h)
 /* コマンドの初期化処理を行う */
 bool init(void)
 {
+	int type;
+
 	start_command_repetition();
 
 	is_first_frame = true;
@@ -144,10 +153,14 @@ bool init(void)
 	pointed_child_index = -1;
 	is_child_first_frame = false;
 
-	if (get_command_type() == COMMAND_CHOOSE) {
+	type = get_command_type();
+	if (type == COMMAND_CHOOSE) {
 		/* @chooseコマンドの引数情報を取得する */
 		if (!get_choose_info())
 			return false;
+	} else if (type == COMMAND_SELECT) {
+		/* @selectコマンドの引数情報を取得する */
+		get_select_info();
 	} else {
 		/* 親選択肢の情報を取得する */
 		if (!get_parents_info())
@@ -193,7 +206,8 @@ static bool get_choose_info(void)
 		msg = get_string_param(CHOOSE_MESSAGE(i));
 		if (strcmp(msg, "") == 0) {
 			log_script_choose_no_message();
-			break;
+			log_script_exec_footer();
+			return false;
 		}
 
 		/* ボタンの情報を保存する */
@@ -210,6 +224,37 @@ static bool get_choose_info(void)
 	}
 
 	return true;
+}
+
+/* @selectコマンドの引数情報を取得する */
+static void get_select_info(void)
+{
+	const char *label, *msg;
+	int i;
+
+	memset(parent_button, 0, sizeof(parent_button));
+	memset(child_button, 0, sizeof(child_button));
+
+	/* 選択肢の情報を取得する */
+	for (i = 0; i < SELECT_OPTION_COUNT; i++) {
+		/* ラベルを取得する */
+		label = get_string_param(SELECT_LABEL(i));
+
+		/* メッセージを取得する */
+		msg = get_string_param(SELECT_MESSAGE(i));
+
+		/* ボタンの情報を保存する */
+		parent_button[i].msg = msg;
+		parent_button[i].label = label;
+		parent_button[i].has_child = false;
+		parent_button[i].child_count = 0;
+
+		/* 座標を計算する */
+		get_switch_rect(i, &parent_button[i].x,
+				&parent_button[i].y,
+				&parent_button[i].w,
+				&parent_button[i].h);
+	}
 }
 
 /* 親選択肢の情報を取得する */
@@ -388,12 +433,8 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		update_switch_parent(x, y, w, h);
 
 		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_button_pressed) {
-			if (get_command_type() == COMMAND_SWITCH)
-				play_se(conf_switch_change_se);
-			else
-				play_se(conf_news_change_se);
-		}
+		if (new_pointed_index != -1 && !is_left_button_pressed)
+			play_se(conf_switch_change_se);
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
@@ -532,7 +573,6 @@ static void draw_fo_fi_parent(void)
 void draw_switch_parent_images(void)
 {
 	int i;
-	bool is_news;
 
 	assert(selected_parent_index == -1);
 
@@ -540,27 +580,15 @@ void draw_switch_parent_images(void)
 		if (IS_PARENT_DISABLED(i))
 			continue;
 
-		/* NEWSの項目であるか調べる */
-		is_news = get_command_type() == COMMAND_NEWS &&
-			i < SWITCH_BASE;
-
 		/* FO/FIレイヤにスイッチを描画する */
-		if (!is_news) {
-			draw_switch_fg_image(parent_button[i].x,
-					     parent_button[i].y);
-			draw_switch_bg_image(parent_button[i].x,
-					     parent_button[i].y);
-		} else {
-			draw_news_fg_image(parent_button[i].x,
-					   parent_button[i].y);
-			draw_news_bg_image(parent_button[i].x,
-					   parent_button[i].y);
-		}
+		draw_switch_fg_image(parent_button[i].x,
+				     parent_button[i].y);
+		draw_switch_bg_image(parent_button[i].x,
+				     parent_button[i].y);
 
 		/* テキストを描画する */
 		draw_text(parent_button[i].x, parent_button[i].y,
-			  parent_button[i].w, parent_button[i].msg,
-			  is_news);
+			  parent_button[i].w, parent_button[i].msg);
 	}
 }
 
@@ -619,7 +647,7 @@ void draw_switch_child_images(void)
 
 		/* テキストを描画する */
 		draw_text(child_button[i][j].x, child_button[i][j].y,
-			  child_button[i][j].w, child_button[i][j].msg, false);
+			  child_button[i][j].w, child_button[i][j].msg);
 	}
 }
 
@@ -653,14 +681,14 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 }
 
 /* 選択肢のテキストを描画する */
-static void draw_text(int x, int y, int w, const char *t, bool is_news)
+static void draw_text(int x, int y, int w, const char *t)
 {
 	uint32_t c;
 	int mblen, xx;
 
 	/* 描画位置を決める */
 	xx = x + (w - get_utf8_width(t)) / 2;
-	y += is_news ? conf_news_text_margin_y : conf_switch_text_margin_y;
+	y += conf_switch_text_margin_y;
 
 	/* 1文字ずつ描画する */
 	while (*t != '\0') {

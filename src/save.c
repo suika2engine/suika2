@@ -626,7 +626,6 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			set_mixer_input(VOICE_STREAM, NULL);
 			show_namebox(false);
 			show_msgbox(false);
-			show_selbox(false);
 			stop_save_load_mode(x, y, w, h);
 			return true;
 		}
@@ -930,7 +929,6 @@ bool quick_load(void)
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
 	show_msgbox(false);
-	show_selbox(false);
 
 	/* オートモードを解除する */
 	if (is_auto_mode())
@@ -970,7 +968,6 @@ static bool process_load(int new_pointed_index)
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
 	show_msgbox(false);
-	show_selbox(false);
 
 #ifdef USE_DEBUGGER
 	clear_variable_changed();

@@ -134,7 +134,7 @@ Replace the contents of `init.txt` as follows:
 @bg roof.png 1.0
 @ch center 001-fun.png 1.0
 Ok, I'm gonna go to school.
-@select label1 label2 label3 "By foot." "By bicycle." "I decided not to."
+@choose label1 "By foot." label2 "By bicycle." label3 "I decided not to."
 :label1
 I'm gonna go to school by foot.
 @goto end
@@ -148,7 +148,7 @@ I'm home sick from school.
 
 After saving it, run `suika.exe`.
 Suika2 will show three options.
-`@select` is the command to show options.
+`@choose` is the command to show options.
 `label1`, `label2` and `label3` are jump destinations.
 Option messages follow labels.
 
@@ -164,7 +164,7 @@ Replace the contents of `init.txt` as follows:
 @bg roof.png 1.0
 @ch center 001-fun.png 1.0
 Ok, I'm gonna go to school.
-@select label1 label2 label3 "By foot." "By bicycle." "I decided not to."
+@choose label1 "By foot." label2 "By bicycle." label3 "I decided not to."
 :label1
 I'm gonna go to school by foot.
 @set $1 = 1

@@ -367,10 +367,6 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		*cont = true;
 		break;
-	case COMMAND_SELECT:
-		if (!select_command(x, y, w, h))
-			return false;
-		break;
 	case COMMAND_SE:
 		if (!se_command())
 			return false;
@@ -387,6 +383,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 	case COMMAND_SWITCH:
 	case COMMAND_NEWS:
 	case COMMAND_CHOOSE:
+	case COMMAND_SELECT:
 		if (!switch_command(x, y, w, h))
 			return false;
 		break;

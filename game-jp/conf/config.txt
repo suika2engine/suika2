@@ -164,72 +164,33 @@ click.y=660
 click.interval=0.5
 
 ###
-### 選択肢ボックスの設定
+### 選択肢の設定 (@choose, @select, @switch, @news)
 ###
 
-# 選択肢ボックス（非選択中）画像のファイル名
-selbox.bg.file=selbox-bg.png
-
-# 選択肢ボックス（選択中）画像のファイル名
-selbox.fg.file=selbox-fg.png
-
-# 選択肢ボックスの位置
-selbox.x=265
-selbox.y=200
-
-# 選択肢ボックス内の文字のY方向マージン
-selbox.margin.y=10
-
-# ポイントされている選択肢が変わったときのSE(省略可)
-selbox.change.se=btn-change.ogg
-
-###
-### スイッチの設定
-###
-
-# スイッチ（非選択中）画像のファイル名
+# 選択肢（非選択中）画像のファイル名
 switch.bg.file=switch-bg.png
 
-# スイッチ（選択中）画像のファイル名
+# 選択肢（選択中）画像のファイル名
 switch.fg.file=switch-fg.png
 
-# スイッチの位置
+# 選択肢の位置
 switch.x=265
 switch.y=120
 
-# スイッチの選択肢の間のマージン
+# 選択肢の間の縦方向マージン
 switch.margin.y=20
 
-# スイッチ内のテキストの縦方向マージン
+# 選択肢画像のテキストの縦方向マージン
 switch.text.margin.y=18
 
-# スイッチの親選択肢を選択したときの効果音(省略可)
+# 選択肢を選択したときの効果音(省略可)
 switch.parent.click.se.file=click.ogg
 
-# スイッチの子選択肢を選択したときの効果音(省略可)
+# @switchで2階層目の選択肢を選択したときの効果音(省略可)
 switch.child.click.se.file=click.ogg
 
-# 選択項目が変更されたときのSE(省略可)
+# 選択肢の選択項目が変更されたときのSE(省略可)
 switch.change.se=btn-change.ogg
-
-###
-### NEWS(North/East/West/South)の設定
-###
-
-# NEWS（非選択中）画像のファイル名
-news.bg.file=news-bg.png
-
-# NEWS（選択中）画像のファイル名
-news.fg.file=news-fg.png
-
-# NEWSの選択肢とウィンドウ境界のマージン
-news.margin=20
-
-# NEWS内のテキストの縦方向マージン
-news.text.margin.y=18
-
-# 選択項目が変更されたときのSE(省略可)
-news.change.se=btn-change.ogg
 
 ###
 ### 回想画面(@retrospect)の設定

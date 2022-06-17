@@ -115,7 +115,7 @@
 ###
 
 :LOOP1
-@select L1_ADVANTAGE L1_ENV L1_NEXT "Why choose Suika2?" "What are the system requirements?" Next
+@choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "What are the system requirements?" L1_NEXT Next
 
 :L1_ADVANTAGE
 Suika2 has three advantages. First of all, portability. We have Windows and Mac apps and a Web browser version. All of them work just the same way.
@@ -161,7 +161,7 @@ In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 wa
 @ch c none 1.0
 
 :LOOP2
-@select L2_OLD L2_CUSTOMIZE L2_NEXT "Do you have Suika1?" "Can I customize it?" Next
+@choose L2_OLD "Do you have Suika1?" L2_CUSTOMIZE "Can I customize it?" L2_NEXT Next
 
 :L2_OLD
 Versions before 2.0.0 was named Suika Studio. The author developed it when he was just a high school student.

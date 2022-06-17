@@ -115,7 +115,7 @@
 ###
 
 :LOOP1
-@select L1_ADVANTAGE L1_ENV L1_NEXT 何が強みなの？ 動作環境は？ 次へ
+@choose L1_ADVANTAGE 何が強みなの？ L1_ENV 動作環境は？ L1_NEXT 次へ
 
 :L1_ADVANTAGE
 Suika2の強みは、三つあります。
@@ -162,7 +162,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 @ch c none 1.0
 
 :LOOP2
-@select L2_OLD L2_CUSTOMIZE L2_NEXT Suika1もあるの？ カスタマイズできるの？ 次へ
+@choose L2_OLD Suika1もあるの？ L2_CUSTOMIZE カスタマイズできるの？ L2_NEXT 次へ
 
 :L2_OLD
 2.0.0より前のバージョンは、西瓜Studioというソフトでした。\n2001年から2003年にかけて、作者が高校生の頃に開発・公開されていました。

@@ -255,23 +255,7 @@ void get_click_rect(int *x, int *y, int *w, int *h);
 void show_click(bool show);
 
 /*
- * 選択肢ボックスの描画
- */
-
-/* 選択肢ボックスの矩形を取得する */
-void get_selbox_rect(int *x, int *y, int *w, int *h);
-
-/* 選択肢ボックスをクリアする */
-void clear_selbox(int fg_x, int fg_y, int fg_w, int fg_h);
-
-/* 選択肢ボックスの表示・非表示を設定する */
-void show_selbox(bool show);
-
-/* 選択肢ボックスに文字を描画する */
-int draw_char_on_selbox(int x, int y, uint32_t wc);
-
-/*
- * スイッチの描画
+ * スイッチ(@choose, @select, @switch)の描画
  */
 
 /* スイッチの親選択肢の矩形を取得する */
@@ -283,18 +267,8 @@ void draw_switch_bg_image(int x, int y);
 /* FIレイヤにスイッチの選択イメージを描画する */
 void draw_switch_fg_image(int x, int y);
 
-/*
- * NEWSの描画
- */
-
 /* NEWSの親選択肢の矩形を取得する */
 void get_news_rect(int index, int *x, int *y, int *w, int *h);
-
-/* FIレイヤにNEWSの非選択イメージを描画する */
-void draw_news_bg_image(int x, int y);
-
-/* FIレイヤにNEWSの選択イメージを描画する */
-void draw_news_fg_image(int x, int y);
 
 /*
  * セーブ画面の描画

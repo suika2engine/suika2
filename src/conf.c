@@ -116,16 +116,6 @@ int conf_click_y;
 float conf_click_interval;
 
 /*
- * 選択肢ボックスの設定
- */
-char *conf_selbox_fg_file;
-char *conf_selbox_bg_file;
-int conf_selbox_x;
-int conf_selbox_y;
-int conf_selbox_margin_y;
-char *conf_selbox_change_se;
-
-/*
  * スイッチの設定
  */
 char *conf_switch_bg_file;
@@ -137,15 +127,6 @@ int conf_switch_text_margin_y;
 char *conf_switch_parent_click_se_file;
 char *conf_switch_child_click_se_file;
 char *conf_switch_change_se;
-
-/*
- * NEWSの設定
- */
-char *conf_news_bg_file;
-char *conf_news_fg_file;
-int conf_news_margin;
-int conf_news_text_margin_y;
-char *conf_news_change_se;
 
 /*
  * 回想画面(@retrospect)の設定
@@ -328,12 +309,12 @@ struct rule {
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
 	{"click.interval", 'f', &conf_click_interval, false, false},
-	{"selbox.bg.file", 's', &conf_selbox_bg_file, false, false},
-	{"selbox.fg.file", 's', &conf_selbox_fg_file, false, false},
-	{"selbox.x", 'i', &conf_selbox_x, false, false},
-	{"selbox.y", 'i', &conf_selbox_y, false, false},
-	{"selbox.margin.y", 'i', &conf_selbox_margin_y, false, false},
-	{"selbox.change.se", 's', &conf_selbox_change_se, true, false},
+	{"selbox.bg.file", 's', NULL, true, false},
+	{"selbox.fg.file", 's', NULL, true, false},
+	{"selbox.x", 'i', NULL, true, false},
+	{"selbox.y", 'i', NULL, true, false},
+	{"selbox.margin.y", 'i', NULL, true, false},
+	{"selbox.change.se", 's', NULL, true, false},
 	{"switch.bg.file", 's', &conf_switch_bg_file, false, false},
 	{"switch.fg.file", 's', &conf_switch_fg_file, false, false},
 	{"switch.x", 'i', &conf_switch_x, false, false},
@@ -343,11 +324,11 @@ struct rule {
 	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, true, false},
 	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, true, false},
 	{"switch.change.se", 's', &conf_switch_change_se, true, false},
-	{"news.bg.file", 's', &conf_news_bg_file, false, false},
-	{"news.fg.file", 's', &conf_news_fg_file, false, false},
-	{"news.margin", 'i', &conf_news_margin, false, false},
-	{"news.text.margin.y", 'i', &conf_news_text_margin_y, false, false},
-	{"news.change.se", 's', &conf_news_change_se, true, false},
+	{"news.bg.file", 's', NULL, true, false},
+	{"news.fg.file", 's', NULL, true, false},
+	{"news.margin", 'i', NULL, true, false},
+	{"news.text.margin.y", 'i', NULL, true, false},
+	{"news.change.se", 's', NULL, true, false},
 	{"retrospect.change.se", 's', &conf_retrospect_change_se, true, false},
 	{"save.save.bg.file", 's', &conf_save_save_bg_file, false, false},
 	{"save.save.fg.file", 's', &conf_save_save_fg_file, false, false},
@@ -935,6 +916,10 @@ static bool save_value(const char *k, const char *v)
 			log_duplicated_conf(k);
 			return false;
 		}
+
+		/* 保存されない(無視される)キーの場合 */
+		if (rule_tbl[i].val == NULL)
+			return true;;
 
 		/* 型ごとに変換する */
 		if (rule_tbl[i].type == 'i') {

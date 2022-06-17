@@ -196,6 +196,25 @@ Before `@cha`, loads a character image outside the screen, then moves it into th
 @cha right 2.0 move -600 0 show
 ```
 
+## @choose
+
+This command shows options and jumps to the specified label.
+You can create up to eight options.
+
+### Usage
+```
+@choose label1 "Good morning." label2 "Good afternoon." label3 "Good evening."
+:label1
+Good morning.
+@goto end
+:label2
+Good afternoon.
+@goto end
+:label3
+Good evening.
+:end
+```
+
 ## @chs
 
 This command changes the characters at once.
@@ -306,7 +325,7 @@ Variable 1 is not 1.
 ## Label
 
 This creates a label, which can be used as a jump target.
-They are used with the `@goto`, `@gosub`, `@if`, `@menu`, `@retrospect` and `@switch` commands.
+They are typically used with the `@choose`, `@goto`, `@if` and `@menu` commands.
 
 ### Usage
 ```
@@ -451,9 +470,11 @@ Plays a sound effect file on voice track to check voice volume without text mess
 
 ## @select
 
+Note: This command is deprecated. Use `@choose` instead.
+
 This command shows options and jumps to the specified label.
 The number of options is fixed to three.
-If you want to use one, two, or more than four options, use `@switch`.
+If you want to use one, two, or more than four options, use `@choose`.
 
 ### Usage
 ```
@@ -604,94 +625,14 @@ Disables skip.
 
 ## @switch
 
-Shows up to two levels of options.
+Note: This command is not recommended. Use `@choose` instead.
+
+This command shows two-level options.
 There are eight parent options,
 and each parent option has eight child options.
 
-### Usage 1
-Shows one option.
-```
-@switch "Option 1" * * * * * * * LABEL1 * * * * * * * * * * * * * * *
-:LABEL1
-```
 
-### Usage 2
-Shows two options.
-```
-@switch "Option 1" "Option 2" * * * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * *
-:LABEL1
-:LABEL2
-```
-
-### Usage 3
-Shows three options.
-```
-@switch "Option 1" "Option 2" "Option3" * * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * *
-:LABEL1
-:LABEL2
-:LABEL3
-```
-
-### Usage 4
-Shows four options.
-```
-@switch "Option 1" "Option 2" "Option 3" "Option 4" * * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * *
-:LABEL1
-:LABEL2
-:LABEL4
-```
-
-### Usage 5
-Shows five options.
-```
-@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" * * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * *
-:LABEL1
-:LABEL2
-:LABEL3
-:LABEL4
-:LABEL5
-```
-
-### Usage 6
-Shows six options.
-```
-@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" "Option 6" * * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * * LABEL6 * * * * * * * * * * * * * * *
-:LABEL1
-:LABEL2
-:LABEL3
-:LABEL4
-:LABEL5
-:LABEL6
-```
-
-### Usage 7
-Shows seven options.
-```
-@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" "Option 6" "Option 7" * LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * * LABEL6 * * * * * * * * * * * * * * * LABEL7 * * * * * * * * * * * * * * *
-:LABEL1
-:LABEL2
-:LABEL3
-:LABEL4
-:LABEL5
-:LABEL6
-:LABEL7
-```
-
-### Usage 8
-Shows eight options. (max)
-```
-@switch "Option 1" "Option 2" "Option 3" "Option 4" "Option 5" "Option 6" "Option 7" "Option 8" LABEL1 * * * * * * * * * * * * * * * LABEL2 * * * * * * * * * * * * * * * LABEL3 * * * * * * * * * * * * * * * LABEL4 * * * * * * * * * * * * * * * LABEL5 * * * * * * * * * * * * * * * LABEL6 * * * * * * * * * * * * * * * LABEL7 * * * * * * * * * * * * * * * LABEL8 * * * * * * * * * * * * * * *
-:LABEL1
-:LABEL2
-:LABEL3
-:LABEL4
-:LABEL5
-:LABEL6
-:LABEL7
-:LABEL8
-```
-
-### Usage 9
+### Usage
 Shows two levels of two options, four in total.
 ```
 @switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 "Child option 1" LABEL2 "Child option 2" * * * * * * * * * * * * LABEL3 "Child option 3" LABEL4 "Child option 4" * * * * * * * * * * * *
