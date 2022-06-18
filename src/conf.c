@@ -129,6 +129,15 @@ char *conf_switch_child_click_se_file;
 char *conf_switch_change_se;
 
 /*
+ * NEWSの設定
+ */
+char *conf_news_bg_file;
+char *conf_news_fg_file;
+int conf_news_margin;
+int conf_news_text_margin_y;
+char *conf_news_change_se;
+
+/*
  * 回想画面(@retrospect)の設定
  */
 char *conf_retrospect_change_se;
@@ -324,11 +333,11 @@ struct rule {
 	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, true, false},
 	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, true, false},
 	{"switch.change.se", 's', &conf_switch_change_se, true, false},
-	{"news.bg.file", 's', NULL, true, false},
-	{"news.fg.file", 's', NULL, true, false},
-	{"news.margin", 'i', NULL, true, false},
-	{"news.text.margin.y", 'i', NULL, true, false},
-	{"news.change.se", 's', NULL, true, false},
+	{"news.bg.file", 's', &conf_news_bg_file, true, false},
+	{"news.fg.file", 's', &conf_news_fg_file, true, false},
+	{"news.margin", 'i', &conf_news_margin, true, false},
+	{"news.text.margin.y", 'i', &conf_news_text_margin_y, true, false},
+	{"news.change.se", 's', &conf_news_change_se, true, false},
 	{"retrospect.change.se", 's', &conf_retrospect_change_se, true, false},
 	{"save.save.bg.file", 's', &conf_save_save_bg_file, false, false},
 	{"save.save.fg.file", 's', &conf_save_save_fg_file, false, false},

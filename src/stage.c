@@ -113,6 +113,12 @@ static struct image *switch_bg_image;
 /* 選択肢(選択時)のイメージ */
 static struct image *switch_fg_image;
 
+/* NEWS(非選択)のイメージ */
+static struct image *news_bg_image;
+
+/* NEWS(選択)のイメージ */
+static struct image *news_fg_image;
+
 /* セーブ画面(非選択)のイメージ */
 static struct image *save_bg_image;
 
@@ -185,6 +191,7 @@ static bool setup_namebox(void);
 static bool setup_msgbox(void);
 static bool setup_click(void);
 static bool setup_switch(void);
+static bool setup_news(void);
 static bool setup_save(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
@@ -250,6 +257,10 @@ bool init_stage(void)
 
 	/* スイッチをセットアップする */
 	if (!setup_switch())
+		return false;
+
+	/* NEWSをセットアップする */
+	if (!setup_news())
 		return false;
 
 	/* セーブ画面をセットアップする */
@@ -376,6 +387,28 @@ static bool setup_switch(void)
 	switch_fg_image = create_image_from_file(CG_DIR, conf_switch_fg_file);
 	if (switch_fg_image == NULL)
 		return false;
+
+	return true;
+}
+
+/* 選択肢をセットアップする */
+static bool setup_news(void)
+{
+	/* NEWSの非選択イメージを読み込む */
+	if (conf_news_bg_file != NULL) {
+		news_bg_image = create_image_from_file(CG_DIR,
+						       conf_news_bg_file);
+		if (switch_bg_image == NULL)
+			return false;
+	}
+
+	/* NEWSの非選択イメージを読み込む */
+	if (conf_news_fg_file != NULL) {
+		news_fg_image = create_image_from_file(CG_DIR,
+						       conf_news_fg_file);
+		if (switch_bg_image == NULL)
+			return false;
+	}
 
 	return true;
 }
@@ -2418,6 +2451,53 @@ void get_switch_rect(int index, int *x, int *y, int *w, int *h)
 }
 
 /*
+ * NEWSの親選択肢の矩形を取得する
+ */
+void get_news_rect(int index, int *x, int *y, int *w, int *h)
+{
+	const int NORTH = 0;
+	const int EAST = 1;
+	const int WEST = 2;
+	const int SOUTH = 3;
+	const int SWITCH_BASE = 4;
+
+	struct image *bg;
+
+	bg = news_bg_image != NULL ? news_bg_image : switch_bg_image;
+
+	if (index == NORTH) {
+		*w = get_image_width(bg);
+		*h = get_image_height(bg);
+		*x = (conf_window_width - *w) / 2;
+		*y = conf_news_margin;
+	} else if (index == EAST) {
+		*w = get_image_width(bg);
+		*h = get_image_height(bg);
+		*x = conf_window_width - *w - conf_news_margin;
+		*y = conf_news_margin + *h + conf_switch_margin_y;
+	} else if (index == WEST) {
+		*w = get_image_width(bg);
+		*h = get_image_height(bg);
+		*x = conf_news_margin;
+		*y = conf_news_margin + *h + conf_switch_margin_y;
+	} else if (index == SOUTH) {
+		*w = get_image_width(bg);
+		*h = get_image_height(bg);
+		*x = (conf_window_width - *w) / 2;
+		*y = conf_news_margin + (*h + conf_switch_margin_y) * 2;
+	} else {
+		*w = get_image_width(switch_bg_image);
+		*h = get_image_height(switch_bg_image);
+		*x = conf_switch_x;
+		*y = conf_news_margin + (*h + conf_switch_margin_y) * 3 +
+			conf_news_margin +
+			(get_image_height(switch_bg_image) +
+			 conf_switch_margin_y) *
+			(index - SWITCH_BASE);
+	}
+}
+
+/*
  * FOレイヤにスイッチの非選択イメージを描画する
  */
 void draw_switch_bg_image(int x, int y)
@@ -2440,45 +2520,33 @@ void draw_switch_fg_image(int x, int y)
 }
 
 /*
- * NEWSの親選択肢の矩形を取得する
+ * FOレイヤにNEWSの非選択イメージを描画する
  */
-void get_news_rect(int index, int *x, int *y, int *w, int *h)
+void draw_news_bg_image(int x, int y)
 {
-	const int NORTH = 0;
-	const int EAST = 1;
-	const int WEST = 2;
-	const int SOUTH = 3;
-	const int SWITCH_BASE = 4;
+	struct image *img;
 
-	if (index == NORTH) {
-		*w = get_image_width(switch_bg_image);
-		*h = get_image_height(switch_bg_image);
-		*x = (conf_window_width - *w) / 2;
-		*y = conf_switch_margin_y;
-	} else if (index == EAST) {
-		*w = get_image_width(switch_bg_image);
-		*h = get_image_height(switch_bg_image);
-		*x = conf_window_width - *w - conf_switch_margin_y;
-		*y = *h + conf_switch_margin_y * 2;
-	} else if (index == WEST) {
-		*w = get_image_width(switch_bg_image);
-		*h = get_image_height(switch_bg_image);
-		*x = conf_switch_margin_y;
-		*y = *h + conf_switch_margin_y * 2;
-	} else if (index == SOUTH) {
-		*w = get_image_width(switch_bg_image);
-		*h = get_image_height(switch_bg_image);
-		*x = (conf_window_width - *w) / 2;
-		*y = *h * 2 + conf_switch_margin_y * 3;
-	} else {
-		*w = get_image_width(switch_bg_image);
-		*h = get_image_height(switch_bg_image);
-		*x = conf_switch_x;
-		*y = (get_image_height(switch_bg_image) +
-		      conf_switch_margin_y) * 3 +
-			conf_switch_margin_y +
-			(*h + conf_switch_margin_y) * (index - SWITCH_BASE);
-	}
+	img = news_bg_image != NULL ? news_bg_image : switch_bg_image;
+
+	draw_image(layer_image[LAYER_FO], x, y, img,
+		   get_image_width(img),
+		   get_image_height(img),
+		   0, 0, 255, BLEND_NORMAL);
+}
+
+/*
+ * FIレイヤにスイッチの選択イメージを描画する
+ */
+void draw_news_fg_image(int x, int y)
+{
+	struct image *img;
+
+	img = news_fg_image != NULL ? news_fg_image : switch_fg_image;
+
+	draw_image(layer_image[LAYER_FI], x, y, img,
+		   get_image_width(img),
+		   get_image_height(img),
+		   0, 0, 255, BLEND_NORMAL);
 }
 
 /*

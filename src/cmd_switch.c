@@ -95,7 +95,7 @@ static void update_switch_parent(int *x, int *y, int *w, int *h);
 static void draw_fo_fi_child(void);
 static void draw_switch_child_images(void);
 static void update_switch_child(int *x, int *y, int *w, int *h);
-static void draw_text(int x, int y, int w, const char *t);
+static void draw_text(int x, int y, int w, const char *t, bool is_news);
 static void draw_keep(void);
 static void play_se(const char *file);
 static bool cleanup(void);
@@ -433,8 +433,10 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		update_switch_parent(x, y, w, h);
 
 		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_button_pressed)
-			play_se(conf_switch_change_se);
+		if (new_pointed_index != -1 && !is_left_button_pressed) {
+			play_se(get_command_type() == COMMAND_NEWS ?
+				conf_news_change_se : conf_switch_change_se);
+		}
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
@@ -573,6 +575,7 @@ static void draw_fo_fi_parent(void)
 void draw_switch_parent_images(void)
 {
 	int i;
+	bool is_news;
 
 	assert(selected_parent_index == -1);
 
@@ -580,15 +583,26 @@ void draw_switch_parent_images(void)
 		if (IS_PARENT_DISABLED(i))
 			continue;
 
+		/* NEWSの項目であるか調べる */
+		is_news = get_command_type() == COMMAND_NEWS &&
+			i < SWITCH_BASE;
+
 		/* FO/FIレイヤにスイッチを描画する */
-		draw_switch_fg_image(parent_button[i].x,
-				     parent_button[i].y);
-		draw_switch_bg_image(parent_button[i].x,
-				     parent_button[i].y);
+		if (!is_news) {
+			draw_switch_fg_image(parent_button[i].x,
+					     parent_button[i].y);
+			draw_switch_bg_image(parent_button[i].x,
+					     parent_button[i].y);
+		} else {
+			draw_news_fg_image(parent_button[i].x,
+					   parent_button[i].y);
+			draw_news_bg_image(parent_button[i].x,
+					   parent_button[i].y);
+		}
 
 		/* テキストを描画する */
 		draw_text(parent_button[i].x, parent_button[i].y,
-			  parent_button[i].w, parent_button[i].msg);
+			  parent_button[i].w, parent_button[i].msg, is_news);
 	}
 }
 
@@ -647,7 +661,7 @@ void draw_switch_child_images(void)
 
 		/* テキストを描画する */
 		draw_text(child_button[i][j].x, child_button[i][j].y,
-			  child_button[i][j].w, child_button[i][j].msg);
+			  child_button[i][j].w, child_button[i][j].msg, false);
 	}
 }
 
@@ -681,14 +695,14 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 }
 
 /* 選択肢のテキストを描画する */
-static void draw_text(int x, int y, int w, const char *t)
+static void draw_text(int x, int y, int w, const char *t, bool is_news)
 {
 	uint32_t c;
 	int mblen, xx;
 
 	/* 描画位置を決める */
 	xx = x + (w - get_utf8_width(t)) / 2;
-	y += conf_switch_text_margin_y;
+	y += is_news ? conf_news_text_margin_y : conf_switch_text_margin_y;
 
 	/* 1文字ずつ描画する */
 	while (*t != '\0') {

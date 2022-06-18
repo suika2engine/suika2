@@ -255,7 +255,7 @@ void get_click_rect(int *x, int *y, int *w, int *h);
 void show_click(bool show);
 
 /*
- * スイッチ(@choose, @select, @switch)の描画
+ * スイッチ(@choose, @select, @switch, @news)の描画
  */
 
 /* スイッチの親選択肢の矩形を取得する */
@@ -269,6 +269,12 @@ void draw_switch_fg_image(int x, int y);
 
 /* NEWSの親選択肢の矩形を取得する */
 void get_news_rect(int index, int *x, int *y, int *w, int *h);
+
+/* FIレイヤにNEWSの非選択イメージを描画する */
+void draw_news_bg_image(int x, int y);
+
+/* FIレイヤにNEWSの選択イメージを描画する */
+void draw_news_fg_image(int x, int y);
 
 /*
  * セーブ画面の描画
