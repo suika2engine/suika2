@@ -18,6 +18,7 @@
 bool video_command(void)
 {
 	const char *fname;
+	bool is_skippable;
 
 	/* パラメータを取得する */
 	fname = get_string_param(VIDEO_PARAM_FILE);
@@ -28,8 +29,17 @@ bool video_command(void)
 		return false;
 	}
 
+	/* クリックでスキップ可能かを決定する */
+	is_skippable = get_seen() && !is_non_interruptible();
+#ifdef USE_DEBUGGER
+	is_skippable = true;
+#endif
+
+	/* 既読フラグを設定する */
+	set_seen();
+
 	/* 動画を再生する */
-	if (!play_video(fname))
+	if (!play_video(fname, is_skippable))
 		return false;
 
 	/* 次のコマンドへ移動する */

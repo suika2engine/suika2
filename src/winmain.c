@@ -99,6 +99,9 @@ static int nOffsetY;
 /* DirectShowでビデオを再生中か */
 static BOOL bDShowMode;
 
+/* DirectShow再生中にクリックでスキップするか */
+static BOOL bDShowSkippable;
+
 /* UTF-8からSJISへの変換バッファ */
 static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
@@ -471,7 +474,20 @@ static void GameLoop(void)
 			if(!SyncEvents())
 				break;
 
-			continue;
+			if(bDShowSkippable &&
+			   (is_left_button_pressed || is_right_button_pressed ||
+				is_control_pressed || is_return_pressed || is_down_pressed))
+			{
+				DShowStopVideo();
+				bDShowMode = FALSE;
+				is_left_button_pressed = false;
+				is_right_button_pressed = false;
+				is_control_pressed = false;
+				is_return_pressed = false;
+				is_down_pressed = false;
+			} else {
+				continue;
+			}
 		}
 
 #ifdef USE_DIRECT3D
@@ -1176,7 +1192,7 @@ bool title_dialog(void)
 /*
  * ビデオを再生する
  */
-bool play_video(const char *fname)
+bool play_video(const char *fname, bool is_skippable)
 {
 	char *path;
 
@@ -1184,6 +1200,9 @@ bool play_video(const char *fname)
 
 	/* イベントループをDirectShow再生モードに設定する */
 	bDShowMode = TRUE;
+
+	/* クリックでスキップするかを設定する */
+	bDShowSkippable = is_skippable;
 
 	/* ビデオの再生を開始する */
 	BOOL ret = DShowPlayVideo(hWndMain, path);

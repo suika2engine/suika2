@@ -86,7 +86,7 @@ bool exit_dialog(void);
 bool title_dialog(void);
 
 /* ビデオを再生する */
-bool play_video(const char *fname);
+bool play_video(const char *fname, bool is_skippable);
 
 /*
  * デバッガの場合のみ
