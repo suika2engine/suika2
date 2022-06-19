@@ -467,27 +467,17 @@ static void GameLoop(void)
 
 	while(TRUE)
 	{
-		/* DirectShowで動画を再生中の場合 */
 		if(bDShowMode)
 		{
-			/* イベントを処理する */
+			/* ウィンドウイベントを処理する */
 			if(!SyncEvents())
 				break;
 
-			if(bDShowSkippable &&
-			   (is_left_button_pressed || is_right_button_pressed ||
-				is_control_pressed || is_return_pressed || is_down_pressed))
-			{
-				DShowStopVideo();
-				bDShowMode = FALSE;
-				is_left_button_pressed = false;
-				is_right_button_pressed = false;
-				is_control_pressed = false;
-				is_return_pressed = false;
-				is_down_pressed = false;
-			} else {
-				continue;
-			}
+			/* @videoコマンドを実行する */
+			if(!on_event_frame(&x, &y, &w, &h))
+				break;
+
+			continue;
 		}
 
 #ifdef USE_DIRECT3D
@@ -1211,4 +1201,21 @@ bool play_video(const char *fname, bool is_skippable)
 
 	free(path);
 	return ret;
+}
+
+/*
+ * ビデオを停止する
+ */
+void stop_video(void)
+{
+	DShowStopVideo();
+	bDShowMode = FALSE;
+}
+
+/*
+ * ビデオが再生中か調べる
+ */
+bool is_video_playing(void)
+{
+	return bDShowMode;
 }
