@@ -599,8 +599,21 @@ bool exit_dialog(void)
     return true;
 }
 
-/* タイトルに戻るダイアログを表示する */
+//
+// タイトルに戻るダイアログを表示する
+//
 bool title_dialog(void)
 {
     return true;
+}
+
+//
+// ビデオを再生する
+//
+bool play_video(const char *fname, bool is_skippable)
+{
+	UNUSED_PARAMETER(fname);
+
+	/* stub */
+	return true;
 }

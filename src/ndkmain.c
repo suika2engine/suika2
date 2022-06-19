@@ -440,7 +440,7 @@ bool is_sound_finished(int stream)
 /*
  * ビデオを再生する
  */
-bool play_video(const char *fname)
+bool play_video(const char *fname, bool is_skippable)
 {
 	UNUSED_PARAMETER(fname);
 
