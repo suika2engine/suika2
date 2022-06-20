@@ -990,3 +990,19 @@ bool play_video(const char *fname, bool is_skippable)
 	/* stub */
 	return true;
 }
+
+/*
+ * ビデオを停止する
+ */
+void stop_video(void)
+{
+	/* stub */
+}
+
+/*
+ * ビデオが再生中か調べる
+ */
+bool is_video_playing(void)
+{
+	return false;
+}
