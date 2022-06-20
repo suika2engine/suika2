@@ -128,7 +128,7 @@ int main(int argc, char * argv[]) {
 - (void)viewWillAppear:(BOOL)animated
 {
     [self startAnimation];
-    
+
     [super viewWillAppear:animated];
 }
 
