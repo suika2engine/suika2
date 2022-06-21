@@ -99,6 +99,9 @@ static int nOffsetY;
 /* DirectShowでビデオを再生中か */
 static BOOL bDShowMode;
 
+/* DirectShow再生中にクリックでスキップするか */
+static BOOL bDShowSkippable;
+
 /* UTF-8からSJISへの変換バッファ */
 static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
@@ -464,11 +467,14 @@ static void GameLoop(void)
 
 	while(TRUE)
 	{
-		/* DirectShowで動画を再生中の場合 */
 		if(bDShowMode)
 		{
-			/* イベントを処理する */
+			/* ウィンドウイベントを処理する */
 			if(!SyncEvents())
+				break;
+
+			/* @videoコマンドを実行する */
+			if(!on_event_frame(&x, &y, &w, &h))
 				break;
 
 			continue;
@@ -1176,7 +1182,7 @@ bool title_dialog(void)
 /*
  * ビデオを再生する
  */
-bool play_video(const char *fname)
+bool play_video(const char *fname, bool is_skippable)
 {
 	char *path;
 
@@ -1185,6 +1191,9 @@ bool play_video(const char *fname)
 	/* イベントループをDirectShow再生モードに設定する */
 	bDShowMode = TRUE;
 
+	/* クリックでスキップするかを設定する */
+	bDShowSkippable = is_skippable;
+
 	/* ビデオの再生を開始する */
 	BOOL ret = DShowPlayVideo(hWndMain, path);
 	if(!ret)
@@ -1192,4 +1201,21 @@ bool play_video(const char *fname)
 
 	free(path);
 	return ret;
+}
+
+/*
+ * ビデオを停止する
+ */
+void stop_video(void)
+{
+	DShowStopVideo();
+	bDShowMode = FALSE;
+}
+
+/*
+ * ビデオが再生中か調べる
+ */
+bool is_video_playing(void)
+{
+	return bDShowMode;
 }

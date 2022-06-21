@@ -47,35 +47,38 @@ Open eyes.
 ```
 
 ### Effects
-* You can specify the following effects:
-    * `normal`, `n` or not-specified -> fade/dissolve (alpha blending)
-    * `mask` or `m` -> dissolve from radiating points
-    * `curtain-right`, `curtain`, `cr` or `c` -> right curtain
-    * `curtain-left` or `cl` -> left curtain
-    * `curtain-up` or `cu` -> up curtain
-    * `curtain-down` or `cd` -> down curtain
-    * `slide-right` or `sr` -> right slide
-    * `slide-left` or `sl` -> left slide
-    * `slide-up` or `su` -> up slide
-    * `slide-down` or `sd` -> down slide
-    * `shutter-right` or `shr` -> right shutter
-    * `shutter-left` or `shl` -> left shutter
-    * `shutter-up` or `shu` -> up shutter
-    * `shutter-down` or `shd` -> down shutter
-    * `clockwise` or `cw` -> clockwise wipe
-    * `counterclockwise` or `ccw` -> counterclockwise wipe
-    * `clockwise20` or `cw20` -> clockwise wipe (20 degrees stepped)
-    * `counterclockwise20` or `ccw20` -> counterclockwise wipe (20 degrees stepped)
-    * `clockwise30` or `cw30` -> clockwise wipe (30 degrees stepped)
-    * `counterclockwise30` or `ccw30` -> counterclockwise wipe (30 degrees stepped)
-    * `eye-open` -> open eyes
-    * `eye-close` -> close eyes
-    * `eye-open-v` -> open eyes (vertical)
-    * `eye-close-v` -> close eyes (vertical)
-    * `slit-open` -> open slit
-    * `slit-close` → close slit
-    * `slit-open-v` → open slit (vertical)
-    * `slit-close-v` → close slit (vertical)
+You can specify the following effects:
+
+|Effect Type                               |Effect Name         |Abbrev. Name 1|Abbrev. Name 2 |
+|------------------------------------------|--------------------|--------------|---------------|
+|fade/dissolve (alpha blending)            |`normal`            |`n`           |(not-specified)|
+|dissolve from radiating points            |`mask`              |`m`           |               |
+|right curtain                             |`curtain-right`     |`curtain`     |`c`            |
+|left curtain                              |`curtain-left`      |`cl`          |               |
+|up curtain                                |`curtain-up`        |`cu`          |               |
+|down curtain                              |`curtain-down`      |`cd`          |               |
+|right slide                               |`slide-right`       |`sr`          |               |
+|left slide                                |`slide-left`        |`sl`          |               |
+|up slide                                  |`slide-up`          |`su`          |               |
+|down slide                                |`slide-down`        |`sd`          |               |
+|right shutter                             |`shutter-right`     |`shr`         |               |
+|left shutter                              |`shutter-left`      |`shl`         |               |
+|up shutter                                |`shutter-up`        |`shu`         |               |
+|down shutter                              |`shutter-down`      |`shd`         |               |
+|clockwise wipe                            |`clockwise`         |`cw`          |               |
+|counterclockwise wipe                     |`counterclockwise`  |`ccw`         |               |
+|clockwise wipe (20 degrees stepped)       |`clockwise20`       |`cw20`        |               |
+|counterclockwise wipe (20 degrees stepped)|`counterclockwise20`|`ccw20`       |               |
+|clockwise wipe (30 degrees stepped)       |`clockwise30`       |`cw30`        |               |
+|counterclockwise wipe (30 degrees stepped)|`counterclockwise30`|`ccw30`       |               |
+|open eyes                                 |`eye-open`          |              |               |
+|close eyes                                |`eye-close`         |              |               |
+|open eyes (vertical)                      |`eye-open-v`        |              |               |
+|close eyes (vertical)                     |`eye-close-v`       |              |               |
+|open slit                                 |`slit-open`         |              |               |
+|close slit                                |`slit-close`        |              |               |
+|open slit (vertical)                      |`slit-open-v`       |              |               |
+|close slit (vertical)                     |`slit-close-v`      |              |               |
 
 ## @bgm
 
@@ -113,11 +116,14 @@ Fade-out BGM in 2 seconds.
 
 This command changes the character.
 
-* Character positions are:
-    * `center` or `c` (front center)
-    * `right or `r`
-    * `left` or `l`
-    * `back` or `b` (back center)
+Character positions are:
+
+|Display Position  |Target Name|Abbrev. Name|
+|------------------|-----------|------------|
+|Front Center      |`center`   |`c`         |
+|Right             |`right     |`r`         |
+|Left              |`left`     |`l`         |
+|Back Center       |`back`     |`b`         |
 
 Effects are the same as `@bg`.
 
@@ -302,13 +308,16 @@ Shows save screen.
 
 This command jumps to the specified label if the specified condition is true.
 
-* Available operators are:
-    * `>` greater than
-    * `>=` greater than or equal to
-    * `==` equal to
-    * `<=` less than or equal to
-    * `<` less than
-    * `!=` not equal to
+Available operators are:
+
+|Operator|Meaning                 |
+|--------|------------------------|
+|`>`     |greater than            |
+|`>=`    |greater than or equal to|
+|`==`    |equal to                |
+|`<=`    |less than or equal to   |
+|`<`     |less than               |
+|`!=`    |not equal to            |
 
 LHS must be a variable name (e.g., `$1`).
 
