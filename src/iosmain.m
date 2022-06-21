@@ -128,7 +128,7 @@ int main(int argc, char * argv[]) {
 - (void)viewWillAppear:(BOOL)animated
 {
     [self startAnimation];
-    
+
     [super viewWillAppear:animated];
 }
 
@@ -599,8 +599,39 @@ bool exit_dialog(void)
     return true;
 }
 
-/* タイトルに戻るダイアログを表示する */
+//
+// タイトルに戻るダイアログを表示する
+//
 bool title_dialog(void)
 {
     return true;
+}
+
+//
+// ビデオを再生する
+//
+bool play_video(const char *fname, bool is_skippable)
+{
+	UNUSED_PARAMETER(fname);
+	UNUSED_PARAMETER(is_skippable);
+
+	// stub
+	return true;
+}
+
+//
+// ビデオを停止する
+//
+void stop_video(void)
+{
+    // stub
+}
+
+//
+// ビデオが再生中か調べる
+//
+bool is_video_playing(void)
+{
+    // stub
+    return false;
 }

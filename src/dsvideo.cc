@@ -69,6 +69,7 @@ BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName)
 		return FALSE;
 	}
 	pWindow->put_Owner((OAHWND)hWndMain);
+	pWindow->put_MessageDrain((OAHWND)hWndMain);
 	pWindow->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
 	pWindow->SetWindowPosition(0, 0, conf_window_width, conf_window_height);
 
@@ -133,6 +134,41 @@ static BOOL DisplayRenderFileErrorMessage(HRESULT hr)
 	}
 
 	return TRUE;
+}
+
+//
+// ビデオ再生を停止する
+//
+VOID DShowStopVideo(void)
+{
+	if(pControl != NULL)
+	{
+		pControl->Stop();
+
+		hWndMain = NULL;
+		if(pBuilder)
+		{
+			pBuilder->Release();
+			pBuilder = NULL;
+		}
+		if(pWindow)
+		{
+			pWindow->put_Visible(OAFALSE);
+			pWindow->put_Owner((OAHWND)NULL);
+			pWindow->Release();
+			pWindow = NULL;
+		}
+		if(pControl)
+		{
+			pControl->Release();
+			pControl = NULL;
+		}
+		if(pEvent)
+		{
+			pEvent->Release();
+			pEvent = NULL;
+		}
+	}
 }
 
 //

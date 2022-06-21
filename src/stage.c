@@ -2469,28 +2469,27 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = (conf_window_width - *w) / 2;
-		*y = conf_news_margin;
+		*y = conf_switch_y;
 	} else if (index == EAST) {
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = conf_window_width - *w - conf_news_margin;
-		*y = conf_news_margin + *h + conf_switch_margin_y;
+		*y = conf_switch_y + *h + conf_news_margin;
 	} else if (index == WEST) {
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = conf_news_margin;
-		*y = conf_news_margin + *h + conf_switch_margin_y;
+		*y = conf_switch_y + *h + conf_news_margin;
 	} else if (index == SOUTH) {
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = (conf_window_width - *w) / 2;
-		*y = conf_news_margin + (*h + conf_switch_margin_y) * 2;
+		*y = conf_switch_y + (*h + conf_news_margin) * 2;
 	} else {
 		*w = get_image_width(switch_bg_image);
 		*h = get_image_height(switch_bg_image);
 		*x = conf_switch_x;
-		*y = conf_news_margin + (*h + conf_switch_margin_y) * 3 +
-			conf_news_margin +
+		*y = conf_switch_y + (*h + conf_news_margin) * 3 +
 			(get_image_height(switch_bg_image) +
 			 conf_switch_margin_y) *
 			(index - SWITCH_BASE);
