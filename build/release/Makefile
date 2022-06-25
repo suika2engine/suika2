@@ -25,8 +25,9 @@ suika-2.x.x-en.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	mkdir suika2/txt
 	cp -Rv ../../game-en/txt/* suika2/txt/
 	cp -v ../../COPYING suika2/
-	cp -v ../../readme-en.html suika2/readme.html
+	cp -v ../../readme-en.html suika2/README.html
 	cp -v ../../suika.exe suika2/
+	cp -v ../../suika-3d.exe suika2/
 	cp -v ../../suika-pro.exe suika2/
 	cp -v mac.dmg suika2/
 	cp -v mac-pro.dmg suika2/
@@ -55,8 +56,9 @@ suika-2.x.x-jp.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	mkdir suika2/txt
 	cp -Rv ../../game-jp/txt/* suika2/txt/
 	cp -v ../../COPYING suika2/
-	cp -v ../../readme-jp.html suika2/readme.html
+	cp -v ../../readme-jp.html suika2/README.html
 	cp -v ../../suika.exe suika2/
+	cp -v ../../suika-3d.exe suika2/
 	cp -v ../../suika-pro.exe suika2/
 	cp -v mac.dmg suika2/
 	cp -v mac-pro.dmg suika2/

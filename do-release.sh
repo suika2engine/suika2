@@ -7,22 +7,28 @@ read str
 VERSION=$str
 [ -n "$VERSION" ]
 
+echo ""
 echo "Are you sure you want to release $VERSION? (press return)"
 read str
 
-echo "Checking for symbolic link to Windows file sharing."
+echo ""
+echo "Checking for the symbolic link to Windows file sharing."
 [ -e fileserver ]
 
-echo "Checking for symbolic link to ftp local directory."
+echo ""
+echo "Checking for the symbolic link to ftp local directory."
 [ -e ftplocal ]
   
-echo "Waiting for Mac apps. (press return)"
+echo ""
+echo "Export notarized Mac apps. (press return)"
 read str
 
+echo ""
 echo "Checking for Mac apps."
 [ -d suika.app ]
 [ -d suika-pro.app ]
 
+echo ""
 echo "Building suika.exe"
 cd build/mingw
 make clean
@@ -31,6 +37,16 @@ make
 cp suika.exe ../../fileserver/
 cd ../../
 
+echo ""
+echo "Building suika-3d.exe"
+cd build/mingw-3d
+make clean
+./build-libs.sh
+make
+cp suika-3d.exe ../../fileserver/
+cd ../../
+
+echo ""
 echo "Building suika-pro.exe"
 cd build/mingw-pro
 make clean
@@ -40,18 +56,21 @@ cp suika-pro.exe ../../fileserver/
 cd ../../
 
 echo ""
-echo "Waiting for code signing. (press return)"
+echo "Sign Windows exes. (press return)"
 read str
 cp fileserver/suika.exe .
+cp fileserver/suika-3d.exe .
 cp fileserver/suika-pro.exe .
 
+echo ""
 echo "Building Emscripten files."
 cd build/emscripten
 make clean
 make
 cd ../../
 
-echo "Creating Win/Mac release files."
+echo ""
+echo "Creating Windows/Mac release files."
 cd build/release
 make clean
 make
@@ -59,7 +78,8 @@ cp suika-2.x.x-en.zip "../../ftplocal/suika-$VERSION-en.zip"
 cp suika-2.x.x-jp.zip "../../ftplocal/suika-$VERSION-jp.zip"
 cd ../../
 
-echo "Creating Web version release files."
+echo ""
+echo "Creating Web distribution kit release files."
 cd build/web-kit
 make clean
 make
@@ -67,6 +87,7 @@ cp suika2-web-kit-2.x.x-en.zip "../../ftplocal/suika2-web-kit-$VERSION-en.zip"
 cp suika2-web-kit-2.x.x-jp.zip "../../ftplocal/suika2-web-kit-$VERSION-jp.zip"
 cd ../../
 
+echo ""
 echo "Uploading release files."
 cd ftplocal
 ftpupload.sh "suika-$VERSION-en.zip"
@@ -78,4 +99,5 @@ sleep 5
 ftpupload.sh "suika2-web-kit-$VERSION-jp.zip"
 cd ..
 
+echo ""
 echo "Release completed."
