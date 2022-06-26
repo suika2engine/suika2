@@ -20,6 +20,7 @@
  *  - 2021/07/19 @chsに対応
  *  - 2022/05/11 @videoに対応
  *  - 2022/06/17 @chooseに対応
+ *  - 2022/06/26 @chsをテンプレートに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -500,6 +501,7 @@ enum chs_command_param {
 	CHS_PARAM_SPAN,
 	CHS_PARAM_BG,
 	CHS_PARAM_METHOD,
+	CHS_PARAM_TEMPLATE,
 };
 
 /* videoコマンドのパラメータ */

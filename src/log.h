@@ -67,6 +67,7 @@ void log_video_error(const char *reason);
 void log_script_choose_no_message(void);
 void log_script_empty_string(void);
 void log_file_write(const char *file);
+void log_script_template(void);
 
 #ifdef USE_DEBUGGER
 void log_command_update_error(void);

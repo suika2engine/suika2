@@ -582,7 +582,7 @@ void draw_stage_bg_fade(int fade_method)
 }
 
 /*
- * キャラフェードモードが有効な際のステージ描画を行う
+ * キャラフェードモードが有効な際のステージ描画を行う (テンプレート不使用)
  */
 void draw_stage_ch_fade(int fade_method)
 {
@@ -1511,6 +1511,28 @@ static void draw_stage_fi_fo_fade_slit_close_v(void)
 }
 
 /*
+ * キャラフェードモードが有効な際のステージ描画を行う (テンプレート使用)
+ */
+void draw_stage_ch_fade_template(struct image *template_img)
+{
+	int threshold;
+
+	assert(!is_save_load_mode());
+	assert(stage_mode == STAGE_MODE_CH_FADE);
+
+	/* テンプレートの閾値を求める */
+	threshold = (int)(255.0f * fi_fo_fade_progress);
+
+	/* フェードアウトする画像をコピーする */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* フェードインする画像をレンダリングする */
+	render_image_template(layer_image[LAYER_FI], template_img, threshold);
+}
+
+/*
  * 画面揺らしモードが有効な際のステージ描画を行う
  */
 void draw_stage_shake(void)
@@ -1659,7 +1681,7 @@ void draw_stage_fo_fi(void)
  */
 
 /*
- * 文字列からフェードメソッドを取得する
+ * 文字列からフェードメソッドを取得する (@bg, @ch)
  */
 int get_fade_method(const char *method)
 {
@@ -1813,6 +1835,19 @@ int get_fade_method(const char *method)
 
 	/* 不正なフェード指定 */
 	return FADE_METHOD_INVALID;
+}
+
+/*
+ * 文字列からフェードメソッドを取得する (@bg, @ch)
+ */
+int get_fade_method_chs(const char *method)
+{
+	/* テンプレート */
+	if (strcmp(method, "template") == 0)
+		return FADE_METHOD_TEMPLATE;
+
+	/* それ以外 */
+	return get_fade_method(method);
 }
 
 /*

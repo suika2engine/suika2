@@ -993,3 +993,54 @@ void draw_image_mask(
 		dst_ptr += dw;
 	}
 }
+
+/*
+ * テンプレートつき描画
+ */
+
+/*
+ * イメージをテンプレート指定で描画する
+ */
+void draw_image_template(struct image * RESTRICT dst_image,
+			 struct image * RESTRICT src_image,
+			 struct image * RESTRICT template_image,
+			 int threshold)
+{
+	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr, * RESTRICT tmp_ptr;
+	int x, y, dw, sw, tw, w, dh, sh, th, h;
+
+	/* 幅を取得する */
+	dw = get_image_width(dst_image);
+	sw = get_image_width(src_image);
+	tw = get_image_width(template_image);
+	w = dw;
+	if (sw < w)
+		w = sw;
+	if (tw < w)
+		w = tw;
+	
+	/* 高さを取得する */
+	dh = get_image_height(dst_image);
+	sh = get_image_height(src_image);
+	th = get_image_height(template_image);
+	h = dh;
+	if (sh < h)
+		h = sh;
+	if (th < h)
+		h = th;
+
+	/* 描画する */
+	dst_ptr = get_image_pixels(dst_image);
+	src_ptr = get_image_pixels(src_image);
+	tmp_ptr = get_image_pixels(template_image);
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
+			if (get_pixel_b(*(tmp_ptr + x)) <=
+			    (unsigned char)threshold)
+				*(dst_ptr + x) = *(src_ptr + x);
+		}
+		dst_ptr += dw;
+		src_ptr += sw;
+		tmp_ptr += tw;
+	}
+}

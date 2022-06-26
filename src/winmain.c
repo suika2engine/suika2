@@ -1084,6 +1084,20 @@ void render_image_mask(int dst_left, int dst_top,
 }
 
 /*
+ * 画面にイメージをテンプレート指定でレンダリングする
+ */
+void render_image_template(struct image * RESTRICT src_img,
+						   struct image * RESTRICT template_img,
+						   int threshold)
+{
+#ifdef USE_DIRECT3D
+	D3DRenderImageTemplate(src_image, template_img, threshold);
+#else
+	draw_image_template(BackImage, src_img, template_img, threshold);
+#endif
+}
+
+/*
  * 画面をクリアする
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)

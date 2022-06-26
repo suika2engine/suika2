@@ -8,6 +8,7 @@
 /*
  * [Changes]
  *  - 2021/07/19 作成
+ *  - 2022/06/26 テンプレートに対応
  */
 
 #include "suika.h"
@@ -19,6 +20,7 @@
 static stop_watch_t sw;
 static float span;
 static int fade_method;
+static struct image *template_img;
 
 static bool init(void);
 static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
@@ -59,6 +61,7 @@ static bool init(void)
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
 	const char *method;
+	const char *tname;
 	int i;
 
 	/* パラメータを取得する */
@@ -69,9 +72,10 @@ static bool init(void)
 	fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
 	span = get_float_param(CHS_PARAM_SPAN);
 	method = get_string_param(CHS_PARAM_METHOD);
+	tname = get_string_param(CHS_PARAM_TEMPLATE);
 
 	/* 描画メソッドを識別する */
-	fade_method = get_fade_method(method);
+	fade_method = get_fade_method_chs(method);
 	if (fade_method == FADE_METHOD_INVALID) {
 		log_script_fade_method(method);
 		log_script_exec_footer();
@@ -129,6 +133,23 @@ static bool init(void)
 		/* 表示位置を取得する */
 		if (i != BG_INDEX)
 			get_position(&x[i], &y[i], i, img[i]);
+	}
+
+	/* テンプレートが使用される場合 */
+	if (fade_method == FADE_METHOD_TEMPLATE) {
+		/* テンプレートファイルが指定されていない場合 */
+		if (strcmp(tname, "") == 0) {
+			log_script_template();
+			log_script_exec_footer();
+			return false;
+		}
+
+		/* イメージを読み込む */
+		template_img = create_image_from_file(BG_DIR, tname);
+		if (template_img == NULL) {
+			log_script_exec_footer();
+			return false;
+		}
 	}
 
 	/* キーが押されているか、フェードしない場合 */
@@ -228,15 +249,25 @@ static void draw(void)
 	}
 
 	/* ステージを描画する */
-	if (is_in_command_repetition())
-		draw_stage_ch_fade(fade_method);
-	else
+	if (is_in_command_repetition()) {
+		if (fade_method != FADE_METHOD_TEMPLATE)
+			draw_stage_ch_fade(fade_method);
+		else
+			draw_stage_ch_fade_template(template_img);
+	} else {
 		draw_stage();
+	}
 }
 
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	/* テンプレートイメージを破棄する */
+	if (template_img != NULL) {
+		destroy_image(template_img);
+		template_img = NULL;
+	}
+
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

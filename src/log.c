@@ -642,6 +642,17 @@ void log_file_write(const char *file)
 		log_info("\'%s\'へ書き込みできません。", file);
 }
 
+/*
+ * @chsコマンドでテンプレートが指定されていない際のエラーを記録する
+ */
+void log_script_template(void)
+{
+	if (is_english_mode())
+		log_info("Template file not specified.");
+	else
+		log_info("テンプレートファイルが指定されていません。");
+}
+
 #ifdef USE_DEBUGGER
 /*
  * コマンドのアップデートに失敗した際のエラーを記録する

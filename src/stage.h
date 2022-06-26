@@ -61,6 +61,7 @@ enum fade_method {
 	FADE_METHOD_SLIT_CLOSE,
 	FADE_METHOD_SLIT_OPEN_V,
 	FADE_METHOD_SLIT_CLOSE_V,
+	FADE_METHOD_TEMPLATE,
 };
 
 /*
@@ -89,8 +90,11 @@ void draw_stage_rect(int x, int y, int w, int h);
 /* 背景フェードモードが有効な際のステージ描画を行う */
 void draw_stage_bg_fade(int fade_method);
 
-/* キャラフェードモードが有効な際のステージ描画を行う */
+/* キャラフェードモードが有効な際のステージ描画を行う (テンプレート不使用) */
 void draw_stage_ch_fade(int fade_method);
+
+/* キャラフェードモードが有効な際のステージ描画を行う (テンプレート使用) */
+void draw_stage_ch_fade_template(struct image *template_img);
 
 /* 画面揺らしモードが有効な際のステージ描画を行う */
 void draw_stage_shake(void);
@@ -121,8 +125,11 @@ void draw_stage_fo_fi(void);
  * 背景の変更
  */
 
-/* 文字列からフェードメソッドを取得する */
+/* 文字列からフェードメソッドを取得する (@bg, @ch) */
 int get_fade_method(const char *method);
+
+/* 文字列からフェードメソッドを取得する (@chs) */
+int get_fade_method_chs(const char *method);
 
 /* 背景のファイル名を設定する */
 bool set_bg_file_name(const char *file);
