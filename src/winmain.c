@@ -28,9 +28,7 @@
 #include "windebug.h"
 #endif
 
-#ifdef USE_DIRECT3D
-#include "d3drender.h"
-#endif
+#include "glrender.h"
 
 #ifdef SSE_VERSIONING
 #include "x86.h"

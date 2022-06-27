@@ -21,18 +21,8 @@
 #include <sys/time.h>	/* gettimeofday() */
 
 #include "suika.h"
+#include "glrender.h"
 #include "emopenal.h"
-
-#ifdef USE_OPENGL
-#include "glesrender.h"
-#endif
-
-#ifndef USE_OPENGL
-/*
- * 背景イメージ
- */
-struct image *back_image;
-#endif
 
 /*
  * タッチのY座標
@@ -95,11 +85,6 @@ int main(void)
 	EM_ASM_({resizeWindow(null);});
 #endif
 
-#ifndef USE_OPENGL
-	/* バックイメージを作成する */
-	if (!create_back_image())
-		return 1;
-#else
 	/* OpenGLレンダを初期化する */
 	EmscriptenWebGLContextAttributes attr;
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context;
@@ -110,7 +95,6 @@ int main(void)
 	emscripten_webgl_make_context_current(context);
 	if (!init_opengl())
 		return 1;
-#endif
 
 	/* 初期化イベントを処理する */
 	if(!on_event_init())
@@ -133,26 +117,6 @@ int main(void)
 	return 0;
 }
 
-#ifndef USE_OPENGL
-/* 背景イメージを作成する */
-static bool create_back_image(void)
-{
-	/* 背景イメージを作成する */
-	back_image = create_image(conf_window_width, conf_window_height);
-	if (back_image == NULL)
-		return false;
-
-	/* 初期状態でバックイメージを白く塗り潰す */
-	if (conf_window_white) {
-		lock_image(back_image);
-		clear_image_white(back_image);
-		unlock_image(back_image);
-	}
-
-	return true;
-}
-#endif
-
 /* フレームを処理する */
 static EM_BOOL loop_iter(double time, void * userData)
 {
@@ -166,13 +130,8 @@ static EM_BOOL loop_iter(double time, void * userData)
 	/* サウンドの処理を行う */
 	fill_sound_buffer();
 
-#ifndef USE_OPENGL
-	/* バックイメージをロックする */
-	lock_image(back_image);
-#else
 	/* フレームのレンダリングを開始する */
 	opengl_start_rendering();
-#endif
 
 	/* フレームイベントを呼び出す */
 	x = y = w = h = 0;
@@ -186,28 +145,8 @@ static EM_BOOL loop_iter(double time, void * userData)
 		EM_FALSE;
 	}
 
-#ifndef USE_OPENGL
-	/* バックイメージをアンロックする */
-	unlock_image(back_image);
-
-	/* 描画を行わない場合 */
-	if (w == 0 || h == 0)
-		return EM_TRUE;
-
-	/* 描画を行う */
-	pixel_t *p;
-	p = get_image_pixels(back_image);
-	EM_ASM_({
-		let data = Module.HEAPU8.slice($0, $0 + $1 * $2 * 4);
-		let context = Module['canvas'].getContext('2d');
-		let imageData = context.getImageData(0, 0, $1, $2);
-		imageData.data.set(data);
-		context.putImageData(imageData, 0, 0);
-	}, p, conf_window_width, conf_window_height);
-#else
 	/* フレームのレンダリングを終了する */
 	opengl_end_rendering();
-#endif
 
 	return EM_TRUE;
 }
@@ -500,24 +439,12 @@ const char *conv_utf8_to_native(const char *utf8_message)
 bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
-#ifdef USE_OPENGL
 	fill_sound_buffer();
 	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
 				 texture))
 		return false;
 	fill_sound_buffer();
 	return true;
-#else
-	assert(*locked_pixels == NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = pixels;
-
-	return true;
-#endif
 }
 
 /*
@@ -526,20 +453,9 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
-#ifdef USE_OPENGL
 	fill_sound_buffer();
 	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
 	fill_sound_buffer();
-#else
-	assert(*locked_pixels != NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = NULL;
-#endif
 }
 
 /*
@@ -547,11 +463,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-#ifdef USE_OPENGL
 	opengl_destroy_texture(texture);
-#else
-	UNUSED_PARAMETER(texture);
-#endif
 }
 
 /*
@@ -561,13 +473,8 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-#ifdef USE_OPENGL
 	opengl_render_image(dst_left, dst_top, src_image, width, height,
 			    src_left, src_top, alpha, bt);
-#else
-	draw_image(back_image, dst_left, dst_top, src_image, width, height,
-		   src_left, src_top, alpha, bt);
-#endif
 }
 
 /*
@@ -578,13 +485,8 @@ void render_image_mask(int dst_left, int dst_top,
                        int width, int height, int src_left, int src_top,
                        int mask)
 {
-#ifdef USE_OPENGL
 	opengl_render_image_mask(dst_left, dst_top, src_image, width,
 				 height, src_left, src_top, mask);
-#else
-	draw_image_mask(back_image, dst_left, dst_top, src_image, width,
-			height, src_left, src_top, mask);
-#endif
 }
 
 /*
@@ -592,11 +494,7 @@ void render_image_mask(int dst_left, int dst_top,
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
-#ifdef USE_OPENGL
 	opengl_render_clear(left, top, width, height, color);
-#else
-	clear_image_color_rect(back_image, left, top, width, height, color);
-#endif
 }
 
 /* 画面にイメージをルール付きでレンダリングする */
@@ -604,11 +502,7 @@ void render_image_rule(struct image * RESTRICT src_img,
 		       struct image * RESTRICT rule_img,
 		       int threshold)
 {
-#ifdef USE_OPENGL
 	opengl_render_image_rule(src_img, rule_img, threshold);
-#else
-	draw_image_rule(back_image, src_image, rule_image, threshold);
-#endif
 }
 
 /*
@@ -650,16 +544,6 @@ char *make_valid_path(const char *dir, const char *fname)
 
 	return buf;
 }
-
-#ifndef USE_OPENGL
-/*
- * バックイメージを取得する
- */
-struct image *get_back_image(void)
-{
-	return back_image;
-}
-#endif
 
 /*
  * タイマをリセットする

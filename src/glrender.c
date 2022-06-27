@@ -11,7 +11,7 @@
  */
 
 #include "suika.h"
-#include "glesrender.h"
+#include "glrender.h"
 
 #if defined(IOS)
 #define GL_SILENCE_DEPRECATION

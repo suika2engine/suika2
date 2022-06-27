@@ -26,7 +26,7 @@ SRC = \
 	../../src/emopenal.c \
 	../../src/event.c \
 	../../src/file.c \
-	../../src/glesrender.c \
+	../../src/glrender.c \
 	../../src/glyph.c \
 	../../src/history.c \
 	../../src/image.c \
@@ -43,17 +43,10 @@ SRC = \
 	../../src/wave.c \
 	../../src/emmain.c
 
-# With OpenGL
 all:
 	rm -f html/index.*
 	mkdir -p html
 	emcc $(SRC) -o html/index.html -O3 -DUSE_OPENGL -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_FREETYPE=1 -s TOTAL_MEMORY=536870912 -s EXPORTED_RUNTIME_METHODS=ccall -lz -lpng -logg -lvorbis -lfreetype -lopenal --shell-file shell.html --pre-js pre.js --use-preload-plugins
-
-# Without OpenGL
-# all:
-# 	rm -f html/index.*
-# 	mkdir -p html
-# 	emcc $(SRC) -o html/index.html -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_FREETYPE=1 -s TOTAL_MEMORY=536870912 -s EXPORTED_RUNTIME_METHODS=ccall -lz -lpng -logg -lvorbis -lfreetype -lopenal --shell-file shell.html --pre-js pre.js --use-preload-plugins
 
 run:
 	python3 -m http.server
