@@ -185,10 +185,8 @@ bool init_opengl(void)
 
 	/* シェーダのセットアップを行う(通常) */
 	glUseProgram(program);
-//#ifdef OSX
 	glGenVertexArrays(1, &vertex_array);
 	glBindVertexArray(vertex_array);
-//#endif
 	glGenBuffers(1, &vertex_buf);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 	pos_loc = glGetAttribLocation(program, "a_position");
@@ -208,10 +206,8 @@ bool init_opengl(void)
 
 	/* シェーダのセットアップを行う(ルール使用) */
 	glUseProgram(program_rule);
-//#ifdef OSX
 	glGenVertexArrays(1, &vertex_array_rule);
 	glBindVertexArray(vertex_array_rule);
-//#endif
 	glGenBuffers(1, &vertex_buf_rule);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_rule);
 	pos_loc = glGetAttribLocation(program_rule, "a_position");

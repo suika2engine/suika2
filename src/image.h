@@ -184,10 +184,10 @@ void draw_image_mask(struct image * RESTRICT dst_image, int dst_left,
 		     int height, int src_left, int src_top, int mask_level);
 
 /* イメージをテンプレート指定で描画する */
-void draw_image_template(struct image * RESTRICT dst_image,
-			 struct image * RESTRICT src_image,
-			 struct image * RESTRICT template_image,
-			 int threshold);
+void draw_image_rule(struct image * RESTRICT dst_image,
+		     struct image * RESTRICT src_image,
+		     struct image * RESTRICT template_image,
+		     int threshold);
 
 /* 転送元領域のサイズを元に矩形のクリッピングを行う */
 bool clip_by_source(int src_cx, int src_cy, int *cx, int *cy, int *dst_x,

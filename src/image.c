@@ -995,16 +995,16 @@ void draw_image_mask(
 }
 
 /*
- * テンプレートつき描画
+ * ルール付き描画
  */
 
 /*
- * イメージをテンプレート指定で描画する
+ * イメージをルール付きで描画する
  */
-void draw_image_template(struct image * RESTRICT dst_image,
-			 struct image * RESTRICT src_image,
-			 struct image * RESTRICT template_image,
-			 int threshold)
+void draw_image_rule(struct image * RESTRICT dst_image,
+		     struct image * RESTRICT src_image,
+		     struct image * RESTRICT template_image,
+		     int threshold)
 {
 	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr, * RESTRICT tmp_ptr;
 	int x, y, dw, sw, tw, w, dh, sh, th, h;

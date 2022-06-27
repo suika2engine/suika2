@@ -599,6 +599,18 @@ void render_clear(int left, int top, int width, int height, pixel_t color)
 #endif
 }
 
+/* 画面にイメージをルール付きでレンダリングする */
+void render_image_rule(struct image * RESTRICT src_img,
+		       struct image * RESTRICT rule_img,
+		       int threshold)
+{
+#ifdef USE_OPENGL
+	opengl_render_image_rule(src_img, rule_img, threshold);
+#else
+	draw_image_rule(back_image, src_image, rule_image, threshold);
+#endif
+}
+
 /*
  * セーブディレクトリを作成する
  */
