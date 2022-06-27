@@ -45,7 +45,7 @@ enum blend_type {
  * WindowsとX11とAndroidの場合はARGB形式(バイト順にBGRA)
  * (ただしOpenGLの場合を除く)
  */
-#if (defined(WIN) && !defined(USE_OPENGL)) ||\
+#if (defined(WIN) && !defined(USE_OPENGL)) || \
     (defined(LINUX) && !defined(USE_OPENGL)) ||	\
     (defined(ANDROID) && !defined(USE_OPENGL))
 

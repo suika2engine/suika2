@@ -7,6 +7,8 @@
 #if defined(OSX)
 #include "aunit.h"
 #define GL_SILENCE_DEPRECATION
+#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+#include <OpenGL/gl3.h>
 #include <GLUT/glut.h>
 #elif defined(LINUX)
 #include "asound.h"
@@ -39,6 +41,7 @@ static bool open_log_file(void);
 static void close_log_file(void);
 static void resize(int width, int height);
 static void display(void);
+static void idle(void);
 static void button(int button, int state, int x, int y);
 static void move(int mx, int my);
 
@@ -113,10 +116,15 @@ static bool init(int argc, char *argv[])
 	/* glutの初期化処理を行う */
 	glutInit(&argc, argv);
 	glutInitWindowSize(conf_window_width, conf_window_height);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH
+#ifdef OSX
+			    | GLUT_3_2_CORE_PROFILE
+#endif
+		           );
 	glutCreateWindow(conv_utf8_to_native(conf_window_title));
 	glutReshapeFunc(resize);
 	glutDisplayFunc(display);
+	glutIdleFunc(idle);
 	glutMouseFunc(button);
 	glutMotionFunc(move);
 	glutPassiveMotionFunc(move);
@@ -209,6 +217,12 @@ static void display(void)
 		cleanup();
 		exit(0);
 	}
+}
+
+/* 定期描画 */
+static void idle(void)
+{
+	glutPostRedisplay();
 }
 
 /* マウスクリックイベント */
@@ -370,6 +384,20 @@ void render_image_mask(int dst_left, int dst_top,
 }
 
 /*
+ * 画面にイメージをテンプレート指定でレンダリングする
+ */
+void render_image_template(struct image * RESTRICT src_img,
+			   struct image * RESTRICT template_img,
+			   int threshold)
+{
+	UNUSED_PARAMETER(src_img);
+	UNUSED_PARAMETER(template_img);
+	UNUSED_PARAMETER(threshold);
+
+//	opengl_render_image_template(src_img, template_img, threshold);
+}
+
+/*
  * 画面をクリアする
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)
@@ -471,10 +499,27 @@ bool title_dialog(void)
 /*
  * ビデオを再生する
  */
-bool play_video(const char *fname)
+bool play_video(const char *fname, bool is_skippable)
 {
 	UNUSED_PARAMETER(fname);
+	UNUSED_PARAMETER(is_skippable);
 
 	/* stub */
 	return true;
+}
+
+/*
+ * ビデオを停止する
+ */
+void stop_video(void)
+{
+	/* stub */
+}
+
+/*
+ * ビデオが再生中か調べる
+ */
+bool is_video_playing(void)
+{
+	return false;
 }

@@ -13,10 +13,13 @@
 #include "suika.h"
 #include "glesrender.h"
 
-#ifdef IOS
+#if defined(IOS)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
+#elif defined(OSX)
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl3.h>
 #else
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
@@ -28,7 +31,10 @@ GLuint fragment_shader;
 GLuint vertex_buf;
 GLuint index_buf;
 
-static const char *s_vShaderStr =
+static const char *vertex_shader_src =
+#ifdef OSX
+	"#version 100                 \n"
+#endif
 	"attribute vec4 a_position;   \n"
 	"attribute vec2 a_texCoord;   \n"
 	"attribute float a_alpha;     \n"
@@ -41,7 +47,10 @@ static const char *s_vShaderStr =
 	"  v_alpha = a_alpha;         \n"
 	"}                            \n";
 
-static const char *s_fShaderStr =
+static const char *fragment_shader_src =
+#ifdef OSX
+	"#version 100                                        \n"
+#endif
 	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
@@ -52,6 +61,25 @@ static const char *s_fShaderStr =
 	"  tex.a = tex.a * v_alpha;                          \n"
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
+
+#if 0
+static const char *fragment_shader_template_src =
+	"precision mediump float;                            \n"
+	"varying vec2 v_texCoord;                            \n"
+	"varying float v_alpha;                              \n"
+	"uniform sampler2D s_texture;                        \n"
+	"uniform sampler2D s_template;                       \n"
+	"void main()                                         \n"
+	"{                                                   \n"
+	"  vec4 tex = texture2D(s_texture, v_texCoord);      \n"
+	"  vec4 tmp = texture2D(s_template, v_texCoord);     \n"
+	"  if(tmp.a <= v_alpha)                              \n"
+	"    tex.a = 1.0;                                    \n"
+	"  else                                              \n"
+	"    tex.a = 0.0;                                    \n"
+	"  gl_FragColor = tex;                               \n"
+	"}                                                   \n";
+#endif
 
 struct texture {
 	GLuint id;
@@ -73,28 +101,81 @@ bool init_opengl(void)
 {
 	const GLushort indices[] = {0, 1, 2, 3};
 	GLint pos_loc, tex_loc, alpha_loc, sampler_loc;
+//	GLint pos_loc, tex_loc, alpha_loc, sampler_loc, template_loc;
 
 	/* ビューポートを設定する */
 	glViewport(0, 0, conf_window_width, conf_window_height);
 
 	/* 頂点シェーダを作成する */
 	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &s_vShaderStr, NULL);
+	glShaderSource(vertex_shader, 1, &vertex_shader_src, NULL);
 	glCompileShader(vertex_shader);
 
-	/* フラグメントシェーダを作成する */
+	GLint compiled;
+	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		char buf[1024];
+		int len;
+		printf("Vertex shader compile error\n");
+		glGetShaderInfoLog(vertex_shader, sizeof(buf), &len, &buf[0]);
+		printf("%s", buf);
+		exit(EXIT_FAILURE);
+	}
+
+	/* フラグメントシェーダ(通常)を作成する */
 	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &s_fShaderStr, NULL);
+	glShaderSource(fragment_shader, 1, &fragment_shader_src, NULL);
 	glCompileShader(fragment_shader);
 
-	/* プログラムを作成する */
+	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		printf("Fragment shader compile error\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* フラグメントシェーダ(テンプレート使用)を作成する */
+#if 0
+	fragment_shader_template = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment_shader_template, 1,
+		       &fragment_shader_template_src, NULL);
+	glCompileShader(fragment_shader_template);
+#endif
+
+	/* プログラム(通常)を作成する */
 	program = glCreateProgram();
 	glAttachShader(program, vertex_shader);
 	glAttachShader(program, fragment_shader);
 	glLinkProgram(program);
+
+	GLint linked;
+	glGetProgramiv(program, GL_LINK_STATUS, &linked);
+	if (!linked) {
+		char buf[1024];
+		int len;
+		printf("Program link error\n");
+		glGetProgramInfoLog(program, sizeof(buf), &len, &buf[0]);
+		printf("%s", buf);
+		exit(EXIT_FAILURE);
+	}
+
 	glUseProgram(program);
 
-	/* シェーダのセットアップを行う */
+	/* プログラム(テンプレート使用)を作成する */
+#if 0
+	program_template = glCreateProgram();
+	glAttachShader(program_template, vertex_shader);
+	glAttachShader(program_template, fragment_shader_template);
+	glLinkProgram(program_template);
+	glUseProgram(program_template);
+#endif
+
+#ifdef OSX
+	GLuint input_layout = 0;
+	glGenVertexArrays(1, &input_layout);
+	glBindVertexArray(input_layout);
+#endif
+
+	/* シェーダ(通常)のセットアップを行う */
 	glGenBuffers(1, &vertex_buf);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 	pos_loc = glGetAttribLocation(program, "a_position");
@@ -109,6 +190,25 @@ bool init_opengl(void)
 	sampler_loc = glGetUniformLocation(program, "s_texture");
 	glUniform1i(sampler_loc, 0);
 
+	/* シェーダ(テンプレート使用)のセットアップを行う */
+#if 0
+	glGenBuffers(1, &vertex_buf_template);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_template);
+	pos_loc = glGetAttribLocation(program, "a_position");
+	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+	glEnableVertexAttribArray((GLuint)pos_loc);
+	tex_loc = glGetAttribLocation(program, "a_texCoord");
+	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)tex_loc);
+	alpha_loc = glGetAttribLocation(program, "a_alpha");
+	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)alpha_loc);
+	sampler_loc = glGetUniformLocation(program, "s_texture");
+	glUniform1i(sampler_loc, 0);
+	template_loc = glGetUniformLocation(program, "s_template");
+	glUniform1i(template_loc, 1);
+#endif
+
 	/* 頂点のインデックスを用意する */
 	glGenBuffers(1, &index_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
@@ -121,7 +221,9 @@ bool init_opengl(void)
 	return true;
 }
 
-/* OpenGLの終了処理を行う */
+/*
+ * OpenGLの終了処理を行う
+ */
 void cleanup_opengl(void)
 {
 	/* Emscriptenでは終了処理は呼び出されない */
@@ -130,20 +232,26 @@ void cleanup_opengl(void)
 	glDeleteProgram(program);
 }
 
-/* フレームのレンダリングを開始する */
+/*
+ * フレームのレンダリングを開始する
+ */
 void opengl_start_rendering(void)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-/* フレームのレンダリングを終了する */
+/*
+ * フレームのレンダリングを終了する
+ */
 void opengl_end_rendering(void)
 {
 	glFlush();
 }
 
-/* テクスチャをロックする */
+/*
+ * テクスチャをロックする
+ */
 bool opengl_lock_texture(int width, int height, pixel_t *pixels,
 			 pixel_t **locked_pixels, void **texture)
 {
@@ -171,7 +279,9 @@ bool opengl_lock_texture(int width, int height, pixel_t *pixels,
 	return true;
 }
 
-/* テクスチャをアンロックする */
+/*
+ * テクスチャをアンロックする
+ */
 void opengl_unlock_texture(int width, int height, pixel_t *pixels,
 			   pixel_t **locked_pixels, void **texture)
 {
@@ -190,23 +300,32 @@ void opengl_unlock_texture(int width, int height, pixel_t *pixels,
 
 	/* テクスチャを作成する */
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+assert(glGetError() == GL_NO_ERROR);
 	glBindTexture(GL_TEXTURE_2D, tex->id);
+assert(glGetError() == GL_NO_ERROR);
 #ifdef EM
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #else
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+assert(glGetError() == GL_NO_ERROR);
 #endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+assert(glGetError() == GL_NO_ERROR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+assert(glGetError() == GL_NO_ERROR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 		     GL_RGBA, GL_UNSIGNED_BYTE, *locked_pixels);
+assert(glGetError() == GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
+assert(glGetError() == GL_NO_ERROR);
 
 	/* ピクセルをアンロックする */
 	*locked_pixels = NULL;
 }
 
-/* テクスチャを破棄する */
+/*
+ * テクスチャを破棄する
+ */
 void opengl_destroy_texture(void *texture)
 {
 	struct texture *tex;
@@ -219,7 +338,9 @@ void opengl_destroy_texture(void *texture)
 	}
 }
 
-/* 画面にイメージをレンダリングする */
+/*
+ * 画面にイメージをレンダリングする
+ */
 void opengl_render_image(int dst_left, int dst_top,
 			 struct image * RESTRICT src_image, int width,
 			 int height, int src_left, int src_top, int alpha,
@@ -289,25 +410,34 @@ void opengl_render_image(int dst_left, int dst_top,
 
 	/* 頂点バッファに書き込む */
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+assert(glGetError() == GL_NO_ERROR);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
+assert(glGetError() == GL_NO_ERROR);
 
 	/* テクスチャを選択する */
 	glBindTexture(GL_TEXTURE_2D, tex->id);
+assert(glGetError() == GL_NO_ERROR);
 
 	/* 図形を描画する */
 	if (width == 1 && height == 1) {
 		glDrawElements(GL_POINTS, 1, GL_UNSIGNED_SHORT, 0);
+assert(glGetError() == GL_NO_ERROR);
 	} else if (width == 1) {
 		glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT,
 			       (const GLvoid *)(1 * sizeof(GLushort)));
+assert(glGetError() == GL_NO_ERROR);
 	} else if (height == 1 && alpha < 255) {
 		glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, 0);
+assert(glGetError() == GL_NO_ERROR);
 	} else {
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
+assert(glGetError() == GL_NO_ERROR);
 	}
 }
 
-/* 画面にイメージをマスク描画でレンダリングする */
+/*
+ * 画面にイメージをマスク描画でレンダリングする
+ */
 void opengl_render_image_mask(int dst_left, int dst_top,
 			      struct image * RESTRICT src_image, int width,
 			      int height, int src_left, int src_top, int mask)
@@ -322,7 +452,9 @@ void opengl_render_image_mask(int dst_left, int dst_top,
 			    src_left, src_top, alpha, BLEND_NONE);
 }
 
-/* 画面をクリアする */
+/*
+ * 画面をクリアする
+ */
 void opengl_render_clear(int left, int top, int width, int height,
 			 pixel_t color)
 {
