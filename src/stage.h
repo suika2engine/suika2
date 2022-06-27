@@ -90,11 +90,11 @@ void draw_stage_rect(int x, int y, int w, int h);
 /* 背景フェードモードが有効な際のステージ描画を行う */
 void draw_stage_bg_fade(int fade_method);
 
-/* キャラフェードモードが有効な際のステージ描画を行う (テンプレート不使用) */
+/* キャラフェードモードが有効な際のステージ描画を行う (ルール不使用) */
 void draw_stage_ch_fade(int fade_method);
 
-/* キャラフェードモードが有効な際のステージ描画を行う (テンプレート使用) */
-void draw_stage_ch_fade_template(struct image *template_img);
+/* キャラフェードモードが有効な際のステージ描画を行う (ルール使用) */
+void draw_stage_ch_fade_rule(struct image *rule_img);
 
 /* 画面揺らしモードが有効な際のステージ描画を行う */
 void draw_stage_shake(void);

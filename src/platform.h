@@ -58,10 +58,10 @@ void render_image_mask(int dst_left, int dst_top,
 		       struct image * RESTRICT src_image, int width,
 		       int height, int src_left, int src_top, int mask);
 
-/* 画面にイメージをテンプレート指定でレンダリングする */
-void render_image_template(struct image * RESTRICT src_img,
-			   struct image * RESTRICT template_img,
-			   int threshold);
+/* 画面にイメージをルール付きでレンダリングする */
+void render_image_rule(struct image * RESTRICT src_img,
+		       struct image * RESTRICT rule_img,
+		       int threshold);
 
 /* 画面をクリアする */
 void render_clear(int left, int top, int width, int height, pixel_t color);

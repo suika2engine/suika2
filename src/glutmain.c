@@ -386,15 +386,11 @@ void render_image_mask(int dst_left, int dst_top,
 /*
  * 画面にイメージをテンプレート指定でレンダリングする
  */
-void render_image_template(struct image * RESTRICT src_img,
-			   struct image * RESTRICT template_img,
-			   int threshold)
+void render_image_rule(struct image * RESTRICT src_img,
+		       struct image * RESTRICT rule_img,
+		       int threshold)
 {
-	UNUSED_PARAMETER(src_img);
-	UNUSED_PARAMETER(template_img);
-	UNUSED_PARAMETER(threshold);
-
-//	opengl_render_image_template(src_img, template_img, threshold);
+	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
 /*

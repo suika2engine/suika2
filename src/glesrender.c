@@ -1,4 +1,4 @@
-/* -*- tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- Tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -25,11 +25,12 @@
 #include <GLES2/gl2ext.h>
 #endif
 
-GLuint program;
+GLuint program, program_rule;
 GLuint vertex_shader;
-GLuint fragment_shader;
-GLuint vertex_buf;
-GLuint index_buf;
+GLuint fragment_shader, fragment_shader_rule;
+GLuint vertex_array, vertex_array_rule;
+GLuint vertex_buf, vertex_buf_rule;
+GLuint index_buf, index_buf_rule;
 
 static const char *vertex_shader_src =
 #ifdef OSX
@@ -62,24 +63,22 @@ static const char *fragment_shader_src =
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
-#if 0
-static const char *fragment_shader_template_src =
+static const char *fragment_shader_rule_src =
+#ifdef OSX
+	"#version 100                                        \n"
+#endif
 	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
-	"uniform sampler2D s_template;                       \n"
+	"uniform sampler2D s_rule;                           \n"
 	"void main()                                         \n"
 	"{                                                   \n"
 	"  vec4 tex = texture2D(s_texture, v_texCoord);      \n"
-	"  vec4 tmp = texture2D(s_template, v_texCoord);     \n"
-	"  if(tmp.a <= v_alpha)                              \n"
-	"    tex.a = 1.0;                                    \n"
-	"  else                                              \n"
-	"    tex.a = 0.0;                                    \n"
+	"  vec4 rule = texture2D(s_rule, v_texCoord);        \n"
+	"  tex.a = 1.0 - step(v_alpha, rule.b);              \n"
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
-#endif
 
 struct texture {
 	GLuint id;
@@ -94,14 +93,20 @@ struct vertex {
 };
 #endif
 
+/* 前方参照 */
+static void draw_elements(int dst_left, int dst_top,
+			  struct image * RESTRICT src_image,
+			  struct image * RESTRICT rule_image,
+			  int width, int height, int src_left, int src_top,
+			  int alpha);
+
 /*
  * OpenGLの初期化処理を行う
  */
 bool init_opengl(void)
 {
 	const GLushort indices[] = {0, 1, 2, 3};
-	GLint pos_loc, tex_loc, alpha_loc, sampler_loc;
-//	GLint pos_loc, tex_loc, alpha_loc, sampler_loc, template_loc;
+	GLint pos_loc, tex_loc, alpha_loc, sampler_loc, rule_loc;
 
 	/* ビューポートを設定する */
 	glViewport(0, 0, conf_window_width, conf_window_height);
@@ -133,13 +138,17 @@ bool init_opengl(void)
 		exit(EXIT_FAILURE);
 	}
 
-	/* フラグメントシェーダ(テンプレート使用)を作成する */
-#if 0
-	fragment_shader_template = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader_template, 1,
-		       &fragment_shader_template_src, NULL);
-	glCompileShader(fragment_shader_template);
-#endif
+	/* フラグメントシェーダ(ルール使用)を作成する */
+	fragment_shader_rule = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment_shader_rule, 1,
+		       &fragment_shader_rule_src, NULL);
+	glCompileShader(fragment_shader_rule);
+
+	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		printf("Fragment shader compile error\n");
+		exit(EXIT_FAILURE);
+	}
 
 	/* プログラム(通常)を作成する */
 	program = glCreateProgram();
@@ -158,24 +167,28 @@ bool init_opengl(void)
 		exit(EXIT_FAILURE);
 	}
 
+	/* プログラム(ルール使用)を作成する */
+	program_rule = glCreateProgram();
+	glAttachShader(program_rule, vertex_shader);
+	glAttachShader(program_rule, fragment_shader_rule);
+	glLinkProgram(program_rule);
+
+	glGetProgramiv(program_rule, GL_LINK_STATUS, &linked);
+	if (!linked) {
+		char buf[1024];
+		int len;
+		printf("Program link error\n");
+		glGetProgramInfoLog(program, sizeof(buf), &len, &buf[0]);
+		printf("%s", buf);
+		exit(EXIT_FAILURE);
+	}
+
+	/* シェーダのセットアップを行う(通常) */
 	glUseProgram(program);
-
-	/* プログラム(テンプレート使用)を作成する */
-#if 0
-	program_template = glCreateProgram();
-	glAttachShader(program_template, vertex_shader);
-	glAttachShader(program_template, fragment_shader_template);
-	glLinkProgram(program_template);
-	glUseProgram(program_template);
-#endif
-
-#ifdef OSX
-	GLuint input_layout = 0;
-	glGenVertexArrays(1, &input_layout);
-	glBindVertexArray(input_layout);
-#endif
-
-	/* シェーダ(通常)のセットアップを行う */
+//#ifdef OSX
+	glGenVertexArrays(1, &vertex_array);
+	glBindVertexArray(vertex_array);
+//#endif
 	glGenBuffers(1, &vertex_buf);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 	pos_loc = glGetAttribLocation(program, "a_position");
@@ -189,34 +202,34 @@ bool init_opengl(void)
 	glEnableVertexAttribArray((GLuint)alpha_loc);
 	sampler_loc = glGetUniformLocation(program, "s_texture");
 	glUniform1i(sampler_loc, 0);
-
-	/* シェーダ(テンプレート使用)のセットアップを行う */
-#if 0
-	glGenBuffers(1, &vertex_buf_template);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_template);
-	pos_loc = glGetAttribLocation(program, "a_position");
-	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	glEnableVertexAttribArray((GLuint)pos_loc);
-	tex_loc = glGetAttribLocation(program, "a_texCoord");
-	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)tex_loc);
-	alpha_loc = glGetAttribLocation(program, "a_alpha");
-	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)alpha_loc);
-	sampler_loc = glGetUniformLocation(program, "s_texture");
-	glUniform1i(sampler_loc, 0);
-	template_loc = glGetUniformLocation(program, "s_template");
-	glUniform1i(template_loc, 1);
-#endif
-
-	/* 頂点のインデックスを用意する */
 	glGenBuffers(1, &index_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	/* 透過を有効にする */
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	/* シェーダのセットアップを行う(ルール使用) */
+	glUseProgram(program_rule);
+//#ifdef OSX
+	glGenVertexArrays(1, &vertex_array_rule);
+	glBindVertexArray(vertex_array_rule);
+//#endif
+	glGenBuffers(1, &vertex_buf_rule);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_rule);
+	pos_loc = glGetAttribLocation(program_rule, "a_position");
+	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+	glEnableVertexAttribArray((GLuint)pos_loc);
+	tex_loc = glGetAttribLocation(program_rule, "a_texCoord");
+	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)tex_loc);
+	alpha_loc = glGetAttribLocation(program_rule, "a_alpha");
+	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)alpha_loc);
+	sampler_loc = glGetUniformLocation(program_rule, "s_texture");
+	glUniform1i(sampler_loc, 0);
+	rule_loc = glGetUniformLocation(program_rule, "s_rule");
+	glUniform1i(rule_loc, 1);
+	glGenBuffers(1, &index_buf_rule);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf_rule);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	return true;
 }
@@ -300,24 +313,17 @@ void opengl_unlock_texture(int width, int height, pixel_t *pixels,
 
 	/* テクスチャを作成する */
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-assert(glGetError() == GL_NO_ERROR);
 	glBindTexture(GL_TEXTURE_2D, tex->id);
-assert(glGetError() == GL_NO_ERROR);
 #ifdef EM
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #else
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-assert(glGetError() == GL_NO_ERROR);
 #endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-assert(glGetError() == GL_NO_ERROR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-assert(glGetError() == GL_NO_ERROR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 		     GL_RGBA, GL_UNSIGNED_BYTE, *locked_pixels);
-assert(glGetError() == GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
-assert(glGetError() == GL_NO_ERROR);
 
 	/* ピクセルをアンロックする */
 	*locked_pixels = NULL;
@@ -346,15 +352,7 @@ void opengl_render_image(int dst_left, int dst_top,
 			 int height, int src_left, int src_top, int alpha,
 			 int bt)
 {
-	GLfloat pos[24];
-	struct texture *tex;
-	float hw, hh, tw, th;
-
 	UNUSED_PARAMETER(bt);
-
-	/* struct textureを取得する */
-	tex = get_texture_object(src_image);
-	assert(tex != NULL);
 
 	/* 描画の必要があるか判定する */
 	if (alpha == 0 || width == 0 || height == 0)
@@ -367,6 +365,60 @@ void opengl_render_image(int dst_left, int dst_top,
 	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
 			 &height, &dst_left, &dst_top, &src_left, &src_top))
 		return;	/* 描画範囲外 */
+
+	draw_elements(dst_left, dst_top, src_image, NULL, width, height,
+		      src_left, src_top, alpha);
+}
+
+/*
+ * 画面にイメージをマスク描画でレンダリングする
+ */
+void opengl_render_image_mask(int dst_left, int dst_top,
+			      struct image * RESTRICT src_image, int width,
+			      int height, int src_left, int src_top, int mask)
+{
+	int alpha;
+
+	UNUSED_PARAMETER(mask);
+
+	alpha = (int)((float)mask / 27.0f * 255.0f);
+
+	draw_elements(dst_left, dst_top, src_image, NULL, width, height,
+		      src_left, src_top, alpha);
+}
+
+/*
+ * 画面にイメージをルール付きでレンダリングする
+ */
+void opengl_render_image_rule(struct image * RESTRICT src_image,
+			      struct image * RESTRICT rule_image,
+			      int threshold)
+{
+	draw_elements(0, 0, src_image, rule_image, conf_window_width,
+		      conf_window_height, 0, 0, threshold);
+
+}
+
+/* 画像を描画する */
+static void draw_elements(int dst_left, int dst_top,
+			  struct image * RESTRICT src_image,
+			  struct image * RESTRICT rule_image,
+			  int width, int height, int src_left, int src_top,
+			  int alpha)
+{
+	GLfloat pos[24];
+	struct texture *tex, *rule;
+	float hw, hh, tw, th;
+
+	/* struct textureを取得する */
+	tex = get_texture_object(src_image);
+	assert(tex != NULL);
+	if (rule_image != NULL) {
+		rule = get_texture_object(rule_image);
+		assert(rule != NULL);
+	} else {
+		rule = NULL;
+	}
 
 	/* ウィンドウサイズの半分を求める */
 	hw = (float)conf_window_width / 2.0f;
@@ -408,48 +460,44 @@ void opengl_render_image(int dst_left, int dst_top,
 	pos[22] = (float)(src_top + height) / th;
 	pos[23] = (float)alpha / 255.0f;
 
-	/* 頂点バッファに書き込む */
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-assert(glGetError() == GL_NO_ERROR);
+	/* シェーダを設定して頂点バッファに書き込む */
+	if (rule_image == NULL) {
+		glUseProgram(program);
+		glBindVertexArray(vertex_array);
+		glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+	} else {
+		glUseProgram(program_rule);
+		glBindVertexArray(vertex_array_rule);
+		glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_rule);
+	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
-assert(glGetError() == GL_NO_ERROR);
 
 	/* テクスチャを選択する */
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex->id);
-assert(glGetError() == GL_NO_ERROR);
+	if (rule_image == NULL) {
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, tex->id);
+	} else {
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, rule->id);
+	}
+
+	/* 透過を有効にする */
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	/* 図形を描画する */
 	if (width == 1 && height == 1) {
 		glDrawElements(GL_POINTS, 1, GL_UNSIGNED_SHORT, 0);
-assert(glGetError() == GL_NO_ERROR);
 	} else if (width == 1) {
 		glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT,
 			       (const GLvoid *)(1 * sizeof(GLushort)));
-assert(glGetError() == GL_NO_ERROR);
 	} else if (height == 1 && alpha < 255) {
 		glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, 0);
-assert(glGetError() == GL_NO_ERROR);
 	} else {
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
-assert(glGetError() == GL_NO_ERROR);
 	}
-}
-
-/*
- * 画面にイメージをマスク描画でレンダリングする
- */
-void opengl_render_image_mask(int dst_left, int dst_top,
-			      struct image * RESTRICT src_image, int width,
-			      int height, int src_left, int src_top, int mask)
-{
-	int alpha;
-
-	UNUSED_PARAMETER(mask);
-
-	alpha = (int)((float)mask / 27.0f * 255.0f);
-
-	opengl_render_image(dst_left, dst_top, src_image, width, height,
-			    src_left, src_top, alpha, BLEND_NONE);
 }
 
 /*

@@ -582,7 +582,7 @@ void draw_stage_bg_fade(int fade_method)
 }
 
 /*
- * キャラフェードモードが有効な際のステージ描画を行う (テンプレート不使用)
+ * キャラフェードモードが有効な際のステージ描画を行う (ルール不使用)
  */
 void draw_stage_ch_fade(int fade_method)
 {
@@ -1511,9 +1511,9 @@ static void draw_stage_fi_fo_fade_slit_close_v(void)
 }
 
 /*
- * キャラフェードモードが有効な際のステージ描画を行う (テンプレート使用)
+ * キャラフェードモードが有効な際のステージ描画を行う (ルール使用)
  */
-void draw_stage_ch_fade_template(struct image *template_img)
+void draw_stage_ch_fade_rule(struct image *rule_img)
 {
 	int threshold;
 
@@ -1529,7 +1529,7 @@ void draw_stage_ch_fade_template(struct image *template_img)
 		     0, 0, 255, BLEND_NONE);
 
 	/* フェードインする画像をレンダリングする */
-	render_image_template(layer_image[LAYER_FI], template_img, threshold);
+	render_image_rule(layer_image[LAYER_FI], rule_img, threshold);
 }
 
 /*

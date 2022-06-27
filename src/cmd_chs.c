@@ -20,7 +20,7 @@
 static stop_watch_t sw;
 static float span;
 static int fade_method;
-static struct image *template_img;
+static struct image *rule_img;
 
 static bool init(void);
 static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
@@ -145,8 +145,8 @@ static bool init(void)
 		}
 
 		/* イメージを読み込む */
-		template_img = create_image_from_file(BG_DIR, tname);
-		if (template_img == NULL) {
+		rule_img = create_image_from_file(BG_DIR, tname);
+		if (rule_img == NULL) {
 			log_script_exec_footer();
 			return false;
 		}
@@ -253,7 +253,7 @@ static void draw(void)
 		if (fade_method != FADE_METHOD_TEMPLATE)
 			draw_stage_ch_fade(fade_method);
 		else
-			draw_stage_ch_fade_template(template_img);
+			draw_stage_ch_fade_rule(rule_img);
 	} else {
 		draw_stage();
 	}
@@ -263,9 +263,9 @@ static void draw(void)
 static bool cleanup(void)
 {
 	/* テンプレートイメージを破棄する */
-	if (template_img != NULL) {
-		destroy_image(template_img);
-		template_img = NULL;
+	if (rule_img != NULL) {
+		destroy_image(rule_img);
+		rule_img = NULL;
 	}
 
 	/* 次のコマンドに移動する */
