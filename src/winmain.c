@@ -313,7 +313,7 @@ static void CleanupApp(void)
 
 #ifndef USE_DEBUGGER
 	/* OpenGLコンテキストを破棄する */
-	if(hGLRC != NULL)
+	if(bOpenGL && hGLRC != NULL)
 	{
 		cleanup_opengl();
 		wglMakeCurrent(NULL, NULL);
@@ -544,6 +544,7 @@ static BOOL InitOpenGL(void)
 				 "(wglCreateContextAttribsARB)");
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRC);
+		hGLRC = NULL;
 		return FALSE;
 	}
 
