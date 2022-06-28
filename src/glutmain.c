@@ -15,7 +15,7 @@
 #include <GL/glut.h>
 #endif
 
-#include "glesrender.h"
+#include "glrender.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>	/* stat(), mkdir() */
