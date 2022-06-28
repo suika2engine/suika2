@@ -164,9 +164,6 @@
     <ClCompile Include="..\..\..\src\cmd_se.c">
       <Filter>Source File</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\cmd_select.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_set.c">
       <Filter>Source File</Filter>
     </ClCompile>

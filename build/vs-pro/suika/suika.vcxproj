@@ -82,7 +82,6 @@
     <ClCompile Include="..\..\..\src\cmd_retrospect.c" />
     <ClCompile Include="..\..\..\src\cmd_return.c" />
     <ClCompile Include="..\..\..\src\cmd_se.c" />
-    <ClCompile Include="..\..\..\src\cmd_select.c" />
     <ClCompile Include="..\..\..\src\cmd_set.c" />
     <ClCompile Include="..\..\..\src\cmd_setsave.c" />
     <ClCompile Include="..\..\..\src\cmd_shake.c" />
