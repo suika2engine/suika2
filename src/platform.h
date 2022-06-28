@@ -37,6 +37,9 @@ bool make_sav_dir(void);
 /* データのディレクトリ名とファイル名を指定して有効なパスを取得する */
 char *make_valid_path(const char *dir, const char *fname);
 
+/* OpenGLが有効か調べる */
+bool is_opengl_enabled(void);
+
 /* テクスチャをロックする */
 bool lock_texture(int width, int height, pixel_t *pixels,
 		  pixel_t **locked_pixels, void **texture);

@@ -1,4 +1,4 @@
-﻿/* -*- Coding: utf-8-with-signature; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
+﻿/* -*- coding: utf-8-with-signature; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
 
 /*
  * Suika 2
@@ -268,6 +268,8 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	/* OpenGLを初期化する */
 	if(InitOpenGL())
 		bOpenGL = TRUE;
+	else
+		log_info("OpenGLを無効にします。");
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
@@ -299,6 +301,7 @@ static void CleanupApp(void)
 	/* OpenGLコンテキストを破棄する */
 	if(hGLRC != NULL)
 	{
+		cleanup_opengl();
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRC);
 		hGLRC = NULL;
@@ -503,10 +506,7 @@ static BOOL InitOpenGL(void)
 	/* ピクセルフォーマットを選択する */
 	pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
 	if(pixelFormat == 0)
-	{
-		log_info("ChoosePixelFormat() failed.");
 		return FALSE;
-	}
 	SetPixelFormat(hWndDC, pixelFormat, &pfd);
 
 	/* OpenGLコンテキストを作成する */
@@ -543,6 +543,10 @@ static BOOL InitOpenGL(void)
 			return FALSE;
 		}
 	}
+
+	/* レンダラを初期化する */
+	if(!init_opengl())
+		return FALSE;
 
 	return TRUE;
 }
@@ -1025,12 +1029,14 @@ bool log_info(const char *s, ...)
 	if(!OpenLogFile())
 		return false;
 
+#ifdef USE_DEBUGGER
 	/* メッセージボックスを表示する */
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 	MessageBox(hWndMain, buf, conf_language == NULL ? "情報" : "Info",
 			   MB_OK | MB_ICONINFORMATION);
+#endif
 
 	/* ログファイルがオープンされている場合 */
 	if(pLogFile != NULL)
@@ -1154,6 +1160,14 @@ const char *conv_utf8_to_native(const char *utf8_message)
 						NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
 
 	return szNativeMessage;
+}
+
+/*
+ * OpenGLが有効か調べる
+ */
+bool is_opengl_enabled(void)
+{
+	return bOpenGL;
 }
 
 /*
