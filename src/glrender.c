@@ -20,6 +20,9 @@
 #elif defined(OSX)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl3.h>
+#elif defined(WIN)
+#include <gl/gl.h>
+#include "glhelper.h"
 #else
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>

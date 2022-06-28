@@ -28,6 +28,8 @@
 #include "windebug.h"
 #endif
 
+#include <gl/gl.h>
+#include "glhelper.h"
 #include "glrender.h"
 
 #ifdef SSE_VERSIONING
@@ -58,13 +60,15 @@ static const char szWindowClass[] = "suika";
 /* ウィンドウタイトル(ShiftJISに変換後) */
 static char mbszTitle[TITLE_BUF_SIZE];
 
+/* OpenGLを利用するか */
+static BOOL bOpenGL;
+
 /* Windowsオブジェクト */
 static HWND hWndMain;
 static HDC hWndDC;
-#ifndef USE_DIRECT3D
+static HGLRC hGLRC;
 static HDC hBitmapDC;
 static HBITMAP hBitmap;
-#endif
 #ifdef USE_DEBUGGER
 static HWND hWndStatus;
 #endif
@@ -103,11 +107,78 @@ static BOOL bDShowSkippable;
 /* UTF-8からSJISへの変換バッファ */
 static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
+/* OpenGL ext API */
+HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
+										   const int *attribList);
+GLuint (APIENTRY *glCreateShader)(GLenum type);
+void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
+								const GLchar *const*string,
+								const GLint *length);
+void (APIENTRY *glCompileShader)(GLuint shader);
+void (APIENTRY *glGetShaderiv)(GLuint shader, GLenum pname, GLint *params);
+void (APIENTRY *glGetShaderInfoLog)(GLuint shader, GLsizei bufSize,
+									GLsizei *length, GLchar *infoLog);
+void (APIENTRY *glAttachShader)(GLuint program, GLuint shader);
+void (APIENTRY *glLinkProgram)(GLuint program);
+void (APIENTRY *glGetProgramiv)(GLuint program, GLenum pname, GLint *params);
+void (APIENTRY *glGetProgramInfoLog)(GLuint program, GLsizei bufSize,
+									 GLsizei *length, GLchar *infoLog);
+GLuint (APIENTRY *glCreateProgram)(void);
+void (APIENTRY *glUseProgram)(GLuint program);
+void (APIENTRY *glGenVertexArrays)(GLsizei n, GLuint *arrays);
+void (APIENTRY *glBindVertexArray)(GLuint array);
+void (APIENTRY *glGenBuffers)(GLsizei n, GLuint *buffers);
+void (APIENTRY *glBindBuffer)(GLenum target, GLuint buffer);
+GLint (APIENTRY *glGetAttribLocation)(GLuint program, const GLchar *name);
+void (APIENTRY *glVertexAttribPointer)(GLuint index, GLint size,
+									   GLenum type, GLboolean normalized,
+									   GLsizei stride, const void *pointer);
+void (APIENTRY *glEnableVertexAttribArray)(GLuint index);
+GLint (APIENTRY *glGetUniformLocation)(GLuint program, const GLchar *name);
+void (APIENTRY *glUniform1i)(GLint location, GLint v0);
+void (APIENTRY *glBufferData)(GLenum target, GLsizeiptr size, const void *data,
+							  GLenum usage);
+void (APIENTRY *glDeleteShader)(GLuint shader);
+void (APIENTRY *glDeleteProgram)(GLuint program);
+void (APIENTRY *glActiveTexture)(GLenum texture);
+
+struct GLExtAPITable
+{
+	void **func;
+	const char *name;
+} APITable[] =
+{
+	{(void **)&glCreateShader, "glCreateShader"},
+	{(void **)&glShaderSource, "glShaderSource"},
+	{(void **)&glCompileShader, "glCompileShader"},
+	{(void **)&glGetShaderiv, "glGetShaderiv"},
+	{(void **)&glGetShaderInfoLog, "glGetShaderInfoLog"},
+	{(void **)&glAttachShader, "glAttachShader"},
+	{(void **)&glLinkProgram, "glLinkProgram"},
+	{(void **)&glGetProgramiv, "glGetProgramiv"},
+	{(void **)&glGetProgramInfoLog, "glGetProgramInfoLog"},
+	{(void **)&glCreateProgram, "glCreateProgram"},
+	{(void **)&glUseProgram, "glUseProgram"},
+	{(void **)&glGenVertexArrays, "glGenVertexArrays"},
+	{(void **)&glBindVertexArray, "glBindVertexArray"},
+	{(void **)&glGenBuffers, "glGenBuffers"},
+	{(void **)&glBindBuffer, "glBindBuffer"},
+	{(void **)&glGetAttribLocation, "glGetAttribLocation"},
+	{(void **)&glVertexAttribPointer, "glVertexAttribPointer"},
+	{(void **)&glEnableVertexAttribArray, "glEnableVertexAttribArray"},
+	{(void **)&glGetUniformLocation, "glGetUniformLocation"},
+	{(void **)&glUniform1i, "glUniform1i"},
+	{(void **)&glBufferData, "glBufferData"},
+	{(void **)&glDeleteShader, "glDeleteShader"},
+	{(void **)&glDeleteProgram, "glDeleteProgram"},
+	{(void **)&glActiveTexture, "glActiveTexture"},
+};
+
 /* 前方参照 */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
-static BOOL OpenLogFile(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
+static BOOL InitOpenGL(void);
 static void GameLoop(void);
 static BOOL SyncEvents(void);
 static BOOL WaitForNextFrame(void);
@@ -118,10 +189,9 @@ static void ToggleFullScreen(void);
 static void ChangeDisplayMode(void);
 static void ResetDisplayMode(void);
 static void OnPaint(void);
-#ifndef USE_DIRECT3D
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
-#endif
+static BOOL OpenLogFile(void);
 
 /*
  * WinMain
@@ -134,10 +204,8 @@ int WINAPI WinMain(
 {
 	int result = 1;
 
-#ifndef USE_DIRECT3D
 	/* Sleep()の分解能を設定する */
 	timeBeginPeriod(1);
-#endif
 
 #ifdef USE_DEBUGGER
 	InitCommonControls();
@@ -162,10 +230,8 @@ int WINAPI WinMain(
 	/* 互換レイヤの終了処理を行う */
 	CleanupApp();
 
-#ifndef USE_DIRECT3D
 	/* Sleep()の分解能を元に戻す */
 	timeEndPeriod(1);
-#endif
 
 	return result;
 }
@@ -193,21 +259,20 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if(!InitWindow(hInstance, nCmdShow))
 		return FALSE;
 
-#ifdef USE_DIRECT3D
-	/* Direct3Dを初期化する */
-	if(!D3DInitialize(hWndMain))
-		return FALSE;
-#endif
+	/* OpenGLを初期化する */
+	if(InitOpenGL())
+		bOpenGL = TRUE;
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
 		return FALSE;
 
-#ifndef USE_DIRECT3D 
-	/* バックイメージを作成する */
-	if(!CreateBackImage())
-		return FALSE;
-#endif
+	if(!bOpenGL)
+	{
+		/* バックイメージを作成する */
+		if(!CreateBackImage())
+			return FALSE;
+	}
 
 #ifdef USE_DEBUGGER
 	/* デバッガウィンドウを作成する */
@@ -225,27 +290,44 @@ static void CleanupApp(void)
 	if (bFullScreen)
 		ToggleFullScreen();
 
+	/* OpenGLコンテキストを破棄する */
+	if(hGLRC != NULL)
+	{
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRC);
+		hGLRC = NULL;
+	}
+
 	/* ウィンドウのデバイスコンテキストを破棄する */
 	if(hWndDC != NULL)
+	{
 		ReleaseDC(hWndMain, hWndDC);
+		hWndMain = NULL;
+	}
 
-#ifndef USE_DIRECT3D
-	/* バックイメージのビットマップを破棄する */
-	if(hBitmap != NULL)
-		DeleteObject(hBitmap);
+	if(!bOpenGL)
+	{
+		/* バックイメージのビットマップを破棄する */
+		if(hBitmap != NULL)
+		{
+			DeleteObject(hBitmap);
+			hBitmap = NULL;
+		}
 
-	/* バックイメージのデバイスコンテキストを破棄する */
-	if(hBitmapDC != NULL)
-		DeleteDC(hBitmapDC);
+		/* バックイメージのデバイスコンテキストを破棄する */
+		if(hBitmapDC != NULL)
+		{
+			DeleteDC(hBitmapDC);
+			hBitmapDC = NULL;
+		}
 
-	/* バックイメージを破棄する */
-	if(BackImage != NULL)
-		destroy_image(BackImage);
-#endif
-
-#ifdef USE_DIRECT3D
-	D3DCleanup();
-#endif
+		/* バックイメージを破棄する */
+		if(BackImage != NULL)
+		{
+			destroy_image(BackImage);
+			BackImage = NULL;
+		}
+	}
 
 	/* DirectSoundの終了処理を行う */
 	DSCleanup();
@@ -256,35 +338,6 @@ static void CleanupApp(void)
 	/* ログファイルをクローズする */
 	if(pLogFile != NULL)
 		fclose(pLogFile);
-}
-
-/* ログをオープンする */
-static BOOL OpenLogFile(void)
-{
-#ifdef USE_DEBUGGER
-	return TRUE;
-#else
-	/* すでにオープンされていれば成功とする */
-	if(pLogFile != NULL)
-		return TRUE;
-
-	/* オープンする */
-	pLogFile = fopen(LOG_FILE, "w");
-	if (pLogFile == NULL)
-	{
-		/* 失敗 */
-		MessageBox(NULL,
-				   conf_language == NULL ?
-				   "ログファイルをオープンできません。" :
-				   "Cannot open log file.",
-				   conf_language == NULL ? "エラー" : "Error",
-				   MB_OK | MB_ICONWARNING);
-		return FALSE;
-	}
-
-	/* 成功 */
-	return TRUE;
-#endif
 }
 
 /* ウィンドウを作成する */
@@ -407,7 +460,87 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-#ifndef USE_DIRECT3D
+/* OpenGLを初期化する */
+static BOOL InitOpenGL(void)
+{
+	PIXELFORMATDESCRIPTOR pfd = {
+		sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd
+		1,                     // version number
+		PFD_DRAW_TO_WINDOW |   // support window
+		PFD_SUPPORT_OPENGL |   // support OpenGL
+		PFD_DOUBLEBUFFER,      // double buffered
+		PFD_TYPE_RGBA,         // RGBA type
+		24,                    // 24-bit color depth
+		0, 0, 0, 0, 0, 0,      // color bits ignored
+		0,                     // no alpha buffer
+		0,                     // shift bit ignored
+		0,                     // no accumulation buffer
+		0, 0, 0, 0,            // accum bits ignored
+		32,                    // 32-bit z-buffer
+		0,                     // no stencil buffer
+		0,                     // no auxiliary buffer
+		PFD_MAIN_PLANE,        // main layer
+		0,                     // reserved
+		0, 0, 0                // layer masks ignored
+	};
+	static const int  contextAttibs[]= {
+		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+		WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+		WGL_CONTEXT_FLAGS_ARB, 0,
+		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		0
+	};
+	HGLRC hGLRCOld;
+	int pixelFormat;
+	int i;
+
+	/* ピクセルフォーマットを選択する */
+	pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
+	if(pixelFormat == 0)
+	{
+		log_info("ChoosePixelFormat() failed.");
+		return FALSE;
+	}
+	SetPixelFormat(hWndDC, pixelFormat, &pfd);
+
+	/* OpenGLコンテキストを作成する */
+	hGLRC = wglCreateContext(hWndDC);
+	wglMakeCurrent(hWndDC, hGLRC);
+
+	/* wglCreateContextAttribsARB()へのポインタを取得する */
+	wglCreateContextAttribsARB =
+		(void *)wglGetProcAddress("wglCreateContextAttribsARB");
+	if(wglCreateContextAttribsARB == NULL)
+		return FALSE;
+
+	/* 新しい HGLRC の作成 */
+	hGLRCOld = hGLRC;
+	hGLRC = wglCreateContextAttribsARB(hWndDC, NULL, contextAttibs);
+	if(hGLRC == NULL)
+	{
+		log_info("wglCreateContextAttribsARB.");
+		wglMakeCurrent(hWndDC, NULL);
+		wglDeleteContext(hGLRCOld);
+		return FALSE;
+	}
+	wglMakeCurrent(hWndDC, hGLRC);
+	wglDeleteContext(hGLRCOld);
+
+	/* APIのポインタを取得する */
+	for(i=0; i<(int)(sizeof(APITable)/sizeof(struct GLExtAPITable)); i++)
+	{
+		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
+		if(*APITable[i].func == NULL)
+		{
+			wglDeleteContext(hGLRC);
+			hGLRC = NULL;
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 /* バックイメージを作成する */
 static BOOL CreateBackImage(void)
 {
@@ -446,7 +579,6 @@ static BOOL CreateBackImage(void)
 
 	return TRUE;
 }
-#endif
 
 /* ゲームループを実行する */
 static void GameLoop(void)
@@ -458,13 +590,12 @@ static void GameLoop(void)
 	if(!SyncEvents())
 		return;
 
-#if 1
 	/* 最初のフレームの開始時刻を取得する */
 	dwStartTime = GetTickCount();
-#endif
 
 	while(TRUE)
 	{
+		/* DirectShowで動画を再生中の場合 */
 		if(bDShowMode)
 		{
 			/* ウィンドウイベントを処理する */
@@ -478,13 +609,16 @@ static void GameLoop(void)
 			continue;
 		}
 
-#ifdef USE_DIRECT3D
-		/* フレームの描画を開始する */
-		D3DStartFrame();
-#else
-		/* バックイメージのロックを行う */
-		lock_image(BackImage);
-#endif
+		if(bOpenGL)
+		{
+			/* フレームの描画を開始する */
+			opengl_start_rendering();
+		}
+		else
+		{
+			/* バックイメージのロックを行う */
+			lock_image(BackImage);
+		}
 
 		/* 描画を行う */
 		bBreak = FALSE;
@@ -494,17 +628,23 @@ static void GameLoop(void)
 			bBreak = TRUE;
 		}
 
-#ifdef USE_DIRECT3D
-		/* フレームの描画を終了する */
-		D3DEndFrame();
-#else
-		/* バックイメージのアンロックを行う */
-		unlock_image(BackImage);
+		if(bOpenGL)
+		{
+			/* フレームの描画を終了する */
+			opengl_end_rendering();
 
-		/* 描画を反映する */
-		if(w !=0 && h !=0)
-			SyncBackImage(x, y, w, h);
-#endif
+			/* 描画を反映する */
+			SwapBuffers(hWndDC);
+		}
+		else
+		{
+			/* バックイメージのアンロックを行う */
+			unlock_image(BackImage);
+
+			/* 描画を反映する */
+			if(w !=0 && h !=0)
+				SyncBackImage(x, y, w, h);
+		}
 
 		if(bBreak)
 			break;
@@ -513,24 +653,23 @@ static void GameLoop(void)
 		if(!SyncEvents())
 			break;
 
-		/* 次の描画までスリープする */
-#ifndef USE_DIRECT3D
-		if(!WaitForNextFrame())
-			break;	/* 閉じるボタンが押された */
+		if(!bOpenGL)
+		{
+			/* 次の描画までスリープする */
+			if(!WaitForNextFrame())
+				break;	/* 閉じるボタンが押された */
 
-		/* 次のフレームの開始時刻を取得する */
-		dwStartTime = GetTickCount();
-#endif
+			/* 次のフレームの開始時刻を取得する */
+			dwStartTime = GetTickCount();
+		}
 	}
 }
 
-#ifndef USE_DIRECT3D
 /* ウィンドウにバックイメージを転送する */
 static void SyncBackImage(int x, int y, int w, int h)
 {
 	BitBlt(hWndDC, x + nOffsetX, y + nOffsetY, w, h, hBitmapDC, x, y, SRCCOPY);
 }
-#endif
 
 /* キューにあるイベントを処理する */
 static BOOL SyncEvents(void)
@@ -752,10 +891,6 @@ static void ToggleFullScreen(void)
 		MoveWindow(hWndMain, 0, 0, cx, cy, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
-
-#ifdef USE_DIRECT3D
-		D3DSetDisplayOffset(nOffsetX, nOffsetY);
-#endif
 	}
 	else
 	{
@@ -778,10 +913,6 @@ static void ToggleFullScreen(void)
 				   rectWindow.bottom - rectWindow.top, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
-
-#ifdef USE_DIRECT3D
-		D3DSetDisplayOffset(0, 0);
-#endif
 	}
 }
 
@@ -857,19 +988,18 @@ static void OnPaint(void)
 	PAINTSTRUCT ps;
 
 	hDC = BeginPaint(hWndMain, &ps);
-#ifndef USE_DIRECT3D
-	BitBlt(hDC,
-		   ps.rcPaint.left,
-		   ps.rcPaint.top,
-		   ps.rcPaint.right - ps.rcPaint.left,
-		   ps.rcPaint.bottom - ps.rcPaint.top,
-		   hBitmapDC,
-		   ps.rcPaint.left - nOffsetX,
-		   ps.rcPaint.top - nOffsetY,
-		   SRCCOPY);
-#else
-	UNUSED_PARAMETER(hDC);
-#endif
+	if(!bOpenGL && hBitmapDC != NULL)
+	{
+		BitBlt(hDC,
+			   ps.rcPaint.left,
+			   ps.rcPaint.top,
+			   ps.rcPaint.right - ps.rcPaint.left,
+			   ps.rcPaint.bottom - ps.rcPaint.top,
+			   hBitmapDC,
+			   ps.rcPaint.left - nOffsetX,
+			   ps.rcPaint.top - nOffsetY,
+			   SRCCOPY);
+	}
 	EndPaint(hWndMain, &ps);
 }
 
@@ -970,6 +1100,35 @@ bool log_error(const char *s, ...)
 	return true;
 }
 
+/* ログをオープンする */
+static BOOL OpenLogFile(void)
+{
+#ifdef USE_DEBUGGER
+	return TRUE;
+#else
+	/* すでにオープンされていれば成功とする */
+	if(pLogFile != NULL)
+		return TRUE;
+
+	/* オープンする */
+	pLogFile = fopen(LOG_FILE, "w");
+	if (pLogFile == NULL)
+	{
+		/* 失敗 */
+		MessageBox(NULL,
+				   conf_language == NULL ?
+				   "ログファイルをオープンできません。" :
+				   "Cannot open log file.",
+				   conf_language == NULL ? "エラー" : "Error",
+				   MB_OK | MB_ICONWARNING);
+		return FALSE;
+	}
+
+	/* 成功 */
+	return TRUE;
+#endif
+}
+
 /*
  * UTF-8のメッセージをネイティブの文字コードに変換する
  */
@@ -998,22 +1157,19 @@ const char *conv_utf8_to_native(const char *utf8_message)
 bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
-#ifdef USE_DIRECT3D
-	if (!D3DLockTexture(width, height, pixels, locked_pixels, texture))
-		return false;
+	if(bOpenGL)
+	{
+		if (!opengl_lock_texture(width, height, pixels, locked_pixels,
+								 texture))
+			return false;
+	}
+	else
+	{
+		assert(*locked_pixels == NULL);
+		*locked_pixels = pixels;
+	}
 
 	return true;
-#else
-	assert(*locked_pixels == NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = pixels;
-
-	return true;
-#endif
 }
 
 /*
@@ -1022,18 +1178,15 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
-#ifdef USE_DIRECT3D
-	D3DUnlockTexture(width, height, pixels, locked_pixels, texture);
-#else
-	assert(*locked_pixels != NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = NULL;
-#endif
+	if(bOpenGL)
+	{
+		opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
+	}
+	else
+	{
+		assert(*locked_pixels != NULL);
+		*locked_pixels = NULL;
+	}
 }
 
 /*
@@ -1041,11 +1194,10 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-#ifdef USE_DIRECT3D
-	D3DDestroyTexture(texture);
-#else
-	UNUSED_PARAMETER(texture);
-#endif
+	if(bOpenGL)
+	{
+		opengl_destroy_texture(texture);
+	}
 }
 
 /*
@@ -1055,13 +1207,16 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-#ifdef USE_DIRECT3D
-	D3DRenderImage(dst_left, dst_top, src_image, width, height,
+	if(bOpenGL)
+	{
+		opengl_render_image(dst_left, dst_top, src_image, width, height,
+							src_left, src_top, alpha, bt);
+	}
+	else
+	{
+		draw_image(BackImage, dst_left, dst_top, src_image, width, height,
 				   src_left, src_top, alpha, bt);
-#else
-	draw_image(BackImage, dst_left, dst_top, src_image, width, height,
-			   src_left, src_top, alpha, bt);
-#endif
+	}
 }
 
 /*
@@ -1072,27 +1227,29 @@ void render_image_mask(int dst_left, int dst_top,
                        int width, int height, int src_left, int src_top,
                        int mask)
 {
-#ifdef USE_DIRECT3D
-	D3DRenderImageMask(dst_left, dst_top, src_image, width, height,
-					   src_left, src_top, mask);
-#else
-	draw_image_mask(BackImage, dst_left, dst_top, src_image, width, height,
-					src_left, src_top, mask);
-#endif
+	if(bOpenGL)
+	{
+		opengl_render_image_mask(dst_left, dst_top, src_image, width, height,
+								 src_left, src_top, mask);
+	}
+	else
+	{
+		draw_image_mask(BackImage, dst_left, dst_top, src_image, width, height,
+						src_left, src_top, mask);
+	}
 }
 
 /*
  * 画面にイメージをテンプレート指定でレンダリングする
  */
-void render_image_template(struct image * RESTRICT src_img,
-						   struct image * RESTRICT template_img,
-						   int threshold)
+void render_image_rule(struct image * RESTRICT src_img,
+					   struct image * RESTRICT rule_img,
+					   int threshold)
 {
-#ifdef USE_DIRECT3D
-	D3DRenderImageTemplate(src_image, template_img, threshold);
-#else
-	draw_image_template(BackImage, src_img, template_img, threshold);
-#endif
+	if(bOpenGL)
+		opengl_render_image_rule(src_img, rule_img, threshold);
+	else
+		draw_image_rule(BackImage, src_img, rule_img, threshold);
 }
 
 /*
@@ -1100,11 +1257,10 @@ void render_image_template(struct image * RESTRICT src_img,
  */
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
-#ifdef USE_DIRECT3D
-	D3DRenderClear(left, top, width, height, color);
-#else
-	clear_image_color_rect(BackImage, left, top, width, height, color);
-#endif
+	if(bOpenGL)
+		opengl_render_clear(left, top, width, height, color);
+	else
+		clear_image_color_rect(BackImage, left, top, width, height, color);
 }
 
 /*
