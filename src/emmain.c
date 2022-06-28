@@ -434,6 +434,14 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 /*
+ * OpenGLが有効か調べる
+ */
+bool is_opengl_enabled(void)
+{
+	return true;
+}
+
+/*
  * テクスチャをロックする
  */
 bool lock_texture(int width, int height, pixel_t *pixels,

@@ -145,8 +145,10 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 		do {
 #ifdef USE_DEBUGGER
 			/* 実行中になるまでディスパッチに進めない */
-			if (!pre_dispatch())
+			if (!pre_dispatch()) {
+				draw_stage_keep();
 				break;
+			}
 #endif
 			if (!dispatch_command(x, y, w, h, &cont)) {
 #ifdef USE_DEBUGGER
