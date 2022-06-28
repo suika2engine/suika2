@@ -281,7 +281,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if(InitOpenGL())
 		bOpenGL = TRUE;
 	else
-		log_info("OpenGLを無効にします。");
+		log_info("OpenGL is disabled.");
 #endif
 
 	/* DirectSoundを初期化する */
@@ -326,7 +326,7 @@ static void CleanupApp(void)
 	if(hWndDC != NULL)
 	{
 		ReleaseDC(hWndMain, hWndDC);
-		hWndMain = NULL;
+		hWndDC = NULL;
 	}
 
 	if(!bOpenGL)
@@ -490,23 +490,21 @@ static BOOL InitOpenGL(void)
 {
 	PIXELFORMATDESCRIPTOR pfd = {
 		sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd
-		1,                     // version number
-		PFD_DRAW_TO_WINDOW |   // support window
-		PFD_SUPPORT_OPENGL |   // support OpenGL
-		PFD_DOUBLEBUFFER,      // double buffered
-		PFD_TYPE_RGBA,         // RGBA type
-		24,                    // 24-bit color depth
-		0, 0, 0, 0, 0, 0,      // color bits ignored
-		0,                     // no alpha buffer
-		0,                     // shift bit ignored
-		0,                     // no accumulation buffer
-		0, 0, 0, 0,            // accum bits ignored
-		32,                    // 32-bit z-buffer
-		0,                     // no stencil buffer
-		0,                     // no auxiliary buffer
-		PFD_MAIN_PLANE,        // main layer
-		0,                     // reserved
-		0, 0, 0                // layer masks ignored
+		1,
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+		PFD_TYPE_RGBA,
+		24, /* 24-bit color */
+		0, 0, 0, 0, 0, 0,
+		0,
+		0,
+		0,
+		0, 0, 0, 0,
+		32, /* 32-bit z-buffer */
+		0,
+		0,
+		PFD_MAIN_PLANE,
+		0,
+		0, 0, 0
 	};
 	static const int  contextAttibs[]= {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
@@ -522,26 +520,40 @@ static BOOL InitOpenGL(void)
 	/* ピクセルフォーマットを選択する */
 	pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
 	if(pixelFormat == 0)
+	{
+		log_info("Failed to call ChoosePixelFormat()");
 		return FALSE;
+	}
 	SetPixelFormat(hWndDC, pixelFormat, &pfd);
 
 	/* OpenGLコンテキストを作成する */
 	hGLRC = wglCreateContext(hWndDC);
+	if(hGLRC == NULL)
+	{
+		log_info("Failed to call wglCreateContext()");
+		return FALSE;
+	}
 	wglMakeCurrent(hWndDC, hGLRC);
 
 	/* wglCreateContextAttribsARB()へのポインタを取得する */
 	wglCreateContextAttribsARB =
 		(void *)wglGetProcAddress("wglCreateContextAttribsARB");
 	if(wglCreateContextAttribsARB == NULL)
+	{
+		log_info("Failed to call wglGetProcAddress() "
+				 "(wglCreateContextAttribsARB)");
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRC);
 		return FALSE;
+	}
 
 	/* 新しい HGLRC の作成 */
 	hGLRCOld = hGLRC;
 	hGLRC = wglCreateContextAttribsARB(hWndDC, NULL, contextAttibs);
 	if(hGLRC == NULL)
 	{
-		log_info("wglCreateContextAttribsARB.");
-		wglMakeCurrent(hWndDC, NULL);
+		log_info("Failed to call wglCreateContextAttribsARB()");
+		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRCOld);
 		return FALSE;
 	}
@@ -554,6 +566,8 @@ static BOOL InitOpenGL(void)
 		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
 		if(*APITable[i].func == NULL)
 		{
+			log_info("Failed to get %s", APITable[i].name);
+			wglMakeCurrent(NULL, NULL);
 			wglDeleteContext(hGLRC);
 			hGLRC = NULL;
 			return FALSE;
@@ -562,7 +576,13 @@ static BOOL InitOpenGL(void)
 
 	/* レンダラを初期化する */
 	if(!init_opengl())
+	{
+		log_info("Failed to initialize OpenGL.");
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRC);
+		hGLRC = NULL;
 		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -1061,6 +1081,7 @@ bool log_info(const char *s, ...)
 	{
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
+		fprintf(pLogFile, "\n");
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
@@ -1092,6 +1113,7 @@ bool log_warn(const char *s, ...)
 	{
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
+		fprintf(pLogFile, "\n");
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
@@ -1123,6 +1145,7 @@ bool log_error(const char *s, ...)
 	{
 		/* ファイルへ出力する */
 		fprintf(pLogFile, buf);
+		fprintf(pLogFile, "\n");
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
@@ -1188,7 +1211,7 @@ bool is_opengl_enabled(void)
 #ifndef USE_DEBUGGER
 	return bOpenGL;
 #else
-	return FALSE;
+	return false;
 #endif
 }
 

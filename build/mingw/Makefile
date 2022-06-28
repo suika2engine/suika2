@@ -14,7 +14,6 @@ WINDRES = i686-w64-mingw32-windres
 #
 
 CPPFLAGS = \
-	-DUSE_OPENGL \
 	-I. \
 	-Ires \
 	-I./libroot/include \
