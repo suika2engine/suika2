@@ -21,6 +21,7 @@
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl3.h>
 #elif defined(WIN)
+#include <windows.h>
 #include <gl/gl.h>
 #include "glhelper.h"
 #else

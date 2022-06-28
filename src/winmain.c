@@ -28,6 +28,7 @@
 #include "windebug.h"
 #endif
 
+#include <windows.h>
 #include <gl/gl.h>
 #include "glhelper.h"
 #include "glrender.h"
@@ -59,6 +60,9 @@ static const char szWindowClass[] = "suika";
 
 /* ウィンドウタイトル(ShiftJISに変換後) */
 static char mbszTitle[TITLE_BUF_SIZE];
+
+/* メッセージ変換バッファ */
+static wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
 
 /* OpenGLを利用するか */
 static BOOL bOpenGL;
@@ -239,13 +243,15 @@ int WINAPI WinMain(
 /* 基盤レイヤの初期化処理を行う */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
+	HRESULT hRes;
+
 #ifdef SSE_VERSIONING
 	/* ベクトル命令の対応を確認する */
 	x86_check_cpuid_flags();
 #endif
 
 	/* COMの初期化を行う */
-	CoInitialize(0);
+	hRes = CoInitialize(0);
 
 	/* パッケージの初期化処理を行う */
 	if(!init_file())
@@ -1134,7 +1140,6 @@ static BOOL OpenLogFile(void)
  */
 const char *conv_utf8_to_native(const char *utf8_message)
 {
-	wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
 	int cch;
 
 	assert(utf8_message != NULL);

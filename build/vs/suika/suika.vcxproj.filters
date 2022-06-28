@@ -111,6 +111,12 @@
     <ClInclude Include="..\..\..\src\key.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\glhelper.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\glrender.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -156,9 +162,6 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_se.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\cmd_select.c">
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_set.c">
@@ -261,6 +264,9 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_skip.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\glrender.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>

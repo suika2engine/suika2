@@ -1,6 +1,11 @@
 #ifndef GLHELPER_H
 #define GLHELPER_H
 
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 #define WGL_CONTEXT_MAJOR_VERSION_ARB		0x2091
 #define WGL_CONTEXT_MINOR_VERSION_ARB		0x2092
 #define WGL_CONTEXT_FLAGS_ARB			0x2094
