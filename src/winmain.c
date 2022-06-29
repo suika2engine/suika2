@@ -31,7 +31,7 @@
 #endif
 
 #ifndef USE_DEBUGGER
-#include <gl/gl.h>
+#include <GL/gl.h>
 #include "glhelper.h"
 #include "glrender.h"
 #endif
