@@ -359,10 +359,10 @@ static void draw_page(int *x, int *y, int *w, int *h)
 	lock_fi_layer_for_history();
 
 	/* FIレイヤを色で塗り潰す */
-	draw_history_fi(make_pixel((uint8_t)conf_history_color_a,
-				   (uint8_t)conf_history_color_r,
-				   (uint8_t)conf_history_color_g,
-				   (uint8_t)conf_history_color_b));
+	draw_history_fi(make_pixel_slow((uint8_t)conf_history_color_a,
+					(uint8_t)conf_history_color_r,
+					(uint8_t)conf_history_color_g,
+					(uint8_t)conf_history_color_b));
 
 	/* テキストを描画する */
 	index = (history_index - start_offset + HISTORY_SIZE - 1) %

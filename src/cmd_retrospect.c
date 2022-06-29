@@ -193,7 +193,7 @@ static bool load_hide_color(void)
 		return false;
 	}
 
-	hide_color = make_pixel(0xff, (uint8_t)r, (uint8_t)g, (uint8_t)b);
+	hide_color = make_pixel_slow(0xff, (uint8_t)r, (uint8_t)g, (uint8_t)b);
 
 	return true;
 }

@@ -259,13 +259,18 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		return;
 	}
 
-	/* 背景全体とボタンを1つ描画する */
-	draw_stage_with_buttons_keep(button[new_pointed_index].x,
-				     button[new_pointed_index].y,
-				     button[new_pointed_index].w,
-				     button[new_pointed_index].h,
-				     0, 0, 0, 0);
-	
+	if (new_pointed_index != -1) {
+		/* 背景全体とボタンを1つ描画する */
+		draw_stage_with_buttons_keep(button[new_pointed_index].x,
+					     button[new_pointed_index].y,
+					     button[new_pointed_index].w,
+					     button[new_pointed_index].h,
+					     0, 0, 0, 0);
+	} else {
+		/* 背景全体を描画する */
+		draw_stage_with_buttons_keep(0, 0, 0, 0, 0, 0, 0, 0);
+	}
+
 	/* 選択に変更がない */
 	assert(new_pointed_index == pointed_index);
 }

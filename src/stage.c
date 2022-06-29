@@ -20,6 +20,7 @@
  *  - 2021-07-19 複数キャラ・背景同時変更の対応
  *  - 2021-07-19 リファクタ
  *  - 2021-07-20 @chsにエフェクト追加
+ *  - 2022-06-29 ルール付き描画に対応, マスクつき描画の削除
  */
 
 #include "suika.h"
@@ -197,7 +198,6 @@ static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
 static void draw_stage_fi_fo_fade(int fade_method);
 static void draw_stage_fi_fo_fade_normal(void);
-static void draw_stage_fi_fo_fade_mask(void);
 static void draw_stage_fi_fo_fade_curtain_right(void);
 static void draw_stage_fi_fo_fade_curtain_left(void);
 static void draw_stage_fi_fo_fade_curtain_up(void);
@@ -597,10 +597,8 @@ static void draw_stage_fi_fo_fade(int fade_method)
 {
 	switch (fade_method) {
 	case FADE_METHOD_NORMAL:
-		draw_stage_fi_fo_fade_normal();
-		break;
 	case FADE_METHOD_MASK:
-		draw_stage_fi_fo_fade_mask();
+		draw_stage_fi_fo_fade_normal();
 		break;
 	case FADE_METHOD_CURTAIN_RIGHT:
 		draw_stage_fi_fo_fade_curtain_right();
@@ -694,23 +692,6 @@ static void draw_stage_fi_fo_fade_normal()
 {
 	render_layer_image(LAYER_FO);
 	render_layer_image(LAYER_FI);
-}
-
-/* マスクの背景フェードの描画を行う  */
-static void draw_stage_fi_fo_fade_mask()
-{
-	int mask_index;
-
-	/* アルファ値からマスクインデックスを求める */
-	mask_index = (int)((float)DRAW_IMAGE_MASK_LEVELS *
-			   (float)layer_alpha[LAYER_FI] / 255.0f);
-
-	/* 古い背景を描画する */
-	render_layer_image(LAYER_FO);
-
-	/* 新しい背景をマスクつきで描画する */
-	render_image_mask(0, 0, layer_image[LAYER_FI], conf_window_width,
-			  conf_window_height, 0, 0, mask_index);
 }
 
 /* 右方向カーテンフェードの描画を行う */
@@ -1540,10 +1521,10 @@ void draw_stage_shake(void)
 	/* 背景を塗り潰す */
 	if (conf_window_white) {
 		render_clear(0, 0, conf_window_width, conf_window_height,
-			     make_pixel(0xff, 0xff, 0xff, 0xff));
+			     make_pixel_fast(0xff, 0xff, 0xff, 0xff));
 	} else {
 		render_clear(0, 0, conf_window_width, conf_window_height,
-			     make_pixel(0xff, 0, 0, 0));
+			     make_pixel_fast(0xff, 0, 0, 0));
 	}
 
 	/* FOレイヤを描画する */
@@ -2629,12 +2610,14 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc)
 	pixel_t color, outline_color;
 	int w, h;
 
-	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
-			   (pixel_t)conf_font_color_g,
-			   (pixel_t)conf_font_color_b);
-	outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
-				   (pixel_t)conf_font_outline_color_g,
-				   (pixel_t)conf_font_outline_color_b);
+	color = make_pixel_slow(0xff,
+				(pixel_t)conf_font_color_r,
+				(pixel_t)conf_font_color_g,
+				(pixel_t)conf_font_color_b);
+	outline_color = make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
 
 	draw_char_on_layer(LAYER_FO, x, y, wc, color, outline_color, &w, &h);
 
@@ -2745,12 +2728,14 @@ void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
 {
 	pixel_t color, outline_color;
 
-	color = make_pixel(0xff, (pixel_t)conf_font_color_r,
-			   (pixel_t)conf_font_color_g,
-			   (pixel_t)conf_font_color_b);
-	outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
-				   (pixel_t)conf_font_outline_color_g,
-				   (pixel_t)conf_font_outline_color_b);
+	color = make_pixel_slow(0xff,
+				(pixel_t)conf_font_color_r,
+				(pixel_t)conf_font_color_g,
+				(pixel_t)conf_font_color_b);
+	outline_color = make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
 
 	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, w, h);
 }
@@ -2769,11 +2754,11 @@ static void render_layer_image(int layer)
 		if (conf_window_white) {
 			render_clear(0, 0, conf_window_width,
 				     conf_window_height,
-				     make_pixel(0xff, 0xff, 0xff, 0xff));
+				     make_pixel_fast(0xff, 0xff, 0xff, 0xff));
 		} else {
 			render_clear(0, 0, conf_window_width,
 				     conf_window_height,
-				     make_pixel(0xff, 0, 0, 0));
+				     make_pixel_fast(0xff, 0, 0, 0));
 		}
 		return;
 	}
@@ -2830,10 +2815,10 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
 		if (conf_window_white) {
 			render_clear(x, y, w, h,
-				     make_pixel(0xff, 0xff, 0xff, 0xff));
+				     make_pixel_fast(0xff, 0xff, 0xff, 0xff));
 		} else {
 			render_clear(x, y, w, h,
-				     make_pixel(0xff, 0, 0, 0));
+				     make_pixel_fast(0xff, 0, 0, 0));
 		}
 		return;
 	}

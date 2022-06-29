@@ -94,20 +94,21 @@ void DRAW_BLEND_FAST(
 			dst_a = 1.0f - src_a;
 
 			/* 転送元ピクセルにアルファ値を乗算する */
-			src_r = src_a * (float)get_pixel_r(src_pix);
-			src_g = src_a * (float)get_pixel_g(src_pix);
-			src_b = src_a * (float)get_pixel_b(src_pix);
+			src_r = src_a * (float)get_pixel_c1(src_pix);
+			src_g = src_a * (float)get_pixel_c2(src_pix);
+			src_b = src_a * (float)get_pixel_c3(src_pix);
 
 			/* 転送先ピクセルにアルファ値を乗算する */
-			dst_r = dst_a * (float)get_pixel_r(dst_pix);
-			dst_g = dst_a * (float)get_pixel_g(dst_pix);
-			dst_b = dst_a * (float)get_pixel_b(dst_pix);
+			dst_r = dst_a * (float)get_pixel_c1(dst_pix);
+			dst_g = dst_a * (float)get_pixel_c2(dst_pix);
+			dst_b = dst_a * (float)get_pixel_c3(dst_pix);
 
 			/* 転送先に格納する */
-			*dst_ptr++ = make_pixel(0xff,
-			    (uint32_t)(src_r + dst_r),
-			    (uint32_t)(src_g + dst_g),
-			    (uint32_t)(src_b + dst_b));
+			*dst_ptr++ = make_pixel_fast(
+				0xff,
+				(uint32_t)(src_r + dst_r),
+				(uint32_t)(src_g + dst_g),
+				(uint32_t)(src_b + dst_b));
 		}
 		src_ptr += src_line_inc;
 		dst_ptr += dst_line_inc;
@@ -157,22 +158,24 @@ void DRAW_BLEND_NORMAL(
 			pix_a = (float)src_a / 255.0f * a;
 
 			/* 転送元ピクセルにアルファ値を乗算する */
-			src_r = pix_a * (float)get_pixel_r(src_pix);
-			src_g = pix_a * (float)get_pixel_g(src_pix);
-			src_b = pix_a * (float)get_pixel_b(src_pix);
+			src_r = pix_a * (float)get_pixel_c1(src_pix);
+			src_g = pix_a * (float)get_pixel_c2(src_pix);
+			src_b = pix_a * (float)get_pixel_c3(src_pix);
 
 			/* 転送先ピクセルにアルファ値を乗算する */
-			dst_r = (1.0f - pix_a) * (float)get_pixel_r(dst_pix);
-			dst_g = (1.0f - pix_a) * (float)get_pixel_g(dst_pix);
-			dst_b = (1.0f - pix_a) * (float)get_pixel_b(dst_pix);
+			dst_r = (1.0f - pix_a) * (float)get_pixel_c1(dst_pix);
+			dst_g = (1.0f - pix_a) * (float)get_pixel_c2(dst_pix);
+			dst_b = (1.0f - pix_a) * (float)get_pixel_c3(dst_pix);
 
 			/* A値の飽和加算を行う */
 			add_a = src_a + dst_a > 255 ? 255 : src_a + dst_a;
 
 			/* 転送先に格納する */
-			*dst_ptr++ = make_pixel((pixel_t)add_a,
-			    (pixel_t)(src_r + dst_r), (pixel_t)(src_g + dst_g),
-			    (pixel_t)(src_b + dst_b));
+			*dst_ptr++ = make_pixel_fast(
+				(pixel_t)add_a,
+				(pixel_t)(src_r + dst_r),
+				(pixel_t)(src_g + dst_g),
+				(pixel_t)(src_b + dst_b));
 		}
 		src_ptr += src_line_inc;
 		dst_ptr += dst_line_inc;
@@ -222,17 +225,17 @@ void DRAW_BLEND_ADD(
 
 			/* 転送元ピクセルにアルファ値を乗算する */
 			src_r = (uint32_t)(pix_a *
-			    (float)get_pixel_r(src_pix));
+			    (float)get_pixel_c1(src_pix));
 			src_g = (uint32_t)(pix_a *
-			    (float)get_pixel_g(src_pix));
+			    (float)get_pixel_c2(src_pix));
 			src_b = (uint32_t)(pix_a *
-			    (float)get_pixel_b(src_pix));
+			    (float)get_pixel_c3(src_pix));
 
 			/* 転送先ピクセルを取得する */
 			dst_pix	= *dst_ptr;
-			dst_r = get_pixel_r(dst_pix);
-			dst_g = get_pixel_g(dst_pix);
-			dst_b = get_pixel_b(dst_pix);
+			dst_r = get_pixel_c1(dst_pix);
+			dst_g = get_pixel_c2(dst_pix);
+			dst_b = get_pixel_c3(dst_pix);
 			dst_a = get_pixel_a(dst_pix);
 
 			/* RGBA各値の飽和加算を行う */
@@ -246,7 +249,8 @@ void DRAW_BLEND_ADD(
 			sadd_a |= (-(int)(sadd_a >> 8)) & 0xff;
 
 			/* 転送先に格納する */
-			*dst_ptr = make_pixel(sadd_a, sadd_r, sadd_g, sadd_b);
+			*dst_ptr = make_pixel_fast(sadd_a, sadd_r, sadd_g,
+						   sadd_b);
 		}
 		src_ptr += src_line_inc;
 		dst_ptr += dst_line_inc;
@@ -296,17 +300,17 @@ void DRAW_BLEND_SUB(
 
 			/* 転送元ピクセルにアルファ値を乗算する */
 			src_r = (uint32_t)(pix_a *
-			    (float)get_pixel_r(src_pix));
+			    (float)get_pixel_c1(src_pix));
 			src_g = (uint32_t)(pix_a *
-			    (float)get_pixel_g(src_pix));
+			    (float)get_pixel_c2(src_pix));
 			src_b = (uint32_t)(pix_a *
-			    (float)get_pixel_b(src_pix));
+			    (float)get_pixel_c3(src_pix));
 
 			/* 転送先ピクセルのRGB各値を取得する */
 			dst_pix	= *dst_ptr;
-			dst_r = get_pixel_r(dst_pix);
-			dst_g = get_pixel_g(dst_pix);
-			dst_b = get_pixel_b(dst_pix);
+			dst_r = get_pixel_c1(dst_pix);
+			dst_g = get_pixel_c2(dst_pix);
+			dst_b = get_pixel_c3(dst_pix);
 			dst_a = get_pixel_a(dst_pix);
 
 			/* RGB各値の飽和減算と、A値の飽和加算を行う */
@@ -320,7 +324,8 @@ void DRAW_BLEND_SUB(
 			sadd_a |= (-(int)(sadd_r >> 8)) & 0xff;
 
 			/* 転送先に格納する */
-			*dst_ptr = make_pixel(sadd_a, sadd_r, sadd_g, sadd_b);
+			*dst_ptr = make_pixel_fast(sadd_a, sadd_r, sadd_g,
+						   sadd_b);
 		}
 		src_ptr += src_line_inc;
 		dst_ptr += dst_line_inc;

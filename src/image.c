@@ -194,7 +194,7 @@ struct image *create_image_from_color_string(int w, int h, const char *color)
 	r = (rgb >> 16) & 0xff;
 	g = (rgb >> 8) & 0xff;
 	b = rgb & 0xff;
-	cl = make_pixel(0xff, r, g, b);
+	cl = make_pixel_slow(0xff, r, g, b);
 
 	/* イメージを塗り潰す */
 	lock_image(img);
@@ -309,7 +309,7 @@ void clear_image_black(struct image *img)
 	assert(img->locked_pixels != NULL);
 
 	clear_image_color_rect(img, 0, 0, img->width, img->height,
-			       make_pixel(0xff, 0, 0, 0));
+			       make_pixel_fast(0xff, 0, 0, 0));
 }
 
 /*
@@ -319,7 +319,8 @@ void clear_image_black_rect(struct image *img, int x, int y, int w, int h)
 {
 	assert(img->locked_pixels != NULL);
 
-	clear_image_color_rect(img, x, y, w, h, make_pixel(0xff, 0, 0, 0));
+	clear_image_color_rect(img, x, y, w, h,
+			       make_pixel_fast(0xff, 0, 0, 0));
 }
 
 /*
@@ -330,7 +331,7 @@ void clear_image_white(struct image *img)
 	assert(img->locked_pixels != NULL);
 
 	clear_image_color_rect(img, 0, 0, img->width, img->height,
-			       make_pixel(0xff, 0xff, 0xff, 0xff));
+			       make_pixel_fast(0xff, 0xff, 0xff, 0xff));
 }
 
 /*
@@ -341,7 +342,7 @@ void clear_image_white_rect(struct image *img, int x, int y, int w, int h)
 	assert(img->locked_pixels != NULL);
 
 	clear_image_color_rect(img, x, y, w, h,
-			       make_pixel(0xff, 0xff, 0xff, 0xff));
+			       make_pixel_fast(0xff, 0xff, 0xff, 0xff));
 }
 
 /*
@@ -915,87 +916,8 @@ static void draw_blend_sub(struct image *dst_image, int dst_left, int dst_top,
 #endif	/* SSE_VERSIONING */
 
 /*
- * マスクつき描画
- *  - ベクトル化を見込めないためimage.cで直接実装する
- */
-
-/* マスクの幅 */
-#define MASK_WIDTH	(8)
-
-/* マスクのビットマップ(28階調,8x8) */
-static unsigned char mask_bitmap[DRAW_IMAGE_MASK_LEVELS][MASK_WIDTH] = {
-	{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-	{0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x80},
-	{0x00, 0x00, 0x00, 0x88, 0x00, 0x00, 0x00, 0x88},
-	{0x00, 0x02, 0x00, 0x88, 0x00, 0x22, 0x00, 0x88},
-	{0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00, 0xA8},
-	{0x00, 0x22, 0x00, 0x8A, 0x00, 0x22, 0x00, 0xAA},
-	{0x00, 0x2A, 0x00, 0xAA, 0x00, 0xA2, 0x00, 0xAA},
-	{0x22, 0x88, 0x22, 0x88, 0x22, 0x88, 0x22, 0x88},
-	{0x00, 0xAA, 0x04, 0xAA, 0x00, 0xAA, 0x40, 0xAA},
-	{0x00, 0xAA, 0x44, 0xAA, 0x00, 0xAA, 0x44, 0xAA},
-	{0x01, 0xAA, 0x44, 0xAA, 0x11, 0xAA, 0x44, 0xAA},
-	{0x11, 0xAA, 0x44, 0xAA, 0x11, 0xAA, 0x54, 0xAA},
-	{0x11, 0xAA, 0x45, 0xAA, 0x11, 0xAA, 0x55, 0xAA},
-	{0x15, 0xAA, 0x55, 0xAA, 0x51, 0xAA, 0x55, 0xAA},
-	{0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA},
-	{0x55, 0xAA, 0x55, 0xAE, 0x55, 0xAA, 0x55, 0xEA},
-	{0x55, 0xAA, 0x55, 0xEE, 0x55, 0xAA, 0x55, 0xEE},
-	{0x55, 0xAB, 0x55, 0xEE, 0x55, 0xBB, 0x55, 0xEE},
-	{0x55, 0xBB, 0x55, 0xEE, 0x55, 0xBB, 0x55, 0xEE},
-	{0x55, 0xBB, 0x55, 0xEE, 0x55, 0xBB, 0x55, 0xFE},
-	{0x55, 0xBB, 0x55, 0xEF, 0x55, 0xBB, 0x55, 0xFF},
-	{0x55, 0xBB, 0x55, 0xFF, 0x55, 0xFB, 0x55, 0xFF},
-	{0x77, 0xDD, 0x77, 0xDD, 0x77, 0xDD, 0x77, 0xDD},
-	{0x55, 0xFF, 0x5D, 0xFF, 0x55, 0xFF, 0xD5, 0xFF},
-	{0x55, 0xFF, 0xDD, 0xFF, 0x75, 0xFF, 0xDD, 0xFF},
-	{0x77, 0xFF, 0x77, 0xFF, 0x77, 0xFF, 0xFF, 0xFF},
-	{0x7F, 0xFF, 0xFF, 0xFF, 0xF7, 0xFF, 0xFF, 0xFF},
-	{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
-};
-
-/*
- * イメージをマスクつきで描画する
- */
-void draw_image_mask(
-	struct image * RESTRICT dst_image,
-	int dst_left,
-	int dst_top,
-	struct image * RESTRICT src_image,
-	int width,
-	int height,
-	int src_left,
-	int src_top,
-	int mask_level)
-{
-	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr;
-	int x, y, sw, dw;
-	unsigned char mask_cache;
-
-	/* 現段階では転送先サイズ=転送元サイズで(0,0)合わせの必要あり */
-	assert(dst_left == src_left && dst_top == src_top);
-	assert(dst_image->width == width && dst_image->height == height);
-	assert(src_image->width == width && src_image->height == height);
-	assert(dst_image->locked_pixels != NULL);
-
-	sw = get_image_width(src_image);
-	dw = get_image_width(dst_image);
-	src_ptr = get_image_pixels(src_image) + sw * src_top + src_left;
-	dst_ptr = get_image_pixels(dst_image) + dw * dst_top + dst_left;
-
-	for(y = 0; y < height; y++) {
-		mask_cache = mask_bitmap[mask_level][y % 8];
-		for(x = 0; x < width; x++) {
-			if (mask_cache & (1 << (x % 8)))
-				*(dst_ptr + x) = *(src_ptr + x);
-		}
-		src_ptr += sw;
-		dst_ptr += dw;
-	}
-}
-
-/*
  * ルール付き描画
+ *  - ベクトル化が見込めないのでここで定義する
  */
 
 /*
@@ -1003,44 +925,46 @@ void draw_image_mask(
  */
 void draw_image_rule(struct image * RESTRICT dst_image,
 		     struct image * RESTRICT src_image,
-		     struct image * RESTRICT template_image,
+		     struct image * RESTRICT rule_image,
 		     int threshold)
 {
-	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr, * RESTRICT tmp_ptr;
-	int x, y, dw, sw, tw, w, dh, sh, th, h;
+	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr, * RESTRICT rule_ptr;
+	int x, y, dw, sw, rw, w, dh, sh, rh, h;
+
+	assert(dst_image->locked_pixels != NULL);
 
 	/* 幅を取得する */
 	dw = get_image_width(dst_image);
 	sw = get_image_width(src_image);
-	tw = get_image_width(template_image);
+	rw = get_image_width(rule_image);
 	w = dw;
 	if (sw < w)
 		w = sw;
-	if (tw < w)
-		w = tw;
+	if (rw < w)
+		w = rw;
 	
 	/* 高さを取得する */
 	dh = get_image_height(dst_image);
 	sh = get_image_height(src_image);
-	th = get_image_height(template_image);
+	rh = get_image_height(rule_image);
 	h = dh;
 	if (sh < h)
 		h = sh;
-	if (th < h)
-		h = th;
+	if (rh < h)
+		h = rh;
 
 	/* 描画する */
 	dst_ptr = get_image_pixels(dst_image);
 	src_ptr = get_image_pixels(src_image);
-	tmp_ptr = get_image_pixels(template_image);
+	rule_ptr = get_image_pixels(rule_image);
 	for (y = 0; y < h; y++) {
 		for (x = 0; x < w; x++) {
-			if (get_pixel_b(*(tmp_ptr + x)) <=
+			if (get_pixel_c1(*(rule_ptr + x)) <=
 			    (unsigned char)threshold)
 				*(dst_ptr + x) = *(src_ptr + x);
 		}
 		dst_ptr += dw;
 		src_ptr += sw;
-		tmp_ptr += tw;
+		rule_ptr += rw;
 	}
 }

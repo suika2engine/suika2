@@ -763,12 +763,12 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 				continue;
 			if (strcmp(name, conf_serif_color_name[i]) == 0) {
 				/* コンフィグで指定された色にする */
-				*color = make_pixel(
+				*color = make_pixel_slow(
 					0xff,
 					(uint32_t)conf_serif_color_r[i],
 					(uint32_t)conf_serif_color_g[i],
 					(uint32_t)conf_serif_color_b[i]);
-				*outline_color = make_pixel(
+				*outline_color = make_pixel_slow(
 					0xff,
 					(uint32_t)conf_serif_outline_color_r[i],
 					(uint32_t)conf_serif_outline_color_g[i],
@@ -779,12 +779,14 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 	}
 
 	/* セリフでないかコンフィグで名前が指定されていない場合 */
-	*color =  make_pixel(0xff, (pixel_t)conf_font_color_r,
-			     (pixel_t)conf_font_color_g,
-			     (pixel_t)conf_font_color_b);
-	*outline_color = make_pixel(0xff, (pixel_t)conf_font_outline_color_r,
-				    (pixel_t)conf_font_outline_color_g,
-				    (pixel_t)conf_font_outline_color_b);
+	*color = make_pixel_slow(0xff,
+				 (pixel_t)conf_font_color_r,
+				 (pixel_t)conf_font_color_g,
+				 (pixel_t)conf_font_color_b);
+	*outline_color = make_pixel_slow(0xff,
+					 (pixel_t)conf_font_outline_color_r,
+					 (pixel_t)conf_font_outline_color_g,
+					 (pixel_t)conf_font_outline_color_b);
 }
 
 /* 初期化処理においてポイントされているボタンを求め描画する */
