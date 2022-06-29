@@ -475,10 +475,7 @@ static void draw_elements(int dst_left, int dst_top,
 	/* テクスチャを選択する */
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex->id);
-	if (rule_image == NULL) {
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex->id);
-	} else {
+	if (rule_image != NULL) {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, rule->id);
 	}
