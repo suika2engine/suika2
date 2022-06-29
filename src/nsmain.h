@@ -25,7 +25,9 @@ enum {
 };
 
 // ビュー
-@interface SuikaView : NSView <NSWindowDelegate, NSApplicationDelegate>
+@interface SuikaView : NSOpenGLView <NSWindowDelegate, NSApplicationDelegate>
+{
+}
 - (void)timerFired:(NSTimer *)timer;
 @end
 

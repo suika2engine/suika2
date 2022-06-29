@@ -55,7 +55,7 @@ include ../common.mk
 SRCS = \
 	$(SRCS_COMMON) \
 	../../src/aunit.c \
-	../../src/glesrender.c \
+	../../src/glrender.c \
 	../../src/glutmain.c
 
 #

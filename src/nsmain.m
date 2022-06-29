@@ -17,6 +17,7 @@
 #import "suika.h"
 #import "nsmain.h"
 #import "aunit.h"
+#import "glrender.h"
 
 #ifdef SSE_VERSIONING
 #import "x86.h"
@@ -26,17 +27,14 @@
 #import "nsdebug.h"
 #endif
 
+#define GL_SILENCE_DEPRECATION
+#import <OpenGL/gl3.h>
+
 // ウィンドウ
 static NSWindow *theWindow;
 
 // ビュー
 static SuikaView *theView;
-
-// 背景イメージ
-static struct image *backImage;
-
-// 背景イメージのピクセル
-static unsigned char *backImagePixels;
 
 // ログファイル
 #ifndef USE_DEBUGGER
@@ -45,7 +43,7 @@ static FILE *logFp;
 
 // 前方参照
 static BOOL initWindow(void);
-static BOOL initBackImage(void);
+static void cleanupWindow(void);
 #ifndef USE_DEBUGGER
 static BOOL openLog(void);
 static void closeLog(void);
@@ -60,99 +58,112 @@ static void closeLog(void);
 
 @implementation SuikaView
 
-// メニューのタイトルを設定したか
-BOOL isMenuSet;
+// 終了処理の必要があるか
+BOOL isFinished;
 
 // コントロールキーが押下されているか
 BOOL isControlPressed;
 
+// ビューが作成されるときに呼び出される
+- (id)initWithFrame:(NSRect)frame {
+    // メニューのタイトルを変更する https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
+    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
+    NSString *title = [[NSString alloc] initWithUTF8String:
+#ifdef USE_DEBUGGER
+        "Suika2 Pro for Creators"
+#else
+        conf_window_title
+#endif
+    ];
+    [menu setTitle:[title stringByAppendingString:@"\x1b"]];
+
+    // OpenGLコンテキストを作成する
+    NSOpenGLPixelFormatAttribute pixelFormatAttributes[] = {
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+        NSOpenGLPFAColorSize, 24,
+        NSOpenGLPFAAlphaSize, 8,
+        NSOpenGLPFADoubleBuffer,
+        NSOpenGLPFAAccelerated,
+        NSOpenGLPFANoRecovery,
+        0
+    };
+    NSOpenGLPixelFormat *pixelFormat =
+        [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
+    self = [super initWithFrame:frame pixelFormat:pixelFormat];
+    [[self openGLContext] makeCurrentContext];
+
+    // OpenGLの初期化を行う
+    if (!init_opengl()) {
+        isFinished = YES;
+        log_error("Failed to initialize OpenGL.");
+        return self;
+    }
+
+    // アプリケーション本体の初期化を行う
+    if (!on_event_init()) {
+        isFinished = YES;
+        return self;
+    }
+
+    return self;
+}
+
 // タイマコールバック
 - (void)timerFired:(NSTimer *)timer {
-    UNUSED_PARAMETER(timer);
+    // 終了する場合
+    if (isFinished) {
+        // タイマを停止する
+        [timer invalidate];
 
-    @autoreleasepool {
-        // メニューのタイトルを変更する
-        if (!isMenuSet) {
-            // https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
-            NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
-            NSString *title = [[NSString alloc]
-                                  initWithUTF8String:
-#ifdef USE_DEBUGGER
-                                      "Suika2 Pro for Creators"
-#else
-                                      conf_window_title
-#endif
-            ];
-            title = [title stringByAppendingString:@"\x1b"];
-            [menu setTitle:title];
-            isMenuSet = TRUE;
-        }
+        // イベントループを終了する
+        [NSApp stop:nil];
 
-        // フレーム描画イベントを実行する
-        int x = 0, y = 0, w = 0, h = 0;
-        lock_image(backImage);
-        if (!on_event_frame(&x, &y, &w, &h)) {
-            // 実行が終了した場合、タイマを停止してメインループから抜ける
-            [timer invalidate];
-            [NSApp stop:nil];
-            unlock_image(backImage);
-            return;
-        }
-        unlock_image(backImage);
-
-        // 描画範囲があればウィンドウへの再描画を行う
-        if (w != 0 && h != 0) {
-//          [self setNeedsDisplay:YES];
-            [self setNeedsDisplayInRect:
-                      NSMakeRect(x, conf_window_height - y - h, w, h)];
-        }
+        // Magic: 空のイベントを1つポストしてイベントループから抜ける
+        NSEvent* event =
+            [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                               location:NSMakePoint(0, 0)
+                          modifierFlags:0
+                              timestamp:0
+                           windowNumber:0
+                                context:nil
+                                subtype:0
+                                  data1:0
+                                  data2:0];
+        [NSApp postEvent:event atStart:YES];
+        return;
     }
+
+    [self setNeedsDisplay:YES];
 }
 
 // 描画イベント
 - (void)drawRect:(NSRect)rect {
-    // 描画範囲がない場合
-    if (rect.size.width == 0 || rect.size.height == 0)
+    [super drawRect:rect];
+
+    if (isFinished)
         return;
-    
-    // 描画オブジェクトの解放用
-    @autoreleasepool {
-        // NSBitmapImageRepを作成する
-        unsigned char *array[1];
-        array[0] = backImagePixels;
-        NSBitmapImageRep *rep =
-        [[NSBitmapImageRep alloc]
-         initWithBitmapDataPlanes:array
-                       pixelsWide:conf_window_width
-                       pixelsHigh:conf_window_height
-                    bitsPerSample:8
-                  samplesPerPixel:4
-                         hasAlpha:YES
-                         isPlanar:NO
-                   colorSpaceName:NSDeviceRGBColorSpace
-                      bytesPerRow:conf_window_width * 4
-                     bitsPerPixel:32];
-        assert(rep != NULL);
 
-        // NSImageに変換する
-        NSImage *img = [[NSImage alloc] initWithSize:rep.size];
-        assert(img != NULL);
-        [img addRepresentation:rep];
+    // OpenGLの描画を開始する
+    opengl_start_rendering();
 
-        // 描画を行う
-        [img drawAtPoint:rect.origin
-                fromRect:rect
-               operation:NSCompositeCopy
-                fraction:1.0];
-    }
+    // フレーム描画イベントを実行する
+    int x = 0, y = 0, w = 0, h = 0;
+    bool cont = on_event_frame(&x, &y, &w, &h);
+
+    // OpenGLの描画を終了する
+    opengl_end_rendering();
+    [[self openGLContext] flushBuffer];
+
+    if (!cont)
+        isFinished = YES;
 }
 
 // マウス押下イベント
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
+    if (pos.x < 0 && pos.x >= conf_window_width)
         return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
+    if (pos.y < 0 && pos.y >= conf_window_height)
         return;
         
 	on_event_mouse_press(MOUSE_LEFT, (int)pos.x,
@@ -162,9 +173,9 @@ BOOL isControlPressed;
 // マウス解放イベント
 - (void)mouseUp:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
+    if (pos.x < 0 && pos.x >= conf_window_width)
         return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
+    if (pos.y < 0 && pos.y >= conf_window_height)
         return;
 
 	on_event_mouse_release(MOUSE_LEFT, (int)pos.x,
@@ -174,9 +185,9 @@ BOOL isControlPressed;
 // マウス右ボタン押下イベント
 - (void)rightMouseDown:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
+    if (pos.x < 0 && pos.x >= conf_window_width)
         return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
+    if (pos.y < 0 && pos.y >= conf_window_height)
         return;
         
 	on_event_mouse_press(MOUSE_RIGHT, (int)pos.x,
@@ -186,9 +197,9 @@ BOOL isControlPressed;
 // マウス右ボタン解放イベント
 - (void)rightMouseUp:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
+    if (pos.x < 0 && pos.x >= conf_window_width)
         return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
+    if (pos.y < 0 && pos.y >= conf_window_height)
         return;
 
 	on_event_mouse_release(MOUSE_RIGHT, (int)pos.x,
@@ -198,9 +209,9 @@ BOOL isControlPressed;
 // マウス移動イベント
 - (void)mouseMoved:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    if(pos.x < 0 && pos.x >= conf_window_width)
+    if (pos.x < 0 && pos.x >= conf_window_width)
         return;
-    if(pos.y < 0 && pos.y >= conf_window_height)
+    if (pos.y < 0 && pos.y >= conf_window_height)
         return;
 
 	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
@@ -208,10 +219,10 @@ BOOL isControlPressed;
 
 // マウスホイールイベント
 - (void)scrollWheel:(NSEvent *)theEvent {
-    if([theEvent deltaY] > 0) {
+    if ([theEvent deltaY] > 0) {
         on_event_key_press(KEY_UP);
         on_event_key_release(KEY_UP);
-    } else if([theEvent deltaY] < 0) {
+    } else if ([theEvent deltaY] < 0) {
         on_event_key_press(KEY_DOWN);
         on_event_key_release(KEY_DOWN);
     }
@@ -224,10 +235,10 @@ BOOL isControlPressed;
         NSControlKeyMask;
     
     // Controlキーの状態が変化した場合は通知する
-    if(!isControlPressed && bit) {
+    if (!isControlPressed && bit) {
         isControlPressed = YES;
         on_event_key_press(KEY_CONTROL);
-    } else if(isControlPressed && !bit) {
+    } else if (isControlPressed && !bit) {
         isControlPressed = NO;
         on_event_key_release(KEY_CONTROL);
     }
@@ -235,18 +246,18 @@ BOOL isControlPressed;
 
 // キー押下イベント
 - (void)keyDown:(NSEvent *)theEvent {
-    if([theEvent isARepeat])
+    if ([theEvent isARepeat])
         return;
 
     int kc = [self convertKeyCode:[theEvent keyCode]];
-    if(kc != -1)
+    if (kc != -1)
         on_event_key_press(kc);
 }
 
 // キー解放イベント
 - (void)keyUp:(NSEvent *)theEvent {
     int kc = [self convertKeyCode:[theEvent keyCode]];
-    if(kc != -1)
+    if (kc != -1)
         on_event_key_release(kc);
 }
 
@@ -291,7 +302,7 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
         @"Quit?"];
     [alert setAlertStyle:NSWarningAlertStyle];
-    if([alert runModal] == NSAlertFirstButtonReturn)
+    if ([alert runModal] == NSAlertFirstButtonReturn)
         return YES;
     else
         return NO;
@@ -333,50 +344,46 @@ int main()
             // コンフィグの初期化処理を行う
             if (init_conf()) {
                 // オーディオユニットの初期化処理を行う
-                if(init_aunit()) {
-                    // 背景イメージの作成を行う
-                    if(initBackImage()) {
-                        // アプリケーション本体の初期化を行う
-                        if(on_event_init()) {
-                            // ウィンドウを作成する
-                            if(initWindow()) {
+                if (init_aunit()) {
+                    // ウィンドウを作成する
+                    if (initWindow()) {
 #ifdef USE_DEBUGGER
-                                if(initDebugWindow()) {
+                        // デバッグウィンドウを作成する
+                        if (initDebugWindow()) {
 #else
-                                {
+                        {
 #endif
-                                    // メインループを実行する
-                                    [NSApp activateIgnoringOtherApps:YES];
-                                    [NSApp run];
+                            // メインループを実行する
+                            [NSApp activateIgnoringOtherApps:YES];
+                            [NSApp run];
 
-                                    // アプリケーション本体の終了処理を行う
-                                    on_event_cleanup();
-                                }
-                            }
+                            // アプリケーション本体の終了処理を行う
+                            on_event_cleanup();
 
-                            // TODO: How to destroy theWindow and theView?
+                            // OpenGLの終了処理を行う
+                            cleanup_opengl();
                         }
-
-                        // 背景イメージの破棄を行う
-                        destroy_image(backImage);
                     }
 
-                    // オーディオユニットの終了処理を行う
-                    cleanup_aunit();
+                    // ウィンドウの終了処理を行う
+                    cleanupWindow();
                 }
 
-                // コンフィグの終了処理を行う
-                cleanup_conf();
+                // オーディオユニットの終了処理を行う
+                cleanup_aunit();
             }
 
-            // パッケージの終了処理を行う
-            cleanup_file();
+            // コンフィグの終了処理を行う
+            cleanup_conf();
+        }
+
+        // パッケージの終了処理を行う
+        cleanup_file();
 
 #ifndef USE_DEBUGGER
-            // ログをクローズする
-            closeLog();
+        // ログをクローズする
+        closeLog();
 #endif
-        }
     }
 
     [NSApp terminate:nil];
@@ -388,7 +395,7 @@ int main()
 static BOOL openLog(void)
 {
     // すでにオープン済みの場合、成功とする
-    if(logFp != NULL)
+    if (logFp != NULL)
         return TRUE;
 
     // .appバンドルのパスを取得する
@@ -403,7 +410,7 @@ static BOOL openLog(void)
 
     // ログをオープンする
     logFp = fopen(path, "w");
-    if(logFp == NULL) {
+    if (logFp == NULL) {
         // 失敗
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:@"Error"];
@@ -420,40 +427,10 @@ static BOOL openLog(void)
 static void closeLog(void)
 {
     // ログをクローズする
-    if(logFp != NULL)
+    if (logFp != NULL)
         fclose(logFp);
 }
 #endif
-
-// イメージの作成を行う
-static BOOL initBackImage(void)
-{
-#ifndef SSE_VERSIONING
-    backImagePixels = malloc((size_t)(conf_window_width * conf_window_height *
-                             4));
-    if (backImagePixels == NULL) {
-        [NSApp terminate:nil];
-        return false;
-    }
-#else
-    if (posix_memalign((void **)&backImagePixels, SSE_ALIGN,
-                       (size_t)(conf_window_width * conf_window_height * 4))
-        != 0) {
-        return NO;
-    }
-#endif
-
-    backImage = create_image_with_pixels(conf_window_width, conf_window_height,
-                                         (pixel_t *)backImagePixels);
-    lock_image(backImage);
-	if(conf_window_white)
-		clear_image_white(backImage);
-    else
-        clear_image_black(backImage);
-    unlock_image(backImage);
-
-    return YES;
-}
 
 // ウィンドウの初期化処理を行う
 static BOOL initWindow(void)
@@ -533,6 +510,12 @@ static BOOL initWindow(void)
     return YES;
 }
 
+// ウィンドウの終了処理を行う
+static void cleanupWindow(void)
+{
+    // TODO: destroy theView and theWindow
+}
+
 //
 // platform.hの実装
 //
@@ -589,7 +572,7 @@ char *make_valid_path(const char *dir, const char *fname)
         ret = strdup(cstr);
     }
 
-    if(ret == NULL) {
+    if (ret == NULL) {
         log_memory();
         return NULL;
     }
@@ -616,7 +599,7 @@ bool log_info(const char *s, ...)
 
 #ifndef USE_DEBUGGER
     // ログファイルに出力する
-    if(!openLog())
+    if (!openLog())
         return false;
     if (logFp != NULL) {
         fprintf(stderr, "%s", buf);
@@ -650,7 +633,7 @@ bool log_warn(const char *s, ...)
 
 #ifndef USE_DEBUGGER
     // ログファイルに出力する
-    if(!openLog())
+    if (!openLog())
         return false;
     if (logFp != NULL) {
         fprintf(stderr, "%s", buf);
@@ -712,7 +695,7 @@ const char *conv_utf8_to_native(const char *utf8_message)
 //
 bool is_opengl_enabled(void)
 {
-	return false;
+	return true;
 }
 
 //
@@ -721,11 +704,7 @@ bool is_opengl_enabled(void)
 bool lock_texture(int width, int height, pixel_t *pixels,
                   pixel_t **locked_pixels, void **texture)
 {
-	assert(*locked_pixels == NULL);
-
-	*locked_pixels = pixels;
-
-    return true;
+    return opengl_lock_texture(width, height, pixels, locked_pixels, texture);;
 }
 
 //
@@ -734,9 +713,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
                     pixel_t **locked_pixels, void **texture)
 {
-	assert(*locked_pixels != NULL);
-
-	*locked_pixels = NULL;
+    opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
 }
 
 //
@@ -744,7 +721,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 //
 void destroy_texture(void *texture)
 {
-    UNUSED_PARAMETER(texture);
+    opengl_destroy_texture(texture);
 }
 
 //
@@ -754,30 +731,18 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-    draw_image(backImage, dst_left, dst_top, src_image, width, height,
-               src_left, src_top, alpha, bt);
-}
-
-//
-// イメージをマスク描画でレンダリングする
-//
-void render_image_mask(int dst_left, int dst_top,
-                       struct image * RESTRICT src_image,
-                       int width, int height, int src_left, int src_top,
-                       int mask)
-{
-    draw_image_mask(backImage, dst_left, dst_top, src_image, width, height,
-                    src_left, src_top, mask);
+    opengl_render_image(dst_left, dst_top, src_image, width, height, src_left,
+                        src_top, alpha, bt);
 }
 
 //
 // 画面にイメージをテンプレート指定でレンダリングする
 //
-void render_image_template(struct image * RESTRICT src_img,
-                           struct image * RESTRICT template_img,
-                           int threshold)
+void render_image_rule(struct image * RESTRICT src_img,
+                       struct image * RESTRICT template_img,
+                       int threshold)
 {
-	draw_image_template(backImage, src_img, template_img, threshold);
+	opengl_render_image_rule(src_img, template_img, threshold);
 }
 
 //
@@ -785,7 +750,7 @@ void render_image_template(struct image * RESTRICT src_img,
 //
 void render_clear(int left, int top, int width, int height, pixel_t color)
 {
-    clear_image_color_rect(backImage, left, top, width, height, color);
+    opengl_render_clear(left, top, width, height, color);
 }
 
 //
@@ -831,7 +796,7 @@ bool exit_dialog(void)
     [alert setMessageText:conf_language == NULL ?
               @"終了しますか？" : @"Quit?"];
     [alert setAlertStyle:NSWarningAlertStyle];
-    if([alert runModal] == NSAlertFirstButtonReturn)
+    if ([alert runModal] == NSAlertFirstButtonReturn)
         return true;
     return false;
 }    
@@ -847,7 +812,7 @@ bool title_dialog(void)
     [alert setMessageText:conf_language == NULL ? @"タイトルへ戻りますか？" :
                @"Are you sure you want to go to title?"];
     [alert setAlertStyle:NSWarningAlertStyle];
-    if([alert runModal] == NSAlertFirstButtonReturn)
+    if ([alert runModal] == NSAlertFirstButtonReturn)
         return true;
     return false;
 }

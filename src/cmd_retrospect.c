@@ -93,6 +93,19 @@ bool retrospect_command(int *x, int *y, int *w, int *h)
 /* コマンドの初期化処理を行う */
 bool init(void)
 {
+	/* ステージの画像を無効にする */
+	show_namebox(false);
+	show_msgbox(false);
+	set_bg_file_name(NULL);
+	set_ch_file_name(CH_BACK, NULL);
+	set_ch_file_name(CH_RIGHT, NULL);
+	set_ch_file_name(CH_LEFT, NULL);
+	set_ch_file_name(CH_CENTER, NULL);
+	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
+	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
+	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
+	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
+
 	/* FO/FIレイヤをロックする */
 	lock_fo_fi_for_menu();
 
@@ -125,6 +138,12 @@ bool init(void)
 
 	/* FO/FIレイヤをアンロックする */
 	unlock_fo_fi_for_menu();
+
+	/* 終了後に表示されるBGレイヤを設定する */
+	if (!create_temporary_bg()) {
+		log_script_exec_footer();
+		return false;
+	}
 
 	/* 繰り返し動作を開始する */
 	start_command_repetition();
@@ -430,13 +449,6 @@ static bool cleanup(void)
 {
 	assert(pointed_index != -1);
 
-	/* ステージの画像を無効にする */
-	change_bg_immediately(NULL);
-	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
-	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
-
 	/* メニューコマンドが完了したばかりであることを記録する */
 	set_retrospect_finish_flag();
 
@@ -449,18 +461,14 @@ static bool cancel(void)
 {
 	assert(is_right_button_pressed);
 
-	/* ステージの画像を無効にする */
-	change_bg_immediately(NULL);
-	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
-	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
-
 	/* メニューコマンドが完了したばかりであることを記録する */
 	set_retrospect_finish_flag();
 
 	/* 繰り返し動作を終了する */
 	stop_command_repetition();
+
+	/* 描画を行う */
+	draw_stage_keep();
 
 	/* ラベルにジャンプする */
 	return move_to_next_command();

@@ -98,24 +98,29 @@ static bool init(void)
 		}
 
 		/* イメージの消去が指定された場合 */
-		if (strcmp(fname[i], "none") == 0) {
+		if (i != BG_INDEX && strcmp(fname[i], "none") == 0) {
 			/* 変更なしフラグをセットしない */
 			stay[i] = false;
 
 			/* ファイル名を設定する */
-			if (i != BG_INDEX) {
-				if (!set_ch_file_name(i, NULL))
-					return false;
-			} else {
-				if (!set_bg_file_name(NULL))
-					return false;
-			}
+			if (!set_ch_file_name(i, NULL))
+				return false;
+
 			continue;
 		}
 
-		/* イメージを読み込む */
-		img[i] = create_image_from_file(i != BG_INDEX ? CH_DIR :
-						BG_DIR, fname[i]);
+		/* 背景の色指定の場合 */
+		if (i == BG_INDEX && fname[i][0] == '#') {
+			/* 色を指定してイメージを作成する */
+			img[i] = create_image_from_color_string(
+				conf_window_width,
+				conf_window_height,
+				&fname[i][1]);
+		} else {
+			/* イメージを読み込む */
+			img[i] = create_image_from_file(
+				i != BG_INDEX ? CH_DIR : BG_DIR, fname[i]);
+		}
 		if (img[i] == NULL) {
 			log_script_exec_footer();
 			return false;

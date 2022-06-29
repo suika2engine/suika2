@@ -78,6 +78,18 @@ bool init(void)
 	struct image *img;
 	int i;
 
+	/* 背景以外を消す */
+	show_namebox(false);
+	show_msgbox(false);
+	set_ch_file_name(CH_BACK, NULL);
+	set_ch_file_name(CH_RIGHT, NULL);
+	set_ch_file_name(CH_LEFT, NULL);
+	set_ch_file_name(CH_CENTER, NULL);
+	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
+	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
+	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
+	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
+
 	/* FO/FIレイヤをロックする */
 	lock_fo_fi_for_menu();
 
@@ -90,7 +102,14 @@ bool init(void)
 		return false;
 	}
 	draw_image_to_fo(img);
-	destroy_image(img);
+
+	/* BGレイヤに設定する */
+	if (!set_bg_file_name(file)) {
+		log_script_exec_footer();
+		unlock_fo_fi_for_menu();
+		return false;
+	}
+	change_bg_immediately(img);
 
 	/* 前景を読み込んでFIレイヤに描画する */
 	file = get_string_param(MENU_PARAM_FG_FILE);
@@ -309,13 +328,6 @@ static void play_se(const char *file)
 static bool cleanup(void)
 {
 	assert(pointed_index != -1);
-
-	/* ステージの画像を無効にする */
-	change_bg_immediately(NULL);
-	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
-	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
 
 	/* メニューコマンドが完了したばかりであることを記録する */
 	set_menu_finish_flag();

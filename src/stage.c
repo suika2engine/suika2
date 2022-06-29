@@ -267,6 +267,11 @@ bool init_stage(void)
 	if (!setup_save())
 		return false;
 
+	/* 起動直後の仮の背景イメージを作成する */
+	layer_image[LAYER_BG] = create_initial_bg();
+	if (layer_image[LAYER_BG] == NULL)
+		return false;
+
 	/* フェードイン・アウトレイヤのイメージを作成する */
 	if (!create_fade_layer_images())
 		return false;
@@ -439,6 +444,29 @@ static bool setup_save(void)
 	return true;
 }
 
+/*
+ * 起動直後の仮の背景イメージを作成する
+ */
+struct image *create_initial_bg(void)
+{
+	struct image *img;
+
+	/* 背景レイヤのイメージを作成する */
+	img = create_image(conf_window_width, conf_window_height);
+	if (img == NULL)
+		return NULL;
+
+	/* 塗り潰す */
+	lock_image(img);
+	if (conf_window_white)
+		clear_image_white(img);
+	else
+		clear_image_black(img);
+	unlock_image(img);
+
+	return img;
+}
+
 /* レイヤのイメージを作成する */
 static bool create_fade_layer_images(void)
 {
@@ -525,9 +553,8 @@ void draw_stage(void)
  */
 void draw_stage_keep(void)
 {
-	if (is_opengl_enabled()) {
+	if (is_opengl_enabled())
 		draw_stage();
-	}
 }
 
 /*
@@ -1518,18 +1545,13 @@ void draw_stage_ch_fade_rule(struct image *rule_img)
  */
 void draw_stage_shake(void)
 {
-	/* 背景を塗り潰す */
-	if (conf_window_white) {
-		render_clear(0, 0, conf_window_width, conf_window_height,
-			     make_pixel_fast(0xff, 0xff, 0xff, 0xff));
-	} else {
-		render_clear(0, 0, conf_window_width, conf_window_height,
-			     make_pixel_fast(0xff, 0, 0, 0));
-	}
-
 	/* FOレイヤを描画する */
+	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
+
+	/* FIレイヤを描画する */
 	render_image(shake_offset_x, shake_offset_y,
-		     layer_image[LAYER_FO], conf_window_width,
+		     layer_image[LAYER_FI], conf_window_width,
 		     conf_window_height, 0, 0, 255, BLEND_NONE);
 }
 
@@ -1849,6 +1871,8 @@ const char *get_bg_file_name(void)
  */
 void change_bg_immediately(struct image *img)
 {
+	assert(img != NULL);
+
 	destroy_layer_image(LAYER_BG);
 	layer_image[LAYER_BG] = img;
 }
@@ -2246,14 +2270,22 @@ void start_shake(void)
 
 	stage_mode = STAGE_MODE_SHAKE;
 
-	/* フェードアウト用のレイヤにステージを描画する */
+	/* フェードアウト用のレイヤをクリアする */
 	lock_image(layer_image[LAYER_FO]);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	if (conf_window_white)
+		clear_image_white(layer_image[LAYER_FO]);
+	else
+		clear_image_black(layer_image[LAYER_FO]);
 	unlock_image(layer_image[LAYER_FO]);
+
+	/* フェードイン用のレイヤにステージを描画する */
+	lock_image(layer_image[LAYER_FI]);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	unlock_image(layer_image[LAYER_FI]);
 }
 
 /* 画面揺らしモードの表示オフセットを設定する */
@@ -2675,6 +2707,33 @@ void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color)
 }
 
 /*
+ * FOレイヤの内容を仮のBGレイヤに設定する
+ */
+bool create_temporary_bg(void)
+{
+	struct image *img;
+
+	/* 既存のBGレイヤのイメージを破棄する */
+	destroy_layer_image(LAYER_BG);
+
+	/* 背景のイメージを作成する */
+	img = create_image(conf_window_width, conf_window_height);
+	if (img == NULL)
+		return false;
+
+	/* FOレイヤの中身をコピーする */
+	lock_image(img);
+	draw_image(img, 0, 0, layer_image[LAYER_FO], conf_window_width,
+		   conf_window_height, 0, 0, 255, BLEND_NONE);
+	unlock_image(img);
+
+	/* BGレイヤにセットする */
+	layer_image[LAYER_BG] = img;
+
+	return true;
+}
+
+/*
  * ヒストリ画面の表示
  */
 
@@ -2749,19 +2808,9 @@ static void render_layer_image(int layer)
 {
 	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
 
-	/* 背景イメージがセットされていなければクリアする */
-	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
-		if (conf_window_white) {
-			render_clear(0, 0, conf_window_width,
-				     conf_window_height,
-				     make_pixel_fast(0xff, 0xff, 0xff, 0xff));
-		} else {
-			render_clear(0, 0, conf_window_width,
-				     conf_window_height,
-				     make_pixel_fast(0xff, 0, 0, 0));
-		}
-		return;
-	}
+	/* 背景イメージは必ずセットされている必要がある */
+	if (layer == LAYER_BG)
+		assert(layer_image[LAYER_BG] != NULL);
 
 	/* その他のレイヤはイメージがセットされていれば描画する */
 	if (layer_image[layer] != NULL) {

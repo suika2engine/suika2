@@ -432,7 +432,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 	}
 
 #ifdef USE_DEBUGGER
-	*cont = false;
+	if (*cont) {
+		draw_stage_keep();
+		*cont = false;
+	}
 #endif
 
 	return true;

@@ -92,16 +92,14 @@ static bool init(void)
 	}
 
 	/* 背景・キャラクタファイル名を設定する */
-	if (!set_bg_file_name(fname))
+	if (!set_bg_file_name(fname)) {
+		log_script_exec_footer();
 		return false;
-	if (!set_ch_file_name(CH_BACK, NULL))
-		return false;
-	if (!set_ch_file_name(CH_RIGHT, NULL))
-		return false;
-	if (!set_ch_file_name(CH_LEFT, NULL))
-		return false;
-	if (!set_ch_file_name(CH_CENTER, NULL))
-		return false;
+	}
+	set_ch_file_name(CH_BACK, NULL);
+	set_ch_file_name(CH_RIGHT, NULL);
+	set_ch_file_name(CH_LEFT, NULL);
+	set_ch_file_name(CH_CENTER, NULL);
 
 	/* フェードしない場合か、キーが押されている場合 */
 	if ((span == 0) 

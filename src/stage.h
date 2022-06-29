@@ -74,6 +74,9 @@ bool init_stage(void);
 /* ステージの終了処理を行う */
 void cleanup_stage(void);
 
+/* 起動・ロード直後の一時的な背景を作成する */
+struct image *create_initial_bg(void);
+
 /*
  * ステージ描画
  */
@@ -320,6 +323,9 @@ void draw_image_to_fi(struct image *img);
 
 /* FOレイヤに矩形を描画する */
 void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color);
+
+/* FOレイヤの内容を仮のBGレイヤに設定する */
+bool create_temporary_bg(void);
 
 /*
  * ヒストリ画面の表示

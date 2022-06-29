@@ -128,7 +128,7 @@ bool init_opengl(void)
 		printf("Vertex shader compile error\n");
 		glGetShaderInfoLog(vertex_shader, sizeof(buf), &len, &buf[0]);
 		printf("%s", buf);
-		exit(EXIT_FAILURE);
+		return false;
 	}
 
 	/* フラグメントシェーダ(通常)を作成する */
@@ -138,8 +138,12 @@ bool init_opengl(void)
 
 	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
 	if (!compiled) {
+		char buf[1024];
+		int len;
 		printf("Fragment shader compile error\n");
-		exit(EXIT_FAILURE);
+		glGetShaderInfoLog(fragment_shader, sizeof(buf), &len, &buf[0]);
+		printf("%s", buf);
+		return false;
 	}
 
 	/* フラグメントシェーダ(ルール使用)を作成する */
@@ -148,10 +152,14 @@ bool init_opengl(void)
 		       &fragment_shader_rule_src, NULL);
 	glCompileShader(fragment_shader_rule);
 
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
+	glGetShaderiv(fragment_shader_rule, GL_COMPILE_STATUS, &compiled);
 	if (!compiled) {
+		char buf[1024];
+		int len;
 		printf("Fragment shader compile error\n");
-		exit(EXIT_FAILURE);
+		glGetShaderInfoLog(fragment_shader_rule, sizeof(buf), &len, &buf[0]);
+		printf("%s", buf);
+		return false;
 	}
 
 	/* プログラム(通常)を作成する */
@@ -168,7 +176,7 @@ bool init_opengl(void)
 		printf("Program link error\n");
 		glGetProgramInfoLog(program, sizeof(buf), &len, &buf[0]);
 		printf("%s", buf);
-		exit(EXIT_FAILURE);
+		return false;
 	}
 
 	/* プログラム(ルール使用)を作成する */
@@ -184,7 +192,7 @@ bool init_opengl(void)
 		printf("Program link error\n");
 		glGetProgramInfoLog(program, sizeof(buf), &len, &buf[0]);
 		printf("%s", buf);
-		exit(EXIT_FAILURE);
+		return false;
 	}
 
 	/* シェーダのセットアップを行う(通常) */
@@ -495,17 +503,4 @@ static void draw_elements(int dst_left, int dst_top,
 	} else {
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 	}
-}
-
-/*
- * 画面をクリアする
- */
-void opengl_render_clear(int left, int top, int width, int height,
-			 pixel_t color)
-{
-	UNUSED_PARAMETER(left);
-	UNUSED_PARAMETER(top);
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(color);
 }

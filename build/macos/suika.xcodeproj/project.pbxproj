@@ -99,6 +99,8 @@
 		26A1784E25EE5DD0006A1ED4 /* cmd_click.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782A25EE5DD0006A1ED4 /* cmd_click.c */; };
 		26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
 		26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
+		26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
+		26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -185,6 +187,8 @@
 		26B8ACED25EE5846005D9C49 /* suika.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = suika.entitlements; sourceTree = "<group>"; };
 		26C8A49D2679CB4B009FE156 /* scbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scbuf.c; path = ../../../src/scbuf.c; sourceTree = "<group>"; };
 		26C8A49E2679CB4B009FE156 /* scbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scbuf.h; path = ../../../src/scbuf.h; sourceTree = "<group>"; };
+		26EA3DD4286C2DCA00B527DF /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../../src/glrender.c; sourceTree = "<group>"; };
+		26EA3DD5286C2DCA00B527DF /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../../src/glrender.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -266,6 +270,8 @@
 				26A1781525EE5DD0006A1ED4 /* event.h */,
 				26A177F925EE5DD0006A1ED4 /* file.c */,
 				26A177F825EE5DD0006A1ED4 /* file.h */,
+				26EA3DD4286C2DCA00B527DF /* glrender.c */,
+				26EA3DD5286C2DCA00B527DF /* glrender.h */,
 				26A1781B25EE5DD0006A1ED4 /* glyph.c */,
 				26A1782825EE5DD0006A1ED4 /* glyph.h */,
 				26A1781A25EE5DD0006A1ED4 /* history.c */,
@@ -413,6 +419,7 @@
 				2679EC85285813B000C20499 /* package.c in Sources */,
 				2603494D2854B29800037370 /* vars.c in Sources */,
 				2603494E2854B29800037370 /* glyph.c in Sources */,
+				26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */,
 				2603494F2854B29800037370 /* cmd_vol.c in Sources */,
 				260349502854B29800037370 /* nsmain.m in Sources */,
 				260349512854B29800037370 /* save.c in Sources */,
@@ -498,6 +505,7 @@
 				26A1782F25EE5DD0006A1ED4 /* file.c in Sources */,
 				26616DC926B4CED20094B23C /* seen.c in Sources */,
 				26A1783825EE5DD0006A1ED4 /* cmd_switch.c in Sources */,
+				26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */,
 				26A1783725EE5DD0006A1ED4 /* cmd_menu.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
