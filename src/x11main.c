@@ -868,25 +868,13 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 /*
- * イメージをマスク描画でレンダリングする
- */
-void render_image_mask(int dst_left, int dst_top,
-                       struct image * RESTRICT src_image,
-                       int width, int height, int src_left, int src_top,
-                       int mask)
-{
-	draw_image_mask(back_image, dst_left, dst_top, src_image, width, height,
-			src_left, src_top, mask);
-}
-
-/*
- * 画面にイメージをテンプレート指定でレンダリングする
+ * 画面にイメージをルールつきでレンダリングする
  */
 void render_image_template(struct image * RESTRICT src_img,
-			   struct image * RESTRICT template_img,
+			   struct image * RESTRICT rule_img,
 			   int threshold)
 {
-	draw_image_template(back_image, src_img, template_img, threshold);
+	draw_image_rule(back_image, src_img, rule_img, threshold);
 }
 
 /*

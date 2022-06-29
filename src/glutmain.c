@@ -380,33 +380,13 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 /*
- * イメージをマスク描画でレンダリングする
- */
-void render_image_mask(int dst_left, int dst_top,
-                       struct image * RESTRICT src_image,
-                       int width, int height, int src_left, int src_top,
-                       int mask)
-{
-	opengl_render_image_mask(dst_left, dst_top, src_image, width,
-				 height, src_left, src_top, mask);
-}
-
-/*
- * 画面にイメージをテンプレート指定でレンダリングする
+ * 画面にイメージをルールつきでレンダリングする
  */
 void render_image_rule(struct image * RESTRICT src_img,
 		       struct image * RESTRICT rule_img,
 		       int threshold)
 {
 	opengl_render_image_rule(src_img, rule_img, threshold);
-}
-
-/*
- * 画面をクリアする
- */
-void render_clear(int left, int top, int width, int height, pixel_t color)
-{
-	opengl_render_clear(left, top, width, height, color);
 }
 
 /*

@@ -44,18 +44,9 @@ void opengl_render_image(int dst_left, int dst_top,
 			 int height, int src_left, int src_top, int alpha,
 			 int bt);
 
-/* 画面にイメージをマスク描画でレンダリングする */
-void opengl_render_image_mask(int dst_left, int dst_top,
-			      struct image * RESTRICT src_image, int width,
-			      int height, int src_left, int src_top, int mask);
-
 /* 画面にイメージをルール付きでレンダリングする */
 void opengl_render_image_rule(struct image * RESTRICT src_image,
 			      struct image * RESTRICT rule_image,
 			      int threshold);
-
-/* 画面をクリアする */
-void opengl_render_clear(int left, int top, int width, int height,
-			 pixel_t color);
 
 #endif

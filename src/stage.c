@@ -2831,16 +2831,11 @@ static void draw_layer_image(struct image *target, int layer)
 {
 	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
 
-	/* 背景イメージがセットされていなければクリアする */
-	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
-		if (conf_window_white)
-			clear_image_white(target);
-		else
-			clear_image_black(target);
-		return;
-	}
+	/* 背景イメージは必ずセットされている必要がある */
+	if (layer == LAYER_BG)
+		assert(layer_image[LAYER_BG] != NULL);
 
-	/* その他のレイヤはイメージがセットされていれば描画する */
+	/* イメージがセットされていれば描画する */
 	if (layer_image[layer] != NULL) {
 		draw_image(target,
 			   layer_x[layer],
@@ -2860,19 +2855,11 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 {
 	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
 
-	/* 背景イメージがセットされていなければクリアする */
-	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
-		if (conf_window_white) {
-			render_clear(x, y, w, h,
-				     make_pixel_fast(0xff, 0xff, 0xff, 0xff));
-		} else {
-			render_clear(x, y, w, h,
-				     make_pixel_fast(0xff, 0, 0, 0));
-		}
-		return;
-	}
+	/* 背景イメージは必ずセットされている必要がある */
+	if (layer == LAYER_BG)
+		assert(layer_image[LAYER_BG] != NULL);
 
-	/* その他のレイヤはイメージがセットされていれば描画する */
+	/* イメージがセットされていれば描画する */
 	if (layer_image[layer] != NULL) {
 		render_image(x, y, layer_image[layer], w, h,
 			     x - layer_x[layer], y - layer_y[layer],
@@ -2886,16 +2873,11 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 {
 	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
 
-	/* FIXME: 背景イメージがセットされていなければクリアする */
-	if (layer == LAYER_BG && layer_image[LAYER_BG] == NULL) {
-		if (conf_window_white)
-			clear_image_white_rect(target, x, y, w, h);
-		else
-			clear_image_black_rect(target, x, y, w, h);
-		return;
-	}
+	/* 背景イメージは必ずセットされている必要がある */
+	if (layer == LAYER_BG)
+		assert(layer_image[LAYER_BG] != NULL);
 
-	/* その他のレイヤはイメージがセットされていれば描画する */
+	/* レイヤはイメージがセットされていれば描画する */
 	if (layer_image[layer] != NULL) {
 		draw_image(target, x, y, layer_image[layer], w, h,
 			   x - layer_x[layer], y - layer_y[layer],

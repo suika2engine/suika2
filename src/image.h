@@ -23,6 +23,9 @@
 
 #include "types.h"
 
+/* platform.h */
+bool is_opengl_enabled(void);
+
 /* ARGB/ABGRカラー形式のピクセル値 */
 typedef uint32_t pixel_t;
 
@@ -93,7 +96,7 @@ static INLINE pixel_t make_pixel_slow(uint32_t a, uint32_t r, uint32_t g,
 static INLINE uint32_t get_pixel_r_slow(pixel_t p)
 {
 	if (is_opengl_enabled())
-		returnp & 0xff;
+		return p & 0xff;
 	else
 		return (p >> 16) & 0xff;
 }

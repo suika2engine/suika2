@@ -736,7 +736,7 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 //
-// 画面にイメージをテンプレート指定でレンダリングする
+// 画面にイメージをルールつきでレンダリングする
 //
 void render_image_rule(struct image * RESTRICT src_img,
                        struct image * RESTRICT template_img,
