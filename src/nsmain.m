@@ -746,14 +746,6 @@ void render_image_rule(struct image * RESTRICT src_img,
 }
 
 //
-// 画面をクリアする
-//
-void render_clear(int left, int top, int width, int height, pixel_t color)
-{
-    opengl_render_clear(left, top, width, height, color);
-}
-
-//
 // タイマをリセットする
 //
 void reset_stop_watch(stop_watch_t *t)
