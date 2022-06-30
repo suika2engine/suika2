@@ -92,6 +92,10 @@ BOOL isControlPressed;
     self = [super initWithFrame:frame pixelFormat:pixelFormat];
     [[self openGLContext] makeCurrentContext];
 
+    // VSYNC待ちを有効にする
+    GLint vsync = GL_TRUE;
+    [[self openGLContext] setValues:&vsync forParameter:NSOpenGLCPSwapInterval];
+
     // OpenGLの初期化を行う
     if (!init_opengl()) {
         isFinished = YES;
@@ -742,7 +746,7 @@ void render_image_rule(struct image * RESTRICT src_img,
                        struct image * RESTRICT template_img,
                        int threshold)
 {
-	opengl_render_image_rule(src_img, template_img, threshold);
+    opengl_render_image_rule(src_img, template_img, threshold);
 }
 
 //
@@ -751,9 +755,9 @@ void render_image_rule(struct image * RESTRICT src_img,
 void reset_stop_watch(stop_watch_t *t)
 {
     struct timeval tv;
-    
+
     gettimeofday(&tv, NULL);
-    
+
     *t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
@@ -764,16 +768,16 @@ int get_stop_watch_lap(stop_watch_t *t)
 {
     struct timeval tv;
     stop_watch_t end;
-        
+
     gettimeofday(&tv, NULL);
-        
+
     end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
-        
+
     if (end < *t) {
         reset_stop_watch(t);
             return 0;
     }
-        
+
     return (int)(end - *t);
 }
 

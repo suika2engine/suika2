@@ -870,7 +870,7 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 /*
  * 画面にイメージをルールつきでレンダリングする
  */
-void render_image_ruke(struct image * RESTRICT src_img,
+void render_image_rule(struct image * RESTRICT src_img,
 			   struct image * RESTRICT rule_img,
 			   int threshold)
 {

@@ -118,8 +118,9 @@ static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
 #ifndef USE_DEBUGGER
 /* OpenGL ext API */
-HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
-										   const int *attribList);
+static HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
+												  const int *attribList);
+static BOOL (WINAPI *wglSwapIntervalEXT)(int interval);
 GLuint (APIENTRY *glCreateShader)(GLenum type);
 void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
 								const GLchar *const*string,
@@ -158,6 +159,7 @@ struct GLExtAPITable
 	const char *name;
 } APITable[] =
 {
+	{(void **)&wglSwapIntervalEXT, "wglSwapIntervalEXT"},
 	{(void **)&glCreateShader, "glCreateShader"},
 	{(void **)&glShaderSource, "glShaderSource"},
 	{(void **)&glCompileShader, "glCompileShader"},
@@ -585,6 +587,9 @@ static BOOL InitOpenGL(void)
 		return FALSE;
 	}
 
+	/* VSYNC待ちを有効にする */
+	wglSwapIntervalEXT(1);
+
 	return TRUE;
 }
 #endif
@@ -686,6 +691,7 @@ static void GameLoop(void)
 
 			/* 描画を反映する */
 			SwapBuffers(hWndDC);
+			glFinish();
 		}
 		else
 #endif
@@ -705,9 +711,14 @@ static void GameLoop(void)
 		if(!SyncEvents())
 			break;
 
-		/* 次の描画までスリープする */
-		if(!WaitForNextFrame())
-			break;	/* 閉じるボタンが押された */
+#ifndef USE_DEBUGGER
+		if(bOpenGL)
+		{
+			/* 次の描画までスリープする */
+			if(!WaitForNextFrame())
+				break;	/* 閉じるボタンが押された */
+		}
+#endif
 
 		/* 次のフレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();

@@ -26,9 +26,6 @@ typedef SSIZE_T ssize_t;
 typedef char GLchar;
 typedef ssize_t GLsizeiptr;
 
-extern HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
-						  const int *attribList);
-
 extern GLuint (APIENTRY *glCreateShader)(GLenum type);
 extern void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
 				       const GLchar *const*string,

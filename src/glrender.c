@@ -22,7 +22,7 @@
 #include <OpenGL/gl3.h>
 #elif defined(WIN)
 #include <windows.h>
-#include <gl/gl.h>
+#include <GL/gl.h>
 #include "glhelper.h"
 #else
 #include <GLES3/gl3.h>
