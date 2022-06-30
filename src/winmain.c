@@ -844,6 +844,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			on_event_key_release(KEY_DOWN);
 		}
 		return 0;
+	case WM_KILLFOCUS:
+		on_event_key_release(KEY_CONTROL);
+		return 0;
 	case WM_SYSCHAR:
 		return 0;
 	case WM_NCLBUTTONDBLCLK:
