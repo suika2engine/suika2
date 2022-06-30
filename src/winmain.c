@@ -30,11 +30,9 @@
 #include "windebug.h"
 #endif
 
-#ifndef USE_DEBUGGER
 #include <GL/gl.h>
 #include "glhelper.h"
 #include "glrender.h"
-#endif
 
 #ifdef SSE_VERSIONING
 #include "x86.h"
@@ -75,11 +73,8 @@ static HWND hWndMain;
 static HDC hWndDC;
 static HDC hBitmapDC;
 static HBITMAP hBitmap;
-#ifndef USE_DEBUGGER
 static HGLRC hGLRC;
-#endif
 #ifdef USE_DEBUGGER
-static HWND hWndStatus;
 #endif
 
 /* アクセラレータ */
@@ -116,7 +111,6 @@ static BOOL bDShowSkippable;
 /* UTF-8からSJISへの変換バッファ */
 static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
-#ifndef USE_DEBUGGER
 /* OpenGL ext API */
 static HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
 												  const int *attribList);
@@ -185,15 +179,12 @@ struct GLExtAPITable
 	{(void **)&glDeleteProgram, "glDeleteProgram"},
 	{(void **)&glActiveTexture, "glActiveTexture"},
 };
-#endif
 
 /* 前方参照 */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
-#ifndef USE_DEBUGGER
 static BOOL InitOpenGL(void);
-#endif
 static void GameLoop(void);
 static BOOL SyncEvents(void);
 static BOOL WaitForNextFrame(void);
@@ -278,13 +269,17 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if(!InitWindow(hInstance, nCmdShow))
 		return FALSE;
 
-#ifndef USE_DEBUGGER
+#ifdef USE_DEBUGGER
+	/* デバッガウィンドウを作成する */
+	if(!InitDebuggerWindow(hInstance, nCmdShow))
+		return FALSE;
+#endif
+
 	/* OpenGLを初期化する */
 	if(InitOpenGL())
 		bOpenGL = TRUE;
 	else
 		log_info("OpenGL is disabled.");
-#endif
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
@@ -297,12 +292,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 			return FALSE;
 	}
 
-#ifdef USE_DEBUGGER
-	/* デバッガウィンドウを作成する */
-	if(!InitDebuggerWindow(hInstance, nCmdShow))
-		return FALSE;
-#endif
-
 	return TRUE;
 }
 
@@ -313,7 +302,6 @@ static void CleanupApp(void)
 	if (bFullScreen)
 		ToggleFullScreen();
 
-#ifndef USE_DEBUGGER
 	/* OpenGLコンテキストを破棄する */
 	if(bOpenGL && hGLRC != NULL)
 	{
@@ -322,7 +310,6 @@ static void CleanupApp(void)
 		wglDeleteContext(hGLRC);
 		hGLRC = NULL;
 	}
-#endif
 
 	/* ウィンドウのデバイスコンテキストを破棄する */
 	if(hWndDC != NULL)
@@ -462,9 +449,6 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	/* メニューを作成する */
 	InitMenu(hWndMain);
 
-	/* ステータスバーを作成する */
-	hWndStatus = InitStatusBar();
-
 	/* アクセラレータをロードする */
 	hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
 #endif
@@ -486,7 +470,6 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-#ifndef USE_DEBUGGER
 /* OpenGLを初期化する */
 static BOOL InitOpenGL(void)
 {
@@ -592,7 +575,6 @@ static BOOL InitOpenGL(void)
 
 	return TRUE;
 }
-#endif
 
 /* バックイメージを作成する */
 static BOOL CreateBackImage(void)
@@ -662,14 +644,12 @@ static void GameLoop(void)
 			continue;
 		}
 
-#ifndef USE_DEBUGGER
 		if(bOpenGL)
 		{
 			/* フレームの描画を開始する */
 			opengl_start_rendering();
 		}
 		else
-#endif
 		{
 			/* バックイメージのロックを行う */
 			lock_image(BackImage);
@@ -683,7 +663,6 @@ static void GameLoop(void)
 			bBreak = TRUE;
 		}
 
-#ifndef USE_DEBUGGER
 		if(bOpenGL)
 		{
 			/* フレームの描画を終了する */
@@ -694,7 +673,6 @@ static void GameLoop(void)
 			glFinish();
 		}
 		else
-#endif
 		{
 			/* バックイメージのアンロックを行う */
 			unlock_image(BackImage);
@@ -711,14 +689,12 @@ static void GameLoop(void)
 		if(!SyncEvents())
 			break;
 
-#ifndef USE_DEBUGGER
 		if(bOpenGL)
 		{
 			/* 次の描画までスリープする */
 			if(!WaitForNextFrame())
 				break;	/* 閉じるボタンが押された */
 		}
-#endif
 
 		/* 次のフレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
@@ -789,7 +765,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #ifdef USE_DEBUGGER
 	/* デバッグウィンドウと子ウィンドウ、あるいはWM_COMMANDの場合 */
 	if(IsDebuggerHWND(hWnd) || message == WM_COMMAND)
-		return WndProcDebug(hWnd, message, wParam, lParam);
+		return WndProcDebugHook(hWnd, message, wParam, lParam);
 #endif
 
 	switch(message)
@@ -816,12 +792,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					   "終了しますか？" : "Quit?",
 					   mbszTitle, MB_OKCANCEL) == IDOK)
 			DestroyWindow(hWnd);
-		return 0;
-#endif
-#ifdef USE_DEBUGGER
-	case WM_SIZE:
-		/* ステータスバーの位置を正しくする */
-		SendMessage(hWndStatus, WM_SIZE, wParam, lParam);
 		return 0;
 #endif
 	case WM_LBUTTONDOWN:
@@ -1220,11 +1190,7 @@ const char *conv_utf8_to_native(const char *utf8_message)
  */
 bool is_opengl_enabled(void)
 {
-#ifndef USE_DEBUGGER
 	return bOpenGL;
-#else
-	return false;
-#endif
 }
 
 /*
@@ -1233,7 +1199,6 @@ bool is_opengl_enabled(void)
 bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
-#ifndef USE_DEBUGGER
 	if(bOpenGL)
 	{
 		if (!opengl_lock_texture(width, height, pixels, locked_pixels,
@@ -1245,17 +1210,6 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 		assert(*locked_pixels == NULL);
 		*locked_pixels = pixels;
 	}
-#else
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(texture);
-
-	assert(*locked_pixels == NULL);
-
-	*locked_pixels = pixels;
-#endif
-
 	return true;
 }
 
@@ -1265,7 +1219,6 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
-#ifndef USE_DEBUGGER
 	if(bOpenGL)
 	{
 		opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
@@ -1275,16 +1228,6 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 		assert(*locked_pixels != NULL);
 		*locked_pixels = NULL;
 	}
-#else
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(texture);
-
-	assert(*locked_pixels != NULL);
-
-	*locked_pixels = NULL;
-#endif
 }
 
 /*
@@ -1292,14 +1235,8 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-#ifndef USE_DEBUGGER
 	if(bOpenGL)
-	{
 		opengl_destroy_texture(texture);
-	}
-#else
-	UNUSED_PARAMETER(texture);
-#endif
 }
 
 /*
@@ -1309,14 +1246,12 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-#ifndef USE_DEBUGGER
 	if(bOpenGL)
 	{
 		opengl_render_image(dst_left, dst_top, src_image, width, height,
 							src_left, src_top, alpha, bt);
 	}
 	else
-#endif
 	{
 		draw_image(BackImage, dst_left, dst_top, src_image, width, height,
 				   src_left, src_top, alpha, bt);
@@ -1330,16 +1265,10 @@ void render_image_rule(struct image * RESTRICT src_img,
 					   struct image * RESTRICT rule_img,
 					   int threshold)
 {
-#ifndef USE_DEBUGGER
 	if(bOpenGL)
-	{
 		opengl_render_image_rule(src_img, rule_img, threshold);
-	}
 	else
-#endif
-	{
 		draw_image_rule(BackImage, src_img, rule_img, threshold);
-	}
 }
 
 /*

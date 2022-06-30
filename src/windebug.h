@@ -32,9 +32,6 @@
 /* メニューを作成する */
 VOID InitMenu(HWND hWnd);
 
-/* ステータスバーを作成する */
-HWND InitStatusBar(void);
-
 /* デバッガウィンドウを作成する */
 BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow);
 
@@ -42,8 +39,8 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow);
 BOOL IsDebuggerHWND(HWND hWnd);
 
 /* デバッガのウィンドウプロシージャの処理 */
-LRESULT CALLBACK WndProcDebug(HWND hWnd, UINT message, WPARAM wParam,
-							  LPARAM lParam);
+LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
+								  LPARAM lParam);
 
 /* winmain.c */
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
