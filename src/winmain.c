@@ -111,10 +111,7 @@ static BOOL bDShowSkippable;
 /* UTF-8からSJISへの変換バッファ */
 static char szNativeMessage[NATIVE_MESSAGE_SIZE];
 
-/* OpenGL ext API */
-static HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
-												  const int *attribList);
-static BOOL (WINAPI *wglSwapIntervalEXT)(int interval);
+/* OpenGL 3.2 API */
 GLuint (APIENTRY *glCreateShader)(GLenum type);
 void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
 								const GLchar *const*string,
@@ -153,7 +150,6 @@ struct GLExtAPITable
 	const char *name;
 } APITable[] =
 {
-	{(void **)&wglSwapIntervalEXT, "wglSwapIntervalEXT"},
 	{(void **)&glCreateShader, "glCreateShader"},
 	{(void **)&glShaderSource, "glShaderSource"},
 	{(void **)&glCompileShader, "glCompileShader"},
@@ -498,6 +494,8 @@ static BOOL InitOpenGL(void)
 		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
 		0
 	};
+	HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
+											   const int *attribList);
 	HGLRC hGLRCOld;
 	int pixelFormat;
 	int i;
@@ -569,9 +567,6 @@ static BOOL InitOpenGL(void)
 		hGLRC = NULL;
 		return FALSE;
 	}
-
-	/* VSYNC待ちを有効にする */
-	wglSwapIntervalEXT(1);
 
 	return TRUE;
 }
@@ -670,7 +665,6 @@ static void GameLoop(void)
 
 			/* 描画を反映する */
 			SwapBuffers(hWndDC);
-			glFinish();
 		}
 		else
 		{
@@ -689,12 +683,9 @@ static void GameLoop(void)
 		if(!SyncEvents())
 			break;
 
-		if(bOpenGL)
-		{
-			/* 次の描画までスリープする */
-			if(!WaitForNextFrame())
-				break;	/* 閉じるボタンが押された */
-		}
+		/* 次の描画までスリープする */
+		if(!WaitForNextFrame())
+			break;	/* 閉じるボタンが押された */
 
 		/* 次のフレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
@@ -728,7 +719,10 @@ static BOOL SyncEvents(void)
 /* 次のフレームの開始時刻までイベント処理とスリープを行う */
 static BOOL WaitForNextFrame(void)
 {
-	DWORD end, lap, wait;
+	DWORD end, lap, wait, span;
+
+	/* OpenGLのときは60FPSを目指し、GDIのときは30FPSを目指す */
+	span = !bOpenGL ? FRAME_MILLI : FRAME_MILLI / 2;
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -741,7 +735,7 @@ static BOOL WaitForNextFrame(void)
 		lap = dwStartTime - end;
 
 		/* 次のフレームの開始時刻になった場合はスリープを終了する */
-		if (lap > FRAME_MILLI) {
+		if(lap >= span) {
 			dwStartTime = end;
 			break;
 		}
