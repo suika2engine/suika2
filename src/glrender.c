@@ -29,12 +29,12 @@
 #include <GLES2/gl2ext.h>
 #endif
 
-GLuint program, program_rule;
-GLuint vertex_shader;
-GLuint fragment_shader, fragment_shader_rule;
-GLuint vertex_array, vertex_array_rule;
-GLuint vertex_buf, vertex_buf_rule;
-GLuint index_buf, index_buf_rule;
+static GLuint program, program_rule;
+static GLuint vertex_shader;
+static GLuint fragment_shader, fragment_shader_rule;
+static GLuint vertex_array, vertex_array_rule;
+static GLuint vertex_buf, vertex_buf_rule;
+static GLuint index_buf, index_buf_rule;
 
 static const char *vertex_shader_src =
 #ifdef OSX

@@ -58,6 +58,12 @@ static void closeLog(void);
 
 @implementation SuikaView
 
+// フルスクリーン時の拡大率(マウス座標の計算に利用)
+float screenScale;
+
+// フルスクリーンになる前のウィンドウ位置とサイズ
+NSRect savedFrame;
+
 // 終了処理の必要があるか
 BOOL isFinished;
 
@@ -95,6 +101,9 @@ BOOL isControlPressed;
     // VSYNC待ちを有効にする
     GLint vsync = GL_TRUE;
     [[self openGLContext] setValues:&vsync forParameter:NSOpenGLCPSwapInterval];
+
+    // スクリーン拡大率を設定する
+    screenScale = 1.0f;
 
     // OpenGLの初期化を行う
     if (!init_opengl()) {
@@ -165,6 +174,8 @@ BOOL isControlPressed;
 // マウス押下イベント
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
+    pos.x *= screenScale;
+    pos.y *= screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
@@ -177,6 +188,8 @@ BOOL isControlPressed;
 // マウス解放イベント
 - (void)mouseUp:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
+    pos.x *= screenScale;
+    pos.y *= screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
@@ -189,6 +202,8 @@ BOOL isControlPressed;
 // マウス右ボタン押下イベント
 - (void)rightMouseDown:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
+    pos.x *= screenScale;
+    pos.y *= screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
@@ -201,6 +216,8 @@ BOOL isControlPressed;
 // マウス右ボタン解放イベント
 - (void)rightMouseUp:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
+    pos.x *= screenScale;
+    pos.y *= screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
@@ -213,6 +230,8 @@ BOOL isControlPressed;
 // マウス移動イベント
 - (void)mouseMoved:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
+    pos.x *= screenScale;
+    pos.y *= screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
@@ -280,17 +299,40 @@ BOOL isControlPressed;
     return -1;
 }
 
-// フルスクリーンイベント
+// フルスクリーンになる前に呼び出される
 - (NSSize)window:(NSWindow *)window
 willUseFullScreenContentSize:(NSSize)proposedSize {
     UNUSED_PARAMETER(window);
-    UNUSED_PARAMETER(proposedSize);
 
-    NSSize modSize;
-    modSize.width = conf_window_width;
-    modSize.height = conf_window_height;
+    // ゲーム画面のアスペクト比を求める
+    float aspect = (float)conf_window_height / (float)conf_window_width;
 
-    return modSize;
+    // 横幅優先で高さを仮決めする
+    float width = proposedSize.width;
+    float height = width * aspect;
+    screenScale = (float)conf_window_width / width;
+
+    // 高さが足りなければ、縦幅優先で横幅を決める
+    if(height > proposedSize.height) {
+        height = proposedSize.height;
+        width = proposedSize.height / aspect;
+        screenScale = (float)conf_window_height / height;
+    }
+
+    // スクリーンサイズを返す
+    return NSMakeSize(width, height);
+}
+
+// フルスクリーンから戻るときに呼び出される
+- (void)windowWillEnterFullScreen:(NSNotification *)notification {
+    // ウィンドウサイズを保存する
+    savedFrame = [theWindow frame];
+}
+
+// フルスクリーンから戻るときに呼び出される
+- (void)windowWillExitFullScreen:(NSNotification *)notification {
+    [theWindow setFrame:savedFrame display:YES animate:NO];
+    screenScale = 1.0f;
 }
 
 // 閉じるボタンイベント
