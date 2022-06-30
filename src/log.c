@@ -643,14 +643,14 @@ void log_file_write(const char *file)
 }
 
 /*
- * @chsコマンドでテンプレートが指定されていない際のエラーを記録する
+ * ルールファイルが指定されていない際のエラーを記録する
  */
-void log_script_template(void)
+void log_script_rule(void)
 {
 	if (is_english_mode())
-		log_info("Template file not specified.");
+		log_info("Rule file not specified.");
 	else
-		log_info("テンプレートファイルが指定されていません。");
+		log_info("ルールファイルが指定されていません。");
 }
 
 #ifdef USE_DEBUGGER

@@ -61,7 +61,6 @@ static bool init(void)
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
 	const char *method;
-	const char *tname;
 	int i;
 
 	/* パラメータを取得する */
@@ -72,10 +71,9 @@ static bool init(void)
 	fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
 	span = get_float_param(CHS_PARAM_SPAN);
 	method = get_string_param(CHS_PARAM_METHOD);
-	tname = get_string_param(CHS_PARAM_TEMPLATE);
 
 	/* 描画メソッドを識別する */
-	fade_method = get_fade_method_chs(method);
+	fade_method = get_fade_method(method);
 	if (fade_method == FADE_METHOD_INVALID) {
 		log_script_fade_method(method);
 		log_script_exec_footer();
@@ -140,17 +138,17 @@ static bool init(void)
 			get_position(&x[i], &y[i], i, img[i]);
 	}
 
-	/* テンプレートが使用される場合 */
-	if (fade_method == FADE_METHOD_TEMPLATE) {
-		/* テンプレートファイルが指定されていない場合 */
-		if (strcmp(tname, "") == 0) {
-			log_script_template();
+	/* ルールが使用される場合 */
+	if (fade_method == FADE_METHOD_RULE) {
+		/* ルールファイルが指定されていない場合 */
+		if (strcmp(&method[5], "") == 0) {
+			log_script_rule();
 			log_script_exec_footer();
 			return false;
 		}
 
 		/* イメージを読み込む */
-		rule_img = create_image_from_file(BG_DIR, tname);
+		rule_img = create_image_from_file(BG_DIR, &method[5]);
 		if (rule_img == NULL) {
 			log_script_exec_footer();
 			return false;
@@ -255,10 +253,10 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition()) {
-		if (fade_method != FADE_METHOD_TEMPLATE)
+		if (fade_method != FADE_METHOD_RULE)
 			draw_stage_ch_fade(fade_method);
 		else
-			draw_stage_ch_fade_rule(rule_img);
+			draw_stage_fade_rule(rule_img);
 	} else {
 		draw_stage();
 	}
@@ -267,7 +265,7 @@ static void draw(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* テンプレートイメージを破棄する */
+	/* ルールイメージを破棄する */
 	if (rule_img != NULL) {
 		destroy_image(rule_img);
 		rule_img = NULL;

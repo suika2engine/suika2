@@ -26,7 +26,6 @@
  *  - 2022/06/05 @skipに対応
  *  - 2022/06/06 デバッガに対応
  *  - 2022/06/17 @chooseに対応
- *  - 2022/06/26 @chsをテンプレートに対応
  */
 
 #ifdef _MSC_VER
@@ -99,7 +98,7 @@ struct insn_item {
 	{"@cha", COMMAND_CHA, 6, 6},
 	{"@shake", COMMAND_SHAKE, 4, 4},
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
-	{"@chs", COMMAND_CHS, 4, 8},
+	{"@chs", COMMAND_CHS, 4, 7},
 	{"@video", COMMAND_VIDEO, 1, 1},
 	{"@skip", COMMAND_SKIP, 1, 1},
 	{"@choose", COMMAND_CHOOSE, 2, 16},

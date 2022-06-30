@@ -1521,12 +1521,13 @@ static void draw_stage_fi_fo_fade_slit_close_v(void)
 /*
  * キャラフェードモードが有効な際のステージ描画を行う (ルール使用)
  */
-void draw_stage_ch_fade_rule(struct image *rule_img)
+void draw_stage_fade_rule(struct image *rule_img)
 {
 	int threshold;
 
 	assert(!is_save_load_mode());
-	assert(stage_mode == STAGE_MODE_CH_FADE);
+	assert(stage_mode == STAGE_MODE_BG_FADE ||
+	       stage_mode == STAGE_MODE_CH_FADE);
 
 	/* テンプレートの閾値を求める */
 	threshold = (int)(255.0f * fi_fo_fade_progress);
@@ -1820,21 +1821,15 @@ int get_fade_method(const char *method)
 	if (strcmp(method, "slit-close-v") == 0)
 		return FADE_METHOD_SLIT_CLOSE_V;
 
+	/*
+	 * ルール
+	 */
+
+	if (strncmp(method, "rule:", 5) == 0)
+		return FADE_METHOD_RULE;
+
 	/* 不正なフェード指定 */
 	return FADE_METHOD_INVALID;
-}
-
-/*
- * 文字列からフェードメソッドを取得する (@bg, @ch)
- */
-int get_fade_method_chs(const char *method)
-{
-	/* テンプレート */
-	if (strcmp(method, "template") == 0)
-		return FADE_METHOD_TEMPLATE;
-
-	/* それ以外 */
-	return get_fade_method(method);
 }
 
 /*

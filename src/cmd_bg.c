@@ -28,6 +28,9 @@ static int fade_method;
 /* フェードイン中のイメージ */
 static struct image *img;
 
+/* ルール画像 */
+static struct image *rule_img;
+
 /*
  * 前方参照
  */
@@ -74,6 +77,23 @@ static bool init(void)
 		log_script_fade_method(method);
 		log_script_exec_footer();
 		return false;
+	}
+
+	/* ルールが使用される場合 */
+	if (fade_method == FADE_METHOD_RULE) {
+		/* ルールファイルが指定されていない場合 */
+		if (strcmp(&method[5], "") == 0) {
+			log_script_rule();
+			log_script_exec_footer();
+			return false;
+		}
+
+		/* イメージを読み込む */
+		rule_img = create_image_from_file(BG_DIR, &method[5]);
+		if (rule_img == NULL) {
+			log_script_exec_footer();
+			return false;
+		}
 	}
 
 	/* 色指定の場合 */
@@ -160,15 +180,26 @@ static void draw(void)
 	}
 
 	/* ステージを描画する */
-	if (is_in_command_repetition())
-		draw_stage_bg_fade(fade_method);
-	else
+	if (is_in_command_repetition()) {
+		if (fade_method != FADE_METHOD_RULE)
+			draw_stage_bg_fade(fade_method);
+		else
+			draw_stage_fade_rule(rule_img);
+
+	} else {
 		draw_stage();
+	}
 }
 
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	/* ルールイメージを破棄する */
+	if (rule_img != NULL) {
+		destroy_image(rule_img);
+		rule_img = NULL;
+	}
+
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

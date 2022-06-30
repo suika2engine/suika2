@@ -45,10 +45,10 @@
 #define LOG_BUF_SIZE	(4096)
 
 /* フレームレート */
-#define FPS				(60)
+#define FPS				(30)
 
 /* 1フレームの時間 */
-#define FRAME_MILLI		(16)
+#define FRAME_MILLI		(33)
 
 /* 1回にスリープする時間 */
 #define SLEEP_MILLI		(5)

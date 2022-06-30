@@ -55,7 +55,7 @@
 @bg white.png 1.0
 @bgm cicada.ogg
 @vol bgm 1.0 1.0
-@bg roof.png 1.0
+@bg roof.png 1.0 rule:rule-star.png
 @ch c 001-fun.png 1.0
 *???*Oh, what a nice breeze...
 
