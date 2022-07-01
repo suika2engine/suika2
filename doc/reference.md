@@ -46,13 +46,19 @@ Open eyes.
 @bg sample.png 1.5 eye-open
 ```
 
+### Usage 7
+Use rule-based transition.
+```
+@bg sample.png 1.5 rule:rule-star.png
+```
+
 ### Effects
 You can specify the following effects:
 
 |Effect Type                               |Effect Name         |Abbrev. Name 1|Abbrev. Name 2 |
 |------------------------------------------|--------------------|--------------|---------------|
 |fade/dissolve (alpha blending)            |`normal`            |`n`           |(not-specified)|
-|dissolve from radiating points            |`mask`              |`m`           |               |
+|rule-based transition                     |`rule:file-mame`    |              |               |
 |right curtain                             |`curtain-right`     |`curtain`     |`c`            |
 |left curtain                              |`curtain-left`      |`cl`          |               |
 |up curtain                                |`curtain-up`        |`cu`          |               |
@@ -70,7 +76,7 @@ You can specify the following effects:
 |clockwise wipe (20 degrees stepped)       |`clockwise20`       |`cw20`        |               |
 |counterclockwise wipe (20 degrees stepped)|`counterclockwise20`|`ccw20`       |               |
 |clockwise wipe (30 degrees stepped)       |`clockwise30`       |`cw30`        |               |
-|counterclockwise wipe (30 degrees stepped)|`counterclockwise30`|`ccw30`       |               |
+nnn|counterclockwise wipe (30 degrees stepped)|`counterclockwise30`|`ccw30`       |               |
 |open eyes                                 |`eye-open`          |              |               |
 |close eyes                                |`eye-close`         |              |               |
 |open eyes (vertical)                      |`eye-open-v`        |              |               |
@@ -79,6 +85,8 @@ You can specify the following effects:
 |close slit                                |`slit-close`        |              |               |
 |open slit (vertical)                      |`slit-open-v`       |              |               |
 |close slit (vertical)                     |`slit-close-v`      |              |               |
+
+Effect type `mask` was removed. Please use `rule:rule-mask.png` instead.
 
 ## @bgm
 

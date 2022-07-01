@@ -47,35 +47,39 @@ Suika2 命令参考手册
 ```
 
 ### 效果
-* 你可以指定以下效果:
-    * `normal`, `n` 或者不指定 -> 过渡/溶解(透明度混合)
-    * `mask` or `m` -> 从放射点溶解
-    * `curtain-right`, `curtain`, `cr` or `c` -> 右边缘
-    * `curtain-left` or `cl` -> 左边缘
-    * `curtain-up` or `cu` -> 上边缘
-    * `curtain-down` or `cd` -> 下边缘
-    * `slide-right` or `sr` -> 从右侧滑动
-    * `slide-left` or `sl` -> 从左侧滑动
-    * `slide-up` or `su` -> 从上边缘滑动
-    * `slide-down` or `sd` -> 从下边缘滑动
-    * `shutter-right` or `shr` -> 右侧快门
-    * `shutter-left` or `shl` -> 左侧快门
-    * `shutter-up` or `shu` -> 上边缘快门
-    * `shutter-down` or `shd` -> 下边缘快门
-    * `clockwise` or `cw` ->  顺时针擦除
-    * `counterclockwise` or `ccw` -> 逆时针擦除
-    * `clockwise20` or `cw20` -> 顺时针擦除 (每步20度)
-    * `counterclockwise20` or `ccw20` -> 逆时针擦除 (每步20度)
-    * `clockwise30` or `cw30` -> 顺时针擦除 (每步30度)
-    * `counterclockwise30` or `ccw30` -> 逆时针擦除 (每步30度)
-    * `eye-open` -> 打开眼睛
-    * `eye-close` -> 关闭眼睛
-    * `eye-open-v` -> 打开眼睛 (纵向)
-    * `eye-close-v` -> 关闭眼睛 (横向)
-    * `slit-open` -> 从缝隙打开
-    * `slit-close` → 从缝隙关闭
-    * `slit-open-v` → 从缝隙打开（纵向）
-    * `slit-close-v` → 从缝隙关闭 (纵向)
+
+|效果类型                                  |效果名称            |缩略1         |缩略2          |
+|------------------------------------------|--------------------|--------------|---------------|
+|过渡/溶解(透明度混合)                     |`normal`            |`n`           |(不指定)       |
+|基于规则的过渡                            |`rule:file-mame`    |              |               |
+|右边缘                                    |`curtain-right`     |`curtain`     |`c`            |
+|左边缘                                    |`curtain-left`      |`cl`          |               |
+|上边缘                                    |`curtain-up`        |`cu`          |               |
+|下边缘                                    |`curtain-down`      |`cd`          |               |
+|从右侧滑动                                |`slide-right`       |`sr`          |               |
+|从左侧滑动                                |`slide-left`        |`sl`          |               |
+|从上边缘滑动                              |`slide-up`          |`su`          |               |
+|从下边缘滑动                              |`slide-down`        |`sd`          |               |
+|右侧快门                                  |`shutter-right`     |`shr`         |               |
+|左侧快门                                  |`shutter-left`      |`shl`         |               |
+|上边缘快门                                |`shutter-up`        |`shu`         |               |
+|下边缘快门                                |`shutter-down`      |`shd`         |               |
+|顺时针擦除                                |`clockwise`         |`cw`          |               |
+|逆时针擦除                                |`counterclockwise`  |`ccw`         |               |
+|顺时针擦除 (每步20度)                     |`clockwise20`       |`cw20`        |               |
+|逆时针擦除 (每步20度)                     |`counterclockwise20`|`ccw20`       |               |
+|顺时针擦除 (每步30度)                     |`clockwise30`       |`cw30`        |               |
+|逆时针擦除 (每步30度)                     |`counterclockwise30`|`ccw30`       |               |
+|打开眼睛                                  |`eye-open`          |              |               |
+|关闭眼睛                                  |`eye-close`         |              |               |
+|打开眼睛 (纵向)                           |`eye-open-v`        |              |               |
+|关闭眼睛 (纵向)                           |`eye-close-v`       |              |               |
+|从缝隙打开                                |`slit-open`         |              |               |
+|从缝隙关闭                                |`slit-close`        |              |               |
+|从缝隙打开 (纵向)                         |`slit-open-v`       |              |               |
+|从缝隙关闭 (纵向)                         |`slit-close-v`      |              |               |
+
+效果类型`mask`被删除。请使用`rule:rule-mask.png`代替。
 
 ## @bgm
 
