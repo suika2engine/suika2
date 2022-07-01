@@ -9,7 +9,6 @@ CC = gcc
 #
 
 CPPFLAGS = \
-	-DUSE_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -54,7 +53,7 @@ SRCS = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/asound.c \
-	../../src/glesrender.c \
+	../../src/glrender.c \
 	../../src/glutmain.c
 
 #

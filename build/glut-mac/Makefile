@@ -9,7 +9,6 @@ CC = clang
 #
 
 CPPFLAGS = \
-	-DUSE_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
