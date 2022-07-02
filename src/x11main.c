@@ -23,10 +23,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>	/* stat(), mkdir() */
 #include <sys/time.h>	/* gettimeofday() */
-#include <unistd.h>	/* usleep() */
+#include <unistd.h>	/* usleep(), access() */
 
 #include "suika.h"
 #include "asound.h"
+
+#ifdef USE_X11_OPENGL
+#include <GL/gl.h>
+#include <GL/glx.h>
+#include "glrender.h"
+#endif
 
 #ifdef SSE_VERSIONING
 #include "x86.h"
@@ -50,6 +56,88 @@
  * ログ1行のサイズ
  */
 #define LOG_BUF_SIZE	(4096)
+
+/*
+ * OpenGLを利用するか
+ */
+static bool is_opengl;
+
+#ifdef USE_X11_OPENGL
+/*
+ * GLXオブジェクト
+ */
+static GLXWindow glx_window = None;
+static GLXContext glx_context = None;
+
+/* OpenGL 3.2 API */
+GLuint (APIENTRY *glCreateShader)(GLenum type);
+void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
+				const GLchar *const*string,
+				const GLint *length);
+void (APIENTRY *glCompileShader)(GLuint shader);
+void (APIENTRY *glGetShaderiv)(GLuint shader, GLenum pname, GLint *params);
+void (APIENTRY *glGetShaderInfoLog)(GLuint shader, GLsizei bufSize,
+				    GLsizei *length, GLchar *infoLog);
+void (APIENTRY *glAttachShader)(GLuint program, GLuint shader);
+void (APIENTRY *glLinkProgram)(GLuint program);
+void (APIENTRY *glGetProgramiv)(GLuint program, GLenum pname, GLint *params);
+void (APIENTRY *glGetProgramInfoLog)(GLuint program, GLsizei bufSize,
+				     GLsizei *length, GLchar *infoLog);
+GLuint (APIENTRY *glCreateProgram)(void);
+void (APIENTRY *glUseProgram)(GLuint program);
+void (APIENTRY *glGenVertexArrays)(GLsizei n, GLuint *arrays);
+void (APIENTRY *glBindVertexArray)(GLuint array);
+void (APIENTRY *glGenBuffers)(GLsizei n, GLuint *buffers);
+void (APIENTRY *glBindBuffer)(GLenum target, GLuint buffer);
+GLint (APIENTRY *glGetAttribLocation)(GLuint program, const GLchar *name);
+void (APIENTRY *glVertexAttribPointer)(GLuint index, GLint size,
+				       GLenum type, GLboolean normalized,
+				       GLsizei stride, const void *pointer);
+void (APIENTRY *glEnableVertexAttribArray)(GLuint index);
+GLint (APIENTRY *glGetUniformLocation)(GLuint program, const GLchar *name);
+void (APIENTRY *glUniform1i)(GLint location, GLint v0);
+void (APIENTRY *glBufferData)(GLenum target, GLsizeiptr size, const void *data,
+			      GLenum usage);
+void (APIENTRY *glDeleteShader)(GLuint shader);
+void (APIENTRY *glDeleteProgram)(GLuint program);
+void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
+void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
+/*void (APIENTRY *glActiveTexture)(GLenum texture);*/
+
+struct API
+{
+	void **func;
+	const char *name;
+} api[] =
+{
+	{(void **)&glCreateShader, "glCreateShader"},
+	{(void **)&glShaderSource, "glShaderSource"},
+	{(void **)&glCompileShader, "glCompileShader"},
+	{(void **)&glGetShaderiv, "glGetShaderiv"},
+	{(void **)&glGetShaderInfoLog, "glGetShaderInfoLog"},
+	{(void **)&glAttachShader, "glAttachShader"},
+	{(void **)&glLinkProgram, "glLinkProgram"},
+	{(void **)&glGetProgramiv, "glGetProgramiv"},
+	{(void **)&glGetProgramInfoLog, "glGetProgramInfoLog"},
+	{(void **)&glCreateProgram, "glCreateProgram"},
+	{(void **)&glUseProgram, "glUseProgram"},
+	{(void **)&glGenVertexArrays, "glGenVertexArrays"},
+	{(void **)&glBindVertexArray, "glBindVertexArray"},
+	{(void **)&glGenBuffers, "glGenBuffers"},
+	{(void **)&glBindBuffer, "glBindBuffer"},
+	{(void **)&glGetAttribLocation, "glGetAttribLocation"},
+	{(void **)&glVertexAttribPointer, "glVertexAttribPointer"},
+	{(void **)&glEnableVertexAttribArray, "glEnableVertexAttribArray"},
+	{(void **)&glGetUniformLocation, "glGetUniformLocation"},
+	{(void **)&glUniform1i, "glUniform1i"},
+	{(void **)&glBufferData, "glBufferData"},
+	{(void **)&glDeleteShader, "glDeleteShader"},
+	{(void **)&glDeleteProgram, "glDeleteProgram"},
+	{(void **)&glDeleteVertexArrays, "glDeleteVertexArrays"},
+	{(void **)&glDeleteBuffers, "glDeleteBuffers"},
+//	{(void **)&glActiveTexture, "glActiveTexture"},
+};
+#endif
 
 /*
  * X11オブジェクト
@@ -89,6 +177,8 @@ static bool create_window(void);
 static void destroy_window(void);
 static bool create_icon_image(void);
 static void destroy_icon_image(void);
+static bool init_glx(void);
+static void cleanup_glx(void);
 static bool create_back_image(void);
 static void destroy_back_image(void);
 static void run_game_loop(void);
@@ -173,6 +263,19 @@ static bool init(void)
 		return false;
 	}
 
+#ifdef USE_X11_OPENGL
+	if (access("force2d.txt", F_OK) == 0) {
+		log_info("Force 2D mode.");
+	} else {
+		/* OpenGLを初期化する */
+		if (init_glx()) {
+			is_opengl = true;
+		} else {
+			log_info("Failed to initialize OpenGL.");			log_info("Fall back to 2D mode.");
+		}
+	}
+#endif
+
 	/* ウィンドウを作成する */
 	if (!create_window()) {
 		log_error("Can't open window.\n");
@@ -185,10 +288,12 @@ static bool init(void)
 		return false;
 	}
 
-	/* バックイメージを作成する */
-	if (!create_back_image()) {
-		log_error("Can't create back image.\n");
-		return false;
+	if (!is_opengl) {
+		/* バックイメージを作成する */
+		if (!create_back_image()) {
+			log_error("Can't create back image.\n");
+			return false;
+		}
 	}
 
 	return true;
@@ -199,6 +304,9 @@ static void cleanup(void)
 {
 	/* ALSAの使用を終了する */
 	cleanup_asound();
+
+	/* OpenGLの利用を終了する */
+	cleanup_glx();
 
 	/* ウィンドウを破棄する */
 	destroy_window();
@@ -285,15 +393,17 @@ static bool create_window(void)
 	black = BlackPixel(display, screen);
 	white = WhitePixel(display, screen);
 
-	/* ウィンドウを作成する */
-	window = XCreateSimpleWindow(display, root, 0, 0,
-				     (unsigned int)conf_window_width,
-				     (unsigned int)conf_window_height,
-				     1, black, white);
-	if (window == BadAlloc || window == BadMatch || window == BadValue ||
-	    window == BadWindow) {
-		log_api_error("XCreateSimpleWindow");
-		return false;
+	/* ウィンドウを作成する (OpenGLを使用する場合ウィンドウは作成済み) */
+	if (!is_opengl) {
+		window = XCreateSimpleWindow(display, root, 0, 0,
+					     (unsigned int)conf_window_width,
+					     (unsigned int)conf_window_height,
+					     1, black, white);
+		if (window == BadAlloc || window == BadMatch ||
+		    window == BadValue || window == BadWindow) {
+			log_api_error("XCreateSimpleWindow");
+			return false;
+		}
 	}
 
 	/* ウィンドウのタイトルを設定する */
@@ -413,6 +523,8 @@ static bool create_back_image(void)
 	XVisualInfo vi;
 	int screen;
 
+	assert(!is_opengl);
+
 	/* XDestroyImage()がピクセル列を解放してしまうので手動で確保する */
 #ifndef SSE_VERSIONING
 	pixels = malloc((size_t)(conf_window_width * conf_window_height *
@@ -480,6 +592,128 @@ static void destroy_back_image(void)
 	}
 }
 
+#ifdef USE_X11_OPENGL
+/*
+ * OpenGL
+ */
+
+/* OpenGLを初期化する */
+static bool init_glx(void)
+{
+	int pix_attr[] = {
+		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+		GLX_RENDER_TYPE, GLX_RGBA_BIT,
+		GLX_DOUBLEBUFFER, True,
+		GLX_RED_SIZE, 1,
+		GLX_GREEN_SIZE, 1,
+		GLX_BLUE_SIZE, 1,
+		None
+	};
+	int ctx_attr[]= {
+		GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
+		GLX_CONTEXT_MINOR_VERSION_ARB, 0,
+		GLX_CONTEXT_FLAGS_ARB, 0,
+		GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+		None
+	};
+	GLXContext (*glXCreateContextAttribsARB)(Display *dpy,
+						 GLXFBConfig config,
+						 GLXContext share_context,
+						 Bool direct,
+						 const int *attrib_list);
+	GLXFBConfig *config;
+	XVisualInfo *vi;
+	XSetWindowAttributes swa;
+	XEvent event;
+	int i, n;
+
+	/* フレームバッファの形式を選択する */
+	config = glXChooseFBConfig(display, DefaultScreen(display), pix_attr,
+				   &n);
+	if (config == NULL)
+		return false;
+	vi = glXGetVisualFromFBConfig(display, config[0]);
+
+	/* ウィンドウを作成する */
+	swa.border_pixel = 0;
+	swa.event_mask = StructureNotifyMask;
+	swa.colormap = XCreateColormap(display, RootWindow(display, vi->screen),
+				       vi->visual, AllocNone);
+	window = XCreateWindow(display, RootWindow(display, vi->screen), 0, 0,
+			       (unsigned int)conf_window_width,
+			       (unsigned int)conf_window_height,
+			       0, vi->depth, InputOutput, vi->visual,
+			       CWBorderPixel | CWColormap | CWEventMask, &swa);
+
+	/* GLXコンテキストを作成する */
+	glXCreateContextAttribsARB = (void *)glXGetProcAddress(
+			(const unsigned char *)"glXCreateContextAttribsARB");
+	if (glXCreateContextAttribsARB == NULL) {
+		XDestroyWindow(display, window);
+		return false;
+	}
+	glx_context = glXCreateContextAttribsARB(display, config[0], 0, True,
+						 ctx_attr);
+	if (glx_context == NULL) {
+		XDestroyWindow(display, window);
+		return false;
+	}
+
+	/* GLXウィンドウを作成する */
+	glx_window = glXCreateWindow(display, config[0], window, NULL);
+
+	/* ウィンドウをスクリーンにマップして表示されるのを待つ */
+	XMapWindow(display, window);
+	XNextEvent(display, &event);
+
+	/* GLXコンテキストをウィンドウにバインドする */
+	glXMakeContextCurrent(display, glx_window, glx_window, glx_context);
+
+	/* APIのポインタを取得する */
+	for (i = 0; i < (int)(sizeof(api)/sizeof(struct API)); i++) {
+		*api[i].func = (void *)glXGetProcAddress(
+			(const unsigned char *)api[i].name);
+		if(*api[i].func == NULL) {
+			log_info("Failed to get %s", api[i].name);
+			glXMakeContextCurrent(display, None, None, None);
+			glXDestroyContext(display, glx_context);
+			glXDestroyWindow(display, glx_window);
+			glx_context = None;
+			glx_window = None;
+			return false;
+		}
+	}
+
+	/* OpenGLの初期化を行う */
+	if (!init_opengl()) {
+		glXMakeContextCurrent(display, None, None, None);
+		glXDestroyContext(display, glx_context);
+		glXDestroyWindow(display, glx_window);
+		glx_context = None;
+		glx_window = None;
+		return false;
+	}
+
+	return true;
+}
+
+/* OpenGLの終了処理を行う */
+static void cleanup_glx(void)
+{
+	glXMakeContextCurrent(display, None, None, None);
+	if (glx_context != None) {
+		glXDestroyContext(display, glx_context);
+		glx_context = None;
+	}
+	if (glx_window != None) {
+		glXDestroyWindow(display, glx_window);
+		glx_window = None;
+	}
+
+	cleanup_opengl();
+}
+#endif
+
 /*
  * X11のイベント処理
  */
@@ -494,25 +728,42 @@ static void run_game_loop(void)
 	gettimeofday(&tv_start, NULL);
 
 	while (1) {
-		/* バックイメージをロックする */
-		lock_image(back_image);
+		if (is_opengl) {
+#ifdef USE_X11_OPENGL
+			/* レンダリングを開始する */
+			opengl_start_rendering();
+#endif
+		} else {
+			/* バックイメージをロックする */
+			lock_image(back_image);
+		}
 
 		/* フレームイベントを呼び出す */
 		x = y = w = h = 0;
 		cont = on_event_frame(&x, &y, &w, &h);
 
-		/* バックイメージをアンロックする */
-		unlock_image(back_image);
+		if (is_opengl) {
+#ifdef USE_X11_OPENGL
+			/* レンダリングを終了する */
+			opengl_end_rendering();
+
+			/* フレームの描画を行う */
+			glXSwapBuffers(display, glx_window);
+#endif
+		} else {
+			/* バックイメージをアンロックする */
+			unlock_image(back_image);
+
+			/* フレームの描画を行う */
+			if (w != 0 && h != 0)
+				sync_back_image(x, y, w, h);
+		}
 
 		/* スクリプトの終端に達した */
 		if (!cont)
 			break;
 
-		/* 描画を行う */
-		if (w != 0 && h != 0)
-			sync_back_image(x, y, w, h);
-
-		/* フレームの描画を行う */
+		/* 次のフレームを待つ */
 		if (!wait_for_next_frame())
 			break;	/* 閉じるボタンが押された */
 
@@ -722,11 +973,13 @@ static void event_motion_notify(XEvent *event)
 static void event_expose(XEvent *event)
 {
 	if (event->xexpose.count == 0) {
-		GC gc = XCreateGC(display, window, 0, 0);
-		XPutImage(display, window, gc, ximage, 0, 0, 0, 0,
-			  (unsigned int)conf_window_width,
-			  (unsigned int)conf_window_height);
-		XFreeGC(display, gc);
+		if (!is_opengl) {
+			GC gc = XCreateGC(display, window, 0, 0);
+			XPutImage(display, window, gc, ximage, 0, 0, 0, 0,
+				  (unsigned int)conf_window_width,
+				  (unsigned int)conf_window_height);
+			XFreeGC(display, gc);
+		}
 	}
 }
 
@@ -745,8 +998,8 @@ bool log_info(const char *s, ...)
 	va_start(ap, s);
 	if (log_fp != NULL) {
 		vsnprintf(buf, sizeof(buf), s, ap);
-		fprintf(stderr, "%s", buf);
-		fprintf(log_fp, "%s", buf);
+		fprintf(stderr, "%s\n", buf);
+		fprintf(log_fp, "%s\n", buf);
 		fflush(log_fp);
 		if (ferror(log_fp))
 			return false;
@@ -766,8 +1019,8 @@ bool log_warn(const char *s, ...)
 	va_start(ap, s);
 	if (log_fp != NULL) {
 		vsnprintf(buf, sizeof(buf), s, ap);
-		fprintf(stderr, "%s", buf);
-		fprintf(log_fp, "%s", buf);
+		fprintf(stderr, "%s\n", buf);
+		fprintf(log_fp, "%s\n", buf);
 		fflush(log_fp);
 		if (ferror(log_fp))
 			return false;
@@ -787,8 +1040,8 @@ bool log_error(const char *s, ...)
 	va_start(ap, s);
 	if (log_fp != NULL) {
 		vsnprintf(buf, sizeof(buf), s, ap);
-		fprintf(stderr, "%s", buf);
-		fprintf(log_fp, "%s", buf);
+		fprintf(stderr, "%s\n", buf);
+		fprintf(log_fp, "%s\n", buf);
 		fflush(log_fp);
 		if (ferror(log_fp))
 			return false;
@@ -812,7 +1065,7 @@ const char *conv_utf8_to_native(const char *utf8_message)
  */
 bool is_opengl_enabled(void)
 {
-	return false;
+	return is_opengl;
 }
 
 /*
@@ -821,14 +1074,16 @@ bool is_opengl_enabled(void)
 bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
-	assert(*locked_pixels == NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = pixels;
-
+	if (is_opengl) {
+#ifdef USE_X11_OPENGL
+		if (!opengl_lock_texture(width, height, pixels, locked_pixels,
+					 texture))
+			return false;
+#endif
+	} else {
+		assert(*locked_pixels == NULL);
+		*locked_pixels = pixels;
+	}
 	return true;
 }
 
@@ -838,14 +1093,15 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
-	assert(*locked_pixels != NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(texture);
-
-	*locked_pixels = NULL;
+	if (is_opengl) {
+#ifdef USE_X11_OPENGL
+		opengl_unlock_texture(width, height, pixels, locked_pixels,
+				      texture);
+#endif
+	} else {
+		assert(*locked_pixels != NULL);
+		*locked_pixels = NULL;
+	}
 }
 
 /*
@@ -853,7 +1109,11 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-	UNUSED_PARAMETER(texture);
+	if (is_opengl) {
+#ifdef USE_X11_OPENGL
+		opengl_destroy_texture(texture);
+#endif
+	}
 }
 
 /*
@@ -863,28 +1123,32 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-	draw_image(back_image, dst_left, dst_top, src_image, width, height,
-			   src_left, src_top, alpha, bt);
+	if (is_opengl) {
+#ifdef USE_X11_OPENGL
+		opengl_render_image(dst_left, dst_top, src_image, width, height,
+				    src_left, src_top, alpha, bt);
+#endif
+	} else {
+		draw_image(back_image, dst_left, dst_top, src_image, width,
+			   height, src_left, src_top, alpha, bt);
+	}
 }
 
 /*
- * 画面にイメージをルールつきでレンダリングする
+ * 画面にイメージをテンプレート指定でレンダリングする
  */
 void render_image_rule(struct image * RESTRICT src_img,
-			   struct image * RESTRICT rule_img,
-			   int threshold)
+					   struct image * RESTRICT rule_img,
+					   int threshold)
 {
-	draw_image_rule(back_image, src_img, rule_img, threshold);
+	if (is_opengl) {
+#ifdef USE_X11_OPENGL
+		opengl_render_image_rule(src_img, rule_img, threshold);
+#endif
+	} else {
+		draw_image_rule(back_image, src_img, rule_img, threshold);
+	}
 }
-
-/*
- * 画面をクリアする
- */
-void render_clear(int left, int top, int width, int height, pixel_t color)
-{
-	clear_image_color_rect(back_image, left, top, width, height, color);
-}
-
 
 /*
  * セーブディレクトリを作成する

@@ -9,6 +9,7 @@ CC = gcc
 #
 
 CPPFLAGS = \
+	-DUSE_X11_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -17,7 +18,7 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O3 \
+	-O0 -g3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-fopt-info-vec \
@@ -38,6 +39,8 @@ LDFLAGS = \
 	-lasound \
 	-lX11 \
 	-lXpm \
+	-lGL \
+	-lGLX \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-lmvec
@@ -52,6 +55,7 @@ SRCS = \
 $(SRCS_COMMON) \
 $(SRCS_SSE) \
 ../../src/asound.c \
+../../src/glrender.c \
 ../../src/x11main.c
 
 #

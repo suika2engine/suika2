@@ -62,6 +62,11 @@ extern void (APIENTRY *glBufferData)(GLenum target, GLsizeiptr size,
 				     const void *data, GLenum usage);
 extern void (APIENTRY *glDeleteShader)(GLuint shader);
 extern void (APIENTRY *glDeleteProgram)(GLuint program);
+extern void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
+extern void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
+
+#ifndef USE_X11_OPENGL
 extern void (APIENTRY *glActiveTexture)(GLenum texture);
+#endif
 
 #endif

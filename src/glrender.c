@@ -13,20 +13,28 @@
 #include "suika.h"
 #include "glrender.h"
 
-#if defined(IOS)
-#define GL_SILENCE_DEPRECATION
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-#elif defined(OSX)
-#define GL_SILENCE_DEPRECATION
-#include <OpenGL/gl3.h>
-#elif defined(WIN)
+#if defined(WIN)
 #include <windows.h>
 #include <GL/gl.h>
 #include "glhelper.h"
-#else
-#include <GLES3/gl3.h>
+#elif defined(OSX)
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl3.h>
+#elif defined(IOS)
+#define GL_SILENCE_DEPRECATION
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
+#elif defined(ANDROID)
+#include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#elif defined(EM)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#elif defined(RASPBERRYPI)
+/* include something */
+#elif defined(USE_X11_OPENGL)
+#include <GL/gl.h>
+#include "glhelper.h"
 #endif
 
 static GLuint program, program_rule;
@@ -37,7 +45,7 @@ static GLuint vertex_buf, vertex_buf_rule;
 static GLuint index_buf, index_buf_rule;
 
 static const char *vertex_shader_src =
-#ifdef OSX
+#if defined(OSX) || defined(LINUX)
 	"#version 100                 \n"
 #endif
 	"attribute vec4 a_position;   \n"
@@ -53,7 +61,7 @@ static const char *vertex_shader_src =
 	"}                            \n";
 
 static const char *fragment_shader_src =
-#ifdef OSX
+#if defined(OSX) || defined(LINUX)
 	"#version 100                                        \n"
 #endif
 	"precision mediump float;                            \n"
@@ -68,7 +76,7 @@ static const char *fragment_shader_src =
 	"}                                                   \n";
 
 static const char *fragment_shader_rule_src =
-#ifdef OSX
+#if defined(OSX) || defined(LINUX)
 	"#version 100                                        \n"
 #endif
 	"precision mediump float;                            \n"
@@ -244,13 +252,28 @@ bool init_opengl(void)
 
 /*
  * OpenGLの終了処理を行う
+ *  - Emscriptenでは終了処理は呼び出されない
  */
 void cleanup_opengl(void)
 {
-	/* Emscriptenでは終了処理は呼び出されない */
-	glDeleteShader(fragment_shader);
-	glDeleteShader(vertex_shader);
-	glDeleteProgram(program);
+	if (fragment_shader_rule != 0)
+		glDeleteShader(fragment_shader_rule);
+	if (fragment_shader != 0)
+		glDeleteShader(fragment_shader);
+	if (vertex_shader != 0)
+		glDeleteShader(vertex_shader);
+	if (program_rule != 0)
+		glDeleteProgram(program_rule);
+	if (program != 0)
+		glDeleteProgram(program);
+	if (vertex_array_rule != 0)
+		glDeleteVertexArrays(1, &vertex_array_rule);
+	if (vertex_array != 0)
+		glDeleteVertexArrays(1, &vertex_array);
+	if (vertex_buf_rule != 0)
+		glDeleteBuffers(1, &vertex_buf_rule);
+	if (vertex_buf != 0)
+		glDeleteBuffers(1, &vertex_buf);
 }
 
 /*
