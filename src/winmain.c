@@ -142,6 +142,8 @@ void (APIENTRY *glBufferData)(GLenum target, GLsizeiptr size, const void *data,
 							  GLenum usage);
 void (APIENTRY *glDeleteShader)(GLuint shader);
 void (APIENTRY *glDeleteProgram)(GLuint program);
+void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
+void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
 void (APIENTRY *glActiveTexture)(GLenum texture);
 
 struct GLExtAPITable
@@ -173,6 +175,8 @@ struct GLExtAPITable
 	{(void **)&glBufferData, "glBufferData"},
 	{(void **)&glDeleteShader, "glDeleteShader"},
 	{(void **)&glDeleteProgram, "glDeleteProgram"},
+	{(void **)&glDeleteVertexArrays, "glDeleteVertexArrays"},
+	{(void **)&glDeleteBuffers, "glDeleteBuffers"},
 	{(void **)&glActiveTexture, "glActiveTexture"},
 };
 
@@ -488,8 +492,8 @@ static BOOL InitOpenGL(void)
 		0, 0, 0
 	};
 	static const int  contextAttibs[]= {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-		WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+		WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
+		WGL_CONTEXT_MINOR_VERSION_ARB, 0,
 		WGL_CONTEXT_FLAGS_ARB, 0,
 		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
 		0
