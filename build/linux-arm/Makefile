@@ -9,6 +9,7 @@ CC = gcc
 #
 
 CPPFLAGS = \
+	-DUSE_X11_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -40,6 +41,8 @@ LDFLAGS = \
 	-lasound \
 	-lX11 \
 	-lXpm \
+	-lGL \
+	-lGLX \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 
@@ -50,9 +53,10 @@ LDFLAGS = \
 include ../common.mk
 
 SRCS = \
-$(SRCS_COMMON) \
-../../src/asound.c \
-../../src/x11main.c
+	$(SRCS_COMMON) \
+	../../src/asound.c \
+	../../src/glrender.c \
+	../../src/x11main.c
 
 #
 # .c.o compilation rules

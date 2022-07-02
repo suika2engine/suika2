@@ -23,8 +23,10 @@ typedef SSIZE_T ssize_t;
 #define GL_VERTEX_SHADER			0x8B31
 #define GL_COMPILE_STATUS			0x8B81
 
+#ifndef __gl_glext_h_
 typedef char GLchar;
 typedef ssize_t GLsizeiptr;
+#endif
 
 extern GLuint (APIENTRY *glCreateShader)(GLenum type);
 extern void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
