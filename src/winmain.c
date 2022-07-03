@@ -277,9 +277,15 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 	/* OpenGLを初期化する */
 	if(InitOpenGL())
+	{
 		bOpenGL = TRUE;
+	}
 	else
-		log_info("OpenGL is disabled.");
+	{
+		log_info(conf_language == NULL ?
+				 "OpenGL 2.0はサポートされません。" :
+				 "OpenGL 2.0 is not supported.");
+	}
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
@@ -474,7 +480,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 static BOOL InitOpenGL(void)
 {
 	PIXELFORMATDESCRIPTOR pfd = {
-		sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd
+		sizeof(PIXELFORMATDESCRIPTOR),
 		1,
 		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
 		PFD_TYPE_RGBA,
@@ -484,7 +490,7 @@ static BOOL InitOpenGL(void)
 		0,
 		0,
 		0, 0, 0, 0,
-		32, /* 32-bit z-buffer */
+		0, /* no z-buffer */
 		0,
 		0,
 		PFD_MAIN_PLANE,
@@ -506,18 +512,22 @@ static BOOL InitOpenGL(void)
 
 	/* ピクセルフォーマットを選択する */
 	pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
-	if(pixelFormat == 0)
+	if (pixelFormat == 0)
 	{
-		log_info("Failed to call ChoosePixelFormat()");
+		log_info(conf_language == NULL ?
+				 "ChoosePixelFormat() の呼び出しに失敗しました。" :
+				 "Failed to call ChoosePixelFormat()");
 		return FALSE;
 	}
 	SetPixelFormat(hWndDC, pixelFormat, &pfd);
 
 	/* OpenGLコンテキストを作成する */
 	hGLRC = wglCreateContext(hWndDC);
-	if(hGLRC == NULL)
+	if (hGLRC == NULL)
 	{
-		log_info("Failed to call wglCreateContext()");
+		log_info(conf_language == NULL ?
+				 "wglCreateContext() の呼び出しに失敗しました。" :
+				 "Failed to call wglCreateContext()");
 		return FALSE;
 	}
 	wglMakeCurrent(hWndDC, hGLRC);
@@ -525,10 +535,11 @@ static BOOL InitOpenGL(void)
 	/* wglCreateContextAttribsARB()へのポインタを取得する */
 	wglCreateContextAttribsARB =
 		(void *)wglGetProcAddress("wglCreateContextAttribsARB");
-	if(wglCreateContextAttribsARB == NULL)
+	if (wglCreateContextAttribsARB == NULL)
 	{
-		log_info("Failed to call wglGetProcAddress() "
-				 "(wglCreateContextAttribsARB)");
+		log_info(conf_language == NULL ?
+				 "API wglCreateContextAttribsARB がみつかりません。" :
+				 "API wglCreateContextAttribsARB not found.");
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRC);
 		hGLRC = NULL;
@@ -538,7 +549,7 @@ static BOOL InitOpenGL(void)
 	/* 新しい HGLRC の作成 */
 	hGLRCOld = hGLRC;
 	hGLRC = wglCreateContextAttribsARB(hWndDC, NULL, contextAttibs);
-	if(hGLRC == NULL)
+	if (hGLRC == NULL)
 	{
 		log_info("Failed to call wglCreateContextAttribsARB()");
 		wglMakeCurrent(NULL, NULL);
@@ -548,13 +559,26 @@ static BOOL InitOpenGL(void)
 	wglMakeCurrent(hWndDC, hGLRC);
 	wglDeleteContext(hGLRCOld);
 
+	/* 仮想マシンを検出したらOpenGLを使わない */
+	if (strcmp((const char *)glGetString(GL_VENDOR), "VMware, Inc.") == 0) {
+		log_info(conf_language == NULL ?
+				 "仮想環境を検出しました。" :
+				 "Detected virtual environment.");
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRC);
+		hGLRC = NULL;
+		return FALSE;
+	}
+
 	/* APIのポインタを取得する */
-	for(i=0; i<(int)(sizeof(APITable)/sizeof(struct GLExtAPITable)); i++)
+	for (i = 0; i < (int)(sizeof(APITable) / sizeof(struct GLExtAPITable)); i++)
 	{
 		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
-		if(*APITable[i].func == NULL)
+		if (*APITable[i].func == NULL)
 		{
-			log_info("Failed to get %s", APITable[i].name);
+			log_info(conf_language == NULL ?
+					 "API %s がみつかりません。" :
+					 "API %s not found.", APITable[i].name);
 			wglMakeCurrent(NULL, NULL);
 			wglDeleteContext(hGLRC);
 			hGLRC = NULL;
@@ -563,9 +587,11 @@ static BOOL InitOpenGL(void)
 	}
 
 	/* レンダラを初期化する */
-	if(!init_opengl())
+	if (!init_opengl())
 	{
-		log_info("Failed to initialize OpenGL.");
+		log_info(conf_language == NULL ?
+				 "OpenGLの初期化に失敗しました。" :
+				 "Failed to initialize OpenGL.");
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRC);
 		hGLRC = NULL;

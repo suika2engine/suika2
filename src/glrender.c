@@ -45,7 +45,7 @@ static GLuint vertex_buf, vertex_buf_rule;
 static GLuint index_buf, index_buf_rule;
 
 static const char *vertex_shader_src =
-#if defined(OSX) || defined(LINUX)
+#if !defined(EM)
 	"#version 100                 \n"
 #endif
 	"attribute vec4 a_position;   \n"
@@ -61,7 +61,7 @@ static const char *vertex_shader_src =
 	"}                            \n";
 
 static const char *fragment_shader_src =
-#if defined(OSX) || defined(LINUX)
+#if !defined(EM)
 	"#version 100                                        \n"
 #endif
 	"precision mediump float;                            \n"
@@ -76,7 +76,7 @@ static const char *fragment_shader_src =
 	"}                                                   \n";
 
 static const char *fragment_shader_rule_src =
-#if defined(OSX) || defined(LINUX)
+#if !defined(EM)
 	"#version 100                                        \n"
 #endif
 	"precision mediump float;                            \n"
@@ -133,9 +133,9 @@ bool init_opengl(void)
 	if (!compiled) {
 		char buf[1024];
 		int len;
-		printf("Vertex shader compile error\n");
+		log_info("Vertex shader compile error");
 		glGetShaderInfoLog(vertex_shader, sizeof(buf), &len, &buf[0]);
-		printf("%s", buf);
+		log_info("%s", buf);
 		return false;
 	}
 
@@ -148,9 +148,9 @@ bool init_opengl(void)
 	if (!compiled) {
 		char buf[1024];
 		int len;
-		printf("Fragment shader compile error\n");
+		log_info("Fragment shader compile error");
 		glGetShaderInfoLog(fragment_shader, sizeof(buf), &len, &buf[0]);
-		printf("%s", buf);
+		log_info("%s", buf);
 		return false;
 	}
 
@@ -164,9 +164,9 @@ bool init_opengl(void)
 	if (!compiled) {
 		char buf[1024];
 		int len;
-		printf("Fragment shader compile error\n");
+		log_info("Fragment shader compile error");
 		glGetShaderInfoLog(fragment_shader_rule, sizeof(buf), &len, &buf[0]);
-		printf("%s", buf);
+		log_info("%s", buf);
 		return false;
 	}
 
@@ -181,9 +181,9 @@ bool init_opengl(void)
 	if (!linked) {
 		char buf[1024];
 		int len;
-		printf("Program link error\n");
+		log_info("Program link error\n");
 		glGetProgramInfoLog(program, sizeof(buf), &len, &buf[0]);
-		printf("%s", buf);
+		log_info("%s", buf);
 		return false;
 	}
 
@@ -197,9 +197,9 @@ bool init_opengl(void)
 	if (!linked) {
 		char buf[1024];
 		int len;
-		printf("Program link error\n");
+		log_info("Program link error\n");
 		glGetProgramInfoLog(program, sizeof(buf), &len, &buf[0]);
-		printf("%s", buf);
+		log_info("%s", buf);
 		return false;
 	}
 
