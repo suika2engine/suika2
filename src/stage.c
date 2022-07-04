@@ -272,7 +272,7 @@ bool init_stage(void)
 		return false;
 
 	/* セーブデータのサムネイル画像をセットアップする */
-	if (setup_thumb())
+	if (!setup_thumb())
 		return false;
 
 	/* 起動直後の仮の背景イメージを作成する */
