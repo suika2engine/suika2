@@ -21,6 +21,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_bgm.c
              src/main/cpp/cmd_ch.c
              src/main/cpp/cmd_cha.c
+             src/main/cpp/cmd_chapter.c
              src/main/cpp/cmd_chs.c
              src/main/cpp/cmd_click.c
              src/main/cpp/cmd_gosub.c
@@ -32,7 +33,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_retrospect.c
              src/main/cpp/cmd_return.c
              src/main/cpp/cmd_se.c
-             src/main/cpp/cmd_select.c
              src/main/cpp/cmd_set.c
              src/main/cpp/cmd_setsave.c
              src/main/cpp/cmd_shake.c
@@ -43,7 +43,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_wait.c
              src/main/cpp/conf.c
              src/main/cpp/event.c
-             src/main/cpp/glesrender.c
+             src/main/cpp/glrender.c
              src/main/cpp/glyph.c
              src/main/cpp/history.c
              src/main/cpp/image.c
@@ -80,7 +80,7 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        suika
-                       GLESv2
+                       GLESv3
                        z
                        png
 #                       ogg

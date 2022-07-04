@@ -11,7 +11,7 @@
 
 #include "suika.h"
 #include "ndkmain.h"
-#include "glesrender.h"
+#include "glrender.h"
 
 #include <android/log.h>
 
@@ -241,6 +241,14 @@ bool log_error(const char *s, ...)
 const char *conv_utf8_to_native(const char *utf8_message)
 {
 	return utf8_message;
+}
+
+/*
+ * OpenGLが有効か調べる
+ */
+bool is_opengl_enabled(void)
+{
+	return true;
 }
 
 /*

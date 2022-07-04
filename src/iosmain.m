@@ -12,13 +12,13 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
-#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES3/gl.h>
 #import <OpenGLES/ES2/glext.h>
 #import <sys/time.h>    // gettimeofday()
 
 #import "suika.h"
 #import "aunit.h"
-#import "glesrender.h"
+#import "glrender.h"
 
 //
 // Interfaces
@@ -496,6 +496,14 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 //
+// OpenGLが有効か調べる
+//
+bool is_opengl_enabled(void)
+{
+	return true;
+}
+
+//
 // テクスチャをロックする
 //
 bool lock_texture(int width, int height, pixel_t *pixels,
@@ -540,23 +548,13 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 //
-// イメージをマスク描画でレンダリングする
+// イメージをルールつきでレンダリングする
 //
-void render_image_mask(int dst_left, int dst_top,
-                       struct image * RESTRICT src_image,
-                       int width, int height, int src_left, int src_top,
-                       int mask)
+void render_image_rule(struct image * RESTRICT src_img,
+                       struct image * RESTRICT rule_img,
+                       int threshold)
 {
-    opengl_render_image_mask(dst_left, dst_top, src_image, width,
-                             height, src_left, src_top, mask);
-}
-
-//
-// 画面をクリアする
-//
-void render_clear(int left, int top, int width, int height, pixel_t color)
-{
-    opengl_render_clear(left, top, width, height, color);
+	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
 //

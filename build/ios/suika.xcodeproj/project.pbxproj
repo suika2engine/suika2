@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		268B09DE26D6206C0074577E /* glesrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 268B09DD26D6206C0074577E /* glesrender.c */; };
+		260C732028730C9E0057B37E /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731E28730C9E0057B37E /* cmd_chapter.c */; };
+		260C732128730C9E0057B37E /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731F28730C9E0057B37E /* glrender.c */; };
 		268B09E126D89FE40074577E /* iosmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09E026D89FE40074577E /* iosmain.m */; };
 		26A4EAE626D116CE00C3C140 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE426D116CE00C3C140 /* Main.storyboard */; };
 		26A4EAE826D116D000C3C140 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE726D116D000C3C140 /* Assets.xcassets */; };
@@ -57,8 +58,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		268B09DC26D6206C0074577E /* glesrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glesrender.h; path = ../../src/glesrender.h; sourceTree = "<group>"; };
-		268B09DD26D6206C0074577E /* glesrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glesrender.c; path = ../../src/glesrender.c; sourceTree = "<group>"; };
+		260C731D28730C9E0057B37E /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../src/glrender.h; sourceTree = "<group>"; };
+		260C731E28730C9E0057B37E /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../src/cmd_chapter.c; sourceTree = "<group>"; };
+		260C731F28730C9E0057B37E /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../src/glrender.c; sourceTree = "<group>"; };
 		268B09E026D89FE40074577E /* iosmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iosmain.m; path = ../../src/iosmain.m; sourceTree = "<group>"; };
 		26A4EAD526D116CE00C3C140 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A4EAE526D116CE00C3C140 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 				26B385BC26D134EE000A7A1C /* cmd_bgm.c */,
 				26B3858826D134EE000A7A1C /* cmd_ch.c */,
 				26B3857E26D134ED000A7A1C /* cmd_cha.c */,
+				260C731E28730C9E0057B37E /* cmd_chapter.c */,
 				26B3857D26D134ED000A7A1C /* cmd_chs.c */,
 				26B3858F26D134EE000A7A1C /* cmd_click.c */,
 				26B3858D26D134EE000A7A1C /* cmd_gosub.c */,
@@ -210,8 +213,8 @@
 				26B3858626D134EE000A7A1C /* event.h */,
 				26B3859226D134EE000A7A1C /* file.c */,
 				26B3858026D134EE000A7A1C /* file.h */,
-				268B09DD26D6206C0074577E /* glesrender.c */,
-				268B09DC26D6206C0074577E /* glesrender.h */,
+				260C731F28730C9E0057B37E /* glrender.c */,
+				260C731D28730C9E0057B37E /* glrender.h */,
 				26B3858A26D134EE000A7A1C /* glyph.c */,
 				26B3859426D134EE000A7A1C /* glyph.h */,
 				26B3859326D134EE000A7A1C /* history.c */,
@@ -325,6 +328,7 @@
 				26B385C526D134EE000A7A1C /* glyph.c in Sources */,
 				26B385C026D134EE000A7A1C /* conf.c in Sources */,
 				26B385CC26D134EE000A7A1C /* file.c in Sources */,
+				260C732128730C9E0057B37E /* glrender.c in Sources */,
 				26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */,
 				26B385BE26D134EE000A7A1C /* cmd_cha.c in Sources */,
 				26B385CF26D134EE000A7A1C /* cmd_se.c in Sources */,
@@ -345,11 +349,11 @@
 				26B385CB26D134EE000A7A1C /* save.c in Sources */,
 				26B385C126D134EE000A7A1C /* vars.c in Sources */,
 				26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */,
-				268B09DE26D6206C0074577E /* glesrender.c in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,
 				26B231BA285F454B0058D377 /* cmd_skip.c in Sources */,
 				26B385D826D134EE000A7A1C /* script.c in Sources */,
 				26B385BD26D134EE000A7A1C /* cmd_chs.c in Sources */,
+				260C732028730C9E0057B37E /* cmd_chapter.c in Sources */,
 				26B385C626D134EE000A7A1C /* log.c in Sources */,
 				26B385D526D134EE000A7A1C /* event.c in Sources */,
 				26B385D926D134EE000A7A1C /* cmd_load.c in Sources */,
