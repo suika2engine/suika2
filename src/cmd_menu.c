@@ -166,14 +166,13 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	if (is_first_frame) {
 		if (new_pointed_index != -1) {
 			/* 背景全体とボタンを1つ描画する */
-			draw_stage_with_buttons(button[new_pointed_index].x,
-						button[new_pointed_index].y,
-						button[new_pointed_index].w,
-						button[new_pointed_index].h,
-						0, 0, 0, 0);
+			draw_stage_with_button(button[new_pointed_index].x,
+					       button[new_pointed_index].y,
+					       button[new_pointed_index].w,
+					       button[new_pointed_index].h);
 		} else {
 			/* 背景全体を描画する */
-			draw_stage_with_buttons(0, 0, 0, 0, 0, 0, 0, 0);
+			draw_stage_with_button(0, 0, 0, 0);
 		}
 
 		/* ウィンドウ全体を更新する */
@@ -195,11 +194,10 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		stop_command_repetition();
 
 		/* 背景全体とボタンを1つ描画する */
-		draw_stage_with_buttons_keep(button[new_pointed_index].x,
-					     button[new_pointed_index].y,
-					     button[new_pointed_index].w,
-					     button[new_pointed_index].h,
-					     0, 0, 0, 0);
+		draw_stage_with_button_keep(button[new_pointed_index].x,
+					    button[new_pointed_index].y,
+					    button[new_pointed_index].w,
+					    button[new_pointed_index].h);
 		return;
 	}
 
@@ -278,16 +276,16 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		return;
 	}
 
+	/* ポイントされている項目に変更がない場合 */
 	if (new_pointed_index != -1) {
 		/* 背景全体とボタンを1つ描画する */
-		draw_stage_with_buttons_keep(button[new_pointed_index].x,
+		draw_stage_with_button_keep(button[new_pointed_index].x,
 					     button[new_pointed_index].y,
 					     button[new_pointed_index].w,
-					     button[new_pointed_index].h,
-					     0, 0, 0, 0);
+					     button[new_pointed_index].h);
 	} else {
 		/* 背景全体を描画する */
-		draw_stage_with_buttons_keep(0, 0, 0, 0, 0, 0, 0, 0);
+		draw_stage_with_button_keep(0, 0, 0, 0);
 	}
 
 	/* 選択に変更がない */

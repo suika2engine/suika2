@@ -1583,10 +1583,9 @@ void draw_stage_shake(void)
 }
 
 /*
- * ステージの背景(FO)全体と、前景(FI)のうち2矩形を描画する
+ * ステージの背景(FO)全体と、前景(FI)の矩形を描画する
  */
-void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
-			     int w2, int h2)
+void draw_stage_with_button(int x, int y, int w, int h)
 {
 	assert(stage_mode == STAGE_MODE_IDLE);
 
@@ -1596,23 +1595,17 @@ void draw_stage_with_buttons(int x1, int y1, int w1, int h1, int x2, int y2,
 		     get_image_height(layer_image[LAYER_FO]),
 		     0, 0, 255, BLEND_NONE);
 
-	/* 1つめのボタンを描画する */
-	render_image(x1, y1, layer_image[LAYER_FI], w1, h1, x1, y1, 255,
-		     BLEND_NONE);
-
-	/* 2つめのボタンを描画する */
-	render_image(x2, y2, layer_image[LAYER_FI], w2, h2, x2, y2, 255,
-		     BLEND_NONE);
+	/* ボタンを描画する */
+	render_image(x, y, layer_image[LAYER_FI], w, h, x, y, 255, BLEND_NONE);
 }
 
 /*
- * ステージの背景(FO)全体と、前景(FI)のうち2矩形を描画する(GPU用)
+ * ステージの背景(FO)全体と、前景(FI)の矩形を描画する(GPU用)
  */
-void draw_stage_with_buttons_keep(int x1, int y1, int w1, int h1, int x2,
-				  int y2, int w2, int h2)
+void draw_stage_with_button_keep(int x, int y, int w, int h)
 {
 	if (is_opengl_enabled())
-		draw_stage_with_buttons(x1, y1, w1, h1, x2, y2, w2, h2);
+		draw_stage_with_button(x, y, w, h);
 }
 
 /*

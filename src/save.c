@@ -403,14 +403,13 @@ static void draw_page(int *x, int *y, int *w, int *h)
 	pointed_index = get_pointed_index();
 	if (pointed_index != -1) {
 		/* 選択されているボタンがある場合 */
-		draw_stage_with_buttons(button[pointed_index].x,
-					button[pointed_index].y,
-					button[pointed_index].w,
-					button[pointed_index].h,
-					0, 0, 0, 0);
+		draw_stage_with_button(button[pointed_index].x,
+				       button[pointed_index].y,
+				       button[pointed_index].w,
+				       button[pointed_index].h);
 	} else {
 		/* 選択されているボタンがない場合 */
-		draw_stage_with_buttons(0, 0, 0, 0, 0, 0, 0, 0);
+		draw_stage_with_button(0, 0, 0, 0);
 	}
 
 	*x = 0;
@@ -426,14 +425,13 @@ static void draw_page_keep(void)
 	pointed_index = get_pointed_index();
 	if (pointed_index != -1) {
 		/* 選択されているボタンがある場合 */
-		draw_stage_with_buttons_keep(button[pointed_index].x,
-					     button[pointed_index].y,
-					     button[pointed_index].w,
-					     button[pointed_index].h,
-					     0, 0, 0, 0);
+		draw_stage_with_button_keep(button[pointed_index].x,
+					    button[pointed_index].y,
+					    button[pointed_index].w,
+					    button[pointed_index].h);
 	} else {
 		/* 選択されているボタンがない場合 */
-		draw_stage_with_buttons_keep(0, 0, 0, 0, 0, 0, 0, 0);
+		draw_stage_with_button_keep(0, 0, 0, 0);
 	}
 }
 
@@ -542,15 +540,13 @@ bool update_pointed_index(int *x, int *y, int *w, int *h)
 	/* 選択されたボタンとポイントされたボタンをバックイメージに描画する */
 	if (new_pointed_index != -1) {
 		/* 選択中のボタンがない場合 */
-		draw_stage_with_buttons(
-			button[new_pointed_index].x,
-			button[new_pointed_index].y,
-			button[new_pointed_index].w,
-			button[new_pointed_index].h,
-			0, 0, 0, 0);
+		draw_stage_with_button(button[new_pointed_index].x,
+				       button[new_pointed_index].y,
+				       button[new_pointed_index].w,
+				       button[new_pointed_index].h);
 	} else {
 		/* 選択中のボタンがない場合 */
-		draw_stage_with_buttons(0, 0, 0, 0, 0, 0, 0, 0);
+		draw_stage_with_button(0, 0, 0, 0);
 	}
 
 	/* ウィンドウの更新領域を求める */
@@ -652,12 +648,10 @@ static void process_left_press_save_button(int new_pointed_index, int *x,
 					   int *y, int *w, int *h)
 {
 	/* バックイメージに新しい選択ボタンを描画する */
-	draw_stage_with_buttons(
-		button[new_pointed_index].x,
-		button[new_pointed_index].y,
-		button[new_pointed_index].w,
-		button[new_pointed_index].h,
-		0, 0, 0, 0);
+	draw_stage_with_button(button[new_pointed_index].x,
+			       button[new_pointed_index].y,
+			       button[new_pointed_index].w,
+			       button[new_pointed_index].h);
 
 	/* ウィンドウの更新領域を求める */
 	union_rect(x, y, w, h,

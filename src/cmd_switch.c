@@ -646,7 +646,7 @@ void update_switch_parent(int *x, int *y, int *w, int *h)
 	}
 
 	/* FOレイヤ全体とFIレイヤの矩形を画面に描画する */
-	draw_stage_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
+	draw_stage_with_button(bx, by, bw, bh);
 
 	/* 更新範囲を設定する */
 	*x = 0;
@@ -706,7 +706,7 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 	}
 
 	/* FO全体とFIの1矩形を描画する(GPU用) */
-	draw_stage_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
+	draw_stage_with_button(bx, by, bw, bh);
 
 	/* 更新範囲を設定する */
 	*x = 0;
@@ -766,7 +766,7 @@ static void draw_keep(void)
 	}
 
 	/* FO全体とFIの1矩形を描画する(GPU用) */
-	draw_stage_with_buttons_keep(x, y, w, h, 0, 0, 0, 0);
+	draw_stage_with_button_keep(x, y, w, h);
 }
 
 /* SEを再生する */
