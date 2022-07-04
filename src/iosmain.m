@@ -333,8 +333,8 @@ int main(int argc, char * argv[]) {
     CGPoint touchLocation = [touch locationInView:self];
 
     _isTouch = YES;
-    _touchStartX = touchLocation.x * _scale - _left;
-    _touchStartY = touchLocation.y * _scale - _top;
+    _touchStartX = (touchLocation.x - _left) * _scale;
+    _touchStartY = (touchLocation.y - _top) * _scale;
     _touchLastY = _touchStartY;
 
     on_event_mouse_move((int)_touchStartX, (int)_touchStartY);
@@ -345,8 +345,8 @@ int main(int argc, char * argv[]) {
     UITouch *touch = [[event allTouches] anyObject];
     CGPoint touchLocation = [touch locationInView:self];
 
-    float touchX = touchLocation.x * _scale - _left;
-    float touchY = touchLocation.y * _scale - _top;
+    float touchX = (touchLocation.x - _left) * _scale;
+    float touchY = (touchLocation.y - _top) * _scale;
 
     const float LINE_HEIGHT = 10;
     float delta = touchY - _touchLastY;
@@ -368,8 +368,8 @@ int main(int argc, char * argv[]) {
     UITouch *touch = [[event allTouches] anyObject];
     CGPoint touchLocation = [touch locationInView:self];
 
-    float touchEndX = touchLocation.x * _scale - _left;
-    float touchEndY = touchLocation.y * _scale - _top;
+    float touchEndX = (touchLocation.x - _left) * _scale;
+    float touchEndY = (touchLocation.y - _top) * _scale;
 
     if([[event allTouches] count] == 1)
         on_event_mouse_press(MOUSE_LEFT, (int)touchEndX, (int)touchEndY);
