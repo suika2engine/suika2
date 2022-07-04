@@ -200,6 +200,15 @@ Suika2 只可以播放ogg文件(44.1khz采样率，立体声)和单声道格式�
 @cha right 2.0 move -600 0 show
 ```
 
+## @chapter
+
+This command sets the chapter title.
+
+### Usage
+```
+@chapter "Chapter 1"
+```
+
 ## @choose
 
 这个命令展示多个选项并跳转到指定的标签。

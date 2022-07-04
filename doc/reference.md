@@ -210,6 +210,15 @@ Before `@cha`, loads a character image outside the screen, then moves it into th
 @cha right 2.0 move -600 0 show
 ```
 
+## @chapter
+
+This command sets the chapter title.
+
+### Usage
+```
+@chapter "Chapter 1"
+```
+
 ## @choose
 
 This command shows options and jumps to the specified label.
