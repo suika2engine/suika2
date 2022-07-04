@@ -42,7 +42,7 @@
 </head>
 <body>
 
-<h1>Suika 2.9.7</h1>
+<h1>Suika 2.9.8</h1>
 <p>Copyright (C) 2001-2022 LUXION SOFT. All rights reserved.</p>
 
 <h2>About Suika2</h2>
@@ -148,6 +148,19 @@ You can enjoy producing impressive visual novels using Suika2.
 
 <h2>Release History</h2>
 <ul>
+  <li>Suika 2.9.8 5th July 2022
+    <ul>
+      <li>Introduce "Universal Transition" (rule image)</li>
+			<li>Remove effect <code>mask</code>, use <code>rule:rule-mask.png</code> instead</li>
+			<li>Add thumbnail, chapter title and last message to save/load screen</li>
+			<li>Use GPU on Windows/Mac (use 2D engine if GPU is unusable)</li>
+			<li>Retain background image after <code>@menu</code></li>
+			<li>Retain temporary background image after <code>@retrospect</code> (black-out/white-out if saved)</li>
+			<li>Support white background on Web</li>
+			<li>Support full screen mode on Mac</li>
+			<li>Fix freeze bug on Mac</li>
+    </ul>
+  </li>
   <li>Suika 2.9.7 25th June 2022
     <ul>
       <li>Make video skippable if after the second time and skip is not disabled (Thanks to Alice)</li>
