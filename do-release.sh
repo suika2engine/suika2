@@ -50,7 +50,6 @@ echo ""
 echo "Sign Windows exes. (press return)"
 read str
 cp fileserver/suika.exe .
-cp fileserver/suika-3d.exe .
 cp fileserver/suika-pro.exe .
 
 echo ""
