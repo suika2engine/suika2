@@ -205,15 +205,30 @@ void clear_image_color_rect(struct image *img, int x, int y, int w, int h,
 			    pixel_t color);
 
 /* イメージを描画する */
-void draw_image(struct image * RESTRICT dst_image, int dst_left, int dst_top,
-		struct image * RESTRICT src_image, int width, int height,
-		int src_left, int src_top, int alpha, int bt);
+void draw_image(struct image * RESTRICT dst_image,
+		int dst_left,
+		int dst_top,
+		struct image * RESTRICT src_image,
+		int width,
+		int height,
+		int src_left,
+		int src_top,
+		int alpha,
+		int bt);
 
 /* イメージをルール付きで描画する */
 void draw_image_rule(struct image * RESTRICT dst_image,
 		     struct image * RESTRICT src_image,
 		     struct image * RESTRICT rule_image,
 		     int threshold);
+
+/* イメージをスケールして描画する */
+void draw_image_scale(struct image * RESTRICT dst_image,
+		      int virtual_dst_width,
+		      int virtual_dst_height,
+		      int virtual_dst_left,
+		      int virtual_dst_top,
+		      struct image * RESTRICT src_image);
 
 /* 転送元領域のサイズを元に矩形のクリッピングを行う */
 bool clip_by_source(int src_cx, int src_cy, int *cx, int *cy, int *dst_x,

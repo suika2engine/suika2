@@ -132,6 +132,9 @@ static struct image *load_bg_image;
 /* ロード画面(選択)のイメージ */
 static struct image *load_fg_image;
 
+/* セーブデータ用のサムネイルイメージ */
+static struct image *thumb_image;
+
 /* レイヤのx座標 */
 static int layer_x[STAGE_LAYERS];
 
@@ -194,6 +197,7 @@ static bool setup_click(void);
 static bool setup_switch(void);
 static bool setup_news(void);
 static bool setup_save(void);
+static bool setup_thumb(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
 static void draw_stage_fi_fo_fade(int fade_method);
@@ -265,6 +269,10 @@ bool init_stage(void)
 
 	/* セーブ画面をセットアップする */
 	if (!setup_save())
+		return false;
+
+	/* セーブデータのサムネイル画像をセットアップする */
+	if (setup_thumb())
 		return false;
 
 	/* 起動直後の仮の背景イメージを作成する */
@@ -439,6 +447,24 @@ static bool setup_save(void)
 	/* セーブ画面(非選択)の画像を読み込む */
 	load_fg_image = create_image_from_file(CG_DIR, conf_save_load_fg_file);
 	if (load_fg_image == NULL)
+		return false;
+
+	return true;
+}
+
+/* セーブデータのサムネイル画像をセットアップする */
+static bool setup_thumb(void)
+{
+	/* コンフィグの値がおかしければ補正する */
+	if (conf_save_data_thumb_width <= 0)
+		conf_save_data_thumb_width = 1;
+	if (conf_save_data_thumb_height <= 0)
+		conf_save_data_thumb_height = 1;
+
+	/* イメージを作成する */
+	thumb_image = create_image(conf_save_data_thumb_width,
+				   conf_save_data_thumb_height);
+	if (thumb_image == NULL)
 		return false;
 
 	return true;
@@ -1662,6 +1688,67 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+}
+
+/*
+ * セーブデータ用サムネイルの描画
+ */
+
+/*
+ * セーブデータ用サムネイル画像にステージ全体を描画する
+ */
+void draw_stage_to_thumb(void)
+{
+	int layer_index[] = {
+		LAYER_BG, LAYER_CHB, LAYER_CHL, LAYER_CHR, LAYER_CHC,
+		LAYER_MSG, LAYER_NAME
+	};
+	int i;
+
+	assert(stage_mode == STAGE_MODE_IDLE);
+
+	lock_image(thumb_image);
+
+	for (i = 0; i < (int)(sizeof(layer_index) / sizeof(int)); i++) {
+		if (layer_image[layer_index[i]] == NULL)
+			continue;
+		if (layer_index[i] == LAYER_MSG && !is_msgbox_visible)
+			continue;
+		if (layer_index[i] == LAYER_NAME && !is_namebox_visible)
+			continue;
+
+		draw_image_scale(thumb_image,
+				 conf_window_width,
+				 conf_window_height,
+				 layer_x[layer_index[i]],
+				 layer_y[layer_index[i]],
+				 layer_image[layer_index[i]]);
+	}
+
+	unlock_image(thumb_image);
+}
+
+/*
+ * セーブデータ用サムネイル画像にFO全体を描画する
+ */
+void draw_stage_fo_thumb(void)
+{
+	assert(stage_mode == STAGE_MODE_IDLE);
+
+	draw_image_scale(thumb_image,
+			 conf_window_width,
+			 conf_window_height,
+			 0,
+			 0,
+			 layer_image[LAYER_FO]);
+}
+
+/*
+ * セーブデータ用サムネイル画像を取得する
+ */
+struct image *get_thumb_image(void)
+{
+	return thumb_image;
 }
 
 /*

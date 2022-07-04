@@ -125,6 +125,19 @@ void draw_stage_history_keep(void);
 void draw_stage_fo_fi(void);
 
 /*
+ * セーブデータ用サムネイルの描画
+ */
+
+/* セーブデータ用サムネイル画像にステージ全体を描画する */
+void draw_stage_to_thumb(void);
+
+/* セーブデータ用サムネイル画像にFO全体を描画する */
+void draw_stage_fo_thumb(void);
+
+/* セーブデータ用サムネイル画像を取得する */
+struct image *get_thumb_image(void);
+
+/*
  * 背景の変更
  */
 

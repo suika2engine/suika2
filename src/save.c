@@ -31,7 +31,7 @@
 #define SAVE_SLOTS	(30)
 
 /* 1画面あたりのセーブデータ数 */
-#define PAGE_SLOTS	(6)
+#define PAGE_SLOTS	(3)
 
 /* セーブ画面のページ数 */
 #define SAVE_PAGES	(SAVE_SLOTS / PAGE_SLOTS)
@@ -43,15 +43,12 @@
 #define BUTTON_ONE	(0)
 #define BUTTON_TWO	(1)
 #define BUTTON_THREE	(2)
-#define BUTTON_FOUR	(3)
-#define BUTTON_FIVE	(4)
-#define BUTTON_SIX	(5)
-#define BUTTON_PREV	(6)
-#define BUTTON_NEXT	(7)
-#define BUTTON_SAVE	(8)
-#define BUTTON_LOAD	(9)
-#define BUTTON_EXIT	(10)
-#define BUTTON_TITLE	(11)
+#define BUTTON_PREV	(3)
+#define BUTTON_NEXT	(4)
+#define BUTTON_SAVE	(5)
+#define BUTTON_LOAD	(6)
+#define BUTTON_EXIT	(7)
+#define BUTTON_TITLE	(8)
 
 /* セーブデータの日付 */
 static time_t save_time[SAVE_SLOTS];
@@ -165,21 +162,6 @@ static void load_button_conf(void)
 	button[BUTTON_THREE].y = conf_save_data3_y;
 	button[BUTTON_THREE].w = conf_save_data_width;
 	button[BUTTON_THREE].h = conf_save_data_height;
-
-	button[BUTTON_FOUR].x = conf_save_data4_x;
-	button[BUTTON_FOUR].y = conf_save_data4_y;
-	button[BUTTON_FOUR].w = conf_save_data_width;
-	button[BUTTON_FOUR].h = conf_save_data_height;
-
-	button[BUTTON_FIVE].x = conf_save_data5_x;
-	button[BUTTON_FIVE].y = conf_save_data5_y;
-	button[BUTTON_FIVE].w = conf_save_data_width;
-	button[BUTTON_FIVE].h = conf_save_data_height;
-
-	button[BUTTON_SIX].x = conf_save_data6_x;
-	button[BUTTON_SIX].y = conf_save_data6_y;
-	button[BUTTON_SIX].w = conf_save_data_width;
-	button[BUTTON_SIX].h = conf_save_data_height;
 
 	button[BUTTON_PREV].x = conf_save_prev_x;
 	button[BUTTON_PREV].y = conf_save_prev_y;
@@ -466,7 +448,7 @@ static void draw_all_text_items(void)
 	j = page * PAGE_SLOTS;
 
 	/* 6つのセーブボタンについて描画する */
-	for (i = BUTTON_ONE; i <= BUTTON_SIX; i++, j++) {
+	for (i = BUTTON_ONE; i <= BUTTON_THREE; i++, j++) {
 		if (save_time[j] == 0) {
 			snprintf(text, sizeof(text), "[%02d] NO DATA", j + 1);
 		} else {
@@ -575,7 +557,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 
 	/* セーブデータのボタンの場合、セーブかロードを実行する */
 	if (new_pointed_index >= BUTTON_ONE &&
-	    new_pointed_index <= BUTTON_SIX) {
+	    new_pointed_index <= BUTTON_THREE) {
 		process_left_press_save_button(new_pointed_index, x, y, w, h);
 		if (is_save_mode) {
 			/* セーブを行う */

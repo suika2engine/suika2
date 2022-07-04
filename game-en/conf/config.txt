@@ -222,18 +222,18 @@ save.load.bg.file=load-bg.png
 save.load.fg.file=load-fg.png
 
 # Position and size of the previous page button
-save.prev.x=416
+save.prev.x=1180
 save.prev.y=112
-save.prev.width=70
+save.prev.width=71
 save.prev.height=64
 
 # Sound effect when previous page button clicked (optional)
 save.prev.se=click.ogg
 
 # Position and size of the next page button
-save.next.x=416
-save.next.y=470
-save.next.width=70
+save.next.x=1180
+save.next.y=530
+save.next.width=71
 save.next.height=64
 
 # Sound effect when next page button clicked (optional)
@@ -246,36 +246,28 @@ save.data.save.se=click.ogg
 save.data.load.se=click.ogg
 
 # Size of each save data item
-save.data.width=382
-save.data.height=64
+save.data.width=1106
+save.data.height=140
 
-# Text margin in each save data item
+# Margin in each save data item
 save.data.margin.left=10
 save.data.margin.top=10
 
+# Size of thumbnail
+save.data.thumb.width=213
+save.data.thumb.height=120
+
 # Position of the save data 1
-save.data1.x=34
-save.data1.y=131
+save.data1.x=50
+save.data1.y=138
 
 # Position of the save data 2
-save.data2.x=34
-save.data2.y=195
+save.data2.x=50
+save.data2.y=283
 
 # Position of the save data 3
-save.data3.x=34
-save.data3.y=259
-
-# Position of the save data 4
-save.data4.x=34
-save.data4.y=323
-
-# Position of the save data 5
-save.data5.x=34
-save.data5.y=387
-
-# Position of the save data 6
-save.data6.x=34
-save.data6.y=451
+save.data3.x=50
+save.data3.y=420
 
 # Position and size of the exit button
 save.exit.x=33

@@ -396,9 +396,16 @@ void clear_image_color_rect(struct image *img, int x, int y, int w, int h,
 /*
  * イメージを描画する
  */
-void draw_image(struct image * RESTRICT dst_image, int dst_left, int dst_top,
-		struct image * RESTRICT src_image, int width, int height,
-		int src_left, int src_top, int alpha, int bt)
+void draw_image(struct image * RESTRICT dst_image,
+		int dst_left,
+		int dst_top,
+		struct image * RESTRICT src_image,
+		int width,
+		int height,
+		int src_left,
+		int src_top,
+		int alpha,
+		int bt)
 {
 	/* 引数をチェックする */
 	assert(dst_image != NULL);
@@ -966,5 +973,89 @@ void draw_image_rule(struct image * RESTRICT dst_image,
 		dst_ptr += dw;
 		src_ptr += sw;
 		rule_ptr += rw;
+	}
+}
+
+/*
+ * スケール描画
+ */
+
+/*
+ * イメージをスケールして描画する
+ */
+void draw_image_scale(struct image * RESTRICT dst_image,
+		      int virtual_dst_width,
+		      int virtual_dst_height,
+		      int virtual_dst_left,
+		      int virtual_dst_top,
+		      struct image * RESTRICT src_image)
+{
+	pixel_t *dst_ptr, *src_ptr;
+	float scale_x, scale_y;
+	pixel_t pix;
+	int real_dst_width, real_dst_height;
+	int real_src_width, real_src_height;
+	int real_draw_left, real_draw_top, real_draw_width, real_draw_height;
+	int virtual_x, virtual_y;
+	int i, j;
+
+	/* 実際の描画先のサイズを取得する */
+	real_dst_width = get_image_width(dst_image);
+	real_dst_height = get_image_height(dst_image);
+
+	/* 縮尺を計算する */
+	scale_x = (float)real_dst_width / (float)virtual_dst_width;
+	scale_y = (float)real_dst_height / (float)virtual_dst_height;
+
+	/* 実際の描画元のサイズを取得する */
+	real_src_width = get_image_width(src_image);
+	real_src_height = get_image_height(src_image);
+
+	/* 実際の描画先の位置とサイズを計算する */
+	real_draw_left = (int)((float)virtual_dst_left * scale_x);
+	real_draw_top = (int)((float)virtual_dst_top * scale_y);
+	real_draw_width = (int)((float)real_src_width * scale_x);
+	real_draw_height = (int)((float)real_src_height * scale_y);
+
+	/* ピクセルへのポインタを取得する */
+	dst_ptr = get_image_pixels(dst_image);
+	src_ptr = get_image_pixels(src_image);
+
+	/* 描画する */
+	for (i = real_draw_top; i < real_draw_top + real_draw_height; i++) {
+		/* 描画先のY座標でクリッピングする */
+		if (i < 0)
+			continue;
+		if (i >= real_dst_height)
+			continue;
+
+		/* 描画元のY座標を求め、クリッピングする */
+		virtual_y = (int)((float)i / scale_y);
+		if (virtual_y >= real_src_height)
+			continue;
+
+		for (j = real_draw_left; j < real_draw_left + real_draw_width;
+		     j++) {
+			/* 描画先のX座標でクリッピングする */
+			if (j < 0)
+				continue;
+			if (j >= real_dst_width)
+				continue;
+
+			/* 描画元のX座標を求め、クリッピングする */
+			virtual_x = (int)((float)j / scale_x);
+			if (virtual_x >= real_src_width)
+				continue;
+
+			/* 描画元のピクセルを取得する */
+			pix = src_ptr[real_src_width * virtual_y + virtual_x];
+
+			/* アルファ値が半分以下なら描画しない */
+			if (get_pixel_a(pix) < 128)
+				continue;
+
+			/* 描画する */
+			dst_ptr[real_dst_width * i + j] = pix;
+		}
 	}
 }

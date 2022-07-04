@@ -165,18 +165,14 @@ int conf_save_data_width;
 int conf_save_data_height;
 int conf_save_data_margin_left;
 int conf_save_data_margin_top;
+int conf_save_data_thumb_width;
+int conf_save_data_thumb_height;
 int conf_save_data1_x;
 int conf_save_data1_y;
 int conf_save_data2_x;
 int conf_save_data2_y;
 int conf_save_data3_x;
 int conf_save_data3_y;
-int conf_save_data4_x;
-int conf_save_data4_y;
-int conf_save_data5_x;
-int conf_save_data5_y;
-int conf_save_data6_x;
-int conf_save_data6_y;
 char *conf_save_exit_se;
 int conf_save_exit_x;
 int conf_save_exit_y;
@@ -359,18 +355,14 @@ struct rule {
 	{"save.data.height", 'i', &conf_save_data_height, false, false},
 	{"save.data.margin.left", 'i', &conf_save_data_margin_left, false, false},
 	{"save.data.margin.top", 'i', &conf_save_data_margin_top, false, false},
+	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, false, false},
+	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, false, false},
 	{"save.data1.x", 'i', &conf_save_data1_x, false, false},
 	{"save.data1.y", 'i', &conf_save_data1_y, false, false},
 	{"save.data2.x", 'i', &conf_save_data2_x, false, false},
 	{"save.data2.y", 'i', &conf_save_data2_y, false, false},
 	{"save.data3.x", 'i', &conf_save_data3_x, false, false},
 	{"save.data3.y", 'i', &conf_save_data3_y, false, false},
-	{"save.data4.x", 'i', &conf_save_data4_x, false, false},
-	{"save.data4.y", 'i', &conf_save_data4_y, false, false},
-	{"save.data5.x", 'i', &conf_save_data5_x, false, false},
-	{"save.data5.y", 'i', &conf_save_data5_y, false, false},
-	{"save.data6.x", 'i', &conf_save_data6_x, false, false},
-	{"save.data6.y", 'i', &conf_save_data6_y, false, false},
 	{"save.exit.se", 's', &conf_save_exit_se, true, false},
 	{"save.exit.x", 'i', &conf_save_exit_x, false, false},
 	{"save.exit.y", 'i', &conf_save_exit_y, false, false},

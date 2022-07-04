@@ -216,18 +216,18 @@ save.load.bg.file=load-bg.png
 save.load.fg.file=load-fg.png
 
 # 前ページボタンの位置と大きさ
-save.prev.x=416
+save.prev.x=1180
 save.prev.y=112
-save.prev.width=70
+save.prev.width=71
 save.prev.height=64
 
 # 前ページボタンがクリックされたときのSE(省略可)
 save.prev.se=click.ogg
 
 # 次ページボタンの位置と大きさ
-save.next.x=416
-save.next.y=470
-save.next.width=70
+save.next.x=1180
+save.next.y=530
+save.next.width=71
 save.next.height=64
 
 # 次ページボタンがクリックされたときのSE(省略可)
@@ -240,36 +240,28 @@ save.data.save.se=click.ogg
 save.data.load.se=click.ogg
 
 # セーブデータ項目の大きさ
-save.data.width=382
-save.data.height=64
+save.data.width=1106
+save.data.height=140
 
-# セーブデータ項目内のテキストマージン
+# セーブデータ項目内のマージン
 save.data.margin.left=10
 save.data.margin.top=10
 
+# セーブデータのサムネイルのサイズ
+save.data.thumb.width=213
+save.data.thumb.height=120
+
 # セーブデータ1の位置
-save.data1.x=34
-save.data1.y=131
+save.data1.x=50
+save.data1.y=138
 
 # セーブデータ2の位置
-save.data2.x=34
-save.data2.y=195
+save.data2.x=50
+save.data2.y=283
 
 # セーブデータ3の位置
-save.data3.x=34
-save.data3.y=259
-
-# セーブデータ4の位置
-save.data4.x=34
-save.data4.y=323
-
-# セーブデータ5の位置
-save.data5.x=34
-save.data5.y=387
-
-# セーブデータ6の位置
-save.data6.x=34
-save.data6.y=451
+save.data3.x=50
+save.data3.y=429
 
 # 戻るボタンの位置とサイズ
 save.exit.x=33
