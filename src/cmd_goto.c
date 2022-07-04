@@ -58,6 +58,9 @@ bool goto_command(bool *cont)
 		/* サムネイルを描画する */
 		draw_stage_to_thumb();
 
+		/* 最後のメッセージを空白にする */
+		set_last_message("");
+
 		/* 最後のコマンドを実行中なら、セーブできない */
 		if (is_final_command()) {
 			log_script_final_command();
