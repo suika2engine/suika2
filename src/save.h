@@ -61,4 +61,10 @@ bool quick_save(void);
 /* クイックロードを行う Do quick load */
 bool quick_load(void);
 
+/* 章題を設定する */
+bool set_chapter_name(const char *name);
+
+/* 最後のメッセージを設定する */
+bool set_last_message(const char *msg);
+
 #endif

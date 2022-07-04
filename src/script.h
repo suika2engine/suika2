@@ -20,7 +20,7 @@
  *  - 2021/07/19 @chsに対応
  *  - 2022/05/11 @videoに対応
  *  - 2022/06/17 @chooseに対応
- *  - 2022/06/26 @chsをテンプレートに対応
+ *  - 2022/07/04 @chapterに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -65,6 +65,7 @@ enum command_type {
 	COMMAND_VIDEO,
 	COMMAND_SKIP,
 	COMMAND_CHOOSE,
+	COMMAND_CHAPTER,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -512,6 +513,11 @@ enum video_command_param {
 /* skipコマンドのパラメータ */
 enum skip_command_param {
 	SKIP_PARAM_MODE = 1,
+};
+
+/* chapterコマンドのパラメータ */
+enum chapter_command_param {
+	CHAPTER_PARAM_NAME = 1,
 };
 
 /*

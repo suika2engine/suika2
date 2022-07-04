@@ -2,6 +2,8 @@
 ### ロゴ
 ###
 
+@chapter サンプルゲーム
+
 @skip disable
 
 @bg white.png 0

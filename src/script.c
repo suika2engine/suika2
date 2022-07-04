@@ -102,6 +102,7 @@ struct insn_item {
 	{"@video", COMMAND_VIDEO, 1, 1},
 	{"@skip", COMMAND_SKIP, 1, 1},
 	{"@choose", COMMAND_CHOOSE, 2, 16},
+	{"@chapter", COMMAND_CHAPTER, 1, 1},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))

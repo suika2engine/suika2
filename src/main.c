@@ -425,6 +425,11 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		*cont = true;
 		break;
+	case COMMAND_CHAPTER:
+		if (!chapter_command())
+			return false;
+		*cont = true;
+		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */
 		assert(COMMAND_DISPATCH_NOT_IMPLEMENTED);

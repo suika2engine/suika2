@@ -28,30 +28,48 @@
 #define QUICK_SAVE_FILE_NAME	"q000.sav"
 
 /* セーブデータ数 */
-#define SAVE_SLOTS	(30)
+#define SAVE_SLOTS		(30)
+
+/* クイックセーブデータのインデックス */
+#define QUICK_SAVE_INDEX	(SAVE_SLOTS)
 
 /* 1画面あたりのセーブデータ数 */
-#define PAGE_SLOTS	(3)
+#define PAGE_SLOTS		(3)
 
 /* セーブ画面のページ数 */
-#define SAVE_PAGES	(SAVE_SLOTS / PAGE_SLOTS)
+#define SAVE_PAGES		(SAVE_SLOTS / PAGE_SLOTS)
 
 /* ボタンの数 */
-#define BUTTON_COUNT	(12)
+#define BUTTON_COUNT		(12)
 
 /* ボタンのインデックス */
-#define BUTTON_ONE	(0)
-#define BUTTON_TWO	(1)
-#define BUTTON_THREE	(2)
-#define BUTTON_PREV	(3)
-#define BUTTON_NEXT	(4)
-#define BUTTON_SAVE	(5)
-#define BUTTON_LOAD	(6)
-#define BUTTON_EXIT	(7)
-#define BUTTON_TITLE	(8)
+#define BUTTON_ONE		(0)
+#define BUTTON_TWO		(1)
+#define BUTTON_THREE		(2)
+#define BUTTON_PREV		(3)
+#define BUTTON_NEXT		(4)
+#define BUTTON_SAVE		(5)
+#define BUTTON_LOAD		(6)
+#define BUTTON_EXIT		(7)
+#define BUTTON_TITLE		(8)
+
+/* 章題*/
+static char *chapter_name;
+
+/* 最後のメッセージ */
+static char *last_message;
 
 /* セーブデータの日付 */
 static time_t save_time[SAVE_SLOTS];
+
+/* セーブデータの章タイトル */
+//static char *save_title[SAVE_SLOTS];
+
+/* セーブデータのメッセージ */
+//static char *save_message[SAVE_SLOTS];
+
+/* セーブデータのサムネイル */
+//static struct image *save_thumb[SAVE_SLOTS];
 
 /* クイックセーブデータの日付 */
 static time_t quick_save_time;
@@ -133,6 +151,12 @@ bool init_save(void)
 	restore_flag = false;
 	is_save_load_mode_enabled = false;
 
+	/* 文字列を初期化する */
+	chapter_name = strdup("");
+	last_message = strdup("");
+	if (chapter_name == NULL || last_message == NULL)
+		return false;
+
 	/* コンフィグからボタンの位置と大きさをロードする */
 	load_button_conf();
 
@@ -189,6 +213,11 @@ static void load_button_conf(void)
  */
 void cleanup_save(void)
 {
+	free(chapter_name);
+	free(last_message);
+	chapter_name = NULL;
+	last_message = NULL;
+
 	/* グローバル変数のセーブを行う */
 	save_global_data();
 }
@@ -672,7 +701,7 @@ static void play_se(const char *file)
  */
 
 /*
- * クイックセーブを行う Do quick save
+ * クイックセーブを行う
  */
 bool quick_save(void)
 {
@@ -1253,4 +1282,36 @@ void save_global_data(void)
 
 	/* ファイルを閉じる */
 	close_wfile(wf);
+}
+
+/*
+ * 章題と最後のメッセージ
+ */
+
+/*
+ * 章題を設定する
+ */
+bool set_chapter_name(const char *name)
+{
+	free(chapter_name);
+
+	chapter_name = strdup(name);
+	if (chapter_name == NULL)
+		return false;
+
+	return true;
+}
+
+/*
+ * 最後のメッセージを設定する
+ */
+bool set_last_message(const char *msg)
+{
+	free(last_message);
+
+	last_message = strdup(msg);
+	if (last_message == NULL)
+		return false;
+
+	return true;
 }
