@@ -55,6 +55,9 @@ bool goto_command(bool *cont)
 		/* 画面を描画する */
 		draw_stage();
 
+		/* サムネイルを描画する */
+		draw_stage_to_thumb();
+
 		/* 最後のコマンドを実行中なら、セーブできない */
 		if (is_final_command()) {
 			log_script_final_command();
