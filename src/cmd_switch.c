@@ -81,7 +81,7 @@ static int pointed_child_index;
 /* 前方参照 */
 static bool init(void);
 static bool get_choose_info(void);
-static void get_select_info(void);
+static bool get_select_info(void);
 static bool get_parents_info(void);
 static bool get_children_info(void);
 static void draw_frame(int *x, int *y, int *w, int *h);
@@ -114,6 +114,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	if (selected_parent_index == -1 && is_right_button_pressed &&
 	    is_save_load_enabled()) {
 		draw_keep();
+		draw_stage_fo_thumb();
 		play_se(conf_msgbox_save_se);
 		start_save_mode(false);
 		stop_command_repetition();
@@ -160,7 +161,8 @@ bool init(void)
 			return false;
 	} else if (type == COMMAND_SELECT) {
 		/* @selectコマンドの引数情報を取得する */
-		get_select_info();
+		if (!get_select_info())
+			return false;
 	} else {
 		/* 親選択肢の情報を取得する */
 		if (!get_parents_info())
@@ -223,11 +225,15 @@ static bool get_choose_info(void)
 				&parent_button[i].h);
 	}
 
+	/* 最後のメッセージとして保存する */
+	if (!set_last_message(parent_button[0].msg))
+		return false;
+
 	return true;
 }
 
 /* @selectコマンドの引数情報を取得する */
-static void get_select_info(void)
+static bool get_select_info(void)
 {
 	const char *label, *msg;
 	int i;
@@ -255,6 +261,12 @@ static void get_select_info(void)
 				&parent_button[i].w,
 				&parent_button[i].h);
 	}
+
+	/* 最後のメッセージとして保存する */
+	if (!set_last_message(parent_button[0].msg))
+		return false;
+
+	return true;
 }
 
 /* 親選択肢の情報を取得する */
@@ -262,10 +274,12 @@ static bool get_parents_info(void)
 {
 	const char *p;
 	int i, parent_button_count = 0;
+	bool is_first;
 
 	memset(parent_button, 0, sizeof(parent_button));
 
 	/* 親選択肢の情報を取得する */
+	is_first = true;
 	for (i = 0; i < PARENT_COUNT; i++) {
 		/* 親選択肢のメッセージを取得する */
 		p = get_string_param(PARENT_MESSAGE(i));
@@ -283,6 +297,12 @@ static bool get_parents_info(void)
 
 		/* メッセージを保存する */
 		parent_button[i].msg = p;
+		if (is_first) {
+			/* 最後のメッセージとして保存する */
+			if (!set_last_message(p))
+				return false;
+			is_first = false;
+		}
 
 		/* ラベルがなければならない */
 		p = get_string_param(CHILD_LABEL(i, 0));
@@ -326,6 +346,7 @@ static bool get_parents_info(void)
 		log_script_exec_footer();
 		return false;
 	}
+
 	return true;
 }
 

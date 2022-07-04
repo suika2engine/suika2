@@ -253,6 +253,10 @@ static bool init(int *x, int *y, int *w, int *h)
 	msg_top = expand_variable(raw_msg);
 	msg = msg_top;
 
+	/* セーブ用にメッセージを保存する */
+	if (!set_last_message(msg))
+		return false;
+	
 	/* ヒストリ画面用にメッセージ履歴を登録する */
 	if (!register_message_for_history())
 		return false;

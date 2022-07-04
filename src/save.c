@@ -154,8 +154,10 @@ bool init_save(void)
 	/* 文字列を初期化する */
 	chapter_name = strdup("");
 	last_message = strdup("");
-	if (chapter_name == NULL || last_message == NULL)
+	if (chapter_name == NULL || last_message == NULL) {
+		log_memory();
 		return false;
+	}
 
 	/* コンフィグからボタンの位置と大きさをロードする */
 	load_button_conf();
@@ -1296,8 +1298,10 @@ bool set_chapter_name(const char *name)
 	free(chapter_name);
 
 	chapter_name = strdup(name);
-	if (chapter_name == NULL)
+	if (chapter_name == NULL) {
+		log_memory();
 		return false;
+	}
 
 	return true;
 }
@@ -1310,8 +1314,10 @@ bool set_last_message(const char *msg)
 	free(last_message);
 
 	last_message = strdup(msg);
-	if (last_message == NULL)
+	if (last_message == NULL) {
+		log_memory();
 		return false;
+	}
 
 	return true;
 }
