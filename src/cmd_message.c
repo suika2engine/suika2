@@ -71,6 +71,18 @@ static bool is_beep;
 /* ボイスがあるか */
 static bool have_voice;
 
+/* クイックロードを行ったか */
+static bool did_quick_load;
+
+/* セーブモードに遷移するか */
+static bool need_save_mode;
+
+/* ロードモードに遷移するか */
+static bool need_load_mode;
+
+/* ヒストリモードに遷移するか */
+static bool need_history_mode;
+
 /* オートモードでメッセージ表示とボイス再生の完了後の待ち時間中か */
 static bool is_auto_mode_wait;
 
@@ -142,7 +154,7 @@ static void init_repetition(void);
 static void frame_draw_buttons(bool se, int *x, int *y, int *w, int *h);
 static int get_pointed_button(void);
 static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
-static void frame_quick_save(void);
+static bool frame_quick_save(void);
 static bool frame_quick_load(void);
 static bool frame_save(void);
 static bool frame_load(void);
@@ -170,34 +182,38 @@ bool message_command(int *x, int *y, int *w, int *h)
 	frame_draw_buttons(true, x, y, w, h);
 
 	/* クイックセーブを処理する */
-	frame_quick_save();
-
-	/* クイックロードを処理する */
-	if (frame_quick_load()) {
-		draw_stage_keep();
-		return true;
+	if (!frame_quick_save()) {
+		/* クイックロードを処理する */
+		if (!frame_quick_load()) {
+			/* セーブ画面への遷移を処理する */
+			if (!frame_save()) {
+				/* ロード画面への遷移を処理する */
+				if (!frame_load()) {
+					/* ヒストリ画面への遷移を処理する */
+					if (!frame_history()) {
+						/* オートモードを処理する */
+						frame_auto_mode(x, y, w, h);
+	
+						/* スキップモードを処理する */
+						frame_skip_mode();
+					}
+				}
+			}
+		}
 	}
 
-	/* セーブ画面への遷移を処理する */
-	if (frame_save())
-		return true;
+	/*
+	 * メイン表示処理を行う
+	 *  - クイックロードされた場合は処理しない
+	 *  - セーブ・ロード画面に遷移する場合はサムネイル描画のため処理する
+	 */
+	if (!did_quick_load)
+		frame_main(x, y, w, h);
 
-	/* ロード画面への遷移を処理する */
-	if (frame_load())
-		return true;
-
-	/* ヒストリ画面への遷移を処理する */
-	if (frame_history())
-		return true;
-
-	/* オートモードを処理する */
-	frame_auto_mode(x, y, w, h);
-	
-	/* スキップモードを処理する */
-	frame_skip_mode();
-
-	/* メイン表示処理を行う */
-	frame_main(x, y, w, h);
+	/* クイックロード・セーブ・ロード・ヒストリモードが選択された場合 */
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode)
+		stop_command_repetition();
 
 	/* 終了処理を行う */
 	if (!is_in_command_repetition())
@@ -206,6 +222,16 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* ステージを描画する */
 	draw_stage_rect(*x, *y, *w, *h);
+
+	/* セーブ・ロード・ヒストリモードへ遷移する */
+	if (need_save_mode || need_load_mode)
+		draw_stage_to_thumb();
+	if (need_save_mode)
+		start_save_mode(false);
+	if (need_load_mode)
+		start_load_mode(false);
+	if (need_history_mode)
+		start_history_mode();
 
 	return true;
 }
@@ -281,6 +307,12 @@ static bool init(int *x, int *y, int *w, int *h)
 
 	/* オートモードの設定をする */
 	is_auto_mode_wait = false;
+
+	/* セーブ・ロード・ヒストリの設定をする */
+	did_quick_load = false;
+	need_save_mode = false;
+	need_load_mode = false;
+	need_history_mode = false;
 
 	/* ボタンの選択状態を取得する */
 	init_pointed_index();
@@ -603,6 +635,12 @@ static int get_frame_chars(void)
 		return total_chars;
 	}
 
+	/* セーブ・ロードのサムネイルを作成するために全文字描画する場合 */
+	if (need_save_mode || need_load_mode) {
+		/* 残りの文字をすべて描画する */
+		return total_chars - drawn_chars;
+	}
+
 	/* 入力によりスキップされた場合 */
 	if (is_skippable() && !is_non_interruptible() &&
 	    (is_skip_mode() || is_control_pressed)) {
@@ -863,6 +901,10 @@ static void frame_draw_buttons(bool se, int *x, int *y, int *w, int *h)
 {
 	int last_pointed_index, bx, by, bw, bh;;
 
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
+		return;
+
 	/* 選択中のボタンを取得する */
 	last_pointed_index = pointed_index;
 	pointed_index = get_pointed_button();
@@ -1001,14 +1043,21 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 }
 
 /* フレーム描画中のクイックセーブボタン押下を処理する */
-static void frame_quick_save(void)
+static bool frame_quick_save(void)
 {
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
-		return;
+		return false;
+
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
+		return false;
 
 	/* QSAVEボタンが押下されたとき */
 	if (is_left_button_pressed && pointed_index == BTN_QSAVE) {
+		/* サムネイルを作成する */
+		draw_stage_to_thumb();
+
 		/* クイックセーブを行う */
 		quick_save();
 
@@ -1017,7 +1066,11 @@ static void frame_quick_save(void)
 
 		/* 以降のクリック処理を行わない */
 		is_left_button_pressed = false;
+
+		return true;
 	}
+
+	return false;
 }
 
 /* フレーム描画中のクイックロードボタン押下を処理する */
@@ -1025,6 +1078,10 @@ static bool frame_quick_load(void)
 {
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
+		return false;
+
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
 		return false;
 
 	/* クイックセーブデータがない場合は処理しない */
@@ -1039,10 +1096,8 @@ static bool frame_quick_load(void)
 			play_se(conf_msgbox_btn_qload_se);
 
 			/* 後処理を行う */
-			stop_command_repetition();
-			free(msg_top);
-			show_click(false);
-			draw_stage();
+			did_quick_load = true;
+
 			return true;
 		}
 
@@ -1060,12 +1115,13 @@ static bool frame_save(void)
 	if (!is_save_load_enabled())
 		return false;
 
-	/* 右クリックかQLOADボタンが押下されたとき */
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
+		return false;
+
+	/* 右クリックかSAVEボタンが押下されたとき */
 	if (is_right_button_pressed ||
 	    (is_left_button_pressed && pointed_index == BTN_SAVE)) {
-		/* 描画する(GPU用) */
-		draw_stage_keep();
-
 		/* SEを再生する */
 		if (is_right_button_pressed)
 			play_se(conf_msgbox_save_se);
@@ -1076,12 +1132,8 @@ static bool frame_save(void)
 		set_mixer_input(VOICE_STREAM, NULL);
 
 		/* セーブモードを開始する */
-		start_save_mode(false);
+		need_save_mode =  true;
 
-		/* 後処理をする */
-		stop_command_repetition();
-		free(msg_top);
-		show_click(false);
 		return true;
 	}
 
@@ -1095,11 +1147,12 @@ static bool frame_load(void)
 	if (!is_save_load_enabled())
 		return false;
 
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
+		return false;
+
 	/* LOADボタンが押下されたとき */
 	if (is_left_button_pressed && pointed_index == BTN_LOAD) {
-		/* 描画する(GPU用) */
-		draw_stage_keep();
-
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_load_se);
 
@@ -1107,12 +1160,8 @@ static bool frame_load(void)
 		set_mixer_input(VOICE_STREAM, NULL);
 
 		/* ロードモードを開始する */
-		start_load_mode(false);
+		need_load_mode = true;
 
-		/* 後処理をする */
-		stop_command_repetition();
-		free(msg_top);
-		show_click(false);
 		return true;
 	}
 
@@ -1123,12 +1172,13 @@ static bool frame_load(void)
  * マウスホイール上押下を処理する */
 static bool frame_history(void)
 {
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
+		return false;
+
 	/* 上キーかHISTORYボタンが押された場合 */
 	if (is_up_pressed ||
 	    (is_left_button_pressed && pointed_index == BTN_HISTORY)) {
-		/* 描画する(GPU用) */
-		draw_stage_keep();
-
 		/* SEを再生する */
 		if (is_up_pressed)
 			play_se(conf_msgbox_history_se);
@@ -1138,12 +1188,9 @@ static bool frame_history(void)
 		/* ボイスを停止する */
 		set_mixer_input(VOICE_STREAM, NULL);
 
-		/* ヒストリーモードを開始する */
-		start_history_mode();
+		/* ヒストリモードを開始する */
+		need_history_mode = true;
 
-		/* 後処理をする */
-		stop_command_repetition();
-		free(msg_top);
 		return true;
 	}
 
@@ -1157,6 +1204,10 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 
 	/* スキップモードの場合、何もしない */
 	if (is_skip_mode())
+		return;
+
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
 		return;
 
 	/* オートモードでない場合 */
@@ -1288,6 +1339,10 @@ static void frame_skip_mode(void)
 	if (!is_skippable())
 		return;
 
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
+		return;
+
 	/* SKIPボタンが押下された場合 */
 	if (is_left_button_pressed && pointed_index == BTN_SKIP) {
 		/* SEを再生する */
@@ -1391,14 +1446,16 @@ static bool cleanup(void)
 	show_click(false);
 
 	/* 表示中のメッセージをなしとする */
-	clear_message_registered();
+	if (!need_save_mode && !need_load_mode && !need_history_mode)
+		clear_message_registered();
 
 	/* 既読にする */
 	set_seen();
 
 	/* 次のコマンドに移動する */
-	if (!move_to_next_command())
-		return false;
+	if (!did_quick_load)
+		if (!move_to_next_command())
+			return false;
 
 	return true;
 }
