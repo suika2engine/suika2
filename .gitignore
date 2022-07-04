@@ -40,9 +40,11 @@ build/netbsd/suika
 build/glut-linux/*.o
 build/glut-linux/libroot
 build/glut-linux/suika
+build/glut-mac/data01.arc
 build/glut-mac/*.o
 build/glut-mac/libroot
 build/glut-mac/suika
+build/glut-mac/data01.arc
 build/android/.idea/caches
 build/android/app/.cxx
 build/android/app/src/main/cpp/freetype

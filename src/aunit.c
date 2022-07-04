@@ -221,14 +221,15 @@ bool stop_sound(int stream)
                     wave[VOICE_STREAM] != NULL ||
                     wave[SE_STREAM] != NULL;
 
-        /* 
-         * 下記はうまく動作しないので、再生を停止しないこととする
-         */
-#if 0
         /* 再生中であれば停止する */
-        if(!isPlaying)
+        if(!isPlaying) {
+            /*
+             * FIXME: 下記はフリーズするので、再生を停止しないこととする
+             */
+#if 0
             ret = AudioOutputUnitStop(au) == noErr;
 #endif
+        }
     }
     pthread_mutex_unlock(&mutex);
 
