@@ -2734,6 +2734,18 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc)
 }
 
 /*
+ * FO/FIの2レイヤに画像を描画する
+ */
+void draw_image_on_fo_fi(int x, int y, struct image *img)
+{
+	draw_image(layer_image[LAYER_FO], x, y, img, get_image_width(img),
+		   get_image_height(img), 0, 0, 255, BLEND_NONE);
+		   
+	draw_image(layer_image[LAYER_FI], x, y, img, get_image_width(img),
+		   get_image_height(img), 0, 0, 255, BLEND_NONE);
+}
+
+/*
  * メニュー画面・CG回想画面の描画
  */
 

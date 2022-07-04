@@ -1457,9 +1457,11 @@ static bool cleanup(void)
 	set_seen();
 
 	/* 次のコマンドに移動する */
-	if (!did_quick_load)
+	if (!did_quick_load && !need_save_mode && !need_load_mode &&
+	    !need_history_mode) {
 		if (!move_to_next_command())
 			return false;
+	}
 
 	return true;
 }

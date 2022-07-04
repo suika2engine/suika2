@@ -313,6 +313,9 @@ void unlock_draw_char_on_fo_fi(void);
 /* FO/FIの2レイヤに文字を描画する */
 int draw_char_on_fo_fi(int x, int y, uint32_t wc);
 
+/* FO/FIの2レイヤに画像を描画する */
+void draw_image_on_fo_fi(int x, int y, struct image *img);
+
 /*
  * メニュー画面・CG回想画面の描画
  */

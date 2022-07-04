@@ -63,16 +63,22 @@ static char *last_message;
 static time_t save_time[SAVE_SLOTS];
 
 /* セーブデータの章タイトル */
-//static char *save_title[SAVE_SLOTS];
+static char *save_title[SAVE_SLOTS];
 
 /* セーブデータのメッセージ */
-//static char *save_message[SAVE_SLOTS];
+static char *save_message[SAVE_SLOTS];
 
 /* セーブデータのサムネイル */
-//static struct image *save_thumb[SAVE_SLOTS];
+static struct image *save_thumb[SAVE_SLOTS];
 
 /* クイックセーブデータの日付 */
 static time_t quick_save_time;
+
+/* 文字列読み込み用バッファ */
+static char tmp_str[4096];
+
+/* サムネイル読み書き用バッファ */
+static unsigned char *tmp_pixels;
 
 /* ボタンの座標 */
 static struct button {
@@ -108,12 +114,14 @@ static int pointed_index;
 
 /* 前方参照 */
 static void load_button_conf(void);
-static void load_save_time(void);
+static void load_basic_save_data(void);
+static void load_basic_save_data_file(struct rfile *rf, int index);
 static void draw_page(int *x, int *y, int *w, int *h);
 static void draw_page_keep(void);
 static int get_pointed_index(void);
+static void draw_all_thumbs(void);
 static void draw_all_text_items(void);
-static void draw_text_item(int x, int y, const char *text);
+static int draw_text_item(int x, int y, const char *text, int base_x);
 static bool update_pointed_index(int *x, int *y, int *w, int *h);
 static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			       int *h);
@@ -122,7 +130,10 @@ static void process_left_press_save_button(int new_pointed_index, int *x,
 static bool have_save_data(int new_pointed_index);
 static void play_se(const char *file);
 static bool process_save(int new_pointed_index);
-static bool serialize_all(const char *fname, uint64_t *timestamp);
+static bool serialize_all(const char *fname, uint64_t *timestamp, int index);
+static bool serialize_title(struct wfile *wf, int index);
+static bool serialize_message(struct wfile *wf, int index);
+static bool serialize_thumb(struct wfile *wf, int index);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
 static bool serialize_bgm(struct wfile *wf);
@@ -159,11 +170,19 @@ bool init_save(void)
 		return false;
 	}
 
+	/* サムネイルの読み書きのためのヒープを確保する */
+	tmp_pixels = malloc((size_t)(conf_save_data_thumb_width *
+				     conf_save_data_thumb_height * 3));
+	if (tmp_pixels == NULL) {
+		log_memory();
+		return false;
+	}
+
 	/* コンフィグからボタンの位置と大きさをロードする */
 	load_button_conf();
 
-	/* セーブデータからセーブ時刻を取得する */
-	load_save_time();
+	/* セーブデータから基本情報を取得する */
+	load_basic_save_data();
 
 	/* グローバルデータのロードを行う */
 	load_global_data();
@@ -217,8 +236,10 @@ void cleanup_save(void)
 {
 	free(chapter_name);
 	free(last_message);
+	free(tmp_pixels);
 	chapter_name = NULL;
 	last_message = NULL;
+	tmp_pixels = NULL;
 
 	/* グローバル変数のセーブを行う */
 	save_global_data();
@@ -393,6 +414,9 @@ static void draw_page(int *x, int *y, int *w, int *h)
 	else
 		clear_load_stage();
 
+	/* サムネイルを描画する */
+	draw_all_thumbs();
+
 	/* セーブデータのテキストを描画する */
 	draw_all_text_items();
 
@@ -466,52 +490,115 @@ static int get_pointed_index(void)
 	return pointed;
 }
 
+/* セーブデータのサムネイルを描画する */
+static void draw_all_thumbs(void)
+{
+	int i, base;
+
+	/* 先頭のセーブデータの番号を求める */
+	base = page * PAGE_SLOTS;
+
+	/* 3つのセーブボタンについて描画する */
+	for (i = BUTTON_ONE; i <= BUTTON_THREE; i++) {
+		if (save_thumb[base + i] == NULL)
+			continue;
+
+		draw_image_on_fo_fi(button[i].x + conf_save_data_margin_left,
+				    button[i].y + conf_save_data_margin_top,
+				    save_thumb[base + i]);
+	}
+}
+
 /* セーブデータのテキストを描画する */
 static void draw_all_text_items(void)
 {
 	struct tm *timeptr;
 	char text[128];
-	int i, j;
+	int i, base, width;
 
 	/* 先頭のセーブデータの番号を求める */
-	j = page * PAGE_SLOTS;
+	base = page * PAGE_SLOTS;
 
-	/* 6つのセーブボタンについて描画する */
-	for (i = BUTTON_ONE; i <= BUTTON_THREE; i++, j++) {
-		if (save_time[j] == 0) {
-			snprintf(text, sizeof(text), "[%02d] NO DATA", j + 1);
+	/* 3つのセーブボタンについて描画する */
+	for (i = BUTTON_ONE; i <= BUTTON_THREE; i++) {
+		/* 日時を描画する */
+		if (save_time[base + i] == 0) {
+			snprintf(text, sizeof(text), "[%02d] NO DATA",
+				 base + i + 1);
 		} else {
-			timeptr = localtime(&save_time[j]);
-			snprintf(text, sizeof(text), "[%02d] ", j + 1);
-			strftime(&text[5], sizeof(text), "%m/%d %H:%M",
+			timeptr = localtime(&save_time[base + i]);
+			snprintf(text, sizeof(text), "[%02d] ", base + i + 1);
+			strftime(&text[5], sizeof(text), "%m/%d %H:%M ",
 				 timeptr);
 		}
+		width = draw_text_item(button[i].x +
+				       conf_save_data_margin_left +
+				       conf_save_data_thumb_width +
+				       conf_save_data_margin_left,
+				       button[i].y +
+				       conf_save_data_margin_top,
+				       text,
+				       button[i].x);
 
-		draw_text_item(button[i].x + conf_save_data_margin_left,
-			       button[i].y + conf_save_data_margin_top,
-			       text);
-	}
+		/* 章題を描画する */
+		if (save_title[base + i] != NULL) {
+			draw_text_item(button[i].x +
+				       conf_save_data_margin_left +
+				       conf_save_data_thumb_width +
+				       conf_save_data_margin_left +
+				       width,
+				       button[i].y +
+				       conf_save_data_margin_top,
+				       save_title[base + i],
+				       button[i].x);
+		}
+
+		/* メッセージを描画する */
+		if (save_message[base + i] != NULL) {
+			draw_text_item(button[i].x +
+				       conf_save_data_margin_left +
+				       conf_save_data_thumb_width +
+				       conf_save_data_margin_left,
+				       button[i].y +
+				       conf_save_data_margin_top +
+				       conf_font_size +
+				       conf_save_data_margin_top,
+				       save_message[base + i],
+				       button[i].x);
+			}
+		}
+		
 }
 
 /* セーブデータのテキストを描画する */
-static void draw_text_item(int x, int y, const char *text)
+static int draw_text_item(int x, int y, const char *text, int base_x)
 {
 	uint32_t wc;
-	int mblen;
+	int mblen, cw, result;
 
 	/* 1文字ずつ描画する */
+	result = 0;
 	while (*text != '\0') {
 		/* 描画する文字を取得する */
 		mblen = utf8_to_utf32(text, &wc);
 		if (mblen == -1)
-			return;
+			return 0;
+
+		/* 文字の幅を取得する */
+		cw = get_glyph_width(wc);
+		if (x + cw >= base_x + conf_save_data_width)
+			break;
 
 		/* 描画する */
-		x += draw_char_on_fo_fi(x, y, wc);
+		cw = draw_char_on_fo_fi(x, y, wc);
+		x += cw;
+		result += cw;
 
 		/* 次の文字へ移動する */
 		text += mblen;
 	}
+
+	return result;
 }
 
 /*
@@ -704,7 +791,7 @@ bool quick_save(void)
 	uint64_t timestamp;
 
 	/* ローカルデータのシリアライズを行う */
-	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp))
+	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp, -1))
 		return false;
 
 	/* 既読フラグのセーブを行う */
@@ -731,7 +818,7 @@ static bool process_save(int new_pointed_index)
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
 	/* ローカルデータのシリアライズを行う */
-	if (!serialize_all(s, &timestamp))
+	if (!serialize_all(s, &timestamp, index))
 		return false;
 
 	/* 既読フラグのセーブを行う */
@@ -747,7 +834,7 @@ static bool process_save(int new_pointed_index)
 }
 
 /* すべてのシリアライズを行う */
-static bool serialize_all(const char *fname, uint64_t *timestamp)
+static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 {
 	struct wfile *wf;
 	uint64_t t;
@@ -766,6 +853,18 @@ static bool serialize_all(const char *fname, uint64_t *timestamp)
 		/* 日付を書き込む */
 		t = (uint64_t)time(NULL);
 		if (write_wfile(wf, &t, sizeof(t)) < sizeof(t))
+			break;
+
+		/* 章題のシリアライズを行う */
+		if (!serialize_title(wf, index))
+			break;
+
+		/* メッセージのシリアライズを行う */
+		if (!serialize_message(wf, index))
+			break;
+
+		/* サムネイルのシリアライズを行う */
+		if (!serialize_thumb(wf, index))
 			break;
 
 		/* コマンド位置のシリアライズを行う */
@@ -802,6 +901,106 @@ static bool serialize_all(const char *fname, uint64_t *timestamp)
 		log_file_write(fname);
 
 	return success;
+}
+
+/* 章題のシリアライズを行う */
+static bool serialize_title(struct wfile *wf, int index)
+{
+	size_t len;
+
+	/* 文字列を準備する */
+	strncpy(tmp_str, chapter_name, sizeof(tmp_str));
+	tmp_str[sizeof(tmp_str) - 1] = '\0';
+
+	/* 書き出す */
+	len = strlen(tmp_str) + 1;
+	if (write_wfile(wf, tmp_str, len) < len)
+		return false;
+
+	/* 章題を保存する */
+	if (save_title[index] != NULL)
+		free(save_title[index]);
+	save_title[index] = strdup(tmp_str);
+	if (save_title[index] == NULL)
+		return false;
+
+	return true;
+}
+
+/* メッセージのシリアライズを行う */
+static bool serialize_message(struct wfile *wf, int index)
+{
+	size_t len;
+
+	/* 文字列を準備する */
+	strncpy(tmp_str, last_message, sizeof(tmp_str));
+	tmp_str[sizeof(tmp_str) - 1] = '\0';
+
+	/* 書き出す */
+	len = strlen(tmp_str) + 1;
+	if (write_wfile(wf, tmp_str, len) < len)
+		return false;
+
+	/* メッセージを保存する */
+	if (save_message[index] != NULL)
+		free(save_message[index]);
+	save_message[index] = strdup(tmp_str);
+	if (save_message[index] == NULL)
+		return false;
+
+	return true;
+}
+
+/* サムネイルのシリアライズを行う */
+static bool serialize_thumb(struct wfile *wf, int index)
+{
+	pixel_t *src, pix;
+	unsigned char *dst;
+	size_t len;
+	int x, y;
+
+	/* クイックセーブの場合 */
+	if (index == -1) {
+		/* 内容は気にせず書き出す */
+		len = (size_t)(conf_save_data_thumb_width *
+			       conf_save_data_thumb_height * 3);
+		if (write_wfile(wf, tmp_pixels, len) < len)
+			return false;
+		return true;
+	}
+
+	/* stage.cのサムネイルをsave.cのイメージにコピーする */
+	if (save_thumb[index] == NULL) {
+		save_thumb[index] = create_image(conf_save_data_thumb_width,
+						 conf_save_data_thumb_height);
+		if (save_thumb[index] == NULL)
+			return false;
+	}
+	lock_image(save_thumb[index]);
+	draw_image(save_thumb[index], 0, 0, get_thumb_image(),
+		   conf_save_data_thumb_width, conf_save_data_thumb_height, 0, 0,
+		   255, BLEND_NONE);
+	unlock_image(save_thumb[index]);
+
+	/* ピクセル列を準備する */
+	src = get_image_pixels(get_thumb_image());
+	dst = tmp_pixels;
+	for (y = 0; y < conf_save_data_thumb_height; y++) {
+		for (x = 0; x < conf_save_data_thumb_width; x++) {
+			pix = *src++;
+			*dst++ = (unsigned char)get_pixel_r_slow(pix);
+			*dst++ = (unsigned char)get_pixel_g_slow(pix);
+			*dst++ = (unsigned char)get_pixel_b_slow(pix);
+		}
+	}
+
+	/* 書き出す */
+	len = (size_t)(conf_save_data_thumb_width *
+		       conf_save_data_thumb_height * 3);
+	if (write_wfile(wf, tmp_pixels, len) < len)
+		return false;
+
+	return true;
 }
 
 /* コマンド位置をシリアライズする */
@@ -926,12 +1125,12 @@ bool quick_load(void)
 	/* 既読フラグのセーブを行う */
 	save_seen();
 
+	/* グローバル変数のセーブを行う */
+	save_global_data();
+
 	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(QUICK_SAVE_FILE_NAME))
 		return false;
-
-	/* 既読フラグのロードを行う */
-	load_seen();
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
@@ -965,12 +1164,12 @@ static bool process_load(int new_pointed_index)
 	/* 既読フラグのセーブを行う */
 	save_seen();
 
+	/* グローバル変数のセーブを行う */
+	save_global_data();
+
 	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(s))
 		return false;
-
-	/* 既読フラグのロードを行う */
-	load_seen();
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
@@ -988,6 +1187,7 @@ static bool deserialize_all(const char *fname)
 {
 	struct rfile *rf;
 	uint64_t t;
+	size_t img_size;
 	bool success;
 
 	/* ファイルを開く */
@@ -997,8 +1197,22 @@ static bool deserialize_all(const char *fname)
 
 	success = false;
 	do {
-		/* 日付を読み込む */
+		/* 日付を読み込む (読み飛ばす) */
 		if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
+			break;
+
+		/* 章題を読み込む (読み飛ばす) */
+		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
+			break;
+
+		/* メッセージを読み込む (読み飛ばす) */
+		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
+			break;
+
+		/* サムネイルを読み込む (読み飛ばす) */
+		img_size = (size_t)(conf_save_data_thumb_width *
+				    conf_save_data_thumb_height * 3);
+		if (read_rfile(rf, tmp_pixels, img_size) < img_size)
 			break;
 
 		/* コマンド位置のデシリアライズを行う */
@@ -1175,22 +1389,22 @@ static bool deserialize_vars(struct rfile *rf)
 	return true;
 }
 
-/* セーブデータからセーブ時刻を読み込む */
-static void load_save_time(void)
+/* セーブデータから基本情報を読み込む */
+static void load_basic_save_data(void)
 {
 	struct rfile *rf;
 	char buf[128];
 	uint64_t t;
 	int i;
 
+	/* セーブスロットごとに読み込む */
 	for (i = 0; i < SAVE_SLOTS; i++) {
 		/* セーブデータファイルを開く */
 		snprintf(buf, sizeof(buf), "%03d.sav", i);
 		rf = open_rfile(SAVE_DIR, buf, true);
 		if (rf != NULL) {
-			/* セーブ時刻を取得する */
-			if (read_rfile(rf, &t, sizeof(t)) == sizeof(t))
-				save_time[i] = (time_t)t;
+			/* 読み込む */
+			load_basic_save_data_file(rf, i);
 			close_rfile(rf);
 		}
 	}
@@ -1203,6 +1417,64 @@ static void load_save_time(void)
 			quick_save_time = (time_t)t;
 		close_rfile(rf);
 	}
+}
+
+/* セーブデータファイルから基本情報を読み込む */
+static void load_basic_save_data_file(struct rfile *rf, int index)
+{
+	uint64_t t;
+	size_t img_size;
+	pixel_t *dst;
+	const unsigned char *src;
+	uint32_t r, g, b;
+	int x, y;
+
+	/* セーブ時刻を取得する */
+	if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
+		return;
+	save_time[index] = (time_t)t;
+
+	/* 章題を取得する */
+	if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
+		return;
+	save_title[index] = strdup(tmp_str);
+	if (save_title[index] == NULL) {
+		log_memory();
+		return;
+	}
+
+	/* メッセージを取得する */
+	if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
+		return;
+	save_message[index] = strdup(tmp_str);
+	if (save_message[index] == NULL) {
+		log_memory();
+		return;
+	}
+
+	/* サムネイルを取得する */
+	img_size = (size_t)(conf_save_data_thumb_width *
+			    conf_save_data_thumb_height * 3);
+	if (read_rfile(rf, tmp_pixels, img_size) < img_size)
+		return;
+
+	/* サムネイルの画像を生成する */
+	save_thumb[index] = create_image(conf_save_data_thumb_width,
+					 conf_save_data_thumb_height);
+	if (save_thumb[index] == NULL)
+		return;
+	lock_image(save_thumb[index]);
+	dst = get_image_pixels(save_thumb[index]);
+	src = tmp_pixels;
+	for (y = 0; y < conf_save_data_thumb_height; y++) {
+		for (x = 0; x < conf_save_data_thumb_width; x++) {
+			r = *src++;
+			g = *src++;
+			b = *src++;
+			*dst++ = make_pixel_slow(0xff, r, g, b);
+		}
+	}
+	unlock_image(save_thumb[index]);
 }
 
 /*

@@ -276,6 +276,8 @@ pixel_t *get_image_pixels(struct image *img)
  */
 int get_image_width(struct image *img)
 {
+	assert(img != NULL);
+
 	return img->width;
 }
 
@@ -992,7 +994,8 @@ void draw_image_scale(struct image * RESTRICT dst_image,
 {
 	pixel_t *dst_ptr, *src_ptr;
 	float scale_x, scale_y;
-	pixel_t pix;
+	pixel_t src_pix, dst_pix;
+	float src_a, src_r, src_g, src_b, dst_a, dst_r, dst_g, dst_b;
 	int real_dst_width, real_dst_height;
 	int real_src_width, real_src_height;
 	int real_draw_left, real_draw_top, real_draw_width, real_draw_height;
@@ -1030,7 +1033,9 @@ void draw_image_scale(struct image * RESTRICT dst_image,
 			continue;
 
 		/* 描画元のY座標を求め、クリッピングする */
-		virtual_y = (int)((float)i / scale_y);
+		virtual_y = (int)((float)i / scale_y) - virtual_dst_top;
+		if (virtual_y < 0)
+			continue;
 		if (virtual_y >= real_src_height)
 			continue;
 
@@ -1043,19 +1048,38 @@ void draw_image_scale(struct image * RESTRICT dst_image,
 				continue;
 
 			/* 描画元のX座標を求め、クリッピングする */
-			virtual_x = (int)((float)j / scale_x);
+			virtual_x = (int)((float)j / scale_x) - virtual_dst_left;
+			if (virtual_x < 0)
+				continue;
 			if (virtual_x >= real_src_width)
 				continue;
 
 			/* 描画元のピクセルを取得する */
-			pix = src_ptr[real_src_width * virtual_y + virtual_x];
+			src_pix = src_ptr[real_src_width * virtual_y + virtual_x];
 
-			/* アルファ値が半分以下なら描画しない */
-			if (get_pixel_a(pix) < 128)
-				continue;
+			/* 描画先のピクセルを取得する */
+			dst_pix = dst_ptr[real_dst_width * i + j];
 
-			/* 描画する */
-			dst_ptr[real_dst_width * i + j] = pix;
+			/* アルファ値を計算する */
+			src_a = (float)get_pixel_a(src_pix) / 255.0f;
+			dst_a = 1.0f - src_a;
+
+			/* 描画元ピクセルにアルファ値を乗算する */
+			src_r = src_a * (float)get_pixel_c1(src_pix);
+			src_g = src_a * (float)get_pixel_c2(src_pix);
+			src_b = src_a * (float)get_pixel_c3(src_pix);
+
+			/* 描画先ピクセルにアルファ値を乗算する */
+			dst_r = dst_a * (float)get_pixel_c1(dst_pix);
+			dst_g = dst_a * (float)get_pixel_c2(dst_pix);
+			dst_b = dst_a * (float)get_pixel_c3(dst_pix);
+
+			/* 描画先に格納する */
+			dst_ptr[real_dst_width * i + j] = make_pixel_fast(
+				0xff,
+				(uint32_t)(src_r + dst_r),
+				(uint32_t)(src_g + dst_g),
+				(uint32_t)(src_b + dst_b));
 		}
 	}
 }
