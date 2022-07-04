@@ -62,13 +62,13 @@ How to build
         * Run `make` to create ZIP files.
         * Rename `suika2-web-kit-2.x-x-en.zip` and `suika2-web-kit-2.x-x-jp.zip`.
 
-* Linux Binary
+* Linux Binary (x86_64)
     * On Ubuntu 22.04, install following packages:
         * `build-essential`
         * `libasound2-dev`
         * `libx11-dev`
         * `libxpm-dev`
-    * In terminal, enter `build/linux` directory.
+    * In terminal, enter `build/linux-x86_64` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to copy binary `suika` to `suika2` directory.
