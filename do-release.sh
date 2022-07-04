@@ -38,15 +38,6 @@ cp suika.exe ../../fileserver/
 cd ../../
 
 echo ""
-echo "Building suika-3d.exe"
-cd build/mingw-3d
-make clean
-./build-libs.sh
-make
-cp suika-3d.exe ../../fileserver/
-cd ../../
-
-echo ""
 echo "Building suika-pro.exe"
 cd build/mingw-pro
 make clean
