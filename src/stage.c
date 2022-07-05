@@ -156,6 +156,9 @@ static char *ch_file_name[CH_LAYERS];
 /* STAGE_MODE_BG_FADEのときの新しい背景 */
 struct image *new_bg_img;
 
+/* ルール画像 */
+struct image *rule_img;
+
 /* FI/FOフェードの進捗 */
 static float fi_fo_fade_progress;
 
@@ -202,6 +205,7 @@ static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
 static void draw_stage_fi_fo_fade(int fade_method);
 static void draw_stage_fi_fo_fade_normal(void);
+static void draw_stage_fi_fo_fade_rule(void);
 static void draw_stage_fi_fo_fade_curtain_right(void);
 static void draw_stage_fi_fo_fade_curtain_left(void);
 static void draw_stage_fi_fo_fade_curtain_up(void);
@@ -246,6 +250,26 @@ static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 bool init_stage(void)
 {
 	int i;
+
+	/* 再初期化のための処理 */
+	if  (bg_file_name != NULL) {
+		free(bg_file_name);
+		bg_file_name = NULL;
+	}
+	for (i = 0; i < CH_LAYERS; i++) {
+		if (ch_file_name[i] != NULL) {
+			free(ch_file_name[i]);
+			ch_file_name[i] = NULL;
+		}
+	}
+	if (new_bg_img != NULL) {
+		destroy_image(new_bg_img);
+		new_bg_img = NULL;
+	}
+	if (rule_img != NULL) {
+		destroy_image(rule_img);
+		rule_img = NULL;
+	}
 
 	/* 名前ボックスをセットアップする */
 	if (!setup_namebox())
@@ -308,6 +332,12 @@ static bool setup_namebox(void)
 {
 	is_namebox_visible = false;
 
+	/* 再初期化時に破棄する */
+	if (namebox_image != NULL)
+		destroy_image(namebox_image);
+	if (layer_image[LAYER_NAME] != NULL)
+		destroy_image(layer_image[LAYER_NAME]);
+
 	/* 名前ボックスの画像を読み込む */
 	namebox_image = create_image_from_file(CG_DIR, conf_namebox_file);
 	if (namebox_image == NULL)
@@ -333,6 +363,14 @@ static bool setup_namebox(void)
 static bool setup_msgbox(void)
 {
 	is_msgbox_visible = false;
+
+	/* 再初期化時に破棄する */
+	if (msgbox_bg_image != NULL)
+		destroy_image(msgbox_bg_image);
+	if (msgbox_fg_image != NULL)
+		destroy_image(msgbox_fg_image);
+	if (layer_image[LAYER_MSG] != NULL)
+		destroy_image(layer_image[LAYER_MSG]);
 
 	/* メッセージボックスの背景画像を読み込む */
 	msgbox_bg_image = create_image_from_file(CG_DIR, conf_msgbox_bg_file);
@@ -375,6 +413,10 @@ static bool setup_click(void)
 {
 	is_click_visible = false;
 
+	/* 再初期化時に破棄する */
+	if (layer_image[LAYER_CLICK] != NULL)
+		destroy_image(layer_image[LAYER_CLICK]);
+
 	/* クリックアニメーションの画像を読み込む */
 	layer_image[LAYER_CLICK] = create_image_from_file(CG_DIR,
 							  conf_click_file);
@@ -391,6 +433,12 @@ static bool setup_click(void)
 /* 選択肢をセットアップする */
 static bool setup_switch(void)
 {
+	/* 再初期化時に破棄する */
+	if (switch_bg_image != NULL)
+		destroy_image(switch_bg_image);
+	if (switch_fg_image != NULL)
+		destroy_image(switch_fg_image);
+
 	/* スイッチの非選択イメージを読み込む */
 	switch_bg_image = create_image_from_file(CG_DIR, conf_switch_bg_file);
 	if (switch_bg_image == NULL)
@@ -407,6 +455,12 @@ static bool setup_switch(void)
 /* 選択肢をセットアップする */
 static bool setup_news(void)
 {
+	/* 再初期化時に破棄する */
+	if (news_bg_image != NULL)
+		destroy_image(news_bg_image);
+	if (news_fg_image != NULL)
+		destroy_image(news_fg_image);
+
 	/* NEWSの非選択イメージを読み込む */
 	if (conf_news_bg_file != NULL) {
 		news_bg_image = create_image_from_file(CG_DIR,
@@ -429,6 +483,16 @@ static bool setup_news(void)
 /* セーブ画面をセットアップする */
 static bool setup_save(void)
 {
+	/* 再初期化時に破棄する */
+	if (save_bg_image != NULL)
+		destroy_image(save_bg_image);
+	if (save_fg_image != NULL)
+		destroy_image(save_fg_image);
+	if (load_bg_image != NULL)
+		destroy_image(save_bg_image);
+	if (load_fg_image != NULL)
+		destroy_image(save_fg_image);
+
 	/* セーブ画面(非選択)の画像を読み込む */
 	save_bg_image = create_image_from_file(CG_DIR, conf_save_save_bg_file);
 	if (save_bg_image == NULL)
@@ -455,6 +519,10 @@ static bool setup_save(void)
 /* セーブデータのサムネイル画像をセットアップする */
 static bool setup_thumb(void)
 {
+	/* 再初期化時に破棄する */
+	if (thumb_image != NULL)
+		destroy_image(thumb_image);
+
 	/* コンフィグの値がおかしければ補正する */
 	if (conf_save_data_thumb_width <= 0)
 		conf_save_data_thumb_width = 1;
@@ -496,6 +564,12 @@ struct image *create_initial_bg(void)
 /* レイヤのイメージを作成する */
 static bool create_fade_layer_images(void)
 {
+	/* 再初期化時に破棄する */
+	if (layer_image[LAYER_FO] != NULL)
+		destroy_image(layer_image[LAYER_FO]);
+	if (layer_image[LAYER_FI] != NULL)
+		destroy_image(layer_image[LAYER_FI]);
+
 	/* フェードアウトのレイヤのイメージを作成する */
 	layer_image[LAYER_FO] = create_image(conf_window_width,
 					     conf_window_height);
@@ -528,20 +602,71 @@ void cleanup_stage(void)
 
 	for (i = LAYER_BG; i < STAGE_LAYERS; i++)
 		destroy_layer_image(i);
-
-	if (namebox_image != NULL) {
-		destroy_image(namebox_image);
-		namebox_image = NULL;
-	}
-
 	if (msgbox_fg_image != NULL) {
 		destroy_image(msgbox_fg_image);
 		msgbox_fg_image = NULL;
 	}
-
 	if (msgbox_bg_image != NULL) {
 		destroy_image(msgbox_bg_image);
 		msgbox_bg_image = NULL;
+	}
+	if (namebox_image != NULL) {
+		destroy_image(namebox_image);
+		namebox_image = NULL;
+	}
+	if (switch_bg_image != NULL) {
+		destroy_image(switch_bg_image);
+		switch_bg_image = NULL;
+	}
+	if (switch_fg_image != NULL) {
+		destroy_image(switch_fg_image);
+		switch_fg_image = NULL;
+	}
+	if (news_bg_image != NULL) {
+		destroy_image(news_bg_image);
+		news_bg_image = NULL;
+	}
+	if (news_fg_image != NULL) {
+		destroy_image(news_fg_image);
+		news_fg_image = NULL;
+	}
+	if (save_bg_image != NULL) {
+		destroy_image(save_bg_image);
+		save_bg_image = NULL;
+	}
+	if (save_fg_image != NULL) {
+		destroy_image(save_fg_image);
+		save_fg_image = NULL;
+	}
+	if (load_bg_image != NULL) {
+		destroy_image(load_bg_image);
+		load_bg_image = NULL;
+	}
+	if (load_fg_image != NULL) {
+		destroy_image(load_fg_image);
+		load_fg_image = NULL;
+	}
+	if (thumb_image != NULL) {
+		destroy_image(thumb_image);
+		thumb_image = NULL;
+	}
+	if (bg_file_name != NULL) {
+		free(bg_file_name);
+		bg_file_name = NULL;
+	}
+	for (i = 0; i < CH_LAYERS; i++) {
+		if (ch_file_name[i] != NULL) {
+			free(ch_file_name[i]);
+			ch_file_name[i] = NULL;
+		}
+	}
+	if (new_bg_img != NULL) {
+		destroy_image(new_bg_img);
+		new_bg_img = NULL;
+	}
+	if (rule_img != NULL) {
+		destroy_image(rule_img);
+		rule_img = NULL;
 	}
 }
 
@@ -624,6 +749,16 @@ void draw_stage_rect(int x, int y, int w, int h)
 }
 
 /*
+ * ルール画像を設定する
+ */
+void set_rule_image(struct image *img)
+{
+	assert(rule_img == NULL);
+
+	rule_img = img;
+}
+
+/*
  * 背景フェードモードが有効な際のステージ描画を行う
  */
 void draw_stage_bg_fade(int fade_method)
@@ -652,6 +787,9 @@ static void draw_stage_fi_fo_fade(int fade_method)
 	case FADE_METHOD_NORMAL:
 	case FADE_METHOD_MASK:
 		draw_stage_fi_fo_fade_normal();
+		break;
+	case FADE_METHOD_RULE:
+		draw_stage_fi_fo_fade_rule();
 		break;
 	case FADE_METHOD_CURTAIN_RIGHT:
 		draw_stage_fi_fo_fade_curtain_right();
@@ -745,6 +883,28 @@ static void draw_stage_fi_fo_fade_normal()
 {
 	render_layer_image(LAYER_FO);
 	render_layer_image(LAYER_FI);
+}
+
+/* ルール描画を行う */
+static void draw_stage_fi_fo_fade_rule(void)
+{
+	int threshold;
+
+	assert(!is_save_load_mode());
+	assert(stage_mode == STAGE_MODE_BG_FADE ||
+	       stage_mode == STAGE_MODE_CH_FADE);
+	assert(rule_img != NULL);
+
+	/* テンプレートの閾値を求める */
+	threshold = (int)(255.0f * fi_fo_fade_progress);
+
+	/* フェードアウトする画像をコピーする */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* フェードインする画像をレンダリングする */
+	render_image_rule(layer_image[LAYER_FI], rule_img, threshold);
 }
 
 /* 右方向カーテンフェードの描画を行う */
@@ -1545,29 +1705,6 @@ static void draw_stage_fi_fo_fade_slit_close_v(void)
 }
 
 /*
- * キャラフェードモードが有効な際のステージ描画を行う (ルール使用)
- */
-void draw_stage_fade_rule(struct image *rule_img)
-{
-	int threshold;
-
-	assert(!is_save_load_mode());
-	assert(stage_mode == STAGE_MODE_BG_FADE ||
-	       stage_mode == STAGE_MODE_CH_FADE);
-
-	/* テンプレートの閾値を求める */
-	threshold = (int)(255.0f * fi_fo_fade_progress);
-
-	/* フェードアウトする画像をコピーする */
-	render_image(0, 0, layer_image[LAYER_FO],
-		     conf_window_width, conf_window_height,
-		     0, 0, 255, BLEND_NONE);
-
-	/* フェードインする画像をレンダリングする */
-	render_image_rule(layer_image[LAYER_FI], rule_img, threshold);
-}
-
-/*
  * 画面揺らしモードが有効な際のステージ描画を行う
  */
 void draw_stage_shake(void)
@@ -2009,6 +2146,12 @@ void stop_bg_fade(void)
 {
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
+	/* ルールイメージを破棄する */
+	if (rule_img != NULL) {
+		destroy_image(rule_img);
+		rule_img = NULL;
+	}
+
 	stage_mode = STAGE_MODE_IDLE;
 	destroy_layer_image(LAYER_BG);
 	layer_image[LAYER_BG] = new_bg_img;
@@ -2243,6 +2386,12 @@ void set_ch_fade_progress(float progress)
 void stop_ch_fade(void)
 {
 	assert(stage_mode == STAGE_MODE_CH_FADE);
+
+	/* ルールイメージを破棄する */
+	if (rule_img != NULL) {
+		destroy_image(rule_img);
+		rule_img = NULL;
+	}
 
 	stage_mode = STAGE_MODE_IDLE;
 }

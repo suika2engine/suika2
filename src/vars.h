@@ -50,7 +50,7 @@ bool get_variable_by_string(const char *var, int32_t *val);
 bool set_variable_by_string(const char *var, int32_t val);
 
 /* 文字列の中の変数を展開して返す */
-char *expand_variable(const char *msg);
+const char *expand_variable(const char *msg);
 
 #ifdef USE_DEBUGGER
 /* 変数の値が更新されたかをチェックする */

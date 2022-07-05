@@ -100,7 +100,6 @@ static int msgbox_w;
 static int msgbox_h;
 
 /* 描画するメッセージ */
-static char *msg_top;
 static const char *msg;
 
 /* 文字の色 */
@@ -211,8 +210,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 		frame_main(x, y, w, h);
 
 	/* クイックロード・セーブ・ロード・ヒストリモードが選択された場合 */
-	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode)
+	if (did_quick_load || need_save_mode || need_load_mode || need_history_mode)
 		stop_command_repetition();
 
 	/* 終了処理を行う */
@@ -250,8 +248,7 @@ static bool init(int *x, int *y, int *w, int *h)
 	/* メッセージを取得する */
 	raw_msg = get_command_type() == COMMAND_MESSAGE ?
 		get_line_string() : get_string_param(SERIF_PARAM_MESSAGE);
-	msg_top = expand_variable(raw_msg);
-	msg = msg_top;
+	msg = expand_variable(raw_msg);
 
 	/* セーブ用にメッセージを保存する */
 	if (!set_last_message(msg))
@@ -1049,6 +1046,12 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 /* フレーム描画中のクイックセーブボタン押下を処理する */
 static bool frame_quick_save(void)
 {
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はセーブしない */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1080,6 +1083,12 @@ static bool frame_quick_save(void)
 /* フレーム描画中のクイックロードボタン押下を処理する */
 static bool frame_quick_load(void)
 {
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はロードしない */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1115,6 +1124,12 @@ static bool frame_quick_load(void)
 /* フレーム描画中のセーブボタン押下および右クリックを処理する */
 static bool frame_save(void)
 {
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はセーブしない */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1147,6 +1162,12 @@ static bool frame_save(void)
 /* フレーム描画中のロードボタン押下を処理する */
 static bool frame_load(void)
 {
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はロードしない */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1176,6 +1197,12 @@ static bool frame_load(void)
  * マウスホイール上押下を処理する */
 static bool frame_history(void)
 {
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はヒストリモードに遷移しない */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
 	/* スペースキー押下中は処理しない */
 	if (is_space_pressed)
 		return false;
@@ -1442,9 +1469,6 @@ static bool cleanup(void)
 	/* PCMストリームの再生を終了する */
 	if (!conf_voice_stop_off)
 		set_mixer_input(VOICE_STREAM, NULL);
-
-	/* メッセージを破棄する */
-	free(msg_top);
 
 	/* クリックアニメーションを非表示にする */
 	show_click(false);

@@ -157,12 +157,35 @@ static void load_global_data(void);
  */
 bool init_save(void)
 {
+	int i;
+
 	/* 再利用時のための初期化を行う */
 	load_flag = false;
 	restore_flag = false;
 	is_save_load_mode_enabled = false;
 
+	/* セーブスロットを初期化する */
+	for (i = 0; i < SAVE_SLOTS; i++) {
+		save_time[i] = 0;
+		if (save_title[i] != NULL) {
+			free(save_title[i]);
+			save_title[i] = NULL;
+		}
+		if (save_message[i] != NULL) {
+			free(save_message[i]);
+			save_message[i] = NULL;
+		}
+		if (save_thumb[i] != NULL) {
+			destroy_image(save_thumb[i]);
+			save_thumb[i] = NULL;
+		}
+	}
+
 	/* 文字列を初期化する */
+	if (chapter_name != NULL)
+		free(chapter_name);
+	if (last_message != NULL)
+		free(last_message);
 	chapter_name = strdup("");
 	last_message = strdup("");
 	if (chapter_name == NULL || last_message == NULL) {
@@ -171,6 +194,8 @@ bool init_save(void)
 	}
 
 	/* サムネイルの読み書きのためのヒープを確保する */
+	if (tmp_pixels != NULL)
+		free(tmp_pixels);
 	tmp_pixels = malloc((size_t)(conf_save_data_thumb_width *
 				     conf_save_data_thumb_height * 3));
 	if (tmp_pixels == NULL) {
@@ -234,11 +259,30 @@ static void load_button_conf(void)
  */
 void cleanup_save(void)
 {
+	int i;
+
+	for (i = 0; i < SAVE_SLOTS; i++) {
+		if (save_title[i] != NULL) {
+			free(save_title[i]);
+			save_title[i] = NULL;
+		}
+		if (save_message[i] != NULL) {
+			free(save_message[i]);
+			save_message[i] = NULL;
+		}
+		if (save_thumb[i] != NULL) {
+			destroy_image(save_thumb[i]);
+			save_thumb[i] = NULL;
+		}
+	}
+
 	free(chapter_name);
-	free(last_message);
-	free(tmp_pixels);
 	chapter_name = NULL;
+
+	free(last_message);
 	last_message = NULL;
+
+	free(tmp_pixels);
 	tmp_pixels = NULL;
 
 	/* グローバル変数のセーブを行う */

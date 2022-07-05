@@ -25,12 +25,6 @@ static float span;
 /* フェードメソッド */
 static int fade_method;
 
-/* フェードイン中のイメージ */
-static struct image *img;
-
-/* ルール画像 */
-static struct image *rule_img;
-
 /*
  * 前方参照
  */
@@ -64,6 +58,7 @@ bool bg_command(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(void)
 {
+	static struct image *img, *rule_img;
 	const char *fname, *method;
 
 	/* パラメータを取得する */
@@ -94,6 +89,7 @@ static bool init(void)
 			log_script_exec_footer();
 			return false;
 		}
+		set_rule_image(rule_img);
 	}
 
 	/* 色指定の場合 */
@@ -180,26 +176,15 @@ static void draw(void)
 	}
 
 	/* ステージを描画する */
-	if (is_in_command_repetition()) {
-		if (fade_method != FADE_METHOD_RULE)
-			draw_stage_bg_fade(fade_method);
-		else
-			draw_stage_fade_rule(rule_img);
-
-	} else {
+	if (is_in_command_repetition())
+		draw_stage_bg_fade(fade_method);
+	else
 		draw_stage();
-	}
 }
 
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* ルールイメージを破棄する */
-	if (rule_img != NULL) {
-		destroy_image(rule_img);
-		rule_img = NULL;
-	}
-
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

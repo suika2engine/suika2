@@ -20,7 +20,6 @@
 static stop_watch_t sw;
 static float span;
 static int fade_method;
-static struct image *rule_img;
 
 static bool init(void);
 static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
@@ -55,7 +54,7 @@ bool chs_command(int *x, int *y, int *w, int *h)
  */
 static bool init(void)
 {
-	struct image *img[PARAM_SIZE];
+	struct image *img[PARAM_SIZE], *rule_img;
 	const char *fname[PARAM_SIZE];
 	bool stay[PARAM_SIZE];
 	int x[PARAM_SIZE];
@@ -153,6 +152,7 @@ static bool init(void)
 			log_script_exec_footer();
 			return false;
 		}
+		set_rule_image(rule_img);
 	}
 
 	/* キーが押されているか、フェードしない場合 */
@@ -252,25 +252,15 @@ static void draw(void)
 	}
 
 	/* ステージを描画する */
-	if (is_in_command_repetition()) {
-		if (fade_method != FADE_METHOD_RULE)
-			draw_stage_ch_fade(fade_method);
-		else
-			draw_stage_fade_rule(rule_img);
-	} else {
+	if (is_in_command_repetition())
+		draw_stage_ch_fade(fade_method);
+	else
 		draw_stage();
-	}
 }
 
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* ルールイメージを破棄する */
-	if (rule_img != NULL) {
-		destroy_image(rule_img);
-		rule_img = NULL;
-	}
-
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

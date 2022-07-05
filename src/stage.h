@@ -96,8 +96,11 @@ void draw_stage_bg_fade(int fade_method);
 /* キャラフェードモードが有効な際のステージ描画を行う */
 void draw_stage_ch_fade(int fade_method);
 
+/* ルール画像を設定する */
+void set_rule_image(struct image *img);
+
 /* 背景/キャラフェードモードが有効な際のステージ描画を行う (ルール使用) */
-void draw_stage_fade_rule(struct image *rule_img);
+void draw_stage_fade_rule(void);
 
 /* 画面揺らしモードが有効な際のステージ描画を行う */
 void draw_stage_shake(void);

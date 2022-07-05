@@ -24,6 +24,9 @@ static int32_t local_var_tbl[LOCAL_VAR_SIZE];
  */
 static int32_t global_var_tbl[GLOBAL_VAR_SIZE];
 
+/* expand_variable()のバッファ */
+static char expand_variable_buf[4096];
+
 #ifdef USE_DEBUGGER
 static bool flag_var_updated;
 static int updated_index;
@@ -149,15 +152,16 @@ bool set_variable_by_string(const char *var, int32_t val)
 /*
  * 文字列の中の変数を展開して返す
  */
-char *expand_variable(const char *msg)
+const char *expand_variable(const char *msg)
 {
-	char dst[1024];
 	char var[5];
 	char *d;
+	size_t buf_size;
 	int i, index;
 
-	d = dst;
-	while (*msg && d < &dst[sizeof(dst) - 2]) {
+	d = expand_variable_buf;
+	buf_size = sizeof(expand_variable_buf);
+	while (*msg && d < &expand_variable_buf[buf_size - 2]) {
 		/* 変数参照の場合 */
 		if (*msg == '$') {
 			/* エスケープの場合 */
@@ -181,8 +185,11 @@ char *expand_variable(const char *msg)
 			if (i > 0) {
 				index = atoi(var);
 				if (index >= 0 && index < VAR_SIZE) {
-					d += snprintf(d, sizeof(dst) -
-						      (size_t)(d - dst), "%d",
+					d += snprintf(d,
+						      buf_size -
+						      (size_t)(d -
+							       expand_variable_buf),
+						      "%d",
 						      get_variable(index));
 				}
 			} else {
@@ -196,7 +203,7 @@ char *expand_variable(const char *msg)
 	}
 
 	*d = '\0';
-	return strdup(dst);
+	return expand_variable_buf;
 }
 
 /*
