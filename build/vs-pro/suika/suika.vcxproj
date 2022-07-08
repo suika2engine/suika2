@@ -36,6 +36,8 @@
     <ClInclude Include="..\..\..\src\dsvideo.h" />
     <ClInclude Include="..\..\..\src\event.h" />
     <ClInclude Include="..\..\..\src\file.h" />
+    <ClInclude Include="..\..\..\src\glhelper.h" />
+    <ClInclude Include="..\..\..\src\glrender.h" />
     <ClInclude Include="..\..\..\src\glyph.h" />
     <ClInclude Include="..\..\..\src\history.h" />
     <ClInclude Include="..\..\..\src\image.h" />
@@ -71,6 +73,7 @@
     <ClCompile Include="..\..\..\src\cmd_bgm.c" />
     <ClCompile Include="..\..\..\src\cmd_ch.c" />
     <ClCompile Include="..\..\..\src\cmd_cha.c" />
+    <ClCompile Include="..\..\..\src\cmd_chapter.c" />
     <ClCompile Include="..\..\..\src\cmd_chs.c" />
     <ClCompile Include="..\..\..\src\cmd_click.c" />
     <ClCompile Include="..\..\..\src\cmd_gosub.c" />
@@ -95,6 +98,7 @@
     <ClCompile Include="..\..\..\src\dsvideo.cc" />
     <ClCompile Include="..\..\..\src\event.c" />
     <ClCompile Include="..\..\..\src\file.c" />
+    <ClCompile Include="..\..\..\src\glrender.c" />
     <ClCompile Include="..\..\..\src\glyph.c" />
     <ClCompile Include="..\..\..\src\history.c" />
     <ClCompile Include="..\..\..\src\image.c" />
@@ -198,7 +202,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;comctl32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease;..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -222,7 +226,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;comctl32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

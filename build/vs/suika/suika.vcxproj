@@ -71,6 +71,7 @@
     <ClCompile Include="..\..\..\src\cmd_bgm.c" />
     <ClCompile Include="..\..\..\src\cmd_ch.c" />
     <ClCompile Include="..\..\..\src\cmd_cha.c" />
+    <ClCompile Include="..\..\..\src\cmd_chapter.c" />
     <ClCompile Include="..\..\..\src\cmd_chs.c" />
     <ClCompile Include="..\..\..\src\cmd_click.c" />
     <ClCompile Include="..\..\..\src\cmd_gosub.c" />

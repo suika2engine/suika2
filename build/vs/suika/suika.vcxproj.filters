@@ -269,5 +269,8 @@
     <ClCompile Include="..\..\..\src\glrender.c">
       <Filter>Source File</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_chapter.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
