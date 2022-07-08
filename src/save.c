@@ -384,7 +384,7 @@ static void stop_save_load_mode(int *x, int *y, int *w, int *h)
 	is_save_load_mode_enabled = false;
 
 	/* ステージを再描画する */
-	draw_stage();
+	draw_stage_with_button(0, 0, 0, 0);
 
 	/* ステージ全体をウィンドウに転送する */
 	*x = 0;
