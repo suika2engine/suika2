@@ -844,15 +844,7 @@ bool exit_dialog(void)
 //
 bool title_dialog(void)
 {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-    [alert setMessageText:conf_language == NULL ? @"タイトルへ戻りますか？" :
-               @"Are you sure you want to go to title?"];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    if ([alert runModal] == NSAlertFirstButtonReturn)
-        return true;
-    return false;
+    return true;
 }
 
 //
