@@ -516,6 +516,7 @@ static void draw_elements(int dst_left, int dst_top,
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	/* 図形を描画する */
+#if 0
 	if (width == 1 && height == 1) {
 		glDrawElements(GL_POINTS, 1, GL_UNSIGNED_SHORT, 0);
 	} else if (width == 1) {
@@ -524,6 +525,9 @@ static void draw_elements(int dst_left, int dst_top,
 	} else if (height == 1 && alpha < 255) {
 		glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, 0);
 	} else {
+#endif
 		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
+#if 0
 	}
+#endif
 }

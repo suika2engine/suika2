@@ -146,6 +146,18 @@ BOOL isControlPressed;
         return;
     }
 
+    // OpenGLの描画を開始する
+    opengl_start_rendering();
+
+    // フレーム描画イベントを実行する
+    int x = 0, y = 0, w = 0, h = 0;
+    if (!on_event_frame(&x, &y, &w, &h))
+        isFinished = YES;
+
+    // OpenGLの描画を終了する
+    opengl_end_rendering();
+
+    // drawRectの呼び出しを予約する
     [self setNeedsDisplay:YES];
 }
 
@@ -156,19 +168,7 @@ BOOL isControlPressed;
     if (isFinished)
         return;
 
-    // OpenGLの描画を開始する
-    opengl_start_rendering();
-
-    // フレーム描画イベントを実行する
-    int x = 0, y = 0, w = 0, h = 0;
-    bool cont = on_event_frame(&x, &y, &w, &h);
-
-    // OpenGLの描画を終了する
-    opengl_end_rendering();
     [[self openGLContext] flushBuffer];
-
-    if (!cont)
-        isFinished = YES;
 }
 
 // マウス押下イベント
@@ -844,7 +844,15 @@ bool exit_dialog(void)
 //
 bool title_dialog(void)
 {
-    return true;
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+    [alert setMessageText:conf_language == NULL ? @"タイトルへ戻りますか？" :
+               @"Are you sure you want to go to title?"];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    if ([alert runModal] == NSAlertFirstButtonReturn)
+        return true;
+    return false;
 }
 
 //
