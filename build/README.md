@@ -40,7 +40,9 @@ How to build
 
 * Android App
     * Install Android Studio.
-    * Install CMake and NDK.
+    * In Tools -> SDK Manager -> SDK Tools:
+        * Install CMake (3.18.1)
+        * Install NDK (24.0.8215888)
     * In terminal, enter `build/android` directory.
         * Run `./prepare-libs.sh` to decompress libraries.
     * Open Suika2 project (`build/android`).
