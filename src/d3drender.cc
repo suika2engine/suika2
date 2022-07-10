@@ -428,7 +428,7 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	}
 
 	// 描画の必要があるか判定する
-	if(alpha == 0 || width == 0 || height == 0)
+	if(width == 0 || height == 0)
 		return;	// 描画の必要がない
 	if(!clip_by_source(get_image_width(src_image), get_image_height(src_image),
 					   &width, &height, &dst_left, &dst_top, &src_left,
@@ -535,6 +535,7 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	}
 	else if(height == 1)
 	{
+		v[1].y += 1.0f;
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v,
 									sizeof(VertexRHWTex));
 	}
