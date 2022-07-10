@@ -127,6 +127,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 			// JNIコードで初期化処理を実行する
+			isActivie=true;
 			init();
 		}
 
@@ -135,6 +136,7 @@ public class MainActivity extends Activity {
 		 */
 		@Override
 		public void onSurfaceChanged(GL10 gl, int width, int height) {
+			isActivie=true;
 			// ゲーム画面のアスペクト比を求める
 			float aspect = (float)VIEWPORT_HEIGHT / (float)VIEWPORT_WIDTH;
 
@@ -165,6 +167,11 @@ public class MainActivity extends Activity {
 		public void onDrawFrame(GL10 gl) {
 			if(isFinished)
 				return;
+
+			if(!isActivie)
+				return;
+
+
 
 			// JNIコードでフレームを処理する
 			if(!frame()) {
@@ -223,6 +230,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onPause() {
 		super.onPause();
+		isActivie=false;
 
 		// サウンドの再生を一時停止する
 		for(int i=0; i<player.length; i++) {
@@ -242,7 +250,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-
+		isActivie=true;
 		// サウンドの再生を再開する
 		for(int i=0; i<player.length; i++)
 			if(player[i] != null)
@@ -282,6 +290,9 @@ public class MainActivity extends Activity {
 	 */
 
 	/** 音声の再生を開始します。 */
+
+	private boolean isActivie=false;
+
 	private void playSound(int stream, String fileName, boolean loop) {
 		assert stream >= 0 && stream < MIXER_STREAMS;
 
