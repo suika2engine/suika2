@@ -50,6 +50,7 @@ LDFLAGS = \
 	-lwinmm \
 	-lcomctl32 \
 	-lopengl32 \
+	-ld3d9 \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 
@@ -64,7 +65,8 @@ SRCS_C = \
 	../../src/windebug.c \
 	../../src/package.c \
 	../../src/dsound.c \
-	../../src/glrender.c
+	../../src/glrender.c \
+	../../src/d3drender.cc
 
 SRCS_CC = \
 	../../src/dsvideo.cc
