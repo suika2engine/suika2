@@ -582,7 +582,7 @@ static bool create_fade_layer_images(void)
 	if (layer_image[LAYER_FI] == NULL)
 		return false;
 
-	if (is_opengl_enabled()) {
+	if (is_gpu_accelerated()) {
 		/* 時間のかかるGPUテクスチャ生成を先に行っておく */
 		lock_image(layer_image[LAYER_FO]);
 		unlock_image(layer_image[LAYER_FO]);
@@ -704,7 +704,7 @@ void draw_stage(void)
  */
 void draw_stage_keep(void)
 {
-	if (is_opengl_enabled())
+	if (is_gpu_accelerated())
 		draw_stage();
 }
 
@@ -718,7 +718,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
 
-	if (is_opengl_enabled()) {
+	if (is_gpu_accelerated()) {
 		x = 0;
 		y = 0;
 		w = conf_window_width;
@@ -1741,7 +1741,7 @@ void draw_stage_with_button(int x, int y, int w, int h)
  */
 void draw_stage_with_button_keep(int x, int y, int w, int h)
 {
-	if (is_opengl_enabled())
+	if (is_gpu_accelerated())
 		draw_stage_with_button(x, y, w, h);
 }
 
@@ -1755,7 +1755,7 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
-	if (is_opengl_enabled()) {
+	if (is_gpu_accelerated()) {
 		/* 背景を描画する */
 		render_image(0, 0, layer_image[LAYER_FO],
 			     get_image_width(layer_image[LAYER_FO]),
@@ -1796,7 +1796,7 @@ void draw_stage_history(void)
  */
 void draw_stage_history_keep(void)
 {
-	if (is_opengl_enabled())
+	if (is_gpu_accelerated())
 		draw_stage_history();
 }
 

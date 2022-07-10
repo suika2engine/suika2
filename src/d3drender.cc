@@ -19,6 +19,10 @@ extern "C" {
 
 #include <d3d9.h>
 
+// d3dx9_43.dllを不要にするため、シェーダを予めコンパイルするときに使う
+// -ld3dx9をつけて使う
+//#define COMPILE_SHADER
+
 // テクスチャ管理用構造体
 struct TextureListNode
 {
@@ -29,24 +33,19 @@ struct TextureListNode
 	TextureListNode *pNext;
 };
 
-// テクスチャなし座標変換済み頂点
-struct VertexRHW
-{
-	float x, y, z, rhw;
-	DWORD color;
-};
-
-// テクスチャあり座標変換済み頂点
+// 座標変換済み頂点 (テクスチャ2枚)
 struct VertexRHWTex
 {
 	float x, y, z, rhw;
 	DWORD color;
-	float u, v;
+	float u1, v1;
+	float u2, v2;
 };
 
 // Direct3Dオブジェクト
 static LPDIRECT3D9 pD3D;
 static LPDIRECT3DDEVICE9 pD3DDevice;
+static IDirect3DPixelShader9 *pRuleShader;
 
 // テクスチャリストの先頭
 static TextureListNode *pTexList;
@@ -55,8 +54,52 @@ static TextureListNode *pTexList;
 static int nDisplayOffsetX;
 static int nDisplayOffsetY;
 
+#ifdef COMPILE_SHADER
+// ルール付き描画のピクセルシェーダ
+const char szRulePixelShader[] =
+	"ps_1_4               \n"
+	"def c0, 0, 0, 0, 0   \n"
+	"def c1, 1, 1, 1, 1   \n"
+    "texld r0, t0         \n"
+    "texld r1, t1         \n"
+	"sub r1, r1, c2       \n"
+	"cmp r2, r1, c0, c1   \n"
+    "mov r0.a, r2.b       \n";
+
+unsigned char ruleShaderBin[1024];
+#else
+// コンパイル済みのシェーダバイナリ
+const unsigned char ruleShaderBin[] = {
+	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x00,
+	0x01, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x80, 0x3f,
+	0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x80, 0x3f,
+	0x00, 0x00, 0x80, 0x3f, 0x42, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x0f, 0x80, 0x00, 0x00, 0xe4, 0xb0,
+	0x42, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0f, 0x80,
+	0x01, 0x00, 0xe4, 0xb0, 0x03, 0x00, 0x00, 0x00,
+	0x01, 0x00, 0x0f, 0x80, 0x01, 0x00, 0xe4, 0x80,
+	0x02, 0x00, 0xe4, 0xa0, 0x58, 0x00, 0x00, 0x00,
+	0x02, 0x00, 0x0f, 0x80, 0x01, 0x00, 0xe4, 0x80,
+	0x00, 0x00, 0xe4, 0xa0, 0x01, 0x00, 0xe4, 0xa0,
+	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x80,
+	0x02, 0x00, 0xaa, 0x80, 0xff, 0xff, 0x00, 0x00,
+};
+#endif
+
 // 前方参照
 static VOID DestroyDirect3DTextureObjects();
+static VOID DrawPrimitives(int dst_left, int dst_top,
+						   struct image * RESTRICT src_image,
+						   struct image * RESTRICT rule_image,
+						   int width, int height,
+						   int src_left, int src_top,
+						   int alpha, int bt);
+#ifdef COMPILE_SHADER
+static void CompileShader();
+#endif
 
 //
 // Direct3Dの初期化を行う
@@ -67,9 +110,9 @@ BOOL D3DInitialize(HWND hWnd)
 
 	// Direct3Dの作成を行う
 	pD3D = Direct3DCreate9(D3D_SDK_VERSION);
-	if(pD3D == NULL)
+	if (pD3D == NULL)
     {
-		log_api_error("Direct3DCreate9");
+		log_info("Direct3DCreate9() failed.");
         return FALSE;
     }
 
@@ -83,17 +126,37 @@ BOOL D3DInitialize(HWND hWnd)
 	hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 								 D3DCREATE_MIXED_VERTEXPROCESSING, &d3dpp,
 								 &pD3DDevice);
-    if(FAILED(hResult))
+    if (FAILED(hResult))
     {
 		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF,
 									 hWnd, D3DCREATE_MIXED_VERTEXPROCESSING,
 									 &d3dpp, &pD3DDevice);
-		if(FAILED(hResult))
+		if (FAILED(hResult))
         {
-			log_api_error("Direct3D::CreateDevice");
+			log_info("Direct3D::CreateDevice() failed.");
+			pD3D->Release();
+			pD3D = NULL;
             return FALSE;
         }
     }
+
+	// ピクセルシェーダのコンパイルを行う
+#ifdef COMPILE_SHADER
+	// d3dx9_43.dllのある環境でコンパイルして、ruleShaderBinに転写する
+	CompileShader();
+#endif
+
+	// シェーダを作成する
+	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)ruleShaderBin,
+											 &pRuleShader)))
+	{
+		log_info("Direct3DDevice9::CreatePixelShader() failed.");
+		pD3DDevice->Release();
+		pD3DDevice = NULL;
+		pD3D->Release();
+		pD3D = NULL;
+		return FALSE;
+	}
 
     return TRUE;
 }
@@ -106,15 +169,23 @@ VOID D3DCleanup(void)
 	// すべてのDirect3Dテクスチャオブジェクトを破棄する
 	DestroyDirect3DTextureObjects();
 
+	// ピクセルシェーダを破棄する
+	if (pRuleShader != NULL)
+	{
+		pD3DDevice->SetPixelShader(NULL);
+		pRuleShader->Release();
+		pRuleShader = NULL;
+	}
+
 	// Direct3Dデバイスを破棄する
-	if(pD3DDevice != NULL)
+	if (pD3DDevice != NULL)
 	{
 		pD3DDevice->Release();
 		pD3DDevice = NULL;
 	}
 
 	// Direct3Dオブジェクトを破棄する
-	if(pD3D != NULL)
+	if (pD3D != NULL)
 	{
 		pD3D->Release();
 		pD3D = NULL;
@@ -319,8 +390,42 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 					struct image * RESTRICT src_image, int width, int height,
 					int src_left, int src_top, int alpha, int bt)
 {
-	TextureListNode *tex = (TextureListNode *)get_texture_object(src_image);
-	assert(tex != NULL);
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height,
+				   src_left, src_top, alpha, bt);
+}
+
+//
+// イメージをルール付きでレンダリングする
+// (render_image_rule()のDirect3D版実装)
+//
+VOID D3DRenderImageRule(struct image * RESTRICT src_image,
+						struct image * RESTRICT rule_image,
+						int threshold)
+{
+	DrawPrimitives(0, 0, src_image, rule_image,
+				   get_image_width(src_image), get_image_height(src_image),
+				   0, 0, threshold, BLEND_NONE);
+}
+
+// プリミティブを描画する
+static VOID DrawPrimitives(int dst_left, int dst_top,
+						   struct image * RESTRICT src_image,
+						   struct image * RESTRICT rule_image,
+						   int width, int height,
+						   int src_left, int src_top,
+						   int alpha, int bt)
+{
+	// ソース画像のテクスチャを取得する
+	TextureListNode *src_tex = (TextureListNode *)get_texture_object(src_image);
+	assert(src_tex != NULL);
+
+	// ルール画像のテクスチャを取得する
+	TextureListNode *rule_tex = NULL;
+	if (rule_image != NULL)
+	{
+		rule_tex = (TextureListNode *)get_texture_object(rule_image);
+		assert(rule_tex != NULL);
+	}
 
 	// 描画の必要があるか判定する
 	if(alpha == 0 || width == 0 || height == 0)
@@ -343,8 +448,10 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[0].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
 	v[0].z = 0.0f;
 	v[0].rhw = 1.0f;
-	v[0].u = (float)src_left / img_w;
-	v[0].v = (float)src_top / img_h;
+	v[0].u1 = (float)src_left / img_w;
+	v[0].v1 = (float)src_top / img_h;
+	v[0].u2 = v[0].u1;
+	v[0].v2 = v[0].v1;
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
@@ -352,8 +459,10 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[1].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
-	v[1].u = (float)(src_left + width) / img_w;
-	v[1].v = (float)src_top / img_h;
+	v[1].u1 = (float)(src_left + width) / img_w;
+	v[1].v1 = (float)src_top / img_h;
+	v[1].u2 = v[1].u1;
+	v[1].v2 = v[1].v1;
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 左下
@@ -361,8 +470,10 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[2].y = (float)(dst_top + height - 1 - nDisplayOffsetY) + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
-	v[2].u = (float)src_left / img_w;
-	v[2].v = (float)(src_top + height) / img_h;
+	v[2].u1 = (float)src_left / img_w;
+	v[2].v1 = (float)(src_top + height) / img_h;
+	v[2].u2 = v[2].u1;
+	v[2].v2 = v[2].v1;
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
@@ -370,12 +481,16 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	v[3].y = (float)(dst_top + height - 1 - nDisplayOffsetY) + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
-	v[3].u = (float)(src_left + width) / img_w;
-	v[3].v = (float)(src_top + height) / img_h;
+	v[3].u1 = (float)(src_left + width) / img_w;
+	v[3].v1 = (float)(src_top + height) / img_h;
+	v[3].u2 = v[3].u1;
+	v[3].v2 = v[3].v1;
 	v[3].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
-	if(bt != BLEND_NONE)
+	if (rule_image == NULL && bt != BLEND_NONE)
 	{
+		// ブレンドしない場合
+		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -386,13 +501,27 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 	}
-	else
+	else if (rule_image == NULL)
 	{
+		// ブレンドする場合
+		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
+	else
+	{
+		// ルールシェーダを使用する場合
+		FLOAT th = (float)alpha / 255.0f;
+		FLOAT th4[4] = {th, th, th, th};
+		pD3DDevice->SetPixelShader(pRuleShader);
+		pD3DDevice->SetPixelShaderConstantF(2, th4, 1);
+		pD3DDevice->SetTexture(1, rule_tex->pTex);
+		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
+		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	}
 
-	pD3DDevice->SetTexture(0, tex->pTex);
-	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
+	pD3DDevice->SetTexture(0, src_tex->pTex);
+	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2 | D3DFVF_DIFFUSE);
 
 	if(width == 1 && height == 1)
 	{
@@ -416,62 +545,42 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 	}
 }
 
-//
-// イメージをマスク描画でレンダリングする
-// (render_image_mask()のDirect3D版実装)
-//
-VOID D3DRenderImageMask(int dst_left, int dst_top,
-						struct image * RESTRICT src_image, int width,
-						int height, int src_left, int src_top, int mask)
+#ifdef COMPILE_SHADER
+#include <d3dx9.h>
+#include "log.h"
+
+void CompileShader()
 {
-	int a = (int)(255.0f * ((float)mask / 27.0f));
-	D3DRenderImage(dst_left, dst_top, src_image, width, height, src_left,
-				   src_top, a, BLEND_NONE);
+	ID3DXBuffer *pShader;
+	ID3DXBuffer *pError;
+
+	if (FAILED(D3DXAssembleShader(szRulePixelShader,
+								  sizeof(szRulePixelShader) - 1,
+								  0, NULL, 0, &pShader, &pError)))
+	{
+		log_api_error("D3DXAssembleShader");
+
+		LPSTR pszError = (LPSTR)pError->GetBufferPointer();
+		if (pszError != NULL)
+			log_error("%s", pszError);
+
+		exit(1);
+	}
+
+	FILE *fp;
+	fp = fopen("shader.txt", "w");
+	if (fp == NULL)
+		exit(1);
+
+	int size = pShader->GetBufferSize();
+	unsigned char *p = (unsigned char *)pShader->GetBufferPointer();
+	for (int i=0; i<size; i++) {
+		ruleShaderBin[i] = p[i];
+		fprintf(fp, "0x%02x, ", p[i]);
+		if (i % 8 == 7)
+			fprintf(fp, "\n");
+	}
+
+	fclose(fp);
 }
-
-//
-// 矩形をクリアする
-// (render_clear()のDirect3D版実装)
-//
-VOID D3DRenderClear(int left, int top, int width, int height, pixel_t color)
-{
-	UNUSED_PARAMETER(left);
-	UNUSED_PARAMETER(top);
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(color);
-
-/*
-	D3DCOLOR d3dcolor = D3DCOLOR_ARGB(get_pixel_a(color),
-									  get_pixel_r(color),
-									  get_pixel_g(color),
-									  get_pixel_b(color));
-
-	VertexRHW v[4];
-
-	// 左上
-	v[0].x = (float)left;
-	v[0].y = (float)top;
-	v[0].z = 0.0f;
-	v[0].rhw = 1.0f;
-	v[0].color = d3dcolor;
-	v[1].x = (float)(left + width);
-	v[1].y = (float)top;
-	v[1].z = 0.0f;
-	v[1].rhw = 1.0f;
-	v[1].color = d3dcolor;
-	v[2].x = (float)left;
-	v[2].y = (float)(top + height);
-	v[2].z = 0.0f;
-	v[2].rhw = 1.0f;
-	v[2].color = d3dcolor;
-	v[3].x = (float)(left + width);
-	v[3].y = (float)(top + height);
-	v[3].z = 0.0f;
-	v[3].rhw = 1.0f;
-	v[3].color = d3dcolor;
-
-	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
-	pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(VertexRHW));
-*/
-}
+#endif

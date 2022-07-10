@@ -30,9 +30,9 @@ VOID D3DEndFrame(void);
 VOID D3DRenderImage(int dst_left, int dst_top,
 					struct image * RESTRICT src_image, int width, int height,
 					int src_left, int src_top, int alpha, int bt);
-VOID D3DRenderImageMask(int dst_left, int dst_top,
-						struct image * RESTRICT src_image, int width,
-						int height, int src_left, int src_top, int mask);
+VOID D3DRenderImageRule(struct image * RESTRICT src_image,
+						struct image * RESTRICT rule_image,
+						int threshold);
 VOID D3DRenderClear(int left, int top, int width, int height, pixel_t color);
 
 #endif

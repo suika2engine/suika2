@@ -117,7 +117,7 @@ static INLINE uint32_t get_pixel_b_slow(pixel_t p)
 }
 
 /*
- * Macの場合は常にABGR形式(バイト順にRGBA)
+ * Mac/Android/Emscriptenの場合は常にABGR形式(バイト順にRGBA)
  */
 #else
 

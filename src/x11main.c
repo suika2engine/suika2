@@ -1061,6 +1061,14 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 /*
+ * GPUを使うか調べる
+ */
+bool is_gpu_accelerated(void)
+{
+	return is_opengl;
+}
+
+/*
  * OpenGLが有効か調べる
  */
 bool is_opengl_enabled(void)

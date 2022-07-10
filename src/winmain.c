@@ -30,6 +30,8 @@
 #include "windebug.h"
 #endif
 
+#include "d3drender.h"
+
 #include <GL/gl.h>
 #include "glhelper.h"
 #include "glrender.h"
@@ -64,6 +66,9 @@ static char mbszTitle[TITLE_BUF_SIZE];
 
 /* メッセージ変換バッファ */
 static wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
+
+/* Direct3Dを利用するか */
+static BOOL bD3D;
 
 /* OpenGLを利用するか */
 static BOOL bOpenGL;
@@ -254,44 +259,58 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 	/* COMの初期化を行う */
 	hRes = CoInitialize(0);
-	if(hRes != S_OK)
+	if (hRes != S_OK)
 		return FALSE;
 
 	/* パッケージの初期化処理を行う */
-	if(!init_file())
+	if (!init_file())
 		return FALSE;
 
 	/* コンフィグの初期化処理を行う */
-	if(!init_conf())
+	if (!init_conf())
 		return FALSE;
 
 	/* ウィンドウを作成する */
-	if(!InitWindow(hInstance, nCmdShow))
+	if (!InitWindow(hInstance, nCmdShow))
 		return FALSE;
 
 #ifdef USE_DEBUGGER
 	/* デバッガウィンドウを作成する */
-	if(!InitDebuggerWindow(hInstance, nCmdShow))
+	if (!InitDebuggerWindow(hInstance, nCmdShow))
 		return FALSE;
 #endif
 
-	/* OpenGLを初期化する */
-	if(InitOpenGL())
+	/* Direct3Dを初期化する */
+	if (D3DInitialize(hWndMain))
 	{
-		bOpenGL = TRUE;
+		bD3D = TRUE;
 	}
 	else
 	{
 		log_info(conf_language == NULL ?
-				 "OpenGL 2.0はサポートされません。" :
-				 "OpenGL 2.0 is not supported.");
+				 "Direct3D 9はサポートされません。" :
+				 "Direct3D 9 is not supported.");
+
+		/* OpenGLを初期化する */
+		if(InitOpenGL())
+		{
+			bOpenGL = TRUE;
+		}
+		else
+		{
+			log_info(conf_language == NULL ?
+					 "OpenGL 2.0はサポートされません。" :
+					 "OpenGL 2.0 is not supported.");
+
+			/* Direct3D 9とOpenGL 2.0が利用できない場合はGDIを利用する */
+		}
 	}
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
 		return FALSE;
 
-	if(!bOpenGL)
+	if(!bD3D && !bOpenGL)
 	{
 		/* バックイメージを作成する */
 		if(!CreateBackImage())
@@ -308,8 +327,12 @@ static void CleanupApp(void)
 	if (bFullScreen)
 		ToggleFullScreen();
 
+	/* Direct3Dの終了処理を行う */
+	if (bD3D)
+		D3DCleanup();
+
 	/* OpenGLコンテキストを破棄する */
-	if(bOpenGL && hGLRC != NULL)
+	if (bOpenGL && hGLRC != NULL)
 	{
 		cleanup_opengl();
 		wglMakeCurrent(NULL, NULL);
@@ -318,30 +341,30 @@ static void CleanupApp(void)
 	}
 
 	/* ウィンドウのデバイスコンテキストを破棄する */
-	if(hWndDC != NULL)
+	if (hWndDC != NULL)
 	{
 		ReleaseDC(hWndMain, hWndDC);
 		hWndDC = NULL;
 	}
 
-	if(!bOpenGL)
+	if (!bOpenGL)
 	{
 		/* バックイメージのビットマップを破棄する */
-		if(hBitmap != NULL)
+		if (hBitmap != NULL)
 		{
 			DeleteObject(hBitmap);
 			hBitmap = NULL;
 		}
 
 		/* バックイメージのデバイスコンテキストを破棄する */
-		if(hBitmapDC != NULL)
+		if (hBitmapDC != NULL)
 		{
 			DeleteDC(hBitmapDC);
 			hBitmapDC = NULL;
 		}
 
 		/* バックイメージを破棄する */
-		if(BackImage != NULL)
+		if (BackImage != NULL)
 		{
 			destroy_image(BackImage);
 			BackImage = NULL;
@@ -369,8 +392,8 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	int dw, dh, i, cch;
 
 	/* ディスプレイのサイズが足りない場合 */
-	if(GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
-	   GetSystemMetrics(SM_CYVIRTUALSCREEN) < conf_window_height)
+	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
+		GetSystemMetrics(SM_CYVIRTUALSCREEN) < conf_window_height)
 	{
 		MessageBox(NULL, conf_language == NULL ?
 				   "ディスプレイのサイズが足りません。" :
@@ -394,7 +417,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.lpszMenuName   = NULL;
 	wcex.lpszClassName  = szWindowClass;
 	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
-	if(!RegisterClassEx(&wcex))
+	if (!RegisterClassEx(&wcex))
 		return FALSE;
 
 	/* ウィンドウのスタイルを決める */
@@ -434,7 +457,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #endif
 							  conf_window_width + dw, conf_window_height + dh,
 							  NULL, NULL, hInstance, NULL);
-	if(!hWndMain)
+	if (hWndMain == NULL)
 		return FALSE;
 
 	/* ウィンドウのサイズを調整する */
@@ -669,7 +692,12 @@ static void GameLoop(void)
 			continue;
 		}
 
-		if(bOpenGL)
+		if (bD3D)
+		{
+			/* フレームの描画を開始する */
+			D3DStartFrame();
+		}
+		else if (bOpenGL)
 		{
 			/* フレームの描画を開始する */
 			opengl_start_rendering();
@@ -680,7 +708,7 @@ static void GameLoop(void)
 			lock_image(BackImage);
 		}
 
-		/* 描画を行う */
+		/* フレームの実行と描画を行う */
 		bBreak = FALSE;
 		if(!on_event_frame(&x, &y, &w, &h))
 		{
@@ -688,7 +716,12 @@ static void GameLoop(void)
 			bBreak = TRUE;
 		}
 
-		if(bOpenGL)
+		if (bD3D)
+		{
+			/* フレームの描画を終了する */
+			D3DEndFrame();
+		}
+		else if(bOpenGL)
 		{
 			/* フレームの描画を終了する */
 			opengl_end_rendering();
@@ -701,7 +734,7 @@ static void GameLoop(void)
 			/* バックイメージのアンロックを行う */
 			unlock_image(BackImage);
 
-			/* 描画を反映する */
+			/* 描画範囲をウィンドウに転送する */
 			if(w !=0 && h !=0)
 				SyncBackImage(x, y, w, h);
 		}
@@ -711,7 +744,7 @@ static void GameLoop(void)
 
 		/* イベントを処理する */
 		if(!SyncEvents())
-			break;
+			break;	/* 閉じるボタンが押された */
 
 		/* 次の描画までスリープする */
 		if(!WaitForNextFrame())
@@ -751,8 +784,8 @@ static BOOL WaitForNextFrame(void)
 {
 	DWORD end, lap, wait, span;
 
-	/* OpenGLのときは60FPSを目指し、GDIのときは30FPSを目指す */
-	span = !bOpenGL ? FRAME_MILLI : FRAME_MILLI / 2;
+	/* 3Dのときは60FPSを目指し、GDIのときは30FPSを目指す */
+	span = (bD3D || bOpenGL) ? FRAME_MILLI / 2 : FRAME_MILLI;
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -948,6 +981,8 @@ static void ToggleFullScreen(void)
 		MoveWindow(hWndMain, 0, 0, cx, cy, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
+
+		D3DSetDisplayOffset(nOffsetX, nOffsetY);
 	}
 	else
 	{
@@ -970,6 +1005,8 @@ static void ToggleFullScreen(void)
 				   rectWindow.bottom - rectWindow.top, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
+
+		D3DSetDisplayOffset(0, 0);
 	}
 }
 
@@ -1045,7 +1082,7 @@ static void OnPaint(void)
 	PAINTSTRUCT ps;
 
 	hDC = BeginPaint(hWndMain, &ps);
-	if(!bOpenGL && hBitmapDC != NULL)
+	if(!bD3D && !bOpenGL && hBitmapDC != NULL)
 	{
 		BitBlt(hDC,
 			   ps.rcPaint.left,
@@ -1213,6 +1250,17 @@ const char *conv_utf8_to_native(const char *utf8_message)
 }
 
 /*
+ * GPUを使うか調べる
+ */
+bool is_gpu_accelerated(void)
+{
+	if (bD3D || bOpenGL)
+		return TRUE;
+
+	return FALSE;
+}
+
+/*
  * OpenGLが有効か調べる
  */
 bool is_opengl_enabled(void)
@@ -1226,7 +1274,12 @@ bool is_opengl_enabled(void)
 bool lock_texture(int width, int height, pixel_t *pixels,
 				  pixel_t **locked_pixels, void **texture)
 {
-	if(bOpenGL)
+	if (bD3D)
+	{
+		if (D3DLockTexture(width, height, pixels, locked_pixels, texture))
+			return false;
+	}
+	else if (bOpenGL)
 	{
 		if (!opengl_lock_texture(width, height, pixels, locked_pixels,
 								 texture))
@@ -1246,7 +1299,11 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture)
 {
-	if(bOpenGL)
+	if (bD3D)
+	{
+		D3DUnlockTexture(width, height, pixels, locked_pixels, texture);
+	}
+	else if (bOpenGL)
 	{
 		opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
 	}
@@ -1262,7 +1319,9 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-	if(bOpenGL)
+	if (bD3D)
+		D3DDestroyTexture(texture);
+	else if (bOpenGL)
 		opengl_destroy_texture(texture);
 }
 
@@ -1273,7 +1332,12 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-	if(bOpenGL)
+	if (bD3D)
+	{
+		D3DRenderImage(dst_left, dst_top, src_image, width, height, src_left,
+					   src_top, alpha, bt);
+	}
+	else if (bOpenGL)
 	{
 		opengl_render_image(dst_left, dst_top, src_image, width, height,
 							src_left, src_top, alpha, bt);
@@ -1292,7 +1356,9 @@ void render_image_rule(struct image * RESTRICT src_img,
 					   struct image * RESTRICT rule_img,
 					   int threshold)
 {
-	if(bOpenGL)
+	if (bD3D)
+		D3DRenderImageRule(src_img, rule_img, threshold);
+	else if(bOpenGL)
 		opengl_render_image_rule(src_img, rule_img, threshold);
 	else
 		draw_image_rule(BackImage, src_img, rule_img, threshold);

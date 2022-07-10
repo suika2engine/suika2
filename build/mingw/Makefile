@@ -48,6 +48,8 @@ LDFLAGS = \
 	-lstrmiids \
 	-lwinmm \
 	-lopengl32 \
+	-ld3d9 \
+	-ld3dx9 \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 
@@ -60,6 +62,7 @@ SRCS_C = \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
 	../../src/glrender.c \
+	../../src/d3drender.cc \
 	../../src/dsound.c
 
 SRCS_CC = \
