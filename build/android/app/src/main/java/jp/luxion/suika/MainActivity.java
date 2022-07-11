@@ -80,8 +80,11 @@ public class MainActivity extends Activity {
 	/** タッチされている指の数です。 */
 	private int touchCount;
 
-	/** 終了処理が完了しているかを表します。 */
+	/** 終了処理が完了しているかを表します。*/ //表示终止过程是否已经完成
 	private boolean isFinished;
+
+	/** Represents app is active or inactive. */ //代表应用程序处于活动或不活动状态
+	private boolean isActivie;
 
 	/** BE/VOICE/SEのMediaPlayerです。 */
 	private MediaPlayer[] player = new MediaPlayer[MIXER_STREAMS];
@@ -126,8 +129,8 @@ public class MainActivity extends Activity {
 		 */
 		@Override
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+			isActivie = true;
 			// JNIコードで初期化処理を実行する
-			isActivie=true;
 			init();
 		}
 
@@ -136,7 +139,7 @@ public class MainActivity extends Activity {
 		 */
 		@Override
 		public void onSurfaceChanged(GL10 gl, int width, int height) {
-			isActivie=true;
+			isActivie = true;
 			// ゲーム画面のアスペクト比を求める
 			float aspect = (float)VIEWPORT_HEIGHT / (float)VIEWPORT_WIDTH;
 
@@ -170,9 +173,6 @@ public class MainActivity extends Activity {
 
 			if(!isActivie)
 				return;
-
-
-
 			// JNIコードでフレームを処理する
 			if(!frame()) {
 				// JNIコードで終了処理を行う
@@ -230,7 +230,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onPause() {
 		super.onPause();
-		isActivie=false;
+		isActivie = false;
 
 		// サウンドの再生を一時停止する
 		for(int i=0; i<player.length; i++) {
@@ -250,7 +250,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		isActivie=true;
+		isActivie = true;
 		// サウンドの再生を再開する
 		for(int i=0; i<player.length; i++)
 			if(player[i] != null)
@@ -290,9 +290,6 @@ public class MainActivity extends Activity {
 	 */
 
 	/** 音声の再生を開始します。 */
-
-	private boolean isActivie=false;
-
 	private void playSound(int stream, String fileName, boolean loop) {
 		assert stream >= 0 && stream < MIXER_STREAMS;
 
