@@ -8,5 +8,5 @@
 /build
 /captures
 .externalNativeBuild
-
+install_apk_deepin.sh
 /app/release
