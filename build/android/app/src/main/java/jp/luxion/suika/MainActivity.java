@@ -258,18 +258,15 @@ public class MainActivity extends Activity {
 	 */
 	@Override
 	public void onBackPressed() {
-		//super.onBackPressed();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Are you sure to exit?");
-		builder.setNegativeButton("sure", new DialogInterface.OnClickListener()
-		{
+		builder.setTitle("Quit?");
+		builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
 			@Override
-			public void onClick(DialogInterface dialogInterface, int i)
-			{
+			public void onClick(DialogInterface dialogInterface, int i) {
 				finishAndRemoveTask();
 			}
 		});
-		builder.setNeutralButton("no", null);
+		builder.setNeutralButton("No", null);
 		builder.create().show();
 	}
 
