@@ -8,7 +8,9 @@
 package jp.luxion.suika;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.MediaPlayer;
@@ -256,9 +258,19 @@ public class MainActivity extends Activity {
 	 */
 	@Override
 	public void onBackPressed() {
-		super.onBackPressed();
-
-		finishAndRemoveTask();
+		//super.onBackPressed();
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Are you sure to exit?");
+		builder.setNegativeButton("sure", new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i)
+			{
+				finishAndRemoveTask();
+			}
+		});
+		builder.setNeutralButton("no", null);
+		builder.create().show();
 	}
 
 	/**
