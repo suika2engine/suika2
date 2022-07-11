@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 	/** 仮想ビューポートの高さです。 */
 	private static final int VIEWPORT_HEIGHT = 720;
 
-	/** タッチスクロールの1行分の移動距離です */
+	/** タッチスクロールの1行分の移動距離です。 */
 	private static final int LINE_HEIGHT = 10;
 
 	/** ミキサのストリーム数です。 */
@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
 	/** 終了処理が完了しているかを表します。 */
 	private boolean isFinished;
 
-	/** BE/VOICE/SEのMediaPlayerです。 */
+	/** BGM/VOICE/SEのMediaPlayerです。 */
 	private MediaPlayer[] player = new MediaPlayer[MIXER_STREAMS];
 
 	/**
@@ -93,10 +93,12 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		isFinished = false;
+
 		// フルスクリーンにする
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
+
 		// ビューを作成してセットする
 		view = new MainView(this);
 		setContentView(view);
@@ -172,7 +174,7 @@ public class MainActivity extends Activity {
 				cleanup();
 
 				// アプリケーションを終了する
-				finish();
+				finishAndRemoveTask();
 				isFinished = true;
 			}
 		}
@@ -247,6 +249,31 @@ public class MainActivity extends Activity {
 		for(int i=0; i<player.length; i++)
 			if(player[i] != null)
 				player[i].start();
+	}
+
+	/**
+	 * バックキーが押下された際に呼ばれます。
+	 */
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+
+		finishAndRemoveTask();
+	}
+
+	/**
+	 * 終了する際に呼ばれます。
+	 */
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		if(!isFinished) {
+			// JNIコードで終了処理を行う
+			cleanup();
+
+			isFinished = true;
+		}
 	}
 
 	/*
@@ -327,7 +354,7 @@ public class MainActivity extends Activity {
 
 	/** Assetあるいはセーブファイルの内容を取得します。 */
 	private byte[] getFileContent(String fileName) {
-		if (fileName.startsWith("sav/"))
+		if(fileName.startsWith("sav/"))
 			return getSaveFileContent(fileName.split("/")[1]);
 		else
 			return getAssetFileContent(fileName);

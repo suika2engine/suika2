@@ -857,6 +857,12 @@ static bool check_conf(void);
  */
 bool init_conf(void)
 {
+	size_t i;
+
+	/* Androidの場合のために再初期化する */
+	for (i = 0; i < RULE_TBL_SIZE; i++)
+		rule_tbl[i].loaded = false;
+
 	/* コンフィグを読み込む */
 	if (!read_conf())
 		return false;
