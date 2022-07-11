@@ -17,6 +17,22 @@
 
 #define LOG_BUF_SIZE		(1024)
 #define SCROLL_DOWN_MARGIN	(5)
+//
+// Created by Administrator on 2020\2\24 0024.
+//
+
+#include <jni.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <signal.h>
+
+//初始化和注册部分
+ char * class_path_name = "jp/luxion/suika/MainActivity";
+
+#ifndef NELEM
+#define NELEM(x) ((int)(sizeof(x) / sizeof((x)[0])))
+#endif
 
 /*
  * JNI関数呼び出しの間だけ有効なJNIEnvへの参照
@@ -31,8 +47,9 @@ jobject main_activity;
 /*
  * 初期化処理を行います。
  */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_init(
+ 
+
+void init(
 	JNIEnv *env,
 	jobject instance)
 {
@@ -67,8 +84,7 @@ Java_jp_luxion_suika_MainActivity_init(
 /*
  * 終了処理を行います。
  */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_cleanup(
+ void cleanup(
 	JNIEnv *env,
 	jobject instance)
 {
@@ -94,8 +110,7 @@ Java_jp_luxion_suika_MainActivity_cleanup(
 /*
  * フレーム処理を行います。
  */
-JNIEXPORT jboolean JNICALL
-Java_jp_luxion_suika_MainActivity_frame(
+jboolean frame(
 	JNIEnv *env,
 	jobject instance)
 {
@@ -125,8 +140,8 @@ Java_jp_luxion_suika_MainActivity_frame(
 /*
  * タッチ(移動)を処理します。
  */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchMove(
+void 
+touchMove(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
@@ -138,8 +153,7 @@ Java_jp_luxion_suika_MainActivity_touchMove(
 /*
  * タッチ(上スクロール)を処理します。
  */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchScrollUp(
+ void touchScrollUp(
 	JNIEnv *env,
 	jobject instance)
 {
@@ -150,8 +164,7 @@ Java_jp_luxion_suika_MainActivity_touchScrollUp(
 /*
  * タッチ(下スクロール)を処理します。
  */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchScrollDown(
+ void touchScrollDown(
 	JNIEnv *env,
 	jobject instance)
 {
@@ -162,8 +175,7 @@ Java_jp_luxion_suika_MainActivity_touchScrollDown(
 /*
  * タッチ(左クリック)を処理します。
  */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchLeftClick(
+ void touchLeftClick(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
@@ -175,8 +187,7 @@ Java_jp_luxion_suika_MainActivity_touchLeftClick(
 /*
  * タッチ(右クリック)を処理します。
  */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchRightClick(
+ void touchRightClick(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
@@ -184,6 +195,64 @@ Java_jp_luxion_suika_MainActivity_touchRightClick(
 {
         on_event_mouse_press(MOUSE_RIGHT, x, y);
 }
+
+
+
+
+
+
+
+static JNINativeMethod s_methods[] = {
+  {"init","()V",(void*)init},
+ 	{"cleanup","()V",(void*)cleanup},
+	 {"frame","()Z",(void*)frame},
+	  {"touchMove","(II)V",(void*)touchMove},
+	   {"touchScrollUp","()V",(void*)touchScrollUp},
+	    {"touchScrollDown","()V",(void*)touchScrollDown},
+	     {"touchLeftClick","(II)V",(void*)touchLeftClick},
+		  {"touchRightClick","(II)V",(void*)touchRightClick}
+		  
+        
+};
+
+static int
+register_methods(JNIEnv *env, char *class_name, JNINativeMethod *methods, int num_methods) {
+    jclass clazz;
+    clazz = (*env)->FindClass( env,class_name);
+    if (clazz == NULL) {
+        return JNI_FALSE;
+    }
+    if ((*env)->RegisterNatives( env,clazz, methods, num_methods) < 0) {
+        return JNI_FALSE;
+    }
+    return JNI_TRUE;
+}
+
+static int register_natives(JNIEnv *env) {
+    if (!register_methods(env, class_path_name, s_methods, NELEM(s_methods)))
+        return JNI_FALSE;
+
+    return JNI_TRUE;
+}
+
+//听说这是主函数？
+jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    JNIEnv *env = NULL;
+    jint result = -1;
+    //mJavaVm = vm;
+    if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_4) != JNI_OK) {
+        //初始化失败
+    }
+
+    if (register_natives(env) < 0) {
+        //注册本地方法失败
+    }
+
+
+    result = JNI_VERSION_1_4;
+    return result;
+}
+
 
 /*
  * platform.hの実装
