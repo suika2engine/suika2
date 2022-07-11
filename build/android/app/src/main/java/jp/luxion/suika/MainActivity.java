@@ -8,7 +8,9 @@
 package jp.luxion.suika;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.MediaPlayer;
@@ -256,7 +258,24 @@ public class MainActivity extends Activity {
 			if(player[i] != null)
 				player[i].start();
 	}
-
+	//当按下返回键时询问是否退出游戏
+	@Override
+	public void onBackPressed()
+	{
+		//super.onBackPressed();
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Are you sure to exit?");
+		builder.setNegativeButton("sure", new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i)
+			{
+					cleanup();
+			}
+		});
+		builder.setNeutralButton("no", null);
+		builder.create().show();
+	}
 	/*
 	 * ネイティブメソッド
 	 */
