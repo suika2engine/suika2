@@ -1243,8 +1243,10 @@ static bool deserialize_all(const char *fname)
 		if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
 			break;
 
-		/* 章題を読み込む (読み飛ばす) */
+		/* 章題を読み込む */
 		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
+			break;
+		if (!set_chapter_name(tmp_str))
 			break;
 
 		/* メッセージを読み込む (読み飛ばす) */
