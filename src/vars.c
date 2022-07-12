@@ -91,17 +91,6 @@ void set_variable(int index, int32_t val)
 }
 
 /*
- * ロードされた変数を設定する
- */
-void set_loaded_variable(int index, int32_t val)
-{
-	if (index < GLOBAL_VAR_OFFSET)
-		local_var_tbl[index] = val;
-	else
-		global_var_tbl[index - GLOBAL_VAR_OFFSET] = val;
-}
-
-/*
  * 変数を文字列で指定して取得する
  */
 bool get_variable_by_string(const char *var, int32_t *val)
@@ -204,6 +193,22 @@ const char *expand_variable(const char *msg)
 
 	*d = '\0';
 	return expand_variable_buf;
+}
+
+/*
+ * ローカル変数テーブルへのポインタを取得する
+ */
+int32_t *get_local_variables_pointer(void)
+{
+	return local_var_tbl;
+}
+
+/*
+ * ローカル変数テーブルへのポインタを取得する
+ */
+int32_t *get_global_variables_pointer(void)
+{
+	return global_var_tbl;
 }
 
 /*

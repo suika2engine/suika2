@@ -1135,13 +1135,11 @@ static bool serialize_volumes(struct wfile *wf)
 /* ローカル変数をシリアライズする */
 static bool serialize_vars(struct wfile *wf)
 {
-	int i, n;
+	size_t len;
 
-	for (i = 0; i < LOCAL_VAR_SIZE; i++) {
-		n = get_variable(i);
-		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
-			return false;
-	}
+	len = LOCAL_VAR_SIZE * sizeof(int32_t);
+	if (write_wfile(wf, get_local_variables_pointer(), len) < len)
+		return false;
 
 	return true;
 }
@@ -1422,13 +1420,11 @@ static bool deserialize_volumes(struct rfile *rf)
 /* ローカル変数をデシリアライズする */
 static bool deserialize_vars(struct rfile *rf)
 {
-	int i, n;
+	size_t len;
 
-	for (i = 0; i < LOCAL_VAR_SIZE; i++) {
-		if (read_rfile(rf, &n, sizeof(n)) < sizeof(n))
-			return false;
-		set_loaded_variable(i, n);
-	}
+	len = LOCAL_VAR_SIZE * sizeof(int32_t);
+	if (read_rfile(rf, get_local_variables_pointer(), len) < len)
+		return false;
 
 	return true;
 }
@@ -1531,7 +1527,6 @@ static void load_global_data(void)
 	struct rfile *rf;
 	float f;
 	int i;
-	int32_t n;
 
 	/* ファイルを開く */
 	rf = open_rfile(SAVE_DIR, GLOBAL_VARS_FILE, true);
@@ -1539,11 +1534,8 @@ static void load_global_data(void)
 		return;
 
 	/* グローバル変数をデシリアライズする */
-	for (i = 0; i < GLOBAL_VAR_SIZE; i++) {
-		if (read_rfile(rf, &n, sizeof(n)) < sizeof(n))
-			break;
-		set_loaded_variable(GLOBAL_VAR_OFFSET + i, n);
-	}
+	read_rfile(rf, get_global_variables_pointer(),
+		   GLOBAL_VAR_SIZE * sizeof(int32_t));
 
 	/* マスターボリュームをデシリアライズする */
 	for (i = 0; i < MIXER_STREAMS; i++) {
@@ -1552,7 +1544,8 @@ static void load_global_data(void)
 		set_mixer_master_volume(i, f);
 		/*
 		 * load_global_data()はinit_mixer()より後に呼ばれるので、
-		 * ここでset_mixer_master_volume()を呼んでも上書きされない。
+		 * ここでset_mixer_master_volume()を呼んでも、
+		 * init_mixer()に上書きされることはない。
 		 */
 	}
 
@@ -1568,7 +1561,6 @@ void save_global_data(void)
 	struct wfile *wf;
 	float f;
 	int i;
-	int32_t n;
 
 	/* セーブディレクトリを作成する */
 	make_sav_dir();
@@ -1579,11 +1571,8 @@ void save_global_data(void)
 		return;
 
 	/* グローバル変数をシリアライズする */
-	for (i = 0; i < GLOBAL_VAR_SIZE; i++) {
-		n = get_variable(GLOBAL_VAR_OFFSET + i);
-		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
-			break;
-	}
+	write_wfile(wf, get_global_variables_pointer(),
+		    GLOBAL_VAR_SIZE * sizeof(int32_t));
 
 	/* マスターボリュームをシリアライズする */
 	for (i = 0; i < MIXER_STREAMS; i++) {

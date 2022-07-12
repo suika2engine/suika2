@@ -40,9 +40,6 @@ int32_t get_variable(int index);
 /* 変数を設定する */
 void set_variable(int index, int32_t val);
 
-/* ロードされた変数を設定する */
-void set_loaded_variable(int index, int32_t val);
-
 /* 変数を文字列で指定して取得する */
 bool get_variable_by_string(const char *var, int32_t *val);
 
@@ -51,6 +48,12 @@ bool set_variable_by_string(const char *var, int32_t val);
 
 /* 文字列の中の変数を展開して返す */
 const char *expand_variable(const char *msg);
+
+/* ローカル変数テーブルへのポインタを取得する */
+int32_t *get_local_variables_pointer(void);
+
+/* ローカル変数テーブルへのポインタを取得する */
+int32_t *get_global_variables_pointer(void);
 
 #ifdef USE_DEBUGGER
 /* 変数の値が更新されたかをチェックする */
