@@ -108,7 +108,8 @@ struct API
 {
 	void **func;
 	const char *name;
-} api[] =
+};
+static struct API api[] =
 {
 	{(void **)&glCreateShader, "glCreateShader"},
 	{(void **)&glShaderSource, "glShaderSource"},
@@ -135,7 +136,7 @@ struct API
 	{(void **)&glDeleteProgram, "glDeleteProgram"},
 	{(void **)&glDeleteVertexArrays, "glDeleteVertexArrays"},
 	{(void **)&glDeleteBuffers, "glDeleteBuffers"},
-//	{(void **)&glActiveTexture, "glActiveTexture"},
+/*	{(void **)&glActiveTexture, "glActiveTexture"}, */
 };
 #endif
 
@@ -152,17 +153,23 @@ static Atom delete_message = BadAlloc;
 /*
  * 背景イメージ
  */
-struct image *back_image;
+static struct image *back_image;
 
 /*
  * フレーム開始時刻
  */
-struct timeval tv_start;
+static struct timeval tv_start;
 
 /*
  * ログファイル
  */
-FILE *log_fp;
+static FILE *log_fp;
+
+/*
+ * ウィンドウタイトルのバッファ
+ */
+#define TITLE_BUF_SIZE	(1024)
+static char title_buf[TITLE_BUF_SIZE];
 
 /*
  * forward declaration

@@ -379,3 +379,6 @@ serif.color3.outline.b=0
 
 # クリックでボイスを止めない (1:止めない, 0:止める)
 voice.stop.off=0
+
+# フルスクリーンを無効にする (1:無効にする, 1:有効にする)
+window.fullscreen.disable=0

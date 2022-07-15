@@ -230,6 +230,9 @@ int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 /* クリックでボイスを止めない */
 int conf_voice_stop_off;
 
+/* フルスクリーンにしない */
+int conf_window_fullscreen_disable;
+
 /*
  * 1行のサイズ
  */
@@ -847,6 +850,7 @@ struct rule {
 	{"serif.color64.outline.b", 'i', &conf_serif_outline_color_b[63], true, false},
 	/* end codegen */
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
+	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))

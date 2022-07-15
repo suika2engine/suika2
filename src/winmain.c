@@ -423,8 +423,12 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 
 	/* ウィンドウのスタイルを決める */
-	style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-			WS_OVERLAPPED;
+	if (!conf_window_fullscreen_disable) {
+		style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
+			    WS_OVERLAPPED;
+	} else {
+		style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPED;
+	}
 
 	/* フレームのサイズを取得する */
 	dw = GetSystemMetrics(SM_CXFIXEDFRAME) * 2;
@@ -834,7 +838,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SYSKEYDOWN:
 		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
 		{
-			ToggleFullScreen();
+			if (!conf_window_fullscreen_disable)
+				ToggleFullScreen();
 			return 0;
 		}
 		if(wParam != VK_F4)
@@ -910,14 +915,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_NCLBUTTONDBLCLK:
 		if(wParam == HTCAPTION)
 		{
-			ToggleFullScreen();
+			if (!conf_window_fullscreen_disable)
+				ToggleFullScreen();
 			return 0;
 		}
 		break;
 	case WM_SYSCOMMAND:
 		if(wParam == SC_MAXIMIZE)
 		{
-			ToggleFullScreen();
+			if (!conf_window_fullscreen_disable)
+				ToggleFullScreen();
 			return TRUE;
 		}
 		break;

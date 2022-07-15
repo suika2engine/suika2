@@ -385,3 +385,6 @@ serif.color3.outline.b=0
 
 # Don't stop voice when clicked (1:non-stop, 0:stop)
 voice.stop.off=0
+
+# Disable full screen mode (1:disable, 0:enable)
+window.fullscreen.disable=0
