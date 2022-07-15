@@ -1298,20 +1298,22 @@ bool is_video_playing(void)
 void update_window_title(void)
 {
 	XTextProperty tp;
+	char *buf;
 	int ret;
 
 	/* タイトルを作成する */
 	strncpy(title_buf, conf_window_title, TITLE_BUF_SIZE - 1);
-	strncat(title_buf, " | ", TITLE_BUF_SIE - 1);
-	strncat(title_buf, get_chapter_title(), TITLE_BUF_SIE - 1);
-	title_buf[TITLE_BUF_SIE - 1] = '\0';
+	strncat(title_buf, " | ", TITLE_BUF_SIZE - 1);
+	strncat(title_buf, get_chapter_name(), TITLE_BUF_SIZE - 1);
+	title_buf[TITLE_BUF_SIZE - 1] = '\0';
 
 	/* ウィンドウのタイトルを設定する */
-	ret = XmbTextListToTextProperty(display, &title_buf, 1,
+	buf = title_buf;
+	ret = XmbTextListToTextProperty(display, &buf, 1,
 					XCompoundTextStyle, &tp);
 	if (ret == XNoMemory || ret == XLocaleNotSupported) {
 		log_api_error("XmbTextListToTextProperty");
-		return false;
+		return;
 	}
 	XSetWMName(display, window, &tp);
 }
