@@ -27,5 +27,8 @@ bool chapter_command(void)
 		return false;
 	}
 
+	/* ウィンドウタイトルを更新する */
+	update_window_title();
+
 	return move_to_next_command();
 }

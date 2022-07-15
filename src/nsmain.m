@@ -888,3 +888,26 @@ bool is_video_playing(void)
     // stub
     return false;
 }
+
+//
+// ウィンドウタイトルを更新する
+//
+void update_window_title(void)
+{
+    @autoreleasepool {
+        // ウィンドウタイトルを取得する
+        NSString *windowTitle = [[NSString alloc]
+                                    initWithUTF8String:conf_window_title];
+
+        // 章タイトルを取得する
+        NSString *chapterTitle = [[NSString alloc]
+                                     initWithUTF8String:get_chapter_title()];
+
+        // タイトルを連結する
+        NSString *s = [windowTitle stringByAppendingString:@" | "];
+        s = [s stringByAppendingString:chapterTitle];
+
+        // ウィンドウのタイトルを設定する
+        [theWindow setTitle:s];
+    }
+}

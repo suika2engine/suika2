@@ -64,6 +64,9 @@ static const char szWindowClass[] = "suika";
 /* ウィンドウタイトル(ShiftJISに変換後) */
 static char mbszTitle[TITLE_BUF_SIZE];
 
+/* ウィンドウタイトル(UTF-16) */
+static wchar_t wszTitle[TITLE_BUF_SIZE];
+
 /* メッセージ変換バッファ */
 static wchar_t wszMessage[NATIVE_MESSAGE_SIZE];
 
@@ -385,7 +388,6 @@ static void CleanupApp(void)
 /* ウィンドウを作成する */
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
-	wchar_t wszTitle[TITLE_BUF_SIZE];
 	WNDCLASSEX wcex;
 	RECT rc;
 	DWORD style;
@@ -430,22 +432,21 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		 GetSystemMetrics(SM_CYMENU) +
 		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
-	/* ウィンドウのタイトルをUTF-8からShiftJISに変換する */
 #ifdef USE_DEBUGGER
+	/* デバッガを使う場合、ウィンドウタイトルの先頭にProのタイトルを付ける */
 	strcpy(mbszTitle, MSGBOX_TITLE);
 	strcat(mbszTitle, " - ");
+#else
+	mbszTitle[0] = '\0';
 #endif
+
+	/* ウィンドウのタイトルをUTF-8からShiftJISに変換する */
 	cch = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 							  TITLE_BUF_SIZE - 1);
 	wszTitle[cch] = L'\0';
 	WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle, (int)wcslen(wszTitle),
-#ifdef USE_DEBUGGER
-						mbszTitle + strlen(MSGBOX_TITLE) + 3,
-						TITLE_BUF_SIZE - strlen(MSGBOX_TITLE)  - 3 - 1,
-#else
-						mbszTitle,
-						TITLE_BUF_SIZE - 1,
-#endif
+						mbszTitle + strlen(mbszTitle),
+						TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
 						NULL, NULL);
 
 	/* ウィンドウを作成する */
@@ -1487,4 +1488,42 @@ void stop_video(void)
 bool is_video_playing(void)
 {
 	return bDShowMode;
+}
+
+/*
+ * ウィンドウタイトルを更新する
+ */
+void update_window_title(void)
+{
+	int cch1, cch2, cch3;
+
+#ifdef USE_DEBUGGER
+	/* デバッガを使う場合、先頭にProのタイトルを付ける */
+	strcpy(mbszTitle, MSGBOX_TITLE);
+	strcat(mbszTitle, " - ");
+#else
+	mbszTitle[0] = '\0';
+#endif
+
+	/* コンフィグのウィンドウタイトルをUTF-8からUTF-16に変換する */
+	cch1 = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
+							   TITLE_BUF_SIZE - 1);
+	cch1--;
+	cch2 = MultiByteToWideChar(CP_UTF8, 0, " | ", -1, wszTitle + cch1,
+							   TITLE_BUF_SIZE - cch1 - 1);
+	cch2--;
+	cch3 = MultiByteToWideChar(CP_UTF8, 0, get_chapter_name(), -1,
+							   wszTitle + cch1 + cch2,
+							   TITLE_BUF_SIZE - cch1 - cch2 - 1);
+	cch3--;
+	wszTitle[cch1 + cch2 + cch3] = L'\0';
+
+	/* UTF-16から実行環境の文字コードに変換する */
+	WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle, (int)wcslen(wszTitle),
+						mbszTitle + strlen(mbszTitle),
+						TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
+						NULL, NULL);
+
+	/* ウィンドウのタイトルを設定する */
+	SetWindowText(hWndMain, mbszTitle);
 }

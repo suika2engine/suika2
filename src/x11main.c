@@ -1284,3 +1284,27 @@ bool is_video_playing(void)
 {
 	return false;
 }
+
+/*
+ * ウィンドウタイトルを更新する
+ */
+void update_window_title(void)
+{
+	XTextProperty tp;
+	int ret;
+
+	/* タイトルを作成する */
+	strncpy(title_buf, conf_window_title, TITLE_BUF_SIZE - 1);
+	strncat(title_buf, " | ", TITLE_BUF_SIE - 1);
+	strncat(title_buf, get_chapter_title(), TITLE_BUF_SIE - 1);
+	title_buf[TITLE_BUF_SIE - 1] = '\0';
+
+	/* ウィンドウのタイトルを設定する */
+	ret = XmbTextListToTextProperty(display, &title_buf, 1,
+					XCompoundTextStyle, &tp);
+	if (ret == XNoMemory || ret == XLocaleNotSupported) {
+		log_api_error("XmbTextListToTextProperty");
+		return false;
+	}
+	XSetWMName(display, window, &tp);
+}
