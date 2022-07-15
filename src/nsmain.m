@@ -524,9 +524,11 @@ static BOOL initWindow(void)
                                  backing:NSBackingStoreBuffered
                                    defer:NO];
 #ifndef USE_DEBUGGER
-    [theWindow setCollectionBehavior:
-                   [theWindow collectionBehavior] |
-               NSWindowCollectionBehaviorFullScreenPrimary];
+    if (!conf_window_fullscreen_disable) {
+        [theWindow setCollectionBehavior:
+                       [theWindow collectionBehavior] |
+                   NSWindowCollectionBehaviorFullScreenPrimary];
+    }
 #endif
     [theWindow setTitle:[[NSString alloc]
                             initWithUTF8String:conf_window_title]];
@@ -901,7 +903,7 @@ void update_window_title(void)
 
         // 章タイトルを取得する
         NSString *chapterTitle = [[NSString alloc]
-                                     initWithUTF8String:get_chapter_title()];
+                                     initWithUTF8String:get_chapter_name()];
 
         // タイトルを連結する
         NSString *s = [windowTitle stringByAppendingString:@" | "];
