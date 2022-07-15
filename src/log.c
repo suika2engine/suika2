@@ -231,12 +231,11 @@ void log_script_exec_footer(void)
 	char *line;
 
 	/* コマンドをメッセージに変換する */
-	line = malloc(strlen(get_line_string()) + 1);
+	line = strdup(get_line_string());
 	if (line == NULL) {
 		log_memory();
 	} else {
 		line[0] = '!';
-		strcpy(&line[1], get_line_string());
 		set_error_command(get_command_index(), line);
 	}
 	dbg_set_error_state();

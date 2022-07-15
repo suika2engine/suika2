@@ -38,6 +38,9 @@ static FT_Long font_file_size;
  * 前方参照
  */
 static bool read_font_file_content(void);
+static bool draw_glyph_without_outline(struct image *img, int x, int y,
+				       pixel_t color, uint32_t codepoint,
+				       int *w, int *h);
 static void draw_glyph_func(unsigned char * RESTRICT font, int font_width,
 			    int font_height, int margin_left, int margin_top,
 			    pixel_t * RESTRICT image, int image_width,
@@ -298,6 +301,11 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	FT_BitmapGlyph bitmapGlyph;
 	int descent;
 
+	if (conf_font_outline_remove) {
+		return draw_glyph_without_outline(img, x, y, color, codepoint,
+						  w, h);
+	}
+
 	/* アウトラインを描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
@@ -351,9 +359,9 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	return true;
 }
 
-#if 0
-static bool draw_glyph_old(struct image *img, int x, int y, pixel_t color,
-			   uint32_t codepoint, int *w, int *h)
+static bool draw_glyph_without_outline(struct image *img, int x, int y,
+				       pixel_t color, uint32_t codepoint,
+				       int *w, int *h)
 {
 	FT_Error err;
 	int descent;
@@ -387,8 +395,9 @@ static bool draw_glyph_old(struct image *img, int x, int y, pixel_t color,
 	/* 描画した幅と高さを求める */
 	*w = (int)face->glyph->advance.x / SCALE;
 	*h = conf_font_size + descent;
+
+	return true;
 }
-#endif
 
 /*
  * SSEバージョニングを行わない場合

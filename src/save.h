@@ -64,6 +64,9 @@ bool quick_load(void);
 /* 章題を設定する */
 bool set_chapter_name(const char *name);
 
+/* 章題を取得する */
+const char *get_chapter_name(void);
+
 /* 最後のメッセージを設定する */
 bool set_last_message(const char *msg);
 

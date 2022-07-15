@@ -123,6 +123,9 @@
     <ClInclude Include="..\..\..\src\glrender.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\d3drender.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -282,6 +285,9 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\glrender.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\d3drender.cc">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>

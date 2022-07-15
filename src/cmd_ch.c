@@ -242,6 +242,9 @@ static void draw(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	/* ルール画像を破棄する */
+	set_rule_image(NULL);
+
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

@@ -753,7 +753,9 @@ void draw_stage_rect(int x, int y, int w, int h)
  */
 void set_rule_image(struct image *img)
 {
-	assert(rule_img == NULL);
+	if (img == NULL)
+		if (rule_img != NULL)
+			destroy_image(rule_img);
 
 	rule_img = img;
 }

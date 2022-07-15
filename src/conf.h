@@ -43,6 +43,7 @@ extern int conf_font_color_b;
 extern int conf_font_outline_color_r;
 extern int conf_font_outline_color_g;
 extern int conf_font_outline_color_b;
+extern int conf_font_outline_remove;
 
 /*
  * 名前ボックスの設定
@@ -51,6 +52,8 @@ extern char *conf_namebox_file;
 extern int conf_namebox_x;
 extern int conf_namebox_y;
 extern int conf_namebox_margin_top;
+extern int conf_namebox_centering_no;
+extern int conf_namebox_margin_left;
 
 /*
  * メッセージボックスの設定
@@ -236,7 +239,7 @@ extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
  * その他の設定
  */
 extern int conf_voice_stop_off;
-
+extern int conf_window_fullscreen_disable;
 
 /* コンフィグの初期化処理を行う */
 bool init_conf(void);

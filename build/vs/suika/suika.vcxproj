@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\conf.h" />
+    <ClInclude Include="..\..\..\src\d3drender.h" />
     <ClInclude Include="..\..\..\src\drawglyph.h" />
     <ClInclude Include="..\..\..\src\drawimage.h" />
     <ClInclude Include="..\..\..\src\dsound.h" />
@@ -92,6 +93,7 @@
     <ClCompile Include="..\..\..\src\cmd_vol.c" />
     <ClCompile Include="..\..\..\src\cmd_wait.c" />
     <ClCompile Include="..\..\..\src\conf.c" />
+    <ClCompile Include="..\..\..\src\d3drender.cc" />
     <ClCompile Include="..\..\..\src\dsound.c" />
     <ClCompile Include="..\..\..\src\dsvideo.cc" />
     <ClCompile Include="..\..\..\src\event.c" />
@@ -200,7 +202,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;opengl32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease;..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -223,7 +225,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libpng\projects\vstudio\Release Library;..\libogg\win32\VS2015\Win32\Release;..\libvorbis\win32\VS2010\Win32\Release;..\freetype\objs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;dxguid.lib;winmm.lib;strmiids.lib;opengl32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

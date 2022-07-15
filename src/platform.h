@@ -97,6 +97,9 @@ void stop_video(void);
 /* ビデオが再生中か調べる */
 bool is_video_playing(void);
 
+/* ウィンドウタイトルを更新する */
+void update_window_title(void);
+
 /*
  * デバッガの場合のみ
  */

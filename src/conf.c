@@ -43,6 +43,7 @@ int conf_font_outline_size;
 int conf_font_outline_color_r;
 int conf_font_outline_color_g;
 int conf_font_outline_color_b;
+int conf_font_outline_remove;
 
 /*
  * 名前ボックスの設定
@@ -51,6 +52,8 @@ char *conf_namebox_file;
 int conf_namebox_x;
 int conf_namebox_y;
 int conf_namebox_margin_top;
+int conf_namebox_centering_no;
+int conf_namebox_margin_left;
 
 /*
  * メッセージボックスの設定
@@ -227,6 +230,9 @@ int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 /* クリックでボイスを止めない */
 int conf_voice_stop_off;
 
+/* フルスクリーンにしない */
+int conf_window_fullscreen_disable;
+
 /*
  * 1行のサイズ
  */
@@ -255,10 +261,13 @@ struct rule {
 	{"font.outline.color.r", 'i', &conf_font_outline_color_r, true, false},
 	{"font.outline.color.g", 'i', &conf_font_outline_color_g, true, false},
 	{"font.outline.color.b", 'i', &conf_font_outline_color_b, true, false},
+	{"font.outline.remove", 'i', &conf_font_outline_remove, true, false},
 	{"namebox.file", 's', &conf_namebox_file, false, false},
 	{"namebox.x", 'i', &conf_namebox_x, false, false},
 	{"namebox.y", 'i', &conf_namebox_y, false, false},
 	{"namebox.margin.top", 'i', &conf_namebox_margin_top, false, false},
+	{"namebox.centering.no", 'i', &conf_namebox_centering_no, true, false},
+	{"namebox.margin.left", 'i', &conf_namebox_margin_left, true, false},
 	{"msgbox.bg.file", 's', &conf_msgbox_bg_file, false, false},
 	{"msgbox.fg.file", 's', &conf_msgbox_fg_file, false, false},
 	{"msgbox.x", 'i', &conf_msgbox_x, false, false},
@@ -841,6 +850,7 @@ struct rule {
 	{"serif.color64.outline.b", 'i', &conf_serif_outline_color_b[63], true, false},
 	/* end codegen */
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
+	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))

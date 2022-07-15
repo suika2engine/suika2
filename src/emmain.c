@@ -619,3 +619,10 @@ bool is_video_playing(void)
 	/* stub */
 	return false;
 }
+
+/*
+ * ウィンドウタイトルを更新する
+ */
+void update_window_title(void)
+{
+}

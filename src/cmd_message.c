@@ -460,7 +460,10 @@ static void draw_namebox(void)
 		return;
 
 	/* 描画位置を決める */
-	x = (get_namebox_width() - get_utf8_width(name)) / 2;
+	if (!conf_namebox_centering_no)
+		x = (get_namebox_width() - get_utf8_width(name)) / 2;
+	else
+		x = conf_namebox_margin_left;
 
 	/* 名前ボックスをクリアする */
 	clear_namebox();
