@@ -79,6 +79,8 @@ void set_variable(int index, int32_t val)
 	assert(index < VAR_SIZE);
 
 #ifdef USE_DEBUGGER
+	if (index >= VAR_SIZE)
+		return;
 	flag_var_updated = true;
 	updated_index = index;
 	is_var_changed[index] = true;
