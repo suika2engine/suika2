@@ -71,9 +71,9 @@ build/android/app/.cxx
 build/android/app/src/main/cpp/freetype
 build/android/app/src/main/cpp/libpng
 
-build/linux/*.o
-build/linux/libroot
-build/linux/suika
+build/linux-x86_64/*.o
+build/linux-x86_64/libroot
+build/linux-x86_64/suika
 
 build/linux-arm/*.o
 build/linux-arm/libroot

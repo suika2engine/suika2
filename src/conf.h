@@ -43,6 +43,7 @@ extern int conf_font_color_b;
 extern int conf_font_outline_color_r;
 extern int conf_font_outline_color_g;
 extern int conf_font_outline_color_b;
+extern int conf_font_outline_remove;
 
 /*
  * 名前ボックスの設定

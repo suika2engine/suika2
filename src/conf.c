@@ -43,6 +43,7 @@ int conf_font_outline_size;
 int conf_font_outline_color_r;
 int conf_font_outline_color_g;
 int conf_font_outline_color_b;
+int conf_font_outline_remove;
 
 /*
  * 名前ボックスの設定
@@ -255,6 +256,7 @@ struct rule {
 	{"font.outline.color.r", 'i', &conf_font_outline_color_r, true, false},
 	{"font.outline.color.g", 'i', &conf_font_outline_color_g, true, false},
 	{"font.outline.color.b", 'i', &conf_font_outline_color_b, true, false},
+	{"font.outline.remove", 'i', &conf_font_outline_remove, true, false},
 	{"namebox.file", 's', &conf_namebox_file, false, false},
 	{"namebox.x", 'i', &conf_namebox_x, false, false},
 	{"namebox.y", 'i', &conf_namebox_y, false, false},

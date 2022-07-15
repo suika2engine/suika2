@@ -34,6 +34,9 @@ font.outline.color.r=128
 font.outline.color.g=128
 font.outline.color.b=128
 
+# アウトラインを取り除くか(0ならアウトラインあり、1ならアウトラインなし)
+font.outline.remove=1
+
 ###
 ### 名前ボックスの設定
 ###

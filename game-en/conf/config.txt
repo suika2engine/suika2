@@ -40,6 +40,9 @@ font.outline.color.r=128
 font.outline.color.g=128
 font.outline.color.b=128
 
+# Remove font outline (0:don't remove, 1:remove)
+font.outline.remove=1
+
 ###
 ### Name Box Settings
 ###
