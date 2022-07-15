@@ -52,6 +52,8 @@ extern char *conf_namebox_file;
 extern int conf_namebox_x;
 extern int conf_namebox_y;
 extern int conf_namebox_margin_top;
+extern int conf_namebox_centering_no;
+extern int conf_namebox_margin_left;
 
 /*
  * メッセージボックスの設定

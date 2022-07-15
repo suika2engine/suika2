@@ -41,7 +41,7 @@ font.outline.color.g=128
 font.outline.color.b=128
 
 # Remove font outline (0:don't remove, 1:remove)
-font.outline.remove=1
+font.outline.remove=0
 
 ###
 ### Name Box Settings
@@ -56,6 +56,12 @@ namebox.y=400
 
 # Top margin of text in the name box image
 namebox.margin.top=18
+
+# Don't use centering (0:centering, 1:left justified)
+namebox.centering.no=0
+
+# Left margin of text int the name box image when left justified
+namebox.margin.left=0
 
 ###
 ### Message Box Settings

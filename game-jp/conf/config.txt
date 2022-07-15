@@ -35,7 +35,7 @@ font.outline.color.g=128
 font.outline.color.b=128
 
 # アウトラインを取り除くか(0ならアウトラインあり、1ならアウトラインなし)
-font.outline.remove=1
+font.outline.remove=0
 
 ###
 ### 名前ボックスの設定
@@ -50,6 +50,12 @@ namebox.y=400
 
 # 名前ボックス画像内のテキスト上端マージン
 namebox.margin.top=18
+
+# 名前を中央揃えにしないか(0:中央揃え、1:左揃え)
+namebox.centering.no=0
+
+# 名前を左揃えにするときのテキスト左端マージン
+namebox.margin.left=0
 
 ###
 ### メッセージボックスの設定

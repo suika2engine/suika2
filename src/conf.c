@@ -52,6 +52,8 @@ char *conf_namebox_file;
 int conf_namebox_x;
 int conf_namebox_y;
 int conf_namebox_margin_top;
+int conf_namebox_centering_no;
+int conf_namebox_margin_left;
 
 /*
  * メッセージボックスの設定
@@ -261,6 +263,8 @@ struct rule {
 	{"namebox.x", 'i', &conf_namebox_x, false, false},
 	{"namebox.y", 'i', &conf_namebox_y, false, false},
 	{"namebox.margin.top", 'i', &conf_namebox_margin_top, false, false},
+	{"namebox.centering.no", 'i', &conf_namebox_centering_no, true, false},
+	{"namebox.margin.left", 'i', &conf_namebox_margin_left, true, false},
 	{"msgbox.bg.file", 's', &conf_msgbox_bg_file, false, false},
 	{"msgbox.fg.file", 's', &conf_msgbox_fg_file, false, false},
 	{"msgbox.x", 'i', &conf_msgbox_x, false, false},
