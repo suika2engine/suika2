@@ -385,3 +385,6 @@ window.fullscreen.disable=0
 
 # 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する)
 window.title.chapter.disable=0
+
+# クリックアニメーションの点滅を行わない (1:点滅しない, 0:点滅する)
+click.disable=0

@@ -702,7 +702,14 @@ static void draw_click(int *x, int *y, int *w, int *h)
 	lap = get_stop_watch_lap(&click_sw);
 
 	/* クリックアニメーションの点滅を行う */
-	if (lap % (int)(conf_click_interval * 2 * 1000) <
+	if (conf_click_disable) {
+		if (!is_click_visible) {
+			show_click(true);
+			is_click_visible = true;
+		} else {
+			return;
+		}
+	} else if (lap % (int)(conf_click_interval * 2 * 1000) <
 	    (int)(conf_click_interval * 1000)) {
 		if (!is_click_visible) {
 			show_click(true);

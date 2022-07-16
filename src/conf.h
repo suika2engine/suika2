@@ -241,6 +241,7 @@ extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 extern int conf_voice_stop_off;
 extern int conf_window_fullscreen_disable;
 extern int conf_window_title_chapter_disable;
+extern int conf_click_disable;
 
 /* コンフィグの初期化処理を行う */
 bool init_conf(void);

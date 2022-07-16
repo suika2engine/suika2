@@ -391,3 +391,6 @@ window.fullscreen.disable=0
 
 # Don't reflect chapter name to window title (1:don't reflect, 0:reflect)
 window.title.chapter.disable=0
+
+# Don't blink click animation (1:don't blink, 0:blink)
+click.disable=0
