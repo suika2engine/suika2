@@ -809,8 +809,7 @@ static BOOL WaitForNextFrame(void)
 		}
 
 		/* スリープする時間を求める */
-		wait = (FRAME_MILLI - lap > SLEEP_MILLI) ? SLEEP_MILLI :
-		    FRAME_MILLI - lap;
+		wait = (span - lap > SLEEP_MILLI) ? SLEEP_MILLI : span - lap;
 
 		/* スリープする */
 		Sleep(wait);
