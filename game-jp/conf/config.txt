@@ -11,7 +11,7 @@ window.width=1280
 # ウィンドウの高さ
 window.height=720
 
-# 背景を白にするか(1なら白、0なら黒)
+# 背景を白にするか(1:白, 0:黒)
 window.white=1
 
 ###
@@ -34,7 +34,7 @@ font.outline.color.r=128
 font.outline.color.g=128
 font.outline.color.b=128
 
-# アウトラインを取り除くか(0ならアウトラインあり、1ならアウトラインなし)
+# アウトラインを取り除くか(0:アウトラインあり, 1:アウトラインなし)
 font.outline.remove=0
 
 ###
@@ -51,7 +51,7 @@ namebox.y=400
 # 名前ボックス画像内のテキスト上端マージン
 namebox.margin.top=18
 
-# 名前を中央揃えにしないか(0:中央揃え、1:左揃え)
+# 名前を中央揃えにしないか(0:中央揃え, 1:左揃え)
 namebox.centering.no=0
 
 # 名前を左揃えにするときのテキスト左端マージン
@@ -382,3 +382,6 @@ voice.stop.off=0
 
 # フルスクリーンを無効にする (1:無効にする, 0:有効にする)
 window.fullscreen.disable=0
+
+# 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する)
+window.title.chapter.disable=0
