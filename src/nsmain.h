@@ -22,6 +22,7 @@ enum {
     KC_RETURN = 36,
     KC_UP = 126,
     KC_DOWN = 125,
+    KC_C = 8,
 };
 
 // ビュー

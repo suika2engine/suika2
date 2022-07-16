@@ -295,6 +295,8 @@ BOOL isControlPressed;
             return KEY_UP;
         case KC_DOWN:
             return KEY_DOWN;
+        case KC_C:
+            return KEY_C;
     }
     return -1;
 }

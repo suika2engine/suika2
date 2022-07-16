@@ -26,6 +26,7 @@ enum key_code {
 	KEY_RETURN,
 	KEY_UP,
 	KEY_DOWN,
+	KEY_C,
 };
 
 /*

@@ -956,6 +956,8 @@ static int ConvertKeyCode(int nVK)
 		return KEY_UP;
 	case VK_DOWN:
 		return KEY_DOWN;
+	case 'C':
+		return KEY_C;
 	default:
 		break;
 	}
