@@ -381,6 +381,9 @@ sysmenu.enter.se=click.ogg
 # Sound effect when system menu canceled (optional)
 sysmenu.leave.se=click.ogg
 
+# Sound effect when selected item in system menu changed (optional)
+sysmenu.change.se=btn-change.ogg
+
 ###
 ### Character Message Colors
 ###

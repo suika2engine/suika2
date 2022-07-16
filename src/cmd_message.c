@@ -1482,6 +1482,9 @@ static void frame_sysmenu(void)
 
 		/* セーブが選択されており、左クリックされた場合 */
 		if (is_sysmenu_save_selected && is_left_button_pressed) {
+			/* SEを再生する */
+			play_se(conf_msgbox_btn_save_se);
+
 			/* システムメニューを終了する */
 			is_sysmenu = false;
 			is_sysmenu_finished = true;
@@ -1493,6 +1496,9 @@ static void frame_sysmenu(void)
 
 		/* ロードが選択されており、左クリックされた場合 */
 		if (is_sysmenu_load_selected && is_left_button_pressed) {
+			/* SEを再生する */
+			play_se(conf_msgbox_btn_load_se);
+
 			/* システムメニューを終了する */
 			is_sysmenu = false;
 			is_sysmenu_finished = true;
@@ -1621,8 +1627,10 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_save_y +
 			  conf_sysmenu_save_height) {
 		save = true;
-		if (!is_sysmenu_save_selected)
+		if (!is_sysmenu_save_selected) {
+			play_se(conf_sysmenu_change_se);
 			redraw = true;
+		}
 		is_sysmenu_save_selected = true;
 	} else {
 		is_sysmenu_save_selected = false;
@@ -1636,8 +1644,10 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_load_y +
 			  conf_sysmenu_load_height) {
 		load = true;
-		if (!is_sysmenu_load_selected)
+		if (!is_sysmenu_load_selected) {
+			play_se(conf_sysmenu_change_se);
 			redraw = true;
+		}
 		is_sysmenu_load_selected = true;
 	} else {
 		is_sysmenu_load_selected = false;

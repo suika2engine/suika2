@@ -229,6 +229,7 @@ int conf_sysmenu_load_width;
 int conf_sysmenu_load_height;
 char *conf_sysmenu_enter_se;
 char *conf_sysmenu_leave_se;
+char *conf_sysmenu_change_se;
 
 /*
  * セリフの色付け
@@ -437,6 +438,7 @@ struct rule {
 	{"sysmenu.load.height", 'i', &conf_sysmenu_load_height, false, false},
 	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, true, false},
 	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, true, false},
+	{"sysmenu.change.se", 's', &conf_sysmenu_change_se, true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},

@@ -372,6 +372,9 @@ sysmenu.enter.se=click.ogg
 # システムメニューをキャンセルするときのSE(省略可)
 sysmenu.leave.se=click.ogg
 
+# システムメニューの選択されている項目が変わったときのSE(省略可)
+sysmenu.change.se=btn-change.ogg
+
 ###
 ### セリフの色の設定
 ###

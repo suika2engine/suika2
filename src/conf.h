@@ -239,6 +239,7 @@ extern int conf_sysmenu_load_width;
 extern int conf_sysmenu_load_height;
 extern char *conf_sysmenu_enter_se;
 extern char *conf_sysmenu_leave_se;
+extern char *conf_sysmenu_change_se;
 
 /*
  * セリフの色付け
