@@ -416,7 +416,7 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 		play_se(is_save_mode ? conf_save_cancel_save_se :
 			conf_save_cancel_load_se);
 		stop_save_load_mode(x, y, w, h);
-		restore_flag = false;
+		restore_flag = true;
 		return true;
 	}
 

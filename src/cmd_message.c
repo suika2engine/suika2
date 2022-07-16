@@ -255,7 +255,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 		draw_sysmenu(x, y, w, h);
 
 	/* セーブ・ロード・ヒストリモードへ遷移する */
-	if (need_save_mode || need_load_mode)
+	if (need_save_mode)
 		draw_stage_to_thumb();
 	if (need_save_mode)
 		start_save_mode();

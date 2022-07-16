@@ -78,6 +78,30 @@ static int selected_parent_index;
 /* ポイントされている子項目のインデックス */
 static int pointed_child_index;
 
+/* セーブモードに遷移するか */
+static bool need_save_mode;
+
+/* ロードモードに遷移するか */
+static bool need_load_mode;
+
+/* ヒストリモードに遷移するか */
+static bool need_history_mode;
+
+/* システムメニューを表示中か */
+static bool is_sysmenu;
+
+/* システムメニューの最初のフレームか */
+static bool is_sysmenu_first_frame;
+
+/* システムメニューのセーブボタンがポイントされているか */
+static bool is_sysmenu_save_selected;
+
+/* システムメニューのセーブボタンがポイントされているか */
+static bool is_sysmenu_load_selected;
+
+/* システムメニューが終了した直後か */
+static bool is_sysmenu_finished;
+
 /* 前方参照 */
 static bool init(void);
 static bool get_choose_info(void);
@@ -97,6 +121,9 @@ static void draw_switch_child_images(void);
 static void update_switch_child(int *x, int *y, int *w, int *h);
 static void draw_text(int x, int y, int w, const char *t, bool is_news);
 static void draw_keep(void);
+static void process_sysmenu_click(void);
+static void process_main_click(void);
+static void draw_sysmenu(int *x, int *y, int *w, int *h);
 static void play_se(const char *file);
 static bool cleanup(void);
 
@@ -110,33 +137,38 @@ bool switch_command(int *x, int *y, int *w, int *h)
 		if (!init())
 			return false;
 
-	/* セーブ画面への遷移を確認する */
-	if (selected_parent_index == -1 && is_right_button_pressed &&
-	    is_save_load_enabled()) {
-		draw_keep();
-		draw_stage_fo_thumb();
-		play_se(conf_msgbox_save_se);
-		start_save_mode(false);
-		stop_command_repetition();
-		return true;
-	}
+	/* モードが変更されるクリックを処理する */
+	if (!is_sysmenu)
+		process_main_click();
+	else
+		process_sysmenu_click();
 
-	/* ヒストリ画面への遷移を確認する */
-	if (is_up_pressed && !is_history_empty()) {
-		draw_keep();
-		play_se(conf_msgbox_history_se);
-		start_history_mode();
-		stop_command_repetition();
-		return true;
-	}
-
-	/* 繰り返し動作を行う */
+	/* 描画を行う */
 	draw_frame(x, y, w, h);
+
+	/* セーブ・ロード・ヒストリが選択された場合 */
+	if (need_save_mode || need_load_mode || need_history_mode)
+		stop_command_repetition();
 
 	/* 終了処理を行う */
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
+
+	/* セーブ・ロード・ヒストリ画面に移行する */
+	if (need_save_mode) {
+		draw_stage_fo_thumb();
+		play_se(conf_msgbox_btn_save_se);
+		start_save_mode();
+	}
+	if (need_load_mode) {
+		play_se(conf_msgbox_btn_load_se);
+		start_load_mode();
+	}
+	if (need_history_mode) {
+		play_se(conf_msgbox_history_se);
+		start_history_mode();
+	}
 
 	return true;
 }
@@ -153,6 +185,10 @@ bool init(void)
 	selected_parent_index = -1;
 	pointed_child_index = -1;
 	is_child_first_frame = false;
+	is_sysmenu = false;
+	need_save_mode = false;
+	need_load_mode = false;
+	need_history_mode = false;
 
 	type = get_command_type();
 	if (type == COMMAND_CHOOSE) {
@@ -435,6 +471,10 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		/* 子選択肢を選んでいる最中の場合 */
 		draw_frame_child(x, y, w, h);
 	}
+
+	/* システムメニューを表示中の場合 */
+	if (is_sysmenu)
+		draw_sysmenu(x, y, w, h);
 }
 
 /* 親選択肢の描画を行う */
@@ -769,6 +809,133 @@ static void draw_keep(void)
 	draw_stage_with_button_keep(x, y, w, h);
 }
 
+/* システムメニュー非表示中のクリックを処理する */
+static void process_main_click(void)
+{
+	/* 右クリックでシステムメニューを開始する */
+	if (selected_parent_index == -1 && is_right_button_pressed &&
+	    is_save_load_enabled()) {
+		/* SEを再生する */
+		play_se(conf_sysmenu_enter_se);
+
+		/* システムメニューを表示する */
+		is_sysmenu = true;
+		is_sysmenu_first_frame = true;
+		is_sysmenu_save_selected = false;
+		is_sysmenu_load_selected = false;
+		is_sysmenu_finished = false;
+		return;
+	}
+
+	/* ヒストリ画面への遷移を確認する */
+	if (is_up_pressed && !is_history_empty()) {
+		need_history_mode = true;
+		return;
+	}
+}
+
+/* システムメニュー表示中のクリックを処理する */
+static void process_sysmenu_click(void)
+{
+	/* 右クリックされた場合 */
+	if (is_right_button_pressed) {
+		/* SEを再生する */
+		play_se(conf_sysmenu_leave_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		return;
+	}
+
+	/* セーブが選択されており、左クリックされた場合 */
+	if (is_sysmenu_save_selected && is_left_button_pressed) {
+		/* SEを再生する */
+		play_se(conf_msgbox_btn_save_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+
+		/* セーブモードに移行する */
+		need_save_mode = true;
+		return;
+	}
+
+	/* ロードが選択されており、左クリックされた場合 */
+	if (is_sysmenu_load_selected && is_left_button_pressed) {
+		/* SEを再生する */
+		play_se(conf_msgbox_btn_load_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+
+		/* ロードモードに移行する */
+		need_load_mode = true;
+		return;
+	}
+}
+
+/* システムメニューを描画する */
+static void draw_sysmenu(int *x, int *y, int *w, int *h)
+{
+	bool save, load, redraw;
+
+	/* 描画するかを判定する */
+	save = false;
+	load = false;
+	redraw = false;
+
+	/* システムメニューの最初のフレームの場合、描画する */
+	if (is_sysmenu_first_frame) {
+		redraw = true;
+		is_sysmenu_first_frame = false;
+	}
+
+	/* セーブボタンがポイントされているかを取得する */
+	if (mouse_pos_x >= conf_sysmenu_x + conf_sysmenu_save_x &&
+	    mouse_pos_x < conf_sysmenu_x + conf_sysmenu_save_x +
+			  conf_sysmenu_save_width &&
+	    mouse_pos_y >= conf_sysmenu_y + conf_sysmenu_save_y &&
+	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_save_y +
+			  conf_sysmenu_save_height) {
+		save = true;
+		if (!is_sysmenu_save_selected) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
+		is_sysmenu_save_selected = true;
+	} else {
+		is_sysmenu_save_selected = false;
+	}
+
+	/* ロードボタンがポイントされているかを取得する */
+	if (mouse_pos_x >= conf_sysmenu_x + conf_sysmenu_load_x &&
+	    mouse_pos_x < conf_sysmenu_x + conf_sysmenu_load_x +
+			  conf_sysmenu_load_width &&
+	    mouse_pos_y >= conf_sysmenu_y + conf_sysmenu_load_y &&
+	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_load_y +
+			  conf_sysmenu_load_height) {
+		load = true;
+		if (!is_sysmenu_load_selected) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
+		is_sysmenu_load_selected = true;
+	} else {
+		is_sysmenu_load_selected = false;
+	}
+
+	/* GPUを利用している場合 */
+	if (is_gpu_accelerated())
+		redraw = true;
+		
+	/* 描画する */
+	if (redraw)
+		draw_stage_sysmenu(save, load, x, y, w, h);
+}
+
 /* SEを再生する */
 static void play_se(const char *file)
 {
@@ -788,6 +955,9 @@ static void play_se(const char *file)
 static bool cleanup(void)
 {
 	int n, m;
+
+	if (need_save_mode || need_load_mode || need_history_mode)
+		return true;
 
 	n = selected_parent_index;
 
