@@ -408,8 +408,8 @@ struct rule {
 	{"save.title.width", 'i', &conf_save_title_width, false, false},
 	{"save.title.height", 'i', &conf_save_title_height, false, false},
 	{"save.title.txt", 's', &conf_save_title_txt, false, false},
-	{"save.loadtosave.se", 's', &conf_save_loadtosave_se, true, false},
-	{"save.savetoload.se", 's', &conf_save_savetoload_se, true, false},
+	{"save.loadtosave.se", 's', &conf_save_loadtosave_se, true, false}, /* TODO: remove */
+	{"save.savetoload.se", 's', &conf_save_savetoload_se, true, false}, /* TODO: remove */
 	{"save.cancel.save.se", 's', &conf_save_cancel_save_se, true, false},
 	{"save.cancel.load.se", 's', &conf_save_cancel_load_se, true, false},
 	{"save.change.se", 's', &conf_save_change_se, true, false},

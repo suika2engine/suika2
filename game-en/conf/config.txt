@@ -299,16 +299,10 @@ save.title.se=click.ogg
 # Jump target file of the 'return to title' button
 save.title.txt=init.txt
 
-# Sound effect when go to save screen from load screen (optional)
-save.loadtosave.se=click.ogg
-
-# Sound effect when go to load screen from save screen (optional)
-save.savetoload.se=click.ogg
-
-# Sound effect when cancel save screen (@goto $SAVE) by right click (optional)
+# Sound effect when cancel save screen by right click (optional)
 save.cancel.save.se=click.ogg
 
-# Sound effect when cancel load screen (@goto $LOAD) by right click (optional)
+# Sound effect when cancel load screen by right click (optional)
 save.cancel.load.se=click.ogg
 
 # Sound effect when pointed item changed in save/load screen (optional)

@@ -100,9 +100,6 @@ static bool is_save_load_mode_enabled;
 /* セーブモードであるか (falseならロードモード) */
 static bool is_save_mode;
 
-/* goto $LOADまたはgoto $SAVEであるか */
-static bool is_goto;
-
 /* 最初の描画であるか */
 static bool is_first_frame;
 
@@ -324,7 +321,7 @@ bool check_restore_flag(void)
 /*
  * セーブ画面を開始する
  */
-void start_save_mode(bool is_goto_save)
+void start_save_mode(void)
 {
 	/* オートモードを解除する */
 	if (is_auto_mode())
@@ -337,7 +334,6 @@ void start_save_mode(bool is_goto_save)
 	/* セーブ画面を開始する */
 	is_save_load_mode_enabled = true;
 	is_save_mode = true;
-	is_goto = is_goto_save;
 
 	/* 最初のフレームである */
 	is_first_frame = true;
@@ -352,7 +348,7 @@ void start_save_mode(bool is_goto_save)
 /*
  * ロード画面を開始する
  */
-void start_load_mode(bool is_goto_load)
+void start_load_mode(void)
 {
 	/* オートモードを解除する */
 	if (is_auto_mode())
@@ -365,7 +361,6 @@ void start_load_mode(bool is_goto_load)
 	/* セーブ画面を開始する */
 	is_save_load_mode_enabled = true;
 	is_save_mode = false;
-	is_goto = is_goto_load;
 
 	/* 最初のフレームである */
 	is_first_frame = true;
@@ -416,22 +411,12 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 	/* 右クリックされた場合 */
 	if (is_right_button_pressed) {
 		draw_page_keep();
-		if (!is_goto) {
-			/* セーブ・ロードを入れ替える Swap save and load. */
-			if (is_save_mode) {
-				play_se(conf_save_savetoload_se);
-				start_load_mode(is_goto);
-			} else {
-				play_se(conf_save_loadtosave_se);
-				start_save_mode(is_goto);
-			}
-		} else {
-			/* セーブ・ロードをキャンセルする */
-			play_se(is_save_mode ? conf_save_cancel_save_se :
-				conf_save_cancel_load_se);
-			stop_save_load_mode(x, y, w, h);
-			restore_flag = false;
-		}
+
+		/* セーブ・ロードをキャンセルする */
+		play_se(is_save_mode ? conf_save_cancel_save_se :
+			conf_save_cancel_load_se);
+		stop_save_load_mode(x, y, w, h);
+		restore_flag = false;
 		return true;
 	}
 
@@ -747,10 +732,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	if (new_pointed_index == BUTTON_EXIT) {
 		play_se(conf_save_exit_se);
 		stop_save_load_mode(x, y, w, h);
-		if (is_goto)
-			restore_flag = false;
-		else
-			restore_flag = true;
+		restore_flag = true;
 		return true;
 	}
 

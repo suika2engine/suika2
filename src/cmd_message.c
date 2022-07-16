@@ -258,9 +258,9 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (need_save_mode || need_load_mode)
 		draw_stage_to_thumb();
 	if (need_save_mode)
-		start_save_mode(false);
+		start_save_mode();
 	if (need_load_mode)
-		start_load_mode(false);
+		start_load_mode();
 	if (need_history_mode)
 		start_history_mode();
 
@@ -1474,6 +1474,9 @@ static void frame_sysmenu(void)
 	if (is_sysmenu) {
 		/* 右クリックされた場合 */
 		if (is_right_button_pressed) {
+			/* SEを再生する */
+			play_se(conf_sysmenu_leave_se);
+
 			/* システムメニューを終了する */
 			is_sysmenu = false;
 			is_sysmenu_finished = true;

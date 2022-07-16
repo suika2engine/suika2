@@ -290,16 +290,10 @@ save.title.se=click.ogg
 # タイトルへ戻るボタンがクリックされたときのジャンプ先ファイル名
 save.title.txt=init.txt
 
-# ロード画面からセーブ画面に移るときのSE(省略可)
-save.loadtosave.se=click.ogg
-
-# セーブ画面からロード画面に移るときのSE(省略可)
-save.savetoload.se=click.ogg
-
-# セーブ画面(@goto $SAVE)を右クリックでキャンセルするときのSE(省略可)
+# セーブ画面を右クリックでキャンセルするときのSE(省略可)
 save.cancel.save.se=click.ogg
 
-# ロード画面(@goto $LOAD)を右クリックでキャンセルするときのSE(省略可)
+# ロード画面を右クリックでキャンセルするときのSE(省略可)
 save.cancel.load.se=click.ogg
 
 # セーブ・ロード画面で選択項目が変わったときのSE(省略可)

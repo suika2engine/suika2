@@ -38,10 +38,10 @@ bool check_load_flag(void);
 bool check_restore_flag(void);
 
 /* セーブ画面を開始する */
-void start_save_mode(bool is_goto_save);
+void start_save_mode(void);
 
 /* ロード画面を開始する */
-void start_load_mode(bool is_goto_load);
+void start_load_mode(void);
 
 /* セーブ画面が有効であるかを返す */
 bool is_save_load_mode(void);
