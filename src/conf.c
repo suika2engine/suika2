@@ -208,9 +208,27 @@ int conf_history_margin_bottom;
 char *conf_history_cancel_se;
 
 /*
- * メニューの設定
+ * メニュー(@menu)の設定
  */
 char *conf_menu_change_se;
+
+/* 
+ * システムメニューの設定
+ */
+int conf_sysmenu_x;
+int conf_sysmenu_y;
+char *conf_sysmenu_bg_file;
+char *conf_sysmenu_fg_file;
+int conf_sysmenu_save_x;
+int conf_sysmenu_save_y;
+int conf_sysmenu_save_width;
+int conf_sysmenu_save_height;
+int conf_sysmenu_load_x;
+int conf_sysmenu_load_y;
+int conf_sysmenu_load_width;
+int conf_sysmenu_load_height;
+char *conf_sysmenu_enter_se;
+char *conf_sysmenu_leave_se;
 
 /*
  * セリフの色付け
@@ -320,7 +338,7 @@ struct rule {
 	{"msgbox.btn.auto.se", 's', &conf_msgbox_btn_auto_se, true, false},
 	{"msgbox.btn.history.se", 's', &conf_msgbox_btn_history_se, true, false},
 	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, true, false},
-	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false},
+	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false}, /* TODO: remove */
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
 	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, true, false},
 	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, true, false},
@@ -405,6 +423,20 @@ struct rule {
 	{"history.margin.bottom", 'i', &conf_history_margin_bottom, false, false},
 	{"history.cancel.se", 's', &conf_history_cancel_se, true, false},
 	{"menu.change.se", 's', &conf_menu_change_se, true, false},
+	{"sysmenu.x", 'i', &conf_sysmenu_x, false, false},
+	{"sysmenu.y", 'i', &conf_sysmenu_y, false, false},
+	{"sysmenu.bg.file", 's', &conf_sysmenu_bg_file, false, false},
+	{"sysmenu.fg.file", 's', &conf_sysmenu_fg_file, false, false},
+	{"sysmenu.save.x", 'i', &conf_sysmenu_save_x, false, false},
+	{"sysmenu.save.y", 'i', &conf_sysmenu_save_y, false, false},
+	{"sysmenu.save.width", 'i', &conf_sysmenu_save_width, false, false},
+	{"sysmenu.save.height", 'i', &conf_sysmenu_save_height, false, false},
+	{"sysmenu.load.x", 'i', &conf_sysmenu_load_x, false, false},
+	{"sysmenu.load.y", 'i', &conf_sysmenu_load_y, false, false},
+	{"sysmenu.load.width", 'i', &conf_sysmenu_load_width, false, false},
+	{"sysmenu.load.height", 'i', &conf_sysmenu_load_height, false, false},
+	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, true, false},
+	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},
@@ -875,11 +907,8 @@ static bool check_conf(void);
  */
 bool init_conf(void)
 {
-	size_t i;
-
 	/* Androidの場合のために再初期化する */
-	for (i = 0; i < RULE_TBL_SIZE; i++)
-		rule_tbl[i].loaded = false;
+	cleanup_conf();
 
 	/* コンフィグを読み込む */
 	if (!read_conf())
@@ -992,6 +1021,7 @@ void cleanup_conf(void)
 
 	/* 文字列のプロパティは解放する */
 	for (i = 0; i < RULE_TBL_SIZE; i++) {
+		rule_tbl[i].loaded = false;
 		if (rule_tbl[i].type == 's' && rule_tbl[i].val != NULL) {
 			free(*(char **)rule_tbl[i].val);
 			*(char **)rule_tbl[i].val = NULL;

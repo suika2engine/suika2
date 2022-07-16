@@ -343,11 +343,43 @@ history.margin.bottom=20
 history.cancel.se=click.ogg
 
 ###
-### Menu Screen Settings
+### Menu (@menu) Settings
 ###
 
 # Sound effect when pointed index changed (optional)
 menu.change.se=btn-change.ogg
+
+###
+### System Menu Settings
+###
+
+# Position to show the system menu image
+sysmenu.x=0
+sysmenu.y=0
+
+# System menu image (background) file name
+sysmenu.bg.file=sysmenu-bg.png
+
+# System menu image (foreground) file name
+sysmenu.fg.file=sysmenu-fg.png
+
+# Position of save button (Position inside the system menu image)
+sysmenu.save.x=859
+sysmenu.save.y=29
+sysmenu.save.width=170
+sysmenu.save.height=64
+
+# Position of load button (Position inside the system menu image)
+sysmenu.load.x=1059
+sysmenu.load.y=29
+sysmenu.load.width=170
+sysmenu.load.height=64
+
+# Sound effect when system menu called (optional)
+sysmenu.enter.se=click.ogg
+
+# Sound effect when system menu canceled (optional)
+sysmenu.leave.se=click.ogg
 
 ###
 ### Character Message Colors

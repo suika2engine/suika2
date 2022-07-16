@@ -218,9 +218,27 @@ extern int conf_history_margin_bottom;
 extern char *conf_history_cancel_se;
 
 /*
- * メニューの設定
+ * メニュー(@menu)の設定
  */
 extern char *conf_menu_change_se;
+
+/* 
+ * システムメニューの設定
+ */
+extern int conf_sysmenu_x;
+extern int conf_sysmenu_y;
+extern char *conf_sysmenu_bg_file;
+extern char *conf_sysmenu_fg_file;
+extern int conf_sysmenu_save_x;
+extern int conf_sysmenu_save_y;
+extern int conf_sysmenu_save_width;
+extern int conf_sysmenu_save_height;
+extern int conf_sysmenu_load_x;
+extern int conf_sysmenu_load_y;
+extern int conf_sysmenu_load_width;
+extern int conf_sysmenu_load_height;
+extern char *conf_sysmenu_enter_se;
+extern char *conf_sysmenu_leave_se;
 
 /*
  * セリフの色付け

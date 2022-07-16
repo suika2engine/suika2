@@ -129,6 +129,21 @@ static bool escaped;
 /* ポイント中のボタン */
 static int pointed_index;
 
+/* システムメニューを表示中か */
+static bool is_sysmenu;
+
+/* システムメニューの最初のフレームか */
+static bool is_sysmenu_first_frame;
+
+/* システムメニューのセーブボタンがポイントされているか */
+static bool is_sysmenu_save_selected;
+
+/* システムメニューのセーブボタンがポイントされているか */
+static bool is_sysmenu_load_selected;
+
+/* システムメニューが終了した直後か */
+static bool is_sysmenu_finished;
+
 /*
  * 前方参照
  */
@@ -162,7 +177,9 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h);
 static bool check_auto_play_condition(void);
 static int get_wait_time(void);
 static void frame_skip_mode(void);
+static void frame_sysmenu(void);
 static void frame_main(int *x, int *y, int *w, int *h);
+static void draw_sysmenu(int *x, int *y, int *w, int *h);
 static void play_se(const char *file);
 static bool is_skippable(void);
 static bool cleanup(void);
@@ -180,26 +197,37 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* ボタンの描画を行う */
 	frame_draw_buttons(true, x, y, w, h);
 
-	/* クイックセーブを処理する */
-	if (!frame_quick_save()) {
+	/* 各種操作を処理する */
+	do {
+		/* クイックセーブを処理する */
+		if (frame_quick_save())
+			break;
+
 		/* クイックロードを処理する */
-		if (!frame_quick_load()) {
-			/* セーブ画面への遷移を処理する */
-			if (!frame_save()) {
-				/* ロード画面への遷移を処理する */
-				if (!frame_load()) {
-					/* ヒストリ画面への遷移を処理する */
-					if (!frame_history()) {
-						/* オートモードを処理する */
-						frame_auto_mode(x, y, w, h);
-	
-						/* スキップモードを処理する */
-						frame_skip_mode();
-					}
-				}
-			}
-		}
-	}
+		if (frame_quick_load())
+			break;
+
+		/* セーブ画面への遷移を処理する */
+		if (frame_save())
+			break;
+
+		/* ロード画面への遷移を処理する */
+		if (frame_load())
+			break;
+
+		/* ヒストリ画面への遷移を処理する */
+		if (frame_history())
+			break;
+
+		/* オートモードを処理する */
+		frame_auto_mode(x, y, w, h);
+
+		/* スキップモードを処理する */
+		frame_skip_mode();
+
+		/* システムメニューを処理する */
+		frame_sysmenu();
+	} while (0);
 
 	/*
 	 * メイン表示処理を行う
@@ -210,7 +238,8 @@ bool message_command(int *x, int *y, int *w, int *h)
 		frame_main(x, y, w, h);
 
 	/* クイックロード・セーブ・ロード・ヒストリモードが選択された場合 */
-	if (did_quick_load || need_save_mode || need_load_mode || need_history_mode)
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode)
 		stop_command_repetition();
 
 	/* 終了処理を行う */
@@ -220,6 +249,10 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* ステージを描画する */
 	draw_stage_rect(*x, *y, *w, *h);
+
+	/* システムメニューを描画する */
+	if (is_sysmenu)
+		draw_sysmenu(x, y, w, h);
 
 	/* セーブ・ロード・ヒストリモードへ遷移する */
 	if (need_save_mode || need_load_mode)
@@ -309,11 +342,14 @@ static bool init(int *x, int *y, int *w, int *h)
 	/* オートモードの設定をする */
 	is_auto_mode_wait = false;
 
-	/* セーブ・ロード・ヒストリの設定をする */
+	/* セーブ・ロード・ヒストリの設定を行う */
 	did_quick_load = false;
 	need_save_mode = false;
 	need_load_mode = false;
 	need_history_mode = false;
+
+	/* システムメニューの設定を行う */
+	is_sysmenu = false;
 
 	/* ボタンの選択状態を取得する */
 	init_pointed_index();
@@ -912,6 +948,10 @@ static void frame_draw_buttons(bool se, int *x, int *y, int *w, int *h)
 {
 	int last_pointed_index, bx, by, bw, bh;;
 
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return;
+
 	/* スペースキー押下中は処理しない */
 	if (is_space_pressed)
 		return;
@@ -1062,6 +1102,10 @@ static bool frame_quick_save(void)
 		return false;
 #endif
 
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return false;
+
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1099,6 +1143,10 @@ static bool frame_quick_load(void)
 		return false;
 #endif
 
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return false;
+
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1131,7 +1179,7 @@ static bool frame_quick_load(void)
 	return false;
 }
 
-/* フレーム描画中のセーブボタン押下および右クリックを処理する */
+/* フレーム描画中のセーブボタン押下を処理する */
 static bool frame_save(void)
 {
 #ifdef USE_DEBUGGER
@@ -1139,6 +1187,10 @@ static bool frame_save(void)
 	if (dbg_is_stop_requested())
 		return false;
 #endif
+
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return false;
 
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
@@ -1148,14 +1200,10 @@ static bool frame_save(void)
 	if (is_space_pressed)
 		return false;
 
-	/* 右クリックかSAVEボタンが押下されたとき */
-	if (is_right_button_pressed ||
-	    (is_left_button_pressed && pointed_index == BTN_SAVE)) {
+	/* SAVEボタンが押下されたとき */
+	if (is_left_button_pressed && pointed_index == BTN_SAVE) {
 		/* SEを再生する */
-		if (is_right_button_pressed)
-			play_se(conf_msgbox_save_se);
-		else
-			play_se(conf_msgbox_btn_save_se);
+		play_se(conf_msgbox_btn_save_se);
 
 		/* ボイスを停止する */
 		set_mixer_input(VOICE_STREAM, NULL);
@@ -1177,6 +1225,10 @@ static bool frame_load(void)
 	if (dbg_is_stop_requested())
 		return false;
 #endif
+
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return false;
 
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
@@ -1213,6 +1265,10 @@ static bool frame_history(void)
 		return false;
 #endif
 
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return false;
+
 	/* スペースキー押下中は処理しない */
 	if (is_space_pressed)
 		return false;
@@ -1242,6 +1298,10 @@ static bool frame_history(void)
 static void frame_auto_mode(int *x, int *y, int *w, int *h)
 {
 	int lap;
+
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return;
 
 	/* スキップモードの場合、何もしない */
 	if (is_skip_mode())
@@ -1368,6 +1428,10 @@ static int get_wait_time(void)
 /* フレーム描画中のスキップモードの処理を行う */
 static void frame_skip_mode(void)
 {
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return;
+
 	/* オートモードの場合、何もしない */
 	if (is_auto_mode())
 		return;
@@ -1397,16 +1461,88 @@ static void frame_skip_mode(void)
 	}
 }
 
+/* フレーム描画中の右クリック押下を処理する */
+static void frame_sysmenu(void)
+{
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はシステムメニューに入らない */
+	if (dbg_is_stop_requested())
+		return;
+#endif
+
+	/* システムメニューを表示中の場合 */
+	if (is_sysmenu) {
+		/* 右クリックされた場合 */
+		if (is_right_button_pressed) {
+			/* システムメニューを終了する */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+			return;
+		}
+
+		/* セーブが選択されており、左クリックされた場合 */
+		if (is_sysmenu_save_selected && is_left_button_pressed) {
+			/* システムメニューを終了する */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+
+			/* セーブモードに移行する */
+			need_save_mode = true;
+			return;
+		}
+
+		/* ロードが選択されており、左クリックされた場合 */
+		if (is_sysmenu_load_selected && is_left_button_pressed) {
+			/* システムメニューを終了する */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+
+			/* ロードモードに移行する */
+			need_load_mode = true;
+			return;
+		}
+
+		return;
+	}
+
+	/* セーブロード無効時は処理しない */
+	if (!is_save_load_enabled())
+		return;
+
+	/* スペースキー押下中は処理しない */
+	if (is_space_pressed)
+		return;
+
+	/* 右クリックされたとき */
+	if (is_right_button_pressed) {
+		/* ボイスを停止する */
+		set_mixer_input(VOICE_STREAM, NULL);
+
+		/* SEを再生する */
+		play_se(conf_sysmenu_enter_se);
+
+		/* システムメニューを表示する */
+		is_sysmenu = true;
+		is_sysmenu_first_frame = true;
+		is_sysmenu_save_selected = false;
+		is_sysmenu_load_selected = false;
+		is_sysmenu_finished = false;
+	}
+}
+
 /* フレーム描画中のメイン処理を行う */
 static void frame_main(int *x, int *y, int *w, int *h)
 {
 	/* スペースキーの押下を処理する */
 	if (!is_hidden && is_space_pressed) {
+		/* メッセージボックスを非表示にする */
 		is_hidden = true;
 		if (get_command_type() == COMMAND_SERIF)
 			show_namebox(false);
 		show_msgbox(false);
 		show_click(false);
+
+		/* 画面全体を再描画する */
 		*x = 0;
 		*y = 0;
 		*w = conf_window_width;
@@ -1416,11 +1552,14 @@ static void frame_main(int *x, int *y, int *w, int *h)
 
 	/* スペースキーの解放を処理する */
 	if(is_hidden && !is_space_pressed) {
+		/* メッセージボックスを表示する */
 		is_hidden = false;
 		if (get_command_type() == COMMAND_SERIF)
 			show_namebox(true);
 		show_msgbox(true);
 		show_click(true);
+
+		/* 画面全体を再描画する */
 		*x = 0;
 		*y = 0;
 		*w = conf_window_width;
@@ -1429,7 +1568,11 @@ static void frame_main(int *x, int *y, int *w, int *h)
 	}
 
 	/* メインの表示処理を行う */
-	if (!is_hidden) {
+	if (!is_sysmenu) {
+		/* スペースキーが押下中の場合 */
+		if (is_hidden)
+			return;
+
 		/* 入力があったらボイスを止める */
 		if (!conf_voice_stop_off &&
 		    (is_skippable() && !is_non_interruptible() &&
@@ -1439,9 +1582,74 @@ static void frame_main(int *x, int *y, int *w, int *h)
 		/* 文字かクリックアニメーションを描画する */
 		if (drawn_chars < total_chars)
 			draw_msgbox(x, y, w, h);
-		else
+		else if (!is_sysmenu_finished)
 			draw_click(x, y, w, h);
+
+		/* システムメニューが終了された直後の場合 */
+		if (is_sysmenu_finished) {
+			/* 画面全体を再描画する */
+			is_sysmenu_finished = false;
+			*x = 0;
+			*y = 0;
+			*w = conf_window_width;
+			*h = conf_window_height;
+		}
 	}
+}
+
+/* システムメニューを描画する */
+static void draw_sysmenu(int *x, int *y, int *w, int *h)
+{
+	bool save, load, redraw;
+
+	/* 描画するかを判定する */
+	save = false;
+	load = false;
+	redraw = false;
+
+	/* システムメニューの最初のフレームの場合、描画する */
+	if (is_sysmenu_first_frame) {
+		redraw = true;
+		is_sysmenu_first_frame = false;
+	}
+
+	/* セーブボタンがポイントされているかを取得する */
+	if (mouse_pos_x >= conf_sysmenu_x + conf_sysmenu_save_x &&
+	    mouse_pos_x < conf_sysmenu_x + conf_sysmenu_save_x +
+			  conf_sysmenu_save_width &&
+	    mouse_pos_y >= conf_sysmenu_y + conf_sysmenu_save_y &&
+	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_save_y +
+			  conf_sysmenu_save_height) {
+		save = true;
+		if (!is_sysmenu_save_selected)
+			redraw = true;
+		is_sysmenu_save_selected = true;
+	} else {
+		is_sysmenu_save_selected = false;
+	}
+
+	/* ロードボタンがポイントされているかを取得する */
+	if (mouse_pos_x >= conf_sysmenu_x + conf_sysmenu_load_x &&
+	    mouse_pos_x < conf_sysmenu_x + conf_sysmenu_load_x +
+			  conf_sysmenu_load_width &&
+	    mouse_pos_y >= conf_sysmenu_y + conf_sysmenu_load_y &&
+	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_load_y +
+			  conf_sysmenu_load_height) {
+		load = true;
+		if (!is_sysmenu_load_selected)
+			redraw = true;
+		is_sysmenu_load_selected = true;
+	} else {
+		is_sysmenu_load_selected = false;
+	}
+
+	/* GPUを利用している場合 */
+	if (is_gpu_accelerated())
+		redraw = true;
+		
+	/* 描画する */
+	if (redraw)
+		draw_stage_sysmenu(save, load, x, y, w, h);
 }
 
 /* SEを再生する */

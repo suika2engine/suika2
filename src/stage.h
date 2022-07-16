@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -13,7 +13,8 @@
  *  - 2021-06-10 マスクつき描画の対応
  *  - 2021-06-10 キャラクタのアルファ値に対応
  *  - 2021-06-12 画面揺らしモードに対応
- *  - 2021-07-25 エフェクトを増やした Add effects.
+ *  - 2021-07-25 エフェクトを追加
+ *  - 2022-07-16 システムメニューを追加
  */
 
 #ifndef SUIKA_STAGE_H
@@ -124,6 +125,14 @@ void draw_stage_history_keep(void);
 
 /* ステージの背景(FO)と前景(FI)にステージ全体を描画する */
 void draw_stage_fo_fi(void);
+
+/*
+ * システムメニューの描画
+ */
+
+/* システムメニューを描画する */
+void draw_stage_sysmenu(bool is_save_selected, bool is_load_selected,
+			int *x, int *y, int *w, int *h);
 
 /*
  * セーブデータ用サムネイルの描画

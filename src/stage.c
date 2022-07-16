@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -21,6 +21,7 @@
  *  - 2021-07-19 リファクタ
  *  - 2021-07-20 @chsにエフェクト追加
  *  - 2022-06-29 ルール付き描画に対応, マスクつき描画の削除
+ *  - 2022-07-16 システムメニューを追加
  */
 
 #include "suika.h"
@@ -132,6 +133,12 @@ static struct image *load_bg_image;
 /* ロード画面(選択)のイメージ */
 static struct image *load_fg_image;
 
+/* システムメニュー(非選択)のイメージ */
+static struct image *sysmenu_bg_image;
+
+/* システムメニュー(選択)のイメージ */
+static struct image *sysmenu_fg_image;
+
 /* セーブデータ用のサムネイルイメージ */
 static struct image *thumb_image;
 
@@ -200,6 +207,7 @@ static bool setup_click(void);
 static bool setup_switch(void);
 static bool setup_news(void);
 static bool setup_save(void);
+static bool setup_sysmenu(void);
 static bool setup_thumb(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
@@ -293,6 +301,10 @@ bool init_stage(void)
 
 	/* セーブ画面をセットアップする */
 	if (!setup_save())
+		return false;
+
+	/* システムメニューをセットアップする */
+	if (!setup_sysmenu())
 		return false;
 
 	/* セーブデータのサムネイル画像をセットアップする */
@@ -516,6 +528,30 @@ static bool setup_save(void)
 	return true;
 }
 
+/* システムメニューをセットアップする */
+static bool setup_sysmenu(void)
+{
+	/* 再初期化時に破棄する */
+	if (sysmenu_bg_image != NULL)
+		destroy_image(sysmenu_bg_image);
+	if (sysmenu_fg_image != NULL)
+		destroy_image(sysmenu_fg_image);
+
+	/* システムメニュー(非選択)の画像を読み込む */
+	sysmenu_bg_image = create_image_from_file(CG_DIR,
+						  conf_sysmenu_bg_file);
+	if (sysmenu_bg_image == NULL)
+		return false;
+
+	/* システムメニュー(選択)の画像を読み込む */
+	sysmenu_fg_image = create_image_from_file(CG_DIR,
+						  conf_sysmenu_fg_file);
+	if (sysmenu_fg_image == NULL)
+		return false;
+
+	return true;
+}
+
 /* セーブデータのサムネイル画像をセットアップする */
 static bool setup_thumb(void)
 {
@@ -645,6 +681,14 @@ void cleanup_stage(void)
 	if (load_fg_image != NULL) {
 		destroy_image(load_fg_image);
 		load_fg_image = NULL;
+	}
+	if (sysmenu_bg_image != NULL) {
+		destroy_image(sysmenu_bg_image);
+		sysmenu_bg_image = NULL;
+	}
+	if (sysmenu_fg_image != NULL) {
+		destroy_image(sysmenu_fg_image);
+		sysmenu_fg_image = NULL;
 	}
 	if (thumb_image != NULL) {
 		destroy_image(thumb_image);
@@ -1820,6 +1864,58 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+}
+
+/*
+ * システムメニューの描画
+ */
+
+/*
+ * システムメニューを描画する
+ */
+void draw_stage_sysmenu(bool is_save_selected, bool is_load_selected,
+			int *x, int *y, int *w, int *h)
+{
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   conf_sysmenu_x,
+		   conf_sysmenu_y,
+		   get_image_width(sysmenu_bg_image),
+		   get_image_height(sysmenu_bg_image));
+
+	render_image(conf_sysmenu_x,
+		     conf_sysmenu_y,
+		     sysmenu_bg_image,
+		     get_image_width(sysmenu_bg_image),
+		     get_image_height(sysmenu_bg_image),
+		     0,
+		     0,
+		     255,
+		     BLEND_NONE);
+
+	if (is_save_selected) {
+		render_image(conf_sysmenu_x + conf_sysmenu_save_x,
+			     conf_sysmenu_y + conf_sysmenu_save_y,
+			     sysmenu_fg_image,
+			     conf_sysmenu_save_width,
+			     conf_sysmenu_save_height,
+			     conf_sysmenu_save_x,
+			     conf_sysmenu_save_y,
+			     255,
+			     BLEND_NONE);
+	}
+
+	if (is_load_selected) {
+		render_image(conf_sysmenu_x + conf_sysmenu_load_x,
+			     conf_sysmenu_y + conf_sysmenu_load_y,
+			     sysmenu_fg_image,
+			     conf_sysmenu_load_width,
+			     conf_sysmenu_load_height,
+			     conf_sysmenu_load_x,
+			     conf_sysmenu_load_y,
+			     255,
+			     BLEND_NONE);
+	}
 }
 
 /*

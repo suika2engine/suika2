@@ -143,9 +143,6 @@ msgbox.btn.history.se=click.ogg
 # ポイントされているボタンが変更されたときのSE(省略可)
 msgbox.btn.change.se=btn-change.ogg
 
-# 右クリックでセーブ画面を呼び出すときのSE(省略可)
-msgbox.save.se=click.ogg
-
 # 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
 msgbox.history.se=click.ogg
 
@@ -337,11 +334,43 @@ history.margin.bottom=20
 history.cancel.se=click.ogg
 
 ###
-### メニュー画面の設定
+### メニュー(@menu)の設定
 ###
 
 # メニューのポイントされている項目が変わったときのSE(省略可)
 menu.change.se=btn-change.ogg
+
+###
+### システムメニューの設定
+###
+
+# システムメニュー画像の座標
+sysmenu.x=0
+sysmenu.y=0
+
+# システムメニュー画像(非選択時)のファイル名
+sysmenu.bg.file=sysmenu-bg.png
+
+# システムメニュー画像(選択時)のファイル名
+sysmenu.fg.file=sysmenu-fg.png
+
+# セーブボタンの座標(システムメニュー画像内での座標)
+sysmenu.save.x=859
+sysmenu.save.y=29
+sysmenu.save.width=170
+sysmenu.save.height=64
+
+# ロードボタンの座標(システムメニュー画像内での座標)
+sysmenu.load.x=1059
+sysmenu.load.y=29
+sysmenu.load.width=170
+sysmenu.load.height=64
+
+# システムメニューを呼び出すときのSE(省略可)
+sysmenu.enter.se=click.ogg
+
+# システムメニューをキャンセルするときのSE(省略可)
+sysmenu.leave.se=click.ogg
 
 ###
 ### セリフの色の設定
