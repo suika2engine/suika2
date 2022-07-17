@@ -159,11 +159,11 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	if (need_save_mode) {
 		draw_stage_fo_thumb();
 		play_se(conf_msgbox_btn_save_se);
-		start_save_mode();
+		start_save_mode(false);
 	}
 	if (need_load_mode) {
 		play_se(conf_msgbox_btn_load_se);
-		start_load_mode();
+		start_load_mode(false);
 	}
 	if (need_history_mode) {
 		play_se(conf_msgbox_history_se);
@@ -933,7 +933,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		
 	/* 描画する */
 	if (redraw)
-		draw_stage_sysmenu(save, load, x, y, w, h);
+		draw_stage_sysmenu(true, save, load, x, y, w, h);
 }
 
 /* SEを再生する */

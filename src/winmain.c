@@ -19,6 +19,7 @@
 #endif
 
 #include <windows.h>
+#include <io.h>
 
 #include "suika.h"
 #include "dsound.h"
@@ -283,31 +284,36 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 #endif
 
-	/* Direct3Dを初期化する */
-	if (D3DInitialize(hWndMain))
-	{
-		bD3D = TRUE;
-	}
-	else
-	{
-		log_info(conf_language == NULL ?
-				 "Direct3D 9はサポートされません。" :
-				 "Direct3D 9 is not supported.");
-
-		/* OpenGLを初期化する */
-		if(InitOpenGL())
+	/* 描画エンジンを初期化する */
+	do {
+		if (_access("no-direct3d.txt", 0) != 0)
 		{
-			bOpenGL = TRUE;
-		}
-		else
-		{
+			/* Direct3Dを初期化する */
+			if (D3DInitialize(hWndMain))
+			{
+				bD3D = TRUE;
+				break;
+			}
 			log_info(conf_language == NULL ?
-					 "OpenGL 2.0はサポートされません。" :
-					 "OpenGL 2.0 is not supported.");
-
-			/* Direct3D 9とOpenGL 2.0が利用できない場合はGDIを利用する */
+					 "Direct3Dはサポートされません。" :
+					 "Direct3D is not supported.");
 		}
-	}
+
+		if (_access("no-opengl.txt", 0) != 0)
+		{
+			/* OpenGLを初期化する */
+			if(InitOpenGL())
+			{
+				bOpenGL = TRUE;
+				break;
+			}
+			log_info(conf_language == NULL ?
+					 "OpenGLはサポートされません。" :
+					 "OpenGL is not supported.");
+		}
+
+		/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
+	} while (0);
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))

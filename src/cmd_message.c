@@ -258,9 +258,9 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (need_save_mode)
 		draw_stage_to_thumb();
 	if (need_save_mode)
-		start_save_mode();
+		start_save_mode(false);
 	if (need_load_mode)
-		start_load_mode();
+		start_load_mode(false);
 	if (need_history_mode)
 		start_history_mode();
 
@@ -929,7 +929,8 @@ static void init_repetition(void)
 static void init_first_draw_area(int *x, int *y, int *w, int *h)
 {
 	/* 初回に描画する矩形を求める */
-	if (check_menu_finish_flag() || check_retrospect_finish_flag()) {
+	if (check_menu_finish_flag() || check_retrospect_finish_flag() ||
+	    restore_flag || history_flag) {
 		/* メニューコマンドが終了したばかりの場合 */
 		*x = 0;
 		*y = 0;
@@ -1662,7 +1663,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		
 	/* 描画する */
 	if (redraw)
-		draw_stage_sysmenu(save, load, x, y, w, h);
+		draw_stage_sysmenu(false, save, load, x, y, w, h);
 }
 
 /* SEを再生する */

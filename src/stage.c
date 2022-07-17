@@ -1873,16 +1873,34 @@ void draw_stage_fo_fi(void)
 /*
  * システムメニューを描画する
  */
-void draw_stage_sysmenu(bool is_save_selected, bool is_load_selected,
-			int *x, int *y, int *w, int *h)
+void draw_stage_sysmenu(bool is_switch, bool is_save_selected,
+			bool is_load_selected, int *x, int *y, int *w, int *h)
 {
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   conf_sysmenu_x,
-		   conf_sysmenu_y,
-		   get_image_width(sysmenu_bg_image),
-		   get_image_height(sysmenu_bg_image));
+	/* 背景を描画する */
+	if (!is_switch) {
+		/* ステージを描画する */
+		draw_stage_rect(conf_sysmenu_x, conf_sysmenu_y,
+				get_image_width(sysmenu_bg_image),
+				get_image_height(sysmenu_bg_image));
+		union_rect(x, y, w, h,
+			   *x, *y, *w, *h,
+			   conf_sysmenu_x,
+			   conf_sysmenu_y,
+			   get_image_width(sysmenu_bg_image),
+			   get_image_height(sysmenu_bg_image));
+	} else {
+		/* FOレイヤを描画する */
+		render_image(0, 0, layer_image[LAYER_FO],
+			     get_image_width(layer_image[LAYER_FO]),
+			     get_image_height(layer_image[LAYER_FO]),
+			     0, 0, 255, BLEND_NONE);
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
+	}
 
+	/* システムメニューの背景を描画する */
 	render_image(conf_sysmenu_x,
 		     conf_sysmenu_y,
 		     sysmenu_bg_image,
@@ -1891,8 +1909,9 @@ void draw_stage_sysmenu(bool is_save_selected, bool is_load_selected,
 		     0,
 		     0,
 		     255,
-		     BLEND_NONE);
+		     BLEND_FAST);
 
+	/* システムメニューの前景を描画する */
 	if (is_save_selected) {
 		render_image(conf_sysmenu_x + conf_sysmenu_save_x,
 			     conf_sysmenu_y + conf_sysmenu_save_y,
@@ -1902,9 +1921,8 @@ void draw_stage_sysmenu(bool is_save_selected, bool is_load_selected,
 			     conf_sysmenu_save_x,
 			     conf_sysmenu_save_y,
 			     255,
-			     BLEND_NONE);
+			     BLEND_FAST);
 	}
-
 	if (is_load_selected) {
 		render_image(conf_sysmenu_x + conf_sysmenu_load_x,
 			     conf_sysmenu_y + conf_sysmenu_load_y,
@@ -1914,7 +1932,7 @@ void draw_stage_sysmenu(bool is_save_selected, bool is_load_selected,
 			     conf_sysmenu_load_x,
 			     conf_sysmenu_load_y,
 			     255,
-			     BLEND_NONE);
+			     BLEND_FAST);
 	}
 }
 

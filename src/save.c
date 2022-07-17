@@ -100,6 +100,9 @@ static bool is_save_load_mode_enabled;
 /* セーブモードであるか (falseならロードモード) */
 static bool is_save_mode;
 
+/* @gotoコマンドから呼ばれているか */
+static bool is_goto;
+
 /* 最初の描画であるか */
 static bool is_first_frame;
 
@@ -321,8 +324,10 @@ bool check_restore_flag(void)
 /*
  * セーブ画面を開始する
  */
-void start_save_mode(void)
+void start_save_mode(bool is_goto_save)
 {
+	is_goto = is_goto_save;
+
 	/* オートモードを解除する */
 	if (is_auto_mode())
 		stop_auto_mode();
@@ -348,8 +353,10 @@ void start_save_mode(void)
 /*
  * ロード画面を開始する
  */
-void start_load_mode(void)
+void start_load_mode(bool is_goto_load)
 {
+	is_goto = is_goto_load;
+
 	/* オートモードを解除する */
 	if (is_auto_mode())
 		stop_auto_mode();
@@ -416,7 +423,7 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 		play_se(is_save_mode ? conf_save_cancel_save_se :
 			conf_save_cancel_load_se);
 		stop_save_load_mode(x, y, w, h);
-		restore_flag = true;
+		restore_flag = !is_goto;
 		return true;
 	}
 
@@ -732,7 +739,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	if (new_pointed_index == BUTTON_EXIT) {
 		play_se(conf_save_exit_se);
 		stop_save_load_mode(x, y, w, h);
-		restore_flag = true;
+		restore_flag = !is_goto;
 		return true;
 	}
 
