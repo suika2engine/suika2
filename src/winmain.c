@@ -1457,8 +1457,20 @@ bool title_dialog(void)
 	const char *pszMsg = conf_language == NULL ?
 		"タイトルに戻りますか？" :
 		"Are you sure you want to go to title?";
-	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL)
-		== IDOK)
+	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL) == IDOK)
+		return true;
+	return false;
+}
+
+/*
+ * 削除ダイアログを表示する
+ */
+bool delete_dialog(void)
+{
+	const char *pszMsg = conf_language == NULL ?
+		"セーブデータを削除しますか？" :
+		"Are you sure you want to delete the save data?";
+	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }

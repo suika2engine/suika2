@@ -266,6 +266,12 @@ save.data.margin.top=10
 save.data.thumb.width=213
 save.data.thumb.height=120
 
+# Position of delete button inside save data item
+save.data.delete.x=1080
+save.data.delete.y=0
+save.data.delete.width=28
+save.data.delete.height=28
+
 # Position of the save data 1
 save.data1.x=50
 save.data1.y=138

@@ -118,4 +118,9 @@ size_t write_wfile(struct wfile *wf, const void *buf, size_t size);
  */
 void close_wfile(struct wfile *wf);
 
+/*
+ * ファイルを削除する
+ */
+void remove_file(const char *dir, const char *file);
+
 #endif

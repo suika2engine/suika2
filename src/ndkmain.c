@@ -436,6 +436,15 @@ bool title_dialog(void)
 }
 
 /*
+ * 削除ダイアログを表示する
+ */
+bool delete_dialog(void)
+{
+	/* stub */
+	return true;
+}
+
+/*
  * サウンドが再生終了したか調べる
  */
 bool is_sound_finished(int stream)

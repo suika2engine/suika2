@@ -88,6 +88,9 @@ bool exit_dialog(void);
 /* タイトルに戻るダイアログを表示する */
 bool title_dialog(void);
 
+/* 削除ダイアログを表示する */
+bool delete_dialog(void);
+
 /* ビデオを再生する */
 bool play_video(const char *fname, bool is_skippable);
 

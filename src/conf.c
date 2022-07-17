@@ -170,6 +170,10 @@ int conf_save_data_margin_left;
 int conf_save_data_margin_top;
 int conf_save_data_thumb_width;
 int conf_save_data_thumb_height;
+int conf_save_data_delete_x;
+int conf_save_data_delete_y;
+int conf_save_data_delete_width;
+int conf_save_data_delete_height;
 int conf_save_data1_x;
 int conf_save_data1_y;
 int conf_save_data2_x;
@@ -391,6 +395,10 @@ struct rule {
 	{"save.data.margin.top", 'i', &conf_save_data_margin_top, false, false},
 	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, false, false},
 	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, false, false},
+	{"save.data.delete.x", 'i', &conf_save_data_delete_x, true, false},
+	{"save.data.delete.y", 'i', &conf_save_data_delete_y, true, false},
+	{"save.data.delete.width", 'i', &conf_save_data_delete_width, true, false},
+	{"save.data.delete.height", 'i', &conf_save_data_delete_height, true, false},
 	{"save.data1.x", 'i', &conf_save_data1_x, false, false},
 	{"save.data1.y", 'i', &conf_save_data1_y, false, false},
 	{"save.data2.x", 'i', &conf_save_data2_x, false, false},

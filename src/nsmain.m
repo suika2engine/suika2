@@ -840,15 +840,17 @@ int get_stop_watch_lap(stop_watch_t *t)
 //
 bool exit_dialog(void)
 {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-    [alert setMessageText:conf_language == NULL ?
-              @"終了しますか？" : @"Quit?"];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    if ([alert runModal] == NSAlertFirstButtonReturn)
-        return true;
-    return false;
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+        [alert setMessageText:conf_language == NULL ?
+                  @"終了しますか？" : @"Quit?"];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return true;
+        return false;
+    }
 }    
 
 //
@@ -856,15 +858,37 @@ bool exit_dialog(void)
 //
 bool title_dialog(void)
 {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-    [alert setMessageText:conf_language == NULL ? @"タイトルへ戻りますか？" :
-               @"Are you sure you want to go to title?"];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    if ([alert runModal] == NSAlertFirstButtonReturn)
-        return true;
-    return false;
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+        [alert setMessageText:conf_language == NULL ?
+              @"タイトルへ戻りますか？" :
+              @"Are you sure you want to go to title?"];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return true;
+        return false;
+    }
+}
+
+//
+// 削除ダイアログを表示する
+//
+bool delete_dialog(void)
+{
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
+        [alert setMessageText:conf_language == NULL ?
+              @"セーブデータを削除しますか？" :
+              @"Are you sure you want to delete the save data?"];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return true;
+        return false;
+    }
 }
 
 //

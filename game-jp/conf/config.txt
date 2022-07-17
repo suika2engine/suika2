@@ -257,6 +257,12 @@ save.data.margin.top=10
 save.data.thumb.width=213
 save.data.thumb.height=120
 
+# セーブデータ項目内の削除ボタンの位置
+save.data.delete.x=1080
+save.data.delete.y=0
+save.data.delete.width=28
+save.data.delete.height=28
+
 # セーブデータ1の位置
 save.data1.x=50
 save.data1.y=138

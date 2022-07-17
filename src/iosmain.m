@@ -614,6 +614,14 @@ bool title_dialog(void)
 }
 
 //
+// 削除ダイアログを表示する
+//
+bool delete_dialog(void)
+{
+	return true;
+}
+
+//
 // ビデオを再生する
 //
 bool play_video(const char *fname, bool is_skippable)

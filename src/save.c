@@ -112,6 +112,9 @@ static int page;
 /* ポイントされている項目のインデックス */
 static int pointed_index;
 
+/* 削除ボタンがポイントされているか */
+static bool is_delete_button_pointed;
+
 /* 前方参照 */
 static void load_button_conf(void);
 static void load_basic_save_data(void);
@@ -127,6 +130,7 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 			       int *h);
 static void process_left_press_save_button(int new_pointed_index, int *x,
 					   int *y, int *w, int *h);
+static void process_delete(int new_pointed_index);
 static bool have_save_data(int new_pointed_index);
 static void play_se(const char *file);
 static bool process_save(int new_pointed_index);
@@ -498,21 +502,38 @@ static void draw_page_keep(void)
 /* ポイントされているボタンを返す */
 static int get_pointed_index(void)
 {
-	int i, pointed;
+	int i, pointed, rel_x, rel_y;
 
 	/* 領域を元にポイントされているボタンを求める */
 	pointed = -1;
 	for (i = 0; i < BUTTON_COUNT; i++) {
+		/* ボタンがポイントされているかチェックする */
 		if (mouse_pos_x >= button[i].x &&
 		    mouse_pos_x < button[i].x + button[i].w &&
 		    mouse_pos_y >= button[i].y &&
 		    mouse_pos_y < button[i].y + button[i].h) {
+			/* i番目のボタンがポイントされている */
 			pointed = i;
 			break;
 		}
 	}
 	if (pointed == -1)
 		return -1;
+
+	/* セーブデータ項目が選択されている場合 */
+	is_delete_button_pointed = false;
+	if (pointed >= BUTTON_ONE && pointed <= BUTTON_THREE) {
+		/* 削除ボタンがポイントされているかチェックする */
+		rel_x = mouse_pos_x - button[pointed].x;
+		rel_y = mouse_pos_y - button[pointed].y;
+		if (rel_x >= conf_save_data_delete_x &&
+		    rel_x <= conf_save_data_delete_x +
+			     conf_save_data_delete_width &&
+		    rel_y >= conf_save_data_delete_y &&
+		    rel_y < conf_save_data_delete_y +
+			    conf_save_data_delete_height)
+			is_delete_button_pointed = true;
+	}
 
 	/* 最初のページの場合、BUTTON_PREVを無効にする */
 	if (page == 0 && pointed == BUTTON_PREV)
@@ -705,9 +726,18 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 	if (new_pointed_index == -1)
 		return true;
 
-	/* セーブデータのボタンの場合、セーブかロードを実行する */
+	/* セーブデータのボタンの場合 */
 	if (new_pointed_index >= BUTTON_ONE &&
 	    new_pointed_index <= BUTTON_THREE) {
+		/* 削除ボタンの領域がポイントされている場合 */
+		if (is_delete_button_pointed) {
+			/* 削除を処理する */
+			process_delete(new_pointed_index);
+			draw_page(x, y, w, h);
+			return true;
+		}
+
+		/* セーブかロードを実行する */
 		process_left_press_save_button(new_pointed_index, x, y, w, h);
 		if (is_save_mode) {
 			/* セーブを行う */
@@ -783,6 +813,45 @@ static void process_left_press_save_button(int new_pointed_index, int *x,
 
 	/* ポイントされている項目を更新する */
 	pointed_index = new_pointed_index;
+}
+
+/* セーブデータの削除を処理する */
+static void process_delete(int new_pointed_index)
+{
+	char s[128];
+	int index;
+
+	/* セーブデータ番号を求める */
+	index = page * PAGE_SLOTS + (new_pointed_index - BUTTON_ONE);
+
+	/* セーブデータがない場合、何もしない */
+	if (save_time[index] == 0)
+		return;
+
+	/* プロンプトを表示する */
+	if (!delete_dialog())
+		return;
+
+	/* ファイル名を求める */
+	snprintf(s, sizeof(s), "%03d.sav", index);
+
+	/* セーブファイルを削除する */
+	remove_file(SAVE_DIR, s);
+
+	/* セーブデータを消去する */
+	save_time[index] = 0;
+	if (save_title[index] != NULL) {
+		free(save_title[index]);
+		save_title[index] = NULL;
+	}
+	if (save_message[index] != NULL) {
+		free(save_message[index]);
+		save_message[index] = NULL;
+	}
+	if (save_thumb[index] != NULL) {
+		destroy_image(save_thumb[index]);
+		save_thumb[index] = NULL;
+	}
 }
 
 /* 選択された項目にセーブデータがあるか調べる */

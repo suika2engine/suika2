@@ -481,3 +481,24 @@ void close_wfile(struct wfile *wf)
 	fclose(wf->fp);
 	free(wf);
 }
+
+/*
+ * ファイルを削除する
+ */
+void remove_file(const char *dir, const char *file)
+{
+	char *path;
+
+	/* パスを生成する */
+	path = make_valid_path(dir, file);
+	if (path == NULL) {
+		log_memory();
+		return;
+	}
+
+	/* ファイルを削除する */
+	remove(path);
+
+	/* パスの文字列を解放する */
+	free(path);
+}
