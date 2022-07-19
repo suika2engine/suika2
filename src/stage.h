@@ -131,9 +131,16 @@ void draw_stage_fo_fi(void);
  */
 
 /* システムメニューを描画する */
-void draw_stage_sysmenu(bool is_switch,
+void draw_stage_sysmenu(bool is_auto_enabled,
+			bool is_skip_enabled,
+			bool is_save_load_enabled,
+			bool is_qsave_selected,
+			bool is_qload_selected,
 			bool is_save_selected,
 			bool is_load_selected,
+			bool is_auto_selected,
+			bool is_skip_selected,
+			bool is_history_selected,
 			int *x, int *y, int *w, int *h);
 
 /*

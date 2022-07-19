@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2019, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -12,6 +12,7 @@
  *  - 2017/09/25 セリフの色付けに対応
  *  - 2017/10/31 スイッチのクリック音に対応
  *  - 2019/09/17 NEWSに対応
+ *  - 2022/07/19 システムメニューに対応
  */
 
 #ifndef SUIKA_CONF_H
@@ -68,6 +69,12 @@ extern int conf_msgbox_margin_right;
 extern int conf_msgbox_margin_line;
 extern float conf_msgbox_speed;
 extern float conf_msgbox_auto_speed;
+extern int conf_msgbox_hide_x;
+extern int conf_msgbox_hide_y;
+extern int conf_msgbox_hide_width;
+extern int conf_msgbox_hide_height;
+extern char *conf_msgbox_hide_se;
+extern char *conf_msgbox_show_se;
 extern int conf_msgbox_btn_qsave_x;
 extern int conf_msgbox_btn_qsave_y;
 extern int conf_msgbox_btn_qsave_width;
@@ -231,8 +238,17 @@ extern char *conf_menu_change_se;
  */
 extern int conf_sysmenu_x;
 extern int conf_sysmenu_y;
-extern char *conf_sysmenu_bg_file;
-extern char *conf_sysmenu_fg_file;
+extern char *conf_sysmenu_idle_file;
+extern char *conf_sysmenu_hover_file;
+extern char *conf_sysmenu_disable_file;
+extern int conf_sysmenu_qsave_x;
+extern int conf_sysmenu_qsave_y;
+extern int conf_sysmenu_qsave_width;
+extern int conf_sysmenu_qsave_height;
+extern int conf_sysmenu_qload_x;
+extern int conf_sysmenu_qload_y;
+extern int conf_sysmenu_qload_width;
+extern int conf_sysmenu_qload_height;
 extern int conf_sysmenu_save_x;
 extern int conf_sysmenu_save_y;
 extern int conf_sysmenu_save_width;
@@ -241,9 +257,28 @@ extern int conf_sysmenu_load_x;
 extern int conf_sysmenu_load_y;
 extern int conf_sysmenu_load_width;
 extern int conf_sysmenu_load_height;
+extern int conf_sysmenu_auto_x;
+extern int conf_sysmenu_auto_y;
+extern int conf_sysmenu_auto_width;
+extern int conf_sysmenu_auto_height;
+extern int conf_sysmenu_skip_x;
+extern int conf_sysmenu_skip_y;
+extern int conf_sysmenu_skip_width;
+extern int conf_sysmenu_skip_height;
+extern int conf_sysmenu_history_x;
+extern int conf_sysmenu_history_y;
+extern int conf_sysmenu_history_width;
+extern int conf_sysmenu_history_height;
 extern char *conf_sysmenu_enter_se;
 extern char *conf_sysmenu_leave_se;
 extern char *conf_sysmenu_change_se;
+extern char *conf_sysmenu_qsave_se;
+extern char *conf_sysmenu_qload_se;
+extern char *conf_sysmenu_save_se;
+extern char *conf_sysmenu_load_se;
+extern char *conf_sysmenu_auto_se;
+extern char *conf_sysmenu_skip_se;
+extern char *conf_sysmenu_history_se;
 
 /*
  * セリフの色付け

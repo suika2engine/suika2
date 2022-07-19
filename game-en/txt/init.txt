@@ -115,7 +115,7 @@
 ###
 
 :LOOP1
-@choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "What are the system requirements?" L1_NEXT Next
+@choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "What're system requirements?" L1_NEXT Next
 
 :L1_ADVANTAGE
 Suika2 has three advantages. First of all, portability. We have Windows and Mac apps and a Web browser version. All of them work just the same way.

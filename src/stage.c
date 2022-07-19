@@ -134,10 +134,13 @@ static struct image *load_bg_image;
 static struct image *load_fg_image;
 
 /* システムメニュー(非選択)のイメージ */
-static struct image *sysmenu_bg_image;
+static struct image *sysmenu_idle_image;
 
 /* システムメニュー(選択)のイメージ */
-static struct image *sysmenu_fg_image;
+static struct image *sysmenu_hover_image;
+
+/* システムメニュー(使用できない時)のイメージ */
+static struct image *sysmenu_disable_image;
 
 /* セーブデータ用のサムネイルイメージ */
 static struct image *thumb_image;
@@ -345,10 +348,14 @@ static bool setup_namebox(void)
 	is_namebox_visible = false;
 
 	/* 再初期化時に破棄する */
-	if (namebox_image != NULL)
+	if (namebox_image != NULL) {
 		destroy_image(namebox_image);
-	if (layer_image[LAYER_NAME] != NULL)
+		namebox_image = NULL;
+	}
+	if (layer_image[LAYER_NAME] != NULL) {
 		destroy_image(layer_image[LAYER_NAME]);
+		layer_image[LAYER_NAME] = NULL;
+	}
 
 	/* 名前ボックスの画像を読み込む */
 	namebox_image = create_image_from_file(CG_DIR, conf_namebox_file);
@@ -377,12 +384,18 @@ static bool setup_msgbox(void)
 	is_msgbox_visible = false;
 
 	/* 再初期化時に破棄する */
-	if (msgbox_bg_image != NULL)
+	if (msgbox_bg_image != NULL) {
 		destroy_image(msgbox_bg_image);
-	if (msgbox_fg_image != NULL)
+		msgbox_bg_image = NULL;
+	}
+	if (msgbox_fg_image != NULL) {
 		destroy_image(msgbox_fg_image);
-	if (layer_image[LAYER_MSG] != NULL)
+		msgbox_fg_image = NULL;
+	}
+	if (layer_image[LAYER_MSG] != NULL) {
 		destroy_image(layer_image[LAYER_MSG]);
+		layer_image[LAYER_MSG] = NULL;
+	}
 
 	/* メッセージボックスの背景画像を読み込む */
 	msgbox_bg_image = create_image_from_file(CG_DIR, conf_msgbox_bg_file);
@@ -426,8 +439,10 @@ static bool setup_click(void)
 	is_click_visible = false;
 
 	/* 再初期化時に破棄する */
-	if (layer_image[LAYER_CLICK] != NULL)
+	if (layer_image[LAYER_CLICK] != NULL) {
 		destroy_image(layer_image[LAYER_CLICK]);
+		layer_image[LAYER_CLICK] = NULL;
+	}
 
 	/* クリックアニメーションの画像を読み込む */
 	layer_image[LAYER_CLICK] = create_image_from_file(CG_DIR,
@@ -446,10 +461,14 @@ static bool setup_click(void)
 static bool setup_switch(void)
 {
 	/* 再初期化時に破棄する */
-	if (switch_bg_image != NULL)
+	if (switch_bg_image != NULL) {
 		destroy_image(switch_bg_image);
-	if (switch_fg_image != NULL)
+		switch_bg_image = NULL;
+	}
+	if (switch_fg_image != NULL) {
 		destroy_image(switch_fg_image);
+		switch_fg_image = NULL;
+	}
 
 	/* スイッチの非選択イメージを読み込む */
 	switch_bg_image = create_image_from_file(CG_DIR, conf_switch_bg_file);
@@ -468,10 +487,14 @@ static bool setup_switch(void)
 static bool setup_news(void)
 {
 	/* 再初期化時に破棄する */
-	if (news_bg_image != NULL)
+	if (news_bg_image != NULL) {
 		destroy_image(news_bg_image);
-	if (news_fg_image != NULL)
+		news_bg_image = NULL;
+	}
+	if (news_fg_image != NULL) {
 		destroy_image(news_fg_image);
+		news_fg_image = NULL;
+	}
 
 	/* NEWSの非選択イメージを読み込む */
 	if (conf_news_bg_file != NULL) {
@@ -496,14 +519,22 @@ static bool setup_news(void)
 static bool setup_save(void)
 {
 	/* 再初期化時に破棄する */
-	if (save_bg_image != NULL)
+	if (save_bg_image != NULL) {
 		destroy_image(save_bg_image);
-	if (save_fg_image != NULL)
+		save_bg_image = NULL;
+	}
+	if (save_fg_image != NULL) {
 		destroy_image(save_fg_image);
-	if (load_bg_image != NULL)
+		save_fg_image = NULL;
+	}
+	if (load_bg_image != NULL) {
 		destroy_image(save_bg_image);
-	if (load_fg_image != NULL)
+		save_bg_image = NULL;
+	}
+	if (load_fg_image != NULL) {
 		destroy_image(save_fg_image);
+		save_fg_image = NULL;
+	}
 
 	/* セーブ画面(非選択)の画像を読み込む */
 	save_bg_image = create_image_from_file(CG_DIR, conf_save_save_bg_file);
@@ -532,21 +563,35 @@ static bool setup_save(void)
 static bool setup_sysmenu(void)
 {
 	/* 再初期化時に破棄する */
-	if (sysmenu_bg_image != NULL)
-		destroy_image(sysmenu_bg_image);
-	if (sysmenu_fg_image != NULL)
-		destroy_image(sysmenu_fg_image);
+	if (sysmenu_idle_image != NULL) {
+		destroy_image(sysmenu_idle_image);
+		sysmenu_idle_image = NULL;
+	}
+	if (sysmenu_hover_image != NULL) {
+		destroy_image(sysmenu_hover_image);
+		sysmenu_hover_image = NULL;
+	}
+	if (sysmenu_disable_image != NULL) {
+		destroy_image(sysmenu_disable_image);
+		sysmenu_disable_image = NULL;
+	}
 
 	/* システムメニュー(非選択)の画像を読み込む */
-	sysmenu_bg_image = create_image_from_file(CG_DIR,
-						  conf_sysmenu_bg_file);
-	if (sysmenu_bg_image == NULL)
+	sysmenu_idle_image = create_image_from_file(CG_DIR,
+						    conf_sysmenu_idle_file);
+	if (sysmenu_idle_image == NULL)
 		return false;
 
 	/* システムメニュー(選択)の画像を読み込む */
-	sysmenu_fg_image = create_image_from_file(CG_DIR,
-						  conf_sysmenu_fg_file);
-	if (sysmenu_fg_image == NULL)
+	sysmenu_hover_image = create_image_from_file(CG_DIR,
+						     conf_sysmenu_hover_file);
+	if (sysmenu_hover_image == NULL)
+		return false;
+
+	/* システムメニュー(使用できない時)の画像を読み込む */
+	sysmenu_disable_image = create_image_from_file(
+		CG_DIR, conf_sysmenu_disable_file);
+	if (sysmenu_disable_image == NULL)
 		return false;
 
 	return true;
@@ -556,8 +601,10 @@ static bool setup_sysmenu(void)
 static bool setup_thumb(void)
 {
 	/* 再初期化時に破棄する */
-	if (thumb_image != NULL)
+	if (thumb_image != NULL) {
 		destroy_image(thumb_image);
+		thumb_image = NULL;
+	}
 
 	/* コンフィグの値がおかしければ補正する */
 	if (conf_save_data_thumb_width <= 0)
@@ -682,13 +729,17 @@ void cleanup_stage(void)
 		destroy_image(load_fg_image);
 		load_fg_image = NULL;
 	}
-	if (sysmenu_bg_image != NULL) {
-		destroy_image(sysmenu_bg_image);
-		sysmenu_bg_image = NULL;
+	if (sysmenu_idle_image != NULL) {
+		destroy_image(sysmenu_idle_image);
+		sysmenu_idle_image = NULL;
 	}
-	if (sysmenu_fg_image != NULL) {
-		destroy_image(sysmenu_fg_image);
-		sysmenu_fg_image = NULL;
+	if (sysmenu_hover_image != NULL) {
+		destroy_image(sysmenu_hover_image);
+		sysmenu_hover_image = NULL;
+	}
+	if (sysmenu_disable_image != NULL) {
+		destroy_image(sysmenu_disable_image);
+		sysmenu_disable_image = NULL;
 	}
 	if (thumb_image != NULL) {
 		destroy_image(thumb_image);
@@ -1873,66 +1924,162 @@ void draw_stage_fo_fi(void)
 /*
  * システムメニューを描画する
  */
-void draw_stage_sysmenu(bool is_switch, bool is_save_selected,
-			bool is_load_selected, int *x, int *y, int *w, int *h)
+void draw_stage_sysmenu(bool is_auto_enabled,
+			bool is_skip_enabled,
+			bool is_save_load_enabled,
+			bool is_qsave_selected,
+			bool is_qload_selected,
+			bool is_save_selected,
+			bool is_load_selected,
+			bool is_auto_selected,
+			bool is_skip_selected,
+			bool is_history_selected,
+			int *x, int *y, int *w, int *h)
 {
-	/* 背景を描画する */
-	if (!is_switch) {
-		/* ステージを描画する */
-		draw_stage_rect(conf_sysmenu_x, conf_sysmenu_y,
-				get_image_width(sysmenu_bg_image),
-				get_image_height(sysmenu_bg_image));
-		union_rect(x, y, w, h,
-			   *x, *y, *w, *h,
-			   conf_sysmenu_x,
-			   conf_sysmenu_y,
-			   get_image_width(sysmenu_bg_image),
-			   get_image_height(sysmenu_bg_image));
-	} else {
-		/* FOレイヤを描画する */
-		render_image(0, 0, layer_image[LAYER_FO],
-			     get_image_width(layer_image[LAYER_FO]),
-			     get_image_height(layer_image[LAYER_FO]),
-			     0, 0, 255, BLEND_NONE);
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
-	}
+	/* 描画範囲を更新する */
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   conf_sysmenu_x,
+		   conf_sysmenu_y,
+		   get_image_width(sysmenu_idle_image),
+		   get_image_height(sysmenu_idle_image));
 
 	/* システムメニューの背景を描画する */
-	render_image(conf_sysmenu_x,
-		     conf_sysmenu_y,
-		     sysmenu_bg_image,
-		     get_image_width(sysmenu_bg_image),
-		     get_image_height(sysmenu_bg_image),
-		     0,
-		     0,
-		     255,
-		     BLEND_FAST);
+	render_image(conf_sysmenu_x, conf_sysmenu_y,
+		     sysmenu_idle_image,
+		     get_image_width(sysmenu_idle_image),
+		     get_image_height(sysmenu_idle_image),
+		     0, 0, 255, BLEND_FAST);
 
-	/* システムメニューの前景を描画する */
-	if (is_save_selected) {
+	/* 禁止になっている項目を描画する */
+	if (!is_auto_enabled) {
+		/* オートの項目(禁止)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_auto_x,
+			     conf_sysmenu_y + conf_sysmenu_auto_y,
+			     sysmenu_disable_image,
+			     conf_sysmenu_auto_width,
+			     conf_sysmenu_auto_height,
+			     conf_sysmenu_auto_x,
+			     conf_sysmenu_auto_y, 255, BLEND_FAST);
+	}
+	if (!is_skip_enabled) {
+		/* スキップの項目(禁止)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_skip_x,
+			     conf_sysmenu_y + conf_sysmenu_skip_y,
+			     sysmenu_disable_image,
+			     conf_sysmenu_skip_width,
+			     conf_sysmenu_skip_height,
+			     conf_sysmenu_skip_x,
+			     conf_sysmenu_skip_y, 255, BLEND_FAST);
+	}
+	if (!is_save_load_enabled) {
+		/* クイックセーブの項目(禁止)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_qsave_x,
+			     conf_sysmenu_y + conf_sysmenu_qsave_y,
+			     sysmenu_disable_image,
+			     conf_sysmenu_qsave_width,
+			     conf_sysmenu_qsave_height,
+			     conf_sysmenu_qsave_x,
+			     conf_sysmenu_qsave_y, 255, BLEND_FAST);
+
+		/* クイックロードの項目(禁止)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_qload_x,
+			     conf_sysmenu_y + conf_sysmenu_qload_y,
+			     sysmenu_disable_image,
+			     conf_sysmenu_qload_width,
+			     conf_sysmenu_qload_height,
+			     conf_sysmenu_qload_x,
+			     conf_sysmenu_qload_y, 255, BLEND_FAST);
+
+		/* セーブの項目(禁止)を描画する */
 		render_image(conf_sysmenu_x + conf_sysmenu_save_x,
 			     conf_sysmenu_y + conf_sysmenu_save_y,
-			     sysmenu_fg_image,
+			     sysmenu_disable_image,
 			     conf_sysmenu_save_width,
 			     conf_sysmenu_save_height,
 			     conf_sysmenu_save_x,
-			     conf_sysmenu_save_y,
-			     255,
-			     BLEND_FAST);
-	}
-	if (is_load_selected) {
+			     conf_sysmenu_save_y, 255, BLEND_FAST);
+
+		/* ロードの項目(禁止)を描画する */
 		render_image(conf_sysmenu_x + conf_sysmenu_load_x,
 			     conf_sysmenu_y + conf_sysmenu_load_y,
-			     sysmenu_fg_image,
+			     sysmenu_disable_image,
 			     conf_sysmenu_load_width,
 			     conf_sysmenu_load_height,
 			     conf_sysmenu_load_x,
-			     conf_sysmenu_load_y,
-			     255,
-			     BLEND_FAST);
+			     conf_sysmenu_load_y, 255, BLEND_FAST);
+	}
+
+	/* 選択されている項目を描画する */
+	if (is_qsave_selected) {
+		/* クイックセーブの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_qsave_x,
+			     conf_sysmenu_y + conf_sysmenu_qsave_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_qsave_width,
+			     conf_sysmenu_qsave_height,
+			     conf_sysmenu_qsave_x,
+			     conf_sysmenu_qsave_y, 255, BLEND_FAST);
+	}
+	if (is_qload_selected) {
+		/* クイックロードの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_qload_x,
+			     conf_sysmenu_y + conf_sysmenu_qload_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_qload_width,
+			     conf_sysmenu_qload_height,
+			     conf_sysmenu_qload_x,
+			     conf_sysmenu_qload_y, 255, BLEND_FAST);
+	}
+	if (is_save_selected) {
+		/* セーブの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_save_x,
+			     conf_sysmenu_y + conf_sysmenu_save_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_save_width,
+			     conf_sysmenu_save_height,
+			     conf_sysmenu_save_x,
+			     conf_sysmenu_save_y, 255, BLEND_FAST);
+	}
+	if (is_load_selected) {
+		/* ロードの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_load_x,
+			     conf_sysmenu_y + conf_sysmenu_load_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_load_width,
+			     conf_sysmenu_load_height,
+			     conf_sysmenu_load_x,
+			     conf_sysmenu_load_y, 255, BLEND_FAST);
+	}
+	if (is_auto_selected) {
+		/* オートの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_auto_x,
+			     conf_sysmenu_y + conf_sysmenu_auto_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_auto_width,
+			     conf_sysmenu_auto_height,
+			     conf_sysmenu_auto_x,
+			     conf_sysmenu_auto_y, 255, BLEND_FAST);
+	}
+	if (is_skip_selected) {
+		/* スキップの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_skip_x,
+			     conf_sysmenu_y + conf_sysmenu_skip_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_skip_width,
+			     conf_sysmenu_skip_height,
+			     conf_sysmenu_skip_x,
+			     conf_sysmenu_skip_y, 255, BLEND_FAST);
+	}
+	if (is_history_selected) {
+		/* ヒストリの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_history_x,
+			     conf_sysmenu_y + conf_sysmenu_history_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_history_width,
+			     conf_sysmenu_history_height,
+			     conf_sysmenu_history_x,
+			     conf_sysmenu_history_y, 255, BLEND_FAST);
 	}
 }
 

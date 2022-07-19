@@ -2,9 +2,9 @@
 
 save-bg.png by heath, sima
 save-fg.png by heath, sima
-namebox.png by heath
-msgbox-bg.png by heath
-msgbox-fg.png by heath
-switch-bg.png by heath
-switch-fg.png by heath
-click.png by heath
+namebox.png by MaxMorgan
+msgbox-bg.png by MaxMorgan
+msgbox-fg.png by MaxMorgan
+switch-bg.png by MaxMorgan
+switch-fg.png by MaxMorgan
+click.png by MaxMorgan

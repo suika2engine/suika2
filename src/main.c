@@ -177,10 +177,11 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 
 	/*
 	 * 入力の状態をリセットする
-	 *  - Control, Space以外は1フレームごとにリセットする
+	 *  - Control以外は1フレームごとにリセットする
 	 */
 	is_left_button_pressed = false;
 	is_right_button_pressed = false;
+	is_space_pressed = false;
 	is_return_pressed = false;
 	is_escape_pressed = false;
 	is_up_pressed = false;

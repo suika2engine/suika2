@@ -17,6 +17,8 @@
 
 #include "suika.h"
 
+#define ASSERT_INVALID_BTN_INDEX (0)
+
 /* 親ボタンの最大数 */
 #define PARENT_COUNT		(8)
 
@@ -40,6 +42,16 @@
 
 /* 指定した親選択肢が無効であるか */
 #define IS_PARENT_DISABLED(n)	(parent_button[n].msg == NULL)
+
+/* システムメニューのボタンのインデックス */
+#define SYSMENU_NONE	(-1)
+#define SYSMENU_QSAVE	(0)
+#define SYSMENU_QLOAD	(1)
+#define SYSMENU_SAVE	(2)
+#define SYSMENU_LOAD	(3)
+#define SYSMENU_AUTO	(4)
+#define SYSMENU_SKIP	(5)
+#define SYSMENU_HISTORY	(6)
 
 /* 親選択肢のボタン */
 static struct parent_button {
@@ -78,6 +90,9 @@ static int selected_parent_index;
 /* ポイントされている子項目のインデックス */
 static int pointed_child_index;
 
+/* クイックロードを行ったか */
+static bool did_quick_load;
+
 /* セーブモードに遷移するか */
 static bool need_save_mode;
 
@@ -93,11 +108,11 @@ static bool is_sysmenu;
 /* システムメニューの最初のフレームか */
 static bool is_sysmenu_first_frame;
 
-/* システムメニューのセーブボタンがポイントされているか */
-static bool is_sysmenu_save_selected;
+/* システムメニューのどのボタンがポイントされているか */
+static int sysmenu_pointed_index;
 
-/* システムメニューのセーブボタンがポイントされているか */
-static bool is_sysmenu_load_selected;
+/* システムメニューのどのボタンがポイントされていたか */
+static int old_sysmenu_pointed_index;
 
 /* システムメニューが終了した直後か */
 static bool is_sysmenu_finished;
@@ -113,6 +128,8 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h);
 static void draw_frame_child(int *x, int *y, int *w, int *h);
 static int get_pointed_parent_index(void);
 static int get_pointed_child_index(void);
+static int get_sysmenu_pointed_button(void);
+static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h);
 static void draw_fo_fi_parent(void);
 static void draw_switch_parent_images(void);
 static void update_switch_parent(int *x, int *y, int *w, int *h);
@@ -144,10 +161,12 @@ bool switch_command(int *x, int *y, int *w, int *h)
 		process_sysmenu_click();
 
 	/* 描画を行う */
-	draw_frame(x, y, w, h);
+	if (!did_quick_load)
+		draw_frame(x, y, w, h);
 
-	/* セーブ・ロード・ヒストリが選択された場合 */
-	if (need_save_mode || need_load_mode || need_history_mode)
+	/* クイックロード・セーブ・ロード・ヒストリが選択された場合 */
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode)
 		stop_command_repetition();
 
 	/* 終了処理を行う */
@@ -186,6 +205,7 @@ bool init(void)
 	pointed_child_index = -1;
 	is_child_first_frame = false;
 	is_sysmenu = false;
+	did_quick_load = false;
 	need_save_mode = false;
 	need_load_mode = false;
 	need_history_mode = false;
@@ -590,6 +610,10 @@ static int get_pointed_parent_index(void)
 {
 	int i;
 
+	/* システムメニュー表示中は選択しない */
+	if (is_sysmenu)
+		return -1;
+
 	for (i = 0; i < PARENT_COUNT; i++) {
 		if (IS_PARENT_DISABLED(i))
 			continue;
@@ -621,6 +645,86 @@ static int get_pointed_child_index(void)
 	}
 
 	return -1;
+}
+
+/* 選択中のシステムメニューのボタンを取得する */
+static int get_sysmenu_pointed_button(void)
+{
+	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
+
+	/* システムメニューを表示中でない場合は非選択とする */
+	if (!is_sysmenu)
+		return SYSMENU_NONE;
+
+	/* マウス座標からシステムメニュー画像内座標に変換する */
+	rx = mouse_pos_x - conf_sysmenu_x;
+	ry = mouse_pos_y - conf_sysmenu_y;
+
+	/* ボタンを順番に見ていく */
+	for (i = SYSMENU_QSAVE; i <= SYSMENU_HISTORY; i++) {
+		/* ボタンの座標を取得する */
+		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
+
+		/* マウスがボタンの中にあればボタンの番号を返す */
+		if ((rx >= btn_x && rx < btn_x + btn_w) &&
+		    (ry >= btn_y && ry < btn_y + btn_h))
+			return i;
+	}
+
+	/* ボタンがポイントされていない */
+	return SYSMENU_NONE;
+}
+
+/* システムメニューのボタンの座標を取得する */
+static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
+{
+	switch (btn) {
+	case SYSMENU_QSAVE:
+		*x = conf_sysmenu_qsave_x;
+		*y = conf_sysmenu_qsave_y;
+		*w = conf_sysmenu_qsave_width;
+		*h = conf_sysmenu_qsave_height;
+		break;
+	case SYSMENU_QLOAD:
+		*x = conf_sysmenu_qload_x;
+		*y = conf_sysmenu_qload_y;
+		*w = conf_sysmenu_qload_width;
+		*h = conf_sysmenu_qload_height;
+		break;
+	case SYSMENU_SAVE:
+		*x = conf_sysmenu_save_x;
+		*y = conf_sysmenu_save_y;
+		*w = conf_sysmenu_save_width;
+		*h = conf_sysmenu_save_height;
+		break;
+	case SYSMENU_LOAD:
+		*x = conf_sysmenu_load_x;
+		*y = conf_sysmenu_load_y;
+		*w = conf_sysmenu_load_width;
+		*h = conf_sysmenu_load_height;
+		break;
+	case SYSMENU_AUTO:
+		*x = conf_sysmenu_auto_x;
+		*y = conf_sysmenu_auto_y;
+		*w = conf_sysmenu_auto_width;
+		*h = conf_sysmenu_auto_height;
+		break;
+	case SYSMENU_SKIP:
+		*x = conf_sysmenu_skip_x;
+		*y = conf_sysmenu_skip_y;
+		*w = conf_sysmenu_skip_width;
+		*h = conf_sysmenu_skip_height;
+		break;
+	case SYSMENU_HISTORY:
+		*x = conf_sysmenu_history_x;
+		*y = conf_sysmenu_history_y;
+		*w = conf_sysmenu_history_width;
+		*h = conf_sysmenu_history_height;
+		break;
+	default:
+		assert(ASSERT_INVALID_BTN_INDEX);
+		break;
+	}
 }
 
 /* 親選択肢のFO/FIレイヤを描画する */
@@ -821,8 +925,8 @@ static void process_main_click(void)
 		/* システムメニューを表示する */
 		is_sysmenu = true;
 		is_sysmenu_first_frame = true;
-		is_sysmenu_save_selected = false;
-		is_sysmenu_load_selected = false;
+		sysmenu_pointed_index = SYSMENU_NONE;
+		old_sysmenu_pointed_index = SYSMENU_NONE;
 		is_sysmenu_finished = false;
 		return;
 	}
@@ -848,8 +952,62 @@ static void process_sysmenu_click(void)
 		return;
 	}
 
-	/* セーブが選択されており、左クリックされた場合 */
-	if (is_sysmenu_save_selected && is_left_button_pressed) {
+	/* ポイントされているシステムメニューのボタンを求める */
+	old_sysmenu_pointed_index = sysmenu_pointed_index;
+	sysmenu_pointed_index = get_sysmenu_pointed_button();
+	if (sysmenu_pointed_index == SYSMENU_NONE)
+		return;
+
+	/* セーブロードが無効な場合 */
+	if (!is_save_load_enabled() &&
+	    (sysmenu_pointed_index == SYSMENU_QSAVE ||
+	     sysmenu_pointed_index == SYSMENU_QLOAD ||
+	     sysmenu_pointed_index == SYSMENU_SAVE ||
+	     sysmenu_pointed_index == SYSMENU_LOAD))
+		sysmenu_pointed_index = SYSMENU_NONE;
+
+	/* switchではオートとスキップを無効にする */
+	if (sysmenu_pointed_index == SYSMENU_AUTO ||
+	    sysmenu_pointed_index == SYSMENU_SKIP)
+		sysmenu_pointed_index = SYSMENU_NONE;
+
+	/* 左クリックされていない場合、何もしない */
+	if (!is_left_button_pressed)
+		return;
+
+	/* クイックセーブが左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_QSAVE) {
+		/* SEを再生する */
+		play_se(conf_sysmenu_qsave_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+
+		/* クイックセーブを行う */
+		quick_save();
+		return;
+	}
+
+	/* クイックロードが左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_QLOAD) {
+		/* クイックロードを行う */
+		if (quick_load()) {
+			/* SEを再生する */
+			play_se(conf_sysmenu_qload_se);
+
+			/* システムメニューを終了する */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+
+			/* 後処理を行う */
+			did_quick_load = true;
+		}
+		return;
+	}
+
+	/* セーブが左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_SAVE) {
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_save_se);
 
@@ -862,10 +1020,10 @@ static void process_sysmenu_click(void)
 		return;
 	}
 
-	/* ロードが選択されており、左クリックされた場合 */
-	if (is_sysmenu_load_selected && is_left_button_pressed) {
+	/* ロードが左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_LOAD) {
 		/* SEを再生する */
-		play_se(conf_msgbox_btn_load_se);
+		play_se(conf_sysmenu_load_se);
 
 		/* システムメニューを終了する */
 		is_sysmenu = false;
@@ -875,16 +1033,40 @@ static void process_sysmenu_click(void)
 		need_load_mode = true;
 		return;
 	}
+
+	/* ヒストリが左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
+		/* ヒストリがない場合はヒストリモードを開始しない */
+		if (is_history_empty())
+			return;
+
+		/* SEを再生する */
+		play_se(conf_sysmenu_history_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+
+		/* ヒストリモードを開始する */
+		need_history_mode = true;
+		return;
+	}
 }
 
 /* システムメニューを描画する */
 static void draw_sysmenu(int *x, int *y, int *w, int *h)
 {
-	bool save, load, redraw;
+	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
+	bool history_sel, redraw;
 
-	/* 描画するかを判定する */
-	save = false;
-	load = false;
+	/* 描画するかの判定状態を初期化する */
+	qsave_sel = false;
+	qload_sel = false;
+	save_sel = false;
+	load_sel = false;
+	auto_sel = false;
+	skip_sel = false;
+	history_sel = false;
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
@@ -893,38 +1075,49 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		is_sysmenu_first_frame = false;
 	}
 
-	/* セーブボタンがポイントされているかを取得する */
-	if (mouse_pos_x >= conf_sysmenu_x + conf_sysmenu_save_x &&
-	    mouse_pos_x < conf_sysmenu_x + conf_sysmenu_save_x +
-			  conf_sysmenu_save_width &&
-	    mouse_pos_y >= conf_sysmenu_y + conf_sysmenu_save_y &&
-	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_save_y +
-			  conf_sysmenu_save_height) {
-		save = true;
-		if (!is_sysmenu_save_selected) {
+	/* クイックセーブボタンがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_QSAVE) {
+		qsave_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_QSAVE) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
-		is_sysmenu_save_selected = true;
-	} else {
-		is_sysmenu_save_selected = false;
+	}
+
+	/* クイックロードボタンがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_QLOAD) {
+		qload_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_QLOAD) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
+	}
+
+	/* セーブボタンがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_SAVE) {
+		save_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_SAVE) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
 	}
 
 	/* ロードボタンがポイントされているかを取得する */
-	if (mouse_pos_x >= conf_sysmenu_x + conf_sysmenu_load_x &&
-	    mouse_pos_x < conf_sysmenu_x + conf_sysmenu_load_x +
-			  conf_sysmenu_load_width &&
-	    mouse_pos_y >= conf_sysmenu_y + conf_sysmenu_load_y &&
-	    mouse_pos_y < conf_sysmenu_y + conf_sysmenu_load_y +
-			  conf_sysmenu_load_height) {
-		load = true;
-		if (!is_sysmenu_load_selected) {
+	if (sysmenu_pointed_index == SYSMENU_LOAD) {
+		load_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_LOAD) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
-		is_sysmenu_load_selected = true;
-	} else {
-		is_sysmenu_load_selected = false;
+	}
+
+	/* ヒストリがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
+		history_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_HISTORY) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
 	}
 
 	/* GPUを利用している場合 */
@@ -932,8 +1125,19 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		redraw = true;
 		
 	/* 描画する */
-	if (redraw)
-		draw_stage_sysmenu(true, save, load, x, y, w, h);
+	if (redraw) {
+		draw_stage_sysmenu(false,
+				   false,
+				   is_save_load_enabled(),
+				   qsave_sel,
+				   qload_sel,
+				   save_sel,
+				   load_sel,
+				   auto_sel,
+				   skip_sel,
+				   history_sel,
+				   x, y, w, h);
+	}
 }
 
 /* SEを再生する */
@@ -956,7 +1160,9 @@ static bool cleanup(void)
 {
 	int n, m;
 
-	if (need_save_mode || need_load_mode || need_history_mode)
+	/* セーブ・ロードを行う際はコマンドの移動を行わない */
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode)
 		return true;
 
 	n = selected_parent_index;

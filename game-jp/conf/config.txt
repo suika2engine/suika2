@@ -45,13 +45,13 @@ font.outline.remove=0
 namebox.file=namebox.png
 
 # 名前ボックス画像を表示する位置
-namebox.x=70
-namebox.y=400
+namebox.x=95
+namebox.y=480
 
 # 名前ボックス画像内のテキスト上端マージン
-namebox.margin.top=18
+namebox.margin.top=6
 
-# 名前を中央揃えにしないか(0:中央揃え, 1:左揃え)
+# 名前の中央揃えをやめるか(0:中央揃え, 1:左揃え)
 namebox.centering.no=0
 
 # 名前を左揃えにするときのテキスト左端マージン
@@ -68,20 +68,20 @@ msgbox.bg.file=msgbox-bg.png
 msgbox.fg.file=msgbox-fg.png
 
 # メッセージボックス画像を表示する位置
-msgbox.x=0
-msgbox.y=496
+msgbox.x=43
+msgbox.y=503
 
 # メッセージボックス画像内のテキスト左端マージン
 msgbox.margin.left=80
 
 # メッセージボックス画像内のテキスト上端マージン
-msgbox.margin.top=40
+msgbox.margin.top=50
 
 # メッセージボックス画像内のテキスト右端マージン
 msgbox.margin.right=80
 
 # メッセージの行間
-msgbox.margin.line=47
+msgbox.margin.line=55
 
 # メッセージのスピード(毎秒x文字表示する)
 msgbox.speed=20.0
@@ -89,59 +89,17 @@ msgbox.speed=20.0
 # オートモードのスピード(1文字あたりx秒待つ, 省略可)
 msgbox.auto.speed=0.15
 
-# QSAVEボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.btn.qsave.x=740
-msgbox.btn.qsave.y=0
-msgbox.btn.qsave.width=79
-msgbox.btn.qsave.height=23
+# メッセージボックスを非表示にするボタンの座標(メッセージボックス内の座標, 省略可)
+msgbox.hide.x=1146
+msgbox.hide.y=16
+msgbox.hide.width=29
+msgbox.hide.height=29
 
-# QLOADボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.btn.qload.x=820
-msgbox.btn.qload.y=0
-msgbox.btn.qload.width=81
-msgbox.btn.qload.height=23
+# メッセージボックスを非表示にするときのSE(省略可)
+msgbox.hide.se=click.ogg
 
-# SAVEボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.btn.save.x=901
-msgbox.btn.save.y=0
-msgbox.btn.save.width=62
-msgbox.btn.save.height=23
-
-# LOADボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.btn.load.x=963
-msgbox.btn.load.y=0
-msgbox.btn.load.width=66
-msgbox.btn.load.height=23
-
-# AUTOボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.btn.auto.x=1029
-msgbox.btn.auto.y=0
-msgbox.btn.auto.width=68
-msgbox.btn.auto.height=23
-
-# SKIPボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.btn.skip.x=1096
-msgbox.btn.skip.y=0
-msgbox.btn.skip.width=59
-msgbox.btn.skip.height=23
-
-# LOGボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.btn.history.x=1156
-msgbox.btn.history.y=0
-msgbox.btn.history.width=53
-msgbox.btn.history.height=23
-
-# ボタンが押されたときのSE(省略可)
-msgbox.btn.qsave.se=click.ogg
-msgbox.btn.qload.se=click.ogg
-msgbox.btn.save.se=click.ogg
-msgbox.btn.load.se=click.ogg
-msgbox.btn.auto.se=click.ogg
-msgbox.btn.skip.se=click.ogg
-msgbox.btn.history.se=click.ogg
-
-# ポイントされているボタンが変更されたときのSE(省略可)
-msgbox.btn.change.se=btn-change.ogg
+# メッセージボックスを表示するときのSE(省略可)
+msgbox.show.se=click.ogg
 
 # 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
 msgbox.history.se=click.ogg
@@ -180,14 +138,14 @@ switch.bg.file=switch-bg.png
 switch.fg.file=switch-fg.png
 
 # 選択肢の位置
-switch.x=265
-switch.y=120
+switch.x=406
+switch.y=129
 
 # 選択肢の間の縦方向マージン
 switch.margin.y=20
 
 # 選択肢画像のテキストの縦方向マージン
-switch.text.margin.y=18
+switch.text.margin.y=12
 
 # 選択肢を選択したときの効果音(省略可)
 switch.parent.click.se.file=click.ogg
@@ -345,26 +303,59 @@ menu.change.se=btn-change.ogg
 ###
 
 # システムメニュー画像の座標
-sysmenu.x=0
-sysmenu.y=0
+sysmenu.x=792
+sysmenu.y=29
 
-# システムメニュー画像(非選択時)のファイル名
-sysmenu.bg.file=sysmenu-bg.png
+# システムメニュー画像(通常時)のファイル名
+sysmenu.idle.file=sysmenu-idle.png
 
 # システムメニュー画像(選択時)のファイル名
-sysmenu.fg.file=sysmenu-fg.png
+sysmenu.hover.file=sysmenu-hover.png
 
-# セーブボタンの座標(システムメニュー画像内での座標)
-sysmenu.save.x=859
-sysmenu.save.y=29
-sysmenu.save.width=170
-sysmenu.save.height=64
+# システムメニュー画像(使用できない時)のファイル名
+sysmenu.disable.file=sysmenu-disable.png
 
-# ロードボタンの座標(システムメニュー画像内での座標)
-sysmenu.load.x=1059
-sysmenu.load.y=29
-sysmenu.load.width=170
-sysmenu.load.height=64
+# システムメニューのクイックセーブボタンの座標(システムメニュー画像内での座標)
+sysmenu.qsave.x=62
+sysmenu.qsave.y=7
+sysmenu.qsave.width=60
+sysmenu.qsave.height=58
+
+# システムメニューのクイックロードボタンの座標(システムメニュー画像内での座標)
+sysmenu.qload.x=123
+sysmenu.qload.y=7
+sysmenu.qload.width=60
+sysmenu.qload.height=58
+
+# システムメニューのセーブボタンの座標(システムメニュー画像内での座標)
+sysmenu.save.x=184
+sysmenu.save.y=7
+sysmenu.save.width=60
+sysmenu.save.height=58
+
+# システムメニューのロードボタンの座標(システムメニュー画像内での座標)
+sysmenu.load.x=245
+sysmenu.load.y=7
+sysmenu.load.width=60
+sysmenu.load.height=58
+
+# システムメニューのオートボタンの座標(システムメニュー画像内での座標)
+sysmenu.auto.x=306
+sysmenu.auto.y=7
+sysmenu.auto.width=60
+sysmenu.auto.height=58
+
+# システムメニューのスキップボタンの座標(システムメニュー画像内での座標)
+sysmenu.skip.x=367
+sysmenu.skip.y=7
+sysmenu.skip.width=60
+sysmenu.skip.height=58
+
+# システムメニューのヒストリボタンの座標(システムメニュー画像内での座標)
+sysmenu.history.x=428
+sysmenu.history.y=7
+sysmenu.history.width=60
+sysmenu.history.height=58
 
 # システムメニューを呼び出すときのSE(省略可)
 sysmenu.enter.se=click.ogg
@@ -374,6 +365,27 @@ sysmenu.leave.se=click.ogg
 
 # システムメニューの選択されている項目が変わったときのSE(省略可)
 sysmenu.change.se=btn-change.ogg
+
+# システムメニューのクイックセーブが選択されたときのSE(省略可)
+sysmenu.qsave.se=click.ogg
+
+# システムメニューのクイックロードが選択されたときのSE(省略可)
+sysmenu.qload.se=click.ogg
+
+# システムメニューのセーブが選択されたときのSE(省略可)
+sysmenu.save.se=click.ogg
+
+# システムメニューのロードが選択されたときのSE(省略可)
+sysmenu.load.se=click.ogg
+
+# システムメニューのオートが選択されたときのSE(省略可)
+sysmenu.auto.se=click.ogg
+
+# システムメニューのスキップが選択されたときのSE(省略可)
+sysmenu.skip.se=click.ogg
+
+# システムメニューのヒストリが選択されたときのSE(省略可)
+sysmenu.history.se=click.ogg
 
 ###
 ### セリフの色の設定

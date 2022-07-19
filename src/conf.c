@@ -68,6 +68,12 @@ int conf_msgbox_margin_right;
 int conf_msgbox_margin_line;
 float conf_msgbox_speed;
 float conf_msgbox_auto_speed;
+int conf_msgbox_hide_x;
+int conf_msgbox_hide_y;
+int conf_msgbox_hide_width;
+int conf_msgbox_hide_height;
+char *conf_msgbox_hide_se;
+char *conf_msgbox_show_se;
 int conf_msgbox_btn_qsave_x;
 int conf_msgbox_btn_qsave_y;
 int conf_msgbox_btn_qsave_width;
@@ -221,8 +227,17 @@ char *conf_menu_change_se;
  */
 int conf_sysmenu_x;
 int conf_sysmenu_y;
-char *conf_sysmenu_bg_file;
-char *conf_sysmenu_fg_file;
+char *conf_sysmenu_idle_file;
+char *conf_sysmenu_hover_file;
+char *conf_sysmenu_disable_file;
+int conf_sysmenu_qsave_x;
+int conf_sysmenu_qsave_y;
+int conf_sysmenu_qsave_width;
+int conf_sysmenu_qsave_height;
+int conf_sysmenu_qload_x;
+int conf_sysmenu_qload_y;
+int conf_sysmenu_qload_width;
+int conf_sysmenu_qload_height;
 int conf_sysmenu_save_x;
 int conf_sysmenu_save_y;
 int conf_sysmenu_save_width;
@@ -231,9 +246,28 @@ int conf_sysmenu_load_x;
 int conf_sysmenu_load_y;
 int conf_sysmenu_load_width;
 int conf_sysmenu_load_height;
+int conf_sysmenu_auto_x;
+int conf_sysmenu_auto_y;
+int conf_sysmenu_auto_width;
+int conf_sysmenu_auto_height;
+int conf_sysmenu_skip_x;
+int conf_sysmenu_skip_y;
+int conf_sysmenu_skip_width;
+int conf_sysmenu_skip_height;
+int conf_sysmenu_history_x;
+int conf_sysmenu_history_y;
+int conf_sysmenu_history_width;
+int conf_sysmenu_history_height;
 char *conf_sysmenu_enter_se;
 char *conf_sysmenu_leave_se;
 char *conf_sysmenu_change_se;
+char *conf_sysmenu_qsave_se;
+char *conf_sysmenu_qload_se;
+char *conf_sysmenu_save_se;
+char *conf_sysmenu_load_se;
+char *conf_sysmenu_auto_se;
+char *conf_sysmenu_skip_se;
+char *conf_sysmenu_history_se;
 
 /*
  * セリフの色付け
@@ -307,6 +341,12 @@ struct rule {
 	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
 	{"msgbox.auto.speed", 'f', &conf_msgbox_auto_speed, true, false},
+	{"msgbox.hide.x", 'i', &conf_msgbox_hide_x, true, false},
+	{"msgbox.hide.y", 'i', &conf_msgbox_hide_y, true, false},
+	{"msgbox.hide.width", 'i', &conf_msgbox_hide_width, true, false},
+	{"msgbox.hide.height", 'i', &conf_msgbox_hide_height, true, false},
+	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},
+	{"msgbox.show.se", 's', &conf_msgbox_show_se, true, false},
 	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
 	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, true, false},
 	{"msgbox.btn.qsave.width", 'i', &conf_msgbox_btn_qsave_width, true, false},
@@ -434,8 +474,17 @@ struct rule {
 	{"menu.change.se", 's', &conf_menu_change_se, true, false},
 	{"sysmenu.x", 'i', &conf_sysmenu_x, false, false},
 	{"sysmenu.y", 'i', &conf_sysmenu_y, false, false},
-	{"sysmenu.bg.file", 's', &conf_sysmenu_bg_file, false, false},
-	{"sysmenu.fg.file", 's', &conf_sysmenu_fg_file, false, false},
+	{"sysmenu.idle.file", 's', &conf_sysmenu_idle_file, false, false},
+	{"sysmenu.hover.file", 's', &conf_sysmenu_hover_file, false, false},
+	{"sysmenu.disable.file", 's', &conf_sysmenu_disable_file, false, false},
+	{"sysmenu.qsave.x", 'i', &conf_sysmenu_qsave_x, false, false},
+	{"sysmenu.qsave.y", 'i', &conf_sysmenu_qsave_y, false, false},
+	{"sysmenu.qsave.width", 'i', &conf_sysmenu_qsave_width, false, false},
+	{"sysmenu.qsave.height", 'i', &conf_sysmenu_qsave_height, false, false},
+	{"sysmenu.qload.x", 'i', &conf_sysmenu_qload_x, false, false},
+	{"sysmenu.qload.y", 'i', &conf_sysmenu_qload_y, false, false},
+	{"sysmenu.qload.width", 'i', &conf_sysmenu_qload_width, false, false},
+	{"sysmenu.qload.height", 'i', &conf_sysmenu_qload_height, false, false},
 	{"sysmenu.save.x", 'i', &conf_sysmenu_save_x, false, false},
 	{"sysmenu.save.y", 'i', &conf_sysmenu_save_y, false, false},
 	{"sysmenu.save.width", 'i', &conf_sysmenu_save_width, false, false},
@@ -444,9 +493,28 @@ struct rule {
 	{"sysmenu.load.y", 'i', &conf_sysmenu_load_y, false, false},
 	{"sysmenu.load.width", 'i', &conf_sysmenu_load_width, false, false},
 	{"sysmenu.load.height", 'i', &conf_sysmenu_load_height, false, false},
+	{"sysmenu.auto.x", 'i', &conf_sysmenu_auto_x, false, false},
+	{"sysmenu.auto.y", 'i', &conf_sysmenu_auto_y, false, false},
+	{"sysmenu.auto.width", 'i', &conf_sysmenu_auto_width, false, false},
+	{"sysmenu.auto.height", 'i', &conf_sysmenu_auto_height, false, false},
+	{"sysmenu.skip.x", 'i', &conf_sysmenu_skip_x, false, false},
+	{"sysmenu.skip.y", 'i', &conf_sysmenu_skip_y, false, false},
+	{"sysmenu.skip.width", 'i', &conf_sysmenu_skip_width, false, false},
+	{"sysmenu.skip.height", 'i', &conf_sysmenu_skip_height, false, false},
+	{"sysmenu.history.x", 'i', &conf_sysmenu_history_x, false, false},
+	{"sysmenu.history.y", 'i', &conf_sysmenu_history_y, false, false},
+	{"sysmenu.history.width", 'i', &conf_sysmenu_history_width, false, false},
+	{"sysmenu.history.height", 'i', &conf_sysmenu_history_height, false, false},
 	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, true, false},
 	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, true, false},
 	{"sysmenu.change.se", 's', &conf_sysmenu_change_se, true, false},
+	{"sysmenu.qsave.se", 's', &conf_sysmenu_qsave_se, true, false},
+	{"sysmenu.qload.se", 's', &conf_sysmenu_qload_se, true, false},
+	{"sysmenu.save.se", 's', &conf_sysmenu_save_se, true, false},
+	{"sysmenu.load.se", 's', &conf_sysmenu_load_se, true, false},
+	{"sysmenu.auto.se", 's', &conf_sysmenu_auto_se, true, false},
+	{"sysmenu.skip.se", 's', &conf_sysmenu_skip_se, true, false},
+	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},
