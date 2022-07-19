@@ -237,7 +237,7 @@ save.data2.y=283
 
 # Position of the save data 3
 save.data3.x=50
-save.data3.y=420
+save.data3.y=429
 
 # Position and size of the exit button
 save.exit.x=33
@@ -334,16 +334,16 @@ sysmenu.qload.width=60
 sysmenu.qload.height=58
 
 # Position of save button (Position inside system menu image)
-sysmenu.save.x=859
-sysmenu.save.y=29
-sysmenu.save.width=170
-sysmenu.save.height=64
+sysmenu.save.x=184
+sysmenu.save.y=7
+sysmenu.save.width=60
+sysmenu.save.height=58
 
 # Position of load button (Position inside system menu image)
-sysmenu.load.x=1059
-sysmenu.load.y=29
-sysmenu.load.width=170
-sysmenu.load.height=64
+sysmenu.load.x=245
+sysmenu.load.y=7
+sysmenu.load.width=60
+sysmenu.load.height=58
 
 # Position of auto button (Position inside system menu image)
 sysmenu.auto.x=306
