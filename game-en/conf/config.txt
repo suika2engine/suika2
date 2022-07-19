@@ -309,8 +309,8 @@ menu.change.se=btn-change.ogg
 ###
 
 # Position to show the system menu image
-sysmenu.x=0
-sysmenu.y=0
+sysmenu.x=792
+sysmenu.y=29
 
 # System menu image (base) file name
 sysmenu.idle.file=sysmenu-idle.png
