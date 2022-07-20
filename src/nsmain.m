@@ -344,7 +344,7 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 #ifdef USE_DEBUGGER
     return YES;
 #else
-    @autorelease {
+    @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
         [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];

@@ -23,7 +23,7 @@
 /*
  * 言語の設定
  */
-extern char *conf_i18n;
+extern int conf_i18n;
 
 /*
  * ウィンドウの設定
