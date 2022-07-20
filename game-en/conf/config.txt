@@ -96,19 +96,22 @@ msgbox.speed=20.0
 msgbox.auto.speed=0.15
 
 # Position of the hide button (position inside message box, optional)
-msgbox.hide.x=1146
-msgbox.hide.y=16
-msgbox.hide.width=29
-msgbox.hide.height=29
+msgbox.btn.hide.x=1146
+msgbox.btn.hide.y=16
+msgbox.btn.hide.width=29
+msgbox.btn.hide.height=29
+
+# Sound effect when pointed button changed (optional)
+msgbox.btn.change.se=btn-change.ogg
+
+# Sound effect when call history screen by up arrow key or mouse wheel up (optional)
+msgbox.history.se=click.ogg
 
 # Sound effect when hide message box (optional)
 msgbox.hide.se=click.ogg
 
 # Sound effect when show messsage box (optional)
 msgbox.show.se=click.ogg
-
-# Sound effect when call history screen by up arrow key or mouse wheel up (optional)
-msgbox.history.se=click.ogg
 
 # Sound effect when cancel auto mode (optional)
 msgbox.auto.cancel.se=click.ogg

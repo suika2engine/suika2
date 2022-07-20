@@ -68,12 +68,6 @@ int conf_msgbox_margin_right;
 int conf_msgbox_margin_line;
 float conf_msgbox_speed;
 float conf_msgbox_auto_speed;
-int conf_msgbox_hide_x;
-int conf_msgbox_hide_y;
-int conf_msgbox_hide_width;
-int conf_msgbox_hide_height;
-char *conf_msgbox_hide_se;
-char *conf_msgbox_show_se;
 int conf_msgbox_btn_qsave_x;
 int conf_msgbox_btn_qsave_y;
 int conf_msgbox_btn_qsave_width;
@@ -102,6 +96,10 @@ int conf_msgbox_btn_history_x;
 int conf_msgbox_btn_history_y;
 int conf_msgbox_btn_history_width;
 int conf_msgbox_btn_history_height;
+int conf_msgbox_btn_hide_x;
+int conf_msgbox_btn_hide_y;
+int conf_msgbox_btn_hide_width;
+int conf_msgbox_btn_hide_height;
 char *conf_msgbox_btn_qsave_se;
 char *conf_msgbox_btn_qload_se;
 char *conf_msgbox_btn_save_se;
@@ -112,6 +110,8 @@ char *conf_msgbox_btn_history_se;
 char *conf_msgbox_btn_change_se;
 char *conf_msgbox_save_se;
 char *conf_msgbox_history_se;
+char *conf_msgbox_hide_se;
+char *conf_msgbox_show_se;
 char *conf_msgbox_auto_cancel_se;
 char *conf_msgbox_skip_cancel_se;
 int conf_msgbox_skip_unseen;
@@ -341,12 +341,6 @@ struct rule {
 	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
 	{"msgbox.auto.speed", 'f', &conf_msgbox_auto_speed, true, false},
-	{"msgbox.hide.x", 'i', &conf_msgbox_hide_x, true, false},
-	{"msgbox.hide.y", 'i', &conf_msgbox_hide_y, true, false},
-	{"msgbox.hide.width", 'i', &conf_msgbox_hide_width, true, false},
-	{"msgbox.hide.height", 'i', &conf_msgbox_hide_height, true, false},
-	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},
-	{"msgbox.show.se", 's', &conf_msgbox_show_se, true, false},
 	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
 	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, true, false},
 	{"msgbox.btn.qsave.width", 'i', &conf_msgbox_btn_qsave_width, true, false},
@@ -376,6 +370,10 @@ struct rule {
 	{"msgbox.btn.history.y", 'i', &conf_msgbox_btn_history_y, true, false},
 	{"msgbox.btn.history.width", 'i', &conf_msgbox_btn_history_width, true, false},
 	{"msgbox.btn.history.height", 'i', &conf_msgbox_btn_history_height, true, false},
+	{"msgbox.btn.hide.x", 'i', &conf_msgbox_btn_hide_x, true, false},
+	{"msgbox.btn.hide.y", 'i', &conf_msgbox_btn_hide_y, true, false},
+	{"msgbox.btn.hide.width", 'i', &conf_msgbox_btn_hide_width, true, false},
+	{"msgbox.btn.hide.height", 'i', &conf_msgbox_btn_hide_height, true, false},
 	{"msgbox.btn.qsave.se", 's', &conf_msgbox_btn_qsave_se, true, false},
 	{"msgbox.btn.qload.se", 's', &conf_msgbox_btn_qload_se, true, false},
 	{"msgbox.btn.save.se", 's', &conf_msgbox_btn_save_se, true, false},
@@ -387,6 +385,8 @@ struct rule {
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
 	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, true, false},
 	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, true, false},
+	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},
+	{"msgbox.show.se", 's', &conf_msgbox_show_se, true, false},
 	{"msgbox.skip.unseen", 'i', &conf_msgbox_skip_unseen, true, false},
 	{"click.file", 's', &conf_click_file, false, false},
 	{"click.x", 'i', &conf_click_x, false, false},

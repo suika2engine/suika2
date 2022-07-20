@@ -47,6 +47,7 @@
 #define BTN_AUTO	(4)
 #define BTN_SKIP	(5)
 #define BTN_HISTORY	(6)
+#define BTN_HIDE	(7)
 
 /* システムメニューのボタンのインデックス */
 #define SYSMENU_NONE	(-1)
@@ -1037,7 +1038,7 @@ static int get_pointed_button(void)
 	ry = mouse_pos_y - conf_msgbox_y;
 
 	/* ボタンを順番に見ていく */
-	for (i = BTN_QSAVE; i <= BTN_HISTORY; i++) {
+	for (i = BTN_QSAVE; i <= BTN_HIDE; i++) {
 		/* ボタンの座標を取得する */
 		get_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
 
@@ -1096,6 +1097,12 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*y = conf_msgbox_btn_history_y;
 		*w = conf_msgbox_btn_history_width;
 		*h = conf_msgbox_btn_history_height;
+		break;
+	case BTN_HIDE:
+		*x = conf_msgbox_btn_hide_x;
+		*y = conf_msgbox_btn_hide_y;
+		*w = conf_msgbox_btn_hide_width;
+		*h = conf_msgbox_btn_hide_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
@@ -1742,13 +1749,7 @@ static void frame_hide(int *x, int *y, int *w, int *h)
 		 * クリックを処理する
 		 */
 		if (is_space_pressed ||
-		    (is_left_button_pressed &&
-		     (mouse_pos_x >= conf_msgbox_x + conf_msgbox_hide_x &&
-		      mouse_pos_x < conf_msgbox_x + conf_msgbox_hide_x +
-				    conf_msgbox_hide_width &&
-		      mouse_pos_y >= conf_msgbox_y + conf_msgbox_hide_y &&
-		      mouse_pos_y < conf_msgbox_y + conf_msgbox_hide_y +
-				    conf_msgbox_hide_height))) {
+		    (is_left_button_pressed && pointed_index == BTN_HIDE)) {
 			/* メッセージボックスを非表示にする */
 			is_hidden = true;
 			if (get_command_type() == COMMAND_SERIF)
@@ -1793,6 +1794,8 @@ static void frame_hide(int *x, int *y, int *w, int *h)
 		/* 以降のクリックを処理しない */
 		is_right_button_pressed = false;
 		is_left_button_pressed = false;
+		is_return_pressed = false;
+		is_down_pressed = false;
 	}
 }
 

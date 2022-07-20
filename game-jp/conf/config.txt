@@ -90,19 +90,22 @@ msgbox.speed=20.0
 msgbox.auto.speed=0.15
 
 # メッセージボックスを非表示にするボタンの座標(メッセージボックス内の座標, 省略可)
-msgbox.hide.x=1146
-msgbox.hide.y=16
-msgbox.hide.width=29
-msgbox.hide.height=29
+msgbox.btn.hide.x=1146
+msgbox.btn.hide.y=16
+msgbox.btn.hide.width=29
+msgbox.btn.hide.height=29
+
+# ポイントされているボタンが変化したときのSE(省略可)
+msgbox.btn.change.se=btn-change.ogg
+
+# 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
+msgbox.history.se=click.ogg
 
 # メッセージボックスを非表示にするときのSE(省略可)
 msgbox.hide.se=click.ogg
 
 # メッセージボックスを表示するときのSE(省略可)
 msgbox.show.se=click.ogg
-
-# 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
-msgbox.history.se=click.ogg
 
 # オートモードをキャンセルするときのSE(省略可)
 msgbox.auto.cancel.se=click.ogg
