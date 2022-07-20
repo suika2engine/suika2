@@ -2,8 +2,6 @@
 ### Logo
 ###
 
-@chapter "Sample Game"
-
 @skip disable
 @bg white.png 0
 @ch c suika.png 1.0
@@ -50,6 +48,8 @@
 ###
 
 :SCENE1
+
+@chapter "SCENE -1-"
 
 @vol bgm 0.0 1.0
 @bg white.png 1.0
@@ -99,6 +99,8 @@
 ### Scene2 (Greetings on the roof)
 ###
 
+@chapter "SCENE -2-"
+
 @bgm 02.ogg
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
@@ -113,6 +115,8 @@
 ###
 ### Scene3 (Be asked questions on the roof)
 ###
+
+@chapter "SCENE -3-"
 
 :LOOP1
 @choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "What're system requirements?" L1_NEXT Next
@@ -148,6 +152,8 @@ In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 wa
 ###
 ### Scene4 (Be asked questions on the coast)
 ###
+
+@chapter "SCENE -4-"
 
 @ch c 001-fun.png 1.0
 *Midori*Shall we step out and have a walk? Where should we go? ...Well, how about the coast?
@@ -190,6 +196,8 @@ If there's anything you want to customize but can't, please contact the author.
 ### (Last scene on the coast/Mixture of Midori's lines and monologues)
 ###
 
+@chapter "SCENE -5-"
+
 @ch c 001-fun.png 1.0
 *Midori*Thanks for asking so many questions today!
 
@@ -217,6 +225,9 @@ If there's anything you want to customize but can't, please contact the author.
 @if $2 != 1 END
 @if $3 != 1 END
 @if $4 != 1 END
+
+@chapter "Sample Game"
+
 Thank you for selecting all the options.
 @goto END
 
