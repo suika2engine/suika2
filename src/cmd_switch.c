@@ -161,8 +161,10 @@ bool switch_command(int *x, int *y, int *w, int *h)
 		process_sysmenu_click();
 
 	/* 描画を行う */
-	if (!did_quick_load)
+	if (!did_quick_load) {
 		draw_frame(x, y, w, h);
+		is_sysmenu_finished = false;
+	}
 
 	/* クイックロード・セーブ・ロード・ヒストリが選択された場合 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
@@ -234,12 +236,16 @@ bool init(void)
 	show_msgbox(false);
 
 	/* オートモードを終了する */
-	if (is_auto_mode())
+	if (is_auto_mode()) {
 		stop_auto_mode();
+		show_automode_banner(false);
+	}
 
 	/* スキップモードを終了する */
-	if (is_skip_mode())
+	if (is_skip_mode()) {
 		stop_skip_mode();
+		show_skipmode_banner(false);
+	}
 
 	return true;
 }
@@ -484,12 +490,15 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		return;
 	}
 
-	/* 親選択肢を選んでいる最中の場合 */
-	if (selected_parent_index == -1) {
-		draw_frame_parent(x, y, w, h);
-	} else {
-		/* 子選択肢を選んでいる最中の場合 */
-		draw_frame_child(x, y, w, h);
+	/* システムメニューを表示中でない場合 */
+	if (!is_sysmenu) {
+		if (selected_parent_index == -1) {
+			/* 親選択肢を選んでいる最中の場合 */
+			draw_frame_parent(x, y, w, h);
+		} else {
+			/* 子選択肢を選んでいる最中の場合 */
+			draw_frame_child(x, y, w, h);
+		}
 	}
 
 	/* システムメニューを表示中の場合 */
@@ -514,14 +523,16 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		update_switch_parent(x, y, w, h);
 
 		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_button_pressed) {
+		if (new_pointed_index != -1 && !is_left_button_pressed &&
+		    !is_sysmenu_finished) {
 			play_se(get_command_type() == COMMAND_NEWS ?
 				conf_news_change_se : conf_switch_change_se);
 		}
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
-	if (new_pointed_index != -1 && is_left_button_pressed) {
+	if (new_pointed_index != -1 && is_left_button_pressed &&
+	    !is_sysmenu_finished) {
 		selected_parent_index = new_pointed_index;
 		pointed_child_index = -1;
 		is_child_first_frame = true;
@@ -955,8 +966,17 @@ static void process_sysmenu_click(void)
 	/* ポイントされているシステムメニューのボタンを求める */
 	old_sysmenu_pointed_index = sysmenu_pointed_index;
 	sysmenu_pointed_index = get_sysmenu_pointed_button();
-	if (sysmenu_pointed_index == SYSMENU_NONE)
+
+	/* ボタンのないところを左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_NONE && is_left_button_pressed) {
+		/* SEを再生する */
+		play_se(conf_sysmenu_leave_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
 		return;
+	}
 
 	/* セーブロードが無効な場合 */
 	if (!is_save_load_enabled() &&

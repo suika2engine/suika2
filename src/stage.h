@@ -379,6 +379,22 @@ void unlock_fi_layer_for_history(void);
 void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h);
 
 /*
+ * バナーの描画
+ */
+
+/* オートモードバナーの矩形を取得する */
+void get_automode_banner_rect(int *x, int *y, int *w, int *h);
+
+/* スキップモードバナーの矩形を取得する */
+void get_skipmode_banner_rect(int *x, int *y, int *w, int *h);
+
+/* オートモードバナーの表示・非表示を設定する */
+void show_automode_banner(bool show);
+
+/* スキップモードバナーの表示・非表示を設定する */
+void show_skipmode_banner(bool show);
+
+/*
  * 更新領域の計算
  */
 

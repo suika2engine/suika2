@@ -67,7 +67,6 @@ int conf_msgbox_margin_top;
 int conf_msgbox_margin_right;
 int conf_msgbox_margin_line;
 float conf_msgbox_speed;
-float conf_msgbox_auto_speed;
 int conf_msgbox_btn_qsave_x;
 int conf_msgbox_btn_qsave_y;
 int conf_msgbox_btn_qsave_width;
@@ -270,6 +269,21 @@ char *conf_sysmenu_skip_se;
 char *conf_sysmenu_history_se;
 
 /*
+ * オートモードの設定
+ */
+char *conf_automode_banner_file;
+int conf_automode_banner_x;
+int conf_automode_banner_y;
+float conf_automode_speed;
+
+/*
+ * スキップモードの設定
+ */
+char *conf_skipmode_banner_file;
+int conf_skipmode_banner_x;
+int conf_skipmode_banner_y;
+
+/*
  * セリフの色付け
  */
 char *conf_serif_color_name[SERIF_COLOR_COUNT];
@@ -340,7 +354,6 @@ struct rule {
 	{"msgbox.margin.right", 'i', &conf_msgbox_margin_right, false, false},
 	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
-	{"msgbox.auto.speed", 'f', &conf_msgbox_auto_speed, true, false},
 	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
 	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, true, false},
 	{"msgbox.btn.qsave.width", 'i', &conf_msgbox_btn_qsave_width, true, false},
@@ -515,6 +528,13 @@ struct rule {
 	{"sysmenu.auto.se", 's', &conf_sysmenu_auto_se, true, false},
 	{"sysmenu.skip.se", 's', &conf_sysmenu_skip_se, true, false},
 	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, true, false},
+	{"automode.banner.file", 's', &conf_automode_banner_file, false, false},
+	{"automode.banner.x", 'i', &conf_automode_banner_x, false, false},
+	{"automode.banner.y", 'i', &conf_automode_banner_y, false, false},
+	{"automode.speed", 'f', &conf_automode_speed, false, false},
+	{"skipmode.banner.file", 's', &conf_skipmode_banner_file, false, false},
+	{"skipmode.banner.x", 'i', &conf_skipmode_banner_x, false, false},
+	{"skipmode.banner.y", 'i', &conf_skipmode_banner_y, false, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},

@@ -68,7 +68,6 @@ extern int conf_msgbox_margin_top;
 extern int conf_msgbox_margin_right;
 extern int conf_msgbox_margin_line;
 extern float conf_msgbox_speed;
-extern float conf_msgbox_auto_speed;
 extern int conf_msgbox_btn_qsave_x;
 extern int conf_msgbox_btn_qsave_y;
 extern int conf_msgbox_btn_qsave_width;
@@ -279,6 +278,21 @@ extern char *conf_sysmenu_load_se;
 extern char *conf_sysmenu_auto_se;
 extern char *conf_sysmenu_skip_se;
 extern char *conf_sysmenu_history_se;
+
+/*
+ * オートモードの設定
+ */
+extern char *conf_automode_banner_file;
+extern int conf_automode_banner_x;
+extern int conf_automode_banner_y;
+extern float conf_automode_speed;
+
+/*
+ * スキップモードの設定
+ */
+extern char *conf_skipmode_banner_file;
+extern int conf_skipmode_banner_x;
+extern int conf_skipmode_banner_y;
 
 /*
  * セリフの色付け

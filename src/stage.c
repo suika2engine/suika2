@@ -73,6 +73,12 @@ enum {
 	 */
 	LAYER_FI,	/* 特殊: 実体イメージあり */
 
+	/* オートモードバナー */
+	LAYER_AUTO,
+
+	/* スキップモードバナー */
+	LAYER_SKIP,
+
 	/* 総レイヤ数 */
 	STAGE_LAYERS
 };
@@ -108,6 +114,12 @@ static bool is_namebox_visible;
 
 /* クリックアニメーションを表示するか */
 static bool is_click_visible;
+
+/* オートモードバナーを表示するか */
+static bool is_auto_visible;
+
+/* スキップモードバナーを表示するか */
+static bool is_skip_visible;
 
 /* 選択肢(非選択時)のイメージ */
 static struct image *switch_bg_image;
@@ -211,6 +223,7 @@ static bool setup_switch(void);
 static bool setup_news(void);
 static bool setup_save(void);
 static bool setup_sysmenu(void);
+static bool setup_banner(void);
 static bool setup_thumb(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
@@ -308,6 +321,10 @@ bool init_stage(void)
 
 	/* システムメニューをセットアップする */
 	if (!setup_sysmenu())
+		return false;
+
+	/* バナーをセットアップする */
+	if (!setup_banner())
 		return false;
 
 	/* セーブデータのサムネイル画像をセットアップする */
@@ -597,6 +614,43 @@ static bool setup_sysmenu(void)
 	return true;
 }
 
+/* バナーをセットアップする */
+static bool setup_banner(void)
+{
+	is_auto_visible = false;
+	is_skip_visible = false;
+
+	/* 再初期化時に破棄する */
+	if (layer_image[LAYER_AUTO] != NULL) {
+		destroy_image(layer_image[LAYER_AUTO]);
+		layer_image[LAYER_AUTO] = NULL;
+	}
+	if (layer_image[LAYER_SKIP] != NULL) {
+		destroy_image(layer_image[LAYER_SKIP]);
+		layer_image[LAYER_SKIP] = NULL;
+	}
+
+	/* オートモードバナーの画像を読み込む */
+	layer_image[LAYER_AUTO] = create_image_from_file(
+		CG_DIR, conf_automode_banner_file);
+	if (layer_image[LAYER_AUTO] == NULL)
+		return false;
+
+	layer_x[LAYER_AUTO] = conf_automode_banner_x;
+	layer_y[LAYER_AUTO] = conf_automode_banner_y;
+
+	/* スキップモードバナーの画像を読み込む */
+	layer_image[LAYER_SKIP] = create_image_from_file(
+		CG_DIR, conf_skipmode_banner_file);
+	if (layer_image[LAYER_SKIP] == NULL)
+		return false;
+
+	layer_x[LAYER_SKIP] = conf_skipmode_banner_x;
+	layer_y[LAYER_SKIP] = conf_skipmode_banner_y;
+
+	return true;
+}
+
 /* セーブデータのサムネイル画像をセットアップする */
 static bool setup_thumb(void)
 {
@@ -841,6 +895,10 @@ void draw_stage_rect(int x, int y, int w, int h)
 		render_layer_image_rect(LAYER_NAME, x, y, w,h);
 	if (is_click_visible)
 		render_layer_image_rect(LAYER_CLICK, x, y, w, h);
+	if (is_auto_visible)
+		render_layer_image_rect(LAYER_AUTO, x, y, w, h);
+	if (is_skip_visible)
+		render_layer_image_rect(LAYER_SKIP, x, y, w, h);
 }
 
 /*
@@ -864,6 +922,11 @@ void draw_stage_bg_fade(int fade_method)
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
+
+	if (is_auto_visible)
+		render_layer_image(LAYER_AUTO);
+	if (is_skip_visible)
+		render_layer_image(LAYER_SKIP);
 }
 
 /*
@@ -875,6 +938,11 @@ void draw_stage_ch_fade(int fade_method)
 	assert(stage_mode == STAGE_MODE_CH_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
+
+	if (is_auto_visible)
+		render_layer_image(LAYER_AUTO);
+	if (is_skip_visible)
+		render_layer_image(LAYER_SKIP);
 }
 
 /* FI/FOフェードを行う */
@@ -3296,6 +3364,48 @@ void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
 					(pixel_t)conf_font_outline_color_b);
 
 	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, w, h);
+}
+
+/*
+ * バナーの描画
+ */
+
+/*
+ * オートモードバナーの矩形を取得する
+ */
+void get_automode_banner_rect(int *x, int *y, int *w, int *h)
+{
+	*x = layer_x[LAYER_AUTO];
+	*y = layer_y[LAYER_AUTO];
+	*w = get_image_width(layer_image[LAYER_AUTO]);
+	*h = get_image_height(layer_image[LAYER_AUTO]);
+}
+
+/*
+ * スキップモードバナーの矩形を取得する
+ */
+void get_skipmode_banner_rect(int *x, int *y, int *w, int *h)
+{
+	*x = layer_x[LAYER_SKIP];
+	*y = layer_y[LAYER_SKIP];
+	*w = get_image_width(layer_image[LAYER_SKIP]);
+	*h = get_image_height(layer_image[LAYER_SKIP]);
+}
+
+/*
+ * オートモードバナーの表示・非表示を設定する
+ */
+void show_automode_banner(bool show)
+{
+	is_auto_visible = show;
+}
+
+/*
+ * スキップモードバナーの表示・非表示を設定する
+ */
+void show_skipmode_banner(bool show)
+{
+	is_skip_visible = show;
 }
 
 /*

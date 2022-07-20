@@ -144,12 +144,16 @@ bool init(void)
 	is_first_frame = true;
 
 	/* オートモードを終了する */
-	if (is_auto_mode())
+	if (is_auto_mode()) {
 		stop_auto_mode();
+		show_automode_banner(false);
+	}
 
 	/* スキップモードを終了する */
-	if (is_skip_mode())
+	if (is_skip_mode()) {
 		stop_skip_mode();
+		show_skipmode_banner(false);
+	}
 
 	return true;
 }

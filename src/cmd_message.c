@@ -195,6 +195,7 @@ static void frame_sysmenu(void);
 static void frame_hide(int *x, int *y, int *w, int *h);
 static void frame_main(int *x, int *y, int *w, int *h);
 static void draw_sysmenu(int *x, int *y, int *w, int *h);
+static void draw_banners(int *x, int *y, int *w, int *h);
 static void play_se(const char *file);
 static bool is_skippable(void);
 static bool cleanup(void);
@@ -396,6 +397,7 @@ static void init_skip_mode(void)
 	/* 未読に到達した場合、スキップモードを終了する */
 	if (!is_skippable()) {
 		stop_skip_mode();
+		show_skipmode_banner(false);
 		return;
 	}
 
@@ -1418,6 +1420,9 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 			/* オートモードを開始する */
 			start_auto_mode();
 
+			/* オートモードバナーを表示する */
+			show_automode_banner(true);
+
 			/* メッセージ表示とボイス再生を未完了にする */
 			is_auto_mode_wait = false;
 
@@ -1432,13 +1437,16 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 		is_return_pressed = false;
 		is_down_pressed = false;
 
-		/* 左クリックされた場合 */
+		/* クリックされた場合 */
 		if (is_left_button_pressed || is_right_button_pressed) {
 			/* SEを再生する */
 			play_se(conf_msgbox_auto_cancel_se);
 
 			/* オートモードを終了する */
 			stop_auto_mode();
+
+			/* オートモードバナーを非表示にする */
+			show_automode_banner(false);
 
 			/* メッセージ表示とボイス再生を未完了にする */
 			is_auto_mode_wait = false;
@@ -1516,7 +1524,7 @@ static int get_wait_time(void)
 		return AUTO_MODE_VOICE_WAIT;
 
 	/* ボイスなしのとき、スケールを求める */
-	scale = conf_msgbox_auto_speed;
+	scale = conf_automode_speed;
 	if (scale == 0)
 		scale = AUTO_MODE_TEXT_WAIT_SCALE;
 
@@ -1551,8 +1559,11 @@ static void frame_skip_mode(void)
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_skip_se);
 
-		/* オートモードを開始する */
+		/* スキップモードを開始する */
 		start_skip_mode();
+
+		/* スキップモードバナーを表示する */
+		show_skipmode_banner(true);
 
 		/* 以降のクリック処理を行わない */
 		is_left_button_pressed = false;
@@ -1584,8 +1595,18 @@ static void frame_sysmenu(void)
 		/* ポイントされているシステムメニューのボタンを求める */
 		old_sysmenu_pointed_index = sysmenu_pointed_index;
 		sysmenu_pointed_index = get_sysmenu_pointed_button();
-		if (sysmenu_pointed_index == SYSMENU_NONE)
+
+		/* ボタンのないところを左クリックされた場合 */
+		if (sysmenu_pointed_index == SYSMENU_NONE &&
+		    is_left_button_pressed) {
+			/* SEを再生する */
+			play_se(conf_sysmenu_leave_se);
+
+			/* システムメニューを終了する */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
 			return;
+		}
 
 		/* セーブロードが無効な場合 */
 		if (!is_save_load_enabled() &&
@@ -1674,6 +1695,9 @@ static void frame_sysmenu(void)
 			/* オートモードを開始する */
 			start_auto_mode();
 
+			/* オートモードバナーを表示する */
+			show_automode_banner(true);
+
 			/* メッセージ表示とボイス再生を未完了にする */
 			is_auto_mode_wait = false;
 			return;
@@ -1690,6 +1714,9 @@ static void frame_sysmenu(void)
 
 			/* スキップモードを開始する */
 			start_skip_mode();
+
+			/* スキップモードバナーを表示する */
+			show_skipmode_banner(true);
 			return;
 		}
 
@@ -1724,9 +1751,6 @@ static void frame_sysmenu(void)
 
 	/* 右クリックされたとき */
 	if (is_right_button_pressed) {
-		/* ボイスを停止する */
-		set_mixer_input(VOICE_STREAM, NULL);
-
 		/* SEを再生する */
 		play_se(conf_sysmenu_enter_se);
 
@@ -1833,6 +1857,9 @@ static void frame_main(int *x, int *y, int *w, int *h)
 			*w = conf_window_width;
 			*h = conf_window_height;
 		}
+
+		/* オートモードかスキップモードのバナーの描画領域を取得する */
+		draw_banners(x, y, w, h);
 	}
 }
 
@@ -1938,6 +1965,20 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 				   skip_sel,
 				   history_sel,
 				   x, y, w, h);
+	}
+}
+
+/* バナーを描画する */
+static void draw_banners(int *x, int *y, int *w, int *h)
+{
+	int bx, by,bw, bh;
+
+	if (is_auto_mode()) {
+		get_automode_banner_rect(&bx, &by, &bw, &bh);
+		union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
+	} else if (is_skip_mode()) {
+		get_skipmode_banner_rect(&bx, &by, &bw, &bh);
+		union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
 	}
 }
 

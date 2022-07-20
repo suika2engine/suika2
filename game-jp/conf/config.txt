@@ -86,9 +86,6 @@ msgbox.margin.line=55
 # メッセージのスピード(毎秒x文字表示する)
 msgbox.speed=20.0
 
-# オートモードのスピード(1文字あたりx秒待つ, 省略可)
-msgbox.auto.speed=0.15
-
 # メッセージボックスを非表示にするボタンの座標(メッセージボックス内の座標, 省略可)
 msgbox.btn.hide.x=1146
 msgbox.btn.hide.y=16
@@ -389,6 +386,31 @@ sysmenu.skip.se=click.ogg
 
 # システムメニューのヒストリが選択されたときのSE(省略可)
 sysmenu.history.se=click.ogg
+
+###
+### オートモードの設定
+###
+
+# オートモードバナー画像のファイル名
+automode.banner.file=auto.png
+
+# オートモードバナーの座標
+automode.banner.x=0
+automode.banner.y=60
+
+# オートモードのスピード(1文字あたりx秒待つ)
+automode.speed=0.15
+
+###
+### スキップモードの設定
+###
+
+# スキップモードバナー画像のファイル名
+skipmode.banner.file=skip.png
+
+# スキップモードバナーの座標
+skipmode.banner.x=0
+skipmode.banner.y=60
 
 ###
 ### セリフの色の設定

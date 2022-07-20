@@ -92,9 +92,6 @@ msgbox.margin.line=40
 # Message speed (x characters per second)
 msgbox.speed=20.0
 
-# Auto mode speed (x seconds per character, optional)
-msgbox.auto.speed=0.15
-
 # Position of the hide button (position inside message box, optional)
 msgbox.btn.hide.x=1146
 msgbox.btn.hide.y=16
@@ -395,6 +392,31 @@ sysmenu.skip.se=click.ogg
 
 # Sound effect when history selected (optional)
 sysmenu.history.se=click.ogg
+
+###
+### Auto Mode Settings
+###
+
+# Auto mode banner image file
+automode.banner.file=auto.png
+
+# Position of auto mode banner
+automode.banner.x=0
+automode.banner.y=60
+
+# Auto mode speed (x seconds per character)
+automode.speed=0.15
+
+###
+### Skip Mode Settings
+###
+
+# Skip mode banner image file
+skipmode.banner.file=skip.png
+
+# Position of skip mode banner
+skipmode.banner.x=0
+skipmode.banner.y=60
 
 ###
 ### Character Message Colors
