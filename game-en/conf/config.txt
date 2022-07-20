@@ -2,7 +2,8 @@
 ### Language Setting
 ###
 
-language=English
+# Enable international mode
+i18n=1
 
 ###
 ### Window Settings
@@ -447,6 +448,14 @@ serif.color3.outline.g=0
 serif.color3.outline.b=0
 
 # Continues to serif.color64, but omissible
+
+###
+### UI Message
+###
+
+ui.msg.quit=Are you sure you want to quit?
+ui.msg.title=Are you sure you want to go to title?
+ui.msg.delete=Are you sure you want to delete the save data?
 
 ###
 ### Miscellaneous

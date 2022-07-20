@@ -28,15 +28,11 @@ static bool is_english_mode(void);
 /* 英語モードであるかチェックする */
 static bool is_english_mode(void)
 {
-	/* コンフィグlanguageが未指定の場合は日本語モードである */
-	if (conf_language == NULL)
+	/* コンフィグi18nが未指定の場合は日本語モードとする */
+	if (!conf_i18n)
 		return false;
 
-	/* コンフィグlanguageがEnglishの場合は英語モードである */
-	if (strcmp(conf_language, "English") == 0)
-		return true;
-
-	/* その他の言語が指定された場合は英語モードとする */
+	/* 英語モードとする */
 	return true;
 }
 

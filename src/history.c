@@ -137,7 +137,7 @@ bool register_message(const char *name, const char *msg, const char *voice)
 	/* 名前が指定されいる場合 */
 	if (name != NULL) {
 		/* "名前「メッセージ」"の形式に連結して保存する */
-		if (conf_language == NULL) {
+		if (!conf_i18n) {
 			snprintf(text, TEXT_SIZE, "%s%c%c%c%s%c%c%c", name,
 				 0xe3, 0x80, 0x8c, msg, 0xe3, 0x80, 0x8d);
 		} else {

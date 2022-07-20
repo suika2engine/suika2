@@ -23,7 +23,7 @@
 /*
  * 言語の設定
  */
-extern char *conf_language;
+extern char *conf_i18n;
 
 /*
  * ウィンドウの設定
@@ -306,6 +306,13 @@ extern int conf_serif_color_b[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_r[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_g[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
+
+/*
+ * UIメッセージ
+ */
+extern char *conf_ui_msg_quit;
+extern char *conf_ui_msg_title;
+extern char *conf_ui_msg_delete;
 
 /*
  * その他の設定

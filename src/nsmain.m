@@ -344,16 +344,18 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 #ifdef USE_DEBUGGER
     return YES;
 #else
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-    [alert setMessageText:conf_language == NULL ? @"終了しますか？" :
-        @"Quit?"];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    if ([alert runModal] == NSAlertFirstButtonReturn)
-        return YES;
-    else
-        return NO;
+    @autorelease {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:
+                                                    conf_ui_msg_quit]];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return YES;
+        else
+            return NO;
+    }
 #endif
 }
 
@@ -498,8 +500,7 @@ static BOOL initWindow(void)
     //  - 最初のタイマイベントでアプリケーション名を変更する
     id appMenu = [NSMenu new];
     id quitMenuItem = [[NSMenuItem alloc]
-                          initWithTitle:
-                              conf_language == NULL ? @"終了する" : @"Quit"
+                          initWithTitle:!conf_i18n ? @"終了する" : @"Quit"
                                  action:@selector(performClose:)
                           keyEquivalent:@"q"];
     [appMenu addItem:quitMenuItem];
@@ -643,7 +644,7 @@ bool log_info(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:conf_language == NULL ? @"情報" : @"Information"];
+    [alert setMessageText:!conf_i18n ? @"情報" : @"Information"];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -677,7 +678,7 @@ bool log_warn(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:conf_language == NULL ? @"情報" : @"Information"];
+    [alert setMessageText:!conf_i18n ? @"情報" : @"Information"];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -711,7 +712,7 @@ bool log_error(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:conf_language == NULL ? @"エラー" : @"Error"];
+    [alert setMessageText:!conf_i18n ? @"エラー" : @"Error"];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -842,10 +843,10 @@ bool exit_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-        [alert setMessageText:conf_language == NULL ?
-                  @"終了しますか？" : @"Quit?"];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:
+                   [[NSString alloc] initWithUTF8String:conf_ui_msg_quit]];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -860,11 +861,10 @@ bool title_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-        [alert setMessageText:conf_language == NULL ?
-              @"タイトルへ戻りますか？" :
-              @"Are you sure you want to go to title?"];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:
+                   [[NSString alloc] initWithUTF8String:conf_ui_msg_title]];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -879,11 +879,10 @@ bool delete_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:conf_language == NULL ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:conf_language == NULL ? @"いいえ" : @"No"];
-        [alert setMessageText:conf_language == NULL ?
-              @"セーブデータを削除しますか？" :
-              @"Are you sure you want to delete the save data?"];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:
+                   [[NSString alloc] initWithUTF8String:conf_ui_msg_delete]];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;

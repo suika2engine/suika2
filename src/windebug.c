@@ -107,7 +107,7 @@ VOID InitMenu(HWND hWnd)
     MENUITEMINFO mi;
 
 	hWndMain = hWnd;
-	bEnglish = conf_language == NULL ? FALSE : TRUE;
+	bEnglish = !conf_i18n ? FALSE : TRUE;
 
 	/* メニューを作成する */
 	hMenu = CreateMenu();

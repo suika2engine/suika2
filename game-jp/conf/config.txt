@@ -443,6 +443,14 @@ serif.color3.outline.b=0
 # 以降、serif.color64まで続くが省略可能
 
 ###
+### UIメッセージ
+###
+
+ui.msg.quit=終了しますか？
+ui.msg.title=タイトルに戻りますか？
+ui.msg.delete=セーブデータを削除しますか？
+
+###
 ### その他
 ###
 

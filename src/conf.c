@@ -21,7 +21,7 @@
 /*
  * 言語の設定
  */
-char *conf_language;
+char *conf_i18n;
 
 /*
  * ウィンドウの設定
@@ -295,6 +295,13 @@ int conf_serif_outline_color_g[SERIF_COLOR_COUNT];
 int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 
 /*
+ * UIメッセージ
+ */
+char *conf_ui_msg_quit;
+char *conf_ui_msg_title;
+char *conf_ui_msg_delete;
+
+/*
  * その他の設定
  */
 
@@ -325,7 +332,7 @@ struct rule {
 	bool omissible;
 	bool loaded;
 } rule_tbl[] = {
-	{"language", 's', &conf_language, true, false},
+	{"i18n", 's', &conf_i18n, true, false},
 	{"window.title", 's', &conf_window_title, false, false},
 	{"window.width", 'i', &conf_window_width, false, false},
 	{"window.height", 'i', &conf_window_height, false, false},
@@ -985,6 +992,9 @@ struct rule {
 	{"serif.color64.outline.g", 'i', &conf_serif_outline_color_g[63], true, false},
 	{"serif.color64.outline.b", 'i', &conf_serif_outline_color_b[63], true, false},
 	/* end codegen */
+	{"ui.msg.quit", 's', &conf_ui_msg_quit, false, false},
+	{"ui.msg.title", 's', &conf_ui_msg_title, false, false},
+	{"ui.msg.delete", 's', &conf_ui_msg_delete, false, false},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
 	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, true, false},

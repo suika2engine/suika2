@@ -294,7 +294,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 				bD3D = TRUE;
 				break;
 			}
-			log_info(conf_language == NULL ?
+			log_info(!conf_i18n ?
 					 "Direct3Dはサポートされません。" :
 					 "Direct3D is not supported.");
 		}
@@ -307,7 +307,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 				bOpenGL = TRUE;
 				break;
 			}
-			log_info(conf_language == NULL ?
+			log_info(!conf_i18n ?
 					 "OpenGLはサポートされません。" :
 					 "OpenGL is not supported.");
 		}
@@ -403,10 +403,10 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
 		GetSystemMetrics(SM_CYVIRTUALSCREEN) < conf_window_height)
 	{
-		MessageBox(NULL, conf_language == NULL ?
+		MessageBox(NULL, !conf_i18n ?
 				   "ディスプレイのサイズが足りません。" :
 				   "Display size too small.",
-				   conf_language == NULL ? "エラー" : "Error",
+				   !conf_i18n ? "エラー" : "Error",
 				   MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
@@ -548,7 +548,7 @@ static BOOL InitOpenGL(void)
 	pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
 	if (pixelFormat == 0)
 	{
-		log_info(conf_language == NULL ?
+		log_info(!conf_i18n ?
 				 "ChoosePixelFormat() の呼び出しに失敗しました。" :
 				 "Failed to call ChoosePixelFormat()");
 		return FALSE;
@@ -559,7 +559,7 @@ static BOOL InitOpenGL(void)
 	hGLRC = wglCreateContext(hWndDC);
 	if (hGLRC == NULL)
 	{
-		log_info(conf_language == NULL ?
+		log_info(!conf_i18n ?
 				 "wglCreateContext() の呼び出しに失敗しました。" :
 				 "Failed to call wglCreateContext()");
 		return FALSE;
@@ -571,7 +571,7 @@ static BOOL InitOpenGL(void)
 		(void *)wglGetProcAddress("wglCreateContextAttribsARB");
 	if (wglCreateContextAttribsARB == NULL)
 	{
-		log_info(conf_language == NULL ?
+		log_info(!conf_i18n ?
 				 "API wglCreateContextAttribsARB がみつかりません。" :
 				 "API wglCreateContextAttribsARB not found.");
 		wglMakeCurrent(NULL, NULL);
@@ -595,7 +595,7 @@ static BOOL InitOpenGL(void)
 
 	/* 仮想マシンを検出したらOpenGLを使わない */
 	if (strcmp((const char *)glGetString(GL_VENDOR), "VMware, Inc.") == 0) {
-		log_info(conf_language == NULL ?
+		log_info(!conf_i18n ?
 				 "仮想環境を検出しました。" :
 				 "Detected virtual environment.");
 		wglMakeCurrent(NULL, NULL);
@@ -610,7 +610,7 @@ static BOOL InitOpenGL(void)
 		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
 		if (*APITable[i].func == NULL)
 		{
-			log_info(conf_language == NULL ?
+			log_info(!conf_i18n ?
 					 "API %s がみつかりません。" :
 					 "API %s not found.", APITable[i].name);
 			wglMakeCurrent(NULL, NULL);
@@ -623,7 +623,7 @@ static BOOL InitOpenGL(void)
 	/* レンダラを初期化する */
 	if (!init_opengl())
 	{
-		log_info(conf_language == NULL ?
+		log_info(!conf_i18n ?
 				 "OpenGLの初期化に失敗しました。" :
 				 "Failed to initialize OpenGL.");
 		wglMakeCurrent(NULL, NULL);
@@ -856,9 +856,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		DestroyWindow(hWnd);
 		return 0;
 #else
-		if (MessageBox(hWnd, conf_language == NULL ?
-					   "終了しますか？" : "Quit?",
-					   mbszTitle, MB_OKCANCEL) == IDOK)
+		if (MessageBox(hWnd,
+					   conv_utf8_to_native(conf_ui_msg_quit),
+					   mbszTitle,
+					   MB_OKCANCEL) == IDOK)
 			DestroyWindow(hWnd);
 		return 0;
 #endif
@@ -1133,7 +1134,7 @@ bool log_info(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 #ifdef USE_DEBUGGER
-	MessageBox(hWndMain, buf, conf_language == NULL ? "情報" : "Info",
+	MessageBox(hWndMain, buf, !conf_i18n ? "情報" : "Info",
 			   MB_OK | MB_ICONINFORMATION);
 #endif
 
@@ -1166,7 +1167,7 @@ bool log_warn(const char *s, ...)
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-	MessageBox(hWndMain, buf, conf_language == NULL ? "警告" : "Warning",
+	MessageBox(hWndMain, buf, !conf_i18n ? "警告" : "Warning",
 			   MB_OK | MB_ICONWARNING);
 
 	/* ログファイルがオープンされている場合 */
@@ -1198,7 +1199,7 @@ bool log_error(const char *s, ...)
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-	MessageBox(hWndMain, buf, conf_language == NULL ? "エラー" : "Error",
+	MessageBox(hWndMain, buf, !conf_i18n ? "エラー" : "Error",
 			   MB_OK | MB_ICONERROR);
 
 	/* ログファイルがオープンされている場合 */
@@ -1230,10 +1231,10 @@ static BOOL OpenLogFile(void)
 	{
 		/* 失敗 */
 		MessageBox(NULL,
-				   conf_language == NULL ?
+				   !conf_i18n ?
 				   "ログファイルをオープンできません。" :
 				   "Cannot open log file.",
-				   conf_language == NULL ? "エラー" : "Error",
+				   !conf_i18n ? "エラー" : "Error",
 				   MB_OK | MB_ICONWARNING);
 		return FALSE;
 	}
@@ -1443,8 +1444,10 @@ int get_stop_watch_lap(stop_watch_t *t)
  */
 bool exit_dialog(void)
 {
-	const char *pszMsg = conf_language == NULL ? "終了しますか？" : "Quit?";
-	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL) == IDOK)
+	if (MessageBox(hWndMain,
+				   conv_utf8_to_native(conf_ui_msg_quit),
+				   mbszTitle,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -1454,10 +1457,10 @@ bool exit_dialog(void)
  */
 bool title_dialog(void)
 {
-	const char *pszMsg = conf_language == NULL ?
-		"タイトルに戻りますか？" :
-		"Are you sure you want to go to title?";
-	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL) == IDOK)
+	if (MessageBox(hWndMain,
+				   conv_utf8_to_native(conf_ui_msg_title),
+				   mbszTitle,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -1467,10 +1470,10 @@ bool title_dialog(void)
  */
 bool delete_dialog(void)
 {
-	const char *pszMsg = conf_language == NULL ?
-		"セーブデータを削除しますか？" :
-		"Are you sure you want to delete the save data?";
-	if (MessageBox(hWndMain, pszMsg, mbszTitle, MB_OKCANCEL) == IDOK)
+	if (MessageBox(hWndMain,
+				   conv_utf8_to_native(conf_ui_msg_delete),
+				   mbszTitle,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
