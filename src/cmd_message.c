@@ -1454,6 +1454,12 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 			/* ボタンを再描画する */
 			frame_draw_buttons(false, x, y, w, h);
 
+			/* バナーを消すために再描画する */
+			*x = 0;
+			*y = 0;
+			*w = conf_window_width;
+			*h = conf_window_height;
+
 			/* 以降のクリック処理を行わない */
 			is_left_button_pressed = false;
 			is_right_button_pressed = false;

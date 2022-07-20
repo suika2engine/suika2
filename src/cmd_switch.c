@@ -504,6 +504,10 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	/* システムメニューを表示中の場合 */
 	if (is_sysmenu)
 		draw_sysmenu(x, y, w, h);
+
+	/* システムメニューを終了した直後の場合 */
+	if (is_sysmenu_finished)
+		update_switch_parent(x, y, w, h);
 }
 
 /* 親選択肢の描画を行う */
@@ -1139,6 +1143,11 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 			redraw = true;
 		}
 	}
+
+	/* 何もポイントされていない場合 */
+	if (sysmenu_pointed_index == SYSMENU_NONE)
+		if (old_sysmenu_pointed_index != sysmenu_pointed_index)
+			redraw = true;
 
 	/* GPUを利用している場合 */
 	if (is_gpu_accelerated())
