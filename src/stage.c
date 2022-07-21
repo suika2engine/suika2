@@ -351,6 +351,8 @@ bool init_stage(void)
 	layer_blend[LAYER_CLICK] = BLEND_FAST;
 	layer_blend[LAYER_FO] = BLEND_NONE;
 	layer_blend[LAYER_FI] = BLEND_FAST;
+	layer_blend[LAYER_AUTO] = BLEND_FAST;
+	layer_blend[LAYER_SKIP] = BLEND_FAST;
 
 	/* アルファ値を設定する */
 	for (i = LAYER_BG; i < STAGE_LAYERS; i++)
