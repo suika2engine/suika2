@@ -1718,6 +1718,9 @@ static void frame_sysmenu(void)
 
 			/* メッセージ表示とボイス再生を未完了にする */
 			is_auto_mode_wait = false;
+
+			/* 以降のクリック処理を行わない */
+			is_left_button_pressed = false;
 			return;
 		}
 
