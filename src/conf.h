@@ -278,6 +278,11 @@ extern char *conf_sysmenu_load_se;
 extern char *conf_sysmenu_auto_se;
 extern char *conf_sysmenu_skip_se;
 extern char *conf_sysmenu_history_se;
+extern int conf_sysmenu_collapsed_x;
+extern int conf_sysmenu_collapsed_y;
+extern char *conf_sysmenu_collapsed_idle_file;
+extern char *conf_sysmenu_collapsed_hover_file;
+extern char *conf_sysmenu_collapsed_se;
 
 /*
  * オートモードの設定

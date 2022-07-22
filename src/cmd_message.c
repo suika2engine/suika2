@@ -156,6 +156,9 @@ static int old_sysmenu_pointed_index;
 /* システムメニューが終了した直後か */
 static bool is_sysmenu_finished;
 
+/* 折りたたみシステムメニューが前のフレームでポイントされていたか */
+static bool is_collapsed_sysmenu_pointed_prev;
+
 /*
  * 前方参照
  */
@@ -195,6 +198,8 @@ static void frame_sysmenu(void);
 static void frame_hide(int *x, int *y, int *w, int *h);
 static void frame_main(int *x, int *y, int *w, int *h);
 static void draw_sysmenu(int *x, int *y, int *w, int *h);
+static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
+static bool is_collapsed_sysmenu_pointed(void);
 static void draw_banners(int *x, int *y, int *w, int *h);
 static void play_se(const char *file);
 static bool is_skippable(void);
@@ -272,6 +277,9 @@ bool message_command(int *x, int *y, int *w, int *h)
 	/* システムメニューを描画する */
 	if (is_sysmenu)
 		draw_sysmenu(x, y, w, h);
+	else
+		draw_collapsed_sysmenu(x, y, w, h);
+	is_sysmenu_finished = false;
 
 	/* セーブ・ロード・ヒストリモードへ遷移する */
 	if (need_save_mode)
@@ -369,6 +377,8 @@ static bool init(int *x, int *y, int *w, int *h)
 
 	/* システムメニューの設定を行う */
 	is_sysmenu = false;
+	is_sysmenu_finished = false;
+	is_collapsed_sysmenu_pointed_prev = false;
 
 	/* ボタンの選択状態を取得する */
 	init_pointed_index();
@@ -1579,6 +1589,8 @@ static void frame_skip_mode(void)
 /* フレーム描画中の右クリック押下を処理する */
 static void frame_sysmenu(void)
 {
+	bool enter_sysmenu;
+
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中はシステムメニューに入らない */
 	if (dbg_is_stop_requested())
@@ -1755,8 +1767,18 @@ static void frame_sysmenu(void)
 	if (is_skip_mode())
 		return;
 
+	enter_sysmenu = false;
+
 	/* 右クリックされたとき */
-	if (is_right_button_pressed) {
+	if (is_right_button_pressed)
+		enter_sysmenu = true;
+
+	/* 折りたたみシステムメニューがクリックされたとき */
+	if (is_left_button_pressed && is_collapsed_sysmenu_pointed())
+		enter_sysmenu = true;
+
+	/* システムメニューに入るとき */
+	if (enter_sysmenu) {
 		/* SEを再生する */
 		play_se(conf_sysmenu_enter_se);
 
@@ -1764,7 +1786,7 @@ static void frame_sysmenu(void)
 		is_sysmenu = true;
 		is_sysmenu_first_frame = true;
 		is_sysmenu_finished = false;
-		sysmenu_pointed_index = SYSMENU_NONE;
+		sysmenu_pointed_index = get_sysmenu_pointed_button();
 		old_sysmenu_pointed_index = SYSMENU_NONE;
 	}
 }
@@ -1857,7 +1879,6 @@ static void frame_main(int *x, int *y, int *w, int *h)
 		/* システムメニューが終了された直後の場合 */
 		if (is_sysmenu_finished) {
 			/* 画面全体を再描画する */
-			is_sysmenu_finished = false;
 			*x = 0;
 			*y = 0;
 			*w = conf_window_width;
@@ -1886,15 +1907,14 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
-	if (is_sysmenu_first_frame) {
+	if (is_sysmenu_first_frame)
 		redraw = true;
-		is_sysmenu_first_frame = false;
-	}
 
 	/* クイックセーブボタンがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_QSAVE) {
 		qsave_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_QSAVE) {
+		if (old_sysmenu_pointed_index != SYSMENU_QSAVE &&
+		    !is_sysmenu_first_frame) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
@@ -1903,7 +1923,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	/* クイックロードボタンがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_QLOAD) {
 		qload_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_QLOAD) {
+		if (old_sysmenu_pointed_index != SYSMENU_QLOAD &&
+		    !is_sysmenu_first_frame) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
@@ -1912,7 +1933,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	/* セーブボタンがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_SAVE) {
 		save_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_SAVE) {
+		if (old_sysmenu_pointed_index != SYSMENU_SAVE &&
+		    !is_sysmenu_first_frame) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
@@ -1921,7 +1943,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	/* ロードボタンがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_LOAD) {
 		load_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_LOAD) {
+		if (old_sysmenu_pointed_index != SYSMENU_LOAD &&
+		    !is_sysmenu_first_frame) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
@@ -1930,7 +1953,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	/* オートがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_AUTO) {
 		auto_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_AUTO) {
+		if (old_sysmenu_pointed_index != SYSMENU_AUTO &&
+		    !is_sysmenu_first_frame) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
@@ -1939,7 +1963,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	/* スキップがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_SKIP) {
 		skip_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_SKIP) {
+		if (old_sysmenu_pointed_index != SYSMENU_SKIP &&
+		    !is_sysmenu_first_frame) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
@@ -1948,7 +1973,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	/* ヒストリがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
 		history_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_HISTORY) {
+		if (old_sysmenu_pointed_index != SYSMENU_HISTORY &&
+		    !is_sysmenu_first_frame) {
 			play_se(conf_sysmenu_change_se);
 			redraw = true;
 		}
@@ -1972,6 +1998,42 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 				   history_sel,
 				   x, y, w, h);
 	}
+
+	is_sysmenu_first_frame = false;
+}
+
+/* 折りたたみシステムメニューを描画する */
+static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
+{
+	bool is_pointed;
+
+	/* 折りたたみシステムメニューがポイントされているか調べる */
+	is_pointed = is_collapsed_sysmenu_pointed();
+
+	/* 描画する */
+	draw_stage_collapsed_sysmenu(is_pointed, x, y, w, h);
+
+	/* SEを再生する */
+	if (!is_sysmenu_finished &&
+	    ((!is_collapsed_sysmenu_pointed_prev && is_pointed) ||
+	     (is_collapsed_sysmenu_pointed_prev && !is_pointed)))
+		play_se(conf_sysmenu_collapsed_se);
+
+	/* 折りたたみシステムメニューのポイント状態を保持する */
+	is_collapsed_sysmenu_pointed_prev = is_pointed;
+}
+
+/* 折りたたみシステムメニューがポイントされているか調べる */
+static bool is_collapsed_sysmenu_pointed(void)
+{
+	int bx, by, bw, bh;
+
+	get_collapsed_sysmenu_rect(&bx, &by, &bw, &bh);
+	if (mouse_pos_x >= bx && mouse_pos_x < bx + bw &&
+	    mouse_pos_y >= by && mouse_pos_y < by + bh)
+		return true;
+
+	return false;
 }
 
 /* バナーを描画する */

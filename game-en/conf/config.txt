@@ -394,6 +394,19 @@ sysmenu.skip.se=click.ogg
 # Sound effect when history selected (optional)
 sysmenu.history.se=click.ogg
 
+# Position of collapsed system menu image
+sysmenu.collapsed.x=1219
+sysmenu.collapsed.y=29
+
+# Collapsed system menu image (base) file name
+sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
+
+# Collapsed system menu image (pointed) file name
+sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
+
+# Sound effect when collapsed system menu pointed (optional)
+sysmenu.collapsed.se=btn-change.ogg
+
 ###
 ### Auto Mode Settings
 ###
@@ -403,7 +416,7 @@ automode.banner.file=auto.png
 
 # Position of auto mode banner
 automode.banner.x=0
-automode.banner.y=60
+automode.banner.y=126
 
 # Auto mode speed (x seconds per character)
 automode.speed=0.15
@@ -417,7 +430,7 @@ skipmode.banner.file=skip.png
 
 # Position of skip mode banner
 skipmode.banner.x=0
-skipmode.banner.y=60
+skipmode.banner.y=186
 
 ###
 ### Character Message Colors

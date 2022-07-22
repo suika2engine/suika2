@@ -387,6 +387,19 @@ sysmenu.skip.se=click.ogg
 # システムメニューのヒストリが選択されたときのSE(省略可)
 sysmenu.history.se=click.ogg
 
+# 折りたたみシステムメニュー画像の座標
+sysmenu.collapsed.x=1219
+sysmenu.collapsed.y=29
+
+# 折りたたみシステムメニュー画像(通常時)のファイル名
+sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
+
+# 折りたたみシステムメニュー画像(選択時)のファイル名
+sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
+
+# 折りたたみシステムメニューが選択されたときのSE(省略可)
+sysmenu.collapsed.se=btn-change.ogg
+
 ###
 ### オートモードの設定
 ###
@@ -396,7 +409,7 @@ automode.banner.file=auto.png
 
 # オートモードバナーの座標
 automode.banner.x=0
-automode.banner.y=60
+automode.banner.y=126
 
 # オートモードのスピード(1文字あたりx秒待つ)
 automode.speed=0.15
@@ -410,7 +423,7 @@ skipmode.banner.file=skip.png
 
 # スキップモードバナーの座標
 skipmode.banner.x=0
-skipmode.banner.y=60
+skipmode.banner.y=186
 
 ###
 ### セリフの色の設定

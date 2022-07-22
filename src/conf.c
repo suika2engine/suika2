@@ -267,6 +267,11 @@ char *conf_sysmenu_load_se;
 char *conf_sysmenu_auto_se;
 char *conf_sysmenu_skip_se;
 char *conf_sysmenu_history_se;
+int conf_sysmenu_collapsed_x;
+int conf_sysmenu_collapsed_y;
+char *conf_sysmenu_collapsed_idle_file;
+char *conf_sysmenu_collapsed_hover_file;
+char *conf_sysmenu_collapsed_se;
 
 /*
  * オートモードの設定
@@ -542,6 +547,11 @@ struct rule {
 	{"skipmode.banner.file", 's', &conf_skipmode_banner_file, false, false},
 	{"skipmode.banner.x", 'i', &conf_skipmode_banner_x, false, false},
 	{"skipmode.banner.y", 'i', &conf_skipmode_banner_y, false, false},
+	{"sysmenu.collapsed.x", 'i', &conf_sysmenu_collapsed_x, false, false},
+	{"sysmenu.collapsed.y", 'i', &conf_sysmenu_collapsed_y, false, false},
+	{"sysmenu.collapsed.idle.file", 's', &conf_sysmenu_collapsed_idle_file, false, false},
+	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, false, false},
+	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},

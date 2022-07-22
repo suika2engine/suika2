@@ -154,6 +154,12 @@ static struct image *sysmenu_hover_image;
 /* システムメニュー(使用できない時)のイメージ */
 static struct image *sysmenu_disable_image;
 
+/* 折りたたみシステムメニュー(非選択)のイメージ */
+static struct image *sysmenu_collapsed_idle_image;
+
+/* 折りたたみシステムメニュー(選択)のイメージ */
+static struct image *sysmenu_collapsed_hover_image;
+
 /* セーブデータ用のサムネイルイメージ */
 static struct image *thumb_image;
 
@@ -594,6 +600,14 @@ static bool setup_sysmenu(void)
 		destroy_image(sysmenu_disable_image);
 		sysmenu_disable_image = NULL;
 	}
+	if (sysmenu_collapsed_idle_image != NULL) {
+		destroy_image(sysmenu_collapsed_idle_image);
+		sysmenu_collapsed_idle_image = NULL;
+	}
+	if (sysmenu_collapsed_hover_image != NULL) {
+		destroy_image(sysmenu_collapsed_hover_image);
+		sysmenu_collapsed_hover_image = NULL;
+	}
 
 	/* システムメニュー(非選択)の画像を読み込む */
 	sysmenu_idle_image = create_image_from_file(CG_DIR,
@@ -611,6 +625,18 @@ static bool setup_sysmenu(void)
 	sysmenu_disable_image = create_image_from_file(
 		CG_DIR, conf_sysmenu_disable_file);
 	if (sysmenu_disable_image == NULL)
+		return false;
+
+	/* 折りたたみシステムメニュー(非選択)の画像を読み込む */
+	sysmenu_collapsed_idle_image = create_image_from_file(
+		CG_DIR, conf_sysmenu_collapsed_idle_file);
+	if (sysmenu_collapsed_idle_image == NULL)
+		return false;
+
+	/* システムメニュー(選択)の画像を読み込む */
+	sysmenu_collapsed_hover_image = create_image_from_file(
+		CG_DIR, conf_sysmenu_collapsed_hover_file);
+	if (sysmenu_collapsed_hover_image == NULL)
 		return false;
 
 	return true;
@@ -796,6 +822,14 @@ void cleanup_stage(void)
 	if (sysmenu_disable_image != NULL) {
 		destroy_image(sysmenu_disable_image);
 		sysmenu_disable_image = NULL;
+	}
+	if (sysmenu_collapsed_idle_image != NULL) {
+		destroy_image(sysmenu_collapsed_idle_image);
+		sysmenu_collapsed_idle_image = NULL;
+	}
+	if (sysmenu_collapsed_hover_image != NULL) {
+		destroy_image(sysmenu_collapsed_hover_image);
+		sysmenu_collapsed_hover_image = NULL;
 	}
 	if (thumb_image != NULL) {
 		destroy_image(thumb_image);
@@ -2151,6 +2185,49 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			     conf_sysmenu_history_x,
 			     conf_sysmenu_history_y, 255, BLEND_FAST);
 	}
+}
+
+/*
+ * 折りたたみシステムメニューを描画する
+ */
+void draw_stage_collapsed_sysmenu(bool is_pointed,
+				  int *x, int *y, int *w, int *h)
+{
+	/* 描画範囲を更新する */
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   conf_sysmenu_collapsed_x,
+		   conf_sysmenu_collapsed_y,
+		   get_image_width(sysmenu_collapsed_idle_image),
+		   get_image_height(sysmenu_collapsed_idle_image));
+
+	/* 折りたたみシステムメニューの背景を描画する */
+	if (is_pointed) {
+		render_image(conf_sysmenu_collapsed_x,
+			     conf_sysmenu_collapsed_y,
+			     sysmenu_collapsed_idle_image,
+			     get_image_width(sysmenu_collapsed_idle_image),
+			     get_image_height(sysmenu_collapsed_idle_image),
+			     0, 0, 255, BLEND_FAST);
+	} else {
+		render_image(conf_sysmenu_collapsed_x,
+			     conf_sysmenu_collapsed_y,
+			     sysmenu_collapsed_hover_image,
+			     get_image_width(sysmenu_collapsed_hover_image),
+			     get_image_height(sysmenu_collapsed_hover_image),
+			     0, 0, 255, BLEND_FAST);
+	}
+}
+
+/*
+ * 折りたたみシステムメニューの座標を取得する
+ */
+void get_collapsed_sysmenu_rect(int *x, int *y, int *w, int *h)
+{
+	*x = conf_sysmenu_collapsed_x;
+	*y = conf_sysmenu_collapsed_y;
+	*w = get_image_width(sysmenu_collapsed_idle_image);
+	*h = get_image_height(sysmenu_collapsed_idle_image);
 }
 
 /*

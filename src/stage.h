@@ -143,6 +143,13 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_history_selected,
 			int *x, int *y, int *w, int *h);
 
+/* 折りたたみシステムメニューを描画する */
+void draw_stage_collapsed_sysmenu(bool is_pointed, int *x, int *y, int *w,
+				  int *h);
+
+/* 折りたたみシステムメニューの座標を取得する */
+void get_collapsed_sysmenu_rect(int *x, int *y, int *w, int *h);
+
 /*
  * セーブデータ用サムネイルの描画
  */
