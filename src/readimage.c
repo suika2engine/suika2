@@ -10,6 +10,9 @@
 
 #include "suika.h"
 
+/* readjpeg.h */
+struct image *create_image_from_file_jpeg(const char *dir, const char *file);
+
 /*
  * ファイルスコープ変数
  */
@@ -24,6 +27,7 @@ static struct image *image;
 /*
  * 前方参照
  */
+static bool is_jpg_ext(const char *str);
 static struct image *cleanup(void);
 static bool read_image_file(const char *dir, const char *file);
 static bool check_signature(void);
@@ -36,6 +40,10 @@ static bool read_body(void);
  */
 struct image *create_image_from_file(const char *dir, const char *file)
 {
+	/* JPEGファイルの場合は別なルーチンを使う */
+	if (is_jpg_ext(file))
+		return create_image_from_file_jpeg(dir, file);
+
 	/* ファイルを読み込む */
 	if (!read_image_file(dir, file)) {
 		/* 失敗した場合、イメージを破棄する */
@@ -47,6 +55,20 @@ struct image *create_image_from_file(const char *dir, const char *file)
 
 	/* イメージを返す */
 	return cleanup();
+}
+
+/* 拡張子がJPGであるかチェックする */
+static bool is_jpg_ext(const char *str)
+{
+	size_t len1 = strlen(str);
+	size_t len2 = 4;
+	if (len1 >= len2) {
+		if (strcmp(str + len1 - len2, ".jpg") == 0)
+			return true;
+		if (strcmp(str + len1 - len2, ".JPG") == 0)
+			return true;
+	}
+	return false;
 }
 
 /* ローカル変数をクリアする */
@@ -233,6 +255,9 @@ static bool read_body(void)
 
 	assert(png_get_rowbytes(png_ptr, info_ptr) == (size_t)(width*4));
 
+#ifdef _MSC_VER
+#pragma warning(disable:6386)
+#endif
 	pixels = get_image_pixels(image);
 	for (y = 0; y < height; y++)
 		rows[y] = (png_bytep)&pixels[width * y];

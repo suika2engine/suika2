@@ -23,6 +23,13 @@ make
 make install
 cd ..
 
+tar xzf ../../libsrc/jpegsrc.v9e.tar.gz
+cd jpeg-9e
+./configure --prefix=$PREFIX --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch x86_64"
+make
+make install
+cd ..
+
 tar xzf ../../libsrc/libogg-1.3.3.tar.gz
 cd libogg-1.3.3
 ./configure --prefix=$PREFIX --disable-shared CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-arch arm64 -arch x86_64"

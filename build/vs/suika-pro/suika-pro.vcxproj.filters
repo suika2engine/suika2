@@ -290,5 +290,8 @@
     <ClCompile Include="..\..\..\src\d3drender.cc">
       <Filter>Source File</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\readjpeg.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

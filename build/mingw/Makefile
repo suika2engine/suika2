@@ -51,7 +51,7 @@ LDFLAGS = \
 	-ld3d9 \
 	-ld3dx9 \
 	-L./libroot/lib \
-	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
+	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
 
 #
 # Source files

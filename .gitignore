@@ -93,6 +93,7 @@ build/vs/libpng
 build/vs/libogg
 build/vs/libvorbis
 build/vs/freetype
+build/vs/jpeg
 build/vs/Debug
 build/vs/Release
 build/vs/suika/Debug

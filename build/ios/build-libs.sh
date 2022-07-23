@@ -21,6 +21,13 @@ make
 make install
 cd ..
 
+tar xzf ../../libsrc/jpegsrc.v9e.tar.gz
+cd jpeg-9e
+./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch armv7"
+make
+make install
+cd ..
+
 tar xzf ../../libsrc/libogg-1.3.3.tar.gz
 cd libogg-1.3.3
 ./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared CFLAGS="-arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" LDFLAGS="-arch arm64 -arch armv7"

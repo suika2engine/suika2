@@ -46,6 +46,16 @@ Prior to build Suika2, you have to build libraries.
             * pngunknown
         * Build
 
+* libjpeg
+    * `cd build/vs`
+    * `tar xzf ../libsrc/jpegsrc.v9e.tar.gz`
+    * `mv jpeg-9e jpeg`
+    * `cd jpeg`
+    * `nmake /f makefile.vs setupcopy-v16`
+    * Open `jpeg.sln`
+    * Select `Release` and `Win32` target
+    * Build solution
+
 * libogg
     * `cd build/vs`
     * `tar xzf ../libsrc/libogg-1.3.3.tar.gz`
