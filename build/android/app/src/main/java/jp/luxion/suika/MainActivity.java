@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.File;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -394,6 +395,12 @@ public class MainActivity extends Activity {
 		} catch(IOException e) {
 		}
 		return buf;
+	}
+
+	/** セーブファイルを削除します。 */
+	private void removeSaveFile(String fileName) {
+		File file = new File(fileName);
+		file.delete();
 	}
 
 	/** セーブファイルの書き込みストリームをオープンします。 */

@@ -15,3 +15,5 @@ cp app/src/main/cpp/libpng/scripts/pnglibconf.h.prebuilt app/src/main/cpp/libpng
 
 tar xzf ../libsrc/jpegsrc.v9e.tar.gz -C app/src/main/cpp/
 mv app/src/main/cpp/jpeg-9e app/src/main/cpp/jpeg
+cp cmakelists_for_libjpeg.txt app/src/main/cpp/jpeg/CMakeLists.txt
+cp app/src/main/cpp/jpeg/jconfig.txt app/src/main/cpp/jpeg/jconfig.h
