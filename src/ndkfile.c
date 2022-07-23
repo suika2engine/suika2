@@ -259,3 +259,16 @@ void close_wfile(struct wfile *wf)
 
 	free(wf);
 }
+
+/*
+ * ファイルを削除する
+ */
+void remove_file(const char *dir, const char *file)
+{
+	jclass cls;
+	jmethodID mid;
+
+	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	mid = (*jni_env)->GetMethodID(jni_env, cls, "removeSaveFile", "(Ljava/lang/String;)V;");
+	(*jni_env)->CallObjectMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, file));
+}

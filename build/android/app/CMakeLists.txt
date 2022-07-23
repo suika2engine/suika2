@@ -54,6 +54,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/ndkmain.c
              src/main/cpp/ndkwave.c
              src/main/cpp/readimage.c
+             src/main/cpp/readjpeg.c
              src/main/cpp/save.c
              src/main/cpp/scbuf.c
              src/main/cpp/script.c
@@ -87,6 +88,7 @@ target_link_libraries( # Specifies the target library.
 #                       vorbis
 #                       vorbisfile
                        freetype
+                       jpeg
 
                        # Links the target library to the log library
                        # included in the NDK.
@@ -103,6 +105,10 @@ include_directories(src/main/cpp/libpng)
 # freetype
 add_subdirectory(src/main/cpp/freetype)
 include_directories(src/main/cpp/freetype/include)
+
+# libjpeg
+add_subdirectory(src/main/cpp/jpeg)
+include_directories(src/main/cpp/jpeg)
 
 # libogg
 #add_subdirectory(src/main/cpp/libogg)
