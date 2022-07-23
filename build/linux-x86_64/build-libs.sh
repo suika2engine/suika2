@@ -21,6 +21,13 @@ make
 make install
 cd ..
 
+tar xzf ../../libsrc/jpegsrc.v9e.tar.gz
+cd jpeg-9e
+./configure --prefix=$PREFIX --disable-shared CPPFLAGS=-I$PREFIX/include LDFLAGS=-L$PREFIX/lib
+make
+make install
+cd ..
+
 tar xzf ../../libsrc/libogg-1.3.3.tar.gz
 cd libogg-1.3.3
 ./configure --prefix=$PREFIX --disable-shared
