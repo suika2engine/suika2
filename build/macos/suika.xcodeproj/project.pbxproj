@@ -54,6 +54,8 @@
 		2608233C26724676009D979A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
 		260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
 		2617E957282BF6F500637615 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
+		26239189288C024100C7DF81 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26239188288C024100C7DF81 /* readjpeg.c */; };
+		2623918A288C024100C7DF81 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26239188288C024100C7DF81 /* readjpeg.c */; };
 		26247D7B2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
 		26247D7C2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
 		2646C361284C635D00DF86E1 /* cmd_skip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2646C360284C635D00DF86E1 /* cmd_skip.c */; };
@@ -113,6 +115,7 @@
 		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
 		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
 		2617E956282BF6F500637615 /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../../src/cmd_video.c; sourceTree = "<group>"; };
+		26239188288C024100C7DF81 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../../src/readjpeg.c; sourceTree = "<group>"; };
 		26247D7A2872C13A0026FAF4 /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../../src/cmd_chapter.c; sourceTree = "<group>"; };
 		2646C360284C635D00DF86E1 /* cmd_skip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_skip.c; path = ../../../src/cmd_skip.c; sourceTree = "<group>"; };
 		2649E0D728558837006831C5 /* nsmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nsmain.h; path = ../../../src/nsmain.h; sourceTree = "<group>"; };
@@ -298,6 +301,7 @@
 				2679EC8D285825A800C20499 /* package.h */,
 				26A177FE25EE5DD0006A1ED4 /* platform.h */,
 				26A1780025EE5DD0006A1ED4 /* readimage.c */,
+				26239188288C024100C7DF81 /* readjpeg.c */,
 				26A1781925EE5DD0006A1ED4 /* save.c */,
 				26A1782225EE5DD0006A1ED4 /* save.h */,
 				26C8A49D2679CB4B009FE156 /* scbuf.c */,
@@ -430,6 +434,7 @@
 				260349522854B29800037370 /* cmd_cha.c in Sources */,
 				260349532854B29800037370 /* event.c in Sources */,
 				260349542854B29800037370 /* cmd_gosub.c in Sources */,
+				2623918A288C024100C7DF81 /* readjpeg.c in Sources */,
 				260349552854B29800037370 /* cmd_shake.c in Sources */,
 				260349562854B29800037370 /* readimage.c in Sources */,
 				260349572854B29800037370 /* cmd_if.c in Sources */,
@@ -484,6 +489,7 @@
 				260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */,
 				26A1783325EE5DD0006A1ED4 /* readimage.c in Sources */,
 				26A1784925EE5DD0006A1ED4 /* cmd_if.c in Sources */,
+				26239189288C024100C7DF81 /* readjpeg.c in Sources */,
 				26A1783625EE5DD0006A1ED4 /* aunit.c in Sources */,
 				26A1783925EE5DD0006A1ED4 /* cmd_set.c in Sources */,
 				26A1784D25EE5DD0006A1ED4 /* cmd_ch.c in Sources */,
@@ -580,6 +586,7 @@
 					"-lvorbis",
 					"-lvorbisfile",
 					"-lfreetype",
+					"-ljpeg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suikapro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -624,6 +631,7 @@
 					"-lvorbis",
 					"-lvorbisfile",
 					"-lfreetype",
+					"-ljpeg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suikapro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -779,6 +787,7 @@
 					"-lvorbis",
 					"-lvorbisfile",
 					"-lfreetype",
+					"-ljpeg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -822,6 +831,7 @@
 					"-lvorbis",
 					"-lvorbisfile",
 					"-lfreetype",
+					"-ljpeg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika;
 				PRODUCT_NAME = "$(TARGET_NAME)";
