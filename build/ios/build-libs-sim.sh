@@ -21,6 +21,13 @@ make
 make install
 cd ..
 
+tar xzf ../../libsrc/jpegsrc.v9e.tar.gz
+cd jpeg-9e
+./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch arm64 -isysroot `xcrun -sdk iphonesimulator --show-sdk-path`" LDFLAGS="-L$PREFIX/lib -arch arm64"
+make
+make install
+cd ..
+
 tar xzf ../../libsrc/libogg-1.3.3.tar.gz
 cd libogg-1.3.3
 ./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared CFLAGS="-arch arm64 -isysroot `xcrun -sdk iphonesimulator --show-sdk-path`" LDFLAGS="-arch arm64"

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		260C732028730C9E0057B37E /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731E28730C9E0057B37E /* cmd_chapter.c */; };
 		260C732128730C9E0057B37E /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731F28730C9E0057B37E /* glrender.c */; };
+		2689F3C1288C06E600BEF444 /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3BF288C06E600BEF444 /* readimage.c */; };
+		2689F3C2288C06E600BEF444 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3C0288C06E600BEF444 /* readjpeg.c */; };
 		268B09E126D89FE40074577E /* iosmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09E026D89FE40074577E /* iosmain.m */; };
 		26A4EAE626D116CE00C3C140 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE426D116CE00C3C140 /* Main.storyboard */; };
 		26A4EAE826D116D000C3C140 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE726D116D000C3C140 /* Assets.xcassets */; };
@@ -19,7 +21,6 @@
 		26B385BF26D134EE000A7A1C /* cmd_switch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858126D134EE000A7A1C /* cmd_switch.c */; };
 		26B385C026D134EE000A7A1C /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858226D134EE000A7A1C /* conf.c */; };
 		26B385C126D134EE000A7A1C /* vars.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858426D134EE000A7A1C /* vars.c */; };
-		26B385C226D134EE000A7A1C /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858526D134EE000A7A1C /* readimage.c */; };
 		26B385C326D134EE000A7A1C /* cmd_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858826D134EE000A7A1C /* cmd_ch.c */; };
 		26B385C426D134EE000A7A1C /* cmd_return.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858926D134EE000A7A1C /* cmd_return.c */; };
 		26B385C526D134EE000A7A1C /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3858A26D134EE000A7A1C /* glyph.c */; };
@@ -61,6 +62,8 @@
 		260C731D28730C9E0057B37E /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../src/glrender.h; sourceTree = "<group>"; };
 		260C731E28730C9E0057B37E /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../src/cmd_chapter.c; sourceTree = "<group>"; };
 		260C731F28730C9E0057B37E /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../src/glrender.c; sourceTree = "<group>"; };
+		2689F3BF288C06E600BEF444 /* readimage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readimage.c; path = ../../src/readimage.c; sourceTree = "<group>"; };
+		2689F3C0288C06E600BEF444 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../src/readjpeg.c; sourceTree = "<group>"; };
 		268B09E026D89FE40074577E /* iosmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iosmain.m; path = ../../src/iosmain.m; sourceTree = "<group>"; };
 		26A4EAD526D116CE00C3C140 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A4EAE526D116CE00C3C140 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -76,7 +79,6 @@
 		26B3858226D134EE000A7A1C /* conf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = conf.c; path = ../../src/conf.c; sourceTree = "<group>"; };
 		26B3858326D134EE000A7A1C /* stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stage.h; path = ../../src/stage.h; sourceTree = "<group>"; };
 		26B3858426D134EE000A7A1C /* vars.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vars.c; path = ../../src/vars.c; sourceTree = "<group>"; };
-		26B3858526D134EE000A7A1C /* readimage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readimage.c; path = ../../src/readimage.c; sourceTree = "<group>"; };
 		26B3858626D134EE000A7A1C /* event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = event.h; path = ../../src/event.h; sourceTree = "<group>"; };
 		26B3858726D134EE000A7A1C /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = platform.h; path = ../../src/platform.h; sourceTree = "<group>"; };
 		26B3858826D134EE000A7A1C /* cmd_ch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_ch.c; path = ../../src/cmd_ch.c; sourceTree = "<group>"; };
@@ -229,7 +231,6 @@
 				26B3859E26D134EE000A7A1C /* mixer.h */,
 				26B3857F26D134ED000A7A1C /* muladdpcm.h */,
 				26B3858726D134EE000A7A1C /* platform.h */,
-				26B3858526D134EE000A7A1C /* readimage.c */,
 				26B3859126D134EE000A7A1C /* save.c */,
 				26B385A726D134EE000A7A1C /* save.h */,
 				26B3858B26D134EE000A7A1C /* scalesamples.h */,
@@ -242,6 +243,8 @@
 				26B385AF26D134EE000A7A1C /* stage.c */,
 				26B3858326D134EE000A7A1C /* stage.h */,
 				26B385B926D134EE000A7A1C /* suika.h */,
+				2689F3BF288C06E600BEF444 /* readimage.c */,
+				2689F3C0288C06E600BEF444 /* readjpeg.c */,
 				26B385AB26D134EE000A7A1C /* types.h */,
 				26B3858426D134EE000A7A1C /* vars.c */,
 				26B3859A26D134EE000A7A1C /* vars.h */,
@@ -336,6 +339,7 @@
 				26B385CA26D134EE000A7A1C /* image.c in Sources */,
 				26B385C326D134EE000A7A1C /* cmd_ch.c in Sources */,
 				26B385BF26D134EE000A7A1C /* cmd_switch.c in Sources */,
+				2689F3C2288C06E600BEF444 /* readjpeg.c in Sources */,
 				26B385E326D134EE000A7A1C /* cmd_message.c in Sources */,
 				26B385DA26D134EE000A7A1C /* cmd_setsave.c in Sources */,
 				26B385E126D134EE000A7A1C /* aunit.c in Sources */,
@@ -345,10 +349,10 @@
 				26B385D226D134EE000A7A1C /* mixer.c in Sources */,
 				26B385DF26D134EE000A7A1C /* scbuf.c in Sources */,
 				26B385CD26D134EE000A7A1C /* history.c in Sources */,
-				26B385C226D134EE000A7A1C /* readimage.c in Sources */,
 				26B385CB26D134EE000A7A1C /* save.c in Sources */,
 				26B385C126D134EE000A7A1C /* vars.c in Sources */,
 				26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */,
+				2689F3C1288C06E600BEF444 /* readimage.c in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,
 				26B231BA285F454B0058D377 /* cmd_skip.c in Sources */,
 				26B385D826D134EE000A7A1C /* script.c in Sources */,
@@ -450,6 +454,7 @@
 					"-lvorbis",
 					"-lvorbisfile",
 					"-lfreetype",
+					"-ljpeg",
 				);
 				SDKROOT = iphoneos;
 			};
@@ -515,6 +520,7 @@
 					"-lvorbis",
 					"-lvorbisfile",
 					"-lfreetype",
+					"-ljpeg",
 				);
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
