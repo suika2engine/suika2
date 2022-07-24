@@ -119,9 +119,13 @@ extern int conf_msgbox_skip_unseen;
 /*
  * クリックアニメーションの設定
  */
-extern char *conf_click_file;
 extern int conf_click_x;
 extern int conf_click_y;
+extern char *conf_click_file1;
+extern char *conf_click_file2;
+extern char *conf_click_file3;
+extern char *conf_click_file4;
+extern char *conf_click_file5;
 extern float conf_click_interval;
 
 /*

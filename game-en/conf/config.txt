@@ -124,15 +124,21 @@ msgbox.skip.unseen=0
 ### Click Animation Settings
 ###
 
-# Click animation image file name
-click.file=click.png
-
 # Position to show the click animation image
 click.x=1170
 click.y=660
 
+# Click animation image file name
+click.file1=click1.png
+
+# Click animation image file name (optional)
+click.file2=click2.png
+click.file3=click3.png
+click.file4=click4.png
+click.file5=click5.png
+
 # Click animation interval (seconds)
-click.interval=0.5
+click.interval=1.0
 
 ###
 ### Options Settings (@choose, @select, @switch, @news)

@@ -117,15 +117,21 @@ msgbox.skip.unseen=0
 ### クリックアニメーションの設定
 ###
 
-# クリックアニメーション画像のファイル名
-click.file=click.png
-
 # クリックアニメーション画像の表示位置
 click.x=1170
 click.y=660
 
+# クリックアニメーション画像のファイル名
+click.file1=click1.png
+
+# クリックアニメーション画像のファイル名 (省略可)
+click.file2=click2.png
+click.file3=click3.png
+click.file4=click4.png
+click.file5=click5.png
+
 # クリックアニメーションの時間間隔
-click.interval=0.5
+click.interval=1.0
 
 ###
 ### 選択肢の設定 (@choose, @select, @switch, @news)

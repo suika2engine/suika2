@@ -22,6 +22,9 @@
 
 #include "image.h"
 
+/* クリックアニメーションのフレーム数 */
+#define CLICK_FRAMES	(5)
+
 /* キャラクタの立ち位置 */
 enum ch_position {
 	CH_BACK,
@@ -299,6 +302,9 @@ void get_click_rect(int *x, int *y, int *w, int *h);
 
 /* クリックアニメーションの表示・非表示を設定する */
 void show_click(bool show);
+
+/* クリックアニメーションのフレーム番号を指定する */
+void set_click_index(int index);
 
 /*
  * スイッチ(@choose, @select, @switch, @news)の描画

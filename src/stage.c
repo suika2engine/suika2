@@ -51,7 +51,7 @@ enum {
 	LAYER_NAME,	/* 特殊: 実体イメージあり */
 
 	/* クリックアニメーション */
-	LAYER_CLICK,
+	LAYER_CLICK,	/* 特殊: click_image[i]への参照 */
 
 	/*
 	 * 下記のレイヤは次の場合に有効
@@ -111,6 +111,9 @@ static struct image *namebox_image;
 
 /* 名前ボックスを表示するか */
 static bool is_namebox_visible;
+
+/* クリックアニメーションのイメージ */
+static struct image *click_image[CLICK_FRAMES];
 
 /* クリックアニメーションを表示するか */
 static bool is_click_visible;
@@ -461,23 +464,47 @@ static bool setup_msgbox(void)
 /* クリックアニメーションをセットアップする */
 static bool setup_click(void)
 {
+	const char *fname[CLICK_FRAMES] = {
+		conf_click_file1, conf_click_file2,
+		conf_click_file3, conf_click_file4, conf_click_file5};
+	int i;
+
 	is_click_visible = false;
 
 	/* 再初期化時に破棄する */
-	if (layer_image[LAYER_CLICK] != NULL) {
-		destroy_image(layer_image[LAYER_CLICK]);
-		layer_image[LAYER_CLICK] = NULL;
+	for (i = 0; i < CLICK_FRAMES; i++) {
+		if (click_image[i] != NULL) {
+			destroy_image(click_image[i]);
+			click_image[i] = NULL;
+		}
 	}
 
 	/* クリックアニメーションの画像を読み込む */
-	layer_image[LAYER_CLICK] = create_image_from_file(CG_DIR,
-							  conf_click_file);
-	if (layer_image[LAYER_CLICK] == NULL)
-		return false;
+	for (i = 0; i < CLICK_FRAMES; i++) {
+		if (fname[i] != NULL) {
+			/* ファイル名が指定されていれば読み込む */
+			click_image[i] = create_image_from_file(CG_DIR,
+								fname[i]);
+			if (click_image[i] == NULL)
+				return false;
+		} else {
+			/* そうでなければ透明画像を作成する */
+			click_image[i] = create_image(1, 1);
+			if (click_image[i] == NULL)
+				return false;
+			lock_image(click_image[i]);
+			clear_image_color(click_image[i],
+					  make_pixel_slow(0, 0, 0, 0));
+			unlock_image(click_image[i]);
+		}
+	}
 
 	/* クリックアニメーションレイヤの配置を行う */
 	layer_x[LAYER_CLICK] = conf_click_x;
 	layer_y[LAYER_CLICK] = conf_click_y;
+
+	/* クリックレイヤをいったんNULLにしておく */
+	layer_image[LAYER_CLICK] = NULL;
 
 	return true;
 }
@@ -765,8 +792,16 @@ void cleanup_stage(void)
 {
 	int i;
 
-	for (i = LAYER_BG; i < STAGE_LAYERS; i++)
-		destroy_layer_image(i);
+	for (i = LAYER_BG; i < STAGE_LAYERS; i++) {
+		if (i == LAYER_CLICK)
+			layer_image[i] = NULL;
+		else
+			destroy_layer_image(i);
+	}
+	for (i = 0; i <  CLICK_FRAMES; i++) {
+		destroy_image(click_image[i]);
+		click_image[i] = NULL;
+	}
 	if (msgbox_fg_image != NULL) {
 		destroy_image(msgbox_fg_image);
 		msgbox_fg_image = NULL;
@@ -3094,6 +3129,16 @@ void get_click_rect(int *x, int *y, int *w, int *h)
 void show_click(bool show)
 {
 	is_click_visible = show;
+}
+
+/*
+ * クリックアニメーションのフレーム番号を指定する
+ */
+void set_click_index(int index)
+{
+	assert(index >= 0 && index < CLICK_FRAMES);
+
+	layer_image[LAYER_CLICK] = click_image[index];
 }
 
 /*

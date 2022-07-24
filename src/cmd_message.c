@@ -751,7 +751,7 @@ static int get_frame_chars(void)
 static void draw_click(int *x, int *y, int *w, int *h)
 {
 	int click_x, click_y, click_w, click_h;
-	int lap;
+	int lap, index;
 
 	/* 入力があったら繰り返しを終了する */
 	check_stop_click_animation();
@@ -767,29 +767,17 @@ static void draw_click(int *x, int *y, int *w, int *h)
 	/* 経過時間を取得する */
 	lap = get_stop_watch_lap(&click_sw);
 
-	/* クリックアニメーションの点滅を行う */
+	/* クリックアニメーションの表示を行う */
 	if (conf_click_disable) {
-		if (!is_click_visible) {
-			show_click(true);
-			is_click_visible = true;
-		} else {
-			return;
-		}
-	} else if (lap % (int)(conf_click_interval * 2 * 1000) <
-	    (int)(conf_click_interval * 1000)) {
-		if (!is_click_visible) {
-			show_click(true);
-			is_click_visible = true;
-		} else {
-			return;
-		}
+		set_click_index(0);
+		show_click(true);
+		is_click_visible = true;
 	} else {
-		if (is_click_visible) {
-			show_click(false);
-			is_click_visible = false;
-		} else {
-			return;
-		}
+		index = (lap % (int)(conf_click_interval * 1000)) /
+			((int)conf_click_interval * 1000 / CLICK_FRAMES);
+		set_click_index(index);
+		show_click(true);
+		is_click_visible = true;
 	}
 
 	/* 描画範囲を求める */

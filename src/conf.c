@@ -118,9 +118,13 @@ int conf_msgbox_skip_unseen;
 /*
  * クリックアニメーションの設定
  */
-char *conf_click_file;
 int conf_click_x;
 int conf_click_y;
+char *conf_click_file1;
+char *conf_click_file2;
+char *conf_click_file3;
+char *conf_click_file4;
+char *conf_click_file5;
 float conf_click_interval;
 
 /*
@@ -413,9 +417,13 @@ struct rule {
 	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},
 	{"msgbox.show.se", 's', &conf_msgbox_show_se, true, false},
 	{"msgbox.skip.unseen", 'i', &conf_msgbox_skip_unseen, true, false},
-	{"click.file", 's', &conf_click_file, false, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
+	{"click.file1", 's', &conf_click_file1, false, false},
+	{"click.file2", 's', &conf_click_file2, true, false},
+	{"click.file3", 's', &conf_click_file3, true, false},
+	{"click.file4", 's', &conf_click_file4, true, false},
+	{"click.file5", 's', &conf_click_file5, true, false},
 	{"click.interval", 'f', &conf_click_interval, false, false},
 	{"selbox.bg.file", 's', NULL, true, false},
 	{"selbox.fg.file", 's', NULL, true, false},
