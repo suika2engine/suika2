@@ -22,6 +22,7 @@ bool click_command(void)
 	    !is_left_button_pressed) {
 		/* メッセージボックスを非表示にする */
 		show_msgbox(false);
+		show_namebox(false);
 
 		/* ステージの描画を維持する */
 		draw_stage_keep();
