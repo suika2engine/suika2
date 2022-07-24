@@ -1236,6 +1236,9 @@ bool quick_load(void)
 	show_namebox(false);
 	show_msgbox(false);
 
+	/* ウィンドウタイトルをアップデートする */
+	update_window_title();
+
 	/* オートモードを解除する */
 	if (is_auto_mode())
 		stop_auto_mode();
@@ -1275,6 +1278,9 @@ static bool process_load(int new_pointed_index)
 	show_namebox(false);
 	show_msgbox(false);
 
+	/* ウィンドウタイトルをアップデートする */
+	update_window_title();
+	
 #ifdef USE_DEBUGGER
 	clear_variable_changed();
 	update_debug_info(true);

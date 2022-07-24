@@ -2,6 +2,8 @@
 ### Logo
 ###
 
+@chapter "Logo"
+
 @skip disable
 @bg white.png 0
 @ch c suika.png 1.0
@@ -19,6 +21,7 @@
 @bg menu.png 1.0
 
 :MENU
+@chapter "Menu"
 @menu menu.png menu_selected.png START 2 495 314 192 LOAD 316 494 322 203 CONFIG 640 492 317 204 QUIT 960 497 317 201
 
 :START
@@ -26,6 +29,7 @@
 @goto SCENE1
 
 :LOAD
+@chapter Load
 @se click.ogg
 @bg menu.png
 @bg load-bg.png 1.0
@@ -226,7 +230,7 @@ If there's anything you want to customize but can't, please contact the author.
 @if $3 != 1 END
 @if $4 != 1 END
 
-@chapter "Sample Game"
+@chapter Bonus
 
 Thank you for selecting all the options.
 @goto END
@@ -236,6 +240,7 @@ Thank you for selecting all the options.
 ###
 
 :CONFIG_SCREEN
+@chapter Config
 @menu config.png config_selected.png BGM_STOP 468 170 149 62 VOICE_STOP 468 256 149 62 SE_STOP 468 340 149 62 BGM_MEDIUM 655 170 237 62 VOICE_MEDIUM 655 256 237 62 SE_MEDIUM 655 340 237 62 BGM_MAX 933 170 127 62 VOICE_MAX 933 256 127 62 SE_MAX 933 340 127 62 CONFIG_OK 524 598 219 73
 
 :BGM_STOP
@@ -289,6 +294,7 @@ Thank you for selecting all the options.
 ###
 
 :END
+@chapter Logo
 @skip disable
 @vol bgm 0.0 2.0
 @bg white.png 1.0

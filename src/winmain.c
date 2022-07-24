@@ -454,10 +454,12 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	cch = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 							  TITLE_BUF_SIZE - 1);
 	wszTitle[cch] = L'\0';
-	WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle, (int)wcslen(wszTitle),
-						mbszTitle + strlen(mbszTitle),
-						TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
-						NULL, NULL);
+	cch = WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle,
+							  (int)wcslen(wszTitle),
+							  mbszTitle + strlen(mbszTitle),
+							  TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
+							  NULL, NULL);
+	mbszTitle[cch] = '\0';
 
 	/* ウィンドウを作成する */
 	hWndMain = CreateWindowEx(0, szWindowClass, mbszTitle, style,
@@ -1524,7 +1526,7 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
-	int cch1, cch2, cch3;
+	int cch1, cch2, cch3, cch4;
 
 #ifdef USE_DEBUGGER
 	/* デバッガを使う場合、先頭にProのタイトルを付ける */
@@ -1548,10 +1550,12 @@ void update_window_title(void)
 	wszTitle[cch1 + cch2 + cch3] = L'\0';
 
 	/* UTF-16から実行環境の文字コードに変換する */
-	WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle, (int)wcslen(wszTitle),
-						mbszTitle + strlen(mbszTitle),
-						TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
-						NULL, NULL);
+	cch4 = WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle,
+							   (int)wcslen(wszTitle),
+							   mbszTitle + strlen(mbszTitle),
+							   TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
+							   NULL, NULL);
+	mbszTitle[cch4] = '\0';
 
 	/* ウィンドウのタイトルを設定する */
 	SetWindowText(hWndMain, mbszTitle);

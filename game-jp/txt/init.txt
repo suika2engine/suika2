@@ -2,6 +2,8 @@
 ### ロゴ
 ###
 
+@chapter ロゴ
+
 @skip disable
 @bg white.png 0
 @ch c suika.png 1.0
@@ -19,6 +21,7 @@
 @bg menu.png 1.0
 
 :MENU
+@chapter メニュー
 @menu menu.png menu_selected.png START 2 495 314 192 LOAD 316 494 322 203 CONFIG 640 492 317 204 QUIT 960 497 317 201
 
 :START
@@ -26,6 +29,7 @@
 @goto SCENE1
 
 :LOAD
+@chapter ロード
 @se click.ogg
 @bg menu.png
 @bg load-bg.png 1.0
@@ -49,7 +53,7 @@
 
 :SCENE1
 
-@chapter "シーン -1-"
+@chapter シーン1
 
 @vol bgm 0.0 1.0
 @bg white.png 1.0
@@ -99,7 +103,7 @@
 ### シーン2 (屋上であいさつする)
 ###
 
-@chapter "シーン -2-"
+@chapter シーン2
 
 @bgm 02.ogg
 @vol bgm 1.0 1.0
@@ -116,7 +120,7 @@
 ### シーン3 (屋上で質問を受け付ける)
 ###
 
-@chapter "シーン -3-"
+@chapter シーン3
 
 :LOOP1
 @choose L1_ADVANTAGE 何が強みなの？ L1_ENV 動作環境は？ L1_NEXT 次へ
@@ -154,7 +158,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 ### シーン4 (浜で質問を受け付ける)
 ###
 
-@chapter "シーン -4-"
+@chapter シーン4
 
 @ch c 001-fun.png 1.0
 *みどり*019.ogg*学校出て、ちょっと歩こうか。どこに行く？浜の方に出てみようか。
@@ -198,7 +202,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 ### シーン5 (浜でラスト・セリフとモノローグの交錯)
 ###
 
-@chapter "シーン -5-"
+@chapter シーン5
 
 @ch c 001-fun.png 1.0
 *みどり*021.ogg*今日はいろいろ聞いてくれてありがとうね。
@@ -228,7 +232,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 @if $3 != 1 END
 @if $4 != 1 END
 
-@chapter "おまけ"
+@chapter おまけ
 
 全部読んでいただいてありがとうございました。
 @goto END
@@ -238,6 +242,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 ###
 
 :CONFIG_SCREEN
+@chapter コンフィグ
 @menu config.png config_selected.png BGM_STOP 468 170 149 62 VOICE_STOP 468 256 149 62 SE_STOP 468 340 149 62 BGM_MEDIUM 655 170 237 62 VOICE_MEDIUM 655 256 237 62 SE_MEDIUM 655 340 237 62 BGM_MAX 933 170 127 62 VOICE_MAX 933 256 127 62 SE_MAX 933 340 127 62 CONFIG_OK 524 598 219 73
 
 :BGM_STOP
@@ -291,6 +296,7 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 ###
 
 :END
+@chapter ロゴ
 @skip disable
 @vol bgm 0.0 2.0
 @bg white.png 1.0
