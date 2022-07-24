@@ -51,7 +51,8 @@ LDFLAGS = \
 	-ld3d9 \
 	-ld3dx9 \
 	-L./libroot/lib \
-	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
+	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
+	-Wl,--gc-sections
 
 #
 # Source files
@@ -83,7 +84,7 @@ OBJS = \
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 %.o: ../../src/%.cc
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
 %.o: res/%.rc
 	$(WINDRES) $< $@
