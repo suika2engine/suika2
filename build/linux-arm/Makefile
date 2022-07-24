@@ -44,7 +44,9 @@ LDFLAGS = \
 	-lGL \
 	-lGLX \
 	-L./libroot/lib \
-	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
+	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
+	-Wl,--gc-sections
+
 
 #
 # Source files

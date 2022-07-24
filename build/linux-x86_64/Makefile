@@ -18,7 +18,7 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O0 -g3 \
+	-O3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-fopt-info-vec \
@@ -43,6 +43,7 @@ LDFLAGS = \
 	-lGLX \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
+	-Wl,--gc-sections \
 	-lmvec
 
 #
