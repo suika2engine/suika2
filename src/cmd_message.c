@@ -197,7 +197,7 @@ static void frame_skip_mode(void);
 static void frame_sysmenu(void);
 static void frame_hide(int *x, int *y, int *w, int *h);
 static void frame_main(int *x, int *y, int *w, int *h);
-static void draw_sysmenu(int *x, int *y, int *w, int *h);
+static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
 static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
 static bool is_collapsed_sysmenu_pointed(void);
 static void draw_banners(int *x, int *y, int *w, int *h);
@@ -276,8 +276,8 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* システムメニューを描画する */
 	if (is_sysmenu)
-		draw_sysmenu(x, y, w, h);
-	else
+		draw_sysmenu(false, x, y, w, h);
+	else if (!is_auto_mode() && !is_skip_mode())
 		draw_collapsed_sysmenu(x, y, w, h);
 	is_sysmenu_finished = false;
 
@@ -774,7 +774,7 @@ static void draw_click(int *x, int *y, int *w, int *h)
 		is_click_visible = true;
 	} else {
 		index = (lap % (int)(conf_click_interval * 1000)) /
-			((int)conf_click_interval * 1000 / CLICK_FRAMES);
+			((int)(conf_click_interval * 1000) / CLICK_FRAMES);
 		set_click_index(index);
 		show_click(true);
 		is_click_visible = true;
@@ -1878,12 +1878,16 @@ static void frame_main(int *x, int *y, int *w, int *h)
 
 		/* オートモードかスキップモードのバナーの描画領域を取得する */
 		draw_banners(x, y, w, h);
+	} else {
+		/* ステージを再描画するか求める(計算だけで描画しない) */
+		draw_sysmenu(true, x, y, w, h);
 	}
 }
 
 /* システムメニューを描画する */
-static void draw_sysmenu(int *x, int *y, int *w, int *h)
+static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 {
+	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
 	bool history_sel, redraw;
 
@@ -1971,26 +1975,36 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		}
 	}
 
+	/* ポイント項目がなくなった場合 */
+	if (sysmenu_pointed_index == SYSMENU_NONE) {
+		if (old_sysmenu_pointed_index != SYSMENU_NONE)
+			redraw = true;
+	}
+
 	/* GPUを利用している場合 */
 	if (is_gpu_accelerated())
 		redraw = true;
 		
 	/* 描画する */
 	if (redraw) {
-		draw_stage_sysmenu(true,
-				   is_skippable(),
-				   is_save_load_enabled(),
-				   qsave_sel,
-				   qload_sel,
-				   save_sel,
-				   load_sel,
-				   auto_sel,
-				   skip_sel,
-				   history_sel,
-				   x, y, w, h);
+		if (!calc_only) {
+			draw_stage_sysmenu(true,
+					   is_skippable(),
+					   is_save_load_enabled(),
+					   qsave_sel,
+					   qload_sel,
+					   save_sel,
+					   load_sel,
+					   auto_sel,
+					   skip_sel,
+					   history_sel,
+					   x, y, w, h);
+			is_sysmenu_first_frame = false;
+		} else {
+			get_sysmenu_rect(&bx, &by, &bw, &bh);
+			union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
+		}
 	}
-
-	is_sysmenu_first_frame = false;
 }
 
 /* 折りたたみシステムメニューを描画する */

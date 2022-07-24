@@ -2223,6 +2223,17 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 }
 
 /*
+ * システムメニューの座標を取得する
+ */
+void get_sysmenu_rect(int *x, int *y, int *w, int *h)
+{
+	*x = conf_sysmenu_x;
+	*y = conf_sysmenu_y;
+	*w = get_image_width(sysmenu_idle_image);
+	*h = get_image_height(sysmenu_idle_image);
+}
+
+/*
  * 折りたたみシステムメニューを描画する
  */
 void draw_stage_collapsed_sysmenu(bool is_pointed,

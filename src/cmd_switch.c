@@ -184,17 +184,12 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	/* セーブ・ロード・ヒストリ画面に移行する */
 	if (need_save_mode) {
 		draw_stage_fo_thumb();
-		play_se(conf_msgbox_btn_save_se);
 		start_save_mode(false);
 	}
-	if (need_load_mode) {
-		play_se(conf_msgbox_btn_load_se);
+	if (need_load_mode)
 		start_load_mode(false);
-	}
-	if (need_history_mode) {
-		play_se(conf_msgbox_history_se);
+	if (need_history_mode)
 		start_history_mode();
-	}
 
 	return true;
 }
@@ -510,10 +505,8 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	}
 
 	/* システムメニューを表示中の場合 */
-	if (is_sysmenu) {
-		draw_keep();
+	if (is_sysmenu)
 		draw_sysmenu(x, y, w, h);
-	}
 
 	/* システムメニューを終了した直後の場合 */
 	if (is_sysmenu_finished) {
@@ -971,6 +964,7 @@ static void process_main_click(void)
 
 	/* ヒストリ画面への遷移を確認する */
 	if (is_up_pressed && !is_history_empty()) {
+		play_se(conf_msgbox_history_se);
 		need_history_mode = true;
 		return;
 	}
@@ -1056,7 +1050,7 @@ static void process_sysmenu_click(void)
 	/* セーブが左クリックされた場合 */
 	if (sysmenu_pointed_index == SYSMENU_SAVE) {
 		/* SEを再生する */
-		play_se(conf_msgbox_btn_save_se);
+		play_se(conf_sysmenu_save_se);
 
 		/* システムメニューを終了する */
 		is_sysmenu = false;
@@ -1103,6 +1097,7 @@ static void process_sysmenu_click(void)
 /* システムメニューを描画する */
 static void draw_sysmenu(int *x, int *y, int *w, int *h)
 {
+	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
 	bool history_sel, redraw;
 
@@ -1172,10 +1167,11 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		}
 	}
 
-	/* 何もポイントされていない場合 */
-	if (sysmenu_pointed_index == SYSMENU_NONE)
-		if (old_sysmenu_pointed_index != sysmenu_pointed_index)
+	/* ポイント項目がなくなった場合 */
+	if (sysmenu_pointed_index == SYSMENU_NONE) {
+		if (old_sysmenu_pointed_index != SYSMENU_NONE)
 			redraw = true;
+	}
 
 	/* GPUを利用している場合 */
 	if (is_gpu_accelerated())
@@ -1183,6 +1179,12 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		
 	/* 描画する */
 	if (redraw) {
+		/* 背景を描画する */
+		get_sysmenu_rect(&bx, &by, &bw, &bh);
+		union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
+		draw_stage_rect_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
+
+		/* システムメニューを描画する */
 		draw_stage_sysmenu(false,
 				   false,
 				   is_save_load_enabled(),
@@ -1194,6 +1196,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 				   skip_sel,
 				   history_sel,
 				   x, y, w, h);
+		is_sysmenu_first_frame = false;
 	}
 }
 
