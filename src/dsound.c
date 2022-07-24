@@ -90,6 +90,11 @@ static int nPosCurArea[MIXER_STREAMS];
 static int nPosEndArea[MIXER_STREAMS];
 
 /*
+ * 各ストリームの最後のエリアを再生したか
+ */
+static int bLastTouch[MIXER_STREAMS];
+
+/*
  * Internal functions
  */
 static BOOL CreatePrimaryBuffer();
@@ -427,6 +432,7 @@ static BOOL PlaySoundBuffer(int nBuffer, struct wave *pStr)
 
 		/* 終了領域を未定とする */
 		nPosEndArea[nBuffer] = -1;
+		bLastTouch[nBuffer] = FALSE;
 
 		/* バッファいっぱいに読み込む */
 		nPosCurArea[nBuffer] = 0;
@@ -653,7 +659,8 @@ static VOID OnNotifyPlayPos(int nBuffer)
 	HRESULT hRet;
 
 	// 再生終了領域を再生し終わった場合
-	if(nPosCurArea[nBuffer] == nPosEndArea[nBuffer])
+	if(nPosEndArea[nBuffer] != -1 && bLastTouch[nBuffer] &&
+	   nPosCurArea[nBuffer] == (nPosEndArea[nBuffer] + 1) % BUF_AREAS)
 	{
 		/* 再生を停止する */
 		IDirectSoundBuffer_Stop(pDSBuffer[nBuffer]);
@@ -667,6 +674,11 @@ static VOID OnNotifyPlayPos(int nBuffer)
 
 		return;	// 再生終了
 	}
+
+	/* 再生したことを記録する */
+	if(nPosEndArea[nBuffer] != -1 &&
+	   nPosCurArea[nBuffer] == nPosEndArea[nBuffer])
+		bLastTouch[nBuffer] = TRUE;
 
 	// 再生位置を取得する
 	hRet = IDirectSoundBuffer_GetCurrentPosition(pDSBuffer[nBuffer],
