@@ -186,8 +186,10 @@ static bool init(void)
 	}
 
 	/* メッセージボックスを消す */
-	show_namebox(false);
-	show_msgbox(false);
+	if (!conf_msgbox_show_on_ch) {
+		show_namebox(false);
+		show_msgbox(false);
+	}
 	show_click(false);
 
 	return true;

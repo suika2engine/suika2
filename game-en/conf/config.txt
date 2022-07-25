@@ -491,3 +491,6 @@ window.title.chapter.disable=0
 
 # Don't blink click animation (1:don't blink, 0:blink)
 click.disable=0
+
+# Don't hide message box while changing characters (1:don't hide, 0:hide)
+msgbox.show.on.ch=0

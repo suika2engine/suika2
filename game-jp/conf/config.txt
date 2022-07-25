@@ -484,3 +484,6 @@ window.title.chapter.disable=0
 
 # クリックアニメーションの点滅を行わない (1:点滅しない, 0:点滅する)
 click.disable=0
+
+# キャラクタの変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す)
+msgbox.show.on.ch=0

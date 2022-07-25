@@ -35,24 +35,6 @@
 
 /* レイヤ */
 enum {
-	/* 背景レイヤ */
-	LAYER_BG,
-
-	/* キャラクタレイヤ */
-	LAYER_CHB,
-	LAYER_CHL,
-	LAYER_CHR,
-	LAYER_CHC,
-
-	/* メッセージレイヤ */
-	LAYER_MSG,	/* 特殊: 実体イメージあり */
-
-	/* 名前レイヤ */
-	LAYER_NAME,	/* 特殊: 実体イメージあり */
-
-	/* クリックアニメーション */
-	LAYER_CLICK,	/* 特殊: click_image[i]への参照 */
-
 	/*
 	 * 下記のレイヤは次の場合に有効
 	 *  - 背景フェード
@@ -72,6 +54,24 @@ enum {
 	 *  - スイッチ
 	 */
 	LAYER_FI,	/* 特殊: 実体イメージあり */
+
+	/* 背景レイヤ */
+	LAYER_BG,
+
+	/* キャラクタレイヤ */
+	LAYER_CHB,
+	LAYER_CHL,
+	LAYER_CHR,
+	LAYER_CHC,
+
+	/* メッセージレイヤ */
+	LAYER_MSG,	/* 特殊: 実体イメージあり */
+
+	/* 名前レイヤ */
+	LAYER_NAME,	/* 特殊: 実体イメージあり */
+
+	/* クリックアニメーション */
+	LAYER_CLICK,	/* 特殊: click_image[i]への参照 */
 
 	/* オートモードバナー */
 	LAYER_AUTO,
@@ -1010,6 +1010,10 @@ void draw_stage_ch_fade(int fade_method)
 
 	draw_stage_fi_fo_fade(fade_method);
 
+	if (is_msgbox_visible)
+		render_layer_image(LAYER_MSG);
+	if (is_namebox_visible)
+		render_layer_image(LAYER_NAME);
 	if (is_auto_visible)
 		render_layer_image(LAYER_AUTO);
 	if (is_skip_visible)
@@ -3550,7 +3554,7 @@ void show_skipmode_banner(bool show)
 /* レイヤをレンダリングする */
 static void render_layer_image(int layer)
 {
-	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
+	assert(layer >= LAYER_FO && layer < STAGE_LAYERS);
 
 	/* 背景イメージは必ずセットされている必要がある */
 	if (layer == LAYER_BG)

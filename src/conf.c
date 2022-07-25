@@ -326,6 +326,9 @@ int conf_window_title_chapter_disable;
 /* クリックアニメーションを点滅させない */
 int conf_click_disable;
 
+/* キャラクタの変更中にメッセージボックスを隠さない */
+int conf_msgbox_show_on_ch;
+
 /*
  * 1行のサイズ
  */
@@ -1017,6 +1020,7 @@ struct rule {
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
 	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, true, false},
 	{"click.disable", 'i', &conf_click_disable, true, false},
+	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))
