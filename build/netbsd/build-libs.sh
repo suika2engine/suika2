@@ -52,7 +52,6 @@ sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += winfonts//' \
     -e 's/FONT_MODULES += pcf//' \
     -e 's/FONT_MODULES += bdf//' \
-    -e 's/FONT_MODULES += sfnt//' \
     -e 's/FONT_MODULES += pshinter//' \
     -e 's/FONT_MODULES += raster//' \
     -e 's/FONT_MODULES += psaux//' \

@@ -47,6 +47,20 @@ cd ..
 
 tar xzf ../../libsrc/freetype-2.9.1.tar.gz
 cd freetype-2.9.1
+sed -e 's/FONT_MODULES += type1//' \
+    -e 's/FONT_MODULES += cff//' \
+    -e 's/FONT_MODULES += cid//' \
+    -e 's/FONT_MODULES += pfr//' \
+    -e 's/FONT_MODULES += type42//' \
+    -e 's/FONT_MODULES += winfonts//' \
+    -e 's/FONT_MODULES += pcf//' \
+    -e 's/FONT_MODULES += bdf//' \
+    -e 's/FONT_MODULES += pshinter//' \
+    -e 's/FONT_MODULES += raster//' \
+    -e 's/FONT_MODULES += psaux//' \
+    -e 's/FONT_MODULES += psnames//' \
+    < modules.cfg > modules.cfg.new
+mv modules.cfg.new modules.cfg
 ./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no CFLAGS="-O3 -arch arm64 -isysroot `xcrun -sdk iphonesimulator --show-sdk-path`" LDFLAGS="-arch arm64"
 make -j4
 make install
