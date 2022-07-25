@@ -161,6 +161,9 @@ void cleanup_asound(void)
 		/* ミューテックスを破棄する */
 		pthread_mutex_destroy(&mutex[n]);
 	}
+
+	/* キャッシュを解放する */
+	snd_config_update_free_global();
 }
 
 /*
