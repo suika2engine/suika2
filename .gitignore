@@ -107,9 +107,9 @@ build/vs/suika/conf
 build/vs/suika/cv
 build/vs/suika/font
 build/vs/suika/rule
-build/vs/suika/sav/
-build/vs/suika/se/
-build/vs/suika/txt/
+build/vs/suika/sav
+build/vs/suika/se
+build/vs/suika/txt
 build/vs/suika-pro/Debug
 build/vs/suika-pro/Release
 build/vs/suika-pro/bg
@@ -119,9 +119,10 @@ build/vs/suika-pro/ch
 build/vs/suika-pro/conf
 build/vs/suika-pro/cv
 build/vs/suika-pro/font
-build/vs/suika-pro/sav/
-build/vs/suika-pro/se/
-build/vs/suika-pro/txt/
+build/vs/suika-pro/rule
+build/vs/suika-pro/sav
+build/vs/suika-pro/se
+build/vs/suika-pro/txt
 
 build/emscripten/data01.arc
 build/emscripten/html
