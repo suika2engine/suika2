@@ -6,10 +6,10 @@ CC = clang
 
 #
 # CPPFLAGS
-#  - To use OpenGL, please add '-DUSE_X11_OPENGL' to CPPFLAGS.
 #
 
 CPPFLAGS = \
+	-DUSE_X11_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2 \
 	-I/usr/local/include
@@ -31,7 +31,6 @@ CFLAGS = \
 
 #
 # LDFLAGS
-#  - To use OpenGL, please add '-lGL -lGLX' to LDFLAGS.
 #
 
 LDFLAGS = \
@@ -42,6 +41,7 @@ LDFLAGS = \
 	-lasound \
 	-lX11 \
 	-lXpm \
+	-lGL \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections
@@ -57,6 +57,7 @@ SRCS = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/asound.c \
+	../../src/glrender.c \
 	../../src/x11main.c
 
 #

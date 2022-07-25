@@ -33,7 +33,7 @@ CFLAGS = \
 
 #
 # LDFLAGS
-#  - To use OpenGL, please add '-lGL -lGLX' to LDFLAGS.
+#  - To use OpenGL, please add '-lGL' to 'LDFLAGS'.
 #
 
 LDFLAGS = \
