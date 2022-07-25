@@ -9,7 +9,7 @@ cd tmp
 
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11
-./configure --prefix=$PREFIX --static CFLAGS='-O3 -ffunction-sections -fdata-sections'
+./configure --prefix=$PREFIX --static 
 gmake -j4
 gmake install
 cd ..

@@ -1010,6 +1010,8 @@ static bool serialize_title(struct wfile *wf, int index)
 {
 	size_t len;
 
+	assert(index >= 0);
+
 	/* 文字列を準備する */
 	strncpy(tmp_str, chapter_name, sizeof(tmp_str));
 	tmp_str[sizeof(tmp_str) - 1] = '\0';
