@@ -296,7 +296,6 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params_set_periods");
 		return false;
 	}
-#if defined(LINUX)
 	if (snd_pcm_hw_params_set_buffer_size(pcm[n], params, BUF_FRAMES) <
 	    0) {
 		frames = BUF_FRAMES;
@@ -307,7 +306,6 @@ static bool init_pcm(int n)
 			return false;
 		}
 	}
-#endif
 	if (snd_pcm_hw_params(pcm[n], params) < 0) {
 		log_api_error("snd_pcm_hw_params");
 		return false;

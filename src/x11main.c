@@ -184,8 +184,10 @@ static bool create_window(void);
 static void destroy_window(void);
 static bool create_icon_image(void);
 static void destroy_icon_image(void);
+#ifdef USE_X11_OPENGL
 static bool init_glx(void);
 static void cleanup_glx(void);
+#endif
 static bool create_back_image(void);
 static void destroy_back_image(void);
 static void run_game_loop(void);
@@ -313,7 +315,9 @@ static void cleanup(void)
 	cleanup_asound();
 
 	/* OpenGLの利用を終了する */
+#ifdef USE_X11_OPENGL
 	cleanup_glx();
+#endif
 
 	/* ウィンドウを破棄する */
 	destroy_window();
@@ -1096,6 +1100,9 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 			return false;
 #endif
 	} else {
+		UNUSED_PARAMETER(width);
+		UNUSED_PARAMETER(height);
+		UNUSED_PARAMETER(texture);
 		assert(*locked_pixels == NULL);
 		*locked_pixels = pixels;
 	}
@@ -1114,6 +1121,10 @@ void unlock_texture(int width, int height, pixel_t *pixels,
 				      texture);
 #endif
 	} else {
+		UNUSED_PARAMETER(width);
+		UNUSED_PARAMETER(height);
+		UNUSED_PARAMETER(texture);
+		UNUSED_PARAMETER(pixels);
 		assert(*locked_pixels != NULL);
 		*locked_pixels = NULL;
 	}
@@ -1128,6 +1139,8 @@ void destroy_texture(void *texture)
 #ifdef USE_X11_OPENGL
 		opengl_destroy_texture(texture);
 #endif
+	} else {
+		UNUSED_PARAMETER(texture);
 	}
 }
 
