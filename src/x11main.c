@@ -792,7 +792,9 @@ static void sync_back_image(int x, int y, int w, int h)
 static bool wait_for_next_frame(void)
 {
 	struct timeval tv_end;
-	uint32_t lap, wait;
+	uint32_t lap, wait, span;
+
+	span = is_opengl ? FRAME_MILLI / 2 : FRAME_MILLI;
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -807,19 +809,17 @@ static bool wait_for_next_frame(void)
 				 (tv_end.tv_usec - tv_start.tv_usec) / 1000);
 
 		/* 次のフレームの開始時刻になった場合はスリープを終了する */
-		if (lap > FRAME_MILLI) {
+		if (lap > span) {
 			tv_start = tv_end;
 			break;
 		}
 
 		/* スリープする時間を求める */
-		wait = (FRAME_MILLI - lap > SLEEP_MILLI) ? SLEEP_MILLI :
-			FRAME_MILLI - lap;
+		wait = (span - lap > SLEEP_MILLI) ? SLEEP_MILLI : span - lap;
 
 		/* スリープする */
 		usleep(wait * 1000);
 	} while(wait > 0);
-
 	return true;
 }
 
