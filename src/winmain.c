@@ -1526,14 +1526,16 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
-	int cch1, cch2, cch3, cch4;
+	int len, cch1, cch2, cch3, cch4;
 
 #ifdef USE_DEBUGGER
 	/* デバッガを使う場合、先頭にProのタイトルを付ける */
 	strcpy(mbszTitle, MSGBOX_TITLE);
 	strcat(mbszTitle, " - ");
+	len = strlen(mbszTitle);
 #else
 	mbszTitle[0] = '\0';
+	len = 0;
 #endif
 
 	/* コンフィグのウィンドウタイトルをUTF-8からUTF-16に変換する */
@@ -1552,10 +1554,10 @@ void update_window_title(void)
 	/* UTF-16から実行環境の文字コードに変換する */
 	cch4 = WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle,
 							   (int)wcslen(wszTitle),
-							   mbszTitle + strlen(mbszTitle),
-							   TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
+							   mbszTitle + len,
+							   TITLE_BUF_SIZE - len - 1,
 							   NULL, NULL);
-	mbszTitle[cch4] = '\0';
+	mbszTitle[len + cch4] = '\0';
 
 	/* ウィンドウのタイトルを設定する */
 	SetWindowText(hWndMain, mbszTitle);
