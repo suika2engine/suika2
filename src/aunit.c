@@ -49,6 +49,9 @@ static uint32_t tmpBuf[TMP_SAMPLES];
 /* 初期化済みか */
 static bool isInitialized;
 
+/* 再生を開始済みか */
+static bool isPlaying;
+
 /* 前方参照 */
 static bool create_audio_unit(void);
 static void destroy_audio_unit(void);
@@ -65,6 +68,7 @@ static OSStatus callback(void *inRef,
 bool init_aunit(void)
 {
     int n;
+    bool ret;
 
     /* オーディオユニットを作成する */
     if(!create_audio_unit())
@@ -73,12 +77,21 @@ bool init_aunit(void)
     /* ミューテックスを初期化する */
     pthread_mutex_init(&mutex, NULL);
 
+    /* ボリュームを設定する */
     for (n = 0; n < MIXER_STREAMS; n++)
         volume[n] = 1.0f;
 
+    /* 初期化済みとする */
     isInitialized = true;
 
-    return true;
+    /* オーディオ再生を開始する */
+    ret = AudioOutputUnitStart(au) == noErr;
+    if (!ret)
+        log_api_error("AudioOutputUnitStart");
+    else
+        isPlaying = true;
+
+    return ret;
 }
 
 /* オーディオユニットを作成する */
@@ -171,17 +184,11 @@ static void destroy_audio_unit(void)
  */
 bool play_sound(int stream, struct wave *w)
 {
-    bool isPlaying;
     bool ret;
 
     ret = true;
     pthread_mutex_lock(&mutex);
     {
-        /* すでに再生中か調べる */
-        isPlaying = wave[BGM_STREAM] != NULL ||
-                    wave[VOICE_STREAM] != NULL ||
-                    wave[SE_STREAM] != NULL;
-
         /* 再生中のストリームをセットする */
         wave[stream] = w;
 
@@ -193,6 +200,7 @@ bool play_sound(int stream, struct wave *w)
             ret = AudioOutputUnitStart(au) == noErr;
             if (!ret)
                 log_api_error("AudioOutputUnitStart");
+            isPlaying = true;
         }
     }
     pthread_mutex_unlock(&mutex);
@@ -205,7 +213,7 @@ bool play_sound(int stream, struct wave *w)
  */
 bool stop_sound(int stream)
 {
-    bool ret, isPlaying;
+    bool ret;
 
     ret = true;
     pthread_mutex_lock(&mutex);
@@ -215,21 +223,6 @@ bool stop_sound(int stream)
 
         /* 再生終了フラグをセットする */
         finish[stream] = true;
-
-        /* 再生中のストリームが残っているか調べる */
-        isPlaying = wave[BGM_STREAM] != NULL ||
-                    wave[VOICE_STREAM] != NULL ||
-                    wave[SE_STREAM] != NULL;
-
-        /* 再生中であれば停止する */
-        if(!isPlaying) {
-            /*
-             * FIXME: 下記はフリーズするので、再生を停止しないこととする
-             */
-#if 0
-            ret = AudioOutputUnitStop(au) == noErr;
-#endif
-        }
     }
     pthread_mutex_unlock(&mutex);
 
@@ -281,7 +274,6 @@ static OSStatus callback(void *inRef,
 {
     uint32_t *samplePtr;
     int stream, ret, remain, readSamples;
-    bool isPlaying;
 
     UNUSED_PARAMETER(inRef);
     UNUSED_PARAMETER(ioActionFlags);
@@ -319,16 +311,6 @@ static OSStatus callback(void *inRef,
 
                     /* 再生終了フラグをセットする */
                     finish[stream] = true;
-
-                    /* 再生中のストリームが残っているか調べる */
-                    isPlaying = wave[BGM_STREAM] != NULL ||
-                                wave[VOICE_STREAM] != NULL ||
-                                wave[SE_STREAM] != NULL;
-                    if(!isPlaying) {
-                        /* 再生を停止する */
-                        AudioOutputUnitStop(au);
-                        break;
-                    }
                 }
 
                 /* ミキシングを行う */
@@ -352,11 +334,10 @@ void pause_sound(void)
 {
     pthread_mutex_lock(&mutex);
     {
-        bool isPlaying = wave[BGM_STREAM] != NULL ||
-                         wave[VOICE_STREAM] != NULL ||
-                         wave[SE_STREAM] != NULL;
-        if(isPlaying)
+        if(isPlaying) {
             AudioOutputUnitStop(au);
+            isPlaying = false;
+        }
     }
     pthread_mutex_unlock(&mutex);
 }
@@ -368,11 +349,10 @@ void resume_sound(void)
 {
     pthread_mutex_lock(&mutex);
     {
-        bool isPlaying = wave[BGM_STREAM] != NULL ||
-                         wave[VOICE_STREAM] != NULL ||
-                         wave[SE_STREAM] != NULL;
-        if(isPlaying)
+        if(!isPlaying) {
             AudioOutputUnitStart(au);
+            isPlaying = true;
+        }
     }
     pthread_mutex_unlock(&mutex);
 }
