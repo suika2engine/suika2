@@ -20,6 +20,8 @@ suika-2.x.x-en.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	cp -Rv ../../game-en/cv/* suika2/cv/
 	mkdir suika2/font
 	cp -Rv ../../game-en/font/* suika2/font/
+	mkdir suika2/rule
+	cp -Rv ../../game-en/rule/* suika2/rule/
 	mkdir suika2/se
 	cp -Rv ../../game-en/se/* suika2/se/
 	mkdir suika2/txt
@@ -50,6 +52,8 @@ suika-2.x.x-jp.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	cp -Rv ../../game-jp/cv/* suika2/cv/
 	mkdir suika2/font
 	cp -Rv ../../game-jp/font/* suika2/font/
+	mkdir suika2/rule
+	cp -Rv ../../game-jp/rule/* suika2/rule/
 	mkdir suika2/se
 	cp -Rv ../../game-jp/se/* suika2/se/
 	mkdir suika2/txt

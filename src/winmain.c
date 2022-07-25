@@ -1532,7 +1532,7 @@ void update_window_title(void)
 	/* デバッガを使う場合、先頭にProのタイトルを付ける */
 	strcpy(mbszTitle, MSGBOX_TITLE);
 	strcat(mbszTitle, " - ");
-	len = strlen(mbszTitle);
+	len = (int)strlen(mbszTitle);
 #else
 	mbszTitle[0] = '\0';
 	len = 0;

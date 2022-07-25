@@ -350,6 +350,8 @@ bool init_stage(void)
 		return false;
 
 	/* ブレンドタイプを設定する */
+	layer_blend[LAYER_FO] = BLEND_NONE;
+	layer_blend[LAYER_FI] = BLEND_FAST;
 	layer_blend[LAYER_BG] = BLEND_NONE;
 	layer_blend[LAYER_CHB] = BLEND_FAST;
 	layer_blend[LAYER_CHL] = BLEND_FAST;
@@ -358,13 +360,11 @@ bool init_stage(void)
 	layer_blend[LAYER_MSG] = BLEND_FAST;
 	layer_blend[LAYER_NAME] = BLEND_FAST;
 	layer_blend[LAYER_CLICK] = BLEND_FAST;
-	layer_blend[LAYER_FO] = BLEND_NONE;
-	layer_blend[LAYER_FI] = BLEND_FAST;
 	layer_blend[LAYER_AUTO] = BLEND_FAST;
 	layer_blend[LAYER_SKIP] = BLEND_FAST;
 
 	/* アルファ値を設定する */
-	for (i = LAYER_BG; i < STAGE_LAYERS; i++)
+	for (i = 0; i < STAGE_LAYERS; i++)
 		layer_alpha[i] = 255;
 
 	return true;
@@ -792,7 +792,7 @@ void cleanup_stage(void)
 {
 	int i;
 
-	for (i = LAYER_BG; i < STAGE_LAYERS; i++) {
+	for (i = 0; i < STAGE_LAYERS; i++) {
 		if (i == LAYER_CLICK)
 			layer_image[i] = NULL;
 		else
@@ -895,7 +895,7 @@ void cleanup_stage(void)
  */
 static void destroy_layer_image(int layer)
 {
-	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	if (layer_image[layer] != NULL) {
 		destroy_image(layer_image[layer]);
@@ -3554,7 +3554,7 @@ void show_skipmode_banner(bool show)
 /* レイヤをレンダリングする */
 static void render_layer_image(int layer)
 {
-	assert(layer >= LAYER_FO && layer < STAGE_LAYERS);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	/* 背景イメージは必ずセットされている必要がある */
 	if (layer == LAYER_BG)
@@ -3577,7 +3577,7 @@ static void render_layer_image(int layer)
 /* レイヤを描画する */
 static void draw_layer_image(struct image *target, int layer)
 {
-	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	/* 背景イメージは必ずセットされている必要がある */
 	if (layer == LAYER_BG)
@@ -3601,7 +3601,7 @@ static void draw_layer_image(struct image *target, int layer)
 /* レイヤの矩形をレンダリングする */
 static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 {
-	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	/* 背景イメージは必ずセットされている必要がある */
 	if (layer == LAYER_BG)
@@ -3619,7 +3619,7 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 static void draw_layer_image_rect(struct image *target, int layer, int x,
 				  int y, int w, int h)
 {
-	assert(layer >= LAYER_BG && layer < STAGE_LAYERS);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	/* 背景イメージは必ずセットされている必要がある */
 	if (layer == LAYER_BG)
