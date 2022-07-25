@@ -425,6 +425,7 @@ static bool create_window(void)
 		return false;
 	}
 	XSetWMName(display, window, &tp);
+	XFree(tp.value);
 
 	/* ウィンドウを表示する */
 	ret = XMapWindow(display, window);
@@ -441,6 +442,7 @@ static bool create_window(void)
 	sh->max_width = conf_window_width;
 	sh->max_height = conf_window_height;
 	XSetWMSizeHints(display, window, sh, XA_WM_NORMAL_HINTS);
+	XFree(sh);
 
 	/* イベントマスクを設定する */
 	XSelectInput(display, window, KeyPressMask | ExposureMask |
@@ -655,6 +657,7 @@ static bool init_glx(void)
 			       (unsigned int)conf_window_height,
 			       0, vi->depth, InputOutput, vi->visual,
 			       CWBorderPixel | CWColormap | CWEventMask, &swa);
+	XFree(vi);
 
 	/* GLXコンテキストを作成する */
 	glXCreateContextAttribsARB = (void *)glXGetProcAddress(
@@ -672,6 +675,7 @@ static bool init_glx(void)
 
 	/* GLXウィンドウを作成する */
 	glx_window = glXCreateWindow(display, config[0], window, NULL);
+	XFree(config);
 
 	/* ウィンドウをスクリーンにマップして表示されるのを待つ */
 	XMapWindow(display, window);
@@ -1338,4 +1342,5 @@ void update_window_title(void)
 		return;
 	}
 	XSetWMName(display, window, &tp);
+	XFree(tp.value);
 }
