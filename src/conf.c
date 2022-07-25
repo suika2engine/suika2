@@ -1073,9 +1073,12 @@ static bool read_conf(void)
 			continue;
 
 		/* 値を保存する */
-		if (!save_value(k, v))
+		if (!save_value(k, v)) {
+			close_rfile(rf);
 			return false;
+		}
 	}
+	close_rfile(rf);
 	return true;
 }
 
