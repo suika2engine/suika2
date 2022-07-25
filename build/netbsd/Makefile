@@ -6,6 +6,7 @@ CC = gcc
 
 #
 # CPPFLAGS
+#  - To use OpenGL, please add '-DUSE_X11_OPENGL' to CPPFLAGS.
 #
 
 CPPFLAGS = \
@@ -32,6 +33,7 @@ CFLAGS = \
 
 #
 # LDFLAGS
+#  - To use OpenGL, please add '-lGL -lGLX' to LDFLAGS.
 #
 
 LDFLAGS = \
@@ -43,19 +45,21 @@ LDFLAGS = \
 	-lX11 \
 	-lXpm \
 	-L./libroot/lib \
-	-Wl,-dn,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy 
+	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
+	-Wl,--gc-sections
 
 #
 # Source files
+#  - To use OpenGL, add '../../src/glrender.c' to 'SRCS'.
 #
 
 include ../common.mk
 
 SRCS = \
-$(SRCS_COMMON) \
-$(SRCS_SSE) \
-../../src/asound.c \
-../../src/x11main.c
+	$(SRCS_COMMON) \
+	$(SRCS_SSE) \
+	../../src/asound.c \
+	../../src/x11main.c
 
 #
 # .c.o compilation rules
@@ -71,10 +75,11 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 #
 
 suika: $(OBJS)
-	$(CC) -o suika $(OBJS) $(LDFLAGS)
+	$(CC) -s -o suika $(OBJS) $(LDFLAGS)
 
 #
 # Feature specific source files.
+#  - To build on non-x86 platform, please comment out following line.
 #
 
 include ../sse.mk
