@@ -48,6 +48,9 @@
 /* 背景イメージのディレクトリ */
 #define BG_DIR		"bg"
 
+/* ルールイメージのディレクトリ */
+#define RULE_DIR	"rule"
+
 /* キャライメージのディレクトリ */
 #define CH_DIR		"ch"
 

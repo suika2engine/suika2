@@ -107,7 +107,7 @@ static bool init(void)
 		}
 
 		/* イメージを読み込む */
-		rule_img = create_image_from_file(BG_DIR, &method[5]);
+		rule_img = create_image_from_file(RULE_DIR, &method[5]);
 		if (rule_img == NULL) {
 			log_script_exec_footer();
 			return false;
