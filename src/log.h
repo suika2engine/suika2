@@ -58,6 +58,7 @@ void log_script_size(int size);
 void log_script_switch_no_label(void);
 void log_script_switch_no_item(void);
 void log_script_var_index(int index);
+void log_script_vol_value(float vol);
 void log_script_mixer_stream(const char *stream);
 void log_script_cha_accel(const char *accel);
 void log_script_shake_move(const char *move);

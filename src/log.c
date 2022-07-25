@@ -523,6 +523,22 @@ void log_script_var_index(int index)
 }
 
 /*
+ * ミキサーのボリューム指定が間違っているエラーを記録する
+ */
+void log_script_vol_value(float vol)
+{
+	if (is_english_mode()) {
+		log_error("Invalid volume value \"%.1f\".\n"
+			  "Specify between 0.0 and 1.0.",
+			  vol);
+	} else {
+		log_error("ボリューム値\"%0.1f\"は正しくありません。\n"
+			  "0.0以上1.0以下で指定してください。",
+			  vol);
+	}
+}
+
+/*
  * ミキサーのストリームの指定が間違っているエラーを記録する
  */
 void log_script_mixer_stream(const char *stream)

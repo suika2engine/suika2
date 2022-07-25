@@ -25,8 +25,11 @@ bool vol_command(void)
 	vol = get_float_param(VOL_PARAM_VOL);
 	span = get_float_param(VOL_PARAM_SPAN);
 
-	vol = vol < 0 ? 0 : vol;
-	vol = vol > 1.0f ? 1.0f : vol;
+	if (vol < 0 || vol > 1.0f) {
+		log_script_vol_value(vol);
+		log_script_exec_footer();
+		return false;
+	}
 
 	switch(stream[0]) {
 	case 'b':
