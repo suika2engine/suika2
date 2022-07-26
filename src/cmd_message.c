@@ -760,6 +760,19 @@ static void draw_click(int *x, int *y, int *w, int *h)
 	if (process_click_first) {
 		process_click_first = false;
 
+		/* 表示位置を設定する */
+		if (conf_click_move) {
+			set_click_index(0);
+			get_click_rect(&click_x, &click_y, &click_w, &click_h);
+			if (pen_x + click_w  >= msgbox_w -
+			    conf_msgbox_margin_right) {
+				pen_y += conf_msgbox_margin_line;
+				pen_x = conf_msgbox_margin_left;
+			}
+			set_click_position(pen_x + conf_msgbox_x,
+					   pen_y + conf_msgbox_y);
+		}
+
 		/* 時間計測を開始する */
 		reset_stop_watch(&click_sw);
 	}

@@ -303,6 +303,9 @@ void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
 /* クリックアニメーションの矩形を取得する */
 void get_click_rect(int *x, int *y, int *w, int *h);
 
+/* クリックアニメーションの位置を設定する */
+void set_click_position(int x, int y);
+
 /* クリックアニメーションの表示・非表示を設定する */
 void show_click(bool show);
 

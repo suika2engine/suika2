@@ -3139,6 +3139,15 @@ void get_click_rect(int *x, int *y, int *w, int *h)
 }
 
 /*
+ * クリックアニメーションの位置を設定する
+ */
+void set_click_position(int x, int y)
+{
+	layer_x[LAYER_CLICK] = x;
+	layer_y[LAYER_CLICK] = y;
+}
+
+/*
  * クリックアニメーションの表示・非表示を設定する
  */
 void show_click(bool show)

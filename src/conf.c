@@ -120,6 +120,7 @@ int conf_msgbox_skip_unseen;
  */
 int conf_click_x;
 int conf_click_y;
+int conf_click_move;
 char *conf_click_file1;
 char *conf_click_file2;
 char *conf_click_file3;
@@ -422,6 +423,7 @@ struct rule {
 	{"msgbox.skip.unseen", 'i', &conf_msgbox_skip_unseen, true, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
+	{"click.move", 'i', &conf_click_move, true, false},
 	{"click.file1", 's', &conf_click_file1, false, false},
 	{"click.file2", 's', &conf_click_file2, true, false},
 	{"click.file3", 's', &conf_click_file3, true, false},

@@ -121,6 +121,7 @@ extern int conf_msgbox_skip_unseen;
  */
 extern int conf_click_x;
 extern int conf_click_y;
+extern int conf_click_move;
 extern char *conf_click_file1;
 extern char *conf_click_file2;
 extern char *conf_click_file3;

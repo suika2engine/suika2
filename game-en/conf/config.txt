@@ -128,6 +128,9 @@ msgbox.skip.unseen=0
 click.x=1170
 click.y=660
 
+# Move click animation (0:don't move, 1:move, optional)
+click.move=0
+
 # Click animation image file name
 click.file1=click1.png
 
