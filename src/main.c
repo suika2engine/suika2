@@ -117,7 +117,6 @@ void init_game_loop(void)
 	/* Android NDK用に状態を初期化する */
 	check_menu_finish_flag();
 	check_retrospect_finish_flag();
-	check_load_flag();
 	check_restore_flag();
 
 #ifdef USE_DEBUGGER

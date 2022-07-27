@@ -88,10 +88,7 @@ static struct button {
 	int h;
 } button[BUTTON_COUNT];
 
-/* ロードが実行された直後であるか */
-static bool load_flag;
-
-/* セーブ画面から復帰した直後であるか */
+/* セーブ・ロード画面から復帰した直後であるか */
 static bool restore_flag;
 
 /* セーブ画面が有効であるか */
@@ -164,7 +161,6 @@ bool init_save(void)
 	int i;
 
 	/* 再利用時のための初期化を行う */
-	load_flag = false;
 	restore_flag = false;
 	is_save_load_mode_enabled = false;
 
@@ -297,20 +293,7 @@ void cleanup_save(void)
  * コマンドからの確認
  */
 
-/*
- * コマンドがロードによって開始されたかを確認する
- */
-bool check_load_flag(void)
-{
-	bool ret;
-
-	ret = load_flag;
-	load_flag = false;
-
-	return ret;
-}
-
-/* コマンドがセーブ画面から復帰したかを確認する */
+/* セーブ・ロード画面のキャンセルから復帰した直後であるかを確認する */
 bool check_restore_flag(void)
 {
 	bool ret;
@@ -1347,9 +1330,6 @@ static bool deserialize_all(const char *fname)
 		
 		/* ヒストリをクリアする */
 		clear_history();
-
-		/* ロードが実行された直後であることをマークする */
-		load_flag = true;
 
 		/* 成功 */
 		success = true;

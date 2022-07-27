@@ -31,9 +31,6 @@ bool init_save(void);
 /* セーブデータに関する終了処理を行う */
 void cleanup_save(void);
 
-/* コマンドがロードによって開始されたかを確認する */
-bool check_load_flag(void);
-
 /* コマンドがセーブ画面から復帰したかを確認する */
 bool check_restore_flag(void);
 
