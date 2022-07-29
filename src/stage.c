@@ -223,6 +223,14 @@ static int shake_offset_x;
 static int shake_offset_y;
 
 /*
+ * GUIモード
+ */
+
+static struct image *gui_idle_image;
+static struct image *gui_hover_image;
+static struct image *gui_active_image;
+
+/*
  * 前方参照
  */
 static bool setup_namebox(void);
@@ -302,6 +310,18 @@ bool init_stage(void)
 	if (rule_img != NULL) {
 		destroy_image(rule_img);
 		rule_img = NULL;
+	}
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_active_image = NULL;
 	}
 
 	/* 名前ボックスをセットアップする */
@@ -887,6 +907,18 @@ void cleanup_stage(void)
 	if (rule_img != NULL) {
 		destroy_image(rule_img);
 		rule_img = NULL;
+	}
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_active_image = NULL;
 	}
 }
 
@@ -3656,6 +3688,65 @@ static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 
 	return true;
 }
+
+/*
+ * GUI
+ */
+
+/*
+ * GUIのidle画像を読み込む
+ */
+bool load_gui_idle_image(const char *file)
+{
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+
+	gui_idle_image = create_image_from_file(CG_DIR, file);
+	if (gui_idle_image == NULL)
+		return false;
+
+	return true;
+}
+
+/*
+ * GUIのhover画像を読み込む
+ */
+bool load_gui_hover_image(const char *file)
+{
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+
+	gui_hover_image = create_image_from_file(CG_DIR, file);
+	if (gui_hover_image == NULL)
+		return false;
+
+	return true;
+}
+
+/*
+ * GUIのactive画像を読み込む
+ */
+bool load_gui_active_image(const char *file)
+{
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_hover_image = NULL;
+	}
+
+	gui_active_image = create_image_from_file(CG_DIR, file);
+	if (gui_active_image == NULL)
+		return false;
+
+	return true;
+}
+
+/*
+ * 更新領域の計算
+ */
 
 /*
  * 2つの矩形を囲う矩形を求める

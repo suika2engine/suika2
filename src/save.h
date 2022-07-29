@@ -31,7 +31,7 @@ bool init_save(void);
 /* セーブデータに関する終了処理を行う */
 void cleanup_save(void);
 
-/* コマンドがセーブ画面から復帰したかを確認する */
+/* セーブ・ロード画面がキャンセルされた直後であるかを確認する */
 bool check_restore_flag(void);
 
 /* セーブ画面を開始する */
