@@ -8,6 +8,7 @@ SRCS_COMMON = \
 	../../src/cmd_click.c \
 	../../src/cmd_gosub.c \
 	../../src/cmd_goto.c \
+	../../src/cmd_gui.c \
 	../../src/cmd_if.c \
 	../../src/cmd_load.c \
 	../../src/cmd_menu.c \

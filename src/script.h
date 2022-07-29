@@ -21,6 +21,7 @@
  *  - 2022/05/11 @videoに対応
  *  - 2022/06/17 @chooseに対応
  *  - 2022/07/04 @chapterに対応
+ *  - 2022/07/29 @guiに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -66,6 +67,7 @@ enum command_type {
 	COMMAND_SKIP,
 	COMMAND_CHOOSE,
 	COMMAND_CHAPTER,
+	COMMAND_GUI,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -518,6 +520,12 @@ enum skip_command_param {
 /* chapterコマンドのパラメータ */
 enum chapter_command_param {
 	CHAPTER_PARAM_NAME = 1,
+};
+
+/* guiコマンドのパラメータ */
+enum gui_command_param {
+	GUI_PARAM_FILE = 1,
+	GUI_PARAM_RIGHTCLICKCANCEL,
 };
 
 /*

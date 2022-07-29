@@ -12,6 +12,10 @@
  *  - 2022/07/27 作成
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "suika.h"
 
 /* デフォルトのGUIファイル */
@@ -40,6 +44,9 @@ enum {
       /* ボリュームを設定するボタン */
       TYPE_VOLUME,
 
+      /* 別のGUIに移動するボタン */
+      TYPE_GUI,
+
       /* GUIを終了するボタン */
       TYPE_CANCEL,
 
@@ -65,7 +72,7 @@ struct button {
 	/* TYPE_LABEL, TYPE_GALLERY */
 	char *label;
 
-	/* TYPE_FILE */
+	/* TYPE_FILE, TYPE_GUI */
 	char *file;
 
 	/* TYPE_GALLERY */
@@ -93,6 +100,9 @@ static bool flag_gui_mode;
 
 /* メッセージ・スイッチの最中に呼ばれたか */
 static bool is_called_from_command;
+
+/* 右クリックでキャンセルするか */
+static bool cancel_when_right_click;
 
 /* 処理中のGUIファイル */
 static const char *gui_file;
@@ -164,7 +174,7 @@ bool check_gui_flag(void)
 /*
  * GUIを準備する
  */
-bool prepare_gui_mode(const char *file)
+bool prepare_gui_mode(const char *file, bool cancel)
 {
 	int i;
 
@@ -191,6 +201,9 @@ bool prepare_gui_mode(const char *file)
 		cleanup_gui();
 		return false;
 	}
+
+	/* 右クリックでキャンセルするか */
+	cancel_when_right_click = cancel;
 
 	return true;
 }
@@ -238,6 +251,30 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 	*w = conf_window_width;
 	*h = conf_window_height;
 	return true;
+}
+
+/*
+ * GUIの実行結果のジャンプ先ラベルを取得する
+ */
+const char *get_gui_result_label(void)
+{
+	return NULL;
+}
+
+/*
+ * GUIの実行結果のジャンプ先ファイルを取得する
+ */
+const char *get_gui_result_file(void)
+{
+	return NULL;
+}
+
+/*
+ * GUIの実行結果が終了であるかを取得する
+ */
+bool is_gui_result_exit(void)
+{
+	return false;
 }
 
 /*
@@ -311,6 +348,10 @@ static bool set_button_key_value(const int index, const char *key,
 		}
 		if (strcmp("volume", val) == 0) {
 			b->type = TYPE_VOLUME;
+			return true;
+		}
+		if (strcmp("gui", val) == 0) {
+			b->type = TYPE_GUI;
 			return true;
 		}
 		if (strcmp("cancel", val) == 0) {

@@ -26,6 +26,7 @@
  *  - 2022/06/05 @skipに対応
  *  - 2022/06/06 デバッガに対応
  *  - 2022/06/17 @chooseに対応
+ *  - 2022/07/29 @guiに対応
  */
 
 #ifdef _MSC_VER
@@ -103,6 +104,7 @@ struct insn_item {
 	{"@skip", COMMAND_SKIP, 1, 1},
 	{"@choose", COMMAND_CHOOSE, 2, 16},
 	{"@chapter", COMMAND_CHAPTER, 1, 1},
+	{"@gui", COMMAND_GUI, 1, 2},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))

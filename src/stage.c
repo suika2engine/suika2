@@ -3695,6 +3695,25 @@ static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
  */
 
 /*
+ * GUIの画像を削除する
+ */
+void remove_gui_images(void)
+{
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_active_image = NULL;
+	}
+}
+
+/*
  * GUIのidle画像を読み込む
  */
 bool load_gui_idle_image(const char *file)

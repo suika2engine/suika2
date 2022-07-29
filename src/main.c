@@ -139,6 +139,10 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	} else if (is_history_mode()) {
 		/* ヒストリ画面を実行する */
 		run_history_mode(x, y, w, h);
+	} else if (is_gui_mode()) {
+		/* GUIモードを実行する */
+		if (run_gui_mode(x, y, w, h))
+			return false; /* 終了ボタンが押下された */
 	} else {
 		/* コマンドを実行する */
 		do {
@@ -429,6 +433,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		if (!chapter_command())
 			return false;
 		*cont = true;
+		break;
+	case COMMAND_GUI:
+		if (!gui_command(x, y, w, h))
+			return false;
 		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */

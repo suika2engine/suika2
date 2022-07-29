@@ -27,7 +27,7 @@ void cleanup_gui(void);
 bool check_gui_flag(void);
 
 /* GUIを準備する */
-bool prepare_gui_mode(const char *file);
+bool prepare_gui_mode(const char *file, bool cancel);
 
 /* GUIを開始する */
 void start_gui_mode(void);
@@ -40,5 +40,14 @@ bool is_gui_mode(void);
 
 /* GUIを実行する */
 bool run_gui_mode(int *x, int *y, int *w, int *h);
+
+/* GUIの実行結果のジャンプ先ラベルを取得する */
+const char *get_gui_result_label(void);
+
+/* GUIの実行結果のジャンプ先ファイルを取得する */
+const char *get_gui_result_file(void);
+
+/* GUIの実行結果が終了であるかを取得する */
+bool is_gui_result_exit(void);
 
 #endif
