@@ -38,7 +38,8 @@
 
 /* Directory names */
 const char *dir_names[] = {
-	"bg", "rule", "bgm", "ch", "cg", "cv", "conf", "font", "se", "txt"
+	"bg", "bgm", "ch", "cg", "cv", "conf", "font", "gui", "rule", "se",
+	"txt"
 };
 
 /* Size of directory names */

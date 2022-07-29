@@ -414,6 +414,22 @@ void show_automode_banner(bool show);
 void show_skipmode_banner(bool show);
 
 /*
+ * GUI
+ */
+
+/* GUIの画像を削除する */
+void remove_gui_images(void);
+
+/* GUIのidle画像を読み込む */
+bool load_gui_idle_image(const char *file);
+
+/* GUIのhover画像を読み込む */
+bool load_gui_hover_image(const char *file);
+
+/* GUIのactive画像を読み込む */
+bool load_gui_active_image(const char *file);
+
+/*
  * 更新領域の計算
  */
 

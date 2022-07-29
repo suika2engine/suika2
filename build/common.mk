@@ -27,6 +27,7 @@ SRCS_COMMON = \
 	../../src/event.c \
 	../../src/file.c \
 	../../src/glyph.c \
+	../../src/gui.c \
 	../../src/history.c \
 	../../src/image.c \
 	../../src/log.c \
