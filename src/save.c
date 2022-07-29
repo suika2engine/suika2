@@ -993,8 +993,6 @@ static bool serialize_title(struct wfile *wf, int index)
 {
 	size_t len;
 
-	assert(index >= 0);
-
 	/* 文字列を準備する */
 	strncpy(tmp_str, chapter_name, sizeof(tmp_str));
 	tmp_str[sizeof(tmp_str) - 1] = '\0';
@@ -1005,11 +1003,15 @@ static bool serialize_title(struct wfile *wf, int index)
 		return false;
 
 	/* 章題を保存する */
-	if (save_title[index] != NULL)
-		free(save_title[index]);
-	save_title[index] = strdup(tmp_str);
-	if (save_title[index] == NULL)
-		return false;
+	if (index != -1) {
+		if (save_title[index] != NULL)
+			free(save_title[index]);
+		save_title[index] = strdup(tmp_str);
+		if (save_title[index] == NULL) {
+			log_memory();
+			return false;
+		}
+	}
 
 	return true;
 }

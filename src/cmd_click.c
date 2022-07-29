@@ -29,8 +29,10 @@ bool click_command(void)
 		show_namebox(false);
 
 		/* スキップモードを終了する */
-		if (is_skip_mode())
+		if (is_skip_mode()) {
 			stop_skip_mode();
+			show_skipmode_banner(false);
+		}
 
 		/* 時間の計測を開始する */
 		reset_stop_watch(&sw);

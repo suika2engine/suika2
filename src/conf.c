@@ -126,6 +126,7 @@ char *conf_click_file2;
 char *conf_click_file3;
 char *conf_click_file4;
 char *conf_click_file5;
+char *conf_click_file6;
 float conf_click_interval;
 
 /*
@@ -429,6 +430,7 @@ struct rule {
 	{"click.file3", 's', &conf_click_file3, true, false},
 	{"click.file4", 's', &conf_click_file4, true, false},
 	{"click.file5", 's', &conf_click_file5, true, false},
+	{"click.file6", 's', &conf_click_file6, true, false},
 	{"click.interval", 'f', &conf_click_interval, false, false},
 	{"selbox.bg.file", 's', NULL, true, false},
 	{"selbox.fg.file", 's', NULL, true, false},

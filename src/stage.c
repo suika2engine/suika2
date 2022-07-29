@@ -465,8 +465,9 @@ static bool setup_msgbox(void)
 static bool setup_click(void)
 {
 	const char *fname[CLICK_FRAMES] = {
-		conf_click_file1, conf_click_file2,
-		conf_click_file3, conf_click_file4, conf_click_file5};
+		conf_click_file1, conf_click_file2, conf_click_file3,
+		conf_click_file4, conf_click_file5, conf_click_file6,
+	};
 	int i;
 
 	is_click_visible = false;

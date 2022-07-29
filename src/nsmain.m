@@ -931,7 +931,7 @@ void update_window_title(void)
                                      initWithUTF8String:get_chapter_name()];
 
         // タイトルを連結する
-        NSString *s = [windowTitle stringByAppendingString:@" | "];
+        NSString *s = [windowTitle stringByAppendingString:@" "];
         s = [s stringByAppendingString:chapterTitle];
 
         // ウィンドウのタイトルを設定する

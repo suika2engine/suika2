@@ -127,6 +127,7 @@ extern char *conf_click_file2;
 extern char *conf_click_file3;
 extern char *conf_click_file4;
 extern char *conf_click_file5;
+extern char *conf_click_file6;
 extern float conf_click_interval;
 
 /*

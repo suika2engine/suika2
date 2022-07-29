@@ -418,6 +418,7 @@ static void init_skip_mode(void)
 
 		/* スキップモードを終了する */
 		stop_skip_mode();
+		show_skipmode_banner(false);
 
 		/* 以降のクリック処理を行わない */
 		is_right_button_pressed = false;

@@ -1542,7 +1542,7 @@ void update_window_title(void)
 	cch1 = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 							   TITLE_BUF_SIZE - 1);
 	cch1--;
-	cch2 = MultiByteToWideChar(CP_UTF8, 0, " | ", -1, wszTitle + cch1,
+	cch2 = MultiByteToWideChar(CP_UTF8, 0, " ", -1, wszTitle + cch1,
 							   TITLE_BUF_SIZE - cch1 - 1);
 	cch2--;
 	cch3 = MultiByteToWideChar(CP_UTF8, 0, get_chapter_name(), -1,

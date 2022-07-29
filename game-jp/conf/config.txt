@@ -132,6 +132,7 @@ click.file2=click2.png
 click.file3=click3.png
 click.file4=click4.png
 click.file5=click5.png
+click.file6=click5.png
 
 # クリックアニメーションの時間間隔
 click.interval=1.0

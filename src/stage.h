@@ -23,7 +23,7 @@
 #include "image.h"
 
 /* クリックアニメーションのフレーム数 */
-#define CLICK_FRAMES	(5)
+#define CLICK_FRAMES	(6)
 
 /* キャラクタの立ち位置 */
 enum ch_position {
