@@ -3765,6 +3765,31 @@ bool load_gui_active_image(const char *file)
 }
 
 /*
+ * GUIのidle画像を描画する
+ */
+void draw_stage_gui_idle(void)
+{
+	render_image(0, 0, gui_idle_image, conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
+}
+
+/*
+ * GUIのhover画像を描画する
+ */
+void draw_stage_gui_hover(int x, int y, int w, int h)
+{
+	render_image(x, y, gui_hover_image, w, h, x, y, 255, BLEND_FAST);
+}
+
+/*
+ * GUIのactive画像を描画する
+ */
+void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy)
+{
+	render_image(x, y, gui_hover_image, w, h, sx, sy, 255, BLEND_FAST);
+}
+
+/*
  * 更新領域の計算
  */
 

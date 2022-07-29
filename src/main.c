@@ -141,7 +141,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 		run_history_mode(x, y, w, h);
 	} else if (is_gui_mode()) {
 		/* GUIモードを実行する */
-		if (run_gui_mode(x, y, w, h))
+		if (!run_gui_mode(x, y, w, h))
 			return false; /* 終了ボタンが押下された */
 	} else {
 		/* コマンドを実行する */

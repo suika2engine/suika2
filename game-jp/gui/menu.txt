@@ -11,6 +11,8 @@ START {
     y: 495;
     width: 314;
     height: 192;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
 }
 
 LOAD {
@@ -20,6 +22,8 @@ LOAD {
     y: 494;
     width: 322;
     height: 203;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
 }
 
 CONFIG {
@@ -29,6 +33,8 @@ CONFIG {
     y: 492;
     width: 317;
     height: 204;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
 }
 
 QUIT {
@@ -38,4 +44,6 @@ QUIT {
     y: 497;
     width: 317;
     height: 201;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
 }

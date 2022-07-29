@@ -429,6 +429,15 @@ bool load_gui_hover_image(const char *file);
 /* GUIのactive画像を読み込む */
 bool load_gui_active_image(const char *file);
 
+/* GUIのidle画像を描画する */
+void draw_stage_gui_idle(void);
+
+/* GUIのhover画像を描画する */
+void draw_stage_gui_hover(int x, int y, int w, int h);
+
+/* GUIのactive画像を描画する */
+void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy);
+
 /*
  * 更新領域の計算
  */

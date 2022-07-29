@@ -104,5 +104,10 @@ static bool cleanup(void)
 	}
 
 	/* キャンセルボタンが押下された場合 */
+	if (!move_to_next_command()) {
+		cleanup_gui();
+		return false;
+	}
+	cleanup_gui();
 	return true;
 }

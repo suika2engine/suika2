@@ -26,32 +26,34 @@
 
 /* ボタンタイプ */
 enum {
-      /* 無効なボタン */
-      TYPE_INVALID = 0,
+	/* 無効なボタン */
+	TYPE_INVALID = 0,
 
-      /* ラベルにジャンプするボタン */
-      TYPE_LABEL,
+	/* ラベルにジャンプするボタン */
+	TYPE_LABEL,
 
-      /* ファイルにジャンプするボタン */
-      TYPE_FILE,
+	/* ファイルにジャンプするボタン */
+	TYPE_FILE,
 
-      /* ギャラリーモードのボタン */
-      TYPE_GALLERY,
+	/* ギャラリーモードのボタン */
+	TYPE_GALLERY,
 
-      /* コンフィグのキーを変更するボタン */
-      TYPE_CONFIG,
+	/* コンフィグのキーを変更するボタン */
+	TYPE_CONFIG,
 
-      /* ボリュームを設定するボタン */
-      TYPE_VOLUME,
+	/* ボリュームを設定するボタン */
+	TYPE_BGMVOL,
+	TYPE_VOICEVOL,
+	TYPE_SEVOL,
 
-      /* 別のGUIに移動するボタン */
-      TYPE_GUI,
+	/* 別のGUIに移動するボタン */
+	TYPE_GUI,
 
-      /* GUIを終了するボタン */
-      TYPE_CANCEL,
+	/* GUIを終了するボタン */
+	TYPE_CANCEL,
 
-      /* アプリケーションを終了するボタン */
-      TYPE_QUIT,
+	/* アプリケーションを終了するボタン */
+	TYPE_QUIT,
 };
 
 /* ボタン */
@@ -72,17 +74,23 @@ struct button {
 	/* TYPE_LABEL, TYPE_GALLERY */
 	char *label;
 
-	/* TYPE_FILE, TYPE_GUI */
+	/* TYPE_FILE, TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI */
 	char *file;
 
 	/* TYPE_GALLERY */
 	char *var;
 
-	/* TYPE_CONFIG, TYPE_VOLUME */
+	/* TYPE_CONFIG */
 	char *key;
 
 	/* TYPE_CONFIG */
 	char *value;
+
+	/* TYPE_VOLUME以外 */
+	char *clickse;
+	
+	/* すべて */
+	char *pointse;
 
 	/*
 	 * 実行時の情報
@@ -107,16 +115,33 @@ static bool cancel_when_right_click;
 /* 処理中のGUIファイル */
 static const char *gui_file;
 
+/* ポイントされているボタンのインデックス */
+static int pointed_index;
+
+/* ポイントされているボタンが変化したか */
+static bool is_pointed_changed;
+
+/* 選択結果のボタンのインデックス */
+static int result_index;
+
 /* ボタン */
 struct button button[BUTTON_COUNT];
 
 /*
  * 前方参照
  */
+static void process_button_point(int index);
+static void process_button_drag(int index);
+static void process_button_click(int index);
+static void process_button_draw(int index);
+static void process_button_draw_volume(int index);
+static void process_button_draw_gallery(int index);
+static void process_play_se(void);
 static bool add_button(int index);
 static bool set_global_key_value(const char *key, const char *val);
 static bool set_button_key_value(const int index, const char *key,
 				 const char *val);
+static void play_se(const char *file);
 static bool load_gui_file(const char *file);
 
 /*
@@ -150,6 +175,10 @@ void cleanup_gui(void)
 			free(button[i].key);
 		if (button[i].value != NULL)
 			free(button[i].value);
+		if (button[i].clickse != NULL)
+			free(button[i].clickse);
+		if (button[i].pointse != NULL)
+			free(button[i].pointse);
 	}
 
 	/* ボタンをゼロクリアする */
@@ -228,9 +257,6 @@ void stop_gui_mode(void)
 
 	/* GUIモードを無効にする */
 	flag_gui_mode = false;
-
-	/* メモリの開放を行う */
-	cleanup_gui();
 }
 
 /*
@@ -246,19 +272,154 @@ bool is_gui_mode(void)
  */
 bool run_gui_mode(int *x, int *y, int *w, int *h)
 {
+	int i;
+
 	*x = 0;
 	*y = 0;
 	*w = conf_window_width;
 	*h = conf_window_height;
+
+	/* 背景を描画する */
+	draw_stage_gui_idle();
+
+	/* 各ボタンについて処理する */
+	pointed_index = -1;
+	result_index = -1;
+	is_pointed_changed = false;
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		process_button_point(i);
+		process_button_drag(i);
+		process_button_click(i);
+		process_button_draw(i);
+	}
+
+	/* SEを再生する */
+	process_play_se();
+
+	/* ボタンが決定された場合 */
+	if (result_index != -1) {
+		/* GUIモードを終了する */
+		stop_gui_mode();
+		return true;
+	}
+
 	return true;
 }
+
+/* ボタンのポイント状態の変化を処理する */
+static void process_button_point(int index)
+{
+	struct button *b;
+	bool prev_pointed;
+
+	b = &button[index];
+	prev_pointed = b->is_pointed;
+
+	if (mouse_pos_x >= b->x && mouse_pos_x <= b->x + b->width &&
+	    mouse_pos_y >= b->y && mouse_pos_y <= b->y + b->height) {
+		b->is_pointed = true;
+		pointed_index = index;
+	} else {
+		b->is_pointed = false;
+	}
+
+	if (prev_pointed != b->is_pointed)
+		is_pointed_changed = true;
+}
+
+/* ボリュームボタンのドラッグを処理する */
+static void process_button_drag(int index)
+{
+	struct button *b;
+
+	b = &button[index];
+
+	if (b->type != TYPE_BGMVOL && b->type != TYPE_VOICEVOL &&
+	    b->type != TYPE_SEVOL)
+		return;
+
+	/* TODO: implement volume bar, set volume, play voice, play se */
+}
+
+/* ボタンのクリックを処理する */
+static void process_button_click(int index)
+{
+	struct button *b;
+
+	b = &button[index];
+
+	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
+	    b->type == TYPE_SEVOL)
+		return;
+
+	if (b->is_pointed && is_left_button_pressed)
+		result_index = index;
+}
+
+/* ボタンを描画する */
+static void process_button_draw(int index)
+{
+	struct button *b;
+
+	b = &button[index];
+
+	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
+	    b->type == TYPE_SEVOL)
+		process_button_draw_volume(index);
+	else if (b->type == TYPE_GALLERY)
+		process_button_draw_gallery(index);
+
+	if (b->is_pointed)
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+}
+
+/* ボリュームボタンを描画する */
+static void process_button_draw_volume(int index)
+{
+	/* TODO */
+	UNUSED_PARAMETER(index);
+}
+
+/* ギャラリーボタンを描画する */
+static void process_button_draw_gallery(int index)
+{
+	/* TODO */
+	UNUSED_PARAMETER(index);
+}
+
+/* ボタンの状況に応じたSEを再生する */
+static void process_play_se(void)
+{
+	if (result_index != -1) {
+		play_se(button[result_index].clickse);
+		return;
+	}
+	if (is_pointed_changed) {
+		play_se(button[pointed_index].pointse);
+		return;
+	}
+}
+	
+/*
+ * 結果の取得
+ */
 
 /*
  * GUIの実行結果のジャンプ先ラベルを取得する
  */
 const char *get_gui_result_label(void)
 {
-	return NULL;
+	struct button *b;
+
+	if (result_index == -1)
+		return NULL;
+
+	b = &button[result_index];
+
+	if (b->type != TYPE_LABEL)
+		return NULL;
+
+	return b->label;
 }
 
 /*
@@ -266,7 +427,17 @@ const char *get_gui_result_label(void)
  */
 const char *get_gui_result_file(void)
 {
-	return NULL;
+	struct button *b;
+
+	if (result_index == -1)
+		return NULL;
+
+	b = &button[result_index];
+
+	if (b->type != TYPE_FILE)
+		return NULL;
+
+	return b->file;
 }
 
 /*
@@ -274,7 +445,17 @@ const char *get_gui_result_file(void)
  */
 bool is_gui_result_exit(void)
 {
-	return false;
+	struct button *b;
+
+	if (result_index == -1)
+		return NULL;
+
+	b = &button[result_index];
+
+	if (b->type != TYPE_QUIT)
+		return false;
+
+	return true;
 }
 
 /*
@@ -346,8 +527,16 @@ static bool set_button_key_value(const int index, const char *key,
 			b->type = TYPE_CONFIG;
 			return true;
 		}
-		if (strcmp("volume", val) == 0) {
-			b->type = TYPE_VOLUME;
+		if (strcmp("bgmvol", val) == 0) {
+			b->type = TYPE_BGMVOL;
+			return true;
+		}
+		if (strcmp("voicevol", val) == 0) {
+			b->type = TYPE_VOICEVOL;
+			return true;
+		}
+		if (strcmp("sevol", val) == 0) {
+			b->type = TYPE_SEVOL;
 			return true;
 		}
 		if (strcmp("gui", val) == 0) {
@@ -421,9 +610,44 @@ static bool set_button_key_value(const int index, const char *key,
 		}
 		return true;
 	}
+	if (strcmp("clickse", key) == 0) {
+		b->clickse = strdup(val);
+		if (b->clickse == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
+	if (strcmp("pointse", key) == 0) {
+		b->pointse = strdup(val);
+		if (b->pointse == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
 
 	log_gui_unknown_button_property(gui_file, key);
 	return false;
+}
+
+/*
+ * SEの再生
+ */
+
+/* SEを再生する */
+static void play_se(const char *file)
+{
+	struct wave *w;
+
+	if (file == NULL || strcmp(file, "") == 0)
+		return;
+
+	w = create_wave_from_file(SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SE_STREAM, w);
 }
 
 /*
