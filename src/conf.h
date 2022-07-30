@@ -330,6 +330,7 @@ extern char *conf_ui_msg_delete;
  */
 extern int conf_voice_stop_off;
 extern int conf_window_fullscreen_disable;
+extern char *conf_window_title_separator;
 extern int conf_window_title_chapter_disable;
 extern int conf_click_disable;
 extern int conf_msgbox_show_on_ch;

@@ -483,6 +483,9 @@ voice.stop.off=0
 # フルスクリーンを無効にする (1:無効にする, 0:有効にする)
 window.fullscreen.disable=0
 
+# ウィンドタイトルと章タイトルの間に入れる文字 (省略可)
+window.title.separator= 
+
 # 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する)
 window.title.chapter.disable=0
 

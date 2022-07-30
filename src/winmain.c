@@ -1528,6 +1528,7 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
+	const char *separator;
 	int len, cch1, cch2, cch3, cch4;
 
 #ifdef USE_DEBUGGER
@@ -1540,11 +1541,16 @@ void update_window_title(void)
 	len = 0;
 #endif
 
+	/* セパレータを取得する */
+	separator = conf_window_title_separator;
+	if (separator == NULL)
+		separator = " ";
+
 	/* コンフィグのウィンドウタイトルをUTF-8からUTF-16に変換する */
 	cch1 = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 							   TITLE_BUF_SIZE - 1);
 	cch1--;
-	cch2 = MultiByteToWideChar(CP_UTF8, 0, " ", -1, wszTitle + cch1,
+	cch2 = MultiByteToWideChar(CP_UTF8, 0, separator, -1, wszTitle + cch1,
 							   TITLE_BUF_SIZE - cch1 - 1);
 	cch2--;
 	cch3 = MultiByteToWideChar(CP_UTF8, 0, get_chapter_name(), -1,
