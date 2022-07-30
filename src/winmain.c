@@ -733,6 +733,8 @@ static void GameLoop(void)
 		{
 			/* フレームの描画を終了する */
 			D3DEndFrame();
+
+			assert(get_image_lock_count() == 0);
 		}
 		else if(bOpenGL)
 		{

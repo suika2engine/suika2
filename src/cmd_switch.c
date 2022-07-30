@@ -1204,6 +1204,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		draw_stage_sysmenu(false,
 				   false,
 				   is_save_load_enabled(),
+				   is_save_load_enabled() &&
+				   have_quick_save_data(),
 				   qsave_sel,
 				   qload_sel,
 				   save_sel,

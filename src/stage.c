@@ -2103,6 +2103,7 @@ void draw_stage_fo_fi(void)
 void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_skip_enabled,
 			bool is_save_load_enabled,
+			bool is_qload_enabled,
 			bool is_qsave_selected,
 			bool is_qload_selected,
 			bool is_save_selected,
@@ -2184,6 +2185,16 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			     conf_sysmenu_load_height,
 			     conf_sysmenu_load_x,
 			     conf_sysmenu_load_y, 255, BLEND_FAST);
+	}
+	if (is_save_load_enabled && !is_qload_enabled) {
+		/* クイックロードの項目(禁止)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_qload_x,
+			     conf_sysmenu_y + conf_sysmenu_qload_y,
+			     sysmenu_disable_image,
+			     conf_sysmenu_qload_width,
+			     conf_sysmenu_qload_height,
+			     conf_sysmenu_qload_x,
+			     conf_sysmenu_qload_y, 255, BLEND_FAST);
 	}
 
 	/* 選択されている項目を描画する */

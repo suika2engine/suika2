@@ -50,6 +50,9 @@ struct image {
 	void *texture;			/* テクスチャへのポインタ */
 };
 
+/* ロックされているイメージの数 */
+static int lock_count;
+
 /*
  * 前方参照
  */
@@ -240,6 +243,7 @@ void destroy_image(struct image *img)
  */
 bool lock_image(struct image *img)
 {
+	lock_count++;
 	if (!lock_texture(img->width, img->height, img->pixels,
 			  &img->locked_pixels, &img->texture))
 		return false;
@@ -252,8 +256,17 @@ bool lock_image(struct image *img)
  */
 void unlock_image(struct image *img)
 {
+	lock_count--;
 	unlock_texture(img->width, img->height, img->pixels,
 		       &img->locked_pixels, &img->texture);
+}
+
+/*
+ * ロックカウントを取得する
+ */
+int get_image_lock_count(void)
+{
+	return lock_count;
 }
 
 /*
