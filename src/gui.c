@@ -93,6 +93,9 @@ struct button {
 	 * 実行時の情報
 	 */
 
+	/* TYPE_CONFIGのときコンフィグがアクティブか */
+	bool is_active;
+
 	/* TYPE_GALLERYのときボタンが無効化されているか */
 	bool is_disabled;
 
@@ -101,10 +104,16 @@ struct button {
 
 	/* ドラッグ中か */
 	bool is_dragging;
+
+	/* ボリュームのスライダーの値 */
+	float slider;
 };
 
 /* GUIモードであるか */
 static bool flag_gui_mode;
+
+/* 最初のフレームであるか */
+static bool is_first_frame;
 
 /* メッセージ・スイッチの最中に呼ばれたか */
 static bool is_called_from_command;
@@ -130,18 +139,20 @@ struct button button[BUTTON_COUNT];
 /*
  * 前方参照
  */
+static void set_active_config_buttons(void);
 static void process_button_point(int index);
 static void process_button_drag(int index);
 static void process_button_click(int index);
 static void process_button_draw(int index);
 static void process_button_draw_volume(int index);
+static void process_button_draw_config(int index);
 static void process_button_draw_gallery(int index);
 static void process_play_se(void);
 static bool add_button(int index);
 static bool set_global_key_value(const char *key, const char *val);
 static bool set_button_key_value(const int index, const char *key,
 				 const char *val);
-static void play_se(const char *file);
+static void play_se(const char *file, bool is_voice);
 static bool load_gui_file(const char *file);
 
 /*
@@ -229,6 +240,9 @@ bool prepare_gui_mode(const char *file, bool cancel)
 		return false;
 	}
 
+	/* TYPE_CONFIGのボタンのアクティブ状態を設定する */
+	set_active_config_buttons();
+
 	/* イメージがすべて揃っているか調べる */
 	if (!check_stage_gui_images()) {
 		log_gui_image_not_loaded();
@@ -242,6 +256,25 @@ bool prepare_gui_mode(const char *file, bool cancel)
 	return true;
 }
 
+/* TYPE_CONFIGのボタンのアクティブ状態を設定する */
+static void set_active_config_buttons(void)
+{
+	int i;
+
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_CONFIG)
+			continue;
+		if (button[i].key == NULL)
+			continue;
+		if (button[i].value == NULL)
+			continue;
+		if (compare_config_key_value(button[i].key, button[i].value))
+			button[i].is_active = true;
+		else
+			button[i].is_active = false;
+	}
+}
+
 /*
  * GUIを開始する
  */
@@ -251,6 +284,7 @@ void start_gui_mode(void)
 
 	/* GUIモードを有効にする */
 	flag_gui_mode = true;
+	is_first_frame = true;
 }
 
 /*
@@ -312,7 +346,8 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 	}
 
 	/* SEを再生する */
-	process_play_se();
+	if (!is_first_frame)
+		process_play_se();
 
 	/* ボタンが決定された場合 */
 	if (result_index != -1) {
@@ -321,6 +356,7 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 		return true;
 	}
 
+	is_first_frame = false;
 	return true;
 }
 
@@ -359,7 +395,40 @@ static void process_button_drag(int index)
 	    b->type != TYPE_SEVOL)
 		return;
 
-	/* TODO: implement volume bar, set volume, play voice, play se */
+	if (!b->is_dragging) {
+		if (!b->is_pointed)
+			return;
+		if (is_left_button_pressed) {
+			b->is_dragging = true;
+			b->slider = (float)(mouse_pos_x - b->x) /
+				    (float)b->width;
+			b->slider = b->slider < 0 ? 0 : b->slider;
+			b->slider = b->slider > 1.0f ? 1.0f : b->slider;
+			if (b->type == TYPE_BGMVOL)
+				set_mixer_master_volume(BGM_STREAM, b->slider);
+			return;
+		}
+	} else {
+		b->slider = (float)(mouse_pos_x - b->x) / (float)b->width;
+		b->slider = b->slider < 0 ? 0 : b->slider;
+		b->slider = b->slider > 1.0f ? 1.0f : b->slider;
+		if (!is_mouse_dragging) {
+			b->is_dragging = false;
+			if (b->type == TYPE_BGMVOL) {
+				set_mixer_master_volume(BGM_STREAM, b->slider);
+			} else if (b->type == TYPE_VOICEVOL) {
+				set_mixer_master_volume(VOICE_STREAM,
+							b->slider);
+				play_se(b->file, true);
+			} else if (b->type == TYPE_SEVOL) {
+				set_mixer_master_volume(SE_STREAM, b->slider);
+				play_se(b->file, false);
+			}
+			return;
+		}
+		if (b->type == TYPE_BGMVOL)
+			set_mixer_master_volume(BGM_STREAM, b->slider);
+	}
 }
 
 /* ボタンのクリックを処理する */
@@ -373,8 +442,14 @@ static void process_button_click(int index)
 	    b->type == TYPE_SEVOL)
 		return;
 
-	if (b->is_pointed && is_left_button_pressed)
-		result_index = index;
+	if (b->is_pointed && is_left_button_pressed) {
+		if (b->type == TYPE_CONFIG) {
+			set_config_key_value(b->key, b->value);
+			set_active_config_buttons();
+		} else {
+			result_index = index;
+		}
+	}
 }
 
 /* ボタンを描画する */
@@ -387,18 +462,49 @@ static void process_button_draw(int index)
 	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
 	    b->type == TYPE_SEVOL)
 		process_button_draw_volume(index);
+	else if (b->type == TYPE_CONFIG)
+		process_button_draw_config(index);
 	else if (b->type == TYPE_GALLERY)
 		process_button_draw_gallery(index);
-
-	if (b->is_pointed)
+	else if (b->is_pointed)
 		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
 }
 
 /* ボリュームボタンを描画する */
 static void process_button_draw_volume(int index)
 {
-	/* TODO */
-	UNUSED_PARAMETER(index);
+	struct button *b;
+	int x;
+
+	b = &button[index];
+
+	if (b->is_pointed)
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+
+	x = b->x + (int)((float)(b->width - b->height) * b->slider);
+
+	draw_stage_gui_active(x, b->y, b->height, b->height, b->x, b->y);
+}
+
+/* コンフィグボタンを描画する */
+static void process_button_draw_config(int index)
+{
+	struct button *b;
+
+	b = &button[index];
+	assert(b->type == TYPE_CONFIG);
+
+	if (b->is_disabled)
+		return;
+
+	if (!b->is_pointed) {
+		if (b->is_active) {
+			draw_stage_gui_active(b->x, b->y, b->width, b->height,
+					      b->x, b->y);
+		}
+	} else {
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+	}
 }
 
 /* ギャラリーボタンを描画する */
@@ -423,12 +529,16 @@ static void process_button_draw_gallery(int index)
 /* ボタンの状況に応じたSEを再生する */
 static void process_play_se(void)
 {
+	if (button[result_index].type == TYPE_BGMVOL ||
+	    button[result_index].type == TYPE_VOICEVOL ||
+	    button[result_index].type == TYPE_SEVOL)
+		return;
 	if (result_index != -1) {
-		play_se(button[result_index].clickse);
+		play_se(button[result_index].clickse, false);
 		return;
 	}
 	if (is_pointed_changed) {
-		play_se(button[pointed_index].pointse);
+		play_se(button[pointed_index].pointse, false);
 		return;
 	}
 }
@@ -563,14 +673,17 @@ static bool set_button_key_value(const int index, const char *key,
 		}
 		if (strcmp("bgmvol", val) == 0) {
 			b->type = TYPE_BGMVOL;
+			b->slider = get_mixer_master_volume(BGM_STREAM);
 			return true;
 		}
 		if (strcmp("voicevol", val) == 0) {
 			b->type = TYPE_VOICEVOL;
+			b->slider = get_mixer_master_volume(VOICE_STREAM);
 			return true;
 		}
 		if (strcmp("sevol", val) == 0) {
 			b->type = TYPE_SEVOL;
+			b->slider = get_mixer_master_volume(SE_STREAM);
 			return true;
 		}
 		if (strcmp("gui", val) == 0) {
@@ -669,18 +782,18 @@ static bool set_button_key_value(const int index, const char *key,
  */
 
 /* SEを再生する */
-static void play_se(const char *file)
+static void play_se(const char *file, bool is_voice)
 {
 	struct wave *w;
 
 	if (file == NULL || strcmp(file, "") == 0)
 		return;
 
-	w = create_wave_from_file(SE_DIR, file, false);
+	w = create_wave_from_file(is_voice ? CV_DIR : SE_DIR, file, false);
 	if (w == NULL)
 		return;
 
-	set_mixer_input(SE_STREAM, w);
+	set_mixer_input(is_voice ? VOICE_STREAM : SE_STREAM, w);
 }
 
 /*

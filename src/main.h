@@ -37,6 +37,7 @@ extern bool is_page_down_pressed;
 extern bool is_control_pressed;
 extern int mouse_pos_x;
 extern int mouse_pos_y;
+extern bool is_mouse_dragging;
 
 /*
  * ゲームループの中身

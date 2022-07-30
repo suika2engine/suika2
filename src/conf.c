@@ -1165,3 +1165,38 @@ void cleanup_conf(void)
 		}
 	}
 }
+
+/*
+ * コンフィグの比較を行う
+ */
+bool compare_config_key_value(const char *key, const char *value)
+{
+	/* TODO: 他のコンフィグもサポートする */
+	if (strcmp("font.file", key) == 0)
+		return strcmp(conf_font_file, value) == 0;
+
+	log_unsupported_dynamic_config(key);
+	return false;
+}
+
+/*
+ * コンフィグの動的変更を行う
+ */
+void set_config_key_value(const char *key, const char *value)
+{
+	/* TODO: 他のコンフィグもサポートする */
+	if (strcmp("font.file", key) == 0) {
+		free(conf_font_file);
+		conf_font_file = strdup(value);
+		if (conf_font_file == NULL) {
+			log_memory();
+			return;
+		}
+		cleanup_glyph();
+		if (!init_glyph())
+			abort();
+		return;
+	}
+
+	log_unsupported_dynamic_config(key);
+}

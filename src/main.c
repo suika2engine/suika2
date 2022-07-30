@@ -46,6 +46,7 @@ bool is_page_down_pressed;
 bool is_control_pressed;
 int mouse_pos_x;
 int mouse_pos_y;
+bool is_mouse_dragging;
 
 /* 複数のイテレーションに渡るコマンドの実行中であるか */
 static bool is_in_repetition;
@@ -106,6 +107,7 @@ void init_game_loop(void)
 	is_control_pressed = false;
 	mouse_pos_x = 0;
 	mouse_pos_y = 0;
+	is_mouse_dragging = false;
 	is_in_repetition = false;
 	flag_message_registered = false;
 	flag_menu_finished = false;
@@ -180,7 +182,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 
 	/*
 	 * 入力の状態をリセットする
-	 *  - Control以外は1フレームごとにリセットする
+	 *  - Controlキー押下とドラッグ状態以外は1フレームごとにリセットする
 	 */
 	is_left_button_pressed = false;
 	is_right_button_pressed = false;

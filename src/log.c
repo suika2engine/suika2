@@ -791,6 +791,20 @@ void log_gui_image_not_loaded(void)
 		log_error("GUI画像が指定されていません。");
 }
 
+/*
+ * 指定されたコンフィグが動的変更に未対応の際のエラーを記録する
+ */
+void log_unsupported_dynamic_config(const char *key)
+{
+	if (is_english_mode()) {
+		log_error("Runtime change of config key \"%s\" is "
+			  "not supported.", key);
+	} else {
+		log_error("コンフィグキー \"%s\" の実行時変更は"
+			  "サポートされていません。", key);
+	}
+}
+
 #ifdef USE_DEBUGGER
 /*
  * コマンドのアップデートに失敗した際のエラーを記録する

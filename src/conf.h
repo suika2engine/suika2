@@ -340,4 +340,10 @@ bool init_conf(void);
 /* コンフィグの終了処理を行う */
 void cleanup_conf(void);
 
+/* コンフィグの比較を行う */
+bool compare_config_key_value(const char *key, const char *value);
+
+/* コンフィグの動的変更を行う */
+void set_config_key_value(const char *key, const char *value);
+
 #endif

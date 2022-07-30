@@ -181,10 +181,12 @@ void on_event_mouse_press(int button, int x, int y)
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 
-	if (button == MOUSE_LEFT)
+	if (button == MOUSE_LEFT) {
 		is_left_button_pressed = true;
-	else
+		is_mouse_dragging = true;
+	} else {
 		is_right_button_pressed = true;
+	}
 }
 
 /*
@@ -195,6 +197,8 @@ void on_event_mouse_release(UNUSED(int button), int x, int y)
 	/* 1フレーム内の解放を無視する */
 	mouse_pos_x = x;
 	mouse_pos_y = y;
+
+	is_mouse_dragging = false;
 }
 
 /*
