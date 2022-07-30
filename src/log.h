@@ -71,14 +71,16 @@ void log_script_choose_no_message(void);
 void log_script_empty_string(void);
 void log_file_write(const char *file);
 void log_script_rule(void);
-void log_gui_parse_char(const char *file, int line, char c);
-void log_gui_parse_long_word(const char *file, int line);
-void log_gui_parse_empty_word(const char *file, int line);
-void log_gui_parse_invalid_eof(const char *file, int line);
-void log_gui_unknown_global_key(const char *file, const char *key);
-void log_gui_too_many_buttons(const char *file);
-void log_gui_unknown_button_type(const char *file, const char *type);
-void log_gui_unknown_button_property(const char *file, const char *key);
+void log_gui_parse_char(char c);
+void log_gui_parse_long_word(void);
+void log_gui_parse_empty_word(void);
+void log_gui_parse_invalid_eof(void);
+void log_gui_unknown_global_key(const char *key);
+void log_gui_too_many_buttons(void);
+void log_gui_unknown_button_type(const char *type);
+void log_gui_unknown_button_property(const char *key);
+void log_gui_parse_footer(const char *file, int line);
+void log_gui_image_not_loaded(void);
 
 #ifdef USE_DEBUGGER
 void log_command_update_error(void);

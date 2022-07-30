@@ -253,8 +253,10 @@ static bool load_thumbnail_params(void)
 
 		/* 変数の値を求める */
 		if (!get_variable_by_string(get_string_param(PARAM_FLAG(i)),
-					    &flag_val))
+					    &flag_val)) {
+			log_script_exec_footer();
 			return false;
+		}
 
 		/* サムネイルを有効にするかを求める */
 		thumbnail[i].enabled = flag_val != 0;

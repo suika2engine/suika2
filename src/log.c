@@ -684,167 +684,111 @@ void log_script_rule(void)
 /*
  * GUIファイルにパースできない文字がある際のエラーを記録する
  */
-void log_gui_parse_char(const char *file, int line, char c)
+void log_gui_parse_char(char c)
 {
-	char tmp[4096];
-
-	line++;
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file format error: %s:%d \'%c\'",
-			 file, line, c);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイル書式エラー: %s:%d \'%c\'",
-			 file, line, c);
-		log_error(tmp);
-	}
+	if (is_english_mode())
+		log_error("Invalid character \'%c\'", c);
+	else
+		log_error("不正な文字 \'%c\'", c);
 }
 
 /*
  * GUIファイルの記述が長すぎる際のエラーを記録する
  */
-void log_gui_parse_long_word(const char *file, int line)
+void log_gui_parse_long_word(void)
 {
-	char tmp[4096];
-
-	line++;
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file format error: %s:%d Too long.",
-			 file, line);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイル書式エラー: %s:%d 長すぎます。",
-			 file, line);
-		log_error(tmp);
-	}
+	if (is_english_mode())
+		log_error("Too long word.");
+	else
+		log_error("記述が長すぎます。");
 }
 
 /*
  * GUIファイルで必要な記述が空白である際のエラーを記録する
  */
-void log_gui_parse_empty_word(const char *file, int line)
+void log_gui_parse_empty_word(void)
 {
-	char tmp[4096];
-
-	line++;
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file format error: %s:%d Empty.",
-			 file, line);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイル書式エラー: %s:%d 空白です。",
-			 file, line);
-		log_error(tmp);
-	}
+	if (is_english_mode())
+		log_error("Nothing is specified.");
+	else
+		log_error("空白が指定されました。");
 }
 
 /*
  * GUIファイルで不正なEOFが現れた際のエラーを記録する
  */
-void log_gui_parse_invalid_eof(const char *file, int line)
+void log_gui_parse_invalid_eof(void)
 {
-	char tmp[4096];
-
-	line++;
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file format error: %s:%d Invalid End-of-File.",
-			 file, line);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイル書式エラー: %s:%d "
-			 "不正なファイル終端です。",
-			 file, line);
-		log_error(tmp);
-	}
+	if (is_english_mode())
+		log_error("Invalid End-of-File.");
+	else
+		log_error("不正なファイル終端です。");
 }
 
 /*
  * GUIファイルで未知のグローバルキーが現れた際のエラーを記録する
  */
-void log_gui_unknown_global_key(const char *file, const char *key)
+void log_gui_unknown_global_key(const char *key)
 {
-	char tmp[4096];
-
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file error: %s Invalid gobal key \"%s\"",
-			 file, key);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイルエラー: %s "
-			 "不正なグローバルキー \"%s\"",
-			 file, key);
-		log_error(tmp);
-	}
+	if (is_english_mode())
+		log_error("Invalid gobal key \"%s\"", key);
+	else
+		log_error("不正なグローバルキー \"%s\"", key);
 }
 
 /*
  * GUIファイルでボタンが多すぎる際のエラーを記録する
  */
-void log_gui_too_many_buttons(const char *file)
+void log_gui_too_many_buttons(void)
 {
-	char tmp[4096];
-
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file error: %s Too many buttons.",
-			 file);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイルエラー: %s ボタンが多すぎます。",
-			 file);
-		log_error(tmp);
-	}
+	if (is_english_mode())
+		log_error("Too many buttons.");
+	else
+		log_error("ボタンが多すぎます。");
 }
 
 /*
  * GUIファイルで未知のボタンタイプが指定された際のエラーを記録する
  */
-void log_gui_unknown_button_type(const char *file, const char *type)
+void log_gui_unknown_button_type(const char *type)
 {
-	char tmp[4096];
-
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file error: %s Unknown button type \"%s\".",
-			 file, type);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイルエラー: %s 未知のボタンタイプ \"%s\"",
-			 file, type);
-		log_error(tmp);
-	}
+	if (is_english_mode())
+		log_error("Unknown button type \"%s\".", type);
+	else
+		log_error("未知のボタンタイプ \"%s\"", type);
 }
 
 /*
  * GUIファイルで未知のボタンプロパティが指定された際のエラーを記録する
  */
-void log_gui_unknown_button_property(const char *file, const char *prop)
+void log_gui_unknown_button_property(const char *prop)
 {
-	char tmp[4096];
+	if (is_english_mode())
+		log_error("Unknown button property \"%s\".", prop);
+	else
+		log_error("未知のボタンプロパティ \"%s\"", prop);
+}
 
-	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "GUI file error: %s Unknown button property \"%s\".",
-			 file, prop);
-		log_error(tmp);
-	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "GUIファイルエラー: %s 未知のボタンプロパティ \"%s\"",
-			 file, prop);
-		log_error(tmp);
-	}
+/*
+ * GUIファイルのパースに失敗した際のエラーを記録する
+ */
+void log_gui_parse_footer(const char *file, int line)
+{
+	if (is_english_mode())
+		log_error("> GUI file error: %s:%d", file, line);
+	else
+		log_error("> GUIファイルエラー: %s:%d", file, line);
+}
+
+/*
+ * GUIファイルでイメージが指定されていない際のエラーを記録する
+ */
+void log_gui_image_not_loaded(void)
+{
+	if (is_english_mode())
+		log_error("GUI image(s) not specified.");
+	else
+		log_error("GUI画像が指定されていません。");
 }
 
 #ifdef USE_DEBUGGER

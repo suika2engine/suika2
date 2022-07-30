@@ -167,13 +167,6 @@ switch.child.click.se.file=click.ogg
 switch.change.se=btn-change.ogg
 
 ###
-### 回想画面(@retrospect)の設定
-###
-
-# 選択項目が変更されたときのSE(省略可)
-retrospect.change.se=btn-change.ogg
-
-###
 ### セーブ・ロード画面の設定
 ###
 
@@ -300,13 +293,6 @@ history.margin.bottom=20
 
 # ヒストリ画面から戻るときのSE(省略可)
 history.cancel.se=click.ogg
-
-###
-### メニュー(@menu)の設定
-###
-
-# メニューのポイントされている項目が変わったときのSE(省略可)
-menu.change.se=btn-change.ogg
 
 ###
 ### システムメニューの設定

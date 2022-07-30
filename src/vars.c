@@ -101,14 +101,12 @@ bool get_variable_by_string(const char *var, int32_t *val)
 
 	if (var[0] != '$' || strlen(var) == 1) {
 		log_script_not_variable(var);
-		log_script_exec_footer();
 		return false;
 	}
 
 	index = atoi(&var[1]);
 	if (index < 0 || index >= VAR_SIZE) {
 		log_script_var_index(index);
-		log_script_exec_footer();
 		return false;
 	}
 

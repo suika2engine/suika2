@@ -77,9 +77,6 @@ struct button {
 	/* TYPE_FILE, TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI */
 	char *file;
 
-	/* TYPE_GALLERY */
-	char *var;
-
 	/* TYPE_CONFIG */
 	char *key;
 
@@ -88,13 +85,16 @@ struct button {
 
 	/* TYPE_VOLUME以外 */
 	char *clickse;
-	
+
 	/* すべて */
 	char *pointse;
 
 	/*
 	 * 実行時の情報
 	 */
+
+	/* TYPE_GALLERYのときボタンが無効化されているか */
+	bool is_disabled;
 
 	/* 前のフレームでポイントされていたか */
 	bool is_pointed;
@@ -169,8 +169,6 @@ void cleanup_gui(void)
 			free(button[i].label);
 		if (button[i].file != NULL)
 			free(button[i].file);
-		if (button[i].var != NULL)
-			free(button[i].var);
 		if (button[i].key != NULL)
 			free(button[i].key);
 		if (button[i].value != NULL)
@@ -227,6 +225,13 @@ bool prepare_gui_mode(const char *file, bool cancel)
 
 	/* GUIファイルを開く */
 	if (!load_gui_file(gui_file)) {
+		cleanup_gui();
+		return false;
+	}
+
+	/* イメージがすべて揃っているか調べる */
+	if (!check_stage_gui_images()) {
+		log_gui_image_not_loaded();
 		cleanup_gui();
 		return false;
 	}
@@ -293,6 +298,19 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 		process_button_draw(i);
 	}
 
+	/* 右クリックでキャンセル可能な場合 */
+	if (cancel_when_right_click) {
+		/* 右クリックされた場合 */
+		if (is_right_button_pressed) {
+			/* どのボタンも選ばれなかったことにする */
+			result_index = -1;
+
+			/* GUIモードを終了する */
+			stop_gui_mode();
+			return true;
+		}			
+	}
+
 	/* SEを再生する */
 	process_play_se();
 
@@ -314,6 +332,9 @@ static void process_button_point(int index)
 
 	b = &button[index];
 	prev_pointed = b->is_pointed;
+
+	if (b->is_disabled)
+		return;
 
 	if (mouse_pos_x >= b->x && mouse_pos_x <= b->x + b->width &&
 	    mouse_pos_y >= b->y && mouse_pos_y <= b->y + b->height) {
@@ -383,8 +404,20 @@ static void process_button_draw_volume(int index)
 /* ギャラリーボタンを描画する */
 static void process_button_draw_gallery(int index)
 {
-	/* TODO */
-	UNUSED_PARAMETER(index);
+	struct button *b;
+
+	b = &button[index];
+	assert(b->type == TYPE_GALLERY);
+
+	if (b->is_disabled)
+		return;
+
+	if (!b->is_pointed) {
+		draw_stage_gui_active(b->x, b->y, b->width, b->height,
+				      b->x, b->y);
+	} else {
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+	}
 }
 
 /* ボタンの状況に応じたSEを再生する */
@@ -416,7 +449,7 @@ const char *get_gui_result_label(void)
 
 	b = &button[result_index];
 
-	if (b->type != TYPE_LABEL)
+	if (b->type != TYPE_LABEL && b->type != TYPE_GALLERY)
 		return NULL;
 
 	return b->label;
@@ -479,7 +512,7 @@ static bool set_global_key_value(const char *key, const char *val)
 		return true;
 	}
 
-	log_gui_unknown_global_key(gui_file, key);
+	log_gui_unknown_global_key(key);
 	return false;
 }
 
@@ -492,7 +525,7 @@ static bool add_button(int index)
 {
 	/* ボタン数の上限を越えている場合 */
 	if (index >= BUTTON_COUNT) {
-		log_gui_too_many_buttons(gui_file);
+		log_gui_too_many_buttons();
 		return false;
 	}
 
@@ -505,6 +538,7 @@ static bool set_button_key_value(const int index, const char *key,
 				 const char *val)
 {
 	struct button *b;
+	int var_val;
 
 	assert(index >= 0 && index < BUTTON_COUNT);
 
@@ -551,7 +585,7 @@ static bool set_button_key_value(const int index, const char *key,
 			b->type = TYPE_QUIT;
 			return true;
 		}
-		log_gui_unknown_button_type(gui_file, val);
+		log_gui_unknown_button_type(val);
 		return false;
 	}
 	if (strcmp("x", key) == 0) {
@@ -587,11 +621,10 @@ static bool set_button_key_value(const int index, const char *key,
 		return true;
 	}
 	if (strcmp("var", key) == 0) {
-		b->var = strdup(val);
-		if (b->var == NULL) {
-			log_memory();
+		if (!get_variable_by_string(val, &var_val))
 			return false;
-		}
+		if (var_val == 0)
+			b->is_disabled = true;
 		return true;
 	}
 	if (strcmp("key", key) == 0) {
@@ -627,7 +660,7 @@ static bool set_button_key_value(const int index, const char *key,
 		return true;
 	}
 
-	log_gui_unknown_button_property(gui_file, key);
+	log_gui_unknown_button_property(key);
 	return false;
 }
 
@@ -737,18 +770,18 @@ static bool load_gui_file(const char *file)
 					break;
 				}
 				if (c == ':' || c == '{' || c == '}') {
-					log_gui_parse_char(file, line, c);
+					log_gui_parse_char(c);
 					st = ST_ERROR;
 					break;
 				}
 			}
 			if (len == sizeof(word) - 1) {
-				log_gui_parse_long_word(file, line);
+				log_gui_parse_long_word();
 				st = ST_ERROR;
 				break;
 			}
 			if (c == '}' || c == ':') {
-				log_gui_parse_char(file, line, c);
+				log_gui_parse_char(c);
 				st = ST_ERROR;
 				break;
 			}
@@ -785,7 +818,7 @@ static bool load_gui_file(const char *file)
 				len = 0;
 				break;
 			}
-			log_gui_parse_char(file, line, c);
+			log_gui_parse_char(c);
 			st = ST_ERROR;
 			break;
 		case ST_KEY:
@@ -796,7 +829,7 @@ static bool load_gui_file(const char *file)
 					break;
 				}
 				if (c == ':') {
-					log_gui_parse_char(file, line, c);
+					log_gui_parse_char(c);
 					st = ST_ERROR;
 					break;
 				}
@@ -806,7 +839,7 @@ static bool load_gui_file(const char *file)
 				}
 			}
 			if (c == '{' || c == '}') {
-				log_gui_parse_char(file, line, c);
+				log_gui_parse_char(c);
 				st = ST_ERROR;
 				break;
 			}
@@ -837,7 +870,7 @@ static bool load_gui_file(const char *file)
 				len = 0;
 				break;
 			}
-			log_gui_parse_char(file, line, c);
+			log_gui_parse_char(c);
 			st = ST_ERROR;
 			break;
 		case ST_VALUE:
@@ -849,7 +882,7 @@ static bool load_gui_file(const char *file)
 				}
 			}
 			if (c == ':' || c == '{') {
-				log_gui_parse_char(file, line, c);
+				log_gui_parse_char(c);
 				st = ST_ERROR;
 				break;
 			}
@@ -895,7 +928,7 @@ static bool load_gui_file(const char *file)
 				len = 0;
 				break;
 			}
-			log_gui_parse_char(file, line, c);
+			log_gui_parse_char(c);
 			st = ST_ERROR;
 			break;
 		}
@@ -909,10 +942,11 @@ static bool load_gui_file(const char *file)
 			line++;
 	}
 
-	/* 中途半端に終わっていた場合 */
-	if (st != ST_SCOPE || (st == ST_SCOPE && len > 0)) {
-		log_gui_parse_invalid_eof(file, line);
-		st = ST_ERROR;
+	/* エラーが発生した場合 */
+	if (st == ST_ERROR) {
+		log_gui_parse_footer(file, line);
+	} else if (st != ST_SCOPE || (st == ST_SCOPE && len > 0)) {
+		log_gui_parse_invalid_eof();
 	}
 
 	/* バッファを解放する */

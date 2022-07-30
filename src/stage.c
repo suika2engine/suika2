@@ -3765,6 +3765,17 @@ bool load_gui_active_image(const char *file)
 }
 
 /*
+ * GUIのイメージがすべて揃っているか調べる
+ */
+bool check_stage_gui_images(void)
+{
+	if (gui_idle_image == NULL || gui_hover_image == NULL ||
+	    gui_active_image == NULL)
+		return false;
+	return true;
+}
+
+/*
  * GUIのidle画像を描画する
  */
 void draw_stage_gui_idle(void)
@@ -3786,7 +3797,7 @@ void draw_stage_gui_hover(int x, int y, int w, int h)
  */
 void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy)
 {
-	render_image(x, y, gui_hover_image, w, h, sx, sy, 255, BLEND_FAST);
+	render_image(x, y, gui_active_image, w, h, sx, sy, 255, BLEND_FAST);
 }
 
 /*

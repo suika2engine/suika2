@@ -7,4 +7,10 @@ msgbox-bg.png by MaxMorgan
 msgbox-fg.png by MaxMorgan
 switch-bg.png by MaxMorgan
 switch-fg.png by MaxMorgan
-click.png by MaxMorgan
+click1.png by MaxMorgan
+click2.png by MaxMorgan
+click3.png by MaxMorgan
+click4.png by MaxMorgan
+click5.png by MaxMorgan
+menu.png by heath
+menu_selected.png by heath

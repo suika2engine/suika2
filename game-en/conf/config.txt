@@ -174,13 +174,6 @@ switch.child.click.se.file=click.ogg
 switch.change.se=btn-change.ogg
 
 ###
-### Retrospect Screen Settings
-###
-
-# Sound effect when pointed item changed (optional)
-retrospect.change.se=btn-change.ogg
-
-###
 ### Save/Load Screen Settings
 ###
 
@@ -307,13 +300,6 @@ history.margin.bottom=20
 
 # Sound effect when go back from history screen (optional)
 history.cancel.se=click.ogg
-
-###
-### Menu (@menu) Settings
-###
-
-# Sound effect when pointed index changed (optional)
-menu.change.se=btn-change.ogg
 
 ###
 ### System Menu Settings

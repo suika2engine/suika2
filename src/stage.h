@@ -429,6 +429,9 @@ bool load_gui_hover_image(const char *file);
 /* GUIのactive画像を読み込む */
 bool load_gui_active_image(const char *file);
 
+/* GUIのイメージがすべて揃っているか調べる */
+bool check_stage_gui_images(void);
+
 /* GUIのidle画像を描画する */
 void draw_stage_gui_idle(void);
 
