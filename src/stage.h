@@ -441,6 +441,9 @@ void draw_stage_gui_hover(int x, int y, int w, int h);
 /* GUIのactive画像を描画する */
 void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy);
 
+/* GUIのidle画像の内容を仮のBGレイヤに設定する */
+bool create_temporary_bg_for_gui(void);
+
 /*
  * 更新領域の計算
  */

@@ -3754,7 +3754,7 @@ bool load_gui_active_image(const char *file)
 {
 	if (gui_active_image != NULL) {
 		destroy_image(gui_active_image);
-		gui_hover_image = NULL;
+		gui_active_image = NULL;
 	}
 
 	gui_active_image = create_image_from_file(CG_DIR, file);
@@ -3798,6 +3798,35 @@ void draw_stage_gui_hover(int x, int y, int w, int h)
 void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy)
 {
 	render_image(x, y, gui_active_image, w, h, sx, sy, 255, BLEND_FAST);
+}
+
+/*
+ * idle画像の内容を仮のBGレイヤに設定する
+ */
+bool create_temporary_bg_for_gui(void)
+{
+	struct image *img;
+
+	/* 既存のBGレイヤのイメージを破棄する */
+	destroy_layer_image(LAYER_BG);
+
+	/* 背景のイメージを作成する */
+	img = create_image(conf_window_width, conf_window_height);
+	if (img == NULL)
+		return false;
+
+	/* idleの中身をコピーする */
+	if (gui_idle_image != NULL) {
+		lock_image(img);
+		draw_image(img, 0, 0, gui_idle_image, conf_window_width,
+			   conf_window_height, 0, 0, 255, BLEND_NONE);
+		unlock_image(img);
+	}
+
+	/* BGレイヤにセットする */
+	layer_image[LAYER_BG] = img;
+
+	return true;
 }
 
 /*

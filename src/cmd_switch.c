@@ -102,6 +102,9 @@ static bool need_load_mode;
 /* ヒストリモードに遷移するか */
 static bool need_history_mode;
 
+/* コフィグモードに遷移するか */
+static bool need_config_mode;
+
 /* システムメニューを表示中か */
 static bool is_sysmenu;
 
@@ -173,7 +176,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 
 	/* クイックロード・セーブ・ロード・ヒストリが選択された場合 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode)
+	    need_history_mode || need_config_mode)
 		stop_command_repetition();
 
 	/* 終了処理を行う */
@@ -190,6 +193,11 @@ bool switch_command(int *x, int *y, int *w, int *h)
 		start_load_mode(false);
 	if (need_history_mode)
 		start_history_mode();
+	if (need_config_mode) {
+		if (!prepare_gui_mode(NULL, true))
+			return false;
+		start_gui_mode();
+	}
 
 	return true;
 }
@@ -211,6 +219,7 @@ bool init(void)
 	need_save_mode = false;
 	need_load_mode = false;
 	need_history_mode = false;
+	need_config_mode = false;
 
 	type = get_command_type();
 	if (type == COMMAND_CHOOSE) {
@@ -938,6 +947,20 @@ static void process_main_click(void)
 {
 	bool enter_sysmenu;
 
+	/* ヒストリ画面への遷移を確認する */
+	if (is_up_pressed && !is_history_empty()) {
+		play_se(conf_msgbox_history_se);
+		need_history_mode = true;
+		return;
+	}
+
+	/* コンフィグ画面への遷移を確認する */
+	if (is_escape_pressed) {
+		need_config_mode = true;
+		return;
+	}
+
+	/* システムメニューへの遷移を確認していく */
 	enter_sysmenu = false;
 
 	/* 右クリックされたとき */
@@ -959,13 +982,6 @@ static void process_main_click(void)
 		sysmenu_pointed_index = get_sysmenu_pointed_button();
 		old_sysmenu_pointed_index = sysmenu_pointed_index;
 		is_sysmenu_finished = false;
-		return;
-	}
-
-	/* ヒストリ画面への遷移を確認する */
-	if (is_up_pressed && !is_history_empty()) {
-		play_se(conf_msgbox_history_se);
-		need_history_mode = true;
 		return;
 	}
 }
@@ -1256,7 +1272,7 @@ static bool cleanup(void)
 
 	/* セーブ・ロードを行う際はコマンドの移動を行わない */
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode)
+	    need_history_mode || need_config_mode)
 		return true;
 
 	n = selected_parent_index;

@@ -341,6 +341,9 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 
 			/* GUIモードを終了する */
 			stop_gui_mode();
+
+			is_right_button_pressed = false;
+			is_left_button_pressed = false;
 			return true;
 		}			
 	}
@@ -444,6 +447,7 @@ static void process_button_click(int index)
 
 	if (b->is_pointed && is_left_button_pressed) {
 		if (b->type == TYPE_CONFIG) {
+			play_se(b->clickse, false);
 			set_config_key_value(b->key, b->value);
 			set_active_config_buttons();
 		} else {
@@ -619,6 +623,9 @@ static bool set_global_key_value(const char *key, const char *val)
 	} else if (strcmp(key, "active") == 0) {
 		if (!load_gui_active_image(val))
 			return false;
+		return true;
+	} else if (strcmp(key, "startse") == 0) {
+		play_se(val, false);
 		return true;
 	}
 

@@ -138,6 +138,9 @@ void on_event_key_press(int key)
 	case KEY_DOWN:
 		is_down_pressed = true;
 		break;
+	case KEY_ESCAPE:
+		is_escape_pressed = true;
+		break;
 	case KEY_C:
 		conf_click_disable = conf_click_disable ? 0 : 1;
 		break;
@@ -162,6 +165,7 @@ void on_event_key_release(int key)
 	case KEY_RETURN:
 	case KEY_UP:
 	case KEY_DOWN:
+	case KEY_ESCAPE:
 		/* これらのキーはフレームごとに解放されたことにされる */
 		break;
 	case KEY_C:

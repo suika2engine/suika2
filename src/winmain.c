@@ -885,11 +885,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		/* オートリピートの場合を除外する */
 		if((HIWORD(lParam) & 0x4000) != 0)
 			return 0;
-		if(wParam == VK_ESCAPE && bFullScreen)
-		{
-			ToggleFullScreen();
-			return 0;
-		}
 		kc = ConvertKeyCode((int)wParam);
 		if(kc != -1)
 			on_event_key_press(kc);
@@ -964,6 +959,8 @@ static int ConvertKeyCode(int nVK)
 		return KEY_UP;
 	case VK_DOWN:
 		return KEY_DOWN;
+	case VK_ESCAPE:
+		return KEY_ESCAPE;
 	case 'C':
 		return KEY_C;
 	default:
