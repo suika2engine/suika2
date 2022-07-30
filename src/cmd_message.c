@@ -1636,6 +1636,11 @@ static void frame_sysmenu(void)
 		     sysmenu_pointed_index == SYSMENU_LOAD))
 			sysmenu_pointed_index = SYSMENU_NONE;
 
+		/* クイックセーブデータがない場合 */
+		if (!have_quick_save_data() &&
+		    sysmenu_pointed_index == SYSMENU_QLOAD)
+			sysmenu_pointed_index = SYSMENU_NONE;
+			
 		/* スキップできない場合 */
 		if (!is_skippable() && sysmenu_pointed_index == SYSMENU_SKIP)
 			sysmenu_pointed_index = SYSMENU_NONE;
@@ -2005,6 +2010,8 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 			draw_stage_sysmenu(true,
 					   is_skippable(),
 					   is_save_load_enabled(),
+					   is_save_load_enabled() &&
+					   have_quick_save_data(),
 					   qsave_sel,
 					   qload_sel,
 					   save_sel,

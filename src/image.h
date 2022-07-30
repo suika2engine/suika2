@@ -170,6 +170,9 @@ bool lock_image(struct image *img);
 /* イメージをアンロックする */
 void unlock_image(struct image *img);
 
+/* ロックカウントを取得する */
+int get_image_lock_count(void);
+
 /* ピクセルへのポインタを取得する(for glyph.c) */
 pixel_t *get_image_pixels(struct image *img);
 

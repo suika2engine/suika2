@@ -137,6 +137,7 @@ void draw_stage_fo_fi(void);
 void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_skip_enabled,
 			bool is_save_load_enabled,
+			bool is_qload_enabled,
 			bool is_qsave_selected,
 			bool is_qload_selected,
 			bool is_save_selected,
