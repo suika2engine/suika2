@@ -1,0 +1,70 @@
+global {
+    idle:   config-idle.png;
+    hover:  config-hover.png;
+    active: config-active.png;
+
+    startse: click.ogg;
+}
+
+FONT1 {
+    type: config;
+    x: 577;
+    y: 157;
+    width: 124;
+    height: 55;
+    key: font.file;
+    value: yasashisa.ttf;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+FONT2 {
+    type: config;
+    x: 752;
+    y: 157;
+    width: 124;
+    height: 55;
+    key: font.file;
+    value: VL-PGothic-Regular.ttf;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+BGM {
+    type: bgmvol;
+    x: 529;
+    y: 242;
+    width: 419;
+    height: 41;
+    pointse: btn-change.ogg;
+}
+
+VOICE {
+    type: voicevol;
+    file: 025.ogg;
+    x: 529;
+    y: 321;
+    width: 419;
+    height: 41;
+    pointse: btn-change.ogg;
+}
+
+SE {
+    type: sevol;
+    file: click.ogg;
+    x: 529;
+    y: 397;
+    width: 419;
+    height: 41;
+    pointse: btn-change.ogg;
+}
+
+OK {
+    type: cancel;
+    x: 504;
+    y: 605;
+    width: 273;
+    height: 65;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}

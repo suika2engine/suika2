@@ -34,6 +34,11 @@ struct sc_line {
  */
 bool init_scbuf(void)
 {
+	if (sc_line != NULL) {
+		free(sc_line);
+		sc_line = NULL;
+	}
+
 	/* 走査変換バッファを画面の高さだけ取得する */
 	sc_line = malloc(sizeof(struct sc_line) * (size_t)conf_window_height);
 	if (sc_line == NULL) {
@@ -49,7 +54,10 @@ bool init_scbuf(void)
  */
 void cleanup_scbuf(void)
 {
-	free(sc_line);
+	if (sc_line != NULL) {
+		free(sc_line);
+		sc_line = NULL;
+	}
 }
 
 /*

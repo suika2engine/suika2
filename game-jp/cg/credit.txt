@@ -1,16 +1,28 @@
 ***CREDIT***
 
-save-bg.png by heath, sima
-save-fg.png by heath, sima
-namebox.png by MaxMorgan
-msgbox-bg.png by MaxMorgan
-msgbox-fg.png by MaxMorgan
-switch-bg.png by MaxMorgan
-switch-fg.png by MaxMorgan
+auto.png by MaxMorgan
 click1.png by MaxMorgan
 click2.png by MaxMorgan
 click3.png by MaxMorgan
 click4.png by MaxMorgan
 click5.png by MaxMorgan
-menu.png by heath
-menu_selected.png by heath
+config-active by heath and ktabata
+config-hover by heath and ktabata
+config-idle by heath and ktabata
+load-bg by heath (modified by ktabata)
+load-gb by heath (modified by ktabata)
+menu-hover.png by heath (modified by ktabata)
+menu-idle.png by heath (modified by ktabata)
+msgbox-bg.png by MaxMorgan
+msgbox-fg.png by MaxMorgan
+namebox.png by MaxMorgan
+save-bg.png by heath (modified by ktabata)
+save-fg.png by heath (modified by ktabata)
+skip.png by MaxMorgan
+switch-bg.png by MaxMorgan
+switch-fg.png by MaxMorgan
+sysmenu-collapsed-hover.png by MaxMorgan
+sysmenu-collapsed-idle.png by MaxMorgan
+sysmenu-disable.png by MaxMorgan
+sysmenu-hover.png by MaxMorgan
+sysmenu-idle.png by MaxMorgan

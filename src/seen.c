@@ -17,7 +17,10 @@
 #include "suika.h"
 
 /* 既読フラグ */
-bool seen_flag[SCRIPT_CMD_SIZE];
+static bool seen_flag[SCRIPT_CMD_SIZE];
+
+/* 初期化済みか */
+static bool is_initialized;
 
 /* 前方参照 */
 #ifndef USE_DEBUGGER
@@ -33,6 +36,8 @@ bool init_seen(void)
 	/* 既読フラグをロードする */
 	load_seen();
 
+	is_initialized = true;
+
 	return true;
 }
 
@@ -41,8 +46,12 @@ bool init_seen(void)
  */
 void cleanup_seen(void)
 {
-	/* 既読フラグをセーブする */
-	save_seen();
+	if (is_initialized) {
+		/* 既読フラグをセーブする */
+		save_seen();
+
+		is_initialized = false;
+	}
 }
 
 /*

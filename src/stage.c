@@ -601,12 +601,12 @@ static bool setup_save(void)
 		save_fg_image = NULL;
 	}
 	if (load_bg_image != NULL) {
-		destroy_image(save_bg_image);
-		save_bg_image = NULL;
+		destroy_image(load_bg_image);
+		load_bg_image = NULL;
 	}
 	if (load_fg_image != NULL) {
-		destroy_image(save_fg_image);
-		save_fg_image = NULL;
+		destroy_image(load_fg_image);
+		load_fg_image = NULL;
 	}
 
 	/* セーブ画面(非選択)の画像を読み込む */
@@ -820,8 +820,10 @@ void cleanup_stage(void)
 			destroy_layer_image(i);
 	}
 	for (i = 0; i <  CLICK_FRAMES; i++) {
-		destroy_image(click_image[i]);
-		click_image[i] = NULL;
+		if (click_image[i] != NULL) {
+			destroy_image(click_image[i]);
+			click_image[i] = NULL;
+		}
 	}
 	if (msgbox_fg_image != NULL) {
 		destroy_image(msgbox_fg_image);
@@ -2369,12 +2371,14 @@ void draw_stage_fo_thumb(void)
 {
 	assert(stage_mode == STAGE_MODE_IDLE);
 
+	lock_image(thumb_image);
 	draw_image_scale(thumb_image,
 			 conf_window_width,
 			 conf_window_height,
 			 0,
 			 0,
 			 layer_image[LAYER_FO]);
+	unlock_image(thumb_image);
 }
 
 /*

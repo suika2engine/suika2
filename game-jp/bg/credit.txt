@@ -1,10 +1,20 @@
 ***CREDIT***
 
+black.png (no copyright)
+
+coast.png
+from http://minikle.onlinestores.jp/
+2次利用できません。
+
+config-idle.png by heath (modified by ktabata)
+
+load-bg.png by heath (modified by ktabata)
+
+menu-idle.png by heath (modified by ktabata)
+
 roof.png
 from http://minikle.onlinestores.jp/
 modified by r0cco
 2次利用できません。
 
-coast.png
-from http://minikle.onlinestores.jp/
-2次利用できません。
+while.png (no copyright)

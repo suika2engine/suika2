@@ -1,7 +1,7 @@
 global {
-    idle:   menu.png;
-    hover:  menu_selected.png;
-    active: menu_selected.png;
+    idle:   menu-idle.png;
+    hover:  menu-hover.png;
+    active: menu-hover.png;
 }
 
 START {
@@ -34,7 +34,6 @@ CONFIG {
     width: 317;
     height: 204;
     pointse: btn-change.ogg;
-    clickse: click.ogg;
 }
 
 QUIT {

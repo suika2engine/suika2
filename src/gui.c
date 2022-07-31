@@ -19,7 +19,7 @@
 #include "suika.h"
 
 /* デフォルトのGUIファイル */
-#define DEFAULT_FILE	"default.txt"
+#define DEFAULT_FILE	"system.txt"
 
 /* ボタンの最大数 */
 #define BUTTON_COUNT	(128)
@@ -905,7 +905,7 @@ static bool load_gui_file(const char *file)
 				st = ST_ERROR;
 				break;
 			}
-			if (c == ' ' || c == '\t' || c == '\r' || c == '\r' ||
+			if (c == ' ' || c == '\t' || c == '\r' || c == '\n' ||
 			    c == '{') {
 				assert(len > 0);
 				word[len] = '\0';
