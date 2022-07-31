@@ -930,8 +930,17 @@ void update_window_title(void)
         NSString *chapterTitle = [[NSString alloc]
                                      initWithUTF8String:get_chapter_name()];
 
+        // セパレータを取得する
+        NSString *sep;
+        if (conf_window_title_separator == NULL) {
+            sep = @" ";
+        } else {
+            sep = [[NSString alloc] initWithUTF8String:
+                                        conf_window_title_separator];
+        }
+
         // タイトルを連結する
-        NSString *s = [windowTitle stringByAppendingString:@" "];
+        NSString *s = [windowTitle stringByAppendingString:sep];
         s = [s stringByAppendingString:chapterTitle];
 
         // ウィンドウのタイトルを設定する

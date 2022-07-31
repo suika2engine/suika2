@@ -1329,7 +1329,7 @@ void update_window_title(void)
 
 	/* タイトルを作成する */
 	strncpy(title_buf, conf_window_title, TITLE_BUF_SIZE - 1);
-	strncat(title_buf, " | ", TITLE_BUF_SIZE - 1);
+	strncat(title_buf, conf_window_title_separator, TITLE_BUF_SIZE - 1);
 	strncat(title_buf, get_chapter_name(), TITLE_BUF_SIZE - 1);
 	title_buf[TITLE_BUF_SIZE - 1] = '\0';
 
