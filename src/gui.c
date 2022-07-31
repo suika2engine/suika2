@@ -163,6 +163,7 @@ bool init_gui(void)
 	/* Android NDK用に再初期化する */
 	flag_gui_mode = false;
 	is_called_from_command = false;
+	memset(button, 0, sizeof(button));
 
 	return true;
 }
@@ -218,9 +219,8 @@ bool prepare_gui_mode(const char *file, bool cancel)
 
 	assert(!flag_gui_mode);
 
-	/* すべてのボタンを無効にしておく */
-	for (i = 0; i < BUTTON_COUNT; i++)
-		button[i].type = TYPE_INVALID;
+	/* ボタンをゼロクリアする */
+	memset(button, 0, sizeof(button));
 
 	/* GUI定義ファイルが指定されていない場合 */
 	if (file == NULL) {

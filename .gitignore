@@ -21,7 +21,9 @@ build/mingw/ch
 build/mingw/conf
 build/mingw/cv
 build/mingw/font
+build/mingw/gui
 build/mingw/log.txt
+build/mingw/rule
 build/mingw/sav
 build/mingw/se
 build/mingw/txt
@@ -106,6 +108,7 @@ build/vs/suika/ch
 build/vs/suika/conf
 build/vs/suika/cv
 build/vs/suika/font
+build/vs/suika/gui
 build/vs/suika/rule
 build/vs/suika/sav
 build/vs/suika/se
