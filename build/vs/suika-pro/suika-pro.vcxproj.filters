@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\..\src\d3drender.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\gui.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -291,6 +294,12 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\readjpeg.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_gui.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\gui.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>
