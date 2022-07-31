@@ -273,7 +273,7 @@ static bool init(void)
 	}
 
 #ifdef USE_X11_OPENGL
-	if (access("force2d.txt", F_OK) == 0) {
+	if (access("no-opengl.txt", F_OK) == 0) {
 		log_info("Force 2D mode.");
 	} else {
 		/* OpenGLを初期化する */
@@ -1325,11 +1325,17 @@ void update_window_title(void)
 {
 	XTextProperty tp;
 	char *buf;
+	const char *sep;
 	int ret;
+
+	/* セパレータを取得する */
+	sep = conf_window_title_separator;
+	if (sep == NULL)
+		sep = " ";
 
 	/* タイトルを作成する */
 	strncpy(title_buf, conf_window_title, TITLE_BUF_SIZE - 1);
-	strncat(title_buf, conf_window_title_separator, TITLE_BUF_SIZE - 1);
+	strncat(title_buf, sep, TITLE_BUF_SIZE - 1);
 	strncat(title_buf, get_chapter_name(), TITLE_BUF_SIZE - 1);
 	title_buf[TITLE_BUF_SIZE - 1] = '\0';
 

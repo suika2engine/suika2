@@ -322,6 +322,9 @@ int conf_voice_stop_off;
 /* フルスクリーンにしない */
 int conf_window_fullscreen_disable;
 
+/* ウィンドウタイトルと章タイトルの間の文字列 */
+char *conf_window_title_separator;
+
 /* 章タイトルをウィンドウタイトルに反映しない */
 int conf_window_title_chapter_disable;
 
@@ -1022,6 +1025,7 @@ struct rule {
 	{"ui.msg.delete", 's', &conf_ui_msg_delete, false, false},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
+	{"window.title.separator", 's', &conf_window_title_separator, true, false},
 	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, true, false},
 	{"click.disable", 'i', &conf_click_disable, true, false},
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, true, false},
