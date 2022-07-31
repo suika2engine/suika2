@@ -95,6 +95,10 @@ int conf_msgbox_btn_history_x;
 int conf_msgbox_btn_history_y;
 int conf_msgbox_btn_history_width;
 int conf_msgbox_btn_history_height;
+int conf_msgbox_btn_config_x;
+int conf_msgbox_btn_config_y;
+int conf_msgbox_btn_config_width;
+int conf_msgbox_btn_config_height;
 int conf_msgbox_btn_hide_x;
 int conf_msgbox_btn_hide_y;
 int conf_msgbox_btn_hide_width;
@@ -106,6 +110,7 @@ char *conf_msgbox_btn_load_se;
 char *conf_msgbox_btn_auto_se;
 char *conf_msgbox_btn_skip_se;
 char *conf_msgbox_btn_history_se;
+char *conf_msgbox_btn_config_se;
 char *conf_msgbox_btn_change_se;
 char *conf_msgbox_save_se;
 char *conf_msgbox_history_se;
@@ -263,6 +268,10 @@ int conf_sysmenu_history_x;
 int conf_sysmenu_history_y;
 int conf_sysmenu_history_width;
 int conf_sysmenu_history_height;
+int conf_sysmenu_config_x;
+int conf_sysmenu_config_y;
+int conf_sysmenu_config_width;
+int conf_sysmenu_config_height;
 char *conf_sysmenu_enter_se;
 char *conf_sysmenu_leave_se;
 char *conf_sysmenu_change_se;
@@ -273,6 +282,7 @@ char *conf_sysmenu_load_se;
 char *conf_sysmenu_auto_se;
 char *conf_sysmenu_skip_se;
 char *conf_sysmenu_history_se;
+char *conf_sysmenu_config_se;
 int conf_sysmenu_collapsed_x;
 int conf_sysmenu_collapsed_y;
 char *conf_sysmenu_collapsed_idle_file;
@@ -407,6 +417,10 @@ struct rule {
 	{"msgbox.btn.history.y", 'i', &conf_msgbox_btn_history_y, true, false},
 	{"msgbox.btn.history.width", 'i', &conf_msgbox_btn_history_width, true, false},
 	{"msgbox.btn.history.height", 'i', &conf_msgbox_btn_history_height, true, false},
+	{"msgbox.btn.config.x", 'i', &conf_msgbox_btn_config_x, true, false},
+	{"msgbox.btn.config.y", 'i', &conf_msgbox_btn_config_y, true, false},
+	{"msgbox.btn.config.width", 'i', &conf_msgbox_btn_config_width, true, false},
+	{"msgbox.btn.config.height", 'i', &conf_msgbox_btn_config_height, true, false},
 	{"msgbox.btn.hide.x", 'i', &conf_msgbox_btn_hide_x, true, false},
 	{"msgbox.btn.hide.y", 'i', &conf_msgbox_btn_hide_y, true, false},
 	{"msgbox.btn.hide.width", 'i', &conf_msgbox_btn_hide_width, true, false},
@@ -417,6 +431,7 @@ struct rule {
 	{"msgbox.btn.load.se", 's', &conf_msgbox_btn_load_se, true, false},
 	{"msgbox.btn.auto.se", 's', &conf_msgbox_btn_auto_se, true, false},
 	{"msgbox.btn.history.se", 's', &conf_msgbox_btn_history_se, true, false},
+	{"msgbox.btn.config.se", 's', &conf_msgbox_btn_config_se, true, false},
 	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, true, false},
 	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false}, /* TODO: remove */
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
@@ -548,6 +563,10 @@ struct rule {
 	{"sysmenu.history.y", 'i', &conf_sysmenu_history_y, false, false},
 	{"sysmenu.history.width", 'i', &conf_sysmenu_history_width, false, false},
 	{"sysmenu.history.height", 'i', &conf_sysmenu_history_height, false, false},
+	{"sysmenu.config.x", 'i', &conf_sysmenu_config_x, false, false},
+	{"sysmenu.config.y", 'i', &conf_sysmenu_config_y, false, false},
+	{"sysmenu.config.width", 'i', &conf_sysmenu_config_width, false, false},
+	{"sysmenu.config.height", 'i', &conf_sysmenu_config_height, false, false},
 	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, true, false},
 	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, true, false},
 	{"sysmenu.change.se", 's', &conf_sysmenu_change_se, true, false},
@@ -558,6 +577,8 @@ struct rule {
 	{"sysmenu.auto.se", 's', &conf_sysmenu_auto_se, true, false},
 	{"sysmenu.skip.se", 's', &conf_sysmenu_skip_se, true, false},
 	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, true, false},
+	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
+	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
 	{"automode.banner.file", 's', &conf_automode_banner_file, false, false},
 	{"automode.banner.x", 'i', &conf_automode_banner_x, false, false},
 	{"automode.banner.y", 'i', &conf_automode_banner_y, false, false},

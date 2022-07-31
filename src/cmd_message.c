@@ -47,7 +47,8 @@
 #define BTN_AUTO	(4)
 #define BTN_SKIP	(5)
 #define BTN_HISTORY	(6)
-#define BTN_HIDE	(7)
+#define BTN_CONFIG	(7)
+#define BTN_HIDE	(8)
 
 /* システムメニューのボタンのインデックス */
 #define SYSMENU_NONE	(-1)
@@ -58,6 +59,7 @@
 #define SYSMENU_AUTO	(4)
 #define SYSMENU_SKIP	(5)
 #define SYSMENU_HISTORY	(6)
+#define SYSMENU_CONFIG	(7)
 
 /* オートモードでボイスありのとき待ち時間 */
 #define AUTO_MODE_VOICE_WAIT		(2000)
@@ -1136,6 +1138,12 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*w = conf_msgbox_btn_history_width;
 		*h = conf_msgbox_btn_history_height;
 		break;
+	case BTN_CONFIG:
+		*x = conf_msgbox_btn_config_x;
+		*y = conf_msgbox_btn_config_y;
+		*w = conf_msgbox_btn_config_width;
+		*h = conf_msgbox_btn_config_height;
+		break;
 	case BTN_HIDE:
 		*x = conf_msgbox_btn_hide_x;
 		*y = conf_msgbox_btn_hide_y;
@@ -1162,7 +1170,7 @@ static int get_sysmenu_pointed_button(void)
 	ry = mouse_pos_y - conf_sysmenu_y;
 
 	/* ボタンを順番に見ていく */
-	for (i = SYSMENU_QSAVE; i <= SYSMENU_HISTORY; i++) {
+	for (i = SYSMENU_QSAVE; i <= SYSMENU_CONFIG; i++) {
 		/* ボタンの座標を取得する */
 		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
 
@@ -1221,6 +1229,12 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*y = conf_sysmenu_history_y;
 		*w = conf_sysmenu_history_width;
 		*h = conf_sysmenu_history_height;
+		break;
+	case SYSMENU_CONFIG:
+		*x = conf_sysmenu_config_x;
+		*y = conf_sysmenu_config_y;
+		*w = conf_sysmenu_config_width;
+		*h = conf_sysmenu_config_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
@@ -1452,7 +1466,21 @@ static bool frame_config(void)
 		set_mixer_input(VOICE_STREAM, NULL);
 
 		/* コンフィグモードを開始する */
-		need_config_mode =  true;
+		need_config_mode = true;
+
+		return true;
+	}
+
+	/* CONFIGボタンが押された場合 */
+	if (is_left_button_pressed && pointed_index == BTN_CONFIG) {
+		/* SEを再生する */
+		play_se(conf_msgbox_btn_config_se);
+
+		/* ボイスを停止する */
+		set_mixer_input(VOICE_STREAM, NULL);
+
+		/* コンフィグモードを開始する */
+		need_config_mode = true;
 
 		return true;
 	}
@@ -1821,6 +1849,20 @@ static void frame_sysmenu(void)
 
 			/* ヒストリモードを開始する */
 			need_history_mode = true;
+			return;
+		}
+
+		/* コンフィグが左クリックされた場合 */
+		if (sysmenu_pointed_index == SYSMENU_CONFIG) {
+			/* SEを再生する */
+			play_se(conf_sysmenu_config_se);
+
+			/* システムメニューを終了する */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+
+			/* コンフィグモードを開始する */
+			need_config_mode = true;
 			return;
 		}
 

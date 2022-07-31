@@ -353,6 +353,12 @@ sysmenu.history.y=7
 sysmenu.history.width=60
 sysmenu.history.height=58
 
+# システムメニューのコンフィグボタンの座標(システムメニュー画像内での座標)
+sysmenu.config.x=0
+sysmenu.config.y=0
+sysmenu.config.width=0
+sysmenu.config.height=0
+
 # システムメニューを呼び出すときのSE(省略可)
 sysmenu.enter.se=click.ogg
 
@@ -382,6 +388,9 @@ sysmenu.skip.se=click.ogg
 
 # システムメニューのヒストリが選択されたときのSE(省略可)
 sysmenu.history.se=click.ogg
+
+# システムメニューのコンフィグが選択されたときのSE(省略可)
+#sysmenu.history.se=click.ogg
 
 # 折りたたみシステムメニュー画像の座標
 sysmenu.collapsed.x=1219
