@@ -35,10 +35,16 @@ static float vol_span[MIXER_STREAMS];
 static stop_watch_t sw[MIXER_STREAMS];
 
 /* ローカルセーブデータに書き込まれるべきボリュームの値 */
-static float vol_sav[MIXER_STREAMS];
+static float vol_local[MIXER_STREAMS];
 
-/* マスターボリューム */
-static float vol_master[MIXER_STREAMS];
+/* グローバルボリューム */
+static float vol_global[MIXER_STREAMS];
+
+/* キャラクタごとのボリューム */
+static float vol_character[CH_VOL_SLOTS];
+
+/* どのキャラクタのボリュームを適用するか */
+static int ch_vol_index;
 
 /* BGMファイル名 */
 static char *bgm_file_name;
@@ -52,13 +58,18 @@ void init_mixer(void)
 
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		vol_cur[n] = 1.0f;
-		vol_sav[n] = 1.0f;
-		vol_master[n] = 1.0f;
+		vol_local[n] = 1.0f;
+		vol_global[n] = 1.0f;
 		set_sound_volume(n, 1.0f);
 
 		/* Androidでは再利用されるので初期化する */
 		is_fading[n] = false;
 	}
+
+	for (n = 0; n < CH_VOL_SLOTS; n++)
+		vol_character[n] = 1.0f;
+
+	ch_vol_index = -1;
 }
 
 /*
@@ -145,13 +156,13 @@ void set_mixer_volume(int n, float vol, float span)
 		vol_start[n] = vol_cur[n];
 		vol_end[n] = vol;
 		vol_span[n] = span;
-		vol_sav[n] = vol;
+		vol_local[n] = vol;
 		reset_stop_watch(&sw[n]);
 	} else {
 		is_fading[n] = false;
 		vol_cur[n] = vol;
-		vol_sav[n] = vol;
-		set_sound_volume(n, vol_master[n] * vol);
+		vol_local[n] = vol;
+		set_sound_volume(n, vol_global[n] * vol);
 	}
 }
 
@@ -163,31 +174,68 @@ float get_mixer_volume(int n)
 {
 	assert(n < MIXER_STREAMS);
 
-	return vol_sav[n];
+	return vol_local[n];
 }
 
 /*
- * マスターボリュームを設定する
+ * グローバルボリュームを設定する
  */
-void set_mixer_master_volume(int n, float vol)
+void set_mixer_global_volume(int n, float vol)
 {
 	assert(n < MIXER_STREAMS);
 	assert(vol >= 0 && vol <= 1.0f);
 
-	vol_master[n] = vol;
+	vol_global[n] = vol;
 
-	set_sound_volume(n, vol_master[n] * vol_cur[n]);
+	set_sound_volume(n, vol_global[n] * vol_cur[n]);
 }
 
 /*
- * マスターボリュームを取得する
+ * グローバルボリュームを取得する
  *  - グローバルセーブデータ用
  */
-float get_mixer_master_volume(int n)
+float get_mixer_global_volume(int n)
 {
 	assert(n < MIXER_STREAMS);
 
-	return vol_master[n];
+	return vol_global[n];
+}
+
+/*
+ * キャラ別ボリュームを設定する
+ */
+void set_character_volume(int n, float vol)
+{
+	assert(n >= 0 && n < CH_VOL_SLOTS);
+
+	vol_character[n] = vol;
+}
+
+/*
+ * キャラ別ボリュームを取得する
+ */
+float get_character_volume(int n)
+{
+	assert(n >= 0 && n < CH_VOL_SLOTS);
+
+	return vol_character[n];
+}
+
+/*
+ * キャラクタボリュームを適用する
+ */
+void apply_character_volume(int index)
+{
+	float vol;
+
+	assert(index == -1 || (index >= 0 && index < CH_VOL_SLOTS));
+
+	ch_vol_index = index;
+
+	vol = vol_global[VOICE_STREAM] * vol_local[VOICE_STREAM] *
+	      vol_character[ch_vol_index];
+
+	set_sound_volume(VOICE_STREAM, vol);
 }
 
 /*
@@ -225,8 +273,12 @@ void process_sound_fading(void)
 		vol = vol_start[n] * (1.0f - lap / vol_span[n]) +
 		      vol_end[n] * (lap / vol_span[n]);
 
+		/* キャラクタボリュームが適用される場合 */
+		if (n == VOICE_STREAM && ch_vol_index != -1)
+			vol *= vol_character[ch_vol_index];
+
 		/* ボリュームを設定する */
 		vol_cur[n] = vol;
-		set_sound_volume(n, vol_master[n] * vol_cur[n]);
+		set_sound_volume(n, vol_global[n] * vol_cur[n]);
 	}
 }

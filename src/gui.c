@@ -45,6 +45,7 @@ enum {
 	TYPE_BGMVOL,
 	TYPE_VOICEVOL,
 	TYPE_SEVOL,
+	TYPE_CHARACTERVOL,
 
 	/* 別のGUIに移動するボタン */
 	TYPE_GUI,
@@ -57,7 +58,7 @@ enum {
 };
 
 /* ボタン */
-static struct button {
+static struct gui_button {
 	/*
 	 * GUIファイルから設定されるプロパティ
 	 */
@@ -82,6 +83,9 @@ static struct button {
 
 	/* TYPE_CONFIG */
 	char *value;
+
+	/* TYPE_CHARACTERVOL */
+	int index;
 
 	/* TYPE_VOLUME以外 */
 	char *clickse;
@@ -363,7 +367,7 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 /* ボタンのポイント状態の変化を処理する */
 static void process_button_point(int index)
 {
-	struct button *b;
+	struct gui_button *b;
 	bool prev_pointed;
 
 	b = &button[index];
@@ -387,12 +391,12 @@ static void process_button_point(int index)
 /* ボリュームボタンのドラッグを処理する */
 static void process_button_drag(int index)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	b = &button[index];
 
 	if (b->type != TYPE_BGMVOL && b->type != TYPE_VOICEVOL &&
-	    b->type != TYPE_SEVOL)
+	    b->type != TYPE_SEVOL && b->type != TYPE_CHARACTERVOL)
 		return;
 
 	if (!b->is_dragging) {
@@ -405,7 +409,7 @@ static void process_button_drag(int index)
 			b->slider = b->slider < 0 ? 0 : b->slider;
 			b->slider = b->slider > 1.0f ? 1.0f : b->slider;
 			if (b->type == TYPE_BGMVOL)
-				set_mixer_master_volume(BGM_STREAM, b->slider);
+				set_mixer_global_volume(BGM_STREAM, b->slider);
 			return;
 		}
 	} else {
@@ -415,31 +419,36 @@ static void process_button_drag(int index)
 		if (!is_mouse_dragging) {
 			b->is_dragging = false;
 			if (b->type == TYPE_BGMVOL) {
-				set_mixer_master_volume(BGM_STREAM, b->slider);
+				set_mixer_global_volume(BGM_STREAM, b->slider);
 			} else if (b->type == TYPE_VOICEVOL) {
-				set_mixer_master_volume(VOICE_STREAM,
+				set_mixer_global_volume(VOICE_STREAM,
 							b->slider);
+				apply_character_volume(-1);
 				play_se(b->file, true);
 			} else if (b->type == TYPE_SEVOL) {
-				set_mixer_master_volume(SE_STREAM, b->slider);
+				set_mixer_global_volume(SE_STREAM, b->slider);
 				play_se(b->file, false);
+			} else if (b->type == TYPE_CHARACTERVOL) {
+				set_character_volume(b->index, b->slider);
+				apply_character_volume(b->index);
+				play_se(b->file, true);
 			}
 			return;
 		}
 		if (b->type == TYPE_BGMVOL)
-			set_mixer_master_volume(BGM_STREAM, b->slider);
+			set_mixer_global_volume(BGM_STREAM, b->slider);
 	}
 }
 
 /* ボタンのクリックを処理する */
 static void process_button_click(int index)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	b = &button[index];
 
 	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
-	    b->type == TYPE_SEVOL)
+	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL)
 		return;
 
 	if (b->is_pointed && is_left_button_pressed) {
@@ -456,12 +465,12 @@ static void process_button_click(int index)
 /* ボタンを描画する */
 static void process_button_draw(int index)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	b = &button[index];
 
 	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
-	    b->type == TYPE_SEVOL)
+	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL)
 		process_button_draw_volume(index);
 	else if (b->type == TYPE_CONFIG)
 		process_button_draw_config(index);
@@ -474,7 +483,7 @@ static void process_button_draw(int index)
 /* ボリュームボタンを描画する */
 static void process_button_draw_volume(int index)
 {
-	struct button *b;
+	struct gui_button *b;
 	int x;
 
 	b = &button[index];
@@ -490,7 +499,7 @@ static void process_button_draw_volume(int index)
 /* コンフィグボタンを描画する */
 static void process_button_draw_config(int index)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	b = &button[index];
 	assert(b->type == TYPE_CONFIG);
@@ -511,7 +520,7 @@ static void process_button_draw_config(int index)
 /* ギャラリーボタンを描画する */
 static void process_button_draw_gallery(int index)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	b = &button[index];
 	assert(b->type == TYPE_GALLERY);
@@ -532,7 +541,8 @@ static void process_play_se(void)
 {
 	if (button[result_index].type == TYPE_BGMVOL ||
 	    button[result_index].type == TYPE_VOICEVOL ||
-	    button[result_index].type == TYPE_SEVOL)
+	    button[result_index].type == TYPE_SEVOL ||
+	    button[result_index].type == TYPE_CHARACTERVOL)
 		return;
 	if (result_index != -1) {
 		play_se(button[result_index].clickse, false);
@@ -553,7 +563,7 @@ static void process_play_se(void)
  */
 const char *get_gui_result_label(void)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	if (result_index == -1)
 		return NULL;
@@ -571,7 +581,7 @@ const char *get_gui_result_label(void)
  */
 const char *get_gui_result_file(void)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	if (result_index == -1)
 		return NULL;
@@ -589,7 +599,7 @@ const char *get_gui_result_file(void)
  */
 bool is_gui_result_exit(void)
 {
-	struct button *b;
+	struct gui_button *b;
 
 	if (result_index == -1)
 		return NULL;
@@ -651,7 +661,7 @@ static bool add_button(int index)
 static bool set_button_key_value(const int index, const char *key,
 				 const char *val)
 {
-	struct button *b;
+	struct gui_button *b;
 	int var_val;
 
 	assert(index >= 0 && index < BUTTON_COUNT);
@@ -677,17 +687,21 @@ static bool set_button_key_value(const int index, const char *key,
 		}
 		if (strcmp("bgmvol", val) == 0) {
 			b->type = TYPE_BGMVOL;
-			b->slider = get_mixer_master_volume(BGM_STREAM);
+			b->slider = get_mixer_global_volume(BGM_STREAM);
 			return true;
 		}
 		if (strcmp("voicevol", val) == 0) {
 			b->type = TYPE_VOICEVOL;
-			b->slider = get_mixer_master_volume(VOICE_STREAM);
+			b->slider = get_mixer_global_volume(VOICE_STREAM);
+			return true;
+		}
+		if (strcmp("charactervol", val) == 0) {
+			b->type = TYPE_CHARACTERVOL;
 			return true;
 		}
 		if (strcmp("sevol", val) == 0) {
 			b->type = TYPE_SEVOL;
-			b->slider = get_mixer_master_volume(SE_STREAM);
+			b->slider = get_mixer_global_volume(SE_STREAM);
 			return true;
 		}
 		if (strcmp("gui", val) == 0) {
@@ -757,6 +771,17 @@ static bool set_button_key_value(const int index, const char *key,
 		if (b->value == NULL) {
 			log_memory();
 			return false;
+		}
+		return true;
+	}
+	if (strcmp("index", key) == 0) {
+		b->index = atoi(val);
+		if (b->type == TYPE_CHARACTERVOL) {
+			if (b->index < 0)
+				b->index = 0;
+			if (b->index >= CH_VOL_SLOTS)
+				b->index = CH_VOL_SLOTS - 1;
+			b->slider = get_character_volume(b->index);
 		}
 		return true;
 	}

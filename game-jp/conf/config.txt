@@ -431,6 +431,12 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### キャラクタ名ごとに音量を調節するための設定 (0-15)
+###
+
+sound.character.name0=みどり
+
+###
 ### セリフの色の設定
 ###
 

@@ -19,6 +19,7 @@
 #define SUIKA_CONF_H
 
 #include "types.h"
+#include "mixer.h"
 
 /*
  * 言語の設定
@@ -315,6 +316,11 @@ extern float conf_automode_speed;
 extern char *conf_skipmode_banner_file;
 extern int conf_skipmode_banner_x;
 extern int conf_skipmode_banner_y;
+
+/*
+ * キャラクタボリュームの設定
+ */
+extern char *conf_sound_character_name[CH_VOL_SLOTS];
 
 /*
  * セリフの色付け

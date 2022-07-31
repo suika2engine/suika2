@@ -1587,16 +1587,22 @@ static void load_global_data(void)
 	read_rfile(rf, get_global_variables_pointer(),
 		   GLOBAL_VAR_SIZE * sizeof(int32_t));
 
-	/* マスターボリュームをデシリアライズする */
+	/*
+	 * load_global_data()はinit_mixer()より後に呼ばれる
+	 */
+
+	/* グローバルボリュームをデシリアライズする */
 	for (i = 0; i < MIXER_STREAMS; i++) {
 		if (read_rfile(rf, &f, sizeof(f)) < sizeof(f))
 			break;
-		set_mixer_master_volume(i, f);
-		/*
-		 * load_global_data()はinit_mixer()より後に呼ばれるので、
-		 * ここでset_mixer_master_volume()を呼んでも、
-		 * init_mixer()に上書きされることはない。
-		 */
+		set_mixer_global_volume(i, f);
+	}
+
+	/* キャラクタボリュームをデシリアライズする */
+	for (i = 0; i < CH_VOL_SLOTS; i++) {
+		if (read_rfile(rf, &f, sizeof(f)) < sizeof(f))
+			break;
+		set_character_volume(i, f);
 	}
 
 	/* ファイルを閉じる */
@@ -1624,9 +1630,16 @@ void save_global_data(void)
 	write_wfile(wf, get_global_variables_pointer(),
 		    GLOBAL_VAR_SIZE * sizeof(int32_t));
 
-	/* マスターボリュームをシリアライズする */
+	/* グローバルボリュームをシリアライズする */
 	for (i = 0; i < MIXER_STREAMS; i++) {
-		f = get_mixer_master_volume(i);
+		f = get_mixer_global_volume(i);
+		if (write_wfile(wf, &f, sizeof(f)) < sizeof(f))
+			break;
+	}
+
+	/* キャラクタボリュームをシリアライズする */
+	for (i = 0; i < CH_VOL_SLOTS; i++) {
+		f = get_character_volume(i);
 		if (write_wfile(wf, &f, sizeof(f)) < sizeof(f))
 			break;
 	}

@@ -305,6 +305,11 @@ int conf_skipmode_banner_x;
 int conf_skipmode_banner_y;
 
 /*
+ * キャラクタボリュームの設定
+ */
+char *conf_sound_character_name[CH_VOL_SLOTS];
+
+/*
  * セリフの色付け
  */
 char *conf_serif_color_name[SERIF_COLOR_COUNT];
@@ -591,6 +596,22 @@ struct rule {
 	{"sysmenu.collapsed.idle.file", 's', &conf_sysmenu_collapsed_idle_file, false, false},
 	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, false, false},
 	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, true, false},
+	{"sound.character.name0", 's', &conf_sound_character_name[0], true, false},
+	{"sound.character.name1", 's', &conf_sound_character_name[1], true, false},
+	{"sound.character.name2", 's', &conf_sound_character_name[2], true, false},
+	{"sound.character.name3", 's', &conf_sound_character_name[3], true, false},
+	{"sound.character.name4", 's', &conf_sound_character_name[4], true, false},
+	{"sound.character.name5", 's', &conf_sound_character_name[5], true, false},
+	{"sound.character.name6", 's', &conf_sound_character_name[6], true, false},
+	{"sound.character.name7", 's', &conf_sound_character_name[7], true, false},
+	{"sound.character.name8", 's', &conf_sound_character_name[8], true, false},
+	{"sound.character.name9", 's', &conf_sound_character_name[9], true, false},
+	{"sound.character.name10", 's', &conf_sound_character_name[10], true, false},
+	{"sound.character.name11", 's', &conf_sound_character_name[11], true, false},
+	{"sound.character.name12", 's', &conf_sound_character_name[12], true, false},
+	{"sound.character.name13", 's', &conf_sound_character_name[13], true, false},
+	{"sound.character.name14", 's', &conf_sound_character_name[14], true, false},
+	{"sound.character.name15", 's', &conf_sound_character_name[15], true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},
