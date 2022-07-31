@@ -485,6 +485,9 @@ voice.stop.off=0
 # Disable full screen mode (1:disable, 0:enable)
 window.fullscreen.disable=0
 
+# Separator between window title and chapter name (optional)
+window.title.separator= 
+
 # Don't reflect chapter name to window title (1:don't reflect, 0:reflect)
 window.title.chapter.disable=0
 

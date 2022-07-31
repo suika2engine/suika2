@@ -57,7 +57,7 @@ enum {
 };
 
 /* ボタン */
-struct button {
+static struct button {
 	/*
 	 * GUIファイルから設定されるプロパティ
 	 */
@@ -107,7 +107,8 @@ struct button {
 
 	/* ボリュームのスライダーの値 */
 	float slider;
-};
+
+} button[BUTTON_COUNT];
 
 /* GUIモードであるか */
 static bool flag_gui_mode;
@@ -132,9 +133,6 @@ static bool is_pointed_changed;
 
 /* 選択結果のボタンのインデックス */
 static int result_index;
-
-/* ボタン */
-struct button button[BUTTON_COUNT];
 
 /*
  * 前方参照
@@ -215,8 +213,6 @@ bool check_gui_flag(void)
  */
 bool prepare_gui_mode(const char *file, bool cancel)
 {
-	int i;
-
 	assert(!flag_gui_mode);
 
 	/* ボタンをゼロクリアする */
@@ -268,7 +264,8 @@ static void set_active_config_buttons(void)
 			continue;
 		if (button[i].value == NULL)
 			continue;
-		if (compare_config_key_value(button[i].key, button[i].value))
+		if (compare_config_key_value(button[i].key,
+					     button[i].value))
 			button[i].is_active = true;
 		else
 			button[i].is_active = false;
@@ -541,7 +538,7 @@ static void process_play_se(void)
 		play_se(button[result_index].clickse, false);
 		return;
 	}
-	if (is_pointed_changed) {
+	if (is_pointed_changed && pointed_index != -1) {
 		play_se(button[pointed_index].pointse, false);
 		return;
 	}
