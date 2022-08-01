@@ -3695,7 +3695,7 @@ static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color, int *w,
 			       int *h)
 {
-	/* 文字の縁取りを描画する Draw outline. */
+	/* 文字を描画する */
 	if (!draw_glyph(layer_image[layer], x, y, color, outline_color, wc, w,
 			h)) {
 		/* グリフがない、コードポイントがおかしい、など */

@@ -1613,6 +1613,12 @@ static void load_global_data(void)
 		set_character_volume(i, f);
 	}
 
+	/* テキストスピードをデシリアライズする */
+	read_rfile(rf, &msg_text_speed, sizeof(f));
+	
+	/* オートモードスピードをデシリアライズする */
+	read_rfile(rf, &msg_auto_speed, sizeof(f));
+
 	/* ファイルを閉じる */
 	close_rfile(rf);
 }
@@ -1651,6 +1657,12 @@ void save_global_data(void)
 		if (write_wfile(wf, &f, sizeof(f)) < sizeof(f))
 			break;
 	}
+
+	/* テキストスピードをシリアライズする */
+	write_wfile(wf, &msg_text_speed, sizeof(f));
+	
+	/* オートモードスピードをシリアライズする */
+	write_wfile(wf, &msg_auto_speed, sizeof(f));
 
 	/* ファイルを閉じる */
 	close_wfile(wf);

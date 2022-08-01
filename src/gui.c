@@ -50,6 +50,9 @@ enum {
 	/* オートスピードを設定するボタン */
 	TYPE_AUTOSPEED,
 
+	/* テキストプレビューを表示するボタン */
+	TYPE_PREVIEW,
+
 	/* フルスクリーンモードにするボタン */
 	TYPE_FULLSCREEN,
 
@@ -97,6 +100,9 @@ static struct gui_button {
 	/* TYPE_CHARACTERVOL */
 	int index;
 
+	/* TYPE_PREVIEW */
+	char *msg;
+
 	/* TYPE_VOLUME以外 */
 	char *clickse;
 
@@ -106,21 +112,53 @@ static struct gui_button {
 	/*
 	 * 実行時の情報
 	 */
+	struct {
+		/* TYPE_CONFIG, TYPE_FULLSCREEN, TYPE_WINDOWのときアクティブか */
+		bool is_active;
 
-	/* TYPE_CONFIG, TYPE_FULLSCREEN, TYPE_WINDOWのときアクティブか */
-	bool is_active;
+		/* TYPE_GALLERYのときボタンが無効化されているか */
+		bool is_disabled;
 
-	/* TYPE_GALLERYのときボタンが無効化されているか */
-	bool is_disabled;
+		/* 前のフレームでポイントされていたか */
+		bool is_pointed;
 
-	/* 前のフレームでポイントされていたか */
-	bool is_pointed;
+		/* ドラッグ中か */
+		bool is_dragging;
 
-	/* ドラッグ中か */
-	bool is_dragging;
+		/* ボリューム・スピードのスライダーの値 */
+		float slider;
 
-	/* ボリューム・スピードのスライダーの値 */
-	float slider;
+		/*
+		 * テキストプレビューの情報
+		 */
+
+		/* メッセージ領域の画像(フォント描画用) */
+		struct image *img;
+
+		/* オートモードの待ち時間か */
+		bool is_waiting;
+
+		/* まだ描画されていないメッセージの先頭 */
+		const char *top;
+
+		/* 色 */
+		pixel_t color, outline_color;
+
+		/* 描画する文字の総数 */
+		int total_chars;
+
+		/* 前回までに描画した文字数 */
+		int drawn_chars;
+
+		/* 描画位置 */
+		int pen_x, pen_y;
+
+		/* スペースの直後か(ワードラッピング用) */
+		bool is_after_space;
+
+		/* メッセージ表示用あるいはオートモード待機用の時計 */
+		stop_watch_t sw;
+	} rt;
 
 } button[BUTTON_COUNT];
 
@@ -160,12 +198,19 @@ static void process_button_point(int index);
 static void process_button_drag(int index);
 static void process_button_click(int index);
 static void process_button_draw(int index);
-static void process_button_draw_volume(int index);
+static void process_button_draw_slider(int index);
 static void process_button_draw_config(int index);
 static void process_button_draw_gallery(int index);
 static void process_play_se(void);
 static void play_se(const char *file, bool is_voice);
-static void reset_text_preview(void);
+static bool init_preview_buttons(void);
+static void reset_preview_all_buttons(void);
+static void reset_preview_button(int index);
+static void process_button_draw_preview(int index);
+static void draw_message(int index);
+static int get_frame_chars(int index);
+static void draw_char(int index, uint32_t wc, int *width, int *height);
+static int get_en_word_width(const char *m);
 static bool load_gui_file(const char *file);
 
 /*
@@ -174,10 +219,7 @@ static bool load_gui_file(const char *file);
 bool init_gui(void)
 {
 	/* Android NDK用に再初期化する */
-	flag_gui_mode = false;
-	is_called_from_command = false;
-	memset(button, 0, sizeof(button));
-
+	cleanup_gui();
 	return true;
 }
 
@@ -188,7 +230,11 @@ void cleanup_gui(void)
 {
 	int i;
 
-	/* ボタンの文字列を解放する */
+	/* フラグを再初期化する */
+	flag_gui_mode = false;
+	is_called_from_command = false;
+
+	/* ボタンのメモリを解放する */
 	for (i = 0; i < BUTTON_COUNT; i++) {
 		if (button[i].label != NULL)
 			free(button[i].label);
@@ -202,6 +248,8 @@ void cleanup_gui(void)
 			free(button[i].clickse);
 		if (button[i].pointse != NULL)
 			free(button[i].pointse);
+		if (button[i].rt.img != NULL)
+			destroy_image(button[i].rt.img);
 	}
 
 	/* ボタンをゼロクリアする */
@@ -251,12 +299,18 @@ bool prepare_gui_mode(const char *file, bool cancel)
 		return false;
 	}
 
+	/* globalセクションのイメージがすべて揃っているか調べる */
+	if (!check_stage_gui_images()) {
+		log_gui_image_not_loaded();
+		cleanup_gui();
+		return false;
+	}
+
 	/* TYPE_CONFIGのボタンのアクティブ状態を設定する */
 	set_active_config_buttons();
 
-	/* イメージがすべて揃っているか調べる */
-	if (!check_stage_gui_images()) {
-		log_gui_image_not_loaded();
+	/* TYPE_PREVIEWのボタンの初期化を行う */
+	if (!init_preview_buttons()) {
 		cleanup_gui();
 		return false;
 	}
@@ -306,17 +360,17 @@ static bool set_button_key_value(const int index, const char *key,
 		}
 		if (strcmp("bgmvol", val) == 0) {
 			b->type = TYPE_BGMVOL;
-			b->slider = get_mixer_global_volume(BGM_STREAM);
+			b->rt.slider = get_mixer_global_volume(BGM_STREAM);
 			return true;
 		}
 		if (strcmp("voicevol", val) == 0) {
 			b->type = TYPE_VOICEVOL;
-			b->slider = get_mixer_global_volume(VOICE_STREAM);
+			b->rt.slider = get_mixer_global_volume(VOICE_STREAM);
 			return true;
 		}
 		if (strcmp("sevol", val) == 0) {
 			b->type = TYPE_SEVOL;
-			b->slider = get_mixer_global_volume(SE_STREAM);
+			b->rt.slider = get_mixer_global_volume(SE_STREAM);
 			return true;
 		}
 		if (strcmp("charactervol", val) == 0) {
@@ -325,12 +379,16 @@ static bool set_button_key_value(const int index, const char *key,
 		}
 		if (strcmp("textspeed", val) == 0) {
 			b->type = TYPE_TEXTSPEED;
-			b->slider = get_text_speed();
+			b->rt.slider = get_text_speed();
 			return true;
 		}
 		if (strcmp("autospeed", val) == 0) {
 			b->type = TYPE_AUTOSPEED;
-			b->slider = get_auto_speed();
+			b->rt.slider = get_auto_speed();
+			return true;
+		}
+		if (strcmp("preview", val) == 0) {
+			b->type = TYPE_PREVIEW;
 			return true;
 		}
 		if (strcmp("fullscreen", val) == 0) {
@@ -396,7 +454,7 @@ static bool set_button_key_value(const int index, const char *key,
 		if (!get_variable_by_string(val, &var_val))
 			return false;
 		if (var_val == 0)
-			b->is_disabled = true;
+			b->rt.is_disabled = true;
 		return true;
 	}
 	if (strcmp("key", key) == 0) {
@@ -422,7 +480,15 @@ static bool set_button_key_value(const int index, const char *key,
 				b->index = 0;
 			if (b->index >= CH_VOL_SLOTS)
 				b->index = CH_VOL_SLOTS - 1;
-			b->slider = get_character_volume(b->index);
+			b->rt.slider = get_character_volume(b->index);
+		}
+		return true;
+	}
+	if (strcmp("msg", key) == 0) {
+		b->msg = strdup(val);
+		if (b->msg == NULL) {
+			log_memory();
+			return false;
 		}
 		return true;
 	}
@@ -460,14 +526,16 @@ static void set_active_config_buttons(void)
 				continue;
 			if (compare_config_key_value(button[i].key,
 						     button[i].value))
-				button[i].is_active = true;
+				button[i].rt.is_active = true;
 			else
-				button[i].is_active = false;
+				button[i].rt.is_active = false;
 		} else if (button[i].type == TYPE_FULLSCREEN) {
-			if (!conf_window_fullscreen_disable)
-				button[i].is_active = !is_full_screen_mode();
+			if (!conf_window_fullscreen_disable) {
+				button[i].rt.is_active =
+					!is_full_screen_mode();
+			}
 		} else if (button[i].type == TYPE_WINDOW) {
-			button[i].is_active = is_full_screen_mode();
+			button[i].rt.is_active = is_full_screen_mode();
 		}
 	}
 }
@@ -587,24 +655,24 @@ static void process_button_point(int index)
 	bool prev_pointed;
 
 	b = &button[index];
-	prev_pointed = b->is_pointed;
+	prev_pointed = b->rt.is_pointed;
 
-	if (b->is_disabled)
+	if (b->rt.is_disabled)
 		return;
-	if (b->type == TYPE_FULLSCREEN && !b->is_active)
+	if (b->type == TYPE_FULLSCREEN && !b->rt.is_active)
 		return;
-	if (b->type == TYPE_WINDOW && !b->is_active)
+	if (b->type == TYPE_WINDOW && !b->rt.is_active)
 		return;
 
 	if (mouse_pos_x >= b->x && mouse_pos_x <= b->x + b->width &&
 	    mouse_pos_y >= b->y && mouse_pos_y <= b->y + b->height) {
-		b->is_pointed = true;
+		b->rt.is_pointed = true;
 		pointed_index = index;
 	} else {
-		b->is_pointed = false;
+		b->rt.is_pointed = false;
 	}
 
-	if (prev_pointed != b->is_pointed)
+	if (prev_pointed != b->rt.is_pointed)
 		is_pointed_changed = true;
 }
 
@@ -616,53 +684,59 @@ static void process_button_drag(int index)
 	b = &button[index];
 
 	if (b->type != TYPE_BGMVOL && b->type != TYPE_VOICEVOL &&
-	    b->type != TYPE_SEVOL && b->type != TYPE_CHARACTERVOL)
+	    b->type != TYPE_SEVOL && b->type != TYPE_CHARACTERVOL &&
+	    b->type != TYPE_TEXTSPEED && b->type != TYPE_AUTOSPEED)
 		return;
 
-	if (!b->is_dragging) {
-		if (!b->is_pointed)
+	if (!b->rt.is_dragging) {
+		if (!b->rt.is_pointed)
 			return;
 		if (is_left_button_pressed) {
-			b->is_dragging = true;
-			b->slider = (float)(mouse_pos_x - b->x) /
-				    (float)b->width;
-			b->slider = b->slider < 0 ? 0 : b->slider;
-			b->slider = b->slider > 1.0f ? 1.0f : b->slider;
-			if (b->type == TYPE_BGMVOL)
-				set_mixer_global_volume(BGM_STREAM, b->slider);
+			b->rt.is_dragging = true;
+			b->rt.slider = (float)(mouse_pos_x - b->x) /
+				       (float)b->width;
+			b->rt.slider = b->rt.slider < 0 ? 0 : b->rt.slider;
+			b->rt.slider = b->rt.slider > 1.0f ? 1.0f :
+				       b->rt.slider;
+			if (b->type == TYPE_BGMVOL) {
+				set_mixer_global_volume(BGM_STREAM,
+							b->rt.slider);
+			}
 			return;
 		}
 	} else {
-		b->slider = (float)(mouse_pos_x - b->x) / (float)b->width;
-		b->slider = b->slider < 0 ? 0 : b->slider;
-		b->slider = b->slider > 1.0f ? 1.0f : b->slider;
+		b->rt.slider = (float)(mouse_pos_x - b->x) / (float)b->width;
+		b->rt.slider = b->rt.slider < 0 ? 0 : b->rt.slider;
+		b->rt.slider = b->rt.slider > 1.0f ? 1.0f : b->rt.slider;
 		if (!is_mouse_dragging) {
-			b->is_dragging = false;
+			b->rt.is_dragging = false;
 			if (b->type == TYPE_BGMVOL) {
-				set_mixer_global_volume(BGM_STREAM, b->slider);
+				set_mixer_global_volume(BGM_STREAM,
+							b->rt.slider);
 			} else if (b->type == TYPE_VOICEVOL) {
 				set_mixer_global_volume(VOICE_STREAM,
-							b->slider);
+							b->rt.slider);
 				apply_character_volume(-1);
 				play_se(b->file, true);
 			} else if (b->type == TYPE_SEVOL) {
-				set_mixer_global_volume(SE_STREAM, b->slider);
+				set_mixer_global_volume(SE_STREAM,
+							b->rt.slider);
 				play_se(b->file, false);
 			} else if (b->type == TYPE_CHARACTERVOL) {
-				set_character_volume(b->index, b->slider);
+				set_character_volume(b->index, b->rt.slider);
 				apply_character_volume(b->index);
 				play_se(b->file, true);
 			} else if (b->type == TYPE_TEXTSPEED) {
-				set_text_speed(b->slider);
-				reset_text_preview();
+				set_text_speed(b->rt.slider);
+				reset_preview_all_buttons();
 			} else if (b->type == TYPE_AUTOSPEED) {
-				set_auto_speed(b->slider);
-				reset_text_preview();
+				set_auto_speed(b->rt.slider);
+				reset_preview_all_buttons();
 			}
 			return;
 		}
 		if (b->type == TYPE_BGMVOL)
-			set_mixer_global_volume(BGM_STREAM, b->slider);
+			set_mixer_global_volume(BGM_STREAM, b->rt.slider);
 	}
 }
 
@@ -674,15 +748,17 @@ static void process_button_click(int index)
 	b = &button[index];
 
 	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
-	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL)
+	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL ||
+	    b->type == TYPE_TEXTSPEED || b->type == TYPE_AUTOSPEED ||
+	    b->type == TYPE_PREVIEW)
 		return;
 
-	if (b->is_pointed && is_left_button_pressed) {
+	if (b->rt.is_pointed && is_left_button_pressed) {
 		if (b->type == TYPE_CONFIG) {
 			play_se(b->clickse, false);
 			set_config_key_value(b->key, b->value);
 			set_active_config_buttons();
-			reset_text_preview();
+			reset_preview_all_buttons();
 		} else if (b->type == TYPE_FULLSCREEN) {
 			enter_full_screen_mode();
 			set_active_config_buttons();
@@ -706,28 +782,31 @@ static void process_button_draw(int index)
 	b = &button[index];
 
 	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
-	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL)
-		process_button_draw_volume(index);
+	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL ||
+	    b->type == TYPE_TEXTSPEED || b->type == TYPE_AUTOSPEED)
+		process_button_draw_slider(index);
 	else if (b->type == TYPE_CONFIG)
 		process_button_draw_config(index);
 	else if (b->type == TYPE_GALLERY)
 		process_button_draw_gallery(index);
-	else if (b->is_pointed)
+	else if (b->type == TYPE_PREVIEW)
+		process_button_draw_preview(index);
+	else if (b->rt.is_pointed)
 		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
 }
 
-/* ボリュームボタンを描画する */
-static void process_button_draw_volume(int index)
+/* スライダーボタンを描画する */
+static void process_button_draw_slider(int index)
 {
 	struct gui_button *b;
 	int x;
 
 	b = &button[index];
 
-	if (b->is_pointed)
+	if (b->rt.is_pointed)
 		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
 
-	x = b->x + (int)((float)(b->width - b->height) * b->slider);
+	x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
 
 	draw_stage_gui_active(x, b->y, b->height, b->height, b->x, b->y);
 }
@@ -740,11 +819,11 @@ static void process_button_draw_config(int index)
 	b = &button[index];
 	assert(b->type == TYPE_CONFIG);
 
-	if (b->is_disabled)
+	if (b->rt.is_disabled)
 		return;
 
-	if (!b->is_pointed) {
-		if (b->is_active) {
+	if (!b->rt.is_pointed) {
+		if (b->rt.is_active) {
 			draw_stage_gui_active(b->x, b->y, b->width, b->height,
 					      b->x, b->y);
 		}
@@ -761,10 +840,10 @@ static void process_button_draw_gallery(int index)
 	b = &button[index];
 	assert(b->type == TYPE_GALLERY);
 
-	if (b->is_disabled)
+	if (b->rt.is_disabled)
 		return;
 
-	if (!b->is_pointed) {
+	if (!b->rt.is_pointed) {
 		draw_stage_gui_active(b->x, b->y, b->width, b->height,
 				      b->x, b->y);
 	} else {
@@ -893,6 +972,233 @@ static void play_se(const char *file, bool is_voice)
 		return;
 
 	set_mixer_input(is_voice ? VOICE_STREAM : SE_STREAM, w);
+}
+
+/*
+ * テキストプレビュー
+ */
+
+/* TYPE_PREVIEWのボタンの初期化を行う */
+static bool init_preview_buttons(void)
+{
+	int i;
+
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_PREVIEW)
+			continue;
+		if (button[i].msg == NULL) {
+			button[i].msg = strdup("");
+			if (button[i].msg == NULL) {
+				log_memory();
+				return false;
+			}
+		}
+		if (button[i].width <= 0)
+			button[i].width = 1;
+		if (button[i].height <= 0)
+			button[i].height = 1;
+
+		button[i].rt.img = create_image(button[i].width,
+						button[i].height);
+		if (button[i].rt.img == NULL)
+			return false;
+		lock_image(button[i].rt.img);
+		clear_image_color(button[i].rt.img,
+				  make_pixel_slow(0, 0, 0, 0));
+		unlock_image(button[i].rt.img);
+
+		button[i].rt.is_waiting = false;
+		button[i].rt.top = button[i].msg;
+		button[i].rt.total_chars = utf8_chars(button[i].msg);
+		button[i].rt.drawn_chars = 0;
+		button[i].rt.pen_x = 0;
+		button[i].rt.pen_y = 0;
+		button[i].rt.color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_color_r,
+					(pixel_t)conf_font_color_g,
+					(pixel_t)conf_font_color_b);
+		button[i].rt.outline_color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
+		button[i].rt.is_after_space = false;
+		reset_stop_watch(&button[i].rt.sw);
+	}
+
+	return true;
+}
+
+/* テキストプレビューをリセットする */
+static void reset_preview_all_buttons(void)
+{
+	int i;
+
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_PREVIEW)
+			continue;
+
+		assert(button[i].msg != NULL);
+
+		reset_preview_button(i);
+	}
+}
+
+/* テキストプレビューをリセットする */
+static void reset_preview_button(int index)
+{
+	assert(button[index].type == TYPE_PREVIEW);
+
+	lock_image(button[index].rt.img);
+	clear_image_color(button[index].rt.img, make_pixel_slow(0, 0, 0, 0));
+	unlock_image(button[index].rt.img);
+
+	button[index].rt.is_waiting = false;
+	button[index].rt.top = button[index].msg;
+	button[index].rt.drawn_chars = 0;
+	button[index].rt.pen_x = 0;
+	button[index].rt.pen_y = 0;
+	button[index].rt.is_after_space = false;
+	reset_stop_watch(&button[index].rt.sw);
+}
+
+/* テキストプレビューのボタンの描画を行う */
+static void process_button_draw_preview(int index)
+{
+	int lap;
+	int wait_time;
+
+	/* メッセージの途中の場合 */
+	if (!button[index].rt.is_waiting) {
+		/* メインメモリ上のイメージの描画を行う */
+		draw_message(index);
+
+		/* すべての文字を描画し終わった場合 */
+		if (button[index].rt.drawn_chars ==
+		    button[index].rt.total_chars) {
+			/* ストップウォッチを初期化する */
+			reset_stop_watch(&button[index].rt.sw);
+
+			/* オートモードの待ち時間に入る */
+			button[index].rt.is_waiting = true;
+		}
+	} else {
+		/* オートモードの待ち時間の場合 */
+		lap = get_stop_watch_lap(&button[index].rt.sw);
+		wait_time = (int)((float)button[index].rt.total_chars *
+				  conf_automode_speed * get_auto_speed() *
+				  1000.0f);
+		if (lap >= wait_time) {
+			/* 待ちを終了する */
+			reset_preview_button(index);
+		}
+	}
+
+	/* スクリーンへの描画を行う */
+	render_image(button[index].x, button[index].y,
+		     button[index].rt.img, button[index].width,
+		     button[index].height, 0, 0, 255, BLEND_FAST);
+}
+
+/* メッセージの描画を行う */
+static void draw_message(int index)
+{
+	uint32_t c;
+	int char_count, mblen, cw, ch, i;
+
+	/* 今回のフレームで描画する文字数を取得する */
+	char_count = get_frame_chars(index);
+	if (char_count == 0)
+		return;
+
+	/* 1文字ずつ描画する */
+	for (i = 0; i < char_count; i++) {
+		/* ワードラッピングを処理する */
+		if (button[index].rt.is_after_space) {
+			if (button[index].rt.pen_x +
+			    get_en_word_width(button[index].rt.top) >=
+			    button[index].width) {
+				button[index].rt.pen_y +=
+					conf_msgbox_margin_line;
+				button[index].rt.pen_x = 0;
+			}
+		}
+		button[index].rt.is_after_space = *button[index].rt.top == ' ';
+
+		/* 描画する文字を取得する */
+		mblen = utf8_to_utf32(button[index].rt.top, &c);
+		if (mblen == -1) {
+			button[index].rt.drawn_chars =
+				button[index].rt.total_chars;
+			return;
+		}
+
+		/* 描画する文字の幅を取得する */
+		cw = get_glyph_width(c);
+
+		/* メッセージボックスの幅を超える場合、改行する */
+		if (button[index].rt.pen_x + cw >= button[index].width) {
+			button[index].rt.pen_y += conf_msgbox_margin_line;
+			button[index].rt.pen_x = 0;
+		}
+
+		/* 描画する */
+		draw_char(index, c, &cw, &ch);
+
+		/* 次の文字へ移動する */
+		button[index].rt.pen_x += cw;
+		button[index].rt.top += mblen;
+		button[index].rt.drawn_chars++;
+	}
+}
+
+/* 今回のフレームで描画する文字数を取得する */
+static int get_frame_chars(int index)
+{
+	float lap;
+	int char_count;
+
+	/* 経過時間を取得する */
+	lap = (float)get_stop_watch_lap(&button[index].rt.sw) / 1000.0f;
+
+	/* 今回描画する文字数を取得する */
+	char_count = (int)ceil(conf_msgbox_speed * (get_text_speed() + 0.1) *
+			       lap) - button[index].rt.drawn_chars;
+	if (char_count >
+	    button[index].rt.total_chars - button[index].rt.drawn_chars) {
+		char_count = button[index].rt.total_chars -
+			     button[index].rt.drawn_chars;
+	}
+
+	return char_count;
+}
+
+/* 文字を描画する */
+static void draw_char(int index, uint32_t wc, int *width, int *height)
+{
+	lock_image(button[index].rt.img);
+	draw_glyph(button[index].rt.img,
+		   button[index].rt.pen_x,
+		   button[index].rt.pen_y,
+		   button[index].rt.color,
+		   button[index].rt.outline_color,
+		   wc,
+		   width,
+		   height);
+	unlock_image(button[index].rt.img);
+}
+
+/* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
+static int get_en_word_width(const char *m)
+{
+	int width;
+
+	width = 0;
+	while (isgraph((unsigned char)(*m)))
+		width += get_glyph_width((unsigned char)*m++);
+
+	return width;
 }
 
 /*
