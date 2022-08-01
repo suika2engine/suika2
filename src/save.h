@@ -67,4 +67,16 @@ const char *get_chapter_name(void);
 /* 最後のメッセージを設定する */
 bool set_last_message(const char *msg);
 
+/* テキストスピードを設定する */
+void set_text_speed(float val);
+
+/* テキストスピードを取得する */
+float get_text_speed(void);
+
+/* オートスピードを設定する */
+void set_auto_speed(float val);
+
+/* オートスピードを取得する */
+float get_auto_speed(void);
+
 #endif

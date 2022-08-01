@@ -44,6 +44,12 @@ enum {
 	TYPE_SEVOL,
 	TYPE_CHARACTERVOL,
 
+	/* テキストスピードを設定するボタン */
+	TYPE_TEXTSPEED,
+
+	/* オートスピードを設定するボタン */
+	TYPE_AUTOSPEED,
+
 	/* フルスクリーンモードにするボタン */
 	TYPE_FULLSCREEN,
 
@@ -113,7 +119,7 @@ static struct gui_button {
 	/* ドラッグ中か */
 	bool is_dragging;
 
-	/* ボリュームのスライダーの値 */
+	/* ボリューム・スピードのスライダーの値 */
 	float slider;
 
 } button[BUTTON_COUNT];
@@ -145,6 +151,10 @@ static int result_index;
 /*
  * 前方参照
  */
+static bool add_button(int index);
+static bool set_global_key_value(const char *key, const char *val);
+static bool set_button_key_value(const int index, const char *key,
+				 const char *val);
 static void set_active_config_buttons(void);
 static void process_button_point(int index);
 static void process_button_drag(int index);
@@ -154,11 +164,8 @@ static void process_button_draw_volume(int index);
 static void process_button_draw_config(int index);
 static void process_button_draw_gallery(int index);
 static void process_play_se(void);
-static bool add_button(int index);
-static bool set_global_key_value(const char *key, const char *val);
-static bool set_button_key_value(const int index, const char *key,
-				 const char *val);
 static void play_se(const char *file, bool is_voice);
+static void reset_text_preview(void);
 static bool load_gui_file(const char *file);
 
 /*
@@ -260,6 +267,186 @@ bool prepare_gui_mode(const char *file, bool cancel)
 	return true;
 }
 
+/* ボタンを追加する */
+static bool add_button(int index)
+{
+	/* ボタン数の上限を越えている場合 */
+	if (index >= BUTTON_COUNT) {
+		log_gui_too_many_buttons();
+		return false;
+	}
+
+	/* 特にボタン追加の処理はなく、数を確認しているだけ */
+	return true;
+}
+
+/* ボタンのキーを設定する */
+static bool set_button_key_value(const int index, const char *key,
+				 const char *val)
+{
+	struct gui_button *b;
+	int var_val;
+
+	assert(index >= 0 && index < BUTTON_COUNT);
+
+	b = &button[index];
+
+	if (strcmp("type", key) == 0) {
+		if (strcmp("goto", val) == 0) {
+			b->type = TYPE_GOTO;
+			return true;
+		}
+		if (strcmp("gallery", val) == 0) {
+			b->type = TYPE_GALLERY;
+			return true;
+		}
+		if (strcmp("config", val) == 0) {
+			b->type = TYPE_CONFIG;
+			return true;
+		}
+		if (strcmp("bgmvol", val) == 0) {
+			b->type = TYPE_BGMVOL;
+			b->slider = get_mixer_global_volume(BGM_STREAM);
+			return true;
+		}
+		if (strcmp("voicevol", val) == 0) {
+			b->type = TYPE_VOICEVOL;
+			b->slider = get_mixer_global_volume(VOICE_STREAM);
+			return true;
+		}
+		if (strcmp("sevol", val) == 0) {
+			b->type = TYPE_SEVOL;
+			b->slider = get_mixer_global_volume(SE_STREAM);
+			return true;
+		}
+		if (strcmp("charactervol", val) == 0) {
+			b->type = TYPE_CHARACTERVOL;
+			return true;
+		}
+		if (strcmp("textspeed", val) == 0) {
+			b->type = TYPE_TEXTSPEED;
+			b->slider = get_text_speed();
+			return true;
+		}
+		if (strcmp("autospeed", val) == 0) {
+			b->type = TYPE_AUTOSPEED;
+			b->slider = get_auto_speed();
+			return true;
+		}
+		if (strcmp("fullscreen", val) == 0) {
+			b->type = TYPE_FULLSCREEN;
+			return true;
+		}
+		if (strcmp("window", val) == 0) {
+			b->type = TYPE_WINDOW;
+			return true;
+		}
+		if (strcmp("gui", val) == 0) {
+			b->type = TYPE_GUI;
+			return true;
+		}
+		if (strcmp("title", val) == 0) {
+			b->type = TYPE_TITLE;
+			return true;
+		}
+		if (strcmp("cancel", val) == 0) {
+			b->type = TYPE_CANCEL;
+			return true;
+		}
+		if (strcmp("quit", val) == 0) {
+			b->type = TYPE_QUIT;
+			return true;
+		}
+		log_gui_unknown_button_type(val);
+		return false;
+	}
+	if (strcmp("x", key) == 0) {
+		b->x = atoi(val);
+		return true;
+	}
+	if (strcmp("y", key) == 0) {
+		b->y = atoi(val);
+		return true;
+	}
+	if (strcmp("width", key) == 0) {
+		b->width = atoi(val);
+		return true;
+	}
+	if (strcmp("height", key) == 0) {
+		b->height = atoi(val);
+		return true;
+	}
+	if (strcmp("label", key) == 0) {
+		b->label = strdup(val);
+		if (b->label == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
+	if (strcmp("file", key) == 0) {
+		b->file = strdup(val);
+		if (b->file == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
+	if (strcmp("var", key) == 0) {
+		if (!get_variable_by_string(val, &var_val))
+			return false;
+		if (var_val == 0)
+			b->is_disabled = true;
+		return true;
+	}
+	if (strcmp("key", key) == 0) {
+		b->key = strdup(val);
+		if (b->key == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
+	if (strcmp("value", key) == 0) {
+		b->value = strdup(val);
+		if (b->value == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
+	if (strcmp("index", key) == 0) {
+		b->index = atoi(val);
+		if (b->type == TYPE_CHARACTERVOL) {
+			if (b->index < 0)
+				b->index = 0;
+			if (b->index >= CH_VOL_SLOTS)
+				b->index = CH_VOL_SLOTS - 1;
+			b->slider = get_character_volume(b->index);
+		}
+		return true;
+	}
+	if (strcmp("clickse", key) == 0) {
+		b->clickse = strdup(val);
+		if (b->clickse == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
+	if (strcmp("pointse", key) == 0) {
+		b->pointse = strdup(val);
+		if (b->pointse == NULL) {
+			log_memory();
+			return false;
+		}
+		return true;
+	}
+
+	log_gui_unknown_button_property(key);
+	return false;
+}
+
 /* TYPE_CONFIGのボタンのアクティブ状態を設定する */
 static void set_active_config_buttons(void)
 {
@@ -277,7 +464,8 @@ static void set_active_config_buttons(void)
 			else
 				button[i].is_active = false;
 		} else if (button[i].type == TYPE_FULLSCREEN) {
-			button[i].is_active = !is_full_screen_mode();
+			if (!conf_window_fullscreen_disable)
+				button[i].is_active = !is_full_screen_mode();
 		} else if (button[i].type == TYPE_WINDOW) {
 			button[i].is_active = is_full_screen_mode();
 		}
@@ -464,6 +652,12 @@ static void process_button_drag(int index)
 				set_character_volume(b->index, b->slider);
 				apply_character_volume(b->index);
 				play_se(b->file, true);
+			} else if (b->type == TYPE_TEXTSPEED) {
+				set_text_speed(b->slider);
+				reset_text_preview();
+			} else if (b->type == TYPE_AUTOSPEED) {
+				set_auto_speed(b->slider);
+				reset_text_preview();
 			}
 			return;
 		}
@@ -488,6 +682,7 @@ static void process_button_click(int index)
 			play_se(b->clickse, false);
 			set_config_key_value(b->key, b->value);
 			set_active_config_buttons();
+			reset_text_preview();
 		} else if (b->type == TYPE_FULLSCREEN) {
 			enter_full_screen_mode();
 			set_active_config_buttons();
@@ -678,180 +873,6 @@ static bool set_global_key_value(const char *key, const char *val)
 	}
 
 	log_gui_unknown_global_key(key);
-	return false;
-}
-
-/*
- * ボタンの作成
- */
-
-/* ボタンを追加する */
-static bool add_button(int index)
-{
-	/* ボタン数の上限を越えている場合 */
-	if (index >= BUTTON_COUNT) {
-		log_gui_too_many_buttons();
-		return false;
-	}
-
-	/* 特にボタン追加の処理はなく、数を確認しているだけ */
-	return true;
-}
-
-/* ボタンのキーを設定する */
-static bool set_button_key_value(const int index, const char *key,
-				 const char *val)
-{
-	struct gui_button *b;
-	int var_val;
-
-	assert(index >= 0 && index < BUTTON_COUNT);
-
-	b = &button[index];
-
-	if (strcmp("type", key) == 0) {
-		if (strcmp("goto", val) == 0) {
-			b->type = TYPE_GOTO;
-			return true;
-		}
-		if (strcmp("gallery", val) == 0) {
-			b->type = TYPE_GALLERY;
-			return true;
-		}
-		if (strcmp("config", val) == 0) {
-			b->type = TYPE_CONFIG;
-			return true;
-		}
-		if (strcmp("bgmvol", val) == 0) {
-			b->type = TYPE_BGMVOL;
-			b->slider = get_mixer_global_volume(BGM_STREAM);
-			return true;
-		}
-		if (strcmp("voicevol", val) == 0) {
-			b->type = TYPE_VOICEVOL;
-			b->slider = get_mixer_global_volume(VOICE_STREAM);
-			return true;
-		}
-		if (strcmp("charactervol", val) == 0) {
-			b->type = TYPE_CHARACTERVOL;
-			return true;
-		}
-		if (strcmp("sevol", val) == 0) {
-			b->type = TYPE_SEVOL;
-			b->slider = get_mixer_global_volume(SE_STREAM);
-			return true;
-		}
-		if (strcmp("fullscreen", val) == 0) {
-			b->type = TYPE_FULLSCREEN;
-			return true;
-		}
-		if (strcmp("window", val) == 0) {
-			b->type = TYPE_WINDOW;
-			return true;
-		}
-		if (strcmp("gui", val) == 0) {
-			b->type = TYPE_GUI;
-			return true;
-		}
-		if (strcmp("title", val) == 0) {
-			b->type = TYPE_TITLE;
-			return true;
-		}
-		if (strcmp("cancel", val) == 0) {
-			b->type = TYPE_CANCEL;
-			return true;
-		}
-		if (strcmp("quit", val) == 0) {
-			b->type = TYPE_QUIT;
-			return true;
-		}
-		log_gui_unknown_button_type(val);
-		return false;
-	}
-	if (strcmp("x", key) == 0) {
-		b->x = atoi(val);
-		return true;
-	}
-	if (strcmp("y", key) == 0) {
-		b->y = atoi(val);
-		return true;
-	}
-	if (strcmp("width", key) == 0) {
-		b->width = atoi(val);
-		return true;
-	}
-	if (strcmp("height", key) == 0) {
-		b->height = atoi(val);
-		return true;
-	}
-	if (strcmp("label", key) == 0) {
-		b->label = strdup(val);
-		if (b->label == NULL) {
-			log_memory();
-			return false;
-		}
-		return true;
-	}
-	if (strcmp("file", key) == 0) {
-		b->file = strdup(val);
-		if (b->file == NULL) {
-			log_memory();
-			return false;
-		}
-		return true;
-	}
-	if (strcmp("var", key) == 0) {
-		if (!get_variable_by_string(val, &var_val))
-			return false;
-		if (var_val == 0)
-			b->is_disabled = true;
-		return true;
-	}
-	if (strcmp("key", key) == 0) {
-		b->key = strdup(val);
-		if (b->key == NULL) {
-			log_memory();
-			return false;
-		}
-		return true;
-	}
-	if (strcmp("value", key) == 0) {
-		b->value = strdup(val);
-		if (b->value == NULL) {
-			log_memory();
-			return false;
-		}
-		return true;
-	}
-	if (strcmp("index", key) == 0) {
-		b->index = atoi(val);
-		if (b->type == TYPE_CHARACTERVOL) {
-			if (b->index < 0)
-				b->index = 0;
-			if (b->index >= CH_VOL_SLOTS)
-				b->index = CH_VOL_SLOTS - 1;
-			b->slider = get_character_volume(b->index);
-		}
-		return true;
-	}
-	if (strcmp("clickse", key) == 0) {
-		b->clickse = strdup(val);
-		if (b->clickse == NULL) {
-			log_memory();
-			return false;
-		}
-		return true;
-	}
-	if (strcmp("pointse", key) == 0) {
-		b->pointse = strdup(val);
-		if (b->pointse == NULL) {
-			log_memory();
-			return false;
-		}
-		return true;
-	}
-
-	log_gui_unknown_button_property(key);
 	return false;
 }
 

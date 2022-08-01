@@ -59,6 +59,12 @@ static char *chapter_name;
 /* 最後のメッセージ */
 static char *last_message;
 
+/* テキストの表示スピード */
+static float msg_text_speed;
+
+/* オートモードの待ち時間の長さ */
+static float msg_auto_speed;
+
 /* セーブデータの日付 */
 static time_t save_time[SAVE_SLOTS];
 
@@ -163,6 +169,8 @@ bool init_save(void)
 	/* 再利用時のための初期化を行う */
 	restore_flag = false;
 	is_save_load_mode_enabled = false;
+	msg_text_speed = 0.5f;
+	msg_auto_speed = 0.5f;
 
 	/* セーブスロットを初期化する */
 	for (i = 0; i < SAVE_SLOTS; i++) {
@@ -1693,4 +1701,40 @@ bool set_last_message(const char *msg)
 	}
 
 	return true;
+}
+
+/*
+ * テキストスピードを設定する
+ */
+void set_text_speed(float val)
+{
+	assert(val >= 0 && val <= 1.0f);
+
+	msg_text_speed = val;
+}
+
+/*
+ * テキストスピードを取得する
+ */
+float get_text_speed(void)
+{
+	return msg_text_speed;
+}
+
+/*
+ * オートスピードを設定する
+ */
+void set_auto_speed(float val)
+{
+	assert(val >= 0 && val <= 1.0f);
+
+	msg_auto_speed = val;
+}
+
+/*
+ * オートスピードを取得する
+ */
+float get_auto_speed(void)
+{
+	return msg_auto_speed;
 }
