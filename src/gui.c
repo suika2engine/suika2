@@ -355,6 +355,16 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 
 	/* ボタンが決定された場合 */
 	if (result_index != -1) {
+		/* 他のGUIに移動する場合 */
+		if (button[result_index].type == TYPE_GUI) {
+			/* GUIをロードする */
+			if (!prepare_gui_mode(button[result_index].file,
+					      cancel_when_right_click))
+				return false;
+			is_first_frame = true;
+			return true;
+		}
+
 		/* GUIモードを終了する */
 		stop_gui_mode();
 		return true;

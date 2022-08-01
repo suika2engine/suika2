@@ -179,6 +179,7 @@ static bool process_serif_command(int *x, int *y, int *w, int *h);
 static void draw_namebox(void);
 static int get_namebox_width(void);
 static bool play_voice(void);
+static void set_character_volume_by_name(const char *name);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
 static void draw_click(int *x, int *y, int *w, int *h);
@@ -618,6 +619,9 @@ static bool play_voice(void)
 		set_wave_repeat_times(w, times);
 	}
 
+	/* キャラクタ音量を設定する */
+	set_character_volume_by_name(get_string_param(SERIF_PARAM_NAME));
+
 	/* PCMストリームを再生する */
 	set_mixer_input(VOICE_STREAM, w);
 
@@ -625,6 +629,24 @@ static bool play_voice(void)
 	have_voice = true;
 
 	return true;
+}
+
+/* キャラクタ音量を設定する */
+static void set_character_volume_by_name(const char *name)
+{
+	int i;
+
+	for (i = 0; i < CH_VOL_SLOTS; i++) {
+		/* キャラクタ名を探す */
+		if (strcmp(conf_sound_character_name[i], name) == 0) {
+			/* みつかった場合 */
+			apply_character_volume(i);
+			return;
+		}
+	}
+
+	/* みつからなかった場合、キャラクタボリュームを適用しない */
+	apply_character_volume(-1);
 }
 
 /* メッセージボックスの描画を行う */

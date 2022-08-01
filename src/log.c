@@ -774,6 +774,7 @@ void log_gui_unknown_button_property(const char *prop)
  */
 void log_gui_parse_footer(const char *file, int line)
 {
+	line++;
 	if (is_english_mode())
 		log_error("> GUI file error: %s:%d", file, line);
 	else
