@@ -787,7 +787,8 @@ static int get_frame_chars(void)
 	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f;
 
 	/* 今回描画する文字数を取得する */
-	char_count = (int)ceil(conf_msgbox_speed * lap) - drawn_chars;
+	char_count = (int)ceil(conf_msgbox_speed * (get_text_speed() + 0.1) *
+			       lap) - drawn_chars;
 	if (char_count > total_chars - drawn_chars)
 		char_count = total_chars - drawn_chars;
 
@@ -1651,7 +1652,8 @@ static int get_wait_time(void)
 	if (scale == 0)
 		scale = AUTO_MODE_TEXT_WAIT_SCALE;
 
-	return (int)((float)total_chars * scale * 1000.0f);
+	return (int)((float)total_chars * conf_automode_speed *
+		     get_auto_speed() * 1000.0f);
 }
 
 /* フレーム描画中のスキップモードの処理を行う */
