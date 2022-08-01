@@ -30,10 +30,7 @@ enum {
 	TYPE_INVALID = 0,
 
 	/* ラベルにジャンプするボタン */
-	TYPE_LABEL,
-
-	/* ファイルにジャンプするボタン */
-	TYPE_FILE,
+	TYPE_GOTO,
 
 	/* ギャラリーモードのボタン */
 	TYPE_GALLERY,
@@ -47,8 +44,17 @@ enum {
 	TYPE_SEVOL,
 	TYPE_CHARACTERVOL,
 
+	/* フルスクリーンモードにするボタン */
+	TYPE_FULLSCREEN,
+
+	/* ウィンドウモードにするボタン */
+	TYPE_WINDOW,
+
 	/* 別のGUIに移動するボタン */
 	TYPE_GUI,
+
+	/* タイトルに戻るボタン */
+	TYPE_TITLE,
 
 	/* GUIを終了するボタン */
 	TYPE_CANCEL,
@@ -72,16 +78,14 @@ static struct gui_button {
 	int width;
 	int height;
 
-	/* TYPE_LABEL, TYPE_GALLERY */
+	/* TYPE_GOTO, TYPE_GALLERY */
 	char *label;
 
-	/* TYPE_FILE, TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI */
+	/* TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI */
 	char *file;
 
 	/* TYPE_CONFIG */
 	char *key;
-
-	/* TYPE_CONFIG */
 	char *value;
 
 	/* TYPE_CHARACTERVOL */
@@ -97,7 +101,7 @@ static struct gui_button {
 	 * 実行時の情報
 	 */
 
-	/* TYPE_CONFIGのときコンフィグがアクティブか */
+	/* TYPE_CONFIG, TYPE_FULLSCREEN, TYPE_WINDOWのときアクティブか */
 	bool is_active;
 
 	/* TYPE_GALLERYのときボタンが無効化されているか */
@@ -262,17 +266,21 @@ static void set_active_config_buttons(void)
 	int i;
 
 	for (i = 0; i < BUTTON_COUNT; i++) {
-		if (button[i].type != TYPE_CONFIG)
-			continue;
-		if (button[i].key == NULL)
-			continue;
-		if (button[i].value == NULL)
-			continue;
-		if (compare_config_key_value(button[i].key,
-					     button[i].value))
-			button[i].is_active = true;
-		else
-			button[i].is_active = false;
+		if (button[i].type == TYPE_CONFIG) {
+			if (button[i].key == NULL)
+				continue;
+			if (button[i].value == NULL)
+				continue;
+			if (compare_config_key_value(button[i].key,
+						     button[i].value))
+				button[i].is_active = true;
+			else
+				button[i].is_active = false;
+		} else if (button[i].type == TYPE_FULLSCREEN) {
+			button[i].is_active = !is_full_screen_mode();
+		} else if (button[i].type == TYPE_WINDOW) {
+			button[i].is_active = is_full_screen_mode();
+		}
 	}
 }
 
@@ -312,6 +320,7 @@ bool is_gui_mode(void)
  */
 bool run_gui_mode(int *x, int *y, int *w, int *h)
 {
+	char *file;
 	int i;
 
 	*x = 0;
@@ -358,10 +367,19 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 		/* 他のGUIに移動する場合 */
 		if (button[result_index].type == TYPE_GUI) {
 			/* GUIをロードする */
-			if (!prepare_gui_mode(button[result_index].file,
-					      cancel_when_right_click))
+			file = strdup(button[result_index].file);
+			if (file == NULL) {
+				log_memory();
 				return false;
-			is_first_frame = true;
+			}
+			stop_gui_mode();
+			cleanup_gui();
+			if (!prepare_gui_mode(file, cancel_when_right_click)) {
+				free(file);
+				return false;
+			}
+			free(file);
+			start_gui_mode();
 			return true;
 		}
 
@@ -384,6 +402,10 @@ static void process_button_point(int index)
 	prev_pointed = b->is_pointed;
 
 	if (b->is_disabled)
+		return;
+	if (b->type == TYPE_FULLSCREEN && !b->is_active)
+		return;
+	if (b->type == TYPE_WINDOW && !b->is_active)
 		return;
 
 	if (mouse_pos_x >= b->x && mouse_pos_x <= b->x + b->width &&
@@ -466,6 +488,15 @@ static void process_button_click(int index)
 			play_se(b->clickse, false);
 			set_config_key_value(b->key, b->value);
 			set_active_config_buttons();
+		} else if (b->type == TYPE_FULLSCREEN) {
+			enter_full_screen_mode();
+			set_active_config_buttons();
+		} else if (b->type == TYPE_WINDOW) {
+			leave_full_screen_mode();
+			set_active_config_buttons();
+		} else if (b->type == TYPE_TITLE) {
+			if (title_dialog())
+				result_index = index;
 		} else {
 			result_index = index;
 		}
@@ -580,28 +611,28 @@ const char *get_gui_result_label(void)
 
 	b = &button[result_index];
 
-	if (b->type != TYPE_LABEL && b->type != TYPE_GALLERY)
+	if (b->type != TYPE_GOTO && b->type != TYPE_GALLERY)
 		return NULL;
 
 	return b->label;
 }
 
 /*
- * GUIの実行結果のジャンプ先ファイルを取得する
+ * GUIの実行結果がタイトルへ戻るであるかを調べる
  */
-const char *get_gui_result_file(void)
+bool is_gui_result_title(void)
 {
 	struct gui_button *b;
 
 	if (result_index == -1)
-		return NULL;
+		return false;
 
 	b = &button[result_index];
 
-	if (b->type != TYPE_FILE)
-		return NULL;
+	if (b->type != TYPE_TITLE)
+		return false;
 
-	return b->file;
+	return true;
 }
 
 /*
@@ -679,12 +710,8 @@ static bool set_button_key_value(const int index, const char *key,
 	b = &button[index];
 
 	if (strcmp("type", key) == 0) {
-		if (strcmp("label", val) == 0) {
-			b->type = TYPE_LABEL;
-			return true;
-		}
-		if (strcmp("file", val) == 0) {
-			b->type = TYPE_FILE;
+		if (strcmp("goto", val) == 0) {
+			b->type = TYPE_GOTO;
 			return true;
 		}
 		if (strcmp("gallery", val) == 0) {
@@ -714,8 +741,20 @@ static bool set_button_key_value(const int index, const char *key,
 			b->slider = get_mixer_global_volume(SE_STREAM);
 			return true;
 		}
+		if (strcmp("fullscreen", val) == 0) {
+			b->type = TYPE_FULLSCREEN;
+			return true;
+		}
+		if (strcmp("window", val) == 0) {
+			b->type = TYPE_WINDOW;
+			return true;
+		}
 		if (strcmp("gui", val) == 0) {
 			b->type = TYPE_GUI;
+			return true;
+		}
+		if (strcmp("title", val) == 0) {
+			b->type = TYPE_TITLE;
 			return true;
 		}
 		if (strcmp("cancel", val) == 0) {

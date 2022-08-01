@@ -44,8 +44,8 @@ bool run_gui_mode(int *x, int *y, int *w, int *h);
 /* GUIの実行結果のジャンプ先ラベルを取得する */
 const char *get_gui_result_label(void);
 
-/* GUIの実行結果のジャンプ先ファイルを取得する */
-const char *get_gui_result_file(void);
+/* GUIの実行結果がタイトルへ戻るであるかを調べる */
+bool is_gui_result_title(void);
 
 /* GUIの実行結果が終了であるかを取得する */
 bool is_gui_result_exit(void);

@@ -1567,3 +1567,35 @@ void update_window_title(void)
 	/* ウィンドウのタイトルを設定する */
 	SetWindowText(hWndMain, mbszTitle);
 }
+
+/*
+ * フルスクリーンモードであるか調べる
+ */
+bool is_full_screen_mode(void)
+{
+	return bFullScreen ? true : false;
+}
+
+/*
+ * フルスクリーンモードを開始する
+ */
+void enter_full_screen_mode(void)
+{
+	if (!bFullScreen)
+	{
+		ToggleFullScreen();
+		bFullScreen = TRUE;
+	}
+}
+
+/*
+ * フルスクリーンモードを終了する
+ */
+void leave_full_screen_mode(void)
+{
+	if (bFullScreen)
+	{
+		ToggleFullScreen();
+		bFullScreen = FALSE;
+	}
+}

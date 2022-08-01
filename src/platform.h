@@ -103,6 +103,15 @@ bool is_video_playing(void);
 /* ウィンドウタイトルを更新する */
 void update_window_title(void);
 
+/* フルスクリーンモードであるか調べる */
+bool is_full_screen_mode(void);
+
+/* フルスクリーンモードを開始する */
+void enter_full_screen_mode(void);
+
+/* フルスクリーンモードを終了する */
+void leave_full_screen_mode(void);
+
 /*
  * デバッガの場合のみ
  */

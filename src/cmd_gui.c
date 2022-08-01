@@ -93,24 +93,23 @@ static bool init(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	const char *val;
+	const char *label;
 	bool ret;
 
 	/* 繰り返し処理を終了する */
 	stop_command_repetition();
 
 	/* ラベルジャンプボタンが押下された場合 */
-	val = get_gui_result_label();
-	if (val != NULL) {
-		ret = move_to_label(val);
+	label = get_gui_result_label();
+	if (label != NULL) {
+		ret = move_to_label(label);
 		cleanup_gui();
 		return ret;
 	}
 
-	/* ファイルジャンプボタンが押下された場合 */
-	val = get_gui_result_file();
-	if (val != NULL) {
-		ret = load_script(val);
+	/* タイトルへ戻るボタンが押下された場合 */
+	if (is_gui_result_title()) {
+		ret = load_script(conf_save_title_txt);
 		cleanup_gui();
 		return ret;
 	}
@@ -121,11 +120,11 @@ static bool cleanup(void)
 		return false;
 	}
 
-	/* キャンセルボタンが押下された場合 */
-	if (!move_to_next_command()) {
-		cleanup_gui();
-		return false;
-	}
+	/*
+	 * キャンセルボタンが押下された場合と、
+	 * 右クリックでキャンセルされた場合は、次のコマンドへ移動する
+	 */
+	ret = move_to_next_command();
 	cleanup_gui();
-	return true;
+	return ret;
 }
