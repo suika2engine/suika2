@@ -518,7 +518,8 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 	     ((!is_control_pressed ||
 	       (is_control_pressed && !is_skippable())) &&
 	      !history_flag &&
-	      (!restore_flag || !config_flag || !is_message_registered())))) {
+	      !config_flag &&
+	      (!restore_flag || !is_message_registered())))) {
 		/* いったんボイスなしの判断にしておく(あとで変更する) */
 		have_voice = false;
 
