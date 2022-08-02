@@ -438,10 +438,10 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
-### Settings For Per-Character Voice Volume (0-15)
+### Settings For Per-Character Voice Volume (1-15)
 ###
 
-sound.character.name0=Midori
+sound.character.name1=Midori
 
 ###
 ### Character Message Colors

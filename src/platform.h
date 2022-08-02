@@ -103,6 +103,9 @@ bool is_video_playing(void);
 /* ウィンドウタイトルを更新する */
 void update_window_title(void);
 
+/* フルスクリーンモードがサポートされるか調べる */
+bool is_full_screen_supported();
+
 /* フルスクリーンモードであるか調べる */
 bool is_full_screen_mode(void);
 

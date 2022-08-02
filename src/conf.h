@@ -320,7 +320,7 @@ extern int conf_skipmode_banner_y;
 /*
  * キャラクタボリュームの設定
  */
-extern char *conf_sound_character_name[CH_VOL_SLOTS];
+extern char *conf_sound_character_name[CH_VOL_SLOTS]; /* index0は未使用 */
 
 /*
  * セリフの色付け

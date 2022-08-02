@@ -62,7 +62,7 @@
 #define SYSMENU_CONFIG	(7)
 
 /* オートモードでボイスありのとき待ち時間 */
-#define AUTO_MODE_VOICE_WAIT		(2000)
+#define AUTO_MODE_VOICE_WAIT		(4000)
 
 /* オートモードでボイスなしのとき待ち時間のスケール */
 #define AUTO_MODE_TEXT_WAIT_SCALE	(0.15f)
@@ -636,7 +636,7 @@ static void set_character_volume_by_name(const char *name)
 {
 	int i;
 
-	for (i = 0; i < CH_VOL_SLOTS; i++) {
+	for (i = 1; i < CH_VOL_SLOTS; i++) {
 		/* キャラクタ名を探す */
 		if (strcmp(conf_sound_character_name[i], name) == 0) {
 			/* みつかった場合 */
@@ -645,8 +645,8 @@ static void set_character_volume_by_name(const char *name)
 		}
 	}
 
-	/* みつからなかった場合、キャラクタボリュームを適用しない */
-	apply_character_volume(-1);
+	/* その他のキャラクタのボリュームを適用する */
+	apply_character_volume(CH_VOL_SLOT_DEFAULT);
 }
 
 /* メッセージボックスの描画を行う */
@@ -908,7 +908,7 @@ static int get_en_word_width(void)
 
 	m = msg;
 	width = 0;
-	while (isgraph((unsigned char)(*m)))
+	while (isgraph((unsigned char)*m))
 		width += get_glyph_width((unsigned char)*m++);
 
 	return width;
@@ -1645,15 +1645,14 @@ static int get_wait_time(void)
 
 	/* ボイスありのとき */
 	if (have_voice)
-		return AUTO_MODE_VOICE_WAIT;
+		return (int)(AUTO_MODE_VOICE_WAIT * get_auto_speed());
 
 	/* ボイスなしのとき、スケールを求める */
 	scale = conf_automode_speed;
 	if (scale == 0)
 		scale = AUTO_MODE_TEXT_WAIT_SCALE;
 
-	return (int)((float)total_chars * conf_automode_speed *
-		     get_auto_speed() * 1000.0f);
+	return (int)((float)total_chars * scale * get_auto_speed() * 1000.0f);
 }
 
 /* フレーム描画中のスキップモードの処理を行う */

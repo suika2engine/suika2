@@ -19,15 +19,16 @@
 /*
  * ミキサのストリーム
  */
-#define MIXER_STREAMS	(3)
-#define BGM_STREAM	(0)
-#define VOICE_STREAM	(1)
-#define SE_STREAM	(2)
+#define MIXER_STREAMS		(3)
+#define BGM_STREAM		(0)
+#define VOICE_STREAM		(1)
+#define SE_STREAM		(2)
 
 /*
- * キャラ別ボリュームのスロット数
+ * キャラ別ボリュームのスロット
  */
-#define CH_VOL_SLOTS	(16)
+#define CH_VOL_SLOTS		(16)
+#define CH_VOL_SLOT_DEFAULT	(0)
 
 /* ミキサーモジュールの初期化処理を行う */
 void init_mixer(void);

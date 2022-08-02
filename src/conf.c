@@ -307,7 +307,7 @@ int conf_skipmode_banner_y;
 /*
  * キャラクタボリュームの設定
  */
-char *conf_sound_character_name[CH_VOL_SLOTS];
+char *conf_sound_character_name[CH_VOL_SLOTS]; /* index0は未使用 */
 
 /*
  * セリフの色付け
@@ -596,7 +596,6 @@ struct rule {
 	{"sysmenu.collapsed.idle.file", 's', &conf_sysmenu_collapsed_idle_file, false, false},
 	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, false, false},
 	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, true, false},
-	{"sound.character.name0", 's', &conf_sound_character_name[0], true, false},
 	{"sound.character.name1", 's', &conf_sound_character_name[1], true, false},
 	{"sound.character.name2", 's', &conf_sound_character_name[2], true, false},
 	{"sound.character.name3", 's', &conf_sound_character_name[3], true, false},

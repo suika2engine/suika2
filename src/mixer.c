@@ -69,7 +69,7 @@ void init_mixer(void)
 	for (n = 0; n < CH_VOL_SLOTS; n++)
 		vol_character[n] = 1.0f;
 
-	ch_vol_index = -1;
+	ch_vol_index = CH_VOL_SLOT_DEFAULT;
 }
 
 /*
@@ -228,7 +228,7 @@ void apply_character_volume(int index)
 {
 	float vol;
 
-	assert(index == -1 || (index >= 0 && index < CH_VOL_SLOTS));
+	assert(index >= 0 && index < CH_VOL_SLOTS);
 
 	ch_vol_index = index;
 
