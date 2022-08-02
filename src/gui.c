@@ -1433,6 +1433,7 @@ static bool load_gui_file(const char *file)
 	len = 0;
 	btn = -1;
 	pos = 0;
+	is_global = false;
 	while (pos < fsize) {
 		/* 1文字読み込む */
 		c = buf[pos++];
