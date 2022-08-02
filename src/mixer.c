@@ -62,7 +62,7 @@ void init_mixer(void)
 
 		/* vol_global[n] はセーブデータからロード済み */
 
-		set_sound_volume(n, 1.0f);
+		set_sound_volume(n, vol_global[n]);
 
 		/* Androidでは再利用されるので初期化する */
 		is_fading[n] = false;
