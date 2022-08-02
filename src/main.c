@@ -145,6 +145,11 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 		/* GUIモードを実行する */
 		if (!run_gui_mode(x, y, w, h))
 			return false; /* 終了ボタンが押下された */
+
+		/* @guiが終了する場合 */
+		if (!is_gui_mode() && is_in_repetition)
+			if (!gui_command(x, y, w, h))
+				return false;
 	} else {
 		/* コマンドを実行する */
 		do {
