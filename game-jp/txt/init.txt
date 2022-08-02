@@ -4,6 +4,8 @@
 
 @chapter ロゴ
 
+@bgm stop
+
 @skip disable
 @bg white.png 0
 @ch c suika.png 1.0

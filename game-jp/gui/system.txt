@@ -158,4 +158,7 @@ BACK {
     y: 653;
     width: 103;
     height: 21;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
 }
