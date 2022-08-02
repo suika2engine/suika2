@@ -35,8 +35,8 @@
 #define CHAR_YENSIGN	(0x00a5)
 #define CHAR_SMALLN	(0x006e)
 
-/* ビープ音ファイルあたりの文字数 */
-#define BEEP_CHARS	(6)
+/* ビープ音の繰り返し回数の係数 */
+#define BEEP_FACTOR	(3.5f)
 
 /* メッセージボックスボタンのインデックス */
 #define BTN_NONE	(-1)
@@ -614,8 +614,10 @@ static bool play_voice(void)
 
 	/* ビープ音用のリピート回数をセットする */
 	if (repeat) {
-		times = utf8_chars(get_string_param(SERIF_PARAM_MESSAGE));
-		times /= BEEP_CHARS;
+		times = (int)((float)utf8_chars(get_string_param(
+							SERIF_PARAM_MESSAGE)) /
+			      conf_msgbox_speed * BEEP_FACTOR /
+			      (get_text_speed() + 0.1));
 		times = times == 0 ? 1 : times;
 		set_wave_repeat_times(w, times);
 	}

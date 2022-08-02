@@ -1,4 +1,4 @@
-/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
