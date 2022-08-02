@@ -36,6 +36,9 @@ static NSWindow *theWindow;
 // ビュー
 static SuikaView *theView;
 
+// フルスクリーン状態
+static BOOL isFullScreen;
+
 // ログファイル
 #ifndef USE_DEBUGGER
 static FILE *logFp;
@@ -99,8 +102,8 @@ BOOL isControlPressed;
     [[self openGLContext] makeCurrentContext];
 
     // VSYNC待ちを有効にする
-    GLint vsync = GL_TRUE;
-    [[self openGLContext] setValues:&vsync forParameter:NSOpenGLCPSwapInterval];
+    // GLint vsync = GL_TRUE;
+    // [[self openGLContext] setValues:&vsync forParameter:NSOpenGLCPSwapInterval];
 
     // スクリーン拡大率を設定する
     screenScale = 1.0f;
@@ -240,6 +243,19 @@ BOOL isControlPressed;
 	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
 }
 
+// マウスドラッグイベント
+- (void)mouseDragged:(NSEvent *)theEvent {
+    NSPoint pos = [theEvent locationInWindow];
+    pos.x *= screenScale;
+    pos.y *= screenScale;
+    if (pos.x < 0 && pos.x >= conf_window_width)
+        return;
+    if (pos.y < 0 && pos.y >= conf_window_height)
+        return;
+
+	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
+}
+
 // マウスホイールイベント
 - (void)scrollWheel:(NSEvent *)theEvent {
     if ([theEvent deltaY] > 0) {
@@ -287,16 +303,18 @@ BOOL isControlPressed;
 // キーコードを変換する
 - (int)convertKeyCode:(int)keyCode {
     switch(keyCode) {
-        case KC_SPACE:
-            return KEY_SPACE;
-        case KC_RETURN:
-            return KEY_RETURN;
-        case KC_UP:
-            return KEY_UP;
-        case KC_DOWN:
-            return KEY_DOWN;
-        case KC_C:
-            return KEY_C;
+    case KC_SPACE:
+        return KEY_SPACE;
+    case KC_RETURN:
+        return KEY_RETURN;
+    case KC_UP:
+        return KEY_UP;
+    case KC_DOWN:
+        return KEY_DOWN;
+    case KC_ESCAPE:
+        return KEY_ESCAPE;
+    case KC_C:
+        return KEY_C;
     }
     return -1;
 }
@@ -325,14 +343,18 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     return NSMakeSize(width, height);
 }
 
-// フルスクリーンから戻るときに呼び出される
+// フルスクリーンになるとき呼び出される
 - (void)windowWillEnterFullScreen:(NSNotification *)notification {
+    isFullScreen = YES;
+
     // ウィンドウサイズを保存する
     savedFrame = [theWindow frame];
 }
 
 // フルスクリーンから戻るときに呼び出される
 - (void)windowWillExitFullScreen:(NSNotification *)notification {
+    isFullScreen = NO;
+
     [theWindow setFrame:savedFrame display:YES animate:NO];
     screenScale = 1.0f;
 }
@@ -946,4 +968,38 @@ void update_window_title(void)
         // ウィンドウのタイトルを設定する
         [theWindow setTitle:s];
     }
+}
+
+//
+// フルスクリーンモードがサポートされるか調べる
+//
+bool is_full_screen_supported(void)
+{
+    return true;
+}
+
+//
+// フルスクリーンモードであるか調べる
+//
+bool is_full_screen_mode(void)
+{
+    return isFullScreen;
+}
+
+//
+// フルスクリーンモードを開始する
+//
+void enter_full_screen_mode(void)
+{
+    if (!isFullScreen)
+        [theWindow toggleFullScreen:theView];
+}
+
+///
+// フルスクリーンモードを終了する
+//
+void leave_full_screen_mode(void)
+{
+    if (isFullScreen)
+        [theWindow toggleFullScreen:theView];
 }
