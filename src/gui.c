@@ -1377,7 +1377,7 @@ static bool load_gui_file(const char *file)
 		ST_ERROR
 	};
 
-	char word[128], key[128];
+	char word[256], key[256];
 	struct rfile *rf;
 	char *buf;
 	size_t fsize, pos;
@@ -1453,11 +1453,6 @@ static bool load_gui_file(const char *file)
 					break;
 				}
 			}
-			if (len == sizeof(word) - 1) {
-				log_gui_parse_long_word();
-				st = ST_ERROR;
-				break;
-			}
 			if (c == '}' || c == ':') {
 				log_gui_parse_char(c);
 				st = ST_ERROR;
@@ -1481,6 +1476,11 @@ static bool load_gui_file(const char *file)
 				else
 					st = ST_OPEN;
 				len = 0;
+				break;
+			}
+			if (len == sizeof(word) - 1) {
+				log_gui_parse_long_word();
+				st = ST_ERROR;
 				break;
 			}
 			word[len++] = c;
@@ -1533,6 +1533,11 @@ static bool load_gui_file(const char *file)
 				strcpy(key, word);
 				st = ST_VALUE;
 				len = 0;
+				break;
+			}
+			if (len == sizeof(word) - 1) {
+				log_gui_parse_long_word();
+				st = ST_ERROR;
 				break;
 			}
 			word[len++] = c;
@@ -1592,6 +1597,11 @@ static bool load_gui_file(const char *file)
 				len = 0;
 				break;
 			}
+			if (len == sizeof(word) - 1) {
+				log_gui_parse_long_word();
+				st = ST_ERROR;
+				break;
+			}
 			word[len++] = c;
 			st = ST_VALUE;
 			break;
@@ -1616,6 +1626,11 @@ static bool load_gui_file(const char *file)
 			}
 			if (c == '\r' || c == '\n') {
 				log_gui_parse_char(c);
+				st = ST_ERROR;
+				break;
+			}
+			if (len == sizeof(word) - 1) {
+				log_gui_parse_long_word();
 				st = ST_ERROR;
 				break;
 			}

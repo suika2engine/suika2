@@ -17,7 +17,9 @@
 #include "suika.h"
 
 /* 既読フラグ */
+#ifndef USE_DEBUGGER
 static bool seen_flag[SCRIPT_CMD_SIZE];
+#endif
 
 /* 初期化済みか */
 static bool is_initialized;
