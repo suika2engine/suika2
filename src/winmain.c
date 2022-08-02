@@ -1590,10 +1590,7 @@ bool is_full_screen_mode(void)
 void enter_full_screen_mode(void)
 {
 	if (!bFullScreen)
-	{
 		ToggleFullScreen();
-		bFullScreen = TRUE;
-	}
 }
 
 /*
@@ -1602,8 +1599,5 @@ void enter_full_screen_mode(void)
 void leave_full_screen_mode(void)
 {
 	if (bFullScreen)
-	{
 		ToggleFullScreen();
-		bFullScreen = FALSE;
-	}
 }
