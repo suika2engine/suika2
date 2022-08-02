@@ -464,6 +464,12 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
 			*pen_y += conf_history_margin_line;
 			*pen_x = conf_history_margin_left;
+
+			/* 行頭のスペースはスキップする */
+			if (*text == ' ') {
+				text++;
+				continue;
+			}
 		}
 
 		/* 画面の高さを超える場合 */

@@ -1281,10 +1281,15 @@ static void draw_message(int index)
 		/* 描画する文字の幅を取得する */
 		cw = get_glyph_width(c);
 
-		/* メッセージボックスの幅を超える場合、改行する */
+		/* ボタン領域の幅を超える場合、改行する */
 		if (button[index].rt.pen_x + cw >= button[index].width) {
 			button[index].rt.pen_y += conf_msgbox_margin_line;
 			button[index].rt.pen_x = 0;
+			if (*button[index].rt.top == ' ') {
+				button[index].rt.top++;
+				button[index].rt.drawn_chars++;
+				continue;
+			}
 		}
 
 		/* 描画する */
@@ -1388,6 +1393,7 @@ static bool load_gui_file(const char *file)
 		ST_KEY,
 		ST_COLON,
 		ST_VALUE,
+		ST_VALUE_DQ,
 		ST_SEMICOLON,
 		ST_ERROR
 	};
@@ -1572,6 +1578,10 @@ static bool load_gui_file(const char *file)
 					st = ST_VALUE;
 					break;
 				}
+				if (c == '\"') {
+					st = ST_VALUE_DQ;
+					break;
+				}
 			}
 			if (c == ':' || c == '{') {
 				log_gui_parse_char(c);
@@ -1604,6 +1614,33 @@ static bool load_gui_file(const char *file)
 			}
 			word[len++] = c;
 			st = ST_VALUE;
+			break;
+		case ST_VALUE_DQ:
+			if (c == '\"') {
+				word[len] = '\0';
+				if (is_global) {
+					if (!set_global_key_value(key, word)) {
+						st = ST_ERROR;
+						break;
+					}
+				} else {
+					if (!set_button_key_value(btn, key,
+								  word)) {
+						st = ST_ERROR;
+						break;
+					}
+				}
+				st = ST_SEMICOLON;
+				len = 0;
+				break;
+			}
+			if (c == '\r' || c == '\n') {
+				log_gui_parse_char(c);
+				st = ST_ERROR;
+				break;
+			}
+			word[len++] = c;
+			st = ST_VALUE_DQ;
 			break;
 		case ST_SEMICOLON:
 			if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {

@@ -716,6 +716,13 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
 			pen_y += conf_msgbox_margin_line;
 			pen_x = conf_msgbox_margin_left;
+
+			/* 行頭のスペースはスキップする */
+			if (*msg == ' ') {
+				msg++;
+				drawn_chars++;
+				continue;
+			}
 		}
 
 		/* 描画する */
