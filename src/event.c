@@ -28,6 +28,10 @@ bool on_event_init(void)
 	/* 変数の初期化処理を行う */
 	init_vars();
 
+	/* セーブデータの初期化処理を行う */
+	if (!init_save())
+		return false;
+
 	/* 文字レンダリングエンジンの初期化処理を行う */
 	if (!init_glyph())
 		return false;
@@ -43,16 +47,16 @@ bool on_event_init(void)
 	if (!init_scbuf())
 		return false;
 
-	/* セーブデータの初期化処理を行う */
-	if (!init_save())
-		return false;
-
 	/* 初期スクリプトをロードする */
 	if (!init_script())
 		return false;
 
 	/* 既読フラグをロードする */
 	if (!init_seen())
+		return false;
+
+	/* GUIを初期化する */
+	if (!init_gui())
 		return false;
 
 	/* ゲームループの初期化処理を行う */
@@ -73,6 +77,9 @@ void on_event_cleanup(void)
 {
 	/* ゲームループの終了処理を行う */
 	cleanup_game_loop();
+
+	/* GUIの終了処理を行う */
+	cleanup_gui();
 
 	/* 既読フラグ管理の終了処理を行う */
 	cleanup_seen();

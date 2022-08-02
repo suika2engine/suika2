@@ -95,6 +95,11 @@ static int nPosEndArea[MIXER_STREAMS];
 static int bLastTouch[MIXER_STREAMS];
 
 /*
+ * 初期化前に指定されるボリューム
+ */
+static float fInitialVol[MIXER_STREAMS] = {1.0f, 1.0f, 1.0f};
+
+/*
  * Internal functions
  */
 static BOOL CreatePrimaryBuffer();
@@ -155,6 +160,12 @@ BOOL DSInitialize(HWND hWnd)
 		return FALSE;
 
 	hEventThread = (HANDLE)t;
+
+	/* ボリュームを設定する */
+	SetBufferVolume(BGM_STREAM, fInitialVol[BGM_STREAM]);
+	SetBufferVolume(VOICE_STREAM, fInitialVol[VOICE_STREAM]);
+	SetBufferVolume(SE_STREAM, fInitialVol[SE_STREAM]);
+
 	return TRUE;
 }
 
@@ -254,8 +265,13 @@ bool stop_sound(int stream)
  */
 bool set_sound_volume(int stream, float vol)
 {
-	assert(pDS != NULL);
 	assert(stream >= 0 && stream < MIXER_STREAMS);
+
+	if (pDS == NULL)
+	{
+		fInitialVol[stream] = vol;
+		return true;
+	}
 
 	return SetBufferVolume(stream, vol);
 }

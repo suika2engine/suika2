@@ -34,7 +34,10 @@ bool gui_command(int *x, int *y, int *w, int *h)
 		return true;
 	}
 
-	/* GUIモードが終了した際にここに到達する */
+	/*
+	 * GUIモードが終了した際にここに到達する
+	 *  - タイトルへ戻るが選択された場合、ここに到達しない
+	 */
 	if (!cleanup())
 		return false;
 
@@ -103,13 +106,6 @@ static bool cleanup(void)
 	label = get_gui_result_label();
 	if (label != NULL) {
 		ret = move_to_label(label);
-		cleanup_gui();
-		return ret;
-	}
-
-	/* タイトルへ戻るボタンが押下された場合 */
-	if (is_gui_result_title()) {
-		ret = load_script(conf_save_title_txt);
 		cleanup_gui();
 		return ret;
 	}

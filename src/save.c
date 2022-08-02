@@ -1582,6 +1582,7 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 /* グローバルデータのロードを行う */
 static void load_global_data(void)
 {
+	char fname[128];
 	struct rfile *rf;
 	float f;
 	int i;
@@ -1619,6 +1620,11 @@ static void load_global_data(void)
 	/* オートモードスピードをデシリアライズする */
 	read_rfile(rf, &msg_auto_speed, sizeof(f));
 
+	/* フォントファイル名をデシリアライズする */
+	gets_rfile(rf, fname, sizeof(fname));
+	fname[sizeof(fname) - 1] = '\0';
+	set_font_file_name(fname);
+
 	/* ファイルを閉じる */
 	close_rfile(rf);
 }
@@ -1629,6 +1635,7 @@ static void load_global_data(void)
 void save_global_data(void)
 {
 	struct wfile *wf;
+	const char *fname;
 	float f;
 	int i;
 
@@ -1663,6 +1670,10 @@ void save_global_data(void)
 	
 	/* オートモードスピードをシリアライズする */
 	write_wfile(wf, &msg_auto_speed, sizeof(f));
+
+	/* フォントファイル名をデシリアライズする */
+	fname = get_font_file_name();
+	write_wfile(wf, fname, strlen(fname) + 1);
 
 	/* ファイルを閉じる */
 	close_wfile(wf);

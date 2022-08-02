@@ -399,7 +399,7 @@ int main()
                     if (initWindow()) {
 #ifdef USE_DEBUGGER
                         // デバッグウィンドウを作成する
-                        if (initDebugWindow()) {
+                        if (initDebugWindow())
 #else
                         {
 #endif

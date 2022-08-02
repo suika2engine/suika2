@@ -81,7 +81,6 @@ void log_gui_unknown_button_type(const char *type);
 void log_gui_unknown_button_property(const char *key);
 void log_gui_parse_footer(const char *file, int line);
 void log_gui_image_not_loaded(void);
-void log_unsupported_dynamic_config(const char *key);
 
 #ifdef USE_DEBUGGER
 void log_command_update_error(void);

@@ -91,7 +91,7 @@ msgbox.margin.right=80
 msgbox.margin.line=40
 
 # Message speed (x characters per second)
-msgbox.speed=20.0
+msgbox.speed=40.0
 
 # Position of the hide button (position inside message box, optional)
 msgbox.btn.hide.x=1146
@@ -438,7 +438,22 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### Initial Sound Volumes
+###  - Note that these are the initial values.
+###  - If a user has the save data, then volume settings in the save data
+###    will be used.
+###
+
+sound.vol.bgm=1.0
+sound.vol.voice=1.0
+sound.vol.se=1.0
+sound.vol.character=1.0
+
+###
 ### Settings For Per-Character Voice Volume (1-15)
+###  - If the character name of the message matches to the following name list,
+###    then the per-character volume will be applied.
+###  - Per-character volume can be set in config screen.
 ###
 
 sound.character.name1=Midori

@@ -39,4 +39,10 @@ int get_utf8_width(const char *mbs);
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 		pixel_t outline_color, uint32_t codepoint, int *w, int *h);
 
+/* フォントファイル名を設定する */
+bool set_font_file_name(const char *file);
+
+/* フォントファイル名を取得する */
+const char *get_font_file_name(void);
+
 #endif

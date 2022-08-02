@@ -318,8 +318,12 @@ extern int conf_skipmode_banner_x;
 extern int conf_skipmode_banner_y;
 
 /*
- * キャラクタボリュームの設定
+ * サウンドの設定
  */
+extern float conf_sound_vol_bgm;
+extern float conf_sound_vol_voice;
+extern float conf_sound_vol_se;
+extern float conf_sound_vol_character;
 extern char *conf_sound_character_name[CH_VOL_SLOTS]; /* index0は未使用 */
 
 /*
@@ -358,10 +362,7 @@ bool init_conf(void);
 /* コンフィグの終了処理を行う */
 void cleanup_conf(void);
 
-/* コンフィグの比較を行う */
-bool compare_config_key_value(const char *key, const char *value);
-
-/* コンフィグの動的変更を行う */
-void set_config_key_value(const char *key, const char *value);
+/* コンフィグの値を元に各種設定を初期値にする */
+bool apply_initial_values(void);
 
 #endif

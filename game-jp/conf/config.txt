@@ -431,7 +431,19 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### 音量の初期値
+###  - これは初期値で、セーブデータがある場合はそちらが利用される
+###
+
+sound.vol.bgm=1.0
+sound.vol.voice=1.0
+sound.vol.se=1.0
+sound.vol.character=1.0
+
+###
 ### キャラクタ名ごとに音量を調節するための設定 (1-15)
+###  - セリフの名前が下記に一致した場合、キャラクタごとの音量が適用される
+###  - キャラクタごとの音量はコンフィグ画面から設定可能
 ###
 
 sound.character.name1=みどり

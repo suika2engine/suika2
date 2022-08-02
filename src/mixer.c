@@ -59,7 +59,9 @@ void init_mixer(void)
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		vol_cur[n] = 1.0f;
 		vol_local[n] = 1.0f;
-		vol_global[n] = 1.0f;
+
+		/* vol_global[n] はセーブデータからロード済み */
+
 		set_sound_volume(n, 1.0f);
 
 		/* Androidでは再利用されるので初期化する */

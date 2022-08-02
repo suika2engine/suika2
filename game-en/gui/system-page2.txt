@@ -1,0 +1,52 @@
+global {
+    idle:   config-page2-idle.png;
+    hover:  config-page2-hover.png;
+    active: config-page2-active.png;
+}
+
+DEFAULT {
+    type: default;
+
+    x: 1131;
+    y: 61;
+    width: 115;
+    height: 40;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+PAGE1 {
+    type: gui;
+
+    file: system.txt;
+
+    x: 1189;
+    y: 132;
+    width: 35;
+    height: 35;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+TITLE {
+    type: title;
+
+    x: 1007;
+    y: 652;
+    width: 109;
+    height: 25;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+BACK {
+    type: cancel;
+
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+}

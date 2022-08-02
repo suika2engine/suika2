@@ -2,69 +2,160 @@ global {
     idle:   config-idle.png;
     hover:  config-hover.png;
     active: config-active.png;
-
-    startse: click.ogg;
 }
 
-FONT1 {
-    type: config;
-    x: 577;
-    y: 157;
-    width: 124;
-    height: 55;
-    key: font.file;
-    value: yasashisa.ttf;
+TEXTSPEED {
+    type: textspeed;
+
+    x: 68;
+    y: 250;
+    width: 266;
+    height: 21;
+
     pointse: btn-change.ogg;
-    clickse: click.ogg;
 }
 
-FONT2 {
-    type: config;
-    x: 752;
-    y: 157;
-    width: 124;
-    height: 55;
-    key: font.file;
-    value: VL-PGothic-Regular.ttf;
-    pointse: btn-change.ogg;
-    clickse: click.ogg;
+AUTOSPEED {
+    type: autospeed;
+
+    x: 68;
+    y: 339;
+    width: 266;
+    height: 21;
+
+    pointse: btn-change.ogg;    
+}
+
+PREVIEW {
+    type: preview;
+
+    msg: "This is a test message. Please confirm the text speed and auto mode speed here.";
+
+    x: 160;
+    y: 457;
+    width: 960;
+    height: 130;
 }
 
 BGM {
     type: bgmvol;
-    x: 529;
-    y: 242;
-    width: 419;
-    height: 41;
-    pointse: btn-change.ogg;
-}
 
-VOICE {
-    type: voicevol;
-    file: 025.ogg;
-    x: 529;
-    y: 321;
-    width: 419;
-    height: 41;
+    x: 420;
+    y: 249;
+    width: 266;
+    height: 21;
+
     pointse: btn-change.ogg;
 }
 
 SE {
     type: sevol;
+
     file: click.ogg;
-    x: 529;
-    y: 397;
-    width: 419;
-    height: 41;
+
+    x: 420;
+    y: 339;
+    width: 266;
+    height: 20;
+
     pointse: btn-change.ogg;
 }
 
-OK {
-    type: cancel;
-    x: 504;
-    y: 605;
-    width: 273;
-    height: 65;
+FONT1 {
+    type: font;
+
+    file: VL-PGothic-Regular.ttf;
+
+    x: 770;
+    y: 328;
+    width: 87;
+    height: 30;
+
     pointse: btn-change.ogg;
     clickse: click.ogg;
+}
+
+FONT2 {
+    type: font;
+
+    file: yasashisa.ttf;
+
+    x: 900;
+    y: 328;
+    width: 95;
+    height: 27;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+FULLSCREEN {
+    type: fullscreen;
+
+    x: 750;
+    y: 206;
+    width: 200;
+    height: 25;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+WINDOW {
+    type: window;
+
+    x: 995;
+    y: 206;
+    width: 200;
+    height: 25;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+DEFAULT {
+    type: default;
+
+    x: 1131;
+    y: 61;
+    width: 115;
+    height: 40;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+PAGE2 {
+    type: gui;
+
+    file: system-page2.txt;
+
+    x: 1234;
+    y: 132;
+    width: 35;
+    height: 35;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+TITLE {
+    type: title;
+
+    x: 1007;
+    y: 652;
+    width: 109;
+    height: 25;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+BACK {
+    type: cancel;
+
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
 }

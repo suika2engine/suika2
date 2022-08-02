@@ -5,44 +5,57 @@ global {
 }
 
 START {
-    type: label;
+    type: goto;
+
     label: START;
+
     x: 2;
     y: 495;
     width: 314;
     height: 192;
+
     pointse: btn-change.ogg;
     clickse: click.ogg;
 }
 
 LOAD {
-    type: label;
+    type: goto;
+
     label: LOAD;
+
     x: 316;
     y: 494;
     width: 322;
     height: 203;
+
     pointse: btn-change.ogg;
     clickse: click.ogg;
 }
 
 CONFIG {
-    type: label;
+    type: goto;
+
     label: CONFIG;
+
     x: 640;
     y: 492;
     width: 317;
     height: 204;
+
     pointse: btn-change.ogg;
+    clickse: click.ogg;
 }
 
 QUIT {
-    type: label;
+    type: goto;
+
     label: QUIT;
+
     x: 960;
     y: 497;
     width: 317;
     height: 201;
+
     pointse: btn-change.ogg;
     clickse: click.ogg;
 }

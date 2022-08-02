@@ -29,6 +29,13 @@
 
 #define SCALE	(64)
 
+/* フォントファイル名 */
+static char *font_file;
+
+/* 初期化済みか(Android用) */
+static bool is_initialized;
+
+/* FreeType2のオブジェクト */
 static FT_Library library;
 static FT_Face face;
 static FT_Byte *font_file_content;
@@ -53,6 +60,20 @@ static void draw_glyph_func(unsigned char * RESTRICT font, int font_width,
 bool init_glyph(void)
 {
 	FT_Error err;
+
+	/* Android用, もしくはフォント変更時用 */
+	if (face != NULL) {
+		FT_Done_Face(face);
+		face = NULL;
+	}
+	if (library != NULL) {
+		FT_Done_FreeType(library);
+		library = NULL;
+	}
+	if (font_file_content != NULL) {
+		free(font_file_content);
+		font_file_content = NULL;
+	}
 
 	/* FreeType2ライブラリを初期化する */
 	err = FT_Init_FreeType(&library);
@@ -81,6 +102,7 @@ bool init_glyph(void)
 	}
 
 	/* 成功 */
+	is_initialized = true;
 	return true;
 }
 
@@ -91,7 +113,7 @@ static bool read_font_file_content(void)
 	FT_Long remain, block;
 
 	/* フォントファイルを開く */
-	rf = open_rfile(FONT_DIR, conf_font_file, false);
+	rf = open_rfile(FONT_DIR, font_file, false);
 	if (rf == NULL)
 		return false;
 
@@ -136,16 +158,23 @@ static bool read_font_file_content(void)
  */
 void cleanup_glyph(void)
 {
-	FT_Done_Face(face);
-	face = NULL;
+	if (face != NULL) {
+		FT_Done_Face(face);
+		face = NULL;
+	}
 
-	FT_Done_FreeType(library);
-	library = NULL;
+	if (library != NULL) {
+		FT_Done_FreeType(library);
+		library = NULL;
+	}
 
 	if (font_file_content != NULL) {
 		free(font_file_content);
 		font_file_content = NULL;
 	}
+
+	free(font_file);
+	font_file = NULL;
 }
 
 /*
@@ -397,6 +426,35 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 	*h = conf_font_size + descent;
 
 	return true;
+}
+
+/*
+ * フォントファイル名を設定する
+ *  - init_glyph()よりも前に呼ばれる
+ *  - ファイル名が設定されても、init_glyph()を呼び出し直さないと反映されない
+ */
+bool set_font_file_name(const char *file)
+{
+	if (font_file != NULL) {
+		free(font_file);
+		font_file = NULL;
+	}
+
+	font_file = strdup(file);
+	if (font_file == NULL) {
+		log_memory();
+		return false;
+	}
+
+	return true;
+}
+
+/*
+ * フォントファイル名を取得する
+ */
+const char *get_font_file_name(void)
+{
+	return font_file;
 }
 
 /*

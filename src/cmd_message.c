@@ -638,6 +638,8 @@ static void set_character_volume_by_name(const char *name)
 
 	for (i = 1; i < CH_VOL_SLOTS; i++) {
 		/* キャラクタ名を探す */
+		if (conf_sound_character_name[i] == NULL)
+			continue;
 		if (strcmp(conf_sound_character_name[i], name) == 0) {
 			/* みつかった場合 */
 			apply_character_volume(i);

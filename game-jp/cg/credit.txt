@@ -6,9 +6,9 @@ click2.png by MaxMorgan
 click3.png by MaxMorgan
 click4.png by MaxMorgan
 click5.png by MaxMorgan
-config-active by heath and ktabata
-config-hover by heath and ktabata
-config-idle by heath and ktabata
+config-active.png by MaxMorgan
+config-hover.png by MaxMorgan
+config-idle.png by MaxMorgan
 load-bg by heath (modified by ktabata)
 load-gb by heath (modified by ktabata)
 menu-hover.png by heath (modified by ktabata)

@@ -305,8 +305,12 @@ int conf_skipmode_banner_x;
 int conf_skipmode_banner_y;
 
 /*
- * キャラクタボリュームの設定
+ * サウンドの設定
  */
+float conf_sound_vol_bgm;
+float conf_sound_vol_voice;
+float conf_sound_vol_se;
+float conf_sound_vol_character;
 char *conf_sound_character_name[CH_VOL_SLOTS]; /* index0は未使用 */
 
 /*
@@ -596,6 +600,10 @@ struct rule {
 	{"sysmenu.collapsed.idle.file", 's', &conf_sysmenu_collapsed_idle_file, false, false},
 	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, false, false},
 	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, true, false},
+	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, false, false},
+	{"sound.vol.voice", 'f', &conf_sound_vol_voice, false, false},
+	{"sound.vol.se", 'f', &conf_sound_vol_se, false, false},
+	{"sound.vol.character", 'f', &conf_sound_vol_character, false, false},
 	{"sound.character.name1", 's', &conf_sound_character_name[1], true, false},
 	{"sound.character.name2", 's', &conf_sound_character_name[2], true, false},
 	{"sound.character.name3", 's', &conf_sound_character_name[3], true, false},
@@ -1097,6 +1105,10 @@ bool init_conf(void)
 	if (!check_conf())
 		return false;
 
+	/* コンフィグの値を元に各種設定を初期値にする */
+	if (!apply_initial_values())
+		return false;
+
 	return true;
 }
 
@@ -1212,36 +1224,24 @@ void cleanup_conf(void)
 }
 
 /*
- * コンフィグの比較を行う
+ * コンフィグの値を元に各種設定を初期値にする
  */
-bool compare_config_key_value(const char *key, const char *value)
+bool apply_initial_values(void)
 {
-	/* TODO: 他のコンフィグもサポートする */
-	if (strcmp("font.file", key) == 0)
-		return strcmp(conf_font_file, value) == 0;
+	int i;
 
-	log_unsupported_dynamic_config(key);
-	return false;
-}
+	/* グローバルボリュームをセットする */
+	set_mixer_global_volume(BGM_STREAM, conf_sound_vol_bgm);
+	set_mixer_global_volume(VOICE_STREAM, conf_sound_vol_voice);
+	set_mixer_global_volume(SE_STREAM, conf_sound_vol_se);
 
-/*
- * コンフィグの動的変更を行う
- */
-void set_config_key_value(const char *key, const char *value)
-{
-	/* TODO: 他のコンフィグもサポートする */
-	if (strcmp("font.file", key) == 0) {
-		free(conf_font_file);
-		conf_font_file = strdup(value);
-		if (conf_font_file == NULL) {
-			log_memory();
-			return;
-		}
-		cleanup_glyph();
-		if (!init_glyph())
-			abort();
-		return;
-	}
+	/* キャラクタボリュームをセットする */
+	for (i = 0; i < CH_VOL_SLOTS; i++)
+		set_character_volume(i, conf_sound_vol_character);
 
-	log_unsupported_dynamic_config(key);
+	/* フォントファイル名をセットする */
+	if (!set_font_file_name(conf_font_file))
+		return false;
+
+	return true;
 }
