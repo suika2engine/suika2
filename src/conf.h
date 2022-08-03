@@ -345,6 +345,7 @@ extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 extern char *conf_ui_msg_quit;
 extern char *conf_ui_msg_title;
 extern char *conf_ui_msg_delete;
+extern char *conf_ui_msg_overwrite;
 
 /*
  * その他の設定

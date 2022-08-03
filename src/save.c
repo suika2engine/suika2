@@ -109,6 +109,9 @@ static bool is_goto;
 /* 最初の描画であるか */
 static bool is_first_frame;
 
+/* セーブ後の最初のフレームであるか */
+static bool is_first_frame_after_save;
+
 /* ページ */
 static int page;
 
@@ -337,6 +340,7 @@ void start_save_mode(bool is_goto_save)
 
 	/* 最初のフレームである */
 	is_first_frame = true;
+	is_first_frame_after_save = false;
 
 	/* 選択項目を無効とする */
 	pointed_index = -1;
@@ -408,6 +412,16 @@ bool run_save_load_mode(int *x, int *y, int *w, int *h)
 		draw_page(x, y, w, h);
 		is_first_frame = false;
 		return true;
+	}
+
+	/*
+	 * ダイアログの表示でマウス座標が変わっているので、選択項目の変更に
+	 * よるSEの再生が発生し、セーブSEを止めてしまう可能性がある。これを
+	 * 防ぐために、予め選択項目を更新しておく。
+	 */
+	if (is_first_frame_after_save) {
+		pointed_index = get_pointed_index();
+		is_first_frame_after_save = false;
 	}
 
 	/* 右クリックされた場合 */
@@ -705,7 +719,6 @@ bool update_pointed_index(int *x, int *y, int *w, int *h)
 
 	/* ポイントされている項目を変更する */
 	pointed_index = new_pointed_index;
-
 	return true;
 }
 
@@ -732,12 +745,10 @@ static bool process_left_press(int new_pointed_index, int *x, int *y, int *w,
 		process_left_press_save_button(new_pointed_index, x, y, w, h);
 		if (is_save_mode) {
 			/* セーブを行う */
-			play_se(conf_save_data_save_se);
 			process_save(new_pointed_index);
 			draw_page(x, y, w, h);
 		} else if (have_save_data(new_pointed_index)){
 			/* ロードを行う */
-			play_se(conf_save_data_load_se);
 			process_load(new_pointed_index);
 			stop_save_load_mode(x, y, w, h);
 		}
@@ -910,6 +921,14 @@ static bool process_save(int new_pointed_index)
 	index = page * PAGE_SLOTS + (new_pointed_index - BUTTON_ONE);
 	snprintf(s, sizeof(s), "%03d.sav", index);
 
+	/* プロンプトを表示する */
+	if (save_time[index] != 0)
+		if (!overwrite_dialog())
+			return true;
+
+	/* SEを再生する */
+	play_se(conf_save_data_save_se);
+
 	/* ローカルデータのシリアライズを行う */
 	if (!serialize_all(s, &timestamp, index))
 		return false;
@@ -923,6 +942,7 @@ static bool process_save(int new_pointed_index)
 	/* 時刻を保存する */
 	save_time[index] = (time_t)timestamp;
 
+	is_first_frame_after_save = true;
 	return true;
 }
 
@@ -1254,6 +1274,9 @@ static bool process_load(int new_pointed_index)
 {
 	char s[128];
 	int index;
+
+	/* SEを再生する */
+	play_se(conf_save_data_load_se);
 
 	/* ファイル名を求める */
 	index = page * PAGE_SLOTS + (new_pointed_index - BUTTON_ONE);

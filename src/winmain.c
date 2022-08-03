@@ -1478,6 +1478,19 @@ bool delete_dialog(void)
 }
 
 /*
+ * 上書きダイアログを表示する
+ */
+bool overwrite_dialog(void)
+{
+	if (MessageBox(hWndMain,
+				   conv_utf8_to_native(conf_ui_msg_overwrite),
+				   mbszTitle,
+				   MB_OKCANCEL) == IDOK)
+		return true;
+	return false;
+}
+
+/*
  * ビデオを再生する
  */
 bool play_video(const char *fname, bool is_skippable)

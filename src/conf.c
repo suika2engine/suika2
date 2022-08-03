@@ -331,6 +331,7 @@ int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 char *conf_ui_msg_quit;
 char *conf_ui_msg_title;
 char *conf_ui_msg_delete;
+char *conf_ui_msg_overwrite;
 
 /*
  * その他の設定
@@ -1077,6 +1078,7 @@ struct rule {
 	{"ui.msg.quit", 's', &conf_ui_msg_quit, false, false},
 	{"ui.msg.title", 's', &conf_ui_msg_title, false, false},
 	{"ui.msg.delete", 's', &conf_ui_msg_delete, false, false},
+	{"ui.msg.overwrite", 's', &conf_ui_msg_overwrite, false, false},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
 	{"window.title.separator", 's', &conf_window_title_separator, true, false},
