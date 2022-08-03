@@ -35,9 +35,6 @@
 #define CHAR_YENSIGN	(0x00a5)
 #define CHAR_SMALLN	(0x006e)
 
-/* ビープ音の繰り返し回数の係数 */
-#define BEEP_FACTOR	(3.5f)
-
 /* メッセージボックスボタンのインデックス */
 #define BTN_NONE	(-1)
 #define BTN_QSAVE	(0)
@@ -593,6 +590,7 @@ static bool play_voice(void)
 {
 	struct wave *w;
 	const char *voice;
+	float beep_factor;
 	int times;
 	bool repeat;
 
@@ -614,9 +612,11 @@ static bool play_voice(void)
 
 	/* ビープ音用のリピート回数をセットする */
 	if (repeat) {
+		beep_factor = conf_beep_adjustment == 0 ?
+			      1 : conf_beep_adjustment;
 		times = (int)((float)utf8_chars(get_string_param(
 							SERIF_PARAM_MESSAGE)) /
-			      conf_msgbox_speed * BEEP_FACTOR /
+			      conf_msgbox_speed * beep_factor /
 			      (get_text_speed() + 0.1));
 		times = times == 0 ? 1 : times;
 		set_wave_repeat_times(w, times);

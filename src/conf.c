@@ -353,6 +353,9 @@ int conf_click_disable;
 /* キャラクタの変更中にメッセージボックスを隠さない */
 int conf_msgbox_show_on_ch;
 
+/* ビープの調整 */
+float conf_beep_adjustment;
+
 /*
  * 1行のサイズ
  */
@@ -1078,6 +1081,7 @@ struct rule {
 	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, true, false},
 	{"click.disable", 'i', &conf_click_disable, true, false},
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, true, false},
+	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))

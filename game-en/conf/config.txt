@@ -397,7 +397,7 @@ sysmenu.skip.se=click.ogg
 sysmenu.history.se=click.ogg
 
 # Sound effect when config selected (optional)
-#sysmenu.config.se=click.ogg
+sysmenu.config.se=click.ogg
 
 # Position of collapsed system menu image
 sysmenu.collapsed.x=1219
@@ -444,16 +444,26 @@ skipmode.banner.y=186
 ###    will be used.
 ###
 
+# Initial volume of BGM
 sound.vol.bgm=1.0
+
+# Initial volume of voice
 sound.vol.voice=1.0
+
+# Initial volume of sound effect
 sound.vol.se=1.0
+
+# Initial value of per-character volumes
 sound.vol.character=1.0
 
 ###
-### Settings For Per-Character Voice Volume (1-15)
+### Settings For Per-Character Voice Volume
 ###  - If the character name of the message matches to the following name list,
 ###    then the per-character volume will be applied.
-###  - Per-character volume can be set in config screen.
+###  - Per-character volumes can be set in config screen. (#0 to #15)
+###  - You can specify the names for 15 characters (#1 to #15)
+###  - If the character name of the message doesn't match to the following
+###    names, then the #0 per-character volume will be used.
 ###
 
 sound.character.name1=Midori
