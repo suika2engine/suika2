@@ -2113,6 +2113,7 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_auto_selected,
 			bool is_skip_selected,
 			bool is_history_selected,
+			bool is_config_selected,
 			int *x, int *y, int *w, int *h)
 {
 	/* 描画範囲を更新する */
@@ -2269,6 +2270,16 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			     conf_sysmenu_history_height,
 			     conf_sysmenu_history_x,
 			     conf_sysmenu_history_y, 255, BLEND_FAST);
+	}
+	if (is_config_selected) {
+		/* コンフィグの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_config_x,
+			     conf_sysmenu_y + conf_sysmenu_config_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_config_width,
+			     conf_sysmenu_config_height,
+			     conf_sysmenu_config_x,
+			     conf_sysmenu_config_y, 255, BLEND_FAST);
 	}
 }
 

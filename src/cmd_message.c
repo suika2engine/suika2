@@ -2051,7 +2051,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 {
 	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
-	bool history_sel, redraw;
+	bool history_sel, config_sel, redraw;
 
 	/* 描画するかの判定状態を初期化する */
 	qsave_sel = false;
@@ -2061,6 +2061,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 	auto_sel = false;
 	skip_sel = false;
 	history_sel = false;
+	config_sel = false;
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
@@ -2137,6 +2138,16 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 		}
 	}
 
+	/* コンフィグがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
+		config_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_CONFIG &&
+		    !is_sysmenu_first_frame) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
+	}
+
 	/* ポイント項目がなくなった場合 */
 	if (sysmenu_pointed_index == SYSMENU_NONE) {
 		if (old_sysmenu_pointed_index != SYSMENU_NONE)
@@ -2162,6 +2173,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 					   auto_sel,
 					   skip_sel,
 					   history_sel,
+					   config_sel,
 					   x, y, w, h);
 			is_sysmenu_first_frame = false;
 		} else {

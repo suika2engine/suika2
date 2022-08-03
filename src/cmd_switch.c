@@ -52,6 +52,7 @@
 #define SYSMENU_AUTO	(4)
 #define SYSMENU_SKIP	(5)
 #define SYSMENU_HISTORY	(6)
+#define SYSMENU_CONFIG	(7)
 
 /* 親選択肢のボタン */
 static struct parent_button {
@@ -690,7 +691,7 @@ static int get_sysmenu_pointed_button(void)
 	ry = mouse_pos_y - conf_sysmenu_y;
 
 	/* ボタンを順番に見ていく */
-	for (i = SYSMENU_QSAVE; i <= SYSMENU_HISTORY; i++) {
+	for (i = SYSMENU_QSAVE; i <= SYSMENU_CONFIG; i++) {
 		/* ボタンの座標を取得する */
 		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
 
@@ -749,6 +750,12 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*y = conf_sysmenu_history_y;
 		*w = conf_sysmenu_history_width;
 		*h = conf_sysmenu_history_height;
+		break;
+	case SYSMENU_CONFIG:
+		*x = conf_sysmenu_config_x;
+		*y = conf_sysmenu_config_y;
+		*w = conf_sysmenu_config_width;
+		*h = conf_sysmenu_config_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
@@ -1108,6 +1115,20 @@ static void process_sysmenu_click(void)
 		need_history_mode = true;
 		return;
 	}
+
+	/* コンフィグが左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
+		/* SEを再生する */
+		play_se(conf_sysmenu_config_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+
+		/* コンフィグモードを開始する */
+		need_config_mode = true;
+		return;
+	}
 }
 
 /* システムメニューを描画する */
@@ -1115,7 +1136,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 {
 	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
-	bool history_sel, redraw;
+	bool history_sel, config_sel, redraw;
 
 	/* 描画するかの判定状態を初期化する */
 	qsave_sel = false;
@@ -1125,6 +1146,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	auto_sel = false;
 	skip_sel = false;
 	history_sel = false;
+	config_sel = false;
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
@@ -1183,6 +1205,16 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		}
 	}
 
+	/* コンフィグがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_CONFIG) {
+		config_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_CONFIG &&
+		    !is_sysmenu_first_frame) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
+	}
+
 	/* ポイント項目がなくなった場合 */
 	if (sysmenu_pointed_index == SYSMENU_NONE) {
 		if (old_sysmenu_pointed_index != SYSMENU_NONE)
@@ -1213,6 +1245,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 				   auto_sel,
 				   skip_sel,
 				   history_sel,
+				   config_sel,
 				   x, y, w, h);
 		is_sysmenu_first_frame = false;
 	}
