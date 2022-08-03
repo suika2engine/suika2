@@ -98,6 +98,9 @@ msgbox.btn.change.se=btn-change.ogg
 # 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
 msgbox.history.se=click.ogg
 
+# ESCキーでコンフィグ画面を呼び出すときのSE(省略可)
+msgbox.config.se=click.ogg
+
 # メッセージボックスを非表示にするときのSE(省略可)
 msgbox.hide.se=click.ogg
 

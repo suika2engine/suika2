@@ -114,6 +114,7 @@ char *conf_msgbox_btn_config_se;
 char *conf_msgbox_btn_change_se;
 char *conf_msgbox_save_se;
 char *conf_msgbox_history_se;
+char *conf_msgbox_config_se;
 char *conf_msgbox_hide_se;
 char *conf_msgbox_show_se;
 char *conf_msgbox_auto_cancel_se;
@@ -447,6 +448,7 @@ struct rule {
 	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, true, false},
 	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false}, /* TODO: remove */
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
+	{"msgbox.config.se", 's', &conf_msgbox_config_se, true, false},
 	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, true, false},
 	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, true, false},
 	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},

@@ -105,6 +105,9 @@ msgbox.btn.change.se=btn-change.ogg
 # Sound effect when call history screen by up arrow key or mouse wheel up (optional)
 msgbox.history.se=click.ogg
 
+# Sound effect when call config screen by ESC key (optional)
+msgbox.config.se=click.ogg
+
 # Sound effect when hide message box (optional)
 msgbox.hide.se=click.ogg
 

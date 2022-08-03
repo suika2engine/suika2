@@ -963,6 +963,7 @@ static void process_main_click(void)
 
 	/* コンフィグ画面への遷移を確認する */
 	if (is_escape_pressed) {
+		play_se(conf_msgbox_config_se);
 		need_config_mode = true;
 		return;
 	}

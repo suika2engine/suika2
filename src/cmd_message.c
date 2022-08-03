@@ -1497,6 +1497,9 @@ static bool frame_config(void)
 
 	/* ESCキーが押下されたとき */
 	if (is_escape_pressed) {
+		/* SEを再生する */
+		play_se(conf_msgbox_config_se);
+
 		/* ボイスを停止する */
 		set_mixer_input(VOICE_STREAM, NULL);
 
