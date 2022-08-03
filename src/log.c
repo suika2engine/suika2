@@ -770,6 +770,21 @@ void log_gui_unknown_button_property(const char *prop)
 }
 
 /*
+ * GUIファイルでtypeの前に他のプロパティが記述された際のエラーを記録する
+ */
+void log_gui_parse_property_before_type(const char *prop)
+{
+	if (is_english_mode()) {
+		log_error("Property \"%s\" is specified before \"type\".",
+			  prop);
+	} else {
+		log_error("プロパティ \"%s\" が \"type\" より前に"
+			  "指定されました。",
+			  prop);
+	}
+}
+
+/*
  * GUIファイルのパースに失敗した際のエラーを記録する
  */
 void log_gui_parse_footer(const char *file, int line)

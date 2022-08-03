@@ -361,6 +361,12 @@ static bool set_button_key_value(const int index, const char *key,
 		return true;
 	}
 
+	/* typeが指定されていない場合 */
+	if (b->type == TYPE_INVALID) {
+		log_gui_parse_property_before_type(key);
+		return false;
+	}
+
 	/* type以外のキーを処理する */
 	if (strcmp("x", key) == 0) {
 		b->x = atoi(val);

@@ -79,6 +79,7 @@ void log_gui_unknown_global_key(const char *key);
 void log_gui_too_many_buttons(void);
 void log_gui_unknown_button_type(const char *type);
 void log_gui_unknown_button_property(const char *key);
+void log_gui_parse_property_before_type(const char *prop);
 void log_gui_parse_footer(const char *file, int line);
 void log_gui_image_not_loaded(void);
 
