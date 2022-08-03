@@ -397,7 +397,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	WNDCLASSEX wcex;
 	RECT rc;
 	DWORD style;
-	int dw, dh, i, cch;
+	int dw, dh, i;
 
 	/* ディスプレイのサイズが足りない場合 */
 	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
@@ -451,15 +451,13 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #endif
 
 	/* ウィンドウのタイトルをUTF-8からShiftJISに変換する */
-	cch = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
-							  TITLE_BUF_SIZE - 1);
-	wszTitle[cch] = L'\0';
-	cch = WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle,
-							  (int)wcslen(wszTitle),
-							  mbszTitle + strlen(mbszTitle),
-							  TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
-							  NULL, NULL);
-	mbszTitle[cch] = '\0';
+	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
+						TITLE_BUF_SIZE - 1);
+	WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle,
+						(int)wcslen(wszTitle),
+						mbszTitle + strlen(mbszTitle),
+						TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
+						NULL, NULL);
 
 	/* ウィンドウを作成する */
 	hWndMain = CreateWindowEx(0, szWindowClass, mbszTitle, style,
