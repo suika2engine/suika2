@@ -205,7 +205,7 @@ static float calc_slider_value(int index);
 static void process_button_click(int index);
 static void process_button_draw(int index);
 static void process_button_draw_slider(int index);
-static void process_button_draw_font(int index);
+static void process_button_draw_activatable(int index);
 static void process_button_draw_gallery(int index);
 static void process_play_se(void);
 static void play_se(const char *file, bool is_voice);
@@ -506,14 +506,14 @@ static void update_runtime_props(bool is_first_time)
 				break;
 			if (!is_full_screen_supported())
 				break;
-			button[i].rt.is_active = !is_full_screen_mode();
+			button[i].rt.is_active = is_full_screen_mode();
 			break;
 		case TYPE_WINDOW:
 			if (conf_window_fullscreen_disable)
 				break;
 			if (!is_full_screen_supported())
 				break;
-			button[i].rt.is_active = is_full_screen_mode();
+			button[i].rt.is_active = !is_full_screen_mode();
 			break;
 		default:
 			break;
@@ -690,12 +690,12 @@ static void process_button_point(int index)
 	if (b->rt.is_disabled)
 		return;
 
-	/* TYPE_FULLSCREENのとき、ボタンが非アクティブならポイントできない */
-	if (b->type == TYPE_FULLSCREEN && !b->rt.is_active)
+	/* TYPE_FULLSCREENのとき、ボタンがアクティブならポイントできない */
+	if (b->type == TYPE_FULLSCREEN && b->rt.is_active)
 		return;
 
-	/* TYPE_WINDOWのとき、ボタンが非アクティブならポイントできない */
-	if (b->type == TYPE_WINDOW && !b->rt.is_active)
+	/* TYPE_WINDOWのとき、ボタンがアクティブならポイントできない */
+	if (b->type == TYPE_WINDOW && b->rt.is_active)
 		return;
 
 	/* TYPE_PREVIEWのとき、ポイントできない */
@@ -918,8 +918,10 @@ static void process_button_draw(int index)
 		process_button_draw_slider(index);
 		break;
 	case TYPE_FONT:
-		/* フォントボタンを描画する */
-		process_button_draw_font(index);
+	case TYPE_FULLSCREEN:
+	case TYPE_WINDOW:
+		/* アクティブ化可能ボタンを描画する */
+		process_button_draw_activatable(index);
 		break;
 	case TYPE_GALLERY:
 		/* ギャラリーを描画する */
@@ -956,13 +958,14 @@ static void process_button_draw_slider(int index)
 	draw_stage_gui_active(x, b->y, b->height, b->height, b->x, b->y);
 }
 
-/* フォントボタンを描画する */
-static void process_button_draw_font(int index)
+/* アクティブ化可能ボタンを描画する */
+static void process_button_draw_activatable(int index)
 {
 	struct gui_button *b;
 
 	b = &button[index];
-	assert(b->type == TYPE_FONT);
+	assert(b->type == TYPE_FONT || b->type == TYPE_FULLSCREEN ||
+	       b->type == TYPE_WINDOW);
 
 	/* ポイントされているとき、hover画像を描画する */
 	if (b->rt.is_pointed) {
@@ -1319,11 +1322,12 @@ static void word_wrapping(int index)
 /* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
 static int get_en_word_width(const char *m)
 {
+	uint32_t wc;
 	int width;
 
 	width = 0;
-	while (isgraph((unsigned char)*m))
-		width += get_glyph_width((unsigned char)*m++);
+	while (isgraph_extended(&m, &wc))
+		width += get_glyph_width(wc);
 
 	return width;
 }

@@ -458,6 +458,33 @@ const char *get_font_file_name(void)
 }
 
 /*
+ * サポートされているアルファベットか調べる
+ */
+bool isgraph_extended(const char **mbs, uint32_t *wc)
+{
+	int len;
+
+	/* 英語のアルファベットと記号の場合 */
+	if (isgraph((unsigned char)**mbs)) {
+		(*mbs)++;
+		return true;
+	}
+
+	/* Unicode文字を取得する */
+	len = utf8_to_utf32(*mbs, wc);
+	if (len < 1)
+		return false;
+	*mbs += len;
+
+	/* ロシア語の場合 */
+	if (*wc >= 0x410 && *wc <= 0x44f)
+		return true;
+
+	/* 他の言語 */
+	return false;
+}
+
+/*
  * SSEバージョニングを行わない場合
  */
 #ifndef SSE_VERSIONING

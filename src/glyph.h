@@ -45,4 +45,7 @@ bool set_font_file_name(const char *file);
 /* フォントファイル名を取得する */
 const char *get_font_file_name(void);
 
+/* サポートされているアルファベットか調べる */
+bool isgraph_extended(const char **mbs, uint32_t *wc);
+
 #endif

@@ -920,12 +920,13 @@ static void check_stop_click_animation(void)
 static int get_en_word_width(void)
 {
 	const char *m;
+	uint32_t wc;
 	int width;
 
 	m = msg;
 	width = 0;
-	while (isgraph((unsigned char)*m))
-		width += get_glyph_width((unsigned char)*m++);
+	while (isgraph_extended(&m, &wc))
+		width += get_glyph_width(wc);
 
 	return width;
 }
@@ -2146,7 +2147,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 	}
 
 	/* コンフィグがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
+	if (sysmenu_pointed_index == SYSMENU_CONFIG) {
 		config_sel = true;
 		if (old_sysmenu_pointed_index != SYSMENU_CONFIG &&
 		    !is_sysmenu_first_frame) {

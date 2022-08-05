@@ -499,12 +499,13 @@ static bool draw_message(int *pen_x, int *pen_y, int index)
 static int get_en_word_width(const char *text)
 {
 	const char *m;
+	uint32_t wc;
 	int width;
 
 	m = text;
 	width = 0;
-	while (isgraph((unsigned char)*m))
-		width += get_glyph_width((unsigned char)*m++);
+	while (isgraph_extended(&m, &wc))
+		width += get_glyph_width(wc);
 
 	return width;
 }
