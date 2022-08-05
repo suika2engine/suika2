@@ -73,6 +73,9 @@ BOOL isFinished;
 // コントロールキーが押下されているか
 BOOL isControlPressed;
 
+// 描画の準備ができているか
+BOOL isRedrawPrepared;
+
 // ビューが作成されるときに呼び出される
 - (id)initWithFrame:(NSRect)frame {
     // メニューのタイトルを変更する https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
@@ -104,6 +107,13 @@ BOOL isControlPressed;
     // VSYNC待ちを有効にする
     // GLint vsync = GL_TRUE;
     // [[self openGLContext] setValues:&vsync forParameter:NSOpenGLCPSwapInterval];
+
+    // 初回描画におけるちらつきを抑える
+    // (これがないとAMD Radeonでは一瞬赤になる)
+    if (conf_window_white)
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    else
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // スクリーン拡大率を設定する
     screenScale = 1.0f;
@@ -160,6 +170,8 @@ BOOL isControlPressed;
     // OpenGLの描画を終了する
     opengl_end_rendering();
 
+    isRedrawPrepared = YES;
+
     // drawRectの呼び出しを予約する
     [self setNeedsDisplay:YES];
 }
@@ -170,8 +182,12 @@ BOOL isControlPressed;
 
     if (isFinished)
         return;
-
+    if (!isRedrawPrepared)
+        return;
+        
     [[self openGLContext] flushBuffer];
+
+    isRedrawPrepared = NO;
 }
 
 // マウス押下イベント

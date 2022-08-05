@@ -4,6 +4,18 @@ global {
     active: config-page2-active.png;
 }
 
+MIDORI {
+    type: charactervol;
+
+    index: 1;
+    file: 025.ogg;
+
+    x: 506;
+    y: 506;
+    width: 266;
+    height: 21;
+}
+
 DEFAULT {
     type: default;
 

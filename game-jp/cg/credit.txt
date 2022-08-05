@@ -9,6 +9,9 @@ click5.png by MaxMorgan
 config-active.png by MaxMorgan
 config-hover.png by MaxMorgan
 config-idle.png by MaxMorgan
+config-page2-active.png by MaxMorgan
+config-page2-hover.png by MaxMorgan
+config-page2-idle.png by MaxMorgan
 load-bg by heath (modified by ktabata)
 load-gb by heath (modified by ktabata)
 menu-hover.png by heath (modified by ktabata)

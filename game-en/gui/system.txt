@@ -29,12 +29,12 @@ AUTOSPEED {
 PREVIEW {
     type: preview;
 
-    msg: "This is a test message. Please confirm the text speed and auto mode speed here.";
+    msg: "これはメッセージのプレビューです。スピードを確認してね。";
 
-    x: 160;
-    y: 457;
-    width: 960;
-    height: 130;
+    x: 442;
+    y: 453;
+    width: 590;
+    height: 120;
 }
 
 BGM {
@@ -56,9 +56,20 @@ SE {
     x: 420;
     y: 339;
     width: 266;
-    height: 20;
+    height: 21;
 
     pointse: btn-change.ogg;
+}
+
+VOICE {
+    type: voicevol;
+
+    file: 025.ogg;
+
+    x: 68;
+    y: 498;
+    width: 266;
+    height: 21
 }
 
 FONT1 {

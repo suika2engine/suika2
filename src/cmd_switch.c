@@ -195,7 +195,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	if (need_history_mode)
 		start_history_mode();
 	if (need_config_mode) {
-		if (!prepare_gui_mode(NULL, true))
+		if (!prepare_gui_mode(NULL, true, true))
 			return false;
 		start_gui_mode();
 	}

@@ -61,7 +61,7 @@ static bool init(void)
 		cancel = false;
 
 	/* GUIファイルと指定された画像の読み込みを行う */
-	if (!prepare_gui_mode(file, cancel)) {
+	if (!prepare_gui_mode(file, cancel, false)) {
 		log_script_exec_footer();
 		return false;
 	}

@@ -24,39 +24,42 @@
 #define ASSERT_INVALID_BTN_INDEX (0)
 
 /* Unicodeコードポイント */
-#define CHAR_SPACE	(0x0020)
-#define CHAR_COMMA 	(0x002c)
-#define CHAR_PERIOD	(0x002e)
-#define CHAR_COLON	(0x003a)
-#define CHAR_SEMICOLON  (0x003b)
-#define CHAR_TOUTEN	(0x3001)
-#define CHAR_KUTEN	(0x3002)
-#define CHAR_BACKSLASH	(0x005c)
-#define CHAR_YENSIGN	(0x00a5)
-#define CHAR_SMALLN	(0x006e)
+#define CHAR_SPACE		(0x0020)
+#define CHAR_COMMA 		(0x002c)
+#define CHAR_PERIOD		(0x002e)
+#define CHAR_COLON		(0x003a)
+#define CHAR_SEMICOLON  	(0x003b)
+#define CHAR_TOUTEN		(0x3001)
+#define CHAR_KUTEN		(0x3002)
+#define CHAR_BACKSLASH		(0x005c)
+#define CHAR_YENSIGN		(0x00a5)
+#define CHAR_SMALLN		(0x006e)
 
 /* メッセージボックスボタンのインデックス */
-#define BTN_NONE	(-1)
-#define BTN_QSAVE	(0)
-#define BTN_QLOAD	(1)
-#define BTN_SAVE	(2)
-#define BTN_LOAD	(3)
-#define BTN_AUTO	(4)
-#define BTN_SKIP	(5)
-#define BTN_HISTORY	(6)
-#define BTN_CONFIG	(7)
-#define BTN_HIDE	(8)
+#define BTN_NONE		(-1)
+#define BTN_QSAVE		(0)
+#define BTN_QLOAD		(1)
+#define BTN_SAVE		(2)
+#define BTN_LOAD		(3)
+#define BTN_AUTO		(4)
+#define BTN_SKIP		(5)
+#define BTN_HISTORY		(6)
+#define BTN_CONFIG		(7)
+#define BTN_HIDE		(8)
 
 /* システムメニューのボタンのインデックス */
-#define SYSMENU_NONE	(-1)
-#define SYSMENU_QSAVE	(0)
-#define SYSMENU_QLOAD	(1)
-#define SYSMENU_SAVE	(2)
-#define SYSMENU_LOAD	(3)
-#define SYSMENU_AUTO	(4)
-#define SYSMENU_SKIP	(5)
-#define SYSMENU_HISTORY	(6)
-#define SYSMENU_CONFIG	(7)
+#define SYSMENU_NONE		(-1)
+#define SYSMENU_QSAVE		(0)
+#define SYSMENU_QLOAD		(1)
+#define SYSMENU_SAVE		(2)
+#define SYSMENU_LOAD		(3)
+#define SYSMENU_AUTO		(4)
+#define SYSMENU_SKIP		(5)
+#define SYSMENU_HISTORY		(6)
+#define SYSMENU_CONFIG		(7)
+
+/* コンフィグのGUIファイル */
+#define CONFIG_GUI_FILE		"system.txt"
 
 /* オートモードでボイスありのとき待ち時間 */
 #define AUTO_MODE_VOICE_WAIT		(4000)
@@ -302,7 +305,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (need_history_mode)
 		start_history_mode();
 	if (need_config_mode) {
-		if (!prepare_gui_mode(NULL, true))
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
 	}
@@ -508,7 +511,8 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 	/* ボイスを再生する */
 	if ((is_non_interruptible() &&
 	     (!history_flag &&
-	      (!restore_flag || !config_flag || !is_message_registered())))
+	      !config_flag &&
+	      (!restore_flag || !is_message_registered())))
 	    ||
 	    (!is_non_interruptible() &&
 	     !(is_skip_mode() && is_skippable()) &&

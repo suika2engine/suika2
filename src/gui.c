@@ -18,9 +18,6 @@
 
 #include "suika.h"
 
-/* デフォルトのGUIファイル */
-#define DEFAULT_FILE	"system.txt"
-
 /* ボタンの最大数 */
 #define BUTTON_COUNT	(128)
 
@@ -281,24 +278,16 @@ bool check_gui_flag(void)
 /*
  * GUIを準備する
  */
-bool prepare_gui_mode(const char *file, bool cancel)
+bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 {
 	assert(!flag_gui_mode);
 
 	/* ボタンをゼロクリアする */
 	memset(button, 0, sizeof(button));
 
-	/* GUI定義ファイルが指定されていない場合 */
-	if (file == NULL) {
-		/* メッセージかスイッチで右クリックされたと判断する */
-		is_called_from_command = file == NULL;
-
-		/* デフォルトのファイルを使う */
-		gui_file = DEFAULT_FILE;
-	} else {
-		/* 指定されたファイルを使う */
-		gui_file = file;
-	}
+	/* プロパティを保存する */
+	gui_file = file;
+	is_called_from_command = from_command;
 
 	/* GUIファイルを開く */
 	if (!load_gui_file(gui_file)) {
@@ -640,6 +629,9 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 static bool move_to_other_gui(void)
 {
 	char *file;
+	bool from_command;
+
+	from_command = is_called_from_command;
 
 	/* ファイル名をコピーする(cleanup_gui()によって参照不能となるため) */
 	file = strdup(button[result_index].file);
@@ -656,7 +648,7 @@ static bool move_to_other_gui(void)
 	cleanup_gui();
 
 	/* GUIをロードする */
-	if (!prepare_gui_mode(file, cancel_when_right_click)) {
+	if (!prepare_gui_mode(file, cancel_when_right_click, from_command)) {
 		free(file);
 		return false;
 	}
