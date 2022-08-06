@@ -691,12 +691,16 @@ static void process_button_point(int index)
 		return;
 
 	/* TYPE_FULLSCREENのとき、ボタンがアクティブならポイントできない */
-	if (b->type == TYPE_FULLSCREEN && b->rt.is_active)
+	if (b->type == TYPE_FULLSCREEN && b->rt.is_active) {
+		b->rt.is_pointed = false;
 		return;
+	}
 
 	/* TYPE_WINDOWのとき、ボタンがアクティブならポイントできない */
-	if (b->type == TYPE_WINDOW && b->rt.is_active)
+	if (b->type == TYPE_WINDOW && b->rt.is_active) {
+		b->rt.is_pointed = false;
 		return;
+	}
 
 	/* TYPE_PREVIEWのとき、ポイントできない */
 	if (b->type == TYPE_PREVIEW)
