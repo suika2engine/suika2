@@ -476,6 +476,14 @@ bool isgraph_extended(const char **mbs, uint32_t *wc)
 		return false;
 	*mbs += len;
 
+	/* アクセント付きラテンアルファベットの場合 */
+	if (*wc >= 0x00c0 && *wc <= 0x017f)
+		return true;
+
+	/* ギリシャ語の場合 */
+	if (*wc >= 0x0370 && *wc <= 0x3ff)
+		return true;
+
 	/* ロシア語の場合 */
 	if (*wc >= 0x410 && *wc <= 0x44f)
 		return true;
