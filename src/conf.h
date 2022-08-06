@@ -346,6 +346,7 @@ extern char *conf_ui_msg_quit;
 extern char *conf_ui_msg_title;
 extern char *conf_ui_msg_delete;
 extern char *conf_ui_msg_overwrite;
+extern char *conf_ui_msg_default;
 
 /*
  * その他の設定

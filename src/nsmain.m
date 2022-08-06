@@ -929,6 +929,24 @@ bool delete_dialog(void)
 }
 
 //
+// 初期設定ダイアログを表示する
+//
+bool default_dialog(void)
+{
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:
+                   [[NSString alloc] initWithUTF8String:conf_ui_msg_default]];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return true;
+        return false;
+    }
+}
+
+//
 // ビデオを再生する
 //
 bool play_video(const char *fname, bool is_skippable)

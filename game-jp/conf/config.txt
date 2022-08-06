@@ -302,7 +302,7 @@ history.cancel.se=click.ogg
 ###
 
 # システムメニュー画像の座標
-sysmenu.x=792
+sysmenu.x=731
 sysmenu.y=29
 
 # システムメニュー画像(通常時)のファイル名
@@ -357,10 +357,10 @@ sysmenu.history.width=60
 sysmenu.history.height=58
 
 # システムメニューのコンフィグボタンの座標(システムメニュー画像内での座標)
-sysmenu.config.x=0
-sysmenu.config.y=0
-sysmenu.config.width=0
-sysmenu.config.height=0
+sysmenu.config.x=489
+sysmenu.config.y=7
+sysmenu.config.width=60
+sysmenu.config.height=58
 
 # システムメニューを呼び出すときのSE(省略可)
 sysmenu.enter.se=click.ogg
@@ -498,6 +498,7 @@ ui.msg.quit=終了しますか？
 ui.msg.title=タイトルに戻りますか？
 ui.msg.delete=セーブデータを削除しますか？
 ui.msg.overwrite=セーブデータを上書きしますか？
+ui.msg.default=初期設定に戻しますか？
 
 ###
 ### その他

@@ -445,6 +445,15 @@ bool delete_dialog(void)
 }
 
 /*
+ * 初期設定ダイアログを表示する
+ */
+bool default_dialog(void)
+{
+	/* stub */
+	return true;
+}
+
+/*
  * サウンドが再生終了したか調べる
  */
 bool is_sound_finished(int stream)

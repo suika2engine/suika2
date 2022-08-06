@@ -29,7 +29,7 @@ AUTOSPEED {
 PREVIEW {
     type: preview;
 
-    msg: "これはメッセージのプレビューです。スピードを確認してね。";
+    msg: "This message is a preview of text speed and auto mode speed.";
 
     x: 442;
     y: 453;

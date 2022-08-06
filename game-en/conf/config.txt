@@ -309,7 +309,7 @@ history.cancel.se=click.ogg
 ###
 
 # Position to show the system menu image
-sysmenu.x=792
+sysmenu.x=731
 sysmenu.y=29
 
 # System menu image (base) file name
@@ -364,10 +364,10 @@ sysmenu.history.width=60
 sysmenu.history.height=58
 
 # Position of config button (Position inside system menu image)
-sysmenu.config.x=0
-sysmenu.config.y=0
-sysmenu.config.width=0
-sysmenu.config.height=0
+sysmenu.config.x=489
+sysmenu.config.y=7
+sysmenu.config.width=60
+sysmenu.config.height=58
 
 # Sound effect when system menu called (optional)
 sysmenu.enter.se=click.ogg
@@ -508,7 +508,8 @@ serif.color3.outline.b=0
 ui.msg.quit=Are you sure you want to quit?
 ui.msg.title=Are you sure you want to go to title?
 ui.msg.delete=Are you sure you want to delete the save data?
-ui.msg.delete=Are you sure you want to overwrite the save data?
+ui.msg.overwrite=Are you sure you want to overwrite the save data?
+ui.msg.default=Are you sure you want to reset the settings?
 
 ###
 ### Miscellaneous

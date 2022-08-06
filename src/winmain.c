@@ -972,6 +972,7 @@ static int ConvertKeyCode(int nVK)
 /* フルスクリーンモードの切り替えを行う */
 static void ToggleFullScreen(void)
 {
+	LONG style;
 	int cx, cy;
 
 #ifdef USE_DEBUGGER
@@ -1007,11 +1008,15 @@ static void ToggleFullScreen(void)
 
 		nOffsetX = 0;
 		nOffsetY = 0;
-		SetWindowLong(hWndMain, GWL_STYLE, (LONG)(WS_CAPTION |
-												  WS_SYSMENU |
-												  WS_MINIMIZEBOX |
-												  WS_MAXIMIZEBOX |
-												  WS_OVERLAPPED));
+
+		if (!conf_window_fullscreen_disable) {
+			style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
+				    WS_OVERLAPPED;
+		} else {
+			style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPED;
+		}
+
+		SetWindowLong(hWndMain, GWL_STYLE, style);
 		SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
 		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
 					 SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -1110,6 +1115,9 @@ static void OnPaint(void)
 			   SRCCOPY);
 	}
 	EndPaint(hWndMain, &ps);
+
+	if (bD3D)
+		D3DRedraw();
 }
 
 /*
@@ -1484,6 +1492,19 @@ bool overwrite_dialog(void)
 {
 	if (MessageBox(hWndMain,
 				   conv_utf8_to_native(conf_ui_msg_overwrite),
+				   mbszTitle,
+				   MB_OKCANCEL) == IDOK)
+		return true;
+	return false;
+}
+
+/*
+ * 初期設定ダイアログを表示する
+ */
+bool default_dialog(void)
+{
+	if (MessageBox(hWndMain,
+				   conv_utf8_to_native(conf_ui_msg_default),
 				   mbszTitle,
 				   MB_OKCANCEL) == IDOK)
 		return true;

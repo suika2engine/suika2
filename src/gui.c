@@ -870,10 +870,12 @@ static void process_button_click(int index)
 	/* ボタンのタイプごとにクリックを処理する */
 	switch (b->type) {
 	case TYPE_FULLSCREEN:
+		play_se(b->clickse, false);
 		enter_full_screen_mode();
 		update_runtime_props(false);
 		break;
 	case TYPE_WINDOW:
+		play_se(b->clickse, false);
 		leave_full_screen_mode();
 		update_runtime_props(false);
 		break;
@@ -888,11 +890,14 @@ static void process_button_click(int index)
 		reset_preview_all_buttons();
 		break;
 	case TYPE_DEFAULT:
-		set_text_speed(0.5f);
-		set_auto_speed(0.5f);
-		apply_initial_values();
-		update_runtime_props(true);
-		reset_preview_all_buttons();
+		if (default_dialog()) {
+			play_se(b->clickse, false);
+			set_text_speed(0.5f);
+			set_auto_speed(0.5f);
+			apply_initial_values();
+			update_runtime_props(true);
+			reset_preview_all_buttons();
+		}
 		break;
 	case TYPE_TITLE:
 		if (title_dialog())
@@ -970,6 +975,11 @@ static void process_button_draw_activatable(int index)
 	b = &button[index];
 	assert(b->type == TYPE_FONT || b->type == TYPE_FULLSCREEN ||
 	       b->type == TYPE_WINDOW);
+
+	/* フルスクリーンにできない場合 */
+	if (conf_window_fullscreen_disable)
+		if (b->type == TYPE_FULLSCREEN || b->type == TYPE_WINDOW)
+			return;
 
 	/* ポイントされているとき、hover画像を描画する */
 	if (b->rt.is_pointed) {
