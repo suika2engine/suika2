@@ -62,6 +62,15 @@ enum {
 	/* 別のGUIに移動するボタン */
 	TYPE_GUI,
 
+	/* セーブページボタン */
+	TYPE_SAVEPAGE,
+
+	/* セーブボタン */
+	TYPE_SAVE,
+
+	/* ロードボタン */
+	TYPE_LOAD,
+
 	/* タイトルに戻るボタン */
 	TYPE_TITLE,
 
@@ -86,6 +95,9 @@ static struct gui_button {
 	int y;
 	int width;
 	int height;
+
+	/* TYPE_SAVE/TYPE_LOAD */
+	int margin;
 
 	/* TYPE_GOTO, TYPE_GALLERY */
 	char *label;
@@ -188,6 +200,18 @@ static float transient_text_speed;
 /* ドラッグ中のオートモードスピード */
 static float transient_auto_speed;
 
+/* セーブ・ロードページのページ番号 */
+static int save_page;
+
+/* セーブ・ロードページの1ページあたりのスロット数 */
+static int save_slots;
+
+/* このフレームでセーブされたか */
+static bool is_saved_in_this_frame;
+
+/* SEの再生を控えるフレームであるか */
+static bool suppress_se;
+
 /*
  * 前方参照
  */
@@ -208,7 +232,15 @@ static void process_button_draw_slider(int index);
 static void process_button_draw_activatable(int index);
 static void process_button_draw_gallery(int index);
 static void process_play_se(void);
-static void play_se(const char *file, bool is_voice);
+static bool init_save_buttons(void);
+static void update_save_buttons(void);
+static void draw_save_button(int button_index);
+static int draw_save_text_item(int button_index, int x, int y,
+			       const char *text);
+static void draw_char(int index, uint32_t wc, int *width, int *height);
+static void process_save(int button_index);
+static void process_load(int button_index);
+static void process_button_draw_save(int button_index);
 static bool init_preview_buttons(void);
 static void reset_preview_all_buttons(void);
 static void reset_preview_button(int index);
@@ -216,9 +248,9 @@ static void process_button_draw_preview(int index);
 static void draw_message(int index);
 static int get_frame_chars(int index);
 static void word_wrapping(int index);
-static void draw_char(int index, uint32_t wc, int *width, int *height);
 static int get_en_word_width(const char *m);
 static int get_wait_time(int index);
+static void play_se(const char *file, bool is_voice);
 static bool load_gui_file(const char *file);
 
 /*
@@ -285,6 +317,12 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 	/* ボタンをゼロクリアする */
 	memset(button, 0, sizeof(button));
 
+	/* 初期値を設定する */
+	save_page = 0;
+	save_slots = 0;
+	is_saved_in_this_frame = false;
+	suppress_se = false;
+
 	/* プロパティを保存する */
 	gui_file = file;
 	is_called_from_command = from_command;
@@ -311,10 +349,48 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 		return false;
 	}
 
+	/* TYPE_SAVE/TYP_LOADのボタンの初期化を行う */
+	if (!init_save_buttons()) {
+		cleanup_gui();
+		return false;
+	}
+	update_save_buttons();
+
+	/* セーブされる場合に備えてサムネイルを描画する */
+	draw_stage_to_thumb();
+
 	/* 右クリックでキャンセルするか */
 	cancel_when_right_click = cancel;
 
 	return true;
+}
+
+/*
+ * GUIのロード時
+ */
+
+/* グローバルのキーと値を設定する */
+static bool set_global_key_value(const char *key, const char *val)
+{
+	if (strcmp(key, "idle") == 0) {
+		if (!load_gui_idle_image(val))
+			return false;
+		return true;
+	} else if (strcmp(key, "hover") == 0) {
+		if (!load_gui_hover_image(val))
+			return false;
+		return true;
+	} else if (strcmp(key, "active") == 0) {
+		if (!load_gui_active_image(val))
+			return false;
+		return true;
+	} else if (strcmp(key, "saveslots") == 0) {
+		save_slots = atoi(val);
+		return true;
+	}
+
+	log_gui_unknown_global_key(key);
+	return false;
 }
 
 /* ボタンを追加する */
@@ -369,6 +445,8 @@ static bool set_button_key_value(const int index, const char *key,
 		b->height = atoi(val);
 		if (b->height <= 0)
 			b->height = 1;
+	} else if (strcmp("margin", key) == 0) {
+		b->margin = atoi(val);
 	} else if (strcmp("label", key) == 0) {
 		b->label = strdup(val);
 		if (b->label == NULL) {
@@ -440,6 +518,9 @@ static int get_type_for_name(const char *name)
 		{"window", TYPE_WINDOW},
 		{"font", TYPE_FONT},
 		{"gui", TYPE_GUI},
+		{"savepage", TYPE_SAVEPAGE},
+		{"save", TYPE_SAVE},
+		{"load", TYPE_LOAD},
 		{"default", TYPE_DEFAULT},
 		{"title", TYPE_TITLE},
 		{"cancel", TYPE_CANCEL},
@@ -457,6 +538,10 @@ static int get_type_for_name(const char *name)
 	log_gui_unknown_button_type(name);
 	return TYPE_INVALID;
 }
+
+/*
+ * 実行時プロパティの更新
+ */
 
 /* ボタンの状態を更新する */
 static void update_runtime_props(bool is_first_time)
@@ -515,11 +600,21 @@ static void update_runtime_props(bool is_first_time)
 				break;
 			button[i].rt.is_active = !is_full_screen_mode();
 			break;
+		case TYPE_SAVEPAGE:
+			if (button[i].index == save_page)
+				button[i].rt.is_active = true;
+			else
+				button[i].rt.is_active = false;
+			break;
 		default:
 			break;
 		}
 	}
 }
+
+/*
+ * GUIの実行
+ */
 
 /*
  * GUIを開始する
@@ -603,8 +698,16 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 	}
 
 	/* SEを再生する */
-	if (!is_first_frame)
-		process_play_se();
+	if (!suppress_se) {
+		if (!is_first_frame)
+			process_play_se();
+		if (is_saved_in_this_frame) {
+			suppress_se = true;
+			is_saved_in_this_frame = false;
+		}
+	} else {
+		suppress_se = false;
+	}
 
 	/* ボタンが決定された場合 */
 	if (result_index != -1) {
@@ -663,8 +766,16 @@ static bool move_to_other_gui(void)
 /* タイトルに移動する */
 static bool move_to_title(void)
 {
+	const char *file;
+
+	file = button[result_index].file;
+
+	/* ファイルが指定されていない場合 */
+	if (file == NULL)
+		return true;
+
 	/* スクリプトをロードする */
-	if (!load_script(conf_save_title_txt))
+	if (!load_script(file))
 		return false;
 
 	/* @guiコマンドを実行中の場合はキャンセルする */
@@ -673,9 +784,14 @@ static bool move_to_title(void)
 
 	/* GUIを終了する */
 	stop_gui_mode();
+	cleanup_gui();
 
 	return true;
 }
+
+/*
+ * ボタンのポイント
+ */
 
 /* ボタンのポイント状態の変化を処理する */
 static void process_button_point(int index)
@@ -721,6 +837,10 @@ static void process_button_point(int index)
 	if (prev_pointed_status != b->rt.is_pointed)
 		is_pointed_changed = true;
 }
+
+/*
+ * ボタンのドラッグ
+ */
 
 /* ボリュームボタンのドラッグを処理する */
 static void process_button_drag(int index)
@@ -845,6 +965,10 @@ static float calc_slider_value(int index)
 	return val;
 }
 
+/*
+ * ボタンのクリック
+ */
+
 /* ボタンのクリックを処理する */
 static void process_button_click(int index)
 {
@@ -899,6 +1023,19 @@ static void process_button_click(int index)
 			reset_preview_all_buttons();
 		}
 		break;
+	case TYPE_SAVEPAGE:
+		save_page = b->index;
+		update_runtime_props(false);
+		update_save_buttons();
+		break;
+	case TYPE_SAVE:
+		process_save(index);
+		update_save_buttons();
+		break;
+	case TYPE_LOAD:
+		process_load(index);
+		result_index = index;
+		break;
 	case TYPE_TITLE:
 		if (title_dialog())
 			result_index = index;
@@ -908,6 +1045,10 @@ static void process_button_click(int index)
 		break;
 	}
 }
+
+/*
+ * ボタンの描画
+ */
 
 /* ボタンを描画する */
 static void process_button_draw(int index)
@@ -929,6 +1070,7 @@ static void process_button_draw(int index)
 	case TYPE_FONT:
 	case TYPE_FULLSCREEN:
 	case TYPE_WINDOW:
+	case TYPE_SAVEPAGE:
 		/* アクティブ化可能ボタンを描画する */
 		process_button_draw_activatable(index);
 		break;
@@ -939,6 +1081,11 @@ static void process_button_draw(int index)
 	case TYPE_PREVIEW:
 		/* プレビューを描画する */
 		process_button_draw_preview(index);
+		break;
+	case TYPE_SAVE:
+	case TYPE_LOAD:
+		/* セーブ・ロードボタンを描画する */
+		process_button_draw_save(index);
 		break;
 	default:
 		/* ボタンがポイントされているとき、hover画像を描画する */
@@ -974,7 +1121,7 @@ static void process_button_draw_activatable(int index)
 
 	b = &button[index];
 	assert(b->type == TYPE_FONT || b->type == TYPE_FULLSCREEN ||
-	       b->type == TYPE_WINDOW);
+	       b->type == TYPE_WINDOW || b->type == TYPE_SAVEPAGE);
 
 	/* フルスクリーンにできない場合 */
 	if (conf_window_fullscreen_disable)
@@ -1040,89 +1187,239 @@ static void process_play_se(void)
 		return;
 	}
 }
-	
-/*
- * 結果の取得
- */
 
 /*
- * GUIの実行結果のジャンプ先ラベルを取得する
+ * セーブ・ロード
  */
-const char *get_gui_result_label(void)
+
+/* TYPE_SAVE/TYPE_LOADのボタンの初期化を行う */
+static bool init_save_buttons(void)
 {
-	struct gui_button *b;
+	int i;
 
-	if (result_index == -1)
-		return NULL;
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_SAVE && button[i].type != TYPE_LOAD)
+			continue;
 
-	b = &button[result_index];
+		button[i].rt.img = create_image(button[i].width,
+						button[i].height);
+		if (button[i].rt.img == NULL)
+			return false;
 
-	if (b->type != TYPE_GOTO && b->type != TYPE_GALLERY)
-		return NULL;
-
-	return b->label;
-}
-
-/*
- * GUIの実行結果が終了であるかを取得する
- */
-bool is_gui_result_exit(void)
-{
-	struct gui_button *b;
-
-	if (result_index == -1)
-		return false;
-
-	b = &button[result_index];
-
-	if (b->type != TYPE_QUIT)
-		return false;
+		button[i].rt.color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_color_r,
+					(pixel_t)conf_font_color_g,
+					(pixel_t)conf_font_color_b);
+		button[i].rt.outline_color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
+	}
 
 	return true;
 }
 
-/*
- * グローバル設定
- */
-
-/* グローバルのキーと値を設定する */
-static bool set_global_key_value(const char *key, const char *val)
+/* セーブ・ロードのスロットを描画する */
+static void update_save_buttons(void)
 {
-	if (strcmp(key, "idle") == 0) {
-		if (!load_gui_idle_image(val))
-			return false;
-		return true;
-	} else if (strcmp(key, "hover") == 0) {
-		if (!load_gui_hover_image(val))
-			return false;
-		return true;
-	} else if (strcmp(key, "active") == 0) {
-		if (!load_gui_active_image(val))
-			return false;
-		return true;
-	}
+	int i, base, save_index;
 
-	log_gui_unknown_global_key(key);
-	return false;
+	base = save_slots * save_page;
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_SAVE && button[i].type != TYPE_LOAD)
+			continue;
+
+		save_index = base + button[i].index;
+
+		if (get_save_date(save_index) != 0)
+			button[i].rt.is_active = true;
+		else
+			button[i].rt.is_active = false;
+
+		draw_save_button(i);
+	}
 }
 
-/*
- * SEの再生
- */
-
-/* SEを再生する */
-static void play_se(const char *file, bool is_voice)
+/* セーブ・ロードボタンを描画する */
+static void draw_save_button(int button_index)
 {
-	struct wave *w;
+	char text[128];
+	struct gui_button *b;
+	struct image *thumb;
+	struct tm *timeptr;
+	const char *chapter, *msg;
+	time_t save_time;
+	int save_index;
+	int width;
 
-	if (file == NULL || strcmp(file, "") == 0)
+	b = &button[button_index];
+	if (b->rt.img == NULL)
 		return;
 
-	w = create_wave_from_file(is_voice ? CV_DIR : SE_DIR, file, false);
-	if (w == NULL)
+	/* セーブデータ番号を求める */
+	save_index = save_slots * save_page + b->index;
+
+	/* セーブ時刻を求める */
+	save_time = get_save_date(save_index);
+
+	/* イメージをロックする */
+	lock_image(b->rt.img);
+
+	/* イメージをクリアする */
+	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0xff, 0));
+
+	/* サムネイルを描画する */
+	thumb = get_save_thumbnail(save_index);
+	if (thumb != NULL) {
+		draw_image(b->rt.img, b->margin, b->margin, thumb,
+			   conf_save_data_thumb_width,
+			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
+	}
+
+	/* 日時を描画する */
+	if (get_save_date(save_index) == 0) {
+		snprintf(text, sizeof(text), "[%02d] NO DATA", save_index);
+	} else {
+		timeptr = localtime(&save_time);
+		snprintf(text, sizeof(text), "[%02d] ", save_index);
+		strftime(&text[5], sizeof(text) - 5, "%y/%m/%d %H:%M ",
+			 timeptr);
+	}
+	width = draw_save_text_item(button_index,
+				    conf_save_data_thumb_width + b->margin * 2,
+				    b->margin, text);
+
+	/* 章タイトルを描画する */
+	chapter = get_save_chapter_name(save_index);
+	if (chapter != NULL) {
+		draw_save_text_item(button_index,
+				    conf_save_data_thumb_width +
+				    b->margin * 2 + width,
+				    b->margin, chapter);
+	}
+
+	/* 最後のメッセージを描画する */
+	msg = get_save_last_message(save_index);
+	if (msg) {
+		draw_save_text_item(button_index,
+				    conf_save_data_thumb_width + b->margin * 2,
+				    b->margin + conf_msgbox_margin_line,
+				    msg);
+	}
+
+	/* イメージをアンロックする */
+	unlock_image(b->rt.img);
+}
+
+/* セーブデータのテキストを描画する */
+static int draw_save_text_item(int button_index, int x, int y,
+			       const char *text)
+{
+	uint32_t wc;
+	int mblen, cw, ch, result;
+
+	button[button_index].rt.pen_x = x;
+	button[button_index].rt.pen_y = y;
+
+	/* 1文字ずつ描画する */
+	result = 0;
+	while (*text != '\0' && *text != '\\') {
+		/* 描画する文字を取得する */
+		mblen = utf8_to_utf32(text, &wc);
+		if (mblen == -1)
+			return 0;
+
+		/* 文字の幅を取得する */
+		cw = get_glyph_width(wc);
+		if (button[button_index].rt.pen_x + cw >=
+		    button[button_index].width)
+			break;
+
+		/* 描画する */
+		draw_char(button_index, wc, &cw, &ch);
+		button[button_index].rt.pen_x += cw;
+		result += cw;
+
+		/* 次の文字へ移動する */
+		text += mblen;
+	}
+
+	return result;
+}
+
+/* 文字を描画する */
+static void draw_char(int index, uint32_t wc, int *width, int *height)
+{
+	draw_glyph(button[index].rt.img,
+		   button[index].rt.pen_x,
+		   button[index].rt.pen_y,
+		   button[index].rt.color,
+		   button[index].rt.outline_color,
+		   wc,
+		   width,
+		   height);
+}
+
+/* セーブを行う */
+static void process_save(int button_index)
+{
+	int data_index;
+
+	/* ボタン番号からセーブデータ番号に変換する */
+	data_index = save_page * save_slots + button[button_index].index;
+
+	/* プロンプトを表示する */
+	if (get_save_date(data_index) != 0)
+		if (!overwrite_dialog())
+			return;
+
+	/* SEを再生する */
+	play_se(button[button_index].clickse, false);
+
+	/* セーブを実行する */
+	execute_save(data_index);
+
+	/*
+	 * セーブ直後に上書きダイアログのボタンをクリックするためにマウスが
+	 * 移動され、ポイント項目が変わってしまい、セーブボタンのSEがかき消さ
+	 * れることを回避する。
+	 */
+	is_saved_in_this_frame = true;
+}
+
+/* ロードを行う */
+static void process_load(int button_index)
+{
+	int data_index;
+
+	/* ボタン番号からセーブデータ番号に変換する */
+	data_index = save_page * save_slots + button[button_index].index;
+
+	/* セーブデータがない場合 */
+	if (get_save_date(data_index) == 0)
 		return;
 
-	set_mixer_input(is_voice ? VOICE_STREAM : SE_STREAM, w);
+	/* ロードを実行する */
+	execute_load(data_index);
+}
+
+/* セーブ・ロードボタンの描画を行う */
+static void process_button_draw_save(int button_index)
+{
+	/* ポイントされているときの描画を行う */
+	if (button[button_index].rt.is_pointed) {
+		draw_stage_gui_hover(button[button_index].x,
+				     button[button_index].y,
+				     button[button_index].width,
+				     button[button_index].height);
+	}
+
+	/* サムネイルとテキストの描画を行う */
+	render_image(button[button_index].x, button[button_index].y,
+		     button[button_index].rt.img, button[button_index].width,
+		     button[button_index].height, 0, 0, 255, BLEND_FAST);
 }
 
 /*
@@ -1260,6 +1557,7 @@ static void draw_message(int index)
 		return;
 
 	/* 1文字ずつ描画する */
+	lock_image(button[index].rt.img);
 	for (i = 0; i < char_count; i++) {
 		/* ワードラッピングを処理する */
 		word_wrapping(index);
@@ -1294,6 +1592,7 @@ static void draw_message(int index)
 		button[index].rt.top += mblen;
 		button[index].rt.drawn_chars++;
 	}
+	unlock_image(button[index].rt.img);
 }
 
 /* 今回のフレームで描画する文字数を取得する */
@@ -1346,21 +1645,6 @@ static int get_en_word_width(const char *m)
 	return width;
 }
 
-/* 文字を描画する */
-static void draw_char(int index, uint32_t wc, int *width, int *height)
-{
-	lock_image(button[index].rt.img);
-	draw_glyph(button[index].rt.img,
-		   button[index].rt.pen_x,
-		   button[index].rt.pen_y,
-		   button[index].rt.color,
-		   button[index].rt.outline_color,
-		   wc,
-		   width,
-		   height);
-	unlock_image(button[index].rt.img);
-}
-
 /* オートモードの待ち時間を計算する */
 static int get_wait_time(int index)
 {
@@ -1373,6 +1657,65 @@ static int get_wait_time(int index)
 
 	return (int)((float)button[index].rt.total_chars * scale *
 		     get_auto_speed() * 1000.0f);
+}
+
+/*
+ * 結果の取得
+ */
+
+/*
+ * GUIの実行結果のジャンプ先ラベルを取得する
+ */
+const char *get_gui_result_label(void)
+{
+	struct gui_button *b;
+
+	if (result_index == -1)
+		return NULL;
+
+	b = &button[result_index];
+
+	if (b->type != TYPE_GOTO && b->type != TYPE_GALLERY)
+		return NULL;
+
+	return b->label;
+}
+
+/*
+ * GUIの実行結果が終了であるかを取得する
+ */
+bool is_gui_result_exit(void)
+{
+	struct gui_button *b;
+
+	if (result_index == -1)
+		return false;
+
+	b = &button[result_index];
+
+	if (b->type != TYPE_QUIT)
+		return false;
+
+	return true;
+}
+
+/*
+ * SEの再生
+ */
+
+/* SEを再生する */
+static void play_se(const char *file, bool is_voice)
+{
+	struct wave *w;
+
+	if (file == NULL || strcmp(file, "") == 0)
+		return;
+
+	w = create_wave_from_file(is_voice ? CV_DIR : SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(is_voice ? VOICE_STREAM : SE_STREAM, w);
 }
 
 /*

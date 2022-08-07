@@ -344,17 +344,19 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	FT_Glyph_StrokeBorder(&glyph, stroker, false, true);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
-	draw_glyph_func(bitmapGlyph->bitmap.buffer,
-			(int)bitmapGlyph->bitmap.width,
-			(int)bitmapGlyph->bitmap.rows,
-			bitmapGlyph->left,
-			conf_font_size - bitmapGlyph->top,
-			get_image_pixels(img),
-			get_image_width(img),
-			get_image_height(img),
-			x,
-			y,
-			outline_color);
+	if (img != NULL) {
+		draw_glyph_func(bitmapGlyph->bitmap.buffer,
+				(int)bitmapGlyph->bitmap.width,
+				(int)bitmapGlyph->bitmap.rows,
+				bitmapGlyph->left,
+				conf_font_size - bitmapGlyph->top,
+				get_image_pixels(img),
+				get_image_width(img),
+				get_image_height(img),
+				x,
+				y,
+				outline_color);
+	}
 	descent = (int)(face->glyph->metrics.height / SCALE) -
 		  (int)(face->glyph->metrics.horiBearingY / SCALE);
 	*w = (int)face->glyph->advance.x / SCALE;
@@ -370,17 +372,19 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	FT_Get_Glyph(face->glyph, &glyph);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
-	draw_glyph_func(bitmapGlyph->bitmap.buffer,
-			(int)bitmapGlyph->bitmap.width,
-			(int)bitmapGlyph->bitmap.rows,
-			bitmapGlyph->left,
-			conf_font_size - bitmapGlyph->top,
-			get_image_pixels(img),
-			get_image_width(img),
-			get_image_height(img),
-			x,
-			y,
-			color);
+	if (img != NULL) {
+		draw_glyph_func(bitmapGlyph->bitmap.buffer,
+				(int)bitmapGlyph->bitmap.width,
+				(int)bitmapGlyph->bitmap.rows,
+				bitmapGlyph->left,
+				conf_font_size - bitmapGlyph->top,
+				get_image_pixels(img),
+				get_image_width(img),
+				get_image_height(img),
+				x,
+				y,
+				color);
+	}
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
 

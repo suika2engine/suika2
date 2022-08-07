@@ -136,18 +136,6 @@ static struct image *news_bg_image;
 /* NEWS(選択)のイメージ */
 static struct image *news_fg_image;
 
-/* セーブ画面(非選択)のイメージ */
-static struct image *save_bg_image;
-
-/* セーブ画面(選択)のイメージ */
-static struct image *save_fg_image;
-
-/* ロード画面(非選択)のイメージ */
-static struct image *load_bg_image;
-
-/* ロード画面(選択)のイメージ */
-static struct image *load_fg_image;
-
 /* システムメニュー(非選択)のイメージ */
 static struct image *sysmenu_idle_image;
 
@@ -238,7 +226,6 @@ static bool setup_msgbox(void);
 static bool setup_click(void);
 static bool setup_switch(void);
 static bool setup_news(void);
-static bool setup_save(void);
 static bool setup_sysmenu(void);
 static bool setup_banner(void);
 static bool setup_thumb(void);
@@ -342,10 +329,6 @@ bool init_stage(void)
 
 	/* NEWSをセットアップする */
 	if (!setup_news())
-		return false;
-
-	/* セーブ画面をセットアップする */
-	if (!setup_save())
 		return false;
 
 	/* システムメニューをセットアップする */
@@ -588,50 +571,6 @@ static bool setup_news(void)
 	return true;
 }
 
-/* セーブ画面をセットアップする */
-static bool setup_save(void)
-{
-	/* 再初期化時に破棄する */
-	if (save_bg_image != NULL) {
-		destroy_image(save_bg_image);
-		save_bg_image = NULL;
-	}
-	if (save_fg_image != NULL) {
-		destroy_image(save_fg_image);
-		save_fg_image = NULL;
-	}
-	if (load_bg_image != NULL) {
-		destroy_image(load_bg_image);
-		load_bg_image = NULL;
-	}
-	if (load_fg_image != NULL) {
-		destroy_image(load_fg_image);
-		load_fg_image = NULL;
-	}
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	save_bg_image = create_image_from_file(CG_DIR, conf_save_save_bg_file);
-	if (save_bg_image == NULL)
-		return false;
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	save_fg_image = create_image_from_file(CG_DIR, conf_save_save_fg_file);
-	if (save_fg_image == NULL)
-		return false;
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	load_bg_image = create_image_from_file(CG_DIR, conf_save_load_bg_file);
-	if (load_bg_image == NULL)
-		return false;
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	load_fg_image = create_image_from_file(CG_DIR, conf_save_load_fg_file);
-	if (load_fg_image == NULL)
-		return false;
-
-	return true;
-}
-
 /* システムメニューをセットアップする */
 static bool setup_sysmenu(void)
 {
@@ -853,22 +792,6 @@ void cleanup_stage(void)
 		destroy_image(news_fg_image);
 		news_fg_image = NULL;
 	}
-	if (save_bg_image != NULL) {
-		destroy_image(save_bg_image);
-		save_bg_image = NULL;
-	}
-	if (save_fg_image != NULL) {
-		destroy_image(save_fg_image);
-		save_fg_image = NULL;
-	}
-	if (load_bg_image != NULL) {
-		destroy_image(load_bg_image);
-		load_bg_image = NULL;
-	}
-	if (load_fg_image != NULL) {
-		destroy_image(load_fg_image);
-		load_fg_image = NULL;
-	}
 	if (sysmenu_idle_image != NULL) {
 		destroy_image(sysmenu_idle_image);
 		sysmenu_idle_image = NULL;
@@ -947,7 +870,6 @@ static void destroy_layer_image(int layer)
  */
 void draw_stage(void)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -968,7 +890,6 @@ void draw_stage_keep(void)
  */
 void draw_stage_rect(int x, int y, int w, int h)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
@@ -1024,7 +945,6 @@ void set_rule_image(struct image *img)
  */
 void draw_stage_bg_fade(int fade_method)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
@@ -1040,7 +960,6 @@ void draw_stage_bg_fade(int fade_method)
  */
 void draw_stage_ch_fade(int fade_method)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_CH_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
@@ -1165,7 +1084,6 @@ static void draw_stage_fi_fo_fade_rule(void)
 {
 	int threshold;
 
-	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_BG_FADE ||
 	       stage_mode == STAGE_MODE_CH_FADE);
 	assert(rule_img != NULL);
@@ -2026,7 +1944,6 @@ void draw_stage_with_button_keep(int x, int y, int w, int h)
 void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 				  int new_x, int new_y, int new_w, int new_h)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -2053,7 +1970,6 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 void draw_stage_history(void)
 {
 	assert(is_history_mode());
-	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -3340,42 +3256,6 @@ void draw_news_fg_image(int x, int y)
 		   get_image_width(img),
 		   get_image_height(img),
 		   0, 0, 255, BLEND_NORMAL);
-}
-
-/*
- * セーブ画面の描画
- */
-
-/*
- * セーブ画面用にFI/FOレイヤをクリアする
- */
-void clear_save_stage(void)
-{
-	draw_image(layer_image[LAYER_FO], 0, 0, save_bg_image,
-		   get_image_width(layer_image[LAYER_FO]),
-		   get_image_height(layer_image[LAYER_FO]),
-		   0, 0, 255, BLEND_NONE);
-
-	draw_image(layer_image[LAYER_FI], 0, 0, save_fg_image,
-		   get_image_width(layer_image[LAYER_FI]),
-		   get_image_height(layer_image[LAYER_FI]),
-		   0, 0, 255, BLEND_NONE);
-}
-
-/*
- * ロード画面用にFI/FOレイヤをクリアする
- */
-void clear_load_stage(void)
-{
-	draw_image(layer_image[LAYER_FO], 0, 0, load_bg_image,
-		   get_image_width(layer_image[LAYER_FO]),
-		   get_image_height(layer_image[LAYER_FO]),
-		   0, 0, 255, BLEND_NONE);
-
-	draw_image(layer_image[LAYER_FI], 0, 0, load_fg_image,
-		   get_image_width(layer_image[LAYER_FI]),
-		   get_image_height(layer_image[LAYER_FI]),
-		   0, 0, 255, BLEND_NONE);
 }
 
 /*

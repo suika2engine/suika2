@@ -188,10 +188,15 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	/* セーブ・ロード・ヒストリ画面に移行する */
 	if (need_save_mode) {
 		draw_stage_fo_thumb();
-		start_save_mode(false);
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
 	}
-	if (need_load_mode)
-		start_load_mode(false);
+	if (need_load_mode) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
 	if (need_history_mode)
 		start_history_mode();
 	if (need_config_mode) {
@@ -479,7 +484,6 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	*h = 0;
 
 	/* セーブ画面かヒストリ画面から復帰した場合のフラグをクリアする */
-	check_restore_flag();
 	check_history_flag();
 
 	/* 初回描画の場合 */

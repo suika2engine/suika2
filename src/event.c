@@ -25,6 +25,8 @@
  */
 bool on_event_init(void)
 {
+	int w, h;
+
 	/* 変数の初期化処理を行う */
 	init_vars();
 
@@ -63,9 +65,7 @@ bool on_event_init(void)
 	init_game_loop();
 
 	/* フォントのプリロードを行う */
-	lock_draw_char_on_fo_fi();
-	draw_char_on_fo_fi(0, 0, 'A');
-	unlock_draw_char_on_fo_fi();
+	draw_glyph(NULL, 0, 0, 0, 0, 'A', &w, &h);
 
 	return true;
 }

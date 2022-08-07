@@ -37,11 +37,21 @@ bool goto_command(bool *cont)
 		/* 画面を描画する */
 		draw_stage();
 
+		/* 最後のコマンドを実行中なら、ロードできない */
+		if (is_final_command()) {
+			log_script_final_command();
+			return false;
+		}
+
 		/* セーブロードを有効にする */
 		set_save_load(true);
 
 		/* ロード画面を開始する */
-		start_load_mode(true);
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, false)) {
+			log_script_exec_footer();
+			return false;
+		}
+		start_gui_mode();
 
 		/* キャンセルされた場合のために次のコマンドへ移動しておく */
 		return move_to_next_command();
@@ -54,9 +64,6 @@ bool goto_command(bool *cont)
 
 		/* 画面を描画する */
 		draw_stage();
-
-		/* サムネイルを描画する */
-		draw_stage_to_thumb();
 
 		/* 最後のメッセージを空白にする */
 		set_last_message("");
@@ -71,12 +78,15 @@ bool goto_command(bool *cont)
 		set_save_load(true);
 
 		/* セーブ画面を開始する */
-		start_save_mode(true);
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, false)) {
+			log_script_exec_footer();
+			return false;
+		}
+		start_gui_mode();
 
 		/*
 		 * キャンセルかセーブされた場合のために
 		 * 次のコマンドへ移動しておく
-		 *  - これによりget_command_index()がインクリメントされる
 		 */
 		return move_to_next_command();
 	}

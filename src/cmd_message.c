@@ -137,11 +137,8 @@ static bool is_hidden;
 /* ヒストリ画面から戻ったばかりであるか */
 static bool history_flag;
 
-/* セーブ画面から戻ったばかりであるか */
-static bool restore_flag;
-
-/* コンフィグ画面から戻ったばかりであるか */
-static bool config_flag;
+/* GUI画面から戻ったばかりであるか */
+static bool gui_flag;
 
 /* 文字列がエスケープ中か */
 static bool escaped;
@@ -295,13 +292,17 @@ bool message_command(int *x, int *y, int *w, int *h)
 		draw_collapsed_sysmenu(x, y, w, h);
 	is_sysmenu_finished = false;
 
-	/* セーブ・ロード・ヒストリモードへ遷移する */
+	/* セーブ・ロード・ヒストリ・コンフィグモードへ遷移する */
 	if (need_save_mode) {
-		draw_stage_to_thumb();
-		start_save_mode(false);
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
 	}
-	if (need_load_mode)
-		start_load_mode(false);
+	if (need_load_mode) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
 	if (need_history_mode)
 		start_history_mode();
 	if (need_config_mode) {
@@ -457,14 +458,9 @@ static bool register_message_for_history(void)
 	if (history_flag)
 		return true;
 
-	/* セーブ画面から戻ったばかりの場合、2重登録を防ぐ */
-	restore_flag = check_restore_flag();
-	if (restore_flag && is_message_registered())
-		return true;
-
-	/* コンフィグ画面から戻ったばかりの場合、2重登録を防ぐ */
-	config_flag = check_gui_flag();
-	if (config_flag && is_message_registered())
+	/* GUI画面から戻ったばかりの場合、2重登録を防ぐ */
+	gui_flag = check_gui_flag();
+	if (gui_flag && is_message_registered())
 		return true;
 
 	/* 名前、ボイスファイル名、メッセージを取得する */
@@ -511,16 +507,16 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 	/* ボイスを再生する */
 	if ((is_non_interruptible() &&
 	     (!history_flag &&
-	      !config_flag &&
-	      (!restore_flag || !is_message_registered())))
+	      !gui_flag &&
+	      !is_message_registered()))
 	    ||
 	    (!is_non_interruptible() &&
 	     !(is_skip_mode() && is_skippable()) &&
 	     ((!is_control_pressed ||
 	       (is_control_pressed && !is_skippable())) &&
 	      !history_flag &&
-	      !config_flag &&
-	      (!restore_flag || !is_message_registered())))) {
+	      !gui_flag &&
+	      !is_message_registered()))) {
 		/* いったんボイスなしの判断にしておく(あとで変更する) */
 		have_voice = false;
 
@@ -763,7 +759,7 @@ static int get_frame_chars(void)
 	}
 
 	/* セーブ画面かヒストリ画面かコンフィグ画面から復帰した場合 */
-	if (restore_flag || history_flag || config_flag) {
+	if (history_flag || gui_flag) {
 		/* すべての文字を描画する */
 		return total_chars;
 	}
@@ -897,7 +893,7 @@ static void check_stop_click_animation(void)
 			     is_mixer_sound_finished(VOICE_STREAM)))
 				stop_command_repetition();
 		}
-	} else if ((restore_flag || history_flag || config_flag) &&
+	} else if ((history_flag || gui_flag) &&
 		   !process_click_first &&
 		   (is_return_pressed || is_down_pressed ||
 		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
@@ -1028,7 +1024,7 @@ static void init_first_draw_area(int *x, int *y, int *w, int *h)
 {
 	/* 初回に描画する矩形を求める */
 	if (check_menu_finish_flag() || check_retrospect_finish_flag() ||
-	    restore_flag || history_flag || config_flag) {
+	    history_flag || gui_flag) {
 		/* メニューコマンドが終了したばかりの場合 */
 		*x = 0;
 		*y = 0;
@@ -1634,7 +1630,7 @@ static bool check_auto_play_condition(void)
 	 *  - 表示は瞬時に終わり、ボイスも再生されていない
 	 *  - すでに表示完了しているとみなす
 	 */
-	if (restore_flag || history_flag || config_flag)
+	if (history_flag || gui_flag)
 		return true;
 
 	/*

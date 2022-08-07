@@ -1,0 +1,95 @@
+global {
+    idle:   save-idle.png;
+    hover:  save-hover.png;
+    active: save-active.png;
+
+    saveslots: 3;
+}
+
+PAGE1 {
+    type: savepage;
+
+    index: 0;
+
+    x: 1137;
+    y: 0;
+    width: 70;
+    height: 63;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+PAGE2 {
+    type: savepage;
+
+    index: 1;
+
+    x: 1206;
+    y: 0;
+    width: 70;
+    height: 63;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+SAVESLOT1 {
+    type: save;
+
+    index: 0;
+
+    x: 50;
+    y: 138;
+    width: 1106;
+    height: 140;
+
+    margin: 10;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+SAVESLOT2 {
+    type: save;
+
+    index: 1;
+
+    x: 50;
+    y: 283;
+    width: 1106;
+    height: 140;
+
+    margin: 10;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+SAVESLOT3 {
+    type: save;
+
+    index: 2;
+
+    x: 50;
+    y: 429;
+    width: 1106;
+    height: 140;
+
+    margin: 10;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+BACK {
+    type: cancel;
+
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}

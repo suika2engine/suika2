@@ -336,16 +336,6 @@ void draw_news_bg_image(int x, int y);
 /* FIレイヤにNEWSの選択イメージを描画する */
 void draw_news_fg_image(int x, int y);
 
-/*
- * セーブ画面の描画
- */
-
-/* セーブ画面用にFI/FOレイヤをクリアする */
-void clear_save_stage(void);
-
-/* ロード画面用にFI/FOレイヤをクリアする */
-void clear_load_stage(void);
-
 /* FO/FIの2レイヤに文字を描画する前にロックする */
 void lock_draw_char_on_fo_fi(void);
 

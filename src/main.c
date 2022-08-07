@@ -119,7 +119,6 @@ void init_game_loop(void)
 	/* Android NDK用に状態を初期化する */
 	check_menu_finish_flag();
 	check_retrospect_finish_flag();
-	check_restore_flag();
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
@@ -134,11 +133,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 {
 	bool cont;
 
-	if (is_save_load_mode()) {
-		/* セーブ画面を実行する */
-		if (!run_save_load_mode(x, y, w, h))
-			return false; /* 終了ボタンが押下された */
-	} else if (is_history_mode()) {
+	if (is_history_mode()) {
 		/* ヒストリ画面を実行する */
 		run_history_mode(x, y, w, h);
 	} else if (is_gui_mode()) {
@@ -146,10 +141,17 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 		if (!run_gui_mode(x, y, w, h))
 			return false; /* 終了ボタンが押下された */
 
-		/* @guiが終了する場合 */
-		if (!is_gui_mode() && is_in_repetition)
-			if (!gui_command(x, y, w, h))
-				return false;
+		/* GUIモードが終了した場合 */
+		if (!is_gui_mode()) {
+			/* ロードされたときのために終了処理を行う */
+			if (!is_in_repetition)
+				cleanup_gui();
+
+			/* @guiが終了する場合 */
+			if (is_in_repetition)
+				if (!gui_command(x, y, w, h))
+					return false;
+		}
 	} else {
 		/* コマンドを実行する */
 		do {

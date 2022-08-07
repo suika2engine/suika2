@@ -177,54 +177,8 @@ extern char *conf_retrospect_change_se;
 /*
  * セーブ・ロード画面の設定
  */
-extern char *conf_save_save_bg_file;
-extern char *conf_save_save_fg_file;
-extern char *conf_save_load_bg_file;
-extern char *conf_save_load_fg_file;
-extern char *conf_save_prev_se;
-extern int conf_save_prev_x;
-extern int conf_save_prev_y;
-extern int conf_save_prev_width;
-extern int conf_save_prev_height;
-extern char *conf_save_next_se;
-extern int conf_save_next_x;
-extern int conf_save_next_y;
-extern int conf_save_next_width;
-extern int conf_save_next_height;
-extern char *conf_save_data_save_se;
-extern char *conf_save_data_load_se;
-extern int conf_save_data_width;
-extern int conf_save_data_height;
-extern int conf_save_data_margin_left;
-extern int conf_save_data_margin_top;
 extern int conf_save_data_thumb_width;
 extern int conf_save_data_thumb_height;
-extern int conf_save_data_delete_x;
-extern int conf_save_data_delete_y;
-extern int conf_save_data_delete_width;
-extern int conf_save_data_delete_height;
-extern int conf_save_data1_x;
-extern int conf_save_data1_y;
-extern int conf_save_data2_x;
-extern int conf_save_data2_y;
-extern int conf_save_data3_x;
-extern int conf_save_data3_y;
-extern char *conf_save_exit_se;
-extern int conf_save_exit_x;
-extern int conf_save_exit_y;
-extern int conf_save_exit_width;
-extern int conf_save_exit_height;
-extern char *conf_save_title_se;
-extern int conf_save_title_x;
-extern int conf_save_title_y;
-extern int conf_save_title_width;
-extern int conf_save_title_height;
-extern char *conf_save_title_txt;
-extern char *conf_save_loadtosave_se;
-extern char *conf_save_savetoload_se;
-extern char *conf_save_cancel_save_se;
-extern char *conf_save_cancel_load_se;
-extern char *conf_save_change_se;
 
 /*
  * ヒストリ画面の設定

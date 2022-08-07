@@ -142,6 +142,8 @@ PAGE2 {
 TITLE {
     type: title;
 
+    file: init.txt;
+
     x: 1007;
     y: 652;
     width: 109;
