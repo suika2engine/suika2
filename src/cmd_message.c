@@ -648,8 +648,8 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	for (i = 0; i < char_count; i++) {
 		/* ワードラッピングを処理する */
 		if (is_after_space) {
-			if (pen_x + get_en_word_width() >= msgbox_w -
-			    conf_msgbox_margin_right) {
+			if (pen_x + get_en_word_width() >=
+			    msgbox_w - conf_msgbox_margin_right) {
 				pen_y += conf_msgbox_margin_line;
 				pen_x = conf_msgbox_margin_left;
 			}

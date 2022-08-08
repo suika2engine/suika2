@@ -466,6 +466,7 @@ bool isgraph_extended(const char **mbs, uint32_t *wc)
 
 	/* 英語のアルファベットと記号の場合 */
 	if (isgraph((unsigned char)**mbs)) {
+		*wc = (unsigned char)**mbs;
 		(*mbs)++;
 		return true;
 	}
