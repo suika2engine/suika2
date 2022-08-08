@@ -1664,33 +1664,23 @@ static void draw_history_text_item(int button_index)
 	const char *text;
 	uint32_t c;
 	int mblen, width, height;
-	bool is_after_space = true, escaped = false;
+	bool escaped = false;
 
 	/* メッセージを取得する */
 	text = get_history_message(button[button_index].rt.history_offset);
 
-	/* 描画開始位置を決定する */
+	/* 描画情報を格納する */
 	button[button_index].rt.pen_x = button[button_index].margin;
 	button[button_index].rt.pen_y = button[button_index].margin;
+	button[button_index].rt.top = text;
 
 	/* 1文字ずつ描画する */
-	while (*text != '\0') {
+	while (*button[button_index].rt.top != '\0') {
 		/* ワードラッピングを処理する */
-		if (is_after_space) {
-			if (button[button_index].rt.pen_x +
-			    get_en_word_width(text) >=
-			    button[button_index].width -
-			    button[button_index].margin) {
-				button[button_index].rt.pen_y +=
-					conf_msgbox_margin_line;
-				button[button_index].rt.pen_x =
-					button[button_index].margin;
-			}
-		}
-		is_after_space = *text == ' ';
+		word_wrapping(button_index);
 
 		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(text, &c);
+		mblen = utf8_to_utf32(button[button_index].rt.top, &c);
 		if (mblen == -1)
 			return;
 
@@ -1732,12 +1722,6 @@ static void draw_history_text_item(int button_index)
 				conf_msgbox_margin_line;
 			button[button_index].rt.pen_x =
 				button[button_index].margin;
-
-			/* 行頭のスペースはスキップする */
-			if (*text == ' ') {
-				text++;
-				continue;
-			}
 		}
 
 		/* 描画する */
@@ -1745,7 +1729,7 @@ static void draw_history_text_item(int button_index)
 
 		/* 次の文字へ移動する */
 		button[button_index].rt.pen_x += width;
-		text += mblen;
+		button[button_index].rt.top += mblen;
 	}
 }
 
@@ -2001,7 +1985,10 @@ static void draw_message(int index)
 		cw = get_glyph_width(c);
 
 		/* ボタン領域の幅を超える場合、改行する */
-		if (button[index].rt.pen_x + cw >= button[index].width) {
+		if (button[index].rt.pen_x + cw >= button[index].width &&
+		    (c != CHAR_SPACE && c != CHAR_COMMA && c != CHAR_PERIOD &&
+		     c != CHAR_COLON && c != CHAR_SEMICOLON &&
+		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
 			button[index].rt.pen_y += conf_msgbox_margin_line;
 			button[index].rt.pen_x = 0;
 			if (*button[index].rt.top == ' ') {
@@ -2049,10 +2036,9 @@ static void word_wrapping(int index)
 	if (button[index].rt.is_after_space) {
 		if (button[index].rt.pen_x +
 		    get_en_word_width(button[index].rt.top) >=
-		    button[index].width) {
-			button[index].rt.pen_y +=
-				conf_msgbox_margin_line;
-			button[index].rt.pen_x = 0;
+		    button[index].width - button[index].margin) {
+			button[index].rt.pen_y += conf_msgbox_margin_line;
+			button[index].rt.pen_x = button[index].margin;
 		}
 	}
 

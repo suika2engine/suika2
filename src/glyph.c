@@ -278,18 +278,12 @@ int utf8_chars(const char *mbs)
  */
 int get_glyph_width(uint32_t codepoint)
 {
-	FT_Error err;
-
-	/* 文字をロードする */
-	/* FIXME: FT_LOAD_RENDER以外のオプションにできるか？ */
-	err = FT_Load_Char(face, codepoint, FT_LOAD_RENDER);
-	if (err != 0) {
-		log_api_error("FT_Load_Char");
-		return -1;
-	}
+	int w, h;
 
 	/* 幅を求める */
-	return (int)face->glyph->advance.x / SCALE;
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h);
+
+	return w;
 }
 
 /*
@@ -363,6 +357,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	*h = conf_font_size + descent + 2;
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
+	if (img == NULL)
+		return true;
 
 	/* 中身を描画する */
 	FT_Stroker_New(library, &stroker);
