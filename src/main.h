@@ -23,6 +23,22 @@
 #include "types.h"
 
 /*
+ * GUIファイル
+ */
+
+/* コンフィグのGUIファイル */
+#define CONFIG_GUI_FILE		"system.txt"
+
+/* セーブGUIファイル */
+#define SAVE_GUI_FILE		"save.txt"
+
+/* ロードGUIファイル */
+#define LOAD_GUI_FILE		"load.txt"
+
+/* ヒストリのGUIファイル */
+#define HISTORY_GUI_FILE	"history.txt"
+
+/*
  * 入力の状態
  */
 extern bool is_left_button_pressed;

@@ -12,15 +12,17 @@ config-idle.png by MaxMorgan
 config-page2-active.png by MaxMorgan
 config-page2-hover.png by MaxMorgan
 config-page2-idle.png by MaxMorgan
-load-bg by heath (modified by ktabata)
-load-gb by heath (modified by ktabata)
+load-idle.png by heath (modified by ktabata)
+load-hover.png by heath (modified by ktabata)
+load-active.png by heath (modified by ktabata)
 menu-hover.png by heath (modified by ktabata)
 menu-idle.png by heath (modified by ktabata)
 msgbox-bg.png by MaxMorgan
 msgbox-fg.png by MaxMorgan
 namebox.png by MaxMorgan
-save-bg.png by heath (modified by ktabata)
-save-fg.png by heath (modified by ktabata)
+save-idle.png by heath (modified by ktabata)
+save-hover.png by heath (modified by ktabata)
+save-active.png by heath (modified by ktabata)
 skip.png by MaxMorgan
 switch-bg.png by MaxMorgan
 switch-fg.png by MaxMorgan

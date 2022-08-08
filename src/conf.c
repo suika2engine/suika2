@@ -215,20 +215,6 @@ char *conf_save_cancel_load_se;
 char *conf_save_change_se;
 
 /*
- * ヒストリ画面の設定
- */
-int conf_history_color_r;
-int conf_history_color_g;
-int conf_history_color_b;
-int conf_history_color_a;
-int conf_history_margin_line;
-int conf_history_margin_left;
-int conf_history_margin_top;
-int conf_history_margin_right;
-int conf_history_margin_bottom;
-char *conf_history_cancel_se;
-
-/*
  * メニュー(@menu)の設定
  */
 char *conf_menu_change_se;
@@ -489,16 +475,6 @@ struct rule {
 	{"retrospect.change.se", 's', &conf_retrospect_change_se, true, false},
 	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, false, false},
 	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, false, false},
-	{"history.color.r", 'i', &conf_history_color_r, false, false},
-	{"history.color.g", 'i', &conf_history_color_g, false, false},
-	{"history.color.b", 'i', &conf_history_color_b, false, false},
-	{"history.color.a", 'i', &conf_history_color_a, false, false},
-	{"history.margin.line", 'i', &conf_history_margin_line, false, false},
-	{"history.margin.left", 'i', &conf_history_margin_left, false, false},
-	{"history.margin.top", 'i', &conf_history_margin_top, false, false},
-	{"history.margin.right", 'i', &conf_history_margin_right, false, false},
-	{"history.margin.bottom", 'i', &conf_history_margin_bottom, false, false},
-	{"history.cancel.se", 's', &conf_history_cancel_se, true, false},
 	{"menu.change.se", 's', &conf_menu_change_se, true, false},
 	{"sysmenu.x", 'i', &conf_sysmenu_x, false, false},
 	{"sysmenu.y", 'i', &conf_sysmenu_y, false, false},

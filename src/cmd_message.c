@@ -16,24 +16,14 @@
  *  - 2021/07/31 スキップモード対応
  *  - 2022/06/06 デバッガに対応
  *  - 2022/07/19 システムメニューに対応
+ *  - 2022/07/28 コンフィグに対応
+ *  - 2022/08/08 セーブ・ロード・ヒストリをGUIに変更
  */
 
 #include "suika.h"
 #include <ctype.h>
 
 #define ASSERT_INVALID_BTN_INDEX (0)
-
-/* Unicodeコードポイント */
-#define CHAR_SPACE		(0x0020)
-#define CHAR_COMMA 		(0x002c)
-#define CHAR_PERIOD		(0x002e)
-#define CHAR_COLON		(0x003a)
-#define CHAR_SEMICOLON  	(0x003b)
-#define CHAR_TOUTEN		(0x3001)
-#define CHAR_KUTEN		(0x3002)
-#define CHAR_BACKSLASH		(0x005c)
-#define CHAR_YENSIGN		(0x00a5)
-#define CHAR_SMALLN		(0x006e)
 
 /* メッセージボックスボタンのインデックス */
 #define BTN_NONE		(-1)
@@ -57,9 +47,6 @@
 #define SYSMENU_SKIP		(5)
 #define SYSMENU_HISTORY		(6)
 #define SYSMENU_CONFIG		(7)
-
-/* コンフィグのGUIファイル */
-#define CONFIG_GUI_FILE		"system.txt"
 
 /* オートモードでボイスありのとき待ち時間 */
 #define AUTO_MODE_VOICE_WAIT		(4000)
@@ -133,9 +120,6 @@ static bool is_click_visible;
 
 /* スペースキーによる非表示が実行中であるか */
 static bool is_hidden;
-
-/* ヒストリ画面から戻ったばかりであるか */
-static bool history_flag;
 
 /* GUI画面から戻ったばかりであるか */
 static bool gui_flag;
@@ -303,8 +287,11 @@ bool message_command(int *x, int *y, int *w, int *h)
 			return false;
 		start_gui_mode();
 	}
-	if (need_history_mode)
-		start_history_mode();
+	if (need_history_mode) {
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
 	if (need_config_mode) {
 		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true))
 			return false;
@@ -453,14 +440,9 @@ static bool register_message_for_history(void)
 	const char *name;
 	const char *voice;
 
-	/* ヒストリ画面から戻ったばかりの場合、2重登録を防ぐ */
-	history_flag = check_history_flag();
-	if (history_flag)
-		return true;
-
 	/* GUI画面から戻ったばかりの場合、2重登録を防ぐ */
 	gui_flag = check_gui_flag();
-	if (gui_flag && is_message_registered())
+	if (gui_flag || is_message_registered())
 		return true;
 
 	/* 名前、ボイスファイル名、メッセージを取得する */
@@ -506,15 +488,12 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 
 	/* ボイスを再生する */
 	if ((is_non_interruptible() &&
-	     (!history_flag &&
-	      !gui_flag &&
-	      !is_message_registered()))
+	     (!gui_flag && !is_message_registered()))
 	    ||
 	    (!is_non_interruptible() &&
 	     !(is_skip_mode() && is_skippable()) &&
 	     ((!is_control_pressed ||
 	       (is_control_pressed && !is_skippable())) &&
-	      !history_flag &&
 	      !gui_flag &&
 	      !is_message_registered()))) {
 		/* いったんボイスなしの判断にしておく(あとで変更する) */
@@ -759,7 +738,7 @@ static int get_frame_chars(void)
 	}
 
 	/* セーブ画面かヒストリ画面かコンフィグ画面から復帰した場合 */
-	if (history_flag || gui_flag) {
+	if (gui_flag) {
 		/* すべての文字を描画する */
 		return total_chars;
 	}
@@ -867,15 +846,14 @@ static void check_stop_click_animation(void)
 #ifdef USE_DEBUGGER
 	if (!process_click_first && dbg_is_stop_requested()) {
 		if (!have_voice &&
-		    (restore_flag || history_flag || config_flag) &&
+		    gui_flag &&
 		    (is_return_pressed || is_down_pressed ||
 		     (pointed_index == BTN_NONE && is_left_button_pressed)))
 			stop_command_repetition();
 		else if (!have_voice)
 			stop_command_repetition();
 		else if (have_voice &&
-			 (is_mixer_sound_finished(VOICE_STREAM) ||
-			  (restore_flag || history_flag || config_flag)))
+			 (is_mixer_sound_finished(VOICE_STREAM) || gui_flag))
 			stop_command_repetition();
 		else if (have_voice &&
 			 (is_left_button_pressed || is_down_pressed ||
@@ -893,7 +871,7 @@ static void check_stop_click_animation(void)
 			     is_mixer_sound_finished(VOICE_STREAM)))
 				stop_command_repetition();
 		}
-	} else if ((history_flag || gui_flag) &&
+	} else if (gui_flag &&
 		   !process_click_first &&
 		   (is_return_pressed || is_down_pressed ||
 		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
@@ -1024,7 +1002,7 @@ static void init_first_draw_area(int *x, int *y, int *w, int *h)
 {
 	/* 初回に描画する矩形を求める */
 	if (check_menu_finish_flag() || check_retrospect_finish_flag() ||
-	    history_flag || gui_flag) {
+	    gui_flag) {
 		/* メニューコマンドが終了したばかりの場合 */
 		*x = 0;
 		*y = 0;
@@ -1630,7 +1608,7 @@ static bool check_auto_play_condition(void)
 	 *  - 表示は瞬時に終わり、ボイスも再生されていない
 	 *  - すでに表示完了しているとみなす
 	 */
-	if (history_flag || gui_flag)
+	if (gui_flag)
 		return true;
 
 	/*

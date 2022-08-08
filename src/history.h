@@ -2,14 +2,15 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2012, TABATA Keiichi. All rights reserved.
  */
 
 /*
- * セーブ画面とセーブ・ロード実行
+ * ヒストリ管理
  *
  * [Changes]
  *  - 2016/07/10 作成
+ *  - 2022/08/08 GUIに機能を移管
  */
 
 #ifndef SUIKA_HISTORY_H
@@ -29,19 +30,13 @@ bool register_message(const char *name, const char *msg, const char *voice);
 /* ヒストリをクリアする(ロード時) */
 void clear_history(void);
 
-/* ヒストリ画面から復帰したかばかりかを確認する */
-bool check_history_flag(void);
+/* ヒストリの数を取得する */
+int get_history_count(void);
 
-/* ヒストリが空であるかを返す */
-bool is_history_empty(void);
+/* ヒストリを取得する */
+const char *get_history_message(int index);
 
-/* ヒストリ画面を開始する */
-void start_history_mode(void);
-
-/* ヒストリ画面が有効であるかを返す */
-bool is_history_mode(void);
-
-/* ヒストリ画面を実行する */
-void run_history_mode(int *x, int *y, int *w, int *h);
+/* ヒストリのボイスを取得する */
+const char *get_history_voice(int index);
 
 #endif

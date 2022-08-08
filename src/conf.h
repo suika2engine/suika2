@@ -181,20 +181,6 @@ extern int conf_save_data_thumb_width;
 extern int conf_save_data_thumb_height;
 
 /*
- * ヒストリ画面の設定
- */
-extern int conf_history_color_r;
-extern int conf_history_color_g;
-extern int conf_history_color_b;
-extern int conf_history_color_a;
-extern int conf_history_margin_line;
-extern int conf_history_margin_left;
-extern int conf_history_margin_top;
-extern int conf_history_margin_right;
-extern int conf_history_margin_bottom;
-extern char *conf_history_cancel_se;
-
-/*
  * メニュー(@menu)の設定
  */
 extern char *conf_menu_change_se;

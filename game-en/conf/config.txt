@@ -185,34 +185,6 @@ save.data.thumb.width=213
 save.data.thumb.height=120
 
 ###
-### History Settings
-###
-
-# Background color
-history.color.r=53
-history.color.g=90
-history.color.b=161
-history.color.a=128
-
-# Space between lines
-history.margin.line=48
-
-# Left margin
-history.margin.left=20
-
-# Top margin
-history.margin.top=20
-
-# Right margin
-history.margin.right=20
-
-# Bottom margin
-history.margin.bottom=20
-
-# Sound effect when go back from history screen (optional)
-history.cancel.se=click.ogg
-
-###
 ### System Menu Settings
 ###
 

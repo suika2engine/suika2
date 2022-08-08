@@ -197,10 +197,13 @@ bool switch_command(int *x, int *y, int *w, int *h)
 			return false;
 		start_gui_mode();
 	}
-	if (need_history_mode)
-		start_history_mode();
+	if (need_history_mode) {
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
 	if (need_config_mode) {
-		if (!prepare_gui_mode(NULL, true, true))
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
 	}
@@ -484,7 +487,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	*h = 0;
 
 	/* セーブ画面かヒストリ画面から復帰した場合のフラグをクリアする */
-	check_history_flag();
+	check_gui_flag();
 
 	/* 初回描画の場合 */
 	if (is_first_frame) {
@@ -959,7 +962,7 @@ static void process_main_click(void)
 	bool enter_sysmenu;
 
 	/* ヒストリ画面への遷移を確認する */
-	if (is_up_pressed && !is_history_empty()) {
+	if (is_up_pressed && get_history_count() != 0) {
 		play_se(conf_msgbox_history_se);
 		need_history_mode = true;
 		return;
@@ -1106,7 +1109,7 @@ static void process_sysmenu_click(void)
 	/* ヒストリが左クリックされた場合 */
 	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
 		/* ヒストリがない場合はヒストリモードを開始しない */
-		if (is_history_empty())
+		if (get_history_count() == 0)
 			return;
 
 		/* SEを再生する */

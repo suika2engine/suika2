@@ -17,6 +17,18 @@
 
 #include "image.h"
 
+/* Unicodeコードポイント */
+#define CHAR_SPACE		(0x0020)
+#define CHAR_COMMA 		(0x002c)
+#define CHAR_PERIOD		(0x002e)
+#define CHAR_COLON		(0x003a)
+#define CHAR_SEMICOLON  	(0x003b)
+#define CHAR_TOUTEN		(0x3001)
+#define CHAR_KUTEN		(0x3002)
+#define CHAR_BACKSLASH		(0x005c)
+#define CHAR_YENSIGN		(0x00a5)
+#define CHAR_SMALLN		(0x006e)
+
 /* フォントレンダラの初期化処理を行う */
 bool init_glyph(void);
 

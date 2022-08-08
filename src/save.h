@@ -26,16 +26,6 @@
  */
 #define GLOBAL_VARS_FILE	"g000.sav"
 
-/*
- * セーブGUIファイル
- */
-#define SAVE_GUI_FILE		"save.txt"
-
-/*
- * ロードGUIファイル
- */
-#define LOAD_GUI_FILE		"load.txt"
-
 /* セーブデータに関する初期化処理を行う */
 bool init_save(void);
 

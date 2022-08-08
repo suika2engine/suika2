@@ -71,6 +71,12 @@ enum {
 	/* ロードボタン */
 	TYPE_LOAD,
 
+	/* ヒストリボタン */
+	TYPE_HISTORY,
+
+	/* ヒストリスクロールボタン */
+	TYPE_HISTORYSCROLL,
+
 	/* タイトルに戻るボタン */
 	TYPE_TITLE,
 
@@ -136,12 +142,15 @@ static struct gui_button {
 		/* ボリューム・スピードのスライダーの値 */
 		float slider;
 
+		/* サムネイル、フォント描画用 */
+		struct image *img;
+
+		/* ヒストリのオフセット */
+		int history_offset;
+
 		/*
 		 * テキストプレビューの情報
 		 */
-
-		/* メッセージ領域の画像(フォント描画用) */
-		struct image *img;
 
 		/* オートモードの待ち時間か */
 		bool is_waiting;
@@ -212,6 +221,15 @@ static bool is_saved_in_this_frame;
 /* SEの再生を控えるフレームであるか */
 static bool suppress_se;
 
+/* ヒストリの1ページあたりのスロット数 */
+static int history_slots;
+
+/* 表示する先頭のヒストリ番号 */
+static int history_top;
+
+/* ドラッグ中のヒストリのスライダー値 */
+static float transient_history_slider;
+
 /*
  * 前方参照
  */
@@ -229,6 +247,7 @@ static float calc_slider_value(int index);
 static void process_button_click(int index);
 static void process_button_draw(int index);
 static void process_button_draw_slider(int index);
+static void process_button_draw_slider_vertical(int index);
 static void process_button_draw_activatable(int index);
 static void process_button_draw_gallery(int index);
 static void process_play_se(void);
@@ -241,6 +260,13 @@ static void draw_char(int index, uint32_t wc, int *width, int *height);
 static void process_save(int button_index);
 static void process_load(int button_index);
 static void process_button_draw_save(int button_index);
+static bool init_history_buttons(void);
+static void update_history_buttons(void);
+static void draw_history_button(int button_index);
+static void draw_history_text_item(int button_index);
+static void process_button_draw_history(int button_index);
+static void update_history_top(int button_index);
+static void process_history_voice(int button_index);
 static bool init_preview_buttons(void);
 static void reset_preview_all_buttons(void);
 static void reset_preview_button(int index);
@@ -272,7 +298,6 @@ void cleanup_gui(void)
 
 	/* フラグを再初期化する */
 	flag_gui_mode = false;
-	is_called_from_command = false;
 
 	/* ボタンのメモリを解放する */
 	for (i = 0; i < BUTTON_COUNT; i++) {
@@ -320,6 +345,8 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 	/* 初期値を設定する */
 	save_page = 0;
 	save_slots = 0;
+	history_slots = 0;
+	history_top = -1;
 	is_saved_in_this_frame = false;
 	suppress_se = false;
 
@@ -340,9 +367,6 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 		return false;
 	}
 
-	/* ボタンの状態を準備する */
-	update_runtime_props(true);
-
 	/* TYPE_PREVIEWのボタンの初期化を行う */
 	if (!init_preview_buttons()) {
 		cleanup_gui();
@@ -355,6 +379,16 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 		return false;
 	}
 	update_save_buttons();
+
+	/* TYPE_HISTORYのボタンの初期化を行う */
+	if (!init_history_buttons()) {
+		cleanup_gui();
+		return false;
+	}
+	update_history_buttons();
+
+	/* ボタンの状態を準備する */
+	update_runtime_props(true);
 
 	/* セーブされる場合に備えてサムネイルを描画する */
 	draw_stage_to_thumb();
@@ -386,6 +420,9 @@ static bool set_global_key_value(const char *key, const char *val)
 		return true;
 	} else if (strcmp(key, "saveslots") == 0) {
 		save_slots = atoi(val);
+		return true;
+	} else if (strcmp(key, "historyslots") == 0) {
+		history_slots = atoi(val);
 		return true;
 	}
 
@@ -521,6 +558,8 @@ static int get_type_for_name(const char *name)
 		{"savepage", TYPE_SAVEPAGE},
 		{"save", TYPE_SAVE},
 		{"load", TYPE_LOAD},
+		{"history", TYPE_HISTORY},
+		{"historyscroll", TYPE_HISTORYSCROLL},
 		{"default", TYPE_DEFAULT},
 		{"title", TYPE_TITLE},
 		{"cancel", TYPE_CANCEL},
@@ -605,6 +644,9 @@ static void update_runtime_props(bool is_first_time)
 				button[i].rt.is_active = true;
 			else
 				button[i].rt.is_active = false;
+			break;
+		case TYPE_HISTORYSCROLL:
+			button[i].rt.slider = transient_history_slider;
 			break;
 		default:
 			break;
@@ -852,7 +894,8 @@ static void process_button_drag(int index)
 	/* ドラッグ可能なボタンではない場合 */
 	if (b->type != TYPE_BGMVOL && b->type != TYPE_VOICEVOL &&
 	    b->type != TYPE_SEVOL && b->type != TYPE_CHARACTERVOL &&
-	    b->type != TYPE_TEXTSPEED && b->type != TYPE_AUTOSPEED)
+	    b->type != TYPE_TEXTSPEED && b->type != TYPE_AUTOSPEED &&
+	    b->type != TYPE_HISTORYSCROLL)
 		return;
 
 	/* ドラッグ中でない場合 */
@@ -896,6 +939,11 @@ static void process_button_drag(int index)
 	case TYPE_AUTOSPEED:
 		transient_auto_speed = b->rt.slider;
 		break;
+	case TYPE_HISTORYSCROLL:
+		transient_history_slider = b->rt.slider;
+		update_history_top(index);
+		b->rt.slider = transient_history_slider;
+		break;
 	}
 
 	/* ドラッグを終了する場合 */
@@ -930,6 +978,10 @@ static void process_button_drag(int index)
 			set_auto_speed(b->rt.slider);
 			reset_preview_all_buttons();
 			break;
+		case TYPE_HISTORYSCROLL:
+			/* ヒストリボタンを更新する */
+			update_history_buttons();
+			break;
 		default:
 			break;
 		}
@@ -942,17 +994,33 @@ static void process_button_drag(int index)
 /* スライダの値を計算する */
 static float calc_slider_value(int index)
 {
-	float x1, x2, val;
+	float val;
 
-	/* スライダの左端を求める */
-	x1 = (float)(button[index].x + button[index].height / 2);
+	if (button[index].type != TYPE_HISTORYSCROLL) {
+		float x1, x2;
 
-	/* スライダの右端を求める */
-	x2 = (float)(button[index].x + button[index].width -
-		     button[index].height / 2);
+		/* スライダの左端を求める */
+		x1 = (float)(button[index].x + button[index].height / 2);
 
-	/* ポイントされている座標における値を計算する */
-	val = ((float)mouse_pos_x - x1) / (x2 - x1);
+		/* スライダの右端を求める */
+		x2 = (float)(button[index].x + button[index].width -
+			     button[index].height / 2);
+
+		/* ポイントされている座標における値を計算する */
+		val = ((float)mouse_pos_x - x1) / (x2 - x1);
+	} else {
+		float y1, y2;
+
+		/* スライダの上端を求める */
+		y1 = (float)(button[index].y + button[index].width / 2);
+
+		/* スライダの下端を求める */
+		y2 = (float)(button[index].y + button[index].height -
+			     button[index].width / 2);
+
+		/* ポイントされている座標における値を計算する */
+		val = ((float)mouse_pos_y - y1) / (y2 - y1);
+	}
 
 	/* 0未満のときを処理する */
 	if (val < 0)
@@ -980,7 +1048,7 @@ static void process_button_click(int index)
 	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
 	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL ||
 	    b->type == TYPE_TEXTSPEED || b->type == TYPE_AUTOSPEED ||
-	    b->type == TYPE_PREVIEW)
+	    b->type == TYPE_PREVIEW || b->type == TYPE_HISTORYSCROLL)
 		return;
 
 	/* ボタンがポイントされていない場合 */
@@ -1036,6 +1104,9 @@ static void process_button_click(int index)
 		process_load(index);
 		result_index = index;
 		break;
+	case TYPE_HISTORY:
+		process_history_voice(index);
+		break;
 	case TYPE_TITLE:
 		if (title_dialog())
 			result_index = index;
@@ -1087,6 +1158,14 @@ static void process_button_draw(int index)
 		/* セーブ・ロードボタンを描画する */
 		process_button_draw_save(index);
 		break;
+	case TYPE_HISTORY:
+		/* ヒストリボタンを描画する */
+		process_button_draw_history(index);
+		break;
+	case TYPE_HISTORYSCROLL:
+		/* 垂直スライダを描画する */
+		process_button_draw_slider_vertical(index);
+		break;
 	default:
 		/* ボタンがポイントされているとき、hover画像を描画する */
 		if (b->rt.is_pointed)
@@ -1112,6 +1191,25 @@ static void process_button_draw_slider(int index)
 
 	/* ツマミを描画する */
 	draw_stage_gui_active(x, b->y, b->height, b->height, b->x, b->y);
+}
+
+/* 垂直スライダーボタンを描画する */
+static void process_button_draw_slider_vertical(int index)
+{
+	struct gui_button *b;
+	int y;
+
+	b = &button[index];
+
+	/* ポイントされているとき、バー部分をhover画像で描画する */
+	if (b->rt.is_pointed)
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+
+	/* 描画位置を計算する */
+	y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
+
+	/* ツマミを描画する */
+	draw_stage_gui_active(b->x, y, b->width, b->width, b->x, b->y);
 }
 
 /* アクティブ化可能ボタンを描画する */
@@ -1420,6 +1518,266 @@ static void process_button_draw_save(int button_index)
 	render_image(button[button_index].x, button[button_index].y,
 		     button[button_index].rt.img, button[button_index].width,
 		     button[button_index].height, 0, 0, 255, BLEND_FAST);
+}
+
+/*
+ * ヒストリ
+ */
+
+/* TYPE_HISTORYのボタンの初期化を行う */
+static bool init_history_buttons(void)
+{
+	int i, history_count;
+
+	/* ヒストリの数を取得する */
+	history_count = get_history_count();
+	if (history_count == 0)
+		return true;
+
+	/* ヒストリの先頭を計算する */
+	if (history_count <= history_slots) {
+		history_top = history_count - 1;
+		transient_history_slider = 0;
+	} else {
+		history_top = history_slots - 1;
+		transient_history_slider = 1.0f;
+	}
+
+	/* ボタンごとにイメージを作成する */
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_HISTORY)
+			continue;
+
+		button[i].rt.img = create_image(button[i].width,
+						button[i].height);
+		if (button[i].rt.img == NULL)
+			return false;
+
+		button[i].rt.color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_color_r,
+					(pixel_t)conf_font_color_g,
+					(pixel_t)conf_font_color_b);
+		button[i].rt.outline_color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
+	}
+
+	return true;
+}
+
+/* ヒストリのスロットを描画する */
+static void update_history_buttons(void)
+{
+	int i, history_count;
+
+	history_count = get_history_count();
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_HISTORY)
+			continue;
+		if (button[i].rt.img == NULL)
+			continue;
+
+		/* ヒストリのオフセットを計算する */
+		if (history_count < history_slots) {
+			button[i].rt.history_offset =
+				history_count - button[i].index - 1;
+		} else {
+			button[i].rt.history_offset =
+				history_top - button[i].index;
+		}
+		if (button[i].rt.history_offset < 0)
+			button[i].rt.history_offset = -1;
+
+		/* スロットのアクティブ状態を求める */
+		if (button[i].rt.history_offset >= 0 &&
+		    button[i].rt.history_offset < get_history_count())
+			button[i].rt.is_active = true;
+		else
+			button[i].rt.is_active = false;
+
+		/* ボタンのイメージを描画する */
+		draw_history_button(i);
+	}
+}
+
+/* ヒストリボタンを描画する */
+static void draw_history_button(int button_index)
+{
+	struct gui_button *b;
+
+	b = &button[button_index];
+	if (b->rt.img == NULL)
+		return;
+
+	/* イメージをロックする */
+	lock_image(b->rt.img);
+
+	/* イメージをクリアする */
+	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0xff, 0));
+
+	/* メッセージを描画する */
+	if (button[button_index].rt.history_offset != -1)
+		draw_history_text_item(button_index);
+
+	/* イメージをアンロックする */
+	unlock_image(b->rt.img);
+}
+
+/* ヒストリのテキストを描画する */
+static void draw_history_text_item(int button_index)
+{
+	const char *text;
+	uint32_t c;
+	int mblen, width, height;
+	bool is_after_space = true, escaped = false;
+
+	/* メッセージを取得する */
+	text = get_history_message(button[button_index].rt.history_offset);
+
+	/* 描画開始位置を決定する */
+	button[button_index].rt.pen_x = button[button_index].margin;
+	button[button_index].rt.pen_y = button[button_index].margin;
+
+	/* 1文字ずつ描画する */
+	while (*text != '\0') {
+		/* ワードラッピングを処理する */
+		if (is_after_space) {
+			if (button[button_index].rt.pen_x +
+			    get_en_word_width(text) >=
+			    button[button_index].width -
+			    button[button_index].margin) {
+				button[button_index].rt.pen_y +=
+					conf_msgbox_margin_line;
+				button[button_index].rt.pen_x =
+					button[button_index].margin;
+			}
+		}
+		is_after_space = *text == ' ';
+
+		/* 描画する文字を取得する */
+		mblen = utf8_to_utf32(text, &c);
+		if (mblen == -1)
+			return;
+
+		/* エスケープの処理 */
+		if (!escaped) {
+			/* エスケープ文字であるとき */
+			if (c == CHAR_BACKSLASH || c == CHAR_YENSIGN) {
+				escaped = true;
+				text += mblen;
+				continue;
+			}
+		} else if (escaped) {
+			/* エスケープされた文字であるとき */
+			if (c == CHAR_SMALLN) {
+				button[button_index].rt.pen_y +=
+					conf_msgbox_margin_line;
+				button[button_index].rt.pen_x =
+					button[button_index].margin;
+				escaped = false;
+				text += mblen;
+				continue;
+			}
+
+			/* 不明なエスケープシーケンスの場合 */
+			escaped = false;
+		}
+
+		/* 描画する文字の幅を取得する */
+		width = get_glyph_width(c);
+
+		/* メッセージボックスの幅を超える場合、改行する */
+		if ((button[button_index].rt.pen_x + width +
+		     button[button_index].margin >=
+		     button[button_index].width) &&
+		    (c != CHAR_SPACE && c != CHAR_COMMA && c != CHAR_PERIOD &&
+		     c != CHAR_COLON && c != CHAR_SEMICOLON &&
+		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
+			button[button_index].rt.pen_y +=
+				conf_msgbox_margin_line;
+			button[button_index].rt.pen_x =
+				button[button_index].margin;
+
+			/* 行頭のスペースはスキップする */
+			if (*text == ' ') {
+				text++;
+				continue;
+			}
+		}
+
+		/* 描画する */
+		draw_char(button_index, c, &width, &height);
+
+		/* 次の文字へ移動する */
+		button[button_index].rt.pen_x += width;
+		text += mblen;
+	}
+}
+
+/* ヒストリボタンの描画を行う */
+static void process_button_draw_history(int button_index)
+{
+	/* ポイントされているときの描画を行う */
+	if (button[button_index].rt.is_active &&
+	    button[button_index].rt.is_pointed) {
+		draw_stage_gui_hover(button[button_index].x,
+				     button[button_index].y,
+				     button[button_index].width,
+				     button[button_index].height);
+	}
+
+	/* テキストの描画を行う */
+	render_image(button[button_index].x, button[button_index].y,
+		     button[button_index].rt.img, button[button_index].width,
+		     button[button_index].height, 0, 0, 255, BLEND_FAST);
+}
+
+/* history_topを更新する */
+static void update_history_top(int button_index)
+{
+	struct gui_button *b;
+	int history_count;
+
+	b = &button[button_index];
+
+	/* ヒストリの数がスロットの数より小さい場合 */
+	history_count = get_history_count();
+	if (history_count <= history_slots) {
+		history_top = history_count - 1;
+		b->rt.slider = 0;
+		transient_history_slider = 0;
+		return;
+	}
+
+	/* ヒストリのトップを更新する */
+	history_top = (int)((float)((history_count - 1) -
+				    (history_slots - 1)) *
+			    (1.0f - transient_history_slider)) +
+			   (history_slots - 1);
+	assert(history_top >= history_slots - 1);
+	assert(history_top <= history_count - 1);
+
+	/* スライダの位置を補正する */
+	transient_history_slider = 1.0f -
+		(float)(history_top - (history_slots - 1)) /
+		(float)((history_count - 1) - (history_slots - 1));
+}
+
+/* ヒストリのボイスを再生する */
+static void process_history_voice(int button_index)
+{
+	if (button[button_index].rt.history_offset != -1) {
+		/* その他のキャラクタのボリュームを適用する */
+		apply_character_volume(CH_VOL_SLOT_DEFAULT);
+
+		/* ボイスを再生する */
+		play_se(get_history_voice(
+				button[button_index].rt.history_offset),
+			true);
+	}
 }
 
 /*

@@ -262,8 +262,6 @@ static float get_anime_interpolation(float progress, float from, float to);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
-static void draw_layer_image_rect(struct image *target, int layer, int x,
-				  int y, int w, int h);
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color,int *w,
 			       int *h);
@@ -1965,33 +1963,6 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 }
 
 /*
- * ステージの背景(FO)と前景(FI)を描画する
- */
-void draw_stage_history(void)
-{
-	assert(is_history_mode());
-	assert(stage_mode != STAGE_MODE_BG_FADE);
-	assert(stage_mode != STAGE_MODE_CH_FADE);
-
-	/* ステージを描画する */
-	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
-		     conf_window_height, 0, 0, 255, BLEND_NONE);
-
-	/* 文字レイヤを描画する */
-	render_image(0, 0, layer_image[LAYER_FI], conf_window_width,
-		     conf_window_height, 0, 0, 255, BLEND_FAST);
-}
-
-/*
- * ステージの背景(FO)と前景(FI)を描画する(GPU用)
- */
-void draw_stage_history_keep(void)
-{
-	if (is_gpu_accelerated())
-		draw_stage_history();
-}
-
-/*
  * ステージの背景(FO)と前景(FI)にステージ全体を描画する
  */
 void draw_stage_fo_fi(void)
@@ -3388,72 +3359,6 @@ bool create_temporary_bg(void)
 }
 
 /*
- * ヒストリ画面の表示
- */
-
-/*
- * FOレイヤにステージを描画する
- */
-void draw_history_fo(void)
-{
-	lock_image(layer_image[LAYER_FO]);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_BG, 0, 0,
-			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHB, 0, 0,
-      			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHL, 0, 0,
-			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHR, 0, 0,
-			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHC, 0, 0,
-			      conf_window_width, conf_window_height);
-	unlock_image(layer_image[LAYER_FO]);
-}
-
-/*
- * FIレイヤを色で塗り潰す
- */
-void draw_history_fi(pixel_t color)
-{
-	clear_image_color(layer_image[LAYER_FI], color);
-}
-
-/*
- * FIレイヤをロックする
- */
-void lock_fi_layer_for_history(void)
-{
-	lock_image(layer_image[LAYER_FI]);
-}
-
-/*
- * FIレイヤをアンロックする
- */
-void unlock_fi_layer_for_history(void)
-{
-	unlock_image(layer_image[LAYER_FI]);
-}
-
-/*
- * FIレイヤに文字を描画する
- */
-void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
-{
-	pixel_t color, outline_color;
-
-	color = make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	outline_color = make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
-
-	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, w, h);
-}
-
-/*
  * バナーの描画
  */
 
@@ -3563,6 +3468,7 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 	}
 }
 
+#if 0
 /* レイヤの矩形を描画する */
 static void draw_layer_image_rect(struct image *target, int layer, int x,
 				  int y, int w, int h)
@@ -3580,6 +3486,7 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 			   layer_alpha[layer], layer_blend[layer]);
 	}
 }
+#endif
 
 /* レイヤに文字を描画する */
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,

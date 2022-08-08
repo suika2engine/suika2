@@ -133,24 +133,21 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 {
 	bool cont;
 
-	if (is_history_mode()) {
-		/* ヒストリ画面を実行する */
-		run_history_mode(x, y, w, h);
-	} else if (is_gui_mode()) {
+	if (is_gui_mode()) {
 		/* GUIモードを実行する */
 		if (!run_gui_mode(x, y, w, h))
-			return false; /* 終了ボタンが押下された */
+			return false; /* エラー */
 
 		/* GUIモードが終了した場合 */
 		if (!is_gui_mode()) {
-			/* ロードされたときのために終了処理を行う */
-			if (!is_in_repetition)
+			if (!is_in_repetition) {
+				/* ロードされたときのために終了処理を行う */
 				cleanup_gui();
-
-			/* @guiが終了する場合 */
-			if (is_in_repetition)
+			} else {
+				/* @guiを終了する */
 				if (!gui_command(x, y, w, h))
-					return false;
+					return false; /* エラー */
+			}
 		}
 	} else {
 		/* コマンドを実行する */

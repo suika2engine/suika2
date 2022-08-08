@@ -178,34 +178,6 @@ save.data.thumb.width=213
 save.data.thumb.height=120
 
 ###
-### ヒストリ画面の設定
-###
-
-# 背景色
-history.color.r=53
-history.color.g=90
-history.color.b=161
-history.color.a=128
-
-# 行間マージン
-history.margin.line=48
-
-# 画面左のマージン
-history.margin.left=20
-
-# 画面上のマージン
-history.margin.top=20
-
-# 画面右のマージン
-history.margin.right=20
-
-# 画面下のマージン
-history.margin.bottom=20
-
-# ヒストリ画面から戻るときのSE(省略可)
-history.cancel.se=click.ogg
-
-###
 ### システムメニューの設定
 ###
 
