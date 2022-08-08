@@ -1,0 +1,79 @@
+global {
+    idle:   history-idle.png;
+    hover:  history-hover.png;
+    active: history-active.png;
+
+    historyslots: 3;
+}
+
+SCROLL {
+    type: historyscroll;
+
+    x: 1192;
+    y: 112;
+    width: 67;
+    height: 498;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+HISTORYSLOT1 {
+    type: history;
+
+    index: 0;
+
+    x: 32;
+    y: 112;
+    width: 1140;
+    height: 153;
+
+    margin: 20;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+HISTORYSLOT2 {
+    type: history;
+
+    index: 1;
+
+    x: 32;
+    y: 284;
+    width: 1140;
+    height: 153;
+
+    margin: 20;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+HISTORYSLOT3 {
+    type: history;
+
+    index: 2;
+
+    x: 32;
+    y: 456;
+    width: 1140;
+    height: 153;
+
+    margin: 20;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+
+BACK {
+    type: cancel;
+
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
