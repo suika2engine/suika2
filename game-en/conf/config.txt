@@ -395,20 +395,23 @@ ui.msg.default=Are you sure you want to reset the settings?
 ### Miscellaneous
 ###
 
-# Don't stop voice when clicked (1:non-stop, 0:stop)
+# Don't stop voice when clicked (1:non-stop, 0:stop) (optional)
 voice.stop.off=0
 
-# Disable full screen mode (1:disable, 0:enable)
+# Disable full screen mode (1:disable, 0:enable) (optional)
 window.fullscreen.disable=0
+
+# Disable window maximization (1:disable, 0:enable) (optional)
+window.maximize.disable=0
 
 # Separator between window title and chapter name (optional)
 window.title.separator= 
 
-# Don't reflect chapter name to window title (1:don't reflect, 0:reflect)
+# Don't reflect chapter name to window title (1:don't reflect, 0:reflect) (optional)
 window.title.chapter.disable=0
 
-# Don't blink click animation (1:don't blink, 0:blink)
+# Don't blink click animation (1:don't blink, 0:blink) (optional)
 click.disable=0
 
-# Don't hide message box while changing characters (1:don't hide, 0:hide)
+# Don't hide message box while changing characters (1:don't hide, 0:hide) (optional)
 msgbox.show.on.ch=0

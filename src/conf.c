@@ -330,6 +330,9 @@ int conf_voice_stop_off;
 /* フルスクリーンにしない */
 int conf_window_fullscreen_disable;
 
+/* 最大化ボタンを無効にする */
+int conf_window_maximize_disable;
+
 /* ウィンドウタイトルと章タイトルの間の文字列 */
 char *conf_window_title_separator;
 
@@ -1013,6 +1016,7 @@ struct rule {
 	{"ui.msg.default", 's', &conf_ui_msg_default, false, false},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
+	{"window.maximize.disable", 'i', &conf_window_maximize_disable, true, false},
 	{"window.title.separator", 's', &conf_window_title_separator, true, false},
 	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, true, false},
 	{"click.disable", 'i', &conf_click_disable, true, false},

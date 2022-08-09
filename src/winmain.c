@@ -429,7 +429,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 
 	/* ウィンドウのスタイルを決める */
-	if (!conf_window_fullscreen_disable) {
+	if (!conf_window_fullscreen_disable && !conf_window_maximize_disable) {
 		style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
 			    WS_OVERLAPPED;
 	} else {
@@ -1009,7 +1009,7 @@ static void ToggleFullScreen(void)
 		nOffsetX = 0;
 		nOffsetY = 0;
 
-		if (!conf_window_fullscreen_disable) {
+		if (!conf_window_fullscreen_disable && !conf_window_maximize_disable) {
 			style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
 				    WS_OVERLAPPED;
 		} else {
