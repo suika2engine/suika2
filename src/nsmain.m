@@ -437,7 +437,7 @@ int main()
                     if (initWindow()) {
 #ifdef USE_DEBUGGER
                         // デバッグウィンドウを作成する
-                        if (initDebugWindow())
+                        if (initDebugWindow()) {
 #else
                         {
 #endif
@@ -921,6 +921,25 @@ bool delete_dialog(void)
         [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
         [alert setMessageText:
                    [[NSString alloc] initWithUTF8String:conf_ui_msg_delete]];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return true;
+        return false;
+    }
+}
+
+//
+// 上書きダイアログを表示する
+//
+bool overwrite_dialog(void)
+{
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:
+                   [[NSString alloc]
+                       initWithUTF8String:conf_ui_msg_overwrite]];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
