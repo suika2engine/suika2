@@ -194,6 +194,9 @@ static bool cancel_when_right_click;
 /* 処理中のGUIファイル */
 static const char *gui_file;
 
+/* キャンセル時のSE */
+static char *cancel_se;
+
 /* ポイントされているボタンのインデックス */
 static int pointed_index;
 
@@ -320,6 +323,12 @@ void cleanup_gui(void)
 	/* ボタンをゼロクリアする */
 	memset(button, 0, sizeof(button));
 
+	/* 文字列の解放を行う */
+	if (cancel_se != NULL) {
+		free(cancel_se);
+		cancel_se = NULL;
+	}
+	
 	/* ステージの後処理を行う */
 	remove_gui_images();
 }
@@ -427,6 +436,13 @@ static bool set_global_key_value(const char *key, const char *val)
 		return true;
 	} else if (strcmp(key, "historyslots") == 0) {
 		history_slots = atoi(val);
+		return true;
+	} else if (strcmp(key, "cancelse") == 0) {
+		cancel_se = strdup(val);
+		if (cancel_se == NULL) {
+			log_memory();
+			return false;
+		}
 		return true;
 	}
 
@@ -748,6 +764,9 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 		if (is_right_button_pressed) {
 			/* どのボタンも選ばれなかったことにする */
 			result_index = -1;
+
+			/* SEを再生する */
+			play_se(cancel_se, false);
 
 			/* GUIモードを終了する */
 			stop_gui_mode();
