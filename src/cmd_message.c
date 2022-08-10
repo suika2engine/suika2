@@ -449,6 +449,10 @@ static bool register_message_for_history(void)
 	if (get_command_type() == COMMAND_SERIF) {
 		name = get_string_param(SERIF_PARAM_NAME);
 		voice = get_string_param(SERIF_PARAM_VOICE);
+
+		/* ビープ音は履歴画面で再生しない */
+		if (voice[0] == '@')
+			voice = NULL;
 	} else {
 		name = NULL;
 		voice = NULL;
