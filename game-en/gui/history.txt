@@ -11,6 +11,9 @@ global {
 
     # 3 slots per page
     historyslots: 3;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
 }
 
 # Scroll Bar

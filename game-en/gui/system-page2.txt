@@ -8,6 +8,9 @@ global {
     idle:   config-page2-idle.png;
     hover:  config-page2-hover.png;
     active: config-page2-active.png;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
 }
 
 # Per-Character Voice Volume

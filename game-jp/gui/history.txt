@@ -11,6 +11,9 @@ global {
 
     # 1画面あたりの履歴表示数を指定
     historyslots: 3;
+
+    # 右クリックによるキャンセル時のSE
+    cancelse: click.ogg;
 }
 
 # スクロールバー

@@ -11,6 +11,9 @@ global {
 
     # 3 slots per page
     saveslots: 3;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
 }
 
 # Save Page 1 Button

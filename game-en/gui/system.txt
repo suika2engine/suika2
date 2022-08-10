@@ -8,6 +8,9 @@ global {
     idle:   config-idle.png;
     hover:  config-hover.png;
     active: config-active.png;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
 }
 
 # Text Speed Slider
