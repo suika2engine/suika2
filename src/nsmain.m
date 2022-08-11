@@ -182,9 +182,16 @@ BOOL isRedrawPrepared;
 
     if (isFinished)
         return;
-    if (!isRedrawPrepared)
+
+    if (!isRedrawPrepared) {
+        if (conf_window_white)
+            [[NSColor whiteColor] setFill];
+        else
+            [[NSColor blackColor] setFill];
+        NSRectFill(rect);
         return;
-        
+    }
+
     [[self openGLContext] flushBuffer];
 
     isRedrawPrepared = NO;
