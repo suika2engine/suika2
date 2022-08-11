@@ -280,6 +280,8 @@ int get_glyph_width(uint32_t codepoint)
 {
 	int w, h;
 
+	w = h = 0;
+
 	/* 幅を求める */
 	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h);
 
