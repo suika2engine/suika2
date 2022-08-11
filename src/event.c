@@ -25,8 +25,14 @@
  */
 bool on_event_init(void)
 {
+	int w, h;
+
 	/* 変数の初期化処理を行う */
 	init_vars();
+
+	/* セーブデータの初期化処理を行う */
+	if (!init_save())
+		return false;
 
 	/* 文字レンダリングエンジンの初期化処理を行う */
 	if (!init_glyph())
@@ -43,10 +49,6 @@ bool on_event_init(void)
 	if (!init_scbuf())
 		return false;
 
-	/* セーブデータの初期化処理を行う */
-	if (!init_save())
-		return false;
-
 	/* 初期スクリプトをロードする */
 	if (!init_script())
 		return false;
@@ -55,13 +57,15 @@ bool on_event_init(void)
 	if (!init_seen())
 		return false;
 
+	/* GUIを初期化する */
+	if (!init_gui())
+		return false;
+
 	/* ゲームループの初期化処理を行う */
 	init_game_loop();
 
 	/* フォントのプリロードを行う */
-	lock_draw_char_on_fo_fi();
-	draw_char_on_fo_fi(0, 0, 'A');
-	unlock_draw_char_on_fo_fi();
+	draw_glyph(NULL, 0, 0, 0, 0, 'A', &w, &h);
 
 	return true;
 }
@@ -73,6 +77,9 @@ void on_event_cleanup(void)
 {
 	/* ゲームループの終了処理を行う */
 	cleanup_game_loop();
+
+	/* GUIの終了処理を行う */
+	cleanup_gui();
 
 	/* 既読フラグ管理の終了処理を行う */
 	cleanup_seen();
@@ -138,6 +145,9 @@ void on_event_key_press(int key)
 	case KEY_DOWN:
 		is_down_pressed = true;
 		break;
+	case KEY_ESCAPE:
+		is_escape_pressed = true;
+		break;
 	case KEY_C:
 		conf_click_disable = conf_click_disable ? 0 : 1;
 		break;
@@ -162,6 +172,7 @@ void on_event_key_release(int key)
 	case KEY_RETURN:
 	case KEY_UP:
 	case KEY_DOWN:
+	case KEY_ESCAPE:
 		/* これらのキーはフレームごとに解放されたことにされる */
 		break;
 	case KEY_C:
@@ -181,10 +192,12 @@ void on_event_mouse_press(int button, int x, int y)
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 
-	if (button == MOUSE_LEFT)
+	if (button == MOUSE_LEFT) {
 		is_left_button_pressed = true;
-	else
+		is_mouse_dragging = true;
+	} else {
 		is_right_button_pressed = true;
+	}
 }
 
 /*
@@ -195,6 +208,8 @@ void on_event_mouse_release(UNUSED(int button), int x, int y)
 	/* 1フレーム内の解放を無視する */
 	mouse_pos_x = x;
 	mouse_pos_y = y;
+
+	is_mouse_dragging = false;
 }
 
 /*

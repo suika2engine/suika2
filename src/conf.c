@@ -95,6 +95,10 @@ int conf_msgbox_btn_history_x;
 int conf_msgbox_btn_history_y;
 int conf_msgbox_btn_history_width;
 int conf_msgbox_btn_history_height;
+int conf_msgbox_btn_config_x;
+int conf_msgbox_btn_config_y;
+int conf_msgbox_btn_config_width;
+int conf_msgbox_btn_config_height;
 int conf_msgbox_btn_hide_x;
 int conf_msgbox_btn_hide_y;
 int conf_msgbox_btn_hide_width;
@@ -106,9 +110,11 @@ char *conf_msgbox_btn_load_se;
 char *conf_msgbox_btn_auto_se;
 char *conf_msgbox_btn_skip_se;
 char *conf_msgbox_btn_history_se;
+char *conf_msgbox_btn_config_se;
 char *conf_msgbox_btn_change_se;
 char *conf_msgbox_save_se;
 char *conf_msgbox_history_se;
+char *conf_msgbox_config_se;
 char *conf_msgbox_hide_se;
 char *conf_msgbox_show_se;
 char *conf_msgbox_auto_cancel_se;
@@ -209,20 +215,6 @@ char *conf_save_cancel_load_se;
 char *conf_save_change_se;
 
 /*
- * ヒストリ画面の設定
- */
-int conf_history_color_r;
-int conf_history_color_g;
-int conf_history_color_b;
-int conf_history_color_a;
-int conf_history_margin_line;
-int conf_history_margin_left;
-int conf_history_margin_top;
-int conf_history_margin_right;
-int conf_history_margin_bottom;
-char *conf_history_cancel_se;
-
-/*
  * メニュー(@menu)の設定
  */
 char *conf_menu_change_se;
@@ -263,6 +255,10 @@ int conf_sysmenu_history_x;
 int conf_sysmenu_history_y;
 int conf_sysmenu_history_width;
 int conf_sysmenu_history_height;
+int conf_sysmenu_config_x;
+int conf_sysmenu_config_y;
+int conf_sysmenu_config_width;
+int conf_sysmenu_config_height;
 char *conf_sysmenu_enter_se;
 char *conf_sysmenu_leave_se;
 char *conf_sysmenu_change_se;
@@ -273,6 +269,7 @@ char *conf_sysmenu_load_se;
 char *conf_sysmenu_auto_se;
 char *conf_sysmenu_skip_se;
 char *conf_sysmenu_history_se;
+char *conf_sysmenu_config_se;
 int conf_sysmenu_collapsed_x;
 int conf_sysmenu_collapsed_y;
 char *conf_sysmenu_collapsed_idle_file;
@@ -295,6 +292,15 @@ int conf_skipmode_banner_x;
 int conf_skipmode_banner_y;
 
 /*
+ * サウンドの設定
+ */
+float conf_sound_vol_bgm;
+float conf_sound_vol_voice;
+float conf_sound_vol_se;
+float conf_sound_vol_character;
+char *conf_sound_character_name[CH_VOL_SLOTS]; /* index0は未使用 */
+
+/*
  * セリフの色付け
  */
 char *conf_serif_color_name[SERIF_COLOR_COUNT];
@@ -311,6 +317,8 @@ int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 char *conf_ui_msg_quit;
 char *conf_ui_msg_title;
 char *conf_ui_msg_delete;
+char *conf_ui_msg_overwrite;
+char *conf_ui_msg_default;
 
 /*
  * その他の設定
@@ -322,7 +330,10 @@ int conf_voice_stop_off;
 /* フルスクリーンにしない */
 int conf_window_fullscreen_disable;
 
-/* 章タイトルとウィンドウタイトルのセパレータ */
+/* 最大化ボタンを無効にする */
+int conf_window_maximize_disable;
+
+/* ウィンドウタイトルと章タイトルの間の文字列 */
 char *conf_window_title_separator;
 
 /* 章タイトルをウィンドウタイトルに反映しない */
@@ -333,6 +344,9 @@ int conf_click_disable;
 
 /* キャラクタの変更中にメッセージボックスを隠さない */
 int conf_msgbox_show_on_ch;
+
+/* ビープの調整 */
+float conf_beep_adjustment;
 
 /*
  * 1行のサイズ
@@ -407,6 +421,10 @@ struct rule {
 	{"msgbox.btn.history.y", 'i', &conf_msgbox_btn_history_y, true, false},
 	{"msgbox.btn.history.width", 'i', &conf_msgbox_btn_history_width, true, false},
 	{"msgbox.btn.history.height", 'i', &conf_msgbox_btn_history_height, true, false},
+	{"msgbox.btn.config.x", 'i', &conf_msgbox_btn_config_x, true, false},
+	{"msgbox.btn.config.y", 'i', &conf_msgbox_btn_config_y, true, false},
+	{"msgbox.btn.config.width", 'i', &conf_msgbox_btn_config_width, true, false},
+	{"msgbox.btn.config.height", 'i', &conf_msgbox_btn_config_height, true, false},
 	{"msgbox.btn.hide.x", 'i', &conf_msgbox_btn_hide_x, true, false},
 	{"msgbox.btn.hide.y", 'i', &conf_msgbox_btn_hide_y, true, false},
 	{"msgbox.btn.hide.width", 'i', &conf_msgbox_btn_hide_width, true, false},
@@ -417,9 +435,11 @@ struct rule {
 	{"msgbox.btn.load.se", 's', &conf_msgbox_btn_load_se, true, false},
 	{"msgbox.btn.auto.se", 's', &conf_msgbox_btn_auto_se, true, false},
 	{"msgbox.btn.history.se", 's', &conf_msgbox_btn_history_se, true, false},
+	{"msgbox.btn.config.se", 's', &conf_msgbox_btn_config_se, true, false},
 	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, true, false},
 	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false}, /* TODO: remove */
 	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
+	{"msgbox.config.se", 's', &conf_msgbox_config_se, true, false},
 	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, true, false},
 	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, true, false},
 	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},
@@ -456,64 +476,8 @@ struct rule {
 	{"news.text.margin.y", 'i', &conf_news_text_margin_y, true, false},
 	{"news.change.se", 's', &conf_news_change_se, true, false},
 	{"retrospect.change.se", 's', &conf_retrospect_change_se, true, false},
-	{"save.save.bg.file", 's', &conf_save_save_bg_file, false, false},
-	{"save.save.fg.file", 's', &conf_save_save_fg_file, false, false},
-	{"save.load.bg.file", 's', &conf_save_load_bg_file, false, false},
-	{"save.load.fg.file", 's', &conf_save_load_fg_file, false, false},
-	{"save.prev.se", 's', &conf_save_prev_se, true, false},
-	{"save.prev.x", 'i', &conf_save_prev_x, false, false},
-	{"save.prev.y", 'i', &conf_save_prev_y, false, false},
-	{"save.prev.width", 'i', &conf_save_prev_width, false, false},
-	{"save.prev.height", 'i', &conf_save_prev_height, false, false},
-	{"save.next.se", 's', &conf_save_next_se, true, false},
-	{"save.next.x", 'i', &conf_save_next_x, false, false},
-	{"save.next.y", 'i', &conf_save_next_y, false, false},
-	{"save.next.width", 'i', &conf_save_next_width, false, false},
-	{"save.next.height", 'i', &conf_save_next_height, false, false},
-	{"save.data.save.se", 's', &conf_save_data_save_se, true, false},
-	{"save.data.load.se", 's', &conf_save_data_load_se, true, false},
-	{"save.data.width", 'i', &conf_save_data_width, false, false},
-	{"save.data.height", 'i', &conf_save_data_height, false, false},
-	{"save.data.margin.left", 'i', &conf_save_data_margin_left, false, false},
-	{"save.data.margin.top", 'i', &conf_save_data_margin_top, false, false},
 	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, false, false},
 	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, false, false},
-	{"save.data.delete.x", 'i', &conf_save_data_delete_x, true, false},
-	{"save.data.delete.y", 'i', &conf_save_data_delete_y, true, false},
-	{"save.data.delete.width", 'i', &conf_save_data_delete_width, true, false},
-	{"save.data.delete.height", 'i', &conf_save_data_delete_height, true, false},
-	{"save.data1.x", 'i', &conf_save_data1_x, false, false},
-	{"save.data1.y", 'i', &conf_save_data1_y, false, false},
-	{"save.data2.x", 'i', &conf_save_data2_x, false, false},
-	{"save.data2.y", 'i', &conf_save_data2_y, false, false},
-	{"save.data3.x", 'i', &conf_save_data3_x, false, false},
-	{"save.data3.y", 'i', &conf_save_data3_y, false, false},
-	{"save.exit.se", 's', &conf_save_exit_se, true, false},
-	{"save.exit.x", 'i', &conf_save_exit_x, false, false},
-	{"save.exit.y", 'i', &conf_save_exit_y, false, false},
-	{"save.exit.width", 'i', &conf_save_exit_width, false, false},
-	{"save.exit.height", 'i',  &conf_save_exit_height, false, false},
-	{"save.title.se", 's', &conf_save_title_se, true, false},
-	{"save.title.x", 'i', &conf_save_title_x, false, false},
-	{"save.title.y", 'i', &conf_save_title_y, false, false},
-	{"save.title.width", 'i', &conf_save_title_width, false, false},
-	{"save.title.height", 'i', &conf_save_title_height, false, false},
-	{"save.title.txt", 's', &conf_save_title_txt, false, false},
-	{"save.loadtosave.se", 's', &conf_save_loadtosave_se, true, false}, /* TODO: remove */
-	{"save.savetoload.se", 's', &conf_save_savetoload_se, true, false}, /* TODO: remove */
-	{"save.cancel.save.se", 's', &conf_save_cancel_save_se, true, false},
-	{"save.cancel.load.se", 's', &conf_save_cancel_load_se, true, false},
-	{"save.change.se", 's', &conf_save_change_se, true, false},
-	{"history.color.r", 'i', &conf_history_color_r, false, false},
-	{"history.color.g", 'i', &conf_history_color_g, false, false},
-	{"history.color.b", 'i', &conf_history_color_b, false, false},
-	{"history.color.a", 'i', &conf_history_color_a, false, false},
-	{"history.margin.line", 'i', &conf_history_margin_line, false, false},
-	{"history.margin.left", 'i', &conf_history_margin_left, false, false},
-	{"history.margin.top", 'i', &conf_history_margin_top, false, false},
-	{"history.margin.right", 'i', &conf_history_margin_right, false, false},
-	{"history.margin.bottom", 'i', &conf_history_margin_bottom, false, false},
-	{"history.cancel.se", 's', &conf_history_cancel_se, true, false},
 	{"menu.change.se", 's', &conf_menu_change_se, true, false},
 	{"sysmenu.x", 'i', &conf_sysmenu_x, false, false},
 	{"sysmenu.y", 'i', &conf_sysmenu_y, false, false},
@@ -548,6 +512,10 @@ struct rule {
 	{"sysmenu.history.y", 'i', &conf_sysmenu_history_y, false, false},
 	{"sysmenu.history.width", 'i', &conf_sysmenu_history_width, false, false},
 	{"sysmenu.history.height", 'i', &conf_sysmenu_history_height, false, false},
+	{"sysmenu.config.x", 'i', &conf_sysmenu_config_x, false, false},
+	{"sysmenu.config.y", 'i', &conf_sysmenu_config_y, false, false},
+	{"sysmenu.config.width", 'i', &conf_sysmenu_config_width, false, false},
+	{"sysmenu.config.height", 'i', &conf_sysmenu_config_height, false, false},
 	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, true, false},
 	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, true, false},
 	{"sysmenu.change.se", 's', &conf_sysmenu_change_se, true, false},
@@ -558,6 +526,8 @@ struct rule {
 	{"sysmenu.auto.se", 's', &conf_sysmenu_auto_se, true, false},
 	{"sysmenu.skip.se", 's', &conf_sysmenu_skip_se, true, false},
 	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, true, false},
+	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
+	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
 	{"automode.banner.file", 's', &conf_automode_banner_file, false, false},
 	{"automode.banner.x", 'i', &conf_automode_banner_x, false, false},
 	{"automode.banner.y", 'i', &conf_automode_banner_y, false, false},
@@ -570,6 +540,25 @@ struct rule {
 	{"sysmenu.collapsed.idle.file", 's', &conf_sysmenu_collapsed_idle_file, false, false},
 	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, false, false},
 	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, true, false},
+	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, false, false},
+	{"sound.vol.voice", 'f', &conf_sound_vol_voice, false, false},
+	{"sound.vol.se", 'f', &conf_sound_vol_se, false, false},
+	{"sound.vol.character", 'f', &conf_sound_vol_character, false, false},
+	{"sound.character.name1", 's', &conf_sound_character_name[1], true, false},
+	{"sound.character.name2", 's', &conf_sound_character_name[2], true, false},
+	{"sound.character.name3", 's', &conf_sound_character_name[3], true, false},
+	{"sound.character.name4", 's', &conf_sound_character_name[4], true, false},
+	{"sound.character.name5", 's', &conf_sound_character_name[5], true, false},
+	{"sound.character.name6", 's', &conf_sound_character_name[6], true, false},
+	{"sound.character.name7", 's', &conf_sound_character_name[7], true, false},
+	{"sound.character.name8", 's', &conf_sound_character_name[8], true, false},
+	{"sound.character.name9", 's', &conf_sound_character_name[9], true, false},
+	{"sound.character.name10", 's', &conf_sound_character_name[10], true, false},
+	{"sound.character.name11", 's', &conf_sound_character_name[11], true, false},
+	{"sound.character.name12", 's', &conf_sound_character_name[12], true, false},
+	{"sound.character.name13", 's', &conf_sound_character_name[13], true, false},
+	{"sound.character.name14", 's', &conf_sound_character_name[14], true, false},
+	{"sound.character.name15", 's', &conf_sound_character_name[15], true, false},
 	/* start codegen */
 	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
 	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},
@@ -1023,12 +1012,16 @@ struct rule {
 	{"ui.msg.quit", 's', &conf_ui_msg_quit, false, false},
 	{"ui.msg.title", 's', &conf_ui_msg_title, false, false},
 	{"ui.msg.delete", 's', &conf_ui_msg_delete, false, false},
+	{"ui.msg.overwrite", 's', &conf_ui_msg_overwrite, false, false},
+	{"ui.msg.default", 's', &conf_ui_msg_default, false, false},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
+	{"window.maximize.disable", 'i', &conf_window_maximize_disable, true, false},
 	{"window.title.separator", 's', &conf_window_title_separator, true, false},
 	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, true, false},
 	{"click.disable", 'i', &conf_click_disable, true, false},
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, true, false},
+	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))
@@ -1054,6 +1047,10 @@ bool init_conf(void)
 
 	/* 読み込まれなかった必須コンフィグをチェックする */
 	if (!check_conf())
+		return false;
+
+	/* コンフィグの値を元に各種設定を初期値にする */
+	if (!apply_initial_values())
 		return false;
 
 	return true;
@@ -1168,4 +1165,27 @@ void cleanup_conf(void)
 			*(char **)rule_tbl[i].val = NULL;
 		}
 	}
+}
+
+/*
+ * コンフィグの値を元に各種設定を初期値にする
+ */
+bool apply_initial_values(void)
+{
+	int i;
+
+	/* グローバルボリュームをセットする */
+	set_mixer_global_volume(BGM_STREAM, conf_sound_vol_bgm);
+	set_mixer_global_volume(VOICE_STREAM, conf_sound_vol_voice);
+	set_mixer_global_volume(SE_STREAM, conf_sound_vol_se);
+
+	/* キャラクタボリュームをセットする */
+	for (i = 0; i < CH_VOL_SLOTS; i++)
+		set_character_volume(i, conf_sound_vol_character);
+
+	/* フォントファイル名をセットする */
+	if (!set_font_file_name(conf_font_file))
+		return false;
+
+	return true;
 }

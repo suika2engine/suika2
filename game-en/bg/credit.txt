@@ -1,14 +1,20 @@
 ***CREDIT***
 
-roof.png
-from http://minikle.onlinestores.jp/
-modified by r0cco
-SECONDARY USE IS PROHIBITED.
+black.png no copyright
 
 coast.png
 from http://minikle.onlinestores.jp/
 SECONDARY USE IS PROHIBITED.
 
-menu.png
-menu_selected.png
-by heath
+config-idle.png by heath (modified by ktabata)
+
+load-bg.png by heath (modified by ktabata)
+
+menu-idle.png by heath (modified by ktabata)
+
+roof.png
+from http://minikle.onlinestores.jp/
+modified by r0cco
+SECONDARY USE IS PROHIBITED.
+
+while.png (no copyright)

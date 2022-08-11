@@ -397,7 +397,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	WNDCLASSEX wcex;
 	RECT rc;
 	DWORD style;
-	int dw, dh, i, cch;
+	int dw, dh, i;
 
 	/* ディスプレイのサイズが足りない場合 */
 	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
@@ -429,7 +429,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 
 	/* ウィンドウのスタイルを決める */
-	if (!conf_window_fullscreen_disable) {
+	if (!conf_window_fullscreen_disable && !conf_window_maximize_disable) {
 		style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
 			    WS_OVERLAPPED;
 	} else {
@@ -451,15 +451,13 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #endif
 
 	/* ウィンドウのタイトルをUTF-8からShiftJISに変換する */
-	cch = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
-							  TITLE_BUF_SIZE - 1);
-	wszTitle[cch] = L'\0';
-	cch = WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle,
-							  (int)wcslen(wszTitle),
-							  mbszTitle + strlen(mbszTitle),
-							  TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
-							  NULL, NULL);
-	mbszTitle[cch] = '\0';
+	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
+						TITLE_BUF_SIZE - 1);
+	WideCharToMultiByte(CP_THREAD_ACP, 0, wszTitle,
+						(int)wcslen(wszTitle),
+						mbszTitle + strlen(mbszTitle),
+						TITLE_BUF_SIZE - (int)strlen(mbszTitle) - 1,
+						NULL, NULL);
 
 	/* ウィンドウを作成する */
 	hWndMain = CreateWindowEx(0, szWindowClass, mbszTitle, style,
@@ -887,11 +885,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		/* オートリピートの場合を除外する */
 		if((HIWORD(lParam) & 0x4000) != 0)
 			return 0;
-		if(wParam == VK_ESCAPE && bFullScreen)
-		{
-			ToggleFullScreen();
-			return 0;
-		}
 		kc = ConvertKeyCode((int)wParam);
 		if(kc != -1)
 			on_event_key_press(kc);
@@ -966,6 +959,8 @@ static int ConvertKeyCode(int nVK)
 		return KEY_UP;
 	case VK_DOWN:
 		return KEY_DOWN;
+	case VK_ESCAPE:
+		return KEY_ESCAPE;
 	case 'C':
 		return KEY_C;
 	default:
@@ -977,6 +972,7 @@ static int ConvertKeyCode(int nVK)
 /* フルスクリーンモードの切り替えを行う */
 static void ToggleFullScreen(void)
 {
+	LONG style;
 	int cx, cy;
 
 #ifdef USE_DEBUGGER
@@ -1012,11 +1008,15 @@ static void ToggleFullScreen(void)
 
 		nOffsetX = 0;
 		nOffsetY = 0;
-		SetWindowLong(hWndMain, GWL_STYLE, (LONG)(WS_CAPTION |
-												  WS_SYSMENU |
-												  WS_MINIMIZEBOX |
-												  WS_MAXIMIZEBOX |
-												  WS_OVERLAPPED));
+
+		if (!conf_window_fullscreen_disable && !conf_window_maximize_disable) {
+			style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
+				    WS_OVERLAPPED;
+		} else {
+			style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPED;
+		}
+
+		SetWindowLong(hWndMain, GWL_STYLE, style);
 		SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
 		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
 					 SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -1115,6 +1115,9 @@ static void OnPaint(void)
 			   SRCCOPY);
 	}
 	EndPaint(hWndMain, &ps);
+
+	if (bD3D)
+		D3DRedraw();
 }
 
 /*
@@ -1483,6 +1486,32 @@ bool delete_dialog(void)
 }
 
 /*
+ * 上書きダイアログを表示する
+ */
+bool overwrite_dialog(void)
+{
+	if (MessageBox(hWndMain,
+				   conv_utf8_to_native(conf_ui_msg_overwrite),
+				   mbszTitle,
+				   MB_OKCANCEL) == IDOK)
+		return true;
+	return false;
+}
+
+/*
+ * 初期設定ダイアログを表示する
+ */
+bool default_dialog(void)
+{
+	if (MessageBox(hWndMain,
+				   conv_utf8_to_native(conf_ui_msg_default),
+				   mbszTitle,
+				   MB_OKCANCEL) == IDOK)
+		return true;
+	return false;
+}
+
+/*
  * ビデオを再生する
  */
 bool play_video(const char *fname, bool is_skippable)
@@ -1569,4 +1598,38 @@ void update_window_title(void)
 
 	/* ウィンドウのタイトルを設定する */
 	SetWindowText(hWndMain, mbszTitle);
+}
+
+/*
+ * フルスクリーンモードがサポートされるか調べる
+ */
+bool is_full_screen_supported()
+{
+	return true;
+}
+
+/*
+ * フルスクリーンモードであるか調べる
+ */
+bool is_full_screen_mode(void)
+{
+	return bFullScreen ? true : false;
+}
+
+/*
+ * フルスクリーンモードを開始する
+ */
+void enter_full_screen_mode(void)
+{
+	if (!bFullScreen)
+		ToggleFullScreen();
+}
+
+/*
+ * フルスクリーンモードを終了する
+ */
+void leave_full_screen_mode(void)
+{
+	if (bFullScreen)
+		ToggleFullScreen();
 }

@@ -91,6 +91,12 @@ bool title_dialog(void);
 /* 削除ダイアログを表示する */
 bool delete_dialog(void);
 
+/* 上書きダイアログを表示する */
+bool overwrite_dialog(void);
+
+/* 初期設定ダイアログを表示する */
+bool default_dialog(void);
+
 /* ビデオを再生する */
 bool play_video(const char *fname, bool is_skippable);
 
@@ -102,6 +108,18 @@ bool is_video_playing(void);
 
 /* ウィンドウタイトルを更新する */
 void update_window_title(void);
+
+/* フルスクリーンモードがサポートされるか調べる */
+bool is_full_screen_supported(void);
+
+/* フルスクリーンモードであるか調べる */
+bool is_full_screen_mode(void);
+
+/* フルスクリーンモードを開始する */
+void enter_full_screen_mode(void);
+
+/* フルスクリーンモードを終了する */
+void leave_full_screen_mode(void);
 
 /*
  * デバッガの場合のみ

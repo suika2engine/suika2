@@ -383,6 +383,14 @@ VOID D3DEndFrame(void)
 }
 
 //
+// 再描画を行う
+//
+VOID D3DRedraw(void)
+{
+	pD3DDevice->Present(NULL, NULL, NULL, NULL);
+}
+
+//
 // イメージをレンダリングする
 // (render_image()のDirect3D版実装)
 //

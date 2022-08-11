@@ -36,6 +36,9 @@ static NSWindow *theWindow;
 // ビュー
 static SuikaView *theView;
 
+// フルスクリーン状態
+static BOOL isFullScreen;
+
 // ログファイル
 #ifndef USE_DEBUGGER
 static FILE *logFp;
@@ -70,6 +73,9 @@ BOOL isFinished;
 // コントロールキーが押下されているか
 BOOL isControlPressed;
 
+// 描画の準備ができているか
+BOOL isRedrawPrepared;
+
 // ビューが作成されるときに呼び出される
 - (id)initWithFrame:(NSRect)frame {
     // メニューのタイトルを変更する https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
@@ -99,8 +105,15 @@ BOOL isControlPressed;
     [[self openGLContext] makeCurrentContext];
 
     // VSYNC待ちを有効にする
-    GLint vsync = GL_TRUE;
-    [[self openGLContext] setValues:&vsync forParameter:NSOpenGLCPSwapInterval];
+    // GLint vsync = GL_TRUE;
+    // [[self openGLContext] setValues:&vsync forParameter:NSOpenGLCPSwapInterval];
+
+    // 初回描画におけるちらつきを抑える
+    // (これがないとAMD Radeonでは一瞬赤になる)
+    if (conf_window_white)
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    else
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // スクリーン拡大率を設定する
     screenScale = 1.0f;
@@ -157,6 +170,8 @@ BOOL isControlPressed;
     // OpenGLの描画を終了する
     opengl_end_rendering();
 
+    isRedrawPrepared = YES;
+
     // drawRectの呼び出しを予約する
     [self setNeedsDisplay:YES];
 }
@@ -168,7 +183,18 @@ BOOL isControlPressed;
     if (isFinished)
         return;
 
+    if (!isRedrawPrepared) {
+        if (conf_window_white)
+            [[NSColor whiteColor] setFill];
+        else
+            [[NSColor blackColor] setFill];
+        NSRectFill(rect);
+        return;
+    }
+
     [[self openGLContext] flushBuffer];
+
+    isRedrawPrepared = NO;
 }
 
 // マウス押下イベント
@@ -240,6 +266,19 @@ BOOL isControlPressed;
 	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
 }
 
+// マウスドラッグイベント
+- (void)mouseDragged:(NSEvent *)theEvent {
+    NSPoint pos = [theEvent locationInWindow];
+    pos.x *= screenScale;
+    pos.y *= screenScale;
+    if (pos.x < 0 && pos.x >= conf_window_width)
+        return;
+    if (pos.y < 0 && pos.y >= conf_window_height)
+        return;
+
+	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
+}
+
 // マウスホイールイベント
 - (void)scrollWheel:(NSEvent *)theEvent {
     if ([theEvent deltaY] > 0) {
@@ -287,16 +326,18 @@ BOOL isControlPressed;
 // キーコードを変換する
 - (int)convertKeyCode:(int)keyCode {
     switch(keyCode) {
-        case KC_SPACE:
-            return KEY_SPACE;
-        case KC_RETURN:
-            return KEY_RETURN;
-        case KC_UP:
-            return KEY_UP;
-        case KC_DOWN:
-            return KEY_DOWN;
-        case KC_C:
-            return KEY_C;
+    case KC_SPACE:
+        return KEY_SPACE;
+    case KC_RETURN:
+        return KEY_RETURN;
+    case KC_UP:
+        return KEY_UP;
+    case KC_DOWN:
+        return KEY_DOWN;
+    case KC_ESCAPE:
+        return KEY_ESCAPE;
+    case KC_C:
+        return KEY_C;
     }
     return -1;
 }
@@ -325,14 +366,18 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     return NSMakeSize(width, height);
 }
 
-// フルスクリーンから戻るときに呼び出される
+// フルスクリーンになるとき呼び出される
 - (void)windowWillEnterFullScreen:(NSNotification *)notification {
+    isFullScreen = YES;
+
     // ウィンドウサイズを保存する
     savedFrame = [theWindow frame];
 }
 
 // フルスクリーンから戻るときに呼び出される
 - (void)windowWillExitFullScreen:(NSNotification *)notification {
+    isFullScreen = NO;
+
     [theWindow setFrame:savedFrame display:YES animate:NO];
     screenScale = 1.0f;
 }
@@ -891,6 +936,43 @@ bool delete_dialog(void)
 }
 
 //
+// 上書きダイアログを表示する
+//
+bool overwrite_dialog(void)
+{
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:
+                   [[NSString alloc]
+                       initWithUTF8String:conf_ui_msg_overwrite]];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return true;
+        return false;
+    }
+}
+
+//
+// 初期設定ダイアログを表示する
+//
+bool default_dialog(void)
+{
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
+        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+        [alert setMessageText:
+                   [[NSString alloc] initWithUTF8String:conf_ui_msg_default]];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return true;
+        return false;
+    }
+}
+
+//
 // ビデオを再生する
 //
 bool play_video(const char *fname, bool is_skippable)
@@ -946,4 +1028,38 @@ void update_window_title(void)
         // ウィンドウのタイトルを設定する
         [theWindow setTitle:s];
     }
+}
+
+//
+// フルスクリーンモードがサポートされるか調べる
+//
+bool is_full_screen_supported(void)
+{
+    return true;
+}
+
+//
+// フルスクリーンモードであるか調べる
+//
+bool is_full_screen_mode(void)
+{
+    return isFullScreen;
+}
+
+//
+// フルスクリーンモードを開始する
+//
+void enter_full_screen_mode(void)
+{
+    if (!isFullScreen)
+        [theWindow toggleFullScreen:theView];
+}
+
+///
+// フルスクリーンモードを終了する
+//
+void leave_full_screen_mode(void)
+{
+    if (isFullScreen)
+        [theWindow toggleFullScreen:theView];
 }

@@ -27,6 +27,7 @@
 #include "event.h"
 #include "file.h"
 #include "glyph.h"
+#include "gui.h"
 #include "history.h"
 #include "image.h"
 #include "log.h"
@@ -74,6 +75,9 @@
 
 /* 設定ファイルのディレクトリ */
 #define CONF_DIR	"conf"
+
+/* GUIファイルのディレクトリ */
+#define GUI_DIR		"gui"
 
 /* セーブデータのディレクトリ */
 #define SAVE_DIR	"sav"

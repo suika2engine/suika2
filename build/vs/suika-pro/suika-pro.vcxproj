@@ -40,6 +40,7 @@
     <ClInclude Include="..\..\..\src\glhelper.h" />
     <ClInclude Include="..\..\..\src\glrender.h" />
     <ClInclude Include="..\..\..\src\glyph.h" />
+    <ClInclude Include="..\..\..\src\gui.h" />
     <ClInclude Include="..\..\..\src\history.h" />
     <ClInclude Include="..\..\..\src\image.h" />
     <ClInclude Include="..\..\..\src\key.h" />
@@ -83,6 +84,7 @@
     <ClCompile Include="..\..\..\src\cmd_click.c" />
     <ClCompile Include="..\..\..\src\cmd_gosub.c" />
     <ClCompile Include="..\..\..\src\cmd_goto.c" />
+    <ClCompile Include="..\..\..\src\cmd_gui.c" />
     <ClCompile Include="..\..\..\src\cmd_if.c" />
     <ClCompile Include="..\..\..\src\cmd_load.c" />
     <ClCompile Include="..\..\..\src\cmd_menu.c" />
@@ -106,6 +108,7 @@
     <ClCompile Include="..\..\..\src\file.c" />
     <ClCompile Include="..\..\..\src\glrender.c" />
     <ClCompile Include="..\..\..\src\glyph.c" />
+    <ClCompile Include="..\..\..\src\gui.c" />
     <ClCompile Include="..\..\..\src\history.c" />
     <ClCompile Include="..\..\..\src\image.c" />
     <ClCompile Include="..\..\..\src\log.c" />

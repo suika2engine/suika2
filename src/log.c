@@ -104,6 +104,20 @@ void log_file_open(const char *fname)
 }
 
 /*
+ * ファイル読み込みエラーを記録する
+ */
+void log_file_read(const char *dir, const char *file)
+{
+	if (is_english_mode()) {
+		log_error("Cannot read file \"%s/%s\".\n", dir,
+			  conv_utf8_to_native(file));
+	} else {
+		log_error("ファイル\"%s/%s\"を読み込めません。\n", dir,
+			  conv_utf8_to_native(file));
+	}
+}
+
+/*
  * フォントファイルのエラーを記録する
  */
 void log_font_file_error(const char *font)
@@ -665,6 +679,132 @@ void log_script_rule(void)
 		log_info("Rule file not specified.");
 	else
 		log_info("ルールファイルが指定されていません。");
+}
+
+/*
+ * GUIファイルにパースできない文字がある際のエラーを記録する
+ */
+void log_gui_parse_char(char c)
+{
+	if (is_english_mode())
+		log_error("Invalid character \'%c\'", c);
+	else
+		log_error("不正な文字 \'%c\'", c);
+}
+
+/*
+ * GUIファイルの記述が長すぎる際のエラーを記録する
+ */
+void log_gui_parse_long_word(void)
+{
+	if (is_english_mode())
+		log_error("Too long word.");
+	else
+		log_error("記述が長すぎます。");
+}
+
+/*
+ * GUIファイルで必要な記述が空白である際のエラーを記録する
+ */
+void log_gui_parse_empty_word(void)
+{
+	if (is_english_mode())
+		log_error("Nothing is specified.");
+	else
+		log_error("空白が指定されました。");
+}
+
+/*
+ * GUIファイルで不正なEOFが現れた際のエラーを記録する
+ */
+void log_gui_parse_invalid_eof(void)
+{
+	if (is_english_mode())
+		log_error("Invalid End-of-File.");
+	else
+		log_error("不正なファイル終端です。");
+}
+
+/*
+ * GUIファイルで未知のグローバルキーが現れた際のエラーを記録する
+ */
+void log_gui_unknown_global_key(const char *key)
+{
+	if (is_english_mode())
+		log_error("Invalid gobal key \"%s\"", key);
+	else
+		log_error("不正なグローバルキー \"%s\"", key);
+}
+
+/*
+ * GUIファイルでボタンが多すぎる際のエラーを記録する
+ */
+void log_gui_too_many_buttons(void)
+{
+	if (is_english_mode())
+		log_error("Too many buttons.");
+	else
+		log_error("ボタンが多すぎます。");
+}
+
+/*
+ * GUIファイルで未知のボタンタイプが指定された際のエラーを記録する
+ */
+void log_gui_unknown_button_type(const char *type)
+{
+	if (is_english_mode())
+		log_error("Unknown button type \"%s\".", type);
+	else
+		log_error("未知のボタンタイプ \"%s\"", type);
+}
+
+/*
+ * GUIファイルで未知のボタンプロパティが指定された際のエラーを記録する
+ */
+void log_gui_unknown_button_property(const char *prop)
+{
+	if (is_english_mode())
+		log_error("Unknown button property \"%s\".", prop);
+	else
+		log_error("未知のボタンプロパティ \"%s\"", prop);
+}
+
+/*
+ * GUIファイルでtypeの前に他のプロパティが記述された際のエラーを記録する
+ */
+void log_gui_parse_property_before_type(const char *prop)
+{
+	if (is_english_mode()) {
+		log_error("Property \"%s\" is specified before \"type\".",
+			  prop);
+	} else {
+		log_error("プロパティ \"%s\" が \"type\" より前に"
+			  "指定されました。",
+			  prop);
+	}
+}
+
+/*
+ * GUIファイルのパースに失敗した際のエラーを記録する
+ */
+void log_gui_parse_footer(const char *file, int line)
+{
+	line++;
+	if (is_english_mode())
+		log_error("> GUI file error: %s:%d", file, line);
+	else
+		log_error("> GUIファイルエラー: %s:%d", file, line);
+}
+
+/*
+ * GUIファイルでイメージが指定されていない際のエラーを記録する
+ */
+void log_gui_image_not_loaded(void)
+{
+	if (is_english_mode())
+		log_error("GUI image(s) not specified.");
+	else
+		log_error("GUI画像が指定されていません。");
 }
 
 #ifdef USE_DEBUGGER

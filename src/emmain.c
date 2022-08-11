@@ -602,6 +602,24 @@ bool delete_dialog(void)
 }
 
 /*
+ * 上書きダイアログを表示する
+ */
+bool overwrite_dialog(void)
+{
+	/* stub */
+	return true;
+}
+
+/*
+ * 初期設定ダイアログを表示する
+ */
+bool default_dialog(void)
+{
+	/* stub */
+	return true;
+}
+
+/*
  * ビデオを再生する
  */
 bool play_video(const char *fname, bool is_skippable)
@@ -634,4 +652,36 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
+}
+
+/*
+ * フルスクリーンモードがサポートされるか調べる
+ */
+bool is_full_screen_supported(void)
+{
+	return false;
+}
+
+/*
+ * フルスクリーンモードであるか調べる
+ */
+bool is_full_screen_mode(void)
+{
+	return false;
+}
+
+/*
+ * フルスクリーンモードを開始する
+ */
+void enter_full_screen_mode(void)
+{
+	/* stub */
+}
+
+/*
+ * フルスクリーンモードを終了する
+ */
+void leave_full_screen_mode(void)
+{
+	/* stub */
 }

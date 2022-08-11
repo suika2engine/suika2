@@ -19,10 +19,16 @@
 /*
  * ミキサのストリーム
  */
-#define MIXER_STREAMS	(3)
-#define BGM_STREAM	(0)
-#define VOICE_STREAM	(1)
-#define SE_STREAM	(2)
+#define MIXER_STREAMS		(3)
+#define BGM_STREAM		(0)
+#define VOICE_STREAM		(1)
+#define SE_STREAM		(2)
+
+/*
+ * キャラ別ボリュームのスロット
+ */
+#define CH_VOL_SLOTS		(16)
+#define CH_VOL_SLOT_DEFAULT	(0)
 
 /* ミキサーモジュールの初期化処理を行う */
 void init_mixer(void);
@@ -45,11 +51,20 @@ void set_mixer_volume(int n, float vol, float span);
 /* ボリュームを取得する */
 float get_mixer_volume(int n);
 
-/* マスターボリュームを設定する */
-void set_mixer_master_volume(int n, float vol);
+/* グローバルボリュームを設定する */
+void set_mixer_global_volume(int n, float vol);
 
-/* マスターボリュームを取得する */
-float get_mixer_master_volume(int n);
+/* グローバルボリュームを取得する */
+float get_mixer_global_volume(int n);
+
+/* キャラクタボリュームを設定する */
+void set_character_volume(int n, float vol);
+
+/* キャラクタボリュームを取得する */
+float get_character_volume(int n);
+
+/* キャラクタボリュームを適用する */
+void apply_character_volume(int index);
 
 /* サウンドを再生し終わったかを取得する */
 bool is_mixer_sound_finished(int n);

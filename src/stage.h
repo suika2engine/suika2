@@ -145,6 +145,7 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_auto_selected,
 			bool is_skip_selected,
 			bool is_history_selected,
+			bool is_config_selected,
 			int *x, int *y, int *w, int *h);
 
 /* システムメニューの座標を取得する */
@@ -335,16 +336,6 @@ void draw_news_bg_image(int x, int y);
 /* FIレイヤにNEWSの選択イメージを描画する */
 void draw_news_fg_image(int x, int y);
 
-/*
- * セーブ画面の描画
- */
-
-/* セーブ画面用にFI/FOレイヤをクリアする */
-void clear_save_stage(void);
-
-/* ロード画面用にFI/FOレイヤをクリアする */
-void clear_load_stage(void);
-
 /* FO/FIの2レイヤに文字を描画する前にロックする */
 void lock_draw_char_on_fo_fi(void);
 
@@ -380,25 +371,6 @@ void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color);
 bool create_temporary_bg(void);
 
 /*
- * ヒストリ画面の表示
- */
-
-/* FOレイヤにステージを描画する */
-void draw_history_fo(void);
-
-/* FIレイヤを色で塗り潰す */
-void draw_history_fi(pixel_t color);
-
-/* FIレイヤをロックする */
-void lock_fi_layer_for_history(void);
-
-/* FIレイヤをアンロックする */
-void unlock_fi_layer_for_history(void);
-
-/* FIレイヤに文字を描画する */
-void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h);
-
-/*
  * バナーの描画
  */
 
@@ -413,6 +385,37 @@ void show_automode_banner(bool show);
 
 /* スキップモードバナーの表示・非表示を設定する */
 void show_skipmode_banner(bool show);
+
+/*
+ * GUI
+ */
+
+/* GUIの画像を削除する */
+void remove_gui_images(void);
+
+/* GUIのidle画像を読み込む */
+bool load_gui_idle_image(const char *file);
+
+/* GUIのhover画像を読み込む */
+bool load_gui_hover_image(const char *file);
+
+/* GUIのactive画像を読み込む */
+bool load_gui_active_image(const char *file);
+
+/* GUIのイメージがすべて揃っているか調べる */
+bool check_stage_gui_images(void);
+
+/* GUIのidle画像を描画する */
+void draw_stage_gui_idle(void);
+
+/* GUIのhover画像を描画する */
+void draw_stage_gui_hover(int x, int y, int w, int h);
+
+/* GUIのactive画像を描画する */
+void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy);
+
+/* GUIのidle画像の内容を仮のBGレイヤに設定する */
+bool create_temporary_bg_for_gui(void);
 
 /*
  * 更新領域の計算

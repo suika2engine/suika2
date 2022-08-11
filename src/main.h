@@ -23,6 +23,22 @@
 #include "types.h"
 
 /*
+ * GUIファイル
+ */
+
+/* コンフィグのGUIファイル */
+#define CONFIG_GUI_FILE		"system.txt"
+
+/* セーブGUIファイル */
+#define SAVE_GUI_FILE		"save.txt"
+
+/* ロードGUIファイル */
+#define LOAD_GUI_FILE		"load.txt"
+
+/* ヒストリのGUIファイル */
+#define HISTORY_GUI_FILE	"history.txt"
+
+/*
  * 入力の状態
  */
 extern bool is_left_button_pressed;
@@ -37,6 +53,7 @@ extern bool is_page_down_pressed;
 extern bool is_control_pressed;
 extern int mouse_pos_x;
 extern int mouse_pos_y;
+extern bool is_mouse_dragging;
 
 /*
  * ゲームループの中身
@@ -75,6 +92,7 @@ bool chs_command(int *x, int *y, int *w, int *h);
 bool video_command(void);
 bool skip_command(void);
 bool chapter_command(void);
+bool gui_command(int *x, int *y, int *w, int *h);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

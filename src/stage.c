@@ -136,18 +136,6 @@ static struct image *news_bg_image;
 /* NEWS(選択)のイメージ */
 static struct image *news_fg_image;
 
-/* セーブ画面(非選択)のイメージ */
-static struct image *save_bg_image;
-
-/* セーブ画面(選択)のイメージ */
-static struct image *save_fg_image;
-
-/* ロード画面(非選択)のイメージ */
-static struct image *load_bg_image;
-
-/* ロード画面(選択)のイメージ */
-static struct image *load_fg_image;
-
 /* システムメニュー(非選択)のイメージ */
 static struct image *sysmenu_idle_image;
 
@@ -223,6 +211,14 @@ static int shake_offset_x;
 static int shake_offset_y;
 
 /*
+ * GUIモード
+ */
+
+static struct image *gui_idle_image;
+static struct image *gui_hover_image;
+static struct image *gui_active_image;
+
+/*
  * 前方参照
  */
 static bool setup_namebox(void);
@@ -230,7 +226,6 @@ static bool setup_msgbox(void);
 static bool setup_click(void);
 static bool setup_switch(void);
 static bool setup_news(void);
-static bool setup_save(void);
 static bool setup_sysmenu(void);
 static bool setup_banner(void);
 static bool setup_thumb(void);
@@ -267,8 +262,6 @@ static float get_anime_interpolation(float progress, float from, float to);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
-static void draw_layer_image_rect(struct image *target, int layer, int x,
-				  int y, int w, int h);
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color,int *w,
 			       int *h);
@@ -303,6 +296,18 @@ bool init_stage(void)
 		destroy_image(rule_img);
 		rule_img = NULL;
 	}
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_active_image = NULL;
+	}
 
 	/* 名前ボックスをセットアップする */
 	if (!setup_namebox())
@@ -322,10 +327,6 @@ bool init_stage(void)
 
 	/* NEWSをセットアップする */
 	if (!setup_news())
-		return false;
-
-	/* セーブ画面をセットアップする */
-	if (!setup_save())
 		return false;
 
 	/* システムメニューをセットアップする */
@@ -568,50 +569,6 @@ static bool setup_news(void)
 	return true;
 }
 
-/* セーブ画面をセットアップする */
-static bool setup_save(void)
-{
-	/* 再初期化時に破棄する */
-	if (save_bg_image != NULL) {
-		destroy_image(save_bg_image);
-		save_bg_image = NULL;
-	}
-	if (save_fg_image != NULL) {
-		destroy_image(save_fg_image);
-		save_fg_image = NULL;
-	}
-	if (load_bg_image != NULL) {
-		destroy_image(save_bg_image);
-		save_bg_image = NULL;
-	}
-	if (load_fg_image != NULL) {
-		destroy_image(save_fg_image);
-		save_fg_image = NULL;
-	}
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	save_bg_image = create_image_from_file(CG_DIR, conf_save_save_bg_file);
-	if (save_bg_image == NULL)
-		return false;
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	save_fg_image = create_image_from_file(CG_DIR, conf_save_save_fg_file);
-	if (save_fg_image == NULL)
-		return false;
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	load_bg_image = create_image_from_file(CG_DIR, conf_save_load_bg_file);
-	if (load_bg_image == NULL)
-		return false;
-
-	/* セーブ画面(非選択)の画像を読み込む */
-	load_fg_image = create_image_from_file(CG_DIR, conf_save_load_fg_file);
-	if (load_fg_image == NULL)
-		return false;
-
-	return true;
-}
-
 /* システムメニューをセットアップする */
 static bool setup_sysmenu(void)
 {
@@ -800,8 +757,10 @@ void cleanup_stage(void)
 			destroy_layer_image(i);
 	}
 	for (i = 0; i <  CLICK_FRAMES; i++) {
-		destroy_image(click_image[i]);
-		click_image[i] = NULL;
+		if (click_image[i] != NULL) {
+			destroy_image(click_image[i]);
+			click_image[i] = NULL;
+		}
 	}
 	if (msgbox_fg_image != NULL) {
 		destroy_image(msgbox_fg_image);
@@ -830,22 +789,6 @@ void cleanup_stage(void)
 	if (news_fg_image != NULL) {
 		destroy_image(news_fg_image);
 		news_fg_image = NULL;
-	}
-	if (save_bg_image != NULL) {
-		destroy_image(save_bg_image);
-		save_bg_image = NULL;
-	}
-	if (save_fg_image != NULL) {
-		destroy_image(save_fg_image);
-		save_fg_image = NULL;
-	}
-	if (load_bg_image != NULL) {
-		destroy_image(load_bg_image);
-		load_bg_image = NULL;
-	}
-	if (load_fg_image != NULL) {
-		destroy_image(load_fg_image);
-		load_fg_image = NULL;
 	}
 	if (sysmenu_idle_image != NULL) {
 		destroy_image(sysmenu_idle_image);
@@ -889,6 +832,18 @@ void cleanup_stage(void)
 		destroy_image(rule_img);
 		rule_img = NULL;
 	}
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_active_image = NULL;
+	}
 }
 
 /*
@@ -913,7 +868,6 @@ static void destroy_layer_image(int layer)
  */
 void draw_stage(void)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -934,7 +888,6 @@ void draw_stage_keep(void)
  */
 void draw_stage_rect(int x, int y, int w, int h)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
@@ -990,7 +943,6 @@ void set_rule_image(struct image *img)
  */
 void draw_stage_bg_fade(int fade_method)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
@@ -1006,7 +958,6 @@ void draw_stage_bg_fade(int fade_method)
  */
 void draw_stage_ch_fade(int fade_method)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_CH_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
@@ -1131,7 +1082,6 @@ static void draw_stage_fi_fo_fade_rule(void)
 {
 	int threshold;
 
-	assert(!is_save_load_mode());
 	assert(stage_mode == STAGE_MODE_BG_FADE ||
 	       stage_mode == STAGE_MODE_CH_FADE);
 	assert(rule_img != NULL);
@@ -1992,7 +1942,6 @@ void draw_stage_with_button_keep(int x, int y, int w, int h)
 void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 				  int new_x, int new_y, int new_w, int new_h)
 {
-	assert(!is_save_load_mode());
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
@@ -2011,34 +1960,6 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 	/* 新しいボタンを描画する */
 	render_image(new_x, new_y, layer_image[LAYER_FI], new_w, new_h, new_x,
 		     new_y, 255, BLEND_NONE);
-}
-
-/*
- * ステージの背景(FO)と前景(FI)を描画する
- */
-void draw_stage_history(void)
-{
-	assert(is_history_mode());
-	assert(!is_save_load_mode());
-	assert(stage_mode != STAGE_MODE_BG_FADE);
-	assert(stage_mode != STAGE_MODE_CH_FADE);
-
-	/* ステージを描画する */
-	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,
-		     conf_window_height, 0, 0, 255, BLEND_NONE);
-
-	/* 文字レイヤを描画する */
-	render_image(0, 0, layer_image[LAYER_FI], conf_window_width,
-		     conf_window_height, 0, 0, 255, BLEND_FAST);
-}
-
-/*
- * ステージの背景(FO)と前景(FI)を描画する(GPU用)
- */
-void draw_stage_history_keep(void)
-{
-	if (is_gpu_accelerated())
-		draw_stage_history();
 }
 
 /*
@@ -2079,6 +2000,7 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_auto_selected,
 			bool is_skip_selected,
 			bool is_history_selected,
+			bool is_config_selected,
 			int *x, int *y, int *w, int *h)
 {
 	/* 描画範囲を更新する */
@@ -2236,6 +2158,16 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			     conf_sysmenu_history_x,
 			     conf_sysmenu_history_y, 255, BLEND_FAST);
 	}
+	if (is_config_selected) {
+		/* コンフィグの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_config_x,
+			     conf_sysmenu_y + conf_sysmenu_config_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_config_width,
+			     conf_sysmenu_config_height,
+			     conf_sysmenu_config_x,
+			     conf_sysmenu_config_y, 255, BLEND_FAST);
+	}
 }
 
 /*
@@ -2337,12 +2269,14 @@ void draw_stage_fo_thumb(void)
 {
 	assert(stage_mode == STAGE_MODE_IDLE);
 
+	lock_image(thumb_image);
 	draw_image_scale(thumb_image,
 			 conf_window_width,
 			 conf_window_height,
 			 0,
 			 0,
 			 layer_image[LAYER_FO]);
+	unlock_image(thumb_image);
 }
 
 /*
@@ -3296,42 +3230,6 @@ void draw_news_fg_image(int x, int y)
 }
 
 /*
- * セーブ画面の描画
- */
-
-/*
- * セーブ画面用にFI/FOレイヤをクリアする
- */
-void clear_save_stage(void)
-{
-	draw_image(layer_image[LAYER_FO], 0, 0, save_bg_image,
-		   get_image_width(layer_image[LAYER_FO]),
-		   get_image_height(layer_image[LAYER_FO]),
-		   0, 0, 255, BLEND_NONE);
-
-	draw_image(layer_image[LAYER_FI], 0, 0, save_fg_image,
-		   get_image_width(layer_image[LAYER_FI]),
-		   get_image_height(layer_image[LAYER_FI]),
-		   0, 0, 255, BLEND_NONE);
-}
-
-/*
- * ロード画面用にFI/FOレイヤをクリアする
- */
-void clear_load_stage(void)
-{
-	draw_image(layer_image[LAYER_FO], 0, 0, load_bg_image,
-		   get_image_width(layer_image[LAYER_FO]),
-		   get_image_height(layer_image[LAYER_FO]),
-		   0, 0, 255, BLEND_NONE);
-
-	draw_image(layer_image[LAYER_FI], 0, 0, load_fg_image,
-		   get_image_width(layer_image[LAYER_FI]),
-		   get_image_height(layer_image[LAYER_FI]),
-		   0, 0, 255, BLEND_NONE);
-}
-
-/*
  * FO/FIの2レイヤに文字を描画する前にロックする
  */
 void lock_draw_char_on_fo_fi(void)
@@ -3461,72 +3359,6 @@ bool create_temporary_bg(void)
 }
 
 /*
- * ヒストリ画面の表示
- */
-
-/*
- * FOレイヤにステージを描画する
- */
-void draw_history_fo(void)
-{
-	lock_image(layer_image[LAYER_FO]);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_BG, 0, 0,
-			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHB, 0, 0,
-      			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHL, 0, 0,
-			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHR, 0, 0,
-			      conf_window_width, conf_window_height);
-	draw_layer_image_rect(layer_image[LAYER_FO], LAYER_CHC, 0, 0,
-			      conf_window_width, conf_window_height);
-	unlock_image(layer_image[LAYER_FO]);
-}
-
-/*
- * FIレイヤを色で塗り潰す
- */
-void draw_history_fi(pixel_t color)
-{
-	clear_image_color(layer_image[LAYER_FI], color);
-}
-
-/*
- * FIレイヤをロックする
- */
-void lock_fi_layer_for_history(void)
-{
-	lock_image(layer_image[LAYER_FI]);
-}
-
-/*
- * FIレイヤをアンロックする
- */
-void unlock_fi_layer_for_history(void)
-{
-	unlock_image(layer_image[LAYER_FI]);
-}
-
-/*
- * FIレイヤに文字を描画する
- */
-void draw_char_on_fi(int x, int y, uint32_t wc, int *w, int *h)
-{
-	pixel_t color, outline_color;
-
-	color = make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	outline_color = make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
-
-	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, w, h);
-}
-
-/*
  * バナーの描画
  */
 
@@ -3636,6 +3468,7 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 	}
 }
 
+#if 0
 /* レイヤの矩形を描画する */
 static void draw_layer_image_rect(struct image *target, int layer, int x,
 				  int y, int w, int h)
@@ -3653,13 +3486,14 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 			   layer_alpha[layer], layer_blend[layer]);
 	}
 }
+#endif
 
 /* レイヤに文字を描画する */
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color, int *w,
 			       int *h)
 {
-	/* 文字の縁取りを描画する Draw outline. */
+	/* 文字を描画する */
 	if (!draw_glyph(layer_image[layer], x, y, color, outline_color, wc, w,
 			h)) {
 		/* グリフがない、コードポイントがおかしい、など */
@@ -3668,6 +3502,149 @@ static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 
 	return true;
 }
+
+/*
+ * GUI
+ */
+
+/*
+ * GUIの画像を削除する
+ */
+void remove_gui_images(void)
+{
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_active_image = NULL;
+	}
+}
+
+/*
+ * GUIのidle画像を読み込む
+ */
+bool load_gui_idle_image(const char *file)
+{
+	if (gui_idle_image != NULL) {
+		destroy_image(gui_idle_image);
+		gui_idle_image = NULL;
+	}
+
+	gui_idle_image = create_image_from_file(CG_DIR, file);
+	if (gui_idle_image == NULL)
+		return false;
+
+	return true;
+}
+
+/*
+ * GUIのhover画像を読み込む
+ */
+bool load_gui_hover_image(const char *file)
+{
+	if (gui_hover_image != NULL) {
+		destroy_image(gui_hover_image);
+		gui_hover_image = NULL;
+	}
+
+	gui_hover_image = create_image_from_file(CG_DIR, file);
+	if (gui_hover_image == NULL)
+		return false;
+
+	return true;
+}
+
+/*
+ * GUIのactive画像を読み込む
+ */
+bool load_gui_active_image(const char *file)
+{
+	if (gui_active_image != NULL) {
+		destroy_image(gui_active_image);
+		gui_active_image = NULL;
+	}
+
+	gui_active_image = create_image_from_file(CG_DIR, file);
+	if (gui_active_image == NULL)
+		return false;
+
+	return true;
+}
+
+/*
+ * GUIのイメージがすべて揃っているか調べる
+ */
+bool check_stage_gui_images(void)
+{
+	if (gui_idle_image == NULL || gui_hover_image == NULL ||
+	    gui_active_image == NULL)
+		return false;
+	return true;
+}
+
+/*
+ * GUIのidle画像を描画する
+ */
+void draw_stage_gui_idle(void)
+{
+	render_image(0, 0, gui_idle_image, conf_window_width,
+		     conf_window_height, 0, 0, 255, BLEND_NONE);
+}
+
+/*
+ * GUIのhover画像を描画する
+ */
+void draw_stage_gui_hover(int x, int y, int w, int h)
+{
+	render_image(x, y, gui_hover_image, w, h, x, y, 255, BLEND_FAST);
+}
+
+/*
+ * GUIのactive画像を描画する
+ */
+void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy)
+{
+	render_image(x, y, gui_active_image, w, h, sx, sy, 255, BLEND_FAST);
+}
+
+/*
+ * idle画像の内容を仮のBGレイヤに設定する
+ */
+bool create_temporary_bg_for_gui(void)
+{
+	struct image *img;
+
+	/* 既存のBGレイヤのイメージを破棄する */
+	destroy_layer_image(LAYER_BG);
+
+	/* 背景のイメージを作成する */
+	img = create_image(conf_window_width, conf_window_height);
+	if (img == NULL)
+		return false;
+
+	/* idleの中身をコピーする */
+	if (gui_idle_image != NULL) {
+		lock_image(img);
+		draw_image(img, 0, 0, gui_idle_image, conf_window_width,
+			   conf_window_height, 0, 0, 255, BLEND_NONE);
+		unlock_image(img);
+	}
+
+	/* BGレイヤにセットする */
+	layer_image[LAYER_BG] = img;
+
+	return true;
+}
+
+/*
+ * 更新領域の計算
+ */
 
 /*
  * 2つの矩形を囲う矩形を求める

@@ -61,7 +61,7 @@ namebox.margin.top=11
 # Don't use centering (0:centering, 1:left justified)
 namebox.centering.no=0
 
-# Left margin of text int the name box image when left justified
+# Left margin of text in the name box image when left justified
 namebox.margin.left=0
 
 ###
@@ -91,7 +91,7 @@ msgbox.margin.right=80
 msgbox.margin.line=40
 
 # Message speed (x characters per second)
-msgbox.speed=20.0
+msgbox.speed=40.0
 
 # Position of the hide button (position inside message box, optional)
 msgbox.btn.hide.x=1146
@@ -104,6 +104,9 @@ msgbox.btn.change.se=btn-change.ogg
 
 # Sound effect when call history screen by up arrow key or mouse wheel up (optional)
 msgbox.history.se=click.ogg
+
+# Sound effect when call config screen by ESC key (optional)
+msgbox.config.se=click.ogg
 
 # Sound effect when hide message box (optional)
 msgbox.hide.se=click.ogg
@@ -174,153 +177,19 @@ switch.child.click.se.file=click.ogg
 switch.change.se=btn-change.ogg
 
 ###
-### Retrospect Screen Settings
-###
-
-# Sound effect when pointed item changed (optional)
-retrospect.change.se=btn-change.ogg
-
-###
 ### Save/Load Screen Settings
 ###
-
-# Save screen (non-selected) image file name
-save.save.bg.file=save-bg.png
-
-# Save screen (selected) image file name
-save.save.fg.file=save-fg.png
-
-# Load screen (non-selected) image file name
-save.load.bg.file=load-bg.png
-
-# Load screen (selected) image file name
-save.load.fg.file=load-fg.png
-
-# Position and size of the previous page button
-save.prev.x=1180
-save.prev.y=112
-save.prev.width=71
-save.prev.height=64
-
-# Sound effect when previous page button clicked (optional)
-save.prev.se=click.ogg
-
-# Position and size of the next page button
-save.next.x=1180
-save.next.y=530
-save.next.width=71
-save.next.height=64
-
-# Sound effect when next page button clicked (optional)
-save.next.se=click.ogg
-
-# Sound effect when saved (optional)
-save.data.save.se=click.ogg
-
-# Sound effect when loaded (optional)
-save.data.load.se=click.ogg
-
-# Size of each save data item
-save.data.width=1106
-save.data.height=140
-
-# Margin in each save data item
-save.data.margin.left=10
-save.data.margin.top=10
 
 # Size of thumbnail
 save.data.thumb.width=213
 save.data.thumb.height=120
-
-# Position of delete button inside save data item
-save.data.delete.x=1080
-save.data.delete.y=0
-save.data.delete.width=28
-save.data.delete.height=28
-
-# Position of the save data 1
-save.data1.x=50
-save.data1.y=138
-
-# Position of the save data 2
-save.data2.x=50
-save.data2.y=283
-
-# Position of the save data 3
-save.data3.x=50
-save.data3.y=429
-
-# Position and size of the exit button
-save.exit.x=33
-save.exit.y=623
-save.exit.width=170
-save.exit.height=64
-
-# Sound effect when exit button clicked (optional)
-save.exit.se=click.ogg
-
-# Position and size of the 'return to title' button
-save.title.x=244
-save.title.y=623
-save.title.width=170
-save.title.height=64
-
-# Sound effect when 'retur to title' button clicked (optional)
-save.title.se=click.ogg
-
-# Jump target file of the 'return to title' button
-save.title.txt=init.txt
-
-# Sound effect when cancel save screen by right click (optional)
-save.cancel.save.se=click.ogg
-
-# Sound effect when cancel load screen by right click (optional)
-save.cancel.load.se=click.ogg
-
-# Sound effect when pointed item changed in save/load screen (optional)
-save.change.se=btn-change.ogg
-
-###
-### History Settings
-###
-
-# Background color
-history.color.r=53
-history.color.g=90
-history.color.b=161
-history.color.a=128
-
-# Space between lines
-history.margin.line=48
-
-# Left margin
-history.margin.left=20
-
-# Top margin
-history.margin.top=20
-
-# Right margin
-history.margin.right=20
-
-# Bottom margin
-history.margin.bottom=20
-
-# Sound effect when go back from history screen (optional)
-history.cancel.se=click.ogg
-
-###
-### Menu (@menu) Settings
-###
-
-# Sound effect when pointed index changed (optional)
-menu.change.se=btn-change.ogg
 
 ###
 ### System Menu Settings
 ###
 
 # Position to show the system menu image
-sysmenu.x=792
+sysmenu.x=731
 sysmenu.y=29
 
 # System menu image (base) file name
@@ -374,6 +243,12 @@ sysmenu.history.y=7
 sysmenu.history.width=60
 sysmenu.history.height=58
 
+# Position of config button (Position inside system menu image)
+sysmenu.config.x=489
+sysmenu.config.y=7
+sysmenu.config.width=60
+sysmenu.config.height=58
+
 # Sound effect when system menu called (optional)
 sysmenu.enter.se=click.ogg
 
@@ -403,6 +278,9 @@ sysmenu.skip.se=click.ogg
 
 # Sound effect when history selected (optional)
 sysmenu.history.se=click.ogg
+
+# Sound effect when config selected (optional)
+sysmenu.config.se=click.ogg
 
 # Position of collapsed system menu image
 sysmenu.collapsed.x=1219
@@ -443,6 +321,37 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### Initial Sound Volumes
+###  - Note that these are the initial values.
+###  - If a user has the save data, then volume settings in the save data
+###    will be used.
+###
+
+# Initial volume of BGM
+sound.vol.bgm=1.0
+
+# Initial volume of voice
+sound.vol.voice=1.0
+
+# Initial volume of sound effect
+sound.vol.se=1.0
+
+# Initial value of per-character volumes
+sound.vol.character=1.0
+
+###
+### Settings For Per-Character Voice Volume
+###  - If the character name of the message matches to the following name list,
+###    then the per-character volume will be applied.
+###  - Per-character volumes can be set in config screen. (#0 to #15)
+###  - You can specify the names for 15 characters (#1 to #15)
+###  - If the character name of the message doesn't match to the following
+###    names, then the #0 per-character volume will be used.
+###
+
+sound.character.name1=Midori
+
+###
 ### Character Message Colors
 ###
 
@@ -479,25 +388,30 @@ serif.color3.outline.b=0
 ui.msg.quit=Are you sure you want to quit?
 ui.msg.title=Are you sure you want to go to title?
 ui.msg.delete=Are you sure you want to delete the save data?
+ui.msg.overwrite=Are you sure you want to overwrite the save data?
+ui.msg.default=Are you sure you want to reset the settings?
 
 ###
 ### Miscellaneous
 ###
 
-# Don't stop voice when clicked (1:non-stop, 0:stop)
+# Don't stop voice when clicked (1:non-stop, 0:stop) (optional)
 voice.stop.off=0
 
-# Disable full screen mode (1:disable, 0:enable)
+# Disable full screen mode (1:disable, 0:enable) (optional)
 window.fullscreen.disable=0
+
+# Disable window maximization (1:disable, 0:enable) (optional)
+window.maximize.disable=0
 
 # Separator between window title and chapter name (optional)
 window.title.separator= 
 
-# Don't reflect chapter name to window title (1:don't reflect, 0:reflect)
+# Don't reflect chapter name to window title (1:don't reflect, 0:reflect) (optional)
 window.title.chapter.disable=0
 
-# Don't blink click animation (1:don't blink, 0:blink)
+# Don't blink click animation (1:don't blink, 0:blink) (optional)
 click.disable=0
 
-# Don't hide message box while changing characters (1:don't hide, 0:hide)
+# Don't hide message box while changing characters (1:don't hide, 0:hide) (optional)
 msgbox.show.on.ch=0

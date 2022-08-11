@@ -16,6 +16,8 @@
  *  - 2021/07/31 スキップモード対応
  *  - 2022/06/06 デバッガに対応
  *  - 2022/07/19 システムメニューに対応
+ *  - 2022/07/28 コンフィグに対応
+ *  - 2022/08/08 セーブ・ロード・ヒストリをGUIに変更
  */
 
 #include "suika.h"
@@ -23,44 +25,31 @@
 
 #define ASSERT_INVALID_BTN_INDEX (0)
 
-/* Unicodeコードポイント */
-#define CHAR_SPACE	(0x0020)
-#define CHAR_COMMA 	(0x002c)
-#define CHAR_PERIOD	(0x002e)
-#define CHAR_COLON	(0x003a)
-#define CHAR_SEMICOLON  (0x003b)
-#define CHAR_TOUTEN	(0x3001)
-#define CHAR_KUTEN	(0x3002)
-#define CHAR_BACKSLASH	(0x005c)
-#define CHAR_YENSIGN	(0x00a5)
-#define CHAR_SMALLN	(0x006e)
-
-/* ビープ音ファイルあたりの文字数 */
-#define BEEP_CHARS	(6)
-
 /* メッセージボックスボタンのインデックス */
-#define BTN_NONE	(-1)
-#define BTN_QSAVE	(0)
-#define BTN_QLOAD	(1)
-#define BTN_SAVE	(2)
-#define BTN_LOAD	(3)
-#define BTN_AUTO	(4)
-#define BTN_SKIP	(5)
-#define BTN_HISTORY	(6)
-#define BTN_HIDE	(7)
+#define BTN_NONE		(-1)
+#define BTN_QSAVE		(0)
+#define BTN_QLOAD		(1)
+#define BTN_SAVE		(2)
+#define BTN_LOAD		(3)
+#define BTN_AUTO		(4)
+#define BTN_SKIP		(5)
+#define BTN_HISTORY		(6)
+#define BTN_CONFIG		(7)
+#define BTN_HIDE		(8)
 
 /* システムメニューのボタンのインデックス */
-#define SYSMENU_NONE	(-1)
-#define SYSMENU_QSAVE	(0)
-#define SYSMENU_QLOAD	(1)
-#define SYSMENU_SAVE	(2)
-#define SYSMENU_LOAD	(3)
-#define SYSMENU_AUTO	(4)
-#define SYSMENU_SKIP	(5)
-#define SYSMENU_HISTORY	(6)
+#define SYSMENU_NONE		(-1)
+#define SYSMENU_QSAVE		(0)
+#define SYSMENU_QLOAD		(1)
+#define SYSMENU_SAVE		(2)
+#define SYSMENU_LOAD		(3)
+#define SYSMENU_AUTO		(4)
+#define SYSMENU_SKIP		(5)
+#define SYSMENU_HISTORY		(6)
+#define SYSMENU_CONFIG		(7)
 
 /* オートモードでボイスありのとき待ち時間 */
-#define AUTO_MODE_VOICE_WAIT		(2000)
+#define AUTO_MODE_VOICE_WAIT		(4000)
 
 /* オートモードでボイスなしのとき待ち時間のスケール */
 #define AUTO_MODE_TEXT_WAIT_SCALE	(0.15f)
@@ -94,6 +83,9 @@ static bool need_load_mode;
 
 /* ヒストリモードに遷移するか */
 static bool need_history_mode;
+
+/* コンフィグモードに遷移するか */
+static bool need_config_mode;
 
 /* オートモードでメッセージ表示とボイス再生の完了後の待ち時間中か */
 static bool is_auto_mode_wait;
@@ -129,11 +121,8 @@ static bool is_click_visible;
 /* スペースキーによる非表示が実行中であるか */
 static bool is_hidden;
 
-/* ヒストリ画面から戻ったばかりであるか */
-static bool history_flag;
-
-/* セーブ画面から戻ったばかりであるか */
-static bool restore_flag;
+/* GUI画面から戻ったばかりであるか */
+static bool gui_flag;
 
 /* 文字列がエスケープ中か */
 static bool escaped;
@@ -171,6 +160,7 @@ static bool process_serif_command(int *x, int *y, int *w, int *h);
 static void draw_namebox(void);
 static int get_namebox_width(void);
 static bool play_voice(void);
+static void set_character_volume_by_name(const char *name);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
 static void draw_click(int *x, int *y, int *w, int *h);
@@ -190,6 +180,7 @@ static bool frame_quick_load(void);
 static bool frame_save(void);
 static bool frame_load(void);
 static bool frame_history(void);
+static bool frame_config(void);
 static void frame_auto_mode(int *x, int *y, int *w, int *h);
 static bool check_auto_play_condition(void);
 static int get_wait_time(void);
@@ -240,6 +231,10 @@ bool message_command(int *x, int *y, int *w, int *h)
 		if (frame_history())
 			break;
 
+		/* コンフィグ画面への遷移を処理する */
+		if (frame_config())
+			break;
+
 		/* オートモードを処理する */
 		frame_auto_mode(x, y, w, h);
 
@@ -263,7 +258,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* クイックロード・セーブ・ロード・ヒストリモードが選択された場合 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode)
+	    need_history_mode || need_config_mode)
 		stop_command_repetition();
 
 	/* 終了処理を行う */
@@ -281,15 +276,27 @@ bool message_command(int *x, int *y, int *w, int *h)
 		draw_collapsed_sysmenu(x, y, w, h);
 	is_sysmenu_finished = false;
 
-	/* セーブ・ロード・ヒストリモードへ遷移する */
-	if (need_save_mode)
-		draw_stage_to_thumb();
-	if (need_save_mode)
-		start_save_mode(false);
-	if (need_load_mode)
-		start_load_mode(false);
-	if (need_history_mode)
-		start_history_mode();
+	/* セーブ・ロード・ヒストリ・コンフィグモードへ遷移する */
+	if (need_save_mode) {
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
+	if (need_load_mode) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
+	if (need_history_mode) {
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
+	if (need_config_mode) {
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
 
 	return true;
 }
@@ -369,11 +376,12 @@ static bool init(int *x, int *y, int *w, int *h)
 	/* オートモードの設定をする */
 	is_auto_mode_wait = false;
 
-	/* セーブ・ロード・ヒストリの設定を行う */
+	/* セーブ・ロード・ヒストリ・コンフィグの設定を行う */
 	did_quick_load = false;
 	need_save_mode = false;
 	need_load_mode = false;
 	need_history_mode = false;
+	need_config_mode = false;
 
 	/* システムメニューの設定を行う */
 	is_sysmenu = false;
@@ -432,20 +440,19 @@ static bool register_message_for_history(void)
 	const char *name;
 	const char *voice;
 
-	/* ヒストリ画面から戻ったばかりの場合、2重登録を防ぐ */
-	history_flag = check_history_flag();
-	if (history_flag)
-		return true;
-
-	/* セーブ画面から戻ったばかりの場合、2重登録を防ぐ */
-	restore_flag = check_restore_flag();
-	if (restore_flag && is_message_registered())
+	/* GUI画面から戻ったばかりの場合、2重登録を防ぐ */
+	gui_flag = check_gui_flag();
+	if (gui_flag || is_message_registered())
 		return true;
 
 	/* 名前、ボイスファイル名、メッセージを取得する */
 	if (get_command_type() == COMMAND_SERIF) {
 		name = get_string_param(SERIF_PARAM_NAME);
 		voice = get_string_param(SERIF_PARAM_VOICE);
+
+		/* ビープ音は履歴画面で再生しない */
+		if (voice[0] == '@')
+			voice = NULL;
 	} else {
 		name = NULL;
 		voice = NULL;
@@ -485,15 +492,14 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 
 	/* ボイスを再生する */
 	if ((is_non_interruptible() &&
-	     (!history_flag &&
-	      (!restore_flag || !is_message_registered())))
+	     (!gui_flag && !is_message_registered()))
 	    ||
 	    (!is_non_interruptible() &&
 	     !(is_skip_mode() && is_skippable()) &&
 	     ((!is_control_pressed ||
 	       (is_control_pressed && !is_skippable())) &&
-	      !history_flag &&
-	      (!restore_flag || !is_message_registered())))) {
+	      !gui_flag &&
+	      !is_message_registered()))) {
 		/* いったんボイスなしの判断にしておく(あとで変更する) */
 		have_voice = false;
 
@@ -567,6 +573,7 @@ static bool play_voice(void)
 {
 	struct wave *w;
 	const char *voice;
+	float beep_factor;
 	int times;
 	bool repeat;
 
@@ -588,11 +595,18 @@ static bool play_voice(void)
 
 	/* ビープ音用のリピート回数をセットする */
 	if (repeat) {
-		times = utf8_chars(get_string_param(SERIF_PARAM_MESSAGE));
-		times /= BEEP_CHARS;
+		beep_factor = conf_beep_adjustment == 0 ?
+			      1 : conf_beep_adjustment;
+		times = (int)((float)utf8_chars(get_string_param(
+							SERIF_PARAM_MESSAGE)) /
+			      conf_msgbox_speed * beep_factor /
+			      (get_text_speed() + 0.1));
 		times = times == 0 ? 1 : times;
 		set_wave_repeat_times(w, times);
 	}
+
+	/* キャラクタ音量を設定する */
+	set_character_volume_by_name(get_string_param(SERIF_PARAM_NAME));
 
 	/* PCMストリームを再生する */
 	set_mixer_input(VOICE_STREAM, w);
@@ -601,6 +615,26 @@ static bool play_voice(void)
 	have_voice = true;
 
 	return true;
+}
+
+/* キャラクタ音量を設定する */
+static void set_character_volume_by_name(const char *name)
+{
+	int i;
+
+	for (i = 1; i < CH_VOL_SLOTS; i++) {
+		/* キャラクタ名を探す */
+		if (conf_sound_character_name[i] == NULL)
+			continue;
+		if (strcmp(conf_sound_character_name[i], name) == 0) {
+			/* みつかった場合 */
+			apply_character_volume(i);
+			return;
+		}
+	}
+
+	/* その他のキャラクタのボリュームを適用する */
+	apply_character_volume(CH_VOL_SLOT_DEFAULT);
 }
 
 /* メッセージボックスの描画を行う */
@@ -618,8 +652,8 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	for (i = 0; i < char_count; i++) {
 		/* ワードラッピングを処理する */
 		if (is_after_space) {
-			if (pen_x + get_en_word_width() >= msgbox_w -
-			    conf_msgbox_margin_right) {
+			if (pen_x + get_en_word_width() >=
+			    msgbox_w - conf_msgbox_margin_right) {
 				pen_y += conf_msgbox_margin_line;
 				pen_x = conf_msgbox_margin_left;
 			}
@@ -700,8 +734,8 @@ static int get_frame_chars(void)
 		return total_chars;
 	}
 
-	/* セーブ画面かヒストリ画面から復帰した場合 */
-	if (restore_flag || history_flag) {
+	/* セーブ画面かヒストリ画面かコンフィグ画面から復帰した場合 */
+	if (gui_flag) {
 		/* すべての文字を描画する */
 		return total_chars;
 	}
@@ -741,7 +775,8 @@ static int get_frame_chars(void)
 	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f;
 
 	/* 今回描画する文字数を取得する */
-	char_count = (int)ceil(conf_msgbox_speed * lap) - drawn_chars;
+	char_count = (int)ceil(conf_msgbox_speed * (get_text_speed() + 0.1) *
+			       lap) - drawn_chars;
 	if (char_count > total_chars - drawn_chars)
 		char_count = total_chars - drawn_chars;
 
@@ -788,7 +823,8 @@ static void draw_click(int *x, int *y, int *w, int *h)
 		is_click_visible = true;
 	} else {
 		index = (lap % (int)(conf_click_interval * 1000)) /
-			((int)(conf_click_interval * 1000) / CLICK_FRAMES);
+			((int)(conf_click_interval * 1000) / CLICK_FRAMES) %
+			CLICK_FRAMES;
 		set_click_index(index);
 		show_click(true);
 		is_click_visible = true;
@@ -806,15 +842,15 @@ static void check_stop_click_animation(void)
 {
 #ifdef USE_DEBUGGER
 	if (!process_click_first && dbg_is_stop_requested()) {
-		if (!have_voice && (restore_flag || history_flag) &&
+		if (!have_voice &&
+		    gui_flag &&
 		    (is_return_pressed || is_down_pressed ||
 		     (pointed_index == BTN_NONE && is_left_button_pressed)))
 			stop_command_repetition();
 		else if (!have_voice)
 			stop_command_repetition();
 		else if (have_voice &&
-			 (is_mixer_sound_finished(VOICE_STREAM) ||
-			  (restore_flag || history_flag)))
+			 (is_mixer_sound_finished(VOICE_STREAM) || gui_flag))
 			stop_command_repetition();
 		else if (have_voice &&
 			 (is_left_button_pressed || is_down_pressed ||
@@ -832,7 +868,7 @@ static void check_stop_click_animation(void)
 			     is_mixer_sound_finished(VOICE_STREAM)))
 				stop_command_repetition();
 		}
-	} else if ((restore_flag || history_flag) &&
+	} else if (gui_flag &&
 		   !process_click_first &&
 		   (is_return_pressed || is_down_pressed ||
 		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
@@ -855,12 +891,13 @@ static void check_stop_click_animation(void)
 static int get_en_word_width(void)
 {
 	const char *m;
+	uint32_t wc;
 	int width;
 
 	m = msg;
 	width = 0;
-	while (isgraph((unsigned char)(*m)))
-		width += get_glyph_width((unsigned char)*m++);
+	while (isgraph_extended(&m, &wc))
+		width += get_glyph_width(wc);
 
 	return width;
 }
@@ -962,7 +999,7 @@ static void init_first_draw_area(int *x, int *y, int *w, int *h)
 {
 	/* 初回に描画する矩形を求める */
 	if (check_menu_finish_flag() || check_retrospect_finish_flag() ||
-	    restore_flag || history_flag) {
+	    gui_flag) {
 		/* メニューコマンドが終了したばかりの場合 */
 		*x = 0;
 		*y = 0;
@@ -1112,6 +1149,12 @@ static void get_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*w = conf_msgbox_btn_history_width;
 		*h = conf_msgbox_btn_history_height;
 		break;
+	case BTN_CONFIG:
+		*x = conf_msgbox_btn_config_x;
+		*y = conf_msgbox_btn_config_y;
+		*w = conf_msgbox_btn_config_width;
+		*h = conf_msgbox_btn_config_height;
+		break;
 	case BTN_HIDE:
 		*x = conf_msgbox_btn_hide_x;
 		*y = conf_msgbox_btn_hide_y;
@@ -1138,7 +1181,7 @@ static int get_sysmenu_pointed_button(void)
 	ry = mouse_pos_y - conf_sysmenu_y;
 
 	/* ボタンを順番に見ていく */
-	for (i = SYSMENU_QSAVE; i <= SYSMENU_HISTORY; i++) {
+	for (i = SYSMENU_QSAVE; i <= SYSMENU_CONFIG; i++) {
 		/* ボタンの座標を取得する */
 		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
 
@@ -1197,6 +1240,12 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*y = conf_sysmenu_history_y;
 		*w = conf_sysmenu_history_width;
 		*h = conf_sysmenu_history_height;
+		break;
+	case SYSMENU_CONFIG:
+		*x = conf_sysmenu_config_x;
+		*y = conf_sysmenu_config_y;
+		*w = conf_sysmenu_config_width;
+		*h = conf_sysmenu_config_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
@@ -1405,6 +1454,54 @@ static bool frame_history(void)
 	return false;
 }
 
+/* コンフィグの表示を処理する */
+static bool frame_config(void)
+{
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はセーブしない */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
+	/* システムメニュー表示中は処理しない */
+	if (is_sysmenu)
+		return false;
+
+	/* メッセージボックス非表示中は処理しない */
+	if (is_hidden)
+		return false;
+
+	/* ESCキーが押下されたとき */
+	if (is_escape_pressed) {
+		/* SEを再生する */
+		play_se(conf_msgbox_config_se);
+
+		/* ボイスを停止する */
+		set_mixer_input(VOICE_STREAM, NULL);
+
+		/* コンフィグモードを開始する */
+		need_config_mode = true;
+
+		return true;
+	}
+
+	/* CONFIGボタンが押された場合 */
+	if (is_left_button_pressed && pointed_index == BTN_CONFIG) {
+		/* SEを再生する */
+		play_se(conf_msgbox_btn_config_se);
+
+		/* ボイスを停止する */
+		set_mixer_input(VOICE_STREAM, NULL);
+
+		/* コンフィグモードを開始する */
+		need_config_mode = true;
+
+		return true;
+	}
+
+	return false;
+}
+
 /* フレーム描画中のオートボタン押下およびオートモード制御を処理する */
 static void frame_auto_mode(int *x, int *y, int *w, int *h)
 {
@@ -1504,11 +1601,11 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 static bool check_auto_play_condition(void)
 {
 	/*
-	 * セーブ画面およびヒストリ画面から戻った場合
+	 * セーブ画面かヒストリ画面かコンフィグ画面から戻った場合
 	 *  - 表示は瞬時に終わり、ボイスも再生されていない
 	 *  - すでに表示完了しているとみなす
 	 */
-	if (restore_flag || history_flag)
+	if (gui_flag)
 		return true;
 
 	/*
@@ -1539,14 +1636,14 @@ static int get_wait_time(void)
 
 	/* ボイスありのとき */
 	if (have_voice)
-		return AUTO_MODE_VOICE_WAIT;
+		return (int)(AUTO_MODE_VOICE_WAIT * get_auto_speed());
 
 	/* ボイスなしのとき、スケールを求める */
 	scale = conf_automode_speed;
 	if (scale == 0)
 		scale = AUTO_MODE_TEXT_WAIT_SCALE;
 
-	return (int)((float)total_chars * scale * 1000.0f);
+	return (int)((float)total_chars * scale * get_auto_speed() * 1000.0f);
 }
 
 /* フレーム描画中のスキップモードの処理を行う */
@@ -1609,6 +1706,9 @@ static void frame_sysmenu(void)
 			/* システムメニューを終了する */
 			is_sysmenu = false;
 			is_sysmenu_finished = true;
+
+			/* 以降のクリック処理を行わない */
+			is_right_button_pressed = false;
 			return;
 		}
 
@@ -1625,6 +1725,9 @@ static void frame_sysmenu(void)
 			/* システムメニューを終了する */
 			is_sysmenu = false;
 			is_sysmenu_finished = true;
+
+			/* 以降のクリック処理を行わない */
+			is_left_button_pressed = false;
 			return;
 		}
 
@@ -1648,6 +1751,7 @@ static void frame_sysmenu(void)
 		/* 左クリックされていない場合、何もしない */
 		if (!is_left_button_pressed)
 			return;
+		is_left_button_pressed = false;
 
 		/* クイックセーブが左クリックされた場合 */
 		if (sysmenu_pointed_index == SYSMENU_QSAVE) {
@@ -1762,6 +1866,20 @@ static void frame_sysmenu(void)
 			return;
 		}
 
+		/* コンフィグが左クリックされた場合 */
+		if (sysmenu_pointed_index == SYSMENU_CONFIG) {
+			/* SEを再生する */
+			play_se(conf_sysmenu_config_se);
+
+			/* システムメニューを終了する */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+
+			/* コンフィグモードを開始する */
+			need_config_mode = true;
+			return;
+		}
+
 		return;
 	}
 
@@ -1780,12 +1898,16 @@ static void frame_sysmenu(void)
 	enter_sysmenu = false;
 
 	/* 右クリックされたとき */
-	if (is_right_button_pressed)
+	if (is_right_button_pressed) {
 		enter_sysmenu = true;
+		is_right_button_pressed = false;
+	}
 
 	/* 折りたたみシステムメニューがクリックされたとき */
-	if (is_left_button_pressed && is_collapsed_sysmenu_pointed())
+	if (is_left_button_pressed && is_collapsed_sysmenu_pointed()) {
 		enter_sysmenu = true;
+		is_left_button_pressed = false;
+	}
 
 	/* システムメニューに入るとき */
 	if (enter_sysmenu) {
@@ -1908,7 +2030,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 {
 	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
-	bool history_sel, redraw;
+	bool history_sel, config_sel, redraw;
 
 	/* 描画するかの判定状態を初期化する */
 	qsave_sel = false;
@@ -1918,6 +2040,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 	auto_sel = false;
 	skip_sel = false;
 	history_sel = false;
+	config_sel = false;
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
@@ -1994,6 +2117,16 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 		}
 	}
 
+	/* コンフィグがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_CONFIG) {
+		config_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_CONFIG &&
+		    !is_sysmenu_first_frame) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
+	}
+
 	/* ポイント項目がなくなった場合 */
 	if (sysmenu_pointed_index == SYSMENU_NONE) {
 		if (old_sysmenu_pointed_index != SYSMENU_NONE)
@@ -2019,6 +2152,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 					   auto_sel,
 					   skip_sel,
 					   history_sel,
+					   config_sel,
 					   x, y, w, h);
 			is_sysmenu_first_frame = false;
 		} else {
@@ -2116,7 +2250,8 @@ static bool cleanup(void)
 	show_click(false);
 
 	/* 表示中のメッセージをなしとする */
-	if (!need_save_mode && !need_load_mode && !need_history_mode)
+	if (!need_save_mode && !need_load_mode && !need_history_mode &&
+	    !need_config_mode)
 		clear_message_registered();
 
 	/* 既読にする */
@@ -2124,7 +2259,7 @@ static bool cleanup(void)
 
 	/* 次のコマンドに移動する */
 	if (!did_quick_load && !need_save_mode && !need_load_mode &&
-	    !need_history_mode) {
+	    !need_history_mode && !need_config_mode) {
 		if (!move_to_next_command())
 			return false;
 	}

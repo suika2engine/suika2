@@ -19,6 +19,7 @@
 #define SUIKA_CONF_H
 
 #include "types.h"
+#include "mixer.h"
 
 /*
  * 言語の設定
@@ -96,6 +97,10 @@ extern int conf_msgbox_btn_history_x;
 extern int conf_msgbox_btn_history_y;
 extern int conf_msgbox_btn_history_width;
 extern int conf_msgbox_btn_history_height;
+extern int conf_msgbox_btn_config_x;
+extern int conf_msgbox_btn_config_y;
+extern int conf_msgbox_btn_config_width;
+extern int conf_msgbox_btn_config_height;
 extern int conf_msgbox_btn_hide_x;
 extern int conf_msgbox_btn_hide_y;
 extern int conf_msgbox_btn_hide_width;
@@ -107,9 +112,11 @@ extern char *conf_msgbox_btn_load_se;
 extern char *conf_msgbox_btn_auto_se;
 extern char *conf_msgbox_btn_skip_se;
 extern char *conf_msgbox_btn_history_se;
+extern char *conf_msgbox_btn_config_se;
 extern char *conf_msgbox_btn_change_se;
 extern char *conf_msgbox_save_se;
 extern char *conf_msgbox_history_se;
+extern char *conf_msgbox_config_se;
 extern char *conf_msgbox_hide_se;
 extern char *conf_msgbox_show_se;
 extern char *conf_msgbox_auto_cancel_se;
@@ -170,68 +177,8 @@ extern char *conf_retrospect_change_se;
 /*
  * セーブ・ロード画面の設定
  */
-extern char *conf_save_save_bg_file;
-extern char *conf_save_save_fg_file;
-extern char *conf_save_load_bg_file;
-extern char *conf_save_load_fg_file;
-extern char *conf_save_prev_se;
-extern int conf_save_prev_x;
-extern int conf_save_prev_y;
-extern int conf_save_prev_width;
-extern int conf_save_prev_height;
-extern char *conf_save_next_se;
-extern int conf_save_next_x;
-extern int conf_save_next_y;
-extern int conf_save_next_width;
-extern int conf_save_next_height;
-extern char *conf_save_data_save_se;
-extern char *conf_save_data_load_se;
-extern int conf_save_data_width;
-extern int conf_save_data_height;
-extern int conf_save_data_margin_left;
-extern int conf_save_data_margin_top;
 extern int conf_save_data_thumb_width;
 extern int conf_save_data_thumb_height;
-extern int conf_save_data_delete_x;
-extern int conf_save_data_delete_y;
-extern int conf_save_data_delete_width;
-extern int conf_save_data_delete_height;
-extern int conf_save_data1_x;
-extern int conf_save_data1_y;
-extern int conf_save_data2_x;
-extern int conf_save_data2_y;
-extern int conf_save_data3_x;
-extern int conf_save_data3_y;
-extern char *conf_save_exit_se;
-extern int conf_save_exit_x;
-extern int conf_save_exit_y;
-extern int conf_save_exit_width;
-extern int conf_save_exit_height;
-extern char *conf_save_title_se;
-extern int conf_save_title_x;
-extern int conf_save_title_y;
-extern int conf_save_title_width;
-extern int conf_save_title_height;
-extern char *conf_save_title_txt;
-extern char *conf_save_loadtosave_se;
-extern char *conf_save_savetoload_se;
-extern char *conf_save_cancel_save_se;
-extern char *conf_save_cancel_load_se;
-extern char *conf_save_change_se;
-
-/*
- * ヒストリ画面の設定
- */
-extern int conf_history_color_r;
-extern int conf_history_color_g;
-extern int conf_history_color_b;
-extern int conf_history_color_a;
-extern int conf_history_margin_line;
-extern int conf_history_margin_left;
-extern int conf_history_margin_top;
-extern int conf_history_margin_right;
-extern int conf_history_margin_bottom;
-extern char *conf_history_cancel_se;
 
 /*
  * メニュー(@menu)の設定
@@ -274,6 +221,10 @@ extern int conf_sysmenu_history_x;
 extern int conf_sysmenu_history_y;
 extern int conf_sysmenu_history_width;
 extern int conf_sysmenu_history_height;
+extern int conf_sysmenu_config_x;
+extern int conf_sysmenu_config_y;
+extern int conf_sysmenu_config_width;
+extern int conf_sysmenu_config_height;
 extern char *conf_sysmenu_enter_se;
 extern char *conf_sysmenu_leave_se;
 extern char *conf_sysmenu_change_se;
@@ -284,6 +235,7 @@ extern char *conf_sysmenu_load_se;
 extern char *conf_sysmenu_auto_se;
 extern char *conf_sysmenu_skip_se;
 extern char *conf_sysmenu_history_se;
+extern char *conf_sysmenu_config_se;
 extern int conf_sysmenu_collapsed_x;
 extern int conf_sysmenu_collapsed_y;
 extern char *conf_sysmenu_collapsed_idle_file;
@@ -306,6 +258,15 @@ extern int conf_skipmode_banner_x;
 extern int conf_skipmode_banner_y;
 
 /*
+ * サウンドの設定
+ */
+extern float conf_sound_vol_bgm;
+extern float conf_sound_vol_voice;
+extern float conf_sound_vol_se;
+extern float conf_sound_vol_character;
+extern char *conf_sound_character_name[CH_VOL_SLOTS]; /* index0は未使用 */
+
+/*
  * セリフの色付け
  */
 #define SERIF_COLOR_COUNT	(64)
@@ -324,21 +285,28 @@ extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 extern char *conf_ui_msg_quit;
 extern char *conf_ui_msg_title;
 extern char *conf_ui_msg_delete;
+extern char *conf_ui_msg_overwrite;
+extern char *conf_ui_msg_default;
 
 /*
  * その他の設定
  */
 extern int conf_voice_stop_off;
 extern int conf_window_fullscreen_disable;
+extern int conf_window_maximize_disable;
 extern char *conf_window_title_separator;
 extern int conf_window_title_chapter_disable;
 extern int conf_click_disable;
 extern int conf_msgbox_show_on_ch;
+extern float conf_beep_adjustment;
 
 /* コンフィグの初期化処理を行う */
 bool init_conf(void);
 
 /* コンフィグの終了処理を行う */
 void cleanup_conf(void);
+
+/* コンフィグの値を元に各種設定を初期値にする */
+bool apply_initial_values(void);
 
 #endif

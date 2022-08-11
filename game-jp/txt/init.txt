@@ -4,6 +4,8 @@
 
 @chapter ロゴ
 
+@bgm stop
+
 @skip disable
 @bg white.png 0
 @ch c suika.png 1.0
@@ -18,11 +20,11 @@
 
 @vol bgm 1.0
 @bgm 00.ogg
-@bg menu.png 1.0
+@bg menu-idle.png 1.0
 
 :MENU
 @chapter メニュー
-@menu menu.png menu_selected.png START 2 495 314 192 LOAD 316 494 322 203 CONFIG 640 492 317 204 QUIT 960 497 317 201
+@gui menu.txt
 
 :START
 @se click.ogg
@@ -30,21 +32,15 @@
 
 :LOAD
 @chapter ロード
-@se click.ogg
-@bg menu.png
-@bg load-bg.png 1.0
 @goto $LOAD
-@bg menu.png 1.0
 @goto MENU
 
 :CONFIG
-@se click.ogg
-@bg menu.png
-@bg config.png 1.0
-@goto CONFIG_SCREEN
+@chapter コンフィグ
+@gui system.txt cancel
+@goto MENU
 
 :QUIT
-@se click.ogg
 @goto END
 
 ###
@@ -236,60 +232,6 @@ Macアプリでは、Mac OS X 10.9以降で動作することを確認してい�
 
 全部読んでいただいてありがとうございました。
 @goto END
-
-###
-### コンフィグ画面
-###
-
-:CONFIG_SCREEN
-@chapter コンフィグ
-@menu config.png config_selected.png BGM_STOP 468 170 149 62 VOICE_STOP 468 256 149 62 SE_STOP 468 340 149 62 BGM_MEDIUM 655 170 237 62 VOICE_MEDIUM 655 256 237 62 SE_MEDIUM 655 340 237 62 BGM_MAX 933 170 127 62 VOICE_MAX 933 256 127 62 SE_MAX 933 340 127 62 CONFIG_OK 524 598 219 73
-
-:BGM_STOP
-@vol BGM 0
-@goto CONFIG_SCREEN
-
-:VOICE_STOP
-@vol VOICE 0
-@goto CONFIG_SCREEN
-
-:SE_STOP
-@vol SE 0
-@goto CONFIG_SCREEN
-
-:BGM_MEDIUM
-@vol BGM 0.5
-@goto CONFIG_SCREEN
-
-:VOICE_MEDIUM
-@vol VOICE 0.5
-@se 025.ogg voice
-@goto CONFIG_SCREEN
-
-:SE_MEDIUM
-@vol SE 0.5
-@se click.ogg
-@goto CONFIG_SCREEN
-
-:BGM_MAX
-@vol BGM 1.0
-@goto CONFIG_SCREEN
-
-:VOICE_MAX
-@vol VOICE 1.0
-@se 025.ogg voice
-@goto CONFIG_SCREEN
-
-:SE_MAX
-@vol SE 1.0
-@se click.ogg
-@goto CONFIG_SCREEN
-
-:CONFIG_OK
-@se click.ogg
-@bg config.png
-@bg menu.png 1.0
-@goto MENU
 
 ###
 ### 終了ロゴ

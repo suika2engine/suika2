@@ -622,6 +622,14 @@ bool delete_dialog(void)
 }
 
 //
+// 初期設定ダイアログを表示する
+//
+bool default_dialog(void)
+{
+	return true;
+}
+
+//
 // ビデオを再生する
 //
 bool play_video(const char *fname, bool is_skippable)

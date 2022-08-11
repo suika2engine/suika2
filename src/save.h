@@ -13,6 +13,7 @@
  *  - 2017/08/17 グローバル変数に対応
  *  - 2021/06/05 マスターボリュームに対応
  *  - 2021/07/07 セーブ専用画面に対応
+ *  - 2022/08/07 GUIをgui.cに分離
  */
 
 #ifndef SUIKA_SAVE_H
@@ -31,20 +32,11 @@ bool init_save(void);
 /* セーブデータに関する終了処理を行う */
 void cleanup_save(void);
 
-/* コマンドがセーブ画面から復帰したかを確認する */
-bool check_restore_flag(void);
+/* セーブを実行する */
+bool execute_save(int index);
 
-/* セーブ画面を開始する */
-void start_save_mode(bool is_goto_save);
-
-/* ロード画面を開始する */
-void start_load_mode(bool is_goto_load);
-
-/* セーブ画面が有効であるかを返す */
-bool is_save_load_mode(void);
-
-/* セーブ画面を実行する */
-bool run_save_load_mode(int *x, int *y, int *w, int *h);
+/* ロードを実行する */
+bool execute_load(int index);
 
 /* グローバルデータを保存する */
 void save_global_data(void);
@@ -52,11 +44,26 @@ void save_global_data(void);
 /* クイックセーブデータがあるか */
 bool have_quick_save_data(void);
 
-/* クイックセーブを行う Do quick save */
+/* クイックセーブを行う */
 bool quick_save(void);
 
-/* クイックロードを行う Do quick load */
+/* クイックロードを行う */
 bool quick_load(void);
+
+/* セーブデータの削除を処理する */
+void delete_save_data(int index);
+
+/* セーブデータの日付を取得する */
+time_t get_save_date(int index);
+
+/* セーブデータの章タイトルを取得する */
+const char *get_save_chapter_name(int index);
+
+/* セーブデータの最後のメッセージを取得する */
+const char *get_save_last_message(int index);
+
+/* セーブデータのサムネイルを取得する */
+struct image *get_save_thumbnail(int index);
 
 /* 章題を設定する */
 bool set_chapter_name(const char *name);
@@ -66,5 +73,17 @@ const char *get_chapter_name(void);
 
 /* 最後のメッセージを設定する */
 bool set_last_message(const char *msg);
+
+/* テキストスピードを設定する */
+void set_text_speed(float val);
+
+/* テキストスピードを取得する */
+float get_text_speed(void);
+
+/* オートスピードを設定する */
+void set_auto_speed(float val);
+
+/* オートスピードを取得する */
+float get_auto_speed(void);
 
 #endif

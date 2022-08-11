@@ -45,16 +45,16 @@ bool vol_command(void)
 		set_mixer_volume(SE_STREAM, vol, span);
 		break;
 	case 'B':
-		/* "BGM" for master volume */
-		set_mixer_master_volume(BGM_STREAM, vol);
+		/* "BGM" for global volume */
+		set_mixer_global_volume(BGM_STREAM, vol);
 		break;
 	case 'V':
-		/* "VOICE" for master volume */
-		set_mixer_master_volume(VOICE_STREAM, vol);
+		/* "VOICE" for global volume */
+		set_mixer_global_volume(VOICE_STREAM, vol);
 		break;
 	case 'S':
-		/* "SE" for master volume */
-		set_mixer_master_volume(SE_STREAM, vol);
+		/* "SE" for global volume */
+		set_mixer_global_volume(SE_STREAM, vol);
 		break;
 	default:
 		/* Incorrect stream name */

@@ -52,6 +52,7 @@
 #define SYSMENU_AUTO	(4)
 #define SYSMENU_SKIP	(5)
 #define SYSMENU_HISTORY	(6)
+#define SYSMENU_CONFIG	(7)
 
 /* 親選択肢のボタン */
 static struct parent_button {
@@ -101,6 +102,9 @@ static bool need_load_mode;
 
 /* ヒストリモードに遷移するか */
 static bool need_history_mode;
+
+/* コフィグモードに遷移するか */
+static bool need_config_mode;
 
 /* システムメニューを表示中か */
 static bool is_sysmenu;
@@ -173,7 +177,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 
 	/* クイックロード・セーブ・ロード・ヒストリが選択された場合 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode)
+	    need_history_mode || need_config_mode)
 		stop_command_repetition();
 
 	/* 終了処理を行う */
@@ -184,12 +188,25 @@ bool switch_command(int *x, int *y, int *w, int *h)
 	/* セーブ・ロード・ヒストリ画面に移行する */
 	if (need_save_mode) {
 		draw_stage_fo_thumb();
-		start_save_mode(false);
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
 	}
-	if (need_load_mode)
-		start_load_mode(false);
-	if (need_history_mode)
-		start_history_mode();
+	if (need_load_mode) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
+	if (need_history_mode) {
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
+	if (need_config_mode) {
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true))
+			return false;
+		start_gui_mode();
+	}
 
 	return true;
 }
@@ -211,6 +228,7 @@ bool init(void)
 	need_save_mode = false;
 	need_load_mode = false;
 	need_history_mode = false;
+	need_config_mode = false;
 
 	type = get_command_type();
 	if (type == COMMAND_CHOOSE) {
@@ -469,8 +487,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	*h = 0;
 
 	/* セーブ画面かヒストリ画面から復帰した場合のフラグをクリアする */
-	check_restore_flag();
-	check_history_flag();
+	check_gui_flag();
 
 	/* 初回描画の場合 */
 	if (is_first_frame) {
@@ -681,7 +698,7 @@ static int get_sysmenu_pointed_button(void)
 	ry = mouse_pos_y - conf_sysmenu_y;
 
 	/* ボタンを順番に見ていく */
-	for (i = SYSMENU_QSAVE; i <= SYSMENU_HISTORY; i++) {
+	for (i = SYSMENU_QSAVE; i <= SYSMENU_CONFIG; i++) {
 		/* ボタンの座標を取得する */
 		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
 
@@ -740,6 +757,12 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*y = conf_sysmenu_history_y;
 		*w = conf_sysmenu_history_width;
 		*h = conf_sysmenu_history_height;
+		break;
+	case SYSMENU_CONFIG:
+		*x = conf_sysmenu_config_x;
+		*y = conf_sysmenu_config_y;
+		*w = conf_sysmenu_config_width;
+		*h = conf_sysmenu_config_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
@@ -938,6 +961,21 @@ static void process_main_click(void)
 {
 	bool enter_sysmenu;
 
+	/* ヒストリ画面への遷移を確認する */
+	if (is_up_pressed && get_history_count() != 0) {
+		play_se(conf_msgbox_history_se);
+		need_history_mode = true;
+		return;
+	}
+
+	/* コンフィグ画面への遷移を確認する */
+	if (is_escape_pressed) {
+		play_se(conf_msgbox_config_se);
+		need_config_mode = true;
+		return;
+	}
+
+	/* システムメニューへの遷移を確認していく */
 	enter_sysmenu = false;
 
 	/* 右クリックされたとき */
@@ -959,13 +997,6 @@ static void process_main_click(void)
 		sysmenu_pointed_index = get_sysmenu_pointed_button();
 		old_sysmenu_pointed_index = sysmenu_pointed_index;
 		is_sysmenu_finished = false;
-		return;
-	}
-
-	/* ヒストリ画面への遷移を確認する */
-	if (is_up_pressed && !is_history_empty()) {
-		play_se(conf_msgbox_history_se);
-		need_history_mode = true;
 		return;
 	}
 }
@@ -1078,7 +1109,7 @@ static void process_sysmenu_click(void)
 	/* ヒストリが左クリックされた場合 */
 	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
 		/* ヒストリがない場合はヒストリモードを開始しない */
-		if (is_history_empty())
+		if (get_history_count() == 0)
 			return;
 
 		/* SEを再生する */
@@ -1092,6 +1123,20 @@ static void process_sysmenu_click(void)
 		need_history_mode = true;
 		return;
 	}
+
+	/* コンフィグが左クリックされた場合 */
+	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
+		/* SEを再生する */
+		play_se(conf_sysmenu_config_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+
+		/* コンフィグモードを開始する */
+		need_config_mode = true;
+		return;
+	}
 }
 
 /* システムメニューを描画する */
@@ -1099,7 +1144,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 {
 	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
-	bool history_sel, redraw;
+	bool history_sel, config_sel, redraw;
 
 	/* 描画するかの判定状態を初期化する */
 	qsave_sel = false;
@@ -1109,6 +1154,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	auto_sel = false;
 	skip_sel = false;
 	history_sel = false;
+	config_sel = false;
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
@@ -1167,6 +1213,16 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		}
 	}
 
+	/* コンフィグがポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_CONFIG) {
+		config_sel = true;
+		if (old_sysmenu_pointed_index != SYSMENU_CONFIG &&
+		    !is_sysmenu_first_frame) {
+			play_se(conf_sysmenu_change_se);
+			redraw = true;
+		}
+	}
+
 	/* ポイント項目がなくなった場合 */
 	if (sysmenu_pointed_index == SYSMENU_NONE) {
 		if (old_sysmenu_pointed_index != SYSMENU_NONE)
@@ -1197,6 +1253,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 				   auto_sel,
 				   skip_sel,
 				   history_sel,
+				   config_sel,
 				   x, y, w, h);
 		is_sysmenu_first_frame = false;
 	}
@@ -1258,7 +1315,7 @@ static bool cleanup(void)
 
 	/* セーブ・ロードを行う際はコマンドの移動を行わない */
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode)
+	    need_history_mode || need_config_mode)
 		return true;
 
 	n = selected_parent_index;

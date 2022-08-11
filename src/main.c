@@ -46,6 +46,7 @@ bool is_page_down_pressed;
 bool is_control_pressed;
 int mouse_pos_x;
 int mouse_pos_y;
+bool is_mouse_dragging;
 
 /* 複数のイテレーションに渡るコマンドの実行中であるか */
 static bool is_in_repetition;
@@ -106,6 +107,7 @@ void init_game_loop(void)
 	is_control_pressed = false;
 	mouse_pos_x = 0;
 	mouse_pos_y = 0;
+	is_mouse_dragging = false;
 	is_in_repetition = false;
 	flag_message_registered = false;
 	flag_menu_finished = false;
@@ -117,7 +119,6 @@ void init_game_loop(void)
 	/* Android NDK用に状態を初期化する */
 	check_menu_finish_flag();
 	check_retrospect_finish_flag();
-	check_restore_flag();
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
@@ -132,13 +133,22 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 {
 	bool cont;
 
-	if (is_save_load_mode()) {
-		/* セーブ画面を実行する */
-		if (!run_save_load_mode(x, y, w, h))
-			return false; /* 終了ボタンが押下された */
-	} else if (is_history_mode()) {
-		/* ヒストリ画面を実行する */
-		run_history_mode(x, y, w, h);
+	if (is_gui_mode()) {
+		/* GUIモードを実行する */
+		if (!run_gui_mode(x, y, w, h))
+			return false; /* エラー */
+
+		/* GUIモードが終了した場合 */
+		if (!is_gui_mode()) {
+			if (!is_in_repetition) {
+				/* ロードされたときのために終了処理を行う */
+				cleanup_gui();
+			} else {
+				/* @guiを終了する */
+				if (!gui_command(x, y, w, h))
+					return false; /* エラー */
+			}
+		}
 	} else {
 		/* コマンドを実行する */
 		do {
@@ -176,7 +186,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 
 	/*
 	 * 入力の状態をリセットする
-	 *  - Control以外は1フレームごとにリセットする
+	 *  - Controlキー押下とドラッグ状態以外は1フレームごとにリセットする
 	 */
 	is_left_button_pressed = false;
 	is_right_button_pressed = false;
@@ -429,6 +439,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		if (!chapter_command())
 			return false;
 		*cont = true;
+		break;
+	case COMMAND_GUI:
+		if (!gui_command(x, y, w, h))
+			return false;
 		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */

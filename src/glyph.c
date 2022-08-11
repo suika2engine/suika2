@@ -29,6 +29,13 @@
 
 #define SCALE	(64)
 
+/* フォントファイル名 */
+static char *font_file;
+
+/* 初期化済みか(Android用) */
+static bool is_initialized;
+
+/* FreeType2のオブジェクト */
 static FT_Library library;
 static FT_Face face;
 static FT_Byte *font_file_content;
@@ -53,6 +60,20 @@ static void draw_glyph_func(unsigned char * RESTRICT font, int font_width,
 bool init_glyph(void)
 {
 	FT_Error err;
+
+	/* Android用, もしくはフォント変更時用 */
+	if (face != NULL) {
+		FT_Done_Face(face);
+		face = NULL;
+	}
+	if (library != NULL) {
+		FT_Done_FreeType(library);
+		library = NULL;
+	}
+	if (font_file_content != NULL) {
+		free(font_file_content);
+		font_file_content = NULL;
+	}
 
 	/* FreeType2ライブラリを初期化する */
 	err = FT_Init_FreeType(&library);
@@ -81,6 +102,7 @@ bool init_glyph(void)
 	}
 
 	/* 成功 */
+	is_initialized = true;
 	return true;
 }
 
@@ -91,7 +113,7 @@ static bool read_font_file_content(void)
 	FT_Long remain, block;
 
 	/* フォントファイルを開く */
-	rf = open_rfile(FONT_DIR, conf_font_file, false);
+	rf = open_rfile(FONT_DIR, font_file, false);
 	if (rf == NULL)
 		return false;
 
@@ -136,16 +158,23 @@ static bool read_font_file_content(void)
  */
 void cleanup_glyph(void)
 {
-	FT_Done_Face(face);
-	face = NULL;
+	if (face != NULL) {
+		FT_Done_Face(face);
+		face = NULL;
+	}
 
-	FT_Done_FreeType(library);
-	library = NULL;
+	if (library != NULL) {
+		FT_Done_FreeType(library);
+		library = NULL;
+	}
 
 	if (font_file_content != NULL) {
 		free(font_file_content);
 		font_file_content = NULL;
 	}
+
+	free(font_file);
+	font_file = NULL;
 }
 
 /*
@@ -249,18 +278,14 @@ int utf8_chars(const char *mbs)
  */
 int get_glyph_width(uint32_t codepoint)
 {
-	FT_Error err;
+	int w, h;
 
-	/* 文字をロードする */
-	/* FIXME: FT_LOAD_RENDER以外のオプションにできるか？ */
-	err = FT_Load_Char(face, codepoint, FT_LOAD_RENDER);
-	if (err != 0) {
-		log_api_error("FT_Load_Char");
-		return -1;
-	}
+	w = h = 0;
 
 	/* 幅を求める */
-	return (int)face->glyph->advance.x / SCALE;
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h);
+
+	return w;
 }
 
 /*
@@ -315,23 +340,27 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	FT_Glyph_StrokeBorder(&glyph, stroker, false, true);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
-	draw_glyph_func(bitmapGlyph->bitmap.buffer,
-			(int)bitmapGlyph->bitmap.width,
-			(int)bitmapGlyph->bitmap.rows,
-			bitmapGlyph->left,
-			conf_font_size - bitmapGlyph->top,
-			get_image_pixels(img),
-			get_image_width(img),
-			get_image_height(img),
-			x,
-			y,
-			outline_color);
+	if (img != NULL) {
+		draw_glyph_func(bitmapGlyph->bitmap.buffer,
+				(int)bitmapGlyph->bitmap.width,
+				(int)bitmapGlyph->bitmap.rows,
+				bitmapGlyph->left,
+				conf_font_size - bitmapGlyph->top,
+				get_image_pixels(img),
+				get_image_width(img),
+				get_image_height(img),
+				x,
+				y,
+				outline_color);
+	}
 	descent = (int)(face->glyph->metrics.height / SCALE) -
 		  (int)(face->glyph->metrics.horiBearingY / SCALE);
 	*w = (int)face->glyph->advance.x / SCALE;
 	*h = conf_font_size + descent + 2;
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
+	if (img == NULL)
+		return true;
 
 	/* 中身を描画する */
 	FT_Stroker_New(library, &stroker);
@@ -341,17 +370,19 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	FT_Get_Glyph(face->glyph, &glyph);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
-	draw_glyph_func(bitmapGlyph->bitmap.buffer,
-			(int)bitmapGlyph->bitmap.width,
-			(int)bitmapGlyph->bitmap.rows,
-			bitmapGlyph->left,
-			conf_font_size - bitmapGlyph->top,
-			get_image_pixels(img),
-			get_image_width(img),
-			get_image_height(img),
-			x,
-			y,
-			color);
+	if (img != NULL) {
+		draw_glyph_func(bitmapGlyph->bitmap.buffer,
+				(int)bitmapGlyph->bitmap.width,
+				(int)bitmapGlyph->bitmap.rows,
+				bitmapGlyph->left,
+				conf_font_size - bitmapGlyph->top,
+				get_image_pixels(img),
+				get_image_width(img),
+				get_image_height(img),
+				x,
+				y,
+				color);
+	}
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
 
@@ -397,6 +428,71 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 	*h = conf_font_size + descent;
 
 	return true;
+}
+
+/*
+ * フォントファイル名を設定する
+ *  - init_glyph()よりも前に呼ばれる
+ *  - ファイル名が設定されても、init_glyph()を呼び出し直さないと反映されない
+ */
+bool set_font_file_name(const char *file)
+{
+	if (font_file != NULL) {
+		free(font_file);
+		font_file = NULL;
+	}
+
+	font_file = strdup(file);
+	if (font_file == NULL) {
+		log_memory();
+		return false;
+	}
+
+	return true;
+}
+
+/*
+ * フォントファイル名を取得する
+ */
+const char *get_font_file_name(void)
+{
+	return font_file;
+}
+
+/*
+ * サポートされているアルファベットか調べる
+ */
+bool isgraph_extended(const char **mbs, uint32_t *wc)
+{
+	int len;
+
+	/* 英語のアルファベットと記号の場合 */
+	if (isgraph((unsigned char)**mbs)) {
+		*wc = (unsigned char)**mbs;
+		(*mbs)++;
+		return true;
+	}
+
+	/* Unicode文字を取得する */
+	len = utf8_to_utf32(*mbs, wc);
+	if (len < 1)
+		return false;
+	*mbs += len;
+
+	/* アクセント付きラテンアルファベットの場合 */
+	if (*wc >= 0x00c0 && *wc <= 0x017f)
+		return true;
+
+	/* ギリシャ語の場合 */
+	if (*wc >= 0x0370 && *wc <= 0x3ff)
+		return true;
+
+	/* ロシア語の場合 */
+	if (*wc >= 0x410 && *wc <= 0x44f)
+		return true;
+
+	/* 他の言語 */
+	return false;
 }
 
 /*

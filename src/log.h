@@ -15,6 +15,7 @@
  *  - 2021/06/15 @setsaveのパラメタのエラーを追加
  *  - 2021/07/07 @goto $SAVEのエラーを追加
  *  - 2022/06/14 Suika2 Pro for Creators
+ *  - 2022/07/28 GUIモジュール対応
  */
 
 #ifndef SUIKA_LOG_H
@@ -29,6 +30,7 @@ void log_audio_file_error(const char *dir, const char *file);
 void log_dir_file_open(const char *dir, const char *file);
 void log_file_name(const char *dir, const char *file);
 void log_file_open(const char *fname);
+void log_file_read(const char *dir, const char *file);
 void log_font_file_error(const char *font);
 void log_image_file_error(const char *dir, const char *file);
 void log_memory(void);
@@ -69,6 +71,17 @@ void log_script_choose_no_message(void);
 void log_script_empty_string(void);
 void log_file_write(const char *file);
 void log_script_rule(void);
+void log_gui_parse_char(char c);
+void log_gui_parse_long_word(void);
+void log_gui_parse_empty_word(void);
+void log_gui_parse_invalid_eof(void);
+void log_gui_unknown_global_key(const char *key);
+void log_gui_too_many_buttons(void);
+void log_gui_unknown_button_type(const char *type);
+void log_gui_unknown_button_property(const char *key);
+void log_gui_parse_property_before_type(const char *prop);
+void log_gui_parse_footer(const char *file, int line);
+void log_gui_image_not_loaded(void);
 
 #ifdef USE_DEBUGGER
 void log_command_update_error(void);

@@ -98,6 +98,9 @@ msgbox.btn.change.se=btn-change.ogg
 # 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
 msgbox.history.se=click.ogg
 
+# ESCキーでコンフィグ画面を呼び出すときのSE(省略可)
+msgbox.config.se=click.ogg
+
 # メッセージボックスを非表示にするときのSE(省略可)
 msgbox.hide.se=click.ogg
 
@@ -167,153 +170,19 @@ switch.child.click.se.file=click.ogg
 switch.change.se=btn-change.ogg
 
 ###
-### 回想画面(@retrospect)の設定
-###
-
-# 選択項目が変更されたときのSE(省略可)
-retrospect.change.se=btn-change.ogg
-
-###
 ### セーブ・ロード画面の設定
 ###
-
-# セーブ画面(非選択状態の画像)
-save.save.bg.file=save-bg.png
-
-# セーブ画面(選択状態の画像)
-save.save.fg.file=save-fg.png
-
-# ロード画面(非選択状態の画像)
-save.load.bg.file=load-bg.png
-
-# ロード画面(選択状態の画像)
-save.load.fg.file=load-fg.png
-
-# 前ページボタンの位置と大きさ
-save.prev.x=1180
-save.prev.y=112
-save.prev.width=71
-save.prev.height=64
-
-# 前ページボタンがクリックされたときのSE(省略可)
-save.prev.se=click.ogg
-
-# 次ページボタンの位置と大きさ
-save.next.x=1180
-save.next.y=530
-save.next.width=71
-save.next.height=64
-
-# 次ページボタンがクリックされたときのSE(省略可)
-save.next.se=click.ogg
-
-# セーブ時のSE(省略可)
-save.data.save.se=click.ogg
-
-# ロード時のSE(省略可)
-save.data.load.se=click.ogg
-
-# セーブデータ項目の大きさ
-save.data.width=1106
-save.data.height=140
-
-# セーブデータ項目内のマージン
-save.data.margin.left=10
-save.data.margin.top=10
 
 # セーブデータのサムネイルのサイズ
 save.data.thumb.width=213
 save.data.thumb.height=120
-
-# セーブデータ項目内の削除ボタンの位置
-save.data.delete.x=1080
-save.data.delete.y=0
-save.data.delete.width=28
-save.data.delete.height=28
-
-# セーブデータ1の位置
-save.data1.x=50
-save.data1.y=138
-
-# セーブデータ2の位置
-save.data2.x=50
-save.data2.y=283
-
-# セーブデータ3の位置
-save.data3.x=50
-save.data3.y=429
-
-# 戻るボタンの位置とサイズ
-save.exit.x=33
-save.exit.y=623
-save.exit.width=170
-save.exit.height=64
-
-# 戻るボタンがクリックされたときのSE(省略可)
-save.exit.se=click.ogg
-
-# タイトルへ戻るボタンの位置とサイズ
-save.title.x=244
-save.title.y=623
-save.title.width=170
-save.title.height=64
-
-# タイトルへ戻るボタンがクリックされたときのSE(省略可)
-save.title.se=click.ogg
-
-# タイトルへ戻るボタンがクリックされたときのジャンプ先ファイル名
-save.title.txt=init.txt
-
-# セーブ画面を右クリックでキャンセルするときのSE(省略可)
-save.cancel.save.se=click.ogg
-
-# ロード画面を右クリックでキャンセルするときのSE(省略可)
-save.cancel.load.se=click.ogg
-
-# セーブ・ロード画面で選択項目が変わったときのSE(省略可)
-save.change.se=btn-change.ogg
-
-###
-### ヒストリ画面の設定
-###
-
-# 背景色
-history.color.r=53
-history.color.g=90
-history.color.b=161
-history.color.a=128
-
-# 行間マージン
-history.margin.line=48
-
-# 画面左のマージン
-history.margin.left=20
-
-# 画面上のマージン
-history.margin.top=20
-
-# 画面右のマージン
-history.margin.right=20
-
-# 画面下のマージン
-history.margin.bottom=20
-
-# ヒストリ画面から戻るときのSE(省略可)
-history.cancel.se=click.ogg
-
-###
-### メニュー(@menu)の設定
-###
-
-# メニューのポイントされている項目が変わったときのSE(省略可)
-menu.change.se=btn-change.ogg
 
 ###
 ### システムメニューの設定
 ###
 
 # システムメニュー画像の座標
-sysmenu.x=792
+sysmenu.x=731
 sysmenu.y=29
 
 # システムメニュー画像(通常時)のファイル名
@@ -367,6 +236,12 @@ sysmenu.history.y=7
 sysmenu.history.width=60
 sysmenu.history.height=58
 
+# システムメニューのコンフィグボタンの座標(システムメニュー画像内での座標)
+sysmenu.config.x=489
+sysmenu.config.y=7
+sysmenu.config.width=60
+sysmenu.config.height=58
+
 # システムメニューを呼び出すときのSE(省略可)
 sysmenu.enter.se=click.ogg
 
@@ -396,6 +271,9 @@ sysmenu.skip.se=click.ogg
 
 # システムメニューのヒストリが選択されたときのSE(省略可)
 sysmenu.history.se=click.ogg
+
+# システムメニューのコンフィグが選択されたときのSE(省略可)
+sysmenu.config.se=click.ogg
 
 # 折りたたみシステムメニュー画像の座標
 sysmenu.collapsed.x=1219
@@ -436,6 +314,33 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### 音量の初期値
+###  - これは初期値で、セーブデータがある場合はそちらが利用される
+###
+
+# BGMのボリューム初期値
+sound.vol.bgm=1.0
+
+# ボイスのボリューム初期値
+sound.vol.voice=1.0
+
+# SEのボリューム初期値
+sound.vol.se=1.0
+
+# キャラクタごとの音量の初期値
+sound.vol.character=1.0
+
+###
+### キャラクタ名ごとに音量を調節するための設定
+###  - セリフの名前が下記に一致した場合、キャラクタごとの音量が適用される
+###  - キャラクタごとの音量はコンフィグ画面から設定可能(0番から15番まで)
+###  - 1番から15番までの15キャラ分について名前を指定可能
+###  - セリフの名前がどれにも一致しないときは0番の音量が利用される
+###
+
+sound.character.name1=みどり
+
+###
 ### セリフの色の設定
 ###
 
@@ -472,25 +377,30 @@ serif.color3.outline.b=0
 ui.msg.quit=終了しますか？
 ui.msg.title=タイトルに戻りますか？
 ui.msg.delete=セーブデータを削除しますか？
+ui.msg.overwrite=セーブデータを上書きしますか？
+ui.msg.default=初期設定に戻しますか？
 
 ###
 ### その他
 ###
 
-# クリックでボイスを止めない (1:止めない, 0:止める)
+# クリックでボイスを止めない (1:止めない, 0:止める) (省略可)
 voice.stop.off=0
 
-# フルスクリーンを無効にする (1:無効にする, 0:有効にする)
+# フルスクリーンを無効にする (1:無効にする, 0:有効にする) (省略可)
 window.fullscreen.disable=0
 
-# ウィンドタイトルと章タイトルの間に入れる文字 (省略可)
+# ウィンドウの最大化を無効にする (1:無効にする, 0:有効にする) (省略可)
+window.maximize.disable=0
+
+# ウィンドウタイトルと章タイトルの間のセパレータ(省略可)
 window.title.separator= 
 
-# 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する)
+# 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する) (省略可)
 window.title.chapter.disable=0
 
-# クリックアニメーションの点滅を行わない (1:点滅しない, 0:点滅する)
+# クリックアニメーションの点滅を行わない (1:点滅しない, 0:点滅する) (省略可)
 click.disable=0
 
-# キャラクタの変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す)
+# キャラクタの変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
 msgbox.show.on.ch=0
