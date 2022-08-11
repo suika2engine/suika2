@@ -30,8 +30,8 @@ suika-2.x.x-en.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ..
 	cp -Rv ../../game-en/txt/* suika2/txt/
 	cp -v ../../COPYING suika2/
 	cp -v ../../readme-en.html suika2/README.html
-	cp -v ../../suika.exe suika2/
-	cp -v ../../suika-pro.exe suika2/
+	cp -v ../../fileserver/suika.exe suika2/
+	cp -v ../../fileserver/suika-pro.exe suika2/
 	cp -v ../../fileserver/mac.dmg suika2/
 	cp -v ../../fileserver/mac-pro.dmg suika2/
 	zip -r suika-2.x.x-en.zip suika2

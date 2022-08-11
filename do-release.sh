@@ -12,7 +12,7 @@ echo "Are you sure you want to release $VERSION? (press return)"
 read str
 
 echo ""
-echo "Checking for the symbolic link to Windows file sharing."
+echo "Checking for the mountpoint of Windows file sharing."
 [ -e fileserver ]
 
 echo ""
@@ -40,7 +40,7 @@ echo "Building suika.exe"
 cd build/mingw
 make clean
 ./build-libs.sh
-make
+make -j24
 cp suika.exe ../../fileserver/
 cd ../../
 
@@ -49,7 +49,7 @@ echo "Building suika-pro.exe"
 cd build/mingw-pro
 make clean
 ./build-libs.sh
-make
+make -j24
 cp suika-pro.exe ../../fileserver/
 cd ../../
 
