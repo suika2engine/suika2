@@ -20,13 +20,20 @@ echo "Checking for the symbolic link to ftp local directory."
 [ -e ftplocal ]
   
 echo ""
-echo "Export notarized Mac apps. (press return)"
+echo "Please prepare Mac app DMGs. (press return)"
 read str
 
 echo ""
 echo "Checking for Mac apps."
-[ -d suika.app ]
-[ -d suika-pro.app ]
+[ -f fileserver/mac.dmg ]
+[ -f fileserver/mac-pro.dmg ]
+
+echo ""
+echo "Building Emscripten files."
+cd build/emscripten
+make clean
+make
+cd ../../
 
 echo ""
 echo "Building suika.exe"
@@ -47,17 +54,10 @@ cp suika-pro.exe ../../fileserver/
 cd ../../
 
 echo ""
-echo "Sign Windows exes. (press return)"
+echo "Please sign the Windows executables. (press return)"
 read str
-cp fileserver/suika.exe .
-cp fileserver/suika-pro.exe .
-
-echo ""
-echo "Building Emscripten files."
-cd build/emscripten
-make clean
-make
-cd ../../
+[ -f fileserver/suika.exe ]
+[ -f fileserver/suika-pro.exe ]
 
 echo ""
 echo "Creating Windows/Mac release files."

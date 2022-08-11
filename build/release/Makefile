@@ -3,7 +3,7 @@ SIGNATURE="Developer ID Application: Keiichi TABATA"
 
 all: suika-2.x.x-en.zip suika-2.x.x-jp.zip
 
-suika-2.x.x-en.zip: ../../suika.exe mac.dmg mac-pro.dmg
+suika-2.x.x-en.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ../../fileserver/mac.dmg ../../fileserver/mac-pro.dmg
 	rm -rf suika2 suika-2.x.x-en.zip
 	mkdir suika2
 	mkdir suika2/bg
@@ -32,12 +32,12 @@ suika-2.x.x-en.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	cp -v ../../readme-en.html suika2/README.html
 	cp -v ../../suika.exe suika2/
 	cp -v ../../suika-pro.exe suika2/
-	cp -v mac.dmg suika2/
-	cp -v mac-pro.dmg suika2/
+	cp -v ../../fileserver/mac.dmg suika2/
+	cp -v ../../fileserver/mac-pro.dmg suika2/
 	zip -r suika-2.x.x-en.zip suika2
 	rm -rf suika2
 
-suika-2.x.x-jp.zip: ../../suika.exe mac.dmg mac-pro.dmg
+suika-2.x.x-jp.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ../../fileserver/mac.dmg ../../fileserver/mac-pro.dmg
 	rm -rf suika2 suika-2.x.x-jp.zip
 	mkdir suika2
 	mkdir suika2/bg
@@ -64,28 +64,12 @@ suika-2.x.x-jp.zip: ../../suika.exe mac.dmg mac-pro.dmg
 	cp -Rv ../../game-jp/txt/* suika2/txt/
 	cp -v ../../COPYING suika2/
 	cp -v ../../readme-jp.html suika2/README.html
-	cp -v ../../suika.exe suika2/
-	cp -v ../../suika-pro.exe suika2/
-	cp -v mac.dmg suika2/
-	cp -v mac-pro.dmg suika2/
+	cp -v ../../fileserver/suika.exe suika2/
+	cp -v ../../fileserver/suika-pro.exe suika2/
+	cp -v ../../fileserver/mac.dmg suika2/
+	cp -v ../../fileserver/mac-pro.dmg suika2/
 	zip -r suika-2.x.x-jp.zip suika2
 	rm -rf suika2
 
-mac.dmg: ../../suika.app
-	rm -rf tmp mac.dmg
-	mkdir tmp
-	cp -Rv ../../suika.app tmp/
-	hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac mac.dmg
-	codesign --sign $(SIGNATURE) mac.dmg
-	rm -rf tmp
-
-mac-pro.dmg: ../../suika-pro.app
-	rm -rf tmp mac-pro.dmg
-	mkdir tmp
-	cp -Rv ../../suika-pro.app tmp/
-	hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-pro-mac mac-pro.dmg
-	codesign --sign $(SIGNATURE) mac-pro.dmg
-	rm -rf tmp
-
 clean:
-	rm -rf suika2 suika-2.x.x-en.zip suika-2.x.x-jp.zip mac.dmg mac-pro.dmg
+	rm -rf suika2 suika-2.x.x-en.zip suika-2.x.x-jp.zip
