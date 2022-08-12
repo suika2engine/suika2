@@ -18,8 +18,6 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-mfpu=neon \
-	-march=armv7-a \
 	-O3 \
 	-ffast-math \
 	-ftree-vectorize \
@@ -46,7 +44,6 @@ LDFLAGS = \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections
-
 
 #
 # Source files

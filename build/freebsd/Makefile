@@ -48,7 +48,6 @@ LDFLAGS = \
 
 #
 # Source files
-#  - To use OpenGL, add '../../src/glrender.c' to 'SRCS'.
 #
 
 include ../common.mk

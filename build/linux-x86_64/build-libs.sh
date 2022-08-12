@@ -9,8 +9,8 @@ cd tmp
 
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11
-./configure --prefix=$PREFIX --static CFLAGS='-O3 -ffunction-sections -fdata-sections'
-make -j4
+./configure --prefix=$PREFIX --static
+make -j4 CFLAGS='-O3 -ffunction-sections -fdata-sections'
 make install
 cd ..
 
