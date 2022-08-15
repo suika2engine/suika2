@@ -26,6 +26,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_click.c
              src/main/cpp/cmd_gosub.c
              src/main/cpp/cmd_goto.c
+             src/main/cpp/cmd_gui.c
              src/main/cpp/cmd_if.c
              src/main/cpp/cmd_load.c
              src/main/cpp/cmd_menu.c
@@ -45,6 +46,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/event.c
              src/main/cpp/glrender.c
              src/main/cpp/glyph.c
+             src/main/cpp/gui.c
              src/main/cpp/history.c
              src/main/cpp/image.c
              src/main/cpp/log.c
