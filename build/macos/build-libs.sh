@@ -47,7 +47,6 @@ cd ..
 tar xzf ../../libsrc/freetype-2.9.1.tar.gz
 cd freetype-2.9.1
 sed -e 's/FONT_MODULES += type1//' \
-    -e 's/FONT_MODULES += cff//' \
     -e 's/FONT_MODULES += cid//' \
     -e 's/FONT_MODULES += pfr//' \
     -e 's/FONT_MODULES += type42//' \
