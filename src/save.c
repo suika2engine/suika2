@@ -415,11 +415,13 @@ static bool serialize_message(struct wfile *wf, int index)
 		return false;
 
 	/* メッセージを保存する */
-	if (save_message[index] != NULL)
-		free(save_message[index]);
-	save_message[index] = strdup(tmp_str);
-	if (save_message[index] == NULL)
-		return false;
+	if (index != -1) {
+		if (save_message[index] != NULL)
+			free(save_message[index]);
+		save_message[index] = strdup(tmp_str);
+		if (save_message[index] == NULL)
+			return false;
+	}
 
 	return true;
 }
