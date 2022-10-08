@@ -56,6 +56,7 @@ extern int conf_namebox_y;
 extern int conf_namebox_margin_top;
 extern int conf_namebox_centering_no;
 extern int conf_namebox_margin_left;
+extern int conf_namebox_hidden;
 
 /*
  * メッセージボックスの設定
@@ -241,6 +242,7 @@ extern int conf_sysmenu_collapsed_y;
 extern char *conf_sysmenu_collapsed_idle_file;
 extern char *conf_sysmenu_collapsed_hover_file;
 extern char *conf_sysmenu_collapsed_se;
+extern int conf_sysmenu_hidden;
 
 /*
  * オートモードの設定

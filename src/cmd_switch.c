@@ -1038,6 +1038,11 @@ static void process_sysmenu_click(void)
 	     sysmenu_pointed_index == SYSMENU_LOAD))
 		sysmenu_pointed_index = SYSMENU_NONE;
 
+	/* クイックセーブデータがない場合 */
+	if (!have_quick_save_data() &&
+	    sysmenu_pointed_index == SYSMENU_QLOAD)
+		sysmenu_pointed_index = SYSMENU_NONE;
+
 	/* switchではオートとスキップを無効にする */
 	if (sysmenu_pointed_index == SYSMENU_AUTO ||
 	    sysmenu_pointed_index == SYSMENU_SKIP)

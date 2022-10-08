@@ -54,6 +54,7 @@ int conf_namebox_y;
 int conf_namebox_margin_top;
 int conf_namebox_centering_no;
 int conf_namebox_margin_left;
+int conf_namebox_hidden;
 
 /*
  * メッセージボックスの設定
@@ -275,6 +276,7 @@ int conf_sysmenu_collapsed_y;
 char *conf_sysmenu_collapsed_idle_file;
 char *conf_sysmenu_collapsed_hover_file;
 char *conf_sysmenu_collapsed_se;
+int conf_sysmenu_hidden;
 
 /*
  * オートモードの設定
@@ -383,6 +385,7 @@ struct rule {
 	{"namebox.margin.top", 'i', &conf_namebox_margin_top, false, false},
 	{"namebox.centering.no", 'i', &conf_namebox_centering_no, true, false},
 	{"namebox.margin.left", 'i', &conf_namebox_margin_left, true, false},
+	{"namebox.hidden", 'i', &conf_namebox_hidden, true, false},
 	{"msgbox.bg.file", 's', &conf_msgbox_bg_file, false, false},
 	{"msgbox.fg.file", 's', &conf_msgbox_fg_file, false, false},
 	{"msgbox.x", 'i', &conf_msgbox_x, false, false},
@@ -528,6 +531,7 @@ struct rule {
 	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, true, false},
 	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
 	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
+	{"sysmenu.hidden", 'i', &conf_sysmenu_hidden, true, false},
 	{"automode.banner.file", 's', &conf_automode_banner_file, false, false},
 	{"automode.banner.x", 'i', &conf_automode_banner_x, false, false},
 	{"automode.banner.y", 'i', &conf_automode_banner_y, false, false},
