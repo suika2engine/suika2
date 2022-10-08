@@ -150,6 +150,9 @@ click.file6=click5.png
 # Click animation interval (seconds)
 click.interval=1.0
 
+# Hide click animation (1:hide, 0:don't hide) (optional)
+click.disable=0
+
 ###
 ### Options Settings (@choose, @select, @switch, @news)
 ###
@@ -415,9 +418,6 @@ window.title.separator=
 
 # Don't reflect chapter name to window title (1:don't reflect, 0:reflect) (optional)
 window.title.chapter.disable=0
-
-# Don't blink click animation (1:don't blink, 0:blink) (optional)
-click.disable=0
 
 # Don't hide message box while changing characters (1:don't hide, 0:hide) (optional)
 msgbox.show.on.ch=0

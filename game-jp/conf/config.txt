@@ -143,6 +143,9 @@ click.file6=click5.png
 # クリックアニメーションの時間間隔
 click.interval=1.0
 
+# クリックアニメーションを表示しない (1:表示しない, 0:表示する) (省略可)
+click.disable=0
+
 ###
 ### 選択肢の設定 (@choose, @select, @switch, @news)
 ###
@@ -404,9 +407,6 @@ window.title.separator=
 
 # 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する) (省略可)
 window.title.chapter.disable=0
-
-# クリックアニメーションの点滅を行わない (1:点滅しない, 0:点滅する) (省略可)
-click.disable=0
 
 # キャラクタの変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
 msgbox.show.on.ch=0

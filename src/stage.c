@@ -918,7 +918,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 		render_layer_image_rect(LAYER_MSG, x, y, w, h);
 	if (is_namebox_visible && !conf_namebox_hidden)
 		render_layer_image_rect(LAYER_NAME, x, y, w,h);
-	if (is_click_visible)
+	if (is_click_visible && !conf_click_disable)
 		render_layer_image_rect(LAYER_CLICK, x, y, w, h);
 	if (is_auto_visible)
 		render_layer_image_rect(LAYER_AUTO, x, y, w, h);
