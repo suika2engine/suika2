@@ -57,6 +57,9 @@ namebox.centering.no=0
 # 名前を左揃えにするときのテキスト左端マージン
 namebox.margin.left=0
 
+# 名前ボックスを隠す (1:隠す, 0:隠さない) (省略可)
+namebox.hidden=0
+
 ###
 ### メッセージボックスの設定
 ###

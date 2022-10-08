@@ -64,6 +64,9 @@ namebox.centering.no=0
 # Left margin of text in the name box image when left justified
 namebox.margin.left=0
 
+# Hide name box (1:hide, 0:don't hide) (optional)
+namebox.hidden=0
+
 ###
 ### Message Box Settings
 ###
