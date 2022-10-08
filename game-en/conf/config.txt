@@ -295,6 +295,9 @@ sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 # Sound effect when collapsed system menu pointed (optional)
 sysmenu.collapsed.se=btn-change.ogg
 
+# Hide system menu (1:hide, 0:don't hide) (optional)
+sysmenu.hidden=0
+
 ###
 ### Auto Mode Settings
 ###
