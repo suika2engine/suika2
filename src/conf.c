@@ -275,6 +275,7 @@ int conf_sysmenu_collapsed_y;
 char *conf_sysmenu_collapsed_idle_file;
 char *conf_sysmenu_collapsed_hover_file;
 char *conf_sysmenu_collapsed_se;
+int conf_sysmenu_hidden;
 
 /*
  * オートモードの設定
@@ -528,6 +529,7 @@ struct rule {
 	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, true, false},
 	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
 	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
+	{"sysmenu.hidden", 'i', &conf_sysmenu_hidden, true, false},
 	{"automode.banner.file", 's', &conf_automode_banner_file, false, false},
 	{"automode.banner.x", 'i', &conf_automode_banner_x, false, false},
 	{"automode.banner.y", 'i', &conf_automode_banner_y, false, false},

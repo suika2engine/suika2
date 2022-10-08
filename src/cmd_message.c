@@ -270,10 +270,12 @@ bool message_command(int *x, int *y, int *w, int *h)
 	draw_stage_rect(*x, *y, *w, *h);
 
 	/* システムメニューを描画する */
-	if (is_sysmenu)
-		draw_sysmenu(false, x, y, w, h);
-	else if (!is_auto_mode() && !is_skip_mode())
-		draw_collapsed_sysmenu(x, y, w, h);
+	if (!conf_sysmenu_hidden) {
+		if (is_sysmenu)
+			draw_sysmenu(false, x, y, w, h);
+		else if (!is_auto_mode() && !is_skip_mode())
+			draw_collapsed_sysmenu(x, y, w, h);
+	}
 	is_sysmenu_finished = false;
 
 	/* セーブ・ロード・ヒストリ・コンフィグモードへ遷移する */
@@ -1882,6 +1884,10 @@ static void frame_sysmenu(void)
 
 		return;
 	}
+
+	/* コンフィグでシステムメニューを表示しない場合 */
+	if (conf_sysmenu_hidden)
+		return;
 
 	/* メッセージボックス非表示中は処理しない */
 	if (is_hidden)
