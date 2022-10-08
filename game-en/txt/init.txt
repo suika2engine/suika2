@@ -61,7 +61,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(I'm on the roof of my school, having skipped the remedial class.)
+*???*(I'm on my school's rooftop, having skipped the remedial class.)
 
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
@@ -69,15 +69,15 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(This is a country town in Hokkaido. I can just see the coastline on the horizon, since there aren't any buildings near the school.)
+*???*(Since this is a country town in Hokkaido, and on the coast, I can see the sea peaking up over the horizon with no buildings or hills to block the view.)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*???*Are you asking me why I skipped the remedial class?
+*???*You're probably wondering why I skipped the remedial class, right?
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(Oh - I forgot to mention, I'm Midori. I'm a high school student in this country town. My parents are watermelon farmers.)
+*???*(Oh, I forgot to mention, I'm Midori! I'm a high school student and my parents are watermelon farmers!)
 
 @vol bgm 1.0 1.0
 @ch c 001-angry.png 1.0
@@ -85,11 +85,11 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*(Oh, I have to tell you something important. The reason why I'm here today is...)
+*Midori*(This is really important... I can't mess this up!)
 
 @vol bgm 1.0 1.0
 @ch c 001-normal.png 1.0
-*Midori*I want to...
+*Midori*I want to... to...
 
 @vol bgm 0.0 1.0
 @ch c 001-happy.png 1.0
@@ -104,29 +104,30 @@
 @bgm 02.ogg
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
+*Midori*Ahem, okay, now that that's out in the open...
 *Midori*Hello! Thank you for using Suika2!
-*Midori*As you might know, Suika2 is a visual novel authoring tool.
+*Midori*As you may already know, Suika2 is a visual novel authoring tool.
 *Midori*It's free and runs on both Windows and Mac. Awesome, right?
 
 @ch c 001-fun.png 1.0
-*Midori*The author says he wants you to ask questions. Do you have any questions for him?
+*Midori*The author told me he wants you to ask questions, do you have any questions for him?
 @ch c none 1.0
 
 ###
-### Scene3 (Be asked questions on the roof)
+### Scene3 (Rooftop Questions)
 ###
 
 @chapter "SCENE -3-"
 
 :LOOP1
-@choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "What're system requirements?" L1_NEXT Next
+@choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "Any system requirements?" L1_NEXT Next
 
 :L1_ADVANTAGE
-Suika2 has three advantages. First of all, portability. We have Windows and Mac apps and a Web browser version. All of them work just the same way.
-Game developers don't need to bother about the users' OSes.
+Suika2 has three main advantages. First of all, portability. We have Windows and Mac apps as well as a Web browser version. All of them work just the same way.
+That means game developers don't need to worry about the users' OS!
 In addition, game developers can use their favorite OS to develop a game.
-Secondly, simplicity. Anyone can start writing scripts easily.
-Last but not least, freedom. You can use Suika2 commercially for free.
+Secondly, simplicity. Anyone can start writing scripts with nothing more than a text editor.
+Last but not least, freedom. You can use Suika2 in your commercial projects for free.
 
 @set $1 = 1
 @ch c 001-fun.png 1.0
@@ -136,10 +137,10 @@ Last but not least, freedom. You can use Suika2 commercially for free.
 @goto LOOP1
 
 :L1_ENV
-For Windows, we support from old Windows XP to latest Windows 11.
-For Mac, we support macOS 10.9 and later. We certainly support the latest Monterey release and M2 chip.
-For Web browsers, we support Chrome, Safari, Firefox and Edge.
-In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 was initially written on Linux!
+We support most versions of Windows from Windows XP all the way up to Windows 11.
+We support also support macOS 10.9 and later. (Of course, we also support the latest Monterey release and the M2 Chip.)
+When it comes to Web browsers, we support Chrome, Safari, Firefox and Edge.
+In addition, Suika2 runs on iPhone, iPad, Android and Linux. (Did you know, Suika2 was initially written on Linux!)
 @set $2 = 1
 @ch c 001-fun.png 1.0
 *Midori*Yes! That's right.
@@ -150,7 +151,7 @@ In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 wa
 :L1_NEXT
 
 ###
-### Scene4 (Be asked questions on the coast)
+### Scene4 (Coastal Questions)
 ###
 
 @chapter "SCENE -4-"
@@ -163,14 +164,14 @@ In addition, Suika2 runs on iPhone, iPad, Android and Linux. Actually, Suika2 wa
 @vol bgm 1.0 0.0
 @bgm coast.ogg
 @ch c 001-happy.png 1.0
-*Midori*Do you have any further questions?
+*Midori*Is there anything else you were wondering?
 @ch c none 1.0
 
 :LOOP2
-@choose L2_OLD "Do you have Suika1?" L2_CUSTOMIZE "Can I customize it?" L2_NEXT Next
+@choose L2_OLD "Is there a 'Suika1'?" L2_CUSTOMIZE "Can I customize it?" L2_NEXT Next
 
 :L2_OLD
-Versions before 2.0.0 was named Suika Studio. The author developed it when he was just a high school student.
+Versions before 2.0.0 were named Suika Studio and the author developed it when he was just a high school student.
 At 2.0.0, he removed the visual editor and "Studio" naming.
 @set $3 = 1
 @ch c 001-fun.png 1.0
@@ -180,8 +181,8 @@ At 2.0.0, he removed the visual editor and "Studio" naming.
 @goto LOOP2
 
 :L2_CUSTOMIZE
-You can customize the engine with relatively little effort. This includes the font, text box and save screen.
-If there's anything you want to customize but can't, please contact the author.
+You can customize the engine with relative ease; this includes the font, text box and save screen.
+If there's anything you want to customize, but can't, please contact the author.
 @set $4 = 1
 @ch c 001-fun.png 1.0
 *Midori*Oh, yes!
@@ -207,7 +208,7 @@ If there's anything you want to customize but can't, please contact the author.
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*Midori*If you have any questions, send me an email at midori@luxion.jp anytime.
+*Midori*If you have any questions, send me an email at midori@luxion.jp anytime!
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
@@ -228,7 +229,7 @@ If there's anything you want to customize but can't, please contact the author.
 
 @chapter Bonus
 
-Thank you for selecting all the options.
+Thank you for selecting all options!
 @goto END
 
 ###
