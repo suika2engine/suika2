@@ -48,7 +48,7 @@ echo ""
 echo "Building suika-pro.exe"
 cd build/mingw-pro
 make clean
-./build-libs.sh
+cp -Rav ../mingw/libroot .
 make -j24
 cp suika-pro.exe ../../fileserver/
 cd ../../
