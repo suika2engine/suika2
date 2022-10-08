@@ -106,7 +106,7 @@
 @ch c 001-happy.png 1.0
 *Midori*Ahem, okay, now that that's out in the open...
 *Midori*Hello! Thank you for using Suika2!
-*Midori*As you may already know, Suika2 is a visual novel authoring tool.
+*Midori*As you may already know, Suika2 is a visual novel authoring tool or 'engine'.
 *Midori*It's free and runs on both Windows and Mac. Awesome, right?
 
 @ch c 001-fun.png 1.0
