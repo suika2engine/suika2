@@ -12,7 +12,7 @@
 ###
 
 # International mode (0:enable, 1:disable)
-i18n=0
+i18n=1
 
 ###
 ### Window Settings
