@@ -11,7 +11,7 @@
 ### Language Setting
 ###
 
-# International mode (0:enable, 1:disable)
+# International mode (0:disable, 1:enable)
 i18n=1
 
 ###
