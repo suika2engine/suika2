@@ -1,9 +1,18 @@
 ###
+### Configuration
+###  - Note that when given the option of '0' or '1' in 'optional' settings,
+###    '0' is default unless otherwise noted.
+###  - It's good practice to keep a default configuration file for reference.
+###  – Be careful when migrating your config.txt file between Suika2 versions,
+###    removing configuration settings or their values will result in errors.
+###
+
+###
 ### Language Setting
 ###
 
-# Enable international mode
-i18n=1
+# International mode (0:enable, 1:disable)
+i18n=0
 
 ###
 ### Window Settings
@@ -41,7 +50,7 @@ font.outline.color.r=128
 font.outline.color.g=128
 font.outline.color.b=128
 
-# Remove font outline (0:don't remove, 1:remove)
+# Font outline (0:show, 1:hide)
 font.outline.remove=0
 
 ###
@@ -58,13 +67,13 @@ namebox.y=480
 # Top margin of text in the namebox image
 namebox.margin.top=11
 
-# Don't use centering (0:centering, 1:left justified)
+# Centre namebox text (0:center, 1:left justified)
 namebox.centering.no=0
 
 # Left margin of text in the namebox image when left justified
 namebox.margin.left=0
 
-# Hide namebox (0:don't hide, 1:hide, optional)
+# Hide namebox (0:show, 1:hide, optional)
 namebox.hidden=0
 
 ###
@@ -90,7 +99,7 @@ msgbox.margin.top=50
 # Right margin of text in the message box image
 msgbox.margin.right=80
 
-# Space between lines
+# Line spacing
 msgbox.margin.line=40
 
 # Message speed (x characters per second)
@@ -105,25 +114,25 @@ msgbox.btn.hide.height=29
 # Sound effect when pointed button changed (optional)
 msgbox.btn.change.se=btn-change.ogg
 
-# Sound effect when call history screen by up arrow key or mouse wheel up (optional)
+# Sound effect when the history screen is called with the up arrow key or mouse wheel up (optional)
 msgbox.history.se=click.ogg
 
-# Sound effect when call config screen by ESC key (optional)
+# Sound effect when the confix screen is called with the ESC key (optional)
 msgbox.config.se=click.ogg
 
-# Sound effect when hide message box (optional)
+# Sound effect when the user hides the message box (optional)
 msgbox.hide.se=click.ogg
 
-# Sound effect when show messsage box (optional)
+# Sound effect when the user shows the messsage box (optional)
 msgbox.show.se=click.ogg
 
-# Sound effect when cancel auto mode (optional)
+# Sound effect when auto mode is canceled (optional)
 msgbox.auto.cancel.se=click.ogg
 
-# Sound effect when cancel skip mode (optional)
+# Sound effect when skip mode is canceled (optional)
 msgbox.skip.cancel.se=click.ogg
 
-# Skip unseen messages (0: don't skip, 1: skip, default:0)
+# Unseen messages (0: don't skip, 1: skip)
 msgbox.skip.unseen=0
 
 ###
@@ -134,13 +143,13 @@ msgbox.skip.unseen=0
 click.x=1170
 click.y=660
 
-# Move click animation (0:don't move, 1:move, optional)
+# Append the click animation to the end of each message (0:don't append, 1:append, optional)
 click.move=0
 
 # Click animation image file name
 click.file1=click1.png
 
-# Click animation image file name (optional)
+# Other click animation image file names (optional)
 click.file2=click2.png
 click.file3=click3.png
 click.file4=click4.png
@@ -150,7 +159,7 @@ click.file6=click5.png
 # Click animation interval (seconds)
 click.interval=1.0
 
-# Hide click animation (0:don't hide, 1:hide, optional)
+# Click animation (0:show, 1:hide, optional)
 click.disable=0
 
 ###
@@ -176,17 +185,17 @@ switch.text.margin.y=18
 # Click sound file when the option is clicked (optional)
 switch.parent.click.se.file=click.ogg
 
-# (For only @switch) Click sound file when the second level option is clicked (optional)
+# (Only for @switch) Click sound file when the second level option is clicked (optional)
 switch.child.click.se.file=click.ogg
 
-# Sound effect when pointed item changed (optional)
+# Sound effect when the pointed item changes (optional)
 switch.change.se=btn-change.ogg
 
 ###
 ### Save/Load Screen Settings
 ###
 
-# Size of thumbnail
+# Thumbnail size
 save.data.thumb.width=213
 save.data.thumb.height=120
 
@@ -207,88 +216,88 @@ sysmenu.hover.file=sysmenu-hover.png
 # System menu image (disabled) file name
 sysmenu.disable.file=sysmenu-disable.png
 
-# Position of quick save button (position inside system menu image)
+# Position of the quick save button (position inside system menu image)
 sysmenu.qsave.x=62
 sysmenu.qsave.y=7
 sysmenu.qsave.width=60
 sysmenu.qsave.height=58
 
-# Position of quick load button (position inside system menu image)
+# Position of the quick load button (position inside system menu image)
 sysmenu.qload.x=123
 sysmenu.qload.y=7
 sysmenu.qload.width=60
 sysmenu.qload.height=58
 
-# Position of save button (Position inside system menu image)
+# Position of the save button (Position inside system menu image)
 sysmenu.save.x=184
 sysmenu.save.y=7
 sysmenu.save.width=60
 sysmenu.save.height=58
 
-# Position of load button (Position inside system menu image)
+# Position of the load button (Position inside system menu image)
 sysmenu.load.x=245
 sysmenu.load.y=7
 sysmenu.load.width=60
 sysmenu.load.height=58
 
-# Position of auto button (Position inside system menu image)
+# Position of the auto button (Position inside system menu image)
 sysmenu.auto.x=306
 sysmenu.auto.y=7
 sysmenu.auto.width=60
 sysmenu.auto.height=58
 
-# Position of skip button (Position inside system menu image)
+# Position of the skip button (Position inside system menu image)
 sysmenu.skip.x=367
 sysmenu.skip.y=7
 sysmenu.skip.width=60
 sysmenu.skip.height=58
 
-# Position of history button (Position inside system menu image)
+# Position of the history button (Position inside system menu image)
 sysmenu.history.x=428
 sysmenu.history.y=7
 sysmenu.history.width=60
 sysmenu.history.height=58
 
-# Position of config button (Position inside system menu image)
+# Position of the config button (Position inside system menu image)
 sysmenu.config.x=489
 sysmenu.config.y=7
 sysmenu.config.width=60
 sysmenu.config.height=58
 
-# Sound effect when system menu called (optional)
+# Sound effect when the system menu is called (optional)
 sysmenu.enter.se=click.ogg
 
-# Sound effect when system menu canceled (optional)
+# Sound effect when the system menu is canceled (optional)
 sysmenu.leave.se=click.ogg
 
-# Sound effect when selected item in system menu changed (optional)
+# Sound effect when the selected item in the system menu is changed (optional)
 sysmenu.change.se=btn-change.ogg
 
-# Sound effect when quick save selected (optional)
+# Sound effect when quick save is selected (optional)
 sysmenu.qsave.se=click.ogg
 
-# Sound effect when quick load selected (optional)
+# Sound effect when quick load is selected (optional)
 sysmenu.qload.se=click.ogg
 
-# Sound effect when save selected (optional)
+# Sound effect when save is selected (optional)
 sysmenu.save.se=click.ogg
 
-# Sound effect when load selected (optional)
+# Sound effect when load is selected (optional)
 sysmenu.load.se=click.ogg
 
-# Sound effect when auto selected (optional)
+# Sound effect when auto is selected (optional)
 sysmenu.auto.se=click.ogg
 
-# Sound effect when skip selected (optional)
+# Sound effect when skip is selected (optional)
 sysmenu.skip.se=click.ogg
 
-# Sound effect when history selected (optional)
+# Sound effect when history is selected (optional)
 sysmenu.history.se=click.ogg
 
-# Sound effect when config selected (optional)
+# Sound effect when config is selected (optional)
 sysmenu.config.se=click.ogg
 
-# Position of collapsed system menu image
+# Position of the collapsed system menu image
 sysmenu.collapsed.x=1219
 sysmenu.collapsed.y=29
 
@@ -298,10 +307,10 @@ sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
 # Collapsed system menu image (pointed) file name
 sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 
-# Sound effect when collapsed system menu pointed (optional)
+# Sound effect when the collapsed system menu is pointed (optional)
 sysmenu.collapsed.se=btn-change.ogg
 
-# Hide system menu (0:don't hide, 1:hide, optional)
+# System menu (0:show, 1:hide, optional)
 sysmenu.hidden=0
 
 ###
@@ -311,7 +320,7 @@ sysmenu.hidden=0
 # Auto mode banner image file
 automode.banner.file=auto.png
 
-# Position of auto mode banner
+# Position of the auto mode banner
 automode.banner.x=0
 automode.banner.y=126
 
@@ -325,7 +334,7 @@ automode.speed=0.15
 # Skip mode banner image file
 skipmode.banner.file=skip.png
 
-# Position of skip mode banner
+# Position of the skip mode banner
 skipmode.banner.x=0
 skipmode.banner.y=186
 
@@ -352,9 +361,9 @@ sound.vol.character=1.0
 ### Settings For Per-Character Voice Volume
 ###  - If the character name of the message matches to the following name list,
 ###    then the per-character volume will be applied.
-###  - Per-character volumes can be set in config screen. (#0 to #15)
+###  - Per-character volumes can be set in the config screen. (#0 to #15)
 ###  - You can specify the names for 15 characters (#1 to #15)
-###  - If the character name of the message doesn't match to the following
+###  - If the character name of the message doesn't match the following
 ###    names, then the #0 per-character volume will be used.
 ###
 
@@ -404,20 +413,20 @@ ui.msg.default=Are you sure you want to reset the settings?
 ### Miscellaneous
 ###
 
-# Don't stop voice when clicked (0:stop, 1:non-stop, optional)
+# Voice continues on click (0:stop, 1:continue, optional)
 voice.stop.off=0
 
-# Disable full screen mode (0:enable, 1:disable, optional)
+# Full screen mode (0:enable, 1:disable, optional)
 window.fullscreen.disable=0
 
-# Disable window maximization (0:enable, 1:disable, optional)
+# Window maximization (0:enable, 1:disable, optional)
 window.maximize.disable=0
 
 # Separator between window title and chapter name (optional)
 window.title.separator= 
 
-# Don't reflect chapter name to window title (0:reflect, 1:don't reflect, optional)
+# Chapter name (appended to window title) (0:show, 1:hide, optional)
 window.title.chapter.disable=0
 
-# Don't hide message box while changing characters (0:hide, 1:don't hide, optional)
+# Message box on character change (0:hide, 1:show, optional)
 msgbox.show.on.ch=0
