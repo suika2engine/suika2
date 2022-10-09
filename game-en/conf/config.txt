@@ -102,7 +102,7 @@ msgbox.btn.hide.y=16
 msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
 
-# Sound effect when pointed button changed 
+# Sound effect when pointed button changed (optional)
 msgbox.btn.change.se=btn-change.ogg
 
 # Sound effect when call history screen by up arrow key or mouse wheel up (optional)
