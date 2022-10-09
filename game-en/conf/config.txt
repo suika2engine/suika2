@@ -67,7 +67,7 @@ namebox.y=480
 # Top margin of text in the namebox image
 namebox.margin.top=11
 
-# Centre namebox text (0:center, 1:left justified)
+# Center namebox text (0:center, 1:left justified)
 namebox.centering.no=0
 
 # Left margin of text in the namebox image when left justified
