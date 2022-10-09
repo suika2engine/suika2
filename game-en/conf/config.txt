@@ -18,7 +18,7 @@ window.width=1280
 # Window height
 window.height=720
 
-# Background color (1:white, 0:black)
+# Background color (0:black, 1:white)
 window.white=1
 
 ###
@@ -45,26 +45,26 @@ font.outline.color.b=128
 font.outline.remove=0
 
 ###
-### Name Box Settings
+### Namebox Settings
 ###
 
-# Name box image file name
+# Namebox image file name
 namebox.file=namebox.png
 
-# Position to show the name box image
+# Position to show the namebox image
 namebox.x=95
 namebox.y=480
 
-# Top margin of text in the name box image
+# Top margin of text in the namebox image
 namebox.margin.top=11
 
 # Don't use centering (0:centering, 1:left justified)
 namebox.centering.no=0
 
-# Left margin of text in the name box image when left justified
+# Left margin of text in the namebox image when left justified
 namebox.margin.left=0
 
-# Hide name box (1:hide, 0:don't hide) (optional)
+# Hide namebox (0:don't hide, 1:hide, optional)
 namebox.hidden=0
 
 ###
@@ -102,7 +102,7 @@ msgbox.btn.hide.y=16
 msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
 
-# Sound effect when pointed button changed (optional)
+# Sound effect when pointed button changed 
 msgbox.btn.change.se=btn-change.ogg
 
 # Sound effect when call history screen by up arrow key or mouse wheel up (optional)
@@ -123,7 +123,7 @@ msgbox.auto.cancel.se=click.ogg
 # Sound effect when cancel skip mode (optional)
 msgbox.skip.cancel.se=click.ogg
 
-# Skip unseen messages (1: skip, 0: don't skip, default:0)
+# Skip unseen messages (0: don't skip, 1: skip, default:0)
 msgbox.skip.unseen=0
 
 ###
@@ -150,7 +150,7 @@ click.file6=click5.png
 # Click animation interval (seconds)
 click.interval=1.0
 
-# Hide click animation (1:hide, 0:don't hide) (optional)
+# Hide click animation (0:don't hide, 1:hide, optional)
 click.disable=0
 
 ###
@@ -301,7 +301,7 @@ sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 # Sound effect when collapsed system menu pointed (optional)
 sysmenu.collapsed.se=btn-change.ogg
 
-# Hide system menu (1:hide, 0:don't hide) (optional)
+# Hide system menu (0:don't hide, 1:hide, optional)
 sysmenu.hidden=0
 
 ###
@@ -404,20 +404,20 @@ ui.msg.default=Are you sure you want to reset the settings?
 ### Miscellaneous
 ###
 
-# Don't stop voice when clicked (1:non-stop, 0:stop) (optional)
+# Don't stop voice when clicked (0:stop, 1:non-stop, optional)
 voice.stop.off=0
 
-# Disable full screen mode (1:disable, 0:enable) (optional)
+# Disable full screen mode (0:enable, 1:disable, optional)
 window.fullscreen.disable=0
 
-# Disable window maximization (1:disable, 0:enable) (optional)
+# Disable window maximization (0:enable, 1:disable, optional)
 window.maximize.disable=0
 
 # Separator between window title and chapter name (optional)
 window.title.separator= 
 
-# Don't reflect chapter name to window title (1:don't reflect, 0:reflect) (optional)
+# Don't reflect chapter name to window title (0:reflect, 1:don't reflect, optional)
 window.title.chapter.disable=0
 
-# Don't hide message box while changing characters (1:don't hide, 0:hide) (optional)
+# Don't hide message box while changing characters (0:hide, 1:don't hide, optional)
 msgbox.show.on.ch=0
