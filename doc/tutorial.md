@@ -31,7 +31,7 @@ Extract the downloaded ZIP file. Within the extracted ZIP file, you'll see the f
     * `suika.exe` Executable application file for Windows.
     * `suika-pro.exe` Executable application file for Windows. (Suika2 Visual Debugger)
 
-`suika.exe` is the Sukia2 executable file. The other folders contain assets and information needed for the included demo game.
+`suika.exe` is the Suika2 executable file. The other folders contain assets and information needed for the included demo game.
 When you run `suika.exe`, a `sav/` folder will be automatically created, this will contain save-data.
 
 At the moment, we're just going to use demo-game chunks to play around with Suika2's various features.
