@@ -35,7 +35,7 @@ Extract the downloaded ZIP file. Within the extracted ZIP file, you'll see the f
 When you run `suika.exe`, a `sav/` folder will be automatically created, this will contain save-data.
 
 At the moment, we're just going to use demo-game chunks to play around with Suika2's various features.
-This tutorial is by no means exhaustive, so please refer to the [documentation](https://suika2.com/en/reference.html) for more commands and updated information. This document will be updated in the future to better align with Suika2's current version and documentation.
+This tutorial is by no means exhaustive, so please refer to the [reference](https://suika2.com/en/reference.html) for more commands and updated information. This document will be updated in the future to better align with Suika2's current version and documentation.
 
 ## Enable International Mode
 
@@ -55,7 +55,9 @@ When Suika2 starts, this will be the first script file that runs.
 The great thing about script files is that they're regular `.txt` files,
 so you don't need any special software to open them!
 
-Once you've removed the contents of `init.txt`, you're ready to start!
+**NOTE:** whenever you see ``Insert the following into init.txt:``, make sure you clear your script. (Highlight and delete the text)
+This will let you watch each example without interruption or distraction.
+You can, of course, mix these examples and your own work to see what you can create!
 
 ## Comments
 
@@ -129,7 +131,7 @@ this is achieved by enclosing the character's name in `*`.
 Insert the following into `init.txt`:
 
 ```
-*Midori*Now that you know my name, you can use it in your init file!
+*Midori*Now that you know my name, you can use it in your scripts!
 ```
 
 ## Show a Message with Voice
@@ -147,13 +149,13 @@ Insert the following into `init.txt`:
 ```
 
 `025.ogg` is a file inside the `cv` folder.
-Note: The english distrobution only contains the `cv/025.ogg` and `se/suika.ogg` voice lines.
-`025.ogg` doesn't reflect the written message above, and is just an example.
+Note: The English distribution only contains the `cv/025.ogg` and `se/suika.ogg` voice lines.
+`025.ogg` doesn't reflect the written message above and is just an example.
 
 ## Playing Background Music
 
 You can play background music (BGM) using the `@bgm` command.
-Replace the contents of `init.txt` with the following:
+Insert the following into `init.txt`:
 
 ```
 @bgm 01.ogg
@@ -171,7 +173,7 @@ Note: Suika2 can only play sound files encoded using Ogg Vorbis 44.1kHz stereo o
 ## Showing Options
 
 A game may have options for multiple endings.
-Replace the contents of `init.txt` with the following:
+Insert the following into `init.txt`:
 
 ```
 Ok, I'm gonna go to school.
@@ -199,7 +201,7 @@ Label lines are ignored when they are executed.
 ## Set a Flag and Branch
 
 Next, we set a flag and create a branch.
-Replace the contents of `init.txt` as follows:
+Insert the following into `init.txt`:
 
 ```
 @bg roof.png 1.0
@@ -242,7 +244,7 @@ All variables are initially zero.
 ## Show a Menu
 
 You can make a menu screen using Suika2 scripts.
-Replace the contents of `init.txt` as follows:
+Insert the following into `init.txt`:
 
 ```
 @menu menu.png menu_selected.png START 2 495 314 192 LOAD 316 494 322 203 CONFIG 640 492 317 204 QUIT 960 497 317 201
@@ -273,7 +275,7 @@ When script files start becoming to combresome to organise and undestand efficei
 it may be a good idea to split the file.
 Thankfully, Suika2 supports this functionality by default.
 
-Replace the contents of `init.txt` as follows:
+Insert the following into `init.txt`:
 
 * init.txt
 ```
