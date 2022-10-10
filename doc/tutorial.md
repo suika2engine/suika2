@@ -56,7 +56,7 @@ The great thing about script files is that they're regular `.txt` files,
 so you don't need any special software to open them!
 
 **NOTE:** whenever you see ``Insert the following into init.txt:``, make sure you clear your script. (Highlight and delete the text)
-This will let you watch each example without interuption or distraction.
+This will let you watch each example without interruption or distraction.
 You can, of course, mix these examples and your own work to see what you can create!
 
 ## Comments
