@@ -19,6 +19,9 @@
 /* Encryption Key */
 #include "key.h"
 
+static volatile uint64_t key_body = ENCRYPTION_KEY;
+static volatile uint64_t *key_ref = &key_body;
+
 /* ファイル読み込みストリーム */
 struct rfile {
 	/* パッケージ内のファイルであるか */
@@ -378,7 +381,7 @@ static void set_random_seed(uint64_t index, uint64_t *next_random)
 {
 	uint64_t i, next, lsb;
 
-	next = ENCRYPTION_KEY;
+	next = *key_ref;
 	for (i = 0; i < index; i++) {
 		next ^= 0xafcb8f2ff4fff33f;
 		lsb = next >> 63;
@@ -400,8 +403,8 @@ static char get_next_random(uint64_t *next_random, uint64_t *prev_random)
 
 	ret = (char)(*next_random);
 	next = *next_random;
-	next = (((ENCRYPTION_KEY & 0xff00) * next + (ENCRYPTION_KEY & 0xff)) %
-		ENCRYPTION_KEY) ^ 0xfcbfaff8f2f4f3f0;
+	next = (((*key_ref & 0xff00) * next + (*key_ref & 0xff)) %
+		*key_ref) ^ 0xfcbfaff8f2f4f3f0;
 	*next_random = next;
 
 	return ret;
