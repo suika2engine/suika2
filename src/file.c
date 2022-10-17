@@ -19,8 +19,17 @@
 /* Encryption Key */
 #include "key.h"
 
-static volatile uint64_t key_body = ENCRYPTION_KEY;
-static volatile uint64_t *key_ref = &key_body;
+static volatile uint64_t key_obfuscated =
+	~((((ENCRYPTION_KEY >> 56) & 0xff) << 0) |
+	  (((ENCRYPTION_KEY >> 48) & 0xff) << 8) |
+	  (((ENCRYPTION_KEY >> 40) & 0xff) << 16) |
+	  (((ENCRYPTION_KEY >> 32) & 0xff) << 24) |
+	  (((ENCRYPTION_KEY >> 24) & 0xff) << 32) |
+	  (((ENCRYPTION_KEY >> 16) & 0xff) << 40) |
+	  (((ENCRYPTION_KEY >> 8)  & 0xff) << 48) |
+	  (((ENCRYPTION_KEY >> 0)  & 0xff) << 56));
+static volatile uint64_t key_reversed;
+static volatile uint64_t *key_ref = &key_reversed;
 
 /* ファイル読み込みストリーム */
 struct rfile {
@@ -381,7 +390,15 @@ static void set_random_seed(uint64_t index, uint64_t *next_random)
 {
 	uint64_t i, next, lsb;
 
-	next = *key_ref;
+	key_reversed = ((((key_obfuscated >> 56) & 0xff) << 0) |
+			(((key_obfuscated >> 48) & 0xff) << 8) |
+			(((key_obfuscated >> 40) & 0xff) << 16) |
+			(((key_obfuscated >> 32) & 0xff) << 24) |
+			(((key_obfuscated >> 24) & 0xff) << 32) |
+			(((key_obfuscated >> 16) & 0xff) << 40) |
+			(((key_obfuscated >> 8)  & 0xff) << 48) |
+			(((key_obfuscated >> 0)  & 0xff) << 56));
+	next = ~(*key_ref);
 	for (i = 0; i < index; i++) {
 		next ^= 0xafcb8f2ff4fff33f;
 		lsb = next >> 63;
@@ -403,8 +420,8 @@ static char get_next_random(uint64_t *next_random, uint64_t *prev_random)
 
 	ret = (char)(*next_random);
 	next = *next_random;
-	next = (((*key_ref & 0xff00) * next + (*key_ref & 0xff)) %
-		*key_ref) ^ 0xfcbfaff8f2f4f3f0;
+	next = (((~(*key_ref) & 0xff00) * next + (~(*key_ref) & 0xff)) %
+		~(*key_ref)) ^ 0xfcbfaff8f2f4f3f0;
 	*next_random = next;
 
 	return ret;
