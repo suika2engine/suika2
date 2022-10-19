@@ -664,3 +664,62 @@ bool is_video_playing(void)
 void update_window_title(void)
 {
 }
+
+//
+// フルスクリーンモードがサポートされるか調べる
+//
+bool is_full_screen_supported(void)
+{
+    return false;
+}
+
+//
+// フルスクリーンモードであるか調べる
+//
+bool is_full_screen_mode(void)
+{
+    return false;
+}
+
+//
+// フルスクリーンモードを開始する
+//
+void enter_full_screen_mode(void)
+{
+}
+
+///
+// フルスクリーンモードを終了する
+//
+void leave_full_screen_mode(void)
+{
+}
+
+//
+// システムのロケールを取得する
+//
+const char *get_system_locale(void)
+{
+    NSString *language = [[NSLocale preferredLanguages] objectAtIndex:0];
+    if ([language hasPrefix:@"ja_"])
+        return "ja";
+    if ([language hasPrefix:@"en_"])
+        return "en";
+    if ([language hasPrefix:@"fr_"])
+        return "fr";
+    if ([language hasPrefix:@"de_"])
+        return "de";
+    if ([language hasPrefix:@"es_"])
+        return "es";
+    if ([language hasPrefix:@"it_"])
+        return "it";
+    if ([language hasPrefix:@"el_"])
+        return "el";
+    if ([language hasPrefix:@"ru_"])
+        return "ru";
+    if ([language hasPrefix:@"zh-Hans"])
+        return "zh";
+    if ([language hasPrefix:@"zh-Hant"])
+		return "tw";
+	return "other";
+}

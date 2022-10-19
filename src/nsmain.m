@@ -1063,3 +1063,32 @@ void leave_full_screen_mode(void)
     if (isFullScreen)
         [theWindow toggleFullScreen:theView];
 }
+
+//
+// システムのロケールを取得する
+//
+const char *get_system_locale(void)
+{
+    NSString *language = [[NSLocale preferredLanguages] objectAtIndex:0];
+    if ([language hasPrefix:@"ja_"])
+        return "ja";
+    if ([language hasPrefix:@"en_"])
+        return "en";
+    if ([language hasPrefix:@"fr_"])
+        return "fr";
+    if ([language hasPrefix:@"de_"])
+        return "de";
+    if ([language hasPrefix:@"es_"])
+        return "es";
+    if ([language hasPrefix:@"it_"])
+        return "it";
+    if ([language hasPrefix:@"el_"])
+        return "el";
+    if ([language hasPrefix:@"ru_"])
+        return "ru";
+    if ([language hasPrefix:@"zh-Hans"])
+        return "zh";
+    if ([language hasPrefix:@"zh-Hant"])
+		return "tw";
+	return "other";
+}
