@@ -1070,21 +1070,21 @@ void leave_full_screen_mode(void)
 const char *get_system_locale(void)
 {
     NSString *language = [[NSLocale preferredLanguages] objectAtIndex:0];
-    if ([language hasPrefix:@"ja_"])
+    if ([language hasPrefix:@"ja"])
         return "ja";
-    if ([language hasPrefix:@"en_"])
+    if ([language hasPrefix:@"en"])
         return "en";
-    if ([language hasPrefix:@"fr_"])
+    if ([language hasPrefix:@"fr"])
         return "fr";
-    if ([language hasPrefix:@"de_"])
+    if ([language hasPrefix:@"de"])
         return "de";
-    if ([language hasPrefix:@"es_"])
+    if ([language hasPrefix:@"es"])
         return "es";
-    if ([language hasPrefix:@"it_"])
+    if ([language hasPrefix:@"it"])
         return "it";
-    if ([language hasPrefix:@"el_"])
+    if ([language hasPrefix:@"el"])
         return "el";
-    if ([language hasPrefix:@"ru_"])
+    if ([language hasPrefix:@"ru"])
         return "ru";
     if ([language hasPrefix:@"zh-Hans"])
         return "zh";
