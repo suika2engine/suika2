@@ -316,7 +316,8 @@ static bool init(int *x, int *y, int *w, int *h)
 
 	/* メッセージを取得する */
 	raw_msg = get_command_type() == COMMAND_MESSAGE ?
-		get_line_string() : get_string_param(SERIF_PARAM_MESSAGE);
+		get_string_param(MESSAGE_PARAM_MESSAGE) :
+		get_string_param(SERIF_PARAM_MESSAGE);
 	msg = expand_variable(raw_msg);
 
 	/* セーブ用にメッセージを保存する */

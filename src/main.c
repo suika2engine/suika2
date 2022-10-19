@@ -159,6 +159,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 				break;
 			}
 #endif
+
 			if (!dispatch_command(x, y, w, h, &cont)) {
 #ifdef USE_DEBUGGER
 				if (dbg_error_state) {
@@ -319,8 +320,26 @@ static bool pre_dispatch(void)
 /* コマンドをディスパッチする */
 static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 {
+	const char *locale;
+
 	/* 次のコマンドを同じフレーム内で実行するか */
 	*cont = false;
+
+	/* 国際化が有効な場合 */
+	if (conf_i18n && !is_in_command_repetition()) {
+		/* ロケールが指定されている場合 */
+		locale = get_command_locale();
+		if (strcmp(locale, "") != 0) {
+			/* ロケールが一致しない場合 */
+			if (strcmp(locale, conf_language) != 0) {
+				/* 実行しない */
+				*cont = true;
+				if (!move_to_next_command())
+					return false;
+				return true;
+			}
+		}
+	}
 
 	/* コマンドをディスパッチする */
 	switch (get_command_type()) {

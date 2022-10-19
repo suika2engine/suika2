@@ -22,6 +22,7 @@
  * 言語の設定
  */
 int conf_i18n;
+char *conf_language;
 
 /*
  * ウィンドウの設定
@@ -366,6 +367,7 @@ struct rule {
 	bool loaded;
 } rule_tbl[] = {
 	{"i18n", 's', &conf_i18n, true, false},
+	{"language", 's', &conf_language, true, false},
 	{"window.title", 's', &conf_window_title, false, false},
 	{"window.width", 'i', &conf_window_width, false, false},
 	{"window.height", 'i', &conf_window_height, false, false},
@@ -1177,6 +1179,10 @@ void cleanup_conf(void)
 bool apply_initial_values(void)
 {
 	int i;
+
+	/* ロケールが指定されなかった場合英語を使用する */
+	if (conf_language == NULL)
+		conf_language = "en";
 
 	/* グローバルボリュームをセットする */
 	set_mixer_global_volume(BGM_STREAM, conf_sound_vol_bgm);

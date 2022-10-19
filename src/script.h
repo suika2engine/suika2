@@ -76,10 +76,14 @@ enum label_command_param {
 	LABEL_PARAM_LABEL = 0,
 };
 
+/* メッセージコマンドのパラメータ */
+enum message_command_param {
+	MESSAGE_PARAM_MESSAGE,
+};
+
 /* セリフコマンドのパラメータ */
 enum serif_command_param {
-	SERIF_PARAM_PTR,
-	SERIF_PARAM_NAME,
+	SERIF_PARAM_NAME = 1,
 	SERIF_PARAM_VOICE,
 	SERIF_PARAM_MESSAGE,
 };
@@ -583,6 +587,9 @@ const char *get_line_string(void);
 
 /* コマンドのタイプを取得する */
 int get_command_type(void);
+
+/* コマンドのロケール指定を取得する */
+const char *get_command_locale(void);
 
 /* 文字列のコマンドパラメータを取得する */
 const char *get_string_param(int index);

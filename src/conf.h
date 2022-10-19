@@ -25,6 +25,7 @@
  * 言語の設定
  */
 extern int conf_i18n;
+extern char *conf_language;
 
 /*
  * ウィンドウの設定

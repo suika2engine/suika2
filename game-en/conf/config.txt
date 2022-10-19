@@ -8,11 +8,14 @@
 ###
 
 ###
-### Language Setting
+### Language Settings
 ###
 
 # International mode (0:disable, 1:enable)
 i18n=1
+
+# Story language
+language=en
 
 ###
 ### Window Settings

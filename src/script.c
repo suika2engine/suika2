@@ -27,6 +27,7 @@
  *  - 2022/06/06 デバッガに対応
  *  - 2022/06/17 @chooseに対応
  *  - 2022/07/29 @guiに対応
+ *  - 2022/10/19 ローケルに対応
  */
 
 #ifdef _MSC_VER
@@ -51,6 +52,7 @@ static struct command {
 	int line;
 	char *text;
 	char *param[PARAM_SIZE];
+	char locale[3];
 } cmd[SCRIPT_CMD_SIZE];
 
 /* コマンドの数 */
@@ -136,14 +138,14 @@ static bool is_parse_error;
  */
 static bool read_script_from_file(const char *fname);
 static bool parse_insn(int index, const char *fname, int line,
-		       const char *buf);
+		       const char *buf, int locale_offset);
 static char *strtok_escape(char *buf);
 static bool parse_serif(int index, const char *fname, int line,
-			const char *buf);
+			const char *buf, int locale_offset);
 static bool parse_message(int index, const char *fname, int line,
-			  const char *buf);
+			  const char *buf, int locale_offset);
 static bool parse_label(int index, const char *fname, int line,
-			const char *buf);
+			const char *buf, int locale_offset);
 
 /*
  * 初期化
@@ -436,6 +438,20 @@ int get_command_type(void)
 }
 
 /*
+ * コマンドのロケール指定を取得する
+ */
+const char *get_command_locale(void)
+{
+	struct command *c;
+
+	assert(cur_index < cmd_size);
+
+	c = &cmd[cur_index];
+
+	return c->locale;
+}
+
+/*
  * 文字列のコマンドパラメータを取得する
  */
 const char *get_string_param(int index)
@@ -518,9 +534,11 @@ int get_command_count(void)
 /* ファイルを読み込む */
 static bool read_script_from_file(const char *fname)
 {
+	const int BUF_OFS = 4;
 	char buf[LINE_BUF_SIZE];
 	struct rfile *rf;
 	int line;
+	int top;
 	bool result;
 
 #ifdef USE_DEBUGGER
@@ -556,8 +574,19 @@ static bool read_script_from_file(const char *fname)
 			break;
 		}
 
+		/* ロケールを処理する */
+		top = 0;
+		if (strlen(buf) > 4 && buf[0] == '+' && buf[3] == '+') {
+			cmd[cmd_size].locale[0] = buf[1];
+			cmd[cmd_size].locale[1] = buf[2];
+			cmd[cmd_size].locale[2] = '\0';
+			top = BUF_OFS;
+		} else {
+			cmd[cmd_size].locale[0] = '\0';
+		}
+
 		/* 行頭の文字で仕分けする */
-		switch (buf[0]) {
+		switch (buf[top]) {
 		case '\0':
 		case '#':
 #ifdef USE_DEBUGGER
@@ -573,10 +602,9 @@ static bool read_script_from_file(const char *fname)
 			break;
 		case '@':
 			/* 命令行をパースする */
-			if (!parse_insn(cmd_size, fname, line, buf)) {
+			if (!parse_insn(cmd_size, fname, line, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -591,10 +619,9 @@ static bool read_script_from_file(const char *fname)
 			break;
 		case '*':
 			/* セリフ行をパースする */
-			if (!parse_serif(cmd_size, fname, line, buf)) {
+			if (!parse_serif(cmd_size, fname, line, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -609,10 +636,9 @@ static bool read_script_from_file(const char *fname)
 			break;
 		case ':':
 			/* ラベル行をパースする */
-			if (!parse_label(cmd_size, fname, line, buf)) {
+			if (!parse_label(cmd_size, fname, line, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -627,10 +653,9 @@ static bool read_script_from_file(const char *fname)
 			break;
 		default:
 			/* メッセージ行をパースする */
-			if (!parse_message(cmd_size, fname, line, buf)) {
+			if (!parse_message(cmd_size, fname, line, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
-					// log_script_parse_footer(fname, line, buf);
 					cmd_size++;
 					is_parse_error = false;
 				} else {
@@ -655,7 +680,8 @@ static bool read_script_from_file(const char *fname)
 }
 
 /* 命令行をパースする */
-static bool parse_insn(int index, const char *file, int line, const char *buf)
+static bool parse_insn(int index, const char *file, int line, const char *buf,
+		       int locale_offset)
 {
 	struct command *c;
 	char *tp;
@@ -676,7 +702,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf)
 	}
 
 	/* トークン化する文字列を複製する */
-	c->param[0] = strdup(buf);
+	c->param[0] = strdup(buf + locale_offset);
 	if (c->param[0] == NULL) {
 		log_memory();
 		return false;
@@ -800,11 +826,12 @@ static char *strtok_escape(char *buf)
 }
 
 /* セリフ行をパースする */
-static bool parse_serif(int index, const char *file, int line, const char *buf)
+static bool parse_serif(int index, const char *file, int line, const char *buf,
+			int locale_offset)
 {
 	char *first, *second, *third;
 
-	assert(buf[0] == '*');
+	assert(buf[locale_offset] == '*');
 
 #ifdef USE_DEBUGGER
 	UNUSED_PARAMETER(file);
@@ -820,7 +847,7 @@ static bool parse_serif(int index, const char *file, int line, const char *buf)
 	}
 
 	/* トークン化する文字列を複製する */
-	cmd[index].param[SERIF_PARAM_PTR] = strdup(&buf[1]);
+	cmd[index].param[0] = strdup(&buf[locale_offset + 1]);
 	if (cmd[index].param[0] == NULL) {
 		log_memory();
 		return false;
@@ -861,7 +888,7 @@ static bool parse_serif(int index, const char *file, int line, const char *buf)
 
 /* メッセージ行をパースする */
 static bool parse_message(int index, const char *file, int line,
-			  const char *buf)
+			  const char *buf, int locale_offset)
 {
 	UNUSED_PARAMETER(file);
 
@@ -873,13 +900,19 @@ static bool parse_message(int index, const char *file, int line,
 		log_memory();
 		return false;
 	}
+	cmd[index].param[MESSAGE_PARAM_MESSAGE] = strdup(buf + locale_offset);
+	if (cmd[index].text == NULL) {
+		log_memory();
+		return false;
+	}
 
 	/* 成功 */
 	return true;
 }
 
 /* ラベル行をパースする */
-static bool parse_label(int index, const char *file, int line, const char *buf)
+		static bool parse_label(int index, const char *file, int line, const char *buf,
+					int locale_offset)
 {
 	UNUSED_PARAMETER(file);
 
@@ -893,7 +926,7 @@ static bool parse_label(int index, const char *file, int line, const char *buf)
 	}
 
 	/* ラベルを保存する */
-	cmd[index].param[LABEL_PARAM_LABEL] = strdup(&buf[1]);
+	cmd[index].param[LABEL_PARAM_LABEL] = strdup(&buf[locale_offset + 1]);
 	if (cmd[index].param[LABEL_PARAM_LABEL] == NULL) {
 		log_memory();
 		return false;
@@ -947,6 +980,7 @@ const char *get_line_string_at_line_num(int line)
 bool update_command(int index, const char *cmd_str)
 {
 	int line;
+	int top;
 
 	/* メッセージに変換されるメッセージボックスを表示するようにする */
 	error_count = 0;
@@ -961,19 +995,30 @@ bool update_command(int index, const char *cmd_str)
 		cmd[index].param[0] = NULL;
 	}
 
+	/* ロケールを処理する */
+	top = 0;
+	if (strlen(cmd_str) > 4 && cmd_str[0] == '+' && cmd_str[3] == '+') {
+		cmd[index].locale[0] = cmd_str[1];
+		cmd[index].locale[1] = cmd_str[2];
+		cmd[index].locale[2] = '\0';
+		top = 4;
+	} else {
+		cmd[index].locale[0] = '\0';
+	}
+
 	/* 行頭の文字で仕分けする */
 	line = cmd[index].line;
-	switch (cmd_str[0]) {
+	switch (cmd_str[4]) {
 	case '@':
-		if (!parse_insn(index, cur_script, line, cmd_str))
+		if (!parse_insn(index, cur_script, line, cmd_str, top))
 			return false;
 		return true;
 	case '*':
-		if (!parse_serif(index, cur_script, line, cmd_str))
+		if (!parse_serif(index, cur_script, line, cmd_str, top))
 			return false;
 		return true;
 	case ':':
-		if (!parse_label(index, cur_script, line, cmd_str))
+		if (!parse_label(index, cur_script, line, cmd_str, top))
 			return false;
 		return true;
 	case '\0':
@@ -984,7 +1029,7 @@ bool update_command(int index, const char *cmd_str)
 		/* コメントもメッセージにする */
 		/* fall-thru */
 	default:
-		if (!parse_message(index, cur_script, line, cmd_str))
+		if (!parse_message(index, cur_script, line, cmd_str, top))
 			return false;
 		return true;
 	}
