@@ -132,6 +132,7 @@ Character positions are:
 |Right             |`right     |`r`         |
 |Left              |`left`     |`l`         |
 |Back Center       |`back`     |`b`         |
+|Face Icon         |`face`     |`f`         |
 
 Effects are the same as `@bg`.
 

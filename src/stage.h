@@ -15,6 +15,7 @@
  *  - 2021-06-12 画面揺らしモードに対応
  *  - 2021-07-25 エフェクトを追加
  *  - 2022-07-16 システムメニューを追加
+ *  - 2022-10-20 キャラ顔絵を追加
  */
 
 #ifndef SUIKA_STAGE_H
@@ -25,12 +26,13 @@
 /* クリックアニメーションのフレーム数 */
 #define CLICK_FRAMES	(6)
 
-/* キャラクタの立ち位置 */
+/* キャラクタの位置 */
 enum ch_position {
 	CH_BACK,
 	CH_LEFT,
 	CH_RIGHT,
 	CH_CENTER,
+	CH_FACE,
 	CH_LAYERS
 };
 

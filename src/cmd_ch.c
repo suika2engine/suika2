@@ -178,6 +178,10 @@ static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 		*chpos = CH_CENTER;
 		if (img != NULL)
 			*xpos = (conf_window_width - get_image_width(img)) / 2;
+	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0) {
+		/* 左に配置する */
+		*chpos = CH_FACE;
+		*xpos = 0;
 	} else {
 		/* スクリプト実行エラー */
 		log_script_ch_position(pos);

@@ -61,6 +61,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
+@ch face face-001.png
 *???*(I'm on my school's rooftop, having skipped the remedial class.)
 
 @vol bgm 1.0 1.0

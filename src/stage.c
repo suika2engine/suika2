@@ -22,6 +22,7 @@
  *  - 2021-07-20 @chsにエフェクト追加
  *  - 2022-06-29 ルール付き描画に対応, マスクつき描画の削除
  *  - 2022-07-16 システムメニューを追加
+ *  - 2022-10-20 キャラ顔絵を追加
  */
 
 #include "suika.h"
@@ -58,7 +59,7 @@ enum {
 	/* 背景レイヤ */
 	LAYER_BG,
 
-	/* キャラクタレイヤ */
+	/* キャラクタレイヤ(顔以外) */
 	LAYER_CHB,
 	LAYER_CHL,
 	LAYER_CHR,
@@ -69,6 +70,9 @@ enum {
 
 	/* 名前レイヤ */
 	LAYER_NAME,	/* 特殊: 実体イメージあり */
+
+	/* キャラクタレイヤ(顔) */
+	LAYER_CHF,
 
 	/* クリックアニメーション */
 	LAYER_CLICK,	/* 特殊: click_image[i]への参照 */
@@ -360,6 +364,7 @@ bool init_stage(void)
 	layer_blend[LAYER_CHC] = BLEND_FAST;
 	layer_blend[LAYER_MSG] = BLEND_FAST;
 	layer_blend[LAYER_NAME] = BLEND_FAST;
+	layer_blend[LAYER_CHF] = BLEND_FAST;
 	layer_blend[LAYER_CLICK] = BLEND_FAST;
 	layer_blend[LAYER_AUTO] = BLEND_FAST;
 	layer_blend[LAYER_SKIP] = BLEND_FAST;
@@ -918,6 +923,8 @@ void draw_stage_rect(int x, int y, int w, int h)
 		render_layer_image_rect(LAYER_MSG, x, y, w, h);
 	if (is_namebox_visible && !conf_namebox_hidden)
 		render_layer_image_rect(LAYER_NAME, x, y, w,h);
+	if (is_msgbox_visible)
+		render_layer_image_rect(LAYER_CHF, x, y, w, h);
 	if (is_click_visible && !conf_click_disable)
 		render_layer_image_rect(LAYER_CLICK, x, y, w, h);
 	if (is_auto_visible)
@@ -2235,7 +2242,7 @@ void draw_stage_to_thumb(void)
 {
 	int layer_index[] = {
 		LAYER_BG, LAYER_CHB, LAYER_CHL, LAYER_CHR, LAYER_CHC,
-		LAYER_MSG, LAYER_NAME
+		LAYER_MSG, LAYER_NAME, LAYER_CHF
 	};
 	int i;
 
@@ -2574,7 +2581,7 @@ void stop_bg_fade(void)
 bool set_ch_file_name(int pos, const char *file)
 {
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	       pos == CH_CENTER || pos == CH_FACE);
 	assert(file == NULL || strcmp(file, "") != 0);
 	       
 	if (ch_file_name[pos] != NULL)
@@ -2599,7 +2606,7 @@ bool set_ch_file_name(int pos, const char *file)
 const char *get_ch_file_name(int pos)
 {
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	       pos == CH_CENTER || pos == CH_FACE);
 
 	return ch_file_name[pos];
 }
@@ -2612,7 +2619,7 @@ void get_ch_position(int pos, int *x, int *y)
 	int layer;
 
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	       pos == CH_CENTER || pos == CH_FACE);
 
 	layer = pos_to_layer(pos);
 	*x = layer_x[layer];
@@ -2627,7 +2634,7 @@ int get_ch_alpha(int pos)
 	int layer;
 
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	       pos == CH_CENTER || pos == CH_FACE);
 
 	layer = pos_to_layer(pos);
 	return layer_alpha[layer];
@@ -2641,7 +2648,7 @@ void change_ch_immediately(int pos, struct image *img, int x, int y, int alpha)
 	int layer;
 
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	       pos == CH_CENTER || pos == CH_FACE);
 
 	layer = pos_to_layer(pos);
 	destroy_layer_image(layer);
@@ -2659,7 +2666,7 @@ void change_ch_attributes(int pos, int x, int y, int alpha)
 	int layer;
 
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	       pos == CH_CENTER || pos == CH_FACE);
 
 	layer = pos_to_layer(pos);
 	layer_x[layer] = x;
@@ -2676,7 +2683,7 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 
 	assert(stage_mode == STAGE_MODE_IDLE);
 	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	       pos == CH_CENTER || pos == CH_FACE);
 
 	stage_mode = STAGE_MODE_CH_FADE;
 
@@ -2719,6 +2726,8 @@ static int pos_to_layer(int pos)
 		return LAYER_CHR;
 	case CH_CENTER:
 		return LAYER_CHC;
+	case CH_FACE:
+		return LAYER_CHF;
 	}
 	assert(BAD_POSITION);
 	return -1;	/* never come here */
