@@ -25,6 +25,16 @@
  * 言語の設定
  */
 extern int conf_i18n;
+extern char *conf_language_jp;
+extern char *conf_language_en;
+extern char *conf_language_fr;
+extern char *conf_language_de;
+extern char *conf_language_es;
+extern char *conf_language_it;
+extern char *conf_language_el;
+extern char *conf_language_ru;
+extern char *conf_language_other;
+extern char *conf_language;
 
 /*
  * ウィンドウの設定

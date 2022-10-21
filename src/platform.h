@@ -121,6 +121,9 @@ void enter_full_screen_mode(void);
 /* フルスクリーンモードを終了する */
 void leave_full_screen_mode(void);
 
+/* システムのロケールを取得する */
+const char *get_system_locale(void);
+
 /*
  * デバッガの場合のみ
  */

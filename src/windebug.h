@@ -23,11 +23,7 @@
 /* バージョン文字列 */
 #define VERSION				\
 	"Suika2 Pro for Creators\n" \
-	"Copyright (c) 2022, LUXION SOFT. All rights reserved.\n" \
-	"\n" \
-	"Developers:\n" \
-	"TABATA Keiichi (Programmer)\n" \
-	"MATSUNO Seiji (Supervisor)\n"
+	"Copyright (c) 2022, the Suika2 Development Team. All rights reserved.\n"
 
 /* メニューを作成する */
 VOID InitMenu(HWND hWnd);

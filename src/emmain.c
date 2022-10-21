@@ -685,3 +685,12 @@ void leave_full_screen_mode(void)
 {
 	/* stub */
 }
+
+/*
+ * システムのロケールを取得する
+ */
+const char *get_system_locale(void)
+{
+	/* stub */
+	return "other";
+}

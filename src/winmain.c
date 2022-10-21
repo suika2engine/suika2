@@ -1633,3 +1633,40 @@ void leave_full_screen_mode(void)
 	if (bFullScreen)
 		ToggleFullScreen();
 }
+
+/*
+ * システムのロケールを取得する
+ */
+const char *get_system_locale(void)
+{
+	switch (GetUserDefaultLCID()) {
+	case 1033:	/* US */
+	case 2057:	/* UK */
+	case 3081:	/* オーストラリア */
+	case 4105:	/* カナダ */
+		return "en";
+	case 1036:
+		return "fr";
+	case 1031:	/* ドイツ */
+	case 2055:	/* スイス */
+	case 3079:	/* オーストリア */
+		return "de";
+	case 3082:
+		return "es";
+	case 1040:
+		return "it";
+	case 1032:
+		return "el";
+	case 1049:
+		return "ru";
+	case 2052:
+		return "zh";
+	case 1028:
+		return "tw";
+	case 1041:
+		return "ja";
+	default:
+		break;
+	}
+	return "other";
+}

@@ -8,11 +8,24 @@
 ###
 
 ###
-### Language Setting
+### Language Settings
 ###
 
 # International mode (0:disable, 1:enable)
 i18n=1
+
+# Language mapping (system language => story language)
+language.en=en
+language.fr=en
+language.de=en
+language.es=en
+language.it=en
+language.el=en
+language.ru=en
+language.zh=en
+language.tw=en
+language.ja=en
+language.other=en
 
 ###
 ### Window Settings

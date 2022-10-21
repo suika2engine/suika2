@@ -22,6 +22,20 @@
  * 言語の設定
  */
 int conf_i18n;
+char *conf_language_en;
+char *conf_language_fr;
+char *conf_language_de;
+char *conf_language_es;
+char *conf_language_it;
+char *conf_language_el;
+char *conf_language_ru;
+char *conf_language_zh;
+char *conf_language_tw;
+char *conf_language_ja;
+char *conf_language_other;
+
+/* この変数はconfig.txtに記述されない */
+char *conf_language;
 
 /*
  * ウィンドウの設定
@@ -366,6 +380,17 @@ struct rule {
 	bool loaded;
 } rule_tbl[] = {
 	{"i18n", 's', &conf_i18n, true, false},
+	{"language.en", 's', &conf_language_en, true, false},
+	{"language.fr", 's', &conf_language_fr, true, false},
+	{"language.de", 's', &conf_language_de, true, false},
+	{"language.es", 's', &conf_language_es, true, false},
+	{"language.it", 's', &conf_language_it, true, false},
+	{"language.el", 's', &conf_language_el, true, false},
+	{"language.ru", 's', &conf_language_ru, true, false},
+	{"language.zh", 's', &conf_language_zh, true, false},
+	{"language.tw", 's', &conf_language_zh, true, false},
+	{"language.ja", 's', &conf_language_ja, true, false},
+	{"language.other", 's', &conf_language_other, true, false},
 	{"window.title", 's', &conf_window_title, false, false},
 	{"window.width", 'i', &conf_window_width, false, false},
 	{"window.height", 'i', &conf_window_height, false, false},
@@ -1036,6 +1061,7 @@ struct rule {
 static bool read_conf(void);
 static bool save_value(const char *k, const char *v);
 static bool check_conf(void);
+static void set_locale_mapping(void);
 
 /*
  * コンフィグの初期化処理を行う
@@ -1178,6 +1204,9 @@ bool apply_initial_values(void)
 {
 	int i;
 
+	/* ロケールのマッピングを行う */
+	set_locale_mapping();
+
 	/* グローバルボリュームをセットする */
 	set_mixer_global_volume(BGM_STREAM, conf_sound_vol_bgm);
 	set_mixer_global_volume(VOICE_STREAM, conf_sound_vol_voice);
@@ -1192,4 +1221,51 @@ bool apply_initial_values(void)
 		return false;
 
 	return true;
+}
+
+/* ロケールのマッピングを行う */
+static void set_locale_mapping(void)
+{
+	const char *locale;
+	int i;
+
+	struct {
+		const char *locale_name;
+		char **config;
+	} tbl[] = {
+		{"en", &conf_language_en},
+		{"fr", &conf_language_fr},
+		{"de", &conf_language_de},
+		{"es", &conf_language_es},
+		{"it", &conf_language_it},
+		{"el", &conf_language_el},
+		{"ru", &conf_language_ru},
+		{"zh", &conf_language_zh},
+		{"tw", &conf_language_tw},
+		{"ja", &conf_language_ja},
+	};
+
+	/* システムのロケールを取得する */
+	locale = get_system_locale();
+	assert(locale != NULL);
+
+	/* システムのロケールと一致するコンフィグを探す */
+	for (i = 0; i < (int)(sizeof(tbl) / sizeof(tbl[0])); i++) {
+		if (strcmp(locale, tbl[i].locale_name) == 0) {
+			/* ロケールマッピングが指定されていれば設定する */
+			if (*tbl[i].config != NULL &&
+			    strcmp(*tbl[i].config, "") != 0)
+				conf_language = *tbl[i].config;
+			else
+				conf_language = "en";
+			return;
+		}
+	}
+
+	/* システムのロケールがコンフィグにない場合 */
+	if (conf_language_other == NULL &&
+	    strcmp(conf_language_other, "") != 0)
+		conf_language = conf_language_other;
+	else
+		conf_language = "en";
 }
