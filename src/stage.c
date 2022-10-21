@@ -2582,8 +2582,7 @@ void stop_bg_fade(void)
  */
 bool set_ch_file_name(int pos, const char *file)
 {
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER || pos == CH_FACE);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 	assert(file == NULL || strcmp(file, "") != 0);
 	       
 	if (ch_file_name[pos] != NULL)
@@ -2607,8 +2606,7 @@ bool set_ch_file_name(int pos, const char *file)
  */
 const char *get_ch_file_name(int pos)
 {
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER || pos == CH_FACE);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 
 	return ch_file_name[pos];
 }
@@ -2620,8 +2618,7 @@ void get_ch_position(int pos, int *x, int *y)
 {
 	int layer;
 
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER || pos == CH_FACE);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 
 	layer = pos_to_layer(pos);
 	*x = layer_x[layer];
@@ -2635,8 +2632,7 @@ int get_ch_alpha(int pos)
 {
 	int layer;
 
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER || pos == CH_FACE);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 
 	layer = pos_to_layer(pos);
 	return layer_alpha[layer];
@@ -2649,8 +2645,7 @@ void change_ch_immediately(int pos, struct image *img, int x, int y, int alpha)
 {
 	int layer;
 
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER || pos == CH_FACE);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 
 	layer = pos_to_layer(pos);
 	destroy_layer_image(layer);
@@ -2667,8 +2662,7 @@ void change_ch_attributes(int pos, int x, int y, int alpha)
 {
 	int layer;
 
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER || pos == CH_FACE);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 
 	layer = pos_to_layer(pos);
 	layer_x[layer] = x;
@@ -2684,8 +2678,7 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	int layer;
 
 	assert(stage_mode == STAGE_MODE_IDLE);
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER || pos == CH_FACE);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 
 	stage_mode = STAGE_MODE_CH_FADE;
 
@@ -2825,8 +2818,7 @@ void start_ch_anime(int pos, int to_x, int to_y, int to_alpha)
 	int layer, i;
 
 	assert(stage_mode == STAGE_MODE_IDLE);
-	assert(pos == CH_BACK || pos == CH_LEFT || pos == CH_RIGHT ||
-	       pos == CH_CENTER);
+	assert(pos >= CH_BACK && pos < CH_LAYERS);
 
 	stage_mode = STAGE_MODE_CH_ANIME;
 
