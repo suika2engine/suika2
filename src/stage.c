@@ -973,6 +973,8 @@ void draw_stage_ch_fade(int fade_method)
 		render_layer_image(LAYER_MSG);
 	if (is_namebox_visible)
 		render_layer_image(LAYER_NAME);
+	if (is_msgbox_visible)
+		render_layer_image(LAYER_CHF);
 	if (is_auto_visible)
 		render_layer_image(LAYER_AUTO);
 	if (is_skip_visible)
