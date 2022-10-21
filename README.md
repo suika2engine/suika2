@@ -5,6 +5,7 @@
 You can produce impressive visual novels using `Suika2` - and have fun doing it too!
 
 [Join our Discord server!](https://discord.gg/ZmvXxE8GFg)
+<br/><br/>[Our Wiki!](https://github.com/suika2engine/suika2/wiki)
 
 ## Demo
 
