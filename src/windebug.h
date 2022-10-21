@@ -23,7 +23,7 @@
 /* バージョン文字列 */
 #define VERSION				\
 	"Suika2 Pro for Creators\n" \
-	"Copyright (c) 2022, Suika2 Development Team. All rights reserved.\n"
+	"Copyright (c) 2022, the Suika2 Development Team. All rights reserved.\n"
 
 /* メニューを作成する */
 VOID InitMenu(HWND hWnd);
