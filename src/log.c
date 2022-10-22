@@ -204,6 +204,20 @@ void log_unknown_conf(const char *key)
 }
 
 /*
+ * 空のコンフィグ文字列を記録する
+ */
+void log_empty_conf_string(const char *key)
+{
+	if (is_english_mode()) {
+		log_error("Empty string is specified for"
+			  " config key \"%s\"\n", key);
+	} else {
+		log_error("コンフィグの\"%s\"に空の文字列が指定されました。\n",
+			  key);
+	}
+}
+
+/*
  * 音声ファイルの入力エラーを記録する
  */
 void log_wave_error(const char *fname)

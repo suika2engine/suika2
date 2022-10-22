@@ -364,6 +364,9 @@ int conf_msgbox_show_on_ch;
 /* ビープの調整 */
 float conf_beep_adjustment;
 
+/* リリース版であるか */
+int conf_release;
+
 /*
  * 1行のサイズ
  */
@@ -379,7 +382,7 @@ struct rule {
 	bool omissible;
 	bool loaded;
 } rule_tbl[] = {
-	{"i18n", 's', &conf_i18n, true, false},
+	{"i18n", 'i', &conf_i18n, true, false},
 	{"language.en", 's', &conf_language_en, true, false},
 	{"language.fr", 's', &conf_language_fr, true, false},
 	{"language.de", 's', &conf_language_de, true, false},
@@ -1051,6 +1054,7 @@ struct rule {
 	{"click.disable", 'i', &conf_click_disable, true, false},
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, true, false},
 	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
+	{"release", 'i', &conf_release, true, false},
 };
 
 #define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))
@@ -1108,8 +1112,10 @@ static bool read_conf(void)
 
 		/* 値を取得する */
 		v = strtok(NULL, "=");
-		if (v == NULL || v[0] == '\0')
-			continue;
+		if (v == NULL || v[0] == '\0') {
+			log_empty_conf_string(k);
+			return false;
+		}
 
 		/* 値を保存する */
 		if (!save_value(k, v)) {
@@ -1167,7 +1173,7 @@ static bool save_value(const char *k, const char *v)
 }
 
 /* 読み込まれなかった必須コンフィグをチェックする */
-bool check_conf(void)
+static bool check_conf(void)
 {
 	size_t i;
 
