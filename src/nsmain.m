@@ -533,22 +533,36 @@ int main()
 // ログをオープンする
 static BOOL openLog(void)
 {
+    const char *cpath;
+
     // すでにオープン済みの場合、成功とする
     if (logFp != NULL)
         return TRUE;
 
-    // .appバンドルのパスを取得する
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+    if (conf_release && conf_window_title != NULL) {
+        NSString *path = NSHomeDirectory();
+        [path appendString:@"/Library/Application Support/"];
+        [path appendString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+        [[NSFileManager defaultManager] createDirectoryAtPath:path
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:NULL];
+        [path appendString:@"/"];
+        [path appendString:[[NSString init] initWithUTF8String:LOG_FILE]];
+        cpath = [path UTF8String];
+    } else {
+        // .appバンドルのパスを取得する
+        NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-    // .appバンドルの1つ上のディレクトリのパスを取得する
-    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+        // .appバンドルの1つ上のディレクトリのパスを取得する
+        NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
 
-    // ログのパスを生成する
-    const char *path = [[NSString stringWithFormat:@"%@/%s", basePath,
-                                  LOG_FILE] UTF8String];
+        // ログのパスを生成する
+        cpath = [[NSString stringWithFormat:@"%@/%s", basePath, LOG_FILE] UTF8String];
+    }
 
     // ログをオープンする
-    logFp = fopen(path, "w");
+    logFp = fopen(cpath, "w");
     if (logFp == NULL) {
         // 失敗
         NSAlert *alert = [[NSAlert alloc] init];
@@ -666,22 +680,32 @@ static void cleanupWindow(void)
 bool make_sav_dir(void)
 {
     @autoreleasepool {
-        // .appバンドルのパスを取得する
-        NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+        if (conf_release) {
+            NSString *path = NSHomeDirectory();
+            [path appendString:@"/Library/Application Support/"];
+            [path appendString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+            [[NSFileManager defaultManager] createDirectoryAtPath:path
+                                      withIntermediateDirectories:YES
+                                                       attributes:nil
+                                                            error:NULL];
+        } else {
+            // .appバンドルのパスを取得する
+            NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-        // .appバンドルの1つ上のディレクトリのパスを取得する
-        NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+            // .appバンドルの1つ上のディレクトリのパスを取得する
+            NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
 
-        // savディレクトリのパスを作成する
-        NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath,
-                                       SAVE_DIR];
+            // savディレクトリのパスを作成する
+            NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath,
+                                           SAVE_DIR];
 
-        // savディレクトリを作成する
-        NSError *error;
-        [[NSFileManager defaultManager] createDirectoryAtPath:savePath
-                                  withIntermediateDirectories:NO
-                                                   attributes:nil
-                                                        error:&error];
+            // savディレクトリを作成する
+            NSError *error;
+            [[NSFileManager defaultManager] createDirectoryAtPath:savePath
+                                      withIntermediateDirectories:NO
+                                                       attributes:nil
+                                                            error:&error];
+        }
     }
 	return true;
 }
@@ -694,22 +718,33 @@ char *make_valid_path(const char *dir, const char *fname)
     char *ret;
 
     @autoreleasepool {
-        // .appバンドルのパスを取得する
-        NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+        if (conf_release && dir != NULL && strcmp(dir, SAVE_DIR) == 0) {
+            NSString *path = NSHomeDirectory();
+            [path appendString:@"/Library/Application Support/"];
+            [path appendString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+            [path appendString:@"/"];
+            [path appendString:[[NSString alloc] initWithUTF8String:dir]];
+            [path appendString:@"/"];
+            [path appendString:[[NSString alloc] initWithUTF8String:fname]];
+            ret = strdup([path UTF8String]);
+        } else {
+            // .appバンドルのパスを取得する
+            NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
-        // .appバンドルの1つ上のディレクトリのパスを取得する
-        NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+            // .appバンドルの1つ上のディレクトリのパスを取得する
+            NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
 
-        // ファイルのパスを作成する
-        NSString *filePath;
-        if (dir != NULL)
-            filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir,
-                                 fname];
-        else
-            filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
+            // ファイルのパスを作成する
+            NSString *filePath;
+            if (dir != NULL)
+                filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir,
+                                     fname];
+            else
+                filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
 
-        const char *cstr = [filePath UTF8String];
-        ret = strdup(cstr);
+            const char *cstr = [filePath UTF8String];
+            ret = strdup(cstr);
+        }
     }
 
     if (ret == NULL) {
