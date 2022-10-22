@@ -12,6 +12,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <AVFoundation/AVFoundation.h>
 #import <sys/time.h>
 
 #import "suika.h"
@@ -44,6 +45,15 @@ static BOOL isFullScreen;
 static FILE *logFp;
 #endif
 
+// 動画プレーヤー
+static AVPlayer *player;
+
+// 動画再生状態
+static BOOL isMoviePlaying;
+
+// 動画再生の最初のフレームであるか
+static BOOL isMovieFirstFrame;
+
 // 前方参照
 static BOOL initWindow(void);
 static void cleanupWindow(void);
@@ -53,7 +63,7 @@ static void closeLog(void);
 #endif
 
 //
-// ビュー
+// メインビュー
 //
 
 @interface SuikaView ()
@@ -75,6 +85,11 @@ BOOL isControlPressed;
 
 // 描画の準備ができているか
 BOOL isRedrawPrepared;
+
+// 動画再生を利用する
++ (Class)layerClass {
+    return AVPlayerLayer.class;
+}
 
 // ビューが作成されるときに呼び出される
 - (id)initWithFrame:(NSRect)frame {
@@ -160,7 +175,8 @@ BOOL isRedrawPrepared;
     }
 
     // OpenGLの描画を開始する
-    opengl_start_rendering();
+    if (!isMoviePlaying)
+        opengl_start_rendering();
 
     // フレーム描画イベントを実行する
     int x = 0, y = 0, w = 0, h = 0;
@@ -168,19 +184,22 @@ BOOL isRedrawPrepared;
         isFinished = YES;
 
     // OpenGLの描画を終了する
-    opengl_end_rendering();
+    if (!isMoviePlaying || isMovieFirstFrame) {
+        opengl_end_rendering();
+        isRedrawPrepared = YES;
 
-    isRedrawPrepared = YES;
-
-    // drawRectの呼び出しを予約する
-    [self setNeedsDisplay:YES];
+        // drawRectの呼び出しを予約する
+        [self setNeedsDisplay:YES];
+    }
+    isMovieFirstFrame = NO;
 }
 
 // 描画イベント
 - (void)drawRect:(NSRect)rect {
     [super drawRect:rect];
-
     if (isFinished)
+        return;
+    if (isMoviePlaying)
         return;
 
     if (!isRedrawPrepared) {
@@ -419,6 +438,31 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 // First Responderとなるか
 - (BOOL)acceptsFirstResponder {
     return YES;
+}
+
+/*
+// 動画再生の通知を受け取る
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if (player.status == AVPlayerItemStatusReadyToPlay) {
+        [player removeObserver:self forKeyPath:@"start"];
+        [player play];
+        isMoviePlaying = YES;
+    } else {
+        [super observeValueForKeyPath:keyPath
+                             ofObject:object
+                               change:change
+                              context:context];
+    }
+}
+*/
+
+// 動画再生が完了したとき通知される
+- (void)onPlayEnd:(NSNotification *)notification {
+    [player replaceCurrentItemWithPlayerItem:nil];
+    isMoviePlaying = NO;
 }
 
 @end
@@ -977,7 +1021,33 @@ bool default_dialog(void)
 //
 bool play_video(const char *fname, bool is_skippable)
 {
-	// stub
+    // パスを生成する
+    char *path = make_valid_path(MOV_DIR, fname);
+    NSString *nsPath = [[NSString alloc] initWithUTF8String:path];
+    free(path);
+    NSURL *url = [NSURL URLWithString:[@"file://" stringByAppendingString:nsPath]];
+
+    // プレーヤーを作成する
+    AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:url];
+    player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
+
+    // プレーヤーのレイヤーを作成する
+    AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+    [playerLayer setFrame:theView.bounds];
+    [theView.layer addSublayer:playerLayer];
+    [theView setWantsLayer:YES];
+
+    // 再生を開始する
+    [player play];
+
+    // 再生終了の通知を送るようにする
+    [NSNotificationCenter.defaultCenter addObserver:theView
+                                           selector:@selector(onPlayEnd:)
+                                               name:AVPlayerItemDidPlayToEndTimeNotification
+                                             object:playerItem];
+
+    isMoviePlaying = YES;
+    isMovieFirstFrame = YES;
 	return true;
 }
 
@@ -986,7 +1056,9 @@ bool play_video(const char *fname, bool is_skippable)
 //
 void stop_video(void)
 {
-    // stub
+    if (player != nil)
+        [player replaceCurrentItemWithPlayerItem:nil];
+    isMoviePlaying = NO;
 }
 
 //
@@ -994,8 +1066,7 @@ void stop_video(void)
 //
 bool is_video_playing(void)
 {
-    // stub
-    return false;
+    return isMoviePlaying == YES || isMovieFirstFrame == YES;
 }
 
 //
