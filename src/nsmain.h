@@ -26,11 +26,12 @@ enum {
     KC_C = 8,
 };
 
-// ビュー
+// メインビュー
 @interface SuikaView : NSOpenGLView <NSWindowDelegate, NSApplicationDelegate>
 {
 }
 - (void)timerFired:(NSTimer *)timer;
+- (void)onPlayEnd:(NSNotification *)notification;
 @end
 
 #endif
