@@ -559,7 +559,7 @@ static bool setup_news(void)
 	if (conf_news_bg_file != NULL) {
 		news_bg_image = create_image_from_file(CG_DIR,
 						       conf_news_bg_file);
-		if (switch_bg_image == NULL)
+		if (news_bg_image == NULL)
 			return false;
 	}
 
@@ -567,7 +567,7 @@ static bool setup_news(void)
 	if (conf_news_fg_file != NULL) {
 		news_fg_image = create_image_from_file(CG_DIR,
 						       conf_news_fg_file);
-		if (switch_bg_image == NULL)
+		if (news_fg_image == NULL)
 			return false;
 	}
 

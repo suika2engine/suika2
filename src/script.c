@@ -336,10 +336,6 @@ bool move_to_label(const char *label)
 			update_debug_info(false);
 #endif
 
-			/* スクリプトの末尾に達した場合 */
-			if (cur_index == cmd_size)
-				return false;
-
 			return true;
 		}
 	}

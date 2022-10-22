@@ -445,7 +445,7 @@ static bool create_window(void)
 	XFree(sh);
 
 	/* イベントマスクを設定する */
-	XSelectInput(display, window, KeyPressMask | ExposureMask |
+	ret = XSelectInput(display, window, KeyPressMask | ExposureMask |
 		     ButtonPressMask | ButtonReleaseMask | KeyReleaseMask |
 		     PointerMotionMask);
 	if (ret == BadWindow) {
@@ -493,7 +493,7 @@ static bool create_icon_image(void)
 	attr.colormap = cm;
 	ret = XpmCreatePixmapFromData(display, window, icon_xpm, &icon,
 				      &icon_mask, &attr);
-	if (ret != XpmSuccess || ret < 0) {
+	if (ret != XpmSuccess) {
 		log_api_error("XpmCreatePixmapFromData");
 		XFreeColormap(display, cm);
 		return false;
