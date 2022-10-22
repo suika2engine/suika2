@@ -443,3 +443,13 @@ window.title.chapter.disable=0
 
 # Message box on character change (0:hide, 1:show, optional)
 msgbox.show.on.ch=0
+
+###
+### Release Mode
+###  - Use this mode when installing game to "Program Files" on Windows.
+###  - If you turn on this mode, save data will be stored in the
+###    OS-specific place (AppData on Windows, Library on macOS).
+###
+
+# Release mode (0:off, 1:on, optional)
+release=0
