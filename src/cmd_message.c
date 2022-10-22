@@ -499,8 +499,7 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 	    ||
 	    (!is_non_interruptible() &&
 	     !(is_skip_mode() && is_skippable()) &&
-	     ((!is_control_pressed ||
-	       (is_control_pressed && !is_skippable())) &&
+	     ((!is_control_pressed || !is_skippable()) &&
 	      !gui_flag &&
 	      !is_message_registered()))) {
 		/* いったんボイスなしの判断にしておく(あとで変更する) */
@@ -866,9 +865,7 @@ static void check_stop_click_animation(void)
 		if (!is_non_interruptible()) {
 			stop_command_repetition();
 		} else {
-			if (!have_voice ||
-			    (have_voice &&
-			     is_mixer_sound_finished(VOICE_STREAM)))
+			if (!have_voice || is_mixer_sound_finished(VOICE_STREAM))
 				stop_command_repetition();
 		}
 	} else if (gui_flag &&
@@ -882,9 +879,7 @@ static void check_stop_click_animation(void)
 		if (!is_non_interruptible()) {
 			stop_command_repetition();
 		} else {
-			if (!have_voice ||
-			    (have_voice &&
-			     is_mixer_sound_finished(VOICE_STREAM)))
+			if (!have_voice || is_mixer_sound_finished(VOICE_STREAM))
 				stop_command_repetition();
 		}
 	}
@@ -1999,10 +1994,6 @@ static void frame_main(int *x, int *y, int *w, int *h)
 
 	/* メインの表示処理を行う */
 	if (!is_sysmenu) {
-		/* スペースキーが押下中の場合 */
-		if (is_hidden)
-			return;
-
 		/* 入力があったらボイスを止める */
 		if (!conf_voice_stop_off &&
 		    (is_skippable() && !is_non_interruptible() &&
@@ -2182,8 +2173,7 @@ static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 
 	/* SEを再生する */
 	if (!is_sysmenu_finished &&
-	    ((!is_collapsed_sysmenu_pointed_prev && is_pointed) ||
-	     (is_collapsed_sysmenu_pointed_prev && !is_pointed)))
+	    (is_collapsed_sysmenu_pointed_prev != is_pointed))
 		play_se(conf_sysmenu_collapsed_se);
 
 	/* 折りたたみシステムメニューのポイント状態を保持する */

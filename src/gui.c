@@ -1997,6 +1997,7 @@ static void draw_message(int index)
 		if (mblen == -1) {
 			button[index].rt.drawn_chars =
 				button[index].rt.total_chars;
+			unlock_image(button[index].rt.img);
 			return;
 		}
 
@@ -2460,7 +2461,7 @@ static bool load_gui_file(const char *file)
 	/* エラーが発生した場合 */
 	if (st == ST_ERROR) {
 		log_gui_parse_footer(file, line);
-	} else if (st != ST_SCOPE || (st == ST_SCOPE && len > 0)) {
+	} else if (st != ST_SCOPE || len > 0) {
 		log_gui_parse_invalid_eof();
 	}
 
