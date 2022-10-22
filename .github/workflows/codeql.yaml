@@ -2,11 +2,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
-  schedule:
-    - cron: '26 22 * * 3'
 
 jobs:
   analyze:
@@ -20,27 +16,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'cpp', 'java', 'javascript' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+        language: [ 'cpp', 'java' ]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
 
-    - name: build
+    - name: Build Suika2 on Linux
       run: |
         sudo apt update
         sudo apt install -y libasound2-dev libx11-dev libxpm-dev mesa-common-dev
         cd build/linux-x86_64
         ./build-libs.sh
-        run: make
+        make
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
