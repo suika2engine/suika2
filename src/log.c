@@ -264,7 +264,6 @@ void log_script_exec_footer(void)
 	}
 	dbg_set_error_state();
 #else
-	char tmp[4096];
 	const char *file;
 	int line;
 
@@ -274,17 +273,13 @@ void log_script_exec_footer(void)
 	line = get_line_num() + 1;
 
 	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "> Script execution error: %s:%d\n"
-			 "> %s\n",
-			 file, line, conv_utf8_to_native(get_line_string()));
-		log_error(tmp);
+		log_error("> Script execution error: %s:%d\n"
+			  "> %s\n",
+			  file, line, conv_utf8_to_native(get_line_string()));
 	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "> スクリプト実行エラー: %s %d行目\n"
-			 "> %s\n",
-			 file, line, conv_utf8_to_native(get_line_string()));
-		log_error(tmp);
+		log_error("> スクリプト実行エラー: %s %d行目\n"
+			  "> %s\n",
+			  file, line, conv_utf8_to_native(get_line_string()));
 	}
 #endif
 }
@@ -458,21 +453,15 @@ void log_script_op_error(const char *op)
  */
 void log_script_parse_footer(const char *file, int line, const char *buf)
 {
-	char tmp[4096];
-
 	line++;
 	if (is_english_mode()) {
-		snprintf(tmp, sizeof(tmp),
-			 "> Script format error: %s:%d\n"
-			 "> %s\n",
-			 file, line, conv_utf8_to_native(buf));
-		log_error(tmp);
+		log_error("> Script format error: %s:%d\n"
+			  "> %s\n",
+			  file, line, conv_utf8_to_native(buf));
 	} else {
-		snprintf(tmp, sizeof(tmp),
-			 "> スクリプト書式エラー: %s %d行目\n"
-			 "> %s\n",
-			 file, line, conv_utf8_to_native(buf));
-		log_error(tmp);
+		log_error("> スクリプト書式エラー: %s %d行目\n"
+			  "> %s\n",
+			  file, line, conv_utf8_to_native(buf));
 	}
 }
 
