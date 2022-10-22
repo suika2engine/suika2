@@ -541,14 +541,14 @@ static BOOL openLog(void)
 
     if (conf_release && conf_window_title != NULL) {
         NSString *path = NSHomeDirectory();
-        [path appendString:@"/Library/Application Support/"];
-        [path appendString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+        path = [path stringByAppendingString:@"/Library/Application Support/"];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:conf_window_title]];
         [[NSFileManager defaultManager] createDirectoryAtPath:path
                                   withIntermediateDirectories:YES
                                                    attributes:nil
                                                         error:NULL];
-        [path appendString:@"/"];
-        [path appendString:[[NSString init] initWithUTF8String:LOG_FILE]];
+        path = [path stringByAppendingString:@"/"];
+        path = [path stringByAppendingString:[[NSString init] initWithUTF8String:LOG_FILE]];
         cpath = [path UTF8String];
     } else {
         // .appバンドルのパスを取得する
@@ -682,8 +682,10 @@ bool make_sav_dir(void)
     @autoreleasepool {
         if (conf_release) {
             NSString *path = NSHomeDirectory();
-            [path appendString:@"/Library/Application Support/"];
-            [path appendString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+            path = [path stringByAppendingString:@"/Library/Application Support/"];
+            path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+            path = [path stringByAppendingString:@"/"];
+            path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:SAVE_DIR]];
             [[NSFileManager defaultManager] createDirectoryAtPath:path
                                       withIntermediateDirectories:YES
                                                        attributes:nil
@@ -720,12 +722,12 @@ char *make_valid_path(const char *dir, const char *fname)
     @autoreleasepool {
         if (conf_release && dir != NULL && strcmp(dir, SAVE_DIR) == 0) {
             NSString *path = NSHomeDirectory();
-            [path appendString:@"/Library/Application Support/"];
-            [path appendString:[[NSString alloc] initWithUTF8String:conf_window_title]];
-            [path appendString:@"/"];
-            [path appendString:[[NSString alloc] initWithUTF8String:dir]];
-            [path appendString:@"/"];
-            [path appendString:[[NSString alloc] initWithUTF8String:fname]];
+            path = [path stringByAppendingString:@"/Library/Application Support/"];
+            path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+            path = [path stringByAppendingString:@"/"];
+            path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:dir]];
+            path = [path stringByAppendingString:@"/"];
+            path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:fname]];
             ret = strdup([path UTF8String]);
         } else {
             // .appバンドルのパスを取得する
