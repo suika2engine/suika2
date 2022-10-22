@@ -9,6 +9,7 @@
 Suika2 is an open-source, cross-platform visual novel development engine that allows you to create a feature-rich visual novel with the care and attention to detail that your stories deserve. Featuring support and documentation in Japanese, Chinese, and English as well as active development and an accepting community, Suika2 could be the perfect start to your thrilling adventure, fawning romance, chilling epic, or anything else you could possibly imagine!
 
 [Join our Discord server!](https://discord.gg/ZmvXxE8GFg)
+![Discord](https://discord.com/api/guilds/986623112617541677/widget.png)
 <br/><br/>[Visit the Wiki!](https://github.com/suika2engine/suika2/wiki)
 
 ## Demo
