@@ -1477,8 +1477,8 @@ static int draw_save_text_item(int button_index, int x, int y,
 
 		/* 文字の幅を取得する */
 		cw = get_glyph_width(wc);
-		if (button[button_index].rt.pen_x + cw >=
-		    button[button_index].width)
+		if (button[button_index].rt.pen_x + cw +
+		    button[button_index].margin >= button[button_index].width)
 			break;
 
 		/* 描画する */
