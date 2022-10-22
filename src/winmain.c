@@ -19,6 +19,7 @@
 #endif
 
 #include <windows.h>
+#include <shlobj.h>
 #include <io.h>
 
 #include "suika.h"
@@ -1228,22 +1229,58 @@ static BOOL OpenLogFile(void)
 #ifdef USE_DEBUGGER
 	return TRUE;
 #else
+	char path[MAX_PATH] = {0};
+
 	/* すでにオープンされていれば成功とする */
 	if(pLogFile != NULL)
 		return TRUE;
 
 	/* オープンする */
-	pLogFile = fopen(LOG_FILE, "w");
-	if (pLogFile == NULL)
+	if (!conf_release ||
+		/* ウィンドウタイトルが空のエラー処理中の場合 */
+		(conf_release && conf_window_title == NULL))
 	{
-		/* 失敗 */
-		MessageBox(NULL,
-				   !conf_i18n ?
-				   "ログファイルをオープンできません。" :
-				   "Cannot open log file.",
-				   !conf_i18n ? "エラー" : "Error",
-				   MB_OK | MB_ICONWARNING);
-		return FALSE;
+		/* ゲームディレクトリに作成する */
+		pLogFile = fopen(LOG_FILE, "w");
+		if (pLogFile == NULL)
+		{
+			/* 失敗 */
+			MessageBox(NULL,
+					   !conf_i18n ?
+					   "ログファイルをオープンできません。" :
+					   "Cannot open log file.",
+					   !conf_i18n ? "エラー" : "Error",
+					   MB_OK | MB_ICONWARNING);
+			return FALSE;
+		}
+	}
+	else
+	{
+		/* AppDataに作成する */
+		SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path);
+		strncat(path, "\\", MAX_PATH - 1);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+		strncat(path, conv_utf8_to_native(conf_window_title), MAX_PATH - 1);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+		strncat(path, "\\", MAX_PATH - 1);
+		strncat(path, LOG_FILE, MAX_PATH - 1);
+		pLogFile = fopen(path, "w");
+		if (pLogFile == NULL)
+		{
+			/* 失敗 */
+			MessageBox(NULL,
+					   !conf_i18n ?
+					   "ログファイルをオープンできません。" :
+					   "Cannot open log file.",
+					   !conf_i18n ? "エラー" : "Error",
+					   MB_OK | MB_ICONWARNING);
+			return FALSE;
+		}
 	}
 
 	/* 成功 */
@@ -1392,7 +1429,26 @@ void render_image_rule(struct image * RESTRICT src_img,
  */
 bool make_sav_dir(void)
 {
-	CreateDirectory(SAVE_DIR, NULL);
+	char path[MAX_PATH] = {0};
+
+	if (conf_release) {
+		/* AppDataに作成する */
+		SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path);
+		strncat(path, "\\", MAX_PATH - 1);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+		strncat(path, conv_utf8_to_native(conf_window_title), MAX_PATH - 1);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+		CreateDirectory(path, NULL);
+	} else {
+		/* ゲームディレクトリに作成する */
+		CreateDirectory(SAVE_DIR, NULL);
+	}
+
 	return true;
 }
 
@@ -1406,6 +1462,24 @@ char *make_valid_path(const char *dir, const char *fname)
 
 	if (dir == NULL)
 		dir = "";
+
+	if (conf_release && strcmp(dir, SAVE_DIR) == 0) {
+		/* AppDataを参照する場合 */
+		char path[MAX_PATH] = {0};
+		SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path);
+		strncat(path, "\\", MAX_PATH - 1);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+		strncat(path, conv_utf8_to_native(conf_window_title), MAX_PATH - 1);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+		strncat(path, "\\", MAX_PATH - 1);
+		strncat(path, fname, MAX_PATH - 1);
+		return strdup(path);
+	}
 
 	/* パスのメモリを確保する */
 	len = strlen(dir) + 1 + strlen(fname) + 1;

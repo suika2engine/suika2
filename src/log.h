@@ -38,6 +38,7 @@ void log_package_file_error(void);
 void log_duplicated_conf(const char *key);
 void log_undefined_conf(const char *key);
 void log_unknown_conf(const char *key);
+void log_empty_conf_string(const char *key);
 void log_wave_error(const char *fname);
 void log_invalid_msgbox_size(void);
 void log_script_exec_footer(void);

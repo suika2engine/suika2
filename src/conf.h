@@ -311,6 +311,7 @@ extern int conf_window_title_chapter_disable;
 extern int conf_click_disable;
 extern int conf_msgbox_show_on_ch;
 extern float conf_beep_adjustment;
+extern int conf_release;
 
 /* コンフィグの初期化処理を行う */
 bool init_conf(void);
