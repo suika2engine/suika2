@@ -448,7 +448,7 @@ msgbox.show.on.ch=0
 ### Release Mode
 ###  - Use this mode when installing games to the "Program Files" path on Windows.
 ###  - If this configuration is enabled, save data will be stored in OS-specific
-###    locations such as 'AppData' one Windows and 'Library' on macOS.
+###    locations such as 'AppData' on Windows and 'Library' on macOS.
 ###
 
 # Release mode (0:off, 1:on, optional)
