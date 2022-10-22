@@ -228,8 +228,8 @@ static bool load_thumbnail_size(void)
 	}
 
 	thumbnail_height = get_int_param(RETROSPECT_PARAM_HEIGHT);
-	if (thumbnail_width <= 0) {
-		log_script_non_positive_size(thumbnail_width);
+	if (thumbnail_height <= 0) {
+		log_script_non_positive_size(thumbnail_height);
 		log_script_exec_footer();
 		return false;
 	}

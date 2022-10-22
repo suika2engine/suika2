@@ -1130,7 +1130,7 @@ static void process_sysmenu_click(void)
 	}
 
 	/* コンフィグが左クリックされた場合 */
-	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
+	if (sysmenu_pointed_index == SYSMENU_CONFIG) {
 		/* SEを再生する */
 		play_se(conf_sysmenu_config_se);
 
@@ -1277,8 +1277,7 @@ static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 
 	/* SEを再生する */
 	if (!is_sysmenu_finished &&
-	    ((!is_collapsed_sysmenu_pointed_prev && is_pointed) ||
-	     (is_collapsed_sysmenu_pointed_prev && !is_pointed)))
+	    (is_collapsed_sysmenu_pointed_prev != is_pointed))
 		play_se(conf_sysmenu_collapsed_se);
 
 	/* 折りたたみシステムメニューのポイント状態を保持する */
