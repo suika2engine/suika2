@@ -34,20 +34,13 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    - name: apt update
-      run: sudo apt update
-
-    - name: apt install
-      run: sudo apt install -y libasound2-dev libx11-dev libxpm-dev mesa-common-dev
-
-    - name: enter the build directory
-      run: cd build/linux-x86_64
-
-    - name: build dependency
-      run: ./build-libs.sh
-
     - name: build
-      run: make
+      run: |
+        sudo apt update
+        sudo apt install -y libasound2-dev libx11-dev libxpm-dev mesa-common-dev
+        cd build/linux-x86_64
+        ./build-libs.sh
+        run: make
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
