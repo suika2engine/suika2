@@ -610,7 +610,8 @@ bool quick_load(void)
 	show_msgbox(false);
 
 	/* ウィンドウタイトルをアップデートする */
-	update_window_title();
+	if (!conf_window_title_chapter_disable)
+		update_window_title();
 
 	/* オートモードを解除する */
 	if (is_auto_mode())
@@ -652,7 +653,8 @@ bool execute_load(int index)
 	show_msgbox(false);
 
 	/* ウィンドウタイトルをアップデートする */
-	update_window_title();
+	if (!conf_window_title_chapter_disable)
+		update_window_title();
 	
 #ifdef USE_DEBUGGER
 	clear_variable_changed();

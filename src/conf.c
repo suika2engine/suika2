@@ -1269,7 +1269,7 @@ static void set_locale_mapping(void)
 	}
 
 	/* システムのロケールがコンフィグにない場合 */
-	if (conf_language_other == NULL &&
+	if (conf_language_other != NULL &&
 	    strcmp(conf_language_other, "") != 0)
 		conf_language = conf_language_other;
 	else
