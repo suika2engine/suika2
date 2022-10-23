@@ -694,10 +694,10 @@ Shows two levels of two options, four in total.
 ## @video
 
 This command plays a video file.
-At the moment, this functionality is enabled on Windows only.
+At the moment, this functionality is enabled on Windows and Mac only.
 
-Recommended video file format is `.WMV` file because of royalty fee.
-It is not recommended, but `.AVI` file which contains `H.264` + `AAC` is also supported on Windows 10/11.
+On Windows, please use the `.wmv` video file format.
+On Mac, please use the `.mp4` video file format.
 
 Video files are stored in `mov` directory.
 `mov` directory is not stored in `data01.arc` file.
