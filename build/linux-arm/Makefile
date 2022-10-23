@@ -81,9 +81,4 @@ install: suika
 	cp suika ../../
 
 clean:
-	rm -rf *~ *.o suika log.txt sav tmp libroot suika2 suika-2.x.x-linux64.zip
-
-lines:
-	cat ../../src/*.[chm] | wc -l
-	grep -E '/\*|\*/|^([ \t]+\*)' ../../src/*.[cm] | wc -l
-	grep 'assert' ../../src/*.[chm] | wc -l
+	rm -rf *~ *.o suika log.txt sav tmp libroot
