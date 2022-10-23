@@ -298,8 +298,9 @@ static bool pre_dispatch(void)
 			/* エラー時の仮スクリプトを読み込む */
 			if (!load_debug_script())
 				return false;
+		} else {
+			free(scr);
 		}
-		free(scr);
 
 		/* 元の行番号の最寄りコマンドを取得する */
 		cmd = get_command_index_from_line_number(line);
