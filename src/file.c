@@ -232,8 +232,16 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	/* 読み込み位置にシークする */
 	if (fseek(rf->fp, (long)entry[i].offset, SEEK_SET) != 0) {
 		log_package_file_error();
+		fclose(rf->fp);
 		free(rf);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-file-leak"
+#endif
 		return 0;
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 	}
 
 	rf->is_packaged = true;
@@ -244,7 +252,14 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	set_random_seed(i, &rf->next_random);
 	rf->prev_random = 0;
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-file-leak"
+#endif
 	return rf;
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 /* ファイル名に半角英数字以外が含まれるかチェックする */
