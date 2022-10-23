@@ -32,6 +32,9 @@ bool init_save(void);
 /* セーブデータに関する終了処理を行う */
 void cleanup_save(void);
 
+/* ロードが終了した直後であるかを調べる */
+bool check_load_flag(void);
+
 /* セーブを実行する */
 bool execute_save(int index);
 

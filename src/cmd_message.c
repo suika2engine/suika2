@@ -121,6 +121,9 @@ static bool is_click_visible;
 /* スペースキーによる非表示が実行中であるか */
 static bool is_hidden;
 
+/* ロード画面から戻ったばかりであるか */
+static bool load_flag;
+
 /* GUI画面から戻ったばかりであるか */
 static bool gui_flag;
 
@@ -265,6 +268,13 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
+
+	/* ロードされて最初のフレームの場合、画面全体を描画する */
+	if (load_flag) {
+		union_rect(x, y, w, h, *w, *y, *w, *h, 0, 0, conf_window_width,
+			   conf_window_height);
+		load_flag = false;
+	}
 
 	/* ステージを描画する */
 	draw_stage_rect(*x, *y, *w, *h);
@@ -445,7 +455,8 @@ static bool register_message_for_history(void)
 
 	/* GUI画面から戻ったばかりの場合、2重登録を防ぐ */
 	gui_flag = check_gui_flag();
-	if (gui_flag || is_message_registered())
+	load_flag = check_load_flag();
+	if (!load_flag && (gui_flag || is_message_registered()))
 		return true;
 
 	/* 名前、ボイスファイル名、メッセージを取得する */

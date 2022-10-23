@@ -89,9 +89,13 @@ install: suika
 	cp suika ../../
 
 clean:
-	rm -rf *~ *.o suika log.txt sav tmp libroot suika2 suika-2.x.x-linux64.zip
+	rm -rf *~ *.o suika log.txt sav tmp libroot analyze.log
 
 lines:
 	cat ../../src/*.[chm] | wc -l
 	grep -E '/\*|\*/|^([ \t]+\*)' ../../src/*.[cm] | wc -l
 	grep 'assert' ../../src/*.[chm] | wc -l
+
+analyze:
+	$(CC) $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 -c $(SRCS) > analyze.log 2>&1
+	cat analyze.log

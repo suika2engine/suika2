@@ -232,6 +232,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	/* 読み込み位置にシークする */
 	if (fseek(rf->fp, (long)entry[i].offset, SEEK_SET) != 0) {
 		log_package_file_error();
+		fclose(rf->fp);
 		free(rf);
 		return 0;
 	}

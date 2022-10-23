@@ -34,6 +34,9 @@
 /* クイックセーブデータのインデックス */
 #define QUICK_SAVE_INDEX	(SAVE_SLOTS)
 
+/* ロードされた直後であるかのフラグ */
+static bool load_flag;
+
 /*
  * このモジュールで保持する設定値
  */
@@ -195,6 +198,18 @@ void cleanup_save(void)
 
 	/* グローバル変数のセーブを行う */
 	save_global_data();
+}
+
+/*
+ * ロードが終了した直後であるかを調べる
+ */
+bool check_load_flag(void)
+{
+	if (load_flag) {
+		load_flag = false;
+		return true;
+	}
+	return false;
 }
 
 /*
@@ -625,6 +640,8 @@ bool quick_load(void)
 	clear_variable_changed();
 	update_debug_info(true);
 #endif
+
+	load_flag = true;
 	return true;
 }
 
@@ -660,6 +677,8 @@ bool execute_load(int index)
 	clear_variable_changed();
 	update_debug_info(true);
 #endif
+
+	load_flag = true;
 	return true;
 }
 
