@@ -105,10 +105,6 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 		return NULL;
 	
 	/* TODO: ov_info()でサンプリングレートとチャンネル数をチェック */
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-use-after-free"
-#endif
 	vi = ov_info(&w->ovf, -1);
 	w->monaural = vi->channels == 1 ? true : false;
 
@@ -119,9 +115,6 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 
 	/* 成功 */
 	return w;
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
 }
 
 /* ファイルをリオープンする */
@@ -256,15 +249,8 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 				if (!reopen(w))
 					return 0;	/* エラー */
 				last_ret_bytes = ret_bytes;
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-use-after-free"
-#endif
 				if (w->times != -1)
 					w->times--;
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
 			} else {
 				/* 読み込んだサンプル数を返す */
 				w->eos = true;
@@ -310,15 +296,8 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 				if (!reopen(w))
 					return 0;	/* エラー */
 				last_ret_bytes = ret_bytes;
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-use-after-free"
-#endif
 				if (w->times != -1)
 					w->times--;
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
 			} else {
 				/* 読み込んだサンプル数を返す */
 				w->eos = true;
