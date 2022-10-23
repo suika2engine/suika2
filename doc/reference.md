@@ -696,8 +696,8 @@ Shows two levels of two options, four in total.
 This command plays a video file.
 At the moment, this functionality is enabled on Windows and Mac only.
 
-On Windows, please use `.wmv` video file format.
-On Mac, please use `.mp4` video file format.
+On Windows, please use the `.wmv` video file format.
+On Mac, please use the `.mp4` video file format.
 
 Video files are stored in `mov` directory.
 `mov` directory is not stored in `data01.arc` file.
