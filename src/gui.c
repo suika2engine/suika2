@@ -1755,6 +1755,10 @@ static void draw_history_text_item(int button_index)
 /* ヒストリボタンの描画を行う */
 static void process_button_draw_history(int button_index)
 {
+	/* ヒストリがない場合 */
+	if (button[button_index].rt.img == NULL)
+		return;
+
 	/* ポイントされているときの描画を行う */
 	if (button[button_index].rt.is_active &&
 	    button[button_index].rt.is_pointed) {
