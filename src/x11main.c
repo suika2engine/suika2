@@ -27,6 +27,7 @@
 
 #include "suika.h"
 #include "asound.h"
+#include "gstplay.h"
 
 #ifdef USE_X11_OPENGL
 #include <GL/gl.h>
@@ -60,7 +61,7 @@
 /*
  * OpenGLを利用するか
  */
-static bool is_opengl;
+static int is_opengl;
 
 #ifdef USE_X11_OPENGL
 /*
@@ -172,9 +173,19 @@ static FILE *log_fp;
 static char title_buf[TITLE_BUF_SIZE];
 
 /*
+ * 動画を再生中かどうか
+ */
+static bool is_gst_playing;
+
+/*
+ * 動画のスキップ可能かどうか
+ */
+static bool is_gst_skippable;
+
+/*
  * forward declaration
  */
-static bool init(void);
+static bool init(int argc, char *argv[]);
 static void cleanup(void);
 static bool open_log_file(void);
 static void close_log_file(void);
@@ -205,12 +216,12 @@ static void event_expose(XEvent *event);
 /*
  * メイン
  */
-int main()
+int main(int argc, char *argv[])
 {
 	int ret;
 
 	/* 互換レイヤの初期化処理を行う */
-	if (init()) {
+	if (init(argc, argv)) {
 		/* アプリケーション本体の初期化処理を行う */
 		if (on_event_init()) {
 			/* ゲームループを実行する */
@@ -241,7 +252,7 @@ int main()
 }
 
 /* 互換レイヤの初期化処理を行う */
-static bool init(void)
+static bool init(int argc, char *argv[])
 {
 #ifdef SSE_VERSIONING
 	/* ベクトル命令の対応を確認する */
@@ -304,6 +315,8 @@ static bool init(void)
 			return false;
 		}
 	}
+
+	gstplay_init(argc, argv);
 
 	return true;
 }
@@ -743,35 +756,47 @@ static void run_game_loop(void)
 	gettimeofday(&tv_start, NULL);
 
 	while (1) {
-		if (is_opengl) {
+		if (is_gst_playing) {
+			gstplay_loop_iteration();
+			if (!gstplay_is_playing()) {
+				gstplay_stop();
+				is_gst_playing = false;
+			}
+		}
+
+		if (!is_gst_playing) {
+			if (is_opengl) {
 #ifdef USE_X11_OPENGL
-			/* レンダリングを開始する */
-			opengl_start_rendering();
+				/* レンダリングを開始する */
+				opengl_start_rendering();
 #endif
-		} else {
-			/* バックイメージをロックする */
-			lock_image(back_image);
+			} else {
+				/* バックイメージをロックする */
+				lock_image(back_image);
+			}
 		}
 
 		/* フレームイベントを呼び出す */
 		x = y = w = h = 0;
 		cont = on_event_frame(&x, &y, &w, &h);
 
-		if (is_opengl) {
+		if (!is_gst_playing) {
+			if (is_opengl) {
 #ifdef USE_X11_OPENGL
-			/* レンダリングを終了する */
-			opengl_end_rendering();
+				/* レンダリングを終了する */
+				opengl_end_rendering();
 
-			/* フレームの描画を行う */
-			glXSwapBuffers(display, glx_window);
+				/* フレームの描画を行う */
+				glXSwapBuffers(display, glx_window);
 #endif
-		} else {
-			/* バックイメージをアンロックする */
-			unlock_image(back_image);
+			} else {
+				/* バックイメージをアンロックする */
+				unlock_image(back_image);
 
-			/* フレームの描画を行う */
-			if (w != 0 && h != 0)
-				sync_back_image(x, y, w, h);
+				/* フレームの描画を行う */
+				if (w != 0 && h != 0)
+					sync_back_image(x, y, w, h);
+			}
 		}
 
 		/* スクリプトの終端に達した */
@@ -1313,10 +1338,19 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-	UNUSED_PARAMETER(fname);
 	UNUSED_PARAMETER(is_skippable);
 
-	/* stub */
+	char *path;
+
+	path = make_valid_path(MOV_DIR, fname);
+
+	is_gst_playing = true;
+	is_gst_skippable = is_skippable;
+
+	gstplay_play(path, window);
+
+	free(path);
+
 	return true;
 }
 
@@ -1325,7 +1359,8 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
-	/* stub */
+	gstplay_stop();
+	is_gst_playing = false;
 }
 
 /*
@@ -1333,7 +1368,7 @@ void stop_video(void)
  */
 bool is_video_playing(void)
 {
-	return false;
+	return is_gst_playing;
 }
 
 /*

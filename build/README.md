@@ -71,11 +71,15 @@ How to build
         * `libx11-dev`
         * `libxpm-dev`
         * `mesa-common-dev`
+        * `libgstreamer1.0-dev`
+        * `libgstreamer-plugins-base1.0-dev`
     * In the terminal, enter `build/linux-x86_64` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to copy binary `suika` to `suika2` directory.
         * Copy `suika` to `game-en` directory or `game-jp` directory.
+    * Before running the game, you may need to install the following package:
+        * `gstreamer1.0-plugins-ugly`
     * In the terminal, enter `game-en` directory or `game-jp` directory.
         * Run `./suika`
 
@@ -85,11 +89,15 @@ How to build
         * `libx11-dev`
         * `libxpm-dev`
         * `mesa-common-dev`
+        * `libgstreamer1.0-dev`
+        * `libgstreamer-plugins-base1.0-dev`
     * In the terminal, enter `build/linux-arm` directory.
         * Run `./build-libs.sh` to build libraries.
         * Run `make` to build Suika2 binary.
         * Run `make install` to copy binary `suika` to `suika2` directory.
         * Copy `suika` to `game-en` directory or `game-jp` directory.
+    * Before running the game, you may need to install the following package:
+        * `gstreamer1.0-plugins-ugly`
     * In the terminal, enter `game-en` or `game-jp` directory.
         * Run `./suika`
 
