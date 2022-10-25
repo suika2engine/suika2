@@ -945,6 +945,7 @@ static int get_key_code(XEvent *event)
 	/* キーコードに変換する */
 	switch (keysym) {
 	case XK_Return:
+	case XK_KP_Enter:
 		return KEY_RETURN;
 	case XK_space:
 		return KEY_SPACE;
