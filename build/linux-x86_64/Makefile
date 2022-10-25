@@ -53,11 +53,12 @@ LDFLAGS = \
 include ../common.mk
 
 SRCS = \
-$(SRCS_COMMON) \
-$(SRCS_SSE) \
-../../src/asound.c \
-../../src/glrender.c \
-../../src/x11main.c
+	$(SRCS_COMMON) \
+	$(SRCS_SSE) \
+	../../src/asound.c \
+	../../src/glrender.c \
+	../../src/gstplay.c \
+	../../src/x11main.c
 
 #
 # .c.o compilation rules
@@ -66,14 +67,14 @@ $(SRCS_SSE) \
 OBJS = $(SRCS:../../src/%.c=%.o) \
 
 %.o: ../../src/%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
 
 #
 # Target
 #
 
 suika: $(OBJS)
-	$(CC) -o suika $(OBJS) $(LDFLAGS)
+	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
 #
 # Feature specific source files.
