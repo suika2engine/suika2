@@ -55,6 +55,7 @@ SRCS = \
 	$(SRCS_COMMON) \
 	../../src/asound.c \
 	../../src/glrender.c \
+	../../src/gstplay.c \
 	../../src/x11main.c
 
 #
@@ -64,14 +65,14 @@ SRCS = \
 OBJS = $(SRCS:../../src/%.c=%.o) \
 
 %.o: ../../src/%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
 
 #
 # Target
 #
 
 suika: $(OBJS)
-	$(CC) -o suika $(OBJS) $(LDFLAGS)
+	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
 #
 # Phony

@@ -59,14 +59,15 @@ gstplay_play(const char *fname, Window window)
       vsink == NULL || asink == NULL)
     return;
 
-  gst_bin_add_many (GST_BIN (pipeline), src, dec, vconv, aconv, vsink, asink, NULL);
+  gst_bin_add_many (GST_BIN (pipeline), src, dec, vconv, aconv, vsink, asink,
+                    NULL);
   gst_element_link (src, dec);
   g_signal_connect (dec, "pad-added", G_CALLBACK (cb_new_pad), vconv);
   g_signal_connect (dec, "pad-added", G_CALLBACK (cb_new_pad), aconv);
   gst_element_link (vconv, vsink);
   gst_element_link (aconv, asink);
 
-  g_object_set(src, "location", "/home/tabata/src/suika2/game-en/mov/test.mp4", NULL);
+  g_object_set(src, "location", fname, NULL);
 
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
   gst_bus_set_sync_handler (bus, (GstBusSyncHandler) bus_sync_handler, NULL,
@@ -82,17 +83,8 @@ gstplay_play(const char *fname, Window window)
 static void
 cb_new_pad (GstElement *element, GstPad *pad, gpointer data)
 {
-  gchar *name;
-  GstElement *other = data;
-
-  name = gst_pad_get_name (pad);
-  g_print ("A new pad %s was created for %s\n", name, gst_element_get_name(element));
-  g_free (name);
-
-  g_print ("element %s will be linked to %s\n",
-           gst_element_get_name(element),
-           gst_element_get_name(other));
-  gst_element_link(element, other);
+  (void) pad;
+  gst_element_link(element, (GstElement *) data);
 }
 
 static GstBusSyncReply
@@ -117,29 +109,12 @@ bus_sync_handler (GstBus * bus, GstMessage * message, gpointer user_data)
 static
 gboolean bus_call (G_GNUC_UNUSED GstBus *bus, GstMessage *msg, gpointer data)
 {
-  GMainLoop *loop = (GMainLoop *) data;
+  (void) data;
 
   switch (GST_MESSAGE_TYPE (msg)) {
-
   case GST_MESSAGE_EOS:
     is_eos = True;
-    g_print ("End of stream\n");
-    g_main_loop_quit (loop);
     break;
-
-  case GST_MESSAGE_ERROR: {
-    gchar  *debug;
-    GError *error;
-
-    gst_message_parse_error (msg, &error, &debug);
-    g_free (debug);
-
-    g_printerr ("Error: %s\n", error->message);
-    g_error_free (error);
-
-    g_main_loop_quit (loop);
-    break;
-  }
   default:
     break;
   }
@@ -150,7 +125,7 @@ gboolean bus_call (G_GNUC_UNUSED GstBus *bus, GstMessage *msg, gpointer data)
 void
 gstplay_stop (void)
 {
-  gst_element_set_state (pipeline, GST_STATE_PAUSED);
+  gst_element_set_state (pipeline, GST_STATE_NULL);
 
   gst_object_unref (pipeline);
   pipeline = NULL;
@@ -159,7 +134,7 @@ gstplay_stop (void)
 int
 gstplay_is_playing (void)
 {
-  return is_eos ? 0 : 1;
+  return !is_eos;
 }
 
 void

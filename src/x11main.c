@@ -758,8 +758,10 @@ static void run_game_loop(void)
 	while (1) {
 		if (is_gst_playing) {
 			gstplay_loop_iteration();
-			if (!is_gst_playing)
+			if (!gstplay_is_playing()) {
+				gstplay_stop();
 				is_gst_playing = false;
+			}
 		}
 
 		if (!is_gst_playing) {
@@ -1345,7 +1347,7 @@ bool play_video(const char *fname, bool is_skippable)
 	is_gst_playing = true;
 	is_gst_skippable = is_skippable;
 
-	gstplay_play(fname, window);
+	gstplay_play(path, window);
 
 	free(path);
 

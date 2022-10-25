@@ -41,9 +41,6 @@ LDFLAGS = \
 	-lXpm \
 	-lGL \
 	-lGLX \
-	-lgstreamer-1.0 \
-	-lgobject-2.0 \
-	-lglib-2.0 \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections \
