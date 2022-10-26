@@ -362,7 +362,7 @@ static void ungetc_rfile(struct rfile *rf, char c)
 	assert(rf != NULL);
 	assert(rf->fp != NULL);
 
-	if (rf->fp != NULL) {
+	if (!rf->is_packaged) {
 		/* ファイルシステム上のファイルの場合 */
 		ungetc(c, rf->fp);
 	} else {

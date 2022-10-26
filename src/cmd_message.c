@@ -93,6 +93,9 @@ static bool is_auto_mode_wait;
 /* オートモードの経過時刻を表すストップウォッチ */
 static stop_watch_t auto_sw;
 
+/* NVLモードであるか */
+static bool is_nvl_mode;
+
 /* 描画位置 */
 static int pen_x;
 static int pen_y;
@@ -330,6 +333,14 @@ static bool init(int *x, int *y, int *w, int *h)
 		get_string_param(SERIF_PARAM_MESSAGE);
 	msg = expand_variable(raw_msg);
 
+	/* 先頭が'\'である場合(NVLモード)を処理する */
+	if (msg[0] == '\\') {
+		msg++;
+		is_nvl_mode = true;
+	} else {
+		is_nvl_mode = false;
+	}
+
 	/* セーブ用にメッセージを保存する */
 	if (!set_last_message(msg))
 		return false;
@@ -357,8 +368,10 @@ static bool init(int *x, int *y, int *w, int *h)
 	is_after_space = true;
 
 	/* メッセージの描画位置を初期化する */
-	pen_x = conf_msgbox_margin_left;
-	pen_y = conf_msgbox_margin_top;
+	if (!is_nvl_mode) {
+		pen_x = conf_msgbox_margin_left;
+		pen_y = conf_msgbox_margin_top;
+	}
 
 	/* メッセージボックスの矩形を取得する */
 	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
@@ -367,7 +380,8 @@ static bool init(int *x, int *y, int *w, int *h)
 		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 
 	/* メッセージボックスをクリアする */
-	clear_msgbox();
+	if (!is_nvl_mode)
+		clear_msgbox();
 
 	/* メッセージボックスを表示する */
 	show_msgbox(true);
