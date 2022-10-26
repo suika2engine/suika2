@@ -138,7 +138,7 @@ Last but not least, freedom. You can use Suika2 in your commercial projects for 
 
 :L1_ENV
 We support most versions of Windows from Windows XP all the way up to Windows 11.
-We also support macOS 10.9 and later. (Of course, we also support the latest Monterey release and the M2 Chip.)
+We also support macOS 10.9 and later. (Of course, we also support the latest Ventura release and the M2 Chip.)
 When it comes to Web browsers, we support Chrome, Safari, Firefox and Edge.
 In addition, Suika2 runs on iPhone, iPad, Android and Linux. (Did you know, Suika2 was initially written on Linux!)
 @set $2 = 1
