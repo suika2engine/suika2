@@ -907,6 +907,35 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 {
 	uint32_t c;
 	int mblen, xx;
+	pixel_t inactive_body_color, inactive_outline_color;
+	pixel_t active_body_color, active_outline_color;
+
+	/* 色を決める */
+	inactive_body_color =
+		make_pixel_slow(0xff,
+				(pixel_t)conf_font_color_r,
+				(pixel_t)conf_font_color_g,
+				(pixel_t)conf_font_color_b);
+	inactive_outline_color =
+		make_pixel_slow(0xff,
+				(pixel_t)conf_font_outline_color_r,
+				(pixel_t)conf_font_outline_color_g,
+				(pixel_t)conf_font_outline_color_b);
+	if (conf_switch_color_active) {
+		active_body_color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_switch_color_active_body_r,
+					(pixel_t)conf_switch_color_active_body_g,
+					(pixel_t)conf_switch_color_active_body_b);
+		active_outline_color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_switch_color_active_outline_r,
+					(pixel_t)conf_switch_color_active_outline_g,
+					(pixel_t)conf_switch_color_active_outline_b);
+	} else {
+		active_body_color = inactive_body_color;
+		active_outline_color = inactive_outline_color;
+	}
 
 	/* 描画位置を決める */
 	xx = x + (w - get_utf8_width(t)) / 2;
@@ -920,7 +949,11 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 			return;
 
 		/* 描画する */
-		xx += draw_char_on_fo_fi(xx, y, c);
+		xx += draw_char_on_fo_fi(xx, y, c,
+					 inactive_body_color,
+					 inactive_outline_color,
+					 active_body_color,
+					 active_outline_color);
 
 		/* 次の文字へ移動する */
 		t += mblen;

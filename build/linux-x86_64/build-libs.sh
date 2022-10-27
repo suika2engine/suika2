@@ -48,7 +48,6 @@ sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += cid//' \
     -e 's/FONT_MODULES += pfr//' \
     -e 's/FONT_MODULES += type42//' \
-    -e 's/FONT_MODULES += winfonts//' \
     -e 's/FONT_MODULES += pcf//' \
     -e 's/FONT_MODULES += bdf//' \
     -e 's/FONT_MODULES += pshinter//' \

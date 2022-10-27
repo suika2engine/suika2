@@ -3253,23 +3253,17 @@ void unlock_draw_char_on_fo_fi(void)
 /*
  * FO/FIの2レイヤに文字を描画する
  */
-int draw_char_on_fo_fi(int x, int y, uint32_t wc)
+int draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
+		       pixel_t fo_outline_color, pixel_t fi_body_color,
+		       pixel_t fi_outline_color)
 {
-	pixel_t color, outline_color;
 	int w, h;
 
-	color = make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	outline_color = make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
+	draw_char_on_layer(LAYER_FO, x, y, wc, fo_body_color, fo_outline_color,
+			   &w, &h);
 
-	draw_char_on_layer(LAYER_FO, x, y, wc, color, outline_color, &w, &h);
-
-	draw_char_on_layer(LAYER_FI, x, y, wc, color, outline_color, &w, &h);
+	draw_char_on_layer(LAYER_FI, x, y, wc, fi_body_color, fi_outline_color,
+			   &w, &h);
 
 	return w;
 }

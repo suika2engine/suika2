@@ -159,6 +159,13 @@ int conf_switch_x;
 int conf_switch_y;
 int conf_switch_margin_y;
 int conf_switch_text_margin_y;
+int conf_switch_color_active;
+int conf_switch_color_active_body_r;
+int conf_switch_color_active_body_g;
+int conf_switch_color_active_body_b;
+int conf_switch_color_active_outline_r;
+int conf_switch_color_active_outline_g;
+int conf_switch_color_active_outline_b;
 char *conf_switch_parent_click_se_file;
 char *conf_switch_child_click_se_file;
 char *conf_switch_change_se;
@@ -498,6 +505,13 @@ struct rule {
 	{"switch.y", 'i', &conf_switch_y, false, false},
 	{"switch.margin.y", 'i', &conf_switch_margin_y, false, false},
 	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, false, false},
+	{"switch.color.active", 'i', &conf_switch_color_active, true, false},
+	{"switch.color.active.body.r", 'i', &conf_switch_color_active_body_r, true, false},
+	{"switch.color.active.body.g", 'i', &conf_switch_color_active_body_g, true, false},
+	{"switch.color.active.body.b", 'i', &conf_switch_color_active_body_b, true, false},
+	{"switch.color.active.outline.r", 'i', &conf_switch_color_active_outline_r, true, false},
+	{"switch.color.active.outline.g", 'i', &conf_switch_color_active_outline_g, true, false},
+	{"switch.color.active.outline.b", 'i', &conf_switch_color_active_outline_b, true, false},
 	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, true, false},
 	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, true, false},
 	{"switch.change.se", 's', &conf_switch_change_se, true, false},
