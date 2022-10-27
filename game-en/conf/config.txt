@@ -195,6 +195,15 @@ switch.margin.y=20
 # Top margin of text in the option box image
 switch.text.margin.y=18
 
+# Text color of pointed option (active=0:disable, active=1:enable, optional)
+switch.color.active=0
+switch.color.active.body.r=255
+switch.color.active.body.g=0
+switch.color.active.body.b=0
+switch.color.active.outline.r=128
+switch.color.active.outline.g=128
+switch.color.active.outline.b=128
+
 # Click sound file when the option is clicked (optional)
 switch.parent.click.se.file=click.ogg
 

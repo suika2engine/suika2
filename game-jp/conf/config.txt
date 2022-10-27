@@ -166,6 +166,15 @@ switch.margin.y=20
 # 選択肢画像のテキストの縦方向マージン
 switch.text.margin.y=12
 
+# ポイントされた項目のテキスト色 (active=0:disable, active=1:enable) (省略可)
+switch.color.active=0
+switch.color.active.body.r=255
+switch.color.active.body.g=0
+switch.color.active.body.b=0
+switch.color.active.outline.r=128
+switch.color.active.outline.g=128
+switch.color.active.outline.b=128
+
 # 選択肢を選択したときの効果音(省略可)
 switch.parent.click.se.file=click.ogg
 
