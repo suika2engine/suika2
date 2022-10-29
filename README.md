@@ -16,7 +16,7 @@ Visit [the new Website](https://docs.suika2.com/) and [the Wiki](https://github.
 
 [Click here to start the Web demo](https://suika2.com/game-en/).
 
-![demo](https://github.com/ktabata/suika2/raw/master/doc/screenshot-en.jpg "screenshot")
+![demo](https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg "screenshot")
 
 ## Portability
 
