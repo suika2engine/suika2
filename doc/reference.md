@@ -27,7 +27,7 @@ Fading type is right curtain.
 ```
 
 ### Usage 4
-Changes the background color with a 1.5 second fade-in time.
+Changes the background image to `sample.png` with a 1.5 second fade-in time.
 Fading type is left curtain.
 ```
 @bg sample.png 1.5 curtain-left
@@ -76,7 +76,7 @@ You can specify the following effects:
 |clockwise wipe (20 degrees stepped)       |`clockwise20`       |`cw20`        |               |
 |counterclockwise wipe (20 degrees stepped)|`counterclockwise20`|`ccw20`       |               |
 |clockwise wipe (30 degrees stepped)       |`clockwise30`       |`cw30`        |               |
-nnn|counterclockwise wipe (30 degrees stepped)|`counterclockwise30`|`ccw30`       |               |
+|counterclockwise wipe (30 degrees stepped)|`counterclockwise30`|`ccw30`       |               |
 |open eyes                                 |`eye-open`          |              |               |
 |close eyes                                |`eye-close`         |              |               |
 |open eyes (vertical)                      |`eye-open-v`        |              |               |
@@ -129,7 +129,7 @@ Character positions are:
 |Display Position  |Target Name|Abbrev. Name|
 |------------------|-----------|------------|
 |Front Center      |`center`   |`c`         |
-|Right             |`right     |`r`         |
+|Right             |`right`    |`r`         |
 |Left              |`left`     |`l`         |
 |Back Center       |`back`     |`b`         |
 |Face Icon         |`face`     |`f`         |
@@ -163,7 +163,7 @@ Changes are applied immediately when the fade-in time is not specified.
 ### Usage 5
 Specifying an effect.
 ```
-@ch c sample.png 1.0 mask
+@ch c sample.png 1.0 clockwise
 ```
 
 ### Usage 6
@@ -213,7 +213,9 @@ Before `@cha`, loads a character image outside the screen, then moves it into th
 
 ## @chapter
 
-This command sets the chapter title.
+This command sets the chapter name.
+
+The name of the chapter is reflected in the window title and saved data items.
 
 ### Usage
 ```
@@ -330,7 +332,7 @@ GUI is a replacement of `@menu` and `@retrospect`.
 You can show up to 128 buttons on the screen using GUI.
 Button types include "jump to label" and "show if variable is set".
 
-GUI definition files are also used for config, save, load and log screens.
+GUI definition files are also used for config, save, load and history screens.
 
 ### Usage 1
 Shows GUI `menu.txt`.
@@ -424,8 +426,9 @@ NB: Menus cannot be canceled using right click.
 
 Prints text to the message box.
 
-* Use `\n` to insert a line feed.
+* Use `\n` to insert a new line.
 * Use `$ + number` to show the value of a variable (e.g., `$1`).
+* Use `\` at the beginning of the line to append to previous message.
 
 ### Usage
 ```
@@ -694,13 +697,14 @@ Shows two levels of two options, four in total.
 ## @video
 
 This command plays a video file.
-At the moment, this functionality is enabled on Windows and Mac only.
+At the moment, this functionality is enabled on Windows, Mac and Linux only.
 
 On Windows, please use the `.wmv` video file format.
 On Mac, please use the `.mp4` video file format.
+On Linux, please use the video file format which Gstreamer plugin you chose supports.
 
-Video files are stored in `mov` directory.
-`mov` directory is not stored in `data01.arc` file.
+Video files are stored in the `mov` folder.
+The `mov` folder is not stored in `data01.arc` file.
 
 ### Usage
 Plays a video file.

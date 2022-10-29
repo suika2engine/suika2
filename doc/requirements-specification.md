@@ -4,27 +4,220 @@
 
 Author: ktabata
 
+Modified By:
+
 Organization: the Suika2 Development Team
 
-Update: 28th October 2022
+Updated: 29th October 2022
 
-Revision: 0.3
+Created: 27th October 2022
+
+Revision: 0.4
+
+***
+
+# Table of Contents
+
+- [Introduction](#introduction)
+    - [Necessity of This Document](#necessity-of-this-document)
+- [File and Folders](#file-and-folders)
+    - [`bg` Folder](#bg-folder)
+    - [`bgm` Folder](#bgm-folder)
+    - [`cg` Folder](#cg-folder)
+    - [`ch` Folder](#ch-folder)
+    - [`conf` Folder](#conf-folder)
+    - [`cv` Folder](#cv-folder)
+    - [`font` Folder](#font-folder)
+    - [`gui` Folder](#gui-folder)
+    - [`mov` Folder](#mov-folder)
+    - [`rule` Folder](#rule-folder)
+    - [`sav` Folder](#sav-folder)
+    - [`se` Folder](#se-folder)
+    - [`txt` Folder](#txt-folder)
+    - [`data01.arc` File](#data01arc-file)
+    - [`suika.exe` File](#suikaexe-file)
+    - [`suika.app` Bundle](#suikaapp-bundle)
+- [Main Screen Components](#main-screen-components)
+    - [Background Layer](#background-layer)
+    - [Character Layers](#character-layers)
+    - [Message Box Layer](#message-box-layer)
+        - [In-box Menu](#in-box-menu)
+    - [Namebox Layer](#namebox-layer)
+    - [Collapsed System Menu Layer](#collapsed-system-menu-layer)
+    - [System Menu Layer](#system-menu-layer)
+- [Command Features](#command-features)
+    - [Showing a Background (`@bg`)](#showing-a-background-bg)
+    - [Showing a Character (`@ch`)](#showing-a-character-ch)
+    - [Showing a Message](#showing-a-message)
+    - [Showing a Line](#showing-a-Line)
+    - [Playing Background Music (`@bgm`)](#playing-background-music-bgm)
+    - [Playing Sound Effect (`@se`)](#playing-sound-effect-se)
+    - [Changing a Volume (`@vol`)](#changing-a-volume-vol)
+    - [Showing Options (`@choose`)](#showing-options-choose)
+    - [Defining a Label](#defining-a-label)
+    - [Showing an Animation (`@cha`)](#showing-an-animation-cha)
+    - [Changing Characters and Background at Once (`@chs`)](#changing-characters-and-background-at-once-chs)
+    - [Shaking the Screen (`@shake`)](#shaking-the-screen-shake)
+    - [Playing a Video (`@video`)](#playing-a-video-video)
+    - [Showing a GUI (`@gui`)](#showing-a-gui-gui)
+    - [Waiting for a Click (`@click`)](#waiting-for-a-click-click)
+    - [Waiting for Specified Time (`@wait`)](#waiting-for-specified-time)
+    - [Prohibiting Skip (`@skip`)](#prohibiting-skip-skip)
+    - [Jumping to a Label (`@goto`)](#jumping-to-a-label-goto)
+    - [Setting a Variable (`@set`)](#setting-a-variable-set)
+    - [Branching by Variable (`@if`)](#branching-by-variable-if)
+    - [Jumping to a Script (`@load`)](#jumping-to-a-script-load)
+    - [Setting a Chapter Name (`@chapter`)](#setting-a-chapter-name-chapter)
+    - [Call a Procedure (`@gosub`)](#call-a-procedure-gosub)
+    - [Return From a Procedure (`@return`)](#return-from-a-procedure-return)
+    - [Multilingualization Prefix](#multilingualization-prefix)
+- [Variables](#variables)
+    - [Local Variables](#local-variables)
+    - [Global Variables](#local-variables)
+- [Seen Flags](#seen-flags)
+- [Main Screen](#main-screen)
+    - [Background Changing Mode](#background-changing-mode)
+    - [Character Changing Mode](#character-changing-mode)
+    - [Text Output Mode for Message](#text-output-mode-for-message)
+    - [Click Waiting Mode for Message](#click-waiting-mode-for-message)
+    - [Sound Fading Mode](#sound-fading-mode)
+    - [Timed Waiting Mode](#timed-waiting-mode)
+    - [Click Waiting Mode](#click-waiting-mode)
+    - [Auto Mode](#auto-mode)
+    - [Skip Mode](#skip-mode)
+- [Special Screens](#special-screens)
+    - [Save Screen](#save-screen)
+    - [Load Screen](#load-screen)
+    - [History Screen](#history-screen)
+    - [Config Screen](#config-screen)
+- [Graphical User Interface](#graphical-user-interface)
+    - [GUI File Header](#gui-file-header)
+    - [Jump To Label Button](#jump-to-label-button)
+    - [Save/Load Page N Button](#save-load-page-n-button)
+    - [Save Slot Button](#save-slot-button)
+    - [Load Slot Button](#load-slot-button)
+    - [Text Speed Slider](#text-speed-slidebar)
+    - [Auto Mode Speed Slider](#auto-mode-speed-slider)
+    - [Text Speed Preview](#text-speed-preview)
+    - [BGM Volume Slider](#bgm-volume-slider)
+    - [Sound Effect Volume Slider](#sound-effect-volume-slider)
+    - [Voice (All-character) Volume Slider](#voice-all-character-volume-slider)
+    - [Voice (Per-character) Volume Slider](#voice-per-character-volume-slider)
+    - [Font Selection Button](#font-selection-button)
+    - [Full Screen Button](#full-screen-button)
+    - [Window Button](#window-button)
+    - [Reset Button](#reset-button)
+    - [Page Button](#page-button)
+    - [Jump To File Button](#jump-to-file-button)
+    - [Cancel Button](#cancel-button)
+    - [Gallery Button](#gallery-button)
+- [Configuration Features](#configuration-features)
+    - [Language Settings](#language-settings)
+        - [International Mode](#international-mode)
+        - [Language Mapping](#language-mapping)
+    - [Window Settings](#window-settings)
+        - [Window Title](#window-title)
+        - [Window Width and Height](#window-width-and-height)
+        - [Background Color](#background-color)
+    - [Font Settings](#font-settings)
+        - [Font File Name](#font-file-name)
+        - [Font Size](#font-size)
+        - [Font Colors](#font-colors)
+        - [Font Outline](#font-outline)
+    - [Namebox Settings](#namebox-settings)
+        - [Namebox Image](#namebox-image)
+        - [Namebox Position](#namebox-position)
+        - [Namebox Top Margin](#namebox-top-margin)
+        - [Namebox Left Margin](#namebox-left-margin)
+        - [Namebox Centering](#namebox-centering)
+        - [Namebox Visibility](#namebox-visibility)
+    - [Message Box Settings](#message-box-settings)
+        - [Message Box Position](#message-box-position)
+        - [Message Box Margins](#message-box-margins)
+        - [Message Box Text Speed](#message-box-text-speed)
+        - [Position of Hide Button](#position-of-hide-button)
+        - [Message Box Sound Effects](#message-box-sound-effects)
+        - [Skipping Unseen Massages](#skipping-unseen-messages)
+    - [Click Animation Settings](#click-animation-settings)
+        - [Click Animation Position](#click-animation-position)
+        - [Following The Text](#following-the-text)
+        - [Click Animation Images](#click-animation-images)
+        - [Click Animation Interval](#click-animation-interval)
+        - [Click Animation Visibility](#click-animation-visibility)
+    - [Options Settings](#options-settings)
+        - [Option Box Images](#option-box-images)
+        - [First Option Position](#first-option-position)
+        - [Vertical Space Between Options](#vertical-space-between-options)
+        - [Option Top Margin](#option-top-margin)
+        - [Pointed Option Color](#pointed-option-color)
+        - [Options Sound Effects](#options-sound-effects)
+    - [Save/Load Screen Settings](#save-load-screen-settings)
+        - [Save Item Thumbnail Size](#save-item-thumbnail-size)
+    - [System Menu Settings](#system-menu-settings)
+        - [System Menu Position](#system-menu-position)
+        - [System Menu Images](#system-menu-images)
+        - [System Menu Button Positions](#system-menu-button-positions)
+        - [System Menu Sound Effects](#system-menu-sound-effects)
+        - [Collapsed Position](#collapsed-position)
+        - [Collapsed Images](#collapsed-images)
+        - [Collapsed Sound Effect](#collapsed-sound-effect)
+        - [System Menu Visibility](#system-menu-visibility)
+    - [Auto Mode Settings](#auto-mode-settings)
+        - [Auto Mode Banner Image](#auto-mode-banner-image)
+        - [Auto Mode Banner Position](#auto-mode-banner-position)
+        - [Auto Mode Speed](#auto-mode-speed)
+    - [Skip Mode Settings](#skip-mode-settings)
+        - [Skip Mode Banner Image](#skip-mode-banner-image)
+        - [Skip Mode Bannder Position](#skip-mode-banner-position)
+    - [Initial Sound Volumes](#initial-sound-volumes)
+    - [Per-character Sound Volumes](#per-character-sound-volumes)
+    - [Character Message Colors](#character-message-colors)
+    - [UI Messages](#ui-messages)
+    - [Miscellaneous](#miscellaneous)
+        - [Voice Continues On Click](#voice-continues-on-click)
+        - [Full Screen Mode](#full-screen-mode)
+        - [Window Maximization](#window-maximization)
+        - [Window Title Separator](#window-title-separator)
+        - [Chapter Name](#chapter-name)
+        - [Show Message Box On Character Change](#show-message-box-on-character-change)
+        - [Release Mode](#release-mode)
+- [Package](#package)
+    - [Package Generation](#package-generation)
+    - [Package Obfuscation](#package-obfuscation)
+    - [Package Usage](#package-usage)
+- [File Formats](#file-formats)
+    - [Text File Format](#text-file-format)
+    - [Image File Formats](#image-file-formats)
+    - [Audio File Format](#audio-file-format)
+    - [Video File Formats](#video-file-formats)
+- [Non-functional Requirements](#non-functional-requirements)
+    - [Performance Requirements](#performance-requirements)
+        - [Native Application](#native-application)
+        - [CPU Usage](#cpu-usage)
+        - [Fast Math](#fast-math)
+        - [GPU](#gpu)
+        - [Frame Rate](#frame-rate)
 
 ***
 
 # Introduction
 
 Suika2 is a tool for creating visual novels.
-It is a cross-platform software, running on at least Windows, Mac, Linux, iOS, Android and Web.
+It is a cross-platform software, running on at least Windows, Mac, Linux, iOS, Android and Web browsers.
+This document describes the software requirements specification (SRS) for Suika2.
 
-This document is for engine developers, not for game developers.
-It describes software requirements specification for Suika2, from aspect of software engineering.
+## Necessity of This Document
 
-## Terms
+This section explains why the SRS is needed for Suika2, an OSS project.
 
-* Engine developers ... The Suika2 developers who create Suika2.
-* Game developers ... The Suika2 users who create games.
-* End users ... The users of games which are created with Suika2.
+The project has grown with an emphasis on documentation and translation.
+To our delight, the project has several documents: the main repository, the old website, the new website, their Japanese and Chinese translations, and the Wiki.
+These documents may cause inconsistencies in the future, and currently there are in fact minute inconsistencies.
+
+Therefore, the project decided to create an SRS, which would be the principal source of all documentation,
+and from which other documentation would be adapted and created.
+
+If a description of a specification that exists in another document does not exist in the SRS, it must be added to the SRS.
 
 ***
 
@@ -47,15 +240,15 @@ It describes software requirements specification for Suika2, from aspect of soft
     * suika.exe
     * suika.app
 
-## bg/
+## `bg` Folder
 
 This folder is for background image files.
 
-## bgm/
+## `bgm` Folder
 
 This folder is for background music files
 
-## cg/
+## `cg` Folder
 
 This folder is for the following images.
 * Message box
@@ -68,81 +261,84 @@ This folder is for the following images.
 * Auto mode banner
 * Skip mode banner
 
-## ch/
+## `ch` Folder
 
 This folder is for character sprites.
 
-## conf/
+## `conf` Folder
 
 This folder is for config file, namely, `config.txt`.
 
-## cv/
+## `cv` Folder
 
 This folder is for character voice files.
 
-## font/
+## `font` Folder
 
 This folder is for font files.
 
-## gui/
+## `gui` Folder
 
 This folder is for GUI files.
 
-## rule/
+## `rule` Folder
 
 This folder is for rule image files which are used by rule-based transition of
 background and character images.
 
-## sav/
+## `sav` Folder
 
 This folder is for save data. It is automatically generated by Suika2.
 When the release mode is enabled,
 this folder is not generated in the game folder.
 See alse "Release Mode" section.
 
-## se/
+## `se` Folder
 
 This folder is for sound effect file.
 
-## data01.arc
+## `data01.arc` File
 
 This is a package file.
 See also "Package" section.
 
-## suika.exe
+## `suika.exe` File
 
 This is an application for Windows.
 
-## suika.app
+## `suika.app` Bundle
 
 This is an application for macOS.
 
 ***
 
-# Screen Components
+# Main Screen Components
 
-In main screen (see also "Main Screen" section),
+In main screen (see also ("Main Screen")[#main-screen] section),
 screen components are layered.
-They consist of the following, in order from bottom to top:
+The entire layers are referred to as the "stage".
 
-1. Background
-2. Back Center Character
-3. Left Character
-4. Right Character
-5. Center Character
-6. Message Box
-7. Name Box
-8. Character Face
-9. Click Animation
-10. Options
-11. Collapsed System Menu / System Menu
+The stage consist of the following, in order from bottom to top:
 
-## Background
+1. Background Layer
+2. Back Center Character Layer
+3. Left Character Layer
+4. Right Character Layer
+5. Center Character Layer
+6. Message Box Layer
+7. Namebox Layer
+8. Character Face Layer
+9. Click Animation Layer
+10. Options Layer
+11. Collapsed System Menu Layer
+12. System Menu Layer
+
+## Background Layer
 
 The background image is the lowest layer that makes up the screen.
 It must have the same size as window size.
 
-## Characters
+## Character Layers
 
 1. `center` (Center Character)
 2. `right` (Right Character)
@@ -162,7 +358,7 @@ the left of the message box.
 
 All the characters are vertically aligned at the bottom of the screen.
 
-## Message Box
+## Message Box Layer
 
 The message box is a window for outputting text.
 
@@ -194,7 +390,7 @@ The current demo game uses only the `hide` button.
 If developers want to use the other buttons,
 they can simply provide a message box images and add some configs.
 
-## Namebox
+## Namebox Layer
 
 The namebox is a window for outputting character's name.
 
@@ -203,14 +399,14 @@ Names are usually horizontally centered, but can be left-aligned by config.
 The namebox can be hidden by a config
 in order to realize the full screen style novel.
 
-## Collapsed System Menu
+## Collapsed System Menu Layer
 
 This is a button that is visible during the display of messages and choices.
 Clicking this button brings up the "System Menu".
 The collapsed system menu is invisible and disabled during
 "System Menu" is visible.
 
-## System Menu
+## System Menu Layer
 
 This is a menu that consists of buttons.
 The button types are the following:
@@ -240,28 +436,172 @@ Therefore, more than half of the functional requirements are in the design of th
 
 See also the "Command Reference" for the details of command implementation.
 
-## Showing a Background Image
+## Showing a Background (`@bg`)
 
 This feature shows a background image.
 The command that accomplishes this feature is `@bg`.
 
-This feature fades in a new background over a specified time in second.
-The originally displayed characters and background will disappear.
+`@bg` command changes the background image.
+It fades in a new background image over a specified time in second.
 
-Developers can use the hex RGB color specifier (e.g., `#0088ff`)
-instead of background image file name.
+Background image files need to be stored in the [`bg`](#bg-folder) folder.
+The hex RGB color specifier (e.g., `#0088ff`) is available instead of an image file name.
 
-## Showing Character Images
+The originally displayed characters and background images disappears from the stage.
+
+Fade-ins are accompanied by transition effects.
+The following is the list of effects types.
+
+|Effect Type                               |Effect Name         |Abbrev. Name 1|Abbrev. Name 2 |
+|------------------------------------------|--------------------|--------------|---------------|
+|fade/dissolve (alpha blending)            |`normal`            |`n`           |(not-specified)|
+|rule-based transition                     |`rule:file-mame`    |              |               |
+|right curtain                             |`curtain-right`     |`curtain`     |`c`            |
+|left curtain                              |`curtain-left`      |`cl`          |               |
+|up curtain                                |`curtain-up`        |`cu`          |               |
+|down curtain                              |`curtain-down`      |`cd`          |               |
+|right slide                               |`slide-right`       |`sr`          |               |
+|left slide                                |`slide-left`        |`sl`          |               |
+|up slide                                  |`slide-up`          |`su`          |               |
+|down slide                                |`slide-down`        |`sd`          |               |
+|right shutter                             |`shutter-right`     |`shr`         |               |
+|left shutter                              |`shutter-left`      |`shl`         |               |
+|up shutter                                |`shutter-up`        |`shu`         |               |
+|down shutter                              |`shutter-down`      |`shd`         |               |
+|clockwise wipe                            |`clockwise`         |`cw`          |               |
+|counterclockwise wipe                     |`counterclockwise`  |`ccw`         |               |
+|clockwise wipe (20 degrees stepped)       |`clockwise20`       |`cw20`        |               |
+|counterclockwise wipe (20 degrees stepped)|`counterclockwise20`|`ccw20`       |               |
+|clockwise wipe (30 degrees stepped)       |`clockwise30`       |`cw30`        |               |
+|counterclockwise wipe (30 degrees stepped)|`counterclockwise30`|`ccw30`       |               |
+|open eyes                                 |`eye-open`          |              |               |
+|close eyes                                |`eye-close`         |              |               |
+|open eyes (vertical)                      |`eye-open-v`        |              |               |
+|close eyes (vertical)                     |`eye-close-v`       |              |               |
+|open slit                                 |`slit-open`         |              |               |
+|close slit                                |`slit-close`        |              |               |
+|open slit (vertical)                      |`slit-open-v`       |              |               |
+|close slit (vertical)                     |`slit-close-v`      |              |               |
+|rule (universal transition)               |`rule:<rule-file>`  |              |               |
+
+Effect type `mask` was removed as effect type `rule` was introduced.
+The demo includes `rule-mask.png` file as a rule image corresponding to `mask`, therefore `rule:rule-mask.png` works fine.
+
+### Usage 1
+
+The following script changes the background image to `sample.png` immediately.
+```
+@bg sample.png
+```
+
+### Usage 2
+
+The following script changes the background image to `sample.png` with a 1.5 second fade-in time.
+The applicable effect type is "fade/dissolve (alpha blending)", which is default.
+```
+@bg sample.png 1.5
+```
+
+### Usage 3
+
+The following script changes the background image to `sample.png` with a 1.5 second fade-in time.
+The applicable effect type is "right curtain", which is like closing a curtain in the right direction.
+```
+@bg sample.png 1.5 curtain-right
+```
+
+### Usage 4
+
+The following script changes the background to black color with a 1.5 second fade-in time.
+The applicable effect type is "close eyes", which is like closing eyes slowly.
+```
+@bg #000000 1.5 eye-close
+```
+
+### Usage 5
+
+The following script changes the background image to `sample.png` with a 1.5 second fade-in time.
+The applicable effect type is "rule (universal transition)", which uses `rule-star.png` image for transition rule.
+```
+@bg sample.png 1.5 rule:rule-star.png
+```
+
+## Showing a Character (`@ch`)
 
 This feature shows a character image.
 The command that accomplishes this feature is `@ch`.
 
+`@ch` command changes the character.
+Character files need to be stored in the `ch` folder.
+
 Character layers include `center` (center front), `right`, `left`,
 `back` (center back) and `face` (character face).
 
+|Display Position  |Target Name|Abbrev. Name|
+|------------------|-----------|------------|
+|Front Center      |`center`   |`c`         |
+|Right             |`right`    |`r`         |
+|Left              |`left`     |`l`         |
+|Back Center       |`back`     |`b`         |
+|Face Icon         |`face`     |`f`         |
+
+Character image files need to be in the [`ch`](#ch-folder) folder.
+
+The effect types are the same as "Showing a Background (`@bg`)".
+
 All the characters are vertically aligned at the bottom of the screen.
 
-## Showing Message
+### Usage 1
+
+The following script displays `sample.png` immediately at the front center.
+Note that `center` can be abbreviated as `c`.
+```
+@ch center sample.png
+```
+
+### Usage 2
+
+The following script displays `sample.png` in 0.5 seconds at front center.
+The applicable effect type is "fade/dissolve (alpha blending)", which is default.
+```
+@ch center sample.png 0.5
+```
+
+### Usage 3
+
+The following script removes the front center character in 0.5 seconds.
+The applicable effect type is "fade/dissolve (alpha blending)", which is default.
+```
+@ch center none 0.5
+```
+
+### Usage 4
+
+The following script displays `sample.png` in 1.0 second at front center.
+The applicable effect type is "clockwise wipe".
+```
+@ch center sample.png 1.0 clockwise
+```
+
+### Usage 5
+
+The following script displays `sample.png` in 1.0 second at front center.
+Here, `100 50` means offset, shifting the display position 50 pixels to the right and 50 pixels down.
+`normal` means the effect type "fade/dissolve (alpha blending)".
+```
+@ch center sample.png 1.0 normal 100 50
+```
+
+### Usage 6
+
+The following script displays `sample.png` in 1.0 second at front center with the alpha value `127` (50%).
+The alpha value ranges from `0` to `255`.
+For the alpha value specifier, game developers can write `show` as equivalent to `255` or `hide` as `0`.
+```
+@ch center sample.png 1.0 normal 0 0 127
+```
+
+## Showing a Message
 
 This feature shows the descriptive part in the story.
 It is not an atmark command that makes this feature possible.
@@ -269,8 +609,8 @@ A message is one-line text that does not begin with an atmark,
 asterisk or colon.
 
 Messages are output to a message box.
-The descriptive part does not have the speaker's name,
-so the name box is hidden while the message is showing.
+As the descriptive part does not have the speaker's name,
+the namebox is hidden while the message is showing.
 
 A messages is displayed one character at a time.
 When clicked in the middle, all characters are displayed at once.
@@ -280,15 +620,23 @@ If a click is made while a click animation is being displayed,
 Suika2 moves to the next command.
 
 At any point during the display of a message,
-if the control key is pressed, Suika2 moves to the next command.
+unless the message is unread and if the control key is pressed,
+Suika2 moves to the next command.
 
-Game developers can use `\n` to insert new line.
+The following format specifiers are available.
 
-Game developers can append the message to the previous one
-by inserting '\' at the begenning of the message.
-This is useful to create a full screen style novel.
+* `\n` ... Insert a new line.
+* `$ + number` ... Print the value of the variable (e.g., `$1`).
+* `\` at the beginning of the line ... Append the message to the previous message. (append mode)
 
-End users can return key instead of left click.
+The append mode is useful to create a full screen style novel.
+
+End users can use return key and down key instead of left click.
+
+### Usage
+```
+Hello, world!
+```
 
 ## Showing a Line
 
@@ -296,8 +644,9 @@ This feature shows the dialog in the story.
 It is not an atmark command that makes this feature possible.
 A line is one-line text that begin with an asterisk.
 
-A line consists of a name, a message and optionally a voice file name and
-they are separated by asterisks. Namely:
+This command prints text to the message box and also the character name to the name box.
+It consists of a character name, a message and optionally a voice file name,
+and they are separated by asterisks. Namely:
 ```
 *name*dialog message
 *name*voice.ogg*dialog message
@@ -309,162 +658,602 @@ Audio starts playing when the name is displayed.
 Normally, audio playback is stopped before moving on to the next command,
 but this behavior can be suppressed in the config.
 
-Other functions are the same as "Showing Message".
+If `@` is added at the beginning of voice file name,
+the audio playback is looped for the length of the message.
 
-## Playing Background Music
+Other functions are exactly the same as for ["Showing a Background (`@bg`)"](#showing-a-backgounrd-bg).
+
+## Playing Background Music (`@bgm`)
 
 This feature plays background music.
 The command that accomplishes this feature is `@bgm`.
+
+`@bgm` command plays background music (BGM).
+BGM files need to be stored in the `bgm` folder.
 
 Unless otherwise specified, BGM is played on a loop.
 Game developers can use `once` specifier to prevent loop play.
 
 There is no ability to crossfade multiple BGMs.
-Therefore, game developers may need to first fade out the old BGM and then
-fade in the new BGM.
+Therefore, game developers may need to first fade out the old BGM and then fade in the new BGM.
 
-## Playing Sound Effect
+### Usage 1
+
+The following script plays `sample.ogg` as a BGM. Playback is looped.
+```
+@bgm sample.ogg
+```
+
+### Usage 2
+
+The following script stops BGM immediately.
+```
+@bgm stop
+```
+
+### Usage 3
+
+The following script plays `sample.ogg` as BGM. Playback is not looped.
+```
+@bgm sample.ogg once
+```
+
+### Usage 4 (Application)
+
+The following sample script fade-outs BGM in 2 seconds.
+```
+@vol bgm 0.0 2.0
+@wait 2.0
+@bgm stop
+@vol bgm 1.0
+```
+
+## Playing Sound Effect (`@se`)
 
 This feature plays sound effect.
 The command that accomplishes this feature is `@se`.
 
-## Fading a Volume
+`@se` command plays sound effects.
+Sound effect files need to be in the `se` folder.
+
+### Usage 1
+
+The following script starts the playback of sound effect file.
+```
+@se click.ogg
+```
+
+### Usage 2
+
+The following script stops the playback of sound effect file.
+```
+@se stop
+```
+
+### Usage 3
+
+The following script plays sound effect file repeatedly.
+```
+@se sample.ogg loop
+```
+
+### Usage 4
+
+The following script plays a sound effect file on the `voice` track.
+This feature is available for checking voice volume without a text message.
+```
+@se click.ogg voice
+```
+
+## Changing a Volume (`@vol`)
 
 This feature changes the volume.
-The command that accomplishes this feature is `@se`.
+The command that accomplishes this feature is `@vol`.
 
-There are three audio tracks: `bgm`, `se` and `voice`.
+`@vol` command sets the sound volume.
+Suika2 has three independent sound tracks:
 
-The volume will fade for the specified time.
-This feature does not wait until the fade in is complete.
-Game developers need to combine with "Waiting for Specified Time" feature if necessary.
+* `bgm` or `b` for BGM track
+* `voice` or `v` for character voice track
+* `se` or `s` for sound effect track
 
-Local volumes are stored for each saved data.
-Global volumes are common to all saved data.
+The volume of the specified sound track will fade in/out for the specified time.
+This command does not wait until the fade in/out is complete.
+Combining with ["Waiting for Specified Time (`@wait`)"](#waiting-for-specified-time-wait) feature is useful if necessary.
+
+`bgm`, `voice` and `se` tracks are for "local" volumes and there are "global" volumes.
+Local volumes are stored for each save data.
+Global volumes are common to all save data.
 The final volume will be a multiplication of local and global volumes.
+To specify the global volumes, game developers can use capital `BGM`, `VOICE` and `SE` tracks.
+Since the global volume changes immediately, it is not possible to specify a fade time.
 
-## Showing Options
+Both the value of local and global volumes range 0.0 to 1.0.
+
+### Usage 1
+
+The following script sets the local volume of BGM to 0.5 (50%) in 1.0 second.
+```
+@vol bgm 0.5 1.0
+```
+
+### Usage 2
+
+The following script sets the global volume of BGM to 0.5 (50%) immediately.
+Usually, the global volumes are set from the config screen,
+so there are few opportunities to use this feature.
+```
+@vol BGM 0.5 0
+```
+
+## Showing Options (`@choose`)
 
 This feature shows options and lets user choose one option,
 then jumps to the label selected.
 The command that accomplishes this feature is `@choose`.
 
-This feature can display up to eight options.
+`@choose` command can display up to eight options.
+Only one option may be displayed, but not zero.
 
-## Label
+### Usage
+
+The following script shows options.
+
+```
+@choose label1 "Good morning." label2 "Good afternoon." label3 "Good evening."
+:label1
+Good morning.
+@goto end
+:label2
+Good afternoon.
+@goto end
+:label3
+Good evening.
+:end
+```
+
+## Defining a Label
 
 This is a jump target inside a script.
 It is not an atmark command, but one-line of text that begin with a colon.
 
-## Showing an Animation
+This command can be used as a jump target,
+which is typically used with the [`@choose`](#showing-options-choose) command,
+[`@goto`](#jumping-to-a-label-goto) command,
+[`@if`](#branching-by-variable-if) commands and
+the [GUI](#graphical-user-interface) buttons.
+
+### Usage
+
+The following script makes a loop.
+```
+:JumpTarget
+Show some messages.
+@goto JumpTarget
+```
+
+## Showing an Animation (`@cha`)
 
 This feature displays a character sprite in motion.
 The command that accomplishes this feature is `@cha`.
 
-This feature translates one character sprite at a time
+`@cha` command translates one character sprite at a time
 and can also change its alpha value.
+Refer to "Showing a Character Image (`@ch`)" section for details on how to specify the character position and the alpha value.
 
-Constant velocity, acceleration and deceleration can be used for translation.
+Constant velocity (`move`), acceleration (`accel`) and deceleration (`brake`) can be used for translation.
 
-`@cha` is the abbreviation of `character animation`.
+`@cha` is the abbreviation of "character animation".
 
-## Changing Characters and Background at Once
+### Usage 1
+
+The following script moves the front center character 600 pixels to the left and hides it with an animation time of 1.0 second.
+```
+@cha center 1.0 move -600 0 hide
+```
+
+### Usage 2
+
+The following script moves the front center character 600 pixels to the left and hides it with an animation time of 1.0 second.
+This script is the same as Usage 1, but this one uses acceleration.
+```
+@cha center 1.0 accel -600 0 hide
+```
+
+### Usage 3
+
+The following script moves the front center character 600 pixels to the left and hides it with an animation time of 1.0 second.
+This script is the same as Usage 1, but this one uses deceleration.
+```
+@cha center 1.0 brake -600 0 hide
+```
+
+### Usage 4
+
+The following script preloads the character image out of screen, then moves it into the screen.
+```
+@ch right sample.png 0 normal 600 0 hide
+@cha right 2.0 move -600 0 show
+```
+
+## Changing Characters and Background at Once (`@chs`)
 
 This feature changes character sprites and background image at once.
 The command that accomplishes this feature is `@chs`.
 
-It is also possible to change only the characters or only the background.
+`@chs` command has an ability to change just the character(s) or just the background, or all of these.
 
-`@chs` is the abbreviation of `change stage`.
+The character specification order is `center`, `right`, `left` and `back`.
+The effect types are the same as ["Showing a Background (`@bg`)"](#showing-a-background-bg).
 
-## Shaking the Screen
+"chs" is the abbreviation of "change stage".
+
+### Usage 1
+
+The following script changes front center and right characters with a 1.0 second fade time.
+Other characters will not be changed.
+```
+@chs center.png right.png stay stay 1.0
+```
+
+### Usage 2
+
+The following script vanishes front center character with a 1.0 second fade time.
+Other characters will not be changed.
+```
+@chs none stay stay stay 1.0
+```
+
+### Usage 3
+
+The following script changes background without any changes on characters with a 1.0 second fade time.
+```
+@chs stay stay stay stay 1.0 background.png
+```
+
+### Usage 4
+
+The following script changes front center character and background with a 1.0 second fade time.
+The effect type is "right curtain".
+```
+@chs center.png stay stay stay 1.0 background.png curtain-right
+```
+
+## Shaking the Screen (`@shake`)
 
 This feature shakes the screen.
 The command that accomplishes this feature is `@shake`.
 
-This feature allows the screen to oscillate horizontally or vertically.
+`@shake` command allows the screen to oscillate horizontally or vertically.
 The oscillation is a "simple harmonic motion".
-Game developers can specify the period and the amplitude.
+The period and the amplitude can be specified.
 
-## Playing a Video
+### Usage 1
+
+The following script shakes the screen horizontally by 100px three times over a period of 1.0 second.
+`horizontal` can be abbreviated as `h`.
+```
+@shake horizontal 1.0 3 100
+```
+
+### Usage 2
+
+The following script shakes the screen vertically by 100px three times over a period of 1.0 second.
+`vertical` can be abbreviated as `v`.
+```
+@shake vertical 1.0 3 100
+```
+
+## Playing a Video (`@video`)
 
 This feature plays a video file.
 The command that accomplishes this feature is `@video`.
 
+`@video` plays a video file which is supported by a platform.
 Available video formats vary from platform to platform,
 but will be standardized to mp4 in the future.
-See also "File Formats" section.
+At the moment, `.wmv` is preferred on Windows and `.mp4` is preferred on other platforms.
+Note that on Linux, end user must have the Gstreamer plugin which the game developer intended.
 
-## Showing a GUI
+Video files are stored in the [`mov`](#mov-folder) folder.
+The `mov` folder is not stored in `data01.arc` file.
+
+See also ["File Formats"](#file-formats) section.
+
+### Usage
+
+The following script plays a video file.
+```
+@video sample.avi
+```
+
+## Showing a GUI (`@gui`)
 
 This feature shows a graphical user interface (GUI).
-GUI is a menu consisting of three images.
-
 The command that accomplishes this feature is `@gui`.
 
-## Waiting for a Click
+GUI is a menu consisting of three images,
+and can show up to 128 buttons on the screen using GUI.
+Button types include "jump to label", "show if variable is set", and etc.
+
+GUI definition files are also used for config, save, load and history screens.
+
+See alse ["Graphical User Interface"](#graphical-user-interface).
+
+### Usage 1
+
+The following script shows GUI `menu.txt`.
+```
+@gui menu.txt
+```
+
+### Usage 2
+
+The following script show GUI `menu.txt`.
+It allows cancellation by right click.
+```
+@gui menu.txt cancel
+```
+
+## Waiting for a Click (`@click`)
 
 This feature waits for a user click.
 The command that accomplishes this feature is `@click`.
 
 During auto mode, Suika2 resumes after a 2-second pause.
-See also "Click Waiting Mode" section.
+See also ["Click Waiting Mode"](#click-waiting-mode) section.
 
-## Waiting for Specified Time
+### Usage
+
+The following script waits for a click.
+```
+@click
+```
+
+## Waiting for Specified Time (`@wait`)
 
 This feature waits for specified time in second.
 The command that accomplishes this feature is `@wait`.
 
 If a click or keystroke is made, the wait is canceled.
-See also "Timed Waiting Mode"
 
-## Prohibiting Skip
+If the previous command is a message,
+the message box is visible while waiting for input.
+Otherwise, the message box is hidden while waiting for input.
 
-This feature enables/disables skip by control key.
+See also ["Timed Waiting Mode"](#timed-waiting-mode)
+
+### Usage
+
+The following script waits for 5 seconds.
+```
+@wait 5.0
+```
+
+## Prohibiting Skip (`@skip`)
+
+This feature enables/disables skip by control key and skip mode.
 The command that accomplishes this feature is `@skip`.
 
-Typically, this feature is used to display a logo.
+`@skip` command enables or disables skip of timed commands by user interaction.
+Typically, this command is used to display a brand logo on boot time.
 
-## Jumping to a Label
+In non-skippable mode,
+mid-flight skip of message display is inhibited,
+but to use this,
+you have to use `@setsave disable` to inhibit save/load screen.
+This is because the state of non-skippable mode is not recorded to the save files.
+In addition, don't use `@goto $LOAD` and `@goto $SAVE` while non-skippable mode.
+The reason is same as above.
+
+### Usage 1
+
+The following script enables skip. (default/skippable-mode)
+```
+@skip enable
+```
+
+### Usage 2
+
+The following script enables skip. (non-skippable mode)
+```
+@skip disable
+```
+
+## Jumping to a Label (`@goto`)
 
 This feature moves the script execution position to the specified label.
 The command that accomplishes this feature is `@jump`.
 
 Currently, there is no way to jump directly to labels in other scripts.
 
-## Setting a Variable
+Suika2 behaves in a special way when `$LOAD` or `$SAVE` is specified as the label for the jump destination.
+
+### Usage 1
+
+The following script jumps to the label `abc` (loop).
+```
+:abc
+Describe the process here.
+@goto abc
+```
+
+### Usage 2
+
+The following script shows load screen.
+```
+@goto $LOAD
+```
+
+### Usage 3
+
+The following script shows save screen.
+```
+@goto $SAVE
+```
+
+## Setting a Variable (`@set`)
 
 This feature sets variable value.
 The command that accomplishes this feature is `@set`.
 
-It can perform calculations as well as simple assignments.
-Addition, subtraction, multiplication, remainder, and random number generation
-are possible.
+`@set` command can perform calculations as well as simple assignments.
+Addition, subtraction, multiplication and remainder are possible.
+Available operators are:
 
-## Branching by Variable
+* `=` (assignment)
+* `+=` (addition)
+* `-=` (subtraction)
+* `*=` (multiplication)
+* `/=` (division)
+* `%=` (remainder)
+
+On RHS, `$RAND` can be specified for a random number.
+
+Local variables ranges `$0` to `$9999`. They are stored independently in each save file.
+Global variables ranges `$10000` to `$10999`. They are stored commonly across all save data.
+All variables have 32-bit integer values and initialized to `0`.
+
+See also ["Variables"](#variables).
+
+### Usage 1
+
+The following script sets the value of `1` to the variable `$0`.
+```
+@set $0 = 1
+```
+
+### Usage 2
+
+The following script adds the value `23` to the variable `$10`.
+```
+@set $10 += 23
+```
+
+### Usage 3
+
+The following script sets a random number (from 0 to 2147483647) to the variable `$0`.
+```
+@set $0 = $RAND
+```
+
+### Usage 4
+
+The following script adds the value of the variable `$2` to the variable `$1`.
+```
+@set $1 += $2
+```
+
+## Branching by Variable (`@if`)
 
 This feature moves the script execution position to the specified label
 if the specified condition of variable meets.
 The command that accomplishes this feature is `@if`.
 
-## Jumping to a Script
+Available operators are:
+
+|Operator|Meaning                 |
+|--------|------------------------|
+|`>`     |greater than            |
+|`>=`    |greater than or equal to|
+|`==`    |equal to                |
+|`<=`    |less than or equal to   |
+|`<`     |less than               |
+|`!=`    |not equal to            |
+
+LHS must be a variable name (e.g., `$1`).
+
+RHS must be an integer or a variable name.
+
+### Usage
+
+The following script jumps to the label `abc` if the variable at number 1 is equal to 1.
+```
+@if $1 == 1 abc
+
+Story when flag is not set.
+
+@goto END
+:abc
+
+Story when flag is set.
+
+@goto END
+:END
+
+Stories join here.
+```
+
+## Jumping to a Script (`@load`)
 
 This feature loads a script file.
 The command that accomplishes this feature is `@load`.
 
-## Setting a Chapter Name
+Script files need to be in the [`txt`](#txt-folder) folder.
+
+### Usage
+
+The following script jumps to the script file `001.txt`.
+```
+@load 001.txt
+```
+
+## Setting a Chapter Name (`@chapter`)
 
 This feature sets a chapter name.
 The command that accomplishes this feature is `@chapter`.
 
 The name of the chapter is reflected in the window title and saved data items.
 
-## Multilingualization
+### Usage
+
+The following script sets the chapter name.
+```
+@chapter "Chapter 1"
+```
+
+## Call a Procedure (`@gosub`)
+
+This feature calls a subroutine.
+The command that accomplishes this feature is `@gosub`.
+
+Note that nested calls of subroutines are not supported.
+
+### Usage
+
+The following script runs subroutine `SUB`.
+```
+@gosub SUB
+@goto END
+:SUB
+Describe the process here.
+@return
+:END
+```
+
+## Return From a Procedure (`@return`)
+
+This feature returns from a subroutine.
+The command that accomplishes this feature is `@return`.
+
+### Usage
+
+The following script runs subroutine `SUB`.
+```
+@gosub SUB
+@goto END
+:SUB
+Describe the process here.
+@return
+:END
+```
+
+## Multilingualization Prefix
 
 This feature automatically switches the language to be displayed
-depending on the user's execution environment.
+depending on the user's system locale.
 
-To use this feature, a line must be written that begins with a plus sign.
+To use this feature, a script line must be started with a plus sign.
 
 ```
 +en+Hello.
@@ -473,11 +1262,13 @@ To use this feature, a line must be written that begins with a plus sign.
 
 This is not exactly a command, but it is a prefix to a command.
 
+See also ["International Mode"](#international-mode) and ["Language Mapping"](#language-mapping).
+
 ***
 
 # Variables
 
-All variables are 32-bit integers.
+All variables are 32-bit integers, and initialized to `0`.
 
 ## Local Variables
 
@@ -766,7 +1557,7 @@ Note that:
 * The knob for the slide bar is on the far left of the active image
 * The width of the slide bar knob is equal to the height of the button
 
-## Auto Mode Speed
+## Auto Mode Speed Slider
 
 This button is used for creating auto mode speed slide bar.
 
@@ -1151,7 +1942,7 @@ font.outline.remove=0
 
 ## Namebox Settings
 
-### Image
+### Namebox Image
 
 This is the image file name of namebox.
 The file is stored in `cg` folder.
@@ -1160,7 +1951,7 @@ The file is stored in `cg` folder.
 namebox.file=namebox.png
 ```
 
-### Position
+### Namebox Position
 
 This is the position to show the namebox.
 
@@ -1169,7 +1960,7 @@ namebox.x=95
 namebox.y=480
 ```
 
-### Top Margin
+### Namebox Top Margin
 
 This is the top margin of text in the namebox image.
 
@@ -1247,7 +2038,7 @@ msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
 ```
 
-### Sound Effects
+### Message Box Sound Effects
 
 Message box has sound effects.
 
@@ -1270,7 +2061,7 @@ Skipping includes skip mode and control key skip.
 
 The click-waiting prompt that appears above the message box is a click animation.
 
-### Position
+### Click Animation Position
 
 This is a position to show the click animation image.
 
@@ -1289,7 +2080,7 @@ This is useful when making a full screen style novel.
 click.move=0
 ```
 
-### Images
+### Click Animation Images
 
 First one is required, and others are optional.
 
@@ -1302,7 +2093,7 @@ click.file5=click5.png
 click.file6=click5.png
 ```
 
-### Interval
+### Click Animation Interval
 
 This is the click animation interval in second.
 
@@ -1310,7 +2101,7 @@ This is the click animation interval in second.
 click.interval=1.0
 ```
 
-### Visibility
+### Click Animation Visibility
 
 Developers can hide click animation.
 This is mainly for the visually impaired.
@@ -1321,7 +2112,7 @@ click.interval=1.0
 
 ## Options Settings
 
-### Images
+### Option Box Images
 
 There are background and foreground images for an option box.
 Background image is displayed usually,
@@ -1332,7 +2123,7 @@ switch.bg.file=switch-bg.png
 switch.fg.file=switch-fg.png
 ```
 
-### Position
+### First Option Position
 
 This is the position of the first option box.
 
@@ -1341,7 +2132,7 @@ switch.x=406
 switch.y=129
 ```
 
-### Vertical Space
+### Vertical Space Between Options
 
 This is the vertical space between the option box images.
 
@@ -1349,7 +2140,7 @@ This is the vertical space between the option box images.
 switch.margin.y=20
 ```
 
-### Top Margin
+### Option Top Margin
 
 This is the top margin of text in the option box image.
 
@@ -1357,7 +2148,7 @@ This is the top margin of text in the option box image.
 switch.text.margin.y=18
 ```
 
-### Color
+### Pointed Option Color
 
 This is the color of pointed option's text.
 
@@ -1371,7 +2162,7 @@ switch.color.active.outline.g=128
 switch.color.active.outline.b=128
 ```
 
-### Sound Effects
+### Options Sound Effects
 
 Options can have sound effects.
 
@@ -1386,7 +2177,7 @@ switch.change.se=btn-change.ogg
 Most of settings for save/load screens are defined in GUI file.
 Here, we have just one configuration.
 
-### Thumbnail Size
+### Save Item Thumbnail Size
 
 This is the thumbnail size of the save data.
 
@@ -1397,7 +2188,7 @@ save.data.thumb.height=120
 
 ## System Menu Settings
 
-### Position
+### System Menu Position
 
 This is the position to show the system menu image.
 
@@ -1406,7 +2197,7 @@ sysmenu.x=731
 sysmenu.y=29
 ```
 
-### Images
+### System Menu Images
 
 System menu has three images; `idle`, `hover`, `disable`.
 `idle` is the base image.
@@ -1419,7 +2210,7 @@ sysmenu.hover.file=sysmenu-hover.png
 sysmenu.disable.file=sysmenu-disable.png
 ```
 
-### Button Positions
+### System Menu Button Positions
 
 The following buttons are available:
 * `qsave` (quick save)
@@ -1440,7 +2231,7 @@ sysmenu.qsave.width=60
 sysmenu.qsave.height=58
 ```
 
-### Sound Effects
+### System Menu Sound Effects
 
 System menu can have sound effects.
 
@@ -1485,7 +2276,7 @@ Collapsed system menu can have sound effect.
 sysmenu.collapsed.se=btn-change.ogg
 ```
 
-### Visibility
+### System Menu Visibility
 
 Game developers can decide whether collapsed system menu and system menu are visible.
 
@@ -1501,7 +2292,7 @@ because of lack of a way to save without the system menu.
 
 Suika2 shows auto mode banner when auto mode is enabled.
 
-### Image
+### Auto Mode Banner Image
 
 This is the banner image.
 
@@ -1509,7 +2300,7 @@ This is the banner image.
 automode.banner.file=auto.png
 ```
 
-### Position
+### Auto Mode Banner Position
 
 This is the banner position.
 
@@ -1518,7 +2309,7 @@ automode.banner.x=0
 automode.banner.y=126
 ```
 
-### Speed
+### Auto Mode Speed
 
 This is a speed of auto mode.
 Wait time for the message is `automode.speed` seconds per character.
@@ -1531,7 +2322,7 @@ automode.speed=0.15
 
 Suika2 shows skip mode banner when skip mode is enabled.
 
-### Image
+### Skip Mode Banner Image
 
 This is the banner image.
 
@@ -1539,7 +2330,7 @@ This is the banner image.
 skipmode.banner.file=skip.png
 ```
 
-### Position
+### Skip Mode Banner Position
 
 This is the banner position.
 
@@ -1699,15 +2490,15 @@ The default value for these is `0.5`.
 Package is an archive file which contains all game data except video files.
 The package file name is `data01.arc`.
 
-## Generation
+## Package Generation
 
 To generate package file, developers can use `pack` program or `Suika2 Pro for Creators`.
 
-## Obfuscation
+## Package Obfuscation
 
 Obfuscation key is stored in `key.h`, and developers can change the value for their games.
 
-## Usage
+## Package Usage
 
 To use package file, put it in the folder which contains Suika2 application (app folder).
 Game data folders (e.g., `bg`, `ch`, `bgm` and etc.) must be excluded from the app folder.
@@ -1717,7 +2508,7 @@ If the game data folder exists in the app folder, Suika2 uses the files in the g
 
 # File Formats
 
-## Texts
+## Text File Format
 
 Script files, GUI files and config file are plain text file.
 
@@ -1730,16 +2521,16 @@ Text files must be encoded in UTF-8.
 CR+LF, LF and CR are accepted.
 These can be mixed.
 
-## Image
+## Image File Formats
 
 PNG and JPEG are supported.
 Note that gray scaled JPEG is not supported.
 
-## Audio
+## Audio File Format
 
 The only accepted format is Ogg Vorbis 44.1kHz stereo or monaural.
 
-## Video
+## Video File Formats
 
 On Windows, `.wmv` is the recommended format.
 AVI with H.264 and AAC will work on Windows 10 or later.
@@ -1756,12 +2547,12 @@ In the future, it is planned to move to `.mp4` with H.264 and AAC on all platfor
 
 # Non-functional Requirements
 
-## Native Application
+## Performance Requirements
+
+### Native Application
 
 Suika2 binaries are applications that run natively on the target platform.
 This is based on the idea of achieving the fastest possible speed of operation.
-
-## Performance Requirements
 
 ### CPU Usage
 
@@ -1786,13 +2577,10 @@ it falls back to 2D rendering because of the compatibility.
 On other environments, Suika2 always uses GPU acceleration because
 the CPU may be non-powerful enough.
 
-Fallback without GPU acceleration will be removed in the future.
-
-### 2D Rendering
-
 Suika2 uses its own 2D rendering engine if GPU acceleration is not available.
+However, this fallback will be removed in the future.
 
-In addition, offscreen renderings are not GPU accelerated and done by 2D rendering.
+Note that offscreen renderings are not GPU accelerated and done by 2D rendering.
 
 ### Frame Rate
 

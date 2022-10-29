@@ -8,21 +8,24 @@
 
 Suika2 is an open-source, cross-platform visual novel development engine that allows you to create a feature-rich visual novel with the care and attention to detail that your stories deserve. Featuring support and documentation in Japanese, Chinese, and English as well as active development and an accepting community, Suika2 could be the perfect start to your thrilling adventure, fawning romance, chilling epic, or anything else you could possibly imagine!
 
-[Join our Discord server!](https://discord.gg/ZmvXxE8GFg)
-![Discord](https://discord.com/api/guilds/986623112617541677/widget.png)
-<br/><br/>[Visit the Wiki!](https://github.com/suika2engine/suika2/wiki)
+[Join our Discord server!](https://discord.gg/ZmvXxE8GFg)  ![Discord](https://discord.com/api/guilds/986623112617541677/widget.png)
+
+Visit [the new Website](https://docs.suika2.com/) and [the Wiki](https://github.com/suika2engine/suika2/wiki), which are updated frequently!
 
 ## Demo
 
 [Click here to start the Web demo](https://suika2.com/game-en/).
 
-![demo](https://github.com/ktabata/suika2/raw/master/doc/screenshot-en.jpg "screenshot")
+![demo](https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg "screenshot")
 
 ## Portability
 
-Official builds of Suika2 run on Windows, Mac, Web browsers, iPhone, iPad, Android, Linux, FreeBSD, and NetBSD.
+The official builds of Suika2 run on Windows, Mac and Web browsers.
+The source code can be compiled for iPhone, iPad, Android, Linux, FreeBSD and NetBSD.
 
-Suika2 consists of a platform independent part and a hardware abstraction layer (HAL). The platform independent part is written in ANSI C. HALs are currently written in C, Objective-C, and Java.
+Suika2 consists of the platform independent part and the hardware abstraction layer (HAL).
+The platform independent part is written in ANSI C, the most portable language in the world.
+HALs are currently written in C, C++, Objective-C and Java.
 
 If you want to port Suika2 to a new target platform, it is only necessary to write a HAL.
 
@@ -33,7 +36,10 @@ If you want to port Suika2 to a new target platform, it is only necessary to wri
 ## Contribution
 
 Please submit issues light-heartedly as any and all feedback is welcome.
-Pull requests that correct my English are especially welcome.
+
+We are active on Discord and would love to have you on the server.
+
+[Join our Discord server!](https://discord.gg/ZmvXxE8GFg)
 
 ## Prebuilt Binaries
 
