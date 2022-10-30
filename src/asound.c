@@ -137,6 +137,9 @@ void cleanup_asound(void)
 	int n;
 
 	for (n = 0; n < MIXER_STREAMS; n++) {
+		if (pcm[n] == NULL)
+			continue;
+
 		/* 再生を終了する */
 		stop_sound(n);
 
