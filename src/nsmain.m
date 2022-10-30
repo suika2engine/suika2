@@ -51,9 +51,6 @@ static AVPlayer *player;
 // 動画再生状態
 static BOOL isMoviePlaying;
 
-// 動画再生の最初のフレームであるか
-static BOOL isMovieFirstFrame;
-
 // 前方参照
 static BOOL initWindow(void);
 static void cleanupWindow(void);
@@ -184,14 +181,13 @@ BOOL isRedrawPrepared;
         isFinished = YES;
 
     // OpenGLの描画を終了する
-    if (!isMoviePlaying || isMovieFirstFrame) {
+    if (!isMoviePlaying) {
         opengl_end_rendering();
         isRedrawPrepared = YES;
 
         // drawRectの呼び出しを予約する
         [self setNeedsDisplay:YES];
     }
-    isMovieFirstFrame = NO;
 }
 
 // 描画イベント
@@ -439,25 +435,6 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 - (BOOL)acceptsFirstResponder {
     return YES;
 }
-
-/*
-// 動画再生の通知を受け取る
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary *)change
-                       context:(void *)context {
-    if (player.status == AVPlayerItemStatusReadyToPlay) {
-        [player removeObserver:self forKeyPath:@"start"];
-        [player play];
-        isMoviePlaying = YES;
-    } else {
-        [super observeValueForKeyPath:keyPath
-                             ofObject:object
-                               change:change
-                              context:context];
-    }
-}
-*/
 
 // 動画再生が完了したとき通知される
 - (void)onPlayEnd:(NSNotification *)notification {
@@ -1058,6 +1035,9 @@ bool default_dialog(void)
 //
 bool play_video(const char *fname, bool is_skippable)
 {
+    // OpenGLのレンダリングを完了させる
+    opengl_end_rendering();
+
     // パスを生成する
     char *path = make_valid_path(MOV_DIR, fname);
     NSString *nsPath = [[NSString alloc] initWithUTF8String:path];
@@ -1069,10 +1049,10 @@ bool play_video(const char *fname, bool is_skippable)
     player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
 
     // プレーヤーのレイヤーを作成する
+    [theView setWantsLayer:YES];
     AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
     [playerLayer setFrame:theView.bounds];
     [theView.layer addSublayer:playerLayer];
-    [theView setWantsLayer:YES];
 
     // 再生を開始する
     [player play];
@@ -1084,8 +1064,7 @@ bool play_video(const char *fname, bool is_skippable)
                                              object:playerItem];
 
     isMoviePlaying = YES;
-    isMovieFirstFrame = YES;
-	return true;
+    return true;
 }
 
 //
@@ -1096,6 +1075,9 @@ void stop_video(void)
     if (player != nil)
         [player replaceCurrentItemWithPlayerItem:nil];
     isMoviePlaying = NO;
+
+    // OpenGLのレンダリングを開始する
+    opengl_end_rendering();
 }
 
 //
@@ -1103,7 +1085,7 @@ void stop_video(void)
 //
 bool is_video_playing(void)
 {
-    return isMoviePlaying == YES || isMovieFirstFrame == YES;
+    return isMoviePlaying == YES;
 }
 
 //
