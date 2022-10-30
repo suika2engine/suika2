@@ -62,6 +62,8 @@
 		2623918A288C024100C7DF81 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26239188288C024100C7DF81 /* readjpeg.c */; };
 		26247D7B2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
 		26247D7C2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
+		26410A74290DF9B0002962BB /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26410A73290DF9B0002962BB /* AVFoundation.framework */; };
+		26410A76290DF9BA002962BB /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26410A75290DF9BA002962BB /* AVKit.framework */; };
 		2646C361284C635D00DF86E1 /* cmd_skip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2646C360284C635D00DF86E1 /* cmd_skip.c */; };
 		26557B0E26785269000CDD10 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26557B0D26785269000CDD10 /* cmd_setsave.c */; };
 		265EA7CC285732E000A02167 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CB285732E000A02167 /* Credits.rtf */; };
@@ -124,6 +126,8 @@
 		261B31F328991145006BCD68 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../../../src/gui.h; sourceTree = "<group>"; };
 		26239188288C024100C7DF81 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../../src/readjpeg.c; sourceTree = "<group>"; };
 		26247D7A2872C13A0026FAF4 /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../../src/cmd_chapter.c; sourceTree = "<group>"; };
+		26410A73290DF9B0002962BB /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		26410A75290DF9BA002962BB /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		2646C360284C635D00DF86E1 /* cmd_skip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_skip.c; path = ../../../src/cmd_skip.c; sourceTree = "<group>"; };
 		2649E0D728558837006831C5 /* nsmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nsmain.h; path = ../../../src/nsmain.h; sourceTree = "<group>"; };
 		26557B0D26785269000CDD10 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../../src/cmd_setsave.c; sourceTree = "<group>"; };
@@ -216,17 +220,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26410A76290DF9BA002962BB /* AVKit.framework in Frameworks */,
+				26410A74290DF9B0002962BB /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		26410A72290DF9B0002962BB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				26410A75290DF9BA002962BB /* AVKit.framework */,
+				26410A73290DF9B0002962BB /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		26B8ACD625EE5845005D9C49 = {
 			isa = PBXGroup;
 			children = (
 				26B8ACE125EE5845005D9C49 /* suika */,
 				26B8ACE025EE5845005D9C49 /* Products */,
+				26410A72290DF9B0002962BB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
