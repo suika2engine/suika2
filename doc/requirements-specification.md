@@ -763,8 +763,8 @@ This command does not wait until the fade in/out is complete.
 Combining with the ["Waiting for Specified Time (`@wait`)"](#waiting-for-specified-time-wait) feature is useful if necessary.
 
 `bgm`, `voice` and `se` tracks are for "local" volumes and there are "global" volumes.
-Local volumes are stored in each save file.
-Global volumes are common to all save files.
+Local volumes are stored in each save data file.
+Global volumes are common to all save data files.
 The final volume will be a multiplication of the local and global volumes.
 To specify the global volumes, game developers can use capital `BGM`, `VOICE` and `SE` tracks.
 Since the global volume changes immediately, it is not possible to specify a fade time.
@@ -1043,7 +1043,7 @@ In non-skippable mode,
 mid-flight skipping of message display is inhibited,
 but to use this,
 you have to use `@setsave disable` to inhibit the save/load screen.
-This is because the state of non-skippable mode is not recorded to the save files.
+This is because the state of non-skippable mode is not recorded to the save data files.
 In addition, don't use `@goto $LOAD` and `@goto $SAVE` while non-skippable mode is active.
 The reason is the same as above.
 
@@ -1095,10 +1095,10 @@ The following script shows the save screen.
 
 ## Setting a Variable (`@set`)
 
-This feature sets variable value.
+This feature sets variable values.
 The command that accomplishes this feature is `@set`.
 
-`@set` command can perform calculations as well as simple assignments.
+The `@set` command can perform calculations as well as simple assignments.
 Addition, subtraction, multiplication and remainder are possible.
 Available operators are:
 
@@ -1111,9 +1111,9 @@ Available operators are:
 
 On RHS, `$RAND` can be specified for a random number.
 
-Local variables ranges `$0` to `$9999`. They are stored independently in each save file.
-Global variables ranges `$10000` to `$10999`. They are stored commonly across all save data.
-All variables have 32-bit integer values and initialized to `0`.
+Local variables range from `$0` to `$9999`. They are stored independently in each save data file.
+Global variables range from `$10000` to `$10999`. They are stored globally across all save data files.
+All variables have 32-bit integer values and are initialized as `0`.
 
 See also ["Variables"](#variables).
 
@@ -1133,7 +1133,7 @@ The following script adds the value `23` to the variable `$10`.
 
 ### Usage 3
 
-The following script sets a random number (from 0 to 2147483647) to the variable `$0`.
+The following script assigns a random number (from 0 to 2147483647) to the variable `$0`.
 ```
 @set $0 = $RAND
 ```
@@ -1148,7 +1148,7 @@ The following script adds the value of the variable `$2` to the variable `$1`.
 ## Branching by Variable (`@if`)
 
 This feature moves the script execution position to the specified label
-if the specified condition of variable meets.
+if the specified condition of a preset variable is met.
 The command that accomplishes this feature is `@if`.
 
 Available operators are:
@@ -1168,7 +1168,7 @@ RHS must be an integer or a variable name.
 
 ### Usage
 
-The following script jumps to the label `abc` if the variable at number 1 is equal to 1.
+The following script jumps to the label `abc` if the variable at number 1 is equal to `1`.
 ```
 @if $1 == 1 abc
 
@@ -1269,18 +1269,18 @@ See also ["International Mode"](#international-mode) and ["Language Mapping"](#l
 
 # Variables
 
-All variables are 32-bit integers, and initialized to `0`.
+All variables are 32-bit integers, and are initialized as `0`.
 
 ## Local Variables
 
-Variable from `$0` to `$9999` are local variables which are stored in each
-save data.
+Variables ranging from `$0` to `$9999` are local variables, these are stored in each
+save data file.
 Typically, these are used to branch scenarios.
 
 ## Global Variables
 
-Variables from `$10000` to `$10999` are global variables which are common to
-all save data.
+Variables ranging from `$10000` to `$10999` are global variables that are common to
+all save data files.
 Typically, these are used to record which pictures should be displayed
 in the gallery.
 
@@ -1296,9 +1296,9 @@ However, game developers can set an option to modify this behaviour.
 The reason why the term "seen" is used instead of "read" is that
 "read" appears to be an instruction to the computer.
 
-Seen flags are stored in `sav` folder.
-They are grouped into indivisual scripts.
-The file name of the seen flags is a hex representation of
+Seen flags are stored in the `sav` folder.
+They are grouped into individual scripts.
+The file names of the seen flags are a hex representation of
 the script file name.
 
 ***
@@ -1314,18 +1314,18 @@ The main screen has some modes.
 
 This mode changes the background image.
 
-During this mode, the message box is not displayed.
+While this mode is active, the message box is not displayed.
 
 ## Character Changing Mode
 
 This mode changes the character images and the background image.
 
-While `@ch` command changes one character at once,
-`@chs` command changes 0 or more characters and optionally the background.
+While the `@ch` command changes one character at a time,
+the `@chs` command changes 0 or more characters and can optionally change the background.
 
-During this mode, the message box is not displayed.
-However, game developers can optionally set a config to display the message box
-during this mode.
+While this mode is active, the message box is not displayed,
+however, game developers can optionally set a config to display the message box
+while this mode is active.
 
 ## Text Output Mode for Message
 
@@ -1334,29 +1334,29 @@ In this mode, text is output one character at a time to the message box.
 If the message has a character's name,
 the name of the character is output to namebox prior to this mode.
 
-When the text output is complete, Suika2 enters the "Click Waiting Mode for Message".
+When the text output is complete, Suika2 enters "Click Waiting Mode for Message".
 
 When a click or enter key is pressed during text output, Suika2 enters "Click Waiting Mode for Message".
 
-When control key is pressed, Suika2 moves to the next command.
+When the control key is pressed, Suika2 moves to the next command.
 
 ## Click Waiting Mode for Message
 
 In this mode, a prompt animation appears and waits for the user to click.
 If not in auto mode, this mode ends when there is a click or keystroke.
 If in auto mode, this mode ends when the playback of the voice is completed
-or the waiting time based on the number of characters is completed.
+or the waiting time based on the number of characters has completed.
 
 This mode is not executed when in skip mode and the message is already seen.
 
 ## Sound Fading Mode
 
-This mode proceeds simultaneously with the other modes.
-If necessary, game developers can use a timed wait for completion of the fading.
+This mode proceeds simultaneously alongside other modes.
+If necessary, game developers can make use of a timed wait for completion of fading.
 
 ## Timed Waiting Mode
 
-This mode waits for the specified seconds.
+This mode waits for the specified amount of time in seconds.
 If a click or keystroke is made, the wait is canceled.
 
 ## Click Waiting Mode
@@ -1366,19 +1366,19 @@ During auto mode, Suika2 resumes after a 2-second pause.
 
 ## Auto Mode
 
-This mode proceeds simultaneously with the other modes.
-It takes effect to "Click Waiting Mode for Message".
+This mode proceeds simultaneously alongside other modes.
+This mode effects "Click Waiting Mode for Message".
 See also "Click Waiting Mode for Message".
 
-During this mode, a banner representing the auto mode is displayed.
+During this mode, a banner representing auto mode is displayed.
 
 ## Skip Mode
 
-This mode proceeds simultaneously with the other modes.
-It takes effect to "Click Waiting Mode for Message".
+This mode proceeds simultaneously alongside other modes.
+This mode effects "Click Waiting Mode for Message".
 See also "Click Waiting Mode for Message".
 
-During this mode, a banner representing the skip mode is displayed.
+During this mode, a banner representing skip mode is displayed.
 
 ***
 
@@ -1393,52 +1393,52 @@ These special screens are realized by the graphical user interface (GUI) feature
 
 The save screen is for viewing and recording saved data.
 
-This screen is realized by the GUI file `save.txt`
+This screen is realized within the GUI file `save.txt`.
 
-The number of save slots per page can be determined in save.txt.
+The number of save slots per page can be determined in `save.txt`.
 
 ## Load Screen
 
 The load screen is for viewing and loading saved data.
 
-This screen is realized by the GUI file `load.txt`
+This screen is realized within the GUI file `load.txt`.
 
-The number of save slots per page can be determined in load.txt.
+The number of save slots per page can be determined in `load.txt`.
 
 ## History Screen
 
-The history screen displays the history of messages.
+The history screen displays a history of seen messages.
 The maximum number of messages recorded is 100.
 
 End users can click on a line with voice to play the audio.
 
-This screen is realized by the GUI file `history.txt`
+This screen is realized within the GUI file `history.txt`.
 
 ## Config Screen
 
 The config screen allows end users to set volume, text speed,
 auto mode speed and font.
-It also provides "back to game title logo" button.
-It may also show the preview of text speed and auto mode speed.
+It also provides a "back to game title logo" button.
+It may also show a preview of text speed and auto mode speed.
 
-This screen is realized by the GUI file `config.txt`
+This screen is realized within the GUI file `config.txt`.
 
 ***
 
 # Graphical User Interface
 
-Graphical user interface (GUI) interacts with user.
+Graphical user interface (GUI) interacts with the user.
 It is described by a text file, and it defines various buttons.
 
-GUI is used to implement the special screen mode.
-Typically, it is also used to implement the title menu and so on.
+GUI is used to realize the special screen mode.
+Typically, it is also used to implement the title as well as other menus.
 
 Note that in a GUI file,
-the characters after `#` in a line are ignored as comments.
+the characters after `#` in a line are ignored and treated as comments.
 
 ## GUI File Header
 
-GUI file has a header.
+GUI files have a header.
 In a header, developers have to define three images;
 `idle`, `hover` and `active`.
 
@@ -1450,14 +1450,14 @@ global {
 }
 ```
 
-`idle` image is displayed as a base layer.
-`hover` image is displayed when the button area is pointed.
-`active` image is displayed when the button is active, or,
-for slidebar buttons always displayed for a slidebar.
+The `idle` image is displayed as a base layer.
+The `hover` image is displayed when the button area is pointed.
+The `active` image is displayed when the button is active.
+Slidebar buttons are always displayed.
 
 ## Jump To Label Button
 
-This button is used for creating normal menu.
+This button is used for creating a normal menu.
 
 ```
 QUIT {
@@ -1474,7 +1474,7 @@ QUIT {
 
 ## Save/Load Page N Button
 
-This button is used for pagenation of save/load screen.
+This button is used for creating pagenation within the save/load screen.
 
 ```
 PAGE1 {
@@ -1491,7 +1491,7 @@ PAGE1 {
 
 ## Save Slot Button
 
-This button is used for creating save slot.
+This button is used for creating a save slot.
 
 ```
 SAVESLOT1 {
@@ -1508,7 +1508,7 @@ SAVESLOT1 {
 ```
 
 When game developers create the save slot button,
-they need an extra header item for the GUI file.
+they need an extra header item within the GUI file.
 
 ```
     saveslot: 3;
@@ -1516,7 +1516,7 @@ they need an extra header item for the GUI file.
 
 ## Load Slot Button
 
-This button is used for creating load slot.
+This button is used for creating a load slot.
 
 ```
 SAVESLOT1 {
@@ -1533,7 +1533,7 @@ SAVESLOT1 {
 ```
 
 When game developers create the load slot button,
-they need an extra header item for the GUI file.
+they need an extra header item within the GUI file.
 
 ```
     saveslot: 3;
@@ -1541,7 +1541,7 @@ they need an extra header item for the GUI file.
 
 ## Text Speed Slider
 
-This button is used for creating text speed slide bar.
+This button is used for creating a text speed slidebar.
 
 ```
 TEXTSPEED {
@@ -1555,12 +1555,12 @@ TEXTSPEED {
 ```
 
 Note that:
-* The knob for the slide bar is on the far left of the active image
-* The width of the slide bar knob is equal to the height of the button
+* The knob for the slidebar is on the far left of the active image
+* The width of the slidebar knob is equal to the height of the button
 
 ## Auto Mode Speed Slider
 
-This button is used for creating auto mode speed slide bar.
+This button is used for creating an auto mode speed slidebar.
 
 ```
 AUTOSPEED {
@@ -1574,12 +1574,12 @@ AUTOSPEED {
 ```
 
 Note that:
-* The knob for the slide bar is on the far left of the active image
-* The width of the slide bar knob is equal to the height of the button
+* The knob for the slidebar is on the far left of the active image
+* The width of the slidebar knob is equal to the height of the button
 
 ##  Text Speed Preview
 
-This button is used for displaying preview of text and auto mode speed.
+This button is used for displaying a preview of text and auto mode speed.
 
 ```
 PREVIEW {
@@ -1594,7 +1594,7 @@ PREVIEW {
 
 ## BGM Volume Slider
 
-This button is used for setting BGM volume.
+This button is used for setting the BGM volume.
 
 ```
 BGM {
@@ -1608,12 +1608,12 @@ BGM {
 ```
 
 Note that:
-* The knob for the slide bar is on the far left of the active image
-* The width of the slide bar knob is equal to the height of the button
+* The knob for the slidebar is on the far left of the active image
+* The width of the slidebar knob is equal to the height of the button
 
 ## Sound Effect Volume Slider
 
-This button is used for setting sound effect volume.
+This button is used for setting the volume of sound effects.
 
 ```
 SE {
@@ -1628,12 +1628,12 @@ SE {
 ```
 
 Note that:
-* The knob for the slide bar is on the far left of the active image
-* The width of the slide bar knob is equal to the height of the button
+* The knob for the slidebar is on the far left of the active image
+* The width of the slidebar knob is equal to the height of the button
 
 ## Voice (All-character) Volume Slider
 
-This button is used for setting voice (all-character) volume.
+This button is used for setting the volume of voice (all-characters).
 
 ```
 VOICE {
@@ -1648,12 +1648,12 @@ VOICE {
 ```
 
 Note that:
-* The knob for the slide bar is on the far left of the active image
-* The width of the slide bar knob is equal to the height of the button
+* The knob for the slidebar is on the far left of the active image
+* The width of the slidebar knob is equal to the height of the button
 
 ## Voice (Per-character) Volume Slider
 
-This button is used for setting voice (per-character) volume.
+This button is used for setting the volume of voice (per-character).
 
 See also "Per-character Voice Volume Settings" section.
 
@@ -1671,12 +1671,12 @@ MIDORI {
 ```
 
 Note that:
-* The knob for the slide bar is on the far left of the active image
-* The width of the slide bar knob is equal to the height of the button
+* The knob for the slidebar is on the far left of the active image
+* The width of the slidebar knob is equal to the height of the button
 
 ## Font Selection Button
 
-This button is used for setting font.
+This button is used for setting the font.
 
 ```
 FONT1 {
@@ -1692,7 +1692,7 @@ FONT1 {
 ```
 
 When there are multiple font buttons,
-the active image is displayed for the selected one.
+the active image is displayed for the selected font.
 
 ## Full Screen Button
 
@@ -1750,7 +1750,7 @@ DEFAULT {
 
 ## Page Button
 
-This button is used for moving to other GUI.
+This button is used for moving to another GUI.
 
 ```
 PAGE2 {
@@ -1784,7 +1784,7 @@ TITLE {
 
 ## Cancel Button
 
-This button closes GUI screen.
+This button closes a GUI screen.
 
 ```
 BACK {
@@ -1822,15 +1822,15 @@ CG1 {
 # Configuration Features
 
 Suika2 has a configuration file that allows customization of the application.
-Configuration file consists of `key=value` lines.
+The configuration file consists of `key=value` lines.
 Some keys are required and some are optional.
 
-Note that configuration lines beginning with `#` are ignored as comments.
+Note that configuration lines beginning with `#` are ignored and treated as comments.
 
 ## Language Settings
 
-Suika2 provides game developers only with Japanese and English error messages.
-However, it provides multiple-language stories to end users.
+Suika2 only provides game developers with Japanese and English error messages,
+however, it can provides multiple-language stories to end users.
 
 ### International Mode
 
@@ -1847,7 +1847,7 @@ when a specific system locale is set.
 For example, `language.ja=en` is an indication that the message is
 to be displayed in English when the system locale is Japanese.
 
-The default language mappings are as follows (falls back to English).
+The default language mappings are as follows (all locales fall back to English).
 ```
 language.en=en
 language.fr=en
@@ -1870,7 +1870,7 @@ Here, a window is the drawable area of the screen.
 
 This is the application title.
 
-In a desktop operating system, a window may have a title.
+On a desktop operating system, a window may have a title.
 In such an environment,
 this application title becomes the first half of the window title.
 The second half of the window title is the chapter name,
@@ -1882,7 +1882,7 @@ window.title=Suika
 
 ### Window Width and Height
 
-This is the window width and height.
+This is the width and height of the window.
 
 ```
 window.width=1280
@@ -1905,7 +1905,7 @@ window.white=1
 ### Font File Name
 
 This is the font file name.
-Font files are stored in `font` folder.
+Font files are stored in the `font` folder.
 
 ```
 font.file=VL-PGothic-Regular.ttf
@@ -1914,7 +1914,7 @@ font.file=VL-PGothic-Regular.ttf
 ### Font Size
 
 This is the font size in pixels.
-Font size is applied to name, message, history and save item text.
+The font size is applied to name, message, history and save item text.
 
 ```
 font.size=30
@@ -1922,7 +1922,7 @@ font.size=30
 
 ### Font Colors
 
-It is possible to specify the base color of the text and the outline color.
+It is possible to specify the base color of the text as well as the outline color.
 
 ```
 font.color.r=255
@@ -1945,8 +1945,8 @@ font.outline.remove=0
 
 ### Namebox Image
 
-This is the image file name of namebox.
-The file is stored in `cg` folder.
+This is the image file name of the namebox.
+The file is stored in the `cg` folder.
 
 ```
 namebox.file=namebox.png
@@ -1954,7 +1954,7 @@ namebox.file=namebox.png
 
 ### Namebox Position
 
-This is the position to show the namebox.
+This is the position at which to show the namebox.
 
 ```
 namebox.x=95
@@ -1983,7 +1983,7 @@ namebox.centering.no=0
 
 ### Namebox Visibility
 
-Game developers can choose whether or not to show namebox.
+Game developers can choose whether or not to show the namebox at all.
 
 ```
 namebox.hidden=0
@@ -1993,12 +1993,12 @@ namebox.hidden=0
 
 ### Message Box Images
 
-There are background and foreground images.
-Foreground image is used for in-box menu such as hide button.
+The message box is made up of a background and foreground image.
+The foreground image is used for utilizing an in-box menu such as a hide button.
 
 ### Message Box Position
 
-This is a position to show the message box image.
+This is the position at which to show the message box image.
 
 ```
 msgbox.x=43
@@ -2029,7 +2029,7 @@ msgbox.speed=40.0
 
 ### Position of Hide Button
 
-Message box can have hide button.
+The message box can have a hide button.
 This is optional.
 
 ```
@@ -2041,7 +2041,7 @@ msgbox.btn.hide.height=29
 
 ### Message Box Sound Effects
 
-Message box has sound effects.
+The message box has sound effects.
 
 ```
 msgbox.btn.change.se=btn-change.ogg
@@ -2064,7 +2064,7 @@ The click-waiting prompt that appears above the message box is a click animation
 
 ### Click Animation Position
 
-This is a position to show the click animation image.
+This is the position at which to show the click animation image.
 
 ```
 click.x=1170
@@ -2073,7 +2073,7 @@ click.y=660
 
 ### Following The Text
 
-Click animation is usually displayed at a fixed position,
+The click animation is usually displayed at a fixed position,
 but it can also be displayed at the end of the text.
 This is useful when making a full screen style novel.
 
@@ -2083,7 +2083,7 @@ click.move=0
 
 ### Click Animation Images
 
-First one is required, and others are optional.
+The first one is required, and others are optional.
 
 ```
 click.file1=click1.png
@@ -2104,7 +2104,7 @@ click.interval=1.0
 
 ### Click Animation Visibility
 
-Developers can hide click animation.
+Developers can hide the click animation.
 This is mainly for the visually impaired.
 
 ```
@@ -2116,8 +2116,8 @@ click.interval=1.0
 ### Option Box Images
 
 There are background and foreground images for an option box.
-Background image is displayed usually,
- but when the option box is pointed by mouse, foreground image is displayed.
+The background image is displayed by default,
+but when the option box is pointed by the mouse, the foreground image is displayed.
 
 ```
 switch.bg.file=switch-bg.png
@@ -2175,7 +2175,7 @@ switch.change.se=btn-change.ogg
 
 ## Save/Load Screen Settings
 
-Most of settings for save/load screens are defined in GUI file.
+Most of the settings for save/load screens are defined within their GUI files.
 Here, we have just one configuration.
 
 ### Save Item Thumbnail Size
@@ -2200,7 +2200,7 @@ sysmenu.y=29
 
 ### System Menu Images
 
-System menu has three images; `idle`, `hover`, `disable`.
+The system menu has three images; `idle`, `hover`, `disable`.
 `idle` is the base image.
 `hover` is displayed when the button area is pointed.
 `disable` is displayed when the button is disabled.
@@ -2234,7 +2234,7 @@ sysmenu.qsave.height=58
 
 ### System Menu Sound Effects
 
-System menu can have sound effects.
+The system menu can have sound effects.
 
 ```
 sysmenu.enter.se=click.ogg
@@ -2252,8 +2252,8 @@ sysmenu.config.se=click.ogg
 
 ### Collapsed Position
 
-This is the position to show the collapsed system menu image.
-Collapsed system menu is usually displayed, and when it is clicked, (expanded) system menu is displayed.
+This is the position at which to show the collapsed system menu image.
+The collapsed system menu is usually displayed, and when it is clicked (expanded), the system menu is displayed.
 
 ```
 sysmenu.collapsed.x=1219
@@ -2262,7 +2262,7 @@ sysmenu.collapsed.y=29
 
 ### Collapsed Images
 
-Collapsed system menu has two images; `idle` and `hover`.
+THe collapsed system menu has two images; `idle` and `hover`.
 
 ```
 sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
@@ -2271,7 +2271,7 @@ sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 
 ### Collapsed Sound Effect
 
-Collapsed system menu can have sound effect.
+The collapsed system menu can have a sound effect.
 
 ```
 sysmenu.collapsed.se=btn-change.ogg
@@ -2279,19 +2279,19 @@ sysmenu.collapsed.se=btn-change.ogg
 
 ### System Menu Visibility
 
-Game developers can decide whether collapsed system menu and system menu are visible.
+Game developers can decide whether the collapsed system menu and system menu are visible.
 
 ```
 sysmenu.hidden=0
 ```
 
 Note: This will take effect when displaying messages.
-When displaying options, collapsed system menu or system menu are always shown,
-because of lack of a way to save without the system menu.
+When displaying options, the collapsed system menu or system menu are always shown,
+this is because of a lack of a way to save without the system menu.
 
 ## Auto Mode Settings
 
-Suika2 shows auto mode banner when auto mode is enabled.
+Suika2 shows the auto mode banner when auto mode is enabled.
 
 ### Auto Mode Banner Image
 
@@ -2312,8 +2312,8 @@ automode.banner.y=126
 
 ### Auto Mode Speed
 
-This is a speed of auto mode.
-Wait time for the message is `automode.speed` seconds per character.
+This is the speed of auto mode.
+The wait time for the message is `automode.speed` seconds per character.
 
 ```
 automode.speed=0.15
@@ -2321,7 +2321,7 @@ automode.speed=0.15
 
 ## Skip Mode Settings
 
-Suika2 shows skip mode banner when skip mode is enabled.
+Suika2 shows skip the mode banner when skip mode is enabled.
 
 ### Skip Mode Banner Image
 
@@ -2342,7 +2342,7 @@ skipmode.banner.y=186
 
 ## Initial Sound Volumes
 
-These are the sound volume values for the initial boot time.
+These are the sound volume values for initial boot time.
 If a user has the save data,
 then the volume settings in the save data will be used
 instead of the initial sound volumes.
@@ -2356,18 +2356,18 @@ sound.vol.character=1.0
 
 ## Per-character Voice Volume Settings
 
-If the character name of a line matches to the name list,
-then the per-character volume will be applied.
+If the character name of a line matches to one from the name list,
+then the respective per-character volume will be applied.
 
 Per-character volumes can be set in the config screen. (#0 to #15)
 See also "Voice (Per-character) Volume Slider" section.
 
 Developers can specify the names for up to 15 characters. (#1 to #15)
 
-If the character name of the message doesn't match the name list,
+If the character name of the message doesn't match a name from the name list,
 then the #0 per-character volume will be used.
 
-The following is the example of name list.
+The following is an example of name list.
 ```
 sound.character.name1=Midori
 ```
@@ -2377,7 +2377,7 @@ sound.character.name1=Midori
 Game developers can specify text colors for up to 64 characters.
 Colors are defined for each character by name.
 
-To use character message color, write the following.
+To use character message colors, write the following.
 ```
 serif.color1.name=Haruka
 serif.color1.r=255
@@ -2391,7 +2391,7 @@ serif.color1.outline.b=0
 ## UI Messages
 
 User interface messages can be localized.
-However, they can not be multilingualized at this moment.
+However, they can not be multilingualized at this time.
 
 ```
 ui.msg.quit=Are you sure you want to quit?
@@ -2403,7 +2403,7 @@ ui.msg.default=Are you sure you want to reset the settings?
 
 ## Miscellaneous
 
-There are detailed config items according to individual user requirements.
+These are detailed config items according to individual user requirements.
 
 ### Voice Continues On Click
 
@@ -2431,7 +2431,7 @@ window.fullscreen.disable=1
 ### Window Maximization
 
 This option disables window maximization.
-If game developers don't want to allow maximization of Window,
+If game developers don't want to allow maximization of the window,
 write the following line.
 ```
 window.maximize.disable=1
@@ -2439,7 +2439,7 @@ window.maximize.disable=1
 
 ### Window Title Separator
 
-Window title consists of the application title and the chapter name.
+The window title consists of the application title and the chapter name.
 This separator is added between the application title and the chapter name.
 
 To set the separator, write the following line. Note that there is a space after `=`.
@@ -2449,9 +2449,9 @@ window.title.separator=
 
 ### Chapter Name
 
-Game developers can decide whether to show chapter name in window title.
+Game developers can decide whether to show chapter names in the window title.
 
-To hide chapter name from window title, write the following setting.
+To hide the chapter name from the window title, write the following line.
 ```
 window.title.chapter.disable=1
 ```
@@ -2459,10 +2459,10 @@ window.title.chapter.disable=1
 ### Show Message Box On Character Change
 
 By default, the message box disappears while characters are changing.
-With this option, developers can decide whether to display message box
+With this option, developers can decide whether to display the message box
 while character is changing.
 
-To enable this option, write the following setting.
+To enable this option, write the following line.
 ```
 msgbox.show.on.ch=1
 ```
@@ -2474,7 +2474,7 @@ If this configuration is enabled,
 save data will be stored in OS-specific locations such as 'AppData' on Windows
 and 'Library' on macOS.
 
-To enable release mode, write the following setting.
+To enable release mode, write the following line.
 ```
 release=1
 ```
@@ -2488,20 +2488,20 @@ The default value for these is `0.5`.
 
 # Package
 
-Package is an archive file which contains all game data except video files.
+Package is an archive file that contains all game data except video files.
 The package file name is `data01.arc`.
 
 ## Package Generation
 
-To generate package file, developers can use `pack` program or `Suika2 Pro for Creators`.
+To generate a package file, developers can use the `pack` program or `Suika2 Pro for Creators`.
 
 ## Package Obfuscation
 
-Obfuscation key is stored in `key.h`, and developers can change the value for their games.
+The obfuscation key is stored in `key.h`, and developers can change the value for their games.
 
 ## Package Usage
 
-To use package file, put it in the folder which contains Suika2 application (app folder).
+To use a package file, put it in the folder that contains a Suika2 application (app folder).
 Game data folders (e.g., `bg`, `ch`, `bgm` and etc.) must be excluded from the app folder.
 If the game data folder exists in the app folder, Suika2 uses the files in the game data folder instead of the files in the package file.
 
@@ -2511,7 +2511,7 @@ If the game data folder exists in the app folder, Suika2 uses the files in the g
 
 ## Text File Format
 
-Script files, GUI files and config file are plain text file.
+Script files, GUI files and config file are plain text files.
 
 ### Encoding
 
@@ -2525,7 +2525,7 @@ These can be mixed.
 ## Image File Formats
 
 PNG and JPEG are supported.
-Note that gray scaled JPEG is not supported.
+Note that gray scaled JPEG images are not supported.
 
 ## Audio File Format
 
@@ -2540,9 +2540,9 @@ On macOS, `.mp4` with H.264 and AAC is the recommended format.
 QuickTime (`.mov` or `.qt`) will work too.
 
 On Linux, any format supported by Gstreamer will work.
-Game developers must instruct end users to install neccesary Gstreamer plugin.
+Game developers must instruct end users to install the neccesary Gstreamer plugin.
 
-In the future, it is planned to move to `.mp4` with H.264 and AAC on all platforms.
+In the future, there are plans to move to `.mp4` with H.264 and AAC on all platforms.
 
 ***
 
@@ -2566,20 +2566,20 @@ The evaluation is based on the 6th generation Core i7 and its built-in GPU.
 
 Suika2 needs to speed up vector operations as much as possible.
 
-On Intel/AMD platforms, Suika2 support SSE, SSE2, SSE3, SSE4.1, SSE4.2, AVX and AVX2.
+On Intel/AMD platforms, Suika2 supports SSE, SSE2, SSE3, SSE4.1, SSE4.2, AVX and AVX2.
 Suika2 automatically chooses the fastest extension.
-Currently, AVX512 is not supported because of lack of test machine.
+Currently, AVX512 is not supported because of the lack of a test machine.
 
 ### GPU
 
-On a desktop OS, Suika2 uses GPU acceleration when possible and otherwise
-it falls back to 2D rendering because of the compatibility.
+On a desktop OS, Suika2 uses GPU acceleration when possible, otherwise
+it falls back to 2D rendering for compatibility purposes.
 
-On other environments, Suika2 always uses GPU acceleration because
-the CPU may be non-powerful enough.
+On other environments, Suika2 will always use GPU acceleration because
+the CPU may not be powerful enough.
 
-Suika2 uses its own 2D rendering engine if GPU acceleration is not available.
-However, this fallback will be removed in the future.
+Suika2 uses its own 2D rendering engine if GPU acceleration is not available,
+however, this fallback will be removed in the future.
 
 Note that offscreen renderings are not GPU accelerated and done by 2D rendering.
 
@@ -2589,7 +2589,7 @@ The frame rate is set as high as 60 fps,
 within the range that the OS determines Suika2's CPU utilization to be "low".
 
 On Windows and Linux, if the GPU acceleration is enabled,
-the target frames rate is 60fps, and if not, 30fps.
+the target frame rate is 60fps, and if not, 30fps.
 
 On macOS, the target frame rate is 30fps.
 
