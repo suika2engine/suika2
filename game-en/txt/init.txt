@@ -208,7 +208,7 @@ If there's anything you want to customize, but can't, please contact the author.
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*Midori*If you have any questions, send me an email at midori@luxion.jp anytime!
+*Midori*If you have any questions, send me an email at midori@suika2.com anytime!
 
 @vol bgm 0.5 1.0
 @ch c none 1.0

@@ -135,6 +135,13 @@ char *conf_msgbox_show_se;
 char *conf_msgbox_auto_cancel_se;
 char *conf_msgbox_skip_cancel_se;
 int conf_msgbox_skip_unseen;
+int conf_msgbox_dim;
+int conf_msgbox_dim_color_r;
+int conf_msgbox_dim_color_g;
+int conf_msgbox_dim_color_b;
+int conf_msgbox_dim_color_outline_r;
+int conf_msgbox_dim_color_outline_g;
+int conf_msgbox_dim_color_outline_b;
 
 /*
  * クリックアニメーションの設定
@@ -483,6 +490,13 @@ struct rule {
 	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},
 	{"msgbox.show.se", 's', &conf_msgbox_show_se, true, false},
 	{"msgbox.skip.unseen", 'i', &conf_msgbox_skip_unseen, true, false},
+	{"msgbox.dim", 'i', &conf_msgbox_dim, true, false},
+	{"msgbox.dim.color.r", 'i', &conf_msgbox_dim_color_r, true, false},
+	{"msgbox.dim.color.g", 'i', &conf_msgbox_dim_color_g, true, false},
+	{"msgbox.dim.color.b", 'i', &conf_msgbox_dim_color_b, true, false},
+	{"msgbox.dim.color.outline.r", 'i', &conf_msgbox_dim_color_outline_r, true, false},
+	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, true, false},
+	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, true, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
 	{"click.move", 'i', &conf_click_move, true, false},

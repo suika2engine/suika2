@@ -100,14 +100,22 @@ static bool is_nvl_mode;
 static int pen_x;
 static int pen_y;
 
+/* 前回の描画開始位置 */
+static int orig_pen_x;
+static int orig_pen_y;
+
 /* メッセージボックスの位置とサイズ */
 static int msgbox_x;
 static int msgbox_y;
 static int msgbox_w;
 static int msgbox_h;
 
-/* 描画するメッセージ */
+/* 描画するメッセージの現在の先頭 */
 static const char *msg;
+
+/* 描画するメッセージの本来の先頭 */
+static const char *msg_top;
+
 
 /* 文字の色 */
 static pixel_t color;
@@ -153,6 +161,9 @@ static bool is_sysmenu_finished;
 
 /* 折りたたみシステムメニューが前のフレームでポイントされていたか */
 static bool is_collapsed_sysmenu_pointed_prev;
+
+/* 重ね塗りしているか */
+bool is_overcoating;
 
 /*
  * 前方参照
@@ -200,7 +211,7 @@ static bool is_collapsed_sysmenu_pointed(void);
 static void draw_banners(int *x, int *y, int *w, int *h);
 static void play_se(const char *file);
 static bool is_skippable(void);
-static bool cleanup(void);
+static bool cleanup(int *x, int *y, int *w, int *h);
 
 /*
  * メッセージ・セリフコマンド
@@ -269,7 +280,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 
 	/* 終了処理を行う */
 	if (!is_in_command_repetition())
-		if (!cleanup())
+		if (!cleanup(x, y, w, h))
 			return false;
 
 	/* ロードされて最初のフレームの場合、画面全体を描画する */
@@ -331,7 +342,8 @@ static bool init(int *x, int *y, int *w, int *h)
 	raw_msg = get_command_type() == COMMAND_MESSAGE ?
 		get_string_param(MESSAGE_PARAM_MESSAGE) :
 		get_string_param(SERIF_PARAM_MESSAGE);
-	msg = expand_variable(raw_msg);
+	msg_top = expand_variable(raw_msg);
+	msg = msg_top;
 
 	/* 先頭が'\'である場合(NVLモード)を処理する */
 	if (msg[0] == '\\') {
@@ -372,6 +384,8 @@ static bool init(int *x, int *y, int *w, int *h)
 		pen_x = conf_msgbox_margin_left;
 		pen_y = conf_msgbox_margin_top;
 	}
+	orig_pen_x = pen_x;
+	orig_pen_y = pen_y;
 
 	/* メッセージボックスの矩形を取得する */
 	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
@@ -414,6 +428,9 @@ static bool init(int *x, int *y, int *w, int *h)
 	is_sysmenu = false;
 	is_sysmenu_finished = false;
 	is_collapsed_sysmenu_pointed_prev = false;
+
+	/* 重ね塗りでない状態にする */
+	is_overcoating = false;
 
 	/* ボタンの選択状態を取得する */
 	init_pointed_index();
@@ -763,6 +780,12 @@ static int get_frame_chars(void)
 
 	/* セーブ画面かヒストリ画面かコンフィグ画面から復帰した場合 */
 	if (gui_flag) {
+		/* すべての文字を描画する */
+		return total_chars;
+	}
+
+	/* 重ね塗りする場合 */
+	if (is_overcoating) {
 		/* すべての文字を描画する */
 		return total_chars;
 	}
@@ -2262,7 +2285,7 @@ static bool is_skippable(void)
 }
 
 /* 終了処理を行う */
-static bool cleanup(void)
+static bool cleanup(int *x, int *y, int *w, int *h)
 {
 	/* PCMストリームの再生を終了する */
 	if (!conf_voice_stop_off)
@@ -2278,6 +2301,24 @@ static bool cleanup(void)
 
 	/* 既読にする */
 	set_seen();
+
+	/* NVLモードで重ね塗りをする場合 */
+	if (conf_msgbox_dim) {
+		is_overcoating = true;
+		msg = msg_top;
+		drawn_chars = 0;
+		pen_x = orig_pen_x;
+		pen_y = orig_pen_y;
+		color = make_pixel_slow(0xff,
+					(uint32_t)conf_msgbox_dim_color_r,
+					(uint32_t)conf_msgbox_dim_color_g,
+					(uint32_t)conf_msgbox_dim_color_b);
+		outline_color = make_pixel_slow(0xff,
+						(uint32_t)conf_msgbox_dim_color_outline_r,
+						(uint32_t)conf_msgbox_dim_color_outline_g,
+						(uint32_t)conf_msgbox_dim_color_outline_b);
+		draw_msgbox(x, y, w, h);
+	}
 
 	/* 次のコマンドに移動する */
 	if (!did_quick_load && !need_save_mode && !need_load_mode &&

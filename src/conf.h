@@ -133,6 +133,13 @@ extern char *conf_msgbox_show_se;
 extern char *conf_msgbox_auto_cancel_se;
 extern char *conf_msgbox_skip_cancel_se;
 extern int conf_msgbox_skip_unseen;
+extern int conf_msgbox_dim;
+extern int conf_msgbox_dim_color_r;
+extern int conf_msgbox_dim_color_g;
+extern int conf_msgbox_dim_color_b;
+extern int conf_msgbox_dim_color_outline_r;
+extern int conf_msgbox_dim_color_outline_g;
+extern int conf_msgbox_dim_color_outline_b;
 
 /*
  * クリックアニメーションの設定

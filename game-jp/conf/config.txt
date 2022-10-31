@@ -119,6 +119,15 @@ msgbox.skip.cancel.se=click.ogg
 # 未読でもスキップする (1: スキップする, 0: スキップしない, 省略時0)
 msgbox.skip.unseen=0
 
+# 全画面小説モードで読んだメッセージを暗くするための設定 (dim=0:無効, dim=1:enable, optional)
+msgbox.dim=0
+msgbox.dim.color.r=80
+msgbox.dim.color.g=80
+msgbox.dim.color.b=80
+msgbox.dim.color.outline.r=40
+msgbox.dim.color.outline.g=40
+msgbox.dim.color.outline.b=40
+
 ###
 ### クリックアニメーションの設定
 ###
