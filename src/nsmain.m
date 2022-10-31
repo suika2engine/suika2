@@ -48,6 +48,9 @@ static FILE *logFp;
 // 動画プレーヤー
 static AVPlayer *player;
 
+// 動画プレーヤーのレイヤー
+static AVPlayerLayer *playerLayer;
+
 // 動画再生状態
 static BOOL isMoviePlaying;
 
@@ -377,6 +380,10 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
         screenScale = (float)conf_window_height / height;
     }
 
+    // 動画プレーヤレイヤのサイズを更新する
+    if(playerLayer != nil)
+        [playerLayer setFrame:NSMakeRect(0, 0, width, height)];
+
     // スクリーンサイズを返す
     return NSMakeSize(width, height);
 }
@@ -392,6 +399,13 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 // フルスクリーンから戻るときに呼び出される
 - (void)windowWillExitFullScreen:(NSNotification *)notification {
     isFullScreen = NO;
+
+    // 動画プレーヤレイヤのサイズを元に戻す
+    if(playerLayer != nil) {
+        [playerLayer setFrame:NSMakeRect(0, 0,
+                                         savedFrame.size.width,
+                                         savedFrame.size.height)];
+    }
 
     [theWindow setFrame:savedFrame display:YES animate:NO];
     screenScale = 1.0f;
@@ -1050,7 +1064,7 @@ bool play_video(const char *fname, bool is_skippable)
 
     // プレーヤーのレイヤーを作成する
     [theView setWantsLayer:YES];
-    AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+    playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
     [playerLayer setFrame:theView.bounds];
     [theView.layer addSublayer:playerLayer];
 
@@ -1075,6 +1089,8 @@ void stop_video(void)
     if (player != nil)
         [player replaceCurrentItemWithPlayerItem:nil];
     isMoviePlaying = NO;
+    player = nil;
+    playerLayer = nil;
 
     // OpenGLのレンダリングを開始する
     opengl_end_rendering();
