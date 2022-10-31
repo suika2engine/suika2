@@ -3,7 +3,7 @@
 ###  - Note that when given the option of '0' or '1' in 'optional' settings,
 ###    '0' is default unless otherwise noted.
 ###  - It's good practice to keep a default configuration file for reference.
-###  – Be careful when migrating your config.txt file between Suika2 versions,
+###  - Be careful when migrating your config.txt file between Suika2 versions,
 ###    removing configuration settings or their values will result in errors.
 ###
 
@@ -147,6 +147,15 @@ msgbox.skip.cancel.se=click.ogg
 
 # Unseen messages (0: don't skip, 1: skip)
 msgbox.skip.unseen=0
+
+# Settings for dimming read messages in NVL mode (dim=0:disable, dim=1:enable, optional)
+msgbox.dim=0
+msgbox.dim.color.r=80
+msgbox.dim.color.g=80
+msgbox.dim.color.b=80
+msgbox.dim.color.outline.r=40
+msgbox.dim.color.outline.g=40
+msgbox.dim.color.outline.b=40
 
 ###
 ### Click Animation Settings
