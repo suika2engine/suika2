@@ -451,6 +451,12 @@ The hex RGB color specifier (e.g., `#0088ff`) may be used instead of an image fi
 
 When `@bg` is run, the originally displayed background as well as any character images
 are removed from the stage.
+Game developers can use [`@chs`](#changing-characters-and-background-at-once-chs) instead of `@bg`
+when they want to keep character images on the stage.
+
+If you are looking for a way to keep your characters from disappearing when
+you change the background, write the following command:
+
 
 Fade-ins are accompanied by transition effects.
 The following is the list of effects types.
@@ -888,6 +894,13 @@ The character specification order is `center`, `right`, `left` and `back`.
 The effect types are the same as ["Showing a Background (`@bg`)"](#showing-a-background-bg).
 
 "chs" is an abbreviation of "change stage".
+
+### Special Usage
+
+The following script changes background image while leaving the characters in place with a 1.0 second fade time.
+```
+@chs stay stay stay stay 1.0 background.png
+```
 
 ### Usage 1
 
