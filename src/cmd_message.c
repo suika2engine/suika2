@@ -2306,6 +2306,8 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 	if (conf_msgbox_dim) {
 		is_overcoating = true;
 		msg = msg_top;
+		if (msg[0] == '\\')
+			msg++;
 		drawn_chars = 0;
 		pen_x = orig_pen_x;
 		pen_y = orig_pen_y;
