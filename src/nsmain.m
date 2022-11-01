@@ -1094,7 +1094,7 @@ void stop_video(void)
     playerLayer = nil;
 
     // OpenGLのレンダリングを開始する
-    opengl_end_rendering();
+    opengl_start_rendering();
 }
 
 //

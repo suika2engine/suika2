@@ -384,8 +384,10 @@ static bool init(int *x, int *y, int *w, int *h)
 		pen_x = conf_msgbox_margin_left;
 		pen_y = conf_msgbox_margin_top;
 	}
-	orig_pen_x = pen_x;
-	orig_pen_y = pen_y;
+	if (!gui_flag) {
+		orig_pen_x = pen_x;
+		orig_pen_y = pen_y;
+	}
 
 	/* メッセージボックスの矩形を取得する */
 	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
@@ -780,6 +782,12 @@ static int get_frame_chars(void)
 
 	/* セーブ画面かヒストリ画面かコンフィグ画面から復帰した場合 */
 	if (gui_flag) {
+		/* NVLモードの場合 */
+		if (is_nvl_mode) {
+			drawn_chars = total_chars;
+			return 0;
+		}
+
 		/* すべての文字を描画する */
 		return total_chars;
 	}
@@ -2303,9 +2311,13 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 	set_seen();
 
 	/* NVLモードで重ね塗りをする場合 */
-	if (conf_msgbox_dim) {
+	if (conf_msgbox_dim &&
+	    (!did_quick_load && !need_save_mode && !need_load_mode &&
+	     !need_history_mode && !need_config_mode)) {
 		is_overcoating = true;
 		msg = msg_top;
+		if (msg[0] == '\\')
+			msg++;
 		drawn_chars = 0;
 		pen_x = orig_pen_x;
 		pen_y = orig_pen_y;
