@@ -1708,7 +1708,7 @@ static void draw_history_text_item(int button_index)
 			/* エスケープ文字であるとき */
 			if (c == CHAR_BACKSLASH || c == CHAR_YENSIGN) {
 				escaped = true;
-				text += mblen;
+				button[button_index].rt.top += mblen;
 				continue;
 			}
 		} else if (escaped) {
@@ -1719,7 +1719,7 @@ static void draw_history_text_item(int button_index)
 				button[button_index].rt.pen_x =
 					button[button_index].margin;
 				escaped = false;
-				text += mblen;
+				button[button_index].rt.top += mblen;
 				continue;
 			}
 
