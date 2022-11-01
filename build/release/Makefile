@@ -24,6 +24,7 @@ suika-2.x.x-en.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ..
 	cp -Rv ../../game-en/gui/* suika2/gui/
 	mkdir suika2/rule
 	cp -Rv ../../game-en/rule/* suika2/rule/
+	mkdir suika2/mov
 	mkdir suika2/se
 	cp -Rv ../../game-en/se/* suika2/se/
 	mkdir suika2/txt
@@ -58,6 +59,7 @@ suika-2.x.x-jp.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ..
 	cp -Rv ../../game-jp/gui/* suika2/gui/
 	mkdir suika2/rule
 	cp -Rv ../../game-jp/rule/* suika2/rule/
+	mkdir suika2/mov
 	mkdir suika2/se
 	cp -Rv ../../game-jp/se/* suika2/se/
 	mkdir suika2/txt
