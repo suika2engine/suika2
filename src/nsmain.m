@@ -1056,6 +1056,7 @@ bool play_video(const char *fname, bool is_skippable)
     char *path = make_valid_path(MOV_DIR, fname);
     NSString *nsPath = [[NSString alloc] initWithUTF8String:path];
     free(path);
+    nsPath = [nsPath stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];
     NSURL *url = [NSURL URLWithString:[@"file://" stringByAppendingString:nsPath]];
 
     // プレーヤーを作成する
