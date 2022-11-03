@@ -543,7 +543,7 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 	    ||
 	    (!is_non_interruptible() &&
 	     !(is_skip_mode() && is_skippable()) &&
-	     ((!is_control_pressed || !is_skippable()) &&
+	     ((is_auto_mode() || (!is_control_pressed || !is_skippable())) &&
 	      !gui_flag &&
 	      !is_message_registered()))) {
 		/* いったんボイスなしの判断にしておく(あとで変更する) */
@@ -806,7 +806,7 @@ static int get_frame_chars(void)
 
 	/* 入力によりスキップされた場合 */
 	if (is_skippable() && !is_non_interruptible() &&
-	    (is_skip_mode() || is_control_pressed)) {
+	    (is_skip_mode() || (!is_auto_mode() && is_control_pressed))) {
 		/* 繰り返し動作を停止する */
 		stop_command_repetition();
 
@@ -1037,7 +1037,7 @@ static void init_pointed_index(void)
 static void init_repetition(void)
 {
 	if (is_skippable() && !is_non_interruptible() &&
-	    (is_skip_mode() || is_control_pressed)) {
+	    (is_skip_mode() || (!is_auto_mode() && is_control_pressed))) {
 		/* 繰り返し動作せず、すぐに表示する */
 	} else {
 		/* コマンドが繰り返し呼び出されるようにする */
@@ -2053,7 +2053,8 @@ static void frame_main(int *x, int *y, int *w, int *h)
 		/* 入力があったらボイスを止める */
 		if (!conf_voice_stop_off &&
 		    (is_skippable() && !is_non_interruptible() &&
-		     (is_skip_mode() || is_control_pressed)))
+		     (is_skip_mode() ||
+		      (!is_auto_mode() && is_control_pressed))))
 			set_mixer_input(VOICE_STREAM, NULL);
 
 		/* 文字かクリックアニメーションを描画する */

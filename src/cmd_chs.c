@@ -14,8 +14,8 @@
 #include "suika.h"
 
 /* キャラクタレイヤ数+背景レイヤの配列 */
-#define PARAM_SIZE	(CH_LAYERS + 1)
-#define BG_INDEX	(CH_LAYERS)
+#define PARAM_SIZE	(CH_BASIC_LAYERS + 1)
+#define BG_INDEX	(CH_BASIC_LAYERS)
 
 static stop_watch_t sw;
 static float span;
