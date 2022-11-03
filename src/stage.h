@@ -28,12 +28,13 @@
 
 /* キャラクタの位置 */
 enum ch_position {
-	CH_BACK,
-	CH_LEFT,
-	CH_RIGHT,
-	CH_CENTER,
-	CH_FACE,
-	CH_LAYERS
+	CH_BACK = 0,
+	CH_LEFT = 1,
+	CH_RIGHT = 2,
+	CH_CENTER = 3,
+	CH_BASIC_LAYERS = 4,
+	CH_FACE = 4,
+	CH_ALL_LAYERS = 5,
 };
 
 /* フェードメソッド */

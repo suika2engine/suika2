@@ -174,7 +174,7 @@ static int layer_blend[STAGE_LAYERS];
 static char *bg_file_name;
 
 /* キャライメージ名 */
-static char *ch_file_name[CH_LAYERS];
+static char *ch_file_name[CH_ALL_LAYERS];
 
 /* STAGE_MODE_BG_FADEのときの新しい背景 */
 struct image *new_bg_img;
@@ -286,7 +286,7 @@ bool init_stage(void)
 		free(bg_file_name);
 		bg_file_name = NULL;
 	}
-	for (i = 0; i < CH_LAYERS; i++) {
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
 		if (ch_file_name[i] != NULL) {
 			free(ch_file_name[i]);
 			ch_file_name[i] = NULL;
@@ -823,7 +823,7 @@ void cleanup_stage(void)
 		free(bg_file_name);
 		bg_file_name = NULL;
 	}
-	for (i = 0; i < CH_LAYERS; i++) {
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
 		if (ch_file_name[i] != NULL) {
 			free(ch_file_name[i]);
 			ch_file_name[i] = NULL;
@@ -2582,7 +2582,7 @@ void stop_bg_fade(void)
  */
 bool set_ch_file_name(int pos, const char *file)
 {
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 	assert(file == NULL || strcmp(file, "") != 0);
 	       
 	if (ch_file_name[pos] != NULL)
@@ -2606,7 +2606,7 @@ bool set_ch_file_name(int pos, const char *file)
  */
 const char *get_ch_file_name(int pos)
 {
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 
 	return ch_file_name[pos];
 }
@@ -2618,7 +2618,7 @@ void get_ch_position(int pos, int *x, int *y)
 {
 	int layer;
 
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 
 	layer = pos_to_layer(pos);
 	*x = layer_x[layer];
@@ -2632,7 +2632,7 @@ int get_ch_alpha(int pos)
 {
 	int layer;
 
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 
 	layer = pos_to_layer(pos);
 	return layer_alpha[layer];
@@ -2645,7 +2645,7 @@ void change_ch_immediately(int pos, struct image *img, int x, int y, int alpha)
 {
 	int layer;
 
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 
 	layer = pos_to_layer(pos);
 	destroy_layer_image(layer);
@@ -2662,7 +2662,7 @@ void change_ch_attributes(int pos, int x, int y, int alpha)
 {
 	int layer;
 
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 
 	layer = pos_to_layer(pos);
 	layer_x[layer] = x;
@@ -2678,7 +2678,7 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	int layer;
 
 	assert(stage_mode == STAGE_MODE_IDLE);
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 
 	stage_mode = STAGE_MODE_CH_FADE;
 
@@ -2751,7 +2751,7 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
-	for (i = 0; i < CH_LAYERS; i++) {
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
 		if (!stay[i]) {
 			layer = pos_to_layer(i);
 			destroy_layer_image(layer);
@@ -2763,8 +2763,8 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 	}
 
 	/* 背景を入れ替える */
-	if (!stay[CH_LAYERS])
-		layer_image[LAYER_BG] = img[CH_LAYERS];
+	if (!stay[CH_ALL_LAYERS])
+		layer_image[LAYER_BG] = img[CH_ALL_LAYERS];
 
 	/* キャラフェードインレイヤにステージを描画する */
 	lock_image(layer_image[LAYER_FI]);
@@ -2818,7 +2818,7 @@ void start_ch_anime(int pos, int to_x, int to_y, int to_alpha)
 	int layer, i;
 
 	assert(stage_mode == STAGE_MODE_IDLE);
-	assert(pos >= CH_BACK && pos < CH_LAYERS);
+	assert(pos >= 0 && pos < CH_ALL_LAYERS);
 
 	stage_mode = STAGE_MODE_CH_ANIME;
 

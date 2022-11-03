@@ -529,7 +529,7 @@ static bool serialize_stage(struct wfile *wf)
 	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
 		return false;
 
-	for (i = CH_BACK; i < CH_LAYERS; i++) {
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
 		get_ch_position(i, &m, &n);
 		o = get_ch_alpha(i);
 		if (write_wfile(wf, &m, sizeof(m)) < sizeof(m))
@@ -808,7 +808,7 @@ static bool deserialize_stage(struct rfile *rf)
 
 	change_bg_immediately(img);
 
-	for (i = CH_BACK; i < CH_LAYERS; i++) {
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
 		if (read_rfile(rf, &m, sizeof(m)) < sizeof(n))
 			return false;
 		if (read_rfile(rf, &n, sizeof(n)) < sizeof(m))
