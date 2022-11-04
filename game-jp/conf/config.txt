@@ -119,7 +119,7 @@ msgbox.skip.cancel.se=click.ogg
 # 未読でもスキップする (1: スキップする, 0: スキップしない, 省略時0)
 msgbox.skip.unseen=0
 
-# 全画面小説モードで読んだメッセージを暗くするための設定 (dim=0:無効, dim=1:enable, optional)
+# 全画面小説モードで読んだメッセージを暗くするための設定 (dim=0:無効, dim=1:有効, 省略可)
 msgbox.dim=0
 msgbox.dim.color.r=80
 msgbox.dim.color.g=80
@@ -175,7 +175,7 @@ switch.margin.y=20
 # 選択肢画像のテキストの縦方向マージン
 switch.text.margin.y=12
 
-# ポイントされた項目のテキスト色 (active=0:disable, active=1:enable) (省略可)
+# ポイントされた項目のテキスト色 (active=0:無効, active=1:有効) (省略可)
 switch.color.active=0
 switch.color.active.body.r=255
 switch.color.active.body.g=0
