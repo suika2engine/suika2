@@ -2751,7 +2751,7 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
+	for (i = 0; i < CH_BASIC_LAYERS; i++) {
 		if (!stay[i]) {
 			layer = pos_to_layer(i);
 			destroy_layer_image(layer);
@@ -2763,8 +2763,10 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 	}
 
 	/* 背景を入れ替える */
-	if (!stay[CH_ALL_LAYERS])
-		layer_image[LAYER_BG] = img[CH_ALL_LAYERS];
+	if (!stay[CH_BASIC_LAYERS]) {
+		destroy_layer_image(LAYER_BG);
+		layer_image[LAYER_BG] = img[CH_BASIC_LAYERS];
+	}
 
 	/* キャラフェードインレイヤにステージを描画する */
 	lock_image(layer_image[LAYER_FI]);
