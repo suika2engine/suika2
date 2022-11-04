@@ -1336,7 +1336,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 {
 	if (bD3D)
 	{
-		if (D3DLockTexture(width, height, pixels, locked_pixels, texture))
+		if (!D3DLockTexture(width, height, pixels, locked_pixels, texture))
 			return false;
 	}
 	else if (bOpenGL)
