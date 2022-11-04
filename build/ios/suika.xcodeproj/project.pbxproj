@@ -56,6 +56,8 @@
 		26B385E426D134EE000A7A1C /* cmd_bgm.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385BC26D134EE000A7A1C /* cmd_bgm.c */; };
 		26B385E626D13511000A7A1C /* data01.arc in Resources */ = {isa = PBXBuildFile; fileRef = 26B385E526D13510000A7A1C /* data01.arc */; };
 		26B5E727285F561200450A2B /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26B5E726285F561200450A2B /* Launch Screen.storyboard */; };
+		26D910C12914C8D700876016 /* cmd_gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D910BF2914C8D700876016 /* cmd_gui.c */; };
+		26D910C22914C8D700876016 /* gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D910C02914C8D700876016 /* gui.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -135,6 +137,9 @@
 		26B385BC26D134EE000A7A1C /* cmd_bgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_bgm.c; path = ../../src/cmd_bgm.c; sourceTree = "<group>"; };
 		26B385E526D13510000A7A1C /* data01.arc */ = {isa = PBXFileReference; lastKnownFileType = file; path = data01.arc; sourceTree = "<group>"; };
 		26B5E726285F561200450A2B /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		26D910BE2914C8D700876016 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../../src/gui.h; sourceTree = "<group>"; };
+		26D910BF2914C8D700876016 /* cmd_gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_gui.c; path = ../../src/cmd_gui.c; sourceTree = "<group>"; };
+		26D910C02914C8D700876016 /* gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gui.c; path = ../../src/gui.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +197,7 @@
 				26B3858F26D134EE000A7A1C /* cmd_click.c */,
 				26B3858D26D134EE000A7A1C /* cmd_gosub.c */,
 				26B3859726D134EE000A7A1C /* cmd_goto.c */,
+				26D910BF2914C8D700876016 /* cmd_gui.c */,
 				26B385BA26D134EE000A7A1C /* cmd_if.c */,
 				26B385AA26D134EE000A7A1C /* cmd_load.c */,
 				26B385B026D134EE000A7A1C /* cmd_menu.c */,
@@ -219,6 +225,8 @@
 				260C731D28730C9E0057B37E /* glrender.h */,
 				26B3858A26D134EE000A7A1C /* glyph.c */,
 				26B3859426D134EE000A7A1C /* glyph.h */,
+				26D910C02914C8D700876016 /* gui.c */,
+				26D910BE2914C8D700876016 /* gui.h */,
 				26B3859326D134EE000A7A1C /* history.c */,
 				26B385A426D134EE000A7A1C /* history.h */,
 				26B3859026D134EE000A7A1C /* image.c */,
@@ -346,6 +354,7 @@
 				26B385D326D134EE000A7A1C /* cmd_wait.c in Sources */,
 				26B385CE26D134EE000A7A1C /* cmd_vol.c in Sources */,
 				26B385D426D134EE000A7A1C /* wave.c in Sources */,
+				26D910C12914C8D700876016 /* cmd_gui.c in Sources */,
 				26B385D226D134EE000A7A1C /* mixer.c in Sources */,
 				26B385DF26D134EE000A7A1C /* scbuf.c in Sources */,
 				26B385CD26D134EE000A7A1C /* history.c in Sources */,
@@ -354,6 +363,7 @@
 				26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */,
 				2689F3C1288C06E600BEF444 /* readimage.c in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,
+				26D910C22914C8D700876016 /* gui.c in Sources */,
 				26B231BA285F454B0058D377 /* cmd_skip.c in Sources */,
 				26B385D826D134EE000A7A1C /* script.c in Sources */,
 				26B385BD26D134EE000A7A1C /* cmd_chs.c in Sources */,
