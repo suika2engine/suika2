@@ -62,8 +62,6 @@
 		2623918A288C024100C7DF81 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26239188288C024100C7DF81 /* readjpeg.c */; };
 		26247D7B2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
 		26247D7C2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
-		26410A74290DF9B0002962BB /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26410A73290DF9B0002962BB /* AVFoundation.framework */; };
-		26410A76290DF9BA002962BB /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26410A75290DF9BA002962BB /* AVKit.framework */; };
 		2646C361284C635D00DF86E1 /* cmd_skip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2646C360284C635D00DF86E1 /* cmd_skip.c */; };
 		26557B0E26785269000CDD10 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26557B0D26785269000CDD10 /* cmd_setsave.c */; };
 		265EA7CC285732E000A02167 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CB285732E000A02167 /* Credits.rtf */; };
@@ -220,8 +218,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26410A76290DF9BA002962BB /* AVKit.framework in Frameworks */,
-				26410A74290DF9B0002962BB /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,7 +598,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.5;
+				MARKETING_VERSION = 2.11.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -647,7 +643,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.5;
+				MARKETING_VERSION = 2.11.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -804,7 +800,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.5;
+				MARKETING_VERSION = 2.11.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -848,7 +844,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.5;
+				MARKETING_VERSION = 2.11.6;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",

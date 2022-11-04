@@ -630,6 +630,14 @@ bool default_dialog(void)
 }
 
 //
+// 上書きダイアログを表示する
+//
+bool overwrite_dialog(void)
+{
+    return true;
+}
+
+//
 // ビデオを再生する
 //
 bool play_video(const char *fname, bool is_skippable)
