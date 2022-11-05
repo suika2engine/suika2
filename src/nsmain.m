@@ -67,6 +67,7 @@ static void closeLog(void);
 //
 
 @interface SuikaView ()
+- (IBAction)onQuit:(id)sender;
 @end
 
 @implementation SuikaView
@@ -91,19 +92,21 @@ BOOL isRedrawPrepared;
     return AVPlayerLayer.class;
 }
 
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    // メニューのXibをロードする
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSArray *objects = [NSArray new];
+    [bundle loadNibNamed:@"MainMenu"
+                   owner:theView
+         topLevelObjects:&objects];
+
+    // メニューのタイトルを変更す
+    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
+    [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
+}
+
 // ビューが作成されるときに呼び出される
 - (id)initWithFrame:(NSRect)frame {
-    // メニューのタイトルを変更する https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
-    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
-    NSString *title = [[NSString alloc] initWithUTF8String:
-#ifdef USE_DEBUGGER
-        "Suika2 Pro for Creators"
-#else
-        conf_window_title
-#endif
-    ];
-    [menu setTitle:[title stringByAppendingString:@"\x1b"]];
-
     // OpenGLコンテキストを作成する
     NSOpenGLPixelFormatAttribute pixelFormatAttributes[] = {
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
@@ -445,6 +448,14 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     return YES;
 }
 
+// Quitが選択されたか
+- (IBAction)onQuit:(id)sender {
+    if ([self windowShouldClose:sender]) {
+        // メインループから抜ける
+        [NSApp stop:nil];
+    }
+}
+
 // First Responderとなるか
 - (BOOL)acceptsFirstResponder {
     return YES;
@@ -455,7 +466,6 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     [player replaceCurrentItemWithPlayerItem:nil];
     isMoviePlaying = NO;
 }
-
 @end
 
 //
@@ -582,24 +592,6 @@ static BOOL initWindow(void)
     // アプリケーションの初期化処理を行う
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-
-#ifndef USE_DEBUGGER
-    // メニューバーを作成する
-    NSMenu *menuBar = [NSMenu new];
-    NSMenuItem *appMenuItem = [NSMenuItem new];
-    [menuBar addItem:appMenuItem];
-    [NSApp setMainMenu:menuBar];
-
-    // アプリケーションのメニューを作成する
-    //  - 最初のタイマイベントでアプリケーション名を変更する
-    id appMenu = [NSMenu new];
-    id quitMenuItem = [[NSMenuItem alloc]
-                          initWithTitle:!conf_i18n ? @"終了する" : @"Quit"
-                                 action:@selector(performClose:)
-                          keyEquivalent:@"q"];
-    [appMenu addItem:quitMenuItem];
-    [appMenuItem setSubmenu:appMenu];
-#endif
 
     // メインスクリーンの位置とサイズを取得する
     NSRect sr = [[NSScreen mainScreen] visibleFrame];

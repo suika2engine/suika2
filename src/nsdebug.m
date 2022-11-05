@@ -573,8 +573,8 @@ BOOL initDebugWindow(void)
         return FALSE;
 
     // メニューのXibをロードする
-    NSBundle *bundle  = [NSBundle mainBundle];
-    NSArray  *objects = [NSArray new];
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSArray *objects = [NSArray new];
     [bundle loadNibNamed:@"MainMenu"
                    owner:debugWindowController
          topLevelObjects:&objects];

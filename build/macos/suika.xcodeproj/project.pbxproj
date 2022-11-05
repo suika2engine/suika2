@@ -67,6 +67,7 @@
 		265EA7CC285732E000A02167 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CB285732E000A02167 /* Credits.rtf */; };
 		265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CD2857372300A02167 /* InfoPlist.strings */; };
 		26616DC926B4CED20094B23C /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
+		267078F82916513C003C61C1 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 267078FA2916513C003C61C1 /* MainMenu.xib */; };
 		2679EC7928575DA000C20499 /* DebugWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7B28575DA000C20499 /* DebugWindow.xib */; };
 		2679EC7C28575DC200C20499 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7E28575DC200C20499 /* MainMenu.xib */; };
 		2679EC85285813B000C20499 /* package.c in Sources */ = {isa = PBXBuildFile; fileRef = 2679EC84285813B000C20499 /* package.c */; };
@@ -133,6 +134,9 @@
 		265EA7CD2857372300A02167 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = "suika-pro/InfoPlist.strings"; sourceTree = SOURCE_ROOT; };
 		26616DC726B4CED20094B23C /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../../src/seen.h; sourceTree = "<group>"; };
 		26616DC826B4CED20094B23C /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../../src/seen.c; sourceTree = "<group>"; };
+		267078F92916513C003C61C1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		267078FC29165157003C61C1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		267078FE29165158003C61C1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		2679EC7A28575DA000C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DebugWindow.xib; sourceTree = "<group>"; };
 		2679EC7D28575DC200C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2679EC8028575DD100C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/DebugWindow.strings; sourceTree = "<group>"; };
@@ -255,6 +259,7 @@
 			isa = PBXGroup;
 			children = (
 				26B8ACE525EE5846005D9C49 /* Assets.xcassets */,
+				267078FA2916513C003C61C1 /* MainMenu.xib */,
 				2679EC7E28575DC200C20499 /* MainMenu.xib */,
 				2679EC7B28575DA000C20499 /* DebugWindow.xib */,
 				265EA7CB285732E000A02167 /* Credits.rtf */,
@@ -432,6 +437,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */,
+				267078F82916513C003C61C1 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -551,6 +557,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		267078FA2916513C003C61C1 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				267078F92916513C003C61C1 /* Base */,
+				267078FC29165157003C61C1 /* en */,
+				267078FE29165158003C61C1 /* ja */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
 		2679EC7B28575DA000C20499 /* DebugWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
