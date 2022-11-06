@@ -56,6 +56,7 @@
     <ClInclude Include="..\..\..\src\stage.h" />
     <ClInclude Include="..\..\..\src\suika.h" />
     <ClInclude Include="..\..\..\src\types.h" />
+    <ClInclude Include="..\..\..\src\uimsg.h" />
     <ClInclude Include="..\..\..\src\vars.h" />
     <ClInclude Include="..\..\..\src\wave.h" />
     <ClInclude Include="..\..\..\src\windebug.h" />
@@ -135,6 +136,7 @@
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ClCompile Include="..\..\..\src\stage.c" />
+    <ClCompile Include="..\..\..\src\uimsg.c" />
     <ClCompile Include="..\..\..\src\vars.c" />
     <ClCompile Include="..\..\..\src\wave.c" />
     <ClCompile Include="..\..\..\src\windebug.c" />
@@ -153,14 +155,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
