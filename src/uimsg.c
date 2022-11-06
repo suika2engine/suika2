@@ -29,6 +29,8 @@ const wchar_t *get_ui_message(int id)
 			return L"是";
 		case LOCALE_TW:
 			return L"是";
+		case LOCALE_FR:
+			return L"Oui";
 		default:
 			return L"Yes";
 		}
@@ -41,6 +43,8 @@ const wchar_t *get_ui_message(int id)
 			return L"不是";
 		case LOCALE_TW:
 			return L"不是";
+		case LOCALE_FR:
+			return L"Non";
 		default:
 			return L"No";
 		}
@@ -53,6 +57,8 @@ const wchar_t *get_ui_message(int id)
 			return L"信息";
 		case LOCALE_TW:
 			return L"信息";
+		case LOCALE_FR:
+			return L"Info";
 		default:
 			return L"Info";
 		}
@@ -65,6 +71,8 @@ const wchar_t *get_ui_message(int id)
 			return L"警告";
 		case LOCALE_TW:
 			return L"警告";
+		case LOCALE_FR:
+			return L"Attention";
 		default:
 			return L"Warn";
 		}
@@ -77,6 +85,8 @@ const wchar_t *get_ui_message(int id)
 			return L"错误";
 		case LOCALE_TW:
 			return L"錯誤";
+		case LOCALE_FR:
+			return L"Erreur";
 		default:
 			return L"Error";
 		}
@@ -89,6 +99,8 @@ const wchar_t *get_ui_message(int id)
 			return L"无法打开日志文件。";
 		case LOCALE_TW:
 			return L"無法打開日誌文件。";
+		case LOCALE_FR:
+			return L"Impossible d'ouvrir le fichier journal.";
 		default:
 			return L"Cannot open log file.";
 		}
@@ -101,6 +113,8 @@ const wchar_t *get_ui_message(int id)
 			return L"游戏结束了吗？";
 		case LOCALE_TW:
 			return L"遊戲結束了嗎？";
+		case LOCALE_FR:
+			return L"Le jeu est-il terminé?";
 		default:
 			return L"Are you sure you want to quit?";
 		}
@@ -113,6 +127,8 @@ const wchar_t *get_ui_message(int id)
 			return L"回到标题？";
 		case LOCALE_TW:
 			return L"回到標題？";
+		case LOCALE_FR:
+			return L"Retour au titre?";
 		default:
 			return L"Are you sure you want to go to title?";
 		}
@@ -125,6 +141,8 @@ const wchar_t *get_ui_message(int id)
 			return L"删除确定要删除吗？";
 		case LOCALE_TW:
 			return L"刪除確定要刪除嗎？";
+		case LOCALE_FR:
+			return L"Supprimer Voulez-vous vraiment?";
 		default:
 			return L"Are you sure you want to delete the save data?";
 		}
@@ -137,6 +155,8 @@ const wchar_t *get_ui_message(int id)
 			return L"您确定要覆盖吗？";
 		case LOCALE_TW:
 			return L"您確定要覆蓋嗎？";
+		case LOCALE_FR:
+			return L"Voulez-vous vraiment écraser?";
 		default:
 			return L"Are you sure you want to overwrite the save data?";
 		}
@@ -149,6 +169,8 @@ const wchar_t *get_ui_message(int id)
 			return L"您确定要重置设置吗？";
 		case LOCALE_TW:
 			return L"您確定要重置設置嗎？";
+		case LOCALE_FR:
+			return L"Voulez-vous vraiment réinitialiser les paramètres?";
 		default:
 			return L"Are you sure you want to reset the settings?";
 		}
@@ -162,6 +184,8 @@ const wchar_t *get_ui_message(int id)
 			return L"不支持Direct3D。";
 		case LOCALE_TW:
 			return L"不支持Direct3D。";
+		case LOCALE_FR:
+			return L"Direct3D n'est pas pris en charge.";
 		default:
 			return L"Direct3D is not supported.";
 		}
@@ -174,6 +198,8 @@ const wchar_t *get_ui_message(int id)
 			return L"显示尺寸不足。";
 		case LOCALE_TW:
 			return L"顯示尺寸不足。";
+		case LOCALE_FR:
+			return L"Taille d'affichage insuffisante.";
 		default:
 			return L"Display size too small.";
 		}
@@ -186,6 +212,8 @@ const wchar_t *get_ui_message(int id)
 			return L"文件(&F)";
 		case LOCALE_TW:
 			return L"文件(&F)";
+		case LOCALE_FR:
+			return L"Fichier(&F)";
 		default:
 			return L"File(&F)";
 		}
@@ -198,6 +226,8 @@ const wchar_t *get_ui_message(int id)
 			return L"展示(&V)";
 		case LOCALE_TW:
 			return L"展示(&V)";
+		case LOCALE_FR:
+			return L"Voir(&V)";
 		default:
 			return L"View(&V)";
 		}
@@ -210,6 +240,8 @@ const wchar_t *get_ui_message(int id)
 			return L"退出(&Q)";
 		case LOCALE_TW:
 			return L"退出(&Q)";
+		case LOCALE_FR:
+			return L"Quitter(&Q)";
 		default:
 			return L"Quit(&Q)";
 		}
@@ -222,6 +254,8 @@ const wchar_t *get_ui_message(int id)
 			return L"全屏(&F)\tAlt+Enter";
 		case LOCALE_TW:
 			return L"全屏(&F)\tAlt+Enter";
+		case LOCALE_FR:
+			return L"Plein écran(&F)\tAlt+Enter";
 		default:
 			return L"Full Screen(&F)\tAlt+Enter";
 		}
