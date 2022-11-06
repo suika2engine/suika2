@@ -13,15 +13,15 @@
 
 # Language mapping (system language => story language)
 language.en=en
-language.fr=en
-language.de=en
-language.es=en
-language.it=en
-language.el=en
-language.ru=en
-language.zh=en
-language.tw=en
-language.ja=en
+language.fr=fr
+language.de=de
+language.es=es
+language.it=it
+language.el=el
+language.ru=ru
+language.zh=zh
+language.tw=tw
+language.ja=ja
 language.other=en
 
 ###
