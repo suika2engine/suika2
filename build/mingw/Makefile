@@ -36,6 +36,19 @@ CFLAGS = \
 	-Wundef \
 	-Wconversion
 
+CFLAGS_UNICODE = \
+	-O3 \
+	-municode \
+	-ffast-math \
+	-fopt-info-vec \
+	-finput-charset=utf-8 \
+	-fexec-charset=utf-8 \
+	-Wall \
+	-Werror \
+	-Wextra \
+	-Wundef \
+	-Wconversion
+
 #
 # LDFLAGS
 #
@@ -100,6 +113,9 @@ all: suika.exe
 
 suika.exe: $(OBJS)
 	$(CC) -s -o suika.exe $(OBJS) $(LDFLAGS)
+
+log.o: ../../src/log.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS_UNICODE) $<
 
 #
 # Feature specific source files.

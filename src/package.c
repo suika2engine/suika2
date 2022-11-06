@@ -67,6 +67,7 @@ static void set_random_seed(uint64_t index);
 static char get_next_random(void);
 
 #ifdef WIN
+const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
 const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 #endif
 
@@ -108,7 +109,7 @@ static bool get_file_names(const char *base_dir, const char *dir)
     UNUSED_PARAMETER(base_dir);
 
     /* Get directory content. */
-    _snwprintf(path, sizeof(path), L"%s\\*.*", dir);
+    _snwprintf(path, sizeof(path), L"%s\\*.*", conv_utf8_to_utf16(dir));
     hFind = FindFirstFile(path, &wfd);
     if(hFind == INVALID_HANDLE_VALUE)
     {
@@ -119,8 +120,8 @@ static bool get_file_names(const char *base_dir, const char *dir)
     {
         if(!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
         {
-            snprintf(entry[file_count].name, FILE_NAME_SIZE,
-                     "%s/%s", dir, conv_utf16_to_utf8(wfd.cFileName));
+            snprintf(entry[file_count].name, FILE_NAME_SIZE, "%s/%s", dir,
+		     conv_utf16_to_utf8(wfd.cFileName));
             file_count++;
 	}
     } while(FindNextFile(hFind, &wfd));
