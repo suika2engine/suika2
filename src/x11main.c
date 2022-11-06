@@ -220,6 +220,8 @@ int main(int argc, char *argv[])
 {
 	int ret;
 
+	setlocale(LC_ALL, "");
+
 	/* 互換レイヤの初期化処理を行う */
 	if (init(argc, argv)) {
 		/* アプリケーション本体の初期化処理を行う */
@@ -258,6 +260,9 @@ static bool init(int argc, char *argv[])
 	/* ベクトル命令の対応を確認する */
 	x86_check_cpuid_flags();
 #endif
+
+	/* ロケールを初期化する */
+	init_locale_code();
 
 	/* ログファイルを開く */
 	if (!open_log_file())
@@ -1442,6 +1447,31 @@ void leave_full_screen_mode(void)
  */
 const char *get_system_locale(void)
 {
-	/* stub */
+	const char *locale;
+
+	locale = setlocale(LC_ALL, "");
+	if (locale[0] == '\0' || locale[1] == '\0')
+		return "en";
+	else if (strncmp(locale, "en", 2) == 0)
+		return "en";
+	else if (strncmp(locale, "fr", 2) == 0)
+		return "fr";
+	else if (strncmp(locale, "de", 2) == 0)
+		return "fr";
+	else if (strncmp(locale, "it", 2) == 0)
+		return "it";
+	else if (strncmp(locale, "es", 2) == 0)
+		return "es";
+	else if (strncmp(locale, "el", 2) == 0)
+		return "el";
+	else if (strncmp(locale, "ru", 2) == 0)
+		return "ru";
+	else if (strncmp(locale, "zh_CN", 5) == 0)
+		return "zh";
+	else if (strncmp(locale, "zh_TW", 5) == 0)
+		return "tw";
+	else if (strncmp(locale, "ja", 2) == 0)
+		return "ja";
+
 	return "other";
 }

@@ -268,6 +268,9 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (hRes != S_OK)
 		return FALSE;
 
+	/* ロケールを初期化する */
+	init_locale_code();
+
 	/* パッケージの初期化処理を行う */
 	if (!init_file())
 		return FALSE;
@@ -1554,7 +1557,9 @@ int get_stop_watch_lap(stop_watch_t *t)
  */
 bool exit_dialog(void)
 {
-	if (MessageBox(hWndMain, get_ui_message(UIMSG_EXIT), wszTitle,
+	if (MessageBox(hWndMain,
+				   get_ui_message(UIMSG_EXIT),
+				   conv_utf8_to_utf16(conf_window_title),
 				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
@@ -1565,7 +1570,9 @@ bool exit_dialog(void)
  */
 bool title_dialog(void)
 {
-	if (MessageBox(hWndMain, get_ui_message(UIMSG_TITLE), wszTitle,
+	if (MessageBox(hWndMain,
+				   get_ui_message(UIMSG_TITLE),
+				   conv_utf8_to_utf16(conf_window_title),
 				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
@@ -1576,7 +1583,9 @@ bool title_dialog(void)
  */
 bool delete_dialog(void)
 {
-	if (MessageBox(hWndMain, get_ui_message(UIMSG_DELETE), wszTitle,
+	if (MessageBox(hWndMain,
+				   get_ui_message(UIMSG_DELETE),
+  				   conv_utf8_to_utf16(conf_window_title),
 				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
@@ -1587,7 +1596,9 @@ bool delete_dialog(void)
  */
 bool overwrite_dialog(void)
 {
-	if (MessageBox(hWndMain, get_ui_message(UIMSG_OVERWRITE), wszTitle,
+	if (MessageBox(hWndMain,
+				   get_ui_message(UIMSG_OVERWRITE),
+				   conv_utf8_to_utf16(conf_window_title),
 				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
@@ -1598,7 +1609,9 @@ bool overwrite_dialog(void)
  */
 bool default_dialog(void)
 {
-	if (MessageBox(hWndMain, get_ui_message(UIMSG_DEFAULT), wszTitle,
+	if (MessageBox(hWndMain,
+				   get_ui_message(UIMSG_DEFAULT),
+				   conv_utf8_to_utf16(conf_window_title),
 				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;

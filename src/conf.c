@@ -1232,9 +1232,6 @@ bool apply_initial_values(void)
 {
 	int i;
 
-	/* ロケールを整数に変換する */
-	get_locale_code();
-
 	/* ロケールのマッピングを行う */
 	set_locale_mapping();
 
@@ -1255,7 +1252,7 @@ bool apply_initial_values(void)
 }
 
 /* ロケールを整数に変換する */
-static void get_locale_code(void)
+void init_locale_code(void)
 {
 	const char *locale;
 

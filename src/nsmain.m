@@ -482,6 +482,9 @@ int main()
 #endif
 
     @autoreleasepool {
+        // ロケールを初期化する
+        init_locale_code();
+
         // パッケージの初期化処理を行う
         if (init_file()) {
             // コンフィグの初期化処理を行う

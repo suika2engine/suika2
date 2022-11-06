@@ -206,6 +206,9 @@ int main(int argc, char * argv[]) {
     _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:_context];
 
+	// ロケールを初期化する
+	init_locale_code();
+
     // data01.arcを読み込む
     if(!init_file()) {
         NSLog(@"File error.");

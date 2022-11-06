@@ -67,6 +67,9 @@ static EM_BOOL cb_touchend(int eventType,
 
 int main(void)
 {
+	/* ロケールを初期化する */
+	init_locale_code();
+
 	/* パッケージの初期化処理を行う */
 	if(!init_file())
 		return 1;
