@@ -21,7 +21,6 @@
 /*
  * 言語の設定
  */
-int conf_i18n;
 char *conf_language_en;
 char *conf_language_fr;
 char *conf_language_de;
@@ -34,8 +33,9 @@ char *conf_language_tw;
 char *conf_language_ja;
 char *conf_language_other;
 
-/* この変数はconfig.txtに記述されない */
-char *conf_language;
+/* 下記の変数はconfig.txtに記述されず、実行環境と上記の設定から導出される */
+int conf_locale;
+const char *conf_locale_mapped;
 
 /*
  * ウィンドウの設定
@@ -44,6 +44,7 @@ char *conf_window_title;
 int conf_window_width;
 int conf_window_height;
 int conf_window_white;
+int conf_window_menubar;
 
 /*
  * フォントの設定
@@ -342,15 +343,6 @@ int conf_serif_outline_color_g[SERIF_COLOR_COUNT];
 int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 
 /*
- * UIメッセージ
- */
-char *conf_ui_msg_quit;
-char *conf_ui_msg_title;
-char *conf_ui_msg_delete;
-char *conf_ui_msg_overwrite;
-char *conf_ui_msg_default;
-
-/*
  * その他の設定
  */
 
@@ -396,7 +388,7 @@ struct rule {
 	bool omissible;
 	bool loaded;
 } rule_tbl[] = {
-	{"i18n", 'i', &conf_i18n, true, false},
+	{"i18n", 'i', NULL, true, false}, /* deprecated */
 	{"language.en", 's', &conf_language_en, true, false},
 	{"language.fr", 's', &conf_language_fr, true, false},
 	{"language.de", 's', &conf_language_de, true, false},
@@ -412,6 +404,7 @@ struct rule {
 	{"window.width", 'i', &conf_window_width, false, false},
 	{"window.height", 'i', &conf_window_height, false, false},
 	{"window.white", 'i', &conf_window_white, false, false},
+	{"window.menubar", 'i', &conf_window_menubar, true, false},
 	{"font.file", 's', &conf_font_file, false, false},
 	{"font.size", 'i', &conf_font_size, false, false},
 	{"font.color.r", 'i', &conf_font_color_r, false, false},
@@ -1069,11 +1062,11 @@ struct rule {
 	{"serif.color64.outline.g", 'i', &conf_serif_outline_color_g[63], true, false},
 	{"serif.color64.outline.b", 'i', &conf_serif_outline_color_b[63], true, false},
 	/* end codegen */
-	{"ui.msg.quit", 's', &conf_ui_msg_quit, false, false},
-	{"ui.msg.title", 's', &conf_ui_msg_title, false, false},
-	{"ui.msg.delete", 's', &conf_ui_msg_delete, false, false},
-	{"ui.msg.overwrite", 's', &conf_ui_msg_overwrite, false, false},
-	{"ui.msg.default", 's', &conf_ui_msg_default, false, false},
+	{"ui.msg.quit", 's', NULL, true, false}, /* deprecated */
+	{"ui.msg.title", 's', NULL, true, false}, /* deprecated */
+	{"ui.msg.delete", 's', NULL, true, false}, /* deprecated */
+	{"ui.msg.overwrite", 's', NULL, true, false}, /* deprecated */
+	{"ui.msg.default", 's', NULL, true, false}, /* deprecated */
 	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
 	{"window.maximize.disable", 'i', &conf_window_maximize_disable, true, false},
@@ -1093,6 +1086,7 @@ struct rule {
 static bool read_conf(void);
 static bool save_value(const char *k, const char *v);
 static bool check_conf(void);
+static void get_locale_code(void);
 static void set_locale_mapping(void);
 
 /*
@@ -1175,7 +1169,7 @@ static bool save_value(const char *k, const char *v)
 
 		/* 保存されない(無視される)キーの場合 */
 		if (rule_tbl[i].val == NULL)
-			return true;;
+			return true;
 
 		/* 型ごとに変換する */
 		if (rule_tbl[i].type == 'i') {
@@ -1238,6 +1232,9 @@ bool apply_initial_values(void)
 {
 	int i;
 
+	/* ロケールを整数に変換する */
+	get_locale_code();
+
 	/* ロケールのマッピングを行う */
 	set_locale_mapping();
 
@@ -1255,6 +1252,38 @@ bool apply_initial_values(void)
 		return false;
 
 	return true;
+}
+
+/* ロケールを整数に変換する */
+static void get_locale_code(void)
+{
+	const char *locale;
+
+	locale = get_system_locale();
+
+	/* ロケール名を整数値に変換する */
+	if (strcmp(locale, "en") == 0)
+		conf_locale = LOCALE_EN;
+	else if (strcmp(locale, "fr") == 0)
+		conf_locale = LOCALE_FR;
+	else if (strcmp(locale, "de") == 0)
+		conf_locale = LOCALE_DE;
+	else if (strcmp(locale, "es") == 0)
+		conf_locale = LOCALE_ES;
+	else if (strcmp(locale, "it") == 0)
+		conf_locale = LOCALE_IT;
+	else if (strcmp(locale, "el") == 0)
+		conf_locale = LOCALE_EL;
+	else if (strcmp(locale, "ru") == 0)
+		conf_locale = LOCALE_RU;
+	else if (strcmp(locale, "zh") == 0)
+		conf_locale = LOCALE_ZH;
+	else if (strcmp(locale, "tw") == 0)
+		conf_locale = LOCALE_TW;
+	else if (strcmp(locale, "ja") == 0)
+		conf_locale = LOCALE_JA;
+	else
+		conf_locale = LOCALE_OTHER;
 }
 
 /* ロケールのマッピングを行う */
@@ -1289,17 +1318,20 @@ static void set_locale_mapping(void)
 			/* ロケールマッピングが指定されていれば設定する */
 			if (*tbl[i].config != NULL &&
 			    strcmp(*tbl[i].config, "") != 0)
-				conf_language = *tbl[i].config;
+				conf_locale_mapped = *tbl[i].config;
 			else
-				conf_language = "en";
+				conf_locale_mapped = "en";
 			return;
 		}
 	}
 
-	/* システムのロケールがコンフィグにない場合 */
+	/* システムのロケールがコンフィグになく、otherが指定されている場合 */
 	if (conf_language_other != NULL &&
-	    strcmp(conf_language_other, "") != 0)
-		conf_language = conf_language_other;
-	else
-		conf_language = "en";
+	    strcmp(conf_language_other, "") != 0) {
+		conf_locale_mapped = conf_language_other;
+		return;
+	}
+
+	/* otherも指定されていない場合、enにフォールバックする */
+	conf_locale_mapped = "en";
 }

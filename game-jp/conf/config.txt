@@ -398,16 +398,6 @@ serif.color3.outline.b=0
 # 以降、serif.color64まで続くが省略可能
 
 ###
-### UIメッセージ
-###
-
-ui.msg.quit=終了しますか？
-ui.msg.title=タイトルに戻りますか？
-ui.msg.delete=セーブデータを削除しますか？
-ui.msg.overwrite=セーブデータを上書きしますか？
-ui.msg.default=初期設定に戻しますか？
-
-###
 ### その他
 ###
 

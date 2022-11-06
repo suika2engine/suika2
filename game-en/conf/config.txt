@@ -431,16 +431,6 @@ serif.color3.outline.b=0
 # Continues to serif.color64, but omissible
 
 ###
-### UI Message
-###
-
-ui.msg.quit=Are you sure you want to quit?
-ui.msg.title=Are you sure you want to go to title?
-ui.msg.delete=Are you sure you want to delete the save data?
-ui.msg.overwrite=Are you sure you want to overwrite the save data?
-ui.msg.default=Are you sure you want to reset the settings?
-
-###
 ### Miscellaneous
 ###
 

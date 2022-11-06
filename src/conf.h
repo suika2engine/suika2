@@ -24,7 +24,6 @@
 /*
  * 言語の設定
  */
-extern int conf_i18n;
 extern char *conf_language_jp;
 extern char *conf_language_en;
 extern char *conf_language_fr;
@@ -34,7 +33,23 @@ extern char *conf_language_it;
 extern char *conf_language_el;
 extern char *conf_language_ru;
 extern char *conf_language_other;
-extern char *conf_language;
+
+/* 言語の設定から導出されたロケール */
+enum {
+	LOCALE_EN,
+	LOCALE_FR,
+	LOCALE_DE,
+	LOCALE_ES,
+	LOCALE_IT,
+	LOCALE_EL,
+	LOCALE_RU,
+	LOCALE_ZH,
+	LOCALE_TW,
+	LOCALE_JA,
+	LOCALE_OTHER,
+};
+extern int conf_locale;
+extern const char *conf_locale_mapped;
 
 /*
  * ウィンドウの設定
@@ -43,6 +58,7 @@ extern char *conf_window_title;
 extern int conf_window_width;
 extern int conf_window_height;
 extern int conf_window_white;
+extern int conf_window_menubar;
 
 /*
  * フォントの設定
@@ -304,15 +320,6 @@ extern int conf_serif_color_b[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_r[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_g[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
-
-/*
- * UIメッセージ
- */
-extern char *conf_ui_msg_quit;
-extern char *conf_ui_msg_title;
-extern char *conf_ui_msg_delete;
-extern char *conf_ui_msg_overwrite;
-extern char *conf_ui_msg_default;
 
 /*
  * その他の設定

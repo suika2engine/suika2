@@ -62,6 +62,7 @@ SRCS_C = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
+	../../src/uimsg.c \
 	../../src/glrender.c \
 	../../src/d3drender.cc \
 	../../src/dsound.c

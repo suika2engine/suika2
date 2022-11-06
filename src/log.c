@@ -28,12 +28,8 @@ static bool is_english_mode(void);
 /* 英語モードであるかチェックする */
 static bool is_english_mode(void)
 {
-	/* コンフィグi18nが未指定の場合は日本語モードとする */
-	if (!conf_i18n)
-		return false;
-
-	/* 英語モードとする */
-	return true;
+	/* FIXME: 日本語ロケールでなければ英語メッセージする */
+	return conf_locale != LOCALE_JA;
 }
 
 /*

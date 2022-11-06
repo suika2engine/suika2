@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -25,6 +25,7 @@
 #include "suika.h"
 #include "dsound.h"
 #include "dsvideo.h"
+#include "uimsg.h"
 #include "resource.h"
 
 #ifdef USE_DEBUGGER
@@ -84,8 +85,7 @@ static HDC hWndDC;
 static HDC hBitmapDC;
 static HBITMAP hBitmap;
 static HGLRC hGLRC;
-#ifdef USE_DEBUGGER
-#endif
+static HMENU hMenu;
 
 /* アクセラレータ */
 static HACCEL hAccel;
@@ -194,6 +194,7 @@ struct GLExtAPITable
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
+static VOID InitGameMenu(void);
 static BOOL InitOpenGL(void);
 static void GameLoop(void);
 static BOOL SyncEvents(void);
@@ -205,9 +206,11 @@ static void ToggleFullScreen(void);
 static void ChangeDisplayMode(void);
 static void ResetDisplayMode(void);
 static void OnPaint(void);
+static void OnCommand(UINT nID);
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
 static BOOL OpenLogFile(void);
+static const char *conv_utf16_to_native(const wchar_t *utf16_message);
 
 /*
  * WinMain
@@ -295,9 +298,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 				bD3D = TRUE;
 				break;
 			}
-			log_info(!conf_i18n ?
-					 "Direct3Dはサポートされません。" :
-					 "Direct3D is not supported.");
+			log_info(conv_utf16_to_native(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
 		}
 
 		if (_access("no-opengl.txt", 0) != 0)
@@ -308,9 +309,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 				bOpenGL = TRUE;
 				break;
 			}
-			log_info(!conf_i18n ?
-					 "OpenGLはサポートされません。" :
-					 "OpenGL is not supported.");
+			log_info(conv_utf16_to_native(get_ui_message(UIMSG_WIN_NO_OPENGL)));
 		}
 
 		/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
@@ -404,10 +403,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
 		GetSystemMetrics(SM_CYVIRTUALSCREEN) < conf_window_height)
 	{
-		MessageBox(NULL, !conf_i18n ?
-				   "ディスプレイのサイズが足りません。" :
-				   "Display size too small.",
-				   !conf_i18n ? "エラー" : "Error",
+		MessageBox(NULL,
+				   conv_utf16_to_native(get_ui_message(UIMSG_WIN_SMALL_DISPLAY)),
+				   conv_utf16_to_native(get_ui_message(UIMSG_ERROR)),
 				   MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
@@ -480,18 +478,22 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #ifdef USE_DEBUGGER
 					   TRUE,
 #else
-					   FALSE,
+					   conf_window_menubar,
 #endif
 					   (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
 	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
 
 #ifdef USE_DEBUGGER
-	/* メニューを作成する */
-	InitMenu(hWndMain);
+	/* デバッガ用メニューを作成する */
+	InitDebuggerMenu(hWndMain);
 
 	/* アクセラレータをロードする */
 	hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
+#else
+	/* ゲーム用メニューを作成する */
+	if(conf_window_menubar)
+		InitGameMenu();
 #endif
 
 	/* ウィンドウを表示する */
@@ -509,6 +511,50 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		WaitForNextFrame();
 
 	return TRUE;
+}
+
+/* ゲームウィンドウのメニューを初期化する */
+static VOID InitGameMenu(void)
+{
+	HMENU hMenuFile = CreatePopupMenu();
+	HMENU hMenuView = CreatePopupMenu();
+    MENUITEMINFO mi;
+
+	/* メニューを作成する */
+	hMenu = CreateMenu();
+
+	/* 1階層目を作成する準備を行う */
+	ZeroMemory(&mi, sizeof(MENUITEMINFO));
+	mi.cbSize = sizeof(MENUITEMINFO);
+	mi.fMask = MIIM_TYPE | MIIM_SUBMENU;
+	mi.fType = MFT_STRING;
+	mi.fState = MFS_ENABLED;
+
+	/* ファイル(F)を作成する */
+	mi.hSubMenu = hMenuFile;
+	mi.dwTypeData = (char *)conv_utf16_to_native(get_ui_message(UIMSG_WIN_MENU_FILE));
+	InsertMenuItem(hMenu, 0, TRUE, &mi);
+
+	/* 表示(V)を作成する */
+	mi.hSubMenu = hMenuView;
+	mi.dwTypeData = (char *)conv_utf16_to_native(get_ui_message(UIMSG_WIN_MENU_VIEW));
+	InsertMenuItem(hMenu, 1, TRUE, &mi);
+
+	/* 2階層目を作成する準備を行う */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+
+	/* 終了(Q)を作成する */
+	mi.wID = ID_QUIT;
+	mi.dwTypeData = (char *)conv_utf16_to_native(get_ui_message(UIMSG_WIN_MENU_QUIT));
+	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+
+	/* フルスクリーン(S)を作成する */
+	mi.wID = ID_FULLSCREEN;
+	mi.dwTypeData = (char *)conv_utf16_to_native(get_ui_message(UIMSG_WIN_MENU_FULLSCREEN));
+	InsertMenuItem(hMenuView, 0, TRUE, &mi);
+
+	/* メニューをセットする */
+	SetMenu(hWndMain, hMenu);
 }
 
 /* OpenGLを初期化する */
@@ -549,9 +595,7 @@ static BOOL InitOpenGL(void)
 	pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
 	if (pixelFormat == 0)
 	{
-		log_info(!conf_i18n ?
-				 "ChoosePixelFormat() の呼び出しに失敗しました。" :
-				 "Failed to call ChoosePixelFormat()");
+		log_info("Failed to call ChoosePixelFormat()");
 		return FALSE;
 	}
 	SetPixelFormat(hWndDC, pixelFormat, &pfd);
@@ -560,9 +604,7 @@ static BOOL InitOpenGL(void)
 	hGLRC = wglCreateContext(hWndDC);
 	if (hGLRC == NULL)
 	{
-		log_info(!conf_i18n ?
-				 "wglCreateContext() の呼び出しに失敗しました。" :
-				 "Failed to call wglCreateContext()");
+		log_info("Failed to call wglCreateContext()");
 		return FALSE;
 	}
 	wglMakeCurrent(hWndDC, hGLRC);
@@ -572,9 +614,7 @@ static BOOL InitOpenGL(void)
 		(void *)wglGetProcAddress("wglCreateContextAttribsARB");
 	if (wglCreateContextAttribsARB == NULL)
 	{
-		log_info(!conf_i18n ?
-				 "API wglCreateContextAttribsARB がみつかりません。" :
-				 "API wglCreateContextAttribsARB not found.");
+		log_info("API wglCreateContextAttribsARB not found.");
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRC);
 		hGLRC = NULL;
@@ -596,9 +636,7 @@ static BOOL InitOpenGL(void)
 
 	/* 仮想マシンを検出したらOpenGLを使わない */
 	if (strcmp((const char *)glGetString(GL_VENDOR), "VMware, Inc.") == 0) {
-		log_info(!conf_i18n ?
-				 "仮想環境を検出しました。" :
-				 "Detected virtual environment.");
+		log_info("Detected virtual machine environment.");
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRC);
 		hGLRC = NULL;
@@ -611,9 +649,7 @@ static BOOL InitOpenGL(void)
 		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
 		if (*APITable[i].func == NULL)
 		{
-			log_info(!conf_i18n ?
-					 "API %s がみつかりません。" :
-					 "API %s not found.", APITable[i].name);
+			log_info("API %s not found.", APITable[i].name);
 			wglMakeCurrent(NULL, NULL);
 			wglDeleteContext(hGLRC);
 			hGLRC = NULL;
@@ -624,9 +660,7 @@ static BOOL InitOpenGL(void)
 	/* レンダラを初期化する */
 	if (!init_opengl())
 	{
-		log_info(!conf_i18n ?
-				 "OpenGLの初期化に失敗しました。" :
-				 "Failed to initialize OpenGL.");
+		log_info("Failed to initialize OpenGL.");
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(hGLRC);
 		hGLRC = NULL;
@@ -860,7 +894,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return 0;
 #else
 		if (MessageBox(hWnd,
-					   conv_utf8_to_native(conf_ui_msg_quit),
+					   conv_utf16_to_native(get_ui_message(UIMSG_EXIT)),
 					   mbszTitle,
 					   MB_OKCANCEL) == IDOK)
 			DestroyWindow(hWnd);
@@ -935,6 +969,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		OnPaint();
 		return 0;
+	case WM_COMMAND:
+		OnCommand(LOWORD(wParam));
+		return 0;
 	case WM_GRAPHNOTIFY:
 		if(!DShowProcessEvent())
 			bDShowMode = FALSE;
@@ -980,9 +1017,13 @@ static void ToggleFullScreen(void)
 	return;
 #endif
 
+	assert(!conf_window_fullscreen_disable);
+
 	if(!bFullScreen)
 	{
 		bFullScreen = TRUE;
+
+		SetMenu(hWndMain, NULL);
 
 		ChangeDisplayMode();
 
@@ -1006,6 +1047,9 @@ static void ToggleFullScreen(void)
 		bFullScreen = FALSE;
 
 		ResetDisplayMode();
+
+		if (hMenu != NULL)
+			SetMenu(hWndMain, hMenu);
 
 		nOffsetX = 0;
 		nOffsetY = 0;
@@ -1121,6 +1165,23 @@ static void OnPaint(void)
 		D3DRedraw();
 }
 
+/* WM_COMMANDを処理する */
+static void OnCommand(UINT nID)
+{
+	switch(nID)
+	{
+	case ID_QUIT:
+		PostMessage(hWndMain,WM_CLOSE, 0, 0);
+		break;
+	case ID_FULLSCREEN:
+		if (!conf_window_fullscreen_disable)
+			ToggleFullScreen();
+		break;
+	default:
+		break;
+	}
+}
+
 /*
  * platform.hの実装
  */
@@ -1142,7 +1203,9 @@ bool log_info(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 #ifdef USE_DEBUGGER
-	MessageBox(hWndMain, buf, !conf_i18n ? "情報" : "Info",
+	MessageBox(hWndMain,
+			   buf,
+			   conv_utf16_to_native(get_ui_message(UIMSG_INFO)),
 			   MB_OK | MB_ICONINFORMATION);
 #endif
 
@@ -1175,7 +1238,9 @@ bool log_warn(const char *s, ...)
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-	MessageBox(hWndMain, buf, !conf_i18n ? "警告" : "Warning",
+	MessageBox(hWndMain,
+			   buf,
+			   conv_utf16_to_native(get_ui_message(UIMSG_WARN)),
 			   MB_OK | MB_ICONWARNING);
 
 	/* ログファイルがオープンされている場合 */
@@ -1207,7 +1272,9 @@ bool log_error(const char *s, ...)
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-	MessageBox(hWndMain, buf, !conf_i18n ? "エラー" : "Error",
+	MessageBox(hWndMain,
+			   buf,
+			   conv_utf16_to_native(get_ui_message(UIMSG_ERROR)),
 			   MB_OK | MB_ICONERROR);
 
 	/* ログファイルがオープンされている場合 */
@@ -1246,10 +1313,8 @@ static BOOL OpenLogFile(void)
 		{
 			/* 失敗 */
 			MessageBox(NULL,
-					   !conf_i18n ?
-					   "ログファイルをオープンできません。" :
-					   "Cannot open log file.",
-					   !conf_i18n ? "エラー" : "Error",
+					   conv_utf16_to_native(get_ui_message(UIMSG_CANNOT_OPEN_LOG)),
+					   conv_utf16_to_native(get_ui_message(UIMSG_ERROR)),
 					   MB_OK | MB_ICONWARNING);
 			return FALSE;
 		}
@@ -1274,10 +1339,8 @@ static BOOL OpenLogFile(void)
 		{
 			/* 失敗 */
 			MessageBox(NULL,
-					   !conf_i18n ?
-					   "ログファイルをオープンできません。" :
-					   "Cannot open log file.",
-					   !conf_i18n ? "エラー" : "Error",
+					   conv_utf16_to_native(get_ui_message(UIMSG_CANNOT_OPEN_LOG)),
+					   conv_utf16_to_native(get_ui_message(UIMSG_ERROR)),
 					   MB_OK | MB_ICONWARNING);
 			return FALSE;
 		}
@@ -1304,6 +1367,20 @@ const char *conv_utf8_to_native(const char *utf8_message)
 
 	/* ワイド文字からSJISに変換する */
 	WideCharToMultiByte(CP_THREAD_ACP, 0, wszMessage, -1, szNativeMessage,
+						NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
+
+	return szNativeMessage;
+}
+
+/*
+ * UTF-16のメッセージをネイティブの文字コードに変換する
+ */
+static const char *conv_utf16_to_native(const wchar_t *utf16_message)
+{
+	assert(utf16_message != NULL);
+
+	/* ワイド文字からSJISに変換する */
+	WideCharToMultiByte(CP_THREAD_ACP, 0, utf16_message, -1, szNativeMessage,
 						NATIVE_MESSAGE_SIZE - 1, NULL, NULL);
 
 	return szNativeMessage;
@@ -1526,7 +1603,7 @@ int get_stop_watch_lap(stop_watch_t *t)
 bool exit_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   conv_utf8_to_native(conf_ui_msg_quit),
+				   conv_utf16_to_native(get_ui_message(UIMSG_EXIT)),
 				   mbszTitle,
 				   MB_OKCANCEL) == IDOK)
 		return true;
@@ -1539,7 +1616,7 @@ bool exit_dialog(void)
 bool title_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   conv_utf8_to_native(conf_ui_msg_title),
+				   conv_utf16_to_native(get_ui_message(UIMSG_TITLE)),
 				   mbszTitle,
 				   MB_OKCANCEL) == IDOK)
 		return true;
@@ -1552,7 +1629,7 @@ bool title_dialog(void)
 bool delete_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   conv_utf8_to_native(conf_ui_msg_delete),
+				   conv_utf16_to_native(get_ui_message(UIMSG_DELETE)),
 				   mbszTitle,
 				   MB_OKCANCEL) == IDOK)
 		return true;
@@ -1565,7 +1642,7 @@ bool delete_dialog(void)
 bool overwrite_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   conv_utf8_to_native(conf_ui_msg_overwrite),
+				   conv_utf16_to_native(get_ui_message(UIMSG_OVERWRITE)),
 				   mbszTitle,
 				   MB_OKCANCEL) == IDOK)
 		return true;
@@ -1578,7 +1655,7 @@ bool overwrite_dialog(void)
 bool default_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   conv_utf8_to_native(conf_ui_msg_default),
+				   conv_utf16_to_native(get_ui_message(UIMSG_DEFAULT)),
 				   mbszTitle,
 				   MB_OKCANCEL) == IDOK)
 		return true;

@@ -25,8 +25,8 @@
 	"Suika2 Pro for Creators\n" \
 	"Copyright (c) 2022, the Suika2 Development Team. All rights reserved.\n"
 
-/* メニューを作成する */
-VOID InitMenu(HWND hWnd);
+/* デバッガ用メニューを作成する */
+VOID InitDebuggerMenu(HWND hWnd);
 
 /* デバッガウィンドウを作成する */
 BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow);

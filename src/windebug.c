@@ -99,7 +99,7 @@ static const char *ConvNativeToUtf8(const char *lpszNativeMessage);
 /*
  * メニューを作成する
  */
-VOID InitMenu(HWND hWnd)
+VOID InitDebuggerMenu(HWND hWnd)
 {
 	HMENU hMenuFile = CreatePopupMenu();
 	HMENU hMenuScript = CreatePopupMenu();
