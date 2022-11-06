@@ -64,6 +64,7 @@ SRCS_C = \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
 	../../src/windebug.c \
+	../../src/uimsg.c \
 	../../src/package.c \
 	../../src/dsound.c \
 	../../src/glrender.c \

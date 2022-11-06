@@ -107,7 +107,7 @@ VOID InitDebuggerMenu(HWND hWnd)
     MENUITEMINFO mi;
 
 	hWndMain = hWnd;
-	bEnglish = !conf_i18n ? FALSE : TRUE;
+	bEnglish = conf_locale == LOCALE_JA ? FALSE : TRUE;
 
 	/* メニューを作成する */
 	hMenu = CreateMenu();

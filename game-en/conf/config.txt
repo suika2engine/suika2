@@ -11,9 +11,6 @@
 ### Language Settings
 ###
 
-# International mode (0:disable, 1:enable)
-i18n=1
-
 # Language mapping (system language => story language)
 language.en=en
 language.fr=en
@@ -42,6 +39,9 @@ window.height=720
 
 # Background color (0:black, 1:white)
 window.white=1
+
+# Show menu bar (0:don't show, 1:show)
+window.menubar=1
 
 ###
 ### Font Settings

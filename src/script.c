@@ -1068,7 +1068,7 @@ bool load_debug_script(void)
 
 	cmd[0].type = COMMAND_MESSAGE;
 	cmd[0].line = 0;
-	cmd[0].text = strdup(!conf_i18n ?
+	cmd[0].text = strdup(conf_locale == LOCALE_JA ?
 			     /* "実行を終了しました" (utf-8) */
 			     "\xe5\xae\x9f\xe8\xa1\x8c\xe3\x82\x92\xe7\xb5\x82"
 			     "\xe4\xba\x86\xe3\x81\x97\xe3\x81\xbe\xe3\x81\x97"

@@ -194,7 +194,9 @@ struct GLExtAPITable
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
+#ifndef USE_DEBUGGER
 static VOID InitGameMenu(void);
+#endif
 static BOOL InitOpenGL(void);
 static void GameLoop(void);
 static BOOL SyncEvents(void);
@@ -513,6 +515,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
+#ifndef USE_DEBUGGER
 /* ゲームウィンドウのメニューを初期化する */
 static VOID InitGameMenu(void)
 {
@@ -556,6 +559,7 @@ static VOID InitGameMenu(void)
 	/* メニューをセットする */
 	SetMenu(hWndMain, hMenu);
 }
+#endif
 
 /* OpenGLを初期化する */
 static BOOL InitOpenGL(void)
