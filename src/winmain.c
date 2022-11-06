@@ -208,7 +208,7 @@ static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
 static BOOL OpenLogFile(void);
 const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
-static const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
+const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 
 /*
  * WinMain
@@ -1337,7 +1337,7 @@ const wchar_t *conv_utf8_to_utf16(const char *utf8_message)
 /*
  * UTF-16のメッセージをUTF-8に変換する
  */
-static const char *conv_utf16_to_utf8(const wchar_t *utf16_message)
+const char *conv_utf16_to_utf8(const wchar_t *utf16_message)
 {
 	assert(utf16_message != NULL);
 

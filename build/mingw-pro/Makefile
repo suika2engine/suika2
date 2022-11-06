@@ -26,6 +26,7 @@ CPPFLAGS = \
 
 CFLAGS = \
 	-O3 \
+	-municode \
 	-ffast-math \
 	-fopt-info-vec \
 	-finput-charset=utf-8 \
@@ -42,6 +43,7 @@ CFLAGS = \
 
 LDFLAGS = \
 	-mwindows \
+	-municode \
 	-lgdi32 \
 	-lole32 \
 	-ldxguid \

@@ -96,10 +96,6 @@ bool init_file(void)
 	uint64_t i, next_random;
 	int j;
 
-#ifdef WIN
-	_fmode = _O_BINARY;
-#endif
-
 	/* パッケージファイルのパスを求める */
 	package_path = make_valid_path(NULL, PACKAGE_FILE);
 	if (package_path == NULL)
@@ -107,6 +103,7 @@ bool init_file(void)
 
 	/* パッケージファイルを開いてみる */
 #ifdef WIN
+	_fmode = _O_BINARY;
 	fp = _wfopen(conv_utf8_to_utf16(package_path), L"r");
 #else
 	fp = fopen(package_path, "r");
@@ -203,6 +200,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 
 	/* まずファイルシステム上のファイルを開いてみる */
 #ifdef WIN
+	_fmode = _O_BINARY;
 	rf->fp = _wfopen(conv_utf8_to_utf16(real_path), L"r");
 #else
 	rf->fp = fopen(real_path, "r");
@@ -243,6 +241,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 
 	/* みつかった場合、パッケージファイルを別なファイルポインタで開く */
 #ifdef WIN
+	_fmode = _O_BINARY;
 	rf->fp = _wfopen(conv_utf8_to_utf16(package_path), L"r");
 #else
 	rf->fp = fopen(package_path, "r");
@@ -488,7 +487,8 @@ struct wfile *open_wfile(const char *dir, const char *file)
 
 	/* ファイルをオープンする */
 #ifdef WIN
-	wf->fp = _wfopen(conv_utf8_to_utf16(path), L"r");
+	_fmode = _O_BINARY;
+	wf->fp = _wfopen(conv_utf8_to_utf16(path), L"w");
 #else
 	wf->fp = fopen(path, "w");
 #endif

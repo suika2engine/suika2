@@ -18,12 +18,12 @@
 #include <windows.h>
 
 /* メッセージボックスのタイトル */
-#define MSGBOX_TITLE		"Suika2 Pro for Creators"
+#define MSGBOX_TITLE		L"Suika2 Pro for Creators"
 
 /* バージョン文字列 */
 #define VERSION				\
-	"Suika2 Pro for Creators\n" \
-	"Copyright (c) 2022, the Suika2 Development Team. All rights reserved.\n"
+	L"Suika2 Pro for Creators\n" \
+	L"Copyright (c) 2022, the Suika2 Development Team. All rights reserved.\n"
 
 /* デバッガ用メニューを作成する */
 VOID InitDebuggerMenu(HWND hWnd);
@@ -41,5 +41,7 @@ LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 /* winmain.c */
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 						 LPARAM lParam);
+const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
+const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 
 #endif
