@@ -186,8 +186,8 @@ static void setStoppedState(void);
 
     // 確認のダイアログを開く
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+    [alert addButtonWithTitle:!isEnglish ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:!isEnglish ? @"いいえ" : @"No"];
     [alert setMessageText:isEnglish ?
            @"Are you sure you want to overwrite the script file?" :
            @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
@@ -563,8 +563,6 @@ BOOL initDebugWindow(void)
     // 英語モードかどうかをロケールから決定する
     NSString *lang = [[NSLocale preferredLanguages] objectAtIndex:0];
     isEnglish = [lang isEqualToString:@"ja-JP"] ? false : true;
-    if (isEnglish)
-        conf_i18n = 1;
 
     // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]
