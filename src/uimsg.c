@@ -31,6 +31,16 @@ const wchar_t *get_ui_message(int id)
 			return L"是";
 		case LOCALE_FR:
 			return L"Oui";
+		case LOCALE_RU:
+			return L"да";
+		case LOCALE_DE:
+			return L"Ja";
+		case LOCALE_IT:
+			return L"Sì";
+		case LOCALE_ES:
+			return L"Sí";
+		case LOCALE_EL:
+			return L"Ναί";
 		default:
 			return L"Yes";
 		}
@@ -45,6 +55,16 @@ const wchar_t *get_ui_message(int id)
 			return L"不是";
 		case LOCALE_FR:
 			return L"Non";
+		case LOCALE_RU:
+			return L"Нет";
+		case LOCALE_DE:
+			return L"Nein";
+		case LOCALE_IT:
+			return L"No";
+		case LOCALE_ES:
+			return L"No";
+		case LOCALE_EL:
+			return L"Οχι";
 		default:
 			return L"No";
 		}
@@ -59,8 +79,18 @@ const wchar_t *get_ui_message(int id)
 			return L"信息";
 		case LOCALE_FR:
 			return L"Info";
+		case LOCALE_RU:
+			return L"Информация";
+		case LOCALE_DE:
+			return L"Information";
+		case LOCALE_IT:
+			return L"Informazione";
+		case LOCALE_ES:
+			return L"Información";
+		case LOCALE_EL:
+			return L"Πληροφορίες";
 		default:
-			return L"Info";
+			return L"Information";
 		}
 		break;
 	case UIMSG_WARN:
@@ -73,8 +103,18 @@ const wchar_t *get_ui_message(int id)
 			return L"警告";
 		case LOCALE_FR:
 			return L"Attention";
+		case LOCALE_RU:
+			return L"Предупреждение";
+		case LOCALE_DE:
+			return L"Warnung";
+		case LOCALE_IT:
+			return L"Avvertimento";
+		case LOCALE_ES:
+			return L"Advertencia";
+		case LOCALE_EL:
+			return L"Προειδοποίηση";
 		default:
-			return L"Warn";
+			return L"Warning";
 		}
 		break;
 	case UIMSG_ERROR:
@@ -87,6 +127,16 @@ const wchar_t *get_ui_message(int id)
 			return L"錯誤";
 		case LOCALE_FR:
 			return L"Erreur";
+		case LOCALE_RU:
+			return L"Ошибка";
+		case LOCALE_DE:
+			return L"Fehler";
+		case LOCALE_IT:
+			return L"Errore";
+		case LOCALE_ES:
+			return L"Error";
+		case LOCALE_EL:
+			return L"Λάθος";
 		default:
 			return L"Error";
 		}
@@ -101,6 +151,16 @@ const wchar_t *get_ui_message(int id)
 			return L"無法打開日誌文件。";
 		case LOCALE_FR:
 			return L"Impossible d'ouvrir le fichier journal.";
+		case LOCALE_RU:
+			return L"Не удается открыть файл журнала.";
+		case LOCALE_DE:
+			return L"Protokolldatei kann nicht geöffnet werden.";
+		case LOCALE_IT:
+			return L"Impossibile aprire il file di registro.";
+		case LOCALE_ES:
+			return L"No se puede abrir el archivo de registro.";
+		case LOCALE_EL:
+			return L"Δεν είναι δυνατό το άνοιγμα του αρχείου καταγραφής.";
 		default:
 			return L"Cannot open log file.";
 		}
@@ -115,6 +175,16 @@ const wchar_t *get_ui_message(int id)
 			return L"遊戲結束了嗎？";
 		case LOCALE_FR:
 			return L"Le jeu est-il terminé?";
+		case LOCALE_RU:
+			return L"Вы уверены, что хотите выйти?";
+		case LOCALE_DE:
+			return L"Sind Sie sicher, dass Sie aufhören wollen?";
+		case LOCALE_IT:
+			return L"Sei sicuro di voler uscire?";
+		case LOCALE_ES:
+			return L"¿Seguro que quieres salir?";
+		case LOCALE_EL:
+			return L"Είσαι σίγουρος ότι θέλεις να παραιτηθείς?";
 		default:
 			return L"Are you sure you want to quit?";
 		}
@@ -129,6 +199,16 @@ const wchar_t *get_ui_message(int id)
 			return L"回到標題？";
 		case LOCALE_FR:
 			return L"Retour au titre?";
+		case LOCALE_RU:
+			return L"Вы уверены, что хотите перейти к титулу?";
+		case LOCALE_DE:
+			return L"Sind Sie sicher, dass Sie zum Titel wechseln möchten?";
+		case LOCALE_IT:
+			return L"Sei sicuro di voler andare al titolo?";
+		case LOCALE_ES:
+			return L"¿Seguro que quieres ir al título?";
+		case LOCALE_EL:
+			return L"Είστε σίγουροι ότι θέλετε να πάτε στον τίτλο;";
 		default:
 			return L"Are you sure you want to go to title?";
 		}
@@ -143,6 +223,16 @@ const wchar_t *get_ui_message(int id)
 			return L"刪除確定要刪除嗎？";
 		case LOCALE_FR:
 			return L"Supprimer Voulez-vous vraiment?";
+		case LOCALE_RU:
+			return L"Вы уверены, что хотите удалить данные сохранения?";
+		case LOCALE_DE:
+			return L"Möchten Sie die Speicherdaten wirklich löschen?";
+		case LOCALE_IT:
+			return L"Sei sicuro di voler eliminare i dati di salvataggio?";
+		case LOCALE_ES:
+			return L"¿Está seguro de que desea eliminar los datos guardados?";
+		case LOCALE_EL:
+			return L"Είστε βέβαιοι ότι θέλετε να διαγράψετε τα δεδομένα αποθήκευσης;";
 		default:
 			return L"Are you sure you want to delete the save data?";
 		}
@@ -157,6 +247,16 @@ const wchar_t *get_ui_message(int id)
 			return L"您確定要覆蓋嗎？";
 		case LOCALE_FR:
 			return L"Voulez-vous vraiment écraser?";
+		case LOCALE_RU:
+			return L"Вы уверены, что хотите перезаписать данные сохранения?";
+		case LOCALE_DE:
+			return L"Möchten Sie die Speicherdaten wirklich überschreiben?";
+		case LOCALE_IT:
+			return L"Sei sicuro di voler sovrascrivere i dati di salvataggio?";
+		case LOCALE_ES:
+			return L"¿Está seguro de que desea sobrescribir los datos guardados?";
+		case LOCALE_EL:
+			return L"Είστε βέβαιοι ότι θέλετε να αντικαταστήσετε τα δεδομένα αποθήκευσης;";
 		default:
 			return L"Are you sure you want to overwrite the save data?";
 		}
@@ -171,6 +271,16 @@ const wchar_t *get_ui_message(int id)
 			return L"您確定要重置設置嗎？";
 		case LOCALE_FR:
 			return L"Voulez-vous vraiment réinitialiser les paramètres?";
+		case LOCALE_RU:
+			return L"Вы уверены, что хотите сбросить настройки?";
+		case LOCALE_DE:
+			return L"Möchten Sie die Einstellungen wirklich zurücksetzen?";
+		case LOCALE_IT:
+			return L"Sei sicuro di voler ripristinare le impostazioni?";
+		case LOCALE_ES:
+			return L"¿Está seguro de que desea restablecer la configuración?";
+		case LOCALE_EL:
+			return L"Είστε βέβαιοι ότι θέλετε να επαναφέρετε τις ρυθμίσεις;";
 		default:
 			return L"Are you sure you want to reset the settings?";
 		}
@@ -186,6 +296,16 @@ const wchar_t *get_ui_message(int id)
 			return L"不支持Direct3D。";
 		case LOCALE_FR:
 			return L"Direct3D n'est pas pris en charge.";
+		case LOCALE_RU:
+			return L"Direct3D не поддерживается.";
+		case LOCALE_DE:
+			return L"Direct3D wird nicht unterstützt.";
+		case LOCALE_IT:
+			return L"Direct3D non è supportato.";
+		case LOCALE_ES:
+			return L"Direct3D no es compatible.";
+		case LOCALE_EL:
+			return L"Το Direct3D δεν υποστηρίζεται.";
 		default:
 			return L"Direct3D is not supported.";
 		}
@@ -200,6 +320,16 @@ const wchar_t *get_ui_message(int id)
 			return L"顯示尺寸不足。";
 		case LOCALE_FR:
 			return L"Taille d'affichage insuffisante.";
+		case LOCALE_RU:
+			return L"Слишком маленький размер дисплея.";
+		case LOCALE_DE:
+			return L"Anzeigegröße zu klein.";
+		case LOCALE_IT:
+			return L"Dimensioni del display troppo piccole.";
+		case LOCALE_ES:
+			return L"Tamaño de la pantalla demasiado pequeño.";
+		case LOCALE_EL:
+			return L"Το μέγεθος της οθόνης είναι πολύ μικρό.";
 		default:
 			return L"Display size too small.";
 		}
@@ -214,6 +344,16 @@ const wchar_t *get_ui_message(int id)
 			return L"文件(&F)";
 		case LOCALE_FR:
 			return L"Fichier(&F)";
+		case LOCALE_RU:
+			return L"Файл(&F)";
+		case LOCALE_DE:
+			return L"Datei(&F)";
+		case LOCALE_IT:
+			return L"File(&F)";
+		case LOCALE_ES:
+			return L"Archivar(&F)";
+		case LOCALE_EL:
+			return L"Αρχείο(&F)";
 		default:
 			return L"File(&F)";
 		}
@@ -228,6 +368,16 @@ const wchar_t *get_ui_message(int id)
 			return L"展示(&V)";
 		case LOCALE_FR:
 			return L"Voir(&V)";
+		case LOCALE_RU:
+			return L"Вид(&V)";
+		case LOCALE_DE:
+			return L"Aussicht(&V)";
+		case LOCALE_IT:
+			return L"Vista(&V)";
+		case LOCALE_ES:
+			return L"Vista(&V)";
+		case LOCALE_EL:
+			return L"Απεικόνιση(&V)";
 		default:
 			return L"View(&V)";
 		}
@@ -242,6 +392,16 @@ const wchar_t *get_ui_message(int id)
 			return L"退出(&Q)";
 		case LOCALE_FR:
 			return L"Quitter(&Q)";
+		case LOCALE_RU:
+			return L"Покидать(&Q)";
+		case LOCALE_DE:
+			return L"Aufhören(&Q)";
+		case LOCALE_IT:
+			return L"Smettere(&Q)";
+		case LOCALE_ES:
+			return L"Abandonar(&Q)";
+		case LOCALE_EL:
+			return L"Παρατώ(&Q)";
 		default:
 			return L"Quit(&Q)";
 		}
@@ -256,6 +416,16 @@ const wchar_t *get_ui_message(int id)
 			return L"全屏(&F)\tAlt+Enter";
 		case LOCALE_FR:
 			return L"Plein écran(&F)\tAlt+Enter";
+		case LOCALE_RU:
+			return L"Полноэкранный(&F)\tAlt+Enter";
+		case LOCALE_DE:
+			return L"Ganzer Bildschirm(&F)\tAlt+Enter";
+		case LOCALE_IT:
+			return L"Schermo Intero(&F)\tAlt+Enter";
+		case LOCALE_ES:
+			return L"Pantalla completa(&F)\tAlt+Enter";
+		case LOCALE_EL:
+			return L"Πλήρης οθόνη(&F)\tAlt+Enter";
 		default:
 			return L"Full Screen(&F)\tAlt+Enter";
 		}
