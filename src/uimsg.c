@@ -23,6 +23,8 @@ const wchar_t *get_ui_message(int id)
 	switch (id) {
 	case UIMSG_YES:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"YES";
 		case LOCALE_JA:
 			return L"はい";
 		case LOCALE_ZH:
@@ -47,6 +49,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_NO:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"No";
 		case LOCALE_JA:
 			return L"いいえ";
 		case LOCALE_ZH:
@@ -71,6 +75,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_INFO:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Information";
 		case LOCALE_JA:
 			return L"情報";
 		case LOCALE_ZH:
@@ -95,8 +101,10 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_WARN:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Warning";
 		case LOCALE_JA:
-			return L"注意";
+			return L"警告";
 		case LOCALE_ZH:
 			return L"警告";
 		case LOCALE_TW:
@@ -119,6 +127,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_ERROR:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Error";
 		case LOCALE_JA:
 			return L"エラー";
 		case LOCALE_ZH:
@@ -143,6 +153,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_CANNOT_OPEN_LOG:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Cannot open log file.";
 		case LOCALE_JA:
 			return L"ログファイルをオープンできません。";
 		case LOCALE_ZH:
@@ -167,6 +179,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_EXIT:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Are you sure you want to quit?";
 		case LOCALE_JA:
 			return L"ゲームを終了しますか？";
 		case LOCALE_ZH:
@@ -191,6 +205,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_TITLE:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Are you sure you want to go to title?";
 		case LOCALE_JA:
 			return L"タイトルに戻りますか？";
 		case LOCALE_ZH:
@@ -215,6 +231,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_DELETE:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Are you sure you want to delete the save data?";
 		case LOCALE_JA:
 			return L"削除してもよろしいですか？";
 		case LOCALE_ZH:
@@ -239,6 +257,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_OVERWRITE:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Are you sure you want to overwrite the save data?";
 		case LOCALE_JA:
 			return L"上書きしてもよろしいですか？";
 		case LOCALE_ZH:
@@ -263,6 +283,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_DEFAULT:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Are you sure you want to reset the settings?";
 		case LOCALE_JA:
 			return L"設定をリセットしてもよろしいですか？";
 		case LOCALE_ZH:
@@ -288,6 +310,8 @@ const wchar_t *get_ui_message(int id)
 #ifdef WIN
 	case UIMSG_WIN_NO_DIRECT3D:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Direct3D is not supported.";
 		case LOCALE_JA:
 			return L"Direct3Dはサポートされません。";
 		case LOCALE_ZH:
@@ -312,6 +336,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_WIN_SMALL_DISPLAY:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Display size too small.";
 		case LOCALE_JA:
 			return L"ディスプレイのサイズが足りません。";
 		case LOCALE_ZH:
@@ -336,6 +362,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_WIN_MENU_FILE:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"File(&F)";
 		case LOCALE_JA:
 			return L"ファイル(&F)";
 		case LOCALE_ZH:
@@ -360,6 +388,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_WIN_MENU_VIEW:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"View(&V)";
 		case LOCALE_JA:
 			return L"表示(&V)";
 		case LOCALE_ZH:
@@ -373,9 +403,9 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_DE:
 			return L"Aussicht(&V)";
 		case LOCALE_IT:
-			return L"Vista(&V)";
+			return L"View(&V)";
 		case LOCALE_ES:
-			return L"Vista(&V)";
+			return L"View(&V)";
 		case LOCALE_EL:
 			return L"Απεικόνιση(&V)";
 		default:
@@ -384,6 +414,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_WIN_MENU_QUIT:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Quit(&Q)";
 		case LOCALE_JA:
 			return L"終了(&Q)";
 		case LOCALE_ZH:
@@ -408,6 +440,8 @@ const wchar_t *get_ui_message(int id)
 		break;
 	case UIMSG_WIN_MENU_FULLSCREEN:
 		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"Full Screen(&F)\tAlt+Enter";
 		case LOCALE_JA:
 			return L"フルスクリーン(&F)\tAlt+Enter";
 		case LOCALE_ZH:
