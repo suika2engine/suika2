@@ -21,19 +21,12 @@
 
 /*
  * 2.11.7以降、log_error()へ渡す文字列の文字コードはUTF-8に変更された。
- * Windowsでは、このファイル内の文字列の文字コードだけUTF-8になる。
  */
 
 #include <stddef.h>
 #include <assert.h>
 
 #include "suika.h"
-
-#ifdef _MSC_VER
-#define	U8(s)	u8##s
-#else
-#define U8(s)	s
-#endif
 
 static bool is_english_mode(void);
 

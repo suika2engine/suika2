@@ -98,8 +98,8 @@ bool register_message(const char *name, const char *msg, const char *voice)
 	if (name != NULL) {
 		/* "名前「メッセージ」"の形式に連結して保存する */
 		if (conf_locale == LOCALE_JA) {
-			snprintf(tmp_text, TEXT_SIZE, "%s%c%c%c%s%c%c%c", name,
-				 0xe3, 0x80, 0x8c, msg, 0xe3, 0x80, 0x8d);
+			snprintf(tmp_text, TEXT_SIZE, U8("%s「%s」"),
+				 name, msg);
 		} else {
 			snprintf(tmp_text, TEXT_SIZE, "%s: %s", name, msg);
 		}

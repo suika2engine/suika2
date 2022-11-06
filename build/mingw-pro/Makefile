@@ -30,7 +30,7 @@ CFLAGS = \
 	-ffast-math \
 	-fopt-info-vec \
 	-finput-charset=utf-8 \
-	-fexec-charset=cp932 \
+	-fexec-charset=utf-8 \
 	-Wall \
 	-Werror \
 	-Wextra \
@@ -104,6 +104,9 @@ all: suika-pro.exe
 suika-pro.exe: $(OBJS)
 	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS)
 
+log.o: ../../src/log.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS_UNICODE) $<
+
 #
 # Feature specific source files.
 #
@@ -118,4 +121,4 @@ install: suika-pro.exe
 	cp suika-pro.exe ../../
 
 clean:
-	rm -rf *.o *~ suika-pro.exe log.txt sav tmp libroot
+	rm -rf *.o *~ suika-pro.exe log.txt sav tmp
