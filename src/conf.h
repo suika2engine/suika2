@@ -334,6 +334,9 @@ extern int conf_msgbox_show_on_ch;
 extern float conf_beep_adjustment;
 extern int conf_release;
 
+/* conf_localeを設定する */
+void init_locale_code(void);
+
 /* コンフィグの初期化処理を行う */
 bool init_conf(void);
 

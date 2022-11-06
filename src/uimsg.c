@@ -78,7 +78,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_TW:
 			return L"信息";
 		case LOCALE_FR:
-			return L"Info";
+			return L"Informations";
 		case LOCALE_RU:
 			return L"Информация";
 		case LOCALE_DE:

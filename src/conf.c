@@ -1086,7 +1086,6 @@ struct rule {
 static bool read_conf(void);
 static bool save_value(const char *k, const char *v);
 static bool check_conf(void);
-static void get_locale_code(void);
 static void set_locale_mapping(void);
 
 /*
