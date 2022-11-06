@@ -21,6 +21,26 @@
 const wchar_t *get_ui_message(int id)
 {
 	switch (id) {
+	case UIMSG_YES:
+		switch (conf_locale) {
+		case LOCALE_JA:
+			return L"はい";
+		case LOCALE_ZH:
+			return L"是";
+		default:
+			return L"Yes";
+		}
+		break;
+	case UIMSG_NO:
+		switch (conf_locale) {
+		case LOCALE_JA:
+			return L"いいえ";
+		case LOCALE_ZH:
+			return L"不是";
+		default:
+			return L"No";
+		}
+		break;
 	case UIMSG_INFO:
 		switch (conf_locale) {
 		case LOCALE_JA:

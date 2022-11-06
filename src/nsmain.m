@@ -15,8 +15,11 @@
 #import <AVFoundation/AVFoundation.h>
 #import <sys/time.h>
 
+#import <wchar.h>
+
 #import "suika.h"
 #import "nsmain.h"
+#import "uimsg.h"
 #import "aunit.h"
 #import "glrender.h"
 
@@ -57,6 +60,7 @@ static BOOL isMoviePlaying;
 // 前方参照
 static BOOL initWindow(void);
 static void cleanupWindow(void);
+static NSString *NSStringFromWcs(const wchar_t *wcs);
 #ifndef USE_DEBUGGER
 static BOOL openLog(void);
 static void closeLog(void);
@@ -423,10 +427,9 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 #else
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:[[NSString alloc] initWithUTF8String:
-                                                    conf_ui_msg_quit]];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return YES;
@@ -653,6 +656,14 @@ static void cleanupWindow(void)
     // TODO: destroy theView and theWindow
 }
 
+// ワイド文字列をNSStringに変換する
+static NSString *NSStringFromWcs(const wchar_t *wcs)
+{
+    return [[NSString alloc] initWithBytes:wcs
+                                    length:wcslen(wcs) * sizeof(*wcs)
+                                  encoding:NSUTF32LittleEndianStringEncoding];
+}
+
 //
 // platform.hの実装
 //
@@ -753,7 +764,7 @@ bool log_info(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:!conf_i18n ? @"情報" : @"Information"];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_INFO))];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -787,7 +798,7 @@ bool log_warn(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:!conf_i18n ? @"情報" : @"Information"];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_WARN))];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -821,7 +832,7 @@ bool log_error(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:!conf_i18n ? @"エラー" : @"Error"];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_ERROR))];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -952,10 +963,9 @@ bool exit_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_quit]];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -970,10 +980,9 @@ bool title_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_title]];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_TITLE))];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -988,10 +997,9 @@ bool delete_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_delete]];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DELETE))];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -1006,11 +1014,9 @@ bool overwrite_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc]
-                       initWithUTF8String:conf_ui_msg_overwrite]];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_OVERWRITE))];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -1025,10 +1031,9 @@ bool default_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_default]];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DEFAULT))];
         [alert setAlertStyle:NSWarningAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;

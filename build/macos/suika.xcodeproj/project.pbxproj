@@ -68,6 +68,8 @@
 		265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CD2857372300A02167 /* InfoPlist.strings */; };
 		26616DC926B4CED20094B23C /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
 		267078F82916513C003C61C1 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 267078FA2916513C003C61C1 /* MainMenu.xib */; };
+		267079012917992E003C61C1 /* uimsg.c in Sources */ = {isa = PBXBuildFile; fileRef = 267079002917992E003C61C1 /* uimsg.c */; };
+		267079022917992E003C61C1 /* uimsg.c in Sources */ = {isa = PBXBuildFile; fileRef = 267079002917992E003C61C1 /* uimsg.c */; };
 		2679EC7928575DA000C20499 /* DebugWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7B28575DA000C20499 /* DebugWindow.xib */; };
 		2679EC7C28575DC200C20499 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7E28575DC200C20499 /* MainMenu.xib */; };
 		2679EC85285813B000C20499 /* package.c in Sources */ = {isa = PBXBuildFile; fileRef = 2679EC84285813B000C20499 /* package.c */; };
@@ -137,6 +139,8 @@
 		267078F92916513C003C61C1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		267078FC29165157003C61C1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		267078FE29165158003C61C1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		267078FF2917992E003C61C1 /* uimsg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uimsg.h; path = ../../../src/uimsg.h; sourceTree = "<group>"; };
+		267079002917992E003C61C1 /* uimsg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = uimsg.c; path = ../../../src/uimsg.c; sourceTree = "<group>"; };
 		2679EC7A28575DA000C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DebugWindow.xib; sourceTree = "<group>"; };
 		2679EC7D28575DC200C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2679EC8028575DD100C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/DebugWindow.strings; sourceTree = "<group>"; };
@@ -341,6 +345,8 @@
 				26A1780325EE5DD0006A1ED4 /* stage.h */,
 				26A177FD25EE5DD0006A1ED4 /* suika.h */,
 				26A1781325EE5DD0006A1ED4 /* types.h */,
+				267079002917992E003C61C1 /* uimsg.c */,
+				267078FF2917992E003C61C1 /* uimsg.h */,
 				26A1781725EE5DD0006A1ED4 /* vars.c */,
 				26A1780C25EE5DD0006A1ED4 /* vars.h */,
 				26A1780F25EE5DD0006A1ED4 /* wave.c */,
@@ -453,6 +459,7 @@
 				2603494B2854B29800037370 /* scbuf.c in Sources */,
 				2603494C2854B29800037370 /* cmd_wait.c in Sources */,
 				2679EC85285813B000C20499 /* package.c in Sources */,
+				267079022917992E003C61C1 /* uimsg.c in Sources */,
 				2603494D2854B29800037370 /* vars.c in Sources */,
 				2603494E2854B29800037370 /* glyph.c in Sources */,
 				26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */,
@@ -549,6 +556,7 @@
 				26A1782F25EE5DD0006A1ED4 /* file.c in Sources */,
 				26616DC926B4CED20094B23C /* seen.c in Sources */,
 				26A1783825EE5DD0006A1ED4 /* cmd_switch.c in Sources */,
+				267079012917992E003C61C1 /* uimsg.c in Sources */,
 				26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */,
 				26A1783725EE5DD0006A1ED4 /* cmd_menu.c in Sources */,
 			);
