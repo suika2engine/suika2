@@ -318,8 +318,8 @@ BOOL isRedrawPrepared;
 // キーボード修飾変化イベント
 - (void)flagsChanged:(NSEvent *)theEvent {
     // Controlキーの状態を取得する
-    BOOL bit = ([theEvent modifierFlags] & NSControlKeyMask) ==
-        NSControlKeyMask;
+    BOOL bit = ([theEvent modifierFlags] & NSEventModifierFlagControl) ==
+    NSEventModifierFlagControl;
     
     // Controlキーの状態が変化した場合は通知する
     if (!isControlPressed && bit) {
@@ -430,7 +430,7 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
         [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return YES;
         else
@@ -613,9 +613,9 @@ static BOOL initWindow(void)
     // ウィンドウを作成する
     theWindow = [[NSWindow alloc]
                      initWithContentRect:cr
-                               styleMask:NSTitledWindowMask |
-                                         NSClosableWindowMask |
-                                         NSMiniaturizableWindowMask
+                               styleMask:NSWindowStyleMaskTitled |
+                                         NSWindowStyleMaskClosable  |
+                                         NSWindowStyleMaskMiniaturizable
                                  backing:NSBackingStoreBuffered
                                    defer:NO];
 #ifndef USE_DEBUGGER
@@ -969,7 +969,7 @@ bool exit_dialog(void)
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
         [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -986,7 +986,7 @@ bool title_dialog(void)
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
         [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_TITLE))];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -1003,7 +1003,7 @@ bool delete_dialog(void)
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
         [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DELETE))];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -1020,7 +1020,7 @@ bool overwrite_dialog(void)
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
         [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_OVERWRITE))];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -1037,7 +1037,7 @@ bool default_dialog(void)
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
         [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
         [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DEFAULT))];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;

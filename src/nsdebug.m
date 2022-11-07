@@ -191,7 +191,7 @@ static void setStoppedState(void);
     [alert setMessageText:isEnglish ?
            @"Are you sure you want to overwrite the script file?" :
            @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
-    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setAlertStyle:NSAlertStyleWarning];
     if([alert runModal] != NSAlertFirstButtonReturn)
         return;
 
@@ -289,7 +289,7 @@ static void setStoppedState(void);
     [panel setAllowedFileTypes:
                [NSArray arrayWithObjects:@"txt", @"'TEXT'", nil]];
     [panel setDirectoryURL:[[NSURL alloc] initFileURLWithPath:txtPath]];
-    if ([panel runModal] == NSOKButton) {
+    if ([panel runModal] == NSModalResponseOK) {
         NSString *file = [[panel URL] lastPathComponent];
         if ([file hasPrefix:txtPath]) {
                 [self setScriptName:file];
