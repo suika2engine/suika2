@@ -883,7 +883,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		DestroyWindow(hWnd);
 		return 0;
 #else
-		if (MessageBox(hWnd, get_ui_message(UIMSG_EXIT), wszTitle,
+		if (MessageBox(hWnd,
+					   get_ui_message(UIMSG_EXIT),
+					   conv_utf8_to_utf16(conf_window_title),
 					   MB_OKCANCEL) == IDOK)
 			DestroyWindow(hWnd);
 		return 0;
