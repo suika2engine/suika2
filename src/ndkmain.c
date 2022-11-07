@@ -42,6 +42,9 @@ Java_jp_luxion_suika_MainActivity_init(
 	/* Activityを保持する */
 	main_activity = (*env)->NewGlobalRef(env, instance);
 
+	/* ロケールを初期化する */
+	init_locale_code();
+
 	/* コンフィグの初期化処理を行う */
 	if (!init_conf()) {
 		log_error("Failed to initialize config.");

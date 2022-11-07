@@ -186,12 +186,12 @@ static void setStoppedState(void);
 
     // 確認のダイアログを開く
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
+    [alert addButtonWithTitle:!isEnglish ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:!isEnglish ? @"いいえ" : @"No"];
     [alert setMessageText:isEnglish ?
            @"Are you sure you want to overwrite the script file?" :
            @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
-    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setAlertStyle:NSAlertStyleWarning];
     if([alert runModal] != NSAlertFirstButtonReturn)
         return;
 
@@ -289,7 +289,7 @@ static void setStoppedState(void);
     [panel setAllowedFileTypes:
                [NSArray arrayWithObjects:@"txt", @"'TEXT'", nil]];
     [panel setDirectoryURL:[[NSURL alloc] initFileURLWithPath:txtPath]];
-    if ([panel runModal] == NSOKButton) {
+    if ([panel runModal] == NSModalResponseOK) {
         NSString *file = [[panel URL] lastPathComponent];
         if ([file hasPrefix:txtPath]) {
                 [self setScriptName:file];
@@ -563,8 +563,6 @@ BOOL initDebugWindow(void)
     // 英語モードかどうかをロケールから決定する
     NSString *lang = [[NSLocale preferredLanguages] objectAtIndex:0];
     isEnglish = [lang isEqualToString:@"ja-JP"] ? false : true;
-    if (isEnglish)
-        conf_i18n = 1;
 
     // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]
@@ -573,8 +571,8 @@ BOOL initDebugWindow(void)
         return FALSE;
 
     // メニューのXibをロードする
-    NSBundle *bundle  = [NSBundle mainBundle];
-    NSArray  *objects = [NSArray new];
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSArray *objects = [NSArray new];
     [bundle loadNibNamed:@"MainMenu"
                    owner:debugWindowController
          topLevelObjects:&objects];

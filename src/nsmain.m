@@ -15,8 +15,11 @@
 #import <AVFoundation/AVFoundation.h>
 #import <sys/time.h>
 
+#import <wchar.h>
+
 #import "suika.h"
 #import "nsmain.h"
+#import "uimsg.h"
 #import "aunit.h"
 #import "glrender.h"
 
@@ -57,6 +60,7 @@ static BOOL isMoviePlaying;
 // 前方参照
 static BOOL initWindow(void);
 static void cleanupWindow(void);
+static NSString *NSStringFromWcs(const wchar_t *wcs);
 #ifndef USE_DEBUGGER
 static BOOL openLog(void);
 static void closeLog(void);
@@ -67,6 +71,7 @@ static void closeLog(void);
 //
 
 @interface SuikaView ()
+- (IBAction)onQuit:(id)sender;
 @end
 
 @implementation SuikaView
@@ -91,19 +96,21 @@ BOOL isRedrawPrepared;
     return AVPlayerLayer.class;
 }
 
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    // メニューのXibをロードする
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSArray *objects = [NSArray new];
+    [bundle loadNibNamed:@"MainMenu"
+                   owner:theView
+         topLevelObjects:&objects];
+
+    // メニューのタイトルを変更す
+    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
+    [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
+}
+
 // ビューが作成されるときに呼び出される
 - (id)initWithFrame:(NSRect)frame {
-    // メニューのタイトルを変更する https://stackoverflow.com/questions/4965466/set-titles-of-items-in-my-apps-main-menu
-    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
-    NSString *title = [[NSString alloc] initWithUTF8String:
-#ifdef USE_DEBUGGER
-        "Suika2 Pro for Creators"
-#else
-        conf_window_title
-#endif
-    ];
-    [menu setTitle:[title stringByAppendingString:@"\x1b"]];
-
     // OpenGLコンテキストを作成する
     NSOpenGLPixelFormatAttribute pixelFormatAttributes[] = {
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
@@ -311,8 +318,8 @@ BOOL isRedrawPrepared;
 // キーボード修飾変化イベント
 - (void)flagsChanged:(NSEvent *)theEvent {
     // Controlキーの状態を取得する
-    BOOL bit = ([theEvent modifierFlags] & NSControlKeyMask) ==
-        NSControlKeyMask;
+    BOOL bit = ([theEvent modifierFlags] & NSEventModifierFlagControl) ==
+    NSEventModifierFlagControl;
     
     // Controlキーの状態が変化した場合は通知する
     if (!isControlPressed && bit) {
@@ -420,11 +427,10 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 #else
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:[[NSString alloc] initWithUTF8String:
-                                                    conf_ui_msg_quit]];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return YES;
         else
@@ -445,6 +451,14 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     return YES;
 }
 
+// Quitが選択されたか
+- (IBAction)onQuit:(id)sender {
+    if ([self windowShouldClose:sender]) {
+        // メインループから抜ける
+        [NSApp stop:nil];
+    }
+}
+
 // First Responderとなるか
 - (BOOL)acceptsFirstResponder {
     return YES;
@@ -455,7 +469,6 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
     [player replaceCurrentItemWithPlayerItem:nil];
     isMoviePlaying = NO;
 }
-
 @end
 
 //
@@ -469,6 +482,9 @@ int main()
 #endif
 
     @autoreleasepool {
+        // ロケールを初期化する
+        init_locale_code();
+
         // パッケージの初期化処理を行う
         if (init_file()) {
             // コンフィグの初期化処理を行う
@@ -583,24 +599,6 @@ static BOOL initWindow(void)
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-#ifndef USE_DEBUGGER
-    // メニューバーを作成する
-    NSMenu *menuBar = [NSMenu new];
-    NSMenuItem *appMenuItem = [NSMenuItem new];
-    [menuBar addItem:appMenuItem];
-    [NSApp setMainMenu:menuBar];
-
-    // アプリケーションのメニューを作成する
-    //  - 最初のタイマイベントでアプリケーション名を変更する
-    id appMenu = [NSMenu new];
-    id quitMenuItem = [[NSMenuItem alloc]
-                          initWithTitle:!conf_i18n ? @"終了する" : @"Quit"
-                                 action:@selector(performClose:)
-                          keyEquivalent:@"q"];
-    [appMenu addItem:quitMenuItem];
-    [appMenuItem setSubmenu:appMenu];
-#endif
-
     // メインスクリーンの位置とサイズを取得する
     NSRect sr = [[NSScreen mainScreen] visibleFrame];
 
@@ -615,9 +613,9 @@ static BOOL initWindow(void)
     // ウィンドウを作成する
     theWindow = [[NSWindow alloc]
                      initWithContentRect:cr
-                               styleMask:NSTitledWindowMask |
-                                         NSClosableWindowMask |
-                                         NSMiniaturizableWindowMask
+                               styleMask:NSWindowStyleMaskTitled |
+                                         NSWindowStyleMaskClosable  |
+                                         NSWindowStyleMaskMiniaturizable
                                  backing:NSBackingStoreBuffered
                                    defer:NO];
 #ifndef USE_DEBUGGER
@@ -659,6 +657,14 @@ static BOOL initWindow(void)
 static void cleanupWindow(void)
 {
     // TODO: destroy theView and theWindow
+}
+
+// ワイド文字列をNSStringに変換する
+static NSString *NSStringFromWcs(const wchar_t *wcs)
+{
+    return [[NSString alloc] initWithBytes:wcs
+                                    length:wcslen(wcs) * sizeof(*wcs)
+                                  encoding:NSUTF32LittleEndianStringEncoding];
 }
 
 //
@@ -761,7 +767,7 @@ bool log_info(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:!conf_i18n ? @"情報" : @"Information"];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_INFO))];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -795,7 +801,7 @@ bool log_warn(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:!conf_i18n ? @"情報" : @"Information"];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_WARN))];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -829,7 +835,7 @@ bool log_error(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:!conf_i18n ? @"エラー" : @"Error"];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_ERROR))];
     [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
     [alert runModal];
 
@@ -960,11 +966,10 @@ bool exit_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_quit]];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -978,11 +983,10 @@ bool title_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_title]];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_TITLE))];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -996,11 +1000,10 @@ bool delete_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_delete]];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DELETE))];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -1014,12 +1017,10 @@ bool overwrite_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc]
-                       initWithUTF8String:conf_ui_msg_overwrite]];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_OVERWRITE))];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;
@@ -1033,11 +1034,10 @@ bool default_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:!conf_i18n ? @"はい" : @"Yes"];
-        [alert addButtonWithTitle:!conf_i18n ? @"いいえ" : @"No"];
-        [alert setMessageText:
-                   [[NSString alloc] initWithUTF8String:conf_ui_msg_default]];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DEFAULT))];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
         return false;

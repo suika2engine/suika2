@@ -193,6 +193,7 @@ struct image *create_image_from_color_string(int w, int h, const char *color)
 		return NULL;
 
 	/* 色指定文字列を読み込む */
+	rgb = 0;
 	sscanf(color, "%x", &rgb);
 	r = (rgb >> 16) & 0xff;
 	g = (rgb >> 8) & 0xff;

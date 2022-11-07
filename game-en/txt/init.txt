@@ -105,7 +105,19 @@
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
 *Midori*Ahem, okay, now that that's out in the open...
-*Midori*Hello! Thank you for using Suika2!
+
++en+*Midori*Hello!
++fr+*Midori*Bonjour!
++de+*Midori*Guten Tag!
++es+*Midori*Buenas Tardes!
++it+*Midori*Buon giorno!
++el+*Midori*Καλημέρα!
++ru+*Midori*Добрый день!
++zh+*Midori*你好！
++tw+*Midori*你好！
++ja+*Midori*こんにちは！
+
+*Midori*Thank you for using Suika2!
 *Midori*As you may already know, Suika2 is a visual novel authoring tool or 'engine'.
 *Midori*It's free and runs on both Windows and Mac. Awesome, right?
 

@@ -16,6 +16,11 @@
  *  - 2021/06/15 @setsaveのパラメタのエラーを追加
  *  - 2021/07/07 @goto $SAVEのエラーを追加
  *  - 2022/06/14 Suika2 Pro for Creators
+ *  - 2022/11/06 UTF-8
+ */
+
+/*
+ * 2.11.7以降、log_error()へ渡す文字列の文字コードはUTF-8に変更された。
  */
 
 #include <stddef.h>
@@ -28,12 +33,11 @@ static bool is_english_mode(void);
 /* 英語モードであるかチェックする */
 static bool is_english_mode(void)
 {
-	/* コンフィグi18nが未指定の場合は日本語モードとする */
-	if (!conf_i18n)
+	/* FIXME: 日本語ロケールでなければ英語メッセージする */
+	if (strcmp(get_system_locale(), "ja") == 0)
 		return false;
-
-	/* 英語モードとする */
-	return true;
+	else
+		return true;
 }
 
 /*
@@ -44,7 +48,7 @@ void log_api_error(const char *api)
 	if (is_english_mode())
 		log_error("API %s failed.\n", api);
 	else
-		log_error("API %s が失敗しました。\n", api);
+		log_error(U8("API %s が失敗しました。\n"), api);
 }
 
 /*
@@ -53,11 +57,10 @@ void log_api_error(const char *api)
 void log_audio_file_error(const char *dir, const char *file)
 {
 	if (is_english_mode()) {
-		log_error("Failed to load audio file \"%s/%s\".\n", dir,
-			  conv_utf8_to_native(file));
+		log_error("Failed to load audio file \"%s/%s\".\n", dir, file);
 	} else {
-		log_error("オーディオファイル\"%s/%s\"を読み込めません。\n",
-			  dir, conv_utf8_to_native(file));
+		log_error(U8("オーディオファイル\"%s/%s\"を読み込めません。\n"),
+			  dir, file);
 	}
 }
 
@@ -68,10 +71,10 @@ void log_file_name(const char *dir, const char *file)
 {
 	if (is_english_mode()) {
 		log_error("File name includes non-ASCII character(s). "
-			  "\"%s/%s\"\n", dir, conv_utf8_to_native(file));
+			  "\"%s/%s\"\n", dir, file);
 	} else {
-		log_error("ファイル名に半角英数字以外の文字が使われています。 "
-			  "\"%s/%s\"\n", dir, conv_utf8_to_native(file));
+		log_error(U8("ファイル名に半角英数字以外の文字が使われています。 ")
+			  U8("\"%s/%s\"\n"), dir, file);
 	}
 }
 
@@ -80,13 +83,10 @@ void log_file_name(const char *dir, const char *file)
  */
 void log_dir_file_open(const char *dir, const char *file)
 {
-	if (is_english_mode()) {
-		log_error("Cannot open file \"%s/%s\".\n", dir,
-			  conv_utf8_to_native(file));
-	} else {
-		log_error("ファイル\"%s/%s\"を開けません。\n", dir,
-			  conv_utf8_to_native(file));
-	}
+	if (is_english_mode())
+		log_error("Cannot open file \"%s/%s\".\n", dir, file);
+	else
+		log_error(U8("ファイル\"%s/%s\"を開けません。\n"), dir, file);
 }
 
 /*
@@ -94,13 +94,10 @@ void log_dir_file_open(const char *dir, const char *file)
  */
 void log_file_open(const char *fname)
 {
-	if (is_english_mode()) {
-		log_error("Cannot open file \"%s\".\n",
-			  conv_utf8_to_native(fname));
-	} else {
-		log_error("ファイル\"%s\"を開けません。\n",
-			  conv_utf8_to_native(fname));
-	}
+	if (is_english_mode())
+		log_error("Cannot open file \"%s\".\n", fname);
+	else
+		log_error(U8("ファイル\"%s\"を開けません。\n"), fname);
 }
 
 /*
@@ -108,13 +105,10 @@ void log_file_open(const char *fname)
  */
 void log_file_read(const char *dir, const char *file)
 {
-	if (is_english_mode()) {
-		log_error("Cannot read file \"%s/%s\".\n", dir,
-			  conv_utf8_to_native(file));
-	} else {
-		log_error("ファイル\"%s/%s\"を読み込めません。\n", dir,
-			  conv_utf8_to_native(file));
-	}
+	if (is_english_mode())
+		log_error("Cannot read file \"%s/%s\".\n", dir, file);
+	else
+		log_error(U8("ファイル\"%s/%s\"を読み込めません。\n"), dir, file);
 }
 
 /*
@@ -122,13 +116,10 @@ void log_file_read(const char *dir, const char *file)
  */
 void log_font_file_error(const char *font)
 {
-	if (is_english_mode()) {
-		log_error("Failed to load font file \"%s\".\n",
-		  conv_utf8_to_native(font));
-	} else {
-		log_error("フォントファイル\"%s\"を読み込めません。\n",
-			  conv_utf8_to_native(font));
-	}
+	if (is_english_mode())
+		log_error("Failed to load font file \"%s\".\n", font);
+	else
+		log_error(U8("フォントファイル\"%s\"を読み込めません。\n"), font);
 }
 
 /*
@@ -137,11 +128,10 @@ void log_font_file_error(const char *font)
 void log_image_file_error(const char *dir, const char *file)
 {
 	if (is_english_mode()) {
-		log_error("Failed to load image file \"%s/%s\".\n", dir,
-			  conv_utf8_to_native(file));
+		log_error("Failed to load image file \"%s/%s\".\n", dir, file);
 	} else {
-		log_error("イメージファイル\"%s/%s\"を読み込めません。\n", dir,
-			  conv_utf8_to_native(file));
+		log_error(U8("イメージファイル\"%s/%s\"を読み込めません。\n"),
+			  dir, file);
 	}
 }
 
@@ -153,7 +143,7 @@ void log_memory(void)
 	if (is_english_mode())
 		log_error("Out of memory.\n");
 	else
-		log_error("メモリの確保に失敗しました。\n");
+		log_error(U8("メモリの確保に失敗しました。\n"));
 }
 
 /*
@@ -164,7 +154,7 @@ void log_package_file_error(void)
 	if (is_english_mode())
 		log_error("Failed to load the package file.\n");
 	else
-		log_error("パッケージファイルの読み込みに失敗しました。\n");
+		log_error(U8("パッケージファイルの読み込みに失敗しました。\n"));
 }
 
 /*
@@ -175,7 +165,7 @@ void log_duplicated_conf(const char *key)
 	if (is_english_mode())
 		log_error("Config key \"%s\" already exists.\n", key);
 	else
-		log_error("コンフィグで\"%s\"が重複しています。\n", key);
+		log_error(U8("コンフィグで\"%s\"が重複しています。\n"), key);
 }
 
 /*
@@ -186,7 +176,7 @@ void log_undefined_conf(const char *key)
 	if (is_english_mode())
 		log_error("Missing key \"%s\" in config.txt\n", key);
 	else
-		log_error("コンフィグに\"%s\"が記述されていません。\n", key);
+		log_error(U8("コンフィグに\"%s\"が記述されていません。\n"), key);
 }
 
 /*
@@ -196,10 +186,9 @@ void log_unknown_conf(const char *key)
 {
 	if (is_english_mode()) {
 		log_error("Configuration key \"%s\" is not recognized.\n",
-			  conv_utf8_to_native(key));
+			  key);
 	} else {
-		log_error("コンフィグの\"%s\"は認識されません。\n",
-			  conv_utf8_to_native(key));
+		log_error(U8("コンフィグの\"%s\"は認識されません。\n"), key);
 	}
 }
 
@@ -212,7 +201,7 @@ void log_empty_conf_string(const char *key)
 		log_error("Empty string is specified for"
 			  " config key \"%s\"\n", key);
 	} else {
-		log_error("コンフィグの\"%s\"に空の文字列が指定されました。\n",
+		log_error(U8("コンフィグの\"%s\"に空の文字列が指定されました。\n"),
 			  key);
 	}
 }
@@ -224,13 +213,10 @@ void log_wave_error(const char *fname)
 {
 	assert(fname != NULL);
 
-	if (is_english_mode()) {
-		log_error("Failed to play \"%s\".\n",
-			  conv_utf8_to_native(fname));
-	} else {
-		log_error("ファイル\"%s\"の再生に失敗しました。\n",
-			  conv_utf8_to_native(fname));
-	}
+	if (is_english_mode())
+		log_error("Failed to play \"%s\".\n", fname);
+	else
+		log_error(U8("ファイル\"%s\"の再生に失敗しました。\n"), fname);
 }
 
 /*
@@ -241,8 +227,7 @@ void log_invalid_msgbox_size(void)
 	if (is_english_mode()) {
 		log_error("The sizes of message box bg and fg differ.\n");
 	} else {
-		log_error("メッセージボックスのBGとFGで"
-			  "サイズが異なります。.\n");
+		log_error(U8("メッセージボックスのBGとFGでサイズが異なります。\n"));
 	}
 }
 
@@ -275,11 +260,11 @@ void log_script_exec_footer(void)
 	if (is_english_mode()) {
 		log_error("> Script execution error: %s:%d\n"
 			  "> %s\n",
-			  file, line, conv_utf8_to_native(get_line_string()));
+			  file, line, get_line_string());
 	} else {
-		log_error("> スクリプト実行エラー: %s %d行目\n"
-			  "> %s\n",
-			  file, line, conv_utf8_to_native(get_line_string()));
+		log_error(U8("> スクリプト実行エラー: %s %d行目\n")
+			  U8("> %s\n"),
+			  file, line, get_line_string());
 	}
 #endif
 }
@@ -289,13 +274,10 @@ void log_script_exec_footer(void)
  */
 void log_script_command_not_found(const char *name)
 {
-	if (is_english_mode()) {
-		log_error("Invalid command \"%s\".\n",
-			  conv_utf8_to_native(name));
-	} else {
-		log_error("コマンド\"%s\"がみつかりません\n",
-			  conv_utf8_to_native(name));
-	}
+	if (is_english_mode())
+		log_error("Invalid command \"%s\".\n", name);
+	else
+		log_error(U8("コマンド\"%s\"がみつかりません\n"), name);
 }
 
 /*
@@ -306,7 +288,7 @@ void log_script_empty_serif(void)
 	if (is_english_mode())
 		log_error("Character message or name is empty.\n");
 	else
-		log_error("セリフか名前が空白です\n");
+		log_error(U8("セリフか名前が空白です\n"));
 }
 
 /*
@@ -315,11 +297,10 @@ void log_script_empty_serif(void)
 void log_script_ch_position(const char *pos)
 {
 	if (is_english_mode()) {
-		log_error("Character position \"%s\" is invalid.\n",
-			  conv_utf8_to_native(pos));
+		log_error("Character position \"%s\" is invalid.\n", pos);
 	} else {
-		log_error("キャラクタの位置指定\"%s\"は間違っています。\n",
-		  conv_utf8_to_native(pos));
+		log_error(U8("キャラクタの位置指定\"%s\"は間違っています。\n"),
+			  pos);
 	}
 }
 
@@ -329,11 +310,10 @@ void log_script_ch_position(const char *pos)
 void log_script_fade_method(const char *method)
 {
 	if (is_english_mode()) {
-		log_error("Fade method \"%s\" is invalid.\n",
-			  conv_utf8_to_native(method));
+		log_error("Fade method \"%s\" is invalid.\n", method);
 	} else {
-		log_error("フェードの方法指定\"%s\"は間違っています。\n",
-		  conv_utf8_to_native(method));
+		log_error(U8("フェードの方法指定\"%s\"は間違っています。\n"),
+			  method);
 	}
 }
 
@@ -342,13 +322,10 @@ void log_script_fade_method(const char *method)
  */
 void log_script_label_not_found(const char *name)
 {
-	if (is_english_mode()) {
-		log_error("Label \"%s\" not found.\n",
-			  conv_utf8_to_native(name));
-	} else {
-		log_error("ラベル\"%s\"がみつかりません。\n",
-			  conv_utf8_to_native(name));
-	}
+	if (is_english_mode())
+		log_error("Label \"%s\" not found.\n", name);
+	else
+		log_error(U8("ラベル\"%s\"がみつかりません。\n"), name);
 }
 
 /*
@@ -356,13 +333,10 @@ void log_script_label_not_found(const char *name)
  */
 void log_script_lhs_not_variable(const char *lhs)
 {
-	if (is_english_mode()) {
-		log_error("Invalid variable name on LHS. (%s).\n",
-			  conv_utf8_to_native(lhs));
-	} else {
-		log_error("左辺(%s)が変数名ではありません。\n",
-			  conv_utf8_to_native(lhs));
-	}
+	if (is_english_mode())
+		log_error("Invalid variable name on LHS. (%s).\n", lhs);
+	else
+		log_error(U8("左辺(%s)が変数名ではありません。\n"), lhs);
 }
 
 /*
@@ -370,13 +344,10 @@ void log_script_lhs_not_variable(const char *lhs)
  */
 void log_script_no_command(const char *file)
 {
-	if (is_english_mode()) {
-		log_error("Script \"%s\" is empty.\n",
-			  conv_utf8_to_native(file));
-	} else {
-		log_error("スクリプト%sにコマンドが含まれません。\n",
-			  conv_utf8_to_native(file));
-	}
+	if (is_english_mode())
+		log_error("Script \"%s\" is empty.\n", file);
+	else
+		log_error(U8("スクリプト%sにコマンドが含まれません。\n"), file);
 }
 
 /*
@@ -384,13 +355,10 @@ void log_script_no_command(const char *file)
  */
 void log_script_not_variable(const char *name)
 {
-	if (is_english_mode()) {
-		log_error("Invalid variable name. (%s)\n",
-			  conv_utf8_to_native(name));
-	} else {
-		log_error("変数名ではない名前(%s)が指定されました。\n",
-			  conv_utf8_to_native(name));
-	}
+	if (is_english_mode())
+		log_error("Invalid variable name. (%s)\n", name);
+	else
+		log_error(U8("変数名ではない名前(%s)が指定されました。\n"), name);
 }
 
 /*
@@ -401,7 +369,7 @@ void log_script_non_positive_size(int val)
 	if (is_english_mode())
 		log_error("Negative size value. (%d)\n", val);
 	else
-		log_error("サイズに正の値が指定されませんでした。(%d)\n", val);
+		log_error(U8("サイズに正の値が指定されませんでした。(%d)\n"), val);
 }
 
 /*
@@ -414,8 +382,8 @@ void log_script_too_few_param(int min, int real)
 			  "At least %d argument(s) required, "
 			  "but %d argument(s) passed.\n", min, real);
 	} else {
-		log_error("引数が足りません。最低%d個必要ですが、"
-			  "%d個しか指定されませんでした。\n", min, real);
+		log_error(U8("引数が足りません。最低%d個必要ですが、")
+			  U8("%d個しか指定されませんでした。\n"), min, real);
 	}
 }
 
@@ -429,8 +397,8 @@ void log_script_too_many_param(int max, int real)
 			  "Number of maximum argument(s) is %d, "
 			  "but %d argument(s) passed.\n", max, real);
 	} else {
-		log_error("引数が多すぎます。最大%d個ですが、"
-			  "%d個指定されました。\n", max, real);
+		log_error(U8("引数が多すぎます。最大%d個ですが、")
+			  U8("%d個指定されました。\n"), max, real);
 	}
 }
 
@@ -439,13 +407,10 @@ void log_script_too_many_param(int max, int real)
  */
 void log_script_op_error(const char *op)
 {
-	if (is_english_mode()) {
-		log_error("Invalid operator \"%s\".\n",
-			  conv_utf8_to_native(op));
-	} else {
-		log_error("演算子\"%s\"は間違っています。\n",
-			  conv_utf8_to_native(op));
-	}
+	if (is_english_mode())
+		log_error("Invalid operator \"%s\".\n", op);
+	else
+		log_error(U8("演算子\"%s\"は間違っています。\n"), op);
 }
 
 /*
@@ -457,11 +422,11 @@ void log_script_parse_footer(const char *file, int line, const char *buf)
 	if (is_english_mode()) {
 		log_error("> Script format error: %s:%d\n"
 			  "> %s\n",
-			  file, line, conv_utf8_to_native(buf));
+			  file, line, buf);
 	} else {
-		log_error("> スクリプト書式エラー: %s %d行目\n"
-			  "> %s\n",
-			  file, line, conv_utf8_to_native(buf));
+		log_error(U8("> スクリプト書式エラー: %s %d行目\n")
+			  U8("> %s\n"),
+			  file, line, buf);
 	}
 }
 
@@ -473,7 +438,7 @@ void log_script_return_error(void)
 	if (is_english_mode())
 		log_error("No return target of @return.\n");
 	else
-		log_error("@returnの戻り先が存在しません。\n");
+		log_error(U8("@returnの戻り先が存在しません。\n"));
 }
 
 /*
@@ -485,7 +450,7 @@ void log_script_rgb_negative(int val)
 		log_error("Negative value specified as a "
 			  "RGB component value. (%d)\n", val);
 	} else {
-		log_error("RGB値に負の数(%d)が指定されました。\n", val);
+		log_error(U8("RGB値に負の数(%d)が指定されました。\n"), val);
 	}
 }
 
@@ -499,9 +464,9 @@ void log_script_size(int size)
 			  "Please split the script.\n",
 			  get_script_file_name(), size);
 	} else {
-		log_error("スクリプト%sが最大コマンド数%dを超えています。"
-			  "分割してください。\n", get_script_file_name(),
-			  size);
+		log_error(U8("スクリプト%sが最大コマンド数%dを超えています。")
+			  U8("分割してください。\n"),
+			  get_script_file_name(), size);
 	}
 }
 
@@ -514,7 +479,7 @@ void log_script_switch_no_label(void)
 	if (is_english_mode())
 		log_error("No label for @switch option.");
 	else
-		log_error("スイッチの選択肢にラベルがありません。");
+		log_error(U8("スイッチの選択肢にラベルがありません。"));
 }
 
 /*
@@ -525,7 +490,7 @@ void log_script_switch_no_item(void)
 	if (is_english_mode())
 		log_error("No option for @switch.");
 	else
-		log_error("スイッチの選択肢がありません。");
+		log_error(U8("スイッチの選択肢がありません。"));
 }
 
 /*
@@ -536,7 +501,7 @@ void log_script_var_index(int index)
 	if (is_english_mode())
 		log_error("Variable index %d is out of range.\n", index);
 	else
-		log_error("変数インデックス%dは範囲外です。\n", index);
+		log_error(U8("変数インデックス%dは範囲外です。\n"), index);
 }
 
 /*
@@ -549,8 +514,8 @@ void log_script_vol_value(float vol)
 			  "Specify between 0.0 and 1.0.",
 			  vol);
 	} else {
-		log_error("ボリューム値\"%0.1f\"は正しくありません。\n"
-			  "0.0以上1.0以下で指定してください。",
+		log_error(U8("ボリューム値\"%0.1f\"は正しくありません。\n")
+			  U8("0.0以上1.0以下で指定してください。"),
 			  vol);
 	}
 }
@@ -561,11 +526,10 @@ void log_script_vol_value(float vol)
 void log_script_mixer_stream(const char *stream)
 {
 	if (is_english_mode()) {
-		log_error("Invalid mixer stream name \"%s\".\n",
-			  conv_utf8_to_native(stream));
+		log_error("Invalid mixer stream name \"%s\".\n", stream);
 	} else {
-		log_error("ミキサーのストリーム名\"%s\"は正しくありません。\n",
-			  conv_utf8_to_native(stream));
+		log_error(U8("ミキサーのストリーム名\"%s\"は正しくありません。\n"),
+			  stream);
 	}
 }
 
@@ -574,13 +538,10 @@ void log_script_mixer_stream(const char *stream)
  */
 void log_script_cha_accel(const char *accel)
 {
-	if (is_english_mode()) {
-		log_error("Invalid movement type \"%s\".\n",
-			  conv_utf8_to_native(accel));
-	} else {
-		log_error("移動タイプ\"%s\"は正しくありません。\n",
-			  conv_utf8_to_native(accel));
-	}
+	if (is_english_mode())
+		log_error("Invalid movement type \"%s\".\n", accel);
+	else
+		log_error(U8("移動タイプ\"%s\"は正しくありません。\n"), accel);
 }
 
 /*
@@ -588,13 +549,10 @@ void log_script_cha_accel(const char *accel)
  */
 void log_script_shake_move(const char *move)
 {
-	if (is_english_mode()) {
-		log_error("Invalid movement type \"%s\".\n",
-			  conv_utf8_to_native(move));
-	} else {
-		log_error("移動タイプ\"%s\"は正しくありません。\n",
-			  conv_utf8_to_native(move));
-	}
+	if (is_english_mode())
+		log_error("Invalid movement type \"%s\".\n", move);
+	else
+		log_error(U8("移動タイプ\"%s\"は正しくありません。\n"), move);
 }
 
 /*
@@ -604,12 +562,10 @@ void log_script_enable_disable(const char *param)
 {
 	if (is_english_mode()) {
 		log_error("Invalid parameter \"%s\". "
-			  "Specify enable or disable.\n",
-			  conv_utf8_to_native(param));
+			  "Specify enable or disable.\n", param);
 	} else {
-		log_error("引数\"%s\"は正しくありません。"
-			  "enableかdisableを指定してください。\n",
-			  conv_utf8_to_native(param));
+		log_error(U8("引数\"%s\"は正しくありません。")
+			  U8("enableかdisableを指定してください。\n"), param);
 	}
 }
 
@@ -622,7 +578,7 @@ void log_script_final_command(void)
 		log_error("You can't put this command on "
 			  "the end of the script.\n");
 	} else {
-		log_error("このコマンドはスクリプトの末尾に置けません。\n");
+		log_error(U8("このコマンドはスクリプトの末尾に置けません。\n"));
 	}
 }
 
@@ -631,13 +587,10 @@ void log_script_final_command(void)
  */
 void log_video_error(const char *reason)
 {
-	if (is_english_mode()) {
-		log_error("Video playback error: \"%s\"",
-			  conv_utf8_to_native(reason));
-	} else {
-		log_error("ビデオ再生エラー: \"%s\"",
-			  conv_utf8_to_native(reason));
-	}
+	if (is_english_mode())
+		log_error("Video playback error: \"%s\"", reason);
+	else
+		log_error(U8("ビデオ再生エラー: \"%s\""), reason);
 }
 
 /*
@@ -648,7 +601,7 @@ void log_script_choose_no_message(void)
 	if (is_english_mode())
 		log_info("Too few arguments.");
 	else
-		log_info("選択肢の指定が足りません。");
+		log_info(U8("選択肢の指定が足りません。"));
 }
 
 /*
@@ -659,7 +612,7 @@ void log_script_empty_string(void)
 	if (is_english_mode())
 		log_info("Empty string \"\" is not allowed.");
 	else
-		log_info("空文字列\"\"は利用できません。");
+		log_info(U8("空文字列\"\"は利用できません。"));
 }
 
 /*
@@ -670,7 +623,7 @@ void log_file_write(const char *file)
 	if (is_english_mode())
 		log_info("Cannot write to \'%s\'.", file);
 	else
-		log_info("\'%s\'へ書き込みできません。", file);
+		log_info(U8("\'%s\'へ書き込みできません。"), file);
 }
 
 /*
@@ -681,7 +634,7 @@ void log_script_rule(void)
 	if (is_english_mode())
 		log_info("Rule file not specified.");
 	else
-		log_info("ルールファイルが指定されていません。");
+		log_info(U8("ルールファイルが指定されていません。"));
 }
 
 /*
@@ -692,7 +645,7 @@ void log_gui_parse_char(char c)
 	if (is_english_mode())
 		log_error("Invalid character \'%c\'", c);
 	else
-		log_error("不正な文字 \'%c\'", c);
+		log_error(U8("不正な文字 \'%c\'"), c);
 }
 
 /*
@@ -703,7 +656,7 @@ void log_gui_parse_long_word(void)
 	if (is_english_mode())
 		log_error("Too long word.");
 	else
-		log_error("記述が長すぎます。");
+		log_error(U8("記述が長すぎます。"));
 }
 
 /*
@@ -714,7 +667,7 @@ void log_gui_parse_empty_word(void)
 	if (is_english_mode())
 		log_error("Nothing is specified.");
 	else
-		log_error("空白が指定されました。");
+		log_error(U8("空白が指定されました。"));
 }
 
 /*
@@ -725,7 +678,7 @@ void log_gui_parse_invalid_eof(void)
 	if (is_english_mode())
 		log_error("Invalid End-of-File.");
 	else
-		log_error("不正なファイル終端です。");
+		log_error(U8("不正なファイル終端です。"));
 }
 
 /*
@@ -736,7 +689,7 @@ void log_gui_unknown_global_key(const char *key)
 	if (is_english_mode())
 		log_error("Invalid gobal key \"%s\"", key);
 	else
-		log_error("不正なグローバルキー \"%s\"", key);
+		log_error(U8("不正なグローバルキー \"%s\""), key);
 }
 
 /*
@@ -747,7 +700,7 @@ void log_gui_too_many_buttons(void)
 	if (is_english_mode())
 		log_error("Too many buttons.");
 	else
-		log_error("ボタンが多すぎます。");
+		log_error(U8("ボタンが多すぎます。"));
 }
 
 /*
@@ -758,7 +711,7 @@ void log_gui_unknown_button_type(const char *type)
 	if (is_english_mode())
 		log_error("Unknown button type \"%s\".", type);
 	else
-		log_error("未知のボタンタイプ \"%s\"", type);
+		log_error(U8("未知のボタンタイプ \"%s\""), type);
 }
 
 /*
@@ -769,7 +722,7 @@ void log_gui_unknown_button_property(const char *prop)
 	if (is_english_mode())
 		log_error("Unknown button property \"%s\".", prop);
 	else
-		log_error("未知のボタンプロパティ \"%s\"", prop);
+		log_error(U8("未知のボタンプロパティ \"%s\""), prop);
 }
 
 /*
@@ -781,9 +734,8 @@ void log_gui_parse_property_before_type(const char *prop)
 		log_error("Property \"%s\" is specified before \"type\".",
 			  prop);
 	} else {
-		log_error("プロパティ \"%s\" が \"type\" より前に"
-			  "指定されました。",
-			  prop);
+		log_error(U8("プロパティ \"%s\" が \"type\" より前に")
+			  U8("指定されました。"), prop);
 	}
 }
 
@@ -796,7 +748,7 @@ void log_gui_parse_footer(const char *file, int line)
 	if (is_english_mode())
 		log_error("> GUI file error: %s:%d", file, line);
 	else
-		log_error("> GUIファイルエラー: %s:%d", file, line);
+		log_error(U8("> GUIファイルエラー: %s:%d"), file, line);
 }
 
 /*
@@ -807,7 +759,7 @@ void log_gui_image_not_loaded(void)
 	if (is_english_mode())
 		log_error("GUI image(s) not specified.");
 	else
-		log_error("GUI画像が指定されていません。");
+		log_error(U8("GUI画像が指定されていません。"));
 }
 
 #ifdef USE_DEBUGGER
@@ -821,9 +773,9 @@ void log_command_update_error(void)
 			 "You can search it from menu.\n"
 			 "Edit and update it to reconvert to a correct command.");
 	} else {
-		log_info("エラーを含むコマンドは'!'で始まるメッセージに変換されます。\n"
-			 "メニューから検索できます。\n"
-			 "編集と更新で正しいコマンドに戻すことが可能です。");
+		log_info(U8("エラーを含むコマンドは'!'で始まるメッセージに変換されます。\n")
+			 U8("メニューから検索できます。\n")
+			 U8("編集と更新で正しいコマンドに戻すことが可能です。"));
 	}
 }
 
@@ -835,7 +787,7 @@ void log_script_line_size(void)
 	if (is_english_mode())
 		log_info("Too many lines in script.");
 	else
-		log_info("スクリプトの行数が大きすぎます。");
+		log_info(U8("スクリプトの行数が大きすぎます。"));
 }
 
 /*
@@ -846,7 +798,7 @@ void log_dir_not_found(const char *dir)
 	if (is_english_mode())
 		log_info("Folder \'%s\' not found.", dir);
 	else
-		log_info("フォルダ\'%s\'がみつかりません。", dir);
+		log_info(U8("フォルダ\'%s\'がみつかりません。"), dir);
 }
 
 /*
@@ -857,6 +809,6 @@ void log_too_many_files(void)
 	if (is_english_mode())
 		log_info("Too many files to package.");
 	else
-		log_info("パッケージするファイル数が多すぎます。");
+		log_info(U8("パッケージするファイル数が多すぎます。"));
 }
 #endif

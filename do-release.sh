@@ -78,6 +78,11 @@ cp suika2-web-kit-2.x.x-jp.zip "../../ftplocal/suika2-web-kit-$VERSION-jp.zip"
 cd ../../
 
 echo ""
+echo "Stop if this is a pre-release."
+echo ""
+read str
+
+echo ""
 echo "Uploading release files."
 cd ftplocal
 ftpupload.sh "suika-$VERSION-en.zip"

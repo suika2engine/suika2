@@ -16,6 +16,10 @@
 
 #include "suika.h"
 
+#ifdef WIN
+#include <fcntl.h>
+#endif
+
 /* Encryption Key */
 #include "key.h"
 
@@ -62,6 +66,10 @@ static uint64_t entry_count;
 /* パッケージファイルのパス */
 static char *package_path;
 
+#ifdef WIN
+const wchar_t *conv_utf8_to_utf16(const char *s);
+#endif
+
 /*
  * 前方参照
  */
@@ -94,7 +102,12 @@ bool init_file(void)
 		return false;
 
 	/* パッケージファイルを開いてみる */
-	fp = fopen(package_path, "rb");
+#ifdef WIN
+	_fmode = _O_BINARY;
+	fp = _wfopen(conv_utf8_to_utf16(package_path), L"r");
+#else
+	fp = fopen(package_path, "r");
+#endif
 	if (fp == NULL) {
 		free(package_path);
 		package_path = NULL;
@@ -186,7 +199,12 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	}
 
 	/* まずファイルシステム上のファイルを開いてみる */
-	rf->fp = fopen(real_path, "rb");
+#ifdef WIN
+	_fmode = _O_BINARY;
+	rf->fp = _wfopen(conv_utf8_to_utf16(real_path), L"r");
+#else
+	rf->fp = fopen(real_path, "r");
+#endif
 	if (rf->fp != NULL) {
 		/* 開けた場合、ファイルシステム上のファイルを用いる */
 		free(real_path);
@@ -222,7 +240,12 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	}
 
 	/* みつかった場合、パッケージファイルを別なファイルポインタで開く */
-	rf->fp = fopen(package_path, "rb");
+#ifdef WIN
+	_fmode = _O_BINARY;
+	rf->fp = _wfopen(conv_utf8_to_utf16(package_path), L"r");
+#else
+	rf->fp = fopen(package_path, "r");
+#endif
 	if (rf->fp == NULL) {
 		log_file_open(PACKAGE_FILE);
 		free(rf);
@@ -463,7 +486,12 @@ struct wfile *open_wfile(const char *dir, const char *file)
 	}
 
 	/* ファイルをオープンする */
-	wf->fp = fopen(path, "wb");
+#ifdef WIN
+	_fmode = _O_BINARY;
+	wf->fp = _wfopen(conv_utf8_to_utf16(path), L"w");
+#else
+	wf->fp = fopen(path, "w");
+#endif
 	if (wf->fp == NULL) {
 		log_file_open(path);
 		free(path);

@@ -11,20 +11,17 @@
 ### Language Settings
 ###
 
-# International mode (0:disable, 1:enable)
-i18n=1
-
 # Language mapping (system language => story language)
 language.en=en
-language.fr=en
-language.de=en
-language.es=en
-language.it=en
-language.el=en
-language.ru=en
-language.zh=en
-language.tw=en
-language.ja=en
+language.fr=fr
+language.de=de
+language.es=es
+language.it=it
+language.el=el
+language.ru=ru
+language.zh=zh
+language.tw=tw
+language.ja=ja
 language.other=en
 
 ###
@@ -42,6 +39,9 @@ window.height=720
 
 # Background color (0:black, 1:white)
 window.white=1
+
+# Show menu bar (0:don't show, 1:show)
+window.menubar=1
 
 ###
 ### Font Settings
@@ -429,16 +429,6 @@ serif.color3.outline.g=0
 serif.color3.outline.b=0
 
 # Continues to serif.color64, but omissible
-
-###
-### UI Message
-###
-
-ui.msg.quit=Are you sure you want to quit?
-ui.msg.title=Are you sure you want to go to title?
-ui.msg.delete=Are you sure you want to delete the save data?
-ui.msg.overwrite=Are you sure you want to overwrite the save data?
-ui.msg.default=Are you sure you want to reset the settings?
 
 ###
 ### Miscellaneous

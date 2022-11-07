@@ -312,6 +312,8 @@ void cleanup_gui(void)
 			free(button[i].label);
 		if (button[i].file != NULL)
 			free(button[i].file);
+		if (button[i].msg != NULL)
+			free(button[i].msg);
 		if (button[i].clickse != NULL)
 			free(button[i].clickse);
 		if (button[i].pointse != NULL)

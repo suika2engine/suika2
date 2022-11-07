@@ -67,6 +67,9 @@
 		265EA7CC285732E000A02167 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CB285732E000A02167 /* Credits.rtf */; };
 		265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 265EA7CD2857372300A02167 /* InfoPlist.strings */; };
 		26616DC926B4CED20094B23C /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
+		267078F82916513C003C61C1 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 267078FA2916513C003C61C1 /* MainMenu.xib */; };
+		267079012917992E003C61C1 /* uimsg.c in Sources */ = {isa = PBXBuildFile; fileRef = 267079002917992E003C61C1 /* uimsg.c */; };
+		267079022917992E003C61C1 /* uimsg.c in Sources */ = {isa = PBXBuildFile; fileRef = 267079002917992E003C61C1 /* uimsg.c */; };
 		2679EC7928575DA000C20499 /* DebugWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7B28575DA000C20499 /* DebugWindow.xib */; };
 		2679EC7C28575DC200C20499 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2679EC7E28575DC200C20499 /* MainMenu.xib */; };
 		2679EC85285813B000C20499 /* package.c in Sources */ = {isa = PBXBuildFile; fileRef = 2679EC84285813B000C20499 /* package.c */; };
@@ -133,6 +136,11 @@
 		265EA7CD2857372300A02167 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = "suika-pro/InfoPlist.strings"; sourceTree = SOURCE_ROOT; };
 		26616DC726B4CED20094B23C /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../../src/seen.h; sourceTree = "<group>"; };
 		26616DC826B4CED20094B23C /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../../src/seen.c; sourceTree = "<group>"; };
+		267078F92916513C003C61C1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		267078FC29165157003C61C1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		267078FE29165158003C61C1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		267078FF2917992E003C61C1 /* uimsg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uimsg.h; path = ../../../src/uimsg.h; sourceTree = "<group>"; };
+		267079002917992E003C61C1 /* uimsg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = uimsg.c; path = ../../../src/uimsg.c; sourceTree = "<group>"; };
 		2679EC7A28575DA000C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DebugWindow.xib; sourceTree = "<group>"; };
 		2679EC7D28575DC200C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2679EC8028575DD100C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/DebugWindow.strings; sourceTree = "<group>"; };
@@ -255,6 +263,7 @@
 			isa = PBXGroup;
 			children = (
 				26B8ACE525EE5846005D9C49 /* Assets.xcassets */,
+				267078FA2916513C003C61C1 /* MainMenu.xib */,
 				2679EC7E28575DC200C20499 /* MainMenu.xib */,
 				2679EC7B28575DA000C20499 /* DebugWindow.xib */,
 				265EA7CB285732E000A02167 /* Credits.rtf */,
@@ -336,6 +345,8 @@
 				26A1780325EE5DD0006A1ED4 /* stage.h */,
 				26A177FD25EE5DD0006A1ED4 /* suika.h */,
 				26A1781325EE5DD0006A1ED4 /* types.h */,
+				267079002917992E003C61C1 /* uimsg.c */,
+				267078FF2917992E003C61C1 /* uimsg.h */,
 				26A1781725EE5DD0006A1ED4 /* vars.c */,
 				26A1780C25EE5DD0006A1ED4 /* vars.h */,
 				26A1780F25EE5DD0006A1ED4 /* wave.c */,
@@ -432,6 +443,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */,
+				267078F82916513C003C61C1 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,6 +459,7 @@
 				2603494B2854B29800037370 /* scbuf.c in Sources */,
 				2603494C2854B29800037370 /* cmd_wait.c in Sources */,
 				2679EC85285813B000C20499 /* package.c in Sources */,
+				267079022917992E003C61C1 /* uimsg.c in Sources */,
 				2603494D2854B29800037370 /* vars.c in Sources */,
 				2603494E2854B29800037370 /* glyph.c in Sources */,
 				26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */,
@@ -543,6 +556,7 @@
 				26A1782F25EE5DD0006A1ED4 /* file.c in Sources */,
 				26616DC926B4CED20094B23C /* seen.c in Sources */,
 				26A1783825EE5DD0006A1ED4 /* cmd_switch.c in Sources */,
+				267079012917992E003C61C1 /* uimsg.c in Sources */,
 				26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */,
 				26A1783725EE5DD0006A1ED4 /* cmd_menu.c in Sources */,
 			);
@@ -551,6 +565,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		267078FA2916513C003C61C1 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				267078F92916513C003C61C1 /* Base */,
+				267078FC29165157003C61C1 /* en */,
+				267078FE29165158003C61C1 /* ja */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
 		2679EC7B28575DA000C20499 /* DebugWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -597,8 +621,8 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 2.11.7;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -642,8 +666,8 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 2.11.7;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -716,7 +740,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -769,7 +793,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -799,8 +823,8 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 2.11.7;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -843,8 +867,8 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 2.11.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 2.11.7;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",

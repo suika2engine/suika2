@@ -257,8 +257,9 @@ static bool pre_dispatch(void)
 			free(scr);
 			if (!load_debug_script())
 				return false;
+		} else {
+			free(scr);
 		}
-		free(scr);
 	}
 
 	/* 行番号が変更された場合 */
@@ -326,13 +327,13 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 	/* 次のコマンドを同じフレーム内で実行するか */
 	*cont = false;
 
-	/* 国際化が有効な場合 */
-	if (conf_i18n && !is_in_command_repetition()) {
+	/* 国際化プレフィクスをチェックする */
+	if (!is_in_command_repetition()) {
 		/* ロケールが指定されている場合 */
 		locale = get_command_locale();
 		if (strcmp(locale, "") != 0) {
 			/* ロケールが一致しない場合 */
-			if (strcmp(locale, conf_language) != 0) {
+			if (strcmp(locale, conf_locale_mapped) != 0) {
 				/* 実行しない */
 				*cont = true;
 				if (!move_to_next_command())

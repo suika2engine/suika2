@@ -66,6 +66,11 @@ static bool write_file_bodies(const char *base_dir, FILE *fp);
 static void set_random_seed(uint64_t index);
 static char get_next_random(void);
 
+#ifdef WIN
+const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
+const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
+#endif
+
 /*
  * Create package.
  */
@@ -97,14 +102,14 @@ bool create_package(const char *base_dir)
 /* Get file list in directory (for Windows) */
 static bool get_file_names(const char *base_dir, const char *dir)
 {
-    char path[256];
+    wchar_t path[256];
     HANDLE hFind;
     WIN32_FIND_DATA wfd;
 
     UNUSED_PARAMETER(base_dir);
 
     /* Get directory content. */
-    snprintf(path, sizeof(path), "%s\\*.*", dir);
+    _snwprintf(path, sizeof(path), L"%s\\*.*", conv_utf8_to_utf16(dir));
     hFind = FindFirstFile(path, &wfd);
     if(hFind == INVALID_HANDLE_VALUE)
     {
@@ -115,8 +120,8 @@ static bool get_file_names(const char *base_dir, const char *dir)
     {
         if(!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
         {
-            snprintf(entry[file_count].name, FILE_NAME_SIZE,
-                     "%s/%s", dir, wfd.cFileName);
+            snprintf(entry[file_count].name, FILE_NAME_SIZE, "%s/%s", dir,
+		     conv_utf16_to_utf8(wfd.cFileName));
             file_count++;
 	}
     } while(FindNextFile(hFind, &wfd));
@@ -175,7 +180,15 @@ static bool get_file_sizes(const char *base_dir)
 #ifdef WIN
 		UNUSED_PARAMETER(base_dir);
 		char *path = strdup(entry[i].name);
-		*strchr(path, '/') = '\\';
+		char *slash;
+		if (path == NULL) {
+			log_memory();
+			return false;
+		}
+		slash = strchr(path, '/');
+		if (slash == NULL)
+			return false;
+		*slash = '\\';
 		fp = fopen(path, "rb");
 #else
 		char abspath[1024];
@@ -268,7 +281,15 @@ static bool write_file_bodies(const char *base_dir, FILE *fp)
 	for (i = 0; i < file_count; i++) {
 #ifdef WIN
 		char *path = strdup(entry[i].name);
-		*strchr(path, '/') = '\\';
+		char *slash;
+		if (path == NULL) {
+			log_memory();
+			return false;
+		}
+		slash = strchr(path, '/');
+		if (slash == NULL)
+			return false;
+		*slash = '\\';
 		fpin = fopen(path, "rb");
 		UNUSED_PARAMETER(base_dir);
 #else

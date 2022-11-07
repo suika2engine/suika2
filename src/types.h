@@ -65,6 +65,7 @@
 #define UNUSED(x)		x __attribute__((unused))
 #define UNUSED_PARAMETER(x)	(void)(x)
 #define ALIGN_DECL(n, cdecl)	cdecl __attribute__((aligned(n)))
+#define U8(s)			s
 
 /* 関数 */
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
@@ -104,6 +105,7 @@
 #define UNUSED(x)		x __attribute__((unused))
 #define UNUSED_PARAMETER(x)	(void)(x)
 #define ALIGN_DECL(n, cdecl)	cdecl __attribute__((aligned(n)))
+#define U8(s)			s
 
 /* 関数 */
 
@@ -163,6 +165,7 @@ typedef unsigned long uintptr_t;    /* VC2010以前では64bitコンパイルし
 #define RESTRICT
 #endif
 #define ALIGN_DECL(n, cdecl)	__declspec(align(n) cdecl)
+#define U8(s)			u8##s
 
 /* 関数 */
 #define strdup			_strdup

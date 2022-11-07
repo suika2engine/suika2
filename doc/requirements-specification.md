@@ -1843,15 +1843,9 @@ Note that configuration lines beginning with `#` are ignored and treated as comm
 
 ## Language Settings
 
-Suika2 only provides game developers with Japanese and English error messages,
-however, it can provides multiple-language stories to end users.
-
-### International Mode
-
-If international mode is enabled, error messages will be in English. Otherwise, they will be in Japanese.
-Turning on international mode also enables language mappings.
-
-Adding `i18n=1` enables international mode.
+Suika2 only provides game developers with Japanese and English error messages.
+However, it can offer multiple-language stories to end users according to
+their system locale.
 
 ### Language Mapping
 
@@ -1908,10 +1902,17 @@ window.height=720
 Game developers can choose whether the window background should be
 white or black.
 
-Game developers can choose white for pop games or black for chic games.
-
 ```
 window.white=1
+```
+
+### Menu Bar on Windows
+
+On Windows, Suika2 can have a menu bar.
+Game developers can decide whether the window has a menu bar or not.
+
+```
+window.menubar=1
 ```
 
 ## Font Settings
@@ -2419,19 +2420,6 @@ serif.color1.b=200
 serif.color1.outline.r=0
 serif.color1.outline.g=0
 serif.color1.outline.b=0
-```
-
-## UI Messages
-
-User interface messages can be localized.
-However, they can not be multilingualized at this time.
-
-```
-ui.msg.quit=Are you sure you want to quit?
-ui.msg.title=Are you sure you want to go to title?
-ui.msg.delete=Are you sure you want to delete the save data?
-ui.msg.overwrite=Are you sure you want to overwrite the save data?
-ui.msg.default=Are you sure you want to reset the settings?
 ```
 
 ## Miscellaneous

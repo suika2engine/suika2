@@ -25,10 +25,11 @@ CPPFLAGS = \
 
 CFLAGS = \
 	-O3 \
+	-municode \
 	-ffast-math \
 	-fopt-info-vec \
 	-finput-charset=utf-8 \
-	-fexec-charset=cp932 \
+	-fexec-charset=utf-8 \
 	-Wall \
 	-Werror \
 	-Wextra \
@@ -41,6 +42,7 @@ CFLAGS = \
 
 LDFLAGS = \
 	-mwindows \
+	-municode \
 	-lgdi32 \
 	-lole32 \
 	-ldxguid \
@@ -62,6 +64,7 @@ SRCS_C = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
+	../../src/uimsg.c \
 	../../src/glrender.c \
 	../../src/d3drender.cc \
 	../../src/dsound.c
@@ -112,8 +115,7 @@ install: suika.exe
 	cp suika.exe ../../
 
 clean:
-	rm -rf *.o *~ suika.exe log.txt sav tmp libroot analyze.log
+	rm -rf *.o *~ suika.exe log.txt sav tmp
 
 analyze:
-	$(CC) $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC) > analyze.log 2>&1
-	cat analyze.log
+	$(CC) $(CPPFLAGS) -municode -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC)

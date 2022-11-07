@@ -26,10 +26,11 @@ CPPFLAGS = \
 
 CFLAGS = \
 	-O3 \
+	-municode \
 	-ffast-math \
 	-fopt-info-vec \
 	-finput-charset=utf-8 \
-	-fexec-charset=cp932 \
+	-fexec-charset=utf-8 \
 	-Wall \
 	-Werror \
 	-Wextra \
@@ -42,6 +43,7 @@ CFLAGS = \
 
 LDFLAGS = \
 	-mwindows \
+	-municode \
 	-lgdi32 \
 	-lole32 \
 	-ldxguid \
@@ -64,6 +66,7 @@ SRCS_C = \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
 	../../src/windebug.c \
+	../../src/uimsg.c \
 	../../src/package.c \
 	../../src/dsound.c \
 	../../src/glrender.c \
@@ -115,4 +118,7 @@ install: suika-pro.exe
 	cp suika-pro.exe ../../
 
 clean:
-	rm -rf *.o *~ suika-pro.exe log.txt sav tmp libroot
+	rm -rf *.o *~ suika-pro.exe log.txt sav tmp
+
+analyze:
+	$(CC) $(CPPFLAGS) -municode -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC)

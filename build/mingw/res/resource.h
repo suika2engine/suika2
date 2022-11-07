@@ -40,3 +40,4 @@
 #define ID_ERROR		163
 #define ID_STATUS		164
 #define ID_EXPORT		165
+#define ID_FULLSCREEN		166
