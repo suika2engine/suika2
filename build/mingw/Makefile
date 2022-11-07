@@ -118,5 +118,4 @@ clean:
 	rm -rf *.o *~ suika.exe log.txt sav tmp analyze.log
 
 analyze:
-	$(CC) $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC) > analyze.log 2>&1
-	cat analyze.log
+	$(CC) $(CPPFLAGS) -municode -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC)

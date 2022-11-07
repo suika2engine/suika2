@@ -257,8 +257,9 @@ static bool pre_dispatch(void)
 			free(scr);
 			if (!load_debug_script())
 				return false;
+		} else {
+			free(scr);
 		}
-		free(scr);
 	}
 
 	/* 行番号が変更された場合 */

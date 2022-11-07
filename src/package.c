@@ -180,7 +180,15 @@ static bool get_file_sizes(const char *base_dir)
 #ifdef WIN
 		UNUSED_PARAMETER(base_dir);
 		char *path = strdup(entry[i].name);
-		*strchr(path, '/') = '\\';
+		char *slash;
+		if (path == NULL) {
+			log_memory();
+			return false;
+		}
+		slash = strchr(path, '/');
+		if (slash == NULL)
+			return false;
+		*slash = '\\';
 		fp = fopen(path, "rb");
 #else
 		char abspath[1024];
@@ -273,7 +281,15 @@ static bool write_file_bodies(const char *base_dir, FILE *fp)
 	for (i = 0; i < file_count; i++) {
 #ifdef WIN
 		char *path = strdup(entry[i].name);
-		*strchr(path, '/') = '\\';
+		char *slash;
+		if (path == NULL) {
+			log_memory();
+			return false;
+		}
+		slash = strchr(path, '/');
+		if (slash == NULL)
+			return false;
+		*slash = '\\';
 		fpin = fopen(path, "rb");
 		UNUSED_PARAMETER(base_dir);
 #else

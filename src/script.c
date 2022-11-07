@@ -1041,7 +1041,7 @@ void set_error_command(int index, char *text)
 		if (cmd[index].text != NULL)
 			free(cmd[index].text);
 	if (cmd[index].param[0] != NULL)
-		free(cmd[index].text);
+		free(cmd[index].param[0]);
 
 	cmd[index].type = COMMAND_MESSAGE;
 	cmd[index].text = text;

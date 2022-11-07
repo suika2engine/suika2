@@ -104,9 +104,6 @@ all: suika-pro.exe
 suika-pro.exe: $(OBJS)
 	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS)
 
-log.o: ../../src/log.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS_UNICODE) $<
-
 #
 # Feature specific source files.
 #
@@ -122,3 +119,6 @@ install: suika-pro.exe
 
 clean:
 	rm -rf *.o *~ suika-pro.exe log.txt sav tmp
+
+analyze:
+	$(CC) $(CPPFLAGS) -municode -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC)
