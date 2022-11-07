@@ -90,7 +90,7 @@ install: suika
 	cp suika ../../
 
 clean:
-	rm -rf *~ *.o suika log.txt sav tmp libroot analyze.log
+	rm -rf *~ *.o suika log.txt sav tmp
 
 lines:
 	cat ../../src/*.[chm] | wc -l
@@ -98,5 +98,4 @@ lines:
 	grep 'assert' ../../src/*.[chm] | wc -l
 
 analyze:
-	$(CC) $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 -c $(SRCS) > analyze.log 2>&1
-	cat analyze.log
+	$(CC) $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS)

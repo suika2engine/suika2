@@ -397,7 +397,7 @@ struct rule {
 	{"language.el", 's', &conf_language_el, true, false},
 	{"language.ru", 's', &conf_language_ru, true, false},
 	{"language.zh", 's', &conf_language_zh, true, false},
-	{"language.tw", 's', &conf_language_zh, true, false},
+	{"language.tw", 's', &conf_language_tw, true, false},
 	{"language.ja", 's', &conf_language_ja, true, false},
 	{"language.other", 's', &conf_language_other, true, false},
 	{"window.title", 's', &conf_window_title, false, false},
@@ -1175,7 +1175,7 @@ static bool save_value(const char *k, const char *v)
 			*(int *)rule_tbl[i].val = atoi(v);
 		} else if (rule_tbl[i].type == 'f') {
 			*(float *)rule_tbl[i].val = (float)atof(v);
-		} else {
+		} else if (rule_tbl[i].type == 's') {
 			/* 文字列の場合は複製する */
 			dup = strdup(v);
 			if (dup == NULL) {
@@ -1183,6 +1183,8 @@ static bool save_value(const char *k, const char *v)
 				return false;
 			}
 			*(char **)rule_tbl[i].val = dup;
+		} else {
+			assert(0);
 		}
 
 		rule_tbl[i].loaded = true;

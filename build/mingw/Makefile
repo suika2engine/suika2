@@ -115,7 +115,7 @@ install: suika.exe
 	cp suika.exe ../../
 
 clean:
-	rm -rf *.o *~ suika.exe log.txt sav tmp analyze.log
+	rm -rf *.o *~ suika.exe log.txt sav tmp
 
 analyze:
 	$(CC) $(CPPFLAGS) -municode -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC)
