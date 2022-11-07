@@ -71,15 +71,12 @@
   <li>Mac
     <ul>
       <li>Apple Silicon および Intel Core を搭載した Mac</li>
-      <li>OS X 10.9 Mavericks</li>
-      <li>OS X 10.10 Yosemite</li>
-      <li>OS X 10.11 El Capitan</li>
-      <li>macOS 10.12 Sierra</li>
       <li>macOS 10.13 High Sierra</li>
       <li>macOS 10.14 Mojave</li>
       <li>macOS 10.15 Catalina</li>
       <li>macOS 11 Big Sur</li>
       <li>macOS 12 Monterey</li>
+      <li>macOS 13 Ventura</li>
     </ul>
   </li>
 </ul>
@@ -165,16 +162,19 @@
 
 <h2>変更履歴</h2>
 <ul>
-  <li>Suika 2.11.7 2022/11/XX
+  <li>Suika 2.11.7 2022/11/7
     <ul>
       <li>Unicodeと多言語化のサポート
         <ul>
-          <li>言語はユーザの環境設定で決定するように変更</li>
+          <li>言語がユーザの環境設定で決定するように変更</li>
           <li><code>i18n</code> コンフィグを削除 (国際化は常に有効)</li>
           <li><code>ui.msg.*</code> コンフィグを削除 (多言語化に対応)</li>
-          <li>UIの翻訳を追加 (Proは日英のみ)</li>
+          <li>UIの翻訳を追加 (Proは日本語と英語のみ)</li>
         </ul>
       </li>
+      <li>Windows版をUnicodeで動作するように変更</li>
+      <li>Mac版の動作するOSバージョンをmacOS 10.13 High Sierra以降に変更</li>
+      <li>Windows版にメニューバーを追加 (コンフィグで有効化)</li>
     </ul>
   </li>
   <li>Suika 2.11.6 2022/11/4
