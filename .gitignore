@@ -82,6 +82,10 @@ build/linux-arm/*.o
 build/linux-arm/libroot
 build/linux-arm/suika
 
+build/sdl2/*.o
+build/sdl2/libroot
+build/sdl2/suika
+
 build/freebsd/*.o
 build/freebsd/libroot
 build/freebsd/suika
