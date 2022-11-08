@@ -15,20 +15,20 @@ suika-2.x.x-en.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ..
 	mkdir suika2/ch
 	cp -Rv ../../game-en/ch/* suika2/ch/
 	mkdir suika2/conf
-	cp -Rv ../../game-en/conf/* suika2/conf/
+	cp -Rv ../../game-en/conf/*.txt suika2/conf/
 	mkdir suika2/cv
 	cp -Rv ../../game-en/cv/* suika2/cv/
 	mkdir suika2/font
 	cp -Rv ../../game-en/font/* suika2/font/
 	mkdir suika2/gui
-	cp -Rv ../../game-en/gui/* suika2/gui/
+	cp -Rv ../../game-en/gui/*.txt suika2/gui/
 	mkdir suika2/rule
 	cp -Rv ../../game-en/rule/* suika2/rule/
 	mkdir suika2/mov
 	mkdir suika2/se
 	cp -Rv ../../game-en/se/* suika2/se/
 	mkdir suika2/txt
-	cp -Rv ../../game-en/txt/* suika2/txt/
+	cp -Rv ../../game-en/txt/*.txt suika2/txt/
 	cp -v ../../COPYING suika2/
 	cp -v ../../readme-en.html suika2/README.html
 	cp -v ../../fileserver/suika.exe suika2/
@@ -50,20 +50,20 @@ suika-2.x.x-jp.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ..
 	mkdir suika2/ch
 	cp -Rv ../../game-jp/ch/* suika2/ch/
 	mkdir suika2/conf
-	cp -Rv ../../game-jp/conf/* suika2/conf/
+	cp -Rv ../../game-jp/conf/*.txt suika2/conf/
 	mkdir suika2/cv
 	cp -Rv ../../game-jp/cv/* suika2/cv/
 	mkdir suika2/font
 	cp -Rv ../../game-jp/font/* suika2/font/
 	mkdir suika2/gui
-	cp -Rv ../../game-jp/gui/* suika2/gui/
+	cp -Rv ../../game-jp/gui/*.txt suika2/gui/
 	mkdir suika2/rule
 	cp -Rv ../../game-jp/rule/* suika2/rule/
 	mkdir suika2/mov
 	mkdir suika2/se
 	cp -Rv ../../game-jp/se/* suika2/se/
 	mkdir suika2/txt
-	cp -Rv ../../game-jp/txt/* suika2/txt/
+	cp -Rv ../../game-jp/txt/*.txt suika2/txt/
 	cp -v ../../COPYING suika2/
 	cp -v ../../readme-jp.html suika2/README.html
 	cp -v ../../fileserver/suika.exe suika2/
