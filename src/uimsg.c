@@ -425,7 +425,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Quitter(&Q)";
 		case LOCALE_RU:
-			return L"Покидать(&Q)";
+			return L"Закрыть(&Q)";
 		case LOCALE_DE:
 			return L"Aufhören(&Q)";
 		case LOCALE_IT:
