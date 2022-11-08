@@ -11,6 +11,7 @@
  */
 
 #include <SDL.h>
+#include <GL/glew.h>
 
 #include <locale.h>
 
@@ -19,6 +20,7 @@
 #include <sys/time.h>	/* gettimeofday() */
 
 #include "suika.h"
+#include "glrender.h"
 
 #ifdef SSE_VERSIONING
 #include "x86.h"
@@ -33,63 +35,62 @@ static FILE *log_fp;
  * SDL2 Objects
  */
 static SDL_Window *window;
-static SDL_Renderer *render;
+static SDL_GLContext *context;
 
 /*
  * forward declaration
  */
-static bool init(int argc, char *argv[]);
+static bool init(void);
 static void cleanup(void);
 static bool open_log_file(void);
 static void close_log_file(void);
 static void run_game_loop(void);
 
 /*
- * メイン
+ * Main
  */
 int main(int argc, char *argv[])
 {
 	int ret;
 
-	setlocale(LC_ALL, "");
+	UNUSED_PARAMETER(argc);
+	UNUSED_PARAMETER(argv);
 
-	/* 互換レイヤの初期化処理を行う */
-	if (init(argc, argv)) {
-		/* アプリケーション本体の初期化処理を行う */
+	/* Do lower layer initialization. */
+	if (init()) {
+		/* Do upper layer initialization. */
 		if (on_event_init()) {
-			/* ゲームループを実行する */
+			/* Run game loop. */
 			run_game_loop();
 
-			/* 成功 */
+			/* Succeeded. */
 			ret = 0;
 		} else {
-			/* 失敗 */
+			/* Failed. */
 			ret = 1;
 		}
 
-		/* アプリケーション本体の終了処理を行う */
+		/* Do upper layer cleanup. */
 		on_event_cleanup();
 	} else {
-		/* エラーメッセージを表示する */
-		if (log_fp != NULL)
-			printf("Check " LOG_FILE "\n");
-
-		/* 失敗 */
+		/* Failed. */
 		ret = 1;
 	}
 
-	/* 互換レイヤの終了処理を行う */
+	/* Show error message. */
+	if  (ret != 0)
+		if (log_fp != NULL)
+			printf("Check " LOG_FILE "\n");
+
+	/* Do lower layer initialization. */
 	cleanup();
 
 	return ret;
 }
 
-/* 互換レイヤの初期化処理を行う */
-static bool init(int argc, char *argv[])
+/* Do lower layer initialization. */
+static bool init(void)
 {
-	UNUSED_PARAMETER(argc);
-	UNUSED_PARAMETER(argv);
-
 #ifdef SSE_VERSIONING
 	/* ベクトル命令の対応を確認する */
 	x86_check_cpuid_flags();
@@ -101,18 +102,17 @@ static bool init(int argc, char *argv[])
 		return false;
 	}
 
-	/* ロケールを初期化する */
+	/* We'll use the environment variable for locale. */
+	setlocale(LC_ALL, "");
+
+	/* Initialize locale. */
 	init_locale_code();
 
-	/* ログファイルを開く */
-	if (!open_log_file())
-		return false;
-
-	/* ファイル読み書きの初期化処理を行う */
+	/* Initialize file I/O. */
 	if (!init_file())
 		return false;
 
-	/* コンフィグの初期化処理を行う */
+	/* Initialize config. */
 	if (!init_conf())
 		return false;
 
@@ -122,11 +122,23 @@ static bool init(int argc, char *argv[])
 				  SDL_WINDOWPOS_CENTERED,
 				  conf_window_width,
 				  conf_window_height,
-				  0);
+				  SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
-	/* Create a rendering context. */
-	render = SDL_CreateRenderer(window, -1, 0);
+	/* Create an OpenGL context. */
+	context = SDL_GL_CreateContext(window);
+	SDL_GL_SetSwapInterval(1);
+
+	/* Initialize GLEW. */
+	if (glewInit() != GLEW_OK) {
+		log_api_error("glewInit()");
+		return false;
+	}
 	
+	/* Initialize OpenGL. */
+	if (!init_opengl())
+		return false;
+
+	/* Succeeded. */
 	return true;
 }
 
@@ -178,8 +190,8 @@ static void run_game_loop(void)
 	int x, y, w, h;
 	bool cont;
 
-	cont = true;
 	do {
+		/* Process events. */
 		while (SDL_PollEvent(&ev)) {
 			switch (ev.type) {
 			case SDL_QUIT:
@@ -187,18 +199,17 @@ static void run_game_loop(void)
 			}
 		}
 
-		/* Clear the background. */
-		if (conf_window_white)
-			SDL_SetRenderDrawColor(render, 0xff, 0xff, 0xff, 0xff);
-		else
-			SDL_SetRenderDrawColor(render, 0, 0, 0, 0xff);
-		SDL_RenderClear(render);
+		/* Start rendering. */
+		opengl_start_rendering();
 
 		/* Do a frame event. */
 		cont = on_event_frame(&x, &y, &w, &h);
 
-		/* Show a frame. */
-		SDL_RenderPresent(render);
+		/* End rendering. */
+		opengl_end_rendering();
+
+		/* Show a frame */
+		SDL_GL_SwapWindow(window);
 	} while (cont);
 }
 
@@ -212,6 +223,8 @@ static void run_game_loop(void)
 bool log_info(const char *s, ...)
 {
 	va_list ap;
+
+	open_log_file();
 
 	va_start(ap, s);
 	if (log_fp != NULL) {
@@ -232,6 +245,8 @@ bool log_warn(const char *s, ...)
 {
 	va_list ap;
 
+	open_log_file();
+
 	va_start(ap, s);
 	if (log_fp != NULL) {
 		vfprintf(stderr, s, ap);
@@ -250,6 +265,8 @@ bool log_warn(const char *s, ...)
 bool log_error(const char *s, ...)
 {
 	va_list ap;
+
+	open_log_file();
 
 	va_start(ap, s);
 	if (log_fp != NULL) {
@@ -295,14 +312,9 @@ bool is_opengl_enabled(void)
 bool lock_texture(int width, int height, pixel_t *pixels,
 		  pixel_t **locked_pixels, void **texture)
 {
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(locked_pixels);
-	UNUSED_PARAMETER(texture);
-
-	/* We'll just draw on "pixels" */
-	*locked_pixels = pixels;
+	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
+				 texture))
+		return false;
 
 	return true;
 }
@@ -313,34 +325,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 void unlock_texture(int width, int height, pixel_t *pixels,
 		    pixel_t **locked_pixels, void **texture)
 {
-	SDL_Surface *surface;
-	SDL_Texture *tex;
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-	UNUSED_PARAMETER(locked_pixels);
-	UNUSED_PARAMETER(texture);
-
-	/* Re-create a SDL_Texture. */
-	surface = SDL_CreateRGBSurfaceFrom(pixels,
-					   width,
-					   height,
-					   32,
-					   width * 4,
-					   0x000000ff,
-					   0x0000ff00,
-					   0x00ff0000,
-					   0xff000000);
-	tex = SDL_CreateTextureFromSurface(render, surface);
-	SDL_FreeSurface(surface);
-
-	/* Free the old texture, and retain the new one. */
-	if (*texture != NULL)
-		SDL_DestroyTexture(*texture);
-	*texture = tex;
-
-	*locked_pixels = NULL;
+	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
 }
 
 /*
@@ -348,8 +333,7 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-	if (texture != NULL)
-		SDL_DestroyTexture(texture);
+	opengl_destroy_texture(texture);
 }
 
 /*
@@ -359,38 +343,8 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-	UNUSED_PARAMETER(alpha);
-	UNUSED_PARAMETER(bt);
-
-	SDL_Rect s_rc, d_rc;
-	SDL_Texture *texture;
-
-	/* 描画の必要があるか判定する */
-	if (alpha == 0 || width == 0 || height == 0)
-		return;	/* 描画の必要がない */
-	if (!clip_by_source(get_image_width(src_image),
-			   get_image_height(src_image),
-			   &width, &height, &dst_left, &dst_top, &src_left,
-			   &src_top))
-		return;	/* 描画範囲外 */
-	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
-			 &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
-
-	s_rc.x = src_left;
-	s_rc.y = src_top;
-	s_rc.w = width;
-	s_rc.h = height;
-
-	d_rc.x = dst_left;
-	d_rc.y = dst_top;
-	d_rc.w = width;
-	d_rc.h = height;
-
-	texture = get_texture_object(src_image);
-
-	SDL_SetTextureAlphaMod(texture, (Uint8)alpha);
-	SDL_RenderCopy(render, texture, &s_rc, &d_rc);
+	opengl_render_image(dst_left, dst_top, src_image, width, height,
+			    src_left, src_top, alpha, bt);
 }
 
 /*
@@ -400,9 +354,7 @@ void render_image_rule(struct image * RESTRICT src_img,
 		       struct image * RESTRICT rule_img,
 		       int threshold)
 {
-	UNUSED_PARAMETER(src_img);
-	UNUSED_PARAMETER(rule_img);
-	UNUSED_PARAMETER(threshold);
+	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
 /*

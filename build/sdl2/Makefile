@@ -9,6 +9,7 @@ CC = gcc
 #
 
 CPPFLAGS = \
+	-DUSE_SDL2_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -34,6 +35,8 @@ CFLAGS = \
 
 LDFLAGS = \
 	-lm \
+	-lGLEW \
+	-lGL \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections \
@@ -48,7 +51,8 @@ include ../common.mk
 SRCS = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
-	../../src/sdlmain.c
+	../../src/sdlmain.c \
+	../../src/glrender.c
 
 #
 # .c.o compilation rules
