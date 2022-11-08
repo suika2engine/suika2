@@ -348,8 +348,8 @@ void unlock_texture(int width, int height, pixel_t *pixels,
  */
 void destroy_texture(void *texture)
 {
-	assert(texture != NULL);
-	SDL_DestroyTexture(texture);
+	if (texture != NULL)
+		SDL_DestroyTexture(texture);
 }
 
 /*
@@ -359,28 +359,38 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
-	UNUSED_PARAMETER(dst_left);
-	UNUSED_PARAMETER(dst_top);
-	UNUSED_PARAMETER(src_image);
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(src_left);
-	UNUSED_PARAMETER(src_top);
 	UNUSED_PARAMETER(alpha);
 	UNUSED_PARAMETER(bt);
-	SDL_Rect s_rc, d_rc;
 
-	d_rc.x = dst_left;
-	d_rc.y = dst_top;
-	d_rc.w = width;
-	d_rc.h = height;
+	SDL_Rect s_rc, d_rc;
+	SDL_Texture *texture;
+
+	/* 描画の必要があるか判定する */
+	if (alpha == 0 || width == 0 || height == 0)
+		return;	/* 描画の必要がない */
+	if (!clip_by_source(get_image_width(src_image),
+			   get_image_height(src_image),
+			   &width, &height, &dst_left, &dst_top, &src_left,
+			   &src_top))
+		return;	/* 描画範囲外 */
+	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
+			 &height, &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
 
 	s_rc.x = src_left;
 	s_rc.y = src_top;
 	s_rc.w = width;
 	s_rc.h = height;
 
-	SDL_RenderCopy(render, get_texture_object(src_image), &s_rc, &d_rc);
+	d_rc.x = dst_left;
+	d_rc.y = dst_top;
+	d_rc.w = width;
+	d_rc.h = height;
+
+	texture = get_texture_object(src_image);
+
+	SDL_SetTextureAlphaMod(texture, (Uint8)alpha);
+	SDL_RenderCopy(render, texture, &s_rc, &d_rc);
 }
 
 /*
