@@ -1779,9 +1779,10 @@ PAGE2 {
 }
 ```
 
-## Jump To File Button
+## Jump To Title Button
 
-This button is for jumping to a script.
+This button is for jumping to the title screen.
+Before the jump, a Yes/No dialog is displayed.
 
 ```
 TITLE {
