@@ -42,9 +42,11 @@ static SDL_GLContext *context;
  */
 static bool init(void);
 static void cleanup(void);
+static void run_game_loop(void);
+static bool dispatch_event(SDL_Event *ev);
+static int get_keycode(int sym);
 static bool open_log_file(void);
 static void close_log_file(void);
-static void run_game_loop(void);
 
 /*
  * Main
@@ -56,31 +58,29 @@ int main(int argc, char *argv[])
 	UNUSED_PARAMETER(argc);
 	UNUSED_PARAMETER(argv);
 
-	/* Do lower layer initialization. */
-	if (init()) {
-		/* Do upper layer initialization. */
-		if (on_event_init()) {
-			/* Run game loop. */
-			run_game_loop();
+	ret = 1;
+	do {
+		/* Do lower layer initialization. */
+		if (!init())
+			break;
 
-			/* Succeeded. */
-			ret = 0;
-		} else {
-			/* Failed. */
-			ret = 1;
-		}
+		/* Do upper layer initialization. */
+		if (!on_event_init())
+			break;
+		
+		/* Run game loop. */
+		run_game_loop();
 
 		/* Do upper layer cleanup. */
 		on_event_cleanup();
-	} else {
-		/* Failed. */
-		ret = 1;
-	}
+
+		/* Succeeded. */
+		ret = 0;
+	} while (0);
 
 	/* Show error message. */
-	if  (ret != 0)
-		if (log_fp != NULL)
-			printf("Check " LOG_FILE "\n");
+	if  (ret != 0 && log_fp != NULL)
+		printf("Check " LOG_FILE "\n");
 
 	/* Do lower layer initialization. */
 	cleanup();
@@ -92,12 +92,12 @@ int main(int argc, char *argv[])
 static bool init(void)
 {
 #ifdef SSE_VERSIONING
-	/* ベクトル命令の対応を確認する */
+	/* Check the vector extensions. */
 	x86_check_cpuid_flags();
 #endif
 
 	/* Initialize the SDL2. */
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
 		log_error("Failed to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
@@ -142,46 +142,18 @@ static bool init(void)
 	return true;
 }
 
-/* 互換レイヤの終了処理を行う */
+/* Do lawer layer cleanup. */
 static void cleanup(void)
 {
-	/* コンフィグの終了処理を行う */
+	/* Cleanup config. */
 	cleanup_conf();
 
-	/* ファイル読み書きの終了処理を行う */
+	/* Cleanup file I/O. */
 	cleanup_file();
 
-	/* ログファイルを閉じる */
+	/* Close the log file. */
 	close_log_file();
 }
-
-/*
- * ログ
- */
-
-/* ログをオープンする */
-static bool open_log_file(void)
-{
-	if (log_fp == NULL) {
-		log_fp = fopen(LOG_FILE, "w");
-		if (log_fp == NULL) {
-			printf("Can't open log file.\n");
-			return false;
-		}
-	}
-	return true;
-}
-
-/* ログをクローズする */
-static void close_log_file(void)
-{
-	if (log_fp != NULL)
-		fclose(log_fp);
-}
-
-/*
- * SDL2 Event Processing
- */
 
 /* The event loop. */
 static void run_game_loop(void)
@@ -192,12 +164,9 @@ static void run_game_loop(void)
 
 	do {
 		/* Process events. */
-		while (SDL_PollEvent(&ev)) {
-			switch (ev.type) {
-			case SDL_QUIT:
+		while (SDL_PollEvent(&ev))
+			if (!dispatch_event(&ev))
 				return;
-			}
-		}
 
 		/* Start rendering. */
 		opengl_start_rendering();
@@ -213,12 +182,80 @@ static void run_game_loop(void)
 	} while (cont);
 }
 
+/* The event dispatcher. */
+static bool dispatch_event(SDL_Event *ev)
+{
+	if (ev->type == SDL_QUIT) {
+		/* Quit the main loop. */
+		return false;
+	}
+
+	switch (ev->type) {
+	case SDL_MOUSEMOTION:
+		on_event_mouse_move(ev->motion.x, ev->motion.y);
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+		if (ev->button.button == SDL_BUTTON_LEFT) {
+			on_event_mouse_press(MOUSE_LEFT,
+					     ev->button.x,
+					     ev->button.y);
+		} else if (ev->button.button == SDL_BUTTON_RIGHT) {
+			on_event_mouse_press(MOUSE_RIGHT,
+					     ev->button.x,
+					     ev->button.y);
+		}
+		break;
+	case SDL_MOUSEWHEEL:
+		if (ev->wheel.y > 0)
+			on_event_mouse_scroll(1);
+		else
+			on_event_mouse_scroll(-1);
+		break;
+	case SDL_KEYDOWN:
+		if (ev->key.repeat)
+			break;
+		on_event_key_press(get_keycode(ev->key.keysym.sym));
+		break;
+	case SDL_KEYUP:
+		on_event_key_release(get_keycode(ev->key.keysym.sym));
+		break;
+	}
+
+	/* Continue the main loop. */
+	return true;
+}
+
+/* Convert the keycode. */
+static int get_keycode(int sym)
+{
+	switch (sym) {
+	case SDLK_UP:
+		return KEY_UP;
+	case SDLK_DOWN:
+		return KEY_DOWN;
+	case SDLK_LCTRL:
+	case SDLK_RCTRL:
+		return KEY_CONTROL;
+	case SDLK_RETURN:
+		return KEY_RETURN;
+	case SDLK_ESCAPE:
+		return KEY_ESCAPE;
+	case 'c':
+		return KEY_C;
+	}
+	return -1;
+}
+
 /*
- * platform.hの実装
+ * Implementation of platform.h functions
  */
 
 /*
- * INFOログを出力する
+ * Logging
+ */
+
+/*
+ * Record INFO log.
  */
 bool log_info(const char *s, ...)
 {
@@ -239,7 +276,7 @@ bool log_info(const char *s, ...)
 }
 
 /*
- * WARNログを出力する
+ * Record WARN log.
  */
 bool log_warn(const char *s, ...)
 {
@@ -260,7 +297,7 @@ bool log_warn(const char *s, ...)
 }
 
 /*
- * ERRORログを出力する
+ * Record ERROR log.
  */
 bool log_error(const char *s, ...)
 {
@@ -281,37 +318,68 @@ bool log_error(const char *s, ...)
 }
 
 /*
- * UTF-8のメッセージをネイティブの文字コードに変換する
- *  - 変換の必要がないので引数をそのまま返す
+ * Convert UTF-8 log to the native encoding.
  */
 const char *conv_utf8_to_native(const char *utf8_message)
 {
 	assert(utf8_message != NULL);
+
+	/* Just use the UTF-8 log. */
 	return utf8_message;
 }
 
+/* Open the log file. */
+static bool open_log_file(void)
+{
+	if (log_fp == NULL) {
+		log_fp = fopen(LOG_FILE, "w");
+		if (log_fp == NULL) {
+			printf("Can't open log file.\n");
+			return false;
+		}
+	}
+	return true;
+}
+
+/* Close the log file. */
+static void close_log_file(void)
+{
+	if (log_fp != NULL)
+		fclose(log_fp);
+}
+
 /*
- * GPUを使うか調べる
+ * Graphics
+ */
+
+/*
+ * Check if we use GPU acceleration.
+ * The result will affect whether entire screen is rewritten every frame.
  */
 bool is_gpu_accelerated(void)
 {
+	/* We use OpenGL, so just return true. */
 	return true;
 }
 
 /*
- * OpenGLが有効か調べる
+ * Check if we use OpenGL.
+ * The result will affect to the byte-order of the images.
  */
 bool is_opengl_enabled(void)
 {
+	/* We use OpenGL, so just return true. */
 	return true;
 }
 
 /*
- * テクスチャをロックする
+ * Lock the texture object for an image.
+ * While the texture for the image is locked, the image can be drawn.
  */
 bool lock_texture(int width, int height, pixel_t *pixels,
 		  pixel_t **locked_pixels, void **texture)
 {
+	/* See also glrender.c */
 	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
 				 texture))
 		return false;
@@ -320,45 +388,54 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 }
 
 /*
- * テクスチャをアンロックする
+ * Unlock the texture object for an image.
+ * When the texture is unlocked, the pixels are uploaded to VRAM.
  */
 void unlock_texture(int width, int height, pixel_t *pixels,
 		    pixel_t **locked_pixels, void **texture)
 {
+	/* See also glrender.c */
 	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
 }
 
 /*
- * テクスチャを破棄する
+ * Destroy the texture object for the image.
  */
 void destroy_texture(void *texture)
 {
+	/* See also glrender.c */
 	opengl_destroy_texture(texture);
 }
 
 /*
- * イメージをレンダリングする
+ * Render an image to the screen.
  */
 void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
                   int width, int height, int src_left, int src_top, int alpha,
                   int bt)
 {
+	/* See also glrender.c */
 	opengl_render_image(dst_left, dst_top, src_image, width, height,
 			    src_left, src_top, alpha, bt);
 }
 
 /*
- * 画面にイメージをテンプレート指定でレンダリングする
+ * Render an image to the screen with a rule image.
  */
 void render_image_rule(struct image * RESTRICT src_img,
 		       struct image * RESTRICT rule_img,
 		       int threshold)
 {
+	/* See also glrender.c */
 	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
 /*
- * セーブディレクトリを作成する
+ * File manipulation
+ */
+
+/*
+ * Create a save directory.
  */
 bool make_sav_dir(void)
 {
@@ -371,7 +448,7 @@ bool make_sav_dir(void)
 }
 
 /*
- * データファイルのディレクトリ名とファイル名を指定して有効なパスを取得する
+ * Create a valid path by directory and file names.
  */
 char *make_valid_path(const char *dir, const char *fname)
 {
@@ -381,7 +458,7 @@ char *make_valid_path(const char *dir, const char *fname)
 	if (dir == NULL)
 		dir = "";
 
-	/* パスのメモリを確保する */
+	/* Allocate a buffer for the path. */
 	len = strlen(dir) + 1 + strlen(fname) + 1;
 	buf = malloc(len);
 	if (buf == NULL) {
@@ -389,16 +466,20 @@ char *make_valid_path(const char *dir, const char *fname)
 		return NULL;
 	}
 
+	/* Create a path. */
 	strcpy(buf, dir);
 	if (strlen(dir) != 0)
 		strcat(buf, "/");
 	strcat(buf, fname);
-
 	return buf;
 }
 
 /*
- * タイマをリセットする
+ * Stop watch
+ */
+
+/*
+ * Reset a stop watch.
  */
 void reset_stop_watch(stop_watch_t *t)
 {
@@ -410,7 +491,7 @@ void reset_stop_watch(stop_watch_t *t)
 }
 
 /*
- * タイマのラップをミリ秒単位で取得する
+ * Get a lap time of stop watch in milli seconds.
  */
 int get_stop_watch_lap(stop_watch_t *t)
 {
@@ -431,100 +512,119 @@ int get_stop_watch_lap(stop_watch_t *t)
 }
 
 /*
- * 終了ダイアログを表示する
+ * Dialog
+ */
+
+/*
+ * Show the exit dialog.
  */
 bool exit_dialog(void)
 {
-	/* stub */
+	/* stub, always YES */
 	return true;
 }
 
 /*
- * タイトルに戻るダイアログを表示する
+ * Show the "back to the title" dialog.
  */
 bool title_dialog(void)
 {
-	/* stub */
+	/* stub, always YES */
 	return true;
 }
 
 /*
- * 削除ダイアログを表示する
+ * Show the delete dialog.
  */
 bool delete_dialog(void)
 {
-	/* stub */
+	/* stub, always YES */
 	return true;
 }
 
 /*
- * 上書きダイアログを表示する
+ * Show the overwrite dialog.
  */
 bool overwrite_dialog(void)
 {
-	/* stub */
+	/* stub, always YES */
 	return true;
 }
 
 /*
- * 初期設定ダイアログを表示する
+ * Show the "reset settings" dialog.
  */
 bool default_dialog(void)
 {
-	/* stub */
+	/* stub, always YES */
 	return true;
 }
 
 /*
- * ビデオを再生する
+ * Video playback
+ */
+
+/*
+ * Start video playback.
  */
 bool play_video(const char *fname, bool is_skippable)
 {
 	UNUSED_PARAMETER(fname);
 	UNUSED_PARAMETER(is_skippable);
+
+	/* TODO */
 	return true;
 }
 
 /*
- * ビデオを停止する
+ * Stop video playback.
  */
 void stop_video(void)
 {
+	/* TODO */
 }
 
 /*
- * ビデオが再生中か調べる
+ * Check if video is playing.
  */
 bool is_video_playing(void)
 {
+	/* TODO */
 	return false;
 }
 
 /*
- * ウィンドウタイトルを更新する
+ * Window and Full Screen mode
+ */
+
+/*
+ * Update window title (chapter name).
  */
 void update_window_title(void)
 {
+	/* TODO */
 }
 
 /*
- * フルスクリーンモードがサポートされるか調べる
+ * Check if full screen mode is supported.
  */
 bool is_full_screen_supported(void)
 {
+	/* TODO */
 	return false;
 }
 
 /*
- * フルスクリーンモードであるか調べる
+ * Check if we are in full screen mode.
  */
 bool is_full_screen_mode(void)
 {
+	/* TODO */
 	return false;
 }
 
 /*
- * フルスクリーンモードを開始する
+ * Start full screen mode.
  */
 void enter_full_screen_mode(void)
 {
@@ -532,7 +632,7 @@ void enter_full_screen_mode(void)
 }
 
 /*
- * フルスクリーンモードを終了する
+ * Exit full screen mode.
  */
 void leave_full_screen_mode(void)
 {
@@ -540,7 +640,11 @@ void leave_full_screen_mode(void)
 }
 
 /*
- * システムのロケールを取得する
+ * Locale
+ */
+
+/*
+ * Get the system locale.
  */
 const char *get_system_locale(void)
 {
@@ -577,32 +681,44 @@ const char *get_system_locale(void)
  * Sound
  */
 
-/* サウンドを再生を開始する */
+/*
+ * Start the sound playback on the specified stream.
+ */
 bool play_sound(int stream, struct wave *w)
 {
 	UNUSED_PARAMETER(stream);
 	UNUSED_PARAMETER(w);
+	/* TODO */
 	return true;
 }
 
-/* サウンドの再生を停止する */
+/*
+ * Stop the sound playback on the specified stream.
+ */
 bool stop_sound(int stream)
 {
 	UNUSED_PARAMETER(stream);
+	/* TODO */
 	return true;
 }
 
-/* サウンドのボリュームを設定する */
+/*
+ * Set the sound volume of the specified stream.
+ */
 bool set_sound_volume(int stream, float vol)
 {
 	UNUSED_PARAMETER(stream);
 	UNUSED_PARAMETER(vol);
+	/* TODO */
 	return true;
 }
 
-/* サウンドが再生終了したか調べる */
+/*
+ * Check if the sound playback is finished on the specified stream.
+ */
 bool is_sound_finished(int stream)
 {
 	UNUSED_PARAMETER(stream);
+	/* TODO */
 	return true;
 }
