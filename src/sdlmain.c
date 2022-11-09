@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>	/* stat(), mkdir() */
 #include <sys/time.h>	/* gettimeofday() */
+#include <pthread.h>
 
 #include "suika.h"
 #include "glrender.h"
@@ -31,7 +32,8 @@
  */
 #define SAMPLING_RATE   (44100)
 #define CHANNELS        (2)
-#define TMP_SAMPLES     (512)
+#define FRAME_SIZE      (4)
+#define TMP_SAMPLES     (4096)
 
 /*
  * The Log File
@@ -52,6 +54,7 @@ static struct wave *wave[MIXER_STREAMS];
 static float volume[MIXER_STREAMS];
 static bool finish[MIXER_STREAMS];
 static uint32_t snd_buf[TMP_SAMPLES];
+static pthread_mutex_t mutex;
 
 /* for sound mixing */
 void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples);
@@ -718,6 +721,8 @@ static bool init_sound(void)
 {
 	SDL_AudioSpec desired, obtained;
 
+	pthread_mutex_init(&mutex, NULL);
+
 	SDL_zero(desired);
 	desired.freq = SAMPLING_RATE;
 	desired.format = AUDIO_S16;
@@ -738,7 +743,9 @@ static bool init_sound(void)
 /* Cleanup sound playback. */
 static void cleanup_sound(void)
 {
+	SDL_PauseAudioDevice(audio, 1);
 	SDL_CloseAudioDevice(audio);
+        pthread_mutex_destroy(&mutex);
 	audio = 0;
 }
 
@@ -747,11 +754,15 @@ static void cleanup_sound(void)
  */
 bool play_sound(int stream, struct wave *w)
 {
-	/* Reset the finish flag. */
-	finish[stream] = false;
+	pthread_mutex_lock(&mutex);
+	{
+		/* Set the stream source. */
+		wave[stream] = w;
 
-	/* Set the stream source. */
-	wave[stream] = w;
+		/* Reset the finish flag. */
+		finish[stream] = false;
+	}
+	pthread_mutex_unlock(&mutex);
 
 	return true;
 }
@@ -761,11 +772,15 @@ bool play_sound(int stream, struct wave *w)
  */
 bool stop_sound(int stream)
 {
-	/* Set the finish flag. */
-	finish[stream] = true;
+	pthread_mutex_lock(&mutex);
+	{
+		/* Remove the stream source. */
+		wave[stream] = NULL;
 
-	/* 再生中のストリームをなしとする */
-	wave[stream] = NULL;
+		/* Set the finish flag. */
+		finish[stream] = true;
+	}
+	pthread_mutex_unlock(&mutex);
 
 	return true;
 }
@@ -802,44 +817,51 @@ static void audio_callback(void *userdata, Uint8 *stream, int len)
 	memset(stream, 0, (size_t)len);
 
 	sample_ptr = (uint32_t *)stream;
-	remain = len / (int)sizeof(uint32_t);
-	while (remain > 0) {
-		/* Get the sample size for the read. */
-		read_samples = remain > TMP_SAMPLES ? TMP_SAMPLES : remain;
+	remain = len / FRAME_SIZE;
 
-		/* For each stream: */
-		for (n = 0; n < MIXER_STREAMS; stream++) {
-			/* If not playing: */
-			if (wave[n] == NULL)
-				continue;
-
-			/* Get samples from input stream. */
-			ret = get_wave_samples(wave[n], snd_buf, read_samples);
-
-			/* When we reached EOS: */
-			if(ret < read_samples) {
-				/* Add zeros. */
-				memset(snd_buf + ret,
-				       0,
-				       (size_t)(read_samples - ret) *
-				       sizeof(uint32_t));
-
-				/* Remove the input stream. */
-				wave[n] = NULL;
-
-				/* Set the finish flag. */
-				finish[n] = true;
+	pthread_mutex_lock(&mutex);
+	{
+		while (remain > 0) {
+			/* Get the sample size for the read. */
+			read_samples = remain > TMP_SAMPLES ?
+				TMP_SAMPLES : remain;
+		
+			/* For each stream: */
+			for (n = 0; n < MIXER_STREAMS; n++) {
+				/* If not playing: */
+				if (wave[n] == NULL)
+					continue;
+		
+				/* Get samples from input stream. */
+				ret = get_wave_samples(wave[n], snd_buf,
+						       read_samples);
+		
+				/* When we reached EOS: */
+				if(ret < read_samples) {
+					/* Add zeros. */
+					memset(snd_buf + ret,
+					       0,
+					       (size_t)(read_samples - ret) *
+					       sizeof(uint32_t));
+		
+					/* Remove the input stream. */
+					wave[n] = NULL;
+		
+					/* Set the finish flag. */
+					finish[n] = true;
+				}
+		
+				/* Do mixing. */
+				mul_add_pcm(sample_ptr, snd_buf, volume[n],
+					    read_samples);
 			}
-
-			/* Do mixing. */
-			mul_add_pcm(sample_ptr, snd_buf, volume[n],
-				    read_samples);
+		
+			/* Increment the write position. */
+			sample_ptr += read_samples;
+			remain -= read_samples;
 		}
-
-		/* Increment the write position. */
-		sample_ptr += read_samples;
-		remain -= read_samples;
-        }
+	}
+	pthread_mutex_unlock(&mutex);
 }
 
 /*

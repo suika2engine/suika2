@@ -38,6 +38,7 @@ LDFLAGS = \
 	-lm \
 	-lGLEW \
 	-lGL \
+	-lpthread \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections \
