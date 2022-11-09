@@ -216,7 +216,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Retour au titre?";
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите перейти к титулу?";
+			return L"Вы уверены, что хотите перейти к заголовку?";
 		case LOCALE_DE:
 			return L"Sind Sie sicher, dass Sie zum Titel wechseln möchten?";
 		case LOCALE_IT:
@@ -242,7 +242,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Supprimer Voulez-vous vraiment?";
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите удалить данные сохранения?";
+			return L"Вы уверены, что хотите удалить сохранённые данные?";
 		case LOCALE_DE:
 			return L"Möchten Sie die Speicherdaten wirklich löschen?";
 		case LOCALE_IT:
@@ -268,7 +268,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Voulez-vous vraiment écraser?";
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите перезаписать данные сохранения?";
+			return L"Вы уверены, что хотите перезаписать сохранённые данные?";
 		case LOCALE_DE:
 			return L"Möchten Sie die Speicherdaten wirklich überschreiben?";
 		case LOCALE_IT:
@@ -425,7 +425,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Quitter(&Q)";
 		case LOCALE_RU:
-			return L"Покидать(&Q)";
+			return L"Закрыть(&Q)";
 		case LOCALE_DE:
 			return L"Aufhören(&Q)";
 		case LOCALE_IT:

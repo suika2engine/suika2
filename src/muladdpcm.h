@@ -16,7 +16,7 @@
  *  - PROTOTYPE_ONLY
  */
 
-#if defined(OSX) || defined(IOS)
+#if defined(OSX) || defined(IOS) || defined(USE_SDL2)
 
 /* ミキシングを行う */
 void MUL_ADD_PCM(uint32_t *dst, uint32_t *src, float vol, int samples)

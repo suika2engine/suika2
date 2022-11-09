@@ -1126,7 +1126,7 @@ bool is_opengl_enabled(void)
  * テクスチャをロックする
  */
 bool lock_texture(int width, int height, pixel_t *pixels,
-				  pixel_t **locked_pixels, void **texture)
+		  pixel_t **locked_pixels, void **texture)
 {
 	if (is_opengl) {
 #ifdef USE_X11_OPENGL
@@ -1148,7 +1148,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
  * テクスチャをアンロックする
  */
 void unlock_texture(int width, int height, pixel_t *pixels,
-					pixel_t **locked_pixels, void **texture)
+		    pixel_t **locked_pixels, void **texture)
 {
 	if (is_opengl) {
 #ifdef USE_X11_OPENGL
@@ -1344,8 +1344,6 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-	UNUSED_PARAMETER(is_skippable);
-
 	char *path;
 
 	path = make_valid_path(MOV_DIR, fname);
