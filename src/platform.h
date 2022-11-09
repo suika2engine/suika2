@@ -5,6 +5,10 @@
  * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
  */
 
+/* 
+ * HAL API (Hardware Abstraction layer)
+ */
+
 #ifndef SUIKA_PLATFORM_H
 #define SUIKA_PLATFORM_H
 

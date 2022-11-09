@@ -53,8 +53,9 @@ include ../common.mk
 SRCS = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
-	../../src/sdlmain.c \
-	../../src/glrender.c
+	../../src/glrender.c \
+	../../src/gstplay.c \
+	../../src/sdlmain.c
 
 #
 # .c.o compilation rules
@@ -63,14 +64,14 @@ SRCS = \
 OBJS = $(SRCS:../../src/%.c=%.o) \
 
 %.o: ../../src/%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags sdl2` $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags sdl2 gstreamer-1.0 gstreamer-video-1.0` $<
 
 #
 # Target
 #
 
 suika: $(OBJS)
-	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs sdl2`
+	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs sdl2 gstreamer-1.0 gstreamer-video-1.0`
 
 #
 # Feature specific source files.

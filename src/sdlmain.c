@@ -6,23 +6,32 @@
  */
 
 /*
+ * This is a platform independent part (PIP) of Suika2 for SDL2 on X11.
+ *
  * [Changes]
  *  2022-11-08 Created
  */
 
+/* SDL */
 #include <SDL.h>
+#include <SDL_syswm.h>
+
+/* OpenGL (GLEW) */
 #include <GL/glew.h>
 
+/* Standard C */
 #include <locale.h>
 
+/* POSIX */
 #include <sys/types.h>
 #include <sys/stat.h>	/* stat(), mkdir() */
 #include <sys/time.h>	/* gettimeofday() */
 #include <pthread.h>
 
+/* Suika2 */
 #include "suika.h"
 #include "glrender.h"
-
+#include "gstplay.h"
 #ifdef SSE_VERSIONING
 #include "x86.h"
 #endif
@@ -33,7 +42,7 @@
 #define SAMPLING_RATE   (44100)
 #define CHANNELS        (2)
 #define FRAME_SIZE      (4)
-#define TMP_SAMPLES     (4096)
+#define TMP_SAMPLES     (512)
 
 /*
  * The Log File
@@ -60,13 +69,20 @@ static pthread_mutex_t mutex;
 void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples);
 
 /*
+ * Video Objects
+ */
+static bool is_gst_playing;
+static bool is_gst_skippable;
+
+/*
  * forward declaration
  */
-static bool init(void);
+static bool init(int argc, char *argv[]);
 static void cleanup(void);
 static void run_game_loop(void);
 static bool dispatch_event(SDL_Event *ev);
 static int get_keycode(int sym);
+static bool show_video_frame(void);
 static bool open_log_file(void);
 static void close_log_file(void);
 static bool init_sound(void);
@@ -80,13 +96,10 @@ int main(int argc, char *argv[])
 {
 	int ret;
 
-	UNUSED_PARAMETER(argc);
-	UNUSED_PARAMETER(argv);
-
 	ret = 1;
 	do {
 		/* Do lower layer initialization. */
-		if (!init())
+		if (!init(argc, argv))
 			break;
 
 		/* Do upper layer initialization. */
@@ -114,7 +127,7 @@ int main(int argc, char *argv[])
 }
 
 /* Do lower layer initialization. */
-static bool init(void)
+static bool init(int argc, char *argv[])
 {
 #ifdef SSE_VERSIONING
 	/* Check the vector extensions. */
@@ -167,6 +180,9 @@ static bool init(void)
 	if (!init_sound())
 		return false;
 
+	/* Initialize video. */
+	gstplay_init(argc, argv);
+
 	/* Succeeded. */
 	return true;
 }
@@ -202,6 +218,13 @@ static void run_game_loop(void)
 		while (SDL_PollEvent(&ev))
 			if (!dispatch_event(&ev))
 				return;
+
+		/* Process video playback. */
+		if (is_gst_playing) {
+			if (!show_video_frame())
+				return;
+			continue;
+		}
 
 		/* Start rendering. */
 		opengl_start_rendering();
@@ -281,8 +304,35 @@ static int get_keycode(int sym)
 	return -1;
 }
 
+/* Show a video frame. */
+static bool show_video_frame(void)
+{
+	int x, y, w, h;
+
+	assert(is_gst_playing);
+
+	/* Show a frame. */
+	gstplay_loop_iteration();
+
+	/* Check if playback is finished. */
+	if (!gstplay_is_playing()) {
+		/* Do post-process. */
+		gstplay_stop();
+		is_gst_playing = false;
+	}
+
+	/* Do a frame event. */
+	if (!on_event_frame(&x, &y, &w, &h)) {
+		/* Break the main loop. */
+		return false;
+	}
+
+	/* Continue the main loop. */
+	return true;
+}
+
 /*
- * Implementation of platform.h functions
+ * Implementation of "platform.h" functions (HAL API)
  */
 
 /*
@@ -501,7 +551,7 @@ char *make_valid_path(const char *dir, const char *fname)
 		return NULL;
 	}
 
-	/* Create a path. */
+	/* Create the path. */
 	strcpy(buf, dir);
 	if (strlen(dir) != 0)
 		strcat(buf, "/");
@@ -604,10 +654,21 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-	UNUSED_PARAMETER(fname);
-	UNUSED_PARAMETER(is_skippable);
+	SDL_SysWMinfo info;
+	char *path;
 
-	/* TODO */
+	path = make_valid_path(MOV_DIR, fname);
+
+	is_gst_playing = true;
+	is_gst_skippable = is_skippable;
+
+	SDL_VERSION(&info.version);
+	SDL_GetWindowWMInfo(window, &info);
+
+	gstplay_play(path, info.info.x11.window);
+
+	free(path);
+
 	return true;
 }
 
@@ -616,7 +677,8 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
-	/* TODO */
+	gstplay_stop();
+	is_gst_playing = false;
 }
 
 /*
@@ -624,8 +686,7 @@ void stop_video(void)
  */
 bool is_video_playing(void)
 {
-	/* TODO */
-	return false;
+	return is_gst_playing;
 }
 
 /*
@@ -805,7 +866,7 @@ bool is_sound_finished(int stream)
 	return false;
 }
 
-/* Audi callback. */
+/* Audio callback. */
 static void audio_callback(void *userdata, Uint8 *stream, int len)
 {
 	uint32_t *sample_ptr;
@@ -865,65 +926,65 @@ static void audio_callback(void *userdata, Uint8 *stream, int len)
 }
 
 /*
- * SSEバージョニングを行わない場合
+ * Without SSE dispatch:
  */
 #ifndef SSE_VERSIONING
 
-/* mul_add_pcm()を定義する */
+/* Define mul_add_pcm(). */
 #define MUL_ADD_PCM mul_add_pcm
 #include "muladdpcm.h"
 
 /*
- * SSEバージョニングを行う場合
+ * With SSE dispatch:
  */
 #else
 
-/* AVX-512版mul_add_pcm()を宣言する */
+/* AVX-512 */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_avx512
 #include "muladdpcm.h"
 
-/* AVX2版mul_add_pcm()を宣言する */
+/* AVX2 */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_avx2
 #include "muladdpcm.h"
 
-/* AVX版mul_add_pcm()を宣言する */
+/* AVX */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_avx
 #include "muladdpcm.h"
 
-/* SSE4.2版mul_add_pcm()を宣言する */
+/* SSE4.2 */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_sse42
 #include "muladdpcm.h"
 
-/* SSE4.1版mul_add_pcm()を宣言する */
+/* SSE4.1 */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_sse41
 #include "muladdpcm.h"
 
-/* SSE3版mul_add_pcm()を宣言する */
+/* SSE3 */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_sse3
 #include "muladdpcm.h"
 
-/* SSE2版mul_add_pcm()を宣言する */
+/* SSE2 */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_sse2
 #include "muladdpcm.h"
 
-/* SSE版mul_add_pcm()を宣言する */
+/* SSE */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_sse
 #include "muladdpcm.h"
 
-/* 非ベクトル版mul_add_pcm()を宣言する */
+/* Non-vectorized */
 #define PROTOTYPE_ONLY
 #define MUL_ADD_PCM mul_add_pcm_novec
 #include "muladdpcm.h"
 
-/* mul_add_pcm()をディスパッチする */
+/* Dispatch mul_add_pcm() functions. */
 void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples)
 {
 	if (has_avx512)

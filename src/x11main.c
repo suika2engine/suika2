@@ -1344,8 +1344,6 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-	UNUSED_PARAMETER(is_skippable);
-
 	char *path;
 
 	path = make_valid_path(MOV_DIR, fname);
