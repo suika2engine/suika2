@@ -35,4 +35,3 @@
 #include "muladdpcm.h"
 
 #endif /* SSE_VERSIONING */
-

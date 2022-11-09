@@ -27,6 +27,13 @@
 #endif
 
 /*
+ * Sound Config
+ */
+#define SAMPLING_RATE   (44100)
+#define CHANNELS        (2)
+#define TMP_SAMPLES     (512)
+
+/*
  * The Log File
  */
 static FILE *log_fp;
@@ -36,6 +43,18 @@ static FILE *log_fp;
  */
 static SDL_Window *window;
 static SDL_GLContext *context;
+static SDL_AudioDeviceID audio;
+
+/*
+ * Sound Objects
+ */
+static struct wave *wave[MIXER_STREAMS];
+static float volume[MIXER_STREAMS];
+static bool finish[MIXER_STREAMS];
+static uint32_t snd_buf[TMP_SAMPLES];
+
+/* for sound mixing */
+void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples);
 
 /*
  * forward declaration
@@ -47,6 +66,9 @@ static bool dispatch_event(SDL_Event *ev);
 static int get_keycode(int sym);
 static bool open_log_file(void);
 static void close_log_file(void);
+static bool init_sound(void);
+static void cleanup_sound(void);
+static void audio_callback(void *userdata, Uint8 *stream, int len);
 
 /*
  * Main
@@ -138,6 +160,10 @@ static bool init(void)
 	if (!init_opengl())
 		return false;
 
+	/* Initialize sound. */
+	if (!init_sound())
+		return false;
+
 	/* Succeeded. */
 	return true;
 }
@@ -145,6 +171,12 @@ static bool init(void)
 /* Do lawer layer cleanup. */
 static void cleanup(void)
 {
+	/* Cleanup sound. */
+	cleanup_sound();
+
+	/* Cleanup OpenGL. */
+	cleanup_opengl();
+
 	/* Cleanup config. */
 	cleanup_conf();
 
@@ -681,14 +713,46 @@ const char *get_system_locale(void)
  * Sound
  */
 
+/* Initialize sound playback. */
+static bool init_sound(void)
+{
+	SDL_AudioSpec desired, obtained;
+
+	SDL_zero(desired);
+	desired.freq = SAMPLING_RATE;
+	desired.format = AUDIO_S16;
+	desired.channels = CHANNELS;
+	desired.samples = TMP_SAMPLES;
+	desired.callback = audio_callback;
+
+	audio = SDL_OpenAudioDevice(NULL, 0, &desired, &obtained, 0);
+	if (audio == 0) {
+		log_api_error("SDL_OpenAudioDevice()");
+		return false;
+	}
+
+	SDL_PauseAudioDevice(audio, 0);
+	return true;
+}
+
+/* Cleanup sound playback. */
+static void cleanup_sound(void)
+{
+	SDL_CloseAudioDevice(audio);
+	audio = 0;
+}
+
 /*
  * Start the sound playback on the specified stream.
  */
 bool play_sound(int stream, struct wave *w)
 {
-	UNUSED_PARAMETER(stream);
-	UNUSED_PARAMETER(w);
-	/* TODO */
+	/* Reset the finish flag. */
+	finish[stream] = false;
+
+	/* Set the stream source. */
+	wave[stream] = w;
+
 	return true;
 }
 
@@ -697,8 +761,12 @@ bool play_sound(int stream, struct wave *w)
  */
 bool stop_sound(int stream)
 {
-	UNUSED_PARAMETER(stream);
-	/* TODO */
+	/* Set the finish flag. */
+	finish[stream] = true;
+
+	/* 再生中のストリームをなしとする */
+	wave[stream] = NULL;
+
 	return true;
 }
 
@@ -707,9 +775,7 @@ bool stop_sound(int stream)
  */
 bool set_sound_volume(int stream, float vol)
 {
-	UNUSED_PARAMETER(stream);
-	UNUSED_PARAMETER(vol);
-	/* TODO */
+	volume[stream] = vol;
 	return true;
 }
 
@@ -718,7 +784,144 @@ bool set_sound_volume(int stream, float vol)
  */
 bool is_sound_finished(int stream)
 {
-	UNUSED_PARAMETER(stream);
-	/* TODO */
-	return true;
+	if (finish[stream])
+		return true;
+
+	return false;
 }
+
+/* Audi callback. */
+static void audio_callback(void *userdata, Uint8 *stream, int len)
+{
+	uint32_t *sample_ptr;
+	int n, ret, remain, read_samples;
+
+	UNUSED_PARAMETER(userdata);
+
+	/* Clear the buffer. */
+	memset(stream, 0, (size_t)len);
+
+	sample_ptr = (uint32_t *)stream;
+	remain = len / (int)sizeof(uint32_t);
+	while (remain > 0) {
+		/* Get the sample size for the read. */
+		read_samples = remain > TMP_SAMPLES ? TMP_SAMPLES : remain;
+
+		/* For each stream: */
+		for (n = 0; n < MIXER_STREAMS; stream++) {
+			/* If not playing: */
+			if (wave[n] == NULL)
+				continue;
+
+			/* Get samples from input stream. */
+			ret = get_wave_samples(wave[n], snd_buf, read_samples);
+
+			/* When we reached EOS: */
+			if(ret < read_samples) {
+				/* Add zeros. */
+				memset(snd_buf + ret,
+				       0,
+				       (size_t)(read_samples - ret) *
+				       sizeof(uint32_t));
+
+				/* Remove the input stream. */
+				wave[n] = NULL;
+
+				/* Set the finish flag. */
+				finish[n] = true;
+			}
+
+			/* Do mixing. */
+			mul_add_pcm(sample_ptr, snd_buf, volume[n],
+				    read_samples);
+		}
+
+		/* Increment the write position. */
+		sample_ptr += read_samples;
+		remain -= read_samples;
+        }
+}
+
+/*
+ * SSEバージョニングを行わない場合
+ */
+#ifndef SSE_VERSIONING
+
+/* mul_add_pcm()を定義する */
+#define MUL_ADD_PCM mul_add_pcm
+#include "muladdpcm.h"
+
+/*
+ * SSEバージョニングを行う場合
+ */
+#else
+
+/* AVX-512版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_avx512
+#include "muladdpcm.h"
+
+/* AVX2版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_avx2
+#include "muladdpcm.h"
+
+/* AVX版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_avx
+#include "muladdpcm.h"
+
+/* SSE4.2版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_sse42
+#include "muladdpcm.h"
+
+/* SSE4.1版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_sse41
+#include "muladdpcm.h"
+
+/* SSE3版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_sse3
+#include "muladdpcm.h"
+
+/* SSE2版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_sse2
+#include "muladdpcm.h"
+
+/* SSE版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_sse
+#include "muladdpcm.h"
+
+/* 非ベクトル版mul_add_pcm()を宣言する */
+#define PROTOTYPE_ONLY
+#define MUL_ADD_PCM mul_add_pcm_novec
+#include "muladdpcm.h"
+
+/* mul_add_pcm()をディスパッチする */
+void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples)
+{
+	if (has_avx512)
+		mul_add_pcm_avx512(dst, src, vol, samples);
+	else if (has_avx2)
+		mul_add_pcm_avx2(dst, src, vol, samples);
+	else if (has_avx)
+		mul_add_pcm_avx(dst, src, vol, samples);
+	else if (has_sse42)
+		mul_add_pcm_sse42(dst, src, vol, samples);
+	else if (has_sse41)
+		mul_add_pcm_sse41(dst, src, vol, samples);
+	else if (has_sse3)
+		mul_add_pcm_sse3(dst, src, vol, samples);
+	else if (has_sse2)
+		mul_add_pcm_sse2(dst, src, vol, samples);
+	else if (has_sse)
+		mul_add_pcm_sse(dst, src, vol, samples);
+	else
+		mul_add_pcm_novec(dst, src, vol, samples);
+}
+
+#endif

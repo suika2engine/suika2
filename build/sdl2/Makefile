@@ -9,6 +9,7 @@ CC = gcc
 #
 
 CPPFLAGS = \
+	-DUSE_SDL2 \
 	-DUSE_SDL2_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
