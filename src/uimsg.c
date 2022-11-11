@@ -208,7 +208,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_EN:
 			return L"Are you sure you want to go to title?";
 		case LOCALE_JA:
-			return L"タイトルに戻りますか？";
+			return L"タイトルにもどりますか？";
 		case LOCALE_ZH:
 			return L"回到标题？";
 		case LOCALE_TW:
@@ -260,7 +260,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_EN:
 			return L"Are you sure you want to overwrite the save data?";
 		case LOCALE_JA:
-			return L"上書きしてもよろしいですか？";
+			return L"セーブデータを上書きしますか？";
 		case LOCALE_ZH:
 			return L"您确定要覆盖吗？";
 		case LOCALE_TW:
@@ -286,7 +286,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_EN:
 			return L"Are you sure you want to reset the settings?";
 		case LOCALE_JA:
-			return L"設定をリセットしてもよろしいですか？";
+			return L"すべて初期値にもどしますか？";
 		case LOCALE_ZH:
 			return L"您确定要重置设置吗？";
 		case LOCALE_TW:
@@ -339,7 +339,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_EN:
 			return L"Display size too small.";
 		case LOCALE_JA:
-			return L"ディスプレイのサイズが足りません。";
+			return L"ディスプレイのサイズが足りません！";
 		case LOCALE_ZH:
 			return L"显示尺寸不足。";
 		case LOCALE_TW:
