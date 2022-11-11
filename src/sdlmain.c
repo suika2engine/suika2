@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 	if  (ret != 0 && log_fp != NULL)
 		printf("Check " LOG_FILE "\n");
 
-	/* Do lower layer initialization. */
+	/* Do lower layer cleanup. */
 	cleanup();
 
 	return ret;
