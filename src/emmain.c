@@ -65,22 +65,42 @@ static EM_BOOL cb_touchend(int eventType,
 			   const EmscriptenTouchEvent *touchEvent,
 			   void *userData);
 
+/*
+ * メイン
+ */
 int main(void)
+{
+	/* セーブデータを読み込む */
+	EM_ASM_(
+		FS.mkdir('/sav');
+		FS.mount(IDBFS, {}, '/sav');
+		FS.syncfs(true, function (err) { ccall('main_continue', 'v'); });
+	);
+
+	/* 読み込みは非同期で、main_continue()に継続される */
+	emscripten_exit_with_live_runtime();
+	return 0;
+}
+
+/*
+ * メインの続き
+ */
+EMSCRIPTEN_KEEPALIVE void main_continue(void)
 {
 	/* ロケールを初期化する */
 	init_locale_code();
 
 	/* パッケージの初期化処理を行う */
 	if(!init_file())
-		return 1;
+		return;
 
 	/* コンフィグの初期化処理を行う */
 	if(!init_conf())
-		return 1;
+		return;
 	
 	/* サウンドの初期化処理を行う */
 	if (!init_openal())
-		return 1;
+		return;
 
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
@@ -97,11 +117,11 @@ int main(void)
 	context = emscripten_webgl_create_context("canvas", &attr);
 	emscripten_webgl_make_context_current(context);
 	if (!init_opengl())
-		return 1;
+		return;
 
 	/* 初期化イベントを処理する */
 	if(!on_event_init())
-		return 1;
+		return;
 
 	/* イベントの登録をする */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
@@ -116,8 +136,6 @@ int main(void)
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
-
-	return 0;
 }
 
 /* フレームを処理する */
@@ -509,11 +527,6 @@ void render_image_rule(struct image * RESTRICT src_img,
  */
 bool make_sav_dir(void)
 {
-	struct stat st = {0};
-
-	if (stat(SAVE_DIR, &st) == -1)
-		mkdir(SAVE_DIR, 0700);
-
 	return true;
 }
 
@@ -527,6 +540,8 @@ char *make_valid_path(const char *dir, const char *fname)
 
 	if (dir == NULL)
 		dir = "";
+	if (strcmp(dir, SAVE_DIR) == 0)
+		dir = "/sav";
 
 	/* パスのメモリを確保する */
 	len = strlen(dir) + 1 + strlen(fname) + 1;
