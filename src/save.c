@@ -25,6 +25,10 @@
 
 #include "suika.h"
 
+#ifdef EM
+#include <emscripten/emscripten.h>
+#endif
+
 /* クイックセーブのファイル名 */
 #define QUICK_SAVE_FILE_NAME	"q000.sav"
 
@@ -288,6 +292,11 @@ bool quick_save(void)
 	/* クイックセーブの時刻を更新する */
 	quick_save_time = (time_t)timestamp;
 
+#ifdef EM
+	EM_ASM_(
+		FS.syncfs(function (err) { alert('Saved to the browser!'); });
+	);
+#endif
 	return true;
 }
 
@@ -314,6 +323,12 @@ bool execute_save(int index)
 
 	/* 時刻を保存する */
 	save_time[index] = (time_t)timestamp;
+
+#ifdef EM
+	EM_ASM_(
+		FS.syncfs(function (err) { alert('Saved to the browser!'); });
+	);
+#endif
 	return true;
 }
 
