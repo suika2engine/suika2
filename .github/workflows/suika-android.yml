@@ -12,16 +12,14 @@ jobs:
       - name: Build
         run: |
           sudo apt update
-          sudo apt install -y android-sdk
+          sudo apt install -y openjdk-11-jdk
           cd build/android
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip
           export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
-          export ANDROID_HOME=$ANDROID_SDK_ROOT
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
-          export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk
           ./gradlew build --stacktrace --debug
       - name: Upload
         uses: actions/upload-artifact@v2
