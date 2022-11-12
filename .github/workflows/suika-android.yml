@@ -17,8 +17,8 @@ jobs:
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip
           export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
-          unset ANDROID_HOME
           export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT/ndk
+          unset ANDROID_HOME
           unset ANDROID_NDK
           unset NDK_ROOT
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
