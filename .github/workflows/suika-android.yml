@@ -20,7 +20,7 @@ jobs:
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
-          ./gradlew build --stacktrace --debug
+          ./gradlew build --stacktrace
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
