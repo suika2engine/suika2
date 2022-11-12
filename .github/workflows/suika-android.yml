@@ -22,6 +22,7 @@ jobs:
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
           export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk
+          gradle clean
           ./gradlew --stacktrace
           ./gradlew build --stacktrace
       - name: Upload
