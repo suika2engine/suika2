@@ -1,0 +1,14 @@
+name: suika-mac
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          cd build/macos
+          ./build-libs.sh
+          xcodebuild -workspace suika.xcodeproj/project.xcworkspace -scheme suika -configuration Debug
