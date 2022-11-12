@@ -22,9 +22,7 @@ jobs:
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
           export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk
-          gradle clean
-          ./gradlew --stacktrace
-          ./gradlew build --stacktrace
+          ./gradlew build --stacktrace --debug
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
