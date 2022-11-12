@@ -21,11 +21,11 @@ jobs:
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
-          gradle clean
-          ./gradlew
       - name: Build2
         continue-on-error: true
         run: |
+          gradle clean
+          ./gradlew
           ./gradlew build --stacktrace
       - name: Build3
         run: |
