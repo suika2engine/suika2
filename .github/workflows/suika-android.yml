@@ -5,7 +5,7 @@ on:
 jobs:
   android:
     runs-on: "ubuntu-22.04"
-    name: linux
+    name: android
     steps:
       - name: Checkout
         uses: actions/checkout@v2
