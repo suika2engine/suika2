@@ -11,4 +11,4 @@ jobs:
         run: |
           cd build/macos
           ./build-libs.sh
-          xcodebuild -workspace suika.xcodeproj/project.xcworkspace -scheme suika -configuration Debug
+          xcodebuild -target suika -project suika.xcodeproj -configuration Debug build
