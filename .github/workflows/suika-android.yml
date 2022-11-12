@@ -9,11 +9,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build
+      - name: Build1
         run: |
           sudo apt update
-          sudo apt install -y openjdk-11-jdk
-          sudo apt remove -y android-sdk
+          sudo apt install -y android-sdk
           cd build/android
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip
@@ -22,9 +21,15 @@ jobs:
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
-          export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
-          export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT/ndk
-          unset ANDROID_HOME
+          gradle clean
+          ./gradlew
+      - name: Build2
+        continue-on-error: true
+        run: |
+          ./gradlew build --stacktrace
+      - name: Build3
+        run: |
+          ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./gradlew build --stacktrace
       - name: Upload
         uses: actions/upload-artifact@v2
