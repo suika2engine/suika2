@@ -17,7 +17,7 @@ jobs:
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip
           export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
-          yes | ./cmdline-tools/bin/sdkmanager --licenses
+          yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
           ./gradlew build
