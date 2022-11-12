@@ -24,11 +24,13 @@ jobs:
       - name: Build2
         continue-on-error: true
         run: |
+          cd build/android
           gradle clean
           ./gradlew
           ./gradlew build --stacktrace
       - name: Build3
         run: |
+          cd build/android
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./gradlew build --stacktrace
       - name: Upload
