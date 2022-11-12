@@ -21,6 +21,7 @@ jobs:
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           ./cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=$ANDROID_SDK_ROOT
           ./prepare-libs.sh
+          export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/24.0.8215888
           ./gradlew build
       - name: Upload
         uses: actions/upload-artifact@v2
