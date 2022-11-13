@@ -10,5 +10,6 @@ jobs:
       - name: Build
         run: |
           cd build/macos
-          ./build-libs.sh
+          wget https://suika2.com/dl/libroot-mac.tar.gz
+          tar xzf libroot-mac.tar.gz
           xcodebuild -target suika -project suika.xcodeproj -configuration Debug build
