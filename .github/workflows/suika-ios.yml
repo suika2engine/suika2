@@ -11,4 +11,4 @@ jobs:
         run: |
           cd build/ios
           ./build-libs.sh
-          xcodebuild -target suika -project suika.xcodeproj -configuration Debug build
+          xcodebuild -target suika -project suika.xcodeproj -configuration Debug -allowProvisioningUpdates build
