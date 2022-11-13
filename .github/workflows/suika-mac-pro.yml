@@ -1,4 +1,4 @@
-name: suika-mac
+name: suika-mac-pro
 on:
   push:
   pull_request:
