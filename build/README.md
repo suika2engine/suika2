@@ -32,13 +32,13 @@ Mac App
       * Run `./build-libs.sh` to build the libraries.
    * On Intel Mac:
       * You can't build a `Universal Binary` library for `libpng`, so use the prebuilt libraries.
-      * Download these from `https://suika2.com/dl/libroot-mac.tar.gz` and extract it.
+      * Download these from `https://suika2.com/dl/libroot-mac.tar.gz` and extract them.
 * In Xcode, open `build/macos`.
    * Set your development team.
    * Build the project.
    * Archive then project.
    * Notarize the application by `Distribute App` button.
-   * Press `Export Notarized App` to export the app to `build/macos` folder.
+   * Press `Export Notarized App` to export the app to the `build/macos` folder.
 * To run Suika2, copy `suika.app` to the `game-en` folder or the `game-jp` folder then double click it.
 * To distribute the app, follow these steps:
    * From the terminal, enter the `build/macos` directory.
