@@ -13,7 +13,7 @@ This method uses a cross compiler to build a Windows binary.
 * On Ubuntu 22.04 (WSL2 is OK), install the following packages:
    * `build-essential`
    * `mingw-w64`
-* Alternatively, on macOS 12, install Homebrew and the following package:
+* Alternatively, on macOS 13, install Homebrew and the following package:
    * `mingw-w64`
 * From the terminal, enter the `build/mingw` directory.
    * Run `./build-libs.sh` to build libraries.
@@ -26,16 +26,25 @@ This method uses a cross compiler to build a Windows binary.
 Mac App
 ============
 
-* On macOS 12, install Xcode 13.
+* On macOS 13, install Xcode 14.
 * From the terminal, enter the `build/macos` directory.
-   * Run `./build-libs.sh` to build libraries.
+   * On Apple Silicon Mac:
+      * Run `./build-libs.sh` to build the libraries.
+   * On Intel Mac:
+      * You can't build a `Universal Binary` library for `libpng`, so use the prebuilt libraries.
+      * Download these from `https://suika2.com/dl/libroot-mac.tar.gz` and extract them.
 * In Xcode, open `build/macos`.
    * Set your development team.
    * Build the project.
    * Archive then project.
    * Notarize the application by `Distribute App` button.
-   * Press `Export Notarized App` to export the app to `suika2` folder.
+   * Press `Export Notarized App` to export the app to the `build/macos` folder.
 * To run Suika2, copy `suika.app` to the `game-en` folder or the `game-jp` folder then double click it.
+* To distribute the app, follow these steps:
+   * From the terminal, enter the `build/macos` directory.
+   * Modify `SIGNATURE` in `make-dmg.sh` to sign dmg files.
+   * Run `./make-dmg.sh` to create the dmg files.
+   * Distribute the `mac.dmg` file.
 
 **Note:** In some cases, building the application may fail when using an Intel-based Mac. In these cases, please build from an Apple Silicon machine.
 If you are unable to do this, please contact the team for the up-to-date result of `build-libs.sh`.
@@ -44,7 +53,7 @@ If you are unable to do this, please contact the team for the up-to-date result 
 iOS App
 ============
 
-* On macOS 12, install Xcode 13.
+* On macOS 13, install Xcode 14.
 * From the terminal, enter the `build/ios` directory.
    * Run `./build-libs.sh` to build libraries.
    * Alternatively, you can run `./build-libs-sim.sh` for use with simulators on Apple Silicon Mac.
@@ -78,10 +87,7 @@ Web App
 Release Files
 ============
 
-* On macOS 12, from the terminal, enter the `build/release` directory.
-   * Modify `SIGNATURE` in `Makefile` to sign dmg files.
-   * Run `make` to create ZIP files.
-   * Rename `suika-2.x.x-en.zip` and `suika-2.x.x-jp.zip`.
+* On Ubuntu 22.04 (WSL2 is OK), from the terminal, run `./do-release.sh`.
 
 
 Web Kit Distribution Files
