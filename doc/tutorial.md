@@ -3,7 +3,7 @@ Suika2 Tutorial
 
 Welcome to the world of Suika2!
 
-This document explains how to make a basic visual novel using the engine, don't worry, it's really easy!
+This tutorial aims to provide a basic explanation on how to make a basic visual novel using the engine, don't worry, it's really easy!
 
 Okay, Ready? Let's get started!
 
