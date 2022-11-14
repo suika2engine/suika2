@@ -238,6 +238,7 @@ static void destroy_layer_image(int layer);
 static void draw_stage_fi_fo_fade(int fade_method);
 static void draw_stage_fi_fo_fade_normal(void);
 static void draw_stage_fi_fo_fade_rule(void);
+static void draw_stage_fi_fo_fade_melt(void);
 static void draw_stage_fi_fo_fade_curtain_right(void);
 static void draw_stage_fi_fo_fade_curtain_left(void);
 static void draw_stage_fi_fo_fade_curtain_up(void);
@@ -986,11 +987,13 @@ static void draw_stage_fi_fo_fade(int fade_method)
 {
 	switch (fade_method) {
 	case FADE_METHOD_NORMAL:
-	case FADE_METHOD_MASK:
 		draw_stage_fi_fo_fade_normal();
 		break;
 	case FADE_METHOD_RULE:
 		draw_stage_fi_fo_fade_rule();
+		break;
+	case FADE_METHOD_MELT:
+		draw_stage_fi_fo_fade_melt();
 		break;
 	case FADE_METHOD_CURTAIN_RIGHT:
 		draw_stage_fi_fo_fade_curtain_right();
@@ -1105,6 +1108,27 @@ static void draw_stage_fi_fo_fade_rule(void)
 
 	/* フェードインする画像をレンダリングする */
 	render_image_rule(layer_image[LAYER_FI], rule_img, threshold);
+}
+
+/* ルール描画(メルト)を行う */
+static void draw_stage_fi_fo_fade_melt(void)
+{
+	int threshold;
+
+	assert(stage_mode == STAGE_MODE_BG_FADE ||
+	       stage_mode == STAGE_MODE_CH_FADE);
+	assert(rule_img != NULL);
+
+	/* テンプレートの閾値を求める */
+	threshold = (int)(255.0f * fi_fo_fade_progress);
+
+	/* フェードアウトする画像をコピーする */
+	render_image(0, 0, layer_image[LAYER_FO],
+		     conf_window_width, conf_window_height,
+		     0, 0, 255, BLEND_NONE);
+
+	/* フェードインする画像をレンダリングする */
+	render_image_melt(layer_image[LAYER_FI], rule_img, threshold);
 }
 
 /* 右方向カーテンフェードの描画を行う */
@@ -2311,16 +2335,10 @@ int get_fade_method(const char *method)
 
 	if (strcmp(method, "normal") == 0 ||
 	    strcmp(method, "n") == 0 ||
-	    strcmp(method, "") == 0)
-		return FADE_METHOD_NORMAL;
-
-	/*
-	 * マスクフェード
-	 */
-
-	if (strcmp(method, "mask") == 0 ||
+	    strcmp(method, "") == 0 ||
+	    strcmp(method, "mask") == 0 ||
 	    strcmp(method, "m") == 0)
-		return FADE_METHOD_MASK;
+		return FADE_METHOD_NORMAL;
 
 	/*
 	 * カーテンフェード
@@ -2459,6 +2477,9 @@ int get_fade_method(const char *method)
 
 	if (strncmp(method, "rule:", 5) == 0)
 		return FADE_METHOD_RULE;
+
+	if (strncmp(method, "melt:", 5) == 0)
+		return FADE_METHOD_MELT;
 
 	/* 不正なフェード指定 */
 	return FADE_METHOD_INVALID;

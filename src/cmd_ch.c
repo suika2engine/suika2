@@ -98,7 +98,8 @@ static bool init(void)
 	}
 
 	/* ルールが使用される場合 */
-	if (fade_method == FADE_METHOD_RULE) {
+	if (fade_method == FADE_METHOD_RULE ||
+	    fade_method == FADE_METHOD_MELT) {
 		/* ルールファイルが指定されていない場合 */
 		if (strcmp(&method[5], "") == 0) {
 			log_script_rule();

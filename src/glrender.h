@@ -49,4 +49,9 @@ void opengl_render_image_rule(struct image * RESTRICT src_image,
 			      struct image * RESTRICT rule_image,
 			      int threshold);
 
+/* 画面にイメージをルール付き(メルト)でレンダリングする */
+void opengl_render_image_melt(struct image * RESTRICT src_image,
+			      struct image * RESTRICT rule_image,
+			      int threshold);
+
 #endif

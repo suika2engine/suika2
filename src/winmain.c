@@ -1454,7 +1454,7 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 /*
- * 画面にイメージをテンプレート指定でレンダリングする
+ * 画面にイメージをルール付きでレンダリングする
  */
 void render_image_rule(struct image * RESTRICT src_img,
 					   struct image * RESTRICT rule_img,
@@ -1464,6 +1464,21 @@ void render_image_rule(struct image * RESTRICT src_img,
 		D3DRenderImageRule(src_img, rule_img, threshold);
 	else if(bOpenGL)
 		opengl_render_image_rule(src_img, rule_img, threshold);
+	else
+		draw_image_rule(BackImage, src_img, rule_img, threshold);
+}
+
+/*
+ * 画面にイメージをルール付き(メルト)でレンダリングする
+ */
+void render_image_melt(struct image * RESTRICT src_img,
+					   struct image * RESTRICT rule_img,
+					   int threshold)
+{
+	if (bD3D)
+		D3DRenderImageRule(src_img, rule_img, threshold);
+	else if(bOpenGL)
+		opengl_render_image_melt(src_img, rule_img, threshold);
 	else
 		draw_image_rule(BackImage, src_img, rule_img, threshold);
 }
