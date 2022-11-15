@@ -19,8 +19,9 @@ extern "C" {
 
 #include <d3d9.h>
 
-// d3dx9_43.dllを不要にするため、シェーダを予めコンパイルするときに使う
-// -ld3dx9をつけて使う
+/*
+ * シェーダの開発時に使うマクロ
+ */
 //#define COMPILE_SHADER
 
 // テクスチャ管理用構造体
@@ -57,7 +58,7 @@ static int nDisplayOffsetY;
 
 #if 0
 // ルール付き描画のピクセルシェーダ
-const char szRulePixelShader[] =
+static const char szRulePixelShader[] =
 	"ps_1_4               \n"
 	"def c0, 0, 0, 0, 0   \n"
 	"def c1, 1, 1, 1, 1   \n"
@@ -70,10 +71,10 @@ const char szRulePixelShader[] =
 	// result
     "mov r0.a, r2.b       \n";
 
-unsigned char ruleShaderBin[1024];
+static unsigned char ruleShaderBin[1024];
 #else
 // コンパイル済みのシェーダバイナリ
-const unsigned char ruleShaderBin[] = {
+static const unsigned char ruleShaderBin[] = {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -93,7 +94,7 @@ const unsigned char ruleShaderBin[] = {
 };
 #endif
 
-#ifdef COMPILE_SHADER
+#if 0
 // ルール付き(メルト)描画のピクセルシェーダ
 const char szMeltPixelShader[] =
 	"ps_1_4               \n"
@@ -105,18 +106,17 @@ const char szMeltPixelShader[] =
 	// t = (1.0 - rule) + (threshold * 2.0 - 1.0)
 	"add r2, c2, c2       \n"   // r2 = threshold * 2.0
 	"sub r2, r2, r1       \n" 	// r2 = r2 - rule
-	// clamp(t)
+	// t = clamp(t)
 	"cmp r2, r2, r2, c0   \n"	// r2 = r2 > 0 ? r2 : 0
 	"sub r3, c1, r2       \n"	// r3 = 1.0 - r3
 	"cmp r2, r3, r2, c1   \n"	// r2 = r3 > 0 ? r2 : c1
 	// result
     "mov r0.a, r2.b       \n";
 
-
 unsigned char meltShaderBin[1024];
 #else
 // コンパイル済みのシェーダバイナリ
-const unsigned char meltShaderBin[] = {
+static const unsigned char meltShaderBin[] = {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -141,6 +141,41 @@ const unsigned char meltShaderBin[] = {
 	0x00, 0x00, 0x08, 0x80, 0x02, 0x00, 0xaa, 0x80, 
 	0xff, 0xff, 0x00, 0x00, 
 };
+#endif
+
+//
+// 注意: 未使用、ただのサンプル
+//
+#if 0
+#ifdef COMPILE_SHADER
+// ブラーのピクセルシェーダ
+static const char szBlurPixelShader[] =
+	"texture tex0 : register(s0);                                          \n"
+	"sampler2D s_2D;                                                       \n"
+	"                                                                      \n"
+	"float4 blur(float2 tex : TEXCOORD0, float4 dif : COLOR0) : COLOR      \n"
+	"{                                                                     \n"
+	"    float2 scale = dif.a / 200.0;                                     \n"
+	"    float4 color = 0;                                                 \n"
+	"    color += tex2D(s_2D, tex.xy + float2(-1.0, -1.0) * scale);        \n"
+	"    color += tex2D(s_2D, tex.xy + float2(-1.0, 1.0) * scale);         \n"
+	"    color += tex2D(s_2D, tex.xy + float2(1.0, -1.0) * scale);         \n"
+	"    color += tex2D(s_2D, tex.xy + float2(1.0, 1.0) * scale);          \n"
+	"    color += tex2D(s_2D, tex.xy + float2(-0.70711, 0.0) * scale);     \n"
+	"    color += tex2D(s_2D, tex.xy + float2(0.0, 0.70711) * scale);      \n"
+	"    color += tex2D(s_2D, tex.xy + float2(0.70711, 0) * scale);        \n"
+	"    color += tex2D(s_2D, tex.xy + float2(0.0, -0.70711) * scale);     \n"
+	"    color /= 8.0;                                                     \n"
+	"    color.a = 1.0;                                                    \n"
+	"    return color;                                                     \n"
+	"}                                                                     \n";
+
+static unsigned char blurShaderBin[1024];
+#else
+// コンパイル済みのシェーダバイナリ
+static const unsigned char blurShaderBin[] = {
+};
+#endif
 #endif
 
 // 前方参照
@@ -207,12 +242,6 @@ BOOL D3DInitialize(HWND hWnd)
 		return FALSE;
 	}
 
-	// ピクセルシェーダのコンパイルを行う
-#ifdef COMPILE_SHADER
-	// d3dx9_43.dllのある環境でコンパイルして、ruleShaderBinに転写する
-	CompileShader();
-#endif
-
 	// シェーダを作成する
 	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)meltShaderBin,
 											 &pMeltShader)))
@@ -224,6 +253,26 @@ BOOL D3DInitialize(HWND hWnd)
 		pD3D = NULL;
 		return FALSE;
 	}
+
+	// ピクセルシェーダのコンパイルを行う
+#if 0
+#ifdef COMPILE_SHADER
+	// d3dx9_43.dllのある環境でコンパイルして、shader.txtに出力する
+	CompileShader();
+#endif
+
+	// シェーダを作成する
+	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)blurShaderBin,
+											 &pBlurShader)))
+	{
+		log_info("Direct3DDevice9::CreatePixelShader() blur failed.");
+		pD3DDevice->Release();
+		pD3DDevice = NULL;
+		pD3D->Release();
+		pD3D = NULL;
+		return FALSE;
+	}
+#endif
 
     return TRUE;
 }
@@ -584,9 +633,15 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[3].v2 = v[3].v1;
 	v[3].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
-	if (rule_image == NULL && bt != BLEND_NONE)
+	if (rule_image == NULL && bt == BLEND_NONE)
 	{
 		// ブレンドしない場合
+		pD3DDevice->SetPixelShader(NULL);
+		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	}
+	else if (rule_image == NULL && bt != BLEND_NONE)
+	{
+		// ブレンドする場合
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
@@ -598,13 +653,7 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 	}
-	else if (rule_image == NULL)
-	{
-		// ブレンドする場合
-		pD3DDevice->SetPixelShader(NULL);
-		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	}
-	else if (!is_melt)
+	else if (rule_image != NULL && !is_melt)
 	{
 		// ルールシェーダを使用する場合
 		FLOAT th = (float)alpha / 255.0f;
@@ -616,7 +665,7 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	}
-	else
+	else if (rule_image != NULL && is_melt)
 	{
 		// ルールシェーダ(メルト)を使用する場合
 		FLOAT th = (float)alpha / 255.0f;
@@ -655,6 +704,14 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	}
 }
 
+/*
+ * シェーダ言語(アセンブリ/HLSL)のコンパイル用
+ *  - 実行時にコンパイルするにはd3dx9_43.dllのインストールが必要になる
+ *  - これがインストールされていなくても実行可能なようにしたい
+ *  - そこで、シェーダは開発者がコンパイルしてバイトコードをベタ書きする
+ *  - 下記コードでコンパイルを行って、shader.txtの内容を利用すること
+ *  - 開発中のみリンカオプションで-ld3dx9とする
+ */
 #ifdef COMPILE_SHADER
 #include <d3dx9.h>
 #include "log.h"
@@ -664,6 +721,8 @@ void CompileShader()
 	ID3DXBuffer *pShader;
 	ID3DXBuffer *pError;
 
+#if 0
+	// For pixel shader assembly
 	if (FAILED(D3DXAssembleShader(szMeltPixelShader,
 								  sizeof(szMeltPixelShader) - 1,
 								  0, NULL, 0, &pShader, &pError)))
@@ -676,6 +735,22 @@ void CompileShader()
 
 		exit(1);
 	}
+#else
+	// For pixel shader HLSL
+	if (FAILED(D3DXCompileShader(szBlurPixelShader,
+								 sizeof(szBlurPixelShader) - 1,
+								 NULL, NULL, "blur", "ps_2_0", 0,
+								 &pShader, &pError, NULL)))
+	{
+		log_api_error("D3DXCompileShader");
+
+		LPSTR pszError = (LPSTR)pError->GetBufferPointer();
+		if (pszError != NULL)
+			log_error("%s", pszError);
+
+		exit(1);
+	}
+#endif
 
 	FILE *fp;
 	fp = fopen("shader.txt", "w");
@@ -685,7 +760,7 @@ void CompileShader()
 	int size = pShader->GetBufferSize();
 	unsigned char *p = (unsigned char *)pShader->GetBufferPointer();
 	for (int i=0; i<size; i++) {
-		meltShaderBin[i] = p[i];
+		blurShaderBin[i] = p[i];
 		fprintf(fp, "0x%02x, ", p[i]);
 		if (i % 8 == 7)
 			fprintf(fp, "\n");
