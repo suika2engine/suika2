@@ -1476,11 +1476,11 @@ void render_image_melt(struct image * RESTRICT src_img,
 					   int threshold)
 {
 	if (bD3D)
-		D3DRenderImageRule(src_img, rule_img, threshold);
+		D3DRenderImageMelt(src_img, rule_img, threshold);
 	else if(bOpenGL)
 		opengl_render_image_melt(src_img, rule_img, threshold);
 	else
-		draw_image_rule(BackImage, src_img, rule_img, threshold);
+		draw_image_melt(BackImage, src_img, rule_img, threshold);
 }
 
 /*

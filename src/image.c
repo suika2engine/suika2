@@ -993,6 +993,87 @@ void draw_image_rule(struct image * RESTRICT dst_image,
 }
 
 /*
+ * イメージをルール付き(メルト)で描画する
+ */
+void draw_image_melt(struct image * RESTRICT dst_image,
+		     struct image * RESTRICT src_image,
+		     struct image * RESTRICT rule_image,
+		     int threshold)
+{
+	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr, * RESTRICT rule_ptr;
+	pixel_t src_pix, dst_pix, rule_pix;
+	float src_a, src_r, src_g, src_b, dst_a, dst_r, dst_g, dst_b, rule_a;
+	int x, y, dw, sw, rw, w, dh, sh, rh, h;
+
+	assert(dst_image->locked_pixels != NULL);
+
+	/* 幅を取得する */
+	dw = get_image_width(dst_image);
+	sw = get_image_width(src_image);
+	rw = get_image_width(rule_image);
+	w = dw;
+	if (sw < w)
+		w = sw;
+	if (rw < w)
+		w = rw;
+	
+	/* 高さを取得する */
+	dh = get_image_height(dst_image);
+	sh = get_image_height(src_image);
+	rh = get_image_height(rule_image);
+	h = dh;
+	if (sh < h)
+		h = sh;
+	if (rh < h)
+		h = rh;
+
+	/* 描画する */
+	dst_ptr = get_image_pixels(dst_image);
+	src_ptr = get_image_pixels(src_image);
+	rule_ptr = get_image_pixels(rule_image);
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
+			/* 描画元のピクセルを取得する */
+			src_pix = src_ptr[x];
+
+			/* 描画先のピクセルを取得する */
+			dst_pix = dst_ptr[x];
+
+			/* ルール画像のピクセルを取得する */
+			rule_pix = rule_ptr[x];
+
+			/* アルファ値を計算する */
+			rule_a = (float)get_pixel_c1(rule_pix) / 255.0f;
+			src_a = (float)get_pixel_a(src_pix) / 255.0f;
+			src_a = 2.0f * ((float)threshold / 255.0f) - rule_a;
+			src_a = src_a < 0 ? 0 : src_a;
+			src_a = src_a > 1.0f ? 1.0f : src_a;
+			dst_a = 1.0f - src_a;
+
+			/* 描画元ピクセルにアルファ値を乗算する */
+			src_r = src_a * (float)get_pixel_c1(src_pix);
+			src_g = src_a * (float)get_pixel_c2(src_pix);
+			src_b = src_a * (float)get_pixel_c3(src_pix);
+
+			/* 描画先ピクセルにアルファ値を乗算する */
+			dst_r = dst_a * (float)get_pixel_c1(dst_pix);
+			dst_g = dst_a * (float)get_pixel_c2(dst_pix);
+			dst_b = dst_a * (float)get_pixel_c3(dst_pix);
+
+			/* 描画先に格納する */
+			dst_ptr[x] = make_pixel_fast(
+				0xff,
+				(uint32_t)(src_r + dst_r),
+				(uint32_t)(src_g + dst_g),
+				(uint32_t)(src_b + dst_b));
+		}
+		dst_ptr += dw;
+		src_ptr += sw;
+		rule_ptr += rw;
+	}
+}
+
+/*
  * スケール描画
  */
 

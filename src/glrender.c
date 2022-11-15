@@ -105,7 +105,7 @@ static const char *fragment_shader_melt_src =
 	"{                                                   \n"
         "  vec4 tex = texture2D(s_texture, v_texCoord);      \n"
 	"  vec4 rule = texture2D(s_rule, v_texCoord);        \n"
-	"  tex.a = smoothstep(0.0, 1.0, (1.0 - rule.b) + (v_alpha * 2.0 - 1.0)); \n"
+	"  tex.a = clamp((1.0 - rule.b) + (v_alpha * 2.0 - 1.0), 0.0, 1.0); \n"
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
