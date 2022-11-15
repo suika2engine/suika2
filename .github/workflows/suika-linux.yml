@@ -23,7 +23,7 @@ jobs:
           echo Installing mesa-common-dev
           sudo apt-get install -y mesa-common-dev
           echo Removing libunwind-dev...
-          sudo apt-get remove -y libunwind-dev
+          sudo apt-get remove -y libunwind-dev libunwind-14-dev
           echo Installing libgstreamer1.0-dev
           sudo apt-get install -y libgstreamer1.0-dev
           echo Installing libgstreamer-plugins-base1.0-dev
