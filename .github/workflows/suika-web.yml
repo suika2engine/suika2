@@ -3,9 +3,9 @@ on:
   push:
   pull_request:
 jobs:
-  android:
+  emscripten:
     runs-on: "ubuntu-22.04"
-    name: linux
+    name: web
     steps:
       - name: Checkout
         uses: actions/checkout@v2
