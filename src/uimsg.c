@@ -334,6 +334,32 @@ const wchar_t *get_ui_message(int id)
 			return L"Direct3D is not supported.";
 		}
 		break;
+	case UIMSG_WIN_NO_OPENGL:
+		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"DOpenGLD is not supported.";
+		case LOCALE_JA:
+			return L"OpenGLはサポートされません。";
+		case LOCALE_ZH:
+			return L"不支持OpenGL。";
+		case LOCALE_TW:
+			return L"不支持OpenGL。";
+		case LOCALE_FR:
+			return L"OpenGL n'est pas pris en charge.";
+		case LOCALE_RU:
+			return L"OpenGL не поддерживается.";
+		case LOCALE_DE:
+			return L"OpenGL wird nicht unterstützt.";
+		case LOCALE_IT:
+			return L"OpenGL non è supportato.";
+		case LOCALE_ES:
+			return L"OpenGL no es compatible.";
+		case LOCALE_EL:
+			return L"Το OpenGL δεν υποστηρίζεται.";
+		default:
+			return L"OpenGL is not supported.";
+		}
+		break;
 	case UIMSG_WIN_SMALL_DISPLAY:
 		switch (conf_locale) {
 		case LOCALE_EN:

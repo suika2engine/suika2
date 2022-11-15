@@ -160,7 +160,7 @@ static bool init(int argc, char *argv[])
 				  SDL_WINDOWPOS_CENTERED,
 				  conf_window_width,
 				  conf_window_height,
-				  SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+				  SDL_WINDOW_OPENGL);
 
 	/* Create an OpenGL context. */
 	context = SDL_GL_CreateContext(window);
@@ -465,11 +465,8 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 		  pixel_t **locked_pixels, void **texture)
 {
 	/* See also glrender.c */
-	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
-				 texture))
-		return false;
-
-	return true;
+	return opengl_lock_texture(width, height, pixels, locked_pixels,
+				   texture);
 }
 
 /*
@@ -860,10 +857,7 @@ bool set_sound_volume(int stream, float vol)
  */
 bool is_sound_finished(int stream)
 {
-	if (finish[stream])
-		return true;
-
-	return false;
+	return finish[stream];
 }
 
 /* Audio callback. */

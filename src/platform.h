@@ -57,8 +57,13 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 		  int width, int height, int src_left, int src_top, int alpha,
 		  int bt);
 
-/* 画面にイメージをルールつきでレンダリングする */
+/* 画面にイメージをルール付きでレンダリングする */
 void render_image_rule(struct image * RESTRICT src_img,
+		       struct image * RESTRICT rule_img,
+		       int threshold);
+
+/* 画面にイメージをルール付き(メルト)でレンダリングする */
+void render_image_melt(struct image * RESTRICT src_img,
 		       struct image * RESTRICT rule_img,
 		       int threshold);
 

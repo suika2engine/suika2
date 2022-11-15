@@ -46,6 +46,7 @@ struct VertexRHWTex
 static LPDIRECT3D9 pD3D;
 static LPDIRECT3DDEVICE9 pD3DDevice;
 static IDirect3DPixelShader9 *pRuleShader;
+static IDirect3DPixelShader9 *pMeltShader;
 
 // テクスチャリストの先頭
 static TextureListNode *pTexList;
@@ -54,16 +55,19 @@ static TextureListNode *pTexList;
 static int nDisplayOffsetX;
 static int nDisplayOffsetY;
 
-#ifdef COMPILE_SHADER
+#if 0
 // ルール付き描画のピクセルシェーダ
 const char szRulePixelShader[] =
 	"ps_1_4               \n"
 	"def c0, 0, 0, 0, 0   \n"
 	"def c1, 1, 1, 1, 1   \n"
+	// c2 is threshould
     "texld r0, t0         \n"
     "texld r1, t1         \n"
+	// t = 1.0 - step(threshold, rule);
 	"sub r1, r1, c2       \n"
 	"cmp r2, r1, c0, c1   \n"
+	// result
     "mov r0.a, r2.b       \n";
 
 unsigned char ruleShaderBin[1024];
@@ -89,11 +93,62 @@ const unsigned char ruleShaderBin[] = {
 };
 #endif
 
+#ifdef COMPILE_SHADER
+// ルール付き(メルト)描画のピクセルシェーダ
+const char szMeltPixelShader[] =
+	"ps_1_4               \n"
+	"def c0, 0, 0, 0, 0   \n"
+	"def c1, 1, 1, 1, 1   \n"
+	// c2 is threshould
+    "texld r0, t0         \n"	// r0 = texture
+    "texld r1, t1         \n"	// r1 = rule
+	// t = (1.0 - rule) + (threshold * 2.0 - 1.0)
+	"add r2, c2, c2       \n"   // r2 = threshold * 2.0
+	"sub r2, r2, r1       \n" 	// r2 = r2 - rule
+	// clamp(t)
+	"cmp r2, r2, r2, c0   \n"	// r2 = r2 > 0 ? r2 : 0
+	"sub r3, c1, r2       \n"	// r3 = 1.0 - r3
+	"cmp r2, r3, r2, c1   \n"	// r2 = r3 > 0 ? r2 : c1
+	// result
+    "mov r0.a, r2.b       \n";
+
+
+unsigned char meltShaderBin[1024];
+#else
+// コンパイル済みのシェーダバイナリ
+const unsigned char meltShaderBin[] = {
+	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x00, 
+	0x01, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x80, 0x3f, 
+	0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x80, 0x3f, 
+	0x00, 0x00, 0x80, 0x3f, 0x42, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x0f, 0x80, 0x00, 0x00, 0xe4, 0xb0, 
+	0x42, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0f, 0x80, 
+	0x01, 0x00, 0xe4, 0xb0, 0x02, 0x00, 0x00, 0x00, 
+	0x02, 0x00, 0x0f, 0x80, 0x02, 0x00, 0xe4, 0xa0, 
+	0x02, 0x00, 0xe4, 0xa0, 0x03, 0x00, 0x00, 0x00, 
+	0x02, 0x00, 0x0f, 0x80, 0x02, 0x00, 0xe4, 0x80, 
+	0x01, 0x00, 0xe4, 0x80, 0x58, 0x00, 0x00, 0x00, 
+	0x02, 0x00, 0x0f, 0x80, 0x02, 0x00, 0xe4, 0x80, 
+	0x02, 0x00, 0xe4, 0x80, 0x00, 0x00, 0xe4, 0xa0, 
+	0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x0f, 0x80, 
+	0x01, 0x00, 0xe4, 0xa0, 0x02, 0x00, 0xe4, 0x80, 
+	0x58, 0x00, 0x00, 0x00, 0x02, 0x00, 0x0f, 0x80, 
+	0x03, 0x00, 0xe4, 0x80, 0x02, 0x00, 0xe4, 0x80, 
+	0x01, 0x00, 0xe4, 0xa0, 0x01, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x08, 0x80, 0x02, 0x00, 0xaa, 0x80, 
+	0xff, 0xff, 0x00, 0x00, 
+};
+#endif
+
 // 前方参照
 static VOID DestroyDirect3DTextureObjects();
 static VOID DrawPrimitives(int dst_left, int dst_top,
 						   struct image * RESTRICT src_image,
 						   struct image * RESTRICT rule_image,
+						   bool is_melt,
 						   int width, int height,
 						   int src_left, int src_top,
 						   int alpha, int bt);
@@ -140,6 +195,18 @@ BOOL D3DInitialize(HWND hWnd)
         }
     }
 
+	// シェーダを作成する
+	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)ruleShaderBin,
+											 &pRuleShader)))
+	{
+		log_info("Direct3DDevice9::CreatePixelShader() for rule failed.");
+		pD3DDevice->Release();
+		pD3DDevice = NULL;
+		pD3D->Release();
+		pD3D = NULL;
+		return FALSE;
+	}
+
 	// ピクセルシェーダのコンパイルを行う
 #ifdef COMPILE_SHADER
 	// d3dx9_43.dllのある環境でコンパイルして、ruleShaderBinに転写する
@@ -147,10 +214,10 @@ BOOL D3DInitialize(HWND hWnd)
 #endif
 
 	// シェーダを作成する
-	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)ruleShaderBin,
-											 &pRuleShader)))
+	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)meltShaderBin,
+											 &pMeltShader)))
 	{
-		log_info("Direct3DDevice9::CreatePixelShader() failed.");
+		log_info("Direct3DDevice9::CreatePixelShader() melt failed.");
 		pD3DDevice->Release();
 		pD3DDevice = NULL;
 		pD3D->Release();
@@ -168,6 +235,14 @@ VOID D3DCleanup(void)
 {
 	// すべてのDirect3Dテクスチャオブジェクトを破棄する
 	DestroyDirect3DTextureObjects();
+
+	// ピクセルシェーダを破棄する
+	if (pMeltShader != NULL)
+	{
+		pD3DDevice->SetPixelShader(NULL);
+		pMeltShader->Release();
+		pMeltShader = NULL;
+	}
 
 	// ピクセルシェーダを破棄する
 	if (pRuleShader != NULL)
@@ -398,7 +473,7 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 					struct image * RESTRICT src_image, int width, int height,
 					int src_left, int src_top, int alpha, int bt)
 {
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height,
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, false, width, height,
 				   src_left, src_top, alpha, bt);
 }
 
@@ -410,7 +485,20 @@ VOID D3DRenderImageRule(struct image * RESTRICT src_image,
 						struct image * RESTRICT rule_image,
 						int threshold)
 {
-	DrawPrimitives(0, 0, src_image, rule_image,
+	DrawPrimitives(0, 0, src_image, rule_image, false,
+				   get_image_width(src_image), get_image_height(src_image),
+				   0, 0, threshold, BLEND_NONE);
+}
+
+//
+// イメージをルール付き(メルト)でレンダリングする
+// (render_image_melt()のDirect3D版実装)
+//
+VOID D3DRenderImageMelt(struct image * RESTRICT src_image,
+						struct image * RESTRICT rule_image,
+						int threshold)
+{
+	DrawPrimitives(0, 0, src_image, rule_image, true,
 				   get_image_width(src_image), get_image_height(src_image),
 				   0, 0, threshold, BLEND_NONE);
 }
@@ -419,6 +507,7 @@ VOID D3DRenderImageRule(struct image * RESTRICT src_image,
 static VOID DrawPrimitives(int dst_left, int dst_top,
 						   struct image * RESTRICT src_image,
 						   struct image * RESTRICT rule_image,
+						   bool is_melt,
 						   int width, int height,
 						   int src_left, int src_top,
 						   int alpha, int bt)
@@ -515,12 +604,24 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
-	else
+	else if (!is_melt)
 	{
 		// ルールシェーダを使用する場合
 		FLOAT th = (float)alpha / 255.0f;
 		FLOAT th4[4] = {th, th, th, th};
 		pD3DDevice->SetPixelShader(pRuleShader);
+		pD3DDevice->SetPixelShaderConstantF(2, th4, 1);
+		pD3DDevice->SetTexture(1, rule_tex->pTex);
+		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
+		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	}
+	else
+	{
+		// ルールシェーダ(メルト)を使用する場合
+		FLOAT th = (float)alpha / 255.0f;
+		FLOAT th4[4] = {th, th, th, th};
+		pD3DDevice->SetPixelShader(pMeltShader);
 		pD3DDevice->SetPixelShaderConstantF(2, th4, 1);
 		pD3DDevice->SetTexture(1, rule_tex->pTex);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
@@ -563,8 +664,8 @@ void CompileShader()
 	ID3DXBuffer *pShader;
 	ID3DXBuffer *pError;
 
-	if (FAILED(D3DXAssembleShader(szRulePixelShader,
-								  sizeof(szRulePixelShader) - 1,
+	if (FAILED(D3DXAssembleShader(szMeltPixelShader,
+								  sizeof(szMeltPixelShader) - 1,
 								  0, NULL, 0, &pShader, &pError)))
 	{
 		log_api_error("D3DXAssembleShader");
@@ -584,7 +685,7 @@ void CompileShader()
 	int size = pShader->GetBufferSize();
 	unsigned char *p = (unsigned char *)pShader->GetBufferPointer();
 	for (int i=0; i<size; i++) {
-		ruleShaderBin[i] = p[i];
+		meltShaderBin[i] = p[i];
 		fprintf(fp, "0x%02x, ", p[i]);
 		if (i % 8 == 7)
 			fprintf(fp, "\n");
