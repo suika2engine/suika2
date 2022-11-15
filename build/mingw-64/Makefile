@@ -25,6 +25,7 @@ CPPFLAGS = \
 
 CFLAGS = \
 	-O3 \
+	-municode \
 	-ffast-math \
 	-fopt-info-vec \
 	-std=gnu89 \
@@ -42,6 +43,7 @@ CFLAGS = \
 
 LDFLAGS = \
 	-mwindows \
+	-municode \
 	-lgdi32 \
 	-lole32 \
 	-ldxguid \
@@ -51,7 +53,8 @@ LDFLAGS = \
 	-lopengl32 \
 	-ld3d9 \
 	-L./libroot/lib \
-	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy
+	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
+	-Wl,--gc-sections
 
 #
 # Source files
@@ -61,6 +64,7 @@ SRCS_C = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
+	../../src/uimsg.c \
 	../../src/glrender.c \
 	../../src/d3drender.c \
 	../../src/dsound.c
