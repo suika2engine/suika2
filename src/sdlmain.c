@@ -513,6 +513,17 @@ void render_image_rule(struct image * RESTRICT src_img,
 }
 
 /*
+ * Render an image to the screen with a rule image, using the melt effect.
+ */
+void render_image_melt(struct image * RESTRICT src_img,
+		       struct image * RESTRICT rule_img,
+		       int threshold)
+{
+	/* See also glrender.c */
+	opengl_render_image_melt(src_img, rule_img, threshold);
+}
+
+/*
  * File manipulation
  */
 
