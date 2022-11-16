@@ -106,6 +106,9 @@ static BOOL bDisplaySettingsChanged;
 /* ウィンドウモードでの座標 */
 static RECT rectWindow;
 
+/* ストップウォッチの停止した時間 */
+DWORD dwStopWatchOffset;
+
 /* フルスクリーンモード時の描画オフセット */
 static int nOffsetX;
 static int nOffsetY;
@@ -802,8 +805,13 @@ static void SyncBackImage(int x, int y, int w, int h)
 /* キューにあるイベントを処理する */
 static BOOL SyncEvents(void)
 {
+	DWORD dwStopWatchPauseStart;
 	MSG msg;
 
+	/* イベント処理の開始時刻を求める */
+	dwStopWatchPauseStart = GetTickCount();
+
+	/* イベント処理を行う */
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		if(msg.message == WM_QUIT)
@@ -814,6 +822,10 @@ static BOOL SyncEvents(void)
 			DispatchMessage(&msg);
 		}
 	}
+
+	/* イベント処理にかかった時間をストップウォッチから除外するようにする */
+	dwStopWatchOffset += GetTickCount() - dwStopWatchPauseStart;
+
 	return TRUE;
 }
 
@@ -1558,6 +1570,7 @@ struct image *get_back_image(void)
 void reset_stop_watch(stop_watch_t *t)
 {
 	*t = GetTickCount();
+	dwStopWatchOffset = 0;
 }
 
 /*
@@ -1566,7 +1579,7 @@ void reset_stop_watch(stop_watch_t *t)
 int get_stop_watch_lap(stop_watch_t *t)
 {
 	DWORD dwCur = GetTickCount();
-	return (int32_t)(dwCur - *t);
+	return (int32_t)(dwCur - *t - dwStopWatchOffset);
 }
 
 /*
