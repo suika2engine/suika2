@@ -49,7 +49,7 @@
 
 :SCENE1
 
-@chapter "SCENE -1-"
+@chapter "Scene 1 – Rooftop Introductions"
 
 @vol bgm 0.0 1.0
 @bg white.png 1.0
@@ -57,30 +57,32 @@
 @vol bgm 1.0 1.0
 @bg roof.png 1.0 rule:rule-star.png
 @ch c 001-fun.png 1.0
-*???*Oh, what a nice breeze...
+*???*Isn't the breeze great from up here? It's so cool...
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(I'm on my school's rooftop, having skipped the remedial class.)
+*???*(I'm on my school's rooftop, having skipped my remedial class.)
 
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
-*???*Hey, it's fine, they don't call the roll.
+*???*Hm? Oh, you're here. Hey, it's fine, they don't call the roll for remedial classes anymore.
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(Since this is a country town in Hokkaido, and on the coast, I can see the sea peaking up over the horizon with no buildings or hills to block the view.)
+*???*(Since this is a country town in Hokkaido, and on the coast, I can see the sea peaking up over the horizon. During the cultural festival, the sun turns the whole ocean amber.)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*???*You're probably wondering why I skipped the remedial class, right?
+*???*Now, you're probably wondering why I skipped the remedial class, right?
 
 @vol bgm 0.5 1.0
-@ch c none 1.0
-*???*(Oh, I forgot to mention, I'm Midori! I'm a high school student and my parents are watermelon farmers!)
+*???*Oh actually, I should probably introduce myself first, shouldn't I?
+*???*My name's Midori, nice to meet you!
+*Midori*I'm a senior student here. If you couldn't already tell, I love watermelon, my parents even own a watermelon farm!
 
 @vol bgm 1.0 1.0
 @ch c 001-angry.png 1.0
+*Midori*Now for the reason I dragged you up here all of a sudden...
 *Midori*It's because...
 
 @vol bgm 0.5 1.0
@@ -88,7 +90,7 @@
 *Midori*(This is really important... I can't mess this up!)
 
 @vol bgm 1.0 1.0
-@ch c 001-normal.png 1.0
+@ch c 001-sad.png 1.0
 *Midori*I want to... to...
 
 @vol bgm 0.0 1.0
@@ -96,17 +98,17 @@
 *Midori*I want to tell you about Suika2!
 
 ###
-### Scene2 (Greetings on the roof)
+### Scene2 (Rooftop Explanations)
 ###
 
-@chapter "SCENE -2-"
+@chapter "Scene 2 – Rooftop Explanations"
 
 @bgm 02.ogg
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
 *Midori*Ahem, okay, now that that's out in the open...
 
-+en+*Midori*Hello!
++en+*Midori*Heya!
 +fr+*Midori*Bonjour!
 +de+*Midori*Guten Tag!
 +es+*Midori*Buenas Tardes!
@@ -118,45 +120,45 @@
 +ja+*Midori*こんにちは！
 
 *Midori*Thank you for using Suika2!
-*Midori*As you may already know, Suika2 is a visual novel authoring tool or 'engine'.
-*Midori*It's free and runs on both Windows and Mac. Awesome, right?
+*Midori*As you may already know, Suika2 is a visual novel authoring tool, commonly known as an "engine".
+*Midori*It's free, open-source, runs on Windows, Mac, and loads of other systems – awesome, right?
 
 @ch c 001-fun.png 1.0
-*Midori*The author told me he wants you to ask questions, do you have any questions for him?
+*Midori*The Team asked me to see if you had any questions. Anything you'd like to ask them?
 @ch c none 1.0
 
 ###
 ### Scene3 (Rooftop Questions)
 ###
 
-@chapter "SCENE -3-"
+@chapter "Scene 3 – Rooftop Questions"
 
 :LOOP1
 @choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "Any system requirements?" L1_NEXT Next
 
 :L1_ADVANTAGE
-Suika2 has three main advantages. First of all, portability. We have Windows and Mac apps as well as a Web browser version. All of them work just the same way.
-That means game developers don't need to worry about the users' OS!
-In addition, game developers can use their favorite OS to develop a game.
-Secondly, simplicity. Anyone can start writing scripts with nothing more than a text editor.
-Last but not least, freedom. You can use Suika2 in your commercial projects for free.
+Suika2 has three main advantages. The most important being portability. We have Windows and Mac applications as well as Web and Linux. All of them work in pretty much the same way.
+This means game developers don't need to worry about the users' O.S.!
+In addition, game developers can use their favorite O.S. to develop a game.
+Secondly, simplicity. Anyone can start writing scripts with nothing more than a text editor. What's even better: scripts are pretty much just plain English!
+Last but not least, freedom. You can use Suika2 in your commercial projects for free!
 
 @set $1 = 1
 @ch c 001-fun.png 1.0
-*Midori*Oh, wow! I didn't know that. Very cool.
+*Midori*Great! I'm glad my stories will keep working, even on my new computer! Being able to focus on the story, rather than syntax is nice too!
 *Midori*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP1
 
 :L1_ENV
 We support most versions of Windows from Windows XP all the way up to Windows 11.
-We also support macOS 10.9 and later. (Of course, we also support the latest Ventura release and the M2 Chip.)
-When it comes to Web browsers, we support Chrome, Safari, Firefox and Edge.
-In addition, Suika2 runs on iPhone, iPad, Android and Linux. (Did you know, Suika2 was initially written on Linux!)
+We also support macOS 10.9 and later. (Of course, we now support the latest Ventura release as well as the M2 Chip.)
+When it comes to Web browsers, we support Chrome, Safari, Firefox, and Edge.
+In addition to all of those, Suika2 runs on iPhone, iPad, Android, and Linux. (Did you know, Suika2 was initially written on Linux!)
 @set $2 = 1
 @ch c 001-fun.png 1.0
-*Midori*Yes! That's right.
-*Midori*The author says he wants you to ask some more questions.
+*Midori*Oh yeah, that's right!
+*Midori*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP1
 
@@ -166,10 +168,10 @@ In addition, Suika2 runs on iPhone, iPad, Android and Linux. (Did you know, Suik
 ### Scene4 (Coastal Questions)
 ###
 
-@chapter "SCENE -4-"
+@chapter "Scene 4 – Coastal Questions"
 
 @ch c 001-fun.png 1.0
-*Midori*Shall we step out and have a walk? Where should we go? ...Well, how about the coast?
+*Midori*How about we step out and take a walk? ...Hm, how about we go to the beach?
 
 @vol bgm 0.0 1.0
 @bg coast.png 1.0 c
@@ -180,24 +182,24 @@ In addition, Suika2 runs on iPhone, iPad, Android and Linux. (Did you know, Suik
 @ch c none 1.0
 
 :LOOP2
-@choose L2_OLD "Is there a 'Suika1'?" L2_CUSTOMIZE "Can I customize it?" L2_NEXT Next
+@choose L2_OLD "Is there a Suika1?" L2_CUSTOMIZE "Can I customize it?" L2_NEXT Next
 
 :L2_OLD
-Versions before 2.0.0 were named Suika Studio and the author developed it when he was just a high school student.
-At 2.0.0, he removed the visual editor and "Studio" naming.
+Releases before version 2.0.0 were named 'Suika Studio' and the author developed it when he was just a high school student.
+The release of version 2.0.0 saw the visual editor and 'Studio' naming removed.
 @set $3 = 1
 @ch c 001-fun.png 1.0
-*Midori*Oh, I see. I didn't know that.
-*Midori*The author says he wants you to ask more questions.
+*Midori*Oh, cool! Even I didn't know that!
+*Midori*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP2
 
 :L2_CUSTOMIZE
-You can customize the engine with relative ease; this includes the font, text box and save screen.
-If there's anything you want to customize, but can't, please contact the author.
+You can customize the engine with relative ease; this includes the font, text box, and save screen.
+If there's anything you want to customize, but can't, please contact the Team.
 @set $4 = 1
 @ch c 001-fun.png 1.0
-*Midori*Oh, yes!
+*Midori*Good idea, I know the Team loves feedback!
 *Midori*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP2
@@ -209,26 +211,24 @@ If there's anything you want to customize, but can't, please contact the author.
 ### (Last scene on the coast/Mixture of Midori's lines and monologues)
 ###
 
-@chapter "SCENE -5-"
+@chapter "Scene 5 – Thank You"
 
 @ch c 001-fun.png 1.0
 *Midori*Thanks for asking so many questions today!
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*(I just wanted to tell you about Suika2...)
+*Midori*(I just wanted to tell you about Suika2... That's pretty much a confession, right? ...Right?)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*Midori*If you have any questions, send me an email at midori@suika2.com anytime!
+*Midori*If you have any questions, send me an e-mail at midori@suika2.com anytime!
+*Midori*Don't forget to check out our website docs.suika2.com and my blog at blog.suika2.com, I post there every now and then!
 
 @vol bgm 0.5 1.0
-@ch c none 1.0
-*Midori*(Don't hesitate to send me an email. I'll be waiting for your comments.)
+*Midori*I hope you'll send me an e-mail with your questions, feedback, issues, or even just to say hi! – See you next time!
 
 @vol bgm 0.0 1.0
-@ch c 001-fun.png 1.0
-*Midori*See you again!
 
 ###
 ### Scene6 (Added bonus)
@@ -241,7 +241,7 @@ If there's anything you want to customize, but can't, please contact the author.
 
 @chapter Bonus
 
-Thank you for selecting all options!
+Whoa, you got through all the questions, thank you!
 @goto END
 
 ###
