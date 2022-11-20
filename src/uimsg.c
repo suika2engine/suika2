@@ -216,7 +216,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Retour au titre?";
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите вернуться к началу?";
+			return L"Вы уверены, что хотите вернуться к началу игры?";
 		case LOCALE_DE:
 			return L"Sind Sie sicher, dass Sie zum Titel wechseln möchten?";
 		case LOCALE_IT:
