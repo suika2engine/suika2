@@ -1198,11 +1198,11 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 /*
- * 画面にイメージをテンプレート指定でレンダリングする
+ * 画面にイメージをルール付きでレンダリングする
  */
 void render_image_rule(struct image * RESTRICT src_img,
-					   struct image * RESTRICT rule_img,
-					   int threshold)
+		       struct image * RESTRICT rule_img,
+		       int threshold)
 {
 	if (is_opengl) {
 #ifdef USE_X11_OPENGL
@@ -1210,6 +1210,22 @@ void render_image_rule(struct image * RESTRICT src_img,
 #endif
 	} else {
 		draw_image_rule(back_image, src_img, rule_img, threshold);
+	}
+}
+
+/*
+ * 画面にイメージをルール付き(メルト)でレンダリングする
+ */
+void render_image_melt(struct image * RESTRICT src_img,
+		       struct image * RESTRICT rule_img,
+		       int threshold)
+{
+	if (is_opengl) {
+#ifdef USE_X11_OPENGL
+		opengl_render_image_melt(src_img, rule_img, threshold);
+#endif
+	} else {
+		draw_image_melt(back_image, src_img, rule_img, threshold);
 	}
 }
 

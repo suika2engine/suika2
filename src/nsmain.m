@@ -918,13 +918,23 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 //
-// 画面にイメージをルールつきでレンダリングする
+// 画面にイメージをルール付きでレンダリングする
 //
 void render_image_rule(struct image * RESTRICT src_img,
                        struct image * RESTRICT template_img,
                        int threshold)
 {
     opengl_render_image_rule(src_img, template_img, threshold);
+}
+
+//
+// 画面にイメージをルール付き(メルト)でレンダリングする
+//
+void render_image_melt(struct image * RESTRICT src_img,
+                       struct image * RESTRICT template_img,
+                       int threshold)
+{
+    opengl_render_image_melt(src_img, template_img, threshold);
 }
 
 //

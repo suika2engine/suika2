@@ -514,12 +514,20 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 			    src_left, src_top, alpha, bt);
 }
 
-/* イメージをルールつきでレンダリングする */
+/* イメージをルール付きでレンダリングする */
 void render_image_rule(struct image * RESTRICT src_img,
 		       struct image * RESTRICT rule_img,
 		       int threshold)
 {
 	opengl_render_image_rule(src_img, rule_img, threshold);
+}
+
+/* イメージをルール付き(メルト)でレンダリングする */
+void render_image_melt(struct image * RESTRICT src_img,
+		       struct image * RESTRICT rule_img,
+		       int threshold)
+{
+	opengl_render_image_melt(src_img, rule_img, threshold);
 }
 
 /*

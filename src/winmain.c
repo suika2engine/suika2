@@ -106,6 +106,9 @@ static BOOL bDisplaySettingsChanged;
 /* ウィンドウモードでの座標 */
 static RECT rectWindow;
 
+/* ストップウォッチの停止した時間 */
+DWORD dwStopWatchOffset;
+
 /* フルスクリーンモード時の描画オフセット */
 static int nOffsetX;
 static int nOffsetY;
@@ -802,8 +805,13 @@ static void SyncBackImage(int x, int y, int w, int h)
 /* キューにあるイベントを処理する */
 static BOOL SyncEvents(void)
 {
+	DWORD dwStopWatchPauseStart;
 	MSG msg;
 
+	/* イベント処理の開始時刻を求める */
+	dwStopWatchPauseStart = GetTickCount();
+
+	/* イベント処理を行う */
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		if(msg.message == WM_QUIT)
@@ -814,6 +822,10 @@ static BOOL SyncEvents(void)
 			DispatchMessage(&msg);
 		}
 	}
+
+	/* イベント処理にかかった時間をストップウォッチから除外するようにする */
+	dwStopWatchOffset += GetTickCount() - dwStopWatchPauseStart;
+
 	return TRUE;
 }
 
@@ -1454,7 +1466,7 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 /*
- * 画面にイメージをテンプレート指定でレンダリングする
+ * 画面にイメージをルール付きでレンダリングする
  */
 void render_image_rule(struct image * RESTRICT src_img,
 					   struct image * RESTRICT rule_img,
@@ -1466,6 +1478,21 @@ void render_image_rule(struct image * RESTRICT src_img,
 		opengl_render_image_rule(src_img, rule_img, threshold);
 	else
 		draw_image_rule(BackImage, src_img, rule_img, threshold);
+}
+
+/*
+ * 画面にイメージをルール付き(メルト)でレンダリングする
+ */
+void render_image_melt(struct image * RESTRICT src_img,
+					   struct image * RESTRICT rule_img,
+					   int threshold)
+{
+	if (bD3D)
+		D3DRenderImageMelt(src_img, rule_img, threshold);
+	else if(bOpenGL)
+		opengl_render_image_melt(src_img, rule_img, threshold);
+	else
+		draw_image_melt(BackImage, src_img, rule_img, threshold);
 }
 
 /*
@@ -1543,6 +1570,7 @@ struct image *get_back_image(void)
 void reset_stop_watch(stop_watch_t *t)
 {
 	*t = GetTickCount();
+	dwStopWatchOffset = 0;
 }
 
 /*
@@ -1551,7 +1579,7 @@ void reset_stop_watch(stop_watch_t *t)
 int get_stop_watch_lap(stop_watch_t *t)
 {
 	DWORD dwCur = GetTickCount();
-	return (int32_t)(dwCur - *t);
+	return (int32_t)(dwCur - *t - dwStopWatchOffset);
 }
 
 /*

@@ -225,6 +225,12 @@ void draw_image_rule(struct image * RESTRICT dst_image,
 		     struct image * RESTRICT rule_image,
 		     int threshold);
 
+/* イメージをルール付き(メルト)で描画する */
+void draw_image_melt(struct image * RESTRICT dst_image,
+		     struct image * RESTRICT src_image,
+		     struct image * RESTRICT rule_image,
+		     int threshold);
+
 /* イメージをスケールして描画する */
 void draw_image_scale(struct image * RESTRICT dst_image,
 		      int virtual_dst_width,

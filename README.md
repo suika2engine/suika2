@@ -10,7 +10,11 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
 
 [Join our Discord server!](https://discord.gg/ZmvXxE8GFg)  ![Discord](https://discord.com/api/guilds/986623112617541677/widget.png)
 
-Visit [the new Website](https://docs.suika2.com/) and [the Wiki](https://github.com/suika2engine/suika2/wiki), which are updated frequently!
+Visit [the new Website](https://docs.suika2.com/) and [the Wiki](https://github.com/suika2engine/suika2/wiki), both of which are updated frequently!
+
+Don't have a Discord account or would prefer to speak formally? Send an e-mail to `midori@suika2.com`.
+
+**Note:** Replies will be sent from a Gmail address. 
 
 ## Demo
 
@@ -20,30 +24,27 @@ Visit [the new Website](https://docs.suika2.com/) and [the Wiki](https://github.
 
 ## Portability
 
-The official builds of Suika2 run on Windows, Mac and Web browsers.
-The source code can be compiled for iPhone, iPad, Android, Linux, FreeBSD and NetBSD.
+Official builds of Suika2 run on Windows, Mac, and Web browsers.
+The source code can be compiled for iPhone, iPad, Android, Linux, FreeBSD, and NetBSD.
+If a developer wishes, Windows and Mac versions can also be compiled from source.
 
-Suika2 consists of the platform independent part and the hardware abstraction layer (HAL).
-The platform independent part is written in ANSI C, the most portable language in the world.
-HALs are currently written in C, C++, Objective-C and Java.
+Suika2 consists of a platform independent layer and a hardware abstraction layer (HAL).
+The platform independent layer is written in ANSI C, the most portable language in the world.
+HALs are currently written in C, C++, Objective-C, and Java.
 
-If you want to port Suika2 to a new target platform, it is only necessary to write a HAL.
+If you want to port Suika2 to a new target platform, you are only required to write a HAL.
 
 ## Suika2 Pro for Creators
 
-[`Suika2 Pro for Creators`](https://github.com/suika2engine/suika2/wiki/6.-Suika2-Pro-for-Creators) is Suika2's sister application, a visual development tool for Windows and Mac that provides developers with a visual debugger and package export function.
+[`Suika2 Pro for Creators`](https://github.com/suika2engine/suika2/wiki/6.-Suika2-Pro-for-Creators) is Suika2's sister application, a visual development tool for Windows and Mac that provides developers with a debugger and package export function.
 
 ## Contribution
 
 Please submit issues light-heartedly as any and all feedback is welcome.
 
-We are active on Discord and would love to have you on the server.
-
-[Join our Discord server!](https://discord.gg/ZmvXxE8GFg)
-
 ## Prebuilt Binaries
 
-Download the binaries from [the official web site](https://suika2.com/en/).
+Download the binaries from [GitHub]() or [the official web site](https://docs.suika2.com/). Please be aware that the website may lag behind the GitHub release section due to a difference in each team member's time zone.
 
 **Note:** The provided ZIP file contains binaries for Windows and MacOS.
 
@@ -83,9 +84,16 @@ See `COPYING`.
 ## Manuals
 
 * [Tutorial](https://suika2.com/en/tutorial.html)
-* [Command Reference](https://suika2.com/en/reference.html)
+* [Command Reference](https://suika2.com/en/reference.html) (English website-version no longer maintained, see the Wiki)
 * [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source)
 
 ## What does "suika" mean?
 
-It means "watermelon" in Japanese.
+"suika" means "watermelon" in Japanese.
+
+### Trivia
+Did you know...
+* Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform? She also has 'Suika Orange' hair!
+* Midori has an older sister, Rina, who's in university!
+* Suika2 is the successor to 'Suika Studio' – you can find Suika Studio on the old English website with some deductive skills! (Suika Studio has long reached its EOL.)
+* For a 'History of Suika' in update logs, visit [luxion.jp](https://luxion.jp/)

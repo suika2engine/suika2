@@ -492,7 +492,8 @@ The following is the list of effects types.
 |close slit                                |`slit-close`        |              |               |
 |open slit (vertical)                      |`slit-open-v`       |              |               |
 |close slit (vertical)                     |`slit-close-v`      |              |               |
-|rule (universal transition)               |`rule:<rule-file>`  |              |               |
+|rule (universal transition/1-bit)         |`rule:<rule-file>`  |              |               |
+|melt (universal transition/8-bit)         |`melt:<rule-file>`  |              |               |
 
 The `mask` Effect type was removed as the `rule` effect type was introduced.
 The demo includes a `rule-mask.png` file as a rule image corresponding to `mask`, therefore `rule:rule-mask.png` works fine.
@@ -531,9 +532,17 @@ The applicable effect type is "close eyes", which is like closing eyes slowly.
 ### Usage 5
 
 The following script changes the background image to `sample.png` with a 1.5 second fade-in time.
-The applicable effect type is "rule (universal transition)", which uses `rule-star.png` image for transition rule.
+The applicable effect type is "rule (universal transition/1-bit)", which uses `rule-star.png` image for transition rule.
 ```
 @bg sample.png 1.5 rule:rule-star.png
+```
+
+### Usage 6
+
+The following script changes the background image to `sample.png` with a 1.5 second fade-in time.
+The applicable effect type is "melt (universal transition/8-bit)", which uses `rule-star.png` image for transition rule.
+```
+@bg sample.png 1.5 melt:rule-star.png
 ```
 
 ## Showing a Character (`@ch`)

@@ -51,7 +51,6 @@ LDFLAGS = \
 	-lwinmm \
 	-lopengl32 \
 	-ld3d9 \
-	-ld3dx9 \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections
