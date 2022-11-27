@@ -34,7 +34,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Oui";
 		case LOCALE_RU:
-			return L"да";
+			return L"Да";
 		case LOCALE_DE:
 			return L"Ja";
 		case LOCALE_IT:
@@ -164,7 +164,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Impossible d'ouvrir le fichier journal.";
 		case LOCALE_RU:
-			return L"Не удается открыть файл журнала.";
+			return L"Не удаётся открыть файл журнала.";
 		case LOCALE_DE:
 			return L"Protokolldatei kann nicht geöffnet werden.";
 		case LOCALE_IT:
@@ -216,7 +216,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Retour au titre?";
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите перейти к заголовку?";
+			return L"Вы уверены, что хотите вернуться к началу игры?";
 		case LOCALE_DE:
 			return L"Sind Sie sicher, dass Sie zum Titel wechseln möchten?";
 		case LOCALE_IT:
@@ -373,7 +373,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Taille d'affichage insuffisante.";
 		case LOCALE_RU:
-			return L"Слишком маленький размер дисплея.";
+			return L"Размер экрана слишком маленький.";
 		case LOCALE_DE:
 			return L"Anzeigegröße zu klein.";
 		case LOCALE_IT:
@@ -451,7 +451,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Quitter(&Q)";
 		case LOCALE_RU:
-			return L"Закрыть(&Q)";
+			return L"Выход(&Q)";
 		case LOCALE_DE:
 			return L"Aufhören(&Q)";
 		case LOCALE_IT:
@@ -477,7 +477,7 @@ const wchar_t *get_ui_message(int id)
 		case LOCALE_FR:
 			return L"Plein écran(&F)\tAlt+Enter";
 		case LOCALE_RU:
-			return L"Полноэкранный(&F)\tAlt+Enter";
+			return L"На весь экран(&F)\tAlt+Enter";
 		case LOCALE_DE:
 			return L"Ganzer Bildschirm(&F)\tAlt+Enter";
 		case LOCALE_IT:
