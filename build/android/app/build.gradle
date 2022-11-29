@@ -13,6 +13,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags ""
+                targets "suika"
             }
             cmake {
                 arguments "-DSKIP_INSTALL_ALL=YES"
