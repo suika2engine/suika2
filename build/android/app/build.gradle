@@ -14,6 +14,10 @@ android {
             cmake {
                 cppFlags ""
             }
+            cmake {
+                arguments "-DSKIP_INSTALL_ALL=YES"
+                targets "png"
+            }
         }
     }
     buildTypes {
