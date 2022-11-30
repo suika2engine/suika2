@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -36,6 +36,8 @@
 
 bool is_left_button_pressed;
 bool is_right_button_pressed;
+bool is_left_clicked;
+bool is_right_clicked;
 bool is_return_pressed;
 bool is_space_pressed;
 bool is_escape_pressed;
@@ -97,6 +99,8 @@ void init_game_loop(void)
 	/* Android NDK用に変数を初期化する */
 	is_left_button_pressed = false;
 	is_right_button_pressed = false;
+	is_left_clicked = false;
+	is_right_clicked = false;
 	is_return_pressed = false;
 	is_space_pressed = false;
 	is_escape_pressed = false;
@@ -191,6 +195,8 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	 */
 	is_left_button_pressed = false;
 	is_right_button_pressed = false;
+	is_left_clicked = false;
+	is_right_clicked = false;
 	is_space_pressed = false;
 	is_return_pressed = false;
 	is_escape_pressed = false;
@@ -479,6 +485,19 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 #endif
 
 	return true;
+}
+
+/*
+ * 入力状態をクリアする
+ */
+void clear_input_state(void)
+{
+	is_left_button_pressed = false;
+	is_right_button_pressed = false;
+	is_left_clicked = false;
+	is_right_clicked = false;
+	is_return_pressed = false;
+	is_down_pressed = false;
 }
 
 /*

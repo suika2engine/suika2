@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -138,7 +138,7 @@ static void draw(void)
 		    ||
 		    (!is_non_interruptible() &&
 		     (is_control_pressed || is_return_pressed ||
-		      is_left_button_pressed))) {
+		      is_left_clicked))) {
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 

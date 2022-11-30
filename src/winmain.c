@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
+/* -*- coding: utf-8; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
 
 /*
  * Suika 2
@@ -922,6 +922,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		/* オートリピートの場合を除外する */
 		if((HIWORD(lParam) & 0x4000) != 0)
 			return 0;
+		if((int)wParam == VK_ESCAPE && bFullScreen)
+		{
+			ToggleFullScreen();
+			return 0;
+		}
 		kc = ConvertKeyCode((int)wParam);
 		if(kc != -1)
 			on_event_key_press(kc);

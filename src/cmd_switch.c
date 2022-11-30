@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika
@@ -549,7 +549,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		update_switch_parent(x, y, w, h);
 
 		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_button_pressed &&
+		if (new_pointed_index != -1 && !is_left_clicked &&
 		    !is_sysmenu_finished) {
 			play_se(get_command_type() == COMMAND_NEWS ?
 				conf_news_change_se : conf_switch_change_se);
@@ -557,7 +557,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
-	if (new_pointed_index != -1 && is_left_button_pressed &&
+	if (new_pointed_index != -1 && is_left_clicked &&
 	    !is_sysmenu_finished) {
 		selected_parent_index = new_pointed_index;
 		pointed_child_index = -1;
@@ -621,12 +621,12 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 		update_switch_child(x, y, w, h);
 
 		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_button_pressed)
+		if (new_pointed_index != -1 && !is_left_clicked)
 			play_se(conf_switch_change_se);
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
-	if (new_pointed_index != -1 && is_left_button_pressed) {
+	if (new_pointed_index != -1 && is_left_clicked) {
 		/* SEを鳴らす */
 		play_se(conf_switch_child_click_se_file);
 
@@ -1016,7 +1016,7 @@ static void process_main_click(void)
 		enter_sysmenu = true;
 
 	/* 折りたたみシステムメニューがクリックされたとき */
-	if (is_left_button_pressed && is_collapsed_sysmenu_pointed())
+	if (is_left_clicked && is_collapsed_sysmenu_pointed())
 		enter_sysmenu = true;
 
 	/* システムメニューを開始するとき */
@@ -1053,7 +1053,7 @@ static void process_sysmenu_click(void)
 	sysmenu_pointed_index = get_sysmenu_pointed_button();
 
 	/* ボタンのないところを左クリックされた場合 */
-	if (sysmenu_pointed_index == SYSMENU_NONE && is_left_button_pressed) {
+	if (sysmenu_pointed_index == SYSMENU_NONE && is_left_clicked) {
 		/* SEを再生する */
 		play_se(conf_sysmenu_leave_se);
 
@@ -1082,7 +1082,7 @@ static void process_sysmenu_click(void)
 		sysmenu_pointed_index = SYSMENU_NONE;
 
 	/* 左クリックされていない場合、何もしない */
-	if (!is_left_button_pressed)
+	if (!is_left_clicked)
 		return;
 
 	/* クイックセーブが左クリックされた場合 */

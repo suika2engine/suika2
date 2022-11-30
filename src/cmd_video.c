@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -84,8 +84,8 @@ static void run(void)
 {
 	/* スキップ可能なとき、入力があれば再生を終了する */
 	if (is_skippable &&
-	   (is_left_button_pressed || is_right_button_pressed ||
-	    is_control_pressed || is_return_pressed || is_down_pressed)) {
+	   (is_left_clicked || is_right_button_pressed || is_control_pressed ||
+	    is_return_pressed || is_down_pressed)) {
 		stop_video();
 		stop_command_repetition();
 		return;

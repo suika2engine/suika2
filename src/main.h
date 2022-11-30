@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -43,6 +43,8 @@
  */
 extern bool is_left_button_pressed;
 extern bool is_right_button_pressed;
+extern bool is_left_clicked;
+extern bool is_right_clicked;
 extern bool is_return_pressed;
 extern bool is_space_pressed;
 extern bool is_escape_pressed;
@@ -54,6 +56,8 @@ extern bool is_control_pressed;
 extern int mouse_pos_x;
 extern int mouse_pos_y;
 extern bool is_mouse_dragging;
+
+void clear_input_state(void);
 
 /*
  * ゲームループの中身

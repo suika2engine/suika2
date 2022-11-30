@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -39,7 +39,7 @@ bool wait_command(void)
 	    (is_skip_mode() && !is_non_interruptible()) ||
 	    (!is_auto_mode() && !is_non_interruptible() &&
 	     (is_control_pressed || is_return_pressed || is_down_pressed ||
-	      is_left_button_pressed))) {
+	      is_left_clicked))) {
 		stop_command_repetition();
 
 		/* 次のコマンドへ移動する */

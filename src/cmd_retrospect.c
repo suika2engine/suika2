@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8-with-signature; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika
@@ -323,7 +323,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	}
 
 	/* クリックされた場合 */
-	if (new_pointed_index != -1 && is_left_button_pressed) {
+	if (new_pointed_index != -1 && is_left_clicked) {
 		/* 背景全体とボタンを1つ描画する */
 		draw_stage_with_button(thumbnail[new_pointed_index].x,
 				       thumbnail[new_pointed_index].y,

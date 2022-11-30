@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -126,6 +126,32 @@ Java_jp_luxion_suika_MainActivity_frame(
 }
 
 /*
+ * タッチ(左押下)を処理します。
+ */
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_touchLeftDown(
+        JNIEnv *env,
+        jobject instance,
+        jint x,
+        jint y)
+{
+    on_event_mouse_press(MOUSE_LEFT, x, y);
+}
+
+/*
+ * タッチ(右押下)を処理します。
+ */
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_touchRightDown(
+        JNIEnv *env,
+        jobject instance,
+        jint x,
+        jint y)
+{
+    on_event_mouse_press(MOUSE_RIGHT, x, y);
+}
+
+/*
  * タッチ(移動)を処理します。
  */
 JNIEXPORT void JNICALL
@@ -163,29 +189,29 @@ Java_jp_luxion_suika_MainActivity_touchScrollDown(
 }
 
 /*
- * タッチ(左クリック)を処理します。
+ * タッチ(左解放)を処理します。
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchLeftClick(
+Java_jp_luxion_suika_MainActivity_touchLeftUp(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
-        on_event_mouse_press(MOUSE_LEFT, x, y);
+        on_event_mouse_release(MOUSE_LEFT, x, y);
 }
 
 /*
- * タッチ(右クリック)を処理します。
+ * タッチ(右解放)を処理します。
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchRightClick(
+Java_jp_luxion_suika_MainActivity_touchRightUp(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
-        on_event_mouse_press(MOUSE_RIGHT, x, y);
+        on_event_mouse_release(MOUSE_RIGHT, x, y);
 }
 
 /*

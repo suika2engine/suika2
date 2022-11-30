@@ -89,6 +89,9 @@ public class MainActivity extends Activity {
 	/** BGM/VOICE/SEのMediaPlayerです。 */
 	private MediaPlayer[] player = new MediaPlayer[MIXER_STREAMS];
 
+	/** 同期用オブジェクトです。 */
+	private Object syncObj = new Object();
+
 	/**
 	 * アクティビティが作成されるときに呼ばれます。
 	 */
@@ -171,14 +174,17 @@ public class MainActivity extends Activity {
 			if(isFinished)
 				return;
 
-			// JNIコードでフレームを処理する
-			if(!frame()) {
-				// JNIコードで終了処理を行う
-				cleanup();
+			// イベントハンドラと排他制御する
+			synchronized(syncObj) {
+				// JNIコードでフレームを処理する
+				if(!frame()) {
+					// JNIコードで終了処理を行う
+					cleanup();
 
-				// アプリケーションを終了する
-				finishAndRemoveTask();
-				isFinished = true;
+					// アプリケーションを終了する
+					finishAndRemoveTask();
+					isFinished = true;
+				}
 			}
 		}
 
@@ -192,29 +198,35 @@ public class MainActivity extends Activity {
 			int pointed = event.getPointerCount();
 			int delta = y - touchLastY;
 
-			switch(event.getActionMasked()) {
-			case MotionEvent.ACTION_DOWN:
-				touchStartX = x;
-				touchStartY = y;
-				touchLastY = y;
-				touchMove(x, y);
-				break;
-			case MotionEvent.ACTION_MOVE:
-				touchStartX = x;
-				touchStartY = y;
-				if(delta > LINE_HEIGHT)
-					touchScrollDown();
-				else if(delta < -LINE_HEIGHT)
-					touchScrollUp();
-				touchLastY = y;
-				touchMove(x, y);
-				break;
-			case MotionEvent.ACTION_UP:
-				if(touchCount == 1)
-					touchLeftClick(x, y);
-				else
-					touchRightClick(x, y);
-				break;
+			// 描画スレッドと排他制御する
+			synchronized(syncObj) {
+				switch (event.getActionMasked()) {
+					case MotionEvent.ACTION_DOWN:
+						touchStartX = x;
+						touchStartY = y;
+						touchLastY = y;
+						if (pointed == 1)
+							touchLeftDown(x, y);
+						else
+							touchRightDown(x, y);
+						break;
+					case MotionEvent.ACTION_MOVE:
+						touchStartX = x;
+						touchStartY = y;
+						if (delta > LINE_HEIGHT)
+							touchScrollDown();
+						else if (delta < -LINE_HEIGHT)
+							touchScrollUp();
+						touchLastY = y;
+						touchMove(x, y);
+						break;
+					case MotionEvent.ACTION_UP:
+						if (touchCount == 1)
+							touchLeftUp(x, y);
+						else
+							touchRightUp(x, y);
+						break;
+				}
 			}
 
 			touchCount = pointed;
@@ -299,6 +311,12 @@ public class MainActivity extends Activity {
 	/** フレーム処理を行います。 */
 	private native boolean frame();
 
+	/** タッチ(左押下)を処理します。 */
+	private native void touchLeftDown(int x, int y);
+
+	/** タッチ(右押下)を処理します。 */
+	private native void touchRightDown(int x, int y);
+
 	/** タッチ(移動)を処理します。 */
 	private native void touchMove(int x, int y);
 
@@ -308,11 +326,11 @@ public class MainActivity extends Activity {
 	/** タッチ(下スクロール)を処理します。 */
 	private native void touchScrollDown();
 
-	/** タッチ(左クリック)を処理します。 */
-	private native void touchLeftClick(int x, int y);
+	/** タッチ(左解放)を処理します。 */
+	private native void touchLeftUp(int x, int y);
 
-	/** タッチ(右クリック)を処理します。 */
-	private native void touchRightClick(int x, int y);
+	/** タッチ(右解放)を処理します。 */
+	private native void touchRightUp(int x, int y);
 
 	/*
 	 * ndkmain.cのためのユーティリティ
