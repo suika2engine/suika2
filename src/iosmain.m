@@ -340,7 +340,7 @@ int main(int argc, char * argv[]) {
     _touchStartY = (touchLocation.y - _top) * _scale;
     _touchLastY = _touchStartY;
 
-    on_event_mouse_move((int)_touchStartX, (int)_touchStartY);
+    on_event_mouse_press(MOUSE_LEFT, (int)_touchStartX, (int)_touchStartY);
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -374,10 +374,12 @@ int main(int argc, char * argv[]) {
     float touchEndX = (touchLocation.x - _left) * _scale;
     float touchEndY = (touchLocation.y - _top) * _scale;
 
-    if([[event allTouches] count] == 1)
-        on_event_mouse_press(MOUSE_LEFT, (int)touchEndX, (int)touchEndY);
-    else
+    if([[event allTouches] count] == 1) {
+        on_event_mouse_release(MOUSE_LEFT, (int)touchEndX, (int)touchEndY);
+    } else {
         on_event_mouse_press(MOUSE_RIGHT, (int)touchEndX, (int)touchEndY);
+        on_event_mouse_release(MOUSE_RIGHT, (int)touchEndX, (int)touchEndY);
+    }
 
     _isTouch = NO;
 }

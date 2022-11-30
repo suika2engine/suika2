@@ -321,7 +321,8 @@ static EM_BOOL cb_touchstart(int eventType,
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
-	on_event_mouse_move(x, y);
+
+	on_event_mouse_press(MOUSE_LEFT, x, y);
 
 	return EM_TRUE;
 }
@@ -351,6 +352,7 @@ static EM_BOOL cb_touchmove(int eventType,
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
+
 	on_event_mouse_move(x, y);
 
 	return EM_TRUE;
@@ -370,6 +372,7 @@ static EM_BOOL cb_touchend(int eventType,
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
+
 	on_event_mouse_move(x, y);
 
 	/* 2本指でタップした場合、右クリックとする */
@@ -382,7 +385,6 @@ static EM_BOOL cb_touchend(int eventType,
 	/* 1本指でタップした場合、左クリックとする */
 	if (abs(touchEvent->touches[0].targetX - touch_start_x) < OFS &&
 	    abs(touchEvent->touches[0].targetY - touch_start_y) < OFS) {
-		on_event_mouse_press(MOUSE_LEFT, x, y);
 		on_event_mouse_release(MOUSE_LEFT, x, y);
 		return EM_TRUE;
 	}
