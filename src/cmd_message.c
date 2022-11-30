@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -466,7 +466,7 @@ static void init_skip_mode(void)
 	}
 
 	/* クリックされた場合 */
-	if (is_right_button_pressed || is_left_button_pressed) {
+	if (is_right_clicked || is_left_clicked) {
 		/* SEを再生する */
 		play_se(conf_msgbox_skip_cancel_se);
 
@@ -475,8 +475,7 @@ static void init_skip_mode(void)
 		show_skipmode_banner(false);
 
 		/* 以降のクリック処理を行わない */
-		is_right_button_pressed = false;
-		is_left_button_pressed = false;
+		clear_input_state();
 	}
 }
 
@@ -815,7 +814,7 @@ static int get_frame_chars(void)
 	}
 	if (!is_non_interruptible() &&
 	    (is_return_pressed || is_down_pressed ||
-	     (pointed_index == BTN_NONE && is_left_button_pressed))) {
+	     (pointed_index == BTN_NONE && is_left_clicked))) {
 		/* ビープの再生を止める */
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
@@ -903,7 +902,7 @@ static void check_stop_click_animation(void)
 		if (!have_voice &&
 		    gui_flag &&
 		    (is_return_pressed || is_down_pressed ||
-		     (pointed_index == BTN_NONE && is_left_button_pressed)))
+		     (pointed_index == BTN_NONE && is_left_clicked)))
 			stop_command_repetition();
 		else if (!have_voice)
 			stop_command_repetition();
@@ -911,7 +910,7 @@ static void check_stop_click_animation(void)
 			 (is_mixer_sound_finished(VOICE_STREAM) || gui_flag))
 			stop_command_repetition();
 		else if (have_voice &&
-			 (is_left_button_pressed || is_down_pressed ||
+			 (is_left_clicked || is_down_pressed ||
 			  is_return_pressed))
 			stop_command_repetition();
 	} else
@@ -927,11 +926,11 @@ static void check_stop_click_animation(void)
 	} else if (gui_flag &&
 		   !process_click_first &&
 		   (is_return_pressed || is_down_pressed ||
-		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
+		    (pointed_index == BTN_NONE && is_left_clicked))) {
 		stop_command_repetition();
 	} else if (!process_click_first &&
 		   (is_return_pressed || is_down_pressed ||
-		    (pointed_index == BTN_NONE && is_left_button_pressed))) {
+		    (pointed_index == BTN_NONE && is_left_clicked))) {
 		if (!is_non_interruptible()) {
 			stop_command_repetition();
 		} else {
@@ -1329,7 +1328,7 @@ static bool frame_quick_save(void)
 		return false;
 
 	/* QSAVEボタンが押下されたとき */
-	if (is_left_button_pressed && pointed_index == BTN_QSAVE) {
+	if (is_left_clicked && pointed_index == BTN_QSAVE) {
 		/* サムネイルを作成する */
 		draw_stage_to_thumb();
 
@@ -1340,7 +1339,7 @@ static bool frame_quick_save(void)
 		play_se(conf_msgbox_btn_qsave_se);
 
 		/* 以降のクリック処理を行わない */
-		is_left_button_pressed = false;
+		clear_input_state();
 
 		return true;
 	}
@@ -1374,7 +1373,7 @@ static bool frame_quick_load(void)
 		return false;
 
 	/* QLOADボタンが押下されたとき */
-	if (is_left_button_pressed && pointed_index == BTN_QLOAD) {
+	if (is_left_clicked && pointed_index == BTN_QLOAD) {
 		/* クイックロードを行う */
 		if (quick_load()) {
 			/* SEを再生する */
@@ -1387,7 +1386,7 @@ static bool frame_quick_load(void)
 		}
 
 		/* 以降のクリック処理を行わない */
-		is_left_button_pressed = false;
+		clear_input_state();
 	}
 
 	return false;
@@ -1415,7 +1414,7 @@ static bool frame_save(void)
 		return false;
 
 	/* SAVEボタンが押下されたとき */
-	if (is_left_button_pressed && pointed_index == BTN_SAVE) {
+	if (is_left_clicked && pointed_index == BTN_SAVE) {
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_save_se);
 
@@ -1453,7 +1452,7 @@ static bool frame_load(void)
 		return false;
 
 	/* LOADボタンが押下されたとき */
-	if (is_left_button_pressed && pointed_index == BTN_LOAD) {
+	if (is_left_clicked && pointed_index == BTN_LOAD) {
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_load_se);
 
@@ -1489,7 +1488,7 @@ static bool frame_history(void)
 
 	/* 上キーかHISTORYボタンが押された場合 */
 	if (is_up_pressed ||
-	    (is_left_button_pressed && pointed_index == BTN_HISTORY)) {
+	    (is_left_clicked && pointed_index == BTN_HISTORY)) {
 		/* SEを再生する */
 		if (is_up_pressed)
 			play_se(conf_msgbox_history_se);
@@ -1540,7 +1539,7 @@ static bool frame_config(void)
 	}
 
 	/* CONFIGボタンが押された場合 */
-	if (is_left_button_pressed && pointed_index == BTN_CONFIG) {
+	if (is_left_clicked && pointed_index == BTN_CONFIG) {
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_config_se);
 
@@ -1576,7 +1575,7 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 	/* オートモードでない場合 */
 	if (!is_auto_mode()) {
 		/* AUTOボタンが押下された場合 */
-		if (is_left_button_pressed && pointed_index == BTN_AUTO) {
+		if (is_left_clicked && pointed_index == BTN_AUTO) {
 			/* SEを再生する */
 			play_se(conf_msgbox_btn_auto_se);
 
@@ -1590,7 +1589,7 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 			is_auto_mode_wait = false;
 
 			/* 以降のクリック処理を行わない */
-			is_left_button_pressed = false;
+			clear_input_state();
 		}
 	}
 
@@ -1601,7 +1600,7 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 		is_down_pressed = false;
 
 		/* クリックされた場合 */
-		if (is_left_button_pressed || is_right_button_pressed) {
+		if (is_left_clicked || is_right_clicked) {
 			/* SEを再生する */
 			play_se(conf_msgbox_auto_cancel_se);
 
@@ -1624,8 +1623,7 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 			*h = conf_window_height;
 
 			/* 以降のクリック処理を行わない */
-			is_left_button_pressed = false;
-			is_right_button_pressed = false;
+			clear_input_state();
 			return;
 		}
 
@@ -1724,7 +1722,7 @@ static void frame_skip_mode(void)
 		return;
 
 	/* SKIPボタンが押下された場合 */
-	if (is_left_button_pressed && pointed_index == BTN_SKIP) {
+	if (is_left_clicked && pointed_index == BTN_SKIP) {
 		/* SEを再生する */
 		play_se(conf_msgbox_btn_skip_se);
 
@@ -1735,7 +1733,7 @@ static void frame_skip_mode(void)
 		show_skipmode_banner(true);
 
 		/* 以降のクリック処理を行わない */
-		is_left_button_pressed = false;
+		clear_input_state();
 	}
 }
 
@@ -1753,7 +1751,7 @@ static void frame_sysmenu(void)
 	/* システムメニューを表示中の場合 */
 	if (is_sysmenu) {
 		/* 右クリックされた場合 */
-		if (is_right_button_pressed) {
+		if (is_right_clicked) {
 			/* SEを再生する */
 			play_se(conf_sysmenu_leave_se);
 
@@ -1762,7 +1760,7 @@ static void frame_sysmenu(void)
 			is_sysmenu_finished = true;
 
 			/* 以降のクリック処理を行わない */
-			is_right_button_pressed = false;
+			is_right_clicked = false;
 			return;
 		}
 
@@ -1772,7 +1770,7 @@ static void frame_sysmenu(void)
 
 		/* ボタンのないところを左クリックされた場合 */
 		if (sysmenu_pointed_index == SYSMENU_NONE &&
-		    is_left_button_pressed) {
+		    is_left_clicked) {
 			/* SEを再生する */
 			play_se(conf_sysmenu_leave_se);
 
@@ -1781,7 +1779,7 @@ static void frame_sysmenu(void)
 			is_sysmenu_finished = true;
 
 			/* 以降のクリック処理を行わない */
-			is_left_button_pressed = false;
+			clear_input_state();
 			return;
 		}
 
@@ -1803,9 +1801,9 @@ static void frame_sysmenu(void)
 			sysmenu_pointed_index = SYSMENU_NONE;
 
 		/* 左クリックされていない場合、何もしない */
-		if (!is_left_button_pressed)
+		if (!is_left_clicked)
 			return;
-		is_left_button_pressed = false;
+		clear_input_state();
 
 		/* クイックセーブが左クリックされた場合 */
 		if (sysmenu_pointed_index == SYSMENU_QSAVE) {
@@ -1885,7 +1883,7 @@ static void frame_sysmenu(void)
 			is_auto_mode_wait = false;
 
 			/* 以降のクリック処理を行わない */
-			is_left_button_pressed = false;
+			clear_input_state();
 			return;
 		}
 
@@ -1956,15 +1954,15 @@ static void frame_sysmenu(void)
 	enter_sysmenu = false;
 
 	/* 右クリックされたとき */
-	if (is_right_button_pressed) {
+	if (is_right_clicked) {
 		enter_sysmenu = true;
-		is_right_button_pressed = false;
+		clear_input_state();
 	}
 
 	/* 折りたたみシステムメニューがクリックされたとき */
-	if (is_left_button_pressed && is_collapsed_sysmenu_pointed()) {
+	if (is_left_clicked && is_collapsed_sysmenu_pointed()) {
 		enter_sysmenu = true;
-		is_left_button_pressed = false;
+		clear_input_state();
 	}
 
 	/* システムメニューに入るとき */
@@ -1991,7 +1989,7 @@ static void frame_hide(int *x, int *y, int *w, int *h)
 		 * クリックを処理する
 		 */
 		if (is_space_pressed ||
-		    (is_left_button_pressed && pointed_index == BTN_HIDE)) {
+		    (is_left_clicked && pointed_index == BTN_HIDE)) {
 			/* メッセージボックスを非表示にする */
 			is_hidden = true;
 			if (get_command_type() == COMMAND_SERIF)
@@ -2009,14 +2007,14 @@ static void frame_hide(int *x, int *y, int *w, int *h)
 			*h = conf_window_height;
 
 			/* 以降の左クリックを処理しない */
-			is_left_button_pressed = false;
+			clear_input_state();
 		}
 		return;
 	}
 
 	/* メッセージボックスを非表示中の場合、マウスとキーの押下を処理する */
 	if(is_space_pressed || is_return_pressed || is_down_pressed ||
-	   is_left_button_pressed || is_right_button_pressed) {
+	   is_left_clicked || is_right_clicked) {
 		/* メッセージボックスを表示する */
 		is_hidden = false;
 		if (get_command_type() == COMMAND_SERIF)
@@ -2034,10 +2032,7 @@ static void frame_hide(int *x, int *y, int *w, int *h)
 		*h = conf_window_height;
 
 		/* 以降のクリックを処理しない */
-		is_right_button_pressed = false;
-		is_left_button_pressed = false;
-		is_return_pressed = false;
-		is_down_pressed = false;
+		clear_input_state();
 	}
 }
 

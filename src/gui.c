@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -763,7 +763,7 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 	/* 右クリックでキャンセル可能な場合 */
 	if (cancel_when_right_click) {
 		/* 右クリックされた場合 */
-		if (is_right_button_pressed) {
+		if (is_right_clicked) {
 			/* どのボタンも選ばれなかったことにする */
 			result_index = -1;
 
@@ -774,8 +774,7 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 			stop_gui_mode();
 
 			/* 続くコマンド実行に影響を与えないようにする */
-			is_right_button_pressed = false;
-			is_left_button_pressed = false;
+			clear_input_state();
 			return true;
 		}			
 	}
@@ -952,7 +951,7 @@ static void process_button_drag(int index)
 			return;
 
 		/* マウスの左ボタンが押下されていない場合 */
-		if (!is_left_button_pressed)
+		if (!is_mouse_dragging)
 			return;
 
 		/* ドラッグを開始する */
@@ -1104,7 +1103,7 @@ static void process_button_click(int index)
 		return;
 
 	/* ボタンがクリックされていない場合 */
-	if (!is_left_button_pressed)
+	if (!is_left_clicked)
 		return;
 
 	/* ボタンのタイプごとにクリックを処理する */

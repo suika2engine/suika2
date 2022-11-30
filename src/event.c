@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -205,10 +205,16 @@ void on_event_mouse_press(int button, int x, int y)
  */
 void on_event_mouse_release(UNUSED(int button), int x, int y)
 {
-	/* 1フレーム内の解放を無視する */
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 
+	if (button == MOUSE_LEFT)
+		is_left_clicked = true;
+	else
+		is_right_clicked = true;
+
+	is_left_button_pressed = false;
+	is_right_button_pressed = false;
 	is_mouse_dragging = false;
 }
 

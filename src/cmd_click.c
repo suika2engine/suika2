@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika 2
@@ -47,7 +47,7 @@ bool click_command(void)
 	 */
 	if ((!is_auto_mode() &&
 	     (is_control_pressed || is_return_pressed || is_down_pressed ||
-	      is_left_button_pressed))
+	      is_left_clicked))
 	    ||
 	    (is_auto_mode() &&
 	      (float)get_stop_watch_lap(&sw) >= AUTO_MODE_WAIT))

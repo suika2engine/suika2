@@ -1,4 +1,4 @@
-﻿/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
  * Suika
@@ -192,7 +192,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	}
 
 	/* クリックされた場合 */
-	if (new_pointed_index != -1 && is_left_button_pressed) {
+	if (new_pointed_index != -1 && is_left_clicked) {
 		/* 繰り返し動作を終了する */
 		pointed_index = new_pointed_index;
 		stop_command_repetition();
