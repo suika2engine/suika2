@@ -1110,12 +1110,14 @@ static void process_button_click(int index)
 	switch (b->type) {
 	case TYPE_FULLSCREEN:
 		play_se(b->clickse, false);
-		enter_full_screen_mode();
+		if (!conf_window_fullscreen_disable)
+			enter_full_screen_mode();
 		update_runtime_props(false);
 		break;
 	case TYPE_WINDOW:
 		play_se(b->clickse, false);
-		leave_full_screen_mode();
+		if (!conf_window_fullscreen_disable)
+			leave_full_screen_mode();
 		update_runtime_props(false);
 		break;
 	case TYPE_FONT:
