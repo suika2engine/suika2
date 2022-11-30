@@ -31,7 +31,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt-get install -y build-essential libasound2-dev libx11-dev libxpm-dev mesa-common-dev
-        sudo apt-get remove -y libunwind-dev
+        sudo apt-get remove -y libunwind-14-dev
         sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
         cd build/linux-x86_64
         ./build-libs.sh
