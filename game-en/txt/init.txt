@@ -57,45 +57,45 @@
 @vol bgm 1.0 1.0
 @bg roof.png 1.0 rule:rule-star.png
 @ch c 001-fun.png 1.0
-*???*Isn't the breeze great from up here? It's so cool...
+*???*001.ogg*Isn't the breeze great from up here? It's so cool...
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(I'm on my school's rooftop, having skipped my remedial class.)
+*???*002.ogg*(I'm on my school's rooftop, having skipped my remedial class.)
 
 @vol bgm 1.0 1.0
 @ch c 001-happy.png 1.0
-*???*Hm? Oh, you're here. Hey, it's fine, they don't call the roll for remedial classes anymore.
+*???*003.ogg*Hm? Oh, you're here. Hey, it's fine, they don't call the roll for remedial classes anymore.
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*???*(Since this is a country town in Hokkaido, and on the coast, I can see the sea peaking up over the horizon. During the cultural festival, the sun turns the whole ocean amber.)
+*???*004.ogg*(Since this is a country town in Hokkaido, and on the coast, I can see the sea peaking up over the horizon. During the cultural festival, the sun turns the whole ocean amber.)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*???*Now, you're probably wondering why I skipped the remedial class, right?
+*???*005.ogg*Now, you're probably wondering why I skipped the remedial class, right?
 
 @vol bgm 0.5 1.0
-*???*Oh actually, I should probably introduce myself first, shouldn't I?
-*???*My name's Midori, nice to meet you!
-*Midori*I'm a senior student here. If you couldn't already tell, I love watermelon, my parents even own a watermelon farm!
+*???*006.ogg*Oh actually, I should probably introduce myself first, shouldn't I?
+*???*007.ogg*My name's Midori, nice to meet you!
+*Midori*008.ogg*I'm a senior student here. If you couldn't already tell, I love watermelon, my parents even own a watermelon farm!
 
 @vol bgm 1.0 1.0
 @ch c 001-angry.png 1.0
-*Midori*Now for the reason I dragged you up here all of a sudden...
-*Midori*It's because...
+*Midori*009.ogg*Now for the reason I dragged you up here all of a sudden...
+*Midori*010.ogg*It's because...
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*(This is really important... I can't mess this up!)
+*Midori*011.ogg*(This is really important... I can't mess this up!)
 
 @vol bgm 1.0 1.0
 @ch c 001-sad.png 1.0
-*Midori*I want to... to...
+*Midori*012.ogg*I want to... to...
 
 @vol bgm 0.0 1.0
 @ch c 001-happy.png 1.0
-*Midori*I want to tell you about Suika2!
+*Midori*013.ogg*I want to tell you about Suika2!
 
 ###
 ### Scene2 (Rooftop Explanations)
@@ -103,28 +103,29 @@
 
 @chapter "Scene 2 – Rooftop Explanations"
 
+@ch c 001-happy.png 1.0
+*Midori*014.ogg*Ahem, okay, now that that's out in the open...
+
 @bgm 02.ogg
 @vol bgm 1.0 1.0
-@ch c 001-happy.png 1.0
-*Midori*Ahem, okay, now that that's out in the open...
 
-+en+*Midori*Heya!
-+fr+*Midori*Bonjour!
-+de+*Midori*Guten Tag!
-+es+*Midori*Buenas Tardes!
-+it+*Midori*Buon giorno!
-+el+*Midori*Καλημέρα!
-+ru+*Midori*Добрый день!
-+zh+*Midori*你好！
-+tw+*Midori*你好！
-+ja+*Midori*こんにちは！
++en+*Midori*015.ogg*Heya!
++fr+*Midori*015.ogg*Bonjour!
++de+*Midori*015.ogg*Guten Tag!
++es+*Midori*015.ogg*Buenas Tardes!
++it+*Midori*015.ogg*Buon giorno!
++el+*Midori*015.ogg*Καλημέρα!
++ru+*Midori*015.ogg*Добрый день!
++zh+*Midori*015.ogg*你好！
++tw+*Midori*015.ogg*你好！
++ja+*Midori*015.ogg*こんにちは！
 
-*Midori*Thank you for using Suika2!
-*Midori*As you may already know, Suika2 is a visual novel authoring tool, commonly known as an "engine".
-*Midori*It's free, open-source, runs on Windows, Mac, and loads of other systems – awesome, right?
+*Midori*016.ogg*Thank you for using Suika2!
+*Midori*017.ogg*As you may already know, Suika2 is a visual novel authoring tool, commonly known as an "engine".
+*Midori*018.ogg*It's free, open-source, runs on Windows, Mac, and loads of other systems – awesome, right?
 
 @ch c 001-fun.png 1.0
-*Midori*The Team asked me to see if you had any questions. Anything you'd like to ask them?
+*Midori*019.ogg*The Team asked me to see if you had any questions. Anything you'd like to ask them?
 @ch c none 1.0
 
 ###
@@ -145,8 +146,8 @@ Last but not least, freedom. You can use Suika2 in your commercial projects for 
 
 @set $1 = 1
 @ch c 001-fun.png 1.0
-*Midori*Great! I'm glad my stories will keep working, even on my new computer! Being able to focus on the story, rather than syntax is nice too!
-*Midori*Do you have any other questions?
+*Midori*020.ogg*Great! I'm glad my stories will keep working, even on my new computer! Being able to focus on the story, rather than syntax is nice too!
+*Midori*021.ogg*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP1
 
@@ -157,8 +158,8 @@ When it comes to Web browsers, we support Chrome, Safari, Firefox, and Edge.
 In addition to all of those, Suika2 runs on iPhone, iPad, Android, and Linux. (Did you know, Suika2 was initially written on Linux!)
 @set $2 = 1
 @ch c 001-fun.png 1.0
-*Midori*Oh yeah, that's right!
-*Midori*Do you have any other questions?
+*Midori*022.ogg*Oh yeah, that's right!
+*Midori*021.ogg*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP1
 
@@ -171,14 +172,14 @@ In addition to all of those, Suika2 runs on iPhone, iPad, Android, and Linux. (D
 @chapter "Scene 4 – Coastal Questions"
 
 @ch c 001-fun.png 1.0
-*Midori*How about we step out and take a walk? ...Hm, how about we go to the beach?
+*Midori*023.ogg*How about we step out and take a walk? ...Hm, how about we go to the beach?
 
 @vol bgm 0.0 1.0
 @bg coast.png 1.0 c
 @vol bgm 1.0 0.0
 @bgm coast.ogg
 @ch c 001-happy.png 1.0
-*Midori*Is there anything else you were wondering?
+*Midori*024.ogg*Is there anything else you were wondering?
 @ch c none 1.0
 
 :LOOP2
@@ -189,8 +190,8 @@ Releases before version 2.0.0 were named 'Suika Studio' and the author developed
 The release of version 2.0.0 saw the visual editor and 'Studio' naming removed.
 @set $3 = 1
 @ch c 001-fun.png 1.0
-*Midori*Oh, cool! Even I didn't know that!
-*Midori*Do you have any other questions?
+*Midori*025.ogg*Oh, cool! Even I didn't know that!
+*Midori*021.ogg*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP2
 
@@ -199,8 +200,8 @@ You can customize the engine with relative ease; this includes the font, text bo
 If there's anything you want to customize, but can't, please contact the Team.
 @set $4 = 1
 @ch c 001-fun.png 1.0
-*Midori*Good idea, I know the Team loves feedback!
-*Midori*Do you have any other questions?
+*Midori*026.ogg*Oh, yes!
+*Midori*021.ogg*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP2
 
@@ -214,19 +215,19 @@ If there's anything you want to customize, but can't, please contact the Team.
 @chapter "Scene 5 – Thank You"
 
 @ch c 001-fun.png 1.0
-*Midori*Thanks for asking so many questions today!
+*Midori*027.ogg*Thanks for asking so many questions today!
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*(I just wanted to tell you about Suika2... That's pretty much a confession, right? ...Right?)
+*Midori*028.ogg*(I just wanted to tell you about Suika2... That's pretty much a confession, right? ...Right?)
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*Midori*If you have any questions, send me an e-mail at midori@suika2.com anytime!
-*Midori*Don't forget to check out our website docs.suika2.com and my blog at blog.suika2.com, I post there every now and then!
+*Midori*029.ogg*If you have any questions, send me an e-mail at midori@suika2.com anytime!
+*Midori*030.ogg*Don't forget to check out our website docs.suika2.com and my blog at blog.suika2.com, I post there every now and then!
 
 @vol bgm 0.5 1.0
-*Midori*I hope you'll send me an e-mail with your questions, feedback, issues, or even just to say hi! – See you next time!
+*Midori*031.ogg*I hope you'll send me an e-mail with your questions, feedback, issues, or even just to say hi! – See you next time!
 
 @vol bgm 0.0 1.0
 
