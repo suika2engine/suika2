@@ -97,7 +97,7 @@ VOICE {
     type: voicevol;
 
     # Character voice file to play when slider moved
-    file: 025.ogg;
+    file: 026.ogg;
 
     # Position and size
     x: 68;
