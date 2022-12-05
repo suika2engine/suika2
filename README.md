@@ -36,7 +36,7 @@ If you want to port Suika2 to a new target platform, you are only required to wr
 
 ## Suika2 Pro for Creators
 
-[`Suika2 Pro for Creators`](https://github.com/suika2engine/suika2/wiki/6.-Suika2-Pro-for-Creators) is Suika2's sister application, a visual development tool for Windows and Mac that provides developers with a debugger and package export function.
+[`Suika2 Pro for Creators`](https://github.com/suika2engine/suika2/wiki/5.-Suika2-Pro-for-Creators) is Suika2's sister application, a visual development tool for Windows and Mac that provides developers with a debugger and package export function.
 
 ## Contribution
 
