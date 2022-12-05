@@ -91,3 +91,8 @@ void dbg_set_error_state(void)
 void set_error_command(int index, char *text)
 {
 }
+
+const char *get_system_locale(void)
+{
+	return "other";
+}
