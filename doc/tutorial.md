@@ -5,9 +5,9 @@ This document explains how to create a basic visual novel using the engine, don'
 Okay, Ready? Let's get started!
 
 # Preparation
-We'll be using Windows for this tutorial, but the process is similar on MacOS. For instructions on installing and setting up Suika2 on other platforms, please see [building from source](1.-Installation-and-Building-from-Source#building-from-source).
+We'll be using Windows for this tutorial, but the process is similar on MacOS. For instructions on installing and setting up Suika2 on other platforms, please see [building from source](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source#building-from-source).
 
-Firstly, download the Suika2 binary from the [official website](https://docs.suika2.com)
+Firstly, download the Suika2 binary from the [releases page](https://github.com/suika2engine/suika2/releases/tag/v2.11.9).
 
 Once you've extracted the contents of the ZIP file, you should be presented with a directory containing the following:
 
@@ -32,18 +32,7 @@ You can safely remove `mac.dmg` and `mac-pro.dmg` (or the Windows equivilent if 
 
 `suika.exe` is the Suika2 executable file. The other folders contain assets and information needed for the included demo game. When you run `suika.exe`, a `sav/` folder will be automatically created, this will contain save-data.
 
-At the moment, we're just going to use demo-game chunks to play around with Suika2's various features. This tutorial is by no means exhaustive, so please refer to the [reference](3.-Suika2Script-and-Commands) for more commands and updated information. This document will be updated in the future to better align with Suika2's current version and documentation.
-
-# Enable International Mode
-Open `conf/config.txt` with a text editor.
-
-Locate the following line near the top of the document:
-
-```
-i18n=1
-```
-
-If the value is set to disabled (`0`), make sure to enable it by replacing the `0` with `1`.
+At the moment, we're just going to use demo-game chunks to play around with Suika2's various features. This tutorial is by no means exhaustive, so please refer to the [reference](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands) for more commands and updated information. This document will be updated in the future to better align with Suika2's current version and documentation.
 
 #Open a Script File
 Within the `txt/` folder we can find `init.txt`. When Suika2 starts, this will be the first script file that runs. The great thing about script files is that they're regular `.txt` files, so you don't need any special software to open them!
@@ -67,7 +56,7 @@ Insert the following into `init.txt`:
 @click
 ```
 
-[`@bg`](3.-Suika2Script-and-Commands#bg) is the command to show a background image, `roof.png` is a file inside the `bg/` folder, `1.0` is the fade-in time counted in `seconds`, and [`@click`](3.-Suika2Script-and-Commands#click) is the command to wait for the user to click.
+[`@bg`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#showing-a-background-bg) is the command to show a background image, `roof.png` is a file inside the `bg/` folder, `1.0` is the fade-in time counted in `seconds`, and [`@click`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#waiting-for-a-click-click) is the command to wait for the user to click.
 
 After saving it, run `suika.exe`. Suika2 will show a roof terrace, wait for a click, and then exit.
 
@@ -80,7 +69,7 @@ Insert the following into `init.txt`, between the @bg and @click commands:
 @ch center 001-fun.png 1.0
 ```
 
-[`@ch`](3.-Suika2Script-and-Commands#ch) is the command to show a character, `center` is the horizontal position to show a character, `001-fun.png` is a file inside the `ch/` folder, and `1.0` is the fade-in time counted in `seconds`.
+[`@ch`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#showing-a-character-ch) is the command to show a character, `center` is the horizontal position to show a character, `001-fun.png` is a file inside the `ch/` folder, and `1.0` is the fade-in time counted in `seconds`.
 
 After saving it, run `suika.exe`. Suika2 will show a roof terrace, a character, wait for a click, and then exit.
 
@@ -120,7 +109,7 @@ Insert the following into `init.txt`:
 **Note:** The English distribution only contains the `cv/025.ogg` and `se/suika.ogg` voice lines. `025.ogg` doesn't reflect the written message above and is just an example.
 
 # Playing Background Music
-You can play background music (BGM) using the [`@bgm`](3.-Suika2Script-and-Commands#bgm) command.
+You can play background music (BGM) using the [`@bgm`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#playing-background-music-bgm) command.
 
 Insert the following into `init.txt`:
 
@@ -154,7 +143,7 @@ I'm home sick from school.
 :end
 ```
 
-After saving it, run `suika.exe`. Suika2 will show three options, [`@choose`](3.-Suika2Script-and-Commands#choose) is the command to show these options (you can create up to eight options with this command); `label1`, `label2`, and `label3` are jump destinations. Option messages follow [labels](3.-Suika2Script-and-Commands#labels).
+After saving it, run `suika.exe`. Suika2 will show three options, [`@choose`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#showing-options-choose) is the command to show these options (you can create up to eight options with this command); `label1`, `label2`, and `label3` are jump destinations. Option messages follow [labels](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#defining-a-label).
 
 `:label1` is a `label` to specify a jump destination. Label lines are ignored when they are executed.
 
@@ -183,7 +172,7 @@ I found money on the ground.
 
 After saving it, run `suika.exe`. Suika2 will show three options. If you choose "By foot.", the message "I found money on the ground." is shown.
 
-Here, we use a combination of [`@set`](3.-Suika2Script-and-Commands#set) and [`@if`](3.-Suika2Script-and-Commands#if). Please see [operators](3.-Suika2Script-and-Commands#operators) for a list of accepted operators.
+Here, we use a combination of [`@set`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#setting-a-variable-set) and [`@if`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#branching-by-variable-if). Please see [operators](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#branching-by-variable-if) for a list of accepted operators.
 
 `@set` is the command to set variables. `$1` on the LHS means we store to variable at number 1. `=` means simple assignment. Lastly, `1` means an integer of `1`.
 
@@ -194,7 +183,7 @@ All variables are initially `0`. `$1` is set to `1` only when "By foot." is sele
 # Show a Menu
 You can make a menu screen from inside Suika2 scripts.
 
-You are encouraged to read about [GUI files](4.-Creating-Graphical-User-Interfaces) for an updated and more user-friendly alternative.
+You are encouraged to read about [GUI files](https://github.com/suika2engine/suika2/wiki/4.-Creating-Graphical-User-Interfaces) for an updated and more user-friendly alternative.
 
 Insert the following into `init.txt`:
 
@@ -210,7 +199,7 @@ After saving it, run `suika.exe`. Suika2 will show the title screen of the sampl
 
 Let's look at this in more detail:
 
-[`@menu`](3.-Suika2Script-and-Commands#menu) is the command to show the menu screen. It uses two images. `@menu menu.png menu_selected.png` means we use `menu.png` and `menu_selected.png` in the `bg/` folder. Compare these images, `menu.png` is an image for when the button isn't being hovered over by the mouse. `menu_selected.png` is an image for when the button is being hovered over by the mouse.
+`@menu` is the command to show our menu screen. It uses two images. `@menu menu.png menu_selected.png` means we use `menu.png` and `menu_selected.png` in the `bg/` folder. Compare these images, `menu.png` is an image for when the button isn't being hovered over by the mouse. `menu_selected.png` is an image for when the button is being hovered over by the mouse.
 
 `START 2 495 314 192` creates a button. `START` is the jump destination label. `2 495 314 192` means creating a button with `314x192` size at position `2, 495`.
 
@@ -234,10 +223,10 @@ moved to second.txt
 
 After saving these files, run `suika.exe`. Suika2 will show "moved to second.txt" after "inside init.txt".
 
-[`@load`](3.-Suika2Script-and-Commands#load) is the command to jump to a specified script file.
+[`@load`](https://github.com/suika2engine/suika2/wiki/3.-Suika2Script-and-Commands#jumping-to-a-script-load) is the command to jump to a specified script file.
 
 # Creating a Package
-We can create a single package file that contains scripts, images, sounds, and so on with Suika2's sister application [`suika-pro.exe`](6.-Suika2-Pro-for-Creators).
+We can create a single package file that contains scripts, images, sounds, and so on with Suika2's sister application [`suika-pro.exe`](https://github.com/suika2engine/suika2/wiki/5.-Suika2-Pro-for-Creators).
 
 To do so, follow these steps:
 
@@ -249,4 +238,4 @@ When distributing, only distribute `suika.exe` and `data01.arc` (as well as any 
 When we have both the package and a normal file, Suika2 uses the normal file.
 
 # Support
-If you require further support, please don't hesitate to join our [Discord](https://discord.gg/ZmvXxE8GFg) or send an e-mail.
+If you require further support, please don't hesitate to join our [Discord](https://discord.gg/ZmvXxE8GFg) or send an e-mail to `midori@suika2.com`.
