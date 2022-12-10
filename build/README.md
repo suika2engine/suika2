@@ -4,184 +4,186 @@ How to build
 This document provides instructions for building the Suika2 application from its source. If you encounter any unexpected behaviour, please contact the
 Team for further instructions and assistance. 
 
-
-Windows App
-============
-
-This method uses a cross compiler to build a Windows binary.
-
-* On Ubuntu 22.04 (WSL2 is OK), install the following packages:
-   * `build-essential`
-   * `mingw-w64`
-* Alternatively, on macOS 13, install Homebrew and the following package:
-   * `mingw-w64`
-* From the terminal, enter the `build/mingw` directory.
-   * Run `./build-libs.sh` to build libraries.
-   * Run `make` to build `suika.exe`.
-   * Run `make install` to copy `suika.exe` to `suika2` directory.
-   * Sign `suika.exe` using your certificate if you need.
-* To run Suika2, copy `suika.exe` to the `game-en` folder or the `game-jp` folder then double click it.
+If you encounter any problems or unexpected behaviour, please open an issue via GitHub, e-mail `midori@suika2.com`, or join our Discord from the main Suika2 repository.
 
 
-Mac App
-============
+## Windows Binary from source
+This method will utilise a cross compiler to build a Windows binary.
 
-* On macOS 13, install Xcode 14.
-* From the terminal, enter the `build/macos` directory.
-   * On Apple Silicon Mac:
-      * Run `./build-libs.sh` to build the libraries.
-   * On Intel Mac:
-      * You can't build a `Universal Binary` library for `libpng`, so use the prebuilt libraries.
-      * Download these from `https://suika2.com/dl/libroot-mac.tar.gz` and extract them.
-* In Xcode, open `build/macos`.
-   * Set your development team.
-   * Build the project.
-   * Archive then project.
-   * Notarize the application by `Distribute App` button.
-   * Press `Export Notarized App` to export the app to the `build/macos` folder.
-* To run Suika2, copy `suika.app` to the `game-en` folder or the `game-jp` folder then double click it.
-* To distribute the app, follow these steps:
-   * From the terminal, enter the `build/macos` directory.
-   * Modify `SIGNATURE` in `make-dmg.sh` to sign dmg files.
-   * Run `./make-dmg.sh` to create the dmg files.
-   * Distribute the `mac.dmg` file.
+* On Ubuntu 22.04 (WSL2 is acceptable), install the following packages:
+	* `build-essential`
+	* `mingw-w64`
+* Alternatively, on macOS 13, install `Homebrew` and the following package:
+  * `mingw-w64`
+* From the terminal, navigate to the `build/mingw` directory and run the following commands:
+  * Run `./build-libs.sh` to build the libraries.
+  * Run `make` to build `suika.exe`.
+  * Run `make install` to copy `suika.exe` to the suika2 directory.
+* Sign `suika.exe` with your own certificate if you require it.
 
-**Note:** In some cases, building the application may fail when using an Intel-based Mac. In these cases, please build from an Apple Silicon machine.
-If you are unable to do this, please contact the team for the up-to-date result of `build-libs.sh`.
+To run Suika2, copy `suika.exe` to either the `game-en` or `game-jp` folder.
 
-
-iOS App
-============
+## macOS Binary from Source
+This method will utilise Xcode to build a macOS binary.
 
 * On macOS 13, install Xcode 14.
-* From the terminal, enter the `build/ios` directory.
-   * Run `./build-libs.sh` to build libraries.
-   * Alternatively, you can run `./build-libs-sim.sh` for use with simulators on Apple Silicon Mac.
-* In Xcode, open `build/ios`.
-   * In "Signing & Capabilities" tab, check `Automatically manage signing`.
-   * Plug in the iOS device and build the project for the device.
-   * Run on the iOS device.
-   * Replace `build/ios/suika/data01.arc` and enjoy your game.
+* From the terminal, navigate to the `build/macos` directory and run the following command:
+  * Run `./build-libs.sh` to build the libraries.
+* From Xcode, open `build/macos` and complete the following steps:
+  * Set your development team.
+  * Build the project.
+  * Archive the project.
+  * Notarize the application with the `Distribute App` button.
+  * Select the `Export Notarized App` option to export the app to the suika2 folder.
 
+**Note:** Projects will likely fail to build on Apple Intel machines, presenting the following errors:
+* `'png.h' file not found`
+* `Could not read serialized diagnostics file: error("Failed to open diagnostics file")`
 
-Android App
-============
+Building from an Apple Silicon machine should alleviate these errors. However, if this is not viable, [download them here (starts download)](https://suika2.com/dl/libroot-mac.tar.gz).
+
+To run Suika2, copy `suika` to either the `game-en` or `game-jp` folder.
+
+## IOS
+This method will utilise Xcode to build an IOS application.
+
+* On macOS 13, install Xcode 14.
+* From the terminal, navigate to the `build/ios` directory and run the following command:
+  * Run `./build-libs.sh` to build the libraries.
+* Alternatively, run `./build-libs-sim.sh` to build the libraries for use with simulators on Apple Silicon Mac.
+* From Xcode, open `build/ios` and complete the following steps:
+  * Navigate to the `Signing & Capabilities` tab and select `Automatically Manage Signing`.
+  * Connect the IOS device via cable and build the project for the device.
+  * Run the application from your IOS device.
+  * Replace `build/ios/suika/data01.arc` with your own `data01.arc` file.
+
+Run the application.
+
+## Android
+This method will utilise Android Studio to build an Android application.
 
 * Install Android Studio.
-* From Tools -> SDK Manager -> SDK Tools:
-   * Install CMake (3.18.1)
-   * Install NDK (24.0.8215888)
-* From the terminal, enter the `build/android` directory.
-   * Run `./prepare-libs.sh` to decompress libraries.
-* Open the Suika2 project (`build/android`).
-   * Build the project.
-   * Run the app on your device or emulator.
+* Navigate to `Tools –> SDK Manager –> SDK Tools` and complete the following steps:
+  * Install `CMake (3.18.1)`
+  * Install `NDK (24.0.8215888)`
+* From the terminal, navigate to the `build/android` directory and run the following command:
+  * Run `./prepare-libs.sh` to decompress the libraries.
+* Open the Suika2 project from `build/android`.
+* Build the project.
 
+Run the application from your device or an emulator.
 
-Web App
-============
+## Web
+This method will utilise the Emscripten framework to build a web distribution.
 
-* See `build/emscripten/README.md`
+* Prerequisites
+  * Use a UNIX-like environment such as MSYS2, Linux, or macOS.
+  * Ensure you can access `make` and `python`.
+  * Install `Emscripten` using the `emc` command.
+  * Generate a `data01.arc` using `suika-pro.exe`.
+    * Using [Suika2 Pro for Creators](5.-suika2-pro-for-creators), select `File –> Export Package`.
 
+* Instructions
+  * From the terminal, navigate to the `build/emscripten` directory and run the following commands:
+    * Run `make`
+    * Copy `data01.arc` into `build/emscripten/html/`
+    * Run `make run`
+* From a browser, navigate to `http://localhost:8000/html/`.
 
-Release Files
-============
+## Release Files
+This method will create a release-ready ZIP file.
 
-* On Ubuntu 22.04 (WSL2 is OK), from the terminal, run `./do-release.sh`.
+* From the terminal, navigate to the `build/release` directory and complete the following steps:
+  * Modify the `SIGNATURE` stored in the `Makefile` to sign the `.dmg` files.
+  * Run `make` to create ZIP files.
+  * Rename `suika-2.x.x-en.zip` and `suika-2.x.x-jp.zip` to the desired application names.
 
+## Release Files (Web)
+This method will utilise the Emscripten framework to create a release-ready ZIP file for web distributions.
 
-Web Kit Distribution Files
-============
+* From the terminal, navigate to the `build/emscripten` directory and run the following command:
+  * Run `make`
+* From the terminal, navigate to the `build/web-kit` directory and run the following command:
+  * Run `make` to create ZIP files.
+* Rename `suika-2.x.x-en.zip` and `suika-2.x.x-jp.zip` to the desired application names.
 
-* Run `make` in `build/emscripten` first. (See `emscripten/README.md`.)
-* From the terminal, enter the `build/web-kit` directory.
-   * Run `make` to create ZIP files.
-   * Rename `suika2-web-kit-2.x-x-en.zip` and `suika2-web-kit-2.x-x-jp.zip`.
-
-
-Linux Binary (x86_64)
-============
+## Linux Binary (x86_64)
+This method will build a Linux binary.
 
 * On Ubuntu 22.04, install the following packages:
-   * `build-essential`
-   * `libasound2-dev`
-   * `libx11-dev`
-   * `libxpm-dev`
-   * `mesa-common-dev`
-   * `libgstreamer1.0-dev`
-   * `libgstreamer-plugins-base1.0-dev`
-* From the terminal, enter the `build/linux-x86_64` directory.
-   * Run `./build-libs.sh` to build libraries.
-   * Run `make` to build Suika2 binary.
-   * Run `make install` to copy binary `suika` to `suika2` directory.
-   * Copy `suika` to `game-en` directory or `game-jp` directory.
-* Before running the game, you may need to install the following package:
-   * `gstreamer1.0-plugins-ugly`
-* From the terminal, enter the `game-en` directory or the `game-jp` directory.
-   * Run `./suika`
+  * `build-essential`
+  * `libasound2-dev`
+  * `libx11-dev`
+  * `libxpm-dev`
+  * `mesa-common-dev`
+* From the terminal, navigate to the `build/linux-x86_64` directory and run the following commands:
+  * Run `./build-libs.sh` to build the libraries.
+  * Run `make` to build the Suika2 binary.
+  * Run `make install` to copy the suika binary to the suika2 directory.
 
+* To run Suika2, copy `suika` to either the `game-en` folder or `game-jp` folder.
+* From the terminal, navigate to the `game-en` or `game-jp` directory and run the following command:
+  * Run `./suika`
 
-Raspberry Pi Binary
-============
+## Raspberry Pi Binary
+This method will build a Raspberry Pi binary.
 
 * On Raspberry Pi OS, install the following packages:
-   * `libasound2-dev`
-   * `libx11-dev`
-   * `libxpm-dev`
-   * `mesa-common-dev`
-   * `libgstreamer1.0-dev`
-   * `libgstreamer-plugins-base1.0-dev`
-* From the terminal, enter the `build/linux-arm` directory.
-   * Run `./build-libs.sh` to build libraries.
-   * Run `make` to build Suika2 binary.
-   * Run `make install` to copy binary `suika` to `suika2` directory.
-   * Copy `suika` to `game-en` directory or `game-jp` directory.
-* Before running the game, you may need to install the following package:
-   * `gstreamer1.0-plugins-ugly`
-* From the terminal, enter the `game-en` or the `game-jp` directory.
-   * Run `./suika`
+  * `libasound2-dev`
+  * `libx11-dev`
+  * `libxpm-dev`
+  * `mesa-common-dev`
+* From the terminal, navigate to the `build/linux-arm` directory and run the following commands:
+  * Run `./build-libs.sh` to build the libraries.
+  * Run `make` to build the Suika2 binary.
+  * Run `make install` to copy the suika binary to the Suika2 directory.
 
+* To run Suika2, copy `suika` to either the `game-en` folder or `game-jp` folder.
+* From the terminal, navigate to the `game-en` or `game-jp` directory and run the following command:
+  * Run `./suika`
 
-FreeBSD Binary
-============
+## FreeBSD Binary
+This method will build a FreeBSD binary.
 
 * On FreeBSD 12, install the following packages:
-   * `gmake`
-   * `alsa-lib`
-   * `alsa-plugins`
-* From the terminal, enter the `build/freebsd` directory.
-   * Run `./build-libs.sh` to build libraries.
-   * Run `gmake` to build Suika2 binary.
-   * Run `gmake install` to copy binary `suika` to `suika2` directory.
-   * Copy `suika` to `game-en` directory or `game-jp` directory
-* From the terminal, enter the `game-en` directory or the `game-jp` directory.
-   * Run `./suika`.
+  * `gmake`
+  * `alsa-lib`
+  * `alsa-plugins`
+* From the terminal, navigate to the `build/freebsd` directory and run the following commands:
+  * Run `./build-libs.sh` to build the libraries.
+  * Run `gmake` to build the Suika2 binary.
+  * Run `gmake install` to copy the suika binary to the suika2 directory.
 
+* To run Suika2, copy `suika` to either the `game-en` folder or `game-jp` folder.
+* From the terminal, navigate to the `game-en` or `game-jp` directory and run the following command:
+  * Run `./suika`
 
-NetBSD Binary
-============
+## NetBSD Binary
+This method will build a NetBSD binary.
 
 * On NetBSD 9, install the following packages:
-   * `gmake`
-   * `alsa-lib`
-   * `alsa-plugins-oss`
-* `export LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib`
-* From the terminal, enter the `build/netbsd` directory.
-   * Run `./build-libs.sh` to build libraries.
-   * Run `gmake` to build Suika2 binary.
-   * Run `gmake install` to copy binary `suika` to `suika2` directory.
-   * Copy `suika` to `game-en` directory or `game-jp` directory
-* From the terminal, enter the `game-en` directory or the `game-jp` directory.
-   * Run `./suika`.
+  * `gmake`
+  * `alsa-lib`
+  * `alsa-plugins-oss`
+* Export `LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib`
+* From the terminal, navigate to the `build/netbsd` directory and run the following commands:
+  * Run `./build-libs.sh` to build the libraries.
+  * Run `gmake` to build the Suika2 binary.
+  * Run `gmake install` to copy the suika binary to the suika2 directory.
 
-**Note:** To set up ALSA/OSS, create `/etc/asound.conf` and include the following:
-```
-pcm.!default {
+* To run Suika2, copy `suika` to either the `game-en` folder or `game-jp` folder.
+* From the terminal, navigate to the `game-en` or `game-jp` directory and run the following command:
+  * Run `./suika`
+
+  **Note:** To setup `ALSA/OSS`, create `/etc/asound.conf` and copy the following code to the file:
+
+  ```
+  pcm.!default {
     type oss
     device /dev/audio
-}
-ctl.!default {
+  }
+  ctl.!default {
     type oss
     device /dev/mixer
-}
-```
+  }
+  ```
