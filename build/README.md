@@ -79,7 +79,7 @@ This method will utilise the Emscripten framework to build a web distribution.
 * Prerequisites
   * Use a UNIX-like environment such as MSYS2, Linux, or macOS.
   * Ensure you can access `make` and `python`.
-  * Install `Emscripten` using the `emc` command.
+  * Install `Emscripten` using the `emsdk` command.
   * Generate a `data01.arc` using `suika-pro.exe`.
     * Using [Suika2 Pro for Creators](5.-suika2-pro-for-creators), select `File –> Export Package`.
 
@@ -116,6 +116,10 @@ This method will build a Linux binary.
   * `libx11-dev`
   * `libxpm-dev`
   * `mesa-common-dev`
+  * `libgstreamer1.0-dev`
+  * `libgstreamer-plugins-base1.0-dev`
+  
+  
 * From the terminal, navigate to the `build/linux-x86_64` directory and run the following commands:
   * Run `./build-libs.sh` to build the libraries.
   * Run `make` to build the Suika2 binary.
@@ -133,6 +137,8 @@ This method will build a Raspberry Pi binary.
   * `libx11-dev`
   * `libxpm-dev`
   * `mesa-common-dev`
+  * `libgstreamer1.0-dev`
+  * `libgstreamer-plugins-base1.0-dev`
 * From the terminal, navigate to the `build/linux-arm` directory and run the following commands:
   * Run `./build-libs.sh` to build the libraries.
   * Run `make` to build the Suika2 binary.
