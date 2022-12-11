@@ -81,7 +81,7 @@ This method will utilise the Emscripten framework to build a web distribution.
   * Ensure you can access `make` and `python`.
   * Install `Emscripten` using the `emsdk` command.
   * Generate a `data01.arc` using `suika-pro.exe`.
-    * Using [Suika2 Pro for Creators](5.-suika2-pro-for-creators), select `File –> Export Package`.
+    * Using [Suika2 Pro for Creators](https://github.com/suika2engine/suika2/wiki/5.-Suika2-Pro-for-Creators), select `File –> Export Package`.
 
 * Instructions
   * From the terminal, navigate to the `build/emscripten` directory and run the following commands:
