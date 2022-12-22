@@ -321,13 +321,13 @@ Button types include "jump to label" and "show if variable is set".
 
 GUI definition files are also used for config, save, load and log screens.
 
-### Usage 1
+### 用法 1
 Shows GUI `menu.txt`.
 ```
 @gui menu.txt
 ```
 
-### Usage 2
+### 用法 2
 Allows right click cancel.
 ```
 @gui menu.txt cancel
