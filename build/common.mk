@@ -42,7 +42,11 @@ SRCS_COMMON = \
 	../../src/seen.c \
 	../../src/stage.c \
 	../../src/vars.c \
-	../../src/wave.c
+	../../src/wave.c \
+	../../src/wms_core.c \
+	../../src/wms_lexer.yy.c \
+	../../src/wms_parser.tab.c
+
 
 SRCS_SSE = \
 	../../src/x86.c \
