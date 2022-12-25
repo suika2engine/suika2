@@ -97,6 +97,7 @@ bool video_command(void);
 bool skip_command(void);
 bool chapter_command(void);
 bool gui_command(int *x, int *y, int *w, int *h);
+bool wms_command(void);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

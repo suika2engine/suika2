@@ -24,6 +24,7 @@ SRCS_COMMON = \
 	../../src/cmd_video.c \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
+	../../src/cmd_wms.c \
 	../../src/conf.c \
 	../../src/event.c \
 	../../src/file.c \
@@ -45,8 +46,8 @@ SRCS_COMMON = \
 	../../src/wave.c \
 	../../src/wms_core.c \
 	../../src/wms_lexer.yy.c \
-	../../src/wms_parser.tab.c
-
+	../../src/wms_parser.tab.c \
+	../../src/wms_impl.c
 
 SRCS_SSE = \
 	../../src/x86.c \

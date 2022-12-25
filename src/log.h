@@ -83,6 +83,8 @@ void log_gui_unknown_button_property(const char *key);
 void log_gui_parse_property_before_type(const char *prop);
 void log_gui_parse_footer(const char *file, int line);
 void log_gui_image_not_loaded(void);
+void log_wms_syntax_error(const char *file, int line, int column);
+void log_wms_runtime_error(const char *file, int line, const char *msg);
 
 #ifdef USE_DEBUGGER
 void log_command_update_error(void);

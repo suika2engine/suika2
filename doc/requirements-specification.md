@@ -201,7 +201,6 @@ Revision: 0.4
         - [Arrays](#arrays)
         - [Conversions](#conversions)
     - [Calling Suika2 Engine](#calling-suika2-engine)
-        - [Showing an Alert](#showing-an-alert)
 - [Non-functional Requirements](#non-functional-requirements)
     - [Performance Requirements](#performance-requirements)
         - [Native Application](#native-application)
@@ -2607,18 +2606,17 @@ In the future, there are plans to move to `.mp4` with H.264 and AAC on all platf
 # Advanced Script
 
 A script stored in the `txt` folder is called `Suika2 Script`,
-which is simple script for scenario writers,
+which is simple script for novelists,
 consisting of text and commands.
 
 On the other hand, a script stored in the `wms` folder is called `WMS`,
 which is script for more advanced programming.
-WMS stands for `Watermelon Script`.
 
-A WMS script file has `.scr` extension.
+WMS stands for `Watermelon Script`.
 
 ## Syntax and Usage
 
-This section describes the grammar and usage of WMS.
+This section describes the grammar of WMS.
 
 ### Defining and Calling Functions
 
@@ -2839,12 +2837,6 @@ f = 0.0 + "1.23";
 ## Calling Suika2 Engine
 
 The Suika2 engine provides predefined functions to manipulate the engine.
-
-### Showing an Alert
-
-```
-alert("message");
-```
 
 ***
 

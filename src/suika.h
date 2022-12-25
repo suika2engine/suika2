@@ -85,6 +85,9 @@
 /* 動画データのディレクトリ */
 #define MOV_DIR		"mov"
 
+/* WMSのディレクトリ */
+#define WMS_DIR		"wms"
+
 /*
  * 固定のファイル名
  */
