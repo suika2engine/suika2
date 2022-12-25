@@ -42,6 +42,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_video.c
              src/main/cpp/cmd_vol.c
              src/main/cpp/cmd_wait.c
+             src/main/cpp/cmd_wms.c
              src/main/cpp/conf.c
              src/main/cpp/event.c
              src/main/cpp/glrender.c
@@ -62,7 +63,11 @@ add_library( # Sets the name of the library.
              src/main/cpp/script.c
              src/main/cpp/seen.c
              src/main/cpp/stage.c
-             src/main/cpp/vars.c )
+             src/main/cpp/vars.c
+             src/main/cpp/wms_core.c
+             src/main/cpp/wms_impl.c
+             src/main/cpp/wms_lexer.yy.c
+             src/main/cpp/wms_parser.tab.c )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
