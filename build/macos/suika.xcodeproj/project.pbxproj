@@ -110,6 +110,16 @@
 		26A1784E25EE5DD0006A1ED4 /* cmd_click.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782A25EE5DD0006A1ED4 /* cmd_click.c */; };
 		26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
 		26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
+		26C93FBD295953E5007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
+		26C93FBE295953E5007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
+		26C93FC1295953E5007D092D /* wms_lexer.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB8295953E5007D092D /* wms_lexer.yy.c */; };
+		26C93FC2295953E5007D092D /* wms_lexer.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB8295953E5007D092D /* wms_lexer.yy.c */; };
+		26C93FC3295953E5007D092D /* wms_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBA295953E5007D092D /* wms_impl.c */; };
+		26C93FC4295953E5007D092D /* wms_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBA295953E5007D092D /* wms_impl.c */; };
+		26C93FC5295953E5007D092D /* wms_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBB295953E5007D092D /* wms_core.c */; };
+		26C93FC6295953E5007D092D /* wms_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBB295953E5007D092D /* wms_core.c */; };
+		26C93FC7295953E5007D092D /* cmd_wms.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBC295953E5007D092D /* cmd_wms.c */; };
+		26C93FC8295953E5007D092D /* cmd_wms.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBC295953E5007D092D /* cmd_wms.c */; };
 		26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
 		26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
 /* End PBXBuildFile section */
@@ -210,6 +220,13 @@
 		26B8ACED25EE5846005D9C49 /* suika.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = suika.entitlements; sourceTree = "<group>"; };
 		26C8A49D2679CB4B009FE156 /* scbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scbuf.c; path = ../../../src/scbuf.c; sourceTree = "<group>"; };
 		26C8A49E2679CB4B009FE156 /* scbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scbuf.h; path = ../../../src/scbuf.h; sourceTree = "<group>"; };
+		26C93FB5295953E5007D092D /* wms_parser.tab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_parser.tab.c; path = ../../../src/wms_parser.tab.c; sourceTree = "<group>"; };
+		26C93FB6295953E5007D092D /* wms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms.h; path = ../../../src/wms.h; sourceTree = "<group>"; };
+		26C93FB8295953E5007D092D /* wms_lexer.yy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_lexer.yy.c; path = ../../../src/wms_lexer.yy.c; sourceTree = "<group>"; };
+		26C93FB9295953E5007D092D /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../../src/wms_core.h; sourceTree = "<group>"; };
+		26C93FBA295953E5007D092D /* wms_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_impl.c; path = ../../../src/wms_impl.c; sourceTree = "<group>"; };
+		26C93FBB295953E5007D092D /* wms_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_core.c; path = ../../../src/wms_core.c; sourceTree = "<group>"; };
+		26C93FBC295953E5007D092D /* cmd_wms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_wms.c; path = ../../../src/cmd_wms.c; sourceTree = "<group>"; };
 		26EA3DD4286C2DCA00B527DF /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../../src/glrender.c; sourceTree = "<group>"; };
 		26EA3DD5286C2DCA00B527DF /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../../src/glrender.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -298,6 +315,7 @@
 				2617E956282BF6F500637615 /* cmd_video.c */,
 				26A1781425EE5DD0006A1ED4 /* cmd_vol.c */,
 				26A1782625EE5DD0006A1ED4 /* cmd_wait.c */,
+				26C93FBC295953E5007D092D /* cmd_wms.c */,
 				26A1780D25EE5DD0006A1ED4 /* conf.c */,
 				26A1782525EE5DD0006A1ED4 /* conf.h */,
 				26A1780425EE5DD0006A1ED4 /* drawglyph.h */,
@@ -351,6 +369,12 @@
 				26A1780C25EE5DD0006A1ED4 /* vars.h */,
 				26A1780F25EE5DD0006A1ED4 /* wave.c */,
 				26A1781025EE5DD0006A1ED4 /* wave.h */,
+				26C93FB6295953E5007D092D /* wms.h */,
+				26C93FBB295953E5007D092D /* wms_core.c */,
+				26C93FB9295953E5007D092D /* wms_core.h */,
+				26C93FBA295953E5007D092D /* wms_impl.c */,
+				26C93FB8295953E5007D092D /* wms_lexer.yy.c */,
+				26C93FB5295953E5007D092D /* wms_parser.tab.c */,
 			);
 			path = suika;
 			sourceTree = "<group>";
@@ -458,8 +482,11 @@
 				2603494A2854B29800037370 /* script.c in Sources */,
 				2603494B2854B29800037370 /* scbuf.c in Sources */,
 				2603494C2854B29800037370 /* cmd_wait.c in Sources */,
+				26C93FC8295953E5007D092D /* cmd_wms.c in Sources */,
 				2679EC85285813B000C20499 /* package.c in Sources */,
+				26C93FC4295953E5007D092D /* wms_impl.c in Sources */,
 				267079022917992E003C61C1 /* uimsg.c in Sources */,
+				26C93FBE295953E5007D092D /* wms_parser.tab.c in Sources */,
 				2603494D2854B29800037370 /* vars.c in Sources */,
 				2603494E2854B29800037370 /* glyph.c in Sources */,
 				26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */,
@@ -482,6 +509,7 @@
 				2603495D2854B29800037370 /* cmd_click.c in Sources */,
 				2603495E2854B29800037370 /* stage.c in Sources */,
 				2603495F2854B29800037370 /* cmd_message.c in Sources */,
+				26C93FC6295953E5007D092D /* wms_core.c in Sources */,
 				260349602854B29800037370 /* image.c in Sources */,
 				260349612854B29800037370 /* cmd_se.c in Sources */,
 				260349622854B29800037370 /* history.c in Sources */,
@@ -496,6 +524,7 @@
 				2603496A2854B29800037370 /* mixer.c in Sources */,
 				26247D7C2872C13A0026FAF4 /* cmd_chapter.c in Sources */,
 				2603496B2854B29800037370 /* cmd_setsave.c in Sources */,
+				26C93FC2295953E5007D092D /* wms_lexer.yy.c in Sources */,
 				2603497D2854B61F00037370 /* nsdebug.m in Sources */,
 				2603496C2854B29800037370 /* main.c in Sources */,
 				2603496D2854B29800037370 /* cmd_video.c in Sources */,
@@ -511,6 +540,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26C93FC7295953E5007D092D /* cmd_wms.c in Sources */,
 				26A1783C25EE5DD0006A1ED4 /* conf.c in Sources */,
 				26A1782C25EE5DD0006A1ED4 /* script.c in Sources */,
 				26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */,
@@ -523,6 +553,8 @@
 				2608233C26724676009D979A /* cmd_cha.c in Sources */,
 				26A1784225EE5DD0006A1ED4 /* event.c in Sources */,
 				26A1783025EE5DD0006A1ED4 /* cmd_gosub.c in Sources */,
+				26C93FBD295953E5007D092D /* wms_parser.tab.c in Sources */,
+				26C93FC1295953E5007D092D /* wms_lexer.yy.c in Sources */,
 				260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */,
 				26A1783325EE5DD0006A1ED4 /* readimage.c in Sources */,
 				26A1784925EE5DD0006A1ED4 /* cmd_if.c in Sources */,
@@ -538,7 +570,9 @@
 				26A1783425EE5DD0006A1ED4 /* cmd_message.c in Sources */,
 				26A1783F25EE5DD0006A1ED4 /* image.c in Sources */,
 				26A1784C25EE5DD0006A1ED4 /* cmd_se.c in Sources */,
+				26C93FC5295953E5007D092D /* wms_core.c in Sources */,
 				26A1784425EE5DD0006A1ED4 /* history.c in Sources */,
+				26C93FC3295953E5007D092D /* wms_impl.c in Sources */,
 				26A1784825EE5DD0006A1ED4 /* cmd_bgm.c in Sources */,
 				26A1783E25EE5DD0006A1ED4 /* wave.c in Sources */,
 				2646C361284C635D00DF86E1 /* cmd_skip.c in Sources */,
@@ -622,7 +656,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.11.9;
+				MARKETING_VERSION = 2.11.10;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -667,7 +701,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.11.9;
+				MARKETING_VERSION = 2.11.10;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -824,7 +858,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.11.9;
+				MARKETING_VERSION = 2.11.10;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -868,7 +902,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.11.9;
+				MARKETING_VERSION = 2.11.10;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
