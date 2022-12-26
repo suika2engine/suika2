@@ -277,10 +277,8 @@ static bool init(int argc, char *argv[])
 		return false;
 
 	/* ALSAの使用を開始する */
-	if (!init_asound()) {
-		log_error("Can't initialize sound.\n");
-		return false;
-	}
+	if (!init_asound())
+		log_warn("Can't initialize sound.\n");
 
 	/* ディスプレイをオープンする */
 	if (!open_display()) {

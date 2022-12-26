@@ -56,6 +56,11 @@
 		26B385E426D134EE000A7A1C /* cmd_bgm.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385BC26D134EE000A7A1C /* cmd_bgm.c */; };
 		26B385E626D13511000A7A1C /* data01.arc in Resources */ = {isa = PBXBuildFile; fileRef = 26B385E526D13510000A7A1C /* data01.arc */; };
 		26B5E727285F561200450A2B /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26B5E726285F561200450A2B /* Launch Screen.storyboard */; };
+		26C93FD1295958D3007D092D /* wms_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCA295958D3007D092D /* wms_impl.c */; };
+		26C93FD2295958D3007D092D /* wms_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCB295958D3007D092D /* wms_core.c */; };
+		26C93FD3295958D3007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCC295958D3007D092D /* wms_parser.tab.c */; };
+		26C93FD4295958D3007D092D /* cmd_wms.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCE295958D3007D092D /* cmd_wms.c */; };
+		26C93FD5295958D3007D092D /* wms_lexer.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FD0295958D3007D092D /* wms_lexer.yy.c */; };
 		26D910C12914C8D700876016 /* cmd_gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D910BF2914C8D700876016 /* cmd_gui.c */; };
 		26D910C22914C8D700876016 /* gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D910C02914C8D700876016 /* gui.c */; };
 /* End PBXBuildFile section */
@@ -137,6 +142,14 @@
 		26B385BC26D134EE000A7A1C /* cmd_bgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_bgm.c; path = ../../src/cmd_bgm.c; sourceTree = "<group>"; };
 		26B385E526D13510000A7A1C /* data01.arc */ = {isa = PBXFileReference; lastKnownFileType = file; path = data01.arc; sourceTree = "<group>"; };
 		26B5E726285F561200450A2B /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		26C93FC9295958D3007D092D /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../src/wms_core.h; sourceTree = "<group>"; };
+		26C93FCA295958D3007D092D /* wms_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_impl.c; path = ../../src/wms_impl.c; sourceTree = "<group>"; };
+		26C93FCB295958D3007D092D /* wms_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_core.c; path = ../../src/wms_core.c; sourceTree = "<group>"; };
+		26C93FCC295958D3007D092D /* wms_parser.tab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_parser.tab.c; path = ../../src/wms_parser.tab.c; sourceTree = "<group>"; };
+		26C93FCD295958D3007D092D /* wms_parser.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_parser.tab.h; path = ../../src/wms_parser.tab.h; sourceTree = "<group>"; };
+		26C93FCE295958D3007D092D /* cmd_wms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_wms.c; path = ../../src/cmd_wms.c; sourceTree = "<group>"; };
+		26C93FCF295958D3007D092D /* wms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms.h; path = ../../src/wms.h; sourceTree = "<group>"; };
+		26C93FD0295958D3007D092D /* wms_lexer.yy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_lexer.yy.c; path = ../../src/wms_lexer.yy.c; sourceTree = "<group>"; };
 		26D910BE2914C8D700876016 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../../src/gui.h; sourceTree = "<group>"; };
 		26D910BF2914C8D700876016 /* cmd_gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_gui.c; path = ../../src/cmd_gui.c; sourceTree = "<group>"; };
 		26D910C02914C8D700876016 /* gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gui.c; path = ../../src/gui.c; sourceTree = "<group>"; };
@@ -213,6 +226,7 @@
 				26B231B7285F454B0058D377 /* cmd_video.c */,
 				26B3859526D134EE000A7A1C /* cmd_vol.c */,
 				26B385A126D134EE000A7A1C /* cmd_wait.c */,
+				26C93FCE295958D3007D092D /* cmd_wms.c */,
 				26B3858226D134EE000A7A1C /* conf.c */,
 				26B3859C26D134EE000A7A1C /* conf.h */,
 				26B3859826D134EE000A7A1C /* drawglyph.h */,
@@ -258,6 +272,13 @@
 				26B3859A26D134EE000A7A1C /* vars.h */,
 				26B385A226D134EE000A7A1C /* wave.c */,
 				26B3859F26D134EE000A7A1C /* wave.h */,
+				26C93FCF295958D3007D092D /* wms.h */,
+				26C93FCB295958D3007D092D /* wms_core.c */,
+				26C93FC9295958D3007D092D /* wms_core.h */,
+				26C93FCA295958D3007D092D /* wms_impl.c */,
+				26C93FD0295958D3007D092D /* wms_lexer.yy.c */,
+				26C93FCC295958D3007D092D /* wms_parser.tab.c */,
+				26C93FCD295958D3007D092D /* wms_parser.tab.h */,
 			);
 			name = common;
 			sourceTree = "<group>";
@@ -341,6 +362,7 @@
 				26B385CC26D134EE000A7A1C /* file.c in Sources */,
 				260C732128730C9E0057B37E /* glrender.c in Sources */,
 				26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */,
+				26C93FD5295958D3007D092D /* wms_lexer.yy.c in Sources */,
 				26B385BE26D134EE000A7A1C /* cmd_cha.c in Sources */,
 				26B385CF26D134EE000A7A1C /* cmd_se.c in Sources */,
 				26B385C426D134EE000A7A1C /* cmd_return.c in Sources */,
@@ -367,13 +389,17 @@
 				26B231BA285F454B0058D377 /* cmd_skip.c in Sources */,
 				26B385D826D134EE000A7A1C /* script.c in Sources */,
 				26B385BD26D134EE000A7A1C /* cmd_chs.c in Sources */,
+				26C93FD1295958D3007D092D /* wms_impl.c in Sources */,
 				260C732028730C9E0057B37E /* cmd_chapter.c in Sources */,
 				26B385C626D134EE000A7A1C /* log.c in Sources */,
 				26B385D526D134EE000A7A1C /* event.c in Sources */,
+				26C93FD4295958D3007D092D /* cmd_wms.c in Sources */,
 				26B385D926D134EE000A7A1C /* cmd_load.c in Sources */,
 				26B385C926D134EE000A7A1C /* cmd_click.c in Sources */,
 				26B385E226D134EE000A7A1C /* cmd_if.c in Sources */,
 				26B231B9285F454B0058D377 /* cmd_video.c in Sources */,
+				26C93FD3295958D3007D092D /* wms_parser.tab.c in Sources */,
+				26C93FD2295958D3007D092D /* wms_core.c in Sources */,
 				26B385D726D134EE000A7A1C /* cmd_shake.c in Sources */,
 				26B385D626D134EE000A7A1C /* cmd_bg.c in Sources */,
 				26B385C726D134EE000A7A1C /* cmd_gosub.c in Sources */,

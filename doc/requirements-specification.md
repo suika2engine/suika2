@@ -71,6 +71,7 @@ Revision: 0.4
     - [Call a Procedure (`@gosub`)](#call-a-procedure-gosub)
     - [Return From a Procedure (`@return`)](#return-from-a-procedure-return)
     - [Multilingualization Prefix](#multilingualization-prefix)
+    - [Calling an Advanced Script](#calling-an-advanced-script)
 - [Variables](#variables)
     - [Local Variables](#local-variables)
     - [Global Variables](#local-variables)
@@ -191,6 +192,17 @@ Revision: 0.4
     - [Image File Formats](#image-file-formats)
     - [Audio File Format](#audio-file-format)
     - [Video File Formats](#video-file-formats)
+- [Advanced Script](#advanced-script)
+    - [Syntax and Usage](#syntax-and-usage)
+        - [Defining and Calling Functions](#defining-and-calling-functions)
+        - [Types and Variables](#types-and-variables)
+        - [Loops](#loops)
+        - [Branches](#branches)
+        - [Arrays](#arrays)
+        - [Conversions](#conversions)
+    - [Calling Suika2 Engine](#calling-suika2-engine)
+        - [Getting a Variable](#getting-a-variable)
+        - [Setting a Variable](#setting-a-variable)
 - [Non-functional Requirements](#non-functional-requirements)
     - [Performance Requirements](#performance-requirements)
         - [Native Application](#native-application)
@@ -1287,6 +1299,22 @@ To use this feature, a script line must be started with a plus sign.
 This is not exactly a command, but it is a prefix to a command.
 
 See also ["International Mode"](#international-mode) and ["Language Mapping"](#language-mapping).
+
+## Calling an Advanced Script
+
+This feature executes an advanced script called `WMS`.
+The command that accomplishes this feature is `@wms`.
+
+WMS files need to be in the [`wms`](#wms-folder) folder.
+
+For further details, see the ["Advanced Script](#advanced-script) section.
+
+### Usage
+
+The following script executes an advanced script named `sample.scr` in the `wms` folder.
+```
+@script sample.scr
+```
 
 ***
 
@@ -2574,6 +2602,258 @@ On Linux, any format supported by Gstreamer will work.
 Game developers must instruct end users to install the neccesary Gstreamer plugin.
 
 In the future, there are plans to move to `.mp4` with H.264 and AAC on all platforms.
+
+***
+
+# Advanced Script
+
+A script stored in the `txt` folder is called `Suika2 Script`,
+which is simple script for novelists,
+consisting of text and commands.
+
+On the other hand, a script stored in the `wms` folder is called `WMS`,
+which is script for more advanced programming.
+
+WMS stands for `Watermelon Script`.
+
+## Syntax and Usage
+
+This section describes the grammar of WMS.
+
+### Defining and Calling Functions
+
+A program starts from `main()` function.
+```
+func main() {
+    // This is a comment.
+    print("Hello, world!");
+}
+```
+
+A function can call other functions.
+```
+func main() {
+    foo(0, 1 2);
+}
+
+func foo(a, b, c) {
+    return a + b + c;
+}
+```
+
+Indirect calling by string variable is allowed.
+```
+func main() {
+    myfunc = "foo";
+    myfunc(0, 1 2);
+}
+
+func foo(a, b, c) {
+    return a + b + c;
+}
+
+func myfunc(a, b, c) {
+    // This function will not be called because foo() will be called in main().
+}
+```
+
+### Types and Variables
+
+A program can handle integer, floating point, string and array type variable/values.
+```
+func main() {
+    // Integer
+    a = 1;
+    if(isint(a)) {
+        print("a is int");
+    }
+
+    // Floating point
+    b = 1.0;
+    if(isfloat(b)) {
+        print("b is float");
+    }
+
+    // String
+    c = "string";
+    if(isstr(c)) {
+        print("c is string");
+    }
+
+    // Array (integer key)
+    d[0] = 0;
+    if(isarray(d)) {
+        print("d is array");
+    }
+
+    // Array (string key)
+    e["abc"] = 0;
+    if(isarray(e)) {
+        print("e is array");
+    }
+
+    // Array of array
+    f["key"] = e;
+}
+```
+
+### Loops
+
+To repeat for a specified times:
+```
+func main() {
+    for(i in 0..9) {
+        print(i);
+    }
+}
+```
+
+To repeat for each value in an array:
+```
+func main() {
+    a[0] = 0;
+    a[1] = 1;
+    a[2] = 2;
+
+    for(v in a) {
+        print(v);
+    }
+}
+```
+
+To repeat for each key-value pair in an array:
+```
+func main() {
+    a["key1"] = 0;
+    a["key2"] = 1;
+    a["key3"] = 2;
+
+    for(k, v in a) {
+        print(k + "=" + v);
+    }
+}
+```
+
+To create a normal `while` loop:
+```
+func main() {
+    a = 10;
+    while (a > 0) {
+        print(a);
+        a = a - 1;
+    }
+}
+```
+
+To use `break` or `continue` in a `for` or `while` loop:
+```
+func main() {
+    for(i in 0..9) {
+        if(i == 2) {
+            continue;
+        }
+        if(i == 7) {
+            break;
+        }
+        print(i);
+    }
+```
+
+### Branches
+
+A program can branch by `if` - `else if` - `else` syntax.
+```
+func main() {
+    a = foo();
+    if(a > 10) {
+        print("a > 10");
+    } else if(a > 5) {
+        print("a > 5");
+    } else {
+        print("else");
+    }
+}
+
+func foo() {
+    return 6;
+}
+```
+
+### Arrays
+
+An array element has a key, and the key must be one of integer, floating point and string.
+Keys of integer, floating point and string can be mixed.
+
+To create an array, assign a value with `[key]` syntax.
+```
+func main() {
+    a[0] = 0;
+    print(a);
+}
+```
+
+To remove an array element, use `remove()`.
+```
+func main() {
+    a[0] = 0;
+    remove(a, 0);
+    print(a);
+}
+```
+
+To get the size of an array, use `size()`.
+```
+func main() {
+    a[0] = 0;
+    print(size(a));
+}
+```
+
+### Conversions
+
+Integer to string:
+```
+s = "" + 123;
+```
+
+Floating point to string:
+```
+s = "" + 1.23;
+```
+
+Integer to floating point:
+```
+f = 0.0 + 123;
+```
+
+String to integer:
+```
+i = 0 + "123";
+```
+
+String to floating point:
+```
+f = 0.0 + "1.23";
+```
+
+## Calling Suika2 Engine
+
+The Suika2 engine provides predefined functions to manipulate the engine.
+These functions has the prefix `s2_` for their names.
+
+### Getting a Variable
+
+`s2_get_variable()` accepts an variable index and returns the value of variable.
+```
+value = s2_get_variable(100);
+```
+
+### Setting a Variable
+
+`s2_set_variable()` accepts an variable index and a value.
+```
+s2_set_variable(100, 1);
+```
 
 ***
 

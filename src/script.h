@@ -68,6 +68,7 @@ enum command_type {
 	COMMAND_CHOOSE,
 	COMMAND_CHAPTER,
 	COMMAND_GUI,
+	COMMAND_WMS,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -530,6 +531,11 @@ enum chapter_command_param {
 enum gui_command_param {
 	GUI_PARAM_FILE = 1,
 	GUI_PARAM_RIGHTCLICKCANCEL,
+};
+
+/* wmsコマンドのパラメータ */
+enum wms_command_param {
+	WMS_PARAM_FILE = 1,
 };
 
 /*

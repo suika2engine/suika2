@@ -321,7 +321,10 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
+	{
+		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_NO_SOUND_DEVICE)));
 		return FALSE;
+	}
 
 	if(!bD3D && !bOpenGL)
 	{
