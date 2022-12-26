@@ -177,6 +177,10 @@ bool play_sound(int n, struct wave *w)
 	assert(n < MIXER_STREAMS);
 	assert(w != NULL);
 
+	/* サウンドデバイスが利用できないとき */
+	if (pcm[n] == NULL)
+		return true;
+
 	/* 再生中であれば停止する */
 	stop_sound(n);
 
@@ -201,6 +205,10 @@ bool play_sound(int n, struct wave *w)
 bool stop_sound(int n)
 {
 	assert(n < MIXER_STREAMS);
+
+	/* サウンドデバイスが利用できないとき */
+	if (pcm[n] == NULL)
+		return true;
 
 	pthread_mutex_lock(&mutex[n]);
 	{
@@ -249,6 +257,10 @@ bool set_sound_volume(int n, float vol)
  */
 bool is_sound_finished(int n)
 {
+	/* サウンドデバイスが利用できないとき */
+	if (pcm[n] == NULL)
+		return true;
+
 	if (finish[n])
 		return true;
 

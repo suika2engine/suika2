@@ -20,6 +20,8 @@ static bool init(void);
 static bool run(void);
 static bool cleanup(void);
 
+bool register_s2_functions(struct wms_runtime *rt);
+
 /*
  * wmsコマンド
  */
@@ -39,7 +41,10 @@ bool wms_command(void)
 	 */
 
 	assert(!is_in_command_repetition());
-	return cleanup();
+	if (!cleanup())
+		return false;
+
+	return true;
 }
 
 static bool init(void)
@@ -72,10 +77,12 @@ static bool init(void)
 	if (rt == NULL) {
 		log_wms_syntax_error(file, wms_get_parse_error_line(),
 				     wms_get_parse_error_column());
-		return 1;
+		return false;
 	}
 
-	/* TODO: ランタイムにFFI関数を登録する */
+	/* ランタイムにFFI関数を登録する */
+	if (!register_s2_functions(rt))
+		return false;
 
 	return true;
 }

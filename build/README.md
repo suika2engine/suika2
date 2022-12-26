@@ -118,8 +118,7 @@ This method will build a Linux binary.
   * `mesa-common-dev`
   * `libgstreamer1.0-dev`
   * `libgstreamer-plugins-base1.0-dev`
-  
-  
+
 * From the terminal, navigate to the `build/linux-x86_64` directory and run the following commands:
   * Run `./build-libs.sh` to build the libraries.
   * Run `make` to build the Suika2 binary.

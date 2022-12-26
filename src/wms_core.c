@@ -91,6 +91,7 @@ static bool put_scalar_value(struct wms_runtime *rt, const char *symbol, struct 
 static bool put_array_elem_value(struct wms_runtime *rt, const char *symbol, struct wms_value index, struct wms_value val);
 static bool put_array_elem_value_helper(struct wms_runtime *rt, struct wms_value array, struct wms_value index, struct wms_value val);
 static bool get_scalar_value(struct wms_runtime *rt, const char *symbol, struct wms_value *val);
+static bool get_scalar_value_pointer(struct wms_runtime *rt, const char *symbol, struct wms_value **val);
 static bool get_array_elem_value(struct wms_runtime *rt, const char *symbol, struct wms_value index, struct wms_value *val);
 static int compare_values(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2);
 static const char *index_to_string(struct wms_runtime *rt, struct wms_value index);
@@ -1106,7 +1107,7 @@ free_ffi_func(
 {
 	assert(ff != NULL);
 
-	if (ff->next)
+	if (ff->next != NULL)
 		free_ffi_func(ff->next);
 	free(ff->name);
 	if (ff->param_list != NULL) {
@@ -2559,6 +2560,28 @@ get_scalar_value(
 }
 
 static bool
+get_scalar_value_pointer(
+	struct wms_runtime *rt,
+	const char *symbol,
+	struct wms_value **val)
+{
+	struct wms_variable *var;
+
+	assert(rt != NULL);
+	assert(rt->frame != NULL);
+
+	var = rt->frame->var_list;
+	while (var != NULL) {
+		if (strcmp(var->name, symbol) == 0) {
+			*val = &var->val;
+			return true;
+		}
+		var = var->next;
+	}
+	return rterror(rt, "Variable %s not found", symbol);
+}
+
+static bool
 get_array_elem_value(
 	struct wms_runtime *rt,
 	const char *symbol,
@@ -3229,12 +3252,11 @@ wms_make_int_var(
 {
 	assert(rt != NULL);
 	assert(symbol != NULL);
-	assert(ret != NULL);
 
 	if (!put_scalar_value(rt, symbol, value_by_int(val)))
 		return false;
 	if (ret != NULL)
-		if (!get_scalar_value(rt, symbol, *ret))
+		if (!get_scalar_value_pointer(rt, symbol, ret))
 			return false;
 	return true;
 }
@@ -3248,12 +3270,11 @@ wms_make_float_var(
 {
 	assert(rt != NULL);
 	assert(symbol != NULL);
-	assert(ret != NULL);
 
 	if (!put_scalar_value(rt, symbol, value_by_float(val)))
 		return false;
 	if (ret != NULL)
-		if (!get_scalar_value(rt, symbol, *ret))
+		if (!get_scalar_value_pointer(rt, symbol, ret))
 			return false;
 	return true;
 }
@@ -3270,14 +3291,13 @@ wms_make_str_var(
 	assert(rt != NULL);
 	assert(symbol != NULL);
 	assert(val != NULL);
-	assert(ret != NULL);
 
 	if (!value_by_str(rt, &v, val))
 		return false;
 	if (!put_scalar_value(rt, symbol, v))
 		return false;
 	if (ret != NULL)
-		if (!get_scalar_value(rt, symbol, *ret))
+		if (!get_scalar_value_pointer(rt, symbol, ret))
 			return false;
 	return true;
 }
