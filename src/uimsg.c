@@ -307,6 +307,32 @@ const wchar_t *get_ui_message(int id)
 			return L"Are you sure you want to reset the settings?";
 		}
 		break;
+	case UIMSG_NO_SOUND_DEVICE:
+		switch (conf_locale) {
+		case LOCALE_EN:
+			return L"No sound output device.";
+		case LOCALE_JA:
+			return L"サウンド出力デバイスがありません。";
+		case LOCALE_ZH:
+			return L"No sound output device.";
+		case LOCALE_TW:
+			return L"No sound output device.";
+		case LOCALE_FR:
+			return L"No sound output device.";
+		case LOCALE_RU:
+			return L"No sound output device.";
+		case LOCALE_DE:
+			return L"No sound output device.";
+		case LOCALE_IT:
+			return L"No sound output device.";
+		case LOCALE_ES:
+			return L"No sound output device.";
+		case LOCALE_EL:
+			return L"No sound output device.";
+		default:
+			return L"No sound output device.";
+		}
+		break;
 #ifdef WIN
 	case UIMSG_WIN_NO_DIRECT3D:
 		switch (conf_locale) {

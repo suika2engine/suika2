@@ -107,6 +107,7 @@ struct insn_item {
 	{"@choose", COMMAND_CHOOSE, 2, 16},
 	{"@chapter", COMMAND_CHAPTER, 1, 1},
 	{"@gui", COMMAND_GUI, 1, 2},
+	{"@wms", COMMAND_WMS, 1, 1},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))

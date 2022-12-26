@@ -26,8 +26,7 @@ CFLAGS = \
 	-Wall \
 	-Werror \
 	-Wextra \
-	-Wundef \
-	-Wconversion
+	-Wundef
 
 #
 # LDFLAGS

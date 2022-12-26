@@ -174,7 +174,8 @@ static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 		*chpos = CH_RIGHT;
 		if (img != NULL)
 			*xpos = conf_window_width - get_image_width(img);
-	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "c") == 0) {
+	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
+		   strcmp(pos, "c") == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
 		if (img != NULL)

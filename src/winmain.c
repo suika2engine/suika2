@@ -321,7 +321,10 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 	/* DirectSoundを初期化する */
 	if(!DSInitialize(hWndMain))
+	{
+		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_NO_SOUND_DEVICE)));
 		return FALSE;
+	}
 
 	if(!bD3D && !bOpenGL)
 	{
@@ -922,6 +925,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		/* オートリピートの場合を除外する */
 		if((HIWORD(lParam) & 0x4000) != 0)
 			return 0;
+		if((int)wParam == VK_ESCAPE && bFullScreen)
+		{
+			ToggleFullScreen();
+			return 0;
+		}
 		kc = ConvertKeyCode((int)wParam);
 		if(kc != -1)
 			on_event_key_press(kc);

@@ -762,6 +762,31 @@ void log_gui_image_not_loaded(void)
 		log_error(U8("GUI画像が指定されていません。"));
 }
 
+/*
+ * WMSの構文エラーを記録する
+ */
+void log_wms_syntax_error(const char *file, int line, int column)
+{
+	if (is_english_mode()) {
+		log_error("%s: Syntax error at line %d column %d.\n",
+			  file, line, column);
+	} else {
+		log_error(U8("%s: 構文エラー %d行目 %d桁目"),
+			  file, line, column);
+	}
+}
+
+/*
+ * WMSの実行時エラーを記録する
+ */
+void log_wms_runtime_error(const char *file, int line, const char *msg)
+{
+	if (is_english_mode())
+		log_error("%s: Runtime error at line %d: %s.\n", file, line, msg);
+	else
+		log_error(U8("%s: 実行エラー %d行目: %s"), file, line, msg);
+}
+
 #ifdef USE_DEBUGGER
 /*
  * コマンドのアップデートに失敗した際のエラーを記録する

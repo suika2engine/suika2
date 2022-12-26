@@ -7,7 +7,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-22.04"
     permissions:
       actions: read
       contents: read
@@ -29,10 +29,23 @@ jobs:
 
     - name: Build Suika2 on Linux
       run: |
-        sudo apt update
-        sudo apt-get install -y build-essential libasound2-dev libx11-dev libxpm-dev mesa-common-dev
+        sudo apt-get update
+        echo Installing build-essential...
+        sudo apt-get install -y build-essential
+        echo Installing libasound2-dev...
+        sudo apt-get install -y libasound2-dev
+        echo Installing libx11-dev...
+        sudo apt-get install -y libx11-dev
+        echo Installing libxpm-dev
+        sudo apt-get install -y libxpm-dev 
+        echo Installing mesa-common-dev
+        sudo apt-get install -y mesa-common-dev
+        echo Removing libunwind-dev...
         sudo apt-get remove -y libunwind-dev libunwind-14-dev
-        sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+        echo Installing libgstreamer1.0-dev
+        sudo apt-get install -y libgstreamer1.0-dev
+        echo Installing libgstreamer-plugins-base1.0-dev
+        sudo apt-get install -y libgstreamer-plugins-base1.0-dev
         cd build/linux-x86_64
         ./build-libs.sh
         make
