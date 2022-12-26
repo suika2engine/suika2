@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
@@ -26,8 +27,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Display;
 import android.view.Window;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.graphics.Point;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -95,6 +99,8 @@ public class MainActivity extends Activity {
 	/**
 	 * アクティビティが作成されるときに呼ばれます。
 	 */
+	@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -102,7 +108,14 @@ public class MainActivity extends Activity {
 		isFinished = false;
 
 		// フルスクリーンにする
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			getWindow().getDecorView().getWindowInsetsController().setSystemBarsBehavior(
+					WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+		} if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+		} else {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		// ビューを作成してセットする
