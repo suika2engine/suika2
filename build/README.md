@@ -7,12 +7,21 @@ Team for further instructions and assistance.
 If you encounter any problems or unexpected behaviour, please open an issue via GitHub, e-mail `midori@suika2.com`, or join our Discord from the main Suika2 repository.
 
 
+## Generating Windows/Linux/Web/Android binaries by one click
+
+This method will utilise Docker Desktop.
+
+* On Windows 10/11 that have Docker Desktop installed:
+  * Double click `build/docker/build.bat`
+
+To run Suika2, copy `suika.exe` to either the `game-en` or `game-jp` folder.
+
 ## Windows Binary from source
 This method will utilise a cross compiler to build a Windows binary.
 
 * On Ubuntu 22.04 (WSL2 is acceptable), install the following packages:
-	* `build-essential`
-	* `mingw-w64`
+  * `build-essential`
+  * `mingw-w64`
 * Alternatively, on macOS 13, install `Homebrew` and the following package:
   * `mingw-w64`
 * From the terminal, navigate to the `build/mingw` directory and run the following commands:
