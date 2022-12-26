@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 
-
 /*
  * Printer. (for print() intrinsic)
  */
@@ -29,14 +28,4 @@ int wms_printf(const char *s, ...)
 
 	log_warn(buf);
 	return ret;
-}
-
-/*
- * Reader. (for readline() intrinsic)
- */
-int wms_readline(char *buf, size_t len)
-{
-	UNUSED_PARAMETER(buf);
-	UNUSED_PARAMETER(len);
-	return 0;
 }

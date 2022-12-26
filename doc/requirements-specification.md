@@ -201,6 +201,8 @@ Revision: 0.4
         - [Arrays](#arrays)
         - [Conversions](#conversions)
     - [Calling Suika2 Engine](#calling-suika2-engine)
+        - [Getting a Variable](#getting-a-variable)
+        - [Setting a Variable](#setting-a-variable)
 - [Non-functional Requirements](#non-functional-requirements)
     - [Performance Requirements](#performance-requirements)
         - [Native Application](#native-application)
@@ -2837,6 +2839,21 @@ f = 0.0 + "1.23";
 ## Calling Suika2 Engine
 
 The Suika2 engine provides predefined functions to manipulate the engine.
+These functions has the prefix `s2_` for their names.
+
+### Getting a Variable
+
+`s2_get_variable()` accepts an variable index and returns the value of variable.
+```
+value = s2_get_variable(100);
+```
+
+### Setting a Variable
+
+`s2_set_variable()` accepts an variable index and a value.
+```
+s2_set_variable(100, 1);
+```
 
 ***
 

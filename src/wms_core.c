@@ -115,7 +115,6 @@ static bool rterror(struct wms_runtime *rt, const char *msg, ...);
 typedef bool (*intrinsic_func)(struct wms_runtime *rt, struct wms_arg_list *arg_list, struct wms_value *ret);
 
 static bool intrinsic_print(struct wms_runtime *rt, struct wms_arg_list *arg_list, struct wms_value *ret);
-static bool intrinsic_readline(struct wms_runtime *rt, struct wms_arg_list *arg_list, struct wms_value *ret);
 static bool intrinsic_remove(struct wms_runtime *rt, struct wms_arg_list *arg_list, struct wms_value *ret);
 static bool intrinsic_size(struct wms_runtime *rt, struct wms_arg_list *arg_list, struct wms_value *ret);
 static bool intrinsic_isint(struct wms_runtime *rt, struct wms_arg_list *arg_list, struct wms_value *ret);
@@ -128,7 +127,6 @@ struct intrinsic {
 	intrinsic_func func;
 } intrinsic[] = {
 	{"print", intrinsic_print},
-	{"readline", intrinsic_readline},
 	{"remove", intrinsic_remove},
 	{"size", intrinsic_size},
 	{"isint", intrinsic_isint},
@@ -2789,24 +2787,6 @@ intrinsic_print(
 	}
 	wms_printf("\n");
 	return true;
-}
-
-static bool
-intrinsic_readline(
-	struct wms_runtime *rt,
-	struct wms_arg_list *arg_list,
-	struct wms_value *val)
-{
-	char buf[1024];
-
-	(void)arg_list;
-	assert(rt != NULL);
-	assert(val != NULL);
-
-	if (wms_readline(buf, sizeof(buf)) == 0)
-		return false;
-
-	return value_by_str(rt, val, buf);
 }
 
 static void
