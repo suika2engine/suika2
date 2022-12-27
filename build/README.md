@@ -7,11 +7,11 @@ Team for further instructions and assistance.
 If you encounter any problems or unexpected behaviour, please open an issue via GitHub, e-mail `midori@suika2.com`, or join our Discord from the main Suika2 repository.
 
 
-## Generating Windows/Linux/Web/Android binaries by one click
+## Generating Windows/Linux/Web/Android binaries with one click
 
 This method will utilise Docker Desktop.
 
-* On Windows 10/11 that have Docker Desktop installed:
+* On Windows 10/11 with Docker Desktop installed:
   * Double click `build/docker/build.bat`
 
 To run Suika2, copy `suika.exe` to either the `game-en` or `game-jp` folder.
@@ -53,8 +53,8 @@ Building from an Apple Silicon machine should alleviate these errors. However, i
 
 To run Suika2, copy `suika` to either the `game-en` or `game-jp` folder.
 
-## IOS
-This method will utilise Xcode to build an IOS application.
+## iOS
+This method will utilise Xcode to build an iOS application.
 
 * On macOS 13, install Xcode 14.
 * From the terminal, navigate to the `build/ios` directory and run the following command:
@@ -62,8 +62,8 @@ This method will utilise Xcode to build an IOS application.
 * Alternatively, run `./build-libs-sim.sh` to build the libraries for use with simulators on Apple Silicon Mac.
 * From Xcode, open `build/ios` and complete the following steps:
   * Navigate to the `Signing & Capabilities` tab and select `Automatically Manage Signing`.
-  * Connect the IOS device via cable and build the project for the device.
-  * Run the application from your IOS device.
+  * Connect the iOS device via cable and build the project for the device.
+  * Run the application from your iOS device.
   * Replace `build/ios/suika/data01.arc` with your own `data01.arc` file.
 
 Run the application.
