@@ -3077,6 +3077,7 @@ register_ffi_func(
 
 	ff = malloc(sizeof(struct wms_ffi_func));
 	RT_MEM_CHECK(ff);
+	memset(ff, 0, sizeof(struct wms_ffi_func));
 	ff->func = func_ptr;
 	ff->name = strdup(func_name);
 	RT_MEM_CHECK(ff->name);
