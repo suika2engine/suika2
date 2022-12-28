@@ -2884,7 +2884,7 @@ s2_set_config("msgbox.bg.file", "msgbox-bg.png");
 `s2_reflect_msgbox_and_namebox_config()` reflects the configuration changes to the message box and the namebox.
 
 ```
-s2_reflect_msgbox_and_namebox();
+s2_reflect_msgbox_and_namebox_config();
 ```
 
 ***
