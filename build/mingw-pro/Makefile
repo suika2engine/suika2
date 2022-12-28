@@ -101,8 +101,11 @@ OBJS = \
 
 all: suika-pro.exe
 
-suika-pro.exe: $(OBJS)
+suika-pro.exe: libroot $(OBJS)
 	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS)
+
+libroot:
+	./build-libs.sh
 
 #
 # Feature specific source files.
@@ -119,6 +122,9 @@ install: suika-pro.exe
 
 clean:
 	rm -rf *.o *~ suika-pro.exe log.txt sav tmp
+
+erase:
+	rm -rf *.o *~ suika-pro.exe log.txt sav tmp libroot
 
 analyze:
 	$(CC) $(CPPFLAGS) -municode -fanalyzer -finput-charset=utf-8 -c $(SRCS_C) $(SRCS_CC)

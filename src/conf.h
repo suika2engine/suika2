@@ -346,4 +346,7 @@ void cleanup_conf(void);
 /* コンフィグの値を元に各種設定を初期値にする */
 bool apply_initial_values(void);
 
+/* コンフィグを書き換える */
+bool overwrite_config(const char *key, const char *val);
+
 #endif

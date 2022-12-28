@@ -1333,3 +1333,42 @@ static void set_locale_mapping(void)
 	/* otherも指定されていない場合、enにフォールバックする */
 	conf_locale_mapped = "en";
 }
+
+/*
+ * コンフィグを書き換える
+ */
+bool overwrite_config(const char *key, const char *val)
+{
+	char *s;
+	int i;
+
+	for (i = 0; i < (int)RULE_TBL_SIZE; i++) {
+		if (strcmp(rule_tbl[i].key, key) == 0) {
+			switch (rule_tbl[i].type) {
+			case 'i':
+				*(int *)rule_tbl[i].val = atoi(val);
+				break;
+			case 'f':
+				*(float *)rule_tbl[i].val = (float)atof(val);
+				break;
+			case 's':
+				s = strdup(val);
+				if (s == NULL) {
+					log_memory();
+					return false;
+				}
+
+				if (rule_tbl[i].val != NULL)
+					free(*(char **)rule_tbl[i].val);
+
+				*(char **)rule_tbl[i].val = s;
+				break;
+			default:
+				assert(0);
+				break;
+			}
+			return true;
+		}
+	}
+	return false;
+}
