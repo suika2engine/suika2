@@ -3,7 +3,7 @@ SIGNATURE="Developer ID Application: Keiichi TABATA"
 
 all: suika-2.x.x-en.zip suika-2.x.x-jp.zip
 
-suika-2.x.x-en.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ../../fileserver/mac.dmg ../../fileserver/mac-pro.dmg
+suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg
 	rm -rf suika2 suika-2.x.x-en.zip
 	mkdir suika2
 	mkdir suika2/bg
@@ -30,15 +30,15 @@ suika-2.x.x-en.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ..
 	mkdir suika2/txt
 	cp -Rv ../../game-en/txt/*.txt suika2/txt/
 	cp -v ../../COPYING suika2/
-	cp -v ../../readme-en.html suika2/README.html
-	cp -v ../../fileserver/suika.exe suika2/
-	cp -v ../../fileserver/suika-pro.exe suika2/
-	cp -v ../../fileserver/mac.dmg suika2/
-	cp -v ../../fileserver/mac-pro.dmg suika2/
+	cp -v readme-en.html suika2/README.html
+	cp -v ../cloud/suika.exe suika2/
+	cp -v ../cloud/suika-pro.exe suika2/
+	cp -v ../cloud/mac.dmg suika2/
+	cp -v ../cloud/mac-pro.dmg suika2/
 	zip -r suika-2.x.x-en.zip suika2
 	rm -rf suika2
 
-suika-2.x.x-jp.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ../../fileserver/mac.dmg ../../fileserver/mac-pro.dmg
+suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg
 	rm -rf suika2 suika-2.x.x-jp.zip
 	mkdir suika2
 	mkdir suika2/bg
@@ -65,11 +65,11 @@ suika-2.x.x-jp.zip: ../../fileserver/suika.exe ../../fileserver/suika-pro.exe ..
 	mkdir suika2/txt
 	cp -Rv ../../game-jp/txt/*.txt suika2/txt/
 	cp -v ../../COPYING suika2/
-	cp -v ../../readme-jp.html suika2/README.html
-	cp -v ../../fileserver/suika.exe suika2/
-	cp -v ../../fileserver/suika-pro.exe suika2/
-	cp -v ../../fileserver/mac.dmg suika2/
-	cp -v ../../fileserver/mac-pro.dmg suika2/
+	cp -v readme-jp.html suika2/README.html
+	cp -v ../cloud/suika.exe suika2/
+	cp -v ../cloud/suika-pro.exe suika2/
+	cp -v ../cloud/mac.dmg suika2/
+	cp -v ../cloud/mac-pro.dmg suika2/
 	zip -r suika-2.x.x-jp.zip suika2
 	rm -rf suika2
 

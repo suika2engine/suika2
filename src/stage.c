@@ -3725,3 +3725,19 @@ void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 	else
 		*h = bottom2 - *y + 1;
 }
+
+/*
+ * メッセージボックスと名前ボックスを更新する
+ */
+bool update_msgbox_and_namebox(void)
+{
+	/* 名前ボックスをセットアップする */
+	if (!setup_namebox())
+		return false;
+
+	/* メッセージボックスをセットアップする */
+	if (!setup_msgbox())
+		return false;
+
+	return true;
+}

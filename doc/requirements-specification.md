@@ -1307,7 +1307,7 @@ The command that accomplishes this feature is `@wms`.
 
 WMS files need to be in the [`wms`](#wms-folder) folder.
 
-For further details, see the ["Advanced Script](#advanced-script) section.
+For further details, see the [Advanced Script](#advanced-script) section.
 
 ### Usage
 
@@ -2049,6 +2049,11 @@ namebox.hidden=0
 The message box is made up of a background and foreground image.
 The foreground image is used for utilizing an in-box menu such as a hide button.
 
+```
+msgbox.bg.file=msgbox-bg.png
+msgbox.fg.file=msgbox-fg.png
+```
+
 ### Message Box Position
 
 This is the position at which to show the message box image.
@@ -2080,7 +2085,7 @@ Game developers can set the number of characters of text to be displayed per sec
 msgbox.speed=40.0
 ```
 
-### Position of Hide Button
+### Position of the Hide Button
 
 The message box can have a hide button.
 This is optional.
@@ -2839,7 +2844,7 @@ f = 0.0 + "1.23";
 ## Calling Suika2 Engine
 
 The Suika2 engine provides predefined functions to manipulate the engine.
-These functions has the prefix `s2_` for their names.
+These functions have the prefix `s2_` for their names.
 
 ### Getting a Variable
 
@@ -2851,8 +2856,35 @@ value = s2_get_variable(100);
 ### Setting a Variable
 
 `s2_set_variable()` accepts an variable index and a value.
+It changes the value of the variable.
 ```
 s2_set_variable(100, 1);
+```
+
+### Overwriting a Configuration
+
+The following functions overwrites a configuration:
+
+* `s2_set_config(): accepts a string key and a string value.
+
+In some cases, overwriting configurations do not take effect immediately,
+so a WMS code should call `s2_reflect_*_config()` to reflect the changes.
+
+```
+// These will be reflected immediately.
+s2_set_config("msgbox.x", "0");
+s2_set_config("msgbox.speed", "20.0");
+
+// This will not be reflected immediately.
+s2_set_config("msgbox.bg.file", "msgbox-bg.png");
+```
+
+### Updating Message Box and Namebox
+
+`s2_reflect_msgbox_and_namebox_config()` reflects the configuration changes to the message box and the namebox.
+
+```
+s2_reflect_msgbox_and_namebox();
 ```
 
 ***

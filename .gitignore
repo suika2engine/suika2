@@ -7,56 +7,21 @@ suika-pro.app
 suika.exe
 suika-pro.exe
 
-fileserver
-ftplocal
+build/cloud
+build/ftplocal
 
 build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/res/resource.aps
-build/mingw/bg
-build/mingw/bgm
-build/mingw/cg
-build/mingw/ch
-build/mingw/conf
-build/mingw/cv
-build/mingw/font
-build/mingw/gui
-build/mingw/log.txt
-build/mingw/rule
-build/mingw/sav
-build/mingw/se
-build/mingw/txt
 
 build/mingw-pro/*.o
 build/mingw-pro/libroot
 build/mingw-pro/suika-pro.exe
-build/mingw-pro/bg
-build/mingw-pro/bgm
-build/mingw-pro/cg
-build/mingw-pro/ch
-build/mingw-pro/conf
-build/mingw-pro/cv
-build/mingw-pro/font
-build/mingw-pro/log.txt
-build/mingw-pro/sav
-build/mingw-pro/se
-build/mingw-pro/txt
 
 build/mingw-64/*.o
 build/mingw-64/libroot
 build/mingw-64/suika-64.exe
-build/mingw-64/bg
-build/mingw-64/bgm
-build/mingw-64/cg
-build/mingw-64/ch
-build/mingw-64/conf
-build/mingw-64/cv
-build/mingw-64/font
-build/mingw-64/log.txt
-build/mingw-64/sav
-build/mingw-64/se
-build/mingw-64/txt
 
 build/macos/libroot
 build/macos/suika.xcodeproj/project.xcworkspace

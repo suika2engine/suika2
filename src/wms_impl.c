@@ -12,8 +12,10 @@
  * FFI function declaration
  */
 
-bool s2_get_variable(struct wms_runtime *rt);
-bool s2_set_variable(struct wms_runtime *rt);
+static bool s2_get_variable(struct wms_runtime *rt);
+static bool s2_set_variable(struct wms_runtime *rt);
+static bool s2_set_config(struct wms_runtime *rt);
+static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
 
 /*
  * FFI function table 
@@ -22,6 +24,8 @@ bool s2_set_variable(struct wms_runtime *rt);
 struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_get_variable, "s2_get_variable", {"index", NULL}},
 	{s2_set_variable, "s2_set_variable", {"index", "value", NULL}},
+	{s2_set_config, "s2_set_config", {"key", "value", NULL}},
+	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
 };
 
 #define FFI_FUNC_TBL_SIZE (sizeof(ffi_func_tbl) / sizeof(ffi_func_tbl[0]))
@@ -36,10 +40,8 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
  * FFI function definition
  */
 
-/*
- * Get a value of a specified variable.
- */
-bool s2_get_variable(struct wms_runtime *rt)
+/* Get the value of the specified variable. */
+static bool s2_get_variable(struct wms_runtime *rt)
 {
 	struct wms_value *index;
 	int index_i;
@@ -65,7 +67,8 @@ bool s2_get_variable(struct wms_runtime *rt)
 	return true;
 }
 
-bool s2_set_variable(struct wms_runtime *rt)
+/* Set the value of the specified variable. */
+static bool s2_set_variable(struct wms_runtime *rt)
 {
 	struct wms_value *index, *value;
 	int index_i, value_i;
@@ -86,6 +89,45 @@ bool s2_set_variable(struct wms_runtime *rt)
 
 	/* Set the value of the Suika2 variable. */
 	set_variable(index_i, value_i);
+
+	return true;
+}
+
+/* Set the value of the config. */
+static bool s2_set_config(struct wms_runtime *rt)
+{
+	struct wms_value *key, *value;
+	const char *key_s, *value_s;
+
+	assert(rt != NULL);
+
+	/* Get the argument pointers. */
+	if (!wms_get_var_value(rt, "key", &key))
+		return false;
+	if (!wms_get_var_value(rt, "value", &value))
+		return false;
+
+	/* Get the argument values. */
+	if (!wms_get_str_value(rt, key, &key_s))
+		return false;
+	if (!wms_get_str_value(rt, value, &value_s))
+		return false;
+
+	/* Set the value of the Suika2 variable. */
+	if (!overwrite_config(key_s, value_s))
+		return false;
+
+	return true;
+}
+
+/* Reflect the changed configs for the message box and the name box. */
+static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	/* Update. */
+	if (!update_msgbox_and_namebox())
+		return false;
 
 	return true;
 }

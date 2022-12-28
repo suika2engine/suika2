@@ -1,7 +1,7 @@
 <!-- Header -->
 <div align="center">
-	<img src="https://suika2.com/img/AppIcon.png" width="100" height="100"/>
-	<h1>Suika2</h1>
+  <img src="https://suika2.com/img/AppIcon.png" width="100" height="100"/>
+  <h1>Suika2</h1>
 </div>
 
 <!-- Content -->

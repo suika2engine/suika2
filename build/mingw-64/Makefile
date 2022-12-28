@@ -98,8 +98,11 @@ OBJS = \
 
 all: suika-64.exe
 
-suika-64.exe: $(OBJS)
+suika-64.exe: libroot $(OBJS)
 	$(CC) -s -o suika-64.exe $(OBJS) $(LDFLAGS)
+
+libroot:
+	./build-libs.sh
 
 #
 # Feature specific source files.
@@ -115,4 +118,7 @@ install: suika-64.exe
 	cp suika-64.exe ../../
 
 clean:
+	rm -rf *.o *~ suika-64.exe log.txt sav tmp
+
+erase:
 	rm -rf *.o *~ suika-64.exe log.txt sav tmp libroot
