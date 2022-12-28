@@ -29,7 +29,7 @@ suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/mac.dmg .
 	cp -Rv ../../game-en/se/* suika2/se/
 	mkdir suika2/txt
 	cp -Rv ../../game-en/txt/*.txt suika2/txt/
-	cp -v ../../COPYING suika2/
+	cp -v ../../doc/COPYING suika2/
 	cp -v readme-en.html suika2/README.html
 	cp -v ../cloud/suika.exe suika2/
 	cp -v ../cloud/suika-pro.exe suika2/
@@ -64,7 +64,7 @@ suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/mac.dmg .
 	cp -Rv ../../game-jp/se/* suika2/se/
 	mkdir suika2/txt
 	cp -Rv ../../game-jp/txt/*.txt suika2/txt/
-	cp -v ../../COPYING suika2/
+	cp -v ../../doc/COPYING suika2/
 	cp -v readme-jp.html suika2/README.html
 	cp -v ../cloud/suika.exe suika2/
 	cp -v ../cloud/suika-pro.exe suika2/
