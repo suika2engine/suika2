@@ -23,7 +23,7 @@ If you are a user of `Docker`, you can build Windows, Linux, Web, and Android bi
 * On Windows:
   * Double click `build/docker/build.bat`.
 * On other platforms:
-  * From the terminal, run the following command:
+  * From the terminal, navigate to the `build/docker` directory and run the following command:
     * `./build.sh`
 
 ## Windows Binary from source
