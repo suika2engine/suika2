@@ -6,24 +6,25 @@ Team for further instructions and assistance.
 
 If you encounter any problems or unexpected behaviour, please open an issue via GitHub, e-mail `midori@suika2.com`, or join our Discord from the main Suika2 repository.
 
-## Getting Source Code
+## Getting the Source Code
 Firstly, you have to clone the Suika2 repository using `Git`.
-On Windows, you have to use `Git for Windows` in order to retain the symbolic links.
+To retain symbolic link on Windows, you have to use `Git for Windows`.
 
 * On Windows:
-  * Run `Git Bash` as **admin** (If not admin, you can't create the symbolic links)
-  * Type `git clone -c core.symlinks=true git@github.com:suika2engine/suika2.git`
-* On the other platforms:
-  * Run the terminal.
-  * Type `git clone git@github.com:suika2engine/suika2.git`
+  * Run `Git Bash` as **admin** (If you do not use admin, symbolic links cannot be created)
+  * Run `git clone -c core.symlinks=true git@github.com:suika2engine/suika2.git`
+* On other platforms:
+  * From the terminal, run the following command:
+    * Run `git clone git@github.com:suika2engine/suika2.git`
 
 ## Docker Build
-If you are a user of `Docker`, you can build Windows/Linux/Web/Android binaries with just one step.
+If you are a user of `Docker`, you can build Windows, Linux, Web, and Android binaries in a single step.
 
 * On Windows:
   * Double click `build/docker/build.bat`.
-* On the other platforms:
-  * Open the terminal, enter `build/docker`, then type `./build.sh`
+* On other platforms:
+  * From the terminal, run the following command:
+    * `./build.sh`
 
 ## Windows Binary from source
 This method will utilise a cross compiler to build a Windows binary.
