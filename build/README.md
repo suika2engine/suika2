@@ -14,10 +14,10 @@ Check `Enable symbolic links` during the installation.
 
 * On Windows:
   * Run `Git Bash` as **admin** (If you do not use admin, symbolic links cannot be created)
-  * Run `git clone -c core.symlinks=true git@github.com:suika2engine/suika2.git`
+  * Run `git clone -c core.symlinks=true https://github.com/ktabata/suika2.git`
 * On other platforms:
   * From the terminal, run the following command:
-    * Run `git clone git@github.com:suika2engine/suika2.git`
+    * Run `git clone https://github.com/ktabata/suika2.git`
 
 ## Docker Build
 If you are a user of `Docker`, you can build Windows, Linux, Web, and Android binaries in a single step.
