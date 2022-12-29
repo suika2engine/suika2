@@ -759,3 +759,15 @@ Waits for 5 seconds.
 ```
 @wait 5.0
 ```
+
+## @wms
+
+This command executes WMS (Watermelon Script).
+
+WMS script files are stored in the `wms` folder.
+
+### Usage
+Run `hello.txt`.
+```
+@wms hello.txt
+```

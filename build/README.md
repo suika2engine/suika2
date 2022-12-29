@@ -6,15 +6,24 @@ Team for further instructions and assistance.
 
 If you encounter any problems or unexpected behaviour, please open an issue via GitHub, e-mail `midori@suika2.com`, or join our Discord from the main Suika2 repository.
 
+## Getting Source Code
+Firstly, you have to clone the Suika2 repository using `Git`.
+On Windows, you have to use `Git for Windows` in order to retain the symbolic links.
 
-## Generating Windows/Linux/Web/Android binaries with one click
+* On Windows:
+  * Run `Git Bash` as **admin** (If not admin, you can't create the symbolic links)
+  * Type `git clone -c core.symlinks=true git@github.com:suika2engine/suika2.git`
+* On the other platforms:
+  * Run the terminal.
+  * Type `git clone git@github.com:suika2engine/suika2.git`
 
-This method will utilise Docker Desktop.
+## Docker Build
+If you are a user of `Docker`, you can build Windows/Linux/Web/Android binaries with just one step.
 
-* On Windows 10/11 with Docker Desktop installed:
-  * Double click `build/docker/build.bat`
-
-To run Suika2, copy `suika.exe` to either the `game-en` or `game-jp` folder.
+* On Windows:
+  * Double click `build/docker/build.bat`.
+* On the other platforms:
+  * Open the terminal, enter `build/docker`, then type `./build.sh`
 
 ## Windows Binary from source
 This method will utilise a cross compiler to build a Windows binary.
@@ -68,13 +77,18 @@ This method will utilise Xcode to build an iOS application.
 
 Run the application.
 
-## Android
-This method will utilise Android Studio to build an Android application.
+## Android (Docker)
+This method will utilise `Docker Desktop` on Windows 10 and 11.
 
-* Install Android Studio.
-* Navigate to `Tools –> SDK Manager –> SDK Tools` and complete the following steps:
-  * Install `CMake (3.18.1)`
-  * Install `NDK (24.0.8215888)`
+* (First time only:) Install `Docker Desktop`.
+* Double click `build/docker/build.bat`.
+
+To run Suika2, upload `build/docker/suika.apk` on the Web and download it for your Android device.
+
+## Android (Android Studio)
+This method will utilise `Android Studio` to build an Android application.
+
+* Install `Android Studio`.
 * From the terminal, navigate to the `build/android` directory and run the following command:
   * Run `./prepare-libs.sh` to decompress the libraries.
 * Open the Suika2 project from `build/android`.
