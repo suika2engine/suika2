@@ -8,11 +8,11 @@ Modified By:
 
 Organization: the Suika2 Development Team
 
-Updated: 29th October 2022
+Updated: 29th December 2022
 
 Created: 27th October 2022
 
-Revision: 0.4
+Revision: 11.10.0
 
 ***
 
