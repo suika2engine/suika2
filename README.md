@@ -86,6 +86,7 @@ See `COPYING`.
 ## Manuals
 
 * [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source)
+* [ドキュメント](https://suika2.com/wiki-jp/)
 * [Tutorial](https://github.com/suika2engine/suika2/wiki/Tutorial)
 * [Command Reference](https://suika2.com/en/reference.html) (English website version no longer maintained, see the Wiki)
 
