@@ -8,7 +8,9 @@ If you encounter any problems or unexpected behaviour, please open an issue via 
 
 ## Getting the Source Code
 Firstly, you have to clone the Suika2 repository using `Git`.
-To retain symbolic link on Windows, you have to use `Git for Windows`.
+
+To retain symbolic links on Windows, you have to use `Git for Windows`.
+Check `Enable symbolic links` during the installation.
 
 * On Windows:
   * Run `Git Bash` as **admin** (If you do not use admin, symbolic links cannot be created)
