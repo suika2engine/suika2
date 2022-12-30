@@ -54,7 +54,7 @@ jobs:
           cp patch/freetype/freetype.vcxproj freetype/builds/windows/vc2010/freetype.vcxproj
           msbuild freetype/builds/windows/vc2010/freetype.sln /t:build /p:Configuration="Release Static" /p:Platform="Win32"
           echo Suika2
-          msbuild suika.sln /t:build /p:Configuration="Release" /p:Platform="Win32"
+          msbuild suika.sln /t:build /p:Configuration="Release" /p:Platform="x86"
       - name: UploadSuika
         uses: actions/upload-artifact@v2
         with:
