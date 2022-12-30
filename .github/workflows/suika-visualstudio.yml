@@ -5,7 +5,6 @@ on:
 jobs:
   build:
     runs-on: windows-2022
-    name: vs2022
 	steps:
       - uses: actions/checkout@v2
       - name: Build
@@ -51,6 +50,6 @@ jobs:
           mv freetype-2.9.1 freetype
           cp patch/freetype/freetype.sln freetype/builds/windows/vc2010/freetype.sln
           cp patch/freetype/freetype.vcxproj freetype/builds/windows/vc2010/freetype.vcxproj
-          msbuild freetype/builds/windows/vc2010/freetype.sln /t:build /p:Configuration="Release";Platform="Win32"
+          msbuild freetype/builds/windows/vc2010/freetype.sln /t:build /p:Configuration="Release Static";Platform="Win32"
           echo Suika2
           msbuild suika.sln /t:build /p:Configuration="Release";Platform="Win32"
