@@ -16,6 +16,7 @@ echo Building libpng...
 tar -xzf ../libsrc/libpng-1.6.35.tar.gz
 ren libpng-1.6.35 libpng
 copy patch\libpng\projects\vstudio\libpng\libpng.vcxproj libpng\projects\vstudio\libpng\libpng.vcxproj
+copy patch\libpng\projects\vstudio\pnglibconf\pnglibconf.vcxproj libpng\projects\vstudio\pnglibconf\pnglibconf.vcxproj
 copy patch\libpng\projects\vstudio\zlib\zlib.vcxproj libpng\projects\vstudio\zlib\zlib.vcxproj
 copy patch\libpng\projects\vstudio\vstudio.sln libpng\projects\vstudio\vstudio.sln
 copy patch\libpng\projects\vstudio\zlib.props libpng\projects\vstudio\zlib.props
