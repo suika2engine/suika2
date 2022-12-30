@@ -7,6 +7,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v2
+      - uses: uses: microsoft/setup-msbuild@v1
       - name: Build
         run: |
           cd build/vs
