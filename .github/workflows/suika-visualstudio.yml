@@ -1,0 +1,55 @@
+name: suika-visualstudio
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: windows-2022
+    name: vs2022
+	steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          cd build/vs
+          echo zlib
+          tar xzf ../libsrc/zlib-1.2.11.tar.gz
+          mv zlib-1.2.11 zlib
+          echo libpng
+          tar xzf ../libsrc/libpng-1.6.35.tar.gz
+          mv libpng-1.6.35 libpng
+          cp patch/libpng/projects/vstudio/libpng/libpng.vcxproj libpng/projects/vstudio/libpng/libpng.vcxproj
+          cp patch/libpng/projects/vstudio/zlib/zlib.vcxproj libpng/projects/vstudio/zlib/zlib.vcxproj
+          cp patch/libpng/projects/vstudio/vstudio.sln libpng/projects/vstudio/vstudio.sln
+          cp patch/libpng/projects/vstudio/zlib.props libpng/projects/vstudio/zlib.props
+          msbuild libpng/projects/vstudio/vstudio.sln /t:build /p:Configuration="Release Library";Platform="Win32"
+          echo jpeg
+          tar xzf ../libsrc/jpegsrc.v9e.tar.gz
+          mv jpeg-9e jpeg
+          cd jpeg
+          nmake /f makefile.vs setupcopy-v16
+          cd ..
+          cp patch/jpeg/jpeg.sln jpeg/jpeg.sln
+          cp patch/jpeg/jpeg.vcxproj jpeg/jpeg.vcxproj
+          msbuild jpeg/jpeg.sln /t:build /p:Configuration="Release";Platform="Win32"
+          echo libogg
+          tar xzf ../libsrc/libogg-1.3.3.tar.gz
+          mv libogg-1.3.3 libogg
+          cp patch/libogg/libogg_static.sln libogg/win32/VS2015/libogg_static.sln
+          cp patch/libogg/libogg_static.vcxproj libogg/win32/VS2015/libogg_static.vcxproj
+          msbuild libogg/win32/VS2015/libogg_static.sln /t:build /p:Configuration="Release";Platform="Win32"
+          echo libvorbis
+          tar xzf ../libsrc/libvorbis-1.3.6.tar.gz
+          mv libvorbis-1.3.6 libvorbis
+          cp patch/libvorbis/vorbis_static.sln libvorbis/win32/VS2010/vorbis_static.sln
+          cp patch/libvorbis/libvorbis_static.vcxproj libvorbis/win32/VS2010/libvorbis/libvorbis_static.vcxproj
+          cp patch/libvorbis/libvorbisfile_static.vcxproj libvorbis/win32/VS2010/libvorbisfile/libvorbisfile_static.vcxproj
+          msbuild libvorbis/win32/VS2010/vorbis_static.sln /t:build /p:Configuration="Release";Platform="Win32"
+          echo freetype
+          echo Building freetype...
+          tar -xzf ../libsrc/freetype-2.9.1.tar.gz
+          mv freetype-2.9.1 freetype
+          cp patch/freetype/freetype.sln freetype/builds/windows/vc2010/freetype.sln
+          cp patch/freetype/freetype.vcxproj freetype/builds/windows/vc2010/freetype.vcxproj
+          msbuild freetype/builds/windows/vc2010/freetype.sln /t:build /p:Configuration="Release";Platform="Win32"
+          echo Suika2
+          msbuild suika.sln /t:build /p:Configuration="Release";Platform="Win32"
