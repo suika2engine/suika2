@@ -52,4 +52,4 @@ tar -xzf ../libsrc/freetype-2.9.1.tar.gz
 ren freetype-2.9.1 freetype
 copy patch\freetype\freetype.sln freetype\builds\windows\vc2010\freetype.sln
 copy patch\freetype\freetype.vcxproj freetype\builds\windows\vc2010\freetype.vcxproj
-msbuild freetype\builds\windows\vc2010\freetype.sln /t:build /p:Configuration="Release";Platform="Win32"
+msbuild freetype\builds\windows\vc2010\freetype.sln /t:build /p:Configuration="Release Static";Platform="Win32"

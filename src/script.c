@@ -30,10 +30,6 @@
  *  - 2022/10/19 ローケルに対応
  */
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "suika.h"
 
 /* 1行の読み込みサイズ */

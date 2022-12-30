@@ -10,10 +10,6 @@
  *  - 2016/06/28 作成
  */
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "suika.h"
 
 #ifdef WIN
