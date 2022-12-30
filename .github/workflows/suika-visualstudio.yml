@@ -18,6 +18,7 @@ jobs:
           tar xzf ../libsrc/libpng-1.6.35.tar.gz
           mv libpng-1.6.35 libpng
           cp patch/libpng/projects/vstudio/libpng/libpng.vcxproj libpng/projects/vstudio/libpng/libpng.vcxproj
+          cp patch/libpng/projects/vstudio/pnglibconf/pnglibconf.vcxproj libpng/projects/vstudio/pnglibconf/pnglibconf.vcxproj
           cp patch/libpng/projects/vstudio/zlib/zlib.vcxproj libpng/projects/vstudio/zlib/zlib.vcxproj
           cp patch/libpng/projects/vstudio/vstudio.sln libpng/projects/vstudio/vstudio.sln
           cp patch/libpng/projects/vstudio/zlib.props libpng/projects/vstudio/zlib.props
