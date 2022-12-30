@@ -38,7 +38,7 @@ jobs:
           mv libogg-1.3.3 libogg
           cp patch/libogg/libogg_static.sln libogg/win32/VS2015/libogg_static.sln
           cp patch/libogg/libogg_static.vcxproj libogg/win32/VS2015/libogg_static.vcxproj
-          msbuild libogg/win32/VS2015/libogg_static.sln /t:build /p:Configuration="Release";Platform="Win32"
+          msbuild libogg/win32/VS2015/libogg_static.sln /t:build /p:Configuration="Release" /p:Platform="Win32"
           echo libvorbis
           tar xzf ../libsrc/libvorbis-1.3.6.tar.gz
           mv libvorbis-1.3.6 libvorbis
@@ -58,7 +58,7 @@ jobs:
       - name: UploadSuika
         uses: actions/upload-artifact@v2
         with:
-          name: suika.exe
+          name: suika-vs
           path: |
             build/vs/Release/suika.exe
             build/vs/Release/suika-pro.exe
