@@ -12,10 +12,6 @@
  *  - 2022/07/27 作成
  */
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "suika.h"
 
 /* ボタンの最大数 */

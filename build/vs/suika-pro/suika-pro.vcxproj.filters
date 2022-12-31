@@ -132,6 +132,15 @@
     <ClInclude Include="..\..\..\src\uimsg.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\wms.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\wms_core.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\wms_parser.tab.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -306,6 +315,21 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\uimsg.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_wms.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\wms_core.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\wms_impl.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\wms_lexer.yy.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\wms_parser.tab.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>
