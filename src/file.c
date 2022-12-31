@@ -225,7 +225,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	/* 次にパッケージ上のファイルエントリを探す(TODO: sort and search) */
 	snprintf(entry_name, FILE_NAME_SIZE, "%s/%s", dir, file);
 	for (i = 0; i < entry_count; i++) {
-		if (strcmp(entry[i].name, entry_name) == 0)
+		if (strcasecmp(entry[i].name, entry_name) == 0)
 			break;
 	}
 	if (i == entry_count) {
