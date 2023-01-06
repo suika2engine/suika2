@@ -3,6 +3,10 @@ Suika2 Command Reference
 
 ## @bg
 
+```
+@bg <file> (duration) (effect)
+```
+
 This command changes the background image.
 After changing the background image,
 all character images vanish from the stage.
@@ -88,7 +92,19 @@ You can specify the following effects:
 
 Effect type `mask` was removed. Please use `rule:rule-mask.png` instead.
 
+### Parameters
+
+`@bg` can be written with parameter names:
+
+```
+@bg file=001.png duration=1.0 effect=normal
+```
+
 ## @bgm
+
+```
+@bgm <file>
+```
 
 This command plays BGM.
 BGM files need to be stored in the `bgm` folder.
@@ -120,7 +136,19 @@ Fade-out BGM in 2 seconds.
 @bgm stop
 ```
 
+### Parameters
+
+`@bgm` can be written with parameter names:
+
+```
+@bgm file=001.ogg
+```
+
 ## @ch
+
+```
+@ch <position> <file> (duration) (effect) (right-offset) (down-offset) (alpha)
+```
 
 This command changes the character.
 
@@ -181,7 +209,19 @@ You can also specify `show` which is equivalent to `255` or `hide` which is `0`.
 @ch c sample.png 1.0 n 0 0 show
 ```
 
+### Parameters
+
+`@ch` can be written with parameter names.
+
+```
+@ch position=center file=001.png duration=1.0 effect=normal right=0 down=0 alpha=255
+```
+
 ## @cha
+
+```
+@cha <position> <duration> <acceleration> <x-offset> <y-offset> <alpha>
+```
 
 This command moves a character image.
 Refer to `@ch` section for details on how to specify character position and alpha value.
@@ -211,7 +251,19 @@ Before `@cha`, loads a character image outside the screen, then moves it into th
 @cha right 2.0 move -600 0 show
 ```
 
+### Parameters
+
+`@cha` can be written with parameter names.
+
+```
+@cha position=center duration=1.0 acceleration=normal x=100 y=100 alpha=255
+```
+
 ## @chapter
+
+```
+@chapter <title>
+```
 
 This command sets the chapter name.
 
@@ -222,7 +274,19 @@ The name of the chapter is reflected in the window title and saved data items.
 @chapter "Chapter 1"
 ```
 
+### Parameters
+
+`@chapter` can be written with a parameter name.
+
+```
+@chapter titile="Chapter 1"
+```
+
 ## @choose
+
+```
+@choose <destination1> <option-text1> (destination2) (option-text2) (destination3) (option-text3) (destination4) (option-text4) (destination5) (option-text5) (destination6) (option-text6) (destination7) (option-text7) (destination8) (option-text8)
+```
 
 This command shows options and jumps to the specified label.
 You can create up to eight options.
@@ -241,7 +305,19 @@ Good evening.
 :end
 ```
 
+### Parameters
+
+`@choose` can be written with parameter names.
+
+```
+@choose destination1=LABEL1 option1="I like cars." destination2=LABEL2 option2="I like trains." destination3=LABEL3 option3="I like bicycles." destination4=LABEL4 option4="I like boats." destination5=LABEL5 option5="I like Shinkansen." destination6=LABEL6 option6="I like helicopters." destination7=LABEL7 option7="I like buses." destination8=LABEL8 option8="I like walking."
+```
+
 ## @chs
+
+```
+@chs <center-file> <right-file> <left-file> <back-file> (duration) (background-file) (effect)
+```
 
 This command changes the characters at once.
 In addition, it changes background at the same time.
@@ -275,7 +351,19 @@ Uses curtain effect.
 @chs center.png stay stay stay 1.0 background.png curtain
 ```
 
+### Parameters
+
+`@chs` can be written with parameter names.
+
+```
+@chs center=001.png right=002.png left=003.png back=004.png duration=1.0 background=005.png effect=normal
+```
+
 ## @click
+
+```
+@click
+```
 
 This command instructs Suika2 to wait for a click before continuing.
 While waiting for a click, the message box is hidden.
@@ -286,6 +374,10 @@ While waiting for a click, the message box is hidden.
 ```
 
 ## @gosub
+
+```
+@gosub <label>
+```
 
 This command jumps to the specified subroutine. Use `@return` to return.
 
@@ -300,6 +392,10 @@ Describe the process here.
 ```
 
 ## @goto
+
+```
+@goto <label>
+```
 
 This command jumps to a label.
 Use `@goto` to make or break a loop.
@@ -324,7 +420,19 @@ Shows save screen.
 @goto $SAVE
 ```
 
+### Parameters
+
+`@goto` can be written with a parameter name.
+
+```
+@goto destination=LABEL
+```
+
 ## @gui
+
+```
+@gui <file> (cancel)
+```
 
 This command shows GUI (graphical user interface).
 GUI is a replacement of `@menu` and `@retrospect`.
@@ -346,7 +454,19 @@ Allows right click cancel.
 @gui menu.txt cancel
 ```
 
+### Parameters
+
+`@gui` can be written with a parameter name.
+
+```
+@gui file=001.txt cancel
+```
+
 ## @if
+
+```
+@if <variable> <operator> <value> <label>
+```
 
 This command jumps to the specified label if the specified condition is true.
 
@@ -375,6 +495,10 @@ Variable 1 is not 1.
 
 ## Label
 
+```
+:LABEL_NAME
+```
+
 This creates a label, which can be used as a jump target.
 They are typically used with the `@choose`, `@goto`, `@if` and `@menu` commands.
 
@@ -387,6 +511,10 @@ Show some messages.
 
 ## @load
 
+```
+@load <file>
+```
+
 This command jumps to another script.
 Script files need to be in the `txt` folder.
 
@@ -396,7 +524,19 @@ Jumps to the script file `001.txt`.
 @load 001.txt
 ```
 
-## @menu
+### Parameters
+
+`@load` can be written with a parameter name.
+
+```
+@load file=001.txt
+```
+
+## @menu (deprecated)
+
+```
+@menu
+```
 
 This command displays a menu using two images.
 `@menu` can create up to 16 buttons.
@@ -404,8 +544,6 @@ This command displays a menu using two images.
 Basically, the first image is displayed by default,
 with the second image being substituted when a button
 is hovered over.
-
-See the demo game for a helpful example!
 
 NB: Menus cannot be canceled using right click.
 
@@ -435,14 +573,22 @@ Prints text to the message box.
 Hello, world!
 ```
 
-## @news
+## @news (secret)
+
+```
+@news ...(too long)...
+```
 
 This command is a variant of `@switch`. It shows the first four options
 on the north, east, west and south areas of the screen.
 
 Parent options are hidden when `*` is specified.
 
-## @retrospect
+## @retrospect (deprecated)
+
+```
+@retrospect ...(too long)...
+```
 
 This command executes "event image catalog mode".
 You could use it, for example, to display the CG artwork 
@@ -479,6 +625,10 @@ Canceled.
 
 ## @return
 
+```
+@return
+```
+
 This is used to return from subroutines.
 
 ### Usage
@@ -491,6 +641,10 @@ Describe the process here.
 ```
 
 ## @se
+
+```
+@se <file> (loop)
+```
 
 This command plays sound effects.
 Sound effect files need to be in the `se` folder.
@@ -520,9 +674,21 @@ Plays a sound effect file on voice track to check voice volume without text mess
 @se click.ogg voice
 ```
 
-## @select
+### Parameters
+
+`@se` can be written with a parameter name:
+
+```
+@se file=001.ogg loop
+```
+
+## @select (deprecated)
 
 Note: This command is deprecated. Use `@choose` instead.
+
+```
+@select <label1> <label2> <label3> <text1> <text2> <text3>
+```
 
 This command shows options and jumps to the specified label.
 The number of options is fixed to three.
@@ -570,6 +736,10 @@ Prints a message with the character name and plays a beep.
 
 ## @set
 
+```
+@set <variable> <operator> <value>
+```
+
 This sets a value to a variable.
 
 Local variables are `$0` to `$9999`.
@@ -614,7 +784,11 @@ Adds the value of the variable `$2` to the variable `$1`.
 @set $1 += $2
 ```
 
-## @setsave
+## @setsave (secret)
+
+```
+@setsave <enable/disable>
+```
 
 This command enables or disables the save and load screen which is invoked by right click while waiting for message click or option click.
 When you call `@goto $LOAD` or `@goto $SAVE`, `@setsave enable` is implicitly called.
@@ -633,6 +807,10 @@ Disables the save and load screen.
 
 ## @shake
 
+```
+@shake <direction> <duration> <times> <amplitude>
+```
+
 This command shakes the screen.
 
 ### Usage 1
@@ -649,7 +827,19 @@ Takes 1.0 second to shake the screen 3 times vertically by 100px.
 @shake vertical 1.0 3 100
 ```
 
+### Parameters
+
+`@shake` can be written with parameter names.
+
+```
+@shake direction=horizontal duration=1.0 times=3 amplitude=100
+```
+
 ## @skip
+
+```
+@skip <enable/disable>
+```
 
 This command enables or disables skip of timed commands by user interaction.
 
@@ -675,14 +865,17 @@ Disables skip.
 @skip disable
 ```
 
-## @switch
+## @switch (secret)
 
 Note: This command is not recommended. Use `@choose` instead.
+
+```
+@switch ...(too long)...
+```
 
 This command shows two-level options.
 There are eight parent options,
 and each parent option has eight child options.
-
 
 ### Usage
 Shows two levels of two options, four in total.
@@ -695,6 +888,10 @@ Shows two levels of two options, four in total.
 ```
 
 ## @video
+
+```
+@video <file>
+```
 
 This command plays a video file.
 At the moment, this functionality is enabled on Windows, Mac, Web and Linux only.
@@ -714,11 +911,23 @@ Plays a video file.
 @video sample.avi
 ```
 
+### Parameters
+
+`@video` can be written with a parameter name.
+
+```
+@video file=001.wmv
+```
+
 ## @vol
+
+```
+@vol <track> <volume> (duration)
+```
 
 This command sets the sound volume.
 
-* Sound channels are:
+* Sound tracks are:
     * `bgm` for BGM.
     * `voice` for voice.
     * `se` for sound effects.
@@ -748,7 +957,19 @@ Sets global volume of BGM to 0.5 (this is useful when you create sound config me
 @vol BGM 0.5 0
 ```
 
+### Parameters
+
+`@vol` can be written with parameters names.
+
+```
+@vol track=bgm volume=1.0 second=1.0
+```
+
 ## @wait
+
+```
+@wait <duration>
+```
 
 This command instructs Suika2 to wait for input from the keyboard or mouse before continuing.
 Input from the keyboard or mouse will interrupt `@wait` (thus allowing Suika2 to continue).
@@ -762,7 +983,19 @@ Waits for 5 seconds.
 @wait 5.0
 ```
 
+### Parameters
+
+`@wait` can be written with a parameter name.
+
+```
+@wait duration=1.0
+```
+
 ## @wms
+
+```
+@wms <file>
+```
 
 This command executes WMS (Watermelon Script).
 
@@ -772,4 +1005,12 @@ WMS script files are stored in the `wms` folder.
 Run `hello.txt`.
 ```
 @wms hello.txt
+```
+
+### Parameters
+
+`@wms` can be written with a parameter name.
+
+```
+@wms file=001.txt
 ```

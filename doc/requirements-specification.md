@@ -72,7 +72,7 @@ Revision: 12.0.0
     - [Call a Procedure (`@gosub`)](#call-a-procedure-gosub)
     - [Return From a Procedure (`@return`)](#return-from-a-procedure-return)
     - [Multilingualization Prefix](#multilingualization-prefix)
-    - [Calling an Advanced Script](#calling-an-advanced-script)
+    - [Calling an Advanced Script](#calling-an-advanced-script-wms)
 - [Variables](#variables)
     - [Local Variables](#local-variables)
     - [Global Variables](#local-variables)
@@ -598,7 +598,7 @@ This feature shows a character image.
 The command that accomplishes this feature is `@ch`.
 
 ```
-@ch <position> <file> <duration> <effect> <right-offset> <down-offset> <alpha>
+@ch <position> <file> (duration) (effect) (right-offset) (down-offset) (alpha)
 ```
 
 The `@ch` command changes the character.
@@ -1408,7 +1408,7 @@ This feature moves the script execution position to the specified label.
 The command that accomplishes this feature is `@jump`.
 
 ```
-@jump <label>
+@goto <label>
 ```
 
 Currently, there is no way to jump directly to labels in other scripts.
@@ -1632,7 +1632,7 @@ The following script sets the chapter name.
 
 ### Alias
 
-`@chapter` has a Japanese alias `@章タイトル`.
+`@chapter` has a Japanese alias `@章`.
 
 ```
 @章 タイトル="第一章"
@@ -1698,10 +1698,14 @@ This is not exactly a command, but it is a prefix to a command.
 
 See also ["International Mode"](#international-mode) and ["Language Mapping"](#language-mapping).
 
-## Calling an Advanced Script
+## Calling an Advanced Script (`@wms`)
 
 This feature executes an advanced script called `WMS`.
 The command that accomplishes this feature is `@wms`.
+
+```
+@wms <file>
+```
 
 WMS files need to be in the [`wms`](#wms-folder) folder.
 
@@ -1712,6 +1716,22 @@ For further details, see the [Advanced Script](#advanced-script) section.
 The following script executes an advanced script named `sample.scr` in the `wms` folder.
 ```
 @script sample.scr
+```
+
+### Parameters
+
+`@wms` can be written with a parameter name.
+
+```
+@wms file=001.txt
+```
+
+### Alias
+
+`@wms` has a Japanese alias `@スクリプト`.
+
+```
+@スクリプト ファイル=001.txt
 ```
 
 ***
