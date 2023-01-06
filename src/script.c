@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -28,6 +28,7 @@
  *  - 2022/06/17 @chooseに対応
  *  - 2022/07/29 @guiに対応
  *  - 2022/10/19 ローケルに対応
+ *  - 2023/01/06 日本語コマンド名に対応
  */
 
 #include "suika.h"
@@ -76,34 +77,94 @@ struct insn_item {
 	int min;		/* 最小のパラメータ数 */
 	int max;		/* 最大のパラメータ数 */
 } insn_tbl[] = {
+	/* 背景変更 */
 	{"@bg", COMMAND_BG, 1, 3},
+	{U8("@背景"), COMMAND_BG, 1, 3},
+
+	/* BGM再生 */
 	{"@bgm", COMMAND_BGM, 1, 2},
+	{U8("@音楽"), COMMAND_BGM, 1, 2},
+
+	/* キャラ変更 */
 	{"@ch", COMMAND_CH, 1, 7},
+	{U8("@キャラ"), COMMAND_CH, 1, 7},
+
+	/* クリック待ち */
 	{"@click", COMMAND_CLICK, 0, 1},
+	{U8("@クリック"), COMMAND_CLICK, 0, 1},
+
+	/* 時間指定待ち */
 	{"@wait", COMMAND_WAIT, 1, 1},
+	{U8("@待つ"), COMMAND_WAIT, 1, 1},
+
+	/* ラベルへジャンプ */
 	{"@goto", COMMAND_GOTO, 1, 1},
+	{"U8(@ジャンプ)", COMMAND_GOTO, 1, 1},
+
+	/* シナリオファイルのロード */
 	{"@load", COMMAND_LOAD, 1, 1},
+	{U8("@シナリオ"), COMMAND_LOAD, 1, 1},
+
+	/* ボリューム設定 */
 	{"@vol", COMMAND_VOL, 2, 3},
+	{U8("@ボリューム"), COMMAND_VOL, 2, 3},
+
+	/* 変数設定 */
 	{"@set", COMMAND_SET, 3, 3},
+	{U8("@フラグを立てる"), COMMAND_SET, 3, 3},
+
+	/* 変数分岐 */
 	{"@if", COMMAND_IF, 4, 4},
-	{"@select", COMMAND_SELECT, 6, 6},
+	{U8("@フラグでジャンプ"), COMMAND_IF, 4, 4},
+
+	/* 効果音 */
 	{"@se", COMMAND_SE, 1, 2},
+	{U8("@効果音"), COMMAND_SE, 1, 2},
+
+	/* キャラアニメ */
+	{"@cha", COMMAND_CHA, 6, 6},
+	{U8("@キャラ移動"), COMMAND_CHA, 6, 6},
+
+	/* 画面を揺らす */
+	{"@shake", COMMAND_SHAKE, 4, 4},
+	{U8("@画面を揺らす"), COMMAND_SHAKE, 4, 4},
+
+	/* ステージの一括変更 */
+	{"@chs", COMMAND_CHS, 4, 7},
+	{U8("@場面転換"), COMMAND_CHS, 4, 7},
+
+	/* ビデオ再生 */
+	{"@video", COMMAND_VIDEO, 1, 1},
+	{U8("@ビデオ"), COMMAND_VIDEO, 1, 1},
+
+	/* 選択肢 */
+	{"@choose", COMMAND_CHOOSE, 2, 16},
+	{U8("@選択肢"), COMMAND_CHOOSE, 2, 16},
+
+	/* 章タイトル */
+	{"@chapter", COMMAND_CHAPTER, 1, 1},
+	{U8("@章タイトル"), COMMAND_CHAPTER, 1, 1},
+
+	/* GUI */
+	{"@gui", COMMAND_GUI, 1, 2},
+	{U8("@画像メニュー"), COMMAND_GUI, 1, 2},
+
+	/* WMS */
+	{"@wms", COMMAND_WMS, 1, 1},
+	{U8("@スクリプト"), COMMAND_WMS, 1, 1},
+
+	/* その他 */
+	{"@skip", COMMAND_SKIP, 1, 1},
+	{"@setsave", COMMAND_SETSAVE, 1, 1},
+	{"@gosub", COMMAND_GOSUB, 1, 1},
+	{"@return", COMMAND_RETURN, 0, 0},
+
+	/* deprecated */
+	{"@select", COMMAND_SELECT, 6, 6},
 	{"@menu", COMMAND_MENU, 7, 83},
 	{"@news", COMMAND_NEWS, 9, 136},
 	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
 	{"@switch", COMMAND_SWITCH, 9, 136},
-	{"@gosub", COMMAND_GOSUB, 1, 1},
-	{"@return", COMMAND_RETURN, 0, 0},
-	{"@cha", COMMAND_CHA, 6, 6},
-	{"@shake", COMMAND_SHAKE, 4, 4},
-	{"@setsave", COMMAND_SETSAVE, 1, 1},
-	{"@chs", COMMAND_CHS, 4, 7},
-	{"@video", COMMAND_VIDEO, 1, 1},
-	{"@skip", COMMAND_SKIP, 1, 1},
-	{"@choose", COMMAND_CHOOSE, 2, 16},
-	{"@chapter", COMMAND_CHAPTER, 1, 1},
-	{"@gui", COMMAND_GUI, 1, 2},
-	{"@wms", COMMAND_WMS, 1, 1},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))
@@ -706,7 +767,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 
 	/* コマンドのタイプを取得する */
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
-		if (strcmp(c->param[0], insn_tbl[i].str) == 0) {
+		if (strcasecmp(c->param[0], insn_tbl[i].str) == 0) {
 			c->type = insn_tbl[i].type;
 			min = insn_tbl[i].min;
 			max = insn_tbl[i].max;
