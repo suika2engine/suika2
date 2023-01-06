@@ -697,14 +697,16 @@ Shows two levels of two options, four in total.
 ## @video
 
 This command plays a video file.
-At the moment, this functionality is enabled on Windows, Mac and Linux only.
+At the moment, this functionality is enabled on Windows, Mac, Web and Linux only.
 
 On Windows, please use the `.wmv` video file format.
 On Mac, please use the `.mp4` video file format.
 On Linux, please use the video file format which Gstreamer plugin you chose supports.
+On Web, please use the video file format that the browsers support.
 
 Video files are stored in the `mov` folder.
 The `mov` folder is not stored in `data01.arc` file.
+Note that on the Web platform, video files are stored in the same directory where `data01.arc` exists.
 
 ### Usage
 Plays a video file.

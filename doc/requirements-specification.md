@@ -1214,6 +1214,7 @@ Note that on Linux, the end user must have the Gstreamer plugin which the game d
 
 Video files are stored in the [`mov`](#mov-folder) folder.
 The `mov` folder is not stored in the `data01.arc` file.
+Note that on the Web platform, video files are stored in the same directory where `data01.arc` exists due to the restriction of some distribution sites.
 
 For further details, see the ["File Formats"](#file-formats) section.
 
