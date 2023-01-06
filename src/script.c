@@ -103,7 +103,7 @@ struct insn_item {
 
 	/* ラベルへジャンプ */
 	{"@goto", COMMAND_GOTO, 1, 1},
-	{"U8(@ジャンプ)", COMMAND_GOTO, 1, 1},
+	{U8("@ジャンプ"), COMMAND_GOTO, 1, 1},
 
 	/* シナリオファイルのロード */
 	{"@load", COMMAND_LOAD, 1, 1},
@@ -111,7 +111,7 @@ struct insn_item {
 
 	/* ボリューム設定 */
 	{"@vol", COMMAND_VOL, 2, 3},
-	{U8("@ボリューム"), COMMAND_VOL, 2, 3},
+	{U8("@音量"), COMMAND_VOL, 2, 3},
 
 	/* 変数設定 */
 	{"@set", COMMAND_SET, 3, 3},
@@ -232,7 +232,7 @@ struct param_item {
 	{COMMAND_VOL, VOL_PARAM_VOL, U8("音量=")},
 	{COMMAND_VOL, VOL_PARAM_SPAN, "second="},
 	{COMMAND_VOL, VOL_PARAM_SPAN, U8("秒=")},
-	
+
 	/* @se */
 	{COMMAND_SE, SE_PARAM_FILE, "file="},
 	{COMMAND_SE, SE_PARAM_FILE, U8("ファイル=")},

@@ -683,6 +683,7 @@ For the alpha value specifier, game developers can write `show` as an equivalent
 
 ```
 @キャラ 位置=中央 ファイル=001.png 秒=1.0 エフェクト=標準 右=0 下=0 アルファ=255
+@キャラ 位置=中央 消去
 ```
 
 ## Showing a Message
@@ -818,6 +819,7 @@ The following sample script fades-out the BGM in 2 seconds.
 
 ```
 @音楽 ファイル=001.ogg
+@音楽 停止
 ```
 
 ## Playing Sound Effect (`@se`)
@@ -935,7 +937,7 @@ so the use of this feature is not as common.
 `@vol` has a Japanese alias `@音量`.
 
 ```
-@音量 トラック=bgm ボリューム=1.0 秒=1.0
+@音量 トラック=bgm 音量=1.0 秒=1.0
 ```
 
 ## Showing Options (`@choose`)

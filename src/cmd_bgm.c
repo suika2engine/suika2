@@ -34,7 +34,8 @@ bool bgm_command(void)
 
 	/* 停止の指示でない場合 */
 	w = NULL;
-	if (strcmp(fname, "stop") != 0) {
+	if (strcmp(fname, "stop") != 0 &&
+	    strcmp(fname, U8("停止")) != 0) {
 		/* PCMストリームをオープンする */
 		w = create_wave_from_file(BGM_DIR, fname, loop);
 		if (w == NULL) {

@@ -70,7 +70,8 @@ static bool init(void)
 	alpha_s = get_string_param(CH_PARAM_ALPHA);
 
 	/* イメージが指定された場合 */
-	if (strcmp(fname, "none") != 0) {
+	if (strcmp(fname, "none") != 0 &&
+	    strcmp(fname, U8("消去")) != 0) {
 		/* イメージを読み込む */
 		img = create_image_from_file(CH_DIR, fname);
 		if (img == NULL) {
@@ -179,7 +180,7 @@ static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 		if (img != NULL)
 			*xpos = conf_window_width - get_image_width(img);
 	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
-		   strcmp(pos, "c") == 0 || strcmp(pos, U8("右")) == 0) {
+		   strcmp(pos, "c") == 0 || strcmp(pos, U8("中央")) == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
 		if (img != NULL)
