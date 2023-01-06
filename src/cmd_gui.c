@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2022/07/29 作成
+ *  - 2023/01/06 日本語の指定に対応
  */
 
 #include "suika.h"
@@ -47,15 +48,16 @@ bool gui_command(int *x, int *y, int *w, int *h)
 /* 初期化を行う */
 static bool init(void)
 {
-	const char *file;
+	const char *file, *cancel_s;
 	bool cancel;
 
 	/* GUIファイル名を取得する */
 	file = get_string_param(GUI_PARAM_FILE);
 
 	/* 右クリックキャンセルするか取得する */
-	if (strcmp(get_string_param(GUI_PARAM_RIGHTCLICKCANCEL), "cancel")
-	    == 0)
+	cancel_s = get_string_param(GUI_PARAM_RIGHTCLICKCANCEL);
+	if (strcmp(cancel_s, "cancel") == 0 ||
+	    strcmp(cancel_s, U8("キャンセル許可")) == 0)
 		cancel = true;
 	else
 		cancel = false;

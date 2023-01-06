@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -22,6 +22,7 @@
  *  - 2022/06/17 @chooseに対応
  *  - 2022/07/04 @chapterに対応
  *  - 2022/07/29 @guiに対応
+ *  - 2023/01/06 利用されていないパラメータインデックスを削除
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -451,7 +452,6 @@ enum switch_command_param {
 	SWITCH_PARAM_CHILD8_M8,
 };
 
-
 /* chooseコマンドのパラメータ */
 enum choose_command_param {
 	CHOOSE_PARAM_LABEL1 = 1,
@@ -509,7 +509,6 @@ enum chs_command_param {
 	CHS_PARAM_SPAN,
 	CHS_PARAM_BG,
 	CHS_PARAM_METHOD,
-	CHS_PARAM_TEMPLATE,
 };
 
 /* videoコマンドのパラメータ */

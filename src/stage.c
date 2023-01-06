@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -23,6 +23,7 @@
  *  - 2022-06-29 ルール付き描画に対応, マスクつき描画の削除
  *  - 2022-07-16 システムメニューを追加
  *  - 2022-10-20 キャラ顔絵を追加
+ *  - 2023-01-06 日本語の指定に対応
  */
 
 #include "suika.h"
@@ -2337,7 +2338,8 @@ int get_fade_method(const char *method)
 	    strcmp(method, "n") == 0 ||
 	    strcmp(method, "") == 0 ||
 	    strcmp(method, "mask") == 0 ||
-	    strcmp(method, "m") == 0)
+	    strcmp(method, "m") == 0 ||
+	    strcmp(method, U8("標準")) == 0)
 		return FADE_METHOD_NORMAL;
 
 	/*
@@ -2348,19 +2350,23 @@ int get_fade_method(const char *method)
 	if (strcmp(method, "curtain-right") == 0 ||
 	    strcmp(method, "curtain") == 0 ||
 	    strcmp(method, "cr") == 0 ||
-	    strcmp(method, "c") == 0)
+	    strcmp(method, "c") == 0 ||
+	    strcmp(method, U8("右カーテン")) == 0)
 		return FADE_METHOD_CURTAIN_RIGHT;
 
 	if (strcmp(method, "curtain-left") == 0 ||
-	    strcmp(method, "cl") == 0)
+	    strcmp(method, "cl") == 0 ||
+	    strcmp(method, U8("左カーテン")) == 0)
 		return FADE_METHOD_CURTAIN_LEFT;
 
 	if (strcmp(method, "curtain-up") == 0 ||
-	    strcmp(method, "cu") == 0)
+	    strcmp(method, "cu") == 0 ||
+	    strcmp(method, U8("上カーテン")) == 0)
 		return FADE_METHOD_CURTAIN_UP;
 
 	if (strcmp(method, "curtain-down") == 0 ||
-	    strcmp(method, "cd") == 0)
+	    strcmp(method, "cd") == 0 ||
+	    strcmp(method, U8("下カーテン")) == 0)
 		return FADE_METHOD_CURTAIN_DOWN;
 
 	/*
@@ -2368,19 +2374,24 @@ int get_fade_method(const char *method)
 	 */
 
 	if (strcmp(method, "slide-right") == 0 ||
-	    strcmp(method, "sr") == 0)
+	    strcmp(method, "sr") == 0 ||
+	    strcmp(method, U8("右スライド")) == 0)
 		return FADE_METHOD_SLIDE_RIGHT;
 
 	if (strcmp(method, "slide-left") == 0 ||
-	    strcmp(method, "sl") == 0)
+	    strcmp(method, "sl") == 0 ||
+    	    strcmp(method, U8("左スライド")) == 0)
+
 		return FADE_METHOD_SLIDE_LEFT;
 
 	if (strcmp(method, "slide-up") == 0 ||
-	    strcmp(method, "su") == 0)
+	    strcmp(method, "su") == 0 ||
+	    strcmp(method, U8("上スライド")) == 0)
 		return FADE_METHOD_SLIDE_UP;
 
 	if (strcmp(method, "slide-down") == 0 ||
-	    strcmp(method, "sd") == 0)
+	    strcmp(method, "sd") == 0 ||
+	    strcmp(method, U8("下スライド")) == 0)
 		return FADE_METHOD_SLIDE_DOWN;
 
 	/*
@@ -2388,19 +2399,23 @@ int get_fade_method(const char *method)
 	 */
 
 	if (strcmp(method, "shutter-right") == 0 ||
-	    strcmp(method, "shr") == 0)
+	    strcmp(method, "shr") == 0 ||
+	    strcmp(method, U8("右シャッター")) == 0)
 		return FADE_METHOD_SHUTTER_RIGHT;
 
 	if (strcmp(method, "shutter-left") == 0 ||
-	    strcmp(method, "shl") == 0)
+	    strcmp(method, "shl") == 0 ||
+	    strcmp(method, U8("左シャッター")) == 0)
 		return FADE_METHOD_SHUTTER_LEFT;
 
 	if (strcmp(method, "shutter-up") == 0 ||
-	    strcmp(method, "shu") == 0)
+	    strcmp(method, "shu") == 0 ||
+	    strcmp(method, U8("上シャッター")) == 0)
 		return FADE_METHOD_SHUTTER_UP;
 
 	if (strcmp(method, "shutter-down") == 0 ||
-	    strcmp(method, "shd") == 0)
+	    strcmp(method, "shd") == 0 ||
+	    strcmp(method, U8("下シャッター")) == 0)
 		return FADE_METHOD_SHUTTER_DOWN;
 
 	/*
@@ -2408,11 +2423,13 @@ int get_fade_method(const char *method)
 	 */
 
 	if (strcmp(method, "clockwise") == 0 ||
-	    strcmp(method, "cw") == 0)
+	    strcmp(method, "cw") == 0 ||
+    	    strcmp(method, U8("時計回り")) == 0)
 		return FADE_METHOD_CLOCKWISE;
 
 	if (strcmp(method, "counterclockwise") == 0 ||
-	    strcmp(method, "ccw") == 0)
+	    strcmp(method, "ccw") == 0 ||
+    	    strcmp(method, U8("反時計回り")) == 0)
 		return FADE_METHOD_COUNTERCLOCKWISE;
 
 	/*
