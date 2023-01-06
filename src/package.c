@@ -17,7 +17,7 @@
 #include "suika.h"
 #include "package.h"
 
-/* Encryption Key */
+/* Obfuscation Key */
 #include "key.h"
 
 #ifdef WIN
@@ -323,7 +323,7 @@ static void set_random_seed(uint64_t index)
 {
 	uint64_t i, lsb;
 
-	next_random = ENCRYPTION_KEY;
+	next_random = OBFUSCATION_KEY;
 	for (i = 0; i < index; i++) {
 		next_random ^= 0xafcb8f2ff4fff33fULL;
 		lsb = next_random >> 63;
@@ -338,8 +338,8 @@ char get_next_random(void)
 
 	ret = (char)next_random;
 
-	next_random = (((ENCRYPTION_KEY & 0xff00) * next_random +
-			(ENCRYPTION_KEY & 0xff)) % ENCRYPTION_KEY) ^
+	next_random = (((OBFUSCATION_KEY & 0xff00) * next_random +
+			(OBFUSCATION_KEY & 0xff)) % OBFUSCATION_KEY) ^
 		      0xfcbfaff8f2f4f3f0;
 
 	return ret;
