@@ -33,6 +33,10 @@
 
 #include "suika.h"
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 /* 1行の読み込みサイズ */
 #define LINE_BUF_SIZE	(65536)
 
