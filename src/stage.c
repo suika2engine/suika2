@@ -2559,6 +2559,10 @@ void start_bg_fade(struct image *img)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	if (conf_msgbox_show_on_bg && is_msgbox_visible) {
+		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
+	}
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* フェードイン用のレイヤにイメージをセットする */
@@ -2568,6 +2572,10 @@ void start_bg_fade(struct image *img)
 	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, img, conf_window_width,
 		   conf_window_height, 0, 0, 255, BLEND_NONE);
+	if (conf_msgbox_show_on_bg && is_msgbox_visible) {
+		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+	}
 	unlock_image(layer_image[LAYER_FI]);
 
 	/* 無効になるレイヤのイメージを破棄する */
