@@ -652,9 +652,20 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-	UNUSED_PARAMETER(fname);
+	EM_ASM_({
+		document.getElementById("canvas").style.display = "none";
 
-	/* stub */
+		var v = document.getElementById("video");
+		v.style.display = "block";
+		v.src = Module.UTF8ToString($0, $1);
+		v.load();
+		v.addEventListener('ended', function() {
+			document.getElementById("canvas").style.display = "block";
+			document.getElementById("video").style.display = "none";
+		});
+		v.play();
+	}, fname, strlen(fname));
+
 	return true;
 }
 
@@ -663,7 +674,16 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
-	/* stub */
+	EM_ASM_(
+		var c = document.getElementById("canvas");
+		c.style.display = "block";
+
+		var v = document.getElementById("video");
+		v.style.display = "none";
+		v.pause();
+		v.src = "";
+		v.load();
+	);
 }
 
 /*
@@ -671,8 +691,14 @@ void stop_video(void)
  */
 bool is_video_playing(void)
 {
-	/* stub */
-	return false;
+	int ended;
+
+	ended = EM_ASM_INT(
+		var v = document.getElementById("video");
+		return v.ended;
+	);
+
+	return !ended;
 }
 
 /*

@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -17,6 +17,7 @@
  *  - 2021/07/07 @goto $SAVEのエラーを追加
  *  - 2022/06/14 Suika2 Pro for Creators
  *  - 2022/11/06 UTF-8
+ *  - 2023/01/06 パラメータ名のエラーを追加
  */
 
 /*
@@ -579,6 +580,19 @@ void log_script_final_command(void)
 			  "the end of the script.\n");
 	} else {
 		log_error(U8("このコマンドはスクリプトの末尾に置けません。\n"));
+	}
+}
+
+/*
+ * パラメータ名が一致しないエラーを記録する
+ */
+void log_script_param_mismatch(const char *name)
+{
+	if (is_english_mode()) {
+		log_error("Can't use parameter name \"%s\" here.\n", name);
+	} else {
+		log_error(U8("パラメータ名\"%s\"はこの位置で使えません。\n"),
+			  name);
 	}
 }
 

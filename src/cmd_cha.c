@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2021/06/10 作成
+ *  - 2023/01/06 日本語の位置名に対応
  */
 
 #include "suika.h"
@@ -116,40 +117,48 @@ static bool init(void)
 /* キャラの位置指定を取得する */
 static bool get_position(int *chpos, const char *pos)
 {
-	if (strcmp(pos, "back") == 0 || strcmp(pos, "b") == 0 ) {
-		/* 中央に配置する */
+	if (strcmp(pos, "back") == 0 || strcmp(pos, "b") == 0 ||
+	    strcmp(pos, U8("背面")) == 0) {
+		/* 中央背面に配置する */
 		*chpos = CH_BACK;
-		return true;
-	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0) {
+	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0 ||
+		   strcmp(pos, U8("左")) == 0) {
 		/* 左に配置する */
 		*chpos = CH_LEFT;
-		return true;
-	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0) {
+	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
+		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
-		return true;
-	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "c") == 0) {
+	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
+		   strcmp(pos, "c") == 0 || strcmp(pos, U8("右")) == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
-		return true;
+	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0 ||
+		   strcmp(pos, U8("顔")) == 0) {
+		/* 顔に配置する */
+		*chpos = CH_FACE;
 	} else {
 		/* スクリプト実行エラー */
 		log_script_ch_position(pos);
 		log_script_exec_footer();
 		return false;
 	}
+	return true;
 }
 
 /* 加速を取得する */
 static bool get_accel(const char *accel_s)
 {
-	if (strcmp(accel_s, "move") == 0) {
+	if (strcmp(accel_s, "move") == 0 ||
+	    strcmp(accel_s, U8("なし")) == 0) {
 		accel = CHA_ACCEL_UNIFORM;
 		return true;
-	} else if (strcmp(accel_s, "accel") == 0) {
+	} else if (strcmp(accel_s, "accel") == 0 ||
+		   strcmp(accel_s, U8("あり")) == 0) {
 		accel = CHA_ACCEL_ACCEL;
 		return true;
-	} else if (strcmp(accel_s, "brake") == 0) {
+	} else if (strcmp(accel_s, "brake") == 0 ||
+		   strcmp(accel_s, U8("減速")) == 0) {
 		accel = CHA_ACCEL_DEACCEL;
 		return true;
 	} else {

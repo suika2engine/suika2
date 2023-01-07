@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2021/06/12 作成
+ *  - 2023/01/06 日本語の指定に対応
  */
 
 #include "suika.h"
@@ -99,11 +100,12 @@ static bool init(void)
 /* 移動方法を取得する */
 static bool get_move(const char *move_s)
 {
-	if (strcmp(move_s, "horizontal") == 0 || strcmp(move_s, "h") == 0) {
+	if (strcmp(move_s, "horizontal") == 0 || strcmp(move_s, "h") == 0 ||
+	    strcmp(move_s, U8("横")) == 0) {
 		move = SHAKE_MOVE_HORIZONTAL;
 		return true;
 	} else if (strcmp(move_s, "vertical") == 0 ||
-		   strcmp(move_s, "v") == 0) {
+		   strcmp(move_s, "v") == 0 || strcmp(move_s, U8("縦")) == 0) {
 		move = SHAKE_MOVE_VERTICAL;
 		return true;
 	} else {

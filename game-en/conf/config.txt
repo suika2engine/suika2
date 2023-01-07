@@ -452,6 +452,9 @@ window.title.chapter.disable=0
 # Message box on character change (0:hide, 1:show, optional)
 msgbox.show.on.ch=0
 
+# Message box on background change (0:hide, 1:show, optional)
+msgbox.show.on.bg=0
+
 ###
 ### Release Mode
 ###  - Use this mode when installing games to the "Program Files" path on Windows.

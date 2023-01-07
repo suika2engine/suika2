@@ -12,22 +12,26 @@
 
 #include "suika.h"
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 #ifdef WIN
 #include <fcntl.h>
 #endif
 
-/* Encryption Key */
+/* Obfuscation Key */
 #include "key.h"
 
 static volatile uint64_t key_obfuscated =
-	~((((ENCRYPTION_KEY >> 56) & 0xff) << 0) |
-	  (((ENCRYPTION_KEY >> 48) & 0xff) << 8) |
-	  (((ENCRYPTION_KEY >> 40) & 0xff) << 16) |
-	  (((ENCRYPTION_KEY >> 32) & 0xff) << 24) |
-	  (((ENCRYPTION_KEY >> 24) & 0xff) << 32) |
-	  (((ENCRYPTION_KEY >> 16) & 0xff) << 40) |
-	  (((ENCRYPTION_KEY >> 8)  & 0xff) << 48) |
-	  (((ENCRYPTION_KEY >> 0)  & 0xff) << 56));
+	~((((OBFUSCATION_KEY >> 56) & 0xff) << 0) |
+	  (((OBFUSCATION_KEY >> 48) & 0xff) << 8) |
+	  (((OBFUSCATION_KEY >> 40) & 0xff) << 16) |
+	  (((OBFUSCATION_KEY >> 32) & 0xff) << 24) |
+	  (((OBFUSCATION_KEY >> 24) & 0xff) << 32) |
+	  (((OBFUSCATION_KEY >> 16) & 0xff) << 40) |
+	  (((OBFUSCATION_KEY >> 8)  & 0xff) << 48) |
+	  (((OBFUSCATION_KEY >> 0)  & 0xff) << 56));
 static volatile uint64_t key_reversed;
 static volatile uint64_t *key_ref = &key_reversed;
 
@@ -225,7 +229,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	/* 次にパッケージ上のファイルエントリを探す(TODO: sort and search) */
 	snprintf(entry_name, FILE_NAME_SIZE, "%s/%s", dir, file);
 	for (i = 0; i < entry_count; i++) {
-		if (strcmp(entry[i].name, entry_name) == 0)
+		if (strcasecmp(entry[i].name, entry_name) == 0)
 			break;
 	}
 	if (i == entry_count) {

@@ -1462,7 +1462,9 @@ const char *get_system_locale(void)
 	const char *locale;
 
 	locale = setlocale(LC_ALL, "");
-	if (locale[0] == '\0' || locale[1] == '\0')
+	if (locale == NULL)
+		return "en";
+	else if (locale[0] == '\0' || locale[1] == '\0')
 		return "en";
 	else if (strncmp(locale, "en", 2) == 0)
 		return "en";

@@ -2,13 +2,14 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/09 作成
  *  - 2021/06/10 マスクつき描画の対応
+ *  - 2023/01/06 日本語の位置名に対応
  */
 
 #include "suika.h"
@@ -69,7 +70,8 @@ static bool init(void)
 	alpha_s = get_string_param(CH_PARAM_ALPHA);
 
 	/* イメージが指定された場合 */
-	if (strcmp(fname, "none") != 0) {
+	if (strcmp(fname, "none") != 0 &&
+	    strcmp(fname, U8("消去")) != 0) {
 		/* イメージを読み込む */
 		img = create_image_from_file(CH_DIR, fname);
 		if (img == NULL) {
@@ -160,28 +162,32 @@ static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 {
 	*xpos = 0;
 
-	if (strcmp(pos, "back") == 0 || strcmp(pos, "b") == 0 ) {
-		/* 中央に配置する */
+	if (strcmp(pos, "back") == 0 || strcmp(pos, "b") == 0 ||
+	    strcmp(pos, U8("背面")) == 0) {
+		/* 中央背面に配置する */
 		*chpos = CH_BACK;
 		if (img != NULL)
 			*xpos = (conf_window_width - get_image_width(img)) / 2;
-	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0) {
+	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0 ||
+		   strcmp(pos, U8("左")) == 0) {
 		/* 左に配置する */
 		*chpos = CH_LEFT;
 		*xpos = 0;
-	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0) {
+	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
+		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
 		if (img != NULL)
 			*xpos = conf_window_width - get_image_width(img);
 	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
-		   strcmp(pos, "c") == 0) {
+		   strcmp(pos, "c") == 0 || strcmp(pos, U8("中央")) == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
 		if (img != NULL)
 			*xpos = (conf_window_width - get_image_width(img)) / 2;
-	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0) {
-		/* 左に配置する */
+	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0 ||
+		   strcmp(pos, U8("顔")) == 0) {
+		/* 顔に配置する */
 		*chpos = CH_FACE;
 		*xpos = 0;
 	} else {

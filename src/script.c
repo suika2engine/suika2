@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -28,9 +28,14 @@
  *  - 2022/06/17 @chooseに対応
  *  - 2022/07/29 @guiに対応
  *  - 2022/10/19 ローケルに対応
+ *  - 2023/01/06 日本語コマンド名、パラメータ名指定、カギカッコに対応
  */
 
 #include "suika.h"
+
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
 
 /* 1行の読み込みサイズ */
 #define LINE_BUF_SIZE	(65536)
@@ -76,37 +81,252 @@ struct insn_item {
 	int min;		/* 最小のパラメータ数 */
 	int max;		/* 最大のパラメータ数 */
 } insn_tbl[] = {
+	/* 背景変更 */
 	{"@bg", COMMAND_BG, 1, 3},
+	{U8("@背景"), COMMAND_BG, 1, 3},
+
+	/* BGM再生 */
 	{"@bgm", COMMAND_BGM, 1, 2},
+	{U8("@音楽"), COMMAND_BGM, 1, 2},
+
+	/* キャラ変更 */
 	{"@ch", COMMAND_CH, 1, 7},
+	{U8("@キャラ"), COMMAND_CH, 1, 7},
+
+	/* クリック待ち */
 	{"@click", COMMAND_CLICK, 0, 1},
+	{U8("@クリック"), COMMAND_CLICK, 0, 1},
+
+	/* 時間指定待ち */
 	{"@wait", COMMAND_WAIT, 1, 1},
+	{U8("@時間待ち"), COMMAND_WAIT, 1, 1},
+
+	/* ラベルへジャンプ */
 	{"@goto", COMMAND_GOTO, 1, 1},
+	{U8("@ジャンプ"), COMMAND_GOTO, 1, 1},
+
+	/* シナリオファイルのロード */
 	{"@load", COMMAND_LOAD, 1, 1},
+	{U8("@シナリオ"), COMMAND_LOAD, 1, 1},
+
+	/* ボリューム設定 */
 	{"@vol", COMMAND_VOL, 2, 3},
+	{U8("@音量"), COMMAND_VOL, 2, 3},
+
+	/* 変数設定 */
 	{"@set", COMMAND_SET, 3, 3},
+	{U8("@フラグをセット"), COMMAND_SET, 3, 3},
+
+	/* 変数分岐 */
 	{"@if", COMMAND_IF, 4, 4},
-	{"@select", COMMAND_SELECT, 6, 6},
+	{U8("@フラグでジャンプ"), COMMAND_IF, 4, 4},
+
+	/* 効果音 */
 	{"@se", COMMAND_SE, 1, 2},
+	{U8("@効果音"), COMMAND_SE, 1, 2},
+
+	/* キャラアニメ */
+	{"@cha", COMMAND_CHA, 6, 6},
+	{U8("@キャラ移動"), COMMAND_CHA, 6, 6},
+
+	/* 画面を揺らす */
+	{"@shake", COMMAND_SHAKE, 4, 4},
+	{U8("@振動"), COMMAND_SHAKE, 4, 4},
+
+	/* ステージの一括変更 */
+	{"@chs", COMMAND_CHS, 4, 7},
+	{U8("@場面転換"), COMMAND_CHS, 4, 7},
+
+	/* ビデオ再生 */
+	{"@video", COMMAND_VIDEO, 1, 1},
+	{U8("@動画"), COMMAND_VIDEO, 1, 1},
+
+	/* 選択肢 */
+	{"@choose", COMMAND_CHOOSE, 2, 16},
+	{U8("@選択肢"), COMMAND_CHOOSE, 2, 16},
+
+	/* 章タイトル */
+	{"@chapter", COMMAND_CHAPTER, 1, 1},
+	{U8("@章"), COMMAND_CHAPTER, 1, 1},
+
+	/* GUI */
+	{"@gui", COMMAND_GUI, 1, 2},
+	{U8("@メニュー"), COMMAND_GUI, 1, 2},
+
+	/* WMS */
+	{"@wms", COMMAND_WMS, 1, 1},
+	{U8("@スクリプト"), COMMAND_WMS, 1, 1},
+
+	/* スキップ設定 */
+	{"@skip", COMMAND_SKIP, 1, 1},
+	{"@スキップ", COMMAND_SKIP, 1, 1},
+
+	/* その他 */
+	{"@setsave", COMMAND_SETSAVE, 1, 1},
+	{"@gosub", COMMAND_GOSUB, 1, 1},
+	{"@return", COMMAND_RETURN, 0, 0},
+
+	/* deprecated */
+	{"@select", COMMAND_SELECT, 6, 6},
 	{"@menu", COMMAND_MENU, 7, 83},
 	{"@news", COMMAND_NEWS, 9, 136},
 	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
 	{"@switch", COMMAND_SWITCH, 9, 136},
-	{"@gosub", COMMAND_GOSUB, 1, 1},
-	{"@return", COMMAND_RETURN, 0, 0},
-	{"@cha", COMMAND_CHA, 6, 6},
-	{"@shake", COMMAND_SHAKE, 4, 4},
-	{"@setsave", COMMAND_SETSAVE, 1, 1},
-	{"@chs", COMMAND_CHS, 4, 7},
-	{"@video", COMMAND_VIDEO, 1, 1},
-	{"@skip", COMMAND_SKIP, 1, 1},
-	{"@choose", COMMAND_CHOOSE, 2, 16},
-	{"@chapter", COMMAND_CHAPTER, 1, 1},
-	{"@gui", COMMAND_GUI, 1, 2},
-	{"@wms", COMMAND_WMS, 1, 1},
 };
 
 #define INSN_TBL_SIZE	(sizeof(insn_tbl) / sizeof(struct insn_item))
+
+/*
+ * パラメータの名前
+ */
+
+struct param_item {
+	int type;
+	int param_index;
+	const char *name;
+} param_tbl[] = {
+	/* @bg */
+	{COMMAND_BG, BG_PARAM_FILE, "file="},
+	{COMMAND_BG, BG_PARAM_FILE, U8("ファイル=")},
+	{COMMAND_BG, BG_PARAM_SPAN, "second="},
+	{COMMAND_BG, BG_PARAM_SPAN, U8("秒=")},
+	{COMMAND_BG, BG_PARAM_METHOD, "effect="},
+	{COMMAND_BG, BG_PARAM_METHOD, U8("エフェクト=")},
+
+	/* @bgm */
+	{COMMAND_BGM, BG_PARAM_FILE, "file="},
+	{COMMAND_BGM, BG_PARAM_FILE, U8("ファイル=")},
+
+	/* @ch */
+	{COMMAND_CH, CH_PARAM_POS, "position="},
+	{COMMAND_CH, CH_PARAM_POS, U8("位置=")},
+	{COMMAND_CH, CH_PARAM_FILE, "file="},
+	{COMMAND_CH, CH_PARAM_FILE, U8("ファイル=")},
+	{COMMAND_CH, CH_PARAM_SPAN, "second="},
+	{COMMAND_CH, CH_PARAM_SPAN, U8("秒=")},
+	{COMMAND_CH, CH_PARAM_METHOD, "effect="},
+	{COMMAND_CH, CH_PARAM_METHOD, U8("エフェクト=")},
+	{COMMAND_CH, CH_PARAM_OFFSET_X, "right="},
+	{COMMAND_CH, CH_PARAM_OFFSET_X, U8("右=")},
+	{COMMAND_CH, CH_PARAM_OFFSET_Y, "down="},
+	{COMMAND_CH, CH_PARAM_OFFSET_Y, U8("下=")},
+	{COMMAND_CH, CH_PARAM_ALPHA, "alpha="},
+	{COMMAND_CH, CH_PARAM_ALPHA, U8("アルファ=")},
+
+	/* @wait */
+	{COMMAND_WAIT, WAIT_PARAM_SPAN, "second="},
+	{COMMAND_WAIT, WAIT_PARAM_SPAN, U8("秒=")},
+
+	/* @goto */
+	{COMMAND_GOTO, GOTO_PARAM_LABEL, "destination="},
+	{COMMAND_GOTO, GOTO_PARAM_LABEL, U8("行き先=")},
+
+	/* @load */
+	{COMMAND_LOAD, LOAD_PARAM_FILE, "file="},
+	{COMMAND_LOAD, LOAD_PARAM_FILE, U8("ファイル=")},
+
+	/* @vol */
+	{COMMAND_VOL, VOL_PARAM_STREAM, "track="},
+	{COMMAND_VOL, VOL_PARAM_STREAM, U8("トラック=")},
+	{COMMAND_VOL, VOL_PARAM_VOL, "volume="},
+	{COMMAND_VOL, VOL_PARAM_VOL, U8("音量=")},
+	{COMMAND_VOL, VOL_PARAM_SPAN, "second="},
+	{COMMAND_VOL, VOL_PARAM_SPAN, U8("秒=")},
+
+	/* @se */
+	{COMMAND_SE, SE_PARAM_FILE, "file="},
+	{COMMAND_SE, SE_PARAM_FILE, U8("ファイル=")},
+
+	/* @choose */
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL1, "destination1="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL1, U8("行き先1=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT1, "option1="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT1, U8("選択肢1=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL2, "destination2="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL2, U8("行き先2=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT2, "option2="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT2, U8("選択肢2=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL3, "destination3="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL3, U8("行き先3=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT3, "option3="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT3, U8("選択肢3=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL4, "destination4="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL4, U8("行き先4=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT4, "option4="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT4, U8("選択肢4=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL5, "destination5="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL5, U8("行き先5=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT5, "option5="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT5, U8("選択肢5=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL6, "destination6="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL6, U8("行き先6=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT6, "option6="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT6, U8("選択肢6=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL7, "destination7="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL7, U8("行き先7=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT7, "option7="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT7, U8("選択肢7=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL8, "destination8="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_LABEL8, U8("行き先8=")},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT8, "option8="},
+	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT8, U8("選択肢8=")},
+
+	/* @cha */
+	{COMMAND_CHA, CHA_PARAM_POS, "position="},
+	{COMMAND_CHA, CHA_PARAM_POS, U8("位置=")},
+	{COMMAND_CHA, CHA_PARAM_SPAN, "second="},
+	{COMMAND_CHA, CHA_PARAM_SPAN, U8("秒=")},
+	{COMMAND_CHA, CHA_PARAM_ACCEL, "acceleration="},
+	{COMMAND_CHA, CHA_PARAM_ACCEL, U8("加速=")},
+	{COMMAND_CHA, CHA_PARAM_OFFSET_X, "x="},
+	{COMMAND_CHA, CHA_PARAM_OFFSET_Y, "y="},
+	{COMMAND_CHA, CHA_PARAM_ALPHA, "alpha"},
+	{COMMAND_CHA, CHA_PARAM_ALPHA, U8("アルファ=")},
+
+	/* @shake */
+	{COMMAND_SHAKE, SHAKE_PARAM_MOVE, "direction="},
+	{COMMAND_SHAKE, SHAKE_PARAM_MOVE, U8("方向=")},
+	{COMMAND_SHAKE, SHAKE_PARAM_SPAN, "second="},
+	{COMMAND_SHAKE, SHAKE_PARAM_SPAN, U8("秒=")},
+	{COMMAND_SHAKE, SHAKE_PARAM_TIMES, "times="},
+	{COMMAND_SHAKE, SHAKE_PARAM_TIMES, U8("回数=")},
+	{COMMAND_SHAKE, SHAKE_PARAM_AMOUNT, "amplitude="},
+	{COMMAND_SHAKE, SHAKE_PARAM_AMOUNT, U8("大きさ=")},
+
+	/* @chs */
+	{COMMAND_CHS, CHS_PARAM_CENTER, "center="},
+	{COMMAND_CHS, CHS_PARAM_CENTER, U8("中央=")},
+	{COMMAND_CHS, CHS_PARAM_RIGHT, "right="},
+	{COMMAND_CHS, CHS_PARAM_RIGHT, U8("右=")},
+	{COMMAND_CHS, CHS_PARAM_LEFT, "left="},
+	{COMMAND_CHS, CHS_PARAM_LEFT, U8("左=")},
+	{COMMAND_CHS, CHS_PARAM_BACK, "back="},
+	{COMMAND_CHS, CHS_PARAM_BACK, U8("背面=")},
+	{COMMAND_CHS, CHS_PARAM_SPAN, "second="},
+	{COMMAND_CHS, CHS_PARAM_SPAN, U8("秒=")},
+	{COMMAND_CHS, CHS_PARAM_BG, "background="},
+	{COMMAND_CHS, CHS_PARAM_BG, U8("背景=")},
+	{COMMAND_CHS, CHS_PARAM_METHOD, "effect="},
+	{COMMAND_CHS, CHS_PARAM_METHOD, U8("エフェクト=")},
+
+	/* @video */
+	{COMMAND_VIDEO, VIDEO_PARAM_FILE, "file="},
+	{COMMAND_VIDEO, VIDEO_PARAM_FILE, U8("ファイル=")},
+
+	/* @chapter */
+	{COMMAND_CHAPTER, CHAPTER_PARAM_NAME, "title="},
+	{COMMAND_CHAPTER, CHAPTER_PARAM_NAME, U8("タイトル=")},
+
+	/* @gui */
+	{COMMAND_GUI, GUI_PARAM_FILE, "file="},
+	{COMMAND_GUI, GUI_PARAM_FILE, U8("ファイル=")},
+
+	/* @wms */
+	{COMMAND_WMS, WMS_PARAM_FILE, "file="},
+	{COMMAND_WMS, WMS_PARAM_FILE, U8("ファイル=")},
+};
+
+#define PARAM_TBL_SIZE	(sizeof(param_tbl) / sizeof(struct param_item))
 
 /*
  * コマンド実行ポインタ
@@ -678,7 +898,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 {
 	struct command *c;
 	char *tp;
-	int i, min = 0, max = 0;
+	int i, j, min = 0, max = 0;
 
 #ifdef USE_DEBUGGER
 	UNUSED_PARAMETER(file);
@@ -706,7 +926,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 
 	/* コマンドのタイプを取得する */
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
-		if (strcmp(c->param[0], insn_tbl[i].str) == 0) {
+		if (strcasecmp(c->param[0], insn_tbl[i].str) == 0) {
 			c->type = insn_tbl[i].type;
 			min = insn_tbl[i].min;
 			max = insn_tbl[i].max;
@@ -743,8 +963,37 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 #endif
 			return false;
 		}
-		c->param[i] = tp;
-		i++;
+
+		/* パラメータ名がない場合 */
+		if (c->type == COMMAND_SET || c->type == COMMAND_IF ||
+		    strstr(tp, "=") == NULL) {
+			c->param[i] = tp;
+			i++;
+			continue;
+		}
+
+		/* パラメータ名をチェックする */
+		for (j = 0; j < (int)PARAM_TBL_SIZE; j++) {
+			if (strncmp(param_tbl[j].name, tp,
+				    strlen(param_tbl[j].name)) == 0) {
+				c->param[i] = tp + strlen(param_tbl[j].name);
+				i++;
+				break;
+			}
+		}
+		if (j == PARAM_TBL_SIZE) {
+			*strstr(tp, "=") = '\0';
+			log_script_param_mismatch(tp);
+#ifdef USE_DEBUGGER
+			is_parse_error = true;
+			cmd[index].text[0] = '!';
+			set_error_command(index, cmd[index].text);
+			if(error_count++ == 0)
+				log_command_update_error();
+#else
+			log_script_parse_footer(file, line, buf);
+#endif
+		}
 	}
 
 	/* パラメータの数をチェックする */
@@ -883,6 +1132,8 @@ static bool parse_serif(int index, const char *file, int line, const char *buf,
 static bool parse_message(int index, const char *file, int line,
 			  const char *buf, int locale_offset)
 {
+	char *lpar, *p;
+
 	UNUSED_PARAMETER(file);
 
 	/* 行番号とオリジナルの行(メッセージ全体)を保存しておく */
@@ -893,10 +1144,28 @@ static bool parse_message(int index, const char *file, int line,
 		log_memory();
 		return false;
 	}
+
+	/* メッセージ(0番目のパラメータ)を複製する */
 	cmd[index].param[MESSAGE_PARAM_MESSAGE] = strdup(buf + locale_offset);
 	if (cmd[index].text == NULL) {
 		log_memory();
 		return false;
+	}
+
+	/* 名前「メッセージ」の形式の場合はセリフとする */
+	p = cmd[index].param[MESSAGE_PARAM_MESSAGE];
+	lpar = strstr(p, U8("「"));
+	if (lpar != NULL && lpar != buf &&
+	    strcmp(p + strlen(p) - 3, U8("」")) == 0) {
+		/* セリフに変更する */
+		cmd[index].type = COMMAND_SERIF;
+
+		/* トークン化する */
+		*(p + strlen(p) - 3) = '\0';
+		*lpar = '\0';
+		cmd[index].param[SERIF_PARAM_NAME] = p;
+		cmd[index].param[SERIF_PARAM_VOICE] = NULL;
+		cmd[index].param[SERIF_PARAM_MESSAGE] = lpar + 3;
 	}
 
 	/* 成功 */

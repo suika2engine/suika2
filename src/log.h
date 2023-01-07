@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -16,6 +16,7 @@
  *  - 2021/07/07 @goto $SAVEのエラーを追加
  *  - 2022/06/14 Suika2 Pro for Creators
  *  - 2022/07/28 GUIモジュール対応
+ *  - 2023/01/06 パラメータ名のエラーを追加
  */
 
 #ifndef SUIKA_LOG_H
@@ -67,6 +68,7 @@ void log_script_cha_accel(const char *accel);
 void log_script_shake_move(const char *move);
 void log_script_enable_disable(const char *param);
 void log_script_final_command(void);
+void log_script_param_mismatch(const char *name);
 void log_video_error(const char *reason);
 void log_script_choose_no_message(void);
 void log_script_empty_string(void);

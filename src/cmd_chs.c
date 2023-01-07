@@ -2,13 +2,14 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2021/07/19 作成
  *  - 2022/06/26 テンプレートに対応
+ *  - 2023/01/06 日本語の指定に対応
  */
 
 #include "suika.h"
@@ -88,6 +89,7 @@ static bool init(void)
 
 		/* 変更なしが指定された場合 */
 		if (strcmp(fname[i], "stay") == 0 ||
+		    strcmp(fname[i], U8("変更なし")) == 0 ||
 		    strcmp(fname[i], "") == 0) {
 			/* 変更なしフラグをセットする */
 			stay[i] = true;
@@ -95,7 +97,9 @@ static bool init(void)
 		}
 
 		/* イメージの消去が指定された場合 */
-		if (i != BG_INDEX && strcmp(fname[i], "none") == 0) {
+		if (i != BG_INDEX &&
+		    (strcmp(fname[i], "none") == 0 ||
+		     strcmp(fname[i], U8("消す")) == 0)) {
 			/* 変更なしフラグをセットしない */
 			stay[i] = false;
 
