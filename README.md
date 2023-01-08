@@ -6,7 +6,7 @@
 
 <!-- Content -->
 [![Release](https://img.shields.io/github/release/suika2engine/suika2?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/releases/latest)
-[![Documentation](https://img.shields.io/badge/Documentation-Up%20to%20Date!%20(2%2011.10)-dark--green?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/wiki)
+[![Documentation](https://img.shields.io/badge/Documentation-Up%20to%20Date!%20(2%2011.10%20POST)-dark--green?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/wiki)
 
 Suika2 is an open-source, cross-platform visual novel development engine that allows you to create a feature-rich visual novel with the care and attention to detail that your stories deserve. Featuring support and documentation in Japanese, Chinese, and English as well as active development and an accepting community, Suika2 could be the perfect start to your thrilling adventure, fawning romance, chilling epic, or anything else you could possibly imagine!
 
