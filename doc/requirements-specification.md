@@ -3280,6 +3280,14 @@ It changes the value of the variable.
 s2_set_variable(100, 1);
 ```
 
+### Getting a Random Number
+
+`s2_random()` returns a random integer
+The return value ranges from `0` to `99999`.
+```
+value = s2_random();
+```
+
 ### Overwriting a Configuration
 
 The following functions overwrites a configuration:
