@@ -891,9 +891,11 @@ The command that accomplishes this feature is `@vol`.
 The `@vol` command sets the sound volume.
 Suika2 has three independent sound tracks:
 
-* `bgm` or `b` for the BGM track
-* `voice` or `v` for the character voice track
-* `se` or `s` for the sound effect track
+|Track           |Name            |Japanese Name|
+|----------------|----------------|-------------|
+|BGM             |`bgm` or `b`    |`音楽`       |
+|Voice           |`voice` or `v`  |`声`         |
+|Sound Effect    |`se` or `s`     |`効果音`     |
 
 The volume of the specified sound track will fade in/out for the specified time.
 This command does not wait until the fade in/out is complete.
@@ -937,7 +939,7 @@ so the use of this feature is not as common.
 `@vol` has a Japanese alias `@音量`.
 
 ```
-@音量 トラック=bgm 音量=1.0 秒=1.0
+@音量 トラック=音楽 音量=1.0 秒=1.0
 ```
 
 ## Showing Options (`@choose`)
