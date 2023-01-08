@@ -188,7 +188,7 @@ struct param_item {
 	/* @bg */
 	{COMMAND_BG, BG_PARAM_FILE, "file="},
 	{COMMAND_BG, BG_PARAM_FILE, U8("ファイル=")},
-	{COMMAND_BG, BG_PARAM_SPAN, "second="},
+	{COMMAND_BG, BG_PARAM_SPAN, "duration="},
 	{COMMAND_BG, BG_PARAM_SPAN, U8("秒=")},
 	{COMMAND_BG, BG_PARAM_METHOD, "effect="},
 	{COMMAND_BG, BG_PARAM_METHOD, U8("エフェクト=")},
@@ -202,7 +202,7 @@ struct param_item {
 	{COMMAND_CH, CH_PARAM_POS, U8("位置=")},
 	{COMMAND_CH, CH_PARAM_FILE, "file="},
 	{COMMAND_CH, CH_PARAM_FILE, U8("ファイル=")},
-	{COMMAND_CH, CH_PARAM_SPAN, "second="},
+	{COMMAND_CH, CH_PARAM_SPAN, "duration="},
 	{COMMAND_CH, CH_PARAM_SPAN, U8("秒=")},
 	{COMMAND_CH, CH_PARAM_METHOD, "effect="},
 	{COMMAND_CH, CH_PARAM_METHOD, U8("エフェクト=")},
@@ -214,7 +214,7 @@ struct param_item {
 	{COMMAND_CH, CH_PARAM_ALPHA, U8("アルファ=")},
 
 	/* @wait */
-	{COMMAND_WAIT, WAIT_PARAM_SPAN, "second="},
+	{COMMAND_WAIT, WAIT_PARAM_SPAN, "duration="},
 	{COMMAND_WAIT, WAIT_PARAM_SPAN, U8("秒=")},
 
 	/* @goto */
@@ -230,7 +230,7 @@ struct param_item {
 	{COMMAND_VOL, VOL_PARAM_STREAM, U8("トラック=")},
 	{COMMAND_VOL, VOL_PARAM_VOL, "volume="},
 	{COMMAND_VOL, VOL_PARAM_VOL, U8("音量=")},
-	{COMMAND_VOL, VOL_PARAM_SPAN, "second="},
+	{COMMAND_VOL, VOL_PARAM_SPAN, "duration="},
 	{COMMAND_VOL, VOL_PARAM_SPAN, U8("秒=")},
 
 	/* @se */
@@ -274,7 +274,7 @@ struct param_item {
 	/* @cha */
 	{COMMAND_CHA, CHA_PARAM_POS, "position="},
 	{COMMAND_CHA, CHA_PARAM_POS, U8("位置=")},
-	{COMMAND_CHA, CHA_PARAM_SPAN, "second="},
+	{COMMAND_CHA, CHA_PARAM_SPAN, "duration="},
 	{COMMAND_CHA, CHA_PARAM_SPAN, U8("秒=")},
 	{COMMAND_CHA, CHA_PARAM_ACCEL, "acceleration="},
 	{COMMAND_CHA, CHA_PARAM_ACCEL, U8("加速=")},
@@ -286,7 +286,7 @@ struct param_item {
 	/* @shake */
 	{COMMAND_SHAKE, SHAKE_PARAM_MOVE, "direction="},
 	{COMMAND_SHAKE, SHAKE_PARAM_MOVE, U8("方向=")},
-	{COMMAND_SHAKE, SHAKE_PARAM_SPAN, "second="},
+	{COMMAND_SHAKE, SHAKE_PARAM_SPAN, "duration="},
 	{COMMAND_SHAKE, SHAKE_PARAM_SPAN, U8("秒=")},
 	{COMMAND_SHAKE, SHAKE_PARAM_TIMES, "times="},
 	{COMMAND_SHAKE, SHAKE_PARAM_TIMES, U8("回数=")},
@@ -302,7 +302,7 @@ struct param_item {
 	{COMMAND_CHS, CHS_PARAM_LEFT, U8("左=")},
 	{COMMAND_CHS, CHS_PARAM_BACK, "back="},
 	{COMMAND_CHS, CHS_PARAM_BACK, U8("背面=")},
-	{COMMAND_CHS, CHS_PARAM_SPAN, "second="},
+	{COMMAND_CHS, CHS_PARAM_SPAN, "duration="},
 	{COMMAND_CHS, CHS_PARAM_SPAN, U8("秒=")},
 	{COMMAND_CHS, CHS_PARAM_BG, "background="},
 	{COMMAND_CHS, CHS_PARAM_BG, U8("背景=")},
@@ -356,7 +356,7 @@ static bool is_parse_error;
 static bool read_script_from_file(const char *fname);
 static bool parse_insn(int index, const char *fname, int line,
 		       const char *buf, int locale_offset);
-static char *strtok_escape(char *buf);
+static char *strtok_escape(char *buf, bool *escaped);
 static bool parse_serif(int index, const char *fname, int line,
 			const char *buf, int locale_offset);
 static bool parse_message(int index, const char *fname, int line,
@@ -898,7 +898,8 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 {
 	struct command *c;
 	char *tp;
-	int i, j, min = 0, max = 0;
+	int i, j, len, min = 0, max = 0;
+	bool escaped;
 
 #ifdef USE_DEBUGGER
 	UNUSED_PARAMETER(file);
@@ -922,7 +923,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 	}
 
 	/* 最初のトークンを切り出す */
-	strtok_escape(c->param[0]);
+	strtok_escape(c->param[0], &escaped);
 
 	/* コマンドのタイプを取得する */
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
@@ -949,7 +950,9 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 
 	/* 2番目以降のトークンを取得する */
 	i = 1;
-	while ((tp = strtok_escape(NULL))  != NULL && i < PARAM_SIZE) {
+	escaped = false;
+	while ((tp = strtok_escape(NULL, &escaped)) != NULL &&
+	       i < PARAM_SIZE) {
 		if (strcmp(tp, "") == 0) {
 			log_script_empty_string();
 #ifdef USE_DEBUGGER
@@ -965,7 +968,8 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 		}
 
 		/* パラメータ名がない場合 */
-		if (c->type == COMMAND_SET || c->type == COMMAND_IF ||
+		if (escaped ||
+		    c->type == COMMAND_SET || c->type == COMMAND_IF ||
 		    strstr(tp, "=") == NULL) {
 			c->param[i] = tp;
 			i++;
@@ -976,7 +980,16 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 		for (j = 0; j < (int)PARAM_TBL_SIZE; j++) {
 			if (strncmp(param_tbl[j].name, tp,
 				    strlen(param_tbl[j].name)) == 0) {
+				/* 引数を保存する */
 				c->param[i] = tp + strlen(param_tbl[j].name);
+
+				/* エスケープする */
+				len = (int)strlen(c->param[i]);
+				if (c->param[i][0] == '\"' &&
+				    c->param[i][len - 1] == '\"') {
+					c->param[i][len - 1] = '\0';
+					c->param[i]++;
+				}
 				i++;
 				break;
 			}
@@ -993,6 +1006,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 #else
 			log_script_parse_footer(file, line, buf);
 #endif
+			return false;
 		}
 	}
 
@@ -1028,7 +1042,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 }
 
 /* ダブルクォーテーションでエスケープ可能なトークナイズを実行する */
-static char *strtok_escape(char *buf)
+static char *strtok_escape(char *buf, bool *escaped)
 {
 	static char *top = NULL;
 	char *result;
@@ -1039,14 +1053,18 @@ static char *strtok_escape(char *buf)
 	assert(top != NULL);
 
 	/* すでにバッファの終端に達している場合NULLを返す */
-	if (*top == '\0')
+	if (*top == '\0') {
+		*escaped = false;
 		return NULL;
+	}
 
 	/* 先頭のスペースをスキップする */
 	for (; *top != '\0' && *top == ' '; top++)
 		;
-	if (*top == '\0')
+	if (*top == '\0') {
+		*escaped = false;
 		return NULL;
+	}
 
 	/* エスケープされている場合 */
 	if (*top == '\"') {
@@ -1055,6 +1073,7 @@ static char *strtok_escape(char *buf)
 			;
 		if (*top == '\"')
 			*top++ = '\0';
+		*escaped = true;
 		return result;
 	}
 	
@@ -1064,6 +1083,7 @@ static char *strtok_escape(char *buf)
 		;
 	if (*top == ' ')
 		*top++ = '\0';
+	*escaped = false;
 	return result;
 }
 
