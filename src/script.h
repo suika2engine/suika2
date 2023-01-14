@@ -23,6 +23,7 @@
  *  - 2022/07/04 @chapterに対応
  *  - 2022/07/29 @guiに対応
  *  - 2023/01/06 利用されていないパラメータインデックスを削除
+ *  - 2023/01/14 スタートアップファイル/ラインに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -540,6 +541,11 @@ enum wms_command_param {
 /*
  * 初期化
  */
+
+#ifdef USE_DEBUGGER
+/* スタートアップファイル/ラインを設定する */
+bool set_startup_file_and_line(const char *file, int line);
+#endif
 
 /* 初期スクリプトを読み込む */
 bool init_script(void);

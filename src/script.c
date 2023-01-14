@@ -29,6 +29,7 @@
  *  - 2022/07/29 @guiに対応
  *  - 2022/10/19 ローケルに対応
  *  - 2023/01/06 日本語コマンド名、パラメータ名指定、カギカッコに対応
+ *  - 2023/01/14 スタートアップファイル/ラインに対応
  */
 
 #include "suika.h"
@@ -335,10 +336,10 @@ struct param_item {
 /* 実行中のスクリプト名 */
 static char *cur_script;
 
-/* 実行中の行番号 */
+/* 実行中のコマンド番号 */
 static int cur_index;
 
-/* 最後にgosubが実行された行番号 */
+/* 最後にgosubが実行されたコマンド番号 */
 static int return_point;
 
 #ifdef USE_DEBUGGER
@@ -349,6 +350,13 @@ static int return_point;
 /* パースエラー状態 */
 static bool is_parse_error;
 #endif
+
+/*
+ * スタートアップ情報
+ */
+
+char *startup_file;
+int startup_line;
 
 /*
  * 前方参照
@@ -368,13 +376,60 @@ static bool parse_label(int index, const char *fname, int line,
  * 初期化
  */
 
+#ifdef USE_DEBUGGER
+/*
+ * スタートアップファイル/ラインを指定する
+ */
+bool set_startup_file_and_line(const char *file, int line)
+{
+	startup_file = strdup(file);
+	if (startup_file == NULL) {
+		log_memory();
+		return false;
+	}
+	startup_line = line;
+	return true;
+}
+#endif
+
+/*
+ * スタートアップラインを指定する
+ */
+void set_startup_line(int line)
+{
+	startup_line = line;
+}
+
 /*
  * 初期スクリプトを読み込む
  */
 bool init_script(void)
 {
-	if (!load_script(INIT_FILE))
+	int i;
+
+	/*
+	 * 読み込むスクリプトが指定されていればそれを使用し、
+	 * そうでなければinit.txtを使用する
+	 */
+	const char *script = INIT_FILE;
+	if (startup_file != NULL)
+		script = startup_file;
+
+	/* スクリプトをロードする */
+	if (!load_script(script))
 		return false;
+
+	/* 開始行が指定されていれば移動する */
+	if (startup_line > 0) {
+		for (i = 0; i < cmd_size; i++) {
+			if (cmd[i].line < startup_line)
+				continue;
+			if (cmd[i].line >= startup_line) {
+				cur_index = i;
+				break;
+			}
+		}
+	}
 
 	return true;
 }
@@ -419,6 +474,11 @@ void cleanup_script(void)
 	if (cur_script != NULL) {
 		free(cur_script);
 		cur_script = NULL;
+	}
+
+	if (startup_file != NULL) {
+		free(startup_file);
+		startup_file = NULL;
 	}
 }
 

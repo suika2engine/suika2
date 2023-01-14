@@ -548,6 +548,27 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 }
 
 /*
+ * スタートアップファイル/ラインを取得する
+ */
+BOOL GetStartupPosition(void)
+{
+	int line;
+	if (__argc >= 3) {
+		/* 先に行番号を取得する(conv_*()がstatic変数が指すため) */
+		line = atoi(conv_utf16_to_utf8(__wargv[2]));
+
+		/* スタートアップファイル/ラインを指定する */
+		if (!set_startup_file_and_line(conv_utf16_to_utf8(__wargv[1]), line))
+			return FALSE;
+
+		/* 実行開始ボタンが押されたことにする */
+		bResumePressed = TRUE;
+	}
+
+	return TRUE;
+}
+
+/*
  * デバッガのウィンドウハンドルであるかを返す
  */
 BOOL IsDebuggerHWND(HWND hWnd)

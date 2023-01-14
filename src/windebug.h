@@ -31,6 +31,9 @@ VOID InitDebuggerMenu(HWND hWnd);
 /* デバッガウィンドウを作成する */
 BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow);
 
+/* スタートアップファイル/ラインを取得する */
+BOOL GetStartupPosition(void);
+
 /* デバッガのウィンドウハンドルであるかを返す */
 BOOL IsDebuggerHWND(HWND hWnd);
 
