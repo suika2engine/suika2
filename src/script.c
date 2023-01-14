@@ -376,30 +376,6 @@ static bool parse_label(int index, const char *fname, int line,
  * 初期化
  */
 
-#ifdef USE_DEBUGGER
-/*
- * スタートアップファイル/ラインを指定する
- */
-bool set_startup_file_and_line(const char *file, int line)
-{
-	startup_file = strdup(file);
-	if (startup_file == NULL) {
-		log_memory();
-		return false;
-	}
-	startup_line = line;
-	return true;
-}
-#endif
-
-/*
- * スタートアップラインを指定する
- */
-void set_startup_line(int line)
-{
-	startup_line = line;
-}
-
 /*
  * 初期スクリプトを読み込む
  */
@@ -1279,6 +1255,31 @@ static bool parse_message(int index, const char *file, int line,
 }
 
 #ifdef USE_DEBUGGER
+/*
+ * スタートアップファイル/ラインを指定する
+ */
+bool set_startup_file_and_line(const char *file, int line)
+{
+	startup_file = strdup(file);
+	if (startup_file == NULL) {
+		log_memory();
+		return false;
+	}
+	startup_line = line;
+	return true;
+}
+
+/*
+ * スタートアップファイルが指定されたか
+ */
+bool has_startup_file(void)
+{
+	if (startup_file != NULL)
+		return true;
+
+	return false;
+}
+
 /*
  * 指定した行番号以降の最初のコマンドインデックスを取得する
  */

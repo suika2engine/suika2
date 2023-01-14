@@ -355,7 +355,10 @@ static void setStoppedState(void);
 
 // テーブルビューの行の文字列を返す
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-    return nsstr(get_line_string_at_line_num((int)rowIndex));
+    const char *s = get_line_string_at_line_num((int)rowIndex);
+    if (s == NULL)
+        return @"";
+    return nsstr(s);
 }
 
 // ダブルクリックされたときのイベント
@@ -568,7 +571,7 @@ BOOL initDebugWindow(void)
     debugWindowController = [[DebugWindowController alloc]
                                   initWithWindowNibName:@"DebugWindow"];
     if (debugWindowController == NULL)
-        return FALSE;
+        return YES;
 
     // メニューのXibをロードする
     NSBundle *bundle = [NSBundle mainBundle];
@@ -586,7 +589,36 @@ BOOL initDebugWindow(void)
     // デバッグ情報表示を更新する
     update_debug_info(true);
 
-	return TRUE;
+	return YES;
+}
+
+//
+// スタートアップファイル/ラインを取得する
+//
+BOOL getStartupPosition(void)
+{
+    const char *file = NULL;
+    int line = -1;
+    
+    NSArray *args = [[NSProcessInfo processInfo] arguments];
+    for (int i = 0; i < [args count]; i++) {
+        NSString *s = [args objectAtIndex:i];
+        if ([s hasPrefix:@"scn:"])
+            file = [[s substringFromIndex:[@"scn:" length]] UTF8String];
+        else if ([s hasPrefix:@"line:"])
+            line = [[s substringFromIndex:[@"line:" length]] intValue];
+    }
+
+    if (file != NULL && line != -1) {
+        /* スタートアップファイル/ラインを指定する */
+        if (!set_startup_file_and_line(file, line))
+            return NO;
+
+        /* 実行開始ボタンが押されたことにする */
+        isResumePressed = true;
+    }
+
+	return YES;
 }
 
 //
@@ -596,6 +628,7 @@ BOOL initDebugWindow(void)
 // UTF-8文字列をNSStringに変換する
 static NSString *nsstr(const char *utf8str)
 {
+    assert(utf8str != NULL);
     NSString *s = [[NSString alloc] initWithUTF8String:utf8str];
     return s;
 }

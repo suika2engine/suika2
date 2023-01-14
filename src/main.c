@@ -172,6 +172,10 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 					dbg_stop();
 					return true;
 				} else {
+					/* スタートアップファイル指定あり */
+					if (has_startup_file())
+						return false;
+
 					/* 最後まで実行した */
 					if (!load_debug_script())
 						return false;
