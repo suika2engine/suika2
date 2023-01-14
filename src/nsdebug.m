@@ -603,10 +603,10 @@ BOOL getStartupPosition(void)
     NSArray *args = [[NSProcessInfo processInfo] arguments];
     for (int i = 0; i < [args count]; i++) {
         NSString *s = [args objectAtIndex:i];
-        if ([s hasPrefix:@"scn:"])
-            file = [[s substringFromIndex:[@"scn:" length]] UTF8String];
-        else if ([s hasPrefix:@"line:"])
-            line = [[s substringFromIndex:[@"line:" length]] intValue];
+        if ([s hasPrefix:@"scenario-file="])
+            file = [[s substringFromIndex:[@"scenario-file=" length]] UTF8String];
+        else if ([s hasPrefix:@"scenario-line="])
+            line = [[s substringFromIndex:[@"scenario-line=" length]] intValue];
     }
 
     if (file != NULL && line != -1) {

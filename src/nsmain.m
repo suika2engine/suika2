@@ -561,7 +561,7 @@ static BOOL openLog(void)
                                                    attributes:nil
                                                         error:NULL];
         path = [path stringByAppendingString:@"/"];
-        path = [path stringByAppendingString:[[NSString init] initWithUTF8String:LOG_FILE]];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:LOG_FILE]];
         cpath = [path UTF8String];
     } else {
         // .appバンドルのパスを取得する

@@ -351,12 +351,14 @@ static int return_point;
 static bool is_parse_error;
 #endif
 
+#ifdef USE_DEBUGGER
 /*
  * スタートアップ情報
  */
 
 char *startup_file;
 int startup_line;
+#endif
 
 /*
  * 前方参照
@@ -383,17 +385,17 @@ bool init_script(void)
 {
 	int i;
 
-	/*
-	 * 読み込むスクリプトが指定されていればそれを使用し、
-	 * そうでなければinit.txtを使用する
-	 */
-	const char *script = INIT_FILE;
-	if (startup_file != NULL)
-		script = startup_file;
-
-	/* スクリプトをロードする */
-	if (!load_script(script))
-		return false;
+#ifndef USE_DEBUGGER
+    /* スクリプトをロードする */
+    if (!load_script(INIT_FILE))
+        return false;
+#else
+    /*
+     * 読み込むスクリプトが指定されていればそれを使用し、
+     * そうでなければinit.txtを使用する
+     */
+    if (!load_script(startup_file == NULL ? INIT_FILE : startup_file))
+        return false;
 
 	/* 開始行が指定されていれば移動する */
 	if (startup_line > 0) {
@@ -406,6 +408,7 @@ bool init_script(void)
 			}
 		}
 	}
+#endif
 
 	return true;
 }
@@ -450,11 +453,6 @@ void cleanup_script(void)
 	if (cur_script != NULL) {
 		free(cur_script);
 		cur_script = NULL;
-	}
-
-	if (startup_file != NULL) {
-		free(startup_file);
-		startup_file = NULL;
 	}
 }
 
