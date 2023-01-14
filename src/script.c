@@ -383,19 +383,17 @@ static bool parse_label(int index, const char *fname, int line,
  */
 bool init_script(void)
 {
-	int i;
-
 #ifndef USE_DEBUGGER
-    /* スクリプトをロードする */
-    if (!load_script(INIT_FILE))
-        return false;
+	/* スクリプトをロードする */
+	if (!load_script(INIT_FILE))
+		return false;
 #else
-    /*
-     * 読み込むスクリプトが指定されていればそれを使用し、
-     * そうでなければinit.txtを使用する
-     */
-    if (!load_script(startup_file == NULL ? INIT_FILE : startup_file))
-        return false;
+	/*
+	 * 読み込むスクリプトが指定されていればそれを使用し、
+	 * そうでなければinit.txtを使用する
+	 */
+	if (!load_script(startup_file == NULL ? INIT_FILE : startup_file))
+		return false;
 
 	/* 開始行が指定されていれば移動する */
 	if (startup_line > 0) {
