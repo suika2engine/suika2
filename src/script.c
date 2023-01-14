@@ -388,6 +388,8 @@ bool init_script(void)
 	if (!load_script(INIT_FILE))
 		return false;
 #else
+	int i;
+
 	/*
 	 * 読み込むスクリプトが指定されていればそれを使用し、
 	 * そうでなければinit.txtを使用する
