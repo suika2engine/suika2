@@ -97,14 +97,16 @@ BOOL isRedrawPrepared;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+#ifndef USE_DEBUGGER
     // メニューのXibをロードする
     NSBundle *bundle = [NSBundle mainBundle];
     NSArray *objects = [NSArray new];
     [bundle loadNibNamed:@"MainMenu"
                    owner:theView
          topLevelObjects:&objects];
+#endif
 
-    // メニューのタイトルを変更す
+    // メニューのタイトルを変更する
     NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
     [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
 }
