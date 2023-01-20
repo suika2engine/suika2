@@ -6,7 +6,6 @@
 
 <!-- Content -->
 [![Release](https://img.shields.io/github/release/suika2engine/suika2?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/releases/latest)
-[![Documentation](https://img.shields.io/badge/Documentation-Up%20to%20Date!%20(2%2011.10%20POST)-dark--green?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/wiki)
 
 Suika2 is an open-source, cross-platform visual novel development engine that allows you to create a feature-rich visual novel with the care and attention to detail that your stories deserve. Featuring support and documentation in Japanese, Chinese, and English as well as active development and an accepting community, Suika2 could be the perfect start to your thrilling adventure, fawning romance, chilling epic, or anything else you could possibly imagine!
 
@@ -46,9 +45,9 @@ Please submit issues light-heartedly as any and all feedback is welcome.
 
 ## Prebuilt Binaries
 
-Download the binaries from [GitHub]() or [the official web site](https://docs.suika2.com/). Please be aware that the website may lag behind the GitHub release section due to a difference in each team member's time zone.
+Download the latest prebuilt binaries from [the releases page](https://github.com/suika2engine/suika2/releases/latest).
 
-**Note:** The provided ZIP file contains binaries for Windows and MacOS.
+**Note:** The provided ZIP file contains binaries for both Windows and Mac.
 
 ## Building from Source
 
@@ -88,7 +87,6 @@ See `COPYING`.
 * [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source)
 * [ドキュメント](https://suika2.com/wiki-jp/)
 * [Tutorial](https://github.com/suika2engine/suika2/wiki/Tutorial)
-* [Command Reference](https://suika2.com/en/reference.html) (English website version no longer maintained, see the Wiki)
 
 ## What does "suika" mean?
 
@@ -99,4 +97,4 @@ Did you know...
 * Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform? She also has 'Suika Orange' hair!
 * Midori has an older sister, Rina, who's in university!
 * Suika2 is the successor to 'Suika Studio' – you can find Suika Studio on the old English website with some deductive skills! (Suika Studio has long since reached its EOL.)
-* For a 'History of Suika2' in update logs, visit [luxion.jp](https://luxion.jp/)
+* For a 'History of Suika2' in update logs, visit [luxion.jp](https://luxion.jp/) or visit [docs.suika2.com](https://docs.suika2.com/articles/history) for the projects brief history.
