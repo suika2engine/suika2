@@ -97,14 +97,16 @@ BOOL isRedrawPrepared;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+#ifndef USE_DEBUGGER
     // メニューのXibをロードする
     NSBundle *bundle = [NSBundle mainBundle];
     NSArray *objects = [NSArray new];
     [bundle loadNibNamed:@"MainMenu"
                    owner:theView
          topLevelObjects:&objects];
+#endif
 
-    // メニューのタイトルを変更す
+    // メニューのタイトルを変更する
     NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
     [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
 }
@@ -485,6 +487,12 @@ int main()
         // ロケールを初期化する
         init_locale_code();
 
+#ifdef USE_DEBUGGER
+        // スタートアップファイル/ラインを取得する
+        if (!getStartupPosition())
+            return 1;
+#endif
+
         // パッケージの初期化処理を行う
         if (init_file()) {
             // コンフィグの初期化処理を行う
@@ -555,7 +563,7 @@ static BOOL openLog(void)
                                                    attributes:nil
                                                         error:NULL];
         path = [path stringByAppendingString:@"/"];
-        path = [path stringByAppendingString:[[NSString init] initWithUTF8String:LOG_FILE]];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:LOG_FILE]];
         cpath = [path UTF8String];
     } else {
         // .appバンドルのパスを取得する
@@ -715,6 +723,8 @@ bool make_sav_dir(void)
 char *make_valid_path(const char *dir, const char *fname)
 {
     char *ret;
+
+    assert(fname != NULL);
 
     @autoreleasepool {
         if (conf_release && dir != NULL && strcmp(dir, SAVE_DIR) == 0) {
@@ -1064,6 +1074,7 @@ bool play_video(const char *fname, bool is_skippable)
 
     // パスを生成する
     char *path = make_valid_path(MOV_DIR, fname);
+    assert(path != NULL);
     NSString *nsPath = [[NSString alloc] initWithUTF8String:path];
     free(path);
     nsPath = [nsPath stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];

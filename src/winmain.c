@@ -289,6 +289,10 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	/* デバッガウィンドウを作成する */
 	if (!InitDebuggerWindow(hInstance, nCmdShow))
 		return FALSE;
+
+	/* スタートアップファイル/ラインを取得する */
+	if (!GetStartupPosition())
+		return FALSE;
 #endif
 
 	/* 描画エンジンを初期化する */

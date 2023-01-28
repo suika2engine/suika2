@@ -21,5 +21,6 @@
 @end
 
 BOOL initDebugWindow(void);
+BOOL getStartupPosition(void);
 
 #endif
