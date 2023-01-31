@@ -11,7 +11,7 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
 
 [Join our Discord server!](https://discord.gg/ZmvXxE8GFg)  ![Discord](https://discord.com/api/guilds/986623112617541677/widget.png)
 
-Visit [the new Website](https://docs.suika2.com/) and [the Wiki](https://github.com/suika2engine/suika2/wiki), both of which are frequently updated!
+Visit [the Website](https://suika2.com/en/) and [the Wiki](https://github.com/suika2engine/suika2/wiki), both of which are frequently updated!
 
 Don't have a Discord account or would prefer to speak formally? Send an e-mail to `midori@suika2.com`.
 
@@ -38,6 +38,10 @@ If you want to port Suika2 to a new target platform, you are only required to wr
 ## Suika2 Pro for Creators
 
 [`Suika2 Pro for Creators`](https://github.com/suika2engine/suika2/wiki/5.-Suika2-Pro-for-Creators) is Suika2's sister application, a visual development tool for Windows and Mac that provides developers with a debugger and package export function.
+
+## Suika2 Kirara
+
+[`Suika2 Kirara`](https://github.com/suika2engine/kirara) is Suika2's GUI application. If you are not familiar with scripting, please consider using Kirara.
 
 ## Contribution
 
@@ -96,5 +100,5 @@ See `COPYING`.
 Did you know...
 * Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform? She also has 'Suika Orange' hair!
 * Midori has an older sister, Rina, who's in university!
-* Suika2 is the successor to 'Suika Studio' – you can find Suika Studio on the old English website with some deductive skills! (Suika Studio has long since reached its EOL.)
-* For a 'History of Suika2' in update logs, visit [luxion.jp](https://luxion.jp/) or visit [docs.suika2.com](https://docs.suika2.com/articles/history) for the projects brief history.
+* Suika2 is the successor to 'Suika Studio' - you can find Suika Studio on the old English website with some deductive skills! (Suika Studio has long since reached its EOL.)
+* For a 'History of Suika2' in update logs, visit [luxion.jp](https://luxion.jp/) or visit [suika2.com](https://suika2.com/en/) for the projects brief history.
