@@ -224,7 +224,6 @@ If there's anything you want to customize, but can't, please contact the Team.
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
 *Midori*029.ogg*If you have any questions, send me an e-mail at midori@suika2.com anytime!
-*Midori*030.ogg*Don't forget to check out our website docs.suika2.com and my blog at blog.suika2.com, I post there every now and then!
 
 @vol bgm 0.5 1.0
 *Midori*031.ogg*I hope you'll send me an e-mail with your questions, feedback, issues, or even just to say hi! – See you next time!
