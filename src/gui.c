@@ -1411,7 +1411,7 @@ static void draw_save_button(int button_index)
 	lock_image(b->rt.img);
 
 	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0xff, 0));
+	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
 
 	/* サムネイルを描画する */
 	thumb = get_save_thumbnail(save_index);
@@ -1666,7 +1666,7 @@ static void draw_history_button(int button_index)
 	lock_image(b->rt.img);
 
 	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0xff, 0));
+	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
 
 	/* メッセージを描画する */
 	if (button[button_index].rt.history_offset != -1)
