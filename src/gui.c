@@ -758,8 +758,8 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 
 	/* 右クリックでキャンセル可能な場合 */
 	if (cancel_when_right_click) {
-		/* 右クリックされた場合 */
-		if (is_right_clicked) {
+		/* 右クリックされた場合か、エスケープキーが押下された場合 */
+		if (is_right_clicked || is_escape_pressed) {
 			/* どのボタンも選ばれなかったことにする */
 			result_index = -1;
 
