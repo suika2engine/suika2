@@ -1,5 +1,6 @@
 *.DS_Store
 *~
+.vscode/settings.json
 
 suika.app
 suika-pro.app
@@ -58,6 +59,16 @@ build/freebsd/suika
 build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
+
+build/switch/libroot
+build/switch/exefs
+build/switch/romfs
+build/switch/tmp
+build/switch/*.o
+build/switch/*.elf
+build/switch/*.nro
+build/switch/*.nacp
+build/switch/*.nsp
 
 build/vs/.vs
 build/vs/zlib

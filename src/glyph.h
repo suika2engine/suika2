@@ -36,7 +36,9 @@ bool init_glyph(void);
 void cleanup_glyph(void);
 
 /* utf-8文字列の先頭文字をutf-32文字に変換する */
+#ifndef SWITCH /* switch.h にutf8_to_utf32は既に存在します　*/
 int utf8_to_utf32(const char *mbs, uint32_t *wc);
+#endif
 
 /* utf-8文字列の文字数を返す */
 int utf8_chars(const char *mbs);

@@ -218,3 +218,11 @@ This method will build a NetBSD binary.
     device /dev/mixer
   }
   ```
+
+## Switch Binary  
+This method will build a NetBSD binary.
+* Install [devkitpro](https://devkitpro.org/wiki/Getting_Started),  then `sudo dkp-pacman -S switch-dev`
+* Add env `DEVKITPRO`, for example `export DEVKITPRO=/opt/devkitpro`  
+* in dir `build/switch`
+  * use `make swika.nro` to build nro file (can be loaded by hbmenu)
+  * use `make debug SWITH_IP=192.168.xx.xx` to run the app for debug  

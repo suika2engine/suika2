@@ -163,7 +163,7 @@ const char *expand_variable(const char *msg)
 			/* 変数番号を取得する */
 			msg++;
 			for (i = 0; i < 4; i++) {
-				if (isdigit(*msg))
+				if (isdigit((int)*msg))
 					var[i] = *msg++;
 				else
 					break;
