@@ -1001,18 +1001,15 @@ static void process_main_click(void)
 		return;
 	}
 
-	/* コンフィグ画面への遷移を確認する */
-	if (is_escape_pressed) {
-		play_se(conf_msgbox_config_se);
-		need_config_mode = true;
-		return;
-	}
-
 	/* システムメニューへの遷移を確認していく */
 	enter_sysmenu = false;
 
 	/* 右クリックされたとき */
 	if (selected_parent_index == -1 && is_right_button_pressed)
+		enter_sysmenu = true;
+
+	/* エスケープキーが押下されたとき */
+	if (is_escape_pressed)
 		enter_sysmenu = true;
 
 	/* 折りたたみシステムメニューがクリックされたとき */
@@ -1037,8 +1034,8 @@ static void process_main_click(void)
 /* システムメニュー表示中のクリックを処理する */
 static void process_sysmenu_click(void)
 {
-	/* 右クリックされた場合 */
-	if (is_right_button_pressed) {
+	/* 右クリックされた場合と、エスケープキーが押下されたとき */
+	if (is_right_button_pressed || is_escape_pressed) {
 		/* SEを再生する */
 		play_se(conf_sysmenu_leave_se);
 

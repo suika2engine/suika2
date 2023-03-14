@@ -506,6 +506,7 @@ void clear_input_state(void)
 	is_right_clicked = false;
 	is_return_pressed = false;
 	is_down_pressed = false;
+	is_escape_pressed = false;
 }
 
 /*

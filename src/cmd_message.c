@@ -466,7 +466,7 @@ static void init_skip_mode(void)
 	}
 
 	/* クリックされた場合 */
-	if (is_right_clicked || is_left_clicked) {
+	if (is_right_clicked || is_left_clicked || is_escape_pressed) {
 		/* SEを再生する */
 		play_se(conf_msgbox_skip_cancel_se);
 
@@ -1524,20 +1524,6 @@ static bool frame_config(void)
 	if (is_hidden)
 		return false;
 
-	/* ESCキーが押下されたとき */
-	if (is_escape_pressed) {
-		/* SEを再生する */
-		play_se(conf_msgbox_config_se);
-
-		/* ボイスを停止する */
-		set_mixer_input(VOICE_STREAM, NULL);
-
-		/* コンフィグモードを開始する */
-		need_config_mode = true;
-
-		return true;
-	}
-
 	/* CONFIGボタンが押された場合 */
 	if (is_left_clicked && pointed_index == BTN_CONFIG) {
 		/* SEを再生する */
@@ -1600,7 +1586,7 @@ static void frame_auto_mode(int *x, int *y, int *w, int *h)
 		is_down_pressed = false;
 
 		/* クリックされた場合 */
-		if (is_left_clicked || is_right_clicked) {
+		if (is_left_clicked || is_right_clicked || is_escape_pressed) {
 			/* SEを再生する */
 			play_se(conf_msgbox_auto_cancel_se);
 
@@ -1750,8 +1736,8 @@ static void frame_sysmenu(void)
 
 	/* システムメニューを表示中の場合 */
 	if (is_sysmenu) {
-		/* 右クリックされた場合 */
-		if (is_right_clicked) {
+		/* 右クリックされた場合か、エスケープキーが押下された場合 */
+		if (is_right_clicked || is_escape_pressed) {
 			/* SEを再生する */
 			play_se(conf_sysmenu_leave_se);
 
@@ -1760,7 +1746,7 @@ static void frame_sysmenu(void)
 			is_sysmenu_finished = true;
 
 			/* 以降のクリック処理を行わない */
-			is_right_clicked = false;
+			clear_input_state();
 			return;
 		}
 
@@ -1953,8 +1939,8 @@ static void frame_sysmenu(void)
 
 	enter_sysmenu = false;
 
-	/* 右クリックされたとき */
-	if (is_right_clicked) {
+	/* 右クリックされた場合と、エスケープキーが押下された場合 */
+	if (is_right_clicked || is_escape_pressed) {
 		enter_sysmenu = true;
 		clear_input_state();
 	}
