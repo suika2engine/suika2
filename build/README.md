@@ -220,9 +220,19 @@ This method will build a NetBSD binary.
   ```
 
 ## Switch Binary  
-This method will build a NetBSD binary.
-* Install [devkitpro](https://devkitpro.org/wiki/Getting_Started),  then `sudo dkp-pacman -S switch-dev`
+This method will build a Switch binary.
+
+* Install [devkitpro](https://devkitpro.org/wiki/Getting_Started)  
 * Add env `DEVKITPRO`, for example `export DEVKITPRO=/opt/devkitpro`  
+* Run `sudo dkp-pacman -S switch-dev switch-portlibs`
 * in dir `build/switch`
   * use `make swika.nro` to build nro file (can be loaded by hbmenu)
   * use `make debug SWITH_IP=192.168.xx.xx` to run the app for debug  
+
+Also you can use docker to compile:
+
+``` shell
+docker pull devkitpro/devkita64
+docker run -d -it --rm -v $(pwd):/project --name devkita64_run devkitpro/devkita64
+docker exec -i devkita64_run bash -c "cd /project/build/switch && make -j2"
+```  

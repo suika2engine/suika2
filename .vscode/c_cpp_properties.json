@@ -1,5 +1,5 @@
 {
-    "env": { // set DEVKITPRO_HOME in your user env
+    "env": { // set DEVKITPRO in your user env
         "devkitpro": "${env:DEVKITPRO}"
     },
     "configurations": [
