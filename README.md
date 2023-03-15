@@ -26,7 +26,7 @@ Don't have a Discord account or would prefer to speak formally? Send an e-mail t
 ## Portability
 
 Official builds of Suika2 run on Windows, Mac, and Web browsers.
-The source code can be compiled for iPhone, iPad, Android, Linux, FreeBSD, and NetBSD.
+The source code can be compiled for iPhone, iPad, Android, Linux, FreeBSD, NetBSD and Switch.
 If a developer wishes, Windows and Mac versions can also be compiled from source.
 
 Suika2 consists of a platform independent layer and a hardware abstraction layer (HAL).
@@ -85,6 +85,12 @@ See `COPYING`.
 
 * On Linux/FreeBSD/NetBSD:
     * Build from the source code. See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source#linux-binary-x86_64).
+
+* On Switch Homebrew:  
+    * Put `suika.nro` in `yourgamedir`
+    * Move the `yourgamedir` to switch sdcard `/switch/yourgamedir`
+    * Install `hbmenu` and select an arbitary switch app, then press `R` to enter hbmenu (applet mode is not available as not enough memory)
+    * select `swika` to play
 
 ## Manuals
 

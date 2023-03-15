@@ -30,6 +30,9 @@
 #elif defined(EM)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
+#elif defined(SWITCH)
+#include <GLES3/gl3.h>
+#include <GLES2/gl2ext.h>
 #elif defined(LINUX) && defined(USE_X11_OPENGL)
 #include <GL/gl.h>
 #include "glhelper.h"
