@@ -64,7 +64,7 @@ LDFLAGS = \
 	-specs=$(DEVKITPRO)/libnx/switch.specs -fPIE \
 	-L$(DEVKITPRO)/libnx/lib \
 	-L$(DEVKITPRO)/portlibs/switch/lib \
-	-lsdl2 -lGLESv2 -lEGL \
+	-lSDL2 -lGLESv2 -lEGL \
 	-ldrm_nouveau -lglapi -lnx -lc -lstdc++ \
 	-ljpeg -lpng16 -lz \
 	-lvorbisfile -lvorbis -lm \

@@ -87,7 +87,7 @@ See `COPYING`.
     * Build from the source code. See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source#linux-binary-x86_64).
 
 * On Switch Homebrew:  
-    * Put `suika.nro` in `yourgamedir`
+    * Put `suika.nro` in `yourgamedir` (See `build/README.md` if you want to build from source)
     * Move the `yourgamedir` to switch sdcard `/switch/yourgamedir`
     * Install `hbmenu` and select an arbitary switch app, then press `R` to enter hbmenu (applet mode is not available as not enough memory)
     * select `swika` to play
