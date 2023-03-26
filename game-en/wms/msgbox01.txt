@@ -1,0 +1,17 @@
+func main() {
+    // Write the message box configurations to be changed.
+    s2_set_config("msgbox.bg.file", "new-msgbox-bg.png");
+    s2_set_config("msgbox.fg.file", "new-msgbox-bg.png");
+
+    s2_set_config("msgbox.x", "43");
+    s2_set_config("msgbox.y", "503");
+
+    // Write the font configurations to be changed.
+    s2_set_config("font.color.r", "255");
+    s2_set_config("font.color.g", "255");
+    s2_set_config("font.color.b", "255");
+
+    // Apply the changes.
+    s2_reflect_msgbox_and_namebox_config();
+    s2_reflect_font_config();
+}

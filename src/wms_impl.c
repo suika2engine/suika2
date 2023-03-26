@@ -17,6 +17,7 @@ static bool s2_set_variable(struct wms_runtime *rt);
 static bool s2_random(struct wms_runtime *rt);
 static bool s2_set_config(struct wms_runtime *rt);
 static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
+static bool s2_reflect_font_config(struct wms_runtime *rt);
 
 /*
  * FFI function table 
@@ -28,6 +29,7 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_random, "s2_random", {NULL}},
 	{s2_set_config, "s2_set_config", {"key", "value", NULL}},
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
+	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
 };
 
 #define FFI_FUNC_TBL_SIZE (sizeof(ffi_func_tbl) / sizeof(ffi_func_tbl[0]))
@@ -146,6 +148,25 @@ static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt)
 
 	/* Update. */
 	if (!update_msgbox_and_namebox())
+		return false;
+
+	return true;
+}
+
+/* Reflect the changed font configs. */
+static bool s2_reflect_font_config(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	/* Cleanup the font subsystem. */
+	cleanup_glyph();
+
+	/* Set the font file name to the font subsystem. */
+	if (!set_font_file_name(conf_font_file))
+		return false;
+
+	/* Re-initialize the font subsystem. */
+	if (!init_glyph())
 		return false;
 
 	return true;
