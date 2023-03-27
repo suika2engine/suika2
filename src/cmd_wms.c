@@ -61,7 +61,7 @@ static bool init(void)
 	if (rf == NULL)
 		return false;
 	len = get_rfile_size(rf);
-	script = malloc(len);
+	script = malloc(len + 1);
 	if (script == NULL) {
 		log_memory();
 		return false;
@@ -71,6 +71,7 @@ static bool init(void)
 		return false;
 	}
 	close_rfile(rf);
+	script[len] = '\0';
 
 	/* パースしてランタイムを作成する */
 	rt = wms_make_runtime(script);
