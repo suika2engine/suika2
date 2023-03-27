@@ -95,10 +95,14 @@ static void _debug(const char *s);
 extern int wms_parser_error_line;
 extern int wms_parser_error_column;
 
-int wms_yylex(void);
-void wms_yyerror(const char *s);
+int wms_yylex(void *);
+void wms_yyerror(void *, char *s);
+#line 24 "wms_parser.y"
 
-#line 102 "wms_parser.tab.c"
+#include "stdio.h"
+extern void wms_yyerror(void *scanner, char *s);
+
+#line 106 "wms_parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -575,13 +579,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    88,    88,    93,    99,   104,   109,   114,   120,   125,
-     131,   136,   142,   148,   154,   160,   166,   172,   178,   184,
-     190,   197,   204,   211,   217,   223,   228,   234,   239,   245,
-     250,   256,   261,   267,   272,   278,   283,   288,   293,   298,
-     303,   309,   315,   321,   327,   332,   337,   342,   347,   352,
-     357,   362,   367,   372,   377,   382,   387,   392,   398,   403,
-     408,   413,   418,   423,   428,   434,   439
+       0,   100,   100,   105,   111,   116,   121,   126,   132,   137,
+     143,   148,   154,   160,   166,   172,   178,   184,   190,   196,
+     202,   209,   216,   223,   229,   235,   240,   246,   251,   257,
+     262,   268,   273,   279,   284,   290,   295,   300,   305,   310,
+     315,   321,   327,   333,   339,   344,   349,   354,   359,   364,
+     369,   374,   379,   384,   389,   394,   399,   404,   410,   415,
+     420,   425,   430,   435,   440,   446,   451
 };
 #endif
 
@@ -926,7 +930,7 @@ enum { YYENOMEM = -2 };
       }                                                           \
     else                                                          \
       {                                                           \
-        yyerror (YY_("syntax error: cannot back up")); \
+        yyerror (scanner, YY_("syntax error: cannot back up")); \
         YYERROR;                                                  \
       }                                                           \
   while (0)
@@ -1042,7 +1046,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Kind, Value, Location); \
+                  Kind, Value, Location, scanner); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -1054,11 +1058,12 @@ do {                                                                      \
 
 static void
 yy_symbol_value_print (FILE *yyo,
-                       yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
+                       yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, void *scanner)
 {
   FILE *yyoutput = yyo;
   YY_USE (yyoutput);
   YY_USE (yylocationp);
+  YY_USE (scanner);
   if (!yyvaluep)
     return;
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
@@ -1073,14 +1078,14 @@ yy_symbol_value_print (FILE *yyo,
 
 static void
 yy_symbol_print (FILE *yyo,
-                 yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
+                 yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, void *scanner)
 {
   YYFPRINTF (yyo, "%s %s (",
              yykind < YYNTOKENS ? "token" : "nterm", yysymbol_name (yykind));
 
   YYLOCATION_PRINT (yyo, yylocationp);
   YYFPRINTF (yyo, ": ");
-  yy_symbol_value_print (yyo, yykind, yyvaluep, yylocationp);
+  yy_symbol_value_print (yyo, yykind, yyvaluep, yylocationp, scanner);
   YYFPRINTF (yyo, ")");
 }
 
@@ -1114,7 +1119,7 @@ do {                                                            \
 
 static void
 yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp,
-                 int yyrule)
+                 int yyrule, void *scanner)
 {
   int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -1128,7 +1133,7 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp,
       yy_symbol_print (stderr,
                        YY_ACCESSING_SYMBOL (+yyssp[yyi + 1 - yynrhs]),
                        &yyvsp[(yyi + 1) - (yynrhs)],
-                       &(yylsp[(yyi + 1) - (yynrhs)]));
+                       &(yylsp[(yyi + 1) - (yynrhs)]), scanner);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -1136,7 +1141,7 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp,
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, yylsp, Rule); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, scanner); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1177,10 +1182,11 @@ int yydebug;
 
 static void
 yydestruct (const char *yymsg,
-            yysymbol_kind_t yykind, YYSTYPE *yyvaluep, YYLTYPE *yylocationp)
+            yysymbol_kind_t yykind, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, void *scanner)
 {
   YY_USE (yyvaluep);
   YY_USE (yylocationp);
+  YY_USE (scanner);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yykind, yyvaluep, yylocationp);
@@ -1213,7 +1219,7 @@ int yynerrs;
 `----------*/
 
 int
-yyparse (void)
+yyparse (void *scanner)
 {
     yy_state_fast_t yystate = 0;
     /* Number of tokens to shift before error messages enabled.  */
@@ -1267,13 +1273,13 @@ yyparse (void)
 
 
 /* User initialization code.  */
-#line 82 "wms_parser.y"
+#line 94 "wms_parser.y"
 {
 	wms_yylloc.last_line = yylloc.first_line = 0;
 	wms_yylloc.last_column = yylloc.first_column = 0;
 }
 
-#line 1277 "wms_parser.tab.c"
+#line 1283 "wms_parser.tab.c"
 
   yylsp[0] = yylloc;
   goto yysetstate;
@@ -1392,7 +1398,7 @@ yybackup:
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token\n"));
-      yychar = yylex ();
+      yychar = yylex (scanner);
     }
 
   if (yychar <= YYEOF)
@@ -1484,603 +1490,603 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* func_list: func  */
-#line 89 "wms_parser.y"
+#line 101 "wms_parser.y"
                 {
 			(yyval.func_list) = wms_make_func_list(NULL, (yyvsp[0].func));
 			debug("single func func_list");
 		}
-#line 1493 "wms_parser.tab.c"
+#line 1499 "wms_parser.tab.c"
     break;
 
   case 3: /* func_list: func_list func  */
-#line 94 "wms_parser.y"
+#line 106 "wms_parser.y"
                 {
 			(yyval.func_list) = wms_make_func_list((yyvsp[-1].func_list), (yyvsp[0].func));
 			debug("multiple func func_list");
 		}
-#line 1502 "wms_parser.tab.c"
+#line 1508 "wms_parser.tab.c"
     break;
 
   case 4: /* func: TOKEN_FUNC TOKEN_SYMBOL TOKEN_LPAR param_list TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 100 "wms_parser.y"
+#line 112 "wms_parser.y"
                 {
 			(yyval.func) = wms_make_func((yyvsp[-6].sval), (yyvsp[-4].param_list), (yyvsp[-1].stmt_list));
 			debug("param_list and stmt_list function");
 		}
-#line 1511 "wms_parser.tab.c"
+#line 1517 "wms_parser.tab.c"
     break;
 
   case 5: /* func: TOKEN_FUNC TOKEN_SYMBOL TOKEN_LPAR param_list TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 105 "wms_parser.y"
+#line 117 "wms_parser.y"
                 {
 			(yyval.func) = wms_make_func((yyvsp[-5].sval), (yyvsp[-3].param_list), NULL);
 			debug("param_list function");
 		}
-#line 1520 "wms_parser.tab.c"
+#line 1526 "wms_parser.tab.c"
     break;
 
   case 6: /* func: TOKEN_FUNC TOKEN_SYMBOL TOKEN_LPAR TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 110 "wms_parser.y"
+#line 122 "wms_parser.y"
                 {
 			(yyval.func) = wms_make_func((yyvsp[-5].sval), NULL, (yyvsp[-1].stmt_list));
 			debug("stmt_list function");
 		}
-#line 1529 "wms_parser.tab.c"
+#line 1535 "wms_parser.tab.c"
     break;
 
   case 7: /* func: TOKEN_FUNC TOKEN_SYMBOL TOKEN_LPAR TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 115 "wms_parser.y"
+#line 127 "wms_parser.y"
                 {
 			(yyval.func) = wms_make_func((yyvsp[-4].sval), NULL, NULL);
 			debug("empty function");
 		}
-#line 1538 "wms_parser.tab.c"
+#line 1544 "wms_parser.tab.c"
     break;
 
   case 8: /* param_list: TOKEN_SYMBOL  */
-#line 121 "wms_parser.y"
+#line 133 "wms_parser.y"
                 {
 			(yyval.param_list) = wms_make_param_list(NULL, (yyvsp[0].sval));
 			debug("single param param_list");
 		}
-#line 1547 "wms_parser.tab.c"
+#line 1553 "wms_parser.tab.c"
     break;
 
   case 9: /* param_list: param_list TOKEN_COMMA TOKEN_SYMBOL  */
-#line 126 "wms_parser.y"
+#line 138 "wms_parser.y"
                 {
 			(yyval.param_list) = wms_make_param_list((yyvsp[-2].param_list), (yyvsp[0].sval));
 			debug("multiple params");
 		}
-#line 1556 "wms_parser.tab.c"
+#line 1562 "wms_parser.tab.c"
     break;
 
   case 10: /* stmt_list: stmt  */
-#line 132 "wms_parser.y"
+#line 144 "wms_parser.y"
                 {
 			(yyval.stmt_list) = wms_make_stmt_list(NULL, (yyvsp[0].stmt));
 			debug("single stmt stmt_list");
 		}
-#line 1565 "wms_parser.tab.c"
+#line 1571 "wms_parser.tab.c"
     break;
 
   case 11: /* stmt_list: stmt_list stmt  */
-#line 137 "wms_parser.y"
+#line 149 "wms_parser.y"
                 {
 			(yyval.stmt_list) = wms_make_stmt_list((yyvsp[-1].stmt_list), (yyvsp[0].stmt));
 			debug("multiple stmt stmt_list");
 		}
-#line 1574 "wms_parser.tab.c"
+#line 1580 "wms_parser.tab.c"
     break;
 
   case 12: /* stmt: empty_stmt  */
-#line 143 "wms_parser.y"
-                {
-			(yyval.stmt) = (yyvsp[0].stmt);
-			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
-			debug("stmt");
-		}
-#line 1584 "wms_parser.tab.c"
-    break;
-
-  case 13: /* stmt: expr_stmt  */
-#line 149 "wms_parser.y"
-                {
-			(yyval.stmt) = (yyvsp[0].stmt);
-			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
-			debug("stmt");
-		}
-#line 1594 "wms_parser.tab.c"
-    break;
-
-  case 14: /* stmt: assign_stmt  */
 #line 155 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1604 "wms_parser.tab.c"
+#line 1590 "wms_parser.tab.c"
     break;
 
-  case 15: /* stmt: if_stmt  */
+  case 13: /* stmt: expr_stmt  */
 #line 161 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1614 "wms_parser.tab.c"
+#line 1600 "wms_parser.tab.c"
     break;
 
-  case 16: /* stmt: elif_stmt  */
+  case 14: /* stmt: assign_stmt  */
 #line 167 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1624 "wms_parser.tab.c"
+#line 1610 "wms_parser.tab.c"
     break;
 
-  case 17: /* stmt: else_stmt  */
+  case 15: /* stmt: if_stmt  */
 #line 173 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1634 "wms_parser.tab.c"
+#line 1620 "wms_parser.tab.c"
     break;
 
-  case 18: /* stmt: while_stmt  */
+  case 16: /* stmt: elif_stmt  */
 #line 179 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1644 "wms_parser.tab.c"
+#line 1630 "wms_parser.tab.c"
     break;
 
-  case 19: /* stmt: for_stmt  */
+  case 17: /* stmt: else_stmt  */
 #line 185 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1654 "wms_parser.tab.c"
+#line 1640 "wms_parser.tab.c"
     break;
 
-  case 20: /* stmt: return_stmt  */
+  case 18: /* stmt: while_stmt  */
 #line 191 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1664 "wms_parser.tab.c"
+#line 1650 "wms_parser.tab.c"
+    break;
+
+  case 19: /* stmt: for_stmt  */
+#line 197 "wms_parser.y"
+                {
+			(yyval.stmt) = (yyvsp[0].stmt);
+			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
+			debug("stmt");
+		}
+#line 1660 "wms_parser.tab.c"
+    break;
+
+  case 20: /* stmt: return_stmt  */
+#line 203 "wms_parser.y"
+                {
+			(yyval.stmt) = (yyvsp[0].stmt);
+			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
+			debug("stmt");
+		}
+#line 1670 "wms_parser.tab.c"
     break;
 
   case 21: /* stmt: break_stmt  */
-#line 198 "wms_parser.y"
+#line 210 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1674 "wms_parser.tab.c"
+#line 1680 "wms_parser.tab.c"
     break;
 
   case 22: /* stmt: continue_stmt  */
-#line 205 "wms_parser.y"
+#line 217 "wms_parser.y"
                 {
 			(yyval.stmt) = (yyvsp[0].stmt);
 			wms_set_stmt_position((yyvsp[0].stmt), wms_yylloc.first_line + 1);
 			debug("stmt");
 		}
-#line 1684 "wms_parser.tab.c"
+#line 1690 "wms_parser.tab.c"
     break;
 
   case 23: /* empty_stmt: TOKEN_SEMICOLON  */
-#line 212 "wms_parser.y"
+#line 224 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_nothing();
 			debug("empty stmt");
 		}
-#line 1693 "wms_parser.tab.c"
+#line 1699 "wms_parser.tab.c"
     break;
 
   case 24: /* expr_stmt: expr TOKEN_SEMICOLON  */
-#line 218 "wms_parser.y"
+#line 230 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_expr((yyvsp[-1].expr));
 			debug("expr stmt");
 		}
-#line 1702 "wms_parser.tab.c"
+#line 1708 "wms_parser.tab.c"
     break;
 
   case 25: /* assign_stmt: TOKEN_SYMBOL TOKEN_ASSIGN expr TOKEN_SEMICOLON  */
-#line 224 "wms_parser.y"
+#line 236 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_symbol_assign((yyvsp[-3].sval), (yyvsp[-1].expr));
 			debug("symbol assign stmt");
 		}
-#line 1711 "wms_parser.tab.c"
+#line 1717 "wms_parser.tab.c"
     break;
 
   case 26: /* assign_stmt: TOKEN_SYMBOL TOKEN_LARR expr TOKEN_RARR TOKEN_ASSIGN expr TOKEN_SEMICOLON  */
-#line 229 "wms_parser.y"
+#line 241 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_array_assign((yyvsp[-6].sval), (yyvsp[-4].expr), (yyvsp[-1].expr));
 			debug("array assign stmt");
 		}
-#line 1720 "wms_parser.tab.c"
+#line 1726 "wms_parser.tab.c"
     break;
 
   case 27: /* if_stmt: TOKEN_IF TOKEN_LPAR expr TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 235 "wms_parser.y"
+#line 247 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_if((yyvsp[-4].expr), (yyvsp[-1].stmt_list));
 			debug("if { stmt_list } stmt");
 		}
-#line 1729 "wms_parser.tab.c"
+#line 1735 "wms_parser.tab.c"
     break;
 
   case 28: /* if_stmt: TOKEN_IF TOKEN_LPAR expr TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 240 "wms_parser.y"
+#line 252 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_if((yyvsp[-3].expr), NULL);
 			debug("if {} stmt");
 		}
-#line 1738 "wms_parser.tab.c"
+#line 1744 "wms_parser.tab.c"
     break;
 
   case 29: /* elif_stmt: TOKEN_ELSE TOKEN_IF TOKEN_LPAR expr TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 246 "wms_parser.y"
+#line 258 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_elif((yyvsp[-4].expr), (yyvsp[-1].stmt_list));
 			debug("elif { stmt_list } stmt");
 		}
-#line 1747 "wms_parser.tab.c"
+#line 1753 "wms_parser.tab.c"
     break;
 
   case 30: /* elif_stmt: TOKEN_ELSE TOKEN_IF TOKEN_LPAR expr TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 251 "wms_parser.y"
+#line 263 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_elif((yyvsp[-3].expr), NULL);
 			debug("elif {} stmt");
 		}
-#line 1756 "wms_parser.tab.c"
+#line 1762 "wms_parser.tab.c"
     break;
 
   case 31: /* else_stmt: TOKEN_ELSE TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 257 "wms_parser.y"
+#line 269 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_else((yyvsp[-1].stmt_list));
 			debug("else { stmt_list } stmt");
 		}
-#line 1765 "wms_parser.tab.c"
+#line 1771 "wms_parser.tab.c"
     break;
 
   case 32: /* else_stmt: TOKEN_ELSE TOKEN_LBLK TOKEN_RBLK  */
-#line 262 "wms_parser.y"
+#line 274 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_else(NULL);
 			debug("else { } stmt");
 		}
-#line 1774 "wms_parser.tab.c"
+#line 1780 "wms_parser.tab.c"
     break;
 
   case 33: /* while_stmt: TOKEN_WHILE TOKEN_LPAR expr TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 268 "wms_parser.y"
+#line 280 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_while((yyvsp[-4].expr), (yyvsp[-1].stmt_list));
 			debug("while { stmt_list } stmt");
 		}
-#line 1783 "wms_parser.tab.c"
+#line 1789 "wms_parser.tab.c"
     break;
 
   case 34: /* while_stmt: TOKEN_WHILE TOKEN_LPAR expr TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 273 "wms_parser.y"
+#line 285 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_while((yyvsp[-3].expr), NULL);
 			debug("while { } stmt");
 		}
-#line 1792 "wms_parser.tab.c"
+#line 1798 "wms_parser.tab.c"
     break;
 
   case 35: /* for_stmt: TOKEN_FOR TOKEN_LPAR TOKEN_SYMBOL TOKEN_COMMA TOKEN_SYMBOL TOKEN_IN expr TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 279 "wms_parser.y"
+#line 291 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_for((yyvsp[-8].sval), (yyvsp[-6].sval), (yyvsp[-4].expr), (yyvsp[-1].stmt_list));
 			debug("for(k, v in array) { stmt_list } stmt");
 		}
-#line 1801 "wms_parser.tab.c"
+#line 1807 "wms_parser.tab.c"
     break;
 
   case 36: /* for_stmt: TOKEN_FOR TOKEN_LPAR TOKEN_SYMBOL TOKEN_COMMA TOKEN_SYMBOL TOKEN_IN expr TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 284 "wms_parser.y"
+#line 296 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_for((yyvsp[-7].sval), (yyvsp[-5].sval), (yyvsp[-3].expr), NULL);
 			debug("for(k, v in array) { } stmt");
 		}
-#line 1810 "wms_parser.tab.c"
+#line 1816 "wms_parser.tab.c"
     break;
 
   case 37: /* for_stmt: TOKEN_FOR TOKEN_LPAR TOKEN_SYMBOL TOKEN_IN expr TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 289 "wms_parser.y"
+#line 301 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_for(NULL, (yyvsp[-6].sval), (yyvsp[-4].expr), (yyvsp[-1].stmt_list));
 			debug("for(k in array) { stmt_list } stmt");
 		}
-#line 1819 "wms_parser.tab.c"
+#line 1825 "wms_parser.tab.c"
     break;
 
   case 38: /* for_stmt: TOKEN_FOR TOKEN_LPAR TOKEN_SYMBOL TOKEN_IN expr TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 294 "wms_parser.y"
+#line 306 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_for((yyvsp[-5].sval), NULL, (yyvsp[-3].expr), NULL);
 			debug("for(k in array) { } stmt");
 		}
-#line 1828 "wms_parser.tab.c"
+#line 1834 "wms_parser.tab.c"
     break;
 
   case 39: /* for_stmt: TOKEN_FOR TOKEN_LPAR TOKEN_SYMBOL TOKEN_IN TOKEN_INT TOKEN_DOTDOT TOKEN_INT TOKEN_RPAR TOKEN_LBLK stmt_list TOKEN_RBLK  */
-#line 299 "wms_parser.y"
+#line 311 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_for_range((yyvsp[-8].sval), (yyvsp[-6].ival), (yyvsp[-4].ival), (yyvsp[-1].stmt_list));
 			debug("for(v in i..j) { stmt_list } stmt");
 		}
-#line 1837 "wms_parser.tab.c"
+#line 1843 "wms_parser.tab.c"
     break;
 
   case 40: /* for_stmt: TOKEN_FOR TOKEN_LPAR TOKEN_SYMBOL TOKEN_IN TOKEN_INT TOKEN_DOTDOT TOKEN_INT TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK  */
-#line 304 "wms_parser.y"
+#line 316 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_for_range((yyvsp[-7].sval), (yyvsp[-5].ival), (yyvsp[-3].ival), NULL);
 			debug("for(v in i..j) { stmt_list } stmt");
 		}
-#line 1846 "wms_parser.tab.c"
+#line 1852 "wms_parser.tab.c"
     break;
 
   case 41: /* return_stmt: TOKEN_RETURN expr TOKEN_SEMICOLON  */
-#line 310 "wms_parser.y"
+#line 322 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_return((yyvsp[-1].expr));
 			debug("rerurn stmt");
 		}
-#line 1855 "wms_parser.tab.c"
+#line 1861 "wms_parser.tab.c"
     break;
 
   case 42: /* break_stmt: TOKEN_BREAK TOKEN_SEMICOLON  */
-#line 316 "wms_parser.y"
+#line 328 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_break();
 			debug("break stmt");
 		}
-#line 1864 "wms_parser.tab.c"
+#line 1870 "wms_parser.tab.c"
     break;
 
   case 43: /* continue_stmt: TOKEN_CONTINUE TOKEN_SEMICOLON  */
-#line 322 "wms_parser.y"
+#line 334 "wms_parser.y"
                 {
 			(yyval.stmt) = wms_make_stmt_with_continue();
 			debug("continue stmt");
 		}
-#line 1873 "wms_parser.tab.c"
+#line 1879 "wms_parser.tab.c"
     break;
 
   case 44: /* expr: term  */
-#line 328 "wms_parser.y"
+#line 340 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_term((yyvsp[0].term));
 			debug("single term expr");
 		}
-#line 1882 "wms_parser.tab.c"
+#line 1888 "wms_parser.tab.c"
     break;
 
   case 45: /* expr: expr TOKEN_OR expr  */
-#line 333 "wms_parser.y"
+#line 345 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_or((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("or expr");
 		}
-#line 1891 "wms_parser.tab.c"
+#line 1897 "wms_parser.tab.c"
     break;
 
   case 46: /* expr: expr TOKEN_AND expr  */
-#line 338 "wms_parser.y"
+#line 350 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_and((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("and expr");
 		}
-#line 1900 "wms_parser.tab.c"
+#line 1906 "wms_parser.tab.c"
     break;
 
   case 47: /* expr: expr TOKEN_LT expr  */
-#line 343 "wms_parser.y"
+#line 355 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_lt((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("lt expr");
 		}
-#line 1909 "wms_parser.tab.c"
+#line 1915 "wms_parser.tab.c"
     break;
 
   case 48: /* expr: expr TOKEN_LTE expr  */
-#line 348 "wms_parser.y"
+#line 360 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_lte((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("lte expr");
 		}
-#line 1918 "wms_parser.tab.c"
+#line 1924 "wms_parser.tab.c"
     break;
 
   case 49: /* expr: expr TOKEN_GT expr  */
-#line 353 "wms_parser.y"
+#line 365 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_gt((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("gt expr");
 		}
-#line 1927 "wms_parser.tab.c"
+#line 1933 "wms_parser.tab.c"
     break;
 
   case 50: /* expr: expr TOKEN_GTE expr  */
-#line 358 "wms_parser.y"
+#line 370 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_gte((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("gte expr");
 		}
-#line 1936 "wms_parser.tab.c"
+#line 1942 "wms_parser.tab.c"
     break;
 
   case 51: /* expr: expr TOKEN_EQ expr  */
-#line 363 "wms_parser.y"
+#line 375 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_eq((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("eq expr");
 		}
-#line 1945 "wms_parser.tab.c"
+#line 1951 "wms_parser.tab.c"
     break;
 
   case 52: /* expr: expr TOKEN_PLUS expr  */
-#line 368 "wms_parser.y"
+#line 380 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_plus((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("add expr");
 		}
-#line 1954 "wms_parser.tab.c"
+#line 1960 "wms_parser.tab.c"
     break;
 
   case 53: /* expr: expr TOKEN_MINUS expr  */
-#line 373 "wms_parser.y"
+#line 385 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_minus((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("sub expr");
 		}
-#line 1963 "wms_parser.tab.c"
+#line 1969 "wms_parser.tab.c"
     break;
 
   case 54: /* expr: expr TOKEN_MUL expr  */
-#line 378 "wms_parser.y"
+#line 390 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_mul((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("mul expr");
 		}
-#line 1972 "wms_parser.tab.c"
+#line 1978 "wms_parser.tab.c"
     break;
 
   case 55: /* expr: expr TOKEN_DIV expr  */
-#line 383 "wms_parser.y"
+#line 395 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_div((yyvsp[-2].expr), (yyvsp[0].expr));
 			debug("div expr");
 		}
-#line 1981 "wms_parser.tab.c"
+#line 1987 "wms_parser.tab.c"
     break;
 
   case 56: /* expr: TOKEN_MINUS expr  */
-#line 388 "wms_parser.y"
+#line 400 "wms_parser.y"
                 {
 			(yyval.expr) = wms_make_expr_with_neg((yyvsp[0].expr));
 			debug("neg expr");
 		}
-#line 1990 "wms_parser.tab.c"
+#line 1996 "wms_parser.tab.c"
     break;
 
   case 57: /* expr: TOKEN_LPAR expr TOKEN_RPAR  */
-#line 393 "wms_parser.y"
+#line 405 "wms_parser.y"
                 {
 			(yyval.expr) = (yyvsp[-1].expr);
 			debug("(expr) expr");
 		}
-#line 1999 "wms_parser.tab.c"
+#line 2005 "wms_parser.tab.c"
     break;
 
   case 58: /* term: TOKEN_INT  */
-#line 399 "wms_parser.y"
+#line 411 "wms_parser.y"
                 {
 			(yyval.term) = wms_make_term_with_int((yyvsp[0].ival));
 			debug("int term");
 		}
-#line 2008 "wms_parser.tab.c"
+#line 2014 "wms_parser.tab.c"
     break;
 
   case 59: /* term: TOKEN_FLOAT  */
-#line 404 "wms_parser.y"
+#line 416 "wms_parser.y"
                 {
 			(yyval.term) = wms_make_term_with_float((yyvsp[0].fval));
 			debug("float term");
 		}
-#line 2017 "wms_parser.tab.c"
+#line 2023 "wms_parser.tab.c"
     break;
 
   case 60: /* term: TOKEN_STR  */
-#line 409 "wms_parser.y"
+#line 421 "wms_parser.y"
                 {
 			(yyval.term) = wms_make_term_with_str((yyvsp[0].sval));
 			debug("str term");
 		}
-#line 2026 "wms_parser.tab.c"
+#line 2032 "wms_parser.tab.c"
     break;
 
   case 61: /* term: TOKEN_SYMBOL  */
-#line 414 "wms_parser.y"
+#line 426 "wms_parser.y"
                 {
 			(yyval.term) = wms_make_term_with_symbol((yyvsp[0].sval));
 			debug("symbol term");
 		}
-#line 2035 "wms_parser.tab.c"
+#line 2041 "wms_parser.tab.c"
     break;
 
   case 62: /* term: TOKEN_SYMBOL TOKEN_LARR expr TOKEN_RARR  */
-#line 419 "wms_parser.y"
+#line 431 "wms_parser.y"
                 {
 			(yyval.term) = wms_make_term_with_array((yyvsp[-3].sval), (yyvsp[-1].expr));
 			debug("array[subscr]");
 		}
-#line 2044 "wms_parser.tab.c"
+#line 2050 "wms_parser.tab.c"
     break;
 
   case 63: /* term: TOKEN_SYMBOL TOKEN_LPAR TOKEN_RPAR  */
-#line 424 "wms_parser.y"
+#line 436 "wms_parser.y"
                 {
 			(yyval.term) = wms_make_term_with_call((yyvsp[-2].sval), NULL);
 			debug("call() term");
 		}
-#line 2053 "wms_parser.tab.c"
+#line 2059 "wms_parser.tab.c"
     break;
 
   case 64: /* term: TOKEN_SYMBOL TOKEN_LPAR arg_list TOKEN_RPAR  */
-#line 429 "wms_parser.y"
+#line 441 "wms_parser.y"
                 {
 			(yyval.term) = wms_make_term_with_call((yyvsp[-3].sval), (yyvsp[-1].arg_list));
 			debug("call(param_list) term");
 		}
-#line 2062 "wms_parser.tab.c"
+#line 2068 "wms_parser.tab.c"
     break;
 
   case 65: /* arg_list: expr  */
-#line 435 "wms_parser.y"
+#line 447 "wms_parser.y"
                 {
 			(yyval.arg_list) = wms_make_arg_list(NULL, (yyvsp[0].expr));
 			debug("single expr arg_list");
 		}
-#line 2071 "wms_parser.tab.c"
+#line 2077 "wms_parser.tab.c"
     break;
 
   case 66: /* arg_list: arg_list TOKEN_COMMA expr  */
-#line 440 "wms_parser.y"
+#line 452 "wms_parser.y"
                 {
 			(yyval.arg_list) = wms_make_arg_list((yyvsp[-2].arg_list), (yyvsp[0].expr));
 			debug("multiple expr param_list");
 		}
-#line 2080 "wms_parser.tab.c"
+#line 2086 "wms_parser.tab.c"
     break;
 
 
-#line 2084 "wms_parser.tab.c"
+#line 2090 "wms_parser.tab.c"
 
       default: break;
     }
@@ -2128,7 +2134,7 @@ yyerrlab:
   if (!yyerrstatus)
     {
       ++yynerrs;
-      yyerror (YY_("syntax error"));
+      yyerror (scanner, YY_("syntax error"));
     }
 
   yyerror_range[1] = yylloc;
@@ -2146,7 +2152,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval, &yylloc);
+                      yytoken, &yylval, &yylloc, scanner);
           yychar = YYEMPTY;
         }
     }
@@ -2202,7 +2208,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  YY_ACCESSING_SYMBOL (yystate), yyvsp, yylsp);
+                  YY_ACCESSING_SYMBOL (yystate), yyvsp, yylsp, scanner);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -2243,7 +2249,7 @@ yyabortlab:
 | yyexhaustedlab -- YYNOMEM (memory exhaustion) comes here.  |
 `-----------------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (YY_("memory exhausted"));
+  yyerror (scanner, YY_("memory exhausted"));
   yyresult = 2;
   goto yyreturnlab;
 
@@ -2258,7 +2264,7 @@ yyreturnlab:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc);
+                  yytoken, &yylval, &yylloc, scanner);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -2267,7 +2273,7 @@ yyreturnlab:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  YY_ACCESSING_SYMBOL (+*yyssp), yyvsp, yylsp);
+                  YY_ACCESSING_SYMBOL (+*yyssp), yyvsp, yylsp, scanner);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -2278,7 +2284,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 445 "wms_parser.y"
+#line 457 "wms_parser.y"
 
 
 #ifdef DEBUG
@@ -2288,8 +2294,9 @@ static void _debug(const char *s)
 }
 #endif
 
-void wms_yyerror(const char *s)
+void wms_yyerror(void *scanner, char *s)
 {
+	(void)scanner;
 	(void)s;
 	wms_parser_error_line = wms_yylloc.last_line + 1;
 	wms_parser_error_column = wms_yylloc.last_column + 1;

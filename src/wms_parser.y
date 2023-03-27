@@ -17,9 +17,21 @@ static void _debug(const char *s);
 extern int wms_parser_error_line;
 extern int wms_parser_error_column;
 
-int wms_yylex(void);
-void wms_yyerror(const char *s);
+int wms_yylex(void *);
+void wms_yyerror(void *, char *s);
 %}
+
+%{
+#include "stdio.h"
+extern void wms_yyerror(void *scanner, char *s);
+%}
+
+%parse-param { void *scanner }
+%lex-param { scanner }
+
+%code provides {
+#define YY_DECL int wms_yylex(void *yyscanner)
+}
 
 %union {
 	int ival;
@@ -451,8 +463,9 @@ static void _debug(const char *s)
 }
 #endif
 
-void wms_yyerror(const char *s)
+void wms_yyerror(void *scanner, char *s)
 {
+	(void)scanner;
 	(void)s;
 	wms_parser_error_line = wms_yylloc.last_line + 1;
 	wms_parser_error_column = wms_yylloc.last_column + 1;

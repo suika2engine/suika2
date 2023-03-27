@@ -32,9 +32,12 @@ static struct wms_func_list *ast;
 int wms_parser_error_line;
 int wms_parser_error_column;
 
-int wms_yy_scan_string(const char *yystr);
-int wms_yylex_destroy(void);
-int wms_yyparse(void);
+typedef void *yyscan_t;
+
+int wms_yylex_init(yyscan_t *scanner);
+int wms_yy_scan_string(const char *yystr, yyscan_t scanner);
+int wms_yylex_destroy(yyscan_t scanner);
+int wms_yyparse(yyscan_t scanner);
 
 /*
  * Forward Declarations
@@ -1006,12 +1009,14 @@ wms_make_runtime(
 	const char *script)
 {
 	struct wms_runtime *rt;
+	yyscan_t scanner;
 
 	/* Parse. */
-	wms_yy_scan_string(script);
-	if (wms_yyparse() != 0)
+	wms_yylex_init(&scanner);
+	wms_yy_scan_string(script, scanner);
+	if (wms_yyparse(scanner) != 0)
 		return NULL;
-	wms_yylex_destroy();
+	wms_yylex_destroy(scanner);
 
 	/* Create runtime. */
 	rt = malloc(sizeof(struct wms_runtime));

@@ -96,7 +96,7 @@ extern int wms_yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 24 "wms_parser.y"
+#line 36 "wms_parser.y"
 
 	int ival;
 	double fval;
@@ -137,7 +137,13 @@ struct YYLTYPE
 extern YYSTYPE wms_yylval;
 extern YYLTYPE wms_yylloc;
 
-int wms_yyparse (void);
+int wms_yyparse (void *scanner);
 
+/* "%code provides" blocks.  */
+#line 32 "wms_parser.y"
+
+#define YY_DECL int wms_yylex(void *yyscanner)
+
+#line 148 "wms_parser.tab.h"
 
 #endif /* !YY_WMS_YY_WMS_PARSER_TAB_H_INCLUDED  */
