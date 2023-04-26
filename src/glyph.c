@@ -331,7 +331,32 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 						  w, h);
 	}
 
-	/* アウトラインを描画する */
+	/* アウトライン(内側)を描画する */
+	FT_Stroker_New(library, &stroker);
+	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+	glyphIndex = FT_Get_Char_Index(face, codepoint);
+	FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face->glyph, &glyph);
+	FT_Glyph_StrokeBorder(&glyph, stroker, true, true);
+	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
+	bitmapGlyph = (FT_BitmapGlyph)glyph;
+	if (img != NULL) {
+		draw_glyph_func(bitmapGlyph->bitmap.buffer,
+				(int)bitmapGlyph->bitmap.width,
+				(int)bitmapGlyph->bitmap.rows,
+				bitmapGlyph->left,
+				conf_font_size - bitmapGlyph->top,
+				get_image_pixels(img),
+				get_image_width(img),
+				get_image_height(img),
+				x,
+				y,
+				outline_color);
+	}
+	FT_Done_Glyph(glyph);
+	FT_Stroker_Done(stroker);
+
+	/* アウトライン(外側)を描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 	glyphIndex = FT_Get_Char_Index(face, codepoint);
@@ -363,8 +388,6 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 		return true;
 
 	/* 中身を描画する */
-	FT_Stroker_New(library, &stroker);
-	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 	glyphIndex = FT_Get_Char_Index(face, codepoint);
 	FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
 	FT_Get_Glyph(face->glyph, &glyph);
@@ -382,7 +405,6 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 			y,
 			color);
 	FT_Done_Glyph(glyph);
-	FT_Stroker_Done(stroker);
 
 	/* 成功 */
 	return true;
