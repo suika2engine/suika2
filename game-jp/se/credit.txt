@@ -5,4 +5,5 @@ suika.ogg
 by しぐれるぅ。
 
 click.ogg by yoshikimasuda
-@audiostock No.40381 2次利用できません。
+@audiostock No.40381
+（2次利用できません。）
