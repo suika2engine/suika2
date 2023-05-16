@@ -57,13 +57,13 @@ Download the latest prebuilt binaries from [the releases page](https://github.co
 
 See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source).
 
-## Licence
+## License
 
 This software is released under the MIT license.
 You can redistribute this software commercially.
 See `COPYING`.
 
-It's important to include all licences for assets that require them.
+It's important to include all licenses for assets that require them.
 
 ## Usage
 
