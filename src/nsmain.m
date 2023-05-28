@@ -476,7 +476,7 @@ willUseFullScreenContentSize:(NSSize)proposedSize {
 //
 // メイン
 //
-int main()
+int main(int argc, char *argv[])
 {
 #ifdef SSE_VERSIONING
 	// ベクトル命令の対応を確認する

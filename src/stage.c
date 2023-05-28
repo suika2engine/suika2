@@ -1084,7 +1084,7 @@ static void draw_stage_fi_fo_fade(int fade_method)
 }
 
 /* デフォルトの背景フェードの描画を行う  */
-static void draw_stage_fi_fo_fade_normal()
+static void draw_stage_fi_fo_fade_normal(void)
 {
 	render_layer_image(LAYER_FO);
 	render_layer_image(LAYER_FI);
