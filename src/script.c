@@ -1075,7 +1075,7 @@ static bool parse_insn(int index, const char *file, int line, const char *buf,
 	return true;
 }
 
-/* ダブルクォーテーションでエスケープ可能なトークナイズを実行する */
+/* シングル/ダブルクォーテーションでエスケープ可能なトークナイズを実行する */
 static char *strtok_escape(char *buf, bool *escaped)
 {
 	static char *top = NULL;
@@ -1100,7 +1100,18 @@ static char *strtok_escape(char *buf, bool *escaped)
 		return NULL;
 	}
 
-	/* エスケープされている場合 */
+	/* シングルクオーテーションでエスケープされている場合 */
+	if (*top == '\'') {
+		result = ++top;
+		for (; *top != '\0' && *top != '\''; top++)
+			;
+		if (*top == '\'')
+			*top++ = '\0';
+		*escaped = true;
+		return result;
+	}
+
+	/* ダブルクオーテーションでエスケープされている場合 */
 	if (*top == '\"') {
 		result = ++top;
 		for (; *top != '\0' && *top != '\"'; top++)
@@ -1110,7 +1121,7 @@ static char *strtok_escape(char *buf, bool *escaped)
 		*escaped = true;
 		return result;
 	}
-	
+
 	/* エスケープされていない場合 */
 	result = top;
 	for (; *top != '\0' && *top != ' '; top++)
