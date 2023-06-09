@@ -106,7 +106,7 @@ SAVESLOT2 {
     clickse: click.ogg;
 }
 
-# セーブデータ2番目
+# セーブデータ3番目
 SAVESLOT3 {
     # 種類:セーブ
     type: save;
