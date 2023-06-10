@@ -114,7 +114,7 @@ static int msgbox_h;
 static const char *msg;
 
 /* 描画するメッセージの本来の先頭 */
-static const char *msg_top;
+static char *msg_top;
 
 
 /* 文字の色 */
@@ -170,6 +170,7 @@ bool is_overcoating;
  */
 
 static bool init(int *x, int *y, int *w, int *h);
+static char *quote_serif(const char *msg);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool register_message_for_history(void);
@@ -330,7 +331,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(int *x, int *y, int *w, int *h)
 {
-	const char *raw_msg;
+	const char *raw_msg, *exp_msg;
 
 	/* 初期化処理のスキップモードの部分を行う */
 	init_auto_mode();
@@ -339,10 +340,28 @@ static bool init(int *x, int *y, int *w, int *h)
 	init_skip_mode();
 
 	/* メッセージを取得する */
-	raw_msg = get_command_type() == COMMAND_MESSAGE ?
-		get_string_param(MESSAGE_PARAM_MESSAGE) :
-		get_string_param(SERIF_PARAM_MESSAGE);
-	msg_top = expand_variable(raw_msg);
+	if (get_command_type() == COMMAND_MESSAGE) {
+		/* メッセージの場合 */
+		raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
+		exp_msg = expand_variable(raw_msg); /* const pointer */
+		msg_top = strdup(exp_msg);
+		if (msg_top == NULL) {
+			log_memory();
+			return false;
+		}
+	} else {
+		/* セリフの場合 */
+		raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
+		exp_msg = expand_variable(raw_msg); /* const pointer */
+		if (conf_serif_quote)
+			msg_top = quote_serif(exp_msg);
+		else
+			msg_top = strdup(exp_msg);
+		if (msg_top == NULL) {
+			log_memory();
+			return false;
+		}
+	}
 	msg = msg_top;
 
 	/* 先頭が'\'である場合(NVLモード)を処理する */
@@ -356,7 +375,7 @@ static bool init(int *x, int *y, int *w, int *h)
 	/* セーブ用にメッセージを保存する */
 	if (!set_last_message(msg))
 		return false;
-	
+
 	/* ヒストリ画面用にメッセージ履歴を登録する */
 	if (!register_message_for_history())
 		return false;
@@ -372,7 +391,7 @@ static bool init(int *x, int *y, int *w, int *h)
 	if (!is_message_registered())
 		set_message_registered();
 
-	/*メッセージの文字数を求める */
+	/* メッセージの文字数を求める */
 	total_chars = utf8_chars(msg);
 	drawn_chars = 0;
 
@@ -438,6 +457,26 @@ static bool init(int *x, int *y, int *w, int *h)
 	init_pointed_index();
 
 	return true;
+}
+
+/* セリフをカギカッコで囲う */
+static char *quote_serif(const char *msg)
+{
+	size_t len;
+	char *ret;
+	const char *prefix = U8("「");
+	const char *suffix = U8("」");
+
+	len = strlen(prefix) + strlen(msg) + strlen(suffix) + 1;
+	ret = malloc(len);
+	if (ret == NULL) {
+		log_memory();
+		return NULL;
+	}
+
+	snprintf(ret, len, "%s%s%s", prefix, msg, suffix);
+
+	return ret;	
 }
 
 /* 初期化処理のスキップモードの部分を行う */
@@ -2281,6 +2320,12 @@ static bool is_skippable(void)
 /* 終了処理を行う */
 static bool cleanup(int *x, int *y, int *w, int *h)
 {
+	/* メッセージを解放する */
+	if (msg_top != NULL) {
+		free(msg_top);
+		msg_top = NULL;
+	}
+
 	/* PCMストリームの再生を終了する */
 	if (!conf_voice_stop_off)
 		set_mixer_input(VOICE_STREAM, NULL);

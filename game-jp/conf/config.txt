@@ -98,6 +98,62 @@ msgbox.btn.hide.y=16
 msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
 
+# [サンプルでは未使用]
+# メッセージボックス内のセーブボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.save.x=0
+# msgbox.btn.save.y=0
+# msgbox.btn.save.width=0
+# msgbox.btn.save.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のロードボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.load.x=0
+# msgbox.btn.load.y=0
+# msgbox.btn.load.width=0
+# msgbox.btn.load.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のクイックセーブボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.qsave.x=0
+# msgbox.btn.qsave.y=0
+# msgbox.btn.qsave.width=0
+# msgbox.btn.qsave.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のクイックロードボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.qload.x=0
+# msgbox.btn.qload.y=0
+# msgbox.btn.qload.width=0
+# msgbox.btn.qload.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のオートボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.auto.x=0
+# msgbox.btn.auto.y=0
+# msgbox.btn.auto.width=0
+# msgbox.btn.auto.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のスキップボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.skip.x=0
+# msgbox.btn.skip.y=0
+# msgbox.btn.skip.width=0
+# msgbox.btn.skip.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のログボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.history.x=0
+# msgbox.btn.history.y=0
+# msgbox.btn.history.width=0
+# msgbox.btn.history.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のコンフィグボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.config.x=0
+# msgbox.btn.config.y=0
+# msgbox.btn.config.width=0
+# msgbox.btn.config.height=0
+
 # ポイントされているボタンが変化したときのSE(省略可)
 msgbox.btn.change.se=btn-change.ogg
 
@@ -424,6 +480,9 @@ msgbox.show.on.ch=0
 
 # 背景の変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
 msgbox.show.on.bg=0
+
+# セリフをカギカッコで囲う (1:囲う, 0:囲わない) (省略可)
+serif.quote=0
 
 ###
 ### リリースモード

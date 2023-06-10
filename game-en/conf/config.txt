@@ -124,6 +124,62 @@ msgbox.btn.hide.y=16
 msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
 
+# [Unused in the sample]
+# Position of the save button (position inside message box, optional)
+# msgbox.btn.save.x=0
+# msgbox.btn.save.y=0
+# msgbox.btn.save.width=0
+# msgbox.btn.save.height=0
+
+# [Unused in the sample]
+# Position of the load button (position inside message box, optional)
+# msgbox.btn.load.x=0
+# msgbox.btn.load.y=0
+# msgbox.btn.load.width=0
+# msgbox.btn.load.height=0
+
+# [Unused in the sample]
+# Position of the qsave button (position inside message box, optional)
+# msgbox.btn.qsave.x=0
+# msgbox.btn.qsave.y=0
+# msgbox.btn.qsave.width=0
+# msgbox.btn.qsave.height=0
+
+# [Unused in the sample]
+# Position of the qload button (position inside message box, optional)
+# msgbox.btn.qload.x=0
+# msgbox.btn.qload.y=0
+# msgbox.btn.qload.width=0
+# msgbox.btn.qload.height=0
+
+# [Unused in the sample]
+# Position of the auto button (position inside message box, optional)
+# msgbox.btn.auto.x=0
+# msgbox.btn.auto.y=0
+# msgbox.btn.auto.width=0
+# msgbox.btn.auto.height=0
+
+# [Unused in the sample]
+# Position of the skip button (position inside message box, optional)
+# msgbox.btn.skip.x=0
+# msgbox.btn.skip.y=0
+# msgbox.btn.skip.width=0
+# msgbox.btn.skip.height=0
+
+# [Unused in the sample]
+# Position of the history button (position inside message box, optional)
+# msgbox.btn.history.x=0
+# msgbox.btn.history.y=0
+# msgbox.btn.history.width=0
+# msgbox.btn.history.height=0
+
+# [Unused in the sample]
+# Position of the config button (position inside message box, optional)
+# msgbox.btn.config.x=0
+# msgbox.btn.config.y=0
+# msgbox.btn.config.width=0
+# msgbox.btn.config.height=0
+
 # Sound effect when pointed button changed (optional)
 msgbox.btn.change.se=btn-change.ogg
 

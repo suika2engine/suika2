@@ -369,6 +369,9 @@ int conf_msgbox_show_on_bg;
 /* ビープの調整 */
 float conf_beep_adjustment;
 
+/* セリフをカギカッコで囲う */
+int conf_serif_quote;
+
 /* リリース版であるか */
 int conf_release;
 
@@ -1075,6 +1078,7 @@ struct rule {
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, true, false},
 	{"msgbox.show.on.bg", 'i', &conf_msgbox_show_on_bg, true, false},
 	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
+	{"serif.quote", 'i', &conf_serif_quote, true, false},
 	{"release", 'i', &conf_release, true, false},
 };
 
