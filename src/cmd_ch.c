@@ -59,6 +59,7 @@ static bool init(void)
 	const char *method;
 	const char *alpha_s;
 	int xpos, ypos, chpos, ofs_x, ofs_y, alpha;
+	bool erase;
 
 	/* パラメータを取得する */
 	pos = get_string_param(CH_PARAM_POS);
@@ -69,9 +70,14 @@ static bool init(void)
 	ofs_y = get_int_param(CH_PARAM_OFFSET_Y);
 	alpha_s = get_string_param(CH_PARAM_ALPHA);
 
+	/* キャラの消去が指定されているかチェックする */
+	if (strcmp(fname, "none") == 0 || strcmp(fname, U8("消去")) == 0)
+		erase = true;
+	else
+		erase = false;
+
 	/* イメージが指定された場合 */
-	if (strcmp(fname, "none") != 0 &&
-	    strcmp(fname, U8("消去")) != 0) {
+	if (!erase) {
 		/* イメージを読み込む */
 		img = create_image_from_file(CH_DIR, fname);
 		if (img == NULL) {
@@ -122,8 +128,7 @@ static bool init(void)
 	alpha = get_alpha(alpha_s);
 
 	/* キャラのファイル名を設定する */
-	if (!set_ch_file_name(chpos, strcmp(fname, "none") == 0 ? NULL :
-			      fname))
+	if (!set_ch_file_name(chpos, erase ? NULL : fname))
 	    return false;
 
 	/* Controlが押されているか、フェードしない場合 */
