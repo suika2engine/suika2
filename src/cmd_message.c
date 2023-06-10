@@ -294,7 +294,7 @@ bool message_command(int *x, int *y, int *w, int *h)
 	draw_stage_rect(*x, *y, *w, *h);
 
 	/* システムメニューを描画する */
-	if (!conf_sysmenu_hidden) {
+	if (!conf_sysmenu_hidden && !is_hidden) {
 		if (is_sysmenu)
 			draw_sysmenu(false, x, y, w, h);
 		else if (!is_auto_mode() && !is_skip_mode())
@@ -1968,6 +1968,10 @@ static void frame_sysmenu(void)
 /* メッセージボックスの非表示/表示切り替えを処理する */
 static void frame_hide(int *x, int *y, int *w, int *h)
 {
+	/* システムメニューを表示中の場合 */
+	if (is_sysmenu)
+		return;
+	
 	/* メッセージボックスを表示中の場合 */
 	if (!is_hidden) {
 		/*
