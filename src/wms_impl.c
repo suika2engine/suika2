@@ -18,6 +18,7 @@ static bool s2_random(struct wms_runtime *rt);
 static bool s2_set_config(struct wms_runtime *rt);
 static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
 static bool s2_reflect_font_config(struct wms_runtime *rt);
+static bool s2_clear_history(struct wms_runtime *rt);
 
 /*
  * FFI function table 
@@ -30,6 +31,7 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_set_config, "s2_set_config", {"key", "value", NULL}},
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
 	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
+	{s2_clear_history, "s2_clear_history", {NULL}},
 };
 
 #define FFI_FUNC_TBL_SIZE (sizeof(ffi_func_tbl) / sizeof(ffi_func_tbl[0]))
@@ -168,6 +170,17 @@ static bool s2_reflect_font_config(struct wms_runtime *rt)
 	/* Re-initialize the font subsystem. */
 	if (!init_glyph())
 		return false;
+
+	return true;
+}
+
+/* Clear the message history. */
+static bool s2_clear_history(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	/* Clear the message history. */
+	clear_history();
 
 	return true;
 }
