@@ -116,6 +116,8 @@ static const char *msg;
 /* 描画するメッセージの本来の先頭 */
 static char *msg_top;
 
+/* 描画する名前 */
+static char *name_top;
 
 /* 文字の色 */
 static pixel_t color;
@@ -364,6 +366,16 @@ static bool init(int *x, int *y, int *w, int *h)
 	}
 	msg = msg_top;
 
+	/* 名前を取得する */
+	if (get_command_type() == COMMAND_SERIF) {
+		name_top = strdup(expand_variable(
+					  get_string_param(SERIF_PARAM_NAME)));
+		if (name_top == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+
 	/* 先頭が'\'である場合(NVLモード)を処理する */
 	if (msg[0] == '\\') {
 		msg++;
@@ -533,12 +545,7 @@ static bool register_message_for_history(const char *reg_msg)
 	/* 名前、ボイスファイル名、メッセージを取得する */
 	if (get_command_type() == COMMAND_SERIF) {
 		/* 名前を取得して変数を展開する */
-		name = strdup(expand_variable(
-				      get_string_param(SERIF_PARAM_NAME)));
-		if (name == NULL) {
-			log_memory();
-			return false;
-		}
+		name = expand_variable(get_string_param(SERIF_PARAM_NAME));
 
 		/* ボイスファイルを取得する */
 		voice = get_string_param(SERIF_PARAM_VOICE);
@@ -617,7 +624,7 @@ static void draw_namebox(void)
 	const char *name;
 
 	/* 名前の文字列を取得する */
-	name = get_string_param(SERIF_PARAM_NAME);
+	name = name_top;
 
 	/* 名前の文字数を取得する */
 	char_count = utf8_chars(name);
