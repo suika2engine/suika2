@@ -372,6 +372,9 @@ float conf_beep_adjustment;
 /* セリフをカギカッコで囲う */
 int conf_serif_quote;
 
+/* ch,cha,chs,bgの最中に折りたたみメッセージボックスを表示する */
+int conf_sysmenu_transition;
+
 /* リリース版であるか */
 int conf_release;
 
@@ -1079,6 +1082,7 @@ struct rule {
 	{"msgbox.show.on.bg", 'i', &conf_msgbox_show_on_bg, true, false},
 	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
 	{"serif.quote", 'i', &conf_serif_quote, true, false},
+	{"sysmenu.transition", 'i', &conf_sysmenu_transition, true, false},
 	{"release", 'i', &conf_release, true, false},
 };
 
