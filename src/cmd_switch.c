@@ -497,6 +497,10 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		draw_fo_fi_parent();
 		update_switch_parent(x, y, w, h);
 
+		/* 折りたたみシステムメニューを描画する */
+		if (conf_sysmenu_transition && !is_non_interruptible())
+			draw_stage_collapsed_sysmenu(false, x, y, w, h);
+
 		/* 名前ボックス、メッセージボックスを消すため再描画する */
 		*x = 0;
 		*y = 0;
