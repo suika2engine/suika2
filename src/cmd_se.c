@@ -23,11 +23,17 @@ bool se_command(void)
 	const char *fname;
 	const char *option;
 	int stream;
-	bool loop;
+	bool loop, stop;
 
 	/* パラメータを取得する */
 	fname = get_string_param(SE_PARAM_FILE);
 	option = get_string_param(SE_PARAM_OPTION);
+
+	/* 停止の指示かどうかチェックする */
+	if (strcmp(fname, "stop") == 0 || strcmp(fname, U8("停止")) == 0)
+		stop = true;
+	else
+		stop = false;
 
 	/*
 	 * 1. voice指示の有無を確認する
@@ -47,14 +53,15 @@ bool se_command(void)
 	}
 
 	/* 停止の指示でない場合 */
-	w = NULL;
-	if (strcmp(fname, "stop") != 0) {
+	if (!stop) {
 		/* PCMストリームをオープンする */
 		w = create_wave_from_file(SE_DIR, fname, loop);
 		if (w == NULL) {
 			log_script_exec_footer();
 			return false;
 		}
+	} else {
+		w = NULL;
 	}
 
 	/* 再生を開始する */

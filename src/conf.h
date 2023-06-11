@@ -333,6 +333,7 @@ extern int conf_click_disable;
 extern int conf_msgbox_show_on_ch;
 extern int conf_msgbox_show_on_bg;
 extern float conf_beep_adjustment;
+extern int conf_serif_quote;
 extern int conf_release;
 
 /* conf_localeを設定する */

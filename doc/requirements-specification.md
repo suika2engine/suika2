@@ -3292,7 +3292,7 @@ value = s2_random();
 
 ### Overwriting a Configuration
 
-The following functions overwrites a configuration:
+The following function overwrites a configuration:
 
 * `s2_set_config(): accepts a string key and a string value.
 
@@ -3315,6 +3315,15 @@ s2_set_config("msgbox.bg.file", "msgbox-bg.png");
 ```
 s2_reflect_msgbox_and_namebox_config();
 ```
+
+### Clearing Message History
+
+`s2_clear_history()` clears the message history.
+
+```
+s2_clear_history();
+```
+
 
 ***
 
