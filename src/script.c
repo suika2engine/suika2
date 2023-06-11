@@ -1238,8 +1238,8 @@ static bool parse_message(int index, const char *file, int line,
 }
 
 /* ラベル行をパースする */
-		static bool parse_label(int index, const char *file, int line, const char *buf,
-					int locale_offset)
+static bool parse_label(int index, const char *file, int line, const char *buf,
+			int locale_offset)
 {
 	UNUSED_PARAMETER(file);
 

@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -10,6 +10,7 @@
  *
  * [Changes]
  *  - 2022/07/27 作成
+ *  - 2023/06/11 名前変数の編集に対応
  */
 
 #include "suika.h"
@@ -81,6 +82,12 @@ enum {
 
 	/* アプリケーションを終了するボタン */
 	TYPE_QUIT,
+
+	/* 名前変数のプレビューボタン */
+	TYPE_NAMEVAR,
+
+	/* 名前変数に文字列を追加するボタン */
+	TYPE_CHAR,
 };
 
 /* ボタン */
@@ -107,11 +114,17 @@ static struct gui_button {
 	/* TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI, TYPE_FONT */
 	char *file;
 
-	/* TYPE_CHARACTERVOL */
+	/*
+	 * TYPE_SAVEPAGE, TYPE_LOADPAGE, TYPE_SAVE, TYPE_LOAD,
+	 * TYPE_CHARACTERVOL
+	 */
 	int index;
 
-	/* TYPE_PREVIEW */
+	/* TYPE_PREVIEW, TYPE_CHAR */
 	char *msg;
+
+	/* TYPE_NAMEVAR, TYPE_CHAR */
+	int namevar;
 
 	/* TYPE_VOLUME以外 */
 	char *clickse;
@@ -252,6 +265,7 @@ static void process_button_draw_slider(int index);
 static void process_button_draw_slider_vertical(int index);
 static void process_button_draw_activatable(int index);
 static void process_button_draw_gallery(int index);
+static void process_button_draw_namevar(int index);
 static void process_play_se(void);
 static bool init_save_buttons(void);
 static void update_save_buttons(void);
@@ -279,6 +293,10 @@ static int get_frame_chars(int index);
 static void word_wrapping(int index);
 static int get_en_word_width(const char *m);
 static int get_wait_time(int index);
+static bool init_namevar_buttons(void);
+static void update_namevar_buttons(void);
+static void draw_name(int index);
+static void process_char(int index);
 static void play_se(const char *file, bool is_voice);
 static bool load_gui_file(const char *file);
 
@@ -397,6 +415,13 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 		return false;
 	}
 	update_history_buttons();
+
+	/* TYPE_NAMEVARのボタンの初期化を行う */
+	if (!init_namevar_buttons()) {
+		cleanup_gui();
+		return false;
+	}
+	update_namevar_buttons();
 
 	/* ボタンの状態を準備する */
 	update_runtime_props(true);
@@ -545,6 +570,11 @@ static bool set_button_key_value(const int index, const char *key,
 			log_memory();
 			return false;
 		}
+	} else if (strcmp("namevar", key) == 0) {
+		if (val[0] != '\0' &&
+		    (val[0] >= 'a' && val[0] <= 'z') &&
+		    val[1] == '\0')
+			b->namevar = val[0] - 'a';
 	} else {
 		log_gui_unknown_button_property(key);
 		return false;
@@ -581,7 +611,10 @@ static int get_type_for_name(const char *name)
 		{"default", TYPE_DEFAULT},
 		{"title", TYPE_TITLE},
 		{"cancel", TYPE_CANCEL},
-		{"QUIT", TYPE_QUIT},
+		{"quit", TYPE_QUIT},
+		{"QUIT", TYPE_QUIT}, /* typoだけど互換性のため残した */
+		{"namevar", TYPE_NAMEVAR},
+		{"char", TYPE_CHAR},
 	};
 	
 	size_t i;
@@ -906,6 +939,10 @@ static void process_button_point(int index)
 	if (b->type == TYPE_PREVIEW)
 		return;
 
+	/* TYPE_NAMEVARのとき、ポイントできない */
+	if (b->type == TYPE_NAMEVAR)
+		return;
+
 	/* マウスがボタン領域に入っているかチェックする */
 	if (mouse_pos_x >= b->x && mouse_pos_x <= b->x + b->width &&
 	    mouse_pos_y >= b->y && mouse_pos_y <= b->y + b->height) {
@@ -1156,6 +1193,10 @@ static void process_button_click(int index)
 		if (title_dialog())
 			result_index = index;
 		break;
+	case TYPE_CHAR:
+		process_char(index);
+		update_namevar_buttons();
+		break;
 	default:
 		result_index = index;
 		break;
@@ -1210,6 +1251,10 @@ static void process_button_draw(int index)
 	case TYPE_HISTORYSCROLL:
 		/* 垂直スライダを描画する */
 		process_button_draw_slider_vertical(index);
+		break;
+	case TYPE_NAMEVAR:
+		/* 名前変数のプレビューを描画する */
+		process_button_draw_namevar(index);
 		break;
 	default:
 		/* ボタンがポイントされているとき、hover画像を描画する */
@@ -1306,6 +1351,20 @@ static void process_button_draw_gallery(int index)
 
 	/* ポイントされていないとき、active画像を描画する */
 	draw_stage_gui_active(b->x, b->y, b->width, b->height, b->x, b->y);
+}
+
+/* ギャラリーボタンを描画する */
+static void process_button_draw_namevar(int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+	assert(b->type == TYPE_NAMEVAR);
+
+	/* スクリーンへの描画を行う */
+	render_image(button[index].x, button[index].y,
+		     button[index].rt.img, button[index].width,
+		     button[index].height, 0, 0, 255, BLEND_FAST);
 }
 
 /* ボタンの状況に応じたSEを再生する */
@@ -2093,6 +2152,141 @@ static int get_wait_time(int index)
 
 	return (int)((float)button[index].rt.total_chars * scale *
 		     get_auto_speed() * 1000.0f);
+}
+
+/*
+ * 名前文字列の表示
+ */
+
+/* TYPE_NAMEVARのボタンの初期化を行う */
+static bool init_namevar_buttons(void)
+{
+	int i;
+
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_NAMEVAR)
+			continue;
+		if (button[i].width <= 0)
+			button[i].width = 1;
+		if (button[i].height <= 0)
+			button[i].height = 1;
+
+		button[i].rt.img = create_image(button[i].width,
+						button[i].height);
+		if (button[i].rt.img == NULL)
+			return false;
+		lock_image(button[i].rt.img);
+		clear_image_color(button[i].rt.img,
+				  make_pixel_slow(0, 0, 0, 0));
+		unlock_image(button[i].rt.img);
+
+		button[i].rt.color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_color_r,
+					(pixel_t)conf_font_color_g,
+					(pixel_t)conf_font_color_b);
+		button[i].rt.outline_color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
+	}
+
+	return true;
+}
+
+/* 名前変数のボタンを描画する */
+static void update_namevar_buttons(void)
+{
+	int i;
+
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (button[i].type != TYPE_NAMEVAR)
+			continue;
+
+		lock_image(button[i].rt.img);
+		clear_image_color(button[i].rt.img,
+				  make_pixel_slow(0, 0, 0, 0));
+		draw_name(i);
+		unlock_image(button[i].rt.img);
+	}
+}
+
+/* 名前の描画を行う */
+static void draw_name(int index)
+{
+	const char *name;
+	uint32_t c;
+	int char_count, mblen, i, pen_x, cw, w, h;
+
+	/* 描画する文字列を取得する */
+	name = get_name_variable(button[index].namevar);
+	assert(name != NULL);
+
+	/* 描画する文字数を取得する */
+	char_count = utf8_chars(name);
+	if (char_count == 0)
+		return;
+
+	/* 1文字ずつ描画する */
+	pen_x = button[index].x;
+	for (i = 0; i < char_count; i++) {
+		/* 描画する文字を取得する */
+		mblen = utf8_to_utf32(name, &c);
+		if (mblen == -1)
+			break;
+
+		/* 描画する文字の幅を取得する */
+		cw = get_glyph_width(c);
+
+		/* 描画する */
+		draw_glyph(button[index].rt.img, pen_x, 0,
+			   button[index].rt.color,
+			   button[index].rt.outline_color, c, &w, &h);
+
+		/* 次の文字へ移動する */
+		name += mblen;
+		pen_x += cw;
+	}
+}
+
+/*
+ * 名前文字列の編集
+ */
+
+/* 名前文字列の編集ボタンの押下を処理する */
+static void process_char(int index)
+{
+	char buf[1204];
+	struct gui_button *b;
+	const char *orig;
+
+	b = &button[index];
+	if (b->msg == NULL)
+		return;
+
+	/* クリアボタンの場合 */
+	if (strcmp(b->msg, "[clear]") == 0) {
+		set_name_variable(b->namevar, "");
+		return;
+	}
+
+	/* 決定ボタンの場合 */
+	if (strcmp(b->msg, "[ok]") == 0) {
+		/* 名前変数が空白なら決定できない */
+		if (strcmp(get_name_variable(b->namevar), "") != 0)
+			result_index = index;
+		return;
+	}
+
+	/* 現在の名前変数の値を取得する */
+	orig = get_name_variable(b->namevar);
+
+	/* 末尾に追加した文字列を作成する */
+	snprintf(buf, sizeof(buf), "%s%s", orig, b->msg);
+
+	/* 名前変数の値を更新する */
+	set_name_variable(b->namevar, buf);
 }
 
 /*

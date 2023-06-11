@@ -532,7 +532,15 @@ static bool register_message_for_history(const char *reg_msg)
 
 	/* 名前、ボイスファイル名、メッセージを取得する */
 	if (get_command_type() == COMMAND_SERIF) {
-		name = get_string_param(SERIF_PARAM_NAME);
+		/* 名前を取得して変数を展開する */
+		name = strdup(expand_variable(
+				      get_string_param(SERIF_PARAM_NAME)));
+		if (name == NULL) {
+			log_memory();
+			return false;
+		}
+
+		/* ボイスファイルを取得する */
 		voice = get_string_param(SERIF_PARAM_VOICE);
 
 		/* ビープ音は履歴画面で再生しない */

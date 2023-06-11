@@ -2,12 +2,13 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  - 2016/06/29 作成
+ *  - 2023/06/11 名前変数に対応
  */
 
 #include "suika.h"
@@ -15,17 +16,40 @@
 /* ランダムな値を意味する変数名 */
 #define RANDOM_VARIABLE	"$RAND"
 
+/* 前方参照 */
+static bool process_normal_var(const char *lhs, const char *op,
+			       const char *rhs);
+static bool process_name_var(const char *lhs, const char *op, const char *rhs);
+
 /*
  * setコマンドの実装
  */
 bool set_command(void)
 {
 	const char *lhs, *op, *rhs;
-	int lval_index, lval, rval_index, rval, val;
 
 	lhs = get_string_param(SET_PARAM_LHS);
 	op = get_string_param(SET_PARAM_OP);
 	rhs = get_string_param(SET_PARAM_RHS);
+
+	if (lhs[0] == '%') {
+		/* 名前変数の場合 */
+		if (!process_name_var(lhs, op, rhs))
+			return false;
+	} else {
+		/* ローカル変数/グローバル変数の場合 */
+		if (!process_normal_var(lhs, op, rhs))
+			return false;
+	}
+
+	return move_to_next_command();
+}
+
+/* ローカル変数/グローバル変数の場合を処理する */
+static bool process_normal_var(const char *lhs, const char *op,
+			       const char *rhs)
+{
+	int lval_index, lval, rval_index, rval, val;
 
 	/* 左辺の値を求める */
 	if (lhs[0] != '$' || strlen(lhs) == 1) {
@@ -77,5 +101,31 @@ bool set_command(void)
 	}
 	set_variable(lval_index, val);
 
-	return move_to_next_command();
+	return true;
+}
+
+/* 名前変数の場合を処理する */
+static bool process_name_var(const char *lhs, const char *op, const char *rhs)
+{
+	int lval_index;
+
+	/* 左辺の値を求める */
+	if (strlen(lhs) != 2 || !(lhs[1] >= 'a' && lhs[1] <= 'z')) {
+		log_script_lhs_not_variable(lhs);
+		log_script_exec_footer();
+		return false;
+	}
+	lval_index = lhs[1] - 'a';
+	assert(lval_index >= 0 && lval_index < 27);
+
+	/* 代入する */
+	if (strcmp(op, "=") == 0) {
+		set_name_variable(lval_index, rhs);
+	} else {
+		log_script_op_error(op);
+		log_script_exec_footer();
+		return false;
+	}
+
+	return true;
 }
