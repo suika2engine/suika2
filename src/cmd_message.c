@@ -173,7 +173,7 @@ static bool init(int *x, int *y, int *w, int *h);
 static char *quote_serif(const char *msg);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
-static bool register_message_for_history(void);
+static bool register_message_for_history(const char *reg_msg);
 static bool process_serif_command(int *x, int *y, int *w, int *h);
 static void draw_namebox(void);
 static int get_namebox_width(void);
@@ -377,7 +377,7 @@ static bool init(int *x, int *y, int *w, int *h)
 		return false;
 
 	/* ヒストリ画面用にメッセージ履歴を登録する */
-	if (!register_message_for_history())
+	if (!register_message_for_history(exp_msg))
 		return false;
 
 	/* 文字色を求める */
@@ -519,7 +519,7 @@ static void init_skip_mode(void)
 }
 
 /* ヒストリ画面用にメッセージ履歴を登録する */
-static bool register_message_for_history(void)
+static bool register_message_for_history(const char *reg_msg)
 {
 	const char *name;
 	const char *voice;
@@ -544,7 +544,7 @@ static bool register_message_for_history(void)
 	}
 
 	/* ヒストリ画面用に登録する */
-	if (!register_message(name, msg, voice))
+	if (!register_message(name, reg_msg, voice))
 		return false;
 
 	return true;
