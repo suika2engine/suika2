@@ -83,11 +83,12 @@ extern int wms_yydebug;
     TOKEN_LT = 284,                /* TOKEN_LT  */
     TOKEN_LTE = 285,               /* TOKEN_LTE  */
     TOKEN_EQ = 286,                /* TOKEN_EQ  */
-    TOKEN_RETURN = 287,            /* TOKEN_RETURN  */
-    TOKEN_BREAK = 288,             /* TOKEN_BREAK  */
-    TOKEN_CONTINUE = 289,          /* TOKEN_CONTINUE  */
-    TOKEN_AND = 290,               /* TOKEN_AND  */
-    TOKEN_OR = 291                 /* TOKEN_OR  */
+    TOKEN_NEQ = 287,               /* TOKEN_NEQ  */
+    TOKEN_RETURN = 288,            /* TOKEN_RETURN  */
+    TOKEN_BREAK = 289,             /* TOKEN_BREAK  */
+    TOKEN_CONTINUE = 290,          /* TOKEN_CONTINUE  */
+    TOKEN_AND = 291,               /* TOKEN_AND  */
+    TOKEN_OR = 292                 /* TOKEN_OR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -111,7 +112,7 @@ union YYSTYPE
 	struct wms_term *term;
 	struct wms_arg_list *arg_list;
 
-#line 115 "wms_parser.tab.h"
+#line 116 "wms_parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -144,6 +145,6 @@ int wms_yyparse (void *scanner);
 
 #define YY_DECL int wms_yylex(void *yyscanner)
 
-#line 148 "wms_parser.tab.h"
+#line 149 "wms_parser.tab.h"
 
 #endif /* !YY_WMS_YY_WMS_PARSER_TAB_H_INCLUDED  */

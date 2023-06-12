@@ -70,6 +70,7 @@ static bool calc_lte(struct wms_runtime *rt, struct wms_value val1, struct wms_v
 static bool calc_gt(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_gte(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_eq(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
+static bool calc_neq(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_plus(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_str_plus_int(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_str_plus_float(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
@@ -616,6 +617,22 @@ wms_make_expr_with_eq(
 	AST_MEM_CHECK(expr);
 	memset(expr, 0, sizeof(struct wms_expr));
 	expr->type.is_eq = 1;
+	expr->val.expr[0] = expr1;
+	expr->val.expr[1] = expr2;
+	return expr;
+}
+
+struct wms_expr *
+wms_make_expr_with_neq(
+	struct wms_expr *expr1,
+	struct wms_expr *expr2)
+{
+	struct wms_expr *expr;
+
+	expr = malloc(sizeof(struct wms_expr));
+	AST_MEM_CHECK(expr);
+	memset(expr, 0, sizeof(struct wms_expr));
+	expr->type.is_neq = 1;
 	expr->val.expr[0] = expr1;
 	expr->val.expr[1] = expr2;
 	return expr;
@@ -1612,6 +1629,12 @@ eval_expr(
 		if (!eval_expr(rt, expr->val.expr[1], &val2))
 			return false;
 		return calc_eq(rt, val1, val2, val);
+	} else if (expr->type.is_neq) {
+		if (!eval_expr(rt, expr->val.expr[0], &val1))
+			return false;
+		if (!eval_expr(rt, expr->val.expr[1], &val2))
+			return false;
+		return calc_neq(rt, val1, val2, val);
 	} else if (expr->type.is_plus) {
 		if (!eval_expr(rt, expr->val.expr[0], &val1))
 			return false;
@@ -1800,11 +1823,45 @@ calc_eq(
 		}
 	} else if (val1.type.is_str) {
 		if (val2.type.is_str) {
-			*result = value_by_int(strcmp(get_str(rt, val1.val.s_index), get_str(rt, val2.val.s_index)));
+			*result = value_by_int(strcmp(get_str(rt, val1.val.s_index), get_str(rt, val2.val.s_index)) == 0);
 			return true;
 		}
 	}
 	return rterror(rt, "Type error ('==' operator)");
+}
+
+static bool
+calc_neq(
+	struct wms_runtime *rt,
+	struct wms_value val1,
+	struct wms_value val2,
+	struct wms_value *result)
+{
+	assert(result != NULL);
+
+	if (val1.type.is_int) {
+		if (val2.type.is_int) {
+			*result = value_by_int(val1.val.i != val2.val.i ? 1 : 0);
+			return true;
+		} else if (val2.type.is_float) {
+			*result = value_by_int((double)val1.val.i != val2.val.f ? 1 : 0);
+			return true;
+		}
+	} else if (val1.type.is_float) {
+		if (val2.type.is_int) {
+			*result = value_by_int(val1.val.f != (double)val2.val.i ? 1 : 0);
+			return true;
+		} else if (val2.type.is_float) {
+			*result = value_by_int(val1.val.f != val2.val.f ? 1 : 0);
+			return true;
+		}
+	} else if (val1.type.is_str) {
+		if (val2.type.is_str) {
+			*result = value_by_int(strcmp(get_str(rt, val1.val.s_index), get_str(rt, val2.val.s_index)) != 0);
+			return true;
+		}
+	}
+	return rterror(rt, "Type error ('!=' operator)");
 }
 
 static bool

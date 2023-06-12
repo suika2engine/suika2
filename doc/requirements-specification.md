@@ -1465,22 +1465,34 @@ The command that accomplishes this feature is `@set`.
 @set <variable> <operator> <value>
 ```
 
-The `@set` command can perform calculations as well as simple assignments.
+The `@set` command performs local-variable, global-variable and name-variable
+manipulations.
+
+Local and global variables has integral values.
+On the other hand, name variables has string values.
+
+For local and global variables, the `@set` command can perform calculations as well as simple assignments.
 Addition, subtraction, multiplication and remainder are possible.
+
+For name variables, the `@set` command can perform simple assignments only.
+
 Available operators are:
 
 * `=` (assignment)
-* `+=` (addition)
-* `-=` (subtraction)
-* `*=` (multiplication)
-* `/=` (division)
-* `%=` (remainder)
+* `+=` (addition, for local and global variables only)
+* `-=` (subtraction, for local and global variables only)
+* `*=` (multiplication, for local and global variables only)
+* `/=` (division, for local and global variables only)
+* `%=` (remainder, for local and global variables only)
 
-On RHS, `$RAND` can be specified for a random number.
+When the LHS is a local or global variable, `$RAND` can be specified for the RHS to get a random number.
 
 Local variables range from `$0` to `$9999`. They are stored independently in each save data file.
 Global variables range from `$10000` to `$10999`. They are stored globally across all save data files.
-All variables have 32-bit integer values and are initialized as `0`.
+All local and global variables have 32-bit integer values and are initialized as `0`.
+
+Name variables range from `%a` to `%z`. They are stored independently in each save data file.
+All name variables have string values and are initialized as an empty string.
 
 See also ["Variables"](#variables).
 
@@ -1541,9 +1553,12 @@ Available operators are:
 |`<`     |less than               |
 |`!=`    |not equal to            |
 
-LHS must be a variable name (e.g., `$1`).
+LHS must be a variable name (e.g., `$1`, `%a`).
 
-RHS must be an integer or a variable name.
+When the LHS is a local or global variable such as `$1`, RHS must be an integer value such as `0` or a local and global variable name such as `$2`.
+
+When the LHS is a name variable such as `%a`, the RHS is interpreted as a simple string, i.e., variable names in the RHS string will not expanded.
+In addition, the operators are restricted to `==` and `!=` if the LHS is a name variable.
 
 ### Usage
 
@@ -1740,20 +1755,29 @@ The following script executes an advanced script named `sample.scr` in the `wms`
 
 # Variables
 
-All variables are 32-bit integers, and are initialized as `0`.
+Suika2 has three kinds of variables.
+
+- Local variables
+- Global variables
+- Name variables
+
+Local and global variables have 32-bit integer values, and are initialized as `0`.
+Name variables have string values, and are initialized as an empty string.
 
 ## Local Variables
 
-Variables ranging from `$0` to `$9999` are local variables, these are stored in each
-save data file.
+Variables ranging from `$0` to `$9999` are local variables, these are stored in each save data file.
 Typically, these are used to branch scenarios.
 
 ## Global Variables
 
-Variables ranging from `$10000` to `$10999` are global variables that are common to
-all save data files.
-Typically, these are used to record which pictures should be displayed
-in the gallery.
+Variables ranging from `$10000` to `$10999` are global variables that are common to all save data files.
+Typically, these are used to record which pictures should be displayed in the gallery.
+
+## Name Variables
+
+Variables ranging from `%a` to `%z` are name variables, these are stored in each save data file.
+Typically, these are used to record the name of characters.
 
 ***
 
@@ -2289,6 +2313,46 @@ CG1 {
 }
 ```
 
+## Name Variable Button
+
+This button shows the string content of a name variable.
+This feature is for name input screens.
+
+```
+NAMEVAR {
+    type: namevar;
+    namevar: a;
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+}
+```
+
+## Name Input Button
+
+This button adds a string to a name variable.
+This feature is for name input screens.
+
+There are some special values for `msg` property:
+
+- `[ok]` ... completes the input
+- `[clear]` ... clears the input
+
+```
+CHAR_A {
+    type: char;
+    namevar: a;
+    msg: A;
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+}
+```
+
 ***
 
 # Configuration Features
@@ -2515,6 +2579,102 @@ msgbox.btn.hide.x=1146
 msgbox.btn.hide.y=16
 msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
+```
+
+### Position of the Save Button
+
+The message box can have a save button.
+This is optional.
+
+```
+msgbox.btn.save.x=1146
+msgbox.btn.save.y=16
+msgbox.btn.save.width=29
+msgbox.btn.save.height=29
+```
+
+### Position of the Load Button
+
+The message box can have a load button.
+This is optional.
+
+```
+msgbox.btn.load.x=1146
+msgbox.btn.load.y=16
+msgbox.btn.load.width=29
+msgbox.btn.load.height=29
+```
+
+### Position of the QSave Button
+
+The message box can have a qsave button.
+This is optional.
+
+```
+msgbox.btn.qsave.x=1146
+msgbox.btn.qsave.y=16
+msgbox.btn.qsave.width=29
+msgbox.btn.qsave.height=29
+```
+
+### Position of the QLoad Button
+
+The message box can have a qload button.
+This is optional.
+
+```
+msgbox.btn.qload.x=1146
+msgbox.btn.qload.y=16
+msgbox.btn.qload.width=29
+msgbox.btn.qload.height=29
+```
+
+### Position of the Auto Button
+
+The message box can have an auto button.
+This is optional.
+
+```
+msgbox.btn.auto.x=1146
+msgbox.btn.auto.y=16
+msgbox.btn.auto.width=29
+msgbox.btn.auto.height=29
+```
+
+### Position of the Skip Button
+
+The message box can have a skip button.
+This is optional.
+
+```
+msgbox.btn.skip.x=1146
+msgbox.btn.skip.y=16
+msgbox.btn.skip.width=29
+msgbox.btn.skip.height=29
+```
+
+### Position of the History Button
+
+The message box can have a history button.
+This is optional.
+
+```
+msgbox.btn.history.x=1146
+msgbox.btn.history.y=16
+msgbox.btn.history.width=29
+msgbox.btn.history.height=29
+```
+
+### Position of the Config Button
+
+The message box can have a config button.
+This is optional.
+
+```
+msgbox.btn.config.x=1146
+msgbox.btn.config.y=16
+msgbox.btn.config.width=29
+msgbox.btn.config.height=29
 ```
 
 ### Message Box Sound Effects
@@ -3195,6 +3355,10 @@ func main() {
         print("a > 10");
     } else if(a > 5) {
         print("a > 5");
+    } else if(a == 3) {
+        print("a == 3");
+    } else if(a != 4) {
+        print("a != 4");
     } else {
         print("else");
     }
@@ -3267,19 +3431,34 @@ f = 0.0 + "1.23";
 The Suika2 engine provides predefined functions to manipulate the engine.
 These functions have the prefix `s2_` for their names.
 
-### Getting a Variable
+### Getting a Local and Global Variable
 
-`s2_get_variable()` accepts an variable index and returns the value of variable.
+`s2_get_variable()` accepts an local and variable index and returns the	integer value of the variable.
 ```
 value = s2_get_variable(100);
 ```
 
-### Setting a Variable
+### Setting a Local and Global Variable
 
-`s2_set_variable()` accepts an variable index and a value.
-It changes the value of the variable.
+`s2_set_variable()` accepts an local and global variable index and a integer value.
+It changes the value of the local or global variable.
 ```
 s2_set_variable(100, 1);
+```
+
+### Getting a Name Variable
+
+`s2_get_name_variable()` accepts a name variable index (`0`-`26`) and returns the string value of the name variable.
+```
+name = s2_get_name_variable(0);
+```
+
+### Setting a Name Variable
+
+`s2_set_name_variable()` accepts a name variable index (`0`-`26`) and a string value.
+It changes the value of the name variable.
+```
+s2_set_name_variable(0, "abc");
 ```
 
 ### Getting a Random Number

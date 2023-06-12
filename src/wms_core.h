@@ -151,6 +151,7 @@ struct wms_expr {
 		unsigned int is_gt : 1;
 		unsigned int is_gte : 1;
 		unsigned int is_eq : 1;
+		unsigned int is_neq : 1;
 		unsigned int is_plus : 1;
 		unsigned int is_minus : 1;
 		unsigned int is_mul : 1;
@@ -336,6 +337,7 @@ struct wms_expr *wms_make_expr_with_lte(struct wms_expr *expr1, struct wms_expr 
 struct wms_expr *wms_make_expr_with_gt(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_gte(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_eq(struct wms_expr *expr1, struct wms_expr *expr2);
+struct wms_expr *wms_make_expr_with_neq(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_plus(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_minus(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_mul(struct wms_expr *expr1, struct wms_expr *expr2);
