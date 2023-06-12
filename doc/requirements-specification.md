@@ -2336,14 +2336,15 @@ This feature is for name input screens.
 
 There are some special values for `msg` property:
 
-- `[ok]` ... completes the input
-- `[clear]` ... clears the input
+- `[ok]` ... completes the name variable
+- `[clear]` ... clears the name variable
 
 ```
 CHAR_A {
     type: char;
     namevar: a;
     msg: A;
+    max: 6;
     x: 1156;
     y: 653;
     width: 103;
