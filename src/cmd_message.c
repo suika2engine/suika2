@@ -333,38 +333,14 @@ bool message_command(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(int *x, int *y, int *w, int *h)
 {
-	const char *raw_msg, *exp_msg;
+	const char *raw_msg;
+	char *exp_msg;
 
 	/* 初期化処理のスキップモードの部分を行う */
 	init_auto_mode();
 
 	/* 初期化処理のスキップモードの部分を行う */
 	init_skip_mode();
-
-	/* メッセージを取得する */
-	if (get_command_type() == COMMAND_MESSAGE) {
-		/* メッセージの場合 */
-		raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
-		exp_msg = expand_variable(raw_msg); /* const pointer */
-		msg_top = strdup(exp_msg);
-		if (msg_top == NULL) {
-			log_memory();
-			return false;
-		}
-	} else {
-		/* セリフの場合 */
-		raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
-		exp_msg = expand_variable(raw_msg); /* const pointer */
-		if (conf_serif_quote)
-			msg_top = quote_serif(exp_msg);
-		else
-			msg_top = strdup(exp_msg);
-		if (msg_top == NULL) {
-			log_memory();
-			return false;
-		}
-	}
-	msg = msg_top;
 
 	/* 名前を取得する */
 	if (get_command_type() == COMMAND_SERIF) {
@@ -374,9 +350,52 @@ static bool init(int *x, int *y, int *w, int *h)
 			log_memory();
 			return false;
 		}
+	} else {
+		name_top = NULL;
+	}
+
+	/* メッセージを取得する */
+	if (get_command_type() == COMMAND_MESSAGE) {
+		/* メッセージの場合 */
+		raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
+		exp_msg = strdup(expand_variable(raw_msg));
+		if (exp_msg == NULL) {
+			log_memory();
+			return false;
+		}
+		msg_top = exp_msg;
+	} else {
+		/* セリフの場合 */
+		raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
+		exp_msg = strdup(expand_variable(raw_msg));
+		if (exp_msg == NULL) {
+			log_memory();
+			return false;
+		}
+		if (conf_serif_quote) {
+			msg_top = quote_serif(exp_msg);
+			if (msg_top == NULL) {
+				log_memory();
+				return false;
+			}
+		} else {
+			msg_top = exp_msg;
+		}
+	}
+
+	/* ヒストリ画面用にメッセージ履歴を登録する */
+	if (!register_message_for_history(exp_msg)) {
+		if (exp_msg != msg_top)
+			free(exp_msg);
+		return false;
+	}
+	if (exp_msg != msg_top) {
+		free(exp_msg);
+		exp_msg = NULL;
 	}
 
 	/* 先頭が'\'である場合(NVLモード)を処理する */
+	msg = msg_top;
 	if (msg[0] == '\\') {
 		msg++;
 		is_nvl_mode = true;
@@ -386,10 +405,6 @@ static bool init(int *x, int *y, int *w, int *h)
 
 	/* セーブ用にメッセージを保存する */
 	if (!set_last_message(msg))
-		return false;
-
-	/* ヒストリ画面用にメッセージ履歴を登録する */
-	if (!register_message_for_history(exp_msg))
 		return false;
 
 	/* 文字色を求める */
@@ -533,7 +548,6 @@ static void init_skip_mode(void)
 /* ヒストリ画面用にメッセージ履歴を登録する */
 static bool register_message_for_history(const char *reg_msg)
 {
-	const char *name;
 	const char *voice;
 
 	/* GUI画面から戻ったばかりの場合、2重登録を防ぐ */
@@ -544,8 +558,7 @@ static bool register_message_for_history(const char *reg_msg)
 
 	/* 名前、ボイスファイル名、メッセージを取得する */
 	if (get_command_type() == COMMAND_SERIF) {
-		/* 名前を取得して変数を展開する */
-		name = expand_variable(get_string_param(SERIF_PARAM_NAME));
+		assert(name_top != NULL);
 
 		/* ボイスファイルを取得する */
 		voice = get_string_param(SERIF_PARAM_VOICE);
@@ -553,14 +566,15 @@ static bool register_message_for_history(const char *reg_msg)
 		/* ビープ音は履歴画面で再生しない */
 		if (voice[0] == '@')
 			voice = NULL;
-	} else {
-		name = NULL;
-		voice = NULL;
-	}
 
-	/* ヒストリ画面用に登録する */
-	if (!register_message(name, reg_msg, voice))
-		return false;
+		/* ヒストリ画面用に登録する */
+		if (!register_message(name_top, reg_msg, voice))
+			return false;
+	} else {
+		/* ヒストリ画面用に登録する */
+		if (!register_message(NULL, reg_msg, NULL))
+			return false;
+	}
 
 	return true;
 }
