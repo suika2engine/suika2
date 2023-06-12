@@ -14,6 +14,8 @@
 
 static bool s2_get_variable(struct wms_runtime *rt);
 static bool s2_set_variable(struct wms_runtime *rt);
+static bool s2_get_name_variable(struct wms_runtime *rt);
+static bool s2_set_name_variable(struct wms_runtime *rt);
 static bool s2_random(struct wms_runtime *rt);
 static bool s2_set_config(struct wms_runtime *rt);
 static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
@@ -27,6 +29,8 @@ static bool s2_clear_history(struct wms_runtime *rt);
 struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_get_variable, "s2_get_variable", {"index", NULL}},
 	{s2_set_variable, "s2_set_variable", {"index", "value", NULL}},
+	{s2_get_name_variable, "s2_get_name_variable", {"index", NULL}},
+	{s2_set_name_variable, "s2_set_name_variable", {"index", "value", NULL}},
 	{s2_random, "s2_random", {NULL}},
 	{s2_set_config, "s2_set_config", {"key", "value", NULL}},
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
@@ -95,6 +99,61 @@ static bool s2_set_variable(struct wms_runtime *rt)
 
 	/* Set the value of the Suika2 variable. */
 	set_variable(index_i, value_i);
+
+	return true;
+}
+
+/* Get the value of the specified name variable. */
+static bool s2_get_name_variable(struct wms_runtime *rt)
+{
+	struct wms_value *index;
+	const char *value;
+	int index_i;
+
+	assert(rt != NULL);
+
+	/* Get the argument pointer. */
+	if (!wms_get_var_value(rt, "index", &index))
+		return false;
+
+	/* Get the argument value. */
+	if (!wms_get_int_value(rt, index, &index_i))
+		return false;
+
+	/* Get the value of the Suika2 name variable. */
+	value = get_name_variable(index_i);
+
+	/* Set the return value. */
+	if (!wms_make_str_var(rt, "__return", value, NULL))
+		return false;
+
+	return true;
+}
+
+/* Set the value of the specified name variable. */
+static bool s2_set_name_variable(struct wms_runtime *rt)
+{
+	struct wms_value *index, *value;
+	const char *value_s;
+	int index_i;
+
+	assert(rt != NULL);
+
+	/* Get the argument pointers. */
+	if (!wms_get_var_value(rt, "index", &index))
+		return false;
+	if (!wms_get_var_value(rt, "value", &value))
+		return false;
+
+	/* Get the argument values. */
+	if (!wms_get_int_value(rt, index, &index_i))
+		return false;
+	if (!wms_get_str_value(rt, value, &value_s))
+		return false;
+
+	/* Set the value of the Suika2 name variable. */
+	if (!set_name_variable(index_i, value_s))
+		return false;
 
 	return true;
 }

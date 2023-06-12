@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -17,6 +17,7 @@
  *  - 2021/07/29 クイックセーブ・ロードに対応
  *  - 2022/06/09 デバッガに対応
  *  - 2022/08/07 GUIに機能を移管
+ *  - 2023/06/11 名前変数に対応
  */
 
 #include "suika.h"
@@ -94,12 +95,14 @@ static bool serialize_stage(struct wfile *wf);
 static bool serialize_bgm(struct wfile *wf);
 static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
+static bool serialize_name_vars(struct wfile *wf);
 static bool deserialize_all(const char *fname);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
 static bool deserialize_bgm(struct rfile *rf);
 static bool deserialize_volumes(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
+static bool deserialize_name_vars(struct rfile *rf);
 static void load_global_data(void);
 
 /*
@@ -382,6 +385,10 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 		if (!serialize_vars(wf))
 			break;
 
+		/* 名前変数のシリアライズを行う */
+		if (!serialize_name_vars(wf))
+			break;
+
 		/* 成功 */
 		success = true;
 	} while (0);
@@ -601,6 +608,25 @@ static bool serialize_vars(struct wfile *wf)
 	return true;
 }
 
+/* 名前変数をシリアライズする */
+static bool serialize_name_vars(struct wfile *wf)
+{
+	size_t len;
+	const char *name;
+	int i;
+
+	for (i = 0; i < NAME_VAR_SIZE; i++) {
+		name = get_name_variable(i);
+		assert(name != NULL);
+
+		len = strlen(name) + 1;
+		if (write_wfile(wf, name, len) < len)
+			return false;
+	}
+
+	return true;
+}
+
 /*
  * ロードの実際の処理
  */
@@ -748,6 +774,10 @@ static bool deserialize_all(const char *fname)
 		if (!deserialize_vars(rf))
 			break;
 		
+		/* 名前変数のデシリアライズを行う */
+		if (!deserialize_name_vars(rf))
+			break;
+
 		/* ヒストリをクリアする */
 		clear_history();
 
@@ -893,6 +923,21 @@ static bool deserialize_vars(struct rfile *rf)
 	len = LOCAL_VAR_SIZE * sizeof(int32_t);
 	if (read_rfile(rf, get_local_variables_pointer(), len) < len)
 		return false;
+
+	return true;
+}
+
+/* 名前変数をデシリアライズする */
+static bool deserialize_name_vars(struct rfile *rf)
+{
+	char name[1024];
+	int i;
+
+	for (i = 0; i < NAME_VAR_SIZE; i++) {
+		if (gets_rfile(rf, name, sizeof(name)) == NULL)
+			return false;
+		set_name_variable(i, name);
+	}
 
 	return true;
 }

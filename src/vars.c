@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -10,6 +10,7 @@
  *  - 2016/06/29 作成
  *  - 2017/08/17 グローバル変数に対応
  *  - 2022/06/09 デバッガに対応
+ *  - 2023/06/11 名前変数に対応
  */
 
 #include "suika.h"
@@ -23,6 +24,11 @@ static int32_t local_var_tbl[LOCAL_VAR_SIZE];
  * グローバル変数テーブル
  */
 static int32_t global_var_tbl[GLOBAL_VAR_SIZE];
+
+/*
+ * 名前変数テーブル('a' to 'z')
+ */
+static char *name_var_tbl[NAME_VAR_SIZE];
 
 /* expand_variable()のバッファ */
 static char expand_variable_buf[4096];
@@ -45,6 +51,12 @@ void init_vars(void)
 		local_var_tbl[i] = 0;
 	for (i = 0; i < GLOBAL_VAR_SIZE; i++)
 		global_var_tbl[i] = 0;
+	for (i = 0; i < NAME_VAR_SIZE; i++) {
+		if (name_var_tbl[i] != NULL)
+			free(name_var_tbl[i]);
+		name_var_tbl[i] = NULL;
+	}
+
 #ifdef USE_DEBUGGER
 	flag_var_updated = false;
 	clear_variable_changed();
@@ -56,6 +68,14 @@ void init_vars(void)
  */
 void cleanup_vars(void)
 {
+	int i;
+
+	for (i = 0; i < NAME_VAR_SIZE; i++) {
+		if (name_var_tbl[i] != NULL) {
+			free(name_var_tbl[i]);
+			name_var_tbl[i] = NULL;
+		}
+	}
 }
 
 /*
@@ -139,6 +159,43 @@ bool set_variable_by_string(const char *var, int32_t val)
 }
 
 /*
+ * 名前変数を取得する
+ */
+const char *get_name_variable(int index)
+{
+	assert(index >= 0 && index < NAME_VAR_SIZE);
+
+	if (name_var_tbl[index] == NULL)
+		return "";
+
+	return name_var_tbl[index];
+}
+
+/*
+ * 名前変数を設定する
+ */
+bool set_name_variable(int index, const char *val)
+{
+	assert(index >= 0 && index < NAME_VAR_SIZE);
+	assert(val != NULL);
+
+	if (name_var_tbl[index] != NULL) {
+		free(name_var_tbl[index]);
+		name_var_tbl[index] = NULL;
+	}
+
+	if (val != NULL) {
+		name_var_tbl[index] = strdup(val);
+		if (name_var_tbl[index] == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*
  * 文字列の中の変数を展開して返す
  */
 const char *expand_variable(const char *msg)
@@ -146,7 +203,7 @@ const char *expand_variable(const char *msg)
 	char var[5];
 	char *d;
 	size_t buf_size;
-	int i, index;
+	int i, index, name_index;
 
 	d = expand_variable_buf;
 	buf_size = sizeof(expand_variable_buf);
@@ -185,6 +242,17 @@ const char *expand_variable(const char *msg)
 				/* 不正な変数番号の場合、$を出力する */
 				*d++ = '$';
 			}
+		} else if (*msg == '%' &&
+			   (*(msg + 1) >= 'a' && *(msg + 1) <= 'z')) {
+			/* 名前変数参照の場合 */
+			name_index = *(msg + 1) - 'a';
+			assert(name_index >= 0 && name_index < NAME_VAR_SIZE);
+			d += snprintf(d,
+				      buf_size -
+				      (size_t)(d - expand_variable_buf),
+				      "%s",
+				      get_name_variable(name_index));
+			msg += 2;
 		} else {
 			/* 変数参照でない場合 */
 			*d++ = *msg++;

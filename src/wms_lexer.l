@@ -109,6 +109,12 @@ extern YYLTYPE yylloc;
 			wms_yylloc.last_column += yyleng;
 			return TOKEN_EQ;
 		}
+"!="		{
+			wms_yylloc.first_line = wms_yylloc.last_line;
+			wms_yylloc.first_column = wms_yylloc.last_column + 1;
+			wms_yylloc.last_column += yyleng;
+			return TOKEN_NEQ;
+		}
 "&&"		{
 			wms_yylloc.first_line = wms_yylloc.last_line;
 			wms_yylloc.first_column = wms_yylloc.last_column + 1;

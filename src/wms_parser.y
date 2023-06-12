@@ -55,7 +55,7 @@ extern void wms_yyerror(void *scanner, char *s);
 %token TOKEN_LPAR TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK TOKEN_LARR TOKEN_RARR
 %token TOKEN_SEMICOLON TOKEN_COMMA TOKEN_IF TOKEN_ELSE TOKEN_WHILE TOKEN_FOR
 %token TOKEN_IN TOKEN_DOTDOT TOKEN_GT TOKEN_GTE TOKEN_LT TOKEN_LTE TOKEN_EQ
-%token TOKEN_RETURN TOKEN_BREAK TOKEN_CONTINUE TOKEN_AND TOKEN_OR
+%token TOKEN_NEQ TOKEN_RETURN TOKEN_BREAK TOKEN_CONTINUE TOKEN_AND TOKEN_OR
 
 %type <func_list> func_list;
 %type <func> func;
@@ -84,6 +84,7 @@ extern void wms_yyerror(void *scanner, char *s);
 %left TOKEN_GT
 %left TOKEN_GTE
 %left TOKEN_EQ
+%left TOKEN_NEQ
 %left TOKEN_PLUS
 %left TOKEN_MINUS
 %left TOKEN_MUL
@@ -375,6 +376,11 @@ expr		: term
 		{
 			$$ = wms_make_expr_with_eq($1, $3);
 			debug("eq expr");
+		}
+		| expr TOKEN_NEQ expr
+		{
+			$$ = wms_make_expr_with_neq($1, $3);
+			debug("neq expr");
 		}
 		| expr TOKEN_PLUS expr
 		{
