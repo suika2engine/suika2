@@ -126,6 +126,9 @@ static struct gui_button {
 	/* TYPE_NAMEVAR, TYPE_CHAR */
 	int namevar;
 
+	/* TYPE_CHAR */
+	int max;
+
 	/* TYPE_VOLUME以外 */
 	char *clickse;
 
@@ -575,6 +578,8 @@ static bool set_button_key_value(const int index, const char *key,
 		    (val[0] >= 'a' && val[0] <= 'z') &&
 		    val[1] == '\0')
 			b->namevar = val[0] - 'a';
+	} else if (strcmp("max", key) == 0) {
+		b->max = abs(atoi(val));
 	} else {
 		log_gui_unknown_button_property(key);
 		return false;
@@ -1174,6 +1179,7 @@ static void process_button_click(int index)
 		}
 		break;
 	case TYPE_SAVEPAGE:
+		play_se(b->clickse, false);
 		save_page = b->index;
 		update_runtime_props(false);
 		update_save_buttons();
@@ -1194,6 +1200,7 @@ static void process_button_click(int index)
 			result_index = index;
 		break;
 	case TYPE_CHAR:
+		play_se(b->clickse, false);
 		process_char(index);
 		update_namevar_buttons();
 		break;
@@ -2229,7 +2236,7 @@ static void draw_name(int index)
 		return;
 
 	/* 1文字ずつ描画する */
-	pen_x = button[index].x;
+	pen_x = 2; /* アウトラインの2px分 */
 	for (i = 0; i < char_count; i++) {
 		/* 描画する文字を取得する */
 		mblen = utf8_to_utf32(name, &c);
@@ -2281,6 +2288,10 @@ static void process_char(int index)
 
 	/* 現在の名前変数の値を取得する */
 	orig = get_name_variable(b->namevar);
+
+	/* すでに最大文字数まで到達している場合 */
+	if (utf8_chars(orig) > b->max)
+		return;
 
 	/* 末尾に追加した文字列を作成する */
 	snprintf(buf, sizeof(buf), "%s%s", orig, b->msg);
