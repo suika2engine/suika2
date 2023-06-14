@@ -1027,17 +1027,16 @@ static int get_en_word_width(void)
 static void get_message_color(pixel_t *color, pixel_t *outline_color)
 {
 	int i;
-	const char *name;
+
+	assert(name_top != NULL);
 
 	/* セリフの場合 */
 	if (get_command_type() == COMMAND_SERIF) {
-		name = get_string_param(SERIF_PARAM_NAME);
-
 		/* コンフィグでnameの指す名前が指定されているか */
 		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
 			if (conf_serif_color_name[i] == NULL)
 				continue;
-			if (strcmp(name, conf_serif_color_name[i]) == 0) {
+			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
 				/* コンフィグで指定された色にする */
 				*color = make_pixel_slow(
 					0xff,
