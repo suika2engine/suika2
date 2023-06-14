@@ -1028,8 +1028,6 @@ static void get_message_color(pixel_t *color, pixel_t *outline_color)
 {
 	int i;
 
-	assert(name_top != NULL);
-
 	/* セリフの場合 */
 	if (get_command_type() == COMMAND_SERIF) {
 		/* コンフィグでnameの指す名前が指定されているか */
