@@ -196,6 +196,29 @@ bool set_name_variable(int index, const char *val)
 }
 
 /*
+ * 名前変数の最後の文字を消去する
+ */
+void truncate_name_variable(int index)
+{
+	char *s;
+	uint32_t wc;
+	int i, len;
+
+	assert(index >= 0 && index < NAME_VAR_SIZE);
+
+	s = name_var_tbl[index];
+	if (s == NULL)
+		return;
+
+	len = utf8_chars(s);
+
+	for (i = 0; i < len - 1; i++)
+		s += utf8_to_utf32(s, &wc);
+
+	*s = '\0';
+}
+
+/*
  * 文字列の中の変数を展開して返す
  */
 const char *expand_variable(const char *msg)

@@ -60,6 +60,9 @@ const char *get_name_variable(int index);
 /* 名前変数を設定する */
 bool set_name_variable(int index, const char *val);
 
+/* 名前変数の最後の文字を消去する */
+void truncate_name_variable(int index);
+
 /* 文字列の中の変数を展開して返す */
 const char *expand_variable(const char *msg);
 

@@ -2283,6 +2283,12 @@ static void process_char(int index)
 		return;
 	}
 
+	/* 1文字消去ボタンの場合 */
+	if (strcmp(b->msg, "[backspace]") == 0) {
+		truncate_name_variable(b->namevar);
+		return;
+	}
+
 	/* 決定ボタンの場合 */
 	if (strcmp(b->msg, "[ok]") == 0) {
 		/* 名前変数が空白なら決定できない */
