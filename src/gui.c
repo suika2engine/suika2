@@ -873,6 +873,11 @@ static bool move_to_other_gui(void)
 	}
 	free(file);
 
+	/* 終了後に表示されるBGレイヤを設定する */
+	if (!is_called_from_command)
+		if (!create_temporary_bg_for_gui())
+			return false;
+
 	/* GUIを開始する */
 	start_gui_mode();
 
