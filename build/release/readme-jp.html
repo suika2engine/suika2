@@ -43,7 +43,7 @@
 </head>
 <body>
 
-<h1>Suika 2/12.11</h1>
+<h1>Suika 2/12.12</h1>
 <p>Copyright (c) 2023 the Suika2 Development Team. All rights reserved.</p>
 
 <h2>このソフトについて</h2>
@@ -162,14 +162,24 @@
 
 <h2>変更履歴</h2>
 <ul>
-  <li>Suika 2/12.11 2023/06/14
+  <li>Suika 2/12.12 2023/06/19
+    <ul>
+      <li><code>serif.quote=1</code> を使用時に、カッコ（）で囲われたセリフにカギカッコを付加しないように修正 (Thanks to Ameno-san!)</li>
+      <li>履歴中のセリフの余分なカギカッコを除去するように動作を変更</li>
+      <li><code>namebox.hidden=1</code> のときに背景コマンドで名前ボックスが表示されてしまうバグを修正</li>
+      <li>全画面スタイル強化、 <code>msgbox.show.on.bg=1</code> および <code>msgbox.show.on.ch=1</code> の挙動のバグを修正</li>
+      <li>画面遷移中に描画を忘れていたキャラ(顔)/SKIPバナー/AUTOバナーを表示するように修正 (bg, ch, chs)</li>
+      <li>名前変数導入の影響で <code>msgbox.dim=1</code> を使用時にクラッシュするようになっていたバグを修正</li>
+    </ul>
+  </li>
+  <li>Suika2/12.11 2023/06/14
     <ul>
       <li>GUIコマンドに名前編集の1文字消去機能を追加 (Thanks to Asatsuki-san!)</li>
       <li>GUIコマンド終了後の背景を修正 (Thanks to MATSUNO-san!)</li>
       <li>固定キャラクタ文字色を名前変数に対応 (Thanks to MATSUNO-san!)</li>
     </ul>
   </li>
-  <li>Suika 2/12.10 2023/06/12
+  <li>Suika2/12.10 2023/06/12
     <ul>
       <li><code>wms</code> フォルダがパッケージにエクスポートされない問題を修正 (Thanks to アメノ-san!)</li>
       <li>名前変数を導入 (<code>%a</code> から <code>%z</code> まで)</li>
@@ -177,58 +187,58 @@
       <li>WMSで <code>!=</code> の比較を実装し忘れていたのを修正</li>
     </ul>
   </li>
-  <li>Suika 2/12.9 2023/06/11
+  <li>Suika2/12.9 2023/06/11
     <ul>
       <li>メッセージ履歴でカギカッコが2つ出てしまうバグを修正 (Thanks to サイト-san!)</li>
       <li>キャラ/背景の変更中に折りたたみシステムメニューを表示するコンフィグ <code>sysmenu.transition</code> を追加 (Thanks to あさつき-san!)</li>
     </ul>
   </li>
-  <li>Suika 2/12.8 2023/06/11
+  <li>Suika2/12.8 2023/06/11
     <ul>
       <li>効果音コマンドで日本語の「停止」が使えない問題を修正 (Thanks to アメノ-san!)</li>
       <li>メッセージ履歴をクリアする機能を追加 (Thanks to アメノ-san!)</li>
       <li>日本語のセリフをカギカッコで囲うコンフィグ <code>serif.quote</code> を追加 (Thanks to サイト-san!)</li>
     </ul>
   </li>
-  <li>Suika 2/12.7 2023/06/10
+  <li>Suika2/12.7 2023/06/10
     <ul>
       <li>CHコマンドで日本語を使ったときのバグ修正(Thanks to SOrow-san!)</li>
       <li>メッセージョボックス非表示時にシステムメニューも非表示に(Thanks to Asatsuki-san!)</li>
     </ul>
   </li>
-  <li>Suika 2/12.6 2023/05/28
+  <li>Suika2/12.6 2023/05/28
     <ul>
       <li>BGMコマンドの修正(Thanks to SOrow-san!)</li>
       <li>ダブルクオーテーションと同様にシングルクオーテーションも利用可に</li>
     </ul>
   </li>
-  <li>Suika 2/12.5 2023/04/26
+  <li>Suika2/12.5 2023/04/26
     <ul>
       <li>フォントのふちどりを修正</li>
     </ul>
   </li>
-  <li>Suika 2/12.4 2023/03/27
+  <li>Suika2/12.4 2023/03/27
     <ul>
       <li>WMSを連続して呼んだときのバグを修正</li>
     </ul>
   </li>
-  <li>Suika 2/12.3 2023/03/26
+  <li>Suika2/12.3 2023/03/26
     <ul>
       <li>フォントをゲーム中に変更できる仕組みを導入</li>
     </ul>
   </li>
-  <li>Suika 2/12.2 2023/03/04
+  <li>Suika2/12.2 2023/03/04
     <ul>
       <li>ヒストリーとセーブ・ロードで文字が緑色になるバグを修正</li>
     </ul>
   </li>
-  <li>Suika 2/12.1 2023/01/28
+  <li>Suika2/12.1 2023/01/28
     <ul>
       <li>Kiraraに対応</li>
       <li>Macでパッケージをエクスポートできないバグを修正</li>
     </ul>
   </li>
-  <li>Suika 2/12.0 2023/01/08
+  <li>Suika2/12.0 2023/01/08
     <ul>
       <li>日本語コマンドに対応</li>
       <li>スクリプトの引数名に対応(従来通り省略可能)</li>
@@ -236,7 +246,7 @@
       <li>WMSでランダムな数値の取得に対応</li>
     </ul>
   </li>
-  <li>Suika 2/11.10 2022/12/29
+  <li>Suika2/11.10 2022/12/29
     <ul>
       <li>高度なスクリプトシステム WMS (Watermelon Script) を搭載</li>
       <li>WMSの使用例として、実行時のメッセージボックス変更に対応</li>
