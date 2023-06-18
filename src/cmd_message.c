@@ -2346,12 +2346,6 @@ static bool is_skippable(void)
 /* 終了処理を行う */
 static bool cleanup(int *x, int *y, int *w, int *h)
 {
-	/* メッセージを解放する */
-	if (msg_top != NULL) {
-		free(msg_top);
-		msg_top = NULL;
-	}
-
 	/* PCMストリームの再生を終了する */
 	if (!conf_voice_stop_off)
 		set_mixer_input(VOICE_STREAM, NULL);
@@ -2387,6 +2381,12 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 						(uint32_t)conf_msgbox_dim_color_outline_g,
 						(uint32_t)conf_msgbox_dim_color_outline_b);
 		draw_msgbox(x, y, w, h);
+	}
+
+	/* メッセージを解放する */
+	if (msg_top != NULL) {
+		free(msg_top);
+		msg_top = NULL;
 	}
 
 	/* 次のコマンドに移動する */
