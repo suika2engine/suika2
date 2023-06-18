@@ -657,7 +657,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.10;
+				MARKETING_VERSION = 2.12.12;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -702,7 +702,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.10;
+				MARKETING_VERSION = 2.12.12;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -860,7 +860,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.11;
+				MARKETING_VERSION = 2.12.12;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -905,7 +905,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.11;
+				MARKETING_VERSION = 2.12.12;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
