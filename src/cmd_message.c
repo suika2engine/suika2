@@ -172,7 +172,7 @@ bool is_overcoating;
  */
 
 static bool init(int *x, int *y, int *w, int *h);
-static char *quote_serif(const char *msg);
+static char *quote_serif(const char *msg, bool escape);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool register_message_for_history(const char *reg_msg);
@@ -364,6 +364,13 @@ static bool init(int *x, int *y, int *w, int *h)
 			return false;
 		}
 		msg_top = exp_msg;
+		if (*msg_top == '\\') {
+			is_nvl_mode = true;
+			msg = msg_top + 1;
+		} else {
+			is_nvl_mode = false;
+			msg = msg_top;
+		}
 	} else {
 		/* セリフの場合 */
 		raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
@@ -372,14 +379,33 @@ static bool init(int *x, int *y, int *w, int *h)
 			log_memory();
 			return false;
 		}
-		if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
-			msg_top = quote_serif(exp_msg);
-			if (msg_top == NULL) {
-				log_memory();
-				return false;
+		if (*exp_msg == '\\') {
+			is_nvl_mode = true;
+			if (conf_serif_quote &&
+			    !is_quoted_serif(exp_msg + 1)) {
+				msg_top = quote_serif(exp_msg + 1, true);
+				if (msg_top == NULL) {
+					log_memory();
+					return false;
+				}
+				msg = msg_top + 1;
+			} else {
+				msg_top = exp_msg;
+				msg = msg_top + 1;
 			}
 		} else {
-			msg_top = exp_msg;
+			is_nvl_mode = false;
+			if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
+				msg_top = quote_serif(exp_msg, false);
+				if (msg_top == NULL) {
+					log_memory();
+					return false;
+				}
+				msg = msg_top;
+			} else {
+				msg_top = exp_msg;
+				msg = msg_top;
+			}
 		}
 	}
 
@@ -392,15 +418,6 @@ static bool init(int *x, int *y, int *w, int *h)
 	if (exp_msg != msg_top) {
 		free(exp_msg);
 		exp_msg = NULL;
-	}
-
-	/* 先頭が'\'である場合(NVLモード)を処理する */
-	msg = msg_top;
-	if (msg[0] == '\\') {
-		msg++;
-		is_nvl_mode = true;
-	} else {
-		is_nvl_mode = false;
 	}
 
 	/* セーブ用にメッセージを保存する */
@@ -487,21 +504,27 @@ static bool init(int *x, int *y, int *w, int *h)
 }
 
 /* セリフをカギカッコで囲う */
-static char *quote_serif(const char *msg)
+static char *quote_serif(const char *msg, bool escape)
 {
 	size_t len;
 	char *ret;
 	const char *prefix = U8("「");
 	const char *suffix = U8("」");
 
-	len = strlen(prefix) + strlen(msg) + strlen(suffix) + 1;
+	if (escape)
+		len = 1 + strlen(prefix) + strlen(msg) + strlen(suffix) + 1;
+	else
+		len = strlen(prefix) + strlen(msg) + strlen(suffix) + 1;
 	ret = malloc(len);
 	if (ret == NULL) {
 		log_memory();
 		return NULL;
 	}
 
-	snprintf(ret, len, "%s%s%s", prefix, msg, suffix);
+	if (escape)
+		snprintf(ret, len, "\\%s%s%s", prefix, msg, suffix);
+	else
+		snprintf(ret, len, "%s%s%s", prefix, msg, suffix);
 
 	return ret;	
 }
