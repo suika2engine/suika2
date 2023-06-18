@@ -98,9 +98,18 @@ bool register_message(const char *name, const char *msg, const char *voice)
 	if (name != NULL) {
 		/* "名前「メッセージ」"の形式に連結して保存する */
 		if (conf_locale == LOCALE_JA) {
-			snprintf(tmp_text, TEXT_SIZE, U8("%s「%s」"),
-				 name, msg);
+			/* 日本語 */
+			if (!is_quoted_serif(msg)) {
+				/* カッコがない場合 */
+				snprintf(tmp_text, TEXT_SIZE, U8("%s「%s」"),
+					 name, msg);
+			} else {
+				/* すでにカッコがある場合 */
+				snprintf(tmp_text, TEXT_SIZE, U8("%s%s"),
+					 name, msg);
+			}
 		} else {
+			/* 日本語以外 */
 			snprintf(tmp_text, TEXT_SIZE, "%s: %s", name, msg);
 		}
 		h->text = strdup(tmp_text);
@@ -200,4 +209,29 @@ const char *get_history_voice(int offset)
 	assert(index >= 0 && index < history_count);
 
 	return history[index].voice;
+}
+
+/*
+ * セリフがカッコで始まりカッコで終わるかチェックする
+ */
+bool is_quoted_serif(const char *msg)
+{
+	const char *round_prefix = U8("（");
+	const char *round_suffix = U8("）");
+	const char *square_prefix = U8("「");
+	const char *square_suffix = U8("」");
+
+	/* 全角カッコ（）を調べる */
+	if (strncmp(msg, round_prefix, strlen(round_prefix)) == 0 &&
+	    strncmp(msg + strlen(msg) - strlen(round_suffix), round_suffix,
+		    strlen(round_suffix)) == 0)
+		return true;
+
+	/* 全角カギカッコ「」を調べる */
+	if (strncmp(msg, square_prefix, strlen(square_prefix)) == 0 &&
+	    strncmp(msg + strlen(msg) - strlen(square_suffix), square_suffix,
+		    strlen(square_suffix)) == 0)
+		return true;
+
+	return false;
 }

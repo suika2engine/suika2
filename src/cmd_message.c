@@ -372,7 +372,7 @@ static bool init(int *x, int *y, int *w, int *h)
 			log_memory();
 			return false;
 		}
-		if (conf_serif_quote) {
+		if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
 			msg_top = quote_serif(exp_msg);
 			if (msg_top == NULL) {
 				log_memory();

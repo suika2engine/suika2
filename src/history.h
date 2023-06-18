@@ -39,4 +39,7 @@ const char *get_history_message(int index);
 /* ヒストリのボイスを取得する */
 const char *get_history_voice(int index);
 
+/* セリフがカッコで始まりカッコで終わるかチェックする */
+bool is_quoted_serif(const char *msg);
+
 #endif
