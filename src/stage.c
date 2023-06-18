@@ -2548,14 +2548,12 @@ void start_bg_fade(struct image *img)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
-	if (conf_msgbox_show_on_bg) {
-		if (is_msgbox_visible)
-			draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
-		if (is_namebox_visible && !conf_namebox_hidden)
-			draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
-		if (is_msgbox_visible)
-			draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
-	}
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+	if (is_namebox_visible && !conf_namebox_hidden)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
 	if (is_auto_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
 	if (is_skip_visible)
@@ -2589,8 +2587,6 @@ void start_bg_fade(struct image *img)
 	destroy_layer_image(LAYER_CHL);
 	destroy_layer_image(LAYER_CHR);
 	destroy_layer_image(LAYER_CHC);
-	if (!conf_msgbox_show_on_bg)
-		destroy_layer_image(LAYER_CHF);
 }
 
 /*
@@ -2742,12 +2738,14 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
-	if (is_msgbox_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
-	if (is_namebox_visible && !conf_namebox_hidden)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
-	if (is_msgbox_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	if (conf_msgbox_show_on_ch) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	}
 	if (is_auto_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
 	if (is_skip_visible)
@@ -2769,12 +2767,14 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
-	if (is_msgbox_visible)
-		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
-	if (is_namebox_visible && !conf_namebox_hidden)
-		draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
-	if (is_msgbox_visible)
-		draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+	if (conf_msgbox_show_on_ch) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+	}
 	if (is_auto_visible)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
 	if (is_skip_visible)
