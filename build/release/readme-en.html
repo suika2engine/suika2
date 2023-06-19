@@ -170,13 +170,38 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
 <ul>
   <li>Suika 2/12.12 19th June 2023
     <ul>
-      <li>Supported the Japanese () quotations (<code>serif.quote=1</code>) (Thanks to Ameno-san!)</li>
-      <li>Added the automatic removal of redundant Japanese quotations</li>
-      <li>Fixed a bug that the name box appears with bg command when <code>namebox.hidden=1</code></li>
-      <li>Enhancement of NVL style: fixed the behaviour of <code>msgbox.show.on.bg=1</code> and <code>msgbox.show.on.ch=1</code></li>
-      <li>Fixed a bug that Face/Skip/Auto don't appear while bg, ch, chs</li>
-      <li>Fixed a crash when <code>msgbox.dim=1</code> (regression bug with the introduction of name variables)</li>
-      <li>Fixed a bug that Suika2 couldn't continue lines in NVL mode (Thanks to MATSUNO-san!)</li>
+      <li>Improvements on the full screen style (NVL)
+        <ul>
+          <li>Fixed the line continuation (Thanks to MATSUNO-san!)</li>
+          <li>Fixed a crash when <code>msgbox.dim=1</code></li>
+          <li>Fixed a bug that the name box appears on the bg command when <code>namebox.hidden=1</code></li>
+        </ul>
+      </li>
+      <li>Improvements on Japanese quotations
+        <ul>
+          <li>Changed not to show square quotations for lines surrounded by round quotations when <code>serif.quote=1</code> (Thanks to Ameno-san!)</li>
+          <li>Changed to remove redundant square quotations in lines (Thanks to MATSUNO-san!)</li>
+        </ul>
+      </li>
+      <li>Improvements on the message box and the character face
+        <ul>
+          <li>Fixed a bug that the character face is not displayed on the bg command when <code>msgbox.show.on.bg=1</code></li>
+          <li>Fixed a bug that the character face is not displayed on the ch/chs commands when <code>msgbox.show.on.ch=1</code></li>
+          <li>Fixed a bug that the message box and the character face are not displayed on the shake command when <code>msgbox.show.on.bg=1</code></li>
+        </ul>
+      </li>
+      <li>Improvements on the collapsed system menu
+        <ul>
+          <li>Fixed a bug that the collapsed system menu is not displayed on the Auto/Skip mode when <code>sysmenu.transition=1</code></li>
+          <li>Fixed a bug that the collapsed system menu is not displayed on the shake command when <code>sysmenu.transition=1</code></li>
+          <li>Fixed a bug that the collapsed system menu is pointable on the Auto/Skip mode</li>
+        </ul>
+      </li>
+      <li>Improvements on the Auto/Skip banners
+        <ul>
+          <li>Fixed bugs that the Auto/Skip banners are not displayed on the shake command</li>
+        </ul>
+      </li>
     </ul>
   </li>
   <li>Suika 2/12.11 14th June 2023

@@ -164,13 +164,38 @@
 <ul>
   <li>Suika 2/12.12 2023/06/19
     <ul>
-      <li><code>serif.quote=1</code> を使用時に、カッコ（）で囲われたセリフにカギカッコを付加しないように修正 (Thanks to Ameno-san!)</li>
-      <li>履歴中のセリフの余分なカギカッコを除去するように動作を変更</li>
-      <li><code>namebox.hidden=1</code> のときに背景コマンドで名前ボックスが表示されてしまうバグを修正</li>
-      <li>全画面スタイル強化、 <code>msgbox.show.on.bg=1</code> および <code>msgbox.show.on.ch=1</code> の挙動のバグを修正</li>
-      <li>画面遷移中に描画を忘れていたキャラ(顔)/SKIPバナー/AUTOバナーを表示するように修正 (bg, ch, chs)</li>
-      <li>名前変数導入の影響で <code>msgbox.dim=1</code> を使用時にクラッシュするようになっていたバグを修正</li>
-      <li>全画面スタイルでセリフの継続ができないバグを修正 (Thanks to MATSUNO-san!)</li>
+      <li>全画面スタイルの全般的な改良
+        <ul>
+          <li>セリフの行継続のバグ修正 (Thanks to MATSUNO-san!)</li>
+          <li><code>msgbox.dim=1</code> を使用時にクラッシュするバグを修正</li>
+          <li><code>namebox.hidden=1</code> のときにbgコマンドで名前ボックスが表示されてしまうバグを修正</li>
+        </ul>
+      </li>
+      <li>セリフのカッコ/カギカッコの改良
+        <ul>
+          <li><code>serif.quote=1</code> のとき、カッコ（）で囲われたセリフにカギカッコを付加しないように修正 (Thanks to Ameno-san!)</li>
+          <li>履歴中のセリフの余分なカギカッコを除去するように変更 (Thanks to MATSUNO-san!)</li>
+        </ul>
+      </li>
+      <li>メッセージボックスとキャラ(顔)の表示の改良
+        <ul>
+          <li><code>msgbox.show.on.bg=1</code> のとき、bgコマンドでキャラ(顔)が表示されないバグを修正</li>
+          <li><code>msgbox.show.on.ch=1</code> のとき、ch/chsコマンドでキャラ(顔)が表示されないバグを修正</li>
+          <li><code>msgbox.show.on.bg=1</code> のとき、shakeコマンドでメッセージボックスとキャラ(顔)が表示されないバグを修正</li>
+        </ul>
+      </li>
+      <li>折りたたみシステムメニューの改良
+        <ul>
+          <li><code>sysmenu.transition=1</code> のとき、Auto/Skip中に折りたたみシステムメニューが描画されないバグを修正</li>
+          <li><code>sysmenu.transition=1</code> のとき、shake中に折りたたみシステムメニューが描画されないバグを修正</li>
+          <li>Auto/Skip中に折りたたみシステムメニューのポイント音が鳴るバグを修正</li>
+        </ul>
+      </li>
+      <li>Auto/Skipバナーの改良
+        <ul>
+          <li>shakeコマンドでAuto/Skipバナーが描画されないバグを修正</li>
+        </ul>
+      </li>
     </ul>
   </li>
   <li>Suika2/12.11 2023/06/14
