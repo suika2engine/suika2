@@ -180,7 +180,8 @@ static bool get_message(void);
 static bool get_message_body(void);
 static bool get_serif_body(void);
 static bool is_escape_sequence_char(char c);
-static const char *skip_lf(const char *m);
+static const char *skip_lf(const char *m, int *lf);
+static void put_space(void);
 static char *concat_serif(const char *name, const char *serif);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
@@ -479,6 +480,7 @@ static bool get_message(void)
 static bool get_message_body(void)
 {
 	const char *raw_msg;
+	int lf;
 
 	/* 引数を取得する */
 	raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
@@ -497,7 +499,11 @@ static bool get_message_body(void)
 		msg = msg_top + 1;
 
 		/* 先頭の改行をスキップする */
-		msg = skip_lf(msg);
+		msg = skip_lf(msg, &lf);
+
+		/* 日本語以外のロケールで、改行がない場合 */
+		if (conf_locale != LOCALE_JA && lf == 0)
+			put_space();
 	} else {
 		/* 通常モード */
 		is_nvl_mode = false;
@@ -527,6 +533,7 @@ static bool get_serif_body(void)
 {
 	const char *raw_msg;
 	char *exp_msg;
+	int lf;
 
 	/* 引数を取得する */
 	raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
@@ -536,7 +543,11 @@ static bool get_serif_body(void)
 		is_nvl_mode = true;
 
 		/* 先頭の改行をスキップする */
-		raw_msg = skip_lf(raw_msg + 1);
+		raw_msg = skip_lf(raw_msg + 1, &lf);
+
+		/* 日本語以外のロケールで、改行がない場合 */
+		if (conf_locale != LOCALE_JA && lf == 0)
+			put_space();
 	} else {
 		is_nvl_mode = false;
 	}
@@ -601,12 +612,14 @@ static bool is_escape_sequence_char(char c)
 }
 
 /* 継続行の先頭の改行をスキップする */
-static const char *skip_lf(const char *m)
+static const char *skip_lf(const char *m, int *lf)
 {
 	assert(is_nvl_mode);
 
+	*lf = 0;
 	while (*m == '\\') {
 		if (*(m + 1) == 'n') {
+			(*lf)++;
 			m += 2;
 			if (!gui_flag) {
 				pen_x = conf_msgbox_margin_left;
@@ -615,6 +628,20 @@ static const char *skip_lf(const char *m)
 		}
 	}
 	return m;
+}
+
+/* 空白文字の分だけカーソルを移動する */
+static void put_space(void)
+{
+	int cw;
+
+	cw = get_glyph_width(' ');
+	if (pen_x + cw >= msgbox_w - conf_msgbox_margin_right) {
+		pen_y += conf_msgbox_margin_line;
+		pen_x = conf_msgbox_margin_left;
+	} else {
+		pen_x += cw;
+	}
 }
 
 /* 名前とメッセージを連結する */
@@ -629,7 +656,7 @@ static char *concat_serif(const char *name, const char *serif)
 	assert(serif != NULL);
 
 	/* 日本語ロケールかどうかでセリフの囲いを分ける */
-	if (conf_locale == LOCALE_JA) {
+	if (conf_locale == LOCALE_JA || conf_serif_quote) {
 		prefix = U8("「");
 		suffix = U8("」");
 	} else {

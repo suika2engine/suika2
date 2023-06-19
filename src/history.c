@@ -97,7 +97,7 @@ bool register_message(const char *name, const char *msg, const char *voice)
 	/* 名前が指定されいる場合 */
 	if (name != NULL) {
 		/* "名前「メッセージ」"の形式に連結して保存する */
-		if (conf_locale == LOCALE_JA) {
+		if (conf_locale == LOCALE_JA || conf_serif_quote) {
 			/* 日本語 */
 			if (!is_quoted_serif(msg)) {
 				/* カッコがない場合 */
