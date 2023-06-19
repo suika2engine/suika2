@@ -310,6 +310,8 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (!conf_sysmenu_hidden && !is_hidden) {
 		if (is_sysmenu)
 			draw_sysmenu(false, x, y, w, h);
+		else if (conf_sysmenu_transition)
+			draw_collapsed_sysmenu(x, y, w, h);
 		else if (!is_auto_mode() && !is_skip_mode())
 			draw_collapsed_sysmenu(x, y, w, h);
 	}
@@ -2492,6 +2494,9 @@ static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 static bool is_collapsed_sysmenu_pointed(void)
 {
 	int bx, by, bw, bh;
+
+	if (is_auto_mode() || is_skip_mode())
+		return false;
 
 	get_collapsed_sysmenu_rect(&bx, &by, &bw, &bh);
 	if (mouse_pos_x >= bx && mouse_pos_x < bx + bw &&
