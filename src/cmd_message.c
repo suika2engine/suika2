@@ -62,8 +62,36 @@
 /* オートモードでボイスなしのとき待ち時間のスケール */
 #define AUTO_MODE_TEXT_WAIT_SCALE	(0.15f)
 
-/* コマンドの経過時刻を表すストップウォッチ */
-static stop_watch_t click_sw;
+/*
+ * 文字列バッファ
+ */
+
+/* 描画する名前 */
+static char *name_top;
+
+/*
+ * 描画するメッセージ本文 (バッファの先頭)
+ *  - 行継続の場合、先頭の'\\'は含まれない
+ *  - 行継続の場合、先頭の連続する"\\nn"は含まれない
+ */
+static char *msg_top;
+
+/*
+ * 描画状態
+ */
+
+/*
+ * 描画するメッセージ本文の現在の先頭位置
+ *  - msg_top + n文字
+ *  - 描画した分だけnがインクリメントされる
+ */
+static const char *msg_cur;
+
+/*
+ * 描画するメッセージ本文の保存用
+ *  - 描画開始時点のmsgの値が保存される
+ */
+static const char *msg_save;
 
 /* 描画する文字の総数 */
 static int total_chars;
@@ -74,11 +102,97 @@ static int drawn_chars;
 /* スペースの直後であるか */
 static bool is_after_space;
 
-/* ビープ音再生中であるか */
-static bool is_beep;
+/* 文字列がエスケープ中か TODO: drawn_charsに含めるのはおかしいので直す */
+static bool escaped;
+
+/*
+ * 描画位置
+ */
+
+/*
+ * 現在の描画位置
+ *  - 他のコマンドに移ったり、GUIから戻ってきた場合も、保持される
+ *  - TODO: main.cに移動する
+ */
+static int pen_x;
+static int pen_y;
+
+/* 描画開始位置(重ね塗りのため) */
+static int orig_pen_x;
+static int orig_pen_y;
+
+/* メッセージボックスの位置とサイズ */
+static int msgbox_x;
+static int msgbox_y;
+static int msgbox_w;
+static int msgbox_h;
+
+/*
+ * 色
+ */
+
+/* 文字の色 */
+static pixel_t color;
+
+/* 文字の縁取りの色 */
+static pixel_t outline_color;
+
+/*
+ * 行継続モード
+ */
+
+/* 行継続モードであるか */
+static bool is_nvl_mode;
+
+/* 重ね塗りしているか */
+static bool is_overcoating;
+
+/*
+ * ボイス
+ */
 
 /* ボイスがあるか */
 static bool have_voice;
+
+/* ビープ音再生中であるか */
+static bool is_beep;
+
+/*
+ * クリックアニメーション
+ */
+
+/* クリックアニメーションの初回描画か */
+static bool is_click_first;
+
+/* クリックアニメーションの表示状態 */
+static bool is_click_visible;
+
+/* コマンドの経過時刻を表すストップウォッチ */
+static stop_watch_t click_sw;
+
+/*
+ * オートモード
+ */
+
+/* オートモードでメッセージ表示とボイス再生の完了後の待ち時間中か */
+static bool is_auto_mode_wait;
+
+/* オートモードの経過時刻を表すストップウォッチ */
+static stop_watch_t auto_sw;
+
+/*
+ * コマンドが開始されたときの状態 
+ */
+
+/* ロードによって開始されたか */
+static bool load_flag;
+
+/* GUIコマンド終了後の最初のコマンド、あるいはシステムGUIから復帰したか */
+static bool gui_flag;
+
+/*
+ * システム遷移フラグ
+ */
 
 /* クイックロードを行ったか */
 static bool did_quick_load;
@@ -95,82 +209,23 @@ static bool need_history_mode;
 /* コンフィグモードに遷移するか */
 static bool need_config_mode;
 
-/* オートモードでメッセージ表示とボイス再生の完了後の待ち時間中か */
-static bool is_auto_mode_wait;
-
-/* オートモードの経過時刻を表すストップウォッチ */
-static stop_watch_t auto_sw;
-
-/* 行継続モードであるか */
-static bool is_nvl_mode;
-
 /*
- * 描画位置
- *  - 他のコマンドに移ったり、GUIから戻ってきた場合も、保持される
- *  - TODO: main.cに記録させる
+ * 非表示
  */
-static int pen_x;
-static int pen_y;
-
-/* 前回の描画開始位置(重ね塗りのため) */
-static int orig_pen_x;
-static int orig_pen_y;
-
-/* メッセージボックスの位置とサイズ */
-static int msgbox_x;
-static int msgbox_y;
-static int msgbox_w;
-static int msgbox_h;
-
-/* 描画する名前 */
-static char *name_top;
-
-/*
- * 描画するメッセージ本文 (バッファの先頭)
- *  - 行継続の場合、先頭の'\\'は含まれない
- *  - 行継続の場合、先頭の連続する"\\nn"は含まれない
- */
-static char *msg_top;
-
-/*
- * 描画するメッセージ本文の現在の先頭位置
- *  - msg_top + n文字
- *  - 描画した分だけnがインクリメントされる
- */
-static const char *msg_cur;
-
-/*
- * 描画するメッセージ本文の保存用
- *  - 描画開始時点のmsgの値が保存される
- */
-static const char *msg_save;
-
-/* 文字の色 */
-static pixel_t color;
-
-/* 文字の縁取りの色 */
-static pixel_t outline_color;
-
-/* クリックアニメーションの初回描画を処理すべきか */
-static bool is_click_first;
-
-/* クリックアニメーションの表示状態 */
-static bool is_click_visible;
 
 /* スペースキーによる非表示が実行中であるか */
 static bool is_hidden;
 
-/* ロード画面から戻ったばかりであるか */
-static bool load_flag;
-
-/* GUI画面から戻ったばかりであるか */
-static bool gui_flag;
-
-/* 文字列がエスケープ中か */
-static bool escaped;
+/*
+ * メッセージボックス内のボタン
+ */
 
 /* ポイント中のボタン */
 static int pointed_index;
+
+/*
+ * システムメニュー
+ */
 
 /* システムメニューを表示中か */
 static bool is_sysmenu;
@@ -189,9 +244,6 @@ static bool is_sysmenu_finished;
 
 /* 折りたたみシステムメニューが前のフレームでポイントされていたか */
 static bool is_collapsed_sysmenu_pointed_prev;
-
-/* 重ね塗りしているか */
-bool is_overcoating;
 
 /*
  * 前方参照
