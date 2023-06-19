@@ -955,11 +955,6 @@ void draw_stage_bg_fade(int fade_method)
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
-
-	if (is_auto_visible)
-		render_layer_image(LAYER_AUTO);
-	if (is_skip_visible)
-		render_layer_image(LAYER_SKIP);
 }
 
 /*
@@ -970,17 +965,6 @@ void draw_stage_ch_fade(int fade_method)
 	assert(stage_mode == STAGE_MODE_CH_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
-
-	if (is_msgbox_visible)
-		render_layer_image(LAYER_MSG);
-	if (is_namebox_visible)
-		render_layer_image(LAYER_NAME);
-	if (is_msgbox_visible)
-		render_layer_image(LAYER_CHF);
-	if (is_auto_visible)
-		render_layer_image(LAYER_AUTO);
-	if (is_skip_visible)
-		render_layer_image(LAYER_SKIP);
 }
 
 /* FI/FOフェードを行う */
@@ -1942,6 +1926,11 @@ void draw_stage_shake(void)
 	render_image(shake_offset_x, shake_offset_y,
 		     layer_image[LAYER_FI], conf_window_width,
 		     conf_window_height, 0, 0, 255, BLEND_NONE);
+
+	if (is_auto_visible)
+		render_layer_image(LAYER_AUTO);
+	if (is_skip_visible)
+		render_layer_image(LAYER_SKIP);
 }
 
 /*
@@ -2559,10 +2548,16 @@ void start_bg_fade(struct image *img)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
-	if (conf_msgbox_show_on_bg && is_msgbox_visible) {
+	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+	if (is_namebox_visible && !conf_namebox_hidden)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
-	}
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	if (is_auto_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
+	if (is_skip_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* フェードイン用のレイヤにイメージをセットする */
@@ -2572,10 +2567,18 @@ void start_bg_fade(struct image *img)
 	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, img, conf_window_width,
 		   conf_window_height, 0, 0, 255, BLEND_NONE);
-	if (conf_msgbox_show_on_bg && is_msgbox_visible) {
-		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
-		draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+	if (conf_msgbox_show_on_bg) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
 	}
+	if (is_auto_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
+	if (is_skip_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_SKIP);
 	unlock_image(layer_image[LAYER_FI]);
 
 	/* 無効になるレイヤのイメージを破棄する */
@@ -2735,6 +2738,18 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	if (conf_msgbox_show_on_ch) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	}
+	if (is_auto_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
+	if (is_skip_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
@@ -2752,6 +2767,18 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	if (conf_msgbox_show_on_ch) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+	}
+	if (is_auto_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
+	if (is_skip_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_SKIP);
 	unlock_image(layer_image[LAYER_FI]);
 }
 
@@ -2794,6 +2821,18 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	if (conf_msgbox_show_on_ch) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	}
+	if (is_auto_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
+	if (is_skip_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
@@ -2821,6 +2860,18 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	if (conf_msgbox_show_on_ch) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+	}
+	if (is_auto_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
+	if (is_skip_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_SKIP);
 	unlock_image(layer_image[LAYER_FI]);
 }
 
@@ -2966,6 +3017,14 @@ void start_shake(void)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	if (conf_msgbox_show_on_bg) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+	}
 	unlock_image(layer_image[LAYER_FI]);
 }
 

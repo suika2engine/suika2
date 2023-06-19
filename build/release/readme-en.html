@@ -42,7 +42,7 @@
 </head>
 <body>
 
-<h1>Suika 2/12.10</h1>
+<h1>Suika 2/12.12</h1>
 <p>Copyright (c) 2023 the Suika2 Development Team. All rights reserved.</p>
 
 <h2>About Suika2</h2>
@@ -168,6 +168,49 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
 
 <h2>Release History</h2>
 <ul>
+  <li>Suika 2/12.12 19th June 2023
+    <ul>
+      <li>Improvements on the full screen style (NVL)
+        <ul>
+          <li>Fixed the line continuation (Thanks to MATSUNO-san!)</li>
+          <li>Fixed a crash when <code>msgbox.dim=1</code></li>
+          <li>Fixed a bug that the name box appears on the bg command when <code>namebox.hidden=1</code></li>
+        </ul>
+      </li>
+      <li>Improvements on Japanese quotations
+        <ul>
+          <li>Changed not to show square quotations for lines surrounded by round quotations when <code>serif.quote=1</code> (Thanks to Ameno-san!)</li>
+          <li>Changed to remove redundant square quotations in lines (Thanks to MATSUNO-san!)</li>
+        </ul>
+      </li>
+      <li>Improvements on the message box and the character face
+        <ul>
+          <li>Fixed a bug that the character face is not displayed on the bg command when <code>msgbox.show.on.bg=1</code></li>
+          <li>Fixed a bug that the character face is not displayed on the ch/chs commands when <code>msgbox.show.on.ch=1</code></li>
+          <li>Fixed a bug that the message box and the character face are not displayed on the shake command when <code>msgbox.show.on.bg=1</code></li>
+        </ul>
+      </li>
+      <li>Improvements on the collapsed system menu
+        <ul>
+          <li>Fixed a bug that the collapsed system menu is not displayed on the Auto/Skip mode when <code>sysmenu.transition=1</code></li>
+          <li>Fixed a bug that the collapsed system menu is not displayed on the shake command when <code>sysmenu.transition=1</code></li>
+          <li>Fixed a bug that the collapsed system menu is pointable on the Auto/Skip mode</li>
+        </ul>
+      </li>
+      <li>Improvements on the Auto/Skip banners
+        <ul>
+          <li>Fixed bugs that the Auto/Skip banners are not displayed on the shake command</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Suika 2/12.11 14th June 2023
+    <ul>
+      <li>Added the backspace feature to GUI (Thanks to Asatsuki-san!)</li>
+      <li>Fixed transient backgounds on GUI-exit (Thanks to MATSUNO-san!)</li>
+      <li>Supported fixed character message colors with name variables (Thanks to MATSUNO-san!)</li>
+    </ul>
+  </li>
   <li>Suika 2/12.10 12th June 2023
     <ul>
       <li>Fixed the bug that Suika2 Pro didn't export the <code>wms</code> folder (Thanks to Ameno-san!)</li>

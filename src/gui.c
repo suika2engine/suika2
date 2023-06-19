@@ -873,6 +873,11 @@ static bool move_to_other_gui(void)
 	}
 	free(file);
 
+	/* 終了後に表示されるBGレイヤを設定する */
+	if (!is_called_from_command)
+		if (!create_temporary_bg_for_gui())
+			return false;
+
 	/* GUIを開始する */
 	start_gui_mode();
 
@@ -2275,6 +2280,12 @@ static void process_char(int index)
 	/* クリアボタンの場合 */
 	if (strcmp(b->msg, "[clear]") == 0) {
 		set_name_variable(b->namevar, "");
+		return;
+	}
+
+	/* 1文字消去ボタンの場合 */
+	if (strcmp(b->msg, "[backspace]") == 0) {
+		truncate_name_variable(b->namevar);
 		return;
 	}
 

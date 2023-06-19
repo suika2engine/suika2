@@ -113,7 +113,10 @@ static int msgbox_h;
 /* 描画するメッセージの現在の先頭 */
 static const char *msg;
 
-/* 描画するメッセージの本来の先頭 */
+/* 描画するメッセージの先頭の保存用 */
+static const char *msg_save;
+
+/* 描画するメッセージのバッファの先頭 */
 static char *msg_top;
 
 /* 描画する名前 */
@@ -172,7 +175,14 @@ bool is_overcoating;
  */
 
 static bool init(int *x, int *y, int *w, int *h);
-static char *quote_serif(const char *msg);
+static bool get_name(void);
+static bool get_message(void);
+static bool get_message_body(void);
+static bool get_serif_body(void);
+static bool is_escape_sequence_char(char c);
+static const char *skip_lf(const char *m, int *lf);
+static void put_space(void);
+static char *concat_serif(const char *name, const char *serif);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool register_message_for_history(const char *reg_msg);
@@ -300,6 +310,8 @@ bool message_command(int *x, int *y, int *w, int *h)
 	if (!conf_sysmenu_hidden && !is_hidden) {
 		if (is_sysmenu)
 			draw_sysmenu(false, x, y, w, h);
+		else if (conf_sysmenu_transition)
+			draw_collapsed_sysmenu(x, y, w, h);
 		else if (!is_auto_mode() && !is_skip_mode())
 			draw_collapsed_sysmenu(x, y, w, h);
 	}
@@ -333,8 +345,11 @@ bool message_command(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(int *x, int *y, int *w, int *h)
 {
-	const char *raw_msg;
-	char *exp_msg;
+	/* GUIから戻ったばかりかチェックする */
+	gui_flag = check_gui_flag();
+
+	/* ロードされたばかりかチェックする */
+	load_flag = check_load_flag();
 
 	/* 初期化処理のスキップモードの部分を行う */
 	init_auto_mode();
@@ -343,68 +358,11 @@ static bool init(int *x, int *y, int *w, int *h)
 	init_skip_mode();
 
 	/* 名前を取得する */
-	if (get_command_type() == COMMAND_SERIF) {
-		name_top = strdup(expand_variable(
-					  get_string_param(SERIF_PARAM_NAME)));
-		if (name_top == NULL) {
-			log_memory();
-			return false;
-		}
-	} else {
-		name_top = NULL;
-	}
+	if (!get_name())
+		return false;
 
 	/* メッセージを取得する */
-	if (get_command_type() == COMMAND_MESSAGE) {
-		/* メッセージの場合 */
-		raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
-		exp_msg = strdup(expand_variable(raw_msg));
-		if (exp_msg == NULL) {
-			log_memory();
-			return false;
-		}
-		msg_top = exp_msg;
-	} else {
-		/* セリフの場合 */
-		raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
-		exp_msg = strdup(expand_variable(raw_msg));
-		if (exp_msg == NULL) {
-			log_memory();
-			return false;
-		}
-		if (conf_serif_quote) {
-			msg_top = quote_serif(exp_msg);
-			if (msg_top == NULL) {
-				log_memory();
-				return false;
-			}
-		} else {
-			msg_top = exp_msg;
-		}
-	}
-
-	/* ヒストリ画面用にメッセージ履歴を登録する */
-	if (!register_message_for_history(exp_msg)) {
-		if (exp_msg != msg_top)
-			free(exp_msg);
-		return false;
-	}
-	if (exp_msg != msg_top) {
-		free(exp_msg);
-		exp_msg = NULL;
-	}
-
-	/* 先頭が'\'である場合(NVLモード)を処理する */
-	msg = msg_top;
-	if (msg[0] == '\\') {
-		msg++;
-		is_nvl_mode = true;
-	} else {
-		is_nvl_mode = false;
-	}
-
-	/* セーブ用にメッセージを保存する */
-	if (!set_last_message(msg))
+	if (!get_message())
 		return false;
 
 	/* 文字色を求める */
@@ -486,24 +444,267 @@ static bool init(int *x, int *y, int *w, int *h)
 	return true;
 }
 
-/* セリフをカギカッコで囲う */
-static char *quote_serif(const char *msg)
+/* 名前を取得する */
+static bool get_name(void)
 {
-	size_t len;
-	char *ret;
-	const char *prefix = U8("「");
-	const char *suffix = U8("」");
+	const char *raw, *exp;
 
-	len = strlen(prefix) + strlen(msg) + strlen(suffix) + 1;
-	ret = malloc(len);
-	if (ret == NULL) {
-		log_memory();
-		return NULL;
+	if (get_command_type() == COMMAND_SERIF) {
+		raw = get_string_param(SERIF_PARAM_NAME);
+		exp = expand_variable(raw);
+		name_top = strdup(exp);
+		if (name_top == NULL) {
+			log_memory();
+			return false;
+		}
+	} else {
+		name_top = NULL;
 	}
 
-	snprintf(ret, len, "%s%s%s", prefix, msg, suffix);
+	return true;
+}
 
-	return ret;	
+/* メッセージを取得する */
+static bool get_message(void)
+{
+	if (get_command_type() == COMMAND_MESSAGE) {
+		if (!get_message_body())
+			return false;
+	} else {
+		if (!get_serif_body())
+			return false;
+	}
+
+	return true;
+}
+
+/* メッセージの本文を取得する */
+static bool get_message_body(void)
+{
+	const char *raw_msg;
+	int lf;
+
+	/* 引数を取得する */
+	raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
+
+	/* 変数を展開して、メッセージバッファの先頭として保持する */
+	msg_top = strdup(expand_variable(raw_msg));
+	if (msg_top == NULL) {
+		log_memory();
+		return false;
+	}
+
+	/* 継続行かチェックする */
+	if (*msg_top == '\\' && !is_escape_sequence_char(*(msg_top + 1))) {
+		/* NVLモード */
+		is_nvl_mode = true;
+		msg = msg_top + 1;
+
+		/* 先頭の改行をスキップする */
+		msg = skip_lf(msg, &lf);
+
+		/* 日本語以外のロケールで、改行がない場合 */
+		if (conf_locale != LOCALE_JA && lf == 0)
+			put_space();
+	} else {
+		/* 通常モード */
+		is_nvl_mode = false;
+		msg = msg_top;
+	}
+	msg_save = msg;
+
+	/* ヒストリ画面用にメッセージ履歴を登録する */
+	if (!register_message_for_history(msg)) {
+		free(msg_top);
+		msg_top = NULL;
+		return false;
+	}
+
+	/* セーブ用にメッセージを保存する */
+	if (!set_last_message(msg)) {
+		free(msg_top);
+		msg_top = NULL;
+		return false;
+	}
+
+	return true;
+}
+
+/* セリフのメッセージの本文を取得する */
+static bool get_serif_body(void)
+{
+	const char *raw_msg;
+	char *exp_msg;
+	int lf;
+
+	/* 引数を取得する */
+	raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
+
+	/* 継続行かチェックする */
+	if (*raw_msg == '\\' && !is_escape_sequence_char(*(raw_msg + 1))) {
+		is_nvl_mode = true;
+
+		/* 先頭の改行をスキップする */
+		raw_msg = skip_lf(raw_msg + 1, &lf);
+
+		/* 日本語以外のロケールで、改行がない場合 */
+		if (conf_locale != LOCALE_JA && lf == 0)
+			put_space();
+	} else {
+		is_nvl_mode = false;
+	}
+
+	/* 変数を展開する */
+	exp_msg = strdup(expand_variable(raw_msg));
+	if (exp_msg == NULL) {
+		log_memory();
+		return false;
+	}
+
+	/* ヒストリ画面用にメッセージ履歴を登録する */
+	if (!register_message_for_history(exp_msg)) {
+		free(exp_msg);
+		return false;
+	}
+
+	/* セーブ用にメッセージを保存する */
+	if (!set_last_message(exp_msg)) {
+		free(exp_msg);
+		return false;
+	}
+
+	/* 表示するメッセージを修飾する */
+	if (conf_namebox_hidden) {
+		/* 名前を付加する場合 */
+		msg_top = concat_serif(name_top, exp_msg);
+		if (msg_top == NULL) {
+			log_memory();
+			free(exp_msg);
+			return false;
+		}
+		free(exp_msg);
+	} else if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
+		/* カギカッコを付加する場合 */
+		msg_top = concat_serif("", exp_msg);
+		if (msg_top == NULL) {
+			log_memory();
+			free(exp_msg);
+			return false;
+		}
+		free(exp_msg);
+	} else {
+		/* 修飾しない場合 */
+		msg_top = exp_msg;
+	}
+	msg = msg_top;
+	msg_save = msg;
+
+	return true;
+}
+
+/* エスケープ文字かチェックする */
+static bool is_escape_sequence_char(char c)
+{
+	if (c == 'n')
+		return true;
+
+	/* TODO: 文字色などの文字を追加 */
+
+	return false;
+}
+
+/* 継続行の先頭の改行をスキップする */
+static const char *skip_lf(const char *m, int *lf)
+{
+	assert(is_nvl_mode);
+
+	*lf = 0;
+	while (*m == '\\') {
+		if (*(m + 1) == 'n') {
+			(*lf)++;
+			m += 2;
+			if (!gui_flag) {
+				pen_x = conf_msgbox_margin_left;
+				pen_y += conf_msgbox_margin_line;
+			}
+		}
+	}
+	return m;
+}
+
+/* 空白文字の分だけカーソルを移動する */
+static void put_space(void)
+{
+	int cw;
+
+	cw = get_glyph_width(' ');
+	if (pen_x + cw >= msgbox_w - conf_msgbox_margin_right) {
+		pen_y += conf_msgbox_margin_line;
+		pen_x = conf_msgbox_margin_left;
+	} else {
+		pen_x += cw;
+	}
+}
+
+/* 名前とメッセージを連結する */
+static char *concat_serif(const char *name, const char *serif)
+{
+	char *ret;
+	size_t len, lf, i;
+	const char *prefix;
+	const char *suffix;
+
+	assert(name != NULL);
+	assert(serif != NULL);
+
+	/* 日本語ロケールかどうかでセリフの囲いを分ける */
+	if (conf_locale == LOCALE_JA || conf_serif_quote) {
+		prefix = U8("「");
+		suffix = U8("」");
+	} else {
+		prefix = ": ";
+		suffix = "";
+	}
+
+	/* 先頭の'\\' 'n'をカウントする */
+	lf = 0;
+	while (*serif == '\\') {
+		if (*(serif + 1) == 'n') {
+			lf++;
+			serif += 2;
+		}
+	}
+
+	/* 先頭の改行の先の文字列を作る */
+	if (is_quoted_serif(serif)) {
+		/* クオート済みの文字列の場合 */
+		len = lf * 2 + strlen(name) + strlen(serif) + 1;
+		ret = malloc(len);
+		if (ret == NULL) {
+			log_memory();
+			return NULL;
+		}
+		snprintf(ret + lf * 2, len, "%s%s", name, serif);
+	} else {
+		/* クオートされていない文字列の場合 */
+		len = lf * 2 + strlen(name) + strlen(prefix) +
+			strlen(serif) + strlen(suffix) + 1;
+		ret = malloc(len);
+		if (ret == NULL) {
+			log_memory();
+			return NULL;
+		}
+		snprintf(ret + lf * 2, len, "%s%s%s%s", name, prefix, serif,
+			 suffix);
+	}
+
+	/* 先頭の改行を埋める */
+	for (i = 0; i < lf; i++) {
+		ret[i * 2] = '\\';
+		ret[i * 2 + 1] = 'n';
+	}
+
+	return ret;
 }
 
 /* 初期化処理のスキップモードの部分を行う */
@@ -550,9 +751,11 @@ static bool register_message_for_history(const char *reg_msg)
 {
 	const char *voice;
 
-	/* GUI画面から戻ったばかりの場合、2重登録を防ぐ */
-	gui_flag = check_gui_flag();
-	load_flag = check_load_flag();
+	/*
+	 * GUI画面から戻ったばかりの場合、2重登録を防ぐが、例外として、
+	 *  - ロード直後は必ず登録する
+	 *  - メッセージが登録されていない場合は登録する
+	 */
 	if (!load_flag && (gui_flag || is_message_registered()))
 		return true;
 
@@ -1027,17 +1230,14 @@ static int get_en_word_width(void)
 static void get_message_color(pixel_t *color, pixel_t *outline_color)
 {
 	int i;
-	const char *name;
 
 	/* セリフの場合 */
 	if (get_command_type() == COMMAND_SERIF) {
-		name = get_string_param(SERIF_PARAM_NAME);
-
 		/* コンフィグでnameの指す名前が指定されているか */
 		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
 			if (conf_serif_color_name[i] == NULL)
 				continue;
-			if (strcmp(name, conf_serif_color_name[i]) == 0) {
+			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
 				/* コンフィグで指定された色にする */
 				*color = make_pixel_slow(
 					0xff,
@@ -2295,6 +2495,9 @@ static bool is_collapsed_sysmenu_pointed(void)
 {
 	int bx, by, bw, bh;
 
+	if (is_auto_mode() || is_skip_mode())
+		return false;
+
 	get_collapsed_sysmenu_rect(&bx, &by, &bw, &bh);
 	if (mouse_pos_x >= bx && mouse_pos_x < bx + bw &&
 	    mouse_pos_y >= by && mouse_pos_y < by + bh)
@@ -2349,12 +2552,6 @@ static bool is_skippable(void)
 /* 終了処理を行う */
 static bool cleanup(int *x, int *y, int *w, int *h)
 {
-	/* メッセージを解放する */
-	if (msg_top != NULL) {
-		free(msg_top);
-		msg_top = NULL;
-	}
-
 	/* PCMストリームの再生を終了する */
 	if (!conf_voice_stop_off)
 		set_mixer_input(VOICE_STREAM, NULL);
@@ -2375,9 +2572,7 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 	    (!did_quick_load && !need_save_mode && !need_load_mode &&
 	     !need_history_mode && !need_config_mode)) {
 		is_overcoating = true;
-		msg = msg_top;
-		if (msg[0] == '\\')
-			msg++;
+		msg = msg_save;
 		drawn_chars = 0;
 		pen_x = orig_pen_x;
 		pen_y = orig_pen_y;
@@ -2390,6 +2585,12 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 						(uint32_t)conf_msgbox_dim_color_outline_g,
 						(uint32_t)conf_msgbox_dim_color_outline_b);
 		draw_msgbox(x, y, w, h);
+	}
+
+	/* メッセージを解放する */
+	if (msg_top != NULL) {
+		free(msg_top);
+		msg_top = NULL;
 	}
 
 	/* 次のコマンドに移動する */
