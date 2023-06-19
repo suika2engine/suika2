@@ -113,7 +113,10 @@ static int msgbox_h;
 /* 描画するメッセージの現在の先頭 */
 static const char *msg;
 
-/* 描画するメッセージの本来の先頭 */
+/* 描画するメッセージの先頭の保存用 */
+static const char *msg_save;
+
+/* 描画するメッセージのバッファの先頭 */
 static char *msg_top;
 
 /* 描画する名前 */
@@ -339,6 +342,12 @@ bool message_command(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(int *x, int *y, int *w, int *h)
 {
+	/* GUIから戻ったばかりかチェックする */
+	gui_flag = check_gui_flag();
+
+	/* ロードされたばかりかチェックする */
+	load_flag = check_load_flag();
+
 	/* 初期化処理のスキップモードの部分を行う */
 	init_auto_mode();
 
@@ -469,7 +478,7 @@ static bool get_message(void)
 /* メッセージの本文を取得する */
 static bool get_message_body(void)
 {
-	const char *raw_msg, *reg_msg;
+	const char *raw_msg;
 
 	/* 引数を取得する */
 	raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
@@ -486,22 +495,25 @@ static bool get_message_body(void)
 		/* NVLモード */
 		is_nvl_mode = true;
 		msg = msg_top + 1;
+
+		/* 先頭の改行をスキップする */
+		msg = skip_lf(msg);
 	} else {
 		/* 通常モード */
 		is_nvl_mode = false;
 		msg = msg_top;
 	}
+	msg_save = msg;
 
 	/* ヒストリ画面用にメッセージ履歴を登録する */
-	reg_msg = is_nvl_mode ? skip_lf(msg) : msg;
-	if (!register_message_for_history(reg_msg)) {
+	if (!register_message_for_history(msg)) {
 		free(msg_top);
 		msg_top = NULL;
 		return false;
 	}
 
 	/* セーブ用にメッセージを保存する */
-	if (!set_last_message(reg_msg)) {
+	if (!set_last_message(msg)) {
 		free(msg_top);
 		msg_top = NULL;
 		return false;
@@ -513,7 +525,7 @@ static bool get_message_body(void)
 /* セリフのメッセージの本文を取得する */
 static bool get_serif_body(void)
 {
-	const char *raw_msg, *reg_msg;
+	const char *raw_msg;
 	char *exp_msg;
 
 	/* 引数を取得する */
@@ -522,7 +534,9 @@ static bool get_serif_body(void)
 	/* 継続行かチェックする */
 	if (*raw_msg == '\\' && !is_escape_sequence_char(*(raw_msg + 1))) {
 		is_nvl_mode = true;
-		raw_msg++;
+
+		/* 先頭の改行をスキップする */
+		raw_msg = skip_lf(raw_msg + 1);
 	} else {
 		is_nvl_mode = false;
 	}
@@ -535,14 +549,13 @@ static bool get_serif_body(void)
 	}
 
 	/* ヒストリ画面用にメッセージ履歴を登録する */
-	reg_msg = is_nvl_mode ? skip_lf(exp_msg) : exp_msg;
-	if (!register_message_for_history(reg_msg)) {
+	if (!register_message_for_history(exp_msg)) {
 		free(exp_msg);
 		return false;
 	}
 
 	/* セーブ用にメッセージを保存する */
-	if (!set_last_message(reg_msg)) {
+	if (!set_last_message(exp_msg)) {
 		free(exp_msg);
 		return false;
 	}
@@ -571,6 +584,7 @@ static bool get_serif_body(void)
 		msg_top = exp_msg;
 	}
 	msg = msg_top;
+	msg_save = msg;
 
 	return true;
 }
@@ -586,12 +600,20 @@ static bool is_escape_sequence_char(char c)
 	return false;
 }
 
-/* 先頭の改行をスキップする */
+/* 継続行の先頭の改行をスキップする */
 static const char *skip_lf(const char *m)
 {
-	while (*m == '\\')
-		if (*(m + 1) == 'n')
+	assert(is_nvl_mode);
+
+	while (*m == '\\') {
+		if (*(m + 1) == 'n') {
 			m += 2;
+			if (!gui_flag) {
+				pen_x = conf_msgbox_margin_left;
+				pen_y += conf_msgbox_margin_line;
+			}
+		}
+	}
 	return m;
 }
 
@@ -700,9 +722,11 @@ static bool register_message_for_history(const char *reg_msg)
 {
 	const char *voice;
 
-	/* GUI画面から戻ったばかりの場合、2重登録を防ぐ */
-	gui_flag = check_gui_flag();
-	load_flag = check_load_flag();
+	/*
+	 * GUI画面から戻ったばかりの場合、2重登録を防ぐが、例外として、
+	 *  - ロード直後は必ず登録する
+	 *  - メッセージが登録されていない場合は登録する
+	 */
 	if (!load_flag && (gui_flag || is_message_registered()))
 		return true;
 
@@ -2516,9 +2540,7 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 	    (!did_quick_load && !need_save_mode && !need_load_mode &&
 	     !need_history_mode && !need_config_mode)) {
 		is_overcoating = true;
-		msg = msg_top;
-		if (msg[0] == '\\')
-			msg++;
+		msg = msg_save;
 		drawn_chars = 0;
 		pen_x = orig_pen_x;
 		pen_y = orig_pen_y;
