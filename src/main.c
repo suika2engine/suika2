@@ -53,8 +53,8 @@ bool is_mouse_dragging;
 /* 複数のイテレーションに渡るコマンドの実行中であるか */
 static bool is_in_repetition;
 
-/* 現在表示中のメッセージがヒストリに登録済みであるか */
-static bool flag_message_registered;
+/* メッセージの表示中状態であるか */
+static bool flag_message_active;
 
 /* menuコマンドが完了したばかりであるか */
 static bool flag_menu_finished;
@@ -113,7 +113,7 @@ void init_game_loop(void)
 	mouse_pos_y = 0;
 	is_mouse_dragging = false;
 	is_in_repetition = false;
-	flag_message_registered = false;
+	flag_message_active = false;
 	flag_menu_finished = false;
 	flag_retrospect_finished = false;
 	flag_auto_mode = false;
@@ -543,29 +543,32 @@ bool is_in_command_repetition(void)
 }
 
 /*
- * 現在表示中のメッセージがヒストリに登録済みであることを設定する
+ * メッセージの表示中状態を設定する
+ *  - メッセージ表示中にシステムGUIに移行しても保持される
+ *  - メッセージコマンドから次のコマンドに進むときにクリアされる
+ *  - ロードされてもクリアされる
  */
-void set_message_registered(void)
+void set_message_active(void)
 {
-	assert(!flag_message_registered);
-	flag_message_registered = true;
+	assert(!flag_message_active);
+	flag_message_active = true;
 }
 
 /*
- * 表示中のメッセージがなくなったことを設定する
+ * メッセージの表示中状態を解除する
  */
-void clear_message_registered(void)
+void clear_message_active(void)
 {
-	assert(flag_message_registered);
-	flag_message_registered = false;
+	assert(flag_message_active);
+	flag_message_active = false;
 }
 
 /*
- * 現在表示中のメッセージがヒストリに登録済みであるかを返す
+ * メッセージが表示中状態であるかを返す
  */
-bool is_message_registered(void)
+bool is_message_active(void)
 {
-	return flag_message_registered;
+	return flag_message_active;
 }
 
 /*

@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -18,6 +18,14 @@
  *  - 2022/07/19 システムメニューに対応
  *  - 2022/07/28 コンフィグに対応
  *  - 2022/08/08 セーブ・ロード・ヒストリをGUIに変更
+ *  - 2023/06/19 リファクタリング
+ */
+
+/*
+ * [留意点]
+ *  - メッセージボックス内のボタンと、システムメニュー内のボタンがある
+ *  -- これらの機能はほぼ同じ
+ *  -- メッセージボックスを隠すボタンについては、メッセージボックス内のみ
  */
 
 #include "suika.h"
@@ -93,14 +101,18 @@ static bool is_auto_mode_wait;
 /* オートモードの経過時刻を表すストップウォッチ */
 static stop_watch_t auto_sw;
 
-/* NVLモードであるか */
+/* 行継続モードであるか */
 static bool is_nvl_mode;
 
-/* 描画位置 */
+/*
+ * 描画位置
+ *  - 他のコマンドに移ったり、GUIから戻ってきた場合も、保持される
+ *  - TODO: main.cに記録させる
+ */
 static int pen_x;
 static int pen_y;
 
-/* 前回の描画開始位置 */
+/* 前回の描画開始位置(重ね塗りのため) */
 static int orig_pen_x;
 static int orig_pen_y;
 
@@ -110,17 +122,28 @@ static int msgbox_y;
 static int msgbox_w;
 static int msgbox_h;
 
-/* 描画するメッセージの現在の先頭 */
-static const char *msg;
-
-/* 描画するメッセージの先頭の保存用 */
-static const char *msg_save;
-
-/* 描画するメッセージのバッファの先頭 */
-static char *msg_top;
-
 /* 描画する名前 */
 static char *name_top;
+
+/*
+ * 描画するメッセージ本文 (バッファの先頭)
+ *  - 行継続の場合、先頭の'\\'は含まれない
+ *  - 行継続の場合、先頭の連続する"\\nn"は含まれない
+ */
+static char *msg_top;
+
+/*
+ * 描画するメッセージ本文の現在の先頭位置
+ *  - msg_top + n文字
+ *  - 描画した分だけnがインクリメントされる
+ */
+static const char *msg_cur;
+
+/*
+ * 描画するメッセージ本文の保存用
+ *  - 描画開始時点のmsgの値が保存される
+ */
+static const char *msg_save;
 
 /* 文字の色 */
 static pixel_t color;
@@ -129,7 +152,7 @@ static pixel_t color;
 static pixel_t outline_color;
 
 /* クリックアニメーションの初回描画を処理すべきか */
-static bool process_click_first;
+static bool is_click_first;
 
 /* クリックアニメーションの表示状態 */
 static bool is_click_visible;
@@ -175,28 +198,31 @@ bool is_overcoating;
  */
 
 static bool init(int *x, int *y, int *w, int *h);
-static bool get_name(void);
-static bool get_message(void);
-static bool get_message_body(void);
-static bool get_serif_body(void);
+static void init_flags(void);
+static void init_auto_mode(void);
+static void init_skip_mode(void);
+static bool init_name_top(void);
+static bool init_msg_top(void);
 static bool is_escape_sequence_char(char c);
 static const char *skip_lf(const char *m, int *lf);
 static void put_space(void);
-static char *concat_serif(const char *name, const char *serif);
-static void init_auto_mode(void);
-static void init_skip_mode(void);
 static bool register_message_for_history(const char *reg_msg);
-static bool process_serif_command(int *x, int *y, int *w, int *h);
+static char *concat_serif(const char *name, const char *serif);
+static void init_colors(pixel_t *color, pixel_t *outline_color);
+static bool init_serif(int *x, int *y, int *w, int *h);
+static bool check_play_voice(void);
+static bool play_voice(void);
+static void init_pen(void);
+static void init_msgbox(int *x, int *y, int *w, int *h);
+static void init_click(void);
 static void draw_namebox(void);
 static int get_namebox_width(void);
-static bool play_voice(void);
 static void set_character_volume_by_name(const char *name);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
 static void draw_click(int *x, int *y, int *w, int *h);
 static void check_stop_click_animation(void);
 static int get_en_word_width(void);
-static void get_message_color(pixel_t *color, pixel_t *outline_color);
 static void init_pointed_index(void);
 static void init_first_draw_area(int *x, int *y, int *w, int *h);
 static void init_repetition(void);
@@ -236,11 +262,11 @@ bool message_command(int *x, int *y, int *w, int *h)
 		if (!init(x, y, w, h))
 			return false;
 
-	/* ボタンの描画を行う */
-	frame_draw_buttons(true, x, y, w, h);
-
 	/* 各種操作を処理する */
 	do {
+		/* ボタンの描画を行う */
+		frame_draw_buttons(true, x, y, w, h);
+
 		/* クイックセーブを処理する */
 		if (frame_quick_save())
 			break;
@@ -345,71 +371,46 @@ bool message_command(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(int *x, int *y, int *w, int *h)
 {
-	/* GUIから戻ったばかりかチェックする */
-	gui_flag = check_gui_flag();
+	/* コマンド開始時の状態を表すフラグを初期化する */
+	init_flags();
 
-	/* ロードされたばかりかチェックする */
-	load_flag = check_load_flag();
-
-	/* 初期化処理のスキップモードの部分を行う */
+	/* オートモードの場合の初期化を行う */
 	init_auto_mode();
 
-	/* 初期化処理のスキップモードの部分を行う */
+	/* スキップモードの場合の初期化を行う */
 	init_skip_mode();
 
 	/* 名前を取得する */
-	if (!get_name())
+	if (!init_name_top())
 		return false;
 
 	/* メッセージを取得する */
-	if (!get_message())
+	if (!init_msg_top())
 		return false;
 
-	/* 文字色を求める */
-	get_message_color(&color, &outline_color);
+	/* 文字色の初期化を行う */
+	init_colors(&color, &outline_color);
 
-	/* セリフの場合を処理する */
-	if (!process_serif_command(x, y, w, h))
+	/* セリフ固有の初期化を行う */
+	if (!init_serif(x, y, w, h))
 		return false;
 
-	/* セリフが登録・表示されたことを記録する */
-	if (!is_message_registered())
-		set_message_registered();
+	/*
+	 * メッセージの表示中状態をセットする
+	 *  - システムGUIに入っても保持される
+	 *  - メッセージから次のコマンドに移行するときにクリアされる
+	 */
+	if (!is_message_active())
+		set_message_active();
 
-	/* メッセージの文字数を求める */
-	total_chars = utf8_chars(msg);
-	drawn_chars = 0;
+	/* ペンの位置を初期化する */
+	init_pen();
 
-	/* 先頭文字はスペースの直後とみなす */
-	is_after_space = true;
-
-	/* メッセージの描画位置を初期化する */
-	if (!is_nvl_mode) {
-		pen_x = conf_msgbox_margin_left;
-		pen_y = conf_msgbox_margin_top;
-	}
-	if (!gui_flag) {
-		orig_pen_x = pen_x;
-		orig_pen_y = pen_y;
-	}
-
-	/* メッセージボックスの矩形を取得する */
-	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
-
-	/* メッセージボックスをクリアする */
-	if (!is_nvl_mode)
-		clear_msgbox();
-
-	/* メッセージボックスを表示する */
-	show_msgbox(true);
+	/* メッセージボックスを初期化する */
+	init_msgbox(x, y, w, h);
 
 	/* クリックアニメーションを非表示の状態にする */
-	show_click(false);
-	process_click_first = true;
-	is_click_visible = false;
+	init_click();
 
 	/* スペースキーによる非表示でない状態にする */
 	is_hidden = false;
@@ -444,8 +445,56 @@ static bool init(int *x, int *y, int *w, int *h)
 	return true;
 }
 
+/* コマンド開始時の状態を表すフラグを初期化する */
+static void init_flags(void)
+{
+	/* GUIから戻ったばかりかチェックする */
+	gui_flag = check_gui_flag();
+
+	/* ロードされたばかりかチェックする */
+	load_flag = check_load_flag();
+}
+
+/* オートモードの場合の初期化処理を行う */
+static void init_auto_mode(void)
+{
+	/* オートモードの場合 */
+	if (is_auto_mode()) {
+		/* リターンキー、下キーの入力を無効にする */
+		is_return_pressed = false;
+		is_down_pressed = false;
+	}
+}
+
+/* スキップモードの場合の初期化処理を行う */
+static void init_skip_mode(void)
+{
+	if (is_skip_mode()) {
+		/* 未読に到達した場合、スキップモードを終了する */
+		if (!is_skippable()) {
+			stop_skip_mode();
+			show_skipmode_banner(false);
+			return;
+		}
+
+		/* クリックされた場合 */
+		if (is_right_clicked || is_left_clicked ||
+		    is_escape_pressed) {
+			/* SEを再生する */
+			play_se(conf_msgbox_skip_cancel_se);
+
+			/* スキップモードを終了する */
+			stop_skip_mode();
+			show_skipmode_banner(false);
+
+			/* 以降のクリック処理を行わない */
+			clear_input_state();
+		}
+	}
+}
+
 /* 名前を取得する */
-static bool get_name(void)
+static bool init_name_top(void)
 {
 	const char *raw, *exp;
 
@@ -465,80 +514,19 @@ static bool get_name(void)
 }
 
 /* メッセージを取得する */
-static bool get_message(void)
-{
-	if (get_command_type() == COMMAND_MESSAGE) {
-		if (!get_message_body())
-			return false;
-	} else {
-		if (!get_serif_body())
-			return false;
-	}
-
-	return true;
-}
-
-/* メッセージの本文を取得する */
-static bool get_message_body(void)
-{
-	const char *raw_msg;
-	int lf;
-
-	/* 引数を取得する */
-	raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
-
-	/* 変数を展開して、メッセージバッファの先頭として保持する */
-	msg_top = strdup(expand_variable(raw_msg));
-	if (msg_top == NULL) {
-		log_memory();
-		return false;
-	}
-
-	/* 継続行かチェックする */
-	if (*msg_top == '\\' && !is_escape_sequence_char(*(msg_top + 1))) {
-		/* NVLモード */
-		is_nvl_mode = true;
-		msg = msg_top + 1;
-
-		/* 先頭の改行をスキップする */
-		msg = skip_lf(msg, &lf);
-
-		/* 日本語以外のロケールで、改行がない場合 */
-		if (conf_locale != LOCALE_JA && lf == 0)
-			put_space();
-	} else {
-		/* 通常モード */
-		is_nvl_mode = false;
-		msg = msg_top;
-	}
-	msg_save = msg;
-
-	/* ヒストリ画面用にメッセージ履歴を登録する */
-	if (!register_message_for_history(msg)) {
-		free(msg_top);
-		msg_top = NULL;
-		return false;
-	}
-
-	/* セーブ用にメッセージを保存する */
-	if (!set_last_message(msg)) {
-		free(msg_top);
-		msg_top = NULL;
-		return false;
-	}
-
-	return true;
-}
-
-/* セリフのメッセージの本文を取得する */
-static bool get_serif_body(void)
+static bool init_msg_top(void)
 {
 	const char *raw_msg;
 	char *exp_msg;
 	int lf;
+	bool is_serif;
 
 	/* 引数を取得する */
-	raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
+	is_serif = get_command_type() == COMMAND_SERIF;
+	if (is_serif)
+		raw_msg = get_string_param(SERIF_PARAM_MESSAGE);
+	else
+		raw_msg = get_string_param(MESSAGE_PARAM_MESSAGE);
 
 	/* 継続行かチェックする */
 	if (*raw_msg == '\\' && !is_escape_sequence_char(*(raw_msg + 1))) {
@@ -573,31 +561,45 @@ static bool get_serif_body(void)
 		return false;
 	}
 
-	/* 表示するメッセージを修飾する */
-	if (conf_namebox_hidden) {
-		/* 名前を付加する場合 */
-		msg_top = concat_serif(name_top, exp_msg);
-		if (msg_top == NULL) {
-			log_memory();
+	/* セリフの場合、実際に表示するメッセージを修飾する */
+	if (is_serif) {
+		if (conf_namebox_hidden) {
+			/* 名前とカギカッコを付加する */
+			msg_top = concat_serif(name_top, exp_msg);
+			if (msg_top == NULL) {
+				log_memory();
+				free(exp_msg);
+				return false;
+			}
 			free(exp_msg);
-			return false;
-		}
-		free(exp_msg);
-	} else if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
-		/* カギカッコを付加する場合 */
-		msg_top = concat_serif("", exp_msg);
-		if (msg_top == NULL) {
-			log_memory();
+		} else if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
+			/* カギカッコを付加する */
+			msg_top = concat_serif("", exp_msg);
+			if (msg_top == NULL) {
+				log_memory();
+				free(exp_msg);
+				return false;
+			}
 			free(exp_msg);
-			return false;
+		} else {
+			/* 何も付加しない場合 */
+			msg_top = exp_msg;
 		}
-		free(exp_msg);
 	} else {
-		/* 修飾しない場合 */
+		/* メッセージの場合はそのまま表示する */
 		msg_top = exp_msg;
 	}
-	msg = msg_top;
-	msg_save = msg;
+
+	/* 表示位置を保存する */
+	msg_cur = msg_top;
+	msg_save = msg_top;
+
+	/* メッセージの文字数を求める */
+	total_chars = utf8_chars(msg_cur);
+	drawn_chars = 0;
+
+	/* 先頭文字はスペースの直後とみなす */
+	is_after_space = true;
 
 	return true;
 }
@@ -644,6 +646,58 @@ static void put_space(void)
 	} else {
 		pen_x += cw;
 	}
+}
+
+/* ヒストリ画面用にメッセージ履歴を登録する */
+static bool register_message_for_history(const char *reg_msg)
+{
+	const char *voice;
+	bool reg;
+
+	assert(reg_msg != NULL);
+
+	/* 二重登録を防ぐ */
+	if (load_flag) {
+		/* ロード直後は必ず登録する */
+		reg = true;
+	} if (gui_flag) {
+		/* GUIの直後のとき */
+		if (is_message_active()) {
+			/* システムGUIから戻った場合は登録しない */
+			reg = true;
+		} else {
+			/* GUIコマンドの直後の場合は登録する */
+			reg = false;
+		}
+	} else {
+		/* その他の場合は登録する */
+		reg = true;
+
+	}
+	if (!reg)
+		return true;
+
+	/* メッセージ履歴を登録する */
+	if (get_command_type() == COMMAND_SERIF) {
+		assert(name_top != NULL);
+
+		/* ボイスファイルを取得する */
+		voice = get_string_param(SERIF_PARAM_VOICE);
+
+		/* ビープ音は履歴画面で再生しない */
+		if (voice[0] == '@')
+			voice = NULL;
+
+		/* セリフをヒストリ画面用に登録する */
+		if (!register_message(name_top, reg_msg, voice))
+			return false;
+	} else {
+		/* メッセージをヒストリ画面用に登録する */
+		if (!register_message(NULL, reg_msg, NULL))
+			return false;
+	}
+
+	return true;
 }
 
 /* 名前とメッセージを連結する */
@@ -707,89 +761,54 @@ static char *concat_serif(const char *name, const char *serif)
 	return ret;
 }
 
-/* 初期化処理のスキップモードの部分を行う */
-static void init_auto_mode(void)
+/* 文字色を求める */
+static void init_colors(pixel_t *color, pixel_t *outline_color)
 {
-	/* オートモードの場合 */
-	if (is_auto_mode()) {
-		/* リターンキー、下キーの入力を無効にする */
-		is_return_pressed = false;
-		is_down_pressed = false;
-	}
-}
+	int i;
 
-/* 初期化処理のスキップモードの部分を行う */
-static void init_skip_mode(void)
-{
-	/* スキップモードでなければ何もしない */
-	if (!is_skip_mode())
-		return;
-
-	/* 未読に到達した場合、スキップモードを終了する */
-	if (!is_skippable()) {
-		stop_skip_mode();
-		show_skipmode_banner(false);
-		return;
-	}
-
-	/* クリックされた場合 */
-	if (is_right_clicked || is_left_clicked || is_escape_pressed) {
-		/* SEを再生する */
-		play_se(conf_msgbox_skip_cancel_se);
-
-		/* スキップモードを終了する */
-		stop_skip_mode();
-		show_skipmode_banner(false);
-
-		/* 以降のクリック処理を行わない */
-		clear_input_state();
-	}
-}
-
-/* ヒストリ画面用にメッセージ履歴を登録する */
-static bool register_message_for_history(const char *reg_msg)
-{
-	const char *voice;
-
-	/*
-	 * GUI画面から戻ったばかりの場合、2重登録を防ぐが、例外として、
-	 *  - ロード直後は必ず登録する
-	 *  - メッセージが登録されていない場合は登録する
-	 */
-	if (!load_flag && (gui_flag || is_message_registered()))
-		return true;
-
-	/* 名前、ボイスファイル名、メッセージを取得する */
+	/* セリフの場合 */
 	if (get_command_type() == COMMAND_SERIF) {
-		assert(name_top != NULL);
-
-		/* ボイスファイルを取得する */
-		voice = get_string_param(SERIF_PARAM_VOICE);
-
-		/* ビープ音は履歴画面で再生しない */
-		if (voice[0] == '@')
-			voice = NULL;
-
-		/* ヒストリ画面用に登録する */
-		if (!register_message(name_top, reg_msg, voice))
-			return false;
-	} else {
-		/* ヒストリ画面用に登録する */
-		if (!register_message(NULL, reg_msg, NULL))
-			return false;
+		/* コンフィグでnameの指す名前が指定されているか */
+		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
+			if (conf_serif_color_name[i] == NULL)
+				continue;
+			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
+				/* コンフィグで指定された色にする */
+				*color = make_pixel_slow(
+					0xff,
+					(uint32_t)conf_serif_color_r[i],
+					(uint32_t)conf_serif_color_g[i],
+					(uint32_t)conf_serif_color_b[i]);
+				*outline_color = make_pixel_slow(
+					0xff,
+					(uint32_t)conf_serif_outline_color_r[i],
+					(uint32_t)conf_serif_outline_color_g[i],
+					(uint32_t)conf_serif_outline_color_b[i]);
+				return;
+			}
+		}
 	}
 
-	return true;
+	/* セリフでないかコンフィグで名前が指定されていない場合 */
+	*color = make_pixel_slow(0xff,
+				 (pixel_t)conf_font_color_r,
+				 (pixel_t)conf_font_color_g,
+				 (pixel_t)conf_font_color_b);
+	*outline_color = make_pixel_slow(0xff,
+					 (pixel_t)conf_font_outline_color_r,
+					 (pixel_t)conf_font_outline_color_g,
+					 (pixel_t)conf_font_outline_color_b);
 }
 
 /* セリフコマンドを処理する */
-static bool process_serif_command(int *x, int *y, int *w, int *h)
+static bool init_serif(int *x, int *y, int *w, int *h)
 {
 	int namebox_x, namebox_y, namebox_w, namebox_h;
 
 	/*
 	 * 描画範囲を更新する
-	 *  - セリフコマンド以外でも、名前ボックス領域を消すために描画する
+	 *  - セリフコマンドだけでなく、メッセージコマンドでも、
+	 *    名前ボックス領域を消すために描画範囲を設定する
 	 */
 	get_namebox_rect(&namebox_x, &namebox_y, &namebox_w, &namebox_h);
 	union_rect(x, y, w, h,
@@ -808,14 +827,7 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 	}
 
 	/* ボイスを再生する */
-	if ((is_non_interruptible() &&
-	     (!gui_flag && !is_message_registered()))
-	    ||
-	    (!is_non_interruptible() &&
-	     !(is_skip_mode() && is_skippable()) &&
-	     ((is_auto_mode() || (!is_control_pressed || !is_skippable())) &&
-	      !gui_flag &&
-	      !is_message_registered()))) {
+	if (check_play_voice()) {
 		/* いったんボイスなしの判断にしておく(あとで変更する) */
 		have_voice = false;
 
@@ -829,6 +841,98 @@ static bool process_serif_command(int *x, int *y, int *w, int *h)
 
 	/* 名前ボックスを表示する */
 	show_namebox(true);
+
+	return true;
+}
+
+/* ボイスを再生するかを判断する */
+static bool check_play_voice(void)
+{
+	/* XXX:
+	  下記の式から変換した
+	    if (is_non_interruptible() &&
+	        (!gui_flag && !is_message_registered()))
+	        ||
+	        (!is_non_interruptible() &&
+	         !(is_skip_mode() && is_skippable()) &&
+	         ((is_auto_mode() || (!is_control_pressed || !is_skippable())) &&
+	         !gui_flag &&
+	         !is_message_registered())))
+	*/
+
+	/* システムGUIから戻った場合は再生しない */
+	if (gui_flag && is_message_active())
+		return false;
+
+	/* 割り込み不可モードの場合は他の条件を考慮せず再生する */
+	if (is_non_interruptible())
+		return true;
+
+	/* スキップモードで、かつ、既読の場合は再生しない */
+	if (is_skip_mode() && is_skippable())
+		return false;
+
+	/* オートモードの場合は再生する */
+	if (is_auto_mode())
+		return true;
+
+	/* 未読の場合は再生する */
+	if (!is_skippable())
+		return true;
+
+	/* コントロールキーが押下されている場合は再生しない */
+	if (is_control_pressed)
+		return false;
+
+	/* その他の場合は再生する */
+	return true;
+}
+
+/* ボイスを再生する */
+static bool play_voice(void)
+{
+	struct wave *w;
+	const char *voice;
+	float beep_factor;
+	int times;
+	bool repeat;
+
+	/* ボイスのファイル名を取得する */
+	voice = get_string_param(SERIF_PARAM_VOICE);
+	repeat = voice[0] == '@';
+	voice = repeat ? &voice[1] : voice;
+	if (strcmp(voice, "") == 0)
+		return true;
+
+	is_beep = repeat;
+
+	/* PCMストリームを開く */
+	w = create_wave_from_file(CV_DIR, voice, repeat);
+	if (w == NULL) {
+		log_script_exec_footer();
+		return false;
+	}
+
+	/* ビープ音用のリピート回数をセットする */
+	if (repeat) {
+		beep_factor = conf_beep_adjustment == 0 ?
+			      1 : conf_beep_adjustment;
+		times = (int)((float)utf8_chars(get_string_param(
+							SERIF_PARAM_MESSAGE)) /
+			      conf_msgbox_speed * beep_factor /
+			      (get_text_speed() + 0.1));
+		times = times == 0 ? 1 : times;
+		set_wave_repeat_times(w, times);
+	}
+
+	/* キャラクタ音量を設定する */
+	set_character_volume_by_name(get_string_param(SERIF_PARAM_NAME));
+
+	/* PCMストリームを再生する */
+	set_mixer_input(VOICE_STREAM, w);
+
+	/* ボイスありの判断にする */
+	have_voice = true;
 
 	return true;
 }
@@ -884,53 +988,58 @@ static int get_namebox_width(void)
 	return w;
 }
 
-/* ボイスを再生する */
-static bool play_voice(void)
+/* ペンの位置を初期化する */
+static void init_pen(void)
 {
-	struct wave *w;
-	const char *voice;
-	float beep_factor;
-	int times;
-	bool repeat;
-
-	/* ボイスのファイル名を取得する */
-	voice = get_string_param(SERIF_PARAM_VOICE);
-	repeat = voice[0] == '@';
-	voice = repeat ? &voice[1] : voice;
-	if (strcmp(voice, "") == 0)
-		return true;
-
-	is_beep = repeat;
-
-	/* PCMストリームを開く */
-	w = create_wave_from_file(CV_DIR, voice, repeat);
-	if (w == NULL) {
-		log_script_exec_footer();
-		return false;
+	/* 継続行でなければ、メッセージの描画位置を初期化する */
+	if (!is_nvl_mode) {
+		pen_x = conf_msgbox_margin_left;
+		pen_y = conf_msgbox_margin_top;
 	}
 
-	/* ビープ音用のリピート回数をセットする */
-	if (repeat) {
-		beep_factor = conf_beep_adjustment == 0 ?
-			      1 : conf_beep_adjustment;
-		times = (int)((float)utf8_chars(get_string_param(
-							SERIF_PARAM_MESSAGE)) /
-			      conf_msgbox_speed * beep_factor /
-			      (get_text_speed() + 0.1));
-		times = times == 0 ? 1 : times;
-		set_wave_repeat_times(w, times);
+	/* 重ね塗りをする場合 */
+	if (conf_msgbox_dim) {
+		/*
+		 * 描画開始位置を保存する
+		 *  - XXX: GUIから戻った場合に更新すると、どうなる？
+		 */
+		if (!gui_flag) {
+			orig_pen_x = pen_x;
+			orig_pen_y = pen_y;
+		}
 	}
+}
 
-	/* キャラクタ音量を設定する */
-	set_character_volume_by_name(get_string_param(SERIF_PARAM_NAME));
+/* メッセージボックスを初期化する */
+static void init_msgbox(int *x, int *y, int *w, int *h)
+{
+	/* メッセージボックスの矩形を取得する */
+	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
 
-	/* PCMストリームを再生する */
-	set_mixer_input(VOICE_STREAM, w);
+	/* 更新領域に含める */
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 
-	/* ボイスありの判断にする */
-	have_voice = true;
+	/* 行継続でなければ、メッセージレイヤをクリアする */
+	if (!is_nvl_mode)
+		clear_msgbox();
 
-	return true;
+	/* メッセージレイヤを可視にする */
+	show_msgbox(true);
+}
+
+/* クリックアニメーションを初期化する */
+static void init_click(void)
+{
+	/* クリックレイヤを不可視にする */
+	show_click(false);
+
+	/* クリックアニメーションの初回表示フラグをセットする */
+	is_click_first = true;
+
+	/* クリックアニメーションの表示状態を保存する */
+	is_click_visible = false;
 }
 
 /* キャラクタ音量を設定する */
@@ -974,10 +1083,10 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 				pen_x = conf_msgbox_margin_left;
 			}
 		}
-		is_after_space = *msg == ' ';
+		is_after_space = *msg_cur == ' ';
 
 		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(msg, &c);
+		mblen = utf8_to_utf32(msg_cur, &c);
 		if (mblen == -1) {
 			drawn_chars = total_chars;
 			return;
@@ -988,7 +1097,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 			/* エスケープ文字であるとき */
 			if (c == CHAR_BACKSLASH || c == CHAR_YENSIGN) {
 				escaped = true;
-				msg += mblen;
+				msg_cur += mblen;
 				drawn_chars++;
 				continue;
 			}
@@ -998,7 +1107,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 				pen_y += conf_msgbox_margin_line;
 				pen_x = conf_msgbox_margin_left;
 				escaped = false;
-				msg += mblen;
+				msg_cur += mblen;
 				drawn_chars++;
 				continue;
 			}
@@ -1033,7 +1142,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 
 		/* 次の文字へ移動する */
 		pen_x += cw;
-		msg += mblen;
+		msg_cur += mblen;
 		drawn_chars++;
 	}
 }
@@ -1121,8 +1230,8 @@ static void draw_click(int *x, int *y, int *w, int *h)
 	check_stop_click_animation();
 
 	/* クリックアニメーションの初回表示のとき */
-	if (process_click_first) {
-		process_click_first = false;
+	if (is_click_first) {
+		is_click_first = false;
 
 		/* 表示位置を設定する */
 		if (conf_click_move) {
@@ -1195,11 +1304,11 @@ static void check_stop_click_animation(void)
 				stop_command_repetition();
 		}
 	} else if (gui_flag &&
-		   !process_click_first &&
+		   !is_click_first &&
 		   (is_return_pressed || is_down_pressed ||
 		    (pointed_index == BTN_NONE && is_left_clicked))) {
 		stop_command_repetition();
-	} else if (!process_click_first &&
+	} else if (!is_click_first &&
 		   (is_return_pressed || is_down_pressed ||
 		    (pointed_index == BTN_NONE && is_left_clicked))) {
 		if (!is_non_interruptible()) {
@@ -1218,51 +1327,12 @@ static int get_en_word_width(void)
 	uint32_t wc;
 	int width;
 
-	m = msg;
+	m = msg_cur;
 	width = 0;
 	while (isgraph_extended(&m, &wc))
 		width += get_glyph_width(wc);
 
 	return width;
-}
-
-/* 文字色を求める */
-static void get_message_color(pixel_t *color, pixel_t *outline_color)
-{
-	int i;
-
-	/* セリフの場合 */
-	if (get_command_type() == COMMAND_SERIF) {
-		/* コンフィグでnameの指す名前が指定されているか */
-		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
-			if (conf_serif_color_name[i] == NULL)
-				continue;
-			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
-				/* コンフィグで指定された色にする */
-				*color = make_pixel_slow(
-					0xff,
-					(uint32_t)conf_serif_color_r[i],
-					(uint32_t)conf_serif_color_g[i],
-					(uint32_t)conf_serif_color_b[i]);
-				*outline_color = make_pixel_slow(
-					0xff,
-					(uint32_t)conf_serif_outline_color_r[i],
-					(uint32_t)conf_serif_outline_color_g[i],
-					(uint32_t)conf_serif_outline_color_b[i]);
-				return;
-			}
-		}
-	}
-
-	/* セリフでないかコンフィグで名前が指定されていない場合 */
-	*color = make_pixel_slow(0xff,
-				 (pixel_t)conf_font_color_r,
-				 (pixel_t)conf_font_color_g,
-				 (pixel_t)conf_font_color_b);
-	*outline_color = make_pixel_slow(0xff,
-					 (pixel_t)conf_font_outline_color_r,
-					 (pixel_t)conf_font_outline_color_g,
-					 (pixel_t)conf_font_outline_color_b);
 }
 
 /* 初期化処理においてポイントされているボタンを求め描画する */
@@ -2562,17 +2632,17 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 	/* 表示中のメッセージをなしとする */
 	if (!need_save_mode && !need_load_mode && !need_history_mode &&
 	    !need_config_mode)
-		clear_message_registered();
+		clear_message_active();
 
 	/* 既読にする */
 	set_seen();
 
-	/* NVLモードで重ね塗りをする場合 */
+	/* 重ね塗りをする場合 */
 	if (conf_msgbox_dim &&
 	    (!did_quick_load && !need_save_mode && !need_load_mode &&
 	     !need_history_mode && !need_config_mode)) {
 		is_overcoating = true;
-		msg = msg_save;
+		msg_cur = msg_save;
 		drawn_chars = 0;
 		pen_x = orig_pen_x;
 		pen_y = orig_pen_y;

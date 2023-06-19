@@ -679,6 +679,9 @@ bool quick_load(void)
 #endif
 
 	load_flag = true;
+
+	clear_message_active();
+
 	return true;
 }
 
@@ -716,6 +719,9 @@ bool execute_load(int index)
 #endif
 
 	load_flag = true;
+
+	clear_message_active();
+
 	return true;
 }
 
