@@ -955,11 +955,6 @@ void draw_stage_bg_fade(int fade_method)
 	assert(stage_mode == STAGE_MODE_BG_FADE);
 
 	draw_stage_fi_fo_fade(fade_method);
-
-	if (is_auto_visible)
-		render_layer_image(LAYER_AUTO);
-	if (is_skip_visible)
-		render_layer_image(LAYER_SKIP);
 }
 
 /*
@@ -1931,6 +1926,11 @@ void draw_stage_shake(void)
 	render_image(shake_offset_x, shake_offset_y,
 		     layer_image[LAYER_FI], conf_window_width,
 		     conf_window_height, 0, 0, 255, BLEND_NONE);
+
+	if (is_auto_visible)
+		render_layer_image(LAYER_AUTO);
+	if (is_skip_visible)
+		render_layer_image(LAYER_SKIP);
 }
 
 /*
@@ -3017,6 +3017,14 @@ void start_shake(void)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	if (conf_msgbox_show_on_bg) {
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+		if (is_namebox_visible && !conf_namebox_hidden)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+		if (is_msgbox_visible)
+			draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+	}
 	unlock_image(layer_image[LAYER_FI]);
 }
 
