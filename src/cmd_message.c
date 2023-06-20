@@ -6,6 +6,8 @@
  */
 
 /*
+ * The implementation of the message and the line commands.
+ *
  * [Changes]
  *  - 2016/06/24 作成
  *  - 2017/01/30 "\n"対応
@@ -22,9 +24,13 @@
  */
 
 /*
- * [留意点]
+ * [Notice (注意)]
+ *  - Decomposed Unicode characters are not supported, use precomposed ones.
+ *    (Unicodeの合成はサポートしないので、合成済みの文字列を使用してください)
+ *
+ * [読み解くにあたって]
  *  - メッセージボックス内のボタンと、システムメニュー内のボタンがある
- *    - これらの機能はほぼ同じ
+ *    - これらが呼び出す機能は同じ
  *    - メッセージボックスを隠すボタンは、メッセージボックス内のみにある
  *  - システムメニュー非表示時には、折りたたみシステムメニューが表示される
  */
@@ -59,7 +65,7 @@
 
 /*
  * オートモードでボイスありのときの待ち時間
- *  - 再生完了からどれくらい待つかの基本時間
+ *  - 表示と再生の完了からどれくらい待つかの基本時間
  *  - 実際にはオートモードスピードの係数を乗算して使用する
  */
 #define AUTO_MODE_VOICE_WAIT		(4000)
@@ -67,6 +73,7 @@
 /*
  * オートモードでボイスなしのときの待ち時間係数のデフォルト値
  *  - automode.speed=0 のときに使用される
+ *  - 文字数に乗算して使用する
  */
 #define AUTO_MODE_TEXT_WAIT_SCALE	(0.15f)
 
@@ -78,7 +85,8 @@
 static char *name_top;
 
 /*
- * 描画するメッセージ本文 (バッファの先頭)
+ * 描画する本文 (バッファの先頭)
+ *  - 文字列の内容は変数の値を展開した後のもの
  *  - 行継続の場合、先頭の'\\'は含まれない
  *  - 行継続の場合、先頭の連続する"\\n"は含まれない
  */
@@ -89,35 +97,25 @@ static char *msg_top;
  */
 
 /*
- * 描画するメッセージ本文の現在の先頭位置
+ * 描画する本文の現在の先頭位置
  *  - msg_topから開始される
  *  - 描画(またはエスケープシーケンスとして解釈)された分だけポインタが進む
- *  - 文字列の内容は変数の値を展開した後のもの
  */
 static const char *msg_cur;
 
 /*
  * 描画する文字の総数
- *  - total_chars == strlen(msg_top)
- *  - TODO: エスケープシーケンスを除外する
+ *  - エスケープシーケンスを除外した合計の表示文字数
+ *  - Unicodeの合成はサポートしていない
+ *    - 基底文字+結合文字はそれぞれ1文字としてカウントする
  */
 static int total_chars;
 
-/*
- * すでに描画した文字数
- *  - 現状ではエスケープシーケンスも含む
- *  - TODO: エスケープシーケンスを除外する
- */
+/* すでに描画した文字数 (0 <= drawn_chars <= total_chars) */
 static int drawn_chars;
 
 /* スペースの直後であるか (日本語以外のワードラッピング用) */
 static bool is_after_space;
-
-/*
- * 描画文字列のエスケープ文字の直後か
- *  - TODO: エスケープシーケンスは一気に読み飛ばすように変更する
- */
-static bool escaped;
 
 /*
  * 描画位置
@@ -273,8 +271,9 @@ static bool init_msg_top(void);
 static bool is_escape_sequence_char(char c);
 static const char *skip_lf(const char *m, int *lf);
 static void put_space(void);
-static bool register_message_for_history(const char *reg_msg);
+static bool register_message_for_history(const char *msg);
 static char *concat_serif(const char *name, const char *serif);
+static int count_chars(const char *msg);
 static void init_colors(pixel_t *color, pixel_t *outline_color);
 static bool init_serif(int *x, int *y, int *w, int *h);
 static bool check_play_voice(void);
@@ -326,8 +325,11 @@ static bool is_end_of_msg(void);
 static void set_end_of_msg(void);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
+static void process_escape_sequence(void);
+static void process_escape_sequence_lf(void);
 static void do_word_wrapping(void);
 static int get_en_word_width(void);
+static void process_lf(uint32_t c, int glyph_width);
 static void draw_click(int *x, int *y, int *w, int *h);
 static void check_stop_click_animation(void);
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
@@ -661,7 +663,7 @@ static bool init_msg_top(void)
 	msg_cur = msg_top;
 
 	/* メッセージの文字数を求める */
-	total_chars = utf8_chars(msg_cur);
+	total_chars = count_chars(msg_cur);
 	drawn_chars = 0;
 
 	/* 先頭文字はスペースの直後とみなす */
@@ -715,12 +717,12 @@ static void put_space(void)
 }
 
 /* ヒストリ画面用にメッセージ履歴を登録する */
-static bool register_message_for_history(const char *reg_msg)
+static bool register_message_for_history(const char *msg)
 {
 	const char *voice;
 	bool reg;
 
-	assert(reg_msg != NULL);
+	assert(msg != NULL);
 
 	/* 二重登録を防ぐ */
 	if (load_flag) {
@@ -730,15 +732,14 @@ static bool register_message_for_history(const char *reg_msg)
 		/* GUIの直後のとき */
 		if (is_message_active()) {
 			/* システムGUIから戻った場合は登録しない */
-			reg = true;
+			reg = false;
 		} else {
 			/* GUIコマンドの直後の場合は登録する */
-			reg = false;
+			reg = true;
 		}
 	} else {
 		/* その他の場合は登録する */
 		reg = true;
-
 	}
 	if (!reg)
 		return true;
@@ -755,14 +756,15 @@ static bool register_message_for_history(const char *reg_msg)
 			voice = NULL;
 
 		/* セリフをヒストリ画面用に登録する */
-		if (!register_message(name_top, reg_msg, voice))
+		if (!register_message(name_top, msg, voice))
 			return false;
 	} else {
 		/* メッセージをヒストリ画面用に登録する */
-		if (!register_message(NULL, reg_msg, NULL))
+		if (!register_message(NULL, msg, NULL))
 			return false;
 	}
 
+	/* 成功 */
 	return true;
 }
 
@@ -825,6 +827,46 @@ static char *concat_serif(const char *name, const char *serif)
 	}
 
 	return ret;
+}
+
+/*
+ * エスケープシーケンスを除いた文字数を取得する
+ *  - Unicodeの合成はサポートしていない
+ *  - 基底文字+結合文字はそれぞれ1文字としてカウントする
+ */
+static int count_chars(const char *msg)
+{
+	uint32_t wc;
+	int count, mblen;
+
+	count = 0;
+	while (*msg) {
+		/* 先頭のエスケープシーケンスを読み飛ばす */
+		while (*msg == '\\') {
+			if (*(msg + 1) == 'n') {
+				/* 改行 */
+				msg += 2;
+			} else {
+				/*
+				 * 不正なエスケープシーケンス
+				 *  - 読み飛ばさない
+				 */
+				break;
+			}
+		}
+		if (*msg == '\0')
+			break;
+
+		/* 次の1文字を取得する */
+		mblen = utf8_to_utf32(msg, &wc);
+		if (mblen == -1)
+			break;
+
+		msg += mblen;
+		count++;
+	}
+
+	return count;
 }
 
 /* 文字色を求める */
@@ -2320,8 +2362,8 @@ static void set_end_of_msg(void)
 /* メッセージボックスの描画を行う */
 static void draw_msgbox(int *x, int *y, int *w, int *h)
 {
-	uint32_t c;
-	int char_count, mblen, cw, ch, i;
+	uint32_t wc;
+	int char_count, i, mblen, glyph_width, ret_width, ret_height;
 
 	/* 今回のフレームで描画する文字数を取得する */
 	char_count = get_frame_chars();
@@ -2330,69 +2372,46 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 
 	/* 1文字ずつ描画する */
 	for (i = 0; i < char_count; i++) {
+		assert(*msg_cur);
+
+		/* 途中のエスケープシーケンスを処理する */
+		process_escape_sequence();
+
 		/* ワードラッピングを処理する */
 		do_word_wrapping();
 
 		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(msg_cur, &c);
+		mblen = utf8_to_utf32(msg_cur, &wc);
 		if (mblen == -1) {
+			/* 不正なUnicode: 本文の描画を終了したことにする */
 			set_end_of_msg();
 			return;
 		}
 
-		/* エスケープの処理 */
-		if (!escaped) {
-			/* エスケープ文字であるとき */
-			if (c == CHAR_BACKSLASH || c == CHAR_YENSIGN) {
-				escaped = true;
-				msg_cur += mblen;
-				drawn_chars++;
-				continue;
-			}
-		} else if (escaped) {
-			/* エスケープされた文字であるとき */
-			if (c == CHAR_SMALLN) {
-				pen_y += conf_msgbox_margin_line;
-				pen_x = conf_msgbox_margin_left;
-				escaped = false;
-				msg_cur += mblen;
-				drawn_chars++;
-				continue;
-			}
-
-			/* 不明なエスケープシーケンスの場合 */
-			escaped = false;
-		}
-
 		/* 描画する文字の幅を取得する */
-		cw = get_glyph_width(c);
+		glyph_width = get_glyph_width(wc);
 
-		/*
-		 * メッセージボックスの幅を超える場合、改行する。
-		 * ただし行頭禁則文字の場合は改行しない。
-		 */
-		if ((pen_x + cw >= msgbox_w - conf_msgbox_margin_right) &&
-		    (c != CHAR_SPACE && c != CHAR_COMMA && c != CHAR_PERIOD &&
-		     c != CHAR_COLON && c != CHAR_SEMICOLON &&
-		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
-			pen_y += conf_msgbox_margin_line;
-			pen_x = conf_msgbox_margin_left;
-		}
+		/* 右側の幅が足りなければ改行する */
+		process_lf(wc, glyph_width);
 
 		/* 描画する */
-		draw_char_on_msgbox(pen_x, pen_y, c, color, outline_color, &cw,
-				    &ch);
+		draw_char_on_msgbox(pen_x, pen_y, wc, color, outline_color,
+				    &ret_width, &ret_height);
 
 		/* 更新領域を求める */
 		union_rect(x, y, w, h,
 			   *x, *y, *w, *h,
-			   msgbox_x + pen_x, msgbox_y + pen_y, cw, ch);
+			   msgbox_x + pen_x, msgbox_y + pen_y, ret_width,
+			   ret_height);
 
 		/* 次の文字へ移動する */
-		pen_x += cw;
 		msg_cur += mblen;
+		pen_x += glyph_width;
 		drawn_chars++;
 	}
+
+	/* 末尾のエスケープシーケンスを処理する */
+	process_escape_sequence();
 }
 
 /* 今回のフレームで描画する文字数を取得する */
@@ -2471,6 +2490,32 @@ static int get_frame_chars(void)
 	return char_count;
 }
 
+/* 先頭のエスケープシーケンスを処理する */
+static void process_escape_sequence(void)
+{
+	/* エスケープシーケンスが続く限り処理する */
+	while (*msg_cur == '\\') {
+		if (*(msg_cur + 1) == 'n') {
+			/* 改行 */
+			process_escape_sequence_lf();
+		} else {
+			/*
+			 * 不正なエスケープシーケンス
+			 *  - 読み飛ばさない
+			 */
+			break;
+		}
+	}
+}
+
+/* 改行("\\n")を処理する */
+static void process_escape_sequence_lf(void)
+{
+	pen_y += conf_msgbox_margin_line;
+	pen_x = conf_msgbox_margin_left;
+	msg_cur += 2;
+}
+
 /* ワードラッピングを処理する */
 static void do_word_wrapping(void)
 {
@@ -2498,6 +2543,23 @@ static int get_en_word_width(void)
 		width += get_glyph_width(wc);
 
 	return width;
+}
+
+/* 右側の幅が足りなければ改行する */
+static void process_lf(uint32_t c, int glyph_width)
+{
+	/* 右側の幅が足りる場合、改行しない */
+	if (pen_x + glyph_width < msgbox_w - conf_msgbox_margin_right)
+		return;
+
+	/* 禁則文字の場合、改行しない */
+	if (c == ' ' || c == ',' || c == '.' || c == ':' || c == ';' ||
+	    c == CHAR_TOUTEN || c == CHAR_KUTEN)
+		return;
+
+	/* 改行する */
+	pen_y += conf_msgbox_margin_line;
+	pen_x = conf_msgbox_margin_left;
 }
 
 /* クリックアニメーションを描画する */
