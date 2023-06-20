@@ -154,7 +154,7 @@ static pixel_t outline_color;
  */
 
 /* 行継続モードであるか */
-static bool is_nvl_mode;
+static bool is_continue_mode;
 
 /* 重ね塗りしているか */
 static bool is_overcoating;
@@ -325,6 +325,9 @@ static bool is_end_of_msg(void);
 static void set_end_of_msg(void);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
+static bool is_canceled_by_skip(void);
+static bool is_fast_forward_by_click(void);
+static bool calc_frame_chars_by_lap(void);
 static void process_escape_sequence(void);
 static void process_escape_sequence_lf(void);
 static void do_word_wrapping(void);
@@ -335,7 +338,7 @@ static void check_stop_click_animation(void);
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
 static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
 static bool is_collapsed_sysmenu_pointed(void);
-static void draw_banners(int *x, int *y, int *w, int *h);
+static void union_banners(int *x, int *y, int *w, int *h);
 
 /* その他 */
 static void play_se(const char *file);
@@ -599,7 +602,7 @@ static bool init_msg_top(void)
 
 	/* 継続行かチェックする */
 	if (*raw_msg == '\\' && !is_escape_sequence_char(*(raw_msg + 1))) {
-		is_nvl_mode = true;
+		is_continue_mode = true;
 
 		/* 先頭の改行をスキップする */
 		raw_msg = skip_lf(raw_msg + 1, &lf);
@@ -608,7 +611,7 @@ static bool init_msg_top(void)
 		if (conf_locale != LOCALE_JA && lf == 0)
 			put_space();
 	} else {
-		is_nvl_mode = false;
+		is_continue_mode = false;
 	}
 
 	/* 変数を展開する */
@@ -686,7 +689,7 @@ static bool is_escape_sequence_char(char c)
 /* 継続行の先頭の改行をスキップする */
 static const char *skip_lf(const char *m, int *lf)
 {
-	assert(is_nvl_mode);
+	assert(is_continue_mode);
 
 	*lf = 0;
 	while (*m == '\\') {
@@ -1120,7 +1123,7 @@ static int get_namebox_width(void)
 static void init_pen(void)
 {
 	/* 継続行でなければ、メッセージの描画位置を初期化する */
-	if (!is_nvl_mode) {
+	if (!is_continue_mode) {
 		pen_x = conf_msgbox_margin_left;
 		pen_y = conf_msgbox_margin_top;
 	}
@@ -1150,7 +1153,7 @@ static void init_msgbox(int *x, int *y, int *w, int *h)
 		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 
 	/* 行継続でなければ、メッセージレイヤをクリアする */
-	if (!is_nvl_mode)
+	if (!is_continue_mode)
 		clear_msgbox();
 
 	/* メッセージレイヤを可視にする */
@@ -2314,21 +2317,24 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	/* 以下、メインの表示処理を行う */
 
 	/* 入力があったらボイスを止める */
-	if (!conf_voice_stop_off &&
-	    (is_skippable() && !is_non_interruptible() &&
-	     (is_skip_mode() ||
-	      (!is_auto_mode() && is_control_pressed))))
+	if (is_canceled_by_skip())
 		set_mixer_input(VOICE_STREAM, NULL);
 
-	/* 文字かクリックアニメーションを描画する */
+	/* 本文の描画中であるか */
 	if (!is_end_of_msg()) {
+		/* 本文を描画する */
 		draw_msgbox(x, y, w, h);
 	} else {
+		/*
+		 * 本文の描画が完了してさらに描画しようとしているので、
+		 * クリックアニメーションを描画する
+		 *  - ただしシステムメニューが終了したフレームでは描画しない
+		 */
 		if (!is_sysmenu_finished)
 			draw_click(x, y, w, h);
 	}
 
-	/* システムメニューが終了された直後の場合 */
+	/* システムメニューが終了したフレームの場合 */
 	if (is_sysmenu_finished) {
 		/* 画面全体を再描画する */
 		*x = 0;
@@ -2337,8 +2343,8 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		*h = conf_window_height;
 	}
 
-	/* オートモードかスキップモードのバナーの描画領域を取得する */
-	draw_banners(x, y, w, h);
+	/* オートモードとスキップモードのバナーの描画領域を取得する */
+	union_banners(x, y, w, h);
 }
 
 /* メッセージ本文の描画が完了しているか */
@@ -2414,22 +2420,22 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	process_escape_sequence();
 }
 
-/* 今回のフレームで描画する文字数を取得する */
+/*
+ * 今回のフレームで描画する文字数を取得する
+ *  - クリックやキー入力、システムGUIへの移行などすべてを加味する
+ */
 static int get_frame_chars(void)
 {
-	float lap;
-	int char_count;
-
 	/* 繰り返し動作しない場合 */
 	if (!is_in_command_repetition()) {
 		/* すべての文字を描画する */
 		return total_chars;
 	}
 
-	/* セーブ画面かヒストリ画面かコンフィグ画面から復帰した場合 */
-	if (gui_flag) {
-		/* NVLモードの場合 */
-		if (is_nvl_mode) {
+	/* システムGUIからの復帰直後の場合 */
+	if (gui_flag && is_message_active()) {
+		/* 行継続の場合はすでに描画されている */
+		if (is_continue_mode) {
 			/* 描画を完了したことにする */
 			set_end_of_msg();
 
@@ -2453,23 +2459,26 @@ static int get_frame_chars(void)
 		return total_chars - drawn_chars;
 	}
 
-	/* 入力によりスキップされた場合 */
-	if (is_skippable() && !is_non_interruptible() &&
-	    (is_skip_mode() || (!is_auto_mode() && is_control_pressed))) {
+	/* スキップ処理する場合 */
+	if (is_canceled_by_skip()) {
 		/* 繰り返し動作を停止する */
 		stop_command_repetition();
 
 		/* 残りの文字をすべて描画する */
 		return total_chars - drawn_chars;
 	}
-	if (!is_non_interruptible() &&
-	    (is_return_pressed || is_down_pressed ||
-	     (pointed_index == BTN_NONE && is_left_clicked))) {
+
+	/* 全部描画してクリック待ちに移行する場合 */
+	if (is_fast_forward_by_click()) {
 		/* ビープの再生を止める */
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
 
 #ifdef USE_DEBUGGER
+		/*
+		 * デバッガの停止ボタンが押されている場合は、
+		 * クリック待ちに移行せずにコマンドを終了する流れにする
+		 */
 		if (dbg_is_stop_requested())
 			stop_command_repetition();
 #endif
@@ -2478,12 +2487,100 @@ static int get_frame_chars(void)
 		return total_chars - drawn_chars;
 	}
 
-	/* 経過時間を取得する */
+	/* 経過時間を元に今回描画する文字数を計算する */
+	return calc_frame_chars_by_lap();
+}
+
+/* スキップによりキャンセルされたかチェックする */
+static bool is_canceled_by_skip(void)
+{
+	/* Translated from this code:
+	if(is_skippable() && !is_non_interruptible() &&
+	    (is_skip_mode() || (!is_auto_mode() && is_control_pressed)))
+	*/
+
+	/* 未読ならスキップしない */
+	if (!is_skippable())
+		return false;
+
+	/* 割り込み不可ならスキップしない */
+	if (is_non_interruptible())
+		return false;
+
+	/* スキップモードならスキップする */
+	if (is_skip_mode())
+		return true;
+
+	/* Controlキーが押下されたらスキップする */
+	if (is_control_pressed) {
+		/* ただしオートモードならスキップしない */
+		if (is_auto_mode())
+			return false;
+		else
+			return true;
+	}
+
+	/* スキップしない */
+	return false;
+}
+
+/* 全部描画してクリック待ちに移行する場合 */
+static bool is_fast_forward_by_click(void)
+{
+	/* Translated from this code:
+	if (!is_non_interruptible() &&
+	    (is_return_pressed || is_down_pressed ||
+	     (pointed_index == BTN_NONE && is_left_clicked)))
+	*/
+
+	/* 割り込み不可ならクリック待ちに移行しない */
+	if (is_non_interruptible())
+		return false;
+
+	/* Returnキーが押下されたらクリック待ちに移行する */
+	if (is_return_pressed)
+		return true;
+
+	/* 下キーが押下されたらクリック待ちに移行する */
+	if (is_down_pressed)
+		return true;
+
+	/* クリックされたらクリック待ちに移行する */
+	if (is_left_clicked) {
+		/* ただしメッセージボックス内のボタンの位置なら無視する */
+		if (pointed_index != BTN_NONE)
+			return false;
+		else
+			return true;
+	}
+
+	/* クリック待ちに移行しない */
+	return false;
+}
+
+/* 経過時間を元に今回描画する文字数を計算する */
+static bool calc_frame_chars_by_lap(void)
+{
+	float lap;
+	float progress;
+	int char_count;
+
+	/* 経過時間(秒)を取得する */
 	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f;
 
-	/* 今回描画する文字数を取得する */
-	char_count = (int)ceil(conf_msgbox_speed * (get_text_speed() + 0.1) *
-			       lap) - drawn_chars;
+	/* 進捗(文字数)を求める */
+	progress = conf_msgbox_speed * lap;
+
+	/* ユーザ設定のテキストスピードを乗算する (0にならないよう0.1足す) */
+	progress *= get_text_speed() + 0.1f;
+
+	/* 整数にする */
+	char_count = (int)ceil(progress);
+
+	/* 残りの文字数にする */
+	char_count -= drawn_chars;
+
+	/* 残りの文字数を越えた場合は、残りの文字数にする */
 	if (char_count > total_chars - drawn_chars)
 		char_count = total_chars - drawn_chars;
 
@@ -2835,8 +2932,8 @@ static bool is_collapsed_sysmenu_pointed(void)
 	return false;
 }
 
-/* バナーを描画する */
-static void draw_banners(int *x, int *y, int *w, int *h)
+/* バナーの描画領域を取得する */
+static void union_banners(int *x, int *y, int *w, int *h)
 {
 	int bx, by,bw, bh;
 
