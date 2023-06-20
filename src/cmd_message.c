@@ -24,16 +24,17 @@
 /*
  * [留意点]
  *  - メッセージボックス内のボタンと、システムメニュー内のボタンがある
- *  -- これらの機能はほぼ同じ
- *  -- メッセージボックスを隠すボタンについては、メッセージボックス内のみ
+ *    - これらの機能はほぼ同じ
+ *    - メッセージボックスを隠すボタンは、メッセージボックス内のみにある
+ *  - システムメニュー非表示時には、折りたたみシステムメニューが表示される
  */
 
 #include "suika.h"
-#include <ctype.h>
 
+/* false assertion */
 #define ASSERT_INVALID_BTN_INDEX (0)
 
-/* メッセージボックスボタンのインデックス */
+/* メッセージボックス内のボタンのインデックス */
 #define BTN_NONE		(-1)
 #define BTN_QSAVE		(0)
 #define BTN_QLOAD		(1)
@@ -56,10 +57,17 @@
 #define SYSMENU_HISTORY		(6)
 #define SYSMENU_CONFIG		(7)
 
-/* オートモードでボイスありのとき待ち時間 */
+/*
+ * オートモードでボイスありのときの待ち時間
+ *  - 再生完了からどれくらい待つかの基本時間
+ *  - 実際にはオートモードスピードの係数を乗算して使用する
+ */
 #define AUTO_MODE_VOICE_WAIT		(4000)
 
-/* オートモードでボイスなしのとき待ち時間のスケール */
+/*
+ * オートモードでボイスなしのときの待ち時間係数のデフォルト値
+ *  - automode.speed=0 のときに使用される
+ */
 #define AUTO_MODE_TEXT_WAIT_SCALE	(0.15f)
 
 /*
@@ -72,7 +80,7 @@ static char *name_top;
 /*
  * 描画するメッセージ本文 (バッファの先頭)
  *  - 行継続の場合、先頭の'\\'は含まれない
- *  - 行継続の場合、先頭の連続する"\\nn"は含まれない
+ *  - 行継続の場合、先頭の連続する"\\n"は含まれない
  */
 static char *msg_top;
 
@@ -82,27 +90,33 @@ static char *msg_top;
 
 /*
  * 描画するメッセージ本文の現在の先頭位置
- *  - msg_top + n文字
- *  - 描画した分だけnがインクリメントされる
+ *  - msg_topから開始される
+ *  - 描画(またはエスケープシーケンスとして解釈)された分だけポインタが進む
+ *  - 文字列の内容は変数の値を展開した後のもの
  */
 static const char *msg_cur;
 
 /*
- * 描画するメッセージ本文の保存用
- *  - 描画開始時点のmsgの値が保存される
+ * 描画する文字の総数
+ *  - total_chars == strlen(msg_top)
+ *  - TODO: エスケープシーケンスを除外する
  */
-static const char *msg_save;
-
-/* 描画する文字の総数 */
 static int total_chars;
 
-/* 前回までに描画した文字数 */
+/*
+ * すでに描画した文字数
+ *  - 現状ではエスケープシーケンスも含む
+ *  - TODO: エスケープシーケンスを除外する
+ */
 static int drawn_chars;
 
-/* スペースの直後であるか */
+/* スペースの直後であるか (日本語以外のワードラッピング用) */
 static bool is_after_space;
 
-/* 文字列がエスケープ中か TODO: drawn_charsに含めるのはおかしいので直す */
+/*
+ * 描画文字列のエスケープ文字の直後か
+ *  - TODO: エスケープシーケンスは一気に読み飛ばすように変更する
+ */
 static bool escaped;
 
 /*
@@ -308,11 +322,14 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h);
 
 /* メイン描画処理 */
 static void draw_frame(int *x, int *y, int *w, int *h);
+static bool is_end_of_msg(void);
+static void set_end_of_msg(void);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
+static void do_word_wrapping(void);
+static int get_en_word_width(void);
 static void draw_click(int *x, int *y, int *w, int *h);
 static void check_stop_click_animation(void);
-static int get_en_word_width(void);
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
 static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
 static bool is_collapsed_sysmenu_pointed(void);
@@ -642,7 +659,6 @@ static bool init_msg_top(void)
 
 	/* 表示位置を保存する */
 	msg_cur = msg_top;
-	msg_save = msg_top;
 
 	/* メッセージの文字数を求める */
 	total_chars = utf8_chars(msg_cur);
@@ -1398,9 +1414,10 @@ static bool check_auto_play_condition(void)
 	 *  - ボイスの再生完了と文字の表示完了をチェックする
 	 */
 	if (have_voice) {
-		if (is_mixer_sound_finished(VOICE_STREAM) &&
-		    drawn_chars == total_chars)
+		/* 表示完了かつ再生完了しているか */
+		if (is_mixer_sound_finished(VOICE_STREAM) && is_end_of_msg())
 			return true;
+
 		return false;
 	}
 
@@ -1408,7 +1425,7 @@ static bool check_auto_play_condition(void)
 	 * ボイスなしの場合
 	 *  - 文字の表示完了をチェックする
 	 */
-	if (drawn_chars == total_chars)
+	if (is_end_of_msg())
 		return true;
 
 	return false;
@@ -2245,36 +2262,59 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	if (is_hidden)
 		return;
 
-	/* メインの表示処理を行う */
-	if (!is_sysmenu) {
-		/* 入力があったらボイスを止める */
-		if (!conf_voice_stop_off &&
-		    (is_skippable() && !is_non_interruptible() &&
-		     (is_skip_mode() ||
-		      (!is_auto_mode() && is_control_pressed))))
-			set_mixer_input(VOICE_STREAM, NULL);
-
-		/* 文字かクリックアニメーションを描画する */
-		if (drawn_chars < total_chars)
-			draw_msgbox(x, y, w, h);
-		else if (!is_sysmenu_finished)
-			draw_click(x, y, w, h);
-
-		/* システムメニューが終了された直後の場合 */
-		if (is_sysmenu_finished) {
-			/* 画面全体を再描画する */
-			*x = 0;
-			*y = 0;
-			*w = conf_window_width;
-			*h = conf_window_height;
-		}
-
-		/* オートモードかスキップモードのバナーの描画領域を取得する */
-		draw_banners(x, y, w, h);
-	} else {
+	/* システムメニューを表示中の場合 */
+	if (is_sysmenu) {
 		/* ステージを再描画するか求める(計算だけで描画しない) */
 		draw_sysmenu(true, x, y, w, h);
+		return;
 	}
+
+	/* 以下、メインの表示処理を行う */
+
+	/* 入力があったらボイスを止める */
+	if (!conf_voice_stop_off &&
+	    (is_skippable() && !is_non_interruptible() &&
+	     (is_skip_mode() ||
+	      (!is_auto_mode() && is_control_pressed))))
+		set_mixer_input(VOICE_STREAM, NULL);
+
+	/* 文字かクリックアニメーションを描画する */
+	if (!is_end_of_msg()) {
+		draw_msgbox(x, y, w, h);
+	} else {
+		if (!is_sysmenu_finished)
+			draw_click(x, y, w, h);
+	}
+
+	/* システムメニューが終了された直後の場合 */
+	if (is_sysmenu_finished) {
+		/* 画面全体を再描画する */
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
+	}
+
+	/* オートモードかスキップモードのバナーの描画領域を取得する */
+	draw_banners(x, y, w, h);
+}
+
+/* メッセージ本文の描画が完了しているか */
+static bool is_end_of_msg(void)
+{
+	/* 完了している場合 */
+	if (*msg_cur == '\0')
+		return true;
+
+	/* 完了していない場合 */
+	return false;
+}
+
+/* メッセージ本文の描画を完了したことにする */
+static void set_end_of_msg(void)
+{
+	msg_cur = msg_top + strlen(msg_top);
+	assert(*msg_cur == '\0');
 }
 
 /* メッセージボックスの描画を行う */
@@ -2291,19 +2331,12 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	/* 1文字ずつ描画する */
 	for (i = 0; i < char_count; i++) {
 		/* ワードラッピングを処理する */
-		if (is_after_space) {
-			if (pen_x + get_en_word_width() >=
-			    msgbox_w - conf_msgbox_margin_right) {
-				pen_y += conf_msgbox_margin_line;
-				pen_x = conf_msgbox_margin_left;
-			}
-		}
-		is_after_space = *msg_cur == ' ';
+		do_word_wrapping();
 
 		/* 描画する文字を取得する */
 		mblen = utf8_to_utf32(msg_cur, &c);
 		if (mblen == -1) {
-			drawn_chars = total_chars;
+			set_end_of_msg();
 			return;
 		}
 
@@ -2378,7 +2411,10 @@ static int get_frame_chars(void)
 	if (gui_flag) {
 		/* NVLモードの場合 */
 		if (is_nvl_mode) {
-			drawn_chars = total_chars;
+			/* 描画を完了したことにする */
+			set_end_of_msg();
+
+			/* 描画しない */
 			return 0;
 		}
 
@@ -2433,6 +2469,35 @@ static int get_frame_chars(void)
 		char_count = total_chars - drawn_chars;
 
 	return char_count;
+}
+
+/* ワードラッピングを処理する */
+static void do_word_wrapping(void)
+{
+	if (is_after_space) {
+		if (pen_x + get_en_word_width() >=
+		    msgbox_w - conf_msgbox_margin_right) {
+			pen_y += conf_msgbox_margin_line;
+			pen_x = conf_msgbox_margin_left;
+		}
+	}
+
+	is_after_space = *msg_cur == ' ';
+}
+
+/* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
+static int get_en_word_width(void)
+{
+	const char *m;
+	uint32_t wc;
+	int width;
+
+	m = msg_cur;
+	width = 0;
+	while (isgraph_extended(&m, &wc))
+		width += get_glyph_width(wc);
+
+	return width;
 }
 
 /* クリックアニメーションを描画する */
@@ -2493,7 +2558,7 @@ static void draw_click(int *x, int *y, int *w, int *h)
 static void check_stop_click_animation(void)
 {
 #ifdef USE_DEBUGGER
-	if (!process_click_first && dbg_is_stop_requested()) {
+	if (!is_click_first && dbg_is_stop_requested()) {
 		if (!have_voice &&
 		    gui_flag &&
 		    (is_return_pressed || is_down_pressed ||
@@ -2533,21 +2598,6 @@ static void check_stop_click_animation(void)
 				stop_command_repetition();
 		}
 	}
-}
-
-/* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
-static int get_en_word_width(void)
-{
-	const char *m;
-	uint32_t wc;
-	int width;
-
-	m = msg_cur;
-	width = 0;
-	while (isgraph_extended(&m, &wc))
-		width += get_glyph_width(wc);
-
-	return width;
 }
 
 /* システムメニューを描画する */
@@ -2661,7 +2711,7 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 	/* GPUを利用している場合 */
 	if (is_gpu_accelerated())
 		redraw = true;
-		
+
 	/* 描画する */
 	if (redraw) {
 		if (!calc_only) {
@@ -2797,7 +2847,7 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 	    (!did_quick_load && !need_save_mode && !need_load_mode &&
 	     !need_history_mode && !need_config_mode)) {
 		is_overcoating = true;
-		msg_cur = msg_save;
+		msg_cur = msg_top;
 		drawn_chars = 0;
 		pen_x = orig_pen_x;
 		pen_y = orig_pen_y;
