@@ -278,6 +278,13 @@ bool quick_save(void)
 {
 	uint64_t timestamp;
 
+	/*
+	 * サムネイルを作成する
+	 *  - GUIを経由しないのでここで作成する
+	 *  - ただし、現状ではクイックセーブデータのサムネイルは未使用
+	 */
+	draw_stage_to_thumb();
+
 	/* ローカルデータのシリアライズを行う */
 	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp, -1))
 		return false;

@@ -362,7 +362,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		break;
 	case COMMAND_MESSAGE:
 	case COMMAND_SERIF:
-		if (!message_command(x, y, w, h))
+		if (!message_command(x, y, w, h, cont))
 			return false;
 		break;
 	case COMMAND_BG:

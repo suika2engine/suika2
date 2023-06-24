@@ -156,8 +156,8 @@ static pixel_t outline_color;
 /* 行継続モードであるか */
 static bool is_continue_mode;
 
-/* 重ね塗りしているか */
-static bool is_overcoating;
+/* 重ね塗りしているか (将来、色のエスケープシーケンスを無視するため) */
+static bool is_dimming;
 
 /*
  * ボイス
@@ -211,6 +211,9 @@ static bool gui_sys_flag;
 
 /* クイックロードを行ったか */
 static bool did_quick_load;
+
+/* クイックセーブを行うか */
+static bool will_quick_save;
 
 /* セーブモードに遷移するか */
 static bool need_save_mode;
@@ -350,18 +353,19 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
 static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
 static bool is_collapsed_sysmenu_pointed(void);
 static void union_banners(int *x, int *y, int *w, int *h);
+static void draw_dimming(int *x, int *y, int *w, int *h);
 
 /* その他 */
 static void play_se(const char *file);
 static bool is_skippable(void);
 
 /* 終了処理 */
-static bool cleanup(int *x, int *y, int *w, int *h);
+static bool cleanup(void);
 
 /*
  * メッセージ・セリフコマンド
  */
-bool message_command(int *x, int *y, int *w, int *h)
+bool message_command(int *x, int *y, int *w, int *h, bool *cont)
 {
 	/* 初期化処理を行う */
 	if (!is_in_command_repetition())
@@ -386,22 +390,24 @@ bool message_command(int *x, int *y, int *w, int *h)
 	main_process(x, y, w, h);
 
 	/*
-	 * 終了処理を行う
-	 *  - このコマンドは特殊で、ステージ描画の前にcleanupしている
-	 *  - TODO: 直感的でないのでpostprocess()の後に移動する
-	 *  -- 重ね塗りはmain_process()に移動する
-	 */
-	if (!is_in_command_repetition())
-		if (!cleanup(x, y, w, h))
-			return false;
-
-	/*
 	 * フレームの後処理を行う
 	 *  - ステージの描画を行う
 	 *  - システムGUIの開始を行う
+	 *  - 重ね塗り(dimming)の描画を行う
 	 */
 	if (!postprocess(x, y, w, h))
 		return false;
+
+	/* 終了処理を行う */
+	if (!is_in_command_repetition())
+		if (!cleanup())
+			return false;
+
+	/*
+	 * クイックロードされた場合は、このフレームの描画を継続する
+	 *  - でないとステージ描画されないのにフリップされるフレームが生じる
+	 */
+	*cont = did_quick_load;
 
 	/* 次のフレームへ */
 	return true;
@@ -445,29 +451,42 @@ static bool preprocess(int *x, int *y, int *w, int *h)
 	return true;
 }
 
-/* 画面のアップデートを行う */
+/* メッセージレイヤ描画と、クリック表示のアップデートを行う */
 static void main_process(int *x, int *y, int *w, int *h)
 {
-	/*
-	 * 描画処理を行う
-	 *  - クイックロードされた場合は処理しない
-	 *  - セーブ・ロード画面に遷移する場合はサムネイル描画のため処理する
-	 */
-	if (!did_quick_load)
-		draw_frame(x, y, w, h);
+	/* クイックロードされた場合は描画しない */
+	if (did_quick_load) {
+		/* 繰り返しを停止する */
+		stop_command_repetition();
+
+		/* 文字の描画を行わない */
+		return;
+	}
 
 	/*
-	 * クイックロード・セーブ・ロード・ヒストリモードが選択された場合
-	 *  - TODO: action_*()に移動する
+	 * 文字の描画/クリックアニメーションの制御を行う
+	 *  - システムGUIに遷移する場合でもサムネイル描画のため処理する
 	 */
-	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode)
+	draw_frame(x, y, w, h);
+
+	/* システムGUIへ遷移する場合 */
+	if (need_save_mode || need_load_mode || need_history_mode ||
+	    need_config_mode) {
+		/* 繰り返しを停止する */
 		stop_command_repetition();
+	}
 }
 
 /* 後処理を行う */
 static bool postprocess(int *x, int *y, int *w, int *h)
 {
+	/*
+	 * クイックロードされた場合は描画を行わない
+	 *  - 同じフレームで、ロード後のコマンドが実行されるため
+	 */
+	if (did_quick_load)
+		return true;
+
 	/*
 	 * ロードされて最初のフレームの場合、画面全体を描画する
 	 *  - これはGPUを使わない場合の最適化で、GPUを使う場合は関係ない
@@ -498,27 +517,49 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 	if (is_sysmenu_finished)
 		is_sysmenu_finished = false;
 
-	/* セーブ・ロード・ヒストリ・コンフィグモードへ遷移する */
+	/* クイックセーブされる場合を処理する */
+	if (will_quick_save) {
+		/* クイックセーブを行う */
+		quick_save();
+		will_quick_save = false;
+		return true;
+	}
+
+	/* システムGUIへの遷移を処理する */
 	if (need_save_mode) {
 		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
+		return true;
 	}
 	if (need_load_mode) {
 		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
+		return true;
 	}
 	if (need_history_mode) {
 		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
+		return true;
 	}
 	if (need_config_mode) {
 		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
+		return true;
 	}
+
+	/*
+	 * 重ね塗り(dimming)をする場合
+	 *  - コマンドを終了するときに描画する
+	 *  - ステージ描画後にメッセージレイヤを更新している
+	 *  - つまり現在のフレームの見た目には影響しない
+	 *  - 次のメッセージ/セリフの表示開始時に初めて見える
+	 */
+	if (conf_msgbox_dim && !is_in_command_repetition())
+		draw_dimming(x, y, w, h);
 
 	return true;
 }
@@ -623,6 +664,7 @@ static void init_flags(void)
 
 	/* セーブ・ロード・ヒストリ・コンフィグの状態設定を行う */
 	did_quick_load = false;
+	will_quick_save = false;
 	need_save_mode = false;
 	need_load_mode = false;
 	need_history_mode = false;
@@ -634,8 +676,8 @@ static void init_flags(void)
 	is_sysmenu_finished = false;
 	is_collapsed_sysmenu_pointed_prev = false;
 
-	/* 重ね塗りでない状態にする */
-	is_overcoating = false;
+	/* 重ね塗り(dimming)でない状態にする */
+	is_dimming = false;
 }
 
 /* オートモードの場合の初期化処理を行う */
@@ -783,6 +825,10 @@ static bool init_msg_top(void)
 	/* 先頭文字はスペースの直後とみなす */
 	is_after_space = true;
 
+	/* ロードで開始された場合は、行継続モードを解除する */
+	if (load_flag && is_continue_mode)
+		is_continue_mode = false;
+
 	return true;
 }
 
@@ -808,7 +854,14 @@ static const char *skip_lf(const char *m, int *lf)
 			(*lf)++;
 			m += 2;
 
-			/* システムGUIから戻った場合はすでに描画済み */
+			/* ロードで開始されたときは、先頭の改行を行わない */
+			if (load_flag)
+				continue;
+
+			/*
+			 * システムGUIから戻った場合はすでに描画済み
+			 *  - TODO: そもそもgui_sys_flagのとき描画処理しないようにする
+			 */
 			if (!gui_sys_flag) {
 				pen_x = conf_msgbox_margin_left;
 				pen_y += conf_msgbox_margin_line;
@@ -1796,11 +1849,7 @@ static bool process_qsave_click(void)
 /* クイックセーブを処理する */
 static void action_qsave(void)
 {
-	/* サムネイルを作成する(GUIを経由しないのでここで作成する) */
-	draw_stage_to_thumb();
-
-	/* クイックセーブを行う */
-	quick_save();
+	will_quick_save = true;
 }
 
 /* メッセージボックス内のクイックロードボタン押下を処理する */
@@ -2572,7 +2621,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
  */
 static int get_frame_chars(void)
 {
-	/* 繰り返し動作しない場合 */
+	/* 繰り返し動作しない場合 (dimmingを含む) */
 	if (!is_in_command_repetition()) {
 		/* すべての文字を描画する */
 		return total_chars;
@@ -2596,14 +2645,13 @@ static int get_frame_chars(void)
 		return total_chars;
 	}
 
-	/* 重ね塗りする場合 */
-	if (is_overcoating) {
-		/* すべての文字を描画する */
-		return total_chars;
-	}
-
-	/* セーブ・ロードのサムネイルを作成するために全文字描画する場合 */
-	if (need_save_mode || need_load_mode) {
+	/*
+	 * セーブのサムネイルを作成するために全文字描画する場合
+	 *  - クイックセーブされる場合 (現状ではQSのサムネイルは未使用)
+	 *  - システムGUIに遷移する場合 (原理上どのGUIからもセーブできるので)
+	 */
+	if (will_quick_save || need_save_mode || need_load_mode ||
+	    need_history_mode || need_config_mode) {
 		/* 残りの文字をすべて描画する */
 		return total_chars - drawn_chars;
 	}
@@ -3247,6 +3295,57 @@ static void union_banners(int *x, int *y, int *w, int *h)
 }
 
 /*
+ * 重ね塗りを行う (dimming)
+ *  - 全画面スタイルで、すでに読んだ部分を暗くするための文字描画
+ */
+static void draw_dimming(int *x, int *y, int *w, int *h)
+{
+	/* コンフィグでdimmingが有効 */
+	assert(conf_msgbox_dim);
+
+	/* 次のコマンドに移るときだけdimmingする */
+	assert(!is_in_command_repetition());
+
+	/* システムGUIに移行するときにはdimmingしない */
+	assert(!did_quick_load);
+	assert(!need_save_mode);
+	assert(!need_load_mode);
+	assert(!need_history_mode);
+	assert(!need_config_mode);
+
+	/*
+	 * 重ね塗りを有効にする
+	 *  - 現状では参照されていない
+	 *  - TODO: 将来、色のエスケープシーケンスを無視するのに使う
+	 */
+	is_dimming = true;
+
+	/* 描画する本文の先頭を巻き戻す */
+	msg_cur = msg_top;
+	drawn_chars = 0;
+
+	/* 描画位置を巻き戻す */
+	pen_x = orig_pen_x;
+	pen_y = orig_pen_y;
+
+	/* dimming用の文字色を求める */
+	color = make_pixel_slow(0xff,
+				(uint32_t)conf_msgbox_dim_color_r,
+				(uint32_t)conf_msgbox_dim_color_g,
+				(uint32_t)conf_msgbox_dim_color_b);
+	outline_color = make_pixel_slow(0xff,
+					(uint32_t)conf_msgbox_dim_color_outline_r,
+					(uint32_t)conf_msgbox_dim_color_outline_g,
+					(uint32_t)conf_msgbox_dim_color_outline_b);
+
+	/*
+	 * 本文を描画する
+	 *  - (!is_in_command_repetition())なので全文字が描画される
+	 */
+	draw_msgbox(x, y, w, h);
+}
+
+/*
  * その他
  */
 
@@ -3284,7 +3383,7 @@ static bool is_skippable(void)
  */
 
 /* 終了処理を行う */
-static bool cleanup(int *x, int *y, int *w, int *h)
+static bool cleanup(void)
 {
 	/* PCMストリームの再生を終了する */
 	if (!conf_voice_stop_off)
@@ -3304,26 +3403,6 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 
 	/* 既読にする */
 	set_seen();
-
-	/* 重ね塗りをする場合 */
-	if (conf_msgbox_dim &&
-	    (!did_quick_load && !need_save_mode && !need_load_mode &&
-	     !need_history_mode && !need_config_mode)) {
-		is_overcoating = true;
-		msg_cur = msg_top;
-		drawn_chars = 0;
-		pen_x = orig_pen_x;
-		pen_y = orig_pen_y;
-		color = make_pixel_slow(0xff,
-					(uint32_t)conf_msgbox_dim_color_r,
-					(uint32_t)conf_msgbox_dim_color_g,
-					(uint32_t)conf_msgbox_dim_color_b);
-		outline_color = make_pixel_slow(0xff,
-						(uint32_t)conf_msgbox_dim_color_outline_r,
-						(uint32_t)conf_msgbox_dim_color_outline_g,
-						(uint32_t)conf_msgbox_dim_color_outline_b);
-		draw_msgbox(x, y, w, h);
-	}
 
 	/* メッセージを解放する */
 	if (msg_top != NULL) {

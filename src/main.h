@@ -71,7 +71,7 @@ void cleanup_game_loop(void);
  * コマンドの実装
  */
 
-bool message_command(int *x, int *y, int *w, int *h);
+bool message_command(int *x, int *y, int *w, int *h, bool *cont);
 bool bg_command(int *x, int *y, int *w, int *h);
 bool bgm_command(void);
 bool ch_command(int *x, int *y, int *w, int *h);
