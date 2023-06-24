@@ -580,8 +580,6 @@ static bool init(int *x, int *y, int *w, int *h)
 	/* スキップモードの場合の初期化を行う */
 	init_skip_mode();
 
-	/* TOOD: gui_sys_flagのとき、再描画しているが、これはいらない */
-
 	/* 名前を取得する */
 	if (!init_name_top())
 		return false;
@@ -602,6 +600,7 @@ static bool init(int *x, int *y, int *w, int *h)
 	 *  - システムGUIに入っても保持される
 	 *  - メッセージから次のコマンドに移行するときにクリアされる
 	 *  - ロードされてもクリアされる
+	 *  - タイトルに戻るときにもクリアされる
 	 */
 	if (!gui_sys_flag)
 		set_message_active();
@@ -683,6 +682,10 @@ static void init_flags(void)
 /* オートモードの場合の初期化処理を行う */
 static void init_auto_mode(void)
 {
+	/* システムGUIから戻った場合は処理しない */
+	if (gui_sys_flag)
+		return;
+
 	/* オートモードの場合 */
 	if (is_auto_mode()) {
 		/* リターンキー、下キーの入力を無効にする */
@@ -694,6 +697,11 @@ static void init_auto_mode(void)
 /* スキップモードの場合の初期化処理を行う */
 static void init_skip_mode(void)
 {
+	/* システムGUIから戻った場合は処理しない */
+	if (gui_sys_flag)
+		return;
+
+	/* スキップモードの場合 */
 	if (is_skip_mode()) {
 		/* 未読に到達した場合、スキップモードを終了する */
 		if (!is_skippable()) {
@@ -723,6 +731,11 @@ static bool init_name_top(void)
 {
 	const char *raw, *exp;
 
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return true;
+
+	/* 名前を取得する */
 	if (get_command_type() == COMMAND_SERIF) {
 		raw = get_string_param(SERIF_PARAM_NAME);
 		exp = expand_variable(raw);
@@ -745,6 +758,10 @@ static bool init_msg_top(void)
 	char *exp_msg;
 	int lf;
 	bool is_serif;
+
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return true;
 
 	/* 引数を取得する */
 	is_serif = get_command_type() == COMMAND_SERIF;
@@ -858,14 +875,9 @@ static const char *skip_lf(const char *m, int *lf)
 			if (load_flag)
 				continue;
 
-			/*
-			 * システムGUIから戻った場合はすでに描画済み
-			 *  - TODO: そもそもgui_sys_flagのとき描画処理しないようにする
-			 */
-			if (!gui_sys_flag) {
-				pen_x = conf_msgbox_margin_left;
-				pen_y += conf_msgbox_margin_line;
-			}
+			/* ペンを改行する */
+			pen_x = conf_msgbox_margin_left;
+			pen_y += conf_msgbox_margin_line;
 		}
 	}
 	return m;
@@ -891,10 +903,7 @@ static bool register_message_for_history(const char *msg)
 	const char *voice;
 
 	assert(msg != NULL);
-
-	/* システムGUIから戻った場合は２重登録になるので登録しない */
-	if (gui_sys_flag)
-		return true;
+	assert(!gui_sys_flag);
 
 	/* メッセージ履歴を登録する */
 	if (get_command_type() == COMMAND_SERIF) {
@@ -1026,6 +1035,10 @@ static void init_colors(pixel_t *color, pixel_t *outline_color)
 {
 	int i;
 
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return;
+
 	/* セリフの場合 */
 	if (get_command_type() == COMMAND_SERIF) {
 		/* コンフィグでnameの指す名前が指定されているか */
@@ -1064,6 +1077,10 @@ static void init_colors(pixel_t *color, pixel_t *outline_color)
 static bool init_serif(int *x, int *y, int *w, int *h)
 {
 	int namebox_x, namebox_y, namebox_w, namebox_h;
+
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return true;
 
 	/*
 	 * 描画範囲を更新する
@@ -1271,6 +1288,10 @@ static int get_namebox_width(void)
 /* ペンの位置を初期化する */
 static void init_pen(void)
 {
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return;
+
 	/* 継続行でなければ、メッセージの描画位置を初期化する */
 	if (!is_continue_mode) {
 		pen_x = conf_msgbox_margin_left;
@@ -1280,16 +1301,18 @@ static void init_pen(void)
 	/* 重ね塗りをする場合 */
 	if (conf_msgbox_dim) {
 		/* 描画開始位置を保存する */
-		if (!gui_sys_flag) {
-			orig_pen_x = pen_x;
-			orig_pen_y = pen_y;
-		}
+		orig_pen_x = pen_x;
+		orig_pen_y = pen_y;
 	}
 }
 
 /* メッセージボックスを初期化する */
 static void init_msgbox(int *x, int *y, int *w, int *h)
 {
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return;
+
 	/* メッセージボックスの矩形を取得する */
 	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
 
@@ -1629,10 +1652,8 @@ static void action_auto_end(int *x, int *y, int *w, int *h)
 static bool check_auto_play_condition(void)
 {
 	/*
-	 * セーブ画面かヒストリ画面かコンフィグ画面から戻った場合
-	 *  - 文字表示は瞬時に完了し、ボイスも再生されていない
-	 *  - すでに表示完了しているとみなす
-	 *  - TODO: 瞬時に完了というか、文字描画は行わないようにする
+	 * システムGUIから戻ったコマンドである場合
+	 *  - すでに表示完了している
 	 */
 	if (gui_sys_flag)
 		return true;
@@ -2545,6 +2566,10 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 /* メッセージ本文の描画が完了しているか */
 static bool is_end_of_msg(void)
 {
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return true;
+
 	/* 完了している場合 */
 	if (*msg_cur == '\0')
 		return true;
@@ -2565,6 +2590,8 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 {
 	uint32_t wc;
 	int char_count, i, mblen, glyph_width, ret_width, ret_height;
+
+	assert(!gui_sys_flag);
 
 	/* 今回のフレームで描画する文字数を取得する */
 	char_count = get_frame_chars();
@@ -2621,27 +2648,11 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
  */
 static int get_frame_chars(void)
 {
+	assert(!gui_sys_flag);
+
 	/* 繰り返し動作しない場合 (dimmingを含む) */
 	if (!is_in_command_repetition()) {
 		/* すべての文字を描画する */
-		return total_chars;
-	}
-
-	/* システムGUIからの復帰直後の場合 */
-	if (gui_sys_flag) {
-		/* 行継続の場合はすでに描画されている */
-		if (is_continue_mode) {
-			/* 描画を完了したことにする */
-			set_end_of_msg();
-
-			/* 描画しない */
-			return 0;
-		}
-
-		/*
-		 * すべての文字を描画する
-		 *  - TODO: gui_sys_flagの場合はそもそも描画しないようにする
-		 */
 		return total_chars;
 	}
 
@@ -3404,10 +3415,15 @@ static bool cleanup(void)
 	/* 既読にする */
 	set_seen();
 
-	/* メッセージを解放する */
+	/* 名前と本文を解放する */
+	if (name_top != NULL) {
+		free(name_top);
+		name_top = NULL;
+	}
 	if (msg_top != NULL) {
 		free(msg_top);
 		msg_top = NULL;
+		msg_cur = NULL;
 	}
 
 	/* 次のコマンドに移動する */
