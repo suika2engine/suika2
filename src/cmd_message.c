@@ -33,6 +33,8 @@
  *    - これらが呼び出す機能は同じ
  *    - メッセージボックスを隠すボタンは、メッセージボックス内のみにある
  *  - システムメニュー非表示時には、折りたたみシステムメニューが表示される
+ *  - システムGUIから戻った場合は、すでに描画されているメッセージレイヤを
+ *    そのまま流用する (gui_sys_flag)
  */
 
 #include "suika.h"
@@ -1125,18 +1127,6 @@ static bool init_serif(int *x, int *y, int *w, int *h)
 /* ボイスを再生するかを判断する */
 static bool check_play_voice(void)
 {
-	/* XXX:
-	  下記の式から変換した
-	    if (is_non_interruptible() &&
-	        (!gui_flag && !is_message_registered()))
-	        ||
-	        (!is_non_interruptible() &&
-	         !(is_skip_mode() && is_skippable()) &&
-	         ((is_auto_mode() || (!is_control_pressed || !is_skippable())) &&
-	         !gui_flag &&
-	         !is_message_registered())))
-	*/
-
 	/* システムGUIから戻った場合は再生しない */
 	if (gui_sys_flag)
 		return false;
@@ -2702,11 +2692,6 @@ static int get_frame_chars(void)
 /* スキップによりキャンセルされたかチェックする */
 static bool is_canceled_by_skip(void)
 {
-	/* Translated from this code:
-	if(is_skippable() && !is_non_interruptible() &&
-	    (is_skip_mode() || (!is_auto_mode() && is_control_pressed)))
-	*/
-
 	/* 未読ならそもそもスキップできない */
 	if (!is_skippable())
 		return false;
@@ -2735,12 +2720,6 @@ static bool is_canceled_by_skip(void)
 /* 全部描画してクリック待ちに移行する場合 */
 static bool is_fast_forward_by_click(void)
 {
-	/* Translated from this code:
-	if (!is_non_interruptible() &&
-	    (is_return_pressed || is_down_pressed ||
-	     (pointed_index == BTN_NONE && is_left_clicked)))
-	*/
-
 	/* 割り込み不可ならクリック待ちに移行しない */
 	if (is_non_interruptible())
 		return false;
@@ -2936,24 +2915,8 @@ static bool check_stop_click_animation(void)
 #ifdef USE_DEBUGGER
 	/* デバッガから停止要求がある場合 */
 	if (dbg_is_stop_requested()) {
-		/*
-		 * クリックアニメーションの1フレーム目では停止しない
-		 *  - 1フレーム目で停止すると、cleanup()でクリックレイヤが
-		 *    非表示にされるため、描画されないままデバッグ停止になる
-		 *  - TODO: cleanup()をpostprocess()の後ろにするとこのチェックはいらなくなる
-		 */
-		if (is_click_first)
-			return false;
-
-		/* ボイスがなければ2フレーム目で停止する */
+		/* ボイスがなければ停止する */
 		if (!have_voice)
-			return true;
-
-		/*
-		 * システムGUIから復帰の場合は、クリックアニメーションの
-		 * 2フレーム目で停止する (このときボイスは再生されていない)
-		 */
-		if (gui_sys_flag)
 			return true;
 
 		/* ボイスが再生完了したフレームで停止する */
@@ -2976,32 +2939,6 @@ static bool check_stop_click_animation(void)
 			return true;
 	}
 #endif
-
-	/* XXX: Translated from the following code:
-	if (is_skippable() && !is_auto_mode() &&
-	    (is_skip_mode() || is_control_pressed)) {
-		if (!is_non_interruptible()) {
-			stop_command_repetition();
-		} else {
-			if (!have_voice || is_mixer_sound_finished(VOICE_STREAM))
-				stop_command_repetition();
-		}
-	} else if (gui_flag &&
-		   !is_click_first &&
-		   (is_return_pressed || is_down_pressed ||
-		    (pointed_index == BTN_NONE && is_left_clicked))) {
-		stop_command_repetition();
-	} else if (!is_click_first &&
-		   (is_return_pressed || is_down_pressed ||
-		    (pointed_index == BTN_NONE && is_left_clicked))) {
-		if (!is_non_interruptible()) {
-			stop_command_repetition();
-		} else {
-			if (!have_voice || is_mixer_sound_finished(VOICE_STREAM))
-				stop_command_repetition();
-		}
-	}
-	*/
 
 	/* スキップモードの場合 */
 	if (is_skip_mode()) {
@@ -3052,15 +2989,6 @@ static bool check_stop_click_animation(void)
 		/* 停止しない */
 		return false;
 	}
-
-	/*
-	 * クリックアニメーションの最初のフレームは停止せず描画する
-	 *  - 1フレーム目で停止すると、cleanup()でクリックレイヤが
-	 *    非表示にされるため、描画されないままデバッグ停止になる
-	 *  - TODO: cleanup()をpostprocess()の後ろにするとこのチェックはいらなくなる
-	 */
-	if (is_click_first)
-		return false;
 
 	/* システムGUIから戻ってコマンドが開始されている場合 */
 	if (gui_sys_flag) {
@@ -3401,7 +3329,12 @@ static bool cleanup(void)
 		set_mixer_input(VOICE_STREAM, NULL);
 
 	/* クリックアニメーションを非表示にする */
+#ifdef USE_DEBUGGER
+	if (dbg_is_stop_requested())
+		show_click(true);
+#else
 	show_click(false);
+#endif
 
 	/*
 	 * 次のコマンドに移動するときは、表示中のメッセージをなしとする
