@@ -199,8 +199,11 @@ static stop_watch_t auto_sw;
 /* ロードによって開始されたか */
 static bool load_flag;
 
-/* GUIコマンド終了後の最初のコマンド、あるいはシステムGUIから復帰したか */
-static bool gui_flag;
+/* GUIコマンド終了後の最初のコマンドか */
+static bool gui_cmd_flag;
+
+/* システムGUIから復帰したか */
+static bool gui_sys_flag;
 
 /*
  * システム遷移フラグ
@@ -220,6 +223,9 @@ static bool need_history_mode;
 
 /* コンフィグモードに遷移するか */
 static bool need_config_mode;
+
+/* ロード/クイックロードに失敗したか */
+static bool is_load_failed;
 
 /*
  * 非表示
@@ -260,6 +266,11 @@ static bool is_collapsed_sysmenu_pointed_prev;
 /*
  * 前方参照
  */
+
+/* 主な処理 */
+static bool preprocess(int *x, int *y, int *w, int *h);
+static void main_process(int *x, int *y, int *w, int *h);
+static bool postprocess(int *x, int *y, int *w, int *h);
 
 /* 初期化 */
 static bool init(int *x, int *y, int *w, int *h);
@@ -302,7 +313,7 @@ static bool process_button_click(int *x, int *y, int *w, int *h);
 static bool process_qsave_click(void);
 static void action_qsave(void);
 static bool process_qload_click(void);
-static bool action_qload(void);
+static void action_qload(void);
 static bool process_save_click(void);
 static void action_save(void);
 static bool process_load_click(void);
@@ -334,7 +345,7 @@ static void do_word_wrapping(void);
 static int get_en_word_width(void);
 static void process_lf(uint32_t c, int glyph_width);
 static void draw_click(int *x, int *y, int *w, int *h);
-static void check_stop_click_animation(void);
+static bool check_stop_click_animation(void);
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
 static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
 static bool is_collapsed_sysmenu_pointed(void);
@@ -357,47 +368,120 @@ bool message_command(int *x, int *y, int *w, int *h)
 		if (!init(x, y, w, h))
 			return false;
 
-	/* 各種操作を処理する */
-	do {
-		/* オートモードを処理する */
-		if (frame_auto_mode(x, y, w, h))
-			break;
-
-		/* メッセージボックス内のボタンを処理する */
-		if (frame_buttons(x, y, w, h))
-			break;
-
-		/* システムメニューを処理する */
-		if (frame_sysmenu(x, y, w, h))
-			break;
-	} while (0);
+	/*
+	 * フレームの前処理を行う
+	 *  - オートモード時の時間経過に伴う処理
+	 *  - メッセージボックス内のボタンへの入力の処理
+	 *  - システムメニューへの入力の処理
+	 */
+	if (!preprocess(x, y, w, h))
+		return false;
 
 	/*
-	 * メイン表示処理を行う
+	 * アップデートを行う
+	 *  - メッセージボックスレイヤに対する文字描画 (時間経過に伴う)
+	 *  - 文字描画完了後のクリックアニメーションの制御
+	 *  - 次のコマンドに進むためのクリックの処理
+	 */
+	main_process(x, y, w, h);
+
+	/*
+	 * 終了処理を行う
+	 *  - このコマンドは特殊で、ステージ描画の前にcleanupしている
+	 *  - TODO: 直感的でないのでpostprocess()の後に移動する
+	 *  -- 重ね塗りはmain_process()に移動する
+	 */
+	if (!is_in_command_repetition())
+		if (!cleanup(x, y, w, h))
+			return false;
+
+	/*
+	 * フレームの後処理を行う
+	 *  - ステージの描画を行う
+	 *  - システムGUIの開始を行う
+	 */
+	if (!postprocess(x, y, w, h))
+		return false;
+
+	/* 次のフレームへ */
+	return true;
+}
+
+/* 前処理を行う */
+static bool preprocess(int *x, int *y, int *w, int *h)
+{
+	/* オートモードを処理する */
+	if (frame_auto_mode(x, y, w, h)) {
+		/* 入力がキャプチャされたので、ここでリターンする */
+		return true;
+	}
+
+	/* メッセージボックス内のボタンを処理する */
+	if (frame_buttons(x, y, w, h)) {
+		/* ロードに失敗した場合 */
+		if (is_load_failed) {
+			/* 継続不能 */
+			return false;
+		}
+		
+
+		/* 入力がキャプチャされたので、ここでリターンする */
+		return true;
+	}
+
+	/* システムメニューを処理する */
+	if (frame_sysmenu(x, y, w, h)) {
+		/* ロードに失敗した場合 */
+		if (is_load_failed) {
+			/* 継続不能 */
+			return false;
+		}
+
+		/* 入力がキャプチャされたので、ここでリターンする */
+		return true;
+	}
+
+	/* 入力はキャプチャされなかったが、エラーはない */
+	return true;
+}
+
+/* 画面のアップデートを行う */
+static void main_process(int *x, int *y, int *w, int *h)
+{
+	/*
+	 * 描画処理を行う
 	 *  - クイックロードされた場合は処理しない
 	 *  - セーブ・ロード画面に遷移する場合はサムネイル描画のため処理する
 	 */
 	if (!did_quick_load)
 		draw_frame(x, y, w, h);
 
-	/* クイックロード・セーブ・ロード・ヒストリモードが選択された場合 */
+	/*
+	 * クイックロード・セーブ・ロード・ヒストリモードが選択された場合
+	 *  - TODO: action_*()に移動する
+	 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
 	    need_history_mode || need_config_mode)
 		stop_command_repetition();
+}
 
-	/* 終了処理を行う */
-	if (!is_in_command_repetition())
-		if (!cleanup(x, y, w, h))
-			return false;
-
-	/* ロードされて最初のフレームの場合、画面全体を描画する */
+/* 後処理を行う */
+static bool postprocess(int *x, int *y, int *w, int *h)
+{
+	/*
+	 * ロードされて最初のフレームの場合、画面全体を描画する
+	 *  - これはGPUを使わない場合の最適化で、GPUを使う場合は関係ない
+	 */
 	if (load_flag) {
 		union_rect(x, y, w, h, *w, *y, *w, *h, 0, 0, conf_window_width,
 			   conf_window_height);
 		load_flag = false;
 	}
 
-	/* ステージを描画する */
+	/*
+	 * ステージの更新領域(x, y) (w, h)を描画する
+	 *  - GPUを使う場合は更新領域は無視され、全体が再描画される
+	 */
 	draw_stage_rect(*x, *y, *w, *h);
 
 	/* システムメニューを描画する */
@@ -409,7 +493,10 @@ bool message_command(int *x, int *y, int *w, int *h)
 		else if (!is_auto_mode() && !is_skip_mode())
 			draw_collapsed_sysmenu(x, y, w, h);
 	}
-	is_sysmenu_finished = false;
+
+	/* システムメニューを表示開始したフレームのフラグをクリアする */
+	if (is_sysmenu_finished)
+		is_sysmenu_finished = false;
 
 	/* セーブ・ロード・ヒストリ・コンフィグモードへ遷移する */
 	if (need_save_mode) {
@@ -452,6 +539,8 @@ static bool init(int *x, int *y, int *w, int *h)
 	/* スキップモードの場合の初期化を行う */
 	init_skip_mode();
 
+	/* TOOD: gui_sys_flagのとき、再描画しているが、これはいらない */
+
 	/* 名前を取得する */
 	if (!init_name_top())
 		return false;
@@ -471,8 +560,9 @@ static bool init(int *x, int *y, int *w, int *h)
 	 * メッセージの表示中状態をセットする
 	 *  - システムGUIに入っても保持される
 	 *  - メッセージから次のコマンドに移行するときにクリアされる
+	 *  - ロードされてもクリアされる
 	 */
-	if (!is_message_active())
+	if (!gui_sys_flag)
 		set_message_active();
 
 	/* ペンの位置を初期化する */
@@ -500,7 +590,27 @@ static bool init(int *x, int *y, int *w, int *h)
 static void init_flags(void)
 {
 	/* GUIから戻ったばかりかチェックする */
-	gui_flag = check_gui_flag();
+	if (check_gui_flag()) {
+		if (is_message_active()) {
+			/*
+			 * メッセージがアクティブ状態のままシステムGUIに
+			 * 移行して、その後戻ってきた場合
+			 *  - 瞬間表示を行うためにフラグをセットする
+			 */
+			gui_sys_flag = true;
+			gui_cmd_flag = false;
+		} else {
+			/*
+			 * GUIコマンドの直後の場合
+			 *  - 画面全体の更新を行うためにフラグをセットする
+			 */
+			gui_sys_flag = false;
+			gui_cmd_flag = true;
+		}
+	} else {
+		gui_sys_flag = false;
+		gui_cmd_flag = false;
+	}
 
 	/* ロードされたばかりかチェックする */
 	load_flag = check_load_flag();
@@ -517,6 +627,7 @@ static void init_flags(void)
 	need_load_mode = false;
 	need_history_mode = false;
 	need_config_mode = false;
+	is_load_failed = false;
 
 	/* システムメニューの状態設定を行う */
 	is_sysmenu = false;
@@ -696,7 +807,9 @@ static const char *skip_lf(const char *m, int *lf)
 		if (*(m + 1) == 'n') {
 			(*lf)++;
 			m += 2;
-			if (!gui_flag) {
+
+			/* システムGUIから戻った場合はすでに描画済み */
+			if (!gui_sys_flag) {
 				pen_x = conf_msgbox_margin_left;
 				pen_y += conf_msgbox_margin_line;
 			}
@@ -723,28 +836,11 @@ static void put_space(void)
 static bool register_message_for_history(const char *msg)
 {
 	const char *voice;
-	bool reg;
 
 	assert(msg != NULL);
 
-	/* 二重登録を防ぐ */
-	if (load_flag) {
-		/* ロード直後は必ず登録する */
-		reg = true;
-	} if (gui_flag) {
-		/* GUIの直後のとき */
-		if (is_message_active()) {
-			/* システムGUIから戻った場合は登録しない */
-			reg = false;
-		} else {
-			/* GUIコマンドの直後の場合は登録する */
-			reg = true;
-		}
-	} else {
-		/* その他の場合は登録する */
-		reg = true;
-	}
-	if (!reg)
+	/* システムGUIから戻った場合は２重登録になるので登録しない */
+	if (gui_sys_flag)
 		return true;
 
 	/* メッセージ履歴を登録する */
@@ -972,7 +1068,7 @@ static bool check_play_voice(void)
 	*/
 
 	/* システムGUIから戻った場合は再生しない */
-	if (gui_flag && is_message_active())
+	if (gui_sys_flag)
 		return false;
 
 	/* 割り込み不可モードの場合は他の条件を考慮せず再生する */
@@ -1130,11 +1226,8 @@ static void init_pen(void)
 
 	/* 重ね塗りをする場合 */
 	if (conf_msgbox_dim) {
-		/*
-		 * 描画開始位置を保存する
-		 *  - XXX: GUIから戻った場合に更新すると、どうなる？
-		 */
-		if (!gui_flag) {
+		/* 描画開始位置を保存する */
+		if (!gui_sys_flag) {
 			orig_pen_x = pen_x;
 			orig_pen_y = pen_y;
 		}
@@ -1173,23 +1266,39 @@ static void init_click(void)
 	is_click_visible = false;
 }
 
-/* 初期化処理において、初回に描画する矩形を求める */
+/* 初期化処理において、初回に更新する矩形を求める */
 static void init_first_draw_area(int *x, int *y, int *w, int *h)
 {
-	/* 初回に描画する矩形を求める */
-	if (check_menu_finish_flag() || check_retrospect_finish_flag() ||
-	    gui_flag) {
-		/* メニューコマンドが終了したばかりの場合 */
+	/*
+	 * ここで求めた更新矩形は、GPUを利用しないときに適用される
+	 *  - GPUを利用するときは、毎フレーム画面全体を更新する
+	 *  - See also draw_stage() in stage.c
+	 */
+
+	/* deprecatedなメニュー系コマンドが終了した直後の場合 */
+	if (check_menu_finish_flag() || check_retrospect_finish_flag()) {
+		/* 画面全体を更新する */
 		*x = 0;
 		*y = 0;
 		*w = conf_window_width;
 		*h = conf_window_height;
-	} else {
-		/* それ以外の場合 */
-		union_rect(x, y, w, h,
-			   *x, *y, *w, *h,
-			   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
+		return;
 	}
+
+	/* GUIが終了した直後の場合 */
+	if (gui_cmd_flag || gui_sys_flag) {
+		/* 画面全体を更新する */
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
+		return;
+	}
+
+	/* それ以外の場合、メッセージボックスの領域を更新する */
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 }
 
 /* 初期化処理においてポイントされているボタンを求め描画する */
@@ -1232,10 +1341,22 @@ static int get_pointed_button(void)
 {
 	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
 
-	assert(!(is_auto_mode() && is_skip_mode()));
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中の場合、ボタンを選択できなくする */
+	if (dbg_is_stop_requested())
+		return BTN_NONE;
+#endif
+
+	/* システムメニューを表示中の間はボタンを選択しない */
+	if (is_sysmenu)
+		return BTN_NONE;
 
 	/* メッセージボックスを隠している間はボタンを選択しない */
 	if (is_hidden)
+		return BTN_NONE;
+
+	/* オートモード中とスキップモード中はボタンを選択しない */
+	if (is_auto_mode() || is_skip_mode())
 		return BTN_NONE;
 
 	/* マウス座標からメッセージボックス内座標に変換する */
@@ -1358,6 +1479,17 @@ static bool frame_auto_mode(int *x, int *y, int *w, int *h)
 	/* オートモード中はメッセージボックスを非表示にできない */
 	assert(!is_hidden);
 
+#ifdef USE_DEBUGGER
+	/* オートモード中に停止要求があった場合 */
+	if (dbg_is_stop_requested()) {
+		/* オートモード終了アクションを処理する */
+		action_auto_end(x, y, w, h);
+
+		/* クリックされたものとして処理する */
+		return true;
+	}
+#endif
+
 	/* クリックされた場合 */
 	if (is_left_clicked || is_right_clicked || is_escape_pressed ||
 	    is_return_pressed || is_down_pressed) {
@@ -1369,9 +1501,6 @@ static bool frame_auto_mode(int *x, int *y, int *w, int *h)
 
 		/* オートモード終了アクションを処理する */
 		action_auto_end(x, y, w, h);
-
-		/* メッセージボックス内のボタンを再描画する */
-		draw_buttons(x, y, w, h);
 
 		/* クリックされた */
 		return true;
@@ -1448,10 +1577,11 @@ static bool check_auto_play_condition(void)
 {
 	/*
 	 * セーブ画面かヒストリ画面かコンフィグ画面から戻った場合
-	 *  - 表示は瞬時に終わり、ボイスも再生されていない
+	 *  - 文字表示は瞬時に完了し、ボイスも再生されていない
 	 *  - すでに表示完了しているとみなす
+	 *  - TODO: 瞬時に完了というか、文字描画は行わないようにする
 	 */
-	if (gui_flag)
+	if (gui_sys_flag)
 		return true;
 
 	/*
@@ -1502,6 +1632,16 @@ static bool frame_buttons(int *x, int *y, int *w, int *h)
 		play_se(conf_msgbox_btn_change_se);
 	}
 
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中はボタンのクリックを処理しない */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
+	/* システムメニューを表示中の場合、クリックを処理しない */
+	if (is_sysmenu)
+		return false;
+
 	/* オートモードの場合、クリックを処理しない */
 	if (is_auto_mode())
 		return false;
@@ -1518,10 +1658,6 @@ static bool frame_buttons(int *x, int *y, int *w, int *h)
 static bool draw_buttons(int *x, int *y, int *w, int *h)
 {
 	int last_pointed_index, bx, by, bw, bh;
-
-	/* システムメニュー表示中は処理しない */
-	if (is_sysmenu)
-		return false;
 
 	/* メッセージボックス非表示中は処理しない */
 	if (is_hidden)
@@ -1578,7 +1714,12 @@ static bool draw_buttons(int *x, int *y, int *w, int *h)
 /* メッセージボックス内のボタンのクリックを処理する */
 static bool process_button_click(int *x, int *y, int *w, int *h)
 {
-	/* システムメニュー表示中は処理しない */
+	/*
+	 * システムメニュー表示中は処理しない
+	 *  - ボタンは選択できなくなっている (pointed_index == BTN_NONE)
+	 *  - しかし、このままだとスペースキーを阻止できない
+	 *  - そこで、ここでリターンする
+	 */
 	if (is_sysmenu)
 		return false;
 
@@ -1629,12 +1770,6 @@ static bool process_button_click(int *x, int *y, int *w, int *h)
 /* メッセージボックス内のクイックセーブボタン押下を処理する */
 static bool process_qsave_click(void)
 {
-#ifdef USE_DEBUGGER
-	/* シングルステップか停止要求中はセーブしない */
-	if (dbg_is_stop_requested())
-		return false;
-#endif
-
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1650,9 +1785,11 @@ static bool process_qsave_click(void)
 		/* クイックセーブを処理する */
 		action_qsave();
 
+		/* インタラクションが処理された */
 		return true;
 	}
 
+	/* インタラクションが処理されなかった */
 	return false;
 }
 
@@ -1669,12 +1806,6 @@ static void action_qsave(void)
 /* メッセージボックス内のクイックロードボタン押下を処理する */
 static bool process_qload_click(void)
 {
-#ifdef USE_DEBUGGER
-	/* シングルステップか停止要求中はロードしない */
-	if (dbg_is_stop_requested())
-		return false;
-#endif
-
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1693,38 +1824,31 @@ static bool process_qload_click(void)
 
 		/* クイックロードを行う */
 		action_qload();
-		if (quick_load()) {
-			/* 後処理を行う */
-			did_quick_load = true;
 
-			return true;
-		}
+		/* インタラクションが処理された */
+		return true;
 	}
 
+	/* インタラクションが処理されなかった */
 	return false;
 }
 
 /* クイックロードを行う */
-static bool action_qload(void)
+static void action_qload(void)
 {
 	/* クイックロードを行う */
-	if (!quick_load())
-		return false;
-	
+	if (!quick_load()) {
+		is_load_failed = true;
+		return;
+	}
+
 	/* 後処理を行う */
 	did_quick_load = true;
-	return true;
 }
 
 /* メッセージボックス内のセーブボタン押下を処理する */
 static bool process_save_click(void)
 {
-#ifdef USE_DEBUGGER
-	/* シングルステップか停止要求中はセーブしない */
-	if (dbg_is_stop_requested())
-		return false;
-#endif
-
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1754,12 +1878,6 @@ static void action_save(void)
 /* メッセージボックス内のロードボタン押下を処理する */
 static bool process_load_click(void)
 {
-#ifdef USE_DEBUGGER
-	/* シングルステップか停止要求中はロードしない */
-	if (dbg_is_stop_requested())
-		return false;
-#endif
-
 	/* セーブロード無効時は処理しない */
 	if (!is_save_load_enabled())
 		return false;
@@ -1774,9 +1892,12 @@ static bool process_load_click(void)
 
 		/* ロード画面への遷移を処理する */
 		action_load();
+
+		/* インタラクションが処理された */
 		return true;
 	}
 
+	/* インタラクションが処理されなかった */
 	return false;
 }
 
@@ -1789,8 +1910,13 @@ static void action_load(void)
 /* メッセージボックス内のオートボタン押下を処理する */
 static bool process_auto_click(int *x, int *y, int *w, int *h)
 {
-	assert(!is_auto_mode());
-	assert(!is_skip_mode());
+	/* オートモード中の場合 */
+	if (is_auto_mode()) {
+		assert(pointed_index == BTN_NONE);
+
+		/* 何もしない */
+		return false;
+	}
 
 	/* オートボタンが押下された場合 */
 	if (is_left_clicked && pointed_index == BTN_AUTO) {
@@ -1802,6 +1928,9 @@ static bool process_auto_click(int *x, int *y, int *w, int *h)
 
 		/* オートモード開始アクションを行う */
 		action_auto_start(x, y, w, h);
+
+		/* メッセージボックス内のボタンをクリアする */
+		draw_buttons(x, y, w, h);
 		return true;
 	}
 
@@ -1825,6 +1954,9 @@ static bool process_skip_click(int *x, int *y, int *w, int *h)
 
 		/* スキップモードを開始する */
 		action_skip(x, y, w, h);
+
+		/* メッセージボックス内のボタンをクリアする */
+		draw_buttons(x, y, w, h);
 		return true;
 	}
 
@@ -1853,12 +1985,6 @@ static void action_skip(int *x, int *y, int *w, int *h)
  */
 static bool process_history_click(void)
 {
-#ifdef USE_DEBUGGER
-	/* シングルステップか停止要求中はヒストリモードに遷移しない */
-	if (dbg_is_stop_requested())
-		return false;
-#endif
-
 	/* 上キーかヒストリボタンが押された場合 */
 	if (is_up_pressed ||
 	    (is_left_clicked && pointed_index == BTN_HISTORY)) {
@@ -1888,12 +2014,6 @@ static void action_history(void)
 /* メッセージボックス内のコンフィグボタン押下を処理する */
 static bool process_config_click(void)
 {
-#ifdef USE_DEBUGGER
-	/* シングルステップか停止要求中はセーブしない */
-	if (dbg_is_stop_requested())
-		return false;
-#endif
-
 	/* コンフィグボタンが押された場合 */
 	if (is_left_clicked && pointed_index == BTN_CONFIG) {
 		/* SEを再生する */
@@ -1983,9 +2103,25 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	bool enter_sysmenu;
 
 #ifdef USE_DEBUGGER
-	/* シングルステップか停止要求中はシステムメニューに入らない */
-	if (dbg_is_stop_requested())
+	/* シングルステップか停止要求中の場合 */
+	if (dbg_is_stop_requested()) {
+		/*
+		 * システムメニューには入らない
+		 *  - 停止要求中はis_collapsed_sysmenu_pointed()はfalseになる
+		 *  - しかし、エスケープキーの操作も防ぐ必要がある
+		 *  - なので、ここでリターンする
+		 */
+		if (!is_sysmenu)
+			return false;
+
+		/*
+		 * システムメニュー表示中の停止要求なので、
+		 * システムメニューを終了する
+		 */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
 		return false;
+	}
 #endif
 
 	/* システムメニューを表示中の場合 */
@@ -2204,6 +2340,10 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 		is_sysmenu_finished = false;
 		sysmenu_pointed_index = get_sysmenu_pointed_button();
 		old_sysmenu_pointed_index = SYSMENU_NONE;
+
+		/* メッセージボックス内のボタンをクリアする */
+		draw_buttons(x, y, w, h);
+
 		return true;
 	}
 
@@ -2214,6 +2354,12 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 static int get_sysmenu_pointed_button(void)
 {
 	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
+
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中の場合、ボタンを選択できなくする */
+	if (dbg_is_stop_requested())
+		return SYSMENU_NONE;
+#endif
 
 	/* システムメニューを表示中でない場合は非選択とする */
 	if (!is_sysmenu)
@@ -2433,7 +2579,7 @@ static int get_frame_chars(void)
 	}
 
 	/* システムGUIからの復帰直後の場合 */
-	if (gui_flag && is_message_active()) {
+	if (gui_sys_flag) {
 		/* 行継続の場合はすでに描画されている */
 		if (is_continue_mode) {
 			/* 描画を完了したことにする */
@@ -2443,7 +2589,10 @@ static int get_frame_chars(void)
 			return 0;
 		}
 
-		/* すべての文字を描画する */
+		/*
+		 * すべての文字を描画する
+		 *  - TODO: gui_sys_flagの場合はそもそも描画しないようにする
+		 */
 		return total_chars;
 	}
 
@@ -2499,7 +2648,7 @@ static bool is_canceled_by_skip(void)
 	    (is_skip_mode() || (!is_auto_mode() && is_control_pressed)))
 	*/
 
-	/* 未読ならスキップしない */
+	/* 未読ならそもそもスキップできない */
 	if (!is_skippable())
 		return false;
 
@@ -2665,8 +2814,11 @@ static void draw_click(int *x, int *y, int *w, int *h)
 	int click_x, click_y, click_w, click_h;
 	int lap, index;
 
+	assert(!is_sysmenu);
+
 	/* 入力があったら繰り返しを終了する */
-	check_stop_click_animation();
+	if (check_stop_click_animation())
+		stop_command_repetition();
 
 	/* クリックアニメーションの初回表示のとき */
 	if (is_click_first) {
@@ -2714,26 +2866,59 @@ static void draw_click(int *x, int *y, int *w, int *h)
 }
 
 /* クリックアニメーションで入力があったら繰り返しを終了する */
-static void check_stop_click_animation(void)
+static bool check_stop_click_animation(void)
 {
+	/* システムメニュー表示中はここに来ない */
+	assert(!is_sysmenu);
+
+	/* 本文の描画が完了していなければここに来ない */
+	assert(is_end_of_msg());
+
 #ifdef USE_DEBUGGER
-	if (!is_click_first && dbg_is_stop_requested()) {
-		if (!have_voice &&
-		    gui_flag &&
-		    (is_return_pressed || is_down_pressed ||
-		     (pointed_index == BTN_NONE && is_left_clicked)))
-			stop_command_repetition();
-		else if (!have_voice)
-			stop_command_repetition();
-		else if (have_voice &&
-			 (is_mixer_sound_finished(VOICE_STREAM) || gui_flag))
-			stop_command_repetition();
-		else if (have_voice &&
-			 (is_left_clicked || is_down_pressed ||
-			  is_return_pressed))
-			stop_command_repetition();
-	} else
+	/* デバッガから停止要求がある場合 */
+	if (dbg_is_stop_requested()) {
+		/*
+		 * クリックアニメーションの1フレーム目では停止しない
+		 *  - 1フレーム目で停止すると、cleanup()でクリックレイヤが
+		 *    非表示にされるため、描画されないままデバッグ停止になる
+		 *  - TODO: cleanup()をpostprocess()の後ろにするとこのチェックはいらなくなる
+		 */
+		if (is_click_first)
+			return false;
+
+		/* ボイスがなければ2フレーム目で停止する */
+		if (!have_voice)
+			return true;
+
+		/*
+		 * システムGUIから復帰の場合は、クリックアニメーションの
+		 * 2フレーム目で停止する (このときボイスは再生されていない)
+		 */
+		if (gui_sys_flag)
+			return true;
+
+		/* ボイスが再生完了したフレームで停止する */
+		if (is_mixer_sound_finished(VOICE_STREAM))
+			return true;
+
+		/* 何もないところをクリックされた場合は停止する */
+		if (is_left_clicked &&
+		    (pointed_index == BTN_NONE) &&
+		    is_collapsed_sysmenu_pointed() &&
+		    !is_sysmenu)
+			return true;
+
+		/*
+		 * キーが押下された場合
+		 *  - システムメニュー表示中は除く
+		 */
+		if ((is_down_pressed || is_return_pressed) &&
+		    !is_sysmenu)
+			return true;
+	}
 #endif
+
+	/* XXX: Translated from the following code:
 	if (is_skippable() && !is_auto_mode() &&
 	    (is_skip_mode() || is_control_pressed)) {
 		if (!is_non_interruptible()) {
@@ -2757,6 +2942,109 @@ static void check_stop_click_animation(void)
 				stop_command_repetition();
 		}
 	}
+	*/
+
+	/* スキップモードの場合 */
+	if (is_skip_mode()) {
+		assert(!is_auto_mode());
+
+		/* 既読でない場合はスキップできないので停止しない */
+		if (!is_skippable())
+			return false;
+
+		/* 割り込み不可ではない場合はスキップにより停止する */
+		if (!is_non_interruptible())
+			return true;
+
+		/* ボイスがない場合はスキップにより停止する */
+		if (!have_voice)
+			return true;
+
+		/* ボイスが再生完了している場合はスキップにより停止する */
+		if (is_mixer_sound_finished(VOICE_STREAM))
+			return true;
+
+		/* 停止しない */
+		return false;
+	}
+
+	/* コントロールキーが押下されている場合 */
+	if (is_control_pressed) {
+		/* オートモードの場合はコントロールキーを無視する */
+		if (!is_auto_mode())
+			return false;
+
+		/* 既読でない場合はスキップできないので停止しない */
+		if (!is_skippable())
+			return false;
+
+		/* 割り込み不可でない場合はスキップにより停止する */
+		if (!is_non_interruptible())
+			return true;
+
+		/* ボイスがない場合はスキップにより停止する */
+		if (!have_voice)
+			return true;
+
+		/* ボイスが再生完了している場合はスキップにより停止する */
+		if (is_mixer_sound_finished(VOICE_STREAM))
+			return true;
+
+		/* 停止しない */
+		return false;
+	}
+
+	/*
+	 * クリックアニメーションの最初のフレームは停止せず描画する
+	 *  - 1フレーム目で停止すると、cleanup()でクリックレイヤが
+	 *    非表示にされるため、描画されないままデバッグ停止になる
+	 *  - TODO: cleanup()をpostprocess()の後ろにするとこのチェックはいらなくなる
+	 */
+	if (is_click_first)
+		return false;
+
+	/* システムGUIから戻ってコマンドが開始されている場合 */
+	if (gui_sys_flag) {
+		/* FYI: ボイスは再生されていない */
+
+		/* 何もないところをクリックされた場合は停止する */
+		if (is_left_clicked &&
+		    (pointed_index == BTN_NONE) &&
+		    !is_collapsed_sysmenu_pointed())
+			return true;
+
+		/* キーが押下された場合は停止する */
+		if (is_return_pressed || is_down_pressed)
+			return true;
+
+		/* 停止しない */
+		return false;
+	}
+
+	/* 何もないところをクリックされた場合と、キーが押下された場合 */
+	if ((is_left_clicked && (pointed_index == BTN_NONE) &&
+	     !is_collapsed_sysmenu_pointed()) ||
+	    (is_return_pressed || is_down_pressed)) {
+		/*
+		 * 割り込み不可モードでない場合は停止する
+		 *  - 再生中のボイスがあればcleanup()で停止される
+		 */
+		if (!is_non_interruptible())
+			return true;
+
+		/*
+		 * 割り込み不可モードでも、ボイスがないか、再生完了後の場合は
+		 * 停止する
+		 */
+		if (!have_voice || is_mixer_sound_finished(VOICE_STREAM))
+			return true;
+
+		/* 停止しない */
+		return false;
+	}
+
+	/* 停止しない */
+	return false;
 }
 
 /* システムメニューを描画する */
@@ -2921,9 +3209,21 @@ static bool is_collapsed_sysmenu_pointed(void)
 {
 	int bx, by, bw, bh;
 
+#ifdef USE_DEBUGGER
+	/* シングルステップか停止要求中の場合 */
+	if (dbg_is_stop_requested())
+		return false;
+#endif
+
+	/* システムメニューを表示中の場合 */
+	if (is_sysmenu)
+		return false;
+
+	/* オートモードかスキップモードの場合 */
 	if (is_auto_mode() || is_skip_mode())
 		return false;
 
+	/* マウスカーソル座標をチェックする */
 	get_collapsed_sysmenu_rect(&bx, &by, &bw, &bh);
 	if (mouse_pos_x >= bx && mouse_pos_x < bx + bw &&
 	    mouse_pos_y >= by && mouse_pos_y < by + bh)
@@ -2993,9 +3293,13 @@ static bool cleanup(int *x, int *y, int *w, int *h)
 	/* クリックアニメーションを非表示にする */
 	show_click(false);
 
-	/* 表示中のメッセージをなしとする */
-	if (!need_save_mode && !need_load_mode && !need_history_mode &&
-	    !need_config_mode)
+	/*
+	 * 次のコマンドに移動するときは、表示中のメッセージをなしとする
+	 *  - システムGUIに移行する場合は、アクティブなままにしておく
+	 *  - クイックロードされた場合はquick_load()ですでにクリアされている
+	 */
+	if (!did_quick_load && !need_save_mode && !need_load_mode &&
+	    !need_history_mode && !need_config_mode)
 		clear_message_active();
 
 	/* 既読にする */
