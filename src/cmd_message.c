@@ -317,22 +317,16 @@ static int get_wait_time(void);
 static bool frame_buttons(int *x, int *y, int *w, int *h);
 static bool draw_buttons(int *x, int *y, int *w, int *h);
 static bool process_button_click(int *x, int *y, int *w, int *h);
-static bool process_qsave_click(void);
-static void action_qsave(void);
-static bool process_qload_click(void);
-static void action_qload(void);
-static bool process_save_click(void);
-static void action_save(void);
-static bool process_load_click(void);
-static void action_load(void);
-static bool process_auto_click(int *x, int *y, int *w, int *h);
-static bool process_skip_click(int *x, int *y, int *w, int *h);
-static void action_skip(int *x, int *y, int *w, int *h);
-static bool process_history_click(void);
-static void action_history(void);
-static bool process_config_click(void);
-static void action_config(void);
 static bool process_hide_click(int *x, int *y, int *w, int *h);
+static void action_hide_start(int *x, int *y, int *w, int *h);
+static void action_hide_end(int *x, int *y, int *w, int *h);
+static void action_qsave(void);
+static void action_qload(void);
+static void action_save(void);
+static void action_load(void);
+static void action_skip(int *x, int *y, int *w, int *h);
+static void action_history(void);
+static void action_config(void);
 static bool frame_sysmenu(int *x, int *y, int *w, int *h);
 static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h);
 static void adjust_sysmenu_pointed_index(void);
@@ -1405,18 +1399,6 @@ static int get_pointed_button(void)
 		return BTN_NONE;
 #endif
 
-	/* システムメニューを表示中の間はボタンを選択しない */
-	if (is_sysmenu)
-		return BTN_NONE;
-
-	/* メッセージボックスを隠している間はボタンを選択しない */
-	if (is_hidden)
-		return BTN_NONE;
-
-	/* オートモード中とスキップモード中はボタンを選択しない */
-	if (is_auto_mode() || is_skip_mode())
-		return BTN_NONE;
-
 	/* マウス座標からメッセージボックス内座標に変換する */
 	rx = mouse_pos_x - conf_msgbox_x;
 	ry = mouse_pos_y - conf_msgbox_y;
@@ -1439,6 +1421,24 @@ static int get_pointed_button(void)
 /* 状況に応じてメッセージボックス内のボタンのポイントを無効化する */
 static void adjust_pointed_index(void)
 {
+	/* システムメニューを表示中の間はボタンを選択しない */
+	if (is_sysmenu) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
+	/* メッセージボックスを隠している間はボタンを選択しない */
+	if (is_hidden) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
+	/* オートモード中とスキップモード中はボタンを選択しない */
+	if (is_auto_mode() || is_skip_mode()) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
 	/* セーブロードが無効な場合にセーブロードのボタンを無効化する */
 	if (!is_save_load_enabled() &&
 	    (pointed_index == BTN_QSAVE || pointed_index == BTN_QLOAD ||
@@ -1703,7 +1703,7 @@ static int get_wait_time(void)
 	return (int)((float)total_chars * scale * get_auto_speed() * 1000.0f);
 }
 
-/* メッセージボックス内のボタンを処理する */
+/* メッセージボックス内のボタンを処理する (非表示中も呼ばれる) */
 static bool frame_buttons(int *x, int *y, int *w, int *h)
 {
 	/* ボタンを描画する */
@@ -1726,7 +1726,7 @@ static bool frame_buttons(int *x, int *y, int *w, int *h)
 	if (is_auto_mode())
 		return false;
 
-	/* ボタンのクリックを処理する */
+	/* ボタンのクリックを処理する (非表示のキャンセルもここで処理する) */
 	if (process_button_click(x, y, w, h))
 		return true;	/* クリックされた */
 
@@ -1787,116 +1787,167 @@ static bool process_button_click(int *x, int *y, int *w, int *h)
 	/*
 	 * システムメニュー表示中は処理しない
 	 *  - ボタンは選択できなくなっている (pointed_index == BTN_NONE)
-	 *  - しかし、このままだとスペースキーを阻止できない
+	 *  - 加えて、システムメニュー表示中のスペースキーをここでは無視したい
 	 *  - そこで、ここでリターンする
 	 */
 	if (is_sysmenu)
 		return false;
 
-	/* 隠すボタンを処理する */
-	if (process_hide_click(x, y, w, h))
+	/* 隠すボタンを処理する (非表示の解除もここで行う) */
+	if (process_hide_click(x, y, w, h)) {
+		/* 入力は処理済みなので、以降は入力を処理しない */
+		clear_input_state();
 		return true;
+	}
 
 	/* メッセージボックス非表示中は以降処理しない */
 	if (is_hidden)
 		return false;
 
-	/* クイックセーブボタンを処理する */
-	if (process_qsave_click())
-		return true;
+	/*
+	 * 上キーの押下をヒストリボタンのクリックに変換する
+	 *  - NOTE: マウスホイールの上は、上キーに変換されている
+	 */
+	if (is_up_pressed) {
+		pointed_index = BTN_HISTORY;
+		is_left_clicked = true;
+	}
 
-	/* クイックロードボタンを処理する */
-	if (process_qload_click())
-		return true;
-
-	/* セーブボタンを処理する */
-	if (process_save_click())
-		return true;
-
-	/* ロードボタンを処理する */
-	if (process_load_click())
-		return true;
-
-	/* オートボタンを処理する */
-	if (process_auto_click(x, y, w, h))
-		return true;
-
-	/* スキップボタンを処理する */
-	if (process_skip_click(x, y, w, h))
-		return true;
-
-	/* ヒストリボタンを処理する */
-	if (process_history_click())
-		return true;
-
-	/* コンフィグボタンを処理する */
-	if (process_config_click())
-		return true;
-
-	/* ボタンがクリックされなかった */
-	return false;
-}
-
-/* メッセージボックス内のクイックセーブボタン押下を処理する */
-static bool process_qsave_click(void)
-{
-	/* セーブロード無効時は処理しない */
-	if (!is_save_load_enabled())
+	/* ボタンがポイントされていない場合は以降処理しない */
+	if (pointed_index == BTN_NONE)
 		return false;
 
-	/* クイックセーブボタンが押下されたとき */
-	if (is_left_clicked && pointed_index == BTN_QSAVE) {
-		/* SEを再生する */
+	/* ボタンがクリックされていない場合は以降処理しない */
+	if (!is_left_clicked)
+		return false;
+
+	/* ボタンの押下を処理する (キー押下から変換された場合を含めて) */
+	switch (pointed_index) {
+	case BTN_QSAVE:
 		play_se(conf_msgbox_btn_qsave_se);
-
-		/* 以降のクリック処理を行わない */
-		clear_input_state();
-
-		/* クイックセーブを処理する */
 		action_qsave();
+		break;
+	case BTN_QLOAD:
+		play_se(conf_msgbox_btn_qload_se);
+		action_qload();
+		break;
+	case BTN_SAVE:
+		play_se(conf_msgbox_btn_save_se);
+		action_save();
+		break;
+	case BTN_LOAD:
+		play_se(conf_msgbox_btn_load_se);
+		action_load();
+		break;
+	case BTN_AUTO:
+		play_se(conf_msgbox_btn_auto_se);
+		action_auto_start(x, y, w, h);
+		break;
+	case BTN_SKIP:
+		play_se(conf_msgbox_btn_skip_se);
+		action_skip(x, y, w, h);
+		break;
+	case BTN_HISTORY:
+		play_se(is_up_pressed ?
+			conf_msgbox_history_se : conf_msgbox_btn_history_se);
+		action_history();
+		break;
+	case BTN_CONFIG:
+		play_se(conf_msgbox_btn_config_se);
+		action_config();
+		break;
+	default:
+		assert(0);
+		break;
+	}
 
-		/* インタラクションが処理された */
+	/* 入力は処理済みなので、以降は入力を処理しない */
+	clear_input_state();
+
+	/* ボタンがクリックされた */
+	return true;
+}
+
+/*
+ * メッセージボックス内の消すボタン押下を処理する
+ * (スペースキーもここで処理する)
+ */
+static bool process_hide_click(int *x, int *y, int *w, int *h)
+{
+	/* メッセージボックスを表示中の場合 */
+	if (!is_hidden) {
+		/* スペースキーの押下と、消すボタンのクリックを処理する */
+		if (is_space_pressed ||
+		    (is_left_clicked && pointed_index == BTN_HIDE)) {
+			/* SEを再生する */
+			play_se(conf_msgbox_hide_se);
+
+			/* メッセージボックスの非表示を開始する */
+			action_hide_start(x, y, w, h);
+
+			/* 入力が処理された */
+			return true;
+		}
+
+		/* 入力が処理されなかった */
+		return false;
+	}
+
+	/* メッセージボックスを非表示中の場合、マウスとキーの押下を処理する */
+	if(is_space_pressed || is_return_pressed || is_down_pressed ||
+	   is_left_clicked || is_right_clicked) {
+		/* SEを再生する */
+		play_se(conf_msgbox_show_se);
+
+		/* メッセージボックスの非表示を終了する */
+		action_hide_end(x, y, w, h);
+
+		/* 入力が処理された */
 		return true;
 	}
 
-	/* インタラクションが処理されなかった */
+	/* 入力が処理されなかった */
 	return false;
+}
+
+/* メッセージボックスの非表示を開始する */
+static void action_hide_start(int *x, int *y, int *w, int *h)
+{
+	/* メッセージボックスを非表示にする */
+	is_hidden = true;
+	if (get_command_type() == COMMAND_SERIF)
+		show_namebox(false);
+	show_msgbox(false);
+	show_click(false);
+
+	/* 画面全体を再描画する */
+	*x = 0;
+	*y = 0;
+	*w = conf_window_width;
+	*h = conf_window_height;
+}
+
+/* メッセージボックスの非表示を終了する */
+static void action_hide_end(int *x, int *y, int *w, int *h)
+{
+	/* メッセージボックスを表示する */
+	is_hidden = false;
+	if (get_command_type() == COMMAND_SERIF)
+		show_namebox(true);
+	show_msgbox(true);
+	show_click(is_click_visible);
+
+	/* 画面全体を再描画する */
+	*x = 0;
+	*y = 0;
+	*w = conf_window_width;
+	*h = conf_window_height;
 }
 
 /* クイックセーブを処理する */
 static void action_qsave(void)
 {
 	will_quick_save = true;
-}
-
-/* メッセージボックス内のクイックロードボタン押下を処理する */
-static bool process_qload_click(void)
-{
-	/* セーブロード無効時は処理しない */
-	if (!is_save_load_enabled())
-		return false;
-
-	/* クイックセーブデータがない場合は処理しない */
-	if (!have_quick_save_data())
-		return false;
-
-	/* クイックロードボタンが押下されたとき */
-	if (is_left_clicked && pointed_index == BTN_QLOAD) {
-		/* SEを再生する */
-		play_se(conf_msgbox_btn_qload_se);
-
-		/* 以降のクリック処理を行わない */
-		clear_input_state();
-
-		/* クイックロードを行う */
-		action_qload();
-
-		/* インタラクションが処理された */
-		return true;
-	}
-
-	/* インタラクションが処理されなかった */
-	return false;
 }
 
 /* クイックロードを行う */
@@ -1912,121 +1963,22 @@ static void action_qload(void)
 	did_quick_load = true;
 }
 
-/* メッセージボックス内のセーブボタン押下を処理する */
-static bool process_save_click(void)
-{
-	/* セーブロード無効時は処理しない */
-	if (!is_save_load_enabled())
-		return false;
-
-	/* セーブボタンが押下されたとき */
-	if (is_left_clicked && pointed_index == BTN_SAVE) {
-		/* SEを再生する */
-		play_se(conf_msgbox_btn_save_se);
-
-		/* ボイスを停止する */
-		set_mixer_input(VOICE_STREAM, NULL);
-
-		/* セーブ画面への遷移を処理する */
-		action_save();
-		return true;
-	}
-
-	return false;
-}
-
 /* セーブ画面への遷移を処理する */
 static void action_save(void)
 {
+	/* ボイスを停止する */
+	set_mixer_input(VOICE_STREAM, NULL);
+
 	need_save_mode = true;
-}
-
-/* メッセージボックス内のロードボタン押下を処理する */
-static bool process_load_click(void)
-{
-	/* セーブロード無効時は処理しない */
-	if (!is_save_load_enabled())
-		return false;
-
-	/* ロードボタンが押下されたとき */
-	if (is_left_clicked && pointed_index == BTN_LOAD) {
-		/* SEを再生する */
-		play_se(conf_msgbox_btn_load_se);
-
-		/* ボイスを停止する */
-		set_mixer_input(VOICE_STREAM, NULL);
-
-		/* ロード画面への遷移を処理する */
-		action_load();
-
-		/* インタラクションが処理された */
-		return true;
-	}
-
-	/* インタラクションが処理されなかった */
-	return false;
 }
 
 /* ロード画面への遷移を処理する */
 static void action_load(void)
 {
+	/* ボイスを停止する */
+	set_mixer_input(VOICE_STREAM, NULL);
+
 	need_load_mode = true;
-}
-
-/* メッセージボックス内のオートボタン押下を処理する */
-static bool process_auto_click(int *x, int *y, int *w, int *h)
-{
-	/* オートモード中の場合 */
-	if (is_auto_mode()) {
-		assert(pointed_index == BTN_NONE);
-
-		/* 何もしない */
-		return false;
-	}
-
-	/* オートボタンが押下された場合 */
-	if (is_left_clicked && pointed_index == BTN_AUTO) {
-		/* SEを再生する */
-		play_se(conf_msgbox_btn_auto_se);
-
-		/* 以降のクリック処理を行わない */
-		clear_input_state();
-
-		/* オートモード開始アクションを行う */
-		action_auto_start(x, y, w, h);
-
-		/* メッセージボックス内のボタンをクリアする */
-		draw_buttons(x, y, w, h);
-		return true;
-	}
-
-	return false;
-}
-
-/* メッセージボックス内のスキップボタン押下を処理する */
-static bool process_skip_click(int *x, int *y, int *w, int *h)
-{
-	/* 未読の場合はクリックを処理しない */
-	if (!is_skippable())
-		return false;
-
-	/* スキップボタンが押下された場合 */
-	if (is_left_clicked && pointed_index == BTN_SKIP) {
-		/* SEを再生する */
-		play_se(conf_msgbox_btn_skip_se);
-
-		/* 以降のクリック処理を行わない */
-		clear_input_state();
-
-		/* スキップモードを開始する */
-		action_skip(x, y, w, h);
-
-		/* メッセージボックス内のボタンをクリアする */
-		draw_buttons(x, y, w, h);
-		return true;
-	}
-
-	return false;
 }
 
 /* スキップモードを開始する */
@@ -2045,122 +1997,22 @@ static void action_skip(int *x, int *y, int *w, int *h)
 	*h = conf_window_height;
 }
 
-/*
- * メッセージボックス内のヒストリボタン押下を処理する
- * (上キー押下とマウスホイール上ボタン押下もここで処理する)
- */
-static bool process_history_click(void)
-{
-	/* 上キーかヒストリボタンが押された場合 */
-	if (is_up_pressed ||
-	    (is_left_clicked && pointed_index == BTN_HISTORY)) {
-		/* SEを再生する */
-		if (is_up_pressed)
-			play_se(conf_msgbox_history_se);
-		else
-			play_se(conf_msgbox_btn_history_se);
-
-		/* ボイスを停止する */
-		set_mixer_input(VOICE_STREAM, NULL);
-
-		/* ヒストリ画面への遷移を処理する */
-		action_history();
-		return true;
-	}
-
-	return false;
-}
-
 /* ヒストリ画面への遷移を処理する */
 static void action_history(void)
 {
+	/* ボイスを停止する */
+	set_mixer_input(VOICE_STREAM, NULL);
+
 	need_history_mode = true;
-}
-
-/* メッセージボックス内のコンフィグボタン押下を処理する */
-static bool process_config_click(void)
-{
-	/* コンフィグボタンが押された場合 */
-	if (is_left_clicked && pointed_index == BTN_CONFIG) {
-		/* SEを再生する */
-		play_se(conf_msgbox_btn_config_se);
-
-		/* ボイスを停止する */
-		set_mixer_input(VOICE_STREAM, NULL);
-
-		/* コンフィグ画面への遷移を処理する */
-		action_config();
-		return true;
-	}
-
-	return false;
 }
 
 /* コンフィグ画面への遷移を処理する */
 static void action_config(void)
 {
+	/* ボイスを停止する */
+	set_mixer_input(VOICE_STREAM, NULL);
+
 	need_config_mode = true;
-}
-
-/*
- * メッセージボックス内の消すボタン押下を処理する
- * (スペースキーもここで処理する)
- */
-static bool process_hide_click(int *x, int *y, int *w, int *h)
-{
-	/* メッセージボックスを表示中の場合 */
-	if (!is_hidden) {
-		/* スペースキーの押下と、消すボタンのクリックを処理する */
-		if (is_space_pressed ||
-		    (is_left_clicked && pointed_index == BTN_HIDE)) {
-			/* SEを再生する */
-			play_se(conf_msgbox_hide_se);
-
-			/* 以降の左クリックを処理しない */
-			clear_input_state();
-
-			/* メッセージボックスを非表示にする */
-			is_hidden = true;
-			if (get_command_type() == COMMAND_SERIF)
-				show_namebox(false);
-			show_msgbox(false);
-			show_click(false);
-
-			/* 画面全体を再描画する */
-			*x = 0;
-			*y = 0;
-			*w = conf_window_width;
-			*h = conf_window_height;
-			return true;
-		}
-		return false;
-	}
-
-	/* メッセージボックスを非表示中の場合、マウスとキーの押下を処理する */
-	if(is_space_pressed || is_return_pressed || is_down_pressed ||
-	   is_left_clicked || is_right_clicked) {
-		/* SEを再生する */
-		play_se(conf_msgbox_show_se);
-
-		/* 以降のクリックを処理しない */
-		clear_input_state();
-
-		/* メッセージボックスを表示する */
-		is_hidden = false;
-		if (get_command_type() == COMMAND_SERIF)
-			show_namebox(true);
-		show_msgbox(true);
-		show_click(is_click_visible);
-
-		/* 画面全体を再描画する */
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
-		return true;
-	}
-
-	return false;
 }
 
 /* システムメニューの処理を行う */
