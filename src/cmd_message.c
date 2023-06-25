@@ -332,6 +332,8 @@ static bool process_config_click(void);
 static void action_config(void);
 static bool process_hide_click(int *x, int *y, int *w, int *h);
 static bool frame_sysmenu(int *x, int *y, int *w, int *h);
+static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h);
+static void adjust_sysmenu_pointed_index(void);
 static int get_sysmenu_pointed_button(void);
 static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h);
 
@@ -2157,25 +2159,26 @@ static bool process_hide_click(int *x, int *y, int *w, int *h)
 	return false;
 }
 
-/* フレーム描画中の右クリック押下を処理する */
+/* システムメニューの処理を行う */
 static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 {
-	bool enter_sysmenu;
-
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested()) {
-		/*
-		 * システムメニューには入らない
-		 *  - 停止要求中はis_collapsed_sysmenu_pointed()はfalseになる
-		 *  - しかし、エスケープキーの操作も防ぐ必要がある
-		 *  - なので、ここでリターンする
-		 */
-		if (!is_sysmenu)
+		/* システムメニュー表示中でない場合 */
+		if (!is_sysmenu) {
+			/*
+			 * システムメニューには入らない
+			 *  - 停止要求中はis_collapsed_sysmenu_pointed()が
+			 *    falseになる
+			 *  - しかし、エスケープキーの操作も防ぐ必要がある
+			 *  - なので、ここでリターンする
+			 */
 			return false;
+		}
 
 		/*
-		 * システムメニュー表示中の停止要求なので、
+		 * システムメニュー表示中の停止要求に対しては、
 		 * システムメニューを終了する
 		 */
 		is_sysmenu = false;
@@ -2184,180 +2187,102 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	}
 #endif
 
-	/* システムメニューを表示中の場合 */
-	if (is_sysmenu) {
-		/* 右クリックされた場合か、エスケープキーが押下された場合 */
-		if (is_right_clicked || is_escape_pressed) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_leave_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* 以降のクリック処理を行わない */
-			clear_input_state();
-			return true;
-		}
-
-		/* ポイントされているシステムメニューのボタンを求める */
-		old_sysmenu_pointed_index = sysmenu_pointed_index;
-		sysmenu_pointed_index = get_sysmenu_pointed_button();
-
-		/* ボタンのないところを左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_NONE &&
-		    is_left_clicked) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_leave_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* 以降のクリック処理を行わない */
-			clear_input_state();
-			return true;
-		}
-
-		/* セーブロードが無効な場合 */
-		if (!is_save_load_enabled() &&
-		    (sysmenu_pointed_index == SYSMENU_QSAVE ||
-		     sysmenu_pointed_index == SYSMENU_QLOAD ||
-		     sysmenu_pointed_index == SYSMENU_SAVE ||
-		     sysmenu_pointed_index == SYSMENU_LOAD))
-			sysmenu_pointed_index = SYSMENU_NONE;
-
-		/* クイックセーブデータがない場合 */
-		if (!have_quick_save_data() &&
-		    sysmenu_pointed_index == SYSMENU_QLOAD)
-			sysmenu_pointed_index = SYSMENU_NONE;
-			
-		/* スキップできない場合 */
-		if (!is_skippable() && sysmenu_pointed_index == SYSMENU_SKIP)
-			sysmenu_pointed_index = SYSMENU_NONE;
-
-		/* 左クリックされていない場合、何もしない */
-		if (!is_left_clicked)
-			return false;
-		clear_input_state();
-
-		/* クイックセーブが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_QSAVE) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_qsave_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* クイックセーブを行う */
-			action_qsave();
-			return true;
-		}
-
-		/* クイックロードが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_QLOAD) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_qload_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* クイックロードを行う */
-			action_qload();
-			return true;
-		}
-
-		/* セーブが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_SAVE) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_save_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* セーブ画面への移行を処理する */
-			action_save();
-			return true;
-		}
-
-		/* ロードが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_LOAD) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_load_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* ロード画面への移行を処理する */
-			action_load();
-			return true;
-		}
-
-		/* オートが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_AUTO) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_auto_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* オートモードを開始する */
-			action_auto_start(x, y, w, h);
-
-			/* 以降のクリック処理を行わない */
-			clear_input_state();
-			return true;
-		}
-
-		/* スキップが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_SKIP) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_skip_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* スキップモードを開始する */
-			action_skip(x, y, w, h);
-			return true;
-		}
-
-		/* ヒストリが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_HISTORY) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_history_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* ヒストリモードを開始する */
-			action_history();
-			return true;
-		}
-
-		/* コンフィグが左クリックされた場合 */
-		if (sysmenu_pointed_index == SYSMENU_CONFIG) {
-			/* SEを再生する */
-			play_se(conf_sysmenu_config_se);
-
-			/* システムメニューを終了する */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-
-			/* コンフィグモードを開始する */
-			action_config();
-			return true;
-		}
-
-		return false;
+	/* システムメニューが表示中でないとき */
+	if (!is_sysmenu) {
+		/* 折りたたみシステムメニューの処理を行う */
+		return process_collapsed_sysmenu(x, y, w, h);
 	}
+
+	/* 以下、システムメニューを表示中の場合 */
+
+	/* ポイントされているシステムメニューのボタンを求める */
+	old_sysmenu_pointed_index = sysmenu_pointed_index;
+	sysmenu_pointed_index = get_sysmenu_pointed_button();
+
+	/*
+	 * キャンセルの処理を行う
+	 *  - 右クリックされた場合
+	 *  - エスケープキーが押下された場合
+	 *  - ボタンのないところを左クリックされた場合
+	 */
+	if (is_right_clicked ||
+	    is_escape_pressed ||
+	    (is_left_clicked && sysmenu_pointed_index == SYSMENU_NONE)) {
+		/* SEを再生する */
+		play_se(conf_sysmenu_leave_se);
+
+		/* システムメニューを終了する */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+
+		/* 以降のクリック処理を行わない */
+		clear_input_state();
+		return true;
+	}
+
+	/* 状態に応じて、ポイント中の項目を無効にする */
+	adjust_sysmenu_pointed_index();
+
+	/* 左クリックされていない場合、何もしない */
+	if (!is_left_clicked)
+		return false;
+
+	/* システムメニューの項目がポイントされていない場合、何もしない */
+	if (sysmenu_pointed_index == SYSMENU_NONE)
+		return false;
+
+	/* ポイントされている項目に応じて処理する */
+	switch (sysmenu_pointed_index) {
+	case SYSMENU_QSAVE:
+		play_se(conf_sysmenu_qsave_se);
+		action_qsave();
+		break;
+	case SYSMENU_QLOAD:
+		play_se(conf_sysmenu_qload_se);
+		action_qload();
+		break;
+	case SYSMENU_SAVE:
+		play_se(conf_sysmenu_save_se);
+		action_save();
+		break;
+	case SYSMENU_LOAD:
+		play_se(conf_sysmenu_load_se);
+		action_load();
+		break;
+	case SYSMENU_AUTO:
+		play_se(conf_sysmenu_auto_se);
+		action_auto_start(x, y, w, h);
+		break;
+	case SYSMENU_SKIP:
+		play_se(conf_sysmenu_skip_se);
+		action_skip(x, y, w, h);
+		break;
+	case SYSMENU_HISTORY:
+		play_se(conf_sysmenu_history_se);
+		action_history();
+		break;
+	case SYSMENU_CONFIG:
+		play_se(conf_sysmenu_config_se);
+		action_config();
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	/* システムメニューを終了する */
+	is_sysmenu = false;
+	is_sysmenu_finished = true;
+
+	/* 以降のクリック処理を行わない */
+	clear_input_state();
+	return true;
+}
+
+/* 折りたてみシステムメニューの処理を行う */
+static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h)
+{
+	bool enter_sysmenu;
 
 	/* コンフィグでシステムメニューを表示しない場合 */
 	if (conf_sysmenu_hidden)
@@ -2375,39 +2300,60 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	if (is_skip_mode())
 		return false;
 
+	/* システムメニューに入るかを求める */
 	enter_sysmenu = false;
-
-	/* 右クリックされた場合と、エスケープキーが押下された場合 */
 	if (is_right_clicked || is_escape_pressed) {
+		/* 右クリックされた場合と、エスケープキーが押下された場合 */
+		enter_sysmenu = true;
+		clear_input_state();
+	} else if (is_left_clicked && is_collapsed_sysmenu_pointed()) {
+		/* 折りたたみシステムメニューがクリックされたとき */
 		enter_sysmenu = true;
 		clear_input_state();
 	}
 
-	/* 折りたたみシステムメニューがクリックされたとき */
-	if (is_left_clicked && is_collapsed_sysmenu_pointed()) {
-		enter_sysmenu = true;
-		clear_input_state();
-	}
+	/* システムメニューに入らないとき */
+	if (!enter_sysmenu)
+		return false;
 
-	/* システムメニューに入るとき */
-	if (enter_sysmenu) {
-		/* SEを再生する */
-		play_se(conf_sysmenu_enter_se);
+	/* システムメニューに入る */
 
-		/* システムメニューを表示する */
-		is_sysmenu = true;
-		is_sysmenu_first_frame = true;
-		is_sysmenu_finished = false;
-		sysmenu_pointed_index = get_sysmenu_pointed_button();
-		old_sysmenu_pointed_index = SYSMENU_NONE;
+	/* SEを再生する */
+	play_se(conf_sysmenu_enter_se);
 
-		/* メッセージボックス内のボタンをクリアする */
-		draw_buttons(x, y, w, h);
+	/* システムメニューを表示する */
+	is_sysmenu = true;
+	is_sysmenu_first_frame = true;
+	is_sysmenu_finished = false;
+	sysmenu_pointed_index = get_sysmenu_pointed_button();
+	old_sysmenu_pointed_index = SYSMENU_NONE;
+	adjust_sysmenu_pointed_index();
 
-		return true;
-	}
+	/* メッセージボックス内のボタンをクリアする */
+	draw_buttons(x, y, w, h);
 
-	return false;
+	return true;
+}
+
+/* 状態に応じて、ポイント中の項目を無効にする */
+static void adjust_sysmenu_pointed_index(void)
+{
+	/* セーブロードが無効な場合、セーブロードのポイントを無効にする */
+	if (!is_save_load_enabled() &&
+	    (sysmenu_pointed_index == SYSMENU_QSAVE ||
+	     sysmenu_pointed_index == SYSMENU_QLOAD ||
+	     sysmenu_pointed_index == SYSMENU_SAVE ||
+	     sysmenu_pointed_index == SYSMENU_LOAD))
+		sysmenu_pointed_index = SYSMENU_NONE;
+
+	/* クイックセーブデータがない場合、QLOADのポイントを無効にする */
+	if (!have_quick_save_data() &&
+	    sysmenu_pointed_index == SYSMENU_QLOAD)
+		sysmenu_pointed_index = SYSMENU_NONE;
+
+	/* 未読の場合、スキップのポイントを無効にする */
+	if (!is_skippable() && sysmenu_pointed_index == SYSMENU_SKIP)
+		sysmenu_pointed_index = SYSMENU_NONE;
 }
 
 /* 選択中のシステムメニューのボタンを取得する */
