@@ -28,7 +28,7 @@
  *  - Decomposed Unicode characters are not supported, use precomposed ones.
  *    (Unicodeの合成はサポートしないので、合成済みの文字列を使用してください)
  *
- * [読み解くにあたって]
+ * [Memo]
  *  - メッセージボックス内のボタンと、システムメニュー内のボタンがある
  *    - これらが呼び出す機能は同じ
  *    - メッセージボックスを隠すボタンは、メッセージボックス内のみにある
@@ -209,31 +209,6 @@ static bool gui_cmd_flag;
 static bool gui_sys_flag;
 
 /*
- * システム遷移フラグ
- */
-
-/* クイックロードを行ったか */
-static bool did_quick_load;
-
-/* クイックセーブを行うか */
-static bool will_quick_save;
-
-/* セーブモードに遷移するか */
-static bool need_save_mode;
-
-/* ロードモードに遷移するか */
-static bool need_load_mode;
-
-/* ヒストリモードに遷移するか */
-static bool need_history_mode;
-
-/* コンフィグモードに遷移するか */
-static bool need_config_mode;
-
-/* ロード/クイックロードに失敗したか */
-static bool is_load_failed;
-
-/*
  * 非表示
  */
 
@@ -249,6 +224,7 @@ static int pointed_index;
 
 /*
  * システムメニュー
+ *  - TODO: cmd_switch.cと共通化する
  */
 
 /* システムメニューを表示中か */
@@ -268,6 +244,32 @@ static bool is_sysmenu_finished;
 
 /* 折りたたみシステムメニューが前のフレームでポイントされていたか */
 static bool is_collapsed_sysmenu_pointed_prev;
+
+/*
+ * システム遷移フラグ
+ *  - TODO: cmd_switch.cと共通化する
+ */
+
+/* クイックセーブを行うか */
+static bool will_quick_save;
+
+/* クイックロードを行ったか */
+static bool did_quick_load;
+
+/* セーブモードに遷移するか */
+static bool need_save_mode;
+
+/* ロードモードに遷移するか */
+static bool need_load_mode;
+
+/* ヒストリモードに遷移するか */
+static bool need_history_mode;
+
+/* コンフィグモードに遷移するか */
+static bool need_config_mode;
+
+/* クイックロードに失敗したか */
+static bool is_quick_load_failed;
 
 /*
  * 前方参照
@@ -425,11 +427,10 @@ static bool preprocess(int *x, int *y, int *w, int *h)
 	/* メッセージボックス内のボタンを処理する */
 	if (frame_buttons(x, y, w, h)) {
 		/* ロードに失敗した場合 */
-		if (is_load_failed) {
+		if (is_quick_load_failed) {
 			/* 継続不能 */
 			return false;
 		}
-		
 
 		/* 入力がキャプチャされたので、ここでリターンする */
 		return true;
@@ -438,7 +439,7 @@ static bool preprocess(int *x, int *y, int *w, int *h)
 	/* システムメニューを処理する */
 	if (frame_sysmenu(x, y, w, h)) {
 		/* ロードに失敗した場合 */
-		if (is_load_failed) {
+		if (is_quick_load_failed) {
 			/* 継続不能 */
 			return false;
 		}
@@ -668,7 +669,7 @@ static void init_flags(void)
 	need_load_mode = false;
 	need_history_mode = false;
 	need_config_mode = false;
-	is_load_failed = false;
+	is_quick_load_failed = false;
 
 	/* システムメニューの状態設定を行う */
 	is_sysmenu = false;
@@ -1955,7 +1956,7 @@ static void action_qload(void)
 {
 	/* クイックロードを行う */
 	if (!quick_load()) {
-		is_load_failed = true;
+		is_quick_load_failed = true;
 		return;
 	}
 
