@@ -53,6 +53,7 @@
 #define BTN_HISTORY		(6)
 #define BTN_CONFIG		(7)
 #define BTN_HIDE		(8)
+#define MAX_BTN			(8)
 
 /* システムメニューのボタンのインデックス */
 #define SYSMENU_NONE		(-1)
@@ -303,6 +304,7 @@ static void init_click(void);
 static void init_first_draw_area(int *x, int *y, int *w, int *h);
 static void init_pointed_index(void);
 static int get_pointed_button(void);
+static void adjust_pointed_index(void);
 static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
 static void init_repetition(void);
 
@@ -621,7 +623,7 @@ static bool init(int *x, int *y, int *w, int *h)
 	/* 初回に描画する矩形を求める */
 	init_first_draw_area(x, y, w, h);
 
-	/* ボタンの選択状態を取得する */
+	/* ボタンの選択状態を初期化する */
 	init_pointed_index();
 
 	/* 繰り返し動作を設定する */
@@ -1372,36 +1374,24 @@ static void init_first_draw_area(int *x, int *y, int *w, int *h)
 /* 初期化処理においてポイントされているボタンを求め描画する */
 static void init_pointed_index(void)
 {
-	int bx, by, bw, bh;
+	int i, btn_x, btn_y, btn_w, btn_h;
 
 	/* ポイントされているボタンを求める */
 	pointed_index = get_pointed_button();
-	if (pointed_index == BTN_NONE)
-		return;
+	adjust_pointed_index();
 
-	/* セーブロードが無効な場合にセーブロードのボタンを無効化する */
-	if (!is_save_load_enabled() &&
-	    (pointed_index == BTN_QSAVE || pointed_index == BTN_QLOAD ||
-	     pointed_index == BTN_SAVE || pointed_index == BTN_LOAD)) {
-		pointed_index = BTN_NONE;
-		return;
-	}
-
-	/* クイックセーブデータがない場合にQLOADボタンを無効化する */
-	if (!have_quick_save_data() && pointed_index == BTN_QLOAD) {
-		pointed_index = BTN_NONE;
+	/* ボタンがポイントされていなければ、すべてのボタンをbgで塗りつぶす */
+	if (pointed_index == BTN_NONE) {
+		for (i = 0; i <= MAX_BTN; i++) {
+			get_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
+			clear_msgbox_rect_with_bg(btn_x, btn_y, btn_w, btn_h);
+		}
 		return;
 	}
 
-	/* 未読の場合にSKIPボタンを無効化する */
-	if (!is_skippable() && pointed_index == BTN_SKIP) {
-		pointed_index = BTN_NONE;
-		return;
-	}
-
-	/* ボタンを描画する */
-	get_button_rect(pointed_index, &bx, &by, &bw, &bh);
-	clear_msgbox_rect_with_fg(bx, by, bw, bh);
+	/* ポイントされているボタンのfgを描画する */
+	get_button_rect(pointed_index, &btn_x, &btn_y, &btn_w, &btn_h);
+	clear_msgbox_rect_with_fg(btn_x, btn_y, btn_w, btn_h);
 }
 
 /* 選択中のボタンを取得する */
@@ -1444,6 +1434,30 @@ static int get_pointed_button(void)
 
 	/* ボタンがポイントされていない */
 	return BTN_NONE;
+}
+
+/* 状況に応じてメッセージボックス内のボタンのポイントを無効化する */
+static void adjust_pointed_index(void)
+{
+	/* セーブロードが無効な場合にセーブロードのボタンを無効化する */
+	if (!is_save_load_enabled() &&
+	    (pointed_index == BTN_QSAVE || pointed_index == BTN_QLOAD ||
+	     pointed_index == BTN_SAVE || pointed_index == BTN_LOAD)) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
+	/* クイックセーブデータがない場合にQLOADボタンを無効化する */
+	if (!have_quick_save_data() && pointed_index == BTN_QLOAD) {
+		pointed_index = BTN_NONE;
+		return;
+	}
+
+	/* 未読の場合にSKIPボタンを無効化する */
+	if (!is_skippable() && pointed_index == BTN_SKIP) {
+		pointed_index = BTN_NONE;
+		return;
+	}
 }
 
 /* ボタンの座標を取得する */
@@ -1694,7 +1708,7 @@ static bool frame_buttons(int *x, int *y, int *w, int *h)
 {
 	/* ボタンを描画する */
 	if (draw_buttons(x, y, w, h)) {
-		/* アクティブ項目が変わったのでSEを再生する */
+		/* アクティブなボタンが変わったのでSEを再生する */
 		play_se(conf_msgbox_btn_change_se);
 	}
 
@@ -1723,58 +1737,48 @@ static bool frame_buttons(int *x, int *y, int *w, int *h)
 /* メッセージボックス内のボタンを描画する */
 static bool draw_buttons(int *x, int *y, int *w, int *h)
 {
-	int last_pointed_index, bx, by, bw, bh;
+	int last_pointed_index, btn_x, btn_y, btn_w, btn_h;
 
 	/* メッセージボックス非表示中は処理しない */
 	if (is_hidden)
 		return false;
 
-	/* 選択中のボタンを取得する */
+	/* ポイントされているボタンを取得する */
 	last_pointed_index = pointed_index;
 	pointed_index = get_pointed_button();
+	adjust_pointed_index();
 
-	/* 選択状態に変更がない場合 */
+	/* ポイント状態に変更がない場合 */
 	if (pointed_index == last_pointed_index)
 		return false;
 
-	/* 非アクティブになるボタンを描画する */
+	/* 非アクティブになるボタンのbgを描画する */
 	if (last_pointed_index != BTN_NONE) {
-		/* ボタンを描画する */
-		get_button_rect(last_pointed_index, &bx, &by, &bw, &bh);
-		clear_msgbox_rect_with_bg(bx, by, bw, bh);
+		get_button_rect(last_pointed_index, &btn_x, &btn_y, &btn_w,
+				&btn_h);
+		clear_msgbox_rect_with_bg(btn_x, btn_y, btn_w, btn_h);
 		union_rect(x, y, w, h,
 			   *x, *y, *w, *h,
-			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
+			   btn_x + conf_msgbox_x, btn_y + conf_msgbox_y,
+			   btn_w, btn_h);
 	}
 
-	/* アクティブになるボタンを描画する */
+	/* アクティブになるボタンのfgを描画する */
 	if (pointed_index != BTN_NONE) {
-		/* セーブロード無効時のQSAVE/QLOAD/SAVE/LOADボタンの場合 */
-		if (!is_save_load_enabled() &&
-		    (pointed_index == BTN_SAVE || pointed_index == BTN_QSAVE ||
-		     pointed_index == BTN_LOAD || pointed_index == BTN_QLOAD))
-			return false;
-
-		/* クイックセーブデータがない時のQLOADボタンの場合 */
-		if (!have_quick_save_data() && pointed_index == BTN_QLOAD)
-			return false;
-
-		/* 未読の場合のSKIPボタンの場合 */
-		if (!is_skippable() && pointed_index == BTN_SKIP)
-			return false;
-
-		/* ボタンを描画する */
-		get_button_rect(pointed_index, &bx, &by, &bw, &bh);
-		clear_msgbox_rect_with_fg(bx, by, bw, bh);
+		get_button_rect(pointed_index, &btn_x, &btn_y, &btn_w, &btn_h);
+		clear_msgbox_rect_with_fg(btn_x, btn_y, btn_w, btn_h);
 		union_rect(x, y, w, h,
 			   *x, *y, *w, *h,
-			   bx + conf_msgbox_x, by + conf_msgbox_y, bw, bh);
-
-		/* ボタンが変更された */
-		return true;
+			   btn_x + conf_msgbox_x, btn_y + conf_msgbox_y,
+			   btn_w, btn_h);
 	}
 
-	return false;
+	/* ポイントが解除された場合 */
+	if (pointed_index == BTN_NONE)
+		return false;
+
+	/* SEを再生する */
+	return true;
 }
 
 /* メッセージボックス内のボタンのクリックを処理する */
