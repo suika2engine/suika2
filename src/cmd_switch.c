@@ -15,6 +15,7 @@
  *  - 2017/10/31 効果音に対応
  *  - 2019/09/17 NEWSに対応
  *  - 2022/06/17 @chooseに対応、@newsの設定項目を@switchに統合
+ *  - 2023/06/26 リファクタリング
  */
 
 /*
@@ -37,6 +38,9 @@
  *    - コンフィグのsysmenu.hidden=1は選択肢コマンドには影響しない
  *      - 常に折りたたみシステムメニューかシステムメニューが表示される
  *      - 理由は他にセーブ・ロードの手段がないから
+ *
+ * [TODO]
+ *  - システムメニュー処理はcmd_switch.cと重複するので、sysmenu.cに分離する
  */
 
 #include "suika.h"
@@ -234,6 +238,14 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h);
 static void draw_frame_child(int *x, int *y, int *w, int *h);
 static int get_pointed_parent_index(void);
 static int get_pointed_child_index(void);
+static void draw_fo_fi_parent(void);
+static void draw_switch_parent_images(void);
+static void update_switch_parent(int *x, int *y, int *w, int *h);
+static void draw_fo_fi_child(void);
+static void draw_switch_child_images(void);
+static void update_switch_child(int *x, int *y, int *w, int *h);
+static void draw_text(int x, int y, int w, const char *t, bool is_news);
+static void draw_keep(void);
 
 /* システムメニュー */
 static void draw_sysmenu(int *x, int *y, int *w, int *h);
@@ -248,15 +260,6 @@ static void play_se(const char *file);
 
 /* クリーンアップ */
 static bool cleanup(void);
-
-static void draw_fo_fi_parent(void);
-static void draw_switch_parent_images(void);
-static void update_switch_parent(int *x, int *y, int *w, int *h);
-static void draw_fo_fi_child(void);
-static void draw_switch_child_images(void);
-static void update_switch_child(int *x, int *y, int *w, int *h);
-static void draw_text(int x, int y, int w, const char *t, bool is_news);
-static void draw_keep(void);
 
 /*
  * switchコマンド
