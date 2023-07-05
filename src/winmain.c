@@ -366,7 +366,7 @@ static void CleanupApp(void)
 		hWndDC = NULL;
 	}
 
-	if (!bOpenGL)
+	if (!bOpenGL && !bD3D)
 	{
 		/* バックイメージのビットマップを破棄する */
 		if (hBitmap != NULL)

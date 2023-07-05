@@ -71,7 +71,7 @@ void cleanup_game_loop(void);
  * コマンドの実装
  */
 
-bool message_command(int *x, int *y, int *w, int *h);
+bool message_command(int *x, int *y, int *w, int *h, bool *cont);
 bool bg_command(int *x, int *y, int *w, int *h);
 bool bgm_command(void);
 bool ch_command(int *x, int *y, int *w, int *h);
@@ -108,12 +108,15 @@ void stop_command_repetition(void);
 bool is_in_command_repetition(void);
 
 /*
- * 現在表示中のメッセージがヒストリに登録済みであるかの設定
+ * メッセージの表示中状態の設定
+ *  - メッセージ表示中にシステムGUIに移動した場合、「表示中」状態が保持される
+ *  - メッセージコマンドから次のコマンドに進むときにクリアされる
+ *  - ロードされてもクリアされる
  */
 
-void set_message_registered(void);
-void clear_message_registered(void);
-bool is_message_registered(void);
+void set_message_active(void);
+void clear_message_active(void);
+bool is_message_active(void);
 
 /*
  * コマンドが終了した直後であるかのチェック

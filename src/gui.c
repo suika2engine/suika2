@@ -903,10 +903,21 @@ static bool move_to_title(void)
 	if (is_in_command_repetition())
 		stop_command_repetition();
 
+	/*
+	 * メッセージ・スイッチの最中に呼ばれた場合
+	 *  - この場合はシステムGUIから戻ったという扱いにしない
+	 */
+	if (is_called_from_command)
+		is_called_from_command = false;
+
+	/* メッセージをアクティブでなくする */
+	if (is_message_active())
+		clear_message_active();
+
 	/* GUIを終了する */
 	stop_gui_mode();
 	cleanup_gui();
-
+	
 	return true;
 }
 

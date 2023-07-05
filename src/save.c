@@ -278,6 +278,13 @@ bool quick_save(void)
 {
 	uint64_t timestamp;
 
+	/*
+	 * サムネイルを作成する
+	 *  - GUIを経由しないのでここで作成する
+	 *  - ただし、現状ではクイックセーブデータのサムネイルは未使用
+	 */
+	draw_stage_to_thumb();
+
 	/* ローカルデータのシリアライズを行う */
 	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp, -1))
 		return false;
@@ -679,6 +686,9 @@ bool quick_load(void)
 #endif
 
 	load_flag = true;
+
+	clear_message_active();
+
 	return true;
 }
 
@@ -716,6 +726,9 @@ bool execute_load(int index)
 #endif
 
 	load_flag = true;
+
+	clear_message_active();
+
 	return true;
 }
 
