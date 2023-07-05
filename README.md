@@ -53,6 +53,10 @@ Download the latest prebuilt binaries from [the releases page](https://github.co
 
 **Note:** The provided ZIP files contain binaries for both Windows and Mac.
 
+## Canary Release:
+
+If you want to try our preview features, please see Github Action.
+
 ## Building from Source
 
 See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source).
