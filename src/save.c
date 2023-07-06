@@ -687,7 +687,8 @@ bool quick_load(void)
 
 	load_flag = true;
 
-	clear_message_active();
+	if (is_message_active())
+		clear_message_active();
 
 	return true;
 }
@@ -727,7 +728,8 @@ bool execute_load(int index)
 
 	load_flag = true;
 
-	clear_message_active();
+	if (is_message_active())
+		clear_message_active();
 
 	return true;
 }
