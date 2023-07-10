@@ -2312,7 +2312,7 @@ static void process_char(int index)
 	orig = get_name_variable(b->namevar);
 
 	/* すでに最大文字数まで到達している場合 */
-	if (utf8_chars(orig) > b->max)
+	if (utf8_chars(orig) >= b->max)
 		return;
 
 	/* 末尾に追加した文字列を作成する */
