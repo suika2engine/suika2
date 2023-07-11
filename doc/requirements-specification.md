@@ -3496,6 +3496,14 @@ s2_set_config("msgbox.bg.file", "msgbox-bg.png");
 s2_reflect_msgbox_and_namebox_config();
 ```
 
+### Updating Font
+
+`s2_reflect_font_config()` reflects the configuration changes to the font drawing subsystem.
+
+```
+s2_reflect_font_config();
+```
+
 ### Clearing Message History
 
 `s2_clear_history()` clears the message history.
