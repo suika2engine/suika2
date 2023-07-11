@@ -18,7 +18,9 @@
 #define UNIMPLEMENTED		(0)
 
 #define AST_MEM_CHECK(p)	do { if (p == NULL) { out_of_memory(); return NULL; } } while (0)
-#define RT_MEM_CHECK(p)		do { if (p == NULL) { return rterror(rt, "Out of memory"); } } while (0)
+#define AST_MEM_CHECK2(p, q)	do { if (p == NULL) { out_of_memory(); free(q); return NULL; } } while (0)
+#define RT_MEM_CHECK(p)		do { if (p == NULL) { rterror(rt, "Out of memory"); return false; } } while (0)
+#define RT_MEM_CHECK2(p, q)	do { if (p == NULL) { rterror(rt, "Out of memory"); free(q); return false; } } while (0)
 
 /*
  * Generated AST
@@ -206,7 +208,7 @@ wms_make_param_list(
 
 	if (param_list == NULL) {
 		param_list = malloc(sizeof(struct wms_param_list));
-		AST_MEM_CHECK(param_list);
+		AST_MEM_CHECK2(param_list, param);
 		memset(param_list, 0, sizeof(struct wms_param_list));
 		param_list->list = param;
 		return param_list;
@@ -281,7 +283,7 @@ wms_make_stmt_with_expr(
 	stmt->type.is_expr = 1;
 
 	expr_stmt = malloc(sizeof(struct wms_expr_stmt));
-	AST_MEM_CHECK(expr_stmt);
+	AST_MEM_CHECK2(expr_stmt, stmt);
 	memset(expr_stmt, 0, sizeof(struct wms_expr_stmt));
 	expr_stmt->expr = expr;
 
@@ -303,7 +305,7 @@ wms_make_stmt_with_symbol_assign(
 	stmt->type.is_assign = 1;
 
 	assign_stmt = malloc(sizeof(struct wms_assign_stmt));
-	AST_MEM_CHECK(assign_stmt);
+	AST_MEM_CHECK2(assign_stmt, stmt);
 	memset(assign_stmt, 0, sizeof(struct wms_assign_stmt));
 	assign_stmt->type.is_var = 1;
 	assign_stmt->lhs.symbol = symbol;
@@ -328,7 +330,7 @@ wms_make_stmt_with_array_assign(
 	stmt->type.is_assign = 1;
 
 	assign_stmt = malloc(sizeof(struct wms_assign_stmt));
-	AST_MEM_CHECK(assign_stmt);
+	AST_MEM_CHECK2(assign_stmt, stmt);
 	memset(assign_stmt, 0, sizeof(struct wms_assign_stmt));
 	assign_stmt->type.is_array = 1;
 	assign_stmt->lhs.array.symbol = symbol;
@@ -353,7 +355,7 @@ wms_make_stmt_with_if(
 	stmt->type.is_if = 1;
 
 	if_stmt = malloc(sizeof(struct wms_if_stmt));
-	AST_MEM_CHECK(if_stmt);
+	AST_MEM_CHECK2(if_stmt, stmt);
 	memset(if_stmt, 0, sizeof(struct wms_if_stmt));
 	if_stmt->cond = cond;
 	if_stmt->stmt_list = stmt_list;
@@ -374,7 +376,7 @@ wms_make_stmt_with_elif(struct wms_expr *cond, struct wms_stmt_list *stmt_list)
 	stmt->type.is_elif = 1;
 
 	elif_stmt = malloc(sizeof(struct wms_elif_stmt));
-	AST_MEM_CHECK(elif_stmt);
+	AST_MEM_CHECK2(elif_stmt, stmt);
 	memset(elif_stmt, 0, sizeof(struct wms_elif_stmt));
 	elif_stmt->cond = cond;
 	elif_stmt->stmt_list = stmt_list;
@@ -396,7 +398,7 @@ wms_make_stmt_with_else(
 	stmt->type.is_else = 1;
 
 	else_stmt = malloc(sizeof(struct wms_else_stmt));
-	AST_MEM_CHECK(else_stmt);
+	AST_MEM_CHECK2(else_stmt, stmt);
 	memset(else_stmt, 0, sizeof(struct wms_else_stmt));
 	else_stmt->stmt_list = stmt_list;
 
@@ -418,7 +420,7 @@ wms_make_stmt_with_while(
 	stmt->type.is_while = 1;
 
 	while_stmt = malloc(sizeof(struct wms_while_stmt));
-	AST_MEM_CHECK(while_stmt);
+	AST_MEM_CHECK2(while_stmt, stmt);
 	memset(while_stmt, 0, sizeof(struct wms_while_stmt));
 	while_stmt->cond = cond;
 	while_stmt->stmt_list = stmt_list;
@@ -443,7 +445,7 @@ wms_make_stmt_with_for(
 	stmt->type.is_for = 1;
 
 	for_stmt = malloc(sizeof(struct wms_for_stmt));
-	AST_MEM_CHECK(for_stmt);
+	AST_MEM_CHECK2(for_stmt, stmt);
 	memset(for_stmt, 0, sizeof(struct wms_for_stmt));
 	for_stmt->is_range = false;
 	for_stmt->key_symbol = key;
@@ -471,7 +473,7 @@ wms_make_stmt_with_for_range(
 	stmt->type.is_for = 1;
 
 	for_stmt = malloc(sizeof(struct wms_for_stmt));
-	AST_MEM_CHECK(for_stmt);
+	AST_MEM_CHECK2(for_stmt, stmt);
 	memset(for_stmt, 0, sizeof(struct wms_for_stmt));
 	for_stmt->is_range = true;
 	for_stmt->start = start;
@@ -496,7 +498,7 @@ wms_make_stmt_with_return(
 	stmt->type.is_return = 1;
 
 	return_stmt = malloc(sizeof(struct wms_return_stmt));
-	AST_MEM_CHECK(return_stmt);
+	AST_MEM_CHECK2(return_stmt, stmt);
 	memset(return_stmt, 0, sizeof(struct wms_return_stmt));
 	return_stmt->expr = expr;
 
@@ -903,6 +905,8 @@ free_func(
 static void
 free_param(struct wms_param *param)
 {
+	assert(param != NULL);
+
 	if (param->next != NULL)
 		free_param(param->next);
 
@@ -985,9 +989,10 @@ free_expr(
 	} else if (expr->type.is_lt || expr->type.is_lte ||
 		   expr->type.is_gt || expr->type.is_gte ||
 		   expr->type.is_lt || expr->type.is_lte || expr->type.is_eq ||
-		   expr->type.is_plus || expr->type.is_minus ||
-		   expr->type.is_mul || expr->type.is_div ||
-		   expr->type.is_and || expr->type.is_or) {
+		   expr->type.is_neq || expr->type.is_plus ||
+		   expr->type.is_minus || expr->type.is_mul ||
+		   expr->type.is_div || expr->type.is_and ||
+		   expr->type.is_or) {
 		free_expr(expr->val.expr[0]);
 		free_expr(expr->val.expr[1]);
 	} else if (expr->type.is_neg) {
@@ -1240,6 +1245,9 @@ eval_stmt(
 	assert(val != NULL);
 
 	rt->cur_stmt_line = stmt->line;
+
+	/* Avoid clang memory analyzer's false positive.  */
+	memset(val, 0, sizeof(struct wms_value));
 
 	if (stmt->type.is_empty) {
 		*val = value_by_int(0);
@@ -1596,6 +1604,8 @@ eval_expr(
 	assert(rt != NULL);
 	assert(expr != NULL);
 	assert(val != NULL);
+
+	memset(val, 0, sizeof(struct wms_value));
 
 	if (expr->type.is_term) {
 		return eval_term(rt, expr->val.term, val);
@@ -1956,8 +1966,10 @@ calc_str_plus_int(
 	RT_MEM_CHECK(tmp);
 	strcpy(tmp, s1);
 	strcat(tmp, s2);
-	if (!value_by_str(rt, result, tmp))
+	if (!value_by_str(rt, result, tmp)) {
+		free(tmp);
 		return false;
+	}
 	free(tmp);
 	return true;
 }
@@ -1986,8 +1998,10 @@ calc_str_plus_float(
 	RT_MEM_CHECK(tmp);
 	strcpy(tmp, s1);
 	strcat(tmp, s2);
-	if (!value_by_str(rt, result, tmp))
+	if (!value_by_str(rt, result, tmp)) {
+		free(tmp);
 		return false;
+	}
 	free(tmp);
 	return true;
 }
@@ -2015,8 +2029,10 @@ calc_str_plus_str(
 	RT_MEM_CHECK(tmp);
 	strcpy(tmp, s1);
 	strcat(tmp, s2);
-	if (!value_by_str(rt, result, tmp))
+	if (!value_by_str(rt, result, tmp)) {
+		free(tmp);
 		return false;
+	}
 	free(tmp);
 	return true;
 }
@@ -2494,7 +2510,7 @@ put_scalar_value(
 	RT_MEM_CHECK(var);
 	memset(var, 0, sizeof(struct wms_variable));
 	var->name = strdup(symbol);
-	RT_MEM_CHECK(var->name);
+	RT_MEM_CHECK2(var->name, var);
 	var->val = val;
 	var->next = rt->frame->var_list;
 	rt->frame->var_list = var;
@@ -2528,11 +2544,14 @@ put_array_elem_value(
 		RT_MEM_CHECK(var);
 		memset(var, 0, sizeof(struct wms_variable));
 		var->name = strdup(symbol);
-		RT_MEM_CHECK(var->name);
+		RT_MEM_CHECK2(var->name, var);
 		var->val.type.is_array = 1;
 		var->val.val.a_index = alloc_elem_index(rt, true);
-		if (var->val.val.a_index == -1)
+		if (var->val.val.a_index == -1) {
+			free(var->name);
+			free(var);
 			return false;
+		}
 		var->next = rt->frame->var_list;
 		rt->frame->var_list = var;
 	} else if (!var->val.type.is_array) {
@@ -2570,7 +2589,9 @@ put_array_elem_value_helper(
 		increment_array_ref(rt, val.val.a_index);
 
 	/* Find an element. */
+	assert(array.val.a_index != -1);
 	head = get_array_head(rt, array.val.a_index);
+	assert(head != NULL);
 	elem = head->next;
 	while (elem != NULL) {
 		if (compare_values(rt, elem->index, index) == 0) {
@@ -3142,20 +3163,37 @@ register_ffi_func(
 	memset(ff, 0, sizeof(struct wms_ffi_func));
 	ff->func = func_ptr;
 	ff->name = strdup(func_name);
-	RT_MEM_CHECK(ff->name);
+	RT_MEM_CHECK2(ff->name, ff);
 	if (param_name[0] != NULL) {
 		ff->param_list = malloc(sizeof(struct wms_param_list));
-		RT_MEM_CHECK(ff->param_list);
+		if (ff->param_list == NULL) {
+			free(ff->name);
+			free(ff);
+			return NULL;
+		}
 		memset(ff->param_list, 0, sizeof(struct wms_param_list));
 
 		i = 0;
 		prev_param = NULL;
 		while (param_name[i] != NULL) {
 			param = malloc(sizeof(struct wms_param));
-			RT_MEM_CHECK(param);
+			if (param == NULL) {
+				free(ff->name);
+				free_param(ff->param_list->list);
+				free(ff->param_list);
+				free(ff);
+				return NULL;
+			}
 			memset(param, 0, sizeof(struct wms_param));
 			param->symbol = strdup(param_name[i]);
-			RT_MEM_CHECK(param->symbol);
+			if (param->symbol == NULL) {
+				free(param);
+				free_param(ff->param_list->list);
+				free(ff->param_list);
+				free(ff->name);
+				free(ff);
+				return NULL;
+			}
 			if (prev_param == NULL) {
 				ff->param_list->list = param;
 				prev_param = param;
@@ -3292,6 +3330,7 @@ wms_get_first_array_elem(
 	assert(array != NULL);
 	assert(array->type.is_array);
 
+	assert(array->val.a_index != -1);
 	return get_array_head(rt, array->val.a_index)->next;
 }
 
@@ -3409,7 +3448,7 @@ wms_make_array_var(
 	RT_MEM_CHECK(var);
 	memset(var, 0, sizeof(struct wms_variable));
 	var->name = strdup(symbol);
-	RT_MEM_CHECK(var->name);
+	RT_MEM_CHECK2(var->name, var);
 	var->val = array;
 	var->next = rt->frame->var_list;
 	rt->frame->var_list = var;
@@ -3433,6 +3472,7 @@ wms_get_array_elem(
 	assert(!index->type.is_array);
 	assert(ret != NULL);
 
+	assert(array->val.a_index != -1);
 	elem = get_array_head(rt, array->val.a_index)->next;
 	while (elem != NULL) {
 		if (compare_values(rt, elem->index, *index) == 0) {
