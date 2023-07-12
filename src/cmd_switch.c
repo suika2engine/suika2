@@ -322,8 +322,10 @@ static void main_process(int *x, int *y, int *w, int *h)
 static bool postprocess(void)
 {
 	/* クイックロードされた場合は処理しない */
-	if (did_quick_load)
+	if (did_quick_load) {
+		stop_command_repetition();
 		return true;
+	}
 
 	/*
 	 * 必要な場合は繰り返し動作を停止する
