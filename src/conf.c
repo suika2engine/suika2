@@ -1369,6 +1369,7 @@ bool overwrite_config(const char *key, const char *val)
 				if (rule_tbl[i].val != NULL)
 					free(*(char **)rule_tbl[i].val);
 
+				assert(rule_tbl[i].val != NULL);
 				*(char **)rule_tbl[i].val = s;
 				break;
 			default:

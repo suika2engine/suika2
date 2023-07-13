@@ -1040,7 +1040,6 @@ void draw_image_melt(struct image * RESTRICT dst_image,
 
 			/* アルファ値を計算する */
 			rule_a = (float)get_pixel_c1(rule_pix) / 255.0f;
-			src_a = (float)get_pixel_a(src_pix) / 255.0f;
 			src_a = 2.0f * ((float)threshold / 255.0f) - rule_a;
 			src_a = src_a < 0 ? 0 : src_a;
 			src_a = src_a > 1.0f ? 1.0f : src_a;
