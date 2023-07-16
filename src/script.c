@@ -160,7 +160,7 @@ struct insn_item {
 
 	/* スキップ設定 */
 	{"@skip", COMMAND_SKIP, 1, 1},
-	{"@スキップ", COMMAND_SKIP, 1, 1},
+	{U8("@スキップ"), COMMAND_SKIP, 1, 1},
 
 	/* その他 */
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
