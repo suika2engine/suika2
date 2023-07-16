@@ -235,6 +235,7 @@ static bool write_archive_file(const char *base_dir)
 			break;
 		if (!write_file_bodies(base_dir, fp))
 			break;
+		fclose(fp);
 		success = true;
 	} while (0);
 
