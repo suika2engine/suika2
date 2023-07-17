@@ -1,6 +1,5 @@
 name: suika-testcases
 on:
-  push:
   pull_request:
 jobs:
   build:
@@ -33,3 +32,7 @@ jobs:
         with:
           name: suika-test-report
           path: build/linux-x86_64-replay/lcovoutput
+      - name: Post
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: summary
