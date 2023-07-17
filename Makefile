@@ -24,6 +24,19 @@ do-release:
 	cd build && \
 	./do-release.sh
 
+test: replay
+	rm -rf testcases && \
+	git clone https://github.com/suika2engine/testcases.git && \
+	cd testcases && \
+	xvfb-run --server-args=":99 -screen 0 1920x1080x24" ./run.sh
+
+replay: build/linux-x86_64-replay/suika-replay
+	cd build/linux-x86_64-replay && \
+	./build-libs.sh && \
+	make
+
+build/linux-x86_64-replay/suika-replay:
+
 #
 # The following targets have to be executed on macOS device.
 #

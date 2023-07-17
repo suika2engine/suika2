@@ -21,12 +21,4 @@ jobs:
           echo Installing mesa-common-dev
           sudo apt-get install -y mesa-common-dev
           sudo apt-get install -y xvfb
-          cd build/linux-x86_64-replay
-          ./build-libs.sh
-          make
-          cd ../../
-          gh repo clone suika2engine/testcases
-          cd testcases
-          export DISPLAY=':99.0'
-          Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
-          ./run.sh
+          make test
