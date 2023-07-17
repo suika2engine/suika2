@@ -168,4 +168,18 @@ void set_running_state(bool running, bool request_stop);
 void update_debug_info(bool script_changed);
 #endif
 
+#ifdef USE_CAPTURE
+/* キャプチャモジュールを初期化する */
+bool init_capture(void);
+
+/* キャプチャモジュールを終了する */
+void cleanup_capture(void);
+
+/* 入力をキャプチャする */
+void capture_input(void);
+
+/* 出力をキャプチャする */
+bool capture_output(void);
+#endif
+
 #endif
