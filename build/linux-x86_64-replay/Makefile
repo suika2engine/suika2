@@ -2,7 +2,7 @@
 # Toolchain selection
 #
 
-CC = clang
+CC = gcc
 
 #
 # CPPFLAGS
@@ -19,7 +19,8 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O0 -g3 \
+	-coverage \
+	-O3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-std=gnu89 \
@@ -34,6 +35,7 @@ CFLAGS = \
 #
 
 LDFLAGS = \
+	-coverage \
 	-lm \
 	-lpthread \
 	-lasound \

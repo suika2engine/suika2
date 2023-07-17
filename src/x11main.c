@@ -860,7 +860,11 @@ static bool wait_for_next_frame(void)
 	struct timeval tv_end;
 	uint32_t lap, wait, span;
 
+#ifndef USE_CAPTURE
 	span = is_opengl ? FRAME_MILLI / 2 : FRAME_MILLI;
+#else
+	span = 1;
+#endif
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -886,6 +890,7 @@ static bool wait_for_next_frame(void)
 		/* スリープする */
 		usleep(wait * 1000);
 	} while(wait > 0);
+
 	return true;
 }
 

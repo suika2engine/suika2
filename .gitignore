@@ -55,6 +55,8 @@ build/linux-x86_64-clang/libroot
 build/linux-x86_64-clang/suika
 
 build/linux-x86_64-replay/*.o
+build/linux-x86_64-replay/*.gcda
+build/linux-x86_64-replay/*.gcno
 build/linux-x86_64-replay/libroot
 build/linux-x86_64-replay/suika-replay
 
