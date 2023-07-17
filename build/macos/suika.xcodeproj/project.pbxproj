@@ -52,6 +52,65 @@
 		260349752854B29800037370 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
 		2603497D2854B61F00037370 /* nsdebug.m in Sources */ = {isa = PBXBuildFile; fileRef = 2603497C2854B61F00037370 /* nsdebug.m */; };
 		2608233C26724676009D979A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
+		260AFFC02A65633C002E3FF4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 267078FA2916513C003C61C1 /* MainMenu.xib */; };
+		260AFFC22A656386002E3FF4 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 260AFFC12A656386002E3FF4 /* Info.plist */; };
+		260AFFC32A656395002E3FF4 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2603497A2854B29800037370 /* Info.plist */; };
+		260AFFC42A656399002E3FF4 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACEA25EE5846005D9C49 /* Info.plist */; };
+		260AFFC52A6563AB002E3FF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
+		260AFFC62A6563CF002E3FF4 /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780525EE5DD0006A1ED4 /* aunit.c */; };
+		260AFFC72A6563D8002E3FF4 /* cmd_se.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782725EE5DD0006A1ED4 /* cmd_se.c */; };
+		260AFFC82A6563D8002E3FF4 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26557B0D26785269000CDD10 /* cmd_setsave.c */; };
+		260AFFC92A6563D8002E3FF4 /* cmd_menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780625EE5DD0006A1ED4 /* cmd_menu.c */; };
+		260AFFCA2A6563D8002E3FF4 /* cmd_switch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780725EE5DD0006A1ED4 /* cmd_switch.c */; };
+		260AFFCB2A6563D8002E3FF4 /* cmd_wms.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBC295953E5007D092D /* cmd_wms.c */; };
+		260AFFCC2A6563D8002E3FF4 /* cmd_message.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780125EE5DD0006A1ED4 /* cmd_message.c */; };
+		260AFFCD2A6563D8002E3FF4 /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 268C79C226A56A7000981FB1 /* cmd_chs.c */; };
+		260AFFCE2A6563D8002E3FF4 /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
+		260AFFCF2A6563D8002E3FF4 /* cmd_return.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780225EE5DD0006A1ED4 /* cmd_return.c */; };
+		260AFFD02A6563D8002E3FF4 /* cmd_bg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177FB25EE5DD0006A1ED4 /* cmd_bg.c */; };
+		260AFFD12A6563D8002E3FF4 /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780D25EE5DD0006A1ED4 /* conf.c */; };
+		260AFFD22A6563D8002E3FF4 /* cmd_retrospect.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780E25EE5DD0006A1ED4 /* cmd_retrospect.c */; };
+		260AFFD32A6563D8002E3FF4 /* cmd_gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 261B31F128991145006BCD68 /* cmd_gui.c */; };
+		260AFFD42A6563D8002E3FF4 /* cmd_vol.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781425EE5DD0006A1ED4 /* cmd_vol.c */; };
+		260AFFD52A6563D8002E3FF4 /* cmd_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782925EE5DD0006A1ED4 /* cmd_ch.c */; };
+		260AFFD62A6563D8002E3FF4 /* cmd_load.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781C25EE5DD0006A1ED4 /* cmd_load.c */; };
+		260AFFD72A6563D8002E3FF4 /* cmd_skip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2646C360284C635D00DF86E1 /* cmd_skip.c */; };
+		260AFFD82A6563D8002E3FF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
+		260AFFD92A6563D8002E3FF4 /* cmd_if.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782125EE5DD0006A1ED4 /* cmd_if.c */; };
+		260AFFDA2A6563D8002E3FF4 /* cmd_gosub.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177FA25EE5DD0006A1ED4 /* cmd_gosub.c */; };
+		260AFFDB2A6563D8002E3FF4 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
+		260AFFDC2A6563D8002E3FF4 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
+		260AFFDD2A6563D8002E3FF4 /* cmd_wait.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782625EE5DD0006A1ED4 /* cmd_wait.c */; };
+		260AFFDE2A6563D8002E3FF4 /* cmd_bgm.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781F25EE5DD0006A1ED4 /* cmd_bgm.c */; };
+		260AFFDF2A6563D8002E3FF4 /* cmd_click.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782A25EE5DD0006A1ED4 /* cmd_click.c */; };
+		260AFFE02A6563D8002E3FF4 /* cmd_goto.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781E25EE5DD0006A1ED4 /* cmd_goto.c */; };
+		260AFFE12A6563D8002E3FF4 /* cmd_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780825EE5DD0006A1ED4 /* cmd_set.c */; };
+		260AFFE22A6563DE002E3FF4 /* event.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781825EE5DD0006A1ED4 /* event.c */; };
+		260AFFE32A6563E1002E3FF4 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F925EE5DD0006A1ED4 /* file.c */; };
+		260AFFE42A6563E4002E3FF4 /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
+		260AFFE52A6563E7002E3FF4 /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781B25EE5DD0006A1ED4 /* glyph.c */; };
+		260AFFE62A6563E9002E3FF4 /* gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 261B31F228991145006BCD68 /* gui.c */; };
+		260AFFE72A6563EC002E3FF4 /* history.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781A25EE5DD0006A1ED4 /* history.c */; };
+		260AFFE82A6563F0002E3FF4 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781225EE5DD0006A1ED4 /* image.c */; };
+		260AFFE92A6563F9002E3FF4 /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780A25EE5DD0006A1ED4 /* mixer.c */; };
+		260AFFEA2A6563F9002E3FF4 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782425EE5DD0006A1ED4 /* log.c */; };
+		260AFFEB2A6563F9002E3FF4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F725EE5DD0006A1ED4 /* main.c */; };
+		260AFFEC2A65641C002E3FF4 /* nsmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F625EE5DD0006A1ED4 /* nsmain.m */; };
+		260AFFED2A65641C002E3FF4 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26239188288C024100C7DF81 /* readjpeg.c */; };
+		260AFFEE2A65641C002E3FF4 /* uimsg.c in Sources */ = {isa = PBXBuildFile; fileRef = 267079002917992E003C61C1 /* uimsg.c */; };
+		260AFFF02A65641C002E3FF4 /* wms_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBA295953E5007D092D /* wms_impl.c */; };
+		260AFFF12A65641C002E3FF4 /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780025EE5DD0006A1ED4 /* readimage.c */; };
+		260AFFF22A65641C002E3FF4 /* wave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780F25EE5DD0006A1ED4 /* wave.c */; };
+		260AFFF32A65641C002E3FF4 /* wms_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBB295953E5007D092D /* wms_core.c */; };
+		260AFFF42A65641C002E3FF4 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
+		260AFFF52A65641C002E3FF4 /* stage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177FF25EE5DD0006A1ED4 /* stage.c */; };
+		260AFFF62A65641C002E3FF4 /* save.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781925EE5DD0006A1ED4 /* save.c */; };
+		260AFFF72A65641C002E3FF4 /* seen.c in Sources */ = {isa = PBXBuildFile; fileRef = 26616DC826B4CED20094B23C /* seen.c */; };
+		260AFFF82A65641C002E3FF4 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A177F425EE5DD0006A1ED4 /* script.c */; };
+		260AFFFA2A65641C002E3FF4 /* vars.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781725EE5DD0006A1ED4 /* vars.c */; };
+		260AFFFB2A65641C002E3FF4 /* wms_lexer.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB8295953E5007D092D /* wms_lexer.yy.c */; };
+		260AFFFC2A656421002E3FF4 /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
+		260AFFFE2A65664E002E3FF4 /* nscapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 260AFFFD2A65664E002E3FF4 /* nscapture.m */; };
 		260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
 		2617E957282BF6F500637615 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
 		261B31F428991145006BCD68 /* cmd_gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 261B31F128991145006BCD68 /* cmd_gui.c */; };
@@ -130,6 +189,9 @@
 		2603497B2854B5FF00037370 /* nsdebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nsdebug.h; path = ../../../src/nsdebug.h; sourceTree = "<group>"; };
 		2603497C2854B61F00037370 /* nsdebug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nsdebug.m; path = ../../../src/nsdebug.m; sourceTree = "<group>"; };
 		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
+		260AFFB02A655F79002E3FF4 /* suika-capture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "suika-capture.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		260AFFC12A656386002E3FF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = "suika-capture/Info.plist"; sourceTree = SOURCE_ROOT; };
+		260AFFFD2A65664E002E3FF4 /* nscapture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nscapture.m; path = ../../../src/nscapture.m; sourceTree = "<group>"; };
 		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
 		2617E956282BF6F500637615 /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../../src/cmd_video.c; sourceTree = "<group>"; };
 		261B31F128991145006BCD68 /* cmd_gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_gui.c; path = ../../../src/cmd_gui.c; sourceTree = "<group>"; };
@@ -239,6 +301,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		260AFFAD2A655F79002E3FF4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		26B8ACDC25EE5845005D9C49 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -272,6 +341,7 @@
 			children = (
 				26B8ACDF25EE5845005D9C49 /* suika.app */,
 				260349792854B29800037370 /* suika-pro.app */,
+				260AFFB02A655F79002E3FF4 /* suika-capture.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -287,6 +357,7 @@
 				265EA7CD2857372300A02167 /* InfoPlist.strings */,
 				26B8ACEA25EE5846005D9C49 /* Info.plist */,
 				2603497A2854B29800037370 /* Info.plist */,
+				260AFFC12A656386002E3FF4 /* Info.plist */,
 				26B8ACED25EE5846005D9C49 /* suika.entitlements */,
 				26A1780525EE5DD0006A1ED4 /* aunit.c */,
 				26A1782B25EE5DD0006A1ED4 /* aunit.h */,
@@ -346,6 +417,7 @@
 				2603497B2854B5FF00037370 /* nsdebug.h */,
 				26A177F625EE5DD0006A1ED4 /* nsmain.m */,
 				2649E0D728558837006831C5 /* nsmain.h */,
+				260AFFFD2A65664E002E3FF4 /* nscapture.m */,
 				2679EC84285813B000C20499 /* package.c */,
 				2679EC8D285825A800C20499 /* package.h */,
 				26A177FE25EE5DD0006A1ED4 /* platform.h */,
@@ -399,6 +471,23 @@
 			productReference = 260349792854B29800037370 /* suika-pro.app */;
 			productType = "com.apple.product-type.application";
 		};
+		260AFFAF2A655F79002E3FF4 /* suika-capture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 260AFFBF2A655F7A002E3FF4 /* Build configuration list for PBXNativeTarget "suika-capture" */;
+			buildPhases = (
+				260AFFAC2A655F79002E3FF4 /* Sources */,
+				260AFFAD2A655F79002E3FF4 /* Frameworks */,
+				260AFFAE2A655F79002E3FF4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "suika-capture";
+			productName = "suika-capture";
+			productReference = 260AFFB02A655F79002E3FF4 /* suika-capture.app */;
+			productType = "com.apple.product-type.application";
+		};
 		26B8ACDE25EE5845005D9C49 /* suika */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 26B8ACF025EE5846005D9C49 /* Build configuration list for PBXNativeTarget "suika" */;
@@ -424,6 +513,9 @@
 			attributes = {
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					260AFFAF2A655F79002E3FF4 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
 					26B8ACDE25EE5845005D9C49 = {
 						CreatedOnToolsVersion = 12.4;
 					};
@@ -445,6 +537,7 @@
 			targets = (
 				26B8ACDE25EE5845005D9C49 /* suika */,
 				260349462854B29800037370 /* suika-pro */,
+				260AFFAF2A655F79002E3FF4 /* suika-capture */,
 			);
 		};
 /* End PBXProject section */
@@ -456,9 +549,20 @@
 			files = (
 				260349752854B29800037370 /* Assets.xcassets in Resources */,
 				2679EC7928575DA000C20499 /* DebugWindow.xib in Resources */,
+				260AFFC32A656395002E3FF4 /* Info.plist in Resources */,
 				2679EC7C28575DC200C20499 /* MainMenu.xib in Resources */,
 				265EA7CC285732E000A02167 /* Credits.rtf in Resources */,
 				265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		260AFFAE2A655F79002E3FF4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				260AFFC22A656386002E3FF4 /* Info.plist in Resources */,
+				260AFFC52A6563AB002E3FF4 /* Assets.xcassets in Resources */,
+				260AFFC02A65633C002E3FF4 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,6 +572,7 @@
 			files = (
 				26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */,
 				267078F82916513C003C61C1 /* MainMenu.xib in Resources */,
+				260AFFC42A656399002E3FF4 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,6 +638,67 @@
 				260349702854B29800037370 /* seen.c in Sources */,
 				260349712854B29800037370 /* cmd_switch.c in Sources */,
 				260349722854B29800037370 /* cmd_menu.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		260AFFAC2A655F79002E3FF4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				260AFFF72A65641C002E3FF4 /* seen.c in Sources */,
+				260AFFF02A65641C002E3FF4 /* wms_impl.c in Sources */,
+				260AFFFA2A65641C002E3FF4 /* vars.c in Sources */,
+				260AFFE62A6563E9002E3FF4 /* gui.c in Sources */,
+				260AFFD42A6563D8002E3FF4 /* cmd_vol.c in Sources */,
+				260AFFE42A6563E4002E3FF4 /* glrender.c in Sources */,
+				260AFFCE2A6563D8002E3FF4 /* cmd_cha.c in Sources */,
+				260AFFEB2A6563F9002E3FF4 /* main.c in Sources */,
+				260AFFFC2A656421002E3FF4 /* wms_parser.tab.c in Sources */,
+				260AFFED2A65641C002E3FF4 /* readjpeg.c in Sources */,
+				260AFFCC2A6563D8002E3FF4 /* cmd_message.c in Sources */,
+				260AFFDD2A6563D8002E3FF4 /* cmd_wait.c in Sources */,
+				260AFFCB2A6563D8002E3FF4 /* cmd_wms.c in Sources */,
+				260AFFF32A65641C002E3FF4 /* wms_core.c in Sources */,
+				260AFFF22A65641C002E3FF4 /* wave.c in Sources */,
+				260AFFF52A65641C002E3FF4 /* stage.c in Sources */,
+				260AFFE32A6563E1002E3FF4 /* file.c in Sources */,
+				260AFFE12A6563D8002E3FF4 /* cmd_set.c in Sources */,
+				260AFFFB2A65641C002E3FF4 /* wms_lexer.yy.c in Sources */,
+				260AFFC72A6563D8002E3FF4 /* cmd_se.c in Sources */,
+				260AFFEC2A65641C002E3FF4 /* nsmain.m in Sources */,
+				260AFFD22A6563D8002E3FF4 /* cmd_retrospect.c in Sources */,
+				260AFFF82A65641C002E3FF4 /* script.c in Sources */,
+				260AFFDF2A6563D8002E3FF4 /* cmd_click.c in Sources */,
+				260AFFD82A6563D8002E3FF4 /* cmd_chapter.c in Sources */,
+				260AFFCD2A6563D8002E3FF4 /* cmd_chs.c in Sources */,
+				260AFFF62A65641C002E3FF4 /* save.c in Sources */,
+				260AFFD52A6563D8002E3FF4 /* cmd_ch.c in Sources */,
+				260AFFDE2A6563D8002E3FF4 /* cmd_bgm.c in Sources */,
+				260AFFE82A6563F0002E3FF4 /* image.c in Sources */,
+				260AFFDC2A6563D8002E3FF4 /* cmd_video.c in Sources */,
+				260AFFC82A6563D8002E3FF4 /* cmd_setsave.c in Sources */,
+				260AFFDA2A6563D8002E3FF4 /* cmd_gosub.c in Sources */,
+				260AFFD62A6563D8002E3FF4 /* cmd_load.c in Sources */,
+				260AFFE92A6563F9002E3FF4 /* mixer.c in Sources */,
+				260AFFD92A6563D8002E3FF4 /* cmd_if.c in Sources */,
+				260AFFF42A65641C002E3FF4 /* scbuf.c in Sources */,
+				260AFFF12A65641C002E3FF4 /* readimage.c in Sources */,
+				260AFFEA2A6563F9002E3FF4 /* log.c in Sources */,
+				260AFFC62A6563CF002E3FF4 /* aunit.c in Sources */,
+				260AFFC92A6563D8002E3FF4 /* cmd_menu.c in Sources */,
+				260AFFDB2A6563D8002E3FF4 /* cmd_shake.c in Sources */,
+				260AFFFE2A65664E002E3FF4 /* nscapture.m in Sources */,
+				260AFFD02A6563D8002E3FF4 /* cmd_bg.c in Sources */,
+				260AFFD12A6563D8002E3FF4 /* conf.c in Sources */,
+				260AFFEE2A65641C002E3FF4 /* uimsg.c in Sources */,
+				260AFFCF2A6563D8002E3FF4 /* cmd_return.c in Sources */,
+				260AFFD32A6563D8002E3FF4 /* cmd_gui.c in Sources */,
+				260AFFE72A6563EC002E3FF4 /* history.c in Sources */,
+				260AFFCA2A6563D8002E3FF4 /* cmd_switch.c in Sources */,
+				260AFFE52A6563E7002E3FF4 /* glyph.c in Sources */,
+				260AFFE22A6563DE002E3FF4 /* event.c in Sources */,
+				260AFFE02A6563D8002E3FF4 /* cmd_goto.c in Sources */,
+				260AFFD72A6563D8002E3FF4 /* cmd_skip.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -721,6 +887,106 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suikapro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Release;
+		};
+		260AFFBD2A655F7A002E3FF4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CODE_SIGN_ENTITLEMENTS = suika/suika.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7S742FWR63;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					libroot/include,
+					libroot/include/freetype2,
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainNibFile = MainMenu;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = libroot/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 2.12.15;
+				OTHER_CFLAGS = (
+					"-DXCODE",
+					"-DUSE_CAPTURE",
+					"-ffast-math",
+					"-fvectorize",
+				);
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lpng",
+					"-logg",
+					"-lvorbis",
+					"-lvorbisfile",
+					"-lfreetype",
+					"-ljpeg",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika-capture";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		260AFFBE2A655F7A002E3FF4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CODE_SIGN_ENTITLEMENTS = suika/suika.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = 7S742FWR63;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					libroot/include,
+					libroot/include/freetype2,
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainNibFile = MainMenu;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = libroot/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 2.12.15;
+				OTHER_CFLAGS = (
+					"-DXCODE",
+					"-DUSE_CAPTURE",
+					"-ffast-math",
+					"-fvectorize",
+				);
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lpng",
+					"-logg",
+					"-lvorbis",
+					"-lvorbisfile",
+					"-lfreetype",
+					"-ljpeg",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika-capture";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
@@ -935,6 +1201,15 @@
 			buildConfigurations = (
 				260349772854B29800037370 /* Debug */,
 				260349782854B29800037370 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		260AFFBF2A655F7A002E3FF4 /* Build configuration list for PBXNativeTarget "suika-capture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				260AFFBD2A655F7A002E3FF4 /* Debug */,
+				260AFFBE2A655F7A002E3FF4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
