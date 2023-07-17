@@ -1,0 +1,30 @@
+name: suika-testcases
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          sudo apt-get update
+          echo Installing build-essential...
+          sudo apt-get install -y build-essential
+          echo Installing libasound2-dev...
+          sudo apt-get install -y libasound2-dev
+          echo Installing libx11-dev...
+          sudo apt-get install -y libx11-dev
+          echo Installing libxpm-dev
+          sudo apt-get install -y libxpm-dev 
+          echo Installing mesa-common-dev
+          sudo apt-get install -y mesa-common-dev
+          sudo apt-get install -y xvfb
+          cd build/linux-x86_64-replay
+          ./build-libs.sh
+          make
+          cd ../../testcases
+          export DISPLAY=':99.0'
+	  Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+          ./run.sh

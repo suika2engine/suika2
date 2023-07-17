@@ -36,11 +36,14 @@ for file in files:
         if not os.path.isdir("diff"):
             os.mkdir("diff")
         subprocess.run(["compare",
+                        "-quiet",
                         "-metric",
                         "AE",
                         ANSWER_DIR + "/" + basename,
                         RESULT_DIR + "/" + basename,
-                        "diff/" + basename])
+                        "diff/" + basename],
+                       stdout = subprocess.DEVNULL,
+                       stderr = subprocess.DEVNULL)
 
 # Fail if there were errors.
 if error_count > 0:
