@@ -24,6 +24,10 @@ build/mingw-64/*.o
 build/mingw-64/libroot
 build/mingw-64/suika-64.exe
 
+build/mingw-capture/*.o
+build/mingw-capture/libroot
+build/mingw-capture/suika-capture.exe
+
 build/macos/libroot
 build/macos/suika.xcodeproj/project.xcworkspace
 build/macos/suika.xcodeproj/xcshareddata
@@ -43,6 +47,16 @@ build/android/app/src/main/cpp/jpeg
 build/linux-x86_64/*.o
 build/linux-x86_64/libroot
 build/linux-x86_64/suika
+
+build/linux-x86_64-pro
+
+build/linux-x86_64-clang/*.o
+build/linux-x86_64-clang/libroot
+build/linux-x86_64-clang/suika
+
+build/linux-x86_64-replay/*.o
+build/linux-x86_64-replay/libroot
+build/linux-x86_64-replay/suika-replay
 
 build/linux-arm/*.o
 build/linux-arm/libroot

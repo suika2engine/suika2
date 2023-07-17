@@ -19,6 +19,9 @@
 /* リプレイ出力ディレクトリ */
 #define REP_DIR		"replay"
 
+/* 定期的にフレームをチェックする時間(3fps) */
+#define FRAME_MILLI	333
+
 /* CSVファイル */
 static FILE *csv_fp;
 
@@ -27,26 +30,8 @@ static uint64_t start_time;
 
 /* 次のシミュレーションイベント */
 uint64_t sim_time;
-static int sim_mouse_pos_x = -1;
-static int sim_mouse_pos_y = -1;
-static bool sim_is_left_button_pressed;
-static bool sim_is_right_button_pressed;
-static bool sim_is_left_clicked;
-static bool sim_is_right_clicked;
-static bool sim_is_return_pressed;
-static bool sim_is_space_pressed;
-static bool sim_is_escape_pressed;
-static bool sim_is_up_pressed;
-static bool sim_is_down_pressed;
-static bool sim_is_page_up_pressed;
-static bool sim_is_page_down_pressed;
-static bool sim_is_control_pressed;
 static bool sim_exit;
-static bool sim_executed;
-
-/* マウス座標 */
-static int prev_mouse_x = -1;
-static int prev_mouse_y = -1;
+static bool sim_execute;
 
 /* フレームバッファコピー用 */
 static char *frame_buf;
@@ -82,13 +67,8 @@ bool init_replay(int argc, char *argv[])
 		return false;
 	}
 
-	/* 最初の行を読み込む */
-	if (!read_csv_line()) {
-		sim_exit = true;
-		return true;
-	}
-
 	/* リプレイ出力データのディレクトリを作成する */
+	remove(REP_DIR);
 	mkdir(REP_DIR, 0700); 
 
 	/* フレームバッファのコピー用メモリを確保する */
@@ -142,50 +122,14 @@ void cleanup_replay(void)
  */
 bool replay_input(void)
 {
-	uint64_t cur_time;
-
 	if (sim_exit)
 		return false;
 
-	cur_time = get_tick_count64() - start_time;
-	if (cur_time < sim_time) {
-		/* 入力はない */
-		mouse_pos_x = prev_mouse_x;
-		mouse_pos_y = prev_mouse_y;
-		is_left_button_pressed = false;
-		is_right_button_pressed = false;
-		is_left_clicked = false;
-		is_right_clicked = false;
-		is_return_pressed = false;
-		is_space_pressed = false;
-		is_escape_pressed = false;
-		is_up_pressed = false;
-		is_down_pressed = false;
-		is_page_up_pressed = false;
-		is_page_down_pressed = false;
-		is_control_pressed = false;
-		sim_executed = false;
+	/* CSVの行を読み込む */
+	if (!read_csv_line()) {
+		sim_exit = true;
 		return true;
 	}
-
-	/* 入力状態をセットアップする */
-	mouse_pos_x = sim_mouse_pos_x;
-	mouse_pos_y = sim_mouse_pos_y;
-	is_left_button_pressed = sim_is_left_button_pressed;
-	is_right_button_pressed = sim_is_right_button_pressed;
-	is_left_clicked = sim_is_left_clicked;
-	is_right_clicked = sim_is_right_clicked;
-	is_return_pressed = sim_is_return_pressed;
-	is_space_pressed = sim_is_space_pressed;
-	is_escape_pressed = sim_is_escape_pressed;
-	is_up_pressed = sim_is_up_pressed;
-	is_down_pressed = sim_is_down_pressed;
-	is_page_up_pressed = sim_is_page_up_pressed;
-	is_page_down_pressed = sim_is_page_down_pressed;
-	is_control_pressed = sim_is_control_pressed;
-	prev_mouse_x = mouse_pos_x;
-	prev_mouse_y = mouse_pos_y;
-	sim_executed = true;
 
 	return true;
 }
@@ -200,8 +144,8 @@ bool replay_output(void)
 	png_infop info;
 	FILE *png_fp;
 
-	/* リプレイ操作が行われたフレームでなければ処理しない */
-	if (!sim_executed)
+	/* キャプチャが行われたフレームでなければ処理しない */
+	if (!sim_execute)
 		return true;
 
 	/* フレームバッファの内容を取得する */
@@ -251,10 +195,6 @@ bool replay_output(void)
 	/* PNGファイルをクローズする */
 	fclose(png_fp);
 
-	/* 次のCSV行を読み込む */
-	if (!read_csv_line())
-		sim_exit = true;
-
 	return true;
 }
 
@@ -262,29 +202,55 @@ bool replay_output(void)
 static bool read_csv_line(void)
 {
 	int ret;
-
-	if (sim_exit)
-		return true;
+	int b_sim_execute;
+	int b_is_left_button_pressed;
+	int b_is_right_button_pressed;
+	int b_is_left_clicked;
+	int b_is_right_clicked;
+	int b_is_return_pressed;
+	int b_is_space_pressed;
+	int b_is_escape_pressed;
+	int b_is_up_pressed;
+	int b_is_down_pressed;
+	int b_is_page_up_pressed;
+	int b_is_page_down_pressed;
+	int b_is_control_pressed;
 
 	ret = fscanf(csv_fp,
-		     "%lu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+		     "%lu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 		     &sim_time,
-		     &sim_mouse_pos_x,
-		     &sim_mouse_pos_y,
-		     (int *)&sim_is_left_button_pressed,
-		     (int *)&sim_is_right_button_pressed,
-		     (int *)&sim_is_left_clicked,
-		     (int *)&sim_is_right_clicked,
-		     (int *)&sim_is_return_pressed,
-		     (int *)&sim_is_space_pressed,
-		     (int *)&sim_is_escape_pressed,
-		     (int *)&sim_is_up_pressed,
-		     (int *)&sim_is_down_pressed,
-		     (int *)&sim_is_page_up_pressed,
-		     (int *)&sim_is_page_down_pressed,
-		     (int *)&sim_is_control_pressed);
-	if (ret != 15)
+		     &b_sim_execute,
+		     &mouse_pos_x,
+		     &mouse_pos_y,
+		     &b_is_left_button_pressed,
+		     &b_is_right_button_pressed,
+		     &b_is_left_clicked,
+		     &b_is_right_clicked,
+		     &b_is_return_pressed,
+		     &b_is_space_pressed,
+		     &b_is_escape_pressed,
+		     &b_is_up_pressed,
+		     &b_is_down_pressed,
+		     &b_is_page_up_pressed,
+		     &b_is_page_down_pressed,
+		     &b_is_control_pressed);
+	if (ret != 16)
 		sim_exit = true;
+
+	/* fscanf()はboolを受け取れないので、intで受け取ってコピーする */
+	sim_execute = b_sim_execute;
+	is_left_button_pressed = b_is_left_button_pressed;
+	is_right_button_pressed = b_is_right_button_pressed;
+	is_left_clicked = b_is_left_clicked;
+	is_right_clicked = b_is_right_clicked;
+	is_return_pressed = b_is_return_pressed;
+	is_space_pressed = b_is_space_pressed;
+	is_escape_pressed = b_is_escape_pressed;
+	is_up_pressed = b_is_up_pressed;
+	is_down_pressed = b_is_down_pressed;
+	is_page_up_pressed = b_is_page_up_pressed;
+	is_page_down_pressed = b_is_page_down_pressed;
+	is_control_pressed = b_is_control_pressed;
 
 	return true;
 }

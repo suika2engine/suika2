@@ -22,19 +22,25 @@
 #define CAP_DIR_L	L"record"
 #define CSV_FILE	"main.csv"
 
+/* 定期的にフレームを出力する時間(3fps) */
+#define FRAME_MILLI	333
+
 /* CSVのヘッダ */
 static char csv_header[] =
-	"time,X,Y,left,right,lclick,rclick,return,space,escape,"
+	"time,PNG,X,Y,left,right,lclick,rclick,return,space,escape,"
 	"up,down,pageup,pagedown,control\n";
 
 /* CSVファイル */
 static FILE *csv_fp;
 
+/* 現在時刻 */
+uint64_t cap_cur_time;
+
 /* 開始時刻 */
 static uint64_t start_time;
 
-/* 現在時刻 */
-uint64_t cap_cur_time;
+/* 前回のPNG出力時刻 */
+static uint64_t last_png_time;
 
 /* このフレームで入力が変化したか */
 static bool is_input_changed;
@@ -193,11 +199,14 @@ void capture_input(void)
 		prev_mouse_x = mouse_pos_x;
 		prev_mouse_y = mouse_pos_y;
 	}
+	if (cap_cur_time - last_png_time >= FRAME_MILLI)
+		is_input_changed = true;
 
 	/* フレームの時刻と入力の状態を出力する */
 	fprintf(csv_fp,
-		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 		cap_cur_time,
+		is_input_changed,
 		mouse_pos_x,
 		mouse_pos_y,
 		is_left_button_pressed,
@@ -225,7 +234,7 @@ bool capture_output(void)
 	png_infop info;
 	FILE *png_fp;
 
-	/* 入力に変化のなかったフレームは出力しない */
+	/* 入力に変化のなかったフレームの場合 */
 	if (!is_input_changed)
 		return true;
 
@@ -275,6 +284,9 @@ bool capture_output(void)
 
 	/* PNGファイルをクローズする */
 	fclose(png_fp);
+
+	/* 前回の画像出力時刻を記録する */
+	last_png_time = cap_cur_time;
 
 	return true;
 }
