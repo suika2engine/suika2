@@ -1,4 +1,4 @@
-name: suika-testcases
+name: suika-testcases-pr
 on:
   pull_request:
 permissions:
