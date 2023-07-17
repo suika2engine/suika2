@@ -182,4 +182,18 @@ void capture_input(void);
 bool capture_output(void);
 #endif
 
+#ifdef USE_REPLAY
+/* リプレイモジュールを初期化する */
+bool init_replay(int argc, char *argv[]);
+
+/* リプレイモジュールを終了する */
+void cleanup_replay(void);
+
+/* 入力をリプレイする */
+bool replay_input(void);
+
+/* リプレイ結果の出力をキャプチャする */
+bool replay_output(void);
+#endif
+
 #endif

@@ -24,7 +24,7 @@
 
 /* CSVのヘッダ */
 static char csv_header[] =
-	"time,X,Y,left,right,return,space,escape,"
+	"time,X,Y,left,right,lclick,rclick,return,space,escape,"
 	"up,down,pageup,pagedown,control\n";
 
 /* CSVファイル */
@@ -34,7 +34,7 @@ static FILE *csv_fp;
 static uint64_t start_time;
 
 /* 現在時刻 */
-static uint64_t cur_time;
+uint64_t cap_cur_time;
 
 /* このフレームで入力が変化したか */
 static bool is_input_changed;
@@ -58,11 +58,11 @@ bool init_capture(void)
 {
 	int y;
 
+	/* recordフォルダを作成しなおす */
 	if (!delete_directory(CAP_DIR_L)) {
 		log_error("Failed to remove record directory.");
 		return false;
 	}
-
 	if (!CreateDirectory(CAP_DIR_L, NULL)) {
 		if (_access(CAP_DIR, 0) != 0) {
 			log_error("Failed to create record directory.");
@@ -70,6 +70,7 @@ bool init_capture(void)
 		}
 	}
 
+	/* CSVファイルを開く */
 	csv_fp = fopen(CAP_DIR "\\" CSV_FILE, "wb");
 	if (csv_fp == NULL) {
 		log_error("Failed to create record file.");
@@ -77,6 +78,7 @@ bool init_capture(void)
 	}
 	fprintf(csv_fp, "%s", csv_header);
 
+	/* フレームバッファのコピー用メモリを確保する */
 	frame_buf = malloc((size_t)(conf_window_width * conf_window_height *
 				    3));
 	if (frame_buf == NULL) {
@@ -84,6 +86,7 @@ bool init_capture(void)
 		return false;
 	}
 
+	/* libpngに渡す行ポインタを作成する */
 	row_pointers = malloc(sizeof(png_bytep) * (size_t)conf_window_height);
 	if (row_pointers == NULL) {
 		log_memory();
@@ -95,6 +98,7 @@ bool init_capture(void)
 					      (conf_window_height - y)];
 	}
 
+	/* 開始時刻を取得する */
 	start_time = GetTickCount64();
 	return true;
 }
@@ -160,11 +164,20 @@ static bool delete_directory(LPCWSTR pszDirName)
     return true;
 }
 
+/*
+ * 入力をキャプチャする
+ */
 void capture_input(void)
 {
+	/* 時刻を更新する */
+	cap_cur_time = GetTickCount64() - start_time;
+
+	/* 入力に変化があったか調べる */
 	is_input_changed = false;
 	if (is_left_button_pressed ||
 	    is_right_button_pressed ||
+	    is_left_clicked ||
+	    is_right_clicked ||
 	    is_return_pressed ||
 	    is_space_pressed ||
 	    is_escape_pressed ||
@@ -180,18 +193,17 @@ void capture_input(void)
 		prev_mouse_x = mouse_pos_x;
 		prev_mouse_y = mouse_pos_y;
 	}
-	if (!is_input_changed)
-		return;
 
-	cur_time = GetTickCount64() - start_time;
-
+	/* フレームの時刻と入力の状態を出力する */
 	fprintf(csv_fp,
-		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-		cur_time,
+		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+		cap_cur_time,
 		mouse_pos_x,
 		mouse_pos_y,
 		is_left_button_pressed,
 		is_right_button_pressed,
+		is_left_clicked,
+		is_right_clicked,
 		is_return_pressed,
 		is_space_pressed,
 		is_escape_pressed,
@@ -203,6 +215,9 @@ void capture_input(void)
 	fflush(csv_fp);
 }
 
+/*
+ * 出力をキャプチャする
+ */
 bool capture_output(void)
 {
 	char fname[256];
@@ -210,6 +225,7 @@ bool capture_output(void)
 	png_infop info;
 	FILE *png_fp;
 
+	/* 入力に変化のなかったフレームは出力しない */
 	if (!is_input_changed)
 		return true;
 
@@ -219,7 +235,7 @@ bool capture_output(void)
 		     GL_UNSIGNED_BYTE, frame_buf);
 
 	/* ファイル名を決める */
-	snprintf(fname, sizeof(fname), "%s\\%lld.png", CAP_DIR, cur_time);
+	snprintf(fname, sizeof(fname), "%s\\%lld.png", CAP_DIR, cap_cur_time);
 
 	/* PNGファイルをオープンする */
 	png_fp = fopen(fname, "wb");

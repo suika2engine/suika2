@@ -1624,8 +1624,13 @@ struct image *get_back_image(void)
  */
 void reset_stop_watch(stop_watch_t *t)
 {
+#ifndef USE_CAPTURE
 	*t = GetTickCount();
 	dwStopWatchOffset = 0;
+#else
+	extern uint64_t cap_cur_time;
+	*t = cap_cur_time;
+#endif
 }
 
 /*
@@ -1633,8 +1638,14 @@ void reset_stop_watch(stop_watch_t *t)
  */
 int get_stop_watch_lap(stop_watch_t *t)
 {
+#ifndef USE_CAPTURE
 	DWORD dwCur = GetTickCount();
 	return (int32_t)(dwCur - *t - dwStopWatchOffset);
+#else
+	extern uint64_t cap_cur_time;
+	return (int32_t)(cap_cur_time - *t);
+#endif
+
 }
 
 /*
