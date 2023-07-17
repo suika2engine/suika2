@@ -53,9 +53,6 @@
 		2603497D2854B61F00037370 /* nsdebug.m in Sources */ = {isa = PBXBuildFile; fileRef = 2603497C2854B61F00037370 /* nsdebug.m */; };
 		2608233C26724676009D979A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2608233B26724676009D979A /* cmd_cha.c */; };
 		260AFFC02A65633C002E3FF4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 267078FA2916513C003C61C1 /* MainMenu.xib */; };
-		260AFFC22A656386002E3FF4 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 260AFFC12A656386002E3FF4 /* Info.plist */; };
-		260AFFC32A656395002E3FF4 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2603497A2854B29800037370 /* Info.plist */; };
-		260AFFC42A656399002E3FF4 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACEA25EE5846005D9C49 /* Info.plist */; };
 		260AFFC52A6563AB002E3FF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
 		260AFFC62A6563CF002E3FF4 /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780525EE5DD0006A1ED4 /* aunit.c */; };
 		260AFFC72A6563D8002E3FF4 /* cmd_se.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782725EE5DD0006A1ED4 /* cmd_se.c */; };
@@ -549,7 +546,6 @@
 			files = (
 				260349752854B29800037370 /* Assets.xcassets in Resources */,
 				2679EC7928575DA000C20499 /* DebugWindow.xib in Resources */,
-				260AFFC32A656395002E3FF4 /* Info.plist in Resources */,
 				2679EC7C28575DC200C20499 /* MainMenu.xib in Resources */,
 				265EA7CC285732E000A02167 /* Credits.rtf in Resources */,
 				265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */,
@@ -560,7 +556,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				260AFFC22A656386002E3FF4 /* Info.plist in Resources */,
 				260AFFC52A6563AB002E3FF4 /* Assets.xcassets in Resources */,
 				260AFFC02A65633C002E3FF4 /* MainMenu.xib in Resources */,
 			);
@@ -572,7 +567,6 @@
 			files = (
 				26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */,
 				267078F82916513C003C61C1 /* MainMenu.xib in Resources */,
-				260AFFC42A656399002E3FF4 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
