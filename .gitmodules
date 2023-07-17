@@ -1,3 +1,0 @@
-[submodule "testcases"]
-	path = testcases
-	url = git@github.com:suika2engine/testcases.git
