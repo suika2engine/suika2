@@ -236,3 +236,22 @@ docker pull devkitpro/devkita64
 docker run -d -it --rm -v $(pwd):/project --name devkita64_run devkitpro/devkita64
 docker exec -i devkita64_run bash -c "cd /project/build/switch && make -j2"
 ```  
+
+## Windows Capture Binary from source
+`suika-capture.exe` records all user interactions and periodic/interactive screenshots.
+One can make a bug report with a reproduction procedure using `suika-capture.exe`.
+
+In addition, we can make test cases with `suika-capture.exe` and replay them
+with `suika-replay` on Linux.
+
+This method will utilise a cross compiler to build a Windows capturer binary.
+
+* On Ubuntu 22.04 (WSL2 is acceptable), install the following packages:
+  * `build-essential`
+  * `mingw-w64`
+* From the terminal, navigate to the `build/mingw-capture` directory and run the following commands:
+  * Run `./build-libs.sh` to build the libraries.
+  * Run `make` to build `suika-capture.exe`.
+
+To run Suika2 capturer, copy `suika-capture.exe` to either the `game-en` or `game-jp` folder.
+Result data will be stored in `record` folder.
