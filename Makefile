@@ -25,6 +25,7 @@ do-release:
 	./do-release.sh
 
 test:
+	echo Running test...
 	if [ ! -f build/linux-x86_64-replay/suika-replay ]; then cd build/linux-x86_64-replay; ./build-libs.sh; make; else rm -f build/linux-x86_64-replay/suika-replay/*.gcda; fi && \
 	if [ ! -d testcases ]; then git clone https://github.com/suika2engine/testcases.git; else cd testcases; git pull origin master; cd ..; fi && \
 	cd testcases && \
@@ -36,6 +37,7 @@ test:
 	genhtml -o lcovoutput -p `pwd` --num-spaces 4 -f app.info
 
 gtest:
+	echo Running test...
 	if [ ! -f build/linux-x86_64-replay/suika-replay ]; then cd build/linux-x86_64-replay; ./build-libs.sh; make; else rm -f build/linux-x86_64-replay/suika-replay/*.gcda; fi && \
 	if [ ! -d testcases ]; then git clone https://github.com/suika2engine/testcases.git; else cd testcases; git pull origin master; cd ..; fi && \
 	cd testcases && \
