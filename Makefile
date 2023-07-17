@@ -28,7 +28,6 @@ test:
 	if [ ! -f build/linux-x86_64-replay/suika-replay ]; then cd build/linux-x86_64-replay; ./build-libs.sh; make; else rm -f build/linux-x86_64-replay/suika-replay/*.gcda; fi && \
 	if [ ! -d testcases ]; then git clone https://github.com/suika2engine/testcases.git; else cd testcases; git pull origin master; cd ..; fi && \
 	cd testcases && \
-	rm -rf lcovoutput && \
 	xvfb-run --server-args=":99 -screen 0 1920x1080x24" ./run.sh && \
 	cd ../build/linux-x86_64-replay && \
 	echo C0 coverage: `gcov -n *.gcda | tail -n1 | grep -o '[0-9.]*%'` && \
