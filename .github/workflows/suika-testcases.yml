@@ -21,4 +21,5 @@ jobs:
           echo Installing mesa-common-dev
           sudo apt-get install -y mesa-common-dev
           sudo apt-get install -y xvfb
+          pip3 install opencv-python numpy
           make test
