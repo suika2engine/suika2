@@ -380,8 +380,8 @@ This method will create release-ready ZIP files and upload them to FTP server.
       * `build/web-kit/readme-jp.html`
       * `build/web-kit/readme-en.html`
     * In terminal, navigate to the `build/macos` directory and run the following commands:
-      * `VERSION=2.x.y` (write the version)
-      * `sed -i "s/MARKETING_VERSION = .*;/MARKETING_VERSIONG = ${VERSION};/g" suika.xcodeproj/project.pbxproj`
+      * `enter-version.sh`
+        * Enter version string and press return
     * In terminal, navigate to the repository root
       * `git add -u`
       * `git commit -m "v2.x.y"` (write the version)
