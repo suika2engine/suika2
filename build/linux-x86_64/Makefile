@@ -34,6 +34,7 @@ CFLAGS = \
 #
 
 LDFLAGS = \
+	-s \
 	-lm \
 	-lpthread \
 	-lasound \
@@ -73,6 +74,8 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 # Target
 #
 
+all: suika
+
 suika: libroot $(OBJS)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
@@ -94,6 +97,9 @@ install: suika
 
 clean:
 	rm -rf *~ *.o suika log.txt sav tmp
+
+erase:
+	rm -rf *~ *.o suika log.txt sav tmp libroot
 
 lines:
 	cat ../../src/*.[chm] | wc -l

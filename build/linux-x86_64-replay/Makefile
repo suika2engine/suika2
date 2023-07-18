@@ -35,10 +35,10 @@ CFLAGS = \
 #
 
 LDFLAGS = \
+	-s \
 	-coverage \
 	-lm \
 	-lpthread \
-	-lasound \
 	-lX11 \
 	-lXpm \
 	-lGL \
@@ -73,6 +73,8 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 #
 # Target
 #
+
+all: suika-replay
 
 suika-replay: libroot $(OBJS)
 	$(CC) -o suika-replay $(OBJS) $(LDFLAGS)
