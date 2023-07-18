@@ -15,6 +15,7 @@ WINDRES = i686-w64-mingw32-windres
 
 CPPFLAGS = \
 	-DUSE_REPLAY \
+	-D_WIN32_WINNT=_WIN32_WINNT_VISTA \
 	-I. \
 	-I../mingw/res \
 	-I./libroot/include \
