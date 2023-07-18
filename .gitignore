@@ -42,6 +42,7 @@ build/mingw-arm64/libroot
 build/mingw-arm64/suika-arm64.exe
 
 build/macos/libroot
+build/macos/build
 build/macos/suika.xcodeproj/project.xcworkspace
 build/macos/suika.xcodeproj/xcshareddata
 build/macos/suika.xcodeproj/xcuserdata
