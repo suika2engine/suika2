@@ -1,8 +1,15 @@
 #!/bin/sh
 
+if [ `uname -m` = "x86_64" ]; then
+    curl -O https://suika2.com/dl/libroot-mac.tar.gz
+    tar xzf libroot-mac.tar.gz
+    rm libroot-mac.tar.gz
+    exit 0
+fi
+
 PREFIX=`pwd`/libroot
 
-export MACOSX_DEPLOYMENT_TARGET=10.9
+export MACOSX_DEPLOYMENT_TARGET=10.13
 
 rm -rf tmp libroot
 mkdir -p tmp libroot

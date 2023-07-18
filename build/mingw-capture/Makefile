@@ -116,6 +116,9 @@ include ../sse.mk
 # Phony
 #
 
+install: suika-capture.exe
+	cp suika-capture.exe ../../
+
 clean:
 	rm -rf *.o *~ suika-capture.exe log.txt sav tmp
 

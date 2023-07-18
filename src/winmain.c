@@ -1268,8 +1268,7 @@ bool log_info(const char *s, ...)
 	if(pLogFile != NULL)
 	{
 		/* ファイルへ出力する */
-		fprintf(pLogFile, buf);
-		fprintf(pLogFile, "\n");
+		fprintf(pLogFile, "%s\n", buf);
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
@@ -1300,8 +1299,7 @@ bool log_warn(const char *s, ...)
 	if(pLogFile != NULL)
 	{
 		/* ファイルへ出力する */
-		fprintf(pLogFile, buf);
-		fprintf(pLogFile, "\n");
+		fprintf(pLogFile, "%s\n", buf);
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;
@@ -1332,8 +1330,7 @@ bool log_error(const char *s, ...)
 	if(pLogFile != NULL)
 	{
 		/* ファイルへ出力する */
-		fprintf(pLogFile, buf);
-		fprintf(pLogFile, "\n");
+		fprintf(pLogFile, "%s\n", buf);
 		fflush(pLogFile);
 		if(ferror(pLogFile))
 			return false;

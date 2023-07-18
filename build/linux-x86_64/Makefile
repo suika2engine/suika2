@@ -34,6 +34,7 @@ CFLAGS = \
 #
 
 LDFLAGS = \
+	-s \
 	-lm \
 	-lpthread \
 	-lasound \
@@ -73,8 +74,13 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 # Target
 #
 
-suika: $(OBJS)
+all: suika
+
+suika: libroot $(OBJS)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
+
+libroot:
+	./build-libs.sh
 
 #
 # Feature specific source files.
@@ -87,10 +93,13 @@ include ../sse.mk
 #
 
 install: suika
-	cp suika ../../
+	cp suika ../../suika-linux
 
 clean:
 	rm -rf *~ *.o suika log.txt sav tmp
+
+erase:
+	rm -rf *~ *.o suika log.txt sav tmp libroot
 
 lines:
 	cat ../../src/*.[chm] | wc -l

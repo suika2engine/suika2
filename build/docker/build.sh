@@ -9,7 +9,7 @@ if [ $# = 1 ]; then
 		docker stop suika2-run || true
 		docker rm suika2-run || true
 		docker image rm suika2-dev || true
-		rm -rf suika.exe suika-linux html suika.apk
+		rm -rf suika.exe suika-pro.exe suika-64.exe suika-capture.exe suika-arm64.exe suika-linux suika-linux-replay html suika.apk
 		exit 0
 	fi
 fi
@@ -27,13 +27,38 @@ docker run -d -it -v ${PWD%/*/*}:/workspace --name suika2-run suika2-dev
 
 # Build the mingw target
 echo Building the Windows binary.
-docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw && ./build-libs.sh && make"
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw && make"
 docker cp suika2-run:/workspace/build/mingw/suika.exe suika.exe
 
-# Build the Linux target
-echo Building the Linux binary.
-docker exec -i suika2-run /bin/bash -c "cd /workspace/build/linux-x86_64 && ./build-libs.sh && make"
+# Build the mingw-pro target
+echo Building the Windows Pro binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-pro && make"
+docker cp suika2-run:/workspace/build/mingw/suika-pro.exe suika-pro.exe
+
+# Build the mingw-64 target
+echo Building the Windows 64-bit binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-64 && make"
+docker cp suika2-run:/workspace/build/mingw/suika-64.exe suika-64.exe
+
+# Build the mingw-capture target
+echo Building the Windows Capture binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-capture && make"
+docker cp suika2-run:/workspace/build/mingw/suika-capture.exe suika-capture.exe
+
+# Build the mingw-arm64 target
+echo Building the Windows Arm64 binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-arm64 && make"
+docker cp suika2-run:/workspace/build/mingw/suika-arm64.exe suika-arm64.exe
+
+# Build the linux-x86_64 target
+echo Building the linux-x86_64 binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/linux-x86_64 && make"
 docker cp suika2-run:/workspace/build/linux-x86_64/suika suika-linux
+
+# Build the linux-x86_64-replay target
+echo Building the linux-x86_64-replay binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/linux-x86_64-replay && make"
+docker cp suika2-run:/workspace/build/linux-x86_64/suika-replay suika-linux-replay
 
 # Build the Web target
 echo Building the Web binary.
