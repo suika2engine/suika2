@@ -33,6 +33,7 @@ CFLAGS = \
 	-ffast-math \
 	-std=gnu89 \
 	-finput-charset=utf-8 \
+	-fexec-charset=utf-8 \
 	-Wall \
 	-Werror \
 	-Wextra \

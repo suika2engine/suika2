@@ -30,7 +30,7 @@ CFLAGS = \
 	-fopt-info-vec \
 	-std=gnu89 \
 	-finput-charset=utf-8 \
-	-fexec-charset=cp932 \
+	-fexec-charset=utf-8 \
 	-Wall \
 	-Werror \
 	-Wextra \

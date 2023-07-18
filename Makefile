@@ -38,32 +38,38 @@ setup:
 
 windows:
 	@cd build/mingw && \
-	make && \
+	make libroot && \
+	make -j8 && \
 	make install
 
 windows-64:
 	@cd build/mingw-64 && \
-	make && \
+	make libroot && \
+	make -j8 && \
 	make install
 
 windows-pro:
 	@cd build/mingw-pro && \
-	make && \
+	make libroot && \
+	make -j8 && \
 	make install
 
 windows-capture:
 	@cd build/mingw-capture && \
-	make && \
+	make libroot && \
+	make -j8 && \
 	make install
 
 linux:
 	@cd build/linux-x86_64 && \
-	make && \
+	make libroot && \
+	make -j8 && \
 	make install
 
 linux-replay:
 	@cd build/linux-x86_64-replay && \
-	make && \
+	make libroot && \
+	make -j8 && \
 	make install
 
 test:
