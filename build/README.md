@@ -373,15 +373,36 @@ This method will create release-ready ZIP files and upload them to FTP server.
     ```
 
 * Release Steps
-  1. On macOS
-    * Build 3 macOS app variants and do `make-dmg.sh` (this puts `*.dmg` to `OneDrive`)
-  2. On WSL2
-    * Run `make do-release` in the repository root
-    * "Enter version e.g. 2.9.0" -> input version string and press return
-    * "Are you sure you want to release 2.x.y? (press return)" -> press return
-    * "Please build Mac apps and press return." -> press return
-    * "Please sign the Windows apps and press return."
-      * Sign the apps in the cloud folder (`suika.exe`, `suika-64.exe`, `suika-arm64.exe`, `suika-pro.exe` and `suika-capture.exe`)
-      * Press return in the terminal
-    * "Stop if this is a pre-release." -> press return
-    * The release files will be uploaded to your Web server
+  1. On WSL2
+    * Update the following documents:
+      * `build/release/readme-jp.html`
+      * `build/release/readme-en.html`
+      * `build/web-kit/readme-jp.html`
+      * `build/web-kit/readme-en.html`
+    * In terminal, navigate to the repository root
+      * `git add -u`
+      * `git commit -m "Updated the readme documents"`
+      * `git push origin master`
+  2. On macOS
+    * In terminal, navigate to the repository root
+      * `git pull origin master`
+    * Update the version identifiers on Xcode
+    * In terminal, navigate to the repository root
+      * `git add -u`
+      * `git commit -m "Updated the version identifiers on macOS"`
+      * `git push origin master`
+    * Archive 3 macOS app variants, then notarize and export them
+    * In terminal, navigate to the `build/macos` folder
+      * `make-dmg.sh` (this puts dmg files to `OneDrive`)
+  3. On WSL2
+    * In terminal, navigate to the repository root
+    * `git pull origin master`
+    * `make do-release`
+      * "Enter version e.g. 2.9.0" -> input version string and press return
+      * "Are you sure you want to release 2.x.y? (press return)" -> press return
+      * "Please build Mac apps and press return." -> press return
+      * "Please sign the Windows apps and press return."
+        * Sign the apps in the cloud folder (`suika.exe`, `suika-64.exe`, `suika-arm64.exe`, `suika-pro.exe` and `suika-capture.exe`)
+        * Press return in the terminal
+      * "Stop if this is a pre-release." -> press return
+      * The release files will be uploaded to your Web server
