@@ -184,7 +184,11 @@ bool capture_output(void);
 
 #ifdef USE_REPLAY
 /* リプレイモジュールを初期化する */
+#ifdef WIN
+bool init_replay(int argc, wchar_t *argv[]);
+#else
 bool init_replay(int argc, char *argv[]);
+#endif
 
 /* リプレイモジュールを終了する */
 void cleanup_replay(void);

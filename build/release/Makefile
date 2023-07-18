@@ -1,6 +1,6 @@
 all: suika-2.x.x-en.zip suika-2.x.x-jp.zip
 
-suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-capture.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg ../cloud/mac-capture.dmg
+suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-capture.exe ../cloud/suika-replay.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg ../cloud/mac-capture.dmg ../cloud/suika-linux ../cloud/suika-linux-replay
 	rm -rf suika2 suika-2.x.x-en.zip
 	mkdir suika2
 	mkdir suika2/bg
@@ -35,7 +35,9 @@ suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../cloud/mac.dmg suika2/
 	cp -v ../cloud/mac-pro.dmg suika2/
 	mkdir suika2/tools
+	cp -v ./readme-tools-en.txt suika2/tools/README.TXT
 	cp -v ../cloud/suika-capture.exe suika2/tools/
+	cp -v ../cloud/suika-replay.exe suika2/tools/
 	cp -v ../cloud/suika-64.exe suika2/tools/
 	cp -v ../cloud/suika-arm64.exe suika2/tools/
 	cp -v ../cloud/mac-capture.dmg suika2/tools/
@@ -44,7 +46,7 @@ suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	zip -r suika-2.x.x-en.zip suika2
 	rm -rf suika2
 
-suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-capture.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg ../cloud/mac-capture.dmg
+suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-capture.exe ../cloud/suika-replay.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg ../cloud/mac-capture.dmg ../cloud/suika-linux ../cloud/suika-linux-replay
 	rm -rf suika2 suika-2.x.x-jp.zip
 	mkdir suika2
 	mkdir suika2/bg
@@ -79,7 +81,9 @@ suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../cloud/mac.dmg suika2/
 	cp -v ../cloud/mac-pro.dmg suika2/
 	mkdir suika2/tools
+	cp -v ./readme-tools-jp.txt suika2/tools/README.TXT
 	cp -v ../cloud/suika-capture.exe suika2/tools/
+	cp -v ../cloud/suika-replay.exe suika2/tools/
 	cp -v ../cloud/suika-64.exe suika2/tools/
 	cp -v ../cloud/suika-arm64.exe suika2/tools/
 	cp -v ../cloud/mac-capture.dmg suika2/tools/
