@@ -28,6 +28,11 @@ build/mingw-64/*.o
 build/mingw-64/libroot
 build/mingw-64/suika-64.exe
 
+build/mingw-arm64/*.o
+build/mingw-arm64/llvm
+build/mingw-arm64/libroot
+build/mingw-arm64/suika-arm64.exe
+
 build/mingw-capture/*.o
 build/mingw-capture/libroot
 build/mingw-capture/suika-capture.exe

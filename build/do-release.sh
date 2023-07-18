@@ -30,16 +30,10 @@ echo "Checking for Mac apps."
 [ -f cloud/mac-capture.dmg ]
 
 echo ""
-echo "Building Emscripten files."
-cd emscripten
-make clean
-make
-cd ../
-
-echo ""
 echo "Building suika.exe"
 cd mingw
 make erase
+make libroot
 make -j24
 cp suika.exe ../cloud/
 cd ../
@@ -66,6 +60,7 @@ echo ""
 echo "Building suika-64.exe"
 cd mingw-64
 make erase
+make libroot
 make -j24
 cp suika-64.exe ../cloud/
 cd ../
@@ -74,8 +69,16 @@ echo ""
 echo "Building suika-arm64.exe"
 cd mingw-arm64
 make erase
+make libroot
 make -j24
 cp suika-arm64.exe ../cloud/
+cd ../
+
+echo ""
+echo "Building Emscripten files."
+cd emscripten
+make clean
+make
 cd ../
 
 echo ""
