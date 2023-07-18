@@ -1,0 +1,24 @@
+name: suika-windows-replay
+on:
+  push:
+  pull_request:
+jobs:
+  linux:
+    runs-on: "ubuntu-22.04"
+    name: windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          sudo apt update
+          sudo apt install -y mingw-w64
+          cd build/mingw-replay
+          ./build-libs.sh
+          make
+          make install
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: suika-replay.exe
+          path: suika-replay.exe
