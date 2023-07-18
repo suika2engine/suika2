@@ -74,8 +74,11 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 # Target
 #
 
-suika-replay: $(OBJS)
+suika-replay: libroot $(OBJS)
 	$(CC) -o suika-replay $(OBJS) $(LDFLAGS)
+
+libroot:
+	./build-libs.sh
 
 #
 # Feature specific source files.
@@ -86,6 +89,9 @@ include ../sse.mk
 #
 # Phony
 #
+
+install: suika-replay
+	cp suika ../../suika-linux-replay
 
 clean:
 	rm -rf *~ *.o suika-replay log.txt sav tmp

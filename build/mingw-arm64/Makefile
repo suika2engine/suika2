@@ -4,17 +4,20 @@ include ../common.mk
 # Toolchain
 #
 
+export PATH = $(shell echo `readlink -f llvm/bin`:$$PATH)
+
 # For cross compilation
-CC = i686-w64-mingw32-gcc
-CXX = i686-w64-mingw32-g++
-WINDRES = i686-w64-mingw32-windres
+CC = aarch64-w64-mingw32-gcc
+CXX = aarch64-w64-mingw32-g++
+WINDRES = aarch64-w64-mingw32-windres
+
 
 #
 # CPPFLAGS
 #
 
 CPPFLAGS = \
-	-DUSE_CAPTURE \
+	-I./llvm/aarch64-w64-mingw32/include \
 	-I. \
 	-I../mingw/res \
 	-I./libroot/include \
@@ -28,9 +31,8 @@ CFLAGS = \
 	-O3 \
 	-municode \
 	-ffast-math \
-	-fopt-info-vec \
+	-std=gnu89 \
 	-finput-charset=utf-8 \
-	-fexec-charset=utf-8 \
 	-Wall \
 	-Werror \
 	-Wextra \
@@ -50,7 +52,6 @@ LDFLAGS = \
 	-ldsound \
 	-lstrmiids \
 	-lwinmm \
-	-lcomctl32 \
 	-lopengl32 \
 	-ld3d9 \
 	-L./libroot/lib \
@@ -63,13 +64,11 @@ LDFLAGS = \
 
 SRCS_C = \
 	$(SRCS_COMMON) \
-	$(SRCS_SSE) \
 	../../src/winmain.c \
-	../../src/wincapture.c \
 	../../src/uimsg.c \
-	../../src/dsound.c \
 	../../src/glrender.c \
-	../../src/d3drender.cc
+	../../src/d3drender.c \
+	../../src/dsound.c
 
 SRCS_CC = \
 	../../src/dsvideo.cc
@@ -89,38 +88,33 @@ OBJS = \
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 %.o: ../../src/%.cc
-	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
 %.o: ../mingw/res/%.rc
-	$(WINDRES) -DUSE_DEBUGGER $< $@
+	$(WINDRES) $< $@
 
 #
 # Target
 #
 
-all: suika-capture.exe
+all: suika-arm64.exe
 
-suika-capture.exe: libroot $(OBJS)
-	$(CC) -s -o suika-capture.exe $(OBJS) $(LDFLAGS)
+suika-arm64.exe: libroot $(OBJS)
+	$(CC) -s -o suika-arm64.exe $(OBJS) $(LDFLAGS)
 
 libroot:
 	./build-libs.sh
 
-#
-# Feature specific source files.
-#
-
-include ../sse.mk
 
 #
 # Phony
 #
 
-install: suika-capture.exe
-	cp suika-capture.exe ../../
+install: suika-arm64.exe
+	cp suika-arm64.exe ../../
 
 clean:
-	rm -rf *.o *~ suika-capture.exe log.txt sav tmp
+	rm -rf *.o *~ suika-arm64.exe log.txt sav tmp
 
 erase:
-	rm -rf *.o *~ suika-capture.exe log.txt sav tmp libroot
+	rm -rf *.o *~ suika-arm64.exe log.txt sav tmp libroot llvm

@@ -36,6 +36,8 @@ suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../cloud/mac-pro.dmg suika2/
 	mkdir suika2/tools
 	cp -v ../cloud/suika-capture.exe suika2/tools/
+	cp -v ../cloud/suika-64.exe suika2/tools/
+	cp -v ../cloud/suika-arm64.exe suika2/tools/
 	cp -v ../cloud/mac-capture.dmg suika2/tools/
 	zip -r suika-2.x.x-en.zip suika2
 	rm -rf suika2
@@ -76,6 +78,8 @@ suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../cloud/mac-pro.dmg suika2/
 	mkdir suika2/tools
 	cp -v ../cloud/suika-capture.exe suika2/tools/
+	cp -v ../cloud/suika-64.exe suika2/tools/
+	cp -v ../cloud/suika-arm64.exe suika2/tools/
 	cp -v ../cloud/mac-capture.dmg suika2/tools/
 	zip -r suika-2.x.x-jp.zip suika2
 	rm -rf suika2

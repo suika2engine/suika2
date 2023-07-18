@@ -7,6 +7,9 @@ suika-pro.app
 
 suika.exe
 suika-pro.exe
+suika-capture.exe
+suika-64.exe
+suika-arm64.exe
 
 build/cloud
 build/ftplocal
@@ -15,6 +18,7 @@ build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/res/resource.aps
+build/mingw/sync.sh
 
 build/mingw-pro/*.o
 build/mingw-pro/libroot
@@ -59,6 +63,10 @@ build/linux-x86_64-replay/*.gcda
 build/linux-x86_64-replay/*.gcno
 build/linux-x86_64-replay/libroot
 build/linux-x86_64-replay/suika-replay
+build/linux-x86_64-replay/app.info
+build/linux-x86_64-replay/lcovoutput
+build/linux-x86_64-replay/game-jp
+build/linux-x86_64-replay/record
 
 build/linux-arm/*.o
 build/linux-arm/libroot
@@ -126,6 +134,8 @@ build/vs/suika-pro/txt
 build/emscripten/data01.arc
 build/emscripten/html
 
+build/pack/pack
+
 game-jp/log.txt
 game-jp/sav
 game-en/log.txt
@@ -138,3 +148,6 @@ build/release/suika-2.x.x-en.zip
 
 build/web-kit/suika2-web-kit-2.x.x-en.zip
 build/web-kit/suika2-web-kit-2.x.x-jp.zip
+
+testcases/
+summary

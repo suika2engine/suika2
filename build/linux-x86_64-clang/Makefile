@@ -72,8 +72,11 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 # Target
 #
 
-suika: $(OBJS)
+suika: libroot $(OBJS)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
+
+libroot:
+	./build-libs.sh
 
 #
 # Feature specific source files.

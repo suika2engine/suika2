@@ -40,7 +40,6 @@ echo ""
 echo "Building suika.exe"
 cd mingw
 make erase
-./build-libs.sh
 make -j24
 cp suika.exe ../cloud/
 cd ../
@@ -64,11 +63,29 @@ cp suika-capture.exe ../cloud/
 cd ../
 
 echo ""
+echo "Building suika-64.exe"
+cd mingw-64
+make erase
+make -j24
+cp suika-64.exe ../cloud/
+cd ../
+
+echo ""
+echo "Building suika-arm64.exe"
+cd mingw-arm64
+make erase
+make -j24
+cp suika-arm64.exe ../cloud/
+cd ../
+
+echo ""
 echo "Please sign the Windows apps and press return."
 read str
 [ -f cloud/suika.exe ]
 [ -f cloud/suika-pro.exe ]
 [ -f cloud/suika-capture.exe ]
+[ -f cloud/suika-64.exe ]
+[ -f cloud/suika-arm64.exe ]
 
 echo ""
 echo "Creating Windows/Mac release files."

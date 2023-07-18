@@ -10,23 +10,8 @@ jobs:
       - name: Build
         run: |
           sudo apt-get update
-          echo Installing build-essential
-          sudo apt-get install -y build-essential
-          echo Installing libasound2-dev
-          sudo apt-get install -y libasound2-dev
-          echo Installing libx11-dev
-          sudo apt-get install -y libx11-dev
-          echo Installing libxpm-dev
-          sudo apt-get install -y libxpm-dev 
-          echo Installing mesa-common-dev
-          sudo apt-get install -y mesa-common-dev
-          echo Installing xvfb
-          sudo apt-get install -y xvfb
-          echo Installing lcov
-          sudo apt-get install -y lcov
-          echo Installing OpenCV and NumPy
+          sudo apt-get install -y build-essential libx11-dev libxpm-dev mesa-common-dev xvfb lcov
           pip3 install opencv-python numpy
-          echo Running test
           make test
       - name: Upload
         uses: actions/upload-artifact@v2

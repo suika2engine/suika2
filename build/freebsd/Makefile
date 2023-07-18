@@ -72,8 +72,11 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 # Target
 #
 
-suika: $(OBJS)
+suika: libroot $(OBJS)
 	$(CC) -s -o suika $(OBJS) $(LDFLAGS)
+
+libroot:
+	./build-libs.sh
 
 #
 # Feature specific source files.

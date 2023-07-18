@@ -13,13 +13,38 @@ docker run -d -it -v %~dp0\..\..:/workspace --name suika2-run suika2-dev
 
 REM Build the mingw target
 echo Building the Windows binary.
-docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw && ./build-libs.sh && make"
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw && make"
 docker cp suika2-run:/workspace/build/mingw/suika.exe suika.exe
 
-REM Build the Linux target
-echo Building the Linux binary.
-docker exec -i suika2-run /bin/bash -c "cd /workspace/build/linux-x86_64 && ./build-libs.sh && make"
+REM Build the mingw-pro target
+echo Building the Windows Pro binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-pro && make"
+docker cp suika2-run:/workspace/build/mingw-pro/suika-pro.exe suika-pro.exe
+
+REM Build the mingw-64 target
+echo Building the Windows 64bit binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-64 && make"
+docker cp suika2-run:/workspace/build/mingw-pro/suika-64.exe suika-64.exe
+
+REM Build the mingw-capture target
+echo Building the Windows Capture binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-capture && make"
+docker cp suika2-run:/workspace/build/mingw-capture/suika-capture.exe suika-capture.exe
+
+REM Build the mingw-arm64 target
+echo Building the Windows Arm64 binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-arm64 && make"
+docker cp suika2-run:/workspace/build/mingw-capture/suika-arm64.exe suika-arm64.exe
+
+REM Build the linux-x86_64 target
+echo Building the linux-x86_64 binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/linux-x86_64 && make"
 docker cp suika2-run:/workspace/build/linux-x86_64/suika suika-linux
+
+REM Build the linux-x86_64-replay target
+echo Building the linux-x86_64-replay binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/linux-x86_64-replay && make"
+docker cp suika2-run:/workspace/build/linux-x86_64-replay/suika-replay suika-linux-replay
 
 REM Build the Web target
 echo Building the Web binary.
@@ -35,6 +60,11 @@ docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools &
 docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools && cd /workspace/build/android && ./gradlew build --stacktrace || true"
 docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools && cd /workspace/build/android && ./gradlew build --stacktrace"
 docker cp suika2-run:/workspace/build/android/app/build/outputs/apk/debug/app-debug.apk suika.apk
+
+REM Stop the suika2-run instance
+echo Stopping the docker container.
+docker stop suika2-run
+docker rm suika2-run
 
 REM Trailer
 echo Successfully finished the builds.
