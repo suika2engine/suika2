@@ -75,6 +75,24 @@ cp suika-arm64.exe ../cloud/
 cd ../
 
 echo ""
+echo "Building suika-linux"
+cd linux-x86_64
+make erase
+make libroot
+make -j24
+cp suika ../cloud/suika-linux
+cd ../
+
+echo ""
+echo "Building suika-linux-replay"
+cd linux-x86_64-replay
+make erase
+cp -Ra ../linux-x86_64/libroot .
+make -j24
+cp suika-replay ../cloud/suika-linux-replay
+cd ../
+
+echo ""
 echo "Building Emscripten files."
 cd emscripten
 make clean
