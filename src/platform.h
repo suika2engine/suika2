@@ -168,4 +168,32 @@ void set_running_state(bool running, bool request_stop);
 void update_debug_info(bool script_changed);
 #endif
 
+#ifdef USE_CAPTURE
+/* キャプチャモジュールを初期化する */
+bool init_capture(void);
+
+/* キャプチャモジュールを終了する */
+void cleanup_capture(void);
+
+/* 入力をキャプチャする */
+void capture_input(void);
+
+/* 出力をキャプチャする */
+bool capture_output(void);
+#endif
+
+#ifdef USE_REPLAY
+/* リプレイモジュールを初期化する */
+bool init_replay(int argc, char *argv[]);
+
+/* リプレイモジュールを終了する */
+void cleanup_replay(void);
+
+/* 入力をリプレイする */
+bool replay_input(void);
+
+/* リプレイ結果の出力をキャプチャする */
+bool replay_output(void);
+#endif
+
 #endif

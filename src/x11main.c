@@ -12,6 +12,8 @@
  *  2013-08-11 更新 (fb)
  *  2014-06-12 更新 (conskit)
  *  2016-05-27 更新 (suika2)
+ *  2022-07-22 OpenGL
+ *  2022-07-22 リプレイ対応
  */
 
 #include <X11/Xlib.h>
@@ -26,8 +28,11 @@
 #include <unistd.h>	/* usleep(), access() */
 
 #include "suika.h"
+
+#ifndef USE_REPLAY
 #include "asound.h"
 #include "gstplay.h"
+#endif
 
 #ifdef USE_X11_OPENGL
 #include <GL/gl.h>
@@ -180,7 +185,9 @@ static bool is_gst_playing;
 /*
  * 動画のスキップ可能かどうか
  */
+#ifndef USE_REPLAY
 static bool is_gst_skippable;
+#endif
 
 /*
  * forward declaration
@@ -276,9 +283,11 @@ static bool init(int argc, char *argv[])
 	if (!init_conf())
 		return false;
 
+#ifndef USE_REPLAY
 	/* ALSAの使用を開始する */
 	if (!init_asound())
 		log_warn("Can't initialize sound.\n");
+#endif
 
 	/* ディスプレイをオープンする */
 	if (!open_display()) {
@@ -319,7 +328,14 @@ static bool init(int argc, char *argv[])
 		}
 	}
 
+#ifndef USE_REPLAY
 	gstplay_init(argc, argv);
+#endif
+
+#ifdef USE_REPLAY
+	if (!init_replay(argc, argv))
+		return false;
+#endif
 
 	return true;
 }
@@ -327,8 +343,10 @@ static bool init(int argc, char *argv[])
 /* 互換レイヤの終了処理を行う */
 static void cleanup(void)
 {
+#ifndef USE_REPLAY
 	/* ALSAの使用を終了する */
 	cleanup_asound();
+#endif
 
 	/* OpenGLの利用を終了する */
 #ifdef USE_X11_OPENGL
@@ -759,6 +777,7 @@ static void run_game_loop(void)
 	gettimeofday(&tv_start, NULL);
 
 	while (1) {
+#ifndef USE_REPLAY
 		if (is_gst_playing) {
 			gstplay_loop_iteration();
 			if (!gstplay_is_playing()) {
@@ -766,6 +785,12 @@ static void run_game_loop(void)
 				is_gst_playing = false;
 			}
 		}
+#endif
+
+#ifdef USE_REPLAY
+		if (!replay_input())
+			break;
+#endif
 
 		if (!is_gst_playing) {
 			if (is_opengl) {
@@ -802,6 +827,11 @@ static void run_game_loop(void)
 			}
 		}
 
+#ifdef USE_REPLAY
+		if (!replay_output())
+			break;
+#endif
+
 		/* スクリプトの終端に達した */
 		if (!cont)
 			break;
@@ -830,7 +860,11 @@ static bool wait_for_next_frame(void)
 	struct timeval tv_end;
 	uint32_t lap, wait, span;
 
+#ifndef USE_CAPTURE
 	span = is_opengl ? FRAME_MILLI / 2 : FRAME_MILLI;
+#else
+	span = 1;
+#endif
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -856,6 +890,7 @@ static bool wait_for_next_frame(void)
 		/* スリープする */
 		usleep(wait * 1000);
 	} while(wait > 0);
+
 	return true;
 }
 
@@ -1280,11 +1315,16 @@ struct image *get_back_image(void)
  */
 void reset_stop_watch(stop_watch_t *t)
 {
+#ifndef USE_REPLAY
 	struct timeval tv;
 
 	gettimeofday(&tv, NULL);
 
 	*t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+#else
+	extern uint64_t sim_time;
+	*t = sim_time;
+#endif
 }
 
 /*
@@ -1292,6 +1332,7 @@ void reset_stop_watch(stop_watch_t *t)
  */
 int get_stop_watch_lap(stop_watch_t *t)
 {
+#ifndef USE_REPLAY
 	struct timeval tv;
 	stop_watch_t end;
 	
@@ -1306,6 +1347,10 @@ int get_stop_watch_lap(stop_watch_t *t)
 	}
 
 	return (int)(end - *t);
+#else
+	extern uint64_t sim_time;
+	return (int)(sim_time - *t);
+#endif
 }
 
 /*
@@ -1358,6 +1403,7 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
+#ifndef USE_REPLAY
 	char *path;
 
 	path = make_valid_path(MOV_DIR, fname);
@@ -1368,6 +1414,10 @@ bool play_video(const char *fname, bool is_skippable)
 	gstplay_play(path, window);
 
 	free(path);
+#else
+	UNUSED_PARAMETER(fname);
+	UNUSED_PARAMETER(is_skippable);
+#endif
 
 	return true;
 }
@@ -1377,7 +1427,9 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
+#ifndef USE_REPLAY
 	gstplay_stop();
+#endif
 	is_gst_playing = false;
 }
 

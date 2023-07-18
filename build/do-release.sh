@@ -27,6 +27,7 @@ echo ""
 echo "Checking for Mac apps."
 [ -f cloud/mac.dmg ]
 [ -f cloud/mac-pro.dmg ]
+[ -f cloud/mac-capture.dmg ]
 
 echo ""
 echo "Building Emscripten files."
@@ -38,7 +39,7 @@ cd ../
 echo ""
 echo "Building suika.exe"
 cd mingw
-make clean
+make erase
 ./build-libs.sh
 make -j24
 cp suika.exe ../cloud/
@@ -47,10 +48,19 @@ cd ../
 echo ""
 echo "Building suika-pro.exe"
 cd mingw-pro
-make clean
+make erase
 cp -Rav ../mingw/libroot .
 make -j24
 cp suika-pro.exe ../cloud/
+cd ../
+
+echo ""
+echo "Building suika-capture.exe"
+cd mingw-capture
+make clean
+cp -Rav ../mingw/libroot .
+make -j24
+cp suika-capture.exe ../cloud/
 cd ../
 
 echo ""
@@ -58,6 +68,7 @@ echo "Please sign the Windows apps and press return."
 read str
 [ -f cloud/suika.exe ]
 [ -f cloud/suika-pro.exe ]
+[ -f cloud/suika-capture.exe ]
 
 echo ""
 echo "Creating Windows/Mac release files."

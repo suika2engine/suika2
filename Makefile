@@ -24,6 +24,26 @@ do-release:
 	cd build && \
 	./do-release.sh
 
+test:
+	echo Running test...
+	if [ ! -f build/linux-x86_64-replay/suika-replay ]; then cd build/linux-x86_64-replay; ./build-libs.sh; make; cd ../../; else rm -f build/linux-x86_64-replay/*.gcda; fi
+	if [ ! -d testcases ]; then git clone https://github.com/suika2engine/testcases.git; else cd testcases; git pull origin master; cd ..; fi
+	cd testcases && xvfb-run --server-args=":99 -screen 0 1920x1080x24" ./run.sh
+	cd build/linux-x86_64-replay && \
+	lcov -d . --rc lcov_branch_coverage=1 -c -o app.info && sed -i s+`pwd`+`readlink -f ../../src`+g app.info && lcov -r app.info -o app.info --rc lcov_branch_coverage=1 '/usr/include/*' && \
+	lcov --summary --rc lcov_branch_coverage=1 app.info | tail -n +2 > ../../summary && \
+	genhtml -o lcovoutput -p `pwd` --num-spaces 4 --rc lcov_branch_coverage=1 -f app.info
+
+gtest:
+	echo Running test...
+	if [ ! -f build/linux-x86_64-replay/suika-replay ]; then cd build/linux-x86_64-replay; ./build-libs.sh; make; cd ../../; else rm -f build/linux-x86_64-replay/*.gcda; fi
+	if [ ! -d testcases ]; then git clone https://github.com/suika2engine/testcases.git; else cd testcases; git pull origin master; cd ..; fi
+	cd testcases && xvfb-run --server-args=":99 -screen 0 1920x1080x24" ./run.sh
+	cd build/linux-x86_64-replay && \
+	lcov -d . --rc lcov_branch_coverage=1 -c -o app.info && sed -i s+`pwd`+`readlink -f ../../src`+g app.info && lcov -r app.info -o app.info --rc lcov_branch_coverage=1 '/usr/include/*' && \
+	lcov --summary --rc lcov_branch_coverage=1 app.info | tail -n +2 > ../../summary && \
+	genhtml -o lcovoutput -p `pwd` --num-spaces 4 --rc lcov_branch_coverage=1 -f app.info
+
 #
 # The following targets have to be executed on macOS device.
 #

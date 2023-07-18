@@ -126,6 +126,9 @@ BOOL isRedrawPrepared;
     NSOpenGLPixelFormat *pixelFormat =
         [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
     self = [super initWithFrame:frame pixelFormat:pixelFormat];
+#ifdef USE_CAPTURE
+    [self setWantsBestResolutionOpenGLSurface:NO];
+#endif
     [[self openGLContext] makeCurrentContext];
 
     // VSYNC待ちを有効にする
@@ -183,6 +186,11 @@ BOOL isRedrawPrepared;
         return;
     }
 
+#ifdef USE_CAPTURE
+    // 入力のキャプチャを行う
+    capture_input();
+#endif
+
     // OpenGLの描画を開始する
     if (!isMoviePlaying)
         opengl_start_rendering();
@@ -200,6 +208,12 @@ BOOL isRedrawPrepared;
         // drawRectの呼び出しを予約する
         [self setNeedsDisplay:YES];
     }
+
+#ifdef USE_CAPTURE
+    // 出力のキャプチャを行う
+    if (!capture_output())
+        isFinished = YES;
+#endif
 }
 
 // 描画イベント
@@ -501,9 +515,12 @@ int main(int argc, char *argv[])
                 if (init_aunit()) {
                     // ウィンドウを作成する
                     if (initWindow()) {
-#ifdef USE_DEBUGGER
+#if defined(USE_DEBUGGER)
                         // デバッグウィンドウを作成する
                         if (initDebugWindow()) {
+#elif defined(USE_CAPTURE)
+                        // キャプチャを初期化する
+                        if (init_capture()) {
 #else
                         {
 #endif
@@ -537,6 +554,11 @@ int main(int argc, char *argv[])
 #ifndef USE_DEBUGGER
         // ログをクローズする
         closeLog();
+#endif
+
+#ifdef USE_CAPTURE
+        // キャプチャを終了する
+        cleanup_capture();
 #endif
     }
 
@@ -952,11 +974,16 @@ void render_image_melt(struct image * RESTRICT src_img,
 //
 void reset_stop_watch(stop_watch_t *t)
 {
+#ifndef USE_CAPTURE
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
 
     *t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+#else
+    extern uint64_t cap_cur_time;
+    *t = cap_cur_time;
+#endif
 }
 
 //
@@ -964,6 +991,7 @@ void reset_stop_watch(stop_watch_t *t)
 //
 int get_stop_watch_lap(stop_watch_t *t)
 {
+#ifndef USE_CAPTURE
     struct timeval tv;
     stop_watch_t end;
 
@@ -973,10 +1001,14 @@ int get_stop_watch_lap(stop_watch_t *t)
 
     if (end < *t) {
         reset_stop_watch(t);
-            return 0;
+        return 0;
     }
 
     return (int)(end - *t);
+#else
+	extern uint64_t cap_cur_time;
+	return (int32_t)(cap_cur_time - *t);
+#endif
 }
 
 //

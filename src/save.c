@@ -664,6 +664,9 @@ bool quick_load(void)
 	if (!deserialize_all(QUICK_SAVE_FILE_NAME))
 		return false;
 
+	/* SEを停止する */
+	set_mixer_input(SE_STREAM, NULL);
+
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
 	show_msgbox(false);
@@ -712,6 +715,9 @@ bool execute_load(int index)
 	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(s))
 		return false;
+
+	/* SEを停止する */
+	set_mixer_input(SE_STREAM, NULL);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);

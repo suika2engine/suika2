@@ -27,4 +27,13 @@ codesign --sign "$SIGNATURE" mac-pro.dmg
 rm -rf tmp
 cp mac-pro.dmg ../cloud/
 
-rm -rf tmp mac.dmg mac-pro.dmg
+# Create mac-capture.dmg
+rm -rf tmp mac-capture.dmg
+mkdir tmp
+cp -Rv suika-capture.app tmp/
+hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-capture-mac mac-capture.dmg
+codesign --sign "$SIGNATURE" mac-capture.dmg
+rm -rf tmp
+cp mac-capture.dmg ../cloud/
+
+rm -rf tmp mac.dmg mac-pro.dmg mac-capture.dmg suika.app suika-pro.app suika-capture.app

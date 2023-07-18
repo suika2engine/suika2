@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  *  2016-05-29 作成 (suika)
  *  2017-11-07 フルスクリーンで解像度変更するように修正
  *  2022-06-08 デバッガ対応
+ *  2023-07-17 キャプチャ対応
  */
 
 #ifdef _MSC_VER
@@ -189,6 +190,7 @@ struct GLExtAPITable
 
 /* 前方参照 */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
+static BOOL InitRenderingEngine(void);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
 #ifndef USE_DEBUGGER
@@ -296,46 +298,73 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 #endif
 
 	/* 描画エンジンを初期化する */
-	do {
-		if (_access("no-direct3d.txt", 0) != 0)
-		{
-			/* Direct3Dを初期化する */
-			if (D3DInitialize(hWndMain))
-			{
-				bD3D = TRUE;
-				break;
-			}
-			log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
-		}
-
-		if (_access("no-opengl.txt", 0) != 0)
-		{
-			/* OpenGLを初期化する */
-			if(InitOpenGL())
-			{
-				bOpenGL = TRUE;
-				break;
-			}
-			log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
-		}
-
-		/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
-	} while (0);
+	if (!InitRenderingEngine())
+		return FALSE;
 
 	/* DirectSoundを初期化する */
-	if(!DSInitialize(hWndMain))
+	if (!DSInitialize(hWndMain))
 	{
 		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_NO_SOUND_DEVICE)));
 		return FALSE;
 	}
 
-	if(!bD3D && !bOpenGL)
+	if (!bD3D && !bOpenGL)
 	{
 		/* バックイメージを作成する */
 		if(!CreateBackImage())
 			return FALSE;
 	}
 
+#ifdef USE_CAPTURE
+	if (!init_capture())
+		return FALSE;
+#endif
+
+	return TRUE;
+}
+
+/* 描画エンジンを初期化する */
+static BOOL InitRenderingEngine(void)
+{
+#ifdef USE_CAPTURE
+	/*
+	 * キャプチャアプリではOpenGLを利用する
+	 *  - リプレイアプリはLinuxで動き、OpenGLを利用するため
+	 */
+	if (InitOpenGL())
+	{
+		bOpenGL = TRUE;
+		return TRUE;
+	}
+	log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
+	return FALSE;
+#endif
+
+	/* まずDirect3Dを初期化してみる */
+	if (_access("no-direct3d.txt", 0) != 0)
+	{
+		/* Direct3Dを初期化する */
+		if (D3DInitialize(hWndMain))
+		{
+			bD3D = TRUE;
+			return TRUE;
+		}
+		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
+	}
+
+	/* 次にOpenGLを初期化してみる */
+	if (_access("no-opengl.txt", 0) != 0)
+	{
+		/* OpenGLを初期化する */
+		if(InitOpenGL())
+		{
+			bOpenGL = TRUE;
+			return TRUE;
+		}
+		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
+	}
+
+	/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
 	return TRUE;
 }
 
@@ -399,6 +428,10 @@ static void CleanupApp(void)
 	/* ログファイルをクローズする */
 	if(pLogFile != NULL)
 		fclose(pLogFile);
+
+#ifdef USE_CAPTURE
+	cleanup_capture();
+#endif
 }
 
 /* ウィンドウを作成する */
@@ -723,6 +756,11 @@ static void GameLoop(void)
 
 	while(TRUE)
 	{
+#ifdef USE_CAPTURE
+		/* 入力のキャプチャを行う */
+		capture_input();
+#endif
+
 		/* DirectShowで動画を再生中の場合 */
 		if(bDShowMode)
 		{
@@ -785,6 +823,12 @@ static void GameLoop(void)
 			if(w !=0 && h !=0)
 				SyncBackImage(x, y, w, h);
 		}
+
+#ifdef USE_CAPTURE
+		/* 出力のキャプチャを行う */
+		if (!capture_output())
+			break;
+#endif
 
 		if(bBreak)
 			break;
@@ -1580,8 +1624,13 @@ struct image *get_back_image(void)
  */
 void reset_stop_watch(stop_watch_t *t)
 {
+#ifndef USE_CAPTURE
 	*t = GetTickCount();
 	dwStopWatchOffset = 0;
+#else
+	extern uint64_t cap_cur_time;
+	*t = cap_cur_time;
+#endif
 }
 
 /*
@@ -1589,8 +1638,14 @@ void reset_stop_watch(stop_watch_t *t)
  */
 int get_stop_watch_lap(stop_watch_t *t)
 {
+#ifndef USE_CAPTURE
 	DWORD dwCur = GetTickCount();
 	return (int32_t)(dwCur - *t - dwStopWatchOffset);
+#else
+	extern uint64_t cap_cur_time;
+	return (int32_t)(cap_cur_time - *t);
+#endif
+
 }
 
 /*
