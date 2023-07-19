@@ -2219,7 +2219,7 @@ void draw_stage_collapsed_sysmenu(bool is_pointed,
 		   get_image_height(sysmenu_collapsed_idle_image));
 
 	/* 折りたたみシステムメニューの背景を描画する */
-	if (is_pointed) {
+	if (!is_pointed) {
 		render_image(conf_sysmenu_collapsed_x,
 			     conf_sysmenu_collapsed_y,
 			     sysmenu_collapsed_idle_image,

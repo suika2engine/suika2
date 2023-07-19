@@ -379,25 +379,19 @@ This method will create release-ready ZIP files and upload them to FTP server.
       * `build/release/readme-en.html`
       * `build/web-kit/readme-jp.html`
       * `build/web-kit/readme-en.html`
+    * In terminal, navigate to the `build/macos` directory and run the following commands:
+      * `enter-version.sh`
+        * Enter version string and press return
     * In terminal, navigate to the repository root
       * `git add -u`
-      * `git commit -m "Updated the readme documents"`
+      * `git commit -m "v2.x.y"` (write the version)
       * `git push origin master`
   2. On macOS
-    * In terminal, navigate to the repository root
+    * In terminal, navigate to the `build/macos` directory and run the following commands:
       * `git pull origin master`
-    * Update the version identifiers on Xcode
-    * In terminal, navigate to the repository root
-      * `git add -u`
-      * `git commit -m "Updated the version identifiers on macOS"`
-      * `git push origin master`
-    * Archive 3 macOS app variants, then notarize and export them
-    * In terminal, navigate to the `build/macos` folder
-      * `make-dmg.sh` (this puts dmg files to `OneDrive`)
+      * `make` (this puts dmg files to `OneDrive`)
   3. On WSL2
-    * In terminal, navigate to the repository root
-    * `git pull origin master`
-    * `make do-release`
+    * In terminal, navigate to the repository root and run `make do-release`
       * "Enter version e.g. 2.9.0" -> input version string and press return
       * "Are you sure you want to release 2.x.y? (press return)" -> press return
       * "Please build Mac apps and press return." -> press return

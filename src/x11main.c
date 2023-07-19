@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -13,7 +13,7 @@
  *  2014-06-12 更新 (conskit)
  *  2016-05-27 更新 (suika2)
  *  2022-07-22 OpenGL
- *  2022-07-22 リプレイ対応
+ *  2023-07-17 リプレイ対応
  */
 
 #include <X11/Xlib.h>

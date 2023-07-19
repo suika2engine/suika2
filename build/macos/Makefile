@@ -1,11 +1,16 @@
-all: libroot
+all: libroot app-suika app-suika-pro app-suika-capture app-suika-replay
 
 libroot:
-	curl -O https://suika2.com/dl/libroot-mac.tar.gz
-	tar xzf libroot-mac.tar.gz
+	./build-libs.sh
 
-suika: libroot
-	xcodebuild -target suika -project suika.xcodeproj -configuration Debug build
+app-suika: libroot
+	./xcbuild-wrap.sh suika
 
-suika-pro: libroot
-	xcodebuild -target suika-pro -project suika.xcodeproj -configuration Debug build
+app-suika-pro: libroot
+	./xcbuild-wrap.sh suika-pro
+
+app-suika-capture: libroot
+	./xcbuild-wrap.sh suika-capture
+
+app-suika-replay: libroot
+	./xcbuild-wrap.sh suika-replay

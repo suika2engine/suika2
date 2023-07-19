@@ -1,4 +1,4 @@
-name: suika-windows-pro
+name: suika-windows-capture
 on:
   push:
   pull_request:
@@ -13,12 +13,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mingw-w64
-          cd build/mingw-pro
+          cd build/mingw-capture
           ./build-libs.sh
           make
           make install
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika-pro.exe
-          path: suika-pro.exe
+          name: suika-capture.exe
+          path: suika-capture.exe

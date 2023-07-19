@@ -14,7 +14,7 @@ WINDRES = i686-w64-mingw32-windres
 #
 
 CPPFLAGS = \
-	-DUSE_CAPTURE \
+	-DUSE_REPLAY \
 	-D_WIN32_WINNT=_WIN32_WINNT_VISTA \
 	-I. \
 	-I../mingw/res \
@@ -66,7 +66,7 @@ SRCS_C = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
-	../../src/wincapture.c \
+	../../src/winreplay.c \
 	../../src/uimsg.c \
 	../../src/dsound.c \
 	../../src/glrender.c \
@@ -99,10 +99,10 @@ OBJS = \
 # Target
 #
 
-all: suika-capture.exe
+all: suika-replay.exe
 
-suika-capture.exe: libroot $(OBJS)
-	$(CC) -s -o suika-capture.exe $(OBJS) $(LDFLAGS)
+suika-replay.exe: libroot $(OBJS)
+	$(CC) -s -o suika-replay.exe $(OBJS) $(LDFLAGS)
 
 libroot:
 	./build-libs.sh
@@ -117,11 +117,11 @@ include ../sse.mk
 # Phony
 #
 
-install: suika-capture.exe
-	cp suika-capture.exe ../../
+install: suika-replay.exe
+	cp suika-replay.exe ../../
 
 clean:
-	rm -rf *.o *~ suika-capture.exe log.txt sav tmp
+	rm -rf *.o *~ suika-replay.exe log.txt sav tmp
 
 erase:
-	rm -rf *.o *~ suika-capture.exe log.txt sav tmp libroot
+	rm -rf *.o *~ suika-replay.exe log.txt sav tmp libroot

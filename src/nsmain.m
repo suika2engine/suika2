@@ -126,7 +126,7 @@ BOOL isRedrawPrepared;
     NSOpenGLPixelFormat *pixelFormat =
         [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
     self = [super initWithFrame:frame pixelFormat:pixelFormat];
-#ifdef USE_CAPTURE
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
     [self setWantsBestResolutionOpenGLSurface:NO];
 #endif
     [[self openGLContext] makeCurrentContext];
@@ -190,6 +190,10 @@ BOOL isRedrawPrepared;
     // 入力のキャプチャを行う
     capture_input();
 #endif
+#ifdef USE_REPLAY
+    // 入力のリプレイを行う
+    replay_input();
+#endif
 
     // OpenGLの描画を開始する
     if (!isMoviePlaying)
@@ -212,6 +216,11 @@ BOOL isRedrawPrepared;
 #ifdef USE_CAPTURE
     // 出力のキャプチャを行う
     if (!capture_output())
+        isFinished = YES;
+#endif
+#ifdef USE_REPLAY
+    // 出力のキャプチャを行う
+    if (!replay_output())
         isFinished = YES;
 #endif
 }
@@ -521,6 +530,9 @@ int main(int argc, char *argv[])
 #elif defined(USE_CAPTURE)
                         // キャプチャを初期化する
                         if (init_capture()) {
+#elif defined(USE_REPLAY)
+                        // リプレイを初期化する
+                            if (init_replay(argc, argv)) {
 #else
                         {
 #endif
@@ -559,6 +571,10 @@ int main(int argc, char *argv[])
 #ifdef USE_CAPTURE
         // キャプチャを終了する
         cleanup_capture();
+#endif
+#ifdef USE_REPLAY
+        // リプレイを終了する
+        cleanup_replay();
 #endif
     }
 
@@ -974,15 +990,17 @@ void render_image_melt(struct image * RESTRICT src_img,
 //
 void reset_stop_watch(stop_watch_t *t)
 {
-#ifndef USE_CAPTURE
+#if defined(USE_CAPTURE)
+	extern uint64_t cap_cur_time;
+	*t = cap_cur_time;
+#elif defined(USE_REPLAY)
+	extern uint64_t sim_time;
+	*t = sim_time;
+#else
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
-
     *t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
-#else
-    extern uint64_t cap_cur_time;
-    *t = cap_cur_time;
 #endif
 }
 
@@ -991,23 +1009,23 @@ void reset_stop_watch(stop_watch_t *t)
 //
 int get_stop_watch_lap(stop_watch_t *t)
 {
-#ifndef USE_CAPTURE
+#if defined(USE_CAPTURE)
+    extern uint64_t cap_cur_time;
+    return (int32_t)(cap_cur_time - *t);
+#elif defined(USE_REPLAY)
+	extern uint64_t sim_time;
+	return (int)(sim_time - *t);
+#else
     struct timeval tv;
     stop_watch_t end;
 
     gettimeofday(&tv, NULL);
-
     end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
-
     if (end < *t) {
         reset_stop_watch(t);
         return 0;
     }
-
     return (int)(end - *t);
-#else
-	extern uint64_t cap_cur_time;
-	return (int32_t)(cap_cur_time - *t);
 #endif
 }
 

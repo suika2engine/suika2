@@ -189,7 +189,7 @@ struct GLExtAPITable
 };
 
 /* 前方参照 */
-static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
+static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow);
 static BOOL InitRenderingEngine(void);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -220,7 +220,7 @@ const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 int WINAPI wWinMain(
 	HINSTANCE hInstance,
 	UNUSED(HINSTANCE hPrevInstance),
-	UNUSED(LPWSTR lpszCmd),
+	LPWSTR lpszCmd,
 	int nCmdShow)
 {
 	int result = 1;
@@ -233,7 +233,7 @@ int WINAPI wWinMain(
 #endif
 
 	/* 基盤レイヤの初期化処理を行う */
-	if(InitApp(hInstance, nCmdShow))
+	if(InitApp(hInstance, lpszCmd, nCmdShow))
 	{
 		/* アプリケーション本体の初期化を行う */
 		if(on_event_init())
@@ -258,7 +258,7 @@ int WINAPI wWinMain(
 }
 
 /* 基盤レイヤの初期化処理を行う */
-static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
+static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow)
 {
 	HRESULT hRes;
 
@@ -315,9 +315,17 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 			return FALSE;
 	}
 
-#ifdef USE_CAPTURE
+#if defined(USE_CAPTURE)
+	UNUSED_PARAMETER(lpszCmd);
 	if (!init_capture())
 		return FALSE;
+#elif defined(USE_REPLAY)
+	int argc;
+	wchar_t **argv = CommandLineToArgvW(lpszCmd, &argc);
+	if (!init_replay(argc, argv))
+		return FALSE;
+#else
+	UNUSED_PARAMETER(lpszCmd);
 #endif
 
 	return TRUE;
@@ -326,7 +334,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 /* 描画エンジンを初期化する */
 static BOOL InitRenderingEngine(void)
 {
-#ifdef USE_CAPTURE
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
 	/*
 	 * キャプチャアプリではOpenGLを利用する
 	 *  - リプレイアプリはLinuxで動き、OpenGLを利用するため
@@ -431,6 +439,9 @@ static void CleanupApp(void)
 
 #ifdef USE_CAPTURE
 	cleanup_capture();
+#endif
+#ifdef USE_REPLAY
+	cleanup_replay();
 #endif
 }
 
@@ -760,6 +771,10 @@ static void GameLoop(void)
 		/* 入力のキャプチャを行う */
 		capture_input();
 #endif
+#ifdef USE_REPLAY
+		/* 入力のリプレイを行う */
+		replay_input();
+#endif
 
 		/* DirectShowで動画を再生中の場合 */
 		if(bDShowMode)
@@ -827,6 +842,11 @@ static void GameLoop(void)
 #ifdef USE_CAPTURE
 		/* 出力のキャプチャを行う */
 		if (!capture_output())
+			break;
+#endif
+#ifdef USE_REPLAY
+		/* 出力のキャプチャを行う */
+		if (!replay_output())
 			break;
 #endif
 
@@ -1621,12 +1641,15 @@ struct image *get_back_image(void)
  */
 void reset_stop_watch(stop_watch_t *t)
 {
-#ifndef USE_CAPTURE
-	*t = GetTickCount();
-	dwStopWatchOffset = 0;
-#else
+#if defined(USE_CAPTURE)
 	extern uint64_t cap_cur_time;
 	*t = cap_cur_time;
+#elif defined(USE_REPLAY)
+	extern uint64_t sim_time;
+	*t = sim_time;
+#else
+	*t = GetTickCount();
+	dwStopWatchOffset = 0;
 #endif
 }
 
@@ -1635,14 +1658,16 @@ void reset_stop_watch(stop_watch_t *t)
  */
 int get_stop_watch_lap(stop_watch_t *t)
 {
-#ifndef USE_CAPTURE
-	DWORD dwCur = GetTickCount();
-	return (int32_t)(dwCur - *t - dwStopWatchOffset);
-#else
+#if defined(USE_CAPTURE)
 	extern uint64_t cap_cur_time;
 	return (int32_t)(cap_cur_time - *t);
+#elif defined(USE_REPLAY)
+	extern uint64_t sim_time;
+	return (int)(sim_time - *t);
+#else
+	DWORD dwCur = GetTickCount();
+	return (int32_t)(dwCur - *t - dwStopWatchOffset);
 #endif
-
 }
 
 /*

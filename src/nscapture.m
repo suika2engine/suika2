@@ -168,7 +168,7 @@ void capture_input(void)
 
 	/* フレームの時刻と入力の状態を出力する */
 	fprintf(csv_fp,
-		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+		"%llu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 		cap_cur_time,
 		is_input_changed,
 		mouse_pos_x,
@@ -208,7 +208,7 @@ bool capture_output(void)
 		     GL_UNSIGNED_BYTE, frame_buf);
 
 	/* ファイル名を決める */
-    cpath = [[NSString stringWithFormat:@"%@/%lld.png", recordPath, cap_cur_time] UTF8String];
+    cpath = [[NSString stringWithFormat:@"%@/%llu.png", recordPath, cap_cur_time] UTF8String];
 
 	/* PNGファイルをオープンする */
 	png_fp = fopen(cpath, "wb");

@@ -57,6 +57,15 @@ cp suika-capture.exe ../cloud/
 cd ../
 
 echo ""
+echo "Building suika-replay.exe"
+cd mingw-replay
+make clean
+cp -Rav ../mingw/libroot .
+make -j24
+cp suika-replay.exe ../cloud/
+cd ../
+
+echo ""
 echo "Building suika-64.exe"
 cd mingw-64
 make erase
@@ -105,6 +114,7 @@ read str
 [ -f cloud/suika.exe ]
 [ -f cloud/suika-pro.exe ]
 [ -f cloud/suika-capture.exe ]
+[ -f cloud/suika-replay.exe ]
 [ -f cloud/suika-64.exe ]
 [ -f cloud/suika-arm64.exe ]
 

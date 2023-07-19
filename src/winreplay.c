@@ -7,7 +7,7 @@
 
 /*
  * [Changes]
- *  2022-07-17 作成
+ *  2022-07-18 作成
  */
 #include <GL/gl.h>
 #include <sys/stat.h>	/* mkdir() */
@@ -41,25 +41,27 @@ png_bytep *row_pointers;
 
 /* 前方参照 */
 static bool read_csv_line(void);
-static uint64_t get_tick_count64(void);
+
+/* winmain.c */
+const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 
 /*
  * リプレイモジュールを初期化する
  */
-bool init_replay(int argc, char *argv[])
+bool init_replay(int argc, wchar_t *argv[])
 {
+	wchar_t fname[1024];
 	char buf[1024];
 	int y;
 
 	/* CSVファイルを開く */
-	if (argc < 2) {
-		log_error("Csv file not specified.");
-		return false;
-	}
-	snprintf(buf, sizeof(buf), "%s/main.csv", argv[1]);
-	csv_fp = fopen(buf, "r");
+	if (argc < 2)
+		_snwprintf(fname, sizeof(buf), L"record\\main.csv");
+	else
+		_snwprintf(fname, sizeof(buf), L"%s\\main.csv", argv[1]);
+	csv_fp = _wfopen(fname, L"rb");
 	if (csv_fp == NULL) {
-		log_file_open(argv[1]);
+		log_file_open(conv_utf16_to_utf8(fname));
 		return false;
 	}
 	if (fgets(buf, sizeof(buf), csv_fp) == NULL) {
@@ -69,7 +71,7 @@ bool init_replay(int argc, char *argv[])
 
 	/* リプレイ出力データのディレクトリを作成する */
 	remove(REP_DIR);
-	mkdir(REP_DIR, 0700); 
+	mkdir(REP_DIR); 
 
 	/* フレームバッファのコピー用メモリを確保する */
 	frame_buf = malloc((size_t)(conf_window_width * conf_window_height *
@@ -92,7 +94,7 @@ bool init_replay(int argc, char *argv[])
 	}
 
 	/* 開始時刻を取得する */
-	start_time = get_tick_count64();
+	start_time = GetTickCount64();
 	return true;
 }
 
@@ -149,12 +151,12 @@ bool replay_output(void)
 		return true;
 
 	/* フレームバッファの内容を取得する */
-	glReadBuffer(GL_BACK);
+	glReadBuffer(GL_FRONT);
 	glReadPixels(0, 0, conf_window_width, conf_window_height, GL_RGB,
 		     GL_UNSIGNED_BYTE, frame_buf);
 
 	/* ファイル名を決める */
-	snprintf(fname, sizeof(fname), "%s/%lu.png", REP_DIR, sim_time);
+	snprintf(fname, sizeof(fname), "%s\\%llu.png", REP_DIR, sim_time);
 
 	/* PNGファイルをオープンする */
 	png_fp = fopen(fname, "wb");
@@ -217,7 +219,7 @@ static bool read_csv_line(void)
 	int b_is_control_pressed;
 
 	ret = fscanf(csv_fp,
-		     "%lu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+		     "%llu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 		     &sim_time,
 		     &b_sim_execute,
 		     &mouse_pos_x,
@@ -252,49 +254,5 @@ static bool read_csv_line(void)
 	is_page_down_pressed = b_is_page_down_pressed;
 	is_control_pressed = b_is_control_pressed;
 
-	return true;
-}
-
-/* ミリ秒の時刻を取得する */
-static uint64_t get_tick_count64(void)
-{
-	struct timeval tv;
-
-	gettimeofday(&tv, NULL);
-
-	return (uint64_t)tv.tv_sec * 1000LL + (uint64_t)tv.tv_usec / 1000LL;
-}
-
-/*
- * ALSA
- */
-
-/* サウンドを再生を開始する */
-bool play_sound(int stream, struct wave *w)
-{
-	UNUSED_PARAMETER(stream);
-	UNUSED_PARAMETER(w);
-	return true;
-}
-
-/* サウンドの再生を停止する */
-bool stop_sound(int stream)
-{
-	UNUSED_PARAMETER(stream);
-	return true;
-}
-
-/* サウンドのボリュームを設定する */
-bool set_sound_volume(int stream, float vol)
-{
-	UNUSED_PARAMETER(stream);
-	UNUSED_PARAMETER(vol);
-	return true;
-}
-
-/* サウンドが再生終了したか調べる */
-bool is_sound_finished(int stream)
-{
-	UNUSED_PARAMETER(stream);
 	return true;
 }
