@@ -2,274 +2,265 @@
 	//シナリオ
 	"bg":{
 		"prefix": ["@bg","@背景"],
-		"body": "@背景 ファイル=$1 秒=$2 エフェクト=$3",
-		"description": "背景表示 @背景 ファイルor16進数カラーコード (秒数) (エフェクト)"
+		"body": "@bg file=$1 duration=$2 effect=$3",
+		"description": "Show Background Image @bg <file or HEX-color-code> (duration) (エフェクト)"
 	},
 	"bgm":{
 		"prefix": ["@bgm","@音楽"],
-		"body": "@音楽 ファイル=$1 $2",
-		"description": "音声再生 @音楽 ファイル名or停止 (once)"
+		"body": "@bgm file=$1 $2",
+		"description": "Play Background Music @bgm <file or stop> (once)"
 	},
 	"ch":{
 		"prefix": ["@ch","@キャラ"],
-		"body": "@キャラ 位置=$1 ファイル=$2 秒=$3 エフェクト=$4 右=$5 下=$6 アルファ=$7",
-		"description": "キャラ表示 @キャラ 位置 ファイル (秒) (エフェクト) (右オフセット) (下オフセット) (アルファ)"
+		"body": "@ch position=$1 file=$2 duration=$3 effect=$4 right=$5 down=$6 alpha=$7",
+		"description": "Show Character Image @ch <position> <file> (duration) (effect) (right-offset) (down-offset) (alpha)"
 	},
 	"cha":{
 		"prefix": ["@cha","@キャラ移動"],
-		"body": "@キャラ position=$1 duration=$2 acceleration=$3 x=$4 Y=$5 alpha=$6",
-		"description": "キャラ移動 @キャラ移動 位置 ファイル (秒) (エフェクト) (右オフセット) (下オフセット) (アルファ)"
+		"body": "@cha position=$1 duration=$2 acceleration=$3 x=$4 y=$5 alpha=$6",
+		"description": "Move a Character @cha <position> <duration> <acceleration> (x) (y) (alpha)"
 	},
 	"chapter":{
 		"prefix": ["@chapter","@章"],
-		"body":"@章 タイトル=$1",
-		"description": "章のタイトル @章 [タイトル]"
+		"body":"@chapter title=$1",
+		"description": "Set Chapter Title @chapter <title>"
 	},
 	"choose":{
 		"prefix": ["@choose","@選択肢"],
-		"body":"@選択肢 行き先1=$1 選択肢1=$2 行き先2=$3 選択肢2=$4",
-		"description": "選択肢 @選択肢 [行き先1] [選択肢1] (行き先2) (選択肢2) (行き先3) (選択肢3) (行き先4) (選択肢4) (行き先5) (選択肢5) (行き先6) (選択肢6) (行き先7) (選択肢7) (行き先8) (選択肢8)"
+		"body":"@choose destination1=$1 option1=$2 destination2=$3 option2=$4",
+		"description": "Show Options @choose <Label1> <Option1> (Label2) (Option2) (Label3) (Option3) (Label4) (Option4) (Label5) (Option5) (Label6) (Option6) (Label)7 (Option7) (Label8) (Option8)"
 	},
-
-
 	"chs":{
 		"prefix": ["@chs","@場面転換"],
-		"body":"@場面転換 中央=$1 右=$2 左=$3 背面=$4 秒=$5 背景=$6 エフェクト=$7",
-		"description": "場面転換 @場面転換 [中央ファイル] [右ファイル] [左ファイル] [背面ファイル] (秒) (背景ファイル) (エフェクト)"
+		"body":"@chs center=$1 right=$2 left=$3 back=$4 duration=$5 background=$6 effect=$7",
+		"description": "Change Stage @chs <center-file or stay or none> <right-file or stay or none> <left-file or stay or none> <back-file or stay or none> (duration) (background-file) (effect)"
 	},
 	"click":{
 		"prefix": ["@click","@クリック"],
-		"body":"@クリック",
-		"description": "クリックを待つ @クリック"
+		"body":"@click",
+		"description": "Wait for a Click @click"
 	},
-
-
 	"gosub":{
 		"prefix": ["@gosub"],
 		"body":"@gosub $1",
-		"description": "サブルーチン @gosub [行き先]"
+		"description": "Go to Subroutine @gosub <label>"
 	},
 	"goto":{
 		"prefix": ["@goto","@ジャンプ"],
-		"body":"@ジャンプ 行き先=$1",
-		"description": "ラベルにジャンプ @ジャンプ [行き先]"
+		"body":"@goto destination=$1",
+		"description": "Jump to a Label @goto <label>"
 	},
 	"gui":{
 		"prefix": ["@gui","@メニュー"],
-		"body":"@メニュー ファイル=$1 $2",
-		"description": "GUIの表示 @メニュー [ファイル] (キャンセル許可)"
+		"body":"@gui file=$1 $2",
+		"description": "Show GUI @gui <file> (cancel)"
 	},
 	"if":{
 		"prefix": ["@if","@フラグでジャンプ"],
-		"body":"@フラグでジャンプ $1 $2 $3 $4",
-		"description": "条件分岐 @if [変数] [条件] [数値] [行き先]"
+		"body":"@if $1 $2 $3 $4",
+		"description": "Jump by Condition @if <variable> <condition> <value> <label>"
 	},
 	"load":{
 		"prefix": ["@load","@シナリオ"],
-		"body":"@シナリオ ファイル=$1",
-		"description": "別のスクリプトファイルにジャンプ @シナリオ [ファイル]"
+		"body":"@load file=$1",
+		"description": "Load Other Script @load <file>"
 	},
 	"return":{
 		"prefix": ["@return"],
 		"body": "@return",
-		"description": "サブルーチンから戻る @return"
+		"description": "Return from a Subroutine @return"
 	},
 	"se":{
 		"prefix": ["@se"],
-		"body": "@効果音 ファイル=$1 $2",
-		"description": "効果音を再生(形式は44.1kHzのOgg Vorbisのみ) @効果音 [ファイル] (loop or voice)"
+		"body": "@se file=$1 $2",
+		"description": "Play Sound Effect (44.1kHz Ogg Vorbis) @se <file> (loop or voice)"
 	},
 	"set":{
 		"prefix": ["@set","@フラグをセット"],
-		"body":"@フラグをセット $1 $2 $3",
-		"description": "変数に値をセット @フラグをセット [変数] [演算子] [値]"
+		"body":"@set $1 $2 $3",
+		"description": "Set Variable @set <variable> <operator> <value>"
 	},
 	"setsave":{
 		"prefix": ["@setsave"],
 		"body":"@setsave $1",
-		"description": "セーブ・ロード画面の表示を禁止・解禁 @setsave [disable/enable]"
+		"description": "Enable/disable save and load @setsave <enable/disable>"
 	},
 	"shake":{
 		"prefix": ["@shake","@振動"],
-		"body": "@振動 direction=$1 秒=$2 回数=$3 大きさ=$4",
-		"description": "画面を揺らす @振動 [方向] [秒] [回数] [大きさ]"
+		"body": "@shake direction=$1 duration=$2 times=$3 amplitude=$4",
+		"description": "Shake Screen @shake <direction> <duration> <times> <amplitude>"
 	},
 	"skip":{
 		"prefix": ["@skip","@スキップ"],
-		"body": "@スキップ $1",
-		"description": "ウェイトのスキップを禁止・解禁 @スキップ [enable/disable]"
+		"body": "@skip $1",
+		"description": "Enable/disable Skip @skip <enable/disable>"
 	},
 	"video":{
 		"prefix": ["@video","@動画"],
-		"body": "@動画 ファイル=$1",
-		"description": "動画を再生 @動画 [ファイル]"
+		"body": "@video file=$1",
+		"description": "Play Video @video <file>"
 	},
 	"vol":{
 		"prefix": ["@vol","@音量"],
-		"body": "@音量 トラック=$1 音量=$2 秒=$3",
-		"description": "トラックを指定してボリュームを調整 @音量 [トラック] [音量] (秒)"
+		"body": "@vol track=$1 volume=$2 duration=$3",
+		"description": "Set Volume for a Track @vol <track> <volume> (duration)"
 	},
 	"wait":{
 		"prefix": ["@wait","@時間待ち"],
-		"body": "@時間待ち 秒=$1",
-		"description": "時間を指定して待機 @時間待ち [秒]"
+		"body": "@wait duration=$1",
+		"description": "Wait for Seconds @wait <duration>"
 	},
 	"wms":{
 		"prefix": ["@wms","@スクリプト"],
-		"body": "@wms ファイル=$1",
-		"description": "WMSを実行 @スクリプト [ファイル]"
+		"body": "@wms file=$1",
+		"description": "Run WMS @wms <file>"
 	},
-
 	//エフェクト名
 	"normal":{
 		"prefix": ["normal","標準"],
-		"body": "標準",
-		"description": "エフェクト：標準"
+		"body": "normal",
+		"description": "Effect: normal"
 	},
 	"rule":{
 		"prefix": ["rule"],
 		"body": "rule:$1",
-		"description": "エフェクト:ルール指定トランジション(1bit) rule:ルール画像ファイル"
+		"description": "Effect:rule(1bit) rule:file"
 	},
 	"melt":{
 		"prefix": ["melt"],
 		"body": "melt:$1",
-		"description": "エフェクト:ルール指定トランジション(8bit)  melt:ルール画像ファイル"
+		"description": "Effect:rule(8bit) melt:file"
 	},
 	"curtain-right":{
 		"prefix": ["curtain-right","右カーテン"],
-		"body": "右カーテン",
-		"description": "エフェクト：右方向カーテン"
+		"body": "curtain-right",
+		"description": "Effect: Right Curtain"
 	},
 	"curtain-left":{
 		"prefix": ["curtain-left","左カーテン"],
-		"body": "左カーテン",
-		"description": "エフェクト：左方向カーテン"
+		"body": "curtain-left",
+		"description": "Effect: Left Curtain"
 	},
 	"curtain-up":{
 		"prefix": ["curtain-up","上カーテン"],
-		"body": "上カーテン",
-		"description": "エフェクト：上方向カーテン"
+		"body": "curtain-up",
+		"description": "Effect: Up Curtain"
 	},
 	"curtain-down":{
 		"prefix": ["curtain-down","下カーテン"],
-		"body": "下カーテン",
-		"description": "エフェクト：下方向カーテン"
+		"body": "curtain-down",
+		"description": "Effect: Down Curtain"
 	},
 	"slide-right":{
 		"prefix": ["slide-right","右スライド"],
-		"body": "右スライド",
-		"description": "エフェクト：右方向スライド"
+		"body": "slide-right",
+		"description": "Effect: Right Slide"
 	},
 	"slide-left":{
 		"prefix": ["slide-left","左スライド"],
-		"body": "左スライド",
-		"description": "エフェクト：左方向スライド"
+		"body": "slide-left",
+		"description": "Effect: Left Slide"
 	},
 	"slide-up":{
 		"prefix": ["slide-up","上スライド"],
-		"body": "上スライド",
-		"description": "エフェクト：上スライド"
+		"body": "slide-up",
+		"description": "Effect: Up Slide"
 	},
 	"slide-down":{
 		"prefix": ["slide-down","下スライド"],
-		"body": "下スライド",
-		"description": "エフェクト：下方向スライド"
+		"body": "slide-down",
+		"description": "Effect: Down Slide"
 	},
 	"shutter-right":{
 		"prefix": ["shutter-right","右シャッター"],
-		"body": "右シャッター",
-		"description": "エフェクト：右方向シャッター"
+		"body": "shutter-right",
+		"description": "Effect: Right Shutter"
 	},
 	"shutter-left":{
 		"prefix": ["shutter-left","左シャッター"],
-		"body": "左シャッター",
-		"description": "エフェクト：左方向シャッター"
+		"body": "shutter-left",
+		"description": "Effect: Left Shutter"
 	},
 	"shutter-up":{
 		"prefix": ["shutter-up","上シャッター"],
-		"body": "上シャッター",
-		"description": "エフェクト：上方向シャッター"
+		"body": "shutter-up",
+		"description": "Effect: Up Shutter"
 	},
 	"shutter-down":{
 		"prefix": ["shutter-down","下シャッター"],
-		"body": "下シャッター",
-		"description": "エフェクト：下方向シャッター"
+		"body": "shutter-down",
+		"description": "Effect: Down Shutter"
 	},
 	"clockwise":{
 		"prefix": ["clockwise","時計回り"],
-		"body": "時計回り",
-		"description": "エフェクト：時計回り"
+		"body": "clockwise",
+		"description": "Effect: Clockwise"
 	},
 	"counterclockwise":{
 		"prefix": ["counterclockwise","反時計回り"],
-		"body": "反時計回り",
-		"description": "エフェクト：反時計回り"
+		"body": "counterclockwise",
+		"description": "Effect: Counterclockwise"
 	},
 	"clockwise20":{
 		"prefix": ["clockwise20"],
 		"body": "clockwise20",
-		"description": "エフェクト：時計回り(20°刻み) "
+		"description": "Effect: Clockwise (20deg)"
 	},
 	"counterclockwise20":{
 		"prefix": ["counterclockwise20"],
 		"body": "counterclockwise20",
-		"description": "エフェクト：反時計回り(20°刻み) "
+		"description": "Effect: Counterclockwise (20deg)"
 	},
 	"clockwise30":{
 		"prefix": ["clockwise30"],
 		"body": "clockwise30",
-		"description": "エフェクト：時計回り(30°刻み) "
+		"description": "Effect: Clockwise (30deg)"
 	},
 	"counterclockwise30":{
 		"prefix": ["counterclockwise30"],
 		"body": "counterclockwise30",
-		"description": "エフェクト：反時計回り(30°刻み)"
+		"description": "Effect: Counterclockwise (30deg)"
 	},
 	"eye-open":{
 		"prefix": ["eye-open"],
 		"body": "eye-open",
-		"description": "エフェクト：目を開くような効果"
+		"description": "Effect: Open Eye"
 	},
 	"eye-close":{
 		"prefix": ["eye-close"],
 		"body": "eye-close",
-		"description": "エフェクト：目を閉じるような効果"
+		"description": "Effect: Close Eye"
 	},
 	"eye-open-v":{
 		"prefix": ["eye-open-v"],
 		"body": "eye-open-v",
-		"description": "エフェクト：目を開くような効果(垂直)"
+		"description": "Effect: Open Eye (Vertical)"
 	},
 	"eye-close-v":{
 		"prefix": ["eye-close-v"],
 		"body": "eye-close-v",
-		"description": "エフェクト：目を閉じるような効果(垂直)"
+		"description": "Effect: Close Eye (Vertical)"
 	},
 	"slit-open":{
 		"prefix": ["slit-open"],
 		"body": "slit-open",
-		"description": "エフェクト：スリットが開くような効果"
+		"description": "Effect: Slip Open"
 	},
 	"slit-close":{
 		"prefix": ["slit-close"],
-		"body": "slit-open",
-		"description": "エフェクト：スリットが閉じるような効果"
+		"body": "slit-close",
+		"description": "Effect: Slit Close"
 	},
 	"slit-open-v":{
 		"prefix": ["slit-open-v"],
 		"body": "slit-open-v",
-		"description": "エフェクト：スリットが開くような効果(垂直) "
+		"description": "Effect: Slit Open (Vertical)"
 	},
 	"slit-close-v":{
 		"prefix": ["slit-close-v"],
 		"body": "slit-close-v",
-		"description": "エフェクト：スリットが閉じるような効果(垂直)"
+		"description": "Effect: Slit Close (Vertical)"
 	},
-
-
-
-
 	//gui
 	"globalTemp":{
 		"prefix": "global",
@@ -282,7 +273,7 @@
 			"\tcancelse: $4;",
 			"}"
 		],
-		"description": "guiのglobalテンプレート"
+		"description": "Template for global section of GUI"
 	},
 	"gotoTemp":{
 		"prefix": "gotoTemp",
@@ -301,7 +292,7 @@
 			"\tclickse: $8;",
 			"}"
 		],
-		"description": "gotoのguiテンプレート"
+		"description": "Template for goto button"
 	},
 	"textspeedTemp":{
 		"prefix": "textspeedTemp",
@@ -317,7 +308,7 @@
 			"\tpointse: $7;",
 			"}"
 		],
-		"description": "textspeedのguiテンプレート"
+		"description": "Template for textspeed slider"
 	},
 	"autospeedTemp":{
 		"prefix": "autospeedTemp",
@@ -336,7 +327,7 @@
 			"\tclickse: $8;",
 			"}"
 		],
-		"description": "autospeedのguiテンプレート"
+		"description": "Template for autospeed slider"
 	},
 	"previewTemp":{
 		"prefix": "previewTemp",
@@ -344,7 +335,7 @@
 			"$1 {",
 			"\ttype: preview;",
 			"",
-			"\tmsg: ${2:これはメッセージのプレビューです。スピードはよろしいですか？};",
+			"\tmsg: ${2:This is a preview message. Is the message speed ok?};",
 			"",
 			"\tx: $3;",
 			"\ty: $4;",
@@ -352,7 +343,7 @@
 			"\theight: $6;",
 			"}"
 		],
-		"description": "previewのguiテンプレート"
+		"description": "Template for preview area"
 	},
 	"bgmvolTemp":{
 		"prefix": "previewTemp",
@@ -368,7 +359,7 @@
 			"\tpointse: $6;",
 			"}"
 		],
-		"description": "bgmvolのguiテンプレート"
+		"description": "Template for bgmvol slider"
 	},
 	"sevolTemp":{
 		"prefix": "sevolTemp",
@@ -386,7 +377,7 @@
 			"\tpointse: $7;",
 			"}"
 		],
-		"description": "sevolのguiテンプレート"
+		"description": "Template for sevol slider"
 	},
 	"voicevolTemp":{
 		"prefix": "voicevolTemp",
@@ -404,7 +395,7 @@
 			"\tpointse: $7;",
 			"}"
 		],
-		"description": "voicevolのguiテンプレート"
+		"description": "Template for voicevol button"
 	},
 	"charactervolTemp":{
 		"prefix": "charactervolTemp",
@@ -424,7 +415,7 @@
 			"\tpointse: $8;",
 			"}"
 		],
-		"description": "charactervolのguiテンプレート"
+		"description": "Template for charactervol button"
 	},
 	"fontTemp":{
 		"prefix": "fontTemp",
@@ -443,7 +434,7 @@
 			"\tclickse: $8;",
 			"}"
 		],
-		"description": "fontのguiテンプレート"
+		"description": "Template for font button"
 	},
 	"fullscreenTemp":{
 		"prefix": "fullscreenTemp",
@@ -460,7 +451,7 @@
 			"\tclickse: $7;",
 			"}"
 		],
-		"description": "fullscreenのguiテンプレート"
+		"description": "Template for fullscreen button"
 	},
 	"windowTemp":{
 		"prefix": "windowTemp",
@@ -477,7 +468,7 @@
 			"\tclickse: $7;",
 			"}"
 		],
-		"description": "windowのguiテンプレート"
+		"description": "Template for window button"
 	},
 	"defaultTemp":{
 		"prefix": "defaultTemp",
@@ -494,7 +485,7 @@
 			"\tclickse: $7;",
 			"}"
 		],
-		"description": "defaultのguiテンプレート"
+		"description": "Template for default button"
 	},
 	"guiTemp":{
 		"prefix": "guiTemp",
@@ -513,7 +504,7 @@
 			"\tclickse: $8;",
 			"}"
 		],
-		"description": "type:guiのguiテンプレート"
+		"description": "Template for type:gui button"
 	},
 	"titleTemp":{
 		"prefix": "titleTemp",
@@ -532,7 +523,7 @@
 			"\tclickse: $8;",
 			"}"
 		],
-		"description": "type:titleのguiテンプレート"
+		"description": "Template for type:title button"
 	},
 	"cancelTemp":{
 		"prefix": "cancelTemp",
@@ -549,7 +540,7 @@
 			"\tclickse: $7;",
 			"}"
 		],
-		"description": "cancelのguiテンプレート"
+		"description": "Template for cancel button"
 	},
 	"savepageTemp":{
 		"prefix": "savepageTemp",
@@ -568,7 +559,7 @@
 			"\tclickse: $8;",
 			"}"
 		],
-		"description": "savepageのguiテンプレート"
+		"description": "Template for savepage button"
 	},
 	"saveTemp":{
 		"prefix": "saveTemp",
@@ -589,13 +580,13 @@
 			"\tclickse: $9;",
 			"}"
 		],
-		"description": "saveのguiテンプレート"
+		"description": "Template for save area"
 	},
 	"loadTemp":{
 		"prefix": "loadTemp",
 		"body": [
 			"$1 {",
-			"\ttype: save;",
+			"\ttype: load;",
 			"",
 			"\tindex: $2",
 			"",
@@ -610,7 +601,7 @@
 			"\tclickse: $9;",
 			"}"
 		],
-		"description": "loadのguiテンプレート"
+		"description": "Template for load area"
 	},
 	"historyscrollTemp":{
 		"prefix": "historyscrollTemp",
@@ -626,7 +617,7 @@
 			"\tpointse: $6;",
 			"}"
 		],
-		"description": "historyscrollのguiテンプレート"
+		"description": "Template for historyscroll bar"
 	},
 	"historyTemp":{
 		"prefix": "historyTemp",
@@ -646,7 +637,7 @@
 			"\tpointse: $8;",
 			"}"
 		],
-		"description": "historyのguiテンプレート"
+		"description": "Template for history item"
 	},
 	"namevarTemp":{
 		"prefix": "namevarTemp",
@@ -662,7 +653,7 @@
 			"\theight: $6;",
 			"}"
 		],
-		"description": "namevarのプレビュー領域のguiテンプレート"
+		"description": "Template for namevar area"
 	},
 	"charTemp":{
 		"prefix": "charTemp",
@@ -686,7 +677,7 @@
 			"\tclickse: $10",
 			"}"
 		],
-		"description": "namevarの文字ボタンのguiテンプレート"
+		"description": "Template for name input button"
 	},
 	"charOKTemp":{
 		"prefix": "charOKTemp",
@@ -710,7 +701,7 @@
 			"\tclickse: $9",
 			"}"
 		],
-		"description": "namevarの決定ボタンのguiテンプレート"
+		"description": "Template for name input complete button"
 	},
 	"charClearTemp":{
 		"prefix": "charClearTemp",
@@ -734,7 +725,7 @@
 			"\tclickse: $9",
 			"}"
 		],
-		"description": "namevarのクリアボタンのguiテンプレート"
+		"description": "Template for name input clear button"
 	},
 	"charBackspaceTemp":{
 		"prefix": "charBackspaceTemp",
@@ -758,7 +749,7 @@
 			"\tclickse: $9",
 			"}"
 		],
-		"description": "namevarの一文字消去ボタンのguiテンプレート"
+		"description": "Template for name input backspace button"
 	},
 	"galleryTemp":{
 		"prefix": "galleryTemp",
@@ -780,9 +771,8 @@
 			"\tclickse: $9",
 			"}"
 		],
-		"description": "CG鑑賞モードの各CGに進むボタンのguiテンプレート"
+		"description": "Template for CG gallery button"
 	},
-
 	//wms
 	"func":{
 		"prefix": "func",
@@ -791,7 +781,7 @@
 			"\t$2",
 			"}"
 		],
-		"description": "関数の定義"
+		"description": "Function definition"
 	},
 	"main":{
 		"prefix": "main()",
@@ -800,14 +790,14 @@
 			"\t$1",
 			"}"
 		],
-		"description": "wmsはこの関数から始まる"
+		"description": "WMS starts from this function"
 	},
 	"print":{
 		"prefix": "print()",
 		"body":[
 			"print($1);"
 		],
-		"description": "アラートを表示"
+		"description": "Show alert"
 	},
 	"for":{
 		"prefix": "for()",
@@ -816,7 +806,7 @@
 			"\t$2",
 			"}"
 		],
-		"description": "繰り返し"
+		"description": "Repeat for"
 	},
 	"while":{
 		"prefix": "while()",
@@ -825,7 +815,7 @@
 			"\t$2",
 			"}"
 		],
-		"description": "条件を満たす間、繰り返す"
+		"description": "Repeat while"
 	},
 	"ifWms":{
 		"prefix": "if()",
@@ -834,7 +824,7 @@
 			"\t$2",
 			"}"
 		],
-		"description": "分岐"
+		"description": "If block"
 	},
 	"else":{
 		"prefix": "if()",
@@ -843,69 +833,76 @@
 			"\t$1",
 			"}"
 		],
-		"description": "ifに当てはまらなかった時、実行される"
+		"description": "Else block"
 	},
 	"break":{
 		"prefix": "break",
 		"body":[
 			"break;"
 		],
-		"description": "forやwhileの処理を中断する"
+		"description": "Break loop"
 	},
 	"continue":{
 		"prefix": "continue",
 		"body":[
 			"continue;"
 		],
-		"description": "forやwhileの現在の処理を飛ばし、次の繰り返しに進む"
+		"description": "Continue loop"
 	},
 	"remove":{
 		"prefix": "remove();",
 		"body":[
 			"remove($1);"
 		],
-		"description": "指定した配列の要素を削除する"
+		"description": "Remove an array element"
 	},
 	"size":{
 		"prefix": "size();",
 		"body":[
 			"size($1);"
 		],
-		"description": "指定した配列のサイズを取得する"
+		"description": "Get size of array"
 	},
 	"s2_get_variable":{
 		"prefix": "s2_get_variable();",
 		"body":[
 			"s2_get_variable($1);"
 		],
-		"description": "エンジンの変数を取得する"
+		"description": "Get engine variable value"
 	},
 	"s2_set_variable":{
 		"prefix": "s2_set_variable();",
 		"body":[
 			"s2_set_variable($1,$2);"
 		],
-		"description": "エンジンの変数を設定する"
+		"description": "Set engine variable value"
 	},
 	"s2_set_config":{
 		"prefix": "s2_set_config();",
 		"body":[
 			"s2_set_config($1,$2);"
 		],
-		"description": "コンフィグを上書きする"
+		"description": "Overwrite config item"
 	},
 	"s2_reflect_config":{
 		"prefix": "s2_reflect_",
 		"body":[
 			"s2_reflect_$1_config();"
 		],
-		"description": "指定した要素の設定を反映する"
+		"description": "Apply change of config overwrite"
+	},
+	"s2_reflect_font_config":{
+		"prefix": "s2_reflect_font_config();",
+		"body":[
+			"s2_reflect_font_config();"
+		],
+		"description": "Apply font config change"
 	},
 	"s2_reflect_msgbox_and_namebox_config":{
 		"prefix": "s2_reflect_msgbox_and_namebox_config();",
 		"body":[
 			"s2_reflect_msgbox_and_namebox_config();"
 		],
-		"description": "メッセージボックスと名前ボックスを更新する"
+		"description": "Apply message box and name box config change"
 	}
 }
