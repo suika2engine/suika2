@@ -931,7 +931,7 @@ so the use of this feature is not as common.
 `@vol` can be written with parameters names.
 
 ```
-@vol track=bgm volume=1.0 second=1.0
+@vol track=bgm volume=1.0 duration=1.0
 ```
 
 ### Alias
