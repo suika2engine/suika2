@@ -19,7 +19,7 @@ suika-replay.exe  ... This replays record folder and put replay folder
 
  * TIPS
   - You can check the differecne between record and replay folders using
-    a free software called "WinMerge". (difference is a bug)
+    suika-compare.exe that is distributed separatedly (difference is a bug)
   - You can rename record folder, and drop it to suika-replay.exe
 
 ##
