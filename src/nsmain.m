@@ -821,8 +821,6 @@ bool log_info(const char *s, ...)
         fprintf(stderr, "%s", buf);
         fprintf(logFp, "%s", buf);
         fflush(logFp);
-        if (ferror(logFp))
-            return false;
     }
 #endif
 
@@ -858,8 +856,6 @@ bool log_warn(const char *s, ...)
         fprintf(stderr, "%s", buf);
         fprintf(logFp, "%s", buf);
         fflush(logFp);
-        if (ferror(logFp))
-            return false;
     }
 #endif
 
@@ -891,12 +887,11 @@ bool log_error(const char *s, ...)
     // ログファイルに出力する
     if (!openLog())
         return false;
-    assert(logFp != NULL);
-    fprintf(stderr, "%s", buf);
-    fprintf(logFp, "%s", buf);
-    fflush(logFp);
-    if (ferror(logFp))
-        return false;
+    if (logFp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(logFp, "%s", buf);
+        fflush(logFp);
+    }
 #endif
 
     // アラートを表示する
