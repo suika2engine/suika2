@@ -915,7 +915,7 @@ static BOOL WaitForNextFrame(void)
 
 		/* 経過時刻を取得する */
 		end = GetTickCount();
-		lap = dwStartTime - end;
+		lap = end - dwStartTime;
 
 		/* 次のフレームの開始時刻になった場合はスリープを終了する */
 		if(lap >= span) {
