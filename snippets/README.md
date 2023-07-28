@@ -4,6 +4,7 @@ This is a VScode completion tool for Suika2.
 
 Variants:
 * `en-normal` ... English, with parameter names (`@bg file=sample.png duration=1.5 effect=curtain-right`)
+* `en-cwn-normal` ... Commonwealth English, with parameter names (`@bg file=sample.png duration=1.5 effect=curtain-right`)
 * `jp-normal` ... Japanese, with parameter names (`@背景 ファイル=sample.png 秒=1.5 エフェクト=右カーテン`)
 * `jp-short` ... Japanese, without parameter names (`@bg sample.png 1.5`)
 
