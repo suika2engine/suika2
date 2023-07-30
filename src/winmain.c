@@ -248,7 +248,7 @@ int WINAPI wWinMain(
 		}
 	}
 
-	/* 互換レイヤの終了処理を行う */
+	/* 基盤レイヤの終了処理を行う */
 	CleanupApp();
 
 	/* Sleep()の分解能を元に戻す */
