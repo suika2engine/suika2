@@ -149,11 +149,17 @@ static int msgbox_h;
  * 色
  */
 
-/* 文字の色 */
-static pixel_t color;
+/* 本文の文字の色 */
+static pixel_t body_color;
 
-/* 文字の縁取りの色 */
-static pixel_t outline_color;
+/* 本文の文字の縁取りの色 */
+static pixel_t body_outline_color;
+
+/* 名前の文字の色 */
+static pixel_t name_color;
+
+/* 名前の文字の縁取りの色 */
+static pixel_t name_outline_color;
 
 /*
  * 行継続モード
@@ -296,7 +302,7 @@ static void put_space(void);
 static bool register_message_for_history(const char *msg);
 static char *concat_serif(const char *name, const char *serif);
 static int count_chars(const char *msg);
-static void init_colors(pixel_t *color, pixel_t *outline_color);
+static void init_colors(void);
 static bool init_serif(int *x, int *y, int *w, int *h);
 static bool check_play_voice(void);
 static bool play_voice(void);
@@ -593,7 +599,7 @@ static bool init(int *x, int *y, int *w, int *h)
 		return false;
 
 	/* 文字色の初期化を行う */
-	init_colors(&color, &outline_color);
+	init_colors();
 
 	/* セリフ固有の初期化を行う */
 	if (!init_serif(x, y, w, h))
@@ -739,6 +745,12 @@ static bool init_name_top(void)
 	if (gui_sys_flag)
 		return true;
 
+	/* ロード/タイトルへ戻った場合はname_topが残っているので解放する */
+	if (name_top != NULL) {
+		free(name_top);
+		name_top = NULL;
+	}
+
 	/* 名前を取得する */
 	if (get_command_type() == COMMAND_SERIF) {
 		raw = get_string_param(SERIF_PARAM_NAME);
@@ -766,6 +778,12 @@ static bool init_msg_top(void)
 	/* システムGUIから戻った場合 */
 	if (gui_sys_flag)
 		return true;
+
+	/* ロード/タイトルへ戻った場合はmsg_topが残っているので解放する */
+	if (msg_top != NULL) {
+		free(msg_top);
+		msg_top = NULL;
+	}
 
 	/* 引数を取得する */
 	is_serif = get_command_type() == COMMAND_SERIF;
@@ -1035,7 +1053,7 @@ static int count_chars(const char *msg)
 }
 
 /* 文字色を求める */
-static void init_colors(pixel_t *color, pixel_t *outline_color)
+static void init_colors(void)
 {
 	int i;
 
@@ -1043,7 +1061,20 @@ static void init_colors(pixel_t *color, pixel_t *outline_color)
 	if (gui_sys_flag)
 		return;
 
-	/* セリフの場合 */
+	/* まずデフォルトの色をロードする */
+	body_color = make_pixel_slow(0xff,
+				     (pixel_t)conf_font_color_r,
+				     (pixel_t)conf_font_color_g,
+				     (pixel_t)conf_font_color_b);
+	body_outline_color =
+		make_pixel_slow(0xff,
+				(pixel_t)conf_font_outline_color_r,
+				(pixel_t)conf_font_outline_color_g,
+				(pixel_t)conf_font_outline_color_b);
+	name_color = body_color;
+	name_outline_color = body_outline_color;
+
+	/* セリフの場合は、名前リストにあれば色を変更する */
 	if (get_command_type() == COMMAND_SERIF) {
 		/* コンフィグでnameの指す名前が指定されているか */
 		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
@@ -1051,30 +1082,24 @@ static void init_colors(pixel_t *color, pixel_t *outline_color)
 				continue;
 			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
 				/* コンフィグで指定された色にする */
-				*color = make_pixel_slow(
+				name_color = make_pixel_slow(
 					0xff,
 					(uint32_t)conf_serif_color_r[i],
 					(uint32_t)conf_serif_color_g[i],
 					(uint32_t)conf_serif_color_b[i]);
-				*outline_color = make_pixel_slow(
+				name_outline_color = make_pixel_slow(
 					0xff,
 					(uint32_t)conf_serif_outline_color_r[i],
 					(uint32_t)conf_serif_outline_color_g[i],
 					(uint32_t)conf_serif_outline_color_b[i]);
+				if (!conf_serif_color_name_only) {
+					body_color = name_color;
+					body_outline_color = name_outline_color;
+				}
 				return;
 			}
 		}
 	}
-
-	/* セリフでないかコンフィグで名前が指定されていない場合 */
-	*color = make_pixel_slow(0xff,
-				 (pixel_t)conf_font_color_r,
-				 (pixel_t)conf_font_color_g,
-				 (pixel_t)conf_font_color_b);
-	*outline_color = make_pixel_slow(0xff,
-					 (pixel_t)conf_font_outline_color_r,
-					 (pixel_t)conf_font_outline_color_g,
-					 (pixel_t)conf_font_outline_color_b);
 }
 
 /* セリフコマンドを処理する */
@@ -1258,8 +1283,8 @@ static void draw_namebox(void)
 			return;
 
 		/* 描画する */
-		w = draw_char_on_namebox(x, conf_namebox_margin_top, c, color,
-					 outline_color);
+		w = draw_char_on_namebox(x, conf_namebox_margin_top, c,
+					 name_color, name_outline_color);
 
 		/* 次の文字へ移動する */
 		x += w;
@@ -1812,7 +1837,7 @@ static bool process_button_click(int *x, int *y, int *w, int *h)
 	 * 上キーの押下をヒストリボタンのクリックに変換する
 	 *  - NOTE: マウスホイールの上は、上キーに変換されている
 	 */
-	if (is_up_pressed) {
+	if (!conf_msgbox_history_disable && is_up_pressed) {
 		pointed_index = BTN_HISTORY;
 		is_left_clicked = true;
 	}
@@ -2387,7 +2412,8 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	uint32_t wc;
 	int char_count, i, mblen, glyph_width, ret_width, ret_height;
 
-	assert(!gui_sys_flag);
+	if (!is_dimming)
+		assert(!gui_sys_flag);
 
 	/* 今回のフレームで描画する文字数を取得する */
 	char_count = get_frame_chars();
@@ -2419,8 +2445,9 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		process_lf(wc, glyph_width);
 
 		/* 描画する */
-		draw_char_on_msgbox(pen_x, pen_y, wc, color, outline_color,
-				    &ret_width, &ret_height);
+		draw_char_on_msgbox(pen_x, pen_y, wc, body_color,
+				    body_outline_color, &ret_width,
+				    &ret_height);
 
 		/* 更新領域を求める */
 		union_rect(x, y, w, h,
@@ -2444,7 +2471,8 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
  */
 static int get_frame_chars(void)
 {
-	assert(!gui_sys_flag);
+	if (!is_dimming)
+		assert(!gui_sys_flag);
 
 	/* 繰り返し動作しない場合 (dimmingを含む) */
 	if (!is_in_command_repetition()) {
@@ -3074,14 +3102,15 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 	pen_y = orig_pen_y;
 
 	/* dimming用の文字色を求める */
-	color = make_pixel_slow(0xff,
-				(uint32_t)conf_msgbox_dim_color_r,
-				(uint32_t)conf_msgbox_dim_color_g,
-				(uint32_t)conf_msgbox_dim_color_b);
-	outline_color = make_pixel_slow(0xff,
-					(uint32_t)conf_msgbox_dim_color_outline_r,
-					(uint32_t)conf_msgbox_dim_color_outline_g,
-					(uint32_t)conf_msgbox_dim_color_outline_b);
+	body_color = make_pixel_slow(0xff,
+				     (uint32_t)conf_msgbox_dim_color_r,
+				     (uint32_t)conf_msgbox_dim_color_g,
+				     (uint32_t)conf_msgbox_dim_color_b);
+	body_outline_color =
+		make_pixel_slow(0xff,
+				(uint32_t)conf_msgbox_dim_color_outline_r,
+				(uint32_t)conf_msgbox_dim_color_outline_g,
+				(uint32_t)conf_msgbox_dim_color_outline_b);
 
 	/*
 	 * 本文を描画する
@@ -3155,14 +3184,17 @@ static bool cleanup(void)
 	set_seen();
 
 	/* 名前と本文を解放する */
-	if (name_top != NULL) {
-		free(name_top);
-		name_top = NULL;
-	}
-	if (msg_top != NULL) {
-		free(msg_top);
-		msg_top = NULL;
-		msg_cur = NULL;
+	if (!need_save_mode && !need_load_mode && !need_history_mode &&
+	    !need_config_mode) {
+		if (name_top != NULL) {
+			free(name_top);
+			name_top = NULL;
+		}
+		if (msg_top != NULL) {
+			free(msg_top);
+			msg_top = NULL;
+			msg_cur = NULL;
+		}
 	}
 
 	/* 次のコマンドに移動する */

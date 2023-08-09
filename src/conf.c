@@ -375,6 +375,12 @@ int conf_serif_quote;
 /* ch,cha,chs,bgの最中に折りたたみメッセージボックスを表示する */
 int conf_sysmenu_transition;
 
+/* 上キーでヒストリを表示しない */
+int conf_msgbox_history_disable;
+
+/* キャラのセリフの名前だけ色を変更する */
+int conf_serif_color_name_only;
+
 /* リリース版であるか */
 int conf_release;
 
@@ -1083,6 +1089,8 @@ struct rule {
 	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
 	{"serif.quote", 'i', &conf_serif_quote, true, false},
 	{"sysmenu.transition", 'i', &conf_sysmenu_transition, true, false},
+	{"msgbox.history.disable", 'i', &conf_msgbox_history_disable, true, false},
+	{"serif.color.name.only", 'i', &conf_serif_color_name_only, true, false},
 	{"release", 'i', &conf_release, true, false},
 };
 

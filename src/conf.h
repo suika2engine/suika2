@@ -335,6 +335,8 @@ extern int conf_msgbox_show_on_bg;
 extern float conf_beep_adjustment;
 extern int conf_serif_quote;
 extern int conf_sysmenu_transition;
+extern int conf_msgbox_history_disable;
+extern int conf_serif_color_name_only;
 extern int conf_release;
 
 /* conf_localeを設定する */
