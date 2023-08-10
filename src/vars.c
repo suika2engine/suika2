@@ -223,7 +223,7 @@ void truncate_name_variable(int index)
  */
 const char *expand_variable(const char *msg)
 {
-	char var[5];
+	char var[16];
 	char *d;
 	size_t buf_size;
 	int i, index, name_index;
@@ -242,7 +242,7 @@ const char *expand_variable(const char *msg)
 
 			/* 変数番号を取得する */
 			msg++;
-			for (i = 0; i < 4; i++) {
+			for (i = 0; i < 5; i++) {
 				if (isdigit((int)*msg))
 					var[i] = *msg++;
 				else
