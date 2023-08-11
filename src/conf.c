@@ -33,6 +33,9 @@ char *conf_language_other;
 int conf_locale;
 const char *conf_locale_mapped;
 
+/* テスト用にシステムロケールを上書き (conf.hでexternしていない) */
+char *conf_locale_force;
+
 /*
  * ウィンドウの設定
  */
@@ -411,6 +414,7 @@ struct rule {
 	{"language.tw", 's', &conf_language_tw, true, false},
 	{"language.ja", 's', &conf_language_ja, true, false},
 	{"language.other", 's', &conf_language_other, true, false},
+	{"locale.force", 's', &conf_locale_force, true, false},
 	{"window.title", 's', &conf_window_title, false, false},
 	{"window.width", 'i', &conf_window_width, false, false},
 	{"window.height", 'i', &conf_window_height, false, false},
@@ -1251,6 +1255,10 @@ bool apply_initial_values(void)
 
 	/* ロケールのマッピングを行う */
 	set_locale_mapping();
+	if (conf_locale_force != NULL) {
+		/* ロケールの上書きが行われたので、再初期化する */
+		init_locale_code();
+	}
 
 	/* グローバルボリュームをセットする */
 	set_mixer_global_volume(BGM_STREAM, conf_sound_vol_bgm);
@@ -1273,7 +1281,16 @@ void init_locale_code(void)
 {
 	const char *locale;
 
-	locale = get_system_locale();
+	/*
+	 * この関数は各プラットフォームの初期化コードから呼ばれる。
+	 * その際、コンフィグはロードされていないので、システムのロケールを
+	 * 必ず使う。コンフィグのロード後に、locale.forceがある場合は、
+	 * もう一度この関数が呼び出される。
+	 */
+	if (conf_locale_force == NULL)
+		locale = get_system_locale();
+	else
+		locale = conf_locale_force;
 
 	/* ロケール名を整数値に変換する */
 	if (strcmp(locale, "en") == 0)
