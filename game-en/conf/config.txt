@@ -397,7 +397,7 @@ sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 # Sound effect when the collapsed system menu is pointed (optional)
 sysmenu.collapsed.se=btn-change.ogg
 
-# System menu (0:show, 1:hide, optional)
+# System menu (0:show, 1:hide on message, 2:hide always, optional)
 sysmenu.hidden=0
 
 ###

@@ -371,7 +371,7 @@ sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 # 折りたたみシステムメニューが選択されたときのSE(省略可)
 sysmenu.collapsed.se=btn-change.ogg
 
-# システムメニューを隠す (1:隠す, 0:隠さない) (省略可)
+# システムメニューを隠す (2:常に隠す, 1:選択肢以外では隠す, 0:隠さない) (省略可)
 sysmenu.hidden=0
 
 ###
