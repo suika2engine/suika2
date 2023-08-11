@@ -900,6 +900,8 @@ static const char *skip_lf(const char *m, int *lf)
 			/* ペンを改行する */
 			pen_x = conf_msgbox_margin_left;
 			pen_y += conf_msgbox_margin_line;
+		} else {
+			m++;
 		}
 	}
 	return m;
@@ -2687,6 +2689,12 @@ static void draw_click(int *x, int *y, int *w, int *h)
 	int lap, index;
 
 	assert(!is_sysmenu);
+
+	/* 継続行で、改行のみの場合、クリック待ちを行わない */
+	if (is_continue_mode && total_chars == 0) {
+		stop_command_repetition();
+		return;
+	}
 
 	/* 入力があったら繰り返しを終了する */
 	if (check_stop_click_animation())
