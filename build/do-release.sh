@@ -133,10 +133,6 @@ cd ftplocal
 ftpupload.sh "suika-$VERSION-en.zip"
 sleep 5
 ftpupload.sh "suika-$VERSION-jp.zip"
-sleep 5
-ftpupload.sh "suika2-web-kit-$VERSION-en.zip"
-sleep 5
-ftpupload.sh "suika2-web-kit-$VERSION-jp.zip"
 cd ../
 
 echo ""
