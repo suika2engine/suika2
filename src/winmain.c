@@ -451,9 +451,10 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	WNDCLASSEX wcex;
 	RECT rc;
 	DWORD style;
-	int vsw, vsh, dw, dh, i;
+	int monitors, vsw, vsh, dw, dh, i;
 
 	/* ディスプレイのサイズが足りない場合 */
+	monitors = GetSystemMetrics(SM_CMONITORS);
 	vsw = GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	vsh = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 	if (vsw < conf_window_width || vsh < conf_window_height)
@@ -502,8 +503,12 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #ifdef USE_DEBUGGER
 							  10, 10,
 #else
-							  (vsw - (conf_window_width + dw)) / 2,
-							  (vsh - (conf_window_height + dh)) / 2,
+							  monitors == 1 ?
+							  (vsw - (conf_window_width + dw)) / 2 :
+							  CW_USEDEFAULT,
+							  monitors == 1 ?
+							  (vsh - (conf_window_height + dh)) / 2 :
+							  CW_USEDEFAULT,
 #endif
 							  conf_window_width + dw, conf_window_height + dh,
 							  NULL, NULL, hInstance, NULL);
