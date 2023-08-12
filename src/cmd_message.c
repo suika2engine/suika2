@@ -359,6 +359,7 @@ static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
 static void process_lf(uint32_t c, int glyph_width, int glyph_height);
+static bool is_small_kana(uint32_t wc);
 static void draw_click(int *x, int *y, int *w, int *h);
 static bool check_stop_click_animation(void);
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
@@ -2440,7 +2441,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 {
 	uint32_t wc;
 	int char_count, i, mblen;
-	int glyph_width, glyph_height, ret_width, ret_height;
+	int glyph_width, glyph_height, ret_width, ret_height, ofs_x, ofs_y;
 
 	if (!is_dimming)
 		assert(!gui_sys_flag);
@@ -2479,8 +2480,18 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* 右側の幅が足りなければ改行する */
 		process_lf(wc, glyph_width, glyph_height);
 
+		/* 小さいひらがな/カタカタのオフセットを計算する */
+		if (conf_msgbox_tategaki && is_small_kana(wc)) {
+			/* FIXME: 何らかの調整を加える */
+			ofs_x = 0;
+			ofs_y = 0;
+		} else {
+			ofs_x = 0;
+			ofs_y = 0;
+		}
+
 		/* 描画する */
-		draw_char_on_msgbox(pen_x, pen_y, wc, body_color,
+		draw_char_on_msgbox(pen_x + ofs_x, pen_y, wc, body_color,
 				    body_outline_color, &ret_width,
 				    &ret_height);
 
@@ -2772,6 +2783,39 @@ static void process_lf(uint32_t c, int glyph_width, int glyph_height)
 		pen_x -= conf_msgbox_margin_line;
 		pen_y = conf_msgbox_margin_top;
 	}
+}
+
+/* 小さい仮名文字であるか調べる */
+static bool is_small_kana(uint32_t wc)
+{
+	switch (wc) {
+	case U32_C('ぁ'): return true;
+	case U32_C('ぃ'): return true;
+	case U32_C('ぅ'): return true;
+	case U32_C('ぇ'): return true;
+	case U32_C('ぉ'): return true;
+	case U32_C('っ'): return true;
+	case U32_C('ゃ'): return true;
+	case U32_C('ゅ'): return true;
+	case U32_C('ょ'): return true;
+	case U32_C('ゎ'): return true;
+	case U32_C('ゕ'): return true;
+	case U32_C('ゖ'): return true;
+	case U32_C('ァ'): return true;
+	case U32_C('ィ'): return true;
+	case U32_C('ゥ'): return true;
+	case U32_C('ェ'): return true;
+	case U32_C('ォ'): return true;
+	case U32_C('ッ'): return true;
+	case U32_C('ャ'): return true;
+	case U32_C('ュ'): return true;
+	case U32_C('ョ'): return true;
+	case U32_C('ヮ'): return true;
+	case U32_C('ヵ'): return true;
+	case U32_C('ヶ'): return true;
+	default: break;
+	}
+	return false;
 }
 
 /* クリックアニメーションを描画する */
