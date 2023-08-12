@@ -2816,6 +2816,8 @@ static void draw_click(int *x, int *y, int *w, int *h)
 			}
 			set_click_position(pen_x + conf_msgbox_x,
 					   pen_y + conf_msgbox_y);
+		} else {
+			set_click_position(conf_click_x, conf_click_y);
 		}
 
 		/* 時間計測を開始する */
