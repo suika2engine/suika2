@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 #define PNG_DEBUG 3
@@ -71,7 +71,7 @@ static bool is_jpg_ext(const char *str)
 	return false;
 }
 
-/* ローカル変数をクリアする */
+/* ファイルスコープ変数のクリーンアップを行う */
 static struct image *cleanup(void)
 {
 	struct image *result;

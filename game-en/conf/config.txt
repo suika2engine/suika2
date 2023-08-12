@@ -397,7 +397,7 @@ sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 # Sound effect when the collapsed system menu is pointed (optional)
 sysmenu.collapsed.se=btn-change.ogg
 
-# System menu (0:show, 1:hide, optional)
+# System menu (0:show, 1:hide on message, 2:hide always, optional)
 sysmenu.hidden=0
 
 ###
@@ -486,6 +486,9 @@ serif.color3.outline.b=0
 
 # Continues to serif.color64, but omissible
 
+# Change colors of character names only (1:name-only, 0:name-and-message) (Optional)
+serif.color.name.only=0
+
 ###
 ### Miscellaneous
 ###
@@ -514,6 +517,9 @@ msgbox.show.on.bg=0
 # Show the collapsed system menu while the characters/background is changing (0:hide, 1:show, optional)
 # (The collapsed system menu disappears when the skip is disabled even if this config is '1')
 sysmenu.transition=0
+
+# Don't show history on up-arrow key or mouse wheel (1:Don't show, 0:Show) (Optional)
+msgbox.history.disable=0
 
 ###
 ### Release Mode

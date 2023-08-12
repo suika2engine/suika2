@@ -38,6 +38,7 @@
  *    - コンフィグのsysmenu.hidden=1は選択肢コマンドには影響しない
  *      - 常に折りたたみシステムメニューかシステムメニューが表示される
  *      - 理由は他にセーブ・ロードの手段がないから
+ *    - sysmenu.hidden=2なら、選択肢コマンドでも表示しない
  *
  * [TODO]
  *  - システムメニュー処理はcmd_switch.cと重複するので、sysmenu.cに分離する
@@ -658,11 +659,15 @@ static void process_main_click(void)
 	bool enter_sysmenu;
 
 	/* ヒストリ画面への遷移を確認する */
-	if (is_up_pressed && get_history_count() != 0) {
+	if (is_up_pressed && !conf_msgbox_history_disable && get_history_count() != 0) {
 		play_se(conf_msgbox_history_se);
 		need_history_mode = true;
 		return;
 	}
+
+	/* システムメニューを常に使用しない場合 */
+	if (conf_sysmenu_hidden == 2)
+		return;
 
 	/* システムメニューへの遷移を確認していく */
 	enter_sysmenu = false;
@@ -1310,6 +1315,10 @@ static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 {
 	bool is_pointed;
 
+ 	/* システムメニューを常に使用しない場合 */
+	if (conf_sysmenu_hidden == 2)
+		return;
+
 	/* 折りたたみシステムメニューがポイントされているか調べる */
 	is_pointed = is_collapsed_sysmenu_pointed();
 
@@ -1329,6 +1338,10 @@ static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 static bool is_collapsed_sysmenu_pointed(void)
 {
 	int bx, by, bw, bh;
+
+ 	/* システムメニューを常に使用しない場合 */
+	if (conf_sysmenu_hidden == 2)
+		return false;
 
 	get_collapsed_sysmenu_rect(&bx, &by, &bw, &bh);
 	if (mouse_pos_x >= bx && mouse_pos_x < bx + bw &&

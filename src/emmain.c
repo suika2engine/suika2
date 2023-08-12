@@ -746,5 +746,5 @@ void leave_full_screen_mode(void)
 const char *get_system_locale(void)
 {
 	/* stub */
-	return "other";
+	return "ja";
 }

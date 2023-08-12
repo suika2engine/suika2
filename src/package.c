@@ -150,7 +150,7 @@ static bool get_file_names(const char *base_dir, const char *dir)
 		return false;
 	}
 	for (i = 0; i < count; i++) {
-		if (names[i]->d_name[0] == '.') {
+		if (names[i]->d_name[0] == '.' || names[i]->d_type == DT_DIR) {
 			free(names[i]);
 			continue;
 		}
