@@ -234,7 +234,7 @@ bool is_quoted_serif(const char *msg)
 		{U8("﹃"), U8("﹄")}
 	};
 
-	unsigned int i;
+	size_t i;
 
 	for (i = 0; i < sizeof(items) / sizeof(struct item); i++) {
 		if (strncmp(msg, items[i].prefix, strlen(items[i].prefix)) &&
