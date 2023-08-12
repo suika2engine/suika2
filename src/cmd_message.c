@@ -352,7 +352,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h);
 static int get_frame_chars(void);
 static bool is_canceled_by_skip(void);
 static bool is_fast_forward_by_click(void);
-static bool calc_frame_chars_by_lap(void);
+static int calc_frame_chars_by_lap(void);
 static void process_escape_sequence(void);
 static void process_escape_sequence_lf(void);
 static void do_word_wrapping(void);
@@ -2582,11 +2582,18 @@ static bool is_fast_forward_by_click(void)
 }
 
 /* 経過時間を元に今回描画する文字数を計算する */
-static bool calc_frame_chars_by_lap(void)
+static int calc_frame_chars_by_lap(void)
 {
 	float lap;
 	float progress;
 	int char_count;
+
+	/*
+	 * システムGUIのコンフィグでテキストスピードが最大のときは、
+	 * ノーウェイトで全部描画する。
+	 */
+	if (get_text_speed() == 1.0f)
+		return total_chars - drawn_chars;
 
 	/* 経過時間(秒)を取得する */
 	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f;
