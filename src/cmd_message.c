@@ -2704,28 +2704,27 @@ static void do_word_wrapping(void)
 /* 縦書きの句読点変換を行う */
 uint32_t convert_tategaki_char(uint32_t wc)
 {
-	/* TODO: ANSI Cにする */
 	switch (wc) {
-	case U'、': return U'︑';
-	case U'，': return U'︐';
-	case U'。': return U'︒';
-	case U'（': return U'︵';
-	case U'）': return U'︶';
-	case U'｛': return U'︷';
-	case U'｝': return U'︸';
-	case U'「': return U'﹁';
-	case U'」': return U'﹂';
-	case U'『': return U'﹃';
-	case U'』': return U'﹄';
-	case U'【': return U'︻';
-	case U'】': return U'︼';
-	case U'［': return U'﹇';
-	case U'］': return U'﹈';
-	case U'〔': return U'︹';
-	case U'〕': return U'︺';
-	case U'…': return U'︙';
-	case U'‥': return U'︰';
-	case U'ー': return U'丨';
+	case U32_C('、'): return U32_C('︑');
+	case U32_C('，'): return U32_C('︐');
+	case U32_C('。'): return U32_C('︒');
+	case U32_C('（'): return U32_C('︵');
+	case U32_C('）'): return U32_C('︶');
+	case U32_C('｛'): return U32_C('︷');
+	case U32_C('｝'): return U32_C('︸');
+	case U32_C('「'): return U32_C('﹁');
+	case U32_C('」'): return U32_C('﹂');
+	case U32_C('『'): return U32_C('﹃');
+	case U32_C('』'): return U32_C('﹄');
+	case U32_C('【'): return U32_C('︻');
+	case U32_C('】'): return U32_C('︼');
+	case U32_C('［'): return U32_C('﹇');
+	case U32_C('］'): return U32_C('﹈');
+	case U32_C('〔'): return U32_C('︹');
+	case U32_C('〕'): return U32_C('︺');
+	case U32_C('…'): return U32_C('︙');
+	case U32_C('‥'): return U32_C('︰');
+	case U32_C('ー'): return U32_C('丨');
 	default:
 		break;
 	}

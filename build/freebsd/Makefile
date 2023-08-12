@@ -22,12 +22,13 @@ CFLAGS = \
 	-O3 \
 	-ffast-math \
 	-ftree-vectorize \
-	-std=gnu89 \
+	-std=gnu11 \
 	-Wall \
 	-Werror \
 	-Wextra \
 	-Wundef \
-	-Wconversion
+	-Wconversion \
+	-Wno-multichar
 
 #
 # LDFLAGS
