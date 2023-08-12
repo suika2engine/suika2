@@ -2784,7 +2784,8 @@ static void draw_click(int *x, int *y, int *w, int *h)
 
 	/* 継続行で、改行のみの場合、クリック待ちを行わない */
 	if (is_continue_mode && total_chars == 0) {
-		stop_command_repetition();
+		if (is_in_command_repetition())
+			stop_command_repetition();
 		return;
 	}
 
