@@ -2120,6 +2120,12 @@ static int get_frame_chars(int index)
 	float lap;
 	int char_count;
 
+	/* テキストスピードが最大のときはノーウェイトで全部描画する */
+	if (get_text_speed() == 1.0f) {
+		return button[index].rt.total_chars -
+			button[index].rt.drawn_chars;
+	}
+
 	/* 経過時間を取得する */
 	lap = (float)get_stop_watch_lap(&button[index].rt.sw) / 1000.0f;
 

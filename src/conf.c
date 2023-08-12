@@ -33,6 +33,9 @@ char *conf_language_other;
 int conf_locale;
 const char *conf_locale_mapped;
 
+/* テスト用にシステムロケールを上書き (conf.hでexternしていない) */
+char *conf_locale_force;
+
 /*
  * ウィンドウの設定
  */
@@ -77,6 +80,7 @@ int conf_msgbox_y;
 int conf_msgbox_margin_left;
 int conf_msgbox_margin_top;
 int conf_msgbox_margin_right;
+int conf_msgbox_margin_bottom;
 int conf_msgbox_margin_line;
 float conf_msgbox_speed;
 int conf_msgbox_btn_qsave_x;
@@ -139,6 +143,7 @@ int conf_msgbox_dim_color_b;
 int conf_msgbox_dim_color_outline_r;
 int conf_msgbox_dim_color_outline_g;
 int conf_msgbox_dim_color_outline_b;
+int conf_msgbox_tategaki;
 
 /*
  * クリックアニメーションの設定
@@ -375,6 +380,12 @@ int conf_serif_quote;
 /* ch,cha,chs,bgの最中に折りたたみメッセージボックスを表示する */
 int conf_sysmenu_transition;
 
+/* 上キーでヒストリを表示しない */
+int conf_msgbox_history_disable;
+
+/* キャラのセリフの名前だけ色を変更する */
+int conf_serif_color_name_only;
+
 /* リリース版であるか */
 int conf_release;
 
@@ -405,6 +416,7 @@ struct rule {
 	{"language.tw", 's', &conf_language_tw, true, false},
 	{"language.ja", 's', &conf_language_ja, true, false},
 	{"language.other", 's', &conf_language_other, true, false},
+	{"locale.force", 's', &conf_locale_force, true, false},
 	{"window.title", 's', &conf_window_title, false, false},
 	{"window.width", 'i', &conf_window_width, false, false},
 	{"window.height", 'i', &conf_window_height, false, false},
@@ -433,6 +445,7 @@ struct rule {
 	{"msgbox.margin.left", 'i', &conf_msgbox_margin_left, false, false},
 	{"msgbox.margin.top", 'i', &conf_msgbox_margin_top, false, false},
 	{"msgbox.margin.right", 'i', &conf_msgbox_margin_right, false, false},
+	{"msgbox.margin.bottom", 'i', &conf_msgbox_margin_bottom, true, false},
 	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
 	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
@@ -495,6 +508,7 @@ struct rule {
 	{"msgbox.dim.color.outline.r", 'i', &conf_msgbox_dim_color_outline_r, true, false},
 	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, true, false},
 	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, true, false},
+	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, true, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
 	{"click.move", 'i', &conf_click_move, true, false},
@@ -1083,6 +1097,8 @@ struct rule {
 	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
 	{"serif.quote", 'i', &conf_serif_quote, true, false},
 	{"sysmenu.transition", 'i', &conf_sysmenu_transition, true, false},
+	{"msgbox.history.disable", 'i', &conf_msgbox_history_disable, true, false},
+	{"serif.color.name.only", 'i', &conf_serif_color_name_only, true, false},
 	{"release", 'i', &conf_release, true, false},
 };
 
@@ -1243,6 +1259,10 @@ bool apply_initial_values(void)
 
 	/* ロケールのマッピングを行う */
 	set_locale_mapping();
+	if (conf_locale_force != NULL) {
+		/* ロケールの上書きが行われたので、再初期化する */
+		init_locale_code();
+	}
 
 	/* グローバルボリュームをセットする */
 	set_mixer_global_volume(BGM_STREAM, conf_sound_vol_bgm);
@@ -1265,7 +1285,16 @@ void init_locale_code(void)
 {
 	const char *locale;
 
-	locale = get_system_locale();
+	/*
+	 * この関数は各プラットフォームの初期化コードから呼ばれる。
+	 * その際、コンフィグはロードされていないので、システムのロケールを
+	 * 必ず使う。コンフィグのロード後に、locale.forceがある場合は、
+	 * もう一度この関数が呼び出される。
+	 */
+	if (conf_locale_force == NULL)
+		locale = get_system_locale();
+	else
+		locale = conf_locale_force;
 
 	/* ロケール名を整数値に変換する */
 	if (strcmp(locale, "en") == 0)

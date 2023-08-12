@@ -170,7 +170,7 @@ void cleanup_asound(void)
 }
 
 /*
- * サウンドを再生を開始する
+ * サウンドの再生を開始する
  */
 bool play_sound(int n, struct wave *w)
 {

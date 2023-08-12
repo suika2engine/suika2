@@ -128,29 +128,11 @@ cp suika-2.x.x-jp.zip "../ftplocal/suika-$VERSION-jp.zip"
 cd ../
 
 echo ""
-echo "Creating Web distribution kit release files."
-cd web-kit
-make clean
-make
-cp suika2-web-kit-2.x.x-en.zip "../ftplocal/suika2-web-kit-$VERSION-en.zip"
-cp suika2-web-kit-2.x.x-jp.zip "../ftplocal/suika2-web-kit-$VERSION-jp.zip"
-cd ../
-
-echo ""
-echo "Stop if this is a pre-release."
-echo ""
-read str
-
-echo ""
 echo "Uploading release files."
 cd ftplocal
 ftpupload.sh "suika-$VERSION-en.zip"
 sleep 5
 ftpupload.sh "suika-$VERSION-jp.zip"
-sleep 5
-ftpupload.sh "suika2-web-kit-$VERSION-en.zip"
-sleep 5
-ftpupload.sh "suika2-web-kit-$VERSION-jp.zip"
 cd ../
 
 echo ""

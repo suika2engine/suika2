@@ -14,9 +14,10 @@ suika-replay.exe  ... recordフォルダの記録を再生します
      結果に変化がない(バグが混入していない)ことを確かめる
 
  ★TIPS
-  - WinMergeというフリーソフトでrecordとreplayを比較できる(差分はバグ)
+  - 別途配布されているsuika-compare.exeでrecordとreplayを比較できる(差分はバグ)
   - recordを別名に変更してもOKで、それをsuika-replay.exeにドロップすると、
     そのフォルダがリプレイされる
+  - リプレイするだけなら、recordの中のスクリーンショットを消してもOK
 
 ■Windows系
 suika-64.exe    ... 64ビット版Windowsで少しだけ高速に動く実行ファイル

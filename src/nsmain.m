@@ -813,12 +813,6 @@ bool log_info(const char *s, ...)
     vsnprintf(buf, sizeof(buf), s, ap);
     va_end(ap);
 
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_INFO))];
-    [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
-    [alert runModal];
-
 #ifndef USE_DEBUGGER
     // ログファイルに出力する
     if (!openLog())
@@ -827,10 +821,17 @@ bool log_info(const char *s, ...)
         fprintf(stderr, "%s", buf);
         fprintf(logFp, "%s", buf);
         fflush(logFp);
-        if (ferror(logFp))
-            return false;
     }
 #endif
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_INFO))];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
 
     return true;
 }
@@ -847,12 +848,6 @@ bool log_warn(const char *s, ...)
     vsnprintf(buf, sizeof(buf), s, ap);
     va_end(ap);
 
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_WARN))];
-    [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
-    [alert runModal];
-
 #ifndef USE_DEBUGGER
     // ログファイルに出力する
     if (!openLog())
@@ -861,10 +856,17 @@ bool log_warn(const char *s, ...)
         fprintf(stderr, "%s", buf);
         fprintf(logFp, "%s", buf);
         fflush(logFp);
-        if (ferror(logFp))
-            return false;
     }
 #endif
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_WARN))];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
 
     return true;
 }
@@ -881,23 +883,25 @@ bool log_error(const char *s, ...)
     vsnprintf(buf, sizeof(buf), s, ap);
     va_end(ap);
 
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_ERROR))];
-    [alert setInformativeText:[[NSString alloc] initWithUTF8String:buf]];
-    [alert runModal];
-
 #ifndef USE_DEBUGGER
     // ログファイルに出力する
     if (!openLog())
         return false;
-    assert(logFp != NULL);
-    fprintf(stderr, "%s", buf);
-    fprintf(logFp, "%s", buf);
-    fflush(logFp);
-    if (ferror(logFp))
-        return false;
+    if (logFp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(logFp, "%s", buf);
+        fflush(logFp);
+    }
 #endif
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_ERROR))];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
 
     return true;
 }

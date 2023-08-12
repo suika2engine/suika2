@@ -1217,11 +1217,13 @@ static bool parse_message(int index, const char *file, int line,
 		return false;
 	}
 
-	/* 名前「メッセージ」の形式の場合はセリフとする */
+	/* 名前「メッセージ」の形式の場合はセリフとする(継続行を除く) */
 	p = cmd[index].param[MESSAGE_PARAM_MESSAGE];
 	lpar = strstr(p, U8("「"));
-	if (lpar != NULL && lpar != buf &&
-	    strcmp(p + strlen(p) - 3, U8("」")) == 0) {
+	if (lpar != NULL &&
+	    lpar != buf &&
+	    strcmp(p + strlen(p) - 3, U8("」")) == 0 &&
+	    *buf != '\\') {
 		/* セリフに変更する */
 		cmd[index].type = COMMAND_SERIF;
 

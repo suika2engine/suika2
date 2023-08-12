@@ -28,14 +28,15 @@ CFLAGS = \
 	-municode \
 	-ffast-math \
 	-fopt-info-vec \
-	-std=gnu89 \
+	-std=gnu11 \
 	-finput-charset=utf-8 \
 	-fexec-charset=utf-8 \
 	-Wall \
 	-Werror \
 	-Wextra \
 	-Wundef \
-	-Wconversion
+	-Wconversion \
+	-Wno-multichar
 
 #
 # LDFLAGS

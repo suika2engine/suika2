@@ -18,9 +18,9 @@ suika-replay.exe  ... This replays from the record folder and outputs to the rep
        then you can find regression if the record and replay folders differ.
 
  * TIPS
-  - You can check the differecne between the record and replay folders using
-    a free software called "WinMerge". (difference is a bug)
-  - You can rename the record folder, and drop it onto suika-replay.exe
+  - You can check the differecne between record and replay folders using
+    suika-compare.exe that is distributed separatedly (difference is a bug)
+  - You can rename record folder, and drop it to suika-replay.exe
 
 ##
 ## For Windows

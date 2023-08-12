@@ -48,6 +48,12 @@ windows-64:
 	make -j8 && \
 	make install
 
+windows-arm64:
+	@cd build/mingw-arm64 && \
+	make libroot && \
+	make -j8 && \
+	make install
+
 windows-pro:
 	@cd build/mingw-pro && \
 	make libroot && \
