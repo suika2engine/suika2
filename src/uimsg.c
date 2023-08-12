@@ -389,27 +389,27 @@ const wchar_t *get_ui_message(int id)
 	case UIMSG_WIN_SMALL_DISPLAY:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Display size too small.";
+			return L"Display size too small (%d x %d).";
 		case LOCALE_JA:
-			return L"ディスプレイのサイズが足りません。";
+			return L"ディスプレイのサイズが足りません。(%d x %d)";
 		case LOCALE_ZH:
-			return L"显示尺寸不足。";
+			return L"显示尺寸不足。(%d x %d)";
 		case LOCALE_TW:
-			return L"顯示尺寸不足。";
+			return L"顯示尺寸不足。(%d x %d)";
 		case LOCALE_FR:
-			return L"Taille d'affichage insuffisante.";
+			return L"Taille d'affichage insuffisante. (%d x %d)";
 		case LOCALE_RU:
-			return L"Размер экрана слишком маленький.";
+			return L"Размер экрана слишком маленький. (%d x %d)";
 		case LOCALE_DE:
-			return L"Anzeigegröße zu klein.";
+			return L"Anzeigegrö ÿe zu klein. (%d x %d)";
 		case LOCALE_IT:
-			return L"Dimensioni del display troppo piccole.";
+			return L"Dimensioni del display troppo piccole. (%d x %d)";
 		case LOCALE_ES:
-			return L"Tamaño de la pantalla demasiado pequeño.";
+			return L"Tamaño de la pantalla demasiado pequeño. (%d x %d)";
 		case LOCALE_EL:
-			return L"Το μέγεθος της οθόνης είναι πολύ μικρό.";
+			return L"Το μέγεθος της οθόνης είναι πολύ μικρό. (%d x %d)";
 		default:
-			return L"Display size too small.";
+			return L"Display size too small. (%d x %d)";
 		}
 		break;
 	case UIMSG_WIN_MENU_FILE:

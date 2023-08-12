@@ -451,16 +451,14 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	WNDCLASSEX wcex;
 	RECT rc;
 	DWORD style;
-	int dw, dh, i;
+	int vsw, vsh, dw, dh, i;
 
 	/* ディスプレイのサイズが足りない場合 */
-	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) < conf_window_width ||
-		GetSystemMetrics(SM_CYVIRTUALSCREEN) < conf_window_height)
+	vsw = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	vsh = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+	if (vsw < conf_window_width || vsh < conf_window_height)
 	{
-		MessageBox(NULL,
-				   get_ui_message(UIMSG_WIN_SMALL_DISPLAY),
-				   get_ui_message(UIMSG_ERROR),
-				   MB_OK | MB_ICONERROR);
+		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_SMALL_DISPLAY)), vsw, vsw);
 		return FALSE;
 	}
 
@@ -504,12 +502,16 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #ifdef USE_DEBUGGER
 							  10, 10,
 #else
-							  (int)CW_USEDEFAULT, (int)CW_USEDEFAULT,
+							  (vsw - (conf_window_width + dw)) / 2,
+							  (vsh - (conf_window_height + dh)) / 2,
 #endif
 							  conf_window_width + dw, conf_window_height + dh,
 							  NULL, NULL, hInstance, NULL);
 	if (hWndMain == NULL)
+	{
+		log_api_error("CreateWindowEx");
 		return FALSE;
+	}
 
 	/* ウィンドウのサイズを調整する */
 	SetRectEmpty(&rc);
