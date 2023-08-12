@@ -50,7 +50,7 @@ suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../emscripten/html/index.html suika2/tools/web/
 	cp -v ../emscripten/html/index.js suika2/tools/web/
 	cp -v ../emscripten/html/index.wasm suika2/tools/web/
-	cp -v ../emscripten/html/about-en.txt suika2/tools/web/about.txt
+	cp -v ../emscripten/about-en.txt suika2/tools/web/about.txt
 	zip -r suika-2.x.x-en.zip suika2
 	rm -rf suika2
 
@@ -104,7 +104,7 @@ suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../emscripten/html/index.html suika2/tools/web/
 	cp -v ../emscripten/html/index.js suika2/tools/web/
 	cp -v ../emscripten/html/index.wasm suika2/tools/web/
-	cp -v ../emscripten/html/about-jp.txt suika2/tools/web/about.txt
+	cp -v ../emscripten/about-jp.txt suika2/tools/web/about.txt
 	zip -r suika-2.x.x-jp.zip suika2
 	rm -rf suika2
 
