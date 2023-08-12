@@ -80,6 +80,7 @@ int conf_msgbox_y;
 int conf_msgbox_margin_left;
 int conf_msgbox_margin_top;
 int conf_msgbox_margin_right;
+int conf_msgbox_margin_bottom;
 int conf_msgbox_margin_line;
 float conf_msgbox_speed;
 int conf_msgbox_btn_qsave_x;
@@ -142,6 +143,7 @@ int conf_msgbox_dim_color_b;
 int conf_msgbox_dim_color_outline_r;
 int conf_msgbox_dim_color_outline_g;
 int conf_msgbox_dim_color_outline_b;
+int conf_msgbox_tategaki;
 
 /*
  * クリックアニメーションの設定
@@ -443,6 +445,7 @@ struct rule {
 	{"msgbox.margin.left", 'i', &conf_msgbox_margin_left, false, false},
 	{"msgbox.margin.top", 'i', &conf_msgbox_margin_top, false, false},
 	{"msgbox.margin.right", 'i', &conf_msgbox_margin_right, false, false},
+	{"msgbox.margin.bottom", 'i', &conf_msgbox_margin_bottom, true, false},
 	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
 	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
 	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
@@ -505,6 +508,7 @@ struct rule {
 	{"msgbox.dim.color.outline.r", 'i', &conf_msgbox_dim_color_outline_r, true, false},
 	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, true, false},
 	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, true, false},
+	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, true, false},
 	{"click.x", 'i', &conf_click_x, false, false},
 	{"click.y", 'i', &conf_click_y, false, false},
 	{"click.move", 'i', &conf_click_move, true, false},

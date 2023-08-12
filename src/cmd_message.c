@@ -356,8 +356,9 @@ static int calc_frame_chars_by_lap(void);
 static void process_escape_sequence(void);
 static void process_escape_sequence_lf(void);
 static void do_word_wrapping(void);
+static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
-static void process_lf(uint32_t c, int glyph_width);
+static void process_lf(uint32_t c, int glyph_width, int glyph_height);
 static void draw_click(int *x, int *y, int *w, int *h);
 static bool check_stop_click_animation(void);
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
@@ -615,11 +616,11 @@ static bool init(int *x, int *y, int *w, int *h)
 	if (!gui_sys_flag)
 		set_message_active();
 
-	/* ペンの位置を初期化する */
-	init_pen();
-
 	/* メッセージボックスを初期化する */
 	init_msgbox(x, y, w, h);
+
+	/* ペンの位置を初期化する */
+	init_pen();
 
 	/* クリックアニメーションを非表示の状態にする */
 	init_click();
@@ -898,8 +899,13 @@ static const char *skip_lf(const char *m, int *lf)
 				continue;
 
 			/* ペンを改行する */
-			pen_x = conf_msgbox_margin_left;
-			pen_y += conf_msgbox_margin_line;
+			if (!conf_msgbox_tategaki) {
+				pen_x = conf_msgbox_margin_left;
+				pen_y += conf_msgbox_margin_line;
+			} else {
+				pen_x -= conf_msgbox_margin_line;
+				pen_y = conf_msgbox_margin_top;
+			}
 		} else {
 			m++;
 		}
@@ -910,14 +916,24 @@ static const char *skip_lf(const char *m, int *lf)
 /* 空白文字の分だけカーソルを移動する */
 static void put_space(void)
 {
-	int cw;
+	int cw, ch;
 
-	cw = get_glyph_width(' ');
-	if (pen_x + cw >= msgbox_w - conf_msgbox_margin_right) {
-		pen_y += conf_msgbox_margin_line;
-		pen_x = conf_msgbox_margin_left;
+	if (!conf_msgbox_tategaki) {
+		cw = get_glyph_width(' ');
+		if (pen_x + cw >= msgbox_w - conf_msgbox_margin_right) {
+			pen_y += conf_msgbox_margin_line;
+			pen_x = conf_msgbox_margin_left;
+		} else {
+			pen_x += cw;
+		}
 	} else {
-		pen_x += cw;
+		ch = get_glyph_height(' ');
+		if (pen_y + ch >= msgbox_h - conf_msgbox_margin_bottom) {
+			pen_y = conf_msgbox_margin_top;
+			pen_x -= conf_msgbox_margin_line;
+		} else {
+			pen_y += ch;
+		}
 	}
 }
 
@@ -966,8 +982,13 @@ static char *concat_serif(const char *name, const char *serif)
 
 	/* 日本語ロケールかどうかでセリフの囲いを分ける */
 	if (conf_locale == LOCALE_JA || conf_serif_quote) {
-		prefix = U8("「");
-		suffix = U8("」");
+		if (!conf_msgbox_tategaki) {
+			prefix = U8("「");
+			suffix = U8("」");
+		} else {
+			prefix = U8("﹁");
+			suffix = U8("﹂");
+		}
 	} else {
 		prefix = ": ";
 		suffix = "";
@@ -1313,8 +1334,14 @@ static void init_pen(void)
 
 	/* 継続行でなければ、メッセージの描画位置を初期化する */
 	if (!is_continue_mode) {
-		pen_x = conf_msgbox_margin_left;
-		pen_y = conf_msgbox_margin_top;
+		if (!conf_msgbox_tategaki) {
+			pen_x = conf_msgbox_margin_left;
+			pen_y = conf_msgbox_margin_top;
+		} else {
+			pen_x = msgbox_w - conf_msgbox_margin_right -
+				conf_font_size;
+			pen_y = conf_msgbox_margin_top;
+		}
 	}
 
 	/* 重ね塗りをする場合 */
@@ -2412,7 +2439,8 @@ static void set_end_of_msg(void)
 static void draw_msgbox(int *x, int *y, int *w, int *h)
 {
 	uint32_t wc;
-	int char_count, i, mblen, glyph_width, ret_width, ret_height;
+	int char_count, i, mblen;
+	int glyph_width, glyph_height, ret_width, ret_height;
 
 	if (!is_dimming)
 		assert(!gui_sys_flag);
@@ -2440,11 +2468,16 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 			return;
 		}
 
-		/* 描画する文字の幅を取得する */
+		/* 縦書きの句読点変換を行う */
+		if (conf_msgbox_tategaki)
+			wc = convert_tategaki_char(wc);
+
+		/* 描画する文字の幅と高さを取得する */
 		glyph_width = get_glyph_width(wc);
+		glyph_height = get_glyph_height(wc);
 
 		/* 右側の幅が足りなければ改行する */
-		process_lf(wc, glyph_width);
+		process_lf(wc, glyph_width, glyph_height);
 
 		/* 描画する */
 		draw_char_on_msgbox(pen_x, pen_y, wc, body_color,
@@ -2454,12 +2487,15 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* 更新領域を求める */
 		union_rect(x, y, w, h,
 			   *x, *y, *w, *h,
-			   msgbox_x + pen_x, msgbox_y + pen_y, ret_width,
-			   ret_height);
+			   msgbox_x + pen_x, msgbox_y + pen_y,
+			   ret_width, ret_height);
 
 		/* 次の文字へ移動する */
 		msg_cur += mblen;
-		pen_x += glyph_width;
+		if (!conf_msgbox_tategaki)
+			pen_x += glyph_width;
+		else
+			pen_y += glyph_height;
 		drawn_chars++;
 	}
 
@@ -2638,14 +2674,22 @@ static void process_escape_sequence(void)
 /* 改行("\\n")を処理する */
 static void process_escape_sequence_lf(void)
 {
-	pen_y += conf_msgbox_margin_line;
-	pen_x = conf_msgbox_margin_left;
+	if (!conf_msgbox_tategaki) {
+		pen_y += conf_msgbox_margin_line;
+		pen_x = conf_msgbox_margin_left;
+	} else {
+		pen_x -= conf_msgbox_margin_line;
+		pen_y = conf_msgbox_margin_top;
+	}
 	msg_cur += 2;
 }
 
 /* ワードラッピングを処理する */
 static void do_word_wrapping(void)
 {
+	if (conf_msgbox_tategaki)
+		return;
+
 	if (is_after_space) {
 		if (pen_x + get_en_word_width() >=
 		    msgbox_w - conf_msgbox_margin_right) {
@@ -2655,6 +2699,37 @@ static void do_word_wrapping(void)
 	}
 
 	is_after_space = *msg_cur == ' ';
+}
+
+/* 縦書きの句読点変換を行う */
+uint32_t convert_tategaki_char(uint32_t wc)
+{
+	/* TODO: ANSI Cにする */
+	switch (wc) {
+	case U'、': return U'︑';
+	case U'，': return U'︐';
+	case U'。': return U'︒';
+	case U'（': return U'︵';
+	case U'）': return U'︶';
+	case U'｛': return U'︷';
+	case U'｝': return U'︸';
+	case U'「': return U'﹁';
+	case U'」': return U'﹂';
+	case U'『': return U'﹃';
+	case U'』': return U'﹄';
+	case U'【': return U'︻';
+	case U'】': return U'︼';
+	case U'［': return U'﹇';
+	case U'］': return U'﹈';
+	case U'〔': return U'︹';
+	case U'〕': return U'︺';
+	case U'…': return U'︙';
+	case U'‥': return U'︰';
+	case U'ー': return U'丨';
+	default:
+		break;
+	}
+	return wc;
 }
 
 /* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
@@ -2673,11 +2748,17 @@ static int get_en_word_width(void)
 }
 
 /* 右側の幅が足りなければ改行する */
-static void process_lf(uint32_t c, int glyph_width)
+static void process_lf(uint32_t c, int glyph_width, int glyph_height)
 {
-	/* 右側の幅が足りる場合、改行しない */
-	if (pen_x + glyph_width < msgbox_w - conf_msgbox_margin_right)
-		return;
+	if (!conf_msgbox_tategaki) {
+		/* 右側の幅が足りる場合、改行しない */
+		if (pen_x + glyph_width < msgbox_w - conf_msgbox_margin_right)
+			return;
+	} else {
+		/* 下側の幅が足りる場合、改行しない */
+		if (pen_y + glyph_height < msgbox_h - conf_msgbox_margin_bottom)
+			return;
+	}
 
 	/* 禁則文字の場合、改行しない */
 	if (c == ' ' || c == ',' || c == '.' || c == ':' || c == ';' ||
@@ -2685,8 +2766,13 @@ static void process_lf(uint32_t c, int glyph_width)
 		return;
 
 	/* 改行する */
-	pen_y += conf_msgbox_margin_line;
-	pen_x = conf_msgbox_margin_left;
+	if (!conf_msgbox_tategaki) {
+		pen_y += conf_msgbox_margin_line;
+		pen_x = conf_msgbox_margin_left;
+	} else {
+		pen_x -= conf_msgbox_margin_line;
+		pen_y = conf_msgbox_margin_top;
+	}
 }
 
 /* クリックアニメーションを描画する */
@@ -2715,10 +2801,18 @@ static void draw_click(int *x, int *y, int *w, int *h)
 		if (conf_click_move) {
 			set_click_index(0);
 			get_click_rect(&click_x, &click_y, &click_w, &click_h);
-			if (pen_x + click_w  >= msgbox_w -
-			    conf_msgbox_margin_right) {
-				pen_y += conf_msgbox_margin_line;
-				pen_x = conf_msgbox_margin_left;
+			if (!conf_msgbox_tategaki) {
+				if (pen_x + click_w  >= msgbox_w -
+				    conf_msgbox_margin_right) {
+					pen_y += conf_msgbox_margin_line;
+					pen_x = conf_msgbox_margin_left;
+				}
+			} else {
+				if (pen_y + click_h  >= msgbox_h -
+				    conf_msgbox_margin_bottom) {
+					pen_x -= conf_msgbox_margin_line;
+					pen_y = conf_msgbox_margin_top;
+				}
 			}
 			set_click_position(pen_x + conf_msgbox_x,
 					   pen_y + conf_msgbox_y);

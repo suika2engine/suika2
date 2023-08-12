@@ -101,8 +101,13 @@ bool register_message(const char *name, const char *msg, const char *voice)
 			/* 日本語 */
 			if (!is_quoted_serif(msg)) {
 				/* カッコがない場合 */
-				snprintf(tmp_text, TEXT_SIZE, U8("%s「%s」"),
-					 name, msg);
+				if (!conf_msgbox_tategaki) {
+					snprintf(tmp_text, TEXT_SIZE,
+						 U8("%s「%s」"), name, msg);
+				} else {
+					snprintf(tmp_text, TEXT_SIZE,
+						 U8("%s﹁%s﹂"), name, msg);
+				}
 			} else {
 				/* すでにカッコがある場合 */
 				snprintf(tmp_text, TEXT_SIZE, U8("%s%s"),
@@ -216,30 +221,27 @@ const char *get_history_voice(int offset)
  */
 bool is_quoted_serif(const char *msg)
 {
-	const char *round_prefix = U8("（");
-	const char *round_suffix = U8("）");
-	const char *square_prefix = U8("「");
-	const char *square_suffix = U8("」");
-	const char *dsquare_prefix = U8("『");
-	const char *dsquare_suffix = U8("』");
+	struct item {
+		const char *prefix;
+		const char *suffix;
+	} items[] = {
+		{U8("（"), U8("）")},
+		{U8("「"), U8("」")},
+		{U8("『"), U8("』")},
+		{U8("『"), U8("』")},
+		{U8("︵"), U8("︶")},
+		{U8("﹁"), U8("﹂")},
+		{U8("﹃"), U8("﹄")}
+	};
 
-	/* 全角カッコ（）を調べる */
-	if (strncmp(msg, round_prefix, strlen(round_prefix)) == 0 &&
-	    strncmp(msg + strlen(msg) - strlen(round_suffix), round_suffix,
-		    strlen(round_suffix)) == 0)
-		return true;
+	unsigned int i;
 
-	/* 全角カギカッコ「」を調べる */
-	if (strncmp(msg, square_prefix, strlen(square_prefix)) == 0 &&
-	    strncmp(msg + strlen(msg) - strlen(square_suffix), square_suffix,
-		    strlen(square_suffix)) == 0)
-		return true;
-
-	/* 全角二重カギカッコ『』を調べる */
-	if (strncmp(msg, square_prefix, strlen(dsquare_prefix)) == 0 &&
-	    strncmp(msg + strlen(msg) - strlen(dsquare_suffix), square_suffix,
-		    strlen(square_suffix)) == 0)
-		return true;
+	for (i = 0; i < sizeof(items) / sizeof(struct item); i++) {
+		if (strncmp(msg, items[i].prefix, strlen(items[i].prefix)) &&
+		    strncmp(msg + strlen(msg) - strlen(items[i].suffix), items[i].suffix,
+		    strlen(items[i].suffix)) == 0)
+			return true;
+	}
 
 	return false;
 }

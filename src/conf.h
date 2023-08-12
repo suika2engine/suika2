@@ -94,6 +94,7 @@ extern int conf_msgbox_y;
 extern int conf_msgbox_margin_left;
 extern int conf_msgbox_margin_top;
 extern int conf_msgbox_margin_right;
+extern int conf_msgbox_margin_bottom;
 extern int conf_msgbox_margin_line;
 extern float conf_msgbox_speed;
 extern int conf_msgbox_btn_qsave_x;
@@ -156,6 +157,7 @@ extern int conf_msgbox_dim_color_b;
 extern int conf_msgbox_dim_color_outline_r;
 extern int conf_msgbox_dim_color_outline_g;
 extern int conf_msgbox_dim_color_outline_b;
+extern int conf_msgbox_tategaki;
 
 /*
  * クリックアニメーションの設定

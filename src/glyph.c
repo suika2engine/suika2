@@ -289,6 +289,21 @@ int get_glyph_width(uint32_t codepoint)
 }
 
 /*
+ * 文字を描画した際の高さを取得する
+ */
+int get_glyph_height(uint32_t codepoint)
+{
+	int w, h;
+
+	w = h = 0;
+
+	/* 幅を求める */
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h);
+
+	return h;
+}
+
+/*
  * utf-8文字列を描画した際の幅を取得する
  */
 int get_utf8_width(const char *mbs)
