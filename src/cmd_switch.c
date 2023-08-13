@@ -476,10 +476,6 @@ static bool get_choose_info(void)
 				&parent_button[i].h);
 	}
 
-	/* 最後のメッセージとして保存する */
-	if (!set_last_message(parent_button[0].msg))
-		return false;
-
 	return true;
 }
 
@@ -512,10 +508,6 @@ static bool get_select_info(void)
 				&parent_button[i].w,
 				&parent_button[i].h);
 	}
-
-	/* 最後のメッセージとして保存する */
-	if (!set_last_message(parent_button[0].msg))
-		return false;
 
 	return true;
 }
