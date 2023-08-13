@@ -2491,9 +2491,9 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		}
 
 		/* 描画する */
-		draw_char_on_msgbox(pen_x + ofs_x, pen_y, wc, body_color,
-				    body_outline_color, &ret_width,
-				    &ret_height);
+		draw_char_on_msgbox(pen_x + ofs_x, pen_y + ofs_y, wc,
+				    body_color, body_outline_color,
+				    &ret_width, &ret_height);
 
 		/* 更新領域を求める */
 		union_rect(x, y, w, h,
