@@ -451,10 +451,12 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	WNDCLASSEX wcex;
 	RECT rc;
 	DWORD style;
-	int monitors, vsw, vsh, dw, dh, i;
+	int vsw, vsh, dw, dh, i;
+#ifndef USE_DEBUGGER
+	int monitors;
+#endif
 
 	/* ディスプレイのサイズが足りない場合 */
-	monitors = GetSystemMetrics(SM_CMONITORS);
 	vsw = GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	vsh = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 	if (vsw < conf_window_width || vsh < conf_window_height)
@@ -497,6 +499,10 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	/* ウィンドウのタイトルをUTF-8からUTF-16に変換する */
 	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 						TITLE_BUF_SIZE - 1);
+
+#ifndef USE_DEBUGGER
+	monitors = GetSystemMetrics(SM_CMONITORS);
+#endif
 
 	/* ウィンドウを作成する */
 	hWndMain = CreateWindowEx(0, wszWindowClass, wszTitle, style,
