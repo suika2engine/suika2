@@ -2500,6 +2500,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 			   *x, *y, *w, *h,
 			   msgbox_x + pen_x, msgbox_y + pen_y,
 			   ret_width, ret_height);
+		*x = *x < 0 ? 0 : *x;
 
 		/* 次の文字へ移動する */
 		msg_cur += mblen;
