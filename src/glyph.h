@@ -33,7 +33,7 @@
 bool init_glyph(void);
 
 /* フォントレンダラの終了処理を行う */
-void cleanup_glyph(void);
+void cleanup_glyph(bool no_free_file_names);
 
 /* utf-8文字列の先頭文字をutf-32文字に変換する */
 #ifndef SWITCH /* switch.h にutf8_to_utf32は既に存在します　*/
@@ -56,10 +56,16 @@ int get_utf8_width(const char *mbs);
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 		pixel_t outline_color, uint32_t codepoint, int *w, int *h);
 
-/* フォントファイル名を設定する */
-bool set_font_file_name(const char *file);
+/* グローバルのフォントファイル名を設定する */
+bool set_global_font_file_name(const char *file);
 
-/* フォントファイル名を取得する */
+/* グローバルのフォントファイル名を取得する */
+const char *get_global_font_file_name(void);
+
+/* ローカルのフォントファイル名を設定する */
+bool set_local_font_file_name(const char *file);
+
+/* 現在のフォントファイル名を取得する */
 const char *get_font_file_name(void);
 
 /* サポートされているアルファベットか調べる */

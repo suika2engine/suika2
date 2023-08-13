@@ -220,11 +220,7 @@ static bool s2_reflect_font_config(struct wms_runtime *rt)
 	UNUSED_PARAMETER(rt);
 
 	/* Cleanup the font subsystem. */
-	cleanup_glyph();
-
-	/* Set the font file name to the font subsystem. */
-	if (!set_font_file_name(conf_font_file))
-		return false;
+	cleanup_glyph(true);
 
 	/* Re-initialize the font subsystem. */
 	if (!init_glyph())

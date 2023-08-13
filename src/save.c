@@ -26,6 +26,9 @@
 #include <emscripten/emscripten.h>
 #endif
 
+/* False assertion */
+#define CONFIG_TYPE_ERROR	(0)
+
 /* クイックセーブのファイル名 */
 #define QUICK_SAVE_FILE_NAME	"q000.sav"
 
@@ -34,6 +37,9 @@
 
 /* クイックセーブデータのインデックス */
 #define QUICK_SAVE_INDEX	(SAVE_SLOTS)
+
+/* コンフィグの終端記号 */
+#define END_OF_CONFIG		"eoc"
 
 /* ロードされた直後であるかのフラグ */
 static bool load_flag;
@@ -96,6 +102,7 @@ static bool serialize_bgm(struct wfile *wf);
 static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
 static bool serialize_name_vars(struct wfile *wf);
+static bool serialize_config(struct wfile *wf);
 static bool deserialize_all(const char *fname);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
@@ -103,6 +110,7 @@ static bool deserialize_bgm(struct rfile *rf);
 static bool deserialize_volumes(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
 static bool deserialize_name_vars(struct rfile *rf);
+static bool deserialize_config(struct rfile *rf);
 static void load_global_data(void);
 
 /*
@@ -399,6 +407,10 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 		if (!serialize_name_vars(wf))
 			break;
 
+		/* コンフィグのシリアライズを行う */
+		if (!serialize_config(wf))
+			break;
+
 		/* 成功 */
 		success = true;
 	} while (0);
@@ -637,6 +649,67 @@ static bool serialize_name_vars(struct wfile *wf)
 	return true;
 }
 
+/* コンフィグをシリアライズする */
+static bool serialize_config(struct wfile *wf)
+{
+	char val[1024];
+	const char *key, *val_s;
+	size_t len;
+	int key_index;
+
+	/* 保存可能なキーを列挙してループする */
+	key_index = 0;
+	while (1) {
+		/* セーブするキーを取得する */
+		key = get_config_key_for_local_save_data(key_index++);
+		if (key == NULL) {
+			/* キー列挙が終了した */
+			break;
+		}
+
+		/* キーを出力する */
+		len = strlen(key) + 1;
+		if (write_wfile(wf, key, len) < len)
+			return false;
+
+		/* 型ごとに値を出力する */
+		switch (get_config_type_for_key(key)) {
+		case 's':
+			val_s = get_string_config_value_for_key(key);
+			if (val_s == NULL)
+				val_s = "";
+			len = strlen(val_s) + 1;
+			if (write_wfile(wf, val_s, len) < len)
+				return false;
+			break;
+		case 'i':
+			snprintf(val, sizeof(val), "%d",
+				 get_int_config_value_for_key(key));
+			len = strlen(val) + 1;
+			if (write_wfile(wf, &val, len) < len)
+				return false;
+			break;
+		case 'f':
+			snprintf(val, sizeof(val), "%f",
+				 get_float_config_value_for_key(key));
+			len = strlen(val) + 1;
+			if (write_wfile(wf, &val, len) < len)
+				return false;
+			break;
+		default:
+			assert(CONFIG_TYPE_ERROR);
+			break;
+		}
+	}
+
+	/* 終端記号を出力する */
+	len = strlen(END_OF_CONFIG);
+	if (write_wfile(wf, END_OF_CONFIG, len) < len)
+		return false;
+
+	return true;
+}
+
 /*
  * ロードの実際の処理
  */
@@ -752,7 +825,7 @@ static bool deserialize_all(const char *fname)
 	bool success;
 
 	/* ファイルを開く */
-	rf = open_rfile(SAVE_DIR, fname, false);
+	rf = open_rfile(SAVE_DIR, fname, true);
 	if (rf == NULL)
 		return false;
 
@@ -800,6 +873,10 @@ static bool deserialize_all(const char *fname)
 		
 		/* 名前変数のデシリアライズを行う */
 		if (!deserialize_name_vars(rf))
+			break;
+
+		/* コンフィグのデシリアライズを行う */
+		if (!deserialize_config(rf))
 			break;
 
 		/* ヒストリをクリアする */
@@ -966,6 +1043,34 @@ static bool deserialize_name_vars(struct rfile *rf)
 	return true;
 }
 
+/* コンフィグをデシリアライズする */
+static bool deserialize_config(struct rfile *rf)
+{
+	char key[1024];
+	char val[1024];
+
+	/* 終端記号が現れるまでループする */
+	while (1) {
+		/* ロードするキーを取得する */
+		if (gets_rfile(rf, key, sizeof(key)) == NULL)
+			return false;
+
+		/* 終端記号の場合はループを終了する */
+		if (strcmp(key, END_OF_CONFIG) == 0)
+			break;
+
+		/* 値を取得する(文字列として保存されている) */
+		if (gets_rfile(rf, val, sizeof(val)) == NULL)
+			return false;
+
+		/* コンフィグを上書きする */
+		if (!overwrite_config(key, val))
+			return false;
+	}
+
+	return true;
+}
+
 /* セーブデータから基本情報を読み込む */
 static void load_basic_save_data(void)
 {
@@ -1083,6 +1188,7 @@ static void load_global_data(void)
 	for (i = 0; i < MIXER_STREAMS; i++) {
 		if (read_rfile(rf, &f, sizeof(f)) < sizeof(f))
 			break;
+		f = (f < 0 || f > 1.0f) ? 1.0f : f;
 		set_mixer_global_volume(i, f);
 	}
 
@@ -1090,19 +1196,25 @@ static void load_global_data(void)
 	for (i = 0; i < CH_VOL_SLOTS; i++) {
 		if (read_rfile(rf, &f, sizeof(f)) < sizeof(f))
 			break;
+		f = (f < 0 || f > 1.0f) ? 1.0f : f;
 		set_character_volume(i, f);
 	}
 
 	/* テキストスピードをデシリアライズする */
 	read_rfile(rf, &msg_text_speed, sizeof(f));
-	
+	msg_text_speed =
+		(msg_text_speed < 0 || msg_text_speed > 10000.0f) ?
+		1.0f : msg_text_speed;
+
 	/* オートモードスピードをデシリアライズする */
 	read_rfile(rf, &msg_auto_speed, sizeof(f));
+	msg_auto_speed =
+		(msg_auto_speed < 0 || msg_auto_speed > 10000.0f) ?
+		1.0f : msg_auto_speed;
 
 	/* フォントファイル名をデシリアライズする */
-	gets_rfile(rf, fname, sizeof(fname));
-	fname[sizeof(fname) - 1] = '\0';
-	set_font_file_name(fname);
+	if (gets_rfile(rf, fname, sizeof(fname)) != NULL)
+	    set_global_font_file_name(fname);
 
 	/* ファイルを閉じる */
 	close_rfile(rf);
@@ -1151,7 +1263,7 @@ void save_global_data(void)
 	write_wfile(wf, &msg_auto_speed, sizeof(f));
 
 	/* フォントファイル名をデシリアライズする */
-	fname = get_font_file_name();
+	fname = get_global_font_file_name();
 	write_wfile(wf, fname, strlen(fname) + 1);
 
 	/* ファイルを閉じる */

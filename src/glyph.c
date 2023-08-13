@@ -29,8 +29,11 @@
 
 #define SCALE	(64)
 
-/* フォントファイル名 */
-static char *font_file;
+/* グローバルセーブデータのフォントファイル名 */
+static char *global_font_file;
+
+/* ローカルセーブデータのフォントファイル名 */
+static char *local_font_file;
 
 /* 初期化済みか(Android用) */
 static bool is_initialized;
@@ -113,7 +116,7 @@ static bool read_font_file_content(void)
 	FT_Long remain, block;
 
 	/* フォントファイルを開く */
-	rf = open_rfile(FONT_DIR, font_file, false);
+	rf = open_rfile(FONT_DIR, get_font_file_name(), false);
 	if (rf == NULL)
 		return false;
 
@@ -156,7 +159,7 @@ static bool read_font_file_content(void)
 /*
  * フォントレンダラの終了処理を行う
  */
-void cleanup_glyph(void)
+void cleanup_glyph(bool no_free_file_names)
 {
 	if (face != NULL) {
 		FT_Done_Face(face);
@@ -173,8 +176,17 @@ void cleanup_glyph(void)
 		font_file_content = NULL;
 	}
 
-	free(font_file);
-	font_file = NULL;
+	if (!no_free_file_names) {
+		if (global_font_file != NULL) {
+			free(global_font_file);
+			global_font_file = NULL;
+		}
+
+		if (local_font_file != NULL) {
+			free(local_font_file);
+			local_font_file = NULL;
+		}
+	}
 }
 
 /*
@@ -466,21 +478,56 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 }
 
 /*
- * フォントファイル名を設定する
+ * グローバルのフォントファイル名を設定する
  *  - init_glyph()よりも前に呼ばれる
  *  - ファイル名が設定されても、init_glyph()を呼び出し直さないと反映されない
  */
-bool set_font_file_name(const char *file)
+bool set_global_font_file_name(const char *file)
 {
-	if (font_file != NULL) {
-		free(font_file);
-		font_file = NULL;
+	assert(file != NULL);
+
+	if (global_font_file != NULL) {
+		free(global_font_file);
+		global_font_file = NULL;
 	}
 
-	font_file = strdup(file);
-	if (font_file == NULL) {
+	global_font_file = strdup(file);
+	if (global_font_file == NULL) {
 		log_memory();
 		return false;
+	}
+
+	return true;
+}
+
+/*
+ * グローバルのフォントファイル名を取得する
+ */
+const char *get_global_font_file_name(void)
+{
+	assert(global_font_file != NULL);
+	return global_font_file;
+}
+
+/*
+ * ローカルのフォントファイル名を設定する
+ *  - init_glyph()よりも前に呼ばれることはない
+ *  - ファイル名が設定されても、init_glyph()を呼び出し直さないと反映されない
+ *  - グローバルに従う場合はNULLを指定する
+ */
+bool set_local_font_file_name(const char *file)
+{
+	if (local_font_file != NULL) {
+		free(local_font_file);
+		local_font_file = NULL;
+	}
+
+	if (file != NULL) {
+		local_font_file = strdup(file);
+		if (local_font_file == NULL) {
+			log_memory();
+			return false;
+		}
 	}
 
 	return true;
@@ -491,7 +538,13 @@ bool set_font_file_name(const char *file)
  */
 const char *get_font_file_name(void)
 {
-	return font_file;
+	/* ローカルなフォント名が有効な場合はそれを適用する */
+	if (local_font_file != NULL)
+		return local_font_file;
+
+	/* それ以外の場合、グローバルなフォント名を適用する */
+	assert(global_font_file != NULL);
+	return global_font_file;
 }
 
 /*

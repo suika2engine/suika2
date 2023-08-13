@@ -13,6 +13,11 @@
  */
 
 #include "suika.h"
+#include <math.h>	/* NAN */
+
+/* False assertion */
+#define CONFIG_KEY_NOT_FOUND	(0)
+#define INVALID_CONFIG_TYPE	(0)
 
 /*
  * 言語の設定
@@ -395,714 +400,712 @@ int conf_release;
 #define BUF_SIZE	(1024)
 
 /*
- * 変換ルールテーブル
+ * コンフィグのテーブル
  */
-struct rule {
+
+#define OPTIONAL	true
+#define MUST		false
+#define SAVE		true
+#define NOSAVE		false
+
+static struct rule {
 	const char *key;
 	char type;
-	void *val;
-	bool omissible;
-	bool loaded;
+	void *var_ptr;
+	bool optional;
+	bool save;
 } rule_tbl[] = {
-	{"i18n", 'i', NULL, true, false}, /* deprecated */
-	{"language.en", 's', &conf_language_en, true, false},
-	{"language.fr", 's', &conf_language_fr, true, false},
-	{"language.de", 's', &conf_language_de, true, false},
-	{"language.es", 's', &conf_language_es, true, false},
-	{"language.it", 's', &conf_language_it, true, false},
-	{"language.el", 's', &conf_language_el, true, false},
-	{"language.ru", 's', &conf_language_ru, true, false},
-	{"language.zh", 's', &conf_language_zh, true, false},
-	{"language.tw", 's', &conf_language_tw, true, false},
-	{"language.ja", 's', &conf_language_ja, true, false},
-	{"language.other", 's', &conf_language_other, true, false},
-	{"locale.force", 's', &conf_locale_force, true, false},
-	{"window.title", 's', &conf_window_title, false, false},
-	{"window.width", 'i', &conf_window_width, false, false},
-	{"window.height", 'i', &conf_window_height, false, false},
-	{"window.white", 'i', &conf_window_white, false, false},
-	{"window.menubar", 'i', &conf_window_menubar, true, false},
-	{"font.file", 's', &conf_font_file, false, false},
-	{"font.size", 'i', &conf_font_size, false, false},
-	{"font.color.r", 'i', &conf_font_color_r, false, false},
-	{"font.color.g", 'i', &conf_font_color_g, false, false},
-	{"font.color.b", 'i', &conf_font_color_b, false, false},
-	{"font.outline.color.r", 'i', &conf_font_outline_color_r, true, false},
-	{"font.outline.color.g", 'i', &conf_font_outline_color_g, true, false},
-	{"font.outline.color.b", 'i', &conf_font_outline_color_b, true, false},
-	{"font.outline.remove", 'i', &conf_font_outline_remove, true, false},
-	{"namebox.file", 's', &conf_namebox_file, false, false},
-	{"namebox.x", 'i', &conf_namebox_x, false, false},
-	{"namebox.y", 'i', &conf_namebox_y, false, false},
-	{"namebox.margin.top", 'i', &conf_namebox_margin_top, false, false},
-	{"namebox.centering.no", 'i', &conf_namebox_centering_no, true, false},
-	{"namebox.margin.left", 'i', &conf_namebox_margin_left, true, false},
-	{"namebox.hidden", 'i', &conf_namebox_hidden, true, false},
-	{"msgbox.bg.file", 's', &conf_msgbox_bg_file, false, false},
-	{"msgbox.fg.file", 's', &conf_msgbox_fg_file, false, false},
-	{"msgbox.x", 'i', &conf_msgbox_x, false, false},
-	{"msgbox.y", 'i', &conf_msgbox_y, false, false},
-	{"msgbox.margin.left", 'i', &conf_msgbox_margin_left, false, false},
-	{"msgbox.margin.top", 'i', &conf_msgbox_margin_top, false, false},
-	{"msgbox.margin.right", 'i', &conf_msgbox_margin_right, false, false},
-	{"msgbox.margin.bottom", 'i', &conf_msgbox_margin_bottom, true, false},
-	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, false, false},
-	{"msgbox.speed", 'f', &conf_msgbox_speed, false, false},
-	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, true, false},
-	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, true, false},
-	{"msgbox.btn.qsave.width", 'i', &conf_msgbox_btn_qsave_width, true, false},
-	{"msgbox.btn.qsave.height", 'i', &conf_msgbox_btn_qsave_height, true, false},
-	{"msgbox.btn.qload.x", 'i', &conf_msgbox_btn_qload_x, true, false},
-	{"msgbox.btn.qload.y", 'i', &conf_msgbox_btn_qload_y, true, false},
-	{"msgbox.btn.qload.width", 'i', &conf_msgbox_btn_qload_width, true, false},
-	{"msgbox.btn.qload.height", 'i', &conf_msgbox_btn_qload_height, true, false},
-	{"msgbox.btn.save.x", 'i', &conf_msgbox_btn_save_x, true, false},
-	{"msgbox.btn.save.y", 'i', &conf_msgbox_btn_save_y, true, false},
-	{"msgbox.btn.save.width", 'i', &conf_msgbox_btn_save_width, true, false},
-	{"msgbox.btn.save.height", 'i', &conf_msgbox_btn_save_height, true, false},
-	{"msgbox.btn.load.x", 'i', &conf_msgbox_btn_load_x, true, false},
-	{"msgbox.btn.load.y", 'i', &conf_msgbox_btn_load_y, true, false},
-	{"msgbox.btn.load.width", 'i', &conf_msgbox_btn_load_width, true, false},
-	{"msgbox.btn.load.height", 'i', &conf_msgbox_btn_load_height, true, false},
-	{"msgbox.btn.auto.x", 'i', &conf_msgbox_btn_auto_x, true, false},
-	{"msgbox.btn.auto.y", 'i', &conf_msgbox_btn_auto_y, true, false},
-	{"msgbox.btn.auto.width", 'i', &conf_msgbox_btn_auto_width, true, false},
-	{"msgbox.btn.auto.height", 'i', &conf_msgbox_btn_auto_height, true, false},
-	{"msgbox.btn.skip.se", 's', &conf_msgbox_btn_skip_se, true, false},
-	{"msgbox.btn.skip.x", 'i', &conf_msgbox_btn_skip_x, true, false},
-	{"msgbox.btn.skip.y", 'i', &conf_msgbox_btn_skip_y, true, false},
-	{"msgbox.btn.skip.width", 'i', &conf_msgbox_btn_skip_width, true, false},
-	{"msgbox.btn.skip.height", 'i', &conf_msgbox_btn_skip_height, true, false},
-	{"msgbox.btn.history.x", 'i', &conf_msgbox_btn_history_x, true, false},
-	{"msgbox.btn.history.y", 'i', &conf_msgbox_btn_history_y, true, false},
-	{"msgbox.btn.history.width", 'i', &conf_msgbox_btn_history_width, true, false},
-	{"msgbox.btn.history.height", 'i', &conf_msgbox_btn_history_height, true, false},
-	{"msgbox.btn.config.x", 'i', &conf_msgbox_btn_config_x, true, false},
-	{"msgbox.btn.config.y", 'i', &conf_msgbox_btn_config_y, true, false},
-	{"msgbox.btn.config.width", 'i', &conf_msgbox_btn_config_width, true, false},
-	{"msgbox.btn.config.height", 'i', &conf_msgbox_btn_config_height, true, false},
-	{"msgbox.btn.hide.x", 'i', &conf_msgbox_btn_hide_x, true, false},
-	{"msgbox.btn.hide.y", 'i', &conf_msgbox_btn_hide_y, true, false},
-	{"msgbox.btn.hide.width", 'i', &conf_msgbox_btn_hide_width, true, false},
-	{"msgbox.btn.hide.height", 'i', &conf_msgbox_btn_hide_height, true, false},
-	{"msgbox.btn.qsave.se", 's', &conf_msgbox_btn_qsave_se, true, false},
-	{"msgbox.btn.qload.se", 's', &conf_msgbox_btn_qload_se, true, false},
-	{"msgbox.btn.save.se", 's', &conf_msgbox_btn_save_se, true, false},
-	{"msgbox.btn.load.se", 's', &conf_msgbox_btn_load_se, true, false},
-	{"msgbox.btn.auto.se", 's', &conf_msgbox_btn_auto_se, true, false},
-	{"msgbox.btn.history.se", 's', &conf_msgbox_btn_history_se, true, false},
-	{"msgbox.btn.config.se", 's', &conf_msgbox_btn_config_se, true, false},
-	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, true, false},
-	{"msgbox.save.se", 's', &conf_msgbox_save_se, true, false}, /* TODO: remove */
-	{"msgbox.history.se", 's', &conf_msgbox_history_se, true, false},
-	{"msgbox.config.se", 's', &conf_msgbox_config_se, true, false},
-	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, true, false},
-	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, true, false},
-	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, true, false},
-	{"msgbox.show.se", 's', &conf_msgbox_show_se, true, false},
-	{"msgbox.skip.unseen", 'i', &conf_msgbox_skip_unseen, true, false},
-	{"msgbox.dim", 'i', &conf_msgbox_dim, true, false},
-	{"msgbox.dim.color.r", 'i', &conf_msgbox_dim_color_r, true, false},
-	{"msgbox.dim.color.g", 'i', &conf_msgbox_dim_color_g, true, false},
-	{"msgbox.dim.color.b", 'i', &conf_msgbox_dim_color_b, true, false},
-	{"msgbox.dim.color.outline.r", 'i', &conf_msgbox_dim_color_outline_r, true, false},
-	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, true, false},
-	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, true, false},
-	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, true, false},
-	{"click.x", 'i', &conf_click_x, false, false},
-	{"click.y", 'i', &conf_click_y, false, false},
-	{"click.move", 'i', &conf_click_move, true, false},
-	{"click.file1", 's', &conf_click_file1, false, false},
-	{"click.file2", 's', &conf_click_file2, true, false},
-	{"click.file3", 's', &conf_click_file3, true, false},
-	{"click.file4", 's', &conf_click_file4, true, false},
-	{"click.file5", 's', &conf_click_file5, true, false},
-	{"click.file6", 's', &conf_click_file6, true, false},
-	{"click.interval", 'f', &conf_click_interval, false, false},
-	{"selbox.bg.file", 's', NULL, true, false},
-	{"selbox.fg.file", 's', NULL, true, false},
-	{"selbox.x", 'i', NULL, true, false},
-	{"selbox.y", 'i', NULL, true, false},
-	{"selbox.margin.y", 'i', NULL, true, false},
-	{"selbox.change.se", 's', NULL, true, false},
-	{"switch.bg.file", 's', &conf_switch_bg_file, false, false},
-	{"switch.fg.file", 's', &conf_switch_fg_file, false, false},
-	{"switch.x", 'i', &conf_switch_x, false, false},
-	{"switch.y", 'i', &conf_switch_y, false, false},
-	{"switch.margin.y", 'i', &conf_switch_margin_y, false, false},
-	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, false, false},
-	{"switch.color.active", 'i', &conf_switch_color_active, true, false},
-	{"switch.color.active.body.r", 'i', &conf_switch_color_active_body_r, true, false},
-	{"switch.color.active.body.g", 'i', &conf_switch_color_active_body_g, true, false},
-	{"switch.color.active.body.b", 'i', &conf_switch_color_active_body_b, true, false},
-	{"switch.color.active.outline.r", 'i', &conf_switch_color_active_outline_r, true, false},
-	{"switch.color.active.outline.g", 'i', &conf_switch_color_active_outline_g, true, false},
-	{"switch.color.active.outline.b", 'i', &conf_switch_color_active_outline_b, true, false},
-	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, true, false},
-	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, true, false},
-	{"switch.change.se", 's', &conf_switch_change_se, true, false},
-	{"news.bg.file", 's', &conf_news_bg_file, true, false},
-	{"news.fg.file", 's', &conf_news_fg_file, true, false},
-	{"news.margin", 'i', &conf_news_margin, true, false},
-	{"news.text.margin.y", 'i', &conf_news_text_margin_y, true, false},
-	{"news.change.se", 's', &conf_news_change_se, true, false},
-	{"retrospect.change.se", 's', &conf_retrospect_change_se, true, false},
-	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, false, false},
-	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, false, false},
-	{"menu.change.se", 's', &conf_menu_change_se, true, false},
-	{"sysmenu.x", 'i', &conf_sysmenu_x, false, false},
-	{"sysmenu.y", 'i', &conf_sysmenu_y, false, false},
-	{"sysmenu.idle.file", 's', &conf_sysmenu_idle_file, false, false},
-	{"sysmenu.hover.file", 's', &conf_sysmenu_hover_file, false, false},
-	{"sysmenu.disable.file", 's', &conf_sysmenu_disable_file, false, false},
-	{"sysmenu.qsave.x", 'i', &conf_sysmenu_qsave_x, false, false},
-	{"sysmenu.qsave.y", 'i', &conf_sysmenu_qsave_y, false, false},
-	{"sysmenu.qsave.width", 'i', &conf_sysmenu_qsave_width, false, false},
-	{"sysmenu.qsave.height", 'i', &conf_sysmenu_qsave_height, false, false},
-	{"sysmenu.qload.x", 'i', &conf_sysmenu_qload_x, false, false},
-	{"sysmenu.qload.y", 'i', &conf_sysmenu_qload_y, false, false},
-	{"sysmenu.qload.width", 'i', &conf_sysmenu_qload_width, false, false},
-	{"sysmenu.qload.height", 'i', &conf_sysmenu_qload_height, false, false},
-	{"sysmenu.save.x", 'i', &conf_sysmenu_save_x, false, false},
-	{"sysmenu.save.y", 'i', &conf_sysmenu_save_y, false, false},
-	{"sysmenu.save.width", 'i', &conf_sysmenu_save_width, false, false},
-	{"sysmenu.save.height", 'i', &conf_sysmenu_save_height, false, false},
-	{"sysmenu.load.x", 'i', &conf_sysmenu_load_x, false, false},
-	{"sysmenu.load.y", 'i', &conf_sysmenu_load_y, false, false},
-	{"sysmenu.load.width", 'i', &conf_sysmenu_load_width, false, false},
-	{"sysmenu.load.height", 'i', &conf_sysmenu_load_height, false, false},
-	{"sysmenu.auto.x", 'i', &conf_sysmenu_auto_x, false, false},
-	{"sysmenu.auto.y", 'i', &conf_sysmenu_auto_y, false, false},
-	{"sysmenu.auto.width", 'i', &conf_sysmenu_auto_width, false, false},
-	{"sysmenu.auto.height", 'i', &conf_sysmenu_auto_height, false, false},
-	{"sysmenu.skip.x", 'i', &conf_sysmenu_skip_x, false, false},
-	{"sysmenu.skip.y", 'i', &conf_sysmenu_skip_y, false, false},
-	{"sysmenu.skip.width", 'i', &conf_sysmenu_skip_width, false, false},
-	{"sysmenu.skip.height", 'i', &conf_sysmenu_skip_height, false, false},
-	{"sysmenu.history.x", 'i', &conf_sysmenu_history_x, false, false},
-	{"sysmenu.history.y", 'i', &conf_sysmenu_history_y, false, false},
-	{"sysmenu.history.width", 'i', &conf_sysmenu_history_width, false, false},
-	{"sysmenu.history.height", 'i', &conf_sysmenu_history_height, false, false},
-	{"sysmenu.config.x", 'i', &conf_sysmenu_config_x, false, false},
-	{"sysmenu.config.y", 'i', &conf_sysmenu_config_y, false, false},
-	{"sysmenu.config.width", 'i', &conf_sysmenu_config_width, false, false},
-	{"sysmenu.config.height", 'i', &conf_sysmenu_config_height, false, false},
-	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, true, false},
-	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, true, false},
-	{"sysmenu.change.se", 's', &conf_sysmenu_change_se, true, false},
-	{"sysmenu.qsave.se", 's', &conf_sysmenu_qsave_se, true, false},
-	{"sysmenu.qload.se", 's', &conf_sysmenu_qload_se, true, false},
-	{"sysmenu.save.se", 's', &conf_sysmenu_save_se, true, false},
-	{"sysmenu.load.se", 's', &conf_sysmenu_load_se, true, false},
-	{"sysmenu.auto.se", 's', &conf_sysmenu_auto_se, true, false},
-	{"sysmenu.skip.se", 's', &conf_sysmenu_skip_se, true, false},
-	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, true, false},
-	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
-	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, true, false},
-	{"sysmenu.hidden", 'i', &conf_sysmenu_hidden, true, false},
-	{"automode.banner.file", 's', &conf_automode_banner_file, false, false},
-	{"automode.banner.x", 'i', &conf_automode_banner_x, false, false},
-	{"automode.banner.y", 'i', &conf_automode_banner_y, false, false},
-	{"automode.speed", 'f', &conf_automode_speed, false, false},
-	{"skipmode.banner.file", 's', &conf_skipmode_banner_file, false, false},
-	{"skipmode.banner.x", 'i', &conf_skipmode_banner_x, false, false},
-	{"skipmode.banner.y", 'i', &conf_skipmode_banner_y, false, false},
-	{"sysmenu.collapsed.x", 'i', &conf_sysmenu_collapsed_x, false, false},
-	{"sysmenu.collapsed.y", 'i', &conf_sysmenu_collapsed_y, false, false},
-	{"sysmenu.collapsed.idle.file", 's', &conf_sysmenu_collapsed_idle_file, false, false},
-	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, false, false},
-	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, true, false},
-	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, false, false},
-	{"sound.vol.voice", 'f', &conf_sound_vol_voice, false, false},
-	{"sound.vol.se", 'f', &conf_sound_vol_se, false, false},
-	{"sound.vol.character", 'f', &conf_sound_vol_character, false, false},
-	{"sound.character.name1", 's', &conf_sound_character_name[1], true, false},
-	{"sound.character.name2", 's', &conf_sound_character_name[2], true, false},
-	{"sound.character.name3", 's', &conf_sound_character_name[3], true, false},
-	{"sound.character.name4", 's', &conf_sound_character_name[4], true, false},
-	{"sound.character.name5", 's', &conf_sound_character_name[5], true, false},
-	{"sound.character.name6", 's', &conf_sound_character_name[6], true, false},
-	{"sound.character.name7", 's', &conf_sound_character_name[7], true, false},
-	{"sound.character.name8", 's', &conf_sound_character_name[8], true, false},
-	{"sound.character.name9", 's', &conf_sound_character_name[9], true, false},
-	{"sound.character.name10", 's', &conf_sound_character_name[10], true, false},
-	{"sound.character.name11", 's', &conf_sound_character_name[11], true, false},
-	{"sound.character.name12", 's', &conf_sound_character_name[12], true, false},
-	{"sound.character.name13", 's', &conf_sound_character_name[13], true, false},
-	{"sound.character.name14", 's', &conf_sound_character_name[14], true, false},
-	{"sound.character.name15", 's', &conf_sound_character_name[15], true, false},
-	/* start codegen */
-	{"serif.color1.name", 's', &conf_serif_color_name[0], true, false},
-	{"serif.color1.r", 'i', &conf_serif_color_r[0], true, false},
-	{"serif.color1.g", 'i', &conf_serif_color_g[0], true, false},
-	{"serif.color1.b", 'i', &conf_serif_color_b[0], true, false},
-	{"serif.color1.outline.r", 'i', &conf_serif_outline_color_r[0], true, false},
-	{"serif.color1.outline.g", 'i', &conf_serif_outline_color_g[0], true, false},
-	{"serif.color1.outline.b", 'i', &conf_serif_outline_color_b[0], true, false},
-	{"serif.color2.name", 's', &conf_serif_color_name[1], true, false},
-	{"serif.color2.r", 'i', &conf_serif_color_r[1], true, false},
-	{"serif.color2.g", 'i', &conf_serif_color_g[1], true, false},
-	{"serif.color2.b", 'i', &conf_serif_color_b[1], true, false},
-	{"serif.color2.outline.r", 'i', &conf_serif_outline_color_r[1], true, false},
-	{"serif.color2.outline.g", 'i', &conf_serif_outline_color_g[1], true, false},
-	{"serif.color2.outline.b", 'i', &conf_serif_outline_color_b[1], true, false},
-	{"serif.color3.name", 's', &conf_serif_color_name[2], true, false},
-	{"serif.color3.r", 'i', &conf_serif_color_r[2], true, false},
-	{"serif.color3.g", 'i', &conf_serif_color_g[2], true, false},
-	{"serif.color3.b", 'i', &conf_serif_color_b[2], true, false},
-	{"serif.color3.outline.r", 'i', &conf_serif_outline_color_r[2], true, false},
-	{"serif.color3.outline.g", 'i', &conf_serif_outline_color_g[2], true, false},
-	{"serif.color3.outline.b", 'i', &conf_serif_outline_color_b[2], true, false},
-	{"serif.color4.name", 's', &conf_serif_color_name[3], true, false},
-	{"serif.color4.r", 'i', &conf_serif_color_r[3], true, false},
-	{"serif.color4.g", 'i', &conf_serif_color_g[3], true, false},
-	{"serif.color4.b", 'i', &conf_serif_color_b[3], true, false},
-	{"serif.color4.outline.r", 'i', &conf_serif_outline_color_r[3], true, false},
-	{"serif.color4.outline.g", 'i', &conf_serif_outline_color_g[3], true, false},
-	{"serif.color4.outline.b", 'i', &conf_serif_outline_color_b[3], true, false},
-	{"serif.color5.name", 's', &conf_serif_color_name[4], true, false},
-	{"serif.color5.r", 'i', &conf_serif_color_r[4], true, false},
-	{"serif.color5.g", 'i', &conf_serif_color_g[4], true, false},
-	{"serif.color5.b", 'i', &conf_serif_color_b[4], true, false},
-	{"serif.color5.outline.r", 'i', &conf_serif_outline_color_r[4], true, false},
-	{"serif.color5.outline.g", 'i', &conf_serif_outline_color_g[4], true, false},
-	{"serif.color5.outline.b", 'i', &conf_serif_outline_color_b[4], true, false},
-	{"serif.color6.name", 's', &conf_serif_color_name[5], true, false},
-	{"serif.color6.r", 'i', &conf_serif_color_r[5], true, false},
-	{"serif.color6.g", 'i', &conf_serif_color_g[5], true, false},
-	{"serif.color6.b", 'i', &conf_serif_color_b[5], true, false},
-	{"serif.color6.outline.r", 'i', &conf_serif_outline_color_r[5], true, false},
-	{"serif.color6.outline.g", 'i', &conf_serif_outline_color_g[5], true, false},
-	{"serif.color6.outline.b", 'i', &conf_serif_outline_color_b[5], true, false},
-	{"serif.color7.name", 's', &conf_serif_color_name[6], true, false},
-	{"serif.color7.r", 'i', &conf_serif_color_r[6], true, false},
-	{"serif.color7.g", 'i', &conf_serif_color_g[6], true, false},
-	{"serif.color7.b", 'i', &conf_serif_color_b[6], true, false},
-	{"serif.color7.outline.r", 'i', &conf_serif_outline_color_r[6], true, false},
-	{"serif.color7.outline.g", 'i', &conf_serif_outline_color_g[6], true, false},
-	{"serif.color7.outline.b", 'i', &conf_serif_outline_color_b[6], true, false},
-	{"serif.color8.name", 's', &conf_serif_color_name[7], true, false},
-	{"serif.color8.r", 'i', &conf_serif_color_r[7], true, false},
-	{"serif.color8.g", 'i', &conf_serif_color_g[7], true, false},
-	{"serif.color8.b", 'i', &conf_serif_color_b[7], true, false},
-	{"serif.color8.outline.r", 'i', &conf_serif_outline_color_r[7], true, false},
-	{"serif.color8.outline.g", 'i', &conf_serif_outline_color_g[7], true, false},
-	{"serif.color8.outline.b", 'i', &conf_serif_outline_color_b[7], true, false},
-	{"serif.color9.name", 's', &conf_serif_color_name[8], true, false},
-	{"serif.color9.r", 'i', &conf_serif_color_r[8], true, false},
-	{"serif.color9.g", 'i', &conf_serif_color_g[8], true, false},
-	{"serif.color9.b", 'i', &conf_serif_color_b[8], true, false},
-	{"serif.color9.outline.r", 'i', &conf_serif_outline_color_r[8], true, false},
-	{"serif.color9.outline.g", 'i', &conf_serif_outline_color_g[8], true, false},
-	{"serif.color9.outline.b", 'i', &conf_serif_outline_color_b[8], true, false},
-	{"serif.color10.name", 's', &conf_serif_color_name[9], true, false},
-	{"serif.color10.r", 'i', &conf_serif_color_r[9], true, false},
-	{"serif.color10.g", 'i', &conf_serif_color_g[9], true, false},
-	{"serif.color10.b", 'i', &conf_serif_color_b[9], true, false},
-	{"serif.color10.outline.r", 'i', &conf_serif_outline_color_r[9], true, false},
-	{"serif.color10.outline.g", 'i', &conf_serif_outline_color_g[9], true, false},
-	{"serif.color10.outline.b", 'i', &conf_serif_outline_color_b[9], true, false},
-	{"serif.color11.name", 's', &conf_serif_color_name[10], true, false},
-	{"serif.color11.r", 'i', &conf_serif_color_r[10], true, false},
-	{"serif.color11.g", 'i', &conf_serif_color_g[10], true, false},
-	{"serif.color11.b", 'i', &conf_serif_color_b[10], true, false},
-	{"serif.color11.outline.r", 'i', &conf_serif_outline_color_r[10], true, false},
-	{"serif.color11.outline.g", 'i', &conf_serif_outline_color_g[10], true, false},
-	{"serif.color11.outline.b", 'i', &conf_serif_outline_color_b[10], true, false},
-	{"serif.color12.name", 's', &conf_serif_color_name[11], true, false},
-	{"serif.color12.r", 'i', &conf_serif_color_r[11], true, false},
-	{"serif.color12.g", 'i', &conf_serif_color_g[11], true, false},
-	{"serif.color12.b", 'i', &conf_serif_color_b[11], true, false},
-	{"serif.color12.outline.r", 'i', &conf_serif_outline_color_r[11], true, false},
-	{"serif.color12.outline.g", 'i', &conf_serif_outline_color_g[11], true, false},
-	{"serif.color12.outline.b", 'i', &conf_serif_outline_color_b[11], true, false},
-	{"serif.color13.name", 's', &conf_serif_color_name[12], true, false},
-	{"serif.color13.r", 'i', &conf_serif_color_r[12], true, false},
-	{"serif.color13.g", 'i', &conf_serif_color_g[12], true, false},
-	{"serif.color13.b", 'i', &conf_serif_color_b[12], true, false},
-	{"serif.color13.outline.r", 'i', &conf_serif_outline_color_r[12], true, false},
-	{"serif.color13.outline.g", 'i', &conf_serif_outline_color_g[12], true, false},
-	{"serif.color13.outline.b", 'i', &conf_serif_outline_color_b[12], true, false},
-	{"serif.color14.name", 's', &conf_serif_color_name[13], true, false},
-	{"serif.color14.r", 'i', &conf_serif_color_r[13], true, false},
-	{"serif.color14.g", 'i', &conf_serif_color_g[13], true, false},
-	{"serif.color14.b", 'i', &conf_serif_color_b[13], true, false},
-	{"serif.color14.outline.r", 'i', &conf_serif_outline_color_r[13], true, false},
-	{"serif.color14.outline.g", 'i', &conf_serif_outline_color_g[13], true, false},
-	{"serif.color14.outline.b", 'i', &conf_serif_outline_color_b[13], true, false},
-	{"serif.color15.name", 's', &conf_serif_color_name[14], true, false},
-	{"serif.color15.r", 'i', &conf_serif_color_r[14], true, false},
-	{"serif.color15.g", 'i', &conf_serif_color_g[14], true, false},
-	{"serif.color15.b", 'i', &conf_serif_color_b[14], true, false},
-	{"serif.color15.outline.r", 'i', &conf_serif_outline_color_r[14], true, false},
-	{"serif.color15.outline.g", 'i', &conf_serif_outline_color_g[14], true, false},
-	{"serif.color15.outline.b", 'i', &conf_serif_outline_color_b[14], true, false},
-	{"serif.color16.name", 's', &conf_serif_color_name[15], true, false},
-	{"serif.color16.r", 'i', &conf_serif_color_r[15], true, false},
-	{"serif.color16.g", 'i', &conf_serif_color_g[15], true, false},
-	{"serif.color16.b", 'i', &conf_serif_color_b[15], true, false},
-	{"serif.color16.outline.r", 'i', &conf_serif_outline_color_r[15], true, false},
-	{"serif.color16.outline.g", 'i', &conf_serif_outline_color_g[15], true, false},
-	{"serif.color16.outline.b", 'i', &conf_serif_outline_color_b[15], true, false},
-	{"serif.color17.name", 's', &conf_serif_color_name[16], true, false},
-	{"serif.color17.r", 'i', &conf_serif_color_r[16], true, false},
-	{"serif.color17.g", 'i', &conf_serif_color_g[16], true, false},
-	{"serif.color17.b", 'i', &conf_serif_color_b[16], true, false},
-	{"serif.color17.outline.r", 'i', &conf_serif_outline_color_r[16], true, false},
-	{"serif.color17.outline.g", 'i', &conf_serif_outline_color_g[16], true, false},
-	{"serif.color17.outline.b", 'i', &conf_serif_outline_color_b[16], true, false},
-	{"serif.color18.name", 's', &conf_serif_color_name[17], true, false},
-	{"serif.color18.r", 'i', &conf_serif_color_r[17], true, false},
-	{"serif.color18.g", 'i', &conf_serif_color_g[17], true, false},
-	{"serif.color18.b", 'i', &conf_serif_color_b[17], true, false},
-	{"serif.color18.outline.r", 'i', &conf_serif_outline_color_r[17], true, false},
-	{"serif.color18.outline.g", 'i', &conf_serif_outline_color_g[17], true, false},
-	{"serif.color18.outline.b", 'i', &conf_serif_outline_color_b[17], true, false},
-	{"serif.color19.name", 's', &conf_serif_color_name[18], true, false},
-	{"serif.color19.r", 'i', &conf_serif_color_r[18], true, false},
-	{"serif.color19.g", 'i', &conf_serif_color_g[18], true, false},
-	{"serif.color19.b", 'i', &conf_serif_color_b[18], true, false},
-	{"serif.color19.outline.r", 'i', &conf_serif_outline_color_r[18], true, false},
-	{"serif.color19.outline.g", 'i', &conf_serif_outline_color_g[18], true, false},
-	{"serif.color19.outline.b", 'i', &conf_serif_outline_color_b[18], true, false},
-	{"serif.color20.name", 's', &conf_serif_color_name[19], true, false},
-	{"serif.color20.r", 'i', &conf_serif_color_r[19], true, false},
-	{"serif.color20.g", 'i', &conf_serif_color_g[19], true, false},
-	{"serif.color20.b", 'i', &conf_serif_color_b[19], true, false},
-	{"serif.color20.outline.r", 'i', &conf_serif_outline_color_r[19], true, false},
-	{"serif.color20.outline.g", 'i', &conf_serif_outline_color_g[19], true, false},
-	{"serif.color20.outline.b", 'i', &conf_serif_outline_color_b[19], true, false},
-	{"serif.color21.name", 's', &conf_serif_color_name[20], true, false},
-	{"serif.color21.r", 'i', &conf_serif_color_r[20], true, false},
-	{"serif.color21.g", 'i', &conf_serif_color_g[20], true, false},
-	{"serif.color21.b", 'i', &conf_serif_color_b[20], true, false},
-	{"serif.color21.outline.r", 'i', &conf_serif_outline_color_r[20], true, false},
-	{"serif.color21.outline.g", 'i', &conf_serif_outline_color_g[20], true, false},
-	{"serif.color21.outline.b", 'i', &conf_serif_outline_color_b[20], true, false},
-	{"serif.color22.name", 's', &conf_serif_color_name[21], true, false},
-	{"serif.color22.r", 'i', &conf_serif_color_r[21], true, false},
-	{"serif.color22.g", 'i', &conf_serif_color_g[21], true, false},
-	{"serif.color22.b", 'i', &conf_serif_color_b[21], true, false},
-	{"serif.color22.outline.r", 'i', &conf_serif_outline_color_r[21], true, false},
-	{"serif.color22.outline.g", 'i', &conf_serif_outline_color_g[21], true, false},
-	{"serif.color22.outline.b", 'i', &conf_serif_outline_color_b[21], true, false},
-	{"serif.color23.name", 's', &conf_serif_color_name[22], true, false},
-	{"serif.color23.r", 'i', &conf_serif_color_r[22], true, false},
-	{"serif.color23.g", 'i', &conf_serif_color_g[22], true, false},
-	{"serif.color23.b", 'i', &conf_serif_color_b[22], true, false},
-	{"serif.color23.outline.r", 'i', &conf_serif_outline_color_r[22], true, false},
-	{"serif.color23.outline.g", 'i', &conf_serif_outline_color_g[22], true, false},
-	{"serif.color23.outline.b", 'i', &conf_serif_outline_color_b[22], true, false},
-	{"serif.color24.name", 's', &conf_serif_color_name[23], true, false},
-	{"serif.color24.r", 'i', &conf_serif_color_r[23], true, false},
-	{"serif.color24.g", 'i', &conf_serif_color_g[23], true, false},
-	{"serif.color24.b", 'i', &conf_serif_color_b[23], true, false},
-	{"serif.color24.outline.r", 'i', &conf_serif_outline_color_r[23], true, false},
-	{"serif.color24.outline.g", 'i', &conf_serif_outline_color_g[23], true, false},
-	{"serif.color24.outline.b", 'i', &conf_serif_outline_color_b[23], true, false},
-	{"serif.color25.name", 's', &conf_serif_color_name[24], true, false},
-	{"serif.color25.r", 'i', &conf_serif_color_r[24], true, false},
-	{"serif.color25.g", 'i', &conf_serif_color_g[24], true, false},
-	{"serif.color25.b", 'i', &conf_serif_color_b[24], true, false},
-	{"serif.color25.outline.r", 'i', &conf_serif_outline_color_r[24], true, false},
-	{"serif.color25.outline.g", 'i', &conf_serif_outline_color_g[24], true, false},
-	{"serif.color25.outline.b", 'i', &conf_serif_outline_color_b[24], true, false},
-	{"serif.color26.name", 's', &conf_serif_color_name[25], true, false},
-	{"serif.color26.r", 'i', &conf_serif_color_r[25], true, false},
-	{"serif.color26.g", 'i', &conf_serif_color_g[25], true, false},
-	{"serif.color26.b", 'i', &conf_serif_color_b[25], true, false},
-	{"serif.color26.outline.r", 'i', &conf_serif_outline_color_r[25], true, false},
-	{"serif.color26.outline.g", 'i', &conf_serif_outline_color_g[25], true, false},
-	{"serif.color26.outline.b", 'i', &conf_serif_outline_color_b[25], true, false},
-	{"serif.color27.name", 's', &conf_serif_color_name[26], true, false},
-	{"serif.color27.r", 'i', &conf_serif_color_r[26], true, false},
-	{"serif.color27.g", 'i', &conf_serif_color_g[26], true, false},
-	{"serif.color27.b", 'i', &conf_serif_color_b[26], true, false},
-	{"serif.color27.outline.r", 'i', &conf_serif_outline_color_r[26], true, false},
-	{"serif.color27.outline.g", 'i', &conf_serif_outline_color_g[26], true, false},
-	{"serif.color27.outline.b", 'i', &conf_serif_outline_color_b[26], true, false},
-	{"serif.color28.name", 's', &conf_serif_color_name[27], true, false},
-	{"serif.color28.r", 'i', &conf_serif_color_r[27], true, false},
-	{"serif.color28.g", 'i', &conf_serif_color_g[27], true, false},
-	{"serif.color28.b", 'i', &conf_serif_color_b[27], true, false},
-	{"serif.color28.outline.r", 'i', &conf_serif_outline_color_r[27], true, false},
-	{"serif.color28.outline.g", 'i', &conf_serif_outline_color_g[27], true, false},
-	{"serif.color28.outline.b", 'i', &conf_serif_outline_color_b[27], true, false},
-	{"serif.color29.name", 's', &conf_serif_color_name[28], true, false},
-	{"serif.color29.r", 'i', &conf_serif_color_r[28], true, false},
-	{"serif.color29.g", 'i', &conf_serif_color_g[28], true, false},
-	{"serif.color29.b", 'i', &conf_serif_color_b[28], true, false},
-	{"serif.color29.outline.r", 'i', &conf_serif_outline_color_r[28], true, false},
-	{"serif.color29.outline.g", 'i', &conf_serif_outline_color_g[28], true, false},
-	{"serif.color29.outline.b", 'i', &conf_serif_outline_color_b[28], true, false},
-	{"serif.color30.name", 's', &conf_serif_color_name[29], true, false},
-	{"serif.color30.r", 'i', &conf_serif_color_r[29], true, false},
-	{"serif.color30.g", 'i', &conf_serif_color_g[29], true, false},
-	{"serif.color30.b", 'i', &conf_serif_color_b[29], true, false},
-	{"serif.color30.outline.r", 'i', &conf_serif_outline_color_r[29], true, false},
-	{"serif.color30.outline.g", 'i', &conf_serif_outline_color_g[29], true, false},
-	{"serif.color30.outline.b", 'i', &conf_serif_outline_color_b[29], true, false},
-	{"serif.color31.name", 's', &conf_serif_color_name[30], true, false},
-	{"serif.color31.r", 'i', &conf_serif_color_r[30], true, false},
-	{"serif.color31.g", 'i', &conf_serif_color_g[30], true, false},
-	{"serif.color31.b", 'i', &conf_serif_color_b[30], true, false},
-	{"serif.color31.outline.r", 'i', &conf_serif_outline_color_r[30], true, false},
-	{"serif.color31.outline.g", 'i', &conf_serif_outline_color_g[30], true, false},
-	{"serif.color31.outline.b", 'i', &conf_serif_outline_color_b[30], true, false},
-	{"serif.color32.name", 's', &conf_serif_color_name[31], true, false},
-	{"serif.color32.r", 'i', &conf_serif_color_r[31], true, false},
-	{"serif.color32.g", 'i', &conf_serif_color_g[31], true, false},
-	{"serif.color32.b", 'i', &conf_serif_color_b[31], true, false},
-	{"serif.color32.outline.r", 'i', &conf_serif_outline_color_r[31], true, false},
-	{"serif.color32.outline.g", 'i', &conf_serif_outline_color_g[31], true, false},
-	{"serif.color32.outline.b", 'i', &conf_serif_outline_color_b[31], true, false},
-	{"serif.color33.name", 's', &conf_serif_color_name[32], true, false},
-	{"serif.color33.r", 'i', &conf_serif_color_r[32], true, false},
-	{"serif.color33.g", 'i', &conf_serif_color_g[32], true, false},
-	{"serif.color33.b", 'i', &conf_serif_color_b[32], true, false},
-	{"serif.color33.outline.r", 'i', &conf_serif_outline_color_r[32], true, false},
-	{"serif.color33.outline.g", 'i', &conf_serif_outline_color_g[32], true, false},
-	{"serif.color33.outline.b", 'i', &conf_serif_outline_color_b[32], true, false},
-	{"serif.color34.name", 's', &conf_serif_color_name[33], true, false},
-	{"serif.color34.r", 'i', &conf_serif_color_r[33], true, false},
-	{"serif.color34.g", 'i', &conf_serif_color_g[33], true, false},
-	{"serif.color34.b", 'i', &conf_serif_color_b[33], true, false},
-	{"serif.color34.outline.r", 'i', &conf_serif_outline_color_r[33], true, false},
-	{"serif.color34.outline.g", 'i', &conf_serif_outline_color_g[33], true, false},
-	{"serif.color34.outline.b", 'i', &conf_serif_outline_color_b[33], true, false},
-	{"serif.color35.name", 's', &conf_serif_color_name[34], true, false},
-	{"serif.color35.r", 'i', &conf_serif_color_r[34], true, false},
-	{"serif.color35.g", 'i', &conf_serif_color_g[34], true, false},
-	{"serif.color35.b", 'i', &conf_serif_color_b[34], true, false},
-	{"serif.color35.outline.r", 'i', &conf_serif_outline_color_r[34], true, false},
-	{"serif.color35.outline.g", 'i', &conf_serif_outline_color_g[34], true, false},
-	{"serif.color35.outline.b", 'i', &conf_serif_outline_color_b[34], true, false},
-	{"serif.color36.name", 's', &conf_serif_color_name[35], true, false},
-	{"serif.color36.r", 'i', &conf_serif_color_r[35], true, false},
-	{"serif.color36.g", 'i', &conf_serif_color_g[35], true, false},
-	{"serif.color36.b", 'i', &conf_serif_color_b[35], true, false},
-	{"serif.color36.outline.r", 'i', &conf_serif_outline_color_r[35], true, false},
-	{"serif.color36.outline.g", 'i', &conf_serif_outline_color_g[35], true, false},
-	{"serif.color36.outline.b", 'i', &conf_serif_outline_color_b[35], true, false},
-	{"serif.color37.name", 's', &conf_serif_color_name[36], true, false},
-	{"serif.color37.r", 'i', &conf_serif_color_r[36], true, false},
-	{"serif.color37.g", 'i', &conf_serif_color_g[36], true, false},
-	{"serif.color37.b", 'i', &conf_serif_color_b[36], true, false},
-	{"serif.color37.outline.r", 'i', &conf_serif_outline_color_r[36], true, false},
-	{"serif.color37.outline.g", 'i', &conf_serif_outline_color_g[36], true, false},
-	{"serif.color37.outline.b", 'i', &conf_serif_outline_color_b[36], true, false},
-	{"serif.color38.name", 's', &conf_serif_color_name[37], true, false},
-	{"serif.color38.r", 'i', &conf_serif_color_r[37], true, false},
-	{"serif.color38.g", 'i', &conf_serif_color_g[37], true, false},
-	{"serif.color38.b", 'i', &conf_serif_color_b[37], true, false},
-	{"serif.color38.outline.r", 'i', &conf_serif_outline_color_r[37], true, false},
-	{"serif.color38.outline.g", 'i', &conf_serif_outline_color_g[37], true, false},
-	{"serif.color38.outline.b", 'i', &conf_serif_outline_color_b[37], true, false},
-	{"serif.color39.name", 's', &conf_serif_color_name[38], true, false},
-	{"serif.color39.r", 'i', &conf_serif_color_r[38], true, false},
-	{"serif.color39.g", 'i', &conf_serif_color_g[38], true, false},
-	{"serif.color39.b", 'i', &conf_serif_color_b[38], true, false},
-	{"serif.color39.outline.r", 'i', &conf_serif_outline_color_r[38], true, false},
-	{"serif.color39.outline.g", 'i', &conf_serif_outline_color_g[38], true, false},
-	{"serif.color39.outline.b", 'i', &conf_serif_outline_color_b[38], true, false},
-	{"serif.color40.name", 's', &conf_serif_color_name[39], true, false},
-	{"serif.color40.r", 'i', &conf_serif_color_r[39], true, false},
-	{"serif.color40.g", 'i', &conf_serif_color_g[39], true, false},
-	{"serif.color40.b", 'i', &conf_serif_color_b[39], true, false},
-	{"serif.color40.outline.r", 'i', &conf_serif_outline_color_r[39], true, false},
-	{"serif.color40.outline.g", 'i', &conf_serif_outline_color_g[39], true, false},
-	{"serif.color40.outline.b", 'i', &conf_serif_outline_color_b[39], true, false},
-	{"serif.color41.name", 's', &conf_serif_color_name[40], true, false},
-	{"serif.color41.r", 'i', &conf_serif_color_r[40], true, false},
-	{"serif.color41.g", 'i', &conf_serif_color_g[40], true, false},
-	{"serif.color41.b", 'i', &conf_serif_color_b[40], true, false},
-	{"serif.color41.outline.r", 'i', &conf_serif_outline_color_r[40], true, false},
-	{"serif.color41.outline.g", 'i', &conf_serif_outline_color_g[40], true, false},
-	{"serif.color41.outline.b", 'i', &conf_serif_outline_color_b[40], true, false},
-	{"serif.color42.name", 's', &conf_serif_color_name[41], true, false},
-	{"serif.color42.r", 'i', &conf_serif_color_r[41], true, false},
-	{"serif.color42.g", 'i', &conf_serif_color_g[41], true, false},
-	{"serif.color42.b", 'i', &conf_serif_color_b[41], true, false},
-	{"serif.color42.outline.r", 'i', &conf_serif_outline_color_r[41], true, false},
-	{"serif.color42.outline.g", 'i', &conf_serif_outline_color_g[41], true, false},
-	{"serif.color42.outline.b", 'i', &conf_serif_outline_color_b[41], true, false},
-	{"serif.color43.name", 's', &conf_serif_color_name[42], true, false},
-	{"serif.color43.r", 'i', &conf_serif_color_r[42], true, false},
-	{"serif.color43.g", 'i', &conf_serif_color_g[42], true, false},
-	{"serif.color43.b", 'i', &conf_serif_color_b[42], true, false},
-	{"serif.color43.outline.r", 'i', &conf_serif_outline_color_r[42], true, false},
-	{"serif.color43.outline.g", 'i', &conf_serif_outline_color_g[42], true, false},
-	{"serif.color43.outline.b", 'i', &conf_serif_outline_color_b[42], true, false},
-	{"serif.color44.name", 's', &conf_serif_color_name[43], true, false},
-	{"serif.color44.r", 'i', &conf_serif_color_r[43], true, false},
-	{"serif.color44.g", 'i', &conf_serif_color_g[43], true, false},
-	{"serif.color44.b", 'i', &conf_serif_color_b[43], true, false},
-	{"serif.color44.outline.r", 'i', &conf_serif_outline_color_r[43], true, false},
-	{"serif.color44.outline.g", 'i', &conf_serif_outline_color_g[43], true, false},
-	{"serif.color44.outline.b", 'i', &conf_serif_outline_color_b[43], true, false},
-	{"serif.color45.name", 's', &conf_serif_color_name[44], true, false},
-	{"serif.color45.r", 'i', &conf_serif_color_r[44], true, false},
-	{"serif.color45.g", 'i', &conf_serif_color_g[44], true, false},
-	{"serif.color45.b", 'i', &conf_serif_color_b[44], true, false},
-	{"serif.color45.outline.r", 'i', &conf_serif_outline_color_r[44], true, false},
-	{"serif.color45.outline.g", 'i', &conf_serif_outline_color_g[44], true, false},
-	{"serif.color45.outline.b", 'i', &conf_serif_outline_color_b[44], true, false},
-	{"serif.color46.name", 's', &conf_serif_color_name[45], true, false},
-	{"serif.color46.r", 'i', &conf_serif_color_r[45], true, false},
-	{"serif.color46.g", 'i', &conf_serif_color_g[45], true, false},
-	{"serif.color46.b", 'i', &conf_serif_color_b[45], true, false},
-	{"serif.color46.outline.r", 'i', &conf_serif_outline_color_r[45], true, false},
-	{"serif.color46.outline.g", 'i', &conf_serif_outline_color_g[45], true, false},
-	{"serif.color46.outline.b", 'i', &conf_serif_outline_color_b[45], true, false},
-	{"serif.color47.name", 's', &conf_serif_color_name[46], true, false},
-	{"serif.color47.r", 'i', &conf_serif_color_r[46], true, false},
-	{"serif.color47.g", 'i', &conf_serif_color_g[46], true, false},
-	{"serif.color47.b", 'i', &conf_serif_color_b[46], true, false},
-	{"serif.color47.outline.r", 'i', &conf_serif_outline_color_r[46], true, false},
-	{"serif.color47.outline.g", 'i', &conf_serif_outline_color_g[46], true, false},
-	{"serif.color47.outline.b", 'i', &conf_serif_outline_color_b[46], true, false},
-	{"serif.color48.name", 's', &conf_serif_color_name[47], true, false},
-	{"serif.color48.r", 'i', &conf_serif_color_r[47], true, false},
-	{"serif.color48.g", 'i', &conf_serif_color_g[47], true, false},
-	{"serif.color48.b", 'i', &conf_serif_color_b[47], true, false},
-	{"serif.color48.outline.r", 'i', &conf_serif_outline_color_r[47], true, false},
-	{"serif.color48.outline.g", 'i', &conf_serif_outline_color_g[47], true, false},
-	{"serif.color48.outline.b", 'i', &conf_serif_outline_color_b[47], true, false},
-	{"serif.color49.name", 's', &conf_serif_color_name[48], true, false},
-	{"serif.color49.r", 'i', &conf_serif_color_r[48], true, false},
-	{"serif.color49.g", 'i', &conf_serif_color_g[48], true, false},
-	{"serif.color49.b", 'i', &conf_serif_color_b[48], true, false},
-	{"serif.color49.outline.r", 'i', &conf_serif_outline_color_r[48], true, false},
-	{"serif.color49.outline.g", 'i', &conf_serif_outline_color_g[48], true, false},
-	{"serif.color49.outline.b", 'i', &conf_serif_outline_color_b[48], true, false},
-	{"serif.color50.name", 's', &conf_serif_color_name[49], true, false},
-	{"serif.color50.r", 'i', &conf_serif_color_r[49], true, false},
-	{"serif.color50.g", 'i', &conf_serif_color_g[49], true, false},
-	{"serif.color50.b", 'i', &conf_serif_color_b[49], true, false},
-	{"serif.color50.outline.r", 'i', &conf_serif_outline_color_r[49], true, false},
-	{"serif.color50.outline.g", 'i', &conf_serif_outline_color_g[49], true, false},
-	{"serif.color50.outline.b", 'i', &conf_serif_outline_color_b[49], true, false},
-	{"serif.color51.name", 's', &conf_serif_color_name[50], true, false},
-	{"serif.color51.r", 'i', &conf_serif_color_r[50], true, false},
-	{"serif.color51.g", 'i', &conf_serif_color_g[50], true, false},
-	{"serif.color51.b", 'i', &conf_serif_color_b[50], true, false},
-	{"serif.color51.outline.r", 'i', &conf_serif_outline_color_r[50], true, false},
-	{"serif.color51.outline.g", 'i', &conf_serif_outline_color_g[50], true, false},
-	{"serif.color51.outline.b", 'i', &conf_serif_outline_color_b[50], true, false},
-	{"serif.color52.name", 's', &conf_serif_color_name[51], true, false},
-	{"serif.color52.r", 'i', &conf_serif_color_r[51], true, false},
-	{"serif.color52.g", 'i', &conf_serif_color_g[51], true, false},
-	{"serif.color52.b", 'i', &conf_serif_color_b[51], true, false},
-	{"serif.color52.outline.r", 'i', &conf_serif_outline_color_r[51], true, false},
-	{"serif.color52.outline.g", 'i', &conf_serif_outline_color_g[51], true, false},
-	{"serif.color52.outline.b", 'i', &conf_serif_outline_color_b[51], true, false},
-	{"serif.color53.name", 's', &conf_serif_color_name[52], true, false},
-	{"serif.color53.r", 'i', &conf_serif_color_r[52], true, false},
-	{"serif.color53.g", 'i', &conf_serif_color_g[52], true, false},
-	{"serif.color53.b", 'i', &conf_serif_color_b[52], true, false},
-	{"serif.color53.outline.r", 'i', &conf_serif_outline_color_r[52], true, false},
-	{"serif.color53.outline.g", 'i', &conf_serif_outline_color_g[52], true, false},
-	{"serif.color53.outline.b", 'i', &conf_serif_outline_color_b[52], true, false},
-	{"serif.color54.name", 's', &conf_serif_color_name[53], true, false},
-	{"serif.color54.r", 'i', &conf_serif_color_r[53], true, false},
-	{"serif.color54.g", 'i', &conf_serif_color_g[53], true, false},
-	{"serif.color54.b", 'i', &conf_serif_color_b[53], true, false},
-	{"serif.color54.outline.r", 'i', &conf_serif_outline_color_r[53], true, false},
-	{"serif.color54.outline.g", 'i', &conf_serif_outline_color_g[53], true, false},
-	{"serif.color54.outline.b", 'i', &conf_serif_outline_color_b[53], true, false},
-	{"serif.color55.name", 's', &conf_serif_color_name[54], true, false},
-	{"serif.color55.r", 'i', &conf_serif_color_r[54], true, false},
-	{"serif.color55.g", 'i', &conf_serif_color_g[54], true, false},
-	{"serif.color55.b", 'i', &conf_serif_color_b[54], true, false},
-	{"serif.color55.outline.r", 'i', &conf_serif_outline_color_r[54], true, false},
-	{"serif.color55.outline.g", 'i', &conf_serif_outline_color_g[54], true, false},
-	{"serif.color55.outline.b", 'i', &conf_serif_outline_color_b[54], true, false},
-	{"serif.color56.name", 's', &conf_serif_color_name[55], true, false},
-	{"serif.color56.r", 'i', &conf_serif_color_r[55], true, false},
-	{"serif.color56.g", 'i', &conf_serif_color_g[55], true, false},
-	{"serif.color56.b", 'i', &conf_serif_color_b[55], true, false},
-	{"serif.color56.outline.r", 'i', &conf_serif_outline_color_r[55], true, false},
-	{"serif.color56.outline.g", 'i', &conf_serif_outline_color_g[55], true, false},
-	{"serif.color56.outline.b", 'i', &conf_serif_outline_color_b[55], true, false},
-	{"serif.color57.name", 's', &conf_serif_color_name[56], true, false},
-	{"serif.color57.r", 'i', &conf_serif_color_r[56], true, false},
-	{"serif.color57.g", 'i', &conf_serif_color_g[56], true, false},
-	{"serif.color57.b", 'i', &conf_serif_color_b[56], true, false},
-	{"serif.color57.outline.r", 'i', &conf_serif_outline_color_r[56], true, false},
-	{"serif.color57.outline.g", 'i', &conf_serif_outline_color_g[56], true, false},
-	{"serif.color57.outline.b", 'i', &conf_serif_outline_color_b[56], true, false},
-	{"serif.color58.name", 's', &conf_serif_color_name[57], true, false},
-	{"serif.color58.r", 'i', &conf_serif_color_r[57], true, false},
-	{"serif.color58.g", 'i', &conf_serif_color_g[57], true, false},
-	{"serif.color58.b", 'i', &conf_serif_color_b[57], true, false},
-	{"serif.color58.outline.r", 'i', &conf_serif_outline_color_r[57], true, false},
-	{"serif.color58.outline.g", 'i', &conf_serif_outline_color_g[57], true, false},
-	{"serif.color58.outline.b", 'i', &conf_serif_outline_color_b[57], true, false},
-	{"serif.color59.name", 's', &conf_serif_color_name[58], true, false},
-	{"serif.color59.r", 'i', &conf_serif_color_r[58], true, false},
-	{"serif.color59.g", 'i', &conf_serif_color_g[58], true, false},
-	{"serif.color59.b", 'i', &conf_serif_color_b[58], true, false},
-	{"serif.color59.outline.r", 'i', &conf_serif_outline_color_r[58], true, false},
-	{"serif.color59.outline.g", 'i', &conf_serif_outline_color_g[58], true, false},
-	{"serif.color59.outline.b", 'i', &conf_serif_outline_color_b[58], true, false},
-	{"serif.color60.name", 's', &conf_serif_color_name[59], true, false},
-	{"serif.color60.r", 'i', &conf_serif_color_r[59], true, false},
-	{"serif.color60.g", 'i', &conf_serif_color_g[59], true, false},
-	{"serif.color60.b", 'i', &conf_serif_color_b[59], true, false},
-	{"serif.color60.outline.r", 'i', &conf_serif_outline_color_r[59], true, false},
-	{"serif.color60.outline.g", 'i', &conf_serif_outline_color_g[59], true, false},
-	{"serif.color60.outline.b", 'i', &conf_serif_outline_color_b[59], true, false},
-	{"serif.color61.name", 's', &conf_serif_color_name[60], true, false},
-	{"serif.color61.r", 'i', &conf_serif_color_r[60], true, false},
-	{"serif.color61.g", 'i', &conf_serif_color_g[60], true, false},
-	{"serif.color61.b", 'i', &conf_serif_color_b[60], true, false},
-	{"serif.color61.outline.r", 'i', &conf_serif_outline_color_r[60], true, false},
-	{"serif.color61.outline.g", 'i', &conf_serif_outline_color_g[60], true, false},
-	{"serif.color61.outline.b", 'i', &conf_serif_outline_color_b[60], true, false},
-	{"serif.color62.name", 's', &conf_serif_color_name[61], true, false},
-	{"serif.color62.r", 'i', &conf_serif_color_r[61], true, false},
-	{"serif.color62.g", 'i', &conf_serif_color_g[61], true, false},
-	{"serif.color62.b", 'i', &conf_serif_color_b[61], true, false},
-	{"serif.color62.outline.r", 'i', &conf_serif_outline_color_r[61], true, false},
-	{"serif.color62.outline.g", 'i', &conf_serif_outline_color_g[61], true, false},
-	{"serif.color62.outline.b", 'i', &conf_serif_outline_color_b[61], true, false},
-	{"serif.color63.name", 's', &conf_serif_color_name[62], true, false},
-	{"serif.color63.r", 'i', &conf_serif_color_r[62], true, false},
-	{"serif.color63.g", 'i', &conf_serif_color_g[62], true, false},
-	{"serif.color63.b", 'i', &conf_serif_color_b[62], true, false},
-	{"serif.color63.outline.r", 'i', &conf_serif_outline_color_r[62], true, false},
-	{"serif.color63.outline.g", 'i', &conf_serif_outline_color_g[62], true, false},
-	{"serif.color63.outline.b", 'i', &conf_serif_outline_color_b[62], true, false},
-	{"serif.color64.name", 's', &conf_serif_color_name[63], true, false},
-	{"serif.color64.r", 'i', &conf_serif_color_r[63], true, false},
-	{"serif.color64.g", 'i', &conf_serif_color_g[63], true, false},
-	{"serif.color64.b", 'i', &conf_serif_color_b[63], true, false},
-	{"serif.color64.outline.r", 'i', &conf_serif_outline_color_r[63], true, false},
-	{"serif.color64.outline.g", 'i', &conf_serif_outline_color_g[63], true, false},
-	{"serif.color64.outline.b", 'i', &conf_serif_outline_color_b[63], true, false},
-	/* end codegen */
-	{"ui.msg.quit", 's', NULL, true, false}, /* deprecated */
-	{"ui.msg.title", 's', NULL, true, false}, /* deprecated */
-	{"ui.msg.delete", 's', NULL, true, false}, /* deprecated */
-	{"ui.msg.overwrite", 's', NULL, true, false}, /* deprecated */
-	{"ui.msg.default", 's', NULL, true, false}, /* deprecated */
-	{"voice.stop.off", 'i', &conf_voice_stop_off, true, false},
-	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, true, false},
-	{"window.maximize.disable", 'i', &conf_window_maximize_disable, true, false},
-	{"window.title.separator", 's', &conf_window_title_separator, true, false},
-	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, true, false},
-	{"click.disable", 'i', &conf_click_disable, true, false},
-	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, true, false},
-	{"msgbox.show.on.bg", 'i', &conf_msgbox_show_on_bg, true, false},
-	{"beep.adjustment", 'f', &conf_beep_adjustment, true, false},
-	{"serif.quote", 'i', &conf_serif_quote, true, false},
-	{"sysmenu.transition", 'i', &conf_sysmenu_transition, true, false},
-	{"msgbox.history.disable", 'i', &conf_msgbox_history_disable, true, false},
-	{"serif.color.name.only", 'i', &conf_serif_color_name_only, true, false},
-	{"release", 'i', &conf_release, true, false},
+	{"language.en", 's', &conf_language_en, OPTIONAL, NOSAVE},
+	{"language.fr", 's', &conf_language_fr, OPTIONAL, NOSAVE},
+	{"language.de", 's', &conf_language_de, OPTIONAL, NOSAVE},
+	{"language.es", 's', &conf_language_es, OPTIONAL, NOSAVE},
+	{"language.it", 's', &conf_language_it, OPTIONAL, NOSAVE},
+	{"language.el", 's', &conf_language_el, OPTIONAL, NOSAVE},
+	{"language.ru", 's', &conf_language_ru, OPTIONAL, NOSAVE},
+	{"language.zh", 's', &conf_language_zh, OPTIONAL, NOSAVE},
+	{"language.tw", 's', &conf_language_tw, OPTIONAL, NOSAVE},
+	{"language.ja", 's', &conf_language_ja, OPTIONAL, NOSAVE},
+	{"language.other", 's', &conf_language_other, OPTIONAL, NOSAVE},
+	{"locale.force", 's', &conf_locale_force, OPTIONAL, NOSAVE},
+	{"window.title", 's', &conf_window_title, MUST, NOSAVE},
+	{"window.width", 'i', &conf_window_width, MUST, NOSAVE},
+	{"window.height", 'i', &conf_window_height, MUST, NOSAVE},
+	{"window.white", 'i', &conf_window_white, MUST, NOSAVE},
+	{"window.menubar", 'i', &conf_window_menubar, OPTIONAL, NOSAVE},
+	{"font.file", 's', &conf_font_file, MUST, SAVE},
+	{"font.size", 'i', &conf_font_size, MUST, SAVE},
+	{"font.color.r", 'i', &conf_font_color_r, MUST, SAVE},
+	{"font.color.g", 'i', &conf_font_color_g, MUST, SAVE},
+	{"font.color.b", 'i', &conf_font_color_b, MUST, SAVE},
+	{"font.outline.color.r", 'i', &conf_font_outline_color_r, OPTIONAL, SAVE},
+	{"font.outline.color.g", 'i', &conf_font_outline_color_g, OPTIONAL, SAVE},
+	{"font.outline.color.b", 'i', &conf_font_outline_color_b, OPTIONAL, SAVE},
+	{"font.outline.remove", 'i', &conf_font_outline_remove, OPTIONAL, SAVE},
+	{"namebox.file", 's', &conf_namebox_file, MUST, SAVE},
+	{"namebox.x", 'i', &conf_namebox_x, MUST, SAVE},
+	{"namebox.y", 'i', &conf_namebox_y, MUST, SAVE},
+	{"namebox.margin.top", 'i', &conf_namebox_margin_top, MUST, SAVE},
+	{"namebox.centering.no", 'i', &conf_namebox_centering_no, OPTIONAL, SAVE},
+	{"namebox.margin.left", 'i', &conf_namebox_margin_left, OPTIONAL, SAVE},
+	{"namebox.hidden", 'i', &conf_namebox_hidden, OPTIONAL, SAVE},
+	{"msgbox.bg.file", 's', &conf_msgbox_bg_file, MUST, SAVE},
+	{"msgbox.fg.file", 's', &conf_msgbox_fg_file, MUST, SAVE},
+	{"msgbox.x", 'i', &conf_msgbox_x, MUST, SAVE},
+	{"msgbox.y", 'i', &conf_msgbox_y, MUST, SAVE},
+	{"msgbox.margin.left", 'i', &conf_msgbox_margin_left, MUST, SAVE},
+	{"msgbox.margin.top", 'i', &conf_msgbox_margin_top, MUST, SAVE},
+	{"msgbox.margin.right", 'i', &conf_msgbox_margin_right, MUST, SAVE},
+	{"msgbox.margin.bottom", 'i', &conf_msgbox_margin_bottom, OPTIONAL, SAVE},
+	{"msgbox.margin.line", 'i', &conf_msgbox_margin_line, MUST, SAVE},
+	{"msgbox.speed", 'f', &conf_msgbox_speed, MUST, SAVE},
+	{"msgbox.btn.qsave.x", 'i', &conf_msgbox_btn_qsave_x, OPTIONAL, SAVE},
+	{"msgbox.btn.qsave.y", 'i', &conf_msgbox_btn_qsave_y, OPTIONAL, SAVE},
+	{"msgbox.btn.qsave.width", 'i', &conf_msgbox_btn_qsave_width, OPTIONAL, SAVE},
+	{"msgbox.btn.qsave.height", 'i', &conf_msgbox_btn_qsave_height, OPTIONAL, SAVE},
+	{"msgbox.btn.qload.x", 'i', &conf_msgbox_btn_qload_x, OPTIONAL, SAVE},
+	{"msgbox.btn.qload.y", 'i', &conf_msgbox_btn_qload_y, OPTIONAL, SAVE},
+	{"msgbox.btn.qload.width", 'i', &conf_msgbox_btn_qload_width, OPTIONAL, SAVE},
+	{"msgbox.btn.qload.height", 'i', &conf_msgbox_btn_qload_height, OPTIONAL, SAVE},
+	{"msgbox.btn.save.x", 'i', &conf_msgbox_btn_save_x, OPTIONAL, SAVE},
+	{"msgbox.btn.save.y", 'i', &conf_msgbox_btn_save_y, OPTIONAL, SAVE},
+	{"msgbox.btn.save.width", 'i', &conf_msgbox_btn_save_width, OPTIONAL, SAVE},
+	{"msgbox.btn.save.height", 'i', &conf_msgbox_btn_save_height, OPTIONAL, SAVE},
+	{"msgbox.btn.load.x", 'i', &conf_msgbox_btn_load_x, OPTIONAL, SAVE},
+	{"msgbox.btn.load.y", 'i', &conf_msgbox_btn_load_y, OPTIONAL, SAVE},
+	{"msgbox.btn.load.width", 'i', &conf_msgbox_btn_load_width, OPTIONAL, SAVE},
+	{"msgbox.btn.load.height", 'i', &conf_msgbox_btn_load_height, OPTIONAL, SAVE},
+	{"msgbox.btn.auto.x", 'i', &conf_msgbox_btn_auto_x, OPTIONAL, SAVE},
+	{"msgbox.btn.auto.y", 'i', &conf_msgbox_btn_auto_y, OPTIONAL, SAVE},
+	{"msgbox.btn.auto.width", 'i', &conf_msgbox_btn_auto_width, OPTIONAL, SAVE},
+	{"msgbox.btn.auto.height", 'i', &conf_msgbox_btn_auto_height, OPTIONAL, SAVE},
+	{"msgbox.btn.skip.se", 's', &conf_msgbox_btn_skip_se, OPTIONAL, SAVE},
+	{"msgbox.btn.skip.x", 'i', &conf_msgbox_btn_skip_x, OPTIONAL, SAVE},
+	{"msgbox.btn.skip.y", 'i', &conf_msgbox_btn_skip_y, OPTIONAL, SAVE},
+	{"msgbox.btn.skip.width", 'i', &conf_msgbox_btn_skip_width, OPTIONAL, SAVE},
+	{"msgbox.btn.skip.height", 'i', &conf_msgbox_btn_skip_height, OPTIONAL, SAVE},
+	{"msgbox.btn.history.x", 'i', &conf_msgbox_btn_history_x, OPTIONAL, SAVE},
+	{"msgbox.btn.history.y", 'i', &conf_msgbox_btn_history_y, OPTIONAL, SAVE},
+	{"msgbox.btn.history.width", 'i', &conf_msgbox_btn_history_width, OPTIONAL, SAVE},
+	{"msgbox.btn.history.height", 'i', &conf_msgbox_btn_history_height, OPTIONAL, SAVE},
+	{"msgbox.btn.config.x", 'i', &conf_msgbox_btn_config_x, OPTIONAL, SAVE},
+	{"msgbox.btn.config.y", 'i', &conf_msgbox_btn_config_y, OPTIONAL, SAVE},
+	{"msgbox.btn.config.width", 'i', &conf_msgbox_btn_config_width, OPTIONAL, SAVE},
+	{"msgbox.btn.config.height", 'i', &conf_msgbox_btn_config_height, OPTIONAL, SAVE},
+	{"msgbox.btn.hide.x", 'i', &conf_msgbox_btn_hide_x, OPTIONAL, SAVE},
+	{"msgbox.btn.hide.y", 'i', &conf_msgbox_btn_hide_y, OPTIONAL, SAVE},
+	{"msgbox.btn.hide.width", 'i', &conf_msgbox_btn_hide_width, OPTIONAL, SAVE},
+	{"msgbox.btn.hide.height", 'i', &conf_msgbox_btn_hide_height, OPTIONAL, SAVE},
+	{"msgbox.btn.qsave.se", 's', &conf_msgbox_btn_qsave_se, OPTIONAL, SAVE},
+	{"msgbox.btn.qload.se", 's', &conf_msgbox_btn_qload_se, OPTIONAL, SAVE},
+	{"msgbox.btn.save.se", 's', &conf_msgbox_btn_save_se, OPTIONAL, SAVE},
+	{"msgbox.btn.load.se", 's', &conf_msgbox_btn_load_se, OPTIONAL, SAVE},
+	{"msgbox.btn.auto.se", 's', &conf_msgbox_btn_auto_se, OPTIONAL, SAVE},
+	{"msgbox.btn.history.se", 's', &conf_msgbox_btn_history_se, OPTIONAL, SAVE},
+	{"msgbox.btn.config.se", 's', &conf_msgbox_btn_config_se, OPTIONAL, SAVE},
+	{"msgbox.btn.change.se", 's', &conf_msgbox_btn_change_se, OPTIONAL, SAVE},
+	{"msgbox.history.se", 's', &conf_msgbox_history_se, OPTIONAL, SAVE},
+	{"msgbox.config.se", 's', &conf_msgbox_config_se, OPTIONAL, SAVE},
+	{"msgbox.auto.cancel.se", 's', &conf_msgbox_auto_cancel_se, OPTIONAL, SAVE},
+	{"msgbox.skip.cancel.se", 's', &conf_msgbox_skip_cancel_se, OPTIONAL, SAVE},
+	{"msgbox.hide.se", 's', &conf_msgbox_hide_se, OPTIONAL, SAVE},
+	{"msgbox.show.se", 's', &conf_msgbox_show_se, OPTIONAL, SAVE},
+	{"msgbox.skip.unseen", 'i', &conf_msgbox_skip_unseen, OPTIONAL, SAVE},
+	{"msgbox.dim", 'i', &conf_msgbox_dim, OPTIONAL, SAVE},
+	{"msgbox.dim.color.r", 'i', &conf_msgbox_dim_color_r, OPTIONAL, SAVE},
+	{"msgbox.dim.color.g", 'i', &conf_msgbox_dim_color_g, OPTIONAL, SAVE},
+	{"msgbox.dim.color.b", 'i', &conf_msgbox_dim_color_b, OPTIONAL, SAVE},
+	{"msgbox.dim.color.outline.r", 'i', &conf_msgbox_dim_color_outline_r, OPTIONAL, SAVE},
+	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, OPTIONAL, SAVE},
+	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, OPTIONAL, SAVE},
+	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, OPTIONAL, SAVE},
+	{"click.x", 'i', &conf_click_x, MUST, SAVE},
+	{"click.y", 'i', &conf_click_y, MUST, SAVE},
+	{"click.move", 'i', &conf_click_move, OPTIONAL, SAVE},
+	{"click.file1", 's', &conf_click_file1, MUST, SAVE},
+	{"click.file2", 's', &conf_click_file2, OPTIONAL, SAVE},
+	{"click.file3", 's', &conf_click_file3, OPTIONAL, SAVE},
+	{"click.file4", 's', &conf_click_file4, OPTIONAL, SAVE},
+	{"click.file5", 's', &conf_click_file5, OPTIONAL, SAVE},
+	{"click.file6", 's', &conf_click_file6, OPTIONAL, SAVE},
+	{"click.interval", 'f', &conf_click_interval, MUST, SAVE},
+	{"switch.bg.file", 's', &conf_switch_bg_file, MUST, SAVE},
+	{"switch.fg.file", 's', &conf_switch_fg_file, MUST, SAVE},
+	{"switch.x", 'i', &conf_switch_x, MUST, SAVE},
+	{"switch.y", 'i', &conf_switch_y, MUST, SAVE},
+	{"switch.margin.y", 'i', &conf_switch_margin_y, MUST, SAVE},
+	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, MUST, SAVE},
+	{"switch.color.active", 'i', &conf_switch_color_active, OPTIONAL, SAVE},
+	{"switch.color.active.body.r", 'i', &conf_switch_color_active_body_r, OPTIONAL, SAVE},
+	{"switch.color.active.body.g", 'i', &conf_switch_color_active_body_g, OPTIONAL, SAVE},
+	{"switch.color.active.body.b", 'i', &conf_switch_color_active_body_b, OPTIONAL, SAVE},
+	{"switch.color.active.outline.r", 'i', &conf_switch_color_active_outline_r, OPTIONAL, SAVE},
+	{"switch.color.active.outline.g", 'i', &conf_switch_color_active_outline_g, OPTIONAL, SAVE},
+	{"switch.color.active.outline.b", 'i', &conf_switch_color_active_outline_b, OPTIONAL, SAVE},
+	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, OPTIONAL, SAVE},
+	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, OPTIONAL, SAVE},
+	{"switch.change.se", 's', &conf_switch_change_se, OPTIONAL, SAVE},
+	{"news.bg.file", 's', &conf_news_bg_file, OPTIONAL, SAVE},
+	{"news.fg.file", 's', &conf_news_fg_file, OPTIONAL, SAVE},
+	{"news.margin", 'i', &conf_news_margin, OPTIONAL, SAVE},
+	{"news.text.margin.y", 'i', &conf_news_text_margin_y, OPTIONAL, SAVE},
+	{"news.change.se", 's', &conf_news_change_se, OPTIONAL, SAVE},
+	{"retrospect.change.se", 's', &conf_retrospect_change_se, OPTIONAL, SAVE},
+	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, MUST, NOSAVE},
+	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, MUST, NOSAVE},
+	{"menu.change.se", 's', &conf_menu_change_se, OPTIONAL, SAVE},
+	{"sysmenu.x", 'i', &conf_sysmenu_x, MUST, SAVE},
+	{"sysmenu.y", 'i', &conf_sysmenu_y, MUST, SAVE},
+	{"sysmenu.idle.file", 's', &conf_sysmenu_idle_file, MUST, SAVE},
+	{"sysmenu.hover.file", 's', &conf_sysmenu_hover_file, MUST, SAVE},
+	{"sysmenu.disable.file", 's', &conf_sysmenu_disable_file, MUST, SAVE},
+	{"sysmenu.qsave.x", 'i', &conf_sysmenu_qsave_x, MUST, SAVE},
+	{"sysmenu.qsave.y", 'i', &conf_sysmenu_qsave_y, MUST, SAVE},
+	{"sysmenu.qsave.width", 'i', &conf_sysmenu_qsave_width, MUST, SAVE},
+	{"sysmenu.qsave.height", 'i', &conf_sysmenu_qsave_height, MUST, SAVE},
+	{"sysmenu.qload.x", 'i', &conf_sysmenu_qload_x, MUST, SAVE},
+	{"sysmenu.qload.y", 'i', &conf_sysmenu_qload_y, MUST, SAVE},
+	{"sysmenu.qload.width", 'i', &conf_sysmenu_qload_width, MUST, SAVE},
+	{"sysmenu.qload.height", 'i', &conf_sysmenu_qload_height, MUST, SAVE},
+	{"sysmenu.save.x", 'i', &conf_sysmenu_save_x, MUST, SAVE},
+	{"sysmenu.save.y", 'i', &conf_sysmenu_save_y, MUST, SAVE},
+	{"sysmenu.save.width", 'i', &conf_sysmenu_save_width, MUST, SAVE},
+	{"sysmenu.save.height", 'i', &conf_sysmenu_save_height, MUST, SAVE},
+	{"sysmenu.load.x", 'i', &conf_sysmenu_load_x, MUST, SAVE},
+	{"sysmenu.load.y", 'i', &conf_sysmenu_load_y, MUST, SAVE},
+	{"sysmenu.load.width", 'i', &conf_sysmenu_load_width, MUST, SAVE},
+	{"sysmenu.load.height", 'i', &conf_sysmenu_load_height, MUST, SAVE},
+	{"sysmenu.auto.x", 'i', &conf_sysmenu_auto_x, MUST, SAVE},
+	{"sysmenu.auto.y", 'i', &conf_sysmenu_auto_y, MUST, SAVE},
+	{"sysmenu.auto.width", 'i', &conf_sysmenu_auto_width, MUST, SAVE},
+	{"sysmenu.auto.height", 'i', &conf_sysmenu_auto_height, MUST, SAVE},
+	{"sysmenu.skip.x", 'i', &conf_sysmenu_skip_x, MUST, SAVE},
+	{"sysmenu.skip.y", 'i', &conf_sysmenu_skip_y, MUST, SAVE},
+	{"sysmenu.skip.width", 'i', &conf_sysmenu_skip_width, MUST, SAVE},
+	{"sysmenu.skip.height", 'i', &conf_sysmenu_skip_height, MUST, SAVE},
+	{"sysmenu.history.x", 'i', &conf_sysmenu_history_x, MUST, SAVE},
+	{"sysmenu.history.y", 'i', &conf_sysmenu_history_y, MUST, SAVE},
+	{"sysmenu.history.width", 'i', &conf_sysmenu_history_width, MUST, SAVE},
+	{"sysmenu.history.height", 'i', &conf_sysmenu_history_height, MUST, SAVE},
+	{"sysmenu.config.x", 'i', &conf_sysmenu_config_x, MUST, SAVE},
+	{"sysmenu.config.y", 'i', &conf_sysmenu_config_y, MUST, SAVE},
+	{"sysmenu.config.width", 'i', &conf_sysmenu_config_width, MUST, SAVE},
+	{"sysmenu.config.height", 'i', &conf_sysmenu_config_height, MUST, SAVE},
+	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, OPTIONAL, SAVE},
+	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, OPTIONAL, SAVE},
+	{"sysmenu.change.se", 's', &conf_sysmenu_change_se, OPTIONAL, SAVE},
+	{"sysmenu.qsave.se", 's', &conf_sysmenu_qsave_se, OPTIONAL, SAVE},
+	{"sysmenu.qload.se", 's', &conf_sysmenu_qload_se, OPTIONAL, SAVE},
+	{"sysmenu.save.se", 's', &conf_sysmenu_save_se, OPTIONAL, SAVE},
+	{"sysmenu.load.se", 's', &conf_sysmenu_load_se, OPTIONAL, SAVE},
+	{"sysmenu.auto.se", 's', &conf_sysmenu_auto_se, OPTIONAL, SAVE},
+	{"sysmenu.skip.se", 's', &conf_sysmenu_skip_se, OPTIONAL, SAVE},
+	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, OPTIONAL, SAVE},
+	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, OPTIONAL, SAVE},
+	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, OPTIONAL, SAVE},
+	{"sysmenu.hidden", 'i', &conf_sysmenu_hidden, OPTIONAL, SAVE},
+	{"automode.banner.file", 's', &conf_automode_banner_file, MUST, SAVE},
+	{"automode.banner.x", 'i', &conf_automode_banner_x, MUST, SAVE},
+	{"automode.banner.y", 'i', &conf_automode_banner_y, MUST, SAVE},
+	{"automode.speed", 'f', &conf_automode_speed, MUST, SAVE},
+	{"skipmode.banner.file", 's', &conf_skipmode_banner_file, MUST, SAVE},
+	{"skipmode.banner.x", 'i', &conf_skipmode_banner_x, MUST, SAVE},
+	{"skipmode.banner.y", 'i', &conf_skipmode_banner_y, MUST, SAVE},
+	{"sysmenu.collapsed.x", 'i', &conf_sysmenu_collapsed_x, MUST, SAVE},
+	{"sysmenu.collapsed.y", 'i', &conf_sysmenu_collapsed_y, MUST, SAVE},
+	{"sysmenu.collapsed.idle.file", 's', &conf_sysmenu_collapsed_idle_file, MUST, SAVE},
+	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, MUST, SAVE},
+	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, OPTIONAL, SAVE},
+	/* 下記は初期音量なのでセーブしない */
+	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},
+	{"sound.vol.voice", 'f', &conf_sound_vol_voice, MUST, NOSAVE},
+	{"sound.vol.se", 'f', &conf_sound_vol_se, MUST, NOSAVE},
+	{"sound.vol.character", 'f', &conf_sound_vol_character, MUST, NOSAVE},
+	{"sound.character.name1", 's', &conf_sound_character_name[1], OPTIONAL, NOSAVE},
+	{"sound.character.name2", 's', &conf_sound_character_name[2], OPTIONAL, NOSAVE},
+	{"sound.character.name3", 's', &conf_sound_character_name[3], OPTIONAL, NOSAVE},
+	{"sound.character.name4", 's', &conf_sound_character_name[4], OPTIONAL, NOSAVE},
+	{"sound.character.name5", 's', &conf_sound_character_name[5], OPTIONAL, NOSAVE},
+	{"sound.character.name6", 's', &conf_sound_character_name[6], OPTIONAL, NOSAVE},
+	{"sound.character.name7", 's', &conf_sound_character_name[7], OPTIONAL, NOSAVE},
+	{"sound.character.name8", 's', &conf_sound_character_name[8], OPTIONAL, NOSAVE},
+	{"sound.character.name9", 's', &conf_sound_character_name[9], OPTIONAL, NOSAVE},
+	{"sound.character.name10", 's', &conf_sound_character_name[10], OPTIONAL, NOSAVE},
+	{"sound.character.name11", 's', &conf_sound_character_name[11], OPTIONAL, NOSAVE},
+	{"sound.character.name12", 's', &conf_sound_character_name[12], OPTIONAL, NOSAVE},
+	{"sound.character.name13", 's', &conf_sound_character_name[13], OPTIONAL, NOSAVE},
+	{"sound.character.name14", 's', &conf_sound_character_name[14], OPTIONAL, NOSAVE},
+	{"sound.character.name15", 's', &conf_sound_character_name[15], OPTIONAL, NOSAVE},
+	/* 初期音量はここまで */
+	/* <!-- 下記はジェネレータで出力したもの */
+	{"serif.color1.name", 's', &conf_serif_color_name[0], OPTIONAL, NOSAVE},
+	{"serif.color1.r", 'i', &conf_serif_color_r[0], OPTIONAL, NOSAVE},
+	{"serif.color1.g", 'i', &conf_serif_color_g[0], OPTIONAL, NOSAVE},
+	{"serif.color1.b", 'i', &conf_serif_color_b[0], OPTIONAL, NOSAVE},
+	{"serif.color1.outline.r", 'i', &conf_serif_outline_color_r[0], OPTIONAL, NOSAVE},
+	{"serif.color1.outline.g", 'i', &conf_serif_outline_color_g[0], OPTIONAL, NOSAVE},
+	{"serif.color1.outline.b", 'i', &conf_serif_outline_color_b[0], OPTIONAL, NOSAVE},
+	{"serif.color2.name", 's', &conf_serif_color_name[1], OPTIONAL, NOSAVE},
+	{"serif.color2.r", 'i', &conf_serif_color_r[1], OPTIONAL, NOSAVE},
+	{"serif.color2.g", 'i', &conf_serif_color_g[1], OPTIONAL, NOSAVE},
+	{"serif.color2.b", 'i', &conf_serif_color_b[1], OPTIONAL, NOSAVE},
+	{"serif.color2.outline.r", 'i', &conf_serif_outline_color_r[1], OPTIONAL, NOSAVE},
+	{"serif.color2.outline.g", 'i', &conf_serif_outline_color_g[1], OPTIONAL, NOSAVE},
+	{"serif.color2.outline.b", 'i', &conf_serif_outline_color_b[1], OPTIONAL, NOSAVE},
+	{"serif.color3.name", 's', &conf_serif_color_name[2], OPTIONAL, NOSAVE},
+	{"serif.color3.r", 'i', &conf_serif_color_r[2], OPTIONAL, NOSAVE},
+	{"serif.color3.g", 'i', &conf_serif_color_g[2], OPTIONAL, NOSAVE},
+	{"serif.color3.b", 'i', &conf_serif_color_b[2], OPTIONAL, NOSAVE},
+	{"serif.color3.outline.r", 'i', &conf_serif_outline_color_r[2], OPTIONAL, NOSAVE},
+	{"serif.color3.outline.g", 'i', &conf_serif_outline_color_g[2], OPTIONAL, NOSAVE},
+	{"serif.color3.outline.b", 'i', &conf_serif_outline_color_b[2], OPTIONAL, NOSAVE},
+	{"serif.color4.name", 's', &conf_serif_color_name[3], OPTIONAL, NOSAVE},
+	{"serif.color4.r", 'i', &conf_serif_color_r[3], OPTIONAL, NOSAVE},
+	{"serif.color4.g", 'i', &conf_serif_color_g[3], OPTIONAL, NOSAVE},
+	{"serif.color4.b", 'i', &conf_serif_color_b[3], OPTIONAL, NOSAVE},
+	{"serif.color4.outline.r", 'i', &conf_serif_outline_color_r[3], OPTIONAL, NOSAVE},
+	{"serif.color4.outline.g", 'i', &conf_serif_outline_color_g[3], OPTIONAL, NOSAVE},
+	{"serif.color4.outline.b", 'i', &conf_serif_outline_color_b[3], OPTIONAL, NOSAVE},
+	{"serif.color5.name", 's', &conf_serif_color_name[4], OPTIONAL, NOSAVE},
+	{"serif.color5.r", 'i', &conf_serif_color_r[4], OPTIONAL, NOSAVE},
+	{"serif.color5.g", 'i', &conf_serif_color_g[4], OPTIONAL, NOSAVE},
+	{"serif.color5.b", 'i', &conf_serif_color_b[4], OPTIONAL, NOSAVE},
+	{"serif.color5.outline.r", 'i', &conf_serif_outline_color_r[4], OPTIONAL, NOSAVE},
+	{"serif.color5.outline.g", 'i', &conf_serif_outline_color_g[4], OPTIONAL, NOSAVE},
+	{"serif.color5.outline.b", 'i', &conf_serif_outline_color_b[4], OPTIONAL, NOSAVE},
+	{"serif.color6.name", 's', &conf_serif_color_name[5], OPTIONAL, NOSAVE},
+	{"serif.color6.r", 'i', &conf_serif_color_r[5], OPTIONAL, NOSAVE},
+	{"serif.color6.g", 'i', &conf_serif_color_g[5], OPTIONAL, NOSAVE},
+	{"serif.color6.b", 'i', &conf_serif_color_b[5], OPTIONAL, NOSAVE},
+	{"serif.color6.outline.r", 'i', &conf_serif_outline_color_r[5], OPTIONAL, NOSAVE},
+	{"serif.color6.outline.g", 'i', &conf_serif_outline_color_g[5], OPTIONAL, NOSAVE},
+	{"serif.color6.outline.b", 'i', &conf_serif_outline_color_b[5], OPTIONAL, NOSAVE},
+	{"serif.color7.name", 's', &conf_serif_color_name[6], OPTIONAL, NOSAVE},
+	{"serif.color7.r", 'i', &conf_serif_color_r[6], OPTIONAL, NOSAVE},
+	{"serif.color7.g", 'i', &conf_serif_color_g[6], OPTIONAL, NOSAVE},
+	{"serif.color7.b", 'i', &conf_serif_color_b[6], OPTIONAL, NOSAVE},
+	{"serif.color7.outline.r", 'i', &conf_serif_outline_color_r[6], OPTIONAL, NOSAVE},
+	{"serif.color7.outline.g", 'i', &conf_serif_outline_color_g[6], OPTIONAL, NOSAVE},
+	{"serif.color7.outline.b", 'i', &conf_serif_outline_color_b[6], OPTIONAL, NOSAVE},
+	{"serif.color8.name", 's', &conf_serif_color_name[7], OPTIONAL, NOSAVE},
+	{"serif.color8.r", 'i', &conf_serif_color_r[7], OPTIONAL, NOSAVE},
+	{"serif.color8.g", 'i', &conf_serif_color_g[7], OPTIONAL, NOSAVE},
+	{"serif.color8.b", 'i', &conf_serif_color_b[7], OPTIONAL, NOSAVE},
+	{"serif.color8.outline.r", 'i', &conf_serif_outline_color_r[7], OPTIONAL, NOSAVE},
+	{"serif.color8.outline.g", 'i', &conf_serif_outline_color_g[7], OPTIONAL, NOSAVE},
+	{"serif.color8.outline.b", 'i', &conf_serif_outline_color_b[7], OPTIONAL, NOSAVE},
+	{"serif.color9.name", 's', &conf_serif_color_name[8], OPTIONAL, NOSAVE},
+	{"serif.color9.r", 'i', &conf_serif_color_r[8], OPTIONAL, NOSAVE},
+	{"serif.color9.g", 'i', &conf_serif_color_g[8], OPTIONAL, NOSAVE},
+	{"serif.color9.b", 'i', &conf_serif_color_b[8], OPTIONAL, NOSAVE},
+	{"serif.color9.outline.r", 'i', &conf_serif_outline_color_r[8], OPTIONAL, NOSAVE},
+	{"serif.color9.outline.g", 'i', &conf_serif_outline_color_g[8], OPTIONAL, NOSAVE},
+	{"serif.color9.outline.b", 'i', &conf_serif_outline_color_b[8], OPTIONAL, NOSAVE},
+	{"serif.color10.name", 's', &conf_serif_color_name[9], OPTIONAL, NOSAVE},
+	{"serif.color10.r", 'i', &conf_serif_color_r[9], OPTIONAL, NOSAVE},
+	{"serif.color10.g", 'i', &conf_serif_color_g[9], OPTIONAL, NOSAVE},
+	{"serif.color10.b", 'i', &conf_serif_color_b[9], OPTIONAL, NOSAVE},
+	{"serif.color10.outline.r", 'i', &conf_serif_outline_color_r[9], OPTIONAL, NOSAVE},
+	{"serif.color10.outline.g", 'i', &conf_serif_outline_color_g[9], OPTIONAL, NOSAVE},
+	{"serif.color10.outline.b", 'i', &conf_serif_outline_color_b[9], OPTIONAL, NOSAVE},
+	{"serif.color11.name", 's', &conf_serif_color_name[10], OPTIONAL, NOSAVE},
+	{"serif.color11.r", 'i', &conf_serif_color_r[10], OPTIONAL, NOSAVE},
+	{"serif.color11.g", 'i', &conf_serif_color_g[10], OPTIONAL, NOSAVE},
+	{"serif.color11.b", 'i', &conf_serif_color_b[10], OPTIONAL, NOSAVE},
+	{"serif.color11.outline.r", 'i', &conf_serif_outline_color_r[10], OPTIONAL, NOSAVE},
+	{"serif.color11.outline.g", 'i', &conf_serif_outline_color_g[10], OPTIONAL, NOSAVE},
+	{"serif.color11.outline.b", 'i', &conf_serif_outline_color_b[10], OPTIONAL, NOSAVE},
+	{"serif.color12.name", 's', &conf_serif_color_name[11], OPTIONAL, NOSAVE},
+	{"serif.color12.r", 'i', &conf_serif_color_r[11], OPTIONAL, NOSAVE},
+	{"serif.color12.g", 'i', &conf_serif_color_g[11], OPTIONAL, NOSAVE},
+	{"serif.color12.b", 'i', &conf_serif_color_b[11], OPTIONAL, NOSAVE},
+	{"serif.color12.outline.r", 'i', &conf_serif_outline_color_r[11], OPTIONAL, NOSAVE},
+	{"serif.color12.outline.g", 'i', &conf_serif_outline_color_g[11], OPTIONAL, NOSAVE},
+	{"serif.color12.outline.b", 'i', &conf_serif_outline_color_b[11], OPTIONAL, NOSAVE},
+	{"serif.color13.name", 's', &conf_serif_color_name[12], OPTIONAL, NOSAVE},
+	{"serif.color13.r", 'i', &conf_serif_color_r[12], OPTIONAL, NOSAVE},
+	{"serif.color13.g", 'i', &conf_serif_color_g[12], OPTIONAL, NOSAVE},
+	{"serif.color13.b", 'i', &conf_serif_color_b[12], OPTIONAL, NOSAVE},
+	{"serif.color13.outline.r", 'i', &conf_serif_outline_color_r[12], OPTIONAL, NOSAVE},
+	{"serif.color13.outline.g", 'i', &conf_serif_outline_color_g[12], OPTIONAL, NOSAVE},
+	{"serif.color13.outline.b", 'i', &conf_serif_outline_color_b[12], OPTIONAL, NOSAVE},
+	{"serif.color14.name", 's', &conf_serif_color_name[13], OPTIONAL, NOSAVE},
+	{"serif.color14.r", 'i', &conf_serif_color_r[13], OPTIONAL, NOSAVE},
+	{"serif.color14.g", 'i', &conf_serif_color_g[13], OPTIONAL, NOSAVE},
+	{"serif.color14.b", 'i', &conf_serif_color_b[13], OPTIONAL, NOSAVE},
+	{"serif.color14.outline.r", 'i', &conf_serif_outline_color_r[13], OPTIONAL, NOSAVE},
+	{"serif.color14.outline.g", 'i', &conf_serif_outline_color_g[13], OPTIONAL, NOSAVE},
+	{"serif.color14.outline.b", 'i', &conf_serif_outline_color_b[13], OPTIONAL, NOSAVE},
+	{"serif.color15.name", 's', &conf_serif_color_name[14], OPTIONAL, NOSAVE},
+	{"serif.color15.r", 'i', &conf_serif_color_r[14], OPTIONAL, NOSAVE},
+	{"serif.color15.g", 'i', &conf_serif_color_g[14], OPTIONAL, NOSAVE},
+	{"serif.color15.b", 'i', &conf_serif_color_b[14], OPTIONAL, NOSAVE},
+	{"serif.color15.outline.r", 'i', &conf_serif_outline_color_r[14], OPTIONAL, NOSAVE},
+	{"serif.color15.outline.g", 'i', &conf_serif_outline_color_g[14], OPTIONAL, NOSAVE},
+	{"serif.color15.outline.b", 'i', &conf_serif_outline_color_b[14], OPTIONAL, NOSAVE},
+	{"serif.color16.name", 's', &conf_serif_color_name[15], OPTIONAL, NOSAVE},
+	{"serif.color16.r", 'i', &conf_serif_color_r[15], OPTIONAL, NOSAVE},
+	{"serif.color16.g", 'i', &conf_serif_color_g[15], OPTIONAL, NOSAVE},
+	{"serif.color16.b", 'i', &conf_serif_color_b[15], OPTIONAL, NOSAVE},
+	{"serif.color16.outline.r", 'i', &conf_serif_outline_color_r[15], OPTIONAL, NOSAVE},
+	{"serif.color16.outline.g", 'i', &conf_serif_outline_color_g[15], OPTIONAL, NOSAVE},
+	{"serif.color16.outline.b", 'i', &conf_serif_outline_color_b[15], OPTIONAL, NOSAVE},
+	{"serif.color17.name", 's', &conf_serif_color_name[16], OPTIONAL, NOSAVE},
+	{"serif.color17.r", 'i', &conf_serif_color_r[16], OPTIONAL, NOSAVE},
+	{"serif.color17.g", 'i', &conf_serif_color_g[16], OPTIONAL, NOSAVE},
+	{"serif.color17.b", 'i', &conf_serif_color_b[16], OPTIONAL, NOSAVE},
+	{"serif.color17.outline.r", 'i', &conf_serif_outline_color_r[16], OPTIONAL, NOSAVE},
+	{"serif.color17.outline.g", 'i', &conf_serif_outline_color_g[16], OPTIONAL, NOSAVE},
+	{"serif.color17.outline.b", 'i', &conf_serif_outline_color_b[16], OPTIONAL, NOSAVE},
+	{"serif.color18.name", 's', &conf_serif_color_name[17], OPTIONAL, NOSAVE},
+	{"serif.color18.r", 'i', &conf_serif_color_r[17], OPTIONAL, NOSAVE},
+	{"serif.color18.g", 'i', &conf_serif_color_g[17], OPTIONAL, NOSAVE},
+	{"serif.color18.b", 'i', &conf_serif_color_b[17], OPTIONAL, NOSAVE},
+	{"serif.color18.outline.r", 'i', &conf_serif_outline_color_r[17], OPTIONAL, NOSAVE},
+	{"serif.color18.outline.g", 'i', &conf_serif_outline_color_g[17], OPTIONAL, NOSAVE},
+	{"serif.color18.outline.b", 'i', &conf_serif_outline_color_b[17], OPTIONAL, NOSAVE},
+	{"serif.color19.name", 's', &conf_serif_color_name[18], OPTIONAL, NOSAVE},
+	{"serif.color19.r", 'i', &conf_serif_color_r[18], OPTIONAL, NOSAVE},
+	{"serif.color19.g", 'i', &conf_serif_color_g[18], OPTIONAL, NOSAVE},
+	{"serif.color19.b", 'i', &conf_serif_color_b[18], OPTIONAL, NOSAVE},
+	{"serif.color19.outline.r", 'i', &conf_serif_outline_color_r[18], OPTIONAL, NOSAVE},
+	{"serif.color19.outline.g", 'i', &conf_serif_outline_color_g[18], OPTIONAL, NOSAVE},
+	{"serif.color19.outline.b", 'i', &conf_serif_outline_color_b[18], OPTIONAL, NOSAVE},
+	{"serif.color20.name", 's', &conf_serif_color_name[19], OPTIONAL, NOSAVE},
+	{"serif.color20.r", 'i', &conf_serif_color_r[19], OPTIONAL, NOSAVE},
+	{"serif.color20.g", 'i', &conf_serif_color_g[19], OPTIONAL, NOSAVE},
+	{"serif.color20.b", 'i', &conf_serif_color_b[19], OPTIONAL, NOSAVE},
+	{"serif.color20.outline.r", 'i', &conf_serif_outline_color_r[19], OPTIONAL, NOSAVE},
+	{"serif.color20.outline.g", 'i', &conf_serif_outline_color_g[19], OPTIONAL, NOSAVE},
+	{"serif.color20.outline.b", 'i', &conf_serif_outline_color_b[19], OPTIONAL, NOSAVE},
+	{"serif.color21.name", 's', &conf_serif_color_name[20], OPTIONAL, NOSAVE},
+	{"serif.color21.r", 'i', &conf_serif_color_r[20], OPTIONAL, NOSAVE},
+	{"serif.color21.g", 'i', &conf_serif_color_g[20], OPTIONAL, NOSAVE},
+	{"serif.color21.b", 'i', &conf_serif_color_b[20], OPTIONAL, NOSAVE},
+	{"serif.color21.outline.r", 'i', &conf_serif_outline_color_r[20], OPTIONAL, NOSAVE},
+	{"serif.color21.outline.g", 'i', &conf_serif_outline_color_g[20], OPTIONAL, NOSAVE},
+	{"serif.color21.outline.b", 'i', &conf_serif_outline_color_b[20], OPTIONAL, NOSAVE},
+	{"serif.color22.name", 's', &conf_serif_color_name[21], OPTIONAL, NOSAVE},
+	{"serif.color22.r", 'i', &conf_serif_color_r[21], OPTIONAL, NOSAVE},
+	{"serif.color22.g", 'i', &conf_serif_color_g[21], OPTIONAL, NOSAVE},
+	{"serif.color22.b", 'i', &conf_serif_color_b[21], OPTIONAL, NOSAVE},
+	{"serif.color22.outline.r", 'i', &conf_serif_outline_color_r[21], OPTIONAL, NOSAVE},
+	{"serif.color22.outline.g", 'i', &conf_serif_outline_color_g[21], OPTIONAL, NOSAVE},
+	{"serif.color22.outline.b", 'i', &conf_serif_outline_color_b[21], OPTIONAL, NOSAVE},
+	{"serif.color23.name", 's', &conf_serif_color_name[22], OPTIONAL, NOSAVE},
+	{"serif.color23.r", 'i', &conf_serif_color_r[22], OPTIONAL, NOSAVE},
+	{"serif.color23.g", 'i', &conf_serif_color_g[22], OPTIONAL, NOSAVE},
+	{"serif.color23.b", 'i', &conf_serif_color_b[22], OPTIONAL, NOSAVE},
+	{"serif.color23.outline.r", 'i', &conf_serif_outline_color_r[22], OPTIONAL, NOSAVE},
+	{"serif.color23.outline.g", 'i', &conf_serif_outline_color_g[22], OPTIONAL, NOSAVE},
+	{"serif.color23.outline.b", 'i', &conf_serif_outline_color_b[22], OPTIONAL, NOSAVE},
+	{"serif.color24.name", 's', &conf_serif_color_name[23], OPTIONAL, NOSAVE},
+	{"serif.color24.r", 'i', &conf_serif_color_r[23], OPTIONAL, NOSAVE},
+	{"serif.color24.g", 'i', &conf_serif_color_g[23], OPTIONAL, NOSAVE},
+	{"serif.color24.b", 'i', &conf_serif_color_b[23], OPTIONAL, NOSAVE},
+	{"serif.color24.outline.r", 'i', &conf_serif_outline_color_r[23], OPTIONAL, NOSAVE},
+	{"serif.color24.outline.g", 'i', &conf_serif_outline_color_g[23], OPTIONAL, NOSAVE},
+	{"serif.color24.outline.b", 'i', &conf_serif_outline_color_b[23], OPTIONAL, NOSAVE},
+	{"serif.color25.name", 's', &conf_serif_color_name[24], OPTIONAL, NOSAVE},
+	{"serif.color25.r", 'i', &conf_serif_color_r[24], OPTIONAL, NOSAVE},
+	{"serif.color25.g", 'i', &conf_serif_color_g[24], OPTIONAL, NOSAVE},
+	{"serif.color25.b", 'i', &conf_serif_color_b[24], OPTIONAL, NOSAVE},
+	{"serif.color25.outline.r", 'i', &conf_serif_outline_color_r[24], OPTIONAL, NOSAVE},
+	{"serif.color25.outline.g", 'i', &conf_serif_outline_color_g[24], OPTIONAL, NOSAVE},
+	{"serif.color25.outline.b", 'i', &conf_serif_outline_color_b[24], OPTIONAL, NOSAVE},
+	{"serif.color26.name", 's', &conf_serif_color_name[25], OPTIONAL, NOSAVE},
+	{"serif.color26.r", 'i', &conf_serif_color_r[25], OPTIONAL, NOSAVE},
+	{"serif.color26.g", 'i', &conf_serif_color_g[25], OPTIONAL, NOSAVE},
+	{"serif.color26.b", 'i', &conf_serif_color_b[25], OPTIONAL, NOSAVE},
+	{"serif.color26.outline.r", 'i', &conf_serif_outline_color_r[25], OPTIONAL, NOSAVE},
+	{"serif.color26.outline.g", 'i', &conf_serif_outline_color_g[25], OPTIONAL, NOSAVE},
+	{"serif.color26.outline.b", 'i', &conf_serif_outline_color_b[25], OPTIONAL, NOSAVE},
+	{"serif.color27.name", 's', &conf_serif_color_name[26], OPTIONAL, NOSAVE},
+	{"serif.color27.r", 'i', &conf_serif_color_r[26], OPTIONAL, NOSAVE},
+	{"serif.color27.g", 'i', &conf_serif_color_g[26], OPTIONAL, NOSAVE},
+	{"serif.color27.b", 'i', &conf_serif_color_b[26], OPTIONAL, NOSAVE},
+	{"serif.color27.outline.r", 'i', &conf_serif_outline_color_r[26], OPTIONAL, NOSAVE},
+	{"serif.color27.outline.g", 'i', &conf_serif_outline_color_g[26], OPTIONAL, NOSAVE},
+	{"serif.color27.outline.b", 'i', &conf_serif_outline_color_b[26], OPTIONAL, NOSAVE},
+	{"serif.color28.name", 's', &conf_serif_color_name[27], OPTIONAL, NOSAVE},
+	{"serif.color28.r", 'i', &conf_serif_color_r[27], OPTIONAL, NOSAVE},
+	{"serif.color28.g", 'i', &conf_serif_color_g[27], OPTIONAL, NOSAVE},
+	{"serif.color28.b", 'i', &conf_serif_color_b[27], OPTIONAL, NOSAVE},
+	{"serif.color28.outline.r", 'i', &conf_serif_outline_color_r[27], OPTIONAL, NOSAVE},
+	{"serif.color28.outline.g", 'i', &conf_serif_outline_color_g[27], OPTIONAL, NOSAVE},
+	{"serif.color28.outline.b", 'i', &conf_serif_outline_color_b[27], OPTIONAL, NOSAVE},
+	{"serif.color29.name", 's', &conf_serif_color_name[28], OPTIONAL, NOSAVE},
+	{"serif.color29.r", 'i', &conf_serif_color_r[28], OPTIONAL, NOSAVE},
+	{"serif.color29.g", 'i', &conf_serif_color_g[28], OPTIONAL, NOSAVE},
+	{"serif.color29.b", 'i', &conf_serif_color_b[28], OPTIONAL, NOSAVE},
+	{"serif.color29.outline.r", 'i', &conf_serif_outline_color_r[28], OPTIONAL, NOSAVE},
+	{"serif.color29.outline.g", 'i', &conf_serif_outline_color_g[28], OPTIONAL, NOSAVE},
+	{"serif.color29.outline.b", 'i', &conf_serif_outline_color_b[28], OPTIONAL, NOSAVE},
+	{"serif.color30.name", 's', &conf_serif_color_name[29], OPTIONAL, NOSAVE},
+	{"serif.color30.r", 'i', &conf_serif_color_r[29], OPTIONAL, NOSAVE},
+	{"serif.color30.g", 'i', &conf_serif_color_g[29], OPTIONAL, NOSAVE},
+	{"serif.color30.b", 'i', &conf_serif_color_b[29], OPTIONAL, NOSAVE},
+	{"serif.color30.outline.r", 'i', &conf_serif_outline_color_r[29], OPTIONAL, NOSAVE},
+	{"serif.color30.outline.g", 'i', &conf_serif_outline_color_g[29], OPTIONAL, NOSAVE},
+	{"serif.color30.outline.b", 'i', &conf_serif_outline_color_b[29], OPTIONAL, NOSAVE},
+	{"serif.color31.name", 's', &conf_serif_color_name[30], OPTIONAL, NOSAVE},
+	{"serif.color31.r", 'i', &conf_serif_color_r[30], OPTIONAL, NOSAVE},
+	{"serif.color31.g", 'i', &conf_serif_color_g[30], OPTIONAL, NOSAVE},
+	{"serif.color31.b", 'i', &conf_serif_color_b[30], OPTIONAL, NOSAVE},
+	{"serif.color31.outline.r", 'i', &conf_serif_outline_color_r[30], OPTIONAL, NOSAVE},
+	{"serif.color31.outline.g", 'i', &conf_serif_outline_color_g[30], OPTIONAL, NOSAVE},
+	{"serif.color31.outline.b", 'i', &conf_serif_outline_color_b[30], OPTIONAL, NOSAVE},
+	{"serif.color32.name", 's', &conf_serif_color_name[31], OPTIONAL, NOSAVE},
+	{"serif.color32.r", 'i', &conf_serif_color_r[31], OPTIONAL, NOSAVE},
+	{"serif.color32.g", 'i', &conf_serif_color_g[31], OPTIONAL, NOSAVE},
+	{"serif.color32.b", 'i', &conf_serif_color_b[31], OPTIONAL, NOSAVE},
+	{"serif.color32.outline.r", 'i', &conf_serif_outline_color_r[31], OPTIONAL, NOSAVE},
+	{"serif.color32.outline.g", 'i', &conf_serif_outline_color_g[31], OPTIONAL, NOSAVE},
+	{"serif.color32.outline.b", 'i', &conf_serif_outline_color_b[31], OPTIONAL, NOSAVE},
+	{"serif.color33.name", 's', &conf_serif_color_name[32], OPTIONAL, NOSAVE},
+	{"serif.color33.r", 'i', &conf_serif_color_r[32], OPTIONAL, NOSAVE},
+	{"serif.color33.g", 'i', &conf_serif_color_g[32], OPTIONAL, NOSAVE},
+	{"serif.color33.b", 'i', &conf_serif_color_b[32], OPTIONAL, NOSAVE},
+	{"serif.color33.outline.r", 'i', &conf_serif_outline_color_r[32], OPTIONAL, NOSAVE},
+	{"serif.color33.outline.g", 'i', &conf_serif_outline_color_g[32], OPTIONAL, NOSAVE},
+	{"serif.color33.outline.b", 'i', &conf_serif_outline_color_b[32], OPTIONAL, NOSAVE},
+	{"serif.color34.name", 's', &conf_serif_color_name[33], OPTIONAL, NOSAVE},
+	{"serif.color34.r", 'i', &conf_serif_color_r[33], OPTIONAL, NOSAVE},
+	{"serif.color34.g", 'i', &conf_serif_color_g[33], OPTIONAL, NOSAVE},
+	{"serif.color34.b", 'i', &conf_serif_color_b[33], OPTIONAL, NOSAVE},
+	{"serif.color34.outline.r", 'i', &conf_serif_outline_color_r[33], OPTIONAL, NOSAVE},
+	{"serif.color34.outline.g", 'i', &conf_serif_outline_color_g[33], OPTIONAL, NOSAVE},
+	{"serif.color34.outline.b", 'i', &conf_serif_outline_color_b[33], OPTIONAL, NOSAVE},
+	{"serif.color35.name", 's', &conf_serif_color_name[34], OPTIONAL, NOSAVE},
+	{"serif.color35.r", 'i', &conf_serif_color_r[34], OPTIONAL, NOSAVE},
+	{"serif.color35.g", 'i', &conf_serif_color_g[34], OPTIONAL, NOSAVE},
+	{"serif.color35.b", 'i', &conf_serif_color_b[34], OPTIONAL, NOSAVE},
+	{"serif.color35.outline.r", 'i', &conf_serif_outline_color_r[34], OPTIONAL, NOSAVE},
+	{"serif.color35.outline.g", 'i', &conf_serif_outline_color_g[34], OPTIONAL, NOSAVE},
+	{"serif.color35.outline.b", 'i', &conf_serif_outline_color_b[34], OPTIONAL, NOSAVE},
+	{"serif.color36.name", 's', &conf_serif_color_name[35], OPTIONAL, NOSAVE},
+	{"serif.color36.r", 'i', &conf_serif_color_r[35], OPTIONAL, NOSAVE},
+	{"serif.color36.g", 'i', &conf_serif_color_g[35], OPTIONAL, NOSAVE},
+	{"serif.color36.b", 'i', &conf_serif_color_b[35], OPTIONAL, NOSAVE},
+	{"serif.color36.outline.r", 'i', &conf_serif_outline_color_r[35], OPTIONAL, NOSAVE},
+	{"serif.color36.outline.g", 'i', &conf_serif_outline_color_g[35], OPTIONAL, NOSAVE},
+	{"serif.color36.outline.b", 'i', &conf_serif_outline_color_b[35], OPTIONAL, NOSAVE},
+	{"serif.color37.name", 's', &conf_serif_color_name[36], OPTIONAL, NOSAVE},
+	{"serif.color37.r", 'i', &conf_serif_color_r[36], OPTIONAL, NOSAVE},
+	{"serif.color37.g", 'i', &conf_serif_color_g[36], OPTIONAL, NOSAVE},
+	{"serif.color37.b", 'i', &conf_serif_color_b[36], OPTIONAL, NOSAVE},
+	{"serif.color37.outline.r", 'i', &conf_serif_outline_color_r[36], OPTIONAL, NOSAVE},
+	{"serif.color37.outline.g", 'i', &conf_serif_outline_color_g[36], OPTIONAL, NOSAVE},
+	{"serif.color37.outline.b", 'i', &conf_serif_outline_color_b[36], OPTIONAL, NOSAVE},
+	{"serif.color38.name", 's', &conf_serif_color_name[37], OPTIONAL, NOSAVE},
+	{"serif.color38.r", 'i', &conf_serif_color_r[37], OPTIONAL, NOSAVE},
+	{"serif.color38.g", 'i', &conf_serif_color_g[37], OPTIONAL, NOSAVE},
+	{"serif.color38.b", 'i', &conf_serif_color_b[37], OPTIONAL, NOSAVE},
+	{"serif.color38.outline.r", 'i', &conf_serif_outline_color_r[37], OPTIONAL, NOSAVE},
+	{"serif.color38.outline.g", 'i', &conf_serif_outline_color_g[37], OPTIONAL, NOSAVE},
+	{"serif.color38.outline.b", 'i', &conf_serif_outline_color_b[37], OPTIONAL, NOSAVE},
+	{"serif.color39.name", 's', &conf_serif_color_name[38], OPTIONAL, NOSAVE},
+	{"serif.color39.r", 'i', &conf_serif_color_r[38], OPTIONAL, NOSAVE},
+	{"serif.color39.g", 'i', &conf_serif_color_g[38], OPTIONAL, NOSAVE},
+	{"serif.color39.b", 'i', &conf_serif_color_b[38], OPTIONAL, NOSAVE},
+	{"serif.color39.outline.r", 'i', &conf_serif_outline_color_r[38], OPTIONAL, NOSAVE},
+	{"serif.color39.outline.g", 'i', &conf_serif_outline_color_g[38], OPTIONAL, NOSAVE},
+	{"serif.color39.outline.b", 'i', &conf_serif_outline_color_b[38], OPTIONAL, NOSAVE},
+	{"serif.color40.name", 's', &conf_serif_color_name[39], OPTIONAL, NOSAVE},
+	{"serif.color40.r", 'i', &conf_serif_color_r[39], OPTIONAL, NOSAVE},
+	{"serif.color40.g", 'i', &conf_serif_color_g[39], OPTIONAL, NOSAVE},
+	{"serif.color40.b", 'i', &conf_serif_color_b[39], OPTIONAL, NOSAVE},
+	{"serif.color40.outline.r", 'i', &conf_serif_outline_color_r[39], OPTIONAL, NOSAVE},
+	{"serif.color40.outline.g", 'i', &conf_serif_outline_color_g[39], OPTIONAL, NOSAVE},
+	{"serif.color40.outline.b", 'i', &conf_serif_outline_color_b[39], OPTIONAL, NOSAVE},
+	{"serif.color41.name", 's', &conf_serif_color_name[40], OPTIONAL, NOSAVE},
+	{"serif.color41.r", 'i', &conf_serif_color_r[40], OPTIONAL, NOSAVE},
+	{"serif.color41.g", 'i', &conf_serif_color_g[40], OPTIONAL, NOSAVE},
+	{"serif.color41.b", 'i', &conf_serif_color_b[40], OPTIONAL, NOSAVE},
+	{"serif.color41.outline.r", 'i', &conf_serif_outline_color_r[40], OPTIONAL, NOSAVE},
+	{"serif.color41.outline.g", 'i', &conf_serif_outline_color_g[40], OPTIONAL, NOSAVE},
+	{"serif.color41.outline.b", 'i', &conf_serif_outline_color_b[40], OPTIONAL, NOSAVE},
+	{"serif.color42.name", 's', &conf_serif_color_name[41], OPTIONAL, NOSAVE},
+	{"serif.color42.r", 'i', &conf_serif_color_r[41], OPTIONAL, NOSAVE},
+	{"serif.color42.g", 'i', &conf_serif_color_g[41], OPTIONAL, NOSAVE},
+	{"serif.color42.b", 'i', &conf_serif_color_b[41], OPTIONAL, NOSAVE},
+	{"serif.color42.outline.r", 'i', &conf_serif_outline_color_r[41], OPTIONAL, NOSAVE},
+	{"serif.color42.outline.g", 'i', &conf_serif_outline_color_g[41], OPTIONAL, NOSAVE},
+	{"serif.color42.outline.b", 'i', &conf_serif_outline_color_b[41], OPTIONAL, NOSAVE},
+	{"serif.color43.name", 's', &conf_serif_color_name[42], OPTIONAL, NOSAVE},
+	{"serif.color43.r", 'i', &conf_serif_color_r[42], OPTIONAL, NOSAVE},
+	{"serif.color43.g", 'i', &conf_serif_color_g[42], OPTIONAL, NOSAVE},
+	{"serif.color43.b", 'i', &conf_serif_color_b[42], OPTIONAL, NOSAVE},
+	{"serif.color43.outline.r", 'i', &conf_serif_outline_color_r[42], OPTIONAL, NOSAVE},
+	{"serif.color43.outline.g", 'i', &conf_serif_outline_color_g[42], OPTIONAL, NOSAVE},
+	{"serif.color43.outline.b", 'i', &conf_serif_outline_color_b[42], OPTIONAL, NOSAVE},
+	{"serif.color44.name", 's', &conf_serif_color_name[43], OPTIONAL, NOSAVE},
+	{"serif.color44.r", 'i', &conf_serif_color_r[43], OPTIONAL, NOSAVE},
+	{"serif.color44.g", 'i', &conf_serif_color_g[43], OPTIONAL, NOSAVE},
+	{"serif.color44.b", 'i', &conf_serif_color_b[43], OPTIONAL, NOSAVE},
+	{"serif.color44.outline.r", 'i', &conf_serif_outline_color_r[43], OPTIONAL, NOSAVE},
+	{"serif.color44.outline.g", 'i', &conf_serif_outline_color_g[43], OPTIONAL, NOSAVE},
+	{"serif.color44.outline.b", 'i', &conf_serif_outline_color_b[43], OPTIONAL, NOSAVE},
+	{"serif.color45.name", 's', &conf_serif_color_name[44], OPTIONAL, NOSAVE},
+	{"serif.color45.r", 'i', &conf_serif_color_r[44], OPTIONAL, NOSAVE},
+	{"serif.color45.g", 'i', &conf_serif_color_g[44], OPTIONAL, NOSAVE},
+	{"serif.color45.b", 'i', &conf_serif_color_b[44], OPTIONAL, NOSAVE},
+	{"serif.color45.outline.r", 'i', &conf_serif_outline_color_r[44], OPTIONAL, NOSAVE},
+	{"serif.color45.outline.g", 'i', &conf_serif_outline_color_g[44], OPTIONAL, NOSAVE},
+	{"serif.color45.outline.b", 'i', &conf_serif_outline_color_b[44], OPTIONAL, NOSAVE},
+	{"serif.color46.name", 's', &conf_serif_color_name[45], OPTIONAL, NOSAVE},
+	{"serif.color46.r", 'i', &conf_serif_color_r[45], OPTIONAL, NOSAVE},
+	{"serif.color46.g", 'i', &conf_serif_color_g[45], OPTIONAL, NOSAVE},
+	{"serif.color46.b", 'i', &conf_serif_color_b[45], OPTIONAL, NOSAVE},
+	{"serif.color46.outline.r", 'i', &conf_serif_outline_color_r[45], OPTIONAL, NOSAVE},
+	{"serif.color46.outline.g", 'i', &conf_serif_outline_color_g[45], OPTIONAL, NOSAVE},
+	{"serif.color46.outline.b", 'i', &conf_serif_outline_color_b[45], OPTIONAL, NOSAVE},
+	{"serif.color47.name", 's', &conf_serif_color_name[46], OPTIONAL, NOSAVE},
+	{"serif.color47.r", 'i', &conf_serif_color_r[46], OPTIONAL, NOSAVE},
+	{"serif.color47.g", 'i', &conf_serif_color_g[46], OPTIONAL, NOSAVE},
+	{"serif.color47.b", 'i', &conf_serif_color_b[46], OPTIONAL, NOSAVE},
+	{"serif.color47.outline.r", 'i', &conf_serif_outline_color_r[46], OPTIONAL, NOSAVE},
+	{"serif.color47.outline.g", 'i', &conf_serif_outline_color_g[46], OPTIONAL, NOSAVE},
+	{"serif.color47.outline.b", 'i', &conf_serif_outline_color_b[46], OPTIONAL, NOSAVE},
+	{"serif.color48.name", 's', &conf_serif_color_name[47], OPTIONAL, NOSAVE},
+	{"serif.color48.r", 'i', &conf_serif_color_r[47], OPTIONAL, NOSAVE},
+	{"serif.color48.g", 'i', &conf_serif_color_g[47], OPTIONAL, NOSAVE},
+	{"serif.color48.b", 'i', &conf_serif_color_b[47], OPTIONAL, NOSAVE},
+	{"serif.color48.outline.r", 'i', &conf_serif_outline_color_r[47], OPTIONAL, NOSAVE},
+	{"serif.color48.outline.g", 'i', &conf_serif_outline_color_g[47], OPTIONAL, NOSAVE},
+	{"serif.color48.outline.b", 'i', &conf_serif_outline_color_b[47], OPTIONAL, NOSAVE},
+	{"serif.color49.name", 's', &conf_serif_color_name[48], OPTIONAL, NOSAVE},
+	{"serif.color49.r", 'i', &conf_serif_color_r[48], OPTIONAL, NOSAVE},
+	{"serif.color49.g", 'i', &conf_serif_color_g[48], OPTIONAL, NOSAVE},
+	{"serif.color49.b", 'i', &conf_serif_color_b[48], OPTIONAL, NOSAVE},
+	{"serif.color49.outline.r", 'i', &conf_serif_outline_color_r[48], OPTIONAL, NOSAVE},
+	{"serif.color49.outline.g", 'i', &conf_serif_outline_color_g[48], OPTIONAL, NOSAVE},
+	{"serif.color49.outline.b", 'i', &conf_serif_outline_color_b[48], OPTIONAL, NOSAVE},
+	{"serif.color50.name", 's', &conf_serif_color_name[49], OPTIONAL, NOSAVE},
+	{"serif.color50.r", 'i', &conf_serif_color_r[49], OPTIONAL, NOSAVE},
+	{"serif.color50.g", 'i', &conf_serif_color_g[49], OPTIONAL, NOSAVE},
+	{"serif.color50.b", 'i', &conf_serif_color_b[49], OPTIONAL, NOSAVE},
+	{"serif.color50.outline.r", 'i', &conf_serif_outline_color_r[49], OPTIONAL, NOSAVE},
+	{"serif.color50.outline.g", 'i', &conf_serif_outline_color_g[49], OPTIONAL, NOSAVE},
+	{"serif.color50.outline.b", 'i', &conf_serif_outline_color_b[49], OPTIONAL, NOSAVE},
+	{"serif.color51.name", 's', &conf_serif_color_name[50], OPTIONAL, NOSAVE},
+	{"serif.color51.r", 'i', &conf_serif_color_r[50], OPTIONAL, NOSAVE},
+	{"serif.color51.g", 'i', &conf_serif_color_g[50], OPTIONAL, NOSAVE},
+	{"serif.color51.b", 'i', &conf_serif_color_b[50], OPTIONAL, NOSAVE},
+	{"serif.color51.outline.r", 'i', &conf_serif_outline_color_r[50], OPTIONAL, NOSAVE},
+	{"serif.color51.outline.g", 'i', &conf_serif_outline_color_g[50], OPTIONAL, NOSAVE},
+	{"serif.color51.outline.b", 'i', &conf_serif_outline_color_b[50], OPTIONAL, NOSAVE},
+	{"serif.color52.name", 's', &conf_serif_color_name[51], OPTIONAL, NOSAVE},
+	{"serif.color52.r", 'i', &conf_serif_color_r[51], OPTIONAL, NOSAVE},
+	{"serif.color52.g", 'i', &conf_serif_color_g[51], OPTIONAL, NOSAVE},
+	{"serif.color52.b", 'i', &conf_serif_color_b[51], OPTIONAL, NOSAVE},
+	{"serif.color52.outline.r", 'i', &conf_serif_outline_color_r[51], OPTIONAL, NOSAVE},
+	{"serif.color52.outline.g", 'i', &conf_serif_outline_color_g[51], OPTIONAL, NOSAVE},
+	{"serif.color52.outline.b", 'i', &conf_serif_outline_color_b[51], OPTIONAL, NOSAVE},
+	{"serif.color53.name", 's', &conf_serif_color_name[52], OPTIONAL, NOSAVE},
+	{"serif.color53.r", 'i', &conf_serif_color_r[52], OPTIONAL, NOSAVE},
+	{"serif.color53.g", 'i', &conf_serif_color_g[52], OPTIONAL, NOSAVE},
+	{"serif.color53.b", 'i', &conf_serif_color_b[52], OPTIONAL, NOSAVE},
+	{"serif.color53.outline.r", 'i', &conf_serif_outline_color_r[52], OPTIONAL, NOSAVE},
+	{"serif.color53.outline.g", 'i', &conf_serif_outline_color_g[52], OPTIONAL, NOSAVE},
+	{"serif.color53.outline.b", 'i', &conf_serif_outline_color_b[52], OPTIONAL, NOSAVE},
+	{"serif.color54.name", 's', &conf_serif_color_name[53], OPTIONAL, NOSAVE},
+	{"serif.color54.r", 'i', &conf_serif_color_r[53], OPTIONAL, NOSAVE},
+	{"serif.color54.g", 'i', &conf_serif_color_g[53], OPTIONAL, NOSAVE},
+	{"serif.color54.b", 'i', &conf_serif_color_b[53], OPTIONAL, NOSAVE},
+	{"serif.color54.outline.r", 'i', &conf_serif_outline_color_r[53], OPTIONAL, NOSAVE},
+	{"serif.color54.outline.g", 'i', &conf_serif_outline_color_g[53], OPTIONAL, NOSAVE},
+	{"serif.color54.outline.b", 'i', &conf_serif_outline_color_b[53], OPTIONAL, NOSAVE},
+	{"serif.color55.name", 's', &conf_serif_color_name[54], OPTIONAL, NOSAVE},
+	{"serif.color55.r", 'i', &conf_serif_color_r[54], OPTIONAL, NOSAVE},
+	{"serif.color55.g", 'i', &conf_serif_color_g[54], OPTIONAL, NOSAVE},
+	{"serif.color55.b", 'i', &conf_serif_color_b[54], OPTIONAL, NOSAVE},
+	{"serif.color55.outline.r", 'i', &conf_serif_outline_color_r[54], OPTIONAL, NOSAVE},
+	{"serif.color55.outline.g", 'i', &conf_serif_outline_color_g[54], OPTIONAL, NOSAVE},
+	{"serif.color55.outline.b", 'i', &conf_serif_outline_color_b[54], OPTIONAL, NOSAVE},
+	{"serif.color56.name", 's', &conf_serif_color_name[55], OPTIONAL, NOSAVE},
+	{"serif.color56.r", 'i', &conf_serif_color_r[55], OPTIONAL, NOSAVE},
+	{"serif.color56.g", 'i', &conf_serif_color_g[55], OPTIONAL, NOSAVE},
+	{"serif.color56.b", 'i', &conf_serif_color_b[55], OPTIONAL, NOSAVE},
+	{"serif.color56.outline.r", 'i', &conf_serif_outline_color_r[55], OPTIONAL, NOSAVE},
+	{"serif.color56.outline.g", 'i', &conf_serif_outline_color_g[55], OPTIONAL, NOSAVE},
+	{"serif.color56.outline.b", 'i', &conf_serif_outline_color_b[55], OPTIONAL, NOSAVE},
+	{"serif.color57.name", 's', &conf_serif_color_name[56], OPTIONAL, NOSAVE},
+	{"serif.color57.r", 'i', &conf_serif_color_r[56], OPTIONAL, NOSAVE},
+	{"serif.color57.g", 'i', &conf_serif_color_g[56], OPTIONAL, NOSAVE},
+	{"serif.color57.b", 'i', &conf_serif_color_b[56], OPTIONAL, NOSAVE},
+	{"serif.color57.outline.r", 'i', &conf_serif_outline_color_r[56], OPTIONAL, NOSAVE},
+	{"serif.color57.outline.g", 'i', &conf_serif_outline_color_g[56], OPTIONAL, NOSAVE},
+	{"serif.color57.outline.b", 'i', &conf_serif_outline_color_b[56], OPTIONAL, NOSAVE},
+	{"serif.color58.name", 's', &conf_serif_color_name[57], OPTIONAL, NOSAVE},
+	{"serif.color58.r", 'i', &conf_serif_color_r[57], OPTIONAL, NOSAVE},
+	{"serif.color58.g", 'i', &conf_serif_color_g[57], OPTIONAL, NOSAVE},
+	{"serif.color58.b", 'i', &conf_serif_color_b[57], OPTIONAL, NOSAVE},
+	{"serif.color58.outline.r", 'i', &conf_serif_outline_color_r[57], OPTIONAL, NOSAVE},
+	{"serif.color58.outline.g", 'i', &conf_serif_outline_color_g[57], OPTIONAL, NOSAVE},
+	{"serif.color58.outline.b", 'i', &conf_serif_outline_color_b[57], OPTIONAL, NOSAVE},
+	{"serif.color59.name", 's', &conf_serif_color_name[58], OPTIONAL, NOSAVE},
+	{"serif.color59.r", 'i', &conf_serif_color_r[58], OPTIONAL, NOSAVE},
+	{"serif.color59.g", 'i', &conf_serif_color_g[58], OPTIONAL, NOSAVE},
+	{"serif.color59.b", 'i', &conf_serif_color_b[58], OPTIONAL, NOSAVE},
+	{"serif.color59.outline.r", 'i', &conf_serif_outline_color_r[58], OPTIONAL, NOSAVE},
+	{"serif.color59.outline.g", 'i', &conf_serif_outline_color_g[58], OPTIONAL, NOSAVE},
+	{"serif.color59.outline.b", 'i', &conf_serif_outline_color_b[58], OPTIONAL, NOSAVE},
+	{"serif.color60.name", 's', &conf_serif_color_name[59], OPTIONAL, NOSAVE},
+	{"serif.color60.r", 'i', &conf_serif_color_r[59], OPTIONAL, NOSAVE},
+	{"serif.color60.g", 'i', &conf_serif_color_g[59], OPTIONAL, NOSAVE},
+	{"serif.color60.b", 'i', &conf_serif_color_b[59], OPTIONAL, NOSAVE},
+	{"serif.color60.outline.r", 'i', &conf_serif_outline_color_r[59], OPTIONAL, NOSAVE},
+	{"serif.color60.outline.g", 'i', &conf_serif_outline_color_g[59], OPTIONAL, NOSAVE},
+	{"serif.color60.outline.b", 'i', &conf_serif_outline_color_b[59], OPTIONAL, NOSAVE},
+	{"serif.color61.name", 's', &conf_serif_color_name[60], OPTIONAL, NOSAVE},
+	{"serif.color61.r", 'i', &conf_serif_color_r[60], OPTIONAL, NOSAVE},
+	{"serif.color61.g", 'i', &conf_serif_color_g[60], OPTIONAL, NOSAVE},
+	{"serif.color61.b", 'i', &conf_serif_color_b[60], OPTIONAL, NOSAVE},
+	{"serif.color61.outline.r", 'i', &conf_serif_outline_color_r[60], OPTIONAL, NOSAVE},
+	{"serif.color61.outline.g", 'i', &conf_serif_outline_color_g[60], OPTIONAL, NOSAVE},
+	{"serif.color61.outline.b", 'i', &conf_serif_outline_color_b[60], OPTIONAL, NOSAVE},
+	{"serif.color62.name", 's', &conf_serif_color_name[61], OPTIONAL, NOSAVE},
+	{"serif.color62.r", 'i', &conf_serif_color_r[61], OPTIONAL, NOSAVE},
+	{"serif.color62.g", 'i', &conf_serif_color_g[61], OPTIONAL, NOSAVE},
+	{"serif.color62.b", 'i', &conf_serif_color_b[61], OPTIONAL, NOSAVE},
+	{"serif.color62.outline.r", 'i', &conf_serif_outline_color_r[61], OPTIONAL, NOSAVE},
+	{"serif.color62.outline.g", 'i', &conf_serif_outline_color_g[61], OPTIONAL, NOSAVE},
+	{"serif.color62.outline.b", 'i', &conf_serif_outline_color_b[61], OPTIONAL, NOSAVE},
+	{"serif.color63.name", 's', &conf_serif_color_name[62], OPTIONAL, NOSAVE},
+	{"serif.color63.r", 'i', &conf_serif_color_r[62], OPTIONAL, NOSAVE},
+	{"serif.color63.g", 'i', &conf_serif_color_g[62], OPTIONAL, NOSAVE},
+	{"serif.color63.b", 'i', &conf_serif_color_b[62], OPTIONAL, NOSAVE},
+	{"serif.color63.outline.r", 'i', &conf_serif_outline_color_r[62], OPTIONAL, NOSAVE},
+	{"serif.color63.outline.g", 'i', &conf_serif_outline_color_g[62], OPTIONAL, NOSAVE},
+	{"serif.color63.outline.b", 'i', &conf_serif_outline_color_b[62], OPTIONAL, NOSAVE},
+	{"serif.color64.name", 's', &conf_serif_color_name[63], OPTIONAL, NOSAVE},
+	{"serif.color64.r", 'i', &conf_serif_color_r[63], OPTIONAL, NOSAVE},
+	{"serif.color64.g", 'i', &conf_serif_color_g[63], OPTIONAL, NOSAVE},
+	{"serif.color64.b", 'i', &conf_serif_color_b[63], OPTIONAL, NOSAVE},
+	{"serif.color64.outline.r", 'i', &conf_serif_outline_color_r[63], OPTIONAL, NOSAVE},
+	{"serif.color64.outline.g", 'i', &conf_serif_outline_color_g[63], OPTIONAL, NOSAVE},
+	{"serif.color64.outline.b", 'i', &conf_serif_outline_color_b[63], OPTIONAL, NOSAVE},
+	/* ジェネレータで出力したコードはここまで --> */
+	{"voice.stop.off", 'i', &conf_voice_stop_off, OPTIONAL, SAVE},
+	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, OPTIONAL, SAVE},
+	{"window.maximize.disable", 'i', &conf_window_maximize_disable, OPTIONAL, SAVE},
+	{"window.title.separator", 's', &conf_window_title_separator, OPTIONAL, SAVE},
+	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, OPTIONAL, SAVE},
+	{"click.disable", 'i', &conf_click_disable, OPTIONAL, SAVE},
+	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, OPTIONAL, SAVE},
+	{"msgbox.show.on.bg", 'i', &conf_msgbox_show_on_bg, OPTIONAL, SAVE},
+	{"beep.adjustment", 'f', &conf_beep_adjustment, OPTIONAL, NOSAVE},
+	{"serif.quote", 'i', &conf_serif_quote, OPTIONAL, SAVE},
+	{"sysmenu.transition", 'i', &conf_sysmenu_transition, OPTIONAL, SAVE},
+	{"msgbox.history.disable", 'i', &conf_msgbox_history_disable, OPTIONAL, SAVE},
+	{"serif.color.name.only", 'i', &conf_serif_color_name_only, OPTIONAL, SAVE},
+	{"release", 'i', &conf_release, OPTIONAL, NOSAVE},
 };
 
-#define RULE_TBL_SIZE	(sizeof(rule_tbl) / sizeof(struct rule))
+#define RULE_TBL_SIZE	((int)(sizeof(rule_tbl) / sizeof(struct rule)))
+
+/* 各コンフィグがロード済みかどうか */
+static bool loaded_tbl[RULE_TBL_SIZE];
 
 /*
  * 前方参照
@@ -1111,6 +1114,7 @@ static bool read_conf(void);
 static bool save_value(const char *k, const char *v);
 static bool check_conf(void);
 static void set_locale_mapping(void);
+static bool overwrite_config_font_file(const char *val);
 
 /*
  * コンフィグの初期化処理を行う
@@ -1176,7 +1180,7 @@ static bool read_conf(void)
 static bool save_value(const char *k, const char *v)
 {
 	char *dup;
-	size_t i;
+	int i;
 
 	/* ルールテーブルからキーを探して値を保存する */
 	for (i = 0; i < RULE_TBL_SIZE; i++) {
@@ -1185,20 +1189,20 @@ static bool save_value(const char *k, const char *v)
 			continue;
 
 		/* すでに値が設定されたキーの場合 */
-		if (rule_tbl[i].loaded) {
+		if (loaded_tbl[i]) {
 			log_duplicated_conf(k);
 			return false;
 		}
 
 		/* 保存されない(無視される)キーの場合 */
-		if (rule_tbl[i].val == NULL)
+		if (rule_tbl[i].var_ptr == NULL)
 			return true;
 
 		/* 型ごとに変換する */
 		if (rule_tbl[i].type == 'i') {
-			*(int *)rule_tbl[i].val = atoi(v);
+			*(int *)rule_tbl[i].var_ptr = atoi(v);
 		} else if (rule_tbl[i].type == 'f') {
-			*(float *)rule_tbl[i].val = (float)atof(v);
+			*(float *)rule_tbl[i].var_ptr = (float)atof(v);
 		} else if (rule_tbl[i].type == 's') {
 			/* 文字列の場合は複製する */
 			dup = strdup(v);
@@ -1206,12 +1210,12 @@ static bool save_value(const char *k, const char *v)
 				log_memory();
 				return false;
 			}
-			*(char **)rule_tbl[i].val = dup;
+			*(char **)rule_tbl[i].var_ptr = dup;
 		} else {
 			assert(0);
 		}
 
-		rule_tbl[i].loaded = true;
+		loaded_tbl[i] = true;
 
 		return true;
 	}
@@ -1222,10 +1226,10 @@ static bool save_value(const char *k, const char *v)
 /* 読み込まれなかった必須コンフィグをチェックする */
 static bool check_conf(void)
 {
-	size_t i;
+	int i;
 
 	for (i = 0; i < RULE_TBL_SIZE; i++) {
-		if (!rule_tbl[i].omissible && !rule_tbl[i].loaded) {
+		if (!rule_tbl[i].optional && !loaded_tbl[i]) {
 			log_undefined_conf(rule_tbl[i].key);
 			return false;
 		}
@@ -1238,14 +1242,14 @@ static bool check_conf(void)
  */
 void cleanup_conf(void)
 {
-	size_t i;
+	int i;
 
 	/* 文字列のプロパティは解放する */
 	for (i = 0; i < RULE_TBL_SIZE; i++) {
-		rule_tbl[i].loaded = false;
-		if (rule_tbl[i].type == 's' && rule_tbl[i].val != NULL) {
-			free(*(char **)rule_tbl[i].val);
-			*(char **)rule_tbl[i].val = NULL;
+		loaded_tbl[i] = false;
+		if (rule_tbl[i].type == 's' && rule_tbl[i].var_ptr != NULL) {
+			free(*(char **)rule_tbl[i].var_ptr);
+			*(char **)rule_tbl[i].var_ptr = NULL;
 		}
 	}
 }
@@ -1264,7 +1268,11 @@ bool apply_initial_values(void)
 		init_locale_code();
 	}
 
-	/* グローバルボリュームをセットする */
+	/*
+	 * グローバルボリュームをセットする
+	 *  - この値はグローバルセーブデータがある場合はload_global_data()にて
+	 *    上書きされる
+	 */
 	set_mixer_global_volume(BGM_STREAM, conf_sound_vol_bgm);
 	set_mixer_global_volume(VOICE_STREAM, conf_sound_vol_voice);
 	set_mixer_global_volume(SE_STREAM, conf_sound_vol_se);
@@ -1273,8 +1281,8 @@ bool apply_initial_values(void)
 	for (i = 0; i < CH_VOL_SLOTS; i++)
 		set_character_volume(i, conf_sound_vol_character);
 
-	/* フォントファイル名をセットする */
-	if (!set_font_file_name(conf_font_file))
+	/* グローバルのフォントファイル名をセットする */
+	if (!set_global_font_file_name(conf_font_file))
 		return false;
 
 	return true;
@@ -1376,37 +1384,192 @@ static void set_locale_mapping(void)
  */
 bool overwrite_config(const char *key, const char *val)
 {
+	struct item {
+		const char *key;
+		bool (*func)(const char *val);
+	} special_items[] = {
+		{"font.file", overwrite_config_font_file},
+	};
+	int i;
 	char *s;
+
+	assert(key != NULL);
+	assert(val != NULL);
+
+	/* 特別扱いするキーの場合を処理する */
+	for (i = 0;
+	     i < (int)(sizeof(special_items) / sizeof(struct item)); i++) {
+		if (strcmp(special_items[i].key, key) == 0)
+			return special_items[i].func(val);
+	}
+
+	/* 一般扱いのキーの場合を処理する */
+	for (i = 0; i < RULE_TBL_SIZE; i++) {
+		/* キーがみつかった場合 */
+		if (strcmp(rule_tbl[i].key, key) == 0)
+			break;
+	}
+	if (i == RULE_TBL_SIZE)
+		return false;
+
+	/* 無視されるキーである場合 */
+	if (rule_tbl[i].var_ptr == NULL)
+		return true;
+
+	/* キーの型ごとに処理する */
+	switch (rule_tbl[i].type) {
+	case 'i':
+		/* var_ptrはint型変数へのポインタ */
+		*(int *)rule_tbl[i].var_ptr = atoi(val);
+		break;
+	case 'f':
+		/* var_ptrはfloat型変数へのポインタ */
+		*(float *)rule_tbl[i].var_ptr = (float)atof(val);
+		break;
+	case 's':
+		/* 既存の文字列を解放する */
+		if (*(char **)rule_tbl[i].var_ptr != NULL) {
+			free(*(char **)rule_tbl[i].var_ptr);
+			*(char **)rule_tbl[i].var_ptr = NULL;
+		}
+
+		/* 文字列のコピーを作成して代入する */
+		s = strdup(val);
+		if (s == NULL) {
+			log_memory();
+			return false;
+		}
+		*(char **)rule_tbl[i].var_ptr = s;
+		break;
+	default:
+		assert(INVALID_CONFIG_TYPE);
+		break;
+	}
+	return true;
+}
+
+/* font.nameコンフィグの書き換えを行う */
+static bool overwrite_config_font_file(const char *val)
+{
+	assert(val != NULL);
+
+	/*
+	 * 動的なfont.nameの書き換えは、セーブデータローカルなフォント名の
+	 * 書き換えとする
+	 */
+
+	if (strcmp(val, "") == 0) {
+		/*
+		 * ローカルなフォント名を抹消し、
+		 * グローバルのフォント名を使用する
+		 */
+		if (!set_local_font_file_name(NULL))
+			return false;
+	} else {
+		/*
+		 * ローカルなフォント名を登録し、
+		 * ローカルのフォント名を使用する
+		 */
+		if (!set_local_font_file_name(val))
+			return false;
+	}
+
+	return true;
+}
+
+/*
+ * コンフィグのローカルセーブデータへの書き出し関連
+ */
+
+/*
+ * セーブデータに書き出すコンフィグの値を取得する
+ */
+const char *get_config_key_for_local_save_data(int index)
+{
+	int i, save_key_count;
+
+	save_key_count = 0;
+	for (i = 0; i < RULE_TBL_SIZE; i++) {
+		if (!rule_tbl[i].save)
+			continue;
+		if (save_key_count == index)
+			return rule_tbl[i].key;
+		save_key_count++;
+	}
+	return NULL;
+}
+
+/*
+ * コンフィグの型を取得する('s', 'i', 'f')
+ */
+char get_config_type_for_key(const char *key)
+{
 	int i;
 
-	for (i = 0; i < (int)RULE_TBL_SIZE; i++) {
+	assert(key != NULL);
+
+	for (i = 0; i < RULE_TBL_SIZE; i++)
+		if (strcmp(rule_tbl[i].key, key) == 0)
+			return rule_tbl[i].type;
+
+	assert(CONFIG_KEY_NOT_FOUND);
+	return '?';
+}
+
+/*
+ * 文字列型のコンフィグ値を取得する
+ */
+const char *get_string_config_value_for_key(const char *key)
+{
+	int i;
+
+	assert(key != NULL);
+	for (i = 0; i < RULE_TBL_SIZE; i++) {
 		if (strcmp(rule_tbl[i].key, key) == 0) {
-			switch (rule_tbl[i].type) {
-			case 'i':
-				*(int *)rule_tbl[i].val = atoi(val);
-				break;
-			case 'f':
-				*(float *)rule_tbl[i].val = (float)atof(val);
-				break;
-			case 's':
-				s = strdup(val);
-				if (s == NULL) {
-					log_memory();
-					return false;
-				}
-
-				if (rule_tbl[i].val != NULL)
-					free(*(char **)rule_tbl[i].val);
-
-				assert(rule_tbl[i].val != NULL);
-				*(char **)rule_tbl[i].val = s;
-				break;
-			default:
-				assert(0);
-				break;
-			}
-			return true;
+			assert(rule_tbl[i].type == 's');
+			if (rule_tbl[i].var_ptr == NULL)
+				return "";
+			return *(char **)rule_tbl[i].var_ptr;
 		}
 	}
-	return false;
+	assert(CONFIG_KEY_NOT_FOUND);
+	return NULL;
+}
+
+/*
+ * 整数型のコンフィグ値を取得する
+ */
+int get_int_config_value_for_key(const char *key)
+{
+	int i;
+
+	assert(key != NULL);
+	for (i = 0; i < RULE_TBL_SIZE; i++) {
+		if (strcmp(rule_tbl[i].key, key) == 0) {
+			assert(rule_tbl[i].type == 'i');
+			assert(rule_tbl[i].var_ptr != NULL);
+			return *(int *)rule_tbl[i].var_ptr;
+		}
+	}
+	assert(CONFIG_KEY_NOT_FOUND);
+	return -1;
+}
+
+/*
+ * 浮動小数点数型のコンフィグ値を取得する
+ */
+float get_float_config_value_for_key(const char *key)
+{
+	int i;
+
+	assert(key != NULL);
+	for (i = 0; i < RULE_TBL_SIZE; i++) {
+		if (strcmp(rule_tbl[i].key, key) == 0) {
+			assert(rule_tbl[i].type == 'f');
+			assert(rule_tbl[i].var_ptr != NULL);
+			return *(float *)rule_tbl[i].var_ptr;
+		}
+	}
+	assert(CONFIG_KEY_NOT_FOUND);
+	return NAN;
 }

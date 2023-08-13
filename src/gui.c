@@ -1183,7 +1183,7 @@ static void process_button_click(int index)
 	case TYPE_FONT:
 		play_se(b->clickse, false);
 		if (b->file != NULL) {
-			set_font_file_name(b->file);
+			set_global_font_file_name(b->file);
 			if (!init_glyph())
 				abort();
 		}

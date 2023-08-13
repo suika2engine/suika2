@@ -40,6 +40,9 @@ struct rfile {
 	/* パッケージ内のファイルであるか */
 	bool is_packaged;
 
+	/* 難読化されているか */
+	bool is_obfuscated;
+
 	/* パッケージファイルもしくは個別のファイルへのファイルポインタ */
 	FILE *fp;
 
@@ -52,9 +55,10 @@ struct rfile {
 	uint64_t prev_random;
 };
 
-/* ファイル書き込みストリーム (TODO: 難読化をサポートする) */
+/* ファイル書き込みストリーム */
 struct wfile {
 	FILE *fp;
+	uint64_t next_random;
 };
 
 /* パッケージのファイルエントリ */
@@ -209,6 +213,12 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 		/* 開けた場合、ファイルシステム上のファイルを用いる */
 		free(real_path);
 		rf->is_packaged = false;
+		if (save_data) {
+			rf->is_obfuscated = true;
+			set_random_seed(0, &rf->next_random);
+		} else {
+			rf->is_obfuscated = false;
+		}
 		return rf;
 	}
 	free(real_path);
@@ -261,6 +271,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	}
 
 	rf->is_packaged = true;
+	rf->is_obfuscated = true;
 	rf->index = i;
 	rf->size = entry[i].size;
 	rf->offset = entry[i].offset;
@@ -317,23 +328,35 @@ size_t read_rfile(struct rfile *rf, void *buf, size_t size)
 	assert(rf != NULL);
 	assert(rf->fp != NULL);
 
-	/* ファイルシステム上のファイルの場合 */
 	if (!rf->is_packaged) {
+		/* ファイルシステム上のファイルの場合 */
 		len = fread(buf, 1, size, rf->fp);
-		return len;
+
+		/* 難読化を解除する */
+		if (rf->is_obfuscated) {
+			for (obf = 0; obf < len; obf++) {
+				*(((char *)buf) + obf) ^=
+					get_next_random(&rf->next_random,
+							NULL);
+			}
+		}
+	} else {
+		/* パッケージ内のファイルの場合 */
+		if (rf->pos + size > rf->size)
+			size = (size_t)(rf->size - rf->pos);
+		if (size == 0)
+			return 0;
+		len = fread(buf, 1, size, rf->fp);
+		rf->pos += len;
+
+		/* 難読化を解除する */
+		for (obf = 0; obf < len; obf++) {
+			*(((char *)buf) + obf) ^=
+				get_next_random(&rf->next_random,
+						&rf->prev_random);
+		}
 	}
 
-	/* パッケージ内のファイルの場合 */
-	if (rf->pos + size > rf->size)
-		size = (size_t)(rf->size - rf->pos);
-	if (size == 0)
-		return 0;
-	len = fread(buf, 1, size, rf->fp);
-	rf->pos += len;
-	for (obf = 0; obf < len; obf++) {
-		*(((char *)buf) + obf) ^= get_next_random(&rf->next_random,
-							  &rf->prev_random);
-	}
 	return len;
 }
 
@@ -343,16 +366,18 @@ size_t read_rfile(struct rfile *rf, void *buf, size_t size)
 const char *gets_rfile(struct rfile *rf, char *buf, size_t size)
 {
 	char *ptr;
-	size_t len;
+	size_t len, ret;
 	char c;
 
 	assert(rf != NULL);
 	assert(rf->fp != NULL);
+	assert(buf != NULL);
+	assert(size > 0);
 
 	ptr = buf;
-
 	for (len = 0; len < size - 1; len++) {
-		if (read_rfile(rf, &c, 1) != 1) {
+		ret = read_rfile(rf, &c, 1);
+		if (ret != 1) {
 			*ptr = '\0';
 			return len == 0 ? NULL : buf;
 		}
@@ -376,6 +401,8 @@ const char *gets_rfile(struct rfile *rf, char *buf, size_t size)
 		*ptr++ = c;
 	}
 	*ptr = '\0';
+	if (len == 0)
+		return NULL;
 	return buf;
 }
 
@@ -500,6 +527,9 @@ struct wfile *open_wfile(const char *dir, const char *file)
 	}
 	free(path);
 
+	/* 乱数シードを初期化する */
+	set_random_seed(0, &wf->next_random);
+
 	return wf;
 }
 
@@ -508,14 +538,36 @@ struct wfile *open_wfile(const char *dir, const char *file)
  */
 size_t write_wfile(struct wfile *wf, const void *buf, size_t size)
 {
-	size_t len;
+	char obf[1024];
+	const char *src;
+	size_t block_size, out, total, i;
 
 	assert(wf != NULL);
 	assert(wf->fp != NULL);
 
-	len = fwrite(buf, 1, size, wf->fp);
+	src = buf;
+	total = 0;
+	while (size > 0) {
+		/* ブロックのサイズを求める(最大1024バイト) */
+		if (size > sizeof(obf))
+			block_size = sizeof(obf);
+		else
+			block_size = size;
 
-	return len;
+		/* ブロックを難読化する */
+		for (i = 0; i < block_size; i++) {
+			obf[i] = *src++ ^ get_next_random(&wf->next_random,
+							  NULL);
+		}
+
+		/* ブロックを書き出す */
+		out = fwrite(obf, 1, block_size, wf->fp);
+		if (out != block_size)
+			return total + out;
+		total += out;
+		size -= out;
+	}
+	return total;
 }
 
 /*
