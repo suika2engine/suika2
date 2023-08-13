@@ -283,7 +283,10 @@ bool quick_save(void)
 	 *  - GUIを経由しないのでここで作成する
 	 *  - ただし、現状ではクイックセーブデータのサムネイルは未使用
 	 */
-	draw_stage_to_thumb();
+	/*
+	  In message command, use draw_stage_to_thumb().
+	  In switch command, use draw_stage_fo_thumb().
+	*/
 
 	/* ローカルデータのシリアライズを行う */
 	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp, -1))

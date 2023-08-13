@@ -367,7 +367,8 @@ bool check_gui_flag(void)
 /*
  * GUIを準備する
  */
-bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
+bool prepare_gui_mode(const char *file, bool cancel, bool from_command,
+		      bool is_thumb_prepared)
 {
 	assert(!flag_gui_mode);
 
@@ -429,8 +430,12 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command)
 	/* ボタンの状態を準備する */
 	update_runtime_props(true);
 
-	/* セーブされる場合に備えてサムネイルを描画する */
-	draw_stage_to_thumb();
+	/*
+	 * セーブされる場合に備えてサムネイルを描画する
+	 *  - switch.cから呼ばれた場合はFOレイヤからサムネイルを作成済み
+	 */
+	if (!is_thumb_prepared)
+		draw_stage_to_thumb();
 
 	/* 右クリックでキャンセルするか */
 	cancel_when_right_click = cancel;
@@ -867,7 +872,8 @@ static bool move_to_other_gui(void)
 	cleanup_gui();
 
 	/* GUIをロードする */
-	if (!prepare_gui_mode(file, cancel_when_right_click, from_command)) {
+	if (!prepare_gui_mode(file, cancel_when_right_click, from_command,
+			      false)) {
 		free(file);
 		return false;
 	}
