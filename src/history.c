@@ -237,7 +237,7 @@ bool is_quoted_serif(const char *msg)
 	size_t i;
 
 	for (i = 0; i < sizeof(items) / sizeof(struct item); i++) {
-		if (strncmp(msg, items[i].prefix, strlen(items[i].prefix)) &&
+		if (strncmp(msg, items[i].prefix, strlen(items[i].prefix)) == 0 &&
 		    strncmp(msg + strlen(msg) - strlen(items[i].suffix), items[i].suffix,
 		    strlen(items[i].suffix)) == 0)
 			return true;

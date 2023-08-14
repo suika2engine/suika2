@@ -204,7 +204,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 						 LPARAM lParam);
 static int ConvertKeyCode(int nVK);
 static void ToggleFullScreen(void);
-static void ChangeDisplayMode(void);
+static void ChangeDisplayMode(int *pnScreenWidth, int *pnScreenHeight);
 static void ResetDisplayMode(void);
 static void OnPaint(void);
 static void OnCommand(UINT nID);
@@ -452,6 +452,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	RECT rc;
 	DWORD style;
 	int vsw, vsh, dw, dh, i;
+#ifndef USE_DEBUGGER
+	int monitors;
+#endif
 
 	/* ディスプレイのサイズが足りない場合 */
 	vsw = GetSystemMetrics(SM_CXVIRTUALSCREEN);
@@ -497,13 +500,21 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 						TITLE_BUF_SIZE - 1);
 
+#ifndef USE_DEBUGGER
+	monitors = GetSystemMetrics(SM_CMONITORS);
+#endif
+
 	/* ウィンドウを作成する */
 	hWndMain = CreateWindowEx(0, wszWindowClass, wszTitle, style,
 #ifdef USE_DEBUGGER
 							  10, 10,
 #else
-							  (vsw - (conf_window_width + dw)) / 2,
-							  (vsh - (conf_window_height + dh)) / 2,
+							  monitors == 1 ?
+							  (vsw - (conf_window_width + dw)) / 2 :
+							  CW_USEDEFAULT,
+							  monitors == 1 ?
+							  (vsh - (conf_window_height + dh)) / 2 :
+							  CW_USEDEFAULT,
 #endif
 							  conf_window_width + dw, conf_window_height + dh,
 							  NULL, NULL, hInstance, NULL);
@@ -1090,7 +1101,7 @@ static int ConvertKeyCode(int nVK)
 static void ToggleFullScreen(void)
 {
 	LONG style;
-	int cx, cy;
+	int sw, sh;
 
 #ifdef USE_DEBUGGER
 	return;
@@ -1104,22 +1115,23 @@ static void ToggleFullScreen(void)
 
 		SetMenu(hWndMain, NULL);
 
-		ChangeDisplayMode();
+		ChangeDisplayMode(&sw, &sh);
 
-		cx = GetSystemMetrics(SM_CXSCREEN);
-		cy = GetSystemMetrics(SM_CYSCREEN);
-		nOffsetX = (cx - conf_window_width) / 2;
-		nOffsetY = (cy - conf_window_height) / 2;
+		nOffsetX = (sw - conf_window_width) / 2;
+		nOffsetY = (sh - conf_window_height) / 2;
 		GetWindowRect(hWndMain, &rectWindow);
 		SetWindowLong(hWndMain, GWL_STYLE, (LONG)(WS_POPUP | WS_VISIBLE));
 		SetWindowLong(hWndMain, GWL_EXSTYLE, WS_EX_TOPMOST);
 		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
 					 SWP_NOZORDER | SWP_FRAMECHANGED);
-		MoveWindow(hWndMain, 0, 0, cx, cy, TRUE);
+		MoveWindow(hWndMain, 0, 0, sw, sh, TRUE);
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
 
-		D3DSetDisplayOffset(nOffsetX, nOffsetY);
+		if (bD3D)
+			D3DSetDisplayOffset(nOffsetX, nOffsetY);
+		else if (bOpenGL)
+			opengl_set_screen_offset(nOffsetX, nOffsetY);
 	}
 	else
 	{
@@ -1150,12 +1162,15 @@ static void ToggleFullScreen(void)
 		ShowWindow(hWndMain, SW_SHOW);
 		InvalidateRect(NULL, NULL, TRUE);
 
-		D3DSetDisplayOffset(0, 0);
+		if (bD3D)
+			D3DSetDisplayOffset(0, 0);
+		else if (bOpenGL)
+			opengl_set_screen_offset(0, 0);
 	}
 }
 
 /* 画面のサイズを変更する */
-static void ChangeDisplayMode(void)
+static void ChangeDisplayMode(int *pnScreenWidth, int *pnScreenHeight)
 {
 	DEVMODE dm, dmSmallest;
 	HDC hDCDisp;
@@ -1171,6 +1186,8 @@ static void ChangeDisplayMode(void)
 	if(ChangeDisplaySettings(&dm, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL)
 	{
 		bDisplaySettingsChanged = TRUE;
+		*pnScreenWidth = conf_window_width;
+		*pnScreenHeight = conf_window_height;
 		return;
 	}
 
@@ -1204,6 +1221,8 @@ static void ChangeDisplayMode(void)
 		   DISP_CHANGE_SUCCESSFUL)
 		{
 			bDisplaySettingsChanged = TRUE;
+			*pnScreenWidth = (int)dmSmallest.dmPelsWidth;
+			*pnScreenHeight = (int)dmSmallest.dmPelsHeight;
 			return;
 		}
 	}

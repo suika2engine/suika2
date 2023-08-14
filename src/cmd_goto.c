@@ -47,7 +47,7 @@ bool goto_command(bool *cont)
 		set_save_load(true);
 
 		/* ロード画面を開始する */
-		if (!prepare_gui_mode(LOAD_GUI_FILE, true, false)) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, false, false)) {
 			log_script_exec_footer();
 			return false;
 		}
@@ -78,7 +78,7 @@ bool goto_command(bool *cont)
 		set_save_load(true);
 
 		/* セーブ画面を開始する */
-		if (!prepare_gui_mode(SAVE_GUI_FILE, true, false)) {
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, false, false)) {
 			log_script_exec_footer();
 			return false;
 		}

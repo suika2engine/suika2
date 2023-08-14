@@ -43,7 +43,7 @@
 </head>
 <body>
 
-<h1>Suika 2/12.23</h1>
+<h1>Suika 2/12.24</h1>
 <p>Copyright (c) 2023 the Suika2 Development Team. All rights reserved.</p>
 
 <h2>このソフトについて</h2>
@@ -148,24 +148,79 @@
   <li>サンプルゲームの素材には2次利用できないものがありますので、背景は <a href="bg/credit.txt">bg/credit.txt</a> 、 BGM は <a href="bgm/credit.txt">bgm/credit.txt</a> 、 SE は <a href="se/credit.txt">se/credit.txt</a> をご覧ください</li>
 </ul>
 
-<h2>Contributors</h2>
+<h2>The List of The Contributors on GitHub</h2>
 <ul>
-  <li><code>ktabata</code> Programmer</li>
-  <li><code>innocentvoice</code> Maintainer</li>
-  <li><code>KyouBrayden</code> Web, Documentation</li>
+  <li><code>ktabata</code> Lead Developer, Main Programmer</li>
+  <li><code>innocentvoice</code> Maintainer, Community Moderator</li>
+  <li><code>KyouBrayden</code> Kirara, macOS, Documentation</li>
   <li><code>MaxMorgan</code> GUI Designer</li>
-  <li><code>MATSUNO Seiji</code> Advisor</li>
+  <li><code>MATSUNO Seiji</code> Quality Management</li>
   <li><code>moyashi170607</code> VScode snippets</li>
-  <li><code>DevSeed</code> Switch port</li>
-  <li><code>Cvar1984</code> Quality improvement on Android</li>
-  <li><code>RaZZlom</code> Quality improvement on Android</li>
-  <li><code>2439905184</code> Chinese Translation, Android, GitHub Actions</li>
-  <li><code>sherlach</code> English Demo</li>
-  <li><code>Maikuolan</code> English Translation</li>
+  <li><code>DevSeed</code> Switch</li>
+  <li><code>Cvar1984</code> Android</li>
+  <li><code>RaZZlom</code> Android</li>
+  <li><code>2439905184</code> Chinese, Android, CI</li>
+  <li><code>sherlach</code> English</li>
+  <li><code>Maikuolan</code> English</li>
+  <li>...And here is the placeholder for you!</li>
 </ul>
 
 <h2>変更履歴</h2>
 <ul>
+  <li>Suika 2/12.24 2023/08/14
+    <ul>
+			<li>
+				フォントのサイズと色をメッセージの最中に変更可能にした
+				(Thanks to everyone!)
+			</li>
+			<li>
+				マクロをファイルにまとめるための <code>using</code> 文を追加
+				(Thanks to かめの-san!)
+			</li>
+			<li>
+				全画面スタイルでインラインの選択肢を実装
+				(Thanks to Kyou, ラワン材-san!)
+			</li>
+			<li>
+				コンフィグのセーブファイルへの書き出しを実装
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				セーブデータの難読化を実装
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				言語選択機能を追加
+				(Thanks to Max, Kyou, usagi_hiyoko-san!)
+			</li>
+			<li>
+				フォントの変更をグローバル(GUI)とローカル(WMS)に分離
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				縦書きモードでメッセージボックスをはみ出すとクラッシュするバグを修正
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				全画面モードでも名前ボックスがセーブデータのサムネイルに反映されるバグを修正
+			</li>
+			<li>
+				セーブデータのサムネイルに選択肢が表示されないバグを修正
+				(Thanks to クロウズの嫁つる-san!)
+			</li>
+			<li>
+				セーブデータのメッセージ欄には選択肢ではなく１つ前のメッセージを使用するように修正
+			</li>
+			<li>
+				ゲームスクリーンサイズが中途半端なとき、Windowsでフルスクリーンにすると表示がずれるバグを修正
+				(Thanks to a Twitter user)
+			</li>
+			<li>
+				ヒストリで日本語のカギカッコが二重になるバグを修正
+				(Thanks to usagi_hiyoko-san!)
+			</li>
+    </ul>
+	</li>
   <li>Suika 2/12.23 2023/08/12
     <ul>
      <li>選択肢表示中にシステムメニューを隠すコンフィグを追加 (Thanks to usagi_hiyoko-san!)</li>

@@ -24,6 +24,7 @@
  *  - 2022/07/29 @guiに対応
  *  - 2023/01/06 利用されていないパラメータインデックスを削除
  *  - 2023/01/14 スタートアップファイル/ラインに対応
+ *  - 2022/08/14 @ichooseに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -71,6 +72,7 @@ enum command_type {
 	COMMAND_CHAPTER,
 	COMMAND_GUI,
 	COMMAND_WMS,
+	COMMAND_ICHOOSE,
 	COMMAND_MAX		/* invalid value */
 };
 

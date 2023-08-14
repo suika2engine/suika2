@@ -356,4 +356,19 @@ bool apply_initial_values(void);
 /* コンフィグを書き換える */
 bool overwrite_config(const char *key, const char *val);
 
+/* セーブデータに書き出すコンフィグの値を取得する */
+const char *get_config_key_for_local_save_data(int index);
+
+/* コンフィグの型を取得する('s', 'i', 'f') */
+char get_config_type_for_key(const char *key);
+
+/* 文字列型のコンフィグ値を取得する */
+const char *get_string_config_value_for_key(const char *key);
+
+/* 整数型のコンフィグ値を取得する */
+int get_int_config_value_for_key(const char *key);
+
+/* 浮動小数点数型のコンフィグ値を取得する */
+float get_float_config_value_for_key(const char *key);
+
 #endif

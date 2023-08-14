@@ -30,6 +30,8 @@
  *  - 2022/10/19 ローケルに対応
  *  - 2023/01/06 日本語コマンド名、パラメータ名指定、カギカッコに対応
  *  - 2023/01/14 スタートアップファイル/ラインに対応
+ *  - 2023/08/14 usingに対応
+ *  - 2023/08/14 @ichooseに対応
  */
 
 #include "suika.h"
@@ -145,6 +147,10 @@ struct insn_item {
 	/* 選択肢 */
 	{"@choose", COMMAND_CHOOSE, 2, 16},
 	{U8("@選択肢"), COMMAND_CHOOSE, 2, 16},
+
+	/* インライン選択肢 */
+	{"@ichoose", COMMAND_ICHOOSE, 2, 16},
+	{U8("@インライン選択肢"), COMMAND_ICHOOSE, 2, 16},
 
 	/* 章タイトル */
 	{"@chapter", COMMAND_CHAPTER, 1, 1},
@@ -272,6 +278,40 @@ struct param_item {
 	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT8, "option8="},
 	{COMMAND_CHOOSE, CHOOSE_PARAM_TEXT8, U8("選択肢8=")},
 
+	/* @ichoose */
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL1, "destination1="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL1, U8("行き先1=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT1, "option1="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT1, U8("選択肢1=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL2, "destination2="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL2, U8("行き先2=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT2, "option2="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT2, U8("選択肢2=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL3, "destination3="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL3, U8("行き先3=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT3, "option3="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT3, U8("選択肢3=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL4, "destination4="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL4, U8("行き先4=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT4, "option4="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT4, U8("選択肢4=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL5, "destination5="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL5, U8("行き先5=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT5, "option5="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT5, U8("選択肢5=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL6, "destination6="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL6, U8("行き先6=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT6, "option6="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT6, U8("選択肢6=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL7, "destination7="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL7, U8("行き先7=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT7, "option7="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT7, U8("選択肢7=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL8, "destination8="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_LABEL8, U8("行き先8=")},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT8, "option8="},
+	{COMMAND_ICHOOSE, CHOOSE_PARAM_TEXT8, U8("選択肢8=")},
+
 	/* @cha */
 	{COMMAND_CHA, CHA_PARAM_POS, "position="},
 	{COMMAND_CHA, CHA_PARAM_POS, U8("位置=")},
@@ -363,7 +403,7 @@ int startup_line;
 /*
  * 前方参照
  */
-static bool read_script_from_file(const char *fname);
+static bool read_script_from_file(const char *fname, bool is_included);
 static bool parse_insn(int index, const char *fname, int line,
 		       const char *buf, int locale_offset);
 static char *strtok_escape(char *buf, bool *escaped);
@@ -373,6 +413,9 @@ static bool parse_message(int index, const char *fname, int line,
 			  const char *buf, int locale_offset);
 static bool parse_label(int index, const char *fname, int line,
 			const char *buf, int locale_offset);
+#ifdef USE_DEBUGGER
+static bool add_comment_line(const char *s, ...);
+#endif
 
 /*
  * 初期化
@@ -477,7 +520,9 @@ bool load_script(const char *fname)
 	}
 
 	/* スクリプトファイルを読み込む */
-	if (!read_script_from_file(fname)) {
+	cmd_size = 0;
+	script_lines = 0;
+	if (!read_script_from_file(fname, false)) {
 #ifdef USE_DEBUGGER
 		/* 最後の行まで読み込まれる */
 #else
@@ -779,14 +824,14 @@ int get_command_count(void)
  */
 
 /* ファイルを読み込む */
-static bool read_script_from_file(const char *fname)
+static bool read_script_from_file(const char *fname, bool is_included)
 {
 	const int BUF_OFS = 4;
 	char buf[LINE_BUF_SIZE];
 	struct rfile *rf;
-	int line;
 	int top;
 	bool result;
+	const char MACRO_INC[] = "using ";
 
 #ifdef USE_DEBUGGER
 	error_count = 0;
@@ -798,12 +843,10 @@ static bool read_script_from_file(const char *fname)
 		return false;
 
 	/* 行ごとに処理する */
-	cmd_size = 0;
-	line = 0;
 	result = true;
 	while (result) {
 #ifdef USE_DEBUGGER
-		if (line > SCRIPT_LINE_SIZE) {
+		if (script_lines > SCRIPT_LINE_SIZE) {
 			log_script_line_size();
 			result = false;
 			break;
@@ -815,10 +858,56 @@ static bool read_script_from_file(const char *fname)
 			break;
 
 		/* 最大コマンド数をチェックする */
-		if (line >= SCRIPT_CMD_SIZE) {
+		if (script_lines >= SCRIPT_CMD_SIZE) {
 			log_script_size(SCRIPT_CMD_SIZE);
 			result = false;
 			break;
+		}
+
+		/* インクルードを処理する */
+		if (strncmp(buf, MACRO_INC, strlen(MACRO_INC)) == 0) {
+			if (is_included) {
+				/* 二重のインクルードはできない */
+				log_script_deep_include(&buf[strlen(MACRO_INC)]);
+#ifdef USE_DEBUGGER
+				/* デバッガ動作の場合、コメント扱いにして継続する */
+				comment_text[script_lines] = strdup(buf);
+				if (comment_text[script_lines] == NULL) {
+					log_memory();
+					return false;
+				}
+				is_parse_error = false;
+#else
+				/* エンジン本体の動作の場合、エラーとする */
+				result = false;
+				break;
+#endif
+			}
+#ifdef USE_DEBUGGER
+			if (!add_comment_line("<!-- // using %s", &buf[strlen(MACRO_INC)]))
+				break;
+#endif
+			/* １階層だけ再帰呼び出しを行う */
+			if (!read_script_from_file(&buf[strlen(MACRO_INC)], true)) {
+#ifdef USE_DEBUGGER
+				/* デバッガ動作の場合、コメント扱いにして継続する */
+				comment_text[script_lines] = strdup(buf);
+				if (comment_text[script_lines] == NULL) {
+					log_memory();
+					return false;
+				}
+				is_parse_error = false;
+#else
+				/* エンジン本体の動作の場合、エラーとする */
+				result = false;
+				break;
+#endif
+			}
+#ifdef USE_DEBUGGER
+			if (!add_comment_line("--> // using %s", &buf[strlen(MACRO_INC)]))
+				break;
+#endif
+			continue;
 		}
 
 		/* ロケールを処理する */
@@ -838,8 +927,8 @@ static bool read_script_from_file(const char *fname)
 		case '#':
 #ifdef USE_DEBUGGER
 			/* コメントを保存する */
-			comment_text[line] = strdup(buf);
-			if (comment_text[line] == NULL) {
+			comment_text[script_lines] = strdup(buf);
+			if (comment_text[script_lines] == NULL) {
 				log_memory();
 				return false;
 			}
@@ -849,7 +938,7 @@ static bool read_script_from_file(const char *fname)
 			break;
 		case '@':
 			/* 命令行をパースする */
-			if (!parse_insn(cmd_size, fname, line, buf, top)) {
+			if (!parse_insn(cmd_size, fname, script_lines, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
 					cmd_size++;
@@ -866,7 +955,7 @@ static bool read_script_from_file(const char *fname)
 			break;
 		case '*':
 			/* セリフ行をパースする */
-			if (!parse_serif(cmd_size, fname, line, buf, top)) {
+			if (!parse_serif(cmd_size, fname, script_lines, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
 					cmd_size++;
@@ -883,7 +972,7 @@ static bool read_script_from_file(const char *fname)
 			break;
 		case ':':
 			/* ラベル行をパースする */
-			if (!parse_label(cmd_size, fname, line, buf, top)) {
+			if (!parse_label(cmd_size, fname, script_lines, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
 					cmd_size++;
@@ -900,7 +989,7 @@ static bool read_script_from_file(const char *fname)
 			break;
 		default:
 			/* メッセージ行をパースする */
-			if (!parse_message(cmd_size, fname, line, buf, top)) {
+			if (!parse_message(cmd_size, fname, script_lines, buf, top)) {
 #ifdef USE_DEBUGGER
 				if (is_parse_error) {
 					cmd_size++;
@@ -916,10 +1005,8 @@ static bool read_script_from_file(const char *fname)
 			}
 			break;
 		}
-		line++;
+		script_lines++;
 	}
-
-	script_lines = line;
 
 	close_rfile(rf);
 
@@ -1264,6 +1351,27 @@ static bool parse_label(int index, const char *file, int line, const char *buf,
 	/* 成功 */
 	return true;
 }
+
+#ifdef USE_DEBUGGER
+/* コメント行を追加する */
+static bool add_comment_line(const char *s, ...)
+{
+	char buf[1024];
+	va_list ap;
+
+	va_start(ap, s);
+	vsnprintf(buf, sizeof(buf), s, ap);
+	va_end(ap);
+
+	comment_text[script_lines] = strdup(buf);
+	if (comment_text[script_lines] == NULL) {
+		log_memory();
+		return false;
+	}
+	script_lines++;
+	return true;
+}
+#endif
 
 #ifdef USE_DEBUGGER
 /*

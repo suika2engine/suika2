@@ -43,6 +43,7 @@ void log_empty_conf_string(const char *key);
 void log_wave_error(const char *fname);
 void log_invalid_msgbox_size(void);
 void log_script_exec_footer(void);
+void log_script_deep_include(const char *inc_name);
 void log_script_command_not_found(const char *name);
 void log_script_empty_serif(void);
 void log_script_ch_position(const char *pos);

@@ -271,6 +271,20 @@ void log_script_exec_footer(void)
 }
 
 /*
+ * ２階層目のインクルードのエラーを記録する
+ */
+void log_script_deep_include(const char *inc_name)
+{
+	if (is_english_mode())
+		log_error("Include within include files is not supported yet."
+			  " \"%s\".\n", inc_name);
+	else
+		log_error(U8("インクルードファイル内でのインクルードは")
+			  U8("まだサポートされていません。 \"%s\"\n"),
+			  inc_name);
+}
+
+/*
  * コマンド名がみつからないエラーを記録する
  */
 void log_script_command_not_found(const char *name)

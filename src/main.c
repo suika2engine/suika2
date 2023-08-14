@@ -74,6 +74,10 @@ static bool flag_save_load_enabled = true;
 /* 割り込み不可モードであるか */
 static bool flag_non_interruptible;
 
+/* ペンの位置 */
+static int saved_pen_x;
+static int saved_pen_y;
+
 /* 前方参照 */
 static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont);
 
@@ -423,10 +427,11 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		if (!retrospect_command(x, y, w, h))
 			return false;
 		break;
-	case COMMAND_SWITCH:
-	case COMMAND_NEWS:
 	case COMMAND_CHOOSE:
-	case COMMAND_SELECT:
+	case COMMAND_ICHOOSE:
+	case COMMAND_SWITCH:	/* deprecated */
+	case COMMAND_NEWS:	/* deprecated */
+	case COMMAND_SELECT:	/* deprecated */
 		if (!switch_command(x, y, w, h))
 			return false;
 		break;
@@ -699,6 +704,31 @@ void set_non_interruptible(bool mode)
 bool is_non_interruptible(void)
 {
 	return flag_non_interruptible;
+}
+
+/*
+ * ペンの位置を設定する
+ */
+void set_pen_position(int x, int y)
+{
+	saved_pen_x = x;
+	saved_pen_y = y;
+}
+
+/*
+ * ペンのX座標を取得する
+ */
+int get_pen_position_x(void)
+{
+	return saved_pen_x;
+}
+
+/*
+ * ペンのX座標を取得する
+ */
+int get_pen_position_y(void)
+{
+	return saved_pen_y;
 }
 
 #ifdef USE_DEBUGGER

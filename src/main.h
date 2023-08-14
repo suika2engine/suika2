@@ -158,6 +158,14 @@ void set_non_interruptible(bool mode);
 bool is_non_interruptible(void);
 
 /*
+ * ペンの位置
+ */
+
+void set_pen_position(int x, int y);
+int get_pen_position_x(void);
+int get_pen_position_y(void);
+
+/*
  * デバッガ
  */
 #ifdef USE_DEBUGGER

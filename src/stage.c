@@ -1996,13 +1996,17 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
-
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+		
 	/* FIレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
 }
 
 /*
@@ -2257,8 +2261,14 @@ void get_collapsed_sysmenu_rect(int *x, int *y, int *w, int *h)
 void draw_stage_to_thumb(void)
 {
 	int layer_index[] = {
-		LAYER_BG, LAYER_CHB, LAYER_CHL, LAYER_CHR, LAYER_CHC,
-		LAYER_MSG, LAYER_NAME, LAYER_CHF
+		LAYER_BG,
+		LAYER_CHB,
+		LAYER_CHL,
+		LAYER_CHR,
+		LAYER_CHC,
+		LAYER_MSG,
+		LAYER_NAME,
+		LAYER_CHF
 	};
 	int i;
 
@@ -2269,10 +2279,12 @@ void draw_stage_to_thumb(void)
 	for (i = 0; i < (int)(sizeof(layer_index) / sizeof(int)); i++) {
 		if (layer_image[layer_index[i]] == NULL)
 			continue;
-		if (layer_index[i] == LAYER_MSG && !is_msgbox_visible)
-			continue;
-		if (layer_index[i] == LAYER_NAME && !is_namebox_visible)
-			continue;
+		if (layer_index[i] == LAYER_MSG)
+			if (!is_msgbox_visible)
+				continue;
+		if (layer_index[i] == LAYER_NAME)
+			if (!is_namebox_visible || conf_namebox_hidden)
+				continue;
 
 		draw_image_scale(thumb_image,
 				 conf_window_width,
