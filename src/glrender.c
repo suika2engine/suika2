@@ -600,3 +600,13 @@ static void draw_elements(int dst_left, int dst_top,
 	/* 図形を描画する */
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 }
+
+#ifdef WIN
+/*
+ * 全画面表示のときのスクリーンオフセットを指定する
+ */
+void opengl_set_screen_offset(int x, int y)
+{
+	glViewport(x, y, conf_window_width, conf_window_height);
+}
+#endif
