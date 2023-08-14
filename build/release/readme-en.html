@@ -42,7 +42,7 @@
 </head>
 <body>
 
-<h1>Suika 2/12.23</h1>
+<h1>Suika 2/12.24</h1>
 <p>Copyright (c) 2023 the Suika2 Development Team. All rights reserved.</p>
 
 <h2>About Suika2</h2>
@@ -153,24 +153,72 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
   <li>Use the Script Generator <a href="https://suika2.com/en/scriptgen.html">here</a>.</li>
 </ul>
 
-<h2>Contributors</h2>
+<h2>The List of The Contributors on GitHub</h2>
 <ul>
-  <li><code>ktabata</code> Programmer</li>
-  <li><code>innocentvoice</code> Maintainer</li>
-  <li><code>KyouBrayden</code> Web, Documentation</li>
+  <li><code>ktabata</code> Lead Developer, Main Programmer</li>
+  <li><code>innocentvoice</code> Maintainer, Community Moderator</li>
+  <li><code>KyouBrayden</code> Kirara, macOS, Documentation</li>
   <li><code>MaxMorgan</code> GUI Designer</li>
-  <li><code>MATSUNO Seiji</code> Advisor</li>
+  <li><code>MATSUNO Seiji</code> Quality Management</li>
   <li><code>moyashi170607</code> VScode snippets</li>
-  <li><code>DevSeed</code> Switch port</li>
-  <li><code>Cvar1984</code> Quality improvement on Android</li>
-  <li><code>RaZZlom</code> Quality improvement on Android</li>
-  <li><code>2439905184</code> Chinese Translation, Android, GitHub Actions</li>
-  <li><code>sherlach</code> English Demo</li>
-  <li><code>Maikuolan</code> English Translation</li>
+  <li><code>DevSeed</code> Switch</li>
+  <li><code>Cvar1984</code> Android</li>
+  <li><code>RaZZlom</code> Android</li>
+  <li><code>2439905184</code> Chinese, Android, CI</li>
+  <li><code>sherlach</code> English</li>
+  <li><code>Maikuolan</code> English</li>
+  <li>...And here is the placeholder for you!</li>
 </ul>
 
 <h2>Release History</h2>
 <ul>
+  <li>Suika 2/12.24 14th August 2023
+    <ul>
+			<li>
+				Implemented <code>using</code> keyword to import external macros
+				(Thanks to かめの-san!)
+			</li>
+			<li>
+				Implemented the export of config to local save files
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				Implemented the save data obfuscation
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				Implemented a language choose ability
+				(Thanks to Max, Kyou, usagi_hiyoko-san!)
+			</li>
+			<li>
+				Changed to separated font changes into global (GUI) and local (WMS)
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				Fixed a bug that Suika2 crashes when letters overflow outside the message box in Tategaki mode
+				(Thanks to MATSUNO Seiji-san!)
+			</li>
+			<li>
+				Fixed a bug that namebox appears in save thumbs when in namebox is hidden
+			</li>
+			<li>
+				Fixed a bug that choose options don't appear in save thumbs
+				(Thanks to クロウズの嫁つる-san!)
+			</li>
+			<li>
+				Changed to use a previous message for a save description, instead of a first choose option
+				(Thanks to クロウズの嫁つる-san!)
+			</li>
+			<li>
+				Fixed a bug that screen shifts when in full screen mode in Windows and a resolution is odd
+				(Thanks to a Twitter user)
+			</li>
+			<li>
+				Fixed a bug that Japanese quotations appears twice in history
+				(Thanks to usagi_hiyoko-san!)
+			</li>
+    </ul>
+	</li>
   <li>Suika 2/12.23 12th August 2023
     <ul>
       <li>Made it possible to hide system menu in choose command (Thanks to usagi_hiyoko-san!)</li>
