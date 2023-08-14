@@ -355,6 +355,7 @@ static bool is_fast_forward_by_click(void);
 static int calc_frame_chars_by_lap(void);
 static void process_escape_sequence(void);
 static void process_escape_sequence_lf(void);
+static bool process_escape_sequence_color(void);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
@@ -876,11 +877,15 @@ static bool init_msg_top(void)
 /* エスケープ文字かチェックする */
 static bool is_escape_sequence_char(char c)
 {
+	/* 改行 */
 	if (c == 'n')
 		return true;
 
-	/* TODO: 文字色などの文字を追加 */
+	/* 文字色 */
+	if (c == '#')
+		return true;
 
+	/* TODO: 文字サイズなどの文字を追加 */
 	return false;
 }
 
@@ -1053,6 +1058,12 @@ static int count_chars(const char *msg)
 			if (*(msg + 1) == 'n') {
 				/* 改行 */
 				msg += 2;
+			} else if (*(msg + 1) == '#') {
+				/* 色指定 */
+				if (strlen(msg + 2) >= 6)
+					msg += 8;
+				else
+					break;
 			} else {
 				/*
 				 * 不正なエスケープシーケンス
@@ -2673,6 +2684,10 @@ static void process_escape_sequence(void)
 		if (*(msg_cur + 1) == 'n') {
 			/* 改行 */
 			process_escape_sequence_lf();
+		} else if (*(msg_cur + 1) == '#') {
+			/* 色指定 */
+			if (!process_escape_sequence_color())
+				break; /* 不正: 読み飛ばさない */
 		} else {
 			/*
 			 * 不正なエスケープシーケンス
@@ -2694,6 +2709,31 @@ static void process_escape_sequence_lf(void)
 		pen_y = conf_msgbox_margin_top;
 	}
 	msg_cur += 2;
+}
+
+/* 色指定("\\#RRGGBB")を処理する */
+static bool process_escape_sequence_color(void)
+{
+	char color_code[7];
+	uint32_t r, g, b;
+	int rgb;
+
+	/* 長さが足りない場合 */
+	if (strlen(msg_cur + 2) < 6)
+		return false;
+
+	/* カラーコードを読む */
+	memcpy(color_code, msg_cur + 2, 6);
+	color_code[6] = '\0';
+	rgb = 0;
+	sscanf(color_code, "%x", &rgb);
+	r = (rgb >> 16) & 0xff;
+	g = (rgb >> 8) & 0xff;
+	b = rgb & 0xff;
+	body_color = make_pixel_slow(0xff, r, g, b);
+
+	msg_cur += 8;
+	return true;
 }
 
 /* ワードラッピングを処理する */

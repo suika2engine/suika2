@@ -283,6 +283,7 @@ static bool init_history_buttons(void);
 static void update_history_buttons(void);
 static void draw_history_button(int button_index);
 static void draw_history_text_item(int button_index);
+static bool process_escape_sequence(int button_index, uint32_t code);
 static void process_button_draw_history(int button_index);
 static void process_history_scroll(int delta);
 static void update_history_top(int button_index);
@@ -1793,25 +1794,21 @@ static void draw_history_text_item(int button_index)
 		/* エスケープの処理 */
 		if (!escaped) {
 			/* エスケープ文字であるとき */
-			if (c == CHAR_BACKSLASH || c == CHAR_YENSIGN) {
+			if (c == '\\' || c == CHAR_YENSIGN) {
 				escaped = true;
 				button[button_index].rt.top += mblen;
 				continue;
 			}
 		} else if (escaped) {
-			/* エスケープされた文字であるとき */
-			if (c == CHAR_SMALLN) {
-				button[button_index].rt.pen_y +=
-					conf_msgbox_margin_line;
-				button[button_index].rt.pen_x =
-					button[button_index].margin;
+			if (!process_escape_sequence(button_index, c)) {
+				/* 不明なエスケープシーケンス */
+				log_info("Unknown escape sequece in \"%s\"",
+					 text);
 				escaped = false;
-				button[button_index].rt.top += mblen;
+			} else {
+				/* 正常なエスケープシーケンス */
 				continue;
 			}
-
-			/* 不明なエスケープシーケンスの場合 */
-			escaped = false;
 		}
 
 		/* 描画する文字の幅を取得する */
@@ -1821,9 +1818,8 @@ static void draw_history_text_item(int button_index)
 		if ((button[button_index].rt.pen_x + width +
 		     button[button_index].margin >=
 		     button[button_index].width) &&
-		    (c != CHAR_SPACE && c != CHAR_COMMA && c != CHAR_PERIOD &&
-		     c != CHAR_COLON && c != CHAR_SEMICOLON &&
-		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
+		    (c != ' ' && c != ',' && c != '.' && c != ':' &&
+		     c != ';' && c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
 			button[button_index].rt.pen_y +=
 				conf_msgbox_margin_line;
 			button[button_index].rt.pen_x =
@@ -1837,6 +1833,47 @@ static void draw_history_text_item(int button_index)
 		button[button_index].rt.pen_x += width;
 		button[button_index].rt.top += mblen;
 	}
+}
+
+/* エスケープシーケンスを処理する */
+static bool process_escape_sequence(int button_index, uint32_t code)
+{
+	const char *c;
+	uint32_t r, g, b;
+	int rgb;
+	char color_code[7];
+
+	c = button[button_index].rt.top;
+
+	/* 改行 */
+	if (code == 'n') {
+		button[button_index].rt.pen_y += conf_msgbox_margin_line;
+		button[button_index].rt.pen_x = button[button_index].margin;
+		button[button_index].rt.top += 1;
+		return true;
+	}
+
+	/* フォントカラー */
+	if (code == '#') {
+		/* カラーコードがない場合 */
+		if (strlen(c + 1) < 6)
+			return false;
+
+		/* カラーコードを読む */
+		rgb = 0;
+		memcpy(color_code, c + 1, 6);
+		color_code[6] = '\0';
+		sscanf(color_code, "%x", &rgb);
+		r = (rgb >> 16) & 0xff;
+		g = (rgb >> 8) & 0xff;
+		b = rgb & 0xff;
+		button[button_index].rt.color = make_pixel_slow(0xff, r, g, b);
+
+		button[button_index].rt.top += 7;
+		return true;
+	}
+
+	return false;
 }
 
 /* ヒストリボタンの描画を行う */
@@ -2097,9 +2134,8 @@ static void draw_message(int index)
 
 		/* ボタン領域の幅を超える場合、改行する */
 		if (button[index].rt.pen_x + cw >= button[index].width &&
-		    (c != CHAR_SPACE && c != CHAR_COMMA && c != CHAR_PERIOD &&
-		     c != CHAR_COLON && c != CHAR_SEMICOLON &&
-		     c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
+		    (c != ' ' && c != ',' && c != '.' && c != ':' &&
+		     c != ';' && c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
 			button[index].rt.pen_y += conf_msgbox_margin_line;
 			button[index].rt.pen_x = 0;
 			if (*button[index].rt.top == ' ') {
