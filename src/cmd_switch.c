@@ -164,6 +164,9 @@ static bool is_first_frame;
 /* 子選択肢の最初の描画であるか */
 static bool is_child_first_frame;
 
+/* センタリングするか */
+static bool is_centered;
+
 /*
  * システムメニュー
  *  - TODO: cmd_message.cと共通化する
@@ -225,6 +228,7 @@ static bool postprocess(void);
 /* 初期化 */
 static bool init(void);
 static bool get_choose_info(void);
+static bool get_ichoose_info(void);
 static bool get_select_info(void);
 static bool get_switch_parents_info(void);
 static bool get_switch_children_info(void);
@@ -386,6 +390,8 @@ bool init(void)
 	selected_parent_index = -1;
 	pointed_child_index = -1;
 
+	is_centered = true;
+
 	is_first_frame = true;
 	is_child_first_frame = false;
 
@@ -406,6 +412,10 @@ bool init(void)
 		/* @chooseコマンドの引数情報を取得する */
 		if (!get_choose_info())
 			return false;
+	} else if (type == COMMAND_ICHOOSE) {
+		/* @ichooseコマンドの引数情報を取得する */
+		if (!get_ichoose_info())
+			return false;
 	} else if (type == COMMAND_SELECT) {
 		/* @selectコマンドの引数情報を取得する */
 		if (!get_select_info())
@@ -422,7 +432,10 @@ bool init(void)
 
 	/* 名前ボックス、メッセージボックスを非表示にする */
 	show_namebox(false);
-	show_msgbox(false);
+	if (type != COMMAND_ICHOOSE)
+		show_msgbox(false);
+	else
+		show_msgbox(true);
 
 	/* オートモードを終了する */
 	if (is_auto_mode()) {
@@ -474,6 +487,54 @@ static bool get_choose_info(void)
 				&parent_button[i].y,
 				&parent_button[i].w,
 				&parent_button[i].h);
+	}
+
+	return true;
+}
+
+
+/* @ichooseコマンドの引数情報を取得する */
+static bool get_ichoose_info(void)
+{
+	const char *label, *msg;
+	int i, pen_y;
+
+	memset(parent_button, 0, sizeof(parent_button));
+	memset(child_button, 0, sizeof(child_button));
+
+	is_centered = false;
+	pen_y = get_pen_position_y() + conf_msgbox_margin_line;
+
+	/* 選択肢の情報を取得する */
+	for (i = 0; i < PARENT_COUNT; i++) {
+		/* ラベルを取得する */
+		label = get_string_param(CHOOSE_LABEL(i));
+		if (strcmp(label, "") == 0)
+			break;
+
+		/* メッセージを取得する */
+		msg = get_string_param(CHOOSE_MESSAGE(i));
+		if (strcmp(msg, "") == 0) {
+			log_script_choose_no_message();
+			log_script_exec_footer();
+			return false;
+		}
+
+		/* ボタンの情報を保存する */
+		parent_button[i].msg = msg;
+		parent_button[i].label = label;
+		parent_button[i].has_child = false;
+		parent_button[i].child_count = 0;
+
+		/* 座標を計算する */
+		get_switch_rect(0,
+				&parent_button[i].x,
+				&parent_button[i].y,
+				&parent_button[i].w,
+				&parent_button[i].h);
+		parent_button[i].x = conf_msgbox_x + conf_msgbox_margin_left;
+		parent_button[i].y = pen_y;
+		pen_y += conf_msgbox_margin_line;
 	}
 
 	return true;
@@ -1164,7 +1225,10 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 	}
 
 	/* 描画位置を決める */
-	xx = x + (w - get_utf8_width(t)) / 2;
+	if (is_centered)
+		xx = x + (w - get_utf8_width(t)) / 2;
+	else
+		xx = x;
 	y += is_news ? conf_news_text_margin_y : conf_switch_text_margin_y;
 
 	/* 1文字ずつ描画する */

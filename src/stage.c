@@ -1996,13 +1996,17 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
-
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
+		
 	/* FIレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
 }
 
 /*

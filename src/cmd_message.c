@@ -3394,6 +3394,9 @@ static bool is_skippable(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	/* ペンの位置を保存する */
+	set_pen_position(pen_x, pen_y);
+
 	/* PCMストリームの再生を終了する */
 	if (!conf_voice_stop_off)
 		set_mixer_input(VOICE_STREAM, NULL);
