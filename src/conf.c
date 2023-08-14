@@ -1114,6 +1114,7 @@ static bool read_conf(void);
 static bool save_value(const char *k, const char *v);
 static bool check_conf(void);
 static void set_locale_mapping(void);
+static bool overwrite_config_locale_force(const char *val);
 static bool overwrite_config_font_file(const char *val);
 
 /*
@@ -1352,7 +1353,10 @@ static void set_locale_mapping(void)
 	};
 
 	/* システムのロケールを取得する */
-	locale = get_system_locale();
+	if (conf_locale_force == NULL)
+		locale = get_system_locale();
+	else
+		locale = conf_locale_force;
 	assert(locale != NULL);
 
 	/* システムのロケールと一致するコンフィグを探す */
@@ -1388,6 +1392,7 @@ bool overwrite_config(const char *key, const char *val)
 		const char *key;
 		bool (*func)(const char *val);
 	} special_items[] = {
+		{"locale.force", overwrite_config_locale_force},
 		{"font.file", overwrite_config_font_file},
 	};
 	int i;
@@ -1445,6 +1450,29 @@ bool overwrite_config(const char *key, const char *val)
 		assert(INVALID_CONFIG_TYPE);
 		break;
 	}
+	return true;
+}
+
+/* locale.forceコンフィグの書き換えを行う */
+static bool overwrite_config_locale_force(const char *val)
+{
+	assert(val != NULL);
+
+	if (conf_locale_force != NULL) {
+		free(conf_locale_force);
+		conf_locale_force = NULL;
+	}
+
+	if (strcmp(val, "") != 0) {
+		conf_locale_force = strdup(val);
+		if (conf_locale_force == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+
+	init_locale_code();
+	set_locale_mapping();
 	return true;
 }
 
