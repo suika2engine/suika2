@@ -1807,6 +1807,7 @@ static void draw_history_text_item(int button_index)
 				escaped = false;
 			} else {
 				/* 正常なエスケープシーケンス */
+				escaped = false;
 				continue;
 			}
 		}
@@ -1870,6 +1871,16 @@ static bool process_escape_sequence(int button_index, uint32_t code)
 		button[button_index].rt.color = make_pixel_slow(0xff, r, g, b);
 
 		button[button_index].rt.top += 7;
+		return true;
+	}
+
+	/* フォントサイズ */
+	if (code == '@') {
+		/* サイズがない場合 */
+		if (strlen(c + 1) < 3)
+			return false;
+		
+		button[button_index].rt.top += 4;
 		return true;
 	}
 

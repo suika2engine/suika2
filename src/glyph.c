@@ -584,6 +584,22 @@ bool isgraph_extended(const char **mbs, uint32_t *wc)
 }
 
 /*
+ * フォントサイズを指定する
+ */
+bool set_font_size(int size)
+{
+	FT_Error err;
+
+	/* 文字サイズをセットする */
+	err = FT_Set_Pixel_Sizes(face, 0, (FT_UInt)size);
+	if (err != 0) {
+		log_api_error("FT_Set_Pixel_Sizes");
+		return false;
+	}
+	return true;
+}
+
+/*
  * SSEバージョニングを行わない場合
  */
 #ifndef SSE_VERSIONING

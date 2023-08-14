@@ -302,7 +302,7 @@ static void put_space(void);
 static bool register_message_for_history(const char *msg);
 static char *concat_serif(const char *name, const char *serif);
 static int count_chars(const char *msg);
-static void init_colors(void);
+static void init_colors_and_size(void);
 static bool init_serif(int *x, int *y, int *w, int *h);
 static bool check_play_voice(void);
 static bool play_voice(void);
@@ -356,6 +356,7 @@ static int calc_frame_chars_by_lap(void);
 static void process_escape_sequence(void);
 static void process_escape_sequence_lf(void);
 static bool process_escape_sequence_color(void);
+static bool process_escape_sequence_size(void);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
@@ -601,8 +602,8 @@ static bool init(int *x, int *y, int *w, int *h)
 	if (!init_msg_top())
 		return false;
 
-	/* 文字色の初期化を行う */
-	init_colors();
+	/* 文字色とサイズの初期化を行う */
+	init_colors_and_size();
 
 	/* セリフ固有の初期化を行う */
 	if (!init_serif(x, y, w, h))
@@ -1064,6 +1065,12 @@ static int count_chars(const char *msg)
 					msg += 8;
 				else
 					break;
+			} else if (*(msg + 1) == '@') {
+				/* サイズ指定 */
+				if (strlen(msg + 2) >= 3)
+					msg += 5;
+				else
+					break;
 			} else {
 				/*
 				 * 不正なエスケープシーケンス
@@ -1087,8 +1094,8 @@ static int count_chars(const char *msg)
 	return count;
 }
 
-/* 文字色を求める */
-static void init_colors(void)
+/* 文字色とサイズを求める */
+static void init_colors_and_size(void)
 {
 	int i;
 
@@ -1096,7 +1103,10 @@ static void init_colors(void)
 	if (gui_sys_flag)
 		return;
 
-	/* まずデフォルトの色をロードする */
+	/* フォントサイズを設定する */
+	set_font_size(conf_font_size);
+
+	/* 色は、まずデフォルトの色をロードする */
 	body_color = make_pixel_slow(0xff,
 				     (pixel_t)conf_font_color_r,
 				     (pixel_t)conf_font_color_g,
@@ -2688,6 +2698,10 @@ static void process_escape_sequence(void)
 			/* 色指定 */
 			if (!process_escape_sequence_color())
 				break; /* 不正: 読み飛ばさない */
+		} else if (*(msg_cur + 1) == '@') {
+			/* サイズ指定 */
+			if (!process_escape_sequence_size())
+				break; /* 不正: 読み飛ばさない */
 		} else {
 			/*
 			 * 不正なエスケープシーケンス
@@ -2733,6 +2747,31 @@ static bool process_escape_sequence_color(void)
 	body_color = make_pixel_slow(0xff, r, g, b);
 
 	msg_cur += 8;
+	return true;
+}
+
+/* サイズ指定("\\@xxx")を処理する */
+static bool process_escape_sequence_size(void)
+{
+	char size_spec[4];
+	int size;
+
+	/* 長さが足りない場合 */
+	if (strlen(msg_cur + 2) < 3)
+		return false;
+
+	/* サイズを読む */
+	size_spec[0] = *(msg_cur + 2);
+	size_spec[1] = *(msg_cur + 3);
+	size_spec[2] = *(msg_cur + 4);
+	size_spec[3] = '\0';
+	size = 0;
+	sscanf(size_spec, "%d", &size);
+
+	/* フォントサイズを変更する */
+	set_font_size(size);
+
+	msg_cur += 5;
 	return true;
 }
 
