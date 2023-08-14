@@ -112,7 +112,7 @@
 @音量 トラック=音楽 音量=0.5 秒=1.0
 @キャラ 位置=中央 消去 秒=1.0
 
-*？？？*006.ogg*（あ、言い忘れてた。私の名前はみどり。この田舎町で女子高生をやってる。家は農家だよ。）
+*？？？*006.ogg*（あ、言い忘れてた。私の名前は\#00ff00みどり\#ffffff。この田舎町で女子高生をやってる。家は農家だよ。）
 
 @音量 トラック=音楽 音量=1.0 秒=1.0
 @キャラ 位置=中央 ファイル=001-angry.png 秒=1.0
@@ -276,7 +276,7 @@ Macアプリでは、macOS 10.13以降で動作することを確認していま
 
 @vol track=bgm volume=1.0 duration=1.0
 @ch position=center file=001-fun.png duration=1.0
-*みどり*023.ogg*何かわからないことがあったら、いつでも midori@luxion.jp までメールしてよ。
+*みどり*023.ogg*何かわからないことがあったら、いつでも \#ff0000midori@luxion.jp\#ffffff までメールしてよ。
 
 @vol track=bgm volume=0.5 duration=1.0
 @ch position=center file=none duration=1.0
