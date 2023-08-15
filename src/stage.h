@@ -346,9 +346,9 @@ void lock_draw_char_on_fo_fi(void);
 void unlock_draw_char_on_fo_fi(void);
 
 /* FO/FIの2レイヤに文字を描画する */
-int draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
-		       pixel_t fo_outline_color, pixel_t fi_body_color,
-		       pixel_t fi_outline_color);
+void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
+			pixel_t fo_outline_color, pixel_t fi_body_color,
+			pixel_t fi_outline_color, int *ret_w, int *ret_h);
 
 /* FO/FIの2レイヤに画像を描画する */
 void draw_image_on_fo_fi(int x, int y, struct image *img);

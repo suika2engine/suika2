@@ -3372,9 +3372,9 @@ void unlock_draw_char_on_fo_fi(void)
 /*
  * FO/FIの2レイヤに文字を描画する
  */
-int draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
-		       pixel_t fo_outline_color, pixel_t fi_body_color,
-		       pixel_t fi_outline_color)
+void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
+			pixel_t fo_outline_color, pixel_t fi_body_color,
+			pixel_t fi_outline_color, int *ret_w, int *ret_h)
 {
 	int w, h;
 
@@ -3384,7 +3384,8 @@ int draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
 	draw_char_on_layer(LAYER_FI, x, y, wc, fi_body_color, fi_outline_color,
 			   &w, &h);
 
-	return w;
+	*ret_w = w;
+	*ret_h = h;
 }
 
 /*
