@@ -118,6 +118,13 @@ static bool init(void)
 	set_ch_file_name(CH_LEFT, NULL);
 	set_ch_file_name(CH_CENTER, NULL);
 
+	/* メッセージボックスを消す (msgbox.show.on.bg=2) */
+	if (conf_msgbox_show_on_bg == 2) {
+		show_namebox(false);
+		show_msgbox(false);
+	}
+	show_click(false);
+
 	/* フェードしない場合か、キーが押されている場合 */
 	if ((span == 0) 
 	    ||
@@ -140,12 +147,13 @@ static bool init(void)
 		reset_stop_watch(&sw);
 	}
 
-	/* メッセージボックスを消す */
-	if (!conf_msgbox_show_on_bg) {
+	/* メッセージボックスを消す (msgbox.show.on.bg=0 or 2) */
+	if (conf_msgbox_show_on_bg == 0 ||
+	    conf_msgbox_show_on_bg == 2) {
 		show_namebox(false);
 		show_msgbox(false);
 	}
-	show_click(false);
+
 	return true;
 }
 
