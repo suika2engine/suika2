@@ -1,14 +1,14 @@
-About the files in this folder
- - These files enables you to distribute your game for Web browsers
- - Please upload files to your server
- - You can't run a game by opening HTML file on you local machine
+About the files in this folder:
+ - These files enable you to distribute your game for Web browsers
+ - Please upload these files to your server
+ - You can't run a game by opening these files on your local machine
 
-Steps
-  1. Generate data01.arc file using suika-pro.exe, then copy it to this folder
+Steps:
+  1. Generate the data01.arc file using suika-pro.exe (or platform equivalent), and copy it to this folder
   2. Upload the files in this folder to your Web site
-  3. If you want to change the tab name of the browser, edit index.html and change "Suika2" to your app name
+  3. If you want, you can change the displayed tab-title by changing the 'Suika2' title element in index.html
 
 Caution
- - Users have to download whole game data whenever access
- - Insert a click wait by "@click" at the beginning of your game script because browsers allow sound output after a first click
- - For iPhone/iPad/Android, right click is mapped to two finger tap
+ - Users must download all game data whenever they access the game
+ - Insert a click-wait with "@click" at the beginning of your game script (browsers allow sound output after the first click)
+ - For iPhone/iPad/Android, right click is mapped to a tap with two fingers
