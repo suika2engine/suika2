@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdk 33
     ndkVersion "24.0.8215888"
     defaultConfig {
         applicationId "jp.luxion.suika"
-        minSdkVersion 15
-        targetSdkVersion 30
-        versionCode 2
-        versionName "2.11.10"
+        minSdkVersion 31
+        targetSdkVersion 33
+        versionCode 4
+        versionName "2.12.24"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         externalNativeBuild {
             cmake {
@@ -23,7 +23,6 @@ android {
     }
     buildTypes {
         release {
-            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -33,9 +32,11 @@ android {
             path "CMakeLists.txt"
         }
     }
-    lintOptions {
+    lint {
         abortOnError false
     }
+    namespace 'jp.luxion.suika'
+    buildToolsVersion '33.0.1'
 }
 
 dependencies {
