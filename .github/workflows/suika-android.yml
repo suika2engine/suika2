@@ -19,10 +19,11 @@ jobs:
           unzip commandlinetools-linux-8512546_latest.zip
           export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
           export ANDROID_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          sudo update-alternatives --remove-all /usr/bin/java
-          sudo update-alternatives --remove-all /usr/bin/javac
+          sudo update-alternatives --remove-all java
+          sudo update-alternatives --remove-all javac
           sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 999
           sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac 999
+          export PAHT=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH
           yes | ANDROID_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           ANDROID_HOME=/usr/lib/jvm/java-17-openjdk-amd64 gradle clean || true
           ANDROID_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew || true
