@@ -21,6 +21,8 @@
  *  - 2022/07/28 コンフィグに対応
  *  - 2022/08/08 セーブ・ロード・ヒストリをGUIに変更
  *  - 2023/06/19 リファクタリング
+ *  - 2023/08/14 文字色、サイズの変更を実装
+ *  - 2023/08/19 インラインウェイトの実装
  */
 
 /*
@@ -205,6 +207,23 @@ static bool is_auto_mode_wait;
 static stop_watch_t auto_sw;
 
 /*
+ * インラインウェイト
+ */
+
+/* インラインウェイト中であるか */
+static bool is_inline_wait;
+
+/* インラインウェイトの待ち時間 */
+static float inline_wait_time;
+
+/* インラインウェイトで待ったトータルの時間 */
+static float inline_wait_time_total;
+
+/* インラインウェイトの経過時刻を表すストップウォッチ */
+static stop_watch_t inline_sw;
+
+
+/*
  * コマンドが開始されたときの状態 
  */
 
@@ -291,7 +310,7 @@ static bool postprocess(int *x, int *y, int *w, int *h);
 
 /* 初期化 */
 static bool init(int *x, int *y, int *w, int *h);
-static void init_flags(void);
+static void init_flags_and_vars(void);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool init_name_top(void);
@@ -302,6 +321,7 @@ static void put_space(void);
 static bool register_message_for_history(const char *msg);
 static char *concat_serif(const char *name, const char *serif);
 static int count_chars(const char *msg);
+static bool search_for_end_of_escape_sequence(const char **msg);
 static void init_colors_and_size(void);
 static bool init_serif(int *x, int *y, int *w, int *h);
 static bool check_play_voice(void);
@@ -357,6 +377,7 @@ static void process_escape_sequence(void);
 static void process_escape_sequence_lf(void);
 static bool process_escape_sequence_color(void);
 static bool process_escape_sequence_size(void);
+static bool process_escape_sequence_wait(void);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
@@ -431,6 +452,16 @@ bool message_command(int *x, int *y, int *w, int *h, bool *cont)
 /* 前処理を行う */
 static bool preprocess(int *x, int *y, int *w, int *h)
 {
+	/* インラインウェイトのキャンセルを処理する */
+	if (is_inline_wait) {
+		if (is_left_button_pressed || is_right_button_pressed ||
+		    is_control_pressed || is_space_pressed ||
+		    is_return_pressed || is_up_pressed || is_down_pressed ||
+		    is_page_up_pressed || is_page_down_pressed ||
+		    is_escape_pressed)
+			is_inline_wait = false;
+	}
+
 	/* オートモードを処理する */
 	if (frame_auto_mode(x, y, w, h)) {
 		/* 入力がキャプチャされたので、ここでリターンする */
@@ -586,7 +617,7 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 static bool init(int *x, int *y, int *w, int *h)
 {
 	/* フラグを初期化する */
-	init_flags();
+	init_flags_and_vars();
 
 	/* オートモードの場合の初期化を行う */
 	init_auto_mode();
@@ -598,12 +629,12 @@ static bool init(int *x, int *y, int *w, int *h)
 	if (!init_name_top())
 		return false;
 
+	/* 文字色とサイズの初期化を行う */
+	init_colors_and_size();
+
 	/* メッセージを取得する */
 	if (!init_msg_top())
 		return false;
-
-	/* 文字色とサイズの初期化を行う */
-	init_colors_and_size();
 
 	/* セリフ固有の初期化を行う */
 	if (!init_serif(x, y, w, h))
@@ -641,7 +672,7 @@ static bool init(int *x, int *y, int *w, int *h)
 }
 
 /* フラグを初期化する */
-static void init_flags(void)
+static void init_flags_and_vars(void)
 {
 	/* GUIから戻ったばかりかチェックする */
 	if (check_gui_flag()) {
@@ -691,6 +722,10 @@ static void init_flags(void)
 
 	/* 重ね塗り(dimming)でない状態にする */
 	is_dimming = false;
+
+	/* インラインウェイトでない状態にする */
+	is_inline_wait = false;
+	inline_wait_time_total = 0;
 }
 
 /* オートモードの場合の初期化処理を行う */
@@ -886,6 +921,14 @@ static bool is_escape_sequence_char(char c)
 	if (c == '#')
 		return true;
 
+	/* 文字サイズ */
+	if (c == '@')
+		return true;
+
+	/* インラインウェイト */
+	if (c == 'w')
+		return true;
+
 	/* TODO: 文字サイズなどの文字を追加 */
 	return false;
 }
@@ -964,11 +1007,23 @@ static bool register_message_for_history(const char *msg)
 			voice = NULL;
 
 		/* セリフをヒストリ画面用に登録する */
-		if (!register_message(name_top, msg, voice))
+		if (!register_message(name_top,
+				      msg,
+				      voice,
+				      body_color,
+				      body_outline_color,
+				      name_color,
+				      name_outline_color))
 			return false;
 	} else {
 		/* メッセージをヒストリ画面用に登録する */
-		if (!register_message(NULL, msg, NULL))
+		if (!register_message(NULL,
+				      msg,
+				      NULL,
+				      body_color,
+				      body_outline_color,
+				      0,
+				      0))
 			return false;
 	}
 
@@ -1056,27 +1111,22 @@ static int count_chars(const char *msg)
 	while (*msg) {
 		/* 先頭のエスケープシーケンスを読み飛ばす */
 		while (*msg == '\\') {
-			if (*(msg + 1) == 'n') {
-				/* 改行 */
+			switch (*(msg + 1)) {
+			case 'n':	/* 改行 */
 				msg += 2;
-			} else if (*(msg + 1) == '#') {
-				/* 色指定 */
-				if (strlen(msg + 2) >= 6)
-					msg += 8;
-				else
-					break;
-			} else if (*(msg + 1) == '@') {
-				/* サイズ指定 */
-				if (strlen(msg + 2) >= 3)
-					msg += 5;
-				else
-					break;
-			} else {
+				break;
+			case '#':	/* 色指定 */
+			case '@':	/* サイズ指定 */
+			case 'w':	/* インラインウェイト */
+				if (!search_for_end_of_escape_sequence(&msg))
+					return count;
+				break;
+			default:
 				/*
 				 * 不正なエスケープシーケンス
 				 *  - 読み飛ばさない
 				 */
-				break;
+				return count;
 			}
 		}
 		if (*msg == '\0')
@@ -1092,6 +1142,23 @@ static int count_chars(const char *msg)
 	}
 
 	return count;
+}
+
+/* エスケープシーケンスの終了位置を探す */
+static bool search_for_end_of_escape_sequence(const char **msg)
+{
+	const char *s;
+	int len;
+
+	s = *msg;
+	len = 0;
+	while (*s != '\0' && *s != '}')
+		s++, len++;
+	if (*s == '\0')
+		return false;
+
+	*msg += len + 1;
+	return true;
 }
 
 /* 文字色とサイズを求める */
@@ -2410,8 +2477,16 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 
 	/* 本文の描画中であるか */
 	if (!is_end_of_msg()) {
-		/* 本文を描画する */
-		draw_msgbox(x, y, w, h);
+		/* インラインウェイトを処理する */
+		if (is_inline_wait) {
+			if ((float)get_stop_watch_lap(&inline_sw) / 1000.0f >
+			    inline_wait_time)
+				is_inline_wait = false;
+		}
+		if (!is_inline_wait) {
+			/* 本文を描画する */
+			draw_msgbox(x, y, w, h);
+		}
 	} else {
 		/*
 		 * 本文の描画が完了してさらに描画しようとしているので、
@@ -2464,6 +2539,10 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	int char_count, i, mblen;
 	int glyph_width, glyph_height, ret_width, ret_height, ofs_x, ofs_y;
 
+	/*
+	 * システムGUIから戻った場合の描画ではないはず
+	 *  - ただしディミングの場合はシステムGUIから戻った場合でも描画する
+	 */
 	if (!is_dimming)
 		assert(!gui_sys_flag);
 
@@ -2478,6 +2557,8 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 
 		/* 途中のエスケープシーケンスを処理する */
 		process_escape_sequence();
+		if (is_inline_wait)
+			return;
 
 		/* ワードラッピングを処理する */
 		do_word_wrapping();
@@ -2664,8 +2745,12 @@ static int calc_frame_chars_by_lap(void)
 	if (get_text_speed() == 1.0f)
 		return total_chars - drawn_chars;
 
-	/* 経過時間(秒)を取得する */
-	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f;
+	/*
+	 * 経過時間(秒)を取得する
+	 *  - インラインウェイトの分を差し引く
+	 */
+	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f -
+		inline_wait_time_total;
 
 	/* 進捗(文字数)を求める */
 	progress = conf_msgbox_speed * lap;
@@ -2702,6 +2787,10 @@ static void process_escape_sequence(void)
 			/* サイズ指定 */
 			if (!process_escape_sequence_size())
 				break; /* 不正: 読み飛ばさない */
+		} else if (*(msg_cur + 1) == 'w') {
+			/* インラインウェイト */
+			if (!process_escape_sequence_wait())
+				break; /* 不正: 読み飛ばさない */
 		} else {
 			/*
 			 * 不正なエスケープシーケンス
@@ -2725,19 +2814,30 @@ static void process_escape_sequence_lf(void)
 	msg_cur += 2;
 }
 
-/* 色指定("\\#RRGGBB")を処理する */
+/* 色指定("\\#{RRGGBB}")を処理する */
 static bool process_escape_sequence_color(void)
 {
 	char color_code[7];
 	uint32_t r, g, b;
 	int rgb;
 
+	assert(*msg_cur == '\\');
+	assert(*(msg_cur + 1) == '#');
+
+	/* '{'をチェックする */
+	if (*(msg_cur + 2) != '{')
+		return false;
+
 	/* 長さが足りない場合 */
-	if (strlen(msg_cur + 2) < 6)
+	if (strlen(msg_cur + 3) < 6)
+		return false;
+
+	/* '}'をチェックする */
+	if (*(msg_cur + 9) != '}')
 		return false;
 
 	/* カラーコードを読む */
-	memcpy(color_code, msg_cur + 2, 6);
+	memcpy(color_code, msg_cur + 3, 6);
 	color_code[6] = '\0';
 	rgb = 0;
 	sscanf(color_code, "%x", &rgb);
@@ -2746,32 +2846,82 @@ static bool process_escape_sequence_color(void)
 	b = rgb & 0xff;
 	body_color = make_pixel_slow(0xff, r, g, b);
 
-	msg_cur += 8;
+	/* "\\#{" + "xxxxxx" + "}" */
+	msg_cur += 3 + 6 + 1;
 	return true;
 }
 
-/* サイズ指定("\\@xxx")を処理する */
+/* サイズ指定("\\@{xxx}")を処理する */
 static bool process_escape_sequence_size(void)
 {
-	char size_spec[4];
-	int size;
+	char size_spec[8];
+	int i, size;
 
-	/* 長さが足りない場合 */
-	if (strlen(msg_cur + 2) < 3)
+	assert(*msg_cur == '\\');
+	assert(*(msg_cur + 1) == '@');
+
+	/* '{'をチェックする */
+	if (*(msg_cur + 2) != '{')
 		return false;
 
-	/* サイズを読む */
-	size_spec[0] = *(msg_cur + 2);
-	size_spec[1] = *(msg_cur + 3);
-	size_spec[2] = *(msg_cur + 4);
-	size_spec[3] = '\0';
+	/* サイズ文字列を読む */
+	for (i = 0; i < (int)sizeof(size_spec) - 1; i++) {
+		if (*(msg_cur + 3 + i) == '\0')
+			return false;
+		if (*(msg_cur + 3 + i) == '}')
+			break;
+		size_spec[i] = *(msg_cur + 3 + i);
+	}
+	size_spec[i] = '\0';
+
+	/* サイズ文字列を整数に変換する */
 	size = 0;
 	sscanf(size_spec, "%d", &size);
 
 	/* フォントサイズを変更する */
 	set_font_size(size);
 
-	msg_cur += 5;
+	/* "\\@{" + "xxx" + "}" */
+	msg_cur += 3 + i + 1;
+	return true;
+}
+
+/* インラインウェイト("\\w{f.f}")を処理する */
+static bool process_escape_sequence_wait(void)
+{
+	char time_spec[16];
+	int i;
+
+	assert(*msg_cur == '\\');
+	assert(*(msg_cur + 1) == 'w');
+
+	/* '{'をチェックする */
+	if (*(msg_cur + 2) != '{')
+		return false;
+
+	/* 時間文字列を読む */
+	for (i = 0; i < (int)sizeof(time_spec) - 1; i++) {
+		if (*(msg_cur + 3 + i) == '\0')
+			return false;
+		if (*(msg_cur + 3 + i) == '}')
+			break;
+		time_spec[i] = *(msg_cur + 3 + i);
+	}
+	time_spec[i] = '\0';
+
+	/* 時間文字列を浮動小数点数に変換する */
+	inline_wait_time = 0;
+	sscanf(time_spec, "%f", &inline_wait_time);
+
+	/* インラインウェイトを開始する */
+	if (inline_wait_time > 0) {
+		is_inline_wait = true;
+		inline_wait_time_total += inline_wait_time;
+		reset_stop_watch(&inline_sw);
+	}
+
+	/* "\\w{" + "f.f" + "}" */
+	msg_cur += 3 + i + 1;
 	return true;
 }
 

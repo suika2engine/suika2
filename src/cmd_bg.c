@@ -16,6 +16,9 @@
 
 #include "suika.h"
 
+/* CGディレクトリ */
+#define CG_DIR_PREFIX "cg/"
+
 /* コマンドの経過時刻を表すストップウォッチ */
 static stop_watch_t sw;
 
@@ -100,8 +103,13 @@ static bool init(void)
 						     conf_window_height,
 						     &fname[1]);
 	} else {
-		/* イメージを読み込む */
-		img = create_image_from_file(BG_DIR, fname);
+		if (strncmp(fname, CG_DIR_PREFIX, strlen(CG_DIR_PREFIX)) == 0) {
+			/* cgからイメージを読み込む */
+			img = create_image_from_file(CG_DIR, &fname[strlen(CG_DIR_PREFIX)]);
+		} else {
+			/* bgからイメージを読み込む */
+			img = create_image_from_file(BG_DIR, fname);
+		}
 	}
 	if (img == NULL) {
 		log_script_exec_footer();
@@ -117,6 +125,13 @@ static bool init(void)
 	set_ch_file_name(CH_RIGHT, NULL);
 	set_ch_file_name(CH_LEFT, NULL);
 	set_ch_file_name(CH_CENTER, NULL);
+
+	/* メッセージボックスを消す (msgbox.show.on.bg=2) */
+	if (conf_msgbox_show_on_bg == 2) {
+		show_namebox(false);
+		show_msgbox(false);
+	}
+	show_click(false);
 
 	/* フェードしない場合か、キーが押されている場合 */
 	if ((span == 0) 
@@ -140,12 +155,13 @@ static bool init(void)
 		reset_stop_watch(&sw);
 	}
 
-	/* メッセージボックスを消す */
-	if (!conf_msgbox_show_on_bg) {
+	/* メッセージボックスを消す (msgbox.show.on.bg=0 or 2) */
+	if (conf_msgbox_show_on_bg == 0 ||
+	    conf_msgbox_show_on_bg == 2) {
 		show_namebox(false);
 		show_msgbox(false);
 	}
-	show_click(false);
+
 	return true;
 }
 

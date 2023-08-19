@@ -68,9 +68,14 @@ void cleanup_history(void)
 /*
  * メッセージを登録する
  */
-bool register_message(const char *name, const char *msg, const char *voice)
+bool register_message(const char *name, const char *msg, const char *voice,
+		      pixel_t body_color, pixel_t body_outline_color,
+		      pixel_t name_color, pixel_t name_outline_color)
 {
 	struct history *h;
+
+	UNUSED_PARAMETER(body_outline_color);
+	UNUSED_PARAMETER(name_outline_color);
 
 	/* 格納位置を求める */
 	h = &history[history_index];
@@ -94,6 +99,12 @@ bool register_message(const char *name, const char *msg, const char *voice)
 		}
 	}
 
+	/* 色のアルファ値をゼロにする */
+	body_color &= 0xffffff;
+	body_outline_color &= 0xffffff;
+	name_color &= 0xffffff;
+	name_outline_color &= 0xffffff;
+
 	/* 名前が指定されいる場合 */
 	if (name != NULL) {
 		/* "名前「メッセージ」"の形式に連結して保存する */
@@ -103,19 +114,28 @@ bool register_message(const char *name, const char *msg, const char *voice)
 				/* カッコがない場合 */
 				if (!conf_msgbox_tategaki) {
 					snprintf(tmp_text, TEXT_SIZE,
-						 U8("%s「%s」"), name, msg);
+						 "\\#{%06x}%s"
+						 U8("\\#{%06x}「%s」"),
+						 name_color, name,
+						 body_color, msg);
 				} else {
 					snprintf(tmp_text, TEXT_SIZE,
-						 U8("%s﹁%s﹂"), name, msg);
+						 "\\#{%06x}%s"
+						 U8("\\#{%06x}﹁%s﹂"),
+						 name_color, name,
+						 body_color, msg);
 				}
 			} else {
 				/* すでにカッコがある場合 */
-				snprintf(tmp_text, TEXT_SIZE, U8("%s%s"),
-					 name, msg);
+				snprintf(tmp_text, TEXT_SIZE,
+					 U8("\\#{%06x}%s\\#{%06x}%s"),
+					 name_color, name, body_color, msg);
 			}
 		} else {
 			/* 日本語以外 */
-			snprintf(tmp_text, TEXT_SIZE, "%s: %s", name, msg);
+			snprintf(tmp_text, TEXT_SIZE,
+				 "\\#{%06x}%s\\#{%06x}: %s",
+				 name_color, name, body_color, msg);
 		}
 		h->text = strdup(tmp_text);
 		if (h->text == NULL) {

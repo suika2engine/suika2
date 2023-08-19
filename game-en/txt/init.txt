@@ -20,7 +20,7 @@
 
 @vol bgm 1.0
 @bgm 00.ogg
-@bg menu-idle.png 1.0
+@bg cg/menu-idle.png 1.0
 
 :MENU
 @chapter "Menu"
@@ -77,7 +77,7 @@
 
 @vol bgm 0.5 1.0
 *???*006.ogg*Oh actually, I should probably introduce myself first, shouldn't I?
-*???*007.ogg*My name's \#00ff00Midori\#ffffff, nice to meet you!
+*???*007.ogg*My name's \#{00ff00}Midori\#{ffffff}, nice to meet you!
 *Midori*008.ogg*I'm a senior student here. If you couldn't already tell, I love watermelon, my parents even own a watermelon farm!
 
 @vol bgm 1.0 1.0
@@ -223,7 +223,7 @@ If there's anything you want to customize, but can't, please contact the Team.
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*Midori*029.ogg*If you have any questions, send me an e-mail at \#ff0000midori@suika2.com\#ffffff anytime!
+*Midori*029.ogg*If you have any questions, send me an e-mail at \#{ff0000}midori@suika2.com\#{ffffff} anytime!
 
 @vol bgm 0.5 1.0
 *Midori*031.ogg*I hope you'll send me an e-mail with your questions, feedback, issues, or even just to say hi! – See you next time!

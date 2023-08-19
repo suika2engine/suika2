@@ -511,7 +511,7 @@ window.title.chapter.disable=0
 # Message box on character change (0:hide, 1:show, optional)
 msgbox.show.on.ch=0
 
-# Message box on background change (0:hide, 1:show, optional)
+# Message box on background change (0:fade-out, 1:show, 2:hide, optional)
 msgbox.show.on.bg=0
 
 # Show the collapsed system menu while the characters/background is changing (0:hide, 1:show, optional)

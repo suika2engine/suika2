@@ -497,13 +497,19 @@ static bool get_choose_info(void)
 static bool get_ichoose_info(void)
 {
 	const char *label, *msg;
-	int i, pen_y;
+	int i, pen_x, pen_y;
 
 	memset(parent_button, 0, sizeof(parent_button));
 	memset(child_button, 0, sizeof(child_button));
 
 	is_centered = false;
-	pen_y = get_pen_position_y() + conf_msgbox_margin_line;
+	if (conf_msgbox_tategaki) {
+		pen_x = get_pen_position_x() - conf_msgbox_margin_line;
+		pen_y = conf_msgbox_y + conf_msgbox_margin_top;
+	} else {
+		pen_x = conf_msgbox_x + conf_msgbox_margin_left;
+		pen_y = get_pen_position_y() + conf_msgbox_margin_line;
+	}
 
 	/* 選択肢の情報を取得する */
 	for (i = 0; i < PARENT_COUNT; i++) {
@@ -532,9 +538,12 @@ static bool get_ichoose_info(void)
 				&parent_button[i].y,
 				&parent_button[i].w,
 				&parent_button[i].h);
-		parent_button[i].x = conf_msgbox_x + conf_msgbox_margin_left;
+		parent_button[i].x = pen_x;
 		parent_button[i].y = pen_y;
-		pen_y += conf_msgbox_margin_line;
+		if (conf_msgbox_tategaki)
+			pen_x -= conf_msgbox_margin_line;
+		else
+			pen_y += conf_msgbox_margin_line;
 	}
 
 	return true;
@@ -1193,7 +1202,7 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 static void draw_text(int x, int y, int w, const char *t, bool is_news)
 {
 	uint32_t c;
-	int mblen, xx;
+	int mblen, ret_w, ret_h;
 	pixel_t inactive_body_color, inactive_outline_color;
 	pixel_t active_body_color, active_outline_color;
 
@@ -1226,9 +1235,7 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 
 	/* 描画位置を決める */
 	if (is_centered)
-		xx = x + (w - get_utf8_width(t)) / 2;
-	else
-		xx = x;
+		x = x + (w - get_utf8_width(t)) / 2;
 	y += is_news ? conf_news_text_margin_y : conf_switch_text_margin_y;
 
 	/* 1文字ずつ描画する */
@@ -1239,12 +1246,19 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 			return;
 
 		/* 描画する */
-		xx += draw_char_on_fo_fi(xx, y, c,
-					 inactive_body_color,
-					 inactive_outline_color,
-					 active_body_color,
-					 active_outline_color);
+		draw_char_on_fo_fi(x, y, c,
+				   inactive_body_color,
+				   inactive_outline_color,
+				   active_body_color,
+				   active_outline_color,
+				   &ret_w, &ret_h);
 
+		/* 描画位置を進める */
+		if (conf_msgbox_tategaki)
+			y += ret_h;
+		else
+			x += ret_w;
+			
 		/* 次の文字へ移動する */
 		t += mblen;
 	}
