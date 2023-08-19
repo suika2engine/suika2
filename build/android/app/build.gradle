@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdk 33
-    ndkVersion "24.0.8215888"
+    ndkVersion "25.2.9519653"
     defaultConfig {
         applicationId "jp.luxion.suika"
-        minSdkVersion 31
+        minSdkVersion 33
         targetSdkVersion 33
-        versionCode 4
+        versionCode 5
         versionName "2.12.24"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         externalNativeBuild {
@@ -36,13 +36,11 @@ android {
         abortOnError false
     }
     namespace 'jp.luxion.suika'
-    buildToolsVersion '33.0.1'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
