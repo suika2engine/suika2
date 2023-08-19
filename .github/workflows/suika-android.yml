@@ -15,7 +15,7 @@ jobs:
           sudo apt-get install -y android-sdk openjdk-17-jdk-headless
           cd build/android
           ./prepare-libs.sh
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
