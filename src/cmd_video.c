@@ -45,10 +45,23 @@ bool video_command(void)
 /* 初期化する */
 static bool init(void)
 {
+	char fn[128];
 	const char *fname;
 
 	/* パラメータを取得する */
 	fname = get_string_param(VIDEO_PARAM_FILE);
+
+	/* 拡張子の自動付与を行う */
+	if (strstr(fname, ".") == NULL) {
+#if defined(WIN)
+		snprintf(fn, sizeof(fn), "%s.wmv", fname);
+#else
+		snprintf(fn, sizeof(fn), "%s.mp4", fname);
+#endif
+	} else {
+		strncpy(fn, fname, sizeof(fn) - 1);
+		fn[sizeof(fn) - 1] = '\0';
+	}
 
 	/* 再生しない場合を検出する */
 	if ((!is_non_interruptible() && get_seen() && is_control_pressed) ||
@@ -71,7 +84,7 @@ static bool init(void)
 	set_seen();
 
 	/* 動画を再生する */
-	if (!play_video(fname, is_skippable))
+	if (!play_video(fn, is_skippable))
 		return false;
 
 	/* 繰り返し実行を開始する */

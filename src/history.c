@@ -74,6 +74,9 @@ bool register_message(const char *name, const char *msg, const char *voice,
 {
 	struct history *h;
 
+	UNUSED_PARAMETER(body_outline_color);
+	UNUSED_PARAMETER(name_outline_color);
+
 	/* 格納位置を求める */
 	h = &history[history_index];
 
