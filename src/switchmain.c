@@ -574,6 +574,19 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 /*
+ * Render an image to the screen with dimming.
+ */
+void render_image_dim(int dst_left, int dst_top,
+		      struct image * RESTRICT src_image,
+		      int width, int height, int src_left, int src_top,
+		      int alpha, int bt)
+{
+	/* See also glrender.c */
+	opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
+				src_left, src_top, alpha, bt);
+}
+
+/*
  * Render an image to the screen with a rule image.
  */
 void render_image_rule(struct image * RESTRICT src_img,
