@@ -23,6 +23,7 @@
  *  - 2023/06/19 リファクタリング
  *  - 2023/08/14 文字色、サイズの変更を実装
  *  - 2023/08/19 インラインウェイトの実装
+ *  - 2023/08/19 ペン移動の実装
  */
 
 /*
@@ -131,8 +132,8 @@ static bool is_after_space;
 
 /*
  * 現在の描画位置
+ *  - メッセージボックス内の座標
  *  - 他のコマンドに移ったり、GUIから戻ってきた場合も、保持される
- *  - TODO: main.cに移動する
  */
 static int pen_x;
 static int pen_y;
@@ -378,6 +379,7 @@ static void process_escape_sequence_lf(void);
 static bool process_escape_sequence_color(void);
 static bool process_escape_sequence_size(void);
 static bool process_escape_sequence_wait(void);
+static bool process_escape_sequence_pen(void);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
@@ -913,23 +915,17 @@ static bool init_msg_top(void)
 /* エスケープ文字かチェックする */
 static bool is_escape_sequence_char(char c)
 {
-	/* 改行 */
-	if (c == 'n')
+	switch (c) {
+	case 'n': /* 改行 */
+	case '#': /* 文字色 */
+	case '@': /* 文字サイズ */
+	case 'w': /* インラインウェイト */
+	case 'p': /* ペン移動 */
 		return true;
+	default:
+		break;
+	}
 
-	/* 文字色 */
-	if (c == '#')
-		return true;
-
-	/* 文字サイズ */
-	if (c == '@')
-		return true;
-
-	/* インラインウェイト */
-	if (c == 'w')
-		return true;
-
-	/* TODO: 文字サイズなどの文字を追加 */
 	return false;
 }
 
@@ -1118,6 +1114,7 @@ static int count_chars(const char *msg)
 			case '#':	/* 色指定 */
 			case '@':	/* サイズ指定 */
 			case 'w':	/* インラインウェイト */
+			case 'p':	/* ペン移動 */
 				if (!search_for_end_of_escape_sequence(&msg))
 					return count;
 				break;
@@ -2776,27 +2773,37 @@ static void process_escape_sequence(void)
 {
 	/* エスケープシーケンスが続く限り処理する */
 	while (*msg_cur == '\\') {
-		if (*(msg_cur + 1) == 'n') {
+		switch (*(msg_cur + 1)) {
+		case 'n':
 			/* 改行 */
 			process_escape_sequence_lf();
-		} else if (*(msg_cur + 1) == '#') {
+			break;
+		case '#':
 			/* 色指定 */
 			if (!process_escape_sequence_color())
-				break; /* 不正: 読み飛ばさない */
-		} else if (*(msg_cur + 1) == '@') {
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case '@':
 			/* サイズ指定 */
 			if (!process_escape_sequence_size())
-				break; /* 不正: 読み飛ばさない */
-		} else if (*(msg_cur + 1) == 'w') {
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case 'w':
 			/* インラインウェイト */
 			if (!process_escape_sequence_wait())
-				break; /* 不正: 読み飛ばさない */
-		} else {
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case 'p':
+			/* ペン移動 */
+			if (!process_escape_sequence_pen())
+				return; /* 不正: 読み飛ばさない */
+			break;
+		default:
 			/*
 			 * 不正なエスケープシーケンス
 			 *  - 読み飛ばさない
 			 */
-			break;
+			return;
 		}
 	}
 }
@@ -2921,6 +2928,43 @@ static bool process_escape_sequence_wait(void)
 	}
 
 	/* "\\w{" + "f.f" + "}" */
+	msg_cur += 3 + i + 1;
+	return true;
+}
+
+/* ペン移動("\\p{x,y}")を処理する */
+static bool process_escape_sequence_pen(void)
+{
+	char pos_spec[32];
+	int i;
+	bool separator_found;
+		
+	assert(*msg_cur == '\\');
+	assert(*(msg_cur + 1) == 'p');
+
+	/* '{'をチェックする */
+	if (*(msg_cur + 2) != '{')
+		return false;
+
+	/* 座標文字列を読む */
+	separator_found = false;
+	for (i = 0; i < (int)sizeof(pos_spec) - 1; i++) {
+		if (*(msg_cur + 3 + i) == '\0')
+			return false;
+		if (*(msg_cur + 3 + i) == '}')
+			break;
+		if (*(msg_cur + 3 + i) == ',')
+			separator_found = true;
+		pos_spec[i] = *(msg_cur + 3 + i);
+	}
+	pos_spec[i] = '\0';
+	if (!separator_found)
+		return false;
+
+	/* 座標文字列を浮動小数点数に変換する */
+	sscanf(pos_spec, "%d,%d", &pen_x, &pen_y);
+
+	/* "\\w{" + "x,y" + "}" */
 	msg_cur += 3 + i + 1;
 	return true;
 }
