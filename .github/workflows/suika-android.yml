@@ -16,10 +16,10 @@ jobs:
           cd build/android
           ./prepare-libs.sh
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip commandlinetools-linux-8512546_latest.zip
+          unzip commandlinetools-linux-10406996_latest.zip
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
-          unset ANDROID_HOME		  
+          unset ANDROID_HOME
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
           gradle clean || true
           ./gradlew || true
