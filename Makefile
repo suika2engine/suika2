@@ -15,7 +15,7 @@ targets:
 	esac
 
 	@# Print usage
-	@echo 'You can type followwing commands:'
+	@echo 'You can type following commands:'
 	@echo '  make setup           ... install dependency libraries'
 	@echo '  make windows         ... build suika.exe'
 	@echo '  make windows-64      ... build suika-64.exe'
