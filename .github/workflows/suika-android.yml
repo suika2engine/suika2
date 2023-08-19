@@ -12,19 +12,17 @@ jobs:
       - name: Build1
         run: |
           sudo apt-get update
-          sudo apt-get install -y android-sdk openjdk-17-jdk-headless
+          sudo apt-get install -y openjdk-17-jdk-headless
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           cd build/android
           ./prepare-libs.sh
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip commandlinetools-linux-10406996_latest.zip
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export ANDROID_SDK_ROOT=`pwd`/cmdline-tools
           unset ANDROID_HOME
+          unset ANDROID_SDK_ROOT_HOME
+          yes | ./cmdline-tools/bin/sdkmanager "cmdline-tools;latest" --sdk_root=$ANDROID_SDK_ROOT
+          export ANDROID_SDK_ROOT_HOME=`pwd`/cmdline-tools/latest
           yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
-          gradle clean || true
-          ./gradlew || true
-          ./gradlew build --stacktrace || true
-          ./cmdline-tools/bin/sdkmanager "platforms;android-33" --sdk_root=$ANDROID_SDK_ROOT
           ./gradlew build --stacktrace
       - name: Upload
         uses: actions/upload-artifact@v2
