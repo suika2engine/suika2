@@ -970,6 +970,18 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 //
+// イメージを暗くレンダリングする
+//
+void render_image_dim(int dst_left, int dst_top,
+                      struct image * RESTRICT src_image,
+                      int width, int height, int src_left, int src_top,
+                      int alpha, int bt)
+{
+    opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
+                            src_left, src_top, alpha, bt);
+}
+
+//
 // 画面にイメージをルール付きでレンダリングする
 //
 void render_image_rule(struct image * RESTRICT src_img,
