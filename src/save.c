@@ -943,7 +943,10 @@ static bool deserialize_stage(struct rfile *rf)
 			return false;
 	} else {
 		set_bg_file_name(s);
-		img = create_image_from_file(BG_DIR, s);
+		if (strncmp(s, "cg/", 3) == 0)
+			img = create_image_from_file(CG_DIR, &s[3]);
+		else
+			img = create_image_from_file(BG_DIR, s);
 		if (img == NULL)
 			return false;
 	}

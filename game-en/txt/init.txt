@@ -20,7 +20,7 @@
 
 @vol bgm 1.0
 @bgm 00.ogg
-@bg menu-idle.png 1.0
+@bg cg/menu-idle.png 1.0
 
 :MENU
 @chapter "Menu"

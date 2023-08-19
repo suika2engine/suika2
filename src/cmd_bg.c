@@ -16,6 +16,9 @@
 
 #include "suika.h"
 
+/* CGディレクトリ */
+#define CG_DIR_PREFIX "cg/"
+
 /* コマンドの経過時刻を表すストップウォッチ */
 static stop_watch_t sw;
 
@@ -100,8 +103,13 @@ static bool init(void)
 						     conf_window_height,
 						     &fname[1]);
 	} else {
-		/* イメージを読み込む */
-		img = create_image_from_file(BG_DIR, fname);
+		if (strncmp(fname, CG_DIR_PREFIX, strlen(CG_DIR_PREFIX)) == 0) {
+			/* cgからイメージを読み込む */
+			img = create_image_from_file(CG_DIR, &fname[strlen(CG_DIR_PREFIX)]);
+		} else {
+			/* bgからイメージを読み込む */
+			img = create_image_from_file(BG_DIR, fname);
+		}
 	}
 	if (img == NULL) {
 		log_script_exec_footer();
