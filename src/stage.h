@@ -215,6 +215,9 @@ void get_ch_position(int pos, int *x, int *y);
 /* キャラのアルファ値を取得する */
 int get_ch_alpha(int pos);
 
+/* キャラを暗くするかを設定する */
+void set_ch_dim(int pos, bool dim);
+
 /* キャラをフェードせずにただちに切り替える */
 void change_ch_immediately(int pos, struct image *img, int x, int y,
 			   int alpha);

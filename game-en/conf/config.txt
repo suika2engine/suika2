@@ -460,34 +460,40 @@ sound.character.name1=Midori
 ### Character Message Colors
 ###
 
-serif.color1.name=Haruka
-serif.color1.r=255
-serif.color1.g=200
-serif.color1.b=200
-serif.color1.outline.r=0
-serif.color1.outline.g=0
-serif.color1.outline.b=0
+# Change colors of line (1:name-only, 0:name-and-message) (Optional)
+serif.color.name.only=1
 
-serif.color2.name=Kana
-serif.color2.r=200
-serif.color2.g=255
-serif.color2.b=200
-serif.color2.outline.r=0
-serif.color2.outline.g=0
-serif.color2.outline.b=0
-
-serif.color3.name=Chiaki
-serif.color3.r=200
-serif.color3.g=200
-serif.color3.b=255
-serif.color3.outline.r=0
-serif.color3.outline.g=0
-serif.color3.outline.b=0
+# A color definition
+serif.color1.name=Midori
+serif.color1.r=100
+serif.color1.g=255
+serif.color1.b=100
+serif.color1.outline.r=128
+serif.color1.outline.g=128
+serif.color1.outline.b=128
 
 # Continues to serif.color64, but omissible
 
-# Change colors of character names only (1:name-only, 0:name-and-message) (Optional)
-serif.color.name.only=0
+###
+### キャラクタ名と画像ファイルのマッピング
+###
+
+# Dim characters except one who is speaking (1:Dim, 1:No) (Optional)
+character.focus=1
+
+# A character name and a file name prefix for Midori.
+character.name1=Midori
+character.file1=001-
+
+# A character name and a file name prefix for ???.
+character.name2=???
+character.file2=001-
+
+# A character name and a file name prefix for Rina.
+character.name3=Rina
+character.file3=002-
+
+# Continues to character.name32, but omissible
 
 ###
 ### Miscellaneous

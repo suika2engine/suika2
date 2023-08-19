@@ -219,6 +219,18 @@ void draw_image(struct image * RESTRICT dst_image,
 		int alpha,
 		int bt);
 
+/* イメージを暗く描画する */
+void draw_image_dim(struct image * RESTRICT dst_image,
+		    int dst_left,
+		    int dst_top,
+		    struct image * RESTRICT src_image,
+		    int width,
+		    int height,
+		    int src_left,
+		    int src_top,
+		    int alpha,
+		    int bt);
+
 /* イメージをルール付きで描画する */
 void draw_image_rule(struct image * RESTRICT dst_image,
 		     struct image * RESTRICT src_image,

@@ -330,6 +330,7 @@ static bool play_voice(void);
 static void set_character_volume_by_name(const char *name);
 static void draw_namebox(void);
 static int get_namebox_width(void);
+static void focus_character(void);
 static void init_pen(void);
 static void init_msgbox(int *x, int *y, int *w, int *h);
 static void init_click(void);
@@ -1257,6 +1258,18 @@ static bool init_serif(int *x, int *y, int *w, int *h)
 	/* 名前ボックスを表示する */
 	show_namebox(true);
 
+	/* キャラクタのフォーカスが有効なとき */
+	if (conf_character_focus) {
+		/* フォーカスを設定する */
+		focus_character();
+
+		/* 再描画する */
+		*x = 0;
+		*y = 0;
+		*w = conf_window_width;
+		*h = conf_window_height;
+	}
+
 	return true;
 }
 
@@ -1409,6 +1422,47 @@ static int get_namebox_width(void)
 	get_namebox_rect(&x, &y, &w, &h);
 
 	return w;
+}
+
+/* キャラクタのフォーカスを行う */
+static void focus_character(void)
+{
+	const char *fname;
+	int i, j;
+
+	/* 名前が登録されているキャラクタであるかチェックする */
+	for (i = 0; i < CHARACTER_MAP_COUNT; i++) {
+		if (conf_character_name[i] == NULL)
+			continue;
+		if (conf_character_file[i] == NULL)
+			continue;
+		if (strcmp(conf_character_name[i], name_top) == 0)
+			break;
+	}
+	if (i == CHARACTER_MAP_COUNT) {
+		/* 名前が登録されていなかったときは全キャラを暗くしない */
+		for (j = 0; j < CH_BASIC_LAYERS; j++)
+			set_ch_dim(j, false);
+		return;
+	}
+
+	/* すべてのキャラクタについて設定する */
+	for (j = 0; j < CH_BASIC_LAYERS; j++) {
+		/* キャラがロードされていない位置なら飛ばす */
+		fname = get_ch_file_name(j);
+		if (fname == NULL)
+			continue;
+
+		/* キャラのファイル名がマッチするか調べる */
+		if (strncmp(fname, conf_character_file[i],
+			    strlen(conf_character_file[i])) == 0) {
+			/* マッチしたので暗くしない */
+			set_ch_dim(j, false);
+		} else {
+			/* マッチしなかったので暗くする */
+			set_ch_dim(j, true);
+		}
+	}
 }
 
 /* ペンの位置を初期化する */

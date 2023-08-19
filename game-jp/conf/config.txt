@@ -433,34 +433,40 @@ sound.character.name1=みどり
 ### セリフの色の設定
 ###
 
-serif.color1.name=Haruka
-serif.color1.r=255
-serif.color1.g=200
-serif.color1.b=200
-serif.color1.outline.r=0
-serif.color1.outline.g=0
-serif.color1.outline.b=0
+# セリフの色は名前だけに適用する (1:名前だけ, 0:本文も) (省略可)
+serif.color.name.only=1
 
-serif.color2.name=Kana
-serif.color2.r=200
-serif.color2.g=255
-serif.color2.b=200
-serif.color2.outline.r=0
-serif.color2.outline.g=0
-serif.color2.outline.b=0
-
-serif.color3.name=Chiaki
-serif.color3.r=200
-serif.color3.g=200
-serif.color3.b=255
-serif.color3.outline.r=0
-serif.color3.outline.g=0
-serif.color3.outline.b=0
+# キャラクタごとの色設定
+serif.color1.name=みどり
+serif.color1.r=100
+serif.color1.g=255
+serif.color1.b=100
+serif.color1.outline.r=128
+serif.color1.outline.g=128
+serif.color1.outline.b=128
 
 # 以降、serif.color64まで続くが省略可能
 
-# キャラのセリフの名前だけ色を変更する (1:名前だけ, 0:本文も) (省略可)
-serif.color.name.only=0
+###
+### キャラクタ名と画像ファイルのマッピング
+###
+
+# 話しているキャラクタ以外を自動で暗くするか (0:無効, 1:有効) (省略可)
+character.focus=1
+
+# 「みどり」のキャラクタ名とファイル名の先頭の文字
+character.name1=みどり
+character.file1=001-
+
+# 「？？？」のキャラクタ名とファイル名の先頭の文字
+character.name2=？？？
+character.file2=001-
+
+# 「りな」のキャラクタ名とファイル名の先頭の文字
+character.name3=りな
+character.file3=002-
+
+# 以降、character.name32まで続くが、省略可能
 
 ###
 ### その他
