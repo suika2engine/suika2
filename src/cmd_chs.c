@@ -139,6 +139,10 @@ static bool init(void)
 		/* 表示位置を取得する */
 		if (i != BG_INDEX)
 			get_position(&x[i], &y[i], i, img[i]);
+
+		/* キャラを暗くしない */
+		if (i != BG_INDEX)
+			set_ch_dim(i, false);
 	}
 
 	/* ルールが使用される場合 */
