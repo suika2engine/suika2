@@ -25,7 +25,9 @@ bool init_history(void);
 void cleanup_history(void);
 
 /* メッセージを登録する */
-bool register_message(const char *name, const char *msg, const char *voice);
+bool register_message(const char *name, const char *msg, const char *voice,
+		      pixel_t body_color, pixel_t body_outline_color,
+		      pixel_t name_color, pixel_t name_outline_color);
 
 /* ヒストリをクリアする(ロード時) */
 void clear_history(void);

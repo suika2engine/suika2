@@ -1841,7 +1841,7 @@ static bool process_escape_sequence(int button_index, uint32_t code)
 {
 	const char *c;
 	uint32_t r, g, b;
-	int rgb;
+	int rgb, i;
 	char color_code[7];
 
 	c = button[button_index].rt.top;
@@ -1854,15 +1854,23 @@ static bool process_escape_sequence(int button_index, uint32_t code)
 		return true;
 	}
 
+	/* 次の文字'{'をチェックする */
+	if (*(c + 1) != '{')
+		return false;
+
 	/* フォントカラー */
 	if (code == '#') {
 		/* カラーコードがない場合 */
-		if (strlen(c + 1) < 6)
+		if (strlen(c + 2) < 6)
+			return false;
+
+		/* 次の文字'}'をチェックする */
+		if (*(c + 8) != '}')
 			return false;
 
 		/* カラーコードを読む */
 		rgb = 0;
-		memcpy(color_code, c + 1, 6);
+		memcpy(color_code, c + 2, 6);
 		color_code[6] = '\0';
 		sscanf(color_code, "%x", &rgb);
 		r = (rgb >> 16) & 0xff;
@@ -1870,17 +1878,19 @@ static bool process_escape_sequence(int button_index, uint32_t code)
 		b = rgb & 0xff;
 		button[button_index].rt.color = make_pixel_slow(0xff, r, g, b);
 
-		button[button_index].rt.top += 7;
+		button[button_index].rt.top += 9;
 		return true;
 	}
 
-	/* フォントサイズ */
-	if (code == '@') {
-		/* サイズがない場合 */
-		if (strlen(c + 1) < 3)
+	/* フォントサイズ、インラインウェイト (スキップする) */
+	if (code == '@' || code == 'w') {
+		/* 終端文字'}'を探す */
+		i = 0;
+		while (*c != '\0' && *c != '}')
+			c++, i++;
+		if (*c != '}')
 			return false;
-		
-		button[button_index].rt.top += 4;
+		button[button_index].rt.top += i + 1;
 		return true;
 	}
 
