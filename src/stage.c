@@ -190,27 +190,6 @@ static float fi_fo_fade_progress;
 static bool ch_dim[CH_BASIC_LAYERS];
 
 /*
- * アニメ中の情報
- *  - 現状キャラを1つずつ(1レイヤずつ)しか動かすことができない
- *  - 将来複数レイヤを動かせるような設計として、下記の情報を保持する
- */
-
-/* アニメ中のレイヤ */
-static bool layer_anime_run[STAGE_LAYERS];
-
-/* アニメ中のレイヤのx座標 */
-static int layer_anime_x_from[STAGE_LAYERS];
-static int layer_anime_x_to[STAGE_LAYERS];
-
-/* アニメ中のレイヤのy座標 */
-static int layer_anime_y_from[STAGE_LAYERS];
-static int layer_anime_y_to[STAGE_LAYERS];
-
-/* アニメ中のレイヤのアルファ値 */
-static int layer_anime_alpha_from[STAGE_LAYERS];
-static int layer_anime_alpha_to[STAGE_LAYERS];
-
-/*
  * 画面揺らしモード中の情報
  */
 
@@ -268,7 +247,6 @@ static void draw_stage_fi_fo_fade_slit_open_v(void);
 static void draw_stage_fi_fo_fade_slit_close_v(void);
 static int pos_to_layer(int pos);
 static int layer_to_pos(int layer);
-static float get_anime_interpolation(float progress, float from, float to);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
@@ -2986,92 +2964,6 @@ void stop_ch_fade(void)
 	}
 
 	stage_mode = STAGE_MODE_IDLE;
-}
-
-/*
- * キャラアニメ
- */
-
-/*
- * キャラアニメを開始する
- */
-void start_ch_anime(int pos, int to_x, int to_y, int to_alpha)
-{
-	int layer, i;
-
-	assert(stage_mode == STAGE_MODE_IDLE);
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-
-	stage_mode = STAGE_MODE_CH_ANIME;
-
-	/* 座標とアルファ値を保存する */
-	layer = pos_to_layer(pos);
-	layer_anime_alpha_from[layer] = layer_alpha[layer];
-	layer_anime_alpha_to[layer] = to_alpha;
-	layer_anime_x_from[layer] = layer_x[layer];
-	layer_anime_x_to[layer] = to_x;
-	layer_anime_y_from[layer] = layer_y[layer];
-	layer_anime_y_to[layer] = to_y;
-
-	/* アニメ中のレイヤを設定する */
-	for (i = 0; i < STAGE_LAYERS; i++)
-		layer_anime_run[i] = (i == layer) ? true : false;
-}
-
-/*
- * キャラアニメモードの進捗率を設定する
- */
-void set_ch_anime_progress(float progress)
-{
-	int i;
-
-	assert(stage_mode == STAGE_MODE_CH_ANIME);
-
-	/* すべてのレイヤについて座標とアルファ値を更新する */
-	for (i = 0; i < STAGE_LAYERS; i++) {
-		/* アニメ中でない場合は更新しない */
-		if (!layer_anime_run[i])
-			continue;
-
-		layer_alpha[i] = (uint8_t)get_anime_interpolation(progress,
-					(float)layer_anime_alpha_from[i],
-					(float)layer_anime_alpha_to[i]);
-		layer_x[i] = (int)get_anime_interpolation(progress,
-					(float)layer_anime_x_from[i],
-					(float)layer_anime_x_to[i]);
-		layer_y[i] = (int)get_anime_interpolation(progress,
-					(float)layer_anime_y_from[i],
-					(float)layer_anime_y_to[i]);
-	}
-}
-
-/* アニメの補間を行う */
-static float get_anime_interpolation(float progress, float from, float to)
-{
-	return from + (to - from) * progress;
-}
-
-/*
- * キャラアニメモードを終了する
- */
-void stop_ch_anime(void)
-{
-	int i;
-
-	assert(stage_mode == STAGE_MODE_CH_ANIME);
-
-	stage_mode = STAGE_MODE_IDLE;
-
-	/* すべてのレイヤについて座標とアルファ値を最終値に更新する */
-	for (i = 0; i < STAGE_LAYERS; i++) {
-		/* アニメ中でない場合は更新しない */
-		if (!layer_anime_run[i])
-			continue;
-
-		layer_alpha[i] = layer_anime_alpha_to[i];
-		layer_x[i] = layer_anime_x_to[i];
-		layer_y[i] = layer_anime_y_to[i];
-	}
 }
 
 /*

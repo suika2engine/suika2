@@ -307,11 +307,14 @@ get_anime_layer_params(
 	/* 補間を行う */
 	for (i = 0; i < context[layer].seq_count; i++) {
 		s = &sequence[layer][i];
-		if (s->start_time < context[i].cur_lap)
+		if (context[layer].cur_lap < s->start_time)
+			continue;
+		if (i != context[layer].seq_count - 1 &&
+		    context[layer].cur_lap > s->end_time)
 			continue;
 
 		/* 進捗率を計算する */
-		progress = context[layer].cur_lap /
+		progress = (context[layer].cur_lap - s->start_time) /
 			(s->end_time - s->start_time);
 		if (progress > 1.0f)
 			progress = 1.0f;
@@ -335,6 +338,8 @@ get_anime_layer_params(
 		*x = (int)(s->from_x + (s->to_x - s->from_x) * progress);
 		*y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
 		*alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
+
+		break;
 	}
 }
 
