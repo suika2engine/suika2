@@ -1308,7 +1308,7 @@ static bool parse_message(int index, const char *file, int line,
 	p = cmd[index].param[MESSAGE_PARAM_MESSAGE];
 	lpar = strstr(p, U8("「"));
 	if (lpar != NULL &&
-	    lpar != buf &&
+	    lpar != p &&
 	    strcmp(p + strlen(p) - 3, U8("」")) == 0 &&
 	    *buf != '\\') {
 		/* セリフに変更する */
