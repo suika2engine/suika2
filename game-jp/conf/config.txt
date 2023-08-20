@@ -92,6 +92,9 @@ msgbox.margin.bottom=50
 # メッセージの行間
 msgbox.margin.line=55
 
+# メッセージの文字間隔
+msgbox.margin.char=0
+
 # メッセージのスピード(毎秒x文字表示する)
 msgbox.speed=20.0
 

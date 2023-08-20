@@ -1571,7 +1571,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 
 		/* 描画する */
 		draw_char(button_index, wc, &cw, &ch);
-		button[button_index].rt.pen_x += cw;
+		button[button_index].rt.pen_x += cw + conf_msgbox_margin_char;
 		result += cw;
 
 		/* 次の文字へ移動する */
@@ -1817,6 +1817,7 @@ static void draw_history_text_item(int button_index)
 
 		/* メッセージボックスの幅を超える場合、改行する */
 		if ((button[button_index].rt.pen_x + width +
+		     conf_msgbox_margin_char +
 		     button[button_index].margin >=
 		     button[button_index].width) &&
 		    (c != ' ' && c != ',' && c != '.' && c != ':' &&
@@ -1831,7 +1832,7 @@ static void draw_history_text_item(int button_index)
 		draw_char(button_index, c, &width, &height);
 
 		/* 次の文字へ移動する */
-		button[button_index].rt.pen_x += width;
+		button[button_index].rt.pen_x += width + conf_msgbox_margin_char;
 		button[button_index].rt.top += mblen;
 	}
 }

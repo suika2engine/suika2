@@ -115,6 +115,9 @@ msgbox.margin.right=80
 # Line spacing
 msgbox.margin.line=40
 
+# Character spacing
+msgbox.margin.char=0
+
 # Message speed (x characters per second)
 msgbox.speed=40.0
 

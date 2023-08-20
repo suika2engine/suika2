@@ -2658,9 +2658,9 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* 次の文字へ移動する */
 		msg_cur += mblen;
 		if (!conf_msgbox_tategaki)
-			pen_x += glyph_width;
+			pen_x += glyph_width + conf_msgbox_margin_char;
 		else
-			pen_y += glyph_height;
+			pen_y += glyph_height + conf_msgbox_margin_char;
 		drawn_chars++;
 	}
 
@@ -3090,11 +3090,13 @@ static void process_lf(uint32_t c, int glyph_width, int glyph_height)
 {
 	if (!conf_msgbox_tategaki) {
 		/* 右側の幅が足りる場合、改行しない */
-		if (pen_x + glyph_width < msgbox_w - conf_msgbox_margin_right)
+		if (pen_x + glyph_width + conf_msgbox_margin_char <
+		    msgbox_w - conf_msgbox_margin_right)
 			return;
 	} else {
 		/* 下側の幅が足りる場合、改行しない */
-		if (pen_y + glyph_height < msgbox_h - conf_msgbox_margin_bottom)
+		if (pen_y + glyph_height + conf_msgbox_margin_char <
+		    msgbox_h - conf_msgbox_margin_bottom)
 			return;
 	}
 
