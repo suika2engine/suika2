@@ -63,6 +63,8 @@
 		26C93FD5295958D3007D092D /* wms_lexer.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FD0295958D3007D092D /* wms_lexer.yy.c */; };
 		26D910C12914C8D700876016 /* cmd_gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D910BF2914C8D700876016 /* cmd_gui.c */; };
 		26D910C22914C8D700876016 /* gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D910C02914C8D700876016 /* gui.c */; };
+		26DA59622A922F0500DBE36B /* cmd_anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59602A922F0500DBE36B /* cmd_anime.c */; };
+		26DA59632A922F0500DBE36B /* anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59612A922F0500DBE36B /* anime.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -153,6 +155,9 @@
 		26D910BE2914C8D700876016 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../../src/gui.h; sourceTree = "<group>"; };
 		26D910BF2914C8D700876016 /* cmd_gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_gui.c; path = ../../src/cmd_gui.c; sourceTree = "<group>"; };
 		26D910C02914C8D700876016 /* gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gui.c; path = ../../src/gui.c; sourceTree = "<group>"; };
+		26DA595F2A922F0500DBE36B /* anime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = anime.h; path = ../../src/anime.h; sourceTree = "<group>"; };
+		26DA59602A922F0500DBE36B /* cmd_anime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_anime.c; path = ../../src/cmd_anime.c; sourceTree = "<group>"; };
+		26DA59612A922F0500DBE36B /* anime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = anime.c; path = ../../src/anime.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,8 +204,11 @@
 			isa = PBXGroup;
 			children = (
 				268B09E026D89FE40074577E /* iosmain.m */,
+				26DA59612A922F0500DBE36B /* anime.c */,
+				26DA595F2A922F0500DBE36B /* anime.h */,
 				26B385B826D134EE000A7A1C /* aunit.c */,
 				26B385B326D134EE000A7A1C /* aunit.h */,
+				26DA59602A922F0500DBE36B /* cmd_anime.c */,
 				26B385A526D134EE000A7A1C /* cmd_bg.c */,
 				26B385BC26D134EE000A7A1C /* cmd_bgm.c */,
 				26B3858826D134EE000A7A1C /* cmd_ch.c */,
@@ -359,6 +367,7 @@
 				26B385DB26D134EE000A7A1C /* stage.c in Sources */,
 				26B385C526D134EE000A7A1C /* glyph.c in Sources */,
 				26B385C026D134EE000A7A1C /* conf.c in Sources */,
+				26DA59632A922F0500DBE36B /* anime.c in Sources */,
 				26B385CC26D134EE000A7A1C /* file.c in Sources */,
 				260C732128730C9E0057B37E /* glrender.c in Sources */,
 				26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */,
@@ -384,6 +393,7 @@
 				26B385C126D134EE000A7A1C /* vars.c in Sources */,
 				26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */,
 				2689F3C1288C06E600BEF444 /* readimage.c in Sources */,
+				26DA59622A922F0500DBE36B /* cmd_anime.c in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,
 				26D910C22914C8D700876016 /* gui.c in Sources */,
 				26B231BA285F454B0058D377 /* cmd_skip.c in Sources */,
@@ -572,7 +582,7 @@
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -594,7 +604,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7S742FWR63;
 				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

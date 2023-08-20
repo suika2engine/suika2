@@ -232,6 +232,14 @@
 		26C93FC6295953E5007D092D /* wms_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBB295953E5007D092D /* wms_core.c */; };
 		26C93FC7295953E5007D092D /* cmd_wms.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBC295953E5007D092D /* cmd_wms.c */; };
 		26C93FC8295953E5007D092D /* cmd_wms.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FBC295953E5007D092D /* cmd_wms.c */; };
+		26DA59572A922EB700DBE36B /* anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59542A922EB600DBE36B /* anime.c */; };
+		26DA59582A922EB700DBE36B /* anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59542A922EB600DBE36B /* anime.c */; };
+		26DA59592A922EB700DBE36B /* anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59542A922EB600DBE36B /* anime.c */; };
+		26DA595A2A922EB700DBE36B /* anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59542A922EB600DBE36B /* anime.c */; };
+		26DA595B2A922EB700DBE36B /* cmd_anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59562A922EB600DBE36B /* cmd_anime.c */; };
+		26DA595C2A922EB700DBE36B /* cmd_anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59562A922EB600DBE36B /* cmd_anime.c */; };
+		26DA595D2A922EB700DBE36B /* cmd_anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59562A922EB600DBE36B /* cmd_anime.c */; };
+		26DA595E2A922EB700DBE36B /* cmd_anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59562A922EB600DBE36B /* cmd_anime.c */; };
 		26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
 		26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
 /* End PBXBuildFile section */
@@ -345,6 +353,9 @@
 		26C93FBA295953E5007D092D /* wms_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_impl.c; path = ../../../src/wms_impl.c; sourceTree = "<group>"; };
 		26C93FBB295953E5007D092D /* wms_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_core.c; path = ../../../src/wms_core.c; sourceTree = "<group>"; };
 		26C93FBC295953E5007D092D /* cmd_wms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_wms.c; path = ../../../src/cmd_wms.c; sourceTree = "<group>"; };
+		26DA59542A922EB600DBE36B /* anime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = anime.c; path = ../../../src/anime.c; sourceTree = "<group>"; };
+		26DA59552A922EB600DBE36B /* anime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = anime.h; path = ../../../src/anime.h; sourceTree = "<group>"; };
+		26DA59562A922EB600DBE36B /* cmd_anime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_anime.c; path = ../../../src/cmd_anime.c; sourceTree = "<group>"; };
 		26EA3DD4286C2DCA00B527DF /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../../src/glrender.c; sourceTree = "<group>"; };
 		26EA3DD5286C2DCA00B527DF /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../../src/glrender.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -432,8 +443,11 @@
 				260AFFC12A656386002E3FF4 /* Info.plist */,
 				260A00152A66B33A002E3FF4 /* Info.plist */,
 				26B8ACED25EE5846005D9C49 /* suika.entitlements */,
+				26DA59542A922EB600DBE36B /* anime.c */,
+				26DA59552A922EB600DBE36B /* anime.h */,
 				26A1780525EE5DD0006A1ED4 /* aunit.c */,
 				26A1782B25EE5DD0006A1ED4 /* aunit.h */,
+				26DA59562A922EB600DBE36B /* cmd_anime.c */,
 				26A177FB25EE5DD0006A1ED4 /* cmd_bg.c */,
 				26A1781F25EE5DD0006A1ED4 /* cmd_bgm.c */,
 				26A1782925EE5DD0006A1ED4 /* cmd_ch.c */,
@@ -694,6 +708,7 @@
 				267079022917992E003C61C1 /* uimsg.c in Sources */,
 				26C93FBE295953E5007D092D /* wms_parser.tab.c in Sources */,
 				2603494D2854B29800037370 /* vars.c in Sources */,
+				26DA59582A922EB700DBE36B /* anime.c in Sources */,
 				2603494E2854B29800037370 /* glyph.c in Sources */,
 				26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */,
 				2603494F2854B29800037370 /* cmd_vol.c in Sources */,
@@ -732,6 +747,7 @@
 				2603496B2854B29800037370 /* cmd_setsave.c in Sources */,
 				26C93FC2295953E5007D092D /* wms_lexer.yy.c in Sources */,
 				2603497D2854B61F00037370 /* nsdebug.m in Sources */,
+				26DA595C2A922EB700DBE36B /* cmd_anime.c in Sources */,
 				2603496C2854B29800037370 /* main.c in Sources */,
 				2603496D2854B29800037370 /* cmd_video.c in Sources */,
 				2603496E2854B29800037370 /* cmd_return.c in Sources */,
@@ -746,6 +762,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26DA59592A922EB700DBE36B /* anime.c in Sources */,
 				260AFFF72A65641C002E3FF4 /* seen.c in Sources */,
 				260AFFF02A65641C002E3FF4 /* wms_impl.c in Sources */,
 				260AFFFA2A65641C002E3FF4 /* vars.c in Sources */,
@@ -794,6 +811,7 @@
 				260AFFEE2A65641C002E3FF4 /* uimsg.c in Sources */,
 				260AFFCF2A6563D8002E3FF4 /* cmd_return.c in Sources */,
 				260AFFD32A6563D8002E3FF4 /* cmd_gui.c in Sources */,
+				26DA595D2A922EB700DBE36B /* cmd_anime.c in Sources */,
 				260AFFE72A6563EC002E3FF4 /* history.c in Sources */,
 				260AFFCA2A6563D8002E3FF4 /* cmd_switch.c in Sources */,
 				260AFFE52A6563E7002E3FF4 /* glyph.c in Sources */,
@@ -807,6 +825,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26DA595A2A922EB700DBE36B /* anime.c in Sources */,
 				260A001C2A66B360002E3FF4 /* cmd_bgm.c in Sources */,
 				260A001D2A66B360002E3FF4 /* cmd_ch.c in Sources */,
 				260A00172A66B360002E3FF4 /* cmd_chapter.c in Sources */,
@@ -855,6 +874,7 @@
 				260A00452A66B394002E3FF4 /* stage.c in Sources */,
 				260A003D2A66B394002E3FF4 /* wms_impl.c in Sources */,
 				260A00182A66B360002E3FF4 /* cmd_chs.c in Sources */,
+				26DA595E2A922EB700DBE36B /* cmd_anime.c in Sources */,
 				260A003C2A66B394002E3FF4 /* glyph.c in Sources */,
 				260A004C2A66B4D3002E3FF4 /* nsreplay.m in Sources */,
 				260A00332A66B394002E3FF4 /* main.c in Sources */,
@@ -874,6 +894,7 @@
 				26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */,
 				26A1784B25EE5DD0006A1ED4 /* cmd_wait.c in Sources */,
 				26A1784125EE5DD0006A1ED4 /* vars.c in Sources */,
+				26DA59572A922EB700DBE36B /* anime.c in Sources */,
 				26A1784525EE5DD0006A1ED4 /* glyph.c in Sources */,
 				26A1784025EE5DD0006A1ED4 /* cmd_vol.c in Sources */,
 				26A1782D25EE5DD0006A1ED4 /* nsmain.m in Sources */,
@@ -892,6 +913,7 @@
 				26A1784D25EE5DD0006A1ED4 /* cmd_ch.c in Sources */,
 				268C79C326A56A7000981FB1 /* cmd_chs.c in Sources */,
 				26A1783125EE5DD0006A1ED4 /* cmd_bg.c in Sources */,
+				26DA595B2A922EB700DBE36B /* cmd_anime.c in Sources */,
 				26A1784E25EE5DD0006A1ED4 /* cmd_click.c in Sources */,
 				261B31F428991145006BCD68 /* cmd_gui.c in Sources */,
 				26A1783225EE5DD0006A1ED4 /* stage.c in Sources */,
