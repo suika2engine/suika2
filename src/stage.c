@@ -454,10 +454,6 @@ static bool setup_msgbox(void)
 /* クリックアニメーションをセットアップする */
 static bool setup_click(void)
 {
-	const char *fname[CLICK_FRAMES] = {
-		conf_click_file1, conf_click_file2, conf_click_file3,
-		conf_click_file4, conf_click_file5, conf_click_file6,
-	};
 	int i;
 
 	is_click_visible = false;
@@ -471,11 +467,12 @@ static bool setup_click(void)
 	}
 
 	/* クリックアニメーションの画像を読み込む */
-	for (i = 0; i < CLICK_FRAMES; i++) {
-		if (fname[i] != NULL) {
+	for (i = 0; i < click_frames; i++) {
+		if (conf_click_file[i] != NULL) {
 			/* ファイル名が指定されていれば読み込む */
-			click_image[i] = create_image_from_file(CG_DIR,
-								fname[i]);
+			click_image[i] =
+				create_image_from_file(CG_DIR,
+						       conf_click_file[i]);
 			if (click_image[i] == NULL)
 				return false;
 		} else {
@@ -3192,6 +3189,7 @@ void show_click(bool show)
 void set_click_index(int index)
 {
 	assert(index >= 0 && index < CLICK_FRAMES);
+	assert(index < click_frames);
 
 	layer_image[LAYER_CLICK] = click_image[index];
 }

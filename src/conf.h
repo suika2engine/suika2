@@ -166,13 +166,9 @@ extern int conf_msgbox_tategaki;
 extern int conf_click_x;
 extern int conf_click_y;
 extern int conf_click_move;
-extern char *conf_click_file1;
-extern char *conf_click_file2;
-extern char *conf_click_file3;
-extern char *conf_click_file4;
-extern char *conf_click_file5;
-extern char *conf_click_file6;
+extern char *conf_click_file[16];
 extern float conf_click_interval;
+extern int click_frames;
 
 /*
  * 選択肢ボックスの設定

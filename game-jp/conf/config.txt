@@ -207,7 +207,7 @@ click.move=0
 # クリックアニメーション画像のファイル名
 click.file1=click1.png
 
-# クリックアニメーション画像のファイル名 (省略可)
+# クリックアニメーション画像のファイル名 (省略可, click.file16まで指定可能)
 click.file2=click2.png
 click.file3=click3.png
 click.file4=click4.png

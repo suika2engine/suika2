@@ -230,7 +230,7 @@ click.move=0
 # Click animation image file name
 click.file1=click1.png
 
-# Other click animation image file names (optional)
+# Other click animation image file names (optional, continues to click.file16)
 click.file2=click2.png
 click.file3=click3.png
 click.file4=click4.png

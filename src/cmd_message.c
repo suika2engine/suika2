@@ -3208,8 +3208,8 @@ static void draw_click(int *x, int *y, int *w, int *h)
 		is_click_visible = true;
 	} else {
 		index = (lap % (int)(conf_click_interval * 1000)) /
-			((int)(conf_click_interval * 1000) / CLICK_FRAMES) %
-			CLICK_FRAMES;
+			((int)(conf_click_interval * 1000) / click_frames) %
+			click_frames;
 		set_click_index(index);
 		show_click(true);
 		is_click_visible = true;

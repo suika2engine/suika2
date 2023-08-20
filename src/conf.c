@@ -157,13 +157,9 @@ int conf_msgbox_tategaki;
 int conf_click_x;
 int conf_click_y;
 int conf_click_move;
-char *conf_click_file1;
-char *conf_click_file2;
-char *conf_click_file3;
-char *conf_click_file4;
-char *conf_click_file5;
-char *conf_click_file6;
+char *conf_click_file[16];
 float conf_click_interval;
+int click_frames;
 
 /*
  * スイッチの設定
@@ -531,12 +527,22 @@ static struct rule {
 	{"click.x", 'i', &conf_click_x, MUST, SAVE},
 	{"click.y", 'i', &conf_click_y, MUST, SAVE},
 	{"click.move", 'i', &conf_click_move, OPTIONAL, SAVE},
-	{"click.file1", 's', &conf_click_file1, MUST, SAVE},
-	{"click.file2", 's', &conf_click_file2, OPTIONAL, SAVE},
-	{"click.file3", 's', &conf_click_file3, OPTIONAL, SAVE},
-	{"click.file4", 's', &conf_click_file4, OPTIONAL, SAVE},
-	{"click.file5", 's', &conf_click_file5, OPTIONAL, SAVE},
-	{"click.file6", 's', &conf_click_file6, OPTIONAL, SAVE},
+	{"click.file1", 's', &conf_click_file[0], MUST, SAVE},
+	{"click.file2", 's', &conf_click_file[1], OPTIONAL, SAVE},
+	{"click.file3", 's', &conf_click_file[2], OPTIONAL, SAVE},
+	{"click.file4", 's', &conf_click_file[3], OPTIONAL, SAVE},
+	{"click.file5", 's', &conf_click_file[4], OPTIONAL, SAVE},
+	{"click.file6", 's', &conf_click_file[5], OPTIONAL, SAVE},
+	{"click.file7", 's', &conf_click_file[6], OPTIONAL, SAVE},
+	{"click.file8", 's', &conf_click_file[7], OPTIONAL, SAVE},
+	{"click.file9", 's', &conf_click_file[8], OPTIONAL, SAVE},
+	{"click.file10", 's', &conf_click_file[9], OPTIONAL, SAVE},
+	{"click.file11", 's', &conf_click_file[10], OPTIONAL, SAVE},
+	{"click.file12", 's', &conf_click_file[11], OPTIONAL, SAVE},
+	{"click.file13", 's', &conf_click_file[12], OPTIONAL, SAVE},
+	{"click.file14", 's', &conf_click_file[13], OPTIONAL, SAVE},
+	{"click.file15", 's', &conf_click_file[14], OPTIONAL, SAVE},
+	{"click.file16", 's', &conf_click_file[15], OPTIONAL, SAVE},
 	{"click.interval", 'f', &conf_click_interval, MUST, SAVE},
 	{"switch.bg.file", 's', &conf_switch_bg_file, MUST, SAVE},
 	{"switch.fg.file", 's', &conf_switch_fg_file, MUST, SAVE},
@@ -1360,6 +1366,11 @@ bool apply_initial_values(void)
 	/* グローバルのフォントファイル名をセットする */
 	if (!set_global_font_file_name(conf_font_file))
 		return false;
+
+	/* クリックアニメーションのフレーム数をカウントする */
+	for (click_frames = 16; click_frames > 1; click_frames--)
+		if (conf_click_file[click_frames - 1] != NULL)
+			break;
 
 	return true;
 }
