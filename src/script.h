@@ -25,6 +25,7 @@
  *  - 2023/01/06 利用されていないパラメータインデックスを削除
  *  - 2023/01/14 スタートアップファイル/ラインに対応
  *  - 2022/08/14 @ichooseに対応
+ *  - 2023/08/20 @animeに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -73,6 +74,7 @@ enum command_type {
 	COMMAND_GUI,
 	COMMAND_WMS,
 	COMMAND_ICHOOSE,
+	COMMAND_ANIME,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -538,6 +540,12 @@ enum gui_command_param {
 /* wmsコマンドのパラメータ */
 enum wms_command_param {
 	WMS_PARAM_FILE = 1,
+};
+
+/* animeコマンドのパラメータ */
+enum anime_command_param {
+	ANIME_PARAM_FILE = 1,
+	ANIME_PARAM_SPEC,
 };
 
 /*

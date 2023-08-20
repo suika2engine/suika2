@@ -882,6 +882,42 @@ void draw_stage(void)
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
+	if (is_anime_running()) {
+		update_anime_frame();
+		if (is_anime_running_for_layer(ANIME_LAYER_BG) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_BG)) {
+			get_anime_layer_params(ANIME_LAYER_BG, NULL, NULL, &layer_x[LAYER_BG], &layer_y[LAYER_BG], &layer_alpha[LAYER_BG]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHB) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHB)) {
+			get_anime_layer_params(ANIME_LAYER_CHB, NULL, NULL, &layer_x[LAYER_CHB], &layer_y[LAYER_CHB], &layer_alpha[LAYER_CHB]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHL) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHL)) {
+			get_anime_layer_params(ANIME_LAYER_CHL, NULL, NULL, &layer_x[LAYER_CHL], &layer_y[LAYER_CHL], &layer_alpha[LAYER_CHL]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHR) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHR)) {
+			get_anime_layer_params(ANIME_LAYER_CHR, NULL, NULL, &layer_x[LAYER_CHR], &layer_y[LAYER_CHR], &layer_alpha[LAYER_CHR]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHC) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHC)) {
+			get_anime_layer_params(ANIME_LAYER_CHC, NULL, NULL, &layer_x[LAYER_CHC], &layer_y[LAYER_CHC], &layer_alpha[LAYER_CHC]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_MSG) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_MSG)) {
+			get_anime_layer_params(ANIME_LAYER_MSG, NULL, NULL, &layer_x[LAYER_MSG], &layer_y[LAYER_MSG], &layer_alpha[LAYER_MSG]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_NAME) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_NAME)) {
+			get_anime_layer_params(ANIME_LAYER_NAME, NULL, NULL, &layer_x[LAYER_NAME], &layer_y[LAYER_NAME], &layer_alpha[LAYER_NAME]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHF) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHF)) {
+			get_anime_layer_params(ANIME_LAYER_CHF, NULL, NULL, &layer_x[LAYER_CHF], &layer_y[LAYER_CHF], &layer_alpha[LAYER_CHF]);
+		}
+	}
+
 	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
 }
 

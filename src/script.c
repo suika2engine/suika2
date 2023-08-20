@@ -168,6 +168,10 @@ struct insn_item {
 	{"@skip", COMMAND_SKIP, 1, 1},
 	{U8("@スキップ"), COMMAND_SKIP, 1, 1},
 
+	/* アニメ */
+	{"@anime", COMMAND_ANIME, 1, 2},
+	{U8("@アニメ"), COMMAND_ANIME, 1, 2},
+
 	/* その他 */
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
 	{"@gosub", COMMAND_GOSUB, 1, 1},

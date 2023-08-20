@@ -14,21 +14,7 @@
 
 #include "suika.h"
 
-/* レイヤー名とレイヤーのインデックスのマップ */
-struct layer_name_map {
-	const char *name;
-	int index;
-};
-static struct layer_name_map layer_name_map[] = {
-	{"bg", ANIME_LAYER_BG}, {U8("背景"), ANIME_LAYER_BG},
-	{"chb", ANIME_LAYER_CHB}, {U8("背面キャラ"), ANIME_LAYER_CHB},
-	{"chl", ANIME_LAYER_CHL}, {U8("左キャラ"), ANIME_LAYER_CHL},
-	{"chr", ANIME_LAYER_CHR}, {U8("右キャラ"), ANIME_LAYER_CHR},
-	{"chc", ANIME_LAYER_CHC}, {U8("中央キャラ"), ANIME_LAYER_CHC},
-	{"msg", ANIME_LAYER_MSG}, {U8("メッセージ"), ANIME_LAYER_MSG},
-	{"name", ANIME_LAYER_NAME}, {U8("名前"), ANIME_LAYER_NAME},
-	{"face", ANIME_LAYER_CHF}, {U8("顔"), ANIME_LAYER_CHF},
-};
+#define INVALID_ACCEL_TYPE	(0)
 
 /* レイヤごとのアニメーションシーケンスの最大数 */
 #define SEQUENCE_COUNT		(16)
@@ -46,6 +32,7 @@ struct sequence {
 	float to_x;
 	float to_y;
 	float to_a;
+	int accel;
 };
 
 /* アニメーションシーケンス(レイヤxシーケンス長) */
@@ -53,17 +40,33 @@ static struct sequence sequence[ANIME_LAYER_COUNT][SEQUENCE_COUNT];
 
 /* レイヤごとのアニメーションの状況 */
 struct layer_context {
-	bool is_running;
-	float start_time;
 	int seq_count;
+	bool is_running;
+	bool is_finished;
+	stop_watch_t sw;
+	float cur_lap;
 };
 static struct layer_context context[ANIME_LAYER_COUNT];
 
+/* レイヤー名とレイヤーのインデックスのマップ */
+struct layer_name_map {
+	const char *name;
+	int index;
+};
+static struct layer_name_map layer_name_map[] = {
+	{"bg", ANIME_LAYER_BG}, {U8("背景"), ANIME_LAYER_BG},
+	{"chb", ANIME_LAYER_CHB}, {U8("背面キャラ"), ANIME_LAYER_CHB},
+	{"chl", ANIME_LAYER_CHL}, {U8("左キャラ"), ANIME_LAYER_CHL},
+	{"chr", ANIME_LAYER_CHR}, {U8("右キャラ"), ANIME_LAYER_CHR},
+	{"chc", ANIME_LAYER_CHC}, {U8("中央キャラ"), ANIME_LAYER_CHC},
+	{"msg", ANIME_LAYER_MSG}, {U8("メッセージ"), ANIME_LAYER_MSG},
+	{"name", ANIME_LAYER_NAME}, {U8("名前"), ANIME_LAYER_NAME},
+	{"face", ANIME_LAYER_CHF}, {U8("顔"), ANIME_LAYER_CHF},
+};
+
 /* ロード中の情報 */
 static int cur_seq_layer;
-
-/* 現在の時刻 */
-static stop_watch_t cur_time;
+static stop_watch_t cur_sw;
 
 /*
  * 前方参照
@@ -109,25 +112,45 @@ void cleanup_anime(void)
  */
 bool load_anime_from_file(const char *fname)
 {
+	cur_seq_layer = -1;
+
+	reset_stop_watch(&cur_sw);
+
 	if (!load_anime_file(fname))
 		return false;
+
 	return true;
+}
+
+/*
+ * アニメーションシーケンスをクリアする
+ */
+void clear_anime_sequence(int layer)
+{
+	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+
+	context[layer].seq_count = 0;
+	context[layer].is_running = false;
+	context[layer].is_finished = false;
 }
 
 /*
  * アニメーションシーケンスを開始する
  */
-bool start_anime_sequence(void)
+bool new_anime_sequence(int layer)
 {
-	if (!start_sequence(NULL))
-		return false;
+	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+
+	cur_seq_layer = layer;
+	context[layer].seq_count++;
+	
 	return true;
 }
 
 /*
- * アニメーションシーケンスにプロパティを追加する
+ * アニメーションシーケンスにプロパティを追加する(float)
  */
-bool add_anime_sequence_property(const char *key, float val)
+bool add_anime_sequence_property_f(const char *key, float val)
 {
 	char s[128];
 
@@ -140,16 +163,52 @@ bool add_anime_sequence_property(const char *key, float val)
 }
 
 /*
+ * アニメーションシーケンスにプロパティを追加する(int)
+ */
+bool add_anime_sequence_property_i(const char *key, int val)
+{
+	char s[128];
+
+	snprintf(s, sizeof(s), "%d", val);
+
+	if (!on_key_value(key, s))
+		return false;
+
+	return true;
+}
+
+/*
  * 指定したレイヤのアニメーションを開始する
  */
-bool start_layer_anime(const char *layer)
+bool start_layer_anime(int layer)
 {
-	int layer_index;
+	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
 
-	layer_index = layer_name_to_index(layer);
-	assert(layer_index != -1);
+	if (context[layer].seq_count == 0)
+		return true;
 
-	/* TODO */
+	reset_stop_watch(&context[layer].sw);
+	context[layer].is_running = true;
+	context[layer].is_finished = false;
+	context[layer].cur_lap = 0;
+	return true;
+}
+
+/*
+ * 指定したレイヤのアニメーションを完了する
+ */
+bool finish_layer_anime(int layer)
+{
+	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+
+	if (!context[layer].is_running)
+		return true;
+	if (context[layer].is_finished)
+		return true;
+
+	context[layer].is_running = false;
+	context[layer].is_finished = true;
+	context[layer].cur_lap = 0;
 	return true;
 }
 
@@ -168,10 +227,55 @@ bool is_anime_running(void)
 }
 
 /*
+ * アニメーションが完了したか調べる
+ */
+bool is_anime_finished_for_layer(int layer)
+{
+	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+
+	if (context[layer].is_finished)
+		return true;
+
+	return false;
+}
+
+/*
+ * レイヤでアニメーションが実行中であるか調べる
+ */
+bool is_anime_running_for_layer(int layer)
+{
+	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+
+	if (context[layer].is_running)
+		return true;
+
+	return false;
+}
+
+/*
  * アニメーションのフレームを更新する
  */
 void update_anime_frame(void)
 {
+	int i, last_seq;
+
+	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
+		if (!context[i].is_running)
+			continue;
+		if (context[i].is_finished)
+			continue;
+
+		context[i].cur_lap =
+			(float)get_stop_watch_lap(&context[i].sw) / 1000.0f;
+
+		last_seq = context[i].seq_count - 1;
+		assert(last_seq >= 0);
+
+		if (context[i].cur_lap > sequence[i][last_seq].end_time) {
+			context[i].is_running = false;
+			context[i].is_finished = true;
+		}
+	}
 }
 
 /*
@@ -203,12 +307,31 @@ get_anime_layer_params(
 	/* 補間を行う */
 	for (i = 0; i < context[layer].seq_count; i++) {
 		s = &sequence[layer][i];
-		if (s->start_time < cur_time)
-			continue;
-		if (s->end_time > cur_time)
+		if (s->start_time < context[i].cur_lap)
 			continue;
 
-		progress = (float)cur_time / 1000.0f - s->start_time;
+		/* 進捗率を計算する */
+		progress = context[layer].cur_lap /
+			(s->end_time - s->start_time);
+		if (progress > 1.0f)
+			progress = 1.0f;
+
+		/* 加速を処理する */
+		switch (s->accel) {
+		case ANIME_ACCEL_UNIFORM:
+			break;
+		case ANIME_ACCEL_ACCEL:
+			progress = progress * progress;
+			break;
+		case ANIME_ACCEL_DEACCEL:
+			progress = sqrtf(progress);
+			break;
+		default:
+			assert(INVALID_ACCEL_TYPE);
+			break;
+		}
+
+		/* パラメータを計算する */
 		*x = (int)(s->from_x + (s->to_x - s->from_x) * progress);
 		*y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
 		*alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
@@ -231,13 +354,17 @@ static bool start_sequence(const char *name)
 static bool on_key_value(const char *key, const char *val)
 {
 	struct sequence *s;
-	int *top;
+	int top;
 
 	/* 最初にレイヤのキーが指定される必要がある */
 	if (strcmp(key, "layer") == 0) {
 		cur_seq_layer = layer_name_to_index(val);
 		if (cur_seq_layer == -1)
 			return false;
+		context[cur_seq_layer].seq_count++;
+		context[cur_seq_layer].sw = cur_sw;
+		context[cur_seq_layer].is_running = true;
+		context[cur_seq_layer].is_finished = false;
 		return true;
 	}
 	if (cur_seq_layer == -1) {
@@ -246,15 +373,17 @@ static bool on_key_value(const char *key, const char *val)
 	}
 
 	/* レイヤのシーケンス長をチェックする */
-	top = &context[cur_seq_layer].seq_count;
-	if (*top == SEQUENCE_COUNT) {
+	top = context[cur_seq_layer].seq_count - 1;
+	if (top == SEQUENCE_COUNT) {
 		log_anime_long_sequence();
 		return false;
 	}
 
 	/* その他のキーのとき */
-	s = &sequence[cur_seq_layer][*top];
-	if (strcmp(key, "start") == 0) {
+	s = &sequence[cur_seq_layer][top];
+	if (strcmp(key, "clear") == 0) {
+		context[cur_seq_layer].seq_count = 1;
+	} else if (strcmp(key, "start") == 0) {
 		s->start_time = (float)atof(val);
 	} else if (strcmp(key, "end") == 0) {
 		s->end_time = (float)atof(val);
@@ -270,6 +399,8 @@ static bool on_key_value(const char *key, const char *val)
 		s->to_y = (float)atoi(val);
 	} else if (strcmp(key, "to-a") == 0) {
 		s->to_a = (float)atoi(val);
+	} else if (strcmp(key, "accel") == 0) {
+		s->accel = atoi(val);
 	} else if (strcmp(key, "file") == 0) {
 		s->file = strdup(val);
 		if (s->file == NULL) {
@@ -280,8 +411,6 @@ static bool on_key_value(const char *key, const char *val)
 		log_anime_unknown_key(key);
 		return false;
 	}
-
-	(*top)++;
 
 	return true;
 }
@@ -295,7 +424,7 @@ static int layer_name_to_index(const char *name)
 	     i < (int)(sizeof(layer_name_map) / sizeof(struct layer_name_map));
 	     i++) {
 		if (strcmp(layer_name_map[i].name, name) == 0)
-			return i;
+			return layer_name_map[i].index;
 	}
 	return -1;
 }
@@ -318,7 +447,7 @@ static bool load_anime_file(const char *file)
 	struct rfile *rf;
 	char *buf;
 	size_t fsize, pos;
-	int st, len, line, seq;
+	int st, len, line;
 	char c;
 	bool is_comment;
 
@@ -368,7 +497,6 @@ static bool load_anime_file(const char *file)
 	st = ST_SCOPE;
 	line = 0;
 	len = 0;
-	seq = -1;
 	pos = 0;
 	while (pos < fsize) {
 		/* 1文字読み込む */
@@ -398,7 +526,6 @@ static bool load_anime_file(const char *file)
 			    c == '{') {
 				assert(len > 0);
 				word[len] = '\0';
-				seq++;
 				if (!start_sequence(word)) {
 					st = ST_ERROR;
 					break;
