@@ -935,9 +935,94 @@ static void draw_blend_sub(struct image *dst_image, int dst_left, int dst_top,
 #endif	/* SSE_VERSIONING */
 
 /*
- * ルール付き描画
- *  - ベクトル化が見込めないのでここで定義する
+ * その他の描画
+ *  - そのうちGPU移行するのでベクトル化していない関数
  */
+
+/*
+ * イメージを暗く描画する
+ */
+void draw_image_dim(struct image * RESTRICT dst_image,
+		    int dst_left,
+		    int dst_top,
+		    struct image * RESTRICT src_image,
+		    int width,
+		    int height,
+		    int src_left,
+		    int src_top,
+		    int alpha,
+		    int bt)
+{
+	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr;
+	float a, src_r, src_g, src_b, src_a, dst_r, dst_g, dst_b, dst_a;
+	uint32_t src_pix, dst_pix;
+	int src_line_inc, dst_line_inc, x, y, sw, dw;
+
+	/* 引数をチェックする */
+	assert(dst_image != NULL);
+	assert(dst_image != src_image);
+	assert(dst_image->width > 0 && dst_image->height > 0);
+	assert(dst_image->pixels != NULL);
+	assert(src_image != NULL);
+	assert(src_image->width > 0 && src_image->height > 0);
+	assert(src_image->pixels != NULL);
+	assert(width >= 0 && height >= 0);
+	assert(bt == BLEND_NONE || bt == BLEND_FAST || bt == BLEND_NORMAL ||
+	       bt == BLEND_ADD || bt == BLEND_SUB);
+	assert(dst_image->locked_pixels != NULL);
+
+	/* 描画の必要があるか判定する */
+	if(alpha == 0 || width == 0 || height == 0)
+		return;	/* 描画の必要がない*/
+	if(!clip_by_source(src_image->width, src_image->height, &width,
+			   &height, &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
+	if(!clip_by_dest(dst_image->width, dst_image->height, &width, &height,
+			 &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
+
+	sw = get_image_width(src_image);
+	dw = get_image_width(dst_image);
+	src_ptr = get_image_pixels(src_image) + sw * src_top + src_left;
+	dst_ptr = get_image_pixels(dst_image) + dw * dst_top + dst_left;
+	src_line_inc = sw - width;
+	dst_line_inc = dw - width;
+	a = (float)alpha / 255.0f;
+
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++) {
+			/* 転送元と転送先のピクセルを取得する */
+			src_pix	= *src_ptr++;
+			dst_pix	= *dst_ptr;
+
+			/* アルファ値を計算する */
+			src_a = a * ((float)get_pixel_a(src_pix) / 255.0f);
+			dst_a = 1.0f - src_a;
+
+			/* 暗くする */
+			src_a *= 0.7f;
+
+			/* 転送元ピクセルにアルファ値を乗算する */
+			src_r = src_a * (float)get_pixel_c1(src_pix);
+			src_g = src_a * (float)get_pixel_c2(src_pix);
+			src_b = src_a * (float)get_pixel_c3(src_pix);
+
+			/* 転送先ピクセルにアルファ値を乗算する */
+			dst_r = dst_a * (float)get_pixel_c1(dst_pix);
+			dst_g = dst_a * (float)get_pixel_c2(dst_pix);
+			dst_b = dst_a * (float)get_pixel_c3(dst_pix);
+
+			/* 転送先に格納する */
+			*dst_ptr++ = make_pixel_fast(
+				0xff,
+				(uint32_t)(src_r + dst_r),
+				(uint32_t)(src_g + dst_g),
+				(uint32_t)(src_b + dst_b));
+		}
+		src_ptr += src_line_inc;
+		dst_ptr += dst_line_inc;
+	}
+}
 
 /*
  * イメージをルール付きで描画する

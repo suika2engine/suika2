@@ -44,6 +44,12 @@ void opengl_render_image(int dst_left, int dst_top,
 			 int height, int src_left, int src_top, int alpha,
 			 int bt);
 
+/* 画面にイメージを暗くレンダリングする */
+void opengl_render_image_dim(int dst_left, int dst_top,
+			     struct image * RESTRICT src_image, int width,
+			     int height, int src_left, int src_top, int alpha,
+			     int bt);
+
 /* 画面にイメージをルール付きでレンダリングする */
 void opengl_render_image_rule(struct image * RESTRICT src_image,
 			      struct image * RESTRICT rule_image,

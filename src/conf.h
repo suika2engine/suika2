@@ -313,6 +313,7 @@ extern char *conf_sound_character_name[CH_VOL_SLOTS]; /* index0は未使用 */
 /*
  * セリフの色付け
  */
+
 #define SERIF_COLOR_COUNT	(64)
 
 extern char *conf_serif_color_name[SERIF_COLOR_COUNT];
@@ -322,6 +323,16 @@ extern int conf_serif_color_b[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_r[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_g[SERIF_COLOR_COUNT];
 extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
+
+/*
+ * キャラクタの名前とファイル名のマッピング
+ */
+
+#define CHARACTER_MAP_COUNT	(32)
+
+extern bool conf_character_focus;
+extern char *conf_character_name[CHARACTER_MAP_COUNT];
+extern char *conf_character_file[CHARACTER_MAP_COUNT];
 
 /*
  * その他の設定

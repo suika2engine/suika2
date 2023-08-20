@@ -65,10 +65,10 @@ SRCS_C = \
 	../../src/winmain.c \
 	../../src/uimsg.c \
 	../../src/glrender.c \
-	../../src/d3drender.cc \
 	../../src/dsound.c
 
 SRCS_CC = \
+	../../src/d3drender.cc \
 	../../src/dsvideo.cc
 
 SRCS_R = res/resource.rc

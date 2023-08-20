@@ -349,6 +349,14 @@ int conf_serif_outline_color_g[SERIF_COLOR_COUNT];
 int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 
 /*
+ * キャラクタの名前とファイル名のマッピング
+ */
+
+bool conf_character_focus;
+char *conf_character_name[CHARACTER_MAP_COUNT];
+char *conf_character_file[CHARACTER_MAP_COUNT];
+
+/*
  * その他の設定
  */
 
@@ -1086,6 +1094,71 @@ static struct rule {
 	{"serif.color64.outline.g", 'i', &conf_serif_outline_color_g[63], OPTIONAL, NOSAVE},
 	{"serif.color64.outline.b", 'i', &conf_serif_outline_color_b[63], OPTIONAL, NOSAVE},
 	/* ジェネレータで出力したコードはここまで --> */
+	{"character.focus", 'i', &conf_character_focus, OPTIONAL, NOSAVE},
+	{"character.name1", 's', &conf_character_name[0], OPTIONAL, NOSAVE},
+	{"character.file1", 's', &conf_character_file[0], OPTIONAL, NOSAVE},
+	{"character.name2", 's', &conf_character_name[1], OPTIONAL, NOSAVE},
+	{"character.file2", 's', &conf_character_file[1], OPTIONAL, NOSAVE},
+	{"character.name3", 's', &conf_character_name[2], OPTIONAL, NOSAVE},
+	{"character.file3", 's', &conf_character_file[2], OPTIONAL, NOSAVE},
+	{"character.name4", 's', &conf_character_name[3], OPTIONAL, NOSAVE},
+	{"character.file4", 's', &conf_character_file[3], OPTIONAL, NOSAVE},
+	{"character.name5", 's', &conf_character_name[4], OPTIONAL, NOSAVE},
+	{"character.file5", 's', &conf_character_file[4], OPTIONAL, NOSAVE},
+	{"character.name6", 's', &conf_character_name[5], OPTIONAL, NOSAVE},
+	{"character.file6", 's', &conf_character_file[5], OPTIONAL, NOSAVE},
+	{"character.name7", 's', &conf_character_name[6], OPTIONAL, NOSAVE},
+	{"character.file7", 's', &conf_character_file[6], OPTIONAL, NOSAVE},
+	{"character.name8", 's', &conf_character_name[7], OPTIONAL, NOSAVE},
+	{"character.file8", 's', &conf_character_file[7], OPTIONAL, NOSAVE},
+	{"character.name9", 's', &conf_character_name[8], OPTIONAL, NOSAVE},
+	{"character.file9", 's', &conf_character_file[8], OPTIONAL, NOSAVE},
+	{"character.name10", 's', &conf_character_name[9], OPTIONAL, NOSAVE},
+	{"character.file10", 's', &conf_character_file[9], OPTIONAL, NOSAVE},
+	{"character.name11", 's', &conf_character_name[10], OPTIONAL, NOSAVE},
+	{"character.file11", 's', &conf_character_file[10], OPTIONAL, NOSAVE},
+	{"character.name12", 's', &conf_character_name[11], OPTIONAL, NOSAVE},
+	{"character.file12", 's', &conf_character_file[11], OPTIONAL, NOSAVE},
+	{"character.name13", 's', &conf_character_name[12], OPTIONAL, NOSAVE},
+	{"character.file13", 's', &conf_character_file[12], OPTIONAL, NOSAVE},
+	{"character.name14", 's', &conf_character_name[13], OPTIONAL, NOSAVE},
+	{"character.file14", 's', &conf_character_file[13], OPTIONAL, NOSAVE},
+	{"character.name15", 's', &conf_character_name[14], OPTIONAL, NOSAVE},
+	{"character.file15", 's', &conf_character_file[14], OPTIONAL, NOSAVE},
+	{"character.name16", 's', &conf_character_name[15], OPTIONAL, NOSAVE},
+	{"character.file16", 's', &conf_character_file[15], OPTIONAL, NOSAVE},
+	{"character.name17", 's', &conf_character_name[16], OPTIONAL, NOSAVE},
+	{"character.file17", 's', &conf_character_file[16], OPTIONAL, NOSAVE},
+	{"character.name18", 's', &conf_character_name[17], OPTIONAL, NOSAVE},
+	{"character.file18", 's', &conf_character_file[17], OPTIONAL, NOSAVE},
+	{"character.name19", 's', &conf_character_name[18], OPTIONAL, NOSAVE},
+	{"character.file19", 's', &conf_character_file[18], OPTIONAL, NOSAVE},
+	{"character.name20", 's', &conf_character_name[19], OPTIONAL, NOSAVE},
+	{"character.file20", 's', &conf_character_file[19], OPTIONAL, NOSAVE},
+	{"character.name21", 's', &conf_character_name[20], OPTIONAL, NOSAVE},
+	{"character.file21", 's', &conf_character_file[20], OPTIONAL, NOSAVE},
+	{"character.name22", 's', &conf_character_name[21], OPTIONAL, NOSAVE},
+	{"character.file22", 's', &conf_character_file[21], OPTIONAL, NOSAVE},
+	{"character.name23", 's', &conf_character_name[22], OPTIONAL, NOSAVE},
+	{"character.file23", 's', &conf_character_file[22], OPTIONAL, NOSAVE},
+	{"character.name24", 's', &conf_character_name[23], OPTIONAL, NOSAVE},
+	{"character.file24", 's', &conf_character_file[23], OPTIONAL, NOSAVE},
+	{"character.name25", 's', &conf_character_name[24], OPTIONAL, NOSAVE},
+	{"character.file25", 's', &conf_character_file[24], OPTIONAL, NOSAVE},
+	{"character.name26", 's', &conf_character_name[25], OPTIONAL, NOSAVE},
+	{"character.file26", 's', &conf_character_file[25], OPTIONAL, NOSAVE},
+	{"character.name27", 's', &conf_character_name[26], OPTIONAL, NOSAVE},
+	{"character.file27", 's', &conf_character_file[26], OPTIONAL, NOSAVE},
+	{"character.name28", 's', &conf_character_name[27], OPTIONAL, NOSAVE},
+	{"character.file28", 's', &conf_character_file[27], OPTIONAL, NOSAVE},
+	{"character.name29", 's', &conf_character_name[28], OPTIONAL, NOSAVE},
+	{"character.file29", 's', &conf_character_file[28], OPTIONAL, NOSAVE},
+	{"character.name30", 's', &conf_character_name[29], OPTIONAL, NOSAVE},
+	{"character.file30", 's', &conf_character_file[29], OPTIONAL, NOSAVE},
+	{"character.name31", 's', &conf_character_name[30], OPTIONAL, NOSAVE},
+	{"character.file31", 's', &conf_character_file[30], OPTIONAL, NOSAVE},
+	{"character.name32", 's', &conf_character_name[31], OPTIONAL, NOSAVE},
+	{"character.file32", 's', &conf_character_file[31], OPTIONAL, NOSAVE},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, OPTIONAL, SAVE},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, OPTIONAL, SAVE},
 	{"window.maximize.disable", 'i', &conf_window_maximize_disable, OPTIONAL, SAVE},

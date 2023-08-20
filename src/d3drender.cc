@@ -46,6 +46,7 @@ struct VertexRHWTex
 // Direct3Dオブジェクト
 static LPDIRECT3D9 pD3D;
 static LPDIRECT3DDEVICE9 pD3DDevice;
+static IDirect3DPixelShader9 *pDimShader;
 static IDirect3DPixelShader9 *pRuleShader;
 static IDirect3DPixelShader9 *pMeltShader;
 
@@ -55,6 +56,29 @@ static TextureListNode *pTexList;
 // 全画面用の表示オフセット
 static int nDisplayOffsetX;
 static int nDisplayOffsetY;
+
+#ifdef COMPILE_SHADER
+// 暗い描画のピクセルシェーダ
+const char szDimPixelShader[] =
+	"ps_1_4                       \n"
+	"def c0, 0.7, 0.7, 0.7, 1.0   \n"
+    "texld r0, t0                 \n"
+    "mul r0, r0, c0               \n";
+
+unsigned char dimShaderBin[1024];
+#else
+// コンパイル済みのシェーダバイナリ
+static const unsigned char dimShaderBin[] = {
+	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x0f, 0xa0, 0x33, 0x33, 0x33, 0x3f,
+	0x33, 0x33, 0x33, 0x3f, 0x33, 0x33, 0x33, 0x3f,
+	0x00, 0x00, 0x80, 0x3f, 0x42, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x0f, 0x80, 0x00, 0x00, 0xe4, 0xb0,
+	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x80,
+	0x00, 0x00, 0xe4, 0x80, 0x00, 0x00, 0xe4, 0xa0,
+	0xff, 0xff, 0x00, 0x00,
+};
+#endif
 
 #if 0
 // ルール付き描画のピクセルシェーダ
@@ -183,12 +207,12 @@ static VOID DestroyDirect3DTextureObjects();
 static VOID DrawPrimitives(int dst_left, int dst_top,
 						   struct image * RESTRICT src_image,
 						   struct image * RESTRICT rule_image,
-						   bool is_melt,
+						   bool is_dim, bool is_melt,
 						   int width, int height,
 						   int src_left, int src_top,
 						   int alpha, int bt);
 #ifdef COMPILE_SHADER
-static void CompileShader();
+void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL);
 #endif
 
 //
@@ -231,6 +255,22 @@ BOOL D3DInitialize(HWND hWnd)
     }
 
 	// シェーダを作成する
+#ifdef COMPILE_SHADER
+	// d3dx9_43.dllのある環境でコンパイルして、shader.txtに出力する
+	CompileShader(szDimPixelShader, dimShaderBin, FALSE);
+#endif
+	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)dimShaderBin,
+											 &pDimShader)))
+	{
+		log_info("Direct3DDevice9::CreatePixelShader() for dim failed.");
+		pD3DDevice->Release();
+		pD3DDevice = NULL;
+		pD3D->Release();
+		pD3D = NULL;
+		return FALSE;
+	}
+
+	// シェーダを作成する
 	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)ruleShaderBin,
 											 &pRuleShader)))
 	{
@@ -254,27 +294,7 @@ BOOL D3DInitialize(HWND hWnd)
 		return FALSE;
 	}
 
-	// ピクセルシェーダのコンパイルを行う
-#if 0
-#ifdef COMPILE_SHADER
-	// d3dx9_43.dllのある環境でコンパイルして、shader.txtに出力する
-	CompileShader();
-#endif
-
-	// シェーダを作成する
-	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)blurShaderBin,
-											 &pBlurShader)))
-	{
-		log_info("Direct3DDevice9::CreatePixelShader() blur failed.");
-		pD3DDevice->Release();
-		pD3DDevice = NULL;
-		pD3D->Release();
-		pD3D = NULL;
-		return FALSE;
-	}
-#endif
-
-    return TRUE;
+	return TRUE;
 }
 
 //
@@ -522,8 +542,21 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 					struct image * RESTRICT src_image, int width, int height,
 					int src_left, int src_top, int alpha, int bt)
 {
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, false, width, height,
-				   src_left, src_top, alpha, bt);
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, false, false,
+				   width, height, src_left, src_top, alpha, bt);
+}
+
+//
+// イメージを暗くレンダリングする
+// (render_image_dim()のDirect3D版実装)
+//
+VOID D3DRenderImageDim(int dst_left, int dst_top,
+					   struct image * RESTRICT src_image,
+					   int width, int height,
+					   int src_left, int src_top, int alpha, int bt)
+{
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, true, false,
+				   width, height, src_left, src_top, alpha, bt);
 }
 
 //
@@ -534,7 +567,7 @@ VOID D3DRenderImageRule(struct image * RESTRICT src_image,
 						struct image * RESTRICT rule_image,
 						int threshold)
 {
-	DrawPrimitives(0, 0, src_image, rule_image, false,
+	DrawPrimitives(0, 0, src_image, rule_image, false, false,
 				   get_image_width(src_image), get_image_height(src_image),
 				   0, 0, threshold, BLEND_NONE);
 }
@@ -547,7 +580,7 @@ VOID D3DRenderImageMelt(struct image * RESTRICT src_image,
 						struct image * RESTRICT rule_image,
 						int threshold)
 {
-	DrawPrimitives(0, 0, src_image, rule_image, true,
+	DrawPrimitives(0, 0, src_image, rule_image, false, true,
 				   get_image_width(src_image), get_image_height(src_image),
 				   0, 0, threshold, BLEND_NONE);
 }
@@ -556,6 +589,7 @@ VOID D3DRenderImageMelt(struct image * RESTRICT src_image,
 static VOID DrawPrimitives(int dst_left, int dst_top,
 						   struct image * RESTRICT src_image,
 						   struct image * RESTRICT rule_image,
+						   bool is_dim,
 						   bool is_melt,
 						   int width, int height,
 						   int src_left, int src_top,
@@ -633,13 +667,13 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[3].v2 = v[3].v1;
 	v[3].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
-	if (rule_image == NULL && bt == BLEND_NONE)
+	if (rule_image == NULL && bt == BLEND_NONE && !is_dim)
 	{
 		// ブレンドしない場合
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
-	else if (rule_image == NULL && bt != BLEND_NONE)
+	else if (rule_image == NULL && bt != BLEND_NONE && !is_dim)
 	{
 		// ブレンドする場合
 		pD3DDevice->SetPixelShader(NULL);
@@ -652,6 +686,14 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+	}
+	else if (is_dim)
+	{
+		// DIMシェーダを使用する場合
+		pD3DDevice->SetPixelShader(pDimShader);
+		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
+		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	}
 	else if (rule_image != NULL && !is_melt)
 	{
@@ -716,41 +758,42 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 #include <d3dx9.h>
 #include "log.h"
 
-void CompileShader()
+void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
 {
 	ID3DXBuffer *pShader;
 	ID3DXBuffer *pError;
 
-#if 0
-	// For pixel shader assembly
-	if (FAILED(D3DXAssembleShader(szMeltPixelShader,
-								  sizeof(szMeltPixelShader) - 1,
-								  0, NULL, 0, &pShader, &pError)))
+	if (!bHLSL)
 	{
-		log_api_error("D3DXAssembleShader");
+		// For pixel shader assembly
+		if (FAILED(D3DXAssembleShader(pSrc, strlen(pSrc), 0, NULL, 0,
+									  &pShader, &pError)))
+		{
+			log_api_error("D3DXAssembleShader");
 
-		LPSTR pszError = (LPSTR)pError->GetBufferPointer();
-		if (pszError != NULL)
-			log_error("%s", pszError);
+			LPSTR pszError = (LPSTR)pError->GetBufferPointer();
+			if (pszError != NULL)
+				log_error("%s", pszError);
 
-		exit(1);
+			exit(1);
+		}
 	}
-#else
-	// For pixel shader HLSL
-	if (FAILED(D3DXCompileShader(szBlurPixelShader,
-								 sizeof(szBlurPixelShader) - 1,
-								 NULL, NULL, "blur", "ps_2_0", 0,
-								 &pShader, &pError, NULL)))
+	else
 	{
-		log_api_error("D3DXCompileShader");
+		// For pixel shader HLSL
+		if (FAILED(D3DXCompileShader(pSrc, strlen(pSrc) - 1,
+									 NULL, NULL, "blur", "ps_2_0", 0,
+									 &pShader, &pError, NULL)))
+		{
+			log_api_error("D3DXCompileShader");
 
-		LPSTR pszError = (LPSTR)pError->GetBufferPointer();
-		if (pszError != NULL)
-			log_error("%s", pszError);
+			LPSTR pszError = (LPSTR)pError->GetBufferPointer();
+			if (pszError != NULL)
+				log_error("%s", pszError);
 
-		exit(1);
+			exit(1);
+		}
 	}
-#endif
 
 	FILE *fp;
 	fp = fopen("shader.txt", "w");
@@ -760,7 +803,7 @@ void CompileShader()
 	int size = pShader->GetBufferSize();
 	unsigned char *p = (unsigned char *)pShader->GetBufferPointer();
 	for (int i=0; i<size; i++) {
-		blurShaderBin[i] = p[i];
+		pDst[i] = p[i];
 		fprintf(fp, "0x%02x, ", p[i]);
 		if (i % 8 == 7)
 			fprintf(fp, "\n");

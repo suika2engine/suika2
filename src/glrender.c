@@ -40,12 +40,14 @@
 #include <GL/glew.h>
 #endif
 
-static GLuint program, program_rule, program_melt;
+static GLuint program, program_dim, program_rule, program_melt;
 static GLuint vertex_shader;
-static GLuint fragment_shader, fragment_shader_rule, fragment_shader_melt;
-static GLuint vertex_array, vertex_array_rule, vertex_array_melt;
-static GLuint vertex_buf, vertex_buf_rule, vertex_buf_melt;
-static GLuint index_buf, index_buf_rule, index_buf_melt;
+static GLuint fragment_shader, fragment_shader_dim, fragment_shader_rule,
+	      fragment_shader_melt;
+static GLuint vertex_array, vertex_array_dim, vertex_array_rule,
+	      vertex_array_melt;
+static GLuint vertex_buf, vertex_buf_dim, vertex_buf_rule, vertex_buf_melt;
+static GLuint index_buf, index_buf_dim, index_buf_rule, index_buf_melt;
 
 static const char *vertex_shader_src =
 #if !defined(EM)
@@ -75,6 +77,22 @@ static const char *fragment_shader_src =
 	"{                                                   \n"
 	"  vec4 tex = texture2D(s_texture, v_texCoord);      \n"
 	"  tex.a = tex.a * v_alpha;                          \n"
+	"  gl_FragColor = tex;                               \n"
+	"}                                                   \n";
+
+static const char *fragment_shader_dim_src =
+#if !defined(EM)
+	"#version 100                                        \n"
+#endif
+	"precision mediump float;                            \n"
+	"varying vec2 v_texCoord;                            \n"
+	"uniform sampler2D s_texture;                        \n"
+	"void main()                                         \n"
+	"{                                                   \n"
+	"  vec4 tex = texture2D(s_texture, v_texCoord);      \n"
+	"  tex.r = tex.r * 0.7;                              \n"
+	"  tex.g = tex.g * 0.7;                              \n"
+	"  tex.b = tex.b * 0.7;                              \n"
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
@@ -129,8 +147,10 @@ struct vertex {
 static void draw_elements(int dst_left, int dst_top,
 			  struct image * RESTRICT src_image,
 			  struct image * RESTRICT rule_image,
-			  bool is_melt, int width, int height, int src_left,
-			  int src_top, int alpha);
+			  bool is_dim, bool is_melt,
+			  int width, int height,
+			  int src_left, int src_top,
+			  int alpha);
 
 /*
  * OpenGLの初期化処理を行う
@@ -163,6 +183,21 @@ bool init_opengl(void)
 	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment_shader, 1, &fragment_shader_src, NULL);
 	glCompileShader(fragment_shader);
+
+	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		char buf[1024];
+		int len;
+		log_info("Fragment shader compile error");
+		glGetShaderInfoLog(fragment_shader, sizeof(buf), &len, &buf[0]);
+		log_info("%s", buf);
+		return false;
+	}
+
+	/* フラグメントシェーダ(DIM)を作成する */
+	fragment_shader_dim = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment_shader_dim, 1, &fragment_shader_dim_src, NULL);
+	glCompileShader(fragment_shader_dim);
 
 	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
 	if (!compiled) {
@@ -223,6 +258,22 @@ bool init_opengl(void)
 		return false;
 	}
 
+	/* プログラム(DIM)を作成する */
+	program_dim = glCreateProgram();
+	glAttachShader(program_dim, vertex_shader);
+	glAttachShader(program_dim, fragment_shader_dim);
+	glLinkProgram(program_dim);
+
+	glGetProgramiv(program_dim, GL_LINK_STATUS, &linked);
+	if (!linked) {
+		char buf[1024];
+		int len;
+		log_info("Program link error\n");
+		glGetProgramInfoLog(program_dim, sizeof(buf), &len, &buf[0]);
+		log_info("%s", buf);
+		return false;
+	}
+
 	/* プログラム(ルール)を作成する */
 	program_rule = glCreateProgram();
 	glAttachShader(program_rule, vertex_shader);
@@ -274,6 +325,27 @@ bool init_opengl(void)
 	glUniform1i(sampler_loc, 0);
 	glGenBuffers(1, &index_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	/* シェーダのセットアップを行う(DIM) */
+	glUseProgram(program_dim);
+	glGenVertexArrays(1, &vertex_array_dim);
+	glBindVertexArray(vertex_array_dim);
+	glGenBuffers(1, &vertex_buf_dim);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_dim);
+	pos_loc = glGetAttribLocation(program_dim, "a_position");
+	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+	glEnableVertexAttribArray((GLuint)pos_loc);
+	tex_loc = glGetAttribLocation(program_dim, "a_texCoord");
+	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)tex_loc);
+	alpha_loc = glGetAttribLocation(program_dim, "a_alpha");
+	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)alpha_loc);
+	sampler_loc = glGetUniformLocation(program_dim, "s_texture");
+	glUniform1i(sampler_loc, 0);
+	glGenBuffers(1, &index_buf_dim);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf_dim);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	/* シェーダのセットアップを行う(ルール) */
@@ -480,8 +552,34 @@ void opengl_render_image(int dst_left, int dst_top,
 			 &height, &dst_left, &dst_top, &src_left, &src_top))
 		return;	/* 描画範囲外 */
 
-	draw_elements(dst_left, dst_top, src_image, NULL, false, width, height,
-		      src_left, src_top, alpha);
+	draw_elements(dst_left, dst_top, src_image, NULL, false, false,
+		      width, height, src_left, src_top, alpha);
+}
+
+/*
+ * 画面にイメージを暗くレンダリングする
+ */
+void opengl_render_image_dim(int dst_left, int dst_top,
+			     struct image * RESTRICT src_image, int width,
+			     int height, int src_left, int src_top, int alpha,
+			     int bt)
+{
+	UNUSED_PARAMETER(bt);
+
+	/* 描画の必要があるか判定する */
+	if (alpha == 0 || width == 0 || height == 0)
+		return;	/* 描画の必要がない */
+	if (!clip_by_source(get_image_width(src_image),
+			   get_image_height(src_image),
+			   &width, &height, &dst_left, &dst_top, &src_left,
+			   &src_top))
+		return;	/* 描画範囲外 */
+	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
+			 &height, &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
+
+	draw_elements(dst_left, dst_top, src_image, NULL, true, false,
+		      width, height, src_left, src_top, alpha);
 }
 
 /*
@@ -491,8 +589,9 @@ void opengl_render_image_rule(struct image * RESTRICT src_image,
 			      struct image * RESTRICT rule_image,
 			      int threshold)
 {
-	draw_elements(0, 0, src_image, rule_image, false, conf_window_width,
-		      conf_window_height, 0, 0, threshold);
+	draw_elements(0, 0, src_image, rule_image, false, false,
+		      conf_window_width, conf_window_height,
+		      0, 0, threshold);
 
 }
 
@@ -503,8 +602,9 @@ void opengl_render_image_melt(struct image * RESTRICT src_image,
 			      struct image * RESTRICT rule_image,
 			      int threshold)
 {
-	draw_elements(0, 0, src_image, rule_image, true, conf_window_width,
-		      conf_window_height, 0, 0, threshold);
+	draw_elements(0, 0, src_image, rule_image, false, true,
+		      conf_window_width, conf_window_height,
+		      0, 0, threshold);
 
 }
 
@@ -512,8 +612,10 @@ void opengl_render_image_melt(struct image * RESTRICT src_image,
 static void draw_elements(int dst_left, int dst_top,
 			  struct image * RESTRICT src_image,
 			  struct image * RESTRICT rule_image,
-			  bool is_melt, int width, int height, int src_left,
-			  int src_top, int alpha)
+			  bool is_dim, bool is_melt,
+			  int width, int height,
+			  int src_left, int src_top,
+			  int alpha)
 {
 	GLfloat pos[24];
 	struct texture *tex, *rule;
@@ -571,9 +673,15 @@ static void draw_elements(int dst_left, int dst_top,
 
 	/* シェーダを設定して頂点バッファに書き込む */
 	if (rule_image == NULL) {
-		glUseProgram(program);
-		glBindVertexArray(vertex_array);
-		glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+		if (!is_dim) {
+			glUseProgram(program);
+			glBindVertexArray(vertex_array);
+			glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+		} else {
+			glUseProgram(program_dim);
+			glBindVertexArray(vertex_array);
+			glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+		}
 	} else if (!is_melt) {
 		glUseProgram(program_rule);
 		glBindVertexArray(vertex_array_rule);

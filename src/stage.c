@@ -178,13 +178,16 @@ static char *bg_file_name;
 static char *ch_file_name[CH_ALL_LAYERS];
 
 /* STAGE_MODE_BG_FADEのときの新しい背景 */
-struct image *new_bg_img;
+static struct image *new_bg_img;
 
 /* ルール画像 */
-struct image *rule_img;
+static struct image *rule_img;
 
 /* FI/FOフェードの進捗 */
 static float fi_fo_fade_progress;
+
+/* キャラを暗くするか */
+static bool ch_dim[CH_BASIC_LAYERS];
 
 /*
  * アニメ中の情報
@@ -264,6 +267,7 @@ static void draw_stage_fi_fo_fade_slit_close(void);
 static void draw_stage_fi_fo_fade_slit_open_v(void);
 static void draw_stage_fi_fo_fade_slit_close_v(void);
 static int pos_to_layer(int pos);
+static int layer_to_pos(int layer);
 static float get_anime_interpolation(float progress, float from, float to);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
@@ -2700,6 +2704,16 @@ int get_ch_alpha(int pos)
 }
 
 /*
+ * キャラを暗くするかを設定する
+ */
+void set_ch_dim(int pos, bool dim)
+{
+	assert(pos >= 0 && pos < CH_BASIC_LAYERS);
+
+	ch_dim[pos] = dim;
+}
+
+/*
  * キャラをフェードせずにただちに切り替える
  */
 void change_ch_immediately(int pos, struct image *img, int x, int y, int alpha)
@@ -2811,6 +2825,27 @@ static int pos_to_layer(int pos)
 	}
 	assert(BAD_POSITION);
 	return -1;	/* never come here */
+}
+
+/* レイヤインデックスをキャラの位置に変換する */
+static int layer_to_pos(int layer)
+{
+	assert(layer == LAYER_CHB || layer == LAYER_CHL ||
+	       layer == LAYER_CHR || layer == LAYER_CHC);
+	switch (layer) {
+	case LAYER_CHB:
+		return CH_BACK;
+	case LAYER_CHL:
+		return CH_LEFT;
+	case LAYER_CHR:
+		return CH_RIGHT;
+	case LAYER_CHC:
+		return CH_CENTER;
+	default:
+		assert(0);
+		break;
+	}
+	return -1;
 }
 
 /*
@@ -3530,8 +3565,24 @@ static void render_layer_image(int layer)
 	if (layer == LAYER_BG)
 		assert(layer_image[LAYER_BG] != NULL);
 
-	/* その他のレイヤはイメージがセットされていれば描画する */
-	if (layer_image[layer] != NULL) {
+	/* イメージがセットされていなければ描画しない */
+	if (layer_image[layer] == NULL)
+		return;
+
+	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
+	    ch_dim[layer_to_pos(layer)]) {
+		/* 暗く描画する */
+		render_image_dim(layer_x[layer],
+				 layer_y[layer],
+				 layer_image[layer],
+				 get_image_width(layer_image[layer]),
+				 get_image_height(layer_image[layer]),
+				 0,
+				 0,
+				 layer_alpha[layer],
+				 layer_blend[layer]);
+	} else {
+		/* 普通に描画する */
 		render_image(layer_x[layer],
 			     layer_y[layer],
 			     layer_image[layer],
@@ -3553,8 +3604,25 @@ static void draw_layer_image(struct image *target, int layer)
 	if (layer == LAYER_BG)
 		assert(layer_image[LAYER_BG] != NULL);
 
-	/* イメージがセットされていれば描画する */
-	if (layer_image[layer] != NULL) {
+	/* イメージがセットされていなければ描画しない */
+	if (layer_image[layer] == NULL)
+		return;
+
+	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
+	    ch_dim[layer_to_pos(layer)]) {
+		/* 暗く描画する */
+		draw_image_dim(target,
+			       layer_x[layer],
+			       layer_y[layer],
+			       layer_image[layer],
+			       get_image_width(layer_image[layer]),
+			       get_image_height(layer_image[layer]),
+			       0,
+			       0,
+			       layer_alpha[layer],
+			       layer_blend[layer]);
+	} else {
+		/* 普通に描画する */
 		draw_image(target,
 			   layer_x[layer],
 			   layer_y[layer],
@@ -3577,11 +3645,33 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 	if (layer == LAYER_BG)
 		assert(layer_image[LAYER_BG] != NULL);
 
-	/* イメージがセットされていれば描画する */
-	if (layer_image[layer] != NULL) {
-		render_image(x, y, layer_image[layer], w, h,
-			     x - layer_x[layer], y - layer_y[layer],
-			     layer_alpha[layer], layer_blend[layer]);
+	/* イメージがセットされていなければ描画しない */
+	if (layer_image[layer] == NULL)
+		return;
+
+	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
+	    ch_dim[layer_to_pos(layer)]) {
+		/* 暗く描画する */
+		render_image_dim(x,
+				 y,
+				 layer_image[layer],
+				 w,
+				 h,
+				 x - layer_x[layer],
+				 y - layer_y[layer],
+				 layer_alpha[layer],
+				 layer_blend[layer]);
+	} else {
+		/* 暗く描画する */
+		render_image(x,
+			     y,
+			     layer_image[layer],
+			     w,
+			     h,
+			     x - layer_x[layer],
+			     y - layer_y[layer],
+			     layer_alpha[layer],
+			     layer_blend[layer]);
 	}
 }
 

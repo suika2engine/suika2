@@ -131,6 +131,10 @@ static bool init(void)
 	if (!set_ch_file_name(chpos, erase ? NULL : fname))
 	    return false;
 
+	/* キャラを暗くしない */
+	if (chpos != CH_FACE)
+		set_ch_dim(chpos, false);
+
 	/* Controlが押されているか、フェードしない場合 */
 	if ((span == 0)
 	    ||
