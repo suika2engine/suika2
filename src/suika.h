@@ -23,6 +23,7 @@
 #include <time.h>
 #include <assert.h>
 
+#include "anime.h"
 #include "conf.h"
 #include "event.h"
 #include "file.h"
@@ -87,6 +88,9 @@
 
 /* WMSのディレクトリ */
 #define WMS_DIR		"wms"
+
+/* アニメのディレクトリ */
+#define ANIME_DIR	"anime"
 
 /*
  * 固定のファイル名

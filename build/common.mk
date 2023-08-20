@@ -25,6 +25,7 @@ SRCS_COMMON = \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c \
+	../../src/anime.c \
 	../../src/conf.c \
 	../../src/event.c \
 	../../src/file.c \

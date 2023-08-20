@@ -815,6 +815,39 @@ void log_wms_runtime_error(const char *file, int line, const char *msg)
 		log_error(U8("%s: 実行エラー %d行目: %s"), file, line, msg);
 }
 
+/*
+ * アニメーションのシーケンスが長すぎるエラーを記録する
+ */
+void log_anime_long_sequence(void)
+{
+	if (is_english_mode())
+		log_error("Anime sequence too long\n");
+	else
+		log_error(U8("アニメーションシーケンスが長すぎます"));
+}
+
+/*
+ * アニメーションファイルでレイヤ名が指定されていないエラーを記録する
+ */
+void log_anime_layer_not_specified(const char *key)
+{
+	if (is_english_mode())
+		log_error("\"%s\" appeared before \"layer\"\n", key);
+	else
+		log_error(U8("\"layer\"の前に\"%s\"が指定されました"), key);
+}
+
+/*
+ * アニメーションファイルで未定義のキーが指定されたエラーを記録する
+ */
+void log_anime_unknown_key(const char *key)
+{
+	if (is_english_mode())
+		log_error("Unknown keyword \"%s\"\n", key);
+	else
+		log_error(U8("未知のキーワード \"%s\"が指定されました"), key);
+}
+
 #ifdef USE_DEBUGGER
 /*
  * コマンドのアップデートに失敗した際のエラーを記録する
