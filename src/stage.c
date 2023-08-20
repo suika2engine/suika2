@@ -864,23 +864,23 @@ void draw_stage(void)
 		update_anime_frame();
 		if (is_anime_running_for_layer(ANIME_LAYER_BG) ||
 		    is_anime_finished_for_layer(ANIME_LAYER_BG)) {
-			get_anime_layer_params(ANIME_LAYER_BG, NULL, NULL, &layer_x[LAYER_BG], &layer_y[LAYER_BG], &layer_alpha[LAYER_BG]);
+			get_anime_layer_params(ANIME_LAYER_BG, &layer_image[LAYER_BG], &bg_file_name, &layer_x[LAYER_BG], &layer_y[LAYER_BG], &layer_alpha[LAYER_BG]);
 		}
 		if (is_anime_running_for_layer(ANIME_LAYER_CHB) ||
 		    is_anime_finished_for_layer(ANIME_LAYER_CHB)) {
-			get_anime_layer_params(ANIME_LAYER_CHB, NULL, NULL, &layer_x[LAYER_CHB], &layer_y[LAYER_CHB], &layer_alpha[LAYER_CHB]);
+			get_anime_layer_params(ANIME_LAYER_CHB, &layer_image[LAYER_CHB], &ch_file_name[CH_BACK], &layer_x[LAYER_CHB], &layer_y[LAYER_CHB], &layer_alpha[LAYER_CHB]);
 		}
 		if (is_anime_running_for_layer(ANIME_LAYER_CHL) ||
 		    is_anime_finished_for_layer(ANIME_LAYER_CHL)) {
-			get_anime_layer_params(ANIME_LAYER_CHL, NULL, NULL, &layer_x[LAYER_CHL], &layer_y[LAYER_CHL], &layer_alpha[LAYER_CHL]);
+			get_anime_layer_params(ANIME_LAYER_CHL, &layer_image[LAYER_CHL], &ch_file_name[CH_LEFT], &layer_x[LAYER_CHL], &layer_y[LAYER_CHL], &layer_alpha[LAYER_CHL]);
 		}
 		if (is_anime_running_for_layer(ANIME_LAYER_CHR) ||
 		    is_anime_finished_for_layer(ANIME_LAYER_CHR)) {
-			get_anime_layer_params(ANIME_LAYER_CHR, NULL, NULL, &layer_x[LAYER_CHR], &layer_y[LAYER_CHR], &layer_alpha[LAYER_CHR]);
+			get_anime_layer_params(ANIME_LAYER_CHR, &layer_image[LAYER_CHR], &ch_file_name[CH_RIGHT], &layer_x[LAYER_CHR], &layer_y[LAYER_CHR], &layer_alpha[LAYER_CHR]);
 		}
 		if (is_anime_running_for_layer(ANIME_LAYER_CHC) ||
 		    is_anime_finished_for_layer(ANIME_LAYER_CHC)) {
-			get_anime_layer_params(ANIME_LAYER_CHC, NULL, NULL, &layer_x[LAYER_CHC], &layer_y[LAYER_CHC], &layer_alpha[LAYER_CHC]);
+			get_anime_layer_params(ANIME_LAYER_CHC, &layer_image[LAYER_CHC], &ch_file_name[CH_CENTER], &layer_x[LAYER_CHC], &layer_y[LAYER_CHC], &layer_alpha[LAYER_CHC]);
 		}
 		if (is_anime_running_for_layer(ANIME_LAYER_MSG) ||
 		    is_anime_finished_for_layer(ANIME_LAYER_MSG)) {

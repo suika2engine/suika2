@@ -281,7 +281,7 @@ void update_anime_frame(void)
 /*
  * レイヤのパラメータを取得する
  */
-void
+bool
 get_anime_layer_params(
 	int layer,
 	struct image **image,
@@ -292,17 +292,14 @@ get_anime_layer_params(
 {
 	struct sequence *s;
 	float progress;
+	const char *dir;
 	int i;
 
 	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
 
-	/* TODO */
-	UNUSED_PARAMETER(image);
-	UNUSED_PARAMETER(file);
-
 	/* シーケンスが定義されていない場合 */
 	if (context[layer].seq_count == 0)
-		return;
+		return true;
 
 	/* 補間を行う */
 	for (i = 0; i < context[layer].seq_count; i++) {
@@ -312,6 +309,33 @@ get_anime_layer_params(
 		if (i != context[layer].seq_count - 1 &&
 		    context[layer].cur_lap > s->end_time)
 			continue;
+
+		/* ファイル読み込みを行う */
+		if (s->file != NULL) {
+			if (layer == ANIME_LAYER_BG)
+				dir = BG_DIR;
+			else if (layer >= ANIME_LAYER_CHB &&
+				 layer <= ANIME_LAYER_CHC)
+				dir = CH_DIR;
+			else if (layer == ANIME_LAYER_MSG ||
+				 layer == ANIME_LAYER_NAME)
+				dir = CG_DIR;
+			else if (layer == ANIME_LAYER_CHF)
+				dir = CH_DIR;
+			else
+				dir = "";
+			if (image != NULL) {
+				destroy_image(*image);
+				*image = create_image_from_file(dir, s->file);
+				if (*image == NULL)
+					return false;
+			}
+			if (file != NULL) {
+				free(*file);
+				*file = s->file;
+			}
+			s->file = NULL;
+		}
 
 		/* 進捗率を計算する */
 		progress = (context[layer].cur_lap - s->start_time) /
@@ -341,6 +365,8 @@ get_anime_layer_params(
 
 		break;
 	}
+
+	return true;
 }
 
 /*
@@ -388,6 +414,12 @@ static bool on_key_value(const char *key, const char *val)
 	s = &sequence[cur_seq_layer][top];
 	if (strcmp(key, "clear") == 0) {
 		context[cur_seq_layer].seq_count = 1;
+	} else if (strcmp(key, "file") == 0) {
+		s->file = strdup(val);
+		if (s->file == NULL) {
+			log_memory();
+			return false;
+		}
 	} else if (strcmp(key, "start") == 0) {
 		s->start_time = (float)atof(val);
 	} else if (strcmp(key, "end") == 0) {

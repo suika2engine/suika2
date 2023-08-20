@@ -73,7 +73,7 @@ bool is_anime_finished_for_layer(int layer);
 void update_anime_frame(void);
 
 /* レイヤのパラメータを取得する */
-void
+bool
 get_anime_layer_params(
 	int layer,
 	struct image **image,
