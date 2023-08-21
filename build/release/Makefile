@@ -3,6 +3,8 @@ all: suika-2.x.x-en.zip suika-2.x.x-jp.zip
 suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-capture.exe ../cloud/suika-replay.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg ../cloud/mac-capture.dmg ../cloud/mac-replay.dmg ../cloud/suika-linux ../cloud/suika-linux-replay
 	rm -rf suika2 suika-2.x.x-en.zip
 	mkdir suika2
+	mkdir suika2/anime
+	cp -Rv ../../game-en/anime/* suika2/anime/
 	mkdir suika2/bg
 	cp -Rv ../../game-en/bg/* suika2/bg/
 	mkdir suika2/bgm
@@ -57,6 +59,8 @@ suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-capture.exe ../cloud/suika-replay.exe ../cloud/mac.dmg ../cloud/mac-pro.dmg ../cloud/mac-capture.dmg ../cloud/mac-replay.dmg ../cloud/suika-linux ../cloud/suika-linux-replay
 	rm -rf suika2 suika-2.x.x-jp.zip
 	mkdir suika2
+	mkdir suika2/anime
+	cp -Rv ../../game-en/anime/* suika2/anime/
 	mkdir suika2/bg
 	cp -Rv ../../game-jp/bg/* suika2/bg/
 	mkdir suika2/bgm
