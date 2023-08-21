@@ -44,6 +44,8 @@ static FT_Face face;
 static FT_Byte *font_file_content;
 static FT_Long font_file_size;
 
+static int font_size;
+
 /*
  * 前方参照
  */
@@ -372,7 +374,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 				(int)bitmapGlyph->bitmap.width,
 				(int)bitmapGlyph->bitmap.rows,
 				bitmapGlyph->left,
-				conf_font_size - bitmapGlyph->top,
+				font_size - bitmapGlyph->top,
 				get_image_pixels(img),
 				get_image_width(img),
 				get_image_height(img),
@@ -397,7 +399,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 				(int)bitmapGlyph->bitmap.width,
 				(int)bitmapGlyph->bitmap.rows,
 				bitmapGlyph->left,
-				conf_font_size - bitmapGlyph->top,
+				font_size - bitmapGlyph->top,
 				get_image_pixels(img),
 				get_image_width(img),
 				get_image_height(img),
@@ -408,7 +410,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	descent = (int)(face->glyph->metrics.height / SCALE) -
 		  (int)(face->glyph->metrics.horiBearingY / SCALE);
 	*w = (int)face->glyph->advance.x / SCALE;
-	*h = conf_font_size + descent + 2;
+	*h = font_size + descent + 2;
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
 	if (img == NULL)
@@ -424,7 +426,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 			(int)bitmapGlyph->bitmap.width,
 			(int)bitmapGlyph->bitmap.rows,
 			bitmapGlyph->left,
-			conf_font_size - bitmapGlyph->top,
+			font_size - bitmapGlyph->top,
 			get_image_pixels(img),
 			get_image_width(img),
 			get_image_height(img),
@@ -457,7 +459,7 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				(int)face->glyph->bitmap.width,
 				(int)face->glyph->bitmap.rows,
 				face->glyph->bitmap_left,
-				conf_font_size - face->glyph->bitmap_top,
+				font_size - face->glyph->bitmap_top,
 				get_image_pixels(img),
 				get_image_width(img),
 				get_image_height(img),
@@ -472,7 +474,7 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 
 	/* 描画した幅と高さを求める */
 	*w = (int)face->glyph->advance.x / SCALE;
-	*h = conf_font_size + descent;
+	*h = font_size + descent;
 
 	return true;
 }
@@ -590,6 +592,8 @@ bool set_font_size(int size)
 {
 	FT_Error err;
 
+	font_size = size;
+
 	/* 文字サイズをセットする */
 	err = FT_Set_Pixel_Sizes(face, 0, (FT_UInt)size);
 	if (err != 0) {
@@ -597,6 +601,14 @@ bool set_font_size(int size)
 		return false;
 	}
 	return true;
+}
+
+/*
+ * フォントサイズを取得する
+ */
+int get_font_size(void)
+{
+	return font_size;
 }
 
 /*

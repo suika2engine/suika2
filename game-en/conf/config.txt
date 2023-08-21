@@ -66,6 +66,9 @@ font.outline.color.b=128
 # Font outline (0:show, 1:hide)
 font.outline.remove=0
 
+# Ruby font size
+font.ruby.size=16
+
 ###
 ### Namebox Settings
 ###
@@ -114,6 +117,9 @@ msgbox.margin.right=80
 
 # Line spacing
 msgbox.margin.line=40
+
+# Character spacing
+msgbox.margin.char=0
 
 # Message speed (x characters per second)
 msgbox.speed=40.0
@@ -227,7 +233,7 @@ click.move=0
 # Click animation image file name
 click.file1=click1.png
 
-# Other click animation image file names (optional)
+# Other click animation image file names (optional, continues to click.file16)
 click.file2=click2.png
 click.file3=click3.png
 click.file4=click4.png

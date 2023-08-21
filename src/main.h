@@ -98,6 +98,7 @@ bool skip_command(void);
 bool chapter_command(void);
 bool gui_command(int *x, int *y, int *w, int *h);
 bool wms_command(void);
+bool anime_command(int *x, int *y, int *w, int *h);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

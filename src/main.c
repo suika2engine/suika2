@@ -484,6 +484,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		if (!wms_command())
 			return false;
 		break;
+	case COMMAND_ANIME:
+		if (!anime_command(x, y, w, h))
+			return false;
+		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */
 		assert(COMMAND_DISPATCH_NOT_IMPLEMENTED);

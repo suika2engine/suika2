@@ -3169,7 +3169,7 @@ register_ffi_func(
 		if (ff->param_list == NULL) {
 			free(ff->name);
 			free(ff);
-			return NULL;
+			return false;
 		}
 		memset(ff->param_list, 0, sizeof(struct wms_param_list));
 
@@ -3182,7 +3182,7 @@ register_ffi_func(
 				free_param(ff->param_list->list);
 				free(ff->param_list);
 				free(ff);
-				return NULL;
+				return false;
 			}
 			memset(param, 0, sizeof(struct wms_param));
 			param->symbol = strdup(param_name[i]);
@@ -3192,7 +3192,7 @@ register_ffi_func(
 				free(ff->param_list);
 				free(ff->name);
 				free(ff);
-				return NULL;
+				return false;
 			}
 			if (prev_param == NULL) {
 				ff->param_list->list = param;

@@ -1,4 +1,6 @@
 SRC = \
+	../../src/anime.c \
+	../../src/cmd_anime.c \
 	../../src/cmd_bg.c \
 	../../src/cmd_bgm.c \
 	../../src/cmd_ch.c \

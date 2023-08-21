@@ -35,7 +35,7 @@
 /* Directory names */
 const char *dir_names[] = {
 	"bg", "bgm", "ch", "cg", "cv", "conf", "font", "gui", "rule", "se",
-	"txt", "wms"
+	"txt", "wms", "anime"
 };
 
 /* Size of directory names */
@@ -79,9 +79,13 @@ bool create_package(const char *base_dir)
 	next_random = 0;
 
 	/* Get list of files. */
-	for (i = 0; i < DIR_COUNT; i++)
-		if (!get_file_names(base_dir, dir_names[i]))
+	for (i = 0; i < DIR_COUNT; i++) {
+		if (!get_file_names(base_dir, dir_names[i])) {
+			if (strcmp(dir_names[i], "anime") == 0)
+				continue;
 			return false;
+		}
+	}
 
 	/* Get all file sizes and decide all offsets in archive. */
 	if (!get_file_sizes(base_dir))

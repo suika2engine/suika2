@@ -9,27 +9,19 @@
  * [Changes]
  *  - 2021/06/10 作成
  *  - 2023/01/06 日本語の位置名に対応
+ *  - 2023/08/20 新アニメーションシステムへ移行
  */
 
 #include "suika.h"
 
-#define INVALID_ACCEL_TYPE	(0)
-
-enum cha_accel_type {
-	CHA_ACCEL_UNIFORM,
-	CHA_ACCEL_ACCEL,
-	CHA_ACCEL_DEACCEL,
-};
-
-static stop_watch_t sw;
-static float span;
-static int accel;
+static int layer;
 
 static bool init(void);
 static bool get_position(int *chpos, const char *pos);
-static bool get_accel(const char *accel_s);
+static int get_accel(const char *accel_s);
 static int get_alpha(const char *alpha);
-static void draw(void);
+static int chpos_to_layer(int chpos);
+static void draw(int *x, int *y, int *w, int *h);
 static bool cleanup(void);
 
 /*
@@ -41,7 +33,7 @@ bool cha_command(int *x, int *y, int *w, int *h)
 		if (!init())
 			return false;
 
-	draw();
+	draw(x, y, w, h);
 
 	if (!is_in_command_repetition())
 		if (!cleanup())
@@ -61,7 +53,8 @@ bool cha_command(int *x, int *y, int *w, int *h)
 static bool init(void)
 {
 	const char *pos, *alpha_s, *accel_s;
-	int chpos, ofs_x, ofs_y, alpha, x, y;
+	float span;
+	int chpos, ofs_x, ofs_y, alpha, from_x, from_y, to_x, to_y, accel;
 
 	/* パラメータを取得する */
 	pos = get_string_param(CHA_PARAM_POS);
@@ -74,18 +67,20 @@ static bool init(void)
 	/* キャラの位置を取得する */
 	if (!get_position(&chpos, pos))
 		return false;
+	layer = chpos_to_layer(chpos);
 
 	/* 加速を取得する */
-	if (!get_accel(accel_s))
+	accel = get_accel(accel_s);
+	if (accel == -1)
 		return false;
 
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
 
 	/* キャラのオフセットを絶対座標に変換する */
-	get_ch_position(chpos, &x, &y);
-	x += ofs_x;
-	y += ofs_y;
+	get_ch_position(chpos, &from_x, &from_y);
+	to_x = from_x + ofs_x;
+	to_y = from_y + ofs_y;
 
 	/* Controlが押されているか、フェードしない場合 */
 	if ((span == 0)
@@ -94,16 +89,26 @@ static bool init(void)
 	    ||
 	    (!is_non_interruptible() && !is_auto_mode() && is_control_pressed)) {
 		/* フェードせず、すぐに切り替える */
-		change_ch_attributes(chpos, x, y, alpha);
+		change_ch_attributes(chpos, to_x, to_y, alpha);
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();
 
-		/* キャラフェードモードを有効にする */
-		start_ch_anime(chpos, x, y, alpha);
+		/* アニメ定義を行う */
+		clear_anime_sequence(layer);
+		new_anime_sequence(layer);
+		add_anime_sequence_property_f("start", 0);
+		add_anime_sequence_property_f("end", span);
+		add_anime_sequence_property_f("from-x", (float)from_x);
+		add_anime_sequence_property_f("from-y", (float)from_y);
+		add_anime_sequence_property_i("from-a", get_ch_alpha(chpos));
+		add_anime_sequence_property_f("to-x", (float)to_x);
+		add_anime_sequence_property_f("to-y", (float)to_y);
+		add_anime_sequence_property_i("to-a", alpha);
+		add_anime_sequence_property_i("accel", accel);
 
-		/* 時間計測を開始する */
-		reset_stop_watch(&sw);
+		/* アニメを開始する */
+		start_layer_anime(layer);
 	}
 
 	/* メッセージボックスを消す */
@@ -147,25 +152,22 @@ static bool get_position(int *chpos, const char *pos)
 }
 
 /* 加速を取得する */
-static bool get_accel(const char *accel_s)
+static int get_accel(const char *accel_s)
 {
 	if (strcmp(accel_s, "move") == 0 ||
 	    strcmp(accel_s, U8("なし")) == 0) {
-		accel = CHA_ACCEL_UNIFORM;
-		return true;
+		return ANIME_ACCEL_UNIFORM;
 	} else if (strcmp(accel_s, "accel") == 0 ||
 		   strcmp(accel_s, U8("あり")) == 0) {
-		accel = CHA_ACCEL_ACCEL;
-		return true;
+		return ANIME_ACCEL_ACCEL;
 	} else if (strcmp(accel_s, "brake") == 0 ||
 		   strcmp(accel_s, U8("減速")) == 0) {
-		accel = CHA_ACCEL_DEACCEL;
-		return true;
+		return ANIME_ACCEL_DEACCEL;
 	} else {
 		/* スクリプト実行エラー */
 		log_script_cha_accel(accel_s);
 		log_script_exec_footer();
-		return false;
+		return -1;
 	}
 }
 
@@ -181,40 +183,37 @@ static int get_alpha(const char *alpha)
 		return atoi(alpha);
 }
 
-/* 描画を行う */
-static void draw(void)
+/* キャラの位置をアニメレイヤインデックスに変換する */
+static int chpos_to_layer(int chpos)
 {
-	float lap, progress;
-	int x, y, w, h;
-
-	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
-	if (lap >= span)
-		lap = span;
-
-	/* 加速を処理する */
-	progress = lap / span;
-	switch (accel) {
-	case CHA_ACCEL_UNIFORM:
-		break;
-	case CHA_ACCEL_ACCEL:
-		progress = progress * progress;
-		break;
-	case CHA_ACCEL_DEACCEL:
-		progress = sqrtf(progress);
-		break;
+	switch (chpos) {
+	case CH_BACK:
+		return ANIME_LAYER_CHB;
+	case CH_LEFT:
+		return ANIME_LAYER_CHL;
+	case CH_RIGHT:
+		return ANIME_LAYER_CHR;
+	case CH_CENTER:
+		return ANIME_LAYER_CHC;
+	case CH_FACE:
+		return ANIME_LAYER_CHF;
 	default:
-		assert(INVALID_ACCEL_TYPE);
+		assert(0);
 		break;
 	}
+	return -1;
+}
 
+/* 描画を行う */
+static void draw(int *x, int *y, int *w, int *h)
+{
 	/* 進捗を設定する */
 	if (is_in_command_repetition()) {
 		/*
 		 * 経過時間が一定値を超えた場合と、
 		 * 入力によりスキップされた場合
 		 */
-		if ((lap >= span)
+		if (!is_anime_running_for_layer(layer)
 		    ||
 		    (!is_non_interruptible() && !is_auto_mode() &&
 		     (is_control_pressed || is_return_pressed ||
@@ -222,25 +221,21 @@ static void draw(void)
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 
-			/* キャラフェードモードを終了する */
-			stop_ch_anime();
-		} else {
-			/* 進捗を設定する */
-			set_ch_anime_progress(progress);
+			/* アニメを終了する */
+			finish_layer_anime(layer);
 		}
 	}
 
 	/* ステージを描画する */
-	if (is_in_command_repetition())
-		draw_stage();	/* TODO: なんらかの最適化 */
-	else
-		draw_stage();
+	draw_stage();
+	*x = 0;
+	*y = 0;
+	*w = conf_window_width;
+	*h = conf_window_height;
 
 	/* 折りたたみシステムメニューを描画する */
-	if (conf_sysmenu_transition && !is_non_interruptible()) {
-		x = y = w = h = 0;
-		draw_stage_collapsed_sysmenu(false, &x, &y, &w, &h);
-	}
+	if (conf_sysmenu_transition && !is_non_interruptible())
+		draw_stage_collapsed_sysmenu(false, x, y, w, h);
 }
 
 /* 終了処理を行う */

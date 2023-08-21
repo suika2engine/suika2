@@ -18,6 +18,8 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
+             src/main/cpp/anime.c
+             src/main/cpp/cmd_anime.c
              src/main/cpp/cmd_bg.c
              src/main/cpp/cmd_bgm.c
              src/main/cpp/cmd_ch.c

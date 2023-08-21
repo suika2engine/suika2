@@ -168,6 +168,10 @@ struct insn_item {
 	{"@skip", COMMAND_SKIP, 1, 1},
 	{U8("@スキップ"), COMMAND_SKIP, 1, 1},
 
+	/* アニメ */
+	{"@anime", COMMAND_ANIME, 1, 2},
+	{U8("@アニメ"), COMMAND_ANIME, 1, 2},
+
 	/* その他 */
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
 	{"@gosub", COMMAND_GOSUB, 1, 1},
@@ -1308,7 +1312,7 @@ static bool parse_message(int index, const char *file, int line,
 	p = cmd[index].param[MESSAGE_PARAM_MESSAGE];
 	lpar = strstr(p, U8("「"));
 	if (lpar != NULL &&
-	    lpar != buf &&
+	    lpar != p &&
 	    strcmp(p + strlen(p) - 3, U8("」")) == 0 &&
 	    *buf != '\\') {
 		/* セリフに変更する */

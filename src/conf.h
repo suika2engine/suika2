@@ -72,6 +72,7 @@ extern int conf_font_outline_color_r;
 extern int conf_font_outline_color_g;
 extern int conf_font_outline_color_b;
 extern int conf_font_outline_remove;
+extern int conf_font_ruby_size;
 
 /*
  * 名前ボックスの設定
@@ -96,6 +97,7 @@ extern int conf_msgbox_margin_top;
 extern int conf_msgbox_margin_right;
 extern int conf_msgbox_margin_bottom;
 extern int conf_msgbox_margin_line;
+extern int conf_msgbox_margin_char;
 extern float conf_msgbox_speed;
 extern int conf_msgbox_btn_qsave_x;
 extern int conf_msgbox_btn_qsave_y;
@@ -165,13 +167,9 @@ extern int conf_msgbox_tategaki;
 extern int conf_click_x;
 extern int conf_click_y;
 extern int conf_click_move;
-extern char *conf_click_file1;
-extern char *conf_click_file2;
-extern char *conf_click_file3;
-extern char *conf_click_file4;
-extern char *conf_click_file5;
-extern char *conf_click_file6;
+extern char *conf_click_file[16];
 extern float conf_click_interval;
+extern int click_frames;
 
 /*
  * 選択肢ボックスの設定

@@ -148,6 +148,10 @@ static int msgbox_y;
 static int msgbox_w;
 static int msgbox_h;
 
+/* ルビ用のペン位置 */
+static int pen_ruby_x;
+static int pen_ruby_y;
+
 /*
  * 色
  */
@@ -381,6 +385,7 @@ static bool process_escape_sequence_color(void);
 static bool process_escape_sequence_size(void);
 static bool process_escape_sequence_wait(void);
 static bool process_escape_sequence_pen(void);
+static bool process_escape_sequence_ruby(void);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
@@ -1116,6 +1121,7 @@ static int count_chars(const char *msg)
 			case '@':	/* サイズ指定 */
 			case 'w':	/* インラインウェイト */
 			case 'p':	/* ペン移動 */
+			case '^':	/* ルビ */
 				if (!search_for_end_of_escape_sequence(&msg))
 					return count;
 				break;
@@ -2655,12 +2661,21 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 			   ret_width, ret_height);
 		*x = *x < 0 ? 0 : *x;
 
+		/* ルビ用のペン位置を更新する */
+		if (!conf_msgbox_tategaki) {
+			pen_ruby_x = pen_x;
+			pen_ruby_y = pen_y - conf_font_ruby_size;
+		} else {
+			pen_ruby_x = pen_x + ret_width;
+			pen_ruby_y = pen_y;
+		}
+
 		/* 次の文字へ移動する */
 		msg_cur += mblen;
 		if (!conf_msgbox_tategaki)
-			pen_x += glyph_width;
+			pen_x += glyph_width + conf_msgbox_margin_char;
 		else
-			pen_y += glyph_height;
+			pen_y += glyph_height + conf_msgbox_margin_char;
 		drawn_chars++;
 	}
 
@@ -2852,6 +2867,11 @@ static void process_escape_sequence(void)
 			if (!process_escape_sequence_pen())
 				return; /* 不正: 読み飛ばさない */
 			break;
+		case '^':
+			/* ルビ */
+			if (!process_escape_sequence_ruby())
+				return; /* 不正: 読み飛ばさない */
+			break;
 		default:
 			/*
 			 * 不正なエスケープシーケンス
@@ -2897,15 +2917,17 @@ static bool process_escape_sequence_color(void)
 	if (*(msg_cur + 9) != '}')
 		return false;
 
-	/* カラーコードを読む */
-	memcpy(color_code, msg_cur + 3, 6);
-	color_code[6] = '\0';
-	rgb = 0;
-	sscanf(color_code, "%x", &rgb);
-	r = (rgb >> 16) & 0xff;
-	g = (rgb >> 8) & 0xff;
-	b = rgb & 0xff;
-	body_color = make_pixel_slow(0xff, r, g, b);
+	if (!is_dimming) {
+		/* カラーコードを読む */
+		memcpy(color_code, msg_cur + 3, 6);
+		color_code[6] = '\0';
+		rgb = 0;
+		sscanf(color_code, "%x", &rgb);
+		r = (rgb >> 16) & 0xff;
+		g = (rgb >> 8) & 0xff;
+		b = rgb & 0xff;
+		body_color = make_pixel_slow(0xff, r, g, b);
+	}
 
 	/* "\\#{" + "xxxxxx" + "}" */
 	msg_cur += 3 + 6 + 1;
@@ -2974,11 +2996,13 @@ static bool process_escape_sequence_wait(void)
 	inline_wait_time = 0;
 	sscanf(time_spec, "%f", &inline_wait_time);
 
-	/* インラインウェイトを開始する */
-	if (inline_wait_time > 0) {
-		is_inline_wait = true;
-		inline_wait_time_total += inline_wait_time;
-		reset_stop_watch(&inline_sw);
+	if (!is_dimming) {
+		/* インラインウェイトを開始する */
+		if (inline_wait_time > 0) {
+			is_inline_wait = true;
+			inline_wait_time_total += inline_wait_time;
+			reset_stop_watch(&inline_sw);
+		}
 	}
 
 	/* "\\w{" + "f.f" + "}" */
@@ -3020,6 +3044,64 @@ static bool process_escape_sequence_pen(void)
 
 	/* "\\w{" + "x,y" + "}" */
 	msg_cur += 3 + i + 1;
+	return true;
+}
+
+/* ルビ("\\^{ルビ}")を処理する */
+static bool process_escape_sequence_ruby(void)
+{
+	char ruby[64];
+	const char *s;
+	uint32_t wc;
+	int i, font_size,mblen, ret_width, ret_height;
+
+	assert(*msg_cur == '\\');
+	assert(*(msg_cur + 1) == '^');
+
+	/* '{'をチェックする */
+	if (*(msg_cur + 2) != '{')
+		return false;
+
+	/* ルビを読む */
+	for (i = 0; i < (int)sizeof(ruby) - 1; i++) {
+		if (*(msg_cur + 3 + i) == '\0')
+			return false;
+		if (*(msg_cur + 3 + i) == '}')
+			break;
+		ruby[i] = *(msg_cur + 3 + i);
+	}
+	ruby[i] = '\0';
+
+	/* "\\w{" + "f.f" + "}" */
+	msg_cur += 3 + i + 1;
+
+	/* フォントサイズを退避して、ルビ用に設定する */
+	font_size = get_font_size();
+	set_font_size(conf_font_ruby_size > 0 ?
+		      conf_font_ruby_size : conf_font_size / 5);
+
+	/* 描画する */
+	s = ruby;
+	while (*s) {
+		mblen = utf8_to_utf32(s, &wc);
+		if (mblen == -1)
+			break;
+
+		draw_char_on_msgbox(pen_ruby_x, pen_ruby_y, wc,
+				    body_color, body_outline_color,
+				    &ret_width, &ret_height);
+
+		if (!conf_msgbox_tategaki)
+			pen_ruby_x += ret_width;
+		else
+			pen_ruby_y += ret_height;
+
+		s += mblen;
+	}
+
+	/* フォントサイズを復元する */
+	set_font_size(font_size);
+
 	return true;
 }
 
@@ -3090,11 +3172,13 @@ static void process_lf(uint32_t c, int glyph_width, int glyph_height)
 {
 	if (!conf_msgbox_tategaki) {
 		/* 右側の幅が足りる場合、改行しない */
-		if (pen_x + glyph_width < msgbox_w - conf_msgbox_margin_right)
+		if (pen_x + glyph_width + conf_msgbox_margin_char <
+		    msgbox_w - conf_msgbox_margin_right)
 			return;
 	} else {
 		/* 下側の幅が足りる場合、改行しない */
-		if (pen_y + glyph_height < msgbox_h - conf_msgbox_margin_bottom)
+		if (pen_y + glyph_height + conf_msgbox_margin_char <
+		    msgbox_h - conf_msgbox_margin_bottom)
 			return;
 	}
 
@@ -3206,8 +3290,8 @@ static void draw_click(int *x, int *y, int *w, int *h)
 		is_click_visible = true;
 	} else {
 		index = (lap % (int)(conf_click_interval * 1000)) /
-			((int)(conf_click_interval * 1000) / CLICK_FRAMES) %
-			CLICK_FRAMES;
+			((int)(conf_click_interval * 1000) / click_frames) %
+			click_frames;
 		set_click_index(index);
 		show_click(true);
 		is_click_visible = true;

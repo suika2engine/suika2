@@ -135,6 +135,9 @@
     <ClInclude Include="..\..\..\src\wms.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\anime.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -318,6 +321,12 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\wms_parser.tab.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\anime.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_anime.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>

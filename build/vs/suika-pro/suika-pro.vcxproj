@@ -29,6 +29,7 @@
     <Image Include="..\..\mingw\res\suika.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\anime.h" />
     <ClInclude Include="..\..\..\src\conf.h" />
     <ClInclude Include="..\..\..\src\d3drender.h" />
     <ClInclude Include="..\..\..\src\drawglyph.h" />
@@ -67,6 +68,7 @@
     <ClInclude Include="..\..\mingw\res\resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\anime.c" />
     <ClCompile Include="..\..\..\src\avx.c">
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -79,6 +81,7 @@
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_anime.c" />
     <ClCompile Include="..\..\..\src\cmd_bg.c" />
     <ClCompile Include="..\..\..\src\cmd_bgm.c" />
     <ClCompile Include="..\..\..\src\cmd_ch.c" />

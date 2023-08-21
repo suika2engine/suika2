@@ -40,6 +40,9 @@ font.outline.color.b=128
 # アウトラインを取り除くか(0:アウトラインあり, 1:アウトラインなし)
 font.outline.remove=0
 
+# ルビのフォントサイズ
+font.ruby.size=16
+
 ###
 ### 名前ボックスの設定
 ###
@@ -91,6 +94,9 @@ msgbox.margin.bottom=50
 
 # メッセージの行間
 msgbox.margin.line=55
+
+# メッセージの文字間隔
+msgbox.margin.char=0
 
 # メッセージのスピード(毎秒x文字表示する)
 msgbox.speed=20.0
@@ -204,7 +210,7 @@ click.move=0
 # クリックアニメーション画像のファイル名
 click.file1=click1.png
 
-# クリックアニメーション画像のファイル名 (省略可)
+# クリックアニメーション画像のファイル名 (省略可, click.file16まで指定可能)
 click.file2=click2.png
 click.file3=click3.png
 click.file4=click4.png

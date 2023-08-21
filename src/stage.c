@@ -190,27 +190,6 @@ static float fi_fo_fade_progress;
 static bool ch_dim[CH_BASIC_LAYERS];
 
 /*
- * アニメ中の情報
- *  - 現状キャラを1つずつ(1レイヤずつ)しか動かすことができない
- *  - 将来複数レイヤを動かせるような設計として、下記の情報を保持する
- */
-
-/* アニメ中のレイヤ */
-static bool layer_anime_run[STAGE_LAYERS];
-
-/* アニメ中のレイヤのx座標 */
-static int layer_anime_x_from[STAGE_LAYERS];
-static int layer_anime_x_to[STAGE_LAYERS];
-
-/* アニメ中のレイヤのy座標 */
-static int layer_anime_y_from[STAGE_LAYERS];
-static int layer_anime_y_to[STAGE_LAYERS];
-
-/* アニメ中のレイヤのアルファ値 */
-static int layer_anime_alpha_from[STAGE_LAYERS];
-static int layer_anime_alpha_to[STAGE_LAYERS];
-
-/*
  * 画面揺らしモード中の情報
  */
 
@@ -268,7 +247,6 @@ static void draw_stage_fi_fo_fade_slit_open_v(void);
 static void draw_stage_fi_fo_fade_slit_close_v(void);
 static int pos_to_layer(int pos);
 static int layer_to_pos(int layer);
-static float get_anime_interpolation(float progress, float from, float to);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
@@ -476,10 +454,6 @@ static bool setup_msgbox(void)
 /* クリックアニメーションをセットアップする */
 static bool setup_click(void)
 {
-	const char *fname[CLICK_FRAMES] = {
-		conf_click_file1, conf_click_file2, conf_click_file3,
-		conf_click_file4, conf_click_file5, conf_click_file6,
-	};
 	int i;
 
 	is_click_visible = false;
@@ -493,11 +467,12 @@ static bool setup_click(void)
 	}
 
 	/* クリックアニメーションの画像を読み込む */
-	for (i = 0; i < CLICK_FRAMES; i++) {
-		if (fname[i] != NULL) {
+	for (i = 0; i < click_frames; i++) {
+		if (conf_click_file[i] != NULL) {
 			/* ファイル名が指定されていれば読み込む */
-			click_image[i] = create_image_from_file(CG_DIR,
-								fname[i]);
+			click_image[i] =
+				create_image_from_file(CG_DIR,
+						       conf_click_file[i]);
 			if (click_image[i] == NULL)
 				return false;
 		} else {
@@ -881,6 +856,42 @@ void draw_stage(void)
 {
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
+
+	if (is_anime_running()) {
+		update_anime_frame();
+		if (is_anime_running_for_layer(ANIME_LAYER_BG) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_BG)) {
+			get_anime_layer_params(ANIME_LAYER_BG, &layer_image[LAYER_BG], &bg_file_name, &layer_x[LAYER_BG], &layer_y[LAYER_BG], &layer_alpha[LAYER_BG]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHB) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHB)) {
+			get_anime_layer_params(ANIME_LAYER_CHB, &layer_image[LAYER_CHB], &ch_file_name[CH_BACK], &layer_x[LAYER_CHB], &layer_y[LAYER_CHB], &layer_alpha[LAYER_CHB]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHL) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHL)) {
+			get_anime_layer_params(ANIME_LAYER_CHL, &layer_image[LAYER_CHL], &ch_file_name[CH_LEFT], &layer_x[LAYER_CHL], &layer_y[LAYER_CHL], &layer_alpha[LAYER_CHL]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHR) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHR)) {
+			get_anime_layer_params(ANIME_LAYER_CHR, &layer_image[LAYER_CHR], &ch_file_name[CH_RIGHT], &layer_x[LAYER_CHR], &layer_y[LAYER_CHR], &layer_alpha[LAYER_CHR]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHC) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHC)) {
+			get_anime_layer_params(ANIME_LAYER_CHC, &layer_image[LAYER_CHC], &ch_file_name[CH_CENTER], &layer_x[LAYER_CHC], &layer_y[LAYER_CHC], &layer_alpha[LAYER_CHC]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_MSG) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_MSG)) {
+			get_anime_layer_params(ANIME_LAYER_MSG, NULL, NULL, &layer_x[LAYER_MSG], &layer_y[LAYER_MSG], &layer_alpha[LAYER_MSG]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_NAME) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_NAME)) {
+			get_anime_layer_params(ANIME_LAYER_NAME, NULL, NULL, &layer_x[LAYER_NAME], &layer_y[LAYER_NAME], &layer_alpha[LAYER_NAME]);
+		}
+		if (is_anime_running_for_layer(ANIME_LAYER_CHF) ||
+		    is_anime_finished_for_layer(ANIME_LAYER_CHF)) {
+			get_anime_layer_params(ANIME_LAYER_CHF, NULL, NULL, &layer_x[LAYER_CHF], &layer_y[LAYER_CHF], &layer_alpha[LAYER_CHF]);
+		}
+	}
 
 	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
 }
@@ -2953,92 +2964,6 @@ void stop_ch_fade(void)
 }
 
 /*
- * キャラアニメ
- */
-
-/*
- * キャラアニメを開始する
- */
-void start_ch_anime(int pos, int to_x, int to_y, int to_alpha)
-{
-	int layer, i;
-
-	assert(stage_mode == STAGE_MODE_IDLE);
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-
-	stage_mode = STAGE_MODE_CH_ANIME;
-
-	/* 座標とアルファ値を保存する */
-	layer = pos_to_layer(pos);
-	layer_anime_alpha_from[layer] = layer_alpha[layer];
-	layer_anime_alpha_to[layer] = to_alpha;
-	layer_anime_x_from[layer] = layer_x[layer];
-	layer_anime_x_to[layer] = to_x;
-	layer_anime_y_from[layer] = layer_y[layer];
-	layer_anime_y_to[layer] = to_y;
-
-	/* アニメ中のレイヤを設定する */
-	for (i = 0; i < STAGE_LAYERS; i++)
-		layer_anime_run[i] = (i == layer) ? true : false;
-}
-
-/*
- * キャラアニメモードの進捗率を設定する
- */
-void set_ch_anime_progress(float progress)
-{
-	int i;
-
-	assert(stage_mode == STAGE_MODE_CH_ANIME);
-
-	/* すべてのレイヤについて座標とアルファ値を更新する */
-	for (i = 0; i < STAGE_LAYERS; i++) {
-		/* アニメ中でない場合は更新しない */
-		if (!layer_anime_run[i])
-			continue;
-
-		layer_alpha[i] = (uint8_t)get_anime_interpolation(progress,
-					(float)layer_anime_alpha_from[i],
-					(float)layer_anime_alpha_to[i]);
-		layer_x[i] = (int)get_anime_interpolation(progress,
-					(float)layer_anime_x_from[i],
-					(float)layer_anime_x_to[i]);
-		layer_y[i] = (int)get_anime_interpolation(progress,
-					(float)layer_anime_y_from[i],
-					(float)layer_anime_y_to[i]);
-	}
-}
-
-/* アニメの補間を行う */
-static float get_anime_interpolation(float progress, float from, float to)
-{
-	return from + (to - from) * progress;
-}
-
-/*
- * キャラアニメモードを終了する
- */
-void stop_ch_anime(void)
-{
-	int i;
-
-	assert(stage_mode == STAGE_MODE_CH_ANIME);
-
-	stage_mode = STAGE_MODE_IDLE;
-
-	/* すべてのレイヤについて座標とアルファ値を最終値に更新する */
-	for (i = 0; i < STAGE_LAYERS; i++) {
-		/* アニメ中でない場合は更新しない */
-		if (!layer_anime_run[i])
-			continue;
-
-		layer_alpha[i] = layer_anime_alpha_to[i];
-		layer_x[i] = layer_anime_x_to[i];
-		layer_y[i] = layer_anime_y_to[i];
-	}
-}
-
-/*
  * 画面揺らしモード
  */
 
@@ -3264,6 +3189,7 @@ void show_click(bool show)
 void set_click_index(int index)
 {
 	assert(index >= 0 && index < CLICK_FRAMES);
+	assert(index < click_frames);
 
 	layer_image[LAYER_CLICK] = click_image[index];
 }

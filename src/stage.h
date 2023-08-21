@@ -24,7 +24,7 @@
 #include "image.h"
 
 /* クリックアニメーションのフレーム数 */
-#define CLICK_FRAMES	(6)
+#define CLICK_FRAMES	(16)
 
 /* キャラクタの位置 */
 enum ch_position {
@@ -237,19 +237,6 @@ void stop_ch_fade(void);
 /* キャラフェードモード(複数,背景も)を開始する */
 void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 			 const int *y);
-
-/*
- * キャラアニメ
- */
-
-/* キャラアニメを開始する */
-void start_ch_anime(int pos, int to_x, int to_y, int to_alpha);
-
-/* キャラアニメモードの進捗率を設定する */
-void set_ch_anime_progress(float progress);
-
-/* キャラアニメモードを終了する */
-void stop_ch_anime(void);
 
 /*
  * 画面揺らしモード
