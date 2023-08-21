@@ -1339,8 +1339,7 @@ static bool play_voice(void)
 	if (repeat) {
 		beep_factor = conf_beep_adjustment == 0 ?
 			      1 : conf_beep_adjustment;
-		times = (int)((float)utf8_chars(get_string_param(
-							SERIF_PARAM_MESSAGE)) /
+		times = (int)((float)count_chars(msg_cur) /
 			      conf_msgbox_speed * beep_factor /
 			      (get_text_speed() + 0.1));
 		times = times == 0 ? 1 : times;
