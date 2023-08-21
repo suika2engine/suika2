@@ -2664,7 +2664,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* ルビ用のペン位置を更新する */
 		if (!conf_msgbox_tategaki) {
 			pen_ruby_x = pen_x;
-			pen_ruby_y = pen_y - ret_height;
+			pen_ruby_y = pen_y - conf_font_ruby_size;
 		} else {
 			pen_ruby_x = pen_x + ret_width;
 			pen_ruby_y = pen_y;
