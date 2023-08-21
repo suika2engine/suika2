@@ -67,4 +67,7 @@ bool isgraph_extended(const char **mbs, uint32_t *wc);
 /* フォントサイズを変更する */
 bool set_font_size(int size);
 
+/* フォントサイズを取得する */
+int get_font_size(void);
+
 #endif

@@ -63,6 +63,7 @@ int conf_font_outline_color_r;
 int conf_font_outline_color_g;
 int conf_font_outline_color_b;
 int conf_font_outline_remove;
+int conf_font_ruby_size;
 
 /*
  * 名前ボックスの設定
@@ -446,6 +447,7 @@ static struct rule {
 	{"font.outline.color.g", 'i', &conf_font_outline_color_g, OPTIONAL, SAVE},
 	{"font.outline.color.b", 'i', &conf_font_outline_color_b, OPTIONAL, SAVE},
 	{"font.outline.remove", 'i', &conf_font_outline_remove, OPTIONAL, SAVE},
+	{"font.ruby.size", 'i', &conf_font_ruby_size, OPTIONAL, SAVE},
 	{"namebox.file", 's', &conf_namebox_file, MUST, SAVE},
 	{"namebox.x", 'i', &conf_namebox_x, MUST, SAVE},
 	{"namebox.y", 'i', &conf_namebox_y, MUST, SAVE},

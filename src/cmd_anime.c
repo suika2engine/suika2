@@ -12,7 +12,7 @@
 
 #include "suika.h"
 
-static bool is_sync;
+static bool is_async;
 static bool is_sysmenu;
 
 /*
@@ -62,10 +62,10 @@ static bool init(void)
 	}
 
 	/* 修飾を処理する */
-	is_sync = false;
+	is_async = false;
 	is_sysmenu = true;
-	if (strstr(spec, "sync") != NULL)
-		is_sync = true;
+	if (strstr(spec, "async") != NULL)
+		is_async = true;
 	if (strstr(spec, "nosysmenu") != NULL)
 		is_sysmenu = false;
 	if (strstr(spec, "showmsgbox") == NULL) {
