@@ -265,64 +265,13 @@ bool init_stage(void)
 {
 	int i;
 
+#ifdef ANDROID
 	/* 再初期化のための処理 */
-	if  (bg_file_name != NULL) {
-		free(bg_file_name);
-		bg_file_name = NULL;
-	}
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		if (ch_file_name[i] != NULL) {
-			free(ch_file_name[i]);
-			ch_file_name[i] = NULL;
-		}
-	}
-	if (new_bg_img != NULL) {
-		destroy_image(new_bg_img);
-		new_bg_img = NULL;
-	}
-	if (rule_img != NULL) {
-		destroy_image(rule_img);
-		rule_img = NULL;
-	}
-	if (gui_idle_image != NULL) {
-		destroy_image(gui_idle_image);
-		gui_idle_image = NULL;
-	}
-	if (gui_hover_image != NULL) {
-		destroy_image(gui_hover_image);
-		gui_hover_image = NULL;
-	}
-	if (gui_active_image != NULL) {
-		destroy_image(gui_active_image);
-		gui_active_image = NULL;
-	}
+	cleanup_stage();
+#endif
 
-	/* 名前ボックスをセットアップする */
-	if (!setup_namebox())
-		return false;
-
-	/* メッセージボックスをセットアップする */
-	if (!setup_msgbox())
-		return false;
-
-	/* クリックアニメーションをセットアップする */
-	if (!setup_click())
-		return false;
-
-	/* スイッチをセットアップする */
-	if (!setup_switch())
-		return false;
-
-	/* NEWSをセットアップする */
-	if (!setup_news())
-		return false;
-
-	/* システムメニューをセットアップする */
-	if (!setup_sysmenu())
-		return false;
-
-	/* バナーをセットアップする */
-	if (!setup_banner())
+	/* "cg/"からファイルを読み込む */
+	if (!reload_stage())
 		return false;
 
 	/* セーブデータのサムネイル画像をセットアップする */
@@ -356,6 +305,42 @@ bool init_stage(void)
 	/* アルファ値を設定する */
 	for (i = 0; i < STAGE_LAYERS; i++)
 		layer_alpha[i] = 255;
+
+	return true;
+}
+
+/*
+ * ステージのリロードを行う
+ */
+bool reload_stage(void)
+{
+	/* 名前ボックスをセットアップする */
+	if (!setup_namebox())
+		return false;
+
+	/* メッセージボックスをセットアップする */
+	if (!setup_msgbox())
+		return false;
+
+	/* クリックアニメーションをセットアップする */
+	if (!setup_click())
+		return false;
+
+	/* スイッチをセットアップする */
+	if (!setup_switch())
+		return false;
+
+	/* NEWSをセットアップする */
+	if (!setup_news())
+		return false;
+
+	/* システムメニューをセットアップする */
+	if (!setup_sysmenu())
+		return false;
+
+	/* バナーをセットアップする */
+	if (!setup_banner())
+		return false;
 
 	return true;
 }

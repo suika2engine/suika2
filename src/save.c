@@ -740,6 +740,10 @@ bool quick_load(void)
 	if (!deserialize_all(QUICK_SAVE_FILE_NAME))
 		return false;
 
+	/* ステージを初期化する */
+	if (!reload_stage())
+		abort();
+
 	/* SEを停止する */
 	set_mixer_input(SE_STREAM, NULL);
 
@@ -791,6 +795,10 @@ bool execute_load(int index)
 	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(s))
 		return false;
+
+	/* ステージを初期化する */
+	if (!reload_stage())
+		abort();
 
 	/* SEを停止する */
 	set_mixer_input(SE_STREAM, NULL);

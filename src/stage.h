@@ -84,6 +84,9 @@ void cleanup_stage(void);
 /* 起動・ロード直後の一時的な背景を作成する */
 struct image *create_initial_bg(void);
 
+/* ステージのリロードを行う */
+bool reload_stage(void);
+
 /*
  * ステージ描画
  */
