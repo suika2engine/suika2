@@ -379,7 +379,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 				get_image_width(img),
 				get_image_height(img),
 				x,
-				y,
+				y - (font_size - conf_font_size),
 				outline_color);
 	}
 	FT_Done_Glyph(glyph);
@@ -404,7 +404,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 				get_image_width(img),
 				get_image_height(img),
 				x,
-				y,
+				y - (font_size - conf_font_size),
 				outline_color);
 	}
 	descent = (int)(face->glyph->metrics.height / SCALE) -
@@ -431,7 +431,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 			get_image_width(img),
 			get_image_height(img),
 			x,
-			y,
+			y - (font_size - conf_font_size),
 			color);
 	FT_Done_Glyph(glyph);
 
@@ -464,7 +464,7 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				get_image_width(img),
 				get_image_height(img),
 				x,
-				y,
+				y - (font_size - conf_font_size),
 				color);
 	}
 
