@@ -2897,15 +2897,17 @@ static bool process_escape_sequence_color(void)
 	if (*(msg_cur + 9) != '}')
 		return false;
 
-	/* カラーコードを読む */
-	memcpy(color_code, msg_cur + 3, 6);
-	color_code[6] = '\0';
-	rgb = 0;
-	sscanf(color_code, "%x", &rgb);
-	r = (rgb >> 16) & 0xff;
-	g = (rgb >> 8) & 0xff;
-	b = rgb & 0xff;
-	body_color = make_pixel_slow(0xff, r, g, b);
+	if (!is_dimming) {
+		/* カラーコードを読む */
+		memcpy(color_code, msg_cur + 3, 6);
+		color_code[6] = '\0';
+		rgb = 0;
+		sscanf(color_code, "%x", &rgb);
+		r = (rgb >> 16) & 0xff;
+		g = (rgb >> 8) & 0xff;
+		b = rgb & 0xff;
+		body_color = make_pixel_slow(0xff, r, g, b);
+	}
 
 	/* "\\#{" + "xxxxxx" + "}" */
 	msg_cur += 3 + 6 + 1;
@@ -2974,11 +2976,13 @@ static bool process_escape_sequence_wait(void)
 	inline_wait_time = 0;
 	sscanf(time_spec, "%f", &inline_wait_time);
 
-	/* インラインウェイトを開始する */
-	if (inline_wait_time > 0) {
-		is_inline_wait = true;
-		inline_wait_time_total += inline_wait_time;
-		reset_stop_watch(&inline_sw);
+	if (!is_dimming) {
+		/* インラインウェイトを開始する */
+		if (inline_wait_time > 0) {
+			is_inline_wait = true;
+			inline_wait_time_total += inline_wait_time;
+			reset_stop_watch(&inline_sw);
+		}
 	}
 
 	/* "\\w{" + "f.f" + "}" */
