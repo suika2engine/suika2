@@ -66,6 +66,9 @@ font.outline.color.b=128
 # Font outline (0:show, 1:hide)
 font.outline.remove=0
 
+# Ruby font size
+font.ruby.size=16
+
 ###
 ### Namebox Settings
 ###

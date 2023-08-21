@@ -40,6 +40,9 @@ font.outline.color.b=128
 # アウトラインを取り除くか(0:アウトラインあり, 1:アウトラインなし)
 font.outline.remove=0
 
+# ルビのフォントサイズ
+font.ruby.size=16
+
 ###
 ### 名前ボックスの設定
 ###
