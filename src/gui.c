@@ -1883,8 +1883,8 @@ static bool process_escape_sequence(int button_index, uint32_t code)
 		return true;
 	}
 
-	/* フォントサイズ、インラインウェイト (スキップする) */
-	if (code == '@' || code == 'w') {
+	/* スキップする */
+	if (code == '@' || code == 'w' || code == 'p' || code == '^') {
 		/* 終端文字'}'を探す */
 		i = 0;
 		while (*c != '\0' && *c != '}')
