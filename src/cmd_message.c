@@ -550,11 +550,14 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 		load_flag = false;
 	}
 
-	/*
-	 * ステージの更新領域(x, y) (w, h)を描画する
-	 *  - GPUを使う場合は更新領域は無視され、全体が再描画される
-	 */
-	draw_stage_rect(*x, *y, *w, *h);
+	/* ステージの更新領域(x, y) (w, h)を描画する */
+	if (is_anime_running()) {
+		/* アニメ実行中は全体を描画し直す */
+		draw_stage();
+	} else {
+		/* GPUを使う場合は全体が再描画される */
+		draw_stage_rect(*x, *y, *w, *h);
+	}
 
 	/* システムメニューを描画する */
 	if (!conf_sysmenu_hidden && !is_hidden) {
