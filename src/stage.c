@@ -252,7 +252,7 @@ static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color,int *w,
-			       int *h);
+			       int *h, int base_font_size);
 
 /*
  * 初期化
@@ -3051,7 +3051,8 @@ int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
 	int w, h;
 
 	lock_image(layer_image[LAYER_NAME]);
-	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h);
+	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h,
+			   conf_font_size);
 	unlock_image(layer_image[LAYER_NAME]);
 
 	return w;
@@ -3129,10 +3130,12 @@ void show_msgbox(bool show)
  *  - 描画した高さを返す
  */
 void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color, int *w, int *h)
+			 pixel_t outline_color, int *w, int *h,
+			 int base_font_size)
 {
 	lock_image(layer_image[LAYER_MSG]);
-	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, w, h);
+	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, w, h,
+			   base_font_size);
 	unlock_image(layer_image[LAYER_MSG]);
 }
 
@@ -3325,10 +3328,10 @@ void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
 	int w, h;
 
 	draw_char_on_layer(LAYER_FO, x, y, wc, fo_body_color, fo_outline_color,
-			   &w, &h);
+			   &w, &h, conf_font_size);
 
 	draw_char_on_layer(LAYER_FI, x, y, wc, fi_body_color, fi_outline_color,
-			   &w, &h);
+			   &w, &h, conf_font_size);
 
 	*ret_w = w;
 	*ret_h = h;
@@ -3609,11 +3612,11 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 /* レイヤに文字を描画する */
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color, int *w,
-			       int *h)
+			       int *h, int base_font_size)
 {
 	/* 文字を描画する */
 	if (!draw_glyph(layer_image[layer], x, y, color, outline_color, wc, w,
-			h)) {
+			h, base_font_size)) {
 		/* グリフがない、コードポイントがおかしい、など */
 		return false;
 	}

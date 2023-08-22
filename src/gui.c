@@ -1591,7 +1591,8 @@ static void draw_char(int index, uint32_t wc, int *width, int *height)
 		   button[index].rt.outline_color,
 		   wc,
 		   width,
-		   height);
+		   height,
+		   conf_font_size);
 }
 
 /* セーブを行う */
@@ -2335,7 +2336,8 @@ static void draw_name(int index)
 		/* 描画する */
 		draw_glyph(button[index].rt.img, pen_x, 0,
 			   button[index].rt.color,
-			   button[index].rt.outline_color, c, &w, &h);
+			   button[index].rt.outline_color, c, &w, &h,
+			   conf_font_size);
 
 		/* 次の文字へ移動する */
 		name += mblen;

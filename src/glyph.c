@@ -52,7 +52,7 @@ static int font_size;
 static bool read_font_file_content(void);
 static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				       pixel_t color, uint32_t codepoint,
-				       int *w, int *h);
+				       int *w, int *h, int base_font_size);
 static void draw_glyph_func(unsigned char * RESTRICT font, int font_width,
 			    int font_height, int margin_left, int margin_top,
 			    pixel_t * RESTRICT image, int image_width,
@@ -297,7 +297,7 @@ int get_glyph_width(uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h);
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size);
 
 	return w;
 }
@@ -312,7 +312,7 @@ int get_glyph_height(uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h);
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size);
 
 	return h;
 }
@@ -347,7 +347,8 @@ int get_utf8_width(const char *mbs)
  * 文字の描画を行う
  */
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
-		pixel_t outline_color, uint32_t codepoint, int *w, int *h)
+		pixel_t outline_color, uint32_t codepoint, int *w, int *h,
+		int base_font_size)
 {
 	FT_Stroker stroker;
 	FT_UInt glyphIndex;
@@ -357,7 +358,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 
 	if (conf_font_outline_remove) {
 		return draw_glyph_without_outline(img, x, y, color, codepoint,
-						  w, h);
+						  w, h, base_font_size);
 	}
 
 	/* アウトライン(内側)を描画する */
@@ -379,7 +380,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 				get_image_width(img),
 				get_image_height(img),
 				x,
-				y - (font_size - conf_font_size),
+				y - (font_size - base_font_size),
 				outline_color);
 	}
 	FT_Done_Glyph(glyph);
@@ -404,7 +405,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 				get_image_width(img),
 				get_image_height(img),
 				x,
-				y - (font_size - conf_font_size),
+				y - (font_size - base_font_size),
 				outline_color);
 	}
 	descent = (int)(face->glyph->metrics.height / SCALE) -
@@ -431,7 +432,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 			get_image_width(img),
 			get_image_height(img),
 			x,
-			y - (font_size - conf_font_size),
+			y - (font_size - base_font_size),
 			color);
 	FT_Done_Glyph(glyph);
 
@@ -441,7 +442,7 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 
 static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				       pixel_t color, uint32_t codepoint,
-				       int *w, int *h)
+				       int *w, int *h, int base_font_size)
 {
 	FT_Error err;
 	int descent;
@@ -464,7 +465,7 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				get_image_width(img),
 				get_image_height(img),
 				x,
-				y - (font_size - conf_font_size),
+				y - (font_size - base_font_size),
 				color);
 	}
 

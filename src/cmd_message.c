@@ -2654,7 +2654,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* 描画する */
 		draw_char_on_msgbox(pen_x + ofs_x, pen_y + ofs_y, wc,
 				    body_color, body_outline_color,
-				    &ret_width, &ret_height);
+				    &ret_width, &ret_height, conf_font_size);
 
 		/* 更新領域を求める */
 		union_rect(x, y, w, h,
@@ -3091,7 +3091,8 @@ static bool process_escape_sequence_ruby(void)
 
 		draw_char_on_msgbox(pen_ruby_x, pen_ruby_y, wc,
 				    body_color, body_outline_color,
-				    &ret_width, &ret_height);
+				    &ret_width, &ret_height,
+				    conf_font_ruby_size);
 
 		if (!conf_msgbox_tategaki)
 			pen_ruby_x += ret_width;
