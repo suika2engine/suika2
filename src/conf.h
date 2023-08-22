@@ -300,6 +300,14 @@ extern int conf_skipmode_banner_x;
 extern int conf_skipmode_banner_y;
 
 /*
+ * GUIの設定
+ */
+extern int conf_gui_ruby;
+extern int conf_gui_save_font_size;
+extern int conf_gui_history_font_size;
+extern int conf_gui_history_margin_line;
+
+/*
  * サウンドの設定
  */
 extern float conf_sound_vol_bgm;

@@ -409,6 +409,22 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### システムGUIの設定
+###
+
+# ヒストリとセーブアイテムにルビを表示するか
+gui.ruby=0
+
+# セーブアイテムのフォントサイズ
+gui.save.font.size=36
+
+# ヒストリのフォントサイズ
+gui.history.font.size=36
+
+# ヒストリの行間
+gui.history.margin.line=36
+
+###
 ### 音量の初期値
 ###  - これは初期値で、セーブデータがある場合はそちらが利用される
 ###
