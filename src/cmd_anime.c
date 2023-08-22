@@ -56,9 +56,11 @@ static bool init(void)
 	spec = get_string_param(ANIME_PARAM_SPEC);
 
 	/* アニメーションファイルをロードする */
-	if (!load_anime_from_file(fname)) {
-		log_script_exec_footer();
-		return false;
+	if (strcmp(fname, "finish-all") != 0) {
+		if (!load_anime_from_file(fname)) {
+			log_script_exec_footer();
+			return false;
+		}
 	}
 
 	/* 修飾を処理する */
@@ -68,14 +70,15 @@ static bool init(void)
 		is_async = true;
 	if (strstr(spec, "nosysmenu") != NULL)
 		is_sysmenu = false;
-	if (strstr(spec, "showmsgbox") == NULL) {
+	if (!is_async && strstr(spec, "showmsgbox") == NULL) {
 		show_namebox(false);
 		show_msgbox(false);
 		show_click(false);
 	}
 
 	/* 繰り返し動作を開始する */
-	start_command_repetition();
+	if (!is_async)
+		start_command_repetition();
 
 	return true;
 }

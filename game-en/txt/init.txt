@@ -228,6 +228,9 @@ If there's anything you want to customize, but can't, please contact the Team.
 @vol bgm 0.5 1.0
 *Midori*031.ogg*I hope you'll send me an e-mail with your questions, feedback, issues, or even just to say hi! – See you next time!
 
+# Shake the message box.
+@anime msgbox-shake.txt sync,showmsgbox
+
 @vol bgm 0.0 1.0
 
 ###

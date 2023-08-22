@@ -550,11 +550,14 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 		load_flag = false;
 	}
 
-	/*
-	 * ステージの更新領域(x, y) (w, h)を描画する
-	 *  - GPUを使う場合は更新領域は無視され、全体が再描画される
-	 */
-	draw_stage_rect(*x, *y, *w, *h);
+	/* ステージの更新領域(x, y) (w, h)を描画する */
+	if (is_anime_running()) {
+		/* アニメ実行中は全体を描画し直す */
+		draw_stage();
+	} else {
+		/* GPUを使う場合は全体が再描画される */
+		draw_stage_rect(*x, *y, *w, *h);
+	}
 
 	/* システムメニューを描画する */
 	if (!conf_sysmenu_hidden && !is_hidden) {
@@ -1339,8 +1342,7 @@ static bool play_voice(void)
 	if (repeat) {
 		beep_factor = conf_beep_adjustment == 0 ?
 			      1 : conf_beep_adjustment;
-		times = (int)((float)utf8_chars(get_string_param(
-							SERIF_PARAM_MESSAGE)) /
+		times = (int)((float)count_chars(msg_cur) /
 			      conf_msgbox_speed * beep_factor /
 			      (get_text_speed() + 0.1));
 		times = times == 0 ? 1 : times;
@@ -2652,7 +2654,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* 描画する */
 		draw_char_on_msgbox(pen_x + ofs_x, pen_y + ofs_y, wc,
 				    body_color, body_outline_color,
-				    &ret_width, &ret_height);
+				    &ret_width, &ret_height, conf_font_size);
 
 		/* 更新領域を求める */
 		union_rect(x, y, w, h,
@@ -3089,7 +3091,8 @@ static bool process_escape_sequence_ruby(void)
 
 		draw_char_on_msgbox(pen_ruby_x, pen_ruby_y, wc,
 				    body_color, body_outline_color,
-				    &ret_width, &ret_height);
+				    &ret_width, &ret_height,
+				    conf_font_ruby_size);
 
 		if (!conf_msgbox_tategaki)
 			pen_ruby_x += ret_width;

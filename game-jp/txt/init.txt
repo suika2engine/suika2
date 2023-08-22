@@ -285,6 +285,9 @@ Macアプリでは、macOS 10.13以降で動作することを確認していま
 @ch position=center file=001-fun.png duration=1.0
 *みどり*025.ogg*それじゃ、また会おうね！
 
+# メッセージボックスを揺らす
+@anime msgbox-shake.txt sync,showmsgbox
+
 ###
 ### シーン6 (おまけ)
 ###

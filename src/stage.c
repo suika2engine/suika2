@@ -252,7 +252,7 @@ static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color,int *w,
-			       int *h);
+			       int *h, int base_font_size);
 
 /*
  * 初期化
@@ -265,64 +265,13 @@ bool init_stage(void)
 {
 	int i;
 
+#ifdef ANDROID
 	/* 再初期化のための処理 */
-	if  (bg_file_name != NULL) {
-		free(bg_file_name);
-		bg_file_name = NULL;
-	}
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		if (ch_file_name[i] != NULL) {
-			free(ch_file_name[i]);
-			ch_file_name[i] = NULL;
-		}
-	}
-	if (new_bg_img != NULL) {
-		destroy_image(new_bg_img);
-		new_bg_img = NULL;
-	}
-	if (rule_img != NULL) {
-		destroy_image(rule_img);
-		rule_img = NULL;
-	}
-	if (gui_idle_image != NULL) {
-		destroy_image(gui_idle_image);
-		gui_idle_image = NULL;
-	}
-	if (gui_hover_image != NULL) {
-		destroy_image(gui_hover_image);
-		gui_hover_image = NULL;
-	}
-	if (gui_active_image != NULL) {
-		destroy_image(gui_active_image);
-		gui_active_image = NULL;
-	}
+	cleanup_stage();
+#endif
 
-	/* 名前ボックスをセットアップする */
-	if (!setup_namebox())
-		return false;
-
-	/* メッセージボックスをセットアップする */
-	if (!setup_msgbox())
-		return false;
-
-	/* クリックアニメーションをセットアップする */
-	if (!setup_click())
-		return false;
-
-	/* スイッチをセットアップする */
-	if (!setup_switch())
-		return false;
-
-	/* NEWSをセットアップする */
-	if (!setup_news())
-		return false;
-
-	/* システムメニューをセットアップする */
-	if (!setup_sysmenu())
-		return false;
-
-	/* バナーをセットアップする */
-	if (!setup_banner())
+	/* "cg/"からファイルを読み込む */
+	if (!reload_stage())
 		return false;
 
 	/* セーブデータのサムネイル画像をセットアップする */
@@ -356,6 +305,42 @@ bool init_stage(void)
 	/* アルファ値を設定する */
 	for (i = 0; i < STAGE_LAYERS; i++)
 		layer_alpha[i] = 255;
+
+	return true;
+}
+
+/*
+ * ステージのリロードを行う
+ */
+bool reload_stage(void)
+{
+	/* 名前ボックスをセットアップする */
+	if (!setup_namebox())
+		return false;
+
+	/* メッセージボックスをセットアップする */
+	if (!setup_msgbox())
+		return false;
+
+	/* クリックアニメーションをセットアップする */
+	if (!setup_click())
+		return false;
+
+	/* スイッチをセットアップする */
+	if (!setup_switch())
+		return false;
+
+	/* NEWSをセットアップする */
+	if (!setup_news())
+		return false;
+
+	/* システムメニューをセットアップする */
+	if (!setup_sysmenu())
+		return false;
+
+	/* バナーをセットアップする */
+	if (!setup_banner())
+		return false;
 
 	return true;
 }
@@ -3066,7 +3051,8 @@ int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
 	int w, h;
 
 	lock_image(layer_image[LAYER_NAME]);
-	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h);
+	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h,
+			   conf_font_size);
 	unlock_image(layer_image[LAYER_NAME]);
 
 	return w;
@@ -3144,10 +3130,12 @@ void show_msgbox(bool show)
  *  - 描画した高さを返す
  */
 void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color, int *w, int *h)
+			 pixel_t outline_color, int *w, int *h,
+			 int base_font_size)
 {
 	lock_image(layer_image[LAYER_MSG]);
-	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, w, h);
+	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, w, h,
+			   base_font_size);
 	unlock_image(layer_image[LAYER_MSG]);
 }
 
@@ -3340,10 +3328,10 @@ void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
 	int w, h;
 
 	draw_char_on_layer(LAYER_FO, x, y, wc, fo_body_color, fo_outline_color,
-			   &w, &h);
+			   &w, &h, conf_font_size);
 
 	draw_char_on_layer(LAYER_FI, x, y, wc, fi_body_color, fi_outline_color,
-			   &w, &h);
+			   &w, &h, conf_font_size);
 
 	*ret_w = w;
 	*ret_h = h;
@@ -3624,11 +3612,11 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 /* レイヤに文字を描画する */
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color, int *w,
-			       int *h)
+			       int *h, int base_font_size)
 {
 	/* 文字を描画する */
 	if (!draw_glyph(layer_image[layer], x, y, color, outline_color, wc, w,
-			h)) {
+			h, base_font_size)) {
 		/* グリフがない、コードポイントがおかしい、など */
 		return false;
 	}

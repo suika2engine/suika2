@@ -84,6 +84,9 @@ void cleanup_stage(void);
 /* 起動・ロード直後の一時的な背景を作成する */
 struct image *create_initial_bg(void);
 
+/* ステージのリロードを行う */
+bool reload_stage(void);
+
 /*
  * ステージ描画
  */
@@ -289,7 +292,8 @@ void show_msgbox(bool show);
 
 /* メッセージボックスに文字を描画する */
 void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color, int *w, int *h);
+			 pixel_t outline_color, int *w, int *h,
+			 int base_font_size);
 
 /*
  * クリックアニメーションの描画

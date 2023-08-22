@@ -1527,12 +1527,14 @@ bool overwrite_config(const char *key, const char *val)
 		}
 
 		/* 文字列のコピーを作成して代入する */
-		s = strdup(val);
-		if (s == NULL) {
-			log_memory();
-			return false;
+		if (strcmp(val, "") != 0) {
+			s = strdup(val);
+			if (s == NULL) {
+				log_memory();
+				return false;
+			}
+			*(char **)rule_tbl[i].var_ptr = s;
 		}
-		*(char **)rule_tbl[i].var_ptr = s;
 		break;
 	default:
 		assert(INVALID_CONFIG_TYPE);
