@@ -436,13 +436,16 @@ skipmode.banner.y=186
 ###
 
 # Add ruby to history and save items (1:add, 0:none) (Optional)
-gui.ruby=0
+gui.ruby=1
 
 # Font size for save items (Optional)
 gui.save.font.size=36
 
 # Font size for history items (Optional)
 gui.history.font.size=36
+
+# Ruby font size for history items (Optional)
+gui.history.font.ruby.size=16
 
 # Line margin for history items (Optional)
 gui.history.margin.line=36

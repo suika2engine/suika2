@@ -413,13 +413,16 @@ skipmode.banner.y=186
 ###
 
 # ヒストリとセーブアイテムにルビを表示するか
-gui.ruby=0
+gui.ruby=1
 
 # セーブアイテムのフォントサイズ
 gui.save.font.size=36
 
 # ヒストリのフォントサイズ
 gui.history.font.size=36
+
+# ヒストリのルビのフォントサイズ
+gui.history.font.ruby.size=16
 
 # ヒストリの行間
 gui.history.margin.line=36

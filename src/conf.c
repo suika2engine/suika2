@@ -332,6 +332,7 @@ int conf_skipmode_banner_y;
 int conf_gui_ruby;
 int conf_gui_save_font_size;
 int conf_gui_history_font_size;
+int conf_gui_history_font_ruby_size;
 int conf_gui_history_margin_line;
 
 /*
@@ -642,8 +643,9 @@ static struct rule {
 	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, MUST, SAVE},
 	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, OPTIONAL, SAVE},
 	{"gui.ruby", 'i', &conf_gui_ruby, OPTIONAL, SAVE},
-	{"gui.save.font.size", 'i', &conf_gui_ruby, OPTIONAL, SAVE},
+	{"gui.save.font.size", 'i', &conf_gui_save_font_size, OPTIONAL, SAVE},
 	{"gui.history.font.size", 'i', &conf_gui_history_font_size, OPTIONAL, SAVE},
+	{"gui.history.font.ruby.size", 'i', &conf_gui_history_font_ruby_size, OPTIONAL, SAVE},
 	{"gui.history.margin.line", 'i', &conf_gui_history_margin_line, OPTIONAL, SAVE},
 	/* 下記は初期音量なのでセーブしない */
 	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},

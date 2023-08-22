@@ -1794,7 +1794,7 @@ static void draw_history_text_item(int button_index)
 	const char *text;
 	struct gui_button *b;
 	uint32_t c;
-	int margin_line, mblen, width, height;
+	int margin_line, ruby_size, mblen, width, height;
 
 	b = &button[button_index];
 
@@ -1813,6 +1813,12 @@ static void draw_history_text_item(int button_index)
 	/* フォントサイズを設定する */
 	set_font_size(conf_gui_history_font_size > 0 ?
 		      conf_gui_history_font_size : conf_font_size);
+	/* ルビのフォントサイズを求める */
+	ruby_size = conf_gui_history_font_ruby_size > 0 ?
+		conf_gui_history_font_ruby_size :
+		conf_font_ruby_size > 0 ?
+		conf_font_ruby_size :
+		conf_font_size / 5;
 
 	/* 1文字ずつ描画する */
 	while (*b->rt.top != '\0') {
@@ -1846,7 +1852,7 @@ static void draw_history_text_item(int button_index)
 		/* 次の文字へ移動する */
 		b->rt.pen_x += width + conf_msgbox_margin_char;
 		b->rt.pen_ruby_x = b->rt.pen_x;
-		b->rt.pen_ruby_y = b->rt.pen_y - conf_font_ruby_size;
+		b->rt.pen_ruby_y = b->rt.pen_y - ruby_size;
 		b->rt.top += mblen;
 	}
 }
@@ -1959,7 +1965,7 @@ static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby)
 	const char *c, *s;
 	struct gui_button *b;
 	uint32_t wc;
-	int i, font_size,mblen, ret_width, ret_height;
+	int i, font_size, mblen, ret_width, ret_height;
 
 	b = &button[button_index];
 	c = b->rt.top;
@@ -1987,8 +1993,11 @@ static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby)
 
 	/* フォントサイズを退避して、ルビ用に設定する */
 	font_size = get_font_size();
-	set_font_size(conf_font_ruby_size > 0 ?
-		      conf_font_ruby_size : conf_font_size / 5);
+	set_font_size(conf_gui_history_font_ruby_size > 0 ?
+		      conf_gui_history_font_ruby_size :
+		      conf_font_ruby_size > 0 ?
+		      conf_font_ruby_size :
+		      conf_font_size / 5);
 
 	/* 描画する */
 	s = ruby;
@@ -2013,6 +2022,11 @@ static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby)
 static void draw_ruby_char(int button_index, uint32_t wc, int *width,
 			   int *height)
 {
+	int body_font_size;
+
+	body_font_size = conf_gui_history_font_size > 0 ?
+		conf_gui_history_font_size : conf_font_size;
+
 	draw_glyph(button[button_index].rt.img,
 		   button[button_index].rt.pen_ruby_x,
 		   button[button_index].rt.pen_ruby_y,
@@ -2021,7 +2035,7 @@ static void draw_ruby_char(int button_index, uint32_t wc, int *width,
 		   wc,
 		   width,
 		   height,
-		   conf_font_ruby_size);
+		   body_font_size);
 }
 
 /* エスケープシーケンスをスキップする */
