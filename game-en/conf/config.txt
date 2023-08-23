@@ -454,7 +454,7 @@ gui.history.font.ruby.size=16
 gui.history.margin.line=36
 
 # Disable color in history (1:disable, 0:enable) (Optional)
-gui.history.disable.color=36
+gui.history.disable.color=0
 
 ###
 ### Initial Sound Volumes

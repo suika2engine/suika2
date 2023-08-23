@@ -419,7 +419,7 @@ gui.ruby=1
 gui.save.font.size=36
 
 # セーブアイテムのルビのフォントサイズ
-gui.save.font.size=16
+gui.save.font.ruby.size=16
 
 # ヒストリのフォントサイズ
 gui.history.font.size=36
@@ -431,7 +431,7 @@ gui.history.font.ruby.size=16
 gui.history.margin.line=36
 
 # ヒストリでカラーを無効にする (1:無効, 0:有効) (省略可)
-gui.history.disable.color=36
+gui.history.disable.color=0
 
 ###
 ### 音量の初期値
