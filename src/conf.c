@@ -335,6 +335,7 @@ int conf_gui_save_font_ruby_size;
 int conf_gui_history_font_size;
 int conf_gui_history_font_ruby_size;
 int conf_gui_history_margin_line;
+int conf_gui_history_disable_color;
 
 /*
  * サウンドの設定
@@ -649,6 +650,7 @@ static struct rule {
 	{"gui.history.font.size", 'i', &conf_gui_history_font_size, OPTIONAL, SAVE},
 	{"gui.history.font.ruby.size", 'i', &conf_gui_history_font_ruby_size, OPTIONAL, SAVE},
 	{"gui.history.margin.line", 'i', &conf_gui_history_margin_line, OPTIONAL, SAVE},
+	{"gui.history.disable.color", 'i', &conf_gui_history_disable_color, OPTIONAL, SAVE},
 	/* 下記は初期音量なのでセーブしない */
 	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},
 	{"sound.vol.voice", 'f', &conf_sound_vol_voice, MUST, NOSAVE},

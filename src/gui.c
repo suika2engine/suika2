@@ -1981,6 +1981,8 @@ static bool process_escape_sequence_color(int button_index)
 
 	/* メッセージを進める \#{RRGGBB} */
 	button[button_index].rt.top += 10;
+	if (conf_gui_history_disable_color)
+		return true;
 
 	/* カラーコードを読む */
 	rgb = 0;
