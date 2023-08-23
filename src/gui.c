@@ -1723,17 +1723,6 @@ static bool init_history_buttons(void)
 						button[i].height);
 		if (button[i].rt.img == NULL)
 			return false;
-
-		button[i].rt.color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_color_r,
-					(pixel_t)conf_font_color_g,
-					(pixel_t)conf_font_color_b);
-		button[i].rt.outline_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
 	}
 
 	return true;
@@ -1816,9 +1805,18 @@ static void draw_history_text_item(int button_index)
 	text = get_history_message(b->rt.history_offset);
 
 	/* 描画情報を初期化する */
+	b->rt.top = text;
 	b->rt.pen_x = b->margin;
 	b->rt.pen_y = b->margin;
-	b->rt.top = text;
+	b->rt.color = make_pixel_slow(0xff,
+				      (pixel_t)conf_font_color_r,
+				      (pixel_t)conf_font_color_g,
+				      (pixel_t)conf_font_color_b);
+	b->rt.outline_color =
+		make_pixel_slow(0xff,
+				(pixel_t)conf_font_outline_color_r,
+				(pixel_t)conf_font_outline_color_g,
+				(pixel_t)conf_font_outline_color_b);
 
 	/* 行間マージンを求める */
 	margin_line = conf_gui_history_margin_line > 0 ?
@@ -1868,12 +1866,8 @@ static void draw_history_text_item(int button_index)
 		draw_history_char(button_index, c, &width, &height);
 
 		/* 次の文字へ移動する */
-		log_info("pen_x:%d", b->rt.pen_x);
-		log_info("pen_y:%d", b->rt.pen_y);
 		b->rt.pen_ruby_x = b->rt.pen_x;
 		b->rt.pen_ruby_y = b->rt.pen_y - ruby_size;
-		log_info("ruby_size:%d", ruby_size);
-		log_info("pen_ruby_y:%d", b->rt.pen_ruby_y);
 		b->rt.pen_x += width + conf_msgbox_margin_char;
 		b->rt.top += mblen;
 	}
