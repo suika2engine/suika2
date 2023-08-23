@@ -430,6 +430,9 @@ gui.history.font.ruby.size=16
 # ヒストリの行間
 gui.history.margin.line=36
 
+# ヒストリでカラーを無効にする (1:無効, 0:有効) (省略可)
+gui.history.disable.color=36
+
 ###
 ### 音量の初期値
 ###  - これは初期値で、セーブデータがある場合はそちらが利用される
