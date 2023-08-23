@@ -1850,9 +1850,13 @@ static void draw_history_text_item(int button_index)
 		draw_char(button_index, c, &width, &height);
 
 		/* 次の文字へ移動する */
-		b->rt.pen_x += width + conf_msgbox_margin_char;
+		log_info("pen_x:%d", b->rt.pen_x);
+		log_info("pen_y:%d", b->rt.pen_y);
 		b->rt.pen_ruby_x = b->rt.pen_x;
 		b->rt.pen_ruby_y = b->rt.pen_y - ruby_size;
+		log_info("ruby_size:%d", ruby_size);
+		log_info("pen_ruby_y:%d", b->rt.pen_ruby_y);
+		b->rt.pen_x += width + conf_msgbox_margin_char;
 		b->rt.top += mblen;
 	}
 }
@@ -2022,10 +2026,9 @@ static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby)
 static void draw_ruby_char(int button_index, uint32_t wc, int *width,
 			   int *height)
 {
-	int body_font_size;
+	int ruby_size;
 
-	body_font_size = conf_gui_history_font_size > 0 ?
-		conf_gui_history_font_size : conf_font_size;
+	ruby_size = get_font_size();
 
 	draw_glyph(button[button_index].rt.img,
 		   button[button_index].rt.pen_ruby_x,
@@ -2035,7 +2038,7 @@ static void draw_ruby_char(int button_index, uint32_t wc, int *width,
 		   wc,
 		   width,
 		   height,
-		   body_font_size);
+		   ruby_size);
 }
 
 /* エスケープシーケンスをスキップする */
