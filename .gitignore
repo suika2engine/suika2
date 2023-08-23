@@ -57,6 +57,7 @@ build/android/app/.cxx
 build/android/app/src/main/cpp/freetype
 build/android/app/src/main/cpp/libpng
 build/android/app/src/main/cpp/jpeg
+build/android/app/src/main/cpp/*.[ch]
 
 build/linux-x86_64/*.o
 build/linux-x86_64/libroot
