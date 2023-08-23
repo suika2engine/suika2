@@ -104,7 +104,9 @@ cp ../../src/wms_parser.tab.h app/src/main/cpp/wms_parser.tab.h
 
 # Copy the game-jp assets for our testing builds.
 # You can comment this out when your game is ready.
+mkdir app/src/main/assets
 cp -R ../../game-jp/* app/src/main/assets/
 
 # Please modify and use this line for your game.
-# cp ../../data01.arc app/src/main/assets/
+#mkdir app/src/main/assets
+#cp ../../data01.arc app/src/main/assets/
