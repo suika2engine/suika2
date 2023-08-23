@@ -2875,10 +2875,7 @@ static void process_escape_sequence(void)
 				return; /* 不正: 読み飛ばさない */
 			break;
 		default:
-			/*
-			 * 不正なエスケープシーケンス
-			 *  - 読み飛ばさない
-			 */
+			/* 不正なエスケープシーケンスなので読み飛ばさない */
 			return;
 		}
 	}
@@ -3074,7 +3071,7 @@ static bool process_escape_sequence_ruby(void)
 	}
 	ruby[i] = '\0';
 
-	/* "\\w{" + "f.f" + "}" */
+	/* \^{ + ruby[] + } */
 	msg_cur += 3 + i + 1;
 
 	/* フォントサイズを退避して、ルビ用に設定する */

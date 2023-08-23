@@ -432,6 +432,25 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### System GUI Settings
+###
+
+# Add ruby to history and save items (1:add, 0:none) (Optional)
+gui.ruby=1
+
+# Font size for save items (Optional)
+gui.save.font.size=36
+
+# Font size for history items (Optional)
+gui.history.font.size=36
+
+# Ruby font size for history items (Optional)
+gui.history.font.ruby.size=16
+
+# Line margin for history items (Optional)
+gui.history.margin.line=36
+
+###
 ### Initial Sound Volumes
 ###  - Note that these are the initial values.
 ###  - If a user has the save data, then volume settings in the save data
