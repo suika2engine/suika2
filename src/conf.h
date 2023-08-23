@@ -304,6 +304,7 @@ extern int conf_skipmode_banner_y;
  */
 extern int conf_gui_ruby;
 extern int conf_gui_save_font_size;
+extern int conf_gui_save_font_ruby_size;
 extern int conf_gui_history_font_size;
 extern int conf_gui_history_font_ruby_size;
 extern int conf_gui_history_margin_line;

@@ -418,6 +418,9 @@ gui.ruby=1
 # セーブアイテムのフォントサイズ
 gui.save.font.size=36
 
+# セーブアイテムのルビのフォントサイズ
+gui.save.font.size=16
+
 # ヒストリのフォントサイズ
 gui.history.font.size=36
 

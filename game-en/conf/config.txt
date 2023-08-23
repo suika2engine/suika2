@@ -441,6 +441,9 @@ gui.ruby=1
 # Font size for save items (Optional)
 gui.save.font.size=36
 
+# Ruby font size for save items (Optional)
+gui.save.font.ruby.size=16
+
 # Font size for history items (Optional)
 gui.history.font.size=36
 
