@@ -1934,7 +1934,7 @@ static bool process_escape_sequence_lf(int button_index, bool ignore_lf)
 	const char *c;
 
 	c = button[button_index].rt.top;
-	assert(*c == '\0');
+	assert(*c == '\\');
 	assert(*(c + 1) == 'n');
 
 	/* 改行する */
