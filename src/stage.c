@@ -24,6 +24,13 @@
  *  - 2022-07-16 システムメニューを追加
  *  - 2022-10-20 キャラ顔絵を追加
  *  - 2023-01-06 日本語の指定に対応
+ *  - 2023-08-20 アニメサブシステムの導入, キャラクタアニメの移行
+ *
+ * [検討]
+ *  - ソフトレンダの廃止(GPU描画のみへの移行)
+ *  - @bg/@chもアニメーションサブシステムに移行
+ *  - 既存の@bg/@chのエフェクトを残す上で、FI/FOレイヤが必要か検討
+ *  - FI/FOはソフトレンダ向けの最適化なので、必要なければ廃止
  */
 
 #include "suika.h"
@@ -839,45 +846,96 @@ static void destroy_layer_image(int layer)
  */
 void draw_stage(void)
 {
+	/* アニメーションサブシステムに更新させるデータの一覧 */
+	struct params {
+		int anime_layer;
+		struct image **image;
+		char **fname;
+		int *x;
+		int *y;
+		int *a;
+	} params[] = {
+		{ANIME_LAYER_BG,
+		 &layer_image[LAYER_BG],
+		 &bg_file_name,
+		 &layer_x[LAYER_BG],
+		 &layer_y[LAYER_BG],
+		 &layer_alpha[LAYER_BG]},
+		{ANIME_LAYER_CHB,
+		 &layer_image[LAYER_CHB],
+		 &ch_file_name[CH_BACK],
+		 &layer_x[LAYER_CHB],
+		 &layer_y[LAYER_CHB],
+		 &layer_alpha[LAYER_CHB]},
+		{ANIME_LAYER_CHL,
+		 &layer_image[LAYER_CHL],
+		 &ch_file_name[CH_LEFT],
+		 &layer_x[LAYER_CHL],
+		 &layer_y[LAYER_CHL],
+		 &layer_alpha[LAYER_CHL]},
+		{ANIME_LAYER_CHR,
+		 &layer_image[LAYER_CHR],
+		 &ch_file_name[CH_RIGHT],
+		 &layer_x[LAYER_CHR],
+		 &layer_y[LAYER_CHR],
+		 &layer_alpha[LAYER_CHR]},
+		{ANIME_LAYER_CHC,
+		 &layer_image[LAYER_CHC],
+		 &ch_file_name[CH_CENTER],
+		 &layer_x[LAYER_CHC],
+		 &layer_y[LAYER_CHC],
+		 &layer_alpha[LAYER_CHC]},
+		{ANIME_LAYER_MSG,
+		 NULL,
+		 NULL,
+		 &layer_x[LAYER_MSG],
+		 &layer_y[LAYER_MSG],
+		 &layer_alpha[LAYER_MSG]},
+		{ANIME_LAYER_NAME,
+		 NULL,
+		 NULL,
+		 &layer_x[LAYER_NAME],
+		 &layer_y[LAYER_NAME],
+		 &layer_alpha[LAYER_NAME]},
+		{ANIME_LAYER_CHF,
+		 NULL,
+		 NULL,
+		 &layer_x[LAYER_CHF],
+		 &layer_y[LAYER_CHF],
+		 &layer_alpha[LAYER_CHF]}
+	};
+	int i;
+
+	/*
+	 * @bgや@chのフェードはFI/FOレイヤで行うので、それらのフェード中には
+	 * draw_stage()は使えない
+	 */
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
-	if (is_anime_running()) {
-		update_anime_frame();
-		if (is_anime_running_for_layer(ANIME_LAYER_BG) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_BG)) {
-			get_anime_layer_params(ANIME_LAYER_BG, &layer_image[LAYER_BG], &bg_file_name, &layer_x[LAYER_BG], &layer_y[LAYER_BG], &layer_alpha[LAYER_BG]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHB) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHB)) {
-			get_anime_layer_params(ANIME_LAYER_CHB, &layer_image[LAYER_CHB], &ch_file_name[CH_BACK], &layer_x[LAYER_CHB], &layer_y[LAYER_CHB], &layer_alpha[LAYER_CHB]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHL) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHL)) {
-			get_anime_layer_params(ANIME_LAYER_CHL, &layer_image[LAYER_CHL], &ch_file_name[CH_LEFT], &layer_x[LAYER_CHL], &layer_y[LAYER_CHL], &layer_alpha[LAYER_CHL]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHR) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHR)) {
-			get_anime_layer_params(ANIME_LAYER_CHR, &layer_image[LAYER_CHR], &ch_file_name[CH_RIGHT], &layer_x[LAYER_CHR], &layer_y[LAYER_CHR], &layer_alpha[LAYER_CHR]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHC) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHC)) {
-			get_anime_layer_params(ANIME_LAYER_CHC, &layer_image[LAYER_CHC], &ch_file_name[CH_CENTER], &layer_x[LAYER_CHC], &layer_y[LAYER_CHC], &layer_alpha[LAYER_CHC]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_MSG) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_MSG)) {
-			get_anime_layer_params(ANIME_LAYER_MSG, NULL, NULL, &layer_x[LAYER_MSG], &layer_y[LAYER_MSG], &layer_alpha[LAYER_MSG]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_NAME) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_NAME)) {
-			get_anime_layer_params(ANIME_LAYER_NAME, NULL, NULL, &layer_x[LAYER_NAME], &layer_y[LAYER_NAME], &layer_alpha[LAYER_NAME]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHF) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHF)) {
-			get_anime_layer_params(ANIME_LAYER_CHF, NULL, NULL, &layer_x[LAYER_CHF], &layer_y[LAYER_CHF], &layer_alpha[LAYER_CHF]);
+	/*
+	 * アニメーションのフレーム時刻を更新し、
+	 * 完了していればフラグをセットする
+	 */
+	update_anime_frame();
+
+	/*
+	 * 各レイヤの描画パラメータを更新する
+	 *  - 画像やファイル名も変わることがある
+	 */
+	for (i = 0; i < (int)(sizeof(params) / sizeof(struct params)); i++) {
+		if (is_anime_running_for_layer(params[i].anime_layer) ||
+		    is_anime_finished_for_layer(params[i].anime_layer)) {
+			get_anime_layer_params(params[i].anime_layer,
+					       params[i].image,
+					       params[i].fname,
+					       params[i].x,
+					       params[i].y,
+					       params[i].a);
 		}
 	}
 
+	/* 描画を行う */
 	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
 }
 
