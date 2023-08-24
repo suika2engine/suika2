@@ -1,5 +1,11 @@
 all: libroot app-suika app-suika-pro app-suika-capture app-suika-replay
 
+noupload: libroot
+	./xcbuild-wrap-noupload.sh suika
+	./xcbuild-wrap-noupload.sh suika-pro
+	./xcbuild-wrap-noupload.sh suika-capture
+	./xcbuild-wrap-noupload.sh suika-replay
+
 libroot:
 	./build-libs.sh
 

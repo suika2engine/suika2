@@ -31,6 +31,11 @@ echo Building the Windows Capture binary.
 docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-capture && make"
 docker cp suika2-run:/workspace/build/mingw-capture/suika-capture.exe suika-capture.exe
 
+REM Build the mingw-replay target
+echo Building the Windows Replay binary.
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-replay && make"
+docker cp suika2-run:/workspace/build/mingw-capture/suika-replay.exe suika-replay.exe
+
 REM Build the mingw-arm64 target
 echo Building the Windows Arm64 binary.
 docker exec -i suika2-run /bin/bash -c "cd /workspace/build/mingw-arm64 && make"
@@ -53,12 +58,7 @@ docker cp suika2-run:/workspace/build/emscripten/html ./
 
 REM Build the Android target
 echo Building the Android binary.
-echo The build will fail a few times, but it is normal.
-docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools && cd /workspace/build/android && yes | /cmdline-tools/bin/sdkmanager --licenses --sdk_root=/cmdline-tools"
-docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools && cd /workspace/build/android && gradle clean || true"
-docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools && cd /workspace/build/android && ./gradlew || true"
-docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools && cd /workspace/build/android && ./gradlew build --stacktrace || true"
-docker exec -i suika2-run /bin/bash -c "export ANDROID_SDK_ROOT=/cmdline-tools && cd /workspace/build/android && ./gradlew build --stacktrace"
+docker exec -i suika2-run /bin/bash -c "cd /workspace/build/android && ./build-on-linux.sh"
 docker cp suika2-run:/workspace/build/android/app/build/outputs/apk/debug/app-debug.apk suika.apk
 
 REM Stop the suika2-run instance

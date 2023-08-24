@@ -276,7 +276,7 @@ static void update_save_buttons(void);
 static void draw_save_button(int button_index);
 static int draw_save_text_item(int button_index, int x, int y,
 			       const char *text);
-static void draw_char(int index, uint32_t wc, int *width, int *height);
+static void draw_save_char(int index, uint32_t wc, int *width, int *height);
 static void process_save(int button_index);
 static void process_load(int button_index);
 static void process_button_draw_save(int button_index);
@@ -284,13 +284,15 @@ static bool init_history_buttons(void);
 static void update_history_buttons(void);
 static void draw_history_button(int button_index);
 static void draw_history_text_item(int button_index);
+static void draw_history_char(int index, uint32_t wc, int *width, int *height);
 static void process_escape_sequence(int button_index, bool ignore_lf,
-				    bool ignore_ruby);
-static void draw_ruby_char(int button_index, uint32_t wc, int *width,
-			   int *height);
+				    bool ignore_ruby, int ruby_size);
 static bool process_escape_sequence_lf(int button_index, bool ignore_lf);
 static bool process_escape_sequence_color(int button_index);
-static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby);
+static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby,
+					 int ruby_size);
+static void draw_ruby_char(int button_index, uint32_t wc, int *width,
+			   int *height);
 static bool process_escape_sequence_other(int button_index);
 static void process_button_draw_history(int button_index);
 static void process_history_scroll(int delta);
@@ -301,6 +303,7 @@ static void reset_preview_all_buttons(void);
 static void reset_preview_button(int index);
 static void process_button_draw_preview(int index);
 static void draw_message(int index);
+static void draw_message_char(int index, uint32_t wc, int *width, int *height);
 static int get_frame_chars(int index);
 static void word_wrapping(int index);
 static int get_en_word_width(const char *m);
@@ -1559,13 +1562,22 @@ static int draw_save_text_item(int button_index, int x, int y,
 {
 	struct gui_button *b;
 	uint32_t wc;
-	int mblen, cw, ch, result;
+	int ruby_size, mblen, cw, ch, result;
 
 	b = &button[button_index];
+
+	/* ルビのフォントサイズを求める */
+	ruby_size = conf_gui_save_font_ruby_size > 0 ?
+		conf_gui_save_font_ruby_size :
+		conf_font_ruby_size > 0 ?
+		conf_font_ruby_size :
+		conf_font_size / 5;
 
 	/* 描画情報を初期化する */
 	b->rt.pen_x = x;
 	b->rt.pen_y = y;
+	b->rt.top = text;
+	b->rt.pen_ruby_y = y - ruby_size;
 
 	/* フォントサイズを設定する */
 	set_font_size(conf_gui_save_font_size > 0 ?
@@ -1573,14 +1585,17 @@ static int draw_save_text_item(int button_index, int x, int y,
 
 	/* 1文字ずつ描画する */
 	result = 0;
-	while (*text != '\0' && *text != '\\') {
+	while (*b->rt.top) {
+		/* 先頭のエスケープシーケンスをスキップする */
+		process_escape_sequence(button_index, true, !conf_gui_ruby,
+					ruby_size);
+		if (*b->rt.top == '\0')
+			break;
+
 		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(text, &wc);
+		mblen = utf8_to_utf32(b->rt.top, &wc);
 		if (mblen == -1)
 			return 0;
-
-		/* エスケープシーケンスをスキップする */
-		process_escape_sequence(button_index, true, !conf_gui_ruby);
 
 		/* 文字の幅を取得する */
 		cw = get_glyph_width(wc);
@@ -1589,22 +1604,21 @@ static int draw_save_text_item(int button_index, int x, int y,
 			break;
 
 		/* 描画する */
-		draw_char(button_index, wc, &cw, &ch);
-		b->rt.pen_x += cw + conf_msgbox_margin_char;
+		draw_save_char(button_index, wc, &cw, &ch);
 		b->rt.pen_ruby_x = b->rt.pen_x;
-		b->rt.pen_ruby_y = b->rt.pen_y - conf_font_ruby_size;
+		b->rt.pen_x += cw + conf_msgbox_margin_char;
 
 		result += cw;
 
 		/* 次の文字へ移動する */
-		text += mblen;
+		b->rt.top += mblen;
 	}
 
 	return result;
 }
 
 /* 文字を描画する */
-static void draw_char(int index, uint32_t wc, int *width, int *height)
+static void draw_save_char(int index, uint32_t wc, int *width, int *height)
 {
 	draw_glyph(button[index].rt.img,
 		   button[index].rt.pen_x,
@@ -1614,7 +1628,7 @@ static void draw_char(int index, uint32_t wc, int *width, int *height)
 		   wc,
 		   width,
 		   height,
-		   conf_font_size);
+		   get_font_size());
 }
 
 /* セーブを行う */
@@ -1709,17 +1723,6 @@ static bool init_history_buttons(void)
 						button[i].height);
 		if (button[i].rt.img == NULL)
 			return false;
-
-		button[i].rt.color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_color_r,
-					(pixel_t)conf_font_color_g,
-					(pixel_t)conf_font_color_b);
-		button[i].rt.outline_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
 	}
 
 	return true;
@@ -1802,9 +1805,18 @@ static void draw_history_text_item(int button_index)
 	text = get_history_message(b->rt.history_offset);
 
 	/* 描画情報を初期化する */
+	b->rt.top = text;
 	b->rt.pen_x = b->margin;
 	b->rt.pen_y = b->margin;
-	b->rt.top = text;
+	b->rt.color = make_pixel_slow(0xff,
+				      (pixel_t)conf_font_color_r,
+				      (pixel_t)conf_font_color_g,
+				      (pixel_t)conf_font_color_b);
+	b->rt.outline_color =
+		make_pixel_slow(0xff,
+				(pixel_t)conf_font_outline_color_r,
+				(pixel_t)conf_font_outline_color_g,
+				(pixel_t)conf_font_outline_color_b);
 
 	/* 行間マージンを求める */
 	margin_line = conf_gui_history_margin_line > 0 ?
@@ -1813,6 +1825,7 @@ static void draw_history_text_item(int button_index)
 	/* フォントサイズを設定する */
 	set_font_size(conf_gui_history_font_size > 0 ?
 		      conf_gui_history_font_size : conf_font_size);
+
 	/* ルビのフォントサイズを求める */
 	ruby_size = conf_gui_history_font_ruby_size > 0 ?
 		conf_gui_history_font_ruby_size :
@@ -1823,7 +1836,10 @@ static void draw_history_text_item(int button_index)
 	/* 1文字ずつ描画する */
 	while (*b->rt.top != '\0') {
 		/* 先頭のエスケープシーケンスを解釈する */
-		process_escape_sequence(button_index, false, !conf_gui_ruby);
+		process_escape_sequence(button_index, false, !conf_gui_ruby,
+					ruby_size);
+		if (*b->rt.top == '\0')
+			break;
 
 		/* ワードラッピングを処理する */
 		word_wrapping(button_index);
@@ -1847,19 +1863,33 @@ static void draw_history_text_item(int button_index)
 		}
 
 		/* 描画する */
-		draw_char(button_index, c, &width, &height);
+		draw_history_char(button_index, c, &width, &height);
 
 		/* 次の文字へ移動する */
-		b->rt.pen_x += width + conf_msgbox_margin_char;
 		b->rt.pen_ruby_x = b->rt.pen_x;
 		b->rt.pen_ruby_y = b->rt.pen_y - ruby_size;
+		b->rt.pen_x += width + conf_msgbox_margin_char;
 		b->rt.top += mblen;
 	}
 }
 
+/* 文字を描画する */
+static void draw_history_char(int index, uint32_t wc, int *width, int *height)
+{
+	draw_glyph(button[index].rt.img,
+		   button[index].rt.pen_x,
+		   button[index].rt.pen_y,
+		   button[index].rt.color,
+		   button[index].rt.outline_color,
+		   wc,
+		   width,
+		   height,
+		   get_font_size());
+}
+
 /* エスケープシーケンスを処理する */
 static void process_escape_sequence(int button_index, bool ignore_lf,
-				    bool ignore_ruby)
+				    bool ignore_ruby, int ruby_size)
 {
 	struct gui_button *b;
 
@@ -1880,7 +1910,8 @@ static void process_escape_sequence(int button_index, bool ignore_lf,
 		case '^':
 			/* ルビ */
 			if (!process_escape_sequence_ruby(button_index,
-							  ignore_ruby))
+							  ignore_ruby,
+							  ruby_size))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		case '@':
@@ -1903,7 +1934,7 @@ static bool process_escape_sequence_lf(int button_index, bool ignore_lf)
 	const char *c;
 
 	c = button[button_index].rt.top;
-	assert(*c == '\0');
+	assert(*c == '\\');
 	assert(*(c + 1) == 'n');
 
 	/* 改行する */
@@ -1944,6 +1975,8 @@ static bool process_escape_sequence_color(int button_index)
 
 	/* メッセージを進める \#{RRGGBB} */
 	button[button_index].rt.top += 10;
+	if (conf_gui_history_disable_color)
+		return true;
 
 	/* カラーコードを読む */
 	rgb = 0;
@@ -1959,7 +1992,8 @@ static bool process_escape_sequence_color(int button_index)
 }
 
 /* ルビのエスケープシーケンスを処理する */
-static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby)
+static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby,
+					 int ruby_size)
 {
 	char ruby[64];
 	const char *c, *s;
@@ -1993,11 +2027,7 @@ static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby)
 
 	/* フォントサイズを退避して、ルビ用に設定する */
 	font_size = get_font_size();
-	set_font_size(conf_gui_history_font_ruby_size > 0 ?
-		      conf_gui_history_font_ruby_size :
-		      conf_font_ruby_size > 0 ?
-		      conf_font_ruby_size :
-		      conf_font_size / 5);
+	set_font_size(ruby_size);
 
 	/* 描画する */
 	s = ruby;
@@ -2022,11 +2052,6 @@ static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby)
 static void draw_ruby_char(int button_index, uint32_t wc, int *width,
 			   int *height)
 {
-	int body_font_size;
-
-	body_font_size = conf_gui_history_font_size > 0 ?
-		conf_gui_history_font_size : conf_font_size;
-
 	draw_glyph(button[button_index].rt.img,
 		   button[button_index].rt.pen_ruby_x,
 		   button[button_index].rt.pen_ruby_y,
@@ -2035,7 +2060,7 @@ static void draw_ruby_char(int button_index, uint32_t wc, int *width,
 		   wc,
 		   width,
 		   height,
-		   body_font_size);
+		   get_font_size());
 }
 
 /* エスケープシーケンスをスキップする */
@@ -2336,7 +2361,7 @@ static void draw_message(int index)
 		}
 
 		/* 描画する */
-		draw_char(index, c, &cw, &ch);
+		draw_message_char(index, c, &cw, &ch);
 
 		/* 次の文字へ移動する */
 		button[index].rt.pen_x += cw;
@@ -2344,6 +2369,20 @@ static void draw_message(int index)
 		button[index].rt.drawn_chars++;
 	}
 	unlock_image(button[index].rt.img);
+}
+
+/* 文字を描画する */
+static void draw_message_char(int index, uint32_t wc, int *width, int *height)
+{
+	draw_glyph(button[index].rt.img,
+		   button[index].rt.pen_x,
+		   button[index].rt.pen_y,
+		   button[index].rt.color,
+		   button[index].rt.outline_color,
+		   wc,
+		   width,
+		   height,
+		   conf_font_size);
 }
 
 /* 今回のフレームで描画する文字数を取得する */

@@ -25,8 +25,4 @@ RUN cd emsdk && ./emsdk install latest
 RUN cd emsdk && ./emsdk activate latest
 
 # For Android
-RUN apt-get -y install android-sdk
-RUN apt-get -y install wget
-RUN wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-RUN unzip commandlinetools-linux-8512546_latest.zip
-RUN ANDROID_SDK_ROOT=/cmdline-tools /cmdline-tools/bin/sdkmanager "platforms;android-30" --sdk_root=/cmdline-tools
+RUN apt-get install -y openjdk-17-jdk-headless wget
