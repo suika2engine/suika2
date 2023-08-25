@@ -29,7 +29,7 @@
 
 #include "suika.h"
 
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 #include "asound.h"
 #include "gstplay.h"
 #endif
@@ -185,7 +185,7 @@ static bool is_gst_playing;
 /*
  * 動画のスキップ可能かどうか
  */
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 static bool is_gst_skippable;
 #endif
 
@@ -283,7 +283,7 @@ static bool init(int argc, char *argv[])
 	if (!init_conf())
 		return false;
 
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	/* ALSAの使用を開始する */
 	if (!init_asound())
 		log_warn("Can't initialize sound.\n");
@@ -328,8 +328,15 @@ static bool init(int argc, char *argv[])
 		}
 	}
 
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	gstplay_init(argc, argv);
+#endif
+
+#ifdef USE_CAPTURE
+	UNUSED_PARAMETER(argc);
+	UNUSED_PARAMETER(argv);
+	if (!init_capture())
+		return false;
 #endif
 
 #ifdef USE_REPLAY
@@ -343,7 +350,7 @@ static bool init(int argc, char *argv[])
 /* 互換レイヤの終了処理を行う */
 static void cleanup(void)
 {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	/* ALSAの使用を終了する */
 	cleanup_asound();
 #endif
@@ -777,7 +784,7 @@ static void run_game_loop(void)
 	gettimeofday(&tv_start, NULL);
 
 	while (1) {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 		if (is_gst_playing) {
 			gstplay_loop_iteration();
 			if (!gstplay_is_playing()) {
@@ -1423,7 +1430,7 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	char *path;
 
 	path = make_valid_path(MOV_DIR, fname);
@@ -1447,7 +1454,7 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	gstplay_stop();
 #endif
 	is_gst_playing = false;
