@@ -8,3 +8,4 @@ build-test:
 	cd mingw-arm64 && rm -f *.o suika-arm64.exe && make -j24 && cd ..
 	cd mingw-capture && rm -f *.o suika-capture.exe && make -j24 && cd ..
 	cd mingw-replay && rm -f *.o suika-replay.exe && make -j24 && cd ..
+	cd emscripten && make && cd ..
