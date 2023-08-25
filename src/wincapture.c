@@ -101,7 +101,7 @@ bool init_capture(void)
 	for (y = 0; y < conf_window_height; y++) {
 		row_pointers[y] = 
 			(png_bytep)&frame_buf[conf_window_width * 3 *
-					      (conf_window_height - y)];
+					      (conf_window_height - 1 - y)];
 	}
 
 	/* 開始時刻を取得する */
