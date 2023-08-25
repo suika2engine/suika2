@@ -39,6 +39,10 @@ static char *frame_buf;
 /* PNG書き出し用の行ポインタ */
 png_bytep *row_pointers;
 
+/* マウスボタン状態 */
+static bool prev_left_pressed;
+static bool prev_right_pressed;
+
 /* 前方参照 */
 static bool read_csv_line(void);
 static uint64_t get_tick_count64(void);
@@ -203,6 +207,8 @@ static bool read_csv_line(void)
 {
 	int ret;
 	int b_sim_execute;
+	int i_mouse_x;
+	int i_mouse_y;
 	int b_is_left_button_pressed;
 	int b_is_right_button_pressed;
 	int b_is_left_clicked;
@@ -220,8 +226,8 @@ static bool read_csv_line(void)
 		     "%lu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 		     &sim_time,
 		     &b_sim_execute,
-		     &mouse_pos_x,
-		     &mouse_pos_y,
+		     &i_mouse_x,
+		     &i_mouse_y,
 		     &b_is_left_button_pressed,
 		     &b_is_right_button_pressed,
 		     &b_is_left_clicked,
@@ -239,8 +245,14 @@ static bool read_csv_line(void)
 
 	/* fscanf()はboolを受け取れないので、intで受け取ってコピーする */
 	sim_execute = b_sim_execute;
-	is_left_button_pressed = b_is_left_button_pressed;
-	is_right_button_pressed = b_is_right_button_pressed;
+	if (b_is_left_button_pressed)
+		on_event_mouse_press(MOUSE_LEFT, i_mouse_x, i_mouse_y);
+	if (b_is_right_button_pressed)
+		on_event_mouse_press(MOUSE_RIGHT, i_mouse_x, i_mouse_y);
+	if (prev_left_pressed && !b_is_left_button_pressed)
+		on_event_mouse_release(MOUSE_LEFT, i_mouse_x, i_mouse_y);
+	if (prev_right_pressed && !b_is_right_button_pressed)
+		on_event_mouse_release(MOUSE_RIGHT, i_mouse_x, i_mouse_y);
 	is_left_clicked = b_is_left_clicked;
 	is_right_clicked = b_is_right_clicked;
 	is_return_pressed = b_is_return_pressed;
@@ -252,6 +264,8 @@ static bool read_csv_line(void)
 	is_page_down_pressed = b_is_page_down_pressed;
 	is_control_pressed = b_is_control_pressed;
 
+	prev_left_pressed = b_is_left_button_pressed;
+	prev_right_pressed = b_is_right_button_pressed;
 	return true;
 }
 

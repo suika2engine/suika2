@@ -203,7 +203,7 @@ void on_event_mouse_press(int button, int x, int y)
 /*
  * マウス解放時に呼び出される
  */
-void on_event_mouse_release(UNUSED(int button), int x, int y)
+void on_event_mouse_release(int button, int x, int y)
 {
 	mouse_pos_x = x;
 	mouse_pos_y = y;
