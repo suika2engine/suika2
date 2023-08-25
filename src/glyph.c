@@ -639,6 +639,7 @@ int get_font_size(void)
 #ifndef SSE_VERSIONING
 
 #define DRAW_GLYPH_FUNC draw_glyph_func
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func
 #include "drawglyph.h"
 
 /*
@@ -768,17 +769,17 @@ static void draw_glyph_func(unsigned char * RESTRICT font,
 }
 
 /* draw_glyph_dim_func()をディスパッチする */
-void draw_glyph_dim_func(unsigned char * RESTRICT font,
-			 int font_width,
-			 int font_height,
-			 int margin_left,
-			 int margin_top,
-			 pixel_t * RESTRICT image,
-			 int image_width,
-			 int image_height,
-			 int image_x,
-			 int image_y,
-			 pixel_t color)
+static void draw_glyph_dim_func(unsigned char * RESTRICT font,
+				int font_width,
+				int font_height,
+				int margin_left,
+				int margin_top,
+				pixel_t * RESTRICT image,
+				int image_width,
+				int image_height,
+				int image_x,
+				int image_y,
+				pixel_t color)
 {
 	if (has_avx512) {
 		draw_glyph_dim_func_avx512(font, font_width, font_height,
