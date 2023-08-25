@@ -48,7 +48,7 @@ int get_utf8_width(const char *mbs);
 /* 文字の描画を行う */
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 		pixel_t outline_color, uint32_t codepoint, int *w, int *h,
-		int base_font_size);
+		int base_font_size, bool is_dim);
 
 /* グローバルのフォントファイル名を設定する */
 bool set_global_font_file_name(const char *file);

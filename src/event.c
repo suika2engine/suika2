@@ -65,7 +65,7 @@ bool on_event_init(void)
 	init_game_loop();
 
 	/* フォントのプリロードを行う */
-	draw_glyph(NULL, 0, 0, 0, 0, 'A', &w, &h, conf_font_size);
+	draw_glyph(NULL, 0, 0, 0, 0, 'A', &w, &h, conf_font_size, false);
 
 	return true;
 }

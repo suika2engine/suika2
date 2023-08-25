@@ -28,6 +28,7 @@
 
 /* SSE2版draw_glyph_func()を定義する */
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse2
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse2
 #include "drawglyph.h"
 
 /* SSE2版mul_add_pcm()を定義する */

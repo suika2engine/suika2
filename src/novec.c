@@ -28,6 +28,7 @@
 
 /* 非ベクトル化版draw_glyph_func()を定義する */
 #define DRAW_GLYPH_FUNC draw_glyph_func_novec
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_novec
 #include "drawglyph.h"
 
 /* 非ベクトル版mul_add_pcm()を定義する */

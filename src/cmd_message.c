@@ -2654,7 +2654,8 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* 描画する */
 		draw_char_on_msgbox(pen_x + ofs_x, pen_y + ofs_y, wc,
 				    body_color, body_outline_color,
-				    &ret_width, &ret_height, conf_font_size);
+				    &ret_width, &ret_height, conf_font_size,
+				    is_dimming);
 
 		/* 更新領域を求める */
 		union_rect(x, y, w, h,
@@ -3089,7 +3090,7 @@ static bool process_escape_sequence_ruby(void)
 		draw_char_on_msgbox(pen_ruby_x, pen_ruby_y, wc,
 				    body_color, body_outline_color,
 				    &ret_width, &ret_height,
-				    conf_font_ruby_size);
+				    conf_font_ruby_size, is_dimming);
 
 		if (!conf_msgbox_tategaki)
 			pen_ruby_x += ret_width;
@@ -3674,10 +3675,12 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 				     (uint32_t)conf_msgbox_dim_color_g,
 				     (uint32_t)conf_msgbox_dim_color_b);
 	body_outline_color =
-		make_pixel_slow(0xff,
+			make_pixel_slow(0xff,
 				(uint32_t)conf_msgbox_dim_color_outline_r,
 				(uint32_t)conf_msgbox_dim_color_outline_g,
 				(uint32_t)conf_msgbox_dim_color_outline_b);
+	if (conf_font_outline_remove)
+		body_outline_color = body_color;
 
 	/*
 	 * 本文を描画する

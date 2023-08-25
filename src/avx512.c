@@ -28,6 +28,7 @@
 
 /* AVX-512版draw_glyph_func()を定義する */
 #define DRAW_GLYPH_FUNC draw_glyph_func_avx512
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_avx512
 #include "drawglyph.h"
 
 /* AVX-512版mul_add_pcm()を定義する */

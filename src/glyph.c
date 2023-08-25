@@ -52,12 +52,19 @@ static int font_size;
 static bool read_font_file_content(void);
 static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				       pixel_t color, uint32_t codepoint,
-				       int *w, int *h, int base_font_size);
+				       int *w, int *h, int base_font_size,
+				       bool is_dim);
 static void draw_glyph_func(unsigned char * RESTRICT font, int font_width,
 			    int font_height, int margin_left, int margin_top,
 			    pixel_t * RESTRICT image, int image_width,
 			    int image_height, int image_x, int image_y,
 			    pixel_t color);
+static void draw_glyph_dim_func(unsigned char * RESTRICT font,
+				int font_width, int font_height,
+				int margin_left, int margin_top,
+				pixel_t * RESTRICT image, int image_width,
+				int image_height, int image_x, int image_y,
+				pixel_t color);
 
 /*
  * フォントレンダラの初期化処理を行う
@@ -297,7 +304,7 @@ int get_glyph_width(uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size);
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size, false);
 
 	return w;
 }
@@ -312,7 +319,7 @@ int get_glyph_height(uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size);
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size, false);
 
 	return h;
 }
@@ -348,7 +355,7 @@ int get_utf8_width(const char *mbs)
  */
 bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 		pixel_t outline_color, uint32_t codepoint, int *w, int *h,
-		int base_font_size)
+		int base_font_size, bool is_dim)
 {
 	FT_Stroker stroker;
 	FT_UInt glyphIndex;
@@ -358,7 +365,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 
 	if (conf_font_outline_remove) {
 		return draw_glyph_without_outline(img, x, y, color, codepoint,
-						  w, h, base_font_size);
+						  w, h, base_font_size,
+						  is_dim);
 	}
 
 	/* アウトライン(内側)を描画する */
@@ -442,7 +450,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 
 static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				       pixel_t color, uint32_t codepoint,
-				       int *w, int *h, int base_font_size)
+				       int *w, int *h, int base_font_size,
+				       bool is_dim)
 {
 	FT_Error err;
 	int descent;
@@ -455,7 +464,7 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 	}
 
 	/* 文字のビットマップを対象イメージに描画する */
-	if (img != NULL) {
+	if (img != NULL && !is_dim) {
 		draw_glyph_func(face->glyph->bitmap.buffer,
 				(int)face->glyph->bitmap.width,
 				(int)face->glyph->bitmap.rows,
@@ -467,6 +476,18 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				x,
 				y - (font_size - base_font_size),
 				color);
+	} else if (img != NULL && is_dim) {
+		draw_glyph_dim_func(face->glyph->bitmap.buffer,
+				    (int)face->glyph->bitmap.width,
+				    (int)face->glyph->bitmap.rows,
+				    face->glyph->bitmap_left,
+				    font_size - face->glyph->bitmap_top,
+				    get_image_pixels(img),
+				    get_image_width(img),
+				    get_image_height(img),
+				    x,
+				    y - (font_size - base_font_size),
+				    color);
 	}
 
 	/* descentを求める */
@@ -628,16 +649,19 @@ int get_font_size(void)
 /* AVX-512版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_avx512
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_avx512
 #include "drawglyph.h"
 
 /* AVX2版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_avx2
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_avx2
 #include "drawglyph.h"
 
 /* AVX版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_avx
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_avx
 #include "drawglyph.h"
 
 #if !defined(_MSC_VER)
@@ -645,16 +669,19 @@ int get_font_size(void)
 /* SSE4.2版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse42
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse42
 #include "drawglyph.h"
 
 /* SSE4.1版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse41
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse41
 #include "drawglyph.h"
 
 /* SSE3版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse3
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse3
 #include "drawglyph.h"
 
 #endif /* !defined(_MSC_VER) */
@@ -662,30 +689,33 @@ int get_font_size(void)
 /* SSE2版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse2
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse2
 #include "drawglyph.h"
 
 /* SSE版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse
 #include "drawglyph.h"
 
 /* 非ベクトル化版の描画関数を宣言する */
 #define PROTOTYPE_ONLY
 #define DRAW_GLYPH_FUNC draw_glyph_func_novec
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_novec
 #include "drawglyph.h"
 
 /* draw_glyph_func()をディスパッチする */
-void draw_glyph_func(unsigned char * RESTRICT font,
-		     int font_width,
-		     int font_height,
-		     int margin_left,
-		     int margin_top,
-		     pixel_t * RESTRICT image,
-		     int image_width,
-		     int image_height,
-		     int image_x,
-		     int image_y,
-		     pixel_t color)
+static void draw_glyph_func(unsigned char * RESTRICT font,
+			    int font_width,
+			    int font_height,
+			    int margin_left,
+			    int margin_top,
+			    pixel_t * RESTRICT image,
+			    int image_width,
+			    int image_height,
+			    int image_x,
+			    int image_y,
+			    pixel_t color)
 {
 	if (has_avx512) {
 		draw_glyph_func_avx512(font, font_width, font_height,
@@ -734,6 +764,69 @@ void draw_glyph_func(unsigned char * RESTRICT font,
 				      margin_left, margin_top, image,
 				      image_width, image_height, image_x,
 				      image_y, color);
+	}
+}
+
+/* draw_glyph_dim_func()をディスパッチする */
+void draw_glyph_dim_func(unsigned char * RESTRICT font,
+			 int font_width,
+			 int font_height,
+			 int margin_left,
+			 int margin_top,
+			 pixel_t * RESTRICT image,
+			 int image_width,
+			 int image_height,
+			 int image_x,
+			 int image_y,
+			 pixel_t color)
+{
+	if (has_avx512) {
+		draw_glyph_dim_func_avx512(font, font_width, font_height,
+					   margin_left, margin_top, image,
+					   image_width, image_height, image_x,
+					   image_y, color);
+	} else if (has_avx2) {
+		draw_glyph_dim_func_avx2(font, font_width, font_height,
+					 margin_left, margin_top, image,
+					 image_width, image_height, image_x,
+					 image_y, color);
+	} else if (has_avx) {
+		draw_glyph_dim_func_avx(font, font_width, font_height,
+					margin_left, margin_top, image,
+					image_width, image_height, image_x,
+					image_y, color);
+#if !defined(_MSC_VER)
+	} else if (has_sse42) {
+		draw_glyph_dim_func_sse42(font, font_width, font_height,
+					  margin_left, margin_top, image,
+					  image_width, image_height, image_x,
+					  image_y, color);
+	} else if (has_sse41) {
+		draw_glyph_dim_func_sse41(font, font_width, font_height,
+					  margin_left, margin_top, image,
+					  image_width, image_height, image_x,
+					  image_y, color);
+	} else if (has_sse3) {
+		draw_glyph_dim_func_sse3(font, font_width, font_height,
+					 margin_left, margin_top, image,
+					 image_width, image_height, image_x,
+					 image_y, color);
+#endif
+	} else if (has_sse2) {
+		draw_glyph_dim_func_sse2(font, font_width, font_height,
+					 margin_left, margin_top, image,
+					 image_width, image_height, image_x,
+					 image_y, color);
+	} else if (has_sse) {
+		draw_glyph_dim_func_sse(font, font_width, font_height,
+					margin_left, margin_top, image,
+					image_width, image_height, image_x,
+					image_y, color);
+	} else {
+		draw_glyph_dim_func_novec(font, font_width, font_height,
+					  margin_left, margin_top, image,
+					  image_width, image_height, image_x,
+					  image_y, color);
 	}
 }
 

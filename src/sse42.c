@@ -29,6 +29,7 @@
 
 /* SSE4.2版draw_glyph_func()を定義する */
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse42
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse42
 #include "drawglyph.h"
 
 /* SSE4.2版mul_add_pcm()を定義する */
