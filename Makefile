@@ -116,16 +116,6 @@ linux-replay:
 test:
 	@echo 'Running non-graphical tests...'
 
-	@# Build suika-replay if not exists.
-	@if [ ! -f build/linux-x86_64-replay/suika-replay ]; then \
-		cd build/linux-x86_64-replay; \
-		./build-libs.sh; make; \
-	else \
-		# Remove existing profile data. \
-		rm -f build/linux-x86_64-replay/*.gcda; \
-		rm -rf build/linux-x86_64-replay/sav; \
-	fi
-
 	@# Fetch the testcase repository.
 	@if [ ! -d testcases ]; then \
 		git clone https://github.com/suika2engine/testcases.git; \
@@ -137,29 +127,11 @@ test:
 
 	@# Run the testcases in a virtual X server.
 	@cd testcases && \
-	xvfb-run --server-args=":99 -screen 0 1920x1080x24" ./run.sh && \
+	./run.sh --no-x11 && \
 	cd ..
-
-	@# Calculate the coverage.
-	@cd build/linux-x86_64-replay && \
-	lcov -d . --rc lcov_branch_coverage=1 -c -o app.info && \
-	sed -i s+`pwd`+`readlink -f ../../src`+g app.info && \
-	lcov -r app.info -o app.info --rc lcov_branch_coverage=1 '/usr/include/*' && \
-	lcov --summary --rc lcov_branch_coverage=1 app.info | tail -n +2 > ../../summary && \
-	genhtml -o lcovoutput -p `pwd` --num-spaces 4 --rc lcov_branch_coverage=1 -f app.info
 
 gtest:
 	@echo 'Running graphical tests...'
-
-	@# Build suika-replay if not exists.
-	@if [ ! -f build/linux-x86_64-replay/suika-replay ]; then \
-		cd build/linux-x86_64-replay; \
-		./build-libs.sh; make; \
-		cd ../../; \
-	else \
-		# Remove existing profile data. \
-		rm -f build/linux-x86_64-replay/*.gcda; \
-	fi
 
 	@# Fetch the testcase repository.
 	@if [ ! -d testcases ]; then \
@@ -174,14 +146,6 @@ gtest:
 	@cd testcases && \
 	./run.sh && \
 	cd ..
-
-	@# Calculate the coverage.
-	@cd build/linux-x86_64-replay && \
-	lcov -d . --rc lcov_branch_coverage=1 -c -o app.info && \
-	sed -i s+`pwd`+`readlink -f ../../src`+g app.info && \
-	lcov -r app.info -o app.info --rc lcov_branch_coverage=1 '/usr/include/*' && \
-	lcov --summary --rc lcov_branch_coverage=1 app.info | tail -n +2 > ../../summary && \
-	genhtml -o lcovoutput -p `pwd` --num-spaces 4 --rc lcov_branch_coverage=1 -f app.info
 
 do-release:
 	@echo 'Building release zip files.'
