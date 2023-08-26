@@ -393,6 +393,9 @@ int conf_msgbox_show_on_ch;
 /* 背景の変更中にメッセージボックスを隠さない */
 int conf_msgbox_show_on_bg;
 
+/* 選択肢の表示中にメッセージボックスを隠さない */
+int conf_msgbox_show_on_choose;
+
 /* ビープの調整 */
 float conf_beep_adjustment;
 
@@ -1195,6 +1198,7 @@ static struct rule {
 	{"click.disable", 'i', &conf_click_disable, OPTIONAL, SAVE},
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, OPTIONAL, SAVE},
 	{"msgbox.show.on.bg", 'i', &conf_msgbox_show_on_bg, OPTIONAL, SAVE},
+	{"msgbox.show.on.choose", 'i', &conf_msgbox_show_on_choose, OPTIONAL, SAVE},
 	{"beep.adjustment", 'f', &conf_beep_adjustment, OPTIONAL, NOSAVE},
 	{"serif.quote", 'i', &conf_serif_quote, OPTIONAL, SAVE},
 	{"sysmenu.transition", 'i', &conf_sysmenu_transition, OPTIONAL, SAVE},

@@ -354,6 +354,7 @@ extern int conf_window_title_chapter_disable;
 extern int conf_click_disable;
 extern int conf_msgbox_show_on_ch;
 extern int conf_msgbox_show_on_bg;
+extern int conf_msgbox_show_on_choose;
 extern float conf_beep_adjustment;
 extern int conf_serif_quote;
 extern int conf_sysmenu_transition;

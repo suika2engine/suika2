@@ -16,6 +16,7 @@
  *  - 2019/09/17 NEWSに対応
  *  - 2022/06/17 @chooseに対応、@newsの設定項目を@switchに統合
  *  - 2023/06/26 リファクタリング
+ *  - 2023/08/26 conf_msgbox_show_on_choose
  */
 
 /*
@@ -431,11 +432,13 @@ bool init(void)
 	}
 
 	/* 名前ボックス、メッセージボックスを非表示にする */
-	show_namebox(false);
-	if (type != COMMAND_ICHOOSE)
-		show_msgbox(false);
-	else
-		show_msgbox(true);
+	if (!conf_msgbox_show_on_choose) {
+		show_namebox(false);
+		if (type != COMMAND_ICHOOSE)
+			show_msgbox(false);
+		else
+			show_msgbox(true);
+	}
 
 	/* オートモードを終了する */
 	if (is_auto_mode()) {
