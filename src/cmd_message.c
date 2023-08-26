@@ -3371,7 +3371,7 @@ static bool check_stop_click_animation(void)
 	/* コントロールキーが押下されている場合 */
 	if (is_control_pressed) {
 		/* オートモードの場合はコントロールキーを無視する */
-		if (!is_auto_mode())
+		if (is_auto_mode())
 			return false;
 
 		/* 既読でない場合はスキップできないので停止しない */
