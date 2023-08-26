@@ -1568,3 +1568,65 @@ const char *get_system_locale(void)
 
 	return "other";
 }
+
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+/*
+ * ミリ秒の時刻を取得する
+ */
+uint64_t get_tick_count64(void)
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	return (uint64_t)tv.tv_sec * 1000LL + (uint64_t)tv.tv_usec / 1000LL;
+}
+
+/*
+ * 出力データのディレクトリを作り直す
+ */
+bool reconstruct_dir(const char *dir)
+{
+	remove(dir);
+	mkdir(dir, 0700); 
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドを再生を開始する
+ */
+bool play_sound(int stream, struct wave *w)
+{
+	UNUSED_PARAMETER(stream);
+	UNUSED_PARAMETER(w);
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドの再生を停止する
+ */
+bool stop_sound(int stream)
+{
+	UNUSED_PARAMETER(stream);
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドのボリュームを設定する
+ */
+bool set_sound_volume(int stream, float vol)
+{
+	UNUSED_PARAMETER(stream);
+	UNUSED_PARAMETER(vol);
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドが再生終了したか調べる
+ */
+bool is_sound_finished(int stream)
+{
+	UNUSED_PARAMETER(stream);
+	return true;
+}
+#endif

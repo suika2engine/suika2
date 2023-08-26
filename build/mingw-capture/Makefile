@@ -66,11 +66,11 @@ SRCS_C = \
 	$(SRCS_COMMON) \
 	$(SRCS_SSE) \
 	../../src/winmain.c \
-	../../src/wincapture.c \
 	../../src/uimsg.c \
 	../../src/dsound.c \
 	../../src/glrender.c \
-	../../src/d3drender.cc
+	../../src/d3drender.cc \
+	../../src/capture.c
 
 SRCS_CC = \
 	../../src/dsvideo.cc

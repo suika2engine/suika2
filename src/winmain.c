@@ -1921,3 +1921,74 @@ const char *get_system_locale(void)
 	}
 	return "other";
 }
+
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+/* ディレクトリを削除する */
+static bool delete_directory(LPCWSTR pszDirName);
+
+/*
+ * ミリ秒の時刻を取得する
+ */
+uint64_t get_tick_count64(void)
+{
+	return GetTickCount64();
+}
+
+/*
+ * 出力データのディレクトリを作り直す
+ */
+bool reconstruct_dir(const char *dir)
+{
+	if (!delete_directory(conv_utf8_to_utf16(dir))) {
+		log_error("Failed to remove record directory.");
+		return false;
+	}
+	if (!CreateDirectory(conv_utf8_to_utf16(dir), NULL)) {
+		if (_access(dir, 0) != 0) {
+			log_error("Failed to create record directory.");
+			return false;
+		}
+	}
+	return true;
+}
+
+/* ディレクトリを削除する */
+static bool delete_directory(LPCWSTR pszDirName)
+{
+	wchar_t path[256];
+	HANDLE hFind;
+	WIN32_FIND_DATA wfd;
+
+	/* ディレクトリの内容を取得する */
+	_snwprintf(path, sizeof(path), L"%s\\*.*", pszDirName);
+	hFind = FindFirstFile(path, &wfd);
+	if(hFind == INVALID_HANDLE_VALUE)
+		return true;
+
+	/* 再帰的に削除する */
+	do
+	{
+		if (wcscmp(wfd.cFileName, L".") == 0)
+			continue;
+		if (wcscmp(wfd.cFileName, L"..") == 0)
+			continue;
+
+		if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			_snwprintf(path, sizeof(path), L"%s\\%s", pszDirName,
+				   wfd.cFileName);
+			if (!delete_directory(path))
+				return false;
+		}
+		else
+		{
+			_snwprintf(path, sizeof(path), L"%s\\%s", pszDirName,
+				   wfd.cFileName);
+			DeleteFile(path);
+		}
+    } while(FindNextFile(hFind, &wfd));
+
+    FindClose(hFind);
+    return true;
+}
+#endif

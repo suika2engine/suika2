@@ -10,7 +10,7 @@ CC = gcc
 
 CPPFLAGS = \
 	-DUSE_X11_OPENGL \
-	-DUSE_REPLAY \
+	-DUSE_CAPTURE \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -19,8 +19,7 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-coverage \
-	-O3 \
+	-O0 -g3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-std=gnu11 \
@@ -36,8 +35,6 @@ CFLAGS = \
 #
 
 LDFLAGS = \
-	-s \
-	-coverage \
 	-lm \
 	-lpthread \
 	-lX11 \
@@ -60,7 +57,7 @@ SRCS = \
 	$(SRCS_SSE) \
 	../../src/glrender.c \
 	../../src/x11main.c \
-	../../src/replay.c
+	../../src/capture.c
 
 #
 # .c.o compilation rules
@@ -75,10 +72,10 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 # Target
 #
 
-all: suika-replay
+all: suika-capture
 
-suika-replay: libroot $(OBJS)
-	$(CC) -o suika-replay $(OBJS) $(LDFLAGS)
+suika-capture: libroot $(OBJS)
+	$(CC) -o suika-capture $(OBJS) $(LDFLAGS)
 
 libroot:
 	./build-libs.sh
@@ -93,11 +90,11 @@ include ../sse.mk
 # Phony
 #
 
-install: suika-replay
-	cp suika ../../suika-linux-replay
+install: suika-capture
+	cp suika ../../suika-linux-capture
 
 clean:
-	rm -rf *~ *.o suika-replay log.txt sav tmp
+	rm -rf *~ *.o suika-capture log.txt sav tmp
 
 erase:
-	rm -rf *~ *.o suika-replay log.txt sav tmp libroot
+	rm -rf *~ *.o suika-capture log.txt sav tmp libroot

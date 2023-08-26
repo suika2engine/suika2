@@ -8,16 +8,17 @@
 /*
  * [Changes]
  *  2022-07-17 作成
+ *  2022-08-26 Windows/Mac/Linux共通化
  */
-#include <GL/gl.h>
-#include <sys/stat.h>	/* mkdir() */
-#include <sys/time.h>	/* gettimeofday() */
-#include "png.h"
 
 #include "suika.h"
+#include "png.h"
+
+#include <GL/gl.h>
 
 /* リプレイ出力ディレクトリ */
 #define REP_DIR		"replay"
+#define CSV_FILE	"main.csv"
 
 /* 定期的にフレームをチェックする時間(3fps) */
 #define FRAME_MILLI	333
@@ -37,43 +38,68 @@ static bool sim_execute;
 static char *frame_buf;
 
 /* PNG書き出し用の行ポインタ */
-png_bytep *row_pointers;
+static png_bytep *row_pointers;
 
-/* マウスボタン状態 */
+/* マウス状態 */
 static bool prev_left_pressed;
 static bool prev_right_pressed;
+static int prev_mouse_x;
+static int prev_mouse_y;
 
 /* 前方参照 */
 static bool read_csv_line(void);
-static uint64_t get_tick_count64(void);
+
+#ifdef WIN
+/* winmain.c */
+const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
+#endif
 
 /*
  * リプレイモジュールを初期化する
  */
+#ifdef WIN
+bool init_replay(int argc, wchar_t *argv[])
+#else
 bool init_replay(int argc, char *argv[])
+#endif
 {
-	char buf[1024];
+#ifdef WIN
+	wchar_t path[1024];
+#else
+	char path[1024];
+#endif
+	char line[1024];
 	int y;
 
 	/* CSVファイルを開く */
 	if (argc < 2) {
-		log_error("Csv file not specified.");
+		log_error("CSV file not specified.");
 		return false;
 	}
-	snprintf(buf, sizeof(buf), "%s/main.csv", argv[1]);
-	csv_fp = fopen(buf, "r");
+#ifdef WIN
+	swprintf(path, sizeof(path) / sizeof(wchar_t), L"%s/%s", argv[1], CSV_FILE);
+	csv_fp = _wfopen(path, L"r");
+	if (csv_fp == NULL) {
+		log_file_open(conv_utf16_to_utf8(argv[1]));
+		return false;
+	}
+#else
+	snprintf(path, sizeof(path), "%s/main.csv", argv[1]);
+	csv_fp = fopen(path, "r");
 	if (csv_fp == NULL) {
 		log_file_open(argv[1]);
 		return false;
 	}
-	if (fgets(buf, sizeof(buf), csv_fp) == NULL) {
+#endif
+
+	/* CSVのヘッダ行を読み込む */
+	if (fgets(line, sizeof(line), csv_fp) == NULL) {
 		log_error("Failed to read csv file header.");
 		return false;
 	}
 
 	/* リプレイ出力データのディレクトリを作成する */
-	remove(REP_DIR);
-	mkdir(REP_DIR, 0700); 
+	reconstruct_dir(REP_DIR);
 
 	/* フレームバッファのコピー用メモリを確保する */
 	frame_buf = malloc((size_t)(conf_window_width * conf_window_height *
@@ -92,7 +118,7 @@ bool init_replay(int argc, char *argv[])
 	for (y = 0; y < conf_window_height; y++) {
 		row_pointers[y] = 
 			(png_bytep)&frame_buf[conf_window_width * 3 *
-					      (conf_window_height - y)];
+					      (conf_window_height - 1 - y)];
 	}
 
 	/* 開始時刻を取得する */
@@ -158,7 +184,15 @@ bool replay_output(void)
 		     GL_UNSIGNED_BYTE, frame_buf);
 
 	/* ファイル名を決める */
-	snprintf(fname, sizeof(fname), "%s/%lu.png", REP_DIR, sim_time);
+	snprintf(fname,
+		 sizeof(fname),
+#if defined(WIN) && !defined(__WIN64)
+		 "%s/%llu.png",
+#else
+		 "%s/%lu.png",
+ #endif
+		 REP_DIR,
+		 sim_time);
 
 	/* PNGファイルをオープンする */
 	png_fp = fopen(fname, "wb");
@@ -222,8 +256,13 @@ static bool read_csv_line(void)
 	int b_is_page_down_pressed;
 	int b_is_control_pressed;
 
+	/* fscanf()はboolを受け取れないので、intで受け取ってコピーする */
 	ret = fscanf(csv_fp,
+#if defined(WIN) && !defined(__WIN64)
+		     "%llu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+#else
 		     "%lu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+#endif		     
 		     &sim_time,
 		     &b_sim_execute,
 		     &i_mouse_x,
@@ -243,18 +282,35 @@ static bool read_csv_line(void)
 	if (ret != 16)
 		sim_exit = true;
 
-	/* fscanf()はboolを受け取れないので、intで受け取ってコピーする */
+	/* シミュレーション時刻を更新する */
 	sim_execute = b_sim_execute;
+
+	/* マウス左クリックを発生させる */
 	if (b_is_left_button_pressed)
 		on_event_mouse_press(MOUSE_LEFT, i_mouse_x, i_mouse_y);
+
+	/* マウス右クリックを発生させる */
 	if (b_is_right_button_pressed)
 		on_event_mouse_press(MOUSE_RIGHT, i_mouse_x, i_mouse_y);
+
+	/* 左マウスリリースを発生させる */
 	if (prev_left_pressed && !b_is_left_button_pressed)
 		on_event_mouse_release(MOUSE_LEFT, i_mouse_x, i_mouse_y);
+
+	/* 右マウスリリースを発生させる */
 	if (prev_right_pressed && !b_is_right_button_pressed)
 		on_event_mouse_release(MOUSE_RIGHT, i_mouse_x, i_mouse_y);
+
+	/* マウス移動を発生させる */
+	if (!b_is_left_button_pressed && !b_is_right_button_pressed &&
+	    (i_mouse_x != prev_mouse_x || i_mouse_y != prev_mouse_y))
+		on_event_mouse_move(i_mouse_x, i_mouse_y);
+
+	/* クリック状態を反映する (同一フレーム内で押下/解放があった場合のため) */
 	is_left_clicked = b_is_left_clicked;
 	is_right_clicked = b_is_right_clicked;
+
+	/* キー状態を反映する */
 	is_return_pressed = b_is_return_pressed;
 	is_space_pressed = b_is_space_pressed;
 	is_escape_pressed = b_is_escape_pressed;
@@ -264,51 +320,11 @@ static bool read_csv_line(void)
 	is_page_down_pressed = b_is_page_down_pressed;
 	is_control_pressed = b_is_control_pressed;
 
+	/* このフレームのマウス状態を保存する */
 	prev_left_pressed = b_is_left_button_pressed;
 	prev_right_pressed = b_is_right_button_pressed;
-	return true;
-}
+	prev_mouse_x = i_mouse_x;
+	prev_mouse_y = i_mouse_y;
 
-/* ミリ秒の時刻を取得する */
-static uint64_t get_tick_count64(void)
-{
-	struct timeval tv;
-
-	gettimeofday(&tv, NULL);
-
-	return (uint64_t)tv.tv_sec * 1000LL + (uint64_t)tv.tv_usec / 1000LL;
-}
-
-/*
- * ALSA
- */
-
-/* サウンドを再生を開始する */
-bool play_sound(int stream, struct wave *w)
-{
-	UNUSED_PARAMETER(stream);
-	UNUSED_PARAMETER(w);
-	return true;
-}
-
-/* サウンドの再生を停止する */
-bool stop_sound(int stream)
-{
-	UNUSED_PARAMETER(stream);
-	return true;
-}
-
-/* サウンドのボリュームを設定する */
-bool set_sound_volume(int stream, float vol)
-{
-	UNUSED_PARAMETER(stream);
-	UNUSED_PARAMETER(vol);
-	return true;
-}
-
-/* サウンドが再生終了したか調べる */
-bool is_sound_finished(int stream)
-{
-	UNUSED_PARAMETER(stream);
 	return true;
 }

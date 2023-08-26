@@ -205,4 +205,17 @@ bool replay_input(void);
 bool replay_output(void);
 #endif
 
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+
+#ifdef MAC
+FILE *open_file(const char *dir, const char *file, const char *mode)
+#endif
+
+/* ミリ秒の時刻を取得する */
+uint64_t get_tick_count64(void);
+
+/* 出力データのディレクトリを作り直す */
+bool reconstruct_dir(const char *dir);
+#endif
+
 #endif
