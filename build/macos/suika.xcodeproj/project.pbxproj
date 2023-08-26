@@ -106,7 +106,6 @@
 		260A00482A66B394002E3FF4 /* wave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1780F25EE5DD0006A1ED4 /* wave.c */; };
 		260A00492A66B394002E3FF4 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781225EE5DD0006A1ED4 /* image.c */; };
 		260A004A2A66B394002E3FF4 /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
-		260A004C2A66B4D3002E3FF4 /* nsreplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 260A004B2A66B4D3002E3FF4 /* nsreplay.m */; };
 		260A004E2A66BD5A002E3FF4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 267078FA2916513C003C61C1 /* MainMenu.xib */; };
 		260AFFC02A65633C002E3FF4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 267078FA2916513C003C61C1 /* MainMenu.xib */; };
 		260AFFC52A6563AB002E3FF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
@@ -163,7 +162,6 @@
 		260AFFFA2A65641C002E3FF4 /* vars.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1781725EE5DD0006A1ED4 /* vars.c */; };
 		260AFFFB2A65641C002E3FF4 /* wms_lexer.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB8295953E5007D092D /* wms_lexer.yy.c */; };
 		260AFFFC2A656421002E3FF4 /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
-		260AFFFE2A65664E002E3FF4 /* nscapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 260AFFFD2A65664E002E3FF4 /* nscapture.m */; };
 		260F30522674A3C000AF8E21 /* cmd_shake.c in Sources */ = {isa = PBXBuildFile; fileRef = 260F30512674A3C000AF8E21 /* cmd_shake.c */; };
 		2617E957282BF6F500637615 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 2617E956282BF6F500637615 /* cmd_video.c */; };
 		261B31F428991145006BCD68 /* cmd_gui.c in Sources */ = {isa = PBXBuildFile; fileRef = 261B31F128991145006BCD68 /* cmd_gui.c */; };
@@ -221,6 +219,8 @@
 		26A1784D25EE5DD0006A1ED4 /* cmd_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782925EE5DD0006A1ED4 /* cmd_ch.c */; };
 		26A1784E25EE5DD0006A1ED4 /* cmd_click.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A1782A25EE5DD0006A1ED4 /* cmd_click.c */; };
 		26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
+		26C0F5D12A99B37B009F27E4 /* capture.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C0F5D02A99B37B009F27E4 /* capture.c */; };
+		26C0F5D32A99B393009F27E4 /* replay.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C0F5D22A99B393009F27E4 /* replay.c */; };
 		26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
 		26C93FBD295953E5007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
 		26C93FBE295953E5007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
@@ -252,10 +252,8 @@
 		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
 		260A00032A66B2E5002E3FF4 /* suika-replay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "suika-replay.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		260A00152A66B33A002E3FF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = "suika-replay/Info.plist"; sourceTree = SOURCE_ROOT; };
-		260A004B2A66B4D3002E3FF4 /* nsreplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nsreplay.m; path = ../../../src/nsreplay.m; sourceTree = "<group>"; };
 		260AFFB02A655F79002E3FF4 /* suika-capture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "suika-capture.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		260AFFC12A656386002E3FF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = "suika-capture/Info.plist"; sourceTree = SOURCE_ROOT; };
-		260AFFFD2A65664E002E3FF4 /* nscapture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nscapture.m; path = ../../../src/nscapture.m; sourceTree = "<group>"; };
 		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
 		2617E956282BF6F500637615 /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../../src/cmd_video.c; sourceTree = "<group>"; };
 		261B31F128991145006BCD68 /* cmd_gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_gui.c; path = ../../../src/cmd_gui.c; sourceTree = "<group>"; };
@@ -344,6 +342,8 @@
 		26B8ACE525EE5846005D9C49 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26B8ACEA25EE5846005D9C49 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26B8ACED25EE5846005D9C49 /* suika.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = suika.entitlements; sourceTree = "<group>"; };
+		26C0F5D02A99B37B009F27E4 /* capture.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = capture.c; path = ../../../src/capture.c; sourceTree = "<group>"; };
+		26C0F5D22A99B393009F27E4 /* replay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = replay.c; path = ../../../src/replay.c; sourceTree = "<group>"; };
 		26C8A49D2679CB4B009FE156 /* scbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scbuf.c; path = ../../../src/scbuf.c; sourceTree = "<group>"; };
 		26C8A49E2679CB4B009FE156 /* scbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scbuf.h; path = ../../../src/scbuf.h; sourceTree = "<group>"; };
 		26C93FB5295953E5007D092D /* wms_parser.tab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_parser.tab.c; path = ../../../src/wms_parser.tab.c; sourceTree = "<group>"; };
@@ -504,8 +504,8 @@
 				2603497B2854B5FF00037370 /* nsdebug.h */,
 				26A177F625EE5DD0006A1ED4 /* nsmain.m */,
 				2649E0D728558837006831C5 /* nsmain.h */,
-				260AFFFD2A65664E002E3FF4 /* nscapture.m */,
-				260A004B2A66B4D3002E3FF4 /* nsreplay.m */,
+				26C0F5D22A99B393009F27E4 /* replay.c */,
+				26C0F5D02A99B37B009F27E4 /* capture.c */,
 				2679EC84285813B000C20499 /* package.c */,
 				2679EC8D285825A800C20499 /* package.h */,
 				26A177FE25EE5DD0006A1ED4 /* platform.h */,
@@ -776,6 +776,7 @@
 				260AFFCC2A6563D8002E3FF4 /* cmd_message.c in Sources */,
 				260AFFDD2A6563D8002E3FF4 /* cmd_wait.c in Sources */,
 				260AFFCB2A6563D8002E3FF4 /* cmd_wms.c in Sources */,
+				26C0F5D12A99B37B009F27E4 /* capture.c in Sources */,
 				260AFFF32A65641C002E3FF4 /* wms_core.c in Sources */,
 				260AFFF22A65641C002E3FF4 /* wave.c in Sources */,
 				260AFFF52A65641C002E3FF4 /* stage.c in Sources */,
@@ -805,7 +806,6 @@
 				260AFFC62A6563CF002E3FF4 /* aunit.c in Sources */,
 				260AFFC92A6563D8002E3FF4 /* cmd_menu.c in Sources */,
 				260AFFDB2A6563D8002E3FF4 /* cmd_shake.c in Sources */,
-				260AFFFE2A65664E002E3FF4 /* nscapture.m in Sources */,
 				260AFFD02A6563D8002E3FF4 /* cmd_bg.c in Sources */,
 				260AFFD12A6563D8002E3FF4 /* conf.c in Sources */,
 				260AFFEE2A65641C002E3FF4 /* uimsg.c in Sources */,
@@ -847,6 +847,7 @@
 				260A00202A66B366002E3FF4 /* cmd_retrospect.c in Sources */,
 				260A00322A66B394002E3FF4 /* vars.c in Sources */,
 				260A001B2A66B360002E3FF4 /* aunit.c in Sources */,
+				26C0F5D32A99B393009F27E4 /* replay.c in Sources */,
 				260A003B2A66B394002E3FF4 /* file.c in Sources */,
 				260A001A2A66B360002E3FF4 /* cmd_bg.c in Sources */,
 				260A00292A66B366002E3FF4 /* cmd_if.c in Sources */,
@@ -876,7 +877,6 @@
 				260A00182A66B360002E3FF4 /* cmd_chs.c in Sources */,
 				26DA595E2A922EB700DBE36B /* cmd_anime.c in Sources */,
 				260A003C2A66B394002E3FF4 /* glyph.c in Sources */,
-				260A004C2A66B4D3002E3FF4 /* nsreplay.m in Sources */,
 				260A00332A66B394002E3FF4 /* main.c in Sources */,
 				260A00282A66B366002E3FF4 /* cmd_wms.c in Sources */,
 				260A00232A66B366002E3FF4 /* cmd_load.c in Sources */,

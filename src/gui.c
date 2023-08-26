@@ -2083,8 +2083,10 @@ static bool process_escape_sequence_other(int button_index)
 
 	/* 終端文字'}'を探す */
 	i = 0;
-	while (*c != '\0' && *c != '}')
-		c++, i++;
+	while (*c != '\0' && *c != '}') {
+		c++;
+		i++;
+	}
 	if (*c != '}')
 		return false;
 

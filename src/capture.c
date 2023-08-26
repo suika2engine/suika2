@@ -14,7 +14,12 @@
 #include "suika.h"
 #include "png.h"
 
+#ifdef OSX
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl3.h>
+#else
 #include <GL/gl.h>
+#endif
 
 /* ディレクトリとファイルの名前 */
 #define CAP_DIR		"record"
@@ -150,7 +155,7 @@ void capture_input(void)
 
 	/* フレームの時刻と入力の状態を出力する */
 	fprintf(csv_fp,
-#if defined(WIN) && !defined(__WIN64)
+#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
 		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 #else
 		"%ld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
@@ -199,7 +204,7 @@ bool capture_output(void)
 
 	/* ファイル名を決める */
 	snprintf(fname, sizeof(fname),
-#if defined(WIN) && !defined(__WIN64)
+#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
 		 "%s\\%lld.png",
 #else
 		 "%s\\%ld.png",

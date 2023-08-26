@@ -1310,9 +1310,9 @@ bool reconstruct_dir(const char *dir)
 	// フォルダを作成しなおす
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
     NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
-    targetPath = [NSString stringWithFormat:@"%@/%s", basePath, dir];
-    [[NSFileManager defaultManager] removeItemAtPath:recordPath error:nil];
-    [[NSFileManager defaultManager] createDirectoryAtPath:recordPath
+    NSString *targetPath = [NSString stringWithFormat:@"%@/%s", basePath, dir];
+    [[NSFileManager defaultManager] removeItemAtPath:targetPath error:nil];
+    [[NSFileManager defaultManager] createDirectoryAtPath:targetPath
                               withIntermediateDirectories:YES
                                                attributes:nil
                                                     error:NULL];
@@ -1322,7 +1322,7 @@ bool reconstruct_dir(const char *dir)
 /*
  * ミリ秒の時刻を取得する
  */
-static uint64_t get_tick_count64(void)
+uint64_t get_tick_count64(void)
 {
 	struct timeval tv;
 

@@ -14,7 +14,12 @@
 #include "suika.h"
 #include "png.h"
 
+#ifdef OSX
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl3.h>
+#else
 #include <GL/gl.h>
+#endif
 
 /* リプレイ出力ディレクトリ */
 #define REP_DIR		"replay"
@@ -186,7 +191,7 @@ bool replay_output(void)
 	/* ファイル名を決める */
 	snprintf(fname,
 		 sizeof(fname),
-#if defined(WIN) && !defined(__WIN64)
+#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
 		 "%s/%llu.png",
 #else
 		 "%s/%lu.png",
@@ -258,7 +263,7 @@ static bool read_csv_line(void)
 
 	/* fscanf()はboolを受け取れないので、intで受け取ってコピーする */
 	ret = fscanf(csv_fp,
-#if defined(WIN) && !defined(__WIN64)
+#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
 		     "%llu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 #else
 		     "%lu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",

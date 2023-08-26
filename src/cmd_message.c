@@ -1159,8 +1159,10 @@ static bool search_for_end_of_escape_sequence(const char **msg)
 
 	s = *msg;
 	len = 0;
-	while (*s != '\0' && *s != '}')
-		s++, len++;
+	while (*s != '\0' && *s != '}') {
+		s++;
+		len++;
+	}
 	if (*s == '\0')
 		return false;
 
