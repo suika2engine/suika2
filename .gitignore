@@ -54,10 +54,13 @@ build/ios/suika.xcodeproj/xcshareddata
 
 build/android/.idea/caches
 build/android/app/.cxx
+build/android/app/src/main/assets
 build/android/app/src/main/cpp/freetype
 build/android/app/src/main/cpp/libpng
 build/android/app/src/main/cpp/jpeg
 build/android/app/src/main/cpp/*.[ch]
+build/android/cmdline-tools
+build/android/commandlinetools-linux-*.zip
 
 build/linux-x86_64/*.o
 build/linux-x86_64/libroot
