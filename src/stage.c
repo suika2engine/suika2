@@ -2056,7 +2056,12 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
-		
+	if (is_namebox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	
 	/* FIレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
@@ -2065,6 +2070,10 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+	if (is_namebox_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
 }
 
 /*
