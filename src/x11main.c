@@ -794,7 +794,12 @@ static void run_game_loop(void)
 		}
 #endif
 
+#ifdef USE_CAPTURE
+		/* 入力のキャプチャを行う */
+		capture_input();
+#endif
 #ifdef USE_REPLAY
+		/* 入力のリプレイを行う */
 		if (!replay_input())
 			break;
 #endif
@@ -834,7 +839,13 @@ static void run_game_loop(void)
 			}
 		}
 
+#ifdef USE_CAPTURE
+		/* 出力のキャプチャを行う */
+		if (!capture_output())
+			break;
+#endif
 #ifdef USE_REPLAY
+		/* 出力のキャプチャを行う */
 		if (!replay_output())
 			break;
 #endif
@@ -867,11 +878,7 @@ static bool wait_for_next_frame(void)
 	struct timeval tv_end;
 	uint32_t lap, wait, span;
 
-#ifndef USE_CAPTURE
 	span = is_opengl ? FRAME_MILLI / 2 : FRAME_MILLI;
-#else
-	span = 1;
-#endif
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -880,6 +887,13 @@ static bool wait_for_next_frame(void)
 			if (!next_event())
 				return false;
 
+#ifdef USE_REPLAY
+		UNUSED_PARAMETER(tv_end);
+		UNUSED_PARAMETER(lap);
+		UNUSED_PARAMETER(span);
+		usleep(1);
+		break;
+#else
 		/* 経過時刻を取得する */
 		gettimeofday(&tv_end, NULL);
 		lap = (uint32_t)((tv_end.tv_sec - tv_start.tv_sec) * 1000 +
@@ -896,6 +910,7 @@ static bool wait_for_next_frame(void)
 
 		/* スリープする */
 		usleep(wait * 1000);
+#endif
 	} while(wait > 0);
 
 	return true;
