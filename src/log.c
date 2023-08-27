@@ -611,6 +611,17 @@ void log_script_param_mismatch(const char *name)
 }
 
 /*
+ * 書き換え可能なコンフィグキーがないエラーを記録する
+ */
+void log_script_config_not_found(const char *key)
+{
+	if (is_english_mode())
+		log_error("Can't set config \"%s\" here.\n", key);
+	else
+		log_error(U8("コンフィグ\"%s\"を変更できません。\n"), key);
+}
+
+/*
  * ビデオ再生に失敗した際のエラーを記録する
  */
 void log_video_error(const char *reason)

@@ -41,6 +41,7 @@ cp ../../src/cmd_retrospect.c app/src/main/cpp/cmd_retrospect.c
 cp ../../src/cmd_return.c app/src/main/cpp/cmd_return.c
 cp ../../src/cmd_se.c app/src/main/cpp/cmd_se.c
 cp ../../src/cmd_set.c app/src/main/cpp/cmd_set.c
+cp ../../src/cmd_setconfig.c app/src/main/cpp/cmd_setconfig.c
 cp ../../src/cmd_setsave.c app/src/main/cpp/cmd_setsave.c
 cp ../../src/cmd_shake.c app/src/main/cpp/cmd_shake.c
 cp ../../src/cmd_skip.c app/src/main/cpp/cmd_skip.c

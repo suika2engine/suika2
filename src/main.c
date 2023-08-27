@@ -490,6 +490,11 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		if (!anime_command(x, y, w, h))
 			return false;
 		break;
+	case COMMAND_SETCONFIG:
+		if (!setconfig_command())
+			return false;
+		*cont = true;
+		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */
 		assert(COMMAND_DISPATCH_NOT_IMPLEMENTED);

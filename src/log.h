@@ -70,6 +70,7 @@ void log_script_shake_move(const char *move);
 void log_script_enable_disable(const char *param);
 void log_script_final_command(void);
 void log_script_param_mismatch(const char *name);
+void log_script_config_not_found(const char *name);
 void log_video_error(const char *reason);
 void log_script_choose_no_message(void);
 void log_script_empty_string(void);

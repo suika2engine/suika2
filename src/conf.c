@@ -1614,6 +1614,13 @@ static bool overwrite_config_font_file(const char *val)
 			return false;
 	}
 
+	/* フォントサブシステムをクリーンアップする */
+	cleanup_glyph(true);
+
+	/* フォントサブシステムを再初期化する */
+	if (!init_glyph())
+		return false;
+
 	return true;
 }
 

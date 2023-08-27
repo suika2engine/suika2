@@ -26,6 +26,8 @@
  *  - 2023/01/14 スタートアップファイル/ラインに対応
  *  - 2022/08/14 @ichooseに対応
  *  - 2023/08/20 @animeに対応
+ *  - 2023/08/27 構造化構文に対応
+ *  - 2023/08/27 @setconfigに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -77,6 +79,7 @@ enum command_type {
 	COMMAND_ANIME,
 	COMMAND_UNLESS,
 	COMMAND_LABELEDGOTO,
+	COMMAND_SETCONFIG,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -563,6 +566,12 @@ enum unless_command_param {
 enum labeledgoto_command_param {
 	LABELEDGOTO_PARAM_LABEL = 1,
 	LABELEDGOTO_PARAM_GOTO,
+};
+
+/* setconfigコマンドのパラメータ */
+enum setconfig_command_param {
+	SETCONFIG_PARAM_KEY = 1,
+	SETCONFIG_PARAM_VALUE,
 };
 
 /*

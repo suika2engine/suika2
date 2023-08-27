@@ -219,12 +219,10 @@ static bool s2_reflect_font_config(struct wms_runtime *rt)
 {
 	UNUSED_PARAMETER(rt);
 
-	/* Cleanup the font subsystem. */
-	cleanup_glyph(true);
-
-	/* Re-initialize the font subsystem. */
-	if (!init_glyph())
-		return false;
+	/*
+	 * This function does nothing and exists for the compatibility.
+	 * Now we change font in overwrite_config_font_file().
+	 */
 
 	return true;
 }

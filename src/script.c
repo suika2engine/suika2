@@ -32,6 +32,8 @@
  *  - 2023/01/14 スタートアップファイル/ラインに対応
  *  - 2023/08/14 usingに対応
  *  - 2023/08/14 @ichooseに対応
+ *  - 2023/08/27 構造化構文に対応
+ *  - 2023/08/27 @setconfigに対応
  */
 
 #include "suika.h"
@@ -202,10 +204,16 @@ struct insn_item {
 	{"@anime", COMMAND_ANIME, 1, 2},
 	{U8("@アニメ"), COMMAND_ANIME, 1, 2},
 
-	/* その他 */
-	{"@setsave", COMMAND_SETSAVE, 1, 1},
+	/* マクロ */
 	{"@gosub", COMMAND_GOSUB, 1, 1},
 	{"@return", COMMAND_RETURN, 0, 0},
+
+	/* コンフィグ変更 */
+	{"@setconfig", COMMAND_SETCONFIG, 1, 2},
+	{U8("@設定"), COMMAND_SETCONFIG, 1, 2},
+
+	/* その他 */
+	{"@setsave", COMMAND_SETSAVE, 1, 1},
 
 	/* deprecated */
 	{"@select", COMMAND_SELECT, 6, 6},
@@ -399,6 +407,16 @@ struct param_item {
 	/* @wms */
 	{COMMAND_WMS, WMS_PARAM_FILE, "file="},
 	{COMMAND_WMS, WMS_PARAM_FILE, U8("ファイル=")},
+
+	/* @wms */
+	{COMMAND_ANIME, ANIME_PARAM_FILE, "file="},
+	{COMMAND_ANIME, ANIME_PARAM_FILE, U8("ファイル=")},
+
+	/* @setconfig */
+	{COMMAND_SETCONFIG, SETCONFIG_PARAM_KEY, "key="},
+	{COMMAND_SETCONFIG, SETCONFIG_PARAM_KEY, "名前="},
+	{COMMAND_SETCONFIG, SETCONFIG_PARAM_VALUE, "value="},
+	{COMMAND_SETCONFIG, SETCONFIG_PARAM_VALUE, U8("値=")},
 };
 
 #define PARAM_TBL_SIZE	(sizeof(param_tbl) / sizeof(struct param_item))
