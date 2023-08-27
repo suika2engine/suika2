@@ -391,6 +391,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		break;
 	case COMMAND_GOTO:
+	case COMMAND_LABELEDGOTO:
 		if (!goto_command(cont))
 			return false;
 		break;
@@ -410,6 +411,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		*cont = true;
 		break;
 	case COMMAND_IF:
+	case COMMAND_UNLESS:
 		if (!if_command())
 			return false;
 		*cont = true;

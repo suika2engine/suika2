@@ -75,6 +75,8 @@ enum command_type {
 	COMMAND_WMS,
 	COMMAND_ICHOOSE,
 	COMMAND_ANIME,
+	COMMAND_UNLESS,
+	COMMAND_LABELEDGOTO,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -548,6 +550,21 @@ enum anime_command_param {
 	ANIME_PARAM_SPEC,
 };
 
+/* unlessコマンドのパラメータ */
+enum unless_command_param {
+	UNLESS_PARAM_LHS = 1,
+	UNLESS_PARAM_OP,
+	UNLESS_PARAM_RHS,
+	UNLESS_PARAM_LABEL,
+	UNLESS_PARAM_FINALLY,
+};
+
+/* labeledgotoコマンドのパラメータ */
+enum labeledgoto_command_param {
+	LABELEDGOTO_PARAM_LABEL = 1,
+	LABELEDGOTO_PARAM_GOTO,
+};
+
 /*
  * 初期化
  */
@@ -584,6 +601,9 @@ bool move_to_next_command(void);
 
 /* ラベルへ移動する */
 bool move_to_label(const char *label);
+
+/* ラベルへ移動する(なければfinallyラベルにジャンプする) */
+bool move_to_label_finally(const char *label, const char *finally_label);
 
 /* gosubによるリターンポイントを記録する(gosub用) */
 void push_return_point(void);
