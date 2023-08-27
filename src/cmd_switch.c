@@ -439,6 +439,7 @@ bool init(void)
 		else
 			show_msgbox(true);
 	}
+	show_click(false);
 
 	/* オートモードを終了する */
 	if (is_auto_mode()) {

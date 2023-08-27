@@ -475,7 +475,7 @@ static bool process_case_block(struct rfile *rf, const char *fname,
 static bool process_break(const char *fname, const char *raw);
 static bool process_switch_close(const char *fname, const char *raw);
 static bool process_if_block(struct rfile *rf, const char *fname,
-			     const char *raw, const char *params);
+			     const char *raw, char *params);
 static bool process_if_close(const char *fname, const char *raw);
 static bool process_if_closecont(const char *fname, const char *raw);
 static bool process_elseif(const char *fname, const char *raw,
@@ -1171,8 +1171,9 @@ static bool process_smode_line(struct rfile *rf, const char *fname,
 #ifdef USE_DEBUGGER
 		if (!add_comment_line(""))
 			return false;
-#endif
+#else
 		INC_LINE();
+#endif
 		*accepted = SMODE_ACCEPT_NONE;
 		return true;
 	}
@@ -1182,8 +1183,9 @@ static bool process_smode_line(struct rfile *rf, const char *fname,
 #ifdef USE_DEBUGGER
 		if (!add_comment_line("%s", line_buf))
 			return false;
-#endif
+#else
 		INC_LINE();
+#endif
 		*accepted = SMODE_ACCEPT_NONE;
 		return true;
 	}
@@ -1192,9 +1194,6 @@ static bool process_smode_line(struct rfile *rf, const char *fname,
 	if ((state & SMODE_ACCEPT_SWITCH) != 0) {
 		if (starts_with(&line_buf[spaces], SMODE_SWITCH)) {
 			char *p = line_buf + spaces + strlen(SMODE_SWITCH);
-			char *stop = strstr(p, "{");
-			if (stop != NULL)
-				*stop = '\0';
 			if (!process_switch_block(rf, fname, line_buf, p))
 				return false;
 			*accepted = SMODE_ACCEPT_SWITCH;
@@ -1235,10 +1234,7 @@ static bool process_smode_line(struct rfile *rf, const char *fname,
 	/* ifブロックを処理する(else if, elseまで再帰的に処理される) */
 	if ((state & SMODE_ACCEPT_IF) != 0) {
 		if (starts_with(&line_buf[spaces], SMODE_IF)) {
-			const char *p = line_buf + spaces + strlen(SMODE_IF);
-			char *stop = strstr(p, "{");
-			if (stop != NULL)
-				*stop = '\0';
+			char *p = line_buf + spaces + strlen(SMODE_IF);
 			if (!process_if_block(rf, fname, line_buf, p))
 				return false;
 			*accepted = SMODE_ACCEPT_IF;
@@ -1314,16 +1310,31 @@ static bool process_switch_block(struct rfile *rf, const char *fname,
 	char line_buf[LINE_BUF_SIZE];
 	char tmp_command[LINE_BUF_SIZE];
 	char finally_label[GEN_CMD_SIZE];
+	char *raw_save;
+	char *stop;
 	char *opt[8];
 	char label[8][256];
 	const char *save_smode_target_finally;
 	const char *save_smode_target_case;
 	int opt_count, i, state, accepted, cur_opt;
 	bool escaped;
-		
+
+	/* rawを保存する */
+	raw_save = strdup(raw);
+	if (raw_save == NULL) {
+		log_memory();
+		return false;
+	}
+
+	/* paramsを"{"の位置で止める */
+	stop = strstr(params, "{");
+	if (stop != NULL)
+		*stop = '\0';
+
 	/* 最初のトークンを切り出す */
 	opt[0] = strtok_escape(params, &escaped);
 	if (opt[0] == NULL) {
+		free(raw_save);
 		log_script_too_few_param(2, 0);
 		log_script_parse_footer(fname, script_lines, raw);
 		return false;
@@ -1365,8 +1376,14 @@ static bool process_switch_block(struct rfile *rf, const char *fname,
 		 label[5], opt[5],
 		 label[6], opt[6],
 		 label[7], opt[7]);
-	if (!parse_insn(cmd_size, fname, script_lines, raw, tmp_command, 0))
+	if (!parse_insn(cmd_size, fname, script_lines, raw_save, tmp_command,
+			0)) {
+		free(raw_save);
 		return false;
+	}
+	INC_LINE();
+	free(raw_save);
+	raw_save = NULL;
 
 	/* 現在のターゲットをスタックに詰む */
 	save_smode_target_finally = smode_target_finally;
@@ -1489,7 +1506,7 @@ static bool process_switch_close(const char *fname, const char *raw)
 
 /* ifブロックを処理する */
 static bool process_if_block(struct rfile *rf, const char *fname,
-			     const char *raw, const char *params)
+			     const char *raw, char *params)
 {
 	char line_buf[LINE_BUF_SIZE];
 	char unless_command[LINE_BUF_SIZE];
@@ -1497,7 +1514,13 @@ static bool process_if_block(struct rfile *rf, const char *fname,
 	char finally_label[GEN_CMD_SIZE];
 	const char *save_smode_target_finally;
 	char *save_smode_target_skip;
+	char *stop;
 	int state, accepted;
+
+	/* paramsを"{"の位置で止める */
+	stop = strstr(params, "{");
+	if (stop != NULL)
+		*stop = '\0';
 
 	/* ラベルを生成する */
 	snprintf(skip_label, sizeof(skip_label), "IF_%d_SKIP", script_lines);
@@ -1694,8 +1717,9 @@ static bool process_normal_line(const char *raw, const char *buf,
 		/* デバッガならコメントを保存する */
 		if (!add_comment_line("%s", buf))
 			return false;
-#endif
+#else
 		INC_LINE();
+#endif
 		return true;
 	case '@':
 		/* 命令行をパースする */
