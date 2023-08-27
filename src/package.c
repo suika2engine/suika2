@@ -99,30 +99,52 @@ bool create_package(const char *base_dir)
 }
 
 #ifdef WIN
+static bool get_file_names_recursive(const wchar_t *path);
+
 /* Get file list in directory (for Windows) */
 static bool get_file_names(const char *base_dir, const char *dir)
 {
-    wchar_t path[256];
-    HANDLE hFind;
-    WIN32_FIND_DATA wfd;
-
     UNUSED_PARAMETER(base_dir);
 
+    return get_file_names_recursive(conv_utf8_to_utf16(dir));
+}
+
+static bool get_file_names_recursive(const wchar_t *dir)
+{
+    wchar_t path[256];
+    char dir_u8[256];
+    HANDLE hFind;
+    WIN32_FIND_DATA wfd;
+    char *separator;
+
+    /* Get UTF-8 directory name. */
+    strncpy(dir_u8, conv_utf16_to_utf8(dir), sizeof(dir_u8) - 1);
+    dir_u8[sizeof(dir_u8) - 1] = '\0';
+    separator = strstr(dir_u8, "\\");
+    if (separator != NULL)
+            *separator = '/';
+
     /* Get directory content. */
-    _snwprintf(path, sizeof(path), L"%s\\*.*", conv_utf8_to_utf16(dir));
+    _snwprintf(path, sizeof(path), L"%s\\*.*", dir);
     hFind = FindFirstFile(path, &wfd);
     if(hFind == INVALID_HANDLE_VALUE)
     {
-        log_dir_not_found(dir);
+        log_dir_not_found(dir_u8);
         return false;
     }
     do
     {
         if(!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
         {
-            snprintf(entry[file_count].name, FILE_NAME_SIZE, "%s/%s", dir,
+            snprintf(entry[file_count].name, FILE_NAME_SIZE, "%s/%s", dir_u8,
 		     conv_utf16_to_utf8(wfd.cFileName));
             file_count++;
+	}
+        else if((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+                wfd.cFileName[0] != L'.')
+	{
+            _snwprintf(path, sizeof(path), L"%s\\%s", dir, wfd.cFileName);
+            get_file_names_recursive(path);
 	}
     } while(FindNextFile(hFind, &wfd));
 
@@ -130,41 +152,58 @@ static bool get_file_names(const char *base_dir, const char *dir)
     return true;
 }
 #else
+static bool get_file_names_recursive(const char *base_dir, const char *dir,
+                                     int depth);
+
 /* Get directory file list (for Mac) */
 static bool get_file_names(const char *base_dir, const char *dir)
 {
-	char abspath[1024];
+        return get_file_names_recursive(base_dir, dir, 0);
+}
+
+static bool get_file_names_recursive(const char *base_dir, const char *dir,
+                                     int depth)
+{
+        char newpath[1024];
 	struct dirent **names;
 	int i, count;
+        bool succeeded;
 
 	/* Make path. */
-	snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, dir);
+	snprintf(newpath, sizeof(newpath), "%s/%s", base_dir, dir);
 
 	/* Get directory content. */
-	count = scandir(abspath, &names, NULL, alphasort);
-	if (count < 0) {
+	count = scandir(newpath, &names, NULL, alphasort);
+	if (count < 0 && depth == 0) {
 		log_dir_not_found(dir);
 		return false;
 	}
-	if (count > FILE_ENTRY_SIZE) {
-		log_too_many_files();
-		for (i = 0; i < count; i++)
-			free(names[i]);
-		free(names);
-		return false;
-	}
+        succeeded = true;
 	for (i = 0; i < count; i++) {
-		if (names[i]->d_name[0] == '.' || names[i]->d_type == DT_DIR) {
-			free(names[i]);
-			continue;
+		if (names[i]->d_name[0] == '.') {
+                        /* Ignore . and .. (also .*)*/
+                        continue;
 		}
-		snprintf(entry[file_count].name, FILE_NAME_SIZE, "%s/%s", dir,
-			 names[i]->d_name);
-		free(names[i]);
-		file_count++;
+                if (count >= FILE_ENTRY_SIZE) {
+                        log_too_many_files();
+                        succeeded = false;
+                        break;
+                }
+                if (names[i]->d_type == DT_DIR) {
+                        if (!get_file_names(newpath, names[i]->d_name)) {
+                                succeeded = false;
+                                break;
+                        }
+                } else {
+                        snprintf(entry[file_count].name, FILE_NAME_SIZE,
+                                 "%s/%s", dir, names[i]->d_name);
+                        file_count++;
+                }
 	}
+	for (i = 0; i < count; i++)
+		free(names[i]);
 	free(names);
-	return true;
+	return succeeded;
 }
 #endif
 
