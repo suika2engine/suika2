@@ -38,6 +38,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_return.c
              src/main/cpp/cmd_se.c
              src/main/cpp/cmd_set.c
+             src/main/cpp/cmd_setconfig.c
              src/main/cpp/cmd_setsave.c
              src/main/cpp/cmd_shake.c
              src/main/cpp/cmd_skip.c
