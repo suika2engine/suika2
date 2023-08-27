@@ -341,5 +341,8 @@
     <ClCompile Include="..\..\..\src\cmd_anime.c">
       <Filter>Source File</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_setconfig.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
