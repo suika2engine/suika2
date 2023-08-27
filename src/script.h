@@ -618,6 +618,9 @@ bool move_to_label_finally(const char *label, const char *finally_label);
 /* gosubによるリターンポイントを記録する(gosub用) */
 void push_return_point(void);
 
+/* gosubによるリターンポイントを記録する(カスタムSYSMENUのgosub用) */
+void push_return_point_minus_one(void);
+
 /* gosubによるリターンポイントを取得する(return用) */
 int pop_return_point(void);
 

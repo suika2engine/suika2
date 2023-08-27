@@ -294,6 +294,8 @@ sysmenu.hover.file=sysmenu-hover.png
 # システムメニュー画像(使用できない時)のファイル名
 sysmenu.disable.file=sysmenu-disable.png
 
+# 以下、sysmenu.*.widthを0にするとそのボタンを無効化できます
+
 # システムメニューのクイックセーブボタンの座標(システムメニュー画像内での座標)
 sysmenu.qsave.x=62
 sysmenu.qsave.y=7
@@ -342,6 +344,20 @@ sysmenu.config.y=7
 sysmenu.config.width=60
 sysmenu.config.height=58
 
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン1の座標(システムメニュー画像内での座標) (省略可)
+#sysmenu.custom1.x=0
+#sysmenu.custom1.y=0
+#sysmenu.custom1.width=0
+#sysmenu.custom1.height=0
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン2の座標(システムメニュー画像内での座標) (省略可)
+#sysmenu.custom2.x=0
+#sysmenu.custom2.y=0
+#sysmenu.custom2.width=0
+#sysmenu.custom2.height=0
+
 # システムメニューを呼び出すときのSE(省略可)
 sysmenu.enter.se=click.ogg
 
@@ -374,6 +390,14 @@ sysmenu.history.se=click.ogg
 
 # システムメニューのコンフィグが選択されたときのSE(省略可)
 sysmenu.config.se=click.ogg
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン1が選択されたときのSE(省略可)
+#sysmenu.custom1.se=click.ogg
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン2が選択されたときのSE(省略可)
+#sysmenu.custom2.se=click.ogg
 
 # 折りたたみシステムメニュー画像の座標
 sysmenu.collapsed.x=1219

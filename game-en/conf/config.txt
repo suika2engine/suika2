@@ -309,6 +309,8 @@ sysmenu.hover.file=sysmenu-hover.png
 # System menu image (disabled) file name
 sysmenu.disable.file=sysmenu-disable.png
 
+# You can disable buttons by setting sysmenu.*.with=0
+
 # Position of the quick save button (position inside system menu image)
 sysmenu.qsave.x=62
 sysmenu.qsave.y=7
@@ -357,6 +359,20 @@ sysmenu.config.y=7
 sysmenu.config.width=60
 sysmenu.config.height=58
 
+# [Unused in the sample]
+# Position of the user-defined-1 button (Position inside system menu image) (Optional)
+#sysmenu.custom1.x=0
+#sysmenu.custom1.y=0
+#sysmenu.custom1.width=0
+#sysmenu.custom1.height=0
+
+# [Unused in the sample]
+# Position of the user-defined-2 button (Position inside system menu image) (Optional)
+#sysmenu.custom2.x=0
+#sysmenu.custom2.y=0
+#sysmenu.custom2.width=0
+#sysmenu.custom2.height=0
+
 # Sound effect when the system menu is called (Optional)
 sysmenu.enter.se=click.ogg
 
@@ -389,6 +405,14 @@ sysmenu.history.se=click.ogg
 
 # Sound effect when config is selected (Optional)
 sysmenu.config.se=click.ogg
+
+# [Unused in the sample]
+# Sound effect when user-defined-1 is selected (Optional)
+#sysmenu.custom1.se=click.ogg
+
+# [Unused in the sample]
+# Sound effect when user-defined-2 is selected (Optional)
+#sysmenu.custom2.se=click.ogg
 
 # Position of the collapsed system menu image
 sysmenu.collapsed.x=1219

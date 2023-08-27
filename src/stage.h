@@ -152,6 +152,8 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_skip_selected,
 			bool is_history_selected,
 			bool is_config_selected,
+			bool is_custom1_selected,
+			bool is_custom2_selected,
 			int *x, int *y, int *w, int *h);
 
 /* システムメニューの座標を取得する */

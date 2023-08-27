@@ -9,6 +9,18 @@
 #include "wms.h"
 
 /*
+ * Stage save area
+ *  - FIXME: memory leaks when the app successfully exits.
+ */
+
+static char *saved_bg_file_name;
+static char *saved_ch_file_name[CH_ALL_LAYERS];
+static int saved_ch_x[CH_ALL_LAYERS];
+static int saved_ch_y[CH_ALL_LAYERS];
+static int saved_ch_alpha[CH_ALL_LAYERS];
+
+
+/*
  * FFI function declaration
  */
 
@@ -21,6 +33,8 @@ static bool s2_set_config(struct wms_runtime *rt);
 static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
 static bool s2_reflect_font_config(struct wms_runtime *rt);
 static bool s2_clear_history(struct wms_runtime *rt);
+static bool s2_push_stage(struct wms_runtime *rt);
+static bool s2_pop_stage(struct wms_runtime *rt);
 
 /*
  * FFI function table 
@@ -36,6 +50,8 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
 	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
 	{s2_clear_history, "s2_clear_history", {NULL}},
+	{s2_push_stage, "s2_push_stage", {NULL}},
+	{s2_pop_stage, "s2_pop_stage", {NULL}},
 };
 
 #define FFI_FUNC_TBL_SIZE (sizeof(ffi_func_tbl) / sizeof(ffi_func_tbl[0]))
@@ -234,6 +250,104 @@ static bool s2_clear_history(struct wms_runtime *rt)
 
 	/* Clear the message history. */
 	clear_history();
+
+	return true;
+}
+
+/* Push the stage. */
+static bool s2_push_stage(struct wms_runtime *rt)
+{
+	const char *s;
+	int i;
+
+	UNUSED_PARAMETER(rt);
+
+	if (saved_bg_file_name != NULL) {
+		free(saved_bg_file_name);
+		saved_bg_file_name = NULL;
+	}
+	s = get_bg_file_name();
+	if (s != NULL) {
+		saved_bg_file_name = strdup(s);
+		if (saved_bg_file_name == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
+		get_ch_position(i, &saved_ch_x[i], &saved_ch_y[i]);
+		saved_ch_alpha[i] = get_ch_alpha(i);
+
+		if (saved_ch_file_name[i] != NULL) {
+			free(saved_ch_file_name[i]);
+			saved_ch_file_name[i] = NULL;
+		}
+		s = get_ch_file_name(i);
+		if (s != NULL) {
+			saved_ch_file_name[i] = strdup(s);
+			if (saved_ch_file_name[i] == NULL) {
+				log_memory();
+				return false;
+			}
+		} else {
+			saved_ch_file_name[i] = NULL;
+		}
+	}
+
+	return true;
+}
+
+/* Pop the stage. */
+static bool s2_pop_stage(struct wms_runtime *rt)
+{
+	struct image *img;
+	int i;
+
+	UNUSED_PARAMETER(rt);
+
+	if (saved_bg_file_name == NULL) {
+		/* Do nothing. */
+	} else if (saved_bg_file_name[0] == '#') {
+		/* Restore a color background. */
+		set_bg_file_name(saved_bg_file_name);
+		img = create_image_from_color_string(conf_window_width,
+						     conf_window_height,
+						     &saved_bg_file_name[1]);
+		if (img == NULL)
+			return false;
+		change_bg_immediately(img);
+	} else {
+		/* Restore an image background. */
+		set_bg_file_name(saved_bg_file_name);
+		if (strncmp(saved_bg_file_name, "cg/", 3) == 0) {
+			img = create_image_from_file(CG_DIR,
+						     &saved_bg_file_name[3]);
+		} else {
+			img = create_image_from_file(BG_DIR,
+						     saved_bg_file_name);
+		}
+		if (img == NULL)
+			return false;
+		change_bg_immediately(img);
+	}
+
+	for (i = 0; i < CH_ALL_LAYERS; i++) {
+		if (saved_ch_file_name[i] == NULL) {
+			set_ch_file_name(i, NULL);
+			img = NULL;
+		} else {
+			set_ch_file_name(i, saved_ch_file_name[i]);
+			img = create_image_from_file(CH_DIR,
+						     saved_ch_file_name[i]);
+			if (img == NULL)
+				return false;
+			free(saved_ch_file_name[i]);
+			saved_ch_file_name[i] = NULL;
+		}
+		change_ch_immediately(i, img, saved_ch_x[i], saved_ch_y[i],
+				      saved_ch_alpha[i]);
+	}
 
 	return true;
 }

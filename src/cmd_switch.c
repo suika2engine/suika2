@@ -115,6 +115,8 @@
 #define SYSMENU_SKIP	(5)
 #define SYSMENU_HISTORY	(6)
 #define SYSMENU_CONFIG	(7)
+#define SYSMENU_CUSTOM1	(8)
+#define SYSMENU_CUSTOM2	(9)
 
 /*
  * 選択肢の項目
@@ -1306,7 +1308,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 {
 	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
-	bool history_sel, config_sel, redraw;
+	bool history_sel, config_sel, custom1_sel, custom2_sel, redraw;
 
 	/* 描画するかの判定状態を初期化する */
 	qsave_sel = false;
@@ -1317,6 +1319,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	skip_sel = false;
 	history_sel = false;
 	config_sel = false;
+	custom1_sel = false;
+	custom2_sel = false;
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
@@ -1354,6 +1358,14 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	if (sysmenu_pointed_index == SYSMENU_CONFIG)
 		config_sel = true;
 
+	/* CUSTOM1がポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_CUSTOM1)
+		custom1_sel = true;
+
+	/* CUSTOM2がポイントされているかを取得する */
+	if (sysmenu_pointed_index == SYSMENU_CUSTOM2)
+		custom2_sel = true;
+
 	/* GPUを利用している場合 */
 	if (is_gpu_accelerated())
 		redraw = true;
@@ -1379,6 +1391,8 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 				   skip_sel,
 				   history_sel,
 				   config_sel,
+				   custom1_sel,
+				   custom2_sel,
 				   x, y, w, h);
 		is_sysmenu_first_frame = false;
 	}

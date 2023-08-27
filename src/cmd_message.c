@@ -71,6 +71,9 @@
 #define SYSMENU_SKIP		(5)
 #define SYSMENU_HISTORY		(6)
 #define SYSMENU_CONFIG		(7)
+#define SYSMENU_CUSTOM1		(8)
+#define SYSMENU_CUSTOM2		(9)
+#define SYSMENU_COUNT		(10)
 
 /*
  * オートモードでボイスありのときの待ち時間
@@ -307,6 +310,12 @@ static bool need_config_mode;
 /* クイックロードに失敗したか */
 static bool is_quick_load_failed;
 
+/* カスタムルーチンに遷移するか */
+static bool need_custom_gosub;
+
+/* カスタムルーチン */
+static const char *custom_gosub_label;
+
 /*
  * 前方参照
  */
@@ -367,6 +376,7 @@ static void action_load(void);
 static void action_skip(int *x, int *y, int *w, int *h);
 static void action_history(void);
 static void action_config(void);
+static void action_custom(int index);
 static bool frame_sysmenu(int *x, int *y, int *w, int *h);
 static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h);
 static void adjust_sysmenu_pointed_index(void);
@@ -527,7 +537,7 @@ static void main_process(int *x, int *y, int *w, int *h)
 
 	/* システムGUIへ遷移する場合 */
 	if (need_save_mode || need_load_mode || need_history_mode ||
-	    need_config_mode) {
+	    need_config_mode || need_custom_gosub) {
 		/* 繰り返しを停止する */
 		stop_command_repetition();
 	}
@@ -727,6 +737,7 @@ static void init_flags_and_vars(void)
 	need_load_mode = false;
 	need_history_mode = false;
 	need_config_mode = false;
+	need_custom_gosub = false;
 	is_quick_load_failed = false;
 
 	/* システムメニューの状態設定を行う */
@@ -2243,6 +2254,31 @@ static void action_config(void)
 	need_config_mode = true;
 }
 
+/* カスタムシステムメニューのgosubを処理する */
+static void action_custom(int index)
+{
+	/* ボイスを停止する */
+	set_mixer_input(VOICE_STREAM, NULL);
+
+	switch (index) {
+	case 0:
+		if (conf_sysmenu_custom1_gosub == NULL)
+			break;
+		custom_gosub_label = conf_sysmenu_custom1_gosub;
+		need_custom_gosub = true;
+		break;
+	case 1:
+		if (conf_sysmenu_custom2_gosub == NULL)
+			break;
+		custom_gosub_label = conf_sysmenu_custom2_gosub;
+		need_custom_gosub = true;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 /* システムメニューの処理を行う */
 static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 {
@@ -2348,6 +2384,12 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	case SYSMENU_CONFIG:
 		play_se(conf_sysmenu_config_se);
 		action_config();
+		break;
+	case SYSMENU_CUSTOM1:
+		action_custom(0);
+		break;
+	case SYSMENU_CUSTOM2:
+		action_custom(1);
 		break;
 	default:
 		assert(0);
@@ -2460,7 +2502,7 @@ static int get_sysmenu_pointed_button(void)
 	ry = mouse_pos_y - conf_sysmenu_y;
 
 	/* ボタンを順番に見ていく */
-	for (i = SYSMENU_QSAVE; i <= SYSMENU_CONFIG; i++) {
+	for (i = SYSMENU_QSAVE; i <= SYSMENU_CUSTOM2; i++) {
 		/* ボタンの座標を取得する */
 		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
 
@@ -2525,6 +2567,18 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
 		*y = conf_sysmenu_config_y;
 		*w = conf_sysmenu_config_width;
 		*h = conf_sysmenu_config_height;
+		break;
+	case SYSMENU_CUSTOM1:
+		*x = conf_sysmenu_custom1_x;
+		*y = conf_sysmenu_custom1_y;
+		*w = conf_sysmenu_custom1_width;
+		*h = conf_sysmenu_custom1_height;
+		break;
+	case SYSMENU_CUSTOM2:
+		*x = conf_sysmenu_custom2_x;
+		*y = conf_sysmenu_custom2_y;
+		*w = conf_sysmenu_custom2_width;
+		*h = conf_sysmenu_custom2_height;
 		break;
 	default:
 		assert(ASSERT_INVALID_BTN_INDEX);
@@ -3481,19 +3535,11 @@ static bool check_stop_click_animation(void)
 /* システムメニューを描画する */
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 {
-	int bx, by, bw, bh;
-	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
-	bool history_sel, config_sel, redraw;
+	int i, bx, by, bw, bh;
+	bool redraw;
+	bool sel[SYSMENU_COUNT];
 
 	/* 描画するかの判定状態を初期化する */
-	qsave_sel = false;
-	qload_sel = false;
-	save_sel = false;
-	load_sel = false;
-	auto_sel = false;
-	skip_sel = false;
-	history_sel = false;
-	config_sel = false;
 	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
@@ -3501,82 +3547,16 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 		redraw = true;
 
 	/* クイックセーブボタンがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_QSAVE) {
-		qsave_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_QSAVE &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
-		}
-	}
-
-	/* クイックロードボタンがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_QLOAD) {
-		qload_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_QLOAD &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
-		}
-	}
-
-	/* セーブボタンがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_SAVE) {
-		save_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_SAVE &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
-		}
-	}
-
-	/* ロードボタンがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_LOAD) {
-		load_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_LOAD &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
-		}
-	}
-
-	/* オートがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_AUTO) {
-		auto_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_AUTO &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
-		}
-	}
-
-	/* スキップがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_SKIP) {
-		skip_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_SKIP &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
-		}
-	}
-
-	/* ヒストリがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_HISTORY) {
-		history_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_HISTORY &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
-		}
-	}
-
-	/* コンフィグがポイントされているかを取得する */
-	if (sysmenu_pointed_index == SYSMENU_CONFIG) {
-		config_sel = true;
-		if (old_sysmenu_pointed_index != SYSMENU_CONFIG &&
-		    !is_sysmenu_first_frame) {
-			play_se(conf_sysmenu_change_se);
-			redraw = true;
+	for (i = 0; i < SYSMENU_COUNT; i++) {
+		if (sysmenu_pointed_index == i) {
+			sel[i] = true;
+			if (old_sysmenu_pointed_index != i &&
+			    !is_sysmenu_first_frame) {
+				play_se(conf_sysmenu_change_se);
+				redraw = true;
+			}
+		} else {
+			sel[i] = false;
 		}
 	}
 
@@ -3598,14 +3578,16 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 					   is_save_load_enabled(),
 					   is_save_load_enabled() &&
 					   have_quick_save_data(),
-					   qsave_sel,
-					   qload_sel,
-					   save_sel,
-					   load_sel,
-					   auto_sel,
-					   skip_sel,
-					   history_sel,
-					   config_sel,
+					   sel[SYSMENU_QSAVE],
+					   sel[SYSMENU_QLOAD],
+					   sel[SYSMENU_SAVE],
+					   sel[SYSMENU_LOAD],
+					   sel[SYSMENU_AUTO],
+					   sel[SYSMENU_SKIP],
+					   sel[SYSMENU_HISTORY],
+					   sel[SYSMENU_CONFIG],
+					   sel[SYSMENU_CUSTOM1],
+					   sel[SYSMENU_CUSTOM2],
 					   x, y, w, h);
 			is_sysmenu_first_frame = false;
 		} else {
@@ -3812,9 +3794,16 @@ static bool cleanup(void)
 		}
 	}
 
+	/* カスタムシステムメニューのgosubを処理する */
+	if (need_custom_gosub && custom_gosub_label != NULL) {
+		push_return_point_minus_one();
+		if (!move_to_label(custom_gosub_label))
+			return false;
+	}
+
 	/* 次のコマンドに移動する */
 	if (!did_quick_load && !need_save_mode && !need_load_mode &&
-	    !need_history_mode && !need_config_mode) {
+	    !need_history_mode && !need_config_mode && !need_custom_gosub) {
 		if (!move_to_next_command())
 			return false;
 	}

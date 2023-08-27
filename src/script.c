@@ -434,6 +434,10 @@ static int cur_index;
 /* 最後にgosubが実行されたコマンド番号 */
 static int return_point;
 
+/* 無効なreturn_pointの値 */
+#define INVALID_RETURN_POINT	(-2)
+
+
 #ifdef USE_DEBUGGER
 /*
  * スタートアップ情報
@@ -645,7 +649,7 @@ bool load_script(const char *fname)
 	}
 
 	/* リターンポイントを無効にする */
-	set_return_point(-1);
+	set_return_point(INVALID_RETURN_POINT);
 
 #ifdef USE_DEBUGGER
 	if (dbg_is_stop_requested())
@@ -836,13 +840,21 @@ void push_return_point(void)
 }
 
 /*
+ * gosubによるリターンポイントを記録する(カスタムSYSMENUのgosub用)
+ */
+void push_return_point_minus_one(void)
+{
+	return_point = cur_index - 1;
+}
+
+/*
  * gosubによるリターンポイントを取得する(return用)
  */
 int pop_return_point(void)
 {
 	int rp;
 	rp = return_point;
-	return_point = -1;
+	return_point = INVALID_RETURN_POINT;
 	return rp;
 }
 

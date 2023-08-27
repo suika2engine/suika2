@@ -22,8 +22,11 @@ bool return_command(void)
 	/* リターンポイントを取得する */
 	rp = pop_return_point();
 
-	/* リターンポイントが無効な場合、エラーとする */
-	if (rp == -1) {
+	/*
+	 * リターンポイントが無効な場合、エラーとする
+	 *  - 最初の行でpushされると-1になる点に留意
+	 */
+	if (rp < -1) {
 		/* エラーを出力する */
 		log_script_return_error();
 		log_script_exec_footer();
