@@ -242,6 +242,10 @@
 		26DA595E2A922EB700DBE36B /* cmd_anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26DA59562A922EB600DBE36B /* cmd_anime.c */; };
 		26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
 		26EA3DD7286C2DCA00B527DF /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 26EA3DD4286C2DCA00B527DF /* glrender.c */; };
+		26F85C422A9B727B0013A3B3 /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 26F85C412A9B727B0013A3B3 /* cmd_setconfig.c */; };
+		26F85C432A9B727B0013A3B3 /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 26F85C412A9B727B0013A3B3 /* cmd_setconfig.c */; };
+		26F85C442A9B727B0013A3B3 /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 26F85C412A9B727B0013A3B3 /* cmd_setconfig.c */; };
+		26F85C452A9B727B0013A3B3 /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 26F85C412A9B727B0013A3B3 /* cmd_setconfig.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -358,6 +362,7 @@
 		26DA59562A922EB600DBE36B /* cmd_anime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_anime.c; path = ../../../src/cmd_anime.c; sourceTree = "<group>"; };
 		26EA3DD4286C2DCA00B527DF /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../../src/glrender.c; sourceTree = "<group>"; };
 		26EA3DD5286C2DCA00B527DF /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../../src/glrender.h; sourceTree = "<group>"; };
+		26F85C412A9B727B0013A3B3 /* cmd_setconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setconfig.c; path = ../../../src/cmd_setconfig.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -467,6 +472,7 @@
 				26A1782725EE5DD0006A1ED4 /* cmd_se.c */,
 				26A1780825EE5DD0006A1ED4 /* cmd_set.c */,
 				26557B0D26785269000CDD10 /* cmd_setsave.c */,
+				26F85C412A9B727B0013A3B3 /* cmd_setconfig.c */,
 				260F30512674A3C000AF8E21 /* cmd_shake.c */,
 				2646C360284C635D00DF86E1 /* cmd_skip.c */,
 				26A1780725EE5DD0006A1ED4 /* cmd_switch.c */,
@@ -725,6 +731,7 @@
 				260349582854B29800037370 /* aunit.c in Sources */,
 				260349592854B29800037370 /* cmd_set.c in Sources */,
 				2603495A2854B29800037370 /* cmd_ch.c in Sources */,
+				26F85C432A9B727B0013A3B3 /* cmd_setconfig.c in Sources */,
 				2603495B2854B29800037370 /* cmd_chs.c in Sources */,
 				2603495C2854B29800037370 /* cmd_bg.c in Sources */,
 				2603495D2854B29800037370 /* cmd_click.c in Sources */,
@@ -804,6 +811,7 @@
 				260AFFF12A65641C002E3FF4 /* readimage.c in Sources */,
 				260AFFEA2A6563F9002E3FF4 /* log.c in Sources */,
 				260AFFC62A6563CF002E3FF4 /* aunit.c in Sources */,
+				26F85C442A9B727B0013A3B3 /* cmd_setconfig.c in Sources */,
 				260AFFC92A6563D8002E3FF4 /* cmd_menu.c in Sources */,
 				260AFFDB2A6563D8002E3FF4 /* cmd_shake.c in Sources */,
 				260AFFD02A6563D8002E3FF4 /* cmd_bg.c in Sources */,
@@ -867,6 +875,7 @@
 				260A004A2A66B394002E3FF4 /* glrender.c in Sources */,
 				260A00192A66B360002E3FF4 /* cmd_click.c in Sources */,
 				260A00472A66B394002E3FF4 /* nsmain.m in Sources */,
+				26F85C452A9B727B0013A3B3 /* cmd_setconfig.c in Sources */,
 				260A00162A66B360002E3FF4 /* cmd_cha.c in Sources */,
 				260A00262A66B366002E3FF4 /* cmd_setsave.c in Sources */,
 				260A00352A66B394002E3FF4 /* history.c in Sources */,
@@ -941,6 +950,7 @@
 				26616DC926B4CED20094B23C /* seen.c in Sources */,
 				26A1783825EE5DD0006A1ED4 /* cmd_switch.c in Sources */,
 				267079012917992E003C61C1 /* uimsg.c in Sources */,
+				26F85C422A9B727B0013A3B3 /* cmd_setconfig.c in Sources */,
 				26EA3DD6286C2DCA00B527DF /* glrender.c in Sources */,
 				26A1783725EE5DD0006A1ED4 /* cmd_menu.c in Sources */,
 			);
