@@ -524,6 +524,7 @@ enum chs_command_param {
 /* videoコマンドのパラメータ */
 enum video_command_param {
 	VIDEO_PARAM_FILE = 1,
+	VIDEO_PARAM_OPTIONS,
 };
 
 /* skipコマンドのパラメータ */

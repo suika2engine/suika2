@@ -173,8 +173,8 @@ struct insn_item {
 	{U8("@場面転換"), COMMAND_CHS, 4, 7},
 
 	/* ビデオ再生 */
-	{"@video", COMMAND_VIDEO, 1, 1},
-	{U8("@動画"), COMMAND_VIDEO, 1, 1},
+	{"@video", COMMAND_VIDEO, 1, 2},
+	{U8("@動画"), COMMAND_VIDEO, 1, 2},
 
 	/* 選択肢 */
 	{"@choose", COMMAND_CHOOSE, 2, 16},

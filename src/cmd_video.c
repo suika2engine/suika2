@@ -47,9 +47,11 @@ static bool init(void)
 {
 	char fn[128];
 	const char *fname;
+	const char *options;
 
 	/* パラメータを取得する */
 	fname = get_string_param(VIDEO_PARAM_FILE);
+	options = get_string_param(VIDEO_PARAM_OPTIONS);
 
 	/* 拡張子の自動付与を行う */
 	if (strstr(fname, ".") == NULL) {
@@ -76,6 +78,8 @@ static bool init(void)
 
 	/* クリックでスキップ可能かを決定する */
 	is_skippable = get_seen() && !is_non_interruptible();
+	if (strstr(options, "skip") != NULL)
+		is_skippable = true;
 #ifdef USE_DEBUGGER
 	is_skippable = true;
 #endif
