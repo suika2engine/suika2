@@ -3112,17 +3112,14 @@ void show_namebox(bool show)
  * メッセージボックスに文字を描画する
  *  - 描画した幅を返す
  */
-int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color)
+void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
+			  pixel_t outline_color, int *w, int *h,
+			  int base_font_size, bool is_dim)
 {
-	int w, h;
-
 	lock_image(layer_image[LAYER_NAME]);
-	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h,
-			   conf_font_size, false);
+	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, w, h,
+			   base_font_size, is_dim);
 	unlock_image(layer_image[LAYER_NAME]);
-
-	return w;
 }
 
 /*

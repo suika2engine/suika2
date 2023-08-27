@@ -152,6 +152,9 @@ static int msgbox_h;
 static int pen_ruby_x;
 static int pen_ruby_y;
 
+/* 名前ボックスの描画中であるか */
+static bool is_drawing_namebox;
+
 /*
  * 色
  */
@@ -379,13 +382,13 @@ static int get_frame_chars(void);
 static bool is_canceled_by_skip(void);
 static bool is_fast_forward_by_click(void);
 static int calc_frame_chars_by_lap(void);
-static void process_escape_sequence(void);
-static void process_escape_sequence_lf(void);
-static bool process_escape_sequence_color(void);
-static bool process_escape_sequence_size(void);
-static bool process_escape_sequence_wait(void);
-static bool process_escape_sequence_pen(void);
-static bool process_escape_sequence_ruby(void);
+static void process_escape_sequence(const char **s);
+static void process_escape_sequence_lf(const char **s);
+static bool process_escape_sequence_color(const char **s);
+static bool process_escape_sequence_size(const char **s);
+static bool process_escape_sequence_wait(const char **s);
+static bool process_escape_sequence_pen(const char **s);
+static bool process_escape_sequence_ruby(const char **s);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static int get_en_word_width(void);
@@ -1386,42 +1389,59 @@ static void set_character_volume_by_name(const char *name)
 /* 名前ボックスを描画する */
 static void draw_namebox(void)
 {
-	uint32_t c;
-	int char_count, mblen, i, x, w;
+	uint32_t wc;
+	int char_count, mblen, i, ret_width, ret_height;
 	const char *name;
 
 	/* 名前の文字列を取得する */
 	name = name_top;
 
 	/* 名前の文字数を取得する */
-	char_count = utf8_chars(name);
+	char_count = count_chars(name);
 	if (char_count == 0)
 		return;
 
 	/* 描画位置を決める */
 	if (!conf_namebox_centering_no)
-		x = (get_namebox_width() - get_utf8_width(name)) / 2;
+		pen_x = (get_namebox_width() - get_utf8_width(name)) / 2;
 	else
-		x = conf_namebox_margin_left;
+		pen_x = conf_namebox_margin_left;
+	pen_y = conf_namebox_margin_top;
+	pen_ruby_y = pen_y - conf_font_ruby_size;
 
 	/* 名前ボックスをクリアする */
 	clear_namebox();
 
 	/* 1文字ずつ描画する */
+	is_drawing_namebox = true;
 	for (i = 0; i < char_count; i++) {
+		assert(*name != '\0');
+
+		/* 途中のエスケープシーケンスを処理する */
+		process_escape_sequence(&name);
+
 		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(name, &c);
+		mblen = utf8_to_utf32(name, &wc);
 		if (mblen == -1)
 			return;
 
 		/* 描画する */
-		w = draw_char_on_namebox(x, conf_namebox_margin_top, c,
-					 name_color, name_outline_color);
+		draw_char_on_namebox(pen_x, pen_y, wc, name_color,
+				     name_outline_color, &ret_width,
+				     &ret_height, conf_font_size, false);
+
+		/* ペン位置を更新する */
+		pen_ruby_x = pen_x;
+		pen_x += ret_width;
 
 		/* 次の文字へ移動する */
-		x += w;
 		name += mblen;
 	}
+
+	/* 末尾のエスケープシーケンスを処理する */
+	process_escape_sequence(&name);
+
+	is_drawing_namebox = false;
 }
 
 /* 名前ボックスの幅を取得する */
@@ -2617,7 +2637,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		assert(*msg_cur);
 
 		/* 途中のエスケープシーケンスを処理する */
-		process_escape_sequence();
+		process_escape_sequence(&msg_cur);
 		if (is_inline_wait)
 			return;
 
@@ -2685,7 +2705,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	}
 
 	/* 末尾のエスケープシーケンスを処理する */
-	process_escape_sequence();
+	process_escape_sequence(&msg_cur);
 }
 
 /*
@@ -2843,49 +2863,53 @@ static int calc_frame_chars_by_lap(void)
 }
 
 /* 先頭のエスケープシーケンスを処理する */
-static void process_escape_sequence(void)
+static void process_escape_sequence(const char **s)
 {
+	const char *p;
+
 	/* エスケープシーケンスが続く限り処理する */
-	while (*msg_cur == '\\') {
-		switch (*(msg_cur + 1)) {
+	p = *s;
+	while (*p == '\\') {
+		switch (*(p + 1)) {
 		case 'n':
 			/* 改行 */
-			process_escape_sequence_lf();
+			process_escape_sequence_lf(s);
 			break;
 		case '#':
 			/* 色指定 */
-			if (!process_escape_sequence_color())
+			if (!process_escape_sequence_color(s))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		case '@':
 			/* サイズ指定 */
-			if (!process_escape_sequence_size())
+			if (!process_escape_sequence_size(s))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		case 'w':
 			/* インラインウェイト */
-			if (!process_escape_sequence_wait())
+			if (!process_escape_sequence_wait(s))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		case 'p':
 			/* ペン移動 */
-			if (!process_escape_sequence_pen())
+			if (!process_escape_sequence_pen(s))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		case '^':
 			/* ルビ */
-			if (!process_escape_sequence_ruby())
+			if (!process_escape_sequence_ruby(s))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		default:
 			/* 不正なエスケープシーケンスなので読み飛ばさない */
 			return;
 		}
+		p = *s;
 	}
 }
 
 /* 改行("\\n")を処理する */
-static void process_escape_sequence_lf(void)
+static void process_escape_sequence_lf(const char **s)
 {
 	if (!conf_msgbox_tategaki) {
 		pen_y += conf_msgbox_margin_line;
@@ -2894,34 +2918,36 @@ static void process_escape_sequence_lf(void)
 		pen_x -= conf_msgbox_margin_line;
 		pen_y = conf_msgbox_margin_top;
 	}
-	msg_cur += 2;
+	*s += 2;
 }
 
 /* 色指定("\\#{RRGGBB}")を処理する */
-static bool process_escape_sequence_color(void)
+static bool process_escape_sequence_color(const char **s)
 {
 	char color_code[7];
+	const char *p;
 	uint32_t r, g, b;
 	int rgb;
 
-	assert(*msg_cur == '\\');
-	assert(*(msg_cur + 1) == '#');
+	p = *s;
+	assert(*p == '\\');
+	assert(*(p + 1) == '#');
 
 	/* '{'をチェックする */
-	if (*(msg_cur + 2) != '{')
+	if (*(p + 2) != '{')
 		return false;
 
 	/* 長さが足りない場合 */
-	if (strlen(msg_cur + 3) < 6)
+	if (strlen(p + 3) < 6)
 		return false;
 
 	/* '}'をチェックする */
-	if (*(msg_cur + 9) != '}')
+	if (*(p + 9) != '}')
 		return false;
 
 	if (!is_dimming) {
 		/* カラーコードを読む */
-		memcpy(color_code, msg_cur + 3, 6);
+		memcpy(color_code, p + 3, 6);
 		color_code[6] = '\0';
 		rgb = 0;
 		sscanf(color_code, "%x", &rgb);
@@ -2932,30 +2958,32 @@ static bool process_escape_sequence_color(void)
 	}
 
 	/* "\\#{" + "xxxxxx" + "}" */
-	msg_cur += 3 + 6 + 1;
+	*s += 3 + 6 + 1;
 	return true;
 }
 
 /* サイズ指定("\\@{xxx}")を処理する */
-static bool process_escape_sequence_size(void)
+static bool process_escape_sequence_size(const char **s)
 {
 	char size_spec[8];
+	const char *p;
 	int i, size;
 
-	assert(*msg_cur == '\\');
-	assert(*(msg_cur + 1) == '@');
+	p = *s;
+	assert(*p == '\\');
+	assert(*(p + 1) == '@');
 
 	/* '{'をチェックする */
-	if (*(msg_cur + 2) != '{')
+	if (*(p + 2) != '{')
 		return false;
 
 	/* サイズ文字列を読む */
 	for (i = 0; i < (int)sizeof(size_spec) - 1; i++) {
-		if (*(msg_cur + 3 + i) == '\0')
+		if (*(p + 3 + i) == '\0')
 			return false;
-		if (*(msg_cur + 3 + i) == '}')
+		if (*(p + 3 + i) == '}')
 			break;
-		size_spec[i] = *(msg_cur + 3 + i);
+		size_spec[i] = *(p + 3 + i);
 	}
 	size_spec[i] = '\0';
 
@@ -2967,30 +2995,32 @@ static bool process_escape_sequence_size(void)
 	set_font_size(size);
 
 	/* "\\@{" + "xxx" + "}" */
-	msg_cur += 3 + i + 1;
+	*s += 3 + i + 1;
 	return true;
 }
 
 /* インラインウェイト("\\w{f.f}")を処理する */
-static bool process_escape_sequence_wait(void)
+static bool process_escape_sequence_wait(const char **s)
 {
 	char time_spec[16];
+	const char *p;
 	int i;
 
-	assert(*msg_cur == '\\');
-	assert(*(msg_cur + 1) == 'w');
+	p = *s;
+	assert(*p == '\\');
+	assert(*(p + 1) == 'w');
 
 	/* '{'をチェックする */
-	if (*(msg_cur + 2) != '{')
+	if (*(p + 2) != '{')
 		return false;
 
 	/* 時間文字列を読む */
 	for (i = 0; i < (int)sizeof(time_spec) - 1; i++) {
-		if (*(msg_cur + 3 + i) == '\0')
+		if (*(p + 3 + i) == '\0')
 			return false;
-		if (*(msg_cur + 3 + i) == '}')
+		if (*(p + 3 + i) == '}')
 			break;
-		time_spec[i] = *(msg_cur + 3 + i);
+		time_spec[i] = *(p + 3 + i);
 	}
 	time_spec[i] = '\0';
 
@@ -3008,34 +3038,36 @@ static bool process_escape_sequence_wait(void)
 	}
 
 	/* "\\w{" + "f.f" + "}" */
-	msg_cur += 3 + i + 1;
+	*s += 3 + i + 1;
 	return true;
 }
 
 /* ペン移動("\\p{x,y}")を処理する */
-static bool process_escape_sequence_pen(void)
+static bool process_escape_sequence_pen(const char **s)
 {
 	char pos_spec[32];
+	const char *p;
 	int i;
 	bool separator_found;
-		
-	assert(*msg_cur == '\\');
-	assert(*(msg_cur + 1) == 'p');
+
+	p = *s;
+	assert(*p == '\\');
+	assert(*(p + 1) == 'p');
 
 	/* '{'をチェックする */
-	if (*(msg_cur + 2) != '{')
+	if (*(p + 2) != '{')
 		return false;
 
 	/* 座標文字列を読む */
 	separator_found = false;
 	for (i = 0; i < (int)sizeof(pos_spec) - 1; i++) {
-		if (*(msg_cur + 3 + i) == '\0')
+		if (*(p + 3 + i) == '\0')
 			return false;
-		if (*(msg_cur + 3 + i) == '}')
+		if (*(p + 3 + i) == '}')
 			break;
-		if (*(msg_cur + 3 + i) == ',')
+		if (*(p + 3 + i) == ',')
 			separator_found = true;
-		pos_spec[i] = *(msg_cur + 3 + i);
+		pos_spec[i] = *(p + 3 + i);
 	}
 	pos_spec[i] = '\0';
 	if (!separator_found)
@@ -3045,37 +3077,38 @@ static bool process_escape_sequence_pen(void)
 	sscanf(pos_spec, "%d,%d", &pen_x, &pen_y);
 
 	/* "\\w{" + "x,y" + "}" */
-	msg_cur += 3 + i + 1;
+	*s += 3 + i + 1;
 	return true;
 }
 
 /* ルビ("\\^{ルビ}")を処理する */
-static bool process_escape_sequence_ruby(void)
+static bool process_escape_sequence_ruby(const char **s)
 {
 	char ruby[64];
-	const char *s;
+	const char *p;
 	uint32_t wc;
 	int i, font_size,mblen, ret_width, ret_height;
 
-	assert(*msg_cur == '\\');
-	assert(*(msg_cur + 1) == '^');
+	p = *s;
+	assert(*p == '\\');
+	assert(*(p + 1) == '^');
 
 	/* '{'をチェックする */
-	if (*(msg_cur + 2) != '{')
+	if (*(p + 2) != '{')
 		return false;
 
 	/* ルビを読む */
 	for (i = 0; i < (int)sizeof(ruby) - 1; i++) {
-		if (*(msg_cur + 3 + i) == '\0')
+		if (*(p + 3 + i) == '\0')
 			return false;
-		if (*(msg_cur + 3 + i) == '}')
+		if (*(p + 3 + i) == '}')
 			break;
-		ruby[i] = *(msg_cur + 3 + i);
+		ruby[i] = *(p + 3 + i);
 	}
 	ruby[i] = '\0';
 
 	/* \^{ + ruby[] + } */
-	msg_cur += 3 + i + 1;
+	*s += 3 + i + 1;
 
 	/* フォントサイズを退避して、ルビ用に設定する */
 	font_size = get_font_size();
@@ -3083,23 +3116,30 @@ static bool process_escape_sequence_ruby(void)
 		      conf_font_ruby_size : conf_font_size / 5);
 
 	/* 描画する */
-	s = ruby;
-	while (*s) {
-		mblen = utf8_to_utf32(s, &wc);
+	p = ruby;
+	while (*p) {
+		mblen = utf8_to_utf32(p, &wc);
 		if (mblen == -1)
 			break;
 
-		draw_char_on_msgbox(pen_ruby_x, pen_ruby_y, wc,
-				    body_color, body_outline_color,
-				    &ret_width, &ret_height,
-				    conf_font_ruby_size, is_dimming);
+		if (!is_drawing_namebox) {
+			draw_char_on_msgbox(pen_ruby_x, pen_ruby_y, wc,
+					    body_color, body_outline_color,
+					    &ret_width, &ret_height,
+					    conf_font_ruby_size, is_dimming);
+		} else {
+			draw_char_on_namebox(pen_ruby_x, pen_ruby_y, wc,
+					     name_color, name_outline_color,
+					     &ret_width, &ret_height,
+					     conf_font_ruby_size, is_dimming);
+		}
 
 		if (!conf_msgbox_tategaki)
 			pen_ruby_x += ret_width;
 		else
 			pen_ruby_y += ret_height;
 
-		s += mblen;
+		p += mblen;
 	}
 
 	/* フォントサイズを復元する */

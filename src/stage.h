@@ -268,8 +268,9 @@ void clear_namebox(void);
 void show_namebox(bool show);
 
 /* 名前ボックスに文字を描画する */
-int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color);
+void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
+			  pixel_t outline_color, int *w, int *h,
+			  int base_font_size, bool is_dim);
 
 /*
  * メッセージボックスの描画

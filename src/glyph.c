@@ -336,6 +336,17 @@ int get_utf8_width(const char *mbs)
 	w = 0;
 	c = 0; /* warning avoidance on gcc 5.3.1 */
 	while (*mbs != '\0') {
+		/* エスケープシーケンスをスキップする */
+		while (*mbs == '\\') {
+			if (*(mbs + 1) == 'n') {
+				mbs += 2;
+				continue;
+			}
+			while (*mbs != '\0' && *mbs != '}')
+				mbs++;
+			mbs++;
+		}
+
 		/* 文字を取得する */
 		mblen = utf8_to_utf32(mbs, &c);
 		if (mblen == -1)
