@@ -15,8 +15,6 @@ Visit [the Website](https://suika2.com/en/) and [the Wiki](https://github.com/su
 
 Don't have a Discord account or would prefer to speak formally? Send an e-mail to `midori@suika2.com`.
 
-**Note:** Replies will be sent from a Gmail address. 
-
 ## Demo
 
 [Click here to start the Web demo](https://suika2.com/game-en/).
@@ -25,92 +23,110 @@ Don't have a Discord account or would prefer to speak formally? Send an e-mail t
 
 ## Portability
 
-Official builds of Suika2 run on Windows, Mac, and Web browsers.
-The source code can be compiled for iPhone, iPad, Android, Linux, FreeBSD, NetBSD, and Switch.
-If a developer wishes, Windows and Mac versions can also be compiled from source.
+Official builds of Suika2 run on Windows, Mac, Linux and Web browsers.
 
-Suika2 consists of a platform independent layer and a hardware abstraction layer (HAL).
-The platform independent layer is written in ANSI C, the most portable language in the world.
-HALs are currently written in C, C++, Objective-C, and Java.
+The source code can be compiled for Windows, Mac, iPhone, iPad, Android, Linux, FreeBSD, NetBSD and Switch.
 
-If you want to port Suika2 to a new target platform, you are only required to write a HAL.
+Suika2 consists of the platform independent layer (PIL) and the hardware abstraction layer (HAL).
+PIL is written in ANSI C, the most portable language in the world.
+HAL is currently written in C, C++, Objective-C and Java.
 
-## Suika2 Pro for Creators
+If you would like to port Suika2 to a new target platform, you are only required to write a HAL.
 
-[`Suika2 Pro for Creators`](https://github.com/suika2engine/suika2/wiki/5.-Suika2-Pro-for-Creators) is Suika2's sister application, a visual development tool for Windows and Mac that provides developers with a debugger and package export function.
+## Suika2 Pro
+
+[Suika2 Pro](https://github.com/suika2engine/suika2/wiki/5.-Suika2-Pro-for-Creators) is a Suika2's sister app.
+This is a visual tool for Windows and Mac that provides developers with a debugging capability and a package export function.
 
 ## Suika2 Kirara
 
-[`Suika2 Kirara`](https://github.com/suika2engine/kirara) is Suika2's GUI application. If you are not familiar with scripting, please consider using Kirara.
+[Suika2 Kirara](https://github.com/suika2engine/kirara) is a Suika2's sister app too.
+This tool provides a capability to edit Suika2 scripts in a window with mouse operations.
+If you are not familiar with scripting, please consider using Kirara.
 
-## Contribution
+**Note**: Kirara is still beta and we recommend for you to write scripts.
 
-Please submit issues light-heartedly as any and all feedback is welcome.
+## Binary Distribution
 
-## Prebuilt Binaries
+Download the latest release from [the official site](https://suika2.com/en/).
 
-Download the latest prebuilt binaries from [the releases page](https://github.com/suika2engine/suika2/releases/latest).
-
-**Note:** The provided ZIP files contain binaries for both Windows and Mac.
-
-## Canary Build 
-
-If you want to try our latest bug fixes and preview features, please see [Github Actions](https://github.com/suika2engine/suika2/actions).
+**Note:** We provide a zip file that contains binaries for Windows, macOS, Web and Linux.
 
 ## Building from Source
 
-See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source).
+See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
+
+## CI
+
+If you would like to try development versions before release,
+please go to [Github Actions](https://github.com/ktabata/suika2/actions/workflows/suika-windows.yml) and check artifacts.
+
+We do CI, but we don't make releases automatically because our Certum code signing certificate can't be used in GitHub Actions.
 
 ## License
 
 This software is released under the MIT license.
 You can redistribute this software commercially.
-See `COPYING`.
-
-It's important to include all licenses for assets that require them.
+See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for the all licenses including the dependency libraries.
 
 ## Usage
 
 * On Windows:
-    * Download the zip file from [the releases page](https://github.com/suika2engine/suika2/releases) and extract it.
-    * Open the `suika2` folder in Explorer.
-    * Open the `suika.exe` application.
+  * Download a zip file from [the official site](https://suika2.com/en/) and extract it.
+  * Open the `suika2` folder in Explorer.
+  * Start the `suika.exe` application.
 
 * On Mac:
-    * Download the zip file from [the releases page](https://github.com/suika2engine/suika2/releases) and extract it.
-    * Open the `suika2` folder in Finder.
-    * Copy the `suika` application in `mac.dmg` to the `suika2` folder.
-    * Open the `suika` application in the `suika2` folder.
+  * Download a zip file from [the official site](https://suika2.com/en/) and extract it.
+  * Open the `suika2` folder in Finder.
+  * Open the `mac.dmg` file and copy the `suika` app inside `mac.dmg` to the `suika2` folder.
+  * Start the `suika` app in the `suika2` folder.
 
-* On iPhone/iPad:
-    * Build from the source code using Xcode. See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source#ios).
+* On Linux:
+  * Download a zip file from [the official site](https://suika2.com/en/) and extract it.
+  * Enter suika2 directory and run the following commands:
+  ```
+  chmod +x tools/suika-linux
+  cp tools/suika-linux game-en/
+  cd game-en
+  ./suika-linux
+  ```
+
+* On iPhone/iPad (iOS):
+  * Build from the source code using Xcode.
+  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
 
 * On Android:
-    * A sample game is available on Google Play. See [the official web site](https://suika2.com/en/).
-    * To make your own game, you have to build from the source code using Android Studio. See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source#android).
+  * A sample game is available on [Google Play](https://play.google.com/store/apps/details?id=jp.luxion.suika&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1).
+  * To make your own game, you have to build from the source code using Android Studio.
+  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
 
-* On Linux/FreeBSD/NetBSD:
-    * Build from the source code. See `build/README.md` or visit the [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source#linux-binary-x86_64).
+* On FreeBSD and NetBSD:
+  * Build from the source code.
+  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
 
 * On Switch Homebrew:  
-    * Copy `suika.nro` to `yourgamedir` (See `build/README.md` if you want to build from source)
-    * Copy `yourgamedir` to a Switch compatible sdcard (`/switch/yourgamedir`)
-    * Install `hbmenu` and select an arbitrary Switch app, then press `R` to enter `hbmenu` (applet mode is not available as there is not enough memory)
-    * select `swika` to play
+  * Build from the source code.
+  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
 
 ## Manuals
 
-* [Wiki](https://github.com/suika2engine/suika2/wiki/1.-Installation-and-Building-from-Source)
-* [ドキュメント](https://suika2.com/wiki-jp/)
-* [Tutorial](https://github.com/suika2engine/suika2/wiki/Tutorial)
+* [Tutorial](https://suika2.com/en/tutorial.html)
+* [Command Reference](https://suika2.com/en/reference.html)
+* [Wiki (not up to date)](https://github.com/suika2engine/suika2/wiki/)
+* [Japanese Documentation](https://suika2.com/)
+
+## Contribution
+
+Please submit issues light-heartedly as any and all feedback is welcome.
 
 ## What does "suika" mean?
 
 "Suika" means "watermelon" in Japanese.
 
 ### Trivia
+
 Did you know...
-* Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform? She also has 'Suika Orange' hair!
-* Midori has an older sister, Rina, who's in university!
-* Suika2 is the successor to 'Suika Studio' - you can find Suika Studio on the old English website with some deductive skills! (Suika Studio has long since reached its EOL.)
-* For a 'History of Suika2' in update logs, visit [luxion.jp](https://luxion.jp/) or visit [suika2.com](https://suika2.com/en/) for the projects brief history.
+
+* Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform?
+* Suika2 is the successor to "Suika Studio" - you can find Suika Studio on the web site with some deductive skills! (Suika Studio has long since reached its EOL.)
