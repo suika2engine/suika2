@@ -622,6 +622,20 @@ void log_script_config_not_found(const char *key)
 }
 
 /*
+ * chaで指定されたキャラクタ位置に画像がないエラーを記録する
+ */
+void log_script_cha_no_image(const char *pos)
+{
+	if (is_english_mode()) {
+		log_error("Character image on position \"%s\" is not loaded\n",
+			  pos);
+	} else {
+		log_error(U8("キャラクタ位置\"%s\"に画像がロードされていません。\n"),
+			  pos);
+	}
+}
+
+/*
  * ビデオ再生に失敗した際のエラーを記録する
  */
 void log_video_error(const char *reason)

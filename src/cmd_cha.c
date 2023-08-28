@@ -22,6 +22,7 @@ static int get_accel(const char *accel_s);
 static int get_alpha(const char *alpha);
 static int chpos_to_layer(int chpos);
 static void draw(int *x, int *y, int *w, int *h);
+static void process_finish(void);
 static bool cleanup(void);
 
 /*
@@ -52,12 +53,12 @@ bool cha_command(int *x, int *y, int *w, int *h)
  */
 static bool init(void)
 {
-	const char *pos, *alpha_s, *accel_s;
+	const char *pos_s, *alpha_s, *accel_s;
 	float span;
 	int chpos, ofs_x, ofs_y, alpha, from_x, from_y, to_x, to_y, accel;
 
 	/* パラメータを取得する */
-	pos = get_string_param(CHA_PARAM_POS);
+	pos_s = get_string_param(CHA_PARAM_POS);
 	span = get_float_param(CHA_PARAM_SPAN);
 	accel_s = get_string_param(CHA_PARAM_ACCEL);
 	ofs_x = get_int_param(CHA_PARAM_OFFSET_X);
@@ -65,8 +66,15 @@ static bool init(void)
 	alpha_s = get_string_param(CHA_PARAM_ALPHA);
 
 	/* キャラの位置を取得する */
-	if (!get_position(&chpos, pos))
+	if (!get_position(&chpos, pos_s))
 		return false;
+	if (get_ch_file_name(chpos) == NULL) {
+		log_script_cha_no_image(pos_s);
+		log_script_exec_footer();
+		return false;
+	}
+
+	/* キャラの位置からアニメレイヤーを求める */
 	layer = chpos_to_layer(chpos);
 
 	/* 加速を取得する */
@@ -77,8 +85,10 @@ static bool init(void)
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
 
-	/* キャラのオフセットを絶対座標に変換する */
+	/* キャラのfrom位置を取得する */
 	get_ch_position(chpos, &from_x, &from_y);
+
+	/* キャラのto位置を計算する */
 	to_x = from_x + ofs_x;
 	to_y = from_y + ofs_y;
 
@@ -88,27 +98,27 @@ static bool init(void)
 	    (!is_non_interruptible() && is_skip_mode())
 	    ||
 	    (!is_non_interruptible() && !is_auto_mode() && is_control_pressed)) {
-		/* フェードせず、すぐに切り替える */
+		/* アニメを行わず、すぐに位置・アルファ値を設定する */
 		change_ch_attributes(chpos, to_x, to_y, alpha);
 	} else {
-		/* 繰り返し動作を開始する */
-		start_command_repetition();
-
 		/* アニメ定義を行う */
 		clear_anime_sequence(layer);
 		new_anime_sequence(layer);
 		add_anime_sequence_property_f("start", 0);
 		add_anime_sequence_property_f("end", span);
-		add_anime_sequence_property_f("from-x", (float)from_x);
-		add_anime_sequence_property_f("from-y", (float)from_y);
+		add_anime_sequence_property_i("from-x", from_x);
+		add_anime_sequence_property_i("from-y", from_y);
 		add_anime_sequence_property_i("from-a", get_ch_alpha(chpos));
-		add_anime_sequence_property_f("to-x", (float)to_x);
-		add_anime_sequence_property_f("to-y", (float)to_y);
+		add_anime_sequence_property_i("to-x", to_x);
+		add_anime_sequence_property_i("to-y", to_y);
 		add_anime_sequence_property_i("to-a", alpha);
 		add_anime_sequence_property_i("accel", accel);
 
 		/* アニメを開始する */
 		start_layer_anime(layer);
+
+		/* 繰り返し動作を開始する */
+		start_command_repetition();
 	}
 
 	/* メッセージボックスを消す */
@@ -207,24 +217,8 @@ static int chpos_to_layer(int chpos)
 /* 描画を行う */
 static void draw(int *x, int *y, int *w, int *h)
 {
-	/* 進捗を設定する */
-	if (is_in_command_repetition()) {
-		/*
-		 * 経過時間が一定値を超えた場合と、
-		 * 入力によりスキップされた場合
-		 */
-		if (!is_anime_running_for_layer(layer)
-		    ||
-		    (!is_non_interruptible() && !is_auto_mode() &&
-		     (is_control_pressed || is_return_pressed ||
-		      is_left_clicked || is_down_pressed))) {
-			/* 繰り返し動作を終了する */
-			stop_command_repetition();
-
-			/* アニメを終了する */
-			finish_layer_anime(layer);
-		}
-	}
+	/* アニメ終了の場合を処理する */
+	process_finish();
 
 	/* ステージを描画する */
 	draw_stage();
@@ -238,9 +232,40 @@ static void draw(int *x, int *y, int *w, int *h)
 		draw_stage_collapsed_sysmenu(false, x, y, w, h);
 }
 
+/* アニメ終了を処理する */
+static void process_finish(void)
+{
+	/* 繰り返し動作をしていない場合 */
+	if (!is_in_command_repetition())
+		return;
+
+	/* アニメが終了した場合 */
+	if (is_anime_finished_for_layer(layer)) {
+		/* 繰り返し動作を終了する */
+		stop_command_repetition();
+		return;
+	}	
+
+	/* 入力によりスキップされた場合 */
+	if (!is_non_interruptible() && !is_auto_mode() &&
+	    (is_control_pressed || is_return_pressed ||
+	     is_left_clicked || is_down_pressed)) {
+		/* アニメを終了する */
+		finish_layer_anime(layer);
+
+		/* 繰り返し動作を終了する */
+		stop_command_repetition();
+		return;
+	}
+}
+
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	/* アニメが終了した場合は削除する */
+	if (is_anime_finished_for_layer(layer))
+		clear_anime_sequence(layer);
+
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;
