@@ -11,7 +11,7 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
 
 [Join our Discord server!](https://discord.gg/ZmvXxE8GFg)  ![Discord](https://discord.com/api/guilds/986623112617541677/widget.png)
 
-Visit [the Website](https://suika2.com/en/) and [the Wiki](https://github.com/suika2engine/suika2/wiki), both of which are frequently updated!
+Visit [the Website](https://suika2.com/en/) and [the Wiki](https://github.com/suika2engine/suika2/wiki).
 
 Don't have a Discord account or would prefer to speak formally? Send an e-mail to `midori@suika2.com`.
 
