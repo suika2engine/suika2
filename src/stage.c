@@ -24,6 +24,13 @@
  *  - 2022-07-16 システムメニューを追加
  *  - 2022-10-20 キャラ顔絵を追加
  *  - 2023-01-06 日本語の指定に対応
+ *  - 2023-08-20 アニメサブシステムの導入, キャラクタアニメの移行
+ *
+ * [検討]
+ *  - ソフトレンダの廃止(GPU描画のみへの移行)
+ *  - @bg/@chもアニメーションサブシステムに移行
+ *  - 既存の@bg/@chのエフェクトを残す上で、FI/FOレイヤが必要か検討
+ *  - FI/FOはソフトレンダ向けの最適化なので、必要なければ廃止
  */
 
 #include "suika.h"
@@ -252,7 +259,7 @@ static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color,int *w,
-			       int *h, int base_font_size);
+			       int *h, int base_font_size, bool is_dim);
 
 /*
  * 初期化
@@ -839,45 +846,96 @@ static void destroy_layer_image(int layer)
  */
 void draw_stage(void)
 {
+	/* アニメーションサブシステムに更新させるデータの一覧 */
+	struct params {
+		int anime_layer;
+		struct image **image;
+		char **fname;
+		int *x;
+		int *y;
+		int *a;
+	} params[] = {
+		{ANIME_LAYER_BG,
+		 &layer_image[LAYER_BG],
+		 &bg_file_name,
+		 &layer_x[LAYER_BG],
+		 &layer_y[LAYER_BG],
+		 &layer_alpha[LAYER_BG]},
+		{ANIME_LAYER_CHB,
+		 &layer_image[LAYER_CHB],
+		 &ch_file_name[CH_BACK],
+		 &layer_x[LAYER_CHB],
+		 &layer_y[LAYER_CHB],
+		 &layer_alpha[LAYER_CHB]},
+		{ANIME_LAYER_CHL,
+		 &layer_image[LAYER_CHL],
+		 &ch_file_name[CH_LEFT],
+		 &layer_x[LAYER_CHL],
+		 &layer_y[LAYER_CHL],
+		 &layer_alpha[LAYER_CHL]},
+		{ANIME_LAYER_CHR,
+		 &layer_image[LAYER_CHR],
+		 &ch_file_name[CH_RIGHT],
+		 &layer_x[LAYER_CHR],
+		 &layer_y[LAYER_CHR],
+		 &layer_alpha[LAYER_CHR]},
+		{ANIME_LAYER_CHC,
+		 &layer_image[LAYER_CHC],
+		 &ch_file_name[CH_CENTER],
+		 &layer_x[LAYER_CHC],
+		 &layer_y[LAYER_CHC],
+		 &layer_alpha[LAYER_CHC]},
+		{ANIME_LAYER_MSG,
+		 NULL,
+		 NULL,
+		 &layer_x[LAYER_MSG],
+		 &layer_y[LAYER_MSG],
+		 &layer_alpha[LAYER_MSG]},
+		{ANIME_LAYER_NAME,
+		 NULL,
+		 NULL,
+		 &layer_x[LAYER_NAME],
+		 &layer_y[LAYER_NAME],
+		 &layer_alpha[LAYER_NAME]},
+		{ANIME_LAYER_CHF,
+		 NULL,
+		 NULL,
+		 &layer_x[LAYER_CHF],
+		 &layer_y[LAYER_CHF],
+		 &layer_alpha[LAYER_CHF]}
+	};
+	int i;
+
+	/*
+	 * @bgや@chのフェードはFI/FOレイヤで行うので、それらのフェード中には
+	 * draw_stage()は使えない
+	 */
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
-	if (is_anime_running()) {
-		update_anime_frame();
-		if (is_anime_running_for_layer(ANIME_LAYER_BG) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_BG)) {
-			get_anime_layer_params(ANIME_LAYER_BG, &layer_image[LAYER_BG], &bg_file_name, &layer_x[LAYER_BG], &layer_y[LAYER_BG], &layer_alpha[LAYER_BG]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHB) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHB)) {
-			get_anime_layer_params(ANIME_LAYER_CHB, &layer_image[LAYER_CHB], &ch_file_name[CH_BACK], &layer_x[LAYER_CHB], &layer_y[LAYER_CHB], &layer_alpha[LAYER_CHB]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHL) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHL)) {
-			get_anime_layer_params(ANIME_LAYER_CHL, &layer_image[LAYER_CHL], &ch_file_name[CH_LEFT], &layer_x[LAYER_CHL], &layer_y[LAYER_CHL], &layer_alpha[LAYER_CHL]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHR) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHR)) {
-			get_anime_layer_params(ANIME_LAYER_CHR, &layer_image[LAYER_CHR], &ch_file_name[CH_RIGHT], &layer_x[LAYER_CHR], &layer_y[LAYER_CHR], &layer_alpha[LAYER_CHR]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHC) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHC)) {
-			get_anime_layer_params(ANIME_LAYER_CHC, &layer_image[LAYER_CHC], &ch_file_name[CH_CENTER], &layer_x[LAYER_CHC], &layer_y[LAYER_CHC], &layer_alpha[LAYER_CHC]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_MSG) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_MSG)) {
-			get_anime_layer_params(ANIME_LAYER_MSG, NULL, NULL, &layer_x[LAYER_MSG], &layer_y[LAYER_MSG], &layer_alpha[LAYER_MSG]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_NAME) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_NAME)) {
-			get_anime_layer_params(ANIME_LAYER_NAME, NULL, NULL, &layer_x[LAYER_NAME], &layer_y[LAYER_NAME], &layer_alpha[LAYER_NAME]);
-		}
-		if (is_anime_running_for_layer(ANIME_LAYER_CHF) ||
-		    is_anime_finished_for_layer(ANIME_LAYER_CHF)) {
-			get_anime_layer_params(ANIME_LAYER_CHF, NULL, NULL, &layer_x[LAYER_CHF], &layer_y[LAYER_CHF], &layer_alpha[LAYER_CHF]);
+	/*
+	 * アニメーションのフレーム時刻を更新し、
+	 * 完了していればフラグをセットする
+	 */
+	update_anime_frame();
+
+	/*
+	 * 各レイヤの描画パラメータを更新する
+	 *  - 画像やファイル名も変わることがある
+	 */
+	for (i = 0; i < (int)(sizeof(params) / sizeof(struct params)); i++) {
+		if (is_anime_running_for_layer(params[i].anime_layer) ||
+		    is_anime_finished_for_layer(params[i].anime_layer)) {
+			get_anime_layer_params(params[i].anime_layer,
+					       params[i].image,
+					       params[i].fname,
+					       params[i].x,
+					       params[i].y,
+					       params[i].a);
 		}
 	}
 
+	/* 描画を行う */
 	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
 }
 
@@ -1998,7 +2056,12 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
-		
+	if (is_namebox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	
 	/* FIレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
@@ -2007,6 +2070,10 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+	if (is_namebox_visible)
+		draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+	if (is_msgbox_visible)
+		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
 }
 
 /*
@@ -2028,6 +2095,8 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_skip_selected,
 			bool is_history_selected,
 			bool is_config_selected,
+			bool is_custom1_selected,
+			bool is_custom2_selected,
 			int *x, int *y, int *w, int *h)
 {
 	/* 描画範囲を更新する */
@@ -2194,6 +2263,26 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			     conf_sysmenu_config_height,
 			     conf_sysmenu_config_x,
 			     conf_sysmenu_config_y, 255, BLEND_FAST);
+	}
+	if (is_custom1_selected) {
+		/* コンフィグの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_custom1_x,
+			     conf_sysmenu_y + conf_sysmenu_custom1_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_custom1_width,
+			     conf_sysmenu_custom1_height,
+			     conf_sysmenu_custom1_x,
+			     conf_sysmenu_custom1_y, 255, BLEND_FAST);
+	}
+	if (is_custom2_selected) {
+		/* コンフィグの項目(選択)を描画する */
+		render_image(conf_sysmenu_x + conf_sysmenu_custom2_x,
+			     conf_sysmenu_y + conf_sysmenu_custom2_y,
+			     sysmenu_hover_image,
+			     conf_sysmenu_custom2_width,
+			     conf_sysmenu_custom2_height,
+			     conf_sysmenu_custom2_x,
+			     conf_sysmenu_custom2_y, 255, BLEND_FAST);
 	}
 }
 
@@ -3045,17 +3134,14 @@ void show_namebox(bool show)
  * メッセージボックスに文字を描画する
  *  - 描画した幅を返す
  */
-int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color)
+void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
+			  pixel_t outline_color, int *w, int *h,
+			  int base_font_size, bool is_dim)
 {
-	int w, h;
-
 	lock_image(layer_image[LAYER_NAME]);
-	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, &w, &h,
-			   conf_font_size);
+	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, w, h,
+			   base_font_size, is_dim);
 	unlock_image(layer_image[LAYER_NAME]);
-
-	return w;
 }
 
 /*
@@ -3131,11 +3217,11 @@ void show_msgbox(bool show)
  */
 void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
 			 pixel_t outline_color, int *w, int *h,
-			 int base_font_size)
+			 int base_font_size, bool is_dim)
 {
 	lock_image(layer_image[LAYER_MSG]);
 	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, w, h,
-			   base_font_size);
+			   base_font_size, is_dim);
 	unlock_image(layer_image[LAYER_MSG]);
 }
 
@@ -3328,10 +3414,10 @@ void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
 	int w, h;
 
 	draw_char_on_layer(LAYER_FO, x, y, wc, fo_body_color, fo_outline_color,
-			   &w, &h, conf_font_size);
+			   &w, &h, conf_font_size, false);
 
 	draw_char_on_layer(LAYER_FI, x, y, wc, fi_body_color, fi_outline_color,
-			   &w, &h, conf_font_size);
+			   &w, &h, conf_font_size, false);
 
 	*ret_w = w;
 	*ret_h = h;
@@ -3612,11 +3698,11 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 /* レイヤに文字を描画する */
 static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
 			       pixel_t color, pixel_t outline_color, int *w,
-			       int *h, int base_font_size)
+			       int *h, int base_font_size, bool is_dim)
 {
 	/* 文字を描画する */
 	if (!draw_glyph(layer_image[layer], x, y, color, outline_color, wc, w,
-			h, base_font_size)) {
+			h, base_font_size, is_dim)) {
 		/* グリフがない、コードポイントがおかしい、など */
 		return false;
 	}

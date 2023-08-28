@@ -1628,7 +1628,8 @@ static void draw_save_char(int index, uint32_t wc, int *width, int *height)
 		   wc,
 		   width,
 		   height,
-		   get_font_size());
+		   get_font_size(),
+		   false);
 }
 
 /* セーブを行う */
@@ -1884,7 +1885,8 @@ static void draw_history_char(int index, uint32_t wc, int *width, int *height)
 		   wc,
 		   width,
 		   height,
-		   get_font_size());
+		   get_font_size(),
+		   false);
 }
 
 /* エスケープシーケンスを処理する */
@@ -2060,7 +2062,8 @@ static void draw_ruby_char(int button_index, uint32_t wc, int *width,
 		   wc,
 		   width,
 		   height,
-		   get_font_size());
+		   get_font_size(),
+		   false);
 }
 
 /* エスケープシーケンスをスキップする */
@@ -2080,8 +2083,10 @@ static bool process_escape_sequence_other(int button_index)
 
 	/* 終端文字'}'を探す */
 	i = 0;
-	while (*c != '\0' && *c != '}')
-		c++, i++;
+	while (*c != '\0' && *c != '}') {
+		c++;
+		i++;
+	}
 	if (*c != '}')
 		return false;
 
@@ -2382,7 +2387,8 @@ static void draw_message_char(int index, uint32_t wc, int *width, int *height)
 		   wc,
 		   width,
 		   height,
-		   conf_font_size);
+		   conf_font_size,
+		   false);
 }
 
 /* 今回のフレームで描画する文字数を取得する */
@@ -2543,7 +2549,7 @@ static void draw_name(int index)
 		draw_glyph(button[index].rt.img, pen_x, 0,
 			   button[index].rt.color,
 			   button[index].rt.outline_color, c, &w, &h,
-			   conf_font_size);
+			   conf_font_size, false);
 
 		/* 次の文字へ移動する */
 		name += mblen;

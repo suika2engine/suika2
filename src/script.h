@@ -26,6 +26,8 @@
  *  - 2023/01/14 スタートアップファイル/ラインに対応
  *  - 2022/08/14 @ichooseに対応
  *  - 2023/08/20 @animeに対応
+ *  - 2023/08/27 構造化構文に対応
+ *  - 2023/08/27 @setconfigに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -75,6 +77,9 @@ enum command_type {
 	COMMAND_WMS,
 	COMMAND_ICHOOSE,
 	COMMAND_ANIME,
+	COMMAND_UNLESS,
+	COMMAND_LABELEDGOTO,
+	COMMAND_SETCONFIG,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -519,6 +524,7 @@ enum chs_command_param {
 /* videoコマンドのパラメータ */
 enum video_command_param {
 	VIDEO_PARAM_FILE = 1,
+	VIDEO_PARAM_OPTIONS,
 };
 
 /* skipコマンドのパラメータ */
@@ -546,6 +552,27 @@ enum wms_command_param {
 enum anime_command_param {
 	ANIME_PARAM_FILE = 1,
 	ANIME_PARAM_SPEC,
+};
+
+/* unlessコマンドのパラメータ */
+enum unless_command_param {
+	UNLESS_PARAM_LHS = 1,
+	UNLESS_PARAM_OP,
+	UNLESS_PARAM_RHS,
+	UNLESS_PARAM_LABEL,
+	UNLESS_PARAM_FINALLY,
+};
+
+/* labeledgotoコマンドのパラメータ */
+enum labeledgoto_command_param {
+	LABELEDGOTO_PARAM_LABEL = 1,
+	LABELEDGOTO_PARAM_GOTO,
+};
+
+/* setconfigコマンドのパラメータ */
+enum setconfig_command_param {
+	SETCONFIG_PARAM_KEY = 1,
+	SETCONFIG_PARAM_VALUE,
 };
 
 /*
@@ -585,8 +612,14 @@ bool move_to_next_command(void);
 /* ラベルへ移動する */
 bool move_to_label(const char *label);
 
+/* ラベルへ移動する(なければfinallyラベルにジャンプする) */
+bool move_to_label_finally(const char *label, const char *finally_label);
+
 /* gosubによるリターンポイントを記録する(gosub用) */
 void push_return_point(void);
+
+/* gosubによるリターンポイントを記録する(カスタムSYSMENUのgosub用) */
+void push_return_point_minus_one(void);
 
 /* gosubによるリターンポイントを取得する(return用) */
 int pop_return_point(void);

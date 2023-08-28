@@ -253,7 +253,7 @@ bool is_anime_running_for_layer(int layer)
 }
 
 /*
- * アニメーションのフレームを更新する
+ * アニメーションのフレーム時刻を更新し、完了していればフラグをセットする
  */
 void update_anime_frame(void)
 {
@@ -300,6 +300,15 @@ get_anime_layer_params(
 	/* シーケンスが定義されていない場合 */
 	if (context[layer].seq_count == 0)
 		return true;
+
+	/* すでに完了している場合 */
+	if (context[layer].is_finished) {
+		s = &sequence[layer][context[layer].seq_count - 1];
+		*x = (int)s->to_x;
+		*y = (int)s->to_y;
+		*alpha = (int)s->to_a;
+		return true;
+	}
 
 	/* 補間を行う */
 	for (i = 0; i < context[layer].seq_count; i++) {

@@ -11,7 +11,7 @@
 ### Language Settings
 ###
 
-# Language mapping (system language => story language)
+# Language mapping (system language => story language) (Optional)
 language.en=en
 language.fr=fr
 language.de=de
@@ -89,7 +89,7 @@ namebox.centering.no=0
 # Left margin of text in the namebox image when left justified
 namebox.margin.left=0
 
-# Hide namebox (0:show, 1:hide, optional)
+# Hide namebox (0:show, 1:hide) (Optional)
 namebox.hidden=0
 
 ###
@@ -124,93 +124,93 @@ msgbox.margin.char=0
 # Message speed (x characters per second)
 msgbox.speed=40.0
 
-# Position of the hide button (position inside message box, optional)
+# Position of the hide button (position inside message box) (Optional)
 msgbox.btn.hide.x=1146
 msgbox.btn.hide.y=16
 msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
 
 # [Unused in the sample]
-# Position of the save button (position inside message box, optional)
+# Position of the save button (position inside message box) (Optional)
 # msgbox.btn.save.x=0
 # msgbox.btn.save.y=0
 # msgbox.btn.save.width=0
 # msgbox.btn.save.height=0
 
 # [Unused in the sample]
-# Position of the load button (position inside message box, optional)
+# Position of the load button (position inside message box) (Optional)
 # msgbox.btn.load.x=0
 # msgbox.btn.load.y=0
 # msgbox.btn.load.width=0
 # msgbox.btn.load.height=0
 
 # [Unused in the sample]
-# Position of the qsave button (position inside message box, optional)
+# Position of the qsave button (position inside message box) (Optional)
 # msgbox.btn.qsave.x=0
 # msgbox.btn.qsave.y=0
 # msgbox.btn.qsave.width=0
 # msgbox.btn.qsave.height=0
 
 # [Unused in the sample]
-# Position of the qload button (position inside message box, optional)
+# Position of the qload button (position inside message box) (Optional)
 # msgbox.btn.qload.x=0
 # msgbox.btn.qload.y=0
 # msgbox.btn.qload.width=0
 # msgbox.btn.qload.height=0
 
 # [Unused in the sample]
-# Position of the auto button (position inside message box, optional)
+# Position of the auto button (position inside message box) (Optional)
 # msgbox.btn.auto.x=0
 # msgbox.btn.auto.y=0
 # msgbox.btn.auto.width=0
 # msgbox.btn.auto.height=0
 
 # [Unused in the sample]
-# Position of the skip button (position inside message box, optional)
+# Position of the skip button (position inside message box) (Optional)
 # msgbox.btn.skip.x=0
 # msgbox.btn.skip.y=0
 # msgbox.btn.skip.width=0
 # msgbox.btn.skip.height=0
 
 # [Unused in the sample]
-# Position of the history button (position inside message box, optional)
+# Position of the history button (position inside message box) (Optional)
 # msgbox.btn.history.x=0
 # msgbox.btn.history.y=0
 # msgbox.btn.history.width=0
 # msgbox.btn.history.height=0
 
 # [Unused in the sample]
-# Position of the config button (position inside message box, optional)
+# Position of the config button (position inside message box) (Optional)
 # msgbox.btn.config.x=0
 # msgbox.btn.config.y=0
 # msgbox.btn.config.width=0
 # msgbox.btn.config.height=0
 
-# Sound effect when pointed button changed (optional)
+# Sound effect when pointed button changed (Optional)
 msgbox.btn.change.se=btn-change.ogg
 
-# Sound effect when the history screen is called with the up arrow key or mouse wheel up (optional)
+# Sound effect when the history screen is called with the up arrow key or mouse wheel up (Optional)
 msgbox.history.se=click.ogg
 
-# Sound effect when the confix screen is called with the ESC key (optional)
+# Sound effect when the confix screen is called with the ESC key (Optional)
 msgbox.config.se=click.ogg
 
-# Sound effect when the user hides the message box (optional)
+# Sound effect when the user hides the message box (Optional)
 msgbox.hide.se=click.ogg
 
-# Sound effect when the user shows the messsage box (optional)
+# Sound effect when the user shows the messsage box (Optional)
 msgbox.show.se=click.ogg
 
-# Sound effect when auto mode is canceled (optional)
+# Sound effect when auto mode is canceled (Optional)
 msgbox.auto.cancel.se=click.ogg
 
-# Sound effect when skip mode is canceled (optional)
+# Sound effect when skip mode is canceled (Optional)
 msgbox.skip.cancel.se=click.ogg
 
-# Unseen messages (0: don't skip, 1: skip)
+# Unseen messages (0:don't skip, 1: skip)
 msgbox.skip.unseen=0
 
-# Settings for dimming read messages in NVL mode (dim=0:disable, dim=1:enable, optional)
+# Settings for dimming read messages in NVL mode (dim=0:disable, dim=1:enable) (Optional)
 msgbox.dim=0
 msgbox.dim.color.r=80
 msgbox.dim.color.g=80
@@ -227,7 +227,7 @@ msgbox.dim.color.outline.b=40
 click.x=1170
 click.y=660
 
-# Append the click animation to the end of each message (0:don't append, 1:append, optional)
+# Append the click animation to the end of each message (0:don't append, 1:append) (Optional)
 click.move=0
 
 # Click animation image file name
@@ -243,7 +243,7 @@ click.file6=click5.png
 # Click animation interval (seconds)
 click.interval=1.0
 
-# Click animation (0:show, 1:hide, optional)
+# Click animation (0:show, 1:hide) (Optional)
 click.disable=0
 
 ###
@@ -266,7 +266,7 @@ switch.margin.y=20
 # Top margin of text in the option box image
 switch.text.margin.y=18
 
-# Text color of pointed option (active=0:disable, active=1:enable, optional)
+# Text color of pointed option (active=0:disable, active=1:enable) (Optional)
 switch.color.active=0
 switch.color.active.body.r=255
 switch.color.active.body.g=0
@@ -278,10 +278,10 @@ switch.color.active.outline.b=128
 # Click sound file when the option is clicked (optional)
 switch.parent.click.se.file=click.ogg
 
-# (Only for @switch) Click sound file when the second level option is clicked (optional)
+# (Only for @switch) Click sound file when the second level option is clicked (Optional)
 switch.child.click.se.file=click.ogg
 
-# Sound effect when the pointed item changes (optional)
+# Sound effect when the pointed item changes (Optional)
 switch.change.se=btn-change.ogg
 
 ###
@@ -308,6 +308,8 @@ sysmenu.hover.file=sysmenu-hover.png
 
 # System menu image (disabled) file name
 sysmenu.disable.file=sysmenu-disable.png
+
+# You can disable buttons by setting sysmenu.*.with=0
 
 # Position of the quick save button (position inside system menu image)
 sysmenu.qsave.x=62
@@ -357,38 +359,60 @@ sysmenu.config.y=7
 sysmenu.config.width=60
 sysmenu.config.height=58
 
-# Sound effect when the system menu is called (optional)
+# [Unused in the sample]
+# Position of the user-defined-1 button (Position inside system menu image) (Optional)
+#sysmenu.custom1.x=0
+#sysmenu.custom1.y=0
+#sysmenu.custom1.width=0
+#sysmenu.custom1.height=0
+
+# [Unused in the sample]
+# Position of the user-defined-2 button (Position inside system menu image) (Optional)
+#sysmenu.custom2.x=0
+#sysmenu.custom2.y=0
+#sysmenu.custom2.width=0
+#sysmenu.custom2.height=0
+
+# Sound effect when the system menu is called (Optional)
 sysmenu.enter.se=click.ogg
 
-# Sound effect when the system menu is canceled (optional)
+# Sound effect when the system menu is canceled (Optional)
 sysmenu.leave.se=click.ogg
 
-# Sound effect when the selected item in the system menu is changed (optional)
+# Sound effect when the selected item in the system menu is changed (Optional)
 sysmenu.change.se=btn-change.ogg
 
-# Sound effect when quick save is selected (optional)
+# Sound effect when quick save is selected (Optional)
 sysmenu.qsave.se=click.ogg
 
-# Sound effect when quick load is selected (optional)
+# Sound effect when quick load is selected (Optional)
 sysmenu.qload.se=click.ogg
 
-# Sound effect when save is selected (optional)
+# Sound effect when save is selected (Optional)
 sysmenu.save.se=click.ogg
 
-# Sound effect when load is selected (optional)
+# Sound effect when load is selected (Optional)
 sysmenu.load.se=click.ogg
 
-# Sound effect when auto is selected (optional)
+# Sound effect when auto is selected (Optional)
 sysmenu.auto.se=click.ogg
 
-# Sound effect when skip is selected (optional)
+# Sound effect when skip is selected (Optional)
 sysmenu.skip.se=click.ogg
 
-# Sound effect when history is selected (optional)
+# Sound effect when history is selected (Optional)
 sysmenu.history.se=click.ogg
 
-# Sound effect when config is selected (optional)
+# Sound effect when config is selected (Optional)
 sysmenu.config.se=click.ogg
+
+# [Unused in the sample]
+# Sound effect when user-defined-1 is selected (Optional)
+#sysmenu.custom1.se=click.ogg
+
+# [Unused in the sample]
+# Sound effect when user-defined-2 is selected (Optional)
+#sysmenu.custom2.se=click.ogg
 
 # Position of the collapsed system menu image
 sysmenu.collapsed.x=1219
@@ -400,10 +424,10 @@ sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
 # Collapsed system menu image (pointed) file name
 sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 
-# Sound effect when the collapsed system menu is pointed (optional)
+# Sound effect when the collapsed system menu is pointed (Optional)
 sysmenu.collapsed.se=btn-change.ogg
 
-# System menu (0:show, 1:hide on message, 2:hide always, optional)
+# System menu (0:show, 1:hide on message, 2:hide always) (Optional)
 sysmenu.hidden=0
 
 ###
@@ -494,7 +518,7 @@ sound.character.name1=Midori
 # Change colors of line (1:name-only, 0:name-and-message) (Optional)
 serif.color.name.only=1
 
-# A color definition
+# A color definition (Optional)
 serif.color1.name=Midori
 serif.color1.r=100
 serif.color1.g=255
@@ -512,15 +536,15 @@ serif.color1.outline.b=128
 # Dim characters except one who is speaking (1:Dim, 1:No) (Optional)
 character.focus=1
 
-# A character name and a file name prefix for Midori.
+# A character name and a file name prefix for Midori (Optional)
 character.name1=Midori
 character.file1=001-
 
-# A character name and a file name prefix for ???.
+# A character name and a file name prefix for ??? (Optional)
 character.name2=???
 character.file2=001-
 
-# A character name and a file name prefix for Rina.
+# A character name and a file name prefix for Rina (Optional)
 character.name3=Rina
 character.file3=002-
 
@@ -530,29 +554,32 @@ character.file3=002-
 ### Miscellaneous
 ###
 
-# Voice continues on click (0:stop, 1:continue, optional)
+# Voice continues on click (0:stop, 1:continue) (Optional)
 voice.stop.off=0
 
-# Full screen mode (0:enable, 1:disable, optional)
+# Full screen mode (0:enable, 1:disable) (Optional)
 window.fullscreen.disable=0
 
-# Window maximization (0:enable, 1:disable, optional)
+# Window maximization (0:enable, 1:disable) (Optional)
 window.maximize.disable=0
 
-# Separator between window title and chapter name (optional)
+# Separator between window title and chapter name (Optional)
 window.title.separator= 
 
-# Chapter name (appended to window title) (0:show, 1:hide, optional)
+# Chapter name (appended to window title) (0:show, 1:hide) (Optional)
 window.title.chapter.disable=0
 
-# Message box on character change (0:hide, 1:show, optional)
+# Message box on character change (0:hide, 1:show) (Optional)
 msgbox.show.on.ch=0
 
-# Message box on background change (0:fade-out, 1:show, 2:hide, optional)
+# Message box on background change (0:fade-out, 1:show, 2:hide) (Optional)
 msgbox.show.on.bg=0
 
-# Show the collapsed system menu while the characters/background is changing (0:hide, 1:show, optional)
-# (The collapsed system menu disappears when the skip is disabled even if this config is '1')
+# Message box on options (1:show, 0:hide) (Optional)
+msgbox.show.on.choose=0
+
+# Show the collapsed system menu while the characters/background is changing (0:hide, 1:show) (Optional)
+# (The collapsed system menu always disappears while skip is disabled because we want to make a logo screen easily.)
 sysmenu.transition=0
 
 # Don't show history on up-arrow key or mouse wheel (1:Don't show, 0:Show) (Optional)
@@ -560,10 +587,11 @@ msgbox.history.disable=0
 
 ###
 ### Release Mode
-###  - Use this mode when installing games to the "Program Files" path on Windows.
+###  - Turn off this mode if you distribute a zip file
+###  - Use this mode only when installing games to the "Program Files" folder by an installer
 ###  - If this configuration is enabled, save data will be stored in OS-specific
-###    locations such as 'AppData' on Windows and 'Library' on macOS.
+###    locations such as 'AppData' on Windows and 'Library' on macOS
 ###
 
-# Release mode (0:off, 1:on, optional)
+# Release mode (0:off, 1:on) (Optional)
 release=0

@@ -94,6 +94,7 @@
     <ClCompile Include="..\..\..\src\cmd_return.c" />
     <ClCompile Include="..\..\..\src\cmd_se.c" />
     <ClCompile Include="..\..\..\src\cmd_set.c" />
+    <ClCompile Include="..\..\..\src\cmd_setconfig.c" />
     <ClCompile Include="..\..\..\src\cmd_setsave.c" />
     <ClCompile Include="..\..\..\src\cmd_shake.c" />
     <ClCompile Include="..\..\..\src\cmd_skip.c" />

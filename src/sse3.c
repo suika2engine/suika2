@@ -29,6 +29,7 @@
 
 /* SSE3版draw_glyph_func()を定義する */
 #define DRAW_GLYPH_FUNC draw_glyph_func_sse3
+#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse3
 #include "drawglyph.h"
 
 /* SSE3版mul_add_pcm()を定義する */

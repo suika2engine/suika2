@@ -54,10 +54,13 @@ build/ios/suika.xcodeproj/xcshareddata
 
 build/android/.idea/caches
 build/android/app/.cxx
+build/android/app/src/main/assets
 build/android/app/src/main/cpp/freetype
 build/android/app/src/main/cpp/libpng
 build/android/app/src/main/cpp/jpeg
 build/android/app/src/main/cpp/*.[ch]
+build/android/cmdline-tools
+build/android/commandlinetools-linux-*.zip
 
 build/linux-x86_64/*.o
 build/linux-x86_64/libroot
@@ -69,6 +72,11 @@ build/linux-x86_64-clang/*.o
 build/linux-x86_64-clang/libroot
 build/linux-x86_64-clang/suika
 
+build/linux-x86_64-capture/*.o
+build/linux-x86_64-capture/libroot
+build/linux-x86_64-capture/suika-capture
+build/linux-x86_64-capture/game-jp
+
 build/linux-x86_64-replay/*.o
 build/linux-x86_64-replay/*.gcda
 build/linux-x86_64-replay/*.gcno
@@ -79,9 +87,9 @@ build/linux-x86_64-replay/lcovoutput
 build/linux-x86_64-replay/game-jp
 build/linux-x86_64-replay/record
 
-build/linux-arm/*.o
-build/linux-arm/libroot
-build/linux-arm/suika
+build/raspberrypi/*.o
+build/raspberrypi/libroot
+build/raspberrypi/suika
 
 build/sdl2/*.o
 build/sdl2/libroot

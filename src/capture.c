@@ -8,27 +8,25 @@
 /*
  * [Changes]
  *  2023-07-17 作成
+ *  2022-08-26 Windows/Mac/Linux共通化
  */
 
-#include <GL/gl.h>
-#include <windows.h>	/* File/directory manipultion */
-#include <io.h>		/* _access() */
+#include "suika.h"
 #include "png.h"
 
-#include "suika.h"
+#ifdef OSX
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl3.h>
+#else
+#include <GL/gl.h>
+#endif
 
 /* ディレクトリとファイルの名前 */
 #define CAP_DIR		"record"
-#define CAP_DIR_L	L"record"
 #define CSV_FILE	"main.csv"
 
 /* 定期的にフレームを出力する時間(3fps) */
 #define FRAME_MILLI	333
-
-/* CSVのヘッダ */
-static char csv_header[] =
-	"time,PNG,X,Y,left,right,lclick,rclick,return,space,escape,"
-	"up,down,pageup,pagedown,control\n";
 
 /* CSVファイル */
 static FILE *csv_fp;
@@ -52,10 +50,7 @@ static int prev_mouse_x = -1, prev_mouse_y = -1;
 static char *frame_buf;
 
 /* PNG書き出し用の行ポインタ */
-png_bytep *row_pointers;
-
-/* 前方参照 */
-static bool delete_directory(LPCWSTR pszDirName);
+static png_bytep *row_pointers;
 
 /*
  * キャプチャモジュールを初期化する
@@ -65,24 +60,19 @@ bool init_capture(void)
 	int y;
 
 	/* recordフォルダを作成しなおす */
-	if (!delete_directory(CAP_DIR_L)) {
-		log_error("Failed to remove record directory.");
-		return false;
-	}
-	if (!CreateDirectory(CAP_DIR_L, NULL)) {
-		if (_access(CAP_DIR, 0) != 0) {
-			log_error("Failed to create record directory.");
-			return false;
-		}
-	}
+	reconstruct_dir(CAP_DIR);
 
 	/* CSVファイルを開く */
+#ifdef MAC
+	csv_fp = open_csv_file(CAP_DIR, CSV_FILE, "wb");
+#else
 	csv_fp = fopen(CAP_DIR "\\" CSV_FILE, "wb");
+#endif
 	if (csv_fp == NULL) {
 		log_error("Failed to create record file.");
 		return false;
 	}
-	fprintf(csv_fp, "%s", csv_header);
+	fprintf(csv_fp, "%s", CSV_HEADER);
 
 	/* フレームバッファのコピー用メモリを確保する */
 	frame_buf = malloc((size_t)(conf_window_width * conf_window_height *
@@ -101,11 +91,12 @@ bool init_capture(void)
 	for (y = 0; y < conf_window_height; y++) {
 		row_pointers[y] = 
 			(png_bytep)&frame_buf[conf_window_width * 3 *
-					      (conf_window_height - y)];
+					      (conf_window_height - 1 - y)];
 	}
 
 	/* 開始時刻を取得する */
-	start_time = GetTickCount64();
+	start_time = get_tick_count64();
+
 	return true;
 }
 
@@ -130,53 +121,13 @@ void cleanup_capture(void)
 	}
 }
 
-/* ディレクトリを削除する */
-static bool delete_directory(LPCWSTR pszDirName)
-{
-	wchar_t path[256];
-	HANDLE hFind;
-	WIN32_FIND_DATA wfd;
-
-	/* ディレクトリの内容を取得する */
-	_snwprintf(path, sizeof(path), L"%s\\*.*", pszDirName);
-	hFind = FindFirstFile(path, &wfd);
-	if(hFind == INVALID_HANDLE_VALUE)
-		return true;
-
-	/* 再帰的に削除する */
-	do
-	{
-		if (wcscmp(wfd.cFileName, L".") == 0)
-			continue;
-		if (wcscmp(wfd.cFileName, L"..") == 0)
-			continue;
-
-		if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			_snwprintf(path, sizeof(path), L"%s\\%s", pszDirName,
-				   wfd.cFileName);
-			if (!delete_directory(path))
-				return false;
-		}
-		else
-		{
-			_snwprintf(path, sizeof(path), L"%s\\%s", pszDirName,
-				   wfd.cFileName);
-			DeleteFile(path);
-		}
-    } while(FindNextFile(hFind, &wfd));
-
-    FindClose(hFind);
-    return true;
-}
-
 /*
  * 入力をキャプチャする
  */
 void capture_input(void)
 {
 	/* 時刻を更新する */
-	cap_cur_time = GetTickCount64() - start_time;
+	cap_cur_time = get_tick_count64() - start_time;
 
 	/* 入力に変化があったか調べる */
 	is_input_changed = false;
@@ -204,7 +155,11 @@ void capture_input(void)
 
 	/* フレームの時刻と入力の状態を出力する */
 	fprintf(csv_fp,
+#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
 		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+#else
+		"%ld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+#endif
 		cap_cur_time,
 		is_input_changed,
 		mouse_pos_x,
@@ -239,12 +194,22 @@ bool capture_output(void)
 		return true;
 
 	/* フレームバッファの内容を取得する */
+#if defined(LINUX)
+	glReadBuffer(GL_BACK);
+#else
 	glReadBuffer(GL_FRONT);
+#endif
 	glReadPixels(0, 0, conf_window_width, conf_window_height, GL_RGB,
 		     GL_UNSIGNED_BYTE, frame_buf);
 
 	/* ファイル名を決める */
-	snprintf(fname, sizeof(fname), "%s\\%lld.png", CAP_DIR, cap_cur_time);
+	snprintf(fname, sizeof(fname),
+#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
+		 "%s\\%lld.png",
+#else
+		 "%s\\%ld.png",
+#endif
+		 CAP_DIR, cap_cur_time);
 
 	/* PNGファイルをオープンする */
 	png_fp = fopen(fname, "wb");

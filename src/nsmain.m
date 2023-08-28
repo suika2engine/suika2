@@ -1286,3 +1286,48 @@ const char *get_system_locale(void)
 		return "tw";
 	return "other";
 }
+
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+/*
+ * ファイルを開く
+ */
+FILE *open_file(const char *dir, const char *file, const char *mode)
+{
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+    const char *path = [[NSString stringWithFormat:@"%@/%s/%s", basePath, dir, file] UTF8String];
+	FILE *fp = fopen(path, mode);
+    if (fp == NULL)
+        return NULL;
+    return fp;
+}
+
+/*
+ * 出力データのディレクトリを作り直す
+ */
+bool reconstruct_dir(const char *dir)
+{
+	// フォルダを作成しなおす
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+    NSString *targetPath = [NSString stringWithFormat:@"%@/%s", basePath, dir];
+    [[NSFileManager defaultManager] removeItemAtPath:targetPath error:nil];
+    [[NSFileManager defaultManager] createDirectoryAtPath:targetPath
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:NULL];
+    return true;
+}
+
+/*
+ * ミリ秒の時刻を取得する
+ */
+uint64_t get_tick_count64(void)
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	return (uint64_t)tv.tv_sec * 1000LL + (uint64_t)tv.tv_usec / 1000LL;
+}
+#endif

@@ -391,6 +391,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		break;
 	case COMMAND_GOTO:
+	case COMMAND_LABELEDGOTO:
 		if (!goto_command(cont))
 			return false;
 		break;
@@ -410,6 +411,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		*cont = true;
 		break;
 	case COMMAND_IF:
+	case COMMAND_UNLESS:
 		if (!if_command())
 			return false;
 		*cont = true;
@@ -487,6 +489,11 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 	case COMMAND_ANIME:
 		if (!anime_command(x, y, w, h))
 			return false;
+		break;
+	case COMMAND_SETCONFIG:
+		if (!setconfig_command())
+			return false;
+		*cont = true;
 		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */

@@ -27,7 +27,10 @@ bool goto_command(bool *cont)
 	const char *label;
 
 	/* パラメータからラベルを取得する */
-	label = get_string_param(GOTO_PARAM_LABEL);
+	if (get_command_type() == COMMAND_GOTO)
+		label = get_string_param(GOTO_PARAM_LABEL);
+	else
+		label = get_string_param(LABELEDGOTO_PARAM_GOTO);
 
 	/* ロード画面への遷移を処理する */
 	if (strcmp(label, LOAD_LABEL) == 0) {

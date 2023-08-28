@@ -293,6 +293,16 @@ int conf_sysmenu_config_x;
 int conf_sysmenu_config_y;
 int conf_sysmenu_config_width;
 int conf_sysmenu_config_height;
+int conf_sysmenu_custom1_x;
+int conf_sysmenu_custom1_y;
+int conf_sysmenu_custom1_width;
+int conf_sysmenu_custom1_height;
+char *conf_sysmenu_custom1_gosub;
+int conf_sysmenu_custom2_x;
+int conf_sysmenu_custom2_y;
+int conf_sysmenu_custom2_width;
+int conf_sysmenu_custom2_height;
+char *conf_sysmenu_custom2_gosub;
 char *conf_sysmenu_enter_se;
 char *conf_sysmenu_leave_se;
 char *conf_sysmenu_change_se;
@@ -304,6 +314,8 @@ char *conf_sysmenu_auto_se;
 char *conf_sysmenu_skip_se;
 char *conf_sysmenu_history_se;
 char *conf_sysmenu_config_se;
+char *conf_sysmenu_custom1_se;
+char *conf_sysmenu_custom2_se;
 int conf_sysmenu_collapsed_x;
 int conf_sysmenu_collapsed_y;
 char *conf_sysmenu_collapsed_idle_file;
@@ -392,6 +404,9 @@ int conf_msgbox_show_on_ch;
 
 /* 背景の変更中にメッセージボックスを隠さない */
 int conf_msgbox_show_on_bg;
+
+/* 選択肢の表示中にメッセージボックスを隠さない */
+int conf_msgbox_show_on_choose;
 
 /* ビープの調整 */
 float conf_beep_adjustment;
@@ -619,6 +634,16 @@ static struct rule {
 	{"sysmenu.config.y", 'i', &conf_sysmenu_config_y, MUST, SAVE},
 	{"sysmenu.config.width", 'i', &conf_sysmenu_config_width, MUST, SAVE},
 	{"sysmenu.config.height", 'i', &conf_sysmenu_config_height, MUST, SAVE},
+	{"sysmenu.custom1.x", 'i', &conf_sysmenu_custom1_x, OPTIONAL, SAVE},
+	{"sysmenu.custom1.y", 'i', &conf_sysmenu_custom1_y, OPTIONAL, SAVE},
+	{"sysmenu.custom1.width", 'i', &conf_sysmenu_custom1_width, OPTIONAL, SAVE},
+	{"sysmenu.custom1.height", 'i', &conf_sysmenu_custom1_height, OPTIONAL, SAVE},
+	{"sysmenu.custom1.gosub", 's', &conf_sysmenu_custom1_gosub, OPTIONAL, SAVE},
+	{"sysmenu.custom2.x", 'i', &conf_sysmenu_custom2_x, OPTIONAL, SAVE},
+	{"sysmenu.custom2.y", 'i', &conf_sysmenu_custom2_y, OPTIONAL, SAVE},
+	{"sysmenu.custom2.width", 'i', &conf_sysmenu_custom2_width, OPTIONAL, SAVE},
+	{"sysmenu.custom2.height", 'i', &conf_sysmenu_custom2_height, OPTIONAL, SAVE},
+	{"sysmenu.custom2.gosub", 's', &conf_sysmenu_custom2_gosub, OPTIONAL, SAVE},
 	{"sysmenu.enter.se", 's', &conf_sysmenu_enter_se, OPTIONAL, SAVE},
 	{"sysmenu.leave.se", 's', &conf_sysmenu_leave_se, OPTIONAL, SAVE},
 	{"sysmenu.change.se", 's', &conf_sysmenu_change_se, OPTIONAL, SAVE},
@@ -630,7 +655,8 @@ static struct rule {
 	{"sysmenu.skip.se", 's', &conf_sysmenu_skip_se, OPTIONAL, SAVE},
 	{"sysmenu.history.se", 's', &conf_sysmenu_history_se, OPTIONAL, SAVE},
 	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, OPTIONAL, SAVE},
-	{"sysmenu.config.se", 's', &conf_sysmenu_config_se, OPTIONAL, SAVE},
+	{"sysmenu.custom1.se", 's', &conf_sysmenu_custom1_se, OPTIONAL, SAVE},
+	{"sysmenu.custom2.se", 's', &conf_sysmenu_custom2_se, OPTIONAL, SAVE},
 	{"sysmenu.hidden", 'i', &conf_sysmenu_hidden, OPTIONAL, SAVE},
 	{"automode.banner.file", 's', &conf_automode_banner_file, MUST, SAVE},
 	{"automode.banner.x", 'i', &conf_automode_banner_x, MUST, SAVE},
@@ -1195,6 +1221,7 @@ static struct rule {
 	{"click.disable", 'i', &conf_click_disable, OPTIONAL, SAVE},
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, OPTIONAL, SAVE},
 	{"msgbox.show.on.bg", 'i', &conf_msgbox_show_on_bg, OPTIONAL, SAVE},
+	{"msgbox.show.on.choose", 'i', &conf_msgbox_show_on_choose, OPTIONAL, SAVE},
 	{"beep.adjustment", 'f', &conf_beep_adjustment, OPTIONAL, NOSAVE},
 	{"serif.quote", 'i', &conf_serif_quote, OPTIONAL, SAVE},
 	{"sysmenu.transition", 'i', &conf_sysmenu_transition, OPTIONAL, SAVE},
@@ -1609,6 +1636,13 @@ static bool overwrite_config_font_file(const char *val)
 		if (!set_local_font_file_name(val))
 			return false;
 	}
+
+	/* フォントサブシステムをクリーンアップする */
+	cleanup_glyph(true);
+
+	/* フォントサブシステムを再初期化する */
+	if (!init_glyph())
+		return false;
 
 	return true;
 }

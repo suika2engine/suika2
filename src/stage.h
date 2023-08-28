@@ -152,6 +152,8 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_skip_selected,
 			bool is_history_selected,
 			bool is_config_selected,
+			bool is_custom1_selected,
+			bool is_custom2_selected,
 			int *x, int *y, int *w, int *h);
 
 /* システムメニューの座標を取得する */
@@ -268,8 +270,9 @@ void clear_namebox(void);
 void show_namebox(bool show);
 
 /* 名前ボックスに文字を描画する */
-int draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color);
+void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
+			  pixel_t outline_color, int *w, int *h,
+			  int base_font_size, bool is_dim);
 
 /*
  * メッセージボックスの描画
@@ -293,7 +296,7 @@ void show_msgbox(bool show);
 /* メッセージボックスに文字を描画する */
 void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
 			 pixel_t outline_color, int *w, int *h,
-			 int base_font_size);
+			 int base_font_size, bool is_dim);
 
 /*
  * クリックアニメーションの描画

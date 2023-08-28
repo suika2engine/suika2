@@ -108,4 +108,12 @@
 /* 初期スクリプト */
 #define INIT_FILE	"init.txt"
 
+/*
+ * キャプチャ/リプレイ
+ */
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+#define CSV_HEADER	"time,PNG,X,Y,left,right,lclick,rclick,return," \
+			"space,escape,up,down,pageup,pagedown,control\n"
+#endif
+
 #endif

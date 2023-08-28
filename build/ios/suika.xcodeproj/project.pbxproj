@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		260C732028730C9E0057B37E /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731E28730C9E0057B37E /* cmd_chapter.c */; };
 		260C732128730C9E0057B37E /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731F28730C9E0057B37E /* glrender.c */; };
+		2610D6572A9B72A500A61C0B /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610D6562A9B72A500A61C0B /* cmd_setconfig.c */; };
 		2689F3C1288C06E600BEF444 /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3BF288C06E600BEF444 /* readimage.c */; };
 		2689F3C2288C06E600BEF444 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3C0288C06E600BEF444 /* readjpeg.c */; };
 		268B09E126D89FE40074577E /* iosmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09E026D89FE40074577E /* iosmain.m */; };
@@ -71,6 +72,7 @@
 		260C731D28730C9E0057B37E /* glrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glrender.h; path = ../../src/glrender.h; sourceTree = "<group>"; };
 		260C731E28730C9E0057B37E /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../src/cmd_chapter.c; sourceTree = "<group>"; };
 		260C731F28730C9E0057B37E /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../src/glrender.c; sourceTree = "<group>"; };
+		2610D6562A9B72A500A61C0B /* cmd_setconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setconfig.c; path = ../../src/cmd_setconfig.c; sourceTree = "<group>"; };
 		2689F3BF288C06E600BEF444 /* readimage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readimage.c; path = ../../src/readimage.c; sourceTree = "<group>"; };
 		2689F3C0288C06E600BEF444 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../src/readjpeg.c; sourceTree = "<group>"; };
 		268B09E026D89FE40074577E /* iosmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iosmain.m; path = ../../src/iosmain.m; sourceTree = "<group>"; };
@@ -227,6 +229,7 @@
 				26B3858926D134EE000A7A1C /* cmd_return.c */,
 				26B3859626D134EE000A7A1C /* cmd_se.c */,
 				26B385B626D134EE000A7A1C /* cmd_set.c */,
+				2610D6562A9B72A500A61C0B /* cmd_setconfig.c */,
 				26B385AE26D134EE000A7A1C /* cmd_setsave.c */,
 				26B385A626D134EE000A7A1C /* cmd_shake.c */,
 				26B231B8285F454B0058D377 /* cmd_skip.c */,
@@ -409,6 +412,7 @@
 				26B385E226D134EE000A7A1C /* cmd_if.c in Sources */,
 				26B231B9285F454B0058D377 /* cmd_video.c in Sources */,
 				26C93FD3295958D3007D092D /* wms_parser.tab.c in Sources */,
+				2610D6572A9B72A500A61C0B /* cmd_setconfig.c in Sources */,
 				26C93FD2295958D3007D092D /* wms_core.c in Sources */,
 				26B385D726D134EE000A7A1C /* cmd_shake.c in Sources */,
 				26B385D626D134EE000A7A1C /* cmd_bg.c in Sources */,

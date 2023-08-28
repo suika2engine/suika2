@@ -19,6 +19,7 @@ SRC = \
 	../../src/cmd_return.c \
 	../../src/cmd_se.c \
 	../../src/cmd_set.c \
+	../../src/cmd_setconfig.c \
 	../../src/cmd_setsave.c \
 	../../src/cmd_shake.c \
 	../../src/cmd_skip.c \

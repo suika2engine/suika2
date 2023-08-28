@@ -29,7 +29,7 @@
 
 #include "suika.h"
 
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 #include "asound.h"
 #include "gstplay.h"
 #endif
@@ -185,7 +185,7 @@ static bool is_gst_playing;
 /*
  * 動画のスキップ可能かどうか
  */
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 static bool is_gst_skippable;
 #endif
 
@@ -283,7 +283,7 @@ static bool init(int argc, char *argv[])
 	if (!init_conf())
 		return false;
 
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	/* ALSAの使用を開始する */
 	if (!init_asound())
 		log_warn("Can't initialize sound.\n");
@@ -328,8 +328,15 @@ static bool init(int argc, char *argv[])
 		}
 	}
 
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	gstplay_init(argc, argv);
+#endif
+
+#ifdef USE_CAPTURE
+	UNUSED_PARAMETER(argc);
+	UNUSED_PARAMETER(argv);
+	if (!init_capture())
+		return false;
 #endif
 
 #ifdef USE_REPLAY
@@ -343,7 +350,7 @@ static bool init(int argc, char *argv[])
 /* 互換レイヤの終了処理を行う */
 static void cleanup(void)
 {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	/* ALSAの使用を終了する */
 	cleanup_asound();
 #endif
@@ -777,7 +784,7 @@ static void run_game_loop(void)
 	gettimeofday(&tv_start, NULL);
 
 	while (1) {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 		if (is_gst_playing) {
 			gstplay_loop_iteration();
 			if (!gstplay_is_playing()) {
@@ -787,7 +794,12 @@ static void run_game_loop(void)
 		}
 #endif
 
+#ifdef USE_CAPTURE
+		/* 入力のキャプチャを行う */
+		capture_input();
+#endif
 #ifdef USE_REPLAY
+		/* 入力のリプレイを行う */
 		if (!replay_input())
 			break;
 #endif
@@ -827,7 +839,13 @@ static void run_game_loop(void)
 			}
 		}
 
+#ifdef USE_CAPTURE
+		/* 出力のキャプチャを行う */
+		if (!capture_output())
+			break;
+#endif
 #ifdef USE_REPLAY
+		/* 出力のキャプチャを行う */
 		if (!replay_output())
 			break;
 #endif
@@ -860,11 +878,7 @@ static bool wait_for_next_frame(void)
 	struct timeval tv_end;
 	uint32_t lap, wait, span;
 
-#ifndef USE_CAPTURE
 	span = is_opengl ? FRAME_MILLI / 2 : FRAME_MILLI;
-#else
-	span = 1;
-#endif
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -873,6 +887,13 @@ static bool wait_for_next_frame(void)
 			if (!next_event())
 				return false;
 
+#ifdef USE_REPLAY
+		UNUSED_PARAMETER(tv_end);
+		UNUSED_PARAMETER(lap);
+		UNUSED_PARAMETER(span);
+		usleep(1);
+		break;
+#else
 		/* 経過時刻を取得する */
 		gettimeofday(&tv_end, NULL);
 		lap = (uint32_t)((tv_end.tv_sec - tv_start.tv_sec) * 1000 +
@@ -889,6 +910,7 @@ static bool wait_for_next_frame(void)
 
 		/* スリープする */
 		usleep(wait * 1000);
+#endif
 	} while(wait > 0);
 
 	return true;
@@ -1423,7 +1445,7 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	char *path;
 
 	path = make_valid_path(MOV_DIR, fname);
@@ -1447,7 +1469,7 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
-#ifndef USE_REPLAY
+#if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	gstplay_stop();
 #endif
 	is_gst_playing = false;
@@ -1561,3 +1583,65 @@ const char *get_system_locale(void)
 
 	return "other";
 }
+
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+/*
+ * ミリ秒の時刻を取得する
+ */
+uint64_t get_tick_count64(void)
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	return (uint64_t)tv.tv_sec * 1000LL + (uint64_t)tv.tv_usec / 1000LL;
+}
+
+/*
+ * 出力データのディレクトリを作り直す
+ */
+bool reconstruct_dir(const char *dir)
+{
+	remove(dir);
+	mkdir(dir, 0700); 
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドを再生を開始する
+ */
+bool play_sound(int stream, struct wave *w)
+{
+	UNUSED_PARAMETER(stream);
+	UNUSED_PARAMETER(w);
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドの再生を停止する
+ */
+bool stop_sound(int stream)
+{
+	UNUSED_PARAMETER(stream);
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドのボリュームを設定する
+ */
+bool set_sound_volume(int stream, float vol)
+{
+	UNUSED_PARAMETER(stream);
+	UNUSED_PARAMETER(vol);
+	return true;
+}
+
+/*
+ * ALSA-DUMMY: サウンドが再生終了したか調べる
+ */
+bool is_sound_finished(int stream)
+{
+	UNUSED_PARAMETER(stream);
+	return true;
+}
+#endif

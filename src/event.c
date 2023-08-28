@@ -65,7 +65,7 @@ bool on_event_init(void)
 	init_game_loop();
 
 	/* フォントのプリロードを行う */
-	draw_glyph(NULL, 0, 0, 0, 0, 'A', &w, &h, conf_font_size);
+	draw_glyph(NULL, 0, 0, 0, 0, 'A', &w, &h, conf_font_size, false);
 
 	return true;
 }
@@ -203,7 +203,7 @@ void on_event_mouse_press(int button, int x, int y)
 /*
  * マウス解放時に呼び出される
  */
-void on_event_mouse_release(UNUSED(int button), int x, int y)
+void on_event_mouse_release(int button, int x, int y)
 {
 	mouse_pos_x = x;
 	mouse_pos_y = y;

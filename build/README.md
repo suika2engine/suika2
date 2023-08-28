@@ -300,6 +300,20 @@ This method will build the Linux app.
   * `make`
   * `make analyze`
 
+## Linux Capture App (x86_64)
+
+This method will build the Linux Capture app.
+
+* On WSL2 or Ubuntu 22.04, install the following packages:
+  * `build-essential`
+  * `libx11-dev`
+  * `libxpm-dev`
+  * `mesa-common-dev`
+* From the terminal, navigate to the `build/linux-x86_64-capture` directory and run the following commands:
+  * `./build-libs.sh`
+  * `make`
+  * `make install`
+
 ## Linux Replay App (x86_64)
 
 This method will build the Linux Replay app.

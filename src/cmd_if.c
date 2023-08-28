@@ -15,33 +15,38 @@
 
 /* 前方参照 */
 static bool process_name_var(const char *lhs, const char *op, const char *rhs,
-			     const char *label);
+			     const char *label, const char *finally_label);
 static bool process_normal_var(const char *lhs, const char *op,
-			       const char *rhs, const char *label);
+			       const char *rhs, const char *label,
+			       const char *finally_label);
 
 /*
  * ifコマンドの実装
  */
 bool if_command(void)
 {
-	const char *lhs, *op, *rhs, *label;
+	const char *lhs, *op, *rhs, *label, *finally_label;
 
 	lhs = get_string_param(IF_PARAM_LHS);
 	op = get_string_param(IF_PARAM_OP);
 	rhs = get_string_param(IF_PARAM_RHS);
 	label = get_string_param(IF_PARAM_LABEL);
+	if (get_command_type() == COMMAND_UNLESS)
+		finally_label = get_string_param(UNLESS_PARAM_FINALLY);
+	else
+		finally_label = "";
 
 	/* 左辺が名前変数の場合 */
 	if (lhs[0] == '%')
-		return process_name_var(lhs, op, rhs, label);
+		return process_name_var(lhs, op, rhs, label, finally_label);
 
 	/* 左辺がローカル変数/グローバル変数の場合 */
-	return process_normal_var(lhs, op, rhs, label);
+	return process_normal_var(lhs, op, rhs, label, finally_label);
 }
 
 /* 左辺が名前変数の場合を処理する */
 static bool process_name_var(const char *lhs, const char *op, const char *rhs,
-			     const char *label)
+			     const char *label, const char *finally_label)
 {
 	const char *lval_s;
 	int index, cmp;
@@ -66,17 +71,24 @@ static bool process_name_var(const char *lhs, const char *op, const char *rhs,
 		return false;
 	}
 
-	/* 比較結果が真ならラベルにジャンプする  */
-	if (cmp)
-		return move_to_label(label);
+	if (get_command_type() == COMMAND_IF) {
+		/* 比較結果が真ならラベルにジャンプする  */
+		if (cmp)
+			return move_to_label(label);
+	} else {
+		/* 比較結果が偽ならラベルにジャンプする  */
+		if (!cmp)
+			return move_to_label_finally(label, finally_label);
+	}
 
-	/* 比較結果が偽なら次のコマンドに移動する */
+	/* 次のコマンドに移動する */
 	return move_to_next_command();
 }
 
 /* 左辺がローカル変数/グローバル変数の場合を処理する */
 static bool process_normal_var(const char *lhs, const char *op,
-			       const char *rhs, const char *label)
+			       const char *rhs, const char *label,
+			       const char *finally_label)
 {
 	int lval, rval, cmp;
 
@@ -113,10 +125,17 @@ static bool process_normal_var(const char *lhs, const char *op,
 		return false;
 	}
 
-	/* 比較結果が真ならラベルにジャンプする  */
-	if (cmp)
-		return move_to_label(label);
+	if (get_command_type() == COMMAND_IF) {
+		/* 比較結果が真ならラベルにジャンプする  */
+		if (cmp)
+			return move_to_label(label);
+	} else {
+		/* 比較結果が偽ならラベルにジャンプする  */
+		if (!cmp) {
+			return move_to_label_finally(label, finally_label);
+		}
+	}
 
-	/* 比較結果が偽なら次のコマンドに移動する */
+	/* 次のコマンドに移動する */
 	return move_to_next_command();
 }

@@ -8,3 +8,8 @@ build-test:
 	cd mingw-arm64 && rm -f *.o suika-arm64.exe && make -j24 && cd ..
 	cd mingw-capture && rm -f *.o suika-capture.exe && make -j24 && cd ..
 	cd mingw-replay && rm -f *.o suika-replay.exe && make -j24 && cd ..
+	cd linux-x86_64 && rm -f *.o suika && make -j24 && cd ..
+	cd linux-x86_64-clang && rm -f *.o suika-replay && make -j24 && cd ..
+	cd linux-x86_64-capture && rm -f *.o suika-capture && make -j24 && cd ..
+	cd linux-x86_64-replay && rm -f *.o suika-replay && make -j24 && cd ..
+	cd emscripten && make && cd ..

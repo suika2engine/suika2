@@ -1,4 +1,12 @@
 ###
+### コンフィグファイル
+###  - 全般的な設定が行えます
+###  - ほとんどの項目は、WMSを使えばゲームの中で変更できます
+###  - 省略可能で0か1の値を取る項目は、指定しないと0になります
+###  - 利用するSuika2のバージョンを上げるときは、新規追加されたコンフィグを書き足してくだだい
+###
+
+###
 ### ウィンドウの設定
 ###
 
@@ -286,6 +294,8 @@ sysmenu.hover.file=sysmenu-hover.png
 # システムメニュー画像(使用できない時)のファイル名
 sysmenu.disable.file=sysmenu-disable.png
 
+# 以下、sysmenu.*.widthを0にするとそのボタンを無効化できます
+
 # システムメニューのクイックセーブボタンの座標(システムメニュー画像内での座標)
 sysmenu.qsave.x=62
 sysmenu.qsave.y=7
@@ -334,6 +344,20 @@ sysmenu.config.y=7
 sysmenu.config.width=60
 sysmenu.config.height=58
 
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン1の座標(システムメニュー画像内での座標) (省略可)
+#sysmenu.custom1.x=0
+#sysmenu.custom1.y=0
+#sysmenu.custom1.width=0
+#sysmenu.custom1.height=0
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン2の座標(システムメニュー画像内での座標) (省略可)
+#sysmenu.custom2.x=0
+#sysmenu.custom2.y=0
+#sysmenu.custom2.width=0
+#sysmenu.custom2.height=0
+
 # システムメニューを呼び出すときのSE(省略可)
 sysmenu.enter.se=click.ogg
 
@@ -366,6 +390,14 @@ sysmenu.history.se=click.ogg
 
 # システムメニューのコンフィグが選択されたときのSE(省略可)
 sysmenu.config.se=click.ogg
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン1が選択されたときのSE(省略可)
+#sysmenu.custom1.se=click.ogg
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン2が選択されたときのSE(省略可)
+#sysmenu.custom2.se=click.ogg
 
 # 折りたたみシステムメニュー画像の座標
 sysmenu.collapsed.x=1219
@@ -524,11 +556,14 @@ msgbox.show.on.ch=0
 # 背景の変更中にメッセージボックスを隠さない (0:フェードアウト, 1:隠さない, 2:隠す) (省略可)
 msgbox.show.on.bg=0
 
+# 選択肢の表示中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
+msgbox.show.on.choose=0
+
 # セリフをカギカッコで囲う (1:囲う, 0:囲わない) (省略可)
 serif.quote=0
 
 # キャラ/背景の変更中に折りたたみシステムメニューを表示する (1:表示する, 0:表示しない) (省略可)
-# (ここを1にしても、スキップ禁止中だけは表示されません)
+# (ロゴ画面を簡単に作るために、スキップの禁止中、折りたたみシステムメニューは常に表示されません)
 sysmenu.transition=0
 
 # 上キーとマウスホイールでヒストリを表示しない (1:表示しない, 0:表示する) (省略可)
@@ -536,8 +571,10 @@ msgbox.history.disable=0
 
 ###
 ### リリースモード
+###  - ZIPで配布する場合には無効にしてください
+###  - インストーラを作成してゲームを"Program Files"にインストールする場合にだけお使いください
 ###  - 有効にするとセーブデータがAppData以下に保存されます
-###  - ゲームを"Program Files"にインストールする場合にお使いください
+###  - "Program Files"以下にはセーブデータを保存できないため、この機能があります
 ###
 
 # リリースモード(0:無効, 1:有効) (省略可)
