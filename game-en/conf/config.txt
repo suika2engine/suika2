@@ -11,7 +11,12 @@
 ### Language Settings
 ###
 
-# Language mapping (system language => story language) (Optional)
+# Locale (Optional)
+#  - This config forces the English locale
+#  - Remove the following line to use a user's OS locale
+locale.force=en
+
+# Language mapping (system locale => story language) (Optional)
 language.en=en
 language.fr=fr
 language.de=de
@@ -86,7 +91,7 @@ namebox.margin.top=11
 # Center namebox text (0:center, 1:left justified)
 namebox.centering.no=0
 
-# Left margin of text in the namebox image when left justified
+# Left margin of text in the namebox image when left justified (Optional)
 namebox.margin.left=0
 
 # Hide namebox (0:show, 1:hide) (Optional)
