@@ -16,6 +16,7 @@
  *  - 2021-07-25 エフェクトを追加
  *  - 2022-07-16 システムメニューを追加
  *  - 2022-10-20 キャラ顔絵を追加
+ *  - 2023-08-29 クリックエフェクトを追加
  */
 
 #ifndef SUIKA_STAGE_H
@@ -23,10 +24,23 @@
 
 #include "image.h"
 
-/* クリックアニメーションのフレーム数 */
-#define CLICK_FRAMES	(16)
+/*
+ * クリック待ちアニメーションのフレーム数
+ *  - クリック待ちプロンプト
+ *  - 最大16フレームの可変長
+ */
+#define CLICK_FRAMES		(16)
 
-/* キャラクタの位置 */
+/*
+ * タップエフェクトのフレーム数
+ *  - スマホ向けのタップエフェクト
+ *  - 最大16フレームの可変長
+ */
+#define TAP_EFFECT_FRAMES	(16)
+
+/*
+ * キャラクタの位置
+ */
 enum ch_position {
 	CH_BACK = 0,
 	CH_LEFT = 1,
@@ -37,7 +51,9 @@ enum ch_position {
 	CH_ALL_LAYERS = 5,
 };
 
-/* フェードメソッド */
+/*
+ * フェードメソッド
+ */
 enum fade_method {
 	FADE_METHOD_INVALID,
 	FADE_METHOD_NORMAL,
@@ -94,10 +110,17 @@ bool reload_stage(void);
 /* ステージ全体を描画する */
 void draw_stage(void);
 
-/* ステージ全体を描画する(GPU用) */
+/*
+ * ステージ全体を描画する(GPU用)
+ *  - GPU利用時はdraw_stage()を呼び出し、そうでなければ何もしない
+ *  - 参考: CPU描画時は変更部分のみを描画、GPU描画時は毎フレーム再描画
+ */
 void draw_stage_keep(void);
 
-/* ステージの矩形を描画する */
+/*
+ * ステージの矩形を描画する
+ *  - GPU利用時は画面全体が再描画される
+ */
 void draw_stage_rect(int x, int y, int w, int h);
 
 /* 背景フェードモードが有効な際のステージ描画を行う */

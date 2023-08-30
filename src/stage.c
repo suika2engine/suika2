@@ -176,6 +176,9 @@ static struct image *thumb_image;
 /* ルールイメージ */
 static struct image *rule_img;
 
+/* クリックエフェクト */
+/*static struct image *tap_effect_image[TAP_EFFECT_FRAMES];*/
+
 /*
  * レイヤの可視状態
  */
@@ -876,9 +879,31 @@ static void destroy_layer_image(int layer)
  */
 
 /*
- * ステージを描画する
+ * ステージ全体を描画する
  */
 void draw_stage(void)
+{
+	/* 描画を行う */
+	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
+}
+
+/*
+ * ステージ全体を描画する(GPU用)
+ *  - GPU利用時はdraw_stage()を呼び出し、そうでなければ何もしない
+ *  - 参考: CPU描画時は変更部分のみを描画、GPU描画時は毎フレーム再描画
+ */
+void draw_stage_keep(void)
+{
+	if (is_gpu_accelerated())
+		draw_stage();
+}
+
+/*
+ * ステージの矩形を描画する
+ *  - GPU利用時は画面全体が再描画される
+ *  - アニメ実行中は画面全体が再描画される
+ */
+void draw_stage_rect(int x, int y, int w, int h)
 {
 	/* アニメーションサブシステムに更新させるデータの一覧 */
 	struct params {
@@ -940,57 +965,42 @@ void draw_stage(void)
 	};
 	int i;
 
-	/*
-	 * @bgや@chのフェードはFI/FOレイヤで行うので、それらのフェード中には
-	 * draw_stage()は使えない
-	 */
+	/* FI/FOレイヤの使用中はdraw_stage()は使えない */
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
+	/* x, y ともに0以上 */
+	assert(x >= 0 && y >= 0);
+
+	/* w, h は0以上 (0でもいい) */
+	assert(w >= 0 && h >= 0);
+
 	/*
 	 * アニメーションのフレーム時刻を更新し、
-	 * 完了していればフラグをセットする
+	 * 完了していれば完了フラグをセットする
 	 */
 	update_anime_frame();
 
 	/*
 	 * 各レイヤの描画パラメータを更新する
-	 *  - 画像やファイル名も変わることがある
+	 *  - アニメシーケンスの"file:"指定により画像とファイル名も変更される
 	 */
 	for (i = 0; i < (int)(sizeof(params) / sizeof(struct params)); i++) {
-		if (is_anime_running_for_layer(params[i].anime_layer) ||
-		    is_anime_finished_for_layer(params[i].anime_layer)) {
-			get_anime_layer_params(params[i].anime_layer,
-					       params[i].image,
-					       params[i].fname,
-					       params[i].x,
-					       params[i].y,
-					       params[i].a);
-		}
+		/* 更新の必要がない場合 */
+		if (!is_anime_running_for_layer(params[i].anime_layer) &&
+		    !is_anime_finished_for_layer(params[i].anime_layer))
+			continue;
+
+		/* レイヤの情報を更新する */
+		get_anime_layer_params(params[i].anime_layer,
+				       params[i].image,
+				       params[i].fname,
+				       params[i].x,
+				       params[i].y,
+				       params[i].a);
 	}
 
-	/* 描画を行う */
-	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
-}
-
-/*
- * ステージ全体を描画する(GPU用)
- */
-void draw_stage_keep(void)
-{
-	if (is_gpu_accelerated())
-		draw_stage();
-}
-
-/*
- * ステージを描画する
- */
-void draw_stage_rect(int x, int y, int w, int h)
-{
-	assert(stage_mode != STAGE_MODE_BG_FADE);
-	assert(stage_mode != STAGE_MODE_CH_FADE);
-	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
-
+	/* GPU利用時は更新範囲を画面全体にする */
 	if (is_gpu_accelerated()) {
 		x = 0;
 		y = 0;
@@ -998,16 +1008,19 @@ void draw_stage_rect(int x, int y, int w, int h)
 		h = conf_window_height;
 	}
 
+	/* 更新範囲がない場合は描画しない */
 	if (w == 0 || h == 0)
 		return;
 	if (x >= conf_window_width || y >= conf_window_height)
 		return;
+
+	/* 右側と下側のはみだし部分をクリッピングする */
 	if (x + w >= conf_window_width)
 		w = conf_window_width - x;
 	if (y + h >= conf_window_height)
 		h = conf_window_height - y;
 
-	/* レイヤを描画する */
+	/* 各レイヤで画面上の矩形(x, y) (w, h)に位置する部分を描画する */
 	render_layer_image_rect(LAYER_BG, x, y, w, h);
 	render_layer_image_rect(LAYER_CHB, x, y, w, h);
 	render_layer_image_rect(LAYER_CHL, x, y, w, h);
