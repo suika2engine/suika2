@@ -889,7 +889,7 @@ static bool init_msg_top(void)
 
 	/* セリフの場合、実際に表示するメッセージを修飾する */
 	if (is_serif) {
-		if (conf_namebox_hidden) {
+		if (conf_namebox_hidden || conf_msgbox_tategaki) {
 			/* 名前とカギカッコを付加する */
 			msg_top = concat_serif(name_top, exp_msg);
 			if (msg_top == NULL) {
@@ -1276,7 +1276,8 @@ static bool init_serif(int *x, int *y, int *w, int *h)
 	}
 
 	/* 名前を描画する */
-	draw_namebox();
+	if (!conf_namebox_hidden && !conf_msgbox_tategaki)
+		draw_namebox();
 
 	/* 名前ボックスを表示する */
 	show_namebox(true);
