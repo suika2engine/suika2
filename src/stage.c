@@ -3023,8 +3023,8 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 
 	/* キャラを入れ替える */
 	for (i = 0; i < CH_BASIC_LAYERS; i++) {
+        layer = pos_to_layer(i);
 		if (!stay[i]) {
-			layer = pos_to_layer(i);
 			destroy_layer_image(layer);
 			layer_image[layer] = img[i];
 		}
