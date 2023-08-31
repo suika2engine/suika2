@@ -156,6 +156,9 @@ static bool is_parse_error;
 /* パースエラーの初回警告を行ったか */
 static bool is_parse_error_informed;
 
+/* on-the-flyで行を更新中か */
+static bool is_on_the_fly;
+
 #endif /* USE_DEBUGGER */
 
 /*
@@ -599,6 +602,7 @@ static bool starts_with(const char *s, const char *prefix);
 static void show_parse_error_footer(const char *raw);
 
 #ifdef USE_DEBUGGER
+static void recover_from_parse_error(const char *raw);
 static bool add_comment_line(const char *s, ...);
 #endif
 
@@ -766,6 +770,7 @@ bool load_script(const char *fname)
  */
 const char *get_script_file_name(void)
 {
+	assert(cur_script != NULL);
 	return cur_script;
 }
 
@@ -1006,6 +1011,8 @@ int get_line_num(void)
 const char *get_line_string(void)
 {
 	struct command *c;
+
+	assert(cur_index < cmd_size);
 
 	c = &cmd[cur_index];
 
@@ -1319,8 +1326,10 @@ static bool process_smode(struct rfile *rf)
 			break;
 
 		/* ">>>"が現れたら終了する */
-		if (strcmp(line_buf, SMODE_END) == 0)
+		if (strcmp(line_buf, SMODE_END) == 0) {
+			CONSUME_INPUT_LINE();
 			break;
+		}
 
 		/* 構造化モードの行を処理する */
 		if (!process_smode_line(rf, line_buf, state, &accepted))
@@ -1891,20 +1900,23 @@ static bool process_else(const char *raw)
 /* 通常の行を処理する */
 static bool process_normal_line(const char *raw, const char *buf)
 {
+	struct command *c;
 	int top;
 	bool ret;
 
-	const int BUF_OFS = 4;
+	const int LOCALE_OFS = 4;
+
+	c = &cmd[cmd_size];
 
 	/* ロケールを処理する */
 	top = 0;
 	if (strlen(buf) > 4 && buf[0] == '+' && buf[3] == '+') {
-		cmd[cmd_size].locale[0] = buf[1];
-		cmd[cmd_size].locale[1] = buf[2];
-		cmd[cmd_size].locale[2] = '\0';
-		top = BUF_OFS;
+		c->locale[0] = buf[1];
+		c->locale[1] = buf[2];
+		c->locale[2] = '\0';
+		top = LOCALE_OFS;
 	} else {
-		cmd[cmd_size].locale[0] = '\0';
+		c->locale[0] = '\0';
 	}
 
 	/* 行頭の文字で仕分けする */
@@ -1914,7 +1926,7 @@ static bool process_normal_line(const char *raw, const char *buf)
 	case '#':
 #ifdef USE_DEBUGGER
 		/* デバッガならコメントを保存する */
-		if (!add_comment_line("%s", buf))
+		if (!add_comment_line("%s", raw))
 			return false;
 #endif
 		CONSUME_INPUT_LINE();
@@ -2101,8 +2113,13 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 		return false;
 	}
 
+#ifdef USE_DEBUGGER
+	if (!is_on_the_fly)
+		COMMIT_CMD();
+#else
 	COMMIT_CMD();
-
+#endif
+	
 	/* 成功 */
 	return true;
 }
@@ -2237,7 +2254,12 @@ static bool parse_serif(const char *raw, const char *buf, int locale_offset,
 		c->param[SERIF_PARAM_MESSAGE] = second;
 	}
 
+#ifdef USE_DEBUGGER
+	if (!is_on_the_fly)
+		COMMIT_CMD();
+#else
 	COMMIT_CMD();
+#endif
 
 	/* 成功 */
 	return true;
@@ -2285,7 +2307,12 @@ static bool parse_message(const char *raw, const char *buf, int locale_offset,
 	 * この段階でメッセージのcommandは完成済み
 	 * 以下、"名前「メッセージ」"の形式の場合はセリフに変換する
 	 */
+#ifdef USE_DEBUGGER
+	if (!is_on_the_fly)
+		COMMIT_CMD();
+#else
 	COMMIT_CMD();
+#endif
 
 	/* メッセージ中の"「"を検索する */
 	lpar = strstr(c->param[0], U8("「"));
@@ -2352,7 +2379,12 @@ static bool parse_label(const char *raw, const char *buf, int locale_offset,
 		return false;
 	}
 
+#ifdef USE_DEBUGGER
+	if (!is_on_the_fly)
+		COMMIT_CMD();
+#else
 	COMMIT_CMD();
+#endif
 
 	/* 成功 */
 	return true;
@@ -2373,32 +2405,56 @@ static void show_parse_error_footer(const char *raw)
 	/* フッタを表示する */
 	log_script_parse_footer(cur_parse_file, cur_parse_line, raw);
 #else
-	/*
-	 * デバッガ動作の場合、パースエラーから回復する
-	 */
+	/* デバッガ動作の場合、パースエラーから回復する */
+	recover_from_parse_error(raw);
+#endif
+}
 
+/*
+ * 以下、デバッガモードのときのみ
+ */
+#ifdef USE_DEBUGGER
+
+/* パースエラーから回復する */
+static void recover_from_parse_error(const char *raw)
+{
 	struct command *c;
 
 	c = &cmd[cmd_size];
 
-	/* テキストの先頭文字を'@'から'!'に変更する */
-	assert(c->text[0] == '@');
+	/* コマンドの種類、ファイル、行番号を設定する */
+	c->type = COMMAND_MESSAGE;
+	c->file = cur_parse_file;
+	c->line = cur_parse_line;
+
+	/* rawテキストを複製する */
+	if (c->text != NULL) {
+		free(c->text);
+		c->text = NULL;
+	}
+	c->text = strdup(raw);
+	if (c->text == NULL) {
+		log_memory();
+		abort();
+	}
+
+	/* rawテキストの先頭文字を'@'から'!'に変更する */
 	c->text[0] = '!';
 
-	/* 引数を解放する */
+	/* メッセージとしてparam[0]に複製する */
 	if (c->param[0] != NULL) {
 		free(c->param[0]);
 		c->param[0] = NULL;
 	}
-
-	/* オリジナルの行をparam[0]に複製する */
-	c->param[0] = strdup(raw);
+	c->param[0] = strdup(c->text);
 	if (c->param[0] == NULL) {
 		log_memory();
 		abort();
 	}
 
-	COMMIT_CMD();
+	/* on-the-flyの更新でなければ処理済みコマンドの数を増やす */
+	if (!is_on_the_fly)
+		COMMIT_CMD();
 
 	/* 最初のパースエラーであれば、メッセージに変換された旨を表示する */
 	if(!is_parse_error_informed) {
@@ -2406,10 +2462,8 @@ static void show_parse_error_footer(const char *raw)
 		is_parse_error_informed = true;
 	}
 	is_parse_error = true;
-#endif
 }
 
-#ifdef USE_DEBUGGER
 /* コメント行を追加する */
 static bool add_comment_line(const char *s, ...)
 {
@@ -2505,48 +2559,60 @@ const char *get_line_string_at_line_num(int line)
  */
 bool update_command(int index, const char *cmd_str)
 {
+	struct command *c;
 	int top;
+	bool ret;
 
-	/* メッセージに変換されるメッセージボックスを表示するようにする */
-	is_parse_error_informed = false;
+	assert(index >= 0 && index < cmd_size);
 
-	/* コマンドのraw文字列のメモリを解放する */
-	if (cmd[index].text != NULL) {
-		free(cmd[index].text);
-		cmd[index].text = NULL;
+	c = &cmd[index];
+
+	/* コマンドの文字列を解放する */
+	if (c->text != NULL) {
+		free(c->text);
+		c->text = NULL;
 	}
-
-	/* コマンドの引数のメモリを解放する */
-	if (cmd[index].param[0] != NULL) {
-		free(cmd[index].param[0]);
-		cmd[index].param[0] = NULL;
+	if (c->param[0] != NULL) {
+		free(c->param[0]);
+		c->param[0] = NULL;
 	}
 
 	/* ロケールを処理する */
 	top = 0;
 	if (strlen(cmd_str) > 4 && cmd_str[0] == '+' && cmd_str[3] == '+') {
-		cmd[index].locale[0] = cmd_str[1];
-		cmd[index].locale[1] = cmd_str[2];
-		cmd[index].locale[2] = '\0';
+		c->locale[0] = cmd_str[1];
+		c->locale[1] = cmd_str[2];
+		c->locale[2] = '\0';
 		top = 4;
 	} else {
-		cmd[index].locale[0] = '\0';
+		c->locale[0] = '\0';
 	}
 
+	/* パース位置の情報を設定する */
+	cur_parse_file = c->file;
+	cur_parse_line = c->line;
+
+	/* on-the-flyのパースであることを設定する */
+	is_on_the_fly = true;
+
+	/* パースエラー時に情報が表示されるようにする */
+	is_parse_error_informed = false;
+
 	/* 行頭の文字で仕分けする */
+	ret = true;
 	switch (cmd_str[top]) {
 	case '@':
 		if (!parse_insn(cmd_str, cmd_str, top, index))
-			return false;
-		return true;
+			ret = false;
+		break;
 	case '*':
 		if (!parse_serif(cmd_str, cmd_str, top, index))
-			return false;
-		return true;
+			ret = false;
+		break;
 	case ':':
 		if (!parse_label(cmd_str, cmd_str, top, index))
-			return false;
-		return true;
+			ret = false;
+		break;
 	case '\0':
 		/* 空行は空白1つに変換する */
 		cmd_str = " ";
@@ -2556,9 +2622,23 @@ bool update_command(int index, const char *cmd_str)
 		/* fall-thru */
 	default:
 		if (!parse_message(cmd_str, cmd_str, top, index))
-			return false;
-		return true;
+			ret = false;
+		break;
 	}
+
+	/* パースエラーでないエラーはメモリ確保エラーなのでabortする */
+	if (!ret && !is_parse_error)
+		abort();
+
+	/* パースエラーから回復する */
+	if (!ret && is_parse_error) {
+		recover_from_parse_error(cmd_str);
+		is_parse_error = false;
+	}
+
+	/* on-the-flyのパースを終了する */
+	is_on_the_fly = false;
+
 	return true;
 }
 
