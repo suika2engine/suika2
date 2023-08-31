@@ -136,6 +136,7 @@ static bool init(void)
 			    strcmp(fname[i], U8("変更なし")) == 0) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
+				get_ch_position(i, &x[i], &y[i]);
 				continue;
 			}
 		} else {
@@ -144,6 +145,7 @@ static bool init(void)
 			    strcmp(fname[i], "") == 0) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
+				get_bg_position(&x[i], &y[i]);
 				continue;
 			}
 		}

@@ -221,6 +221,9 @@ void change_bg_immediately(struct image *img);
 /* 背景の位置を設定する */
 void change_bg_attributes(int x, int y);
 
+/* 背景の位置を取得する */
+void get_bg_position(int *x, int *y);
+
 /* 背景フェードモードを開始する */
 void start_bg_fade(struct image *img);
 

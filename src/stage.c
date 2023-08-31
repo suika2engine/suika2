@@ -2689,6 +2689,15 @@ void change_bg_attributes(int x, int y)
 }
 
 /*
+ * 背景の位置を取得する
+ */
+void get_bg_position(int *x, int *y)
+{
+	*x = layer_x[LAYER_BG];
+	*y = layer_y[LAYER_BG];
+}
+
+/*
  * 背景フェードを開始する
  */
 void start_bg_fade(struct image *img)
