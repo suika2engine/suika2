@@ -173,6 +173,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 				if (dbg_error_state) {
 					/* エラーによる終了をキャンセルする */
 					dbg_error_state = false;
+					update_debug_info(true);
 					dbg_stop();
 					return true;
 				} else {
@@ -183,6 +184,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 					/* 最後まで実行した */
 					if (!load_debug_script())
 						return false;
+					update_debug_info(true);
 					dbg_stop();
 					return true;
 				}

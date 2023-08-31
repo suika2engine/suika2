@@ -237,12 +237,7 @@ void log_invalid_msgbox_size(void)
  */
 void log_script_exec_footer(void)
 {
-#ifdef USE_DEBUGGER
-	/* '@'コマンドをメッセージに変換する */
-	translate_failed_command_to_message(get_command_index());
-
-	dbg_set_error_state();
-#else
+#ifndef USE_DEBUGGER
 	const char *file;
 	int line;
 
@@ -260,6 +255,11 @@ void log_script_exec_footer(void)
 			  U8("> %s\n"),
 			  file, line, get_line_string());
 	}
+#else
+	/* '@'コマンドをメッセージに変換する */
+	translate_failed_command_to_message(get_command_index());
+
+	dbg_set_error_state();
 #endif
 }
 

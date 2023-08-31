@@ -2654,16 +2654,25 @@ void translate_failed_command_to_message(int index)
 
 	c = &cmd[index];
 
+	/* コマンドの種類をメッセージに変更する */
+	c->type = COMMAND_MESSAGE;
+
+	/* rawテキストの先頭文字を'@'から'!'に変更する */
 	assert(c->text[0] == '@');
+	c->text[0] = '!';
 
-	/* 引数を解放する (param[0]のみがfree()の対象) */
-	if (c->param[0] != NULL)
+	/* メッセージとしてparam[0]に複製する */
+	if (c->param[0] != NULL) {
 		free(c->param[0]);
-	for (i = 0; i < PARAM_SIZE; i++)
+		c->param[0] = NULL;
+	}
+	c->param[0] = strdup(c->text);
+	if (c->param[0] == NULL) {
+		log_memory();
+		abort();
+	}
+	for (i = 1; i < PARAM_SIZE; i++)
 		c->param[i] = NULL;
-
-	/* メッセージに変更する */
-	cmd[index].type = COMMAND_MESSAGE;
 }
 
 /*
@@ -2701,7 +2710,6 @@ bool load_debug_script(void)
 		return false;
 	}
 
-	update_debug_info(true);
 	return true;
 }
 #endif
