@@ -401,6 +401,7 @@ static bool process_escape_sequence_pen(const char **s);
 static bool process_escape_sequence_ruby(const char **s);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
+static bool is_tategaki_punctuation(uint32_t wc);
 static int get_en_word_width(void);
 static void process_lf(uint32_t c, int glyph_width, int glyph_height);
 static bool is_small_kana(uint32_t wc);
@@ -2750,10 +2751,15 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 
 		/* 次の文字へ移動する */
 		msg_cur += mblen;
-		if (!conf_msgbox_tategaki)
+		if (!conf_msgbox_tategaki) {
 			pen_x += glyph_width + conf_msgbox_margin_char;
-		else
-			pen_y += glyph_height + conf_msgbox_margin_char;
+		} else {
+			if (is_tategaki_punctuation(wc))
+				pen_y += conf_font_size;
+			else
+				pen_y += glyph_height;
+			pen_y += conf_msgbox_margin_char;
+		}
 		drawn_chars++;
 	}
 
@@ -3219,7 +3225,7 @@ static void do_word_wrapping(void)
 }
 
 /* 縦書きの句読点変換を行う */
-uint32_t convert_tategaki_char(uint32_t wc)
+static uint32_t convert_tategaki_char(uint32_t wc)
 {
 	switch (wc) {
 	case U32_C('、'): return U32_C('︑');
@@ -3246,6 +3252,36 @@ uint32_t convert_tategaki_char(uint32_t wc)
 		break;
 	}
 	return wc;
+}
+
+/* 縦書きの句読点かどうか調べる */
+static bool is_tategaki_punctuation(uint32_t wc)
+{
+	switch (wc) {
+	case U32_C('︑'): return true;
+	case U32_C('︐'): return true;
+	case U32_C('︒'): return true;
+	case U32_C('︵'): return true;
+	case U32_C('︶'): return true;
+	case U32_C('︷'): return true;
+	case U32_C('︸'): return true;
+	case U32_C('﹁'): return true;
+	case U32_C('﹂'): return true;
+	case U32_C('﹃'): return true;
+	case U32_C('﹄'): return true;
+	case U32_C('︻'): return true;
+	case U32_C('︼'): return true;
+	case U32_C('﹇'): return true;
+	case U32_C('﹈'): return true;
+	case U32_C('︹'): return true;
+	case U32_C('︺'): return true;
+	case U32_C('︙'): return true;
+	case U32_C('︰'): return true;
+	case U32_C('丨'): return true;
+	default:
+		break;
+	}
+	return false;
 }
 
 /* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
