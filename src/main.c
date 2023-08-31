@@ -461,6 +461,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		*cont = true;
 		break;
 	case COMMAND_CHS:
+	case COMMAND_CHSX:
 		if (!chs_command(x, y, w, h))
 			return false;
 		break;

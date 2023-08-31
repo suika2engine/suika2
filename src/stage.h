@@ -218,6 +218,9 @@ const char *get_bg_file_name(void);
 /* 背景をフェードせずにただちに切り替える */
 void change_bg_immediately(struct image *img);
 
+/* 背景の位置を設定する */
+void change_bg_attributes(int x, int y);
+
 /* 背景フェードモードを開始する */
 void start_bg_fade(struct image *img);
 
@@ -264,7 +267,7 @@ void stop_ch_fade(void);
 
 /* キャラフェードモード(複数,背景も)を開始する */
 void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
-			 const int *y);
+			 const int *y, const int *alpha);
 
 /*
  * 画面揺らしモード

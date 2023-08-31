@@ -10,6 +10,7 @@
  *  - 2021/07/19 作成
  *  - 2022/06/26 テンプレートに対応
  *  - 2023/01/06 日本語の指定に対応
+ *  - 2023/08/31 @chsxに対応
  */
 
 #include "suika.h"
@@ -23,6 +24,7 @@ static float span;
 static int fade_method;
 
 static bool init(void);
+static int get_alpha(const char *alpha_s);
 static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
 static void draw(void);
 static bool cleanup(void);
@@ -58,19 +60,60 @@ static bool init(void)
 	struct image *img[PARAM_SIZE], *rule_img;
 	const char *fname[PARAM_SIZE];
 	bool stay[PARAM_SIZE];
+	int ofs_x[PARAM_SIZE];
+	int ofs_y[PARAM_SIZE];
+	int alpha[PARAM_SIZE - 1];
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
 	const char *method;
 	int i;
 
 	/* パラメータを取得する */
-	fname[CH_CENTER] = get_string_param(CHS_PARAM_CENTER);
-	fname[CH_RIGHT] = get_string_param(CHS_PARAM_RIGHT);
-	fname[CH_LEFT] = get_string_param(CHS_PARAM_LEFT);
-	fname[CH_BACK] = get_string_param(CHS_PARAM_BACK);
-	fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
-	span = get_float_param(CHS_PARAM_SPAN);
-	method = get_string_param(CHS_PARAM_METHOD);
+	if (get_command_type() == COMMAND_CHS) {
+		fname[CH_CENTER] = get_string_param(CHS_PARAM_CENTER);
+		fname[CH_RIGHT] = get_string_param(CHS_PARAM_RIGHT);
+		fname[CH_LEFT] = get_string_param(CHS_PARAM_LEFT);
+		fname[CH_BACK] = get_string_param(CHS_PARAM_BACK);
+		fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
+		ofs_x[CH_CENTER] = 0;
+		ofs_y[CH_CENTER] = 0;
+		ofs_x[CH_RIGHT] = 0;
+		ofs_y[CH_RIGHT] = 0;
+		ofs_x[CH_LEFT] = 0;
+		ofs_y[CH_LEFT] = 0;
+		ofs_x[CH_BACK] = 0;
+		ofs_y[CH_BACK] = 0;
+		ofs_x[BG_INDEX] = 0;
+		ofs_y[BG_INDEX] = 0;
+		alpha[CH_CENTER] = 255;
+		alpha[CH_RIGHT] = 255;
+		alpha[CH_LEFT] = 255;
+		alpha[CH_BACK] = 255;
+		span = get_float_param(CHS_PARAM_SPAN);
+		method = get_string_param(CHS_PARAM_METHOD);
+	} else {
+		fname[CH_CENTER] = get_string_param(CHSX_PARAM_CENTER);
+		fname[CH_RIGHT] = get_string_param(CHSX_PARAM_RIGHT);
+		fname[CH_LEFT] = get_string_param(CHSX_PARAM_LEFT);
+		fname[CH_BACK] = get_string_param(CHSX_PARAM_BACK);
+		fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
+		ofs_x[CH_CENTER] = get_int_param(CHSX_PARAM_CX);
+		ofs_y[CH_CENTER] = get_int_param(CHSX_PARAM_CY);
+		ofs_x[CH_RIGHT] = get_int_param(CHSX_PARAM_RX);
+		ofs_y[CH_RIGHT] = get_int_param(CHSX_PARAM_RY);
+		ofs_x[CH_LEFT] = get_int_param(CHSX_PARAM_LX);
+		ofs_y[CH_LEFT] = get_int_param(CHSX_PARAM_LY);
+		ofs_x[CH_BACK] = get_int_param(CHSX_PARAM_BX);
+		ofs_y[CH_BACK] = get_int_param(CHSX_PARAM_BY);
+		ofs_x[BG_INDEX] = get_int_param(CHSX_PARAM_BGX);
+		ofs_y[BG_INDEX] = get_int_param(CHSX_PARAM_BGY);
+		alpha[CH_CENTER] = get_alpha(get_string_param(CHSX_PARAM_CA));
+		alpha[CH_RIGHT] = get_alpha(get_string_param(CHSX_PARAM_RA));
+		alpha[CH_LEFT] = get_alpha(get_string_param(CHSX_PARAM_LA));
+		alpha[CH_BACK] = get_alpha(get_string_param(CHSX_PARAM_BA));
+		span = get_float_param(CHSX_PARAM_SPAN);
+		method = get_string_param(CHSX_PARAM_METHOD);
+	}
 
 	/* 描画メソッドを識別する */
 	fade_method = get_fade_method(method);
@@ -88,21 +131,28 @@ static bool init(void)
 		y[i] = 0;
 
 		/* 変更なしが指定された場合 */
-		if (strcmp(fname[i], "stay") == 0 ||
-		    strcmp(fname[i], U8("変更なし")) == 0 ||
-		    strcmp(fname[i], "") == 0) {
-			/* 変更なしフラグをセットする */
-			stay[i] = true;
-			continue;
+		if (i != BG_INDEX) {
+			if (strcmp(fname[i], "stay") == 0 ||
+			    strcmp(fname[i], U8("変更なし")) == 0) {
+				/* 変更なしフラグをセットする */
+				stay[i] = true;
+				continue;
+			}
+		} else {
+			if (strcmp(fname[i], "stay") == 0 ||
+			    strcmp(fname[i], U8("変更なし")) == 0 ||
+			    strcmp(fname[i], "") == 0) {
+				/* 変更なしフラグをセットする */
+				stay[i] = true;
+				continue;
+			}
 		}
 
 		/* イメージの消去が指定された場合 */
 		if (i != BG_INDEX &&
 		    (strcmp(fname[i], "none") == 0 ||
-		     strcmp(fname[i], U8("消す")) == 0)) {
-			/* 変更なしフラグをセットしない */
-			stay[i] = false;
-
+		     strcmp(fname[i], U8("消す")) == 0 ||
+		     strcmp(fname[i], "") == 0)) {
 			/* ファイル名を設定する */
 			if (!set_ch_file_name(i, NULL))
 				return false;
@@ -137,8 +187,14 @@ static bool init(void)
 		}
 
 		/* 表示位置を取得する */
-		if (i != BG_INDEX)
+		if (i != BG_INDEX) {
 			get_position(&x[i], &y[i], i, img[i]);
+			x[i] += ofs_x[i];
+			y[i] += ofs_y[i];
+		} else {
+			x[i] = ofs_x[i];
+			y[i] = ofs_y[i];
+		}
 
 		/* キャラを暗くしない */
 		if (i != BG_INDEX)
@@ -173,22 +229,32 @@ static bool init(void)
 	     is_control_pressed)) {
 		/* フェードせず、すぐに切り替える */
 		for (i = 0; i < PARAM_SIZE; i++) {
-			if (stay[i])
+			/* stay指示の場合は、座標とアルファだけ書き換える */
+			if (stay[i]) {
+				if (i != BG_INDEX) {
+					change_ch_attributes(i, x[i], y[i],
+							     alpha[i]);
+				} else {
+					change_bg_attributes(x[i], y[i]);
+				}
 				continue;
+			}
 
-			/* フェードせず、すぐに切り替える */
-			if (i != BG_INDEX)
+			/* 新しい画像がある場合フェードせずすぐに切り替える */
+			if (i != BG_INDEX) {
 				change_ch_immediately(i, img[i], x[i], y[i],
-						      255);
-			else
+						      alpha[i]);
+			} else {
 				change_bg_immediately(img[i]);
+				change_bg_attributes(x[i], y[i]);
+			}
 		}
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();
 
 		/* キャラフェードモードを有効にする */
-		start_ch_fade_multi(stay, img, x, y);
+		start_ch_fade_multi(stay, img, x, y, alpha);
 
 		/* 時間計測を開始する */
 		reset_stop_watch(&sw);
@@ -202,6 +268,23 @@ static bool init(void)
 	show_click(false);
 
 	return true;
+}
+
+/* 文字列のアルファ値を整数に変換する */
+static int get_alpha(const char *alpha_s)
+{
+	int ret;
+
+	/* 省略された場合は255にする */
+	if (strcmp(alpha_s, "") == 0)
+		return 255;
+
+	ret = atoi(alpha_s);
+	if (ret < 0)
+		ret = 0;
+	if (ret > 255)
+		ret = 255;
+	return ret;
 }
 
 /* キャラの横方向の位置を取得する */

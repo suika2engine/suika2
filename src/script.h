@@ -28,6 +28,7 @@
  *  - 2023/08/20 @animeに対応
  *  - 2023/08/27 構造化構文に対応
  *  - 2023/08/27 @setconfigに対応
+ *  - 2023/08/31 @chsxに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -80,6 +81,7 @@ enum command_type {
 	COMMAND_UNLESS,
 	COMMAND_LABELEDGOTO,
 	COMMAND_SETCONFIG,
+	COMMAND_CHSX,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -575,6 +577,31 @@ enum setconfig_command_param {
 	SETCONFIG_PARAM_VALUE,
 };
 
+/* chsxコマンドのパラメータ */
+enum chsx_command_param {
+	CHSX_PARAM_CENTER = 1,
+	CHSX_PARAM_CX,
+	CHSX_PARAM_CY,
+	CHSX_PARAM_CA,
+	CHSX_PARAM_RIGHT,
+	CHSX_PARAM_RX,
+	CHSX_PARAM_RY,
+	CHSX_PARAM_RA,
+	CHSX_PARAM_LEFT,
+	CHSX_PARAM_LX,
+	CHSX_PARAM_LY,
+	CHSX_PARAM_LA,
+	CHSX_PARAM_BACK,
+	CHSX_PARAM_BX,
+	CHSX_PARAM_BY,
+	CHSX_PARAM_BA,
+	CHSX_PARAM_SPAN,
+	CHSX_PARAM_BG,
+	CHSX_PARAM_BGX,
+	CHSX_PARAM_BGY,
+	CHSX_PARAM_METHOD,
+};
+
 /*
  * 初期化
  */
@@ -673,8 +700,8 @@ const char *get_line_string_at_line_num(int line);
 /*  デバッグ用に1コマンドだけ書き換える */
 bool update_command(int index, const char *cmd_str);
 
-/* エラー時のコマンドを設定する */
-void set_error_command(int index, char *text);
+/* エラー時に@コマンドを'!'で始まるメッセージに変換する */
+void translate_failed_command_to_message(int index);
 
 /* デバッグ用の仮のスクリプトをロードする */
 bool load_debug_script(void);

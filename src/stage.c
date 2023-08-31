@@ -2680,6 +2680,15 @@ void change_bg_immediately(struct image *img)
 }
 
 /*
+ * 背景の位置を設定する
+ */
+void change_bg_attributes(int x, int y)
+{
+	layer_x[LAYER_BG] = x;
+	layer_y[LAYER_BG] = y;
+}
+
+/*
  * 背景フェードを開始する
  */
 void start_bg_fade(struct image *img)
@@ -2981,13 +2990,14 @@ static int layer_to_pos(int layer)
  * キャラフェードモード(複数,背景も)を開始する
  */
 void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
-			 const int *y)
+			 const int *y, const int *alpha)
 {
 	int i, layer;
+	const int BG_INDEX = CH_BASIC_LAYERS;
 
 	assert(stage_mode == STAGE_MODE_IDLE);
 
-	/* このフェードでもSTAGE_MODE_CH_FADEを利用する */
+	/* このフェードではSTAGE_MODE_CH_FADEを利用する */
 	stage_mode = STAGE_MODE_CH_FADE;
 
 	/* キャラフェードアウトレイヤにステージを描画する */
@@ -3017,17 +3027,19 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 			layer = pos_to_layer(i);
 			destroy_layer_image(layer);
 			layer_image[layer] = img[i];
-			layer_alpha[layer] = 255;
-			layer_x[layer] = x[i];
-			layer_y[layer] = y[i];
 		}
+		layer_x[layer] = x[i];
+		layer_y[layer] = y[i];
+		layer_alpha[layer] = alpha[i];
 	}
 
 	/* 背景を入れ替える */
-	if (!stay[CH_BASIC_LAYERS]) {
+	if (!stay[BG_INDEX]) {
 		destroy_layer_image(LAYER_BG);
-		layer_image[LAYER_BG] = img[CH_BASIC_LAYERS];
+		layer_image[LAYER_BG] = img[BG_INDEX];
 	}
+	layer_x[LAYER_BG] = x[BG_INDEX];
+	layer_y[LAYER_BG] = x[BG_INDEX];
 
 	/* キャラフェードインレイヤにステージを描画する */
 	lock_image(layer_image[LAYER_FI]);

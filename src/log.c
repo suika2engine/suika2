@@ -238,16 +238,9 @@ void log_invalid_msgbox_size(void)
 void log_script_exec_footer(void)
 {
 #ifdef USE_DEBUGGER
-	char *line;
+	/* '@'コマンドをメッセージに変換する */
+	translate_failed_command_to_message(get_command_index());
 
-	/* コマンドをメッセージに変換する */
-	line = strdup(get_line_string());
-	if (line == NULL) {
-		log_memory();
-	} else {
-		line[0] = '!';
-		set_error_command(get_command_index(), line);
-	}
 	dbg_set_error_state();
 #else
 	const char *file;
@@ -611,6 +604,17 @@ void log_script_param_mismatch(const char *name)
 }
 
 /*
+ * usingするファイルが多すぎるエラーを記録する
+ */
+void log_script_too_many_files(void)
+{
+	if (is_english_mode())
+		log_error("Too many \"using\" files.\n");
+	else
+		log_error(U8("\"using\"で使用するファイルが多すぎます。"));
+}
+
+/*
  * 書き換え可能なコンフィグキーがないエラーを記録する
  */
 void log_script_config_not_found(const char *key)
@@ -632,6 +636,32 @@ void log_script_cha_no_image(const char *pos)
 	} else {
 		log_error(U8("キャラクタ位置\"%s\"に画像がロードされていません。\n"),
 			  pos);
+	}
+}
+
+/*
+ * 引数名が必須のコマンドで引数名が指定されなかったエラーを記録する
+ */
+void log_script_parameter_name_not_specified(void)
+{
+	if (is_english_mode()) {
+		log_error("A paramter name not specified for "
+			  "a command that requires parameter names.\n");
+	} else {
+		log_error(U8("引数名が必須のコマンドで引数名が")
+			  U8("指定されていません。\n"));
+	}
+}
+
+/*
+ * 引数名の順番が間違っているエラーを記録する
+ */
+void log_script_param_order_mismatch(void)
+{
+	if (is_english_mode()) {
+		log_error("Wrong paramter name order.\n");
+	} else {
+		log_error(U8("引数名の順番が異なります。\n"));
 	}
 }
 
@@ -875,18 +905,18 @@ void log_anime_unknown_key(const char *key)
 
 #ifdef USE_DEBUGGER
 /*
- * コマンドのアップデートに失敗した際のエラーを記録する
+ * スクリプトにエラーがあった際の情報提供を行う
  */
-void log_command_update_error(void)
+void log_inform_translated_commands(void)
 {
 	if (is_english_mode()) {
-		log_info("Incorrect commands are changed to messages which start with '!'\n"
-			 "You can search it from menu.\n"
-			 "Edit and update it to reconvert to a correct command.");
+		log_info("Invalid commands were translated to messages "
+			 "that start with \'!\'.\n"
+			 "You can search them by a button.\n");
 	} else {
-		log_info(U8("エラーを含むコマンドは'!'で始まるメッセージに変換されます。\n")
-			 U8("メニューから検索できます。\n")
-			 U8("編集と更新で正しいコマンドに戻すことが可能です。"));
+		log_info(U8("エラーを含むコマンドが'!'で始まるメッセージに")
+			 U8("変換されました。\n")
+			 U8("エラーはボタンで検索できます。\n"));
 	}
 }
 
