@@ -13,7 +13,7 @@ targets:
 	@echo '  make do-release      ... build release files and upload them (dev internal)'
 	@echo '  make clean           ... cleanup'
 	@echo ''
-	@# Check for a situation that we are on WSL2 and not under /mnt \
+	@# Check for a situation that we are on WSL2 and not under /mnt
 	@if [ ! -z "`uname | grep Linux`" ]; then \
 		if [ -z "`grep -i WSL2 /proc/version`" ]; then \
 			case `pwd` in \
