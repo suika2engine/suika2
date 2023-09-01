@@ -1589,7 +1589,12 @@ static bool process_switch_block(struct rfile *rf, const char *raw,
 	save_smode_target_case = smode_target_case;
 
 	/* ターゲットをセットする */
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-pointer"
 	smode_target_finally = finally_label;
+#pragma GCC diagnostic pop
+#endif
 	smode_target_case = NULL;
 
 	/* switchブロックが終了するまで読み込む */
