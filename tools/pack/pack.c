@@ -12,6 +12,7 @@ int WINAPI wWinMain(
 	UNUSED(LPWSTR lpszCmd),
 	int nCmdShow)
 {
+	int main(int, char *[]);
 	return main(2, NULL);
 }
 #endif
