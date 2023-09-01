@@ -565,7 +565,7 @@ BOOL initDebugWindow(void)
 
     // 英語モードかどうかをロケールから決定する
     NSString *lang = [[NSLocale preferredLanguages] objectAtIndex:0];
-    isEnglish = [lang isEqualToString:@"ja-JP"] ? false : true;
+    isEnglish = [lang hasPrefix:@"ja-"] ? false : true;
 
     // デバッグウィンドウのXibファイルをロードする
     debugWindowController = [[DebugWindowController alloc]

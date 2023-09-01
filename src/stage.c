@@ -24,13 +24,16 @@
  *  - 2022-07-16 システムメニューを追加
  *  - 2022-10-20 キャラ顔絵を追加
  *  - 2023-01-06 日本語の指定に対応
- *  - 2023-08-20 アニメサブシステムの導入, キャラクタアニメの移行
+ *  - 2023-08-20 アニメサブシステムの導入, @chaをアニメサブシステムへ移行
+ *  - 2023-08-29 @chsxを追加
  *
- * [検討]
- *  - ソフトレンダの廃止(GPU描画のみへの移行)
- *  - @bg/@chもアニメーションサブシステムに移行
- *  - 既存の@bg/@chのエフェクトを残す上で、FI/FOレイヤが必要か検討
- *  - FI/FOはソフトレンダ向けの最適化なので、必要なければ廃止
+ * [検討中]
+ *  - アニメサブシステムへの移行 (@bg, @ch, @chsをアニメサブシステムに移植)
+ *  - GPU描画のみへの移行
+ *    - フォント以外のソフトレンダリングの廃止
+ *    - スケールと回転のサポート
+ *  - FI/FOはソフトレンダリング向けの最適化なので必要なければ廃止
+ *  - @bg, @ch, @chsのエフェクトを残す上でFI/FOレイヤが必要か検討
  */
 
 #include "suika.h"
@@ -42,7 +45,9 @@
 /* カーテンフェードのカーテンの幅 */
 #define CURTAIN_WIDTH	(256)
 
-/* レイヤ */
+/*
+ * ステージのレイヤ
+ */
 enum {
 	/*
 	 * 下記のレイヤは次の場合に有効
@@ -95,16 +100,24 @@ enum {
 	STAGE_LAYERS
 };
 
+/*
+ * ステージの動作モード
+ *  - 当初考えていたほどモードが増えなかったので、個別にフラグにしてもよい
+ *  - アニメサブシステムに移行中で、移行後はこのモードを削除する予定
+ */
+
+static int stage_mode;
+
 enum stage_mode {
 	STAGE_MODE_IDLE,
 	STAGE_MODE_BG_FADE,
 	STAGE_MODE_CH_FADE,
-	STAGE_MODE_CH_ANIME,
 	STAGE_MODE_SHAKE,
 };
 
-/* ステージの動作モード */
-static int stage_mode;
+/*
+ * ステージのイメージ
+ */
 
 /* レイヤのイメージ */
 static struct image *layer_image[STAGE_LAYERS];
@@ -112,29 +125,14 @@ static struct image *layer_image[STAGE_LAYERS];
 /* メッセージボックスの背景イメージ */
 static struct image *msgbox_bg_image;
 
-/* メッセージボックスの背景イメージ */
+/* メッセージボックスの前景イメージ */
 static struct image *msgbox_fg_image;
-
-/* メッセージボックスを表示するか */
-static bool is_msgbox_visible;
 
 /* 名前ボックスのイメージ */
 static struct image *namebox_image;
 
-/* 名前ボックスを表示するか */
-static bool is_namebox_visible;
-
 /* クリックアニメーションのイメージ */
 static struct image *click_image[CLICK_FRAMES];
-
-/* クリックアニメーションを表示するか */
-static bool is_click_visible;
-
-/* オートモードバナーを表示するか */
-static bool is_auto_visible;
-
-/* スキップモードバナーを表示するか */
-static bool is_skip_visible;
 
 /* 選択肢(非選択時)のイメージ */
 static struct image *switch_bg_image;
@@ -148,23 +146,64 @@ static struct image *news_bg_image;
 /* NEWS(選択)のイメージ */
 static struct image *news_fg_image;
 
-/* システムメニュー(非選択)のイメージ */
-static struct image *sysmenu_idle_image;
-
-/* システムメニュー(選択)のイメージ */
-static struct image *sysmenu_hover_image;
-
-/* システムメニュー(使用できない時)のイメージ */
-static struct image *sysmenu_disable_image;
-
-/* 折りたたみシステムメニュー(非選択)のイメージ */
+/* 折りたたみシステムメニュー(非ポイント時)のイメージ */
 static struct image *sysmenu_collapsed_idle_image;
 
-/* 折りたたみシステムメニュー(選択)のイメージ */
+/* 折りたたみシステムメニュー(ポイント時)のイメージ */
 static struct image *sysmenu_collapsed_hover_image;
+
+/* システムメニュー(ベース部分と非選択項目)のイメージ */
+static struct image *sysmenu_idle_image;
+
+/* システムメニュー(選択項目)のイメージ */
+static struct image *sysmenu_hover_image;
+
+/* システムメニュー(禁止項目)のイメージ */
+static struct image *sysmenu_disable_image;
+
+/* GUIのidle(ベース)イメージ */
+static struct image *gui_idle_image;
+
+/* GUIのhover(ポイント項目)イメージ */
+static struct image *gui_hover_image;
+
+/* GUIのactive(選択中項目やスライダーのボタン)イメージ */
+static struct image *gui_active_image;
 
 /* セーブデータ用のサムネイルイメージ */
 static struct image *thumb_image;
+
+/* ルールイメージ */
+static struct image *rule_img;
+
+/* クリックエフェクト */
+/*static struct image *tap_effect_image[TAP_EFFECT_FRAMES];*/
+
+/*
+ * レイヤの可視状態
+ */
+
+/* メッセージボックスを表示するか */
+static bool is_msgbox_visible;
+
+/* 名前ボックスを表示するか */
+static bool is_namebox_visible;
+
+/* クリックアニメーションを表示するか */
+static bool is_click_visible;
+
+/* オートモードバナーを表示するか */
+static bool is_auto_visible;
+
+/* スキップモードバナーを表示するか */
+static bool is_skip_visible;
+
+/*
+ * レイヤの表示位置、アルファ値、ブレンドタイプ
+ *  - 現状、ブレンドタイプは背景だとコピー、その他はFAST
+ *  - 必要に応じて加算や減算のブレンドタイプに対応する
+ *  - TODO: scale, rotateを追加する
+ */
 
 /* レイヤのx座標 */
 static int layer_x[STAGE_LAYERS];
@@ -178,39 +217,41 @@ static int layer_alpha[STAGE_LAYERS];
 /* レイヤのブレンドタイプ */
 static int layer_blend[STAGE_LAYERS];
 
+/*
+ * 発話中のキャラ以外を暗くするためのフラグ
+ */
+
+/* キャラを暗くするか */
+static bool ch_dim[CH_BASIC_LAYERS];
+
+/*
+ * 背景とキャラのファイル名
+ */
+
 /* 背景イメージ名 */
 static char *bg_file_name;
 
 /* キャライメージ名 */
 static char *ch_file_name[CH_ALL_LAYERS];
 
-/* STAGE_MODE_BG_FADEのときの新しい背景 */
-static struct image *new_bg_img;
-
-/* ルール画像 */
-static struct image *rule_img;
+/*
+ * フェードモード
+ *  - 描画最適化のため、全レイヤを毎フレーム描画することを避けている
+ *  - フェード後(FI)とフェード前(FO)のレイヤを作成して、2レイヤだけ描画する
+ *  - これはGPUを使わなかった2016年当初の設計による
+ *  - 今後アニメサブシステムの実装が進んでGPUが必須になればFI/FOを廃止予定
+ */
 
 /* FI/FOフェードの進捗 */
 static float fi_fo_fade_progress;
 
-/* キャラを暗くするか */
-static bool ch_dim[CH_BASIC_LAYERS];
-
 /*
- * 画面揺らしモード中の情報
+ * 画面揺らしモード
  */
 
 /* 画面表示オフセット */
 static int shake_offset_x;
 static int shake_offset_y;
-
-/*
- * GUIモード
- */
-
-static struct image *gui_idle_image;
-static struct image *gui_hover_image;
-static struct image *gui_active_image;
 
 /*
  * 前方参照
@@ -802,10 +843,6 @@ void cleanup_stage(void)
 			ch_file_name[i] = NULL;
 		}
 	}
-	if (new_bg_img != NULL) {
-		destroy_image(new_bg_img);
-		new_bg_img = NULL;
-	}
 	if (rule_img != NULL) {
 		destroy_image(rule_img);
 		rule_img = NULL;
@@ -842,9 +879,31 @@ static void destroy_layer_image(int layer)
  */
 
 /*
- * ステージを描画する
+ * ステージ全体を描画する
  */
 void draw_stage(void)
+{
+	/* 描画を行う */
+	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
+}
+
+/*
+ * ステージ全体を描画する(GPU用)
+ *  - GPU利用時はdraw_stage()を呼び出し、そうでなければ何もしない
+ *  - 参考: CPU描画時は変更部分のみを描画、GPU描画時は毎フレーム再描画
+ */
+void draw_stage_keep(void)
+{
+	if (is_gpu_accelerated())
+		draw_stage();
+}
+
+/*
+ * ステージの矩形を描画する
+ *  - GPU利用時は画面全体が再描画される
+ *  - アニメ実行中は画面全体が再描画される
+ */
+void draw_stage_rect(int x, int y, int w, int h)
 {
 	/* アニメーションサブシステムに更新させるデータの一覧 */
 	struct params {
@@ -906,57 +965,42 @@ void draw_stage(void)
 	};
 	int i;
 
-	/*
-	 * @bgや@chのフェードはFI/FOレイヤで行うので、それらのフェード中には
-	 * draw_stage()は使えない
-	 */
+	/* FI/FOレイヤの使用中はdraw_stage()は使えない */
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 
+	/* x, y ともに0以上 */
+	assert(x >= 0 && y >= 0);
+
+	/* w, h は0以上 (0でもいい) */
+	assert(w >= 0 && h >= 0);
+
 	/*
 	 * アニメーションのフレーム時刻を更新し、
-	 * 完了していればフラグをセットする
+	 * 完了していれば完了フラグをセットする
 	 */
 	update_anime_frame();
 
 	/*
 	 * 各レイヤの描画パラメータを更新する
-	 *  - 画像やファイル名も変わることがある
+	 *  - アニメシーケンスの"file:"指定により画像とファイル名も変更される
 	 */
 	for (i = 0; i < (int)(sizeof(params) / sizeof(struct params)); i++) {
-		if (is_anime_running_for_layer(params[i].anime_layer) ||
-		    is_anime_finished_for_layer(params[i].anime_layer)) {
-			get_anime_layer_params(params[i].anime_layer,
-					       params[i].image,
-					       params[i].fname,
-					       params[i].x,
-					       params[i].y,
-					       params[i].a);
-		}
+		/* 更新の必要がない場合 */
+		if (!is_anime_running_for_layer(params[i].anime_layer) &&
+		    !is_anime_finished_for_layer(params[i].anime_layer))
+			continue;
+
+		/* レイヤの情報を更新する */
+		get_anime_layer_params(params[i].anime_layer,
+				       params[i].image,
+				       params[i].fname,
+				       params[i].x,
+				       params[i].y,
+				       params[i].a);
 	}
 
-	/* 描画を行う */
-	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
-}
-
-/*
- * ステージ全体を描画する(GPU用)
- */
-void draw_stage_keep(void)
-{
-	if (is_gpu_accelerated())
-		draw_stage();
-}
-
-/*
- * ステージを描画する
- */
-void draw_stage_rect(int x, int y, int w, int h)
-{
-	assert(stage_mode != STAGE_MODE_BG_FADE);
-	assert(stage_mode != STAGE_MODE_CH_FADE);
-	assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
-
+	/* GPU利用時は更新範囲を画面全体にする */
 	if (is_gpu_accelerated()) {
 		x = 0;
 		y = 0;
@@ -964,16 +1008,19 @@ void draw_stage_rect(int x, int y, int w, int h)
 		h = conf_window_height;
 	}
 
+	/* 更新範囲がない場合は描画しない */
 	if (w == 0 || h == 0)
 		return;
 	if (x >= conf_window_width || y >= conf_window_height)
 		return;
+
+	/* 右側と下側のはみだし部分をクリッピングする */
 	if (x + w >= conf_window_width)
 		w = conf_window_width - x;
 	if (y + h >= conf_window_height)
 		h = conf_window_height - y;
 
-	/* レイヤを描画する */
+	/* 各レイヤで画面上の矩形(x, y) (w, h)に位置する部分を描画する */
 	render_layer_image_rect(LAYER_BG, x, y, w, h);
 	render_layer_image_rect(LAYER_CHB, x, y, w, h);
 	render_layer_image_rect(LAYER_CHL, x, y, w, h);
@@ -2633,6 +2680,24 @@ void change_bg_immediately(struct image *img)
 }
 
 /*
+ * 背景の位置を設定する
+ */
+void change_bg_attributes(int x, int y)
+{
+	layer_x[LAYER_BG] = x;
+	layer_y[LAYER_BG] = y;
+}
+
+/*
+ * 背景の位置を取得する
+ */
+void get_bg_position(int *x, int *y)
+{
+	*x = layer_x[LAYER_BG];
+	*y = layer_y[LAYER_BG];
+}
+
+/*
  * 背景フェードを開始する
  */
 void start_bg_fade(struct image *img)
@@ -2661,9 +2726,6 @@ void start_bg_fade(struct image *img)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
 	unlock_image(layer_image[LAYER_FO]);
 
-	/* フェードイン用のレイヤにイメージをセットする */
-	new_bg_img = img;
-
 	/* フェードイン用のレイヤに背景を描画する */
 	lock_image(layer_image[LAYER_FI]);
 	draw_image(layer_image[LAYER_FI], 0, 0, img, conf_window_width,
@@ -2688,6 +2750,9 @@ void start_bg_fade(struct image *img)
 	destroy_layer_image(LAYER_CHL);
 	destroy_layer_image(LAYER_CHR);
 	destroy_layer_image(LAYER_CHC);
+
+	/* 背景レイヤのイメージをセットする */
+	layer_image[LAYER_BG] = img;
 }
 
 /*
@@ -2718,9 +2783,6 @@ void stop_bg_fade(void)
 	}
 
 	stage_mode = STAGE_MODE_IDLE;
-	destroy_layer_image(LAYER_BG);
-	layer_image[LAYER_BG] = new_bg_img;
-	new_bg_img = NULL;
 }
 
 /*
@@ -2937,13 +2999,14 @@ static int layer_to_pos(int layer)
  * キャラフェードモード(複数,背景も)を開始する
  */
 void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
-			 const int *y)
+			 const int *y, const int *alpha)
 {
 	int i, layer;
+	const int BG_INDEX = CH_BASIC_LAYERS;
 
 	assert(stage_mode == STAGE_MODE_IDLE);
 
-	/* このフェードでもSTAGE_MODE_CH_FADEを利用する */
+	/* このフェードではSTAGE_MODE_CH_FADEを利用する */
 	stage_mode = STAGE_MODE_CH_FADE;
 
 	/* キャラフェードアウトレイヤにステージを描画する */
@@ -2969,21 +3032,23 @@ void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
 
 	/* キャラを入れ替える */
 	for (i = 0; i < CH_BASIC_LAYERS; i++) {
+        layer = pos_to_layer(i);
 		if (!stay[i]) {
-			layer = pos_to_layer(i);
 			destroy_layer_image(layer);
 			layer_image[layer] = img[i];
-			layer_alpha[layer] = 255;
-			layer_x[layer] = x[i];
-			layer_y[layer] = y[i];
 		}
+		layer_x[layer] = x[i];
+		layer_y[layer] = y[i];
+		layer_alpha[layer] = alpha[i];
 	}
 
 	/* 背景を入れ替える */
-	if (!stay[CH_BASIC_LAYERS]) {
+	if (!stay[BG_INDEX]) {
 		destroy_layer_image(LAYER_BG);
-		layer_image[LAYER_BG] = img[CH_BASIC_LAYERS];
+		layer_image[LAYER_BG] = img[BG_INDEX];
 	}
+	layer_x[LAYER_BG] = x[BG_INDEX];
+	layer_y[LAYER_BG] = x[BG_INDEX];
 
 	/* キャラフェードインレイヤにステージを描画する */
 	lock_image(layer_image[LAYER_FI]);

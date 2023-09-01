@@ -385,7 +385,7 @@ This method will build a NetBSD binary.
 
 This method will build a Switch app.
 
-LEGAL NOTICE: The original author does not have a license for the official
+**LEGAL NOTICE**: The original author does not have a license for the official
 Switch SDK, so he just wrote a code that might work with SDL. After that,
 a volunteer made it work with Switch homebrew. However, the original author
 was not involved in this porting, and he is trying to obtain an official
@@ -408,6 +408,13 @@ license.
   docker stop devkita64_run
   docker rm devkita64_run
   ```
+
+* Run:
+  * Copy `suika.nro` to `yourgamedir`.
+  * Copy `yourgamedir` to a Switch compatible sdcard (`/switch/yourgamedir`)
+  * Install `hbmenu` and select an arbitrary Switch app, then press `R` to enter `hbmenu`.
+    * Note: applet mode is not available as there is not enough memory.
+  * Select `swika` to play
 
 ## Release
 

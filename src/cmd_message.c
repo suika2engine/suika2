@@ -401,6 +401,7 @@ static bool process_escape_sequence_pen(const char **s);
 static bool process_escape_sequence_ruby(const char **s);
 static void do_word_wrapping(void);
 static uint32_t convert_tategaki_char(uint32_t wc);
+static bool is_tategaki_punctuation(uint32_t wc);
 static int get_en_word_width(void);
 static void process_lf(uint32_t c, int glyph_width, int glyph_height);
 static bool is_small_kana(uint32_t wc);
@@ -563,14 +564,12 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 		load_flag = false;
 	}
 
-	/* ステージの更新領域(x, y) (w, h)を描画する */
-	if (is_anime_running()) {
-		/* アニメ実行中は全体を描画し直す */
-		draw_stage();
-	} else {
-		/* GPUを使う場合は全体が再描画される */
-		draw_stage_rect(*x, *y, *w, *h);
-	}
+	/*
+	 * ステージの更新領域(x, y) (w, h)を描画する
+	 *  - アニメ中、またはGPU利用時は、画面全体の描画になる
+	 *  - アニメのアップデート処理はこの内部で行われる
+	 */
+	draw_stage_rect(*x, *y, *w, *h);
 
 	/* システムメニューを描画する */
 	if (!conf_sysmenu_hidden && !is_hidden) {
@@ -891,7 +890,7 @@ static bool init_msg_top(void)
 
 	/* セリフの場合、実際に表示するメッセージを修飾する */
 	if (is_serif) {
-		if (conf_namebox_hidden) {
+		if (conf_namebox_hidden || conf_msgbox_tategaki) {
 			/* 名前とカギカッコを付加する */
 			msg_top = concat_serif(name_top, exp_msg);
 			if (msg_top == NULL) {
@@ -1278,7 +1277,8 @@ static bool init_serif(int *x, int *y, int *w, int *h)
 	}
 
 	/* 名前を描画する */
-	draw_namebox();
+	if (!conf_namebox_hidden && !conf_msgbox_tategaki)
+		draw_namebox();
 
 	/* 名前ボックスを表示する */
 	show_namebox(true);
@@ -2751,10 +2751,15 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 
 		/* 次の文字へ移動する */
 		msg_cur += mblen;
-		if (!conf_msgbox_tategaki)
+		if (!conf_msgbox_tategaki) {
 			pen_x += glyph_width + conf_msgbox_margin_char;
-		else
-			pen_y += glyph_height + conf_msgbox_margin_char;
+		} else {
+			if (is_tategaki_punctuation(wc))
+				pen_y += conf_font_size;
+			else
+				pen_y += glyph_height;
+			pen_y += conf_msgbox_margin_char;
+		}
 		drawn_chars++;
 	}
 
@@ -3220,7 +3225,7 @@ static void do_word_wrapping(void)
 }
 
 /* 縦書きの句読点変換を行う */
-uint32_t convert_tategaki_char(uint32_t wc)
+static uint32_t convert_tategaki_char(uint32_t wc)
 {
 	switch (wc) {
 	case U32_C('、'): return U32_C('︑');
@@ -3247,6 +3252,36 @@ uint32_t convert_tategaki_char(uint32_t wc)
 		break;
 	}
 	return wc;
+}
+
+/* 縦書きの句読点かどうか調べる */
+static bool is_tategaki_punctuation(uint32_t wc)
+{
+	switch (wc) {
+	case U32_C('︑'): return true;
+	case U32_C('︐'): return true;
+	case U32_C('︒'): return true;
+	case U32_C('︵'): return true;
+	case U32_C('︶'): return true;
+	case U32_C('︷'): return true;
+	case U32_C('︸'): return true;
+	case U32_C('﹁'): return true;
+	case U32_C('﹂'): return true;
+	case U32_C('﹃'): return true;
+	case U32_C('﹄'): return true;
+	case U32_C('︻'): return true;
+	case U32_C('︼'): return true;
+	case U32_C('﹇'): return true;
+	case U32_C('﹈'): return true;
+	case U32_C('︹'): return true;
+	case U32_C('︺'): return true;
+	case U32_C('︙'): return true;
+	case U32_C('︰'): return true;
+	case U32_C('丨'): return true;
+	default:
+		break;
+	}
+	return false;
 }
 
 /* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
