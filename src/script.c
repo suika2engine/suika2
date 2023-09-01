@@ -490,26 +490,32 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_CX, U8("中央X=")},
 	{COMMAND_CHSX, CHSX_PARAM_CY, "center-y="},
 	{COMMAND_CHSX, CHSX_PARAM_CY, U8("中央Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_CA, "center-a="},
+	{COMMAND_CHSX, CHSX_PARAM_CA, U8("中央A=")},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT, "right="},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT, U8("右=")},
 	{COMMAND_CHSX, CHSX_PARAM_RX, "right-x="},
 	{COMMAND_CHSX, CHSX_PARAM_RX, U8("右X=")},
 	{COMMAND_CHSX, CHSX_PARAM_RY, "right-y="},
 	{COMMAND_CHSX, CHSX_PARAM_RY, "右Y="},
+	{COMMAND_CHSX, CHSX_PARAM_RA, "right-a="},
+	{COMMAND_CHSX, CHSX_PARAM_RA, "右A="},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT, "left="},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT, U8("左=")},
 	{COMMAND_CHSX, CHSX_PARAM_LX, "left-x="},
 	{COMMAND_CHSX, CHSX_PARAM_LX, U8("左X=")},
 	{COMMAND_CHSX, CHSX_PARAM_LY, "left-y="},
 	{COMMAND_CHSX, CHSX_PARAM_LY, U8("左Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_LA, "left-a="},
+	{COMMAND_CHSX, CHSX_PARAM_LA, U8("左A=")},
 	{COMMAND_CHSX, CHSX_PARAM_BACK, "back="},
 	{COMMAND_CHSX, CHSX_PARAM_BACK, U8("背面=")},
 	{COMMAND_CHSX, CHSX_PARAM_BX, "back-x="},
 	{COMMAND_CHSX, CHSX_PARAM_BX, U8("背面X=")},
 	{COMMAND_CHSX, CHSX_PARAM_BY, "back-y="},
 	{COMMAND_CHSX, CHSX_PARAM_BY, U8("背面Y=")},
-	{COMMAND_CHSX, CHSX_PARAM_SPAN, "duration="},
-	{COMMAND_CHSX, CHSX_PARAM_SPAN, U8("秒=")},
+	{COMMAND_CHSX, CHSX_PARAM_BA, "back-a="},
+	{COMMAND_CHSX, CHSX_PARAM_BA, U8("背面A=")},
 	{COMMAND_CHSX, CHSX_PARAM_BG, "background="},
 	{COMMAND_CHSX, CHSX_PARAM_BG, U8("背景=")},
 	{COMMAND_CHSX, CHSX_PARAM_BGX, "bg-x="},
@@ -518,6 +524,8 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_BGY, U8("背景Y=")},
 	{COMMAND_CHSX, CHSX_PARAM_METHOD, "effect="},
 	{COMMAND_CHSX, CHSX_PARAM_METHOD, U8("エフェクト=")},
+	{COMMAND_CHSX, CHSX_PARAM_SPAN, "duration="},
+	{COMMAND_CHSX, CHSX_PARAM_SPAN, U8("秒=")},
 };
 
 #define PARAM_TBL_SIZE	(sizeof(param_tbl) / sizeof(struct param_item))
@@ -1581,7 +1589,12 @@ static bool process_switch_block(struct rfile *rf, const char *raw,
 	save_smode_target_case = smode_target_case;
 
 	/* ターゲットをセットする */
+#if defined(__GNUC__) && __GNUC__ >= 13 && !defined(__llvm__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-pointer"
 	smode_target_finally = finally_label;
+#pragma GCC diagnostic pop
+#endif
 	smode_target_case = NULL;
 
 	/* switchブロックが終了するまで読み込む */

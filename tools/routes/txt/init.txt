@@ -1,0 +1,56 @@
+:STORY_START
+
+:LOOP1
+@choose L1-1 A1 L1-2 B1 L1-3 C1
+:L1-1
+@goto LOOP1
+:L1-2
+@goto LOOP1
+:L1-3
+
+:LOOP2
+@choose L2-1 A2 L2-2 B2 L2-3 C2
+:L2-1
+@goto LOOP2
+:L2-2
+@goto LOOP2
+:L2-3
+
+:LOOP3
+@choose L3-1 A3 L3-2 B3 L3-3 C3
+:L3-1
+:L3-2
+:L3-3
+
+:LOOP4
+@choose L4-1 A4 L4-2 B4 L4-3 C4
+:L4-1
+:L4-2
+:L4-3
+
+:LOOP5
+@choose L5-1 A5 L5-2 B5 L5-3 C5
+:L5-1
+:L5-2
+:L5-3
+
+:LOOP6
+@choose L6-1 A6 L6-2 B6 L6-3 C6
+:L6-1
+:L6-2
+:L6-3
+
+:LOOP7
+@choose L7-1 A7 L7-2 B7 L7-3 C7
+:L7-1
+:L7-2
+:L7-3
+
+:LOOP8
+@choose L8-1 A8 L8-2 B8 L8-3 C8
+:L8-1
+:L8-2
+:L8-3
+
+
+:GOAL_END

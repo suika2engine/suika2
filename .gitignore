@@ -168,5 +168,5 @@ build/release/suika-2.x.x-en.zip
 build/web-kit/suika2-web-kit-2.x.x-en.zip
 build/web-kit/suika2-web-kit-2.x.x-jp.zip
 
-testcases/
+testcases
 summary

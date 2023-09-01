@@ -1,0 +1,29 @@
+func main() {
+    a[0] = 1;
+    a[1] = -2;
+    print(a[0] + a[1]);
+
+    b = 1;
+    b["key1"] = 2;
+    b["key2"] = "value2";
+    b[100] = -123;
+    print(b);
+    print("size=" + size(b));
+
+    c = b;
+
+    remove(b, "key1");
+    print("b=" + size(b));
+    print(b);
+
+    remove(b, "key2");
+    print("b=" + size(b));
+    print(b);
+
+    remove(b, 100);
+    print("b=" + size(b));
+    print(b);
+
+    print("c=" + size(c));
+    print(c);
+}

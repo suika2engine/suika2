@@ -1,0 +1,13 @@
+func main() {
+    print_animal("cat", 4, 0);
+    print_animal("dog", 4, 0);
+    print_animal("human", 2, 0);
+    print_animal("bird", 2, 1);
+}
+
+func print_animal(name, legs, wings) {
+    print("a " + name + " has " + legs + " legs.");
+    if(wings) {
+        print("Oh, a " + name + " has wings!");
+    }
+}

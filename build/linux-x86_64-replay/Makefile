@@ -94,7 +94,7 @@ include ../sse.mk
 #
 
 install: suika-replay
-	cp suika ../../suika-linux-replay
+	cp suika-replay ../../suika-linux-replay
 
 clean:
 	rm -rf *~ *.o suika-replay log.txt sav tmp

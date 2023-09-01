@@ -1,0 +1,789 @@
+:root {
+    --white: white;
+    --black: black;
+    --red: #F27B6F;
+
+    --accent1: #eff3fc;
+    --accent2: #ccd4e1;
+    --accent3: #acd489;
+    --accent4: #f27b6f;
+
+    --scrollbar-thumb: gray;
+    --scrollbar-track: #eff3fc;
+}
+
+body {
+    min-height: 100vh;
+    max-height: 100vh;
+    font-weight: bold;
+    color: var(--black);
+    background: var(--white);
+    padding: 0;
+    margin: 0;
+    font-family: "游ゴシック", "ヒラギノ角ゴ ProN", sans-serif;
+    user-select: none;
+}
+
+/*
+ * 上ブロック | Upper block
+ */
+
+.grid0-area {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-rows: 48px calc(100vh - 48px);
+    grid-template-columns: 100%;
+}
+
+.grid0-up {
+    grid-row: 1;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.grid0-bottom {
+    grid-row: 2;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+}
+
+/* ナビゲーション | Navigation */
+.navigation {
+    width: 100%;
+    height: 100%;
+    background-color: var(--white);
+}
+.navigation a {
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    padding: 0 1em;
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.5s;
+    width: 5em;
+    line-height: 48px;
+    vertical-align: center;
+}
+.navigation a:hover {
+    background-color: var(--accent2);
+}
+
+/*
+ * 分割 | Columns
+ */
+
+/* 縦の左中右 | Controls the entire page */
+.grid1-area {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-rows: 100%;
+    grid-template-columns: 240px calc(100% - 480px) 240px;
+}
+
+.grid1-left {
+    grid-row: 1;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.grid1-scenario {
+    grid-row: 1;
+    grid-column: 2;
+    width: 100%;
+    height: 100%;
+}
+
+.grid1-right {
+    grid-row: 1;
+    grid-column: 3;
+    width: 100%;
+    height: 100%;
+}
+
+/* 左段の上中下 | Left-hand side */
+.grid2-area {
+    display: grid;
+    height: 100%;
+    grid-template-rows: 50% 50%;
+    grid-template-columns: 100%;
+}
+
+.grid2-palette {
+    grid-row: 1;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.grid2-files {
+    grid-row: 2;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+}
+
+/* 右段の上下 | Right-hand side */
+.grid3-area {
+    background-color: var(--white);
+    display: grid;
+    height: 100%;
+    grid-template-rows: 70% 30%;
+    grid-template-columns: 100%;
+}
+
+.grid3-prop {
+    grid-row: 1;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.grid3-thumbnail {
+    grid-row: 2;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+}
+
+/*
+ * パレット | Pallete
+ */
+
+.palette-panel {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+.palette-panel::-webkit-scrollbar {
+    width: 5px;
+}
+.palette-panel::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+.palette-panel::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+.palette-list-holder {
+    padding: 5px;
+    padding-top: 0px;
+    width: calc(100% - 35px - 10px);
+    height: 100%;
+    margin-right: 0px;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+}
+
+.palette-list-item {
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 10px;
+    padding: 1em;
+    list-style-type: none!important;
+    cursor: pointer;
+    text-align: center;
+    transition: .5s;
+    background: var(--accent3);
+    color: var(--black);
+    border-radius: 15px;
+    padding-left: 1.0em;
+    padding-right: 1.0em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+.palette-list-item:hover {
+    background: var(--accent2);
+}
+
+.palette-list-item-sel {
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 10px;
+    padding: 1em;
+    list-style-type: none!important;
+    cursor: pointer;
+    text-align: center;
+    transition: .5s;
+    background: var(--accent3);
+    color: var(--black);
+    border-radius: 15px;
+    padding-left: 1.0em;
+    padding-right: 1.0em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    animation: glisten 2.5s infinite;
+}
+
+@keyframes glisten {
+    0% {
+	filter: brightness(100%);
+    }
+    5% {
+	filter: brightness(105%);
+    }
+    10% {
+	filter: brightness(110%);
+    }
+    15% {
+	filter: brightness(115%);
+    }
+    20% {
+	filter: brightness(120%);
+    }
+    25% {
+	filter: brightness(125%);
+    }
+    30% {
+	filter: brightness(130%);
+    }
+    35% {
+	filter: brightness(135%);
+    }
+    40% {
+	filter: brightness(140%);
+    }
+    45% {
+	filter: brightness(145%);
+    }
+    50% {
+	filter: brightness(150%);
+    }
+}
+
+/*
+ * 素材 | Materials
+ */
+
+/* タブ切り替え | Tabs and tab-switching */
+
+.tab-wrap {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+input[name="tab-btn"] {
+    display:none;
+}
+
+.tab-area {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    height: 32px;
+    text-align: center; /* Centres material-type images */
+    overflow-y: none;
+}
+
+.tab-area label {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    padding: 0 0;
+    cursor: pointer;
+    transition: ease 0.5s;
+}
+
+.tab-area label:hover {
+    background-color: var(--accent2);
+}
+
+.tab-img {
+    object-fit: contain;
+    width: 32px;
+    height: 32px;
+}
+
+.tab-panel-area {
+    width: 100%;
+    height: calc(100% - 48px);
+}
+
+.tab-panel {
+    padding: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+.tab-panel::-webkit-scrollbar {
+    width: 5px;
+}
+.tab-panel::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+.tab-panel::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+#tab-txt:checked ~ .tab-area .tab-txt-label {background:var(--accent2); color:#000; }
+#tab-txt:checked ~ .tab-panel-area #tab-panel-txt { display:block; }
+#tab-bg:checked ~ .tab-area .tab-bg-label {background:var(--accent2); color:#000; }
+#tab-bg:checked ~ .tab-panel-area #tab-panel-bg { display:block; }
+#tab-ch:checked ~ .tab-area .tab-ch-label {background:var(--accent2); color:#000; }
+#tab-ch:checked ~ .tab-panel-area #tab-panel-ch { display:block; }
+#tab-bgm:checked ~ .tab-area .tab-bgm-label {background:var(--accent2); color:#000; }
+#tab-bgm:checked ~ .tab-panel-area #tab-panel-bgm { display:block; }
+#tab-se:checked ~ .tab-area .tab-se-label {background:var(--accent2); color:#000; }
+#tab-se:checked ~ .tab-panel-area #tab-panel-se { display:block; }
+#tab-mov:checked ~ .tab-area .tab-mov-label {background:var(--accent2); color:#000; }
+#tab-mov:checked ~ .tab-panel-area #tab-panel-mov { display:block; }
+
+/* タブの中身 | Tab contents */
+
+.tab-list-holder {
+    height: 100%;
+    padding: 5px;
+    padding-top: 0px;
+    width: calc(100% - 35px - 10px);
+    height: calc(100% - 48px);
+    position: relative;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+}
+
+.tab-list-item {
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 10px;
+    padding-left: 1.0em;
+    padding-right: 1.0em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    list-style-type: none!important;
+    cursor: pointer;
+    text-align: center;
+    transition: .5s;
+    background: var(--accent4);
+    color: var(--black);
+    border-radius: 15px;
+}
+.tab-list-item:hover {
+    color: var(--black);
+    background: var(--accent2);
+}
+
+.tab-list-item-sel {
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 10px;
+    padding-left: 1.0em;
+    padding-right: 1.0em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    list-style-type: none!important;
+    cursor: pointer;
+    text-align: center;
+    transition: .5s;
+    background: var(--accent4);
+    color: var(--black);
+    animation: glisten 2.5s infinite;
+    border-radius: 15px;
+}
+
+.dragover {
+    border: 4px dash #ccc;
+    background: rgba(240, 240, 240, 0.6);
+}
+
+/*
+ * シナリオビュー | Scenario Area
+ */
+
+/* メインリストのコンテナ | Centre scenario container */
+.scenario-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+.scenario-container::-webkit-scrollbar {
+    width: 5px;
+}
+.scenario-container::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+.scenario-container::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+/* メインリスト | Scenario view */
+.scenario-list {
+    width: calc(100% - 30px);
+    height: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin: 0;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+}
+
+/* ドラッグ可能なリスト項目 | List of draggable items */
+.drag-list-item {
+    color: blue;
+    margin-bottom: 10px;
+    cursor: pointer;
+    list-style-type: none!important;
+    text-align: center;
+    transition: .5s;
+}
+.drag-list-item:hover {
+    color: var(--black);
+    background: var(--accent2);
+}
+
+/* 選択中の項目 | Selected item */
+.drag-list-item-sel {
+    border: 3px solid var(--black);
+}
+
+/* メッセージの項目 | Message */
+.drag-list-item-msg {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* セリフの項目 | Serif */
+.drag-list-item-serif {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @bgの項目 | Background (item) */
+.drag-list-item-bg {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @chの項目 | Character */
+.drag-list-item-ch {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @bgmの項目 | Background music */
+.drag-list-item-bgm {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @seの項目 | Sound effect */
+.drag-list-item-se {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @volの項目 | Volume */
+.drag-list-item-vol {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @chooseの項目 | Options */
+.drag-list-item-choose {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @chaの項目 | CHA */
+.drag-list-item-cha {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @chsの項目 | CHS */
+.drag-list-item-chs {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @chsxの項目 | CHSX */
+.drag-list-item-chsx {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @shakeの項目 | Screen shake */
+.drag-list-item-shake {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @clickの項目 | Click wait */
+.drag-list-item-click {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @waitの項目 | Timed Wait */
+.drag-list-item-wait {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @skipの項目 | Skip (item) */
+.drag-list-item-skip {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @gotoの項目 | Goto-jump*/
+.drag-list-item-goto {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @setの項目 | Set (item) */
+.drag-list-item-set {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @ifの項目 | if (item) */
+.drag-list-item-if {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @loadの項目 | load (item) */
+.drag-list-item-load {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @chapterの項目 | Chapter */
+.drag-list-item-chapter {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @wmsの項目 | Watermelon Script */
+.drag-list-item-wms {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* @guiの項目 | GUI */
+.drag-list-item-gui {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* ラベルの項目 | Label */
+.drag-list-item-label {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* コメントの項目 | Comment (item) */
+.drag-list-item-comment {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* 終了マーカー項目 | End marker */
+.drag-list-item-end {
+    border: 4px dotted gray;
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
+/* その他の項目(未対応のコマンド) | Other (unsupported commands) */
+.drag-list-item-etc {
+    border-left: 10px solid gray;
+    padding-left: 10px;
+}
+
+/*
+ * プロパティ | Properties
+ */
+
+/* プロパティペイン | Properties panel */
+.prop-container {
+    padding-top: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+.prop-container::-webkit-scrollbar {
+    width: 5px;
+}
+.prop-container::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+.prop-container::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+/* プロパティペイン | Properties panel (2) */
+.prop-pane {
+    width: calc(100% - 1em);
+    height: calc(100% - 2em);
+    font-size: 16px;
+    padding-left: 1em;
+    padding-bottom: 1em;
+    display: none;
+    margin: 0;
+}
+.prop-pane h3 {
+    margin-top: 0;
+}
+
+/* テキストエリア(複数行) | Text-area – multi-line */
+.prop-textmulti {
+    display: block;
+    padding: 0.25em;
+    width: 80%;
+    height: 5em;
+    margin: 0;
+    font-family: inherit;
+}
+
+/* テキストエリア(単一行) | Text-area – sinular line */
+.prop-textsingle {
+    margin: 0;
+    display: block;
+    width: 80%;
+}
+
+.prop-select {
+    font-size: 16px;
+    width: 80%;
+    display: block;
+}
+
+/*
+ * サムネイル | Thumbnail image
+ */
+
+.thumbnail-holder {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #e0e0e0;
+    background-image: linear-gradient(45deg, #9e9e9e 25%, transparent 0),
+		      linear-gradient(45deg, transparent 75%, #9E9E9E 0),
+		      linear-gradient(45deg, #9e9e9e 25%, transparent 0),
+		      linear-gradient(45deg, transparent 75%, #9E9E9E 0);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px, 15px 15px, 30px 30px;
+    cursor: crosshair;
+}
+
+.thumbnail-picture {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    -webkit-transform: translateY(-50%) translateX(-50%);
+}

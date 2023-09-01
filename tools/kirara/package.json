@@ -1,0 +1,54 @@
+{
+    "name": "Kirara",
+    "version": "1.0.0",
+    "description": "Suika2 Kirara is a visual editor for the Suika2 Visual Novel Engine.",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "electron .",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "Keiichi Tabata",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^22.0.0",
+        "electron-builder": "^23.6.0",
+        "unzipper": "^0.10.11"
+    },
+    "build": {
+        "appId": "com.suika2.kirara",
+        "afterSign": "scripts/notarize.js",
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "assets",
+            "src",
+            "template",
+            "apps",
+            "package.json",
+            "package-lock.json"
+        ],
+        "mac": {
+            "icon": "assets/mac/suika.icns",
+            "hardenedRuntime": true,
+            "gatekeeperAssess": false,
+            "entitlements": "build/entitlements.plist",
+            "entitlementsInherit": "build/entitlements.plist",
+            "target": "dmg"
+        },
+        "win": {
+            "icon": "assets/win/suika.ico",
+            "target": "nsis",
+            "publisherName": "Open Source Developer, Keiichi Tabata"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        }
+    },
+    "dependencies": {
+        "dotenv": "^16.0.3",
+        "electron-notarize": "^1.2.2"
+    }
+}

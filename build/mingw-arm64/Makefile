@@ -4,13 +4,10 @@ include ../common.mk
 # Toolchain
 #
 
-export PATH = $(shell echo `readlink -f llvm/bin`:$$PATH)
-
 # For cross compilation
-CC = aarch64-w64-mingw32-gcc
-CXX = aarch64-w64-mingw32-g++
-WINDRES = aarch64-w64-mingw32-windres
-
+CC = ./llvm/bin/aarch64-w64-mingw32-gcc
+CXX = ./llvm/bin/aarch64-w64-mingw32-g++
+WINDRES = ./llvm/bin/aarch64-w64-mingw32-windres
 
 #
 # CPPFLAGS

@@ -1,0 +1,19 @@
+func main() {
+    ret = foo();
+    print(ret);
+
+    print(bar());
+}
+
+func foo() {
+    return 123;
+}
+
+func bar() {
+    for(i in 0..9) {
+    	 print("i=" + i);
+	 if (i == 5) {
+	     return i;
+	 }
+    }
+}

@@ -33,7 +33,7 @@ suika-2.x.x-en.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../../doc/COPYING suika2/
 	cp -v readme-en.html suika2/README.html
 	mkdir suika2/.vscode
-	cp -v ../../snippets/en-normal/plaintext.code-snippets suika2/.vscode/
+	cp -v ../../tools/snippets/en-normal/plaintext.code-snippets suika2/.vscode/
 	cp -v ../cloud/suika.exe suika2/
 	cp -v ../cloud/suika-pro.exe suika2/
 	cp -v ../cloud/mac.dmg suika2/
@@ -89,7 +89,7 @@ suika-2.x.x-jp.zip: ../cloud/suika.exe ../cloud/suika-pro.exe ../cloud/suika-cap
 	cp -v ../../doc/COPYING suika2/
 	cp -v readme-jp.html suika2/README.html
 	mkdir suika2/.vscode
-	cp -v ../../snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
+	cp -v ../../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
 	cp -v ../cloud/suika.exe suika2/
 	cp -v ../cloud/suika-pro.exe suika2/
 	cp -v ../cloud/mac.dmg suika2/

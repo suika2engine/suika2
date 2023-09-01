@@ -1,0 +1,10 @@
+func main() {
+    myfunc = "foo";
+    myfunc(1, 2, 3);
+}
+
+func foo(a, b, c) {
+    print(a);
+    print(b);
+    print(c);
+}

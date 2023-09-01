@@ -91,7 +91,7 @@ include ../sse.mk
 #
 
 install: suika-capture
-	cp suika ../../suika-linux-capture
+	cp suika-capture ../../suika-linux-capture
 
 clean:
 	rm -rf *~ *.o suika-capture log.txt sav tmp

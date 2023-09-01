@@ -1,0 +1,5 @@
+In FFI hello(): got a = 1
+In FFI hello(): got b = 3.140000
+In FFI hello(): got c = str
+In FFI hello(): got d["hello"] = hello
+bonjour

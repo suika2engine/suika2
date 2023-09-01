@@ -1,0 +1,23 @@
+func main() {
+    a[0] = 0;
+    a[1] = 1;
+    a[2] = 2;
+
+    sum = 0;
+    for(k, v in a) {
+        print("k=" + k);
+        print("v=" + v);
+	sum = sum + v;
+    }
+    print("sum = " + sum);
+
+    sum = 0;
+    for(v in a) {
+        sum = sum + v;
+    }
+    print("sum = " + sum);
+
+    for(i in 0..9) {
+        print("i=" + i);
+    }
+}
