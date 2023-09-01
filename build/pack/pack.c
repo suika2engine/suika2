@@ -6,15 +6,15 @@
 #ifdef _WIN32
 #include <windows.h>
 
-#define CONV_MESSAGE_SIZE 65536
-
-wchar_t wszMessage[CONV_MESSAGE_SIZE];
-char szMessage[CONV_MESSAGE_SIZE];
-
+int WINAPI wWinMain(
+	HINSTANCE hInstance,
+	UNUSED(HINSTANCE hPrevInstance),
+	UNUSED(LPWSTR lpszCmd),
+	int nCmdShow)
+{
+	return main(2, NULL);
+}
 #endif
-
-/* Force English output. */
-int conf_i18n = 1;
 
 int main(int argc, char *argv[])
 {
@@ -29,18 +29,41 @@ int main(int argc, char *argv[])
 }
 
 #ifdef _WIN32
-int WINAPI wWinMain(
-	HINSTANCE hInstance,
-	UNUSED(HINSTANCE hPrevInstance),
-	UNUSED(LPWSTR lpszCmd),
-	int nCmdShow)
+/*
+ * Conversions between UTF-8 and UTF-16.
+ */
+
+#define CONV_MESSAGE_SIZE 65536
+
+static wchar_t wszMessage[CONV_MESSAGE_SIZE];
+static char szMessage[CONV_MESSAGE_SIZE];
+
+const wchar_t *conv_utf8_to_utf16(const char *utf8_message)
 {
-	return main(2, NULL);
+	assert(utf8_message != NULL);
+	MultiByteToWideChar(CP_UTF8, 0, utf8_message, -1, wszMessage,
+			    CONV_MESSAGE_SIZE - 1);
+	return wszMessage;
+}
+
+const char *conv_utf16_to_utf8(const wchar_t *utf16_message)
+{
+	assert(utf16_message != NULL);
+	WideCharToMultiByte(CP_UTF8, 0, utf16_message, -1, szMessage,
+			    CONV_MESSAGE_SIZE - 1, NULL, NULL);
+	return szMessage;
 }
 #endif
 
 /*
- * Logging Functions
+ * Stub for conf.c
+ */
+
+/* Force English output. */
+int conf_i18n = 1;
+
+/*
+ * Stub for platform.c
  */
 
 bool log_error(const char *s, ...)
@@ -78,12 +101,16 @@ bool log_info(const char *s, ...)
 
 const char *conv_utf8_to_native(const char *utf8_message)
 {
-	/* stub */
 	return utf8_message;
 }
 
+const char *get_system_locale(void)
+{
+	return "other";
+}
+
 /*
- * Stub Functions
+ * Stub for script.c
  */
 
 const char *get_script_file_name(void)
@@ -106,39 +133,14 @@ int get_command_index(void)
 	return 0;
 }
 
+void translate_failed_command_to_message(int index)
+{
+}
+
+/*
+ * Stub for main.c
+ */
+
 void dbg_set_error_state(void)
 {
 }
-
-void set_error_command(int index, char *text)
-{
-}
-
-const char *get_system_locale(void)
-{
-	return "other";
-}
-
-#ifdef _WIN32
-const wchar_t *conv_utf8_to_utf16(const char *utf8_message)
-{
-	assert(utf8_message != NULL);
-
-	/* UTF8からUTF16に変換する */
-	MultiByteToWideChar(CP_UTF8, 0, utf8_message, -1, wszMessage,
-						CONV_MESSAGE_SIZE - 1);
-
-	return wszMessage;
-}
-
-const char *conv_utf16_to_utf8(const wchar_t *utf16_message)
-{
-	assert(utf16_message != NULL);
-
-	/* ワイド文字からUTF-8に変換する */
-	WideCharToMultiByte(CP_UTF8, 0, utf16_message, -1, szMessage,
-						CONV_MESSAGE_SIZE - 1, NULL, NULL);
-
-	return szMessage;
-}
-#endif
