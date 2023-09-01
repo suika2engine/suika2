@@ -543,6 +543,16 @@ input[name="tab-btn"] {
     text-decoration: none;
 }
 
+/* @chsxの項目 | CHSX */
+.drag-list-item-chsx {
+    background-color: var(--accent1);
+    color: var(--black);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 1em;
+    text-decoration: none;
+}
+
 /* @shakeの項目 | Screen shake */
 .drag-list-item-shake {
     background-color: var(--accent1);

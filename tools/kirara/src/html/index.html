@@ -28,7 +28,7 @@
 									<li class="palette-list-item" draggable="true" id="cmd-message">文章</li>
 									<li class="palette-list-item" draggable="true" id="cmd-serif">セリフ</li>
 									<li class="palette-list-item" draggable="true" id="cmd-choose">選択肢</li>
-									<li class="palette-list-item" draggable="true" id="cmd-chs">場面転換</li>
+									<li class="palette-list-item" draggable="true" id="cmd-chsx">場面転換</li>
 									<li class="palette-list-item" draggable="true" id="cmd-cha">キャラ移動</li>
 									<li class="palette-list-item" draggable="true" id="cmd-vol">音量</li>
 									<li class="palette-list-item" draggable="true" id="cmd-label">目印を付ける</li>
@@ -311,6 +311,69 @@
 									</select>
 									<br>
 								</div>
+								<div id="prop-chsx" class="prop-pane">
+									<h3>場面転換X</h3>
+									秒:<br>
+									<input id="prop-chsx-duration" type="range" name="duration" min="0" max="10" step="0.1"><span id="prop-chsx-duration-num"></span><br>
+									<br>
+									エフェクト:<br>
+									<select id="prop-chsx-effect" class="prop-select" name="effect">
+										<option value="normal">標準</option>
+										<option value="curtain-right">右カーテン</option>
+										<option value="curtain-left">左カーテン</option>
+										<option value="curtain-up">上カーテン</option>
+										<option value="curtain-down">下カーテン</option>
+									</select><br>
+									<br>
+									中央キャラ:<br>
+									<select id="prop-chsx-center" class="prop-select" name="center">
+									</select><br>
+									横方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-center-x" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-center-x-num"></span><br>
+									縦方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-center-y" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-center-y-num"></span><br>
+									アルファ(不透明度):<br>
+									<input id="prop-chsx-center-alpha" type="range" name="duration" min="0" max="255" step="1"><span id="prop-chsx-center-alpha-num"></span><br>
+									<br>
+									右キャラ:<br>
+									<select id="prop-chsx-right" class="prop-select" name="right">
+									</select><br>
+									横方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-right-x" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-right-x-num"></span><br>
+									縦方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-right-y" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-right-y-num"></span><br>
+									アルファ(不透明度):<br>
+									<input id="prop-chsx-right-alpha" type="range" name="duration" min="0" max="255" step="1"><span id="prop-chsx-right-alpha-num"></span><br>
+									<br>
+									左キャラ:<br>
+									<select id="prop-chsx-left" class="prop-select" name="left">
+									</select><br>
+									横方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-left-x" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-left-x-num"></span><br>
+									縦方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-left-y" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-left-y-num"></span><br>
+									アルファ(不透明度):<br>
+									<input id="prop-chsx-left-alpha" type="range" name="duration" min="0" max="255" step="1"><span id="prop-chsx-left-alpha-num"></span><br>
+									<br>
+									中央背面キャラ:<br>
+									<select id="prop-chsx-back" class="prop-select" name="back">
+									</select><br>
+									横方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-back-x" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-back-x-num"></span><br>
+									縦方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-back-y" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-back-y-num"></span><br>
+									アルファ(不透明度):<br>
+									<input id="prop-chsx-back-alpha" type="range" name="duration" min="0" max="255" step="1"><span id="prop-chsx-back-alpha-num"></span><br>
+									<br>
+									背景:<br>
+									<select id="prop-chsx-background" class="prop-select" name="background">
+									</select>
+									横方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-bg-x" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-bg-x-num"></span><br>
+									縦方向の移動(ピクセル数):<br>
+									<input id="prop-chsx-bg-y" type="range" name="duration" min="-1280" max="1280" step="1"><span id="prop-chsx-bg-y-num"></span><br>
+									<br>
+								</div>
 								<div id="prop-shake" class="prop-pane">
 									<h3>画面を揺らす</h3>
 									方向:<br>
@@ -420,6 +483,14 @@
 									<h3>動画</h3>
 									ファイル: (Windowsでは.wmv、それ以外では.mp4)<br>
 									<input id="prop-video-file" type="text" readonly class="prop-textsingle">
+									<br>
+								</div>
+								<div id="prop-setconfig" class="prop-pane">
+									<h3>コンフィグ変更</h3>
+									コンフィグ名:<br>
+									<input id="prop-setconfig-key" type="text" class="prop-textsingle"><br>
+									値:<br>
+									<input id="prop-setconfig-value" type="text" class="prop-textsingle">
 									<br>
 								</div>
 								<div id="prop-label" class="prop-pane">

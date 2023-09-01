@@ -136,6 +136,11 @@ function createCommandElement(command) {
         var cl = normalizeChs(command);
         newElem.textContent = translate("場面転換");
         newElem.classList.add("drag-list-item-chs");
+    } else if(command.startsWith("@chsx ") || command.startsWith("@場面転換X ")) {
+        // @chsx
+        var cl = normalizeChsx(command);
+        newElem.textContent = translate("場面転換X");
+        newElem.classList.add("drag-list-item-chsx");
     } else if(command.startsWith("@shake ") || command.startsWith("@振動 ")) {
         // @shake
         var cl = normalizeShake(command);
@@ -195,6 +200,11 @@ function createCommandElement(command) {
         var cl = normalizeVideo(command);
         newElem.textContent = translate("動画 ") + cl[1];
         newElem.classList.add("drag-list-item-video");
+    } else if(command.startsWith("@setconfig ")) {
+        // @setconfig
+        var cl = normalizeSetconfig(command);
+        newElem.textContent = translate("コンフィグ変更");
+        newElem.classList.add("drag-list-item-setconfig");
     } else if(command.startsWith("@")) {
         // Kiraraで未対応のコマンド
         newElem.textContent = command;
@@ -426,7 +436,7 @@ function showProps() {
         createChsChList("prop-chs-right");
         createChsChList("prop-chs-left");
         createChsChList("prop-chs-back");
-        createChsBgList();
+        createChsBgList("prop-chs-background");
         document.getElementById("prop-chs-center").value = cl[1];
         document.getElementById("prop-chs-right").value = cl[2];
         document.getElementById("prop-chs-left").value = cl[3];
@@ -436,6 +446,37 @@ function showProps() {
         document.getElementById("prop-chs-background").value = cl[6];
         document.getElementById("prop-chs-effect").value = cl[7];
         document.getElementById("prop-chs").style.display = "block";
+    } else if(cmd.startsWith("@chsx ") || cmd.startsWith("@場面転換X ")) {
+        // @chsx編集開始
+        var cl = normalizeChsx(cmd);
+        createChsChList("prop-chsx-center");
+        createChsChList("prop-chsx-right");
+        createChsChList("prop-chsx-left");
+        createChsChList("prop-chsx-back");
+        createChsBgList("prop-chsx-background");
+        document.getElementById("prop-chsx-center").value = cl[1];
+        document.getElementById("prop-chsx-center-x").value = cl[2];
+        document.getElementById("prop-chsx-center-y").value = cl[3];
+        document.getElementById("prop-chsx-center-alpha").value = cl[4];
+        document.getElementById("prop-chsx-right").value = cl[5];
+        document.getElementById("prop-chsx-right-x").value = cl[6];
+        document.getElementById("prop-chsx-right-y").value = cl[7];
+        document.getElementById("prop-chsx-right-alpha").value = cl[8];
+        document.getElementById("prop-chsx-left").value = cl[9];
+        document.getElementById("prop-chsx-left-x").value = cl[10];
+        document.getElementById("prop-chsx-left-y").value = cl[11];
+        document.getElementById("prop-chsx-left-alpha").value = cl[12];
+        document.getElementById("prop-chsx-back").value = cl[13];
+        document.getElementById("prop-chsx-back-x").value = cl[14];
+        document.getElementById("prop-chsx-back-y").value = cl[15];
+        document.getElementById("prop-chsx-back-alpha").value = cl[16];
+        document.getElementById("prop-chsx-background").value = cl[17];
+        document.getElementById("prop-chsx-bg-x").value = cl[18];
+        document.getElementById("prop-chsx-bg-y").value = cl[19];
+        document.getElementById("prop-chsx-effect").value = cl[20];
+        document.getElementById("prop-chsx-duration").value = cl[21];
+        document.getElementById("prop-chsx-duration-num").textContent = cl[21];
+        document.getElementById("prop-chsx").style.display = "block";
     } else if(cmd.startsWith("@shake ") || cmd.startsWith("@振動 ")) {
         // @shake編集開始
         var cl = normalizeShake(cmd);
@@ -513,6 +554,12 @@ function showProps() {
         var cl = normalizeVideo(cmd);
         document.getElementById("prop-video-file").value = cl[1];
         document.getElementById("prop-video").style.display = "block";
+    } else if(cmd.startsWith("@setconfig ")) {
+        // @setconfig編集開始
+        var cl = normalizeSetconfig(cmd);
+        document.getElementById("prop-setconfig-key").value = cl[1];
+        document.getElementById("prop-setconfig-value").value = cl[2];
+        document.getElementById("prop-setconfig").style.display = "block";
     } else if(cmd.startsWith("@")) {
         // 未対応のコマンド編集開始
     } else if(cmd.startsWith(":")) {
@@ -624,12 +671,12 @@ async function createChsChList(id) {
 }
 
 async function createChsBgList(id) {
-    var parentElem = document.getElementById("prop-chs-background");
+    var parentElem = document.getElementById(id);
     while (parentElem.firstChild) {
         parentElem.removeChild(parentElem.firstChild);
     }
 
-    var stayElem = document.createElement('option');
+    var stayElem = document.createElement("option");
     stayElem.value = "stay";
     stayElem.textContent = translate("変更なし");
     parentElem.appendChild(stayElem);
@@ -729,6 +776,49 @@ function commitProps() {
         var background = document.getElementById("prop-chs-background").value;
         var effect = document.getElementById("prop-chs-effect").value;
         elementInEdit.cmd = "@chs " + quote(center) + " " + quote(right) + " " + quote(left) + " " + quote(back) + " " + duration + " " + quote(background) + " " + effect;
+    } else if(cmd.startsWith("@chsx ") || cmd.startsWith("@場面転換X ")) {
+        // @chsx保存
+        var center = document.getElementById("prop-chsx-center").value;
+        var centerX = document.getElementById("prop-chsx-center-x").value;
+        var centerY = document.getElementById("prop-chsx-center-y").value;
+        var centerAlpha = document.getElementById("prop-chsx-center-alpha").value;
+        var right = document.getElementById("prop-chsx-right").value;
+        var rightX = document.getElementById("prop-chsx-right-x").value;
+        var rightY = document.getElementById("prop-chsx-right-y").value;
+        var rightAlpha = document.getElementById("prop-chsx-right-alpha").value;
+        var left = document.getElementById("prop-chsx-left").value;
+        var leftX = document.getElementById("prop-chsx-left-x").value;
+        var leftY = document.getElementById("prop-chsx-left-y").value;
+        var leftAlpha = document.getElementById("prop-chsx-left-alpha").value;
+        var back = document.getElementById("prop-chsx-back").value;
+        var backX = document.getElementById("prop-chsx-back-x").value;
+        var backY = document.getElementById("prop-chsx-back-y").value;
+        var backAlpha = document.getElementById("prop-chsx-back-alpha").value;
+        var background = document.getElementById("prop-chsx-background").value;
+        var bgX = document.getElementById("prop-chsx-bg-x").value;
+        var bgY = document.getElementById("prop-chsx-bg-y").value;
+        var effect = document.getElementById("prop-chsx-effect").value;
+        var duration = document.getElementById("prop-chsx-duration").value;
+        elementInEdit.cmd = "@chsx ";
+        if(center != "") elementInEdit.cmd = elementInEdit.cmd + "center=" + center + " ";
+        if(centerX != "") elementInEdit.cmd = elementInEdit.cmd + "center-x=" + centerX + " ";
+        if(centerY != "") elementInEdit.cmd = elementInEdit.cmd + "center-y=" + centerY + " ";
+        if(centerAlpha != "") elementInEdit.cmd = elementInEdit.cmd + "center-a=" + centerAlpha + " ";
+        if(right != "") elementInEdit.cmd = elementInEdit.cmd + "right=" + right + " ";
+        if(rightX != "") elementInEdit.cmd = elementInEdit.cmd + "right-x=" + rightX + " ";
+        if(rightY != "") elementInEdit.cmd = elementInEdit.cmd + "right-y=" + rightY + " ";
+        if(rightAlpha != "") elementInEdit.cmd = elementInEdit.cmd + "right-a=" + rightAlpha + " ";
+        if(left != "") elementInEdit.cmd = elementInEdit.cmd + "left=" + left + " ";
+        if(leftX != "") elementInEdit.cmd = elementInEdit.cmd + "left-x=" + leftX + " ";
+        if(leftY != "") elementInEdit.cmd = elementInEdit.cmd + "left-y=" + leftY + " ";
+        if(leftAlpha != "") elementInEdit.cmd = elementInEdit.cmd + "left-a=" + leftAlpha + " ";
+        if(back != "") elementInEdit.cmd = elementInEdit.cmd + "back=" + back + " ";
+        if(backX != "") elementInEdit.cmd = elementInEdit.cmd + "back-x=" + backX + " ";
+        if(backY != "") elementInEdit.cmd = elementInEdit.cmd + "back-y=" + backY + " ";
+        if(backAlpha != "") elementInEdit.cmd = elementInEdit.cmd + "back-a=" + backAlpha + " ";
+        if(background != "") elementInEdit.cmd = elementInEdit.cmd + "background=" + background + " ";
+        if(effect != "") elementInEdit.cmd = elementInEdit.cmd + "effect=" + effect + " ";
+        if(duration != "") elementInEdit.cmd = elementInEdit.cmd + "duration=" + duration;
     } else if(cmd.startsWith("@shake ") || cmd.startsWith("@振動 ")) {
         // @shake保存
         var direction = document.getElementById("prop-shake-direction").value;
@@ -786,6 +876,11 @@ function commitProps() {
         // @video保存
         var file = document.getElementById("prop-video-file").value;
         elementInEdit.cmd = "@video " + quote(file);
+    } else if(cmd.startsWith("@setconfig ")) {
+        // @setconfig保存
+        var key = document.getElementById("prop-setconfig-key").value;
+        var value = document.getElementById("prop-setconfig-value").value;
+        elementInEdit.cmd = "@setconfig " + key + " " + value;
     } else if (cmd.startsWith("@")) {
         // 未対応のコマンド保存
     } else if (cmd.startsWith(":")) {
@@ -861,7 +956,7 @@ function setupPalette() {
         case "cmd-message": elem.cmd = translate("ここに文章を入力してください。"); break;
         case "cmd-serif": elem.cmd = translate("キャラ名「セリフを入力してください」"); break;
         case "cmd-choose": elem.cmd = translate("@choose 目印1 学校へ行く 目印2 海へ行く 目印3 公園へ行く"); break;
-        case "cmd-chs": elem.cmd = "@chs stay stay stay stay 1.0 stay normal"; break;
+        case "cmd-chsx": elem.cmd = "@chsx center=stay left=stay right=stay back=stay 1.0 background=stay effect=normal"; break;
         case "cmd-vol": elem.cmd = "@vol bgm 1.0 1.0"; break;
         case "cmd-cha": elem.cmd = "@cha center 1.0 move 100 0 show"; break;
         case "cmd-label": elem.cmd = translate(":名前をつけてください"); break;
@@ -1424,6 +1519,7 @@ function setupMov() {
 const MSG_SPECIFY_FILE = "ファイルを指定してください";
 const MSG_SPECIFY_LABEL = "行き先を指定してください";
 const MSG_SPECIFY_OPTION = "選択肢を指定してください";
+const MSG_SPECIFY_CONFIG = "コンフィグを指定してください";
 
 // @bg
 function normalizeBg(command) {
@@ -1922,6 +2018,7 @@ function normalizeChsFile(file) {
     case "stay":     return "stay";
     case "変更なし": return "stay";
     case "":         return "stay";
+    case null:       return "stay";
     default:
         break;
     }
@@ -1933,10 +2030,186 @@ function normalizeChsBackground(file) {
     case "stay":     return "stay";
     case "変更なし": return "stay";
     case "":         return "stay";
+    case null:       return "stay";
     default:
         break;
     }
     return file;
+}
+
+// @chsx
+function normalizeChsx(command) {
+    var op = "@chsx";
+
+    var dict = {};
+    dict["center"] = "";
+    dict["centerX"] = "";
+    dict["centerY"] = "";
+    dict["centerAlpha"] = "";
+    dict["right"] = "";
+    dict["rightX"] = "";
+    dict["rightY"] = "";
+    dict["rightAlpha"] = "";
+    dict["left"] = "";
+    dict["leftX"] = "";
+    dict["leftY"] = "";
+    dict["leftAlpha"] = "";
+    dict["back"] = "";
+    dict["backX"] = "";
+    dict["backY"] = "";
+    dict["backAlpha"] = "";
+    dict["background"] = "";
+    dict["bgX"] = "";
+    dict["bgY"] = "";
+    dict["effect"] = "";
+    dict["duration"] = "";
+
+    // トークナイズする
+    var tokens = command.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g);
+    for(const token of tokens) {
+        normalizeChsxParameter(token, dict);
+    }
+
+    // ノーマライズ
+    dict["center"] = normalizeChsFile(dict["center"]);
+    dict["right"] = normalizeChsFile(dict["right"]);
+    dict["left"] = normalizeChsFile(dict["left"]);
+    dict["back"] = normalizeChsFile(dict["back"]);
+    dict["background"] = normalizeChsFile(dict["background"]);
+    
+    // バリデーション
+    if(dict["center"] === "") {
+        dict["center"] = "stay";
+    }
+    if(dict["right"] === "") {
+        dict["right"] = "stay";
+    }
+    if(dict["left"] === "") {
+        dict["left"] = "stay";
+    }
+    if(dict["back"] === "") {
+        dict["back"] = "stay";
+    }
+    if(dict["duration"] === "") {
+        dict["duration"] = "0.0";
+    }
+    if(dict["background"] === "") {
+        dict["background"] = "stay";
+    }
+    if(dict["effect"] === "") {
+        dict["effect"] = "normal";
+    }
+
+    return [op,
+            dict["center"],
+            dict["centerX"],
+            dict["centerY"],
+            dict["centerAlpha"],
+            dict["right"],
+            dict["rightX"],
+            dict["rightY"],
+            dict["rightAlpha"],
+            dict["left"],
+            dict["leftX"],
+            dict["leftY"],
+            dict["leftAlpha"],
+            dict["back"],
+            dict["backX"],
+            dict["backY"],
+            dict["backAlpha"],
+            dict["background"],
+            dict["bgX"],
+            dict["bgY"],
+            dict["effect"],
+            dict["duration"]
+           ];
+}
+
+function normalizeChsxParameter(token, dict) {
+    if(token.startsWith("center=") || token.startsWith("中央=")) {
+        dict["center"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("center-x=") || token.startsWith("中央X=")) {
+        dict["centerX"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("center-y=") || token.startsWith("中央Y=")) {
+        dict["centerY"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("center-a=") || token.startsWith("中央A=")) {
+        dict["centerAlpha"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("right=") || token.startsWith("右=")) {
+        dict["right"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("right-x=") || token.startsWith("右X=")) {
+        dict["right"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("right-y=") || token.startsWith("右Y=")) {
+        dict["rightX"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("right-a=") || token.startsWith("右A=")) {
+        dict["rightAlpha"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("left=") || token.startsWith("左=")) {
+        dict["left"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("left-x=") || token.startsWith("左X=")) {
+        dict["left"] = token.substring(token.indexOf("="));
+        return;
+    }
+    if(token.startsWith("left-y=") || token.startsWith("左Y=")) {
+        dict["leftX"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("left-a=") || token.startsWith("左A=")) {
+        dict["leftAlpha"] = token.substring(token.indexOf("="));
+        return;
+    }
+    if(token.startsWith("back=") || token.startsWith("背面=")) {
+        dict["back"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("back-x=") || token.startsWith("背面X=")) {
+        dict["back"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("back-y=") || token.startsWith("背面Y=")) {
+        dict["backX"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("back-a=") || token.startsWith("背面A=")) {
+        dict["backAlpha"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("background=") || token.startsWith("背景=")) {
+        dict["background"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("bg-x=") || token.startsWith("背景X=")) {
+        dict["bgX"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("bg-y=") || token.startsWith("背景Y=")) {
+        dict["bgY"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("effect=") || token.startsWith("エフェクト=")) {
+        dict["duration"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
+    if(token.startsWith("duration=") || token.startsWith("秒=")) {
+        dict["duration"] = token.substring(token.indexOf("=") + 1);
+        return;
+    }
 }
 
 // @shake
@@ -2234,6 +2507,29 @@ function normalizeWms(command) {
     return [op, file];
 }
 
+// @setconfig
+function normalizeSetconfig(command) {
+    var op = "@setconfig";
+    var key = "";
+    var val = "";
+
+    // トークナイズする
+    var tokens = command.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g);
+    if(tokens.length >= 2) {
+        key = tokens[1];
+    }
+    if(tokens.length >= 3) {
+        value = tokens[2];
+    }
+
+    // バリデーションする
+    if(file === "") {
+        file = translate(MSG_SPECIFY_CONFIG);
+    }
+
+    return [op, key, value];
+}
+
 /*
  * サムネイル
  */
@@ -2345,6 +2641,8 @@ function translate(msg) {
     case "選択肢": return "Options";
     case "キャラ移動 ": return "Character Move ";
     case "場面転換": return "Stage Change";
+    case "場面転換X": return "Stage Change Extended";
+    case "コンフィグ変更": return "Change Config";
     case "画面を揺らす": return "Shake the Screen";
     case "クリックを待つ": return "Wait for a Click";
     case "一定時間待つ ": return "Timed Wait ";
@@ -2382,6 +2680,7 @@ function translate(msg) {
     case "ファイルを指定してください": return "Specify a file.";
     case "行き先を指定してください": return "Specify a bookmark.";
     case "選択肢を指定してください": return "Specify a text.";
+    case "コンフィグを指定してください": return "Specify a config.";
     case "標準": return "Normal";
     case "右カーテン": return "Right Curtain";
     case "左カーテン": return "Left Curtain";
