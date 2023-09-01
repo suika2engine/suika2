@@ -171,7 +171,7 @@ test:
 	@echo 'Running non-graphical tests...'
 
 	# Check if we are running on Linux including WSL2.
-	@if [ ! -z "`uname | grep Linux`" ]; then \
+	@if [ -z "`uname | grep Linux`" ]; then \
 		echo "Error: this target needs Linux."; \
 		exit 1; \
 	fi
@@ -195,7 +195,7 @@ gtest:
 	@echo 'Running graphical tests...'
 
 	# Check if we are running on Linux including WSL2.
-	@if [ ! -z "`uname | grep Linux`" ]; then \
+	@if [ -z "`uname | grep Linux`" ]; then \
 		echo "Error: this target needs Linux."; \
 		exit 1; \
 	fi
