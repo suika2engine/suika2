@@ -63,4 +63,3 @@ hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac$SUFFIX ma
 codesign --sign "$SIGNATURE" mac$SUFFIX.dmg
 rm -rf tmp
 cp mac$SUFFIX.dmg ../cloud/
-rm mac$SUFFIX.dmg

@@ -20,7 +20,7 @@ echo "Checking for ftplocal directory."
 [ -e ftplocal ]
 
 echo ""
-echo "Please build Mac apps and press return."
+echo "Please run 'make all-macos' on a macOS host and press return."
 read str
 
 echo ""
@@ -106,6 +106,7 @@ echo "Building Emscripten files."
 cd emscripten
 make clean
 make
+cp html/index.html html/index.js html/index.wasm ../cloud/
 cd ../
 
 echo ""

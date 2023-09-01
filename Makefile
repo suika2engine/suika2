@@ -1,20 +1,17 @@
+# This will show the usage of this Makefile.
 targets:
 	@echo 'Welcome to Suika2!'
-	@echo 'This is the build system of Suika2 for use with WSL2.'
+	@echo 'This is the build system of Suika2.'
 	@echo
 	@echo 'You can type the following commands:'
-	@echo '  make setup           ... install the dependency libraries'
-	@echo '  make windows         ... build suika.exe'
-	@echo '  make windows-64      ... build suika-64.exe'
-	@echo '  make windows-arm64   ... build suika-arm64.exe'
-	@echo '  make windows-pro     ... build suika-pro.exe'
-	@echo '  make windows-capture ... build suika-capture.exe'
-	@echo '  make windows-replay  ... build suika-replay.exe'
-	@echo '  make linux           ... build suika-linux'
-	@echo '  make linux-replay    ... build suika-linux-replay'
+	@echo '  make setup           ... install dependency tools'
+	@echo '  make all-windows     ... build all Windows binaries'
+	@echo '  make all-macos       ... build all macOS binaries'
+	@echo '  make all-linux       ... build all Linux binaries'
 	@echo '  make test            ... run test without a window'
 	@echo '  make gtest           ... run test with a window'
 	@echo '  make do-release      ... build release files and upload them (dev internal)'
+	@echo '  make clean           ... cleanup'
 	@echo
 
 	@# Check if we are on WSL2.
@@ -27,94 +24,157 @@ targets:
 		esac; \
 	fi
 
+# This will setup the compilers and the tools.
 setup:
-	@if [ -z "`which apt-get`" ]; then \
-		echo 'Error: Your system lacks "apt-get" command.'; \
-		exit 1; \
+	@# For Linux including WSL2.
+	@if [ ! -z "`uname | grep Linux`" ]; then \
+		# Check for apt-get command. \
+		if [ -z "`which apt-get`" ]; then \
+			echo 'Error: Your system lacks "apt-get" command.'; \
+			exit 1; \
+		fi; \
+		\
+		echo 'Are you sure you want to install the dependencies? (press enter)'; \
+		read str; \
+		\
+		echo Updating apt sources.; \
+		echo sudo apt-get update; \
+		sudo apt-get update; \
+		\
+		echo Installing dependencies for the Windows targets.; \
+		echo sudo apt-get install mingw-w64; \
+		sudo apt-get install mingw-w64; \
+		\
+		echo Installing dependencies for the Linux targets.; \
+		echo sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov; \
+		sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov; \
+		\
+		echo Installing dependencies for the testing targets.; \
+		echo sudo apt-get install python3-pip; \
+		sudo apt-get install python3-pip; \
+		echo pip3 install opencv-python numpy; \
+		pip3 install opencv-python numpy; \
 	fi
 
-	@echo 'Are you sure you want to install the dependencies? (press enter)'
-	@read str
+	@# For macOS
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		# Check for brew command. \
+		if [ -z  "`which brew`" ]; then \
+			echo 'Error: Your system lacks "brew" command.'; \
+			exit 1; \
+		fi; \
+		\
+		echo 'Are you sure you want to install the dependencies? (press enter)'; \
+		read str; \
+		\
+		brew install mingw-w64; \
+	fi
 
-	@echo Updating apt sources.
-	@echo sudo apt-get update
-	@sudo apt-get update
+# A target for all Windows binaries.
+all-windows: windows windows-64 windows-arm64 windows-pro windows-capture windows-replay
 
-	@echo Installing dependencies for the Windows targets.
-	@echo sudo apt-get install mingw-w64
-	@sudo apt-get install mingw-w64
+# A target for all macOS binaries.
+all-macos:
+	@echo 'Building macOS binaries'
+	@cd build/macos && \
+	make && \
+	make install && \
+	make clean && \
+	cd ../..
 
-	@echo Installing dependencies for the Linux targets.
-	@echo sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov
-	@sudo apt-get install \
-		build-essential libasound2-dev libx11-dev \
-		libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-		libxpm-dev mesa-common-dev xvfb lcov
+# A target for all Linux binaries.
+all-linux: linux linux-capture linux-replay
 
-	@echo Installing dependencies for the testing targets.
-	@echo sudo apt-get install python3-pip
-	@sudo apt-get install python3-pip
-	@echo pip3 install opencv-python numpy
-	@pip3 install opencv-python numpy
-
+# suika.exe (the main game engine for 32-bit Windows)
 windows:
 	@echo 'Building suika.exe'
 	@cd build/mingw && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# suika-64.exe (the main game engine for 64-bit Windows)
 windows-64:
 	@echo 'Building suika-64.exe'
 	@cd build/mingw-64 && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# suika-arm64.exe (the main game engine for Arm64 Windows)
 windows-arm64:
 	@echo 'Building suika-arm64.exe'
 	@cd build/mingw-arm64 && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# suika-pro.exe (the debugger)
 windows-pro:
 	@echo 'Building suika-pro.exe'
 	@cd build/mingw-pro && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# suika-capture.exe (the caputure app)
 windows-capture:
 	@echo 'Building suika-capture.exe'
 	@cd build/mingw-capture && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# suika-replay.exe (the replay app)
 windows-replay:
 	@echo 'Building suika-replay.exe'
 	@cd build/mingw-capture && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# suika-linux (the main game engine for 64-bit Linux)
 linux:
 	@echo 'Building a Linux game binary'
 	@cd build/linux-x86_64 && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# suika-linux-capture (the capture app for 64-bit Linux)
+linux-capture:
+	@echo 'Building a Linux capture binary'
+	@cd build/linux-x86_64-capture && \
+	make libroot && \
+	make -j8 && \
+	make install && \
+	cd ../..
+
+# suika-linux-replay (the replay app for 64-bit Linux)
 linux-replay:
 	@echo 'Building a Linux replay binary'
 	@cd build/linux-x86_64-replay && \
 	make libroot && \
 	make -j8 && \
-	make install
+	make install && \
+	cd ../..
 
+# Non-graphical automatic tests.
 test:
 	@echo 'Running non-graphical tests...'
+
+	# Check if we are running on Linux including WSL2.
+	@if [ ! -z "`uname | grep Linux`" ]; then \
+		echo "Error: this target needs Linux."; \
+		exit 1; \
+	fi
 
 	@# Fetch the testcase repository.
 	@if [ ! -d testcases ]; then \
@@ -130,8 +190,15 @@ test:
 	./run.sh --no-x11 && \
 	cd ..
 
+# Graphical automatic tests.
 gtest:
 	@echo 'Running graphical tests...'
+
+	# Check if we are running on Linux including WSL2.
+	@if [ ! -z "`uname | grep Linux`" ]; then \
+		echo "Error: this target needs Linux."; \
+		exit 1; \
+	fi
 
 	@# Fetch the testcase repository.
 	@if [ ! -d testcases ]; then \
@@ -147,7 +214,15 @@ gtest:
 	./run.sh && \
 	cd ..
 
+# Build apps and upload both Japanese and English zip files.
 do-release:
-	@echo 'Building release zip files.'
+	@echo "Building release zip files."
 	@cd build && \
-	./do-release.sh
+	./do-release.sh $$VERSION && \
+	cd ..
+
+# Cleanup.
+clean:
+	rm -f suika.exe suika-64.exe suika-arm64.exe suika-pro.exe suika-capture.exe suika-replay.exe
+	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg
+	rm -f suika-linux suika-linux-capture suika-linux-replay
