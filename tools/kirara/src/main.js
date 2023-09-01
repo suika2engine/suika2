@@ -158,6 +158,15 @@ ipcMain.handle('openGame', (event, dir) => {
     refreshFiles("bgm", Model.bgm, ['.ogg']);
     refreshFiles("se", Model.se, ['.ogg']);
     loadFlags();
+
+    // 最新の実行ファイルをコピーする
+    if(process.platform === "win32") {
+        fs.writeFileSync(path + "/suika.exe", fs.readFileSync(app.getAppPath() + "/apps/suika.exe"));
+        fs.writeFileSync(path + "/suika-pro.exe", fs.readFileSync(app.getAppPath() + "/apps/suika-pro.exe"));
+    } else if(process.platform === "darwin") {
+        fs.writeFileSync(path + "/mac.zip", fs.readFileSync(app.getAppPath() + "/apps/mac.zip"));
+        exec("cd " + path + " && unzip " + path + "/mac.zip");
+    }
 })
 
 function refreshFiles(subDir, list, allowExts) {
