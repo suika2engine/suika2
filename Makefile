@@ -12,61 +12,51 @@ targets:
 	@echo '  make gtest           ... run test with a window'
 	@echo '  make do-release      ... build release files and upload them (dev internal)'
 	@echo '  make clean           ... cleanup'
-	@echo
-
-	@# Check if we are on WSL2.
-	@if [ -z "`grep -i WSL2 /proc/version`" ]; then \
-		# Check if we are not on /mnt \
-		case `pwd` in \
-		/mnt/*)\
-			echo 'Warning: You are under /mnt. Make sure to work on ~/ to avoid having Windows Security erase generated objects.'; \
-			echo ; \
-		esac; \
+	@echo ''
+	@# Check for a situation that we are on WSL2 and not under /mnt \
+	@if [ ! -z "`uname | grep Linux`" ]; then \
+		if [ -z "`grep -i WSL2 /proc/version`" ]; then \
+			case `pwd` in \
+			/mnt/*)\
+				echo 'Warning: You are under /mnt. Make sure to work on ~/ to avoid having Windows Security erase generated objects.'; \
+				echo ; \
+			esac; \
+		fi; \
 	fi
 
 # This will setup the compilers and the tools.
 setup:
 	@# For Linux including WSL2.
 	@if [ ! -z "`uname | grep Linux`" ]; then \
-		# Check for apt-get command. \
 		if [ -z "`which apt-get`" ]; then \
 			echo 'Error: Your system lacks "apt-get" command.'; \
 			exit 1; \
 		fi; \
-		\
 		echo 'Are you sure you want to install the dependencies? (press enter)'; \
 		read str; \
-		\
 		echo Updating apt sources.; \
 		echo sudo apt-get update; \
 		sudo apt-get update; \
-		\
 		echo Installing dependencies for the Windows targets.; \
 		echo sudo apt-get install mingw-w64; \
 		sudo apt-get install mingw-w64; \
-		\
 		echo Installing dependencies for the Linux targets.; \
 		echo sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov; \
 		sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov; \
-		\
 		echo Installing dependencies for the testing targets.; \
 		echo sudo apt-get install python3-pip; \
 		sudo apt-get install python3-pip; \
 		echo pip3 install opencv-python numpy; \
 		pip3 install opencv-python numpy; \
 	fi
-
 	@# For macOS
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
-		# Check for brew command. \
 		if [ -z  "`which brew`" ]; then \
 			echo 'Error: Your system lacks "brew" command.'; \
 			exit 1; \
 		fi; \
-		\
 		echo 'Are you sure you want to install the dependencies? (press enter)'; \
 		read str; \
-		\
 		brew install mingw-w64; \
 	fi
 
@@ -169,13 +159,11 @@ linux-replay:
 # Non-graphical automatic tests.
 test:
 	@echo 'Running non-graphical tests...'
-
-	# Check if we are running on Linux including WSL2.
+	@# Check if we are running on Linux including WSL2.
 	@if [ -z "`uname | grep Linux`" ]; then \
 		echo "Error: this target needs Linux."; \
 		exit 1; \
 	fi
-
 	@# Fetch the testcase repository.
 	@if [ ! -d testcases ]; then \
 		git clone https://github.com/suika2engine/testcases.git; \
@@ -184,7 +172,6 @@ test:
 		git pull origin master; \
 		cd ..; \
 	fi
-
 	@# Run the testcases in a virtual X server.
 	@cd testcases && \
 	./run.sh --no-x11 && \
@@ -193,13 +180,11 @@ test:
 # Graphical automatic tests.
 gtest:
 	@echo 'Running graphical tests...'
-
-	# Check if we are running on Linux including WSL2.
+	@# Check if we are running on Linux including WSL2.
 	@if [ -z "`uname | grep Linux`" ]; then \
 		echo "Error: this target needs Linux."; \
 		exit 1; \
 	fi
-
 	@# Fetch the testcase repository.
 	@if [ ! -d testcases ]; then \
 		git clone https://github.com/suika2engine/testcases.git; \
@@ -208,7 +193,6 @@ gtest:
 		git pull origin master; \
 		cd ..; \
 	fi
-
 	@# Run the testcases on a real X server.
 	@cd testcases && \
 	./run.sh && \

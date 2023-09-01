@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 PREFIX=`pwd`/libroot
 PATH=`pwd`/llvm/bin:$PATH
 INCLUDE=`pwd`/llvm/aarch64-w64-mingw32/include
@@ -10,9 +12,15 @@ WINDRES=aarch64-w64-mingw32-windres
 rm -rf tmp libroot llvm llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz
 mkdir -p tmp libroot
 
-wget https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz
-tar xJf llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz
-mv llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64 llvm
+if [ ! -z "`uname | grep Linux`" ]; then
+    wget https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz;
+    tar xJf llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz;
+    mv llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64 llvm;
+else
+    curl -L -O https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-macos-universal.tar.xz;
+    tar xJf llvm-mingw-20230614-ucrt-macos-universal.tar.xz;
+    mv llvm-mingw-20230614-ucrt-macos-universal llvm;
+fi
 
 cd tmp
 
@@ -73,3 +81,4 @@ cd ..
 
 cd ..
 rm -rf tmp llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz
+rm -rf tmp llvm-mingw-20230614-ucrt-macos-universal.tar.xz
