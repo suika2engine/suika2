@@ -1,0 +1,9 @@
+func main() {
+    if("A" == "A") {
+        print("OK");
+    }
+
+    if("A" != "B") {
+        print("OK");
+    }
+}

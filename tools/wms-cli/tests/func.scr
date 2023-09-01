@@ -1,0 +1,49 @@
+func main() {
+    a = func1() + func2();
+    print(a);
+
+    b = func3(a) + func4(a, 1);
+    print(b);
+
+    c = func5(a, b) + func6(a, b);
+    print(c);
+
+    d = func7(a, b, c);
+    print(d);
+}
+
+func func1() {
+    return 1;
+}
+
+func func2(a, b, c) {
+    return 1;
+}
+
+func func3(a) {
+    return a + 1;
+}
+
+func func4(a, b) {
+    return a + b + 1;
+}
+
+func func5(a, b) {
+    return a + b + 1;
+}
+
+func func6(a, b, c) {
+    return a + b + 1;
+}
+
+func func7(a, b, c) {
+    return func8();
+}
+
+func func8() {
+    return func9();
+}
+
+func func9() {
+    return 123;
+}

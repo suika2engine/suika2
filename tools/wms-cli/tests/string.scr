@@ -1,0 +1,17 @@
+func main() {
+     a = "str1";
+     b = "str2";
+     c = a + b + "str3";
+     print(a);
+     print(b);
+     print(c);
+
+     a = a + 1;
+     print(a);
+
+     b = b + "abc";
+     print(b);
+
+     c = "" + 1;
+     print(c);
+}

@@ -1,0 +1,15 @@
+func main() {
+     a = 0.0;
+     b = 1.0;
+     c = 3.14159265;
+     d = a + b + c;
+     print(d);
+     d = a + b - c;
+     print(d);
+     d = a + b * c;
+     print(d);
+     d = a + b / c;
+     print(d);
+     print("string conversion");
+     print("" + d);
+}

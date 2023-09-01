@@ -1,0 +1,12 @@
+func main() {
+    f0 = 0;
+    f1 = 1;
+
+    print(f0);
+    while(f1 < 100000) {
+        print(f1);
+        f2 = f1 + f0;
+        f0 = f1;
+	f1 = f2;
+    }
+}

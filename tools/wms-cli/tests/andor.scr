@@ -1,0 +1,84 @@
+func main() {
+    a = 5;
+    if (a > 0 && a < 10) {
+        print("1 true");
+    }
+    if (a > 0 && a < 9) {
+        print("2 true");
+    }
+    if (a > 0 && a < 8) {
+        print("3 true");
+    }
+    if (a > 0 && a < 7) {
+        print("4 true");
+    }
+    if (a > 0 && a < 6) {
+        print("5 true");
+    }
+    if (a > 0 && a < 5) {
+        print("6 false");
+    }
+    if (a > 0 && a < 4) {
+        print("7 false");
+    }
+
+    print("--");
+
+    a = 5;
+    if (a > 0 && a < 10) {
+        print("1 true");
+    }
+    if (a > 1 && a < 10) {
+        print("2 true");
+    }
+    if (a > 2 && a < 10) {
+        print("3 true");
+    }
+    if (a > 3 && a < 10) {
+        print("4 true");
+    }
+    if (a > 4 && a < 10) {
+        print("5 true");
+    }
+    if (a > 5 && a < 10) {
+        print("6 false");
+    }
+    if (a > 6 && a < 10) {
+        print("7 false");
+    }
+
+    print("--");
+
+    a = 1;
+    b = 2;
+    if (a == 1 && b == 0) {
+        print("1 false");
+    }
+    if (a == 0 && b == 2) {
+        print("2 false");
+    }
+    if (a == 1 && b == 2) {
+        print("3 true");
+    }
+    if (a == 0 && b == 0) {
+        print("4 false");
+    }
+
+    print("--");
+
+    a = 1;
+    b = 2;
+    if (a == 1 || b == 0) {
+        print("1 true");
+    }
+    if (a == 0 || b == 2) {
+        print("2 true");
+    }
+    if (a == 1 || b == 2) {
+        print("3 true");
+    }
+    if (a == 0 || b == 0) {
+        print("4 false");
+    }
+
+}
