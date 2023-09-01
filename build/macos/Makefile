@@ -1,4 +1,4 @@
-all: libroot app-suika app-suika-pro app-suika-capture app-suika-replay
+all: libroot app-suika app-suika-pro app-suika-capture app-suika-replay pack.mac
 
 noupload: libroot
 	./xcbuild-wrap-noupload.sh suika
@@ -20,3 +20,6 @@ app-suika-capture: libroot
 
 app-suika-replay: libroot
 	./xcbuild-wrap.sh suika-replay
+
+pack.mac:
+	cd ../../tools/pack && make pack.mac && cp pack.mac ../../build/cloud/ && cd ../../build/macos

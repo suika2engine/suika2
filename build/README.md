@@ -258,8 +258,8 @@ This method will build the Web version.
   * Ensure you can access `make` and `python3` commands
   * Install `Emscripten` using `emsdk`
     * `git clone https://github.com/emscripten-core/emsdk.git`
-    * `cd emsdk && ./emsdk install latest`
-    * `cd emsdk && ./emsdk activate latest`
+    * `cd emsdk && ./emsdk install latest && cd ..`
+    * `cd emsdk && ./emsdk activate latest && cd ..`
   * Generate your `data01.arc`
     * To do this, run `Suika2 Pro for Creators` app, select `File` and `Export Package`
 

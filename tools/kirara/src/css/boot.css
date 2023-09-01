@@ -1,0 +1,58 @@
+:root {
+	--bg-colour: #FEF6E8;
+	--black-colour: black;
+	--ui-bg-colour: #333;
+	--pastel-green: #ACD489;
+	--pastel-orange: #FFDBA3;
+	--pastel-red: #F27B6F;
+}
+
+body {
+	background-color: var(--bg-colour);
+	color: var(--black-colour);
+	font-family: "游ゴシック", "ヒラギノ角ゴ ProN", sans-serif;
+	margin: 5em;
+	padding: 0;
+	user-select: none;
+}
+
+/* 検索ボックスと作成ボタン | Search box, create button, etc. */
+#game-name {
+	background-color: transparent;
+	border: 1px solid grey;
+	color: var(--text);
+	font-size: 16px;
+	padding: 1em;
+	width: 15em;
+}
+#new-game {
+	background-color: transparent;
+	border: 1px solid grey;
+	color: var(--text);
+	cursor: pointer;
+	font-size: 16px;
+	padding: 1em;
+	transition: .3s;
+	width: 6em;
+}
+#new-game:hover {
+	background: var(--pastel-orange);
+}
+
+/* プロジェクト一覧 | Existing project list items */
+#game-list {
+	padding: 0;
+}
+.game-list-item {
+	border: 1px solid grey;
+	cursor: pointer;
+	font-size: 16px;
+	list-style-type: none!important;
+	margin-bottom: 1em;
+	padding: 1em;
+	transition: .3s;
+	width: 15em;
+}
+.game-list-item:hover {
+	background: var(--pastel-orange);
+}

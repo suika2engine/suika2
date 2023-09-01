@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <title>Suika2 Kirara</title>
+  <link rel="stylesheet" href="../css/export.css">
+</head>
+<body>
+
+	<h1>Export</h1>
+  <a href="index_en.html">Back to the editor</a><br>
+	<br>
+
+  <h2>Which medium would you like to use for distribution?</h2>
+  <select id="dist">
+    <option value="web">Web</option>
+    <option value="dvd">DVD</option>
+    <option value="usb">USB Flash Memory</option>
+    <option value="other">Other</option>
+  </select>
+	<br>
+
+  <h2>Execute export</h2>
+  <button id="export-web">For Web (HTML)</button>
+  <button id="export-windows">For Windows</button>
+  <button id="export-winmac">For Windows and Mac</button>
+  <p>This may take a while.</p>
+  <p>You can't run the HTML version locally on your machine.</p>
+	<br>
+
+  <script src="../js/export.js"></script>
+</body>
+</html>

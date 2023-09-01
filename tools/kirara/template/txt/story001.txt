@@ -1,0 +1,6 @@
+第１章
+@bg coast.png 1.0
+はじめまして、Suika2 Kiraraです。
+@ch center midori-fun.png 1.0
+みどり「こんにちは、Suika2を使ってくれてありがとう！」
+@load story002.txt

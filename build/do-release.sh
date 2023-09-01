@@ -109,6 +109,13 @@ make
 cd ../
 
 echo ""
+echo "Building Windows pack.exe."
+cd ../tools/pack
+make pack.exe
+cp pack.exe ../../build/cloud/
+cd ../../build
+
+echo ""
 echo "Please sign the Windows apps and press return."
 read str
 [ -f cloud/suika.exe ]

@@ -1,0 +1,149 @@
+###
+### ロード画面のGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    idle:   load-idle.png;
+    hover:  load-hover.png;
+    active: load-active.png;
+
+    # 1画面あたりのセーブデータ表示数を指定
+    saveslots: 3;
+
+    # 右クリックによるキャンセル時のSE
+    cancelse: click.ogg;
+}
+
+# セーブデータページ1のボタン
+PAGE1 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # ページ0番目
+    index: 0;
+
+    # 座標とサイズ
+    x: 1137;
+    y: 0;
+    width: 70;
+    height: 63;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# セーブデータページ2のボタン
+PAGE2 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # ページ0番目
+    index: 1;
+
+    # 座標とサイズ
+    x: 1206;
+    y: 0;
+    width: 70;
+    height: 63;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# セーブデータ1番目
+SAVESLOT1 {
+    # 種類:ロード
+    type: load;
+
+    # セーブデータ番号0
+    index: 0;
+
+    # 座標とサイズ
+    x: 50;
+    y: 138;
+    width: 1106;
+    height: 140;
+
+    # 画像とテキストのマージン
+    margin: 10;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# セーブデータ2番目
+SAVESLOT2 {
+    # 種類:ロード
+    type: load;
+
+    # セーブデータ番号1
+    index: 1;
+
+    # 座標とサイズ
+    x: 50;
+    y: 283;
+    width: 1106;
+    height: 140;
+
+    # 画像とテキストのマージン
+    margin: 10;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# セーブデータ2番目
+SAVESLOT3 {
+    # 種類:ロード
+    type: load;
+
+    # セーブデータ番号2
+    index: 2;
+
+    # 座標とサイズ
+    x: 50;
+    y: 429;
+    width: 1106;
+    height: 140;
+
+    # 画像とテキストのマージン
+    margin: 10;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:キャンセル
+    type: cancel;
+
+    # 座標とサイズ
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}

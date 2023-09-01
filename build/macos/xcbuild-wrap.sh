@@ -39,6 +39,23 @@ done
 
 # Make a zip file.
 SUFFIX=${APP#suika}
+if [ -z $SUFFIX ]; then
+    rm -rf zip mac.zip;
+    mkdir -p zip;
+    cp -Rv build/Release/$APP.app zip/
+fi
+if [ $SUFFIX == "-pro" ]; then
+    cp -Rv build/Release/$APP.app zip/
+    cd zip;
+    zip -r ../mac.zip .;
+    cd ..;
+    rm -rf zip;
+    cp mac.zip ../cloud/;
+    rm mac.zip;
+fi
+
+# Make a dmg file.
+SUFFIX=${APP#suika}
 rm -rf tmp mac$SUFFIX.dmg
 mkdir tmp
 cp -Rv build/Release/$APP.app tmp/
