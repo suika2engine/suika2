@@ -2,7 +2,7 @@ targets:
 	@echo 'Welcome to Suika2!'
 	@echo 'This is the build system of Suika2 for use with WSL2.'
 	@echo
-	@echo 'You can type following commands:'
+	@echo 'You can type the following commands:'
 	@echo '  make setup           ... install the dependency libraries'
 	@echo '  make windows         ... build suika.exe'
 	@echo '  make windows-64      ... build suika-64.exe'
