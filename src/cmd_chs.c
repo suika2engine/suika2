@@ -96,7 +96,7 @@ static bool init(void)
 		fname[CH_RIGHT] = get_string_param(CHSX_PARAM_RIGHT);
 		fname[CH_LEFT] = get_string_param(CHSX_PARAM_LEFT);
 		fname[CH_BACK] = get_string_param(CHSX_PARAM_BACK);
-		fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
+		fname[BG_INDEX] = get_string_param(CHSX_PARAM_BG);
 		ofs_x[CH_CENTER] = get_int_param(CHSX_PARAM_CX);
 		ofs_y[CH_CENTER] = get_int_param(CHSX_PARAM_CY);
 		ofs_x[CH_RIGHT] = get_int_param(CHSX_PARAM_RX);
