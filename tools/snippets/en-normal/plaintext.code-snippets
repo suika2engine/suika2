@@ -30,10 +30,25 @@
 		"body":"@choose destination1=$1 option1=$2 destination2=$3 option2=$4",
 		"description": "Show Options @choose <Label1> <Option1> (Label2) (Option2) (Label3) (Option3) (Label4) (Option4) (Label5) (Option5) (Label6) (Option6) (Label)7 (Option7) (Label8) (Option8)"
 	},
+	"ichoose":{
+		"prefix": ["@ichoose","@インライン選択肢"],
+		"body":"@ichoose destination1=$1 option1=$2 destination2=$3 option2=$4",
+		"description": "Show Inline Options @ichoose <Label1> <Option1> (Label2) (Option2) (Label3) (Option3) (Label4) (Option4) (Label5) (Option5) (Label6) (Option6) (Label)7 (Option7) (Label8) (Option8)"
+	},
 	"chs":{
 		"prefix": ["@chs","@場面転換"],
 		"body":"@chs center=$1 right=$2 left=$3 back=$4 duration=$5 background=$6 effect=$7",
-		"description": "Change Stage @chs <center-file or stay or none> <right-file or stay or none> <left-file or stay or none> <back-file or stay or none> (duration) (background-file) (effect)"
+		"description": "Using chsx is recommended. Change Stage @chs <center-file or stay or none> <right-file or stay or none> <left-file or stay or none> <back-file or stay or none> (duration) (background-file) (effect)"
+	},
+	"chsx":{
+		"prefix": ["@chsx","@場面転換X"],
+		"body": "@chsx $1",
+		"description": "Change the background, portrait, and position all at once. Arguments cannot be ommitted, but may be in any order. @chsx (center=center file) (centerX=X offset of the center character) (centerY=Y offset of the center character) (right=firt file) (rightX=X offset of the right character) (rightY=Y offset of the right character) (left=left file) (leftX=X offset of the right character) (leftY=Y offset of the left character) (back=back file) (backX=X offset of the back character) (backY=Y offset of the back character) (background=background file) (backgroundX=X offset of the background) (backgroundY=Y offset of the background) (effect=effect) (seconds=seconds)"
+	},
+	"chsx-all":{
+		"prefix": ["@chsx-all","@場面転換X-all"],
+		"body": "@chsx-all center=$1 centerX=$2 centerY=$3 right=$4 rightX=$5 rightY=$6 left=$7 leftX=$8 leftY=$9 back=$10 backX=$11 backY=$12 background=$13 backgroundX=$14 backgroundY=$15 effect=$16 seconds=$17",
+		"description": "Change the background, portrait, and position all at once. Arguments cannot be ommitted, but may be in any order."
 	},
 	"click":{
 		"prefix": ["@click","@クリック"],
@@ -115,7 +130,17 @@
 		"body": "@wms file=$1",
 		"description": "Run WMS @wms <file>"
 	},
-	//エフェクト名
+	"anime":{
+		"prefix": ["@anime","@アニメ"],
+		"body": "@anime $1 $2",
+		"description": "Call an animation file. Animation files should be stored within the 'anime' directory.  @anime [file name] [sync(synchronous) or async(asynchronous)]"
+	},
+	"using":{
+		"prefix": "using",
+		"body": "using $1",
+		"description": "Call an external macro file. using [file]"
+	},
+	//Effect types
 	"normal":{
 		"prefix": ["normal","標準"],
 		"body": "normal",
@@ -260,6 +285,22 @@
 		"prefix": ["slit-close-v"],
 		"body": "slit-close-v",
 		"description": "Effect: Slit Close (Vertical)"
+	},
+	//Text modification
+	"slash-wait":{
+		"prefix": "\\w{}",
+		"body":"\\w{$1}",
+		"description": "Wait within text. \\w{seconds}"
+	},
+	"slash-color":{
+		"prefix": "\\#{}",
+		"body": "\\#{$1}",
+		"description": "Change the font color within text. \\#{RRGGBB}"
+	},
+	"slash-size":{
+		"prefix": "\\@{}",
+		"body": "\\@{$1}",
+		"description": "Change the font size within text. \\@{サイズ}"
 	},
 	//gui
 	"globalTemp":{
@@ -772,6 +813,68 @@
 			"}"
 		],
 		"description": "Template for CG gallery button"
+	},
+	//anime
+	"animeTemp":{
+		"prefix": "animeTemp",
+		"body": [
+			"$1 {",
+			"\tlayer: $2",
+			"\tstart:$3",
+			"\tend:$4",
+			"\t$5",
+			"}"
+		],
+		"description": "Minimum animation template, includes all required arguments."
+
+	},
+	"animeTemp-move":{
+		"prefix": "animeTemp-move",
+		"body":[
+			"$1 {",
+			"\tlayer: $2",
+			"\tstart: $3",
+			"\tend: $4",
+			"\tfrom-x: $5",
+			"\tfrom-y: $6",
+			"\tfrom-a: $7",
+			"\tto-x: $8",
+			"\tto-y: $9",
+			"\tto-a: $10",
+			"}"
+		],
+		"description": "Animation template.　Includes required arguments for movement."
+	},
+	"animeTemp-file":{
+		"prefix": "animeTemp-file",
+		"body": [
+			"$1 {",
+			"\tlayer: $2",
+			"\tstart: $3",
+			"\tend: $4",
+			"\tfile: $5",
+			"}"
+		],
+		"description": "Animation template.　Includes required arguments for image manipulation."
+	},
+	"animeTemp-all":{
+		"prefix": "animeTemp-all",
+		"body": [
+			"$1 {",
+			"\tlayer: $2",
+			"\tclear: $3",
+			"\tfile: $4",
+			"\tstart: $5",
+			"\tend: $6",
+			"\tfrom-x: $7",
+			"\tfrom-y: $8",
+			"\tfrom-a: $9",
+			"\tto-x: $10",
+			"\tto-y: $11",
+			"\tto-a: $12",
+			"}"
+		],
+		"description": "Animation template. Includes all arguments."
 	},
 	//wms
 	"func":{
