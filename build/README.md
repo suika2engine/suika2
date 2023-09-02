@@ -367,6 +367,7 @@ This method will create release zip files and upload them to a FTP server.
     * Turn on the ssh server
     * Add your public key to `~/.ssh/authorized_keys`
     * Edit `SIGNATURE` in `build/macos/Makefile`
+    * Create `build/macos/.passwd` and write your login password for keychain access
   * On WSL2:
     * Create `build/.env` file for credentials:
     ```
