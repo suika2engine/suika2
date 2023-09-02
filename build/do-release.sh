@@ -71,23 +71,24 @@ if [ -z "$FTP_LOCAL" ]; then
     FTP_LOCAL=`pwd`/ftp;
     mkdir -p "$FTP_LOCAL";
 fi
+DO_UPLOAD=1
 if [ -z "$FTP_USER" ]; then
     echo "Warning: Please specify FTP_USER in build/.env";
     echo "         This information is utilized to upload release files.";
     echo "         We will not upload release files this time.";
-    NOUPLOAD=1;
+    DO_UPLOAD=0;
 fi
 if [ -z "$FTP_PASSWORD" ]; then
     echo "Warning: Please specify FTP_PASSWORD in build/.env";
     echo "         This information is utilized to upload release files.";
     echo "         We will not upload release files this time.";
-    NOUPLOAD=1;
+    DO_UPLOAD=0;
 fi
 if [ -z "$FTP_URL" ]; then
     echo "Warning: Please specify FTP_URL in build/.env";
     echo "         This information is utilized to upload release files.";
     echo "         We will not upload release files this time.";
-    NOUPLOAD=1;
+    DO_UPLOAD=0;
 fi
 
 #
@@ -397,7 +398,7 @@ cp "$RELEASETMP/kirara-mac-$VERSION.dmg" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-helper-current.zip" $FTP_LOCAL/
 
 # Upload.
-if [ ! "$NOUPLOAD" -eq "1" ]; then
+if [ "$DO_UPLOAD" -eq "1" ]; then
     curl -T "$RELEASETMP/suika2-$VERSION-jp.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION-jp.zip" && sleep 5;
     curl -T "$RELEASETMP/suika2-$VERSION-en.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION-en.zip" && sleep 5;
     curl -T "$RELEASETMP/kirara-win-$VERSION.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-win-$VERSION.exe" && sleep 5;
@@ -415,7 +416,7 @@ echo "Release completed."
 if [ "$DO_SIGN" -eq "0" ]; then
     echo "Note: We have not signed to the Windows binaries.";
 fi
-if [ "$NOUPLOAD" -eq "1" ]; then
+if [ "$DO_UPLOAD" -eq "0" ]; then
     echo "Note: We have not uploaded the release files.";
 fi
 echo ""
