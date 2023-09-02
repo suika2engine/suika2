@@ -20,9 +20,11 @@ SIGNATURE='Open Source Developer, Keiichi Tabata'
 #
 echo "Enter version e.g. 2.12.0"
 read str
-
 VERSION=$str
-[ -n "$VERSION" ]
+if [ ! -n "$VERSION" ]; then
+    echo "Please enter a version string.";
+    exit 1;
+fi
 
 #
 # Confirmation.
@@ -35,14 +37,53 @@ read str
 #
 echo "Checking for .env credentials."
 eval `cat .env`
-[ ! -z "$WINDOWS_USER" ]
-[ ! -z "$MACOS_HOST" ]
-[ ! -z "$MACOS_USER" ]
-[ ! -z "$MACOS_PASSWORD" ]
-[ ! -z "$FTP_LOCAL" ]
-[ ! -z "$FTP_USER" ]
-[ ! -z "$FTP_PASSWORD" ]
-[ ! -z "$FTP_URL" ]
+if [ -z "$WINDOWS_USER" ]; then
+    echo "Error: Please specify WINDOWS_USER in build/.env";
+    echo "       This information is utilized to determine the user home folder.";
+    exit 1;
+fi
+if [ -z "`uname | grep Darwin`" ]; then
+    if [ -z "$MACOS_HOST" ]; then
+	echo "Error: Please specify MACOS_HOST in build/.env";
+	echo "       This information is utilized to build macOS apps by ssh.";
+	exit 1;
+    fi
+    if [ -z "$MACOS_USER" ]; then
+	echo "Error: Please specify MACOS_USER in build/.env";
+	echo "       This information is utilized to determine your home directory.";
+	exit 1;
+    fi
+    if [ -z "$MACOS_PASSWORD" ]; then
+	echo "Error: Please specify MACOS_PASSWORD in build/.env";
+	echo "       This information is utilized to unlock your keychain in ssh sessions.";
+	exit 1;
+    fi
+fi
+if [ -z "$FTP_LOCAL" ]; then
+    echo "Warning: Please specify FTP_LOCAL in build/.env";
+    echo "         Release files will be copied to this directory.";
+    echo "         We will use `pwd`/ftp directory instead.";
+    FTP_LOCAL=`pwd`/ftp;
+    mkdir -p "$FTP_LOCAL";
+fi
+if [ -z "$FTP_USER" ]; then
+    echo "Warning: Please specify FTP_USER in build/.env";
+    echo "         This information is utilized to upload release files.";
+    echo "         We will not upload release files this time.";
+    NOUPLOAD=1;
+fi
+if [ -z "$FTP_PASSWORD" ]; then
+    echo "Warning: Please specify FTP_PASSWORD in build/.env";
+    echo "         This information is utilized to upload release files.";
+    echo "         We will not upload release files this time.";
+    NOUPLOAD=1;
+fi
+if [ -z "$FTP_URL" ]; then
+    echo "Warning: Please specify FTP_URL in build/.env";
+    echo "         This information is utilized to upload release files.";
+    echo "         We will not upload release files this time.";
+    NOUPLOAD=1;
+fi
 
 #
 # Make a temporary directory for release binaries.
@@ -50,19 +91,18 @@ eval `cat .env`
 if [ ! -z "`uname | grep Linux`" ]; then
     if [ ! -z "`grep -i WSL2 /proc/version`" ]; then
 	echo "Creating a temporary folder on Windows.";
-	rm -rf /mnt/c/Users/$WINDOWS_USER/suika2-release-tmp;
-	mkdir -p /mnt/c/Users/$WINDOWS_USER/suika2-release-tmp;
 	RELEASETMP=/mnt/c/Users/$WINDOWS_USER/suika2-release-tmp;
 	DO_SIGN=1;
+	rm -rf $RELEASETMP && mkdir $RELEASETMP
     fi
 fi
 if [ -z "$RELEASETMP" ]; then
     echo "Creating a temporary directory release-tmp.";
-    rm -rf release-tmp;
-    mkdir -p release-tmp;
     RELEASETMP=`pwd`/release-tmp;
     DO_SIGN=0;
+    rm -rf $RELEASETMP && mkdir $RELEASETMP
 fi	
+echo "$RELEASETMP created."
 
 #
 # Build macOS apps.
@@ -191,7 +231,7 @@ cd ../
 if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Windows apps on Windows.";
     pushd .;
-    cd $RELEASETMP;
+    cd "$RELEASETMP";
     "$SIGNTOOL" /C sign /n \"$SIGNATURE\" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe pack.exe";
     popd;
 else
@@ -203,28 +243,28 @@ fi
 #
 echo "Building a Kirara Windows app."
 cd ../tools/kirara
-cp $RELEASETMP/suika.exe apps/
-cp $RELEASETMP/suika-pro.exe apps/
-cp $RELEASETMP/pack.exe apps/
-cp $RELEASETMP/mac.dmg apps/
-cp $RELEASETMP/mac.zip apps/
-cp $RELEASETMP/pack.mac apps/
-cp $RELEASETMP/index.html apps/
-cp $RELEASETMP/index.js apps/
-cp $RELEASETMP/index.wasm apps/
+cp "$RELEASETMP/suika.exe" apps/
+cp "$RELEASETMP/suika-pro.exe" apps/
+cp "$RELEASETMP/pack.exe" apps/
+cp "$RELEASETMP/mac.dmg" apps/
+cp "$RELEASETMP/mac.zip" apps/
+cp "$RELEASETMP/pack.mac" apps/
+cp "$RELEASETMP/index.html" apps/
+cp "$RELEASETMP/index.js" apps/
+cp "$RELEASETMP/index.wasm" apps/
 make win
-cp "dist/Kirara Setup 1.0.0.exe" $RELEASETMP/kirara-win.exe
+cp "dist/Kirara Setup 1.0.0.exe" "$RELEASETMP/kirara-win.exe"
 cd ../../build
 if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Kirara Windows app on Windows.";
     pushd .;
-    cd $RELEASETMP;
+    cd "$RELEASETMP";
     "$SIGNTOOL" /C sign /n \"$SIGNATURE\" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v kirara-win.exe";
     popd;
-    mv $RELEASETMP/kirara-win.exe $RELEASETMP/kirara-win-$VERSION.exe;
+    mv "$RELEASETMP/kirara-win.exe" "$RELEASETMP/kirara-win-$VERSION.exe";
 else
     echo "Skipping code signing for Kirara Windows app."
-    mv $RELEASETMP/kirara-win.exe $RELEASETMP/kirara-win-$VERSION.exe;
+    mv "$RELEASETMP/kirara-win.exe" "$RELEASETMP/kirara-win-$VERSION.exe";
 fi
 
 #
@@ -232,7 +272,7 @@ fi
 #
 echo "Building a Kirara macOS app."
 if [ -z "`uname | grep Darwin`" ]; then
-    echo "Building on a remote host..."
+    echo "Building on a remote host...";
     scp "$RELEASETMP/suika.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
     scp "$RELEASETMP/suika-pro.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
     scp "$RELEASETMP/pack.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
@@ -245,10 +285,10 @@ if [ -z "`uname | grep Darwin`" ]; then
     ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
     scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/dist/Kirara-1.0.0.dmg" "$RELEASETMP/kirara-mac-$VERSION.dmg";
 else
-    echo "Building on localhost..."
+    echo "Building on localhost...";
     cd ../tools/kirara;
     make mac;
-    cp dist/Kirara-1.0.0.dmg $RELEASETMP/kirara-mac-$VERSION.dmg;
+    cp dist/Kirara-1.0.0.dmg "$RELEASETMP/kirara-mac-$VERSION.dmg";
     cd ../../build
 fi
 
@@ -277,25 +317,25 @@ mkdir suika2/wms && cp -Rv ../game-jp/wms/*.txt suika2/wms/
 cp -v ../doc/COPYING suika2/
 cp -v ../doc/readme-jp.html suika2/README.html
 mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
-cp -v $RELEASETMP/suika.exe suika2/
-cp -v $RELEASETMP/suika-pro.exe suika2/
-cp -v $RELEASETMP/mac.dmg suika2/
-cp -v $RELEASETMP/mac-pro.dmg suika2/
+cp -v "$RELEASETMP/suika.exe" suika2/
+cp -v "$RELEASETMP/suika-pro.exe" suika2/
+cp -v "$RELEASETMP/mac.dmg" suika2/
+cp -v "$RELEASETMP/mac-pro.dmg" suika2/
 mkdir suika2/tools
 cp -v ../doc/readme-tools-jp.txt suika2/tools/README.TXT
-cp -v $RELEASETMP/suika-capture.exe suika2/tools/
-cp -v $RELEASETMP/suika-replay.exe suika2/tools/
-cp -v $RELEASETMP/suika-64.exe suika2/tools/
-cp -v $RELEASETMP/suika-arm64.exe suika2/tools/
-cp -v $RELEASETMP/mac-capture.dmg suika2/tools/
-cp -v $RELEASETMP/mac-replay.dmg suika2/tools/
-cp -v $RELEASETMP/suika-linux suika2/tools/
+cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
+cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
+cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
+cp -v "$RELEASETMP/suika-arm64.exe" suika2/tools/
+cp -v "$RELEASETMP/mac-capture.dmg" suika2/tools/
+cp -v "$RELEASETMP/mac-replay.dmg" suika2/tools/
+cp -v "$RELEASETMP/suika-linux" suika2/tools/
 mkdir suika2/tools/web
-cp -v $RELEASETMP/index.html suika2/tools/web/
-cp -v $RELEASETMP/index.js suika2/tools/web/
-cp -v $RELEASETMP/index.wasm suika2/tools/web/
+cp -v "$RELEASETMP/index.html" suika2/tools/web/
+cp -v "$RELEASETMP/index.js" suika2/tools/web/
+cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
 cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
-zip -r $RELEASETMP/suika-$VERSION-jp.zip suika2
+zip -r "$RELEASETMP/suika-$VERSION-jp.zip" suika2
 rm -rf suika2
 
 # English ZIP
@@ -318,25 +358,25 @@ mkdir suika2/wms && cp -Rv ../game-en/wms/*.txt suika2/wms/
 cp -v ../doc/COPYING suika2/
 cp -v ../doc/readme-en.html suika2/README.html
 mkdir suika2/.vscode && cp -v ../tools/snippets/en-normal/plaintext.code-snippets suika2/.vscode/
-cp -v $RELEASETMP/suika.exe suika2/
-cp -v $RELEASETMP/suika-pro.exe suika2/
-cp -v $RELEASETMP/mac.dmg suika2/
-cp -v $RELEASETMP/mac-pro.dmg suika2/
+cp -v "$RELEASETMP/suika.exe" suika2/
+cp -v "$RELEASETMP/suika-pro.exe" suika2/
+cp -v "$RELEASETMP/mac.dmg" suika2/
+cp -v "$RELEASETMP/mac-pro.dmg" suika2/
 mkdir suika2/tools
 cp -v ../doc/readme-tools-en.txt suika2/tools/README.TXT
-cp -v $RELEASETMP/suika-capture.exe suika2/tools/
-cp -v $RELEASETMP/suika-replay.exe suika2/tools/
-cp -v $RELEASETMP/suika-64.exe suika2/tools/
-cp -v $RELEASETMP/suika-arm64.exe suika2/tools/
-cp -v $RELEASETMP/mac-capture.dmg suika2/tools/
-cp -v $RELEASETMP/mac-replay.dmg suika2/tools/
-cp -v $RELEASETMP/suika-linux suika2/tools/
+cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
+cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
+cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
+cp -v "$RELEASETMP/suika-arm64.exe" suika2/tools/
+cp -v "$RELEASETMP/mac-capture.dmg" suika2/tools/
+cp -v "$RELEASETMP/mac-replay.dmg" suika2/tools/
+cp -v "$RELEASETMP/suika-linux" suika2/tools/
 mkdir suika2/tools/web
-cp -v $RELEASETMP/index.html suika2/tools/web/
-cp -v $RELEASETMP/index.js suika2/tools/web/
-cp -v $RELEASETMP/index.wasm suika2/tools/web/
+cp -v "$RELEASETMP/index.html" suika2/tools/web/
+cp -v "$RELEASETMP/index.js" suika2/tools/web/
+cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
 cp -v emscripten/about-en.txt suika2/tools/web/about.txt
-zip -r $RELEASETMP/suika-$VERSION-en.zip suika2
+zip -r "$RELEASETMP/suika-$VERSION-en.zip" suika2
 rm -rf suika2
 
 #
@@ -344,19 +384,31 @@ rm -rf suika2
 #
 echo "Uploading files."
 
-curl -T $RELEASETMP/suika-$VERSION-en.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL/suika-$VERSION-en.zip && sleep 5
-curl -T $RELEASETMP/suika-$VERSION-jp.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL/suika-$VERSION-jp.zip && sleep 5
-curl -T $RELEASETMP/kirara-win-$VERSION.exe -u $FTP_USER:$FTP_PASSWORD $FTP_URL/kirara-win-$VERSION.exe && sleep 5
-curl -T $RELEASETMP/kirara-mac-$VERSION.dmg -u $FTP_USER:$FTP_PASSWORD $FTP_URL/kirara-mac-$VERSION.dmg && sleep 5
+# Copy release files to FTPLOCAL directory.
+cp "$RELEASETMP/suika-$VERSION-en.zip" $FTP_LOCAL/
+cp "$RELEASETMP/suika-$VERSION-jp.zip" $FTP_LOCAL/
+cp "$RELEASETMP/kirara-win-$VERSION.exe" $FTP_LOCAL/
+cp "$RELEASETMP/kirara-mac-$VERSION.dmg" $FTP_LOCAL/
 
-# Copy release files to ftp local copy directory if it exists.
-if [ ! -z $FTP_LOCAL ]; then
-    cp $RELEASETMP/suika-$VERSION-en.zip $FTP_LOCAL/
-    cp $RELEASETMP/suika-$VERSION-jp.zip $FTP_LOCAL/
-    cp $RELEASETMP/kirara-win-$VERSION.exe $FTP_LOCAL/
-    cp $RELEASETMP/kirara-mac-$VERSION.dmg $FTP_LOCAL/
+# Upload.
+if [ ! "$NOUPLOAD" -eq "1" ]; then
+    curl -T "$RELEASETMP/suika-$VERSION-en.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika-$VERSION-en.zip" && sleep 5;
+    curl -T "$RELEASETMP/suika-$VERSION-jp.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika-$VERSION-jp.zip" && sleep 5;
+    curl -T "$RELEASETMP/kirara-win-$VERSION.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-win-$VERSION.exe" && sleep 5;
+    curl -T "$RELEASETMP/kirara-mac-$VERSION.dmg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-mac-$VERSION.dmg" && sleep 5;
+else
+    echo "Skipped upload.";
 fi
 
+#
+# Complete!
+#
 echo ""
 echo "Release completed."
+if [ "$DO_SIGN" -eq "0" ]; then
+    echo "Note: We have not signed to the Windows binaries.";
+fi
+if [ "$NOUPLOAD" -eq "1" ]; then
+    echo "Note: We have not uploaded the release files.";
+fi
 echo ""

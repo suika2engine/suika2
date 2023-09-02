@@ -381,7 +381,7 @@ This method will create release zip files and upload them to a FTP server.
       * `doc/readme-en.html`
     * In the terminal, navigate to the `build/macos` directory and run the following command:
     ```
-    enter-version.sh
+    ./update-version.sh '12.38'
     ```
     * In the terminal, navigate to the repository root and run the following commands:
     ```

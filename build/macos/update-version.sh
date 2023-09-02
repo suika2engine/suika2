@@ -1,10 +1,20 @@
 #!/bin/bash
 
-set -eu
+SED='sed'
 
-echo "Enter version e.g. 2.9.0"
-read str
-VERSION=$str
-[ -n "$VERSION" ]
+if [ ! -z `sed -v | grep GNU` ]; then
+    if [ ! -z `which gsed` ]; then
+	SED='gsed';
+    else
+	echo "Please install GNU sed by Homebrew.";
+	exit 1;
+    fi
+fi
+
+VERSION=$1
+if [ ! -n "$VERSION" ]; then
+    echo "Please specify a version string.";
+    exit 1;
+fi
 
 sed -i "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" suika.xcodeproj/project.pbxproj
