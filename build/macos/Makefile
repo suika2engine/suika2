@@ -82,4 +82,4 @@ install:
 # This phony target cleans up this directory.
 #
 clean:
-	rm -rf build mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg tmp zip mac.zip pack.mac ../../mac.zip ../../pack.mac
+	rm -rf build mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg tmp zip mac.zip pack.mac
