@@ -47,6 +47,11 @@ if [ -z "`uname | grep Darwin`" ]; then
 	echo "Error: Please specify MACOS_HOST in build/.env";
 	echo "       This information is utilized to build macOS apps by ssh.";
 	exit 1;
+    fi;
+    MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`
+    if [ -z "$MACOS_HOST_IP" ]; then
+	echo "Error: Could not resolve host name $MACOS_HOST_NAME.";
+	exit 1;
     fi
     if [ -z "$MACOS_USER" ]; then
 	echo "Error: Please specify MACOS_USER in build/.env";
@@ -111,13 +116,13 @@ echo "Building macOS apps."
 
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
-    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && security unlock-keychain -p '$MACOS_PASSWORD' login.keychain && make all-macos";
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac.dmg" $RELEASETMP/;
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" $RELEASETMP/;
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" $RELEASETMP/;
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" $RELEASETMP/;
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac.zip" $RELEASETMP/;
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/pack.mac" $RELEASETMP/;
+    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && security unlock-keychain -p '$MACOS_PASSWORD' login.keychain && make all-macos";
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/mac.zip" $RELEASETMP/;
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/pack.mac" $RELEASETMP/;
 else
     echo "Building on localhost..."
     make all-mac;
@@ -273,17 +278,17 @@ fi
 echo "Building a Kirara macOS app."
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
-    scp "$RELEASETMP/suika.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/suika-pro.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/pack.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/mac.dmg" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/mac.zip" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/pack.mac" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/index.html" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/index.js" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/index.wasm" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/dist/Kirara-1.0.0.dmg" "$RELEASETMP/kirara-mac-$VERSION.dmg";
+    scp "$RELEASETMP/suika.exe" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/suika-pro.exe" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/pack.exe" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/mac.dmg" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/mac.zip" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/pack.mac" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/index.html" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/index.js" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/index.wasm" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/dist/Kirara-1.0.0.dmg" "$RELEASETMP/kirara-mac-$VERSION.dmg";
 else
     echo "Building on localhost...";
     cd ../tools/kirara;
