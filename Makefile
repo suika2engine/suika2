@@ -67,9 +67,10 @@ all-windows: windows windows-64 windows-arm64 windows-pro windows-capture window
 all-macos:
 	@echo 'Building macOS binaries'
 	@cd build/macos && \
-	make release && \
-	make install && \
-	make clean && \
+		make clean && \
+		make release && \
+		make install && \
+		make clean && \
 	cd ../..
 
 # A target for all Linux binaries.
