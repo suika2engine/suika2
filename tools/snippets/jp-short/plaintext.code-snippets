@@ -30,10 +30,25 @@
 		"body":"@choose $1 $2",
 		"description": "選択肢 @choose [行き先1] [選択肢1] (行き先2) (選択肢2) (行き先3) (選択肢3) (行き先4) (選択肢4) (行き先5) (選択肢5) (行き先6) (選択肢6) (行き先7) (選択肢7) (行き先8) (選択肢8)"
 	},
+	"ichoose":{
+		"prefix": ["@ichoose","@インライン選択肢"],
+		"body":"@ichoose $1 $2 $3 $4",
+		"description": "メッセージボックス内に選択肢を表示。 この機能を使用するときには、コンフィグの switch.bg.file と switch.fg.file に透明な画像を指定してください。  @ichoose [行き先1] [選択肢1] (行き先2) (選択肢2)"
+	},
 	"chs":{
 		"prefix": ["@chs","@場面転換"],
 		"body":"@chs $1 $2 $3 $4 $5 $6 $7",
-		"description": "場面転換 @chs [中央ファイル] [右ファイル] [左ファイル] [背面ファイル] (秒) (背景ファイル) (エフェクト)"
+		"description": "＊現在では@chsxを利用することが推奨されています。 場面転換 @場面転換 [中央ファイル] [右ファイル] [左ファイル] [背面ファイル] (秒) (背景ファイル) (エフェクト)"
+	},
+	"chsx":{
+		"prefix": ["@chsx","@場面転換X"],
+		"body": "@chsx $1",
+		"description": "背景・立ち絵・位置を一括で変更します。引数名は省略不可・順不同 @chsx (center=center-image) (center-x=center-x-offset) (center-y=center-y-offset) (right=right-image) (right-x=right-x-offset) (right-y=right-y-offset) (left=left-image) (left-x=left-x-offset) (left-y=left-y-offset) (back=back-image) (back-x=back-x-offset) (back-y=back-y-offset) (background=background-image) (bg-x=background-x-offset) (back-y=background-y-offset) (effect=effect) (duration=duration)"
+	},
+	"chsx-all":{
+		"prefix": ["@chsx-all","@場面転換X-all"],
+		"body": "@chsx center=$1 center-x=$2 center-y=$3 right=$4 right-x=$5 right-y=$6 left=$7 left-x=$8 left-y=$9 back=$10 back-x=$11 back-y=$12 background=$13 bg-x=$14 back-y=$15 effect=$16 duration=$17",
+		"description": "背景・立ち絵・位置を一括で変更します。引数名は省略不可・順不同 @chsx (center=center-image) (center-x=center-x-offset) (center-y=center-y-offset) (right=right-image) (right-x=right-x-offset) (right-y=right-y-offset) (left=left-image) (left-x=left-x-offset) (left-y=left-y-offset) (back=back-image) (back-x=back-x-offset) (back-y=back-y-offset) (background=background-image) (bg-x=background-x-offset) (back-y=background-y-offset) (effect=effect) (duration=duration)"
 	},
 	"click":{
 		"prefix": ["@click","@クリック"],
@@ -114,6 +129,16 @@
 		"prefix": ["@wms","@スクリプト"],
 		"body": "@wms $1",
 		"description": "WMSを実行 @wms [ファイル]"
+	},
+	"anime":{
+		"prefix": "@anime",
+		"body": "@anime $1 $2",
+		"description": "アニメーションファイルを実行 アニメーションファイルはフォルダ anime に配置する必要があります。  @anime [ファイル名] [sync(同期) or async(非同期)]"
+	},
+	"using":{
+		"prefix": "using",
+		"body": "using $1",
+		"description": "外部のマクロファイルを挿入 using [ファイル]"
 	},
 
 	//エフェクト名
@@ -249,7 +274,7 @@
 	},
 	"slit-close":{
 		"prefix": ["slit-close"],
-		"body": "slit-open",
+		"body": "slit-close",
 		"description": "エフェクト：スリットが閉じるような効果"
 	},
 	"slit-open-v":{
@@ -261,6 +286,23 @@
 		"prefix": ["slit-close-v"],
 		"body": "slit-close-v",
 		"description": "エフェクト：スリットが閉じるような効果(垂直)"
+	},
+
+	//文字修飾
+	"slash-wait":{
+		"prefix": "\\w{}",
+		"body":"\\w{$1}",
+		"description": "文章中で待機 \\w{秒}"
+	},
+	"slash-color":{
+		"prefix": "\\#{}",
+		"body": "\\#{$1}",
+		"description": "文章中で文字の色変更 \\#{RRGGBB}"
+	},
+	"slash-size":{
+		"prefix": "\\@{}",
+		"body": "\\@{$1}",
+		"description": "文章中で文字サイズ変更 \\@{サイズ}"
 	},
 
 	//gui
@@ -588,7 +630,7 @@
 		"prefix": "loadTemp",
 		"body": [
 			"$1 {",
-			"\ttype: save;",
+			"\ttype: load;",
 			"",
 			"\tindex: $2",
 			"",
@@ -775,6 +817,70 @@
 		],
 		"description": "CG鑑賞モードの各CGに進むボタンのguiテンプレート"
 	},
+
+	//anime
+	"animeTemp":{
+		"prefix": "animeTemp",
+		"body": [
+			"$1 {",
+			"\tlayer: $2",
+			"\tstart:$3",
+			"\tend:$4",
+			"\t$5",
+			"}"
+		],
+		"description": "アニメショーンファイルのテンプレ―ト　必要最小限版"
+		
+	},
+	"animeTemp-move":{
+		"prefix": "animeTemp-move",
+		"body":[
+			"$1 {",
+			"\tlayer: $2",
+			"\tstart: $3",
+			"\tend: $4",
+			"\tfrom-x: $5",
+			"\tfrom-y: $6",
+			"\tfrom-a: $7",
+			"\tto-x: $8",
+			"\tto-y: $9",
+			"\tto-a: $10",
+			"}"
+		],
+		"description": "アニメショーンファイルのテンプレ―ト　移動系引数版"
+	},
+	"animeTemp-file":{
+		"prefix": "animeTemp-file",
+		"body": [
+			"$1 {",
+			"\tlayer: $2",
+			"\tstart: $3",
+			"\tend: $4",
+			"\tfile: $5",
+			"}"
+		],
+		"description": "アニメショーンファイルのテンプレ―ト　画像変更用引数版"
+	},
+	"animeTemp-all":{
+		"prefix": "animeTemp-all",
+		"body": [
+			"$1 {",
+			"\tlayer: $2",
+			"\tclear: $3",
+			"\tfile: $4",
+			"\tstart: $5",
+			"\tend: $6",
+			"\tfrom-x: $7",
+			"\tfrom-y: $8",
+			"\tfrom-a: $9",
+			"\tto-x: $10",
+			"\tto-y: $11",
+			"\tto-a: $12",
+			"}"
+		],
+		"description": "アニメーションファイルのテンプレート 全ての引数あり版"
+	},
+
 	
 	//wms
 	"func":{
@@ -893,6 +999,13 @@
 			"s2_reflect_$1_config();"
 		],
 		"description": "指定した要素の設定を反映する"
+	},
+	"s2_reflect_font_config":{
+		"prefix": "s2_reflect_font_config();",
+		"body":[
+			"s2_reflect_font_config();"
+		],
+		"description": "フォントを更新する"
 	},
 	"s2_reflect_msgbox_and_namebox_config":{
 		"prefix": "s2_reflect_msgbox_and_namebox_config();",
