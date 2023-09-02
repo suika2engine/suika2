@@ -62,10 +62,10 @@ release: libroot
 	@until security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportPath `pwd`/build/Release && security lock-keychain login.keychain; do echo "Sleep..."; sleep 10; done
 	@until security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportPath `pwd`/build/Release && security lock-keychain login.keychain; do echo "Sleep..."; sleep 10; done
 	@echo "Creating dmg files..."
-	@rm -rf tmp mac.dmg && mkdir tmp && cp -Rv build/Release/suika.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac mac.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac.dmg && security lock-keychain login.keychain && rm -rf tmp
-	@rm -rf tmp mac-pro.dmg && mkdir tmp && cp -Rv build/Release/suika-pro.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-pro mac-pro.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-pro.dmg && security lock-keychain login.keychain && rm -rf tmp
-	@rm -rf tmp mac-capture.dmg && mkdir tmp && cp -Rv build/Release/suika-capture.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-capture mac-capture.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-capture.dmg && security lock-keychain login.keychain && rm -rf tmp
-	@rm -rf tmp mac-replay.dmg && mkdir tmp && cp -Rv build/Release/suika-replay.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-replay mac-replay.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-replay.dmg && security lock-keychain login.keychain && rm -rf tmp
+	@rm -rf tmp mac.dmg && mkdir tmp && cp -Ra build/Release/suika.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac mac.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac.dmg && security lock-keychain login.keychain && rm -rf tmp
+	@rm -rf tmp mac-pro.dmg && mkdir tmp && cp -Ra build/Release/suika-pro.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-pro mac-pro.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-pro.dmg && security lock-keychain login.keychain && rm -rf tmp
+	@rm -rf tmp mac-capture.dmg && mkdir tmp && cp -Ra build/Release/suika-capture.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-capture mac-capture.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-capture.dmg && security lock-keychain login.keychain && rm -rf tmp
+	@rm -rf tmp mac-replay.dmg && mkdir tmp && cp -Ra build/Release/suika-replay.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-replay mac-replay.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-replay.dmg && security lock-keychain login.keychain && rm -rf tmp
 	@mv mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg ../../
 	@echo "Creating a zip file for use with Kirara..."
 	@rm -rf zip mac.zip && mkdir zip
@@ -85,4 +85,4 @@ install:
 # This phony target cleans up this directory.
 #
 clean:
-	rm -rf build mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg tmp zip mac.zip pack.mac
+	rm -rf build mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg tmp zip mac.zip pack.mac ../../mac.zip ../../pack.mac
