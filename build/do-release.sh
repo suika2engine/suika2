@@ -119,8 +119,8 @@ if [ -z "`uname | grep Darwin`" ]; then
     ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && make all-macos";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" "$RELEASETMP/";
+#   scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" "$RELEASETMP/";
+#   scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.zip" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/pack.mac" "$RELEASETMP/";
 else
@@ -128,8 +128,8 @@ else
     make all-mac;
     cp mac.dmg "$RELEASETMP/";
     cp mac-pro.dmg "$RELEASETMP/";
-    cp mac-capture.dmg "$RELEASETMP/";
-    cp mac-replay.dmg "$RELEASETMP/";
+#   cp mac-capture.dmg "$RELEASETMP/";
+#   cp mac-replay.dmg "$RELEASETMP/";
     cp build/macos/mac.zip "$RELEASETMP/";
     cp build/macos/pack.mac "$RELEASETMP/";
 fi
@@ -332,8 +332,8 @@ cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-arm64.exe" suika2/tools/
-cp -v "$RELEASETMP/mac-capture.dmg" suika2/tools/
-cp -v "$RELEASETMP/mac-replay.dmg" suika2/tools/
+#cp -v "$RELEASETMP/mac-capture.dmg" suika2/tools/
+#cp -v "$RELEASETMP/mac-replay.dmg" suika2/tools/
 cp -v "$RELEASETMP/suika-linux" suika2/tools/
 mkdir suika2/tools/web
 cp -v "$RELEASETMP/index.html" suika2/tools/web/
@@ -373,8 +373,8 @@ cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-arm64.exe" suika2/tools/
-cp -v "$RELEASETMP/mac-capture.dmg" suika2/tools/
-cp -v "$RELEASETMP/mac-replay.dmg" suika2/tools/
+#cp -v "$RELEASETMP/mac-capture.dmg" suika2/tools/
+#cp -v "$RELEASETMP/mac-replay.dmg" suika2/tools/
 cp -v "$RELEASETMP/suika-linux" suika2/tools/
 mkdir suika2/tools/web
 cp -v "$RELEASETMP/index.html" suika2/tools/web/
