@@ -19,14 +19,14 @@ read str
 #
 echo "Checking for .env credentials."
 eval `cat .env`
-[ ! -z $WINDOWS_USER ]
-[ ! -z $MACOS_HOST ]
-[ ! -z $MACOS_USER ]
-[ ! -z $MACOS_PASSWORD ]
-[ ! -z $FTP_LOCAL ]
-[ ! -z $FTP_USER ]
-[ ! -z $FTP_PASSWORD ]
-[ ! -z $FTP_URL ]
+[ ! -z "$WINDOWS_USER" ]
+[ ! -z "$MACOS_HOST" ]
+[ ! -z "$MACOS_USER" ]
+[ ! -z "$MACOS_PASSWORD" ]
+[ ! -z "$FTP_LOCAL" ]
+[ ! -z "$FTP_USER" ]
+[ ! -z "$FTP_PASSWORD" ]
+[ ! -z "$FTP_URL" ]
 
 #
 # Make a temporary directory for release binaries.
