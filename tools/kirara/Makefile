@@ -11,6 +11,14 @@ usage:
 
 setup:
 	npm install
+	@if [ ! -z "`uname | grep Linux`" ]; then \
+		sudo dpkg --add-architecture i386; \
+		sudo apt-get update; \
+		sudo apt-get install wine wine64 wine32; \
+	fi
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		brew install wine; \
+	fi
 
 update:
 	cd apps && ./update-suika2.sh && cd ..
