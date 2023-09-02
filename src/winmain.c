@@ -31,6 +31,7 @@
 #ifdef USE_DEBUGGER
 #include <commctrl.h>
 #include "windebug.h"
+#include "package.h"
 #endif
 
 #include "d3drender.h"
@@ -224,6 +225,19 @@ int WINAPI wWinMain(
 	int nCmdShow)
 {
 	int result = 1;
+
+#ifdef USE_DEBUGGER
+	/* 引数が指定された場合はパッケージャとして機能する */
+	if (__argc == 2 && wcscmp(__wargv[1], L"--package") == 0)
+	{
+		if (!create_package("."))
+		{
+			log_error("Packaging error!");
+			return 1;
+		}
+		return 0;
+	}
+#endif
 
 	/* Sleep()の分解能を設定する */
 	timeBeginPeriod(1);
