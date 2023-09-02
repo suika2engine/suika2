@@ -359,30 +359,35 @@ You can use it if you would like, but the original author doesn't.
 This method will create release zip files and upload them to a FTP server.
 
 * Prerequisites
-  * We need WSL2 and macOS hosts
-    * This is because we cannot use GitHub CI for a release due to an issue on the cheap code signing of Certum
+  * You need both WSL2 and macOS hosts
+    * This is because the original author requires Windows to sign exe files
+    * He uses "Certum Open Source Code Signing in the Cloud" product
+    * He thinks it cannot be used in GitHub CI because the private key is not extractable in a normal way
   * On macOS:
-    * Turn on the ssh server and add your public key to `.ssh/authorized_keys`
+    * Turn on the ssh server
+    * Add your public key to `~/.ssh/authorized_keys`
+    * Edit `SIGNATURE` in `build/macos/Makefile`
   * On WSL2:
-    * Create `build/.env` file:
+    * Create `build/.env` file for credentials:
     ```
-    MACOS_HOST=your-mac-name.local
-    MACOS_USER=your-user-name
+    WINDOWS_USER=your-windows-user-name
+    MACOS_HOST=your-mac-host-name.local
+    MACOS_USER=your-mac-user-name
     FTP_LOCAL=~/Sites/suika2.com/dl
-    FTP_USER=my-ftp-account
-    FTP_PASSWORD=my-ftp-password
-    FTP_URL=ftp://ftp.my-web-server.com/suika2.com/dl
+    FTP_USER=your-ftp-account
+    FTP_PASSWORD=your-ftp-password
+    FTP_URL=ftp://ftp.your-web-server.com/suika2.com/dl
     ```
 
 * Release Steps
   * On WSL2:
-    * Update the following documents:
-      * `doc/readme-jp.html`
-      * `doc/readme-en.html`
     * In the terminal, navigate to the `build/macos` directory and run the following command:
     ```
     ./update-version.sh '12.38'
     ```
+    * Update the following documents:
+      * `doc/readme-jp.html`
+      * `doc/readme-en.html`
     * In the terminal, navigate to the repository root and run the following commands:
     ```
     git add doc/readme-jp.html doc/readme-en.html build/macos/suika.xcodeproj/project.pbxproj
