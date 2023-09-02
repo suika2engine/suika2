@@ -18,7 +18,7 @@ SIGNATURE="Open Source Developer, Keiichi Tabata"
 #
 # Input a version number.
 #
-echo "Enter version e.g. 2.12.0"
+echo "Enter version e.g. 12.38"
 read str
 VERSION=$str
 if [ ! -n "$VERSION" ]; then
@@ -340,7 +340,7 @@ cp -v "$RELEASETMP/index.html" suika2/tools/web/
 cp -v "$RELEASETMP/index.js" suika2/tools/web/
 cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
 cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
-zip -r "$RELEASETMP/suika-$VERSION-jp.zip" suika2
+zip -r "$RELEASETMP/suika2-$VERSION-jp.zip" suika2
 rm -rf suika2
 
 # English ZIP
@@ -381,7 +381,7 @@ cp -v "$RELEASETMP/index.html" suika2/tools/web/
 cp -v "$RELEASETMP/index.js" suika2/tools/web/
 cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
 cp -v emscripten/about-en.txt suika2/tools/web/about.txt
-zip -r "$RELEASETMP/suika-$VERSION-en.zip" suika2
+zip -r "$RELEASETMP/suika2-$VERSION-en.zip" suika2
 rm -rf suika2
 
 #
@@ -390,16 +390,16 @@ rm -rf suika2
 echo "Uploading files."
 
 # Copy release files to FTPLOCAL directory.
-cp "$RELEASETMP/suika-$VERSION-jp.zip" $FTP_LOCAL/
-cp "$RELEASETMP/suika-$VERSION-en.zip" $FTP_LOCAL/
+cp "$RELEASETMP/suika2-$VERSION-jp.zip" $FTP_LOCAL/
+cp "$RELEASETMP/suika2-$VERSION-en.zip" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-win-$VERSION.exe" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-mac-$VERSION.dmg" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-helper-current.zip" $FTP_LOCAL/
 
 # Upload.
 if [ ! "$NOUPLOAD" -eq "1" ]; then
-    curl -T "$RELEASETMP/suika-$VERSION-jp.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika-$VERSION-jp.zip" && sleep 5;
-    curl -T "$RELEASETMP/suika-$VERSION-en.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika-$VERSION-en.zip" && sleep 5;
+    curl -T "$RELEASETMP/suika2-$VERSION-jp.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION-jp.zip" && sleep 5;
+    curl -T "$RELEASETMP/suika2-$VERSION-en.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION-en.zip" && sleep 5;
     curl -T "$RELEASETMP/kirara-win-$VERSION.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-win-$VERSION.exe" && sleep 5;
     curl -T "$RELEASETMP/kirara-mac-$VERSION.dmg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-mac-$VERSION.dmg" && sleep 5;
     curl -T "$RELEASETMP/kirara-helper-current.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-helper-current.zip";
