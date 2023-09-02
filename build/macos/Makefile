@@ -46,15 +46,16 @@ libroot:
 release: libroot
 	@echo "Building..."
 	@rm -rf build mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg ../../mac.zip ../../pack.mac
-	@echo "Builing suika.app" && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -scheme suika -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive archive && security lock-keychain login.keychain
-	@echo "Uploading suika.app" && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika.xcarchive -exportOptionsPlist export-options.plist && security lock-keychain login.keychain
-	@echo "Notarizing suika.app" && rm -rf build/Release/suika.app && until security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika.xcarchive -exportPath `pwd`/build/Release && security lock-keychain login.keychain; do echo "Sleep..."; sleep 10; done
-	@echo "Builing suika-pro.app" && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-pro.xcarchive archive && security lock-keychain login.keychain
-	@echo "Uploading suika-pro.app" && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportOptionsPlist export-options.plist && security lock-keychain login.keychain
-	@echo "Notarizing suika-pro.app" && rm -rf build/Release/suika-pro.app && until security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportPath `pwd`/build/Release && security lock-keychain login.keychain; do echo "Sleep..."; sleep 10; done
+	@security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain
+	@echo "Builing suika.app" && xcodebuild -scheme suika -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive archive
+	@echo "Uploading suika.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika.app" && rm -rf build/Release/suika.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
+	@echo "Builing suika-pro.app" && xcodebuild -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-pro.xcarchive archive
+	@echo "Uploading suika-pro.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika-pro.app" && rm -rf build/Release/suika-pro.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
 	@echo "Creating dmg files..."
-	@rm -rf tmp mac.dmg && mkdir tmp && cp -Ra build/Release/suika.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac mac.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac.dmg && security lock-keychain login.keychain && rm -rf tmp
-	@rm -rf tmp mac-pro.dmg && mkdir tmp && cp -Ra build/Release/suika-pro.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-pro mac-pro.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-pro.dmg && security lock-keychain login.keychain && rm -rf tmp
+	@rm -rf tmp mac.dmg && mkdir tmp && cp -Ra build/Release/suika.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac mac.dmg && codesign --sign $(SIGNATURE) mac.dmg && rm -rf tmp
+	@rm -rf tmp mac-pro.dmg && mkdir tmp && cp -Ra build/Release/suika-pro.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-pro mac-pro.dmg && codesign --sign $(SIGNATURE) mac-pro.dmg && rm -rf tmp
 	@mv mac.dmg mac-pro.dmg ../../
 	@echo "Creating a zip file for use with Kirara..."
 	@rm -rf zip mac.zip && mkdir zip
