@@ -10,6 +10,8 @@ CFLAGS_MAC=
 
 LDFLAGS=-s
 
+LDFLAGS_MAC=
+
 SRC=\
 	../../src/package.c \
 	../../src/log.c \
@@ -28,7 +30,7 @@ pack: $(SRC)
 	$(CC) -o pack $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)$(SRC)
 
 pack.mac: $(SRC)
-	$(CC) -o pack.mac -arch arm64 -arch x86_64 $(CPPFLAGS) $(CFLAGS_MAC) $(LDFLAGS) $(SRC)
+	$(CC) -o pack.mac -arch arm64 -arch x86_64 $(CPPFLAGS) $(CFLAGS_MAC) $(LDFLAGS_MAC) $(SRC)
 
 pack.exe: $(SRC)
 	i686-w64-mingw32-gcc -o pack.exe -municode $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(SRC)

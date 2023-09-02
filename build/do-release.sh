@@ -2,15 +2,31 @@
 
 set -eu
 
-CMDEXE=/mnt/c/Windows/system32/cmd.exe
+#
+# Settings
+#
 
+# Path to cmd.exe
+CMDEXE='/mnt/c/Windows/system32/cmd.exe'
+
+# Path to signtool.exe
+SIGNTOOL='/mnt/c/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe'
+
+# Signature for code signing.
+SIGNATURE='Open Source Developer, Keiichi Tabata'
+
+#
+# Input a version number.
+#
 echo "Enter version e.g. 2.12.0"
 read str
 
 VERSION=$str
 [ -n "$VERSION" ]
 
-echo ""
+#
+# Confirmation.
+#
 echo "Are you sure you want to release $VERSION? (press return)"
 read str
 
@@ -54,14 +70,14 @@ fi
 echo "Building macOS apps."
 
 if [ -z "`uname | grep Darwin`" ]; then
-    echo "Building on remote host...";
-    ssh $MACOS_HOST "cd /Users/$MACOS_USER/src/suika2 && git pull github master && security unlock-keychain -p '$MACOS_PASSWORD' login.keychain && make all-macos";
-    scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac.dmg $RELEASETMP/;
-    scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-pro.dmg $RELEASETMP/;
-    scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-capture.dmg $RELEASETMP/;
-    scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-replay.dmg $RELEASETMP/;
-    scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac.zip $RELEASETMP/;
-    scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/pack.mac $RELEASETMP/;
+    echo "Building on a remote host...";
+    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && security unlock-keychain -p '$MACOS_PASSWORD' login.keychain && make all-macos";
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" $RELEASETMP/;
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac.zip" $RELEASETMP/;
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/pack.mac" $RELEASETMP/;
 else
     echo "Building on localhost..."
     make all-mac;
@@ -173,8 +189,11 @@ cd ../
 # Sign main exe files.
 #
 if [ "$DO_SIGN" -eq "1" ]; then
-    echo "Signing the Windows apps on Windows."
-    $CMDEXE /C 'cd C:\Windows\Temp\suika2-release-tmp && "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x86\signtool" sign /n "Open Source Developer, Keiichi Tabata" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe pack.exe';
+    echo "Signing the Windows apps on Windows.";
+    pushd .;
+    cd $RELEASETMP;
+    "$SIGNTOOL" /C sign /n \"$SIGNATURE\" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe pack.exe";
+    popd;
 else
     echo "Skipping code signing for Windows binaries because we are not running on Windows."
 fi
@@ -198,7 +217,10 @@ cp "dist/Kirara Setup 1.0.0.exe" $RELEASETMP/kirara-win.exe
 cd ../../build
 if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Kirara Windows app on Windows.";
-    $CMDEXE /C 'cd C:\Windows\Temp\suika2-release-tmp && "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x86\signtool" sign /n "Open Source Developer, Keiichi Tabata" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v kirara-win.exe';
+    pushd .;
+    cd $RELEASETMP;
+    "$SIGNTOOL" /C sign /n \"$SIGNATURE\" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v kirara-win.exe";
+    popd;
     mv $RELEASETMP/kirara-win.exe $RELEASETMP/kirara-win-$VERSION.exe;
 else
     echo "Skipping code signing for Kirara Windows app."
@@ -210,18 +232,18 @@ fi
 #
 echo "Building a Kirara macOS app."
 if [ -z "`uname | grep Darwin`" ]; then
-    echo "Building on remote host..."
-    scp $RELEASETMP/suika.exe $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/suika-pro.exe $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/pack.exe $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/mac.dmg $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/mac.zip $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/pack.mac $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/index.html $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/index.js $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    scp $RELEASETMP/index.wasm $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/;
-    ssh $MACOS_HOST "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
-    scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/dist/Kirara-1.0.0.dmg $RELEASETMP/kirara-mac-$VERSION.dmg;
+    echo "Building on a remote host..."
+    scp "$RELEASETMP/suika.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/suika-pro.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/pack.exe" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/mac.dmg" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/mac.zip" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/pack.mac" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/index.html" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/index.js" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    scp "$RELEASETMP/index.wasm" "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
+    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/tools/kirara/dist/Kirara-1.0.0.dmg" "$RELEASETMP/kirara-mac-$VERSION.dmg";
 else
     echo "Building on localhost..."
     cd ../tools/kirara;

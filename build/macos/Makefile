@@ -36,7 +36,7 @@ noupload: libroot
 
 # This phony target copies dmg files to the project root.
 install:
-	cp mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg ../../
+	cp mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg pack.mac ../../
 
 # This phony target cleans up this directory.
 clean:
