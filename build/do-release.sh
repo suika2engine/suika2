@@ -50,7 +50,7 @@ if [ -z "`uname | grep Darwin`" ]; then
     fi;
     MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`
     if [ -z "$MACOS_HOST_IP" ]; then
-	echo "Error: Could not resolve host name $MACOS_HOST_NAME.";
+	echo "Error: Could not resolve host name $MACOS_HOST. It may be a problem of mDNS. Try again.";
 	exit 1;
     fi
     if [ -z "$MACOS_USER" ]; then
