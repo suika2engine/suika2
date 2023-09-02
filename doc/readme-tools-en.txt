@@ -31,7 +31,7 @@ suika-replay.exe  ... This replays from the 'record' folder and outputs to the '
   - You can rename record folder, and drop it to suika-replay.exe
 
 ##
-## For macOS
+## For macOS (Temporarily not included)
 ##
 
 suika-capture.dmg ... Capture app for macOS

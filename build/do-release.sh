@@ -13,7 +13,7 @@ CMDEXE='/mnt/c/Windows/system32/cmd.exe'
 SIGNTOOL='/mnt/c/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe'
 
 # Signature for code signing.
-SIGNATURE='Open Source Developer, Keiichi Tabata'
+SIGNATURE="Open Source Developer, Keiichi Tabata"
 
 #
 # Input a version number.
@@ -203,7 +203,7 @@ if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Windows apps on Windows.";
     SAVE_WD=`pwd`;
     cd "$RELEASETMP";
-    "$SIGNTOOL" /C sign /n \"$SIGNATURE\" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe";
+    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe;
     cd "$SAVE_WD";
 else
     echo "Skipping code signing for Windows binaries because we are not running on Windows."
@@ -265,7 +265,7 @@ if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Kirara Windows app on Windows.";
     SAVE_WD=`pwd`;
     cd "$RELEASETMP";
-    "$SIGNTOOL" /C sign /n \"$SIGNATURE\" /tr http://time.certum.pl/ /td sha256 /fd sha256 /v kirara-win.exe";
+    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v kirara-win.exe;
     cd "$SAVE_WD";
     mv "$RELEASETMP/kirara-win.exe" "$RELEASETMP/kirara-win-$VERSION.exe";
 else

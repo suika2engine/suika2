@@ -24,7 +24,7 @@ suika-replay.exe  ... recordフォルダの記録を再生して、replayフォ�
     そのフォルダがリプレイされます
   - リプレイするだけなら、recordの中のスクリーンショットを消してmain.csvだけでOKです
 
-■macOS系
+■macOS系 (※一時的に添付していないです)
 suika-capture.dmg ... macOS版のキャプチャアプリ
 suika-replay.dmg  ... macOS版のリプレイアプリ
 
