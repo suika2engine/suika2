@@ -1,3 +1,5 @@
+MACOS_PASSWORD=`cat ../../build/macos/.passwd`
+
 usage:
 	@echo "This is the build system for Kirara."
 	@echo
@@ -30,6 +32,7 @@ win:
 	npx electron-builder --win --x64
 
 mac:
+	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	npx electron-builder --mac --x64
 
 clean:
