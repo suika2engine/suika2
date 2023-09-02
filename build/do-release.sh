@@ -54,7 +54,7 @@ echo "Building macOS apps."
 
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on remote host...";
-    ssh $MACOS_HOST "cd /Users/$MACOS_USER/src/suika2 && git pull github master && security unlock-keychain && make all-macos";
+    ssh $MACOS_HOST "cd /Users/$MACOS_USER/src/suika2 && git pull github master && security unlock-keychain -p $MACOS_PASSWORD login.keychain && make all-macos";
     scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac.dmg $RELEASETMP/;
     scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-pro.dmg $RELEASETMP/;
     scp $MACOS_HOST:/Users/$MACOS_USER/src/suika2/mac-capture.dmg $RELEASETMP/;

@@ -36,12 +36,12 @@ done
 
 # Make a zip file.
 SUFFIX=${APP#suika}
-if [ -z $SUFFIX ]; then
+if [ -z "$SUFFIX" ]; then
     rm -rf zip mac.zip;
     mkdir -p zip;
     cp -Rv build/Release/$APP.app zip/
 fi
-if [ $SUFFIX == "-pro" ]; then
+if [ "$SUFFIX" == "-pro" ]; then
     cp -Rv build/Release/$APP.app zip/
     cd zip;
     zip -r ../mac.zip .;
