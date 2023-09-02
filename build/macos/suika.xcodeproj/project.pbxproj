@@ -1024,6 +1024,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1069,6 +1070,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1118,6 +1120,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1170,6 +1173,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1221,6 +1225,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1272,6 +1277,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1431,6 +1437,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1477,6 +1484,7 @@
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
