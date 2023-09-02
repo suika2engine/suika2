@@ -3,9 +3,12 @@ CPPFLAGS=\
 	-I../../src
 
 CFLAGS=\
+	-Os \
 	-Wformat-truncation=0
 
 CFLAGS_MAC=
+
+LDFLAGS=-s
 
 SRC=\
 	../../src/package.c \
@@ -22,10 +25,10 @@ all:
 	@echo
 
 pack: $(SRC)
-	$(CC) -o pack $(CPPFLAGS) $(CFLAGS) $(SRC)
+	$(CC) -o pack $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)$(SRC)
 
 pack.mac: $(SRC)
-	$(CC) -o pack.mac -arch arm64 -arch x86_64 $(CPPFLAGS) $(CFLAGS_MAC) $(SRC)
+	$(CC) -o pack.mac -arch arm64 -arch x86_64 $(CPPFLAGS) $(CFLAGS_MAC) $(LDFLAGS) $(SRC)
 
 pack.exe: $(SRC)
-	i686-w64-mingw32-gcc -o pack.exe -municode $(CPPFLAGS) $(CFLAGS) $(SRC)
+	i686-w64-mingw32-gcc -o pack.exe -municode $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(SRC)
