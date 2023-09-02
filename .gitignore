@@ -1,119 +1,62 @@
+# Credentials
+build/.env
+build/macos/.passwd
+
+# Garbage
 *.DS_Store
 *~
 .vscode/settings.json
+game-jp/log.txt
+game-jp/sav
+game-en/log.txt
+game-en/sav
 
-suika.app
-suika-pro.app
-
+# Top level objects
 suika.exe
 suika-pro.exe
 suika-capture.exe
 suika-64.exe
 suika-arm64.exe
+mac.dmg
+mac-pro.dmg
+mac-capture.dmg
+mac-replay.dmg
+pack.mac
 
-build/cloud
-build/ftplocal
-build/.env
-
+# mingw
 build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/res/resource.aps
 build/mingw/sync.sh
 
-build/mingw-pro/*.o
-build/mingw-pro/libroot
-build/mingw-pro/suika-pro.exe
-
-build/mingw-capture/*.o
-build/mingw-capture/libroot
-build/mingw-capture/suika-capture.exe
-
-build/mingw-replay/*.o
-build/mingw-replay/libroot
-build/mingw-replay/suika-replay.exe
-
+# mingw-64
 build/mingw-64/*.o
 build/mingw-64/libroot
 build/mingw-64/suika-64.exe
 
+# mingw-arm64
 build/mingw-arm64/*.o
 build/mingw-arm64/llvm
 build/mingw-arm64/libroot
 build/mingw-arm64/suika-arm64.exe
 
-build/macos/libroot
-build/macos/build
-build/macos/suika.xcodeproj/project.xcworkspace
-build/macos/suika.xcodeproj/xcshareddata
-build/macos/suika.xcodeproj/xcuserdata
+# mingw-pro
+build/mingw-pro/*.o
+build/mingw-pro/libroot
+build/mingw-pro/suika-pro.exe
 
-build/ios/libroot
-build/ios/suika.xcodeproj/project.xcworkspace
-build/ios/suika.xcodeproj/xcuserdata
-build/ios/suika.xcodeproj/xcshareddata
+# mingw-capture
+build/mingw-capture/*.o
+build/mingw-capture/libroot
+build/mingw-capture/suika-capture.exe
 
-build/android/.idea/caches
-build/android/app/.cxx
-build/android/app/src/main/assets
-build/android/app/src/main/cpp/freetype
-build/android/app/src/main/cpp/libpng
-build/android/app/src/main/cpp/jpeg
-build/android/app/src/main/cpp/*.[ch]
-build/android/cmdline-tools
-build/android/commandlinetools-linux-*.zip
+# mingw-replay
+build/mingw-replay/*.o
+build/mingw-replay/libroot
+build/mingw-replay/suika-replay.exe
 
-build/linux-x86_64/*.o
-build/linux-x86_64/libroot
-build/linux-x86_64/suika
-
-build/linux-x86_64-pro
-
-build/linux-x86_64-clang/*.o
-build/linux-x86_64-clang/libroot
-build/linux-x86_64-clang/suika
-
-build/linux-x86_64-capture/*.o
-build/linux-x86_64-capture/libroot
-build/linux-x86_64-capture/suika-capture
-build/linux-x86_64-capture/game-jp
-
-build/linux-x86_64-replay/*.o
-build/linux-x86_64-replay/*.gcda
-build/linux-x86_64-replay/*.gcno
-build/linux-x86_64-replay/libroot
-build/linux-x86_64-replay/suika-replay
-build/linux-x86_64-replay/app.info
-build/linux-x86_64-replay/lcovoutput
-build/linux-x86_64-replay/game-jp
-build/linux-x86_64-replay/record
-
-build/raspberrypi/*.o
-build/raspberrypi/libroot
-build/raspberrypi/suika
-
-build/sdl2/*.o
-build/sdl2/libroot
-build/sdl2/suika
-
-build/freebsd/*.o
-build/freebsd/libroot
-build/freebsd/suika
-
-build/netbsd/*.o
-build/netbsd/libroot
-build/netbsd/suika
-
-build/switch/libroot
-build/switch/exefs
-build/switch/romfs
-build/switch/tmp
-build/switch/*.o
-build/switch/*.elf
-build/switch/*.nro
-build/switch/*.nacp
-build/switch/*.nsp
-
+# Visual Studio (just for test build)
 build/vs/.vs
 build/vs/zlib
 build/vs/libpng
@@ -125,49 +68,93 @@ build/vs/Debug
 build/vs/Release
 build/vs/suika/Debug
 build/vs/suika/Release
-build/vs/suika/bg
-build/vs/suika/bgm
-build/vs/suika/cg
-build/vs/suika/ch
-build/vs/suika/conf
-build/vs/suika/cv
-build/vs/suika/font
-build/vs/suika/gui
-build/vs/suika/rule
-build/vs/suika/sav
-build/vs/suika/se
-build/vs/suika/txt
 build/vs/suika-pro/Debug
 build/vs/suika-pro/Release
-build/vs/suika-pro/bg
-build/vs/suika-pro/bgm
-build/vs/suika-pro/cg
-build/vs/suika-pro/ch
-build/vs/suika-pro/conf
-build/vs/suika-pro/cv
-build/vs/suika-pro/font
-build/vs/suika-pro/rule
-build/vs/suika-pro/sav
-build/vs/suika-pro/se
-build/vs/suika-pro/txt
 
-build/emscripten/data01.arc
+# macOS
+build/macos/libroot
+build/macos/build
+build/macos/suika.xcodeproj/project.xcworkspace
+build/macos/suika.xcodeproj/xcshareddata
+build/macos/suika.xcodeproj/xcuserdata
+build/macos/*.dmg
+build/macos/mac.zip
+build/macos/pack.mac
+
+# iOS (iPhone and iPad)
+build/ios/libroot
+build/ios/suika.xcodeproj/project.xcworkspace
+build/ios/suika.xcodeproj/xcuserdata
+build/ios/suika.xcodeproj/xcshareddata
+
+# Android
+build/android/.idea/caches
+build/android/app/.cxx
+build/android/app/src/main/assets
+build/android/app/src/main/cpp/freetype
+build/android/app/src/main/cpp/libpng
+build/android/app/src/main/cpp/jpeg
+build/android/app/src/main/cpp/*.[ch]
+build/android/cmdline-tools
+build/android/commandlinetools-linux-*.zip
+
+# Linux
+build/linux-x86_64/*.o
+build/linux-x86_64/libroot
+build/linux-x86_64/suika
+
+# Linux (clang)
+build/linux-x86_64-clang/*.o
+build/linux-x86_64-clang/libroot
+build/linux-x86_64-clang/suika
+
+# Linux Capture
+build/linux-x86_64-capture/*.o
+build/linux-x86_64-capture/libroot
+build/linux-x86_64-capture/suika-capture
+
+# Linux Replay
+build/linux-x86_64-replay/*.o
+build/linux-x86_64-replay/*.gcda
+build/linux-x86_64-replay/*.gcno
+build/linux-x86_64-replay/libroot
+build/linux-x86_64-replay/suika-replay
+build/linux-x86_64-replay/app.info
+build/linux-x86_64-replay/lcovoutput
+
+# Raspberry Pi (Linux Arm)
+build/raspberrypi/*.o
+build/raspberrypi/libroot
+build/raspberrypi/suika
+
+# Linux (SDL2: a virtual porting base for game consoles)
+build/sdl2/*.o
+build/sdl2/libroot
+build/sdl2/suika
+
+# FreeBSD
+build/freebsd/*.o
+build/freebsd/libroot
+build/freebsd/suika
+
+# NetBSD
+build/netbsd/*.o
+build/netbsd/libroot
+build/netbsd/suika
+
+# Switch homebrew
+build/switch/libroot
+build/switch/exefs
+build/switch/romfs
+build/switch/tmp
+build/switch/*.o
+build/switch/*.elf
+build/switch/*.nro
+build/switch/*.nacp
+build/switch/*.nsp
+
+# Web
 build/emscripten/html
 
-build/pack/pack
-
-game-jp/log.txt
-game-jp/sav
-game-en/log.txt
-game-en/sav
-
-build/release/mac.dmg
-build/release/mac-pro.dmg
-build/release/suika-2.x.x-jp.zip
-build/release/suika-2.x.x-en.zip
-
-build/web-kit/suika2-web-kit-2.x.x-en.zip
-build/web-kit/suika2-web-kit-2.x.x-jp.zip
-
+# Tests
 testcases
-summary
