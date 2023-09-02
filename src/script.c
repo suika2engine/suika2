@@ -443,6 +443,7 @@ struct param_item {
 
 	/* @chs */
 	{COMMAND_CHS, CHS_PARAM_CENTER, "center="},
+	{COMMAND_CHS, CHS_PARAM_CENTER, "centre="},
 	{COMMAND_CHS, CHS_PARAM_CENTER, U8("中央=")},
 	{COMMAND_CHS, CHS_PARAM_RIGHT, "right="},
 	{COMMAND_CHS, CHS_PARAM_RIGHT, U8("右=")},
@@ -485,12 +486,16 @@ struct param_item {
 
 	/* @chsx */
 	{COMMAND_CHSX, CHSX_PARAM_CENTER, "center="},
+	{COMMAND_CHSX, CHSX_PARAM_CENTER, "centre="},
 	{COMMAND_CHSX, CHSX_PARAM_CENTER, U8("中央=")},
 	{COMMAND_CHSX, CHSX_PARAM_CX, "center-x="},
+	{COMMAND_CHSX, CHSX_PARAM_CX, "centre-x="},
 	{COMMAND_CHSX, CHSX_PARAM_CX, U8("中央X=")},
 	{COMMAND_CHSX, CHSX_PARAM_CY, "center-y="},
+	{COMMAND_CHSX, CHSX_PARAM_CY, "centre-y="},
 	{COMMAND_CHSX, CHSX_PARAM_CY, U8("中央Y=")},
 	{COMMAND_CHSX, CHSX_PARAM_CA, "center-a="},
+	{COMMAND_CHSX, CHSX_PARAM_CA, "centre-a="},
 	{COMMAND_CHSX, CHSX_PARAM_CA, U8("中央A=")},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT, "right="},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT, U8("右=")},
