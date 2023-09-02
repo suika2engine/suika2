@@ -21,6 +21,7 @@ mac.dmg
 mac-pro.dmg
 mac-capture.dmg
 mac-replay.dmg
+mac.zip
 pack.mac
 
 # mingw
@@ -77,9 +78,6 @@ build/macos/build
 build/macos/suika.xcodeproj/project.xcworkspace
 build/macos/suika.xcodeproj/xcshareddata
 build/macos/suika.xcodeproj/xcuserdata
-build/macos/*.dmg
-build/macos/mac.zip
-build/macos/pack.mac
 
 # iOS (iPhone and iPad)
 build/ios/libroot

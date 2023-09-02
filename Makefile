@@ -217,5 +217,5 @@ do-release:
 # Cleanup.
 clean:
 	rm -f suika.exe suika-64.exe suika-arm64.exe suika-pro.exe suika-capture.exe suika-replay.exe
-	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg
+	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg mac.zip pack.mac
 	rm -f suika-linux suika-linux-capture suika-linux-replay

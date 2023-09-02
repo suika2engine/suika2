@@ -45,6 +45,7 @@ libroot:
 #
 release: libroot
 	@echo "Building..."
+	@rm -rf build mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg ../../mac.zip ../../pack.mac
 	@security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -scheme suika -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive archive && security lock-keychain login.keychain
 	@security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-pro.xcarchive archive && security lock-keychain login.keychain
 	@security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && xcodebuild -scheme suika-capture -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-capture.xcarchive archive && security lock-keychain login.keychain
@@ -65,13 +66,14 @@ release: libroot
 	@rm -rf tmp mac-pro.dmg && mkdir tmp && cp -Rv build/Release/suika-pro.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-pro mac-pro.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-pro.dmg && security lock-keychain login.keychain && rm -rf tmp
 	@rm -rf tmp mac-capture.dmg && mkdir tmp && cp -Rv build/Release/suika-capture.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-capture mac-capture.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-capture.dmg && security lock-keychain login.keychain && rm -rf tmp
 	@rm -rf tmp mac-replay.dmg && mkdir tmp && cp -Rv build/Release/suika-replay.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-replay mac-replay.dmg && security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain && codesign --sign $(SIGNATURE) mac-replay.dmg && security lock-keychain login.keychain && rm -rf tmp
+	@mv mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg ../../
 	@echo "Creating a zip file for use with Kirara..."
 	@rm -rf zip mac.zip && mkdir zip
 	@cp -Rv build/Release/suika.app zip/
 	@cp -Rv build/Release/suika-pro.app zip/
-	@cd zip && zip -r ../mac.zip . && cd .. && rm -rf zip
+	@cd zip && zip -r ../../../mac.zip . && cd .. && rm -rf zip
 	@echo "Building pack.mac for use with Kirara..."
-	@cd ../../tools/pack && make pack.mac && cp pack.mac ../../build/macos/pack.mac && cd ../../build/macos
+	@cd ../../tools/pack && make pack.mac && cp pack.mac ../../ && cd ../../build/macos
 
 #
 # This phony target copies dmg files to the project root.
