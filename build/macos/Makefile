@@ -53,23 +53,30 @@ release: libroot
 	@echo "Builing suika-pro.app" && xcodebuild -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-pro.xcarchive archive
 	@echo "Uploading suika-pro.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportOptionsPlist export-options.plist
 	@echo "Notarizing suika-pro.app" && rm -rf build/Release/suika-pro.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
+	@echo "Builing suika-capture.app" && xcodebuild -scheme suika-capture -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-capture.xcarchive archive
+	@echo "Uploading suika-capture.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika-capture.app" && rm -rf build/Release/suika-capture.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
+	@echo "Builing suika-replay.app" && xcodebuild -scheme suika-replay -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-replay.xcarchive archive
+	@echo "Uploading suika-replay.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika-replay.app" && rm -rf build/Release/suika-replay.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
 	@echo "Creating dmg files..."
 	@rm -rf tmp mac.dmg && mkdir tmp && cp -Ra build/Release/suika.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac mac.dmg && codesign --sign $(SIGNATURE) mac.dmg && rm -rf tmp
 	@rm -rf tmp mac-pro.dmg && mkdir tmp && cp -Ra build/Release/suika-pro.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-pro mac-pro.dmg && codesign --sign $(SIGNATURE) mac-pro.dmg && rm -rf tmp
-	@mv mac.dmg mac-pro.dmg ../../
+	@rm -rf tmp mac-capture.dmg && mkdir tmp && cp -Ra build/Release/suika-capture.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-capture mac-capture.dmg && codesign --sign $(SIGNATURE) mac-capture.dmg && rm -rf tmp
+	@rm -rf tmp mac-replay.dmg && mkdir tmp && cp -Ra build/Release/suika-replay.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-replay mac-replay.dmg && codesign --sign $(SIGNATURE) mac-replay.dmg && rm -rf tmp
 	@echo "Creating a zip file for use with Kirara..."
 	@rm -rf zip mac.zip && mkdir zip
 	@cp -Rv build/Release/suika.app zip/
 	@cp -Rv build/Release/suika-pro.app zip/
-	@cd zip && zip -r ../../../mac.zip . && cd .. && rm -rf zip
+	@cd zip && zip -r ../mac.zip . && cd .. && rm -rf zip
 	@echo "Building pack.mac for use with Kirara..."
-	@cd ../../tools/pack && make pack.mac && cp pack.mac ../../ && cd ../../build/macos
+	@cd ../../tools/pack && make pack.mac && cp pack.mac ../../build/macos/ && cd ../../build/macos
 
 #
 # This phony target copies dmg files to the project root.
 #
 install:
-	cp mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg pack.mac ../../
+	cp mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg mac.zip pack.mac ../../
 
 #
 # This phony target cleans up this directory.

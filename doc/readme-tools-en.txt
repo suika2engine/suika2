@@ -12,12 +12,6 @@ suika-64.exe    ... Slightly faster on 64-bit Windows machines
 suika-arm64.exe ... Quite faster on Arm64 Windows (such as the Surface Pro) machines
 
 ##
-## For Linux
-##
-
-suika-linux        ... For Linux (Use with Steam distribution)
-
-##
 ## Testing Tools
 ##
 
@@ -35,3 +29,16 @@ suika-replay.exe  ... This replays from the 'record' folder and outputs to the '
   - You can check the differecne between record and replay folders using
     suika-compare.exe that is distributed separatedly (difference is a bug)
   - You can rename record folder, and drop it to suika-replay.exe
+
+##
+## For macOS
+##
+
+suika-capture.dmg ... Capture app for macOS
+suika-replay.dmg  ... Replay app for macOS
+
+##
+## For Linux
+##
+
+suika-linux        ... For Linux (Use with Steam distribution)

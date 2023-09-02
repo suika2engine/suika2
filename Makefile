@@ -4,14 +4,17 @@ targets:
 	@echo 'This is the build system of Suika2.'
 	@echo
 	@echo 'You can type the following commands:'
-	@echo '  make setup           ... install dependency tools'
-	@echo '  make all-windows     ... build all Windows binaries'
-	@echo '  make all-macos       ... build all macOS binaries'
-	@echo '  make all-linux       ... build all Linux binaries'
-	@echo '  make test            ... run test without a window'
-	@echo '  make gtest           ... run test with a window'
-	@echo '  make do-release      ... build release files and upload them (dev internal)'
-	@echo '  make clean           ... cleanup'
+	@echo '  make setup       ... install dependency tools'
+	@echo '  make all-windows ... build all Windows binaries'
+	@echo '  make all-macos   ... build all macOS binaries'
+	@echo '  make all-linux   ... build all Linux binaries'
+	@echo '  make windows     ... build the main game engine for Windows'
+	@echo '  make macos       ... build the main game engine for macOS'
+	@echo '  make linux       ... build the main game engine for Linux'
+	@echo '  make test        ... run tests without a window'
+	@echo '  make gtest       ... run tests with a window (just for demo)'
+	@echo '  make clean       ... cleanup'
+	@echo '  make do-release  ... build release files and upload them (dev internal)'
 	@echo ''
 	@# Check for a situation that we are on WSL2 and not under /mnt
 	@if [ ! -z "`uname | grep Linux`" ]; then \
@@ -128,6 +131,16 @@ windows-replay:
 	make libroot && \
 	make -j8 && \
 	make install && \
+	cd ../..
+
+# A target for the main game engine for macOS.
+macos:
+	@echo 'Building macOS binary'
+	@cd build/macos && \
+		make clean && \
+		make suika.dmg && \
+		cp suika.dmg ../../ && \
+		make clean && \
 	cd ../..
 
 # suika-linux (the main game engine for 64-bit Linux)
