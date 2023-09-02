@@ -24,7 +24,7 @@ app-suika-replay: libroot
 pack.mac:
 	cd ../../tools/pack && \
 	make pack.mac && \
-	cp pack.mac ../../build/cloud/ && \
+	cp pack.mac ../../build/macos/pack.mac && \
 	cd ../../build/macos
 
 # This is just for test build.
@@ -40,4 +40,4 @@ install:
 
 # This phony target cleans up this directory.
 clean:
-	rm -rf mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg tmp zip mac.zip
+	rm -rf mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg tmp zip mac.zip pack.mac

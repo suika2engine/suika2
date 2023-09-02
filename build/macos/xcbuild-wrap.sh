@@ -5,9 +5,6 @@ set -eu
 # Change this line to create your own release file.
 SIGNATURE='Developer ID Application: Keiichi TABATA'
 
-# Check for the symbolic link to the cloud storage.
-[ -e ../cloud ]
-
 # Get the target name.
 APP=$1
 
@@ -50,8 +47,6 @@ if [ $SUFFIX == "-pro" ]; then
     zip -r ../mac.zip .;
     cd ..;
     rm -rf zip;
-    cp mac.zip ../cloud/;
-    rm mac.zip;
 fi
 
 # Make a dmg file.
@@ -62,4 +57,3 @@ cp -Rv build/Release/$APP.app tmp/
 hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac$SUFFIX mac$SUFFIX.dmg
 codesign --sign "$SIGNATURE" mac$SUFFIX.dmg
 rm -rf tmp
-cp mac$SUFFIX.dmg ../cloud/

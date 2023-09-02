@@ -13,6 +13,7 @@ suika-arm64.exe
 
 build/cloud
 build/ftplocal
+build/.env
 
 build/mingw/*.o
 build/mingw/libroot
