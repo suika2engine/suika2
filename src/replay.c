@@ -189,7 +189,11 @@ bool replay_output(void)
 		return true;
 
 	/* フレームバッファの内容を取得する */
+#if defined(LINUX)
 	glReadBuffer(GL_BACK);
+#else
+	glReadBuffer(GL_FRONT);
+#endif
 	glReadPixels(0, 0, conf_window_width, conf_window_height, GL_RGB,
 		     GL_UNSIGNED_BYTE, frame_buf);
 

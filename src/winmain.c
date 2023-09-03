@@ -346,10 +346,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 static BOOL InitRenderingEngine(void)
 {
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
-	/*
-	 * キャプチャアプリではOpenGLを利用する
-	 *  - リプレイアプリはLinuxで動き、OpenGLを利用するため
-	 */
+	/* キャプチャアプリではOpenGLを利用する */
 	if (InitOpenGL())
 	{
 		bOpenGL = TRUE;
