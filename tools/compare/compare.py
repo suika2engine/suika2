@@ -19,7 +19,10 @@ if not os.path.isdir(ANSWER_DIR):
 if not os.path.isdir(RESULT_DIR):
     messagebox.showinfo('suika-compare', 'Cannot open ' + RESULT_DIR)
 
-os.remove('diff.txt')
+if os.path.exists('diff.txt'):
+    os.remove('diff.txt')
+
+messagebox.showinfo('suika-compare', 'Start comparing.')
 
 error_count = 0
 files = glob.glob(ANSWER_DIR + "/*.png")
@@ -43,7 +46,7 @@ for file in files:
     if delta > 1:
         error_count = error_count + 1
         with open('diff.txt', 'a') as f:
-            print(basename + "differs.")
+            print(basename + " differs.", file=f)
 
 # Fail if there were errors.
 if error_count > 0:
