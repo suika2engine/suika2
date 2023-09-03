@@ -1,23 +1,25 @@
-Suika2 Cahpture-and-Replay Comparator
-=====================================
-This program comares `record` and `replay` data of Suika2.
+Suika2 Capture-and-Replay Compare Tool
+======================================
+This program compares the `record` and the `replay` folders.
 
-## Prerequisites
-* Python3
+## Build on WSL2
+Run the following commands:
+```
+make setup
+make bin
+```
 
-## Build on Windows
-```
-build.bat
-```
+Then `suika-compare.zip` will be created.
+Use `suika-compare.exe` inside `suika-compare.zip`.
 
 ## Run on Windows
 1. Prepare `record` folder by running `suika-capture.exe`
 2. Prepare `replay` folder by running `suika-replay.exe`
 3. Click `suika-compare.exe`
-4. `diff` folder will be created if difference is detected
+4. `diff.txt` will be created if difference is detected
 
 ## Run on Other Platforms
 1. Prepare `record` folder by running `suika-capture.exe`
 2. Prepare `replay` folder by running `suika-replay.exe`
 3. Run `compare.py` in your game folder
-4. `diff` folder will be created if difference is detected
+4. `diff.txt` will be created if difference is detected
