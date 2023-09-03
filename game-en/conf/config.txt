@@ -556,6 +556,27 @@ character.file3=002-
 # Continues to character.name32, but omissible
 
 ###
+### Effect for Taps (Kirakira)
+###
+
+# Use Kirakira (0:No, 1:Yes) (Optional)
+kirakira.on=0
+
+# A frame length in seconds (Optional)
+kirakira.frame=0.333
+
+# Effect file names (up to 16) (Optional)
+#kirakira.file1=kira1.png
+#kirakira.file2=kira2.png
+#kirakira.file3=kira3.png
+#kirakira.file4=kira4.png
+#kirakira.file5=kira5.png
+#kirakira.file6=kira6.png
+#kirakira.file7=kira7.png
+#kirakira.file8=kira8.png
+#kirakira.file9=kira9.png
+
+###
 ### Miscellaneous
 ###
 

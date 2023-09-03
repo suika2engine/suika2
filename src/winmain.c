@@ -367,6 +367,10 @@ static BOOL InitRenderingEngine(void)
 		}
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
 	}
+	else
+	{
+		log_info("Fallback from Direct3D to OpenGL.");
+	}
 
 	/* 次にOpenGLを初期化してみる */
 	if (_access("no-opengl.txt", 0) != 0)
@@ -378,6 +382,10 @@ static BOOL InitRenderingEngine(void)
 			return TRUE;
 		}
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
+	}
+	else
+	{
+		log_info("Fallback from OpenGL to GDI.");
 	}
 
 	/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
@@ -1571,22 +1579,22 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
  */
 void render_image_dim(int dst_left, int dst_top,
 					  struct image * RESTRICT src_image, int width, int height,
-					  int src_left, int src_top, int alpha, int bt)
+					  int src_left, int src_top)
 {
 	if (bD3D)
 	{
 		D3DRenderImageDim(dst_left, dst_top, src_image, width, height,
-						  src_left, src_top, alpha, bt);
+						  src_left, src_top);
 	}
 	else if (bOpenGL)
 	{
 		opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-								src_left, src_top, alpha, bt);
+								src_left, src_top);
 	}
 	else
 	{
 		draw_image_dim(BackImage, dst_left, dst_top, src_image, width, height,
-					   src_left, src_top, alpha, bt);
+					   src_left, src_top);
 	}
 }
 

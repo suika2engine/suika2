@@ -16,7 +16,7 @@
  *  - 2021-07-25 エフェクトを追加
  *  - 2022-07-16 システムメニューを追加
  *  - 2022-10-20 キャラ顔絵を追加
- *  - 2023-08-29 クリックエフェクトを追加
+ *  - 2023-09-03 キラキラエフェクトを追加
  */
 
 #ifndef SUIKA_STAGE_H
@@ -30,13 +30,6 @@
  *  - 最大16フレームの可変長
  */
 #define CLICK_FRAMES		(16)
-
-/*
- * タップエフェクトのフレーム数
- *  - スマホ向けのタップエフェクト
- *  - 最大16フレームの可変長
- */
-#define TAP_EFFECT_FRAMES	(16)
 
 /*
  * キャラクタの位置
@@ -447,6 +440,16 @@ void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy);
 
 /* GUIのidle画像の内容を仮のBGレイヤに設定する */
 bool create_temporary_bg_for_gui(void);
+
+/*
+ * キラキラエフェクト
+ */
+
+/* キラキラエフェクトを開始する */
+void start_kirakira(int x, int y);
+
+/* キラキラエフェクトを描画する */
+void draw_kirakira(void);
 
 /*
  * 更新領域の計算

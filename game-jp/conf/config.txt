@@ -532,6 +532,27 @@ character.file3=002-
 # 以降、character.name32まで続くが、省略可能
 
 ###
+### タップ時のキラキラエフェクト
+###
+
+# キラキラエフェクトを使う (0:使わない, 1:使う) (省略可)
+kirakira.on=0
+
+# キラキラエフェクトの1フレームの時間 (秒) (省略可)
+kirakira.frame=0.333
+
+# キラキラエフェクトのファイル名 (1から16まで) (省略可)
+#kirakira.file1=kira1.png
+#kirakira.file2=kira2.png
+#kirakira.file3=kira3.png
+#kirakira.file4=kira4.png
+#kirakira.file5=kira5.png
+#kirakira.file6=kira6.png
+#kirakira.file7=kira7.png
+#kirakira.file8=kira8.png
+#kirakira.file9=kira9.png
+
+###
 ### その他
 ###
 

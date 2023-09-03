@@ -553,10 +553,10 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 VOID D3DRenderImageDim(int dst_left, int dst_top,
 					   struct image * RESTRICT src_image,
 					   int width, int height,
-					   int src_left, int src_top, int alpha, int bt)
+					   int src_left, int src_top)
 {
 	DrawPrimitives(dst_left, dst_top, src_image, NULL, true, false,
-				   width, height, src_left, src_top, alpha, bt);
+				   width, height, src_left, src_top, 255, BLEND_FAST);
 }
 
 //
@@ -569,7 +569,7 @@ VOID D3DRenderImageRule(struct image * RESTRICT src_image,
 {
 	DrawPrimitives(0, 0, src_image, rule_image, false, false,
 				   get_image_width(src_image), get_image_height(src_image),
-				   0, 0, threshold, BLEND_NONE);
+				   0, 0, threshold, BLEND_FAST);
 }
 
 //
@@ -582,7 +582,7 @@ VOID D3DRenderImageMelt(struct image * RESTRICT src_image,
 {
 	DrawPrimitives(0, 0, src_image, rule_image, false, true,
 				   get_image_width(src_image), get_image_height(src_image),
-				   0, 0, threshold, BLEND_NONE);
+				   0, 0, threshold, BLEND_FAST);
 }
 
 // プリミティブを描画する
@@ -667,15 +667,29 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[3].v2 = v[3].v1;
 	v[3].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
-	if (rule_image == NULL && bt == BLEND_NONE && !is_dim)
+	if (bt == BLEND_NONE)
 	{
-		// ブレンドしない場合
+		// ブレンドしない場合(コピー)
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
-	else if (rule_image == NULL && bt != BLEND_NONE && !is_dim)
+	else if (bt == BLEND_ADD)
 	{
-		// ブレンドする場合
+		// 加算ブレンドを使用する場合
+		pD3DDevice->SetPixelShader(NULL);
+		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_ONE);
+		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLOROP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+	}
+	else if (rule_image == NULL && !is_dim)
+	{
+		// 通常のアルファブレンドを行う場合
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
@@ -709,7 +723,7 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	}
 	else if (rule_image != NULL && is_melt)
 	{
-		// ルールシェーダ(メルト)を使用する場合
+		// メルトシェーダを使用する場合
 		FLOAT th = (float)alpha / 255.0f;
 		FLOAT th4[4] = {th, th, th, th};
 		pD3DDevice->SetPixelShader(pMeltShader);
@@ -718,6 +732,10 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	}
+	else
+	{
+		assert(0);
 	}
 
 	pD3DDevice->SetTexture(0, src_tex->pTex);
