@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	printf("Hello, this is a Suika2 packager!\n");
 
 	/* Create a package. */
-	if (!create_package(".")) {
+	if (!create_package("")) {
 		printf("Failed.\n");
 		return 1;
 	}

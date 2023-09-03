@@ -21,13 +21,13 @@ all:
 	@echo 'This is a command line packager for Suika2!'
 	@echo 
 	@echo 'You can type the following commands:'
-	@echo '  make pack-linux'
+	@echo '  make pack'
 	@echo '  make pack.mac'
 	@echo '  make pack.exe'
 	@echo
 
 pack: $(SRC)
-	$(CC) -o pack $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)$(SRC)
+	$(CC) -o pack $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(SRC)
 
 pack.mac: $(SRC)
 	$(CC) -o pack.mac -arch arm64 -arch x86_64 $(CPPFLAGS) $(CFLAGS_MAC) $(LDFLAGS_MAC) $(SRC)
