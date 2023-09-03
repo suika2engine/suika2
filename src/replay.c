@@ -22,8 +22,11 @@
 #endif
 
 /* リプレイ出力ディレクトリ */
+#define REC_DIR		"record"
+#define REC_DIR_L	L"record"
 #define REP_DIR		"replay"
 #define CSV_FILE	"main.csv"
+#define CSV_FILE_L	L"main.csv"
 
 /* 定期的にフレームをチェックする時間(3fps) */
 #define FRAME_MILLI	333
@@ -77,22 +80,24 @@ bool init_replay(int argc, char *argv[])
 	int y;
 
 	/* CSVファイルを開く */
-	if (argc < 2) {
-		log_error("CSV file not specified.");
-		return false;
-	}
 #ifdef WIN
-	swprintf(path, sizeof(path) / sizeof(wchar_t), L"%s/%s", argv[1], CSV_FILE);
+	if (argc < 2)
+		swprintf(path, sizeof(path) / sizeof(wchar_t), L"%s/%s", REC_DIR, CSV_FILE);
+	else
+		swprintf(path, sizeof(path) / sizeof(wchar_t), L"%ls/%s", argv[1], CSV_FILE);
 	csv_fp = _wfopen(path, L"r");
 	if (csv_fp == NULL) {
-		log_file_open(conv_utf16_to_utf8(argv[1]));
+		log_file_open(conv_utf16_to_utf8(path));
 		return false;
 	}
 #else
-	snprintf(path, sizeof(path), "%s/main.csv", argv[1]);
+	if (argc < 2)
+		snprintf(path, sizeof(path), "%s/%s", REC_DIR, CSV_FILE);
+	else
+		snprintf(path, sizeof(path), "%s/%s", argv[1], CSV_FILE);
 	csv_fp = fopen(path, "r");
 	if (csv_fp == NULL) {
-		log_file_open(argv[1]);
+		log_file_open(path);
 		return false;
 	}
 #endif

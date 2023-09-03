@@ -190,7 +190,7 @@ struct GLExtAPITable
 };
 
 /* 前方参照 */
-static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow);
+static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static BOOL InitRenderingEngine(void);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -226,6 +226,8 @@ int WINAPI wWinMain(
 {
 	int result = 1;
 
+	UNUSED_PARAMETER(lpszCmd);
+
 #ifdef USE_DEBUGGER
 	/* 引数が指定された場合はパッケージャとして機能する */
 	if (__argc == 2 && wcscmp(__wargv[1], L"--package") == 0)
@@ -247,7 +249,7 @@ int WINAPI wWinMain(
 #endif
 
 	/* 基盤レイヤの初期化処理を行う */
-	if(InitApp(hInstance, lpszCmd, nCmdShow))
+	if(InitApp(hInstance, nCmdShow))
 	{
 		/* アプリケーション本体の初期化を行う */
 		if(on_event_init())
@@ -272,7 +274,7 @@ int WINAPI wWinMain(
 }
 
 /* 基盤レイヤの初期化処理を行う */
-static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow)
+static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	HRESULT hRes;
 
@@ -330,16 +332,11 @@ static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow)
 	}
 
 #if defined(USE_CAPTURE)
-	UNUSED_PARAMETER(lpszCmd);
 	if (!init_capture())
 		return FALSE;
 #elif defined(USE_REPLAY)
-	int argc;
-	wchar_t **argv = CommandLineToArgvW(lpszCmd, &argc);
-	if (!init_replay(argc, argv))
+	if (!init_replay(__argc, __wargv))
 		return FALSE;
-#else
-	UNUSED_PARAMETER(lpszCmd);
 #endif
 
 	return TRUE;
