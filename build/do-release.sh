@@ -220,19 +220,21 @@ if [ -z "`uname | grep Darwin`" ]; then
     ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && make all-macos";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.zip" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/pack.mac" "$RELEASETMP/";
+    #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" "$RELEASETMP/";
+    #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" "$RELEASETMP/";
 else
     echo "Building on localhost..."
+    cd ../
     make all-mac;
     cp mac.dmg "$RELEASETMP/";
     cp mac-pro.dmg "$RELEASETMP/";
-    cp mac-capture.dmg "$RELEASETMP/";
-    cp mac-replay.dmg "$RELEASETMP/";
-    cp build/macos/mac.zip "$RELEASETMP/";
-    cp build/macos/pack.mac "$RELEASETMP/";
+    cp mac.zip "$RELEASETMP/";
+    cp pack.mac "$RELEASETMP/";
+    #cp mac-capture.dmg "$RELEASETMP/";
+    #cp mac-replay.dmg "$RELEASETMP/";
+    cd build
 fi
 
 #
