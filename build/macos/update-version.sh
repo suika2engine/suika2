@@ -2,7 +2,7 @@
 
 SED='sed'
 
-if [ ! -z `sed -v | grep GNU` ]; then
+if [ -z "`sed --version | grep GNU`" ]; then
     if [ ! -z `which gsed` ]; then
 	SED='gsed';
     else
