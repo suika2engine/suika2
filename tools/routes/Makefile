@@ -17,7 +17,7 @@ bin:
 	rm -rf suika-routes
 	mkdir suika-routes
 	cp dist/routes.exe suika-routes/suika-routes.exe
-	cp readme-jp.txt readme-en.txt suika-routes/
+	cp -R readme-jp.txt readme-en.txt txt suika-routes/
 	if [ ! -z "`which sign.sh`" ]; then sign.sh suika-routes/suika-routes.exe; fi
 	zip -r suika-routes.zip suika-routes
 
