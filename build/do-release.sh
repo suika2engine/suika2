@@ -36,11 +36,25 @@ read str
 # Load credentials from .env file.
 #
 echo "Checking for .env credentials."
-eval `cat .env`
-if [ -z "$WINDOWS_USER" ]; then
-    echo "Error: Please specify WINDOWS_USER in build/.env";
-    echo "       This information is utilized to determine the user home folder.";
-    exit 1;
+WINDOWS_USER=""
+MACOS_HOST=""
+MACOS_USER=""
+MACOS_PASSWORD=""
+FTP_LOCAL=""
+FTP_USER=""
+FTP_PASSWORD=""
+FTP_URL=""
+if [ -e .env ]; then
+	eval `cat .env`;
+fi
+if [ ! -z "`uname | grep Linux`" ]; then
+    if [ ! -z "`grep -i WSL2 /proc/version`" ]; then
+		if [ -z "$WINDOWS_USER" ]; then
+			echo "Error: Please specify WINDOWS_USER in build/.env";
+			echo "       This information is utilized to determine the user home folder.";
+			exit 1;
+		fi
+	fi
 fi
 if [ -z "`uname | grep Darwin`" ]; then
     if [ -z "$MACOS_HOST" ]; then
@@ -94,6 +108,8 @@ fi
 #
 # Make a temporary directory for release binaries.
 #
+RELEASETMP=""
+DO_SIGN=0;
 if [ ! -z "`uname | grep Linux`" ]; then
     if [ ! -z "`grep -i WSL2 /proc/version`" ]; then
 	echo "Creating a temporary folder on Windows.";
@@ -105,7 +121,6 @@ fi
 if [ -z "$RELEASETMP" ]; then
     echo "Creating a temporary directory release-tmp.";
     RELEASETMP=`pwd`/release-tmp;
-    DO_SIGN=0;
     rm -rf $RELEASETMP && mkdir $RELEASETMP
 fi	
 echo "$RELEASETMP created."
@@ -179,13 +194,17 @@ cd ../
 #
 # Build suika-linux
 #
-echo "Building suika-linux"
-cd linux-x86_64
-make erase
-make libroot
-make -j24
-cp suika $RELEASETMP/suika-linux
-cd ../
+if [ ! -z "`uname | grep Linux`" ]; then
+	echo "Building suika-linux";
+	cd linux-x86_64;
+	make erase;
+	make libroot;
+	make -j24;
+	cp suika $RELEASETMP/suika-linux;
+	cd ../;
+else
+	touch $RELEASETMP/suika-linux
+fi
 
 #
 # Build Web files
@@ -227,7 +246,7 @@ if [ -z "`uname | grep Darwin`" ]; then
 else
     echo "Building on localhost..."
     cd ../
-    make all-mac;
+    make all-macos;
     cp mac.dmg "$RELEASETMP/";
     cp mac-pro.dmg "$RELEASETMP/";
     cp mac.zip "$RELEASETMP/";
