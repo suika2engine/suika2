@@ -13,7 +13,7 @@ setup:
 	WINEPREFIX=`pwd`/.wine64 WINARCH=win64 wine "C:\\users\\`whoami`\\Local Settings\\Application Data\\Programs\\Python\\Python311\\python.exe" -m pip install opencv-python numpy pyinstaller
 
 bin:
-	WINEPREFIX=`pwd`/.wine64 WINARCH=win32 wine "C:\\users\\`whoami`\\Local Settings\\Application Data\\Programs\\Python\\Python311\\python.exe" -m PyInstaller --icon ../../build/mingw/res/suika.ico --noconsole --onefile compare.py
+	WINEPREFIX=`pwd`/.wine64 WINARCH=win64 wine "C:\\users\\`whoami`\\Local Settings\\Application Data\\Programs\\Python\\Python311\\python.exe" -m PyInstaller --icon ../../build/mingw/res/suika.ico --noconsole --onefile compare.py
 	rm -rf suika-compare
 	mkdir suika-compare
 	cp dist/compare.exe suika-compare/suika-compare.exe
