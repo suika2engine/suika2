@@ -1,8 +1,5 @@
 @echo off
 
-PATH=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin;%PATH%
-PATH=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\bin\Hostx86\x86;%PATH%
-
 echo Removing the library directories...
 rd /s /q zlib > NUL 2>&1
 rd /s /q libpng > NUL 2>&1

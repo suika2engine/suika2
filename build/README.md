@@ -371,7 +371,6 @@ This method will create release zip files and upload them to a FTP server.
   * On WSL2:
     * Create `build/.env` file for credentials:
     ```
-    WINDOWS_USER=your-windows-user-name
     MACOS_HOST=your-mac-host-name.local
     MACOS_USER=your-mac-user-name
     FTP_LOCAL=~/Sites/suika2.com/dl

@@ -6,13 +6,13 @@ set -eu
 # Settings
 #
 
-# Path to cmd.exe
+# Path to cmd.exe (we use an absolute path for a bad PATH variable)
 CMDEXE='/mnt/c/Windows/system32/cmd.exe'
 
-# Path to signtool.exe
-SIGNTOOL='/mnt/c/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe'
+# Path to signtool.exe (we will find a suitable version)
+SIGNTOOL=`find '/mnt/c/Program Files (x86)/Windows Kits/10/bin' -name 'signtool.exe' | grep 'x86/signtool.exe' | head -n1 | tr -d '\r\n'`
 
-# Signature for code signing.
+# Signature for code signing (you can modify here)
 SIGNATURE="Open Source Developer, Keiichi Tabata"
 
 #
@@ -36,7 +36,6 @@ read str
 # Load credentials from .env file.
 #
 echo "Checking for .env credentials."
-WINDOWS_USER=""
 MACOS_HOST=""
 MACOS_USER=""
 MACOS_PASSWORD=""
@@ -46,15 +45,6 @@ FTP_PASSWORD=""
 FTP_URL=""
 if [ -e .env ]; then
 	eval `cat .env`;
-fi
-if [ ! -z "`uname | grep Linux`" ]; then
-    if [ ! -z "`grep -i WSL2 /proc/version`" ]; then
-		if [ -z "$WINDOWS_USER" ]; then
-			echo "Error: Please specify WINDOWS_USER in build/.env";
-			echo "       This information is utilized to determine the user home folder.";
-			exit 1;
-		fi
-	fi
 fi
 if [ -z "`uname | grep Darwin`" ]; then
     if [ -z "$MACOS_HOST" ]; then
@@ -113,7 +103,7 @@ DO_SIGN=0;
 if [ ! -z "`uname | grep Linux`" ]; then
     if [ ! -z "`grep -i WSL2 /proc/version`" ]; then
 	echo "Creating a temporary folder on Windows.";
-	RELEASETMP=/mnt/c/Users/$WINDOWS_USER/suika2-release-tmp;
+	RELEASETMP=/mnt/c/Users/`powershell.exe '$env:UserName' | tr -d '\r\n'`/suika2-release-tmp;
 	DO_SIGN=1;
 	rm -rf $RELEASETMP && mkdir $RELEASETMP
     fi
@@ -236,7 +226,11 @@ echo "Building macOS apps."
 
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
-    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && make all-macos";
+    until \
+		ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && make all-macos";
+	do \
+		echo "Retrying due to a codesign issue...";
+	done;
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.zip" "$RELEASETMP/";
@@ -309,7 +303,11 @@ if [ -z "`uname | grep Darwin`" ]; then
     scp "$RELEASETMP/index.html" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
     scp "$RELEASETMP/index.js" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
     scp "$RELEASETMP/index.wasm" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
+    until \
+		ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
+	do \
+		echo "Retrying due to a codesign issue...";
+	done;
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/dist/Kirara-1.0.0.dmg" "$RELEASETMP/kirara-mac-$VERSION.dmg";
 else
     echo "Building on localhost...";
