@@ -559,7 +559,7 @@ character.file3=002-
 ### Effect for Taps (Kirakira)
 ###
 
-# Use Kirakira (0:No, 1:Yes) (Optional)
+# Use Kirakira (0:No, 1:Yes(Add), 2:Yes(Normal)) (Optional)
 kirakira.on=0
 
 # A frame length in seconds (Optional)

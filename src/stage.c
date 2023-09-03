@@ -3994,7 +3994,8 @@ void draw_kirakira(void)
 	render_image(kirakira_x, kirakira_y, kirakira_image[index],
 		     get_image_width(kirakira_image[index]),
 		     get_image_height(kirakira_image[index]),
-		     0, 0, 255, BLEND_ADD);
+		     0, 0, 255,
+		     conf_kirakira_on == 1 ? BLEND_ADD : BLEND_FAST);
 }
 
 /*
