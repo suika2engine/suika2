@@ -242,7 +242,7 @@ static bool get_file_sizes(const char *base_dir)
 		fp = fopen(abspath, "r");
 #endif
 		if (fp == NULL) {
-			log_file_open(abspath);
+			log_file_open(entry[i].name);
 			return false;
 		}
 		fseek(fp, 0, SEEK_END);
@@ -275,7 +275,7 @@ static bool write_archive_file(const char *base_dir)
 	fp = fopen(abspath, "wb");
 #endif
 	if (fp == NULL) {
-		log_file_open(abspath);
+		log_file_open(PACKAGE_FILE);
 		return false;
 	}
 
@@ -351,7 +351,7 @@ static bool write_file_bodies(const char *base_dir, FILE *fp)
 		fpin = fopen(abspath, "rb");
 #endif
 		if (fpin == NULL) {
-			log_file_open(abspath);
+			log_file_open(entry[i].name);
 			return false;
 		}
 		set_random_seed(i);
