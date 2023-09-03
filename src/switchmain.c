@@ -583,7 +583,7 @@ void render_image_dim(int dst_left, int dst_top,
 {
 	/* See also glrender.c */
 	opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-				src_left, src_top, alpha, bt);
+				src_left, src_top);
 }
 
 /*
