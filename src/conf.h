@@ -356,6 +356,16 @@ extern char *conf_character_name[CHARACTER_MAP_COUNT];
 extern char *conf_character_file[CHARACTER_MAP_COUNT];
 
 /*
+ * キラキラエフェクトの設定
+ */
+
+#define KIRAKIRA_FRAME_COUNT	(16)
+
+extern int conf_kirakira_on;
+extern float conf_kirakira_frame;
+extern char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
+
+/*
  * その他の設定
  */
 extern int conf_voice_stop_off;

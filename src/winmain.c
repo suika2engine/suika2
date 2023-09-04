@@ -31,6 +31,7 @@
 #ifdef USE_DEBUGGER
 #include <commctrl.h>
 #include "windebug.h"
+#include "package.h"
 #endif
 
 #include "d3drender.h"
@@ -189,7 +190,7 @@ struct GLExtAPITable
 };
 
 /* 前方参照 */
-static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow);
+static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static BOOL InitRenderingEngine(void);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -225,6 +226,21 @@ int WINAPI wWinMain(
 {
 	int result = 1;
 
+	UNUSED_PARAMETER(lpszCmd);
+
+#ifdef USE_DEBUGGER
+	/* 引数が指定された場合はパッケージャとして機能する */
+	if (__argc == 2 && wcscmp(__wargv[1], L"--package") == 0)
+	{
+		if (!create_package("."))
+		{
+			log_error("Packaging error!");
+			return 1;
+		}
+		return 0;
+	}
+#endif
+
 	/* Sleep()の分解能を設定する */
 	timeBeginPeriod(1);
 
@@ -233,7 +249,7 @@ int WINAPI wWinMain(
 #endif
 
 	/* 基盤レイヤの初期化処理を行う */
-	if(InitApp(hInstance, lpszCmd, nCmdShow))
+	if(InitApp(hInstance, nCmdShow))
 	{
 		/* アプリケーション本体の初期化を行う */
 		if(on_event_init())
@@ -258,7 +274,7 @@ int WINAPI wWinMain(
 }
 
 /* 基盤レイヤの初期化処理を行う */
-static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow)
+static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	HRESULT hRes;
 
@@ -316,16 +332,11 @@ static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow)
 	}
 
 #if defined(USE_CAPTURE)
-	UNUSED_PARAMETER(lpszCmd);
 	if (!init_capture())
 		return FALSE;
 #elif defined(USE_REPLAY)
-	int argc;
-	wchar_t **argv = CommandLineToArgvW(lpszCmd, &argc);
-	if (!init_replay(argc, argv))
+	if (!init_replay(__argc, __wargv))
 		return FALSE;
-#else
-	UNUSED_PARAMETER(lpszCmd);
 #endif
 
 	return TRUE;
@@ -335,10 +346,7 @@ static BOOL InitApp(HINSTANCE hInstance, LPWSTR lpszCmd, int nCmdShow)
 static BOOL InitRenderingEngine(void)
 {
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
-	/*
-	 * キャプチャアプリではOpenGLを利用する
-	 *  - リプレイアプリはLinuxで動き、OpenGLを利用するため
-	 */
+	/* キャプチャアプリではOpenGLを利用する */
 	if (InitOpenGL())
 	{
 		bOpenGL = TRUE;
@@ -359,6 +367,10 @@ static BOOL InitRenderingEngine(void)
 		}
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
 	}
+	else
+	{
+		log_info("Fallback from Direct3D to OpenGL.");
+	}
 
 	/* 次にOpenGLを初期化してみる */
 	if (_access("no-opengl.txt", 0) != 0)
@@ -370,6 +382,10 @@ static BOOL InitRenderingEngine(void)
 			return TRUE;
 		}
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
+	}
+	else
+	{
+		log_info("Fallback from OpenGL to GDI.");
 	}
 
 	/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
@@ -1563,22 +1579,22 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
  */
 void render_image_dim(int dst_left, int dst_top,
 					  struct image * RESTRICT src_image, int width, int height,
-					  int src_left, int src_top, int alpha, int bt)
+					  int src_left, int src_top)
 {
 	if (bD3D)
 	{
 		D3DRenderImageDim(dst_left, dst_top, src_image, width, height,
-						  src_left, src_top, alpha, bt);
+						  src_left, src_top);
 	}
 	else if (bOpenGL)
 	{
 		opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-								src_left, src_top, alpha, bt);
+								src_left, src_top);
 	}
 	else
 	{
 		draw_image_dim(BackImage, dst_left, dst_top, src_image, width, height,
-					   src_left, src_top, alpha, bt);
+					   src_left, src_top);
 	}
 }
 

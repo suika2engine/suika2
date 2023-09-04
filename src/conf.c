@@ -378,6 +378,14 @@ char *conf_character_name[CHARACTER_MAP_COUNT];
 char *conf_character_file[CHARACTER_MAP_COUNT];
 
 /*
+ * キラキラエフェクトの設定
+ */
+
+int conf_kirakira_on;
+float conf_kirakira_frame;
+char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
+
+/*
  * その他の設定
  */
 
@@ -1213,6 +1221,24 @@ static struct rule {
 	{"character.file31", 's', &conf_character_file[30], OPTIONAL, NOSAVE},
 	{"character.name32", 's', &conf_character_name[31], OPTIONAL, NOSAVE},
 	{"character.file32", 's', &conf_character_file[31], OPTIONAL, NOSAVE},
+	{"kirakira.on", 'i', &conf_kirakira_on, OPTIONAL, SAVE},
+	{"kirakira.frame", 'f', &conf_kirakira_frame, OPTIONAL, SAVE},
+	{"kirakira.file1", 's', &conf_kirakira_file[0], OPTIONAL, SAVE},
+	{"kirakira.file2", 's', &conf_kirakira_file[1], OPTIONAL, SAVE},
+	{"kirakira.file3", 's', &conf_kirakira_file[2], OPTIONAL, SAVE},
+	{"kirakira.file4", 's', &conf_kirakira_file[3], OPTIONAL, SAVE},
+	{"kirakira.file5", 's', &conf_kirakira_file[4], OPTIONAL, SAVE},
+	{"kirakira.file6", 's', &conf_kirakira_file[5], OPTIONAL, SAVE},
+	{"kirakira.file7", 's', &conf_kirakira_file[6], OPTIONAL, SAVE},
+	{"kirakira.file8", 's', &conf_kirakira_file[7], OPTIONAL, SAVE},
+	{"kirakira.file9", 's', &conf_kirakira_file[8], OPTIONAL, SAVE},
+	{"kirakira.file10", 's', &conf_kirakira_file[9], OPTIONAL, SAVE},
+	{"kirakira.file11", 's', &conf_kirakira_file[10], OPTIONAL, SAVE},
+	{"kirakira.file12", 's', &conf_kirakira_file[11], OPTIONAL, SAVE},
+	{"kirakira.file13", 's', &conf_kirakira_file[12], OPTIONAL, SAVE},
+	{"kirakira.file14", 's', &conf_kirakira_file[13], OPTIONAL, SAVE},
+	{"kirakira.file15", 's', &conf_kirakira_file[14], OPTIONAL, SAVE},
+	{"kirakira.file16", 's', &conf_kirakira_file[15], OPTIONAL, SAVE},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, OPTIONAL, SAVE},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, OPTIONAL, SAVE},
 	{"window.maximize.disable", 'i', &conf_window_maximize_disable, OPTIONAL, SAVE},

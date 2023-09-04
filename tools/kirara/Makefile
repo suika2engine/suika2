@@ -1,3 +1,5 @@
+MACOS_PASSWORD=`cat ../../build/macos/.passwd`
+
 usage:
 	@echo "This is the build system for Kirara."
 	@echo
@@ -11,6 +13,14 @@ usage:
 
 setup:
 	npm install
+	@if [ ! -z "`uname | grep Linux`" ]; then \
+		sudo dpkg --add-architecture i386; \
+		sudo apt-get update; \
+		sudo apt-get install wine wine64 wine32; \
+	fi
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		brew install wine; \
+	fi
 
 update:
 	cd apps && ./update-suika2.sh && cd ..
@@ -22,6 +32,7 @@ win:
 	npx electron-builder --win --x64
 
 mac:
+	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	npx electron-builder --mac --x64
 
 clean:

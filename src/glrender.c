@@ -150,7 +150,7 @@ static void draw_elements(int dst_left, int dst_top,
 			  bool is_dim, bool is_melt,
 			  int width, int height,
 			  int src_left, int src_top,
-			  int alpha);
+			  int alpha, int bt);
 
 /*
  * OpenGLの初期化処理を行う
@@ -553,7 +553,7 @@ void opengl_render_image(int dst_left, int dst_top,
 		return;	/* 描画範囲外 */
 
 	draw_elements(dst_left, dst_top, src_image, NULL, false, false,
-		      width, height, src_left, src_top, alpha);
+		      width, height, src_left, src_top, alpha, bt);
 }
 
 /*
@@ -561,13 +561,10 @@ void opengl_render_image(int dst_left, int dst_top,
  */
 void opengl_render_image_dim(int dst_left, int dst_top,
 			     struct image * RESTRICT src_image, int width,
-			     int height, int src_left, int src_top, int alpha,
-			     int bt)
+			     int height, int src_left, int src_top)
 {
-	UNUSED_PARAMETER(bt);
-
 	/* 描画の必要があるか判定する */
-	if (alpha == 0 || width == 0 || height == 0)
+	if (width == 0 || height == 0)
 		return;	/* 描画の必要がない */
 	if (!clip_by_source(get_image_width(src_image),
 			   get_image_height(src_image),
@@ -579,7 +576,7 @@ void opengl_render_image_dim(int dst_left, int dst_top,
 		return;	/* 描画範囲外 */
 
 	draw_elements(dst_left, dst_top, src_image, NULL, true, false,
-		      width, height, src_left, src_top, alpha);
+		      width, height, src_left, src_top, 255, BLEND_FAST);
 }
 
 /*
@@ -591,7 +588,7 @@ void opengl_render_image_rule(struct image * RESTRICT src_image,
 {
 	draw_elements(0, 0, src_image, rule_image, false, false,
 		      conf_window_width, conf_window_height,
-		      0, 0, threshold);
+		      0, 0, threshold, BLEND_FAST);
 
 }
 
@@ -604,7 +601,7 @@ void opengl_render_image_melt(struct image * RESTRICT src_image,
 {
 	draw_elements(0, 0, src_image, rule_image, false, true,
 		      conf_window_width, conf_window_height,
-		      0, 0, threshold);
+		      0, 0, threshold, BLEND_FAST);
 
 }
 
@@ -615,7 +612,7 @@ static void draw_elements(int dst_left, int dst_top,
 			  bool is_dim, bool is_melt,
 			  int width, int height,
 			  int src_left, int src_top,
-			  int alpha)
+			  int alpha, int bt)
 {
 	GLfloat pos[24];
 	struct texture *tex, *rule;
@@ -674,19 +671,23 @@ static void draw_elements(int dst_left, int dst_top,
 	/* シェーダを設定して頂点バッファに書き込む */
 	if (rule_image == NULL) {
 		if (!is_dim) {
+			/* 通常のアルファブレンド */
 			glUseProgram(program);
 			glBindVertexArray(vertex_array);
 			glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 		} else {
+			/* DIMシェーダ */
 			glUseProgram(program_dim);
 			glBindVertexArray(vertex_array);
 			glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 		}
 	} else if (!is_melt) {
+		/* ルールシェーダ */
 		glUseProgram(program_rule);
 		glBindVertexArray(vertex_array_rule);
 		glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_rule);
 	} else {
+		/* メルトシェーダ */
 		glUseProgram(program_melt);
 		glBindVertexArray(vertex_array_melt);
 		glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_melt);
@@ -703,7 +704,12 @@ static void draw_elements(int dst_left, int dst_top,
 
 	/* 透過を有効にする */
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (bt != BLEND_ADD) {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	} else {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glBlendFunc(GL_DST_ALPHA, GL_ONE);
+	}
 
 	/* 図形を描画する */
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);

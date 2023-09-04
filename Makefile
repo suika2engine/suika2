@@ -4,14 +4,17 @@ targets:
 	@echo 'This is the build system of Suika2.'
 	@echo
 	@echo 'You can type the following commands:'
-	@echo '  make setup           ... install dependency tools'
-	@echo '  make all-windows     ... build all Windows binaries'
-	@echo '  make all-macos       ... build all macOS binaries'
-	@echo '  make all-linux       ... build all Linux binaries'
-	@echo '  make test            ... run test without a window'
-	@echo '  make gtest           ... run test with a window'
-	@echo '  make do-release      ... build release files and upload them (dev internal)'
-	@echo '  make clean           ... cleanup'
+	@echo '  make setup       ... install dependency tools'
+	@echo '  make all-windows ... build all Windows binaries'
+	@echo '  make all-macos   ... build all macOS binaries'
+	@echo '  make all-linux   ... build all Linux binaries'
+	@echo '  make windows     ... build the main game engine for Windows'
+	@echo '  make macos       ... build the main game engine for macOS'
+	@echo '  make linux       ... build the main game engine for Linux'
+	@echo '  make test        ... run tests without a window'
+	@echo '  make gtest       ... run tests with a window (just for demo)'
+	@echo '  make clean       ... cleanup'
+	@echo '  make do-release  ... build release files and upload them (dev internal)'
 	@echo ''
 	@# Check for a situation that we are on WSL2 and not under /mnt
 	@if [ ! -z "`uname | grep Linux`" ]; then \
@@ -67,9 +70,10 @@ all-windows: windows windows-64 windows-arm64 windows-pro windows-capture window
 all-macos:
 	@echo 'Building macOS binaries'
 	@cd build/macos && \
-	make && \
-	make install && \
-	make clean && \
+		make clean && \
+		make release && \
+		make install && \
+		make clean && \
 	cd ../..
 
 # A target for all Linux binaries.
@@ -127,6 +131,16 @@ windows-replay:
 	make libroot && \
 	make -j8 && \
 	make install && \
+	cd ../..
+
+# A target for the main game engine for macOS.
+macos:
+	@echo 'Building macOS binary'
+	@cd build/macos && \
+		make clean && \
+		make suika.dmg && \
+		cp suika.dmg ../../ && \
+		make clean && \
 	cd ../..
 
 # suika-linux (the main game engine for 64-bit Linux)
@@ -200,13 +214,21 @@ gtest:
 
 # Build apps and upload both Japanese and English zip files.
 do-release:
-	@echo "Building release zip files."
+	@# Check if we are running on WSL2.
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
+		echo ""; \
+	elif [ -z "`grep -i WSL2 /proc/version`" ]; then \
+		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
+		echo ""; \
+	fi
+	@echo "Going to build release files and upload them."
 	@cd build && \
-	./do-release.sh $$VERSION && \
+	./do-release.sh && \
 	cd ..
 
 # Cleanup.
 clean:
 	rm -f suika.exe suika-64.exe suika-arm64.exe suika-pro.exe suika-capture.exe suika-replay.exe
-	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg
+	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg mac.zip pack.mac
 	rm -f suika-linux suika-linux-capture suika-linux-replay

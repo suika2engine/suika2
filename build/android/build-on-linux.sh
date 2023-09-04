@@ -19,6 +19,6 @@ yes | ./cmdline-tools/bin/sdkmanager "cmdline-tools;latest" --sdk_root=$ANDROID_
 export ANDROID_SDK_ROOT=`pwd`/cmdline-tools/latest
 yes | ./cmdline-tools/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
 
-./gradlew build
+./gradlew build --stacktrace
 
 cp build/android/app/build/outputs/apk/debug/app-debug.apk suika.apk

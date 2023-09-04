@@ -1,4 +1,4 @@
-FROM ubuntu:22.10
+FROM ubuntu:20.04
 
 # Use Japanese mirror
 RUN sed -i.bak -r 's!(deb|deb-src) \S+!\1 http://ftp.riken.jp/Linux/ubuntu/!' /etc/apt/sources.list

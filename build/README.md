@@ -27,16 +27,12 @@ However, you need `Git for Windows` to build an Android App on Windows.
   ```
   git clone https://github.com/suika2engine/suika2.git
   ```
-  * Create a symbolic link named `build/cloud` to your cloud storage folder
 
 * On Ubuntu 22.04 (and WSL2):
   * From the terminal, run the following commands:
   ```
-  sudo apt-get update
-  sudo apt-get install -y git
   git clone https://github.com/suika2engine/suika2.git
   ```
-  * Create a symbolic link named `build/cloud` to your cloud storage folder
 
 ## All Windows Apps
 This method will build all Windows binaries on WSL2, Linux or macOS.
@@ -45,11 +41,11 @@ For Windows, we have 6 app variants (`suika.exe`, `suika-pro.exe`, `suika-64.exe
 * Steps
   * Use WSL2, Ubuntu or macOS
   * From the terminal, navigate to the source code directory
-  * Run the following commands:
-  ```
-  make setup
-  make all-windows
-  ```
+    * Run the following commands:
+    ```
+    make setup
+    make all-windows
+    ```
 
 ## All macOS Apps (without Xcode GUI)
 This method will utilize the terminal to build all macOS binaries.
@@ -59,10 +55,10 @@ For macOS, we have 4 app variants (`suika.app`, `suika-pro.app`, `suika-capture.
   * Use macOS 13
   * Install Xcode 14 since we need command line tools of Xcode
   * From the terminal, navigate to the source code directory
-  * Run the following command:
-  ```
-  make all-macos
-  ```
+    * Run the following command:
+    ```
+    make all-macos
+    ```
 
 ## macOS main engine app (with Xcode GUI)
 This method will utilize `Xcode` and terminal to build macOS main engine binary.
@@ -71,20 +67,20 @@ This method will utilize `Xcode` and terminal to build macOS main engine binary.
   * Use macOS 13
   * Install Xcode 14
   * From the terminal, navigate to the `build/macos` directory
-  * Run the following command:
-  ```
-  ./build-libs.sh
-  ```
-  * Note:
-    * On Apple Silicon Mac, this script will build the libraries from the source codes
-    * On Intel Mac, this script will download the prebuilt libraries to avoid a build failure of `libpng`'s Universal Binary
+    * Run the following command:
+    ```
+    ./build-libs.sh
+    ```
+    * Note:
+      * On an Apple Silicon Mac, this script will build the libraries from the source codes
+      * On an Intel Mac, this script will download the prebuilt libraries to avoid a build failure of `libpng`'s Universal Binary
   * From Xcode, open `build/macos/suika.xcodeproj`
-  * If you want to build apps to use locally:
+  * If you want to build apps for local usage:
     * Select `suika` target
     * Navigate to the `Signing & Capabilities` tab
     * Select `Automatically Manage Signing`
     * Build the app variants (`suika`, `suika-pro`, `suika-capture` and `suika-replay`)
-  * If you want to build apps to distribute:
+  * If you want to build apps for distribution:
     * Select `suika` target
     * Navigate to the `Signing & Capabilities` tab
     * Set your development team (Apple ID)
@@ -94,12 +90,11 @@ This method will utilize `Xcode` and terminal to build macOS main engine binary.
     * Press `Export Notarized App` button
     * Export the app to the `build/macos` folder
     * From the terminal, navigate to the `build/macos` directory
-    * Run the following command:
-    ```
-    # Edit make-dmg.sh and set your `SIGNATURE`
-    ./make-dmg.sh
-    ```
-    * This will make `mac.dmg`
+      * Run the following command to make `mac.dmg`:
+      ```
+      # Edit make-dmg.sh and set your `SIGNATURE`
+      ./make-dmg.sh
+      ```
 
 ## iOS (iPhone and iPad) App
 This method will utilize `Xcode` and terminal to build an iOS application.
@@ -108,11 +103,11 @@ This method will utilize `Xcode` and terminal to build an iOS application.
   * Use macOS 13
   * Install Xcode 14
   * From the terminal, navigate to the `build/ios` directory
-  * Run the following command:
-  ```
-  ./build-libs.sh
-  ```
-  * Alternatively, you can run `./build-libs-sim.sh` to build the libraries for use with simulators
+    * Run the following command:
+    ```
+    ./build-libs.sh
+    ```
+    * Alternatively, you can run `./build-libs-sim.sh` to build the libraries for use with simulators
   * From Xcode, open `build/ios/suika.xcodeproj`
   * Complete the following steps:
     * Navigate to the `Signing & Capabilities` tab
@@ -149,20 +144,20 @@ This method requires `Android Studio` to build the Android app.
 * On Windows:
   * Install `Android Studio`
   * From the `Git Bash` terminal, navigate to the `build/android` directory
-  * Run the following command:
-  ```
-  ./prepare-libs.sh
-  ```
+    * Run the following command:
+    ```
+    ./prepare-libs.sh
+    ```
   * Open the `build/android` project from `Android Studio`
   * Build the project
 
 * On macOS or Ubuntu 22.04:
   * Install `Android Studio`
   * From the terminal, navigate to the `build/android` directory
-  * Run the following command:
-  ```
-  ./prepare-libs.sh
-  ```
+    * Run the following command:
+    ```
+    ./prepare-libs.sh
+    ```
   * Open the `build/android` project from `Android Studio`
   * Build the project
 
@@ -172,29 +167,31 @@ Run the app from your device or an emulator.
 This method will build the Web version.
 
 * Prerequisites
-  * You need a UNIX-like environment such as WSL2, Ubuntu, MSYS2, or macOS
+  * You need a UNIX-like environment such as WSL2, Ubuntu, MSYS2 or macOS
   * Ensure you can access `make` and `python3` commands
   * Install `Emscripten` using `emsdk`
-    * `git clone https://github.com/emscripten-core/emsdk.git`
-    * `cd emsdk && ./emsdk install latest && cd ..`
-    * `cd emsdk && ./emsdk activate latest && cd ..`
+  ```
+  git clone https://github.com/emscripten-core/emsdk.git
+  cd emsdk && ./emsdk install latest && cd ..
+  cd emsdk && ./emsdk activate latest && cd ..
+  ```
   * Generate your `data01.arc`
     * To do this, run `Suika2 Pro` app, select `File` and `Export Package`
 
 * Build instructions
   * From the terminal, navigate to the `build/emscripten` directory
-  * Run the following command:
-  ```
-  make
-  ```
+    * Run the following command:
+    ```
+    make
+    ```
 
 * Testing instructions
   * Put your `data01.arc` into `build/emscripten/html/`
   * From the terminal, navigate to the `build/emscripten` directory
-  * Run the following command:
-  ```
-  make run
-  ```
+    * Run the following command:
+    ```
+    make run
+    ```
   * From a browser, navigate to `http://localhost:8000/html/`
 
 ## All Linux Apps (x86_64)
@@ -203,11 +200,11 @@ This method will build all Linux apps.
 * Steps
   * Use WSL2, Ubuntu
   * From the terminal, navigate to the source code directory
-  * Run the following command:
-  ```
-  make setup
-  make all-linux
-  ```
+    * Run the following command:
+    ```
+    make setup
+    make all-linux
+    ```
 
 * Static analysis
   * To check memory leaks, type the following commands:
@@ -239,11 +236,11 @@ This method will build a Raspberry Pi app.
   sudo apt-get install libasound2-dev libx11-dev libxpm-dev mesa-common-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
   ```
   * From the terminal, navigate to the `build/raspberrypi` directory
-  * Run the following commands:
-  ```
-  make
-  make install
-  ```
+    * Run the following commands:
+    ```
+    make
+    make install
+    ```
 
 ## FreeBSD Binary
 This method will build a FreeBSD binary.
@@ -320,7 +317,7 @@ license.
 
 ## Instant Docker Build
 Docker is optional for Suika2 build.
-You can use it if you want, but the original author doesn't.
+You can use it if you would like, but the original author doesn't.
 
 * You can build the following apps in a single step using Docker:
   * `suika.exe` ... Windows (32-bit)
@@ -330,6 +327,7 @@ You can use it if you want, but the original author doesn't.
   * `suika-capture.exe` ... Windows (Capture App)
   * `suika-replay.exe` ... Windows (Replay App)
   * `suika-linux` ... Linux (x86_64)
+  * `suika-linux-capture` ... Linux (x86_64 Capture App)
   * `suika-linux-replay` ... Linux (x86_64 Replay App)
   * `html` ... Web
   * `suika.apk` ... Android
@@ -338,74 +336,63 @@ You can use it if you want, but the original author doesn't.
   * On WSL2:
     * Install `Docker Desktop` on Windows
     * From the terminal, navigate to the `build/docker` directory and run the following command:
-      * `./build.sh`
+    ```
+    ./build.sh
+    ```
   * On Windows:
     * Install `Docker Desktop`
     * Double click `build/docker/build.bat`
   * On macOS 13:
     * Install `Docker Desktop`
     * From the terminal, navigate to the `build/docker` directory and run the following command:
-      * `./build.sh`
+    ```
+    ./build.sh
+    ```
   * On Ubuntu 22.04:
     * Install `docker.io`
     * From the terminal, navigate to the `build/docker` directory and run the following command:
-      * `./build.sh`
+    ```
+    ./build.sh
+    ```
 
 ## Release
-This method will create release zip files and upload them to the FTP server.
+This method will create release zip files and upload them to a FTP server.
 
 * Prerequisites
-  * We use both WSL2 and macOS
-    * This is because CI is not available due to an issue on the cheap code signing from Certum
-    * If we can get an expensive code signing certificate to export our private key to GitHub, we will move to CI
-  * We use Microsoft `OneDrive` to communicate between WSL2 and macOS
-  * On WSL2:
-    * Create a symbolic link named `build/cloud` that points to the folder on `OneDrive`
-    ```
-    ln -s /mnt/c/Users/username/OneDrive/suika-cloud build/cloud
-    ```
-    * Create a symbolic link named `build/ftplocal` that points to the local directory to put release files
-    ```
-    ln -s /home/username/Sites/suika2.com/dl build/ftplocal
-    ```
-    * Create a script `ftpupload.sh` somewhere and write code to upload a release file
-    ```
-    #!/bin/sh
-    curl -T "$1" -u USERNAME:PASSWORD "ftp://ftp.your-ftp-server.com/your-upload-path/$1"
-    ```
+  * You need both WSL2 and macOS hosts
+    * This is because the original author requires Windows to sign exe files
+    * He uses "Certum Open Source Code Signing in the Cloud" product
+    * He thinks it cannot be used in GitHub CI because the private key is not extractable in a normal way
   * On macOS:
-    * Create a symbolic link named `build/cloud` that points to the folder on `OneDrive`
+    * Turn on the ssh server
+    * Add your public key to `~/.ssh/authorized_keys`
+    * Edit `SIGNATURE` in `build/macos/Makefile`
+    * Create `build/macos/.passwd` and write your login password for keychain access
+  * On WSL2:
+    * Create `build/.env` file for credentials:
     ```
-    ln -s /Users/username/OneDrive/suika-cloud build/cloud
+    MACOS_HOST=your-mac-host-name.local
+    MACOS_USER=your-mac-user-name
+    FTP_LOCAL=~/Sites/suika2.com/dl
+    FTP_USER=your-ftp-account
+    FTP_PASSWORD=your-ftp-password
+    FTP_URL=ftp://ftp.your-web-server.com/suika2.com/dl
     ```
 
 * Release Steps
-  1. On WSL2:
-    * Update the following documents:
-      * `build/release/readme-jp.html`
-      * `build/release/readme-en.html`
+  * On WSL2:
     * In the terminal, navigate to the `build/macos` directory and run the following command:
-      * `enter-version.sh`
-      * Enter version string and press return
+    ```
+    ./update-version.sh '12.38'
+    ```
+    * Update the following documents:
+      * `doc/readme-jp.html`
+      * `doc/readme-en.html`
     * In the terminal, navigate to the repository root and run the following commands:
-      * `git add build/release/readme-jp.html build/release/readme-en.html build/macos/suika.xcodeproj/project.pbxproj`
-      * `git commit -m "document: README for x.y"` (write the version)
-      * `git push origin master`
-  2. On macOS:
-    * In the terminal, navigate to the source code directory
-    * Run the following command:
-      * `git pull origin master`
-      * `make all-macos` (this puts the dmg files to `OneDrive`)
-  3. On WSL2:
-    * Check if the new dmg files were uploaded to `OneDrive`
-    * In the terminal, navigate to the repository root
-    * Run the following command:
-      * `make do-release`
-      * "Enter version e.g. 2.9.0" -> input version string and press return
-      * "Are you sure you want to release 2.x.y? (press return)" -> press return
-      * "Please run 'make all-macos' on a macOS host and press return." -> press return
-      * "Please sign the Windows apps and press return."
-        * Sign all Windows apps in `OneDrive` (`suika.exe`, `suika-64.exe`, `suika-arm64.exe`, `suika-pro.exe`, `suika-capture.exe` and `suika-replay.exe`)
-        * Press return in the terminal
-    * The release files will be uploaded to the Web server
-    * Don't forget to update the Web site!
+    ```
+    git add doc/readme-jp.html doc/readme-en.html build/macos/suika.xcodeproj/project.pbxproj
+    git commit -m "document: update README for x.y"
+    git push github master
+    make do-release
+    ```
+    * Release files will be built and uploaded to a Web server you specified in `.env`

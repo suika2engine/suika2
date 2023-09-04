@@ -120,6 +120,10 @@ bool on_event_frame(int *x, int *y, int *w, int *h)
 		return false;
 	}
 
+	/* キラキラエフェクトを描画する */
+	if (conf_kirakira_on && is_gpu_accelerated())
+		draw_kirakira();
+
 	/* アプリケーションを続行する */
 	return true;
 }
@@ -198,6 +202,9 @@ void on_event_mouse_press(int button, int x, int y)
 	} else {
 		is_right_button_pressed = true;
 	}
+
+	if (conf_kirakira_on)
+		start_kirakira(x, y);
 }
 
 /*

@@ -33,8 +33,7 @@ VOID D3DRenderImage(int dst_left, int dst_top,
 					int src_left, int src_top, int alpha, int bt);
 VOID D3DRenderImageDim(int dst_left, int dst_top,
 					   struct image * RESTRICT src_image, int width,
-					   int height, int src_left, int src_top, int alpha,
-					   int bt);
+					   int height, int src_left, int src_top);
 VOID D3DRenderImageRule(struct image * RESTRICT src_image,
 						struct image * RESTRICT rule_image,
 						int threshold);

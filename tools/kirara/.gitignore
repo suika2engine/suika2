@@ -1,15 +1,18 @@
+# Credentials
 .env
+
+# Garbage
 logs
 node_modules
 dist
 .DS_Store
 
-apps/index.html
-apps/index.js
-apps/index.wasm
+# Suika2 binaries
 apps/suika.exe
 apps/suika-pro.exe
-apps/pack.exe
 apps/mac.zip
 apps/mac.dmg
 apps/pack.mac
+apps/index.html
+apps/index.js
+apps/index.wasm

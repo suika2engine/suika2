@@ -1017,13 +1017,14 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1062,13 +1063,14 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1111,13 +1113,14 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_REPLAY",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1163,13 +1166,14 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_REPLAY",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1214,13 +1218,14 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_CAPTURE",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1265,13 +1270,14 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_CAPTURE",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1425,12 +1431,13 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",
@@ -1471,12 +1478,13 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.12.36;
+				MARKETING_VERSION = 12.39;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
 					"-fvectorize",
 				);
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lpng",

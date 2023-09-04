@@ -176,8 +176,8 @@ static struct image *thumb_image;
 /* ルールイメージ */
 static struct image *rule_img;
 
-/* クリックエフェクト */
-/*static struct image *tap_effect_image[TAP_EFFECT_FRAMES];*/
+/* キラキラエフェクト */
+static struct image *kirakira_image[KIRAKIRA_FRAME_COUNT];
 
 /*
  * レイヤの可視状態
@@ -254,6 +254,17 @@ static int shake_offset_x;
 static int shake_offset_y;
 
 /*
+ * キラキラエフェクト
+ */
+
+/* 表示位置 */
+static int kirakira_x;
+static int kirakira_y;
+
+/* 開始時刻 */
+static stop_watch_t sw_kirakira;
+
+/*
  * 前方参照
  */
 static bool setup_namebox(void);
@@ -262,7 +273,8 @@ static bool setup_click(void);
 static bool setup_switch(void);
 static bool setup_news(void);
 static bool setup_sysmenu(void);
-static bool setup_banner(void);
+static bool setup_banners(void);
+static bool setup_kirakira(void);
 static bool setup_thumb(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
@@ -387,7 +399,11 @@ bool reload_stage(void)
 		return false;
 
 	/* バナーをセットアップする */
-	if (!setup_banner())
+	if (!setup_banners())
+		return false;
+
+	/* キラキラ画像をセットアップする */
+	if (!setup_kirakira())
 		return false;
 
 	return true;
@@ -647,7 +663,7 @@ static bool setup_sysmenu(void)
 }
 
 /* バナーをセットアップする */
-static bool setup_banner(void)
+static bool setup_banners(void)
 {
 	is_auto_visible = false;
 	is_skip_visible = false;
@@ -679,6 +695,32 @@ static bool setup_banner(void)
 
 	layer_x[LAYER_SKIP] = conf_skipmode_banner_x;
 	layer_y[LAYER_SKIP] = conf_skipmode_banner_y;
+
+	return true;
+}
+
+/* キラキラ画像をセットアップする */
+static bool setup_kirakira(void)
+{
+	int i;
+
+	/* 再初期化時に破棄する */
+	for (i = 0; i < KIRAKIRA_FRAME_COUNT; i++) {
+		if (kirakira_image[i] != NULL) {
+			destroy_image(kirakira_image[i]);
+			kirakira_image[i] = NULL;
+		}
+	}
+
+	/* キラキラ画像を読み込む */
+	for (i = 0; i < KIRAKIRA_FRAME_COUNT; i++) {
+		if (conf_kirakira_file[i] == NULL)
+			continue;
+		kirakira_image[i] =
+			create_image_from_file(CG_DIR, conf_kirakira_file[i]);
+		if (kirakira_image[i] == NULL)
+			return false;
+	}
 
 	return true;
 }
@@ -3643,9 +3685,7 @@ static void render_layer_image(int layer)
 				 get_image_width(layer_image[layer]),
 				 get_image_height(layer_image[layer]),
 				 0,
-				 0,
-				 layer_alpha[layer],
-				 layer_blend[layer]);
+				 0);
 	} else {
 		/* 普通に描画する */
 		render_image(layer_x[layer],
@@ -3683,9 +3723,7 @@ static void draw_layer_image(struct image *target, int layer)
 			       get_image_width(layer_image[layer]),
 			       get_image_height(layer_image[layer]),
 			       0,
-			       0,
-			       layer_alpha[layer],
-			       layer_blend[layer]);
+			       0);
 	} else {
 		/* 普通に描画する */
 		draw_image(target,
@@ -3723,9 +3761,7 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 				 w,
 				 h,
 				 x - layer_x[layer],
-				 y - layer_y[layer],
-				 layer_alpha[layer],
-				 layer_blend[layer]);
+				 y - layer_y[layer]);
 	} else {
 		/* 暗く描画する */
 		render_image(x,
@@ -3912,6 +3948,54 @@ bool create_temporary_bg_for_gui(void)
 	layer_image[LAYER_BG] = img;
 
 	return true;
+}
+
+/*
+ * キラキラエフェクト
+ */
+
+/*
+ * キラキラエフェクトを開始する
+ */
+void start_kirakira(int x, int y)
+{
+	int w, h;
+
+	kirakira_x = x;
+	kirakira_y = y;
+
+	if (kirakira_image[0] != NULL) {
+		w = get_image_width(kirakira_image[0]);
+		h = get_image_height(kirakira_image[0]);
+		kirakira_x -= w / 2;
+		kirakira_y -= h / 2;
+	}
+
+	reset_stop_watch(&sw_kirakira);
+}
+
+/*
+ * キラキラエフェクトを描画する
+ */
+void draw_kirakira(void)
+{
+	float lap, frame_time;
+	int index;
+
+	frame_time = conf_kirakira_frame == 0 ? 0.333f : conf_kirakira_frame;
+
+	lap = (float)get_stop_watch_lap(&sw_kirakira) / 1000.0f;
+	index = (int)(lap / frame_time);
+	if (index >= KIRAKIRA_FRAME_COUNT)
+		return;
+	if (kirakira_image[index] == NULL)
+		return;
+
+	render_image(kirakira_x, kirakira_y, kirakira_image[index],
+		     get_image_width(kirakira_image[index]),
+		     get_image_height(kirakira_image[index]),
+		     0, 0, 255,
+		     conf_kirakira_on == 1 ? BLEND_ADD : BLEND_FAST);
 }
 
 /*

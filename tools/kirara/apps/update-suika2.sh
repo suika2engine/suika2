@@ -1,11 +1,13 @@
 #!/bin/sh
 
-cp ../../../build/cloud/index.html .
-cp ../../../build/cloud/index.js .
-cp ../../../build/cloud/index.wasm .
-cp ../../../build/cloud/suika.exe .
-cp ../../../build/cloud/suika-pro.exe .
-cp ../../../build/cloud/pack.exe .
-cp ../../../build/cloud/mac.zip .
-cp ../../../build/cloud/mac.dmg .
-cp ../../../build/cloud/pack.mac .
+curl -O https://suika2.com/dl/kirara-helper-current.zip
+unzip kirara-helper-current.zip
+
+# cp ../../../build/mingw/suika.exe .
+# cp ../../../build/mingw-pro/suika-pro.exe .
+# cp ../../../build/macos/mac.dmg .
+# cp ../../../build/macos/mac.zip .
+# cp ../../../build/macos/pack.mac .
+# cp ../../../build/emscripten/html/index.html .
+# cp ../../../build/emscripten/html/index.js .
+# cp ../../../build/emscripten/html/index.wasm .

@@ -170,7 +170,10 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir,
         bool succeeded;
 
 	/* Make path. */
-	snprintf(newpath, sizeof(newpath), "%s/%s", base_dir, dir);
+	if (strcmp(base_dir, "") == 0)
+		snprintf(newpath, sizeof(newpath), "%s", dir);
+	else
+		snprintf(newpath, sizeof(newpath), "%s/%s", base_dir, dir);
 
 	/* Get directory content. */
 	count = scandir(newpath, &names, NULL, alphasort);
@@ -196,7 +199,8 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir,
                         }
                 } else {
                         snprintf(entry[file_count].name, FILE_NAME_SIZE,
-                                 "%s/%s", dir, names[i]->d_name);
+                                 "%s/%s", newpath, names[i]->d_name);
+			printf("%s\n", entry[file_count].name);
                         file_count++;
                 }
 	}
@@ -231,8 +235,10 @@ static bool get_file_sizes(const char *base_dir)
 		fp = fopen(path, "rb");
 #else
 		char abspath[1024];
-		snprintf(abspath, sizeof(abspath), "%s/%s", base_dir,
-			 entry[i].name);
+		if (strcmp(base_dir, "") == 0)
+			snprintf(abspath, sizeof(abspath), "%s", entry[i].name);
+		else
+			snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, entry[i].name);
 		fp = fopen(abspath, "r");
 #endif
 		if (fp == NULL) {
@@ -262,7 +268,10 @@ static bool write_archive_file(const char *base_dir)
 	UNUSED_PARAMETER(base_dir);
 #else
 	char abspath[1024];
-	snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, PACKAGE_FILE);
+	if (strcmp(base_dir, "") == 0)
+		snprintf(abspath, sizeof(abspath), "%s", PACKAGE_FILE);
+	else
+		snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, PACKAGE_FILE);
 	fp = fopen(abspath, "wb");
 #endif
 	if (fp == NULL) {
@@ -334,8 +343,11 @@ static bool write_file_bodies(const char *base_dir, FILE *fp)
 		UNUSED_PARAMETER(base_dir);
 #else
 		char abspath[1024];
-		snprintf(abspath, sizeof(abspath), "%s/%s", base_dir,
-			 entry[i].name);
+		if (strcmp(base_dir, "") == 0)
+			snprintf(abspath, sizeof(abspath), "%s", entry[i].name);
+		else
+			snprintf(abspath, sizeof(abspath), "%s/%s", base_dir,
+				 entry[i].name);
 		fpin = fopen(abspath, "rb");
 #endif
 		if (fpin == NULL) {

@@ -949,9 +949,7 @@ void draw_image_dim(struct image * RESTRICT dst_image,
 		    int width,
 		    int height,
 		    int src_left,
-		    int src_top,
-		    int alpha,
-		    int bt)
+		    int src_top)
 {
 	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr;
 	float a, src_r, src_g, src_b, src_a, dst_r, dst_g, dst_b, dst_a;
@@ -967,12 +965,10 @@ void draw_image_dim(struct image * RESTRICT dst_image,
 	assert(src_image->width > 0 && src_image->height > 0);
 	assert(src_image->pixels != NULL);
 	assert(width >= 0 && height >= 0);
-	assert(bt == BLEND_NONE || bt == BLEND_FAST || bt == BLEND_NORMAL ||
-	       bt == BLEND_ADD || bt == BLEND_SUB);
 	assert(dst_image->locked_pixels != NULL);
 
 	/* 描画の必要があるか判定する */
-	if(alpha == 0 || width == 0 || height == 0)
+	if(width == 0 || height == 0)
 		return;	/* 描画の必要がない*/
 	if(!clip_by_source(src_image->width, src_image->height, &width,
 			   &height, &dst_left, &dst_top, &src_left, &src_top))
@@ -987,7 +983,7 @@ void draw_image_dim(struct image * RESTRICT dst_image,
 	dst_ptr = get_image_pixels(dst_image) + dw * dst_top + dst_left;
 	src_line_inc = sw - width;
 	dst_line_inc = dw - width;
-	a = (float)alpha / 255.0f;
+	a = 1.0f;
 
 	for(y = 0; y < height; y++) {
 		for(x = 0; x < width; x++) {

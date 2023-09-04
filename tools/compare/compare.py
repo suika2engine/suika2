@@ -4,6 +4,8 @@ import sys
 import os
 import glob
 import subprocess
+import tkinter as tk
+import tkinter.messagebox as messagebox
 
 if len(sys.argv) < 3:
     ANSWER_DIR = 'record'
@@ -13,9 +15,14 @@ else:
     RESULT_DIR = sys.argv[2]
 
 if not os.path.isdir(ANSWER_DIR):
-    print('Cannot open ' + ANSWER_DIR)
+    messagebox.showinfo('suika-compare', 'Cannot open ' + ANSWER_DIR)
 if not os.path.isdir(RESULT_DIR):
-    print('Cannot open ' + RESULT_DIR)
+    messagebox.showinfo('suika-compare', 'Cannot open ' + RESULT_DIR)
+
+if os.path.exists('diff.txt'):
+    os.remove('diff.txt')
+
+messagebox.showinfo('suika-compare', 'Start comparing.')
 
 error_count = 0
 files = glob.glob(ANSWER_DIR + "/*.png")
@@ -37,26 +44,14 @@ for file in files:
     # If the difference between the channel values is greater than 1,
     # it is considered an error.
     if delta > 1:
-        print(basename + " differs " + str(delta))
         error_count = error_count + 1
-
-        # Write a difference image.
-        if not os.path.isdir("diff"):
-            os.mkdir("diff")
-        subprocess.run(["compare",
-                        "-quiet",
-                        "-metric",
-                        "AE",
-                        ANSWER_DIR + "/" + basename,
-                        RESULT_DIR + "/" + basename,
-                        "diff/" + basename],
-                       stdout = subprocess.DEVNULL,
-                       stderr = subprocess.DEVNULL)
+        with open('diff.txt', 'a') as f:
+            print(basename + " differs.", file=f)
 
 # Fail if there were errors.
 if error_count > 0:
-    print('Detected difference: ' + str(error_count) + ' images.')
+    messagebox.showinfo('suika-compare', 'BAD: ' + str(error_count) + ' diffs.')
     sys.exit(1)
 
 # Success
-print('Success.')
+messagebox.showinfo('suika-compare', 'OK: No diff.')

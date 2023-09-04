@@ -503,8 +503,7 @@ async function doDesktopExport(withMac) {
 
     // パッケージを作成する
     if(process.platform === "win32") {
-        fs.writeFileSync(Model.dir + "/pack.exe", fs.readFileSync(app.getAppPath() + "/apps/pack.exe"));
-        execSync("cd " + Model.dir + " && pack.exe");
+        execSync("cd " + Model.dir + " && suika-pro.exe --package");
     } else if(process.platform === "darwin") {
         fs.writeFileSync(Model.dir + "/pack", fs.readFileSync(app.getAppPath() + "/apps/pack.mac"));
         execSync("cd " + Model.dir + " && chmod +x ./pack && ./pack");
@@ -551,8 +550,7 @@ ipcMain.handle('exportForWeb', (event) => {
 
     // パッケージを作成する
     if(process.platform === "win32") {
-        fs.writeFileSync(Model.dir + "/pack.exe", fs.readFileSync(app.getAppPath() + "/apps/pack.exe"));
-        execSync("cd " + Model.dir + " && pack.exe");
+        execSync("cd " + Model.dir + " && suika-pro.exe --package");
     } else if(process.platform === "darwin") {
         fs.writeFileSync(Model.dir + "/pack", fs.readFileSync(app.getAppPath() + "/apps/pack.mac"));
         execSync("cd " + Model.dir + " && chmod +x ./pack && ./pack");
