@@ -32,7 +32,7 @@
 #define FREEBSD
 #elif defined(__EMSCRIPTEN__)
 #define EM
-#else
+#elif !defined(SWITCH)
 #define LINUX
 #endif
 
