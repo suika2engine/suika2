@@ -229,6 +229,9 @@ static const char *fragment_shader_src_normal =
 #if !defined(EM)
 	"#version 100                                        \n"
 #endif
+#if defined(USE_QT)
+	"#undef mediump                                      \n"
+#endif
 	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
@@ -244,6 +247,9 @@ static const char *fragment_shader_src_normal =
 static const char *fragment_shader_src_dim =
 #if !defined(EM)
 	"#version 100                                        \n"
+#endif
+#if defined(USE_QT)
+	"#undef mediump                                      \n"
 #endif
 	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
@@ -262,6 +268,9 @@ static const char *fragment_shader_src_rule =
 #if !defined(EM)
 	"#version 100                                        \n"
 #endif
+#if defined(USE_QT)
+	"#undef mediump                                      \n"
+#endif
 	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
@@ -279,6 +288,9 @@ static const char *fragment_shader_src_rule =
 static const char *fragment_shader_src_melt =
 #if !defined(EM)
 	"#version 100                                        \n"
+#endif
+#if defined(USE_QT)
+	"#undef mediump                                      \n"
 #endif
 	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
@@ -833,6 +845,9 @@ static void draw_elements(int dst_left, int dst_top,
 		rule = NULL;
 	}
 
+	if (bt == BLEND_NONE)
+		alpha = 255;
+
 	/* ウィンドウサイズの半分を求める */
 	hw = (float)conf_window_width / 2.0f;
 	hh = (float)conf_window_height / 2.0f;
@@ -880,22 +895,30 @@ static void draw_elements(int dst_left, int dst_top,
 			glUseProgram(program_normal);
 			glBindVertexArray(vao_normal);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
+			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_normal);
 		} else {
 			/* DIMシェーダ */
 			glUseProgram(program_dim);
 			glBindVertexArray(vao_dim);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo_dim);
+			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_dim);
 		}
 	} else if (!is_melt) {
 		/* ルールシェーダ */
 		glUseProgram(program_rule);
 		glBindVertexArray(vao_rule);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_rule);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_rule);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	} else {
 		/* メルトシェーダ */
 		glUseProgram(program_melt);
 		glBindVertexArray(vao_melt);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_melt);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_melt);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
 
@@ -907,25 +930,22 @@ static void draw_elements(int dst_left, int dst_top,
 		glBindTexture(GL_TEXTURE_2D, rule->id);
 	}
 
-	/* 透過を有効にする */
-	glEnable(GL_BLEND);
-	if (bt != BLEND_ADD) {
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (bt == BLEND_NONE) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ZERO);
 	} else {
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glBlendFunc(GL_DST_ALPHA, GL_ONE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	/* 図形を描画する */
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 }
 
-#ifdef WIN
 /*
  * 全画面表示のときのスクリーンオフセットを指定する
  */
-void opengl_set_screen_offset(int x, int y)
+void opengl_set_screen(int x, int y, int w, int h)
 {
-	glViewport(x, y, conf_window_width, conf_window_height);
+	glViewport(x, y, w, h);
 }
-#endif
