@@ -8,7 +8,7 @@
 /*
  * [Changes]
  *  2021-08-06 Created.
- *  2023-09-05 Updated for Qt6.
+ *  2023-09-05 Refactored and supported for Qt6.
  */
 
 #include "suika.h"
@@ -101,23 +101,7 @@
 #endif
 
 /*
- * Program per fragment shader.
- */
-
-/* For the normal alpha blending. */
-static GLuint program;
-
-/* For the character dimming. (RGB 50%) */
-static GLuint program_dim;
-
-/* For the rule shader. (1-bit universal transition) */
-static GLuint program_rule;
-
-/* For the melt shader. (8-bit universal transition) */
-static GLuint program_melt;
-
-/*
- * vertex shader.
+ * The sole vertex shader that is shared between all fragment shaders.
  */
 static GLuint vertex_shader;
 
@@ -126,7 +110,7 @@ static GLuint vertex_shader;
  */
 
 /* The normal alpha blending. */
-static GLuint fragment_shader;
+static GLuint fragment_shader_normal;
 
 /* The character dimming. (RGB 50%) */
 static GLuint fragment_shader_dim;
@@ -138,61 +122,79 @@ static GLuint fragment_shader_rule;
 static GLuint fragment_shader_melt;
 
 /*
- * Vertex array per fragment shader.
+ * Program per fragment shader.
  */
 
 /* For the normal alpha blending. */
-static GLuint vertex_array;
+static GLuint program_normal;
 
 /* For the character dimming. (RGB 50%) */
-static GLuint vertex_array_dim;
+static GLuint program_dim;
 
 /* For the rule shader. (1-bit universal transition) */
-static GLuint vertex_array_rule;
+static GLuint program_rule;
 
 /* For the melt shader. (8-bit universal transition) */
-static GLuint vertex_array_melt;
+static GLuint program_melt;
 
 /*
- * Vertex buffer per fragment shader.
+ * VAO per fragment shader.
  */
 
 /* For the normal alpha blending. */
-static GLuint vertex_buf;
+static GLuint vao_normal;
 
 /* For the character dimming. (RGB 50%) */
-static GLuint vertex_buf_dim;
+static GLuint vao_dim;
 
 /* For the rule shader. (1-bit universal transition) */
-static GLuint vertex_buf_rule;
+static GLuint vao_rule;
 
 /* For the melt shader. (8-bit universal transition) */
-static GLuint vertex_buf_melt;
+static GLuint vao_melt;
 
 /*
- * Index buffer per fragment shader.
+ * VBO per fragment shader.
  */
 
 /* For the normal alpha blending. */
-static GLuint index_buf;
+static GLuint vbo_normal;
 
 /* For the character dimming. (RGB 50%) */
-static GLuint index_buf_dim;
+static GLuint vbo_dim;
 
 /* For the rule shader. (1-bit universal transition) */
-static GLuint index_buf_rule;
+static GLuint vbo_rule;
 
 /* For the melt shader. (8-bit universal transition) */
-static GLuint index_buf_melt;
+static GLuint vbo_melt;
+
+/*
+ * IBO per fragment shader.
+ */
+
+/* For the normal alpha blending. */
+static GLuint ibo_normal;
+
+/* For the character dimming. (RGB 50%) */
+static GLuint ibo_dim;
+
+/* For the rule shader. (1-bit universal transition) */
+static GLuint ibo_rule;
+
+/* For the melt shader. (8-bit universal transition) */
+static GLuint ibo_melt;
 
 /*
  * The vertex shader source.
  */
+
+/* The source string. */
 static const char *vertex_shader_src =
 #if !defined(EM)
 	"#version 100                 \n"
 #endif
-	"attribute vec4 a_position;   \n"
+	"attribute vec4 a_position;   \n" /* FIXME: vec3? */
 	"attribute vec2 a_texCoord;   \n"
 	"attribute float a_alpha;     \n"
 	"varying vec2 v_texCoord;     \n"
@@ -204,12 +206,26 @@ static const char *vertex_shader_src =
 	"  v_alpha = a_alpha;         \n"
 	"}                            \n";
 
+/* This is our vertex format. (6 parameters, XYZUVA...) */
+#define V_POS	(0)
+#define V_TEX	(3)
+#define V_ALPHA	(5)
+#define V_ALL	(6)
+struct pseudo_vertex_info {
+	/* 0 (V_POS) */		float x;
+	/* 1 */			float y;
+	/* 2 */			float z;
+	/* 3 (V_TEX) */		float u;
+	/* 4 */			float v;
+	/* 5 (V_ALPHA) */	float alpha;
+};
+
 /*
- * Fragmen shader sources.
+ * Fragment shader sources.
  */
 
 /* The normal alpha blending shader. */
-static const char *fragment_shader_src =
+static const char *fragment_shader_src_normal =
 #if !defined(EM)
 	"#version 100                                        \n"
 #endif
@@ -225,7 +241,7 @@ static const char *fragment_shader_src =
 	"}                                                   \n";
 
 /* The character dimming shader. (RGB 50%) */
-static const char *fragment_shader_dim_src =
+static const char *fragment_shader_src_dim =
 #if !defined(EM)
 	"#version 100                                        \n"
 #endif
@@ -242,7 +258,7 @@ static const char *fragment_shader_dim_src =
 	"}                                                   \n";
 
 /* The rule shader. (1-bit universal transition) */
-static const char *fragment_shader_rule_src =
+static const char *fragment_shader_src_rule =
 #if !defined(EM)
 	"#version 100                                        \n"
 #endif
@@ -260,7 +276,7 @@ static const char *fragment_shader_rule_src =
 	"}                                                   \n";
 
 /* The melt shader. (8-bit universal transition) */
-static const char *fragment_shader_melt_src =
+static const char *fragment_shader_src_melt =
 #if !defined(EM)
 	"#version 100                                        \n"
 #endif
@@ -290,15 +306,18 @@ struct texture {
 };
 
 /*
- * Just for your information, this is our vertex format.
+ * The following functions are defined in this file if we don't use Qt.
+ * In the case we use Qt, they are defined in openglwidget.cpp because
+ * VAO/VBO/IBO are abstracted in a very different way on the framework.
  */
-#if 0
-struct vertex {
-	float x, y, z;
-	float u, v;
-	float alpha;
-};
-#endif
+bool setup_vertex_shader(const char **vshader_src, GLuint *vshader);
+bool setup_fragment_shader(const char **fshader_src, GLuint vshader,
+			   bool use_second_texture, GLuint *fshader,
+			   GLuint *prog, GLuint *vao, GLuint *vbo,
+			   GLuint *ibo);
+void cleanup_vertex_shader(GLuint vshader);
+void cleanup_fragment_shader(GLuint fshader, GLuint prog, GLuint vao,
+			     GLuint vbo, GLuint ibo);
 
 /*
  * Forward declaration.
@@ -316,249 +335,234 @@ static void draw_elements(int dst_left, int dst_top,
  */
 bool init_opengl(void)
 {
-	const GLushort indices[] = {0, 1, 2, 3};
-	GLint pos_loc, tex_loc, alpha_loc, sampler_loc, rule_loc;
-
-	/* ビューポートを設定する */
+	/* Set a viewport. */
 	glViewport(0, 0, conf_window_width, conf_window_height);
 
-	/* 頂点シェーダを作成する */
-	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &vertex_shader_src, NULL);
-	glCompileShader(vertex_shader);
-
-	GLint compiled;
-	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &compiled);
-	if (!compiled) {
-		char buf[1024];
-		int len;
-		log_info("Vertex shader compile error");
-		glGetShaderInfoLog(vertex_shader, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
+	/* Setup a vertex shader. */
+	if (!setup_vertex_shader(&vertex_shader_src, &vertex_shader))
 		return false;
-	}
 
-	/*
-	 * TODO: the code below is very redundant and should be refactored.
-	 */
-
-	/* フラグメントシェーダ(通常)を作成する */
-	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &fragment_shader_src, NULL);
-	glCompileShader(fragment_shader);
-
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
-	if (!compiled) {
-		char buf[1024];
-		int len;
-		log_info("Fragment shader compile error");
-		glGetShaderInfoLog(fragment_shader, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
+	/* Setup the fragment shader for normal alpha blending. */
+	if (!setup_fragment_shader(&fragment_shader_src_normal,
+				   vertex_shader,
+				   false, /* no second texture */
+				   &fragment_shader_normal,
+				   &program_normal,
+				   &vao_normal,
+				   &vbo_normal,
+				   &ibo_normal))
 		return false;
-	}
 
-	/* フラグメントシェーダ(DIM)を作成する */
-	fragment_shader_dim = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader_dim, 1, &fragment_shader_dim_src, NULL);
-	glCompileShader(fragment_shader_dim);
-
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled);
-	if (!compiled) {
-		char buf[1024];
-		int len;
-		log_info("Fragment shader compile error");
-		glGetShaderInfoLog(fragment_shader, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
+	/* Setup the fragment shader for character dimming (RGB 50%). */
+	if (!setup_fragment_shader(&fragment_shader_src_dim,
+				   vertex_shader,
+				   false, /* no second texture */
+				   &fragment_shader_dim,
+				   &program_dim,
+				   &vao_dim,
+				   &vbo_dim,
+				   &ibo_dim))
 		return false;
-	}
 
-	/* フラグメントシェーダ(ルール)を作成する */
-	fragment_shader_rule = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader_rule, 1,
-		       &fragment_shader_rule_src, NULL);
-	glCompileShader(fragment_shader_rule);
-
-	glGetShaderiv(fragment_shader_rule, GL_COMPILE_STATUS, &compiled);
-	if (!compiled) {
-		char buf[1024];
-		int len;
-		log_info("Fragment shader compile error");
-		glGetShaderInfoLog(fragment_shader_rule, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
+	/* Setup the fragment shader for rule (1-bit universal transition). */
+	if (!setup_fragment_shader(&fragment_shader_src_rule,
+				   vertex_shader,
+				   false, /* use second texture */
+				   &fragment_shader_rule,
+				   &program_rule,
+				   &vao_rule,
+				   &vbo_rule,
+				   &ibo_rule))
 		return false;
-	}
 
-	/* フラグメントシェーダ(メルト)を作成する */
-	fragment_shader_melt = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader_melt, 1,
-		       &fragment_shader_melt_src, NULL);
-	glCompileShader(fragment_shader_melt);
-
-	glGetShaderiv(fragment_shader_melt, GL_COMPILE_STATUS, &compiled);
-	if (!compiled) {
-		char buf[1024];
-		int len;
-		log_info("Fragment shader compile error");
-		glGetShaderInfoLog(fragment_shader_melt, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
+	/* Setup the fragment shader for melt (8-bit universal transition). */
+	if (!setup_fragment_shader(&fragment_shader_src_melt,
+				   vertex_shader,
+				   true, /* use second texture */
+				   &fragment_shader_melt,
+				   &program_melt,
+				   &vao_melt,
+				   &vbo_melt,
+				   &ibo_melt))
 		return false;
-	}
-
-	/* プログラム(通常)を作成する */
-	program = glCreateProgram();
-	glAttachShader(program, vertex_shader);
-	glAttachShader(program, fragment_shader);
-	glLinkProgram(program);
-
-	GLint linked;
-	glGetProgramiv(program, GL_LINK_STATUS, &linked);
-	if (!linked) {
-		char buf[1024];
-		int len;
-		log_info("Program link error\n");
-		glGetProgramInfoLog(program, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
-		return false;
-	}
-
-	/* プログラム(DIM)を作成する */
-	program_dim = glCreateProgram();
-	glAttachShader(program_dim, vertex_shader);
-	glAttachShader(program_dim, fragment_shader_dim);
-	glLinkProgram(program_dim);
-
-	glGetProgramiv(program_dim, GL_LINK_STATUS, &linked);
-	if (!linked) {
-		char buf[1024];
-		int len;
-		log_info("Program link error\n");
-		glGetProgramInfoLog(program_dim, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
-		return false;
-	}
-
-	/* プログラム(ルール)を作成する */
-	program_rule = glCreateProgram();
-	glAttachShader(program_rule, vertex_shader);
-	glAttachShader(program_rule, fragment_shader_rule);
-	glLinkProgram(program_rule);
-
-	glGetProgramiv(program_rule, GL_LINK_STATUS, &linked);
-	if (!linked) {
-		char buf[1024];
-		int len;
-		log_info("Program link error\n");
-		glGetProgramInfoLog(program_rule, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
-		return false;
-	}
-
-	/* プログラム(メルト)を作成する */
-	program_melt = glCreateProgram();
-	glAttachShader(program_melt, vertex_shader);
-	glAttachShader(program_melt, fragment_shader_melt);
-	glLinkProgram(program_melt);
-
-	glGetProgramiv(program_melt, GL_LINK_STATUS, &linked);
-	if (!linked) {
-		char buf[1024];
-		int len;
-		log_info("Program link error\n");
-		glGetProgramInfoLog(program_melt, sizeof(buf), &len, &buf[0]);
-		log_info("%s", buf);
-		return false;
-	}
-
-	/* シェーダのセットアップを行う(通常) */
-	glUseProgram(program);
-	glGenVertexArrays(1, &vertex_array);
-	glBindVertexArray(vertex_array);
-	glGenBuffers(1, &vertex_buf);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-	pos_loc = glGetAttribLocation(program, "a_position");
-	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	glEnableVertexAttribArray((GLuint)pos_loc);
-	tex_loc = glGetAttribLocation(program, "a_texCoord");
-	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)tex_loc);
-	alpha_loc = glGetAttribLocation(program, "a_alpha");
-	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)alpha_loc);
-	sampler_loc = glGetUniformLocation(program, "s_texture");
-	glUniform1i(sampler_loc, 0);
-	glGenBuffers(1, &index_buf);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	/* シェーダのセットアップを行う(DIM) */
-	glUseProgram(program_dim);
-	glGenVertexArrays(1, &vertex_array_dim);
-	glBindVertexArray(vertex_array_dim);
-	glGenBuffers(1, &vertex_buf_dim);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_dim);
-	pos_loc = glGetAttribLocation(program_dim, "a_position");
-	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	glEnableVertexAttribArray((GLuint)pos_loc);
-	tex_loc = glGetAttribLocation(program_dim, "a_texCoord");
-	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)tex_loc);
-	alpha_loc = glGetAttribLocation(program_dim, "a_alpha");
-	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)alpha_loc);
-	sampler_loc = glGetUniformLocation(program_dim, "s_texture");
-	glUniform1i(sampler_loc, 0);
-	glGenBuffers(1, &index_buf_dim);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf_dim);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	/* シェーダのセットアップを行う(ルール) */
-	glUseProgram(program_rule);
-	glGenVertexArrays(1, &vertex_array_rule);
-	glBindVertexArray(vertex_array_rule);
-	glGenBuffers(1, &vertex_buf_rule);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_rule);
-	pos_loc = glGetAttribLocation(program_rule, "a_position");
-	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	glEnableVertexAttribArray((GLuint)pos_loc);
-	tex_loc = glGetAttribLocation(program_rule, "a_texCoord");
-	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)tex_loc);
-	alpha_loc = glGetAttribLocation(program_rule, "a_alpha");
-	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)alpha_loc);
-	sampler_loc = glGetUniformLocation(program_rule, "s_texture");
-	glUniform1i(sampler_loc, 0);
-	rule_loc = glGetUniformLocation(program_rule, "s_rule");
-	glUniform1i(rule_loc, 1);
-	glGenBuffers(1, &index_buf_rule);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf_rule);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	/* シェーダのセットアップを行う(メルト) */
-	glUseProgram(program_melt);
-	glGenVertexArrays(1, &vertex_array_melt);
-	glBindVertexArray(vertex_array_melt);
-	glGenBuffers(1, &vertex_buf_melt);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_melt);
-	pos_loc = glGetAttribLocation(program_melt, "a_position");
-	glVertexAttribPointer((GLuint)pos_loc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	glEnableVertexAttribArray((GLuint)pos_loc);
-	tex_loc = glGetAttribLocation(program_melt, "a_texCoord");
-	glVertexAttribPointer((GLuint)tex_loc, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)tex_loc);
-	alpha_loc = glGetAttribLocation(program_melt, "a_alpha");
-	glVertexAttribPointer((GLuint)alpha_loc, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
-	glEnableVertexAttribArray((GLuint)alpha_loc);
-	sampler_loc = glGetUniformLocation(program_melt, "s_texture");
-	glUniform1i(sampler_loc, 0);
-	rule_loc = glGetUniformLocation(program_rule, "s_rule");
-	glUniform1i(rule_loc, 1);
-	glGenBuffers(1, &index_buf_melt);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf_melt);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	return true;
 }
+
+#ifndef USE_QT
+
+/*
+ * Setup a vertex shader.
+ */
+bool
+setup_vertex_shader(
+	const char **vshader_src,	/* IN: A vertex shader source string. */
+	GLuint *vshader)		/* OUT: A vertex shader ID. */
+{
+	char buf[1024];
+	GLint compiled;
+	int len;
+
+	*vshader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(*vshader, 1, vshader_src, NULL);
+	glCompileShader(*vshader);
+
+	/* Check errors. */
+	glGetShaderiv(*vshader, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		log_info("Vertex shader compile error");
+		glGetShaderInfoLog(*vshader, sizeof(buf), &len, &buf[0]);
+		log_info("%s", buf);
+		return false;
+	}
+
+	return true;
+}
+
+/*
+ * Cleanup a vertex shader.
+ */
+void cleanup_vertex_shader(GLuint vshader)
+{
+	glDeleteShader(vshader);
+}
+
+/*
+ * Setup a fragment shader, a program, a VAO, a VBO and an IBO.
+ */
+bool
+setup_fragment_shader(
+	const char **fshader_src,	/* IN: A fragment shader source string. */
+	GLuint vshader,			/* IN: A vertex shader ID. */
+	bool use_second_texture,	/* IN: Whether to use a second texture. */
+	GLuint *fshader,		/* OUT: A fragment shader ID. */
+	GLuint *prog,			/* OUT: A program ID. */
+	GLuint *vao,			/* OUT: A VAO ID. */
+	GLuint *vbo,			/* OUT: A VBO ID. */
+	GLuint *ibo)			/* OUT: An IBO ID. */
+{
+	char err_msg[1024];
+	GLint pos_loc, tex_loc, alpha_loc, sampler_loc, rule_loc;
+	GLint is_succeeded;
+	int err_len;
+
+	const GLushort indices[] = {0, 1, 2, 3};
+
+	/* Create a fragment shader. */
+	*fshader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(*fshader, 1, fshader_src, NULL);
+	glCompileShader(*fshader);
+
+	/* Check errors. */
+	glGetShaderiv(*fshader, GL_COMPILE_STATUS, &is_succeeded);
+	if (!is_succeeded) {
+		log_info("Fragment shader compile error");
+		glGetShaderInfoLog(*fshader, sizeof(err_msg), &err_len, &err_msg[0]);
+		log_info("%s", err_msg);
+		return false;
+	}
+
+	/* Create a program. */
+	*prog = glCreateProgram();
+	glAttachShader(*prog, vshader);
+	glAttachShader(*prog, *fshader);
+	glLinkProgram(*prog);
+	glGetProgramiv(*prog, GL_LINK_STATUS, &is_succeeded);
+	if (!is_succeeded) {
+		log_info("Program link error\n");
+		glGetProgramInfoLog(*prog, sizeof(err_msg), &err_len, &err_msg[0]);
+		log_info("%s", err_msg);
+		return false;
+	}
+	glUseProgram(*prog);
+
+	/* Create a VAO. */
+	glGenVertexArrays(1, vao);
+	glBindVertexArray(*vao);
+
+	/* Create a VBO. */
+	glGenBuffers(1, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+
+	/* Set the vertex attibute for "a_position" (V_POS) in the vertex shader. */
+	pos_loc = glGetAttribLocation(*prog, "a_position");
+	glVertexAttribPointer((GLuint)pos_loc,
+			      3,	/* (x, y, z) */
+			      GL_FLOAT,
+			      GL_FALSE,
+			      V_ALL * sizeof(GLfloat),
+			      V_POS);
+	glEnableVertexAttribArray((GLuint)pos_loc);
+
+	/* Set the vertex attibute for "a_texCoord" (V_TEX) in the vertex shader. */
+	tex_loc = glGetAttribLocation(*prog, "a_texCoord");
+	glVertexAttribPointer((GLuint)tex_loc,
+			      2,	/* (u, v) */
+			      GL_FLOAT,
+			      GL_FALSE,
+			      V_ALL * sizeof(GLfloat),
+			      (const GLvoid *)(V_TEX * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)tex_loc);
+
+	/* Set the vertex attibute for "a_alpha" (V_ALPHA) in the vertex shader. */
+	alpha_loc = glGetAttribLocation(*prog, "a_alpha");
+	glVertexAttribPointer((GLuint)alpha_loc,
+			      1,	/* (alpha) */
+			      GL_FLOAT,
+			      GL_FALSE,
+			      V_ALL * sizeof(GLfloat),
+			      (const GLvoid *)(V_ALPHA * sizeof(GLfloat)));
+	glEnableVertexAttribArray((GLuint)alpha_loc);
+
+	/* Setup "s_texture" in a fragment shader. */
+	sampler_loc = glGetUniformLocation(*prog, "s_texture");
+	glUniform1i(sampler_loc, 0);
+
+	/* Setup "s_rule" in a fragment shader if we use a second texture. */
+	if (use_second_texture) {
+		rule_loc = glGetUniformLocation(*prog, "s_rule");
+		glUniform1i(rule_loc, 1);
+	}
+
+	/* Create an IBO. */
+	glGenBuffers(1, ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+		     GL_STATIC_DRAW);
+
+	return true;
+}
+
+void
+cleanup_fragment_shader(
+	GLuint fshader,
+	GLuint prog,
+	GLuint vao,
+	GLuint vbo,
+	GLuint ibo)
+{
+	GLuint a[1];
+
+	/* Delete a fragment shader. */
+	glDeleteShader(fshader);
+
+	/* Delete a program. */
+	glDeleteProgram(prog);
+
+	/* Delete a VAO. */
+	a[0] = vao;
+	glDeleteVertexArrays(1, (const GLuint *)&a);
+
+	/* Delete a VBO. */
+	a[0] = vbo;
+	glDeleteBuffers(1, (const GLuint *)&a);
+
+	/* Delete an IBO. */
+	a[0] = ibo;
+	glDeleteBuffers(1, (const GLuint *)&a);
+}
+
+#endif	/* ifndef USE_QT */
 
 /*
  * Cleanup the Suika2's OpenGL rendering subsystem.
@@ -566,32 +570,27 @@ bool init_opengl(void)
  */
 void cleanup_opengl(void)
 {
-	if (fragment_shader_melt != 0)
-		glDeleteShader(fragment_shader_melt);
-	if (fragment_shader_rule != 0)
-		glDeleteShader(fragment_shader_rule);
-	if (fragment_shader != 0)
-		glDeleteShader(fragment_shader);
-	if (vertex_shader != 0)
-		glDeleteShader(vertex_shader);
-	if (program_melt != 0)
-		glDeleteProgram(program_melt);
-	if (program_rule != 0)
-		glDeleteProgram(program_rule);
-	if (program != 0)
-		glDeleteProgram(program);
-	if (vertex_array_melt != 0)
-		glDeleteVertexArrays(1, &vertex_array_melt);
-	if (vertex_array_rule != 0)
-		glDeleteVertexArrays(1, &vertex_array_rule);
-	if (vertex_array != 0)
-		glDeleteVertexArrays(1, &vertex_array);
-	if (vertex_buf_melt != 0)
-		glDeleteBuffers(1, &vertex_buf_melt);
-	if (vertex_buf_rule != 0)
-		glDeleteBuffers(1, &vertex_buf_rule);
-	if (vertex_buf != 0)
-		glDeleteBuffers(1, &vertex_buf);
+	cleanup_fragment_shader(fragment_shader_normal,
+				program_normal,
+				vao_normal,
+				vbo_normal,
+				ibo_normal);
+	cleanup_fragment_shader(fragment_shader_dim,
+				program_dim,
+				vao_dim,
+				vbo_dim,
+				ibo_dim);
+	cleanup_fragment_shader(fragment_shader_rule,
+				program_rule,
+				vao_rule,
+				vbo_rule,
+				ibo_rule);
+	cleanup_fragment_shader(fragment_shader_melt,
+				program_melt,
+				vao_melt,
+				vbo_melt,
+				ibo_melt);
+	cleanup_vertex_shader(vertex_shader);
 }
 
 /*
@@ -878,25 +877,25 @@ static void draw_elements(int dst_left, int dst_top,
 	if (rule_image == NULL) {
 		if (!is_dim) {
 			/* 通常のアルファブレンド */
-			glUseProgram(program);
-			glBindVertexArray(vertex_array);
-			glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+			glUseProgram(program_normal);
+			glBindVertexArray(vao_normal);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
 		} else {
 			/* DIMシェーダ */
 			glUseProgram(program_dim);
-			glBindVertexArray(vertex_array);
-			glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+			glBindVertexArray(vao_dim);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo_dim);
 		}
 	} else if (!is_melt) {
 		/* ルールシェーダ */
 		glUseProgram(program_rule);
-		glBindVertexArray(vertex_array_rule);
-		glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_rule);
+		glBindVertexArray(vao_rule);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_rule);
 	} else {
 		/* メルトシェーダ */
 		glUseProgram(program_melt);
-		glBindVertexArray(vertex_array_melt);
-		glBindBuffer(GL_ARRAY_BUFFER, vertex_buf_melt);
+		glBindVertexArray(vao_melt);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_melt);
 	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
 
