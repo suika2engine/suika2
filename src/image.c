@@ -240,7 +240,16 @@ void destroy_image(struct image *img)
  */
 bool lock_image(struct image *img)
 {
+	/*
+	 * An image that was created by create_image_with_pixels()
+	 * cannot be locked because it is not intended to offload to
+	 * GPU. Such an image is for BitBlt() of DIB or XPutImage().
+	 */
+	assert(img->need_free);
+
+	/* This is for self sanity check. */
 	lock_count++;
+
 	if (!lock_texture(img->width, img->height, img->pixels,
 			  &img->locked_pixels, &img->texture))
 		return false;
@@ -253,7 +262,12 @@ bool lock_image(struct image *img)
  */
 void unlock_image(struct image *img)
 {
+	/* Assert it was not created by create_image_with_pixels(). */
+	assert(img->need_free);
+
+	/* This is for self sanity check. */
 	lock_count--;
+
 	unlock_texture(img->width, img->height, img->pixels,
 		       &img->locked_pixels, &img->texture);
 }

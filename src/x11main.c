@@ -303,7 +303,8 @@ static bool init(int argc, char *argv[])
 		if (init_glx()) {
 			is_opengl = true;
 		} else {
-			log_info("Failed to initialize OpenGL.");			log_info("Fall back to 2D mode.");
+			log_info("Failed to initialize OpenGL.");
+			log_info("Fall back to 2D mode.");
 		}
 	}
 #endif
@@ -804,39 +805,39 @@ static void run_game_loop(void)
 			break;
 #endif
 
+#ifdef USE_X11_OPENGL
+		/* GStreamerの再生中はOpenGLのレンダリングを行わない */
 		if (!is_gst_playing) {
 			if (is_opengl) {
-#ifdef USE_X11_OPENGL
 				/* レンダリングを開始する */
 				opengl_start_rendering();
-#endif
-			} else {
-				/* バックイメージをロックする */
-				lock_image(back_image);
 			}
 		}
+#endif
 
 		/* フレームイベントを呼び出す */
 		x = y = w = h = 0;
 		cont = on_event_frame(&x, &y, &w, &h);
 
+		/* GStreamerの再生中でなければレンダリングを行う */
 		if (!is_gst_playing) {
-			if (is_opengl) {
 #ifdef USE_X11_OPENGL
+			if (is_opengl) {
 				/* レンダリングを終了する */
 				opengl_end_rendering();
 
 				/* フレームの描画を行う */
 				glXSwapBuffers(display, glx_window);
-#endif
 			} else {
-				/* バックイメージをアンロックする */
-				unlock_image(back_image);
-
 				/* フレームの描画を行う */
 				if (w != 0 && h != 0)
 					sync_back_image(x, y, w, h);
 			}
+#else
+			/* フレームの描画を行う */
+			if (w != 0 && h != 0)
+				sync_back_image(x, y, w, h);
+#endif
 		}
 
 #ifdef USE_CAPTURE

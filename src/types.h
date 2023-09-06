@@ -55,7 +55,7 @@
 #endif
 
 /* x86/x86_64のSSEバージョニングを行うか */
-#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID)
+#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID) && !defined(NO_SSE_VERSIONING)
 #define SSE_VERSIONING
 #endif
 

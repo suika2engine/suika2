@@ -1,7 +1,9 @@
 usage:
-	@echo "This is just for test build before a git-commit."
-	@echo "  make setup ... prepare libraries and docker containers"
+	@echo "This is an internal build test before a git-commit."
+	@echo "  make setup ... install tools, build libraries and make docker containers"
 	@echo "  make all   ... build all"
+	@echo "  make extra ... build android and switch with docker"
+	@echo ""
 
 setup:
 	sudo apt-get update

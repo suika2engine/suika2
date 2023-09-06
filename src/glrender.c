@@ -2,53 +2,192 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
  *  2021-08-06 Created.
+ *  2023-09-05 Updated for Qt6.
  */
 
 #include "suika.h"
 #include "glrender.h"
 
+/*
+ * Include headers.
+ */
+
+/*
+ * Windows
+ *  - We use OpenGL 3.2
+ */
 #if defined(WIN)
 #include <windows.h>
 #include <GL/gl.h>
 #include "glhelper.h"
-#elif defined(OSX)
+#endif
+
+/*
+ * macOS
+ *  - We use OpenGL 3.2
+ */
+#if defined(OSX)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl3.h>
-#elif defined(IOS)
+#endif
+
+/*
+ * iOS
+ *  - We use OpenGL ES 3.0
+ */
+#if defined(IOS)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES2/glext.h>
-#elif defined(ANDROID)
+#endif
+
+/*
+ * Android
+ *  - We use OpenGL ES 3.0
+ */
+#if defined(ANDROID)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
-#elif defined(EM)
+#endif
+
+/*
+ * Emscripten
+ *  - We use OpenGL ES 3.0
+ */
+#if defined(EM)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
-#elif defined(SWITCH)
-#include <GLES3/gl3.h>
-#include <GLES2/gl2ext.h>
-#elif defined(LINUX) && defined(USE_X11_OPENGL)
+#endif
+
+/*
+ * Linux (excluding Qt)
+ *  - We use OpenGL 3.2
+ */
+#if defined(LINUX) && !defined(USE_QT)
 #include <GL/gl.h>
 #include "glhelper.h"
-#elif defined(LINUX) && defined(USE_SDL2_OPENGL)
+#endif
+
+/*
+ * Qt
+ *  - We use a wrapper for QOpenGLFunctions class
+ */
+#if defined(USE_QT)
+#include <GL/gl.h>
+#include "glhelper.h"
+#endif
+
+/*
+ * Switch
+ *  - We use OpenGL ES 3.0
+ */
+#if defined(SWITCH)
+#include <GLES3/gl3.h>
+#include <GLES2/gl2ext.h>
+#endif
+
+/*
+ * SDL2
+ *  - We simply use GLEW because the SDL2 port is just for porting base.
+ */
+#if defined(USE_SDL2_OPENGL)
 #include <GL/glew.h>
 #endif
 
-static GLuint program, program_dim, program_rule, program_melt;
-static GLuint vertex_shader;
-static GLuint fragment_shader, fragment_shader_dim, fragment_shader_rule,
-	      fragment_shader_melt;
-static GLuint vertex_array, vertex_array_dim, vertex_array_rule,
-	      vertex_array_melt;
-static GLuint vertex_buf, vertex_buf_dim, vertex_buf_rule, vertex_buf_melt;
-static GLuint index_buf, index_buf_dim, index_buf_rule, index_buf_melt;
+/*
+ * Program per fragment shader.
+ */
 
+/* For the normal alpha blending. */
+static GLuint program;
+
+/* For the character dimming. (RGB 50%) */
+static GLuint program_dim;
+
+/* For the rule shader. (1-bit universal transition) */
+static GLuint program_rule;
+
+/* For the melt shader. (8-bit universal transition) */
+static GLuint program_melt;
+
+/*
+ * vertex shader.
+ */
+static GLuint vertex_shader;
+
+/*
+ * Fragment shaders.
+ */
+
+/* The normal alpha blending. */
+static GLuint fragment_shader;
+
+/* The character dimming. (RGB 50%) */
+static GLuint fragment_shader_dim;
+
+/* The rule shader. (1-bit universal transition) */
+static GLuint fragment_shader_rule;
+
+/* The melt shader. (8-bit universal transition) */
+static GLuint fragment_shader_melt;
+
+/*
+ * Vertex array per fragment shader.
+ */
+
+/* For the normal alpha blending. */
+static GLuint vertex_array;
+
+/* For the character dimming. (RGB 50%) */
+static GLuint vertex_array_dim;
+
+/* For the rule shader. (1-bit universal transition) */
+static GLuint vertex_array_rule;
+
+/* For the melt shader. (8-bit universal transition) */
+static GLuint vertex_array_melt;
+
+/*
+ * Vertex buffer per fragment shader.
+ */
+
+/* For the normal alpha blending. */
+static GLuint vertex_buf;
+
+/* For the character dimming. (RGB 50%) */
+static GLuint vertex_buf_dim;
+
+/* For the rule shader. (1-bit universal transition) */
+static GLuint vertex_buf_rule;
+
+/* For the melt shader. (8-bit universal transition) */
+static GLuint vertex_buf_melt;
+
+/*
+ * Index buffer per fragment shader.
+ */
+
+/* For the normal alpha blending. */
+static GLuint index_buf;
+
+/* For the character dimming. (RGB 50%) */
+static GLuint index_buf_dim;
+
+/* For the rule shader. (1-bit universal transition) */
+static GLuint index_buf_rule;
+
+/* For the melt shader. (8-bit universal transition) */
+static GLuint index_buf_melt;
+
+/*
+ * The vertex shader source.
+ */
 static const char *vertex_shader_src =
 #if !defined(EM)
 	"#version 100                 \n"
@@ -65,6 +204,11 @@ static const char *vertex_shader_src =
 	"  v_alpha = a_alpha;         \n"
 	"}                            \n";
 
+/*
+ * Fragmen shader sources.
+ */
+
+/* The normal alpha blending shader. */
 static const char *fragment_shader_src =
 #if !defined(EM)
 	"#version 100                                        \n"
@@ -80,6 +224,7 @@ static const char *fragment_shader_src =
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
+/* The character dimming shader. (RGB 50%) */
 static const char *fragment_shader_dim_src =
 #if !defined(EM)
 	"#version 100                                        \n"
@@ -90,12 +235,13 @@ static const char *fragment_shader_dim_src =
 	"void main()                                         \n"
 	"{                                                   \n"
 	"  vec4 tex = texture2D(s_texture, v_texCoord);      \n"
-	"  tex.r = tex.r * 0.7;                              \n"
-	"  tex.g = tex.g * 0.7;                              \n"
-	"  tex.b = tex.b * 0.7;                              \n"
+	"  tex.r = tex.r * 0.5;                              \n"
+	"  tex.g = tex.g * 0.5;                              \n"
+	"  tex.b = tex.b * 0.5;                              \n"
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
+/* The rule shader. (1-bit universal transition) */
 static const char *fragment_shader_rule_src =
 #if !defined(EM)
 	"#version 100                                        \n"
@@ -113,6 +259,7 @@ static const char *fragment_shader_rule_src =
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
+/* The melt shader. (8-bit universal transition) */
 static const char *fragment_shader_melt_src =
 #if !defined(EM)
 	"#version 100                                        \n"
@@ -130,11 +277,21 @@ static const char *fragment_shader_melt_src =
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
+/*
+ * Internal texture management struct.
+ *  - We call glGenTextures() when a texture first unlocked
+ */
 struct texture {
+	/* Texture ID. */
 	GLuint id;
+
+	/* This shows whether glGenTextures() was called. */
 	bool is_initialized;
 };
 
+/*
+ * Just for your information, this is our vertex format.
+ */
 #if 0
 struct vertex {
 	float x, y, z;
@@ -143,7 +300,9 @@ struct vertex {
 };
 #endif
 
-/* 前方参照 */
+/*
+ * Forward declaration.
+ */
 static void draw_elements(int dst_left, int dst_top,
 			  struct image * RESTRICT src_image,
 			  struct image * RESTRICT rule_image,
@@ -153,7 +312,7 @@ static void draw_elements(int dst_left, int dst_top,
 			  int alpha, int bt);
 
 /*
- * OpenGLの初期化処理を行う
+ * Initialize the Suika2's OpenGL rendering subsystem.
  */
 bool init_opengl(void)
 {
@@ -178,6 +337,10 @@ bool init_opengl(void)
 		log_info("%s", buf);
 		return false;
 	}
+
+	/*
+	 * TODO: the code below is very redundant and should be refactored.
+	 */
 
 	/* フラグメントシェーダ(通常)を作成する */
 	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -398,8 +561,8 @@ bool init_opengl(void)
 }
 
 /*
- * OpenGLの終了処理を行う
- *  - Emscriptenでは終了処理は呼び出されない
+ * Cleanup the Suika2's OpenGL rendering subsystem.
+ *  - Note: On Emscripten, this will never be called
  */
 void cleanup_opengl(void)
 {
@@ -432,16 +595,21 @@ void cleanup_opengl(void)
 }
 
 /*
- * フレームのレンダリングを開始する
+ * Start a frame rendering.
  */
 void opengl_start_rendering(void)
 {
+#ifndef USE_QT
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+#else
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+#endif
 }
 
 /*
- * フレームのレンダリングを終了する
+ * End a frame rendering.
  */
 void opengl_end_rendering(void)
 {
@@ -449,10 +617,25 @@ void opengl_end_rendering(void)
 }
 
 /*
- * テクスチャをロックする
+ * Texture manipulation:
+ *  - "Texture" here is a GPU backend of an image
+ *  - Suika2 abstracts modifications of textures by "lock/unlock" operations
+ *  - However, OpenGL doesn't have a mechanism to lock pixels
+ *  - Thus, we need to call glTexImage2D() to update entire texture for every "unlock" operations
  */
-bool opengl_lock_texture(int width, int height, pixel_t *pixels,
-			 pixel_t **locked_pixels, void **texture)
+
+/*
+ * Lock a texture.
+ *  - This will just allocate memory for a texture management struct
+ *  - We just use pixels of a frontend image for modification
+ */
+bool
+opengl_lock_texture(
+	int width,			/* IN: Image width */
+	int height,			/* IN: Image height */
+	pixel_t *pixels,		/* IN: Image pixels */
+	pixel_t **locked_pixels,	/* OUT: Pixel pointer to modify image */
+	void **texture)			/* OUT: Texture object */
 {
 	struct texture *tex;
 
@@ -461,28 +644,45 @@ bool opengl_lock_texture(int width, int height, pixel_t *pixels,
 
 	assert(*locked_pixels == NULL);
 
-	/* テクスチャが作成されていない場合 */
+	/*
+	 * If a texture object for the image that uses "pixels" is not created yet.
+	 * (In other words, the image was created by create_image(), but still
+	 *  not drawn or cleared. This lazy initialization achieves a bit
+	 *  optimization.)
+	 */
 	if (*texture == NULL) {
-		/* texture構造体のメモリを確保する */
+		/* Allocate memory for a texture struct. */
 		tex = malloc(sizeof(struct texture));
-		if (tex == NULL)
+		if (tex == NULL) {
+			log_memory();
 			return false;
+		}
 
 		tex->is_initialized = false;
 		*texture = tex;
 	}
 
-	/* ピクセルをロックする(特にコピーは行わない) */
+	/*
+	 * For image updates until unlock, we'll just use the area
+	 * that "pixels" points to.
+	 */
 	*locked_pixels = pixels;
 
 	return true;
 }
 
 /*
- * テクスチャをアンロックする
+ * Unlock a texture.
+ *  - This function uploads the contents that "pixels" points to,
+ *    from CPU memory to GPU memory
  */
-void opengl_unlock_texture(int width, int height, pixel_t *pixels,
-			   pixel_t **locked_pixels, void **texture)
+void
+opengl_unlock_texture(
+	int width,			/* IN: Image width */
+	int height,			/* IN: Image height */
+	pixel_t *pixels,		/* IN: Image pixels */
+	pixel_t **locked_pixels,	/* IN/OUT: Pixel pointer to modify image (to be NULL) */
+	void **texture)			/* IN: Texture object */
 {
 	struct texture *tex;
 
@@ -492,12 +692,13 @@ void opengl_unlock_texture(int width, int height, pixel_t *pixels,
 
 	tex = (struct texture *)*texture;
 
+	/* If this is the first unlock. */
 	if (!tex->is_initialized) {
 		glGenTextures(1, &tex->id);
 		tex->is_initialized = true;
 	}
 
-	/* テクスチャを作成する */
+	/* Create or update an OpenGL texture. */
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	glBindTexture(GL_TEXTURE_2D, tex->id);
 #ifdef EM
@@ -511,21 +712,26 @@ void opengl_unlock_texture(int width, int height, pixel_t *pixels,
 		     GL_RGBA, GL_UNSIGNED_BYTE, *locked_pixels);
 	glActiveTexture(GL_TEXTURE0);
 
-	/* ピクセルをアンロックする */
+	/* Set NULL to "locked_pixels" to show it is not active. */
 	*locked_pixels = NULL;
 }
 
 /*
- * テクスチャを破棄する
+ * Destroy a texture.
  */
 void opengl_destroy_texture(void *texture)
 {
 	struct texture *tex;
 
+	/* Destroy if a texture struct is allocated. */
 	if (texture != NULL) {
 		tex = (struct texture *)texture;
+
+		/* Delete an OpenGL texture if it exists. */
 		if (tex->is_initialized)
 			glDeleteTextures(1, &tex->id);
+
+		/* Free a texture struct. */
 		free(tex);
 	}
 }
