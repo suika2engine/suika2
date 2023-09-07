@@ -395,9 +395,6 @@ static BOOL InitRenderingEngine(void)
 /* 基盤レイヤの終了処理を行う */
 static void CleanupApp(void)
 {
-	/* プラットフォーム非依存な終了処理を行う */
-	on_event_cleanup();
-
 	/* コンフィグの終了処理を行う */
 	cleanup_conf();
 
