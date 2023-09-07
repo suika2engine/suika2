@@ -126,7 +126,7 @@ static bool get_file_names_recursive(const wchar_t *dir)
 
     /* Get directory content. */
     _snwprintf(path, sizeof(path), L"%s\\*.*", dir);
-    hFind = FindFirstFile(path, &wfd);
+    hFind = FindFirstFileW(path, &wfd);
     if(hFind == INVALID_HANDLE_VALUE)
     {
         log_dir_not_found(dir_u8);
