@@ -1153,16 +1153,6 @@ bool log_error(const char *s, ...)
 }
 
 /*
- * UTF-8のメッセージをネイティブの文字コードに変換する
- *  - 変換の必要がないので引数をそのまま返す
- */
-const char *conv_utf8_to_native(const char *utf8_message)
-{
-	assert(utf8_message != NULL);
-	return utf8_message;
-}
-
-/*
  * GPUを使うか調べる
  */
 bool is_gpu_accelerated(void)

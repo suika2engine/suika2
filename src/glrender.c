@@ -347,8 +347,10 @@ static void draw_elements(int dst_left, int dst_top,
  */
 bool init_opengl(void)
 {
+#ifndef USE_QT
 	/* Set a viewport. */
 	glViewport(0, 0, conf_window_width, conf_window_height);
+#endif
 
 	/* Setup a vertex shader. */
 	if (!setup_vertex_shader(&vertex_shader_src, &vertex_shader))
@@ -942,6 +944,7 @@ static void draw_elements(int dst_left, int dst_top,
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 }
 
+#ifdef WIN
 /*
  * 全画面表示のときのスクリーンオフセットを指定する
  */
@@ -949,3 +952,4 @@ void opengl_set_screen(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
 }
+#endif

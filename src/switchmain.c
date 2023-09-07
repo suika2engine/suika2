@@ -474,17 +474,6 @@ bool log_error(const char *s, ...)
 	return true;
 }
 
-/*
- * Convert UTF-8 log to the native encoding.
- */
-const char *conv_utf8_to_native(const char *utf8_message)
-{
-	assert(utf8_message != NULL);
-
-	/* Just use the UTF-8 log. */
-	return utf8_message;
-}
-
 /* Open the log file. */
 static bool open_log_file(void)
 {

@@ -395,6 +395,15 @@ static BOOL InitRenderingEngine(void)
 /* 基盤レイヤの終了処理を行う */
 static void CleanupApp(void)
 {
+	/* プラットフォーム非依存な終了処理を行う */
+	on_event_cleanup();
+
+	/* コンフィグの終了処理を行う */
+	cleanup_conf();
+
+	/* ファイルの使用を終了する */
+    cleanup_file();
+
 	/* フルスクリーンモードであれば解除する */
 	if (bFullScreen)
 		ToggleFullScreen();
@@ -445,9 +454,6 @@ static void CleanupApp(void)
 
 	/* DirectSoundの終了処理を行う */
 	DSCleanup();
-
-	/* コンフィグの終了処理を行う */
-	cleanup_conf();
 
 	/* ログファイルをクローズする */
 	if(pLogFile != NULL)

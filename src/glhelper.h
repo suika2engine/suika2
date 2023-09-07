@@ -104,9 +104,11 @@ extern void (APIENTRY *glActiveTexture)(GLenum texture);
 #endif /* if defined(WIN) || (defined(LINUX) && !defined(USE_QT) */
 
 /*
- * With Qt, we use a thin wrapper to call the functions defined in QOpenGLFunctions class.
- *  - We replace all gl*() calls in glrender.c to q_gl*() ones by the preprocessor macros defined below
+ * With Qt, we use a wrapper to call the Qt's OpenGL functions.
+ *  - We replace all gl*() calls in glrender.c except initialization
+ *  - gl*() are replaced by q_gl*() by the preprocessor macros defined below
  *  - q_gl*() are defined in openglwidget.cpp
+ *  - We use setup_*() functions for initialization
  */
 #ifdef USE_QT
 /* OpenGL 1.1 */
@@ -124,75 +126,30 @@ extern void (APIENTRY *glActiveTexture)(GLenum texture);
 #define glEnable q_glEnable
 #define glBlendFunc q_glBlendFunc
 #define glDrawElements q_glDrawElements
-/* OpenGL 2+ */
-#define glCreateShader q_glCreateShader
-#define glShaderSource q_glShaderSource
-#define glCompileShader q_glCompileShader
-#define glGetShaderiv q_glGetShaderiv
-#define glGetShaderInfoLog q_glGetShaderInfoLog
-#define glAttachShader q_glAttachShader
-#define glLinkProgram q_glLinkProgram
-#define glGetProgramiv q_glGetProgramiv
-#define glGetProgramInfoLog q_glGetProgramInfoLog
-#define glCreateProgram q_glCreateProgram
-#define glUseProgram q_glUseProgram
-#define glGenVertexArrays q_glGenVertexArrays
-#define glBindVertexArray q_glBindVertexArray
-#define glGenTextures q_glGenTextures
-#define glGenBuffers q_glGenBuffers
-#define glBindBuffer q_glBindBuffer
-#define glGetAttribLocation q_glGetAttribLocation
-#define glVertexAttribPointer q_glVertexAttribPointer
-#define glEnableVertexAttribArray q_glEnableVertexAttribArray
-#define glGetUniformLocation q_glGetUniformLocation
-#define glUniform1i q_glUniform1i
-#define glBufferData q_glBufferData
-#define glDeleteShader q_glDeleteShader
-#define glDeleteProgram q_glDeleteProgram
-#define glDeleteVertexArrays q_glDeleteVertexArrays
-#define glDeleteBuffers q_glDeleteBuffers
-
-/* Prototypes. */
 void q_glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 void q_glClear(GLbitfield mask);
 void q_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+void q_glEnable(GLenum cap);
+void q_glBlendFunc(GLenum sfactor, GLenum dfactor);
 void q_glFlush(void);
-void q_glPixelStorei(GLenum pname, GLint param);
+void q_glGenTextures(GLsizei n, GLuint *textures);
+void q_glActiveTexture(GLenum texture);
 void q_glBindTexture(GLenum target, GLuint texture);
+void q_glDeleteTextures(GLsizei n, const GLuint *textures);
+void q_glPixelStorei(GLenum pname, GLint param);
 void q_glTexParameteri(GLenum target, GLenum pname, GLint param);
 void q_glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
-void q_glActiveTexture(GLenum texture);
-void q_glDeleteTextures(GLsizei n, const GLuint *textures);
-void q_glEnable(GLenum cap);
-void glBlendFunc(GLenum sfactor, GLenum dfactor);
-void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
-GLuint q_glCreateShader(GLenum type);
-void q_glShaderSource(GLuint shader, GLsizei count, const GLchar * const *string, const GLint *length);
-void q_glCompileShader(GLuint shader);
-void q_glGetShaderiv(GLuint shader, GLenum pname, GLint *params);
-void q_glGetShaderInfoLog(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-void q_glAttachShader(GLuint program, GLuint shader);
-void q_glLinkProgram(GLuint program);
-void q_glGetProgramiv(GLuint program, GLenum pname, GLint *params);
-void q_glGetProgramInfoLog(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-GLuint q_glCreateProgram(void);
+void q_glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+/* OpenGL 2+ */
+#define glUseProgram q_glUseProgram
+#define glBindBuffer q_glBindBuffer
+#define glBufferData q_glBufferData
 void q_glUseProgram(GLuint program);
-void q_glGenTextures(GLsizei n, GLuint *textures);
-void q_glGenBuffers(GLsizei n, GLuint *buffers);
 void q_glBindBuffer(GLenum target, GLuint buffer);
-GLint q_glGetAttribLocation(GLuint program, const GLchar *name);
-void q_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
-void q_glEnableVertexAttribArray(GLuint index);
-GLint q_glGetUniformLocation(GLuint program, const GLchar *name);
-void q_glUniform1i(GLint location, GLint v0);
 void q_glBufferData(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
-void q_glDeleteShader(GLuint shader);
-void q_glDeleteProgram(GLuint program);
-void q_glDeleteBuffers(GLsizei n, const GLuint *buffers);
-void q_glGenVertexArrays(GLsizei n, GLuint *arrays);
+/* OpenGL 3+ */
+#define glBindVertexArray q_glBindVertexArray
 void q_glBindVertexArray(GLuint array);
-void q_glUnbindVertexArray(GLuint array);
-void q_glDeleteVertexArrays(GLsizei n, const GLuint *arrays);
 #endif	/* ifdef USE_QT */
 
 #endif	/* GLHELPER_H */
