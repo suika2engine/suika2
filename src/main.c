@@ -130,9 +130,6 @@ void init_game_loop(void)
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
-#ifdef USE_QT
-	dbg_running = true;
-#endif
 	update_debug_info(true);
 #endif
 }
