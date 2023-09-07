@@ -114,7 +114,7 @@ static bool get_file_names_recursive(const wchar_t *dir)
     wchar_t path[256];
     char dir_u8[256];
     HANDLE hFind;
-    WIN32_FIND_DATA wfd;
+    WIN32_FIND_DATAW wfd;
     char *separator;
 
     /* Get UTF-8 directory name. */
@@ -146,7 +146,7 @@ static bool get_file_names_recursive(const wchar_t *dir)
             _snwprintf(path, sizeof(path), L"%s\\%s", dir, wfd.cFileName);
             get_file_names_recursive(path);
 	}
-    } while(FindNextFile(hFind, &wfd));
+    } while(FindNextFileW(hFind, &wfd));
 
     FindClose(hFind);
     return true;

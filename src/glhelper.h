@@ -116,6 +116,7 @@ extern void (APIENTRY *glActiveTexture)(GLenum texture);
 #define glClear q_glClear
 #define glClearColor q_glClearColor
 #define glFlush q_glFlush
+#define glGenTextures q_glGenTextures
 #define glPixelStorei q_glPixelStorei
 #define glBindTexture q_glBindTexture
 #define glTexParameteri q_glTexParameteri
