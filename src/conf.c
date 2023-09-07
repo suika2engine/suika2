@@ -466,7 +466,7 @@ static struct rule {
 	{"language.tw", 's', &conf_language_tw, OPTIONAL, NOSAVE},
 	{"language.ja", 's', &conf_language_ja, OPTIONAL, NOSAVE},
 	{"language.other", 's', &conf_language_other, OPTIONAL, NOSAVE},
-	{"locale.force", 's', &conf_locale_force, OPTIONAL, NOSAVE},
+	{"locale.force", 's', &conf_locale_force, OPTIONAL, SAVE},
 	{"window.title", 's', &conf_window_title, MUST, NOSAVE},
 	{"window.width", 'i', &conf_window_width, MUST, NOSAVE},
 	{"window.height", 'i', &conf_window_height, MUST, NOSAVE},
