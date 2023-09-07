@@ -61,7 +61,7 @@ void opengl_render_image_melt(struct image * RESTRICT src_image,
 
 #ifdef WIN
 /* 全画面表示のときのスクリーンオフセットを指定する */
-void opengl_set_screen_offset(int x, int y);
+void opengl_set_screen(int x, int y, int w, int h);
 #endif
 
 #endif

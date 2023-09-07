@@ -32,7 +32,7 @@
 #define FREEBSD
 #elif defined(__EMSCRIPTEN__)
 #define EM
-#else
+#elif !defined(SWITCH)
 #define LINUX
 #endif
 
@@ -45,7 +45,9 @@
 #include <stdint.h>
 
 /* stdbool.h */
+#ifndef __cplusplus
 #include <stdbool.h>
+#endif
 
 /* アーキテクチャ */
 #if defined(__i386__) && !defined(__x86_64__)
@@ -55,7 +57,7 @@
 #endif
 
 /* x86/x86_64のSSEバージョニングを行うか */
-#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID)
+#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID) && !defined(NO_SSE_VERSIONING)
 #define SSE_VERSIONING
 #endif
 
@@ -85,7 +87,9 @@
 #include <stdint.h>
 
 /* stdbool.h */
+#ifndef __cplusplus
 #include <stdbool.h>
+#endif
 
 /* アーキテクチャ */
 #if defined(__i386__) && !defined(__x86_64__)
@@ -95,8 +99,7 @@
 #endif
 
 /* x86/x86_64のSSEバージョニングを行うか */
-#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID) &&\
-    !defined(XCODE)
+#if (defined(__i386__) || defined(__x86_64__)) && !defined(ANDROID) && !defined(XCODE) && !defined(NO_SSE_VERSIONING)
 #define SSE_VERSIONING
 #endif
 
@@ -136,11 +139,15 @@ typedef unsigned long uintptr_t;    /* VC2010以前では64bitコンパイルし
 
 /* stdbool.h */
 #if _MSC_VER >= 1800 /* VC2013 */
+#ifndef __cplusplus
 #include <stdbool.h>
+#endif
 #else
+#ifndef __cplusplus
 #define bool	int
 #define false	(0)
 #define true	(1)
+#endif
 #endif
 
 /* アーキテクチャ */

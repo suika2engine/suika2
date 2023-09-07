@@ -395,6 +395,12 @@ static BOOL InitRenderingEngine(void)
 /* 基盤レイヤの終了処理を行う */
 static void CleanupApp(void)
 {
+	/* コンフィグの終了処理を行う */
+	cleanup_conf();
+
+	/* ファイルの使用を終了する */
+    cleanup_file();
+
 	/* フルスクリーンモードであれば解除する */
 	if (bFullScreen)
 		ToggleFullScreen();
@@ -445,9 +451,6 @@ static void CleanupApp(void)
 
 	/* DirectSoundの終了処理を行う */
 	DSCleanup();
-
-	/* コンフィグの終了処理を行う */
-	cleanup_conf();
 
 	/* ログファイルをクローズする */
 	if(pLogFile != NULL)
@@ -1147,7 +1150,7 @@ static void ToggleFullScreen(void)
 		if (bD3D)
 			D3DSetDisplayOffset(nOffsetX, nOffsetY);
 		else if (bOpenGL)
-			opengl_set_screen_offset(nOffsetX, nOffsetY);
+			opengl_set_screen(nOffsetX, nOffsetY, conf_window_width, conf_window_height);
 	}
 	else
 	{
@@ -1181,7 +1184,7 @@ static void ToggleFullScreen(void)
 		if (bD3D)
 			D3DSetDisplayOffset(0, 0);
 		else if (bOpenGL)
-			opengl_set_screen_offset(0, 0);
+			opengl_set_screen(0, 0, conf_window_width,conf_window_height);
 	}
 }
 

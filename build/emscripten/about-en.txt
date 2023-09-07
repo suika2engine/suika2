@@ -2,6 +2,7 @@ About the files in this folder:
  - These files enable you to distribute your game for Web browsers
  - Please upload these files to your server
  - You can't run a game by opening these files on your local machine
+ - You can run a game with a browser using suka-webtest.exe that is distributed separately
 
 Steps:
   1. Generate the data01.arc file using suika-pro.exe (or platform equivalent), and copy it to this folder
