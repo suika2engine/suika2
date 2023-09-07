@@ -1,0 +1,8 @@
+.wine64
+build
+dist
+webtest.spec
+webtest.exe
+suika-webtest
+python-3.11.5-amd64.exe
+suika-webtest.zip
