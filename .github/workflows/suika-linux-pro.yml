@@ -1,4 +1,4 @@
-name: suika-linux
+name: suika-linux-pro
 on:
   push:
   pull_request:

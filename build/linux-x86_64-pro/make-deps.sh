@@ -5,11 +5,8 @@ set -eu
 # Copy dependency source files to $DEPS directory.
 DEPS=deps
 
-# Search for Suika2 root direcotry ("../suika2" or "../../../suika2")
-SUIKA2_ROOT="../suika2"
-if [ ! -e "$SUIKA2_ROOT/src/suika.h" ] && [ -e "../../../suika2/src/suika.h" ]; then
-    SUIKA2_ROOT=`readlink -f ../../suika2`;
-fi
+# Set Suika2 root direcotry
+SUIKA2_ROOT="../.."
 
 # Reconstruct $DEPS
 rm -rf "$DEPS"
