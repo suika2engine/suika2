@@ -130,6 +130,11 @@ build/sdl2/*.o
 build/sdl2/libroot
 build/sdl2/suika
 
+# Linux Pro (Qt6)
+build/linux-x86_64-pro/deps
+build/linux-x86_64-pro/build
+build/linux-x86_64-pro/CMakeLists.txt.user
+
 # FreeBSD
 build/freebsd/*.o
 build/freebsd/libroot

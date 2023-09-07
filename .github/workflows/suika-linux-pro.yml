@@ -1,0 +1,29 @@
+name: suika-linux
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          sudo apt-get update
+          echo Installing build-essential...
+          sudo apt-get install -y build-essential
+          echo Installing libasound2-dev...
+          sudo apt-get install -y libasound2-dev
+          echo Installing qt6-base-dev...
+          sudo apt-get install -y qt6-base-dev
+          cd build/linux-x86_64-pro
+          ./make-deps.sh
+          mkdir build
+          cd build
+          cmake ..
+          make -j8
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: suika-linux-x86_64-pro
+          path: build/linux-x86_64-pro/build/suika2-pro-qt
