@@ -809,11 +809,11 @@ bool make_sav_dir(void)
 char *make_valid_path(const char *dir, const char *fname)
 {
 #if defined(OSX)
-    QDir dir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
-    dir.cdUp(); // dir points to /XXX/suika.app/Contents
-    dir.cdUp(); // dir points to /XXX/suika.app
-    dir.cdUp(); // dir points to /XXX
-    QString base = dir.currentPath();
+    QDir qdir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
+    qdir.cdUp(); // dir points to /XXX/suika.app/Contents
+    qdir.cdUp(); // dir points to /XXX/suika.app
+    qdir.cdUp(); // dir points to /XXX
+    QString base = qdir.currentPath();
     QString sav = base + "/" + dir + "/" + fname;
     char *ret = strdup(sav.toUtf8().data());
     if (ret == NULL) {
@@ -822,11 +822,11 @@ char *make_valid_path(const char *dir, const char *fname)
     }
     return ret;
 #else
-    QDir dir(QCoreApplication::applicationDirPath());
+    QDir qdir(QCoreApplication::applicationDirPath());
 #ifdef WIN
-    QString path = dir.currentPaht() + "/" + dir + "/" + fname;
+    QString path = qdir.currentPath() + "\\" + dir + "\\" + fname;
 #else
-    QString path = dir.currentPaht() + "\\" + dir + "\\" + fname;
+    QString path = qdir.currentPath() + "/" + dir + "/" + fname;
 #endif
     char *ret = strdup(path.toUtf8().data());
     if (ret == NULL) {

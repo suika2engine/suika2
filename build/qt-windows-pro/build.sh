@@ -28,7 +28,7 @@ SRC_QT="\
 	openglwidget.h \
 "
 for file in $SRC_QT; do
-    cp "$SUIKA2_ROOT/src/qt$file" "$DEPS/$file"
+    cp "$SUIKA2_ROOT/src/qt$file" "$file";
 done
 
 # Copy Suika2 source files to $DEPS directory.

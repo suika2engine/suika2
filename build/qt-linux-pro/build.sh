@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+OPTION=$1
 
 # Copy dependency source files to $DEPS directory.
 DEPS=deps
@@ -23,7 +23,7 @@ SRC_QT="\
 	openglwidget.h \
 "
 for file in $SRC_QT; do
-    cp "$SUIKA2_ROOT/src/qt$file" "$DEPS/$file"
+    cp "$SUIKA2_ROOT/src/qt$file" "$file";
 done
 
 # Copy Suika2 source files to $DEPS directory.
@@ -166,7 +166,7 @@ mv "$DEPS/freetype-2.9.1" "$DEPS/freetype"
 cp cmake/freetype.txt "$DEPS/freetype/CMakeLists.txt"
 
 # Build
-if [ "x$1" == "x--copy-only" ]; then
+if [ -z "$OPTION"]; then
     rm -rf build;
     mkdir build;
     cd build;

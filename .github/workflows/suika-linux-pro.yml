@@ -18,8 +18,8 @@ jobs:
           sudo apt-get install -y libx11-dev
           echo Installing mesa-common-dev
           sudo apt-get install -y mesa-common-dev
-          echo Installing qt6-base-dev...
-          sudo apt-get install -y qt6-base-dev
+          echo Installing qt6...
+          sudo apt-get install -y qt6-base-dev qt6-multimedia-dev
           cd build/linux-x86_64-pro
           ./build.sh
       - name: Upload
