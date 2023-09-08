@@ -40,7 +40,7 @@ cd libvorbis-1.3.6
 sed 's/-force_cpusubtype_ALL//' configure > configure.new
 mv configure.new configure
 chmod +x configure
-./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS="-O3 -arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" LDFLAGS="-arch arm64 -arch armv7"
+./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared PKG_CONFIG="" --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS="-O3 -arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" LDFLAGS="-arch arm64 -arch armv7"
 make -j4
 make install
 cd ..

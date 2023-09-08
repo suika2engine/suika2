@@ -46,7 +46,7 @@ cd ..
 
 tar xzf ../../libsrc/libvorbis-1.3.6.tar.gz
 cd libvorbis-1.3.6
-./configure --prefix=$PREFIX --disable-shared --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-arch arm64 -arch x86_64"
+./configure --prefix=$PREFIX --disable-shared PKG_CONFIG="" --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-arch arm64 -arch x86_64"
 make
 make install
 cd ..
