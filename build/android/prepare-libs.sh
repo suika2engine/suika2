@@ -103,10 +103,10 @@ cp ../../src/wms_lexer.yy.c app/src/main/cpp/wms_lexer.yy.c
 cp ../../src/wms_parser.tab.c app/src/main/cpp/wms_parser.tab.c
 cp ../../src/wms_parser.tab.h app/src/main/cpp/wms_parser.tab.h
 
-# Copy the game-jp assets for our testing builds.
+# Copy the game assets for our testing builds.
 # You can comment this out when your game is ready.
 mkdir -p app/src/main/assets
-cp -R ../../game-jp/* app/src/main/assets/
+cp -R ../../game/* app/src/main/assets/
 
 # Please modify and use this line for your game.
 #mkdir app/src/main/assets

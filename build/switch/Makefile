@@ -4,7 +4,7 @@
 TARGET := suika
 SWITCH_IP := 
 SUIKA_DIR := $(TARGET)
-ROMFS := ../../game-jp
+ROMFS := ../../game
 
 # must use msys2 env in windows, cmd might failed
 ifeq ($(strip $(DEVKITPRO)),)
