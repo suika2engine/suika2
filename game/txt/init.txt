@@ -98,4 +98,4 @@
 # 日本語のファイルに移動します
 # Move to a Japanese file
 
-@load english-main.txt
+@load japanese-main.txt
