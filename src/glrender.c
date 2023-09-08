@@ -379,7 +379,7 @@ bool init_opengl(void)
 	/* Setup the fragment shader for rule (1-bit universal transition). */
 	if (!setup_fragment_shader(&fragment_shader_src_rule,
 				   vertex_shader,
-				   false, /* use second texture */
+				   true, /* use second texture */
 				   &fragment_shader_rule,
 				   &program_rule,
 				   &vao_rule,
