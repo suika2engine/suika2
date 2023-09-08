@@ -6,10 +6,8 @@ build/macos/.passwd
 *.DS_Store
 *~
 .vscode/settings.json
-game-jp/log.txt
-game-jp/sav
-game-en/log.txt
-game-en/sav
+game/log.txt
+game/sav
 
 # Top level objects
 suika.exe
