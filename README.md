@@ -17,7 +17,7 @@ Don't have a Discord account or would prefer to speak formally? Send an e-mail t
 
 ## Demo
 
-[Click here to start the Web demo](https://suika2.com/game-en/).
+[Click here to start the Web demo](https://suika2.com/game/).
 
 ![demo](https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg "screenshot")
 
@@ -87,8 +87,8 @@ See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) fo
   * Enter suika2 directory and run the following commands:
   ```
   chmod +x tools/suika-linux
-  cp tools/suika-linux game-en/
-  cd game-en
+  cp tools/suika-linux game/
+  cd game
   ./suika-linux
   ```
 
