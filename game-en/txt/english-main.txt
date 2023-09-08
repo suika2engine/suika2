@@ -1,4 +1,45 @@
 ###
+### Menu
+###
+
+# Start music.
+@vol track=bgm volume=1.0 duration=0.0
+@bgm file=00.ogg
+
+# Show menu gradually.
+@bg file=cg/menu-idle.png duration=1.0
+
+# This is the menu top. We'll be back here when LOAD or CONFIG is selected.
+:MENU
+
+# Set chapter name.
+@chapter "Menu"
+
+# Call a menu.
+@gui menu.txt
+
+# When START is selected:
+:START
+@se click.ogg
+@goto SCENE1
+
+# When LOAD is selected:
+:LOAD
+@chapter Load
+@goto $LOAD
+@goto MENU
+
+# When CONFIG is selected:
+:CONFIG
+@chapter Config
+@gui system.txt cancel
+@goto MENU
+
+# When QUIT is selected:
+:QUIT
+@goto END
+
+###
 ### Scene 1 (Mixture of Midori's lines and monologues)
 ###
 

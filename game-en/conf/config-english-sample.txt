@@ -1,3 +1,5 @@
+### For English users, rename this file to config.txt
+
 ###
 ### Configuration
 ###  - Note that when given the option of '0' or '1' in 'optional' settings,

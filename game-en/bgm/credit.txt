@@ -1,17 +1,14 @@
 ***CREDIT***
 
-cicada.ogg by Icy Light
-@audiostock No.2130
-(SECONDARY USE IS PROHIBITED!)
+Icy Light @audiostock No.2130 (2次利用不可: SECONDARY USE IS PROHIBITED!):
+  cicada.ogg
 
-coast.ogg by umasaru
-@audiostock No.42446
-(SECONDARY USE IS PROHIBITED!)
+umasaru @audiostock No.42446 (2次利用不可: SECONDARY USE IS PROHIBITED!):
+  coast.ogg
 
-00.ogg by 80
-Copyright (C) 2016 80. All rights reserved.
+80 (Copyright (C) 2016 80. All rights reserved.):
+  00.ogg
+  02.ogg
 
-01.ogg by krol
-
-02.ogg by 80
-Copyright (C) 2016 80. All rights reserved.
+krol (copyrigth holder is ktabata, feel free to distribute):
+  01.ogg
