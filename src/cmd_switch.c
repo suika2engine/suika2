@@ -1562,7 +1562,7 @@ static void play_se(const char *file)
 	if (w == NULL)
 		return;
 
-	set_mixer_input(SE_STREAM, w);
+	set_mixer_input(SYS_STREAM, w);
 }
 
 /*

@@ -313,6 +313,7 @@ static void update_namevar_buttons(void);
 static void draw_name(int index);
 static void process_char(int index);
 static void play_se(const char *file, bool is_voice);
+static void play_sys_se(const char *file);
 static bool load_gui_file(const char *file);
 
 /*
@@ -819,7 +820,7 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 			result_index = -1;
 
 			/* SEを再生する */
-			play_se(cancel_se, false);
+			play_sys_se(cancel_se);
 
 			/* GUIモードを終了する */
 			stop_gui_mode();
@@ -1181,19 +1182,19 @@ static void process_button_click(int index)
 	/* ボタンのタイプごとにクリックを処理する */
 	switch (b->type) {
 	case TYPE_FULLSCREEN:
-		play_se(b->clickse, false);
+		play_sys_se(b->clickse);
 		if (!conf_window_fullscreen_disable)
 			enter_full_screen_mode();
 		update_runtime_props(false);
 		break;
 	case TYPE_WINDOW:
-		play_se(b->clickse, false);
+		play_sys_se(b->clickse);
 		if (!conf_window_fullscreen_disable)
 			leave_full_screen_mode();
 		update_runtime_props(false);
 		break;
 	case TYPE_FONT:
-		play_se(b->clickse, false);
+		play_sys_se(b->clickse);
 		if (b->file != NULL) {
 			set_global_font_file_name(b->file);
 			if (!init_glyph())
@@ -1204,7 +1205,7 @@ static void process_button_click(int index)
 		break;
 	case TYPE_DEFAULT:
 		if (default_dialog()) {
-			play_se(b->clickse, false);
+			play_sys_se(b->clickse);
 			set_text_speed(0.5f);
 			set_auto_speed(0.5f);
 			apply_initial_values();
@@ -1213,7 +1214,7 @@ static void process_button_click(int index)
 		}
 		break;
 	case TYPE_SAVEPAGE:
-		play_se(b->clickse, false);
+		play_sys_se(b->clickse);
 		save_page = b->index;
 		update_runtime_props(false);
 		update_save_buttons();
@@ -1234,7 +1235,7 @@ static void process_button_click(int index)
 			result_index = index;
 		break;
 	case TYPE_CHAR:
-		play_se(b->clickse, false);
+		play_sys_se(b->clickse);
 		process_char(index);
 		update_namevar_buttons();
 		break;
@@ -1420,13 +1421,13 @@ static void process_play_se(void)
 
 	/* ボタンが選択された場合 */
 	if (result_index != -1) {
-		play_se(button[result_index].clickse, false);
+		play_sys_se(button[result_index].clickse);
 		return;
 	}
 
 	/* 前フレームとは異なるボタンがポイントされた場合 */
 	if (is_pointed_changed && pointed_index != -1) {
-		play_se(button[pointed_index].pointse, false);
+		play_sys_se(button[pointed_index].pointse);
 		return;
 	}
 }
@@ -1646,7 +1647,7 @@ static void process_save(int button_index)
 			return;
 
 	/* SEを再生する */
-	play_se(button[button_index].clickse, false);
+	play_sys_se(button[button_index].clickse);
 
 	/* セーブを実行する */
 	execute_save(data_index);
@@ -2663,6 +2664,21 @@ static void play_se(const char *file, bool is_voice)
 		return;
 
 	set_mixer_input(is_voice ? VOICE_STREAM : SE_STREAM, w);
+}
+
+/* システムSEを再生する */
+static void play_sys_se(const char *file)
+{
+	struct wave *w;
+
+	if (file == NULL || strcmp(file, "") == 0)
+		return;
+
+	w = create_wave_from_file(SE_DIR, file, false);
+	if (w == NULL)
+		return;
+
+	set_mixer_input(SYS_STREAM, w);
 }
 
 /*

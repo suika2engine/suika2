@@ -1,0 +1,101 @@
+# このシナリオファイルだけ、日本語と英語が混ざっています。
+# Only this scenario file contains both Japanese and English.
+
+###
+### ロゴ (Logo)
+###
+
+# 音楽を止めます（タイトルへ戻る機能が利用された場合のため）
+# Stop the music (For when back-to-title is used)
+
+@bgm stop
+
+# 章のタイトルを設定します
+# Set a chapter name.
+
+@chapter title="Logo"
+
+# スキップを禁止します（ロゴ表示をスキップできなくする）
+# Disable skip (for logo)
+
+@skip disable
+
+# ステージを白い背景でクリアします
+# Clear the stage by white background
+
+@bg file=white.png duration=0
+
+# Suikaロゴを表示します
+# Show our Suika logo
+
+@ch position=center file=suika.png duration=1.0
+
+# Suikaボイスを再生します
+# Play a Suika voice
+
+@se file=suika.ogg
+
+# 2秒待ちます
+# Wait for 2 seconds
+
+@wait duration=2.0
+
+# Suikaロゴを消します
+# Remove the Suika logo
+
+@ch position=center file=none duration=1.0
+
+# スキップを許可します
+# Re-enable skip
+
+@skip enable
+
+###
+### 言語選択
+### Language Choose
+###
+
+# 言語選択画面の背景をフェードインします
+# Show a language selection background gradually
+
+@bg file=cg/language.png duration=0.5
+
+# 言語選択のメニューを表示します
+# Call a menu.
+
+@gui language.txt
+
+# 英語が選択された場合
+# For when English is selected
+
+:English
+
+# 英語モードにします
+# Set English mode
+
+@setconfig locale.force en
+
+# 英語のファイルに移動します
+# Move to an English file
+
+@load english-main.txt
+
+# 日本語が選択された場合
+# For when Japanese is selected
+
+:Japanese
+
+# 日本語モードにします
+# Set Japanese mode
+
+@setconfig locale.force ja
+
+# 日本語フォントを選択します
+# Set a Japanese font
+
+@setconfig font.file yasashisa.ttf
+
+# 日本語のファイルに移動します
+# Move to a Japanese file
+
+@load japanese-main.txt

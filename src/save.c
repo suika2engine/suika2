@@ -102,7 +102,8 @@ static bool serialize_bgm(struct wfile *wf);
 static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
 static bool serialize_name_vars(struct wfile *wf);
-static bool serialize_config(struct wfile *wf);
+static bool serialize_local_config(struct wfile *wf);
+static bool serialize_config_helper(struct wfile *wf, bool is_global);
 static bool deserialize_all(const char *fname);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
@@ -110,7 +111,7 @@ static bool deserialize_bgm(struct rfile *rf);
 static bool deserialize_volumes(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
 static bool deserialize_name_vars(struct rfile *rf);
-static bool deserialize_config(struct rfile *rf);
+static bool deserialize_config_common(struct rfile *rf);
 static void load_global_data(void);
 
 /*
@@ -408,7 +409,7 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 			break;
 
 		/* コンフィグのシリアライズを行う */
-		if (!serialize_config(wf))
+		if (!serialize_local_config(wf))
 			break;
 
 		/* 成功 */
@@ -649,8 +650,17 @@ static bool serialize_name_vars(struct wfile *wf)
 	return true;
 }
 
+/* ローカルコンフィグをシリアライズする */
+static bool serialize_local_config(struct wfile *wf)
+{
+	if (!serialize_config_helper(wf, false))
+		return false;
+
+	return true;
+}
+
 /* コンフィグをシリアライズする */
-static bool serialize_config(struct wfile *wf)
+static bool serialize_config_helper(struct wfile *wf, bool is_global)
 {
 	char val[1024];
 	const char *key, *val_s;
@@ -661,10 +671,19 @@ static bool serialize_config(struct wfile *wf)
 	key_index = 0;
 	while (1) {
 		/* セーブするキーを取得する */
-		key = get_config_key_for_local_save_data(key_index++);
+		key = get_config_key_for_save_data(key_index++);
 		if (key == NULL) {
 			/* キー列挙が終了した */
 			break;
+		}
+
+		/* グローバル/ローカルの対象をチェックする */
+		if (!is_global) {
+			if (is_config_key_global(key))
+				continue;
+		} else {
+			if (!is_config_key_global(key))
+				continue;
 		}
 
 		/* キーを出力する */
@@ -884,7 +903,7 @@ static bool deserialize_all(const char *fname)
 			break;
 
 		/* コンフィグのデシリアライズを行う */
-		if (!deserialize_config(rf))
+		if (!deserialize_config_common(rf))
 			break;
 
 		/* ヒストリをクリアする */
@@ -1055,7 +1074,7 @@ static bool deserialize_name_vars(struct rfile *rf)
 }
 
 /* コンフィグをデシリアライズする */
-static bool deserialize_config(struct rfile *rf)
+static bool deserialize_config_common(struct rfile *rf)
 {
 	char key[1024];
 	char val[1024];
@@ -1227,6 +1246,9 @@ static void load_global_data(void)
 	if (gets_rfile(rf, fname, sizeof(fname)) != NULL)
 	    set_global_font_file_name(fname);
 
+	/* コンフィグをデシリアライズする */
+	deserialize_config_common(rf);
+
 	/* ファイルを閉じる */
 	close_rfile(rf);
 }
@@ -1273,9 +1295,12 @@ void save_global_data(void)
 	/* オートモードスピードをシリアライズする */
 	write_wfile(wf, &msg_auto_speed, sizeof(f));
 
-	/* フォントファイル名をデシリアライズする */
+	/* フォントファイル名をシリアライズする */
 	fname = get_global_font_file_name();
 	write_wfile(wf, fname, strlen(fname) + 1);
+
+	/* コンフィグをデシリアライズする */
+	serialize_config_helper(wf, true);
 
 	/* ファイルを閉じる */
 	close_wfile(wf);

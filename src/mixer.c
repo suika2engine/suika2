@@ -166,6 +166,10 @@ void set_mixer_volume(int n, float vol, float span)
 		vol_local[n] = vol;
 		set_sound_volume(n, vol_global[n] * vol);
 	}
+
+	/* TODO: completely separate SE/SYS */
+	if (n == SE_STREAM)
+		set_mixer_volume(SYS_STREAM, vol, span);
 }
 
 /*
@@ -190,6 +194,10 @@ void set_mixer_global_volume(int n, float vol)
 	vol_global[n] = vol;
 
 	set_sound_volume(n, vol_global[n] * vol_cur[n]);
+
+	/* TODO: completely separate SE/SYS */
+	if (n == SE_STREAM)
+		set_mixer_global_volume(SYS_STREAM, vol);
 }
 
 /*

@@ -67,6 +67,7 @@ tar xzf ../../libsrc/libvorbis-1.3.6.tar.gz
 cd libvorbis-1.3.6
 ./configure --prefix=$PREFIX \
     --disable-shared --host=aarch64-none-elf \
+    PKG_CONFIG="" \
     --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib \
     CFLAGS='-O3 -ffunction-sections -fdata-sections'
 make -j$CORE_NUM

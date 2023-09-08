@@ -1,0 +1,14 @@
+***CREDIT***
+
+NO COPYRIGHT:
+  black.png
+  white.png
+
+minikle (http://minikle.onlinestores.jp/) (2次利用不可: SECONDARY USE IS PROHIBITED!):
+  coast.png
+  roof.png (modified by r0cco)
+
+heath (modified by ktabata):
+  config-idle.png
+  load-bg.png
+  menu-idle.png

@@ -38,7 +38,7 @@ cd ..
 
 tar xzf ../../libsrc/libvorbis-1.3.6.tar.gz
 cd libvorbis-1.3.6
-CC=clang LD=lld ./configure --prefix=$PREFIX --disable-shared --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS='-O3 -ffunction-sections -fdata-sections'
+CC=clang LD=lld ./configure --prefix=$PREFIX --disable-shared PKG_CONFIG="" --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS='-O3 -ffunction-sections -fdata-sections'
 make -j4
 make install
 cd ..

@@ -1,0 +1,51 @@
+
+global {
+    idle:   language_jp.png;
+    hover:  language_jp_hover.png;
+    active: language_jp_hover.png;
+}
+
+JAPANESE {
+    type: gui;
+
+    file: language_jp.txt;
+
+    x: 495;
+    y: 266;
+    width: 290;
+    height: 40;
+
+    #pointse: btn-change.ogg;
+
+    #clickse: click.ogg;
+}
+
+ENGLISH {
+    type: gui;
+
+    file: language_en.txt;
+
+    x: 495;
+    y: 316;
+    width: 290;
+    height: 40;
+
+    pointse: btn-change.ogg;
+
+    clickse: click.ogg;
+}
+
+ACCEPT {
+    type: goto;
+
+    label: Japanese;
+
+    x: 570;
+    y: 413;
+    width: 140;
+    height: 42;
+
+    pointse: btn-change.ogg;
+
+    clickse: click.ogg;
+}
