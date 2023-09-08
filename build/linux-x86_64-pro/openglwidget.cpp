@@ -23,7 +23,6 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
     // No transparency.
     setAttribute(Qt::WA_TranslucentBackground, false);
-    setAttribute(Qt::WA_AlwaysStackOnTop, true);
 
     // Receive mouse move events.
     setMouseTracking(true);

@@ -347,10 +347,8 @@ static void draw_elements(int dst_left, int dst_top,
  */
 bool init_opengl(void)
 {
-#ifndef USE_QT
 	/* Set a viewport. */
 	glViewport(0, 0, conf_window_width, conf_window_height);
-#endif
 
 	/* Setup a vertex shader. */
 	if (!setup_vertex_shader(&vertex_shader_src, &vertex_shader))
@@ -897,20 +895,24 @@ static void draw_elements(int dst_left, int dst_top,
 			glUseProgram(program_normal);
 			glBindVertexArray(vao_normal);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
-			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_normal);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_normal);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		} else {
 			/* DIMシェーダ */
 			glUseProgram(program_dim);
 			glBindVertexArray(vao_dim);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo_dim);
-			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_dim);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_dim);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 	} else if (!is_melt) {
 		/* ルールシェーダ */
 		glUseProgram(program_rule);
 		glBindVertexArray(vao_rule);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_rule);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_rule);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_rule);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	} else {
@@ -918,7 +920,7 @@ static void draw_elements(int dst_left, int dst_top,
 		glUseProgram(program_melt);
 		glBindVertexArray(vao_melt);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_melt);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_melt);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_melt);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
@@ -930,14 +932,6 @@ static void draw_elements(int dst_left, int dst_top,
 	if (rule_image != NULL) {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, rule->id);
-	}
-
-	if (bt == BLEND_NONE) {
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ZERO);
-	} else {
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	/* 図形を描画する */
