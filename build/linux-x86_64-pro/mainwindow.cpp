@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 
 #include <QStandardItemModel>
+#include <QResizeEvent>
 #include <QModelIndex>
 #include <QMessageBox>
 #include <QDir>
@@ -54,6 +55,25 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set the initial status to "stopped".
     setStoppedState();
+
+    // Set button and labels texts.
+    ui->fileNameLabel->setText(m_isEnglish ? "Script file name:" : "スクリプトファイル名:");
+    ui->lineNumberLabel->setText(m_isEnglish ? "Script line number:" : "スクリプト行番号:");
+    ui->commandLabel->setText(m_isEnglish ? "Script command to be executed:" : "実行されるコマンド行:");
+    ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
+    ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
+    ui->variableLabel->setText(m_isEnglish ? "Variables (non-initial value):" : "変数一覧(初期値0でないもの):");
+    ui->continueButton->setText(m_isEnglish ? "Continue" : "継続実行");
+    ui->nextButton->setText(m_isEnglish ? "Next" : "1行進行");
+    ui->stopButton->setText(m_isEnglish ? "Stop" : "停止");
+    ui->updateScriptButton->setText(m_isEnglish ? "Update" : "更新");
+    ui->updateLineNumberButton->setText(m_isEnglish ? "Update" : "更新");
+    ui->updateCommandButton->setText(m_isEnglish ? "Update" : "更新");
+    ui->resetCommandButton->setText(m_isEnglish ? "Reset" : "リセット");
+    ui->errorButton->setText(m_isEnglish ? "Search error" : "次のエラー");
+    ui->overwriteButton->setText(m_isEnglish ? "Overwrite" : "上書き保存");
+    ui->reloadButton->setText(m_isEnglish ? "Reload" : "再読み込み");
+    ui->writeButton->setText(m_isEnglish ? "Update variables" : "変数の更新");
 }
 
 MainWindow::~MainWindow()
@@ -101,6 +121,18 @@ void MainWindow::onTimer()
             restSamples -= readSamples;
         }
     }
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    int frameWidth = event->size().width();
+    int frameHeight = event->size().height();
+
+    int panelWidth = 340;
+    int panelHeight = 720;
+
+    ui->openGLWidget->resize(frameWidth - panelWidth, frameHeight);
+    ui->controlPanel->move(frameWidth - panelWidth + 5, 5);
 }
 
 void MainWindow::on_continueButton_clicked()

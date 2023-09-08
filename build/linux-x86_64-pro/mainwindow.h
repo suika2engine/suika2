@@ -23,6 +23,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void resizeEvent(QResizeEvent *event);
+
 private slots:
     // The frame timer handler.
     void onTimer();
