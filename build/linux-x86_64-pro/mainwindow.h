@@ -43,6 +43,8 @@ private slots:
     void on_errorButton_clicked();
     void on_updateLineNumberButton_clicked();
 
+    void on_scriptListView_doubleClicked(const QModelIndex &index);
+
 private:
     // The rendering timer.
     QTimer *m_timer;
@@ -92,6 +94,7 @@ public:
     void setStoppedState();
     void updateScriptView();
     void updateVariableText();
+    void scrollScript();
 };
 
 #endif // MAINWINDOW_H

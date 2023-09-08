@@ -153,6 +153,14 @@ void MainWindow::on_resetCommandButton_clicked()
     ui->commandEdit->setText(get_line_string());
 }
 
+void MainWindow::on_scriptListView_doubleClicked(const QModelIndex &index)
+{
+    int line = ui->scriptListView->currentIndex().row();
+    QString text = QString::number(line);
+    ui->lineNumberEdit->setText(text);
+    m_isChangeLinePressed = true;
+}
+
 void MainWindow::on_writeButton_clicked()
 {
     // テキストボックスの内容を取得する
@@ -551,6 +559,17 @@ void MainWindow::updateVariableText()
 
     // Set to the text edit.
     ui->variableTextEdit->setText(text);
+}
+
+//
+// Scroll script view.
+//
+void MainWindow::scrollScript()
+{
+    int line = get_line_num();
+    QModelIndex cellIndex = ui->scriptListView->model()->index(line, 0);
+    ui->scriptListView->setCurrentIndex(cellIndex);
+    ui->scriptListView->scrollTo(cellIndex);
 }
 
 /*
@@ -1128,6 +1147,7 @@ void update_debug_info(bool script_changed)
         MainWindow::obj->updateScriptView();
     if (check_variable_updated() || script_changed)
         MainWindow::obj->updateVariableText();
+    MainWindow::obj->scrollScript();
 }
 
 }; // extern "C"
