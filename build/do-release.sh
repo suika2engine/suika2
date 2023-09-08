@@ -318,36 +318,38 @@ else
 fi
 
 #
-# Make main release files.
+# Make a main release file.
 #
-echo "Creating main release files."
+echo "Creating a main release file."
 
-# Japanese ZIP
+# Main ZIP
 rm -rf suika2
 mkdir suika2
-mkdir suika2/anime && cp -Rv ../game-jp/anime/* suika2/anime/
-mkdir suika2/bg && cp -Rv ../game-jp/bg/* suika2/bg/
-mkdir suika2/bgm && cp -Rv ../game-jp/bgm/* suika2/bgm/
-mkdir suika2/cg && cp -Rv ../game-jp/cg/* suika2/cg/
-mkdir suika2/ch && cp -Rv ../game-jp/ch/* suika2/ch/
-mkdir suika2/conf && cp -Rv ../game-jp/conf/*.txt suika2/conf/
-mkdir suika2/cv && cp -Rv ../game-jp/cv/* suika2/cv/
-mkdir suika2/font && cp -Rv ../game-jp/font/* suika2/font/
-mkdir suika2/gui && cp -Rv ../game-jp/gui/*.txt suika2/gui/
-mkdir suika2/rule && cp -Rv ../game-jp/rule/* suika2/rule/
+mkdir suika2/anime && cp -Rv ../game/anime/* suika2/anime/
+mkdir suika2/bg && cp -Rv ../game/bg/* suika2/bg/
+mkdir suika2/bgm && cp -Rv ../game/bgm/* suika2/bgm/
+mkdir suika2/cg && cp -Rv ../game/cg/* suika2/cg/
+mkdir suika2/ch && cp -Rv ../game/ch/* suika2/ch/
+mkdir suika2/conf && cp -Rv ../game/conf/*.txt suika2/conf/
+mkdir suika2/cv && cp -Rv ../game/cv/* suika2/cv/
+mkdir suika2/font && cp -Rv ../game/font/* suika2/font/
+mkdir suika2/gui && cp -Rv ../game/gui/*.txt suika2/gui/
+mkdir suika2/rule && cp -Rv ../game/rule/* suika2/rule/
 mkdir suika2/mov
-mkdir suika2/se && cp -Rv ../game-jp/se/* suika2/se/
-mkdir suika2/txt && cp -Rv ../game-jp/txt/*.txt suika2/txt/
-mkdir suika2/wms && cp -Rv ../game-jp/wms/*.txt suika2/wms/
+mkdir suika2/se && cp -Rv ../game/se/* suika2/se/
+mkdir suika2/txt && cp -Rv ../game/txt/*.txt suika2/txt/
+mkdir suika2/wms && cp -Rv ../game/wms/*.txt suika2/wms/
 cp -v ../doc/COPYING suika2/
 cp -v ../doc/readme-jp.html suika2/README.html
+cp -v ../doc/readme-en.html suika2/README-english.html
 mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
 cp -v "$RELEASETMP/suika.exe" suika2/
 cp -v "$RELEASETMP/suika-pro.exe" suika2/
 cp -v "$RELEASETMP/mac.dmg" suika2/
 cp -v "$RELEASETMP/mac-pro.dmg" suika2/
 mkdir suika2/tools
-cp -v ../doc/readme-tools-jp.txt suika2/tools/README.TXT
+cp -v ../doc/readme-tools-jp.txt suika2/tools/README.txt
+cp -v ../doc/readme-tools-en.txt suika2/tools/README-english.txt
 cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
@@ -360,48 +362,8 @@ cp -v "$RELEASETMP/index.html" suika2/tools/web/
 cp -v "$RELEASETMP/index.js" suika2/tools/web/
 cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
 cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
-zip -r "$RELEASETMP/suika2-$VERSION-jp.zip" suika2
-rm -rf suika2
-
-# English ZIP
-rm -rf suika2
-mkdir suika2
-mkdir suika2/anime && cp -Rv ../game-en/anime/* suika2/anime/
-mkdir suika2/bg && cp -Rv ../game-en/bg/* suika2/bg/
-mkdir suika2/bgm && cp -Rv ../game-en/bgm/* suika2/bgm/
-mkdir suika2/cg && cp -Rv ../game-en/cg/* suika2/cg/
-mkdir suika2/ch && cp -Rv ../game-en/ch/* suika2/ch/
-mkdir suika2/conf && cp -Rv ../game-en/conf/*.txt suika2/conf/
-mkdir suika2/cv && cp -Rv ../game-en/cv/* suika2/cv/
-mkdir suika2/font && cp -Rv ../game-en/font/* suika2/font/
-mkdir suika2/gui && cp -Rv ../game-en/gui/*.txt suika2/gui/
-mkdir suika2/rule && cp -Rv ../game-en/rule/* suika2/rule/
-mkdir suika2/mov
-mkdir suika2/se && cp -Rv ../game-en/se/* suika2/se/
-mkdir suika2/txt && cp -Rv ../game-en/txt/*.txt suika2/txt/
-mkdir suika2/wms && cp -Rv ../game-en/wms/*.txt suika2/wms/
-cp -v ../doc/COPYING suika2/
-cp -v ../doc/readme-en.html suika2/README.html
-mkdir suika2/.vscode && cp -v ../tools/snippets/en-normal/plaintext.code-snippets suika2/.vscode/
-cp -v "$RELEASETMP/suika.exe" suika2/
-cp -v "$RELEASETMP/suika-pro.exe" suika2/
-cp -v "$RELEASETMP/mac.dmg" suika2/
-cp -v "$RELEASETMP/mac-pro.dmg" suika2/
-mkdir suika2/tools
-cp -v ../doc/readme-tools-en.txt suika2/tools/README.TXT
-cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
-cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
-cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
-cp -v "$RELEASETMP/suika-arm64.exe" suika2/tools/
-#cp -v "$RELEASETMP/mac-capture.dmg" suika2/tools/
-#cp -v "$RELEASETMP/mac-replay.dmg" suika2/tools/
-cp -v "$RELEASETMP/suika-linux" suika2/tools/
-mkdir suika2/tools/web
-cp -v "$RELEASETMP/index.html" suika2/tools/web/
-cp -v "$RELEASETMP/index.js" suika2/tools/web/
-cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
-cp -v emscripten/about-en.txt suika2/tools/web/about.txt
-zip -r "$RELEASETMP/suika2-$VERSION-en.zip" suika2
+cp -v emscripten/about-en.txt suika2/tools/web/about-english.txt
+zip -r "$RELEASETMP/suika2-$VERSION.zip" suika2
 rm -rf suika2
 
 #
@@ -410,16 +372,14 @@ rm -rf suika2
 echo "Uploading files."
 
 # Copy release files to FTPLOCAL directory.
-cp "$RELEASETMP/suika2-$VERSION-jp.zip" $FTP_LOCAL/
-cp "$RELEASETMP/suika2-$VERSION-en.zip" $FTP_LOCAL/
+cp "$RELEASETMP/suika2-$VERSION.zip" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-win-$VERSION.exe" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-mac-$VERSION.dmg" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-helper-current.zip" $FTP_LOCAL/
 
 # Upload.
 if [ "$DO_UPLOAD" -eq "1" ]; then
-    curl -T "$RELEASETMP/suika2-$VERSION-jp.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION-jp.zip" && sleep 5;
-    curl -T "$RELEASETMP/suika2-$VERSION-en.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION-en.zip" && sleep 5;
+    curl -T "$RELEASETMP/suika2-$VERSION.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.zip" && sleep 5;
     curl -T "$RELEASETMP/kirara-win-$VERSION.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-win-$VERSION.exe" && sleep 5;
     curl -T "$RELEASETMP/kirara-mac-$VERSION.dmg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-mac-$VERSION.dmg" && sleep 5;
     curl -T "$RELEASETMP/kirara-helper-current.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-helper-current.zip";
