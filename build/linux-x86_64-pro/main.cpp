@@ -3,18 +3,9 @@
 extern "C" {
 #include "suika.h"
 #include "glrender.h"
-#if defined(WIN) && !defined(NO_SOUND)
-#include "dsound.h"
-#elif defined(OSX) && !defined(NO_SOUND)
-#include "aunit.h"
-#elif defined(LINUX) && !defined(NO_SOUND)
-#include "asound.h"
-#endif
 };
 
 #include <QApplication>
-
-#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
@@ -26,19 +17,6 @@ int main(int argc, char *argv[])
         abort();
     if(!init_conf())
         abort();
-#if defined(WIN) && !defined(NO_SOUND)
-    if(!init_dsound())
-        abort();
-#elif defined(OSX) && !defined(NO_SOUND)
-    if(!init_aunit())
-        abort();
-#elif defined(LINUX) && !defined(NO_SOUND)
-    // Avoid using sound on WSL2.
-    if (system("grep -i Microsoft /proc/version") != 0) {
-        if(!init_asound())
-            abort();
-    }
-#endif
 
     // Create the main window and run app.
     MainWindow w;
@@ -46,13 +24,6 @@ int main(int argc, char *argv[])
     int ret = a.exec();
 
     // Cleanup.
-#if defined(WIN) && !defined(NO_SOUND)
-    DSCleanup();
-#elif defined(OSX) && !defined(NO_SOUND)
-    cleanup_aunit();
-#elfi defined(LINUX) && !defined(NO_SOUND)
-    cleanup_asound();
-#endif
     cleanup_conf();
     cleanup_file();
 

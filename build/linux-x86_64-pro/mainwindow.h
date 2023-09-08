@@ -2,7 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QAudioSink>
+#include <QIODevice>
 #include <QTimer>
+
+extern "C" {
+#include "suika.h"
+#include "glrender.h"
+};
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,7 +24,7 @@ public:
     ~MainWindow();
 
 private slots:
-    // Rendering timer handler.
+    // The frame timer handler.
     void onTimer();
 
     // UI handlers.
@@ -40,6 +47,9 @@ private:
     // The rendering timer.
     QTimer *m_timer;
 
+    // The sound devices.
+    QIODevice *m_soundDevice[MIXER_STREAMS];
+
     // Whether we are in English mode.
     bool m_isEnglish;
 
@@ -47,8 +57,24 @@ public:
     // For Qt Creator. (contains UI objects such as ui->continueButton)
     Ui::MainWindow *ui;
 
+    //
+    // Note:
+    //  the following members are currently public to be used from the HAL
+    //  and the debugger-HAL functions that are declared in platform.h and
+    //  implemented in mainwindow.cpp
+    //
+
     // The unique instance of this class.
     static MainWindow *obj;
+
+    // The sound sinks.
+    QAudioSink *m_soundSink[MIXER_STREAMS];
+
+    // Wave streams.
+    struct wave *m_wave[MIXER_STREAMS];
+
+    // Whether waves stream are finished.
+    bool m_waveFinish[MIXER_STREAMS];
 
     // State. (read/written from
     bool m_isRunning;

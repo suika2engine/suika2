@@ -1,16 +1,12 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-extern "C" {
-#include "suika.h"
-#include "glrender.h"
-};
-
 #include <QStandardItemModel>
 #include <QModelIndex>
 #include <QMessageBox>
 #include <QDir>
 #include <QLocale>
+#include <QAudioFormat>
 
 #include <chrono>
 
@@ -26,14 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
     assert(MainWindow::obj == nullptr);
     MainWindow::obj = this;
 
-    // Setup a 33ms timer for OpenGLWidget redrawing.
-    m_timer = new QTimer();
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimer()));
-    m_timer->start(33);
-
-    // For now, we are debugging in the English mode.
-    m_isEnglish = !QLocale().name().startsWith("ja");
-
     // Clear the status flags.
     m_isRunning = false;
     m_isResumePressed = false;
@@ -44,14 +32,75 @@ MainWindow::MainWindow(QWidget *parent)
     m_isCommandUpdatePressed = false;
     m_isReloadPressed = false;
 
-    // Set the initial status.
+    // Determine the language to use.
+    m_isEnglish = !QLocale().name().startsWith("ja");
+
+    // Setup the sound outputs.
+    QAudioFormat format;
+    format.setSampleFormat(QAudioFormat::Int16);
+    format.setChannelCount(2);
+    format.setSampleRate(44100);
+    for (int i = 0; i < MIXER_STREAMS; i++) {
+        m_wave[i] = NULL;
+        m_waveFinish[i] = false;
+        m_soundSink[i] = new QAudioSink(format);
+        m_soundDevice[i] = m_soundSink[i]->start();
+    }
+
+    // Setup a 33ms timer for game frames.
+    m_timer = new QTimer();
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimer()));
+    m_timer->start(33);
+
+    // Set the initial status to "stopped".
     setStoppedState();
 }
 
-// A timer callback for OpenGL redrawing.
+MainWindow::~MainWindow()
+{
+    delete ui;
+
+    // Destroy the sound outputs.
+    for (int i = 0; i < MIXER_STREAMS; i++) {
+        if (m_soundDevice[i] != NULL) {
+            m_soundDevice[i] = NULL;
+        }
+        if (m_soundSink[i] != NULL) {
+            m_soundSink[i]->stop();
+            delete m_soundSink[i];
+            m_soundSink[i] = NULL;
+        }
+    }
+}
+
+// The timer callback for game frames.
 void MainWindow::onTimer()
 {
+    const int SNDBUFSIZE = 4096;
+    static uint32_t soundBuf[SNDBUFSIZE];
+
+    // Do a game frame.
     ui->openGLWidget->update();
+
+    // Do sound bufferings.
+    for (int i = 0; i < MIXER_STREAMS; i++) {
+        if (m_wave[i] == NULL)
+            continue;
+
+        int needSamples = m_soundSink[i]->bytesFree() / 4;
+        int restSamples = needSamples;
+        while (restSamples > 0) {
+            int reqSamples = restSamples > SNDBUFSIZE ? SNDBUFSIZE : restSamples;
+            int readSamples = get_wave_samples(m_wave[i], &soundBuf[0], reqSamples);
+            if (readSamples == 0) {
+                m_wave[i] = NULL;
+                m_waveFinish[i] = true;
+                break;
+            }
+            m_soundDevice[i]->write((char const *)&soundBuf[0], readSamples * 4);
+            restSamples -= readSamples;
+        }
+    }
 }
 
 void MainWindow::on_continueButton_clicked()
@@ -231,12 +280,6 @@ void MainWindow::on_errorButton_clicked()
     msgbox.setText(m_isEnglish ? "No error." : "エラーはありません。");
     msgbox.addButton(QMessageBox::Close);
     msgbox.exec();
-}
-
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 // Set a view state for when we are waiting for a command finish by a pause.
@@ -458,7 +501,7 @@ void MainWindow::setStoppedState()
     ui->variableTextEdit->setEnabled(true);
 
     // Enable the variable write button.
-    ui->writeButton->setEnabled(false);
+    ui->writeButton->setEnabled(true);
 
     // TODO: enable the open-script menu item.
     // TODO: enable the overwrite menu item.
@@ -892,14 +935,19 @@ const char *get_system_locale(void)
 
     return "other";
 }
-/*
+
 //
 // Start a sound stream playing.
 //
 bool play_sound(int stream, struct wave *w)
 {
-    UNUSED_PARAMETER(stream);
-    UNUSED_PARAMETER(w);
+    if (MainWindow::obj == NULL)
+        return true;
+    if (MainWindow::obj->m_soundSink[stream] == NULL)
+        return true;
+    bool isPlaying = MainWindow::obj->m_wave[stream] != NULL;
+    MainWindow::obj->m_wave[stream] = w;
+    MainWindow::obj->m_waveFinish[stream] = false;
     return true;
 }
 
@@ -908,7 +956,13 @@ bool play_sound(int stream, struct wave *w)
 //
 bool stop_sound(int stream)
 {
-    UNUSED_PARAMETER(stream);
+    if (MainWindow::obj == NULL)
+        return true;
+    if (MainWindow::obj->m_soundSink[stream] == NULL)
+        return true;
+    MainWindow::obj->m_soundSink[stream]->stop();
+    MainWindow::obj->m_wave[stream] = NULL;
+    MainWindow::obj->m_waveFinish[stream] = false;
     return true;
 }
 
@@ -917,8 +971,11 @@ bool stop_sound(int stream)
 //
 bool set_sound_volume(int stream, float vol)
 {
-    UNUSED_PARAMETER(stream);
-    UNUSED_PARAMETER(vol);
+    if (MainWindow::obj == NULL)
+        return true;
+    if (MainWindow::obj->m_soundSink[stream] == NULL)
+        return true;
+    MainWindow::obj->m_soundSink[stream]->setVolume(vol);
     return true;
 }
 
@@ -927,10 +984,10 @@ bool set_sound_volume(int stream, float vol)
 //
 bool is_sound_finished(int stream)
 {
-    UNUSED_PARAMETER(stream);
-    return true;
+    if (MainWindow::obj == NULL)
+        return true;
+    return MainWindow::obj->m_waveFinish[stream];
 }
-*/
 
 /*
  * A debugger HAL (platform.h API) implementation for Qt.

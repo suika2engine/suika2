@@ -16,10 +16,6 @@ mkdir "$DEPS"
 SRC="\
 	anime.h \
 	anime.c \
-	asound.h \
-	asound.c \
-	aunit.h \
-	aunit.c \
 	cmd_anime.c \
 	cmd_bg.c \
 	cmd_bgm.c \
@@ -52,8 +48,6 @@ SRC="\
 	conf.c \
 	drawglyph.h \
 	drawimage.h \
-	dsound.h \
-	dsound.c \
 	event.h \
 	event.c \
 	file.h \
@@ -76,7 +70,6 @@ SRC="\
 	main.c \
 	mixer.h \
 	mixer.c \
-	nosound.c \
 	package.h \
 	package.c \
 	platform.h \
