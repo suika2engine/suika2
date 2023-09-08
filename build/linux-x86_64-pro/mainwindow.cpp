@@ -6,6 +6,8 @@ extern "C" {
 #include "glrender.h"
 };
 
+#include <QStandardItemModel>
+#include <QModelIndex>
 #include <QMessageBox>
 #include <QDir>
 #include <QLocale>
@@ -29,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimer()));
     m_timer->start(33);
 
+    // For now, we are debugging in the English mode.
+    m_isEnglish = !QLocale().name().startsWith("ja");
+
     // Clear the status flags.
     m_isRunning = false;
     m_isResumePressed = false;
@@ -36,343 +41,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_isPausePressed = false;
     m_isChangeScriptPressed = false;
     m_isChangeLinePressed = false;
-    m_isUpdatePressed = false;
+    m_isCommandUpdatePressed = false;
     m_isReloadPressed = false;
-}
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
-// Set a view state for when we are waiting for a command finish by a pause.
-void MainWindow::setWaitingState()
-{
-/*
-    // ウィンドウのタイトルを設定する
-    [debugWindowController setTitle:isEnglish ?
-                           @"Waiting for command finish..." :
-                           @"コマンドの完了を待機中..."];
-
-    // 続けるボタンを無効にする
-    [debugWindowController setResumeButton:NO text:isEnglish ?
-                           @"Resume" :
-                           @"続ける"];
-
-    // 次へボタンを無効にする
-    [debugWindowController setNextButton:NO text:isEnglish ?
-                           @"Next" :
-                           @"次へ"];
-
-    // 停止ボタンを無効にする
-    [debugWindowController setPauseButton:NO text:isEnglish ?
-                           @"Pause" :
-                           @"停止"];
-
-    // スクリプトテキストボックスを無効にする
-    [debugWindowController enableScriptTextField:NO];
-
-    // スクリプト変更ボタンを無効にする
-    [debugWindowController enableScriptUpdateButton:NO];
-
-    // スクリプト選択ボタンを無効にする
-    //[debugWindowController enableScriptOpenButton:NO];
-
-    // 行番号ラベルを設定する
-    [debugWindowController setLineNumberLabel:isEnglish ?
-                           @"Current Waiting Line:" :
-                           @"現在完了待ちの行番号:"];
-
-    // 行番号テキストボックスを無効にする
-    [debugWindowController enableLineNumberTextField:NO];
-
-    // 行番号変更ボタンを無効にする
-    [debugWindowController enableLineNumberUpdateButton:NO];
-
-    // コマンドラベルを設定する
-    [debugWindowController setCommandLabel:isEnglish ?
-                           @"Current Waiting Command:" :
-                           @"現在完了待ちのコマンド:"];
-
-    // コマンドテキストボックスを無効にする
-    [debugWindowController enableCommandTextField:NO];
-
-    // コマンドアップデートボタンを無効にする
-    [debugWindowController enableCommandUpdateButton:NO];
-
-    // コマンドリセットボタンを無効にする
-    //[debugWindowController enableCommandResetButton:NO];
-
-    // リストボックスを有効にする
-    [debugWindowController enableScriptTableView:NO];
-
-    // エラーを探すを無効にする
-    [debugWindowController enableNextErrorButton:NO];
-
-    // 上書き保存ボタンを無効にする
-    [debugWindowController enableOverwriteButton:NO];
-
-    // 再読み込みボタンを無効にする
-    [debugWindowController enableReloadButton:NO];
-
-    // 変数のテキストボックスを無効にする
-    [debugWindowController enableVariableTextField:NO];
-
-    // 変数の書き込みボタンを無効にする
-    [debugWindowController enableVariableUpdateButton:NO];
-
-    // スクリプトを開くメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
-
-    // 上書き保存メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
-
-    // パッケージエクスポートメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
-
-    // 続けるメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
-
-    // 次へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
-
-    // 停止メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
-
-    // 次のエラー箇所へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
-
-    // 再読み込みメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:106] setEnabled:NO];
-*/
-}
-
-// Set a view state for when we are running a command.
-void MainWindow::setRunningState(void)
-{
-/*
-    // ウィンドウのタイトルを設定する
-    [debugWindowController setTitle:isEnglish ?
-                           @"Running..." :
-                           @"実行中..."];
-
-    // 続けるボタンを無効にする
-    [debugWindowController setResumeButton:NO text:isEnglish ?
-                           @"Resume" :
-                           @"続ける"];
-
-    // 次へボタンを無効にする
-    [debugWindowController setNextButton:NO text:isEnglish ?
-                           @"Next" :
-                           @"次へ"];
-
-    // 停止ボタンを有効にする
-    [debugWindowController setPauseButton:TRUE text:isEnglish ?
-                           @"Pause" :
-                           @"停止"];
-
-    // スクリプトテキストボックスを無効にする
-    [debugWindowController enableScriptTextField:NO];
-
-    // スクリプト変更ボタンを無効にする
-    [debugWindowController enableScriptUpdateButton:NO];
-
-    // スクリプト選択ボタンを無効にする
-    //[debugWindowController enableScriptOpenButton:NO];
-
-    // 行番号ラベルを設定する
-    [debugWindowController setLineNumberLabel:isEnglish ?
-                           @"Current Running Line:" :
-                           @"現在実行中の行番号:"];
-
-    // 行番号テキストボックスを無効にする
-    [debugWindowController enableLineNumberTextField:NO];
-
-    // 行番号変更ボタンを無効にする
-    [debugWindowController enableLineNumberUpdateButton:NO];
-
-    // コマンドラベルを設定する
-    [debugWindowController setCommandLabel:isEnglish ?
-                           @"Current Running Command:" :
-                           @"現在実行中のコマンド:"];
-
-    // コマンドテキストボックスを無効にする
-    [debugWindowController enableCommandTextField:NO];
-
-    // コマンドアップデートボタンを無効にする
-    [debugWindowController enableCommandUpdateButton:NO];
-
-    // コマンドリセットボタンを無効にする
-    //[debugWindowController enableCommandResetButton:NO];
-
-    // リストボックスを有効にする
-    [debugWindowController enableScriptTableView:NO];
-
-    // エラーを探すを無効にする
-    [debugWindowController enableNextErrorButton:NO];
-
-    // 上書きボタンを無効にする
-    [debugWindowController enableOverwriteButton:NO];
-
-    // 再読み込みボタンを無効にする
-    [debugWindowController enableReloadButton:NO];
-
-    // 変数のテキストボックスを無効にする
-    [debugWindowController enableVariableTextField:NO];
-
-    // 変数の書き込みボタンを無効にする
-    [debugWindowController enableVariableUpdateButton:NO];
-
-    // スクリプトを開くメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
-
-    // 上書き保存メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
-
-    // パッケージエクスポートメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
-
-    // 続けるメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
-
-    // 次へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
-
-    // 停止メニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:104] setEnabled:YES];
-
-    // 次のエラー箇所へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
-
-    // 再読み込みメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:106] setEnabled:NO];
-*/
-}
-
-// Set a view state for when we are completely pausing.
-void MainWindow::setStoppedState(void)
-{
-/*
-    // ウィンドウのタイトルを設定する
-    [debugWindowController setTitle:isEnglish ?
-                           @"Stopped" :
-                           @"停止中"];
-
-    // 続けるボタンを有効にする
-    [debugWindowController setResumeButton:YES text:isEnglish ?
-                           @"Resume" :
-                           @"続ける"];
-
-    // 次へボタンを有効にする
-    [debugWindowController setNextButton:YES text:isEnglish ?
-                           @"Next" :
-                           @"次へ"];
-
-    // 停止ボタンを無効にする
-    [debugWindowController setPauseButton:NO text:isEnglish ?
-                           @"Pause" :
-                           @"停止"];
-
-    // スクリプトテキストボックスを有効にする
-    [debugWindowController enableScriptTextField:YES];
-
-    // スクリプト変更ボタンを有効にする
-    [debugWindowController enableScriptUpdateButton:YES];
-
-    // スクリプト選択ボタンを有効にする
-    //[debugWindowController enableScriptOpenButton:YES];
-
-    // 行番号ラベルを設定する
-    [debugWindowController setLineNumberLabel:isEnglish ?
-                           @"Next Line to be Executed:" :
-                           @"次に実行される行番号:"];
-
-    // 行番号テキストボックスを有効にする
-    [debugWindowController enableLineNumberTextField:YES];
-
-    // 行番号変更ボタンを有効にする
-    [debugWindowController enableLineNumberUpdateButton:YES];
-
-    // コマンドラベルを設定する
-    [debugWindowController setCommandLabel:isEnglish ?
-                           @"Next Command to be Executed:" :
-                           @"次に実行されるコマンド:"];
-
-    // コマンドテキストボックスを有効にする
-    [debugWindowController enableCommandTextField:YES];
-
-    // コマンドアップデートボタンを有効にする
-    [debugWindowController enableCommandUpdateButton:YES];
-
-    // コマンドリセットボタンを有効にする
-    //[debugWindowController enableCommandResetButton:YES];
-
-    // リストボックスを有効にする
-    [debugWindowController enableScriptTableView:YES];
-
-    // エラーを探すを有効にする
-    [debugWindowController enableNextErrorButton:YES];
-
-    // 上書き保存ボタンを有効にする
-    [debugWindowController enableOverwriteButton:YES];
-
-    // 再読み込みボタンを有効にする
-    [debugWindowController enableReloadButton:YES];
-
-    // 変数のテキストボックスを有効にする
-    [debugWindowController enableVariableTextField:YES];
-
-    // 変数の書き込みボタンを有効にする
-    [debugWindowController enableVariableUpdateButton:YES];
-
-    // スクリプトを開くメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:100] setEnabled:YES];
-
-    // 上書き保存メニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
-
-    // パッケージエクスポートメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:YES];
-
-    // 続けるメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:102] setEnabled:YES];
-
-    // 次へメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:103] setEnabled:YES];
-
-    // 停止メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
-
-    // 次のエラー箇所へメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:105] setEnabled:YES];
-
-    // 再読み込みメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:106] setEnabled:YES];
-*/
+    // Set the initial status.
+    setStoppedState();
 }
 
 // A timer callback for OpenGL redrawing.
@@ -381,7 +54,7 @@ void MainWindow::onTimer()
     ui->openGLWidget->update();
 }
 
-void MainWindow::on_continutButton_clicked()
+void MainWindow::on_continueButton_clicked()
 {
     m_isResumePressed = true;
 }
@@ -393,16 +66,448 @@ void MainWindow::on_nextButton_clicked()
 
 void MainWindow::on_stopButton_clicked()
 {
+    m_isPausePressed = true;
 }
 
 void MainWindow::on_fileNameEdit_returnPressed()
 {
-    //m_isChangeScriptPressed = true;
+    m_isChangeScriptPressed = true;
 }
 
 void MainWindow::on_lineNumberEdit_returnPressed()
 {
-    //m_isChangeScriptLinePressed = true;
+    m_isChangeLinePressed = true;
+}
+
+void MainWindow::on_updateLineNumberButton_clicked()
+{
+    m_isChangeLinePressed = true;
+}
+
+void MainWindow::on_updateScriptFileButton_clicked()
+{
+    m_isChangeScriptPressed = true;
+}
+
+void MainWindow::on_openScriptFileButton_clicked()
+{
+    // TODO: Open a dialog.
+}
+
+void MainWindow::on_updateCommandButton_clicked()
+{
+    m_isCommandUpdatePressed = true;
+}
+
+void MainWindow::on_resetCommandButton_clicked()
+{
+    ui->commandEdit->setText(get_line_string());
+}
+
+void MainWindow::on_writeButton_clicked()
+{
+    // テキストボックスの内容を取得する
+    char buf[4096];
+    strncpy(&buf[0], ui->variableTextEdit->toPlainText().toUtf8().data(), sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = '\0';
+
+    // パースする
+    char *p = buf;
+    while(*p) {
+        // 空行を読み飛ばす
+        if(*p == '\n') {
+            p++;
+            continue;
+        }
+
+        // 次の行の開始文字を探す
+        char *next_line = p;
+        while(*next_line) {
+            if(*next_line == '\n') {
+                *next_line++ = '\0';
+                break;
+            }
+            next_line++;
+        }
+
+        // パースする
+        int index, val;
+        if(sscanf(p, "$%d=%d", &index, &val) != 2)
+            index = -1, val = -1;
+        if(index >= LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE)
+            index = -1;
+
+        // 変数を設定する
+        if(index != -1)
+            set_variable(index, val);
+
+        // 次の行へポインタを進める
+        p = next_line;
+    }
+
+    updateVariableText();
+}
+
+void MainWindow::on_reloadButton_clicked()
+{
+    m_isReloadPressed = true;
+}
+
+void MainWindow::on_overwriteButton_clicked()
+{
+    const char *scr = get_script_file_name();
+    if(strcmp(scr, "DEBUG") == 0)
+        return;
+
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Suika2 Pro");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to overwrite the script file?" :
+                   "スクリプトファイルを上書き保存します。\nよろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+    
+    char *path = make_valid_path(SCRIPT_DIR, scr);
+    FILE *fp = fopen(path, "w");
+    if (fp == NULL) {
+        free(path);
+
+        QMessageBox errmsg(nullptr);
+        errmsg.setIcon(QMessageBox::Critical);
+        errmsg.setWindowTitle("Suika2 Pro");
+        errmsg.setText(m_isEnglish ? "Cannot write to file." : "ファイルに書き込めません。");
+        errmsg.addButton(QMessageBox::Close);
+        errmsg.exec();
+        return;
+    }
+    free(path);
+
+    for (int i = 0; i < get_line_count(); i++) {
+        int body = fputs(get_line_string_at_line_num(i), fp);
+        int crlf = fputs("\n", fp);
+        if(body < 0 || crlf < 0) {
+            fclose(fp);
+            return;
+	}
+    }
+    fclose(fp);
+}
+
+void MainWindow::on_errorButton_clicked()
+{
+    int lines = get_line_count();
+    int start = ui->scriptListView->currentIndex().column();
+
+    // Start searching from a line at (current-selected + 1).
+    for(int i = start + 1; i < lines; i++) {
+        const char *text = get_line_string_at_line_num(i);
+        if(text[0] == '!') {
+            QModelIndex cellIndex = ui->scriptListView->model()->index(i, 0);
+            ui->scriptListView->setCurrentIndex(cellIndex);
+            return;
+	}
+    }
+
+    // Don't re-start search if the selected item is at index 0.
+    if(start == 0) {
+        // Re-start searching from index 0 to index start.
+        for(int i = 0; i <= start; i++) {
+            const char *text = get_line_string_at_line_num(i);
+            if(text[0] == '!') {
+                QModelIndex cellIndex = ui->scriptListView->model()->index(i, 0);
+                ui->scriptListView->setCurrentIndex(cellIndex);
+                return;
+            }
+        }
+    }
+
+    // Show a dialog if no error.
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Suika2 Pro");
+    msgbox.setText(m_isEnglish ? "No error." : "エラーはありません。");
+    msgbox.addButton(QMessageBox::Close);
+    msgbox.exec();
+}
+
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+// Set a view state for when we are waiting for a command finish by a pause.
+void MainWindow::setWaitingState()
+{
+    // Set the window title.
+    setWindowTitle(m_isEnglish ? "Waiting for command finish..." : "コマンドの完了を待機中...");
+
+    // Disable the continue button.
+    ui->continueButton->setEnabled(false);
+    ui->continueButton->setText(m_isEnglish ? "Resume" : "続ける");
+
+    // Disable the next button.
+    ui->nextButton->setEnabled(false);
+    ui->nextButton->setText(m_isEnglish ? "Next" : "次へ");
+
+    // Disable the stop button.
+    ui->stopButton->setEnabled(false);
+    ui->stopButton->setText(m_isEnglish ? "Pause" : "停止");
+
+    // Disable the script file text field.
+    ui->fileNameTextEdit->setEnabled(false);
+
+    // Disable the script file update button.
+    ui->updateScriptButton->setEnabled(false);
+
+    // Disable the script open button.
+    ui->openScriptButton->setEnabled(false);
+
+    // Set the line number label.
+    ui->lineNumberLabel->setText(m_isEnglish ? "Current Waiting Line:" : "現在完了待ちの行番号:");
+
+    // Disable the line number text field.
+    ui->lineNumberEdit->setEnabled(false);
+
+    // Disable the line number update button.
+    ui->updateLineNumberButton->setEnabled(false);
+
+    // Set the command label.
+    ui->commandLabel->setText(m_isEnglish ? "Current Waiting Command:" : "現在完了待ちのコマンド:");
+
+    // Disable the command text edit.
+    ui->commandEdit->setEnabled(false);
+
+    // Disable the command update button.
+    ui->updateCommandButton->setEnabled(false);
+
+    // Disable the command reset button.
+    ui->resetCommandButton->setEnabled(false);
+
+    // Enable the script view.
+    ui->scriptListView->setEnabled(true);
+
+    // Disable the search-error button.
+    ui->errorButton->setEnabled(false);
+
+    // Disable the overwrite button.
+    ui->overwriteButton->setEnabled(false);
+
+    // Disable the reload button.
+    ui->reloadButton->setEnabled(false);
+
+    // Disable the variable text edit.
+    ui->variableTextEdit->setEnabled(false);
+
+    // Disable the variable write button.
+    ui->writeButton->setEnabled(false);
+
+    // TODO: disable the open-script menu item.
+    // TODO: disable the overwrite menu item.
+    // TODO: disable the export menu item.
+    // TODO: disable the continue menu item.
+    // TODO: disable the next menu item.
+    // TODO: disable the stop menu item.
+    // TODO: disable the search-error menu item.
+    // TODO: disable the reload menu item.
+}
+
+// Set a view state for when we are running a command.
+void MainWindow::setRunningState()
+{
+    // Set the window title.
+    setWindowTitle(m_isEnglish ? "Running..." : "実行中...");
+
+    // Disable the continue button.
+    ui->continueButton->setEnabled(false);
+    ui->continueButton->setText(m_isEnglish ? "Resume" : "続ける");
+
+    // Disable the next button.
+    ui->nextButton->setEnabled(false);
+    ui->nextButton->setText(m_isEnglish ? "Next" : "次へ");
+
+    // Enable the stop button.
+    ui->stopButton->setEnabled(true);
+    ui->stopButton->setText(m_isEnglish ? "Pause" : "停止");
+
+    // Disable the script file text field.
+    ui->fileNameTextEdit->setEnabled(false);
+
+    // Disable the script file update button.
+    ui->updateScriptButton->setEnabled(false);
+
+    // Disable the script open button.
+    ui->openScriptButton->setEnabled(false);
+
+    // Set the line number label.
+    ui->lineNumberLabel->setText(m_isEnglish ? "Current Waiting Line:" : "現在完了待ちの行番号:");
+
+    // Disable the line number text field.
+    ui->lineNumberEdit->setEnabled(false);
+
+    // Disable the line number update button.
+    ui->updateLineNumberButton->setEnabled(false);
+
+    // Set the command label.
+    ui->commandLabel->setText(m_isEnglish ? "Current Waiting Command:" : "現在完了待ちのコマンド:");
+
+    // Disable the command text edit.
+    ui->commandEdit->setEnabled(false);
+
+    // Disable the command update button.
+    ui->updateCommandButton->setEnabled(false);
+
+    // Disable the command reset button.
+    ui->resetCommandButton->setEnabled(false);
+
+    // Enable the script view.
+    ui->scriptListView->setEnabled(true);
+
+    // Disable the search-error button.
+    ui->errorButton->setEnabled(false);
+
+    // Disable the overwrite button.
+    ui->overwriteButton->setEnabled(false);
+
+    // Disable the reload button.
+    ui->reloadButton->setEnabled(false);
+
+    // Disable the variable text edit.
+    ui->variableTextEdit->setEnabled(false);
+
+    // Disable the variable write button.
+    ui->writeButton->setEnabled(false);
+
+    // TODO: disable the open-script menu item.
+    // TODO: disable the overwrite menu item.
+    // TODO: disable the export menu item.
+    // TODO: disable the continue menu item.
+    // TODO: disable the next menu item.
+    // TODO: enable the stop menu item.
+    // TODO: disable the search-error menu item.
+    // TODO: disable the reload menu item.
+}
+
+// Set a view state for when we are completely pausing.
+void MainWindow::setStoppedState()
+{
+    // Set the window title.
+    setWindowTitle(m_isEnglish ? "Stopped" : "停止中");
+
+    // Enable the continue button.
+    ui->continueButton->setEnabled(true);
+    ui->continueButton->setText(m_isEnglish ? "Resume" : "続ける");
+
+    // Enable the next button.
+    ui->nextButton->setEnabled(true);
+    ui->nextButton->setText(m_isEnglish ? "Next" : "次へ");
+
+    // Disable the stop button.
+    ui->stopButton->setEnabled(false);
+    ui->stopButton->setText(m_isEnglish ? "Pause" : "停止");
+
+    // Enable the script file text field.
+    ui->fileNameTextEdit->setEnabled(true);
+
+    // Enable the script file update button.
+    ui->updateScriptButton->setEnabled(true);
+
+    // Enable the script open button.
+    ui->openScriptButton->setEnabled(true);
+
+    // Enable the script open button.
+    ui->openScriptButton->setEnabled(false);
+
+    // Set the line number label.
+    ui->lineNumberLabel->setText(m_isEnglish ? "Next Line to be Executed:" : "次に実行される行番号:");
+
+    // Enable the line number text field.
+    ui->lineNumberEdit->setEnabled(true);
+
+    // Enable the line number update button.
+    ui->updateLineNumberButton->setEnabled(true);
+
+    // Set the command label.
+    ui->commandLabel->setText(m_isEnglish ? "Next Command to be Executed:" : "次に実行されるコマンド:");
+
+    // Enable the command text edit.
+    ui->commandEdit->setEnabled(true);
+
+    // Enable the command update button.
+    ui->updateCommandButton->setEnabled(true);
+
+    // Disable the command reset button.
+    ui->resetCommandButton->setEnabled(true);
+
+    // Enable the script view.
+    ui->scriptListView->setEnabled(true);
+
+    // Enable the search-error button.
+    ui->errorButton->setEnabled(true);
+
+    // Enable the overwrite button.
+    ui->overwriteButton->setEnabled(true);
+
+    // Enable the reload button.
+    ui->reloadButton->setEnabled(true);
+
+    // Enable the variable text edit.
+    ui->variableTextEdit->setEnabled(true);
+
+    // Enable the variable write button.
+    ui->writeButton->setEnabled(false);
+
+    // TODO: enable the open-script menu item.
+    // TODO: enable the overwrite menu item.
+    // TODO: enable the export menu item.
+    // TODO: enable the continue menu item.
+    // TODO: enable the next menu item.
+    // TODO: disable the stop menu item.
+    // TODO: enable the search-error menu item.
+    // TODO: enable the reload menu item.
+}
+
+//
+// Update the script view.
+//
+void MainWindow::updateScriptView()
+{
+    QAbstractItemModel *oldModel = ui->scriptListView->model();
+    QStandardItemModel *newModel = new QStandardItemModel();
+
+    int count = get_line_count();
+    for (int lineNum = 0; lineNum < count; lineNum++) {
+        QStandardItem *item = new QStandardItem();
+        item->setText(::get_line_string_at_line_num(lineNum));
+        item->setEditable(false);
+        newModel->appendRow(item);
+    }
+    ui->scriptListView->setModel(newModel);
+
+    delete oldModel;
+}
+
+//
+// Update the variable text.
+//
+void MainWindow::updateVariableText()
+{
+    QString text = "";
+    for(int index = 0; index < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; index++) {
+        // If a variable has an initial value and has not been changed, skip.
+        int val = get_variable(index);
+        if(val == 0 && !is_variable_changed(index))
+            continue;
+
+        // Add a line.
+        text += QString("$%1=%2\n").arg(index).arg(val);
+    }
+
+    // Set to the text edit.
+    ui->variableTextEdit->setText(text);
 }
 
 /*
@@ -866,10 +971,9 @@ bool is_pause_pushed(void)
 //
 bool is_script_changed(void)
 {
-    // bool ret = isChangeScriptPressed;
-    // isChangeScriptPressed = false;
-    // return ret;
-    return false;
+    bool ret = MainWindow::obj->m_isChangeScriptPressed;
+    MainWindow::obj->m_isChangeScriptPressed = false;
+    return ret;
 }
 
 //
@@ -877,11 +981,9 @@ bool is_script_changed(void)
 //
 const char *get_changed_script(void)
 {
-    // static char script[256];
-    // snprintf(script, sizeof(script), "%s",
-    //          [[debugWindowController getScriptName] UTF8String]);
-    // return script;
-    return "";
+    static char script[256];
+    snprintf(script, sizeof(script), "%s", MainWindow::obj->ui->fileNameTextEdit->text().toUtf8().data());
+    return script;
 }
 
 //
@@ -889,10 +991,9 @@ const char *get_changed_script(void)
 //
 bool is_line_changed(void)
 {
-    // bool ret = isLineChangePressed;
-    // isLineChangePressed = false;
-    // return ret;
-    return 0;
+    bool ret = MainWindow::obj->m_isChangeLinePressed;
+    MainWindow::obj->m_isChangeLinePressed = false;
+    return ret;
 }
 
 //
@@ -900,8 +1001,7 @@ bool is_line_changed(void)
 //
 int get_changed_line(void)
 {
-    // return [debugWindowController getScriptLine];
-    return 0;
+    return MainWindow::obj->ui->lineNumberEdit->text().toInt();
 }
 
 //
@@ -909,10 +1009,9 @@ int get_changed_line(void)
 //
 bool is_command_updated(void)
 {
-    // bool ret = isCommandUpdatePressed;
-    // isCommandUpdatePressed = false;
-    // return ret;
-    return false;
+    bool ret = MainWindow::obj->m_isCommandUpdatePressed;
+    MainWindow::obj->m_isCommandUpdatePressed = false;
+    return ret;
 }
 
 //
@@ -920,13 +1019,9 @@ bool is_command_updated(void)
 //
 const char *get_updated_command(void)
 {
-    // @autoreleasepool {
-    //     static char command[4096];
-    //     snprintf(command, sizeof(command), "%s",
-    //              [[debugWindowController getCommandText] UTF8String]);
-    //     return command;
-    // }
-    return "";
+    static char command[4096];
+    snprintf(command, sizeof(command), "%s", MainWindow::obj->ui->commandEdit->document()->toPlainText().toUtf8().data());
+    return command;
 }
 
 //
@@ -934,9 +1029,9 @@ const char *get_updated_command(void)
 //
 bool is_script_reloaded(void)
 {
-    // bool ret = isReloadPressed;
-    // isReloadPressed = false;
-    // return ret;
+    bool ret = MainWindow::obj->m_isReloadPressed;
+    MainWindow::obj->m_isReloadPressed = false;
+    return ret;
     return false;
 }
 
@@ -969,19 +1064,13 @@ void set_running_state(bool running, bool request_stop)
 //
 void update_debug_info(bool script_changed)
 {
-/*
-    [debugWindowController setScriptName:nsstr(get_script_file_name())];
-    [debugWindowController setScriptLine:get_line_num()];
-    [debugWindowController setCommandText:nsstr(get_line_string())];
-
+    MainWindow::obj->ui->fileNameTextEdit->setText(get_script_file_name());
+    MainWindow::obj->ui->lineNumberEdit->setText(QString::number(get_line_num()));
+    MainWindow::obj->ui->commandEdit->setText(get_line_string());
     if (script_changed)
-        [debugWindowController updateScriptTableView];
-
-    [debugWindowController scrollScriptTableView];
-    
-	if (check_variable_updated() || script_changed)
-		[debugWindowController updateVariableTextField];
-*/
+        MainWindow::obj->updateScriptView();
+    if (check_variable_updated() || script_changed)
+        MainWindow::obj->updateVariableText();
 }
 
 }; // extern "C"

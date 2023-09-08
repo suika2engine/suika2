@@ -7,20 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>1280</width>
-    <height>760</height>
+    <height>740</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="continutButton">
+   <widget class="QPushButton" name="continueButton">
     <property name="geometry">
      <rect>
       <x>950</x>
       <y>0</y>
       <width>100</width>
-      <height>32</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -58,7 +58,7 @@
      <rect>
       <x>950</x>
       <y>40</y>
-      <width>141</width>
+      <width>321</width>
       <height>16</height>
      </rect>
     </property>
@@ -66,12 +66,12 @@
      <string>Script file name:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="fileNameEdit">
+   <widget class="QLineEdit" name="fileNameTextEdit">
     <property name="geometry">
      <rect>
       <x>950</x>
       <y>60</y>
-      <width>221</width>
+      <width>191</width>
       <height>21</height>
      </rect>
     </property>
@@ -81,7 +81,7 @@
      <rect>
       <x>950</x>
       <y>90</y>
-      <width>151</width>
+      <width>321</width>
       <height>16</height>
      </rect>
     </property>
@@ -110,6 +110,198 @@
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="updateScriptButton">
+    <property name="geometry">
+     <rect>
+      <x>1150</x>
+      <y>60</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="openScriptButton">
+    <property name="geometry">
+     <rect>
+      <x>1240</x>
+      <y>60</y>
+      <width>31</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="updateLineNumberButton">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>110</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="commandLabel">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>140</y>
+      <width>321</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Script command to be executed:</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="commandEdit">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>160</y>
+      <width>241</width>
+      <height>70</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="updateCommandButton">
+    <property name="geometry">
+     <rect>
+      <x>1200</x>
+      <y>160</y>
+      <width>70</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="resetCommandButton">
+    <property name="geometry">
+     <rect>
+      <x>1200</x>
+      <y>190</y>
+      <width>70</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reset</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="scriptContentLabel">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>240</y>
+      <width>321</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Script content:</string>
+    </property>
+   </widget>
+   <widget class="QListView" name="scriptListView">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>260</y>
+      <width>321</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="errorButton">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>530</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Search error</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="overwriteButton">
+    <property name="geometry">
+     <rect>
+      <x>1100</x>
+      <y>530</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Overwrite</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="reloadButton">
+    <property name="geometry">
+     <rect>
+      <x>1190</x>
+      <y>530</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reload</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>560</y>
+      <width>321</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Variables (non-initial value):</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="variableTextEdit">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>580</y>
+      <width>321</width>
+      <height>101</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="writeButton">
+    <property name="geometry">
+     <rect>
+      <x>1190</x>
+      <y>690</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Write</string>
     </property>
    </widget>
   </widget>

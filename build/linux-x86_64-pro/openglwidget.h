@@ -36,11 +36,15 @@ private:
     bool m_isFirstFrame;
 
     // OpenGL rendering scale and offsets for mouse coordinate calculations.
-    float m_scale;
-    float m_viewportX;
-    float m_viewportY;
-    float m_viewportWidth;
-    float m_viewportHeight;
+    int m_viewportX;
+    int m_viewportY;
+    int m_viewportWidth;
+    int m_viewportHeight;
+
+    // View mouse scale and origin.
+    float m_mouseScale;
+    int m_mouseLeft;
+    int m_mouseTop;
 };
 
 #endif // OPENGLWIDGET_H
