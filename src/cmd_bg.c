@@ -125,6 +125,7 @@ static bool init(void)
 	set_ch_file_name(CH_RIGHT, NULL);
 	set_ch_file_name(CH_LEFT, NULL);
 	set_ch_file_name(CH_CENTER, NULL);
+	change_bg_attributes(0, 0);
 
 	/* メッセージボックスを消す (msgbox.show.on.bg=2) */
 	if (conf_msgbox_show_on_bg == 2) {
