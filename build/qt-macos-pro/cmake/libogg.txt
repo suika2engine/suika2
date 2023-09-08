@@ -1,0 +1,14 @@
+project(ogg)
+
+set(CMAKE_AUTOUIC OFF)
+set(CMAKE_AUTOMOC OFF)
+set(CMAKE_AUTORCC OFF)
+
+add_library(
+	ogg
+	STATIC
+	src/framing.c
+	src/bitwise.c
+)
+
+include_directories(include)
