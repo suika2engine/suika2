@@ -1258,6 +1258,13 @@ static struct rule {
 
 #define RULE_TBL_SIZE	((int)(sizeof(rule_tbl) / sizeof(struct rule)))
 
+/* グローバルセーブデータに保存するキーのテーブル */
+const char *global_tbl[] = {
+	"locale.force",
+};
+
+#define GLOBAL_TBL_SIZE	((int)(sizeof(global_tbl) / sizeof(bool)))
+
 /* 各コンフィグがロード済みかどうか */
 static bool loaded_tbl[RULE_TBL_SIZE];
 
@@ -1674,13 +1681,13 @@ static bool overwrite_config_font_file(const char *val)
 }
 
 /*
- * コンフィグのローカルセーブデータへの書き出し関連
+ * コンフィグのセーブデータへの書き出し関連
  */
 
 /*
  * セーブデータに書き出すコンフィグの値を取得する
  */
-const char *get_config_key_for_local_save_data(int index)
+const char *get_config_key_for_save_data(int index)
 {
 	int i, save_key_count;
 
@@ -1693,6 +1700,19 @@ const char *get_config_key_for_local_save_data(int index)
 		save_key_count++;
 	}
 	return NULL;
+}
+
+/*
+ * コンフィグをグローバルセーブデータにするかを取得する
+ */
+bool is_config_key_global(const char *key)
+{
+	int i;
+
+	for (i = 0; i < GLOBAL_TBL_SIZE; i++)
+		if (strcmp(global_tbl[i], key) == 0)
+			return true;
+	return false;
 }
 
 /*

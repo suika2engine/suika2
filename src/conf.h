@@ -400,7 +400,10 @@ bool apply_initial_values(void);
 bool overwrite_config(const char *key, const char *val);
 
 /* セーブデータに書き出すコンフィグの値を取得する */
-const char *get_config_key_for_local_save_data(int index);
+const char *get_config_key_for_save_data(int index);
+
+/* コンフィグをグローバルセーブデータにするかを取得する */
+bool is_config_key_global(const char *key);
 
 /* コンフィグの型を取得する('s', 'i', 'f') */
 char get_config_type_for_key(const char *key);
