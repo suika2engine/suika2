@@ -2,6 +2,10 @@
 
 set -eu
 
+# Qt installation folder.
+QT_DIR=/mnt/c/Qt/6.2.4/mingw_64/lib/cmake
+QT_CMAKE=/mnt/c/Qt/Tools/CMake_64/bin/cmake.exe
+
 # Copy dependency source files to $DEPS directory.
 DEPS=deps
 
@@ -11,6 +15,20 @@ SUIKA2_ROOT="../.."
 # Reconstruct $DEPS
 rm -rf "$DEPS"
 mkdir "$DEPS"
+
+# Copy source files that uses Qt6 to ./
+# Note that the original files have "qt" prefixes and we remove them when copy.
+SRC_QT="\
+	glwrapper.cpp \
+	mainwindow.cpp \
+	openglwidget.cpp \
+	main.cpp \
+	mainwindow.h \
+	openglwidget.h \
+"
+for file in $SRC_QT; do
+    cp "$SUIKA2_ROOT/src/qt$file" "$DEPS/$file"
+done
 
 # Copy Suika2 source files to $DEPS directory.
 SRC="\
@@ -150,3 +168,11 @@ cp cmake/libvorbis.txt "$DEPS/libvorbis/CMakeLists.txt"
 tar xzf "$SUIKA2_ROOT/build/libsrc/freetype-2.9.1.tar.gz" -C "$DEPS"
 mv "$DEPS/freetype-2.9.1" "$DEPS/freetype"
 cp cmake/freetype.txt "$DEPS/freetype/CMakeLists.txt"
+
+# Build
+QT_PATH=`wslpath -w "$QT_PATH"`
+QT_CMAKE=`wslpath -w "$QT_CMAKE"`
+rm -rf build
+mkdir build
+cd build
+powershell.exe -Command "& '$QT_CMAKE' -D$QT_PATH .."
