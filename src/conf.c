@@ -1263,7 +1263,7 @@ const char *global_tbl[] = {
 	"locale.force",
 };
 
-#define GLOBAL_TBL_SIZE	((int)(sizeof(global_tbl) / sizeof(bool)))
+#define GLOBAL_TBL_SIZE	((int)(sizeof(global_tbl) / sizeof(const char*)))
 
 /* 各コンフィグがロード済みかどうか */
 static bool loaded_tbl[RULE_TBL_SIZE];
