@@ -1,22 +1,606 @@
 ###
-### Configuration
-###  - Note that when given the option of '0' or '1' in 'optional' settings,
-###    '0' is default unless otherwise noted.
-###  - It's good practice to keep a default configuration file for reference.
-###  - Be careful when migrating your config.txt file between Suika2 versions,
-###    removing configuration settings or their values will result in errors.
+### コンフィグファイル
+###  - 全般的な設定が行えます
+###  - ほとんどの項目は、WMSを使えばゲームの中で変更できます
+###  - 省略可能で0か1の値を取る項目は、指定しないと0になります
+###  - 利用するSuika2のバージョンを上げるときは、新規追加されたコンフィグを書き足してくだだい
 ###
 
+### For English users, rename config-english-sample.txt to config.txt
+
 ###
-### Language Settings
+### ウィンドウの設定
 ###
 
-# Locale (Optional)
-#  - This config forces the English locale
-#  - Remove the following line to use a user's OS locale
-locale.force=en
+# ウィンドウのタイトル
+window.title=Suika
 
-# Language mapping (system locale => story language) (Optional)
+# ウィンドウの幅
+window.width=1280
+
+# ウィンドウの高さ
+window.height=720
+
+# 背景を白にするか(1:白, 0:黒)
+window.white=1
+
+# メニューバーを表示するか(1:表示する, 0:表示しない)
+window.menubar=0
+
+###
+### フォントの設定
+###
+
+# フォントファイル名
+font.file=yasashisa.ttf
+
+# フォントサイズ
+font.size=38
+
+# フォントの色
+font.color.r=255
+font.color.g=255
+font.color.b=255
+
+# フォントの縁取りの色
+font.outline.color.r=128
+font.outline.color.g=128
+font.outline.color.b=128
+
+# アウトラインを取り除くか(0:アウトラインあり, 1:アウトラインなし)
+font.outline.remove=0
+
+# ルビのフォントサイズ
+font.ruby.size=16
+
+###
+### 名前ボックスの設定
+###
+
+# 名前ボックス画像のファイル名
+namebox.file=namebox.png
+
+# 名前ボックス画像を表示する位置
+namebox.x=95
+namebox.y=480
+
+# 名前ボックス画像内のテキスト上端マージン
+namebox.margin.top=6
+
+# 名前の中央揃えをやめるか(0:中央揃え, 1:左揃え)
+namebox.centering.no=0
+
+# 名前を左揃えにするときのテキスト左端マージン
+namebox.margin.left=0
+
+# 名前ボックスを隠す (1:隠す, 0:隠さない) (省略可)
+namebox.hidden=0
+
+###
+### メッセージボックスの設定
+###
+
+# メッセージボックスの背景の画像ファイル名
+msgbox.bg.file=msgbox-bg.png
+
+# メッセージボックスの前景の画像ファイル名
+msgbox.fg.file=msgbox-fg.png
+
+# メッセージボックス画像を表示する位置
+msgbox.x=43
+msgbox.y=503
+
+# メッセージボックス画像内のテキスト左端マージン
+msgbox.margin.left=80
+
+# メッセージボックス画像内のテキスト上端マージン
+msgbox.margin.top=50
+
+# メッセージボックス画像内のテキスト右端マージン
+msgbox.margin.right=80
+
+# メッセージボックス画像内のテキスト下端マージン
+msgbox.margin.bottom=50
+
+# メッセージの行間
+msgbox.margin.line=55
+
+# メッセージの文字間隔
+msgbox.margin.char=0
+
+# メッセージのスピード(毎秒x文字表示する)
+msgbox.speed=20.0
+
+# メッセージボックスを非表示にするボタンの座標(メッセージボックス内の座標, 省略可)
+msgbox.btn.hide.x=1146
+msgbox.btn.hide.y=16
+msgbox.btn.hide.width=29
+msgbox.btn.hide.height=29
+
+# [サンプルでは未使用]
+# メッセージボックス内のセーブボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.save.x=0
+# msgbox.btn.save.y=0
+# msgbox.btn.save.width=0
+# msgbox.btn.save.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のロードボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.load.x=0
+# msgbox.btn.load.y=0
+# msgbox.btn.load.width=0
+# msgbox.btn.load.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のクイックセーブボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.qsave.x=0
+# msgbox.btn.qsave.y=0
+# msgbox.btn.qsave.width=0
+# msgbox.btn.qsave.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のクイックロードボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.qload.x=0
+# msgbox.btn.qload.y=0
+# msgbox.btn.qload.width=0
+# msgbox.btn.qload.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のオートボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.auto.x=0
+# msgbox.btn.auto.y=0
+# msgbox.btn.auto.width=0
+# msgbox.btn.auto.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のスキップボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.skip.x=0
+# msgbox.btn.skip.y=0
+# msgbox.btn.skip.width=0
+# msgbox.btn.skip.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のログボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.history.x=0
+# msgbox.btn.history.y=0
+# msgbox.btn.history.width=0
+# msgbox.btn.history.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のコンフィグボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.config.x=0
+# msgbox.btn.config.y=0
+# msgbox.btn.config.width=0
+# msgbox.btn.config.height=0
+
+# ポイントされているボタンが変化したときのSE(省略可)
+msgbox.btn.change.se=btn-change.ogg
+
+# 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
+msgbox.history.se=click.ogg
+
+# ESCキーでコンフィグ画面を呼び出すときのSE(省略可)
+msgbox.config.se=click.ogg
+
+# メッセージボックスを非表示にするときのSE(省略可)
+msgbox.hide.se=click.ogg
+
+# メッセージボックスを表示するときのSE(省略可)
+msgbox.show.se=click.ogg
+
+# オートモードをキャンセルするときのSE(省略可)
+msgbox.auto.cancel.se=click.ogg
+
+# スキップモードをキャンセルするときのSE(省略可)
+msgbox.skip.cancel.se=click.ogg
+
+# 未読でもスキップする (1: スキップする, 0: スキップしない, 省略時0)
+msgbox.skip.unseen=0
+
+# 全画面小説モードで読んだメッセージを暗くするための設定 (dim=0:無効, dim=1:有効, 省略可)
+msgbox.dim=0
+msgbox.dim.color.r=80
+msgbox.dim.color.g=80
+msgbox.dim.color.b=80
+msgbox.dim.color.outline.r=40
+msgbox.dim.color.outline.g=40
+msgbox.dim.color.outline.b=40
+
+###
+### クリックアニメーションの設定
+###
+
+# クリックアニメーション画像の表示位置
+click.x=1170
+click.y=660
+
+# クリックアニメーションの位置を移動するか(0:移動しない, 1:移動する, 省略可)
+click.move=0
+
+# クリックアニメーション画像のファイル名
+click.file1=click1.png
+
+# クリックアニメーション画像のファイル名 (省略可, click.file16まで指定可能)
+click.file2=click2.png
+click.file3=click3.png
+click.file4=click4.png
+click.file5=click5.png
+click.file6=click5.png
+
+# クリックアニメーションの時間間隔
+click.interval=1.0
+
+# クリックアニメーションを表示しない (1:表示しない, 0:表示する) (省略可)
+click.disable=0
+
+###
+### 選択肢の設定 (@choose, @select, @switch, @news)
+###
+
+# 選択肢（非選択中）画像のファイル名
+switch.bg.file=switch-bg.png
+
+# 選択肢（選択中）画像のファイル名
+switch.fg.file=switch-fg.png
+
+# 選択肢の位置
+switch.x=406
+switch.y=129
+
+# 選択肢の間の縦方向マージン
+switch.margin.y=20
+
+# 選択肢画像のテキストの縦方向マージン
+switch.text.margin.y=12
+
+# ポイントされた項目のテキスト色 (active=0:無効, active=1:有効) (省略可)
+switch.color.active=0
+switch.color.active.body.r=255
+switch.color.active.body.g=0
+switch.color.active.body.b=0
+switch.color.active.outline.r=128
+switch.color.active.outline.g=128
+switch.color.active.outline.b=128
+
+# 選択肢を選択したときの効果音(省略可)
+switch.parent.click.se.file=click.ogg
+
+# @switchで2階層目の選択肢を選択したときの効果音(省略可)
+switch.child.click.se.file=click.ogg
+
+# 選択肢の選択項目が変更されたときのSE(省略可)
+switch.change.se=btn-change.ogg
+
+###
+### セーブ・ロード画面の設定
+###
+
+# セーブデータのサムネイルのサイズ
+save.data.thumb.width=213
+save.data.thumb.height=120
+
+###
+### システムメニューの設定
+###
+
+# システムメニュー画像の座標
+sysmenu.x=731
+sysmenu.y=29
+
+# システムメニュー画像(通常時)のファイル名
+sysmenu.idle.file=sysmenu-idle.png
+
+# システムメニュー画像(選択時)のファイル名
+sysmenu.hover.file=sysmenu-hover.png
+
+# システムメニュー画像(使用できない時)のファイル名
+sysmenu.disable.file=sysmenu-disable.png
+
+# 以下、sysmenu.*.widthを0にするとそのボタンを無効化できます
+
+# システムメニューのクイックセーブボタンの座標(システムメニュー画像内での座標)
+sysmenu.qsave.x=62
+sysmenu.qsave.y=7
+sysmenu.qsave.width=60
+sysmenu.qsave.height=58
+
+# システムメニューのクイックロードボタンの座標(システムメニュー画像内での座標)
+sysmenu.qload.x=123
+sysmenu.qload.y=7
+sysmenu.qload.width=60
+sysmenu.qload.height=58
+
+# システムメニューのセーブボタンの座標(システムメニュー画像内での座標)
+sysmenu.save.x=184
+sysmenu.save.y=7
+sysmenu.save.width=60
+sysmenu.save.height=58
+
+# システムメニューのロードボタンの座標(システムメニュー画像内での座標)
+sysmenu.load.x=245
+sysmenu.load.y=7
+sysmenu.load.width=60
+sysmenu.load.height=58
+
+# システムメニューのオートボタンの座標(システムメニュー画像内での座標)
+sysmenu.auto.x=306
+sysmenu.auto.y=7
+sysmenu.auto.width=60
+sysmenu.auto.height=58
+
+# システムメニューのスキップボタンの座標(システムメニュー画像内での座標)
+sysmenu.skip.x=367
+sysmenu.skip.y=7
+sysmenu.skip.width=60
+sysmenu.skip.height=58
+
+# システムメニューのヒストリボタンの座標(システムメニュー画像内での座標)
+sysmenu.history.x=428
+sysmenu.history.y=7
+sysmenu.history.width=60
+sysmenu.history.height=58
+
+# システムメニューのコンフィグボタンの座標(システムメニュー画像内での座標)
+sysmenu.config.x=489
+sysmenu.config.y=7
+sysmenu.config.width=60
+sysmenu.config.height=58
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン1の座標(システムメニュー画像内での座標) (省略可)
+#sysmenu.custom1.x=0
+#sysmenu.custom1.y=0
+#sysmenu.custom1.width=0
+#sysmenu.custom1.height=0
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン2の座標(システムメニュー画像内での座標) (省略可)
+#sysmenu.custom2.x=0
+#sysmenu.custom2.y=0
+#sysmenu.custom2.width=0
+#sysmenu.custom2.height=0
+
+# システムメニューを呼び出すときのSE(省略可)
+sysmenu.enter.se=click.ogg
+
+# システムメニューをキャンセルするときのSE(省略可)
+sysmenu.leave.se=click.ogg
+
+# システムメニューの選択されている項目が変わったときのSE(省略可)
+sysmenu.change.se=btn-change.ogg
+
+# システムメニューのクイックセーブが選択されたときのSE(省略可)
+sysmenu.qsave.se=click.ogg
+
+# システムメニューのクイックロードが選択されたときのSE(省略可)
+sysmenu.qload.se=click.ogg
+
+# システムメニューのセーブが選択されたときのSE(省略可)
+sysmenu.save.se=click.ogg
+
+# システムメニューのロードが選択されたときのSE(省略可)
+sysmenu.load.se=click.ogg
+
+# システムメニューのオートが選択されたときのSE(省略可)
+sysmenu.auto.se=click.ogg
+
+# システムメニューのスキップが選択されたときのSE(省略可)
+sysmenu.skip.se=click.ogg
+
+# システムメニューのヒストリが選択されたときのSE(省略可)
+sysmenu.history.se=click.ogg
+
+# システムメニューのコンフィグが選択されたときのSE(省略可)
+sysmenu.config.se=click.ogg
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン1が選択されたときのSE(省略可)
+#sysmenu.custom1.se=click.ogg
+
+# [サンプルでは未使用]
+# システムメニューのユーザ定義ボタン2が選択されたときのSE(省略可)
+#sysmenu.custom2.se=click.ogg
+
+# 折りたたみシステムメニュー画像の座標
+sysmenu.collapsed.x=1219
+sysmenu.collapsed.y=29
+
+# 折りたたみシステムメニュー画像(通常時)のファイル名
+sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
+
+# 折りたたみシステムメニュー画像(選択時)のファイル名
+sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
+
+# 折りたたみシステムメニューが選択されたときのSE(省略可)
+sysmenu.collapsed.se=btn-change.ogg
+
+# システムメニューを隠す (2:常に隠す, 1:選択肢以外では隠す, 0:隠さない) (省略可)
+sysmenu.hidden=0
+
+###
+### オートモードの設定
+###
+
+# オートモードバナー画像のファイル名
+automode.banner.file=auto.png
+
+# オートモードバナーの座標
+automode.banner.x=0
+automode.banner.y=126
+
+# オートモードのスピード(1文字あたりx秒待つ)
+automode.speed=0.15
+
+###
+### スキップモードの設定
+###
+
+# スキップモードバナー画像のファイル名
+skipmode.banner.file=skip.png
+
+# スキップモードバナーの座標
+skipmode.banner.x=0
+skipmode.banner.y=186
+
+###
+### システムGUIの設定
+###
+
+# ヒストリとセーブアイテムにルビを表示するか
+gui.ruby=1
+
+# セーブアイテムのフォントサイズ
+gui.save.font.size=36
+
+# セーブアイテムのルビのフォントサイズ
+gui.save.font.ruby.size=16
+
+# ヒストリのフォントサイズ
+gui.history.font.size=36
+
+# ヒストリのルビのフォントサイズ
+gui.history.font.ruby.size=16
+
+# ヒストリの行間
+gui.history.margin.line=36
+
+# ヒストリでカラーを無効にする (1:無効, 0:有効) (省略可)
+gui.history.disable.color=0
+
+###
+### 音量の初期値
+###  - これは初期値で、セーブデータがある場合はそちらが利用される
+###
+
+# BGMのボリューム初期値
+sound.vol.bgm=1.0
+
+# ボイスのボリューム初期値
+sound.vol.voice=1.0
+
+# SEのボリューム初期値
+sound.vol.se=1.0
+
+# キャラクタごとの音量の初期値
+sound.vol.character=1.0
+
+###
+### キャラクタ名ごとに音量を調節するための設定
+###  - セリフの名前が下記に一致した場合、キャラクタごとの音量が適用される
+###  - キャラクタごとの音量はコンフィグ画面から設定可能(0番から15番まで)
+###  - 1番から15番までの15キャラ分について名前を指定可能
+###  - セリフの名前がどれにも一致しないときは0番の音量が利用される
+###
+
+sound.character.name1=みどり
+
+###
+### セリフの色の設定
+###
+
+# セリフの色は名前だけに適用する (1:名前だけ, 0:本文も) (省略可)
+serif.color.name.only=1
+
+# キャラクタごとの色設定
+serif.color1.name=みどり
+serif.color1.r=100
+serif.color1.g=255
+serif.color1.b=100
+serif.color1.outline.r=128
+serif.color1.outline.g=128
+serif.color1.outline.b=128
+
+# 以降、serif.color64まで続くが省略可能
+
+###
+### キャラクタ名と画像ファイルのマッピング
+###
+
+# 話しているキャラクタ以外を自動で暗くするか (0:無効, 1:有効) (省略可)
+character.focus=1
+
+# 「みどり」のキャラクタ名とファイル名の先頭の文字
+character.name1=みどり
+character.file1=001-
+
+# 「？？？」のキャラクタ名とファイル名の先頭の文字
+character.name2=？？？
+character.file2=001-
+
+# 「りな」のキャラクタ名とファイル名の先頭の文字
+character.name3=りな
+character.file3=002-
+
+# 以降、character.name32まで続くが、省略可能
+
+###
+### タップ時のキラキラエフェクト
+###
+
+# キラキラエフェクトを使う (0:使わない, 1:使う(加算), 2:使う(通常)) (省略可)
+kirakira.on=0
+
+# キラキラエフェクトの1フレームの時間 (秒) (省略可)
+kirakira.frame=0.333
+
+# キラキラエフェクトのファイル名 (1から16まで) (省略可)
+#kirakira.file1=kira1.png
+#kirakira.file2=kira2.png
+#kirakira.file3=kira3.png
+#kirakira.file4=kira4.png
+#kirakira.file5=kira5.png
+#kirakira.file6=kira6.png
+#kirakira.file7=kira7.png
+#kirakira.file8=kira8.png
+#kirakira.file9=kira9.png
+
+###
+### その他
+###
+
+# クリックでボイスを止めない (1:止めない, 0:止める) (省略可)
+voice.stop.off=0
+
+# フルスクリーンを無効にする (1:無効にする, 0:有効にする) (省略可)
+window.fullscreen.disable=0
+
+# ウィンドウの最大化を無効にする (1:無効にする, 0:有効にする) (省略可)
+window.maximize.disable=0
+
+# ウィンドウタイトルと章タイトルの間のセパレータ(省略可)
+window.title.separator= 
+
+# 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する) (省略可)
+window.title.chapter.disable=0
+
+# キャラクタの変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
+msgbox.show.on.ch=0
+
+# 背景の変更中にメッセージボックスを隠さない (0:フェードアウト, 1:隠さない, 2:隠す) (省略可)
+msgbox.show.on.bg=0
+
+# 選択肢の表示中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
+msgbox.show.on.choose=0
+
+# セリフをカギカッコで囲う (1:囲う, 0:囲わない) (省略可)
+serif.quote=0
+
+# キャラ/背景の変更中に折りたたみシステムメニューを表示する (1:表示する, 0:表示しない) (省略可)
+# (ロゴ画面を簡単に作るために、スキップの禁止中、折りたたみシステムメニューは常に表示されません)
+sysmenu.transition=0
+
+# 上キーとマウスホイールでヒストリを表示しない (1:表示しない, 0:表示する) (省略可)
+msgbox.history.disable=0
+
+###
+### 言語設定 (省略可)
+###
+
+# システムの地域設定の上書き (省略可)
+#  - Web版は日本がデフォルトなので、英語を指定したい場合などにご使用ください
+# locale.force=en
+
+# 言語マッピング (OS設定からシナリオ記述へ) (省略可)
 language.en=en
 language.fr=fr
 language.de=de
@@ -30,594 +614,12 @@ language.ja=ja
 language.other=en
 
 ###
-### Window Settings
+### リリースモード
+###  - ZIPで配布する場合には無効にしてください
+###  - インストーラを作成してゲームを"Program Files"にインストールする場合にだけお使いください
+###  - 有効にするとセーブデータがAppData以下に保存されます
+###  - "Program Files"以下にはセーブデータを保存できないため、この機能があります
 ###
 
-# Window title
-window.title=Suika
-
-# Window width
-window.width=1280
-
-# Window height
-window.height=720
-
-# Background color (0:black, 1:white)
-window.white=1
-
-# Show menu bar (0:don't show, 1:show)
-window.menubar=1
-
-###
-### Font Settings
-###
-
-# Font file name
-font.file=VL-PGothic-Regular.ttf
-
-# Font size
-font.size=30
-
-# Font color
-font.color.r=255
-font.color.g=255
-font.color.b=255
-
-# Font outline color
-font.outline.color.r=128
-font.outline.color.g=128
-font.outline.color.b=128
-
-# Font outline (0:show, 1:hide)
-font.outline.remove=0
-
-# Ruby font size
-font.ruby.size=16
-
-###
-### Namebox Settings
-###
-
-# Namebox image file name
-namebox.file=namebox.png
-
-# Position to show the namebox image
-namebox.x=95
-namebox.y=480
-
-# Top margin of text in the namebox image
-namebox.margin.top=11
-
-# Center namebox text (0:center, 1:left justified)
-namebox.centering.no=0
-
-# Left margin of text in the namebox image when left justified (Optional)
-namebox.margin.left=0
-
-# Hide namebox (0:show, 1:hide) (Optional)
-namebox.hidden=0
-
-###
-### Message Box Settings
-###
-
-# Message box (background) image file name
-msgbox.bg.file=msgbox-bg.png
-
-# Message box (foreground) image file name
-msgbox.fg.file=msgbox-fg.png
-
-# Position to show the message box image
-msgbox.x=43
-msgbox.y=503
-
-# Left margin of text in the message box image
-msgbox.margin.left=80
-
-# Top margin of text in the message box image
-msgbox.margin.top=50
-
-# Right margin of text in the message box image
-msgbox.margin.right=80
-
-# Line spacing
-msgbox.margin.line=40
-
-# Character spacing
-msgbox.margin.char=0
-
-# Message speed (x characters per second)
-msgbox.speed=40.0
-
-# Position of the hide button (position inside message box) (Optional)
-msgbox.btn.hide.x=1146
-msgbox.btn.hide.y=16
-msgbox.btn.hide.width=29
-msgbox.btn.hide.height=29
-
-# [Unused in the sample]
-# Position of the save button (position inside message box) (Optional)
-# msgbox.btn.save.x=0
-# msgbox.btn.save.y=0
-# msgbox.btn.save.width=0
-# msgbox.btn.save.height=0
-
-# [Unused in the sample]
-# Position of the load button (position inside message box) (Optional)
-# msgbox.btn.load.x=0
-# msgbox.btn.load.y=0
-# msgbox.btn.load.width=0
-# msgbox.btn.load.height=0
-
-# [Unused in the sample]
-# Position of the qsave button (position inside message box) (Optional)
-# msgbox.btn.qsave.x=0
-# msgbox.btn.qsave.y=0
-# msgbox.btn.qsave.width=0
-# msgbox.btn.qsave.height=0
-
-# [Unused in the sample]
-# Position of the qload button (position inside message box) (Optional)
-# msgbox.btn.qload.x=0
-# msgbox.btn.qload.y=0
-# msgbox.btn.qload.width=0
-# msgbox.btn.qload.height=0
-
-# [Unused in the sample]
-# Position of the auto button (position inside message box) (Optional)
-# msgbox.btn.auto.x=0
-# msgbox.btn.auto.y=0
-# msgbox.btn.auto.width=0
-# msgbox.btn.auto.height=0
-
-# [Unused in the sample]
-# Position of the skip button (position inside message box) (Optional)
-# msgbox.btn.skip.x=0
-# msgbox.btn.skip.y=0
-# msgbox.btn.skip.width=0
-# msgbox.btn.skip.height=0
-
-# [Unused in the sample]
-# Position of the history button (position inside message box) (Optional)
-# msgbox.btn.history.x=0
-# msgbox.btn.history.y=0
-# msgbox.btn.history.width=0
-# msgbox.btn.history.height=0
-
-# [Unused in the sample]
-# Position of the config button (position inside message box) (Optional)
-# msgbox.btn.config.x=0
-# msgbox.btn.config.y=0
-# msgbox.btn.config.width=0
-# msgbox.btn.config.height=0
-
-# Sound effect when pointed button changed (Optional)
-msgbox.btn.change.se=btn-change.ogg
-
-# Sound effect when the history screen is called with the up arrow key or mouse wheel up (Optional)
-msgbox.history.se=click.ogg
-
-# Sound effect when the confix screen is called with the ESC key (Optional)
-msgbox.config.se=click.ogg
-
-# Sound effect when the user hides the message box (Optional)
-msgbox.hide.se=click.ogg
-
-# Sound effect when the user shows the messsage box (Optional)
-msgbox.show.se=click.ogg
-
-# Sound effect when auto mode is canceled (Optional)
-msgbox.auto.cancel.se=click.ogg
-
-# Sound effect when skip mode is canceled (Optional)
-msgbox.skip.cancel.se=click.ogg
-
-# Unseen messages (0:don't skip, 1: skip)
-msgbox.skip.unseen=0
-
-# Settings for dimming read messages in NVL mode (dim=0:disable, dim=1:enable) (Optional)
-msgbox.dim=0
-msgbox.dim.color.r=80
-msgbox.dim.color.g=80
-msgbox.dim.color.b=80
-msgbox.dim.color.outline.r=40
-msgbox.dim.color.outline.g=40
-msgbox.dim.color.outline.b=40
-
-###
-### Click Animation Settings
-###
-
-# Position to show the click animation image
-click.x=1170
-click.y=660
-
-# Append the click animation to the end of each message (0:don't append, 1:append) (Optional)
-click.move=0
-
-# Click animation image file name
-click.file1=click1.png
-
-# Other click animation image file names (optional, continues to click.file16)
-click.file2=click2.png
-click.file3=click3.png
-click.file4=click4.png
-click.file5=click5.png
-click.file6=click5.png
-
-# Click animation interval (seconds)
-click.interval=1.0
-
-# Click animation (0:show, 1:hide) (Optional)
-click.disable=0
-
-###
-### Options Settings (@choose, @select, @switch, @news)
-###
-
-# Option box (non-selected) image file name
-switch.bg.file=switch-bg.png
-
-# Option box (selected) image file name
-switch.fg.file=switch-fg.png
-
-# Position of the first option box
-switch.x=406
-switch.y=129
-
-# Vertical space between the option box images
-switch.margin.y=20
-
-# Top margin of text in the option box image
-switch.text.margin.y=18
-
-# Text color of pointed option (active=0:disable, active=1:enable) (Optional)
-switch.color.active=0
-switch.color.active.body.r=255
-switch.color.active.body.g=0
-switch.color.active.body.b=0
-switch.color.active.outline.r=128
-switch.color.active.outline.g=128
-switch.color.active.outline.b=128
-
-# Click sound file when the option is clicked (optional)
-switch.parent.click.se.file=click.ogg
-
-# (Only for @switch) Click sound file when the second level option is clicked (Optional)
-switch.child.click.se.file=click.ogg
-
-# Sound effect when the pointed item changes (Optional)
-switch.change.se=btn-change.ogg
-
-###
-### Save/Load Screen Settings
-###
-
-# Thumbnail size
-save.data.thumb.width=213
-save.data.thumb.height=120
-
-###
-### System Menu Settings
-###
-
-# Position to show the system menu image
-sysmenu.x=731
-sysmenu.y=29
-
-# System menu image (base) file name
-sysmenu.idle.file=sysmenu-idle.png
-
-# System menu image (pointed) file name
-sysmenu.hover.file=sysmenu-hover.png
-
-# System menu image (disabled) file name
-sysmenu.disable.file=sysmenu-disable.png
-
-# You can disable buttons by setting sysmenu.*.with=0
-
-# Position of the quick save button (position inside system menu image)
-sysmenu.qsave.x=62
-sysmenu.qsave.y=7
-sysmenu.qsave.width=60
-sysmenu.qsave.height=58
-
-# Position of the quick load button (position inside system menu image)
-sysmenu.qload.x=123
-sysmenu.qload.y=7
-sysmenu.qload.width=60
-sysmenu.qload.height=58
-
-# Position of the save button (Position inside system menu image)
-sysmenu.save.x=184
-sysmenu.save.y=7
-sysmenu.save.width=60
-sysmenu.save.height=58
-
-# Position of the load button (Position inside system menu image)
-sysmenu.load.x=245
-sysmenu.load.y=7
-sysmenu.load.width=60
-sysmenu.load.height=58
-
-# Position of the auto button (Position inside system menu image)
-sysmenu.auto.x=306
-sysmenu.auto.y=7
-sysmenu.auto.width=60
-sysmenu.auto.height=58
-
-# Position of the skip button (Position inside system menu image)
-sysmenu.skip.x=367
-sysmenu.skip.y=7
-sysmenu.skip.width=60
-sysmenu.skip.height=58
-
-# Position of the history button (Position inside system menu image)
-sysmenu.history.x=428
-sysmenu.history.y=7
-sysmenu.history.width=60
-sysmenu.history.height=58
-
-# Position of the config button (Position inside system menu image)
-sysmenu.config.x=489
-sysmenu.config.y=7
-sysmenu.config.width=60
-sysmenu.config.height=58
-
-# [Unused in the sample]
-# Position of the user-defined-1 button (Position inside system menu image) (Optional)
-#sysmenu.custom1.x=0
-#sysmenu.custom1.y=0
-#sysmenu.custom1.width=0
-#sysmenu.custom1.height=0
-
-# [Unused in the sample]
-# Position of the user-defined-2 button (Position inside system menu image) (Optional)
-#sysmenu.custom2.x=0
-#sysmenu.custom2.y=0
-#sysmenu.custom2.width=0
-#sysmenu.custom2.height=0
-
-# Sound effect when the system menu is called (Optional)
-sysmenu.enter.se=click.ogg
-
-# Sound effect when the system menu is canceled (Optional)
-sysmenu.leave.se=click.ogg
-
-# Sound effect when the selected item in the system menu is changed (Optional)
-sysmenu.change.se=btn-change.ogg
-
-# Sound effect when quick save is selected (Optional)
-sysmenu.qsave.se=click.ogg
-
-# Sound effect when quick load is selected (Optional)
-sysmenu.qload.se=click.ogg
-
-# Sound effect when save is selected (Optional)
-sysmenu.save.se=click.ogg
-
-# Sound effect when load is selected (Optional)
-sysmenu.load.se=click.ogg
-
-# Sound effect when auto is selected (Optional)
-sysmenu.auto.se=click.ogg
-
-# Sound effect when skip is selected (Optional)
-sysmenu.skip.se=click.ogg
-
-# Sound effect when history is selected (Optional)
-sysmenu.history.se=click.ogg
-
-# Sound effect when config is selected (Optional)
-sysmenu.config.se=click.ogg
-
-# [Unused in the sample]
-# Sound effect when user-defined-1 is selected (Optional)
-#sysmenu.custom1.se=click.ogg
-
-# [Unused in the sample]
-# Sound effect when user-defined-2 is selected (Optional)
-#sysmenu.custom2.se=click.ogg
-
-# Position of the collapsed system menu image
-sysmenu.collapsed.x=1219
-sysmenu.collapsed.y=29
-
-# Collapsed system menu image (base) file name
-sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
-
-# Collapsed system menu image (pointed) file name
-sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
-
-# Sound effect when the collapsed system menu is pointed (Optional)
-sysmenu.collapsed.se=btn-change.ogg
-
-# System menu (0:show, 1:hide on message, 2:hide always) (Optional)
-sysmenu.hidden=0
-
-###
-### Auto Mode Settings
-###
-
-# Auto mode banner image file
-automode.banner.file=auto.png
-
-# Position of the auto mode banner
-automode.banner.x=0
-automode.banner.y=126
-
-# Auto mode speed (x seconds per character)
-automode.speed=0.15
-
-###
-### Skip Mode Settings
-###
-
-# Skip mode banner image file
-skipmode.banner.file=skip.png
-
-# Position of the skip mode banner
-skipmode.banner.x=0
-skipmode.banner.y=186
-
-###
-### System GUI Settings
-###
-
-# Add ruby to history and save items (1:add, 0:none) (Optional)
-gui.ruby=1
-
-# Font size for save items (Optional)
-gui.save.font.size=36
-
-# Ruby font size for save items (Optional)
-gui.save.font.ruby.size=16
-
-# Font size for history items (Optional)
-gui.history.font.size=36
-
-# Ruby font size for history items (Optional)
-gui.history.font.ruby.size=16
-
-# Line margin for history items (Optional)
-gui.history.margin.line=36
-
-# Disable color in history (1:disable, 0:enable) (Optional)
-gui.history.disable.color=0
-
-###
-### Initial Sound Volumes
-###  - Note that these are the initial values.
-###  - If a user has the save data, then volume settings in the save data
-###    will be used.
-###
-
-# Initial volume of BGM
-sound.vol.bgm=1.0
-
-# Initial volume of voice
-sound.vol.voice=1.0
-
-# Initial volume of sound effect
-sound.vol.se=1.0
-
-# Initial value of per-character volumes
-sound.vol.character=1.0
-
-###
-### Settings For Per-Character Voice Volume
-###  - If the character name of the message matches to the following name list,
-###    then the per-character volume will be applied.
-###  - Per-character volumes can be set in the config screen. (#0 to #15)
-###  - You can specify the names for 15 characters (#1 to #15)
-###  - If the character name of the message doesn't match the following
-###    names, then the #0 per-character volume will be used.
-###
-
-sound.character.name1=Midori
-
-###
-### Character Message Colors
-###
-
-# Change colors of line (1:name-only, 0:name-and-message) (Optional)
-serif.color.name.only=1
-
-# A color definition (Optional)
-serif.color1.name=Midori
-serif.color1.r=100
-serif.color1.g=255
-serif.color1.b=100
-serif.color1.outline.r=128
-serif.color1.outline.g=128
-serif.color1.outline.b=128
-
-# Continues to serif.color64, but omissible
-
-###
-### キャラクタ名と画像ファイルのマッピング
-###
-
-# Dim characters except one who is speaking (1:Dim, 1:No) (Optional)
-character.focus=1
-
-# A character name and a file name prefix for Midori (Optional)
-character.name1=Midori
-character.file1=001-
-
-# A character name and a file name prefix for ??? (Optional)
-character.name2=???
-character.file2=001-
-
-# A character name and a file name prefix for Rina (Optional)
-character.name3=Rina
-character.file3=002-
-
-# Continues to character.name32, but omissible
-
-###
-### Effect for Taps (Kirakira)
-###
-
-# Use Kirakira (0:No, 1:Yes(Add), 2:Yes(Normal)) (Optional)
-kirakira.on=0
-
-# A frame length in seconds (Optional)
-kirakira.frame=0.333
-
-# Effect file names (up to 16) (Optional)
-#kirakira.file1=kira1.png
-#kirakira.file2=kira2.png
-#kirakira.file3=kira3.png
-#kirakira.file4=kira4.png
-#kirakira.file5=kira5.png
-#kirakira.file6=kira6.png
-#kirakira.file7=kira7.png
-#kirakira.file8=kira8.png
-#kirakira.file9=kira9.png
-
-###
-### Miscellaneous
-###
-
-# Voice continues on click (0:stop, 1:continue) (Optional)
-voice.stop.off=0
-
-# Full screen mode (0:enable, 1:disable) (Optional)
-window.fullscreen.disable=0
-
-# Window maximization (0:enable, 1:disable) (Optional)
-window.maximize.disable=0
-
-# Separator between window title and chapter name (Optional)
-window.title.separator= 
-
-# Chapter name (appended to window title) (0:show, 1:hide) (Optional)
-window.title.chapter.disable=0
-
-# Message box on character change (0:hide, 1:show) (Optional)
-msgbox.show.on.ch=0
-
-# Message box on background change (0:fade-out, 1:show, 2:hide) (Optional)
-msgbox.show.on.bg=0
-
-# Message box on options (1:show, 0:hide) (Optional)
-msgbox.show.on.choose=0
-
-# Show the collapsed system menu while the characters/background is changing (0:hide, 1:show) (Optional)
-# (The collapsed system menu always disappears while skip is disabled because we want to make a logo screen easily.)
-sysmenu.transition=0
-
-# Don't show history on up-arrow key or mouse wheel (1:Don't show, 0:Show) (Optional)
-msgbox.history.disable=0
-
-###
-### Release Mode
-###  - Turn off this mode if you distribute a zip file
-###  - Use this mode only when installing games to the "Program Files" folder by an installer
-###  - If this configuration is enabled, save data will be stored in OS-specific
-###    locations such as 'AppData' on Windows and 'Library' on macOS
-###
-
-# Release mode (0:off, 1:on) (Optional)
+# リリースモード(0:無効, 1:有効) (省略可)
 release=0
