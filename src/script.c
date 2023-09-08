@@ -1812,12 +1812,16 @@ static bool process_if_block(struct rfile *rf, const char *raw, char *params)
 		}
 
 		/* elseを処理したとき */
-		if (accepted == SMODE_ACCEPT_ELSEIF) {
+		if (accepted == SMODE_ACCEPT_ELSE) {
 			state = SMODE_ACCEPT_ELSECLOSE |
 				SMODE_ACCEPT_SWITCH |
 				SMODE_ACCEPT_IF;
 			continue;
 		}
+
+		/* elseが"}"で閉じられたとき */
+		if (accepted == SMODE_ACCEPT_ELSECLOSE)
+			break;
 
 		assert(NEVER_COME_HERE);
 	}
