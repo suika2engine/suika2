@@ -22,6 +22,13 @@
 #define CHAR_KUTEN		(0x3002)
 #define CHAR_YENSIGN		(0x00a5)
 
+/* フォントタイプ */
+#define FONT_GLOBAL		(0)
+#define FONT_MAIN		(1)
+#define FONT_ALT1		(2)
+#define FONT_ALT2		(3)
+#define FONT_COUNT		(4)
+
 /* フォントレンダラの初期化処理を行う */
 bool init_glyph(void);
 
@@ -56,9 +63,6 @@ bool set_global_font_file_name(const char *file);
 /* グローバルのフォントファイル名を取得する */
 const char *get_global_font_file_name(void);
 
-/* ローカルのフォントファイル名を設定する */
-bool set_local_font_file_name(const char *file);
-
 /* 現在のフォントファイル名を取得する */
 const char *get_font_file_name(void);
 
@@ -70,5 +74,11 @@ bool set_font_size(int size);
 
 /* フォントサイズを取得する */
 int get_font_size(void);
+
+/* フォントを選択する */
+void select_font(int type);
+
+/* フォントのふちどりの有無を設定する */
+void set_font_outline(bool is_enabled);
 
 #endif

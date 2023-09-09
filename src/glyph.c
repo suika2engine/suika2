@@ -29,27 +29,29 @@
 
 #define SCALE	(64)
 
-/* グローバルセーブデータのフォントファイル名 */
-static char *global_font_file;
-
-/* ローカルセーブデータのフォントファイル名 */
-static char *local_font_file;
-
-/* 初期化済みか(Android用) */
-static bool is_initialized;
+/* フォントファイル名 */
+static char *font_file_name_tbl[FONT_COUNT];
 
 /* FreeType2のオブジェクト */
 static FT_Library library;
-static FT_Face face;
-static FT_Byte *font_file_content;
-static FT_Long font_file_size;
+static FT_Face face[FONT_COUNT];
+static FT_Byte *font_file_content[FONT_COUNT];
+static FT_Long font_file_size[FONT_COUNT];
 
+/* 選択されたフォント */
+static int selected_font;
+
+/* フォントサイズ */
 static int font_size;
+
+/* フォントのふちどり */
+static bool is_outline_enabled;
 
 /*
  * 前方参照
  */
-static bool read_font_file_content(void);
+static bool read_font_file_content(const char *file_name, FT_Byte **content,
+				   FT_Long *size);
 static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				       pixel_t color, uint32_t codepoint,
 				       int *w, int *h, int base_font_size,
@@ -71,21 +73,27 @@ static void draw_glyph_dim_func(unsigned char * RESTRICT font,
  */
 bool init_glyph(void)
 {
+	const char *fname;
 	FT_Error err;
+	int i;
 
-	/* Android用, もしくはフォント変更時用 */
-	if (face != NULL) {
-		FT_Done_Face(face);
-		face = NULL;
+#ifdef ANDROID
+	/* Android用 */
+	for (i = 0; i < FONT_COUNT; i++) {
+		if (face[i] != NULL) {
+			FT_Done_Face(face[i]);
+			face[i] = NULL;
+		}
+		if (font_file_content[i] != NULL) {
+			free(font_file_content[i]);
+			font_file_content[i] = NULL;
+		}
 	}
 	if (library != NULL) {
 		FT_Done_FreeType(library);
 		library = NULL;
 	}
-	if (font_file_content != NULL) {
-		free(font_file_content);
-		font_file_content = NULL;
-	}
+#endif
 
 	/* FreeType2ライブラリを初期化する */
 	err = FT_Init_FreeType(&library);
@@ -94,73 +102,52 @@ bool init_glyph(void)
 		return false;
 	}
 
-	/* フォントファイルの内容を読み込む */
-	if (!read_font_file_content())
-		return false;
-	
-	/* フォントファイルを読み込む */
-	err = FT_New_Memory_Face(library, font_file_content, font_file_size,
-				 0, &face);
-	if (err != 0) {
-		log_font_file_error(conf_font_file);
-		return false;
-	}
-
-	/* 文字サイズをセットする */
-	err = FT_Set_Pixel_Sizes(face, 0, (FT_UInt)conf_font_size);
-	if (err != 0) {
-		log_api_error("FT_Set_Pixel_Sizes");
-		return false;
-	}
-
-	/* 成功 */
-	is_initialized = true;
-	return true;
-}
-
-/* フォントファイルの内容を読み込む */
-static bool read_font_file_content(void)
-{
-	struct rfile *rf;
-	FT_Long remain, block;
-
-	/* フォントファイルを開く */
-	rf = open_rfile(FONT_DIR, get_font_file_name(), false);
-	if (rf == NULL)
-		return false;
-
-	/* フォントファイルのサイズを取得する */
-	font_file_size = (FT_Long)get_rfile_size(rf);
-	if (font_file_size == 0) {
-		log_font_file_error(conf_font_file);
-		close_rfile(rf);
-		return false;
-	}
-
-	/* メモリを確保する */
-	font_file_content = malloc((size_t)font_file_size);
-	if (font_file_content == NULL) {
-		log_memory();
-		close_rfile(rf);
-		return false;
-	}
-
-	/* ファイルの内容を読み込む */
-	remain = font_file_size;
-	while (remain > 0) {
-		block = (FT_Long)read_rfile(rf, font_file_content,
-					    (size_t)remain);
-		if (block == 0)
+	/* フォントを読み込む */
+	for (i = 0; i < FONT_COUNT; i++) {
+		/* フォントファイル名を取得する */
+		switch (i) {
+		case FONT_GLOBAL:
+			fname = conf_font_global_file;
 			break;
-		assert(block <= remain);
-		remain -= block;
+		case FONT_MAIN:
+			fname = conf_font_main_file;
+			break;
+		case FONT_ALT1:
+			fname = conf_font_alt1_file;
+			break;
+		case FONT_ALT2:
+			fname = conf_font_alt2_file;
+			break;
+		default:
+			fname = NULL;
+			assert(0);
+			break;
+		}
+		if (fname == NULL)
+			continue;
+		font_file_name_tbl[i] = strdup(fname);
+		if (font_file_name_tbl[i] == NULL) {
+			log_memory();
+			return false;
+		}
+
+		/* フォントファイルの内容を読み込む */
+		if (!read_font_file_content(font_file_name_tbl[i],
+					    &font_file_content[i],
+					    &font_file_size[i]))
+			return false;
+
+		/* フォントファイルを読み込む */
+		err = FT_New_Memory_Face(library,
+					 font_file_content[i],
+					 font_file_size[i],
+					 0,
+					 &face[i]);
+		if (err != 0) {
+			log_font_file_error(font_file_name_tbl[i]);
+			return false;
+		}
 	}
-	if (remain > 0) {
-		log_font_file_error(conf_font_file);
-		close_rfile(rf);
-		return false;
-	}
-	close_rfile(rf);
 
 	return true;
 }
@@ -170,32 +157,70 @@ static bool read_font_file_content(void)
  */
 void cleanup_glyph(bool no_free_file_names)
 {
-	if (face != NULL) {
-		FT_Done_Face(face);
-		face = NULL;
-	}
+	int i;
 
+	for (i = 0; i < FONT_COUNT; i++) {
+		if (face[i] != NULL) {
+			FT_Done_Face(face[i]);
+			face[i] = NULL;
+		}
+		if (font_file_content[i] != NULL) {
+			free(font_file_content[i]);
+			font_file_content[i] = NULL;
+		}
+	}
 	if (library != NULL) {
 		FT_Done_FreeType(library);
 		library = NULL;
 	}
 
-	if (font_file_content != NULL) {
-		free(font_file_content);
-		font_file_content = NULL;
-	}
-
 	if (!no_free_file_names) {
-		if (global_font_file != NULL) {
-			free(global_font_file);
-			global_font_file = NULL;
-		}
-
-		if (local_font_file != NULL) {
-			free(local_font_file);
-			local_font_file = NULL;
+		for (i = 0; i < FONT_COUNT; i++) {
+			if (font_file_name_tbl[i] != NULL) {
+				free(font_file_name_tbl[i]);
+				font_file_name_tbl[i] = NULL;
+			}
 		}
 	}
+}
+
+/* フォントファイルの内容を読み込む */
+static bool read_font_file_content(const char *file_name,
+				   FT_Byte **content,
+				   FT_Long *size)
+{
+	struct rfile *rf;
+
+	/* フォントファイルを開く */
+	rf = open_rfile(FONT_DIR, file_name, false);
+	if (rf == NULL)
+		return false;
+
+	/* フォントファイルのサイズを取得する */
+	*size = (FT_Long)get_rfile_size(rf);
+	if (*size == 0) {
+		log_font_file_error(file_name);
+		close_rfile(rf);
+		return false;
+	}
+
+	/* メモリを確保する */
+	*content = malloc((size_t)*size);
+	if (*content == NULL) {
+		log_memory();
+		close_rfile(rf);
+		return false;
+	}
+
+	/* ファイルの内容を読み込む */
+	if (read_rfile(rf, *content, (size_t)*size) != (size_t)*size) {
+		log_font_file_error(file_name);
+		close_rfile(rf);
+		return false;
+	}
+	close_rfile(rf);
+
+	return true;
 }
 
 /*
@@ -304,7 +329,7 @@ int get_glyph_width(uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size, false);
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, font_size, false);
 
 	return w;
 }
@@ -319,7 +344,7 @@ int get_glyph_height(uint32_t codepoint)
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, conf_font_size, false);
+	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, font_size, false);
 
 	return h;
 }
@@ -383,9 +408,9 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	/* アウトライン(内側)を描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
-	glyphIndex = FT_Get_Char_Index(face, codepoint);
-	FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
-	FT_Get_Glyph(face->glyph, &glyph);
+	glyphIndex = FT_Get_Char_Index(face[selected_font], codepoint);
+	FT_Load_Glyph(face[selected_font], glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face[selected_font]->glyph, &glyph);
 	FT_Glyph_StrokeBorder(&glyph, stroker, true, true);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
@@ -408,9 +433,9 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	/* アウトライン(外側)を描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
-	glyphIndex = FT_Get_Char_Index(face, codepoint);
-	FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
-	FT_Get_Glyph(face->glyph, &glyph);
+	glyphIndex = FT_Get_Char_Index(face[selected_font], codepoint);
+	FT_Load_Glyph(face[selected_font], glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face[selected_font]->glyph, &glyph);
 	FT_Glyph_StrokeBorder(&glyph, stroker, false, true);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
@@ -427,9 +452,9 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 				y - (font_size - base_font_size),
 				outline_color);
 	}
-	descent = (int)(face->glyph->metrics.height / SCALE) -
-		  (int)(face->glyph->metrics.horiBearingY / SCALE);
-	*w = (int)face->glyph->advance.x / SCALE;
+	descent = (int)(face[selected_font]->glyph->metrics.height / SCALE) -
+		  (int)(face[selected_font]->glyph->metrics.horiBearingY / SCALE);
+	*w = (int)face[selected_font]->glyph->advance.x / SCALE;
 	*h = font_size + descent + 2;
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
@@ -437,9 +462,9 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 		return true;
 
 	/* 中身を描画する */
-	glyphIndex = FT_Get_Char_Index(face, codepoint);
-	FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
-	FT_Get_Glyph(face->glyph, &glyph);
+	glyphIndex = FT_Get_Char_Index(face[selected_font], codepoint);
+	FT_Load_Glyph(face[selected_font], glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face[selected_font]->glyph, &glyph);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
 	draw_glyph_func(bitmapGlyph->bitmap.buffer,
@@ -468,7 +493,7 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 	int descent;
 
 	/* 文字をグレースケールビットマップとして取得する */
-	err = FT_Load_Char(face, codepoint, FT_LOAD_RENDER);
+	err = FT_Load_Char(face[selected_font], codepoint, FT_LOAD_RENDER);
 	if (err != 0) {
 		log_api_error("FT_Load_Char");
 		return false;
@@ -476,11 +501,11 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 
 	/* 文字のビットマップを対象イメージに描画する */
 	if (img != NULL && !is_dim) {
-		draw_glyph_func(face->glyph->bitmap.buffer,
-				(int)face->glyph->bitmap.width,
-				(int)face->glyph->bitmap.rows,
-				face->glyph->bitmap_left,
-				font_size - face->glyph->bitmap_top,
+		draw_glyph_func(face[selected_font]->glyph->bitmap.buffer,
+				(int)face[selected_font]->glyph->bitmap.width,
+				(int)face[selected_font]->glyph->bitmap.rows,
+				face[selected_font]->glyph->bitmap_left,
+				font_size - face[selected_font]->glyph->bitmap_top,
 				get_image_pixels(img),
 				get_image_width(img),
 				get_image_height(img),
@@ -488,11 +513,11 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 				y - (font_size - base_font_size),
 				color);
 	} else if (img != NULL && is_dim) {
-		draw_glyph_dim_func(face->glyph->bitmap.buffer,
-				    (int)face->glyph->bitmap.width,
-				    (int)face->glyph->bitmap.rows,
-				    face->glyph->bitmap_left,
-				    font_size - face->glyph->bitmap_top,
+		draw_glyph_dim_func(face[selected_font]->glyph->bitmap.buffer,
+				    (int)face[selected_font]->glyph->bitmap.width,
+				    (int)face[selected_font]->glyph->bitmap.rows,
+				    face[selected_font]->glyph->bitmap_left,
+				    font_size - face[selected_font]->glyph->bitmap_top,
 				    get_image_pixels(img),
 				    get_image_width(img),
 				    get_image_height(img),
@@ -502,11 +527,11 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 	}
 
 	/* descentを求める */
-	descent = (int)(face->glyph->metrics.height / SCALE) -
-		  (int)(face->glyph->metrics.horiBearingY / SCALE);
+	descent = (int)(face[selected_font]->glyph->metrics.height / SCALE) -
+		  (int)(face[selected_font]->glyph->metrics.horiBearingY / SCALE);
 
 	/* 描画した幅と高さを求める */
-	*w = (int)face->glyph->advance.x / SCALE;
+	*w = (int)face[selected_font]->glyph->advance.x / SCALE;
 	*h = font_size + descent;
 
 	return true;
@@ -515,21 +540,22 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 /*
  * グローバルのフォントファイル名を設定する
  *  - init_glyph()よりも前に呼ばれる
- *  - ファイル名が設定されても、init_glyph()を呼び出し直さないと反映されない
+ *  - 最初のinit_glyph()のあとで反映するには、cleanup_glyph(true), init_glyph() の
+ *    順で呼び出す
  */
 bool set_global_font_file_name(const char *file)
 {
-	assert(file != NULL);
-
-	if (global_font_file != NULL) {
-		free(global_font_file);
-		global_font_file = NULL;
+	if (font_file_name_tbl[FONT_GLOBAL] != NULL) {
+		free(font_file_name_tbl[FONT_GLOBAL]);
+		font_file_name_tbl[FONT_GLOBAL] = NULL;
 	}
 
-	global_font_file = strdup(file);
-	if (global_font_file == NULL) {
-		log_memory();
-		return false;
+	if (file != NULL) {
+		font_file_name_tbl[FONT_GLOBAL] = strdup(file);
+		if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
+			log_memory();
+			return false;
+		}
 	}
 
 	return true;
@@ -540,46 +566,34 @@ bool set_global_font_file_name(const char *file)
  */
 const char *get_global_font_file_name(void)
 {
-	assert(global_font_file != NULL);
-	return global_font_file;
+	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
+	return font_file_name_tbl[FONT_GLOBAL];
 }
 
 /*
  * ローカルのフォントファイル名を設定する
  *  - init_glyph()よりも前に呼ばれることはない
- *  - ファイル名が設定されても、init_glyph()を呼び出し直さないと反映されない
- *  - グローバルに従う場合はNULLを指定する
+ *  - 反映するには、cleanup_glyph(true), init_glyph() の順で呼び出す
  */
-bool set_local_font_file_name(const char *file)
+bool set_local_font_file_name(int type, const char *file)
 {
-	if (local_font_file != NULL) {
-		free(local_font_file);
-		local_font_file = NULL;
+	assert(type != FONT_GLOBAL);
+	assert(type == FONT_MAIN || type == FONT_ALT1 || type == FONT_ALT2);
+
+	if (font_file_name_tbl[type] != NULL) {
+		free(font_file_name_tbl[type]);
+		font_file_name_tbl[type] = NULL;
 	}
 
 	if (file != NULL) {
-		local_font_file = strdup(file);
-		if (local_font_file == NULL) {
+		font_file_name_tbl[type] = strdup(file);
+		if (font_file_name_tbl[type] == NULL) {
 			log_memory();
 			return false;
 		}
 	}
 
 	return true;
-}
-
-/*
- * フォントファイル名を取得する
- */
-const char *get_font_file_name(void)
-{
-	/* ローカルなフォント名が有効な場合はそれを適用する */
-	if (local_font_file != NULL)
-		return local_font_file;
-
-	/* それ以外の場合、グローバルなフォント名を適用する */
-	assert(global_font_file != NULL);
-	return global_font_file;
 }
 
 /*
@@ -628,7 +642,7 @@ bool set_font_size(int size)
 	font_size = size;
 
 	/* 文字サイズをセットする */
-	err = FT_Set_Pixel_Sizes(face, 0, (FT_UInt)size);
+	err = FT_Set_Pixel_Sizes(face[selected_font], 0, (FT_UInt)size);
 	if (err != 0) {
 		log_api_error("FT_Set_Pixel_Sizes");
 		return false;
@@ -642,6 +656,50 @@ bool set_font_size(int size)
 int get_font_size(void)
 {
 	return font_size;
+}
+
+/*
+ * フォントを選択する
+ */
+void select_font(int type)
+{
+	assert(type == FONT_GLOBAL || type == FONT_MAIN ||
+	       type == FONT_ALT1 || type == FONT_ALT2);
+
+	if (type == FONT_GLOBAL) {
+		selected_font = FONT_GLOBAL;
+		return;
+	}
+	if (type == FONT_MAIN) {
+		if (font_file_name_tbl[FONT_MAIN] == NULL)
+			selected_font = FONT_GLOBAL;
+		else
+			selected_font = FONT_MAIN;
+		return;
+	}
+	if (type == FONT_ALT1) {
+		if (font_file_name_tbl[FONT_ALT1] == NULL)
+			selected_font = FONT_GLOBAL;
+		else
+			selected_font = FONT_ALT1;
+		return;
+	}
+	if (type == FONT_ALT2) {
+		if (font_file_name_tbl[FONT_ALT2] == NULL)
+			selected_font = FONT_GLOBAL;
+		else
+			selected_font = FONT_ALT2;
+		return;
+	}
+	assert(0);
+}
+
+/*
+ * フォントのふちどりの有無を設定する
+ */
+void set_font_outline(bool is_enabled)
+{
+	is_outline_enabled = is_enabled;
 }
 
 /*

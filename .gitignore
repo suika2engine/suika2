@@ -128,11 +128,6 @@ build/sdl2/*.o
 build/sdl2/libroot
 build/sdl2/suika
 
-# Linux Pro (Qt6)
-build/linux-x86_64-pro/deps
-build/linux-x86_64-pro/build
-build/linux-x86_64-pro/CMakeLists.txt.user
-
 # FreeBSD
 build/freebsd/*.o
 build/freebsd/libroot
@@ -156,6 +151,44 @@ build/switch/*.nsp
 
 # Web
 build/emscripten/html
+
+# New Pro
+
+# New Windows Pro (Qt6)
+build/qt-windows-pro/*.cpp
+build/qt-windows-pro/*.h
+build/qt-windows-pro/deps
+build/qt-windows-pro/build
+build/qt-windows-pro/CMakeLists.txt.user
+build/qt-windows-pro/*.cpp
+build/qt-windows-pro/*.h
+build/qt-windows-pro/*.ui
+
+# New Mac Pro (Qt6)
+build/qt-macos-pro/*.cpp
+build/qt-macos-pro/*.h
+build/qt-macos-pro/deps
+build/qt-macos-pro/build
+build/qt-macos-pro/CMakeLists.txt.user
+build/qt-macos-pro/*.cpp
+build/qt-macos-pro/*.h
+build/qt-macos-pro/*.ui
+
+# New Linux Pro (Qt6)
+<<<<<<< HEAD
+build/qt-linux-pro/deps
+build/qt-linux-pro/build
+build/qt-linux-pro/CMakeLists.txt.user
+build/qt-linux-pro/*.cpp
+build/qt-linux-pro/*.h
+build/qt-linux-pro/*.ui
+=======
+build/qt-linux-pro/*.cpp
+build/qt-linux-pro/*.h
+build/qt-linux-pro/deps
+build/qt-linux-pro/build
+build/qt-linux-pro/CMakeLists.txt.user
+>>>>>>> 71fd44cb913d1d9b978ac7ad7ce2cded5dee57a8
 
 # Tests
 testcases

@@ -23,7 +23,9 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
     // No transparency.
     setAttribute(Qt::WA_TranslucentBackground, false);
-    setAttribute(Qt::WA_AlwaysStackOnTop, true);
+
+    // Receive mouse move events.
+    setMouseTracking(true);
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -102,34 +104,38 @@ void OpenGLWidget::paintGL()
 //
 void OpenGLWidget::resizeGL(int width, int height)
 {
-    // ゲーム画面のアスペクト比を求める
+    // Calc the aspect ratio of the game.
     float aspect = (float)conf_window_height / (float)conf_window_width;
 
-    // ビューのサイズを取得する
-    float vw = width;
-    float vh = height;
+    // Get the view size.
+    float viewWidthHiDPI = width * devicePixelRatio();
+    float viewHeightHiDPI = height * devicePixelRatio();
 
-    // 横幅優先で高さを仮決めする
-    float w = vw;
-    float h = vw * aspect;
-    m_scale = (float)conf_window_width / w;
+    // Set the height temporarily with "width-first".
+    float useWidthHiDPI = viewWidthHiDPI;
+    float useHeightHiDPI = viewWidthHiDPI * aspect;
+    m_mouseScale = (float)conf_window_width / (float)width;
 
-    // 高さが足りなければ、縦幅優先で横幅を決める
-    if(h > vh) {
-        h = vh;
-        w = vh / aspect;
-        m_scale = (float)conf_window_height / h;
+    // If height is not enough, determine width with "height-first".
+    if(useHeightHiDPI > viewHeightHiDPI) {
+        useHeightHiDPI = viewHeightHiDPI;
+        useWidthHiDPI = viewHeightHiDPI / aspect;
+        m_mouseScale = (float)conf_window_height / (float)height;
     }
 
-    // スクリーンの原点を決める
-    float x = (width - w) / 2.0f;
-    float y = (height - h) / 2.0f;
+    // Calc the OpenGL screen origin.
+    float originXHiDPI = (viewWidthHiDPI - useWidthHiDPI) / 2.0f;
+    float originYHiDPI = (viewHeightHiDPI - useHeightHiDPI) / 2.0f;
 
     // Will be applied in a next frame.
-    m_viewportX = (int)x;
-    m_viewportY = (int)y;
-    m_viewportWidth = (int)w;
-    m_viewportHeight = (int)h;
+    m_viewportX = (int)originXHiDPI;
+    m_viewportY = (int)originYHiDPI;
+    m_viewportWidth = (int)useWidthHiDPI;
+    m_viewportHeight = (int)useHeightHiDPI;
+
+    // Mouse events are not HiDPI.
+    m_mouseLeft = (int)(originXHiDPI / devicePixelRatio());
+    m_mouseTop = (int)(originYHiDPI / devicePixelRatio());
 }
 
 //
@@ -137,16 +143,20 @@ void OpenGLWidget::resizeGL(int width, int height)
 //
 void OpenGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    int x = event->x();
-    int y = event->y();
+    int x = event->position().x();
+    int y = event->position().y();
 
-    x = (int)((float)(x - m_viewportX) / m_scale);
-    y = (int)((float)(y - m_viewportY) / m_scale);
+    x = (int)((float)(x - m_mouseLeft) * m_mouseScale);
+    y = (int)((float)(y - m_mouseTop) * m_mouseScale);
+    if (x < 0 || x > conf_window_width)
+        return;
+    if (y < 0 || y > conf_window_height)
+        return;
 
     if (event->button() == Qt::LeftButton)
-	on_event_mouse_press(MOUSE_LEFT, x, y);
+        on_event_mouse_press(MOUSE_LEFT, x, y);
     else if (event->button() == Qt::RightButton)
-	on_event_mouse_press(MOUSE_RIGHT, x, y);
+        on_event_mouse_press(MOUSE_RIGHT, x, y);
 }
 
 //
@@ -154,16 +164,20 @@ void OpenGLWidget::mousePressEvent(QMouseEvent *event)
 //
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    int x = event->x();
-    int y = event->y();
+    int x = event->position().x();
+    int y = event->position().y();
 
-    x = (int)((float)(x - m_viewportX) / m_scale);
-    y = (int)((float)(y - m_viewportY) / m_scale);
+    x = (int)((float)(x - m_mouseLeft) * m_mouseScale);
+    y = (int)((float)(y - m_mouseTop) * m_mouseScale);
+    if (x < 0 || x > conf_window_width)
+        return;
+    if (y < 0 || y > conf_window_height)
+        return;
 
     if (event->button() == Qt::LeftButton)
-	on_event_mouse_release(MOUSE_LEFT, x, y);
+        on_event_mouse_release(MOUSE_LEFT, x, y);
     else if (event->button() == Qt::RightButton)
-	on_event_mouse_release(MOUSE_RIGHT, x, y);
+        on_event_mouse_release(MOUSE_RIGHT, x, y);
 }
 
 //
@@ -171,11 +185,15 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
 //
 void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    int x = event->x();
-    int y = event->y();
+    int x = event->position().x();
+    int y = event->position().y();
 
-    x = (int)((float)(x - m_viewportX) / m_scale);
-    y = (int)((float)(y - m_viewportY) / m_scale);
+    x = (int)((float)(x - m_mouseLeft) * m_mouseScale);
+    y = (int)((float)(y - m_mouseTop) * m_mouseScale);
+    if (x < 0 || x > conf_window_width)
+        return;
+    if (y < 0 || y > conf_window_height)
+        return;
 
     on_event_mouse_move(x, y);
 }

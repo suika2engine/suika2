@@ -916,7 +916,7 @@ VOID OnExportPackage(void)
 		return;
 
 	/* パッケージを作成する */
-	if (create_package(NULL)) {
+	if (create_package("")) {
 		log_info(bEnglish ?
 				 "Successfully exported data01.arc" :
 				 "data01.arcのエクスポートに成功しました。");

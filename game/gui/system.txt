@@ -49,7 +49,7 @@ PREVIEW {
     type: preview;
 
     # Preview message
-    msg: "This message is a preview of text speed and auto mode speed.";
+    msg: "これはメッセージのプレビューです。スピードはよろしいですか？";
 
     # Position and size
     x: 442;

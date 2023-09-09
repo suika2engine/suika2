@@ -105,6 +105,20 @@ bool register_message(const char *name, const char *msg, const char *voice,
 	name_color &= 0xffffff;
 	name_outline_color &= 0xffffff;
 
+	/* ヒストリの色を使う場合 */
+	if (conf_gui_history_disable_color == 2) {
+		body_color = make_pixel_slow(0,
+					     (pixel_t)conf_gui_history_font_color_r,
+					     (pixel_t)conf_gui_history_font_color_g,
+					     (pixel_t)conf_gui_history_font_color_b);
+		body_outline_color = make_pixel_slow(0,
+					     (pixel_t)conf_gui_history_font_outline_color_r,
+					     (pixel_t)conf_gui_history_font_outline_color_g,
+					     (pixel_t)conf_gui_history_font_outline_color_b);
+		name_color = body_color;
+		name_outline_color = body_outline_color;
+	}
+
 	/* 名前が指定されいる場合 */
 	if (name != NULL) {
 		/* "名前「メッセージ」"の形式に連結して保存する */

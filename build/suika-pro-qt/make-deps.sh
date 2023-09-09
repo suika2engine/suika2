@@ -12,14 +12,25 @@ SUIKA2_ROOT="../.."
 rm -rf "$DEPS"
 mkdir "$DEPS"
 
+# Copy source files that uses Qt6 to ./
+# Note that the original files have "qt" prefixes and we remove them when copy.
+SRC_QT="\
+	main.cpp \
+	openglwidget.h \
+	openglwidget.cpp \
+	glwrapper.cpp \
+	mainwindow.h \
+	mainwindow.cpp \
+	mainwindow.ui \
+"
+for file in $SRC_QT; do
+    cp "$SUIKA2_ROOT/src/qt$file" $file;
+done
+
 # Copy Suika2 source files to $DEPS directory.
 SRC="\
 	anime.h \
 	anime.c \
-	asound.h \
-	asound.c \
-	aunit.h \
-	aunit.c \
 	cmd_anime.c \
 	cmd_bg.c \
 	cmd_bgm.c \
@@ -52,8 +63,6 @@ SRC="\
 	conf.c \
 	drawglyph.h \
 	drawimage.h \
-	dsound.h \
-	dsound.c \
 	event.h \
 	event.c \
 	file.h \
@@ -76,7 +85,6 @@ SRC="\
 	main.c \
 	mixer.h \
 	mixer.c \
-	nosound.c \
 	package.h \
 	package.c \
 	platform.h \

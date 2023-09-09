@@ -242,6 +242,35 @@ This method will build a Raspberry Pi app.
     make install
     ```
 
+## Suika2 Pro for Windows [Testing]
+This method will build a Windows version of Suika2 Pro (Qt6).
+
+* Steps
+  * Install Qt Creator and setup Qt 6.4.2
+  * Open `build/suika-pro-qt` folder and run `make-deps.bat`
+  * From Qt Creator, open `build/suika-pro-qt/CMakeLists.txt`
+  * Build
+
+## Suika2 Pro for Linux [Testing]
+This method will build a Linux version of Suika2 Pro (Qt6).
+
+* Steps
+  * If you are on Ubuntu, run the following commands:
+  ```
+  sudo apt-get update
+  sudo apt-get install qt6-base-dev qt6-multimedia-dev
+  ```
+  * From the terminal, navigate to the `build/suika-pro-qt` directory, type:
+  ```
+  ./make-deps.sh
+  mkdir build
+  cd build
+  cmake ..
+  make
+  cp ..
+  cp build/suika-pro ../../suika-pro
+  ```
+
 ## FreeBSD Binary
 This method will build a FreeBSD binary.
 

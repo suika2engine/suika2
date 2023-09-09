@@ -63,21 +63,28 @@ extern int conf_window_menubar;
 /*
  * フォントの設定
  */
-extern char *conf_font_file;
+extern int conf_font_select;
+extern char *conf_font_global_file;
+extern char *conf_font_main_file;
+extern char *conf_font_alt1_file;
+extern char *conf_font_alt2_file;
 extern int conf_font_size;
 extern int conf_font_color_r;
 extern int conf_font_color_g;
 extern int conf_font_color_b;
+extern int conf_font_outline_remove;
 extern int conf_font_outline_color_r;
 extern int conf_font_outline_color_g;
 extern int conf_font_outline_color_b;
-extern int conf_font_outline_remove;
 extern int conf_font_ruby_size;
 
 /*
  * 名前ボックスの設定
  */
 extern char *conf_namebox_file;
+extern int conf_namebox_font_select;
+extern int conf_namebox_font_size;
+extern int conf_namebox_font_outline;
 extern int conf_namebox_x;
 extern int conf_namebox_y;
 extern int conf_namebox_margin_top;
@@ -172,20 +179,13 @@ extern float conf_click_interval;
 extern int click_frames;
 
 /*
- * 選択肢ボックスの設定
- */
-extern char *conf_selbox_bg_file;
-extern char *conf_selbox_fg_file;
-extern int conf_selbox_x;
-extern int conf_selbox_y;
-extern int conf_selbox_margin_y;
-extern char *conf_selbox_change_se;
-
-/*
  * スイッチの設定
  */
 extern char *conf_switch_bg_file;
 extern char *conf_switch_fg_file;
+extern int conf_switch_font_select;
+extern int conf_switch_font_size;
+extern int conf_switch_font_outline;
 extern int conf_switch_x;
 extern int conf_switch_y;
 extern int conf_switch_margin_y;
@@ -315,12 +315,22 @@ extern int conf_skipmode_banner_y;
  * GUIの設定
  */
 extern int conf_gui_ruby;
+extern int conf_gui_save_font_select;
 extern int conf_gui_save_font_size;
+extern int conf_gui_save_font_outline;
 extern int conf_gui_save_font_ruby_size;
+extern int conf_gui_history_font_select;
 extern int conf_gui_history_font_size;
+extern int conf_gui_history_font_outline;
 extern int conf_gui_history_font_ruby_size;
 extern int conf_gui_history_margin_line;
 extern int conf_gui_history_disable_color;
+extern int conf_gui_history_font_color_r;
+extern int conf_gui_history_font_color_g;
+extern int conf_gui_history_font_color_b;
+extern int conf_gui_history_font_outline_color_r;
+extern int conf_gui_history_font_outline_color_g;
+extern int conf_gui_history_font_outline_color_b;
 
 /*
  * サウンドの設定

@@ -20,6 +20,13 @@ if(WIN32)
   add_definitions(-municode -DUNICODE -D_UNICODE)
 endif()
 
+# For Visual Studio
+if(MSVC)
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS YY_NO_UNISTD_H)
+endif()
+
 # Base source files
 set(PROJECT_SOURCES
 	anime.c
@@ -80,24 +87,6 @@ set(PROJECT_SOURCES
 	wms_lexer.yy.c
 	wms_parser.tab.c
 )
-
-# Additional source files for sound output.
-if(WIN32)
-  find_library(DSOUND_LIB dsound)
-  if(NOT DSOUND_LIB)
-    message(STATUS "Warning: use dummy sound output.")
-    list(APPEND PROJECT_SOURCES nosound.c)
-    add_compile_definitions(NO_SOUND)
-  else()
-    list(APPEND PROJECT_SOURCES dsound.c)
-  endif()
-endif()
-if(APPLE)
-  list(APPEND PROJECT_SOURCES aunit.c)
-endif()
-if(UNIX AND NOT APPLE)
-  list(APPEND PROJECT_SOURCES asound.c)
-endif()
 
 # Target
 add_library(

@@ -90,11 +90,6 @@
 
 @setconfig locale.force ja
 
-# 日本語フォントを選択します
-# Set a Japanese font
-
-@setconfig font.file yasashisa.ttf
-
 # 日本語のファイルに移動します
 # Move to a Japanese file
 

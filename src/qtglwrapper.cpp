@@ -1,4 +1,4 @@
-/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; -*- */
 
 /*
  * Suika 2
@@ -292,14 +292,6 @@ extern "C" {
 
 void q_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
-/*
-    // Settings will be applied in a next frame because we can't set a
-    // viewport outside paintGL().
-    glwrapper::viewportX = (int)x;
-    glwrapper::viewportY = (int)y;
-    glwrapper::viewportWidth = (int)width;
-    glwrapper::viewportHeight = (int)height;
-*/
 }
 
 void q_glClear(GLbitfield mask)
@@ -402,20 +394,26 @@ void q_glBindBuffer(GLenum target, GLuint buffer)
 
 void q_glBufferData(GLenum target, GLsizeiptr size, const void *data, GLenum usage)
 {
-    // Assert this function is called from draw_elements() only.
-    // We write 4 vertices of a triangle strip to VBO.
-    assert(target == GL_ARRAY_BUFFER);
-    assert(size == 6 * 4 * sizeof(GLfloat));
-    assert(usage == GL_STATIC_DRAW);
-
     // Assert q_glUseProgram() is already called.
     assert(cur_program != (GLuint)-1);
 
-    // Note: "usage" is already set by setUsagePattern().
-    // Note: memory space is already allocated by allocate().
+    // Ignore IBO selection. We do it in q_glUseProgram().
+    if (target == GL_ELEMENT_ARRAY_BUFFER)
+        return;
 
-    // Write the vertex data.
-    vbo_tbl[cur_program]->write(0, data, size);
+    // Do VBO write, we do it in q_glUseProgram().
+    if (target == GL_ARRAY_BUFFER) {
+        // Assert this function is called from draw_elements() and
+        // we write 4 vertices in a triangle strip to VBO.
+        assert(size == 6 * 4 * sizeof(GLfloat));
+        assert(usage == GL_STATIC_DRAW);
+
+        // Note: "usage" is already set by setUsagePattern().
+        // Note: memory space is already allocated by allocate().
+
+        // Write the vertex data.
+        vbo_tbl[cur_program]->write(0, data, size);
+    }
 }
 
 // -- OpenGL 3+ --

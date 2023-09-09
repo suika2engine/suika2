@@ -339,7 +339,7 @@ static bool register_message_for_history(const char *msg);
 static char *concat_serif(const char *name, const char *serif);
 static int count_chars(const char *msg);
 static bool search_for_end_of_escape_sequence(const char **msg);
-static void init_colors_and_size(void);
+static void init_font_color(void);
 static bool init_serif(int *x, int *y, int *w, int *h);
 static bool check_play_voice(void);
 static bool play_voice(void);
@@ -347,6 +347,7 @@ static void set_character_volume_by_name(const char *name);
 static void draw_namebox(void);
 static int get_namebox_width(void);
 static void focus_character(void);
+static void init_font_size(void);
 static void init_pen(void);
 static void init_msgbox(int *x, int *y, int *w, int *h);
 static void init_click(void);
@@ -652,8 +653,8 @@ static bool init(int *x, int *y, int *w, int *h)
 	if (!init_name_top())
 		return false;
 
-	/* 文字色とサイズの初期化を行う */
-	init_colors_and_size();
+	/* 文字色の初期化を行う */
+	init_font_color();
 
 	/* メッセージを取得する */
 	if (!init_msg_top())
@@ -675,6 +676,9 @@ static bool init(int *x, int *y, int *w, int *h)
 
 	/* メッセージボックスを初期化する */
 	init_msgbox(x, y, w, h);
+
+	/* フォントのサイズを初期化する */
+	init_font_size();
 
 	/* ペンの位置を初期化する */
 	init_pen();
@@ -1183,17 +1187,14 @@ static bool search_for_end_of_escape_sequence(const char **msg)
 	return true;
 }
 
-/* 文字色とサイズを求める */
-static void init_colors_and_size(void)
+/* 文字色を求める */
+static void init_font_color(void)
 {
 	int i;
 
 	/* システムGUIから戻った場合 */
 	if (gui_sys_flag)
 		return;
-
-	/* フォントサイズを設定する */
-	set_font_size(conf_font_size);
 
 	/* 色は、まずデフォルトの色をロードする */
 	body_color = make_pixel_slow(0xff,
@@ -1404,6 +1405,17 @@ static void draw_namebox(void)
 	int char_count, mblen, i, ret_width, ret_height;
 	const char *name;
 
+	/* フォントを設定する */
+	select_font(conf_namebox_font_select);
+	set_font_size(conf_namebox_font_size > 0 ?
+		      conf_namebox_font_size : conf_font_size);
+	switch (conf_namebox_font_outline) {
+	case 0: set_font_outline(!conf_font_outline_remove); break;
+	case 1: set_font_outline(true); break;
+	case 2: set_font_outline(false); break;
+	default: break;
+	}
+
 	/* 名前の文字列を取得する */
 	name = name_top;
 
@@ -1504,6 +1516,14 @@ static void focus_character(void)
 			set_ch_dim(j, true);
 		}
 	}
+}
+
+/* フォントサイズを初期化する */
+static void init_font_size(void)
+{
+	select_font(conf_font_select);
+	set_font_size(conf_font_size);
+	set_font_outline(!conf_font_outline_remove);
 }
 
 /* ペンの位置を初期化する */
