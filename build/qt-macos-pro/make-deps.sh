@@ -20,12 +20,13 @@ mkdir "$DEPS"
 # Copy source files that uses Qt6 to ./
 # Note that the original files have "qt" prefixes and we remove them when copy.
 SRC_QT="\
-	glwrapper.cpp \
-	mainwindow.cpp \
-	openglwidget.cpp \
 	main.cpp \
-	mainwindow.h \
+	glwrapper.cpp \
 	openglwidget.h \
+	openglwidget.cpp \
+	mainwindow.h \
+	mainwindow.cpp \
+	mainwindow.ui \
 "
 for file in $SRC_QT; do
     cp "$SUIKA2_ROOT/src/qt$file" "$DEPS/$file"
@@ -169,10 +170,3 @@ cp cmake/libvorbis.txt "$DEPS/libvorbis/CMakeLists.txt"
 tar xzf "$SUIKA2_ROOT/build/libsrc/freetype-2.9.1.tar.gz" -C "$DEPS"
 mv "$DEPS/freetype-2.9.1" "$DEPS/freetype"
 cp cmake/freetype.txt "$DEPS/freetype/CMakeLists.txt"
-
-# Build
-rm -rf build
-mkdir build
-cd build
-$QT_CMAKE -D$QT_PATH ..
-$QT_NINJA

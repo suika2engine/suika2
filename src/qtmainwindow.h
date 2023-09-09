@@ -8,6 +8,7 @@
 
 extern "C" {
 #include "suika.h"
+#include "package.h"
 #include "glrender.h"
 };
 
@@ -44,8 +45,11 @@ private slots:
     void on_overwriteButton_clicked();
     void on_errorButton_clicked();
     void on_updateLineNumberButton_clicked();
-
     void on_scriptListView_doubleClicked(const QModelIndex &index);
+
+    void on_actionExport_data01_arc_triggered();
+
+    void on_actionExport_for_Web_triggered();
 
 private:
     // The rendering timer.

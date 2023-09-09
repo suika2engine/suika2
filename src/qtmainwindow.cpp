@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
     ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
     ui->variableLabel->setText(m_isEnglish ? "Variables (non-initial value):" : "変数一覧(初期値0でないもの):");
-    ui->continueButton->setText(m_isEnglish ? "Continue" : "継続実行");
+    ui->continueButton->setText(m_isEnglish ? "Continue" : "続ける");
     ui->nextButton->setText(m_isEnglish ? "Next" : "1行進行");
     ui->stopButton->setText(m_isEnglish ? "Stop" : "停止");
     ui->updateScriptButton->setText(m_isEnglish ? "Update" : "更新");
@@ -617,6 +617,49 @@ void MainWindow::scrollScript()
     ui->scriptListView->scrollTo(cellIndex);
 }
 
+//
+// Export data01.arc
+//
+void MainWindow::on_actionExport_data01_arc_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+				   "Are you sure you want to export the package file?\n"
+				   "This may take a while." :
+				   "パッケージをエクスポートします。\n"
+				   "この処理には時間がかかります。\n"
+				   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Get the game directory.
+    char *gamePath = make_valid_path(NULL, NULL);
+    if (gamePath == NULL) {
+        log_memory();
+        return;
+    }
+
+	// Generate a package.
+    if (create_package(gamePath)) {
+		log_info(m_isEnglish ?
+				 "Successfully exported data01.arc" :
+				 "data01.arcのエクスポートに成功しました。");
+	}
+    free(gamePath);
+}
+
+//
+// Export Web version
+//
+void MainWindow::on_actionExport_for_Web_triggered()
+{
+
+}
+
 /*
  * A HAL (platform.h API) implementation for Qt.
  */
@@ -783,21 +826,22 @@ void render_image_melt(struct image * RESTRICT src_img,
 bool make_sav_dir(void)
 {
 #if defined(OSX)
-    QDir dir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
-    dir.cdUp(); // dir points to /XXX/suika.app/Contents
-    dir.cdUp(); // dir points to /XXX/suika.app
-    dir.cdUp(); // dir points to /XXX
-    QString base = dir.currentPath();
-    QString sav = base + "/" + SAVE_DIR;
-    if (QDir(sav).exists())
+    QDir qdir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
+    qdir.cdUp(); // dir points to /XXX/suika.app/Contents
+    qdir.cdUp(); // dir points to /XXX/suika.app
+    qdir.cdUp(); // dir points to /XXX
+    QString path = qdir.currentPath() + QString("/") + QString(SAVE_DIR);
+    if (QDir(path).exists())
         return true;
-    QDir::mkdir(sav);
+    QDir mdir;
+    if (!mdir.mkdir(path))
+        return false;
     return true;
 #else
     if (QDir(SAVE_DIR).exists())
         return true;
-    QDir dir;
-    if (!dir.mkdir(SAVE_DIR))
+    QDir qdir;
+    if (!qdir.mkdir(SAVE_DIR))
         return false;
     return true;
 #endif
@@ -809,25 +853,41 @@ bool make_sav_dir(void)
 char *make_valid_path(const char *dir, const char *fname)
 {
 #if defined(OSX)
-    QDir dir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
-    dir.cdUp(); // dir points to /XXX/suika.app/Contents
-    dir.cdUp(); // dir points to /XXX/suika.app
-    dir.cdUp(); // dir points to /XXX
-    QString base = dir.currentPath();
-    QString sav = base + "/" + dir + "/" + fname;
-    char *ret = strdup(sav.toUtf8().data());
+    QDir qdir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
+    qdir.cdUp(); // dir points to /XXX/suika.app/Contents
+    qdir.cdUp(); // dir points to /XXX/suika.app
+    qdir.cdUp(); // dir points to /XXX
+    QString path = qdir.currentPath();
+    if (dir != NULL)
+        path += QString("/") + QString(dir);
+    if (fname != NULL)
+        path += QString("/") + QString(fname);
+    char *ret = strdup(path.toUtf8().data());
+    if (ret == NULL) {
+        log_memory();
+        return NULL;
+    }
+    return ret;
+#elif defined(WIN)
+    QDir qdir(QCoreApplication::applicationDirPath());
+    QString path = qdir.currentPath();
+    if (dir != NULL)
+        path += QString("\\") + QString(dir);
+    if (fname != NULL)
+        path += QString("\\") + QString(fname);
+    char *ret = strdup(path.toUtf8().data());
     if (ret == NULL) {
         log_memory();
         return NULL;
     }
     return ret;
 #else
-    QDir dir(QCoreApplication::applicationDirPath());
-#ifdef WIN
-    QString path = dir.currentPaht() + "/" + dir + "/" + fname;
-#else
-    QString path = dir.currentPaht() + "\\" + dir + "\\" + fname;
-#endif
+    QDir qdir(QCoreApplication::applicationDirPath());
+    QString path = qdir.currentPaht();
+    if (dir != NULL)
+        path += QString("/") + QString(dir);
+    if (fname != NULL)
+        path += QString("/") + QString(fname);
     char *ret = strdup(path.toUtf8().data());
     if (ret == NULL) {
         log_memory();
@@ -1024,6 +1084,8 @@ bool play_sound(int stream, struct wave *w)
     if (MainWindow::obj->m_soundSink[stream] == NULL)
         return true;
     bool isPlaying = MainWindow::obj->m_wave[stream] != NULL;
+    if (!isPlaying)
+        MainWindow::obj->m_soundSink[stream]->start();
     MainWindow::obj->m_wave[stream] = w;
     MainWindow::obj->m_waveFinish[stream] = false;
     return true;
@@ -1210,3 +1272,4 @@ void update_debug_info(bool script_changed)
 }
 
 }; // extern "C"
+

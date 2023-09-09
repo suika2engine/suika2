@@ -1,4 +1,4 @@
-name: suika-linux-pro
+name: qt-linux-pro
 on:
   push:
   pull_request:
@@ -20,10 +20,14 @@ jobs:
           sudo apt-get install -y mesa-common-dev
           echo Installing qt6-base-dev...
           sudo apt-get install -y qt6-base-dev
-          cd build/linux-x86_64-pro
-          ./build.sh
+          cd build/qt-linux-pro
+          ./make-dep.sh
+          mkdir build
+          cd build
+          cmake ..
+          make -j8
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika-linux-x86_64-pro
-          path: build/linux-x86_64-pro/build/suika2-pro
+          name: qt-linux-pro
+          path: build/qt-linux-pro/build/suika-pro
