@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(suika2-pro VERSION 0.1 LANGUAGES CXX C)
+project(suika-pro VERSION 0.1 LANGUAGES CXX C)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -43,12 +43,12 @@ add_subdirectory(deps)
 include_directories(deps .)
 
 # Main executable.
-qt_add_executable(suika2-pro
+qt_add_executable(suika-pro
 	MANUAL_FINALIZATION
 	${PROJECT_SOURCES}
 )
 target_link_libraries(
-	suika2-pro
+	suika-pro
 	PRIVATE
 	suika2
 	zlib
@@ -65,10 +65,10 @@ target_link_libraries(
 
 # Maybe we don't need this:
 include(GNUInstallDirs)
-install(TARGETS suika2-pro
+install(TARGETS suika-pro
 	BUNDLE DESTINATION .
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-qt_finalize_executable(suika2-pro)
+qt_finalize_executable(suika-pro)

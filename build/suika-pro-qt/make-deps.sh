@@ -2,11 +2,6 @@
 
 set -eu
 
-# Qt installation folder.
-QT_DIR=$HOME/Qt/6.2.4/macos/lib/cmake
-QT_CMAKE=$HOME/Qt/Tools/CMake/CMake.app/Contents/bin/cmake
-QT_NINJA=$HOME/Qt/Tools/Ninja/ninja
-
 # Copy dependency source files to $DEPS directory.
 DEPS=deps
 
@@ -21,15 +16,15 @@ mkdir "$DEPS"
 # Note that the original files have "qt" prefixes and we remove them when copy.
 SRC_QT="\
 	main.cpp \
-	glwrapper.cpp \
 	openglwidget.h \
 	openglwidget.cpp \
+	glwrapper.cpp \
 	mainwindow.h \
 	mainwindow.cpp \
 	mainwindow.ui \
 "
 for file in $SRC_QT; do
-    cp "$SUIKA2_ROOT/src/qt$file" "$file";
+    cp "$SUIKA2_ROOT/src/qt$file" $file;
 done
 
 # Copy Suika2 source files to $DEPS directory.
