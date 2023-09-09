@@ -54,8 +54,14 @@ window.menubar=1
 ### Font Settings
 ###
 
+font.select=0
+
 # Font file name
 font.file=VL-PGothic-Regular.ttf
+
+#font.main.file=
+#font.alt1.file=
+#font.alt2.file=
 
 # Font size
 font.size=30
@@ -82,6 +88,9 @@ font.ruby.size=16
 
 # Namebox image file name
 namebox.file=namebox.png
+
+namebox.font.size=38
+namebox.font.outline=0
 
 # Position to show the namebox image
 namebox.x=95
@@ -262,6 +271,10 @@ switch.bg.file=switch-bg.png
 
 # Option box (selected) image file name
 switch.fg.file=switch-fg.png
+
+switch.font.select=0
+switch.font.size=38
+switch.font.outline=0
 
 # Position of the first option box
 switch.x=406
@@ -469,11 +482,17 @@ skipmode.banner.y=186
 # Add ruby to history and save items (1:add, 0:none) (Optional)
 gui.ruby=1
 
+gui.save.font.select=0
+gui.save.font.outline=0
+
 # Font size for save items (Optional)
 gui.save.font.size=36
 
 # Ruby font size for save items (Optional)
 gui.save.font.ruby.size=16
+
+gui.history.font.select=0
+gui.history.font.outline=0
 
 # Font size for history items (Optional)
 gui.history.font.size=36
@@ -484,8 +503,19 @@ gui.history.font.ruby.size=16
 # Line margin for history items (Optional)
 gui.history.margin.line=36
 
-# Disable color in history (1:disable, 0:enable) (Optional)
+# Disable color in history (Optional)
+#  - 0: enable colors
+#  - 1: disable colors (use default message color)
+#  - 2: disable colors (use history color)
 gui.history.disable.color=0
+
+# History color
+gui.history.font.color.r=255
+gui.history.font.color.g=255
+gui.history.font.color.b=255
+gui.history.font.outline.color.r=128
+gui.history.font.outline.color.g=128
+gui.history.font.outline.color.b=128
 
 ###
 ### Initial Sound Volumes
@@ -537,7 +567,7 @@ serif.color1.outline.b=128
 # Continues to serif.color64, but omissible
 
 ###
-### キャラクタ名と画像ファイルのマッピング
+### Mapping between character names and character files
 ###
 
 # Dim characters except one who is speaking (1:Dim, 1:No) (Optional)
