@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>740</height>
+    <width>1024</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -335,11 +335,29 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1280</width>
+     <width>1024</width>
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExport_data01_arc"/>
+    <addaction name="actionExport_for_Web"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
+  <action name="actionExport_data01_arc">
+   <property name="text">
+    <string>Export data01.arc</string>
+   </property>
+  </action>
+  <action name="actionExport_for_Web">
+   <property name="text">
+    <string>Export for Web</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
