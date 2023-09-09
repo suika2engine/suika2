@@ -24,7 +24,11 @@ SRC_QT="\
 	mainwindow.ui \
 "
 for file in $SRC_QT; do
+<<<<<<< HEAD:build/qt-windows-pro/make-deps.sh
     cp "$SUIKA2_ROOT/src/qt$file" $file
+=======
+    cp "$SUIKA2_ROOT/src/qt$file" "$file";
+>>>>>>> 71fd44cb913d1d9b978ac7ad7ce2cded5dee57a8:build/qt-windows-pro/build.sh
 done
 
 # Copy Suika2 source files to $DEPS directory.

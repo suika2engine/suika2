@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+OPTION=$1
 
 # Copy dependency source files to $DEPS directory.
 DEPS=deps
@@ -24,7 +24,7 @@ SRC_QT="\
 	mainwindow.ui \
 "
 for file in $SRC_QT; do
-    cp "$SUIKA2_ROOT/src/qt$file" "$DEPS/$file"
+    cp "$SUIKA2_ROOT/src/qt$file" "$file";
 done
 
 # Copy Suika2 source files to $DEPS directory.
@@ -165,3 +165,15 @@ cp cmake/libvorbis.txt "$DEPS/libvorbis/CMakeLists.txt"
 tar xzf "$SUIKA2_ROOT/build/libsrc/freetype-2.9.1.tar.gz" -C "$DEPS"
 mv "$DEPS/freetype-2.9.1" "$DEPS/freetype"
 cp cmake/freetype.txt "$DEPS/freetype/CMakeLists.txt"
+<<<<<<< HEAD:build/qt-linux-pro/make-deps.sh
+=======
+
+# Build
+if [ -z "$OPTION"]; then
+    rm -rf build;
+    mkdir build;
+    cd build;
+    cmake ..;
+    make -j8;
+fi
+>>>>>>> 71fd44cb913d1d9b978ac7ad7ce2cded5dee57a8:build/qt-linux-pro/build.sh
