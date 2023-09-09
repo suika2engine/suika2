@@ -694,7 +694,7 @@ static void update_runtime_props(bool is_first_time)
 		case TYPE_FONT:
 			if (button[i].file == NULL)
 				break;
-			if (strcmp(button[i].file, get_font_file_name()) == 0)
+			if (strcmp(button[i].file, get_global_font_file_name()) == 0)
 				button[i].rt.is_active = true;
 			else
 				button[i].rt.is_active = false;
