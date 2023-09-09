@@ -119,6 +119,7 @@ bool init_glyph(void)
 			fname = conf_font_alt2_file;
 			break;
 		default:
+			fname = NULL;
 			assert(0);
 			break;
 		}
