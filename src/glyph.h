@@ -63,9 +63,6 @@ bool set_global_font_file_name(const char *file);
 /* グローバルのフォントファイル名を取得する */
 const char *get_global_font_file_name(void);
 
-/* ローカルのフォントファイル名を設定する */
-bool set_local_font_file_name(int type, const char *file);
-
 /* 現在のフォントファイル名を取得する */
 const char *get_font_file_name(void);
 

@@ -29,25 +29,8 @@
 
 #define SCALE	(64)
 
-/* グローバルセーブデータのフォントファイル名 */
-static char *global_font_file;
-
-/* ローカルセーブデータのメインフォントファイル名 */
-static char *main_font_file;
-
-/* ローカルセーブデータのalt1フォントファイル名 */
-static char *alt1_font_file;
-
-/* ローカルセーブデータのalt2フォントファイル名 */
-static char *alt2_font_file;
-
-/* フォントタイプからフォントファイル名への変換テーブル */
-static char **font_file_name_tbl[FONT_COUNT] = {
-	&global_font_file,
-	&main_font_file,
-	&alt1_font_file,
-	&alt2_font_file,
-};
+/* フォントファイル名 */
+static char *font_file_name_tbl[FONT_COUNT];
 
 /* FreeType2のオブジェクト */
 static FT_Library library;
@@ -90,6 +73,7 @@ static void draw_glyph_dim_func(unsigned char * RESTRICT font,
  */
 bool init_glyph(void)
 {
+	const char *fname;
 	FT_Error err;
 	int i;
 
@@ -120,14 +104,36 @@ bool init_glyph(void)
 
 	/* フォントを読み込む */
 	for (i = 0; i < FONT_COUNT; i++) {
-		if (*font_file_name_tbl[i] == NULL)
+		/* フォントファイル名を取得する */
+		switch (i) {
+		case FONT_GLOBAL:
+			fname = conf_font_global_file;
+			break;
+		case FONT_MAIN:
+			fname = conf_font_main_file;
+			break;
+		case FONT_ALT1:
+			fname = conf_font_alt1_file;
+			break;
+		case FONT_ALT2:
+			fname = conf_font_alt2_file;
+			break;
+		default:
+			assert(0);
+			break;
+		}
+		if (fname == NULL)
 			continue;
+		font_file_name_tbl[i] = strdup(fname);
+		if (font_file_name_tbl[i] == NULL) {
+			log_memory();
+			return false;
+		}
 
 		/* フォントファイルの内容を読み込む */
-		if (!read_font_file_content(
-			    *font_file_name_tbl[i],
-			    &font_file_content[i],
-			    &font_file_size[i]))
+		if (!read_font_file_content(font_file_name_tbl[i],
+					    &font_file_content[i],
+					    &font_file_size[i]))
 			return false;
 
 		/* フォントファイルを読み込む */
@@ -137,7 +143,7 @@ bool init_glyph(void)
 					 0,
 					 &face[i]);
 		if (err != 0) {
-			log_font_file_error(*font_file_name_tbl[i]);
+			log_font_file_error(font_file_name_tbl[i]);
 			return false;
 		}
 	}
@@ -169,9 +175,9 @@ void cleanup_glyph(bool no_free_file_names)
 
 	if (!no_free_file_names) {
 		for (i = 0; i < FONT_COUNT; i++) {
-			if (*font_file_name_tbl[i] != NULL) {
-				free(*font_file_name_tbl[i]);
-				*font_file_name_tbl[i] = NULL;
+			if (font_file_name_tbl[i] != NULL) {
+				free(font_file_name_tbl[i]);
+				font_file_name_tbl[i] = NULL;
 			}
 		}
 	}
@@ -538,14 +544,14 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
  */
 bool set_global_font_file_name(const char *file)
 {
-	if (global_font_file != NULL) {
-		free(global_font_file);
-		global_font_file = NULL;
+	if (font_file_name_tbl[FONT_GLOBAL] != NULL) {
+		free(font_file_name_tbl[FONT_GLOBAL]);
+		font_file_name_tbl[FONT_GLOBAL] = NULL;
 	}
 
 	if (file != NULL) {
-		global_font_file = strdup(file);
-		if (global_font_file == NULL) {
+		font_file_name_tbl[FONT_GLOBAL] = strdup(file);
+		if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
 			log_memory();
 			return false;
 		}
@@ -559,8 +565,8 @@ bool set_global_font_file_name(const char *file)
  */
 const char *get_global_font_file_name(void)
 {
-	assert(global_font_file != NULL);
-	return global_font_file;
+	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
+	return font_file_name_tbl[FONT_GLOBAL];
 }
 
 /*
@@ -573,31 +579,20 @@ bool set_local_font_file_name(int type, const char *file)
 	assert(type != FONT_GLOBAL);
 	assert(type == FONT_MAIN || type == FONT_ALT1 || type == FONT_ALT2);
 
-	if (*font_file_name_tbl[type] != NULL) {
-		free(*font_file_name_tbl[type]);
-		*font_file_name_tbl[type] = NULL;
+	if (font_file_name_tbl[type] != NULL) {
+		free(font_file_name_tbl[type]);
+		font_file_name_tbl[type] = NULL;
 	}
 
 	if (file != NULL) {
-		*font_file_name_tbl[type] = strdup(file);
-		if (*font_file_name_tbl[type] == NULL) {
+		font_file_name_tbl[type] = strdup(file);
+		if (font_file_name_tbl[type] == NULL) {
 			log_memory();
 			return false;
 		}
 	}
 
 	return true;
-}
-
-/*
- * ローカルのフォントファイル名を取得する
- */
-const char *get_local_font_file_name(int type)
-{
-	assert(type != FONT_GLOBAL);
-	assert(type == FONT_MAIN || type == FONT_ALT1 || type == FONT_ALT2);
-
-	return *font_file_name_tbl[type];
 }
 
 /*
@@ -675,21 +670,21 @@ void select_font(int type)
 		return;
 	}
 	if (type == FONT_MAIN) {
-		if (main_font_file == NULL)
+		if (font_file_name_tbl[FONT_MAIN] == NULL)
 			selected_font = FONT_GLOBAL;
 		else
 			selected_font = FONT_MAIN;
 		return;
 	}
 	if (type == FONT_ALT1) {
-		if (alt1_font_file == NULL)
+		if (font_file_name_tbl[FONT_ALT1] == NULL)
 			selected_font = FONT_GLOBAL;
 		else
 			selected_font = FONT_ALT1;
 		return;
 	}
 	if (type == FONT_ALT2) {
-		if (alt2_font_file == NULL)
+		if (font_file_name_tbl[FONT_ALT2] == NULL)
 			selected_font = FONT_GLOBAL;
 		else
 			selected_font = FONT_ALT2;

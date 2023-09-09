@@ -640,9 +640,6 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 /* 初期化処理を行う */
 static bool init(int *x, int *y, int *w, int *h)
 {
-	/* フォントを選択する */
-	select_font(conf_font_select);
-
 	/* フラグを初期化する */
 	init_flags_and_vars();
 
