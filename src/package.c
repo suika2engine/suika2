@@ -180,7 +180,7 @@ static bool get_file_names_recursive(const wchar_t *base_dir, const wchar_t *dir
     return true;
 }
 #else
-static bool get_file_names_recursive(const char *base_dir, const char *dir, int depth)
+static bool get_file_names_recursive(const char *base_dir, const char *dir, int depth);
 
 /* Get directory file list (for Mac and Linux) */
 static bool get_file_names(const char *base_dir, const char *dir)
