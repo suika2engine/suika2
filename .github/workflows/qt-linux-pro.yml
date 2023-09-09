@@ -18,7 +18,6 @@ jobs:
           sudo apt-get install -y libx11-dev
           echo Installing mesa-common-dev
           sudo apt-get install -y mesa-common-dev
-<<<<<<< HEAD:.github/workflows/qt-linux-pro.yml
           echo Installing qt6-base-dev...
           sudo apt-get install -y qt6-base-dev
           cd build/qt-linux-pro
@@ -27,12 +26,6 @@ jobs:
           cd build
           cmake ..
           make -j8
-=======
-          echo Installing qt6...
-          sudo apt-get install -y qt6-base-dev qt6-multimedia-dev
-          cd build/linux-x86_64-pro
-          ./build.sh
->>>>>>> 71fd44cb913d1d9b978ac7ad7ce2cded5dee57a8:.github/workflows/suika-linux-pro.yml
       - name: Upload
         uses: actions/upload-artifact@v2
         with:

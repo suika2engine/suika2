@@ -160,7 +160,7 @@ static bool get_file_names_recursive(const wchar_t *base_dir, const wchar_t *dir
     {
         if(!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
         {
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__llvm__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-truncation"
             snprintf(entry[file_count].name, FILE_NAME_SIZE, "%s/%s", u8dir,
@@ -196,7 +196,7 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir, int 
         bool succeeded;
 
     /* Make path. */
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__llvm__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-truncation"
     if (strcmp(base_dir, "") == 0)
@@ -265,7 +265,7 @@ static bool get_file_sizes(const char *base_dir)
 		fp = fopen(path, "rb");
 #else
 		char abspath[256];
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__llvm__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 		if (strcmp(base_dir, "") == 0)
@@ -303,7 +303,7 @@ static bool write_archive_file(const char *base_dir)
 	UNUSED_PARAMETER(base_dir);
 #else
 	char abspath[256];
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__llvm__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 	if (strcmp(base_dir, "") == 0)
@@ -383,7 +383,7 @@ static bool write_file_bodies(const char *base_dir, FILE *fp)
 		UNUSED_PARAMETER(base_dir);
 #else
 		char abspath[256];
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__llvm__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 		if (strcmp(base_dir, "") == 0)

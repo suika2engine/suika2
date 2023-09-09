@@ -95,7 +95,7 @@ bool init_glyph(void)
 
 #ifdef ANDROID
 	/* Android用 */
-	for (i = 0; i < FONT_COUNT) {
+	for (i = 0; i < FONT_COUNT; i++) {
 		if (face[i] != NULL) {
 			FT_Done_Face(face[i]);
 			face[i] = NULL;
@@ -199,7 +199,7 @@ static bool read_font_file_content(const char *file_name,
 
 	/* メモリを確保する */
 	*content = malloc((size_t)*size);
-	if (font_file_content == NULL) {
+	if (*content == NULL) {
 		log_memory();
 		close_rfile(rf);
 		return false;
