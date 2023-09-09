@@ -21,7 +21,7 @@ jobs:
           echo Installing qt6-base-dev...
           sudo apt-get install -y qt6-base-dev
           cd build/qt-linux-pro
-          ./make-dep.sh
+          ./make-deps.sh
           mkdir build
           cd build
           cmake ..
