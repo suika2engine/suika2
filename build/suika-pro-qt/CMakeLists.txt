@@ -27,8 +27,8 @@ set(PROJECT_SOURCES
 	mainwindow.h
 	openglwidget.cpp
 	openglwidget.h
-        glwrapper.cpp
-        mainwindow.ui
+    glwrapper.cpp
+    mainwindow.ui
 )
 
 # For Visual Studio

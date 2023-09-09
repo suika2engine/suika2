@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
     ui->variableLabel->setText(m_isEnglish ? "Variables (non-initial value):" : "変数一覧(初期値0でないもの):");
     ui->continueButton->setText(m_isEnglish ? "Continue" : "続ける");
-    ui->nextButton->setText(m_isEnglish ? "Next" : "1行進行");
+    ui->nextButton->setText(m_isEnglish ? "Next" : "次へ");
     ui->stopButton->setText(m_isEnglish ? "Stop" : "停止");
     ui->updateScriptButton->setText(m_isEnglish ? "Update" : "更新");
     ui->updateLineNumberButton->setText(m_isEnglish ? "Update" : "更新");
