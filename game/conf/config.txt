@@ -31,49 +31,97 @@ window.menubar=0
 ### フォントの設定
 ###
 
-# フォントファイル名
+# [メッセージのフォント選択] (省略可)
+#  - 0: グローバル
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+#  - ゲーム中での変更方法
+#    - WMSの s2_set_config("font.select", "0"); で変更可能
+#    - コマンドの @setconfig font.select 0 で変更可能
+font.select=0
+
+# [グローバルフォント]
+#  - コンフィグ画面で選択されるフォント
+#  - グローバルセーブデータに保存される
+#  - このフォント名はセーブデータがないときの初期値として必須
 font.file=yasashisa.ttf
 
-# フォントサイズ
+# [メインフォント] (省略可)
+#  - ゲーム内からは変更できないコンフィグ
+#font.main.file=
+
+# [alt1フォント] (省略可)
+#  - ゲーム内からは変更できないコンフィグ
+#font.alt1.file=
+
+# [alt2フォント] (省略可)
+#  - ゲーム内からは変更できないコンフィグ
+#font.alt2.file=
+
+# [メッセージのフォントサイズ]
 font.size=38
 
-# フォントの色
+# [メッセージのフォントの色]
 font.color.r=255
 font.color.g=255
 font.color.b=255
 
-# フォントの縁取りの色
+# [メッセージのフォントのふちどり] (省略可)
+#  - 0: あり
+#  - 1: なし
+font.outline.remove=0
+
+# [メッセージのフォントのふちどりの色] (省略可)
 font.outline.color.r=128
 font.outline.color.g=128
 font.outline.color.b=128
 
-# アウトラインを取り除くか(0:アウトラインあり, 1:アウトラインなし)
-font.outline.remove=0
-
-# ルビのフォントサイズ
+# [メッセージと名前のルビのフォントサイズ] (省略可)
 font.ruby.size=16
 
 ###
 ### 名前ボックスの設定
 ###
 
-# 名前ボックス画像のファイル名
+# [名前ボックス画像のファイル名]
 namebox.file=namebox.png
 
-# 名前ボックス画像を表示する位置
+# [名前ボックスのフォント選択] (省略可)
+#  - 0: グローバル
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+namebox.font.select=0
+
+# [名前ボックスのフォントサイズ] (省略可)
+#  - 0を指定するか省略するとメッセージと同じになる
+namebox.font.size=26
+
+# [名前ボックスのフォントのふちどり] (省略可)
+#  - 0: メッセージボックスと同じ設定
+#  - 1: ふちどりあり
+#  - 2: ふちどりなし
+namebox.font.outline=0
+
+# [名前ボックス画像を表示する位置]
 namebox.x=95
 namebox.y=480
 
-# 名前ボックス画像内のテキスト上端マージン
+# [名前ボックス画像内のテキスト上端マージン]
 namebox.margin.top=6
 
-# 名前の中央揃えをやめるか(0:中央揃え, 1:左揃え)
+# [名前の中央揃え] (省略可)
+#  - 0: 中央揃え
+#  - 1: 左揃え
 namebox.centering.no=0
 
-# 名前を左揃えにするときのテキスト左端マージン
+# [名前を左揃えにするときのテキスト左端マージン] (省略可)
 namebox.margin.left=0
 
-# 名前ボックスを隠す (1:隠す, 0:隠さない) (省略可)
+# [名前ボックスを隠す] (省略可)
+#  - 1: 隠す
+#  - 0: 隠さない
 namebox.hidden=0
 
 ###
@@ -237,23 +285,42 @@ click.disable=0
 ### 選択肢の設定 (@choose, @select, @switch, @news)
 ###
 
-# 選択肢（非選択中）画像のファイル名
+# [選択肢（非選択中）画像のファイル名]
 switch.bg.file=switch-bg.png
 
-# 選択肢（選択中）画像のファイル名
+# [選択肢（選択中）画像のファイル名]
 switch.fg.file=switch-fg.png
 
-# 選択肢の位置
+# [選択肢のフォント] (省略可)
+#  - 0: グローバル
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+switch.font.select=0
+
+# [選択肢のフォントサイズ] (省略可)
+#  - 0を指定するか省略するとメッセージと同じになる
+switch.font.size=26
+
+# [選択肢のフォントのふちどり] (省略可)
+#  - 0: メッセージボックスと同じ設定
+#  - 1: ふちどりあり
+#  - 2: ふちどりなし
+switch.font.outline=0
+
+# [選択肢の位置]
 switch.x=406
 switch.y=129
 
-# 選択肢の間の縦方向マージン
+# [選択肢の間の縦方向マージン]
 switch.margin.y=20
 
-# 選択肢画像のテキストの縦方向マージン
+# [選択肢画像のテキストの縦方向マージン]
 switch.text.margin.y=12
 
-# ポイントされた項目のテキスト色 (active=0:無効, active=1:有効) (省略可)
+# [ポイントされた項目のテキスト色] (省略可)
+#  - active=0: 無効
+#  - active=1: 有効
 switch.color.active=0
 switch.color.active.body.r=255
 switch.color.active.body.g=0
@@ -262,20 +329,20 @@ switch.color.active.outline.r=128
 switch.color.active.outline.g=128
 switch.color.active.outline.b=128
 
-# 選択肢を選択したときの効果音(省略可)
+# [選択肢を選択したときの効果音] (省略可)
 switch.parent.click.se.file=click.ogg
 
-# @switchで2階層目の選択肢を選択したときの効果音(省略可)
+# [@switchで2階層目の選択肢を選択したときの効果音] (省略可)
 switch.child.click.se.file=click.ogg
 
-# 選択肢の選択項目が変更されたときのSE(省略可)
+# [選択肢の選択項目が変更されたときのSE] (省略可)
 switch.change.se=btn-change.ogg
 
 ###
 ### セーブ・ロード画面の設定
 ###
 
-# セーブデータのサムネイルのサイズ
+# [セーブデータのサムネイルのサイズ]
 save.data.thumb.width=213
 save.data.thumb.height=120
 
@@ -446,26 +513,67 @@ skipmode.banner.y=186
 ### システムGUIの設定
 ###
 
-# ヒストリとセーブアイテムにルビを表示するか
+# [ヒストリとセーブアイテムにルビを表示するか] (省略可)
+#  - 0: 表示しない
+#  - 1: 表示する
 gui.ruby=1
 
-# セーブアイテムのフォントサイズ
-gui.save.font.size=36
+# [セーブのフォント] (省略可)
+#  - 0: グローバル
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+gui.save.font.select=0
 
-# セーブアイテムのルビのフォントサイズ
+# [セーブのフォントサイズ] (省略可)
+#  - 0を指定するか省略するとメッセージと同じになる
+gui.save.font.size=26
+
+# [セーブのフォントのふちどり] (省略可)
+#  - 0: メッセージボックスと同じ設定
+#  - 1: ふちどりあり
+#  - 2: ふちどりなし
+gui.save.font.outline=0
+
+# [セーブのルビのフォントサイズ]
 gui.save.font.ruby.size=16
 
-# ヒストリのフォントサイズ
-gui.history.font.size=36
+# [ヒストリのフォント] (省略可)
+#  - 0: グローバル
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+gui.history.font.select=0
 
-# ヒストリのルビのフォントサイズ
+# [ヒストリのフォントサイズ] (省略可)
+#  - 0を指定するか省略するとメッセージと同じになる
+gui.history.font.size=26
+
+# [ヒストリのフォントのふちどり] (省略可)
+#  - 0: メッセージボックスと同じ設定
+#  - 1: ふちどりあり
+#  - 2: ふちどりなし
+gui.history.font.outline=0
+
+# [ヒストリのルビのフォントサイズ] (省略可)
 gui.history.font.ruby.size=16
 
-# ヒストリの行間
+# [ヒストリの行間] (省略可)
 gui.history.margin.line=36
 
-# ヒストリでカラーを無効にする (1:無効, 0:有効) (省略可)
+# [ヒストリでカラーを無効にする] (省略可)
+#  - 0: カラーを有効にする
+#  - 1: カラーを無効にする(メッセージの色を使う)
+#  - 2: カラーを無効にする(ヒストリの色を使う)
 gui.history.disable.color=0
+
+# [ヒストリのフォントの色]
+gui.history.font.color.r=255
+gui.history.font.color.g=255
+gui.history.font.color.b=255
+gui.history.font.outline.color.r=128
+gui.history.font.outline.color.g=128
+gui.history.font.outline.color.b=128
 
 ###
 ### 音量の初期値

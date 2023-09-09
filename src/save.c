@@ -1079,8 +1079,6 @@ static bool deserialize_config_common(struct rfile *rf)
 	char key[1024];
 	char val[1024];
 
-	set_local_font_file_name(NULL);
-
 	/* 終端記号が現れるまでループする */
 	while (1) {
 		/* ロードするキーを取得する */

@@ -975,6 +975,10 @@ static void process_button_point(int index)
 		return;
 	}
 
+	/* TYPE_FONTのとき、非アクティブでなければポイントできない */
+	if (b->type == TYPE_FONT && b->rt.is_active)
+		return;
+
 	/* TYPE_PREVIEWのとき、ポイントできない */
 	if (b->type == TYPE_PREVIEW)
 		return;
@@ -1522,6 +1526,17 @@ static void draw_save_button(int button_index)
 			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
 	}
 
+	/* フォントを選択する */
+	select_font(conf_gui_save_font_select);
+	set_font_size(conf_gui_save_font_size > 0 ?
+		      conf_gui_save_font_size : conf_font_size);
+	switch (conf_gui_save_font_outline) {
+	case 0: set_font_outline(!conf_font_outline_remove); break;
+	case 1: set_font_outline(true); break;
+	case 2: set_font_outline(false); break;
+	default: break;
+	}
+
 	/* 日時を描画する */
 	if (get_save_date(save_index) == 0) {
 		snprintf(text, sizeof(text), "[%02d] NO DATA", save_index);
@@ -1785,6 +1800,17 @@ static void draw_history_button(int button_index)
 	/* イメージをクリアする */
 	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
 
+	/* フォントを選択する */
+	select_font(conf_gui_history_font_select);
+	set_font_size(conf_gui_history_font_size > 0 ?
+		      conf_gui_history_font_size : conf_font_size);
+	switch (conf_gui_history_font_outline) {
+	case 0: set_font_outline(!conf_font_outline_remove); break;
+	case 1: set_font_outline(true); break;
+	case 2: set_font_outline(false); break;
+	default: break;
+	}
+
 	/* メッセージを描画する */
 	if (button[button_index].rt.history_offset != -1)
 		draw_history_text_item(button_index);
@@ -1811,29 +1837,38 @@ static void draw_history_text_item(int button_index)
 	b->rt.pen_x = b->margin;
 	b->rt.pen_y = b->margin;
 	b->rt.color = make_pixel_slow(0xff,
-				      (pixel_t)conf_font_color_r,
-				      (pixel_t)conf_font_color_g,
-				      (pixel_t)conf_font_color_b);
+				      (pixel_t)conf_gui_history_font_color_r,
+				      (pixel_t)conf_gui_history_font_color_g,
+				      (pixel_t)conf_gui_history_font_color_b);
 	b->rt.outline_color =
 		make_pixel_slow(0xff,
-				(pixel_t)conf_font_outline_color_r,
-				(pixel_t)conf_font_outline_color_g,
-				(pixel_t)conf_font_outline_color_b);
+				(pixel_t)conf_gui_history_font_outline_color_r,
+				(pixel_t)conf_gui_history_font_outline_color_g,
+				(pixel_t)conf_gui_history_font_outline_color_b);
 
-	/* 行間マージンを求める */
-	margin_line = conf_gui_history_margin_line > 0 ?
-		conf_gui_history_margin_line : conf_msgbox_margin_line;
+	/* フォントを選択する */
+	select_font(conf_gui_history_font_select);
 
 	/* フォントサイズを設定する */
 	set_font_size(conf_gui_history_font_size > 0 ?
 		      conf_gui_history_font_size : conf_font_size);
 
+	/* アウトラインを設定する */
+	switch (conf_gui_history_font_outline) {
+	case 0: set_font_outline(!conf_font_outline_remove); break;
+	case 1: set_font_outline(true); break;
+	case 2: set_font_outline(false); break;
+	default: break;
+	}
+
 	/* ルビのフォントサイズを求める */
 	ruby_size = conf_gui_history_font_ruby_size > 0 ?
 		conf_gui_history_font_ruby_size :
-		conf_font_ruby_size > 0 ?
-		conf_font_ruby_size :
-		conf_font_size / 5;
+		conf_font_ruby_size > 0 ? conf_font_ruby_size : conf_font_size / 5;
+
+	/* 行間マージンを求める */
+	margin_line = conf_gui_history_margin_line > 0 ?
+		conf_gui_history_margin_line : conf_msgbox_margin_line;
 
 	/* 1文字ずつ描画する */
 	while (*b->rt.top != '\0') {
@@ -2297,6 +2332,11 @@ static void process_button_draw_preview(int index)
 
 	/* メッセージの途中の場合 */
 	if (!button[index].rt.is_waiting) {
+		/* フォントを選択する */
+		select_font(FONT_GLOBAL);
+		set_font_size(conf_font_size);
+		set_font_outline(!conf_font_outline_remove);
+
 		/* メインメモリ上のイメージの描画を行う */
 		draw_message(index);
 

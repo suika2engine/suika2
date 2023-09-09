@@ -125,7 +125,6 @@ static bool get_file_names_recursive(const wchar_t *base_dir, const wchar_t *dir
     WIN32_FIND_DATAW wfd;
     wchar_t curdir[PATH_SIZE];
     wchar_t findpath[PATH_SIZE];
-    wchar_t childpath[PATH_SIZE];
     char u8dir[PATH_SIZE];
     char *separator;
 
@@ -142,7 +141,7 @@ static bool get_file_names_recursive(const wchar_t *base_dir, const wchar_t *dir
 
         /* Make Utf-8 current directory path. */
         snprintf(u8dir, PATH_SIZE, "%s\\", conv_utf16_to_utf8(base_dir));
-        strncat(u8dir, conv_utf16_to_utf8(dir), PATH_SIZE);
+        strncat(u8dir, conv_utf16_to_utf8(dir), PATH_SIZE - 1);
         u8dir[PATH_SIZE - 1] = '\0';
     }
     /* Replace '\\' with '/' in u8dir. */

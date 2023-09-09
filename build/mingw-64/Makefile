@@ -27,7 +27,6 @@ CFLAGS = \
 	-O3 \
 	-municode \
 	-ffast-math \
-	-fopt-info-vec \
 	-std=gnu11 \
 	-finput-charset=utf-8 \
 	-fexec-charset=utf-8 \

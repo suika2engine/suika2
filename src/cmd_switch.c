@@ -1212,6 +1212,17 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 	pixel_t inactive_body_color, inactive_outline_color;
 	pixel_t active_body_color, active_outline_color;
 
+	/* フォントを選択する */
+	select_font(conf_switch_font_select);
+	set_font_size(conf_switch_font_size > 0 ?
+		      conf_switch_font_size : conf_font_size);
+	switch (conf_switch_font_outline) {
+	case 0: set_font_outline(!conf_font_outline_remove); break;
+	case 1: set_font_outline(true); break;
+	case 2: set_font_outline(false); break;
+	default: break;
+	}
+
 	/* 色を決める */
 	inactive_body_color =
 		make_pixel_slow(0xff,

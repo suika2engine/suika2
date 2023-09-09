@@ -53,22 +53,28 @@ int conf_window_menubar;
 /*
  * フォントの設定
  */
-char *conf_font_file;
+int conf_font_select;
+char *conf_font_global_file;
+char *conf_font_main_file;
+char *conf_font_alt1_file;
+char *conf_font_alt2_file;
 int conf_font_size;
 int conf_font_color_r;
 int conf_font_color_g;
 int conf_font_color_b;
-int conf_font_outline_size;
+int conf_font_outline_remove;
 int conf_font_outline_color_r;
 int conf_font_outline_color_g;
 int conf_font_outline_color_b;
-int conf_font_outline_remove;
 int conf_font_ruby_size;
 
 /*
  * 名前ボックスの設定
  */
 char *conf_namebox_file;
+int conf_namebox_font_select;
+int conf_namebox_font_size;
+int conf_namebox_font_outline;
 int conf_namebox_x;
 int conf_namebox_y;
 int conf_namebox_margin_top;
@@ -167,6 +173,9 @@ int click_frames;
  */
 char *conf_switch_bg_file;
 char *conf_switch_fg_file;
+int conf_switch_font_select;
+int conf_switch_font_size;
+int conf_switch_font_outline;
 int conf_switch_x;
 int conf_switch_y;
 int conf_switch_margin_y;
@@ -199,54 +208,8 @@ char *conf_retrospect_change_se;
 /*
  * セーブ・ロード画面の設定
  */
-char *conf_save_save_bg_file;
-char *conf_save_save_fg_file;
-char *conf_save_load_bg_file;
-char *conf_save_load_fg_file;
-char *conf_save_prev_se;
-int conf_save_prev_x;
-int conf_save_prev_y;
-int conf_save_prev_width;
-int conf_save_prev_height;
-char *conf_save_next_se;
-int conf_save_next_x;
-int conf_save_next_y;
-int conf_save_next_width;
-int conf_save_next_height;
-char *conf_save_data_save_se;
-char *conf_save_data_load_se;
-int conf_save_data_width;
-int conf_save_data_height;
-int conf_save_data_margin_left;
-int conf_save_data_margin_top;
 int conf_save_data_thumb_width;
 int conf_save_data_thumb_height;
-int conf_save_data_delete_x;
-int conf_save_data_delete_y;
-int conf_save_data_delete_width;
-int conf_save_data_delete_height;
-int conf_save_data1_x;
-int conf_save_data1_y;
-int conf_save_data2_x;
-int conf_save_data2_y;
-int conf_save_data3_x;
-int conf_save_data3_y;
-char *conf_save_exit_se;
-int conf_save_exit_x;
-int conf_save_exit_y;
-int conf_save_exit_width;
-int conf_save_exit_height;
-char *conf_save_title_se;
-int conf_save_title_x;
-int conf_save_title_y;
-int conf_save_title_width;
-int conf_save_title_height;
-char *conf_save_title_txt;
-char *conf_save_loadtosave_se;
-char *conf_save_savetoload_se;
-char *conf_save_cancel_save_se;
-char *conf_save_cancel_load_se;
-char *conf_save_change_se;
 
 /*
  * メニュー(@menu)の設定
@@ -342,12 +305,22 @@ int conf_skipmode_banner_y;
  * GUIの設定
  */
 int conf_gui_ruby;
+int conf_gui_save_font_select;
 int conf_gui_save_font_size;
+int conf_gui_save_font_outline;
 int conf_gui_save_font_ruby_size;
+int conf_gui_history_font_select;
 int conf_gui_history_font_size;
+int conf_gui_history_font_outline;
 int conf_gui_history_font_ruby_size;
 int conf_gui_history_margin_line;
 int conf_gui_history_disable_color;
+int conf_gui_history_font_color_r;
+int conf_gui_history_font_color_g;
+int conf_gui_history_font_color_b;
+int conf_gui_history_font_outline_color_r;
+int conf_gui_history_font_outline_color_g;
+int conf_gui_history_font_outline_color_b;
 
 /*
  * サウンドの設定
@@ -472,17 +445,24 @@ static struct rule {
 	{"window.height", 'i', &conf_window_height, MUST, NOSAVE},
 	{"window.white", 'i', &conf_window_white, MUST, NOSAVE},
 	{"window.menubar", 'i', &conf_window_menubar, OPTIONAL, NOSAVE},
-	{"font.file", 's', &conf_font_file, MUST, SAVE},
+	{"font.select", 'i', &conf_font_select, OPTIONAL, SAVE},
+	{"font.file", 's', &conf_font_global_file, MUST, NOSAVE},
+	{"font.main.file", 's', &conf_font_main_file, OPTIONAL, NOSAVE},
+	{"font.alt1.file", 's', &conf_font_alt1_file, OPTIONAL, NOSAVE},
+	{"font.alt2.file", 's', &conf_font_alt2_file, OPTIONAL, NOSAVE},
 	{"font.size", 'i', &conf_font_size, MUST, SAVE},
 	{"font.color.r", 'i', &conf_font_color_r, MUST, SAVE},
 	{"font.color.g", 'i', &conf_font_color_g, MUST, SAVE},
 	{"font.color.b", 'i', &conf_font_color_b, MUST, SAVE},
+	{"font.outline.remove", 'i', &conf_font_outline_remove, OPTIONAL, SAVE},
 	{"font.outline.color.r", 'i', &conf_font_outline_color_r, OPTIONAL, SAVE},
 	{"font.outline.color.g", 'i', &conf_font_outline_color_g, OPTIONAL, SAVE},
 	{"font.outline.color.b", 'i', &conf_font_outline_color_b, OPTIONAL, SAVE},
-	{"font.outline.remove", 'i', &conf_font_outline_remove, OPTIONAL, SAVE},
 	{"font.ruby.size", 'i', &conf_font_ruby_size, OPTIONAL, SAVE},
 	{"namebox.file", 's', &conf_namebox_file, MUST, SAVE},
+	{"namebox.font.select", 'i', &conf_namebox_font_select, OPTIONAL, SAVE},
+	{"namebox.font.size", 'i', &conf_namebox_font_size, OPTIONAL, SAVE},
+	{"namebox.font.outline", 'i', &conf_namebox_font_outline, OPTIONAL, SAVE},
 	{"namebox.x", 'i', &conf_namebox_x, MUST, SAVE},
 	{"namebox.y", 'i', &conf_namebox_y, MUST, SAVE},
 	{"namebox.margin.top", 'i', &conf_namebox_margin_top, MUST, SAVE},
@@ -582,6 +562,9 @@ static struct rule {
 	{"click.interval", 'f', &conf_click_interval, MUST, SAVE},
 	{"switch.bg.file", 's', &conf_switch_bg_file, MUST, SAVE},
 	{"switch.fg.file", 's', &conf_switch_fg_file, MUST, SAVE},
+	{"switch.font.select", 'i', &conf_switch_font_select, OPTIONAL, SAVE},
+	{"switch.font.size", 'i', &conf_switch_font_size, OPTIONAL, SAVE},
+	{"switch.font.outline", 'i', &conf_switch_font_outline, OPTIONAL, SAVE},
 	{"switch.x", 'i', &conf_switch_x, MUST, SAVE},
 	{"switch.y", 'i', &conf_switch_y, MUST, SAVE},
 	{"switch.margin.y", 'i', &conf_switch_margin_y, MUST, SAVE},
@@ -679,12 +662,22 @@ static struct rule {
 	{"sysmenu.collapsed.hover.file", 's', &conf_sysmenu_collapsed_hover_file, MUST, SAVE},
 	{"sysmenu.collapsed.se", 's', &conf_sysmenu_collapsed_se, OPTIONAL, SAVE},
 	{"gui.ruby", 'i', &conf_gui_ruby, OPTIONAL, SAVE},
+	{"gui.save.font.select", 'i', &conf_gui_save_font_select, OPTIONAL, SAVE},
 	{"gui.save.font.size", 'i', &conf_gui_save_font_size, OPTIONAL, SAVE},
+	{"gui.save.font.outline", 'i', &conf_gui_save_font_outline, OPTIONAL, SAVE},
 	{"gui.save.font.ruby.size", 'i', &conf_gui_save_font_ruby_size, OPTIONAL, SAVE},
+	{"gui.history.font.select", 'i', &conf_gui_history_font_select, OPTIONAL, SAVE},
 	{"gui.history.font.size", 'i', &conf_gui_history_font_size, OPTIONAL, SAVE},
+	{"gui.history.font.outline", 'i', &conf_gui_history_font_outline, OPTIONAL, SAVE},
 	{"gui.history.font.ruby.size", 'i', &conf_gui_history_font_ruby_size, OPTIONAL, SAVE},
 	{"gui.history.margin.line", 'i', &conf_gui_history_margin_line, OPTIONAL, SAVE},
 	{"gui.history.disable.color", 'i', &conf_gui_history_disable_color, OPTIONAL, SAVE},
+	{"gui.history.font.color.r", 'i', &conf_gui_history_font_color_r, OPTIONAL, SAVE},
+	{"gui.history.font.color.g", 'i', &conf_gui_history_font_color_g, OPTIONAL, SAVE},
+	{"gui.history.font.color.b", 'i', &conf_gui_history_font_color_b, OPTIONAL, SAVE},
+	{"gui.history.font.outline.color.r", 'i', &conf_gui_history_font_outline_color_r, OPTIONAL, SAVE},
+	{"gui.history.font.outline.color.g", 'i', &conf_gui_history_font_outline_color_g, OPTIONAL, SAVE},
+	{"gui.history.font.outline.color.b", 'i', &conf_gui_history_font_outline_color_b, OPTIONAL, SAVE},
 	/* 下記は初期音量なのでセーブしない */
 	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},
 	{"sound.vol.voice", 'f', &conf_sound_vol_voice, MUST, NOSAVE},
@@ -1444,7 +1437,7 @@ bool apply_initial_values(void)
 		set_character_volume(i, conf_sound_vol_character);
 
 	/* グローバルのフォントファイル名をセットする */
-	if (!set_global_font_file_name(conf_font_file))
+	if (!set_global_font_file_name(conf_font_global_file))
 		return false;
 
 	/* クリックアニメーションのフレーム数をカウントする */
@@ -1649,24 +1642,9 @@ static bool overwrite_config_font_file(const char *val)
 {
 	assert(val != NULL);
 
-	/*
-	 * 動的なfont.nameの書き換えは、セーブデータローカルなフォント名の
-	 * 書き換えとする
-	 */
-
+	/* font.nameの書き換えを行う */
 	if (strcmp(val, "") == 0) {
-		/*
-		 * ローカルなフォント名を抹消し、
-		 * グローバルのフォント名を使用する
-		 */
-		if (!set_local_font_file_name(NULL))
-			return false;
-	} else {
-		/*
-		 * ローカルなフォント名を登録し、
-		 * ローカルのフォント名を使用する
-		 */
-		if (!set_local_font_file_name(val))
+		if (!set_global_font_file_name(val))
 			return false;
 	}
 
