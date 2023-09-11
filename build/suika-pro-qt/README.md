@@ -1,27 +1,23 @@
-Suika2 Pro (Qt6 re-implementation)
-==================================
-This is a re-implementation of Suika2 Pro.
-It runs on Windows, macOS and Linux.
+Suika2 Pro for Linux (Qt6)
+==========================
+This is Suika2 Pro for Linux.
+
+It runs on Linux as well as Windows and macOS.
+However, while we prefer static linking on Windows,
+it doesn't seem to work because Qt6 plugins are not statically linkable.
+So the author decided not to use this port on Windows.
 
 * Preparation:
-  * Windows
-    * Install Qt Creator and setup Qt 6.2.4
-  * macOS
-    * Install Qt Creator and setup Qt 6.2.4
-  * Linux
+  * Ubuntu
     * Install Qt6 (or Qt Creator)
     ```
     apt-get install qt6-base-dev qt6-multimedia-dev
     ```
-
-* Build with Qt Creator
-  * Run `./make-deps.sh` in this directory
-  * Open Qt Creator
-  * Open `build/suika-pro-qt/CMakeLists.txt` from Qt Creator
-  * Build
+  * Windows/macOS (for testing)
+    * Install Qt Creator and setup Qt 6.2.4
 
 * Build with command line
-  * To build with command line, run the following commands in this directory:
+  * Run the following commands in this directory:
   ```
   ./make-deps.sh
   mkdir build
@@ -31,3 +27,9 @@ It runs on Windows, macOS and Linux.
   cp ..
   cp build/suika-pro ../../suika-pro
   ```
+
+* Build with Qt Creator
+  * Run `./make-deps.sh` in this directory
+  * Open Qt Creator
+  * Open `build/suika-pro-qt/CMakeLists.txt` from Qt Creator
+  * Build
