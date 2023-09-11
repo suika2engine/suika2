@@ -174,10 +174,27 @@ void log_duplicated_conf(const char *key)
  */
 void log_undefined_conf(const char *key)
 {
-	if (is_english_mode())
+	if (is_english_mode()) {
+#ifndef EM
 		log_error("Missing key \"%s\" in config.txt\n", key);
-	else
+#else
+		log_error("Missing key \"%s\" in config.txt\n"
+			  "You are probably uploaded an older version of the index files.\n"
+			  "If not, it's a problem of browser caches.\n"
+			  "Please clear the entire history of your browser.",
+			  key);
+#endif
+	} else {
+#ifndef EM
 		log_error(U8("コンフィグに\"%s\"が記述されていません。\n"), key);
+#else
+		log_error(U8("コンフィグに\"%s\"が記述されていません。\n")
+			  U8("古いバージョンのindexファイルをアップロードした可能性があります。\n")
+			  U8("そうでない場合はブラウザのキャッシュの問題です。\n")
+			  U8("ブラウザの履歴を完全に消去する必要があります。"),
+			  key);
+#endif
+	}
 }
 
 /*

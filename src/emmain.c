@@ -412,15 +412,27 @@ void EMSCRIPTEN_KEEPALIVE setHidden(int argc, char *argv[])
  * platform.hの実装
  */
 
+/* alertを表示する */
+EM_JS(void, show_alert, (const char *msg), {
+    var jsMsg = UTF8ToString(msg);
+    window.alert(jsMsg);
+});
+
 /*
  * INFOログを出力する
  */
 bool log_info(const char *s, ...)
 {
+	char buf[1024];
+
 	va_list ap;
 	va_start(ap, s);
-	vprintf(s, ap);
+	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
+
+	printf("%s", buf);
+	show_alert(buf);
+
 	return true;
 }
 
@@ -429,10 +441,16 @@ bool log_info(const char *s, ...)
  */
 bool log_warn(const char *s, ...)
 {
+	char buf[1024];
+
 	va_list ap;
 	va_start(ap, s);
-	vprintf(s, ap);
+	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
+
+	printf("%s", buf);
+	show_alert(buf);
+
 	return true;
 }
 
@@ -441,10 +459,16 @@ bool log_warn(const char *s, ...)
  */
 bool log_error(const char *s, ...)
 {
+	char buf[1024];
+
 	va_list ap;
 	va_start(ap, s);
-	vprintf(s, ap);
+	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
+
+	printf("%s", buf);
+	show_alert(buf);
+
 	return true;
 }
 
