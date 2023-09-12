@@ -18,7 +18,7 @@ CPPFLAGS = \
 #
 
 CFLAGS = \
-	-O3 \
+	-O0 -g3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-fopt-info-vec \
@@ -35,7 +35,6 @@ CFLAGS = \
 #
 
 LDFLAGS = \
-	-s \
 	-lm \
 	-lpthread \
 	-lasound \

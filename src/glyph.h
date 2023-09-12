@@ -29,14 +29,25 @@
 #define FONT_ALT2		(3)
 #define FONT_COUNT		(4)
 
+/* Set a global font file name before init_glyph(). */
+bool preinit_set_global_font_file_name(const char *fname);
+
 /* フォントレンダラの初期化処理を行う */
 bool init_glyph(void);
 
 /* フォントレンダラの終了処理を行う */
-void cleanup_glyph(bool no_free_file_names);
+void cleanup_glyph(void);
+
+/* グローバルフォントの更新を行う */
+bool reconstruct_glyph(void);
 
 /* utf-8文字列の先頭文字をutf-32文字に変換する */
-#ifndef SWITCH /* switch.h にutf8_to_utf32は既に存在します　*/
+#if defined(SUIKA_AVOID_SWITCH_REDEFINITION)
+/*
+ * We have a duplicated symbol in libnx,
+ * so just avoid redefinition for switchmain.c
+ */
+#else
 int utf8_to_utf32(const char *mbs, uint32_t *wc);
 #endif
 
@@ -57,14 +68,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 		pixel_t outline_color, uint32_t codepoint, int *w, int *h,
 		int base_font_size, bool is_dim);
 
-/* グローバルのフォントファイル名を設定する */
-bool set_global_font_file_name(const char *file);
-
 /* グローバルのフォントファイル名を取得する */
 const char *get_global_font_file_name(void);
-
-/* 現在のフォントファイル名を取得する */
-const char *get_font_file_name(void);
 
 /* サポートされているアルファベットか調べる */
 bool isgraph_extended(const char **mbs, uint32_t *wc);

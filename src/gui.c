@@ -975,10 +975,6 @@ static void process_button_point(int index)
 		return;
 	}
 
-	/* TYPE_FONTのとき、非アクティブでなければポイントできない */
-	if (b->type == TYPE_FONT && b->rt.is_active)
-		return;
-
 	/* TYPE_PREVIEWのとき、ポイントできない */
 	if (b->type == TYPE_PREVIEW)
 		return;
@@ -1199,11 +1195,8 @@ static void process_button_click(int index)
 		break;
 	case TYPE_FONT:
 		play_sys_se(b->clickse);
-		if (b->file != NULL) {
-			set_global_font_file_name(b->file);
-			if (!init_glyph())
-				abort();
-		}
+		if (b->file != NULL)
+			overwrite_config("font.file", b->file);
 		update_runtime_props(false);
 		reset_preview_all_buttons();
 		break;

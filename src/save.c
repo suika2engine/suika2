@@ -1244,7 +1244,7 @@ static void load_global_data(void)
 
 	/* フォントファイル名をデシリアライズする */
 	if (gets_rfile(rf, fname, sizeof(fname)) != NULL)
-	    set_global_font_file_name(fname);
+		preinit_set_global_font_file_name(fname);
 
 	/* コンフィグをデシリアライズする */
 	deserialize_config_common(rf);

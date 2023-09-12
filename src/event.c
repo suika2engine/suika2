@@ -104,8 +104,7 @@ void on_event_cleanup(void)
 	cleanup_mixer();
 
 	/* 文字レンダリングエンジンの終了処理を行う */
-	cleanup_glyph(false);
-	set_global_font_file_name(NULL);
+	cleanup_glyph();
 
 	/* 変数の終了処理を行う */
 	cleanup_vars();

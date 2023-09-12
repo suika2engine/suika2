@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -56,6 +56,7 @@
 #include <pthread.h>
 
 /* Suika2 */
+#define SUIKA_AVOID_SWITCH_REDEFINITION
 #include "suika.h"
 #include "glrender.h"
 
@@ -165,7 +166,7 @@ static bool init(int argc, char *argv[])
 	socketInitializeDefault();
 	nxlinkStdio();
 	parse_args(argc, argv);
-	
+
 	/* Initialize the SDL2. */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0) {
 		log_error("Failed to initialize SDL: %s", SDL_GetError());
@@ -676,7 +677,7 @@ int get_stop_watch_lap(stop_watch_t *t)
 	end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 
 	if (end < *t) {
-		/* オーバーフローの場合、タイマをリセットして0を返す */
+		/* Return 0 when overflow. */
 		reset_stop_watch(t);
 		return 0;
 	}

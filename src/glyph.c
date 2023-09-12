@@ -69,30 +69,33 @@ static void draw_glyph_dim_func(unsigned char * RESTRICT font,
 				pixel_t color);
 
 /*
+ * Set a global font file name before init_glyph().
+ * This function will be called when a load time of global save data.
+ */
+bool preinit_set_global_font_file_name(const char *fname)
+{
+	assert(font_file_name_tbl[FONT_GLOBAL] == NULL);
+
+	font_file_name_tbl[FONT_GLOBAL] = strdup(fname);
+	if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
+		log_memory();
+		return false;
+	}
+
+	return true;	
+}
+
+/*
  * フォントレンダラの初期化処理を行う
  */
 bool init_glyph(void)
 {
-	const char *fname;
+	const char *fname[FONT_COUNT];
 	FT_Error err;
 	int i;
 
 #ifdef ANDROID
-	/* Android用 */
-	for (i = 0; i < FONT_COUNT; i++) {
-		if (face[i] != NULL) {
-			FT_Done_Face(face[i]);
-			face[i] = NULL;
-		}
-		if (font_file_content[i] != NULL) {
-			free(font_file_content[i]);
-			font_file_content[i] = NULL;
-		}
-	}
-	if (library != NULL) {
-		FT_Done_FreeType(library);
-		library = NULL;
-	}
+	cleanup_glyph();
 #endif
 
 	/* FreeType2ライブラリを初期化する */
@@ -102,30 +105,19 @@ bool init_glyph(void)
 		return false;
 	}
 
+	/* コンフィグを読み込む */
+	fname[FONT_GLOBAL] = font_file_name_tbl[FONT_GLOBAL] == NULL ?
+		conf_font_global_file : font_file_name_tbl[FONT_GLOBAL];
+	fname[FONT_MAIN] = conf_font_main_file;
+	fname[FONT_ALT1] = conf_font_alt1_file;
+	fname[FONT_ALT2] = conf_font_alt2_file;
+
 	/* フォントを読み込む */
 	for (i = 0; i < FONT_COUNT; i++) {
-		/* フォントファイル名を取得する */
-		switch (i) {
-		case FONT_GLOBAL:
-			fname = conf_font_global_file;
-			break;
-		case FONT_MAIN:
-			fname = conf_font_main_file;
-			break;
-		case FONT_ALT1:
-			fname = conf_font_alt1_file;
-			break;
-		case FONT_ALT2:
-			fname = conf_font_alt2_file;
-			break;
-		default:
-			fname = NULL;
-			assert(0);
-			break;
-		}
-		if (fname == NULL)
+		if (fname[i] == NULL)
 			continue;
-		font_file_name_tbl[i] = strdup(fname);
+
+		font_file_name_tbl[i] = strdup(fname[i]);
 		if (font_file_name_tbl[i] == NULL) {
 			log_memory();
 			return false;
@@ -155,7 +147,7 @@ bool init_glyph(void)
 /*
  * フォントレンダラの終了処理を行う
  */
-void cleanup_glyph(bool no_free_file_names)
+void cleanup_glyph(void)
 {
 	int i;
 
@@ -168,20 +160,67 @@ void cleanup_glyph(bool no_free_file_names)
 			free(font_file_content[i]);
 			font_file_content[i] = NULL;
 		}
+		if (font_file_name_tbl[i] != NULL) {
+			free(font_file_name_tbl[i]);
+			font_file_name_tbl[i] = NULL;
+		}
 	}
+
 	if (library != NULL) {
 		FT_Done_FreeType(library);
 		library = NULL;
 	}
+}
 
-	if (!no_free_file_names) {
-		for (i = 0; i < FONT_COUNT; i++) {
-			if (font_file_name_tbl[i] != NULL) {
-				free(font_file_name_tbl[i]);
-				font_file_name_tbl[i] = NULL;
-			}
-		}
+/*
+ * グローバルフォントの更新を行う
+ */
+bool reconstruct_glyph(void)
+{
+	FT_Error err;
+
+	assert(conf_font_global_file != NULL);
+	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
+
+	/* Cleanup the current global font. */
+
+	assert(face[FONT_GLOBAL] != NULL);
+	FT_Done_Face(face[FONT_GLOBAL]);
+	face[FONT_GLOBAL] = NULL;
+
+	assert(font_file_content[FONT_GLOBAL] != NULL);
+	free(font_file_content[FONT_GLOBAL]);
+	font_file_content[FONT_GLOBAL] = NULL;
+
+	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
+	free(font_file_name_tbl[FONT_GLOBAL]);
+	font_file_name_tbl[FONT_GLOBAL] = NULL;
+
+	/* グローバルフォントファイル名を更新する */
+	font_file_name_tbl[FONT_GLOBAL] = strdup(conf_font_global_file);
+	if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
+		log_memory();
+		return false;
 	}
+
+	/* フォントファイルの内容を読み込む */
+	if (!read_font_file_content(font_file_name_tbl[FONT_GLOBAL],
+				    &font_file_content[FONT_GLOBAL],
+				    &font_file_size[FONT_GLOBAL]))
+		return false;
+
+	/* フォントファイルを読み込む */
+	err = FT_New_Memory_Face(library,
+				 font_file_content[FONT_GLOBAL],
+				 font_file_size[FONT_GLOBAL],
+				 0,
+				 &face[FONT_GLOBAL]);
+	if (err != 0) {
+		log_font_file_error(font_file_name_tbl[FONT_GLOBAL]);
+		return false;
+	}
+
+	return true;
 }
 
 /* フォントファイルの内容を読み込む */
@@ -538,62 +577,12 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 }
 
 /*
- * グローバルのフォントファイル名を設定する
- *  - init_glyph()よりも前に呼ばれる
- *  - 最初のinit_glyph()のあとで反映するには、cleanup_glyph(true), init_glyph() の
- *    順で呼び出す
- */
-bool set_global_font_file_name(const char *file)
-{
-	if (font_file_name_tbl[FONT_GLOBAL] != NULL) {
-		free(font_file_name_tbl[FONT_GLOBAL]);
-		font_file_name_tbl[FONT_GLOBAL] = NULL;
-	}
-
-	if (file != NULL) {
-		font_file_name_tbl[FONT_GLOBAL] = strdup(file);
-		if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
-			log_memory();
-			return false;
-		}
-	}
-
-	return true;
-}
-
-/*
  * グローバルのフォントファイル名を取得する
  */
 const char *get_global_font_file_name(void)
 {
 	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
 	return font_file_name_tbl[FONT_GLOBAL];
-}
-
-/*
- * ローカルのフォントファイル名を設定する
- *  - init_glyph()よりも前に呼ばれることはない
- *  - 反映するには、cleanup_glyph(true), init_glyph() の順で呼び出す
- */
-bool set_local_font_file_name(int type, const char *file)
-{
-	assert(type != FONT_GLOBAL);
-	assert(type == FONT_MAIN || type == FONT_ALT1 || type == FONT_ALT2);
-
-	if (font_file_name_tbl[type] != NULL) {
-		free(font_file_name_tbl[type]);
-		font_file_name_tbl[type] = NULL;
-	}
-
-	if (file != NULL) {
-		font_file_name_tbl[type] = strdup(file);
-		if (font_file_name_tbl[type] == NULL) {
-			log_memory();
-			return false;
-		}
-	}
-
-	return true;
 }
 
 /*
