@@ -490,7 +490,8 @@ static bool get_choose_info(void)
 		parent_button[i].child_count = 0;
 
 		/* 座標を計算する */
-		get_switch_rect(i, &parent_button[i].x,
+		get_switch_rect(i,
+				&parent_button[i].x,
 				&parent_button[i].y,
 				&parent_button[i].w,
 				&parent_button[i].h);
@@ -648,12 +649,14 @@ static bool get_switch_parents_info(void)
 
 		/* 座標を計算する */
 		if (get_command_type() == COMMAND_SWITCH) {
-			get_switch_rect(i, &parent_button[i].x,
+			get_switch_rect(i,
+					&parent_button[i].x,
 					&parent_button[i].y,
 					&parent_button[i].w,
 					&parent_button[i].h);
 		} else {
-			get_news_rect(i, &parent_button[i].x,
+			get_news_rect(i,
+				      &parent_button[i].x,
 				      &parent_button[i].y,
 				      &parent_button[i].w,
 				      &parent_button[i].h);
@@ -706,7 +709,8 @@ static bool get_switch_children_info(void)
 			child_button[i][j].msg = p;
 
 			/* 座標を計算する */
-			get_switch_rect(j, &child_button[i][j].x,
+			get_switch_rect(j,
+					&child_button[i][j].x,
 					&child_button[i][j].y,
 					&child_button[i][j].w,
 					&child_button[i][j].h);
@@ -1279,7 +1283,7 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		y,
 		w,
 		h,
-		0,			/* left_margin */
+		x,			/* left_margin */
 		0,			/* right_margin */
 		conf_switch_text_margin_y,
 		0,			/* bottom_margin */
@@ -1288,7 +1292,7 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		active_color,
 		active_outline_color,
 		false,			/* is_dimming */
-		false,			/* ignore_linefeed */
+		true,			/* ignore_linefeed */
 		false,			/* ignore_color */
 		false,			/* ignore_size */
 		false,			/* ignore_position */
@@ -1313,7 +1317,7 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		y,
 		w,
 		h,
-		0,			/* left_margin */
+		x,			/* left_margin */
 		0,			/* right_margin */
 		conf_switch_text_margin_y,
 		0,			/* bottom_margin */
@@ -1322,7 +1326,7 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		active_color,
 		active_outline_color,
 		false,			/* is_dimming */
-		false,			/* ignore_linefeed */
+		true,			/* ignore_linefeed */
 		false,			/* ignore_color */
 		false,			/* ignore_size */
 		false,			/* ignore_position */

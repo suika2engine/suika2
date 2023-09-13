@@ -74,6 +74,13 @@
 # Set English mode
 
 @setconfig locale.force en
+@setconfig font.size 28
+@setconfig msgbox.margin.line 45
+@setconfig switch.font.size 28
+@setconfig switch.text.margin.y 16
+@setconfig gui.history.font.size 30
+@setconfig gui.history.margin.line 45
+@setconfig gui.save.font.size 30
 
 # 英語のファイルに移動します
 # Move to an English file

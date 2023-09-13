@@ -1230,6 +1230,8 @@ draw_msg_common(
 /* ワードラッピングを処理する */
 static void do_word_wrapping(struct draw_msg_context *context)
 {
+	if (context->ignore_linefeed)
+		return;
 	if (context->use_tategaki)
 		return;
 
@@ -1263,7 +1265,10 @@ static int get_en_word_width(struct draw_msg_context *context)
 static void process_lf(struct draw_msg_context *context, uint32_t c,
 		       int glyph_width, int glyph_height)
 {
-	if (!conf_msgbox_tategaki) {
+	if (context->ignore_linefeed)
+		return;
+
+	if (!context->use_tategaki) {
 		/* 右側の幅が足りる場合、改行しない */
 		if (context->pen_x + glyph_width + context->char_margin <
 		    context->area_width - context->right_margin)

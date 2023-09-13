@@ -1880,14 +1880,14 @@ static void draw_history_text_item(int button_index)
 		font_size,
 		ruby_size,
 		use_outline,
-		b->margin,
-		b->margin,
-		b->width,
-		b->height,
-		0,		/* left_margin */
-		0,		/* right_margin */
-		0,		/* top_margin */
-		0,		/* bottom_margin */
+		b->margin,	/* pen_x */
+		b->margin,	/* pen_y */
+		b->width,	/* area_width */
+		b->height,	/* area_height */
+		b->margin,	/* left_margin */
+		b->margin,	/* right_margin */
+		b->margin,	/* top_margin */
+		b->margin,	/* bottom_margin */
 		margin_line,	/* line_margin */
 		conf_msgbox_margin_char,
 		color,
