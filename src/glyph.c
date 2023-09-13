@@ -1429,6 +1429,9 @@ static void process_escape_sequence(struct draw_msg_context *context,
 /* 改行("\\n")を処理する */
 static void process_escape_sequence_lf(struct draw_msg_context *context)
 {
+	if (context->ignore_linefeed)
+		return;
+
 	if (!context->use_tategaki) {
 		context->pen_y += context->line_margin;
 		context->pen_x = context->left_margin;
@@ -1463,7 +1466,7 @@ static bool process_escape_sequence_color(struct draw_msg_context *context)
 	if (*(p + 9) != '}')
 		return false;
 
-	if (!context->is_dimming) {
+	if (!context->ignore_color) {
 		/* カラーコードを読む */
 		memcpy(color_code, p + 3, 6);
 		color_code[6] = '\0';
@@ -1475,7 +1478,7 @@ static bool process_escape_sequence_color(struct draw_msg_context *context)
 		context->color = make_pixel_slow(0xff, r, g, b);
 	}
 
-	/* "\\#{" + "xxxxxx" + "}" */
+	/* "\\#{" + "RRGGBB" + "}" */
 	context->msg += 3 + 6 + 1;
 	return true;
 }
@@ -1505,13 +1508,14 @@ static bool process_escape_sequence_size(struct draw_msg_context *context)
 	}
 	size_spec[i] = '\0';
 
-	/* サイズ文字列を整数に変換する */
-	size = 0;
-	sscanf(size_spec, "%d", &size);
+	if (!context->ignore_size) {
+		/* サイズ文字列を整数に変換する */
+		size = 0;
+		sscanf(size_spec, "%d", &size);
 
-	/* フォントサイズを変更する */
-	if (!context->ignore_size)
+		/* フォントサイズを変更する */
 		context->font_size = size;
+	}
 
 	/* "\\@{" + "xxx" + "}" */
 	context->msg += 3 + i + 1;
@@ -1544,11 +1548,11 @@ static bool process_escape_sequence_wait(struct draw_msg_context *context)
 	}
 	time_spec[i] = '\0';
 
-	/* 時間文字列を浮動小数点数に変換する */
-	sscanf(time_spec, "%f", &wait_time);
-
-	/* ウェイトを処理する */
 	if (!context->ignore_wait) {
+		/* 時間文字列を浮動小数点数に変換する */
+		sscanf(time_spec, "%f", &wait_time);
+
+		/* ウェイトを処理する */
 		context->runtime_is_inline_wait = true;
 		context->inline_wait_hook(wait_time);
 	}
@@ -1589,11 +1593,11 @@ static bool process_escape_sequence_pen(struct draw_msg_context *context)
 	if (!separator_found)
 		return false;
 
-	/* 座標文字列を浮動小数点数に変換する */
-	sscanf(pos_spec, "%d,%d", &pen_x, &pen_y);
-
-	/* 描画位置を更新する */
 	if (!context->ignore_position) {
+		/* 座標文字列を浮動小数点数に変換する */
+		sscanf(pos_spec, "%d,%d", &pen_x, &pen_y);
+
+		/* 描画位置を更新する */
 		context->pen_x = pen_x;
 		context->pen_y = pen_y;
 	}
@@ -1633,12 +1637,15 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context,
 	/* \^{ + ruby[] + } */
 	context->msg += 3 + i + 1;
 
+	if (context->ignore_ruby)
+		return true;
+
 	/* 描画する */
 	p = ruby;
 	while (*p) {
 		mblen = utf8_to_utf32(p, &wc);
 		if (mblen == -1)
-			break;
+			return false;
 
 		draw_glyph_wrapper(context->layer_image,
 				   context->font,

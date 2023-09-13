@@ -1435,7 +1435,9 @@ static void draw_namebox(void)
 	char_count = count_chars_common(&context);
 
 	/* 文字描画する */
+	lock_layers_for_msgdraw(LAYER_NAME, -1);
 	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+	unlock_layers_for_msgdraw(LAYER_NAME, -1);
 }
 
 /* キャラクタのフォーカスを行う */

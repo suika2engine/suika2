@@ -1820,7 +1820,14 @@ static void draw_history_text_item(int button_index)
 		 * string head as an escape sequece.
 		 */
 		ignore_color = false;
-		color = outline_color = 0;
+		color = make_pixel_slow(0xff,
+					(pixel_t)conf_font_color_r,
+					(pixel_t)conf_font_color_g,
+					(pixel_t)conf_font_color_b);
+		outline_color = make_pixel_slow(0xff,
+						(pixel_t)conf_font_outline_color_r,
+						(pixel_t)conf_font_outline_color_g,
+						(pixel_t)conf_font_outline_color_b);
 		break;
 	case 1:
 		/* Use font.color */
