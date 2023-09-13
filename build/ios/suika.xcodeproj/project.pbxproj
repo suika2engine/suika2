@@ -36,7 +36,6 @@
 		26B385CE26D134EE000A7A1C /* cmd_vol.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859526D134EE000A7A1C /* cmd_vol.c */; };
 		26B385CF26D134EE000A7A1C /* cmd_se.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859626D134EE000A7A1C /* cmd_se.c */; };
 		26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859726D134EE000A7A1C /* cmd_goto.c */; };
-		26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859926D134EE000A7A1C /* cmd_retrospect.c */; };
 		26B385D226D134EE000A7A1C /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859D26D134EE000A7A1C /* mixer.c */; };
 		26B385D326D134EE000A7A1C /* cmd_wait.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385A126D134EE000A7A1C /* cmd_wait.c */; };
 		26B385D426D134EE000A7A1C /* wave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385A226D134EE000A7A1C /* wave.c */; };
@@ -47,7 +46,6 @@
 		26B385D926D134EE000A7A1C /* cmd_load.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385AA26D134EE000A7A1C /* cmd_load.c */; };
 		26B385DA26D134EE000A7A1C /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385AE26D134EE000A7A1C /* cmd_setsave.c */; };
 		26B385DB26D134EE000A7A1C /* stage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385AF26D134EE000A7A1C /* stage.c */; };
-		26B385DC26D134EE000A7A1C /* cmd_menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B026D134EE000A7A1C /* cmd_menu.c */; };
 		26B385DE26D134EE000A7A1C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B226D134EE000A7A1C /* main.c */; };
 		26B385DF26D134EE000A7A1C /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B526D134EE000A7A1C /* scbuf.c */; };
 		26B385E026D134EE000A7A1C /* cmd_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B626D134EE000A7A1C /* cmd_set.c */; };
@@ -132,7 +130,6 @@
 		26B385AD26D134EE000A7A1C /* script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = script.h; path = ../../src/script.h; sourceTree = "<group>"; };
 		26B385AE26D134EE000A7A1C /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		26B385AF26D134EE000A7A1C /* stage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stage.c; path = ../../src/stage.c; sourceTree = "<group>"; };
-		26B385B026D134EE000A7A1C /* cmd_menu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_menu.c; path = ../../src/cmd_menu.c; sourceTree = "<group>"; };
 		26B385B226D134EE000A7A1C /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../src/main.c; sourceTree = "<group>"; };
 		26B385B326D134EE000A7A1C /* aunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aunit.h; path = ../../src/aunit.h; sourceTree = "<group>"; };
 		26B385B426D134EE000A7A1C /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../../src/image.h; sourceTree = "<group>"; };
@@ -223,7 +220,6 @@
 				26D910BF2914C8D700876016 /* cmd_gui.c */,
 				26B385BA26D134EE000A7A1C /* cmd_if.c */,
 				26B385AA26D134EE000A7A1C /* cmd_load.c */,
-				26B385B026D134EE000A7A1C /* cmd_menu.c */,
 				26B385BB26D134EE000A7A1C /* cmd_message.c */,
 				26B3859926D134EE000A7A1C /* cmd_retrospect.c */,
 				26B3858926D134EE000A7A1C /* cmd_return.c */,
@@ -365,7 +361,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				26B385E426D134EE000A7A1C /* cmd_bgm.c in Sources */,
-				26B385DC26D134EE000A7A1C /* cmd_menu.c in Sources */,
 				268B09E126D89FE40074577E /* iosmain.m in Sources */,
 				26B385DB26D134EE000A7A1C /* stage.c in Sources */,
 				26B385C526D134EE000A7A1C /* glyph.c in Sources */,
