@@ -172,8 +172,8 @@ struct insn_item {
 	int max;		/* 最大のパラメータ数 */
 } insn_tbl[] = {
 	/* 背景変更 */
-	{"@bg", COMMAND_BG, 1, 3},
-	{U8("@背景"), COMMAND_BG, 1, 3},
+	{"@bg", COMMAND_BG, 1, 5},
+	{U8("@背景"), COMMAND_BG, 1, 5},
 
 	/* BGM再生 */
 	{"@bgm", COMMAND_BGM, 1, 2},
@@ -306,6 +306,8 @@ struct param_item {
 	{COMMAND_BG, BG_PARAM_SPAN, U8("秒=")},
 	{COMMAND_BG, BG_PARAM_METHOD, "effect="},
 	{COMMAND_BG, BG_PARAM_METHOD, U8("エフェクト=")},
+	{COMMAND_BG, BG_PARAM_X, "x="},
+	{COMMAND_BG, BG_PARAM_Y, "y="},
 
 	/* @bgm */
 	{COMMAND_BGM, BG_PARAM_FILE, "file="},

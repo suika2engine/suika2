@@ -63,11 +63,14 @@ static bool init(void)
 {
 	static struct image *img, *rule_img;
 	const char *fname, *method;
+	int ofs_x, ofs_y;
 
 	/* パラメータを取得する */
 	fname = get_string_param(BG_PARAM_FILE);
 	span = get_float_param(BG_PARAM_SPAN);
 	method = get_string_param(BG_PARAM_METHOD);
+	ofs_x = get_int_param(BG_PARAM_X);
+	ofs_y = get_int_param(BG_PARAM_Y);
 
  	/* 描画メソッドを識別する */
 	fade_method = get_fade_method(method);
@@ -125,7 +128,7 @@ static bool init(void)
 	set_ch_file_name(CH_RIGHT, NULL);
 	set_ch_file_name(CH_LEFT, NULL);
 	set_ch_file_name(CH_CENTER, NULL);
-	change_bg_attributes(0, 0);
+	change_bg_attributes(ofs_x, ofs_y);
 
 	/* メッセージボックスを消す (msgbox.show.on.bg=2) */
 	if (conf_msgbox_show_on_bg == 2) {
