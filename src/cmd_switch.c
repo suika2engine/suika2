@@ -17,6 +17,7 @@
  *  - 2022/06/17 @chooseに対応、@newsの設定項目を@switchに統合
  *  - 2023/06/26 リファクタリング
  *  - 2023/08/26 conf_msgbox_show_on_choose
+ *  - 2023/09/12 メッセージ描画の共通化
  */
 
 /*
@@ -252,7 +253,7 @@ static void update_switch_parent(int *x, int *y, int *w, int *h);
 static void draw_fo_fi_child(void);
 static void draw_switch_child_images(void);
 static void update_switch_child(int *x, int *y, int *w, int *h);
-static void draw_text(int x, int y, int w, const char *t, bool is_news);
+static void draw_text(int x, int y, int w, int h, const char *t, bool is_news);
 static void draw_keep(void);
 
 /* システムメニュー */
@@ -1075,10 +1076,10 @@ static int get_pointed_child_index(void)
 /* 親選択肢のFO/FIレイヤを描画する */
 static void draw_fo_fi_parent(void)
 {
-	lock_draw_char_on_fo_fi();
+	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 	draw_stage_fo_fi();
 	draw_switch_parent_images();
-	unlock_draw_char_on_fo_fi();
+	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 }
 
 /* 親選択肢のイメージを描画する */
@@ -1112,7 +1113,8 @@ void draw_switch_parent_images(void)
 
 		/* テキストを描画する */
 		draw_text(parent_button[i].x, parent_button[i].y,
-			  parent_button[i].w, parent_button[i].msg, is_news);
+			  parent_button[i].w, parent_button[i].h,
+			  parent_button[i].msg, is_news);
 	}
 }
 
@@ -1135,7 +1137,7 @@ void update_switch_parent(int *x, int *y, int *w, int *h)
 	}
 
 	/* FOレイヤ全体とFIレイヤの矩形を画面に描画する */
-	draw_stage_with_button(bx, by, bw, bh);
+	draw_fo_all_and_fi_rect(bx, by, bw, bh);
 
 	/* 更新範囲を設定する */
 	*x = 0;
@@ -1147,10 +1149,10 @@ void update_switch_parent(int *x, int *y, int *w, int *h)
 /* 子選択肢のFO/FIレイヤを描画する */
 static void draw_fo_fi_child(void)
 {
-	lock_draw_char_on_fo_fi();
+	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 	draw_stage_fo_fi();
 	draw_switch_child_images();
-	unlock_draw_char_on_fo_fi();
+	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 }
 
 /* 子選択肢のイメージを描画する */
@@ -1171,7 +1173,8 @@ void draw_switch_child_images(void)
 
 		/* テキストを描画する */
 		draw_text(child_button[i][j].x, child_button[i][j].y,
-			  child_button[i][j].w, child_button[i][j].msg, false);
+			  child_button[i][j].w, child_button[i][j].h,
+			  child_button[i][j].msg, false);
 	}
 }
 
@@ -1195,7 +1198,7 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 	}
 
 	/* FO全体とFIの1矩形を描画する(GPU用) */
-	draw_stage_with_button(bx, by, bw, bh);
+	draw_fo_all_and_fi_rect(bx, by, bw, bh);
 
 	/* 更新範囲を設定する */
 	*x = 0;
@@ -1205,26 +1208,30 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 }
 
 /* 選択肢のテキストを描画する */
-static void draw_text(int x, int y, int w, const char *t, bool is_news)
+static void draw_text(int x, int y, int w, int h, const char *text,
+		      bool is_news)
 {
-	uint32_t c;
-	int mblen, ret_w, ret_h;
-	pixel_t inactive_body_color, inactive_outline_color;
-	pixel_t active_body_color, active_outline_color;
+	struct draw_msg_context context;
+	pixel_t active_color, active_outline_color;
+	pixel_t inactive_color, inactive_outline_color;
+	int font_size, char_count;
+	int ret_x, ret_y, ret_w, ret_h;
+	bool use_outline;
 
-	/* フォントを選択する */
-	select_font(conf_switch_font_select);
-	set_font_size(conf_switch_font_size > 0 ?
-		      conf_switch_font_size : conf_font_size);
+	/* フォントサイズを取得する */
+	font_size = conf_switch_font_size > 0 ?
+		conf_switch_font_size : conf_font_size;
+
+	/* ふちどりを決定する */
 	switch (conf_switch_font_outline) {
-	case 0: set_font_outline(!conf_font_outline_remove); break;
-	case 1: set_font_outline(true); break;
-	case 2: set_font_outline(false); break;
-	default: break;
+	case 0: use_outline = !conf_font_outline_remove; break;
+	case 1: use_outline = true; break;
+	case 2: use_outline = false; break;
+	default: use_outline = false; break;
 	}
 
-	/* 色を決める */
-	inactive_body_color =
+	/* 色を決める FIXME: add font color for switch. */
+	inactive_color =
 		make_pixel_slow(0xff,
 				(pixel_t)conf_font_color_r,
 				(pixel_t)conf_font_color_g,
@@ -1235,7 +1242,7 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 				(pixel_t)conf_font_outline_color_g,
 				(pixel_t)conf_font_outline_color_b);
 	if (conf_switch_color_active) {
-		active_body_color =
+		active_color =
 			make_pixel_slow(0xff,
 					(pixel_t)conf_switch_color_active_body_r,
 					(pixel_t)conf_switch_color_active_body_g,
@@ -1246,39 +1253,84 @@ static void draw_text(int x, int y, int w, const char *t, bool is_news)
 					(pixel_t)conf_switch_color_active_outline_g,
 					(pixel_t)conf_switch_color_active_outline_b);
 	} else {
-		active_body_color = inactive_body_color;
+		active_color = inactive_color;
 		active_outline_color = inactive_outline_color;
 	}
 
 	/* 描画位置を決める */
-	if (is_centered)
-		x = x + (w - get_utf8_width(t)) / 2;
+	if (is_centered) {
+		x = x + (w - get_string_width(conf_switch_font_select,
+					      font_size,
+					      text)) / 2;
+	}
 	y += is_news ? conf_news_text_margin_y : conf_switch_text_margin_y;
 
-	/* 1文字ずつ描画する */
-	while (*t != '\0') {
-		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(t, &c);
-		if (mblen == -1)
-			return;
+	/* FIレイヤに選択時の色で文字を描画する */
+	construct_draw_msg_context(
+		&context,
+		LAYER_FO,
+		text,
+		conf_switch_font_select,
+		font_size,
+		font_size,		/* base_font_size */
+		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
+		use_outline,
+		x,
+		y,
+		w,
+		h,
+		0,			/* left_margin */
+		0,			/* right_margin */
+		conf_switch_text_margin_y,
+		0,			/* bottom_margin */
+		0,			/* line_margin */
+		conf_msgbox_margin_char,
+		active_color,
+		active_outline_color,
+		false,			/* is_dimming */
+		false,			/* ignore_linefeed */
+		false,			/* ignore_color */
+		false,			/* ignore_size */
+		false,			/* ignore_position */
+		false,			/* ignore_ruby */
+		true,			/* ignore_wait */
+		NULL,			/* inline_wait_hook */
+		conf_msgbox_tategaki);	/* use_tategaki */
+	char_count = count_chars_common(&context);
+	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
 
-		/* 描画する */
-		draw_char_on_fo_fi(x, y, c,
-				   inactive_body_color,
-				   inactive_outline_color,
-				   active_body_color,
-				   active_outline_color,
-				   &ret_w, &ret_h);
-
-		/* 描画位置を進める */
-		if (conf_msgbox_tategaki)
-			y += ret_h;
-		else
-			x += ret_w;
-			
-		/* 次の文字へ移動する */
-		t += mblen;
-	}
+	/* FOレイヤに非選択時の色で文字を描画する */
+	construct_draw_msg_context(
+		&context,
+		LAYER_FI,
+		text,
+		conf_switch_font_select,
+		font_size,
+		font_size,		/* base_font_size */
+		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
+		use_outline,
+		x,
+		y,
+		w,
+		h,
+		0,			/* left_margin */
+		0,			/* right_margin */
+		conf_switch_text_margin_y,
+		0,			/* bottom_margin */
+		0,			/* line_margin */
+		conf_msgbox_margin_char,
+		active_color,
+		active_outline_color,
+		false,			/* is_dimming */
+		false,			/* ignore_linefeed */
+		false,			/* ignore_color */
+		false,			/* ignore_size */
+		false,			/* ignore_position */
+		false,			/* ignore_ruby */
+		true,			/* ignore_wait */
+		NULL,			/* inline_wait_hook */
+		conf_msgbox_tategaki);	/* use_tategaki */
+	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
 }
 
 /* 描画する(GPU用) */
@@ -1307,7 +1359,7 @@ static void draw_keep(void)
 	}
 
 	/* FO全体とFIの1矩形を描画する(GPU用) */
-	draw_stage_with_button_keep(x, y, w, h);
+	draw_fo_all_and_fi_rect_accelerated(x, y, w, h);
 }
 
 /*
@@ -1386,7 +1438,7 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 		/* 背景を描画する */
 		get_sysmenu_rect(&bx, &by, &bw, &bh);
 		union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
-		draw_stage_rect_with_buttons(bx, by, bw, bh, 0, 0, 0, 0);
+		draw_fo_rect_accelerated(bx, by, bw, bh);
 
 		/* システムメニューを描画する */
 		draw_stage_sysmenu(false,

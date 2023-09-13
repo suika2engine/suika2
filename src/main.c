@@ -423,14 +423,6 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		*cont = true;
 		break;
-	case COMMAND_MENU:
-		if (!menu_command(x, y, w, h))
-			return false;
-		break;
-	case COMMAND_RETROSPECT:
-		if (!retrospect_command(x, y, w, h))
-			return false;
-		break;
 	case COMMAND_CHOOSE:
 	case COMMAND_ICHOOSE:
 	case COMMAND_SWITCH:	/* deprecated */

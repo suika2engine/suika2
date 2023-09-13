@@ -46,61 +46,6 @@
 #define CURTAIN_WIDTH	(256)
 
 /*
- * ステージのレイヤ
- */
-enum {
-	/*
-	 * 下記のレイヤは次の場合に有効
-	 *  - 背景フェード
-	 *  - キャラのフェード
-	 *  - イメージボタン
-	 *  - セーブ・ロード
-	 *  - スイッチ
-	 */
-	LAYER_FO,	/* 特殊: 実体イメージあり */
-
-	/*
-	 * 下記のレイヤは次の場合に有効
-	 *  - キャラフェード
-	 *  - イメージボタン
-	 *  - セーブ
-	 *  - ロード
-	 *  - スイッチ
-	 */
-	LAYER_FI,	/* 特殊: 実体イメージあり */
-
-	/* 背景レイヤ */
-	LAYER_BG,
-
-	/* キャラクタレイヤ(顔以外) */
-	LAYER_CHB,
-	LAYER_CHL,
-	LAYER_CHR,
-	LAYER_CHC,
-
-	/* メッセージレイヤ */
-	LAYER_MSG,	/* 特殊: 実体イメージあり */
-
-	/* 名前レイヤ */
-	LAYER_NAME,	/* 特殊: 実体イメージあり */
-
-	/* キャラクタレイヤ(顔) */
-	LAYER_CHF,
-
-	/* クリックアニメーション */
-	LAYER_CLICK,	/* 特殊: click_image[i]への参照 */
-
-	/* オートモードバナー */
-	LAYER_AUTO,
-
-	/* スキップモードバナー */
-	LAYER_SKIP,
-
-	/* 総レイヤ数 */
-	STAGE_LAYERS
-};
-
-/*
  * ステージの動作モード
  *  - 当初考えていたほどモードが増えなかったので、個別にフラグにしてもよい
  *  - アニメサブシステムに移行中で、移行後はこのモードを削除する予定
@@ -310,9 +255,6 @@ static int layer_to_pos(int layer);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
-static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
-			       pixel_t color, pixel_t outline_color,int *w,
-			       int *h, int base_font_size, bool is_dim);
 
 /*
  * 初期化
@@ -440,7 +382,7 @@ static bool setup_namebox(void)
 	layer_y[LAYER_NAME] = conf_namebox_y;
 
 	/* 内容を転送する */
-	clear_namebox();
+	fill_namebox();
 
 	return true;
 }
@@ -495,7 +437,7 @@ static bool setup_msgbox(void)
 	layer_y[LAYER_MSG] = conf_msgbox_y;
 
 	/* 内容を転送する */
-	clear_msgbox();
+	fill_msgbox();
 
 	return true;
 }
@@ -914,6 +856,29 @@ static void destroy_layer_image(int layer)
 		destroy_image(layer_image[layer]);
 		layer_image[layer] = NULL;
 	}
+}
+
+/*
+ * 文字描画
+ */
+
+/*
+ * レイヤイメージを取得する
+ */
+struct image *get_layer_image(int layer)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	return layer_image[layer];
+}
+
+/*
+ * レイヤーの位置を取得する
+ */
+void get_layer_position(int layer, int *x, int *y)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	*x = layer_x[layer];
+	*y = layer_y[layer];
 }
 
 /*
@@ -2083,7 +2048,7 @@ void draw_stage_shake(void)
 /*
  * ステージの背景(FO)全体と、前景(FI)の矩形を描画する
  */
-void draw_stage_with_button(int x, int y, int w, int h)
+void draw_fo_all_and_fi_rect(int x, int y, int w, int h)
 {
 	assert(stage_mode == STAGE_MODE_IDLE);
 
@@ -2100,17 +2065,16 @@ void draw_stage_with_button(int x, int y, int w, int h)
 /*
  * ステージの背景(FO)全体と、前景(FI)の矩形を描画する(GPU用)
  */
-void draw_stage_with_button_keep(int x, int y, int w, int h)
+void draw_fo_all_and_fi_rect_accelerated(int x, int y, int w, int h)
 {
 	if (is_gpu_accelerated())
-		draw_stage_with_button(x, y, w, h);
+		draw_fo_all_and_fi_rect(x, y, w, h);
 }
 
 /*
- * ステージの背景(FO)のうち1矩形と、前景(FI)のうち1矩形を描画する
+ * CPU描画の場合はFOのうち1矩形、GPU描画の場合はFO全体を描画する
  */
-void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
-				  int new_x, int new_y, int new_w, int new_h)
+void draw_fo_rect_accelerated(int x, int y, int w, int h)
 {
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
@@ -2123,13 +2087,9 @@ void draw_stage_rect_with_buttons(int old_x, int old_y, int old_w, int old_h,
 			     0, 0, 255, BLEND_NONE);
 	} else {
 		/* 古いボタンを消す */
-		render_image(old_x, old_y, layer_image[LAYER_FO], old_w, old_h, old_x,
-			     old_y, 255, BLEND_NONE);
+		render_image(x, y, layer_image[LAYER_FO], w, h, x, y, 255,
+			     BLEND_NONE);
 	}
-
-	/* 新しいボタンを描画する */
-	render_image(new_x, new_y, layer_image[LAYER_FI], new_w, new_h, new_x,
-		     new_y, 255, BLEND_NONE);
 }
 
 /*
@@ -3214,9 +3174,9 @@ void get_namebox_rect(int *x, int *y, int *w, int *h)
 }
 
 /*
- * 名前ボックスをクリアする
+ * 名前ボックスを名前ボックス画像で埋める
  */
-void clear_namebox(void)
+void fill_namebox(void)
 {
 	if (namebox_image == NULL)
 		return;
@@ -3238,20 +3198,6 @@ void show_namebox(bool show)
 }
 
 /*
- * メッセージボックスに文字を描画する
- *  - 描画した幅を返す
- */
-void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
-			  pixel_t outline_color, int *w, int *h,
-			  int base_font_size, bool is_dim)
-{
-	lock_image(layer_image[LAYER_NAME]);
-	draw_char_on_layer(LAYER_NAME, x, y, wc, color, outline_color, w, h,
-			   base_font_size, is_dim);
-	unlock_image(layer_image[LAYER_NAME]);
-}
-
-/*
  * メッセージボックスの描画
  */
 
@@ -3267,9 +3213,9 @@ void get_msgbox_rect(int *x, int *y, int *w, int *h)
 }
 
 /*
- * メッセージボックスを背景でクリアする
+ * メッセージボックスの背景を描画する
  */
-void clear_msgbox(void)
+void fill_msgbox(void)
 {
 	if (msgbox_bg_image == NULL)
 		return;
@@ -3283,9 +3229,9 @@ void clear_msgbox(void)
 }
 
 /*
- * メッセージボックスの矩形を背景でクリアする
+ * メッセージボックスの背景の矩形を描画する
  */
-void clear_msgbox_rect_with_bg(int x, int y, int w, int h)
+void fill_msgbox_rect_with_bg(int x, int y, int w, int h)
 {
 	if (msgbox_bg_image == NULL)
 		return;
@@ -3297,9 +3243,9 @@ void clear_msgbox_rect_with_bg(int x, int y, int w, int h)
 }
 
 /*
- * メッセージボックスの矩形を前景でクリアする
+ * メッセージボックスの前景の矩形を描画する
  */
-void clear_msgbox_rect_with_fg(int x, int y, int w, int h)
+void fill_msgbox_rect_with_fg(int x, int y, int w, int h)
 {
 	if (msgbox_fg_image == NULL)
 		return;
@@ -3316,20 +3262,6 @@ void clear_msgbox_rect_with_fg(int x, int y, int w, int h)
 void show_msgbox(bool show)
 {
 	is_msgbox_visible = show;
-}
-
-/*
- * メッセージボックスに文字を描画する
- *  - 描画した高さを返す
- */
-void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color, int *w, int *h,
-			 int base_font_size, bool is_dim)
-{
-	lock_image(layer_image[LAYER_MSG]);
-	draw_char_on_layer(LAYER_MSG, x, y, wc, color, outline_color, w, h,
-			   base_font_size, is_dim);
-	unlock_image(layer_image[LAYER_MSG]);
 }
 
 /*
@@ -3494,43 +3426,6 @@ void draw_news_fg_image(int x, int y)
 }
 
 /*
- * FO/FIの2レイヤに文字を描画する前にロックする
- */
-void lock_draw_char_on_fo_fi(void)
-{
-	lock_image(layer_image[LAYER_FO]);
-	lock_image(layer_image[LAYER_FI]);
-}
-
-/*
- * FO/FIの2レイヤに文字を描画した後にアンロックする
- */
-void unlock_draw_char_on_fo_fi(void)
-{
-	unlock_image(layer_image[LAYER_FI]);
-	unlock_image(layer_image[LAYER_FO]);
-}
-
-/*
- * FO/FIの2レイヤに文字を描画する
- */
-void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
-			pixel_t fo_outline_color, pixel_t fi_body_color,
-			pixel_t fi_outline_color, int *ret_w, int *ret_h)
-{
-	int w, h;
-
-	draw_char_on_layer(LAYER_FO, x, y, wc, fo_body_color, fo_outline_color,
-			   &w, &h, conf_font_size, false);
-
-	draw_char_on_layer(LAYER_FI, x, y, wc, fi_body_color, fi_outline_color,
-			   &w, &h, conf_font_size, false);
-
-	*ret_w = w;
-	*ret_h = h;
-}
-
-/*
  * FO/FIの2レイヤに画像を描画する
  */
 void draw_image_on_fo_fi(int x, int y, struct image *img)
@@ -3615,6 +3510,31 @@ bool create_temporary_bg(void)
 	layer_image[LAYER_BG] = img;
 
 	return true;
+}
+
+
+/*
+ * 文字描画
+ */
+
+/*
+ * 文字を描画する前にレイヤをロックする
+ */
+void lock_layers_for_msgdraw(int layer, int additional_layer)
+{
+	lock_image(layer_image[layer]);
+	if (additional_layer != -1)
+		lock_image(layer_image[additional_layer]);
+}
+
+/*
+ * 文字を描画した後にレイヤをアンロックする
+ */
+void unlock_layers_for_msgdraw(int layer, int additional_layer)
+{
+	unlock_image(layer_image[layer]);
+	if (additional_layer != -1)
+		unlock_image(layer_image[additional_layer]);
 }
 
 /*
@@ -3795,21 +3715,6 @@ static void draw_layer_image_rect(struct image *target, int layer, int x,
 	}
 }
 #endif
-
-/* レイヤに文字を描画する */
-static bool draw_char_on_layer(int layer, int x, int y, uint32_t wc,
-			       pixel_t color, pixel_t outline_color, int *w,
-			       int *h, int base_font_size, bool is_dim)
-{
-	/* 文字を描画する */
-	if (!draw_glyph(layer_image[layer], x, y, color, outline_color, wc, w,
-			h, base_font_size, is_dim)) {
-		/* グリフがない、コードポイントがおかしい、など */
-		return false;
-	}
-
-	return true;
-}
 
 /*
  * GUI

@@ -167,24 +167,14 @@ static struct gui_button {
 		/* オートモードの待ち時間か */
 		bool is_waiting;
 
-		/* まだ描画されていないメッセージの先頭 */
-		const char *top;
-
-		/* 色 */
-		pixel_t color, outline_color;
+		/* 描画コンテキスト */
+		struct draw_msg_context msg_context;
 
 		/* 描画する文字の総数 */
 		int total_chars;
 
 		/* 前回までに描画した文字数 */
 		int drawn_chars;
-
-		/* 描画位置 */
-		int pen_x, pen_y;
-		int pen_ruby_x, pen_ruby_y;
-
-		/* スペースの直後か(ワードラッピング用) */
-		bool is_after_space;
 
 		/* メッセージ表示用あるいはオートモード待機用の時計 */
 		stop_watch_t sw;
@@ -276,7 +266,6 @@ static void update_save_buttons(void);
 static void draw_save_button(int button_index);
 static int draw_save_text_item(int button_index, int x, int y,
 			       const char *text);
-static void draw_save_char(int index, uint32_t wc, int *width, int *height);
 static void process_save(int button_index);
 static void process_load(int button_index);
 static void process_button_draw_save(int button_index);
@@ -284,16 +273,6 @@ static bool init_history_buttons(void);
 static void update_history_buttons(void);
 static void draw_history_button(int button_index);
 static void draw_history_text_item(int button_index);
-static void draw_history_char(int index, uint32_t wc, int *width, int *height);
-static void process_escape_sequence(int button_index, bool ignore_lf,
-				    bool ignore_ruby, int ruby_size);
-static bool process_escape_sequence_lf(int button_index, bool ignore_lf);
-static bool process_escape_sequence_color(int button_index);
-static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby,
-					 int ruby_size);
-static void draw_ruby_char(int button_index, uint32_t wc, int *width,
-			   int *height);
-static bool process_escape_sequence_other(int button_index);
 static void process_button_draw_history(int button_index);
 static void process_history_scroll(int delta);
 static void update_history_top(int button_index);
@@ -302,11 +281,8 @@ static bool init_preview_buttons(void);
 static void reset_preview_all_buttons(void);
 static void reset_preview_button(int index);
 static void process_button_draw_preview(int index);
-static void draw_message(int index);
-static void draw_message_char(int index, uint32_t wc, int *width, int *height);
+static void draw_preview_message(int index);
 static int get_frame_chars(int index);
-static void word_wrapping(int index);
-static int get_en_word_width(const char *m);
 static int get_wait_time(int index);
 static bool init_namevar_buttons(void);
 static void update_namevar_buttons(void);
@@ -1446,17 +1422,6 @@ static bool init_save_buttons(void)
 						button[i].height);
 		if (button[i].rt.img == NULL)
 			return false;
-
-		button[i].rt.color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_color_r,
-					(pixel_t)conf_font_color_g,
-					(pixel_t)conf_font_color_b);
-		button[i].rt.outline_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
 	}
 
 	return true;
@@ -1519,17 +1484,6 @@ static void draw_save_button(int button_index)
 			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
 	}
 
-	/* フォントを選択する */
-	select_font(conf_gui_save_font_select);
-	set_font_size(conf_gui_save_font_size > 0 ?
-		      conf_gui_save_font_size : conf_font_size);
-	switch (conf_gui_save_font_outline) {
-	case 0: set_font_outline(!conf_font_outline_remove); break;
-	case 1: set_font_outline(true); break;
-	case 2: set_font_outline(false); break;
-	default: break;
-	}
-
 	/* 日時を描画する */
 	if (get_save_date(save_index) == 0) {
 		snprintf(text, sizeof(text), "[%02d] NO DATA", save_index);
@@ -1569,11 +1523,26 @@ static void draw_save_button(int button_index)
 static int draw_save_text_item(int button_index, int x, int y,
 			       const char *text)
 {
+	struct draw_msg_context context;
 	struct gui_button *b;
-	uint32_t wc;
-	int ruby_size, mblen, cw, ch, result;
+	pixel_t color, outline_color;
+	int font_size, ruby_size, total_chars;
+	int ret_x, ret_y, ret_w, ret_h, width;
+	bool use_outline;
 
 	b = &button[button_index];
+
+	/* フォントサイズを取得する */
+	font_size = conf_gui_save_font_size > 0 ?
+		      conf_gui_save_font_size : conf_font_size;
+
+	/* ふちどりを選択する */
+	switch (conf_gui_save_font_outline) {
+	case 0: use_outline = !conf_font_outline_remove; break;
+	case 1: use_outline = true; break;
+	case 2: use_outline = false; break;
+	default: use_outline = false; break;
+	}
 
 	/* ルビのフォントサイズを求める */
 	ruby_size = conf_gui_save_font_ruby_size > 0 ?
@@ -1582,63 +1551,57 @@ static int draw_save_text_item(int button_index, int x, int y,
 		conf_font_ruby_size :
 		conf_font_size / 5;
 
-	/* 描画情報を初期化する */
-	b->rt.pen_x = x;
-	b->rt.pen_y = y;
-	b->rt.top = text;
-	b->rt.pen_ruby_y = y - ruby_size;
-
 	/* フォントサイズを設定する */
-	set_font_size(conf_gui_save_font_size > 0 ?
-		      conf_gui_save_font_size : conf_font_size);
+	font_size = conf_gui_save_font_size > 0 ?
+		conf_gui_save_font_size : conf_font_size;
 
-	/* 1文字ずつ描画する */
-	result = 0;
-	while (*b->rt.top) {
-		/* 先頭のエスケープシーケンスをスキップする */
-		process_escape_sequence(button_index, true, !conf_gui_ruby,
-					ruby_size);
-		if (*b->rt.top == '\0')
-			break;
+	/* 色を決定する */
+	color = make_pixel_slow(0xff,
+				(uint32_t)conf_font_color_r,
+				(uint32_t)conf_font_color_g,
+				(uint32_t)conf_font_color_b);
+	outline_color =make_pixel_slow(0xff,
+				       (uint32_t)conf_font_outline_color_r,
+				       (uint32_t)conf_font_outline_color_g,
+				       (uint32_t)conf_font_outline_color_b);
 
-		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(b->rt.top, &wc);
-		if (mblen == -1)
-			return 0;
+	/* 描画する */
+	construct_draw_msg_context(
+		&context,
+		-1,		/* Not for a layer: use an alternative image. */
+		text,
+		conf_gui_save_font_select,
+		font_size,
+		font_size,
+		ruby_size,
+		use_outline,
+		x,
+		y,
+		b->width,
+		b->height,
+		0,		/* left_margin */
+		0,		/* right_margin */
+		0,		/* top_margin */
+		0,		/* bottom_margin */
+		0,		/* line_margin */
+		conf_msgbox_margin_char,
+		color,
+		outline_color,
+		false,		/* is_dimming */
+		true,		/* ignore_linefeed */
+		true,		/* ignore_color */
+		true,		/* ignore_size */
+		true,		/* ignore_position */
+		conf_gui_ruby,
+		true,		/* ignore_wait */
+		NULL,		/* inline_wait_hook */
+		conf_msgbox_tategaki);
+	set_alternative_target_image(&context, b->rt.img);
+	total_chars = count_chars_common(&context);
+	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);
 
-		/* 文字の幅を取得する */
-		cw = get_glyph_width(wc);
-		if (button[button_index].rt.pen_x + cw +
-		    button[button_index].margin >= button[button_index].width)
-			break;
-
-		/* 描画する */
-		draw_save_char(button_index, wc, &cw, &ch);
-		b->rt.pen_ruby_x = b->rt.pen_x;
-		b->rt.pen_x += cw + conf_msgbox_margin_char;
-
-		result += cw;
-
-		/* 次の文字へ移動する */
-		b->rt.top += mblen;
-	}
-
-	return result;
-}
-
-/* 文字を描画する */
-static void draw_save_char(int index, uint32_t wc, int *width, int *height)
-{
-	draw_glyph(button[index].rt.img,
-		   button[index].rt.pen_x,
-		   button[index].rt.pen_y,
-		   button[index].rt.color,
-		   button[index].rt.outline_color,
-		   wc,
-		   width,
-		   height,
-		   get_font_size(),
-		   false);
+	width = get_string_width(context.font, context.font_size, text);
+	return width;
 }
 
 /* セーブを行う */
@@ -1738,6 +1701,26 @@ static bool init_history_buttons(void)
 	return true;
 }
 
+/* ヒストリボタンの描画を行う */
+static void process_button_draw_history(int button_index)
+{
+	struct gui_button *b;
+
+	b = &button[button_index];
+
+	/* ヒストリ項目がない場合(まだヒストリが少ない場合) */
+	if (b->rt.img == NULL)
+		return;
+
+	/* ポイントされているときの描画を行う */
+	if (b->rt.is_active && b->rt.is_pointed)
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+
+	/* テキストの描画を行う */
+	render_image(b->x, b->y, b->rt.img, b->width, b->height, 0, 0, 255,
+		     BLEND_FAST);
+}
+
 /* ヒストリのスロットを描画する */
 static void update_history_buttons(void)
 {
@@ -1793,17 +1776,6 @@ static void draw_history_button(int button_index)
 	/* イメージをクリアする */
 	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
 
-	/* フォントを選択する */
-	select_font(conf_gui_history_font_select);
-	set_font_size(conf_gui_history_font_size > 0 ?
-		      conf_gui_history_font_size : conf_font_size);
-	switch (conf_gui_history_font_outline) {
-	case 0: set_font_outline(!conf_font_outline_remove); break;
-	case 1: set_font_outline(true); break;
-	case 2: set_font_outline(false); break;
-	default: break;
-	}
-
 	/* メッセージを描画する */
 	if (button[button_index].rt.history_offset != -1)
 		draw_history_text_item(button_index);
@@ -1815,336 +1787,116 @@ static void draw_history_button(int button_index)
 /* ヒストリのテキストを描画する */
 static void draw_history_text_item(int button_index)
 {
-	const char *text;
+	struct draw_msg_context context;
 	struct gui_button *b;
-	uint32_t c;
-	int margin_line, ruby_size, mblen, width, height;
+	const char *text;
+	pixel_t color, outline_color;
+	int font_size, ruby_size, margin_line, total_chars;
+	int ret_x, ret_y, ret_w, ret_h;
+	bool use_outline, ignore_color;
 
 	b = &button[button_index];
 
 	/* メッセージを取得する */
 	text = get_history_message(b->rt.history_offset);
 
-	/* 描画情報を初期化する */
-	b->rt.top = text;
-	b->rt.pen_x = b->margin;
-	b->rt.pen_y = b->margin;
-	b->rt.color = make_pixel_slow(0xff,
-				      (pixel_t)conf_gui_history_font_color_r,
-				      (pixel_t)conf_gui_history_font_color_g,
-				      (pixel_t)conf_gui_history_font_color_b);
-	b->rt.outline_color =
-		make_pixel_slow(0xff,
-				(pixel_t)conf_gui_history_font_outline_color_r,
-				(pixel_t)conf_gui_history_font_outline_color_g,
-				(pixel_t)conf_gui_history_font_outline_color_b);
+	/* フォントサイズを取得する */
+	font_size = conf_gui_history_font_size > 0 ?
+		conf_gui_history_font_size : conf_font_size;
 
-	/* フォントを選択する */
-	select_font(conf_gui_history_font_select);
-
-	/* フォントサイズを設定する */
-	set_font_size(conf_gui_history_font_size > 0 ?
-		      conf_gui_history_font_size : conf_font_size);
-
-	/* アウトラインを設定する */
+	/* ふちどりを選択する */
 	switch (conf_gui_history_font_outline) {
-	case 0: set_font_outline(!conf_font_outline_remove); break;
-	case 1: set_font_outline(true); break;
-	case 2: set_font_outline(false); break;
-	default: break;
+	case 0: use_outline = !conf_font_outline_remove; break;
+	case 1: use_outline = true; break;
+	case 2: use_outline = false; break;
+	default: use_outline = false; break;
+	}
+
+	/* 色を選択する */
+	switch (conf_gui_history_disable_color) {
+	case 0:
+		/*
+		 * Enable colors: a initial color is inserted to the
+		 * string head as an escape sequece.
+		 */
+		ignore_color = false;
+		color = outline_color = 0;
+		break;
+	case 1:
+		/* Use font.color */
+		ignore_color = true;
+		color = make_pixel_slow(0xff,
+					(pixel_t)conf_font_color_r,
+					(pixel_t)conf_font_color_g,
+					(pixel_t)conf_font_color_b);
+		outline_color = make_pixel_slow(0xff,
+						(pixel_t)conf_font_outline_color_r,
+						(pixel_t)conf_font_outline_color_g,
+						(pixel_t)conf_font_outline_color_b);
+		break;
+	case 2:
+		/* Use gui.history.font.color */
+		ignore_color = true;
+		color = make_pixel_slow(0xff,
+					(pixel_t)conf_gui_history_font_color_r,
+					(pixel_t)conf_gui_history_font_color_g,
+					(pixel_t)conf_gui_history_font_color_b);
+		outline_color = make_pixel_slow(0xff,
+						(pixel_t)conf_gui_history_font_outline_color_r,
+						(pixel_t)conf_gui_history_font_outline_color_g,
+						(pixel_t)conf_gui_history_font_outline_color_b);
+		break;
+	default:
+		/* A strage value, but ignore for now. */
+		ignore_color = false;
+		color = outline_color = 0;
+		break;
 	}
 
 	/* ルビのフォントサイズを求める */
 	ruby_size = conf_gui_history_font_ruby_size > 0 ?
 		conf_gui_history_font_ruby_size :
-		conf_font_ruby_size > 0 ? conf_font_ruby_size : conf_font_size / 5;
+		conf_font_ruby_size > 0 ?
+		conf_font_ruby_size : conf_font_size / 5;
 
 	/* 行間マージンを求める */
 	margin_line = conf_gui_history_margin_line > 0 ?
 		conf_gui_history_margin_line : conf_msgbox_margin_line;
 
-	/* 1文字ずつ描画する */
-	while (*b->rt.top != '\0') {
-		/* 先頭のエスケープシーケンスを解釈する */
-		process_escape_sequence(button_index, false, !conf_gui_ruby,
-					ruby_size);
-		if (*b->rt.top == '\0')
-			break;
-
-		/* ワードラッピングを処理する */
-		word_wrapping(button_index);
-
-		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(b->rt.top, &c);
-		if (mblen == -1)
-			return;
-
-		/* 描画する文字の幅を取得する */
-		width = get_glyph_width(c);
-
-		/* メッセージボックスの幅を超える場合、改行する */
-		if ((b->rt.pen_x + width + conf_msgbox_margin_char +
-		     b->margin >= b->width)
-		    &&
-		    (c != ' ' && c != ',' && c != '.' && c != ':' &&
-		     c != ';' && c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
-			b->rt.pen_y += margin_line;
-			b->rt.pen_x = b->margin;
-		}
-
-		/* 描画する */
-		draw_history_char(button_index, c, &width, &height);
-
-		/* 次の文字へ移動する */
-		b->rt.pen_ruby_x = b->rt.pen_x;
-		b->rt.pen_ruby_y = b->rt.pen_y - ruby_size;
-		b->rt.pen_x += width + conf_msgbox_margin_char;
-		b->rt.top += mblen;
-	}
-}
-
-/* 文字を描画する */
-static void draw_history_char(int index, uint32_t wc, int *width, int *height)
-{
-	draw_glyph(button[index].rt.img,
-		   button[index].rt.pen_x,
-		   button[index].rt.pen_y,
-		   button[index].rt.color,
-		   button[index].rt.outline_color,
-		   wc,
-		   width,
-		   height,
-		   get_font_size(),
-		   false);
-}
-
-/* エスケープシーケンスを処理する */
-static void process_escape_sequence(int button_index, bool ignore_lf,
-				    bool ignore_ruby, int ruby_size)
-{
-	struct gui_button *b;
-
-	b = &button[button_index];
-
-	/* エスケープシーケンスが続く限り処理する */
-	while (*b->rt.top == '\\') {
-		switch (*(b->rt.top + 1)) {
-		case 'n':
-			/* 改行 */
-			process_escape_sequence_lf(button_index, ignore_lf);
-			break;
-		case '#':
-			/* 色指定 */
-			if (!process_escape_sequence_color(button_index))
-				return; /* 不正: 読み飛ばさない */
-			break;
-		case '^':
-			/* ルビ */
-			if (!process_escape_sequence_ruby(button_index,
-							  ignore_ruby,
-							  ruby_size))
-				return; /* 不正: 読み飛ばさない */
-			break;
-		case '@':
-		case 'w':
-		case 'p':
-			/* サイズ、ウェイト、ペン位置は読み飛ばす */
-			if (!process_escape_sequence_other(button_index))
-				return;
-			break;
-		default:
-			/* 不正なエスケープシーケンスなので読み飛ばさない */
-			return;
-		}
-	}
-}
-
-/* 改行エスケープシーケンスを処理する */
-static bool process_escape_sequence_lf(int button_index, bool ignore_lf)
-{
-	const char *c;
-
-	c = button[button_index].rt.top;
-	assert(*c == '\\');
-	assert(*(c + 1) == 'n');
-
-	/* 改行する */
-	if (!ignore_lf) {
-		button[button_index].rt.pen_y += conf_msgbox_margin_line;
-		button[button_index].rt.pen_x = button[button_index].margin;
-	}
-
-	/* メッセージを進める */
-	button[button_index].rt.top += 2;
-
-	return true;
-}
-
-/* 色指定エスケープシーケンスを処理する */
-static bool process_escape_sequence_color(int button_index)
-{
-	char color_code[7];
-	uint32_t r, g, b;
-	const char *c;
-	int rgb;
-
-	c = button[button_index].rt.top;
-	assert(*c == '\\');
-	assert(*(c + 1) == '#');
-
-	/* 始まりのカッコ'{'をチェックする */
-	if (*(c + 2) != '{')
-		return false;
-
-	/* カラーコードの長さが足りない場合 */
-	if (strlen(c + 3) < 6)
-		return false;
-
-	/* 終わりのカッコ'}'をチェックする */
-	if (*(c + 9) != '}')
-		return false;
-
-	/* メッセージを進める \#{RRGGBB} */
-	button[button_index].rt.top += 10;
-	if (conf_gui_history_disable_color)
-		return true;
-
-	/* カラーコードを読む */
-	rgb = 0;
-	memcpy(color_code, c + 3, 6);
-	color_code[6] = '\0';
-	sscanf(color_code, "%x", &rgb);
-	r = (rgb >> 16) & 0xff;
-	g = (rgb >> 8) & 0xff;
-	b = rgb & 0xff;
-	button[button_index].rt.color = make_pixel_slow(0xff, r, g, b);
-
-	return true;
-}
-
-/* ルビのエスケープシーケンスを処理する */
-static bool process_escape_sequence_ruby(int button_index, bool ignore_ruby,
-					 int ruby_size)
-{
-	char ruby[64];
-	const char *c, *s;
-	struct gui_button *b;
-	uint32_t wc;
-	int i, font_size, mblen, ret_width, ret_height;
-
-	b = &button[button_index];
-	c = b->rt.top;
-	assert(*c == '\\');
-	assert(*(c + 1) == '^');
-
-	/* '{'をチェックする */
-	if (*(c + 2) != '{')
-		return false;
-
-	/* ルビを読む */
-	for (i = 0; i < (int)sizeof(ruby) - 1; i++) {
-		if (*(c + 3 + i) == '\0')
-			return false;
-		if (*(c + 3 + i) == '}')
-			break;
-		ruby[i] = *(c + 3 + i);
-	}
-	ruby[i] = '\0';
-
-	/* \^{ + ruby[] + } */
-	b->rt.top += 3 + i + 1;
-	if (ignore_ruby)
-		return true;
-
-	/* フォントサイズを退避して、ルビ用に設定する */
-	font_size = get_font_size();
-	set_font_size(ruby_size);
-
 	/* 描画する */
-	s = ruby;
-	while (*s) {
-		mblen = utf8_to_utf32(s, &wc);
-		if (mblen == -1)
-			break;
-
-		draw_ruby_char(button_index, wc, &ret_width, &ret_height);
-
-		b->rt.pen_ruby_x += ret_width;
-		s += mblen;
-	}
-
-	/* フォントサイズを復元する */
-	set_font_size(font_size);
-
-	return true;
-}
-
-/* ルビの文字を描画する */
-static void draw_ruby_char(int button_index, uint32_t wc, int *width,
-			   int *height)
-{
-	draw_glyph(button[button_index].rt.img,
-		   button[button_index].rt.pen_ruby_x,
-		   button[button_index].rt.pen_ruby_y,
-		   button[button_index].rt.color,
-		   button[button_index].rt.outline_color,
-		   wc,
-		   width,
-		   height,
-		   get_font_size(),
-		   false);
-}
-
-/* エスケープシーケンスをスキップする */
-static bool process_escape_sequence_other(int button_index)
-{
-	const char *c;
-	int i;
-
-	c = button[button_index].rt.top;
-	assert(*c == '\\');
-	assert(*(c + 1) == '@' || *(c + 1) == 'w' || *(c + 1) == 'p');
-
-	/* 先頭をチェックする */
-	if (*(c + 2) != '{')
-		return false;
-	c += 3;
-
-	/* 終端文字'}'を探す */
-	i = 0;
-	while (*c != '\0' && *c != '}') {
-		c++;
-		i++;
-	}
-	if (*c != '}')
-		return false;
-
-	/* メッセージを進める \X{ + i + } */
-	button[button_index].rt.top += 3 + i + 1;
-
-	return true;
-}
-
-/* ヒストリボタンの描画を行う */
-static void process_button_draw_history(int button_index)
-{
-	/* ヒストリがない場合 */
-	if (button[button_index].rt.img == NULL)
-		return;
-
-	/* ポイントされているときの描画を行う */
-	if (button[button_index].rt.is_active &&
-	    button[button_index].rt.is_pointed) {
-		draw_stage_gui_hover(button[button_index].x,
-				     button[button_index].y,
-				     button[button_index].width,
-				     button[button_index].height);
-	}
-
-	/* テキストの描画を行う */
-	render_image(button[button_index].x, button[button_index].y,
-		     button[button_index].rt.img, button[button_index].width,
-		     button[button_index].height, 0, 0, 255, BLEND_FAST);
+	construct_draw_msg_context(
+		&context,
+		-1,		/* Not for a layer: use an alternative image. */
+		text,
+		conf_gui_history_font_select,
+		font_size,
+		font_size,
+		ruby_size,
+		use_outline,
+		b->margin,
+		b->margin,
+		b->width,
+		b->height,
+		0,		/* left_margin */
+		0,		/* right_margin */
+		0,		/* top_margin */
+		0,		/* bottom_margin */
+		margin_line,	/* line_margin */
+		conf_msgbox_margin_char,
+		color,
+		outline_color,
+		false,		/* is_dimming */
+		false,		/* ignore_linefeed */
+		ignore_color,	/* ignore_color */
+		true,		/* ignore_size */
+		true,		/* ignore_position */
+		conf_gui_ruby,
+		true,		/* ignore_wait */
+		NULL,		/* inline_wait_hook */
+		conf_msgbox_tategaki);
+	set_alternative_target_image(&context, b->rt.img);
+	total_chars = count_chars_common(&context);
+	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);
 }
 
 /* history_topを更新する */
@@ -2257,30 +2009,9 @@ static bool init_preview_buttons(void)
 						button[i].height);
 		if (button[i].rt.img == NULL)
 			return false;
-		lock_image(button[i].rt.img);
-		clear_image_color(button[i].rt.img,
-				  make_pixel_slow(0, 0, 0, 0));
-		unlock_image(button[i].rt.img);
-
-		button[i].rt.is_waiting = false;
-		button[i].rt.top = button[i].msg;
-		button[i].rt.total_chars = utf8_chars(button[i].msg);
-		button[i].rt.drawn_chars = 0;
-		button[i].rt.pen_x = 0;
-		button[i].rt.pen_y = 0;
-		button[i].rt.color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_color_r,
-					(pixel_t)conf_font_color_g,
-					(pixel_t)conf_font_color_b);
-		button[i].rt.outline_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
-		button[i].rt.is_after_space = false;
-		reset_stop_watch(&button[i].rt.sw);
 	}
+
+	reset_preview_all_buttons();
 
 	return true;
 }
@@ -2303,19 +2034,62 @@ static void reset_preview_all_buttons(void)
 /* テキストプレビューをリセットする */
 static void reset_preview_button(int index)
 {
+	struct gui_button *b;
+	pixel_t color, outline_color;
+
 	assert(button[index].type == TYPE_PREVIEW);
 
-	lock_image(button[index].rt.img);
-	clear_image_color(button[index].rt.img, make_pixel_slow(0, 0, 0, 0));
-	unlock_image(button[index].rt.img);
+	b = &button[index];
 
-	button[index].rt.is_waiting = false;
-	button[index].rt.top = button[index].msg;
-	button[index].rt.drawn_chars = 0;
-	button[index].rt.pen_x = 0;
-	button[index].rt.pen_y = 0;
-	button[index].rt.is_after_space = false;
-	reset_stop_watch(&button[index].rt.sw);
+	lock_image(b->rt.img);
+	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
+	unlock_image(b->rt.img);
+
+	color = make_pixel_slow(0xff,
+				(pixel_t)conf_font_color_r,
+				(pixel_t)conf_font_color_g,
+				(pixel_t)conf_font_color_b);
+	outline_color = make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
+
+	construct_draw_msg_context(
+		&b->rt.msg_context,
+		-1,		/* Not for a layer: use an alternative image. */
+		b->msg,
+		conf_font_select,
+		conf_font_size,
+		conf_font_size,
+		conf_font_ruby_size,
+		!conf_font_outline_remove,
+		0,		/* pen_x */
+		0,		/* pen_y */
+		b->width,
+		b->height,
+		0,		/* left_margin */
+		0,		/* right_margin */
+		0,		/* top_margin */
+		0,		/* bottom_margin */
+		conf_msgbox_margin_line,
+		conf_msgbox_margin_char,
+		color,
+		outline_color,
+		false,		/* is_dimming */
+		false,		/* ignore_linefeed */
+		false,		/* ignore_color */
+		false,		/* ignore_size */
+		false,		/* ignore_position */
+		false,		/* ignore_ruby */
+		true,		/* ignore_wait */
+		NULL,		/* inline_wait_hook */
+		conf_msgbox_tategaki);
+	set_alternative_target_image(&b->rt.msg_context, b->rt.img);
+
+	b->rt.is_waiting = false;
+	b->rt.total_chars = count_chars_common(&b->rt.msg_context);
+	b->rt.drawn_chars = 0;
+	reset_stop_watch(&b->rt.sw);
 }
 
 /* テキストプレビューのボタンの描画を行う */
@@ -2325,13 +2099,8 @@ static void process_button_draw_preview(int index)
 
 	/* メッセージの途中の場合 */
 	if (!button[index].rt.is_waiting) {
-		/* フォントを選択する */
-		select_font(FONT_GLOBAL);
-		set_font_size(conf_font_size);
-		set_font_outline(!conf_font_outline_remove);
-
 		/* メインメモリ上のイメージの描画を行う */
-		draw_message(index);
+		draw_preview_message(index);
 
 		/* すべての文字を描画し終わった場合 */
 		if (button[index].rt.drawn_chars ==
@@ -2358,71 +2127,31 @@ static void process_button_draw_preview(int index)
 }
 
 /* メッセージの描画を行う */
-static void draw_message(int index)
+static void draw_preview_message(int index)
 {
-	uint32_t c;
-	int char_count, mblen, cw, ch, i;
+	struct gui_button *b;
+	int char_count;
+	int ret_chars, ret_x, ret_y, ret_w, ret_h;
+
+	b = &button[index];
 
 	/* 今回のフレームで描画する文字数を取得する */
 	char_count = get_frame_chars(index);
 	if (char_count == 0)
 		return;
 
-	/* 1文字ずつ描画する */
-	lock_image(button[index].rt.img);
-	for (i = 0; i < char_count; i++) {
-		/* ワードラッピングを処理する */
-		word_wrapping(index);
-
-		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(button[index].rt.top, &c);
-		if (mblen == -1) {
-			button[index].rt.drawn_chars =
-				button[index].rt.total_chars;
-			unlock_image(button[index].rt.img);
-			return;
-		}
-
-		/* 描画する文字の幅を取得する */
-		cw = get_glyph_width(c);
-
-		/* ボタン領域の幅を超える場合、改行する */
-		if (button[index].rt.pen_x + cw >= button[index].width &&
-		    (c != ' ' && c != ',' && c != '.' && c != ':' &&
-		     c != ';' && c != CHAR_TOUTEN && c != CHAR_KUTEN)) {
-			button[index].rt.pen_y += conf_msgbox_margin_line;
-			button[index].rt.pen_x = 0;
-			if (*button[index].rt.top == ' ') {
-				button[index].rt.top++;
-				button[index].rt.drawn_chars++;
-				continue;
-			}
-		}
-
-		/* 描画する */
-		draw_message_char(index, c, &cw, &ch);
-
-		/* 次の文字へ移動する */
-		button[index].rt.pen_x += cw;
-		button[index].rt.top += mblen;
-		button[index].rt.drawn_chars++;
-	}
+	/* 描画する */
+	lock_image(b->rt.img);
+	ret_chars = draw_msg_common(&b->rt.msg_context,
+				    char_count,
+				    &ret_x,
+				    &ret_y,
+				    &ret_w,
+				    &ret_h);
 	unlock_image(button[index].rt.img);
-}
 
-/* 文字を描画する */
-static void draw_message_char(int index, uint32_t wc, int *width, int *height)
-{
-	draw_glyph(button[index].rt.img,
-		   button[index].rt.pen_x,
-		   button[index].rt.pen_y,
-		   button[index].rt.color,
-		   button[index].rt.outline_color,
-		   wc,
-		   width,
-		   height,
-		   conf_font_size,
-		   false);
+	/* 描画した文字数を加算する */
+	b->rt.drawn_chars += ret_chars;
 }
 
 /* 今回のフレームで描画する文字数を取得する */
@@ -2450,34 +2179,6 @@ static int get_frame_chars(int index)
 	}
 
 	return char_count;
-}
-
-/* ワードラッピングを行う */
-static void word_wrapping(int index)
-{
-	if (button[index].rt.is_after_space) {
-		if (button[index].rt.pen_x +
-		    get_en_word_width(button[index].rt.top) >=
-		    button[index].width - button[index].margin) {
-			button[index].rt.pen_y += conf_msgbox_margin_line;
-			button[index].rt.pen_x = button[index].margin;
-		}
-	}
-
-	button[index].rt.is_after_space = *button[index].rt.top == ' ';
-}
-
-/* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
-static int get_en_word_width(const char *m)
-{
-	uint32_t wc;
-	int width;
-
-	width = 0;
-	while (isgraph_extended(&m, &wc))
-		width += get_glyph_width(wc);
-
-	return width;
 }
 
 /* オートモードの待ち時間を計算する */
@@ -2519,17 +2220,6 @@ static bool init_namevar_buttons(void)
 		clear_image_color(button[i].rt.img,
 				  make_pixel_slow(0, 0, 0, 0));
 		unlock_image(button[i].rt.img);
-
-		button[i].rt.color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_color_r,
-					(pixel_t)conf_font_color_g,
-					(pixel_t)conf_font_color_b);
-		button[i].rt.outline_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
 	}
 
 	return true;
@@ -2555,40 +2245,63 @@ static void update_namevar_buttons(void)
 /* 名前の描画を行う */
 static void draw_name(int index)
 {
+	struct draw_msg_context context;
+	struct gui_button *b;
 	const char *name;
-	uint32_t c;
-	int char_count, mblen, i, pen_x, cw, w, h;
+	pixel_t color, outline_color;
+	int char_count;
+	int ret_x, ret_y, ret_w, ret_h;
+
+	b = &button[index];
+
+	/* 色を取得する */
+	color = make_pixel_slow(0xff,
+				(pixel_t)conf_font_color_r,
+				(pixel_t)conf_font_color_g,
+				(pixel_t)conf_font_color_b);
+	outline_color = make_pixel_slow(0xff,
+					(pixel_t)conf_font_outline_color_r,
+					(pixel_t)conf_font_outline_color_g,
+					(pixel_t)conf_font_outline_color_b);
 
 	/* 描画する文字列を取得する */
-	name = get_name_variable(button[index].namevar);
+	name = get_name_variable(b->namevar);
 	assert(name != NULL);
 
-	/* 描画する文字数を取得する */
-	char_count = utf8_chars(name);
-	if (char_count == 0)
-		return;
-
-	/* 1文字ずつ描画する */
-	pen_x = 2; /* アウトラインの2px分 */
-	for (i = 0; i < char_count; i++) {
-		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(name, &c);
-		if (mblen == -1)
-			break;
-
-		/* 描画する文字の幅を取得する */
-		cw = get_glyph_width(c);
-
-		/* 描画する */
-		draw_glyph(button[index].rt.img, pen_x, 0,
-			   button[index].rt.color,
-			   button[index].rt.outline_color, c, &w, &h,
-			   conf_font_size, false);
-
-		/* 次の文字へ移動する */
-		name += mblen;
-		pen_x += cw;
-	}
+	/* 描画する */
+	construct_draw_msg_context(
+		&b->rt.msg_context,
+		-1,		/* Not for a layer: use an alternative image. */
+		name,
+		conf_font_select,
+		conf_font_size,
+		conf_font_size,
+		conf_font_ruby_size,
+		!conf_font_outline_remove,
+		0,		/* pen_x */
+		0,		/* pen_y */
+		b->width,
+		b->height,
+		0,		/* left_margin */
+		0,		/* right_margin */
+		0,		/* top_margin */
+		0,		/* bottom_margin */
+		0,		/* line_margin */
+		conf_msgbox_margin_char,
+		color,
+		outline_color,
+		false,		/* is_dimming */
+		false,		/* ignore_linefeed */
+		false,		/* ignore_color */
+		false,		/* ignore_size */
+		false,		/* ignore_position */
+		false,		/* ignore_ruby */
+		true,		/* ignore_wait */
+		NULL,		/* inline_wait_hook */
+		false);		/* use_tategaki */
+	set_alternative_target_image(&context, b->rt.img);
+	char_count = count_chars_common(&context);
+	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
 }
 
 /*
@@ -2630,7 +2343,7 @@ static void process_char(int index)
 	orig = get_name_variable(b->namevar);
 
 	/* すでに最大文字数まで到達している場合 */
-	if (utf8_chars(orig) >= b->max)
+	if (count_utf8_chars(orig) >= b->max)
 		return;
 
 	/* 末尾に追加した文字列を作成する */

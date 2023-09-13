@@ -160,7 +160,7 @@ void set_non_interruptible(bool mode);
 bool is_non_interruptible(void);
 
 /*
- * ペンの位置
+ * ペンの位置(@ichoose用)
  */
 
 void set_pen_position(int x, int y);

@@ -25,6 +25,58 @@
 #include "image.h"
 
 /*
+ * ステージのレイヤ
+ */
+enum {
+	/* 背景レイヤ */
+	LAYER_BG,
+
+	/* キャラクタレイヤ(顔以外) */
+	LAYER_CHB,
+	LAYER_CHL,
+	LAYER_CHR,
+	LAYER_CHC,
+
+	/* メッセージレイヤ */
+	LAYER_MSG,	/* 特殊: 実体イメージあり */
+
+	/* 名前レイヤ */
+	LAYER_NAME,	/* 特殊: 実体イメージあり */
+
+	/* キャラクタレイヤ(顔) */
+	LAYER_CHF,
+
+	/* クリックアニメーション */
+	LAYER_CLICK,	/* 特殊: click_image[i]への参照 */
+
+	/* オートモードバナー */
+	LAYER_AUTO,
+
+	/* スキップモードバナー */
+	LAYER_SKIP,
+
+	/*
+	 * フェードアウト用レイヤで、次の場合に有効:
+	 *  - 背景/キャラフェード時
+	 *  - switch.cの描画
+	 */
+	LAYER_FO,	/* 特殊: 実体イメージあり */
+
+	/*
+	 * 下記のレイヤは次の場合に有効
+	 *  - キャラフェード
+	 *  - イメージボタン
+	 *  - セーブ
+	 *  - ロード
+	 *  - スイッチ
+	 */
+	LAYER_FI,	/* 特殊: 実体イメージあり */
+
+	/* 総レイヤ数 */
+	STAGE_LAYERS
+};
+
+/*
  * クリック待ちアニメーションのフレーム数
  *  - クリック待ちプロンプト
  *  - 最大16フレームの可変長
@@ -97,6 +149,16 @@ struct image *create_initial_bg(void);
 bool reload_stage(void);
 
 /*
+ * 文字描画
+ */
+
+/* レイヤイメージを取得する */
+struct image *get_layer_image(int layer);
+
+/* レイヤーの位置を取得する */
+void get_layer_position(int layer, int *x, int *y);
+
+/*
  * ステージ描画
  */
 
@@ -132,15 +194,13 @@ void draw_stage_fade_rule(void);
 void draw_stage_shake(void);
 
 /* ステージの背景(FO)全体と、前景(FI)の矩形を描画する */
-void draw_stage_with_button(int x, int y, int w, int h);
+void draw_fo_all_and_fi_rect(int x, int y, int w, int h);
 
 /* ステージの背景(FO)全体と、前景(FI)の矩形を描画する(GPU用) */
-void draw_stage_with_button_keep(int x, int y, int w, int h);
+void draw_fo_all_and_fi_rect_accelerated(int x, int y, int w, int h);
 
-/* ステージの背景(FO)のうち1矩形と、前景(FI)のうち1矩形を描画する */
-void draw_stage_rect_with_buttons(int old_x1, int old_y1, int old_w1,
-				  int old_h1, int new_x2, int new_y2,
-				  int new_w2, int new_h2);
+/* CPU描画の場合はFOのうち1矩形、GPU描画の場合はFO全体を描画する */
+void draw_fo_rect_accelerated(int x, int y, int w, int h);
 
 /* ステージの背景(FO)と前景(FI)を描画する */
 void draw_stage_history(void);
@@ -285,16 +345,11 @@ void stop_shake(void);
 /* 名前ボックスの矩形を取得する */
 void get_namebox_rect(int *x, int *y, int *w, int *h);
 
-/* 名前ボックスをクリアする */
-void clear_namebox(void);
+/* 名前ボックスを名前ボックス画像で埋める */
+void fill_namebox(void);
 
 /* 名前ボックスの表示・非表示を設定する */
 void show_namebox(bool show);
-
-/* 名前ボックスに文字を描画する */
-void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
-			  pixel_t outline_color, int *w, int *h,
-			  int base_font_size, bool is_dim);
 
 /*
  * メッセージボックスの描画
@@ -303,22 +358,17 @@ void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
 /* メッセージボックスの矩形を取得する */
 void get_msgbox_rect(int *x, int *y, int *w, int *h);
 
-/* メッセージボックスを背景でクリアする */
-void clear_msgbox(void);
+/* メッセージボックスの背景を描画する */
+void fill_msgbox(void);
 
-/* メッセージボックスの矩形を背景でクリアする */
-void clear_msgbox_rect_with_bg(int x, int y, int w, int h);
+/* メッセージボックスの背景の矩形を描画する */
+void fill_msgbox_rect_with_bg(int x, int y, int w, int h);
 
-/* メッセージボックスの矩形を前景でクリアする */
-void clear_msgbox_rect_with_fg(int x, int y, int w, int h);
+/* メッセージボックスの前景の矩形を描画する */
+void fill_msgbox_rect_with_fg(int x, int y, int w, int h);
 
 /* メッセージボックスの表示・非表示を設定する */
 void show_msgbox(bool show);
-
-/* メッセージボックスに文字を描画する */
-void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color, int *w, int *h,
-			 int base_font_size, bool is_dim);
 
 /*
  * クリックアニメーションの描画
@@ -358,41 +408,24 @@ void draw_news_bg_image(int x, int y);
 /* FIレイヤにNEWSの選択イメージを描画する */
 void draw_news_fg_image(int x, int y);
 
-/* FO/FIの2レイヤに文字を描画する前にロックする */
-void lock_draw_char_on_fo_fi(void);
-
-/* FO/FIの2レイヤに文字を描画した後にアンロックする */
-void unlock_draw_char_on_fo_fi(void);
-
-/* FO/FIの2レイヤに文字を描画する */
-void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
-			pixel_t fo_outline_color, pixel_t fi_body_color,
-			pixel_t fi_outline_color, int *ret_w, int *ret_h);
-
 /* FO/FIの2レイヤに画像を描画する */
 void draw_image_on_fo_fi(int x, int y, struct image *img);
 
 /*
- * メニュー画面・CG回想画面の描画
+ * 文字描画
  */
 
-/* FO/FIレイヤをロックする */
-void lock_fo_fi_for_menu(void);
+/* 文字を描画する前にレイヤをロックする */
+void lock_layers_for_msgdraw(int layer, int additional_layer);
 
-/* FO/FIレイヤをアンロックする */
-void unlock_fo_fi_for_menu(void);
+/* 文字を描画した後にレイヤをアンロックする */
+void unlock_layers_for_msgdraw(int layer, int additional_layer);
 
-/* FOレイヤにイメージを描画する */
-void draw_image_to_fo(struct image *img);
-
-/* FIレイヤにイメージを描画する */
-void draw_image_to_fi(struct image *img);
-
-/* FOレイヤに矩形を描画する */
-void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color);
-
-/* FOレイヤの内容を仮のBGレイヤに設定する */
-bool create_temporary_bg(void);
+/* レイヤに文字を描画する */
+bool draw_char_on_layer(int layer, int x, int y, uint32_t wc, pixel_t color,
+			pixel_t outline_color, int base_font_size,
+			bool is_dimming, int *ret_width, int *ret_height,
+			int *union_x, int *union_y, int *union_w, int *union_h);
 
 /*
  * バナーの描画

@@ -25,8 +25,6 @@
  */
 bool on_event_init(void)
 {
-	int w, h, i;
-
 	/* 変数の初期化処理を行う */
 	init_vars();
 
@@ -63,13 +61,6 @@ bool on_event_init(void)
 
 	/* ゲームループの初期化処理を行う */
 	init_game_loop();
-
-	/* フォントのプリロードを行う */
-	for (i = 0; i < FONT_COUNT; i++) {
-		select_font(i);
-		set_font_size(conf_font_size);
-		draw_glyph(NULL, 0, 0, 0, 0, 'A', &w, &h, conf_font_size, false);
-	}
 
 	return true;
 }

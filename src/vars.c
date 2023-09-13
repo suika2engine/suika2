@@ -210,11 +210,13 @@ void truncate_name_variable(int index)
 	if (s == NULL)
 		return;
 
-	len = utf8_chars(s);
+	len = count_utf8_chars(s);
 
+	/* ワイド文字数で(len-1)の分だけutf-8のポインタを進める */
 	for (i = 0; i < len - 1; i++)
 		s += utf8_to_utf32(s, &wc);
 
+	/* 末尾のワイド文字に相当する位置で文字列を切る */
 	*s = '\0';
 }
 
