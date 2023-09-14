@@ -22,6 +22,7 @@ static bool init(void);
 static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 			 struct image *img);
 static int get_alpha(const char *alpha);
+int chpos_to_layer(int chpos);
 static void draw(void);
 static bool cleanup(void);
 
@@ -58,7 +59,7 @@ static bool init(void)
 	const char *pos;
 	const char *method;
 	const char *alpha_s;
-	int xpos, ypos, chpos, ofs_x, ofs_y, alpha;
+	int xpos, ypos, chpos, ofs_x, ofs_y, alpha, layer;
 	bool erase;
 
 	/* パラメータを取得する */
@@ -127,8 +128,11 @@ static bool init(void)
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
 
+	/* レイヤインデックスを求める */
+	layer = chpos_to_layer(chpos);
+
 	/* キャラのファイル名を設定する */
-	if (!set_ch_file_name(chpos, erase ? NULL : fname))
+	if (!set_layer_file_name(layer, erase ? NULL : fname))
 	    return false;
 
 	/* キャラを暗くしない */
@@ -143,7 +147,9 @@ static bool init(void)
 	    (!is_non_interruptible() && !is_auto_mode() &&
 	     is_control_pressed)) {
 		/* フェードせず、すぐに切り替える */
-		change_ch_immediately(chpos, img, xpos, ypos, alpha);
+		set_layer_image(layer, img);
+		set_layer_position(layer, xpos, ypos);
+		set_layer_alpha(layer, alpha);
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();

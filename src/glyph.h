@@ -112,6 +112,8 @@ struct draw_msg_context {
 	pixel_t outline_color;
 	bool is_dimming;
 	bool ignore_linefeed;
+	bool ignore_font;
+	bool ignore_outline;
 	bool ignore_color;
 	bool ignore_size;
 	bool ignore_position;
@@ -158,6 +160,8 @@ void construct_draw_msg_context(
 	pixel_t outline_color,
 	bool is_dimming,
 	bool ignore_linefeed,
+	bool ignore_font,
+	bool ignore_outline,
 	bool ignore_color,
 	bool ignore_size,
 	bool ignore_position,

@@ -943,6 +943,8 @@ static void draw_glyph_dim_func(unsigned char * RESTRICT font,
 static void process_escape_sequence(struct draw_msg_context *context,
 				    int *x, int *y, int *w, int *h);
 static void process_escape_sequence_lf(struct draw_msg_context *context);
+static bool process_escape_sequence_font(struct draw_msg_context *context);
+static bool process_escape_sequence_outline(struct draw_msg_context *context);
 static bool process_escape_sequence_color(struct draw_msg_context *context);
 static bool process_escape_sequence_size(struct draw_msg_context *context);
 static bool process_escape_sequence_wait(struct draw_msg_context *context);
@@ -986,6 +988,8 @@ void construct_draw_msg_context(
 	pixel_t outline_color,
 	bool is_dimming,
 	bool ignore_linefeed,
+	bool ignore_font,
+	bool ignore_outline,
 	bool ignore_color,
 	bool ignore_size,
 	bool ignore_position,
@@ -1015,6 +1019,8 @@ void construct_draw_msg_context(
 	context->outline_color = outline_color;
 	context->is_dimming = is_dimming;
 	context->ignore_linefeed = ignore_linefeed;
+	context->ignore_font = ignore_font;
+	context->ignore_outline = ignore_outline;
 	context->ignore_color = ignore_color;
 	context->ignore_size = ignore_size;
 	context->ignore_position = ignore_position;
@@ -1026,7 +1032,8 @@ void construct_draw_msg_context(
 	/* Get a layer image. */
 	if (stage_layer != -1) {
 		context->layer_image = get_layer_image(stage_layer);
-		get_layer_position(stage_layer, &context->layer_x, &context->layer_y);
+		context->layer_x = get_layer_x(stage_layer);
+		context->layer_y = get_layer_y(stage_layer);
 	} else {
 		context->layer_x = 0;
 		context->layer_y = 0;
@@ -1399,6 +1406,16 @@ static void process_escape_sequence(struct draw_msg_context *context,
 			/* 改行 */
 			process_escape_sequence_lf(context);
 			break;
+		case 'f':
+			/* フォント指定 */
+			if (!process_escape_sequence_font(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case 'o':
+			/* アウトライン指定 */
+			if (!process_escape_sequence_outline(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
 		case '#':
 			/* 色指定 */
 			if (!process_escape_sequence_color(context))
@@ -1445,6 +1462,96 @@ static void process_escape_sequence_lf(struct draw_msg_context *context)
 		context->pen_y = context->top_margin;
 	}
 	context->msg += 2;
+}
+
+/* フォント指定("\\f{X}")を処理する */
+static bool process_escape_sequence_font(struct draw_msg_context *context)
+{
+	char font_type;
+	const char *p;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == '#');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* 長さが足りない場合 */
+	if (strlen(p + 3) < 6)
+		return false;
+
+	/* '}'をチェックする */
+	if (*(p + 4) != '}')
+		return false;
+
+	if (!context->ignore_font) {
+		/* フォントタイプを読む */
+		font_type = *(p + 3);
+		switch (font_type) {
+		case 'g':
+			context->font = FONT_GLOBAL;
+			break;
+		case 'm':
+			context->font = translate_font_type(FONT_MAIN);
+			break;
+		case 'a':
+			context->font = translate_font_type(FONT_ALT1);
+			break;
+		case 'b':
+			context->font = translate_font_type(FONT_ALT2);
+			break;
+		default:
+			break;
+		}
+	}
+
+	/* "\\#{" + "X" + "}" */
+	context->msg += 3 + 1 + 1;
+	return true;
+}
+
+/* アウトライン指定("\\o{X}")を処理する */
+static bool process_escape_sequence_outline(struct draw_msg_context *context)
+{
+	char outline_type;
+	const char *p;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == '#');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* 長さが足りない場合 */
+	if (strlen(p + 3) < 6)
+		return false;
+
+	/* '}'をチェックする */
+	if (*(p + 4) != '}')
+		return false;
+
+	if (!context->ignore_outline) {
+		/* アウトラインタイプを読む */
+		outline_type = *(p + 3);
+		switch (outline_type) {
+		case '+':
+			context->use_outline = true;
+			break;
+		case '-':
+			context->use_outline = false;
+			break;
+		default:
+			break;
+		}
+	}
+
+	/* "\\#{" + "X" + "}" */
+	context->msg += 3 + 1 + 1;
+	return true;
 }
 
 /* 色指定("\\#{RRGGBB}")を処理する */

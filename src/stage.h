@@ -31,6 +31,9 @@ enum {
 	/* 背景レイヤ */
 	LAYER_BG,
 
+	/* 背景2レイヤ */
+	LAYER_BG2,
+
 	/* キャラクタレイヤ(顔以外) */
 	LAYER_CHB,
 	LAYER_CHL,
@@ -55,6 +58,22 @@ enum {
 	/* スキップモードバナー */
 	LAYER_SKIP,
 
+	/* ステータスレイヤ */
+	LAYER_TEXT1,
+	LAYER_TEXT2,
+	LAYER_TEXT3,
+	LAYER_TEXT4,
+	LAYER_TEXT5,
+	LAYER_TEXT6,
+	LAYER_TEXT7,
+	LAYER_TEXT8,
+
+	/* エフェクトレイヤ */
+	LAYER_EFFECT1,
+	LAYER_EFFECT2,
+	LAYER_EFFECT3,
+	LAYER_EFFECT4,
+
 	/*
 	 * フェードアウト用レイヤで、次の場合に有効:
 	 *  - 背景/キャラフェード時
@@ -75,6 +94,16 @@ enum {
 	/* 総レイヤ数 */
 	STAGE_LAYERS
 };
+
+/*
+ * テキストレイヤの数
+ */
+#define TEXT_LAYERS		(8)
+
+/*
+ * エフェクトレイヤの数
+ */
+#define EFFECT_LAYERS		(4)
 
 /*
  * クリック待ちアニメーションのフレーム数
@@ -149,14 +178,38 @@ struct image *create_initial_bg(void);
 bool reload_stage(void);
 
 /*
- * 文字描画
+ * 基本
  */
 
 /* レイヤイメージを取得する */
 struct image *get_layer_image(int layer);
 
-/* レイヤーの位置を取得する */
-void get_layer_position(int layer, int *x, int *y);
+/* レイヤイメージを取得する */
+void set_layer_image(int layer, struct image *img);
+
+/* レイヤーのX座標を取得する */
+int get_layer_x(int layer);
+
+/* レイヤーのY座標を取得する */
+int get_layer_y(int layer);
+
+/* レイヤーの座標を設定する */
+void set_layer_position(int layer, int x, int y);
+
+/* レイヤーのアルファ値を取得する */
+int get_layer_alpha(int layer);
+
+/* レイヤーのアルファ値を取得する */
+void set_layer_alpha(int layer, int alpha);
+
+/* レイヤーのファイル名を取得する */
+const char *get_layer_file_name(int layer);
+
+/* レイヤーのファイル名を設定する */
+bool set_layer_file_name(int layer, const char *file_name);
+
+/* キャラ位置からステージレイヤへ変換する */
+int chpos_to_layer(int chpos);
 
 /*
  * ステージ描画
@@ -262,21 +315,6 @@ struct image *get_thumb_image(void);
 /* 文字列からフェードメソッドを取得する */
 int get_fade_method(const char *method);
 
-/* 背景のファイル名を設定する */
-bool set_bg_file_name(const char *file);
-
-/* 背景のファイル名を取得する */
-const char *get_bg_file_name(void);
-
-/* 背景をフェードせずにただちに切り替える */
-void change_bg_immediately(struct image *img);
-
-/* 背景の位置を設定する */
-void change_bg_attributes(int x, int y);
-
-/* 背景の位置を取得する */
-void get_bg_position(int *x, int *y);
-
 /* 背景フェードモードを開始する */
 void start_bg_fade(struct image *img);
 
@@ -290,27 +328,8 @@ void stop_bg_fade(void);
  * キャラの変更
  */
 
-/* キャラファイル名を設定する */
-bool set_ch_file_name(int pos, const char *file);
-
-/* キャラのファイル名を取得する */
-const char *get_ch_file_name(int pos);
-
-/* キャラの座標を取得する */
-void get_ch_position(int pos, int *x, int *y);
-
-/* キャラのアルファ値を取得する */
-int get_ch_alpha(int pos);
-
 /* キャラを暗くするかを設定する */
 void set_ch_dim(int pos, bool dim);
-
-/* キャラをフェードせずにただちに切り替える */
-void change_ch_immediately(int pos, struct image *img, int x, int y,
-			   int alpha);
-
-/* キャラの位置とアルファを設定する */
-void change_ch_attributes(int pos, int x, int y, int alpha);
 
 /* キャラフェードモードを開始する */
 void start_ch_fade(int pos, struct image *img, int x, int y, int alpha);
@@ -483,6 +502,16 @@ void start_kirakira(int x, int y);
 
 /* キラキラエフェクトを描画する */
 void draw_kirakira(void);
+
+/*
+ * テキストレイヤ
+ */
+
+/* テキストレイヤのテキストを取得する */
+const char *get_layer_text(int text_layer_index);
+
+/* テキストレイヤのテキストを設定する */
+bool set_layer_text(int text_layer_index, const char *msg);
 
 /*
  * 更新領域の計算

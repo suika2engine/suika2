@@ -26,6 +26,7 @@
  *  - 2023-01-06 日本語の指定に対応
  *  - 2023-08-20 アニメサブシステムの導入, @chaをアニメサブシステムへ移行
  *  - 2023-08-29 @chsxを追加
+ *  - 2023-09-14 テキストレイヤ、エフェクトレイヤを追加
  *
  * [検討中]
  *  - アニメサブシステムへの移行 (@bg, @ch, @chsをアニメサブシステムに移植)
@@ -144,7 +145,7 @@ static bool is_auto_visible;
 static bool is_skip_visible;
 
 /*
- * レイヤの表示位置、アルファ値、ブレンドタイプ
+ * レイヤの表示位置、アルファ値、ブレンドタイプ、ファイル名
  *  - 現状、ブレンドタイプは背景だとコピー、その他はFAST
  *  - 必要に応じて加算や減算のブレンドタイプに対応する
  *  - TODO: scale, rotateを追加する
@@ -162,6 +163,9 @@ static int layer_alpha[STAGE_LAYERS];
 /* レイヤのブレンドタイプ */
 static int layer_blend[STAGE_LAYERS];
 
+/* ファイル名(FI/FOを除く) */
+static char *layer_file_name[STAGE_LAYERS - 2];
+
 /*
  * 発話中のキャラ以外を暗くするためのフラグ
  */
@@ -170,14 +174,10 @@ static int layer_blend[STAGE_LAYERS];
 static bool ch_dim[CH_BASIC_LAYERS];
 
 /*
- * 背景とキャラのファイル名
+ * テキストレイヤ
  */
 
-/* 背景イメージ名 */
-static char *bg_file_name;
-
-/* キャライメージ名 */
-static char *ch_file_name[CH_ALL_LAYERS];
+static char *layer_text[TEXT_LAYERS];
 
 /*
  * フェードモード
@@ -255,6 +255,7 @@ static int layer_to_pos(int layer);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
+static int convert_stage_layer_to_anime_layer(int layer);
 
 /*
  * 初期化
@@ -290,9 +291,8 @@ bool init_stage(void)
 		return false;
 
 	/* ブレンドタイプを設定する */
-	layer_blend[LAYER_FO] = BLEND_NONE;
-	layer_blend[LAYER_FI] = BLEND_FAST;
 	layer_blend[LAYER_BG] = BLEND_NONE;
+	layer_blend[LAYER_BG2] = BLEND_FAST;
 	layer_blend[LAYER_CHB] = BLEND_FAST;
 	layer_blend[LAYER_CHL] = BLEND_FAST;
 	layer_blend[LAYER_CHR] = BLEND_FAST;
@@ -303,6 +303,20 @@ bool init_stage(void)
 	layer_blend[LAYER_CLICK] = BLEND_FAST;
 	layer_blend[LAYER_AUTO] = BLEND_FAST;
 	layer_blend[LAYER_SKIP] = BLEND_FAST;
+	layer_blend[LAYER_TEXT1] = BLEND_FAST;
+	layer_blend[LAYER_TEXT2] = BLEND_FAST;
+	layer_blend[LAYER_TEXT3] = BLEND_FAST;
+	layer_blend[LAYER_TEXT4] = BLEND_FAST;
+	layer_blend[LAYER_TEXT5] = BLEND_FAST;
+	layer_blend[LAYER_TEXT6] = BLEND_FAST;
+	layer_blend[LAYER_TEXT7] = BLEND_FAST;
+	layer_blend[LAYER_TEXT8] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT1] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT2] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT3] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT4] = BLEND_FAST;
+	layer_blend[LAYER_FO] = BLEND_NONE;
+	layer_blend[LAYER_FI] = BLEND_FAST;
 
 	/* アルファ値を設定する */
 	for (i = 0; i < STAGE_LAYERS; i++)
@@ -747,6 +761,22 @@ static bool create_fade_layer_images(void)
 }
 
 /*
+ * メッセージボックスと名前ボックスを更新する
+ */
+bool update_msgbox_and_namebox(void)
+{
+	/* 名前ボックスをセットアップする */
+	if (!setup_namebox())
+		return false;
+
+	/* メッセージボックスをセットアップする */
+	if (!setup_msgbox())
+		return false;
+
+	return true;
+}
+
+/*
  * ステージの終了処理を行う
  */
 void cleanup_stage(void)
@@ -817,14 +847,10 @@ void cleanup_stage(void)
 		destroy_image(thumb_image);
 		thumb_image = NULL;
 	}
-	if (bg_file_name != NULL) {
-		free(bg_file_name);
-		bg_file_name = NULL;
-	}
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		if (ch_file_name[i] != NULL) {
-			free(ch_file_name[i]);
-			ch_file_name[i] = NULL;
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		if (layer_file_name[i] != NULL) {
+			free(layer_file_name[i]);
+			layer_file_name[i] = NULL;
 		}
 	}
 	if (rule_img != NULL) {
@@ -859,7 +885,7 @@ static void destroy_layer_image(int layer)
 }
 
 /*
- * 文字描画
+ * 基本
  */
 
 /*
@@ -872,13 +898,118 @@ struct image *get_layer_image(int layer)
 }
 
 /*
- * レイヤーの位置を取得する
+ * レイヤイメージを設定する
  */
-void get_layer_position(int layer, int *x, int *y)
+void set_layer_image(int layer, struct image *img)
 {
 	assert(layer >= 0 && layer < STAGE_LAYERS);
-	*x = layer_x[layer];
-	*y = layer_y[layer];
+	assert(layer != LAYER_CLICK);
+	assert(layer != LAYER_MSG);
+	assert(layer != LAYER_NAME);
+	assert(layer != LAYER_AUTO);
+	assert(layer != LAYER_SKIP);
+
+	layer_image[layer] = img;
+}
+
+/*
+ * レイヤーのX座標を取得する
+ */
+int get_layer_x(int layer)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	return layer_x[layer];
+}
+
+/* レイヤーのY座標を取得する */
+int get_layer_y(int layer)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	return layer_y[layer];
+}
+
+/* レイヤーのアルファ値を取得する */
+int get_layer_alpha(int layer)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	return layer_alpha[layer];
+}
+
+/*
+ * レイヤーの座標を設定する
+ */
+void set_layer_position(int layer, int x, int y)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	layer_x[layer] = x;
+	layer_y[layer] = y;
+}
+
+/*
+ * レイヤーの座標を設定する
+ */
+void set_layer_alpha(int layer, int alpha)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	layer_alpha[layer] = alpha;
+}
+
+/*
+ * レイヤーのファイル名を取得する
+ */
+const char *get_layer_file_name(int layer)
+{
+	assert(layer >= 0 && layer <= LAYER_EFFECT4);
+	return layer_file_name[layer];
+}
+
+/*
+ * レイヤーのファイル名を設定する
+ */
+bool set_layer_file_name(int layer, const char *file_name)
+{
+	assert(layer >= 0 && layer <= LAYER_EFFECT4);
+	assert(layer != LAYER_CLICK);
+	assert(layer != LAYER_MSG);
+	assert(layer != LAYER_NAME);
+	assert(layer != LAYER_AUTO);
+	assert(layer != LAYER_SKIP);
+
+	if (layer_file_name[layer] != NULL) {
+		free(layer_file_name[layer]);
+		layer_file_name[layer] = NULL;
+	}
+	if (file_name != NULL) {
+		layer_file_name[layer] = strdup(file_name);
+		if (layer_file_name[layer] == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+	return true;
+}
+
+/*
+ * キャラ位置からステージレイヤへ変換する
+ */
+int chpos_to_layer(int chpos)
+{
+	switch (chpos) {
+	case CH_BACK:
+		return LAYER_CHB;
+	case CH_LEFT:
+		return LAYER_CHL;
+	case CH_RIGHT:
+		return LAYER_CHR;
+	case CH_CENTER:
+		return LAYER_CHC;
+	case CH_FACE:
+		return LAYER_CHF;
+	default:
+		assert(0);
+		break;
+	}
+	return -1;
 }
 
 /*
@@ -912,65 +1043,9 @@ void draw_stage_keep(void)
  */
 void draw_stage_rect(int x, int y, int w, int h)
 {
-	/* アニメーションサブシステムに更新させるデータの一覧 */
-	struct params {
-		int anime_layer;
-		struct image **image;
-		char **fname;
-		int *x;
-		int *y;
-		int *a;
-	} params[] = {
-		{ANIME_LAYER_BG,
-		 &layer_image[LAYER_BG],
-		 &bg_file_name,
-		 &layer_x[LAYER_BG],
-		 &layer_y[LAYER_BG],
-		 &layer_alpha[LAYER_BG]},
-		{ANIME_LAYER_CHB,
-		 &layer_image[LAYER_CHB],
-		 &ch_file_name[CH_BACK],
-		 &layer_x[LAYER_CHB],
-		 &layer_y[LAYER_CHB],
-		 &layer_alpha[LAYER_CHB]},
-		{ANIME_LAYER_CHL,
-		 &layer_image[LAYER_CHL],
-		 &ch_file_name[CH_LEFT],
-		 &layer_x[LAYER_CHL],
-		 &layer_y[LAYER_CHL],
-		 &layer_alpha[LAYER_CHL]},
-		{ANIME_LAYER_CHR,
-		 &layer_image[LAYER_CHR],
-		 &ch_file_name[CH_RIGHT],
-		 &layer_x[LAYER_CHR],
-		 &layer_y[LAYER_CHR],
-		 &layer_alpha[LAYER_CHR]},
-		{ANIME_LAYER_CHC,
-		 &layer_image[LAYER_CHC],
-		 &ch_file_name[CH_CENTER],
-		 &layer_x[LAYER_CHC],
-		 &layer_y[LAYER_CHC],
-		 &layer_alpha[LAYER_CHC]},
-		{ANIME_LAYER_MSG,
-		 NULL,
-		 NULL,
-		 &layer_x[LAYER_MSG],
-		 &layer_y[LAYER_MSG],
-		 &layer_alpha[LAYER_MSG]},
-		{ANIME_LAYER_NAME,
-		 NULL,
-		 NULL,
-		 &layer_x[LAYER_NAME],
-		 &layer_y[LAYER_NAME],
-		 &layer_alpha[LAYER_NAME]},
-		{ANIME_LAYER_CHF,
-		 NULL,
-		 NULL,
-		 &layer_x[LAYER_CHF],
-		 &layer_y[LAYER_CHF],
-		 &layer_alpha[LAYER_CHF]}
-	};
-	int i;
+	struct image **imgpp;
+	char **fnamepp;
+	int i, anime_layer;
 
 	/* FI/FOレイヤの使用中はdraw_stage()は使えない */
 	assert(stage_mode != STAGE_MODE_BG_FADE);
@@ -992,19 +1067,41 @@ void draw_stage_rect(int x, int y, int w, int h)
 	 * 各レイヤの描画パラメータを更新する
 	 *  - アニメシーケンスの"file:"指定により画像とファイル名も変更される
 	 */
-	for (i = 0; i < (int)(sizeof(params) / sizeof(struct params)); i++) {
-		/* 更新の必要がない場合 */
-		if (!is_anime_running_for_layer(params[i].anime_layer) &&
-		    !is_anime_finished_for_layer(params[i].anime_layer))
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		if (i == LAYER_CLICK || i == LAYER_AUTO || i == LAYER_SKIP)
 			continue;
 
+		/* アニメレイヤインデックスを取得する */
+		anime_layer = convert_stage_layer_to_anime_layer(i);
+
+		/* 更新の必要がない場合 */
+		if (!is_anime_running_for_layer(anime_layer) &&
+		    !is_anime_finished_for_layer(anime_layer))
+			continue;
+
+		/* Exclude the following layers. */
+		switch (i) {
+		case LAYER_MSG:		/* fall-thru */
+		case LAYER_NAME:	/* fall-thru */
+		case LAYER_CLICK:	/* fall-thru */
+		case LAYER_AUTO:	/* fall-thru */
+		case LAYER_SKIP:
+			imgpp = NULL;
+			fnamepp = NULL;
+			break;
+		default:
+			imgpp = &layer_image[i];
+			fnamepp = &layer_file_name[i];
+			break;
+		}
+
 		/* レイヤの情報を更新する */
-		get_anime_layer_params(params[i].anime_layer,
-				       params[i].image,
-				       params[i].fname,
-				       params[i].x,
-				       params[i].y,
-				       params[i].a);
+		get_anime_layer_params(anime_layer,
+				       imgpp,
+				       fnamepp,
+				       &layer_x[i],
+				       &layer_y[i],
+				       &layer_alpha[i]);
 	}
 
 	/* GPU利用時は更新範囲を画面全体にする */
@@ -1029,6 +1126,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 
 	/* 各レイヤで画面上の矩形(x, y) (w, h)に位置する部分を描画する */
 	render_layer_image_rect(LAYER_BG, x, y, w, h);
+	render_layer_image_rect(LAYER_BG2, x, y, w, h);
 	render_layer_image_rect(LAYER_CHB, x, y, w, h);
 	render_layer_image_rect(LAYER_CHL, x, y, w, h);
 	render_layer_image_rect(LAYER_CHR, x, y, w, h);
@@ -1045,6 +1143,50 @@ void draw_stage_rect(int x, int y, int w, int h)
 		render_layer_image_rect(LAYER_AUTO, x, y, w, h);
 	if (is_skip_visible)
 		render_layer_image_rect(LAYER_SKIP, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT1, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT2, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT3, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT4, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT5, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT6, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT7, x, y, w, h);
+	render_layer_image_rect(LAYER_TEXT8, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT1, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT2, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT3, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT4, x, y, w, h);
+}
+
+/* ステージレイヤからアニメレイヤに変換する */
+static int convert_stage_layer_to_anime_layer(int layer)
+{
+	switch (layer) {
+	case LAYER_BG: return ANIME_LAYER_BG;
+	case LAYER_BG2: return ANIME_LAYER_BG2;
+	case LAYER_CHB: return ANIME_LAYER_CHB;
+	case LAYER_CHL: return ANIME_LAYER_CHL;
+	case LAYER_CHR: return ANIME_LAYER_CHR;
+	case LAYER_CHC: return ANIME_LAYER_CHC;
+	case LAYER_CHF: return ANIME_LAYER_CHF;
+	case LAYER_MSG: return ANIME_LAYER_MSG;
+	case LAYER_NAME: return ANIME_LAYER_NAME;
+	case LAYER_TEXT1: return ANIME_LAYER_TEXT1;
+	case LAYER_TEXT2: return ANIME_LAYER_TEXT2;
+	case LAYER_TEXT3: return ANIME_LAYER_TEXT3;
+	case LAYER_TEXT4: return ANIME_LAYER_TEXT4;
+	case LAYER_TEXT5: return ANIME_LAYER_TEXT5;
+	case LAYER_TEXT6: return ANIME_LAYER_TEXT6;
+	case LAYER_TEXT7: return ANIME_LAYER_TEXT7;
+	case LAYER_TEXT8: return ANIME_LAYER_TEXT8;
+	case LAYER_EFFECT1: return ANIME_LAYER_EFFECT1;
+	case LAYER_EFFECT2: return ANIME_LAYER_EFFECT2;
+	case LAYER_EFFECT3: return ANIME_LAYER_EFFECT3;
+	case LAYER_EFFECT4: return ANIME_LAYER_EFFECT4;
+	default:
+		assert(0);
+		break;
+	}
+	return -1;
 }
 
 /*
@@ -2099,6 +2241,7 @@ void draw_stage_fo_fi(void)
 {
 	/* FOレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_BG2);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
@@ -2110,6 +2253,18 @@ void draw_stage_fo_fi(void)
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT1);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT3);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT4);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT5);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT6);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT7);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT8);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	
 	/* FIレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
@@ -2123,6 +2278,19 @@ void draw_stage_fo_fi(void)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT1);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT3);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT4);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT5);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT6);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT7);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT8);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 }
 
 /*
@@ -2642,64 +2810,6 @@ int get_fade_method(const char *method)
 }
 
 /*
- * 背景のファイル名を設定する
- */
-bool set_bg_file_name(const char *file)
-{
-	if (bg_file_name != NULL)
-		free(bg_file_name);
-
-	if (file == NULL) {
-		bg_file_name = NULL;
-	} else {
-		bg_file_name = strdup(file);
-		if (bg_file_name == NULL) {
-			log_memory();
-			return false;
-		}
-	}
-
-	return true;
-}
-
-/*
- * 背景のファイル名を取得する
- */
-const char *get_bg_file_name(void)
-{
-	return bg_file_name;
-}
-
-/*
- * 背景をフェードせずにただちに切り替える
- */
-void change_bg_immediately(struct image *img)
-{
-	assert(img != NULL);
-
-	destroy_layer_image(LAYER_BG);
-	layer_image[LAYER_BG] = img;
-}
-
-/*
- * 背景の位置を設定する
- */
-void change_bg_attributes(int x, int y)
-{
-	layer_x[LAYER_BG] = x;
-	layer_y[LAYER_BG] = y;
-}
-
-/*
- * 背景の位置を取得する
- */
-void get_bg_position(int *x, int *y)
-{
-	*x = layer_x[LAYER_BG];
-	*y = layer_y[LAYER_BG];
-}
-
-/*
  * 背景フェードを開始する
  */
 void start_bg_fade(struct image *img)
@@ -2792,67 +2902,6 @@ void stop_bg_fade(void)
  */
 
 /*
- * キャラのファイル名を設定する
- */
-bool set_ch_file_name(int pos, const char *file)
-{
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-	assert(file == NULL || strcmp(file, "") != 0);
-	       
-	if (ch_file_name[pos] != NULL)
-		free(ch_file_name[pos]);
-
-	if (file == NULL) {
-		ch_file_name[pos] = NULL;
-	} else {
-		ch_file_name[pos] = strdup(file);
-		if (ch_file_name[pos] == NULL) {
-			log_memory();
-			return false;
-		}
-	}
-
-	return true;
-}
-
-/*
- * キャラのファイル名を取得する
- */
-const char *get_ch_file_name(int pos)
-{
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-
-	return ch_file_name[pos];
-}
-
-/*
- * キャラの座標を取得する
- */
-void get_ch_position(int pos, int *x, int *y)
-{
-	int layer;
-
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-
-	layer = pos_to_layer(pos);
-	*x = layer_x[layer];
-	*y = layer_y[layer];
-}
-
-/*
- * キャラのアルファ値を取得する
- */
-int get_ch_alpha(int pos)
-{
-	int layer;
-
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-
-	layer = pos_to_layer(pos);
-	return layer_alpha[layer];
-}
-
-/*
  * キャラを暗くするかを設定する
  */
 void set_ch_dim(int pos, bool dim)
@@ -2860,38 +2909,6 @@ void set_ch_dim(int pos, bool dim)
 	assert(pos >= 0 && pos < CH_BASIC_LAYERS);
 
 	ch_dim[pos] = dim;
-}
-
-/*
- * キャラをフェードせずにただちに切り替える
- */
-void change_ch_immediately(int pos, struct image *img, int x, int y, int alpha)
-{
-	int layer;
-
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-
-	layer = pos_to_layer(pos);
-	destroy_layer_image(layer);
-	layer_image[layer] = img;
-	layer_x[layer] = x;
-	layer_y[layer] = y;
-	layer_alpha[layer] = alpha;
-}
-
-/*
- * キャラの位置とアルファを設定する
- */
-void change_ch_attributes(int pos, int x, int y, int alpha)
-{
-	int layer;
-
-	assert(pos >= 0 && pos < CH_ALL_LAYERS);
-
-	layer = pos_to_layer(pos);
-	layer_x[layer] = x;
-	layer_y[layer] = y;
-	layer_alpha[layer] = alpha;
 }
 
 /*
@@ -3904,6 +3921,45 @@ void draw_kirakira(void)
 }
 
 /*
+ * テキストレイヤ
+ */
+
+/*
+ * テキストレイヤのテキストを取得する
+ */
+const char *get_layer_text(int text_layer_index)
+{
+	assert(text_layer_index >= 0);
+	assert(text_layer_index < TEXT_LAYERS);
+
+	return layer_text[text_layer_index];
+}
+
+/*
+ * テキストレイヤのテキストを設定する
+ */
+bool set_layer_text(int text_layer_index, const char *msg)
+{
+	assert(text_layer_index >= 0);
+	assert(text_layer_index < TEXT_LAYERS);
+
+	if (layer_text[text_layer_index] != NULL) {
+		free(layer_text[text_layer_index]);
+		layer_text[text_layer_index] = NULL;
+	}
+
+	if (msg != NULL && strcmp(msg, "") != 0) {
+		layer_text[text_layer_index] = strdup(msg);
+		if (layer_text[text_layer_index] == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*
  * 更新領域の計算
  */
 
@@ -3977,20 +4033,4 @@ void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 		*h = bottom2 - *y + 1;
 	if (*y + *h >= conf_window_height)
 		*h = conf_window_height - *y;
-}
-
-/*
- * メッセージボックスと名前ボックスを更新する
- */
-bool update_msgbox_and_namebox(void)
-{
-	/* 名前ボックスをセットアップする */
-	if (!setup_namebox())
-		return false;
-
-	/* メッセージボックスをセットアップする */
-	if (!setup_msgbox())
-		return false;
-
-	return true;
 }

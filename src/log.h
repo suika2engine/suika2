@@ -93,9 +93,15 @@ void log_gui_parse_footer(const char *file, int line);
 void log_gui_image_not_loaded(void);
 void log_wms_syntax_error(const char *file, int line, int column);
 void log_wms_runtime_error(const char *file, int line, const char *msg);
-void log_anime_long_sequence(void);
 void log_anime_layer_not_specified(const char *key);
+void log_anime_parse_char(char c);
+void log_anime_parse_long_word(void);
+void log_anime_parse_empty_word(void);
+void log_anime_parse_invalid_eof(void);
+void log_anime_parse_property_before_type(const char *prop);
+void log_anime_parse_footer(const char *file, int line);
 void log_anime_unknown_key(const char *key);
+void log_anime_long_sequence(void);
 
 #ifdef USE_DEBUGGER
 void log_inform_translated_commands(void);

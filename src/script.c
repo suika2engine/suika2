@@ -35,6 +35,7 @@
  *  - 2023/08/27 構造化構文に対応
  *  - 2023/08/27 @setconfigに対応
  *  - 2023/08/31 @chsxに対応
+ *  - 2023/09/14 @pencilに対応
  */
 
 #include "suika.h"
@@ -276,6 +277,10 @@ struct insn_item {
 	/* コンフィグ変更 */
 	{"@setconfig", COMMAND_SETCONFIG, 1, 2},
 	{U8("@設定"), COMMAND_SETCONFIG, 1, 2},
+
+	/* テキスト描画 */
+	{"@pencil", COMMAND_PENCIL, 1, 2},
+	{U8("@鉛筆"), COMMAND_PENCIL, 1, 2},
 
 	/* その他 */
 	{"@setsave", COMMAND_SETSAVE, 1, 1},

@@ -1293,6 +1293,8 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		active_outline_color,
 		false,			/* is_dimming */
 		true,			/* ignore_linefeed */
+		false,			/* ignore_font */
+		false,			/* ignore_size */
 		false,			/* ignore_color */
 		false,			/* ignore_size */
 		false,			/* ignore_position */
@@ -1327,6 +1329,8 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		inactive_outline_color,
 		false,			/* is_dimming */
 		true,			/* ignore_linefeed */
+		false,			/* ignore_font*/
+		false,			/* ignore_outline */
 		false,			/* ignore_color */
 		false,			/* ignore_size */
 		false,			/* ignore_position */

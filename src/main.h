@@ -99,6 +99,7 @@ bool chapter_command(void);
 bool gui_command(int *x, int *y, int *w, int *h);
 bool wms_command(void);
 bool anime_command(int *x, int *y, int *w, int *h);
+bool pencil_command(int *x, int *y, int *w, int *h);
 bool setconfig_command(void);
 
 /*

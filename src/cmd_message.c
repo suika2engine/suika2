@@ -1186,6 +1186,8 @@ static void init_msgbox(int *x, int *y, int *w, int *h)
 		body_outline_color,
 		false,	/* is_dimming */
 		false,	/* ignore_linefeed */
+		false,	/* ignore_font */
+		false,	/* ignore_outline */
 		false,	/* ignore_color */
 		false,	/* ignore_size */
 		false,	/* ignore_position */
@@ -1424,6 +1426,8 @@ static void draw_namebox(void)
 		name_outline_color,
 		false,			/* is_dimming */
 		false,			/* ignore_linefeed */
+		false,			/* ignore_font*/
+		false,			/* ignore_outline */
 		false,			/* ignore_color */
 		false,			/* ignore_size */
 		false,			/* ignore_position */
@@ -1466,7 +1470,7 @@ static void focus_character(void)
 	/* すべてのキャラクタについて設定する */
 	for (j = 0; j < CH_BASIC_LAYERS; j++) {
 		/* キャラがロードされていない位置なら飛ばす */
-		fname = get_ch_file_name(j);
+		fname = get_layer_file_name(chpos_to_layer(j));
 		if (fname == NULL)
 			continue;
 
@@ -3187,6 +3191,8 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 		body_outline_color,
 		true,	/* is_dimming */
 		false,	/* ignore_linefeed */
+		false,	/* ignore_font */
+		false,	/* ignore_outline */
 		true,	/* ignore_color */
 		false,	/* ignore_size */
 		false,	/* ignore_position */

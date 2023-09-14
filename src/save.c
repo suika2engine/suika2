@@ -561,30 +561,47 @@ static bool serialize_command(struct wfile *wf)
 /* ステージをシリアライズする */
 static bool serialize_stage(struct wfile *wf)
 {
-	const char *s;
-	int i, m, n, o;
+	const char *file, *text;
+	size_t len;
+	int i, x, y, alpha;
 
-	s = get_bg_file_name();
-	if (s == NULL)
-		s = "none";
-	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
-		return false;
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		/* Exclude the following layers. */
+		switch (i) {
+		case LAYER_MSG: continue;
+		case LAYER_NAME: continue;
+		case LAYER_CLICK: continue;
+		case LAYER_AUTO: continue;
+		case LAYER_SKIP: continue;
+		default: break;
+		}
 
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		get_ch_position(i, &m, &n);
-		o = get_ch_alpha(i);
-		if (write_wfile(wf, &m, sizeof(m)) < sizeof(m))
-			return false;
-		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
-			return false;
-		if (write_wfile(wf, &o, sizeof(o)) < sizeof(o))
+		file = get_layer_file_name(i);
+		if (file == NULL)
+			file = "none";
+		if (write_wfile(wf, file, strlen(file) + 1) < strlen(file) + 1)
 			return false;
 
-		s = get_ch_file_name(i);
-		if (s == NULL)
-			s = "none";
-		if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
+		x = get_layer_x(i);
+		y = get_layer_y(i);
+		if (write_wfile(wf, &x, sizeof(x)) < sizeof(x))
 			return false;
+		if (write_wfile(wf, &y, sizeof(y)) < sizeof(y))
+			return false;
+
+		alpha = get_layer_alpha(i);
+		if (write_wfile(wf, &alpha, sizeof(alpha)) < sizeof(alpha))
+			return false;
+
+		if (i >= LAYER_TEXT1 && i <= LAYER_TEXT8) {
+			text = get_layer_text(i);
+			if (text == NULL)
+			text = "";
+
+			len = strlen(text) + 1;
+			if (write_wfile(wf, text, len) < len)
+				return false;
+		}
 	}
 
 	return true;
@@ -949,59 +966,81 @@ static bool deserialize_command(struct rfile *rf)
 /* ステージのデシリアライズを行う */
 static bool deserialize_stage(struct rfile *rf)
 {
-	char s[1024];
+	char text[4096];
 	struct image *img;
-	int m, n, o, i;
+	int i, x, y, alpha;
 
-	if (gets_rfile(rf, s, sizeof(s)) == NULL)
-		return false;
-
-	if (strcmp(s, "none") == 0) {
-		set_bg_file_name(NULL);
-		img = create_initial_bg();
-		if (img == NULL)
-			return false;;
-	} else if (s[0] == '#') {
-		set_bg_file_name(s);
-		img = create_image_from_color_string(conf_window_width,
-						     conf_window_height,
-						     &s[1]);
-		if (img == NULL)
-			return false;
-	} else {
-		set_bg_file_name(s);
-		if (strncmp(s, "cg/", 3) == 0)
-			img = create_image_from_file(CG_DIR, &s[3]);
-		else
-			img = create_image_from_file(BG_DIR, s);
-		if (img == NULL)
-			return false;
-	}
-
-	change_bg_immediately(img);
-
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		if (read_rfile(rf, &m, sizeof(m)) < sizeof(n))
-			return false;
-		if (read_rfile(rf, &n, sizeof(n)) < sizeof(m))
-			return false;
-		if (read_rfile(rf, &o, sizeof(o)) < sizeof(o))
-			return false;
-		if (gets_rfile(rf, s, sizeof(s)) == NULL)
-			return false;
-
-		assert(strcmp(s, "") != 0);
-		if (strcmp(s, "none") == 0) {
-			set_ch_file_name(i, NULL);
-			img = NULL;
-		} else {
-			set_ch_file_name(i, s);
-			img = create_image_from_file(CH_DIR, s);
-			if (img == NULL)
-				return false;
+	for (i = LAYER_BG; i < LAYER_EFFECT4; i++) {
+		/* Exclude the following layers. */
+		switch (i) {
+		case LAYER_MSG: continue;
+		case LAYER_NAME: continue;
+		case LAYER_CLICK: continue;
+		case LAYER_AUTO: continue;
+		case LAYER_SKIP: continue;
+		default: break;
 		}
 
-		change_ch_immediately(i, img, m, n, o);
+		/* File name. */
+		if (gets_rfile(rf, text, sizeof(text)) == NULL)
+			return false;
+		if (i == LAYER_BG) {
+			if (strcmp(text, "none") == 0) {
+				set_layer_file_name(i, NULL);
+				img = create_initial_bg();
+				if (img == NULL)
+					return false;;
+			} else if (text[0] == '#') {
+				if (!set_layer_file_name(i, text))
+					return false;
+				img = create_image_from_color_string(
+					conf_window_width,
+					conf_window_height,
+					&text[1]);
+				if (img == NULL)
+					return false;
+			} else {
+				set_layer_file_name(i, text);
+				if (strncmp(text, "cg/", 3) == 0) {
+					img = create_image_from_file(
+						CG_DIR, &text[3]);
+				} else {
+					img = create_image_from_file(
+						BG_DIR, text);
+				}
+				if (img == NULL)
+					return false;
+			}
+		} else {
+			if (strcmp(text, "none") == 0) {
+				set_layer_file_name(i, NULL);
+				img = NULL;
+			} else {
+				set_layer_file_name(i, text);
+				img = create_image_from_file(CH_DIR, text);
+				if (img == NULL)
+					return false;
+			}
+		}
+
+		/* Position. */
+		if (read_rfile(rf, &x, sizeof(x)) < sizeof(x))
+			return false;
+		if (read_rfile(rf, &y, sizeof(y)) < sizeof(y))
+			return false;
+		set_layer_position(i, x, y);
+
+		/* Alpha. */
+		if (read_rfile(rf, &alpha, sizeof(alpha)) < sizeof(alpha))
+			return false;
+		set_layer_alpha(i, alpha);
+
+		/* Text. */
+		if (i >= LAYER_TEXT1 && i <= LAYER_TEXT8) {
+			if (gets_rfile(rf, text, sizeof(text)) == NULL)
+				return false;
+			set_layer_text(i, text);
+		}
 	}
 
 	return true;
@@ -1399,7 +1438,6 @@ void set_text_speed(float val)
 
 	msg_text_speed = val;
 }
-
 /*
  * テキストスピードを取得する
  */

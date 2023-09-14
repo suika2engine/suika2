@@ -74,6 +74,9 @@ enum {
 	/* ヒストリスクロールボタン */
 	TYPE_HISTORYSCROLL,
 
+	/* 縦書き用ヒストリスクロールボタン */
+	TYPE_HISTORYSCROLL_HORIZONTAL,
+
 	/* タイトルに戻るボタン */
 	TYPE_TITLE,
 
@@ -395,7 +398,7 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command,
 		return false;
 	}
 
-	/* TYPE_SAVE/TYP_LOADのボタンの初期化を行う */
+	/* TYPE_SAVE/TYPE_LOADのボタンの初期化を行う */
 	if (!init_save_buttons()) {
 		cleanup_gui();
 		return false;
@@ -607,6 +610,7 @@ static int get_type_for_name(const char *name)
 		{"load", TYPE_LOAD},
 		{"history", TYPE_HISTORY},
 		{"historyscroll", TYPE_HISTORYSCROLL},
+		{"historyscroll-tategaki", TYPE_HISTORYSCROLL_HORIZONTAL},
 		{"default", TYPE_DEFAULT},
 		{"title", TYPE_TITLE},
 		{"cancel", TYPE_CANCEL},
@@ -696,6 +700,9 @@ static void update_runtime_props(bool is_first_time)
 				button[i].rt.is_active = false;
 			break;
 		case TYPE_HISTORYSCROLL:
+			button[i].rt.slider = transient_history_slider;
+			break;
+		case TYPE_HISTORYSCROLL_HORIZONTAL:
 			button[i].rt.slider = transient_history_slider;
 			break;
 		default:
@@ -990,7 +997,8 @@ static void process_button_drag(int index)
 	if (b->type != TYPE_BGMVOL && b->type != TYPE_VOICEVOL &&
 	    b->type != TYPE_SEVOL && b->type != TYPE_CHARACTERVOL &&
 	    b->type != TYPE_TEXTSPEED && b->type != TYPE_AUTOSPEED &&
-	    b->type != TYPE_HISTORYSCROLL)
+	    b->type != TYPE_HISTORYSCROLL &&
+	    b->type != TYPE_HISTORYSCROLL_HORIZONTAL)
 		return;
 
 	/* ドラッグ中でない場合 */
@@ -1008,7 +1016,8 @@ static void process_button_drag(int index)
 		b->rt.slider = calc_slider_value(index);
 		if (b->type == TYPE_BGMVOL)
 			set_mixer_global_volume(BGM_STREAM, b->rt.slider);
-		if (b->type == TYPE_HISTORYSCROLL) {
+		if (b->type == TYPE_HISTORYSCROLL ||
+		    b->type == TYPE_HISTORYSCROLL_HORIZONTAL) {
 			transient_history_slider = b->rt.slider;
 			update_history_top(index);
 			b->rt.slider = transient_history_slider;
@@ -1043,6 +1052,13 @@ static void process_button_drag(int index)
 		transient_history_slider = b->rt.slider;
 		update_history_top(index);
 		b->rt.slider = transient_history_slider;
+		break;
+	case TYPE_HISTORYSCROLL_HORIZONTAL:
+		transient_history_slider = b->rt.slider;
+		update_history_top(index);
+		b->rt.slider = transient_history_slider;
+		break;
+	default:
 		break;
 	}
 
@@ -1266,6 +1282,10 @@ static void process_button_draw(int index)
 	case TYPE_HISTORYSCROLL:
 		/* 垂直スライダを描画する */
 		process_button_draw_slider_vertical(index);
+		break;
+	case TYPE_HISTORYSCROLL_HORIZONTAL:
+		/* 垂直スライダを描画する */
+		process_button_draw_slider(index);
 		break;
 	case TYPE_NAMEVAR:
 		/* 名前変数のプレビューを描画する */
@@ -1589,13 +1609,15 @@ static int draw_save_text_item(int button_index, int x, int y,
 		outline_color,
 		false,		/* is_dimming */
 		true,		/* ignore_linefeed */
+		true,		/* ignore_font */
+		true,		/* ignore_outline */
 		true,		/* ignore_color */
 		true,		/* ignore_size */
 		true,		/* ignore_position */
 		conf_gui_ruby,
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
-		conf_msgbox_tategaki);
+		false);		/* use_tategaki */
 	set_alternative_target_image(&context, b->rt.img);
 	total_chars = count_chars_common(&context);
 	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);
@@ -1904,6 +1926,8 @@ static void draw_history_text_item(int button_index)
 		outline_color,
 		false,		/* is_dimming */
 		false,		/* ignore_linefeed */
+		false,		/* ignore_font */
+		false,		/* ignore_outline */
 		ignore_color,	/* ignore_color */
 		true,		/* ignore_size */
 		true,		/* ignore_position */
@@ -2094,6 +2118,8 @@ static void reset_preview_button(int index)
 		outline_color,
 		false,		/* is_dimming */
 		false,		/* ignore_linefeed */
+		false,		/* ignore_font */
+		false,		/* ignore_outline */
 		false,		/* ignore_color */
 		false,		/* ignore_size */
 		false,		/* ignore_position */
@@ -2309,6 +2335,8 @@ static void draw_name(int index)
 		outline_color,
 		false,		/* is_dimming */
 		false,		/* ignore_linefeed */
+		false,		/* ignore_font */
+		false,		/* ignore_outline */
 		false,		/* ignore_color */
 		false,		/* ignore_size */
 		false,		/* ignore_position */

@@ -71,14 +71,14 @@ static bool init(void)
 	/* 背景以外を消す */
 	show_namebox(false);
 	show_msgbox(false);
-	set_ch_file_name(CH_BACK, NULL);
-	set_ch_file_name(CH_RIGHT, NULL);
-	set_ch_file_name(CH_LEFT, NULL);
-	set_ch_file_name(CH_CENTER, NULL);
-	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
-	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
+	set_layer_file_name(LAYER_CHB, NULL);
+	set_layer_file_name(LAYER_CHL, NULL);
+	set_layer_file_name(LAYER_CHR, NULL);
+	set_layer_file_name(LAYER_CHC, NULL);
+	set_layer_image(LAYER_CHB, NULL);
+	set_layer_image(LAYER_CHL, NULL);
+	set_layer_image(LAYER_CHR, NULL);
+	set_layer_image(LAYER_CHC, NULL);
 
 	/* 終了後に表示されるBGレイヤを設定する */
 	if (!create_temporary_bg_for_gui()) {
