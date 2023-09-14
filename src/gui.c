@@ -1792,6 +1792,7 @@ static void draw_history_text_item(int button_index)
 	const char *text;
 	pixel_t color, outline_color;
 	int font_size, ruby_size, margin_line, total_chars;
+	int pen_x, pen_y;
 	int ret_x, ret_y, ret_w, ret_h;
 	bool use_outline, ignore_color;
 
@@ -1870,6 +1871,15 @@ static void draw_history_text_item(int button_index)
 	margin_line = conf_gui_history_margin_line > 0 ?
 		conf_gui_history_margin_line : conf_msgbox_margin_line;
 
+	/* ペン位置を計算する */
+	if (!conf_msgbox_tategaki) {
+		pen_x = b->margin;
+		pen_y = b->margin;
+	} else {
+		pen_x = b->width - b->margin - font_size;
+		pen_y = b->margin;
+	}
+
 	/* 描画する */
 	construct_draw_msg_context(
 		&context,
@@ -1880,8 +1890,8 @@ static void draw_history_text_item(int button_index)
 		font_size,
 		ruby_size,
 		use_outline,
-		b->margin,	/* pen_x */
-		b->margin,	/* pen_y */
+		pen_x,
+		pen_y,
 		b->width,	/* area_width */
 		b->height,	/* area_height */
 		b->margin,	/* left_margin */

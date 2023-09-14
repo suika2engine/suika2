@@ -332,7 +332,6 @@ static bool play_voice(void);
 static void set_character_volume_by_name(const char *name);
 static void draw_namebox(void);
 static void focus_character(void);
-static void init_pen(void);
 static void init_click(void);
 static void init_first_draw_area(int *x, int *y, int *w, int *h);
 static void init_pointed_index(void);
@@ -541,6 +540,7 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 	 *  - アニメ中、またはGPU利用時は、画面全体の描画になる
 	 *  - アニメのアップデート処理はこの内部で行われる
 	 */
+	union_rect(x, y, w, h, 0, 0, 0, 0, 0, 0, 0, 0); /* normalize */
 	draw_stage_rect(*x, *y, *w, *h);
 
 	/* システムメニューを描画する */
@@ -647,9 +647,6 @@ static bool init(int *x, int *y, int *w, int *h)
 	 */
 	if (!gui_sys_flag)
 		set_message_active();
-
-	/* ペンの位置を初期化する */
-	init_pen();
 
 	/* クリックアニメーションを非表示の状態にする */
 	init_click();
@@ -1134,18 +1131,6 @@ static void init_msgbox(int *x, int *y, int *w, int *h)
 	if (gui_sys_flag)
 		return;
 
-	/* 継続行でなければペン位置を初期化する */
-	if (!is_continue_mode) {
-		if (!conf_msgbox_tategaki) {
-			pen_x = conf_msgbox_margin_left;
-			pen_y = conf_msgbox_margin_top;
-		} else {
-			pen_x = conf_msgbox_margin_right -
-				conf_msgbox_margin_line;
-			pen_y = conf_msgbox_margin_top;
-		}
-	}
-
 	/* メッセージボックスの矩形を取得する */
 	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
 
@@ -1153,6 +1138,22 @@ static void init_msgbox(int *x, int *y, int *w, int *h)
 	union_rect(x, y, w, h,
 		   *x, *y, *w, *h,
 		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
+
+	/* 継続行でなければ、メッセージの描画位置を初期化する */
+	if (!is_continue_mode) {
+		if (!conf_msgbox_tategaki) {
+			pen_x = conf_msgbox_margin_left;
+			pen_y = conf_msgbox_margin_top;
+		} else {
+			pen_x = msgbox_w - conf_msgbox_margin_right -
+				conf_font_size;
+			pen_y = conf_msgbox_margin_top;
+		}
+	}
+
+	/* 重ね塗りをする場合のためにペン位置を保存する */
+	orig_pen_x = pen_x;
+	orig_pen_y = pen_y;
 
 	/* 行継続でなければ、メッセージレイヤをクリアする */
 	if (!is_continue_mode)
@@ -1478,33 +1479,6 @@ static void focus_character(void)
 			/* マッチしなかったので暗くする */
 			set_ch_dim(j, true);
 		}
-	}
-}
-
-/* ペンの位置を初期化する */
-static void init_pen(void)
-{
-	/* システムGUIから戻った場合 */
-	if (gui_sys_flag)
-		return;
-
-	/* 継続行でなければ、メッセージの描画位置を初期化する */
-	if (!is_continue_mode) {
-		if (!conf_msgbox_tategaki) {
-			pen_x = conf_msgbox_margin_left;
-			pen_y = conf_msgbox_margin_top;
-		} else {
-			pen_x = msgbox_w - conf_msgbox_margin_right -
-				conf_font_size;
-			pen_y = conf_msgbox_margin_top;
-		}
-	}
-
-	/* 重ね塗りをする場合 */
-	if (conf_msgbox_dim) {
-		/* 描画開始位置を保存する */
-		orig_pen_x = pen_x;
-		orig_pen_y = pen_y;
 	}
 }
 
@@ -3220,7 +3194,9 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 		true,	/* ignore_wait */
 		NULL,	/* inline_wait_hook */
 		conf_msgbox_tategaki);
+	lock_layers_for_msgdraw(LAYER_MSG, -1);
 	draw_msg_common(&context, total_chars, x, y, w, h);
+	unlock_layers_for_msgdraw(LAYER_MSG, -1);
 }
 
 /*

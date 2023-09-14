@@ -3930,7 +3930,7 @@ void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 		*h = h2;
 		return;
 	}
-	if (w2 ==0 || h2 == 0 ) {
+	if (w2 == 0 || h2 == 0 ) {
 		*x = x1;
 		*y = y1;
 		*w = w1;
@@ -3943,12 +3943,20 @@ void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 		*x = x1;
 	else
 		*x = x2;
+	if (*x < 0) {
+		*w += *x;
+		*x = 0;
+	}
 
 	/* 上端を求める */
 	if (y1 < y2)
 		*y = y1;
 	else
 		*y = y2;
+	if (*y < 0) {
+		*h += *y;
+		*y = 0;
+	}
 
 	/* 右端を求める */
 	right1 = x1 + w1 - 1;
@@ -3957,6 +3965,8 @@ void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 		*w = right1 - *x + 1;
 	else
 		*w = right2 - *x + 1;
+	if (*x + *w >= conf_window_width)
+		*w = conf_window_width - *x;
 
 	/* 下端を求める */
 	bottom1 = y1 + h1 - 1;
@@ -3965,6 +3975,8 @@ void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
 		*h = bottom1 - *y + 1;
 	else
 		*h = bottom2 - *y + 1;
+	if (*y + *h >= conf_window_height)
+		*h = conf_window_height - *y;
 }
 
 /*

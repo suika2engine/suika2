@@ -1272,7 +1272,7 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 	/* FIレイヤに選択時の色で文字を描画する */
 	construct_draw_msg_context(
 		&context,
-		LAYER_FO,
+		LAYER_FI,
 		text,
 		conf_switch_font_select,
 		font_size,
@@ -1306,7 +1306,7 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 	/* FOレイヤに非選択時の色で文字を描画する */
 	construct_draw_msg_context(
 		&context,
-		LAYER_FI,
+		LAYER_FO,
 		text,
 		conf_switch_font_select,
 		font_size,
@@ -1323,8 +1323,8 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		0,			/* bottom_margin */
 		0,			/* line_margin */
 		conf_msgbox_margin_char,
-		active_color,
-		active_outline_color,
+		inactive_color,
+		inactive_outline_color,
 		false,			/* is_dimming */
 		true,			/* ignore_linefeed */
 		false,			/* ignore_color */
