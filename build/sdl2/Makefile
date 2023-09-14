@@ -22,7 +22,6 @@ CFLAGS = \
 	-O0 -g3 \
 	-ffast-math \
 	-ftree-vectorize \
-	-fopt-info-vec \
 	-std=gnu89 \
 	-Wall \
 	-Werror \
