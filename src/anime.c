@@ -333,7 +333,7 @@ get_anime_layer_params(
 				dir = CH_DIR;
 			else
 				dir = "";
-			if (image != NULL) {
+			if (image != NULL && *image != NULL) {
 				destroy_image(*image);
 				*image = create_image_from_file(dir, s->file);
 				if (*image == NULL)
