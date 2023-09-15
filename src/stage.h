@@ -212,6 +212,9 @@ bool set_layer_file_name(int layer, const char *file_name);
 /* キャラ位置からステージレイヤへ変換する */
 int chpos_to_layer(int chpos);
 
+/* キャラ位置からアニメレイヤへ変換する */
+int chpos_to_anime_layer(int chpos);
+
 /*
  * ステージ描画
  */

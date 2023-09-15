@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 #ifndef SUIKA_ANIME_H
@@ -94,5 +94,8 @@ get_anime_layer_params(
 	int *x,
 	int *y,
 	int *alpha);
+
+/* アニメレイヤの座標を更新する */
+void set_anime_layer_position(int anime_layer, int x, int y);
 
 #endif

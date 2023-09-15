@@ -131,6 +131,7 @@ static bool init(void)
 	set_layer_file_name(LAYER_CHC, NULL);
 	set_layer_position(LAYER_BG, ofs_x, ofs_y);
 	set_layer_alpha(LAYER_BG, 255);
+	set_anime_layer_position(ANIME_LAYER_BG, ofs_x, ofs_y);
 
 	/* メッセージボックスを消す (msgbox.show.on.bg=2) */
 	if (conf_msgbox_show_on_bg == 2) {
@@ -146,12 +147,6 @@ static bool init(void)
 	     ((!is_auto_mode() && is_control_pressed) || is_skip_mode()))) {
 		/* フェードせず、すぐに切り替える */
 		set_layer_image(LAYER_BG, img);
-		set_layer_position(LAYER_BG, ofs_x, ofs_y);
-		set_layer_alpha(LAYER_BG, 255);
-		set_layer_file_name(LAYER_CHB, NULL);
-		set_layer_file_name(LAYER_CHL, NULL);
-		set_layer_file_name(LAYER_CHR, NULL);
-		set_layer_file_name(LAYER_CHC, NULL);
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();

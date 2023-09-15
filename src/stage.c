@@ -1013,6 +1013,29 @@ int chpos_to_layer(int chpos)
 }
 
 /*
+ * キャラ位置からアニメレイヤへ変換する
+ */
+int chpos_to_anime_layer(int chpos)
+{
+	switch (chpos) {
+	case CH_BACK:
+		return ANIME_LAYER_CHB;
+	case CH_LEFT:
+		return ANIME_LAYER_CHL;
+	case CH_RIGHT:
+		return ANIME_LAYER_CHR;
+	case CH_CENTER:
+		return ANIME_LAYER_CHC;
+	case CH_FACE:
+		return ANIME_LAYER_CHF;
+	default:
+		assert(0);
+		break;
+	}
+	return -1;
+}
+
+/*
  * ステージの描画
  */
 
