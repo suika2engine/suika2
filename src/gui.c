@@ -1490,52 +1490,52 @@ static void draw_save_button(int button_index)
 	/* セーブ時刻を求める */
 	save_time = get_save_date(save_index);
 
-	/* イメージをロックする */
+	/* 描画する */
 	lock_image(b->rt.img);
+	{
+		/* イメージをクリアする */
+		clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
 
-	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
+		/* サムネイルを描画する */
+		thumb = get_save_thumbnail(save_index);
+		if (thumb != NULL) {
+			draw_image(b->rt.img, b->margin, b->margin, thumb,
+				   conf_save_data_thumb_width,
+				   conf_save_data_thumb_height, 0, 0, 255,
+				   BLEND_NONE);
+		}
 
-	/* サムネイルを描画する */
-	thumb = get_save_thumbnail(save_index);
-	if (thumb != NULL) {
-		draw_image(b->rt.img, b->margin, b->margin, thumb,
-			   conf_save_data_thumb_width,
-			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
+		/* 日時を描画する */
+		if (get_save_date(save_index) == 0) {
+			snprintf(text, sizeof(text), "[%02d] NO DATA", save_index);
+		} else {
+			timeptr = localtime(&save_time);
+			snprintf(text, sizeof(text), "[%02d] ", save_index);
+			strftime(&text[5], sizeof(text) - 5, "%y/%m/%d %H:%M ",
+				 timeptr);
+		}
+		width = draw_save_text_item(button_index,
+					    conf_save_data_thumb_width + b->margin * 2,
+					    b->margin, text);
+
+		/* 章タイトルを描画する */
+		chapter = get_save_chapter_name(save_index);
+		if (chapter != NULL) {
+			draw_save_text_item(button_index,
+					    conf_save_data_thumb_width +
+					    b->margin * 2 + width,
+					    b->margin, chapter);
+		}
+
+		/* 最後のメッセージを描画する */
+		msg = get_save_last_message(save_index);
+		if (msg) {
+			draw_save_text_item(button_index,
+					    conf_save_data_thumb_width + b->margin * 2,
+					    b->margin + conf_msgbox_margin_line,
+					    msg);
+		}
 	}
-
-	/* 日時を描画する */
-	if (get_save_date(save_index) == 0) {
-		snprintf(text, sizeof(text), "[%02d] NO DATA", save_index);
-	} else {
-		timeptr = localtime(&save_time);
-		snprintf(text, sizeof(text), "[%02d] ", save_index);
-		strftime(&text[5], sizeof(text) - 5, "%y/%m/%d %H:%M ",
-			 timeptr);
-	}
-	width = draw_save_text_item(button_index,
-				    conf_save_data_thumb_width + b->margin * 2,
-				    b->margin, text);
-
-	/* 章タイトルを描画する */
-	chapter = get_save_chapter_name(save_index);
-	if (chapter != NULL) {
-		draw_save_text_item(button_index,
-				    conf_save_data_thumb_width +
-				    b->margin * 2 + width,
-				    b->margin, chapter);
-	}
-
-	/* 最後のメッセージを描画する */
-	msg = get_save_last_message(save_index);
-	if (msg) {
-		draw_save_text_item(button_index,
-				    conf_save_data_thumb_width + b->margin * 2,
-				    b->margin + conf_msgbox_margin_line,
-				    msg);
-	}
-
-	/* イメージをアンロックする */
 	unlock_image(b->rt.img);
 }
 
@@ -1792,17 +1792,15 @@ static void draw_history_button(int button_index)
 	if (b->rt.img == NULL)
 		return;
 
-	/* イメージをロックする */
 	lock_image(b->rt.img);
+	{
+		/* イメージをクリアする */
+		clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
 
-	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
-
-	/* メッセージを描画する */
-	if (button[button_index].rt.history_offset != -1)
-		draw_history_text_item(button_index);
-
-	/* イメージをアンロックする */
+		/* メッセージを描画する */
+		if (button[button_index].rt.history_offset != -1)
+			draw_history_text_item(button_index);
+	}
 	unlock_image(b->rt.img);
 }
 
@@ -2083,7 +2081,9 @@ static void reset_preview_button(int index)
 	b = &button[index];
 
 	lock_image(b->rt.img);
-	clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
+	{
+		clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
+	}
 	unlock_image(b->rt.img);
 
 	color = make_pixel_slow(0xff,
@@ -2185,13 +2185,15 @@ static void draw_preview_message(int index)
 
 	/* 描画する */
 	lock_image(b->rt.img);
-	ret_chars = draw_msg_common(&b->rt.msg_context,
-				    char_count,
-				    &ret_x,
-				    &ret_y,
-				    &ret_w,
-				    &ret_h);
-	unlock_image(button[index].rt.img);
+	{
+		ret_chars = draw_msg_common(&b->rt.msg_context,
+					    char_count,
+					    &ret_x,
+					    &ret_y,
+					    &ret_w,
+					    &ret_h);
+	}
+	unlock_image(b->rt.img);
 
 	/* 描画した文字数を加算する */
 	b->rt.drawn_chars += ret_chars;
@@ -2259,9 +2261,12 @@ static bool init_namevar_buttons(void)
 						button[i].height);
 		if (button[i].rt.img == NULL)
 			return false;
+
 		lock_image(button[i].rt.img);
-		clear_image_color(button[i].rt.img,
-				  make_pixel_slow(0, 0, 0, 0));
+		{
+			clear_image_color(button[i].rt.img,
+					  make_pixel_slow(0, 0, 0, 0));
+		}
 		unlock_image(button[i].rt.img);
 	}
 
@@ -2278,9 +2283,11 @@ static void update_namevar_buttons(void)
 			continue;
 
 		lock_image(button[i].rt.img);
-		clear_image_color(button[i].rt.img,
-				  make_pixel_slow(0, 0, 0, 0));
-		draw_name(i);
+		{
+			clear_image_color(button[i].rt.img,
+					  make_pixel_slow(0, 0, 0, 0));
+			draw_name(i);
+		}
 		unlock_image(button[i].rt.img);
 	}
 }

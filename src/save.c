@@ -22,6 +22,9 @@
 
 #include "suika.h"
 
+/* セーブデータの互換性バージョン(12.42で導入) */
+#define SAVE_VER	(0xabcd1242)
+
 #ifdef EM
 #include <emscripten/emscripten.h>
 #endif
@@ -508,9 +511,11 @@ static bool serialize_thumb(struct wfile *wf, int index)
 			return false;
 	}
 	lock_image(save_thumb[index]);
-	draw_image(save_thumb[index], 0, 0, get_thumb_image(),
-		   conf_save_data_thumb_width, conf_save_data_thumb_height, 0, 0,
-		   255, BLEND_NONE);
+	{
+		draw_image(save_thumb[index], 0, 0, get_thumb_image(),
+			   conf_save_data_thumb_width,
+			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
+	}
 	unlock_image(save_thumb[index]);
 
 	/* ピクセル列を準備する */
@@ -1215,14 +1220,16 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 	if (save_thumb[index] == NULL)
 		return;
 	lock_image(save_thumb[index]);
-	dst = get_image_pixels(save_thumb[index]);
-	src = tmp_pixels;
-	for (y = 0; y < conf_save_data_thumb_height; y++) {
-		for (x = 0; x < conf_save_data_thumb_width; x++) {
-			r = *src++;
-			g = *src++;
-			b = *src++;
-			*dst++ = make_pixel_slow(0xff, r, g, b);
+	{
+		dst = get_image_pixels(save_thumb[index]);
+		src = tmp_pixels;
+		for (y = 0; y < conf_save_data_thumb_height; y++) {
+			for (x = 0; x < conf_save_data_thumb_width; x++) {
+				r = *src++;
+				g = *src++;
+				b = *src++;
+				*dst++ = make_pixel_slow(0xff, r, g, b);
+			}
 		}
 	}
 	unlock_image(save_thumb[index]);
@@ -1238,12 +1245,22 @@ static void load_global_data(void)
 	char fname[128];
 	struct rfile *rf;
 	float f;
+	uint32_t ver;
 	int i;
 
 	/* ファイルを開く */
 	rf = open_rfile(SAVE_DIR, GLOBAL_VARS_FILE, true);
 	if (rf == NULL)
 		return;
+
+	/* セーブデータのバージョンを読む */
+	if (read_rfile(rf, &ver, sizeof(int32_t) != sizeof(uint32_t)))
+		return;
+	if (ver != SAVE_VER) {
+		/* セーブデータの互換性がないので読み込まない */
+		close_rfile(&rf);
+		return;
+	}
 
 	/* グローバル変数をデシリアライズする */
 	read_rfile(rf, get_global_variables_pointer(),

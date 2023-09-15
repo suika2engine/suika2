@@ -1441,7 +1441,9 @@ static void draw_namebox(void)
 
 	/* 文字描画する */
 	lock_layers_for_msgdraw(LAYER_NAME, -1);
-	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+	{
+		draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+	}
 	unlock_layers_for_msgdraw(LAYER_NAME, -1);
 }
 
@@ -2615,7 +2617,10 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 
 	/* 描画を行う */
 	lock_layers_for_msgdraw(LAYER_MSG, -1);
-	ret = draw_msg_common(&msgbox_context, char_count, x, y, w, h);
+	{
+		ret = draw_msg_common(&msgbox_context, char_count, x, y, w, h);
+	}
+	unlock_layers_for_msgdraw(LAYER_MSG, -1);
 	if (is_inline_wait) {
 		/* インラインウェイトが現れた場合 */
 		drawn_chars += ret;
@@ -2625,7 +2630,6 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		/* utf-8のエンコーディングエラーなど */
 		set_end_of_msg();
 	}
-	unlock_layers_for_msgdraw(LAYER_MSG, -1);
 
 	/* 描画した文字数を記録する */
 	drawn_chars += char_count;
@@ -3201,7 +3205,9 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 		NULL,	/* inline_wait_hook */
 		conf_msgbox_tategaki);
 	lock_layers_for_msgdraw(LAYER_MSG, -1);
-	draw_msg_common(&context, total_chars, x, y, w, h);
+	{
+		draw_msg_common(&context, total_chars, x, y, w, h);
+	}
 	unlock_layers_for_msgdraw(LAYER_MSG, -1);
 }
 

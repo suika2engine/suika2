@@ -198,7 +198,9 @@ struct image *create_image_from_color_string(int w, int h, const char *color)
 
 	/* イメージを塗り潰す */
 	lock_image(img);
-	clear_image_color(img, cl);
+	{
+		clear_image_color(img, cl);
+	}
 	unlock_image(img);
 
 	return img;

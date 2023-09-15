@@ -1081,8 +1081,10 @@ static int get_pointed_child_index(void)
 static void draw_fo_fi_parent(void)
 {
 	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
-	draw_stage_fo_fi();
-	draw_switch_parent_images();
+	{
+		draw_stage_fo_fi();
+		draw_switch_parent_images();
+	}
 	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 }
 
@@ -1154,8 +1156,10 @@ void update_switch_parent(int *x, int *y, int *w, int *h)
 static void draw_fo_fi_child(void)
 {
 	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
-	draw_stage_fo_fi();
-	draw_switch_child_images();
+	{
+		draw_stage_fo_fi();
+		draw_switch_child_images();
+	}
 	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 }
 

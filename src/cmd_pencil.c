@@ -90,9 +90,11 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 		true,	/* ignore_wait */
 		NULL,	/* inline_wait_hook */
 		false);	/* use_tategaki */
-	lock_layers_for_msgdraw(layer, -1);
 	total_chars = count_chars_common(&context);
-	draw_msg_common(&context, total_chars, x, y, w, h);
+	lock_layers_for_msgdraw(layer, -1);
+	{
+		draw_msg_common(&context, total_chars, x, y, w, h);
+	}
 	unlock_layers_for_msgdraw(layer, -1);
 
 	/* 更新領域を追加する */
