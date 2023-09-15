@@ -286,10 +286,7 @@ struct insn_item {
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
 
 	/* deprecated */
-	{"@select", COMMAND_SELECT, 6, 6},
-	{"@menu", COMMAND_MENU, 7, 83},
 	{"@news", COMMAND_NEWS, 9, 136},
-	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
 	{"@switch", COMMAND_SWITCH, 9, 136},
 };
 
@@ -2064,10 +2061,11 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 			return false;
 		}
 
-		/* @set, @if, @unlessの=は引数名ではない (ex: @set $1 = 0) */
+		/* @set, @if, @unless, @pencilの=は引数名ではない (ex: @set $1 = 0) */
 		if (c->type == COMMAND_SET ||
 		    c->type == COMMAND_IF ||
-		    c->type == COMMAND_UNLESS) {
+		    c->type == COMMAND_UNLESS ||
+		    c->type == COMMAND_PENCIL) {
 			/* =も含んだまま、引数の位置にそのまま格納する */
 			c->param[i] = tp;
 			i++;

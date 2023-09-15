@@ -32,15 +32,16 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 		layer = 0;
 	if (layer > 3)
 		layer = 3;
+	layer = LAYER_TEXT1 + layer;
 
 	/* 変数を展開する */
 	text = expand_variable(text);
 
 	/* テキストを保存する */
-	set_layer_text(layer, text);
+	if (!set_layer_text(layer, text))
+		return false;
 
 	/* レイヤのサイズを取得する */
-	layer = LAYER_TEXT1 + layer;
 	img = get_layer_image(layer);
 	layer_w = get_image_width(img);
 	layer_h = get_image_height(img);
@@ -101,5 +102,8 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 		   *x, *y, *w, *h,
 		   layer_x, layer_y, layer_w, layer_h);
 
-	return true;
+	/* 描画する */
+	draw_stage();
+
+	return move_to_next_command();
 }

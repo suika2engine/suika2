@@ -177,7 +177,7 @@ static bool ch_dim[CH_BASIC_LAYERS];
  * テキストレイヤ
  */
 
-static char *layer_text[TEXT_LAYERS];
+static char *layer_text[STAGE_LAYERS];
 
 /*
  * フェードモード
@@ -2822,6 +2822,7 @@ void start_bg_fade(struct image *img)
 	/* フェードアウト用のレイヤにステージを描画する */
 	lock_image(layer_image[LAYER_FO]);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_BG2);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
@@ -2836,6 +2837,18 @@ void start_bg_fade(struct image *img)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
 	if (is_skip_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT1);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT3);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT4);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT5);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT6);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT7);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT8);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* フェードイン用のレイヤに背景を描画する */
@@ -2854,6 +2867,18 @@ void start_bg_fade(struct image *img)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
 	if (is_skip_visible)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_SKIP);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT1);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT3);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT4);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT5);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT6);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT7);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT8);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 	unlock_image(layer_image[LAYER_FI]);
 
 	/* 無効になるレイヤのイメージを破棄する */
@@ -2942,6 +2967,18 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
 	if (is_skip_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT1);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT3);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT4);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT5);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT6);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT7);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT8);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
@@ -2971,6 +3008,18 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
 	if (is_skip_visible)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_SKIP);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT1);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT3);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT4);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT5);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT6);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT7);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT8);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 	unlock_image(layer_image[LAYER_FI]);
 }
 
@@ -3700,7 +3749,7 @@ static void render_layer_image_rect(int layer, int x, int y, int w, int h)
 				 x - layer_x[layer],
 				 y - layer_y[layer]);
 	} else {
-		/* 暗く描画する */
+		/* 普通に描画する */
 		render_image(x,
 			     y,
 			     layer_image[layer],
@@ -3927,36 +3976,34 @@ void draw_kirakira(void)
 /*
  * テキストレイヤのテキストを取得する
  */
-const char *get_layer_text(int text_layer_index)
+const char *get_layer_text(int layer)
 {
-	assert(text_layer_index >= 0);
-	assert(text_layer_index < TEXT_LAYERS);
+	assert(layer >= LAYER_TEXT1);
+	assert(layer <= LAYER_TEXT8);
 
-	return layer_text[text_layer_index];
+	return layer_text[layer];
 }
 
 /*
  * テキストレイヤのテキストを設定する
  */
-bool set_layer_text(int text_layer_index, const char *msg)
+bool set_layer_text(int layer, const char *msg)
 {
-	assert(text_layer_index >= 0);
-	assert(text_layer_index < TEXT_LAYERS);
+	assert(layer >= LAYER_TEXT1);
+	assert(layer <= LAYER_TEXT8);
 
-	if (layer_text[text_layer_index] != NULL) {
-		free(layer_text[text_layer_index]);
-		layer_text[text_layer_index] = NULL;
-	}
+	if (layer_text[layer] != NULL)
+		layer_text[layer] = NULL;
 
-	if (msg != NULL && strcmp(msg, "") != 0) {
-		layer_text[text_layer_index] = strdup(msg);
-		if (layer_text[text_layer_index] == NULL) {
-			log_memory();
-			return false;
-		}
-	}
+       if (msg != NULL && strcmp(msg, "") != 0) {
+	       layer_text[layer] = strdup(msg);
+	       if (layer_text[layer] == NULL) {
+		       log_memory();
+		       return false;
+	       }
+       }
 
-	return true;
+       return true;
 }
 
 /*

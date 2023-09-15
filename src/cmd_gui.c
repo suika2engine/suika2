@@ -75,10 +75,44 @@ static bool init(void)
 	set_layer_file_name(LAYER_CHL, NULL);
 	set_layer_file_name(LAYER_CHR, NULL);
 	set_layer_file_name(LAYER_CHC, NULL);
+	set_layer_file_name(LAYER_CHF, NULL);
+	set_layer_file_name(LAYER_TEXT1, NULL);
+	set_layer_file_name(LAYER_TEXT2, NULL);
+	set_layer_file_name(LAYER_TEXT3, NULL);
+	set_layer_file_name(LAYER_TEXT4, NULL);
+	set_layer_file_name(LAYER_TEXT5, NULL);
+	set_layer_file_name(LAYER_TEXT6, NULL);
+	set_layer_file_name(LAYER_TEXT7, NULL);
+	set_layer_file_name(LAYER_TEXT8, NULL);
+	set_layer_file_name(LAYER_EFFECT1, NULL);
+	set_layer_file_name(LAYER_EFFECT2, NULL);
+	set_layer_file_name(LAYER_EFFECT3, NULL);
+	set_layer_file_name(LAYER_EFFECT4, NULL);
 	set_layer_image(LAYER_CHB, NULL);
 	set_layer_image(LAYER_CHL, NULL);
 	set_layer_image(LAYER_CHR, NULL);
 	set_layer_image(LAYER_CHC, NULL);
+	set_layer_image(LAYER_CHF, NULL);
+	set_layer_image(LAYER_TEXT1, NULL);
+	set_layer_image(LAYER_TEXT2, NULL);
+	set_layer_image(LAYER_TEXT3, NULL);
+	set_layer_image(LAYER_TEXT4, NULL);
+	set_layer_image(LAYER_TEXT5, NULL);
+	set_layer_image(LAYER_TEXT6, NULL);
+	set_layer_image(LAYER_TEXT7, NULL);
+	set_layer_image(LAYER_TEXT8, NULL);
+	set_layer_image(LAYER_EFFECT1, NULL);
+	set_layer_image(LAYER_EFFECT2, NULL);
+	set_layer_image(LAYER_EFFECT3, NULL);
+	set_layer_image(LAYER_EFFECT4, NULL);
+	set_layer_text(LAYER_TEXT1, NULL);
+	set_layer_text(LAYER_TEXT2, NULL);
+	set_layer_text(LAYER_TEXT3, NULL);
+	set_layer_text(LAYER_TEXT4, NULL);
+	set_layer_text(LAYER_TEXT5, NULL);
+	set_layer_text(LAYER_TEXT6, NULL);
+	set_layer_text(LAYER_TEXT7, NULL);
+	set_layer_text(LAYER_TEXT8, NULL);
 
 	/* 終了後に表示されるBGレイヤを設定する */
 	if (!create_temporary_bg_for_gui()) {

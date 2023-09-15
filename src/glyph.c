@@ -1077,6 +1077,8 @@ int count_chars_common(struct draw_msg_context *context)
 			case 'n':	/* 改行 */
 				msg += 2;
 				break;
+			case 'f':	/* フォント指定 */
+			case 'o':	/* アウトライン指定 */
 			case '#':	/* 色指定 */
 			case '@':	/* サイズ指定 */
 			case 'w':	/* インラインウェイト */
@@ -1145,6 +1147,9 @@ draw_msg_common(
 
 	context->font = translate_font_type(context->font);
 	apply_font_size(context->font, context->font_size);
+
+	if (char_count == -1)
+		char_count = count_chars_common(context);
 
 	/* 1文字ずつ描画する */
 	for (i = 0; i < char_count; i++) {
@@ -1472,7 +1477,7 @@ static bool process_escape_sequence_font(struct draw_msg_context *context)
 
 	p = context->msg;
 	assert(*p == '\\');
-	assert(*(p + 1) == '#');
+	assert(*(p + 1) == 'f');
 
 	/* '{'をチェックする */
 	if (*(p + 2) != '{')
@@ -1520,19 +1525,25 @@ static bool process_escape_sequence_outline(struct draw_msg_context *context)
 
 	p = context->msg;
 	assert(*p == '\\');
-	assert(*(p + 1) == '#');
+	assert(*(p + 1) == 'o');
 
 	/* '{'をチェックする */
-	if (*(p + 2) != '{')
+	if (*(p + 2) != '{') {
+		log_memory();
 		return false;
+	}
 
 	/* 長さが足りない場合 */
-	if (strlen(p + 3) < 6)
+	if (*(p + 3) == '\0') {
+		log_memory();
 		return false;
+	}
 
 	/* '}'をチェックする */
-	if (*(p + 4) != '}')
+	if (*(p + 4) != '}') {
+		log_memory();
 		return false;
+	}
 
 	if (!context->ignore_outline) {
 		/* アウトラインタイプを読む */
@@ -1549,7 +1560,7 @@ static bool process_escape_sequence_outline(struct draw_msg_context *context)
 		}
 	}
 
-	/* "\\#{" + "X" + "}" */
+	/* "\\o{" + "X" + "}" */
 	context->msg += 3 + 1 + 1;
 	return true;
 }
@@ -1823,8 +1834,6 @@ static bool draw_glyph_wrapper(
 		   *union_x, *union_y, *union_w, *union_h,
 		   layer_x + x, layer_y + y,
 		   *ret_width, *ret_height);
-	*union_x = *union_x < 0 ? 0 : *union_x;
-	*union_y = *union_y < 0 ? 0 : *union_y;
 
 	return true;
 }
