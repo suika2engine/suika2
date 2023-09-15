@@ -2880,7 +2880,6 @@ void start_bg_fade(struct image *img)
 
 	/* フェードアウト用のレイヤにステージを描画する */
 	lock_image(layer_image[LAYER_FO]);
-<<<<<<< HEAD
 	{
 		draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_BG2);
@@ -2911,36 +2910,6 @@ void start_bg_fade(struct image *img)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	}
-=======
-	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_BG2);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
-	if (is_msgbox_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
-	if (is_namebox_visible && !conf_namebox_hidden)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_NAME);
-	if (is_msgbox_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_CHF);
-	if (is_auto_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
-	if (is_skip_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT1);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT2);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT3);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT4);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT5);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT6);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT7);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT8);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
->>>>>>> 7c10a0a (build: merge)
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* フェードイン用のレイヤに背景を描画する */
@@ -2973,25 +2942,6 @@ void start_bg_fade(struct image *img)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 	}
-<<<<<<< HEAD
-=======
-	if (is_auto_visible)
-		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
-	if (is_skip_visible)
-		draw_layer_image(layer_image[LAYER_FI], LAYER_SKIP);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT1);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT2);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT3);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT4);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT5);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT6);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT7);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT8);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
->>>>>>> 7c10a0a (build: merge)
 	unlock_image(layer_image[LAYER_FI]);
 
 	/* 無効になるレイヤのイメージを破棄する */
@@ -3094,25 +3044,6 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	}
-<<<<<<< HEAD
-=======
-	if (is_auto_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_AUTO);
-	if (is_skip_visible)
-		draw_layer_image(layer_image[LAYER_FO], LAYER_SKIP);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT1);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT2);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT3);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT4);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT5);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT6);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT7);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT8);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
->>>>>>> 7c10a0a (build: merge)
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* キャラを入れ替える */
@@ -3156,25 +3087,6 @@ void start_ch_fade(int pos, struct image *img, int x, int y, int alpha)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 	}
-<<<<<<< HEAD
-=======
-	if (is_auto_visible)
-		draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
-	if (is_skip_visible)
-		draw_layer_image(layer_image[LAYER_FI], LAYER_SKIP);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT1);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT2);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT3);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT4);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT5);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT6);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT7);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT8);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
->>>>>>> 7c10a0a (build: merge)
 	unlock_image(layer_image[LAYER_FI]);
 }
 

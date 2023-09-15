@@ -1269,12 +1269,20 @@ static void load_global_data(void)
 		return;
 
 	/* セーブデータのバージョンを読む */
+<<<<<<< HEAD
 	if (read_rfile(rf, &ver, sizeof(uint32_t) != sizeof(uint32_t)))
 		return;
 	if (ver != SAVE_VER) {
 		/* セーブデータの互換性がないので読み込まない */
 		log_save_ver();
 		close_rfile(rf);
+=======
+	if (read_rfile(rf, &ver, sizeof(int32_t) != sizeof(uint32_t)))
+		return;
+	if (ver != SAVE_VER) {
+		/* セーブデータの互換性がないので読み込まない */
+		close_rfile(&rf);
+>>>>>>> 81980a7 (bugfix: fix texture lock leak)
 		return;
 	}
 
