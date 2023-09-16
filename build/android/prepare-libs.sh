@@ -35,9 +35,8 @@ cp ../../src/cmd_goto.c app/src/main/cpp/cmd_goto.c
 cp ../../src/cmd_gui.c app/src/main/cpp/cmd_gui.c
 cp ../../src/cmd_if.c app/src/main/cpp/cmd_if.c
 cp ../../src/cmd_load.c app/src/main/cpp/cmd_load.c
-cp ../../src/cmd_menu.c app/src/main/cpp/cmd_menu.c
 cp ../../src/cmd_message.c app/src/main/cpp/cmd_message.c
-cp ../../src/cmd_retrospect.c app/src/main/cpp/cmd_retrospect.c
+cp ../../src/cmd_pencil.c app/src/main/cpp/cmd_pencil.c
 cp ../../src/cmd_return.c app/src/main/cpp/cmd_return.c
 cp ../../src/cmd_se.c app/src/main/cpp/cmd_se.c
 cp ../../src/cmd_set.c app/src/main/cpp/cmd_set.c

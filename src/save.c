@@ -370,6 +370,7 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 		return false;
 
 	success = false;
+	t = 0;
 	do {
 		/* セーブデータバージョンを書き込む */
 		ver = (uint32_t)SAVE_VER;
