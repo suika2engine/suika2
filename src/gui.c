@@ -1620,7 +1620,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 		!conf_gui_ruby,
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
-		false);		/* use_tategaki */
+		conf_gui_save_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
 	total_chars = count_chars_common(&context);
 	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);

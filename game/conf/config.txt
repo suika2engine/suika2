@@ -560,6 +560,11 @@ gui.save.font.outline=0
 # [セーブのルビのフォントサイズ]
 gui.save.font.ruby.size=16
 
+# [セーブの縦書き] (省略可)
+#  - 0: 横書き
+#  - 1: 縦書き
+gui.save.tategaki=0
+
 # [ヒストリのフォント] (省略可)
 #  - 0: グローバル
 #  - 1: main

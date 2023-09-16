@@ -319,6 +319,7 @@ extern int conf_gui_save_font_select;
 extern int conf_gui_save_font_size;
 extern int conf_gui_save_font_outline;
 extern int conf_gui_save_font_ruby_size;
+extern int conf_gui_save_tategaki;
 extern int conf_gui_history_font_select;
 extern int conf_gui_history_font_size;
 extern int conf_gui_history_font_outline;
