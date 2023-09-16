@@ -1046,6 +1046,7 @@ static bool deserialize_stage(struct rfile *rf)
 					return false;
 			}
 		}
+		set_layer_image(i, img);
 
 		/* Position. */
 		if (read_rfile(rf, &x, sizeof(x)) < sizeof(x))
