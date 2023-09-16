@@ -1040,6 +1040,36 @@ int chpos_to_anime_layer(int chpos)
 }
 
 /*
+ * ステージをクリアする
+ */
+void clear_stage(void)
+{
+	int i;
+
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		switch (i) {
+		case LAYER_MSG: continue;
+		case LAYER_NAME: continue;
+		case LAYER_CHF: continue;
+		case LAYER_CLICK: continue;
+		case LAYER_AUTO: continue;
+		case LAYER_SKIP: continue;
+		default: break;
+		}
+
+		set_layer_file_name(i, NULL);
+		if (i == LAYER_BG)
+			set_layer_image(i, create_initial_bg());
+		else
+			set_layer_image(i, NULL);
+
+		set_layer_position(i, 0, 0);
+		set_layer_alpha(i, 255);
+		set_anime_layer_position(convert_stage_layer_to_anime_layer(i), 0, 0);
+	}
+}
+
+/*
  * ステージの描画
  */
 

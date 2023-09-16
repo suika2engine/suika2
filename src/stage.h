@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -214,6 +214,9 @@ int chpos_to_layer(int chpos);
 
 /* キャラ位置からアニメレイヤへ変換する */
 int chpos_to_anime_layer(int chpos);
+
+/* ステージをクリアする */
+void clear_stage(void);
 
 /*
  * ステージ描画

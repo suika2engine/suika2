@@ -919,7 +919,10 @@ static bool move_to_title(void)
 	/* GUIを終了する */
 	stop_gui_mode();
 	cleanup_gui();
-	
+
+	/* ステージをクリアする */
+	clear_stage();
+
 	return true;
 }
 
