@@ -358,6 +358,7 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 {
 	struct wfile *wf;
 	uint64_t t;
+	uint32_t ver;
 	bool success;
 
 	/* セーブディレクトリを作成する */
@@ -370,6 +371,11 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 
 	success = false;
 	do {
+		/* セーブデータバージョンを書き込む */
+		ver = (uint32_t)SAVE_VER;
+		if (write_wfile(wf, &ver, sizeof(ver)) < sizeof(ver))
+			break;
+
 		/* 日付を書き込む */
 		t = (uint64_t)time(NULL);
 		if (write_wfile(wf, &t, sizeof(t)) < sizeof(t))
@@ -601,7 +607,7 @@ static bool serialize_stage(struct wfile *wf)
 		if (i >= LAYER_TEXT1 && i <= LAYER_TEXT8) {
 			text = get_layer_text(i);
 			if (text == NULL)
-			text = "";
+				text = "";
 
 			len = strlen(text) + 1;
 			if (write_wfile(wf, text, len) < len)
@@ -871,6 +877,7 @@ static bool deserialize_all(const char *fname)
 	struct rfile *rf;
 	uint64_t t;
 	size_t img_size;
+	uint32_t ver;
 	bool success;
 
 	/* ファイルを開く */
@@ -880,19 +887,25 @@ static bool deserialize_all(const char *fname)
 
 	success = false;
 	do {
+		/* セーブデータバージョンを読み込む */
+		if (read_rfile(rf, &ver, sizeof(ver)) < sizeof(ver))
+			break;
+		if (ver != SAVE_VER) {
+			log_save_ver();
+			break;
+		}
+
 		/* 日付を読み込む (読み飛ばす) */
 		if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
 			break;
 
 		/* 章題を読み込む */
-		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
-			break;
-		if (!set_chapter_name(tmp_str))
-			break;
+		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) != NULL)
+			if (!set_chapter_name(tmp_str))
+				break;
 
 		/* メッセージを読み込む (読み飛ばす) */
-		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
-			break;
+		gets_rfile(rf, tmp_str, sizeof(tmp_str));
 
 		/* サムネイルを読み込む (読み飛ばす) */
 		img_size = (size_t)(conf_save_data_thumb_width *
@@ -975,7 +988,7 @@ static bool deserialize_stage(struct rfile *rf)
 	struct image *img;
 	int i, x, y, alpha;
 
-	for (i = LAYER_BG; i < LAYER_EFFECT4; i++) {
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
 		/* Exclude the following layers. */
 		switch (i) {
 		case LAYER_MSG: continue;
@@ -988,7 +1001,7 @@ static bool deserialize_stage(struct rfile *rf)
 
 		/* File name. */
 		if (gets_rfile(rf, text, sizeof(text)) == NULL)
-			return false;
+			strcpy(text, "none");
 		if (i == LAYER_BG) {
 			if (strcmp(text, "none") == 0) {
 				set_layer_file_name(i, NULL);
@@ -1042,9 +1055,10 @@ static bool deserialize_stage(struct rfile *rf)
 
 		/* Text. */
 		if (i >= LAYER_TEXT1 && i <= LAYER_TEXT8) {
-			if (gets_rfile(rf, text, sizeof(text)) == NULL)
-				return false;
-			set_layer_text(i, text);
+			if (gets_rfile(rf, text, sizeof(text)) != NULL)
+				set_layer_text(i, text);
+			else
+				set_layer_text(i, NULL);
 		}
 	}
 
@@ -1254,11 +1268,12 @@ static void load_global_data(void)
 		return;
 
 	/* セーブデータのバージョンを読む */
-	if (read_rfile(rf, &ver, sizeof(int32_t) != sizeof(uint32_t)))
+	if (read_rfile(rf, &ver, sizeof(uint32_t) != sizeof(uint32_t)))
 		return;
 	if (ver != SAVE_VER) {
 		/* セーブデータの互換性がないので読み込まない */
-		close_rfile(&rf);
+		log_save_ver();
+		close_rfile(rf);
 		return;
 	}
 
@@ -1300,7 +1315,8 @@ static void load_global_data(void)
 
 	/* フォントファイル名をデシリアライズする */
 	if (gets_rfile(rf, fname, sizeof(fname)) != NULL)
-		preinit_set_global_font_file_name(fname);
+		if (strcmp(fname, "") != 0)
+			preinit_set_global_font_file_name(fname);
 
 	/* コンフィグをデシリアライズする */
 	deserialize_config_common(rf);
@@ -1316,6 +1332,7 @@ void save_global_data(void)
 {
 	struct wfile *wf;
 	const char *fname;
+	uint32_t ver;
 	float f;
 	int i;
 
@@ -1326,6 +1343,10 @@ void save_global_data(void)
 	wf = open_wfile(SAVE_DIR, GLOBAL_VARS_FILE);
 	if (wf == NULL)
 		return;
+
+	/* セーブデータのバージョンを書き出す */
+	ver = SAVE_VER;
+	write_wfile(wf, &ver, sizeof(uint32_t));
 
 	/* グローバル変数をシリアライズする */
 	write_wfile(wf, get_global_variables_pointer(),
