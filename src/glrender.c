@@ -66,10 +66,10 @@
 #endif
 
 /*
- * Linux (excluding Qt)
+ * Linux (excluding Qt and SDL2)
  *  - We use OpenGL 3.2
  */
-#if defined(LINUX) && !defined(USE_QT)
+#if defined(LINUX) && !defined(USE_QT) && !defined(USE_SDL2_OPENGL)
 #include <GL/gl.h>
 #include "glhelper.h"
 #endif

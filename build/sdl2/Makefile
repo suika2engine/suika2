@@ -23,7 +23,7 @@ CFLAGS = \
 	-ffast-math \
 	-ftree-vectorize \
 	-fopt-info-vec \
-	-std=gnu89 \
+	-std=gnu11 \
 	-Wall \
 	-Werror \
 	-Wextra \
