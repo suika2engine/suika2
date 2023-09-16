@@ -398,6 +398,8 @@ static bool setup_namebox(void)
 	/* 内容を転送する */
 	fill_namebox();
 
+	set_anime_layer_position(ANIME_LAYER_NAME, conf_namebox_x, conf_namebox_y);
+
 	return true;
 }
 
@@ -452,6 +454,8 @@ static bool setup_msgbox(void)
 
 	/* 内容を転送する */
 	fill_msgbox();
+
+	set_anime_layer_position(ANIME_LAYER_MSG, conf_msgbox_x, conf_msgbox_y);
 
 	return true;
 }
@@ -777,6 +781,9 @@ bool update_msgbox_and_namebox(void)
 	if (!setup_msgbox())
 		return false;
 
+	set_anime_layer_position(ANIME_LAYER_NAME, conf_namebox_x, conf_namebox_y);
+	set_anime_layer_position(ANIME_LAYER_MSG, conf_msgbox_x, conf_msgbox_y);
+
 	return true;
 }
 
@@ -1065,7 +1072,18 @@ void clear_stage(void)
 
 		set_layer_position(i, 0, 0);
 		set_layer_alpha(i, 255);
-		set_anime_layer_position(convert_stage_layer_to_anime_layer(i), 0, 0);
+
+		switch (i) {
+		case LAYER_MSG:
+			set_anime_layer_position(ANIME_LAYER_MSG, conf_msgbox_y, conf_msgbox_y);
+			break;
+		case LAYER_NAME:
+			set_anime_layer_position(ANIME_LAYER_NAME, conf_namebox_y, conf_namebox_y);
+			break;
+		default:
+			set_anime_layer_position(convert_stage_layer_to_anime_layer(i), 0, 0);
+			break;
+		}
 	}
 }
 

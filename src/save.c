@@ -82,6 +82,9 @@ static struct image *save_thumb[SAVE_SLOTS];
 /* クイックセーブデータの日付 */
 static time_t quick_save_time;
 
+/* 最後の+en+コマンドの位置 */
+static int last_en_command;
+
 /*
  * 作業用バッファ
  */
@@ -559,6 +562,8 @@ static bool serialize_command(struct wfile *wf)
 
 	/* コマンドインデックスを取得してシリアライズする */
 	n = get_command_index();
+	if (n >= last_en_command && n < last_en_command + 10)
+		n = last_en_command;
 	if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
 		return false;
 
@@ -1041,6 +1046,7 @@ static bool deserialize_stage(struct rfile *rf)
 					return false;
 			}
 		}
+		set_layer_image(i, img);
 
 		/* Position. */
 		if (read_rfile(rf, &x, sizeof(x)) < sizeof(x))
@@ -1195,10 +1201,18 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 {
 	uint64_t t;
 	size_t img_size;
+	uint32_t ver;
 	pixel_t *dst;
 	const unsigned char *src;
 	uint32_t r, g, b;
 	int x, y;
+
+	/* セーブデータのバージョンを読む */
+	read_rfile(rf, &ver, sizeof(uint32_t));
+	if (ver != SAVE_VER) {
+		/* セーブデータの互換性がないので読み込まない */
+		return;
+	}
 
 	/* セーブ時刻を取得する */
 	if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
@@ -1269,20 +1283,11 @@ static void load_global_data(void)
 		return;
 
 	/* セーブデータのバージョンを読む */
-<<<<<<< HEAD
-	if (read_rfile(rf, &ver, sizeof(uint32_t) != sizeof(uint32_t)))
-		return;
+	read_rfile(rf, &ver, sizeof(uint32_t));
 	if (ver != SAVE_VER) {
 		/* セーブデータの互換性がないので読み込まない */
 		log_save_ver();
 		close_rfile(rf);
-=======
-	if (read_rfile(rf, &ver, sizeof(int32_t) != sizeof(uint32_t)))
-		return;
-	if (ver != SAVE_VER) {
-		/* セーブデータの互換性がないので読み込まない */
-		close_rfile(&rf);
->>>>>>> 81980a7 (bugfix: fix texture lock leak)
 		return;
 	}
 
@@ -1509,4 +1514,12 @@ void set_auto_speed(float val)
 float get_auto_speed(void)
 {
 	return msg_auto_speed;
+}
+
+/*
+ * 最後の+en+コマンドの位置を記録する
+ */
+void set_last_en_command(void)
+{
+	last_en_command = get_command_index();
 }

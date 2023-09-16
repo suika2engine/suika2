@@ -347,8 +347,13 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 	if (!is_in_command_repetition()) {
 		/* ロケールが指定されている場合 */
 		locale = get_command_locale();
+
+		/* +en+コマンドの位置を記録する */
+		if (strcmp(locale, "en") == 0)
+			set_last_en_command();
+
+		/* ロケールが一致しない場合は実行しない */
 		if (strcmp(locale, "") != 0) {
-			/* ロケールが一致しない場合 */
 			if (strcmp(locale, conf_locale_mapped) != 0) {
 				/* 実行しない */
 				*cont = true;

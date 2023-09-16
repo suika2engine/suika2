@@ -356,19 +356,27 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 			set_layer_image(i, img);
 		} else if (i < LAYER_TEXT1) {
 			/* Restore an character. */
-			img = create_image_from_file(CH_DIR,
-						     saved_layer_file_name[i]);
-			if (img == NULL)
-				return false;
+			if (saved_layer_file_name[i] != NULL) {
+				img = create_image_from_file(CH_DIR,
+							     saved_layer_file_name[i]);
+				if (img == NULL)
+					return false;
+			} else {
+				img = NULL;
+			}
 			if (!set_layer_file_name(i, saved_layer_file_name[i]))
 				return false;
 			set_layer_image(i, img);
 		} else {
 			/* Restore an image. */
-			img = create_image_from_file(CG_DIR,
-						     saved_layer_file_name[i]);
-			if (img == NULL)
-				return false;
+			if (saved_layer_file_name[i] != NULL) {
+				img = create_image_from_file(CG_DIR,
+							     saved_layer_file_name[i]);
+				if (img == NULL)
+					return false;
+			} else {
+				img = NULL;
+			}
 			if (!set_layer_file_name(i, saved_layer_file_name[i]))
 				return false;
 			set_layer_image(i, img);

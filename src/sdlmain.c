@@ -263,6 +263,17 @@ static bool dispatch_event(SDL_Event *ev)
 					     ev->button.y);
 		}
 		break;
+	case SDL_MOUSEBUTTONUP:
+		if (ev->button.button == SDL_BUTTON_LEFT) {
+			on_event_mouse_release(MOUSE_LEFT,
+					       ev->button.x,
+					       ev->button.y);
+		} else if (ev->button.button == SDL_BUTTON_RIGHT) {
+			on_event_mouse_release(MOUSE_RIGHT,
+					       ev->button.x,
+					       ev->button.y);
+		}
+		break;
 	case SDL_MOUSEWHEEL:
 		if (ev->wheel.y > 0)
 			on_event_mouse_scroll(1);
