@@ -32,26 +32,16 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 		layer = 0;
 	if (layer > 3)
 		layer = 3;
-<<<<<<< HEAD
 	layer = LAYER_TEXT1 + layer;
-=======
->>>>>>> 659ce2b (bugfix: add missing file)
 
 	/* 変数を展開する */
 	text = expand_variable(text);
 
 	/* テキストを保存する */
-<<<<<<< HEAD
 	if (!set_layer_text(layer, text))
 		return false;
 
 	/* レイヤのサイズを取得する */
-=======
-	set_layer_text(layer, text);
-
-	/* レイヤのサイズを取得する */
-	layer = LAYER_TEXT1 + layer;
->>>>>>> 659ce2b (bugfix: add missing file)
 	img = get_layer_image(layer);
 	layer_w = get_image_width(img);
 	layer_h = get_image_height(img);
@@ -100,17 +90,11 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 		true,	/* ignore_wait */
 		NULL,	/* inline_wait_hook */
 		false);	/* use_tategaki */
-<<<<<<< HEAD
 	total_chars = count_chars_common(&context);
 	lock_layers_for_msgdraw(layer, -1);
 	{
 		draw_msg_common(&context, total_chars, x, y, w, h);
 	}
-=======
-	lock_layers_for_msgdraw(layer, -1);
-	total_chars = count_chars_common(&context);
-	draw_msg_common(&context, total_chars, x, y, w, h);
->>>>>>> 659ce2b (bugfix: add missing file)
 	unlock_layers_for_msgdraw(layer, -1);
 
 	/* 更新領域を追加する */
@@ -120,12 +104,8 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 		   *x, *y, *w, *h,
 		   layer_x, layer_y, layer_w, layer_h);
 
-<<<<<<< HEAD
 	/* 描画する */
 	draw_stage();
 
 	return move_to_next_command();
-=======
-	return true;
->>>>>>> 659ce2b (bugfix: add missing file)
 }
