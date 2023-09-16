@@ -45,6 +45,7 @@ SRC="\
 	cmd_if.c \
 	cmd_load.c \
 	cmd_message.c \
+	cmd_pencil.c \
 	cmd_return.c \
 	cmd_se.c \
 	cmd_set.c \
