@@ -356,6 +356,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 					return false;
 				return true;
 			}
+
+			/* +en+コマンドの位置を記録する */
+			if (strcmp(locale, "en") == 0)
+				set_last_en_command();
 		}
 	}
 

@@ -82,6 +82,9 @@ static struct image *save_thumb[SAVE_SLOTS];
 /* クイックセーブデータの日付 */
 static time_t quick_save_time;
 
+/* 最後の+en+コマンドの位置 */
+static int last_en_command;
+
 /*
  * 作業用バッファ
  */
@@ -559,6 +562,8 @@ static bool serialize_command(struct wfile *wf)
 
 	/* コマンドインデックスを取得してシリアライズする */
 	n = get_command_index();
+	if (n >= last_en_command && n < last_en_command + 10)
+		n = last_en_command;
 	if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
 		return false;
 
@@ -1501,4 +1506,12 @@ void set_auto_speed(float val)
 float get_auto_speed(void)
 {
 	return msg_auto_speed;
+}
+
+/*
+ * 最後の+en+コマンドの位置を記録する
+ */
+void set_last_en_command(void)
+{
+	last_en_command = get_command_index();
 }
