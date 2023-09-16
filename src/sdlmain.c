@@ -491,6 +491,18 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 }
 
 /*
+ * Render an image to screen with dim shader.
+ */
+void render_image_dim(int dst_left, int dst_top,
+		      struct image * RESTRICT src_image,
+		      int width, int height, int src_left, int src_top)
+{
+	/* See also glrender.c */
+	opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
+				src_left, src_top);
+}
+
+/*
  * Render an image to the screen with a rule image.
  */
 void render_image_rule(struct image * RESTRICT src_img,

@@ -22,7 +22,12 @@ CFLAGS = \
 	-O0 -g3 \
 	-ffast-math \
 	-ftree-vectorize \
+<<<<<<< HEAD
 	-std=gnu89 \
+=======
+	-fopt-info-vec \
+	-std=gnu11 \
+>>>>>>> 4939ed6 (Fixed compilation issues for target SDL2)
 	-Wall \
 	-Werror \
 	-Wextra \
