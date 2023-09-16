@@ -59,7 +59,7 @@ static bool init(void)
 	const char *pos;
 	const char *method;
 	const char *alpha_s;
-	int xpos, ypos, chpos, ofs_x, ofs_y, alpha, layer;
+	int xpos, ypos, chpos, ofs_x, ofs_y, alpha, layer, anime_layer;
 	bool erase;
 
 	/* パラメータを取得する */
@@ -130,6 +130,7 @@ static bool init(void)
 
 	/* レイヤインデックスを求める */
 	layer = chpos_to_layer(chpos);
+	anime_layer = chpos_to_anime_layer(chpos);
 
 	/* キャラのファイル名を設定する */
 	if (!set_layer_file_name(layer, erase ? NULL : fname))
@@ -150,6 +151,7 @@ static bool init(void)
 		set_layer_image(layer, img);
 		set_layer_position(layer, xpos, ypos);
 		set_layer_alpha(layer, alpha);
+		set_anime_layer_position(anime_layer, xpos, ypos);
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();

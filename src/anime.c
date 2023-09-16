@@ -81,12 +81,18 @@ static struct layer_name_map layer_name_map[] = {
 static int cur_seq_layer;
 static stop_watch_t cur_sw;
 
+/* 座標 */
+static float anime_layer_x[ANIME_LAYER_COUNT];
+static float anime_layer_y[ANIME_LAYER_COUNT];
+
 /*
  * 前方参照
  */
 static bool start_sequence(const char *name);
 static bool on_key_value(const char *key, const char *val);
 static int layer_name_to_index(const char *name);
+static float calc_pos_x(int anime_layer, const char *value);
+static float calc_pos_y(int anime_layer, const char *value);
 static bool load_anime_file(const char *file);
 
 /*
@@ -115,6 +121,8 @@ void cleanup_anime(void)
 				sequence[i][j].file = NULL;
 			}
 		}
+		anime_layer_x[i] = 0;
+		anime_layer_y[i] = 0;
 	}
 	memset(sequence, 0, sizeof(sequence));
 	memset(context, 0, sizeof(context));
@@ -395,10 +403,25 @@ get_anime_layer_params(
 		*y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
 		*alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
 
+		anime_layer_x[i] = (float)*x;
+		anime_layer_y[i] = (float)*y;
+
 		break;
 	}
 
 	return true;
+}
+
+/*
+ * アニメレイヤの座標を更新する
+ *  - アニメ以外の@bg, @ch, @chsを使ったときに設定する
+ */
+void set_anime_layer_position(int anime_layer, int x, int y)
+{
+	assert(anime_layer >= 0 && anime_layer < ANIME_LAYER_COUNT);
+
+	anime_layer_x[anime_layer] = (float)x;
+	anime_layer_y[anime_layer] = (float)y;
 }
 
 /*
@@ -457,15 +480,15 @@ static bool on_key_value(const char *key, const char *val)
 	} else if (strcmp(key, "end") == 0) {
 		s->end_time = (float)atof(val);
 	} else if (strcmp(key, "from-x") == 0) {
-		s->from_x = (float)atoi(val);
+		s->from_x = calc_pos_x(cur_seq_layer, val);
 	} else if (strcmp(key, "from-y") == 0) {
-		s->from_y = (float)atoi(val);
+		s->from_y = calc_pos_y(cur_seq_layer, val);
 	} else if (strcmp(key, "from-a") == 0) {
 		s->from_a = (float)atoi(val);
 	} else if (strcmp(key, "to-x") == 0) {
-		s->to_x = (float)atoi(val);
+		s->to_x = calc_pos_x(cur_seq_layer, val);
 	} else if (strcmp(key, "to-y") == 0) {
-		s->to_y = (float)atoi(val);
+		s->to_y = calc_pos_y(cur_seq_layer, val);
 	} else if (strcmp(key, "to-a") == 0) {
 		s->to_a = (float)atoi(val);
 	} else if (strcmp(key, "accel") == 0) {
@@ -496,6 +519,40 @@ static int layer_name_to_index(const char *name)
 			return layer_name_map[i].index;
 	}
 	return -1;
+}
+
+/* 座標を計算する */
+static float calc_pos_x(int anime_layer, const char *value)
+{
+	float ret;
+
+	assert(value != NULL);
+
+	if (value[0] == '+' || value[0] == '-') {
+		ret = anime_layer_x[anime_layer];
+		ret += (float)atof(value);
+	} else {
+		ret = (float)atof(value);
+	}
+
+	return ret;
+}
+
+/* 座標を計算する */
+static float calc_pos_y(int anime_layer, const char *value)
+{
+	float ret;
+
+	assert(value != NULL);
+
+	if (value[0] == '+' || value[0] == '-') {
+		ret = anime_layer_y[anime_layer];
+		ret += (float)atoi(value);
+	} else {
+		ret = (float)atoi(value);
+	}
+
+	return ret;
 }
 
 /* アニメーションファイルをロードする */
