@@ -1200,10 +1200,18 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 {
 	uint64_t t;
 	size_t img_size;
+	uint32_t ver;
 	pixel_t *dst;
 	const unsigned char *src;
 	uint32_t r, g, b;
 	int x, y;
+
+	/* セーブデータのバージョンを読む */
+	read_rfile(rf, &ver, sizeof(uint32_t));
+	if (ver != SAVE_VER) {
+		/* セーブデータの互換性がないので読み込まない */
+		return;
+	}
 
 	/* セーブ時刻を取得する */
 	if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
@@ -1274,8 +1282,7 @@ static void load_global_data(void)
 		return;
 
 	/* セーブデータのバージョンを読む */
-	if (read_rfile(rf, &ver, sizeof(uint32_t) != sizeof(uint32_t)))
-		return;
+	read_rfile(rf, &ver, sizeof(uint32_t));
 	if (ver != SAVE_VER) {
 		/* セーブデータの互換性がないので読み込まない */
 		log_save_ver();
