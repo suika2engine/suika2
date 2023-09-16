@@ -1603,10 +1603,10 @@ static int draw_save_text_item(int button_index, int x, int y,
 		b->width,
 		b->height,
 		0,		/* left_margin */
-		0,		/* right_margin */
+		b->margin,	/* right_margin */
 		0,		/* top_margin */
 		0,		/* bottom_margin */
-		0,		/* line_margin */
+		conf_msgbox_margin_line,
 		conf_msgbox_margin_char,
 		color,
 		outline_color,

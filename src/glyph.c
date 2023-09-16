@@ -952,11 +952,11 @@ static bool process_escape_sequence_pen(struct draw_msg_context *context);
 static bool process_escape_sequence_ruby(struct draw_msg_context *context,
 					 int *x, int *y, int *w, int *h);
 static bool search_for_end_of_escape_sequence(const char **msg);
-static void do_word_wrapping(struct draw_msg_context *context);
+static bool do_word_wrapping(struct draw_msg_context *context);
 static int get_en_word_width(struct draw_msg_context *context);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static bool is_tategaki_punctuation(uint32_t wc);
-static void process_lf(struct draw_msg_context *context, uint32_t c,
+static bool process_lf(struct draw_msg_context *context, uint32_t c,
 		       int glyph_width, int glyph_height);
 static bool is_small_kana(uint32_t wc);
 
@@ -1161,7 +1161,8 @@ draw_msg_common(
 			return i;
 
 		/* ワードラッピングを処理する */
-		do_word_wrapping(context);
+		if (!do_word_wrapping(context))
+			return i;
 
 		/* 描画する文字を取得する */
 		mblen = utf8_to_utf32(context->msg, &wc);
@@ -1179,7 +1180,8 @@ draw_msg_common(
 		glyph_height = get_glyph_height(context->font, context->font_size, wc);
 
 		/* 右側の幅が足りなければ改行する */
-		process_lf(context, wc, glyph_width, glyph_height);
+		if (!process_lf(context, wc, glyph_width, glyph_height))
+			return i;
 
 		/* 小さいひらがな/カタカタのオフセットを計算する */
 		if (context->use_tategaki && is_small_kana(wc)) {
@@ -1240,22 +1242,25 @@ draw_msg_common(
 }
 
 /* ワードラッピングを処理する */
-static void do_word_wrapping(struct draw_msg_context *context)
+static bool do_word_wrapping(struct draw_msg_context *context)
 {
-	if (context->ignore_linefeed)
-		return;
 	if (context->use_tategaki)
-		return;
+		return true;
 
 	if (context->runtime_is_after_space) {
 		if (context->pen_x + get_en_word_width(context) >=
 		    context->area_width - context->right_margin) {
+			if (context->ignore_linefeed)
+				return false;
+
 			context->pen_y += context->line_margin;
 			context->pen_x = context->left_margin;
 		}
 	}
 
 	context->runtime_is_after_space = *context->msg == ' ';
+
+	return true;
 }
 
 /* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
@@ -1274,28 +1279,28 @@ static int get_en_word_width(struct draw_msg_context *context)
 }
 
 /* 右側の幅が足りなければ改行する */
-static void process_lf(struct draw_msg_context *context, uint32_t c,
+static bool process_lf(struct draw_msg_context *context, uint32_t c,
 		       int glyph_width, int glyph_height)
 {
-	if (context->ignore_linefeed)
-		return;
-
 	if (!context->use_tategaki) {
 		/* 右側の幅が足りる場合、改行しない */
 		if (context->pen_x + glyph_width + context->char_margin <
 		    context->area_width - context->right_margin)
-			return;
+			return true;
 	} else {
 		/* 下側の幅が足りる場合、改行しない */
 		if (context->pen_y + glyph_height + context->char_margin <
 		    context->area_height - context->bottom_margin)
-			return;
+			return true;
 	}
 
 	/* 禁則文字の場合、改行しない */
 	if (c == ' ' || c == ',' || c == '.' || c == ':' || c == ';' ||
 	    c == CHAR_TOUTEN || c == CHAR_KUTEN)
-		return;
+		return true;
+
+	if (context->ignore_linefeed)
+		return false;
 
 	/* 改行する */
 	if (!context->use_tategaki) {
@@ -1305,6 +1310,8 @@ static void process_lf(struct draw_msg_context *context, uint32_t c,
 		context->pen_x -= context->line_margin;
 		context->pen_y = context->top_margin;
 	}
+
+	return true;
 }
 
 /* 縦書きの句読点変換を行う */
