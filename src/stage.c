@@ -920,6 +920,8 @@ void set_layer_image(int layer, struct image *img)
 	assert(layer != LAYER_AUTO);
 	assert(layer != LAYER_SKIP);
 
+	destroy_layer_image(layer);
+
 	layer_image[layer] = img;
 }
 
