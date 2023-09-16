@@ -250,6 +250,19 @@ void log_invalid_msgbox_size(void)
 }
 
 /*
+ * セーブデータのバージョンが一致しないエラーを記録する
+ */
+void log_save_ver(void)
+{
+	if (is_english_mode()) {
+		log_error("Ignoring save data: old save file format detected.\n");
+	} else {
+		log_error(U8("セーブデータを無視します:")
+			  U8("古いバージョンのセーブデータを検出しました。\n"));
+	}
+}
+
+/*
  * スクリプト実行エラーの位置を記録する
  */
 void log_script_exec_footer(void)
