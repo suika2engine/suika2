@@ -1,149 +1,149 @@
 ###
-### GUI Definition for Save Screen
+### セーブ画面のGUI定義
 ###
 
-# Basic Settings
+# このファイルの基本設定
 global {
-    # Use these images
+    # 下記の画像を使用する
     idle:   save-idle.png;
     hover:  save-hover.png;
     active: save-active.png;
 
-    # 3 slots per page
+    # 1画面あたりのセーブデータ表示数を指定
     saveslots: 3;
 
-    # Sound effect when canceled by right click
+    # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
 }
 
-# Save Page 1 Button
+# セーブデータページ1のボタン
 PAGE1 {
-    # Save page type
+    # 種類:セーブデータページ
     type: savepage;
 
-    # Page index 0
+    # ページ0番目
     index: 0;
 
-    # Position and size
+    # 座標とサイズ
     x: 1137;
     y: 0;
     width: 70;
     height: 63;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Save Page 2 Button
+# セーブデータページ2のボタン
 PAGE2 {
-    # Save page type
+    # 種類:セーブデータページ
     type: savepage;
 
-    # Page index 1
+    # ページ0番目
     index: 1;
 
-    # Position and size
+    # 座標とサイズ
     x: 1206;
     y: 0;
     width: 70;
     height: 63;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Save Slot 1
+# セーブデータ1番目
 SAVESLOT1 {
-    # Save type
+    # 種類:セーブ
     type: save;
 
-    # Slot index 0
+    # セーブデータ番号0
     index: 0;
 
-    # Position and size
+    # 座標とサイズ
     x: 50;
     y: 138;
     width: 1106;
     height: 140;
 
-    # Image and text margin
+    # 画像とテキストのマージン
     margin: 10;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Save slot 2
+# セーブデータ2番目
 SAVESLOT2 {
-    # Save type
+    # 種類:セーブ
     type: save;
 
-    # Slot index 1
+    # セーブデータ番号1
     index: 1;
 
-    # Position and size
+    # 座標とサイズ
     x: 50;
     y: 283;
     width: 1106;
     height: 140;
 
-    # Image and text margin
+    # 画像とテキストのマージン
     margin: 10;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Save Slot 3
+# セーブデータ3番目
 SAVESLOT3 {
-    # Save type
+    # 種類:セーブ
     type: save;
 
-    # Slot index 2
+    # セーブデータ番号2
     index: 2;
 
-    # Position and size
+    # 座標とサイズ
     x: 50;
     y: 429;
     width: 1106;
     height: 140;
 
-    # Image and text margin
+    # 画像とテキストのマージン
     margin: 10;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Back Button
+# 元の画面に戻るボタン
 BACK {
-    # Cancel type
+    # 種類:キャンセル
     type: cancel;
 
-    # Position and size
+    # 座標とサイズ
     x: 33;
     y: 623;
     width: 170;
     height: 64;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }

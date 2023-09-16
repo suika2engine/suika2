@@ -1,266 +1,266 @@
 ###
-### GUI Definition for Config Screen (Page 1)
+### コンフィグ画面(1ページ目)のGUI定義
 ###
 
-# Basic Settings
+# このファイルの基本設定
 global {
-    # Use these images
+    # 下記の画像を使用する
     idle:   config-idle.png;
     hover:  config-hover.png;
     active: config-active.png;
 
-    # Sound effect when canceled by right click
+    # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
 }
 
-# Text Speed Slider
+# テキストスピードスライダー
 TEXTSPEED {
-    # Text speed type
+    # 種類:テキストスピード
     type: textspeed;
 
-    # Position and size
+    # 座標とサイズ
     x: 68;
     y: 250;
     width: 266;
     height: 21;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# Auto Mode Speed
+# オートモードスピードスライダー
 AUTOSPEED {
-    # Auto mode speed type
+    # 種類:オートモードスピード
     type: autospeed;
 
-    # Position and size
+    # 座標とサイズ
     x: 68;
     y: 339;
     width: 266;
     height: 21;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;    
 }
 
-# Text Speed Preview
+# テキストスピードのプレビュー
 PREVIEW {
-    # Preview type
+    # 種類:プレビュー
     type: preview;
 
-    # Preview message
+    # 表示するメッセージ
     msg: "これはメッセージのプレビューです。スピードはよろしいですか？";
 
-    # Position and size
+    # 座標とサイズ
     x: 442;
     y: 453;
     width: 590;
     height: 120;
 }
 
-# BGM Volume Slider
+# BGMのボリュームスライダー
 BGM {
-    # BGM volume type
+    # 種類:BGMボリューム
     type: bgmvol;
 
-    # Position and size
+    # 座標とサイズ
     x: 420;
     y: 249;
     width: 266;
     height: 21;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# SE Volume Slider
+# SEのボリュームスライダー
 SE {
-    # SE volume type
+    # 種類:SEボリューム
     type: sevol;
 
-    # Sound effect file to play when slider moved
+    # スライダーが変更されたときに再生するSEファイル
     file: click.ogg;
 
-    # Position and size
+    # 座標とサイズ
     x: 420;
     y: 339;
     width: 266;
-    height: 21;
+    height: 20;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# Voice (All-character) Volume Slider
+# ボイスのボリュームスライダー
 VOICE {
     # Voice volume type
     type: voicevol;
 
-    # Character voice file to play when slider moved
-    file: 026.ogg;
+    # スライダーが変更されたときに再生するCVファイル
+    file: 025.ogg;
 
-    # Position and size
+    # 座標とサイズ
     x: 68;
     y: 498;
     width: 266;
     height: 21;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# Font1 Selection Button
+# フォント選択ボタン1
 FONT1 {
-    # Font type
+    # 種類:フォント
     type: font;
 
-    # Font file name
+    # 押されたときに変更するフォント
     file: VL-PGothic-Regular.ttf;
 
-    # Position and size
+    # 座標とサイズ
     x: 770;
     y: 328;
     width: 87;
     height: 30;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Font2 Selection Button
+# フォント選択ボタン1
 FONT2 {
-    # Font type
+    # 種類:フォント
     type: font;
 
-    # Font file name
+    # 押されたときに変更するフォント
     file: yasashisa.ttf;
 
-    # Position and size
+    # 座標とサイズ
     x: 900;
     y: 328;
     width: 95;
     height: 27;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Full Screen Button
+# フルスクリーンモードへの切り替えボタン
 FULLSCREEN {
-    # Full screen type
+    # 種類:フルスクリーン
     type: fullscreen;
 
-    # Position and size
+    # 座標とサイズ
     x: 750;
     y: 206;
     width: 200;
     height: 25;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Window Button
+# ウィンドウモードへの切り替えボタン
 WINDOW {
-    # Window button
+    # 種類:ウィンドウ
     type: window;
 
-    # Position and size
+    # 座標とサイズ
     x: 995;
     y: 206;
     width: 200;
     height: 25;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Reset Button
+# すべて既定値に戻すボタン
 DEFAULT {
-    # Default type
+    # 種類:既定値
     type: default;
 
-    # Position and size
+    # 座標とサイズ
     x: 1131;
     y: 61;
     width: 115;
     height: 40;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Config Page 2 Button
+# 設定ページ2への移動ボタン
 PAGE2 {
-    # Jump-to-other-GUI type
+    # 種類:他のGUIへの移動
     type: gui;
 
-    # GUI file name
+    # 移動先のGUIファイル
     file: system-page2.txt;
 
-    # Position and size
+    # 座標とサイズ
     x: 1234;
     y: 132;
     width: 35;
     height: 35;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Back to Title Button
+# タイトルへ戻るボタン
 TITLE {
-    # Back-to-Title type
+    # 種類:タイトルへ戻る
     type: title;
 
-    # Title script file name
+    # 移動先のスクリプトファイル
     file: init.txt;
 
-    # Position and size
+    # 座標とサイズ
     x: 1007;
     y: 652;
     width: 109;
     height: 25;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Back Button
+# 元の画面に戻るボタン
 BACK {
-    # Cancel type
+    # 種類:タイトルへ戻る
     type: cancel;
 
-    # Position and size
+    # 座標とサイズ
     x: 1156;
     y: 653;
     width: 103;
     height: 21;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }

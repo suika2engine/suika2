@@ -1,113 +1,113 @@
 ###
-### GUI Definition for Message History Screen
+### メッセージ履歴画面のGUI定義
 ###
 
-# Basic Settings
+# このファイルの基本設定
 global {
-    # Use these images
+    # 下記の画像を使用する
     idle:   history-idle.png;
     hover:  history-hover.png;
     active: history-active.png;
 
-    # 3 slots per page
+    # 1画面あたりの履歴表示数を指定
     historyslots: 3;
 
-    # Sound effect when canceled by right click
+    # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
 }
 
-# Scroll Bar
+# スクロールバー
 SCROLL {
-    # Scroll bar type
+    # 種類:スクロールバー
     type: historyscroll;
 
-    # Position and size
+    # 座標とサイズ
     x: 1192;
     y: 112;
     width: 67;
     height: 498;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# History Slot 1
+# 履歴スロット1
 HISTORYSLOT1 {
-    # History type
+    # 種類:履歴
     type: history;
 
-    # History slot 0
+    # 履歴スロット0番目
     index: 0;
 
-    # Position and size
+    # 座標とサイズ
     x: 32;
     y: 112;
     width: 1140;
     height: 153;
 
-    # Text margin
+    # テキストのマージン
     margin: 20;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# History Slot 2
+# 履歴スロット2
 HISTORYSLOT2 {
-    # History type
+    # 種類:履歴
     type: history;
 
-    # History slot 1
+    # 履歴スロット1番目
     index: 1;
 
-    # Position and size
+    # 座標とサイズ
     x: 32;
     y: 284;
     width: 1140;
     height: 153;
 
-    # Text margin
+    # テキストのマージン
     margin: 20;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# History Slot 3
+# 履歴スロット3
 HISTORYSLOT3 {
-    # History type
+    # 種類:履歴
     type: history;
 
-    # History slot 2
+    # 履歴スロット2番目
     index: 2;
 
-    # Position and size
+    # 座標とサイズ
     x: 32;
     y: 456;
     width: 1140;
     height: 153;
 
-    # Text margin
+    # テキストのマージン
     margin: 20;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# Back Button
+# 元の画面に戻るボタン
 BACK {
-    # Cancel type
+    # 種類:キャンセル
     type: cancel;
 
-    # Position and size
+    # 座標とサイズ
     x: 33;
     y: 623;
     width: 170;
     height: 64;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }

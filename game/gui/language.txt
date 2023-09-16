@@ -1,4 +1,3 @@
-
 global {
     idle:   language.png;
     hover:  language_hover.png;
