@@ -338,7 +338,7 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 			if (!set_layer_file_name(i, saved_layer_file_name[i]))
 				return false;
 			set_layer_image(i, img);
-		} else {
+		} else if (i == LAYER_BG) {
 			/* Restore an image background. */
 			if (strncmp(saved_layer_file_name[i], "cg/", 3) == 0) {
 				img = create_image_from_file(
@@ -354,7 +354,26 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 			if (!set_layer_file_name(i, saved_layer_file_name[i]))
 				return false;
 			set_layer_image(i, img);
+		} else if (i < LAYER_TEXT1) {
+			/* Restore an character. */
+			img = create_image_from_file(CH_DIR,
+						     saved_layer_file_name[i]);
+			if (img == NULL)
+				return false;
+			if (!set_layer_file_name(i, saved_layer_file_name[i]))
+				return false;
+			set_layer_image(i, img);
+		} else {
+			/* Restore an image. */
+			img = create_image_from_file(CG_DIR,
+						     saved_layer_file_name[i]);
+			if (img == NULL)
+				return false;
+			if (!set_layer_file_name(i, saved_layer_file_name[i]))
+				return false;
+			set_layer_image(i, img);
 		}
+
 		set_layer_position(i, saved_layer_x[i], saved_layer_y[i]);
 		set_layer_alpha(i, saved_layer_alpha[i]);
 	}
