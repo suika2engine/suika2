@@ -1077,8 +1077,6 @@ int count_chars_common(struct draw_msg_context *context)
 			case 'n':	/* 改行 */
 				msg += 2;
 				break;
-			case 'f':	/* フォント指定 */
-			case 'o':	/* アウトライン指定 */
 			case '#':	/* 色指定 */
 			case '@':	/* サイズ指定 */
 			case 'w':	/* インラインウェイト */
@@ -1147,9 +1145,6 @@ draw_msg_common(
 
 	context->font = translate_font_type(context->font);
 	apply_font_size(context->font, context->font_size);
-
-	if (char_count == -1)
-		char_count = count_chars_common(context);
 
 	/* 1文字ずつ描画する */
 	for (i = 0; i < char_count; i++) {
@@ -1477,7 +1472,7 @@ static bool process_escape_sequence_font(struct draw_msg_context *context)
 
 	p = context->msg;
 	assert(*p == '\\');
-	assert(*(p + 1) == 'f');
+	assert(*(p + 1) == '#');
 
 	/* '{'をチェックする */
 	if (*(p + 2) != '{')
@@ -1525,25 +1520,19 @@ static bool process_escape_sequence_outline(struct draw_msg_context *context)
 
 	p = context->msg;
 	assert(*p == '\\');
-	assert(*(p + 1) == 'o');
+	assert(*(p + 1) == '#');
 
 	/* '{'をチェックする */
-	if (*(p + 2) != '{') {
-		log_memory();
+	if (*(p + 2) != '{')
 		return false;
-	}
 
 	/* 長さが足りない場合 */
-	if (*(p + 3) == '\0') {
-		log_memory();
+	if (strlen(p + 3) < 6)
 		return false;
-	}
 
 	/* '}'をチェックする */
-	if (*(p + 4) != '}') {
-		log_memory();
+	if (*(p + 4) != '}')
 		return false;
-	}
 
 	if (!context->ignore_outline) {
 		/* アウトラインタイプを読む */
@@ -1560,7 +1549,7 @@ static bool process_escape_sequence_outline(struct draw_msg_context *context)
 		}
 	}
 
-	/* "\\o{" + "X" + "}" */
+	/* "\\#{" + "X" + "}" */
 	context->msg += 3 + 1 + 1;
 	return true;
 }
@@ -1772,8 +1761,8 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context,
 
 		draw_glyph_wrapper(context->layer_image,
 				   context->font,
-				   context->ruby_size,
-				   context->ruby_size,
+				   context->font_size,
+				   context->base_font_size,
 				   context->use_outline,
 				   context->runtime_ruby_x,
 				   context->runtime_ruby_y,
@@ -1834,6 +1823,8 @@ static bool draw_glyph_wrapper(
 		   *union_x, *union_y, *union_w, *union_h,
 		   layer_x + x, layer_y + y,
 		   *ret_width, *ret_height);
+	*union_x = *union_x < 0 ? 0 : *union_x;
+	*union_y = *union_y < 0 ? 0 : *union_y;
 
 	return true;
 }

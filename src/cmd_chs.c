@@ -66,7 +66,7 @@ static bool init(void)
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
 	const char *method;
-	int i, layer, anime_layer;
+	int i, layer;
 
 	/* パラメータを取得する */
 	if (get_command_type() == COMMAND_CHS) {
@@ -233,19 +233,10 @@ static bool init(void)
 	     is_control_pressed)) {
 		/* フェードせず、すぐに切り替える */
 		for (i = 0; i < PARAM_SIZE; i++) {
-			if (i != BG_INDEX) {
-				layer = chpos_to_layer(i);
-				anime_layer = chpos_to_anime_layer(i);
-			} else {
-				layer = LAYER_BG;
-				anime_layer = ANIME_LAYER_BG;
-			}
-
 			/* stay指示の場合は、座標とアルファだけ書き換える */
 			if (stay[i]) {
 				set_layer_position(layer, x[i], y[i]);
 				set_layer_alpha(layer, alpha[i]);
-				set_anime_layer_position(anime_layer, x[i], y[i]);
 				continue;
 			}
 
@@ -253,7 +244,6 @@ static bool init(void)
 			set_layer_image(layer, img[i]);
 			set_layer_position(layer, x[i], y[i]);
 			set_layer_alpha(layer, alpha[i]);
-			set_anime_layer_position(anime_layer, x[i], y[i]);
 		}
 	} else {
 		/* 繰り返し動作を開始する */

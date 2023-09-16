@@ -66,7 +66,7 @@
 #endif
 
 /*
- * Linux (excluding Qt and SDL2)
+ * Linux (excluding Qt adn SDL2)
  *  - We use OpenGL 3.2
  */
 #if defined(LINUX) && !defined(USE_QT) && !defined(USE_SDL2_OPENGL)
