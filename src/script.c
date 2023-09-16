@@ -779,6 +779,8 @@ bool load_script(const char *fname)
 	update_debug_info(true);
 #endif
 
+	clear_last_en_command();
+
 	return true;
 }
 
