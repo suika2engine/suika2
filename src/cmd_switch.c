@@ -253,7 +253,7 @@ static void update_switch_parent(int *x, int *y, int *w, int *h);
 static void draw_fo_fi_child(void);
 static void draw_switch_child_images(void);
 static void update_switch_child(int *x, int *y, int *w, int *h);
-static void draw_text(int x, int y, int w, int h, const char *t, bool is_news);
+static void draw_text(int x, int y, int w, const char *t, bool is_news);
 static void draw_keep(void);
 
 /* システムメニュー */
@@ -1119,8 +1119,7 @@ void draw_switch_parent_images(void)
 
 		/* テキストを描画する */
 		draw_text(parent_button[i].x, parent_button[i].y,
-			  parent_button[i].w, parent_button[i].h,
-			  parent_button[i].msg, is_news);
+			  parent_button[i].w, parent_button[i].msg, is_news);
 	}
 }
 
@@ -1181,8 +1180,7 @@ void draw_switch_child_images(void)
 
 		/* テキストを描画する */
 		draw_text(child_button[i][j].x, child_button[i][j].y,
-			  child_button[i][j].w, child_button[i][j].h,
-			  child_button[i][j].msg, false);
+			  child_button[i][j].w, child_button[i][j].msg, false);
 	}
 }
 
@@ -1216,8 +1214,7 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 }
 
 /* 選択肢のテキストを描画する */
-static void draw_text(int x, int y, int w, int h, const char *text,
-		      bool is_news)
+static void draw_text(int x, int y, int w, const char *text, bool is_news)
 {
 	struct draw_msg_context context;
 	pixel_t active_color, active_outline_color;
@@ -1285,8 +1282,8 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		use_outline,
 		x,
 		y,
-		w,
-		h,
+		conf_window_width,
+		conf_window_height,
 		x,			/* left_margin */
 		0,			/* right_margin */
 		conf_switch_text_margin_y,
@@ -1321,8 +1318,8 @@ static void draw_text(int x, int y, int w, int h, const char *text,
 		use_outline,
 		x,
 		y,
-		w,
-		h,
+		conf_window_width,
+		conf_window_height,
 		x,			/* left_margin */
 		0,			/* right_margin */
 		conf_switch_text_margin_y,
