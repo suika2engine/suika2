@@ -66,7 +66,7 @@ static bool init(void)
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
 	const char *method;
-	int i;
+	int i, layer, anime_layer;
 
 	/* パラメータを取得する */
 	if (get_command_type() == COMMAND_CHS) {
@@ -130,13 +130,19 @@ static bool init(void)
 		x[i] = 0;
 		y[i] = 0;
 
+		if (i != BG_INDEX)
+			layer = chpos_to_layer(i);
+		else
+			layer = LAYER_BG;
+
 		/* 変更なしが指定された場合 */
 		if (i != BG_INDEX) {
 			if (strcmp(fname[i], "stay") == 0 ||
 			    strcmp(fname[i], U8("変更なし")) == 0) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
-				get_ch_position(i, &x[i], &y[i]);
+				x[i] = get_layer_x(layer);
+				y[i] = get_layer_y(layer);
 				continue;
 			}
 		} else {
@@ -145,7 +151,8 @@ static bool init(void)
 			    strcmp(fname[i], "") == 0) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
-				get_bg_position(&x[i], &y[i]);
+				x[i] = get_layer_x(layer);
+				y[i] = get_layer_y(layer);
 				continue;
 			}
 		}
@@ -156,7 +163,7 @@ static bool init(void)
 		     strcmp(fname[i], U8("消す")) == 0 ||
 		     strcmp(fname[i], "") == 0)) {
 			/* ファイル名を設定する */
-			if (!set_ch_file_name(i, NULL))
+			if (!set_layer_file_name(layer, NULL))
 				return false;
 
 			continue;
@@ -180,13 +187,8 @@ static bool init(void)
 		}
 
 		/* ファイル名を設定する */
-		if (i != BG_INDEX) {
-			if (!set_ch_file_name(i, fname[i]))
-				return false;
-		} else {
-			if (!set_bg_file_name(fname[i]))
-				return false;
-		}
+		if (!set_layer_file_name(layer, fname[i]))
+			return false;
 
 		/* 表示位置を取得する */
 		if (i != BG_INDEX) {
@@ -231,25 +233,27 @@ static bool init(void)
 	     is_control_pressed)) {
 		/* フェードせず、すぐに切り替える */
 		for (i = 0; i < PARAM_SIZE; i++) {
+			if (i != BG_INDEX) {
+				layer = chpos_to_layer(i);
+				anime_layer = chpos_to_anime_layer(i);
+			} else {
+				layer = LAYER_BG;
+				anime_layer = ANIME_LAYER_BG;
+			}
+
 			/* stay指示の場合は、座標とアルファだけ書き換える */
 			if (stay[i]) {
-				if (i != BG_INDEX) {
-					change_ch_attributes(i, x[i], y[i],
-							     alpha[i]);
-				} else {
-					change_bg_attributes(x[i], y[i]);
-				}
+				set_layer_position(layer, x[i], y[i]);
+				set_layer_alpha(layer, alpha[i]);
+				set_anime_layer_position(anime_layer, x[i], y[i]);
 				continue;
 			}
 
 			/* 新しい画像がある場合フェードせずすぐに切り替える */
-			if (i != BG_INDEX) {
-				change_ch_immediately(i, img[i], x[i], y[i],
-						      alpha[i]);
-			} else {
-				change_bg_immediately(img[i]);
-				change_bg_attributes(x[i], y[i]);
-			}
+			set_layer_image(layer, img[i]);
+			set_layer_position(layer, x[i], y[i]);
+			set_layer_alpha(layer, alpha[i]);
+			set_anime_layer_position(anime_layer, x[i], y[i]);
 		}
 	} else {
 		/* 繰り返し動作を開始する */

@@ -20,7 +20,6 @@ static bool init(void);
 static bool get_position(int *chpos, const char *pos);
 static int get_accel(const char *accel_s);
 static int get_alpha(const char *alpha);
-static int chpos_to_layer(int chpos);
 static void draw(int *x, int *y, int *w, int *h);
 static void process_finish(void);
 static bool cleanup(void);
@@ -68,14 +67,14 @@ static bool init(void)
 	/* キャラの位置を取得する */
 	if (!get_position(&chpos, pos_s))
 		return false;
-	if (get_ch_file_name(chpos) == NULL) {
+
+	/* キャラの位置からアニメレイヤーを求める */
+	layer = chpos_to_layer(chpos);
+	if (get_layer_file_name(layer) == NULL) {
 		log_script_cha_no_image(pos_s);
 		log_script_exec_footer();
 		return false;
 	}
-
-	/* キャラの位置からアニメレイヤーを求める */
-	layer = chpos_to_layer(chpos);
 
 	/* 加速を取得する */
 	accel = get_accel(accel_s);
@@ -86,7 +85,8 @@ static bool init(void)
 	alpha = get_alpha(alpha_s);
 
 	/* キャラのfrom位置を取得する */
-	get_ch_position(chpos, &from_x, &from_y);
+	from_x = get_layer_x(layer);
+	from_y = get_layer_y(layer);
 
 	/* キャラのto位置を計算する */
 	to_x = from_x + ofs_x;
@@ -99,7 +99,8 @@ static bool init(void)
 	    ||
 	    (!is_non_interruptible() && !is_auto_mode() && is_control_pressed)) {
 		/* アニメを行わず、すぐに位置・アルファ値を設定する */
-		change_ch_attributes(chpos, to_x, to_y, alpha);
+		set_layer_position(layer, to_x, to_y);
+		set_layer_alpha(layer, alpha);
 	} else {
 		/* アニメ定義を行う */
 		clear_anime_sequence(layer);
@@ -108,7 +109,7 @@ static bool init(void)
 		add_anime_sequence_property_f("end", span);
 		add_anime_sequence_property_i("from-x", from_x);
 		add_anime_sequence_property_i("from-y", from_y);
-		add_anime_sequence_property_i("from-a", get_ch_alpha(chpos));
+		add_anime_sequence_property_i("from-a", get_layer_alpha(layer));
 		add_anime_sequence_property_i("to-x", to_x);
 		add_anime_sequence_property_i("to-y", to_y);
 		add_anime_sequence_property_i("to-a", alpha);
@@ -191,27 +192,6 @@ static int get_alpha(const char *alpha)
 		return 0;
 	else
 		return atoi(alpha);
-}
-
-/* キャラの位置をアニメレイヤインデックスに変換する */
-static int chpos_to_layer(int chpos)
-{
-	switch (chpos) {
-	case CH_BACK:
-		return ANIME_LAYER_CHB;
-	case CH_LEFT:
-		return ANIME_LAYER_CHL;
-	case CH_RIGHT:
-		return ANIME_LAYER_CHR;
-	case CH_CENTER:
-		return ANIME_LAYER_CHC;
-	case CH_FACE:
-		return ANIME_LAYER_CHF;
-	default:
-		assert(0);
-		break;
-	}
-	return -1;
 }
 
 /* 描画を行う */

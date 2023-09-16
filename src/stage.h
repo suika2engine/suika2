@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -17,12 +17,94 @@
  *  - 2022-07-16 システムメニューを追加
  *  - 2022-10-20 キャラ顔絵を追加
  *  - 2023-09-03 キラキラエフェクトを追加
+ *  - 2023-09-14 テキスト・エフェクトレイヤを追加、描画処理を整理
  */
 
 #ifndef SUIKA_STAGE_H
 #define SUIKA_STAGE_H
 
 #include "image.h"
+
+/*
+ * ステージのレイヤ
+ */
+enum {
+	/* 背景レイヤ */
+	LAYER_BG,
+
+	/* 背景2レイヤ */
+	LAYER_BG2,
+
+	/* キャラクタレイヤ(顔以外) */
+	LAYER_CHB,
+	LAYER_CHL,
+	LAYER_CHR,
+	LAYER_CHC,
+
+	/* メッセージレイヤ */
+	LAYER_MSG,	/* 特殊: 実体イメージあり */
+
+	/* 名前レイヤ */
+	LAYER_NAME,	/* 特殊: 実体イメージあり */
+
+	/* キャラクタレイヤ(顔) */
+	LAYER_CHF,
+
+	/* クリックアニメーション */
+	LAYER_CLICK,	/* 特殊: click_image[i]への参照 */
+
+	/* オートモードバナー */
+	LAYER_AUTO,
+
+	/* スキップモードバナー */
+	LAYER_SKIP,
+
+	/* ステータスレイヤ */
+	LAYER_TEXT1,
+	LAYER_TEXT2,
+	LAYER_TEXT3,
+	LAYER_TEXT4,
+	LAYER_TEXT5,
+	LAYER_TEXT6,
+	LAYER_TEXT7,
+	LAYER_TEXT8,
+
+	/* エフェクトレイヤ */
+	LAYER_EFFECT1,
+	LAYER_EFFECT2,
+	LAYER_EFFECT3,
+	LAYER_EFFECT4,
+
+	/*
+	 * フェードアウト用レイヤで、次の場合に有効:
+	 *  - 背景/キャラフェード時
+	 *  - switch.cの描画
+	 */
+	LAYER_FO,	/* 特殊: 実体イメージあり */
+
+	/*
+	 * 下記のレイヤは次の場合に有効
+	 *  - キャラフェード
+	 *  - イメージボタン
+	 *  - セーブ
+	 *  - ロード
+	 *  - スイッチ
+	 */
+	LAYER_FI,	/* 特殊: 実体イメージあり */
+
+	/* 総レイヤ数 */
+	STAGE_LAYERS
+};
+
+/*
+ * テキストレイヤの数
+ */
+#define TEXT_LAYERS		(8)
+
+/*
+ * エフェクトレイヤの数
+ */
+#define EFFECT_LAYERS		(4)
 
 /*
  * クリック待ちアニメーションのフレーム数
@@ -97,6 +179,46 @@ struct image *create_initial_bg(void);
 bool reload_stage(void);
 
 /*
+ * 基本
+ */
+
+/* レイヤイメージを取得する */
+struct image *get_layer_image(int layer);
+
+/* レイヤイメージを取得する */
+void set_layer_image(int layer, struct image *img);
+
+/* レイヤーのX座標を取得する */
+int get_layer_x(int layer);
+
+/* レイヤーのY座標を取得する */
+int get_layer_y(int layer);
+
+/* レイヤーの座標を設定する */
+void set_layer_position(int layer, int x, int y);
+
+/* レイヤーのアルファ値を取得する */
+int get_layer_alpha(int layer);
+
+/* レイヤーのアルファ値を取得する */
+void set_layer_alpha(int layer, int alpha);
+
+/* レイヤーのファイル名を取得する */
+const char *get_layer_file_name(int layer);
+
+/* レイヤーのファイル名を設定する */
+bool set_layer_file_name(int layer, const char *file_name);
+
+/* キャラ位置からステージレイヤへ変換する */
+int chpos_to_layer(int chpos);
+
+/* キャラ位置からアニメレイヤへ変換する */
+int chpos_to_anime_layer(int chpos);
+
+/* ステージをクリアする */
+void clear_stage(void);
+
+/*
  * ステージ描画
  */
 
@@ -132,15 +254,13 @@ void draw_stage_fade_rule(void);
 void draw_stage_shake(void);
 
 /* ステージの背景(FO)全体と、前景(FI)の矩形を描画する */
-void draw_stage_with_button(int x, int y, int w, int h);
+void draw_fo_all_and_fi_rect(int x, int y, int w, int h);
 
 /* ステージの背景(FO)全体と、前景(FI)の矩形を描画する(GPU用) */
-void draw_stage_with_button_keep(int x, int y, int w, int h);
+void draw_fo_all_and_fi_rect_accelerated(int x, int y, int w, int h);
 
-/* ステージの背景(FO)のうち1矩形と、前景(FI)のうち1矩形を描画する */
-void draw_stage_rect_with_buttons(int old_x1, int old_y1, int old_w1,
-				  int old_h1, int new_x2, int new_y2,
-				  int new_w2, int new_h2);
+/* CPU描画の場合はFOのうち1矩形、GPU描画の場合はFO全体を描画する */
+void draw_fo_rect_accelerated(int x, int y, int w, int h);
 
 /* ステージの背景(FO)と前景(FI)を描画する */
 void draw_stage_history(void);
@@ -202,21 +322,6 @@ struct image *get_thumb_image(void);
 /* 文字列からフェードメソッドを取得する */
 int get_fade_method(const char *method);
 
-/* 背景のファイル名を設定する */
-bool set_bg_file_name(const char *file);
-
-/* 背景のファイル名を取得する */
-const char *get_bg_file_name(void);
-
-/* 背景をフェードせずにただちに切り替える */
-void change_bg_immediately(struct image *img);
-
-/* 背景の位置を設定する */
-void change_bg_attributes(int x, int y);
-
-/* 背景の位置を取得する */
-void get_bg_position(int *x, int *y);
-
 /* 背景フェードモードを開始する */
 void start_bg_fade(struct image *img);
 
@@ -230,27 +335,8 @@ void stop_bg_fade(void);
  * キャラの変更
  */
 
-/* キャラファイル名を設定する */
-bool set_ch_file_name(int pos, const char *file);
-
-/* キャラのファイル名を取得する */
-const char *get_ch_file_name(int pos);
-
-/* キャラの座標を取得する */
-void get_ch_position(int pos, int *x, int *y);
-
-/* キャラのアルファ値を取得する */
-int get_ch_alpha(int pos);
-
 /* キャラを暗くするかを設定する */
 void set_ch_dim(int pos, bool dim);
-
-/* キャラをフェードせずにただちに切り替える */
-void change_ch_immediately(int pos, struct image *img, int x, int y,
-			   int alpha);
-
-/* キャラの位置とアルファを設定する */
-void change_ch_attributes(int pos, int x, int y, int alpha);
 
 /* キャラフェードモードを開始する */
 void start_ch_fade(int pos, struct image *img, int x, int y, int alpha);
@@ -285,16 +371,11 @@ void stop_shake(void);
 /* 名前ボックスの矩形を取得する */
 void get_namebox_rect(int *x, int *y, int *w, int *h);
 
-/* 名前ボックスをクリアする */
-void clear_namebox(void);
+/* 名前ボックスを名前ボックス画像で埋める */
+void fill_namebox(void);
 
 /* 名前ボックスの表示・非表示を設定する */
 void show_namebox(bool show);
-
-/* 名前ボックスに文字を描画する */
-void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
-			  pixel_t outline_color, int *w, int *h,
-			  int base_font_size, bool is_dim);
 
 /*
  * メッセージボックスの描画
@@ -303,22 +384,17 @@ void draw_char_on_namebox(int x, int y, uint32_t wc, pixel_t color,
 /* メッセージボックスの矩形を取得する */
 void get_msgbox_rect(int *x, int *y, int *w, int *h);
 
-/* メッセージボックスを背景でクリアする */
-void clear_msgbox(void);
+/* メッセージボックスの背景を描画する */
+void fill_msgbox(void);
 
-/* メッセージボックスの矩形を背景でクリアする */
-void clear_msgbox_rect_with_bg(int x, int y, int w, int h);
+/* メッセージボックスの背景の矩形を描画する */
+void fill_msgbox_rect_with_bg(int x, int y, int w, int h);
 
-/* メッセージボックスの矩形を前景でクリアする */
-void clear_msgbox_rect_with_fg(int x, int y, int w, int h);
+/* メッセージボックスの前景の矩形を描画する */
+void fill_msgbox_rect_with_fg(int x, int y, int w, int h);
 
 /* メッセージボックスの表示・非表示を設定する */
 void show_msgbox(bool show);
-
-/* メッセージボックスに文字を描画する */
-void draw_char_on_msgbox(int x, int y, uint32_t wc, pixel_t color,
-			 pixel_t outline_color, int *w, int *h,
-			 int base_font_size, bool is_dim);
 
 /*
  * クリックアニメーションの描画
@@ -358,41 +434,24 @@ void draw_news_bg_image(int x, int y);
 /* FIレイヤにNEWSの選択イメージを描画する */
 void draw_news_fg_image(int x, int y);
 
-/* FO/FIの2レイヤに文字を描画する前にロックする */
-void lock_draw_char_on_fo_fi(void);
-
-/* FO/FIの2レイヤに文字を描画した後にアンロックする */
-void unlock_draw_char_on_fo_fi(void);
-
-/* FO/FIの2レイヤに文字を描画する */
-void draw_char_on_fo_fi(int x, int y, uint32_t wc, pixel_t fo_body_color,
-			pixel_t fo_outline_color, pixel_t fi_body_color,
-			pixel_t fi_outline_color, int *ret_w, int *ret_h);
-
 /* FO/FIの2レイヤに画像を描画する */
 void draw_image_on_fo_fi(int x, int y, struct image *img);
 
 /*
- * メニュー画面・CG回想画面の描画
+ * 文字描画
  */
 
-/* FO/FIレイヤをロックする */
-void lock_fo_fi_for_menu(void);
+/* 文字を描画する前にレイヤをロックする */
+void lock_layers_for_msgdraw(int layer, int additional_layer);
 
-/* FO/FIレイヤをアンロックする */
-void unlock_fo_fi_for_menu(void);
+/* 文字を描画した後にレイヤをアンロックする */
+void unlock_layers_for_msgdraw(int layer, int additional_layer);
 
-/* FOレイヤにイメージを描画する */
-void draw_image_to_fo(struct image *img);
-
-/* FIレイヤにイメージを描画する */
-void draw_image_to_fi(struct image *img);
-
-/* FOレイヤに矩形を描画する */
-void draw_rect_to_fo(int x, int y, int w, int h, pixel_t color);
-
-/* FOレイヤの内容を仮のBGレイヤに設定する */
-bool create_temporary_bg(void);
+/* レイヤに文字を描画する */
+bool draw_char_on_layer(int layer, int x, int y, uint32_t wc, pixel_t color,
+			pixel_t outline_color, int base_font_size,
+			bool is_dimming, int *ret_width, int *ret_height,
+			int *union_x, int *union_y, int *union_w, int *union_h);
 
 /*
  * バナーの描画
@@ -450,6 +509,16 @@ void start_kirakira(int x, int y);
 
 /* キラキラエフェクトを描画する */
 void draw_kirakira(void);
+
+/*
+ * テキストレイヤ
+ */
+
+/* テキストレイヤのテキストを取得する */
+const char *get_layer_text(int text_layer_index);
+
+/* テキストレイヤのテキストを設定する */
+bool set_layer_text(int text_layer_index, const char *msg);
 
 /*
  * 更新領域の計算

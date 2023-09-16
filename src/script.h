@@ -29,6 +29,7 @@
  *  - 2023/08/27 構造化構文に対応
  *  - 2023/08/27 @setconfigに対応
  *  - 2023/08/31 @chsxに対応
+ *  - 2023/09/14 @pencilに対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -82,6 +83,7 @@ enum command_type {
 	COMMAND_LABELEDGOTO,
 	COMMAND_SETCONFIG,
 	COMMAND_CHSX,
+	COMMAND_PENCIL,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -107,6 +109,8 @@ enum bg_command_param {
 	BG_PARAM_FILE = 1,
 	BG_PARAM_SPAN,
 	BG_PARAM_METHOD,
+	BG_PARAM_X,
+	BG_PARAM_Y,
 };
 
 /* bgmコマンドのパラメータ */
@@ -600,6 +604,12 @@ enum chsx_command_param {
 	CHSX_PARAM_BGY,
 	CHSX_PARAM_SPAN,
 	CHSX_PARAM_METHOD,
+};
+
+/* pencilコマンドのパラメータ */
+enum pencil_command_param {
+	PENCIL_PARAM_LAYER = 1,
+	PENCIL_PARAM_TEXT,
 };
 
 /*

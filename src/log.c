@@ -174,10 +174,27 @@ void log_duplicated_conf(const char *key)
  */
 void log_undefined_conf(const char *key)
 {
-	if (is_english_mode())
+	if (is_english_mode()) {
+#ifndef EM
 		log_error("Missing key \"%s\" in config.txt\n", key);
-	else
+#else
+		log_error("Missing key \"%s\" in config.txt\n"
+			  "You are probably uploaded an older version of the index files.\n"
+			  "If not, it's a problem of browser caches.\n"
+			  "Please clear the entire history of your browser.",
+			  key);
+#endif
+	} else {
+#ifndef EM
 		log_error(U8("コンフィグに\"%s\"が記述されていません。\n"), key);
+#else
+		log_error(U8("コンフィグに\"%s\"が記述されていません。\n")
+			  U8("古いバージョンのindexファイルをアップロードした可能性があります。\n")
+			  U8("そうでない場合はブラウザのキャッシュの問題です。\n")
+			  U8("ブラウザの履歴を完全に消去する必要があります。"),
+			  key);
+#endif
+	}
 }
 
 /*
@@ -229,6 +246,19 @@ void log_invalid_msgbox_size(void)
 		log_error("The sizes of message box bg and fg differ.\n");
 	} else {
 		log_error(U8("メッセージボックスのBGとFGでサイズが異なります。\n"));
+	}
+}
+
+/*
+ * セーブデータのバージョンが一致しないエラーを記録する
+ */
+void log_save_ver(void)
+{
+	if (is_english_mode()) {
+		log_error("Ignoring save data: old save file format detected.\n");
+	} else {
+		log_error(U8("セーブデータを無視します:")
+			  U8("古いバージョンのセーブデータを検出しました。\n"));
 	}
 }
 
@@ -871,6 +901,50 @@ void log_wms_runtime_error(const char *file, int line, const char *msg)
 }
 
 /*
+ * アニメファイルにパースできない文字がある際のエラーを記録する
+ */
+void log_anime_parse_char(char c)
+{
+	if (is_english_mode())
+		log_error("Invalid character \'%c\'", c);
+	else
+		log_error(U8("不正な文字 \'%c\'"), c);
+}
+
+/*
+ * アニメファイルの記述が長すぎる際のエラーを記録する
+ */
+void log_anime_parse_long_word(void)
+{
+	if (is_english_mode())
+		log_error("Too long word.");
+	else
+		log_error(U8("記述が長すぎます。"));
+}
+
+/*
+ * アニメファイルで必要な記述が空白である際のエラーを記録する
+ */
+void log_anime_parse_empty_word(void)
+{
+	if (is_english_mode())
+		log_error("Nothing is specified.");
+	else
+		log_error(U8("空白が指定されました。"));
+}
+
+/*
+ * アニメファイルで不正なEOFが現れた際のエラーを記録する
+ */
+void log_anime_parse_invalid_eof(void)
+{
+	if (is_english_mode())
+		log_error("Invalid End-of-File.");
+	else
+		log_error(U8("不正なファイル終端です。"));
+}
+
+/*
  * アニメーションのシーケンスが長すぎるエラーを記録する
  */
 void log_anime_long_sequence(void)
@@ -901,6 +975,18 @@ void log_anime_unknown_key(const char *key)
 		log_error("Unknown keyword \"%s\"\n", key);
 	else
 		log_error(U8("未知のキーワード \"%s\"が指定されました"), key);
+}
+
+/*
+ * アニメファイルのパースに失敗した際のエラーを記録する
+ */
+void log_anime_parse_footer(const char *file, int line)
+{
+	line++;
+	if (is_english_mode())
+		log_error("> Anime file error: %s:%d", file, line);
+	else
+		log_error(U8("> アニメファイルエラー: %s:%d"), file, line);
 }
 
 #ifdef USE_DEBUGGER

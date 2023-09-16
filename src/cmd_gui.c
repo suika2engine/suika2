@@ -71,14 +71,48 @@ static bool init(void)
 	/* 背景以外を消す */
 	show_namebox(false);
 	show_msgbox(false);
-	set_ch_file_name(CH_BACK, NULL);
-	set_ch_file_name(CH_RIGHT, NULL);
-	set_ch_file_name(CH_LEFT, NULL);
-	set_ch_file_name(CH_CENTER, NULL);
-	change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
-	change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
-	change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
+	set_layer_file_name(LAYER_CHB, NULL);
+	set_layer_file_name(LAYER_CHL, NULL);
+	set_layer_file_name(LAYER_CHR, NULL);
+	set_layer_file_name(LAYER_CHC, NULL);
+	set_layer_file_name(LAYER_CHF, NULL);
+	set_layer_file_name(LAYER_TEXT1, NULL);
+	set_layer_file_name(LAYER_TEXT2, NULL);
+	set_layer_file_name(LAYER_TEXT3, NULL);
+	set_layer_file_name(LAYER_TEXT4, NULL);
+	set_layer_file_name(LAYER_TEXT5, NULL);
+	set_layer_file_name(LAYER_TEXT6, NULL);
+	set_layer_file_name(LAYER_TEXT7, NULL);
+	set_layer_file_name(LAYER_TEXT8, NULL);
+	set_layer_file_name(LAYER_EFFECT1, NULL);
+	set_layer_file_name(LAYER_EFFECT2, NULL);
+	set_layer_file_name(LAYER_EFFECT3, NULL);
+	set_layer_file_name(LAYER_EFFECT4, NULL);
+	set_layer_image(LAYER_CHB, NULL);
+	set_layer_image(LAYER_CHL, NULL);
+	set_layer_image(LAYER_CHR, NULL);
+	set_layer_image(LAYER_CHC, NULL);
+	set_layer_image(LAYER_CHF, NULL);
+	set_layer_image(LAYER_TEXT1, NULL);
+	set_layer_image(LAYER_TEXT2, NULL);
+	set_layer_image(LAYER_TEXT3, NULL);
+	set_layer_image(LAYER_TEXT4, NULL);
+	set_layer_image(LAYER_TEXT5, NULL);
+	set_layer_image(LAYER_TEXT6, NULL);
+	set_layer_image(LAYER_TEXT7, NULL);
+	set_layer_image(LAYER_TEXT8, NULL);
+	set_layer_image(LAYER_EFFECT1, NULL);
+	set_layer_image(LAYER_EFFECT2, NULL);
+	set_layer_image(LAYER_EFFECT3, NULL);
+	set_layer_image(LAYER_EFFECT4, NULL);
+	set_layer_text(LAYER_TEXT1, NULL);
+	set_layer_text(LAYER_TEXT2, NULL);
+	set_layer_text(LAYER_TEXT3, NULL);
+	set_layer_text(LAYER_TEXT4, NULL);
+	set_layer_text(LAYER_TEXT5, NULL);
+	set_layer_text(LAYER_TEXT6, NULL);
+	set_layer_text(LAYER_TEXT7, NULL);
+	set_layer_text(LAYER_TEXT8, NULL);
 
 	/* 終了後に表示されるBGレイヤを設定する */
 	if (!create_temporary_bg_for_gui()) {

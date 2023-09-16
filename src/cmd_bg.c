@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -12,6 +12,7 @@
  *  - 2021/06/10 マスクつき描画の対応
  *  - 2021/06/10 キャラクタのアルファ値に対応
  *  - 2021/06/16 時計描画の対応
+ *  - 2023/09/14 オフセットの追加
  */
 
 #include "suika.h"
@@ -63,11 +64,14 @@ static bool init(void)
 {
 	static struct image *img, *rule_img;
 	const char *fname, *method;
+	int ofs_x, ofs_y;
 
 	/* パラメータを取得する */
 	fname = get_string_param(BG_PARAM_FILE);
 	span = get_float_param(BG_PARAM_SPAN);
 	method = get_string_param(BG_PARAM_METHOD);
+	ofs_x = get_int_param(BG_PARAM_X);
+	ofs_y = get_int_param(BG_PARAM_Y);
 
  	/* 描画メソッドを識別する */
 	fade_method = get_fade_method(method);
@@ -117,15 +121,17 @@ static bool init(void)
 	}
 
 	/* 背景・キャラクタファイル名を設定する */
-	if (!set_bg_file_name(fname)) {
+	if (!set_layer_file_name(LAYER_BG, fname)) {
 		log_script_exec_footer();
 		return false;
 	}
-	set_ch_file_name(CH_BACK, NULL);
-	set_ch_file_name(CH_RIGHT, NULL);
-	set_ch_file_name(CH_LEFT, NULL);
-	set_ch_file_name(CH_CENTER, NULL);
-	change_bg_attributes(0, 0);
+	set_layer_file_name(LAYER_CHB, NULL);
+	set_layer_file_name(LAYER_CHL, NULL);
+	set_layer_file_name(LAYER_CHR, NULL);
+	set_layer_file_name(LAYER_CHC, NULL);
+	set_layer_position(LAYER_BG, ofs_x, ofs_y);
+	set_layer_alpha(LAYER_BG, 255);
+	set_anime_layer_position(ANIME_LAYER_BG, ofs_x, ofs_y);
 
 	/* メッセージボックスを消す (msgbox.show.on.bg=2) */
 	if (conf_msgbox_show_on_bg == 2) {
@@ -140,11 +146,7 @@ static bool init(void)
 	    (!is_non_interruptible() &&
 	     ((!is_auto_mode() && is_control_pressed) || is_skip_mode()))) {
 		/* フェードせず、すぐに切り替える */
-		change_bg_immediately(img);
-		change_ch_immediately(CH_BACK, NULL, 0, 0, 0);
-		change_ch_immediately(CH_LEFT, NULL, 0, 0, 0);
-		change_ch_immediately(CH_RIGHT, NULL, 0, 0, 0);
-		change_ch_immediately(CH_CENTER, NULL, 0, 0, 0);
+		set_layer_image(LAYER_BG, img);
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();

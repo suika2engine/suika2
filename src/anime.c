@@ -55,6 +55,7 @@ struct layer_name_map {
 };
 static struct layer_name_map layer_name_map[] = {
 	{"bg", ANIME_LAYER_BG}, {U8("背景"), ANIME_LAYER_BG},
+	{"bg2", ANIME_LAYER_BG2},
 	{"chb", ANIME_LAYER_CHB}, {U8("背面キャラ"), ANIME_LAYER_CHB},
 	{"chl", ANIME_LAYER_CHL}, {U8("左キャラ"), ANIME_LAYER_CHL},
 	{"chr", ANIME_LAYER_CHR}, {U8("右キャラ"), ANIME_LAYER_CHR},
@@ -62,11 +63,27 @@ static struct layer_name_map layer_name_map[] = {
 	{"msg", ANIME_LAYER_MSG}, {U8("メッセージ"), ANIME_LAYER_MSG},
 	{"name", ANIME_LAYER_NAME}, {U8("名前"), ANIME_LAYER_NAME},
 	{"face", ANIME_LAYER_CHF}, {U8("顔"), ANIME_LAYER_CHF},
+	{"text1", ANIME_LAYER_TEXT1},
+	{"text2", ANIME_LAYER_TEXT2},
+	{"text3", ANIME_LAYER_TEXT3},
+	{"text4", ANIME_LAYER_TEXT4},
+	{"text5", ANIME_LAYER_TEXT5},
+	{"text6", ANIME_LAYER_TEXT6},
+	{"text7", ANIME_LAYER_TEXT7},
+	{"text8", ANIME_LAYER_TEXT8},
+	{"effect1", ANIME_LAYER_EFFECT1},
+	{"effect2", ANIME_LAYER_EFFECT2},
+	{"effect3", ANIME_LAYER_EFFECT3},
+	{"effect4", ANIME_LAYER_EFFECT4},
 };
 
 /* ロード中の情報 */
 static int cur_seq_layer;
 static stop_watch_t cur_sw;
+
+/* 座標 */
+static float anime_layer_x[ANIME_LAYER_COUNT];
+static float anime_layer_y[ANIME_LAYER_COUNT];
 
 /*
  * 前方参照
@@ -74,6 +91,8 @@ static stop_watch_t cur_sw;
 static bool start_sequence(const char *name);
 static bool on_key_value(const char *key, const char *val);
 static int layer_name_to_index(const char *name);
+static float calc_pos_x(int anime_layer, const char *value);
+static float calc_pos_y(int anime_layer, const char *value);
 static bool load_anime_file(const char *file);
 
 /*
@@ -102,6 +121,8 @@ void cleanup_anime(void)
 				sequence[i][j].file = NULL;
 			}
 		}
+		anime_layer_x[i] = 0;
+		anime_layer_y[i] = 0;
 	}
 	memset(sequence, 0, sizeof(sequence));
 	memset(context, 0, sizeof(context));
@@ -321,7 +342,8 @@ get_anime_layer_params(
 
 		/* ファイル読み込みを行う */
 		if (s->file != NULL) {
-			if (layer == ANIME_LAYER_BG)
+			if (layer == ANIME_LAYER_BG ||
+			    layer == ANIME_LAYER_BG2)
 				dir = BG_DIR;
 			else if (layer >= ANIME_LAYER_CHB &&
 				 layer <= ANIME_LAYER_CHC)
@@ -331,10 +353,19 @@ get_anime_layer_params(
 				dir = CG_DIR;
 			else if (layer == ANIME_LAYER_CHF)
 				dir = CH_DIR;
+			else if (layer >= ANIME_LAYER_TEXT1 &&
+				 layer <= ANIME_LAYER_TEXT8)
+				dir = CG_DIR;
+			else if (layer >= ANIME_LAYER_EFFECT1 &&
+				 layer <= ANIME_LAYER_EFFECT4)
+				dir = CG_DIR;
 			else
 				dir = "";
-			if (image != NULL) {
+			if (image != NULL && *image != NULL) {
 				destroy_image(*image);
+				*image = NULL;
+			}
+			if (image != NULL) {
 				*image = create_image_from_file(dir, s->file);
 				if (*image == NULL)
 					return false;
@@ -372,10 +403,25 @@ get_anime_layer_params(
 		*y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
 		*alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
 
+		anime_layer_x[i] = (float)*x;
+		anime_layer_y[i] = (float)*y;
+
 		break;
 	}
 
 	return true;
+}
+
+/*
+ * アニメレイヤの座標を更新する
+ *  - アニメ以外の@bg, @ch, @chsを使ったときに設定する
+ */
+void set_anime_layer_position(int anime_layer, int x, int y)
+{
+	assert(anime_layer >= 0 && anime_layer < ANIME_LAYER_COUNT);
+
+	anime_layer_x[anime_layer] = (float)x;
+	anime_layer_y[anime_layer] = (float)y;
 }
 
 /*
@@ -434,15 +480,15 @@ static bool on_key_value(const char *key, const char *val)
 	} else if (strcmp(key, "end") == 0) {
 		s->end_time = (float)atof(val);
 	} else if (strcmp(key, "from-x") == 0) {
-		s->from_x = (float)atoi(val);
+		s->from_x = calc_pos_x(cur_seq_layer, val);
 	} else if (strcmp(key, "from-y") == 0) {
-		s->from_y = (float)atoi(val);
+		s->from_y = calc_pos_y(cur_seq_layer, val);
 	} else if (strcmp(key, "from-a") == 0) {
 		s->from_a = (float)atoi(val);
 	} else if (strcmp(key, "to-x") == 0) {
-		s->to_x = (float)atoi(val);
+		s->to_x = calc_pos_x(cur_seq_layer, val);
 	} else if (strcmp(key, "to-y") == 0) {
-		s->to_y = (float)atoi(val);
+		s->to_y = calc_pos_y(cur_seq_layer, val);
 	} else if (strcmp(key, "to-a") == 0) {
 		s->to_a = (float)atoi(val);
 	} else if (strcmp(key, "accel") == 0) {
@@ -473,6 +519,40 @@ static int layer_name_to_index(const char *name)
 			return layer_name_map[i].index;
 	}
 	return -1;
+}
+
+/* 座標を計算する */
+static float calc_pos_x(int anime_layer, const char *value)
+{
+	float ret;
+
+	assert(value != NULL);
+
+	if (value[0] == '+' || value[0] == '-') {
+		ret = anime_layer_x[anime_layer];
+		ret += (float)atof(value);
+	} else {
+		ret = (float)atof(value);
+	}
+
+	return ret;
+}
+
+/* 座標を計算する */
+static float calc_pos_y(int anime_layer, const char *value)
+{
+	float ret;
+
+	assert(value != NULL);
+
+	if (value[0] == '+' || value[0] == '-') {
+		ret = anime_layer_y[anime_layer];
+		ret += (float)atoi(value);
+	} else {
+		ret = (float)atoi(value);
+	}
+
+	return ret;
 }
 
 /* アニメーションファイルをロードする */
@@ -558,13 +638,13 @@ static bool load_anime_file(const char *file)
 					break;
 				}
 				if (c == ':' || c == '{' || c == '}') {
-					log_gui_parse_char(c);
+					log_anime_parse_char(c);
 					st = ST_ERROR;
 					break;
 				}
 			}
 			if (c == '}' || c == ':') {
-				log_gui_parse_char(c);
+				log_anime_parse_char(c);
 				st = ST_ERROR;
 				break;
 			}
@@ -584,7 +664,7 @@ static bool load_anime_file(const char *file)
 				break;
 			}
 			if (len == sizeof(word) - 1) {
-				log_gui_parse_long_word();
+				log_anime_parse_long_word();
 				st = ST_ERROR;
 				break;
 			}
@@ -601,7 +681,7 @@ static bool load_anime_file(const char *file)
 				len = 0;
 				break;
 			}
-			log_gui_parse_char(c);
+			log_anime_parse_char(c);
 			st = ST_ERROR;
 			break;
 		case ST_KEY:
@@ -612,7 +692,7 @@ static bool load_anime_file(const char *file)
 					break;
 				}
 				if (c == ':') {
-					log_gui_parse_char(c);
+					log_anime_parse_char(c);
 					st = ST_ERROR;
 					break;
 				}
@@ -622,7 +702,7 @@ static bool load_anime_file(const char *file)
 				}
 			}
 			if (c == '{' || c == '}') {
-				log_gui_parse_char(c);
+				log_anime_parse_char(c);
 				st = ST_ERROR;
 				break;
 			}
@@ -641,7 +721,7 @@ static bool load_anime_file(const char *file)
 				break;
 			}
 			if (len == sizeof(word) - 1) {
-				log_gui_parse_long_word();
+				log_anime_parse_long_word();
 				st = ST_ERROR;
 				break;
 			}
@@ -658,7 +738,7 @@ static bool load_anime_file(const char *file)
 				len = 0;
 				break;
 			}
-			log_gui_parse_char(c);
+			log_anime_parse_char(c);
 			st = ST_ERROR;
 			break;
 		case ST_VALUE:
@@ -674,7 +754,7 @@ static bool load_anime_file(const char *file)
 				}
 			}
 			if (c == ':' || c == '{') {
-				log_gui_parse_char(c);
+				log_anime_parse_char(c);
 				st = ST_ERROR;
 				break;
 			}
@@ -695,7 +775,7 @@ static bool load_anime_file(const char *file)
 				break;
 			}
 			if (len == sizeof(word) - 1) {
-				log_gui_parse_long_word();
+				log_anime_parse_long_word();
 				st = ST_ERROR;
 				break;
 			}
@@ -714,12 +794,12 @@ static bool load_anime_file(const char *file)
 				break;
 			}
 			if (c == '\r' || c == '\n') {
-				log_gui_parse_char(c);
+				log_anime_parse_char(c);
 				st = ST_ERROR;
 				break;
 			}
 			if (len == sizeof(word) - 1) {
-				log_gui_parse_long_word();
+				log_anime_parse_long_word();
 				st = ST_ERROR;
 				break;
 			}
@@ -741,7 +821,7 @@ static bool load_anime_file(const char *file)
 				len = 0;
 				break;
 			}
-			log_gui_parse_char(c);
+			log_anime_parse_char(c);
 			st = ST_ERROR;
 			break;
 		}
@@ -757,9 +837,9 @@ static bool load_anime_file(const char *file)
 
 	/* エラーが発生した場合 */
 	if (st == ST_ERROR) {
-		log_gui_parse_footer(file, line);
+		log_anime_parse_footer(file, line);
 	} else if (st != ST_SCOPE || len > 0) {
-		log_gui_parse_invalid_eof();
+		log_anime_parse_invalid_eof();
 	}
 
 	/* バッファを解放する */

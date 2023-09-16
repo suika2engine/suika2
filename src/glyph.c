@@ -41,58 +41,101 @@ static FT_Long font_file_size[FONT_COUNT];
 /* 選択されたフォント */
 static int selected_font;
 
-/* フォントサイズ */
-static int font_size;
-
-/* フォントのふちどり */
-static bool is_outline_enabled;
-
 /*
  * 前方参照
  */
-static bool read_font_file_content(const char *file_name, FT_Byte **content,
-				   FT_Long *size);
-static bool draw_glyph_without_outline(struct image *img, int x, int y,
-				       pixel_t color, uint32_t codepoint,
-				       int *w, int *h, int base_font_size,
-				       bool is_dim);
-static void draw_glyph_func(unsigned char * RESTRICT font, int font_width,
-			    int font_height, int margin_left, int margin_top,
-			    pixel_t * RESTRICT image, int image_width,
-			    int image_height, int image_x, int image_y,
-			    pixel_t color);
-static void draw_glyph_dim_func(unsigned char * RESTRICT font,
-				int font_width, int font_height,
-				int margin_left, int margin_top,
-				pixel_t * RESTRICT image, int image_width,
-				int image_height, int image_x, int image_y,
-				pixel_t color);
+static bool read_font_file_content(
+	const char *file_name,
+	FT_Byte **content,
+	FT_Long *size);
+static bool draw_glyph_wrapper(
+	struct image *img,
+	int font,
+	int font_size,
+	int base_font_size,
+	bool use_outline,
+	int x,
+	int y,
+	pixel_t color,
+	pixel_t outline_color,
+	uint32_t wc,
+	int *ret_width,
+	int *ret_height,
+	bool is_dimming,
+	int layer_x,
+	int layer_y,
+	int *union_x,
+	int *union_y,
+	int *union_w,
+	int *union_h);
+static bool draw_glyph_without_outline(
+	struct image *img,
+	int font_type,
+	int font_size,
+	int base_font_size,
+	int x,
+	int y,
+	pixel_t color,
+	uint32_t codepoint,
+	int *ret_w,
+	int *ret_h,
+	bool is_dim);
+static void draw_glyph_func(
+	unsigned char * RESTRICT font,
+	int font_width,
+	int font_height,
+	int margin_left,
+	int margin_top,
+	pixel_t * RESTRICT image,
+	int image_width,
+	int image_height,
+	int image_x,
+	int image_y,
+	pixel_t color);
+static void draw_glyph_dim_func(
+	unsigned char * RESTRICT font,
+	int font_width,
+	int font_height,
+	int margin_left,
+	int margin_top,
+	pixel_t * RESTRICT image,
+	int image_width,
+	int image_height,
+	int image_x,
+	int image_y,
+	pixel_t color);
+static bool isgraph_extended(const char **mbs, uint32_t *wc);
+static int translate_font_type(int font_ype);
+static bool apply_font_size(int font_type, int size);
+
+/*
+ * Set a global font file name before init_glyph().
+ * This function will be called when a load time of global save data.
+ */
+bool preinit_set_global_font_file_name(const char *fname)
+{
+	assert(font_file_name_tbl[FONT_GLOBAL] == NULL);
+
+	font_file_name_tbl[FONT_GLOBAL] = strdup(fname);
+	if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
+		log_memory();
+		return false;
+	}
+
+	return true;	
+}
 
 /*
  * フォントレンダラの初期化処理を行う
  */
 bool init_glyph(void)
 {
-	const char *fname;
+	const char *fname[FONT_COUNT];
 	FT_Error err;
 	int i;
 
 #ifdef ANDROID
-	/* Android用 */
-	for (i = 0; i < FONT_COUNT; i++) {
-		if (face[i] != NULL) {
-			FT_Done_Face(face[i]);
-			face[i] = NULL;
-		}
-		if (font_file_content[i] != NULL) {
-			free(font_file_content[i]);
-			font_file_content[i] = NULL;
-		}
-	}
-	if (library != NULL) {
-		FT_Done_FreeType(library);
-		library = NULL;
-	}
+	cleanup_glyph();
 #endif
 
 	/* FreeType2ライブラリを初期化する */
@@ -102,30 +145,19 @@ bool init_glyph(void)
 		return false;
 	}
 
+	/* コンフィグを読み込む */
+	fname[FONT_GLOBAL] = font_file_name_tbl[FONT_GLOBAL] == NULL ?
+		conf_font_global_file : font_file_name_tbl[FONT_GLOBAL];
+	fname[FONT_MAIN] = conf_font_main_file;
+	fname[FONT_ALT1] = conf_font_alt1_file;
+	fname[FONT_ALT2] = conf_font_alt2_file;
+
 	/* フォントを読み込む */
 	for (i = 0; i < FONT_COUNT; i++) {
-		/* フォントファイル名を取得する */
-		switch (i) {
-		case FONT_GLOBAL:
-			fname = conf_font_global_file;
-			break;
-		case FONT_MAIN:
-			fname = conf_font_main_file;
-			break;
-		case FONT_ALT1:
-			fname = conf_font_alt1_file;
-			break;
-		case FONT_ALT2:
-			fname = conf_font_alt2_file;
-			break;
-		default:
-			fname = NULL;
-			assert(0);
-			break;
-		}
-		if (fname == NULL)
+		if (fname[i] == NULL)
 			continue;
-		font_file_name_tbl[i] = strdup(fname);
+
+		font_file_name_tbl[i] = strdup(fname[i]);
 		if (font_file_name_tbl[i] == NULL) {
 			log_memory();
 			return false;
@@ -149,13 +181,17 @@ bool init_glyph(void)
 		}
 	}
 
+	/* フォントのプリロードを行う */
+	for (i = 0; i < FONT_COUNT; i++) 
+		get_glyph_width(i, conf_font_size, 'A');
+
 	return true;
 }
 
 /*
  * フォントレンダラの終了処理を行う
  */
-void cleanup_glyph(bool no_free_file_names)
+void cleanup_glyph(void)
 {
 	int i;
 
@@ -168,20 +204,67 @@ void cleanup_glyph(bool no_free_file_names)
 			free(font_file_content[i]);
 			font_file_content[i] = NULL;
 		}
+		if (font_file_name_tbl[i] != NULL) {
+			free(font_file_name_tbl[i]);
+			font_file_name_tbl[i] = NULL;
+		}
 	}
+
 	if (library != NULL) {
 		FT_Done_FreeType(library);
 		library = NULL;
 	}
+}
 
-	if (!no_free_file_names) {
-		for (i = 0; i < FONT_COUNT; i++) {
-			if (font_file_name_tbl[i] != NULL) {
-				free(font_file_name_tbl[i]);
-				font_file_name_tbl[i] = NULL;
-			}
-		}
+/*
+ * グローバルフォントの更新を行う
+ */
+bool reconstruct_glyph(void)
+{
+	FT_Error err;
+
+	assert(conf_font_global_file != NULL);
+	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
+
+	/* Cleanup the current global font. */
+
+	assert(face[FONT_GLOBAL] != NULL);
+	FT_Done_Face(face[FONT_GLOBAL]);
+	face[FONT_GLOBAL] = NULL;
+
+	assert(font_file_content[FONT_GLOBAL] != NULL);
+	free(font_file_content[FONT_GLOBAL]);
+	font_file_content[FONT_GLOBAL] = NULL;
+
+	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
+	free(font_file_name_tbl[FONT_GLOBAL]);
+	font_file_name_tbl[FONT_GLOBAL] = NULL;
+
+	/* グローバルフォントファイル名を更新する */
+	font_file_name_tbl[FONT_GLOBAL] = strdup(conf_font_global_file);
+	if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
+		log_memory();
+		return false;
 	}
+
+	/* フォントファイルの内容を読み込む */
+	if (!read_font_file_content(font_file_name_tbl[FONT_GLOBAL],
+				    &font_file_content[FONT_GLOBAL],
+				    &font_file_size[FONT_GLOBAL]))
+		return false;
+
+	/* フォントファイルを読み込む */
+	err = FT_New_Memory_Face(library,
+				 font_file_content[FONT_GLOBAL],
+				 font_file_size[FONT_GLOBAL],
+				 0,
+				 &face[FONT_GLOBAL]);
+	if (err != 0) {
+		log_font_file_error(font_file_name_tbl[FONT_GLOBAL]);
+		return false;
+	}
+
+	return true;
 }
 
 /* フォントファイルの内容を読み込む */
@@ -301,9 +384,9 @@ int utf8_to_utf32(const char *mbs, uint32_t *wc)
 }
 
 /*
- * utf-8文字列の文字数を返す
+ * utf-8文字列のワイド文字数を返す
  */
-int utf8_chars(const char *mbs)
+int count_utf8_chars(const char *mbs)
 {
 	int count;
 	int mblen;
@@ -322,14 +405,15 @@ int utf8_chars(const char *mbs)
 /*
  * 文字を描画した際の幅を取得する
  */
-int get_glyph_width(uint32_t codepoint)
+int get_glyph_width(int font_type, int font_size, uint32_t codepoint)
 {
 	int w, h;
 
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, font_size, false);
+	draw_glyph(NULL, font_type, font_size, font_size, false, 0, 0, 0, 0,
+		   codepoint, &w, &h, false);
 
 	return w;
 }
@@ -337,22 +421,23 @@ int get_glyph_width(uint32_t codepoint)
 /*
  * 文字を描画した際の高さを取得する
  */
-int get_glyph_height(uint32_t codepoint)
+int get_glyph_height(int font_type, int font_size, uint32_t codepoint)
 {
 	int w, h;
 
 	w = h = 0;
 
 	/* 幅を求める */
-	draw_glyph(NULL, 0, 0, 0, 0, codepoint, &w, &h, font_size, false);
+	draw_glyph(NULL, font_type, font_size, font_size, false, 0, 0, 0, 0,
+		   codepoint, &w, &h, false);
 
 	return h;
 }
 
 /*
- * utf-8文字列を描画した際の幅を取得する
+ * 文字列を描画した際の幅を取得する
  */
-int get_utf8_width(const char *mbs)
+int get_string_width(int font_type, int font_size, const char *mbs)
 {
 	uint32_t c;
 	int mblen, w;
@@ -378,7 +463,7 @@ int get_utf8_width(const char *mbs)
 			return -1;
 
 		/* 幅を取得する */
-		w += get_glyph_width(c);
+		w += get_glyph_width(font_type, font_size, c);
 
 		/* 次の文字へ移動する */
 		mbs += mblen;
@@ -389,9 +474,21 @@ int get_utf8_width(const char *mbs)
 /*
  * 文字の描画を行う
  */
-bool draw_glyph(struct image *img, int x, int y, pixel_t color,
-		pixel_t outline_color, uint32_t codepoint, int *w, int *h,
-		int base_font_size, bool is_dim)
+
+/* 文字の描画を行う */
+bool draw_glyph(struct image *img,
+		int font_type,
+		int font_size,
+		int base_font_size,
+		bool use_outline,
+		int x,
+		int y,
+		pixel_t color,
+		pixel_t outline_color,
+		uint32_t codepoint,
+		int *ret_w,
+		int *ret_h,
+		bool is_dim)
 {
 	FT_Stroker stroker;
 	FT_UInt glyphIndex;
@@ -399,11 +496,13 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	FT_BitmapGlyph bitmapGlyph;
 	int descent;
 
-	if (conf_font_outline_remove) {
-		return draw_glyph_without_outline(img, x, y, color, codepoint,
-						  w, h, base_font_size,
-						  is_dim);
+	if (!use_outline) {
+		return draw_glyph_without_outline(img, font_type, font_size,
+						  base_font_size, x, y,
+						  color, codepoint,
+						  ret_w, ret_h, is_dim);
 	}
+	apply_font_size(font_type, font_size);
 
 	/* アウトライン(内側)を描画する */
 	FT_Stroker_New(library, &stroker);
@@ -454,8 +553,8 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	}
 	descent = (int)(face[selected_font]->glyph->metrics.height / SCALE) -
 		  (int)(face[selected_font]->glyph->metrics.horiBearingY / SCALE);
-	*w = (int)face[selected_font]->glyph->advance.x / SCALE;
-	*h = font_size + descent + 2;
+	*ret_w = (int)face[selected_font]->glyph->advance.x / SCALE;
+	*ret_h = font_size + descent + 2;
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
 	if (img == NULL)
@@ -484,13 +583,23 @@ bool draw_glyph(struct image *img, int x, int y, pixel_t color,
 	return true;
 }
 
-static bool draw_glyph_without_outline(struct image *img, int x, int y,
-				       pixel_t color, uint32_t codepoint,
-				       int *w, int *h, int base_font_size,
+static bool draw_glyph_without_outline(struct image *img,
+				       int font_type,
+				       int font_size,
+				       int base_font_size,
+				       int x,
+				       int y,
+				       pixel_t color,
+				       uint32_t codepoint,
+				       int *ret_w,
+				       int *ret_h,
 				       bool is_dim)
 {
 	FT_Error err;
 	int descent;
+
+	font_type = translate_font_type(font_type);
+	apply_font_size(font_type, font_size);
 
 	/* 文字をグレースケールビットマップとして取得する */
 	err = FT_Load_Char(face[selected_font], codepoint, FT_LOAD_RENDER);
@@ -531,32 +640,8 @@ static bool draw_glyph_without_outline(struct image *img, int x, int y,
 		  (int)(face[selected_font]->glyph->metrics.horiBearingY / SCALE);
 
 	/* 描画した幅と高さを求める */
-	*w = (int)face[selected_font]->glyph->advance.x / SCALE;
-	*h = font_size + descent;
-
-	return true;
-}
-
-/*
- * グローバルのフォントファイル名を設定する
- *  - init_glyph()よりも前に呼ばれる
- *  - 最初のinit_glyph()のあとで反映するには、cleanup_glyph(true), init_glyph() の
- *    順で呼び出す
- */
-bool set_global_font_file_name(const char *file)
-{
-	if (font_file_name_tbl[FONT_GLOBAL] != NULL) {
-		free(font_file_name_tbl[FONT_GLOBAL]);
-		font_file_name_tbl[FONT_GLOBAL] = NULL;
-	}
-
-	if (file != NULL) {
-		font_file_name_tbl[FONT_GLOBAL] = strdup(file);
-		if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
-			log_memory();
-			return false;
-		}
-	}
+	*ret_w = (int)face[selected_font]->glyph->advance.x / SCALE;
+	*ret_h = font_size + descent;
 
 	return true;
 }
@@ -570,36 +655,8 @@ const char *get_global_font_file_name(void)
 	return font_file_name_tbl[FONT_GLOBAL];
 }
 
-/*
- * ローカルのフォントファイル名を設定する
- *  - init_glyph()よりも前に呼ばれることはない
- *  - 反映するには、cleanup_glyph(true), init_glyph() の順で呼び出す
- */
-bool set_local_font_file_name(int type, const char *file)
-{
-	assert(type != FONT_GLOBAL);
-	assert(type == FONT_MAIN || type == FONT_ALT1 || type == FONT_ALT2);
-
-	if (font_file_name_tbl[type] != NULL) {
-		free(font_file_name_tbl[type]);
-		font_file_name_tbl[type] = NULL;
-	}
-
-	if (file != NULL) {
-		font_file_name_tbl[type] = strdup(file);
-		if (font_file_name_tbl[type] == NULL) {
-			log_memory();
-			return false;
-		}
-	}
-
-	return true;
-}
-
-/*
- * サポートされているアルファベットか調べる
- */
-bool isgraph_extended(const char **mbs, uint32_t *wc)
+/* サポートされているアルファベットか調べる */
+static bool isgraph_extended(const char **mbs, uint32_t *wc)
 {
 	int len;
 
@@ -632,17 +689,15 @@ bool isgraph_extended(const char **mbs, uint32_t *wc)
 	return false;
 }
 
-/*
- * フォントサイズを指定する
- */
-bool set_font_size(int size)
+/* フォントサイズを指定する */
+static bool apply_font_size(int font_type, int size)
 {
 	FT_Error err;
 
-	font_size = size;
+	font_type = translate_font_type(font_type);
 
 	/* 文字サイズをセットする */
-	err = FT_Set_Pixel_Sizes(face[selected_font], 0, (FT_UInt)size);
+	err = FT_Set_Pixel_Sizes(face[font_type], 0, (FT_UInt)size);
 	if (err != 0) {
 		log_api_error("FT_Set_Pixel_Sizes");
 		return false;
@@ -650,56 +705,34 @@ bool set_font_size(int size)
 	return true;
 }
 
-/*
- * フォントサイズを取得する
- */
-int get_font_size(void)
+/* フォントを選択する */
+static int translate_font_type(int font_type)
 {
-	return font_size;
-}
+	assert(font_type == FONT_GLOBAL || font_type == FONT_MAIN ||
+	       font_type == FONT_ALT1 || font_type == FONT_ALT2);
 
-/*
- * フォントを選択する
- */
-void select_font(int type)
-{
-	assert(type == FONT_GLOBAL || type == FONT_MAIN ||
-	       type == FONT_ALT1 || type == FONT_ALT2);
-
-	if (type == FONT_GLOBAL) {
-		selected_font = FONT_GLOBAL;
-		return;
-	}
-	if (type == FONT_MAIN) {
+	if (font_type == FONT_GLOBAL)
+		return FONT_GLOBAL;
+	if (font_type == FONT_MAIN) {
 		if (font_file_name_tbl[FONT_MAIN] == NULL)
-			selected_font = FONT_GLOBAL;
+			return FONT_GLOBAL;
 		else
-			selected_font = FONT_MAIN;
-		return;
+			return FONT_MAIN;
 	}
-	if (type == FONT_ALT1) {
+	if (font_type == FONT_ALT1) {
 		if (font_file_name_tbl[FONT_ALT1] == NULL)
-			selected_font = FONT_GLOBAL;
+			return FONT_GLOBAL;
 		else
-			selected_font = FONT_ALT1;
-		return;
+			return FONT_ALT1;
 	}
-	if (type == FONT_ALT2) {
+	if (font_type == FONT_ALT2) {
 		if (font_file_name_tbl[FONT_ALT2] == NULL)
-			selected_font = FONT_GLOBAL;
+			return FONT_GLOBAL;
 		else
-			selected_font = FONT_ALT2;
-		return;
+			return FONT_ALT2;
 	}
 	assert(0);
-}
-
-/*
- * フォントのふちどりの有無を設定する
- */
-void set_font_outline(bool is_enabled)
-{
-	is_outline_enabled = is_enabled;
+	return FONT_GLOBAL;
 }
 
 /*
@@ -901,3 +934,916 @@ static void draw_glyph_dim_func(unsigned char * RESTRICT font,
 }
 
 #endif
+
+/*
+ * Message drawing
+ */
+
+/* Forward declarations. */
+static void process_escape_sequence(struct draw_msg_context *context,
+				    int *x, int *y, int *w, int *h);
+static void process_escape_sequence_lf(struct draw_msg_context *context);
+static bool process_escape_sequence_font(struct draw_msg_context *context);
+static bool process_escape_sequence_outline(struct draw_msg_context *context);
+static bool process_escape_sequence_color(struct draw_msg_context *context);
+static bool process_escape_sequence_size(struct draw_msg_context *context);
+static bool process_escape_sequence_wait(struct draw_msg_context *context);
+static bool process_escape_sequence_pen(struct draw_msg_context *context);
+static bool process_escape_sequence_ruby(struct draw_msg_context *context,
+					 int *x, int *y, int *w, int *h);
+static bool search_for_end_of_escape_sequence(const char **msg);
+static void do_word_wrapping(struct draw_msg_context *context);
+static int get_en_word_width(struct draw_msg_context *context);
+static uint32_t convert_tategaki_char(uint32_t wc);
+static bool is_tategaki_punctuation(uint32_t wc);
+static void process_lf(struct draw_msg_context *context, uint32_t c,
+		       int glyph_width, int glyph_height);
+static bool is_small_kana(uint32_t wc);
+
+/*
+ * Initialize a message drawing context.
+ *  - Too many parameters, but for now, I think it's useful to detect bugs
+ *    as compile errors when we add a change on the design.
+ */
+void construct_draw_msg_context(
+	struct draw_msg_context *context,
+	int stage_layer,
+	const char *msg,
+	int font,
+	int font_size,
+	int base_font_size,
+	int ruby_size,
+	bool use_outline,
+	int pen_x,
+	int pen_y,
+	int area_width,
+	int area_height,
+	int left_margin,
+	int right_margin,
+	int top_margin,
+	int bottom_margin,
+	int line_margin,
+	int char_margin,
+	pixel_t color,
+	pixel_t outline_color,
+	bool is_dimming,
+	bool ignore_linefeed,
+	bool ignore_font,
+	bool ignore_outline,
+	bool ignore_color,
+	bool ignore_size,
+	bool ignore_position,
+	bool ignore_ruby,
+	bool ignore_wait,
+	void (*inline_wait_hook)(float),
+	bool use_tategaki)
+{
+	context->stage_layer = stage_layer;
+	context->msg = msg;
+	context->font = font;
+	context->font_size = font_size;
+	context->base_font_size = base_font_size;
+	context->ruby_size = ruby_size;
+	context->use_outline = use_outline;
+	context->pen_x = pen_x;
+	context->pen_y = pen_y;
+	context->area_width = area_width;
+	context->area_height = area_height;
+	context->left_margin = left_margin;
+	context->right_margin = right_margin;
+	context->top_margin = top_margin;
+	context->bottom_margin = bottom_margin;
+	context->line_margin = line_margin;
+	context->char_margin = char_margin;
+	context->color = color;
+	context->outline_color = outline_color;
+	context->is_dimming = is_dimming;
+	context->ignore_linefeed = ignore_linefeed;
+	context->ignore_font = ignore_font;
+	context->ignore_outline = ignore_outline;
+	context->ignore_color = ignore_color;
+	context->ignore_size = ignore_size;
+	context->ignore_position = ignore_position;
+	context->ignore_ruby = ignore_ruby;
+	context->ignore_wait = ignore_wait;
+	context->inline_wait_hook = inline_wait_hook;
+	context->use_tategaki = use_tategaki;
+
+	/* Get a layer image. */
+	if (stage_layer != -1) {
+		context->layer_image = get_layer_image(stage_layer);
+		context->layer_x = get_layer_x(stage_layer);
+		context->layer_y = get_layer_y(stage_layer);
+	} else {
+		context->layer_x = 0;
+		context->layer_y = 0;
+	}
+
+	/* The first character is treated as after-space. */
+	context->runtime_is_after_space = true;
+
+	/* Set zeros. */
+	context->runtime_is_inline_wait = false;
+	context->runtime_ruby_x = 0;
+	context->runtime_ruby_y = 0;
+}
+
+/*
+ * Set an alternative target image.
+ */
+void set_alternative_target_image(struct draw_msg_context *context,
+				  struct image *img)
+{
+	context->layer_image = img;
+}
+
+/*
+ * エスケープシーケンスを除いた描画文字数を取得する
+ *  - Unicodeの合成はサポートしていない
+ *  - 基底文字+結合文字はそれぞれ1文字としてカウントする
+ */
+int count_chars_common(struct draw_msg_context *context)
+{
+	const char *msg;
+	uint32_t wc;
+	int count, mblen;
+
+	count = 0;
+	msg = context->msg;
+	while (*msg) {
+		/* 先頭のエスケープシーケンスを読み飛ばす */
+		while (*msg == '\\') {
+			switch (*(msg + 1)) {
+			case 'n':	/* 改行 */
+				msg += 2;
+				break;
+			case 'f':	/* フォント指定 */
+			case 'o':	/* アウトライン指定 */
+			case '#':	/* 色指定 */
+			case '@':	/* サイズ指定 */
+			case 'w':	/* インラインウェイト */
+			case 'p':	/* ペン移動 */
+			case '^':	/* ルビ */
+				if (!search_for_end_of_escape_sequence(&msg))
+					return count;
+				break;
+			default:
+				/*
+				 * 不正なエスケープシーケンス
+				 *  - 読み飛ばさない
+				 */
+				return count;
+			}
+		}
+		if (*msg == '\0')
+			break;
+
+		/* 次の1文字を取得する */
+		mblen = utf8_to_utf32(msg, &wc);
+		if (mblen == -1)
+			break;
+
+		msg += mblen;
+		count++;
+	}
+
+	return count;
+}
+
+/* エスケープシーケンスの終了位置までポインタをインクリメントする */
+static bool search_for_end_of_escape_sequence(const char **msg)
+{
+	const char *s;
+	int len;
+
+	s = *msg;
+	len = 0;
+	while (*s != '\0' && *s != '}') {
+		s++;
+		len++;
+	}
+	if (*s == '\0')
+		return false;
+
+	*msg += len + 1;
+	return true;
+}
+
+/*
+ * Draw characters in a message up to (max_chars) characters.
+ */
+int
+draw_msg_common(
+	struct draw_msg_context *context, /* a drawing context. */
+	int char_count,	/* characters to draw. */
+	int *x,		/* left coordinate of the update rect. */
+	int *y,		/* top coordinate of the update rect. */
+	int *w,		/* width of the update rect. */
+	int *h)		/* height of the update rect. */
+{
+	uint32_t wc;
+	int i, mblen;
+	int glyph_width, glyph_height, ret_width, ret_height, ofs_x, ofs_y;
+
+	context->font = translate_font_type(context->font);
+	apply_font_size(context->font, context->font_size);
+
+	if (char_count == -1)
+		char_count = count_chars_common(context);
+
+	/* 1文字ずつ描画する */
+	for (i = 0; i < char_count; i++) {
+		assert(*context->msg);
+
+		/* 先頭のエスケープシーケンスをすべて処理する */
+		process_escape_sequence(context, x, y, w, h);
+		if (context->runtime_is_inline_wait)
+			return i;
+
+		/* ワードラッピングを処理する */
+		do_word_wrapping(context);
+
+		/* 描画する文字を取得する */
+		mblen = utf8_to_utf32(context->msg, &wc);
+		if (mblen == -1) {
+			/* Invalid utf-8 sequence. */
+			return -1;
+		}
+
+		/* 縦書きの句読点変換を行う */
+		if (context->use_tategaki)
+			wc = convert_tategaki_char(wc);
+
+		/* 描画する文字の幅と高さを取得する */
+		glyph_width = get_glyph_width(context->font, context->font_size, wc);
+		glyph_height = get_glyph_height(context->font, context->font_size, wc);
+
+		/* 右側の幅が足りなければ改行する */
+		process_lf(context, wc, glyph_width, glyph_height);
+
+		/* 小さいひらがな/カタカタのオフセットを計算する */
+		if (context->use_tategaki && is_small_kana(wc)) {
+			/* FIXME: 何らかの調整を加える */
+			ofs_x = 0;
+			ofs_y = 0;
+		} else {
+			ofs_x = 0;
+			ofs_y = 0;
+		}
+
+		/* 描画する */
+		draw_glyph_wrapper(context->layer_image,
+				   context->font,
+				   context->font_size,
+				   context->base_font_size,
+				   context->use_outline,
+				   context->pen_x + ofs_x,
+				   context->pen_y + ofs_y,
+				   context->color,
+				   context->outline_color,
+				   wc,
+				   &ret_width,
+				   &ret_height,
+				   context->is_dimming,
+				   context->layer_x,
+				   context->layer_y,
+				   x, y, w, h);
+
+		/* ルビ用のペン位置を更新する */
+		if (!context->use_tategaki) {
+			context->runtime_ruby_x = context->pen_x;
+			context->runtime_ruby_y = context->pen_y -
+				context->ruby_size;
+		} else {
+			context->runtime_ruby_x = context->pen_x + ret_width;
+			context->runtime_ruby_y = context->pen_y;
+		}
+
+		/* 次の文字へ移動する */
+		context->msg += mblen;
+		if (!context->use_tategaki) {
+			context->pen_x += glyph_width + context->char_margin;
+		} else {
+			if (is_tategaki_punctuation(wc))
+				context->pen_y += context->font_size;
+			else
+				context->pen_y += glyph_height;
+			context->pen_y += context->char_margin;
+		}
+	}
+
+	/* 末尾のエスケープシーケンスを処理する */
+	process_escape_sequence(context, x, y, w, h);
+
+	/* 描画した文字数を返す */
+	return i;
+}
+
+/* ワードラッピングを処理する */
+static void do_word_wrapping(struct draw_msg_context *context)
+{
+	if (context->ignore_linefeed)
+		return;
+	if (context->use_tategaki)
+		return;
+
+	if (context->runtime_is_after_space) {
+		if (context->pen_x + get_en_word_width(context) >=
+		    context->area_width - context->right_margin) {
+			context->pen_y += context->line_margin;
+			context->pen_x = context->left_margin;
+		}
+	}
+
+	context->runtime_is_after_space = *context->msg == ' ';
+}
+
+/* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
+static int get_en_word_width(struct draw_msg_context *context)
+{
+	const char *m;
+	uint32_t wc;
+	int width;
+
+	m = context->msg;
+	width = 0;
+	while (isgraph_extended(&m, &wc))
+		width += get_glyph_width(context->font, context->font_size, wc);
+
+	return width;
+}
+
+/* 右側の幅が足りなければ改行する */
+static void process_lf(struct draw_msg_context *context, uint32_t c,
+		       int glyph_width, int glyph_height)
+{
+	if (context->ignore_linefeed)
+		return;
+
+	if (!context->use_tategaki) {
+		/* 右側の幅が足りる場合、改行しない */
+		if (context->pen_x + glyph_width + context->char_margin <
+		    context->area_width - context->right_margin)
+			return;
+	} else {
+		/* 下側の幅が足りる場合、改行しない */
+		if (context->pen_y + glyph_height + context->char_margin <
+		    context->area_height - context->bottom_margin)
+			return;
+	}
+
+	/* 禁則文字の場合、改行しない */
+	if (c == ' ' || c == ',' || c == '.' || c == ':' || c == ';' ||
+	    c == CHAR_TOUTEN || c == CHAR_KUTEN)
+		return;
+
+	/* 改行する */
+	if (!context->use_tategaki) {
+		context->pen_y += context->line_margin;
+		context->pen_x = context->left_margin;
+	} else {
+		context->pen_x -= context->line_margin;
+		context->pen_y = context->top_margin;
+	}
+}
+
+/* 縦書きの句読点変換を行う */
+static uint32_t convert_tategaki_char(uint32_t wc)
+{
+	switch (wc) {
+	case U32_C('、'): return U32_C('︑');
+	case U32_C('，'): return U32_C('︐');
+	case U32_C('。'): return U32_C('︒');
+	case U32_C('（'): return U32_C('︵');
+	case U32_C('）'): return U32_C('︶');
+	case U32_C('｛'): return U32_C('︷');
+	case U32_C('｝'): return U32_C('︸');
+	case U32_C('「'): return U32_C('﹁');
+	case U32_C('」'): return U32_C('﹂');
+	case U32_C('『'): return U32_C('﹃');
+	case U32_C('』'): return U32_C('﹄');
+	case U32_C('【'): return U32_C('︻');
+	case U32_C('】'): return U32_C('︼');
+	case U32_C('［'): return U32_C('﹇');
+	case U32_C('］'): return U32_C('﹈');
+	case U32_C('〔'): return U32_C('︹');
+	case U32_C('〕'): return U32_C('︺');
+	case U32_C('…'): return U32_C('︙');
+	case U32_C('‥'): return U32_C('︰');
+	case U32_C('ー'): return U32_C('丨');
+	default:
+		break;
+	}
+	return wc;
+}
+
+/* 縦書きの句読点かどうか調べる */
+static bool is_tategaki_punctuation(uint32_t wc)
+{
+	switch (wc) {
+	case U32_C('︑'): return true;
+	case U32_C('︐'): return true;
+	case U32_C('︒'): return true;
+	case U32_C('︵'): return true;
+	case U32_C('︶'): return true;
+	case U32_C('︷'): return true;
+	case U32_C('︸'): return true;
+	case U32_C('﹁'): return true;
+	case U32_C('﹂'): return true;
+	case U32_C('﹃'): return true;
+	case U32_C('﹄'): return true;
+	case U32_C('︻'): return true;
+	case U32_C('︼'): return true;
+	case U32_C('﹇'): return true;
+	case U32_C('﹈'): return true;
+	case U32_C('︹'): return true;
+	case U32_C('︺'): return true;
+	case U32_C('︙'): return true;
+	case U32_C('︰'): return true;
+	case U32_C('丨'): return true;
+	default:
+		break;
+	}
+	return false;
+}
+
+/* 小さい仮名文字であるか調べる */
+static bool is_small_kana(uint32_t wc)
+{
+	switch (wc) {
+	case U32_C('ぁ'): return true;
+	case U32_C('ぃ'): return true;
+	case U32_C('ぅ'): return true;
+	case U32_C('ぇ'): return true;
+	case U32_C('ぉ'): return true;
+	case U32_C('っ'): return true;
+	case U32_C('ゃ'): return true;
+	case U32_C('ゅ'): return true;
+	case U32_C('ょ'): return true;
+	case U32_C('ゎ'): return true;
+	case U32_C('ゕ'): return true;
+	case U32_C('ゖ'): return true;
+	case U32_C('ァ'): return true;
+	case U32_C('ィ'): return true;
+	case U32_C('ゥ'): return true;
+	case U32_C('ェ'): return true;
+	case U32_C('ォ'): return true;
+	case U32_C('ッ'): return true;
+	case U32_C('ャ'): return true;
+	case U32_C('ュ'): return true;
+	case U32_C('ョ'): return true;
+	case U32_C('ヮ'): return true;
+	case U32_C('ヵ'): return true;
+	case U32_C('ヶ'): return true;
+	default: break;
+	}
+	return false;
+}
+
+/* 先頭のエスケープシーケンスを処理する */
+static void process_escape_sequence(struct draw_msg_context *context,
+				    int *x, int *y, int *w, int *h)
+{
+	/* エスケープシーケンスが続く限り処理する */
+	while (*context->msg == '\\') {
+		switch (*(context->msg + 1)) {
+		case 'n':
+			/* 改行 */
+			process_escape_sequence_lf(context);
+			break;
+		case 'f':
+			/* フォント指定 */
+			if (!process_escape_sequence_font(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case 'o':
+			/* アウトライン指定 */
+			if (!process_escape_sequence_outline(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case '#':
+			/* 色指定 */
+			if (!process_escape_sequence_color(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case '@':
+			/* サイズ指定 */
+			if (!process_escape_sequence_size(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case 'w':
+			/* インラインウェイト */
+			if (!process_escape_sequence_wait(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case 'p':
+			/* ペン移動 */
+			if (!process_escape_sequence_pen(context))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		case '^':
+			/* ルビ */
+			if (!process_escape_sequence_ruby(context, x, y, w, h))
+				return; /* 不正: 読み飛ばさない */
+			break;
+		default:
+			/* 不正なエスケープシーケンスなので読み飛ばさない */
+			return;
+		}
+	}
+}
+
+/* 改行("\\n")を処理する */
+static void process_escape_sequence_lf(struct draw_msg_context *context)
+{
+	if (context->ignore_linefeed)
+		return;
+
+	if (!context->use_tategaki) {
+		context->pen_y += context->line_margin;
+		context->pen_x = context->left_margin;
+	} else {
+		context->pen_x -= context->line_margin;
+		context->pen_y = context->top_margin;
+	}
+	context->msg += 2;
+}
+
+/* フォント指定("\\f{X}")を処理する */
+static bool process_escape_sequence_font(struct draw_msg_context *context)
+{
+	char font_type;
+	const char *p;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == 'f');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* 長さが足りない場合 */
+	if (strlen(p + 3) < 6)
+		return false;
+
+	/* '}'をチェックする */
+	if (*(p + 4) != '}')
+		return false;
+
+	if (!context->ignore_font) {
+		/* フォントタイプを読む */
+		font_type = *(p + 3);
+		switch (font_type) {
+		case 'g':
+			context->font = FONT_GLOBAL;
+			break;
+		case 'm':
+			context->font = translate_font_type(FONT_MAIN);
+			break;
+		case 'a':
+			context->font = translate_font_type(FONT_ALT1);
+			break;
+		case 'b':
+			context->font = translate_font_type(FONT_ALT2);
+			break;
+		default:
+			break;
+		}
+	}
+
+	/* "\\#{" + "X" + "}" */
+	context->msg += 3 + 1 + 1;
+	return true;
+}
+
+/* アウトライン指定("\\o{X}")を処理する */
+static bool process_escape_sequence_outline(struct draw_msg_context *context)
+{
+	char outline_type;
+	const char *p;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == 'o');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{') {
+		log_memory();
+		return false;
+	}
+
+	/* 長さが足りない場合 */
+	if (*(p + 3) == '\0') {
+		log_memory();
+		return false;
+	}
+
+	/* '}'をチェックする */
+	if (*(p + 4) != '}') {
+		log_memory();
+		return false;
+	}
+
+	if (!context->ignore_outline) {
+		/* アウトラインタイプを読む */
+		outline_type = *(p + 3);
+		switch (outline_type) {
+		case '+':
+			context->use_outline = true;
+			break;
+		case '-':
+			context->use_outline = false;
+			break;
+		default:
+			break;
+		}
+	}
+
+	/* "\\o{" + "X" + "}" */
+	context->msg += 3 + 1 + 1;
+	return true;
+}
+
+/* 色指定("\\#{RRGGBB}")を処理する */
+static bool process_escape_sequence_color(struct draw_msg_context *context)
+{
+	char color_code[7];
+	const char *p;
+	uint32_t r, g, b;
+	int rgb;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == '#');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* 長さが足りない場合 */
+	if (strlen(p + 3) < 6)
+		return false;
+
+	/* '}'をチェックする */
+	if (*(p + 9) != '}')
+		return false;
+
+	if (!context->ignore_color) {
+		/* カラーコードを読む */
+		memcpy(color_code, p + 3, 6);
+		color_code[6] = '\0';
+		rgb = 0;
+		sscanf(color_code, "%x", &rgb);
+		r = (rgb >> 16) & 0xff;
+		g = (rgb >> 8) & 0xff;
+		b = rgb & 0xff;
+		context->color = make_pixel_slow(0xff, r, g, b);
+	}
+
+	/* "\\#{" + "RRGGBB" + "}" */
+	context->msg += 3 + 6 + 1;
+	return true;
+}
+
+/* サイズ指定("\\@{xxx}")を処理する */
+static bool process_escape_sequence_size(struct draw_msg_context *context)
+{
+	char size_spec[8];
+	const char *p;
+	int i, size;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == '@');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* サイズ文字列を読む */
+	for (i = 0; i < (int)sizeof(size_spec) - 1; i++) {
+		if (*(p + 3 + i) == '\0')
+			return false;
+		if (*(p + 3 + i) == '}')
+			break;
+		size_spec[i] = *(p + 3 + i);
+	}
+	size_spec[i] = '\0';
+
+	if (!context->ignore_size) {
+		/* サイズ文字列を整数に変換する */
+		size = 0;
+		sscanf(size_spec, "%d", &size);
+
+		/* フォントサイズを変更する */
+		context->font_size = size;
+	}
+
+	/* "\\@{" + "xxx" + "}" */
+	context->msg += 3 + i + 1;
+	return true;
+}
+
+/* インラインウェイト("\\w{f.f}")を処理する */
+static bool process_escape_sequence_wait(struct draw_msg_context *context)
+{
+	char time_spec[16];
+	const char *p;
+	float wait_time;
+	int i;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == 'w');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* 時間文字列を読む */
+	for (i = 0; i < (int)sizeof(time_spec) - 1; i++) {
+		if (*(p + 3 + i) == '\0')
+			return false;
+		if (*(p + 3 + i) == '}')
+			break;
+		time_spec[i] = *(p + 3 + i);
+	}
+	time_spec[i] = '\0';
+
+	if (!context->ignore_wait) {
+		/* 時間文字列を浮動小数点数に変換する */
+		sscanf(time_spec, "%f", &wait_time);
+
+		/* ウェイトを処理する */
+		context->runtime_is_inline_wait = true;
+		context->inline_wait_hook(wait_time);
+	}
+
+	/* "\\w{" + "f.f" + "}" */
+	context->msg += 3 + i + 1;
+	return true;
+}
+
+/* ペン移動("\\p{x,y}")を処理する */
+static bool process_escape_sequence_pen(struct draw_msg_context *context)
+{
+	char pos_spec[32];
+	const char *p;
+	int i, pen_x, pen_y;
+	bool separator_found;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == 'p');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* 座標文字列を読む */
+	separator_found = false;
+	for (i = 0; i < (int)sizeof(pos_spec) - 1; i++) {
+		if (*(p + 3 + i) == '\0')
+			return false;
+		if (*(p + 3 + i) == '}')
+			break;
+		if (*(p + 3 + i) == ',')
+			separator_found = true;
+		pos_spec[i] = *(p + 3 + i);
+	}
+	pos_spec[i] = '\0';
+	if (!separator_found)
+		return false;
+
+	if (!context->ignore_position) {
+		/* 座標文字列を浮動小数点数に変換する */
+		sscanf(pos_spec, "%d,%d", &pen_x, &pen_y);
+
+		/* 描画位置を更新する */
+		context->pen_x = pen_x;
+		context->pen_y = pen_y;
+	}
+
+	/* "\\w{" + "x,y" + "}" */
+	context->msg += 3 + i + 1;
+	return true;
+}
+
+/* ルビ("\\^{ルビ}")を処理する */
+static bool process_escape_sequence_ruby(struct draw_msg_context *context,
+					 int *x, int *y, int *w, int *h)
+{
+	char ruby[64];
+	const char *p;
+	uint32_t wc;
+	int i, mblen, ret_w, ret_h;
+
+	p = context->msg;
+	assert(*p == '\\');
+	assert(*(p + 1) == '^');
+
+	/* '{'をチェックする */
+	if (*(p + 2) != '{')
+		return false;
+
+	/* ルビを読む */
+	for (i = 0; i < (int)sizeof(ruby) - 1; i++) {
+		if (*(p + 3 + i) == '\0')
+			return false;
+		if (*(p + 3 + i) == '}')
+			break;
+		ruby[i] = *(p + 3 + i);
+	}
+	ruby[i] = '\0';
+
+	/* \^{ + ruby[] + } */
+	context->msg += 3 + i + 1;
+
+	if (context->ignore_ruby)
+		return true;
+
+	/* 描画する */
+	p = ruby;
+	while (*p) {
+		mblen = utf8_to_utf32(p, &wc);
+		if (mblen == -1)
+			return false;
+
+		draw_glyph_wrapper(context->layer_image,
+				   context->font,
+				   context->ruby_size,
+				   context->ruby_size,
+				   context->use_outline,
+				   context->runtime_ruby_x,
+				   context->runtime_ruby_y,
+				   context->color,
+				   context->outline_color,
+				   wc,
+				   &ret_w,
+				   &ret_h,
+				   context->is_dimming,
+				   context->layer_x,
+				   context->layer_y,
+				   x, y, w, h);
+
+		if (!context->use_tategaki)
+			context->runtime_ruby_x += ret_w;
+		else
+			context->runtime_ruby_y += ret_h;
+
+		p += mblen;
+	}
+
+	return true;
+}
+
+static bool draw_glyph_wrapper(
+	struct image *img,
+	int font, int font_size, int base_font_size, bool use_outline,
+	int x, int y, pixel_t color, pixel_t outline_color,
+	uint32_t wc, int *ret_width, int *ret_height,
+	bool is_dimming,
+	int layer_x, int layer_y,
+	int *union_x, int *union_y, int *union_w, int *union_h)
+{
+	bool ret;
+
+	/* 文字を描画する */
+	ret = draw_glyph(
+		img,
+		font,
+		font_size,
+		base_font_size,
+		use_outline,
+		x,
+		y,
+		color,
+		outline_color,
+		wc,
+		ret_width,
+		ret_height,
+		is_dimming);
+	if (!ret) {
+		/* グリフがない、コードポイントがおかしい、など */
+		return false;
+	}
+
+	/* 更新領域を求める */
+	union_rect(union_x, union_y, union_w, union_h,
+		   *union_x, *union_y, *union_w, *union_h,
+		   layer_x + x, layer_y + y,
+		   *ret_width, *ret_height);
+
+	return true;
+}
+
+/*
+ * Get a pen position.
+ */
+void get_pen_position_common(struct draw_msg_context *context, int *pen_x,
+			     int *pen_y)
+{
+	*pen_x = context->pen_x;
+	*pen_y = context->pen_y;
+}

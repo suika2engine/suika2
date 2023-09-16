@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 #ifndef SUIKA_ANIME_H
@@ -16,6 +16,7 @@
  */
 enum anime_layer {
 	ANIME_LAYER_BG,
+	ANIME_LAYER_BG2,
 	ANIME_LAYER_CHB,
 	ANIME_LAYER_CHL,
 	ANIME_LAYER_CHR,
@@ -23,6 +24,18 @@ enum anime_layer {
 	ANIME_LAYER_MSG,
 	ANIME_LAYER_NAME,
 	ANIME_LAYER_CHF,
+	ANIME_LAYER_TEXT1,
+	ANIME_LAYER_TEXT2,
+	ANIME_LAYER_TEXT3,
+	ANIME_LAYER_TEXT4,
+	ANIME_LAYER_TEXT5,
+	ANIME_LAYER_TEXT6,
+	ANIME_LAYER_TEXT7,
+	ANIME_LAYER_TEXT8,
+	ANIME_LAYER_EFFECT1,
+	ANIME_LAYER_EFFECT2,
+	ANIME_LAYER_EFFECT3,
+	ANIME_LAYER_EFFECT4,
 	ANIME_LAYER_COUNT
 };
 
@@ -81,5 +94,8 @@ get_anime_layer_params(
 	int *x,
 	int *y,
 	int *alpha);
+
+/* アニメレイヤの座標を更新する */
+void set_anime_layer_position(int anime_layer, int x, int y);
 
 #endif

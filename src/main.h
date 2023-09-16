@@ -99,6 +99,7 @@ bool chapter_command(void);
 bool gui_command(int *x, int *y, int *w, int *h);
 bool wms_command(void);
 bool anime_command(int *x, int *y, int *w, int *h);
+bool pencil_command(int *x, int *y, int *w, int *h);
 bool setconfig_command(void);
 
 /*
@@ -160,7 +161,7 @@ void set_non_interruptible(bool mode);
 bool is_non_interruptible(void);
 
 /*
- * ペンの位置
+ * ペンの位置(@ichoose用)
  */
 
 void set_pen_position(int x, int y);

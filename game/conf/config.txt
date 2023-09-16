@@ -310,7 +310,7 @@ switch.font.select=0
 
 # [選択肢のフォントサイズ] (省略可)
 #  - 0を指定するか省略するとメッセージと同じになる
-switch.font.size=38
+switch.font.size=26
 
 # [選択肢のフォントのふちどり] (省略可)
 #  - 0: メッセージボックスと同じ設定
@@ -581,7 +581,7 @@ gui.history.font.outline=0
 gui.history.font.ruby.size=16
 
 # [ヒストリの行間] (省略可)
-gui.history.margin.line=36
+gui.history.margin.line=55
 
 # [ヒストリでカラーを無効にする] (省略可)
 #  - 0: カラーを有効にする

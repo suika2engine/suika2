@@ -103,23 +103,23 @@
 /*
  * The sole vertex shader that is shared between all fragment shaders.
  */
-static GLuint vertex_shader;
+static GLuint vertex_shader = (GLuint)-1;
 
 /*
  * Fragment shaders.
  */
 
 /* The normal alpha blending. */
-static GLuint fragment_shader_normal;
+static GLuint fragment_shader_normal = (GLuint)-1;
 
 /* The character dimming. (RGB 50%) */
-static GLuint fragment_shader_dim;
+static GLuint fragment_shader_dim = (GLuint)-1;
 
 /* The rule shader. (1-bit universal transition) */
-static GLuint fragment_shader_rule;
+static GLuint fragment_shader_rule = (GLuint)-1;
 
 /* The melt shader. (8-bit universal transition) */
-static GLuint fragment_shader_melt;
+static GLuint fragment_shader_melt = (GLuint)-1;
 
 /*
  * Program per fragment shader.
@@ -347,6 +347,10 @@ static void draw_elements(int dst_left, int dst_top,
  */
 bool init_opengl(void)
 {
+#ifdef ANDROID
+	cleanup_opengl();
+#endif
+
 	/* Set a viewport. */
 	glViewport(0, 0, conf_window_width, conf_window_height);
 
@@ -582,27 +586,42 @@ cleanup_fragment_shader(
  */
 void cleanup_opengl(void)
 {
-	cleanup_fragment_shader(fragment_shader_normal,
-				program_normal,
-				vao_normal,
-				vbo_normal,
-				ibo_normal);
-	cleanup_fragment_shader(fragment_shader_dim,
-				program_dim,
-				vao_dim,
-				vbo_dim,
-				ibo_dim);
-	cleanup_fragment_shader(fragment_shader_rule,
-				program_rule,
-				vao_rule,
-				vbo_rule,
-				ibo_rule);
-	cleanup_fragment_shader(fragment_shader_melt,
-				program_melt,
-				vao_melt,
-				vbo_melt,
-				ibo_melt);
-	cleanup_vertex_shader(vertex_shader);
+	if (fragment_shader_normal != (GLuint)-1) {
+		cleanup_fragment_shader(fragment_shader_normal,
+					program_normal,
+					vao_normal,
+					vbo_normal,
+					ibo_normal);
+		fragment_shader_normal = (GLuint)-1;
+	}
+	if (fragment_shader_dim != (GLuint)-1) {
+		cleanup_fragment_shader(fragment_shader_dim,
+					program_dim,
+					vao_dim,
+					vbo_dim,
+					ibo_dim);
+		fragment_shader_dim = (GLuint)-1;
+	}
+	if (fragment_shader_rule != (GLuint)-1) {
+		cleanup_fragment_shader(fragment_shader_rule,
+					program_rule,
+					vao_rule,
+					vbo_rule,
+					ibo_rule);
+		fragment_shader_rule = (GLuint)-1;
+	}
+	if (fragment_shader_melt != (GLuint)-1) {
+		cleanup_fragment_shader(fragment_shader_melt,
+					program_melt,
+					vao_melt,
+					vbo_melt,
+					ibo_melt);
+		fragment_shader_melt = (GLuint)-1;
+	}
+	if (vertex_shader != (GLuint)-1) {
+		cleanup_vertex_shader(vertex_shader);
+		vertex_shader = (GLuint)-1;
+	}
 }
 
 /*

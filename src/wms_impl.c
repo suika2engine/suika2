@@ -13,11 +13,10 @@
  *  - FIXME: memory leaks when the app successfully exits.
  */
 
-static char *saved_bg_file_name;
-static char *saved_ch_file_name[CH_ALL_LAYERS];
-static int saved_ch_x[CH_ALL_LAYERS];
-static int saved_ch_y[CH_ALL_LAYERS];
-static int saved_ch_alpha[CH_ALL_LAYERS];
+static char *saved_layer_file_name[LAYER_EFFECT4 + 1];
+static int saved_layer_x[LAYER_EFFECT4 + 1];
+static int saved_layer_y[LAYER_EFFECT4 + 1];
+static int saved_layer_alpha[LAYER_EFFECT4 + 1];
 
 
 /*
@@ -262,36 +261,37 @@ static bool s2_push_stage(struct wms_runtime *rt)
 
 	UNUSED_PARAMETER(rt);
 
-	if (saved_bg_file_name != NULL) {
-		free(saved_bg_file_name);
-		saved_bg_file_name = NULL;
-	}
-	s = get_bg_file_name();
-	if (s != NULL) {
-		saved_bg_file_name = strdup(s);
-		if (saved_bg_file_name == NULL) {
-			log_memory();
-			return false;
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		/* Exclude the following layers. */
+		switch (i) {
+		case LAYER_MSG:		/* fall-thru */
+		case LAYER_NAME:	/* fall-thru */
+		case LAYER_CLICK:	/* fall-thru */
+		case LAYER_AUTO:	/* fall-thru */
+		case LAYER_SKIP:
+			continue;
+		default:
+			break;
 		}
-	}
 
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		get_ch_position(i, &saved_ch_x[i], &saved_ch_y[i]);
-		saved_ch_alpha[i] = get_ch_alpha(i);
+		saved_layer_x[i] = get_layer_x(i);
+		saved_layer_y[i] = get_layer_y(i);
+		saved_layer_alpha[i] = get_layer_alpha(i);
 
-		if (saved_ch_file_name[i] != NULL) {
-			free(saved_ch_file_name[i]);
-			saved_ch_file_name[i] = NULL;
+		if (saved_layer_file_name[i] != NULL) {
+			free(saved_layer_file_name[i]);
+			saved_layer_file_name[i] = NULL;
 		}
-		s = get_ch_file_name(i);
+
+		s = get_layer_file_name(i);
 		if (s != NULL) {
-			saved_ch_file_name[i] = strdup(s);
-			if (saved_ch_file_name[i] == NULL) {
+			saved_layer_file_name[i] = strdup(s);
+			if (saved_layer_file_name[i] == NULL) {
 				log_memory();
 				return false;
 			}
 		} else {
-			saved_ch_file_name[i] = NULL;
+			saved_layer_file_name[i] = NULL;
 		}
 	}
 
@@ -306,49 +306,77 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 
 	UNUSED_PARAMETER(rt);
 
-	if (saved_bg_file_name == NULL) {
-		/* Do nothing. */
-	} else if (saved_bg_file_name[0] == '#') {
-		/* Restore a color background. */
-		set_bg_file_name(saved_bg_file_name);
-		img = create_image_from_color_string(conf_window_width,
-						     conf_window_height,
-						     &saved_bg_file_name[1]);
-		if (img == NULL)
-			return false;
-		change_bg_immediately(img);
-	} else {
-		/* Restore an image background. */
-		set_bg_file_name(saved_bg_file_name);
-		if (strncmp(saved_bg_file_name, "cg/", 3) == 0) {
-			img = create_image_from_file(CG_DIR,
-						     &saved_bg_file_name[3]);
-		} else {
-			img = create_image_from_file(BG_DIR,
-						     saved_bg_file_name);
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		/* Exclude the following layers. */
+		switch (i) {
+		case LAYER_MSG:		/* fall-thru */
+		case LAYER_NAME:	/* fall-thru */
+		case LAYER_CLICK:	/* fall-thru */
+		case LAYER_AUTO:	/* fall-thru */
+		case LAYER_SKIP:
+			continue;
+		default:
+			break;
 		}
-		if (img == NULL)
-			return false;
-		change_bg_immediately(img);
-	}
 
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		if (saved_ch_file_name[i] == NULL) {
-			set_ch_file_name(i, NULL);
-			img = NULL;
-		} else {
-			set_ch_file_name(i, saved_ch_file_name[i]);
-			img = create_image_from_file(CH_DIR,
-						     saved_ch_file_name[i]);
+		if (i == LAYER_BG && saved_layer_file_name[i] == NULL) {
+			/* Restore an empty background. */
+			img = create_initial_bg();
 			if (img == NULL)
 				return false;
-			free(saved_ch_file_name[i]);
-			saved_ch_file_name[i] = NULL;
+			set_layer_file_name(i, NULL);
+			set_layer_image(i, img);
+		} else if (i == LAYER_BG &&
+			   saved_layer_file_name[i][0] == '#') {
+			/* Restore a color background. */
+			img = create_image_from_color_string(
+				conf_window_width,
+				conf_window_height,
+				&saved_layer_file_name[i][1]);
+			if (img == NULL)
+				return false;
+			if (!set_layer_file_name(i, saved_layer_file_name[i]))
+				return false;
+			set_layer_image(i, img);
+		} else if (i == LAYER_BG) {
+			/* Restore an image background. */
+			if (strncmp(saved_layer_file_name[i], "cg/", 3) == 0) {
+				img = create_image_from_file(
+					CG_DIR,
+					&saved_layer_file_name[i][3]);
+			} else {
+				img = create_image_from_file(
+					BG_DIR,
+					saved_layer_file_name[i]);
+			}
+			if (img == NULL)
+				return false;
+			if (!set_layer_file_name(i, saved_layer_file_name[i]))
+				return false;
+			set_layer_image(i, img);
+		} else if (i < LAYER_TEXT1) {
+			/* Restore an character. */
+			img = create_image_from_file(CH_DIR,
+						     saved_layer_file_name[i]);
+			if (img == NULL)
+				return false;
+			if (!set_layer_file_name(i, saved_layer_file_name[i]))
+				return false;
+			set_layer_image(i, img);
+		} else {
+			/* Restore an image. */
+			img = create_image_from_file(CG_DIR,
+						     saved_layer_file_name[i]);
+			if (img == NULL)
+				return false;
+			if (!set_layer_file_name(i, saved_layer_file_name[i]))
+				return false;
+			set_layer_image(i, img);
 		}
-		change_ch_immediately(i, img, saved_ch_x[i], saved_ch_y[i],
-				      saved_ch_alpha[i]);
-	}
 
+		set_layer_position(i, saved_layer_x[i], saved_layer_y[i]);
+		set_layer_alpha(i, saved_layer_alpha[i]);
+	}
 	return true;
 }
 

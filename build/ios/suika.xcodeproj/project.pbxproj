@@ -10,6 +10,7 @@
 		260C732028730C9E0057B37E /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731E28730C9E0057B37E /* cmd_chapter.c */; };
 		260C732128730C9E0057B37E /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731F28730C9E0057B37E /* glrender.c */; };
 		2610D6572A9B72A500A61C0B /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610D6562A9B72A500A61C0B /* cmd_setconfig.c */; };
+		2684DAD52AB36999007042C1 /* cmd_pencil.c in Sources */ = {isa = PBXBuildFile; fileRef = 2684DAD42AB36999007042C1 /* cmd_pencil.c */; };
 		2689F3C1288C06E600BEF444 /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3BF288C06E600BEF444 /* readimage.c */; };
 		2689F3C2288C06E600BEF444 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3C0288C06E600BEF444 /* readjpeg.c */; };
 		268B09E126D89FE40074577E /* iosmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09E026D89FE40074577E /* iosmain.m */; };
@@ -36,7 +37,6 @@
 		26B385CE26D134EE000A7A1C /* cmd_vol.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859526D134EE000A7A1C /* cmd_vol.c */; };
 		26B385CF26D134EE000A7A1C /* cmd_se.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859626D134EE000A7A1C /* cmd_se.c */; };
 		26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859726D134EE000A7A1C /* cmd_goto.c */; };
-		26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859926D134EE000A7A1C /* cmd_retrospect.c */; };
 		26B385D226D134EE000A7A1C /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B3859D26D134EE000A7A1C /* mixer.c */; };
 		26B385D326D134EE000A7A1C /* cmd_wait.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385A126D134EE000A7A1C /* cmd_wait.c */; };
 		26B385D426D134EE000A7A1C /* wave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385A226D134EE000A7A1C /* wave.c */; };
@@ -47,7 +47,6 @@
 		26B385D926D134EE000A7A1C /* cmd_load.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385AA26D134EE000A7A1C /* cmd_load.c */; };
 		26B385DA26D134EE000A7A1C /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385AE26D134EE000A7A1C /* cmd_setsave.c */; };
 		26B385DB26D134EE000A7A1C /* stage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385AF26D134EE000A7A1C /* stage.c */; };
-		26B385DC26D134EE000A7A1C /* cmd_menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B026D134EE000A7A1C /* cmd_menu.c */; };
 		26B385DE26D134EE000A7A1C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B226D134EE000A7A1C /* main.c */; };
 		26B385DF26D134EE000A7A1C /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B526D134EE000A7A1C /* scbuf.c */; };
 		26B385E026D134EE000A7A1C /* cmd_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385B626D134EE000A7A1C /* cmd_set.c */; };
@@ -73,6 +72,7 @@
 		260C731E28730C9E0057B37E /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../src/cmd_chapter.c; sourceTree = "<group>"; };
 		260C731F28730C9E0057B37E /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../src/glrender.c; sourceTree = "<group>"; };
 		2610D6562A9B72A500A61C0B /* cmd_setconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setconfig.c; path = ../../src/cmd_setconfig.c; sourceTree = "<group>"; };
+		2684DAD42AB36999007042C1 /* cmd_pencil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_pencil.c; path = ../../src/cmd_pencil.c; sourceTree = "<group>"; };
 		2689F3BF288C06E600BEF444 /* readimage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readimage.c; path = ../../src/readimage.c; sourceTree = "<group>"; };
 		2689F3C0288C06E600BEF444 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../src/readjpeg.c; sourceTree = "<group>"; };
 		268B09E026D89FE40074577E /* iosmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iosmain.m; path = ../../src/iosmain.m; sourceTree = "<group>"; };
@@ -132,7 +132,6 @@
 		26B385AD26D134EE000A7A1C /* script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = script.h; path = ../../src/script.h; sourceTree = "<group>"; };
 		26B385AE26D134EE000A7A1C /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		26B385AF26D134EE000A7A1C /* stage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stage.c; path = ../../src/stage.c; sourceTree = "<group>"; };
-		26B385B026D134EE000A7A1C /* cmd_menu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_menu.c; path = ../../src/cmd_menu.c; sourceTree = "<group>"; };
 		26B385B226D134EE000A7A1C /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../src/main.c; sourceTree = "<group>"; };
 		26B385B326D134EE000A7A1C /* aunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aunit.h; path = ../../src/aunit.h; sourceTree = "<group>"; };
 		26B385B426D134EE000A7A1C /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../../src/image.h; sourceTree = "<group>"; };
@@ -205,6 +204,7 @@
 		26B3857C26D13263000A7A1C /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2684DAD42AB36999007042C1 /* cmd_pencil.c */,
 				268B09E026D89FE40074577E /* iosmain.m */,
 				26DA59612A922F0500DBE36B /* anime.c */,
 				26DA595F2A922F0500DBE36B /* anime.h */,
@@ -223,7 +223,6 @@
 				26D910BF2914C8D700876016 /* cmd_gui.c */,
 				26B385BA26D134EE000A7A1C /* cmd_if.c */,
 				26B385AA26D134EE000A7A1C /* cmd_load.c */,
-				26B385B026D134EE000A7A1C /* cmd_menu.c */,
 				26B385BB26D134EE000A7A1C /* cmd_message.c */,
 				26B3859926D134EE000A7A1C /* cmd_retrospect.c */,
 				26B3858926D134EE000A7A1C /* cmd_return.c */,
@@ -365,7 +364,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				26B385E426D134EE000A7A1C /* cmd_bgm.c in Sources */,
-				26B385DC26D134EE000A7A1C /* cmd_menu.c in Sources */,
 				268B09E126D89FE40074577E /* iosmain.m in Sources */,
 				26B385DB26D134EE000A7A1C /* stage.c in Sources */,
 				26B385C526D134EE000A7A1C /* glyph.c in Sources */,
@@ -384,6 +382,7 @@
 				2689F3C2288C06E600BEF444 /* readjpeg.c in Sources */,
 				26B385E326D134EE000A7A1C /* cmd_message.c in Sources */,
 				26B385DA26D134EE000A7A1C /* cmd_setsave.c in Sources */,
+				2684DAD52AB36999007042C1 /* cmd_pencil.c in Sources */,
 				26B385E126D134EE000A7A1C /* aunit.c in Sources */,
 				26B385D326D134EE000A7A1C /* cmd_wait.c in Sources */,
 				26B385CE26D134EE000A7A1C /* cmd_vol.c in Sources */,
@@ -394,7 +393,6 @@
 				26B385CD26D134EE000A7A1C /* history.c in Sources */,
 				26B385CB26D134EE000A7A1C /* save.c in Sources */,
 				26B385C126D134EE000A7A1C /* vars.c in Sources */,
-				26B385D126D134EE000A7A1C /* cmd_retrospect.c in Sources */,
 				2689F3C1288C06E600BEF444 /* readimage.c in Sources */,
 				26DA59622A922F0500DBE36B /* cmd_anime.c in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,

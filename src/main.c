@@ -423,14 +423,6 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		*cont = true;
 		break;
-	case COMMAND_MENU:
-		if (!menu_command(x, y, w, h))
-			return false;
-		break;
-	case COMMAND_RETROSPECT:
-		if (!retrospect_command(x, y, w, h))
-			return false;
-		break;
 	case COMMAND_CHOOSE:
 	case COMMAND_ICHOOSE:
 	case COMMAND_SWITCH:	/* deprecated */
@@ -497,6 +489,10 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		if (!setconfig_command())
 			return false;
 		*cont = true;
+		break;
+	case COMMAND_PENCIL:
+		if (!pencil_command(x, y, w, h))
+			return false;
 		break;
 	default:
 		/* コマンドに対応するcaseを追加し忘れている */

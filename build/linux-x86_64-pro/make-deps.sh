@@ -44,9 +44,7 @@ SRC="\
 	cmd_gui.c \
 	cmd_if.c \
 	cmd_load.c \
-	cmd_menu.c \
 	cmd_message.c \
-	cmd_retrospect.c \
 	cmd_return.c \
 	cmd_se.c \
 	cmd_set.c \

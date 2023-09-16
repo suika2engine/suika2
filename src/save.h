@@ -77,6 +77,9 @@ const char *get_chapter_name(void);
 /* 最後のメッセージを設定する */
 bool set_last_message(const char *msg);
 
+/* テキストレイヤのテキストを設定する */
+bool set_layer_text(int text_layer_index, const char *msg);
+
 /* テキストスピードを設定する */
 void set_text_speed(float val);
 

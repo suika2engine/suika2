@@ -1,0 +1,111 @@
+/* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
+
+/*
+ * Suika 2
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ */
+
+/*
+ * [Changes]
+ *  - 2023/09/14 作成
+ */
+
+#include "suika.h"
+
+/*
+ * pencilコマンド
+ */
+bool pencil_command(int *x, int *y, int *w, int *h)
+{
+	struct draw_msg_context context;
+	struct image *img;
+	const char *text;
+	pixel_t color, outline_color;
+	int layer, layer_x, layer_y, layer_w, layer_h, total_chars;
+
+	/* パラメータを取得する */
+	layer = get_int_param(PENCIL_PARAM_LAYER);
+	text = get_string_param(PENCIL_PARAM_TEXT);
+
+	/* レイヤを制限する */
+	if (layer < 0)
+		layer = 0;
+	if (layer > 3)
+		layer = 3;
+	layer = LAYER_TEXT1 + layer;
+
+	/* 変数を展開する */
+	text = expand_variable(text);
+
+	/* テキストを保存する */
+	if (!set_layer_text(layer, text))
+		return false;
+
+	/* レイヤのサイズを取得する */
+	img = get_layer_image(layer);
+	layer_w = get_image_width(img);
+	layer_h = get_image_height(img);
+
+	/* デフォルトの色を取得する */
+	color = make_pixel_slow(0xff,
+				(pixel_t)conf_font_color_r,
+				(pixel_t)conf_font_color_g,
+				(pixel_t)conf_font_color_b);
+	outline_color =
+		make_pixel_slow(0xff,
+				(pixel_t)conf_font_outline_color_r,
+				(pixel_t)conf_font_outline_color_g,
+				(pixel_t)conf_font_outline_color_b);
+
+	/* 描画する */
+	construct_draw_msg_context(
+		&context,
+		layer,
+		text,
+		conf_font_select,
+		conf_font_size,
+		conf_font_size,
+		conf_font_ruby_size,
+		!conf_font_outline_remove,
+		0,	/* pen_x */
+		0,	/* pen_y */
+		layer_w,
+		layer_h,
+		0,	/* left_margin */
+		0,	/* right_margin */
+		0,	/* top_margin */
+		0,	/* bottom_margin */
+		0,	/* line_margin */
+		conf_msgbox_margin_char,
+		color,
+		outline_color,
+		false,	/* is_dimming */
+		false,	/* ignore_linefeed */
+		false,	/* ignore_font */
+		false,	/* ignore_outline */
+		false,	/* ignore_color */
+		false,	/* ignore_size */
+		false,	/* ignore_position */
+		false,	/* ignore_ruby */
+		true,	/* ignore_wait */
+		NULL,	/* inline_wait_hook */
+		false);	/* use_tategaki */
+	total_chars = count_chars_common(&context);
+	lock_layers_for_msgdraw(layer, -1);
+	{
+		draw_msg_common(&context, total_chars, x, y, w, h);
+	}
+	unlock_layers_for_msgdraw(layer, -1);
+
+	/* 更新領域を追加する */
+	layer_x = get_layer_x(layer);
+	layer_y = get_layer_y(layer);
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   layer_x, layer_y, layer_w, layer_h);
+
+	/* 描画する */
+	draw_stage();
+
+	return move_to_next_command();
+}

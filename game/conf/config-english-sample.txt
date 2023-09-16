@@ -501,7 +501,7 @@ gui.history.font.size=36
 gui.history.font.ruby.size=16
 
 # Line margin for history items (Optional)
-gui.history.margin.line=36
+gui.history.margin.line=55
 
 # Disable color in history (Optional)
 #  - 0: enable colors

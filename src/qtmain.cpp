@@ -54,3 +54,17 @@ const char *conv_utf16_to_utf8(const wchar_t *utf16_message)
 }
 }; // extern "C"
 #endif
+
+//
+// mingw cross compilation
+//
+#if defined(WIN) && defined(MINGW_CROSS)
+extern "C" {
+#include <dxgi1_3.h>
+__asm__(".global CreateDXGIFactory2@12");
+HRESULT CreateDXGIFactory2(UINT Flags, REFIID riid, void **ppFactory)
+{
+    return CreateDXGIFactory1(riid, ppFactory);
+}
+};
+#endif

@@ -1436,10 +1436,6 @@ bool apply_initial_values(void)
 	for (i = 0; i < CH_VOL_SLOTS; i++)
 		set_character_volume(i, conf_sound_vol_character);
 
-	/* グローバルのフォントファイル名をセットする */
-	if (!set_global_font_file_name(conf_font_global_file))
-		return false;
-
 	/* クリックアニメーションのフレーム数をカウントする */
 	for (click_frames = 16; click_frames > 1; click_frames--)
 		if (conf_click_file[click_frames - 1] != NULL)
@@ -1637,22 +1633,24 @@ static bool overwrite_config_locale_force(const char *val)
 	return true;
 }
 
-/* font.nameコンフィグの書き換えを行う */
+/* font.fileコンフィグの書き換えを行う */
 static bool overwrite_config_font_file(const char *val)
 {
 	assert(val != NULL);
 
-	/* font.nameの書き換えを行う */
-	if (strcmp(val, "") == 0) {
-		if (!set_global_font_file_name(val))
+	/* font.fileの書き換えを行う */
+	if (strcmp(val, "") != 0) {
+		assert(conf_font_global_file != NULL);
+		free(conf_font_global_file);
+		conf_font_global_file = strdup(val);
+		if (conf_font_global_file == NULL) {
+			log_memory();
 			return false;
+		}
 	}
 
-	/* フォントサブシステムをクリーンアップする */
-	cleanup_glyph(true);
-
-	/* フォントサブシステムを再初期化する */
-	if (!init_glyph())
+	/* フォントサブシステムを更新する */
+	if (!reconstruct_glyph())
 		return false;
 
 	return true;

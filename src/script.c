@@ -35,6 +35,7 @@
  *  - 2023/08/27 構造化構文に対応
  *  - 2023/08/27 @setconfigに対応
  *  - 2023/08/31 @chsxに対応
+ *  - 2023/09/14 @pencilに対応
  */
 
 #include "suika.h"
@@ -172,8 +173,8 @@ struct insn_item {
 	int max;		/* 最大のパラメータ数 */
 } insn_tbl[] = {
 	/* 背景変更 */
-	{"@bg", COMMAND_BG, 1, 3},
-	{U8("@背景"), COMMAND_BG, 1, 3},
+	{"@bg", COMMAND_BG, 1, 5},
+	{U8("@背景"), COMMAND_BG, 1, 5},
 
 	/* BGM再生 */
 	{"@bgm", COMMAND_BGM, 1, 2},
@@ -277,14 +278,15 @@ struct insn_item {
 	{"@setconfig", COMMAND_SETCONFIG, 1, 2},
 	{U8("@設定"), COMMAND_SETCONFIG, 1, 2},
 
+	/* テキスト描画 */
+	{"@pencil", COMMAND_PENCIL, 1, 2},
+	{U8("@鉛筆"), COMMAND_PENCIL, 1, 2},
+
 	/* その他 */
 	{"@setsave", COMMAND_SETSAVE, 1, 1},
 
 	/* deprecated */
-	{"@select", COMMAND_SELECT, 6, 6},
-	{"@menu", COMMAND_MENU, 7, 83},
 	{"@news", COMMAND_NEWS, 9, 136},
-	{"@retrospect", COMMAND_RETROSPECT, 11, 55},
 	{"@switch", COMMAND_SWITCH, 9, 136},
 };
 
@@ -306,6 +308,8 @@ struct param_item {
 	{COMMAND_BG, BG_PARAM_SPAN, U8("秒=")},
 	{COMMAND_BG, BG_PARAM_METHOD, "effect="},
 	{COMMAND_BG, BG_PARAM_METHOD, U8("エフェクト=")},
+	{COMMAND_BG, BG_PARAM_X, "x="},
+	{COMMAND_BG, BG_PARAM_Y, "y="},
 
 	/* @bgm */
 	{COMMAND_BGM, BG_PARAM_FILE, "file="},
@@ -2057,10 +2061,11 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 			return false;
 		}
 
-		/* @set, @if, @unlessの=は引数名ではない (ex: @set $1 = 0) */
+		/* @set, @if, @unless, @pencilの=は引数名ではない (ex: @set $1 = 0) */
 		if (c->type == COMMAND_SET ||
 		    c->type == COMMAND_IF ||
-		    c->type == COMMAND_UNLESS) {
+		    c->type == COMMAND_UNLESS ||
+		    c->type == COMMAND_PENCIL) {
 			/* =も含んだまま、引数の位置にそのまま格納する */
 			c->param[i] = tp;
 			i++;

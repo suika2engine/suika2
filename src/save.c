@@ -22,6 +22,9 @@
 
 #include "suika.h"
 
+/* セーブデータの互換性バージョン(12.42で導入) */
+#define SAVE_VER	(0xabcd1242)
+
 #ifdef EM
 #include <emscripten/emscripten.h>
 #endif
@@ -355,6 +358,7 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 {
 	struct wfile *wf;
 	uint64_t t;
+	uint32_t ver;
 	bool success;
 
 	/* セーブディレクトリを作成する */
@@ -366,7 +370,13 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 		return false;
 
 	success = false;
+	t = 0;
 	do {
+		/* セーブデータバージョンを書き込む */
+		ver = (uint32_t)SAVE_VER;
+		if (write_wfile(wf, &ver, sizeof(ver)) < sizeof(ver))
+			break;
+
 		/* 日付を書き込む */
 		t = (uint64_t)time(NULL);
 		if (write_wfile(wf, &t, sizeof(t)) < sizeof(t))
@@ -508,9 +518,11 @@ static bool serialize_thumb(struct wfile *wf, int index)
 			return false;
 	}
 	lock_image(save_thumb[index]);
-	draw_image(save_thumb[index], 0, 0, get_thumb_image(),
-		   conf_save_data_thumb_width, conf_save_data_thumb_height, 0, 0,
-		   255, BLEND_NONE);
+	{
+		draw_image(save_thumb[index], 0, 0, get_thumb_image(),
+			   conf_save_data_thumb_width,
+			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
+	}
 	unlock_image(save_thumb[index]);
 
 	/* ピクセル列を準備する */
@@ -561,30 +573,47 @@ static bool serialize_command(struct wfile *wf)
 /* ステージをシリアライズする */
 static bool serialize_stage(struct wfile *wf)
 {
-	const char *s;
-	int i, m, n, o;
+	const char *file, *text;
+	size_t len;
+	int i, x, y, alpha;
 
-	s = get_bg_file_name();
-	if (s == NULL)
-		s = "none";
-	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
-		return false;
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		/* Exclude the following layers. */
+		switch (i) {
+		case LAYER_MSG: continue;
+		case LAYER_NAME: continue;
+		case LAYER_CLICK: continue;
+		case LAYER_AUTO: continue;
+		case LAYER_SKIP: continue;
+		default: break;
+		}
 
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		get_ch_position(i, &m, &n);
-		o = get_ch_alpha(i);
-		if (write_wfile(wf, &m, sizeof(m)) < sizeof(m))
-			return false;
-		if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
-			return false;
-		if (write_wfile(wf, &o, sizeof(o)) < sizeof(o))
+		file = get_layer_file_name(i);
+		if (file == NULL)
+			file = "none";
+		if (write_wfile(wf, file, strlen(file) + 1) < strlen(file) + 1)
 			return false;
 
-		s = get_ch_file_name(i);
-		if (s == NULL)
-			s = "none";
-		if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
+		x = get_layer_x(i);
+		y = get_layer_y(i);
+		if (write_wfile(wf, &x, sizeof(x)) < sizeof(x))
 			return false;
+		if (write_wfile(wf, &y, sizeof(y)) < sizeof(y))
+			return false;
+
+		alpha = get_layer_alpha(i);
+		if (write_wfile(wf, &alpha, sizeof(alpha)) < sizeof(alpha))
+			return false;
+
+		if (i >= LAYER_TEXT1 && i <= LAYER_TEXT8) {
+			text = get_layer_text(i);
+			if (text == NULL)
+				text = "";
+
+			len = strlen(text) + 1;
+			if (write_wfile(wf, text, len) < len)
+				return false;
+		}
 	}
 
 	return true;
@@ -849,6 +878,7 @@ static bool deserialize_all(const char *fname)
 	struct rfile *rf;
 	uint64_t t;
 	size_t img_size;
+	uint32_t ver;
 	bool success;
 
 	/* ファイルを開く */
@@ -858,19 +888,25 @@ static bool deserialize_all(const char *fname)
 
 	success = false;
 	do {
+		/* セーブデータバージョンを読み込む */
+		if (read_rfile(rf, &ver, sizeof(ver)) < sizeof(ver))
+			break;
+		if (ver != SAVE_VER) {
+			log_save_ver();
+			break;
+		}
+
 		/* 日付を読み込む (読み飛ばす) */
 		if (read_rfile(rf, &t, sizeof(t)) < sizeof(t))
 			break;
 
 		/* 章題を読み込む */
-		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
-			break;
-		if (!set_chapter_name(tmp_str))
-			break;
+		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) != NULL)
+			if (!set_chapter_name(tmp_str))
+				break;
 
 		/* メッセージを読み込む (読み飛ばす) */
-		if (gets_rfile(rf, tmp_str, sizeof(tmp_str)) == NULL)
-			break;
+		gets_rfile(rf, tmp_str, sizeof(tmp_str));
 
 		/* サムネイルを読み込む (読み飛ばす) */
 		img_size = (size_t)(conf_save_data_thumb_width *
@@ -949,59 +985,82 @@ static bool deserialize_command(struct rfile *rf)
 /* ステージのデシリアライズを行う */
 static bool deserialize_stage(struct rfile *rf)
 {
-	char s[1024];
+	char text[4096];
 	struct image *img;
-	int m, n, o, i;
+	int i, x, y, alpha;
 
-	if (gets_rfile(rf, s, sizeof(s)) == NULL)
-		return false;
-
-	if (strcmp(s, "none") == 0) {
-		set_bg_file_name(NULL);
-		img = create_initial_bg();
-		if (img == NULL)
-			return false;;
-	} else if (s[0] == '#') {
-		set_bg_file_name(s);
-		img = create_image_from_color_string(conf_window_width,
-						     conf_window_height,
-						     &s[1]);
-		if (img == NULL)
-			return false;
-	} else {
-		set_bg_file_name(s);
-		if (strncmp(s, "cg/", 3) == 0)
-			img = create_image_from_file(CG_DIR, &s[3]);
-		else
-			img = create_image_from_file(BG_DIR, s);
-		if (img == NULL)
-			return false;
-	}
-
-	change_bg_immediately(img);
-
-	for (i = 0; i < CH_ALL_LAYERS; i++) {
-		if (read_rfile(rf, &m, sizeof(m)) < sizeof(n))
-			return false;
-		if (read_rfile(rf, &n, sizeof(n)) < sizeof(m))
-			return false;
-		if (read_rfile(rf, &o, sizeof(o)) < sizeof(o))
-			return false;
-		if (gets_rfile(rf, s, sizeof(s)) == NULL)
-			return false;
-
-		assert(strcmp(s, "") != 0);
-		if (strcmp(s, "none") == 0) {
-			set_ch_file_name(i, NULL);
-			img = NULL;
-		} else {
-			set_ch_file_name(i, s);
-			img = create_image_from_file(CH_DIR, s);
-			if (img == NULL)
-				return false;
+	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+		/* Exclude the following layers. */
+		switch (i) {
+		case LAYER_MSG: continue;
+		case LAYER_NAME: continue;
+		case LAYER_CLICK: continue;
+		case LAYER_AUTO: continue;
+		case LAYER_SKIP: continue;
+		default: break;
 		}
 
-		change_ch_immediately(i, img, m, n, o);
+		/* File name. */
+		if (gets_rfile(rf, text, sizeof(text)) == NULL)
+			strcpy(text, "none");
+		if (i == LAYER_BG) {
+			if (strcmp(text, "none") == 0) {
+				set_layer_file_name(i, NULL);
+				img = create_initial_bg();
+				if (img == NULL)
+					return false;;
+			} else if (text[0] == '#') {
+				if (!set_layer_file_name(i, text))
+					return false;
+				img = create_image_from_color_string(
+					conf_window_width,
+					conf_window_height,
+					&text[1]);
+				if (img == NULL)
+					return false;
+			} else {
+				set_layer_file_name(i, text);
+				if (strncmp(text, "cg/", 3) == 0) {
+					img = create_image_from_file(
+						CG_DIR, &text[3]);
+				} else {
+					img = create_image_from_file(
+						BG_DIR, text);
+				}
+				if (img == NULL)
+					return false;
+			}
+		} else {
+			if (strcmp(text, "none") == 0) {
+				set_layer_file_name(i, NULL);
+				img = NULL;
+			} else {
+				set_layer_file_name(i, text);
+				img = create_image_from_file(CH_DIR, text);
+				if (img == NULL)
+					return false;
+			}
+		}
+
+		/* Position. */
+		if (read_rfile(rf, &x, sizeof(x)) < sizeof(x))
+			return false;
+		if (read_rfile(rf, &y, sizeof(y)) < sizeof(y))
+			return false;
+		set_layer_position(i, x, y);
+
+		/* Alpha. */
+		if (read_rfile(rf, &alpha, sizeof(alpha)) < sizeof(alpha))
+			return false;
+		set_layer_alpha(i, alpha);
+
+		/* Text. */
+		if (i >= LAYER_TEXT1 && i <= LAYER_TEXT8) {
+			if (gets_rfile(rf, text, sizeof(text)) != NULL)
+				set_layer_text(i, text);
+			else
+				set_layer_text(i, NULL);
+		}
 	}
 
 	return true;
@@ -1176,14 +1235,16 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 	if (save_thumb[index] == NULL)
 		return;
 	lock_image(save_thumb[index]);
-	dst = get_image_pixels(save_thumb[index]);
-	src = tmp_pixels;
-	for (y = 0; y < conf_save_data_thumb_height; y++) {
-		for (x = 0; x < conf_save_data_thumb_width; x++) {
-			r = *src++;
-			g = *src++;
-			b = *src++;
-			*dst++ = make_pixel_slow(0xff, r, g, b);
+	{
+		dst = get_image_pixels(save_thumb[index]);
+		src = tmp_pixels;
+		for (y = 0; y < conf_save_data_thumb_height; y++) {
+			for (x = 0; x < conf_save_data_thumb_width; x++) {
+				r = *src++;
+				g = *src++;
+				b = *src++;
+				*dst++ = make_pixel_slow(0xff, r, g, b);
+			}
 		}
 	}
 	unlock_image(save_thumb[index]);
@@ -1199,12 +1260,31 @@ static void load_global_data(void)
 	char fname[128];
 	struct rfile *rf;
 	float f;
+	uint32_t ver;
 	int i;
 
 	/* ファイルを開く */
 	rf = open_rfile(SAVE_DIR, GLOBAL_VARS_FILE, true);
 	if (rf == NULL)
 		return;
+
+	/* セーブデータのバージョンを読む */
+<<<<<<< HEAD
+	if (read_rfile(rf, &ver, sizeof(uint32_t) != sizeof(uint32_t)))
+		return;
+	if (ver != SAVE_VER) {
+		/* セーブデータの互換性がないので読み込まない */
+		log_save_ver();
+		close_rfile(rf);
+=======
+	if (read_rfile(rf, &ver, sizeof(int32_t) != sizeof(uint32_t)))
+		return;
+	if (ver != SAVE_VER) {
+		/* セーブデータの互換性がないので読み込まない */
+		close_rfile(&rf);
+>>>>>>> 81980a7 (bugfix: fix texture lock leak)
+		return;
+	}
 
 	/* グローバル変数をデシリアライズする */
 	read_rfile(rf, get_global_variables_pointer(),
@@ -1244,7 +1324,8 @@ static void load_global_data(void)
 
 	/* フォントファイル名をデシリアライズする */
 	if (gets_rfile(rf, fname, sizeof(fname)) != NULL)
-	    set_global_font_file_name(fname);
+		if (strcmp(fname, "") != 0)
+			preinit_set_global_font_file_name(fname);
 
 	/* コンフィグをデシリアライズする */
 	deserialize_config_common(rf);
@@ -1260,6 +1341,7 @@ void save_global_data(void)
 {
 	struct wfile *wf;
 	const char *fname;
+	uint32_t ver;
 	float f;
 	int i;
 
@@ -1270,6 +1352,10 @@ void save_global_data(void)
 	wf = open_wfile(SAVE_DIR, GLOBAL_VARS_FILE);
 	if (wf == NULL)
 		return;
+
+	/* セーブデータのバージョンを書き出す */
+	ver = SAVE_VER;
+	write_wfile(wf, &ver, sizeof(uint32_t));
 
 	/* グローバル変数をシリアライズする */
 	write_wfile(wf, get_global_variables_pointer(),
@@ -1399,7 +1485,6 @@ void set_text_speed(float val)
 
 	msg_text_speed = val;
 }
-
 /*
  * テキストスピードを取得する
  */

@@ -24,6 +24,7 @@
  *  - 2023/08/14 文字色、サイズの変更を実装
  *  - 2023/08/19 インラインウェイトの実装
  *  - 2023/08/19 ペン移動の実装
+ *  - 2023/09/12 メッセージ描画の共通化
  */
 
 /*
@@ -108,12 +109,8 @@ static char *msg_top;
  * 描画状態
  */
 
-/*
- * 描画する本文の現在の先頭位置
- *  - msg_topから開始される
- *  - 描画(またはエスケープシーケンスとして解釈)された分だけポインタが進む
- */
-static const char *msg_cur;
+/* 本文の描画状態 */
+struct draw_msg_context msgbox_context;
 
 /*
  * 描画する文字の総数
@@ -125,9 +122,6 @@ static int total_chars;
 
 /* すでに描画した文字数 (0 <= drawn_chars <= total_chars) */
 static int drawn_chars;
-
-/* スペースの直後であるか (日本語以外のワードラッピング用) */
-static bool is_after_space;
 
 /*
  * 描画位置
@@ -150,13 +144,6 @@ static int msgbox_x;
 static int msgbox_y;
 static int msgbox_w;
 static int msgbox_h;
-
-/* ルビ用のペン位置 */
-static int pen_ruby_x;
-static int pen_ruby_y;
-
-/* 名前ボックスの描画中であるか */
-static bool is_drawing_namebox;
 
 /*
  * 色
@@ -331,25 +318,20 @@ static void init_flags_and_vars(void);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool init_name_top(void);
+static void init_font_color(void);
 static bool init_msg_top(void);
 static bool is_escape_sequence_char(char c);
 static const char *skip_lf(const char *m, int *lf);
 static void put_space(void);
 static bool register_message_for_history(const char *msg);
 static char *concat_serif(const char *name, const char *serif);
-static int count_chars(const char *msg);
-static bool search_for_end_of_escape_sequence(const char **msg);
-static void init_font_color(void);
+static void init_msgbox(int *x, int *y, int *w, int *h);
 static bool init_serif(int *x, int *y, int *w, int *h);
 static bool check_play_voice(void);
 static bool play_voice(void);
 static void set_character_volume_by_name(const char *name);
 static void draw_namebox(void);
-static int get_namebox_width(void);
 static void focus_character(void);
-static void init_font_size(void);
-static void init_pen(void);
-static void init_msgbox(int *x, int *y, int *w, int *h);
 static void init_click(void);
 static void init_first_draw_area(int *x, int *y, int *w, int *h);
 static void init_pointed_index(void);
@@ -389,23 +371,11 @@ static void draw_frame(int *x, int *y, int *w, int *h);
 static bool is_end_of_msg(void);
 static void set_end_of_msg(void);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
+static void inline_wait_hook(float wait_time);
 static int get_frame_chars(void);
 static bool is_canceled_by_skip(void);
 static bool is_fast_forward_by_click(void);
 static int calc_frame_chars_by_lap(void);
-static void process_escape_sequence(const char **s);
-static void process_escape_sequence_lf(const char **s);
-static bool process_escape_sequence_color(const char **s);
-static bool process_escape_sequence_size(const char **s);
-static bool process_escape_sequence_wait(const char **s);
-static bool process_escape_sequence_pen(const char **s);
-static bool process_escape_sequence_ruby(const char **s);
-static void do_word_wrapping(void);
-static uint32_t convert_tategaki_char(uint32_t wc);
-static bool is_tategaki_punctuation(uint32_t wc);
-static int get_en_word_width(void);
-static void process_lf(uint32_t c, int glyph_width, int glyph_height);
-static bool is_small_kana(uint32_t wc);
 static void draw_click(int *x, int *y, int *w, int *h);
 static bool check_stop_click_animation(void);
 static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
@@ -570,6 +540,7 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 	 *  - アニメ中、またはGPU利用時は、画面全体の描画になる
 	 *  - アニメのアップデート処理はこの内部で行われる
 	 */
+	union_rect(x, y, w, h, 0, 0, 0, 0, 0, 0, 0, 0); /* normalize */
 	draw_stage_rect(*x, *y, *w, *h);
 
 	/* システムメニューを描画する */
@@ -660,6 +631,9 @@ static bool init(int *x, int *y, int *w, int *h)
 	if (!init_msg_top())
 		return false;
 
+	/* メッセージボックスを初期化する */
+	init_msgbox(x, y, w, h);
+
 	/* セリフ固有の初期化を行う */
 	if (!init_serif(x, y, w, h))
 		return false;
@@ -673,15 +647,6 @@ static bool init(int *x, int *y, int *w, int *h)
 	 */
 	if (!gui_sys_flag)
 		set_message_active();
-
-	/* メッセージボックスを初期化する */
-	init_msgbox(x, y, w, h);
-
-	/* フォントのサイズを初期化する */
-	init_font_size();
-
-	/* ペンの位置を初期化する */
-	init_pen();
 
 	/* クリックアニメーションを非表示の状態にする */
 	init_click();
@@ -834,6 +799,56 @@ static bool init_name_top(void)
 	return true;
 }
 
+/* 文字色を求める */
+static void init_font_color(void)
+{
+	int i;
+
+	/* システムGUIから戻った場合 */
+	if (gui_sys_flag)
+		return;
+
+	/* 色は、まずデフォルトの色をロードする */
+	body_color = make_pixel_slow(0xff,
+				     (pixel_t)conf_font_color_r,
+				     (pixel_t)conf_font_color_g,
+				     (pixel_t)conf_font_color_b);
+	body_outline_color =
+		make_pixel_slow(0xff,
+				(pixel_t)conf_font_outline_color_r,
+				(pixel_t)conf_font_outline_color_g,
+				(pixel_t)conf_font_outline_color_b);
+	name_color = body_color;
+	name_outline_color = body_outline_color;
+
+	/* セリフの場合は、名前リストにあれば色を変更する */
+	if (get_command_type() == COMMAND_SERIF) {
+		/* コンフィグでnameの指す名前が指定されているか */
+		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
+			if (conf_serif_color_name[i] == NULL)
+				continue;
+			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
+				/* コンフィグで指定された色にする */
+				name_color = make_pixel_slow(
+					0xff,
+					(uint32_t)conf_serif_color_r[i],
+					(uint32_t)conf_serif_color_g[i],
+					(uint32_t)conf_serif_color_b[i]);
+				name_outline_color = make_pixel_slow(
+					0xff,
+					(uint32_t)conf_serif_outline_color_r[i],
+					(uint32_t)conf_serif_outline_color_g[i],
+					(uint32_t)conf_serif_outline_color_b[i]);
+				if (!conf_serif_color_name_only) {
+					body_color = name_color;
+					body_outline_color = name_outline_color;
+				}
+				return;
+			}
+		}
+	}
+}
+
 /* メッセージを取得する */
 static bool init_msg_top(void)
 {
@@ -921,16 +936,6 @@ static bool init_msg_top(void)
 		msg_top = exp_msg;
 	}
 
-	/* 表示位置を保存する */
-	msg_cur = msg_top;
-
-	/* メッセージの文字数を求める */
-	total_chars = count_chars(msg_cur);
-	drawn_chars = 0;
-
-	/* 先頭文字はスペースの直後とみなす */
-	is_after_space = true;
-
 	/* ロードで開始された場合は、行継続モードを解除する */
 	if (load_flag && is_continue_mode)
 		is_continue_mode = false;
@@ -991,7 +996,7 @@ static void put_space(void)
 	int cw, ch;
 
 	if (!conf_msgbox_tategaki) {
-		cw = get_glyph_width(' ');
+		cw = get_glyph_width(conf_font_select, conf_font_size, ' ');
 		if (pen_x + cw >= msgbox_w - conf_msgbox_margin_right) {
 			pen_y += conf_msgbox_margin_line;
 			pen_x = conf_msgbox_margin_left;
@@ -999,7 +1004,7 @@ static void put_space(void)
 			pen_x += cw;
 		}
 	} else {
-		ch = get_glyph_height(' ');
+		ch = get_glyph_height(conf_font_select, conf_font_size, ' ');
 		if (pen_y + ch >= msgbox_h - conf_msgbox_margin_bottom) {
 			pen_y = conf_msgbox_margin_top;
 			pen_x -= conf_msgbox_margin_line;
@@ -1119,122 +1124,81 @@ static char *concat_serif(const char *name, const char *serif)
 	return ret;
 }
 
-/*
- * エスケープシーケンスを除いた文字数を取得する
- *  - Unicodeの合成はサポートしていない
- *  - 基底文字+結合文字はそれぞれ1文字としてカウントする
- */
-static int count_chars(const char *msg)
+/* メッセージボックスを初期化する */
+static void init_msgbox(int *x, int *y, int *w, int *h)
 {
-	uint32_t wc;
-	int count, mblen;
-
-	count = 0;
-	while (*msg) {
-		/* 先頭のエスケープシーケンスを読み飛ばす */
-		while (*msg == '\\') {
-			switch (*(msg + 1)) {
-			case 'n':	/* 改行 */
-				msg += 2;
-				break;
-			case '#':	/* 色指定 */
-			case '@':	/* サイズ指定 */
-			case 'w':	/* インラインウェイト */
-			case 'p':	/* ペン移動 */
-			case '^':	/* ルビ */
-				if (!search_for_end_of_escape_sequence(&msg))
-					return count;
-				break;
-			default:
-				/*
-				 * 不正なエスケープシーケンス
-				 *  - 読み飛ばさない
-				 */
-				return count;
-			}
-		}
-		if (*msg == '\0')
-			break;
-
-		/* 次の1文字を取得する */
-		mblen = utf8_to_utf32(msg, &wc);
-		if (mblen == -1)
-			break;
-
-		msg += mblen;
-		count++;
-	}
-
-	return count;
-}
-
-/* エスケープシーケンスの終了位置を探す */
-static bool search_for_end_of_escape_sequence(const char **msg)
-{
-	const char *s;
-	int len;
-
-	s = *msg;
-	len = 0;
-	while (*s != '\0' && *s != '}') {
-		s++;
-		len++;
-	}
-	if (*s == '\0')
-		return false;
-
-	*msg += len + 1;
-	return true;
-}
-
-/* 文字色を求める */
-static void init_font_color(void)
-{
-	int i;
-
 	/* システムGUIから戻った場合 */
 	if (gui_sys_flag)
 		return;
 
-	/* 色は、まずデフォルトの色をロードする */
-	body_color = make_pixel_slow(0xff,
-				     (pixel_t)conf_font_color_r,
-				     (pixel_t)conf_font_color_g,
-				     (pixel_t)conf_font_color_b);
-	body_outline_color =
-		make_pixel_slow(0xff,
-				(pixel_t)conf_font_outline_color_r,
-				(pixel_t)conf_font_outline_color_g,
-				(pixel_t)conf_font_outline_color_b);
-	name_color = body_color;
-	name_outline_color = body_outline_color;
+	/* メッセージボックスの矩形を取得する */
+	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
 
-	/* セリフの場合は、名前リストにあれば色を変更する */
-	if (get_command_type() == COMMAND_SERIF) {
-		/* コンフィグでnameの指す名前が指定されているか */
-		for (i = 0; i < SERIF_COLOR_COUNT; i++) {
-			if (conf_serif_color_name[i] == NULL)
-				continue;
-			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
-				/* コンフィグで指定された色にする */
-				name_color = make_pixel_slow(
-					0xff,
-					(uint32_t)conf_serif_color_r[i],
-					(uint32_t)conf_serif_color_g[i],
-					(uint32_t)conf_serif_color_b[i]);
-				name_outline_color = make_pixel_slow(
-					0xff,
-					(uint32_t)conf_serif_outline_color_r[i],
-					(uint32_t)conf_serif_outline_color_g[i],
-					(uint32_t)conf_serif_outline_color_b[i]);
-				if (!conf_serif_color_name_only) {
-					body_color = name_color;
-					body_outline_color = name_outline_color;
-				}
-				return;
-			}
+	/* 更新領域に含める */
+	union_rect(x, y, w, h,
+		   *x, *y, *w, *h,
+		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
+
+	/* 継続行でなければ、メッセージの描画位置を初期化する */
+	if (!is_continue_mode) {
+		if (!conf_msgbox_tategaki) {
+			pen_x = conf_msgbox_margin_left;
+			pen_y = conf_msgbox_margin_top;
+		} else {
+			pen_x = msgbox_w - conf_msgbox_margin_right -
+				conf_font_size;
+			pen_y = conf_msgbox_margin_top;
 		}
 	}
+
+	/* 重ね塗りをする場合のためにペン位置を保存する */
+	orig_pen_x = pen_x;
+	orig_pen_y = pen_y;
+
+	/* 行継続でなければ、メッセージレイヤをクリアする */
+	if (!is_continue_mode)
+		fill_msgbox();
+
+	/* メッセージレイヤを可視にする */
+	show_msgbox(true);
+
+	/* メッセージ描画のコンテキストを構築する */
+	construct_draw_msg_context(
+		&msgbox_context,
+		LAYER_MSG,
+		msg_top,
+		conf_font_select,
+		conf_font_size,
+		conf_font_size,
+		conf_font_ruby_size,
+		!conf_font_outline_remove,
+		pen_x,
+		pen_y,
+		msgbox_w,
+		msgbox_h,
+		conf_msgbox_margin_left,
+		conf_msgbox_margin_right,
+		conf_msgbox_margin_top,
+		conf_msgbox_margin_bottom,
+		conf_msgbox_margin_line,
+		conf_msgbox_margin_char,
+		body_color,
+		body_outline_color,
+		false,	/* is_dimming */
+		false,	/* ignore_linefeed */
+		false,	/* ignore_font */
+		false,	/* ignore_outline */
+		false,	/* ignore_color */
+		false,	/* ignore_size */
+		false,	/* ignore_position */
+		false,	/* ignore_ruby */
+		false,	/* ignore_wait */
+		inline_wait_hook,
+		conf_msgbox_tategaki);
+
+	/* 文字数をカウントする */
+	total_chars = count_chars_common(&msgbox_context);
+	drawn_chars = 0;
 }
 
 /* セリフコマンドを処理する */
@@ -1359,7 +1323,7 @@ static bool play_voice(void)
 	if (repeat) {
 		beep_factor = conf_beep_adjustment == 0 ?
 			      1 : conf_beep_adjustment;
-		times = (int)((float)count_chars(msg_cur) /
+		times = (int)((float)count_chars_common(&msgbox_context) /
 			      conf_msgbox_speed * beep_factor /
 			      (get_text_speed() + 0.1));
 		times = times == 0 ? 1 : times;
@@ -1401,80 +1365,86 @@ static void set_character_volume_by_name(const char *name)
 /* 名前ボックスを描画する */
 static void draw_namebox(void)
 {
-	uint32_t wc;
-	int char_count, mblen, i, ret_width, ret_height;
-	const char *name;
+	struct draw_msg_context context;
+	int font_size, pen_x, pen_y, char_count;
+	int namebox_x, namebox_y, namebox_width, namebox_height;
+	int ret_x, ret_y, ret_w, ret_h;
+	bool use_outline;
 
-	/* フォントを設定する */
-	select_font(conf_namebox_font_select);
-	set_font_size(conf_namebox_font_size > 0 ?
-		      conf_namebox_font_size : conf_font_size);
+	/* フォントサイズを取得する */
+	font_size = conf_namebox_font_size > 0 ?
+		conf_namebox_font_size : conf_font_size;
+
+	/* ふちどりを行うかを取得する */
 	switch (conf_namebox_font_outline) {
-	case 0: set_font_outline(!conf_font_outline_remove); break;
-	case 1: set_font_outline(true); break;
-	case 2: set_font_outline(false); break;
-	default: break;
+	case 0: use_outline = !conf_font_outline_remove; break;
+	case 1: use_outline = true; break;
+	case 2: use_outline = false; break;
+	default: use_outline = false; break;
 	}
 
-	/* 名前の文字列を取得する */
-	name = name_top;
-
-	/* 名前の文字数を取得する */
-	char_count = count_chars(name);
-	if (char_count == 0)
-		return;
+	/* 名前ボックスのサイズを取得する */
+	get_namebox_rect(&namebox_x, &namebox_y, &namebox_width,
+			 &namebox_height);
 
 	/* 描画位置を決める */
-	if (!conf_namebox_centering_no)
-		pen_x = (get_namebox_width() - get_utf8_width(name)) / 2;
-	else
+	if (!conf_namebox_centering_no) {
+		pen_x = (namebox_width -
+			 get_string_width(conf_namebox_font_select,
+					  font_size,
+					  name_top)) / 2;
+		pen_y = conf_namebox_margin_top;
+	} else {
 		pen_x = conf_namebox_margin_left;
-	pen_y = conf_namebox_margin_top;
-	pen_ruby_y = pen_y - conf_font_ruby_size;
-
-	/* 名前ボックスをクリアする */
-	clear_namebox();
-
-	/* 1文字ずつ描画する */
-	is_drawing_namebox = true;
-	for (i = 0; i < char_count; i++) {
-		assert(*name != '\0');
-
-		/* 途中のエスケープシーケンスを処理する */
-		process_escape_sequence(&name);
-
-		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(name, &wc);
-		if (mblen == -1)
-			return;
-
-		/* 描画する */
-		draw_char_on_namebox(pen_x, pen_y, wc, name_color,
-				     name_outline_color, &ret_width,
-				     &ret_height, conf_font_size, false);
-
-		/* ペン位置を更新する */
-		pen_ruby_x = pen_x;
-		pen_x += ret_width;
-
-		/* 次の文字へ移動する */
-		name += mblen;
+		pen_y = conf_namebox_margin_top;
 	}
 
-	/* 末尾のエスケープシーケンスを処理する */
-	process_escape_sequence(&name);
+	/* 名前ボックスレイヤを名前ボックス画像で埋める */
+	fill_namebox();
 
-	is_drawing_namebox = false;
-}
+	/* 文字描画コンテキストを作成する */
+	construct_draw_msg_context(
+		&context,
+		LAYER_NAME,
+		name_top,
+		conf_namebox_font_select,
+		font_size,
+		font_size,		/* base_font_size */
+		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
+		use_outline,
+		pen_x,
+		pen_y,
+		namebox_width,
+		namebox_height,
+		conf_namebox_margin_left,
+		0,			/* right_margin */
+		conf_namebox_margin_top,
+		0,			/* bottom_margin */
+		0,			/* line_margin */
+		conf_msgbox_margin_char,
+		name_color,
+		name_outline_color,
+		false,			/* is_dimming */
+		false,			/* ignore_linefeed */
+		false,			/* ignore_font*/
+		false,			/* ignore_outline */
+		false,			/* ignore_color */
+		false,			/* ignore_size */
+		false,			/* ignore_position */
+		false,			/* ignore_ruby */
+		true,			/* ignore_wait */
+		NULL,			/* inline_wait_hook */
+		false);			/* use_tategaki */
 
-/* 名前ボックスの幅を取得する */
-static int get_namebox_width(void)
-{
-	int x, y, w, h;
+	/* 名前の文字数を取得する */
+	char_count = count_chars_common(&context);
 
-	get_namebox_rect(&x, &y, &w, &h);
-
-	return w;
+	/* 文字描画する */
+	lock_layers_for_msgdraw(LAYER_NAME, -1);
+	{
+		draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+	}
+	unlock_layers_for_msgdraw(LAYER_NAME, -1);
 }
 
 /* キャラクタのフォーカスを行う */
@@ -1502,7 +1472,7 @@ static void focus_character(void)
 	/* すべてのキャラクタについて設定する */
 	for (j = 0; j < CH_BASIC_LAYERS; j++) {
 		/* キャラがロードされていない位置なら飛ばす */
-		fname = get_ch_file_name(j);
+		fname = get_layer_file_name(chpos_to_layer(j));
 		if (fname == NULL)
 			continue;
 
@@ -1516,64 +1486,6 @@ static void focus_character(void)
 			set_ch_dim(j, true);
 		}
 	}
-}
-
-/* フォントサイズを初期化する */
-static void init_font_size(void)
-{
-	select_font(conf_font_select);
-	set_font_size(conf_font_size);
-	set_font_outline(!conf_font_outline_remove);
-}
-
-/* ペンの位置を初期化する */
-static void init_pen(void)
-{
-	/* システムGUIから戻った場合 */
-	if (gui_sys_flag)
-		return;
-
-	/* 継続行でなければ、メッセージの描画位置を初期化する */
-	if (!is_continue_mode) {
-		if (!conf_msgbox_tategaki) {
-			pen_x = conf_msgbox_margin_left;
-			pen_y = conf_msgbox_margin_top;
-		} else {
-			pen_x = msgbox_w - conf_msgbox_margin_right -
-				conf_font_size;
-			pen_y = conf_msgbox_margin_top;
-		}
-	}
-
-	/* 重ね塗りをする場合 */
-	if (conf_msgbox_dim) {
-		/* 描画開始位置を保存する */
-		orig_pen_x = pen_x;
-		orig_pen_y = pen_y;
-	}
-}
-
-/* メッセージボックスを初期化する */
-static void init_msgbox(int *x, int *y, int *w, int *h)
-{
-	/* システムGUIから戻った場合 */
-	if (gui_sys_flag)
-		return;
-
-	/* メッセージボックスの矩形を取得する */
-	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
-
-	/* 更新領域に含める */
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
-
-	/* 行継続でなければ、メッセージレイヤをクリアする */
-	if (!is_continue_mode)
-		clear_msgbox();
-
-	/* メッセージレイヤを可視にする */
-	show_msgbox(true);
 }
 
 /* クリックアニメーションを初期化する */
@@ -1637,14 +1549,14 @@ static void init_pointed_index(void)
 	if (pointed_index == BTN_NONE) {
 		for (i = 0; i <= MAX_BTN; i++) {
 			get_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
-			clear_msgbox_rect_with_bg(btn_x, btn_y, btn_w, btn_h);
+			fill_msgbox_rect_with_bg(btn_x, btn_y, btn_w, btn_h);
 		}
 		return;
 	}
 
 	/* ポイントされているボタンのfgを描画する */
 	get_button_rect(pointed_index, &btn_x, &btn_y, &btn_w, &btn_h);
-	clear_msgbox_rect_with_fg(btn_x, btn_y, btn_w, btn_h);
+	fill_msgbox_rect_with_fg(btn_x, btn_y, btn_w, btn_h);
 }
 
 /* 選択中のボタンを取得する */
@@ -2015,7 +1927,7 @@ static bool draw_buttons(int *x, int *y, int *w, int *h)
 	if (last_pointed_index != BTN_NONE) {
 		get_button_rect(last_pointed_index, &btn_x, &btn_y, &btn_w,
 				&btn_h);
-		clear_msgbox_rect_with_bg(btn_x, btn_y, btn_w, btn_h);
+		fill_msgbox_rect_with_bg(btn_x, btn_y, btn_w, btn_h);
 		union_rect(x, y, w, h,
 			   *x, *y, *w, *h,
 			   btn_x + conf_msgbox_x, btn_y + conf_msgbox_y,
@@ -2025,7 +1937,7 @@ static bool draw_buttons(int *x, int *y, int *w, int *h)
 	/* アクティブになるボタンのfgを描画する */
 	if (pointed_index != BTN_NONE) {
 		get_button_rect(pointed_index, &btn_x, &btn_y, &btn_w, &btn_h);
-		clear_msgbox_rect_with_fg(btn_x, btn_y, btn_w, btn_h);
+		fill_msgbox_rect_with_fg(btn_x, btn_y, btn_w, btn_h);
 		union_rect(x, y, w, h,
 			   *x, *y, *w, *h,
 			   btn_x + conf_msgbox_x, btn_y + conf_msgbox_y,
@@ -2673,7 +2585,7 @@ static bool is_end_of_msg(void)
 		return true;
 
 	/* 完了している場合 */
-	if (*msg_cur == '\0')
+	if (drawn_chars == total_chars)
 		return true;
 
 	/* 完了していない場合 */
@@ -2683,16 +2595,13 @@ static bool is_end_of_msg(void)
 /* メッセージ本文の描画を完了したことにする */
 static void set_end_of_msg(void)
 {
-	msg_cur = msg_top + strlen(msg_top);
-	assert(*msg_cur == '\0');
+	drawn_chars = total_chars;
 }
 
 /* メッセージボックスの描画を行う */
 static void draw_msgbox(int *x, int *y, int *w, int *h)
 {
-	uint32_t wc;
-	int char_count, i, mblen;
-	int glyph_width, glyph_height, ret_width, ret_height, ofs_x, ofs_y;
+	int char_count, ret;
 
 	/*
 	 * システムGUIから戻った場合の描画ではないはず
@@ -2706,85 +2615,40 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	if (char_count == 0)
 		return;
 
-	/* 1文字ずつ描画する */
-	for (i = 0; i < char_count; i++) {
-		assert(*msg_cur);
-
-		/* 途中のエスケープシーケンスを処理する */
-		process_escape_sequence(&msg_cur);
-		if (is_inline_wait)
-			return;
-
-		/* ワードラッピングを処理する */
-		do_word_wrapping();
-
-		/* 描画する文字を取得する */
-		mblen = utf8_to_utf32(msg_cur, &wc);
-		if (mblen == -1) {
-			/* 不正なUnicode: 本文の描画を終了したことにする */
-			set_end_of_msg();
-			return;
-		}
-
-		/* 縦書きの句読点変換を行う */
-		if (conf_msgbox_tategaki)
-			wc = convert_tategaki_char(wc);
-
-		/* 描画する文字の幅と高さを取得する */
-		glyph_width = get_glyph_width(wc);
-		glyph_height = get_glyph_height(wc);
-
-		/* 右側の幅が足りなければ改行する */
-		process_lf(wc, glyph_width, glyph_height);
-
-		/* 小さいひらがな/カタカタのオフセットを計算する */
-		if (conf_msgbox_tategaki && is_small_kana(wc)) {
-			/* FIXME: 何らかの調整を加える */
-			ofs_x = 0;
-			ofs_y = 0;
-		} else {
-			ofs_x = 0;
-			ofs_y = 0;
-		}
-
-		/* 描画する */
-		draw_char_on_msgbox(pen_x + ofs_x, pen_y + ofs_y, wc,
-				    body_color, body_outline_color,
-				    &ret_width, &ret_height, conf_font_size,
-				    is_dimming);
-
-		/* 更新領域を求める */
-		union_rect(x, y, w, h,
-			   *x, *y, *w, *h,
-			   msgbox_x + pen_x, msgbox_y + pen_y,
-			   ret_width, ret_height);
-		*x = *x < 0 ? 0 : *x;
-
-		/* ルビ用のペン位置を更新する */
-		if (!conf_msgbox_tategaki) {
-			pen_ruby_x = pen_x;
-			pen_ruby_y = pen_y - conf_font_ruby_size;
-		} else {
-			pen_ruby_x = pen_x + ret_width;
-			pen_ruby_y = pen_y;
-		}
-
-		/* 次の文字へ移動する */
-		msg_cur += mblen;
-		if (!conf_msgbox_tategaki) {
-			pen_x += glyph_width + conf_msgbox_margin_char;
-		} else {
-			if (is_tategaki_punctuation(wc))
-				pen_y += conf_font_size;
-			else
-				pen_y += glyph_height;
-			pen_y += conf_msgbox_margin_char;
-		}
-		drawn_chars++;
+	/* 描画を行う */
+	lock_layers_for_msgdraw(LAYER_MSG, -1);
+	{
+		ret = draw_msg_common(&msgbox_context, char_count, x, y, w, h);
+	}
+	unlock_layers_for_msgdraw(LAYER_MSG, -1);
+	if (is_inline_wait) {
+		/* インラインウェイトが現れた場合 */
+		drawn_chars += ret;
+		return;
+	}
+	if (ret != char_count) {
+		/* utf-8のエンコーディングエラーなど */
+		set_end_of_msg();
 	}
 
-	/* 末尾のエスケープシーケンスを処理する */
-	process_escape_sequence(&msg_cur);
+	/* 描画した文字数を記録する */
+	drawn_chars += char_count;
+
+	/* ペンの描画終了位置を取得する */
+	if (drawn_chars == total_chars)
+		get_pen_position_common(&msgbox_context, &pen_x, &pen_y);
+}
+
+/* インラインウェイトのエスケープシーケンス出現時のコールバック */
+static void inline_wait_hook(float wait_time)
+{
+	/* インラインウェイトを開始する */
+	if (wait_time > 0) {
+		is_inline_wait = true;
+		inline_wait_time = wait_time;
+		inline_wait_time_total += inline_wait_time;
+		reset_stop_watch(&inline_sw);
+	}
 }
 
 /*
@@ -2939,447 +2803,6 @@ static int calc_frame_chars_by_lap(void)
 		char_count = total_chars - drawn_chars;
 
 	return char_count;
-}
-
-/* 先頭のエスケープシーケンスを処理する */
-static void process_escape_sequence(const char **s)
-{
-	const char *p;
-
-	/* エスケープシーケンスが続く限り処理する */
-	p = *s;
-	while (*p == '\\') {
-		switch (*(p + 1)) {
-		case 'n':
-			/* 改行 */
-			process_escape_sequence_lf(s);
-			break;
-		case '#':
-			/* 色指定 */
-			if (!process_escape_sequence_color(s))
-				return; /* 不正: 読み飛ばさない */
-			break;
-		case '@':
-			/* サイズ指定 */
-			if (!process_escape_sequence_size(s))
-				return; /* 不正: 読み飛ばさない */
-			break;
-		case 'w':
-			/* インラインウェイト */
-			if (!process_escape_sequence_wait(s))
-				return; /* 不正: 読み飛ばさない */
-			break;
-		case 'p':
-			/* ペン移動 */
-			if (!process_escape_sequence_pen(s))
-				return; /* 不正: 読み飛ばさない */
-			break;
-		case '^':
-			/* ルビ */
-			if (!process_escape_sequence_ruby(s))
-				return; /* 不正: 読み飛ばさない */
-			break;
-		default:
-			/* 不正なエスケープシーケンスなので読み飛ばさない */
-			return;
-		}
-		p = *s;
-	}
-}
-
-/* 改行("\\n")を処理する */
-static void process_escape_sequence_lf(const char **s)
-{
-	if (!conf_msgbox_tategaki) {
-		pen_y += conf_msgbox_margin_line;
-		pen_x = conf_msgbox_margin_left;
-	} else {
-		pen_x -= conf_msgbox_margin_line;
-		pen_y = conf_msgbox_margin_top;
-	}
-	*s += 2;
-}
-
-/* 色指定("\\#{RRGGBB}")を処理する */
-static bool process_escape_sequence_color(const char **s)
-{
-	char color_code[7];
-	const char *p;
-	uint32_t r, g, b;
-	int rgb;
-
-	p = *s;
-	assert(*p == '\\');
-	assert(*(p + 1) == '#');
-
-	/* '{'をチェックする */
-	if (*(p + 2) != '{')
-		return false;
-
-	/* 長さが足りない場合 */
-	if (strlen(p + 3) < 6)
-		return false;
-
-	/* '}'をチェックする */
-	if (*(p + 9) != '}')
-		return false;
-
-	if (!is_dimming) {
-		/* カラーコードを読む */
-		memcpy(color_code, p + 3, 6);
-		color_code[6] = '\0';
-		rgb = 0;
-		sscanf(color_code, "%x", &rgb);
-		r = (rgb >> 16) & 0xff;
-		g = (rgb >> 8) & 0xff;
-		b = rgb & 0xff;
-		body_color = make_pixel_slow(0xff, r, g, b);
-	}
-
-	/* "\\#{" + "xxxxxx" + "}" */
-	*s += 3 + 6 + 1;
-	return true;
-}
-
-/* サイズ指定("\\@{xxx}")を処理する */
-static bool process_escape_sequence_size(const char **s)
-{
-	char size_spec[8];
-	const char *p;
-	int i, size;
-
-	p = *s;
-	assert(*p == '\\');
-	assert(*(p + 1) == '@');
-
-	/* '{'をチェックする */
-	if (*(p + 2) != '{')
-		return false;
-
-	/* サイズ文字列を読む */
-	for (i = 0; i < (int)sizeof(size_spec) - 1; i++) {
-		if (*(p + 3 + i) == '\0')
-			return false;
-		if (*(p + 3 + i) == '}')
-			break;
-		size_spec[i] = *(p + 3 + i);
-	}
-	size_spec[i] = '\0';
-
-	/* サイズ文字列を整数に変換する */
-	size = 0;
-	sscanf(size_spec, "%d", &size);
-
-	/* フォントサイズを変更する */
-	set_font_size(size);
-
-	/* "\\@{" + "xxx" + "}" */
-	*s += 3 + i + 1;
-	return true;
-}
-
-/* インラインウェイト("\\w{f.f}")を処理する */
-static bool process_escape_sequence_wait(const char **s)
-{
-	char time_spec[16];
-	const char *p;
-	int i;
-
-	p = *s;
-	assert(*p == '\\');
-	assert(*(p + 1) == 'w');
-
-	/* '{'をチェックする */
-	if (*(p + 2) != '{')
-		return false;
-
-	/* 時間文字列を読む */
-	for (i = 0; i < (int)sizeof(time_spec) - 1; i++) {
-		if (*(p + 3 + i) == '\0')
-			return false;
-		if (*(p + 3 + i) == '}')
-			break;
-		time_spec[i] = *(p + 3 + i);
-	}
-	time_spec[i] = '\0';
-
-	/* 時間文字列を浮動小数点数に変換する */
-	inline_wait_time = 0;
-	sscanf(time_spec, "%f", &inline_wait_time);
-
-	if (!is_dimming) {
-		/* インラインウェイトを開始する */
-		if (inline_wait_time > 0) {
-			is_inline_wait = true;
-			inline_wait_time_total += inline_wait_time;
-			reset_stop_watch(&inline_sw);
-		}
-	}
-
-	/* "\\w{" + "f.f" + "}" */
-	*s += 3 + i + 1;
-	return true;
-}
-
-/* ペン移動("\\p{x,y}")を処理する */
-static bool process_escape_sequence_pen(const char **s)
-{
-	char pos_spec[32];
-	const char *p;
-	int i;
-	bool separator_found;
-
-	p = *s;
-	assert(*p == '\\');
-	assert(*(p + 1) == 'p');
-
-	/* '{'をチェックする */
-	if (*(p + 2) != '{')
-		return false;
-
-	/* 座標文字列を読む */
-	separator_found = false;
-	for (i = 0; i < (int)sizeof(pos_spec) - 1; i++) {
-		if (*(p + 3 + i) == '\0')
-			return false;
-		if (*(p + 3 + i) == '}')
-			break;
-		if (*(p + 3 + i) == ',')
-			separator_found = true;
-		pos_spec[i] = *(p + 3 + i);
-	}
-	pos_spec[i] = '\0';
-	if (!separator_found)
-		return false;
-
-	/* 座標文字列を浮動小数点数に変換する */
-	sscanf(pos_spec, "%d,%d", &pen_x, &pen_y);
-
-	/* "\\w{" + "x,y" + "}" */
-	*s += 3 + i + 1;
-	return true;
-}
-
-/* ルビ("\\^{ルビ}")を処理する */
-static bool process_escape_sequence_ruby(const char **s)
-{
-	char ruby[64];
-	const char *p;
-	uint32_t wc;
-	int i, font_size,mblen, ret_width, ret_height;
-
-	p = *s;
-	assert(*p == '\\');
-	assert(*(p + 1) == '^');
-
-	/* '{'をチェックする */
-	if (*(p + 2) != '{')
-		return false;
-
-	/* ルビを読む */
-	for (i = 0; i < (int)sizeof(ruby) - 1; i++) {
-		if (*(p + 3 + i) == '\0')
-			return false;
-		if (*(p + 3 + i) == '}')
-			break;
-		ruby[i] = *(p + 3 + i);
-	}
-	ruby[i] = '\0';
-
-	/* \^{ + ruby[] + } */
-	*s += 3 + i + 1;
-
-	/* フォントサイズを退避して、ルビ用に設定する */
-	font_size = get_font_size();
-	set_font_size(conf_font_ruby_size > 0 ?
-		      conf_font_ruby_size : conf_font_size / 5);
-
-	/* 描画する */
-	p = ruby;
-	while (*p) {
-		mblen = utf8_to_utf32(p, &wc);
-		if (mblen == -1)
-			break;
-
-		if (!is_drawing_namebox) {
-			draw_char_on_msgbox(pen_ruby_x, pen_ruby_y, wc,
-					    body_color, body_outline_color,
-					    &ret_width, &ret_height,
-					    conf_font_ruby_size, is_dimming);
-		} else {
-			draw_char_on_namebox(pen_ruby_x, pen_ruby_y, wc,
-					     name_color, name_outline_color,
-					     &ret_width, &ret_height,
-					     conf_font_ruby_size, is_dimming);
-		}
-
-		if (!conf_msgbox_tategaki)
-			pen_ruby_x += ret_width;
-		else
-			pen_ruby_y += ret_height;
-
-		p += mblen;
-	}
-
-	/* フォントサイズを復元する */
-	set_font_size(font_size);
-
-	return true;
-}
-
-/* ワードラッピングを処理する */
-static void do_word_wrapping(void)
-{
-	if (conf_msgbox_tategaki)
-		return;
-
-	if (is_after_space) {
-		if (pen_x + get_en_word_width() >=
-		    msgbox_w - conf_msgbox_margin_right) {
-			pen_y += conf_msgbox_margin_line;
-			pen_x = conf_msgbox_margin_left;
-		}
-	}
-
-	is_after_space = *msg_cur == ' ';
-}
-
-/* 縦書きの句読点変換を行う */
-static uint32_t convert_tategaki_char(uint32_t wc)
-{
-	switch (wc) {
-	case U32_C('、'): return U32_C('︑');
-	case U32_C('，'): return U32_C('︐');
-	case U32_C('。'): return U32_C('︒');
-	case U32_C('（'): return U32_C('︵');
-	case U32_C('）'): return U32_C('︶');
-	case U32_C('｛'): return U32_C('︷');
-	case U32_C('｝'): return U32_C('︸');
-	case U32_C('「'): return U32_C('﹁');
-	case U32_C('」'): return U32_C('﹂');
-	case U32_C('『'): return U32_C('﹃');
-	case U32_C('』'): return U32_C('﹄');
-	case U32_C('【'): return U32_C('︻');
-	case U32_C('】'): return U32_C('︼');
-	case U32_C('［'): return U32_C('﹇');
-	case U32_C('］'): return U32_C('﹈');
-	case U32_C('〔'): return U32_C('︹');
-	case U32_C('〕'): return U32_C('︺');
-	case U32_C('…'): return U32_C('︙');
-	case U32_C('‥'): return U32_C('︰');
-	case U32_C('ー'): return U32_C('丨');
-	default:
-		break;
-	}
-	return wc;
-}
-
-/* 縦書きの句読点かどうか調べる */
-static bool is_tategaki_punctuation(uint32_t wc)
-{
-	switch (wc) {
-	case U32_C('︑'): return true;
-	case U32_C('︐'): return true;
-	case U32_C('︒'): return true;
-	case U32_C('︵'): return true;
-	case U32_C('︶'): return true;
-	case U32_C('︷'): return true;
-	case U32_C('︸'): return true;
-	case U32_C('﹁'): return true;
-	case U32_C('﹂'): return true;
-	case U32_C('﹃'): return true;
-	case U32_C('﹄'): return true;
-	case U32_C('︻'): return true;
-	case U32_C('︼'): return true;
-	case U32_C('﹇'): return true;
-	case U32_C('﹈'): return true;
-	case U32_C('︹'): return true;
-	case U32_C('︺'): return true;
-	case U32_C('︙'): return true;
-	case U32_C('︰'): return true;
-	case U32_C('丨'): return true;
-	default:
-		break;
-	}
-	return false;
-}
-
-/* msgが英単語の先頭であれば、その単語の描画幅、それ以外の場合0を返す */
-static int get_en_word_width(void)
-{
-	const char *m;
-	uint32_t wc;
-	int width;
-
-	m = msg_cur;
-	width = 0;
-	while (isgraph_extended(&m, &wc))
-		width += get_glyph_width(wc);
-
-	return width;
-}
-
-/* 右側の幅が足りなければ改行する */
-static void process_lf(uint32_t c, int glyph_width, int glyph_height)
-{
-	if (!conf_msgbox_tategaki) {
-		/* 右側の幅が足りる場合、改行しない */
-		if (pen_x + glyph_width + conf_msgbox_margin_char <
-		    msgbox_w - conf_msgbox_margin_right)
-			return;
-	} else {
-		/* 下側の幅が足りる場合、改行しない */
-		if (pen_y + glyph_height + conf_msgbox_margin_char <
-		    msgbox_h - conf_msgbox_margin_bottom)
-			return;
-	}
-
-	/* 禁則文字の場合、改行しない */
-	if (c == ' ' || c == ',' || c == '.' || c == ':' || c == ';' ||
-	    c == CHAR_TOUTEN || c == CHAR_KUTEN)
-		return;
-
-	/* 改行する */
-	if (!conf_msgbox_tategaki) {
-		pen_y += conf_msgbox_margin_line;
-		pen_x = conf_msgbox_margin_left;
-	} else {
-		pen_x -= conf_msgbox_margin_line;
-		pen_y = conf_msgbox_margin_top;
-	}
-}
-
-/* 小さい仮名文字であるか調べる */
-static bool is_small_kana(uint32_t wc)
-{
-	switch (wc) {
-	case U32_C('ぁ'): return true;
-	case U32_C('ぃ'): return true;
-	case U32_C('ぅ'): return true;
-	case U32_C('ぇ'): return true;
-	case U32_C('ぉ'): return true;
-	case U32_C('っ'): return true;
-	case U32_C('ゃ'): return true;
-	case U32_C('ゅ'): return true;
-	case U32_C('ょ'): return true;
-	case U32_C('ゎ'): return true;
-	case U32_C('ゕ'): return true;
-	case U32_C('ゖ'): return true;
-	case U32_C('ァ'): return true;
-	case U32_C('ィ'): return true;
-	case U32_C('ゥ'): return true;
-	case U32_C('ェ'): return true;
-	case U32_C('ォ'): return true;
-	case U32_C('ッ'): return true;
-	case U32_C('ャ'): return true;
-	case U32_C('ュ'): return true;
-	case U32_C('ョ'): return true;
-	case U32_C('ヮ'): return true;
-	case U32_C('ヵ'): return true;
-	case U32_C('ヶ'): return true;
-	default: break;
-	}
-	return false;
 }
 
 /* クリックアニメーションを描画する */
@@ -3720,6 +3143,8 @@ static void union_banners(int *x, int *y, int *w, int *h)
  */
 static void draw_dimming(int *x, int *y, int *w, int *h)
 {
+	struct draw_msg_context context;
+
 	/* コンフィグでdimmingが有効 */
 	assert(conf_msgbox_dim);
 
@@ -3732,21 +3157,6 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 	assert(!need_load_mode);
 	assert(!need_history_mode);
 	assert(!need_config_mode);
-
-	/*
-	 * 重ね塗りを有効にする
-	 *  - 現状では参照されていない
-	 *  - TODO: 将来、色のエスケープシーケンスを無視するのに使う
-	 */
-	is_dimming = true;
-
-	/* 描画する本文の先頭を巻き戻す */
-	msg_cur = msg_top;
-	drawn_chars = 0;
-
-	/* 描画位置を巻き戻す */
-	pen_x = orig_pen_x;
-	pen_y = orig_pen_y;
 
 	/* dimming用の文字色を求める */
 	body_color = make_pixel_slow(0xff,
@@ -3761,11 +3171,44 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 	if (conf_font_outline_remove)
 		body_outline_color = body_color;
 
-	/*
-	 * 本文を描画する
-	 *  - (!is_in_command_repetition())なので全文字が描画される
-	 */
-	draw_msgbox(x, y, w, h);
+	/* 本文を上書き描画する */
+	construct_draw_msg_context(
+		&context,
+		LAYER_MSG,
+		msg_top,
+		conf_font_select,
+		conf_font_size,
+		conf_font_size,
+		conf_font_ruby_size,
+		!conf_font_outline_remove,
+		orig_pen_x,
+		orig_pen_y,
+		msgbox_w,
+		msgbox_h,
+		conf_msgbox_margin_left,
+		conf_msgbox_margin_right,
+		conf_msgbox_margin_top,
+		conf_msgbox_margin_bottom,
+		conf_msgbox_margin_line,
+		conf_msgbox_margin_char,
+		body_color,
+		body_outline_color,
+		true,	/* is_dimming */
+		false,	/* ignore_linefeed */
+		false,	/* ignore_font */
+		false,	/* ignore_outline */
+		true,	/* ignore_color */
+		false,	/* ignore_size */
+		false,	/* ignore_position */
+		false,	/* ignore_ruby */
+		true,	/* ignore_wait */
+		NULL,	/* inline_wait_hook */
+		conf_msgbox_tategaki);
+	lock_layers_for_msgdraw(LAYER_MSG, -1);
+	{
+		draw_msg_common(&context, total_chars, x, y, w, h);
+	}
+	unlock_layers_for_msgdraw(LAYER_MSG, -1);
 }
 
 /*
@@ -3808,7 +3251,7 @@ static bool is_skippable(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* ペンの位置を保存する */
+	/* @ichooseのためにペンの位置を保存する */
 	set_pen_position(pen_x, pen_y);
 
 	/* PCMストリームの再生を終了する */
@@ -3845,7 +3288,6 @@ static bool cleanup(void)
 		if (msg_top != NULL) {
 			free(msg_top);
 			msg_top = NULL;
-			msg_cur = NULL;
 		}
 	}
 
