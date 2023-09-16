@@ -1614,7 +1614,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 		true,		/* ignore_color */
 		true,		/* ignore_size */
 		true,		/* ignore_position */
-		conf_gui_ruby,
+		!conf_gui_ruby,
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
 		false);		/* use_tategaki */
@@ -1929,7 +1929,7 @@ static void draw_history_text_item(int button_index)
 		ignore_color,	/* ignore_color */
 		true,		/* ignore_size */
 		true,		/* ignore_position */
-		conf_gui_ruby,
+		!conf_gui_ruby,
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
 		conf_msgbox_tategaki);
@@ -2320,7 +2320,7 @@ static void draw_name(int index)
 
 	/* 描画する */
 	construct_draw_msg_context(
-		&b->rt.msg_context,
+		&context,
 		-1,		/* Not for a layer: use an alternative image. */
 		name,
 		conf_font_select,
