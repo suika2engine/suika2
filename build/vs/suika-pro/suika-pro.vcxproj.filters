@@ -176,13 +176,7 @@
     <ClCompile Include="..\..\..\src\cmd_load.c">
       <Filter>Source File</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\cmd_menu.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_message.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\cmd_retrospect.c">
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_return.c">
@@ -342,6 +336,9 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_setconfig.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_pencil.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>
