@@ -925,6 +925,7 @@ static BOOL RunFrame(void)
 	{
 		/* スクリプトの終端に達した */
 		bEnd = TRUE;
+		bRunFrameAllow = FALSE;
 	}
 
 	/* フレームの描画を終了する */
