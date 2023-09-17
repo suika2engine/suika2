@@ -120,8 +120,8 @@ echo "$RELEASETMP created."
 #
 echo "Building suika.exe"
 cd mingw
-make erase
-make libroot
+rm -f *.o
+if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
 cp suika.exe $RELEASETMP/
 cd ../
@@ -131,8 +131,8 @@ cd ../
 #
 echo "Building suika-pro.exe"
 cd mingw-pro
-make erase
-cp -Rav ../mingw/libroot .
+rm -f *.o
+if [ ! -e libroot ]; then cp -Ra ../mingw/libroot .; fi
 make -j24
 cp suika-pro.exe $RELEASETMP/
 cd ../
