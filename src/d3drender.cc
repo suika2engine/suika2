@@ -756,6 +756,12 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	pD3DDevice->SetTexture(0, src_tex->pTex);
 	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2 | D3DFVF_DIFFUSE);
 
+	// リニアフィルタを設定する
+	pD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	pD3DDevice->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	pD3DDevice->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+
 	if(width == 1 && height == 1)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v,
