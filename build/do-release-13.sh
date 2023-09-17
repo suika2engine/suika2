@@ -226,11 +226,28 @@ echo "Building macOS apps."
 
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
+
+    # Pull master branch
+    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git reset --hard && git checkout master && git reset --hard && git pull github master && cd build/macos && make clean";
+
+    # Build suika.app
     until \
-		ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github master && make all-macos";
-	do \
-		echo "Retrying due to a codesign issue...";
-	done;
+	ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make main";
+    do \
+	echo "Retrying suika.app due to a codesign issue...";
+    done;
+
+    # Build suika-pro.app
+    until \
+	ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make pro";
+    do \
+	echo "Retrying suika-pro.app due to a codesign issue...";
+    done;
+
+    # Build Kirara helpers
+    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make rel-helper";
+
+    # Copy results
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.zip" "$RELEASETMP/";
