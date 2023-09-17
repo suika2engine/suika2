@@ -33,9 +33,9 @@ libroot:
 main: libroot
 	@echo "Building..."
 	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
-	@echo "Builing suika.app" && xcodebuild -scheme suika -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive archive
-	@echo "Uploading suika.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika.xcarchive -exportOptionsPlist export-options.plist
-	@echo "Notarizing suika.app" && rm -rf build/Release/suika.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
+	@echo "Builing suika.app" && xcodebuild -quiet -scheme suika -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive archive
+	@echo "Uploading suika.app" && xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/suika.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika.app" && rm -rf build/Release/suika.app && until xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/suika.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
 	@echo "Creating dmg files..."
 	@rm -rf tmp mac.dmg && mkdir tmp && cp -Ra build/Release/suika.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac mac.dmg && codesign --sign $(SIGNATURE) mac.dmg && rm -rf tmp
 
@@ -45,9 +45,9 @@ main: libroot
 pro: libroot
 	@echo "Building..."
 	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
-	@echo "Builing suika-pro.app" && xcodebuild -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-pro.xcarchive archive
-	@echo "Uploading suika-pro.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportOptionsPlist export-options.plist
-	@echo "Notarizing suika-pro.app" && rm -rf build/Release/suika-pro.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
+	@echo "Builing suika-pro.app" && xcodebuild -quiet -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-pro.xcarchive archive
+	@echo "Uploading suika-pro.app" && xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika-pro.app" && rm -rf build/Release/suika-pro.app && until xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
 	@echo "Creating dmg files..."
 	@rm -rf tmp mac-pro.dmg && mkdir tmp && cp -Ra build/Release/suika-pro.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-pro mac-pro.dmg && codesign --sign $(SIGNATURE) mac-pro.dmg && rm -rf tmp
 
@@ -70,9 +70,9 @@ capture: libroot
 	@echo "Building..."
 	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	@rm -rf build mac-capture.dmg
-	@echo "Builing suika-capture.app" && xcodebuild -scheme suika-capture -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-capture.xcarchive archive
-	@echo "Uploading suika-capture.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportOptionsPlist export-options.plist
-	@echo "Notarizing suika-capture.app" && rm -rf build/Release/suika-capture.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
+	@echo "Builing suika-capture.app" && xcodebuild -quiet -scheme suika-capture -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-capture.xcarchive archive
+	@echo "Uploading suika-capture.app" && xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika-capture.app" && rm -rf build/Release/suika-capture.app && until xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
 	@echo "Creating suika-capture.dmg" && rm -rf tmp mac-capture.dmg && mkdir tmp && cp -Ra build/Release/suika-capture.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-capture mac-capture.dmg && codesign --sign $(SIGNATURE) mac-capture.dmg && rm -rf tmp
 
 #
@@ -82,9 +82,9 @@ replay: libroot
 	@echo "Building..."
 	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	@rm -rf build mac-replay.dmg
-	@echo "Builing suika-replay.app" && xcodebuild -scheme suika-replay -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-replay.xcarchive archive
-	@echo "Uploading suika-replay.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportOptionsPlist export-options.plist
-	@echo "Notarizing suika-replay.app" && rm -rf build/Release/suika-replay.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
+	@echo "Builing suika-replay.app" && xcodebuild -quiet -scheme suika-replay -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-replay.xcarchive archive
+	@echo "Uploading suika-replay.app" && xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportOptionsPlist export-options.plist
+	@echo "Notarizing suika-replay.app" && rm -rf build/Release/suika-replay.app && until xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
 	@echo "Creating suika-replay.dmg" && rm -rf tmp mac-replay.dmg && mkdir tmp && cp -Ra build/Release/suika-replay.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-replay mac-replay.dmg && codesign --sign $(SIGNATURE) mac-replay.dmg && rm -rf tmp
 
 #
