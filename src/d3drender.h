@@ -19,7 +19,7 @@
 
 BOOL D3DInitialize(HWND hWnd);
 VOID D3DCleanup(void);
-BOOL D3DSetDisplayOffset(int nOffsetX, int nOffsetY);
+BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale);
 BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 					pixel_t **locked_pixels, void **texture);
 BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,

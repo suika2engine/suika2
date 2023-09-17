@@ -53,9 +53,10 @@ static IDirect3DPixelShader9 *pMeltShader;
 // テクスチャリストの先頭
 static TextureListNode *pTexList;
 
-// 全画面用の表示オフセット
-static int nDisplayOffsetX;
-static int nDisplayOffsetY;
+// オフセットとスケール
+static float fDisplayOffsetX;
+static float fDisplayOffsetY;
+static float fScale;
 
 #ifdef COMPILE_SHADER
 // 暗い描画のピクセルシェーダ
@@ -294,6 +295,10 @@ BOOL D3DInitialize(HWND hWnd)
 		return FALSE;
 	}
 
+	fDisplayOffsetX = 0.0f;
+	fDisplayOffsetY = 0.0f;
+	fScale = 1.0f;
+
 	return TRUE;
 }
 
@@ -337,12 +342,22 @@ VOID D3DCleanup(void)
 }
 
 //
-// フルスクリーン表示用のオフセットを設定する
+// ウィンドウをリサイズする
 //
-BOOL D3DSetDisplayOffset(int nOffsetX, int nOffsetY)
+BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 {
-	nDisplayOffsetX = nOffsetX;
-	nDisplayOffsetY = nOffsetY;
+	fDisplayOffsetX = (float)nOffsetX;
+	fDisplayOffsetY = (float)nOffsetY;
+	fScale = scale;
+
+	// Direct3Dデバイスをリセットする
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.Windowed = TRUE;
+	pD3DDevice->Reset(&d3dpp);
 
 	return TRUE;
 }
@@ -624,8 +639,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	VertexRHWTex v[4];
 
 	// 左上
-	v[0].x = (float)(dst_left + nDisplayOffsetX) - 0.5f;
-	v[0].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
+	v[0].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
+	v[0].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
 	v[0].z = 0.0f;
 	v[0].rhw = 1.0f;
 	v[0].u1 = (float)src_left / img_w;
@@ -635,8 +650,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)(dst_left + width - 1 + nDisplayOffsetX) + 0.5f;
-	v[1].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
+	v[1].x = (float)(dst_left + width - 1) * fScale + fDisplayOffsetX + 0.5f;
+	v[1].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
 	v[1].u1 = (float)(src_left + width) / img_w;
@@ -646,8 +661,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 左下
-	v[2].x = (float)(dst_left + nDisplayOffsetX) - 0.5f;
-	v[2].y = (float)(dst_top + height - 1 + nDisplayOffsetY) + 0.5f;
+	v[2].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
+	v[2].y = (float)(dst_top + height - 1) * fScale + fDisplayOffsetY + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u1 = (float)src_left / img_w;
@@ -657,8 +672,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)(dst_left + width - 1 + nDisplayOffsetX) + 0.5f;
-	v[3].y = (float)(dst_top + height - 1 + nDisplayOffsetY) + 0.5f;
+	v[3].x = (float)(dst_left + width - 1) * fScale + fDisplayOffsetX + 0.5f;
+	v[3].y = (float)(dst_top + height - 1) * fScale + fDisplayOffsetY + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
 	v[3].u1 = (float)(src_left + width) / img_w;
