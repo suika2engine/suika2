@@ -120,7 +120,7 @@ echo "$RELEASETMP created."
 #
 echo "Building suika.exe"
 cd mingw
-rm *.o
+rm -f *.o
 if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
 cp suika.exe $RELEASETMP/
@@ -131,7 +131,7 @@ cd ../
 #
 echo "Building suika-pro.exe"
 cd mingw-pro
-rm *.o
+rm -f *.o
 if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-pro.exe $RELEASETMP/
@@ -142,7 +142,7 @@ cd ../
 #
 echo "Building suika-capture.exe"
 cd mingw-capture
-rm *.o
+rm -f *.o
 if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-capture.exe $RELEASETMP/
@@ -153,7 +153,7 @@ cd ../
 #
 echo "Building suika-replay.exe"
 cd mingw-replay
-rm *.o
+rm -f *.o
 if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-replay.exe $RELEASETMP/
@@ -164,7 +164,7 @@ cd ../
 #
 echo "Building suika-64.exe"
 cd mingw-64
-rm *.o
+rm -f *.o
 if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-64.exe $RELEASETMP/
@@ -175,7 +175,7 @@ cd ../
 #
 echo "Building suika-arm64.exe"
 cd mingw-arm64
-rm *.o
+rm -f *.o
 if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
 cp suika-arm64.exe $RELEASETMP/
@@ -187,7 +187,7 @@ cd ../
 if [ ! -z "`uname | grep Linux`" ]; then
     echo "Building suika-linux";
     cd linux-x86_64;
-    rm *.o;
+    rm -f *.o;
     if [ ! -e libroot ]; then ./build-libs.sh; fi
     make -j24;
     cp suika $RELEASETMP/suika-linux;
