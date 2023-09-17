@@ -227,7 +227,7 @@ echo "Building macOS apps."
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
     until \
-		ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github v12 && make all-macos";
+		ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && git pull github v12-stable && make all-macos";
 	do \
 		echo "Retrying due to a codesign issue...";
 	done;
