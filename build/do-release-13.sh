@@ -18,7 +18,7 @@ SIGNATURE="Open Source Developer, Keiichi Tabata"
 #
 # Input a version number.
 #
-echo "Enter version e.g. 12.38"
+echo "Enter version e.g. 13.0"
 read str
 VERSION=$str
 if [ ! -n "$VERSION" ]; then

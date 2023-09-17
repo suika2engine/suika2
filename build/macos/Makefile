@@ -32,7 +32,7 @@ libroot:
 #
 main: libroot
 	@echo "Building..."
-	@security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain
+	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	@echo "Builing suika.app" && xcodebuild -scheme suika -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive archive
 	@echo "Uploading suika.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika.xcarchive -exportOptionsPlist export-options.plist
 	@echo "Notarizing suika.app" && rm -rf build/Release/suika.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
@@ -44,7 +44,7 @@ main: libroot
 #
 pro: libroot
 	@echo "Building..."
-	@security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain
+	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	@echo "Builing suika-pro.app" && xcodebuild -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-pro.xcarchive archive
 	@echo "Uploading suika-pro.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportOptionsPlist export-options.plist
 	@echo "Notarizing suika-pro.app" && rm -rf build/Release/suika-pro.app && until xcodebuild -exportNotarizedApp -archivePath `pwd`/build/Release/suika-pro.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
@@ -67,8 +67,8 @@ helpers:
 # Build suika-capture.app
 #
 capture: libroot
-	@if [ -z "$SSH_CLIENT" ]; then echo "Cannot run in an ssh session due to a codesign issue."; exit 1; fi
 	@echo "Building..."
+	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	@rm -rf build mac-capture.dmg
 	@echo "Builing suika-capture.app" && xcodebuild -scheme suika-capture -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-capture.xcarchive archive
 	@echo "Uploading suika-capture.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-capture.xcarchive -exportOptionsPlist export-options.plist
@@ -79,8 +79,8 @@ capture: libroot
 # Build suika-replay.app
 #
 replay: libroot
-	@if [ -z "$SSH_CLIENT" ]; then echo "Cannot run in an ssh session due to a codesign issue."; exit 1; fi
 	@echo "Building..."
+	@if [ ! -z "$SSH_CLIENT" ]; then security unlock-keychain -p "$(MACOS_PASSWORD)" login.keychain; fi
 	@rm -rf build mac-replay.dmg
 	@echo "Builing suika-replay.app" && xcodebuild -scheme suika-replay -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika-replay.xcarchive archive
 	@echo "Uploading suika-replay.app" && xcodebuild -exportArchive -archivePath `pwd`/build/Release/suika-replay.xcarchive -exportOptionsPlist export-options.plist
