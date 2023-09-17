@@ -226,24 +226,20 @@ echo "Building macOS apps."
 
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
+    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2-stable && git reset --hard && git checkout v12-stable && git pull github v12-stable";
     until \
-		ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2-stable && git pull github v12-stable && make all-macos";
-	do \
-		echo "Retrying due to a codesign issue...";
-	done;
+	ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2-stable && cd build/macos && make main";
+    do \
+	echo "Retrying suika.app due to a codesign issue...";
+    done;
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.zip" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/pack.mac" "$RELEASETMP/";
 else
     echo "Building on localhost..."
-    cd ../
-    make all-macos;
+    cd macos
+    make clean;
+    make main;
     cp mac.dmg "$RELEASETMP/";
-    cp mac-pro.dmg "$RELEASETMP/";
-    cp mac.zip "$RELEASETMP/";
-    cp pack.mac "$RELEASETMP/";
-    cd build
+    cd ..
 fi
 
 #
@@ -275,7 +271,6 @@ mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippet
 cp -v "$RELEASETMP/suika.exe" suika2/
 cp -v "$RELEASETMP/suika-pro.exe" suika2/
 cp -v "$RELEASETMP/mac.dmg" suika2/
-cp -v "$RELEASETMP/mac-pro.dmg" suika2/
 mkdir suika2/tools
 cp -v ../doc/readme-tools-jp.txt suika2/tools/README.txt
 cp -v ../doc/readme-tools-en.txt suika2/tools/README-english.txt
