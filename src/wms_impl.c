@@ -32,6 +32,8 @@ static bool s2_set_config(struct wms_runtime *rt);
 static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
 static bool s2_reflect_font_config(struct wms_runtime *rt);
 static bool s2_clear_history(struct wms_runtime *rt);
+static bool s2_clear_msgbox(struct wms_runtime *rt);
+static bool s2_save_global(struct wms_runtime *rt);
 static bool s2_push_stage(struct wms_runtime *rt);
 static bool s2_pop_stage(struct wms_runtime *rt);
 
@@ -49,6 +51,8 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
 	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
 	{s2_clear_history, "s2_clear_history", {NULL}},
+	{s2_clear_msgbox, "s2_clear_msgbox", {NULL}},
+	{s2_save_global, "s2_save_global", {NULL}},
 	{s2_push_stage, "s2_push_stage", {NULL}},
 	{s2_pop_stage, "s2_pop_stage", {NULL}},
 };
@@ -249,6 +253,27 @@ static bool s2_clear_history(struct wms_runtime *rt)
 
 	/* Clear the message history. */
 	clear_history();
+
+	return true;
+}
+
+/* Clear the message box. */
+static bool s2_clear_msgbox(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	/* Clear the message history. */
+	fill_msgbox();
+
+	return true;
+}
+
+/* Save the global data. */
+static bool s2_save_global(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	save_global_data();
 
 	return true;
 }
