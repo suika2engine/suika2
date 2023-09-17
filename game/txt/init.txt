@@ -5,11 +5,6 @@
 ### ロゴ (Logo)
 ###
 
-# 音楽を止めます（タイトルへ戻る機能が利用された場合のため）
-# Stop the music (For when back-to-title is used)
-
-@bgm stop
-
 # 章のタイトルを設定します
 # Set a chapter name.
 
