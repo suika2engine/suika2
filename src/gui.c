@@ -890,6 +890,7 @@ static bool move_to_other_gui(void)
 static bool move_to_title(void)
 {
 	const char *file;
+	int i;
 
 	file = button[result_index].file;
 
@@ -922,6 +923,10 @@ static bool move_to_title(void)
 
 	/* ステージをクリアする */
 	clear_stage();
+
+	/* 音声を停止する */
+	for (i = 0; i < MIXER_STREAMS; i++)
+		set_mixer_input(i, NULL);
 
 	return true;
 }
