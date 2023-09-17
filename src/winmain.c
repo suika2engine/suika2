@@ -843,19 +843,24 @@ static void GameLoop(void)
 {
 	BOOL bBreak;
 
-	/* 最初にイベントを処理してしまう */
-	if(!SyncEvents())
-		return;
-
-	/* 最初のフレームの開始時刻を取得する */
-	dwStartTime = GetTickCount();
-
-	/* 描画を許可する */
+	/* WM_PAINTでの描画を許可する */
 	bRunFrameAllow = TRUE;
 
 	/* ゲームループ */
-	while(TRUE)
+	bBreak = FALSE;
+	while (!bBreak)
 	{
+		/* イベントを処理する */
+		if(!SyncEvents())
+			break;	/* 閉じるボタンが押された */
+
+		/* 次の描画までスリープする */
+		if(!WaitForNextFrame())
+			break;	/* 閉じるボタンが押された */
+
+		/* フレームの開始時刻を取得する */
+		dwStartTime = GetTickCount();
+
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
 		/* 入力のキャプチャ/エミュレートを行う */
 		if (!capture_input())
@@ -871,21 +876,6 @@ static void GameLoop(void)
 		if (!bDShowMode && !capture_output())
 			bBreak = TRUE;
 #endif
-
-		/* シナリオの最後に到達した場合 */
-		if(bBreak)
-			break;
-
-		/* イベントを処理する */
-		if(!SyncEvents())
-			break;	/* 閉じるボタンが押された */
-
-		/* 次の描画までスリープする */
-		if(!WaitForNextFrame())
-			break;	/* 閉じるボタンが押された */
-
-		/* 次のフレームの開始時刻を取得する */
-		dwStartTime = GetTickCount();
 	}
 }
 
@@ -893,7 +883,7 @@ static void GameLoop(void)
 static BOOL RunFrame(void)
 {
 	int x, y, w, h;
-	BOOL bEnd;
+	BOOL bRet;
 
 	/* 実行許可前の場合 */
 	if (!bRunFrameAllow)
@@ -920,11 +910,11 @@ static BOOL RunFrame(void)
 		opengl_start_rendering();
 
 	/* フレームの実行と描画を行う */
-	bEnd = FALSE;
+	bRet = TRUE;
 	if(!on_event_frame(&x, &y, &w, &h))
 	{
 		/* スクリプトの終端に達した */
-		bEnd = TRUE;
+		bRet = FALSE;
 		bRunFrameAllow = FALSE;
 	}
 
@@ -944,7 +934,7 @@ static BOOL RunFrame(void)
 		SyncBackImage(x, y, w, h);
 	}
 
-	return bEnd;
+	return bRet;
 }
 
 /* ウィンドウにバックイメージを転送する */
