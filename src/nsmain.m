@@ -186,13 +186,12 @@ BOOL isRedrawPrepared;
         return;
     }
 
-#ifdef USE_CAPTURE
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
     // 入力のキャプチャを行う
-    capture_input();
-#endif
-#ifdef USE_REPLAY
-    // 入力のリプレイを行う
-    replay_input();
+    if (!capture_input()) {
+        isFinished = YES;
+        return;
+    }
 #endif
 
     // OpenGLの描画を開始する
@@ -213,14 +212,9 @@ BOOL isRedrawPrepared;
         [self setNeedsDisplay:YES];
     }
 
-#ifdef USE_CAPTURE
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
     // 出力のキャプチャを行う
     if (!capture_output())
-        isFinished = YES;
-#endif
-#ifdef USE_REPLAY
-    // 出力のキャプチャを行う
-    if (!replay_output())
         isFinished = YES;
 #endif
 }
