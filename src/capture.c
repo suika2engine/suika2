@@ -124,7 +124,7 @@ void cleanup_capture(void)
 /*
  * 入力をキャプチャする
  */
-void capture_input(void)
+bool capture_input(void)
 {
 	/* 時刻を更新する */
 	cap_cur_time = get_tick_count64() - start_time;
@@ -177,6 +177,8 @@ void capture_input(void)
 		is_page_down_pressed,
 		is_control_pressed);
 	fflush(csv_fp);
+
+	return true;
 }
 
 /*

@@ -181,7 +181,7 @@ bool init_capture(void);
 void cleanup_capture(void);
 
 /* 入力をキャプチャする */
-void capture_input(void);
+bool capture_input(void);
 
 /* 出力をキャプチャする */
 bool capture_output(void);

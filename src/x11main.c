@@ -7,13 +7,13 @@
 
 /*
  * [Changes]
- *  2002-12-31 作成
- *  2005-04-11 更新 (style)
- *  2013-08-11 更新 (fb)
- *  2014-06-12 更新 (conskit)
- *  2016-05-27 更新 (suika2)
- *  2022-07-22 OpenGL
- *  2023-07-17 リプレイ対応
+ *  2002-12-31 Created.
+ *  2005-04-11 Updated. (style)
+ *  2013-08-11 Updated. (fb)
+ *  2014-06-12 Updated. (conskit)
+ *  2016-05-27 Updated. (suika2)
+ *  2022-07-22 Add OpenGL support.
+ *  2023-07-17 Add capture/replay support.
  */
 
 #include <X11/Xlib.h>
@@ -209,6 +209,7 @@ static void cleanup_glx(void);
 static bool create_back_image(void);
 static void destroy_back_image(void);
 static void run_game_loop(void);
+static bool run_frame(void);
 static bool wait_for_next_frame(void);
 static void sync_back_image(int x, int y, int w, int h);
 static bool next_event(void);
@@ -778,12 +779,12 @@ static void cleanup_glx(void)
 /* イベントループ */
 static void run_game_loop(void)
 {
-	int x, y, w, h;
 	bool cont;
 
 	/* フレームの開始時刻を取得する */
 	gettimeofday(&tv_start, NULL);
 
+	cont = true;
 	while (1) {
 #if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 		if (is_gst_playing) {
@@ -795,59 +796,19 @@ static void run_game_loop(void)
 		}
 #endif
 
-#ifdef USE_CAPTURE
-		/* 入力のキャプチャを行う */
-		capture_input();
-#endif
-#ifdef USE_REPLAY
-		/* 入力のリプレイを行う */
-		if (!replay_input())
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+		/* 入力のキャプチャ/リプレイを行う */
+		if (!capture_input())
 			break;
 #endif
 
-#ifdef USE_X11_OPENGL
-		/* GStreamerの再生中はOpenGLのレンダリングを行わない */
-		if (!is_gst_playing) {
-			if (is_opengl) {
-				/* レンダリングを開始する */
-				opengl_start_rendering();
-			}
-		}
-#endif
+		/* Run a frame. */
+		if (!run_frame())
+			cont = false;
 
-		/* フレームイベントを呼び出す */
-		x = y = w = h = 0;
-		cont = on_event_frame(&x, &y, &w, &h);
-
-		/* GStreamerの再生中でなければレンダリングを行う */
-		if (!is_gst_playing) {
-#ifdef USE_X11_OPENGL
-			if (is_opengl) {
-				/* レンダリングを終了する */
-				opengl_end_rendering();
-
-				/* フレームの描画を行う */
-				glXSwapBuffers(display, glx_window);
-			} else {
-				/* フレームの描画を行う */
-				if (w != 0 && h != 0)
-					sync_back_image(x, y, w, h);
-			}
-#else
-			/* フレームの描画を行う */
-			if (w != 0 && h != 0)
-				sync_back_image(x, y, w, h);
-#endif
-		}
-
-#ifdef USE_CAPTURE
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
 		/* 出力のキャプチャを行う */
 		if (!capture_output())
-			break;
-#endif
-#ifdef USE_REPLAY
-		/* 出力のキャプチャを行う */
-		if (!replay_output())
 			break;
 #endif
 
@@ -862,6 +823,44 @@ static void run_game_loop(void)
 		/* フレームの開始時刻を取得する */
 		gettimeofday(&tv_start, NULL);
 	}
+}
+
+/* Run a frame. */
+static bool run_frame(void)
+{
+	int x, y, w, h;
+	bool cont;
+
+#ifdef USE_X11_OPENGL
+	/* レンダリングを開始する */
+	if (!is_gst_playing) {
+		if (is_opengl) {
+			opengl_start_rendering();
+		}
+	}
+#endif
+
+	/* フレームイベントを呼び出す */
+	x = y = w = h = 0;
+	cont = on_event_frame(&x, &y, &w, &h);
+
+	/* レンダリングを終了する */
+	if (!is_gst_playing) {
+#ifdef USE_X11_OPENGL
+		if (is_opengl) {
+			opengl_end_rendering();
+			glXSwapBuffers(display, glx_window);
+		} else {
+			if (w != 0 && h != 0)
+				sync_back_image(x, y, w, h);
+		}
+#else
+		if (w != 0 && h != 0)
+			sync_back_image(x, y, w, h);
+#endif
+	}
+
+	return cont;
 }
 
 /* ウィンドウにイメージを転送する */

@@ -14,7 +14,6 @@ targets:
 	@echo '  make test          ... run tests without a window'
 	@echo '  make gtest         ... run tests with a window (just for demo)'
 	@echo '  make clean         ... cleanup'
-	@echo '  make do-release-12 ... build v12 release files and upload them (dev internal)'
 	@echo '  make do-release-13 ... build v13 release files and upload them (dev internal)'
 	@echo ''
 	@# Check for a situation that we are on WSL2 and not under /mnt

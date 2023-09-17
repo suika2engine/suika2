@@ -358,18 +358,29 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 /* 描画エンジンを初期化する */
 static BOOL InitRenderingEngine(void)
 {
+	/*
+	 * Step.0: Use OpenGL for capture-replay apps.
+	 */
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
-	/* キャプチャアプリではOpenGLを利用する */
 	if (InitOpenGL())
 	{
 		bOpenGL = TRUE;
+
+		/* We disable window resizing on OpenGL. */
+		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+		dwStyle ^= WS_THICKFRAME;
+		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
+		conf_window_resize = 0;
+
 		return TRUE;
 	}
 	log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
 	return FALSE;
-#endif
+#endif	/* defined(USE_CAPTURE) || defined(USE_REPLAY) */
 
-	/* まずDirect3Dを初期化してみる */
+	/*
+	 * Step.1: Try initializing Direct3D if there isn't "no-direct3d.txt" file.
+	 */
 	if (_access("no-direct3d.txt", 0) != 0)
 	{
 		/* Direct3Dを初期化する */
@@ -385,29 +396,38 @@ static BOOL InitRenderingEngine(void)
 		log_info("Fallback from Direct3D to OpenGL.");
 	}
 
-	/* 次にOpenGLを初期化してみる */
+	/*
+	 * Step.2: Try initializing OpenGL if there isn't "no-opengl.txt" file.
+	 */
 	if (_access("no-opengl.txt", 0) != 0)
 	{
 		/* OpenGLを初期化する */
 		if(InitOpenGL())
 		{
 			bOpenGL = TRUE;
+
+			/* We disable window resizing on OpenGL. */
+			dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+			dwStyle ^= WS_THICKFRAME;
+			SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
+			conf_window_resize = 0;
 			return TRUE;
 		}
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
 	}
-	else
-	{
-		/* Disable window resizing. */
-		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
-		dwStyle ^= WS_THICKFRAME;
-		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
-		conf_window_resize = 0;
 
-		log_info("Fallback from OpenGL to GDI.");
-	}
+	/*
+	 * Step.3: Use GDI instead of accelerations.
+	 */
 
-	/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
+	/* Disable window resizing on GDI. */
+	dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+	dwStyle ^= WS_THICKFRAME;
+	SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
+	conf_window_resize = 0;
+
+	log_info("Fallback from OpenGL to GDI.");
+
 	return TRUE;
 }
 
@@ -838,7 +858,8 @@ static void GameLoop(void)
 	{
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
 		/* 入力のキャプチャ/エミュレートを行う */
-		capture_input();
+		if (!capture_input())
+			break;
 #endif
 
 		/* フレームを実行する */
@@ -1129,7 +1150,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_RESTOREORIGINALSTYLE:
 		/* Restore Aero Snap. */
 		if ((LONG)wParam == GWL_STYLE)
-			SetWindowLong(hWndMain, GWL_STYLE, lParam);
+			SetWindowLong(hWndMain, GWL_STYLE, (LONG)lParam);
 		return 0;
 	case WM_NCLBUTTONDBLCLK:
 		/* タイトルバーがダブルクリックされたとき */
