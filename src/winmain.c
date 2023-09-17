@@ -113,6 +113,7 @@ DWORD dwStopWatchOffset;
 /* フルスクリーンモード時の描画オフセット */
 static int nOffsetX;
 static int nOffsetY;
+static float fMouseScale;
 
 /* DirectShowでビデオを再生中か */
 static BOOL bDShowMode;
@@ -470,7 +471,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	WNDCLASSEX wcex;
 	RECT rc;
 	DWORD style;
-	int vsw, vsh, dw, dh, i;
+	int vsw, vsh, dw, dh, i, wwin, hwin;
 #ifndef USE_DEBUGGER
 	int monitors;
 #endif
@@ -523,20 +524,29 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	monitors = GetSystemMetrics(SM_CMONITORS);
 #endif
 
+	/* ウィンドウのサイズをコンフィグから取得する */
+	if (conf_window_default_width > 0 && conf_window_default_height > 0)
+	{
+		wwin = conf_window_default_width;
+		hwin = conf_window_default_height;
+	}
+	else
+	{
+		wwin = conf_window_width;
+		hwin = conf_window_height;
+	}
+
 	/* ウィンドウを作成する */
-	hWndMain = CreateWindowEx(0, wszWindowClass, wszTitle, style,
+	hWndMain = CreateWindowEx(
+		0, wszWindowClass, wszTitle, style,
 #ifdef USE_DEBUGGER
-							  10, 10,
+		10, 10,
 #else
-							  monitors == 1 ?
-							  (vsw - (conf_window_width + dw)) / 2 :
-							  CW_USEDEFAULT,
-							  monitors == 1 ?
-							  (vsh - (conf_window_height + dh)) / 2 :
-							  CW_USEDEFAULT,
+		monitors == 1 ? (vsw - (wwin + dw)) / 2 : CW_USEDEFAULT,
+		monitors == 1 ? (vsh - (hwin + dh)) / 2 : CW_USEDEFAULT,
 #endif
-							  conf_window_width + dw, conf_window_height + dh,
-							  NULL, NULL, hInstance, NULL);
+		conf_window_width + dw, conf_window_height + dh,
+		NULL, NULL, hInstance, NULL);
 	if (hWndMain == NULL)
 	{
 		log_api_error("CreateWindowEx");
@@ -556,6 +566,8 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 					   (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
 	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
+
+	UpdateOffset();
 
 #ifdef USE_DEBUGGER
 	/* デバッガ用メニューを作成する */
@@ -1005,20 +1017,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return 0;
 #endif
 	case WM_LBUTTONDOWN:
-		on_event_mouse_press(MOUSE_LEFT, LOWORD(lParam) - nOffsetX,
-							 HIWORD(lParam) - nOffsetY);
+		on_event_mouse_press(
+			MOUSE_LEFT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) * fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) * fMouseScale));
 		return 0;
 	case WM_LBUTTONUP:
-		on_event_mouse_release(MOUSE_LEFT, LOWORD(lParam) - nOffsetX,
-							   HIWORD(lParam) - nOffsetY);
+		on_event_mouse_release(
+			MOUSE_LEFT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) * fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) * fMouseScale));
 		return 0;
 	case WM_RBUTTONDOWN:
-		on_event_mouse_press(MOUSE_RIGHT, LOWORD(lParam) - nOffsetX,
-							 HIWORD(lParam) - nOffsetY);
+		on_event_mouse_press(
+			MOUSE_RIGHT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) * fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) * fMouseScale));
 		return 0;
 	case WM_RBUTTONUP:
-		on_event_mouse_release(MOUSE_RIGHT, LOWORD(lParam) - nOffsetX,
-							   HIWORD(lParam) - nOffsetY);
+		on_event_mouse_release(
+			MOUSE_RIGHT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) * fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) * fMouseScale));
 		return 0;
 	case WM_KEYDOWN:
 		/* オートリピートの場合を除外する */
@@ -1039,8 +1059,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			on_event_key_release(kc);
 		return 0;
 	case WM_MOUSEMOVE:
-		on_event_mouse_move(LOWORD(lParam) - nOffsetX,
-							HIWORD(lParam) - nOffsetY);
+		on_event_mouse_move(
+			(int)((float)(LOWORD(lParam) - nOffsetX) * fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) * fMouseScale));
 		return 0;
 	case WM_MOUSEWHEEL:
 		if((int)(short)HIWORD(wParam) > 0)
@@ -1085,6 +1106,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if(!DShowProcessEvent())
 			bDShowMode = FALSE;
 		break;
+	case WM_SIZING:
+		if (
 	default:
 		break;
 	}
@@ -1116,6 +1139,32 @@ static int ConvertKeyCode(int nVK)
 	return -1;
 }
 
+/* スクリーンのオフセットを計算する */
+static void UpdateScreenOffset(int nClientWidth, int nClientHeight)
+{
+	RECT rectWindow;
+	float fAspect, fUseWidth, fUseHeight;
+
+	/* Calc the aspect ratio of the game. */
+	aspect = (float)conf_window_height / (float)conf_window_width;
+
+	/* Set the height temporarily with "width-first". */
+    fUseWidth = (float)nClientWidth;
+    fUseHeight = fUseWidth * aspect;
+    fMouseScale = (float)conf_window_width / (float)nClientWidth;
+
+	/* If height is not enough, determine width with "height-first". */
+    if(fUseHeight > (float)nClientWidth) {
+        fUseHeight = (float)nClientHeight;
+        fUseWidth = (float)nClientHeight / aspect;
+        fMouseScale = (float)conf_window_height / (float)nClientHeight;
+    }
+
+	/* Calc the viewport origin. */
+	nOffsetX = (nClientWidth - fUseWidth) / 2.0f;
+    nOffsetY = (nClientHeight - fUseHeight) / 2.0f;
+}
+
 /* フルスクリーンモードの切り替えを行う */
 static void ToggleFullScreen(void)
 {
@@ -1133,8 +1182,6 @@ static void ToggleFullScreen(void)
 		bFullScreen = TRUE;
 
 		SetMenu(hWndMain, NULL);
-
-		ChangeDisplayMode(&sw, &sh);
 
 		nOffsetX = (sw - conf_window_width) / 2;
 		nOffsetY = (sh - conf_window_height) / 2;

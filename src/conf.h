@@ -59,6 +59,9 @@ extern int conf_window_width;
 extern int conf_window_height;
 extern int conf_window_white;
 extern int conf_window_menubar;
+extern int conf_window_resize;
+extern int conf_window_default_width;
+extern int conf_window_default_height;
 
 /*
  * フォントの設定

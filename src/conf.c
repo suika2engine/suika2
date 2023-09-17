@@ -49,6 +49,9 @@ int conf_window_width;
 int conf_window_height;
 int conf_window_white;
 int conf_window_menubar;
+int conf_window_resize;
+int conf_window_default_width;
+int conf_window_default_height;
 
 /*
  * フォントの設定
@@ -446,6 +449,9 @@ static struct rule {
 	{"window.height", 'i', &conf_window_height, MUST, NOSAVE},
 	{"window.white", 'i', &conf_window_white, MUST, NOSAVE},
 	{"window.menubar", 'i', &conf_window_menubar, OPTIONAL, NOSAVE},
+	{"window.resize", 'i', &conf_window_resize, OPTIONAL, NOSAVE},
+	{"window.default.width", 'i', &conf_window_default_width, OPTIONAL, NOSAVE},
+	{"window.default.height", 'i', &conf_window_default_height, OPTIONAL, NOSAVE},
 	{"font.select", 'i', &conf_font_select, OPTIONAL, SAVE},
 	{"font.file", 's', &conf_font_global_file, MUST, NOSAVE},
 	{"font.main.file", 's', &conf_font_main_file, OPTIONAL, NOSAVE},
