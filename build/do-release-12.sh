@@ -18,7 +18,7 @@ SIGNATURE="Open Source Developer, Keiichi Tabata"
 #
 # Input a version number.
 #
-echo "Enter version e.g. 12.38"
+echo "Enter version e.g. 12.0"
 read str
 VERSION=$str
 if [ ! -n "$VERSION" ]; then
@@ -138,65 +138,6 @@ cp suika-pro.exe $RELEASETMP/
 cd ../
 
 #
-# Build suika-capture.exe
-#
-echo "Building suika-capture.exe"
-cd mingw-capture
-make clean
-cp -Rav ../mingw/libroot .
-make -j24
-cp suika-capture.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-replay.exe
-#
-echo "Building suika-replay.exe"
-cd mingw-replay
-make clean
-cp -Rav ../mingw/libroot .
-make -j24
-cp suika-replay.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-64.exe
-#
-echo "Building suika-64.exe"
-cd mingw-64
-make erase
-make libroot
-make -j24
-cp suika-64.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-arm64.exe
-#
-echo "Building suika-arm64.exe"
-cd mingw-arm64
-make erase
-make libroot
-make -j24
-cp suika-arm64.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-linux
-#
-if [ ! -z "`uname | grep Linux`" ]; then
-	echo "Building suika-linux";
-	cd linux-x86_64;
-	make erase;
-	make libroot;
-	make -j24;
-	cp suika $RELEASETMP/suika-linux;
-	cd ../;
-else
-	touch $RELEASETMP/suika-linux
-fi
-
-#
 # Build Web files
 #
 echo "Building Emscripten files."
@@ -220,9 +161,9 @@ else
 fi
 
 #
-# Build macOS apps.
+# Build macOS app.
 #
-echo "Building macOS apps."
+echo "Building macOS app."
 
 if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
@@ -234,12 +175,12 @@ if [ -z "`uname | grep Darwin`" ]; then
     done;
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
 else
-    echo "Building on localhost..."
-    cd macos
+    echo "Building on localhost...";
+    cd macos;
     make clean;
     make main;
     cp mac.dmg "$RELEASETMP/";
-    cd ..
+    cd ..;
 fi
 
 #
@@ -250,35 +191,15 @@ echo "Creating a main release file."
 # Main ZIP
 rm -rf suika2
 mkdir suika2
-mkdir suika2/anime && cp -Rv ../game/anime/* suika2/anime/
-mkdir suika2/bg && cp -Rv ../game/bg/* suika2/bg/
-mkdir suika2/bgm && cp -Rv ../game/bgm/* suika2/bgm/
-mkdir suika2/cg && cp -Rv ../game/cg/* suika2/cg/
-mkdir suika2/ch && cp -Rv ../game/ch/* suika2/ch/
-mkdir suika2/conf && cp -Rv ../game/conf/*.txt suika2/conf/
-mkdir suika2/cv && cp -Rv ../game/cv/* suika2/cv/
-mkdir suika2/font && cp -Rv ../game/font/* suika2/font/
-mkdir suika2/gui && cp -Rv ../game/gui/*.txt suika2/gui/
-mkdir suika2/rule && cp -Rv ../game/rule/* suika2/rule/
-mkdir suika2/mov
-mkdir suika2/se && cp -Rv ../game/se/* suika2/se/
-mkdir suika2/txt && cp -Rv ../game/txt/*.txt suika2/txt/
-mkdir suika2/wms && cp -Rv ../game/wms/*.txt suika2/wms/
 cp -v ../doc/COPYING suika2/
 cp -v ../doc/readme-jp.html suika2/README.html
 cp -v ../doc/readme-en.html suika2/README-english.html
-mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
 cp -v "$RELEASETMP/suika.exe" suika2/
 cp -v "$RELEASETMP/suika-pro.exe" suika2/
 cp -v "$RELEASETMP/mac.dmg" suika2/
 mkdir suika2/tools
 cp -v ../doc/readme-tools-jp.txt suika2/tools/README.txt
 cp -v ../doc/readme-tools-en.txt suika2/tools/README-english.txt
-cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
-cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
-cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
-cp -v "$RELEASETMP/suika-arm64.exe" suika2/tools/
-cp -v "$RELEASETMP/suika-linux" suika2/tools/
 mkdir suika2/tools/web
 cp -v "$RELEASETMP/index.html" suika2/tools/web/
 cp -v "$RELEASETMP/index.js" suika2/tools/web/
