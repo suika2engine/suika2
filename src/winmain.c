@@ -559,7 +559,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	monitors = GetSystemMetrics(SM_CMONITORS);
 
 	/* ウィンドウのサイズをコンフィグから取得する */
-	if (window_resize &&
+	if (conf_window_resize &&
 		conf_window_default_width > 0 && conf_window_default_height > 0)
 	{
 		wwin = conf_window_default_width;
