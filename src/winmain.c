@@ -366,7 +366,7 @@ static BOOL InitRenderingEngine(void)
 	{
 		bOpenGL = TRUE;
 
-		/* We disable window resizing on OpenGL. */
+		/* We disable window resizing for capture-replay apps. */
 		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
 		dwStyle ^= WS_THICKFRAME;
 		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
@@ -389,6 +389,8 @@ static BOOL InitRenderingEngine(void)
 			bD3D = TRUE;
 			return TRUE;
 		}
+
+		/* Put error log. */
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
 	}
 	else
@@ -405,14 +407,10 @@ static BOOL InitRenderingEngine(void)
 		if(InitOpenGL())
 		{
 			bOpenGL = TRUE;
-
-			/* We disable window resizing on OpenGL. */
-			dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
-			dwStyle ^= WS_THICKFRAME;
-			SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
-			conf_window_resize = 0;
 			return TRUE;
 		}
+
+		/* Put error log. */
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
 	}
 
@@ -426,6 +424,7 @@ static BOOL InitRenderingEngine(void)
 	SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
 	conf_window_resize = 0;
 
+	/* Put error log. */
 	log_info("Fallback from OpenGL to GDI.");
 
 	return TRUE;
@@ -560,7 +559,8 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	monitors = GetSystemMetrics(SM_CMONITORS);
 
 	/* ウィンドウのサイズをコンフィグから取得する */
-	if (conf_window_default_width > 0 && conf_window_default_height > 0)
+	if (window_resize &&
+		conf_window_default_width > 0 && conf_window_default_height > 0)
 	{
 		wwin = conf_window_default_width;
 		hwin = conf_window_default_height;
@@ -1413,9 +1413,15 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 
 	/* Update the screen offset and scale for drawing subsystem. */
 	if (bD3D)
+	{
 		D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
+	}
 	else if (bOpenGL)
-		opengl_set_screen(nOffsetX, nOffsetY, nClientWidth, nClientHeight);
+	{
+		opengl_set_screen(nOffsetX, nOffsetY,
+						  (int)(fUseWidth + 0.5f),
+						  (int)(fUseHeight + 0.5));
+	}
 }
 
 /*
