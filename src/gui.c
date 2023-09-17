@@ -1560,9 +1560,9 @@ static int draw_save_text_item(int button_index, int x, int y,
 
 	b = &button[button_index];
 
-	/* フォントサイズを取得する */
+	/* フォントサイズを設定する */
 	font_size = conf_gui_save_font_size > 0 ?
-		      conf_gui_save_font_size : conf_font_size;
+		conf_gui_save_font_size : conf_font_size;
 
 	/* ふちどりを選択する */
 	switch (conf_gui_save_font_outline) {
@@ -1578,10 +1578,6 @@ static int draw_save_text_item(int button_index, int x, int y,
 		conf_font_ruby_size > 0 ?
 		conf_font_ruby_size :
 		conf_font_size / 5;
-
-	/* フォントサイズを設定する */
-	font_size = conf_gui_save_font_size > 0 ?
-		conf_gui_save_font_size : conf_font_size;
 
 	/* 色を決定する */
 	color = make_pixel_slow(0xff,

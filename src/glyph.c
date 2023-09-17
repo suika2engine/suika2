@@ -1141,9 +1141,10 @@ draw_msg_common(
 	int *w,		/* width of the update rect. */
 	int *h)		/* height of the update rect. */
 {
-	uint32_t wc;
+	uint32_t wc = 0;
 	int i, mblen;
-	int glyph_width, glyph_height, ret_width, ret_height, ofs_x, ofs_y;
+	int glyph_width, glyph_height, ofs_x, ofs_y;
+	int ret_width = 0, ret_height = 0;
 
 	context->font = translate_font_type(context->font);
 	apply_font_size(context->font, context->font_size);
@@ -1745,7 +1746,7 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context,
 {
 	char ruby[64];
 	const char *p;
-	uint32_t wc;
+	uint32_t wc = 0;
 	int i, mblen, ret_w, ret_h;
 
 	p = context->msg;

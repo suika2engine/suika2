@@ -74,9 +74,6 @@ bool register_message(const char *name, const char *msg, const char *voice,
 {
 	struct history *h;
 
-	UNUSED_PARAMETER(body_outline_color);
-	UNUSED_PARAMETER(name_outline_color);
-
 	/* 格納位置を求める */
 	h = &history[history_index];
 
@@ -170,7 +167,10 @@ bool register_message(const char *name, const char *msg, const char *voice,
 	history_count = (history_count + 1) >= HISTORY_SIZE ? HISTORY_SIZE :
 			(history_count + 1);
 
-	return true;
+	UNUSED_PARAMETER(body_outline_color);
+	UNUSED_PARAMETER(name_outline_color);
+
+    return true;
 }
 
 /*

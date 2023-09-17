@@ -140,23 +140,14 @@ static bool init(void)
 	}
 	show_click(false);
 
-	/* フェードしない場合か、キーが押されている場合 */
-	if ((span == 0) 
-	    ||
-	    (!is_non_interruptible() &&
-	     ((!is_auto_mode() && is_control_pressed) || is_skip_mode()))) {
-		/* フェードせず、すぐに切り替える */
-		set_layer_image(LAYER_BG, img);
-	} else {
-		/* 繰り返し動作を開始する */
-		start_command_repetition();
+	/* 繰り返し動作を開始する */
+	start_command_repetition();
 
-		/* 背景フェードモードを有効にする */
-		start_bg_fade(img);
+	/* 背景フェードモードを有効にする */
+	start_bg_fade(img);
 
-		/* 時間計測を開始する */
-		reset_stop_watch(&sw);
-	}
+	/* 時間計測を開始する */
+	reset_stop_watch(&sw);
 
 	/* メッセージボックスを消す (msgbox.show.on.bg=0 or 2) */
 	if (conf_msgbox_show_on_bg == 0 ||
