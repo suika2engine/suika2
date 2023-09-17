@@ -1157,8 +1157,10 @@ draw_msg_common(
 
 		/* 先頭のエスケープシーケンスをすべて処理する */
 		process_escape_sequence(context, x, y, w, h);
-		if (context->runtime_is_inline_wait)
+		if (context->runtime_is_inline_wait) {
+			context->runtime_is_inline_wait = false;
 			return i;
+		}
 
 		/* ワードラッピングを処理する */
 		if (!do_word_wrapping(context))
