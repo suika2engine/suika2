@@ -949,11 +949,11 @@ static void SyncBackImage(int x, int y, int w, int h)
 /* キューにあるイベントを処理する */
 static BOOL SyncEvents(void)
 {
-	DWORD dwStopWatchPauseStart;
+	/* DWORD dwStopWatchPauseStart; */
 	MSG msg;
 
 	/* イベント処理の開始時刻を求める */
-	dwStopWatchPauseStart = GetTickCount();
+	/* dwStopWatchPauseStart = GetTickCount(); */
 
 	/* イベント処理を行う */
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -968,7 +968,7 @@ static BOOL SyncEvents(void)
 	}
 
 	/* イベント処理にかかった時間をストップウォッチから除外するようにする */
-	dwStopWatchOffset += GetTickCount() - dwStopWatchPauseStart;
+	/* dwStopWatchOffset += GetTickCount() - dwStopWatchPauseStart; */
 
 	return TRUE;
 }

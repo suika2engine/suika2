@@ -2867,6 +2867,8 @@ static void draw_click(int *x, int *y, int *w, int *h)
 		index = (lap % (int)(conf_click_interval * 1000)) /
 			((int)(conf_click_interval * 1000) / click_frames) %
 			click_frames;
+		index = index < 0 ? 0 : index;
+		index = index >= click_frames ? 0 : index;
 		set_click_index(index);
 		show_click(true);
 		is_click_visible = true;
