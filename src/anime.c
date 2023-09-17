@@ -290,7 +290,7 @@ void update_anime_frame(void)
 		last_seq = context[i].seq_count - 1;
 		assert(last_seq >= 0);
 
-		if (context[i].cur_lap > sequence[i][last_seq].end_time) {
+		if (context[i].cur_lap >= sequence[i][last_seq].end_time) {
 			context[i].is_running = false;
 			context[i].is_finished = true;
 		}

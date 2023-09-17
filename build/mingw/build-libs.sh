@@ -57,9 +57,9 @@ sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += psnames//' \
     < modules.cfg > modules.cfg.new
 mv modules.cfg.new modules.cfg
-./configure --host=i686-w64-mingw32 --disable-shared --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no --prefix=$PREFIX CFLAGS='-O3 -ffunction-sections -fdata-sections'
-make -j4
-make install
+./configure --host=i686-w64-mingw32 --disable-shared --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no --prefix=$PREFIX CFLAGS='-O3 -ffunction-sections -fdata-sections' | tee
+make -j4 | tee
+make install | tee
 cd ..
 
 cd ..

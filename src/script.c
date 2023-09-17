@@ -779,6 +779,8 @@ bool load_script(const char *fname)
 	update_debug_info(true);
 #endif
 
+	clear_last_en_command();
+
 	return true;
 }
 
@@ -907,6 +909,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 			break;
 	}
 	if (i != cmd_size) {
+		assert(c != NULL);
 		cur_index = i;
 		if (c->type == COMMAND_LABELEDGOTO)
 			cur_index++;

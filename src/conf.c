@@ -309,6 +309,7 @@ int conf_gui_save_font_select;
 int conf_gui_save_font_size;
 int conf_gui_save_font_outline;
 int conf_gui_save_font_ruby_size;
+int conf_gui_save_tategaki;
 int conf_gui_history_font_select;
 int conf_gui_history_font_size;
 int conf_gui_history_font_outline;
@@ -666,6 +667,7 @@ static struct rule {
 	{"gui.save.font.size", 'i', &conf_gui_save_font_size, OPTIONAL, SAVE},
 	{"gui.save.font.outline", 'i', &conf_gui_save_font_outline, OPTIONAL, SAVE},
 	{"gui.save.font.ruby.size", 'i', &conf_gui_save_font_ruby_size, OPTIONAL, SAVE},
+	{"gui.save.tategaki", 'i', &conf_gui_save_tategaki, OPTIONAL, SAVE},
 	{"gui.history.font.select", 'i', &conf_gui_history_font_select, OPTIONAL, SAVE},
 	{"gui.history.font.size", 'i', &conf_gui_history_font_size, OPTIONAL, SAVE},
 	{"gui.history.font.outline", 'i', &conf_gui_history_font_outline, OPTIONAL, SAVE},

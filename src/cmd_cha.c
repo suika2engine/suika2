@@ -14,7 +14,7 @@
 
 #include "suika.h"
 
-static int layer;
+static int anime_layer;
 
 static bool init(void);
 static bool get_position(int *chpos, const char *pos);
@@ -55,6 +55,7 @@ static bool init(void)
 	const char *pos_s, *alpha_s, *accel_s;
 	float span;
 	int chpos, ofs_x, ofs_y, alpha, from_x, from_y, to_x, to_y, accel;
+	int stage_layer;
 
 	/* パラメータを取得する */
 	pos_s = get_string_param(CHA_PARAM_POS);
@@ -69,8 +70,8 @@ static bool init(void)
 		return false;
 
 	/* キャラの位置からアニメレイヤーを求める */
-	layer = chpos_to_layer(chpos);
-	if (get_layer_file_name(layer) == NULL) {
+	stage_layer = chpos_to_layer(chpos);
+	if (get_layer_file_name(stage_layer) == NULL) {
 		log_script_cha_no_image(pos_s);
 		log_script_exec_footer();
 		return false;
@@ -85,42 +86,32 @@ static bool init(void)
 	alpha = get_alpha(alpha_s);
 
 	/* キャラのfrom位置を取得する */
-	from_x = get_layer_x(layer);
-	from_y = get_layer_y(layer);
+	from_x = get_layer_x(stage_layer);
+	from_y = get_layer_y(stage_layer);
 
 	/* キャラのto位置を計算する */
 	to_x = from_x + ofs_x;
 	to_y = from_y + ofs_y;
 
-	/* Controlが押されているか、フェードしない場合 */
-	if ((span == 0)
-	    ||
-	    (!is_non_interruptible() && is_skip_mode())
-	    ||
-	    (!is_non_interruptible() && !is_auto_mode() && is_control_pressed)) {
-		/* アニメを行わず、すぐに位置・アルファ値を設定する */
-		set_layer_position(layer, to_x, to_y);
-		set_layer_alpha(layer, alpha);
-	} else {
-		/* アニメ定義を行う */
-		clear_anime_sequence(layer);
-		new_anime_sequence(layer);
-		add_anime_sequence_property_f("start", 0);
-		add_anime_sequence_property_f("end", span);
-		add_anime_sequence_property_i("from-x", from_x);
-		add_anime_sequence_property_i("from-y", from_y);
-		add_anime_sequence_property_i("from-a", get_layer_alpha(layer));
-		add_anime_sequence_property_i("to-x", to_x);
-		add_anime_sequence_property_i("to-y", to_y);
-		add_anime_sequence_property_i("to-a", alpha);
-		add_anime_sequence_property_i("accel", accel);
+	/* アニメ定義を行う */
+	anime_layer = chpos_to_anime_layer(chpos);
+	clear_anime_sequence(anime_layer);
+	new_anime_sequence(anime_layer);
+	add_anime_sequence_property_f("start", 0);
+	add_anime_sequence_property_f("end", span);
+	add_anime_sequence_property_i("from-x", from_x);
+	add_anime_sequence_property_i("from-y", from_y);
+	add_anime_sequence_property_i("from-a", get_layer_alpha(anime_layer));
+	add_anime_sequence_property_i("to-x", to_x);
+	add_anime_sequence_property_i("to-y", to_y);
+	add_anime_sequence_property_i("to-a", alpha);
+	add_anime_sequence_property_i("accel", accel);
 
-		/* アニメを開始する */
-		start_layer_anime(layer);
+	/* アニメを開始する */
+	start_layer_anime(anime_layer);
 
-		/* 繰り返し動作を開始する */
-		start_command_repetition();
-	}
+	/* 繰り返し動作を開始する */
+	start_command_repetition();
 
 	/* メッセージボックスを消す */
 	show_namebox(false);
@@ -220,7 +211,7 @@ static void process_finish(void)
 		return;
 
 	/* アニメが終了した場合 */
-	if (is_anime_finished_for_layer(layer)) {
+	if (is_anime_finished_for_layer(anime_layer)) {
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
 		return;
@@ -231,7 +222,7 @@ static void process_finish(void)
 	    (is_control_pressed || is_return_pressed ||
 	     is_left_clicked || is_down_pressed)) {
 		/* アニメを終了する */
-		finish_layer_anime(layer);
+		finish_layer_anime(anime_layer);
 
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
@@ -243,8 +234,8 @@ static void process_finish(void)
 static bool cleanup(void)
 {
 	/* アニメが終了した場合は削除する */
-	if (is_anime_finished_for_layer(layer))
-		clear_anime_sequence(layer);
+	if (is_anime_finished_for_layer(anime_layer))
+		clear_anime_sequence(anime_layer);
 
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())

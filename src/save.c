@@ -83,7 +83,7 @@ static struct image *save_thumb[SAVE_SLOTS];
 static time_t quick_save_time;
 
 /* 最後の+en+コマンドの位置 */
-static int last_en_command;
+static int last_en_command = -1;
 
 /*
  * 作業用バッファ
@@ -179,6 +179,8 @@ bool init_save(void)
 
 	/* グローバルデータのロードを行う */
 	load_global_data();
+
+	last_en_command = -1;
 
 	return true;
 }
@@ -562,7 +564,8 @@ static bool serialize_command(struct wfile *wf)
 
 	/* コマンドインデックスを取得してシリアライズする */
 	n = get_command_index();
-	if (n >= last_en_command && n < last_en_command + 10)
+	if (last_en_command != -1 &&
+	    n >= last_en_command && n < last_en_command + 10)
 		n = last_en_command;
 	if (write_wfile(wf, &n, sizeof(n)) < sizeof(n))
 		return false;
@@ -1522,4 +1525,12 @@ float get_auto_speed(void)
 void set_last_en_command(void)
 {
 	last_en_command = get_command_index();
+}
+
+/*
+ * 最後の+en+コマンドの位置を消去する
+ */
+void clear_last_en_command(void)
+{
+	last_en_command = -1;
 }
