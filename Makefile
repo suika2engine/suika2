@@ -213,8 +213,8 @@ gtest:
 	./run.sh && \
 	cd ..
 
-# Build v13 apps and upload both Japanese and English zip files.
-do-release-13:
+# Build apps and upload both Japanese and English zip files.
+do-release:
 	@# Check if we are running on WSL2.
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
 		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
@@ -225,7 +225,7 @@ do-release-13:
 	fi
 	@echo "Going to build release files and upload them."
 	@cd build && \
-	./do-release-13.sh && \
+	./do-release.sh && \
 	cd ..
 
 # Cleanup.

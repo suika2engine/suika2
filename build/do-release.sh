@@ -165,7 +165,7 @@ cd ../
 echo "Building suika-64.exe"
 cd mingw-64
 rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
+if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
 cp suika-64.exe $RELEASETMP/
 cd ../
