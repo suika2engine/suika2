@@ -864,7 +864,7 @@ static void GameLoop(void)
 
 		/* フレームを実行する */
 		if (!RunFrame())
-			bBreak = FALSE;
+			bBreak = TRUE;
 
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
 		/* 出力のキャプチャを行う */
