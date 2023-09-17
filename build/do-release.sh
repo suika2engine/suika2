@@ -245,7 +245,7 @@ if [ -z "`uname | grep Darwin`" ]; then
     done;
 
     # Build Kirara helpers
-    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make rel-helper";
+    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make helpers";
 
     # Copy results
     scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
