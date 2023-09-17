@@ -140,6 +140,9 @@ static bool init(void)
 	if (chpos != CH_FACE)
 		set_ch_dim(chpos, false);
 
+	/* アニメレイヤーの座標を設定する */
+	set_anime_layer_position(anime_layer, xpos, ypos);
+
 	/* Controlが押されているか、フェードしない場合 */
 	if ((span == 0)
 	    ||
@@ -151,7 +154,6 @@ static bool init(void)
 		set_layer_image(layer, img);
 		set_layer_position(layer, xpos, ypos);
 		set_layer_alpha(layer, alpha);
-		set_anime_layer_position(anime_layer, xpos, ypos);
 	} else {
 		/* 繰り返し動作を開始する */
 		start_command_repetition();
