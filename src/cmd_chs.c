@@ -66,7 +66,7 @@ static bool init(void)
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
 	const char *method;
-	int i, layer, anime_layer;
+	int i, layer;
 
 	/* パラメータを取得する */
 	if (get_command_type() == COMMAND_CHS) {
@@ -224,47 +224,14 @@ static bool init(void)
 		set_rule_image(rule_img);
 	}
 
-	/* キーが押されているか、フェードしない場合 */
-	if ((span == 0)
-	    ||
-	    (!is_non_interruptible() && is_skip_mode())
-	    ||
-	    (!is_non_interruptible() && !is_auto_mode() &&
-	     is_control_pressed)) {
-		/* フェードせず、すぐに切り替える */
-		for (i = 0; i < PARAM_SIZE; i++) {
-			if (i != BG_INDEX) {
-				layer = chpos_to_layer(i);
-				anime_layer = chpos_to_anime_layer(i);
-			} else {
-				layer = LAYER_BG;
-				anime_layer = ANIME_LAYER_BG;
-			}
+	/* 繰り返し動作を開始する */
+	start_command_repetition();
 
-			/* stay指示の場合は、座標とアルファだけ書き換える */
-			if (stay[i]) {
-				set_layer_position(layer, x[i], y[i]);
-				set_layer_alpha(layer, alpha[i]);
-				set_anime_layer_position(anime_layer, x[i], y[i]);
-				continue;
-			}
+	/* キャラフェードモードを有効にする */
+	start_ch_fade_multi(stay, img, x, y, alpha);
 
-			/* 新しい画像がある場合フェードせずすぐに切り替える */
-			set_layer_image(layer, img[i]);
-			set_layer_position(layer, x[i], y[i]);
-			set_layer_alpha(layer, alpha[i]);
-			set_anime_layer_position(anime_layer, x[i], y[i]);
-		}
-	} else {
-		/* 繰り返し動作を開始する */
-		start_command_repetition();
-
-		/* キャラフェードモードを有効にする */
-		start_ch_fade_multi(stay, img, x, y, alpha);
-
-		/* 時間計測を開始する */
-		reset_stop_watch(&sw);
-	}
+	/* 時間計測を開始する */
+	reset_stop_watch(&sw);
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {

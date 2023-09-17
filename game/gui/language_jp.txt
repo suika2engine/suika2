@@ -1,4 +1,3 @@
-
 global {
     idle:   language_jp.png;
     hover:  language_jp_hover.png;

@@ -30,6 +30,11 @@ struct TextureListNode
 	// Direct3Dのテクスチャオブジェクト
 	IDirect3DTexture9 *pTex;	
 
+	// イメージ情報
+	int width;
+	int height;
+	pixel_t *pixels;
+
 	// リンクリスト
 	TextureListNode *pNext;
 };
@@ -53,9 +58,13 @@ static IDirect3DPixelShader9 *pMeltShader;
 // テクスチャリストの先頭
 static TextureListNode *pTexList;
 
-// 全画面用の表示オフセット
-static int nDisplayOffsetX;
-static int nDisplayOffsetY;
+// メインウィンドウ
+static HWND hMainWnd;
+
+// オフセットとスケール
+static float fDisplayOffsetX;
+static float fDisplayOffsetY;
+static float fScale;
 
 #ifdef COMPILE_SHADER
 // 暗い描画のピクセルシェーダ
@@ -294,6 +303,11 @@ BOOL D3DInitialize(HWND hWnd)
 		return FALSE;
 	}
 
+	hMainWnd = hWnd;
+	fDisplayOffsetX = 0.0f;
+	fDisplayOffsetY = 0.0f;
+	fScale = 1.0f;
+
 	return TRUE;
 }
 
@@ -337,12 +351,22 @@ VOID D3DCleanup(void)
 }
 
 //
-// フルスクリーン表示用のオフセットを設定する
+// ウィンドウをリサイズする
 //
-BOOL D3DSetDisplayOffset(int nOffsetX, int nOffsetY)
+BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 {
-	nDisplayOffsetX = nOffsetX;
-	nDisplayOffsetY = nOffsetY;
+	fDisplayOffsetX = (float)nOffsetX;
+	fDisplayOffsetY = (float)nOffsetY;
+	fScale = scale;
+
+	// Direct3Dデバイスをリセットする
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.BackBufferCount = 1;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.Windowed = TRUE;
+	pD3DDevice->Reset(&d3dpp);
 
 	return TRUE;
 }
@@ -372,6 +396,9 @@ BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
 		t->pTex = NULL;
 		t->pNext = pTexList;
 		pTexList = t;
+		t->width = width;
+		t->height = height;
+		t->pixels = pixels;
 
 		// ポインタを設定する
 		*texture = t;
@@ -401,30 +428,41 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 	if(t->pTex == NULL)
 	{
 		// Direct3Dテクスチャオブジェクトを作成する
-		// TODO: managedでなくする
-		HRESULT hResult = pD3DDevice->CreateTexture(width, height, 1, 0,
+		HRESULT hResult = pD3DDevice->CreateTexture(width,
+													height,
+													1, // mip map levels
+													0, // usage
 													D3DFMT_A8R8G8B8,
 													D3DPOOL_MANAGED,
 													&t->pTex,
 													NULL);
 		if(FAILED(hResult))
 		{
-			log_api_error("Direct3DDevice9::CreateTexture");
-			return FALSE;
+			// 最小化中の失敗は無視する
+			if (!IsIconic(hMainWnd))
+				log_api_error("Direct3DDevice9::CreateTexture");
+			t->pTex = NULL;
+			*locked_pixels = NULL;
+			return TRUE;
 		}
 	}
 
 	// Direct3Dテクスチャオブジェクトの矩形をロックする
 	D3DLOCKED_RECT lockedRect;
 	HRESULT hResult = t->pTex->LockRect(0, &lockedRect, NULL, 0);
-	if(FAILED(hResult))
-		return FALSE;
+	if(!FAILED(hResult))
+	{
+		// ピクセルデータをコピーする
+		memcpy(lockedRect.pBits, *locked_pixels, width * height * sizeof(pixel_t));
 
-	// ピクセルデータをコピーする
-	memcpy(lockedRect.pBits, *locked_pixels, width * height * sizeof(pixel_t));
-
-	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
-	t->pTex->UnlockRect(0);
+		// Direct3Dテクスチャオブジェクトの矩形をアンロックする
+		t->pTex->UnlockRect(0);
+	}
+	else
+	{
+		t->pTex->Release();
+		t->pTex = NULL;
+	}
 
 	// ロック中の描画先ポインタをクリアする
 	*locked_pixels = NULL;
@@ -485,6 +523,42 @@ static VOID DestroyDirect3DTextureObjects()
 	}
 }
 
+// テクスチャの再作成を行う
+//  - ウィンドウの最小化中に描画が行われた場合、テクスチャの作成に失敗している
+static BOOL RecoverTexture(TextureListNode *pTexNode)
+{
+	if(pTexNode->pTex != NULL)
+		return TRUE;
+
+	// Direct3Dテクスチャオブジェクトを作成する
+	HRESULT hResult = pD3DDevice->CreateTexture(pTexNode->width,
+												pTexNode->height,
+												1, // mip map levels
+												0, // usage
+												D3DFMT_A8R8G8B8,
+												D3DPOOL_MANAGED,
+												&pTexNode->pTex,
+												NULL);
+	if(FAILED(hResult))
+	{
+		pTexNode->pTex = NULL;
+		return FALSE;
+	}
+
+	// Direct3Dテクスチャオブジェクトの矩形をロックする
+	D3DLOCKED_RECT lockedRect;
+	hResult = pTexNode->pTex->LockRect(0, &lockedRect, NULL, 0);
+	if(!FAILED(hResult))
+	{
+		memcpy(lockedRect.pBits, pTexNode->pixels,
+			   pTexNode->width * pTexNode->height * sizeof(pixel_t));
+		pTexNode->pTex->UnlockRect(0);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 //
 // フレームの描画を開始する
 //
@@ -510,28 +584,44 @@ VOID D3DEndFrame(void)
 	// 表示する
 	if(pD3DDevice->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST)
 	{
-		// Direct3Dデバイスがロストしている
-		// リセット可能な状態になるまで、メッセージループを回す必要がある
-		if(pD3DDevice->TestCooperativeLevel() != D3DERR_DEVICENOTRESET)
-			return;
-
-		// Direct3Dデバイスをリセットする
-		D3DPRESENT_PARAMETERS d3dpp;
-		ZeroMemory(&d3dpp, sizeof(d3dpp));
-		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-		d3dpp.BackBufferCount = 1;
-		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		d3dpp.Windowed = TRUE;
-		pD3DDevice->Reset(&d3dpp);
+		// Direct3Dデバイスがロストしている場合
+		if(pD3DDevice->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
+		{
+			// Direct3Dデバイスをリセットする
+			D3DPRESENT_PARAMETERS d3dpp;
+			ZeroMemory(&d3dpp, sizeof(d3dpp));
+			d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+			d3dpp.BackBufferCount = 1;
+			d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+			d3dpp.Windowed = TRUE;
+			pD3DDevice->Reset(&d3dpp);
+		}
 	}
 }
 
 //
-// 再描画を行う
+// 前のフレームの内容で再描画を行う
 //
-VOID D3DRedraw(void)
+BOOL D3DRedraw(void)
 {
-	pD3DDevice->Present(NULL, NULL, NULL, NULL);
+	if(pD3DDevice->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST)
+	{
+		// Direct3Dデバイスがロストしている
+		// リセット可能な状態になるまで、メッセージループを回す必要がある
+		if(pD3DDevice->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
+		{
+			// Direct3Dデバイスをリセットする
+			D3DPRESENT_PARAMETERS d3dpp;
+			ZeroMemory(&d3dpp, sizeof(d3dpp));
+			d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+			d3dpp.BackBufferCount = 1;
+			d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+			d3dpp.Windowed = TRUE;
+			pD3DDevice->Reset(&d3dpp);
+			return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 //
@@ -598,6 +688,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	// ソース画像のテクスチャを取得する
 	TextureListNode *src_tex = (TextureListNode *)get_texture_object(src_image);
 	assert(src_tex != NULL);
+	if (!RecoverTexture(src_tex))
+		return;
 
 	// ルール画像のテクスチャを取得する
 	TextureListNode *rule_tex = NULL;
@@ -605,6 +697,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	{
 		rule_tex = (TextureListNode *)get_texture_object(rule_image);
 		assert(rule_tex != NULL);
+		if (!RecoverTexture(src_tex))
+			return;
 	}
 
 	// 描画の必要があるか判定する
@@ -624,8 +718,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	VertexRHWTex v[4];
 
 	// 左上
-	v[0].x = (float)(dst_left + nDisplayOffsetX) - 0.5f;
-	v[0].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
+	v[0].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
+	v[0].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
 	v[0].z = 0.0f;
 	v[0].rhw = 1.0f;
 	v[0].u1 = (float)src_left / img_w;
@@ -635,8 +729,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)(dst_left + width - 1 + nDisplayOffsetX) + 0.5f;
-	v[1].y = (float)(dst_top + nDisplayOffsetY) - 0.5f;
+	v[1].x = (float)(dst_left + width - 1) * fScale + fDisplayOffsetX + 0.5f;
+	v[1].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
 	v[1].u1 = (float)(src_left + width) / img_w;
@@ -646,8 +740,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 左下
-	v[2].x = (float)(dst_left + nDisplayOffsetX) - 0.5f;
-	v[2].y = (float)(dst_top + height - 1 + nDisplayOffsetY) + 0.5f;
+	v[2].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
+	v[2].y = (float)(dst_top + height - 1) * fScale + fDisplayOffsetY + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u1 = (float)src_left / img_w;
@@ -657,8 +751,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)(dst_left + width - 1 + nDisplayOffsetX) + 0.5f;
-	v[3].y = (float)(dst_top + height - 1 + nDisplayOffsetY) + 0.5f;
+	v[3].x = (float)(dst_left + width - 1) * fScale + fDisplayOffsetX + 0.5f;
+	v[3].y = (float)(dst_top + height - 1) * fScale + fDisplayOffsetY + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
 	v[3].u1 = (float)(src_left + width) / img_w;
@@ -720,6 +814,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		if (!RecoverTexture(rule_tex))
+			return;
 	}
 	else if (rule_image != NULL && is_melt)
 	{
@@ -740,6 +836,12 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 
 	pD3DDevice->SetTexture(0, src_tex->pTex);
 	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2 | D3DFVF_DIFFUSE);
+
+	// リニアフィルタを設定する
+	pD3DDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	pD3DDevice->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	pD3DDevice->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 
 	if(width == 1 && height == 1)
 	{

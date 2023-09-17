@@ -890,6 +890,7 @@ static bool move_to_other_gui(void)
 static bool move_to_title(void)
 {
 	const char *file;
+	int i;
 
 	file = button[result_index].file;
 
@@ -922,6 +923,10 @@ static bool move_to_title(void)
 
 	/* ステージをクリアする */
 	clear_stage();
+
+	/* 音声を停止する */
+	for (i = 0; i < MIXER_STREAMS; i++)
+		set_mixer_input(i, NULL);
 
 	return true;
 }
@@ -1555,9 +1560,9 @@ static int draw_save_text_item(int button_index, int x, int y,
 
 	b = &button[button_index];
 
-	/* フォントサイズを取得する */
+	/* フォントサイズを設定する */
 	font_size = conf_gui_save_font_size > 0 ?
-		      conf_gui_save_font_size : conf_font_size;
+		conf_gui_save_font_size : conf_font_size;
 
 	/* ふちどりを選択する */
 	switch (conf_gui_save_font_outline) {
@@ -1573,10 +1578,6 @@ static int draw_save_text_item(int button_index, int x, int y,
 		conf_font_ruby_size > 0 ?
 		conf_font_ruby_size :
 		conf_font_size / 5;
-
-	/* フォントサイズを設定する */
-	font_size = conf_gui_save_font_size > 0 ?
-		conf_gui_save_font_size : conf_font_size;
 
 	/* 色を決定する */
 	color = make_pixel_slow(0xff,
@@ -1620,7 +1621,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 		!conf_gui_ruby,
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
-		false);		/* use_tategaki */
+		conf_gui_save_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
 	total_chars = count_chars_common(&context);
 	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);

@@ -50,6 +50,19 @@ window.white=1
 # Show menu bar (0:don't show, 1:show)
 window.menubar=1
 
+# Window resize (Optional)
+#  - 0: Don't allow
+#  - 1: Allow (free aspect ratio)
+#  - 2: Allow (fixed aspect ratio)
+window.resize=2
+
+# Window size for scaling (Optional)
+#  - Specify these when you want to start game with a scaled window
+#  - Without these, window.width and window.height will be applied
+#  - Currently for Windows only
+#window.default.width=0
+#window.default.heigth=0
+
 ###
 ### Font Settings
 ###

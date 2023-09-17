@@ -160,7 +160,7 @@ void cleanup_replay(void)
 /*
  * 入力をリプレイする
  */
-bool replay_input(void)
+bool capture_input(void)
 {
 	if (sim_exit)
 		return false;
@@ -177,7 +177,7 @@ bool replay_input(void)
 /*
  * リプレイ結果の出力をキャプチャする
  */
-bool replay_output(void)
+bool capture_output(void)
 {
 	char fname[256];
 	png_structp png;

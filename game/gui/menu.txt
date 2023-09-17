@@ -1,95 +1,95 @@
 ###
-### GUI Definition for Main Menu Screen
+### メインメニュー画面のGUI定義
 ###
 
-# Basic Settings
+# このファイルの基本設定
 global {
-    # Use these images
+    # 下記の画像を使用する
     idle:   menu-idle.png;
     hover:  menu-hover.png;
     active: menu-hover.png;
 }
 
-# START Button
+# STARTボタン
 START {
-    # Jump-to-label type
+    # 種類:ラベルへジャンプ
     type: goto;
 
-    # Jump to label
+    # ジャンプ先のラベル
     label: START;
 
-    # Position and size
+    # 座標とサイズ
     x: 2;
     y: 495;
     width: 314;
     height: 192;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# LOAD Button
+# LOADボタン
 LOAD {
-    # Jump-to-label type
+    # 種類:ラベルへジャンプ
     type: goto;
 
-    # Jump to label
+    # ジャンプ先のラベル
     label: LOAD;
 
-    # Position and size
+    # 座標とサイズ
     x: 316;
     y: 494;
     width: 322;
     height: 203;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# CONFIG Button
+# CONFIGボタン
 CONFIG {
-    # Jump-to-label type
+    # 種類:ラベルへジャンプ
     type: goto;
 
-    # Jump to label
+    # ジャンプ先のラベル
     label: CONFIG;
 
-    # Position and size
+    # 座標とサイズ
     x: 640;
     y: 492;
     width: 317;
     height: 204;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# QUIT Button
+# QUITボタン
 QUIT {
-    # Jump-to-label type
+    # 種類:ラベルへジャンプ
     type: goto;
 
-    # Jump to label
+    # ジャンプ先のラベル
     label: QUIT;
 
-    # Position and size
+    # 座標とサイズ
     x: 960;
     y: 497;
     width: 317;
     height: 201;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }

@@ -95,4 +95,7 @@ float get_auto_speed(void);
 /* 最後の+en+コマンドの位置を記録する */
 void set_last_en_command(void);
 
+/* 最後の+en+コマンドの位置を消去する */
+void clear_last_en_command(void);
+
 #endif

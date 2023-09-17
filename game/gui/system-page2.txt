@@ -1,113 +1,113 @@
 ###
-### GUI Definition for Config Screen (Page 1)
+### コンフィグ画面(2ページ目)のGUI定義
 ###
 
-# Basic Settings
+# このファイルの基本設定
 global {
-    # Use these images
+    # 下記の画像を使用する
     idle:   config-page2-idle.png;
     hover:  config-page2-hover.png;
     active: config-page2-active.png;
 
-    # Sound effect when canceled by right click
+    # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
 }
 
-# Per-Character Voice Volume
+# キャラクタごとのボイスボリュームスライダー
 MIDORI {
-    # Character volume type
+    # 種類:キャラクタボリューム
     type: charactervol;
 
-    # Character index (Specified in conf/config.txt)
+    # キャラクタ番号 (conf/config.txtで設定)
     index: 1;
 
-    # Character voice file to play when slider moved
-    file: 026.ogg;
+    # スライダーが変更されたときに再生するCVファイル
+    file: 025.ogg;
 
-    # Position and size
+    # 位置とサイズ
     x: 506;
     y: 506;
     width: 266;
     height: 21;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 }
 
-# Reset Button
+# すべて既定値に戻すボタン
 DEFAULT {
-    # Default type
+    # 種類:既定値
     type: default;
 
-    # Position and size
+    # 座標とサイズ
     x: 1131;
     y: 61;
     width: 115;
     height: 40;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Config Page 1 Button
+# 設定ページ1への移動ボタン
 PAGE1 {
-    # Jump-to-other-GUI type
+    # 種類:他のGUIへの移動
     type: gui;
 
-    # GUI file name
+    # 移動先のGUIファイル
     file: system.txt;
 
-    # Position and size
+    # 座標とサイズ
     x: 1189;
     y: 132;
     width: 35;
     height: 35;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Back to Title Button
+# タイトルへ戻るボタン
 TITLE {
-    # Back-to-Title type
+    # 種類:タイトルへ戻る
     type: title;
 
-    # Title script file name
+    # 移動先のスクリプトファイル
     file: init.txt;
 
-    # Position and size
+    # 座標とサイズ
     x: 1007;
     y: 652;
     width: 109;
     height: 25;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }
 
-# Back Button
+# 元の画面に戻るボタン
 BACK {
-    # Cancel type
+    # 種類:タイトルへ戻る
     type: cancel;
 
-    # Position and size
+    # 座標とサイズ
     x: 1156;
     y: 653;
     width: 103;
     height: 21;
 
-    # Sound effect when pointed
+    # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # Sound effect when clicked
+    # クリックされたときの効果音
     clickse: click.ogg;
 }

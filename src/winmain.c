@@ -44,6 +44,8 @@
 #include "x86.h"
 #endif
 
+#define WM_RESTOREORIGINALSTYLE	(WM_USER + 1)
+
 /* ウィンドウタイトルのバッファサイズ */
 #define TITLE_BUF_SIZE	(1024)
 
@@ -98,14 +100,23 @@ static DWORD dwStartTime;
 /* ログファイル */
 static FILE *pLogFile;
 
-/* フルスクリーンモードであるか */
+/* フルスクリーンモードか */
 static BOOL bFullScreen;
 
-/* ディスプレイセッティングを変更中か */
-static BOOL bDisplaySettingsChanged;
+/* フルスクリーンモードに移行する必要があるか */
+static BOOL bNeedFullScreen;
 
-/* ウィンドウモードでの座標 */
-static RECT rectWindow;
+/* ウィンドウモードに移行する必要があるか */
+static BOOL bNeedWindowed;
+
+/* ウィンドウモードでのスタイル */
+static DWORD dwStyle;
+
+/* ウィンドウモードでの位置 */
+static RECT rcWindow;
+
+/* RunFrame()が描画してよいか */
+static BOOL bRunFrameAllow;
 
 /* ストップウォッチの停止した時間 */
 DWORD dwStopWatchOffset;
@@ -113,6 +124,7 @@ DWORD dwStopWatchOffset;
 /* フルスクリーンモード時の描画オフセット */
 static int nOffsetX;
 static int nOffsetY;
+static float fMouseScale;
 
 /* DirectShowでビデオを再生中か */
 static BOOL bDShowMode;
@@ -199,16 +211,17 @@ static VOID InitGameMenu(void);
 #endif
 static BOOL InitOpenGL(void);
 static void GameLoop(void);
+static BOOL RunFrame(void);
 static BOOL SyncEvents(void);
 static BOOL WaitForNextFrame(void);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 						 LPARAM lParam);
 static int ConvertKeyCode(int nVK);
-static void ToggleFullScreen(void);
-static void ChangeDisplayMode(int *pnScreenWidth, int *pnScreenHeight);
-static void ResetDisplayMode(void);
 static void OnPaint(void);
 static void OnCommand(UINT nID);
+static void OnSizing(int edge, LPRECT lpRect);
+static void OnSize(void);
+static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
 static BOOL OpenLogFile(void);
@@ -345,18 +358,29 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 /* 描画エンジンを初期化する */
 static BOOL InitRenderingEngine(void)
 {
+	/*
+	 * Step.0: Use OpenGL for capture-replay apps.
+	 */
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
-	/* キャプチャアプリではOpenGLを利用する */
 	if (InitOpenGL())
 	{
 		bOpenGL = TRUE;
+
+		/* We disable window resizing for capture-replay apps. */
+		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+		dwStyle ^= WS_THICKFRAME;
+		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
+		conf_window_resize = 0;
+
 		return TRUE;
 	}
 	log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
 	return FALSE;
-#endif
+#endif	/* defined(USE_CAPTURE) || defined(USE_REPLAY) */
 
-	/* まずDirect3Dを初期化してみる */
+	/*
+	 * Step.1: Try initializing Direct3D if there isn't "no-direct3d.txt" file.
+	 */
 	if (_access("no-direct3d.txt", 0) != 0)
 	{
 		/* Direct3Dを初期化する */
@@ -365,6 +389,8 @@ static BOOL InitRenderingEngine(void)
 			bD3D = TRUE;
 			return TRUE;
 		}
+
+		/* Put error log. */
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
 	}
 	else
@@ -372,7 +398,9 @@ static BOOL InitRenderingEngine(void)
 		log_info("Fallback from Direct3D to OpenGL.");
 	}
 
-	/* 次にOpenGLを初期化してみる */
+	/*
+	 * Step.2: Try initializing OpenGL if there isn't "no-opengl.txt" file.
+	 */
 	if (_access("no-opengl.txt", 0) != 0)
 	{
 		/* OpenGLを初期化する */
@@ -381,14 +409,24 @@ static BOOL InitRenderingEngine(void)
 			bOpenGL = TRUE;
 			return TRUE;
 		}
+
+		/* Put error log. */
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
 	}
-	else
-	{
-		log_info("Fallback from OpenGL to GDI.");
-	}
 
-	/* Direct3DとOpenGLが利用できない場合はGDIを利用する */
+	/*
+	 * Step.3: Use GDI instead of accelerations.
+	 */
+
+	/* Disable window resizing on GDI. */
+	dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+	dwStyle ^= WS_THICKFRAME;
+	SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
+	conf_window_resize = 0;
+
+	/* Put error log. */
+	log_info("Fallback from OpenGL to GDI.");
+
 	return TRUE;
 }
 
@@ -400,10 +438,6 @@ static void CleanupApp(void)
 
 	/* ファイルの使用を終了する */
     cleanup_file();
-
-	/* フルスクリーンモードであれば解除する */
-	if (bFullScreen)
-		ToggleFullScreen();
 
 	/* Direct3Dの終了処理を行う */
 	if (bD3D)
@@ -469,10 +503,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
 	WNDCLASSEX wcex;
 	RECT rc;
-	DWORD style;
 	int vsw, vsh, dw, dh, i;
 #ifndef USE_DEBUGGER
-	int monitors;
+	int monitors, wwin, hwin;
 #endif
 
 	/* ディスプレイのサイズが足りない場合 */
@@ -503,11 +536,13 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 
 	/* ウィンドウのスタイルを決める */
 	if (!conf_window_fullscreen_disable && !conf_window_maximize_disable) {
-		style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-			WS_OVERLAPPED;
+		dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
+			      WS_OVERLAPPED;
 	} else {
-		style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPED;
+		dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPED;
 	}
+	if (conf_window_resize)
+		dwStyle |= WS_THICKFRAME;
 
 	/* フレームのサイズを取得する */
 	dw = GetSystemMetrics(SM_CXFIXEDFRAME) * 2;
@@ -520,23 +555,37 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 						TITLE_BUF_SIZE - 1);
 
 #ifndef USE_DEBUGGER
+	/* モニタの数を取得する */
 	monitors = GetSystemMetrics(SM_CMONITORS);
+
+	/* ウィンドウのサイズをコンフィグから取得する */
+	if (conf_window_resize &&
+		conf_window_default_width > 0 && conf_window_default_height > 0)
+	{
+		wwin = conf_window_default_width;
+		hwin = conf_window_default_height;
+	}
+	else
+	{
+		wwin = conf_window_width;
+		hwin = conf_window_height;
+	}
 #endif
 
 	/* ウィンドウを作成する */
-	hWndMain = CreateWindowEx(0, wszWindowClass, wszTitle, style,
+	hWndMain = CreateWindowEx(
+		0,
+		wszWindowClass,
+		wszTitle,
+		dwStyle,
 #ifdef USE_DEBUGGER
-							  10, 10,
+		10, 10,
 #else
-							  monitors == 1 ?
-							  (vsw - (conf_window_width + dw)) / 2 :
-							  CW_USEDEFAULT,
-							  monitors == 1 ?
-							  (vsh - (conf_window_height + dh)) / 2 :
-							  CW_USEDEFAULT,
+		monitors == 1 ? (vsw - (wwin + dw)) / 2 : CW_USEDEFAULT,
+		monitors == 1 ? (vsh - (hwin + dh)) / 2 : CW_USEDEFAULT,
 #endif
-							  conf_window_width + dw, conf_window_height + dh,
-							  NULL, NULL, hInstance, NULL);
+		conf_window_width + dw, conf_window_height + dh,
+		NULL, NULL, hInstance, NULL);
 	if (hWndMain == NULL)
 	{
 		log_api_error("CreateWindowEx");
@@ -547,15 +596,20 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	SetRectEmpty(&rc);
 	rc.right = conf_window_width;
 	rc.bottom = conf_window_height;
-	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndMain, GWL_STYLE),
+	AdjustWindowRectEx(
+		&rc,
+		dwStyle,
 #ifdef USE_DEBUGGER
-					   TRUE,
+		TRUE,
 #else
-					   conf_window_menubar,
+		conf_window_menubar,
 #endif
-					   (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
-	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+		(DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
+	SetWindowPos(hWndMain, NULL, 0, 0,
+				 rc.right - rc.left,
+				 rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
+	GetWindowRect(hWndMain, &rcWindow);
 
 #ifdef USE_DEBUGGER
 	/* デバッガ用メニューを作成する */
@@ -787,104 +841,15 @@ static BOOL CreateBackImage(void)
 /* ゲームループを実行する */
 static void GameLoop(void)
 {
-	int x, y, w, h;
 	BOOL bBreak;
 
-	/* 最初にイベントを処理してしまう */
-	if(!SyncEvents())
-		return;
+	/* WM_PAINTでの描画を許可する */
+	bRunFrameAllow = TRUE;
 
-	/* 最初のフレームの開始時刻を取得する */
-	dwStartTime = GetTickCount();
-
-	while(TRUE)
+	/* ゲームループ */
+	bBreak = FALSE;
+	while (!bBreak)
 	{
-#ifdef USE_CAPTURE
-		/* 入力のキャプチャを行う */
-		capture_input();
-#endif
-#ifdef USE_REPLAY
-		/* 入力のリプレイを行う */
-		replay_input();
-#endif
-
-		/* DirectShowで動画を再生中の場合 */
-		if(bDShowMode)
-		{
-			/* ウィンドウイベントを処理する */
-			if(!SyncEvents())
-				break;
-
-			/* @videoコマンドを実行する */
-			if(!on_event_frame(&x, &y, &w, &h))
-				break;
-
-			continue;
-		}
-
-		if (bD3D)
-		{
-			/* フレームの描画を開始する */
-			D3DStartFrame();
-		}
-		else if (bOpenGL)
-		{
-			/* フレームの描画を開始する */
-			opengl_start_rendering();
-		}
-		else
-		{
-			/* バックイメージのロックを行う */
-			lock_image(BackImage);
-		}
-
-		/* フレームの実行と描画を行う */
-		bBreak = FALSE;
-		if(!on_event_frame(&x, &y, &w, &h))
-		{
-			/* スクリプトの終端に達した */
-			bBreak = TRUE;
-		}
-
-		if (bD3D)
-		{
-			/* フレームの描画を終了する */
-			D3DEndFrame();
-
-			assert(get_image_lock_count() == 0);
-		}
-		else if(bOpenGL)
-		{
-			/* フレームの描画を終了する */
-			opengl_end_rendering();
-
-			/* 描画を反映する */
-			SwapBuffers(hWndDC);
-		}
-		else
-		{
-			/* バックイメージのアンロックを行う */
-			unlock_image(BackImage);
-
-			/* 描画範囲をウィンドウに転送する */
-			if(w !=0 && h !=0)
-				SyncBackImage(x, y, w, h);
-		}
-
-#ifdef USE_CAPTURE
-		/* 出力のキャプチャを行う */
-		if (!capture_output())
-			break;
-#endif
-#ifdef USE_REPLAY
-		/* 出力のキャプチャを行う */
-		if (!replay_output())
-			break;
-#endif
-
-		if(bBreak)
-			break;
-
 		/* イベントを処理する */
 		if(!SyncEvents())
 			break;	/* 閉じるボタンが押された */
@@ -893,25 +858,102 @@ static void GameLoop(void)
 		if(!WaitForNextFrame())
 			break;	/* 閉じるボタンが押された */
 
-		/* 次のフレームの開始時刻を取得する */
+		/* フレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
+
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+		/* 入力のキャプチャ/エミュレートを行う */
+		if (!capture_input())
+			break;
+#endif
+
+		/* フレームを実行する */
+		if (!RunFrame())
+			bBreak = TRUE;
+
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+		/* 出力のキャプチャを行う */
+		if (!bDShowMode && !capture_output())
+			bBreak = TRUE;
+#endif
 	}
+}
+
+/* フレームを実行する */
+static BOOL RunFrame(void)
+{
+	int x, y, w, h;
+	BOOL bRet;
+
+	/* 実行許可前の場合 */
+	if (!bRunFrameAllow)
+		return TRUE;
+
+	/* DirectShowで動画を再生中の場合は特別に処理する */
+	if(bDShowMode)
+	{
+		/* ウィンドウイベントを処理する */
+		if(!SyncEvents())
+			return FALSE;
+
+		/* @videoコマンドを実行する */
+		if(!on_event_frame(&x, &y, &w, &h))
+			return FALSE;
+
+		return TRUE;
+	}
+
+	/* フレームの描画を開始する */
+	if (bD3D)
+		D3DStartFrame();
+	else if (bOpenGL)
+		opengl_start_rendering();
+
+	/* フレームの実行と描画を行う */
+	bRet = TRUE;
+	if(!on_event_frame(&x, &y, &w, &h))
+	{
+		/* スクリプトの終端に達した */
+		bRet = FALSE;
+		bRunFrameAllow = FALSE;
+	}
+
+	/* フレームの描画を終了する */
+	if (bD3D)
+	{
+		D3DEndFrame();
+		assert(get_image_lock_count() == 0);
+	}
+	else if(bOpenGL)
+	{
+		opengl_end_rendering();
+		SwapBuffers(hWndDC);
+	}
+	else
+	{
+		SyncBackImage(x, y, w, h);
+	}
+
+	return bRet;
 }
 
 /* ウィンドウにバックイメージを転送する */
 static void SyncBackImage(int x, int y, int w, int h)
 {
+	if (w == 0 || h == 0)
+		return;
+
 	BitBlt(hWndDC, x + nOffsetX, y + nOffsetY, w, h, hBitmapDC, x, y, SRCCOPY);
 }
 
 /* キューにあるイベントを処理する */
 static BOOL SyncEvents(void)
 {
-	DWORD dwStopWatchPauseStart;
+	/* DWORD dwStopWatchPauseStart; */
 	MSG msg;
 
 	/* イベント処理の開始時刻を求める */
-	dwStopWatchPauseStart = GetTickCount();
+	/* dwStopWatchPauseStart = GetTickCount(); */
 
 	/* イベント処理を行う */
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -926,7 +968,7 @@ static BOOL SyncEvents(void)
 	}
 
 	/* イベント処理にかかった時間をストップウォッチから除外するようにする */
-	dwStopWatchOffset += GetTickCount() - dwStopWatchPauseStart;
+	/* dwStopWatchOffset += GetTickCount() - dwStopWatchPauseStart; */
 
 	return TRUE;
 }
@@ -985,7 +1027,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
 		{
 			if (!conf_window_fullscreen_disable)
-				ToggleFullScreen();
+			{
+				SendMessage(hWndMain, WM_SYSCOMMAND,
+							(WPARAM)SC_MAXIMIZE, (LPARAM)0);
+			}
 			return 0;
 		}
 		if(wParam != VK_F4)
@@ -1005,20 +1050,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return 0;
 #endif
 	case WM_LBUTTONDOWN:
-		on_event_mouse_press(MOUSE_LEFT, LOWORD(lParam) - nOffsetX,
-							 HIWORD(lParam) - nOffsetY);
+		on_event_mouse_press(
+			MOUSE_LEFT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
 		return 0;
 	case WM_LBUTTONUP:
-		on_event_mouse_release(MOUSE_LEFT, LOWORD(lParam) - nOffsetX,
-							   HIWORD(lParam) - nOffsetY);
+		on_event_mouse_release(
+			MOUSE_LEFT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
 		return 0;
 	case WM_RBUTTONDOWN:
-		on_event_mouse_press(MOUSE_RIGHT, LOWORD(lParam) - nOffsetX,
-							 HIWORD(lParam) - nOffsetY);
+		on_event_mouse_press(
+			MOUSE_RIGHT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
 		return 0;
 	case WM_RBUTTONUP:
-		on_event_mouse_release(MOUSE_RIGHT, LOWORD(lParam) - nOffsetX,
-							   HIWORD(lParam) - nOffsetY);
+		on_event_mouse_release(
+			MOUSE_RIGHT,
+			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
 		return 0;
 	case WM_KEYDOWN:
 		/* オートリピートの場合を除外する */
@@ -1026,7 +1079,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		if((int)wParam == VK_ESCAPE && bFullScreen)
 		{
-			ToggleFullScreen();
+			bNeedWindowed = TRUE;
+			SendMessage(hWndMain, WM_SIZE, 0, 0);
 			return 0;
 		}
 		kc = ConvertKeyCode((int)wParam);
@@ -1039,8 +1093,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			on_event_key_release(kc);
 		return 0;
 	case WM_MOUSEMOVE:
-		on_event_mouse_move(LOWORD(lParam) - nOffsetX,
-							HIWORD(lParam) - nOffsetY);
+		on_event_mouse_move(
+			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
 		return 0;
 	case WM_MOUSEWHEEL:
 		if((int)(short)HIWORD(wParam) > 0)
@@ -1059,20 +1114,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_SYSCHAR:
 		return 0;
-	case WM_NCLBUTTONDBLCLK:
-		if(wParam == HTCAPTION)
+	case WM_SYSCOMMAND:
+		/* Hook maximize and enter full screen mode. */
+		if (wParam == SC_MAXIMIZE && !conf_window_fullscreen_disable)
 		{
-			if (!conf_window_fullscreen_disable)
-				ToggleFullScreen();
+			bNeedFullScreen = TRUE;
+			SendMessage(hWndMain, WM_SIZE, 0, 0);
+			return 0;
+		}
+
+		/*
+		 * Cancel Aero Snap:
+		 *  - https://stackoverflow.com/questions/19661126/win32-prevent-window-snap
+		 */
+		if (wParam == (SC_MOVE | 2))
+			wParam = SC_SIZE | 9;
+		if ((wParam & 0xFFE0) == SC_SIZE && (wParam & 0x000F))
+		{
+			DWORD oldStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+			PostMessage(hWndMain, WM_RESTOREORIGINALSTYLE, (WPARAM)GWL_STYLE, (LPARAM)oldStyle);
+			SetWindowLong(hWndMain, GWL_STYLE, (LONG)(oldStyle & 0xFEFEFFFF));
+			DefWindowProc(hWndMain, WM_SYSCOMMAND, wParam, lParam);
 			return 0;
 		}
 		break;
-	case WM_SYSCOMMAND:
-		if(wParam == SC_MAXIMIZE)
+	case WM_RESTOREORIGINALSTYLE:
+		/* Restore Aero Snap. */
+		if ((LONG)wParam == GWL_STYLE)
+			SetWindowLong(hWndMain, GWL_STYLE, (LONG)lParam);
+		return 0;
+	case WM_NCLBUTTONDBLCLK:
+		/* タイトルバーがダブルクリックされたとき */
+		if(wParam == HTCAPTION)
 		{
 			if (!conf_window_fullscreen_disable)
-				ToggleFullScreen();
-			return TRUE;
+			{
+				bNeedFullScreen = TRUE;
+				SendMessage(hWndMain, WM_SIZE, 0, 0);
+			}
+			return 0;
 		}
 		break;
 	case WM_PAINT:
@@ -1085,6 +1165,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if(!DShowProcessEvent())
 			bDShowMode = FALSE;
 		break;
+	case WM_SIZING:
+		if (conf_window_resize)
+		{
+			OnSizing((int)wParam, (LPRECT)lParam);
+			return TRUE;
+		}
+		return FALSE;
+	case WM_SIZE:
+		OnSize();
+		return 0;
 	default:
 		break;
 	}
@@ -1116,147 +1206,6 @@ static int ConvertKeyCode(int nVK)
 	return -1;
 }
 
-/* フルスクリーンモードの切り替えを行う */
-static void ToggleFullScreen(void)
-{
-	LONG style;
-	int sw, sh;
-
-#ifdef USE_DEBUGGER
-	return;
-#endif
-
-	assert(!conf_window_fullscreen_disable);
-
-	if(!bFullScreen)
-	{
-		bFullScreen = TRUE;
-
-		SetMenu(hWndMain, NULL);
-
-		ChangeDisplayMode(&sw, &sh);
-
-		nOffsetX = (sw - conf_window_width) / 2;
-		nOffsetY = (sh - conf_window_height) / 2;
-		GetWindowRect(hWndMain, &rectWindow);
-		SetWindowLong(hWndMain, GWL_STYLE, (LONG)(WS_POPUP | WS_VISIBLE));
-		SetWindowLong(hWndMain, GWL_EXSTYLE, WS_EX_TOPMOST);
-		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-					 SWP_NOZORDER | SWP_FRAMECHANGED);
-		MoveWindow(hWndMain, 0, 0, sw, sh, TRUE);
-		ShowWindow(hWndMain, SW_SHOW);
-		InvalidateRect(NULL, NULL, TRUE);
-
-		if (bD3D)
-			D3DSetDisplayOffset(nOffsetX, nOffsetY);
-		else if (bOpenGL)
-			opengl_set_screen(nOffsetX, nOffsetY, conf_window_width, conf_window_height);
-	}
-	else
-	{
-		bFullScreen = FALSE;
-
-		ResetDisplayMode();
-
-		if (hMenu != NULL)
-			SetMenu(hWndMain, hMenu);
-
-		nOffsetX = 0;
-		nOffsetY = 0;
-
-		if (!conf_window_fullscreen_disable && !conf_window_maximize_disable) {
-			style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-				WS_OVERLAPPED;
-		} else {
-			style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPED;
-		}
-
-		SetWindowLong(hWndMain, GWL_STYLE, style);
-		SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
-		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-					 SWP_NOZORDER | SWP_FRAMECHANGED);
-		MoveWindow(hWndMain, rectWindow.left, rectWindow.top,
-				   rectWindow.right - rectWindow.left,
-				   rectWindow.bottom - rectWindow.top, TRUE);
-		ShowWindow(hWndMain, SW_SHOW);
-		InvalidateRect(NULL, NULL, TRUE);
-
-		if (bD3D)
-			D3DSetDisplayOffset(0, 0);
-		else if (bOpenGL)
-			opengl_set_screen(0, 0, conf_window_width,conf_window_height);
-	}
-}
-
-/* 画面のサイズを変更する */
-static void ChangeDisplayMode(int *pnScreenWidth, int *pnScreenHeight)
-{
-	DEVMODE dm, dmSmallest;
-	HDC hDCDisp;
-	DWORD n, size;
-	int bpp;
-	BOOL bFound;
-
-	/* ウィンドウサイズと同じサイズに変更できるか試してみる */
-	dm.dmSize = sizeof(DEVMODE);
-	dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-	dm.dmPelsWidth = (DWORD)conf_window_width;
-	dm.dmPelsHeight = (DWORD)conf_window_height;
-	if(ChangeDisplaySettings(&dm, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL)
-	{
-		bDisplaySettingsChanged = TRUE;
-		*pnScreenWidth = conf_window_width;
-		*pnScreenHeight = conf_window_height;
-		return;
-	}
-
-	/* 現在の画面のBPPを取得する */
-	hDCDisp = GetDC(NULL);
-	bpp = GetDeviceCaps(hDCDisp, BITSPIXEL);
-	ReleaseDC(NULL, hDCDisp);
-
-	/* ウィンドウサイズ以上の最小の画面サイズを取得する */
-	n = 0;
-	bFound = FALSE;
-	size = 0xffffffff;
-	while(EnumDisplaySettings(NULL, n, &dm))
-	{
-		if(dm.dmPelsWidth >= (DWORD)conf_window_width &&
-		   dm.dmPelsHeight >= (DWORD)conf_window_height &&
-		   dm.dmBitsPerPel == (DWORD)bpp &&
-		   dm.dmPelsWidth + dm.dmPelsHeight <= size)
-		{
-			bFound = TRUE;
-			size = dm.dmPelsWidth + dm.dmPelsHeight;
-			dmSmallest = dm;
-		}
-		n++;
-	}
-
-	/* 求めた画面サイズに変更する */
-	if(bFound)
-	{
-		if(ChangeDisplaySettings(&dmSmallest, CDS_FULLSCREEN) ==
-		   DISP_CHANGE_SUCCESSFUL)
-		{
-			bDisplaySettingsChanged = TRUE;
-			*pnScreenWidth = (int)dmSmallest.dmPelsWidth;
-			*pnScreenHeight = (int)dmSmallest.dmPelsHeight;
-			return;
-		}
-	}
-}
-
-/* 画面のサイズを元に戻す */
-static void ResetDisplayMode(void)
-{
-	if(bDisplaySettingsChanged)
-	{
-		ChangeDisplaySettings(NULL, 0);
-		bDisplaySettingsChanged = FALSE;
-	}
-}
-
 /* ウィンドウの内容を更新する */
 static void OnPaint(void)
 {
@@ -1264,22 +1213,10 @@ static void OnPaint(void)
 	PAINTSTRUCT ps;
 
 	hDC = BeginPaint(hWndMain, &ps);
-	if(!bD3D && !bOpenGL && hBitmapDC != NULL)
-	{
-		BitBlt(hDC,
-			   ps.rcPaint.left,
-			   ps.rcPaint.top,
-			   ps.rcPaint.right - ps.rcPaint.left,
-			   ps.rcPaint.bottom - ps.rcPaint.top,
-			   hBitmapDC,
-			   ps.rcPaint.left - nOffsetX,
-			   ps.rcPaint.top - nOffsetY,
-			   SRCCOPY);
-	}
+	RunFrame();
 	EndPaint(hWndMain, &ps);
 
-	if (bD3D)
-		D3DRedraw();
+	UNUSED_PARAMETER(hDC);
 }
 
 /* WM_COMMANDを処理する */
@@ -1292,10 +1229,189 @@ static void OnCommand(UINT nID)
 		break;
 	case ID_FULLSCREEN:
 		if (!conf_window_fullscreen_disable)
-			ToggleFullScreen();
+		{
+			SendMessage(hWndMain, WM_SYSCOMMAND,
+						(WPARAM)SC_MAXIMIZE, (LPARAM)0);
+		}
 		break;
 	default:
 		break;
+	}
+}
+
+/* WM_SIZING */
+static void OnSizing(int edge, LPRECT lpRect)
+{
+	RECT rcClient;
+	float fPadX, fPadY, fWidth, fHeight, fAspect;
+
+	if (conf_window_resize == 2)
+	{
+		/* Get the rects before a size change. */
+		GetWindowRect(hWndMain, &rcWindow);
+		GetClientRect(hWndMain, &rcClient);
+
+		/* Calc the paddings. */
+		fPadX = (float)((rcWindow.right - rcWindow.left) -
+			            (rcClient.right - rcClient.left));
+		fPadY = (float)((rcWindow.bottom - rcWindow.top) -
+			            (rcClient.bottom - rcClient.top));
+
+		fWidth = (float)(lpRect->right - lpRect->left + 1) - fPadX;
+		fHeight = (float)(lpRect->bottom - lpRect->top + 1) - fPadY;
+		fAspect = (float)conf_window_height / (float)conf_window_width;
+
+		/* 上端を補正する */
+		switch (edge)
+		{
+		case WMSZ_TOP:
+			fWidth = fHeight / fAspect;
+			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_TOPLEFT:
+			fHeight = fWidth * fAspect;
+			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
+			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_TOPRIGHT:
+			fHeight = fWidth * fAspect;
+			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_BOTTOM:
+			fWidth = fHeight / fAspect;
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_BOTTOMRIGHT:
+			fHeight = fWidth * fAspect;
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_BOTTOMLEFT:
+			fHeight = fWidth * fAspect;
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_LEFT:
+			fHeight = fWidth * fAspect;
+			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			break;
+		case WMSZ_RIGHT:
+			fHeight = fWidth * fAspect;
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			break;
+		default:
+			/* Aero Snap? */
+			fHeight = fWidth * fAspect;
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		}
+		UpdateScreenOffsetAndScale((int)(fWidth + 0.5f), (int)(fHeight + 0.5f));
+	}
+	else
+	{
+		UpdateScreenOffsetAndScale(lpRect->right - lpRect->left + 1,
+								   lpRect->bottom - lpRect->top + 1);
+	}
+
+	InvalidateRect(hWndMain, NULL, TRUE);
+}
+
+/* WM_SIZE */
+static void OnSize(void)
+{
+	RECT rc;
+
+	if(bNeedFullScreen)
+	{
+		HMONITOR monitor;
+		MONITORINFOEX minfo;
+
+		bNeedFullScreen = FALSE;
+		bFullScreen = TRUE;
+
+		monitor = MonitorFromWindow(hWndMain, MONITOR_DEFAULTTONEAREST);
+		minfo.cbSize = sizeof(MONITORINFOEX);
+		GetMonitorInfo(monitor, (LPMONITORINFO)&minfo);
+		rc = minfo.rcMonitor;
+
+		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+
+		SetMenu(hWndMain, NULL);
+		SetWindowLong(hWndMain, GWL_STYLE, (LONG)(WS_POPUP | WS_VISIBLE));
+		SetWindowLong(hWndMain, GWL_EXSTYLE, WS_EX_TOPMOST);
+		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0,
+					 SWP_NOMOVE | SWP_NOSIZE |
+					 SWP_NOZORDER | SWP_FRAMECHANGED);
+		MoveWindow(hWndMain, 0, 0, rc.right, rc.bottom, TRUE);
+		InvalidateRect(hWndMain, NULL, TRUE);
+	}
+	else if (bNeedWindowed)
+	{
+		bNeedWindowed = FALSE;
+		bFullScreen = FALSE;
+		if (hMenu != NULL)
+			SetMenu(hWndMain, hMenu);
+		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
+		SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
+		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0,
+					 SWP_NOMOVE | SWP_NOSIZE |
+					 SWP_NOZORDER | SWP_FRAMECHANGED);
+		MoveWindow(hWndMain, rcWindow.left, rcWindow.top,
+				   rcWindow.right - rcWindow.left + 1,
+				   rcWindow.bottom - rcWindow.top + 1, TRUE);
+		InvalidateRect(hWndMain, NULL, TRUE);
+
+		GetClientRect(hWndMain, &rc);
+	}
+	else
+	{
+		GetClientRect(hWndMain, &rc);
+	}
+
+	/* Update the screen offset and scale. */
+	UpdateScreenOffsetAndScale(rc.right, rc.bottom);
+}
+
+/* スクリーンのオフセットとスケールを計算する */
+static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
+{
+	float fAspect, fUseWidth, fUseHeight;
+
+	/* Calc the aspect ratio of the game. */
+	fAspect = (float)conf_window_height / (float)conf_window_width;
+
+	/* Set the height temporarily with "width-first". */
+    fUseWidth = (float)nClientWidth;
+    fUseHeight = fUseWidth * fAspect;
+    fMouseScale = (float)nClientWidth / (float)conf_window_width;
+
+	/* If height is not enough, determine width with "height-first". */
+    if(fUseHeight > (float)nClientHeight) {
+        fUseHeight = (float)nClientHeight;
+        fUseWidth = (float)nClientHeight / fAspect;
+        fMouseScale = (float)nClientHeight / (float)conf_window_height;
+    }
+
+	/* Calc the viewport origin. */
+	nOffsetX = (int)(((float)nClientWidth - fUseWidth) / 2.0f + 0.5);
+	nOffsetY = (int)(((float)nClientHeight - fUseHeight) / 2.0f + 0.5);
+
+	/* Update the screen offset and scale for drawing subsystem. */
+	if (bD3D)
+	{
+		D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
+	}
+	else if (bOpenGL)
+	{
+		opengl_set_screen(nOffsetX, nOffsetY,
+						  (int)(fUseWidth + 0.5f),
+						  (int)(fUseHeight + 0.5));
 	}
 }
 
@@ -1892,7 +2008,10 @@ bool is_full_screen_mode(void)
 void enter_full_screen_mode(void)
 {
 	if (!bFullScreen)
-		ToggleFullScreen();
+	{
+		bNeedFullScreen = TRUE;
+		SendMessage(hWndMain, WM_SIZE, 0, 0);
+	}
 }
 
 /*
@@ -1901,7 +2020,10 @@ void enter_full_screen_mode(void)
 void leave_full_screen_mode(void)
 {
 	if (bFullScreen)
-		ToggleFullScreen();
+	{
+		bNeedWindowed = TRUE;
+		SendMessage(hWndMain, WM_SIZE, 0, 0);
+	}
 }
 
 /*
