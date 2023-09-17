@@ -199,10 +199,10 @@ bool init_replay(int argc, char *argv[]);
 void cleanup_replay(void);
 
 /* 入力をリプレイする */
-bool replay_input(void);
+bool capture_input(void);
 
 /* リプレイ結果の出力をキャプチャする */
-bool replay_output(void);
+bool capture_output(void);
 #endif
 
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
