@@ -10,7 +10,7 @@ set -eu
 CMDEXE='/mnt/c/Windows/system32/cmd.exe'
 
 # Path to signtool.exe (we will find a suitable version)
-SIGNTOOL=`find '/mnt/c/Program Files (x86)/Windows Kits/10/bin' -name 'signtool.exe' | grep 'x86/signtool.exe' | head -n1 | tr -d '\r\n'`
+SIGNTOOL=`find '/mnt/c/Program Files (x86)/Windows Kits/10/bin' -name 'signtool.exe' | grep 'x86/signtool.exe' | tail -n1 | tr -d '\r\n'`
 
 # Signature for code signing (you can modify here)
 SIGNATURE="Open Source Developer, Keiichi Tabata"
@@ -213,7 +213,7 @@ if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Windows apps on Windows.";
     SAVE_WD=`pwd`;
     cd "$RELEASETMP";
-    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe;
+    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe | tee;
     cd "$SAVE_WD";
 else
     echo "Skipping code signing for Windows binaries because we are not running on Windows."
@@ -255,8 +255,8 @@ if [ -z "`uname | grep Darwin`" ]; then
     #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" "$RELEASETMP/";
     #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" "$RELEASETMP/";
 else
-    echo "Building on localhost..."
-    cd ../
+    echo "Building on localhost...";
+    cd ../;
     make all-macos;
     cp mac.dmg "$RELEASETMP/";
     cp mac-pro.dmg "$RELEASETMP/";
@@ -264,7 +264,7 @@ else
     cp pack.mac "$RELEASETMP/";
     #cp mac-capture.dmg "$RELEASETMP/";
     #cp mac-replay.dmg "$RELEASETMP/";
-    cd build
+    cd build;
 fi
 
 #
@@ -298,7 +298,7 @@ if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Kirara Windows app on Windows.";
     SAVE_WD=`pwd`;
     cd "$RELEASETMP";
-    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v kirara-win.exe;
+    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v kirara-win.exe | tee;
     cd "$SAVE_WD";
     mv "$RELEASETMP/kirara-win.exe" "$RELEASETMP/kirara-win-$VERSION.exe";
 else
