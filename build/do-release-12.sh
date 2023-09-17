@@ -154,7 +154,7 @@ if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Windows apps on Windows.";
     SAVE_WD=`pwd`;
     cd "$RELEASETMP";
-    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe | tee;
+    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe | tee;
     cd "$SAVE_WD";
 else
     echo "Skipping code signing for Windows binaries because we are not running on Windows."
