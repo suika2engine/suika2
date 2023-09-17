@@ -120,8 +120,8 @@ echo "$RELEASETMP created."
 #
 echo "Building suika.exe"
 cd mingw
-make erase
-make libroot
+rm *.o
+if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
 cp suika.exe $RELEASETMP/
 cd ../
@@ -131,8 +131,8 @@ cd ../
 #
 echo "Building suika-pro.exe"
 cd mingw-pro
-make erase
-cp -Rav ../mingw/libroot .
+rm *.o
+if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-pro.exe $RELEASETMP/
 cd ../
@@ -142,8 +142,8 @@ cd ../
 #
 echo "Building suika-capture.exe"
 cd mingw-capture
-make clean
-cp -Rav ../mingw/libroot .
+rm *.o
+if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-capture.exe $RELEASETMP/
 cd ../
@@ -153,8 +153,8 @@ cd ../
 #
 echo "Building suika-replay.exe"
 cd mingw-replay
-make clean
-cp -Rav ../mingw/libroot .
+rm *.o
+if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-replay.exe $RELEASETMP/
 cd ../
@@ -164,8 +164,8 @@ cd ../
 #
 echo "Building suika-64.exe"
 cd mingw-64
-make erase
-make libroot
+rm *.o
+if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
 make -j24
 cp suika-64.exe $RELEASETMP/
 cd ../
@@ -175,8 +175,8 @@ cd ../
 #
 echo "Building suika-arm64.exe"
 cd mingw-arm64
-make erase
-make libroot
+rm *.o
+if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
 cp suika-arm64.exe $RELEASETMP/
 cd ../
@@ -185,15 +185,15 @@ cd ../
 # Build suika-linux
 #
 if [ ! -z "`uname | grep Linux`" ]; then
-	echo "Building suika-linux";
-	cd linux-x86_64;
-	make erase;
-	make libroot;
-	make -j24;
-	cp suika $RELEASETMP/suika-linux;
-	cd ../;
+    echo "Building suika-linux";
+    cd linux-x86_64;
+    rm *.o;
+    if [ ! -e libroot ]; then ./build-libs.sh; fi
+    make -j24;
+    cp suika $RELEASETMP/suika-linux;
+    cd ../;
 else
-	touch $RELEASETMP/suika-linux
+    touch $RELEASETMP/suika-linux
 fi
 
 #
@@ -216,7 +216,7 @@ if [ "$DO_SIGN" -eq "1" ]; then
     $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe | tee;
     cd "$SAVE_WD";
 else
-    echo "Skipping code signing for Windows binaries because we are not running on Windows."
+    echo "Skipping code signing for Windows binaries because we are not running on Windows.";
 fi
 
 #
@@ -279,62 +279,6 @@ zip kirara-helper-current.zip suika.exe suika-pro.exe mac.dmg mac.zip pack.mac i
 cd "$SAVE_WD"
 
 #
-# Build Kirara (Windows App)
-#
-echo "Building a Kirara Windows app."
-cd ../tools/kirara
-cp "$RELEASETMP/suika.exe" apps/
-cp "$RELEASETMP/suika-pro.exe" apps/
-cp "$RELEASETMP/mac.dmg" apps/
-cp "$RELEASETMP/mac.zip" apps/
-cp "$RELEASETMP/pack.mac" apps/
-cp "$RELEASETMP/index.html" apps/
-cp "$RELEASETMP/index.js" apps/
-cp "$RELEASETMP/index.wasm" apps/
-make win
-cp "dist/Kirara Setup 1.0.0.exe" "$RELEASETMP/kirara-win.exe"
-cd ../../build
-if [ "$DO_SIGN" -eq "1" ]; then
-    echo "Signing the Kirara Windows app on Windows.";
-    SAVE_WD=`pwd`;
-    cd "$RELEASETMP";
-    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v kirara-win.exe | tee;
-    cd "$SAVE_WD";
-    mv "$RELEASETMP/kirara-win.exe" "$RELEASETMP/kirara-win-$VERSION.exe";
-else
-    echo "Skipping code signing for Kirara Windows app."
-    mv "$RELEASETMP/kirara-win.exe" "$RELEASETMP/kirara-win-$VERSION.exe";
-fi
-
-#
-# Build Kirara (macOS App)
-#
-echo "Building a Kirara macOS app."
-if [ -z "`uname | grep Darwin`" ]; then
-    echo "Building on a remote host...";
-    scp "$RELEASETMP/suika.exe" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/suika-pro.exe" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/mac.dmg" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/mac.zip" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/pack.mac" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/index.html" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/index.js" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    scp "$RELEASETMP/index.wasm" "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/apps/";
-    until \
-		ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2/tools/kirara && make mac";
-	do \
-		echo "Retrying due to a codesign issue...";
-	done;
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/tools/kirara/dist/Kirara-1.0.0.dmg" "$RELEASETMP/kirara-mac-$VERSION.dmg";
-else
-    echo "Building on localhost...";
-    cd ../tools/kirara;
-    make mac;
-    cp dist/Kirara-1.0.0.dmg "$RELEASETMP/kirara-mac-$VERSION.dmg";
-    cd ../../build;
-fi
-
-#
 # Make a main release file.
 #
 echo "Creating a main release file."
@@ -390,15 +334,11 @@ echo "Uploading files."
 
 # Copy release files to FTPLOCAL directory.
 cp "$RELEASETMP/suika2-$VERSION.zip" $FTP_LOCAL/
-cp "$RELEASETMP/kirara-win-$VERSION.exe" $FTP_LOCAL/
-cp "$RELEASETMP/kirara-mac-$VERSION.dmg" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-helper-current.zip" $FTP_LOCAL/
 
 # Upload.
 if [ "$DO_UPLOAD" -eq "1" ]; then
     curl -T "$RELEASETMP/suika2-$VERSION.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.zip" && sleep 5;
-    curl -T "$RELEASETMP/kirara-win-$VERSION.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-win-$VERSION.exe" && sleep 5;
-    curl -T "$RELEASETMP/kirara-mac-$VERSION.dmg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-mac-$VERSION.dmg" && sleep 5;
     curl -T "$RELEASETMP/kirara-helper-current.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-helper-current.zip";
 else
     echo "Skipped upload.";
