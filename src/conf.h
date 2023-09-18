@@ -336,6 +336,7 @@ extern int conf_gui_history_font_color_b;
 extern int conf_gui_history_font_outline_color_r;
 extern int conf_gui_history_font_outline_color_g;
 extern int conf_gui_history_font_outline_color_b;
+extern int conf_gui_preview_tategaki;
 
 /*
  * サウンドの設定

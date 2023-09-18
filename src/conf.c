@@ -326,6 +326,7 @@ int conf_gui_history_font_color_b;
 int conf_gui_history_font_outline_color_r;
 int conf_gui_history_font_outline_color_g;
 int conf_gui_history_font_outline_color_b;
+int conf_gui_preview_tategaki;
 
 /*
  * サウンドの設定
@@ -687,6 +688,7 @@ static struct rule {
 	{"gui.history.font.outline.color.r", 'i', &conf_gui_history_font_outline_color_r, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.g", 'i', &conf_gui_history_font_outline_color_g, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.b", 'i', &conf_gui_history_font_outline_color_b, OPTIONAL, SAVE},
+	{"gui.preview.tategaki", 'i', &conf_gui_preview_tategaki, OPTIONAL, SAVE},
 	/* 下記は初期音量なのでセーブしない */
 	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},
 	{"sound.vol.voice", 'f', &conf_sound_vol_voice, MUST, NOSAVE},
