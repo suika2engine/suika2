@@ -36,37 +36,12 @@ read str
 # Load credentials from .env file.
 #
 echo "Checking for .env credentials."
-MACOS_HOST=""
-MACOS_USER=""
-MACOS_PASSWORD=""
 FTP_LOCAL=""
 FTP_USER=""
 FTP_PASSWORD=""
 FTP_URL=""
 if [ -e .env ]; then
 	eval `cat .env`;
-fi
-if [ -z "`uname | grep Darwin`" ]; then
-    if [ -z "$MACOS_HOST" ]; then
-	echo "Error: Please specify MACOS_HOST in build/.env";
-	echo "       This information is utilized to build macOS apps by ssh.";
-	exit 1;
-    fi;
-    MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`
-    if [ -z "$MACOS_HOST_IP" ]; then
-	echo "Error: Could not resolve host name $MACOS_HOST. It may be a problem of mDNS. Try again.";
-	exit 1;
-    fi
-    if [ -z "$MACOS_USER" ]; then
-	echo "Error: Please specify MACOS_USER in build/.env";
-	echo "       This information is utilized to determine your home directory.";
-	exit 1;
-    fi
-    if [ -z "$MACOS_PASSWORD" ]; then
-	echo "Error: Please specify MACOS_PASSWORD in build/.env";
-	echo "       This information is utilized to unlock your keychain in ssh sessions.";
-	exit 1;
-    fi
 fi
 if [ -z "$FTP_LOCAL" ]; then
     echo "Warning: Please specify FTP_LOCAL in build/.env";
@@ -161,29 +136,6 @@ else
 fi
 
 #
-# Build macOS app.
-#
-echo "Building macOS app."
-
-if [ -z "`uname | grep Darwin`" ]; then
-    echo "Building on a remote host...";
-    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2-stable && git reset --hard && git checkout v12-stable && git pull github v12-stable";
-    until \
-	ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2-stable && cd build/macos && make main";
-    do \
-	echo "Retrying suika.app due to a codesign issue...";
-    done;
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
-else
-    echo "Building on localhost...";
-    cd macos;
-    make clean;
-    make main;
-    cp mac.dmg "$RELEASETMP/";
-    cd ..;
-fi
-
-#
 # Make a main release file.
 #
 echo "Creating a main release file."
@@ -193,19 +145,12 @@ rm -rf suika2
 mkdir suika2
 cp -v ../doc/COPYING suika2/
 cp -v ../doc/readme-jp.html suika2/README.html
-cp -v ../doc/readme-en.html suika2/README-english.html
 cp -v "$RELEASETMP/suika.exe" suika2/
 cp -v "$RELEASETMP/suika-pro.exe" suika2/
-cp -v "$RELEASETMP/mac.dmg" suika2/
-mkdir suika2/tools
-cp -v ../doc/readme-tools-jp.txt suika2/tools/README.txt
-cp -v ../doc/readme-tools-en.txt suika2/tools/README-english.txt
-mkdir suika2/tools/web
-cp -v "$RELEASETMP/index.html" suika2/tools/web/
-cp -v "$RELEASETMP/index.js" suika2/tools/web/
-cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
-cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
-cp -v emscripten/about-en.txt suika2/tools/web/about-english.txt
+mkdir suika2/web
+cp -v "$RELEASETMP/index.html" suika2/web/
+cp -v "$RELEASETMP/index.js" suika2/web/
+cp -v "$RELEASETMP/index.wasm" suika2/web/
 zip -r "$RELEASETMP/suika2-$VERSION.zip" suika2
 rm -rf suika2
 
