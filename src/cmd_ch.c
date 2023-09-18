@@ -16,11 +16,10 @@
 
 static stop_watch_t sw;
 static float span;
-static int fade_method;
 
 static bool init(void);
-static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
-			 struct image *img);
+static bool get_position(const char *pos, struct image *img, int ofs_x,
+			 int ofs_y, int *chpos, int *xpos, int *ypos);
 static int get_alpha(const char *alpha);
 int chpos_to_layer(int chpos);
 static void draw(void);
@@ -59,8 +58,8 @@ static bool init(void)
 	const char *pos;
 	const char *method;
 	const char *alpha_s;
-	int xpos, ypos, chpos, ofs_x, ofs_y, alpha, layer, anime_layer;
-	bool erase;
+	int xpos, ypos, chpos, ofs_x, ofs_y, alpha;
+	int fade_method;
 
 	/* パラメータを取得する */
 	pos = get_string_param(CH_PARAM_POS);
@@ -73,12 +72,10 @@ static bool init(void)
 
 	/* キャラの消去が指定されているかチェックする */
 	if (strcmp(fname, "none") == 0 || strcmp(fname, U8("消去")) == 0)
-		erase = true;
-	else
-		erase = false;
+		fname = NULL;
 
 	/* イメージが指定された場合 */
-	if (!erase) {
+	if (fname != NULL) {
 		/* イメージを読み込む */
 		img = create_image_from_file(CH_DIR, fname);
 		if (img == NULL) {
@@ -90,12 +87,9 @@ static bool init(void)
 		img = NULL;
 	}
 
-	/* 位置を取得する */
-	if (!get_position(&xpos, &ypos, &chpos, pos, img))
+	/* キャラの位置と座標を取得する */
+	if (!get_position(pos, img, ofs_x, ofs_y, &chpos, &xpos, &ypos))
 		return false;
-
-	xpos += ofs_x;
-	ypos += ofs_y;
 
 	/* フェードの種類を求める */
 	fade_method = get_fade_method(method);
@@ -122,48 +116,16 @@ static bool init(void)
 			log_script_exec_footer();
 			return false;
 		}
-		set_rule_image(rule_img);
+	} else {
+		rule_img = NULL;
 	}
 
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
 
-	/* レイヤインデックスを求める */
-	layer = chpos_to_layer(chpos);
-	anime_layer = chpos_to_anime_layer(chpos);
-
-	/* キャラのファイル名を設定する */
-	if (!set_layer_file_name(layer, erase ? NULL : fname))
-	    return false;
-
-	/* キャラを暗くしない */
+	/* 登場したばかりのキャラは暗くしない */
 	if (chpos != CH_FACE)
 		set_ch_dim(chpos, false);
-
-	/* アニメレイヤーの座標を設定する */
-	set_anime_layer_position(anime_layer, xpos, ypos);
-
-	/* Controlが押されているか、フェードしない場合 */
-	if ((span == 0)
-	    ||
-	    (!is_non_interruptible() && is_skip_mode())
-	    ||
-	    (!is_non_interruptible() && !is_auto_mode() &&
-	     is_control_pressed)) {
-		/* フェードせず、すぐに切り替える */
-		set_layer_image(layer, img);
-		set_layer_position(layer, xpos, ypos);
-		set_layer_alpha(layer, alpha);
-	} else {
-		/* 繰り返し動作を開始する */
-		start_command_repetition();
-
-		/* キャラフェードモードを有効にする */
-		start_ch_fade(chpos, img, xpos, ypos, alpha);
-
-		/* 時間計測を開始する */
-		reset_stop_watch(&sw);
-	}
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {
@@ -172,12 +134,30 @@ static bool init(void)
 	}
 	show_click(false);
 
+	/* キャラフェードモードを有効にする */
+	if (!start_fade_for_ch(chpos, fname, img, xpos, ypos, alpha,
+			       fade_method, rule_img)) {
+		log_script_exec_footer();
+		return false;
+	}
+
+	/* 繰り返し動作を開始する */
+	start_command_repetition();
+
+	/* 時間計測を開始する */
+	reset_stop_watch(&sw);
+
 	return true;
 }
 
 /* キャラの横方向の位置を取得する */
-static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
-			 struct image *img)
+static bool get_position(const char *pos,	/* IN: character position name */
+			 struct image *img,	/* IN: character image (or NULL)*/
+			 int ofs_x,		/* IN: offset x */
+			 int ofs_y,		/* IN: offset y */
+			 int *chpos,		/* OUT: character position index */
+			 int *xpos,		/* OUT: character x */
+			 int *ypos)		/* OUT: character y */
 {
 	*xpos = 0;
 
@@ -185,30 +165,49 @@ static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 	    strcmp(pos, U8("背面")) == 0) {
 		/* 中央背面に配置する */
 		*chpos = CH_BACK;
-		if (img != NULL)
+		if (img != NULL) {
 			*xpos = (conf_window_width - get_image_width(img)) / 2;
+			*xpos += ofs_x;
+		} else {
+			*xpos = 0;
+		}
 	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0 ||
 		   strcmp(pos, U8("左")) == 0) {
 		/* 左に配置する */
 		*chpos = CH_LEFT;
-		*xpos = 0;
+		if (img != NULL)
+			*xpos = ofs_x;
+		else
+			*xpos = 0;
 	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
 		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
-		if (img != NULL)
+		if (img != NULL) {
 			*xpos = conf_window_width - get_image_width(img);
+			*xpos += ofs_x;
+		} else {
+			*xpos = 0;
+		}
 	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
 		   strcmp(pos, "c") == 0 || strcmp(pos, U8("中央")) == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
-		if (img != NULL)
+		if (img != NULL) {
 			*xpos = (conf_window_width - get_image_width(img)) / 2;
+			*xpos += ofs_x;
+		} else {
+			*xpos = 0;
+		}
 	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0 ||
 		   strcmp(pos, U8("顔")) == 0) {
 		/* 顔に配置する */
 		*chpos = CH_FACE;
-		*xpos = 0;
+		if (img != NULL) {
+			*xpos = ofs_x;
+		} else {
+			*xpos = 0;
+		}
 	} else {
 		/* スクリプト実行エラー */
 		log_script_ch_position(pos);
@@ -217,7 +216,11 @@ static bool get_position(int *xpos, int *ypos, int *chpos, const char *pos,
 	}
 
 	/* 縦方向の位置を求める */
-	*ypos = img != NULL ? conf_window_height - get_image_height(img) : 0;
+	if (img != NULL)
+		*ypos = conf_window_height - get_image_height(img) + ofs_y;
+	else
+		*ypos = 0;
+
 	return true;
 }
 
@@ -258,17 +261,17 @@ static void draw(void)
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 
-			/* キャラフェードモードを終了する */
-			stop_ch_fade();
+			/* フェードを終了する */
+			finish_fade();
 		} else {
 			/* 進捗を設定する */
-			set_ch_fade_progress(lap / span);
+			set_fade_progress(lap / span);
 		}
 	}
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_ch_fade(fade_method);
+		draw_fade();
 	else
 		draw_stage();
 
@@ -282,9 +285,6 @@ static void draw(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* ルール画像を破棄する */
-	set_rule_image(NULL);
-
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

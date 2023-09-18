@@ -82,8 +82,8 @@ bool is_anime_running_for_layer(int layer);
 /* 完了したアニメーションがあるか調べる */
 bool is_anime_finished_for_layer(int layer);
 
-/* アニメーションのフレームを更新する */
-void update_anime_frame(void);
+/* アニメーションのフレーム時刻を更新する */
+void update_anime_time(void);
 
 /* レイヤのパラメータを取得する */
 bool

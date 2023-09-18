@@ -221,14 +221,19 @@ static bool init(void)
 			log_script_exec_footer();
 			return false;
 		}
-		set_rule_image(rule_img);
+	} else {
+		rule_img = NULL;
 	}
 
 	/* 繰り返し動作を開始する */
 	start_command_repetition();
 
 	/* キャラフェードモードを有効にする */
-	start_ch_fade_multi(stay, img, x, y, alpha);
+	if (!start_fade_for_chs(stay, fname, img, x, y, alpha, fade_method,
+				rule_img)) {
+		log_script_exec_footer();
+		return false;
+	}
 
 	/* 時間計測を開始する */
 	reset_stop_watch(&sw);
@@ -311,17 +316,17 @@ static void draw(void)
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 
-			/* キャラフェードモードを終了する */
-			stop_ch_fade();
+			/* フェードを終了する */
+			finish_fade();
 		} else {
 			/* 進捗を設定する */
-			set_ch_fade_progress(lap / span);
+			set_fade_progress(lap / span);
 		}
 	}
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_ch_fade(fade_method);
+		draw_fade();
 	else
 		draw_stage();
 
@@ -335,9 +340,6 @@ static void draw(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* ルール画像を破棄する */
-	set_rule_image(NULL);
-
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;
