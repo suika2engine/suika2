@@ -3484,8 +3484,9 @@ so a WMS code should call `s2_reflect_*_config()` to reflect the changes.
 s2_set_config("msgbox.x", "0");
 s2_set_config("msgbox.speed", "20.0");
 
-// This will not be reflected immediately.
+// These will not be reflected immediately.
 s2_set_config("msgbox.bg.file", "msgbox-bg.png");
+s2_set_config("msgbox.fg.file", "msgbox-fg.png");
 ```
 
 ### Updating Message Box and Namebox
@@ -3496,14 +3497,6 @@ s2_set_config("msgbox.bg.file", "msgbox-bg.png");
 s2_reflect_msgbox_and_namebox_config();
 ```
 
-### Updating Font
-
-`s2_reflect_font_config()` reflects the configuration changes to the font drawing subsystem.
-
-```
-s2_reflect_font_config();
-```
-
 ### Clearing Message History
 
 `s2_clear_history()` clears the message history.
@@ -3512,6 +3505,61 @@ s2_reflect_font_config();
 s2_clear_history();
 ```
 
+### Clearing Message Box
+
+`s2_clear_msgbox()` clears the message box.
+
+```
+s2_clear_msgbox();
+```
+
+### Clearing Name Box
+
+`s2_clear_namebox()` clears the name box.
+
+```
+s2_clear_namebox();
+```
+
+### Hiding Message Box
+
+`s2_hide_msgbo()` hides the message box.
+
+```
+s2_hide_msgbox();
+```
+
+### Hiding Message Box
+
+`s2_hide_msgbox()` hides the message box.
+
+```
+s2_hide_msgbox();
+```
+
+### Saving Global Data
+
+`s2_save_global()` saves global data immediately.
+
+```
+s2_save_global();
+```
+
+### Preserve Stage State Before User Defined Menu
+
+`s2_push_stage()` preserves stage state. It is used by user defined menu.
+
+```
+s2_push_stage();
+```
+
+### Restore Stage State After User Defined Menu
+
+`s2_pop_stage()` restores stage state. It is used by user defined menu.
+
+```
+s2_pop_stage();
+```
 
 ***
 
