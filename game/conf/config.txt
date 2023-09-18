@@ -624,6 +624,11 @@ gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
 
+# [プレビューの縦書き] (省略可)
+#  - 0: 横書き
+#  - 1: 縦書き
+gui.preview.tategaki=0
+
 ###
 ### 音量の初期値
 ###  - これは初期値で、セーブデータがある場合はそちらが利用される
