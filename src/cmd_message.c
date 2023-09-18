@@ -2666,6 +2666,10 @@ static int get_frame_chars(void)
 		return total_chars;
 	}
 
+	/* コンフィグで瞬間表示が設定されている場合 */
+	if (conf_msgbox_nowait)
+		return total_chars;
+
 	/*
 	 * セーブのサムネイルを作成するために全文字描画する場合
 	 *  - クイックセーブされる場合 (現状ではQSのサムネイルは未使用)

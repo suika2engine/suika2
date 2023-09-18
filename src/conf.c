@@ -160,6 +160,7 @@ int conf_msgbox_dim_color_outline_r;
 int conf_msgbox_dim_color_outline_g;
 int conf_msgbox_dim_color_outline_b;
 int conf_msgbox_tategaki;
+int conf_msgbox_nowait;
 
 /*
  * クリックアニメーションの設定
@@ -549,6 +550,7 @@ static struct rule {
 	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, OPTIONAL, SAVE},
 	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, OPTIONAL, SAVE},
 	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, OPTIONAL, SAVE},
+	{"msgbox.nowait", 'i', &conf_msgbox_nowait, OPTIONAL, SAVE},
 	{"click.x", 'i', &conf_click_x, MUST, SAVE},
 	{"click.y", 'i', &conf_click_y, MUST, SAVE},
 	{"click.move", 'i', &conf_click_move, OPTIONAL, SAVE},

@@ -170,6 +170,7 @@ extern int conf_msgbox_dim_color_outline_r;
 extern int conf_msgbox_dim_color_outline_g;
 extern int conf_msgbox_dim_color_outline_b;
 extern int conf_msgbox_tategaki;
+extern int conf_msgbox_nowait;
 
 /*
  * クリックアニメーションの設定
