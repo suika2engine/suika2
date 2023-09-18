@@ -399,10 +399,10 @@ void set_click_index(int index);
 void get_switch_rect(int index, int *x, int *y, int *w, int *h);
 
 /* FOレイヤにスイッチの非選択イメージを描画する */
-void draw_switch_bg_image(int x, int y);
+void draw_switch_bg_image(int index, int x, int y);
 
 /* FIレイヤにスイッチの選択イメージを描画する */
-void draw_switch_fg_image(int x, int y);
+void draw_switch_fg_image(int index, int x, int y);
 
 /* NEWSの親選択肢の矩形を取得する */
 void get_news_rect(int index, int *x, int *y, int *w, int *h);

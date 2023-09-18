@@ -175,13 +175,13 @@ int click_frames;
 /*
  * スイッチの設定
  */
-char *conf_switch_bg_file;
-char *conf_switch_fg_file;
+char *conf_switch_bg_file[8];
+char *conf_switch_fg_file[8];
 int conf_switch_font_select;
 int conf_switch_font_size;
 int conf_switch_font_outline;
-int conf_switch_x;
-int conf_switch_y;
+int conf_switch_x[8];
+int conf_switch_y[8];
 int conf_switch_margin_y;
 int conf_switch_text_margin_y;
 int conf_switch_color_active;
@@ -571,13 +571,13 @@ static struct rule {
 	{"click.file15", 's', &conf_click_file[14], OPTIONAL, SAVE},
 	{"click.file16", 's', &conf_click_file[15], OPTIONAL, SAVE},
 	{"click.interval", 'f', &conf_click_interval, MUST, SAVE},
-	{"switch.bg.file", 's', &conf_switch_bg_file, MUST, SAVE},
-	{"switch.fg.file", 's', &conf_switch_fg_file, MUST, SAVE},
+	{"switch.bg.file", 's', &conf_switch_bg_file[0], MUST, SAVE},
+	{"switch.fg.file", 's', &conf_switch_fg_file[0], MUST, SAVE},
 	{"switch.font.select", 'i', &conf_switch_font_select, OPTIONAL, SAVE},
 	{"switch.font.size", 'i', &conf_switch_font_size, OPTIONAL, SAVE},
 	{"switch.font.outline", 'i', &conf_switch_font_outline, OPTIONAL, SAVE},
-	{"switch.x", 'i', &conf_switch_x, MUST, SAVE},
-	{"switch.y", 'i', &conf_switch_y, MUST, SAVE},
+	{"switch.x", 'i', &conf_switch_x[0], MUST, SAVE},
+	{"switch.y", 'i', &conf_switch_y[0], MUST, SAVE},
 	{"switch.margin.y", 'i', &conf_switch_margin_y, MUST, SAVE},
 	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, MUST, SAVE},
 	{"switch.color.active", 'i', &conf_switch_color_active, OPTIONAL, SAVE},
@@ -590,6 +590,34 @@ static struct rule {
 	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, OPTIONAL, SAVE},
 	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, OPTIONAL, SAVE},
 	{"switch.change.se", 's', &conf_switch_change_se, OPTIONAL, SAVE},
+	{"switch.bg.file2", 's', &conf_switch_bg_file[1], OPTIONAL, SAVE},
+	{"switch.fg.file2", 's', &conf_switch_fg_file[1], OPTIONAL, SAVE},
+	{"switch.x2", 'i', &conf_switch_x[1], OPTIONAL, SAVE},
+	{"switch.y2", 'i', &conf_switch_y[1], OPTIONAL, SAVE},
+	{"switch.bg.file3", 's', &conf_switch_bg_file[2], OPTIONAL, SAVE},
+	{"switch.fg.file3", 's', &conf_switch_fg_file[2], OPTIONAL, SAVE},
+	{"switch.x3", 'i', &conf_switch_x[2], OPTIONAL, SAVE},
+	{"switch.y3", 'i', &conf_switch_y[2], OPTIONAL, SAVE},
+	{"switch.bg.file4", 's', &conf_switch_bg_file[3], OPTIONAL, SAVE},
+	{"switch.fg.file4", 's', &conf_switch_fg_file[3], OPTIONAL, SAVE},
+	{"switch.x4", 'i', &conf_switch_x[3], OPTIONAL, SAVE},
+	{"switch.y4", 'i', &conf_switch_y[3], OPTIONAL, SAVE},
+	{"switch.bg.file5", 's', &conf_switch_bg_file[4], OPTIONAL, SAVE},
+	{"switch.fg.file5", 's', &conf_switch_fg_file[4], OPTIONAL, SAVE},
+	{"switch.x5", 'i', &conf_switch_x[4], OPTIONAL, SAVE},
+	{"switch.y5", 'i', &conf_switch_y[4], OPTIONAL, SAVE},
+	{"switch.bg.file6", 's', &conf_switch_bg_file[5], OPTIONAL, SAVE},
+	{"switch.fg.file6", 's', &conf_switch_fg_file[5], OPTIONAL, SAVE},
+	{"switch.x6", 'i', &conf_switch_x[5], OPTIONAL, SAVE},
+	{"switch.y6", 'i', &conf_switch_y[5], OPTIONAL, SAVE},
+	{"switch.bg.file7", 's', &conf_switch_bg_file[6], OPTIONAL, SAVE},
+	{"switch.fg.file7", 's', &conf_switch_fg_file[6], OPTIONAL, SAVE},
+	{"switch.x7", 'i', &conf_switch_x[6], OPTIONAL, SAVE},
+	{"switch.y7", 'i', &conf_switch_y[6], OPTIONAL, SAVE},
+	{"switch.bg.file8", 's', &conf_switch_bg_file[7], OPTIONAL, SAVE},
+	{"switch.fg.file8", 's', &conf_switch_fg_file[7], OPTIONAL, SAVE},
+	{"switch.x8", 'i', &conf_switch_x[7], OPTIONAL, SAVE},
+	{"switch.y8", 'i', &conf_switch_y[7], OPTIONAL, SAVE},
 	{"news.bg.file", 's', &conf_news_bg_file, OPTIONAL, SAVE},
 	{"news.fg.file", 's', &conf_news_fg_file, OPTIONAL, SAVE},
 	{"news.margin", 'i', &conf_news_margin, OPTIONAL, SAVE},

@@ -79,10 +79,10 @@ static struct image *namebox_image;
 static struct image *click_image[CLICK_FRAMES];
 
 /* 選択肢(非選択時)のイメージ */
-static struct image *switch_bg_image;
+static struct image *switch_bg_image[8];
 
 /* 選択肢(選択時)のイメージ */
-static struct image *switch_fg_image;
+static struct image *switch_fg_image[8];
 
 /* NEWS(非選択)のイメージ */
 static struct image *news_bg_image;
@@ -505,25 +505,41 @@ static bool setup_click(void)
 /* 選択肢をセットアップする */
 static bool setup_switch(void)
 {
+	int i;
+
 	/* 再初期化時に破棄する */
-	if (switch_bg_image != NULL) {
-		destroy_image(switch_bg_image);
-		switch_bg_image = NULL;
-	}
-	if (switch_fg_image != NULL) {
-		destroy_image(switch_fg_image);
-		switch_fg_image = NULL;
+	for (i = 0; i < 8; i ++) {
+		if (switch_bg_image[i] != NULL) {
+			destroy_image(switch_bg_image[i]);
+			switch_bg_image[i] = NULL;
+		}
+		if (switch_fg_image[i] != NULL) {
+			destroy_image(switch_fg_image[i]);
+			switch_fg_image[i] = NULL;
+		}
 	}
 
-	/* スイッチの非選択イメージを読み込む */
-	switch_bg_image = create_image_from_file(CG_DIR, conf_switch_bg_file);
-	if (switch_bg_image == NULL)
-		return false;
+	for (i = 0; i < 8; i ++) {
+		if (i != 0 &&
+		    (conf_switch_bg_file[i] == NULL || 
+		     conf_switch_fg_file[i] == NULL))
+			continue;
 
-	/* スイッチの選択イメージを読み込む */
-	switch_fg_image = create_image_from_file(CG_DIR, conf_switch_fg_file);
-	if (switch_fg_image == NULL)
-		return false;
+		assert(conf_switch_bg_file[i] != NULL);
+		assert(conf_switch_bg_file[i] != NULL);
+
+		/* スイッチの非選択イメージを読み込む */
+		switch_bg_image[i] =
+			create_image_from_file(CG_DIR, conf_switch_bg_file[i]);
+		if (switch_bg_image[i] == NULL)
+			return false;
+
+		/* スイッチの選択イメージを読み込む */
+		switch_fg_image[i] =
+			create_image_from_file(CG_DIR, conf_switch_fg_file[i]);
+		if (switch_fg_image[i] == NULL)
+			return false;
+	}
 
 	return true;
 }
@@ -794,7 +810,7 @@ void cleanup_stage(void)
 		else
 			destroy_layer_image(i);
 	}
-	for (i = 0; i <  CLICK_FRAMES; i++) {
+	for (i = 0; i < CLICK_FRAMES; i++) {
 		if (click_image[i] != NULL) {
 			destroy_image(click_image[i]);
 			click_image[i] = NULL;
@@ -812,13 +828,15 @@ void cleanup_stage(void)
 		destroy_image(namebox_image);
 		namebox_image = NULL;
 	}
-	if (switch_bg_image != NULL) {
-		destroy_image(switch_bg_image);
-		switch_bg_image = NULL;
-	}
-	if (switch_fg_image != NULL) {
-		destroy_image(switch_fg_image);
-		switch_fg_image = NULL;
+	for (i = 0; i < 8; i++) {
+		if (switch_bg_image[i] != NULL) {
+			destroy_image(switch_bg_image[i]);
+			switch_bg_image[i] = NULL;
+		}
+		if (switch_fg_image[i] != NULL) {
+			destroy_image(switch_fg_image[i]);
+			switch_fg_image[i] = NULL;
+		}
 	}
 	if (news_bg_image != NULL) {
 		destroy_image(news_bg_image);
@@ -1229,6 +1247,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 	/* フェード中はdraw_stage()は使えない */
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
+	assert(stage_mode != STAGE_MODE_CHS_FADE);
 	assert(stage_mode != STAGE_MODE_SHAKE_FADE);
 
 	/* x, y ともに0以上 */
@@ -1375,6 +1394,7 @@ void draw_fo_rect_accelerated(int x, int y, int w, int h)
 {
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
+	assert(stage_mode != STAGE_MODE_CHS_FADE);
 
 	if (is_gpu_accelerated()) {
 		/* 背景を描画する */
@@ -2344,7 +2364,8 @@ static void draw_fade_rule(void)
 	int threshold;
 
 	assert(stage_mode == STAGE_MODE_BG_FADE ||
-	       stage_mode == STAGE_MODE_CH_FADE);
+	       stage_mode == STAGE_MODE_CH_FADE ||
+	       stage_mode == STAGE_MODE_CHS_FADE);
 	assert(fade_rule_img != NULL);
 
 	/* テンプレートの閾値を求める */
@@ -2365,7 +2386,8 @@ static void draw_fade_melt(void)
 	int threshold;
 
 	assert(stage_mode == STAGE_MODE_BG_FADE ||
-	       stage_mode == STAGE_MODE_CH_FADE);
+	       stage_mode == STAGE_MODE_CH_FADE ||
+	       stage_mode == STAGE_MODE_CHS_FADE);
 	assert(fade_rule_img != NULL);
 
 	/* テンプレートの閾値を求める */
@@ -3367,7 +3389,7 @@ void set_click_index(int index)
 }
 
 /*
- * スイッチ(@choose, @select, @switch)の描画
+ * スイッチ(@choose, @switch)の描画
  */
 
 /*
@@ -3375,15 +3397,30 @@ void set_click_index(int index)
  */
 void get_switch_rect(int index, int *x, int *y, int *w, int *h)
 {
-	int width, height;
+	int use_image_index, width, height;
 
-	width = get_image_width(switch_bg_image);
-	height = get_image_height(switch_bg_image);
+	assert(index >= 0 && index < 8);
 
-	*x = conf_switch_x;
-	*y = conf_switch_y + (height + conf_switch_margin_y) * index;
-	*w = width;
-	*h = height;
+	if (index != 0 && switch_bg_image[index] == NULL)
+		use_image_index = 0;
+	else
+		use_image_index = index;
+
+	width = get_image_width(switch_bg_image[use_image_index]);
+	height = get_image_height(switch_bg_image[use_image_index]);
+
+	if (use_image_index == 0) {
+		*x = conf_switch_x[0];
+		*y = conf_switch_y[0] +
+			(height + conf_switch_margin_y) * index;
+		*w = width;
+		*h = height;
+	} else {
+		*x = conf_switch_x[use_image_index];
+		*y = conf_switch_y[use_image_index];
+		*w = width;
+		*h = height;
+	}
 }
 
 /*
@@ -3399,34 +3436,34 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
 
 	struct image *bg;
 
-	bg = news_bg_image != NULL ? news_bg_image : switch_bg_image;
+	bg = news_bg_image != NULL ? news_bg_image : switch_bg_image[0];
 
 	if (index == NORTH) {
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = (conf_window_width - *w) / 2;
-		*y = conf_switch_y;
+		*y = conf_switch_y[0];
 	} else if (index == EAST) {
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = conf_window_width - *w - conf_news_margin;
-		*y = conf_switch_y + *h + conf_news_margin;
+		*y = conf_switch_y[0] + *h + conf_news_margin;
 	} else if (index == WEST) {
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = conf_news_margin;
-		*y = conf_switch_y + *h + conf_news_margin;
+		*y = conf_switch_y[0] + *h + conf_news_margin;
 	} else if (index == SOUTH) {
 		*w = get_image_width(bg);
 		*h = get_image_height(bg);
 		*x = (conf_window_width - *w) / 2;
-		*y = conf_switch_y + (*h + conf_news_margin) * 2;
+		*y = conf_switch_y[0] + (*h + conf_news_margin) * 2;
 	} else {
-		*w = get_image_width(switch_bg_image);
-		*h = get_image_height(switch_bg_image);
-		*x = conf_switch_x;
-		*y = conf_switch_y + (*h + conf_news_margin) * 3 +
-			(get_image_height(switch_bg_image) +
+		*w = get_image_width(switch_bg_image[0]);
+		*h = get_image_height(switch_bg_image[0]);
+		*x = conf_switch_x[0];
+		*y = conf_switch_y[0] + (*h + conf_news_margin) * 3 +
+			(get_image_height(switch_bg_image[0]) +
 			 conf_switch_margin_y) *
 			(index - SWITCH_BASE);
 	}
@@ -3435,22 +3472,28 @@ void get_news_rect(int index, int *x, int *y, int *w, int *h)
 /*
  * FOレイヤにスイッチの非選択イメージを描画する
  */
-void draw_switch_bg_image(int x, int y)
+void draw_switch_bg_image(int index, int x, int y)
 {
-	draw_image(layer_image[LAYER_FO], x, y, switch_bg_image,
-		   get_image_width(switch_bg_image),
-		   get_image_height(switch_bg_image),
+	if (switch_bg_image[index] == NULL)
+		index = 0;
+
+	draw_image(layer_image[LAYER_FO], x, y, switch_bg_image[index],
+		   get_image_width(switch_bg_image[index]),
+		   get_image_height(switch_bg_image[index]),
 		   0, 0, 255, BLEND_NORMAL);
 }
 
 /*
  * FIレイヤにスイッチの選択イメージを描画する
  */
-void draw_switch_fg_image(int x, int y)
+void draw_switch_fg_image(int index, int x, int y)
 {
-	draw_image(layer_image[LAYER_FI], x, y, switch_fg_image,
-		   get_image_width(switch_fg_image),
-		   get_image_height(switch_fg_image),
+	if (switch_fg_image[index] == NULL)
+		index = 0;
+
+	draw_image(layer_image[LAYER_FI], x, y, switch_fg_image[index],
+		   get_image_width(switch_fg_image[index]),
+		   get_image_height(switch_fg_image[index]),
 		   0, 0, 255, BLEND_NORMAL);
 }
 
@@ -3461,7 +3504,7 @@ void draw_news_bg_image(int x, int y)
 {
 	struct image *img;
 
-	img = news_bg_image != NULL ? news_bg_image : switch_bg_image;
+	img = news_bg_image != NULL ? news_bg_image : switch_bg_image[0];
 
 	draw_image(layer_image[LAYER_FO], x, y, img,
 		   get_image_width(img),
@@ -3476,7 +3519,7 @@ void draw_news_fg_image(int x, int y)
 {
 	struct image *img;
 
-	img = news_fg_image != NULL ? news_fg_image : switch_fg_image;
+	img = news_fg_image != NULL ? news_fg_image : switch_fg_image[0];
 
 	draw_image(layer_image[LAYER_FI], x, y, img,
 		   get_image_width(img),
