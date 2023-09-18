@@ -731,7 +731,7 @@ static VOID OnSelectScript(void)
 {
 	OPENFILENAMEW ofn;
 	wchar_t szPath[1024];
-	int i;
+	size_t i;
 
 	szPath[0] = '\0';
 
@@ -750,7 +750,7 @@ static VOID OnSelectScript(void)
 	GetOpenFileNameW(&ofn);
 	if(ofn.lpstrFile[0])
 	{
-		for (i = wcslen(szPath) - 1; i >= 0; i--) {
+		for (i = wcslen(szPath) - 1; i != 0; i--) {
 			if (*(szPath + i) == L'\\')
 			{
 				SetWindowText(hWndTextboxScript, szPath + i);
