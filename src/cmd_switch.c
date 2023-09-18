@@ -1106,9 +1106,11 @@ void draw_switch_parent_images(void)
 
 		/* FO/FIレイヤにスイッチを描画する */
 		if (!is_news) {
-			draw_switch_fg_image(parent_button[i].x,
+			draw_switch_fg_image(i,
+					     parent_button[i].x,
 					     parent_button[i].y);
-			draw_switch_bg_image(parent_button[i].x,
+			draw_switch_bg_image(i,
+					     parent_button[i].x,
 					     parent_button[i].y);
 		} else {
 			draw_news_fg_image(parent_button[i].x,
@@ -1173,9 +1175,11 @@ void draw_switch_child_images(void)
 	i = selected_parent_index;
 	for (j = 0; j < parent_button[i].child_count; j++) {
 		/* FO/FIレイヤにスイッチを描画する */
-		draw_switch_fg_image(child_button[i][j].x,
+		draw_switch_fg_image(i,
+				     child_button[i][j].x,
 				     child_button[i][j].y);
-		draw_switch_bg_image(child_button[i][j].x,
+		draw_switch_bg_image(i,
+				     child_button[i][j].x,
 				     child_button[i][j].y);
 
 		/* テキストを描画する */
