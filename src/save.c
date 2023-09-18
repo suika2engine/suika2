@@ -599,7 +599,7 @@ static bool serialize_stage(struct wfile *wf)
 		file = get_layer_file_name(i);
 		if (file == NULL)
 			file = "none";
-		if (strcmp(file, ""))
+		if (strcmp(file, "") == 0)
 			file = "none";
 		if (write_wfile(wf, file, strlen(file) + 1) < strlen(file) + 1)
 			return false;
