@@ -193,7 +193,7 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir, int 
     char newpath[1024];
     struct dirent **names;
     int i, count;
-        bool succeeded;
+    bool succeeded;
 
     /* Make path. */
 #if defined(__GNUC__) && !defined(__llvm__)
@@ -212,6 +212,7 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir, int 
         log_dir_not_found(dir);
         return false;
     }
+    succeeded = true;
     for (i = 0; i < count; i++) {
         if (names[i]->d_name[0] == '.') {
             /* Ignore . and .. (also .*)*/
