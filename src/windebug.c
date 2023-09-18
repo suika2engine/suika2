@@ -729,32 +729,35 @@ static VOID OnClickListBox(void)
 /* スクリプト選択ボタンが押された場合の処理を行う */
 static VOID OnSelectScript(void)
 {
-	OPENFILENAME ofn;
+	OPENFILENAMEW ofn;
 	wchar_t szPath[1024];
+	int i;
 
 	szPath[0] = '\0';
 
-	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
+	ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
+	ofn.lStructSize = sizeof(OPENFILENAMEW);
 	ofn.hwndOwner = hWndMain;
 	ofn.lpstrFilter = bEnglish ?
 		L"Text Files\0*.txt;\0All Files(*.*)\0*.*\0\0" : 
 		L"テキストファイル\0*.txt;\0すべてのファイル(*.*)\0*.*\0\0";
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = szPath;
-	ofn.nMaxFile = MAX_PATH;
+	ofn.nMaxFile = sizeof(szPath);
 	ofn.lpstrInitialDir = conv_utf8_to_utf16(SCRIPT_DIR);
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 	ofn.lpstrDefExt = L"txt";
-	ofn.nMaxFileTitle = 255;
-	GetOpenFileName(&ofn);
+	GetOpenFileNameW(&ofn);
 	if(ofn.lpstrFile[0])
 	{
-		wchar_t file[1024];
-		wchar_t *file_ptr;
-		GetFullPathName(szPath, sizeof(file), file, &file_ptr);
-		SetWindowText(hWndTextboxScript, file_ptr);
-		bChangeScriptPressed = TRUE;
+		for (i = wcslen(szPath) - 1; i >= 0; i--) {
+			if (*(szPath + i) == L'\\')
+			{
+				SetWindowText(hWndTextboxScript, szPath + i);
+				bChangeScriptPressed = TRUE;
+				break;
+			}
+		}
 	}
 }
 
