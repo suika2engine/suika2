@@ -103,14 +103,14 @@ DO_SIGN=0;
 if [ ! -z "`uname | grep Linux`" ]; then
     if [ ! -z "`grep -i WSL2 /proc/version`" ]; then
 	echo "Creating a temporary folder on Windows.";
-	RELEASETMP=/mnt/c/Users/`powershell.exe '$env:UserName' | tr -d '\r\n'`/suika2-release-tmp;
+	RELEASETMP=/mnt/c/Users/`powershell.exe '$env:UserName' | tr -d '\r\n'`/suika2-kirara-release-tmp;
 	DO_SIGN=1;
 	rm -rf $RELEASETMP && mkdir $RELEASETMP
     fi
 fi
 if [ -z "$RELEASETMP" ]; then
     echo "Creating a temporary directory release-tmp.";
-    RELEASETMP=`pwd`/release-tmp;
+    RELEASETMP=`pwd`/release-kirara-tmp;
     rm -rf $RELEASETMP && mkdir $RELEASETMP
 fi	
 echo "$RELEASETMP created."
