@@ -682,6 +682,7 @@ static struct rule {
 	{"gui.history.font.ruby.size", 'i', &conf_gui_history_font_ruby_size, OPTIONAL, SAVE},
 	{"gui.history.margin.line", 'i', &conf_gui_history_margin_line, OPTIONAL, SAVE},
 	{"gui.history.disable.color", 'i', &conf_gui_history_disable_color, OPTIONAL, SAVE},
+	{"gui.history.tategaki", 'i', &conf_gui_history_tategaki, OPTIONAL, SAVE},
 	{"gui.history.font.color.r", 'i', &conf_gui_history_font_color_r, OPTIONAL, SAVE},
 	{"gui.history.font.color.g", 'i', &conf_gui_history_font_color_g, OPTIONAL, SAVE},
 	{"gui.history.font.color.b", 'i', &conf_gui_history_font_color_b, OPTIONAL, SAVE},
