@@ -20,7 +20,6 @@
 
 # When START is selected:
 :START
-@se click.ogg
 @goto SCENE1
 
 # When LOAD is selected:
