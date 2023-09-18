@@ -1229,6 +1229,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 	/* フェード中はdraw_stage()は使えない */
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
+	assert(stage_mode != STAGE_MODE_CHS_FADE);
 	assert(stage_mode != STAGE_MODE_SHAKE_FADE);
 
 	/* x, y ともに0以上 */
@@ -1375,6 +1376,8 @@ void draw_fo_rect_accelerated(int x, int y, int w, int h)
 {
 	assert(stage_mode != STAGE_MODE_BG_FADE);
 	assert(stage_mode != STAGE_MODE_CH_FADE);
+	assert(stage_mode != STAGE_MODE_CHS_FADE);
+	assert(stage_mode != STAGE_MODE_SHAKE_FADE);
 
 	if (is_gpu_accelerated()) {
 		/* 背景を描画する */
@@ -2344,7 +2347,8 @@ static void draw_fade_rule(void)
 	int threshold;
 
 	assert(stage_mode == STAGE_MODE_BG_FADE ||
-	       stage_mode == STAGE_MODE_CH_FADE);
+	       stage_mode == STAGE_MODE_CH_FADE ||
+	       stage_mode == STAGE_MODE_CHS_FADE);
 	assert(fade_rule_img != NULL);
 
 	/* テンプレートの閾値を求める */
@@ -2365,7 +2369,8 @@ static void draw_fade_melt(void)
 	int threshold;
 
 	assert(stage_mode == STAGE_MODE_BG_FADE ||
-	       stage_mode == STAGE_MODE_CH_FADE);
+	       stage_mode == STAGE_MODE_CH_FADE ||
+	       stage_mode == STAGE_MODE_CHS_FADE);
 	assert(fade_rule_img != NULL);
 
 	/* テンプレートの閾値を求める */
