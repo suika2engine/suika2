@@ -110,7 +110,10 @@ static char *msg_top;
  */
 
 /* 本文の描画状態 */
-struct draw_msg_context msgbox_context;
+static struct draw_msg_context msgbox_context;
+
+/* スキップによりすべて描画するか(インラインウェイトの回避) */
+static bool do_draw_all;
 
 /*
  * 描画する文字の総数
@@ -369,7 +372,6 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h);
 /* メイン描画処理 */
 static void draw_frame(int *x, int *y, int *w, int *h);
 static bool is_end_of_msg(void);
-static void set_end_of_msg(void);
 static void draw_msgbox(int *x, int *y, int *w, int *h);
 static void inline_wait_hook(float wait_time);
 static int get_frame_chars(void);
@@ -722,6 +724,7 @@ static void init_flags_and_vars(void)
 	/* インラインウェイトでない状態にする */
 	is_inline_wait = false;
 	inline_wait_time_total = 0;
+	do_draw_all = false;
 }
 
 /* オートモードの場合の初期化処理を行う */
@@ -2595,12 +2598,6 @@ static bool is_end_of_msg(void)
 	return false;
 }
 
-/* メッセージ本文の描画を完了したことにする */
-static void set_end_of_msg(void)
-{
-	drawn_chars = total_chars;
-}
-
 /* メッセージボックスの描画を行う */
 static void draw_msgbox(int *x, int *y, int *w, int *h)
 {
@@ -2629,10 +2626,6 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 		drawn_chars += ret;
 		return;
 	}
-	if (ret != char_count) {
-		/* utf-8のエンコーディングエラーなど */
-		set_end_of_msg();
-	}
 
 	/* 描画した文字数を記録する */
 	drawn_chars += char_count;
@@ -2646,7 +2639,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 static void inline_wait_hook(float wait_time)
 {
 	/* インラインウェイトを開始する */
-	if (wait_time > 0) {
+	if (wait_time > 0 && !do_draw_all) {
 		is_inline_wait = true;
 		inline_wait_time = wait_time;
 		inline_wait_time_total += inline_wait_time;
@@ -2666,6 +2659,13 @@ static int get_frame_chars(void)
 	/* 繰り返し動作しない場合 (dimmingを含む) */
 	if (!is_in_command_repetition()) {
 		/* すべての文字を描画する */
+		do_draw_all = true;
+		return total_chars;
+	}
+
+	/* コンフィグで瞬間表示が設定されている場合 */
+	if (conf_msgbox_nowait) {
+		do_draw_all = true;
 		return total_chars;
 	}
 
@@ -2677,6 +2677,7 @@ static int get_frame_chars(void)
 	if (will_quick_save || need_save_mode || need_load_mode ||
 	    need_history_mode || need_config_mode) {
 		/* 残りの文字をすべて描画する */
+		do_draw_all = true;
 		return total_chars - drawn_chars;
 	}
 
@@ -2686,6 +2687,7 @@ static int get_frame_chars(void)
 		stop_command_repetition();
 
 		/* 残りの文字をすべて描画する */
+		do_draw_all = true;
 		return total_chars - drawn_chars;
 	}
 
@@ -2705,6 +2707,7 @@ static int get_frame_chars(void)
 #endif
 
 		/* 残りの文字をすべて描画する */
+		do_draw_all = true;
 		return total_chars - drawn_chars;
 	}
 

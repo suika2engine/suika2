@@ -1154,7 +1154,8 @@ draw_msg_common(
 
 	/* 1文字ずつ描画する */
 	for (i = 0; i < char_count; i++) {
-		assert(*context->msg);
+		if (*context->msg == '\0')
+			break;
 
 		/* 先頭のエスケープシーケンスをすべて処理する */
 		process_escape_sequence(context, x, y, w, h);
