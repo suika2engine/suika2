@@ -26,9 +26,6 @@ static stop_watch_t sw;
 /* コマンドの長さ(秒) */
 static float span;
 
-/* フェードメソッド */
-static int fade_method;
-
 /*
  * 前方参照
  */
@@ -64,7 +61,7 @@ static bool init(void)
 {
 	static struct image *img, *rule_img;
 	const char *fname, *method;
-	int ofs_x, ofs_y;
+	int fade_method, ofs_x, ofs_y;
 
 	/* パラメータを取得する */
 	fname = get_string_param(BG_PARAM_FILE);
@@ -97,7 +94,8 @@ static bool init(void)
 			log_script_exec_footer();
 			return false;
 		}
-		set_rule_image(rule_img);
+	} else {
+		rule_img = NULL;
 	}
 
 	/* 色指定の場合 */
@@ -120,41 +118,31 @@ static bool init(void)
 		return false;
 	}
 
-	/* 背景・キャラクタファイル名を設定する */
-	if (!set_layer_file_name(LAYER_BG, fname)) {
-		log_script_exec_footer();
-		return false;
-	}
-	set_layer_file_name(LAYER_CHB, NULL);
-	set_layer_file_name(LAYER_CHL, NULL);
-	set_layer_file_name(LAYER_CHR, NULL);
-	set_layer_file_name(LAYER_CHC, NULL);
-	set_layer_position(LAYER_BG, ofs_x, ofs_y);
-	set_layer_alpha(LAYER_BG, 255);
-	set_anime_layer_position(ANIME_LAYER_BG, ofs_x, ofs_y);
-
-	/* メッセージボックスを消す (msgbox.show.on.bg=2) */
+	/* メッセージボックスを消す (msgbox.show.on.bg=2, 瞬間消去) */
 	if (conf_msgbox_show_on_bg == 2) {
 		show_namebox(false);
 		show_msgbox(false);
 	}
 	show_click(false);
 
-	/* 繰り返し動作を開始する */
-	start_command_repetition();
+	/* 背景フェードを開始する */
+	if (!start_fade_for_bg(fname, img, ofs_x, ofs_y, 255, fade_method,
+			       rule_img)) {
+		log_script_exec_footer();
+		return false;
+	}
 
-	/* 背景フェードモードを有効にする */
-	start_bg_fade(img);
-
-	/* 時間計測を開始する */
-	reset_stop_watch(&sw);
-
-	/* メッセージボックスを消す (msgbox.show.on.bg=0 or 2) */
-	if (conf_msgbox_show_on_bg == 0 ||
-	    conf_msgbox_show_on_bg == 2) {
+	/* メッセージボックスを消す (msgbox.show.on.bg=0, フェードアウト) */
+	if (conf_msgbox_show_on_bg == 0) {
 		show_namebox(false);
 		show_msgbox(false);
 	}
+
+	/* 繰り返し動作を開始する */
+	start_command_repetition();
+
+	/* 時間計測を開始する */
+	reset_stop_watch(&sw);
 
 	return true;
 }
@@ -182,16 +170,16 @@ static void draw(void)
 			stop_command_repetition();
 
 			/* フェードを完了する */
-			stop_bg_fade();
+			finish_fade();
 		} else {
 			/* フェーディングを行う */
-			set_bg_fade_progress(lap / span);
+			set_fade_progress(lap / span);
 		}
 	}
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_bg_fade(fade_method);
+		draw_fade();
 	else
 		draw_stage();
 
@@ -205,9 +193,6 @@ static void draw(void)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
-	/* ルール画像を破棄する */
-	set_rule_image(NULL);
-
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;

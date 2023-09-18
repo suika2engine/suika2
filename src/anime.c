@@ -272,9 +272,9 @@ bool is_anime_running_for_layer(int layer)
 }
 
 /*
- * アニメーションのフレーム時刻を更新し、完了していればフラグをセットする
+ * アニメーションのフレーム時刻を更新し、完了したレイヤにフラグをセットする
  */
-void update_anime_frame(void)
+void update_anime_time(void)
 {
 	int i, last_seq;
 
@@ -532,12 +532,6 @@ static float calc_pos_x(int anime_layer, int index, const char *value)
 		else
 			ret = sequence[cur_seq_layer][index - 1].to_x;
 		ret += (float)atoi(value + 1);
-	} else if (value[0] == '-') {
-		if (index == 0)
-			ret = anime_layer_x[anime_layer];
-		else
-			ret = sequence[cur_seq_layer][index - 1].to_x;
-		ret += (float)atoi(value);
 	} else {
 		ret = (float)atoi(value);
 	}
@@ -558,12 +552,6 @@ static float calc_pos_y(int anime_layer, int index, const char *value)
 		else
 			ret = sequence[cur_seq_layer][index - 1].to_y;
 		ret += (float)atoi(value + 1);
-	} else if (value[0] == '-') {
-		if (index == 0)
-			ret = anime_layer_y[anime_layer];
-		else
-			ret = sequence[cur_seq_layer][index - 1].to_y;
-		ret += (float)atoi(value);
 	} else {
 		ret = (float)atoi(value);
 	}

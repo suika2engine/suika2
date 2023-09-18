@@ -73,21 +73,14 @@ static bool init(void)
 	if (!get_move(move_s))
 		return false;
 
-	/* Controlが押されているか、spanが0の場合 */
-	if ((span == 0)
-	    ||
-	    (!is_non_interruptible() && is_control_pressed)) {
-		/* 繰り返し動作を開始しない */
-	} else {
-		/* 繰り返し動作を開始する */
-		start_command_repetition();
+	/* 画面揺らしモードを有効にする */
+	start_fade_for_shake();
 
-		/* 画面揺らしモードを有効にする */
-		start_shake();
+	/* 繰り返し動作を開始する */
+	start_command_repetition();
 
-		/* 時間計測を開始する */
-		reset_stop_watch(&sw);
-	}
+	/* 時間計測を開始する */
+	reset_stop_watch(&sw);
 
 	/* メッセージボックスを消す */
 	show_namebox(false);
@@ -146,7 +139,7 @@ static void draw(void)
 			stop_command_repetition();
 
 			/* 画面揺らしモードを終了する */
-			stop_shake();
+			finish_fade();
 		} else {
 			/* 進捗を設定する */
 			if (move == SHAKE_MOVE_HORIZONTAL)
@@ -158,7 +151,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_stage_shake();
+		draw_fade();
 	else
 		draw_stage();
 
