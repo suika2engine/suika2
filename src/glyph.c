@@ -1154,7 +1154,8 @@ draw_msg_common(
 
 	/* 1文字ずつ描画する */
 	for (i = 0; i < char_count; i++) {
-		assert(*context->msg);
+		if (*context->msg == '\0')
+			break;
 
 		/* 先頭のエスケープシーケンスをすべて処理する */
 		process_escape_sequence(context, x, y, w, h);
@@ -1239,6 +1240,8 @@ draw_msg_common(
 
 	/* 末尾のエスケープシーケンスを処理する */
 	process_escape_sequence(context, x, y, w, h);
+	if (context->runtime_is_inline_wait)
+		context->runtime_is_inline_wait = false;
 
 	/* 描画した文字数を返す */
 	return i;
@@ -1466,8 +1469,10 @@ static void process_escape_sequence(struct draw_msg_context *context,
 /* 改行("\\n")を処理する */
 static void process_escape_sequence_lf(struct draw_msg_context *context)
 {
-	if (context->ignore_linefeed)
+	if (context->ignore_linefeed) {
+		context->msg += 2;
 		return;
+	}
 
 	if (!context->use_tategaki) {
 		context->pen_y += context->line_margin;

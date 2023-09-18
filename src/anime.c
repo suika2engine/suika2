@@ -33,6 +33,7 @@ struct sequence {
 	float to_y;
 	float to_a;
 	int accel;
+	bool loop;
 };
 
 /* アニメーションシーケンス(レイヤxシーケンス長) */
@@ -45,6 +46,7 @@ struct layer_context {
 	bool is_finished;
 	stop_watch_t sw;
 	float cur_lap;
+	int loop_rem;
 };
 static struct layer_context context[ANIME_LAYER_COUNT];
 
@@ -151,6 +153,8 @@ void clear_anime_sequence(int layer)
 	context[layer].seq_count = 0;
 	context[layer].is_running = false;
 	context[layer].is_finished = false;
+
+	memset(&sequence[layer], 0, sizeof(struct sequence) * SEQUENCE_COUNT);
 }
 
 /*
@@ -210,6 +214,11 @@ bool start_layer_anime(int layer)
 	context[layer].is_running = true;
 	context[layer].is_finished = false;
 	context[layer].cur_lap = 0;
+	context[layer].loop_rem =
+		sequence[layer][context[layer].seq_count - 1].loop ?
+		(int)(sequence[layer][context[layer].seq_count - 1].end_time * 1000.0f) :
+		0;
+
 	return true;
 }
 
@@ -228,6 +237,7 @@ bool finish_layer_anime(int layer)
 	context[layer].is_running = false;
 	context[layer].is_finished = true;
 	context[layer].cur_lap = 0;
+	context[layer].loop_rem = 0;
 	return true;
 }
 
@@ -272,11 +282,11 @@ bool is_anime_running_for_layer(int layer)
 }
 
 /*
- * アニメーションのフレーム時刻を更新し、完了していればフラグをセットする
+ * アニメーションのフレーム時刻を更新し、完了したレイヤにフラグをセットする
  */
-void update_anime_frame(void)
+void update_anime_time(void)
 {
-	int i, last_seq;
+	int i, last_seq, lap;
 
 	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
 		if (!context[i].is_running)
@@ -284,8 +294,10 @@ void update_anime_frame(void)
 		if (context[i].is_finished)
 			continue;
 
-		context[i].cur_lap =
-			(float)get_stop_watch_lap(&context[i].sw) / 1000.0f;
+		lap = get_stop_watch_lap(&context[i].sw);
+		if (context[i].loop_rem > 0)
+			lap %= context[i].loop_rem;
+		context[i].cur_lap = (float)lap / 1000.0f;
 
 		last_seq = context[i].seq_count - 1;
 		assert(last_seq >= 0);
@@ -456,18 +468,25 @@ static bool on_key_value(const char *key, const char *val)
 		return false;
 	}
 
+	/* クリアが指定された場合 */
+	if (strcmp(key, "clear") == 0) {
+		context[cur_seq_layer].seq_count = 1;
+		memset(&sequence[cur_seq_layer], 0, sizeof(struct sequence) * SEQUENCE_COUNT);
+		return true;
+	}
+
 	/* レイヤのシーケンス長をチェックする */
 	top = context[cur_seq_layer].seq_count - 1;
 	if (top == SEQUENCE_COUNT) {
 		log_anime_long_sequence();
 		return false;
 	}
+	assert(top >= 0);
+	assert(top < SEQUENCE_COUNT);
 
 	/* その他のキーのとき */
 	s = &sequence[cur_seq_layer][top];
-	if (strcmp(key, "clear") == 0) {
-		context[cur_seq_layer].seq_count = 1;
-	} else if (strcmp(key, "file") == 0) {
+	if (strcmp(key, "file") == 0) {
 		s->file = strdup(val);
 		if (s->file == NULL) {
 			log_memory();
@@ -491,6 +510,9 @@ static bool on_key_value(const char *key, const char *val)
 		s->to_a = (float)atoi(val);
 	} else if (strcmp(key, "accel") == 0) {
 		s->accel = atoi(val);
+	} else if (strcmp(key, "loop") == 0) {
+		s->loop = true;
+		context[cur_seq_layer].loop_rem = (int)(s->end_time * 1000.0f);
 	} else if (strcmp(key, "file") == 0) {
 		s->file = strdup(val);
 		if (s->file == NULL) {
@@ -530,14 +552,8 @@ static float calc_pos_x(int anime_layer, int index, const char *value)
 		if (index == 0)
 			ret = anime_layer_x[anime_layer];
 		else
-			ret = sequence[cur_seq_layer][index - 1].to_x;
+			ret = sequence[anime_layer][index - 1].to_x;
 		ret += (float)atoi(value + 1);
-	} else if (value[0] == '-') {
-		if (index == 0)
-			ret = anime_layer_x[anime_layer];
-		else
-			ret = sequence[cur_seq_layer][index - 1].to_x;
-		ret += (float)atoi(value);
 	} else {
 		ret = (float)atoi(value);
 	}
@@ -556,14 +572,8 @@ static float calc_pos_y(int anime_layer, int index, const char *value)
 		if (index == 0)
 			ret = anime_layer_y[anime_layer];
 		else
-			ret = sequence[cur_seq_layer][index - 1].to_y;
+			ret = sequence[anime_layer][index - 1].to_y;
 		ret += (float)atoi(value + 1);
-	} else if (value[0] == '-') {
-		if (index == 0)
-			ret = anime_layer_y[anime_layer];
-		else
-			ret = sequence[cur_seq_layer][index - 1].to_y;
-		ret += (float)atoi(value);
 	} else {
 		ret = (float)atoi(value);
 	}

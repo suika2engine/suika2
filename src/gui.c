@@ -1896,7 +1896,7 @@ static void draw_history_text_item(int button_index)
 		conf_gui_history_margin_line : conf_msgbox_margin_line;
 
 	/* ペン位置を計算する */
-	if (!conf_msgbox_tategaki) {
+	if (!conf_gui_history_tategaki) {
 		pen_x = b->margin;
 		pen_y = b->margin;
 	} else {
@@ -1936,7 +1936,7 @@ static void draw_history_text_item(int button_index)
 		!conf_gui_ruby,
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
-		conf_msgbox_tategaki);
+		conf_gui_history_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
 	total_chars = count_chars_common(&context);
 	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);
@@ -2079,6 +2079,7 @@ static void reset_preview_button(int index)
 {
 	struct gui_button *b;
 	pixel_t color, outline_color;
+	int pen_x, pen_y;
 
 	assert(button[index].type == TYPE_PREVIEW);
 
@@ -2099,6 +2100,15 @@ static void reset_preview_button(int index)
 					(pixel_t)conf_font_outline_color_g,
 					(pixel_t)conf_font_outline_color_b);
 
+	/* ペン位置を計算する */
+	if (!conf_gui_preview_tategaki) {
+		pen_x = 0;
+		pen_y = 0;
+	} else {
+		pen_x = b->width - conf_font_size;
+		pen_y = 0;
+	}
+
 	construct_draw_msg_context(
 		&b->rt.msg_context,
 		-1,		/* Not for a layer: use an alternative image. */
@@ -2108,8 +2118,8 @@ static void reset_preview_button(int index)
 		conf_font_size,
 		conf_font_ruby_size,
 		!conf_font_outline_remove,
-		0,		/* pen_x */
-		0,		/* pen_y */
+		pen_x,
+		pen_y,
 		b->width,
 		b->height,
 		0,		/* left_margin */
@@ -2130,7 +2140,7 @@ static void reset_preview_button(int index)
 		false,		/* ignore_ruby */
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
-		conf_msgbox_tategaki);
+		conf_gui_preview_tategaki);
 	set_alternative_target_image(&b->rt.msg_context, b->rt.img);
 
 	b->rt.is_waiting = false;

@@ -170,6 +170,7 @@ extern int conf_msgbox_dim_color_outline_r;
 extern int conf_msgbox_dim_color_outline_g;
 extern int conf_msgbox_dim_color_outline_b;
 extern int conf_msgbox_tategaki;
+extern int conf_msgbox_nowait;
 
 /*
  * クリックアニメーションの設定
@@ -184,13 +185,13 @@ extern int click_frames;
 /*
  * スイッチの設定
  */
-extern char *conf_switch_bg_file;
-extern char *conf_switch_fg_file;
+extern char *conf_switch_bg_file[8];
+extern char *conf_switch_fg_file[8];
 extern int conf_switch_font_select;
 extern int conf_switch_font_size;
 extern int conf_switch_font_outline;
-extern int conf_switch_x;
-extern int conf_switch_y;
+extern int conf_switch_x[8];
+extern int conf_switch_y[8];
 extern int conf_switch_margin_y;
 extern int conf_switch_text_margin_y;
 extern int conf_switch_color_active;
@@ -328,6 +329,7 @@ extern int conf_gui_history_font_size;
 extern int conf_gui_history_font_outline;
 extern int conf_gui_history_font_ruby_size;
 extern int conf_gui_history_margin_line;
+extern int conf_gui_history_tategaki;
 extern int conf_gui_history_disable_color;
 extern int conf_gui_history_font_color_r;
 extern int conf_gui_history_font_color_g;
@@ -335,6 +337,7 @@ extern int conf_gui_history_font_color_b;
 extern int conf_gui_history_font_outline_color_r;
 extern int conf_gui_history_font_outline_color_g;
 extern int conf_gui_history_font_outline_color_b;
+extern int conf_gui_preview_tategaki;
 
 /*
  * サウンドの設定

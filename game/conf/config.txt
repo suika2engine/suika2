@@ -309,7 +309,7 @@ click.interval=1.0
 click.disable=0
 
 ###
-### 選択肢の設定 (@choose, @select, @switch, @news)
+### 選択肢の設定 (@choose)
 ###
 
 # [選択肢（非選択中）画像のファイル名]
@@ -364,6 +364,33 @@ switch.child.click.se.file=click.ogg
 
 # [選択肢の選択項目が変更されたときのSE] (省略可)
 switch.change.se=btn-change.ogg
+
+# [選択肢ごとに画像や位置を変える場合] (省略可)
+#  - 指定しなければ縦方向にswitch.margin.yピクセルの間隔で配置される
+#switch.bg.file2=switch-bg-2.png
+#switch.fg.file2=switch-fg-2.png
+#switch.x2=200
+#switch.y2=200
+#switch.bg.file3=switch-bg-2.png
+#switch.fg.file3=switch-fg-2.png
+#switch.x3=200
+#switch.y3=300
+#switch.bg.file4=switch-bg-2.png
+#switch.fg.file4=switch-fg-2.png
+#switch.x4=200
+#switch.y4=400
+#switch.bg.file5=switch-bg-2.png
+#switch.fg.file5=switch-fg-2.png
+#switch.x5=200
+#switch.y5=500
+#switch.bg.file6=switch-bg-2.png
+#switch.fg.file6=switch-fg-2.png
+#switch.x7=200
+#switch.y7=600
+#switch.bg.file7=switch-bg-2.png
+#switch.fg.file7=switch-fg-2.png
+#switch.x8=200
+#switch.y85=700
 
 ###
 ### セーブ・ロード画面の設定
@@ -605,6 +632,11 @@ gui.history.font.ruby.size=16
 # [ヒストリの行間] (省略可)
 gui.history.margin.line=55
 
+# [ヒストリの縦書き] (省略可)
+#  - 0: 横書き
+#  - 1: 縦書き
+gui.history.tategaki=0
+
 # [ヒストリでカラーを無効にする] (省略可)
 #  - 0: カラーを有効にする
 #  - 1: カラーを無効にする(メッセージの色を使う)
@@ -618,6 +650,11 @@ gui.history.font.color.b=255
 gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
+
+# [プレビューの縦書き] (省略可)
+#  - 0: 横書き
+#  - 1: 縦書き
+gui.preview.tategaki=0
 
 ###
 ### 音量の初期値

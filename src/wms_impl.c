@@ -18,7 +18,6 @@ static int saved_layer_x[LAYER_EFFECT4 + 1];
 static int saved_layer_y[LAYER_EFFECT4 + 1];
 static int saved_layer_alpha[LAYER_EFFECT4 + 1];
 
-
 /*
  * FFI function declaration
  */
@@ -33,6 +32,9 @@ static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
 static bool s2_reflect_font_config(struct wms_runtime *rt);
 static bool s2_clear_history(struct wms_runtime *rt);
 static bool s2_clear_msgbox(struct wms_runtime *rt);
+static bool s2_clear_namebox(struct wms_runtime *rt);
+static bool s2_hide_msgbox(struct wms_runtime *rt);
+static bool s2_hide_namebox(struct wms_runtime *rt);
 static bool s2_save_global(struct wms_runtime *rt);
 static bool s2_push_stage(struct wms_runtime *rt);
 static bool s2_pop_stage(struct wms_runtime *rt);
@@ -52,6 +54,9 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
 	{s2_clear_history, "s2_clear_history", {NULL}},
 	{s2_clear_msgbox, "s2_clear_msgbox", {NULL}},
+	{s2_clear_namebox, "s2_clear_namebox", {NULL}},
+	{s2_hide_msgbox, "s2_hide_msgbox", {NULL}},
+	{s2_hide_namebox, "s2_hide_namebox", {NULL}},
 	{s2_save_global, "s2_save_global", {NULL}},
 	{s2_push_stage, "s2_push_stage", {NULL}},
 	{s2_pop_stage, "s2_pop_stage", {NULL}},
@@ -262,8 +267,41 @@ static bool s2_clear_msgbox(struct wms_runtime *rt)
 {
 	UNUSED_PARAMETER(rt);
 
-	/* Clear the message history. */
+	/* Clear the message box. */
 	fill_msgbox();
+
+	return true;
+}
+
+/* Clear the name box. */
+static bool s2_clear_namebox(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	/* Clear the name box. */
+	fill_namebox();
+
+	return true;
+}
+
+/* Hide the message box. */
+static bool s2_hide_msgbox(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	/* Hide the message box. */
+	show_msgbox(false);
+
+	return true;
+}
+
+/* Hide the name box. */
+static bool s2_hide_namebox(struct wms_runtime *rt)
+{
+	UNUSED_PARAMETER(rt);
+
+	/* Hide the name box. */
+	show_namebox(false);
 
 	return true;
 }

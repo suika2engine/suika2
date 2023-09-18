@@ -43,7 +43,7 @@
 </head>
 <body>
 
-<h1>Suika 2/13.2</h1>
+<h1>Suika 2/13.7</h1>
 <p>Copyright (c) 2023 the Suika2 Development Team. All rights reserved.</p>
 
 <h2>このソフトについて</h2>
@@ -168,6 +168,43 @@
 
 <h2>変更履歴</h2>
 <ul>
+  <li>Suika2/13.7 2023/09/19
+    <ul>
+			<li>バグ修正: インラインウェイトのスキップで落ちる (Thanks to クロウズの嫁つる-san!)</li>
+		</ul>
+	</li>
+  <li>Suika2/13.6 2023/09/18
+    <ul>
+			<li>バグ修正: きちんとセーブされない (Thanks to ラワン材-san!)</li>
+		</ul>
+	</li>
+  <li>Suika2/13.5 2023/09/18
+    <ul>
+			<li>バグ修正: インラインウェイトをクリックでキャンセルすると落ちる (Thanks to クロウズの嫁つる-san!)</li>
+			<li>バグ修正: ロードの際に「ファイル"ch/"を開けません」と表示される (Thanks to ラワン材-san!)</li>
+			<li>バグ修正: メッセージに <code>\n</code> が入っているとセーブ/ロードで固まる (Thanks to あおむし赤果-san!)</li>
+			<li>バグ修正: shakeコマンドでassertion failedとなる (Thanks to あおむし赤果-san!)</li>
+			<li>バグ修正: chsxコマンドでstayを指定してもキャラが消える (Thanks to あおむし赤果-san!)</li>
+			<li>バグ修正: フルスクリーンから戻るとウィンドウサイズが1px増えてぼやける (Thanks to クロウズの嫁つる-san!)</li>
+			<li>サンプル: タイトル画面で"START"を選んだ場合のSEが二重に再生される (Thanks to クロウズの嫁つる-san!)</li>
+		</ul>
+	</li>
+  <li>Suika2/13.4 2023/09/18
+    <ul>
+			<li>バグ修正: chs/chsxコマンドでユニバーサルトランジションを使うとエラーになる (Thanks to あおむし赤果-san!)</li>
+			<li>新機能: 一瞬でメッセージを表示するコンフィグ <code>@setconfig msgbox.nowait 1</code> (Thanks to 卜部ねむこ-san!)</li>
+			<li>新機能: 選択肢ごとに画像や位置を変更可能に (Thanks to フラムの日記-san!)</li>
+		</ul>
+	</li>
+  <li>Suika2/13.3 2023/09/18
+    <ul>
+			<li>バグ修正: chaコマンドでマイナスの移動がおかしい問題を修正 (Thanks to あおむし赤果-san!)</li>
+			<li>バグ修正: アニメファイルで相対座標の指定方法を変更 (相対座標のときは <code>+</code> をつけ、<code>+0</code>, <code>+100</code>, <code>+-100</code> などとする</li>
+			<li>新機能: アニメのループ <code>loop: true;</code> (Thanks to ラワン材-san!)</li>
+			<li>新機能: メッセージや名前を消去/非表示にするWMSを追加 (Thanks to 花澄匝-san!)</li>
+			<li>新機能: プレビューの縦書き (Thanks to ラワン材-san!)</li>
+		</ul>
+	</li>
   <li>Suika2/13.2 2023/09/18
     <ul>
 			<li>バグ修正: chaコマンドのレイヤーのずれを修正 (Thanks to あおむし赤果-san!)</li>

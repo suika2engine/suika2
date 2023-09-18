@@ -160,6 +160,7 @@ int conf_msgbox_dim_color_outline_r;
 int conf_msgbox_dim_color_outline_g;
 int conf_msgbox_dim_color_outline_b;
 int conf_msgbox_tategaki;
+int conf_msgbox_nowait;
 
 /*
  * クリックアニメーションの設定
@@ -174,13 +175,13 @@ int click_frames;
 /*
  * スイッチの設定
  */
-char *conf_switch_bg_file;
-char *conf_switch_fg_file;
+char *conf_switch_bg_file[8];
+char *conf_switch_fg_file[8];
 int conf_switch_font_select;
 int conf_switch_font_size;
 int conf_switch_font_outline;
-int conf_switch_x;
-int conf_switch_y;
+int conf_switch_x[8];
+int conf_switch_y[8];
 int conf_switch_margin_y;
 int conf_switch_text_margin_y;
 int conf_switch_color_active;
@@ -318,6 +319,7 @@ int conf_gui_history_font_size;
 int conf_gui_history_font_outline;
 int conf_gui_history_font_ruby_size;
 int conf_gui_history_margin_line;
+int conf_gui_history_tategaki;
 int conf_gui_history_disable_color;
 int conf_gui_history_font_color_r;
 int conf_gui_history_font_color_g;
@@ -325,6 +327,7 @@ int conf_gui_history_font_color_b;
 int conf_gui_history_font_outline_color_r;
 int conf_gui_history_font_outline_color_g;
 int conf_gui_history_font_outline_color_b;
+int conf_gui_preview_tategaki;
 
 /*
  * サウンドの設定
@@ -547,6 +550,7 @@ static struct rule {
 	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, OPTIONAL, SAVE},
 	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, OPTIONAL, SAVE},
 	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, OPTIONAL, SAVE},
+	{"msgbox.nowait", 'i', &conf_msgbox_nowait, OPTIONAL, SAVE},
 	{"click.x", 'i', &conf_click_x, MUST, SAVE},
 	{"click.y", 'i', &conf_click_y, MUST, SAVE},
 	{"click.move", 'i', &conf_click_move, OPTIONAL, SAVE},
@@ -567,13 +571,13 @@ static struct rule {
 	{"click.file15", 's', &conf_click_file[14], OPTIONAL, SAVE},
 	{"click.file16", 's', &conf_click_file[15], OPTIONAL, SAVE},
 	{"click.interval", 'f', &conf_click_interval, MUST, SAVE},
-	{"switch.bg.file", 's', &conf_switch_bg_file, MUST, SAVE},
-	{"switch.fg.file", 's', &conf_switch_fg_file, MUST, SAVE},
+	{"switch.bg.file", 's', &conf_switch_bg_file[0], MUST, SAVE},
+	{"switch.fg.file", 's', &conf_switch_fg_file[0], MUST, SAVE},
 	{"switch.font.select", 'i', &conf_switch_font_select, OPTIONAL, SAVE},
 	{"switch.font.size", 'i', &conf_switch_font_size, OPTIONAL, SAVE},
 	{"switch.font.outline", 'i', &conf_switch_font_outline, OPTIONAL, SAVE},
-	{"switch.x", 'i', &conf_switch_x, MUST, SAVE},
-	{"switch.y", 'i', &conf_switch_y, MUST, SAVE},
+	{"switch.x", 'i', &conf_switch_x[0], MUST, SAVE},
+	{"switch.y", 'i', &conf_switch_y[0], MUST, SAVE},
 	{"switch.margin.y", 'i', &conf_switch_margin_y, MUST, SAVE},
 	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, MUST, SAVE},
 	{"switch.color.active", 'i', &conf_switch_color_active, OPTIONAL, SAVE},
@@ -586,6 +590,34 @@ static struct rule {
 	{"switch.parent.click.se.file", 's', &conf_switch_parent_click_se_file, OPTIONAL, SAVE},
 	{"switch.child.click.se.file", 's', &conf_switch_child_click_se_file, OPTIONAL, SAVE},
 	{"switch.change.se", 's', &conf_switch_change_se, OPTIONAL, SAVE},
+	{"switch.bg.file2", 's', &conf_switch_bg_file[1], OPTIONAL, SAVE},
+	{"switch.fg.file2", 's', &conf_switch_fg_file[1], OPTIONAL, SAVE},
+	{"switch.x2", 'i', &conf_switch_x[1], OPTIONAL, SAVE},
+	{"switch.y2", 'i', &conf_switch_y[1], OPTIONAL, SAVE},
+	{"switch.bg.file3", 's', &conf_switch_bg_file[2], OPTIONAL, SAVE},
+	{"switch.fg.file3", 's', &conf_switch_fg_file[2], OPTIONAL, SAVE},
+	{"switch.x3", 'i', &conf_switch_x[2], OPTIONAL, SAVE},
+	{"switch.y3", 'i', &conf_switch_y[2], OPTIONAL, SAVE},
+	{"switch.bg.file4", 's', &conf_switch_bg_file[3], OPTIONAL, SAVE},
+	{"switch.fg.file4", 's', &conf_switch_fg_file[3], OPTIONAL, SAVE},
+	{"switch.x4", 'i', &conf_switch_x[3], OPTIONAL, SAVE},
+	{"switch.y4", 'i', &conf_switch_y[3], OPTIONAL, SAVE},
+	{"switch.bg.file5", 's', &conf_switch_bg_file[4], OPTIONAL, SAVE},
+	{"switch.fg.file5", 's', &conf_switch_fg_file[4], OPTIONAL, SAVE},
+	{"switch.x5", 'i', &conf_switch_x[4], OPTIONAL, SAVE},
+	{"switch.y5", 'i', &conf_switch_y[4], OPTIONAL, SAVE},
+	{"switch.bg.file6", 's', &conf_switch_bg_file[5], OPTIONAL, SAVE},
+	{"switch.fg.file6", 's', &conf_switch_fg_file[5], OPTIONAL, SAVE},
+	{"switch.x6", 'i', &conf_switch_x[5], OPTIONAL, SAVE},
+	{"switch.y6", 'i', &conf_switch_y[5], OPTIONAL, SAVE},
+	{"switch.bg.file7", 's', &conf_switch_bg_file[6], OPTIONAL, SAVE},
+	{"switch.fg.file7", 's', &conf_switch_fg_file[6], OPTIONAL, SAVE},
+	{"switch.x7", 'i', &conf_switch_x[6], OPTIONAL, SAVE},
+	{"switch.y7", 'i', &conf_switch_y[6], OPTIONAL, SAVE},
+	{"switch.bg.file8", 's', &conf_switch_bg_file[7], OPTIONAL, SAVE},
+	{"switch.fg.file8", 's', &conf_switch_fg_file[7], OPTIONAL, SAVE},
+	{"switch.x8", 'i', &conf_switch_x[7], OPTIONAL, SAVE},
+	{"switch.y8", 'i', &conf_switch_y[7], OPTIONAL, SAVE},
 	{"news.bg.file", 's', &conf_news_bg_file, OPTIONAL, SAVE},
 	{"news.fg.file", 's', &conf_news_fg_file, OPTIONAL, SAVE},
 	{"news.margin", 'i', &conf_news_margin, OPTIONAL, SAVE},
@@ -680,12 +712,14 @@ static struct rule {
 	{"gui.history.font.ruby.size", 'i', &conf_gui_history_font_ruby_size, OPTIONAL, SAVE},
 	{"gui.history.margin.line", 'i', &conf_gui_history_margin_line, OPTIONAL, SAVE},
 	{"gui.history.disable.color", 'i', &conf_gui_history_disable_color, OPTIONAL, SAVE},
+	{"gui.history.tategaki", 'i', &conf_gui_history_tategaki, OPTIONAL, SAVE},
 	{"gui.history.font.color.r", 'i', &conf_gui_history_font_color_r, OPTIONAL, SAVE},
 	{"gui.history.font.color.g", 'i', &conf_gui_history_font_color_g, OPTIONAL, SAVE},
 	{"gui.history.font.color.b", 'i', &conf_gui_history_font_color_b, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.r", 'i', &conf_gui_history_font_outline_color_r, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.g", 'i', &conf_gui_history_font_outline_color_g, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.b", 'i', &conf_gui_history_font_outline_color_b, OPTIONAL, SAVE},
+	{"gui.preview.tategaki", 'i', &conf_gui_preview_tategaki, OPTIONAL, SAVE},
 	/* 下記は初期音量なのでセーブしない */
 	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},
 	{"sound.vol.voice", 'f', &conf_sound_vol_voice, MUST, NOSAVE},

@@ -1363,8 +1363,8 @@ static void OnSize(void)
 					 SWP_NOMOVE | SWP_NOSIZE |
 					 SWP_NOZORDER | SWP_FRAMECHANGED);
 		MoveWindow(hWndMain, rcWindow.left, rcWindow.top,
-				   rcWindow.right - rcWindow.left + 1,
-				   rcWindow.bottom - rcWindow.top + 1, TRUE);
+				   rcWindow.right - rcWindow.left,
+				   rcWindow.bottom - rcWindow.top, TRUE);
 		InvalidateRect(hWndMain, NULL, TRUE);
 
 		GetClientRect(hWndMain, &rc);

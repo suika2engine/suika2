@@ -215,6 +215,12 @@ int chpos_to_layer(int chpos);
 /* キャラ位置からアニメレイヤへ変換する */
 int chpos_to_anime_layer(int chpos);
 
+/* ステージレイヤからキャラ位置へ変換する */
+int layer_to_chpos(int chpos);
+
+/* ステージレイヤからアニメレイヤに変換する */
+int stage_layer_to_anime_layer(int stage_layer);
+
 /* ステージをクリアする */
 void clear_stage(void);
 
@@ -238,21 +244,6 @@ void draw_stage_keep(void);
  */
 void draw_stage_rect(int x, int y, int w, int h);
 
-/* 背景フェードモードが有効な際のステージ描画を行う */
-void draw_stage_bg_fade(int fade_method);
-
-/* キャラフェードモードが有効な際のステージ描画を行う */
-void draw_stage_ch_fade(int fade_method);
-
-/* ルール画像を設定する */
-void set_rule_image(struct image *img);
-
-/* 背景/キャラフェードモードが有効な際のステージ描画を行う (ルール使用) */
-void draw_stage_fade_rule(void);
-
-/* 画面揺らしモードが有効な際のステージ描画を行う */
-void draw_stage_shake(void);
-
 /* ステージの背景(FO)全体と、前景(FI)の矩形を描画する */
 void draw_fo_all_and_fi_rect(int x, int y, int w, int h);
 
@@ -261,12 +252,6 @@ void draw_fo_all_and_fi_rect_accelerated(int x, int y, int w, int h);
 
 /* CPU描画の場合はFOのうち1矩形、GPU描画の場合はFO全体を描画する */
 void draw_fo_rect_accelerated(int x, int y, int w, int h);
-
-/* ステージの背景(FO)と前景(FI)を描画する */
-void draw_stage_history(void);
-
-/* ステージの背景(FO)と前景(FI)を描画する(GPU用) */
-void draw_stage_history_keep(void);
 
 /* ステージの背景(FO)と前景(FI)にステージ全体を描画する */
 void draw_stage_fo_fi(void);
@@ -316,20 +301,40 @@ void draw_stage_fo_thumb(void);
 struct image *get_thumb_image(void);
 
 /*
- * 背景の変更
+ * フェード
  */
 
 /* 文字列からフェードメソッドを取得する */
 int get_fade_method(const char *method);
 
-/* 背景フェードモードを開始する */
-void start_bg_fade(struct image *img);
+/* bg用のフェードを開始する */
+bool start_fade_for_bg(const char *fname, struct image *img, int x, int y,
+		       int alpha, int method, struct image *rule_img);
 
-/* 背景フェードモードの進捗率を設定する */
-void set_bg_fade_progress(float progress);
+/* ch用のフェードを開始する*/
+bool start_fade_for_ch(int chpos, const char *fname, struct image *img,
+		       int x, int y, int alpha, int method,
+		       struct image *rule_img);
 
-/* 背景フェードモードを終了する */
-void stop_bg_fade(void);
+/* chs用のフェードモードを開始する */
+bool start_fade_for_chs(const bool *stay, const char **fname,
+			struct image **img, const int *x, const int *y,
+			const int *alpha, int method, struct image *rule_img);
+
+/* shake用のフェードモードを開始する */
+void start_fade_for_shake(void);
+
+/* フェードの進捗率を設定する */
+void set_fade_progress(float progress);
+
+/* shakeの表示オフセットを設定する */
+void set_shake_offset(int x, int y);
+
+/* フェードの描画を行う */
+void draw_fade(void);
+
+/* フェードを終了する */
+void finish_fade(void);
 
 /*
  * キャラの変更
@@ -337,32 +342,6 @@ void stop_bg_fade(void);
 
 /* キャラを暗くするかを設定する */
 void set_ch_dim(int pos, bool dim);
-
-/* キャラフェードモードを開始する */
-void start_ch_fade(int pos, struct image *img, int x, int y, int alpha);
-
-/* キャラフェードモードの進捗率を設定する */
-void set_ch_fade_progress(float progress);
-
-/* キャラフェードモードを終了する */
-void stop_ch_fade(void);
-
-/* キャラフェードモード(複数,背景も)を開始する */
-void start_ch_fade_multi(const bool *stay, struct image **img, const int *x,
-			 const int *y, const int *alpha);
-
-/*
- * 画面揺らしモード
- */
-
-/* 画面揺らしモードを開始する */
-void start_shake(void);
-
-/* 画面揺らしモードのオフセットを設定する */
-void set_shake_offset(int x, int y);
-
-/* 画面揺らしモードを終了する */
-void stop_shake(void);
 
 /*
  * 名前ボックスの描画
@@ -420,10 +399,10 @@ void set_click_index(int index);
 void get_switch_rect(int index, int *x, int *y, int *w, int *h);
 
 /* FOレイヤにスイッチの非選択イメージを描画する */
-void draw_switch_bg_image(int x, int y);
+void draw_switch_bg_image(int index, int x, int y);
 
 /* FIレイヤにスイッチの選択イメージを描画する */
-void draw_switch_fg_image(int x, int y);
+void draw_switch_fg_image(int index, int x, int y);
 
 /* NEWSの親選択肢の矩形を取得する */
 void get_news_rect(int index, int *x, int *y, int *w, int *h);

@@ -599,6 +599,8 @@ static bool serialize_stage(struct wfile *wf)
 		file = get_layer_file_name(i);
 		if (file == NULL)
 			file = "none";
+		if (strcmp(file, "") == 0)
+			file = "none";
 		if (write_wfile(wf, file, strlen(file) + 1) < strlen(file) + 1)
 			return false;
 
@@ -995,6 +997,7 @@ static bool deserialize_stage(struct rfile *rf)
 {
 	char text[4096];
 	struct image *img;
+	const char *fname;
 	int i, x, y, alpha;
 
 	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
@@ -1009,17 +1012,18 @@ static bool deserialize_stage(struct rfile *rf)
 		}
 
 		/* File name. */
+		text[0] = '\0';
 		if (gets_rfile(rf, text, sizeof(text)) == NULL)
 			strcpy(text, "none");
 		if (i == LAYER_BG) {
-			if (strcmp(text, "none") == 0) {
-				set_layer_file_name(i, NULL);
+			if (strcmp(text, "none") == 0 ||
+			    strcmp(text, "") == 0) {
+				fname = NULL;
 				img = create_initial_bg();
 				if (img == NULL)
 					return false;;
 			} else if (text[0] == '#') {
-				if (!set_layer_file_name(i, text))
-					return false;
+				fname = &text[0];
 				img = create_image_from_color_string(
 					conf_window_width,
 					conf_window_height,
@@ -1027,7 +1031,7 @@ static bool deserialize_stage(struct rfile *rf)
 				if (img == NULL)
 					return false;
 			} else {
-				set_layer_file_name(i, text);
+				fname = &text[0];
 				if (strncmp(text, "cg/", 3) == 0) {
 					img = create_image_from_file(
 						CG_DIR, &text[3]);
@@ -1039,16 +1043,18 @@ static bool deserialize_stage(struct rfile *rf)
 					return false;
 			}
 		} else {
-			if (strcmp(text, "none") == 0) {
-				set_layer_file_name(i, NULL);
+			if (strcmp(text, "none") == 0 ||
+			    strcmp(text, "") == 0) {
+				fname = NULL;
 				img = NULL;
 			} else {
-				set_layer_file_name(i, text);
+				fname = &text[0];
 				img = create_image_from_file(CH_DIR, text);
 				if (img == NULL)
 					return false;
 			}
 		}
+		set_layer_file_name(i, fname);
 		set_layer_image(i, img);
 
 		/* Position. */

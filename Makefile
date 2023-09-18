@@ -14,8 +14,8 @@ targets:
 	@echo '  make test              ... run tests without a window'
 	@echo '  make gtest             ... run tests with a window (just for demo)'
 	@echo '  make clean             ... cleanup'
-	@echo '  make do-release-13     ... build v13 release files and upload them (dev internal)'
-	@echo '  make do-release-kirara ... build Kirara release files and upload them (dev internal)'
+	@echo '  make do-release        ... build release files and upload them'
+	@echo '  make do-release-kirara ... build Kirara release files and upload them'
 	@echo ''
 	@# Check for a situation that we are on WSL2 and not under /mnt
 	@if [ ! -z "`uname | grep Linux`" ]; then \
@@ -226,6 +226,21 @@ do-release:
 	@echo "Going to build release files and upload them."
 	@cd build && \
 	./do-release.sh && \
+	cd ..
+
+# Build apps and upload both Japanese and English zip files.
+do-release-kirara:
+	@# Check if we are running on WSL2.
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
+		echo ""; \
+	elif [ -z "`grep -i WSL2 /proc/version`" ]; then \
+		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
+		echo ""; \
+	fi
+	@echo "Going to build release files and upload them."
+	@cd build && \
+	./do-release-kirara.sh && \
 	cd ..
 
 # Cleanup.
