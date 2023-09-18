@@ -69,7 +69,7 @@
 
 @vol bgm 1.0 1.0
 @ch c 001-fun.png 1.0
-*???*005.ogg*Now, you're probably wondering why I skipped the remedial class, right?
+*???*e005.ogg*Now, you're probably wondering why I skipped the remedial class, right?
 
 @vol bgm 0.5 1.0
 *???*e006.ogg*Oh actually, I should probably introduce myself first, shouldn't I?
@@ -83,7 +83,7 @@
 
 @vol bgm 0.5 1.0
 @ch c none 1.0
-*Midori*011.ogg*(This is really important... I can't mess this up!)
+*Midori*e011.ogg*(This is really important... I can't mess this up!)
 
 @vol bgm 1.0 1.0
 @ch c 001-sad.png 1.0
@@ -142,8 +142,8 @@ Last but not least, freedom. You can use Suika2 in your commercial projects for 
 
 @set $1 = 1
 @ch c 001-fun.png 1.0
-*Midori*020.ogg*Great! I'm glad my stories will keep working, even on my new computer! Being able to focus on the story, rather than syntax is nice too!
-*Midori*021.ogg*Do you have any other questions?
+*Midori*e020.ogg*Great! I'm glad my stories will keep working, even on my new computer! Being able to focus on the story, rather than syntax is nice too!
+*Midori*e021.ogg*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP1
 
@@ -154,8 +154,8 @@ When it comes to Web browsers, we support Chrome, Safari, Firefox, and Edge.
 In addition to all of those, Suika2 runs on iPhone, iPad, Android, and Linux. (Did you know, Suika2 was initially written on Linux!)
 @set $2 = 1
 @ch c 001-fun.png 1.0
-*Midori*022.ogg*Oh yeah, that's right!
-*Midori*021.ogg*Do you have any other questions?
+*Midori*e022.ogg*Oh yeah, that's right!
+*Midori*e021.ogg*Do you have any other questions?
 @ch c none 1.0
 @goto LOOP1
 
