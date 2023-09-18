@@ -1896,7 +1896,7 @@ static void draw_history_text_item(int button_index)
 		conf_gui_history_margin_line : conf_msgbox_margin_line;
 
 	/* ペン位置を計算する */
-	if (!conf_msgbox_tategaki) {
+	if (!conf_gui_history_tategaki) {
 		pen_x = b->margin;
 		pen_y = b->margin;
 	} else {
@@ -1936,7 +1936,7 @@ static void draw_history_text_item(int button_index)
 		!conf_gui_ruby,
 		true,		/* ignore_wait */
 		NULL,		/* inline_wait_hook */
-		conf_msgbox_tategaki);
+		conf_gui_history_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
 	total_chars = count_chars_common(&context);
 	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);

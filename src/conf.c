@@ -318,6 +318,7 @@ int conf_gui_history_font_size;
 int conf_gui_history_font_outline;
 int conf_gui_history_font_ruby_size;
 int conf_gui_history_margin_line;
+int conf_gui_history_tategaki;
 int conf_gui_history_disable_color;
 int conf_gui_history_font_color_r;
 int conf_gui_history_font_color_g;
