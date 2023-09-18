@@ -50,13 +50,27 @@ static bool init(void)
 {
 	const char *fname;
 	const char *spec;
+	int i;
 
 	/* パラメータを取得する */
 	fname = get_string_param(ANIME_PARAM_FILE);
 	spec = get_string_param(ANIME_PARAM_SPEC);
 
-	/* アニメーションファイルをロードする */
-	if (strcmp(fname, "finish-all") != 0) {
+	/* アニメファイル名を処理する */
+	if (strcmp(fname, "finish-all") == 0) {
+		/*
+		 * アニメファイルはロードしない
+		 *  - 全レイヤのアニメ完了を待つ
+		 */
+	} else if (strcmp(fname, "stop-all") == 0) {
+		/*
+		 * アニメファイルはロードしない
+		 *  - 全レイヤのアニメを強制的に完了する
+		 */
+		for (i = 0; i < ANIME_LAYER_COUNT; i++)
+			finish_layer_anime(i);
+	} else {
+		/* アニメファイルをロードする */
 		if (!load_anime_from_file(fname)) {
 			log_script_exec_footer();
 			return false;
@@ -95,10 +109,13 @@ static void draw(int *x, int *y, int *w, int *h)
 			draw_stage_collapsed_sysmenu(false, x, y, w, h);
 	}
 
-	/* すべてのアニメーションが完了した場合 */
-	if (!is_anime_running()) {
-		/* 繰り返し動作を終了する */
-		stop_command_repetition();
+	/* 同期処理の場合 */
+	if (!is_async) {
+		/* すべてのアニメーションが完了した場合 */
+		if (!is_anime_running()) {
+			/* 繰り返し動作を終了する */
+			stop_command_repetition();
+		}
 	}
 }
 
