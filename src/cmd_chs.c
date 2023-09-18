@@ -162,10 +162,7 @@ static bool init(void)
 		    (strcmp(fname[i], "none") == 0 ||
 		     strcmp(fname[i], U8("消す")) == 0 ||
 		     strcmp(fname[i], "") == 0)) {
-			/* ファイル名を設定する */
-			if (!set_layer_file_name(layer, NULL))
-				return false;
-
+			fname[i] = NULL;
 			continue;
 		}
 

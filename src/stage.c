@@ -247,6 +247,7 @@ static void draw_fade_slit_open(void);
 static void draw_fade_slit_close(void);
 static void draw_fade_slit_open_v(void);
 static void draw_fade_slit_close_v(void);
+static void draw_fade_shake(void);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 static void render_layer_image_rect(int layer, int x, int y, int w, int h);
@@ -2083,6 +2084,9 @@ bool start_fade_for_chs(const bool *stay, const char **fname,
 
 	/* キャラを入れ替える */
 	for (i = 0; i < CH_BASIC_LAYERS; i++) {
+		if (stay[i])
+			continue;
+
 		layer = chpos_to_layer(i);
 		if (!set_layer_file_name(layer, fname[i]))
 			return false;
@@ -2118,7 +2122,14 @@ void start_fade_for_shake(void)
 	stage_mode = STAGE_MODE_SHAKE_FADE;
 
 	/* フェードアウト用のレイヤをクリアする */
-	draw_fo_common();
+	lock_image(layer_image[LAYER_FO]);
+	{
+		if (conf_window_white)
+			clear_image_white(layer_image[LAYER_FO]);
+		else
+			clear_image_black(layer_image[LAYER_FO]);
+	}
+	unlock_image(layer_image[LAYER_FO]);
 
 	/* フェードイン用のレイヤにステージを描画する */
 	draw_fi_common();
@@ -2253,6 +2264,11 @@ void draw_fade(void)
 	       stage_mode == STAGE_MODE_CH_FADE ||
 	       stage_mode == STAGE_MODE_CHS_FADE ||
 	       stage_mode == STAGE_MODE_SHAKE_FADE);
+
+	if (stage_mode == STAGE_MODE_SHAKE_FADE) {
+		draw_fade_shake();
+		return;
+	}
 
 	switch (fade_method) {
 	case FADE_METHOD_NORMAL:
@@ -3200,7 +3216,7 @@ static void draw_fade_slit_close_v(void)
 }
 
 /* 画面揺らしモードが有効な際のステージ描画を行う */
-void draw_fade_shake(void)
+static void draw_fade_shake(void)
 {
 	/* FOレイヤを描画する */
 	render_image(0, 0, layer_image[LAYER_FO], conf_window_width,

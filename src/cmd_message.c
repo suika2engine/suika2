@@ -451,8 +451,11 @@ static bool preprocess(int *x, int *y, int *w, int *h)
 		    is_control_pressed || is_space_pressed ||
 		    is_return_pressed || is_up_pressed || is_down_pressed ||
 		    is_page_up_pressed || is_page_down_pressed ||
-		    is_escape_pressed)
+		    is_escape_pressed) {
 			is_inline_wait = false;
+			clear_input_state();
+			return true;
+		}
 	}
 
 	/* オートモードを処理する */

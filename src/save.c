@@ -599,6 +599,8 @@ static bool serialize_stage(struct wfile *wf)
 		file = get_layer_file_name(i);
 		if (file == NULL)
 			file = "none";
+		if (strcmp(file, ""))
+			file = "none";
 		if (write_wfile(wf, file, strlen(file) + 1) < strlen(file) + 1)
 			return false;
 
@@ -1010,10 +1012,12 @@ static bool deserialize_stage(struct rfile *rf)
 		}
 
 		/* File name. */
+		text[0] = '\0';
 		if (gets_rfile(rf, text, sizeof(text)) == NULL)
 			strcpy(text, "none");
 		if (i == LAYER_BG) {
-			if (strcmp(text, "none") == 0) {
+			if (strcmp(text, "none") == 0 ||
+			    strcmp(text, "") == 0) {
 				fname = NULL;
 				img = create_initial_bg();
 				if (img == NULL)
@@ -1039,7 +1043,8 @@ static bool deserialize_stage(struct rfile *rf)
 					return false;
 			}
 		} else {
-			if (strcmp(text, "none") == 0) {
+			if (strcmp(text, "none") == 0 ||
+			    strcmp(text, "") == 0) {
 				fname = NULL;
 				img = NULL;
 			} else {
