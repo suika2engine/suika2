@@ -124,9 +124,13 @@ Please submit issues light-heartedly as any and all feedback is welcome.
 
 "Suika" means "watermelon" in Japanese.
 
-### Trivia
+## Suika Studio
+
+Suika2 is the successor to "Suika Studio":
+  * [See the 2002 version here](https://github.com/ktabata/suika-studio-2002-gpl)
+  * [See the 2003 version here](https://github.com/ktabata/suika-studio-2003-gpl)
+
+## Trivia
 
 Did you know...
-
 * Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform?
-* Suika2 is the successor to "Suika Studio" - you can find Suika Studio on the web site with some deductive skills! (Suika Studio has long since reached its EOL.)
