@@ -80,12 +80,14 @@ COPY_LIST="\
 	main.h \
 	mixer.c \
 	mixer.h \
+	muladdpcm.h \
 	iosmain.m \
 	platform.h \
 	readimage.c \
 	readjpeg.c \
 	save.c \
 	save.h \
+	scalesamples.h \
 	scbuf.c \
 	scbuf.h \
 	script.c \
