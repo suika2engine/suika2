@@ -87,9 +87,12 @@ static VOID OnPressSave(void);
 static VOID OnPressError(void);
 static VOID OnPressWriteVars(void);
 static VOID OnExportPackage(void);
+static VOID OnExportWin(void);
+static VOID OnExportWinMac(void);
 static VOID OnExportWeb(void);
 static VOID OnExportAndroid(void);
 static VOID OnExportIOS(void);
+static VOID RecreateDirectory(const wchar_t *path);
 static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 static VOID UpdateVariableTextBox(void);
@@ -156,31 +159,45 @@ VOID InitDebuggerMenu(HWND hWnd)
 		L"パッケージをエクスポートする(&X)";
 	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
 
-	/* Webプロジェクトをエクスポートするを作成する */
+	/* Windows向けにエクスポートする(X)を作成する */
+	mi.wID = ID_EXPORT_WIN;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Windows" :
+		L"Windows向けにエクスポートする";
+	InsertMenuItem(hMenuFile, 3, TRUE, &mi);
+
+	/* Windows/Mac向けにエクスポートする(X)を作成する */
+	mi.wID = ID_EXPORT_WIN_MAC;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Windows/Mac(&X)" :
+		L"Windows/Mac向けにエクスポートする";
+	InsertMenuItem(hMenuFile, 4, TRUE, &mi);
+
+	/* Web向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WEB;
 	mi.dwTypeData = bEnglish ?
-		L"Export Web project" :
-		L"Webプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuFile, 3, TRUE, &mi);
+		L"Export for Web" :
+		L"Web向けにエクスポートする";
+	InsertMenuItem(hMenuFile, 5, TRUE, &mi);
 
 	/* Androidプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_ANDROID;
 	mi.dwTypeData = bEnglish ?
 		L"Export Android project" :
 		L"Androidプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuFile, 4, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 6, TRUE, &mi);
 
 	/* iOSプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_IOS;
 	mi.dwTypeData = bEnglish ?
 		L"Export iOS project" :
 		L"iOSプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuFile, 5, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 7, TRUE, &mi);
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tAlt+Q" : L"終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 6, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 8, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
@@ -730,6 +747,12 @@ LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 		case ID_EXPORT:
 			OnExportPackage();
 			break;
+		case ID_EXPORT_WIN:
+			OnExportWin();
+			break;
+		case ID_EXPORT_WIN_MAC:
+			OnExportWinMac();
+			break;
 		case ID_EXPORT_WEB:
 			OnExportWeb();
 			break;
@@ -962,7 +985,112 @@ VOID OnExportPackage(void)
 	}
 }
 
-/* Webプロジェクトをエクスポートのメニューが押下されたときの処理を行う */
+/* Windows向けにエクスポートのメニューが押下されたときの処理を行う */
+VOID OnExportWin(void)
+{
+	if (MessageBox(hWndMain, bEnglish ?
+				   L"Takes a while. Are you sure?\n" :
+				   L"エクスポートには時間がかかります。よろしいですか？",
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	/* パッケージを作成する */
+	if (!create_package(""))
+	{
+		log_info(bEnglish ?
+				 "Failed to export data01.arc" :
+				 "data01.arcのエクスポートに失敗しました。");
+		return;
+	}
+
+	/* フォルダを再作成する */
+	RecreateDirectory(L".\\windows-export");
+
+	/* ファイルをコピーする */
+	if (!CopySourceFiles(L".\\suika.exe", L".\\windows-export\\suika.exe"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy exe file." :
+				 "実行ファイルのコピーに失敗しました。");
+		return;
+	}
+
+	/* パッケージを移動する */
+	if (!MovePackageFile(L".\\data01.arc", L".\\windows-export\\data01.arc"))
+	{
+		log_info(bEnglish ?
+				 "Failed to move data01.arc" :
+				 "data01.arcの移動に失敗しました。");
+		return;
+	}
+
+	MessageBox(hWndMain, bEnglish ?
+			   L"Export succeeded. Will open the folder." :
+			   L"エクスポートに成功しました。フォルダを開きます。",
+			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+
+	/* Explorerを開く */
+	ShellExecuteW(NULL, L"explore", L".\\windows-export", NULL, NULL, SW_SHOW);
+}
+
+/* Windows/Mac向けにエクスポートのメニューが押下されたときの処理を行う */
+VOID OnExportWinMac(void)
+{
+	if (MessageBox(hWndMain, bEnglish ?
+				   L"Takes a while. Are you sure?\n" :
+				   L"エクスポートには時間がかかります。よろしいですか？",
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	/* パッケージを作成する */
+	if (!create_package(""))
+	{
+		log_info(bEnglish ?
+				 "Failed to export data01.arc" :
+				 "data01.arcのエクスポートに失敗しました。");
+		return;
+	}
+
+	/* フォルダを再作成する */
+	RecreateDirectory(L".\\windows-mac-export");
+
+	/* ファイルをコピーする */
+	if (!CopySourceFiles(L".\\suika.exe", L".\\windows-mac-export\\suika.exe"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy exe file." :
+				 "実行ファイルのコピーに失敗しました。");
+		return;
+	}
+
+	/* ファイルをコピーする */
+	if (!CopySourceFiles(L".\\mac.dmg", L".\\windows-mac-export\\mac.dmg"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy exe file." :
+				 "Mac用の実行ファイルのコピーに失敗しました。");
+		return;
+	}
+
+	/* パッケージを移動する */
+	if (!MovePackageFile(L".\\data01.arc", L".\\windows-mac-export\\data01.arc"))
+	{
+		log_info(bEnglish ?
+				 "Failed to move data01.arc" :
+				 "data01.arcの移動に失敗しました。");
+		return;
+	}
+
+	MessageBox(hWndMain, bEnglish ?
+			   L"Export succeeded. Will open the folder." :
+			   L"エクスポートに成功しました。フォルダを開きます。",
+			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+
+	/* Explorerを開く */
+	ShellExecuteW(NULL, L"explore", L".\\windows-mac-export", NULL, NULL, SW_SHOW);
+}
+
+/* Web向けにエクスポートのメニューが押下されたときの処理を行う */
 VOID OnExportWeb(void)
 {
 	if (MessageBox(hWndMain, bEnglish ?
@@ -980,8 +1108,11 @@ VOID OnExportWeb(void)
 		return;
 	}
 
+	/* フォルダを再作成する */
+	RecreateDirectory(L".\\web-export");
+
 	/* ソースをコピーする */
-	if (!CopySourceFiles(L".\\tools\\web", L".\\web-export"))
+	if (!CopySourceFiles(L".\\tools\\web\\*", L".\\web-export"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy source files for Web." :
@@ -990,7 +1121,7 @@ VOID OnExportWeb(void)
 		return;
 	}
 
-	/* パッケージをコピーする */
+	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\web-export\\data01.arc"))
 	{
 		log_info(bEnglish ?
@@ -1026,6 +1157,9 @@ VOID OnExportAndroid(void)
 		return;
 	}
 
+	/* フォルダを再作成する */
+	RecreateDirectory(L".\\android-export");
+
 	/* ソースをコピーする */
 	if (!CopySourceFiles(L".\\tools\\android-src", L".\\android-export"))
 	{
@@ -1036,7 +1170,7 @@ VOID OnExportAndroid(void)
 		return;
 	}
 
-	/* パッケージをコピーする */
+	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\android-export\\app\\src\\main\\assets\\data01.arc"))
 	{
 		log_info(bEnglish ?
@@ -1075,6 +1209,9 @@ VOID OnExportIOS(void)
 		return;
 	}
 
+	/* フォルダを再作成する */
+	RecreateDirectory(L".\\ios-export");
+
 	/* ソースをコピーする */
 	if (!CopySourceFiles(L".\\tools\\ios-src", L".\\ios-export"))
 	{
@@ -1085,7 +1222,7 @@ VOID OnExportIOS(void)
 		return;
 	}
 
-	/* パッケージをコピーする */
+	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\suika\\data01.arc"))
 	{
 		log_info(bEnglish ?
@@ -1103,6 +1240,24 @@ VOID OnExportIOS(void)
 
 	/* Explorerを開く */
 	ShellExecuteW(NULL, L"explore", L".\\ios-export", NULL, NULL, SW_SHOW);
+}
+
+/* フォルダを再作成する */
+static VOID RecreateDirectory(const wchar_t *path)
+{
+	wchar_t newpath[MAX_PATH];
+	SHFILEOPSTRUCT fos;
+
+	/* 二重のNUL終端を行う */
+	wcscpy(newpath, path);
+	newpath[wcslen(path) + 1] = L'\0';
+
+	/* コピーする */
+	ZeroMemory(&fos, sizeof(SHFILEOPSTRUCT));
+	fos.wFunc = FO_DELETE;
+	fos.pFrom = newpath;
+	fos.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
+	SHFileOperationW(&fos);
 }
 
 /* ソースツリーをコピーする */
