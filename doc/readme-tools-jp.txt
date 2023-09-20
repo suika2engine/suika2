@@ -39,8 +39,9 @@ suika-linux ... Linux用の実行ファイル (Steamで配信したい人向け)
 suika.exeのあるフォルダにコピーして使ってください。
 実行前に一度だけ、`chmod +x suika-linux`が必要です。
 
-■Android/iOS
+■その他
 android-src ... Android用のソースコード
 ios-src     ... iOS用のソースコード
+installer   ... Windows用インストーラ素材
 
-Suika2 Proからのエクスポートに利用されますので、ひとまず気にしなくてよいです。
+Suika2 Proからのエクスポートに利用されますので、あまり気にしなくてよいです。

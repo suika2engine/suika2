@@ -88,6 +88,7 @@ static VOID OnPressError(void);
 static VOID OnPressWriteVars(void);
 static VOID OnExportPackage(void);
 static VOID OnExportWin(void);
+static VOID OnExportWinInst(void);
 static VOID OnExportWinMac(void);
 static VOID OnExportWeb(void);
 static VOID OnExportAndroid(void);
@@ -153,52 +154,59 @@ VOID InitDebuggerMenu(HWND hWnd)
 		L"スクリプトを上書き保存する(&S)\tAlt+S";
 	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
 
-	/* パッケージをエクスポートする(X)を作成する */
+	/* パッケージをエクスポートするを作成する */
 	mi.wID = ID_EXPORT;
 	mi.dwTypeData = bEnglish ?
 		L"Export package(&X)" :
-		L"パッケージをエクスポートする(&X)";
+		L"パッケージをエクスポートする";
 	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
 
-	/* Windows向けにエクスポートする(X)を作成する */
+	/* Windows向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Windows" :
 		L"Windows向けにエクスポートする";
 	InsertMenuItem(hMenuFile, 3, TRUE, &mi);
 
-	/* Windows/Mac向けにエクスポートする(X)を作成する */
+	/* Windows EXEインストーラを作成するを作成する */
+	mi.wID = ID_EXPORT_WIN_INST;
+	mi.dwTypeData = bEnglish ?
+		L"Create EXE Installer for Windows" :
+		L"Windows EXEインストーラを作成する";
+	InsertMenuItem(hMenuFile, 4, TRUE, &mi);
+
+	/* Windows/Mac向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN_MAC;
 	mi.dwTypeData = bEnglish ?
-		L"Export for Windows/Mac(&X)" :
+		L"Export for Windows/Mac" :
 		L"Windows/Mac向けにエクスポートする";
-	InsertMenuItem(hMenuFile, 4, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 5, TRUE, &mi);
 
 	/* Web向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WEB;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Web" :
 		L"Web向けにエクスポートする";
-	InsertMenuItem(hMenuFile, 5, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 6, TRUE, &mi);
 
 	/* Androidプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_ANDROID;
 	mi.dwTypeData = bEnglish ?
 		L"Export Android project" :
 		L"Androidプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuFile, 6, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 7, TRUE, &mi);
 
 	/* iOSプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_IOS;
 	mi.dwTypeData = bEnglish ?
 		L"Export iOS project" :
 		L"iOSプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuFile, 7, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 8, TRUE, &mi);
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tAlt+Q" : L"終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 8, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 9, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
@@ -751,6 +759,9 @@ LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 		case ID_EXPORT_WIN:
 			OnExportWin();
 			break;
+		case ID_EXPORT_WIN_INST:
+			OnExportWinInst();
+			break;
 		case ID_EXPORT_WIN_MAC:
 			OnExportWinMac();
 			break;
@@ -1035,6 +1046,96 @@ VOID OnExportWin(void)
 
 	/* Explorerを開く */
 	ShellExecuteW(NULL, L"explore", L".\\windows-export", NULL, NULL, SW_SHOW);
+}
+
+/* Windows向けインストーラをエクスポートするのメニューが押下されたときの処理を行う */
+VOID OnExportWinInst(void)
+{
+	wchar_t cmdline[1024];
+	STARTUPINFOW si;
+	PROCESS_INFORMATION pi;
+
+	if (MessageBox(hWndMain, bEnglish ?
+				   L"Takes a while. Are you sure?\n" :
+				   L"エクスポートには時間がかかります。よろしいですか？",
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	/* パッケージを作成する */
+	if (!create_package(""))
+	{
+		log_info(bEnglish ?
+				 "Failed to export data01.arc" :
+				 "data01.arcのエクスポートに失敗しました。");
+		return;
+	}
+
+	/* フォルダを再作成する */
+	RecreateDirectory(L".\\windows-installer-export");
+	CreateDirectory(L".\\windows-installer-export\\asset", 0);
+
+	/* ファイルをコピーする */
+	if (!CopySourceFiles(L".\\suika.exe", L".\\windows-installer-export\\asset\\suika.exe"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy exe file." :
+				 "実行ファイルのコピーに失敗しました。");
+		return;
+	}
+
+	/* ファイルをコピーする */
+	if (!CopySourceFiles(L".\\tools\\installer\\create-installer.bat", L".\\windows-installer-export\\asset\\create-installer.bat"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy exe file." :
+				 "実行ファイルのコピーに失敗しました。");
+		return;
+	}
+
+	/* ファイルをコピーする */
+	if (!CopySourceFiles(L".\\tools\\installer\\icon.ico", L".\\windows-installer-export\\asset\\icon.ico"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy exe file." :
+				 "実行ファイルのコピーに失敗しました。");
+		return;
+	}
+
+	/* ファイルをコピーする */
+	if (!CopySourceFiles(L".\\tools\\installer\\install-script.nsi", L".\\windows-installer-export\\asset\\install-script.nsi"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy exe file." :
+				 "実行ファイルのコピーに失敗しました。");
+		return;
+	}
+
+	/* movをコピーする */
+	CopyMovFiles(L".\\mov", L".\\windows-installer-export\\asset\\mov");
+
+	/* パッケージを移動する */
+	if (!MovePackageFile(L".\\data01.arc", L".\\windows-installer-export\\asset\\data01.arc"))
+	{
+		log_info(bEnglish ?
+				 "Failed to move data01.arc" :
+				 "data01.arcの移動に失敗しました。");
+		return;
+	}
+
+	/* バッチファイルを呼び出す */
+	wcscpy(cmdline, L"cmd.exe /k create-installer.bat");
+	ZeroMemory(&si, sizeof(STARTUPINFOW));
+	si.cb = sizeof(STARTUPINFOW);
+	CreateProcessW(NULL,	/* lpApplication */
+				   cmdline,
+				   NULL,	/* lpProcessAttribute */
+				   NULL,	/* lpThreadAttributes */
+				   FALSE,	/* bInheritHandles */
+				   NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+				   NULL,	/* lpEnvironment */
+				   L".\\windows-installer-export\\asset",
+				   &si,
+				   &pi);
 }
 
 /* Windows/Mac向けにエクスポートのメニューが押下されたときの処理を行う */
