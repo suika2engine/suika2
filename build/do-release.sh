@@ -207,6 +207,22 @@ cp html/index.html html/index.js html/index.wasm $RELEASETMP/
 cd ../
 
 #
+# Build Android source tree
+#
+echo "Building Android source tree."
+cd android
+./make-src.sh
+cd ..
+
+#
+# Build iOS source tree
+#
+echo "Building iOS source tree."
+cd ios
+./make-src.sh
+cd ..
+
+#
 # Sign main exe files.
 #
 if [ "$DO_SIGN" -eq "1" ]; then
@@ -324,6 +340,8 @@ cp -v "$RELEASETMP/index.js" suika2/tools/web/
 cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
 cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
 cp -v emscripten/about-en.txt suika2/tools/web/about-english.txt
+cp -R android/android-src suika2/tools/
+cp -R ios/ios-src suika2/tools/
 zip -r "$RELEASETMP/suika2-$VERSION.zip" suika2
 rm -rf suika2
 
