@@ -94,6 +94,7 @@ static VOID OnExportAndroid(void);
 static VOID OnExportIOS(void);
 static VOID RecreateDirectory(const wchar_t *path);
 static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
+static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 static VOID UpdateVariableTextBox(void);
 
@@ -1015,6 +1016,9 @@ VOID OnExportWin(void)
 		return;
 	}
 
+	/* movをコピーする */
+	CopyMovFiles(L".\\mov", L".\\windows-export\\mov");
+
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\windows-export\\data01.arc"))
 	{
@@ -1072,6 +1076,9 @@ VOID OnExportWinMac(void)
 		return;
 	}
 
+	/* movをコピーする */
+	CopyMovFiles(L".\\mov", L".\\windows-mac-export\\mov");
+
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\windows-mac-export\\data01.arc"))
 	{
@@ -1121,6 +1128,9 @@ VOID OnExportWeb(void)
 		return;
 	}
 
+	/* movをコピーする */
+	CopyMovFiles(L".\\mov", L".\\web-export\\mov");
+
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\web-export\\data01.arc"))
 	{
@@ -1169,6 +1179,9 @@ VOID OnExportAndroid(void)
 				 "最新のtools/android-srcフォルダが存在するか確認してください。");
 		return;
 	}
+
+	/* movをコピーする */
+	CopyMovFiles(L".\\mov", L".\\android-export\\app\\src\\main\\assets\\mov");
 
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\android-export\\app\\src\\main\\assets\\data01.arc"))
@@ -1221,6 +1234,9 @@ VOID OnExportIOS(void)
 				 "最新のtools/ios-srcフォルダが存在するか確認してください。");
 		return;
 	}
+
+	/* movをコピーする */
+	CopyMovFiles(L".\\mov", L".\\ios-export\\mov");
 
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\suika\\data01.arc"))
@@ -1286,6 +1302,31 @@ static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDi
 		log_info("error code = %d", ret);
 		return FALSE;
 	}
+
+	return TRUE;
+}
+
+/* movをコピーする */
+static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir)
+{
+	wchar_t from[MAX_PATH];
+	wchar_t to[MAX_PATH];
+	SHFILEOPSTRUCTW fos;
+
+	/* 二重のNUL終端を行う */
+	wcscpy(from, lpszSrcDir);
+	from[wcslen(lpszSrcDir) + 1] = L'\0';
+	wcscpy(to, lpszDestDir);
+	to[wcslen(lpszDestDir) + 1] = L'\0';
+
+	/* コピーする */
+	ZeroMemory(&fos, sizeof(SHFILEOPSTRUCT));
+	fos.wFunc = FO_COPY;
+	fos.pFrom = from;
+	fos.pTo = to;
+	fos.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI |
+				 FOF_SILENT;
+	SHFileOperationW(&fos);
 
 	return TRUE;
 }
