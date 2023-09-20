@@ -212,6 +212,7 @@ cd ../
 echo "Building Android source tree."
 cd android
 ./make-src.sh
+cd ..
 
 #
 # Build iOS source tree
@@ -219,6 +220,7 @@ cd android
 echo "Building iOS source tree."
 cd ios
 ./make-src.sh
+cd ..
 
 #
 # Sign main exe files.
