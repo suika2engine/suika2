@@ -75,6 +75,7 @@ COPY_LIST="\
 	history.h \
 	image.c \
 	image.h \
+	key.h \
 	log.c \
 	log.h \
 	main.c \

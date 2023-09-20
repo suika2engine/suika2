@@ -1259,15 +1259,6 @@ VOID OnExportAndroid(void)
 				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
-	/* パッケージを作成する */
-	if (!create_package(""))
-	{
-		log_info(bEnglish ?
-				 "Failed to export data01.arc" :
-				 "data01.arcのエクスポートに失敗しました。");
-		return;
-	}
-
 	/* フォルダを再作成する */
 	RecreateDirectory(L".\\android-export");
 
@@ -1281,17 +1272,21 @@ VOID OnExportAndroid(void)
 		return;
 	}
 
-	/* movをコピーする */
-	CopyMovFiles(L".\\mov", L".\\android-export\\app\\src\\main\\assets\\mov");
-
-	/* パッケージを移動する */
-	if (!MovePackageFile(L".\\data01.arc", L".\\android-export\\app\\src\\main\\assets\\data01.arc"))
-	{
-		log_info(bEnglish ?
-				 "Failed to move data01.arc" :
-				 "data01.arcの移動に失敗しました。");
-		return;
-	}
+	/* アセットをコピーする */
+	CopySourceFiles(L".\\anime", L".\\android-export\\app\\src\\main\\assets\\anime");
+	CopySourceFiles(L".\\bg", L".\\android-export\\app\\src\\main\\assets\\bg");
+	CopySourceFiles(L".\\bgm", L".\\android-export\\app\\src\\main\\assets\\bgm");
+	CopySourceFiles(L".\\cg", L".\\android-export\\app\\src\\main\\assets\\cg");
+	CopySourceFiles(L".\\ch", L".\\android-export\\app\\src\\main\\assets\\ch");
+	CopySourceFiles(L".\\conf", L".\\android-export\\app\\src\\main\\assets\\conf");
+	CopySourceFiles(L".\\cv", L".\\android-export\\app\\src\\main\\assets\\cv");
+	CopySourceFiles(L".\\font", L".\\android-export\\app\\src\\main\\assets\\font");
+	CopySourceFiles(L".\\gui", L".\\android-export\\app\\src\\main\\assets\\gui");
+	CopySourceFiles(L".\\mov", L".\\android-export\\app\\src\\main\\assets\\mov");
+	CopySourceFiles(L".\\rule", L".\\android-export\\app\\src\\main\\assets\\rule");
+	CopySourceFiles(L".\\se", L".\\android-export\\app\\src\\main\\assets\\se");
+	CopySourceFiles(L".\\txt", L".\\android-export\\app\\src\\main\\assets\\txt");
+	CopySourceFiles(L".\\wms", L".\\android-export\\app\\src\\main\\assets\\wms");
 
 	MessageBox(hWndMain, bEnglish ?
 			   L"Will open the exported source code folder.\n"
@@ -1337,7 +1332,7 @@ VOID OnExportIOS(void)
 	}
 
 	/* movをコピーする */
-	CopyMovFiles(L".\\mov", L".\\ios-export\\mov");
+	CopyMovFiles(L".\\mov", L".\\ios-export\\suika\\mov");
 
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\suika\\data01.arc"))
