@@ -112,5 +112,8 @@ for f in $COPY_LIST; do
 done
 
 # Deploy libroot.
-wget 'https://suika2.com/dl/libroot-mac.tar.gz'
-tar xzf libroot-mac.tar.gz -C "$TARGET"
+wget 'https://suika2.com/dl/libroot-ios.tar.gz'
+tar xzf libroot-ios.tar.gz -C "$TARGET"
+
+# Make a zip file.
+#zip -r ios-src.zip "$TARGET"
