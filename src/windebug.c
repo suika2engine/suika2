@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -10,6 +10,7 @@
  *  2014-05-24 作成 (conskit)
  *  2016-05-29 作成 (suika)
  *  2017-11-07 フルスクリーンで解像度変更するように修正
+ *  2023-09-20 Android/iOSエクスポート対応
  */
 
 #include "suika.h"
@@ -86,6 +87,11 @@ static VOID OnPressSave(void);
 static VOID OnPressError(void);
 static VOID OnPressWriteVars(void);
 static VOID OnExportPackage(void);
+static VOID OnExportWeb(void);
+static VOID OnExportAndroid(void);
+static VOID OnExportIOS(void);
+static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
+static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 static VOID UpdateVariableTextBox(void);
 
 /*
@@ -150,10 +156,31 @@ VOID InitDebuggerMenu(HWND hWnd)
 		L"パッケージをエクスポートする(&X)";
 	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
 
+	/* Webプロジェクトをエクスポートするを作成する */
+	mi.wID = ID_EXPORT_WEB;
+	mi.dwTypeData = bEnglish ?
+		L"Export Web project" :
+		L"Webプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuFile, 3, TRUE, &mi);
+
+	/* Androidプロジェクトをエクスポートするを作成する */
+	mi.wID = ID_EXPORT_ANDROID;
+	mi.dwTypeData = bEnglish ?
+		L"Export Android project" :
+		L"Androidプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuFile, 4, TRUE, &mi);
+
+	/* iOSプロジェクトをエクスポートするを作成する */
+	mi.wID = ID_EXPORT_IOS;
+	mi.dwTypeData = bEnglish ?
+		L"Export iOS project" :
+		L"iOSプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuFile, 5, TRUE, &mi);
+
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tAlt+Q" : L"終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 3, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 6, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
@@ -703,6 +730,15 @@ LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 		case ID_EXPORT:
 			OnExportPackage();
 			break;
+		case ID_EXPORT_WEB:
+			OnExportWeb();
+			break;
+		case ID_EXPORT_ANDROID:
+			OnExportAndroid();
+			break;
+		case ID_EXPORT_IOS:
+			OnExportIOS();
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -924,6 +960,210 @@ VOID OnExportPackage(void)
 				 "Successfully exported data01.arc" :
 				 "data01.arcのエクスポートに成功しました。");
 	}
+}
+
+/* Webプロジェクトをエクスポートのメニューが押下されたときの処理を行う */
+VOID OnExportWeb(void)
+{
+	if (MessageBox(hWndMain, bEnglish ?
+				   L"Takes a while. Are you sure?\n" :
+				   L"エクスポートには時間がかかります。よろしいですか？",
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	/* パッケージを作成する */
+	if (!create_package(""))
+	{
+		log_info(bEnglish ?
+				 "Failed to export data01.arc" :
+				 "data01.arcのエクスポートに失敗しました。");
+		return;
+	}
+
+	/* ソースをコピーする */
+	if (!CopySourceFiles(L".\\tools\\web", L".\\web-export"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy source files for Web." :
+				 "ソースコードのコピーに失敗しました。"
+				 "最新のtools/webフォルダが存在するか確認してください。");
+		return;
+	}
+
+	/* パッケージをコピーする */
+	if (!MovePackageFile(L".\\data01.arc", L".\\web-export\\data01.arc"))
+	{
+		log_info(bEnglish ?
+				 "Failed to move data01.arc" :
+				 "data01.arcの移動に失敗しました。");
+		return;
+	}
+
+	MessageBox(hWndMain, bEnglish ?
+			   L"Export succeeded. Will open the folder." :
+			   L"エクスポートに成功しました。フォルダを開きます。",
+			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+
+	/* Explorerを開く */
+	ShellExecuteW(NULL, L"explore", L".\\web-export", NULL, NULL, SW_SHOW);
+}
+
+/* Androidプロジェクトをエクスポートのメニューが押下されたときの処理を行う */
+VOID OnExportAndroid(void)
+{
+	if (MessageBox(hWndMain, bEnglish ?
+				   L"Takes a while. Are you sure?\n" :
+				   L"エクスポートには時間がかかります。よろしいですか？",
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	/* パッケージを作成する */
+	if (!create_package(""))
+	{
+		log_info(bEnglish ?
+				 "Failed to export data01.arc" :
+				 "data01.arcのエクスポートに失敗しました。");
+		return;
+	}
+
+	/* ソースをコピーする */
+	if (!CopySourceFiles(L".\\tools\\android-src", L".\\android-export"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy source files for Android." :
+				 "ソースコードのコピーに失敗しました。"
+				 "最新のtools/android-srcフォルダが存在するか確認してください。");
+		return;
+	}
+
+	/* パッケージをコピーする */
+	if (!MovePackageFile(L".\\data01.arc", L".\\android-export\\app\\src\\main\\assets\\data01.arc"))
+	{
+		log_info(bEnglish ?
+				 "Failed to move data01.arc" :
+				 "data01.arcの移動に失敗しました。");
+		return;
+	}
+
+	MessageBox(hWndMain, bEnglish ?
+			   L"Will open the exported source code folder.\n"
+			   L"Build with Android Studio." :
+			   L"エクスポートしたソースコードフォルダを開きます。\n"
+			   L"Android Studioでそのままビルドできます。\n"
+			   L"build.ps1を実行すれば自動ビルドも可能です。",
+			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+
+	/* Explorerを開く */
+	ShellExecuteW(NULL, L"explore", L".\\android-export", NULL, NULL, SW_SHOW);
+}
+
+/* iOSプロジェクトをエクスポートのメニューが押下されたときの処理を行う */
+VOID OnExportIOS(void)
+{
+	if (MessageBox(hWndMain, bEnglish ?
+				   L"Takes a while. Are you sure?\n" :
+				   L"エクスポートには時間がかかります。よろしいですか？",
+				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+		return;
+
+	/* パッケージを作成する */
+	if (!create_package(""))
+	{
+		log_info(bEnglish ?
+				 "Failed to export data01.arc" :
+				 "data01.arcのエクスポートに失敗しました。");
+		return;
+	}
+
+	/* ソースをコピーする */
+	if (!CopySourceFiles(L".\\tools\\ios-src", L".\\ios-export"))
+	{
+		log_info(bEnglish ?
+				 "Failed to copy source files for Android." :
+				 "ソースコードのコピーに失敗しました。"
+				 "最新のtools/ios-srcフォルダが存在するか確認してください。");
+		return;
+	}
+
+	/* パッケージをコピーする */
+	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\suika\\data01.arc"))
+	{
+		log_info(bEnglish ?
+				 "Failed to move data01.arc" :
+				 "data01.arcの移動に失敗しました。");
+		return;
+	}
+
+	MessageBox(hWndMain, bEnglish ?
+			   L"Will open the exported source code folder.\n"
+			   L"Build with Xcode." :
+			   L"エクスポートしたソースコードフォルダを開きます。\n"
+			   L"Xcodeでそのままビルドできます。\n",
+			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+
+	/* Explorerを開く */
+	ShellExecuteW(NULL, L"explore", L".\\ios-export", NULL, NULL, SW_SHOW);
+}
+
+/* ソースツリーをコピーする */
+static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir)
+{
+	wchar_t from[MAX_PATH];
+	wchar_t to[MAX_PATH];
+	SHFILEOPSTRUCTW fos;
+	int ret;
+
+	/* 二重のNUL終端を行う */
+	wcscpy(from, lpszSrcDir);
+	from[wcslen(lpszSrcDir) + 1] = L'\0';
+	wcscpy(to, lpszDestDir);
+	to[wcslen(lpszDestDir) + 1] = L'\0';
+
+	/* コピーする */
+	ZeroMemory(&fos, sizeof(SHFILEOPSTRUCT));
+	fos.wFunc = FO_COPY;
+	fos.pFrom = from;
+	fos.pTo = to;
+	fos.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR;
+	ret = SHFileOperationW(&fos);
+	if (ret != 0)
+	{
+		log_info("error code = %d", ret);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+/* パッケージファイルを移動する */
+static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir)
+{
+	wchar_t from[MAX_PATH];
+	wchar_t to[MAX_PATH];
+	SHFILEOPSTRUCTW fos;
+	int ret;
+
+	/* 二重のNUL終端を行う */
+	wcscpy(from, lpszPkgFile);
+	from[wcslen(lpszPkgFile) + 1] = L'\0';
+	wcscpy(to, lpszDestDir);
+	to[wcslen(lpszDestDir) + 1] = L'\0';
+
+	/* 移動する */
+	ZeroMemory(&fos, sizeof(SHFILEOPSTRUCT));
+	fos.hwnd = NULL;
+	fos.wFunc = FO_MOVE;
+	fos.pFrom = from;
+	fos.pTo = to;
+	fos.fFlags = FOF_NOCONFIRMATION;
+	ret = SHFileOperationW(&fos);
+	if (ret != 0)
+	{
+		log_info("error code = %d", ret);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 /* 変数の情報を更新する */

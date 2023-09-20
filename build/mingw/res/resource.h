@@ -40,4 +40,7 @@
 #define ID_ERROR		163
 #define ID_STATUS		164
 #define ID_EXPORT		165
-#define ID_FULLSCREEN		166
+#define ID_EXPORT_WEB		166
+#define ID_EXPORT_ANDROID	167
+#define ID_EXPORT_IOS		168
+#define ID_FULLSCREEN		169

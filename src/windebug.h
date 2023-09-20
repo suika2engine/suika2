@@ -2,11 +2,11 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
- * Debugger (Suika2 Pro for Crerators)
+ * Debugger (Suika2 Pro)
  *
  * [Changes]
  *  2022-06-11 作成
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 /* メッセージボックスのタイトル */
-#define MSGBOX_TITLE		L"Suika2 Pro for Creators"
+#define MSGBOX_TITLE		L"Suika2 Pro"
 
 /* バージョン文字列 */
 #define VERSION				\
