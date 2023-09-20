@@ -64,6 +64,7 @@ COPY_LIST="\
 	event.c \
 	event.h \
 	file.h \
+	file.c \
 	glrender.c \
 	glrender.h \
 	glyph.c \
@@ -100,6 +101,7 @@ COPY_LIST="\
 	types.h \
 	vars.c \
 	vars.h \
+	wave.c \
 	wave.h \
 	wms_core.c \
 	wms_core.h \
