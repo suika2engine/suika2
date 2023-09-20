@@ -28,6 +28,8 @@ mkdir "$TARGET/src"
 COPY_LIST="\
 	anime.c \
 	anime.h \
+	aunit.c \
+	aunit.h \
 	cmd_anime.c \
 	cmd_bg.c \
 	cmd_bgm.c \
