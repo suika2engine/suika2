@@ -342,6 +342,7 @@ cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
 cp -v emscripten/about-en.txt suika2/tools/web/about-english.txt
 cp -R android/android-src suika2/tools/
 cp -R ios/ios-src suika2/tools/
+cp -R ../tools/installer suika2/tools/
 zip -r "$RELEASETMP/suika2-$VERSION.zip" suika2
 rm -rf suika2
 
