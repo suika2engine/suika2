@@ -10,6 +10,8 @@
  *
  * [Changes]
  *  2022-06-11 作成
+ *  2023-09-20 エクスポート機能強化
+ *  2023-09-21 縦幅縮小
  */
 
 #ifndef SUIKA_WINDEBUG_H
@@ -21,9 +23,12 @@
 #define MSGBOX_TITLE		L"Suika2 Pro"
 
 /* バージョン文字列 */
-#define VERSION				\
-	L"Suika2 Pro for Creators\n" \
-	L"Copyright (c) 2022, the Suika2 Development Team. All rights reserved.\n"
+#define VERSION_EN			L"Suika2 Pro 13\n" \
+							L"A part of the Suika Studio Professional Development Suite\n" \
+							L"This product is guaranteed to be available as open source software in the future."
+#define VERSION_JP			L"Suika2 Pro 13\n" \
+							L"A part of the Suika Studio Professional Development Suite\n" \
+							L"本製品は将来に渡ってオープンソースソフトウェアとして提供されることが保証されます。"
 
 /* デバッガ用メニューを作成する */
 VOID InitDebuggerMenu(HWND hWnd);
