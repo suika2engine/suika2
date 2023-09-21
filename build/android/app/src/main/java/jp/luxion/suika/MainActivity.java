@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
     private static final int LINE_HEIGHT = 10;
 
     /** ミキサのストリーム数です。 */
-    private static final int MIXER_STREAMS = 3;
+    private static final int MIXER_STREAMS = 4;
 
     /** ミキサのBGMストリームです。 */
     private static final int BGM_STREAM = 0;
@@ -68,6 +68,9 @@ public class MainActivity extends Activity {
 
     /** ミキサのSEストリームです。 */
     private static final int SE_STREAM = 2;
+
+    /** ミキサのSYSストリームです。 */
+    private static final int SYS_STREAM = 2;
 
     /** Viewです。 */
     private MainView view;
