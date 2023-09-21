@@ -729,7 +729,7 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)(dst_left + width - 1) * fScale + fDisplayOffsetX + 0.5f;
+	v[1].x = (float)dst_left * fScale + (float)width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
 	v[1].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
@@ -741,7 +741,7 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 
 	// 左下
 	v[2].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
-	v[2].y = (float)(dst_top + height - 1) * fScale + fDisplayOffsetY + 0.5f;
+	v[2].y = (float)dst_top * fScale + (float)height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u1 = (float)src_left / img_w;
@@ -751,8 +751,8 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)(dst_left + width - 1) * fScale + fDisplayOffsetX + 0.5f;
-	v[3].y = (float)(dst_top + height - 1) * fScale + fDisplayOffsetY + 0.5f;
+	v[3].x = (float)dst_left * fScale + (float)width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
+	v[3].y = (float)dst_top * fScale + (float)height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
 	v[3].u1 = (float)(src_left + width) / img_w;
@@ -842,6 +842,12 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	pD3DDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	pD3DDevice->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 	pD3DDevice->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+
+	// UVラッピングを設定する
+	pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	if(width == 1 && height == 1)
 	{

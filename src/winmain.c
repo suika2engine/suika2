@@ -1399,8 +1399,8 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
     }
 
 	/* Calc the viewport origin. */
-	nOffsetX = (int)(((float)nClientWidth - fUseWidth) / 2.0f + 0.5);
-	nOffsetY = (int)(((float)nClientHeight - fUseHeight) / 2.0f + 0.5);
+	nOffsetX = (int)((((float)nClientWidth - fUseWidth) / 2.0f) + 0.5);
+	nOffsetY = (int)((((float)nClientHeight - fUseHeight) / 2.0f) + 0.5);
 
 	/* Update the screen offset and scale for drawing subsystem. */
 	if (bD3D)
