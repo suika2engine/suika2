@@ -64,6 +64,7 @@ COPY_LIST="\
 	event.c \
 	event.h \
 	file.h \
+	file.c \
 	glrender.c \
 	glrender.h \
 	glyph.c \
@@ -74,18 +75,21 @@ COPY_LIST="\
 	history.h \
 	image.c \
 	image.h \
+	key.h \
 	log.c \
 	log.h \
 	main.c \
 	main.h \
 	mixer.c \
 	mixer.h \
+	muladdpcm.h \
 	iosmain.m \
 	platform.h \
 	readimage.c \
 	readjpeg.c \
 	save.c \
 	save.h \
+	scalesamples.h \
 	scbuf.c \
 	scbuf.h \
 	script.c \
@@ -98,6 +102,7 @@ COPY_LIST="\
 	types.h \
 	vars.c \
 	vars.h \
+	wave.c \
 	wave.h \
 	wms_core.c \
 	wms_core.h \
@@ -112,5 +117,8 @@ for f in $COPY_LIST; do
 done
 
 # Deploy libroot.
-wget 'https://suika2.com/dl/libroot-mac.tar.gz'
-tar xzf libroot-mac.tar.gz -C "$TARGET"
+wget 'https://suika2.com/dl/libroot-ios.tar.gz'
+tar xzf libroot-ios.tar.gz -C "$TARGET"
+
+# Make a zip file.
+#zip -r ios-src.zip "$TARGET"

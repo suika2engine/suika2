@@ -248,7 +248,7 @@ if [ -z "`uname | grep Darwin`" ]; then
 
     # Build suika.app
     until \
-	ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make main";
+	ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2/build/macos && make main";
     do \
 	echo "Retrying suika.app due to a codesign issue...";
     done;
@@ -261,15 +261,15 @@ if [ -z "`uname | grep Darwin`" ]; then
     done;
 
     # Build Kirara helpers
-    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make helpers";
+    ssh "$MACOS_HOST_IP" "cd /Users/$MACOS_USER/src/suika2/build/macos && make helpers";
 
     # Copy results
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-pro.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac.zip" "$RELEASETMP/";
-    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/pack.mac" "$RELEASETMP/";
-    #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-capture.dmg" "$RELEASETMP/";
-    #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/mac-replay.dmg" "$RELEASETMP/";
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/mac.dmg" "$RELEASETMP/";
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/mac-pro.dmg" "$RELEASETMP/";
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/mac.zip" "$RELEASETMP/";
+    scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/pack.mac" "$RELEASETMP/";
+    #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/mac-capture.dmg" "$RELEASETMP/";
+    #scp "$MACOS_HOST_IP:/Users/$MACOS_USER/src/suika2/build/macos/mac-replay.dmg" "$RELEASETMP/";
 else
     echo "Building on localhost...";
     cd ../;

@@ -109,7 +109,6 @@
 		26B3859626D134EE000A7A1C /* cmd_se.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_se.c; path = ../../src/cmd_se.c; sourceTree = "<group>"; };
 		26B3859726D134EE000A7A1C /* cmd_goto.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_goto.c; path = ../../src/cmd_goto.c; sourceTree = "<group>"; };
 		26B3859826D134EE000A7A1C /* drawglyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawglyph.h; path = ../../src/drawglyph.h; sourceTree = "<group>"; };
-		26B3859926D134EE000A7A1C /* cmd_retrospect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_retrospect.c; path = ../../src/cmd_retrospect.c; sourceTree = "<group>"; };
 		26B3859A26D134EE000A7A1C /* vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vars.h; path = ../../src/vars.h; sourceTree = "<group>"; };
 		26B3859B26D134EE000A7A1C /* scbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scbuf.h; path = ../../src/scbuf.h; sourceTree = "<group>"; };
 		26B3859C26D134EE000A7A1C /* conf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = conf.h; path = ../../src/conf.h; sourceTree = "<group>"; };
@@ -224,7 +223,6 @@
 				26B385BA26D134EE000A7A1C /* cmd_if.c */,
 				26B385AA26D134EE000A7A1C /* cmd_load.c */,
 				26B385BB26D134EE000A7A1C /* cmd_message.c */,
-				26B3859926D134EE000A7A1C /* cmd_retrospect.c */,
 				26B3858926D134EE000A7A1C /* cmd_return.c */,
 				26B3859626D134EE000A7A1C /* cmd_se.c */,
 				26B385B626D134EE000A7A1C /* cmd_set.c */,

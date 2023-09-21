@@ -20,6 +20,10 @@
 
 #include <commctrl.h>
 
+/* デバッグウィンドウのサイズ */
+#define DBG_WIN_WIDTH	(440)
+#define DBG_WIN_HEIGHT	(640)
+
 /* UTF-8からSJISへの変換バッファサイズ */
 #define NATIVE_MESSAGE_SIZE	(65536)
 
@@ -106,6 +110,7 @@ VOID InitDebuggerMenu(HWND hWnd)
 {
 	HMENU hMenuFile = CreatePopupMenu();
 	HMENU hMenuScript = CreatePopupMenu();
+	HMENU hMenuExport = CreatePopupMenu();
 	HMENU hMenuHelp = CreatePopupMenu();
     MENUITEMINFO mi;
 
@@ -132,10 +137,15 @@ VOID InitDebuggerMenu(HWND hWnd)
 	mi.dwTypeData = bEnglish ? L"Script(&S)": L"スクリプト(&S)";
 	InsertMenuItem(hMenu, 1, TRUE, &mi);
 
+	/* エクスポート(E)を作成する */
+	mi.hSubMenu = hMenuExport;
+	mi.dwTypeData = bEnglish ? L"Export(&E)": L"エクスポート(&E)";
+	InsertMenuItem(hMenu, 2, TRUE, &mi);
+
 	/* ヘルプ(H)を作成する */
 	mi.hSubMenu = hMenuHelp;
 	mi.dwTypeData = bEnglish ? L"Help(&H)": L"ヘルプ(&H)";
-	InsertMenuItem(hMenu, 2, TRUE, &mi);
+	InsertMenuItem(hMenu, 3, TRUE, &mi);
 
 	/* 2階層目を作成する準備を行う */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
@@ -154,59 +164,10 @@ VOID InitDebuggerMenu(HWND hWnd)
 		L"スクリプトを上書き保存する(&S)\tAlt+S";
 	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
 
-	/* パッケージをエクスポートするを作成する */
-	mi.wID = ID_EXPORT;
-	mi.dwTypeData = bEnglish ?
-		L"Export package(&X)" :
-		L"パッケージをエクスポートする";
-	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
-
-	/* Windows向けにエクスポートするを作成する */
-	mi.wID = ID_EXPORT_WIN;
-	mi.dwTypeData = bEnglish ?
-		L"Export for Windows" :
-		L"Windows向けにエクスポートする";
-	InsertMenuItem(hMenuFile, 3, TRUE, &mi);
-
-	/* Windows EXEインストーラを作成するを作成する */
-	mi.wID = ID_EXPORT_WIN_INST;
-	mi.dwTypeData = bEnglish ?
-		L"Create EXE Installer for Windows" :
-		L"Windows EXEインストーラを作成する";
-	InsertMenuItem(hMenuFile, 4, TRUE, &mi);
-
-	/* Windows/Mac向けにエクスポートするを作成する */
-	mi.wID = ID_EXPORT_WIN_MAC;
-	mi.dwTypeData = bEnglish ?
-		L"Export for Windows/Mac" :
-		L"Windows/Mac向けにエクスポートする";
-	InsertMenuItem(hMenuFile, 5, TRUE, &mi);
-
-	/* Web向けにエクスポートするを作成する */
-	mi.wID = ID_EXPORT_WEB;
-	mi.dwTypeData = bEnglish ?
-		L"Export for Web" :
-		L"Web向けにエクスポートする";
-	InsertMenuItem(hMenuFile, 6, TRUE, &mi);
-
-	/* Androidプロジェクトをエクスポートするを作成する */
-	mi.wID = ID_EXPORT_ANDROID;
-	mi.dwTypeData = bEnglish ?
-		L"Export Android project" :
-		L"Androidプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuFile, 7, TRUE, &mi);
-
-	/* iOSプロジェクトをエクスポートするを作成する */
-	mi.wID = ID_EXPORT_IOS;
-	mi.dwTypeData = bEnglish ?
-		L"Export iOS project" :
-		L"iOSプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuFile, 8, TRUE, &mi);
-
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tAlt+Q" : L"終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 9, TRUE, &mi);
+	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
 	mi.wID = ID_RESUME;
@@ -236,6 +197,55 @@ VOID InitDebuggerMenu(HWND hWnd)
 	mi.dwTypeData = bEnglish ? L"Reload(&R)\tF5" : L"再読み込み(&R)\tF5";
 	InsertMenuItem(hMenuScript, 4, TRUE, &mi);
 
+	/* パッケージをエクスポートするを作成する */
+	mi.wID = ID_EXPORT;
+	mi.dwTypeData = bEnglish ?
+		L"Export package(&X)" :
+		L"パッケージをエクスポートする";
+	InsertMenuItem(hMenuExport, 0, TRUE, &mi);
+
+	/* Windows向けにエクスポートするを作成する */
+	mi.wID = ID_EXPORT_WIN;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Windows" :
+		L"Windows向けにエクスポートする";
+	InsertMenuItem(hMenuExport, 1, TRUE, &mi);
+
+	/* Windows EXEインストーラを作成するを作成する */
+	mi.wID = ID_EXPORT_WIN_INST;
+	mi.dwTypeData = bEnglish ?
+		L"Create EXE Installer for Windows" :
+		L"Windows EXEインストーラを作成する";
+	InsertMenuItem(hMenuExport, 2, TRUE, &mi);
+
+	/* Windows/Mac向けにエクスポートするを作成する */
+	mi.wID = ID_EXPORT_WIN_MAC;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Windows/Mac" :
+		L"Windows/Mac向けにエクスポートする";
+	InsertMenuItem(hMenuExport, 3, TRUE, &mi);
+
+	/* Web向けにエクスポートするを作成する */
+	mi.wID = ID_EXPORT_WEB;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Web" :
+		L"Web向けにエクスポートする";
+	InsertMenuItem(hMenuExport, 4, TRUE, &mi);
+
+	/* Androidプロジェクトをエクスポートするを作成する */
+	mi.wID = ID_EXPORT_ANDROID;
+	mi.dwTypeData = bEnglish ?
+		L"Export Android project" :
+		L"Androidプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuExport, 5, TRUE, &mi);
+
+	/* iOSプロジェクトをエクスポートするを作成する */
+	mi.wID = ID_EXPORT_IOS;
+	mi.dwTypeData = bEnglish ?
+		L"Export iOS project" :
+		L"iOSプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuExport, 6, TRUE, &mi);
+
 	/* バージョン(V)を作成する */
 	mi.wID = ID_VERSION;
 	mi.dwTypeData = bEnglish ? L"Version(&V)" : L"バージョン(&V)\tAlt+V";
@@ -252,12 +262,12 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 {
 	const wchar_t wszWndClass[] = L"suikadebug";
 	WNDCLASSEX wcex;
-	RECT rc;
+	HMONITOR monitor;
+	MONITORINFOEX minfo;
+	RECT rcMain, rcMonitor, rcDebug;
 	HFONT hFont, hFontFixed;
 	DWORD style;
-	int dw, dh;
-	const int WIN_WIDTH = 440;
-	const int WIN_HEIGHT = 905;
+	int dw, dh, left, top;
 
 	/* ウィンドウクラスを登録する */
 	wcex.cbSize			= sizeof(WNDCLASSEX);
@@ -284,25 +294,45 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
 	/* メインウィンドウの矩形を取得する */
-	GetWindowRect(hWndMain, &rc);
+	GetWindowRect(hWndMain, &rcMain);
+
+	/* モニタの矩形を取得にする */
+	monitor = MonitorFromWindow(hWndMain, MONITOR_DEFAULTTONEAREST);
+	minfo.cbSize = sizeof(MONITORINFOEX);
+	GetMonitorInfo(monitor, (LPMONITORINFO)&minfo);
+	rcMonitor = minfo.rcMonitor;
+
+	/* ウィンドウを横並びにする余白がなければ、モニタ右端を基準にする */
+	if (rcMain.right + DBG_WIN_WIDTH + 10 > rcMonitor.right)
+	{
+		left = minfo.rcMonitor.right - DBG_WIN_WIDTH;
+		top = minfo.rcMonitor.top;
+	}
+	else
+	{
+		left = rcMain.right + 10;
+		top = rcMain.top;
+	}
 
 	/* ウィンドウを作成する */
 	hWndDebug = CreateWindowEx(0, wszWndClass,
 							   bEnglish ? L"Stopped" : L"停止中",
 							   style,
-							   rc.right + 10, rc.top,
-							   WIN_WIDTH + dw, WIN_HEIGHT + dh,
+							   left, top,
+							   DBG_WIN_WIDTH + dw, DBG_WIN_HEIGHT + dh,
 							   NULL, NULL, GetModuleHandle(NULL), NULL);
 	if(!hWndDebug)
 		return FALSE;
 
 	/* ウィンドウのサイズを調整する */
-	SetRectEmpty(&rc);
-	rc.right = WIN_WIDTH;
-	rc.bottom = WIN_HEIGHT;
-	AdjustWindowRectEx(&rc, (DWORD)GetWindowLong(hWndDebug, GWL_STYLE), FALSE,
-					   (DWORD)GetWindowLong(hWndDebug, GWL_EXSTYLE));
-	SetWindowPos(hWndDebug, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+	SetRectEmpty(&rcDebug);
+	rcDebug.right = DBG_WIN_WIDTH;
+	rcDebug.bottom = DBG_WIN_HEIGHT;
+	AdjustWindowRectEx(&rcDebug, (DWORD)GetWindowLong(hWndDebug, GWL_STYLE),
+					   FALSE, (DWORD)GetWindowLong(hWndDebug, GWL_EXSTYLE));
+	SetWindowPos(hWndDebug, NULL, 0, 0,
+				 rcDebug.right - rcDebug.left,
+				 rcDebug.bottom - rcDebug.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
 
 	/* フォントを作成する */
@@ -320,7 +350,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Resume" : L"続ける",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		10, 10, 100, 80,
+		10, 10, 100, 40,
 		hWndDebug, (HMENU)ID_RESUME,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnResume, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -333,7 +363,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Next" : L"次へ",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		120, 10, 100, 80,
+		120, 10, 100, 40,
 		hWndDebug, (HMENU)ID_NEXT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnNext, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -346,7 +376,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"(Paused)" : L"(停止中)",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		330, 10, 100, 80,
+		330, 10, 100, 40,
 		hWndDebug, (HMENU)ID_PAUSE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	EnableWindow(hWndBtnPause, FALSE);
@@ -360,7 +390,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"STATIC",
 		bEnglish ? L"Script file name:" : L"スクリプトファイル名:",
 		WS_VISIBLE | WS_CHILD,
-		10, 110, 100, 16,
+		10, 60, 100, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -370,7 +400,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"EDIT",
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
-		10, 130, 300, 30,
+		10, 80, 300, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -383,7 +413,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Change" : L"変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		320, 130, 80, 30,
+		320, 80, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnChangeScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -395,7 +425,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 	hWndBtnSelectScript = CreateWindow(
 		L"BUTTON", L"...",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		405, 130, 25, 30,
+		405, 80, 25, 30,
 		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSelectScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -408,7 +438,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"STATIC",
 		bEnglish ? L"Next line to be executed:" : L"次に実行される行番号:",
 		WS_VISIBLE | WS_CHILD,
-		10, 170, 300, 16,
+		10, 120, 300, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -418,7 +448,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"EDIT",
 		NULL,
 		WS_TABSTOP | ES_NUMBER | WS_VISIBLE | WS_CHILD | WS_BORDER,
-		10, 190, 80, 30,
+		10, 140, 80, 30,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -431,7 +461,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Change" : L"変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		100, 190, 80, 30,
+		100, 140, 80, 30,
 		hWndDebug, (HMENU)ID_CHANGE_LINE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnChangeLine, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -445,7 +475,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		bEnglish ? L"Next command to be executed:" :
 				   L"次に実行されるコマンド:",
 		WS_VISIBLE | WS_CHILD,
-		10, 230, 300, 16,
+		10, 180, 300, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelCommand, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -456,7 +486,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOVSCROLL |
 		ES_MULTILINE | ES_WANTRETURN, // ES_READONLY
-		10, 250, 330, 100,
+		10, 200, 330, 60,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxCommand, WM_SETFONT, (WPARAM)hFontFixed,
@@ -471,7 +501,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Update" : L"更新",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		WIN_WIDTH - 10 - 80, 250, 80, 30,
+		DBG_WIN_WIDTH - 10 - 80, 200, 80, 30,
 		hWndDebug, (HMENU)ID_UPDATE_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnUpdate, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -484,7 +514,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Reset" : L"リセット",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		WIN_WIDTH - 10 - 80, 290, 80, 30,
+		DBG_WIN_WIDTH - 10 - 80, 230, 80, 30,
 		hWndDebug, (HMENU)ID_RESET_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReset, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -497,7 +527,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"STATIC",
 		bEnglish ? L"Script content:" : L"スクリプトの内容:",
 		WS_VISIBLE | WS_CHILD,
-		10, 360, 100, 16,
+		10, 270, 100, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelContent, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -508,7 +538,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_VSCROLL |
 		LBS_NOTIFY | LBS_WANTKEYBOARDINPUT,
-		10, 380, 420, 310,
+		10, 290, 420, 220,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndListbox, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
@@ -521,7 +551,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Search for error" : L"エラーを探す",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		10, 735 - 10 - 30, 120, 30,
+		10, 510, 120, 30,
 		hWndDebug, (HMENU)ID_ERROR,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnError, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -534,7 +564,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Overwrite" : L"上書き保存",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		WIN_WIDTH - 10 - 80 - 10 - 80, 735 - 10 - 30, 80, 30,
+		DBG_WIN_WIDTH - 10 - 80 - 10 - 80, 510, 80, 30,
 		hWndDebug, (HMENU)ID_SAVE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -547,7 +577,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Reload" : L"再読み込み",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		WIN_WIDTH - 10 - 80, 735 - 10 - 30, 80, 30,
+		DBG_WIN_WIDTH - 10 - 80, 510, 80, 30,
 		hWndDebug, (HMENU)ID_RELOAD,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -561,7 +591,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		bEnglish ? L"Variables (non-initial values):" :
 				   L"変数 (初期値でない):",
 		WS_VISIBLE | WS_CHILD,
-		10, 735, 200, 16,
+		10, 550, 200, 16,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndLabelVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -572,7 +602,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_VSCROLL |
 		ES_AUTOVSCROLL | ES_MULTILINE | ES_WANTRETURN,
-		10, 755, 420, 100,
+		10, 570, 280, 60,
 		hWndDebug, 0,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndTextboxVar, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
@@ -585,7 +615,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Write values" : L"値を書き込む",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		WIN_WIDTH - 10 - 120, WIN_HEIGHT - 10 - 30, 120, 30,
+		300, 570, 130, 30,
 		hWndDebug, (HMENU)ID_WRITE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -714,8 +744,8 @@ LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 			DestroyWindow(hWndMain);
 			break;
 		case ID_VERSION:
-			MessageBox(hWndMain, VERSION, MSGBOX_TITLE,
-					   MB_OK | MB_ICONINFORMATION);
+			MessageBox(hWndMain, bEnglish ? VERSION_EN : VERSION_JP,
+					   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
 			break;
 		case ID_RESUME:
 			bResumePressed = TRUE;
@@ -1259,15 +1289,6 @@ VOID OnExportAndroid(void)
 				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
-	/* パッケージを作成する */
-	if (!create_package(""))
-	{
-		log_info(bEnglish ?
-				 "Failed to export data01.arc" :
-				 "data01.arcのエクスポートに失敗しました。");
-		return;
-	}
-
 	/* フォルダを再作成する */
 	RecreateDirectory(L".\\android-export");
 
@@ -1281,17 +1302,21 @@ VOID OnExportAndroid(void)
 		return;
 	}
 
-	/* movをコピーする */
-	CopyMovFiles(L".\\mov", L".\\android-export\\app\\src\\main\\assets\\mov");
-
-	/* パッケージを移動する */
-	if (!MovePackageFile(L".\\data01.arc", L".\\android-export\\app\\src\\main\\assets\\data01.arc"))
-	{
-		log_info(bEnglish ?
-				 "Failed to move data01.arc" :
-				 "data01.arcの移動に失敗しました。");
-		return;
-	}
+	/* アセットをコピーする */
+	CopySourceFiles(L".\\anime", L".\\android-export\\app\\src\\main\\assets\\anime");
+	CopySourceFiles(L".\\bg", L".\\android-export\\app\\src\\main\\assets\\bg");
+	CopySourceFiles(L".\\bgm", L".\\android-export\\app\\src\\main\\assets\\bgm");
+	CopySourceFiles(L".\\cg", L".\\android-export\\app\\src\\main\\assets\\cg");
+	CopySourceFiles(L".\\ch", L".\\android-export\\app\\src\\main\\assets\\ch");
+	CopySourceFiles(L".\\conf", L".\\android-export\\app\\src\\main\\assets\\conf");
+	CopySourceFiles(L".\\cv", L".\\android-export\\app\\src\\main\\assets\\cv");
+	CopySourceFiles(L".\\font", L".\\android-export\\app\\src\\main\\assets\\font");
+	CopySourceFiles(L".\\gui", L".\\android-export\\app\\src\\main\\assets\\gui");
+	CopySourceFiles(L".\\mov", L".\\android-export\\app\\src\\main\\assets\\mov");
+	CopySourceFiles(L".\\rule", L".\\android-export\\app\\src\\main\\assets\\rule");
+	CopySourceFiles(L".\\se", L".\\android-export\\app\\src\\main\\assets\\se");
+	CopySourceFiles(L".\\txt", L".\\android-export\\app\\src\\main\\assets\\txt");
+	CopySourceFiles(L".\\wms", L".\\android-export\\app\\src\\main\\assets\\wms");
 
 	MessageBox(hWndMain, bEnglish ?
 			   L"Will open the exported source code folder.\n"
@@ -1337,7 +1362,7 @@ VOID OnExportIOS(void)
 	}
 
 	/* movをコピーする */
-	CopyMovFiles(L".\\mov", L".\\ios-export\\mov");
+	CopyMovFiles(L".\\mov", L".\\ios-export\\suika\\mov");
 
 	/* パッケージを移動する */
 	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\suika\\data01.arc"))
