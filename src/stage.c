@@ -1150,12 +1150,12 @@ void clear_stage(void)
 			set_layer_alpha(i, 255);
 			break;
 		case LAYER_MSG:
-			set_layer_position(i, conf_msgbox_y, conf_msgbox_y);
+			set_layer_position(i, conf_msgbox_x, conf_msgbox_y);
 			set_layer_alpha(i, 255);
 			show_msgbox(false);
 			break;
 		case LAYER_NAME:
-			set_layer_position(i, conf_namebox_y, conf_namebox_y);
+			set_layer_position(i, conf_namebox_x, conf_namebox_y);
 			set_layer_alpha(i, 255);
 			show_namebox(false);
 			break;
