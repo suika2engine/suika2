@@ -220,7 +220,7 @@ static bool setup_thumb(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
 static void draw_fo_common(void);
-static void draw_fi_common(void);
+static void draw_fi_common(bool show_msgbox);
 static void draw_fade_normal(void);
 static void draw_fade_rule(void);
 static void draw_fade_melt(void);
@@ -2020,7 +2020,7 @@ bool start_fade_for_bg(const char *fname, struct image *img, int x, int y,
 	set_layer_image(LAYER_CHC, NULL);
 
 	/* フェードイン用のレイヤに背景を描画する */
-	draw_fi_common();
+	draw_fi_common(conf_msgbox_show_on_bg);
 
 	/* ルールイメージを保持する */
 	fade_rule_img = rule_img;
@@ -2055,7 +2055,7 @@ bool start_fade_for_ch(int chpos, const char *fname, struct image *img,
 	set_layer_position(layer, x, y);
 
 	/* キャラフェードインレイヤにステージを描画する */
-	draw_fi_common();
+	draw_fi_common(conf_msgbox_show_on_ch);
 
 	/* ルールイメージを保持する */
 	fade_rule_img = rule_img;
@@ -2104,7 +2104,7 @@ bool start_fade_for_chs(const bool *stay, const char **fname,
 	set_layer_position(LAYER_BG, x[BG_INDEX], y[BG_INDEX]);
 
 	/* キャラフェードインレイヤにステージを描画する */
-	draw_fi_common();
+	draw_fi_common(conf_msgbox_show_on_ch);
 
 	/* ルールイメージを保持する */
 	fade_rule_img = rule_img;
@@ -2132,7 +2132,7 @@ void start_fade_for_shake(void)
 	unlock_image(layer_image[LAYER_FO]);
 
 	/* フェードイン用のレイヤにステージを描画する */
-	draw_fi_common();
+	draw_fi_common(conf_msgbox_show_on_ch);
 }
 
 /*
@@ -2219,7 +2219,7 @@ static void draw_fo_common(void)
 }
 
 /* FIにステージの内容を描画する */
-static void draw_fi_common(void)
+static void draw_fi_common(bool show_msgbox)
 {
 	lock_image(layer_image[LAYER_FI]);
 	{
@@ -2229,12 +2229,14 @@ static void draw_fi_common(void)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
-		if (is_msgbox_visible)
-			draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
-		if (is_namebox_visible && !conf_namebox_hidden)
-			draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
-		if (is_msgbox_visible)
-			draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+		if (show_msgbox) {
+			if (is_msgbox_visible)
+				draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
+			if (is_namebox_visible && !conf_namebox_hidden)
+				draw_layer_image(layer_image[LAYER_FI], LAYER_NAME);
+			if (is_msgbox_visible)
+				draw_layer_image(layer_image[LAYER_FI], LAYER_CHF);
+		}
 		if (is_auto_visible)
 			draw_layer_image(layer_image[LAYER_FI], LAYER_AUTO);
 		if (is_skip_visible)

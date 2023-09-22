@@ -783,3 +783,19 @@ void dbg_set_error_state(void)
 	dbg_error_state = true;
 }
 #endif
+
+/*
+ * License String
+ */
+
+const char license_info[]
+#ifdef __GNUC__
+__attribute__((used))
+#endif
+ =	"Suika2: Copyright (c) 2001-2023, Keiichi Tabata.\n"
+	"This program uses zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler.\n"
+	"This program uses libpng: Copyright (c) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors.\n"
+	"This program uses jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding.\n"
+	"This program uses libogg: Copyright (c) 2002, Xiph.org Foundation\n"
+	"This program uses libvorbis: Copyright (c) 2002-2015, Xiph.org Foundation\n"
+	"This program uses FreeType: Copyright 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg.\n";
