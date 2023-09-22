@@ -86,7 +86,7 @@ ipcMain.handle('getGameList', (event) => {
     // ゲームフォルダの一覧を返す
     var ret = [];
     fs.readdirSync(path).forEach(function(file) {
-        if(ret !== ".DS_Store") {
+        if(file !== ".DS_Store") {
             ret.push(file);
         }
     });
