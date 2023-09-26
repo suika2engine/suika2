@@ -898,6 +898,10 @@ static bool move_to_title(void)
 	if (file == NULL)
 		return true;
 
+	/* 現在のスクリプトに対応する既読フラグをセーブする */
+	if (!save_seen())
+		return false;
+
 	/* スクリプトをロードする */
 	if (!load_script(file))
 		return false;

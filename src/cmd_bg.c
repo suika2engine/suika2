@@ -158,23 +158,38 @@ static void draw(void)
 	if (lap >= span)
 		lap = span;
 
-	/* 経過時間が一定値を超えた場合と、入力によりスキップされた場合 */
-	if (is_in_command_repetition()) {
-		if ((lap >= span)
-		    ||
-		    (!is_non_interruptible() &&
-		     !is_auto_mode() &&
-		     (is_control_pressed || is_return_pressed ||
-		      is_left_clicked || is_down_pressed))) {
-			/* 繰り返し動作を停止する */
-			stop_command_repetition();
+	/*
+	 * 経過時間が一定値を超えた場合と、
+	 * スキップモードの場合と、
+	 * 入力により省略された場合
+	 */
+	if ((lap >= span)
+	    ||
+	    is_skip_mode()
+	    ||
+	    (!is_non_interruptible() &&
+	     (is_control_pressed || is_return_pressed ||
+	      is_left_clicked || is_down_pressed))) {
+		/* 繰り返し動作を停止する */
+		stop_command_repetition();
 
-			/* フェードを完了する */
-			finish_fade();
-		} else {
-			/* フェーディングを行う */
-			set_fade_progress(lap / span);
+		/* フェードを完了する */
+		finish_fade();
+
+		/* 入力の場合はスキップモードとオートモードを終了する */
+		if (is_control_pressed || is_return_pressed ||
+		    is_left_clicked || is_down_pressed) {
+			if (is_skip_mode()) {
+				stop_skip_mode();
+				show_skipmode_banner(false);
+			} else if (is_auto_mode()) {
+				stop_auto_mode();
+				show_automode_banner(false);
+			}
 		}
+	} else {
+		/* フェーディングを行う */
+		set_fade_progress(lap / span);
 	}
 
 	/* ステージを描画する */
