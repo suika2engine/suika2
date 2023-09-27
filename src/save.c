@@ -23,7 +23,7 @@
 #include "suika.h"
 
 /* セーブデータの互換性バージョン(12.42で導入) */
-#define SAVE_VER	(0xabcd1242)
+#define SAVE_VER	(0xabcd1321)
 
 #ifdef EM
 #include <emscripten/emscripten.h>
@@ -104,7 +104,7 @@ static bool serialize_message(struct wfile *wf, int index);
 static bool serialize_thumb(struct wfile *wf, int index);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
-static bool serialize_bgm(struct wfile *wf);
+static bool serialize_sound(struct wfile *wf);
 static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
 static bool serialize_name_vars(struct wfile *wf);
@@ -113,7 +113,7 @@ static bool serialize_config_helper(struct wfile *wf, bool is_global);
 static bool deserialize_all(const char *fname);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
-static bool deserialize_bgm(struct rfile *rf);
+static bool deserialize_sound(struct rfile *rf);
 static bool deserialize_volumes(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
 static bool deserialize_name_vars(struct rfile *rf);
@@ -407,8 +407,8 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 		if (!serialize_stage(wf))
 			break;
 
-		/* BGMのシリアライズを行う */
-		if (!serialize_bgm(wf))
+		/* サウンドのシリアライズを行う */
+		if (!serialize_sound(wf))
 			break;
 
 		/* ボリュームのシリアライズを行う */
@@ -629,12 +629,20 @@ static bool serialize_stage(struct wfile *wf)
 	return true;
 }
 
-/* BGMをシリアライズする */
-static bool serialize_bgm(struct wfile *wf)
+/* サウンドをシリアライズする */
+static bool serialize_sound(struct wfile *wf)
 {
 	const char *s;
 
+	/* BGMをシリアライズする */
 	s = get_bgm_file_name();
+	if (s == NULL)
+		s = "none";
+	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
+		return false;
+
+	/* SEをシリアライズする(ループ再生時のみ) */
+	s = get_se_file_name();
 	if (s == NULL)
 		s = "none";
 	if (write_wfile(wf, s, strlen(s) + 1) < strlen(s) + 1)
@@ -808,9 +816,6 @@ bool quick_load(void)
 	for (i = 0; i < ANIME_LAYER_COUNT; i++)
 		clear_anime_sequence(i);
 
-	/* SEを停止する */
-	set_mixer_input(SE_STREAM, NULL);
-
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
 	show_msgbox(false);
@@ -868,9 +873,6 @@ bool execute_load(int index)
 	/* アニメを停止する */
 	for (i = 0; i < ANIME_LAYER_COUNT; i++)
 		clear_anime_sequence(i);
-
-	/* SEを停止する */
-	set_mixer_input(SE_STREAM, NULL);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
@@ -943,8 +945,8 @@ static bool deserialize_all(const char *fname)
 		if (!deserialize_stage(rf))
 			break;
 
-		/* BGMのデシリアライズを行う */
-		if (!deserialize_bgm(rf))
+		/* サウンドのデシリアライズを行う */
+		if (!deserialize_sound(rf))
 			break;
 
 		/* ボリュームのデシリアライズを行う */
@@ -1092,15 +1094,15 @@ static bool deserialize_stage(struct rfile *rf)
 	return true;
 }
 
-/* BGMをデシリアライズする */
-static bool deserialize_bgm(struct rfile *rf)
+/* サウンドをデシリアライズする */
+static bool deserialize_sound(struct rfile *rf)
 {
 	char s[1024];
 	struct wave *w;
 
+	/* BGMをデシリアライズする */
 	if (gets_rfile(rf, s, sizeof(s)) == NULL)
 		return false;
-
 	if (strcmp(s, "none") == 0) {
 		set_bgm_file_name(NULL);
 		w = NULL;
@@ -1110,8 +1112,21 @@ static bool deserialize_bgm(struct rfile *rf)
 		if (w == NULL)
 			return false;
 	}
-
 	set_mixer_input(BGM_STREAM, w);
+
+	/* SEをデシリアライズする */
+	if (gets_rfile(rf, s, sizeof(s)) == NULL)
+		return false;
+	if (strcmp(s, "none") == 0) {
+		set_se_file_name(NULL);
+		w = NULL;
+	} else {
+		set_se_file_name(s);
+		w = create_wave_from_file(SE_DIR, s, true);
+		if (w == NULL)
+			return false;
+	}
+	set_mixer_input(SE_STREAM, w);
 
 	return true;
 }

@@ -43,6 +43,12 @@ bool set_bgm_file_name(const char *file);
 /* BGMのファイル名を取得する */
 const char *get_bgm_file_name(void);
 
+/* SEのファイル名を設定する(ループする場合のみ) */
+bool set_se_file_name(const char *file);
+
+/* SEのファイル名を取得する(ループ再生中の場合のみ) */
+const char *get_se_file_name(void);
+
 /* サウンドを再生・停止する */
 void set_mixer_input(int n, struct wave *w);
 
