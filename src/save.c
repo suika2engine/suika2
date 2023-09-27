@@ -788,6 +788,8 @@ bool have_quick_save_data(void)
  */
 bool quick_load(void)
 {
+	int i;
+
 	/* 既読フラグのセーブを行う */
 	save_seen();
 
@@ -801,6 +803,10 @@ bool quick_load(void)
 	/* ステージを初期化する */
 	if (!reload_stage())
 		abort();
+
+	/* アニメを停止する */
+	for (i = 0; i < ANIME_LAYER_COUNT; i++)
+		clear_anime_sequence(i);
 
 	/* SEを停止する */
 	set_mixer_input(SE_STREAM, NULL);
@@ -840,6 +846,7 @@ bool quick_load(void)
 bool execute_load(int index)
 {
 	char s[128];
+	int i;
 
 	/* ファイル名を求める */
 	snprintf(s, sizeof(s), "%03d.sav", index);
@@ -857,6 +864,10 @@ bool execute_load(int index)
 	/* ステージを初期化する */
 	if (!reload_stage())
 		abort();
+
+	/* アニメを停止する */
+	for (i = 0; i < ANIME_LAYER_COUNT; i++)
+		clear_anime_sequence(i);
 
 	/* SEを停止する */
 	set_mixer_input(SE_STREAM, NULL);
