@@ -112,6 +112,11 @@ const char *get_system_locale(void)
 	return "other";
 }
 
+char *make_valid_path(const char *dir, const char *fname)
+{
+	return strdup("");
+}
+
 /*
  * Stub for script.c
  */
