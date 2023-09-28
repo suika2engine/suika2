@@ -346,6 +346,7 @@ static bool get_file_sizes(const char *base_dir)
 		 * Make a path and open the file.
 		 */
 #if defined(WIN)
+		/* Make a path on Windows. */
 		char *path = strdup(entry[i].name);
 		char *slash;
 		if (path == NULL) {
@@ -358,9 +359,11 @@ static bool get_file_sizes(const char *base_dir)
 		*slash = '\\';
 		fp = fopen(path, "rb");
 #elif defined(MAC)
-		char *game_base = make_valid_path(NULL, entry[i].name);
-		fp = fopen(path, "rb");
+		/* Make a path on Mac. */
+		char *path = make_valid_path(NULL, entry[i].name);
+		fp = fopen(path, "r");
 #else
+		/* Make path on Linux. */
 		char abspath[256];
 #if defined(__GNUC__) && !defined(__llvm__)
 #pragma GCC diagnostic push
