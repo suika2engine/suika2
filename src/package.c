@@ -196,21 +196,26 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir, int 
 /* Get directory file list (for Mac and Linux) */
 static bool get_file_names(const char *base_dir, const char *dir)
 {
-    return get_file_names_recursive(base_dir, dir, 0);
-}
-
-static bool get_file_names_recursive(const char *base_dir, const char *dir, int depth)
-{
-    char new_path[1024];
-    char query_path[1024];
-    struct dirent **names;
     char *game_base;
-    int i, count;
-    bool succeeded;
+    bool ret;
 
     /* Get the game directory. */
     game_base = make_valid_path(NULL, NULL);
     assert(game_base != NULL);
+
+    ret = get_file_names_recursive(game_base,base_dir, dir, 0);
+
+    free(game_base);
+    return ret;
+}
+
+static bool get_file_names_recursive(const char *game_base, const char *base_dir, const char *dir, int depth)
+{
+    char new_path[1024];
+    char query_path[1024];
+    struct dirent **names;
+    int i, count;
+    bool succeeded;
 
     /* Make a path. */
     if (strcmp(base_dir, "") == 0) {
@@ -220,7 +225,6 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir, int 
         snprintf(new_path, sizeof(new_path), "%s/%s", base_dir, dir);
         snprintf(query_path, sizeof(query_path), "%s/%s/%s", game_base, base_dir, dir);
     }
-    free(game_base);
 
     /* Get directory content. */
     count = scandir(query_path, &names, NULL, alphasort);
@@ -240,7 +244,7 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir, int 
             break;
         }
         if (names[i]->d_type == DT_DIR) {
-            if (!get_file_names_recursive(new_path, names[i]->d_name, depth + 1)) {
+            if (!get_file_names_recursive(game_base, new_path, names[i]->d_name, depth + 1)) {
                 succeeded = false;
                 break;
             }
@@ -333,11 +337,15 @@ static bool get_file_sizes(const char *base_dir)
 	FILE *fp;
 	uint64_t i;
 
+	UNUSED_PARAMETER(base_dir);
+
 	/* Get each file size, and calc offsets. */
 	offset = FILE_COUNT_BYTES + ENTRY_BYTES * file_count;
 	for (i = 0; i < file_count; i++) {
-#ifdef WIN
-		UNUSED_PARAMETER(base_dir);
+		/*
+		 * Make a path and open the file.
+		 */
+#if defined(WIN)
 		char *path = strdup(entry[i].name);
 		char *slash;
 		if (path == NULL) {
@@ -348,6 +356,9 @@ static bool get_file_sizes(const char *base_dir)
 		if (slash == NULL)
 			return false;
 		*slash = '\\';
+		fp = fopen(path, "rb");
+#elif defined(MAC)
+		char *game_base = make_valid_path(NULL, entry[i].name);
 		fp = fopen(path, "rb");
 #else
 		char abspath[256];
@@ -364,17 +375,23 @@ static bool get_file_sizes(const char *base_dir)
 #endif
 		fp = fopen(abspath, "r");
 #endif
+
+		/* Check the fp. */
 		if (fp == NULL) {
 			log_file_open(entry[i].name);
 			return false;
 		}
+
+		/* Get the file size. */
 		fseek(fp, 0, SEEK_END);
 		entry[i].size = (uint64_t)ftell(fp);
 		entry[i].offset = offset;
 		fclose(fp);
-#ifdef WIN
+
+#if defined(WIN) || defined(MAC)
 		free(path);
 #endif
+
 		offset += entry[i].size;
 	}
 	return true;
