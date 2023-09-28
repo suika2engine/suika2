@@ -186,7 +186,7 @@ static bool get_file_names_recursive(const wchar_t *base_dir, const wchar_t *dir
     return true;
 }
 
-#elif defined(MAC)
+#elif defined(OSX)
 /*
  * For macOS:
  */
@@ -358,24 +358,14 @@ static bool get_file_sizes(const char *base_dir)
 			return false;
 		*slash = '\\';
 		fp = fopen(path, "rb");
-#elif defined(MAC)
-		/* Make a path on Mac. */
-		char *path = make_valid_path(NULL, entry[i].name);
-		fp = fopen(path, "r");
+		free(path);
 #else
-		/* Make path on Linux. */
-		char abspath[256];
-#if defined(__GNUC__) && !defined(__llvm__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
-#endif
+		/* Make path on Mac/Linux. */
+		char abspath[1024];
 		if (strcmp(base_dir, "") == 0)
 			snprintf(abspath, sizeof(abspath), "%s", entry[i].name);
 		else
 			snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, entry[i].name);
-#if defined(__GNUC__) && !defined(__llvm__)
-#pragma GCC diagnostic pop
-#endif
 		fp = fopen(abspath, "r");
 #endif
 
@@ -391,10 +381,7 @@ static bool get_file_sizes(const char *base_dir)
 		entry[i].offset = offset;
 		fclose(fp);
 
-#if defined(WIN) || defined(MAC)
-		free(path);
-#endif
-
+		/* Increment the offset. */
 		offset += entry[i].size;
 	}
 	return true;
