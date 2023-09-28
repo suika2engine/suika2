@@ -191,22 +191,17 @@ static bool get_file_names_recursive(const wchar_t *base_dir, const wchar_t *dir
  * For macOS:
  */
 
-static bool get_file_names_recursive(const char *base_dir, const char *dir, int depth);
+static bool get_file_names_recursive(const char *game_base, const char *base_dir, const char *dir, int depth);
 
 /* Get directory file list (for Mac and Linux) */
 static bool get_file_names(const char *base_dir, const char *dir)
 {
-    char *game_base;
     bool ret;
 
-    /* Get the game directory. */
-    game_base = make_valid_path(NULL, NULL);
-    assert(game_base != NULL);
+    if (!get_file_names_recursive(base_dir, "", dir, 0))
+        return false;
 
-    ret = get_file_names_recursive(game_base,base_dir, dir, 0);
-
-    free(game_base);
-    return ret;
+    return true;
 }
 
 static bool get_file_names_recursive(const char *game_base, const char *base_dir, const char *dir, int depth)
@@ -397,17 +392,12 @@ static bool write_archive_file(const char *base_dir)
 	fp = fopen(PACKAGE_FILE, "wb");
 	UNUSED_PARAMETER(base_dir);
 #else
-	char abspath[256];
-#if defined(__GNUC__) && !defined(__llvm__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
+	char abspath[1024];
 	if (strcmp(base_dir, "") == 0)
 		snprintf(abspath, sizeof(abspath), "%s", PACKAGE_FILE);
 	else
 		snprintf(abspath, sizeof(abspath), "%s/%s", base_dir, PACKAGE_FILE);
-#pragma GCC diagnostic pop
-#endif
-	fp = fopen(abspath, "wb");
+	fp = fopen(abspath, "w");
 #endif
 	if (fp == NULL) {
 		log_file_open(PACKAGE_FILE);
@@ -477,18 +467,13 @@ static bool write_file_bodies(const char *base_dir, FILE *fp)
 		fpin = fopen(path, "rb");
 		UNUSED_PARAMETER(base_dir);
 #else
-		char abspath[256];
-#if defined(__GNUC__) && !defined(__llvm__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-truncation"
+		char abspath[1024];
 		if (strcmp(base_dir, "") == 0)
 			snprintf(abspath, sizeof(abspath), "%s", entry[i].name);
 		else
 			snprintf(abspath, sizeof(abspath), "%s/%s", base_dir,
 				 entry[i].name);
-#pragma GCC diagnostic pop
-#endif
-		fpin = fopen(abspath, "rb");
+		fpin = fopen(abspath, "r");
 #endif
 		if (fpin == NULL) {
 			log_file_open(entry[i].name);
