@@ -3967,7 +3967,7 @@ void draw_kirakira(void)
 
 	lap = (float)get_stop_watch_lap(&sw_kirakira) / 1000.0f;
 	index = (int)(lap / frame_time);
-	if (index >= KIRAKIRA_FRAME_COUNT)
+	if (index < 0 || index >= KIRAKIRA_FRAME_COUNT)
 		return;
 	if (kirakira_image[index] == NULL)
 		return;

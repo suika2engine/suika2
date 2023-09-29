@@ -1,5 +1,6 @@
 #include "package.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdarg.h>
 #include <assert.h>
 
@@ -110,6 +111,11 @@ const char *conv_utf8_to_native(const char *utf8_message)
 const char *get_system_locale(void)
 {
 	return "other";
+}
+
+char *make_valid_path(const char *dir, const char *fname)
+{
+	return strdup("");
 }
 
 /*

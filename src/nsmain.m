@@ -756,10 +756,10 @@ char *make_valid_path(const char *dir, const char *fname)
 {
     char *ret;
 
-    assert(fname != NULL);
-
     @autoreleasepool {
         if (conf_release && dir != NULL && strcmp(dir, SAVE_DIR) == 0) {
+            assert(fname != NULL);
+
             NSString *path = NSHomeDirectory();
             path = [path stringByAppendingString:@"/Library/Application Support/"];
             path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:conf_window_title]];
@@ -777,11 +777,17 @@ char *make_valid_path(const char *dir, const char *fname)
 
             // ファイルのパスを作成する
             NSString *filePath;
-            if (dir != NULL)
-                filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir,
-                                     fname];
-            else
-                filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
+            if (dir != NULL) {
+                if (fname != NULL)
+                    filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir, fname];
+                else
+                    filePath = [NSString stringWithFormat:@"%@/%s", basePath, dir];
+            } else {
+                if (fname != NULL)
+                    filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
+                else
+                    filePath = basePath;
+            }
 
             const char *cstr = [filePath UTF8String];
             ret = strdup(cstr);

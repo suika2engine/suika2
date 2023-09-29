@@ -49,6 +49,9 @@ static int ch_vol_index;
 /* BGMファイル名 */
 static char *bgm_file_name;
 
+/* SEファイル名(ループ再生するときのみ設定) */
+static char *se_file_name;
+
 /*
  * ミキサーモジュールの初期化処理を行う 
  */
@@ -98,12 +101,12 @@ void cleanup_mixer(void)
  */
 bool set_bgm_file_name(const char *file)
 {
-	if (bgm_file_name != NULL)
+	if (bgm_file_name != NULL) {
 		free(bgm_file_name);
-
-	if (file == NULL) {
 		bgm_file_name = NULL;
-	} else {
+	}
+
+	if (file != NULL) {
 		bgm_file_name = strdup(file);
 		if (bgm_file_name == NULL) {
 			log_memory();
@@ -120,6 +123,35 @@ bool set_bgm_file_name(const char *file)
 const char *get_bgm_file_name(void)
 {
 	return bgm_file_name;
+}
+
+/*
+ * SEのファイル名を設定する(ループする場合のみ)
+ */
+bool set_se_file_name(const char *file)
+{
+	if (se_file_name != NULL) {
+		free(se_file_name);
+		se_file_name = NULL;
+	}
+
+	if (file != NULL) {
+		se_file_name = strdup(file);
+		if (se_file_name == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*
+ * SEのファイル名を取得する(ループ再生中の場合のみ)
+ */
+const char *get_se_file_name(void)
+{
+	return se_file_name;
 }
 
 /*

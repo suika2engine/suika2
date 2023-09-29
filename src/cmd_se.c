@@ -64,6 +64,14 @@ bool se_command(void)
 		w = NULL;
 	}
 
+	/* ループ再生のときはSEファイル名を登録する */
+	if (!stop && loop) {
+		if (!set_se_file_name(fname))
+			return false;
+	} else {
+		set_se_file_name(NULL);
+	}
+
 	/* 再生を開始する */
 	set_mixer_input(stream, w);
 

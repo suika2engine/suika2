@@ -82,6 +82,7 @@ build/ios/libroot
 build/ios/suika.xcodeproj/project.xcworkspace
 build/ios/suika.xcodeproj/xcuserdata
 build/ios/suika.xcodeproj/xcshareddata
+build/ios/ios-src
 
 # Android
 build/android/.idea/caches
@@ -93,6 +94,7 @@ build/android/app/src/main/cpp/jpeg
 build/android/app/src/main/cpp/*.[ch]
 build/android/cmdline-tools
 build/android/commandlinetools-linux-*.zip
+build/android/android-src
 
 # Linux
 build/linux-x86_64/*.o
@@ -175,20 +177,12 @@ build/qt-macos-pro/*.h
 build/qt-macos-pro/*.ui
 
 # New Linux Pro (Qt6)
-<<<<<<< HEAD
 build/qt-linux-pro/deps
 build/qt-linux-pro/build
 build/qt-linux-pro/CMakeLists.txt.user
 build/qt-linux-pro/*.cpp
 build/qt-linux-pro/*.h
 build/qt-linux-pro/*.ui
-=======
-build/qt-linux-pro/*.cpp
-build/qt-linux-pro/*.h
-build/qt-linux-pro/deps
-build/qt-linux-pro/build
-build/qt-linux-pro/CMakeLists.txt.user
->>>>>>> 71fd44cb913d1d9b978ac7ad7ce2cded5dee57a8
 
 # Tests
 testcases

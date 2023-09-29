@@ -117,6 +117,7 @@ for f in $COPY_LIST; do
 done
 
 # Deploy libroot.
+rm -f libroot-ios.tar.gz
 wget 'https://suika2.com/dl/libroot-ios.tar.gz'
 tar xzf libroot-ios.tar.gz -C "$TARGET"
 
