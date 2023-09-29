@@ -198,8 +198,10 @@ static bool init(void)
 		}
 
 		/* キャラを暗くしない */
-		if (i != BG_INDEX)
-			set_ch_dim(i, false);
+		if (i != BG_INDEX) {
+			if (conf_character_focus == 1)
+				set_ch_dim(i, false);
+		}
 	}
 
 	/* ルールが使用される場合 */

@@ -124,8 +124,10 @@ static bool init(void)
 	alpha = get_alpha(alpha_s);
 
 	/* 登場したばかりのキャラは暗くしない */
-	if (chpos != CH_FACE)
-		set_ch_dim(chpos, false);
+	if (chpos != CH_FACE) {
+		if (conf_character_focus == 1)
+			set_ch_dim(chpos, false);
+	}
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {
