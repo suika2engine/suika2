@@ -9,6 +9,7 @@ function translate(msg) {
     case "名前を指定してください。": return "Please specify the name.";
     case "名前にスペースを含められません。": return "You can't include spaces in the game name.";
     case "ゲームフォルダの作成に失敗しました。": return "Failed to create the game folder.";
+    case "プロジェクトがありません。": return "You don't have any projects.";
     default: return "(This message is not yet translated.)";
     }
 }
@@ -17,17 +18,21 @@ window.addEventListener("load", async () => {
     locale = await window.api.getLocale();
 
     var gameList = await window.api.getGameList();
-    gameList.forEach(game => {
-        var e = document.createElement("li");
-        e.textContent = game;
-        e.classList.add("game-list-item");
-        e.addEventListener("click", async () => {
-            await window.api.openGame(event.srcElement.textContent);
-            await window.api.openScenario("story001.txt");
-            window.location.href = locale === "ja" ? "index.html" : "index_en.html";
+    if (gameList == undefined || gameList == "") {
+        document.getElementById("project-msg").textContent = translate("プロジェクトがありません。");
+    } else {
+        gameList.forEach(game => {
+            var e = document.createElement("li");
+            e.textContent = game;
+            e.classList.add("game-list-item");
+            e.addEventListener("click", async () => {
+                await window.api.openGame(event.srcElement.textContent);
+                await window.api.openScenario("story001.txt");
+                window.location.href = locale === "ja" ? "index.html" : "index_en.html";
+            });
+            document.getElementById("game-list").appendChild(e);
         });
-        document.getElementById("game-list").appendChild(e);
-    });
+    }
 
     document.getElementById("new-game").addEventListener("click", async () => {
         var elem = document.getElementById("game-name");
