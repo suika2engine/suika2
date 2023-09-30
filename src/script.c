@@ -72,6 +72,9 @@ static struct command {
 	/* 行番号(starts from 0) */
 	int line;
 
+	/* usingで拡張された行番号(starts from 0) */
+	int expanded_line;
+
 	/* コマンドタイプ */
 	int type;
 
@@ -739,10 +742,10 @@ bool load_script(const char *fname)
 	/* コマンドサイズを初期化する */
 	cmd_size = 0;
 
-#ifdef USE_DEBUGGER
 	/* 行番号情報を初期化する */
 	cur_expanded_line = 0;
 
+#ifdef USE_DEBUGGER
 	/* エラー状態を初期化する */
 	is_parse_error = false;
 	is_parse_error_informed = false;
@@ -1290,8 +1293,7 @@ static bool process_include(char *raw_buf, bool is_included)
 
 #ifdef USE_DEBUGGER
 	/* デバッガの場合、開始コメント行を挿入する */
-	if (!add_comment_line("<!-- // using %s",
-			      &raw_buf[strlen(MACRO_INC)]))
+	if (!add_comment_line("<!-- // begin using %s", &raw_buf[strlen(MACRO_INC)]))
 		return false;
 #endif
 
@@ -1301,8 +1303,7 @@ static bool process_include(char *raw_buf, bool is_included)
 
 #ifdef USE_DEBUGGER
 	/* デバッガの場合、終了コメント行を挿入する */
-	if (!add_comment_line("--> // using %s",
-			      &raw_buf[strlen(MACRO_INC)]))
+	if (!add_comment_line("--> // end using"))
 		return false;
 #endif
 
@@ -2021,6 +2022,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 	if (index == -1) {
 		c->file = cur_parse_file;
 		c->line = cur_parse_line;
+		c->expanded_line = cur_expanded_line;
 	}
 	c->text = strdup(raw);
 	if (c->text == NULL) {
@@ -2247,6 +2249,7 @@ static bool parse_serif(const char *raw, const char *buf, int locale_offset,
 	if (index == -1) {
 		c->file = cur_parse_file;
 		c->line = cur_parse_line;
+		c->expanded_line = cur_expanded_line;
 	}
 	c->text = strdup(raw);
 	if (c->text == NULL) {
@@ -2319,6 +2322,7 @@ static bool parse_message(const char *raw, const char *buf, int locale_offset,
 	if (index == -1) {
 		c->file = cur_parse_file;
 		c->line = cur_parse_line;
+		c->expanded_line = cur_expanded_line;
 	}
 	c->text = strdup(raw);
 	if (c->text == NULL) {
@@ -2395,6 +2399,7 @@ static bool parse_label(const char *raw, const char *buf, int locale_offset,
 	if (index == -1) {
 		c->file = cur_parse_file;
 		c->line = cur_parse_line;
+		c->expanded_line = cur_expanded_line;
 	}
 	c->text = strdup(raw);
 	if (c->text == NULL) {
@@ -2456,6 +2461,7 @@ static void recover_from_parse_error(const char *raw)
 	c->type = COMMAND_MESSAGE;
 	c->file = cur_parse_file;
 	c->line = cur_parse_line;
+	c->expanded_line = cur_expanded_line;
 
 	/* rawテキストを複製する */
 	if (c->text != NULL) {
@@ -2540,6 +2546,14 @@ bool has_startup_file(void)
 }
 
 /*
+ * using展開後のコマンドの行番号を取得する(ログ用)
+ */
+int get_expanded_line_num(void)
+{
+	return cmd[cur_index].expanded_line;
+}
+
+/*
  * 行の数を取得する
  */
 int get_line_count(void)
@@ -2555,7 +2569,7 @@ int get_command_index_from_line_number(int line)
 	int i;
 
 	for (i = 0; i < cmd_size; i++)
-		if (cmd[i].line >= line)
+		if (cmd[i].expanded_line >= line)
 			return i;
 
 	return -1;
@@ -2574,9 +2588,9 @@ const char *get_line_string_at_line_num(int line)
 
 	/* コマンドを探す */
 	for (i = 0; i < cmd_size; i++) {
-		if (cmd[i].line == line)
+		if (cmd[i].expanded_line == line)
 			return cmd[i].text;
-		if (cmd[i].line > line)
+		if (cmd[i].expanded_line > line)
 			break;
 	}
 
@@ -2621,6 +2635,7 @@ bool update_command(int index, const char *cmd_str)
 	/* パース位置の情報を設定する */
 	cur_parse_file = c->file;
 	cur_parse_line = c->line;
+	cur_expanded_line = c->expanded_line;
 
 	/* on-the-flyのパースであることを設定する */
 	is_on_the_fly = true;

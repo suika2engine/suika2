@@ -611,7 +611,7 @@ void MainWindow::updateVariableText()
 //
 void MainWindow::scrollScript()
 {
-    int line = get_line_num();
+    int line = get_expanded_line_num();
     QModelIndex cellIndex = ui->scriptListView->model()->index(line, 0);
     ui->scriptListView->setCurrentIndex(cellIndex);
     ui->scriptListView->scrollTo(cellIndex);
@@ -1262,7 +1262,7 @@ void set_running_state(bool running, bool request_stop)
 void update_debug_info(bool script_changed)
 {
     MainWindow::obj->ui->fileNameTextEdit->setText(get_script_file_name());
-    MainWindow::obj->ui->lineNumberEdit->setText(QString::number(get_line_num()));
+    MainWindow::obj->ui->lineNumberEdit->setText(QString::number(get_expanded_line_num()));
     MainWindow::obj->ui->commandEdit->setText(get_line_string());
     if (script_changed)
         MainWindow::obj->updateScriptView();

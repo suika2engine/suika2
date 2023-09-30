@@ -1944,7 +1944,7 @@ void update_debug_info(bool script_changed)
 				  conv_utf8_to_utf16(get_script_file_name()));
 
 	/* 行番号を設定する */
-	_snwprintf(line, sizeof(line), L"%d", get_line_num() + 1);
+	_snwprintf(line, sizeof(line), L"%d", get_expanded_line_num() + 1);
 	SetWindowText(hWndTextboxLine, line);
 
 	/* コマンド文字列を設定する */
@@ -1961,7 +1961,7 @@ void update_debug_info(bool script_changed)
 						(LPARAM)conv_utf8_to_utf16(command));
 		}
 	}
-	line_num = get_line_num();
+	line_num = get_expanded_line_num();
 	top = (line_num - 9 < 0) ? 0 : (line_num - 9);
 	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
 	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
