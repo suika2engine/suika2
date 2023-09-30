@@ -125,7 +125,8 @@ static bool init(void)
 	alpha = get_alpha(alpha_s);
 
 	/* 発話中以外のキャラを暗くする */
-	focus_character(chpos, fname);
+	if (chpos != CH_FACE)
+		focus_character(chpos, fname);
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {

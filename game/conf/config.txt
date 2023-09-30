@@ -710,7 +710,7 @@ serif.color1.outline.b=128
 #  - 0: 無効
 #  - 1: 有効(暗くする, 新たに登場したときは明るくする)
 #  - 2: 有効(暗くする, 新たに登場したときも暗くする)
-character.focus=2
+character.focus=1
 
 # 「みどり」のキャラクタ名とファイル名の先頭の文字
 character.name1=みどり
