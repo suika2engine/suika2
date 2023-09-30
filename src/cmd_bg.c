@@ -125,6 +125,9 @@ static bool init(void)
 	}
 	show_click(false);
 
+	/* 発話中のキャラをなしにする */
+	set_ch_talking(-1);
+
 	/* 背景フェードを開始する */
 	if (!start_fade_for_bg(fname, img, ofs_x, ofs_y, 255, fade_method,
 			       rule_img)) {
