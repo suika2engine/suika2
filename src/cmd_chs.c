@@ -308,6 +308,8 @@ static void focus_character(int chpos, const char *fname)
 			continue;
 		if (conf_character_file[i] == NULL)
 			continue;
+		if (fname == NULL)
+			continue;
 		if (strncmp(conf_character_file[i], fname, strlen(conf_character_file[i])) == 0)
 			break;
 	}

@@ -97,6 +97,9 @@
 /* 描画する名前 */
 static char *name_top;
 
+/* 変数展開前の名前 */
+static const char *raw_name;
+
 /*
  * 描画する本文 (バッファの先頭)
  *  - 文字列の内容は変数の値を展開した後のもの
@@ -777,7 +780,7 @@ static void init_skip_mode(void)
 /* 名前を取得する */
 static bool init_name_top(void)
 {
-	const char *raw, *exp;
+	const char *exp;
 
 	/* システムGUIから戻った場合 */
 	if (gui_sys_flag)
@@ -791,8 +794,8 @@ static bool init_name_top(void)
 
 	/* 名前を取得する */
 	if (get_command_type() == COMMAND_SERIF) {
-		raw = get_string_param(SERIF_PARAM_NAME);
-		exp = expand_variable(raw);
+		raw_name = get_string_param(SERIF_PARAM_NAME);
+		exp = expand_variable(raw_name);
 		name_top = strdup(exp);
 		if (name_top == NULL) {
 			log_memory();
@@ -800,6 +803,7 @@ static bool init_name_top(void)
 		}
 	} else {
 		name_top = NULL;
+		raw_name = NULL;
 	}
 
 	return true;
@@ -990,7 +994,7 @@ static const char *skip_lf(const char *m, int *lf)
 				pen_y = conf_msgbox_margin_top;
 			}
 		} else {
-			m++;
+			break;
 		}
 	}
 	return m;
@@ -1464,7 +1468,7 @@ static void focus_character(void)
 			continue;
 		if (conf_character_file[i] == NULL)
 			continue;
-		if (strcmp(conf_character_name[i], name_top) == 0)
+		if (strcmp(conf_character_name[i], raw_name) == 0)
 			break;
 	}
 	if (i == CHARACTER_MAP_COUNT) {

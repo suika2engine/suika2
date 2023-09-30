@@ -3271,13 +3271,18 @@ void update_ch_dim(void)
 	int i;
 
 	for (i = 0; i < CH_BASIC_LAYERS; i++) {
-		if (ch_talking == -1) {
+		if (ch_talking == -1)
+			ch_dim[i] = conf_character_focus == 2;
+		else if (ch_name_mapping[i] == -1)
+			ch_dim[i] = conf_character_focus == 2;
+		else if (ch_name_mapping[i] == ch_talking)
 			ch_dim[i] = false;
-		} else if (ch_name_mapping[i] == ch_talking) {
+		else if (strncmp(conf_character_file[ch_name_mapping[i]],
+				 conf_character_file[ch_talking],
+				 strlen(conf_character_file[ch_talking])) == 0)
 			ch_dim[i] = false;
-		} else {
+		else
 			ch_dim[i] = true;
-		}
 	}
 }
 
