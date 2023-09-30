@@ -217,37 +217,44 @@ static void process_finish(void)
 		return;
 	}	
 
-	/* 入力によりスキップモード/オートモードが終了される場合 */
-	if (!is_non_interruptible() && (is_auto_mode() || is_skip_mode())) {
-		/* アニメを終了する */
-		finish_layer_anime(anime_layer);
-
-		/* 繰り返し動作を終了する */
-		stop_command_repetition();
-
-		/* スキップとオートを終了する */
-		if (is_skip_mode()) {
-			stop_skip_mode();
-			show_skipmode_banner(false);
-		}
-		if (is_auto_mode()) {
+	/* 入力によりオートモードが終了される場合 */
+	if (is_auto_mode()) {
+		if (is_control_pressed || is_return_pressed ||
+		    is_left_clicked || is_down_pressed) {
+			/* オートモードを終了する */
 			stop_auto_mode();
 			show_automode_banner(false);
+			return;
 		}
-
 		return;
 	}
 
-	/* 入力によりアニメが省略される場合 */
-	if (!is_non_interruptible() && !is_auto_mode() &&
-	    (is_control_pressed || is_return_pressed ||
-	     is_left_clicked || is_down_pressed)) {
+	/* 入力によりスキップモードが終了される場合 */
+	if (is_skip_mode()) {
+		if (is_control_pressed || is_return_pressed ||
+		    is_left_clicked || is_down_pressed) {
+			/* スキップモードを終了する */
+			stop_skip_mode();
+			show_skipmode_banner(false);
+			return;
+		} else {
+			/* アニメを終了する */
+			finish_layer_anime(anime_layer);
+
+			/* 繰り返し動作を終了する */
+			stop_command_repetition();
+		}
+	}
+
+	/* 入力で省略される場合 */
+	if (!is_non_interruptible() &&
+	     (is_control_pressed || is_return_pressed ||
+	      is_left_clicked || is_down_pressed)) {
 		/* アニメを終了する */
 		finish_layer_anime(anime_layer);
 
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
-
 		return;
 	}
 }
