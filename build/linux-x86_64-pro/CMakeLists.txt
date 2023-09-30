@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 
 project(suika-pro VERSION 0.1 LANGUAGES CXX C)
 
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g3")
+
 # We use .ui file translation.
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
