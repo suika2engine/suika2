@@ -34,6 +34,18 @@ However, you need `Git for Windows` to build an Android App on Windows.
   git clone https://github.com/suika2engine/suika2.git
   ```
 
+## Main Windows App
+This method will build a Windows binary on WSL2, Linux or macOS.
+
+* Steps
+  * Use WSL2, Ubuntu or macOS
+  * From the terminal, navigate to the source code directory
+    * Run the following commands:
+    ```
+    make setup
+    make windows
+    ```
+
 ## All Windows Apps
 This method will build all Windows binaries on WSL2, Linux or macOS.
 For Windows, we have 6 app variants (`suika.exe`, `suika-pro.exe`, `suika-64.exe`, `suika-arm64.exe`, `suika-capture.exe` and `suika-replay.exe`)
@@ -241,15 +253,6 @@ This method will build a Raspberry Pi app.
     make
     make install
     ```
-
-## Suika2 Pro for Windows [Testing]
-This method will build a Windows version of Suika2 Pro (Qt6).
-
-* Steps
-  * Install Qt Creator and setup Qt 6.4.2
-  * Open `build/suika-pro-qt` folder and run `make-deps.bat`
-  * From Qt Creator, open `build/suika-pro-qt/CMakeLists.txt`
-  * Build
 
 ## Suika2 Pro for Linux [Testing]
 This method will build a Linux version of Suika2 Pro (Qt6).
