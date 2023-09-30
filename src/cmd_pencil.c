@@ -30,8 +30,8 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 	/* レイヤを制限する */
 	if (layer < 0)
 		layer = 0;
-	if (layer > 3)
-		layer = 3;
+	if (layer > 7)
+		layer = 7;
 	layer = LAYER_TEXT1 + layer;
 
 	/* 変数を展開する */

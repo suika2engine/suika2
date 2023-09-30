@@ -125,6 +125,9 @@ static bool init(void)
 	}
 	show_click(false);
 
+	/* 発話中のキャラをなしにする */
+	set_ch_talking(-1);
+
 	/* 背景フェードを開始する */
 	if (!start_fade_for_bg(fname, img, ofs_x, ofs_y, 255, fade_method,
 			       rule_img)) {
@@ -158,18 +161,44 @@ static void draw(void)
 	if (lap >= span)
 		lap = span;
 
-	/*
-	 * 経過時間が一定値を超えた場合と、
-	 * スキップモードの場合と、
-	 * 入力により省略された場合
-	 */
-	if ((lap >= span)
-	    ||
-	    is_skip_mode()
-	    ||
-	    (!is_non_interruptible() &&
-	     (is_control_pressed || is_return_pressed ||
-	      is_left_clicked || is_down_pressed))) {
+	/* 入力に反応する */
+	if (is_auto_mode() &&
+	    (is_control_pressed || is_return_pressed ||
+	     is_left_clicked || is_down_pressed)) {
+		/* 入力によりオートモードを終了する */
+		stop_auto_mode();
+		show_automode_banner(false);
+
+		/* 繰り返し動作を停止する */
+		stop_command_repetition();
+
+		/* フェードを完了する */
+		finish_fade();
+	} else if (is_skip_mode() &&
+		   (is_control_pressed || is_return_pressed ||
+		    is_left_clicked || is_down_pressed)) {
+		/* 入力によりスキップモードを終了する */
+		stop_skip_mode();
+		show_skipmode_banner(false);
+
+		/* 繰り返し動作を停止する */
+		stop_command_repetition();
+
+		/* フェードを完了する */
+		finish_fade();
+	} else if ((lap >= span)
+		   ||
+		   is_skip_mode()
+		   ||
+		   (!is_non_interruptible() &&
+		    (is_control_pressed || is_return_pressed ||
+		     is_left_clicked || is_down_pressed))) {
+		/*
+		 * 経過時間が一定値を超えた場合と、
+		 * スキップモードの場合と、
+		 * 入力により省略された場合
+		 */
+
 		/* 繰り返し動作を停止する */
 		stop_command_repetition();
 

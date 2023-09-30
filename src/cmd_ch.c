@@ -22,6 +22,7 @@ static bool get_position(const char *pos, struct image *img, int ofs_x,
 			 int ofs_y, int *chpos, int *xpos, int *ypos);
 static int get_alpha(const char *alpha);
 int chpos_to_layer(int chpos);
+static void focus_character(int chpos, const char *fname);
 static void draw(void);
 static bool cleanup(void);
 
@@ -123,9 +124,9 @@ static bool init(void)
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
 
-	/* 登場したばかりのキャラは暗くしない */
+	/* 発話中以外のキャラを暗くする */
 	if (chpos != CH_FACE)
-		set_ch_dim(chpos, false);
+		focus_character(chpos, fname);
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {
@@ -236,6 +237,31 @@ static int get_alpha(const char *alpha)
 		return atoi(alpha);
 }
 
+/* キャラクタのフォーカスを行う */
+static void focus_character(int chpos, const char *fname)
+{
+	int i;
+
+	/* 名前が登録されているキャラクタであるかチェックする */
+	for (i = 0; i < CHARACTER_MAP_COUNT; i++) {
+		if (conf_character_name[i] == NULL)
+			continue;
+		if (conf_character_file[i] == NULL)
+			continue;
+		if (fname == NULL)
+			continue;
+		if (strncmp(conf_character_file[i], fname, strlen(conf_character_file[i])) == 0)
+			break;
+	}
+	if (i == CHARACTER_MAP_COUNT)
+		i = -1;
+
+	set_ch_name_mapping(chpos, i);
+	if (conf_character_focus == 1 && i == -1)
+		set_ch_talking(-1);
+	update_ch_dim();
+}
+
 /* 描画を行う */
 static void draw(void)
 {
@@ -247,18 +273,44 @@ static void draw(void)
 	if (lap >= span)
 		lap = span;
 
-	/*
-	 * 経過時間が一定値を超えた場合と、
-	 * スキップモードの場合と、
-	 * 入力により省略された場合
-	 */
-	if ((lap >= span)
-	    ||
-	    is_skip_mode()
-	    ||
-	    (!is_non_interruptible() &&
-	     (is_control_pressed || is_return_pressed ||
-	      is_left_clicked || is_down_pressed))) {
+	/* 入力に反応する */
+	if (is_auto_mode() &&
+	    (is_control_pressed || is_return_pressed ||
+	     is_left_clicked || is_down_pressed)) {
+		/* 入力によりオートモードを終了する */
+		stop_auto_mode();
+		show_automode_banner(false);
+
+		/* 繰り返し動作を終了する */
+		stop_command_repetition();
+
+		/* フェードを終了する */
+		finish_fade();
+	} else if (is_skip_mode() &&
+		   (is_control_pressed || is_return_pressed ||
+		    is_left_clicked || is_down_pressed)) {
+		/* 入力によりスキップモードを終了する */
+		stop_skip_mode();
+		show_skipmode_banner(false);
+
+		/* 繰り返し動作を終了する */
+		stop_command_repetition();
+
+		/* フェードを終了する */
+		finish_fade();
+	} else if ((lap >= span)
+		   ||
+		   is_skip_mode()
+		   ||
+		   (!is_non_interruptible() &&
+		    (is_control_pressed || is_return_pressed ||
+		     is_left_clicked || is_down_pressed))) {
+		/*
+		 * 経過時間が一定値を超えた場合と、
+		 * スキップモードの場合と、
+		 * 入力により省略された場合
+		 */
+
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
 

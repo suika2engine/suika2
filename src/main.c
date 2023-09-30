@@ -124,6 +124,8 @@ void init_game_loop(void)
 	flag_save_load_enabled = true;
 	flag_non_interruptible = false;
 
+	srand((unsigned int)time(NULL));
+
 	/* Android NDK用に状態を初期化する */
 	check_menu_finish_flag();
 	check_retrospect_finish_flag();

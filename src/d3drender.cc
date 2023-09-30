@@ -450,21 +450,27 @@ BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
 	// Direct3Dテクスチャオブジェクトの矩形をロックする
 	D3DLOCKED_RECT lockedRect;
 	HRESULT hResult = t->pTex->LockRect(0, &lockedRect, NULL, 0);
-	if(!FAILED(hResult))
-	{
-		// ピクセルデータをコピーする
-		memcpy(lockedRect.pBits, *locked_pixels, width * height * sizeof(pixel_t));
-
-		// Direct3Dテクスチャオブジェクトの矩形をアンロックする
-		t->pTex->UnlockRect(0);
-	}
-	else
+	if (FAILED(hResult))
 	{
 		t->pTex->Release();
 		t->pTex = NULL;
+		*locked_pixels = NULL;
+		return TRUE;
 	}
 
-	// ロック中の描画先ポインタをクリアする
+	// ピクセルデータをコピーする
+	memcpy(lockedRect.pBits, *locked_pixels, width * height * sizeof(pixel_t));
+
+	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
+	hResult = t->pTex->UnlockRect(0);
+	if (FAILED(hResult))
+	{
+		t->pTex->Release();
+		t->pTex = NULL;
+		*locked_pixels = NULL;
+		return TRUE;
+	}
+
 	*locked_pixels = NULL;
 
 	return TRUE;
@@ -525,9 +531,11 @@ static VOID DestroyDirect3DTextureObjects()
 
 // テクスチャの再作成を行う
 //  - ウィンドウの最小化中に描画が行われた場合、テクスチャの作成に失敗している
+//  - その他にもVRAMを確保できなかったと思われるケースが報告された
 static BOOL RecoverTexture(TextureListNode *pTexNode)
 {
-	if(pTexNode->pTex != NULL)
+	// すでにテクスチャをVRAMに転送済みならTRUEを返す
+	if (pTexNode->pTex != NULL)
 		return TRUE;
 
 	// Direct3Dテクスチャオブジェクトを作成する
@@ -539,7 +547,7 @@ static BOOL RecoverTexture(TextureListNode *pTexNode)
 												D3DPOOL_MANAGED,
 												&pTexNode->pTex,
 												NULL);
-	if(FAILED(hResult))
+	if (FAILED(hResult))
 	{
 		pTexNode->pTex = NULL;
 		return FALSE;
@@ -548,15 +556,27 @@ static BOOL RecoverTexture(TextureListNode *pTexNode)
 	// Direct3Dテクスチャオブジェクトの矩形をロックする
 	D3DLOCKED_RECT lockedRect;
 	hResult = pTexNode->pTex->LockRect(0, &lockedRect, NULL, 0);
-	if(!FAILED(hResult))
+	if (FAILED(hResult))
 	{
-		memcpy(lockedRect.pBits, pTexNode->pixels,
-			   pTexNode->width * pTexNode->height * sizeof(pixel_t));
-		pTexNode->pTex->UnlockRect(0);
-		return TRUE;
+		pTexNode->pTex->Release();
+		pTexNode->pTex = NULL;
+		return FALSE;
 	}
 
-	return FALSE;
+	// ピクセルデータをコピーする
+	memcpy(lockedRect.pBits, pTexNode->pixels,
+		   pTexNode->width * pTexNode->height * sizeof(pixel_t));
+
+	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
+	hResult = pTexNode->pTex->UnlockRect(0);
+	if (FAILED(hResult))
+	{
+		pTexNode->pTex->Release();
+		pTexNode->pTex = NULL;
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 //

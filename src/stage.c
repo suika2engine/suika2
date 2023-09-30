@@ -171,6 +171,12 @@ static char *layer_file_name[STAGE_LAYERS - 2];
 /* キャラを暗くするか */
 static bool ch_dim[CH_BASIC_LAYERS];
 
+/* キャラの名前インデックス */
+static int ch_name_mapping[CH_BASIC_LAYERS] = {-1, -1, -1, -1};
+
+/* 発話中のキャラ */
+static int ch_talking = -1;
+
 /*
  * テキストレイヤ
  */
@@ -3240,13 +3246,44 @@ static void draw_fade_shake(void)
  */
 
 /*
- * キャラを暗くするかを設定する
+ * キャラのマッピングを行う
  */
-void set_ch_dim(int pos, bool dim)
+void set_ch_name_mapping(int pos, int ch_name_index)
 {
 	assert(pos >= 0 && pos < CH_BASIC_LAYERS);
 
-	ch_dim[pos] = dim;
+	ch_name_mapping[pos] = ch_name_index;
+}
+
+/*
+ * 発話中のキャラを設定する
+ */
+void set_ch_talking(int ch_name_index)
+{
+	ch_talking = ch_name_index;
+}
+
+/*
+ * キャラを暗くするかを更新する
+ */
+void update_ch_dim(void)
+{
+	int i;
+
+	for (i = 0; i < CH_BASIC_LAYERS; i++) {
+		if (ch_talking == -1)
+			ch_dim[i] = conf_character_focus == 2;
+		else if (ch_name_mapping[i] == -1)
+			ch_dim[i] = conf_character_focus == 2;
+		else if (ch_name_mapping[i] == ch_talking)
+			ch_dim[i] = false;
+		else if (strncmp(conf_character_file[ch_name_mapping[i]],
+				 conf_character_file[ch_talking],
+				 strlen(conf_character_file[ch_talking])) == 0)
+			ch_dim[i] = false;
+		else
+			ch_dim[i] = true;
+	}
 }
 
 /*
@@ -3670,7 +3707,7 @@ static void render_layer_image(int layer)
 		return;
 
 	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
-	    ch_dim[layer_to_chpos(layer)]) {
+	    conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
 		/* 暗く描画する */
 		render_image_dim(layer_x[layer],
 				 layer_y[layer],

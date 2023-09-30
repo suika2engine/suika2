@@ -189,7 +189,6 @@ static bool s2_random(struct wms_runtime *rt)
 
 	assert(rt != NULL);
 
-	srand((unsigned int)time(NULL));
 	rand_value = rand() % 100000;
 
 	/* Set the return value. */

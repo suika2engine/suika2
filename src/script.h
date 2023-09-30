@@ -701,6 +701,9 @@ int get_command_count(void);
 /* スタートアップファイルが指定されたか */
 bool has_startup_file(void);
 
+/* using展開後のコマンドの行番号を取得する(ログ用) */
+int get_expanded_line_num(void);
+
 /* 指定した行番号以降の最初のコマンドインデックスを取得する */
 int get_command_index_from_line_number(int line);
 

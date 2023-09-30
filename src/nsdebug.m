@@ -520,7 +520,7 @@ static void setStoppedState(void);
 
 // スクリプトのテーブルビューをスクロールする
 - (void)scrollScriptTableView {
-    int line = get_line_num();
+    int line = get_expanded_line_num();
     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:line];
     [[self tableViewScript] selectRowIndexes:indexSet byExtendingSelection:NO];
     [[self tableViewScript] scrollRowToVisible:line];
@@ -1093,7 +1093,7 @@ static void setStoppedState(void)
 void update_debug_info(bool script_changed)
 {
     [debugWindowController setScriptName:nsstr(get_script_file_name())];
-    [debugWindowController setScriptLine:get_line_num()];
+    [debugWindowController setScriptLine:get_expanded_line_num()];
     [debugWindowController setCommandText:nsstr(get_line_string())];
 
     if (script_changed)
