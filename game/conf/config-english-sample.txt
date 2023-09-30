@@ -634,7 +634,7 @@ window.fullscreen.disable=0
 # Window maximization (0:enable, 1:disable) (Optional)
 window.maximize.disable=0
 
-# Separator between window title and chapter name (Optional)
+# Separator between window title and chapter name, remember to add a trailing space if desired (Optional)
 window.title.separator= 
 
 # Chapter name (appended to window title) (0:show, 1:hide) (Optional)
