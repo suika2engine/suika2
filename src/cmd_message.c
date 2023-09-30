@@ -1456,8 +1456,7 @@ static void draw_namebox(void)
 /* キャラクタのフォーカスを行う */
 static void focus_character(void)
 {
-	const char *fname;
-	int i, j;
+	int i;
 
 	/* 名前が登録されているキャラクタであるかチェックする */
 	for (i = 0; i < CHARACTER_MAP_COUNT; i++) {
@@ -1469,28 +1468,11 @@ static void focus_character(void)
 			break;
 	}
 	if (i == CHARACTER_MAP_COUNT) {
-		/* 名前が登録されていなかったときは全キャラを暗くしない */
-		for (j = 0; j < CH_BASIC_LAYERS; j++)
-			set_ch_dim(j, false);
-		return;
-	}
-
-	/* すべてのキャラクタについて設定する */
-	for (j = 0; j < CH_BASIC_LAYERS; j++) {
-		/* キャラがロードされていない位置なら飛ばす */
-		fname = get_layer_file_name(chpos_to_layer(j));
-		if (fname == NULL)
-			continue;
-
-		/* キャラのファイル名がマッチするか調べる */
-		if (strncmp(fname, conf_character_file[i],
-			    strlen(conf_character_file[i])) == 0) {
-			/* マッチしたので暗くしない */
-			set_ch_dim(j, false);
-		} else {
-			/* マッチしなかったので暗くする */
-			set_ch_dim(j, true);
-		}
+		set_ch_talking(-1);
+		update_ch_dim();
+	} else {
+		set_ch_talking(i);
+		update_ch_dim();
 	}
 }
 

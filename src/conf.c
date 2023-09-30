@@ -353,7 +353,7 @@ int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
  * キャラクタの名前とファイル名のマッピング
  */
 
-bool conf_character_focus;
+int conf_character_focus;
 char *conf_character_name[CHARACTER_MAP_COUNT];
 char *conf_character_file[CHARACTER_MAP_COUNT];
 

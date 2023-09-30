@@ -368,7 +368,7 @@ extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 
 #define CHARACTER_MAP_COUNT	(32)
 
-extern bool conf_character_focus;
+extern int conf_character_focus;
 extern char *conf_character_name[CHARACTER_MAP_COUNT];
 extern char *conf_character_file[CHARACTER_MAP_COUNT];
 

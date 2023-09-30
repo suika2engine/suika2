@@ -341,7 +341,13 @@ void finish_fade(void);
  */
 
 /* キャラを暗くするかを設定する */
-void set_ch_dim(int pos, bool dim);
+void set_ch_name_mapping(int chpos, int ch_name_index);
+
+/* 発話中のキャラを設定する */
+void set_ch_talking(int ch_name_index);
+
+/* キャラを暗くするかを設定する */
+void update_ch_dim(void);
 
 /*
  * 名前ボックスの描画

@@ -26,6 +26,7 @@ static int fade_method;
 static bool init(void);
 static int get_alpha(const char *alpha_s);
 static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
+static void focus_character(int chpos, const char *fname);
 static void draw(void);
 static bool cleanup(void);
 
@@ -200,9 +201,14 @@ static bool init(void)
 		/* キャラを暗くしない */
 		if (i != BG_INDEX) {
 			if (conf_character_focus == 1)
-				set_ch_dim(i, false);
+				focus_character(i, fname[i]);
 		}
 	}
+
+	/* キャラの発話中状態を更新する */
+	if (conf_character_focus == 1)
+		set_ch_talking(-1);
+	update_ch_dim();
 
 	/* ルールが使用される場合 */
 	if (fade_method == FADE_METHOD_RULE ||
@@ -289,6 +295,26 @@ static void get_position(int *xpos, int *ypos, int chpos, struct image *img)
 
 	/* 縦方向の位置を求める */
 	*ypos = img != NULL ? conf_window_height - get_image_height(img) : 0;
+}
+
+/* キャラクタのフォーカスを行う */
+static void focus_character(int chpos, const char *fname)
+{
+	int i;
+
+	/* 名前が登録されているキャラクタであるかチェックする */
+	for (i = 0; i < CHARACTER_MAP_COUNT; i++) {
+		if (conf_character_name[i] == NULL)
+			continue;
+		if (conf_character_file[i] == NULL)
+			continue;
+		if (strncmp(conf_character_file[i], fname, strlen(conf_character_file[i])) == 0)
+			break;
+	}
+	if (i == CHARACTER_MAP_COUNT)
+		i = -1;
+
+	set_ch_name_mapping(chpos, i);
 }
 
 /* 描画を行う */

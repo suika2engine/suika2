@@ -22,6 +22,7 @@ static bool get_position(const char *pos, struct image *img, int ofs_x,
 			 int ofs_y, int *chpos, int *xpos, int *ypos);
 static int get_alpha(const char *alpha);
 int chpos_to_layer(int chpos);
+static void focus_character(int chpos, const char *fname);
 static void draw(void);
 static bool cleanup(void);
 
@@ -123,11 +124,8 @@ static bool init(void)
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
 
-	/* 登場したばかりのキャラは暗くしない */
-	if (chpos != CH_FACE) {
-		if (conf_character_focus == 1)
-			set_ch_dim(chpos, false);
-	}
+	/* 発話中以外のキャラを暗くする */
+	focus_character(chpos, fname);
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {
@@ -236,6 +234,29 @@ static int get_alpha(const char *alpha)
 		return 0;
 	else
 		return atoi(alpha);
+}
+
+/* キャラクタのフォーカスを行う */
+static void focus_character(int chpos, const char *fname)
+{
+	int i;
+
+	/* 名前が登録されているキャラクタであるかチェックする */
+	for (i = 0; i < CHARACTER_MAP_COUNT; i++) {
+		if (conf_character_name[i] == NULL)
+			continue;
+		if (conf_character_file[i] == NULL)
+			continue;
+		if (strncmp(conf_character_file[i], fname, strlen(conf_character_file[i])) == 0)
+			break;
+	}
+	if (i == CHARACTER_MAP_COUNT)
+		i = -1;
+
+	set_ch_name_mapping(chpos, i);
+	if (conf_character_focus == 1 && i == -1)
+		set_ch_talking(-1);
+	update_ch_dim();
 }
 
 /* 描画を行う */
