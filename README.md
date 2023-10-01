@@ -23,9 +23,7 @@ Don't have a Discord account or would prefer to speak formally? Send an e-mail t
 
 ## Portability
 
-Official builds of Suika2 run on Windows, Mac, Linux and Web browsers.
-
-The source code can be compiled for Windows, Mac, iPhone, iPad, Android, Linux, FreeBSD, NetBSD and Switch.
+Suika2 runs on Windows, macOS, Web browsers, iPhone, iPad, Android, Linux, FreeBSD, NetBSD and Switch.
 
 Suika2 consists of the platform independent layer (PIL) and the hardware abstraction layer (HAL).
 PIL is written in ANSI C, the most portable language in the world.
@@ -33,18 +31,20 @@ HAL is currently written in C, C++, Objective-C and Java.
 
 If you would like to port Suika2 to a new target platform, you are only required to write a HAL.
 
+FYI: We don't use SDL2 and it takes less than a week to port to platforms that do not support SDL2.
+
 ## Suika2 Pro
 
-[Suika2 Pro](https://github.com/suika2engine/suika2/wiki/5.-Suika2-Pro-for-Creators) is a Suika2's sister app.
-This is a visual tool for Windows and Mac that provides developers with a debugging capability and a package export function.
+Suika2 Pro is a developer tool for Suika2, available for Windows/macOS/Linux.
+It provides developers with a debugging capability and an export function.
 
 ## Suika2 Kirara
 
-[Suika2 Kirara](https://github.com/suika2engine/kirara) is a Suika2's sister app too.
-This tool provides a capability to edit Suika2 scripts in a window with mouse operations.
-If you are not familiar with scripting, please consider using Kirara.
+Suika2 Kirara is a GUI wrapper of Suika2.
+It provides a capability to edit Suika2 scripts in a window with mouse operations.
+If you are not familiar with scripting, please consider using it at first to get used to scripting.
 
-**Note**: Kirara is still beta and we recommend for you to write scripts.
+**Note**: Kirara is still beta. In addition, it is not suitable for real use.
 
 ## Binary Distribution
 
@@ -58,10 +58,12 @@ See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/R
 
 ## CI
 
+We do CI.
 If you would like to try development versions before release,
 please go to [Github Actions](https://github.com/ktabata/suika2/actions/workflows/suika-windows.yml) and check artifacts.
 
-We do CI, but we don't make releases automatically because our Certum code signing certificate can't be used in GitHub Actions.
+We don't make releases automatically due to a code signing issue.
+The `Certum code signing certificate in the cloud` we use cannot be used in GitHub Actions.
 
 ## License
 
@@ -93,19 +95,15 @@ See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) fo
   ```
 
 * On iPhone/iPad (iOS):
-  * Build from the source code using Xcode.
-  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
+  * Export your game from `Suika2 Pro for Windows`
+  * Build your game using Xcode
 
 * On Android:
-  * A sample game is available on [Google Play](https://play.google.com/store/apps/details?id=jp.luxion.suika&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1).
-  * To make your own game, you have to build from the source code using Android Studio.
-  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
+  * Export your game from `Suika2 Pro for Windows`
+  * Build your game using `Android Studio`
+  * FYI: A sample game is available on [Google Play](https://play.google.com/store/apps/details?id=jp.luxion.suika&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1).
 
-* On FreeBSD and NetBSD:
-  * Build from the source code.
-  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
-
-* On Switch Homebrew:  
+* Other platforms (Switch Homebrew, FreeBSD and NetBSD)
   * Build from the source code.
   * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
 
