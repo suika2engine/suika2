@@ -355,7 +355,7 @@ static void skip_if_needed(struct wave *w, int sample_bytes)
 	uint32_t buf[1024];
 	size_t remain_samples;
 	size_t get_samples;
-	int ret_bytes;
+	long ret_bytes;
 	int bitstream;
 
 	if (!w->do_skip || w->loop_start == 0)
