@@ -2,7 +2,7 @@
 
 /*
  * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  * 2004/01/10 LXVorbisInputStream (2003/6を元に改造)
  * 2016/06/04 struct wave
  * 2016/06/17 vorbisfileに書き換え
+ * 2023/10/01 LOOPSTARTに対応
  */
 
 #include "suika.h"
@@ -40,13 +41,16 @@ struct wave {
 	/* 入力ファイル */
 	char *dir;
 	char *file;
+	struct rfile *rf;
 	bool loop;
+	uint32_t loop_start;
 	int times;	/* loop=trueのとき、-1なら無限、0以上は残り回数 */
 	bool monaural;
 
 	/* 状態 */
 	bool eos;
 	bool err;
+	bool do_skip;
 
 	/* Vorbisのオブジェクト */
 	OggVorbis_File ovf;
@@ -55,12 +59,13 @@ struct wave {
 /*
  * 前方参照
  */
-static bool reopen(struct wave *w);
+static bool reopen(struct wave *w, bool loop);
 static size_t read_func(void *ptr, size_t size, size_t nmemb,
 			void *datasource);
 static int close_func(void *datasource);
 static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples);
 static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples);
+static void skip_if_needed(struct wave *w, int sample_bytes);
 
 /*
  * ファイルからPCMストリームを作成する
@@ -70,6 +75,11 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 {
 	struct wave *w;
 	vorbis_info *vi;
+	vorbis_comment *vc;
+	int i;
+
+	const char *LOOPSTART = "LOOPSTART=";
+	const size_t LOOPSTARTLEN = strlen(LOOPSTART);
 
 	UNUSED_PARAMETER(OV_CALLBACKS_DEFAULT);
 	UNUSED_PARAMETER(OV_CALLBACKS_NOCLOSE);
@@ -101,32 +111,48 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 	}
 
 	/* ファイルをオープンする */
-	if (!reopen(w))
+	if (!reopen(w, false))
 		return NULL;
-	
+
 	/* TODO: ov_info()でサンプリングレートとチャンネル数をチェック */
 	vi = ov_info(&w->ovf, -1);
 	w->monaural = vi->channels == 1 ? true : false;
 
 	/* wave構造体を初期化する */
 	w->loop = loop;
+	w->loop_start = 0;
 	w->times = -1;
 	w->eos = false;
+	w->err = false;
+	w->do_skip = false;
+
+	/* LOOPSTARTとLOOPLENGTHを取得する */
+	vc = ov_comment(&w->ovf, -1);
+	if (vc != NULL) {
+		for (i = 0; i < vc->comments; i++) {
+			if (strncmp(vc->user_comments[i], LOOPSTART,
+				    LOOPSTARTLEN) == 0) {
+				w->loop = true;
+				w->loop_start = (uint32_t)atol(
+					vc->user_comments[i] + LOOPSTARTLEN);
+				break;
+			}
+		}
+	}
 
 	/* 成功 */
 	return w;
 }
 
 /* ファイルをリオープンする */
-static bool reopen(struct wave *w)
+static bool reopen(struct wave *w, bool loop)
 {
-	struct rfile *rf;
 	ov_callbacks cb;
 	int err;
 
 	/* ファイル入力ストリームを開く */
-	rf = open_rfile(w->dir, w->file, false);
-	if (rf == NULL) {
+	w->rf = open_rfile(w->dir, w->file, false);
+	if (w->rf == NULL) {
 		free(w->file);
 		free(w->dir);
 		free(w);
@@ -138,7 +164,7 @@ static bool reopen(struct wave *w)
 	cb.close_func = close_func;
 	cb.seek_func = NULL;
 	cb.tell_func = NULL;
-	err = ov_open_callbacks(rf, &w->ovf, NULL, 0, cb);
+	err = ov_open_callbacks(w, &w->ovf, NULL, 0, cb);
 	if (err != 0) {
 		log_audio_file_error(w->dir, w->file);
 		free(w->file);
@@ -147,21 +173,23 @@ static bool reopen(struct wave *w)
 		return false;
 	}
 
+	w->do_skip = loop;
+
 	return true;
 }
 
 /* ファイル読み込みコールバック */
 static size_t read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-	struct rfile *rf;
+	struct wave *w;	
 	size_t len;
 
 	assert(ptr != NULL);
 	assert(datasource != NULL);
 
-	rf = (struct rfile *)datasource;
+	w = (struct wave *)datasource;
 
-	len = read_rfile(rf, ptr, size * nmemb);
+	len = read_rfile(w->rf, ptr, size * nmemb);
 
 	return len / size;
 }
@@ -169,9 +197,13 @@ static size_t read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
 /* ファイルクローズコールバック */
 static int close_func(void *datasource)
 {
+	struct wave *w;
+
 	assert(datasource != NULL);
 
-	close_rfile((struct rfile *)datasource);
+	w = (struct wave *)datasource;
+
+	close_rfile(w->rf);
 
 	return 0;
 }
@@ -234,6 +266,9 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 	retain = 0;
 	last_ret_bytes = -1;
 	while (retain < samples) {
+		/* LOOPSTARTのためのスキップを処理する */
+		skip_if_needed(w, 2);
+
 		/* デコードする */
 		read_bytes = (samples - retain) * 2 > 4096 ? 4096 :
 			     (samples - retain) * 2;
@@ -246,7 +281,7 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 				if (last_ret_bytes == 0)
 					return 0; 	/* エラー */
 				ov_clear(&w->ovf);
-				if (!reopen(w))
+				if (!reopen(w, true))
 					return 0;	/* エラー */
 				last_ret_bytes = ret_bytes;
 				if (w->times != -1)
@@ -282,6 +317,9 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 	retain = 0;
 	last_ret_bytes = -1;
 	while (retain < samples) {
+		/* LOOPSTARTのためのスキップを処理する */
+		skip_if_needed(w, 2);
+
 		/* デコードする */
 		ret_bytes = ov_read(&w->ovf, (char *)(buf + retain),
 				    (samples - retain) * 4, 0, 2, 1,
@@ -293,7 +331,7 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 				if (last_ret_bytes == 0)
 					return 0; 	/* エラー */
 				ov_clear(&w->ovf);
-				if (!reopen(w))
+				if (!reopen(w, true))
 					return 0;	/* エラー */
 				last_ret_bytes = ret_bytes;
 				if (w->times != -1)
@@ -309,4 +347,36 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 
 	/* 指定されたサンプル数の分だけ取得できた */
 	return samples;
+}
+
+/* LOOPSTART分をスキップする */
+static void skip_if_needed(struct wave *w, int sample_bytes)
+{
+	uint32_t buf[1024];
+	size_t remain_samples;
+	size_t get_samples;
+	long ret_bytes;
+	int bitstream;
+
+	if (!w->do_skip || w->loop_start == 0)
+		return;
+
+	remain_samples = w->loop_start;
+	while (remain_samples > 0) {
+		get_samples = remain_samples > 1024 ? 1024 : remain_samples;
+
+		ret_bytes = ov_read(&w->ovf,
+				    (char *)buf,
+				    (int)get_samples * sample_bytes,
+				    0,
+				    2,
+				    1,
+				    &bitstream);
+		if (ret_bytes <= 0)
+			break;
+
+		remain_samples -= (size_t)(ret_bytes / sample_bytes);
+	}
+
+	w->do_skip = false;
 }
