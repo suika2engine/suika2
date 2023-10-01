@@ -74,12 +74,12 @@ if [ -z "`uname | grep Darwin`" ]; then
 	echo "       This information is utilized to build macOS apps by ssh.";
 	exit 1;
     fi;
-    MACOS_HOST_IP="";
-    until [ -z "$MACOS_HOST_IP" ]; do \
-	echo "Acquiring the macOS host IP...";
-	MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`;
-    done;
-
+    MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`;
+    if [ -z "$MACOS_USER" ]; then
+	echo "Error: Cannot resolve the IP address for the macOS host $MACOS_HOST.";
+	echo "       Try again.";
+	exit 1;
+    fi;
     if [ -z "$MACOS_USER" ]; then
 	echo "Error: Please specify MACOS_USER in build/.env";
 	echo "       This information is utilized to determine your home directory.";
