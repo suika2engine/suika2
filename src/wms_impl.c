@@ -189,7 +189,7 @@ static bool s2_random(struct wms_runtime *rt)
 
 	assert(rt != NULL);
 
-	rand_value = rand() % 100000;
+	rand_value = (int)((float)rand() / (float)RAND_MAX * 99999);
 
 	/* Set the return value. */
 	if (!wms_make_int_var(rt, "__return", rand_value, NULL))
