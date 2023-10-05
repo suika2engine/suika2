@@ -407,6 +407,7 @@ extern int conf_sysmenu_transition;
 extern int conf_msgbox_history_disable;
 extern int conf_serif_color_name_only;
 extern int conf_release;
+extern char *conf_sav_name;
 
 /* conf_localeを設定する */
 void init_locale_code(void);

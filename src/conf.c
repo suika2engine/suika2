@@ -421,6 +421,9 @@ int conf_serif_color_name_only;
 /* リリース版であるか */
 int conf_release;
 
+/* Web公開時のセーブフォルダ名 */
+char *conf_sav_name;
+
 /*
  * 1行のサイズ
  */
@@ -1296,6 +1299,7 @@ static struct rule {
 	{"sysmenu.transition", 'i', &conf_sysmenu_transition, OPTIONAL, SAVE},
 	{"msgbox.history.disable", 'i', &conf_msgbox_history_disable, OPTIONAL, SAVE},
 	{"serif.color.name.only", 'i', &conf_serif_color_name_only, OPTIONAL, SAVE},
+	{"sav.name", 's', &conf_sav_name, OPTIONAL, NOSAVE},
 	{"release", 'i', &conf_release, OPTIONAL, NOSAVE},
 };
 

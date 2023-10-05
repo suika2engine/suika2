@@ -70,12 +70,26 @@ static EM_BOOL cb_touchend(int eventType,
  */
 int main(void)
 {
+	/* ロケールを初期化する */
+	init_locale_code();
+
+	/* パッケージの初期化処理を行う */
+	if(!init_file())
+		return 1;
+
+	/* コンフィグの初期化処理を行う */
+	if(!init_conf())
+		return 1;
+
+	if (conf_sav_name == NULL)
+		conf_sav_name = "/sav";
+
 	/* セーブデータを読み込む */
-	EM_ASM_(
-		FS.mkdir('/sav');
-		FS.mount(IDBFS, {}, '/sav');
+	EM_ASM_({
+		FS.mkdir(UTF8ToString($0));
+		FS.mount(IDBFS, {}, UTF8ToString($0));
 		FS.syncfs(true, function (err) { ccall('main_continue', 'v'); });
-	);
+	}, conf_sav_name);
 
 	/* 読み込みは非同期で、main_continue()に継続される */
 	emscripten_exit_with_live_runtime();
@@ -87,17 +101,6 @@ int main(void)
  */
 EMSCRIPTEN_KEEPALIVE void main_continue(void)
 {
-	/* ロケールを初期化する */
-	init_locale_code();
-
-	/* パッケージの初期化処理を行う */
-	if(!init_file())
-		return;
-
-	/* コンフィグの初期化処理を行う */
-	if(!init_conf())
-		return;
-	
 	/* サウンドの初期化処理を行う */
 	if (!init_openal())
 		return;
@@ -578,7 +581,7 @@ char *make_valid_path(const char *dir, const char *fname)
 	if (dir == NULL)
 		dir = "";
 	if (strcmp(dir, SAVE_DIR) == 0)
-		dir = "/sav";
+		dir = conf_sav_name;
 
 	/* パスのメモリを確保する */
 	len = strlen(dir) + 1 + strlen(fname) + 1;
