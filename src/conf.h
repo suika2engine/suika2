@@ -383,6 +383,13 @@ extern float conf_kirakira_frame;
 extern char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 
 /*
+ * config.txtには公開されないコンフィグ
+ */
+
+/* 最後にセーブ/ロードしたページ */
+extern int conf_gui_save_last_page;
+
+/*
  * その他の設定
  */
 extern int conf_voice_stop_off;
