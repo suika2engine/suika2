@@ -1,4 +1,4 @@
-<img src="https://github.com/heya-kyou/suika2/raw/master/doc/img/main_repo.png" width="100%">
+<img src="https://github.com/suika2engine/suika2/raw/master/doc/img/main_repo.png" width="100%">
 
 <!-- Content -->
 [![Release](https://img.shields.io/github/release/suika2engine/suika2?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/releases/latest)
