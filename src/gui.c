@@ -368,7 +368,7 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command,
 	memset(button, 0, sizeof(button));
 
 	/* 初期値を設定する */
-	save_page = 0;
+	save_page = conf_gui_save_last_page;
 	save_slots = 0;
 	history_slots = 0;
 	history_top = -1;
@@ -1653,6 +1653,9 @@ static void process_save(int button_index)
 	/* セーブを実行する */
 	execute_save(data_index);
 
+	/* 最後にセーブしたページを保存する */
+	conf_gui_save_last_page = save_page;
+
 	/*
 	 * セーブ直後に上書きダイアログのボタンをクリックするためにマウスが
 	 * 移動され、ポイント項目が変わってしまい、セーブボタンのSEがかき消さ
@@ -1675,6 +1678,9 @@ static void process_load(int button_index)
 
 	/* ロードを実行する */
 	execute_load(data_index);
+
+	/* 最後にロードしたページを保存する */
+	conf_gui_save_last_page = save_page;
 }
 
 /* セーブ・ロードボタンの描画を行う */

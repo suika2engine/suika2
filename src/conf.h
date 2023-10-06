@@ -383,6 +383,13 @@ extern float conf_kirakira_frame;
 extern char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 
 /*
+ * config.txtには公開されないコンフィグ
+ */
+
+/* 最後にセーブ/ロードしたページ */
+extern int conf_gui_save_last_page;
+
+/*
  * その他の設定
  */
 extern int conf_voice_stop_off;
@@ -400,6 +407,7 @@ extern int conf_sysmenu_transition;
 extern int conf_msgbox_history_disable;
 extern int conf_serif_color_name_only;
 extern int conf_release;
+extern char *conf_sav_name;
 
 /* conf_localeを設定する */
 void init_locale_code(void);

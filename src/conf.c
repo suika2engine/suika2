@@ -366,6 +366,13 @@ float conf_kirakira_frame;
 char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 
 /*
+ * config.txtには公開されないコンフィグ
+ */
+
+/* 最後にセーブ/ロードしたページ */
+int conf_gui_save_last_page;
+
+/*
  * その他の設定
  */
 
@@ -413,6 +420,9 @@ int conf_serif_color_name_only;
 
 /* リリース版であるか */
 int conf_release;
+
+/* Web公開時のセーブフォルダ名 */
+char *conf_sav_name;
 
 /*
  * 1行のサイズ
@@ -1274,6 +1284,7 @@ static struct rule {
 	{"kirakira.file14", 's', &conf_kirakira_file[13], OPTIONAL, SAVE},
 	{"kirakira.file15", 's', &conf_kirakira_file[14], OPTIONAL, SAVE},
 	{"kirakira.file16", 's', &conf_kirakira_file[15], OPTIONAL, SAVE},
+	{"gui.save.last.page", 'i', &conf_gui_save_last_page, OPTIONAL, SAVE},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, OPTIONAL, SAVE},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, OPTIONAL, SAVE},
 	{"window.maximize.disable", 'i', &conf_window_maximize_disable, OPTIONAL, SAVE},
@@ -1288,6 +1299,7 @@ static struct rule {
 	{"sysmenu.transition", 'i', &conf_sysmenu_transition, OPTIONAL, SAVE},
 	{"msgbox.history.disable", 'i', &conf_msgbox_history_disable, OPTIONAL, SAVE},
 	{"serif.color.name.only", 'i', &conf_serif_color_name_only, OPTIONAL, SAVE},
+	{"sav.name", 's', &conf_sav_name, OPTIONAL, NOSAVE},
 	{"release", 'i', &conf_release, OPTIONAL, NOSAVE},
 };
 
@@ -1296,6 +1308,7 @@ static struct rule {
 /* グローバルセーブデータに保存するキーのテーブル */
 const char *global_tbl[] = {
 	"locale.force",
+	"gui.save.last.page",
 };
 
 #define GLOBAL_TBL_SIZE	((int)(sizeof(global_tbl) / sizeof(const char*)))
