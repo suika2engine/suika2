@@ -1,8 +1,4 @@
-<!-- Header -->
-<div align="center">
-  <img src="https://suika2.com/img/AppIcon.png" width="100" height="100"/>
-  <h1>Suika2</h1>
-</div>
+<img src="https://github.com/heya-kyou/suika2/raw/master/doc/img/main_repo.png" width="100%">
 
 <!-- Content -->
 [![Release](https://img.shields.io/github/release/suika2engine/suika2?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/releases/latest)
@@ -44,13 +40,13 @@ Suika2 Kirara is a GUI wrapper of Suika2.
 It provides a capability to edit Suika2 scripts in a window with mouse operations.
 If you are not familiar with scripting, please consider using it at first to get used to scripting.
 
-**Note**: Kirara is still beta. In addition, it is not suitable for real use.
+**Note**: Kirara is still in beta. In addition, it is not suitable for production use.
 
 ## Binary Distribution
 
-Download the latest release from [the official site](https://suika2.com/en/).
+Download the latest release from [the official website](https://suika2.com/en/).
 
-**Note:** We provide a zip file that contains binaries for Windows, macOS, Web and Linux.
+**Note:** We provide a zip file that contains binaries for Windows, macOS, Web, and Linux.
 
 ## Building from Source
 
@@ -59,17 +55,17 @@ See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/R
 ## CI
 
 We do CI.
-If you would like to try development versions before release,
+If you would like to try development versions before they release,
 please go to [Github Actions](https://github.com/ktabata/suika2/actions/workflows/suika-windows.yml) and check artifacts.
 
-We don't make releases automatically due to a code signing issue.
-The `Certum code signing certificate in the cloud` we use cannot be used in GitHub Actions.
+Due to a code signing issue, we don't create automatic releases.
+The `Certum code signing certificate in the cloud` we use cannot be used with GitHub Actions.
 
 ## License
 
 This software is released under the MIT license.
 You can redistribute this software commercially.
-See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for the all licenses including the dependency libraries.
+See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for the all licenses including dependency libraries.
 
 ## Usage
 
@@ -116,7 +112,7 @@ See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) fo
 
 ## Contribution
 
-Please submit issues light-heartedly as any and all feedback is welcome.
+Please feel free to submit any issues as any and all feedback is appreciated!
 
 ## What does "suika" mean?
 
@@ -130,5 +126,5 @@ Suika2 is the successor to "Suika Studio":
 
 ## Trivia
 
-Did you know...
-* Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform?
+Did you know that...
+* Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform!
