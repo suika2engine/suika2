@@ -65,7 +65,7 @@ The `Certum code signing certificate in the cloud` we use cannot be used with Gi
 
 This software is released under the MIT license.
 You can redistribute this software commercially.
-See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for the all licenses including dependency libraries.
+See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for all licenses including those of dependency libraries.
 
 ## Usage
 
