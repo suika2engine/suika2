@@ -341,7 +341,6 @@ mkdir suika2/mov
 mkdir suika2/se && cp -Rv ../game/se/* suika2/se/
 mkdir suika2/txt && cp -Rv ../game/txt/*.txt suika2/txt/
 mkdir suika2/wms && cp -Rv ../game/wms/*.txt suika2/wms/
-cp -v ../doc/COPYING suika2/
 cp -v ../doc/readme-jp.html suika2/README.html
 cp -v ../doc/readme-en.html suika2/README-english.html
 mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/

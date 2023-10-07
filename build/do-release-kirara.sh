@@ -2,35 +2,45 @@
 
 set -eu
 
-#
-# Settings
-#
-
-# Path to cmd.exe (we use an absolute path for a bad PATH variable)
-CMDEXE='/mnt/c/Windows/system32/cmd.exe'
-
-# Path to signtool.exe (we will find a suitable version)
-SIGNTOOL=`find '/mnt/c/Program Files (x86)/Windows Kits/10/bin' -name 'signtool.exe' | grep 'x86/signtool.exe' | tail -n1 | tr -d '\r\n'`
-
 # Signature for code signing (you can modify here)
 SIGNATURE="Open Source Developer, Keiichi Tabata"
 
 #
-# Input a version number.
+# Welcome.
 #
-echo "Enter version e.g. 13.0"
-read str
-VERSION=$str
-if [ ! -n "$VERSION" ]; then
-    echo "Please enter a version string.";
-    exit 1;
-fi
+echo ""
+echo "Hello, this is the Kirara Release Manager."
+
+#
+# Guess the version number.
+#
+VERSION=`grep -a1 '<!-- BEGIN-LATEST -->' ../doc/readme-jp.html | tail -n1`
+VERSION=`echo $VERSION | cut -d '>' -f 2 | cut -d ' ' -f 1`
+VERSION=`echo $VERSION | cut -d '/' -f 2`
 
 #
 # Confirmation.
 #
-echo "Are you sure you want to release $VERSION? (press return)"
+echo "Are you sure you want to release Kirara $VERSION?"
+echo ""
+echo "Press enter to proceed:"
 read str
+
+#
+# Search signtool.exe.
+#
+echo "Searching Windows Kits..."
+
+# Path to signtool.exe (we will find a suitable version)
+SIGNTOOL=`find '/mnt/c/Program Files (x86)/Windows Kits/10/bin' -name 'signtool.exe' | grep 'x86/signtool.exe' | tail -n1 | tr -d '\r\n'`
+if [ -z "$SIGNTOOL" ]; then
+    echo "signtool.exe not found.";
+else
+    echo "signtool.exe found.";
+fi
+
+# Set the path to cmd.exe (we use an absolute path for a bad PATH variable)
+CMDEXE='/mnt/c/Windows/system32/cmd.exe'
 
 #
 # Load credentials from .env file.
@@ -52,11 +62,12 @@ if [ -z "`uname | grep Darwin`" ]; then
 	echo "       This information is utilized to build macOS apps by ssh.";
 	exit 1;
     fi;
-    MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`
-    if [ -z "$MACOS_HOST_IP" ]; then
-	echo "Error: Could not resolve host name $MACOS_HOST. It may be a problem of mDNS. Try again.";
+    MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`;
+    if [ -z "$MACOS_USER" ]; then
+	echo "Error: Cannot resolve the IP address for the macOS host $MACOS_HOST.";
+	echo "       Try again.";
 	exit 1;
-    fi
+    fi;
     if [ -z "$MACOS_USER" ]; then
 	echo "Error: Please specify MACOS_USER in build/.env";
 	echo "       This information is utilized to determine your home directory.";
