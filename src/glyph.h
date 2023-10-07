@@ -66,6 +66,9 @@ int get_glyph_height(int font_type, int font_size, uint32_t codepoint);
 /* 文字列を描画した際の幅を取得する */
 int get_string_width(int font_type, int font_size, const char *mbs);
 
+/* 文字列を描画した際の高さを取得する */
+int get_string_height(int font_type, int font_size, const char *mbs);
+
 /* 文字の描画を行う */
 bool draw_glyph(struct image *img,
 		int font_type,

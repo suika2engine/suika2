@@ -253,7 +253,7 @@ static void update_switch_parent(int *x, int *y, int *w, int *h);
 static void draw_fo_fi_child(void);
 static void draw_switch_child_images(void);
 static void update_switch_child(int *x, int *y, int *w, int *h);
-static void draw_text(int x, int y, int w, const char *t, bool is_news);
+static void draw_text(int x, int y, int w, int h, const char *t, bool is_news);
 static void draw_keep(void);
 
 /* システムメニュー */
@@ -1121,7 +1121,8 @@ void draw_switch_parent_images(void)
 
 		/* テキストを描画する */
 		draw_text(parent_button[i].x, parent_button[i].y,
-			  parent_button[i].w, parent_button[i].msg, is_news);
+			  parent_button[i].w, parent_button[i].h,
+			  parent_button[i].msg, is_news);
 	}
 }
 
@@ -1184,7 +1185,8 @@ void draw_switch_child_images(void)
 
 		/* テキストを描画する */
 		draw_text(child_button[i][j].x, child_button[i][j].y,
-			  child_button[i][j].w, child_button[i][j].msg, false);
+			  child_button[i][j].w, child_button[i][j].h,
+			  child_button[i][j].msg, false);
 	}
 }
 
@@ -1218,7 +1220,7 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 }
 
 /* 選択肢のテキストを描画する */
-static void draw_text(int x, int y, int w, const char *text, bool is_news)
+static void draw_text(int x, int y, int w, int h, const char *text, bool is_news)
 {
 	struct draw_msg_context context;
 	pixel_t active_color, active_outline_color;
@@ -1268,11 +1270,22 @@ static void draw_text(int x, int y, int w, const char *text, bool is_news)
 
 	/* 描画位置を決める */
 	if (is_centered) {
-		x = x + (w - get_string_width(conf_switch_font_select,
-					      font_size,
-					      text)) / 2;
+		if (!conf_msgbox_tategaki) {
+			x = x + (w - get_string_width(conf_switch_font_select,
+						      font_size,
+						      text)) / 2;
+			y += conf_switch_text_margin_y;
+		} else {
+			x = x + (w - font_size) / 2;
+			y = y + (h - get_string_height(conf_switch_font_select,
+						      font_size,
+						      text)) / 2;
+		}
+	} else {
+		y += is_news ?
+			conf_news_text_margin_y :
+			conf_switch_text_margin_y;
 	}
-	y += is_news ? conf_news_text_margin_y : conf_switch_text_margin_y;
 
 	/* FIレイヤに選択時の色で文字を描画する */
 	construct_draw_msg_context(

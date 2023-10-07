@@ -919,7 +919,7 @@ static bool init_msg_top(void)
 
 	/* セリフの場合、実際に表示するメッセージを修飾する */
 	if (is_serif) {
-		if (conf_namebox_hidden || conf_msgbox_tategaki) {
+		if (conf_namebox_hidden) {
 			/* 名前とカギカッコを付加する */
 			msg_top = concat_serif(name_top, exp_msg);
 			if (msg_top == NULL) {
@@ -1252,7 +1252,7 @@ static bool init_serif(int *x, int *y, int *w, int *h)
 	}
 
 	/* 名前を描画する */
-	if (!conf_namebox_hidden && !conf_msgbox_tategaki)
+	if (!conf_namebox_hidden)
 		draw_namebox();
 
 	/* 名前ボックスを表示する */
@@ -1399,11 +1399,19 @@ static void draw_namebox(void)
 
 	/* 描画位置を決める */
 	if (!conf_namebox_centering_no) {
-		pen_x = (namebox_width -
-			 get_string_width(conf_namebox_font_select,
-					  font_size,
-					  name_top)) / 2;
-		pen_y = conf_namebox_margin_top;
+		if (!conf_msgbox_tategaki) {
+			pen_x = (namebox_width -
+				 get_string_width(conf_namebox_font_select,
+						  font_size,
+						  name_top)) / 2;
+			pen_y = conf_namebox_margin_top;
+		} else {
+			pen_x = conf_namebox_margin_left;
+			pen_y = (namebox_height -
+				 get_string_height(conf_namebox_font_select,
+						  font_size,
+						  name_top)) / 2;
+		}
 	} else {
 		pen_x = conf_namebox_margin_left;
 		pen_y = conf_namebox_margin_top;
@@ -1444,7 +1452,7 @@ static void draw_namebox(void)
 		false,			/* ignore_ruby */
 		true,			/* ignore_wait */
 		NULL,			/* inline_wait_hook */
-		false);			/* use_tategaki */
+		conf_msgbox_tategaki);	/* use_tategaki */
 
 	/* 名前の文字数を取得する */
 	char_count = count_chars_common(&context);
