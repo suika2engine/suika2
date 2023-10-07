@@ -122,6 +122,14 @@ static void draw(int *x, int *y, int *w, int *h)
 /* 終了処理を行う */
 static bool cleanup(void)
 {
+	int i;
+
+	/* 同期処理の場合、アニメシーケンスをクリアする */
+	if (!is_async) {
+		for (i = 0; i < ANIME_LAYER_COUNT; i++)
+			clear_anime_sequence(i);
+	}
+
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())
 		return false;
