@@ -472,6 +472,43 @@ int get_string_width(int font_type, int font_size, const char *mbs)
 }
 
 /*
+ * 文字列を描画した際の高さを取得する
+ */
+int get_string_height(int font_type, int font_size, const char *mbs)
+{
+	uint32_t c;
+	int mblen, w;
+
+	/* 1文字ずつ描画する */
+	w = 0;
+	c = 0; /* warning avoidance on gcc 5.3.1 */
+	while (*mbs != '\0') {
+		/* エスケープシーケンスをスキップする */
+		while (*mbs == '\\') {
+			if (*(mbs + 1) == 'n') {
+				mbs += 2;
+				continue;
+			}
+			while (*mbs != '\0' && *mbs != '}')
+				mbs++;
+			mbs++;
+		}
+
+		/* 文字を取得する */
+		mblen = utf8_to_utf32(mbs, &c);
+		if (mblen == -1)
+			return -1;
+
+		/* 高さを取得する */
+		w += get_glyph_height(font_type, font_size, c);
+
+		/* 次の文字へ移動する */
+		mbs += mblen;
+	}
+	return w;
+}
+
+/*
  * 文字の描画を行う
  */
 
