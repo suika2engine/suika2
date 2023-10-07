@@ -13,6 +13,7 @@
  *  - FIXME: memory leaks when the app successfully exits.
  */
 
+static bool is_stage_pushed;
 static char *saved_layer_file_name[LAYER_EFFECT4 + 1];
 static int saved_layer_x[LAYER_EFFECT4 + 1];
 static int saved_layer_y[LAYER_EFFECT4 + 1];
@@ -323,6 +324,8 @@ static bool s2_push_stage(struct wms_runtime *rt)
 
 	UNUSED_PARAMETER(rt);
 
+	is_stage_pushed = true;
+
 	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
 		/* Exclude the following layers. */
 		switch (i) {
@@ -367,6 +370,10 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 	int i;
 
 	UNUSED_PARAMETER(rt);
+
+	if (!is_stage_pushed)
+		return true;
+	is_stage_pushed = false;
 
 	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
 		/* Exclude the following layers. */
@@ -446,7 +453,13 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 
 		set_layer_position(i, saved_layer_x[i], saved_layer_y[i]);
 		set_layer_alpha(i, saved_layer_alpha[i]);
+
+		if (saved_layer_file_name[i] != NULL) {
+			free(saved_layer_file_name[i]);
+			saved_layer_file_name[i] = NULL;
+		}
 	}
+
 	return true;
 }
 
