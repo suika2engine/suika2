@@ -1274,7 +1274,7 @@ static void draw_text(int x, int y, int w, int h, const char *text, bool is_news
 			x = x + (w - get_string_width(conf_switch_font_select,
 						      font_size,
 						      text)) / 2;
-			y = y + (h - font_size) / 2;
+			y += conf_switch_text_margin_y;
 		} else {
 			x = x + (w - font_size) / 2;
 			y = y + (h - get_string_height(conf_switch_font_select,
