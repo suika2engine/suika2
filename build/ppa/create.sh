@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -eu
+
+# Get the version of Suika2.
+VERSION=`grep -a1 '<!-- BEGIN-LATEST -->' ../../doc/readme-jp.html | tail -n1`
+VERSION=`echo $VERSION | cut -d '>' -f 2 | cut -d ' ' -f 1`
+VERSION=`echo $VERSION | cut -d '/' -f 2`
+
+# Update the changelog
+if [ -z "`grep $VERSION meta/debian/changelog`" ]; then
+    echo '' >> meta/debian/changelog;
+    echo "suika2 ($VERSION-1) UNRELEASED; urgency=medium" >> meta/debian/changelog;
+    echo '' >> meta/debian/changelog;
+    echo '  * Sync upstream' >> meta/debian/changelog;
+    echo '' >> meta/debian/changelog;
+    echo " -- Keiichi Tabata <tabata@luxion.jp>  `date`" >> meta/debian/changelog;
+fi
+
+# Make a directory and enter it.
+rm -rf work
+mkdir work
+cd work
+
+# Create a source tarball.
+SAVE_DIR=`pwd`
+cd ../../../
+git archive HEAD --output=build/ppa/work/suika2_$VERSION.orig.tar.gz
+cd "$SAVE_DIR"
+
+# Make a sub-directory with version number, and enter it.
+rm -rf suika2-$VERSION
+mkdir suika2-$VERSION
+cp -R ../meta/debian suika2-$VERSION/
+cd suika2-$VERSION
+tar xzf ../suika2_$VERSION.orig.tar.gz
+
+# Build a source package.
+debuild -S -sa
+cd ..
+
+# Sign.
+debsign -k E9C18AA6087AA39F5114E668EEB70B9FAF1F01C5 suika2_$VERSION-1_source.changes
+
+# Upload.
+dput ppa:ktabata/ppa suika2_$VERSION-1_source.changes 
+cd ../
+
+# Cleanup.
+rm -rf work
