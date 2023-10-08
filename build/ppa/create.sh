@@ -15,7 +15,7 @@ fi
 
 # Update the changelog
 if [ -z "`grep $VERSION meta/debian/changelog`" ]; then
-    echo "suika2 ($VERSION-1) UNRELEASED; urgency=medium" > meta/debian/changelog.new;
+    echo "suika2 ($VERSION-1) jammy; urgency=medium" > meta/debian/changelog.new;
     echo '' >> meta/debian/changelog.new;
     echo '  * Sync upstream' >> meta/debian/changelog.new;
     echo '' >> meta/debian/changelog.new;
@@ -51,7 +51,7 @@ cd ..
 debsign -k E9C18AA6087AA39F5114E668EEB70B9FAF1F01C5 "suika2_${VERSION}-${MINOR}_source.changes"
 
 # Upload.
-dput ppa:ktabata/ppa suika2_$VERSION-$MINOR_source.changes 
+dput ppa:ktabata/ppa suika2_${VERSION}-${MINOR}_source.changes 
 cd ../
 
 # Cleanup.
