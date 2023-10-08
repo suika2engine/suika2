@@ -2,7 +2,7 @@
 ### The Build System of Suika2
 ###
 
-INSTALL_DIR=/usr/local
+DESTDIR=/usr/local
 
 all: targets
 
@@ -312,41 +312,37 @@ build: linux-pro
 # Install for Linux
 install:
 	@echo 'Installing Suika2'
-	@if [ -z "$(INSTALL_DIR)" ]; then \
-		echo 'Please specify INSTALL_DIR'; \
-		exit 1; \
-	fi
-	@install -v -d $(INSTALL_DIR)/bin
-	@install -v -d $(INSTALL_DIR)/share/suika2/game
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/anime
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/bg
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/bgm
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/ch
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/cg
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/conf
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/cv
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/gui
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/txt
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/font
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/rule
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/se
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/wms
-	@install -v -d $(INSTALL_DIR)/share/suika2/game/mov
-	@install -v build/linux-x86_64-pro/build/suika-pro $(INSTALL_DIR)/bin
-	@install -v build/linux-x86_64-pro/suika2 $(INSTALL_DIR)/bin
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/anime game/anime/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/bg game/bg/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/bgm game/bgm/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/ch game/ch/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/cg game/cg/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/conf game/conf/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/cv game/cv/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/gui game/gui/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/txt game/txt/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/font game/font/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/rule game/rule/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/se game/se/*
-	@install -v -t $(INSTALL_DIR)/share/suika2/game/wms game/wms/*
+	@install -v -d $(DESTDIR)/bin
+	@install -v -d $(DESTDIR)/share/suika2/game
+	@install -v -d $(DESTDIR)/share/suika2/game/anime
+	@install -v -d $(DESTDIR)/share/suika2/game/bg
+	@install -v -d $(DESTDIR)/share/suika2/game/bgm
+	@install -v -d $(DESTDIR)/share/suika2/game/ch
+	@install -v -d $(DESTDIR)/share/suika2/game/cg
+	@install -v -d $(DESTDIR)/share/suika2/game/conf
+	@install -v -d $(DESTDIR)/share/suika2/game/cv
+	@install -v -d $(DESTDIR)/share/suika2/game/gui
+	@install -v -d $(DESTDIR)/share/suika2/game/txt
+	@install -v -d $(DESTDIR)/share/suika2/game/font
+	@install -v -d $(DESTDIR)/share/suika2/game/rule
+	@install -v -d $(DESTDIR)/share/suika2/game/se
+	@install -v -d $(DESTDIR)/share/suika2/game/wms
+	@install -v -d $(DESTDIR)/share/suika2/game/mov
+	@install -v build/linux-x86_64-pro/build/suika-pro $(DESTDIR)/bin
+	@install -v build/linux-x86_64-pro/suika2 $(DESTDIR)/bin
+	@install -v -t $(DESTDIR)/share/suika2/game/anime game/anime/*
+	@install -v -t $(DESTDIR)/share/suika2/game/bg game/bg/*
+	@install -v -t $(DESTDIR)/share/suika2/game/bgm game/bgm/*
+	@install -v -t $(DESTDIR)/share/suika2/game/ch game/ch/*
+	@install -v -t $(DESTDIR)/share/suika2/game/cg game/cg/*
+	@install -v -t $(DESTDIR)/share/suika2/game/conf game/conf/*
+	@install -v -t $(DESTDIR)/share/suika2/game/cv game/cv/*
+	@install -v -t $(DESTDIR)/share/suika2/game/gui game/gui/*
+	@install -v -t $(DESTDIR)/share/suika2/game/txt game/txt/*
+	@install -v -t $(DESTDIR)/share/suika2/game/font game/font/*
+	@install -v -t $(DESTDIR)/share/suika2/game/rule game/rule/*
+	@install -v -t $(DESTDIR)/share/suika2/game/se game/se/*
+	@install -v -t $(DESTDIR)/share/suika2/game/wms game/wms/*
 
 # Cleanup.
 clean:
