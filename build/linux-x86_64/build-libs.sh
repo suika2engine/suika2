@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 PREFIX=`pwd`/libroot
 
 rm -rf tmp libroot
