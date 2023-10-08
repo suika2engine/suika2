@@ -19,5 +19,6 @@ esac
 # Update the Makefile
 sed -i 's/all: targets/all: build linux/g' Makefile
 sed -i "s|INSTALL_DIR=/usr/local|INSTALL_DIR=$PREFIX|g" Makefile
+sed -i "s/test:/run-test:/g" Makefile
 
 echo "Installation path: $PREFIX"
