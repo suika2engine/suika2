@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# If a game exists in the current directory:
+if [ -e 'conf/config.txt' ]; then
+    # Run suika-pro in the current directory.
+    suika-pro;
+    exit 0;
+fi
+
+# Going to run suika-pro in the 'new-game' directory.
+
+# If the 'new-game' directory does not exist in the current directory:
+if [ ! -e 'new-game' ]; then
+    # Copy the sample game to the 'new-game' directory.
+    mkdir new-game
+    cp -R "`readlink -f $(dirname "$0")/../`/share/suika2/game/*" new-game/;
+fi;
+
+# Run suika-pro in the 'new-game' directory.
+cd new-game && suika-pro

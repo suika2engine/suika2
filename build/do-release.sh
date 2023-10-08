@@ -141,6 +141,17 @@ fi
 echo "$RELEASETMP created."
 
 #
+# Update the macOS project version
+#
+
+cd macos
+./update-version.sh $VERSION
+git add suika.xcodeproj/project.pbxproj ../../doc/readme-jp.html ../../doc/readme-en.html
+git commit -m "doc: update the version number to $VERSION"
+git push github master
+cd ..
+
+#
 # Build suika.exe
 #
 echo "Building suika.exe"
@@ -375,7 +386,7 @@ rm -rf suika2
 #
 echo "Uploading files."
 
-# Copy release files to FTPLOCAL directory.
+# Copy the release files to FTPLOCAL directory.
 cp "$RELEASETMP/suika2-$VERSION.zip" $FTP_LOCAL/
 cp "$RELEASETMP/kirara-helper-current.zip" $FTP_LOCAL/
 
@@ -385,17 +396,15 @@ if [ "$DO_UPLOAD" -eq "1" ]; then
     curl -T "$RELEASETMP/kirara-helper-current.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-helper-current.zip";
 else
     echo "Skipped upload.";
+    exit 0;
 fi
-
-#
-# Complete!
-#
-echo ""
-echo "Release completed."
+echo "Upload completed."
 if [ "$DO_SIGN" -eq "0" ]; then
     echo "Note: We have not signed to the Windows binaries.";
 fi
-if [ "$DO_UPLOAD" -eq "0" ]; then
-    echo "Note: We have not uploaded the release files.";
-fi
+
+# Update the Web site.
 echo ""
+echo "Press enter to update the Web site:"
+read str
+release-html.sh

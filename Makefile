@@ -1,32 +1,35 @@
-# This will show the usage of this Makefile.
+###
+### The Build System of Suika2
+###
+
+# This will show the usage of this Makefile if no target is specified.
 targets:
-	@echo 'Welcome to Suika2!'
-	@echo 'This is the build system of Suika2.'
+	@echo 'Welcome to Suika2! This is the build system of Suika2.'
 	@echo
 	@echo 'You can type the following commands:'
-	@echo '  make setup             ... install dependency tools'
-	@echo '  make windows           ... build the main game engine for Windows'
-	@echo '  make macos             ... build the main game engine for macOS'
-	@echo '  make linux             ... build the main game engine for Linux'
-	@echo '  make all-windows       ... build all Windows binaries'
-	@echo '  make all-macos         ... build all macOS binaries'
-	@echo '  make all-linux         ... build all Linux binaries'
-	@echo '  make test              ... run tests without a window'
-	@echo '  make gtest             ... run tests with a window (just for demo)'
-	@echo '  make clean             ... cleanup'
-	@echo '  make do-release        ... build release files and upload them'
-	@echo '  make do-release-kirara ... build Kirara release files and upload them'
+	@echo '  make setup   ... install development tools'
+	@echo '  make windows ... build the main game engine for Windows'
+	@echo '  make macos   ... build the main game engine for macOS'
+	@echo '  make linux   ... build the main game engine for Linux'
+	@echo '  make test    ... run tests without a window'
 	@echo ''
-	@# Check for a situation that we are on WSL2 and not under /mnt
 	@if [ ! -z "`uname | grep Linux`" ]; then \
-		if [ -z "`grep -i WSL2 /proc/version`" ]; then \
+		echo 'On Linux, you can also type the following commands:'; \
+		echo '  make build'; \
+		echo '  sudo make install INSTALL_DIR=/usr'; \
+		echo ''; \
+		if [ ! -z "`grep -i WSL2 /proc/version`" ]; then \
 			case `pwd` in \
 			/mnt/*)\
-				echo 'Warning: You are under /mnt. Make sure to work on ~/ to avoid having Windows Security erase generated objects.'; \
+				echo 'Warning: You are on /mnt. Make sure to work on ~/ to avoid having Windows Security erase generated objects.'; \
 				echo ; \
 			esac; \
 		fi; \
 	fi
+
+##
+## Setup
+##
 
 # This will setup the compilers and the tools.
 setup:
@@ -36,21 +39,21 @@ setup:
 			echo 'Error: Your system lacks "apt-get" command.'; \
 			exit 1; \
 		fi; \
-		echo 'Are you sure you want to install the dependencies? (press enter)'; \
+		echo 'Are you sure you want to install all dependencies? (press enter)'; \
 		read str; \
-		echo Updating apt sources.; \
-		echo sudo apt-get update; \
+		echo 'Updating apt sources.'; \
+		echo 'sudo apt-get update'; \
 		sudo apt-get update; \
-		echo Installing dependencies for the Windows targets.; \
-		echo sudo apt-get install mingw-w64; \
+		echo 'Installing dependencies for Windows targets.'; \
+		echo 'sudo apt-get install mingw-w64'; \
 		sudo apt-get install mingw-w64; \
-		echo Installing dependencies for the Linux targets.; \
-		echo sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov; \
-		sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov; \
-		echo Installing dependencies for the testing targets.; \
-		echo sudo apt-get install python3-pip; \
+		echo 'Installing dependencies for Linux targets.'; \
+		echo 'sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov cmake qt6-base-dev qt6-multimedia-dev'; \
+		sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov cmake qt6-base-dev qt6-multimedia-dev'; \
+		echo 'Installing dependencies for testing targets.'; \
+		echo 'sudo apt-get install python3-pip'; \
+		echo 'pip3 install opencv-python numpy'; \
 		sudo apt-get install python3-pip; \
-		echo pip3 install opencv-python numpy; \
 		pip3 install opencv-python numpy; \
 	fi
 	@# For macOS
@@ -59,31 +62,31 @@ setup:
 			echo 'Error: Your system lacks "brew" command.'; \
 			exit 1; \
 		fi; \
-		echo 'Are you sure you want to install the dependencies? (press enter)'; \
+		echo 'Are you sure you want to install all dependencies? (press enter)'; \
 		read str; \
 		brew install mingw-w64; \
 	fi
 
+##
+## Windows
+##
+
 # A target for all Windows binaries.
-all-windows: windows windows-64 windows-arm64 windows-pro windows-capture windows-replay
-
-# A target for all macOS binaries.
-all-macos:
-	@echo 'Building macOS binaries'
-	@cd build/macos && \
-		make clean && \
-		make release && \
-		make install && \
-		make clean && \
-	cd ../..
-
-# A target for all Linux binaries.
-all-linux: linux linux-capture linux-replay
+all-windows: windows windows-pro windows-64 windows-arm64 windows-capture windows-replay
 
 # suika.exe (the main game engine for 32-bit Windows)
 windows:
 	@echo 'Building suika.exe'
 	@cd build/mingw && \
+	make libroot && \
+	make -j8 && \
+	make install && \
+	cd ../..
+
+# suika-pro.exe (the debugger for 32-bit Windows)
+windows-pro:
+	@echo 'Building suika-pro.exe'
+	@cd build/mingw-pro && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -107,15 +110,6 @@ windows-arm64:
 	make install && \
 	cd ../..
 
-# suika-pro.exe (the debugger)
-windows-pro:
-	@echo 'Building suika-pro.exe'
-	@cd build/mingw-pro && \
-	make libroot && \
-	make -j8 && \
-	make install && \
-	cd ../..
-
 # suika-capture.exe (the caputure app)
 windows-capture:
 	@echo 'Building suika-capture.exe'
@@ -134,15 +128,55 @@ windows-replay:
 	make install && \
 	cd ../..
 
+##
+## macOS
+##
+
+# A target for all macOS binaries.
+all-macos: macos-main macos-pro macos-capture macos-replay
+
 # A target for the main game engine for macOS.
 macos:
-	@echo 'Building macOS binary'
+	@echo 'Building macOS app'
 	@cd build/macos && \
-		make clean && \
-		make suika.dmg && \
+		make main && \
 		cp suika.dmg ../../ && \
 		make clean && \
 	cd ../..
+
+# A target for the debugger for macOS.
+macos-pro:
+	@echo 'Building macOS debugger app'
+	@cd build/macos && \
+		make pro && \
+		cp suika-pro.dmg ../../ && \
+		make clean && \
+	cd ../..
+
+# A target for the capture app for macOS.
+macos-capture:
+	@echo 'Building macOS capture app'
+	@cd build/macos && \
+		make capture && \
+		cp suika-capture.dmg ../../ && \
+		make clean && \
+	cd ../..
+
+# A target for the replay app for macOS.
+macos-replay:
+	@echo 'Building macOS replay app'
+	@cd build/macos && \
+		make capture && \
+		cp suika-capture.dmg ../../ && \
+		make clean && \
+	cd ../..
+
+##
+## Linux
+##
+
+# A target for all Linux binaries.
+all-linux: linux linux-pro linux-capture linux-replay
 
 # suika-linux (the main game engine for 64-bit Linux)
 linux:
@@ -152,6 +186,19 @@ linux:
 	make -j8 && \
 	make install && \
 	cd ../..
+
+# suika-pro (the debugger for Linux)
+linux-pro:
+	@echo 'Building for Linux'
+	@cd build/linux-x86_64-pro && \
+	./make-deps.sh && \
+	rm -rf build && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	cp suika-pro ../../../ && \
+	cd ../../..
 
 # suika-linux-capture (the capture app for 64-bit Linux)
 linux-capture:
@@ -170,6 +217,10 @@ linux-replay:
 	make -j8 && \
 	make install && \
 	cd ../..
+
+##
+## Tests
+##
 
 # Non-graphical automatic tests.
 test:
@@ -213,7 +264,11 @@ gtest:
 	./run.sh && \
 	cd ..
 
-# Build apps and upload both Japanese and English zip files.
+##
+## Release (dev internal)
+##
+
+# Make a main release file and upload it.
 do-release:
 	@# Check if we are running on WSL2.
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
@@ -223,12 +278,12 @@ do-release:
 		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
 		echo ""; \
 	fi
-	@echo "Going to build release files and upload them."
+	@echo "Going to build a main release file and upload it."
 	@cd build && \
 	./do-release.sh && \
 	cd ..
 
-# Build apps and upload both Japanese and English zip files.
+# Make Kirara release files and upload them.
 do-release-kirara:
 	@# Check if we are running on WSL2.
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
@@ -238,13 +293,59 @@ do-release-kirara:
 		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
 		echo ""; \
 	fi
-	@echo "Going to build release files and upload them."
+	@echo "Going to build Kirara release files and upload them."
 	@cd build && \
 	./do-release-kirara.sh && \
 	cd ..
 
+##
+## POSIX Conventions
+##
+
+# Build for Linux
+build: linux-pro
+
+# Install for Linux
+install:
+	@echo 'Installing Suika2'
+	@if [ -z "$(INSTALL_DIR)" ]; then \
+		echo 'Please specify INSTALL_DIR'; \
+		exit 1; \
+	fi
+	@install -v -d $(INSTALL_DIR)/bin
+	@install -v -d $(INSTALL_DIR)/share/suika2/game
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/anime
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/bg
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/bgm
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/ch
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/cg
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/conf
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/cv
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/gui
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/txt
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/font
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/rule
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/se
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/wms
+	@install -v -d $(INSTALL_DIR)/share/suika2/game/mov
+	@install -v build/linux-x86_64-pro/build/suika-pro $(INSTALL_DIR)/bin
+	@install -v build/linux-x86_64-pro/suika2 $(INSTALL_DIR)/bin
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/anime game/anime/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/bg game/bg/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/bgm game/bgm/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/ch game/ch/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/cg game/cg/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/conf game/conf/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/cv game/cv/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/gui game/gui/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/txt game/txt/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/font game/font/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/rule game/rule/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/se game/se/*
+	@install -v -t $(INSTALL_DIR)/share/suika2/game/wms game/wms/*
+
 # Cleanup.
 clean:
-	rm -f suika.exe suika-64.exe suika-arm64.exe suika-pro.exe suika-capture.exe suika-replay.exe
+	rm -f suika.exe suika-pro.exe suika-64.exe suika-arm64.exe suika-capture.exe suika-replay.exe
 	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg mac.zip pack.mac
-	rm -f suika-linux suika-linux-capture suika-linux-replay
+	rm -f suika-linux suika-pro suika-linux-capture suika-linux-replay
