@@ -191,11 +191,32 @@ linux:
 	make install && \
 	cd ../..
 
+# suika-linux (the main game engine for 64-bit Linux)
+linux-shared:
+	@echo 'Building a Linux game binary'
+	@cd build/linux-x86_64-shared && \
+	make -j8 && \
+	make install && \
+	cd ../..
+
 # suika-pro (the debugger for Linux)
 linux-pro:
 	@echo 'Building for Linux'
 	@cd build/linux-x86_64-pro && \
 	./make-deps.sh && \
+	rm -rf build && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	cp suika-pro ../../../ && \
+	cd ../../..
+
+# suika-pro (the debugger for Linux)
+linux-pro-shared:
+	@echo 'Building for Linux'
+	@cd build/linux-x86_64-pro && \
+	./make-deps-shared.sh && \
 	rm -rf build && \
 	mkdir build && \
 	cd build && \
@@ -307,7 +328,7 @@ do-release-kirara:
 ##
 
 # Build for Linux
-build: linux linux-pro
+build: linux-shared linux-pro-shared
 
 # Install for Linux
 install:

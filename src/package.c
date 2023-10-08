@@ -313,8 +313,15 @@ static bool get_file_names_recursive(const char *base_dir, const char *dir, int 
                 break;
             }
         } else {
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
             snprintf(entry[file_count].name, FILE_NAME_SIZE,
                      "%s/%s", new_path, names[i]->d_name);
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic pop
+#endif
             printf("%s\n", entry[file_count].name);
             file_count++;
         }
