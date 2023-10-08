@@ -2,6 +2,10 @@
 
 set -eu
 
+unset CPPFLAGS
+unset CFLAGS
+unset LDFLAGS
+
 PREFIX=`pwd`/libroot
 
 rm -rf tmp libroot
