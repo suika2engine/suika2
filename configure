@@ -17,8 +17,8 @@ case $1 in
 esac
 
 # Update the Makefile
-sed -i 's/all: targets/all: build linux/g' Makefile
-sed -i "s|DESTDIR=/usr/local|DESTDIR=$PREFIX|g" Makefile
+sed -i 's/^all:.*$/all: build/g' Makefile
+sed -i "s|^DESTDIR=.*$|DESTDIR=$PREFIX|g" Makefile
 sed -i "s/test:/run-test:/g" Makefile
 
 echo "Installation path: $PREFIX"

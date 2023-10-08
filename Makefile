@@ -307,7 +307,7 @@ do-release-kirara:
 ##
 
 # Build for Linux
-build: linux-pro
+build: linux linux-pro
 
 # Install for Linux
 install:
@@ -328,6 +328,7 @@ install:
 	@install -v -d $(DESTDIR)/share/suika2/game/se
 	@install -v -d $(DESTDIR)/share/suika2/game/wms
 	@install -v -d $(DESTDIR)/share/suika2/game/mov
+	@install -v suika-linux $(DESTDIR)/bin
 	@install -v build/linux-x86_64-pro/build/suika-pro $(DESTDIR)/bin
 	@install -v build/linux-x86_64-pro/suika2 $(DESTDIR)/bin
 	@install -v -t $(DESTDIR)/share/suika2/game/anime game/anime/*
