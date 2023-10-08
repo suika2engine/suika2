@@ -2,7 +2,7 @@ Source: suika2
 Section: devel
 Priority: optional
 Maintainer: Keiichi Tabata <tabata@luxion.jp>
-Build-Depends: debhelper-compat (= 13), zlib1g-dev (>= 1), libpng-dev (>= 1), libjpeg9-dev (>= 1), libogg-dev (>= 1), libvorbis-dev(>= 1), libfreetype-dev (>= 1), libasound2-dev (>= 1), libx11-dev (>= 1), libgstreamer1.0-dev (>= 1), libgstreamer-plugins-base1.0-dev (>= 1), libxpm-dev (>= 3), mesa-common-dev (>= 23)
+Build-Depends: debhelper-compat (= 13), zlib1g-dev (>= 1), libpng-dev (>= 1), libjpeg9-dev (>= 1), libogg-dev (>= 1), libvorbis-dev(>= 1), libfreetype-dev (>= 1), libasound2-dev (>= 1), libx11-dev (>= 1), libgstreamer1.0-dev (>= 1), libgstreamer-plugins-base1.0-dev (>= 1), libxpm-dev (>= 3), mesa-common-dev (>= 23), cmake (>= 3), qt6-base-dev (>= 6), qt6-multimedia-dev (>= 6)
 Standards-Version: 4.6.0
 Homepage: https://github.com/suika2engine/suika2
 Vcs-Browser: https://github.com/suika2engine/suika2
@@ -11,7 +11,7 @@ Rules-Requires-Root: no
 
 Package: suika2
 Architecture: amd64
-Depends: ${misc:Depends}, ${shlibs:Depends}, zlib1g, libpng16-16, libjpeg9, libogg0, libvorbis0a, libvorbisfile3, libfreetype6, libasound2, libx11-6, libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libxpm4
+Depends: ${misc:Depends}, ${shlibs:Depends}, zlib1g, libpng16-16, libjpeg9, libogg0, libvorbis0a, libvorbisfile3, libfreetype6, libasound2, libx11-6, libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libxpm4, libqt6core6, libqt6gui6, libqt6widgets6, libqt6opengl6, libqt6openglwidgets6, libqt6multimedia6
 Description: This program can be used to develop visual novels.
  Exported game files can be played on Linux, Windows, macOS,
  Android, iOS, FreeBSD and NetBSD.

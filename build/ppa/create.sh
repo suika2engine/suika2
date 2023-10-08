@@ -7,6 +7,12 @@ VERSION=`grep -a1 '<!-- BEGIN-LATEST -->' ../../doc/readme-jp.html | tail -n1`
 VERSION=`echo $VERSION | cut -d '>' -f 2 | cut -d ' ' -f 1`
 VERSION=`echo $VERSION | cut -d '/' -f 2`
 
+# Get the minor version.
+MINOR=1
+if [ ! -z "$1" ]; then
+	MINOR="$1";
+fi
+
 # Update the changelog
 if [ -z "`grep $VERSION meta/debian/changelog`" ]; then
     echo '' >> meta/debian/changelog;
@@ -40,10 +46,10 @@ debuild -S -sa
 cd ..
 
 # Sign.
-debsign -k E9C18AA6087AA39F5114E668EEB70B9FAF1F01C5 suika2_$VERSION-1_source.changes
+debsign -k E9C18AA6087AA39F5114E668EEB70B9FAF1F01C5 suika2_$VERSION-$MINOR_source.changes
 
 # Upload.
-dput ppa:ktabata/ppa suika2_$VERSION-1_source.changes 
+dput ppa:ktabata/ppa suika2_$VERSION-$MINOR_source.changes 
 cd ../
 
 # Cleanup.
