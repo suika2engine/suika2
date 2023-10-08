@@ -1,3 +1,9 @@
+suika2 (13.32-1) UNRELEASED; urgency=medium
+
+  * Sync upstream
+
+ -- Keiichi Tabata <tabata@luxion.jp>  Mon Oct  9 03:06:24 AM JST 2023
+
 suika2 (13.31-1) jammy; urgency=medium
 
   * Initial release
