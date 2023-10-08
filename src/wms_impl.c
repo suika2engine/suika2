@@ -7,6 +7,7 @@
 
 #include "suika.h"
 #include "wms.h"
+#include "math.h"
 
 /*
  * Stage save area
@@ -28,6 +29,7 @@ static bool s2_set_variable(struct wms_runtime *rt);
 static bool s2_get_name_variable(struct wms_runtime *rt);
 static bool s2_set_name_variable(struct wms_runtime *rt);
 static bool s2_random(struct wms_runtime *rt);
+static bool s2_round(struct wms_runtime *rt);
 static bool s2_set_config(struct wms_runtime *rt);
 static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt);
 static bool s2_reflect_font_config(struct wms_runtime *rt);
@@ -50,6 +52,7 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_get_name_variable, "s2_get_name_variable", {"index", NULL}},
 	{s2_set_name_variable, "s2_set_name_variable", {"index", "value", NULL}},
 	{s2_random, "s2_random", {NULL}},
+	{s2_round,"s2_round",{"value",NULL}},
 	{s2_set_config, "s2_set_config", {"key", "value", NULL}},
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
 	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
@@ -194,6 +197,32 @@ static bool s2_random(struct wms_runtime *rt)
 
 	/* Set the return value. */
 	if (!wms_make_int_var(rt, "__return", rand_value, NULL))
+		return false;
+
+	return true;
+}
+
+/*Returns a rounded value*/
+static bool s2_round(struct wms_runtime *rt)
+{
+	struct wms_value *value;
+	double value_i;
+	double value_round;
+
+	assert(rt != NULL);
+
+	if (!wms_get_var_value(rt, "value", &value))
+		return false;
+
+	/* Get the argument value. */
+	if (!wms_get_float_value(rt, value , &value_i))
+		return false;
+
+	//round value
+	value_round = round(value_i);
+
+	/* Set the return value. */
+	if (!wms_make_int_var(rt, "__return", (int) value_round, NULL))
 		return false;
 
 	return true;
