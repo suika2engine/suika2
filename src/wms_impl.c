@@ -55,6 +55,7 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_random, "s2_random", {NULL}},
 	{s2_round,"s2_round",{"value",NULL}},
 	{s2_ceil,"s2_ceil",{"value",NULL}},
+	{s2_floor,"s2_floor",{"value",NULL}},
 	{s2_set_config, "s2_set_config", {"key", "value", NULL}},
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
 	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
@@ -235,6 +236,32 @@ static bool s2_ceil(struct wms_runtime *rt)
 {
 	struct wms_value *value;
 	double value_i;
+	double value_round_up;
+
+	assert(rt != NULL);
+
+	if (!wms_get_var_value(rt, "value", &value))
+		return false;
+
+	/* Get the argument value. */
+	if (!wms_get_float_value(rt, value , &value_i))
+		return false;
+
+	//round up value
+	value_round_up = ceil(value_i);
+
+	/* Set the return value. */
+	if (!wms_make_int_var(rt, "__return", (int) value_round_up, NULL))
+		return false;
+
+	return true;
+}
+
+/*Returns a value rounded down*/
+static bool s2_floor(struct wms_runtime *rt)
+{
+	struct wms_value *value;
+	double value_i;
 	double value_round_down;
 
 	assert(rt != NULL);
@@ -246,8 +273,8 @@ static bool s2_ceil(struct wms_runtime *rt)
 	if (!wms_get_float_value(rt, value , &value_i))
 		return false;
 
-	//round value
-	value_round_down = ceil(value_i);
+	//round down value
+	value_round_down = floor(value_i);
 
 	/* Set the return value. */
 	if (!wms_make_int_var(rt, "__return", (int) value_round_down, NULL))
