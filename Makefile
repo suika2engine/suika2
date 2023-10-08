@@ -2,6 +2,10 @@
 ### The Build System of Suika2
 ###
 
+INSTALL_DIR=/usr/local
+
+all: targets
+
 # This will show the usage of this Makefile if no target is specified.
 targets:
 	@echo 'Welcome to Suika2! This is the build system of Suika2.'
