@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 override_dh_auto_configure:
-	./configure --prefix=$(CURDIR)/debian/suika2
+	./configure --prefix=$(CURDIR)/debian/suika2/usr
 
 override_dh_auto_install:
 	$(MAKE) install
