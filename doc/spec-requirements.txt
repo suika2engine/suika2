@@ -8,7 +8,7 @@ Modified By:
 
 Organization: the Suika2 Development Team
 
-Updated: 6th January 2023
+Updated: 10th October 2023
 
 Created: 27th October 2022
 
@@ -21,6 +21,7 @@ Revision: 12.0.0
 - [Introduction](#introduction)
     - [The Necessity of This Document](#the-necessity-of-this-document)
 - [File and Folders](#file-and-folders)
+    - [`anime` Folder](#anime-folder)
     - [`bg` Folder](#bg-folder)
     - [`bgm` Folder](#bgm-folder)
     - [`cg` Folder](#cg-folder)
@@ -40,7 +41,10 @@ Revision: 12.0.0
     - [`suika.app` Bundle](#suikaapp-bundle)
 - [Main Screen Components](#main-screen-components)
     - [Background Layer](#background-layer)
+    - [bg2 Layer](#bg2-layer)
+    - [Effect5-8 Layers](#effect5-8-layer)
     - [Character Layers](#character-layers)
+    - [Effect1-4 Layers](#effect1-4-layer)
     - [Message Box Layer](#message-box-layer)
         - [In-box Menu](#in-box-menu)
     - [Namebox Layer](#namebox-layer)
@@ -238,6 +242,7 @@ If a description of a specification that exists in another document does not exi
 # Files and Folders
 
 * Game Folder
+    * anime/
     * bg/
     * bgm/
     * cg/
@@ -254,6 +259,10 @@ If a description of a specification that exists in another document does not exi
     * data01.arc
     * suika.exe
     * suika.app
+
+## `anime` Folder
+
+This folder is for anime files.
 
 ## `bg` Folder
 
@@ -275,6 +284,7 @@ This folder is for the following images.
 * GUI (including save, load, history, config screens)
 * Auto mode banner
 * Skip mode banner
+* Anime images
 
 ## `ch` Folder
 
@@ -344,22 +354,33 @@ When referring to all layers, the term 'stage' is used.
 The stage consists of the following, in order from bottom to top:
 
 1. Background Layer
-2. Back Center Character Layer
-3. Left Character Layer
-4. Right Character Layer
-5. Center Character Layer
-6. Message Box Layer
-7. Namebox Layer
-8. Character Face Layer
-9. Click Animation Layer
-10. Options Layer
-11. Collapsed System Menu Layer
-12. System Menu Layer
+2. bg2 Layer
+3. Effect5-8 Layers
+3. Back Center Character Layer
+4. Left Character Layer
+5. Right Character Layer
+6. Center Character Layer
+7. Effect1-4 Layers
+8. Message Box Layer
+9. Namebox Layer
+10. Character Face Layer
+11. Click Animation Layer
+12. Options Layer
+13. Collapsed System Menu Layer
+14. System Menu Layer
 
 ## Background Layer
 
 The background image is the lowest layer that makes up the screen.
 Its size must be equal to that of the window.
+
+## bg2 Layer
+
+The `bg2` layer can be used for anime.
+
+## Effect5-8 Layers
+
+The `effect5`, `effect6`, `effect7` and `effect8` layers can be used for anime.
 
 ## Character Layers
 
@@ -380,6 +401,10 @@ There is a position for the character's `face` to be displayed to
 the left of the message box.
 
 All characters are vertically aligned at the bottom of the screen.
+
+## Effect1-4 Layers
+
+The `effect1`, `effect2`, `effect3` and `effect4` layers can be used for anime.
 
 ## Message Box Layer
 
@@ -467,6 +492,15 @@ The following is example command syntax.
 @command-name <required-parameter> (optional-parameter)
 ```
 
+## Playing an Anime (`@anime`)
+
+This feature plays an anime file.
+The command that accomplishes this feature is `@anime`.
+
+```
+@anime <file> (options)
+```
+
 ## Showing a Background (`@bg`)
 
 This feature shows a background image.
@@ -489,7 +523,9 @@ when they want to keep character images on the stage.
 
 If you are looking for a way to keep your characters from disappearing when
 you change the background, write the following command:
-
+```
+@chsx left=stay center=stay right=stay back=stay background=background.png duration=1.0
+```
 
 Fade-ins are accompanied by transition effects.
 The following is the list of effects types.
@@ -1147,6 +1183,11 @@ The effect type is "right curtain".
 ```
 @場面転換 中央=001.png 右=消す 左=変更なし 背面=変更なし 秒=1.0 背景=005.png エフェクト=標準
 ```
+
+## Changing Characters and Background at Once (Extended) (`@chsx`)
+
+This feature is as same as the `@chs` command, but the `@chsx` command need
+parameter names and the parameter order is not fixed.
 
 ## Shaking the Screen (`@shake`)
 
