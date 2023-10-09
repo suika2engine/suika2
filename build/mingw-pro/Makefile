@@ -52,6 +52,7 @@ LDFLAGS = \
 	-lcomctl32 \
 	-lopengl32 \
 	-ld3d9 \
+	-lsapi \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections

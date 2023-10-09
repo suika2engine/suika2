@@ -224,6 +224,8 @@ bool reconstruct_dir(const char *dir);
 #if defined(WIN)
 /* TTSによる読み上げを行う */
 void speak_text(const char *text);
+#else
+static __inline void speak_text(const char *text) { UNUSED_PARAMETER(text); }
 #endif
 
 #endif
