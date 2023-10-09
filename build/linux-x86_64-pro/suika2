@@ -13,7 +13,7 @@ fi
 if [ ! -e 'new-game' ]; then
     # Copy the sample game to the 'new-game' directory.
     mkdir new-game
-    cp -R "`readlink -f $(dirname "$0")/../`/share/suika2/game/*" new-game/;
+    cp -R `readlink -f $(dirname "$0")/../`/share/suika2/game/* new-game/;
 fi;
 
 # Run suika-pro in the 'new-game' directory.
