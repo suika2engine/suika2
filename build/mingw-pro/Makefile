@@ -72,7 +72,8 @@ SRCS_C = \
 	../../src/d3drender.cc
 
 SRCS_CC = \
-	../../src/dsvideo.cc
+	../../src/dsvideo.cc \
+	../../src/tts_sapi.cc
 
 SRCS_R = ../mingw/res/resource.rc
 
