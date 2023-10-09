@@ -14,6 +14,7 @@
  */
 
 #include "suika.h"
+#include "wms.h"
 
 /* ボタンの最大数 */
 #define BUTTON_COUNT	(128)
@@ -91,6 +92,9 @@ enum {
 
 	/* 名前変数に文字列を追加するボタン */
 	TYPE_CHAR,
+
+	/*WMSを実行するボタン*/
+	TYPE_WMS,
 };
 
 /* ボタン */
@@ -114,7 +118,7 @@ static struct gui_button {
 	/* TYPE_GOTO, TYPE_GALLERY */
 	char *label;
 
-	/* TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI, TYPE_FONT */
+	/* TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI, TYPE_FONT TYPE_WMS*/
 	char *file;
 
 	/*
@@ -294,6 +298,9 @@ static void process_char(int index);
 static void play_se(const char *file, bool is_voice);
 static void play_sys_se(const char *file);
 static bool load_gui_file(const char *file);
+static bool run_wms(const char *file);
+
+bool register_s2_functions(struct wms_runtime *rt);
 
 /*
  * GUIに関する初期化処理を行う
@@ -618,6 +625,7 @@ static int get_type_for_name(const char *name)
 		{"QUIT", TYPE_QUIT}, /* typoだけど互換性のため残した */
 		{"namevar", TYPE_NAMEVAR},
 		{"char", TYPE_CHAR},
+		{"wms", TYPE_WMS},
 	};
 	
 	size_t i;
@@ -1239,6 +1247,9 @@ static void process_button_click(int index)
 		play_sys_se(b->clickse);
 		process_char(index);
 		update_namevar_buttons();
+		break;
+	case TYPE_WMS:
+		run_wms(b->file);
 		break;
 	default:
 		result_index = index;
@@ -2824,4 +2835,56 @@ static bool load_gui_file(const char *file)
 	close_rfile(rf);
 
 	return st != ST_ERROR;
+}
+
+/**
+ * TYPE_WMS
+*/
+
+/*WMSの実行*/
+static bool run_wms(const char *file)
+{
+	struct rfile *rf;
+	struct wms_runtime *rt;
+	size_t len;
+	char *script;
+
+	/* スクリプトファイルを開いてすべて読み込む */
+	rf = open_rfile(WMS_DIR, file, false);
+	if (rf == NULL)
+		return false;
+	len = get_rfile_size(rf);
+	script = malloc(len + 1);
+	if (script == NULL) {
+		log_memory();
+		return false;
+	}
+	if (read_rfile(rf, script, len) != len) {
+		log_file_read(WMS_DIR, file);
+		return false;
+	}
+	close_rfile(rf);
+	script[len] = '\0';
+
+	/* パースしてランタイムを作成する */
+	rt = wms_make_runtime(script);
+	if (rt == NULL) {
+		log_wms_syntax_error(file, wms_get_parse_error_line(),
+				     wms_get_parse_error_column());
+		return false;
+	}
+
+	/* ランタイムにFFI関数を登録する */
+	if (!register_s2_functions(rt))
+		return false;
+
+		/* WMSを実行する */
+	if (!wms_run(rt)) {
+		log_wms_runtime_error(get_string_param(WMS_PARAM_FILE),
+				      wms_get_runtime_error_line(rt),
+				      wms_get_runtime_error_message(rt));
+		return false;
+		}
+
+	return true;
 }
