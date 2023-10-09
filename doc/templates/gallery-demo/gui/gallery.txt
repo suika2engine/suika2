@@ -1,0 +1,59 @@
+###
+### CG鑑賞モードのGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    idle:   gallery-idle.png;
+    hover:  gallery-hover.png;
+    active: gallery-active.png;
+}
+
+# CG1のボタン
+CG1 {
+    # 種類:ギャラリー
+    type: gallery;
+
+    # ジャンプ先のラベル
+    label: CG1;
+
+    # CGを見たかどうかを判断するフラグ
+        var: $10000;
+
+    # 座標とサイズ
+    x: 236;
+    y: 270;
+    width: 325;
+    height: 185;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# CG2のボタン
+CG2 {
+    # 種類:ギャラリー
+    type: gallery;
+
+    # ジャンプ先のラベル
+    label: CG2;
+
+    # CGを見たかどうかを判断するフラグ
+        var: $10001;
+
+    # 座標とサイズ
+    x: 701;
+    y: 261;
+    width: 347;
+    height: 199;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}

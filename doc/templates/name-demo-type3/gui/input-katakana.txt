@@ -1,0 +1,2516 @@
+###
+### 名前入力画面(カタカナ)のGUI定義ファイル（Customized by MaiMia MaiMai 2023）
+###
+### 名前変数 %a に名前を入力できます。
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    idle:   input-katakana-idle.png;
+    hover:  input-katakana-hover.png;
+    active: input-katakana-hover.png;
+}
+
+# 名前変数のプレビュー領域
+NAME_PREVIEW {
+    # 種類:名前変数のプレビュー
+    type: namevar;
+
+    # 名前変数名
+    namevar: a;
+
+    # 座標とサイズ
+    x: 520;
+    y: 50;
+    width: 400;
+    height: 60;
+}
+
+# 'ア'のボタン
+BUTTON_A {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ア;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 87;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'イ'のボタン
+BUTTON_I {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: イ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 87;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ウ'のボタン
+BUTTON_U {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ウ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 87;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'エ'のボタン
+BUTTON_E {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: エ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 87;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'オ'のボタン
+BUTTON_O {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: オ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 87;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'カ'のボタン
+BUTTON_KA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: カ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 146;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'キ'のボタン
+BUTTON_KI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: キ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 146;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ク'のボタン
+BUTTON_KU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ク;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 146;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ケ'のボタン
+BUTTON_KE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ケ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 146;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'コ'のボタン
+BUTTON_KO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: コ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 146;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'サ'のボタン
+BUTTON_SA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: サ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 203;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'シ'のボタン
+BUTTON_SI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: シ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 203;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ス'のボタン
+BUTTON_SU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ス;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 203;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'セ'のボタン
+BUTTON_SE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: セ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 203;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ソ'のボタン
+BUTTON_SO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ソ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 203;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'タ'のボタン
+BUTTON_TA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: タ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 262;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'チ'のボタン
+BUTTON_TI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: チ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 262;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ツ'のボタン
+BUTTON_TU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ツ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 262;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'テ'のボタン
+BUTTON_TE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: テ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 262;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ト'のボタン
+BUTTON_TO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ト;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 262;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ナ'のボタン
+BUTTON_NA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ナ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 323;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ニ'のボタン
+BUTTON_NI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ニ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 323;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヌ'のボタン
+BUTTON_NU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヌ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 323;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ネ'のボタン
+BUTTON_NE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ネ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 323;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ノ'のボタン
+BUTTON_NO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ノ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 323;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ハ'のボタン
+BUTTON_HA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ハ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 379;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヒ'のボタン
+BUTTON_HI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヒ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 379;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'フ'のボタン
+BUTTON_HU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: フ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 379;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヘ'のボタン
+BUTTON_HE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヘ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 379;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ホ'のボタン
+BUTTON_HO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ホ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 379;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'マ'のボタン
+BUTTON_MA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: マ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 440;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ミ'のボタン
+BUTTON_MI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ミ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 440;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ム'のボタン
+BUTTON_MU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ム;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 440;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'メ'のボタン
+BUTTON_ME {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: メ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 440;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'モ'のボタン
+BUTTON_MO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: モ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 440;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヤ'のボタン
+BUTTON_YA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヤ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 498;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ユ'のボタン
+BUTTON_YU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ユ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 498;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヨ'のボタン
+BUTTON_YO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヨ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 498;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ラ'のボタン
+BUTTON_RA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ラ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 560;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'リ'のボタン
+BUTTON_RI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: リ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 560;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ル'のボタン
+BUTTON_RU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ル;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 560;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'レ'のボタン
+BUTTON_RE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: レ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 560;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ロ'のボタン
+BUTTON_RO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ロ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 560;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ワ'のボタン
+BUTTON_WA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ワ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 616;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヰ'のボタン
+BUTTON_WI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヰ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 616;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヱ'のボタン
+BUTTON_WE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヱ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 616;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヲ'のボタン
+BUTTON_WO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヲ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 616;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ン'のボタン
+BUTTON_N {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ン;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 616;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヴ'のボタン
+BUTTON_VU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヴ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 678;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ガ'のボタン
+BUTTON_GA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ガ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 732;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ギ'のボタン
+BUTTON_GI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ギ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 732;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'グ'のボタン
+BUTTON_GU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: グ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 732;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ゲ'のボタン
+BUTTON_GE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゲ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 732;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ゴ'のボタン
+BUTTON_GO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゴ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 735;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ザ'のボタン
+BUTTON_ZA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ザ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 794;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ジ'のボタン
+BUTTON_ZI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ジ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 794;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ズ'のボタン
+BUTTON_ZU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ズ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 794;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ゼ'のボタン
+BUTTON_ZE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゼ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 794;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ゾ'のボタン
+BUTTON_ZO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゾ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 794;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ダ'のボタン
+BUTTON_DA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ダ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 852;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヂ'のボタン
+BUTTON_DI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヂ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 852;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヅ'のボタン
+BUTTON_DU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヅ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 852;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'デ'のボタン
+BUTTON_DE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: デ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 852;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ド'のボタン
+BUTTON_DO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ド;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 852;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'バ'のボタン
+BUTTON_BA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: バ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 911;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ビ'のボタン
+BUTTON_BI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ビ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 911;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ブ'のボタン
+BUTTON_BU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ブ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 911;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ベ'のボタン
+BUTTON_BE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ベ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 911;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ボ'のボタン
+BUTTON_BO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ボ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 911;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'パ'のボタン
+BUTTON_PA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: パ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 970;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ピ'のボタン
+BUTTON_PI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ピ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 970;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'プ'のボタン
+BUTTON_PU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: プ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 970;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ペ'のボタン
+BUTTON_PE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ペ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 970;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ポ'のボタン
+BUTTON_PO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ポ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 970;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ャ'のボタン
+BUTTON_XYA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ャ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1034;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ュ'のボタン
+BUTTON_XYU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ュ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1034;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ョ'のボタン
+BUTTON_XYO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ョ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1034;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ッ'のボタン
+BUTTON_XTU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ッ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1034;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ヮ'のボタン
+BUTTON_XWA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ヮ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1034;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ァ'のボタン
+BUTTON_XA {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ァ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1091;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ィ'のボタン
+BUTTON_XI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ィ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1091;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ゥ'のボタン
+BUTTON_PU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゥ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1091;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ェ'のボタン
+BUTTON_XE {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ェ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1091;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ォ'のボタン
+BUTTON_XO {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ォ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1091;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# '～'のボタン
+BUTTON_NAMI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ～;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1148;
+    y: 170;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ゝ'のボタン
+BUTTON_DOU {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゝ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1148;
+    y: 259;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 'ゞ'のボタン
+BUTTON_DOU2 {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゞ;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1148;
+    y: 349;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# '゛'のボタン
+BUTTON_DAKUTEN {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: ゛;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1148;
+    y: 443;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# '々'のボタン
+BUTTON_ONAZI {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 名前変数名
+    namevar: a;
+
+    # 入力する文字列
+    msg: 々;
+
+    # 最大文字数
+    max: 6;
+
+    # 座標とサイズ
+    x: 1148;
+    y: 532;
+    width: 53;
+    height: 57;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 決定ボタン
+BUTTON_OK {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 入力する文字列
+    msg: "[ok]";
+
+    # 座標とサイズ
+    x: 1109;
+    y: 637;
+    width: 105;
+    height: 55;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# クリアボタン
+BUTTON_CLEAR {
+    # 種類:名前変数の入力
+    type: char;
+
+    # 入力する文字列
+    msg: "[clear]";
+
+    # 座標とサイズ
+    x: 890;
+    y: 637;
+    width: 140;
+    height: 55;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# ひらがなボタン
+BUTTON_HIRAGANA {
+    # 種類:他のGUIへの移動
+    type: gui;
+
+    # 移動先のGUIファイル
+    file: input-hiragana.txt;
+
+    # 座標とサイズ
+    x: 53;
+    y: 619;
+    width: 235;
+    height: 94;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 一文字消去ボタン
+BUTTON_BACKSPACE {
+    # 種類:
+    type: char;
+
+    # 入力する文字列
+    msg: "[backspace]";
+
+    # 座標とサイズ
+    x: 588;
+    y: 637;
+    width: 225;
+    height: 55;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+

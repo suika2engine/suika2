@@ -1,0 +1,113 @@
+###
+### コンフィグ画面(2ページ目)のGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    idle:   config-page2-idle.png;
+    hover:  config-page2-hover.png;
+    active: config-page2-active.png;
+
+    # 右クリックによるキャンセル時のSE
+    cancelse: click.ogg;
+}
+
+# キャラクタごとのボイスボリュームスライダー
+MIDORI {
+    # 種類:キャラクタボリューム
+    type: charactervol;
+
+    # キャラクタ番号 (conf/config.txtで設定)
+    index: 1;
+
+    # スライダーが変更されたときに再生するCVファイル
+    file: 025.ogg;
+
+    # 位置とサイズ
+    x: 506;
+    y: 506;
+    width: 266;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# すべて既定値に戻すボタン
+DEFAULT {
+    # 種類:既定値
+    type: default;
+
+    # 座標とサイズ
+    x: 1131;
+    y: 61;
+    width: 115;
+    height: 40;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 設定ページ1への移動ボタン
+PAGE1 {
+    # 種類:他のGUIへの移動
+    type: gui;
+
+    # 移動先のGUIファイル
+    file: system.txt;
+
+    # 座標とサイズ
+    x: 1189;
+    y: 132;
+    width: 35;
+    height: 35;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# タイトルへ戻るボタン
+TITLE {
+    # 種類:タイトルへ戻る
+    type: title;
+
+    # 移動先のスクリプトファイル
+    file: init.txt;
+
+    # 座標とサイズ
+    x: 1007;
+    y: 652;
+    width: 109;
+    height: 25;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:タイトルへ戻る
+    type: cancel;
+
+    # 座標とサイズ
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
