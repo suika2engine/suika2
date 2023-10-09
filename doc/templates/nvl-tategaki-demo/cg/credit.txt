@@ -1,0 +1,36 @@
+***CREDIT***
+
+In order of creator.
+
+auto.png by MaxMorgan
+click1.png by MaxMorgan
+click2.png by MaxMorgan
+click3.png by MaxMorgan
+click4.png by MaxMorgan
+click5.png by MaxMorgan
+config-active.png by MaxMorgan
+config-hover.png by MaxMorgan
+config-idle.png by MaxMorgan
+config-page2-active.png by MaxMorgan
+config-page2-hover.png by MaxMorgan
+config-page2-idle.png by MaxMorgan
+msgbox-bg.png by MaxMorgan
+msgbox-fg.png by MaxMorgan
+namebox.png by MaxMorgan
+skip.png by MaxMorgan
+switch-bg.png by MaxMorgan
+switch-fg.png by MaxMorgan
+sysmenu-collapsed-hover.png by MaxMorgan
+sysmenu-collapsed-idle.png by MaxMorgan
+sysmenu-disable.png by MaxMorgan
+sysmenu-hover.png by MaxMorgan
+sysmenu-idle.png by MaxMorgan
+
+load-idle.png by heath (modified by ktabata)
+load-hover.png by heath (modified by ktabata)
+load-active.png by heath (modified by ktabata)
+menu-hover.png by heath (modified by ktabata)
+menu-idle.png by heath (modified by ktabata)
+save-idle.png by heath (modified by ktabata)
+save-hover.png by heath (modified by ktabata)
+save-active.png by heath (modified by ktabata)
