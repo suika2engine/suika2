@@ -810,6 +810,15 @@ sysmenu.transition=0
 msgbox.history.disable=0
 
 ###
+### テキスト読み上げ
+###
+
+# テキスト読み上げを有効にする (省略可)
+#  0: 無効
+#  1: 有効
+tts.enable=0
+
+###
 ### 言語設定 (省略可)
 ###
 

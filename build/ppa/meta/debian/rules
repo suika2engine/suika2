@@ -1,4 +1,10 @@
 #!/usr/bin/make -f
 
+override_dh_auto_configure:
+	./configure --prefix=/usr
+
+override_dh_auto_install:
+	$(MAKE) install
+
 %:
 	dh $@

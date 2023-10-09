@@ -495,11 +495,14 @@ static bool get_choose_info(void)
 				&parent_button[i].y,
 				&parent_button[i].w,
 				&parent_button[i].h);
+
+		/* テキスト読み上げする */
+		if (conf_tts_enable)
+			speak_text(msg);
 	}
 
 	return true;
 }
-
 
 /* @ichooseコマンドの引数情報を取得する */
 static bool get_ichoose_info(void)

@@ -50,6 +50,7 @@ LDFLAGS = \
 	-lwinmm \
 	-lopengl32 \
 	-ld3d9 \
+	-lsapi \
 	-L./libroot/lib \
 	-Wl,-dn,-ljpeg,-lpng16,-lz,-lvorbisfile,-lvorbis,-logg,-lfreetype,-dy \
 	-Wl,--gc-sections
@@ -68,7 +69,8 @@ SRCS_C = \
 
 SRCS_CC = \
 	../../src/d3drender.cc \
-	../../src/dsvideo.cc
+	../../src/dsvideo.cc \
+	../../src/tts_sapi.cc
 
 SRCS_R = res/resource.rc
 

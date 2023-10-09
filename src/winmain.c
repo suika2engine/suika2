@@ -25,6 +25,7 @@
 #include "suika.h"
 #include "dsound.h"
 #include "dsvideo.h"
+#include "tts_sapi.h"
 #include "uimsg.h"
 #include "resource.h"
 
@@ -343,6 +344,9 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		if(!CreateBackImage())
 			return FALSE;
 	}
+
+	if (conf_tts_enable)
+		InitSAPI();
 
 #if defined(USE_CAPTURE)
 	if (!init_capture())
@@ -2133,3 +2137,19 @@ static bool delete_directory(LPCWSTR pszDirName)
     return true;
 }
 #endif
+
+/*
+ * Text-To-Speech
+ */
+
+/*
+ * TTSによる読み上げを行う
+ */
+void speak_text(const char *text)
+{
+	const wchar_t *w;
+
+	w = conv_utf8_to_utf16(text);
+
+	SpeakSAPI(w);
+}

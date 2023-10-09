@@ -14,16 +14,11 @@ if [ $# != 0 ]; then
 fi
 
 # Update the changelog
-if [ -z "`grep $VERSION meta/debian/changelog`" ]; then
-    echo "suika2 ($VERSION-1) jammy; urgency=medium" > meta/debian/changelog.new;
-    echo '' >> meta/debian/changelog.new;
-    echo '  * Sync upstream' >> meta/debian/changelog.new;
-    echo '' >> meta/debian/changelog.new;
-    echo " -- Keiichi Tabata <tabata@luxion.jp>  `date`" >> meta/debian/changelog.new;
-    echo '' >> meta/debian/changelog.new;
-	cat meta/debian/changelog >> meta/debian/changelog.new;
-	mv meta/debian/changelog.new meta/debian/changelog;
-fi
+echo "suika2 ($VERSION-$MINOR) jammy; urgency=medium" > meta/debian/changelog;
+echo '' >> meta/debian/changelog;
+echo '  * Sync upstream' >> meta/debian/changelog;
+echo '' >> meta/debian/changelog;
+echo " -- Keiichi Tabata <tabata@luxion.jp>  `date '+%a, %d %b %Y %T %z'`" >> meta/debian/changelog;
 
 # Make a directory and enter it.
 rm -rf work
@@ -55,4 +50,4 @@ dput ppa:ktabata/ppa suika2_${VERSION}-${MINOR}_source.changes
 cd ../
 
 # Cleanup.
-rm -rf work
+#rm -rf work

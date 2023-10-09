@@ -2,7 +2,7 @@ Source: suika2
 Section: devel
 Priority: optional
 Maintainer: Keiichi Tabata <tabata@luxion.jp>
-Build-Depends: debhelper-compat (= 13), zlib1g-dev (>= 1), libpng-dev (>= 1), libjpeg9-dev (>= 1), libogg-dev (>= 1), libvorbis-dev(>= 1), libfreetype-dev (>= 1), libasound2-dev (>= 1), libx11-dev (>= 1), libgstreamer1.0-dev (>= 1), libgstreamer-plugins-base1.0-dev (>= 1), libxpm-dev (>= 3), mesa-common-dev (>= 23), cmake (>= 3), qt6-base-dev (>= 6), qt6-multimedia-dev (>= 6)
+Build-Depends: debhelper-compat (= 13), zlib1g-dev (>= 1), libpng-dev (>= 1), libjpeg9-dev (>= 1), libogg-dev (>= 1), libvorbis-dev(>= 1), libfreetype-dev (>= 1), libasound2-dev (>= 1), libx11-dev (>= 1), libgstreamer1.0-dev (>= 1), libgstreamer-plugins-base1.0-dev (>= 1), libxpm-dev (>= 3), mesa-common-dev (>= 23), cmake (>= 3), qt6-base-dev (>= 6), qt6-multimedia-dev (>= 6), libqt6core6 (>= 6), libqt6gui6 (>= 6), libqt6widgets6 (>= 6), libqt6opengl6-dev (>= 6), libqt6openglwidgets6 (>= 6), libqt6multimedia6 (>= 6), libqt6multimediawidgets6 (>= 6)
 Standards-Version: 4.6.0
 Homepage: https://github.com/suika2engine/suika2
 Vcs-Browser: https://github.com/suika2engine/suika2
