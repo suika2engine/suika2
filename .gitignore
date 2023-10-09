@@ -13,6 +13,7 @@ game/sav
 suika.exe
 suika-pro.exe
 suika-capture.exe
+suika-replay.exe
 suika-64.exe
 suika-arm64.exe
 mac.dmg
@@ -22,40 +23,40 @@ mac-replay.dmg
 mac.zip
 pack.mac
 
-# mingw
+# mingw (Windows 32-bit)
 build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/res/resource.aps
 build/mingw/sync.sh
 
-# mingw-64
+# mingw-pro (Windows 32-bit)
+build/mingw-pro/*.o
+build/mingw-pro/libroot
+build/mingw-pro/suika-pro.exe
+
+# mingw-capture (Windows 32-bit)
+build/mingw-capture/*.o
+build/mingw-capture/libroot
+build/mingw-capture/suika-capture.exe
+
+# mingw-replay (Windows 32-bit)
+build/mingw-replay/*.o
+build/mingw-replay/libroot
+build/mingw-replay/suika-replay.exe
+
+# mingw-64 (Windows 64-bit)
 build/mingw-64/*.o
 build/mingw-64/libroot
 build/mingw-64/suika-64.exe
 
-# mingw-arm64
+# mingw-arm64 (Windows Arm64)
 build/mingw-arm64/*.o
 build/mingw-arm64/llvm
 build/mingw-arm64/libroot
 build/mingw-arm64/suika-arm64.exe
 
-# mingw-pro
-build/mingw-pro/*.o
-build/mingw-pro/libroot
-build/mingw-pro/suika-pro.exe
-
-# mingw-capture
-build/mingw-capture/*.o
-build/mingw-capture/libroot
-build/mingw-capture/suika-capture.exe
-
-# mingw-replay
-build/mingw-replay/*.o
-build/mingw-replay/libroot
-build/mingw-replay/suika-replay.exe
-
-# Visual Studio (just for test build)
+# Visual Studio (for debug purpose only)
 build/vs/.vs
 build/vs/zlib
 build/vs/libpng
@@ -76,35 +77,23 @@ build/macos/build
 build/macos/suika.xcodeproj/project.xcworkspace
 build/macos/suika.xcodeproj/xcshareddata
 build/macos/suika.xcodeproj/xcuserdata
+build/macos/libroot-mac.tar.gz
 
-# iOS (iPhone and iPad)
-build/ios/libroot
-build/ios/suika.xcodeproj/project.xcworkspace
-build/ios/suika.xcodeproj/xcuserdata
-build/ios/suika.xcodeproj/xcshareddata
-build/ios/ios-src
-
-# Android
-build/android/.idea/caches
-build/android/app/.cxx
-build/android/app/src/main/assets
-build/android/app/src/main/cpp/freetype
-build/android/app/src/main/cpp/libpng
-build/android/app/src/main/cpp/jpeg
-build/android/app/src/main/cpp/*.[ch]
-build/android/cmdline-tools
-build/android/commandlinetools-linux-*.zip
-build/android/android-src
+# Web
+build/emscripten/html
 
 # Linux
 build/linux-x86_64/*.o
 build/linux-x86_64/libroot
 build/linux-x86_64/suika
 
-# Linux (clang)
-build/linux-x86_64-clang/*.o
-build/linux-x86_64-clang/libroot
-build/linux-x86_64-clang/suika
+# Linux Pro
+build/linux-x86_64-pro/deps
+build/linux-x86_64-pro/build
+build/linux-x86_64-pro/CMakeLists.txt.user
+build/linux-x86_64-pro/*.cpp
+build/linux-x86_64-pro/*.h
+build/linux-x86_64-pro/*.ui
 
 # Linux Capture
 build/linux-x86_64-capture/*.o
@@ -119,6 +108,32 @@ build/linux-x86_64-replay/libroot
 build/linux-x86_64-replay/suika-replay
 build/linux-x86_64-replay/app.info
 build/linux-x86_64-replay/lcovoutput
+
+# Linux (clang)
+build/linux-x86_64-clang/*.o
+build/linux-x86_64-clang/libroot
+build/linux-x86_64-clang/suika
+suika-pro
+
+# Android
+build/android/.idea/caches
+build/android/app/.cxx
+build/android/app/src/main/assets
+build/android/app/src/main/cpp/freetype
+build/android/app/src/main/cpp/libpng
+build/android/app/src/main/cpp/jpeg
+build/android/app/src/main/cpp/*.[ch]
+build/android/cmdline-tools
+build/android/commandlinetools-linux-*.zip
+build/android/android-src
+
+# iOS (iPhone and iPad)
+build/ios/libroot
+build/ios/suika.xcodeproj/project.xcworkspace
+build/ios/suika.xcodeproj/xcuserdata
+build/ios/suika.xcodeproj/xcshareddata
+build/ios/ios-src
+build/ios/libroot-ios.tar.gz
 
 # Raspberry Pi (Linux Arm)
 build/raspberrypi/*.o
@@ -150,39 +165,6 @@ build/switch/*.elf
 build/switch/*.nro
 build/switch/*.nacp
 build/switch/*.nsp
-
-# Web
-build/emscripten/html
-
-# New Pro
-
-# New Windows Pro (Qt6)
-build/qt-windows-pro/*.cpp
-build/qt-windows-pro/*.h
-build/qt-windows-pro/deps
-build/qt-windows-pro/build
-build/qt-windows-pro/CMakeLists.txt.user
-build/qt-windows-pro/*.cpp
-build/qt-windows-pro/*.h
-build/qt-windows-pro/*.ui
-
-# New Mac Pro (Qt6)
-build/qt-macos-pro/*.cpp
-build/qt-macos-pro/*.h
-build/qt-macos-pro/deps
-build/qt-macos-pro/build
-build/qt-macos-pro/CMakeLists.txt.user
-build/qt-macos-pro/*.cpp
-build/qt-macos-pro/*.h
-build/qt-macos-pro/*.ui
-
-# New Linux Pro (Qt6)
-build/qt-linux-pro/deps
-build/qt-linux-pro/build
-build/qt-linux-pro/CMakeLists.txt.user
-build/qt-linux-pro/*.cpp
-build/qt-linux-pro/*.h
-build/qt-linux-pro/*.ui
 
 # Tests
 testcases

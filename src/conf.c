@@ -372,6 +372,17 @@ char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 /* 最後にセーブ/ロードしたページ */
 int conf_gui_save_last_page;
 
+
+/*
+ * アクセシビリティ
+ */
+
+/* Text-To-Speechを有効にする */
+int conf_tts_enable;
+
+/* クリックアニメーションを点滅させない */
+int conf_click_disable;
+
 /*
  * その他の設定
  */
@@ -390,9 +401,6 @@ char *conf_window_title_separator;
 
 /* 章タイトルをウィンドウタイトルに反映しない */
 int conf_window_title_chapter_disable;
-
-/* クリックアニメーションを点滅させない */
-int conf_click_disable;
 
 /* キャラクタの変更中にメッセージボックスを隠さない */
 int conf_msgbox_show_on_ch;
@@ -1284,13 +1292,14 @@ static struct rule {
 	{"kirakira.file14", 's', &conf_kirakira_file[13], OPTIONAL, SAVE},
 	{"kirakira.file15", 's', &conf_kirakira_file[14], OPTIONAL, SAVE},
 	{"kirakira.file16", 's', &conf_kirakira_file[15], OPTIONAL, SAVE},
+	{"tts.enable", 'i', &conf_tts_enable, OPTIONAL, SAVE},
+	{"click.disable", 'i', &conf_click_disable, OPTIONAL, SAVE},
 	{"gui.save.last.page", 'i', &conf_gui_save_last_page, OPTIONAL, SAVE},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, OPTIONAL, SAVE},
 	{"window.fullscreen.disable", 'i', &conf_window_fullscreen_disable, OPTIONAL, SAVE},
 	{"window.maximize.disable", 'i', &conf_window_maximize_disable, OPTIONAL, SAVE},
 	{"window.title.separator", 's', &conf_window_title_separator, OPTIONAL, SAVE},
 	{"window.title.chapter.disable", 'i', &conf_window_title_chapter_disable, OPTIONAL, SAVE},
-	{"click.disable", 'i', &conf_click_disable, OPTIONAL, SAVE},
 	{"msgbox.show.on.ch", 'i', &conf_msgbox_show_on_ch, OPTIONAL, SAVE},
 	{"msgbox.show.on.bg", 'i', &conf_msgbox_show_on_bg, OPTIONAL, SAVE},
 	{"msgbox.show.on.choose", 'i', &conf_msgbox_show_on_choose, OPTIONAL, SAVE},

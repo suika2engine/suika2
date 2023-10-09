@@ -345,6 +345,7 @@ static int get_pointed_button(void);
 static void adjust_pointed_index(void);
 static void get_button_rect(int btn, int *x, int *y, int *w, int *h);
 static void init_repetition(void);
+static void speak(void);
 
 /* フレーム処理 */
 static bool frame_auto_mode(int *x, int *y, int *w, int *h);
@@ -667,6 +668,9 @@ static bool init(int *x, int *y, int *w, int *h)
 
 	/* 繰り返し動作を設定する */
 	init_repetition();
+
+	/* テキスト読み上げを行う */
+	speak();
 
 	return true;
 }
@@ -3244,6 +3248,17 @@ static bool is_skippable(void)
 		return true;
 
 	return false;
+}
+
+/* テキスト読み上げを行う */
+static void speak(void)
+{
+	if (!conf_tts_enable)
+		return;
+	if (have_voice)
+		return;
+
+	speak_text(msg_top);
 }
 
 /*

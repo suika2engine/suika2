@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Defaults:
+PREFIX="/usr/local"
+
+# Parse options.
+case $1 in
+    -h | --help)
+        echo 'Option:'
+	echo '  --prefix (default: --prefix=/usr/local)'
+	echo '    Specify installation directory.'
+	exit 0
+        ;;
+    --prefix=*)
+        PREFIX=${1#--prefix=}
+        ;;
+esac
+
+# Update the Makefile
+sed -i 's/^all:.*$/all: build/g' Makefile
+sed -i "s|^DESTDIR=.*$|DESTDIR=$PREFIX|g" Makefile
+sed -i "s/test:/run-test:/g" Makefile
+
+echo "Installation path: $PREFIX"

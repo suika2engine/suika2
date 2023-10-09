@@ -33,3 +33,15 @@ So the author decided not to use this port on Windows.
   * Open Qt Creator
   * Open `build/suika-pro-qt/CMakeLists.txt` from Qt Creator
   * Build
+
+* [For Debian] Build with command line (shared version)
+  * Run the following commands in this directory:
+  ```
+  ./make-deps-shared.sh
+  mkdir build
+  cd build
+  cmake ..
+  make
+  cp ..
+  cp build/suika-pro ../../suika-pro
+  ```

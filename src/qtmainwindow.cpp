@@ -54,11 +54,20 @@ MainWindow::MainWindow(QWidget *parent)
     format.setSampleFormat(QAudioFormat::Int16);
     format.setChannelCount(2);
     format.setSampleRate(44100);
-    for (int i = 0; i < MIXER_STREAMS; i++) {
-        m_wave[i] = NULL;
-        m_waveFinish[i] = false;
-        m_soundSink[i] = new QAudioSink(format);
-        m_soundDevice[i] = m_soundSink[i]->start();
+    if (!QSysInfo::kernelVersion().contains("WSL2")) {
+        for (int i = 0; i < MIXER_STREAMS; i++) {
+            m_wave[i] = NULL;
+            m_waveFinish[i] = false;
+            m_soundSink[i] = new QAudioSink(format);
+            m_soundDevice[i] = m_soundSink[i]->start();
+        }
+    } else {
+        for (int i = 0; i < MIXER_STREAMS; i++) {
+            m_wave[i] = NULL;
+            m_waveFinish[i] = false;
+            m_soundSink[i] = NULL;
+            m_soundDevice[i] = NULL;
+        }
     }
 
     // Setup a 33ms timer for game frames.
@@ -636,6 +645,7 @@ void MainWindow::on_actionExport_data01_arc_triggered()
     if (msgbox.exec() != QMessageBox::Yes)
         return;
 
+#if defined(OSX)
     // Get the game directory.
     char *gamePath = make_valid_path(NULL, NULL);
     if (gamePath == NULL) {
@@ -643,13 +653,19 @@ void MainWindow::on_actionExport_data01_arc_triggered()
         return;
     }
 
-	// Generate a package.
-    if (create_package(gamePath)) {
+	// Generate a package in the game folder.
+    bool ret = create_package(gamePath);
+    free(gamePath);
+#else
+    // Generate a package in the current directory.
+    bool ret = create_package("");
+#endif
+
+    if (ret) {
 		log_info(m_isEnglish ?
 				 "Successfully exported data01.arc" :
 				 "data01.arcのエクスポートに成功しました。");
 	}
-    free(gamePath);
 }
 
 //
@@ -1083,9 +1099,10 @@ bool play_sound(int stream, struct wave *w)
         return true;
     if (MainWindow::obj->m_soundSink[stream] == NULL)
         return true;
-    bool isPlaying = MainWindow::obj->m_wave[stream] != NULL;
-    if (!isPlaying)
+
+    if (MainWindow::obj->m_wave[stream] == NULL)
         MainWindow::obj->m_soundSink[stream]->start();
+
     MainWindow::obj->m_wave[stream] = w;
     MainWindow::obj->m_waveFinish[stream] = false;
     return true;
@@ -1100,6 +1117,7 @@ bool stop_sound(int stream)
         return true;
     if (MainWindow::obj->m_soundSink[stream] == NULL)
         return true;
+
     MainWindow::obj->m_soundSink[stream]->stop();
     MainWindow::obj->m_wave[stream] = NULL;
     MainWindow::obj->m_waveFinish[stream] = false;
@@ -1115,6 +1133,7 @@ bool set_sound_volume(int stream, float vol)
         return true;
     if (MainWindow::obj->m_soundSink[stream] == NULL)
         return true;
+
     MainWindow::obj->m_soundSink[stream]->setVolume(vol);
     return true;
 }
@@ -1126,7 +1145,13 @@ bool is_sound_finished(int stream)
 {
     if (MainWindow::obj == NULL)
         return true;
-    return MainWindow::obj->m_waveFinish[stream];
+    if (MainWindow::obj->m_soundSink[stream] == NULL)
+        return true;
+
+    if (!MainWindow::obj->m_waveFinish[stream])
+        return false;
+
+    return true;
 }
 
 /*

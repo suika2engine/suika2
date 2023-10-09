@@ -390,6 +390,12 @@ extern char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 extern int conf_gui_save_last_page;
 
 /*
+ * アクセシビリティ
+ */
+extern int conf_click_disable;
+extern int conf_tts_enable;
+
+/*
  * その他の設定
  */
 extern int conf_voice_stop_off;
@@ -397,7 +403,6 @@ extern int conf_window_fullscreen_disable;
 extern int conf_window_maximize_disable;
 extern char *conf_window_title_separator;
 extern int conf_window_title_chapter_disable;
-extern int conf_click_disable;
 extern int conf_msgbox_show_on_ch;
 extern int conf_msgbox_show_on_bg;
 extern int conf_msgbox_show_on_choose;

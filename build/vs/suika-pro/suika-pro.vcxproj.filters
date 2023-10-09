@@ -144,6 +144,9 @@
     <ClInclude Include="..\..\..\src\anime.h">
       <Filter>Header File</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\tts_sapi.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\avx.c">
@@ -339,6 +342,9 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_pencil.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\tts_sapi.cc">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>
