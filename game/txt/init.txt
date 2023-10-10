@@ -1,11 +1,6 @@
 # このシナリオファイルだけ、日本語と英語が混ざっています。
 # Only this scenario file contains both Japanese and English.
 
-# 効果音を再生 "テキスト読み上げを有効にするにはVキーを押してください。"
-# Play a sound effect "Press V key to enable text-to-speech."
-+ja+@se press-v-japanese.ogg
-+en+@se press-v-english.ogg
-
 ###
 ### ロゴ (Logo)
 ###
@@ -49,6 +44,17 @@
 # Re-enable skip
 
 @skip enable
+
+###
+### テキスト読み上げの案内
+### Text-to-speech notice
+###
+
+# 効果音を再生 / Play a sound effect
+#   日本語OS: "テキスト読み上げを有効にするにはVキーを押してください。"
+#   English OS: "Press V key to enable text-to-speech."
++ja+@se press-v-japanese.ogg
++en+@se press-v-english.ogg
 
 ###
 ### 言語選択
