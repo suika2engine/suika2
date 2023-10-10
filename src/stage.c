@@ -294,10 +294,18 @@ bool init_stage(void)
 	/* ブレンドタイプを設定する */
 	layer_blend[LAYER_BG] = BLEND_NONE;
 	layer_blend[LAYER_BG2] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT5] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT6] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT7] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT8] = BLEND_FAST;
 	layer_blend[LAYER_CHB] = BLEND_FAST;
 	layer_blend[LAYER_CHL] = BLEND_FAST;
 	layer_blend[LAYER_CHR] = BLEND_FAST;
 	layer_blend[LAYER_CHC] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT1] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT2] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT3] = BLEND_FAST;
+	layer_blend[LAYER_EFFECT4] = BLEND_FAST;
 	layer_blend[LAYER_MSG] = BLEND_FAST;
 	layer_blend[LAYER_NAME] = BLEND_FAST;
 	layer_blend[LAYER_CHF] = BLEND_FAST;
@@ -312,10 +320,6 @@ bool init_stage(void)
 	layer_blend[LAYER_TEXT6] = BLEND_FAST;
 	layer_blend[LAYER_TEXT7] = BLEND_FAST;
 	layer_blend[LAYER_TEXT8] = BLEND_FAST;
-	layer_blend[LAYER_EFFECT1] = BLEND_FAST;
-	layer_blend[LAYER_EFFECT2] = BLEND_FAST;
-	layer_blend[LAYER_EFFECT3] = BLEND_FAST;
-	layer_blend[LAYER_EFFECT4] = BLEND_FAST;
 	layer_blend[LAYER_FO] = BLEND_NONE;
 	layer_blend[LAYER_FI] = BLEND_FAST;
 

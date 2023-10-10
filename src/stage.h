@@ -18,6 +18,7 @@
  *  - 2022-10-20 キャラ顔絵を追加
  *  - 2023-09-03 キラキラエフェクトを追加
  *  - 2023-09-14 テキスト・エフェクトレイヤを追加、描画処理を整理
+ *  - 2023-10-10 エフェクトレイヤを移動/追加
  */
 
 #ifndef SUIKA_STAGE_H
@@ -35,11 +36,23 @@ enum {
 	/* 背景2レイヤ */
 	LAYER_BG2,
 
+	/* エフェクトレイヤ */
+	LAYER_EFFECT5,
+	LAYER_EFFECT6,
+	LAYER_EFFECT7,
+	LAYER_EFFECT8,
+
 	/* キャラクタレイヤ(顔以外) */
 	LAYER_CHB,
 	LAYER_CHL,
 	LAYER_CHR,
 	LAYER_CHC,
+
+	/* エフェクトレイヤ */
+	LAYER_EFFECT1,
+	LAYER_EFFECT2,
+	LAYER_EFFECT3,
+	LAYER_EFFECT4,
 
 	/* メッセージレイヤ */
 	LAYER_MSG,	/* 特殊: 実体イメージあり */
@@ -68,12 +81,6 @@ enum {
 	LAYER_TEXT6,
 	LAYER_TEXT7,
 	LAYER_TEXT8,
-
-	/* エフェクトレイヤ */
-	LAYER_EFFECT1,
-	LAYER_EFFECT2,
-	LAYER_EFFECT3,
-	LAYER_EFFECT4,
 
 	/*
 	 * フェードアウト用レイヤで、次の場合に有効:
