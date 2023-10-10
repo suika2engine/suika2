@@ -15,8 +15,8 @@ suika-arm64.exe ... Quite faster on Arm64 Windows (such as the Surface Pro) mach
 ## Testing Tools
 ##
 
-suika-capture.exe ... This records game play into the 'record' folder
-suika-replay.exe  ... This replays from the 'record' folder and outputs to the 'replay' folder
+suika-capture.exe ... This program records game play into the 'record' folder
+suika-replay.exe  ... This program replays from the 'record' folder and outputs to the 'replay' folder
 
  * Usage
   A. For bug reproduction:
@@ -41,4 +41,4 @@ suika-replay.dmg  ... Replay app for macOS
 ## For Linux
 ##
 
-suika-linux        ... For Linux (Use with Steam distribution)
+suika-linux ... For Linux (Use with Steam distribution)

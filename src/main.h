@@ -50,6 +50,8 @@ extern bool is_space_pressed;
 extern bool is_escape_pressed;
 extern bool is_up_pressed;
 extern bool is_down_pressed;
+extern bool is_left_arrow_pressed;
+extern bool is_right_arrow_pressed;
 extern bool is_page_up_pressed;
 extern bool is_page_down_pressed;
 extern bool is_control_pressed;

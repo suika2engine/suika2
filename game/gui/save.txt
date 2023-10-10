@@ -14,48 +14,30 @@ global {
 
     # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
+
+    # 読み上げテキスト
+    alt: セーブ画面が表示されています。左右のキーを押してください。;
 }
 
-# セーブデータページ1のボタン
-PAGE1 {
-    # 種類:セーブデータページ
-    type: savepage;
-
-    # ページ0番目
-    index: 0;
+# 元の画面に戻るボタン
+BACK {
+    # 種類:キャンセル
+    type: cancel;
 
     # 座標とサイズ
-    x: 1137;
-    y: 0;
-    width: 70;
-    height: 63;
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
     # クリックされたときの効果音
     clickse: click.ogg;
-}
 
-# セーブデータページ2のボタン
-PAGE2 {
-    # 種類:セーブデータページ
-    type: savepage;
-
-    # ページ0番目
-    index: 1;
-
-    # 座標とサイズ
-    x: 1206;
-    y: 0;
-    width: 70;
-    height: 63;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
+    # 読み上げテキスト
+    alt: このボタンを押すとゲーム画面に戻ります。;
 }
 
 # セーブデータ1番目
@@ -80,6 +62,9 @@ SAVESLOT1 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット1にセーブします。;
 }
 
 # セーブデータ2番目
@@ -104,6 +89,9 @@ SAVESLOT2 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット2にセーブします。;
 }
 
 # セーブデータ3番目
@@ -128,22 +116,55 @@ SAVESLOT3 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット3にセーブします。;
 }
 
-# 元の画面に戻るボタン
-BACK {
-    # 種類:キャンセル
-    type: cancel;
+# セーブデータページ1のボタン
+PAGE1 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # ページ0番目
+    index: 0;
 
     # 座標とサイズ
-    x: 33;
-    y: 623;
-    width: 170;
-    height: 64;
+    x: 1137;
+    y: 0;
+    width: 70;
+    height: 63;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ1を表示します。;
+}
+
+# セーブデータページ2のボタン
+PAGE2 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # ページ0番目
+    index: 1;
+
+    # 座標とサイズ
+    x: 1206;
+    y: 0;
+    width: 70;
+    height: 63;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ2を表示します。;
 }

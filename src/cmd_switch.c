@@ -158,6 +158,9 @@ static int selected_parent_index;
 /* ポイントされている子項目のインデックス */
 static int pointed_child_index;
 
+/* キー操作によってポイントが変更されたか */
+static bool is_selected_by_key;
+
 /*
  * 描画の状態
  */
@@ -495,10 +498,15 @@ static bool get_choose_info(void)
 				&parent_button[i].y,
 				&parent_button[i].w,
 				&parent_button[i].h);
+	}
 
-		/* テキスト読み上げする */
-		if (conf_tts_enable)
-			speak_text(msg);
+	/* テキスト読み上げする */
+	if (conf_tts_enable == 1) {
+		speak_text(NULL);
+		if (strcmp(get_system_locale(), "ja") == 0)
+			speak_text("選択肢が表示されています。左右のキーを押してください。");
+		else
+			speak_text("Options are dispayed. Press left or right arrow key.");
 	}
 
 	return true;
@@ -946,10 +954,19 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 			play_se(get_command_type() == COMMAND_NEWS ?
 				conf_news_change_se : conf_switch_change_se);
 		}
+
+		/* 読み上げを行う */
+		if (conf_tts_enable &&
+		    is_selected_by_key &&
+		    parent_button[pointed_parent_index].msg != NULL) {
+			speak_text(NULL);
+			speak_text(parent_button[pointed_parent_index].msg);
+		}
 	}
 
 	/* マウスの左ボタンでクリックされた場合 */
-	if (new_pointed_index != -1 && is_left_clicked &&
+	if (new_pointed_index != -1 &&
+	    (is_left_clicked || is_return_pressed) &&
 	    !is_sysmenu_finished) {
 		selected_parent_index = new_pointed_index;
 		pointed_child_index = -1;
@@ -1043,6 +1060,32 @@ static int get_pointed_parent_index(void)
 	if (is_sysmenu)
 		return -1;
 
+	/* 右キーを処理する */
+	if (is_right_arrow_pressed) {
+		is_selected_by_key = true;
+		if (pointed_parent_index == -1)
+			return 0;
+		if (pointed_parent_index == PARENT_COUNT - 1)
+			return 0;
+		if (parent_button[pointed_parent_index + 1].msg != NULL)
+			return pointed_parent_index + 1;
+		else
+			return 0;
+	}
+
+	/* 左キーを処理する */
+	if (is_left_arrow_pressed) {
+		is_selected_by_key = true;
+		if (pointed_parent_index == -1 ||
+		    pointed_parent_index == 0) {
+			for (i = PARENT_COUNT - 1; i >= 0; i--)
+				if (parent_button[i].msg != NULL)
+					return i;
+		}
+		return pointed_parent_index - 1;
+	}
+
+	/* マウスポイントを処理する */
 	for (i = 0; i < PARENT_COUNT; i++) {
 		if (IS_PARENT_DISABLED(i))
 			continue;
@@ -1050,10 +1093,17 @@ static int get_pointed_parent_index(void)
 		if (mouse_pos_x >= parent_button[i].x &&
 		    mouse_pos_x < parent_button[i].x + parent_button[i].w &&
 		    mouse_pos_y >= parent_button[i].y &&
-		    mouse_pos_y < parent_button[i].y + parent_button[i].h)
+		    mouse_pos_y < parent_button[i].y + parent_button[i].h) {
+			is_selected_by_key = false;
 			return i;
+		}
 	}
 
+	/* キーによる選択が行われている場合は維持する */
+	if (is_selected_by_key)
+		return pointed_parent_index;
+
+	/* その他の場合、何も選択しない */
 	return -1;
 }
 

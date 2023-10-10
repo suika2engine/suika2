@@ -58,10 +58,18 @@ struct layer_name_map {
 static struct layer_name_map layer_name_map[] = {
 	{"bg", ANIME_LAYER_BG}, {U8("背景"), ANIME_LAYER_BG},
 	{"bg2", ANIME_LAYER_BG2},
+	{"effect5", ANIME_LAYER_EFFECT5},
+	{"effect6", ANIME_LAYER_EFFECT6},
+	{"effect7", ANIME_LAYER_EFFECT7},
+	{"effect8", ANIME_LAYER_EFFECT8},
 	{"chb", ANIME_LAYER_CHB}, {U8("背面キャラ"), ANIME_LAYER_CHB},
 	{"chl", ANIME_LAYER_CHL}, {U8("左キャラ"), ANIME_LAYER_CHL},
 	{"chr", ANIME_LAYER_CHR}, {U8("右キャラ"), ANIME_LAYER_CHR},
 	{"chc", ANIME_LAYER_CHC}, {U8("中央キャラ"), ANIME_LAYER_CHC},
+	{"effect1", ANIME_LAYER_EFFECT1},
+	{"effect2", ANIME_LAYER_EFFECT2},
+	{"effect3", ANIME_LAYER_EFFECT3},
+	{"effect4", ANIME_LAYER_EFFECT4},
 	{"msg", ANIME_LAYER_MSG}, {U8("メッセージ"), ANIME_LAYER_MSG},
 	{"name", ANIME_LAYER_NAME}, {U8("名前"), ANIME_LAYER_NAME},
 	{"face", ANIME_LAYER_CHF}, {U8("顔"), ANIME_LAYER_CHF},
@@ -73,10 +81,6 @@ static struct layer_name_map layer_name_map[] = {
 	{"text6", ANIME_LAYER_TEXT6},
 	{"text7", ANIME_LAYER_TEXT7},
 	{"text8", ANIME_LAYER_TEXT8},
-	{"effect1", ANIME_LAYER_EFFECT1},
-	{"effect2", ANIME_LAYER_EFFECT2},
-	{"effect3", ANIME_LAYER_EFFECT3},
-	{"effect4", ANIME_LAYER_EFFECT4},
 };
 
 /* ロード中の情報 */
@@ -148,13 +152,23 @@ bool load_anime_from_file(const char *fname)
  */
 void clear_anime_sequence(int layer)
 {
+	int i, j;
+
 	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
 
 	context[layer].seq_count = 0;
 	context[layer].is_running = false;
 	context[layer].is_finished = false;
 
-	memset(&sequence[layer], 0, sizeof(struct sequence) * SEQUENCE_COUNT);
+	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
+		for (j = 0 ; j < SEQUENCE_COUNT; j++) {
+			if (sequence[i][j].file != NULL) {
+				free(sequence[i][j].file);
+				sequence[i][j].file = NULL;
+			}
+			memset(&sequence[i][j], 0, sizeof(struct sequence));
+		}
+	}
 }
 
 /*
@@ -351,7 +365,7 @@ get_anime_layer_params(
 			continue;
 
 		/* ファイル読み込みを行う */
-		if (s->file != NULL) {
+		if (s->file != NULL && strcmp(s->file, "unload") != 0) {
 			if (layer == ANIME_LAYER_BG ||
 			    layer == ANIME_LAYER_BG2)
 				dir = BG_DIR;
@@ -384,6 +398,17 @@ get_anime_layer_params(
 				free(*file);
 				*file = s->file;
 			}
+			s->file = NULL;
+		} else if (s->file != NULL && strcmp(s->file, "unload") == 0) {
+			if (image != NULL && *image != NULL) {
+				destroy_image(*image);
+				*image = NULL;
+			}
+			if (file != NULL) {
+				free(*file);
+				*file = NULL;
+			}
+			free(s->file);
 			s->file = NULL;
 		}
 
@@ -451,6 +476,7 @@ static bool on_key_value(const char *key, const char *val)
 {
 	struct sequence *s;
 	int top;
+	int i;
 
 	/* 最初にレイヤのキーが指定される必要がある */
 	if (strcmp(key, "layer") == 0) {
@@ -471,6 +497,12 @@ static bool on_key_value(const char *key, const char *val)
 	/* クリアが指定された場合 */
 	if (strcmp(key, "clear") == 0) {
 		context[cur_seq_layer].seq_count = 1;
+		for (i = 0; i < SEQUENCE_COUNT; i++) {
+			if (sequence[cur_seq_layer][i].file != NULL) {
+				free(sequence[cur_seq_layer][i].file);
+				sequence[cur_seq_layer][i].file = NULL;
+			}
+		}
 		memset(&sequence[cur_seq_layer], 0, sizeof(struct sequence) * SEQUENCE_COUNT);
 		return true;
 	}

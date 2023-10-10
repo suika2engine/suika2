@@ -121,6 +121,10 @@ static struct gui_button {
 	/* TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI, TYPE_FONT TYPE_WMS*/
 	char *file;
 
+	/* すべてのボタン */
+	char *alt;
+	int order;
+
 	/*
 	 * TYPE_SAVEPAGE, TYPE_LOADPAGE, TYPE_SAVE, TYPE_LOAD,
 	 * TYPE_CHARACTERVOL
@@ -154,6 +158,9 @@ static struct gui_button {
 
 		/* 前のフレームでポイントされていたか */
 		bool is_pointed;
+
+		/* キー入力によりポイントされているか */
+		bool is_selected_by_key;
 
 		/* ドラッグ中か */
 		bool is_dragging;
@@ -249,6 +256,7 @@ static bool need_update_history_buttons;
 /*
  * 前方参照
  */
+static void process_left_right_arrow_keys(void);
 static bool add_button(int index);
 static bool set_global_key_value(const char *key, const char *val);
 static bool set_button_key_value(const int index, const char *key,
@@ -257,7 +265,7 @@ static int get_type_for_name(const char *name);
 static void update_runtime_props(bool is_first_time);
 static bool move_to_other_gui(void);
 static bool move_to_title(void);
-static void process_button_point(int index);
+static bool process_button_point(int index, bool key);
 static void process_button_drag(int index);
 static float calc_slider_value(int index);
 static void process_button_click(int index);
@@ -297,8 +305,9 @@ static void draw_name(int index);
 static void process_char(int index);
 static void play_se(const char *file, bool is_voice);
 static void play_sys_se(const char *file);
-static bool load_gui_file(const char *file);
+static void speak(const char *text);
 static bool run_wms(const char *file);
+static bool load_gui_file(const char *file);
 
 bool register_s2_functions(struct wms_runtime *rt);
 
@@ -375,6 +384,7 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command,
 	memset(button, 0, sizeof(button));
 
 	/* 初期値を設定する */
+	pointed_index = -1;
 	save_page = conf_gui_save_last_page;
 	save_slots = 0;
 	history_slots = 0;
@@ -474,6 +484,9 @@ static bool set_global_key_value(const char *key, const char *val)
 			return false;
 		}
 		return true;
+	} else if (strcmp(key, "alt") == 0) {
+		speak(val);
+		return true;
 	}
 
 	log_gui_unknown_global_key(key);
@@ -546,6 +559,14 @@ static bool set_button_key_value(const int index, const char *key,
 			log_memory();
 			return false;
 		}
+	} else if (strcmp("alt", key) == 0) {
+		b->alt = strdup(val);
+		if (b->alt == NULL) {
+			log_memory();
+			return false;
+		}
+	} else if (strcmp("order", key) == 0) {
+		b->order = atoi(val);
 	} else if (strcmp("var", key) == 0) {
 		if (!get_variable_by_string(val, &var_val))
 			return false;
@@ -733,6 +754,7 @@ void start_gui_mode(void)
 	/* GUIモードを有効にする */
 	flag_gui_mode = true;
 	is_first_frame = true;
+	pointed_index = -1;
 }
 
 /*
@@ -766,17 +788,20 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 	*w = conf_window_width;
 	*h = conf_window_height;
 
-	/* 背景を描画する */
-	draw_stage_gui_idle();
-
-	/* 各ボタンについて処理する */
-	pointed_index = -1;
 	result_index = -1;
 	is_pointed_changed = false;
 	need_update_history_buttons = false;
+
+	/* 背景を描画する */
+	draw_stage_gui_idle();
+
+	/* 左右キーを処理する */
+	process_left_right_arrow_keys();
+
+	/* 各ボタンについて処理する */
 	for (i = 0; i < BUTTON_COUNT; i++) {
 		/* ポイント状態を更新する */
-		process_button_point(i);
+		process_button_point(i, false);
 
 		/* ドラッグ状態を更新する */
 		process_button_drag(i);
@@ -851,6 +876,99 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 
 	is_first_frame = false;
 	return true;
+}
+
+/* 左右キーを処理する */
+static void process_left_right_arrow_keys(void)
+{
+	int i, prev_sel, search_start;
+
+	prev_sel = -1;
+	search_start = -1;
+
+	/* 右キーを処理する */
+	if (is_right_arrow_pressed) {
+		/* 選択されているボタンを探す */
+		for (i = 0; i < BUTTON_COUNT; i++) {
+			if (button[i].rt.is_selected_by_key) {
+				prev_sel = i;
+				search_start = i + 1;
+				break;
+			}
+		}
+		if (i == BUTTON_COUNT) {
+			prev_sel = -1;
+			search_start = 0;
+		}
+
+		/* 選択するボタンを探す */
+		for (i = search_start; i < BUTTON_COUNT; i++) {
+			if (process_button_point(i, true)) {
+				if (prev_sel != -1) {
+					button[prev_sel].rt.is_pointed= false;
+					button[prev_sel].rt.is_selected_by_key = false;
+				}
+				return;
+			}
+		}
+
+		/* 検索をラップする */
+		if (search_start == 0)
+			return;
+		for (i = 0; i < search_start; i++) {
+			if (process_button_point(i, true)) {
+				if (prev_sel != -1) {
+					button[prev_sel].rt.is_pointed= false;
+					button[prev_sel].rt.is_selected_by_key = false;
+				}
+				return;
+			}
+		}
+
+		return;
+	}
+
+	/* 左キーを処理する */
+	if (is_left_arrow_pressed) {
+		/* 選択されているボタンを探す */
+		for (i = 0; i < BUTTON_COUNT; i++) {
+			if (button[i].rt.is_selected_by_key) {
+				prev_sel = i;
+				search_start = i - 1;
+				break;
+			}
+		}
+		if (i == BUTTON_COUNT) {
+			prev_sel = -1;
+			search_start = BUTTON_COUNT - 1;
+		}
+		if (search_start == -1)
+			search_start = BUTTON_COUNT - 1;
+
+		/* 選択するボタンを探す */
+		for (i = search_start; i >= 0; i--) {
+			if (process_button_point(i, true)) {
+				if (prev_sel != -1) {
+					button[prev_sel].rt.is_pointed= false;
+					button[prev_sel].rt.is_selected_by_key = false;
+				}
+				return;
+			}
+		}
+
+		/* 検索をラップする */
+		if (search_start == BUTTON_COUNT -1)
+			return;
+		for (i = BUTTON_COUNT - 1; i > search_start; i--) {
+			if (process_button_point(i, true)) {
+				if (prev_sel != -1) {
+					button[prev_sel].rt.is_pointed= false;
+					button[prev_sel].rt.is_selected_by_key = false;
+				}
+				return;
+			}
+		}
+	}
 }
 
 /* 他のGUIに移動する */
@@ -948,7 +1066,7 @@ static bool move_to_title(void)
  */
 
 /* ボタンのポイント状態の変化を処理する */
-static void process_button_point(int index)
+static bool process_button_point(int index, bool key)
 {
 	struct gui_button *b;
 	bool prev_pointed_status;
@@ -956,50 +1074,70 @@ static void process_button_point(int index)
 	b = &button[index];
 	prev_pointed_status = b->rt.is_pointed;
 
+	/* TYPE_INVALIDのときポイントできない(ボタンがない) */
+	if (b->type == TYPE_INVALID)
+		return false;
+
 	/* TYPE_GALLERYのとき、ボタンが無効であればポイントできない */
 	if (b->rt.is_disabled)
-		return;
+		return false;
 
 	/* TYPE_FULLSCREENのとき、ボタンがアクティブならポイントできない */
 	if (b->type == TYPE_FULLSCREEN && b->rt.is_active) {
 		b->rt.is_pointed = false;
-		return;
+		return false;
 	}
 
 	/* TYPE_WINDOWのとき、ボタンがアクティブならポイントできない */
 	if (b->type == TYPE_WINDOW && b->rt.is_active) {
 		b->rt.is_pointed = false;
-		return;
+		return false;
 	}
 
 	/* TYPE_HISTORYのとき、ボタンが非アクティブならポイントできない */
 	if (b->type == TYPE_HISTORY && !b->rt.is_active) {
 		b->rt.is_pointed = false;
-		return;
+		return false;
 	}
 
 	/* TYPE_PREVIEWのとき、ポイントできない */
 	if (b->type == TYPE_PREVIEW)
-		return;
+		return false;
 
 	/* TYPE_NAMEVARのとき、ポイントできない */
 	if (b->type == TYPE_NAMEVAR)
-		return;
+		return false;
+
+	/* キー操作の場合 */
+	if (key) {
+		b->rt.is_pointed = true;
+		b->rt.is_selected_by_key = true;
+		pointed_index = index;
+		is_pointed_changed = true;
+		speak(button[index].alt);
+		return true;
+	}
 
 	/* マウスがボタン領域に入っているかチェックする */
 	if (mouse_pos_x >= b->x && mouse_pos_x <= b->x + b->width &&
 	    mouse_pos_y >= b->y && mouse_pos_y <= b->y + b->height) {
 		/* ポイントされている */
 		b->rt.is_pointed = true;
+		b->rt.is_selected_by_key = false;
 		pointed_index = index;
 	} else {
-		/* ポイントされていない */
-		b->rt.is_pointed = false;
+		if (!b->rt.is_selected_by_key) {
+			/* ポイントされていない */
+			b->rt.is_pointed = false;
+			b->rt.is_selected_by_key = false;
+		}
 	}
 
 	/* ポイント状態が変化した場合 */
 	if (prev_pointed_status != b->rt.is_pointed)
 		is_pointed_changed = true;
+
+	return true;
 }
 
 /*
@@ -1188,8 +1326,13 @@ static void process_button_click(int index)
 		return;
 
 	/* ボタンがクリックされていない場合 */
-	if (!is_left_clicked)
-		return;
+	if (!b->rt.is_selected_by_key) {
+		if (!is_left_clicked)
+			return;
+	} else {
+		if (!is_return_pressed)
+			return;
+	}
 
 	/* ボタンのタイプごとにクリックを処理する */
 	switch (b->type) {
@@ -2514,6 +2657,61 @@ static void play_sys_se(const char *file)
 	set_mixer_input(SYS_STREAM, w);
 }
 
+/* ボタンの代替テキストを読み上げる */
+static void speak(const char *text)
+{
+	if (text != NULL)
+		speak_text(text);
+}
+
+/* WMSを実行する */
+static bool run_wms(const char *file)
+{
+	struct rfile *rf;
+	struct wms_runtime *rt;
+	size_t len;
+	char *script;
+
+	/* スクリプトファイルを開いてすべて読み込む */
+	rf = open_rfile(WMS_DIR, file, false);
+	if (rf == NULL)
+		return false;
+	len = get_rfile_size(rf);
+	script = malloc(len + 1);
+	if (script == NULL) {
+		log_memory();
+		return false;
+	}
+	if (read_rfile(rf, script, len) != len) {
+		log_file_read(WMS_DIR, file);
+		return false;
+	}
+	close_rfile(rf);
+	script[len] = '\0';
+
+	/* パースしてランタイムを作成する */
+	rt = wms_make_runtime(script);
+	if (rt == NULL) {
+		log_wms_syntax_error(file, wms_get_parse_error_line(),
+				     wms_get_parse_error_column());
+		return false;
+	}
+
+	/* ランタイムにFFI関数を登録する */
+	if (!register_s2_functions(rt))
+		return false;
+
+		/* WMSを実行する */
+	if (!wms_run(rt)) {
+		log_wms_runtime_error(get_string_param(WMS_PARAM_FILE),
+				      wms_get_runtime_error_line(rt),
+				      wms_get_runtime_error_message(rt));
+		return false;
+		}
+
+	return true;
+}
+
 /*
  * GUIファイルのロード
  */
@@ -2835,56 +3033,4 @@ static bool load_gui_file(const char *file)
 	close_rfile(rf);
 
 	return st != ST_ERROR;
-}
-
-/**
- * TYPE_WMS
-*/
-
-/*WMSの実行*/
-static bool run_wms(const char *file)
-{
-	struct rfile *rf;
-	struct wms_runtime *rt;
-	size_t len;
-	char *script;
-
-	/* スクリプトファイルを開いてすべて読み込む */
-	rf = open_rfile(WMS_DIR, file, false);
-	if (rf == NULL)
-		return false;
-	len = get_rfile_size(rf);
-	script = malloc(len + 1);
-	if (script == NULL) {
-		log_memory();
-		return false;
-	}
-	if (read_rfile(rf, script, len) != len) {
-		log_file_read(WMS_DIR, file);
-		return false;
-	}
-	close_rfile(rf);
-	script[len] = '\0';
-
-	/* パースしてランタイムを作成する */
-	rt = wms_make_runtime(script);
-	if (rt == NULL) {
-		log_wms_syntax_error(file, wms_get_parse_error_line(),
-				     wms_get_parse_error_column());
-		return false;
-	}
-
-	/* ランタイムにFFI関数を登録する */
-	if (!register_s2_functions(rt))
-		return false;
-
-		/* WMSを実行する */
-	if (!wms_run(rt)) {
-		log_wms_runtime_error(get_string_param(WMS_PARAM_FILE),
-				      wms_get_runtime_error_line(rt),
-				      wms_get_runtime_error_message(rt));
-		return false;
-		}
-
-	return true;
 }

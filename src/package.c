@@ -196,8 +196,6 @@ static bool get_file_names_recursive(const char *game_base, const char *base_dir
 /* Get directory file list (for Mac and Linux) */
 static bool get_file_names(const char *base_dir, const char *dir)
 {
-    bool ret;
-
     if (!get_file_names_recursive(base_dir, "", dir, 0))
         return false;
 
