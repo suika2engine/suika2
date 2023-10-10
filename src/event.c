@@ -144,6 +144,12 @@ void on_event_key_press(int key)
 	case KEY_DOWN:
 		is_down_pressed = true;
 		break;
+	case KEY_LEFT:
+		is_left_arrow_pressed = true;
+		break;
+	case KEY_RIGHT:
+		is_right_arrow_pressed = true;
+		break;
 	case KEY_ESCAPE:
 		is_escape_pressed = true;
 		break;
@@ -171,6 +177,8 @@ void on_event_key_release(int key)
 	case KEY_RETURN:
 	case KEY_UP:
 	case KEY_DOWN:
+	case KEY_LEFT:
+	case KEY_RIGHT:
 	case KEY_ESCAPE:
 		/* これらのキーはフレームごとに解放されたことにされる */
 		break;

@@ -1,9 +1,5 @@
 ***CREDIT***
 
-025.ogg
-suika.ogg
-by しぐれるぅ。
-
-click.ogg by yoshikimasuda
-@audiostock No.40381
-（2次利用できません。）
+free:
+  btn-change.ogg
+  click.ogg

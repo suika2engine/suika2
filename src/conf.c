@@ -380,6 +380,9 @@ int conf_gui_save_last_page;
 /* Text-To-Speechを有効にする */
 int conf_tts_enable;
 
+/* Text-To-Speechをユーザが有効にできる */
+int conf_tts_user;
+
 /* クリックアニメーションを点滅させない */
 int conf_click_disable;
 
@@ -1293,6 +1296,7 @@ static struct rule {
 	{"kirakira.file15", 's', &conf_kirakira_file[14], OPTIONAL, SAVE},
 	{"kirakira.file16", 's', &conf_kirakira_file[15], OPTIONAL, SAVE},
 	{"tts.enable", 'i', &conf_tts_enable, OPTIONAL, SAVE},
+	{"tts.user", 'i', &conf_tts_user, OPTIONAL, SAVE},
 	{"click.disable", 'i', &conf_click_disable, OPTIONAL, SAVE},
 	{"gui.save.last.page", 'i', &conf_gui_save_last_page, OPTIONAL, SAVE},
 	{"voice.stop.off", 'i', &conf_voice_stop_off, OPTIONAL, SAVE},

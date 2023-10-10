@@ -1017,6 +1017,10 @@ static int get_key_code(XEvent *event)
 		return KEY_DOWN;
 	case XK_Up:
 		return KEY_UP;
+	case XK_Left:
+		return KEY_LEFT;
+	case XK_Right:
+		return KEY_RIGHT;
 	}
 	return -1;
 }

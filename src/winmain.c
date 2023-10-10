@@ -1087,6 +1087,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SendMessage(hWndMain, WM_SIZE, 0, 0);
 			return 0;
 		}
+		if ((int)wParam == 'V' && !conf_tts_enable)
+		{
+			InitSAPI();
+			conf_tts_enable = 1;
+			if (strcmp(get_system_locale(), "ja") == 0)
+				SpeakSAPI(L"読み上げを有効にしました");
+			else
+				SpeakSAPI(L"Speech is enabled.");
+			return 0;
+		}
 		kc = ConvertKeyCode((int)wParam);
 		if(kc != -1)
 			on_event_key_press(kc);
@@ -1200,6 +1210,10 @@ static int ConvertKeyCode(int nVK)
 		return KEY_UP;
 	case VK_DOWN:
 		return KEY_DOWN;
+	case VK_LEFT:
+		return KEY_LEFT;
+	case VK_RIGHT:
+		return KEY_RIGHT;
 	case VK_ESCAPE:
 		return KEY_ESCAPE;
 	case 'C':
@@ -2147,9 +2161,50 @@ static bool delete_directory(LPCWSTR pszDirName)
  */
 void speak_text(const char *text)
 {
-	const wchar_t *w;
+	wchar_t buf[4096];
+	const wchar_t *s;
+	wchar_t *d;
 
-	w = conv_utf8_to_utf16(text);
+	/* 読み上げのキューに入っている文章をスキップする */
+	if (text == NULL)
+	{
+		SpeakSAPI(NULL);
+		return;
+	}
 
-	SpeakSAPI(w);
+	/* エスケープシーケンスを処理する */
+	s = conv_utf8_to_utf16(text);
+	d = &buf[0];
+	while (*s) {
+		/* エスケープシーケンスでない場合 */
+		if (*s != '\\') {
+			*d++ = *s++;
+			continue;
+		}
+
+		/* エスケープシーケンスの場合 */
+		switch (*(s + 1)) {
+		case '\0':
+			/* 文字列の末尾が'\\'なので無視する */
+			s++;
+			break;
+		case 'n':
+			/* "\\n"を処理する */
+			s += 2;
+			break;
+		default:
+			/* "\\.{.+}"のエスケープシーケンスをスキップする */
+			if (*(s + 2) == '{') {
+				s += 3;
+				while (*s != '\0' && *s != '}')
+					s++;
+				s++;
+			}
+			break;
+		}
+	}
+	*d = '\0';
+
+	/* 読み上げる */
+	SpeakSAPI(buf);
 }

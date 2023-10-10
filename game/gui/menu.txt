@@ -8,6 +8,7 @@ global {
     idle:   menu-idle.png;
     hover:  menu-hover.png;
     active: menu-hover.png;
+    alt: ゲームのメニュー画面が表示されています。左右のキーを押してください。;
 }
 
 # STARTボタン
@@ -29,6 +30,9 @@ START {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+        alt: このボタンを押すとゲームを開始します。;
 }
 
 # LOADボタン
@@ -50,6 +54,9 @@ LOAD {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+        alt: このボタンを押すとロード画面を表示します。;
 }
 
 # CONFIGボタン
@@ -71,6 +78,9 @@ CONFIG {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+        alt: このボタンを押すとコンフィグ画面を表示します。;
 }
 
 # QUITボタン
@@ -92,4 +102,7 @@ QUIT {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+        alt: このボタンを押すとゲームを終了します。;
 }

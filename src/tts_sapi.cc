@@ -22,6 +22,13 @@ void InitSAPI(void)
 
 void SpeakSAPI(const wchar_t *text)
 {
+	ULONG nSkipped;
+
 	if (pVoice != NULL)
-		pVoice->Speak(text, SVSFlagsAsync, NULL);
+	{
+		if (text != NULL)
+			pVoice->Speak(text, SVSFlagsAsync, NULL);
+		else
+			pVoice->Skip(L"SENTENCE", 100, &nSkipped);
+	}
 }
