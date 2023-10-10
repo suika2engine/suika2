@@ -1017,7 +1017,7 @@ const char *get_layer_file_name(int layer)
  */
 bool set_layer_file_name(int layer, const char *file_name)
 {
-	assert(layer >= 0 && layer <= LAYER_EFFECT4);
+	assert(layer >= 0 && layer <= LAYER_TEXT8);
 	assert(layer != LAYER_CLICK);
 	assert(layer != LAYER_MSG);
 	assert(layer != LAYER_NAME);
