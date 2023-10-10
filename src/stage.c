@@ -1118,11 +1118,19 @@ int stage_layer_to_anime_layer(int stage_layer)
 	switch (stage_layer) {
 	case LAYER_BG: return ANIME_LAYER_BG;
 	case LAYER_BG2: return ANIME_LAYER_BG2;
+	case LAYER_EFFECT5: return ANIME_LAYER_EFFECT5;
+	case LAYER_EFFECT6: return ANIME_LAYER_EFFECT6;
+	case LAYER_EFFECT7: return ANIME_LAYER_EFFECT7;
+	case LAYER_EFFECT8: return ANIME_LAYER_EFFECT8;
 	case LAYER_CHB: return ANIME_LAYER_CHB;
 	case LAYER_CHL: return ANIME_LAYER_CHL;
 	case LAYER_CHR: return ANIME_LAYER_CHR;
 	case LAYER_CHC: return ANIME_LAYER_CHC;
 	case LAYER_CHF: return ANIME_LAYER_CHF;
+	case LAYER_EFFECT1: return ANIME_LAYER_EFFECT1;
+	case LAYER_EFFECT2: return ANIME_LAYER_EFFECT2;
+	case LAYER_EFFECT3: return ANIME_LAYER_EFFECT3;
+	case LAYER_EFFECT4: return ANIME_LAYER_EFFECT4;
 	case LAYER_MSG: return ANIME_LAYER_MSG;
 	case LAYER_NAME: return ANIME_LAYER_NAME;
 	case LAYER_TEXT1: return ANIME_LAYER_TEXT1;
@@ -1133,10 +1141,6 @@ int stage_layer_to_anime_layer(int stage_layer)
 	case LAYER_TEXT6: return ANIME_LAYER_TEXT6;
 	case LAYER_TEXT7: return ANIME_LAYER_TEXT7;
 	case LAYER_TEXT8: return ANIME_LAYER_TEXT8;
-	case LAYER_EFFECT1: return ANIME_LAYER_EFFECT1;
-	case LAYER_EFFECT2: return ANIME_LAYER_EFFECT2;
-	case LAYER_EFFECT3: return ANIME_LAYER_EFFECT3;
-	case LAYER_EFFECT4: return ANIME_LAYER_EFFECT4;
 	default:
 		assert(0);
 		break;
@@ -1178,7 +1182,11 @@ void clear_stage(void)
 		case LAYER_EFFECT1:	/* fall-thru */
 		case LAYER_EFFECT2:	/* fall-thru */
 		case LAYER_EFFECT3:	/* fall-thru */
-		case LAYER_EFFECT4:
+		case LAYER_EFFECT4:	/* fall-thru */
+		case LAYER_EFFECT5:	/* fall-thru */
+		case LAYER_EFFECT6:	/* fall-thru */
+		case LAYER_EFFECT7:	/* fall-thru */
+		case LAYER_EFFECT8:
 			set_layer_file_name(i, NULL);
 			set_layer_image(i, NULL);
 			set_layer_position(i, 0, 0);
