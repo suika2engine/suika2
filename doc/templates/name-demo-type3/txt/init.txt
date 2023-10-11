@@ -1,0 +1,5 @@
+@gui input-hiragana.txt
+
+@bg white.png
+
+*%a*入力された名前は%aです！

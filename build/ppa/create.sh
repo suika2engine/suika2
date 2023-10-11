@@ -50,4 +50,4 @@ dput ppa:ktabata/ppa suika2_${VERSION}-${MINOR}_source.changes
 cd ../
 
 # Cleanup.
-#rm -rf work
+rm -rf work

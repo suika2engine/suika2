@@ -1,0 +1,266 @@
+###
+### コンフィグ画面(1ページ目)のGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    idle:   config-idle.png;
+    hover:  config-hover.png;
+    active: config-active.png;
+
+    # 右クリックによるキャンセル時のSE
+    cancelse: click.ogg;
+}
+
+# テキストスピードスライダー
+TEXTSPEED {
+    # 種類:テキストスピード
+    type: textspeed;
+
+    # 座標とサイズ
+    x: 68;
+    y: 250;
+    width: 266;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# オートモードスピードスライダー
+AUTOSPEED {
+    # 種類:オートモードスピード
+    type: autospeed;
+
+    # 座標とサイズ
+    x: 68;
+    y: 339;
+    width: 266;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;    
+}
+
+# テキストスピードのプレビュー
+PREVIEW {
+    # 種類:プレビュー
+    type: preview;
+
+    # 表示するメッセージ
+    msg: "これはメッセージのプレビューです。スピードはよろしいですか？";
+
+    # 座標とサイズ
+    x: 442;
+    y: 453;
+    width: 590;
+    height: 120;
+}
+
+# BGMのボリュームスライダー
+BGM {
+    # 種類:BGMボリューム
+    type: bgmvol;
+
+    # 座標とサイズ
+    x: 420;
+    y: 249;
+    width: 266;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# SEのボリュームスライダー
+SE {
+    # 種類:SEボリューム
+    type: sevol;
+
+    # スライダーが変更されたときに再生するSEファイル
+    file: click.ogg;
+
+    # 座標とサイズ
+    x: 420;
+    y: 339;
+    width: 266;
+    height: 20;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# ボイスのボリュームスライダー
+VOICE {
+    # Voice volume type
+    type: voicevol;
+
+    # スライダーが変更されたときに再生するCVファイル
+    file: 025.ogg;
+
+    # 座標とサイズ
+    x: 68;
+    y: 498;
+    width: 266;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# フォント選択ボタン1
+FONT1 {
+    # 種類:フォント
+    type: font;
+
+    # 押されたときに変更するフォント
+    file: VL-PGothic-Regular.ttf;
+
+    # 座標とサイズ
+    x: 770;
+    y: 328;
+    width: 87;
+    height: 30;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# フォント選択ボタン1
+FONT2 {
+    # 種類:フォント
+    type: font;
+
+    # 押されたときに変更するフォント
+    file: yasashisa.ttf;
+
+    # 座標とサイズ
+    x: 900;
+    y: 328;
+    width: 95;
+    height: 27;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# フルスクリーンモードへの切り替えボタン
+FULLSCREEN {
+    # 種類:フルスクリーン
+    type: fullscreen;
+
+    # 座標とサイズ
+    x: 750;
+    y: 206;
+    width: 200;
+    height: 25;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# ウィンドウモードへの切り替えボタン
+WINDOW {
+    # 種類:ウィンドウ
+    type: window;
+
+    # 座標とサイズ
+    x: 995;
+    y: 206;
+    width: 200;
+    height: 25;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# すべて既定値に戻すボタン
+DEFAULT {
+    # 種類:既定値
+    type: default;
+
+    # 座標とサイズ
+    x: 1131;
+    y: 61;
+    width: 115;
+    height: 40;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 設定ページ2への移動ボタン
+PAGE2 {
+    # 種類:他のGUIへの移動
+    type: gui;
+
+    # 移動先のGUIファイル
+    file: system-page2.txt;
+
+    # 座標とサイズ
+    x: 1234;
+    y: 132;
+    width: 35;
+    height: 35;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# タイトルへ戻るボタン
+TITLE {
+    # 種類:タイトルへ戻る
+    type: title;
+
+    # 移動先のスクリプトファイル
+    file: init.txt;
+
+    # 座標とサイズ
+    x: 1007;
+    y: 652;
+    width: 109;
+    height: 25;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:タイトルへ戻る
+    type: cancel;
+
+    # 座標とサイズ
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
