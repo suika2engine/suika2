@@ -825,6 +825,26 @@
 		],
 		"description": "CG鑑賞モードの各CGに進むボタンのguiテンプレート"
 	},
+	"wmsTemp":{
+		"prefix": "wmsTemp",
+		"body":[			
+			"$1 {",
+			"\ttype: wms;",
+			"",
+			"\tfile: $2",
+			"",
+			"\tx: $3;",
+			"\ty: $4;",
+			"\twidth: $5;",
+			"\theight: $6;",
+			"",
+			"\tpointse: $7",
+			"",
+			"\tclickse: $8",
+			"}"
+		],
+		"description": "クリック時、wmsを実行するguiテンプレート"
+	},
 
 	//anime
 	"animeTemp":{
