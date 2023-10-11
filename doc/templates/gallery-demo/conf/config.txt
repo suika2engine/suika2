@@ -1,0 +1,498 @@
+###
+### ウィンドウの設定
+###
+
+# ウィンドウのタイトル
+window.title=Suika
+
+# ウィンドウの幅
+window.width=1280
+
+# ウィンドウの高さ
+window.height=720
+
+# 背景を白にするか(1:白, 0:黒)
+window.white=1
+
+# メニューバーを表示するか(1:表示する, 0:表示しない)
+window.menubar=0
+
+###
+### フォントの設定
+###
+
+# フォントファイル名
+font.file=yasashisa.ttf
+
+# フォントサイズ
+font.size=38
+
+# フォントの色
+font.color.r=255
+font.color.g=255
+font.color.b=255
+
+# フォントの縁取りの色
+font.outline.color.r=128
+font.outline.color.g=128
+font.outline.color.b=128
+
+# アウトラインを取り除くか(0:アウトラインあり, 1:アウトラインなし)
+font.outline.remove=0
+
+###
+### 名前ボックスの設定
+###
+
+# 名前ボックス画像のファイル名
+namebox.file=namebox.png
+
+# 名前ボックス画像を表示する位置
+namebox.x=95
+namebox.y=480
+
+# 名前ボックス画像内のテキスト上端マージン
+namebox.margin.top=6
+
+# 名前の中央揃えをやめるか(0:中央揃え, 1:左揃え)
+namebox.centering.no=0
+
+# 名前を左揃えにするときのテキスト左端マージン
+namebox.margin.left=0
+
+# 名前ボックスを隠す (1:隠す, 0:隠さない) (省略可)
+namebox.hidden=0
+
+###
+### メッセージボックスの設定
+###
+
+# メッセージボックスの背景の画像ファイル名
+msgbox.bg.file=msgbox-bg.png
+
+# メッセージボックスの前景の画像ファイル名
+msgbox.fg.file=msgbox-fg.png
+
+# メッセージボックス画像を表示する位置
+msgbox.x=43
+msgbox.y=503
+
+# メッセージボックス画像内のテキスト左端マージン
+msgbox.margin.left=80
+
+# メッセージボックス画像内のテキスト上端マージン
+msgbox.margin.top=50
+
+# メッセージボックス画像内のテキスト右端マージン
+msgbox.margin.right=80
+
+# メッセージの行間
+msgbox.margin.line=55
+
+# メッセージのスピード(毎秒x文字表示する)
+msgbox.speed=20.0
+
+# メッセージボックスを非表示にするボタンの座標(メッセージボックス内の座標, 省略可)
+msgbox.btn.hide.x=1146
+msgbox.btn.hide.y=16
+msgbox.btn.hide.width=29
+msgbox.btn.hide.height=29
+
+# [サンプルでは未使用]
+# メッセージボックス内のセーブボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.save.x=0
+# msgbox.btn.save.y=0
+# msgbox.btn.save.width=0
+# msgbox.btn.save.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のロードボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.load.x=0
+# msgbox.btn.load.y=0
+# msgbox.btn.load.width=0
+# msgbox.btn.load.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のクイックセーブボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.qsave.x=0
+# msgbox.btn.qsave.y=0
+# msgbox.btn.qsave.width=0
+# msgbox.btn.qsave.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のクイックロードボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.qload.x=0
+# msgbox.btn.qload.y=0
+# msgbox.btn.qload.width=0
+# msgbox.btn.qload.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のオートボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.auto.x=0
+# msgbox.btn.auto.y=0
+# msgbox.btn.auto.width=0
+# msgbox.btn.auto.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のスキップボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.skip.x=0
+# msgbox.btn.skip.y=0
+# msgbox.btn.skip.width=0
+# msgbox.btn.skip.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のログボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.history.x=0
+# msgbox.btn.history.y=0
+# msgbox.btn.history.width=0
+# msgbox.btn.history.height=0
+
+# [サンプルでは未使用]
+# メッセージボックス内のコンフィグボタンの座標(メッセージボックス内の座標, 省略可)
+# msgbox.btn.config.x=0
+# msgbox.btn.config.y=0
+# msgbox.btn.config.width=0
+# msgbox.btn.config.height=0
+
+# ポイントされているボタンが変化したときのSE(省略可)
+msgbox.btn.change.se=btn-change.ogg
+
+# 上キーもしくはマウスホイールでヒストリ画面を呼び出すときのSE(省略可)
+msgbox.history.se=click.ogg
+
+# ESCキーでコンフィグ画面を呼び出すときのSE(省略可)
+msgbox.config.se=click.ogg
+
+# メッセージボックスを非表示にするときのSE(省略可)
+msgbox.hide.se=click.ogg
+
+# メッセージボックスを表示するときのSE(省略可)
+msgbox.show.se=click.ogg
+
+# オートモードをキャンセルするときのSE(省略可)
+msgbox.auto.cancel.se=click.ogg
+
+# スキップモードをキャンセルするときのSE(省略可)
+msgbox.skip.cancel.se=click.ogg
+
+# 未読でもスキップする (1: スキップする, 0: スキップしない, 省略時0)
+msgbox.skip.unseen=0
+
+# 全画面小説モードで読んだメッセージを暗くするための設定 (dim=0:無効, dim=1:有効, 省略可)
+msgbox.dim=0
+msgbox.dim.color.r=80
+msgbox.dim.color.g=80
+msgbox.dim.color.b=80
+msgbox.dim.color.outline.r=40
+msgbox.dim.color.outline.g=40
+msgbox.dim.color.outline.b=40
+
+###
+### クリックアニメーションの設定
+###
+
+# クリックアニメーション画像の表示位置
+click.x=1170
+click.y=660
+
+# クリックアニメーションの位置を移動するか(0:移動しない, 1:移動する, 省略可)
+click.move=0
+
+# クリックアニメーション画像のファイル名
+click.file1=click1.png
+
+# クリックアニメーション画像のファイル名 (省略可)
+click.file2=click2.png
+click.file3=click3.png
+click.file4=click4.png
+click.file5=click5.png
+click.file6=click5.png
+
+# クリックアニメーションの時間間隔
+click.interval=1.0
+
+# クリックアニメーションを表示しない (1:表示しない, 0:表示する) (省略可)
+click.disable=0
+
+###
+### 選択肢の設定 (@choose, @select, @switch, @news)
+###
+
+# 選択肢（非選択中）画像のファイル名
+switch.bg.file=switch-bg.png
+
+# 選択肢（選択中）画像のファイル名
+switch.fg.file=switch-fg.png
+
+# 選択肢の位置
+switch.x=406
+switch.y=129
+
+# 選択肢の間の縦方向マージン
+switch.margin.y=20
+
+# 選択肢画像のテキストの縦方向マージン
+switch.text.margin.y=12
+
+# ポイントされた項目のテキスト色 (active=0:無効, active=1:有効) (省略可)
+switch.color.active=0
+switch.color.active.body.r=255
+switch.color.active.body.g=0
+switch.color.active.body.b=0
+switch.color.active.outline.r=128
+switch.color.active.outline.g=128
+switch.color.active.outline.b=128
+
+# 選択肢を選択したときの効果音(省略可)
+switch.parent.click.se.file=click.ogg
+
+# @switchで2階層目の選択肢を選択したときの効果音(省略可)
+switch.child.click.se.file=click.ogg
+
+# 選択肢の選択項目が変更されたときのSE(省略可)
+switch.change.se=btn-change.ogg
+
+###
+### セーブ・ロード画面の設定
+###
+
+# セーブデータのサムネイルのサイズ
+save.data.thumb.width=213
+save.data.thumb.height=120
+
+###
+### システムメニューの設定
+###
+
+# システムメニュー画像の座標
+sysmenu.x=731
+sysmenu.y=29
+
+# システムメニュー画像(通常時)のファイル名
+sysmenu.idle.file=sysmenu-idle.png
+
+# システムメニュー画像(選択時)のファイル名
+sysmenu.hover.file=sysmenu-hover.png
+
+# システムメニュー画像(使用できない時)のファイル名
+sysmenu.disable.file=sysmenu-disable.png
+
+# システムメニューのクイックセーブボタンの座標(システムメニュー画像内での座標)
+sysmenu.qsave.x=62
+sysmenu.qsave.y=7
+sysmenu.qsave.width=60
+sysmenu.qsave.height=58
+
+# システムメニューのクイックロードボタンの座標(システムメニュー画像内での座標)
+sysmenu.qload.x=123
+sysmenu.qload.y=7
+sysmenu.qload.width=60
+sysmenu.qload.height=58
+
+# システムメニューのセーブボタンの座標(システムメニュー画像内での座標)
+sysmenu.save.x=184
+sysmenu.save.y=7
+sysmenu.save.width=60
+sysmenu.save.height=58
+
+# システムメニューのロードボタンの座標(システムメニュー画像内での座標)
+sysmenu.load.x=245
+sysmenu.load.y=7
+sysmenu.load.width=60
+sysmenu.load.height=58
+
+# システムメニューのオートボタンの座標(システムメニュー画像内での座標)
+sysmenu.auto.x=306
+sysmenu.auto.y=7
+sysmenu.auto.width=60
+sysmenu.auto.height=58
+
+# システムメニューのスキップボタンの座標(システムメニュー画像内での座標)
+sysmenu.skip.x=367
+sysmenu.skip.y=7
+sysmenu.skip.width=60
+sysmenu.skip.height=58
+
+# システムメニューのヒストリボタンの座標(システムメニュー画像内での座標)
+sysmenu.history.x=428
+sysmenu.history.y=7
+sysmenu.history.width=60
+sysmenu.history.height=58
+
+# システムメニューのコンフィグボタンの座標(システムメニュー画像内での座標)
+sysmenu.config.x=489
+sysmenu.config.y=7
+sysmenu.config.width=60
+sysmenu.config.height=58
+
+# システムメニューを呼び出すときのSE(省略可)
+sysmenu.enter.se=click.ogg
+
+# システムメニューをキャンセルするときのSE(省略可)
+sysmenu.leave.se=click.ogg
+
+# システムメニューの選択されている項目が変わったときのSE(省略可)
+sysmenu.change.se=btn-change.ogg
+
+# システムメニューのクイックセーブが選択されたときのSE(省略可)
+sysmenu.qsave.se=click.ogg
+
+# システムメニューのクイックロードが選択されたときのSE(省略可)
+sysmenu.qload.se=click.ogg
+
+# システムメニューのセーブが選択されたときのSE(省略可)
+sysmenu.save.se=click.ogg
+
+# システムメニューのロードが選択されたときのSE(省略可)
+sysmenu.load.se=click.ogg
+
+# システムメニューのオートが選択されたときのSE(省略可)
+sysmenu.auto.se=click.ogg
+
+# システムメニューのスキップが選択されたときのSE(省略可)
+sysmenu.skip.se=click.ogg
+
+# システムメニューのヒストリが選択されたときのSE(省略可)
+sysmenu.history.se=click.ogg
+
+# システムメニューのコンフィグが選択されたときのSE(省略可)
+sysmenu.config.se=click.ogg
+
+# 折りたたみシステムメニュー画像の座標
+sysmenu.collapsed.x=1219
+sysmenu.collapsed.y=29
+
+# 折りたたみシステムメニュー画像(通常時)のファイル名
+sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
+
+# 折りたたみシステムメニュー画像(選択時)のファイル名
+sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
+
+# 折りたたみシステムメニューが選択されたときのSE(省略可)
+sysmenu.collapsed.se=btn-change.ogg
+
+# システムメニューを隠す (1:隠す, 0:隠さない) (省略可)
+sysmenu.hidden=0
+
+###
+### オートモードの設定
+###
+
+# オートモードバナー画像のファイル名
+automode.banner.file=auto.png
+
+# オートモードバナーの座標
+automode.banner.x=0
+automode.banner.y=126
+
+# オートモードのスピード(1文字あたりx秒待つ)
+automode.speed=0.15
+
+###
+### スキップモードの設定
+###
+
+# スキップモードバナー画像のファイル名
+skipmode.banner.file=skip.png
+
+# スキップモードバナーの座標
+skipmode.banner.x=0
+skipmode.banner.y=186
+
+###
+### 音量の初期値
+###  - これは初期値で、セーブデータがある場合はそちらが利用される
+###
+
+# BGMのボリューム初期値
+sound.vol.bgm=1.0
+
+# ボイスのボリューム初期値
+sound.vol.voice=1.0
+
+# SEのボリューム初期値
+sound.vol.se=1.0
+
+# キャラクタごとの音量の初期値
+sound.vol.character=1.0
+
+###
+### キャラクタ名ごとに音量を調節するための設定
+###  - セリフの名前が下記に一致した場合、キャラクタごとの音量が適用される
+###  - キャラクタごとの音量はコンフィグ画面から設定可能(0番から15番まで)
+###  - 1番から15番までの15キャラ分について名前を指定可能
+###  - セリフの名前がどれにも一致しないときは0番の音量が利用される
+###
+
+sound.character.name1=みどり
+
+###
+### セリフの色の設定
+###
+
+serif.color1.name=Haruka
+serif.color1.r=255
+serif.color1.g=200
+serif.color1.b=200
+serif.color1.outline.r=0
+serif.color1.outline.g=0
+serif.color1.outline.b=0
+
+serif.color2.name=Kana
+serif.color2.r=200
+serif.color2.g=255
+serif.color2.b=200
+serif.color2.outline.r=0
+serif.color2.outline.g=0
+serif.color2.outline.b=0
+
+serif.color3.name=Chiaki
+serif.color3.r=200
+serif.color3.g=200
+serif.color3.b=255
+serif.color3.outline.r=0
+serif.color3.outline.g=0
+serif.color3.outline.b=0
+
+# 以降、serif.color64まで続くが省略可能
+
+###
+### その他
+###
+
+# クリックでボイスを止めない (1:止めない, 0:止める) (省略可)
+voice.stop.off=0
+
+# フルスクリーンを無効にする (1:無効にする, 0:有効にする) (省略可)
+window.fullscreen.disable=0
+
+# ウィンドウの最大化を無効にする (1:無効にする, 0:有効にする) (省略可)
+window.maximize.disable=0
+
+# ウィンドウタイトルと章タイトルの間のセパレータ(省略可)
+window.title.separator= 
+
+# 章タイトルをウィンドウタイトルに反映しない (1:反映しない, 0:反映する) (省略可)
+window.title.chapter.disable=0
+
+# キャラクタの変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
+msgbox.show.on.ch=0
+
+# 背景の変更中にメッセージボックスを隠さない (1:隠さない, 0:隠す) (省略可)
+msgbox.show.on.bg=0
+
+# セリフをカギカッコで囲う (1:囲う, 0:囲わない) (省略可)
+serif.quote=0
+
+# キャラ/背景の変更中に折りたたみシステムメニューを表示する (1:表示する, 0:表示しない) (省略可)
+# (ここを1にしても、スキップ禁止中だけは表示されません)
+sysmenu.transition=0
+
+###
+### リリースモード
+###  - 有効にするとセーブデータがAppData以下に保存されます
+###  - ゲームを"Program Files"にインストールする場合にお使いください
+###
+
+# リリースモード(0:無効, 1:有効) (省略可)
+release=0

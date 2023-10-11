@@ -1,0 +1,30 @@
+【Suika2 名前入力サンプル 日本語版 Type1】
+
+これは名前入力のサンプルです。ubi_2/aramasi0.9さんの作です。
+ぜひご活用ください！
+
+===
+
+下記が名前入力画面の画像です。
+
+- cg/input-hiragana-idle.png
+- cg/input-hiragana-hover.png
+- cg/input-katakana-idle.png
+- cg/input-katakana-hover.png
+
+===
+
+下記が名前入力画面のGUI定義ファイルです。
+
+- gui/input-hiragana.txt
+- gui/input-katakana.txt
+
+"namevar: a;"という行をすべて置き換えれば、%a以外の名前変数に文字を入力できます。
+
+===
+
+シナリオファイルは下記です。
+
+- txt/init.txt
+
+メッセージやセリフの中で、%aと書くことで、名前変数を利用できます。

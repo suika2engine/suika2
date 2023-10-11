@@ -323,6 +323,13 @@ do-release-kirara:
 	./do-release-kirara.sh && \
 	cd ..
 
+# Update template games.
+do-release-templates:
+	@echo "Going to update template games."
+	@cd build && \
+	./do-release-templates.sh && \
+	cd ..
+
 ##
 ## POSIX Conventions
 ##

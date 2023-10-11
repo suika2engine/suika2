@@ -1,0 +1,72 @@
+:START
+@choose L1 "CG1を回収する" L2 "CG2を回収する" GALLERY "CG鑑賞モードへ" CLEAR "CG回収状態をクリア"
+
+##
+## ゲーム中でCG1を見るとき（CG回収）の記述
+##
+
+:L1
+@bg coast.png 1.0
+
+# CG1を見たことをフラグ$10000に記録します。
+@set $10000 = 1
+
+CG1を回収しました。
+@bg white.png 1.0
+@goto START
+
+##
+## ゲーム中でCG2を見るとき（CG回収）の記述
+##
+
+:L2
+@bg roof.png 1.0
+
+# CG2を見たことをフラグ$10001に記録します。
+@set $10001 = 1
+
+CG2を回収しました。
+@bg white.png 1.0
+@goto START
+
+##
+## CG鑑賞モードを実行する
+##
+
+:GALLERY
+@gui gallery.txt cancel
+
+@bg white.png
+戻ります。
+@goto START
+
+##
+## CG鑑賞モードでCG1が選ばれたときの処理
+##
+
+:CG1
+@bg coast.png
+@click
+@bg white.png
+@goto GALLERY
+
+##
+## CG鑑賞モードでCG2が選ばれたときの処理
+##
+
+:CG2
+@bg roof.png
+@click
+@bg white.png
+@goto GALLERY
+
+##
+## CG回収状態をクリアする
+##
+
+:CLEAR
+@set $10000 = 0
+@set $10001 = 0
+CG回収状態をクリアしました。戻ります。
+@goto START
+
