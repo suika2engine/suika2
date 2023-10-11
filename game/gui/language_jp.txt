@@ -2,36 +2,7 @@ global {
     idle:   language_jp.png;
     hover:  language_jp_hover.png;
     active: language_jp_hover.png;
-}
-
-JAPANESE {
-    type: gui;
-
-    file: language_jp.txt;
-
-    x: 495;
-    y: 266;
-    width: 290;
-    height: 40;
-
-    #pointse: btn-change.ogg;
-
-    #clickse: click.ogg;
-}
-
-ENGLISH {
-    type: gui;
-
-    file: language_en.txt;
-
-    x: 495;
-    y: 316;
-    width: 290;
-    height: 40;
-
-    pointse: btn-change.ogg;
-
-    clickse: click.ogg;
+    alt: 画面では日本語のあいさつが表示されています。左右のキーを押してください。;
 }
 
 ACCEPT {
@@ -45,6 +16,39 @@ ACCEPT {
     height: 42;
 
     pointse: btn-change.ogg;
-
     clickse: click.ogg;
+
+    alt: このボタンを押すと言語を日本語に決定して先の画面に進みます。;
+}
+
+ENGLISH {
+    type: gui;
+
+    file: language_en.txt;
+
+    x: 495;
+    y: 316;
+    width: 290;
+    height: 40;
+
+    pointse: btn-change.ogg;
+    clickse: click.ogg;
+
+    alt: このボタンを押すと英語が選択されます;
+}
+
+JAPANESE {
+    type: gui;
+
+    file: language_jp.txt;
+
+    x: 495;
+    y: 266;
+    width: 290;
+    height: 40;
+
+    #pointse: btn-change.ogg;
+    #clickse: click.ogg;
+
+    alt: このボタンを押しても何も起こりません。;
 }

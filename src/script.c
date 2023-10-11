@@ -2604,6 +2604,9 @@ const char *get_line_string_at_line_num(int line)
 bool update_command(int index, const char *cmd_str)
 {
 	struct command *c;
+	const char *save_parse_file;
+	int save_parse_line;
+	int save_expanded_line;
 	int top;
 	bool ret;
 
@@ -2633,6 +2636,9 @@ bool update_command(int index, const char *cmd_str)
 	}
 
 	/* パース位置の情報を設定する */
+	save_parse_file = cur_parse_file;
+	save_parse_line = cur_parse_line;
+	save_expanded_line = cur_expanded_line;
 	cur_parse_file = c->file;
 	cur_parse_line = c->line;
 	cur_expanded_line = c->expanded_line;
@@ -2683,6 +2689,9 @@ bool update_command(int index, const char *cmd_str)
 
 	/* on-the-flyのパースを終了する */
 	is_on_the_fly = false;
+	cur_parse_file = save_parse_file;
+	cur_parse_line = save_parse_line;
+	cur_expanded_line = save_expanded_line;
 
 	return true;
 }

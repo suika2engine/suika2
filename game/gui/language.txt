@@ -2,6 +2,7 @@ global {
     idle:   language.png;
     hover:  language_hover.png;
     active: language_hover.png;
+    alt: この画面では言語を決定します。左右のキーを押してください。;
 }
 
 JAPANESE {
@@ -15,8 +16,9 @@ JAPANESE {
     height: 40;
 
     pointse: btn-change.ogg;
-
     clickse: click.ogg;
+
+    alt: このボタンを押すと日本語が選択されます。;
 }
 
 ENGLISH {
@@ -30,6 +32,7 @@ ENGLISH {
     height: 40;
 
     pointse: btn-change.ogg;
-
     clickse: click.ogg;
+
+    alt: このボタンを押すと英語が選択されます。;
 }

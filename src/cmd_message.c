@@ -3258,6 +3258,7 @@ static void speak(void)
 	if (have_voice)
 		return;
 
+	speak_text(NULL);
 	speak_text(msg_top);
 }
 

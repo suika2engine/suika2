@@ -43,6 +43,8 @@ bool is_space_pressed;
 bool is_escape_pressed;
 bool is_up_pressed;
 bool is_down_pressed;
+bool is_left_arrow_pressed;
+bool is_right_arrow_pressed;
 bool is_page_up_pressed;
 bool is_page_down_pressed;
 bool is_control_pressed;
@@ -214,6 +216,8 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	is_escape_pressed = false;
 	is_up_pressed = false;
 	is_down_pressed = false;
+	is_left_arrow_pressed = false;
+	is_right_arrow_pressed = false;
 
 	return true;
 }
@@ -527,7 +531,10 @@ void clear_input_state(void)
 	is_left_clicked = false;
 	is_right_clicked = false;
 	is_return_pressed = false;
+	is_up_pressed = false;
 	is_down_pressed = false;
+	is_left_arrow_pressed = false;
+	is_right_arrow_pressed = false;
 	is_escape_pressed = false;
 }
 

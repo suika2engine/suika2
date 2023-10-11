@@ -394,6 +394,7 @@ extern int conf_gui_save_last_page;
  */
 extern int conf_click_disable;
 extern int conf_tts_enable;
+extern int conf_tts_user;
 
 /*
  * その他の設定
