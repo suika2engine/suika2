@@ -139,6 +139,11 @@
 		"body": "@アニメ $1 $2",
 		"description": "アニメーションファイルを実行 アニメーションファイルはフォルダ anime に配置する必要があります。  @アニメ [ファイル名] [sync(同期) or async(非同期)]"
 	},
+	"setconfig":{
+		"prefix":["@setconfig"],
+		"body":"@setconfig $1 $2",
+		"description":"コンフィグをゲーム実行中に書き換えます。 @setconfig [変更する項目] [代入する値]"
+	},
 	"using":{
 		"prefix": "using",
 		"body": "using $1",
@@ -365,15 +370,13 @@
 			"$1 {",
 			"\ttype: autospeed;",
 			"",
-			"\tlabel: $2;",
+			"\tx: $2;",
+			"\ty: $3;",
+			"\twidth: $4;",
+			"\theight: $5;",
 			"",
-			"\tx: $3;",
-			"\ty: $4;",
-			"\twidth: $5;",
-			"\theight: $6;",
-			"",
-			"\tpointse: $7;",
-			"\tclickse: $8;",
+			"\tpointse: $6;",
+			"\tclickse: $7;",
 			"}"
 		],
 		"description": "autospeedのguiテンプレート"
@@ -1017,5 +1020,25 @@
 			"s2_reflect_msgbox_and_namebox_config();"
 		],
 		"description": "メッセージボックスと名前ボックスを更新する"
+	}
+	"s2_random":{
+		"prefix": "s2_random();",
+		"body": "s2_random()",
+		"description": "0~99999の乱数を返します"
+	}
+	"s2_round":{
+		"prefix": "s2_round();",
+		"body": "s2_round($1)",
+		"description": "小数点以下を四捨五入した値を返します"
+	}
+	"s2_ceil":{
+		"prefix": "s2_ceil();",
+		"body": "s2_ceil($1)",
+		"description": "小数点以下を切り上げした値を返します"
+	}
+	"s2_floor":{
+		"prefix": "s2_floor();",
+		"body": "s2_floor($1)",
+		"description": "小数点以下を切り捨てした値を返します"
 	}
 }
