@@ -887,6 +887,12 @@ void cleanup_stage(void)
 			layer_file_name[i] = NULL;
 		}
 	}
+	for (i = 0; i < LAYER_FO; i++) {
+		if (layer_file_name[i] != NULL) {
+			free(layer_file_name[i]);
+			layer_file_name[i] = NULL;
+		}
+	}
 	if (fade_rule_img != NULL) {
 		destroy_image(fade_rule_img);
 		fade_rule_img = NULL;
@@ -1008,7 +1014,7 @@ void set_layer_alpha(int layer, int alpha)
  */
 const char *get_layer_file_name(int layer)
 {
-	assert(layer >= 0 && layer <= LAYER_EFFECT4);
+	assert(layer >= 0 && layer < LAYER_FO);
 	return layer_file_name[layer];
 }
 
@@ -1017,7 +1023,7 @@ const char *get_layer_file_name(int layer)
  */
 bool set_layer_file_name(int layer, const char *file_name)
 {
-	assert(layer >= 0 && layer <= LAYER_TEXT8);
+	assert(layer >= 0 && layer < LAYER_FO);
 	assert(layer != LAYER_CLICK);
 	assert(layer != LAYER_MSG);
 	assert(layer != LAYER_NAME);
@@ -1155,7 +1161,7 @@ void clear_stage(void)
 {
 	int i;
 
-	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+	for (i = 0; i < LAYER_FO; i++) {
 		switch (i) {
 		case LAYER_BG:
 			set_layer_file_name(i, NULL);
@@ -1285,7 +1291,7 @@ void draw_stage_rect(int x, int y, int w, int h)
 	 * 各レイヤの描画パラメータを更新する
 	 *  - アニメシーケンスの"file:"指定により画像とファイル名も変更される
 	 */
-	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+	for (i = LAYER_BG; i < LAYER_FO; i++) {
 		/* 下記3つのレイヤはアニメレイヤがない */
 		if (i == LAYER_CLICK || i == LAYER_AUTO || i == LAYER_SKIP)
 			continue;
@@ -1343,10 +1349,18 @@ void draw_stage_rect(int x, int y, int w, int h)
 	/* 各レイヤで画面上の矩形(x, y) (w, h)に位置する部分を描画する */
 	render_layer_image_rect(LAYER_BG, x, y, w, h);
 	render_layer_image_rect(LAYER_BG2, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT5, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT6, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT7, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT8, x, y, w, h);
 	render_layer_image_rect(LAYER_CHB, x, y, w, h);
 	render_layer_image_rect(LAYER_CHL, x, y, w, h);
 	render_layer_image_rect(LAYER_CHR, x, y, w, h);
 	render_layer_image_rect(LAYER_CHC, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT1, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT2, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT3, x, y, w, h);
+	render_layer_image_rect(LAYER_EFFECT4, x, y, w, h);
 	if (is_msgbox_visible)
 		render_layer_image_rect(LAYER_MSG, x, y, w, h);
 	if (is_namebox_visible && !conf_namebox_hidden)
@@ -1367,10 +1381,6 @@ void draw_stage_rect(int x, int y, int w, int h)
 	render_layer_image_rect(LAYER_TEXT6, x, y, w, h);
 	render_layer_image_rect(LAYER_TEXT7, x, y, w, h);
 	render_layer_image_rect(LAYER_TEXT8, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT1, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT2, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT3, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT4, x, y, w, h);
 }
 
 /*
@@ -1437,10 +1447,18 @@ void draw_stage_fo_fi(void)
 	/* FOレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_BG2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT5);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT6);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT7);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT8);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
 	if (is_namebox_visible)
@@ -1456,17 +1474,22 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT6);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT7);
 	draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT8);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
-	draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	
 	/* FIレイヤを描画する */
 	draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_BG2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT5);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT6);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT7);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT8);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
+	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 	if (is_msgbox_visible)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
 	if (is_namebox_visible)
@@ -1482,10 +1505,6 @@ void draw_stage_fo_fi(void)
 	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT6);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT7);
 	draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT8);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
-	draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 }
 
 /*
@@ -2206,10 +2225,18 @@ static void draw_fo_common(void)
 	{
 		draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_BG2);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT5);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT6);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT7);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT8);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_CHB);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_CHL);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_CHR);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_CHC);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
+		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 		if (is_msgbox_visible)
 			draw_layer_image(layer_image[LAYER_FO], LAYER_MSG);
 		if (is_namebox_visible && !conf_namebox_hidden)
@@ -2228,10 +2255,6 @@ static void draw_fo_common(void)
 		draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT6);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT7);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_TEXT8);
-		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT1);
-		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT2);
-		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT3);
-		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT4);
 	}
 	unlock_image(layer_image[LAYER_FO]);
 }
@@ -2243,10 +2266,18 @@ static void draw_fi_common(bool show_msgbox)
 	{
 		draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_BG2);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT5);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT6);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT7);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT8);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_CHB);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_CHL);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_CHR);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_CHC);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
+		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 		if (show_msgbox) {
 			if (is_msgbox_visible)
 				draw_layer_image(layer_image[LAYER_FI], LAYER_MSG);
@@ -2267,10 +2298,6 @@ static void draw_fi_common(bool show_msgbox)
 		draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT6);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT7);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_TEXT8);
-		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT1);
-		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT2);
-		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT3);
-		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT4);
 	}
 	unlock_image(layer_image[LAYER_FI]);
 }
