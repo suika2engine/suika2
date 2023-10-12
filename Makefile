@@ -53,7 +53,7 @@ setup:
 		sudo apt-get install mingw-w64; \
 		echo 'Installing dependencies for Linux targets.'; \
 		echo 'sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov cmake qt6-base-dev qt6-multimedia-dev'; \
-		sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov cmake qt6-base-dev qt6-multimedia-dev'; \
+		sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov debhelper-compat zlib1g-dev libpng-dev libjpeg9-dev libogg-dev libvorbis-dev libfreetype-dev cmake qt6-base-dev qt6-multimedia-dev libqt6core6 libqt6gui6 libqt6widgets6 libqt6opengl6-dev libqt6openglwidgets6 libqt6multimedia6 libqt6multimediawidgets6; \
 		echo 'Installing dependencies for testing targets.'; \
 		echo 'sudo apt-get install python3-pip'; \
 		echo 'pip3 install opencv-python numpy'; \
