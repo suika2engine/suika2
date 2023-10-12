@@ -156,6 +156,15 @@ void on_event_key_press(int key)
 	case KEY_C:
 		conf_click_disable = conf_click_disable ? 0 : 1;
 		break;
+	case KEY_S:
+		is_s_pressed = true;
+		break;
+	case KEY_L:
+		is_l_pressed = true;
+		break;
+	case KEY_H:
+		is_h_pressed = true;
+		break;
 	default:
 		assert(INVALID_KEYCODE);
 		break;
@@ -174,12 +183,15 @@ void on_event_key_release(int key)
 	case KEY_SPACE:
 		is_space_pressed = false;
 		break;
-	case KEY_RETURN:
-	case KEY_UP:
-	case KEY_DOWN:
-	case KEY_LEFT:
-	case KEY_RIGHT:
-	case KEY_ESCAPE:
+	case KEY_RETURN:	/* fall-thru */
+	case KEY_UP:		/* fall-thru */
+	case KEY_DOWN:		/* fall-thru */
+	case KEY_LEFT:		/* fall-thru */
+	case KEY_RIGHT:		/* fall-thru */
+	case KEY_ESCAPE:	/* fall-thru */
+	case KEY_S:		/* fall-thru */
+	case KEY_L:		/* fall-thru */
+	case KEY_H:
 		/* これらのキーはフレームごとに解放されたことにされる */
 		break;
 	case KEY_C:

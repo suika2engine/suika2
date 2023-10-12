@@ -406,6 +406,5 @@ fi
 
 # Update the Web site.
 echo ""
-echo "Press enter to update the Web site:"
-read str
+echo "Updating the Web site:"
 release-html.sh

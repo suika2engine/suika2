@@ -14,21 +14,30 @@ global {
 
     # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
+
+    # 読み上げテキスト
+    alt: ヒストリー画面が表示されています。左右のキーを押してください。;
 }
 
-# スクロールバー
-SCROLL {
-    # 種類:スクロールバー
-    type: historyscroll;
+# 元の画面に戻るボタン
+BACK {
+    # 種類:キャンセル
+    type: cancel;
 
     # 座標とサイズ
-    x: 1192;
-    y: 112;
-    width: 67;
-    height: 498;
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: ゲームに戻るボタンです。;
 }
 
 # 履歴スロット1
@@ -50,6 +59,9 @@ HISTORYSLOT1 {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: ヒストリーの1番目のスロットです。リターンキーを押すと読み上げます。;
 }
 
 # 履歴スロット2
@@ -71,6 +83,9 @@ HISTORYSLOT2 {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: ヒストリーの2番目のスロットです。リターンキーを押すと読み上げます。;
 }
 
 # 履歴スロット3
@@ -92,22 +107,25 @@ HISTORYSLOT3 {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: ヒストリーの3番目のスロットです。リターンキーを押すと読み上げます。;
 }
 
-# 元の画面に戻るボタン
-BACK {
-    # 種類:キャンセル
-    type: cancel;
+# スクロールバー
+SCROLL {
+    # 種類:スクロールバー
+    type: historyscroll;
 
     # 座標とサイズ
-    x: 33;
-    y: 623;
-    width: 170;
-    height: 64;
+    x: 1192;
+    y: 112;
+    width: 67;
+    height: 498;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
-    clickse: click.ogg;
+    # 読み上げテキスト
+    alt: スクロールバーです。上下のキーで操作できます。;
 }
