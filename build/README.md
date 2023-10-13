@@ -1,179 +1,173 @@
-How to build
+HOW TO BUILD
 ============
-
 This document provides instructions for building the Suika2 apps from the source code.
-
-If you encounter any unexpected behaviour, please make an issue or report it on Discord server.
 
 FYI: The original author uses WSL2 and macOS for the official builds.
 
 ## Getting Started
 Firstly, you have to get the Suika2 repository using `Git`.
-The way to do this depends on the operating system you use.
 
-* On Windows:
-  * Install `Git for Windows`
-  * Run `Git Bash` and type the following command:
-  ```
-  git clone https://github.com/suika2engine/suika2.git
-  ```
+* From the terminal, run the following command:
+```
+git clone https://github.com/suika2engine/suika2.git
+```
 
-* On macOS 13:
-  * From the terminal, run the following command:
-  ```
-  git clone https://github.com/suika2engine/suika2.git
-  ```
-
-* On Ubuntu 22.04 (and WSL2):
-  * From the terminal, run the following commands:
-  ```
-  git clone https://github.com/suika2engine/suika2.git
-  ```
-
-## The Main Game Engine for Windows
+## Suika2 for Windows (main engine)
 This method will build a Windows binary on WSL2, Linux or macOS.
 
-* Steps
+* Prerequisite
   * Use WSL2, Ubuntu or macOS
-  * From the terminal, navigate to the source code directory
-    * Run the following commands:
-    ```
-    make setup
-    make windows
-    ```
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make setup
+  ```
 
-## The Main Game Engine for macOS
+* Build
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make windows
+  ```
+
+## Suika2 for macOS (main engine)
 This method will utilize `Xcode` and terminal to build macOS main engine binary.
 
 * Steps
   * Use macOS 13
   * Install Xcode 14
-  * From the terminal, navigate to the `build/macos` directory
-    * Run the following command:
+  * From the terminal:
+    * Navigate to the `build/macos` directory and run the following command:
+    ```
+    ./build-libs.sh
+    ```
+    * Note:
+      * On an Apple Silicon Mac, `build-libs.sh` will build the libraries from the source codes
+      * On an Intel Mac, `build-libs.sh` will download the prebuilt libraries to avoid a build failure of `libpng`
+  * From Xcode, open `build/macos/suika.xcodeproj`
+    * Select the `suika` target
+    * Navigate to the `Signing & Capabilities` tab
+    * Select `Automatically Manage Signing`
+    * Build the `suika` target
+
+* Additional steps for when you want to build apps for distribution
+  * Select `suika` target
+  * Navigate to the `Signing & Capabilities` tab
+  * Set your development team (Apple ID)
+  * Archive the app
+  * Press `Distribute App` button to notarize the app
+  * Use `Developer ID`
+  * Press `Export Notarized App` button
+  * Export the app to the `build/macos` folder
+  * Edit `build/macos/make-dmg.sh` and set your `SIGNATURE`
+  * From the terminal, navigate to the `build/macos` directory and run the following command to make `mac.dmg`:
+  ```
+  ./make-dmg.sh
+  ```
+
+## Suika2 for Web (main engine)
+This method will build the Web version of Suika2.
+
+* Build instructions
+  * From the terminal, navigate to the `build/emscripten` directory
+  * Run the following command to create the `build/emscripten/html/index.*` files:
+  ```
+  make
+  ```
+  * Note that `emsdk` will be installed when the first call of `make`
+
+## Suika2 for Linux (main engine, x86_64)
+This method will build a Linux app.
+
+* Prerequisite
+  * Use Ubuntu including WSL2
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make setup
+  ```
+
+* Build
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make linux
+  ```
+
+## Suika2 for Android (Android app)
+This method requires `Android Studio` to build the Android app.
+
+* Install `Android Studio`
+* Run `Suika2 Pro` and export Android source code
+  * Note that the Android export function is currently supported on only Windows version of `Suika2 Pro`
+* Open the exported project from `Android Studio`
+* Build the project
+* Run the app from your device or an emulator.
+
+## Suika2 for iOS (iPhone and iPad app)
+This method will utilize `Xcode` and terminal to build an iOS app.
+
+* Use macOS 13
+* Install Xcode 14
+* Run `Suika2 Pro` and export iOS source code
+  * Note that the iOS export function is currently supported on only Windows version of `Suika2 Pro`
+* From Xcode, open the exported project
+* Complete the following steps:
+  * Navigate to the `Signing & Capabilities` tab
+  * Select `Automatically Manage Signing`
+  * Connect your iOS device via USB cable
+  * Build the project for the device
+  * Run the app from your iOS device
+
+## Suika2 Pro for Windows
+This method will build a Suika2 Pro for Windows binary on WSL2, Linux or macOS.
+
+* Prerequisite
+  * Use WSL2, Ubuntu or macOS
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make setup
+  ```
+
+* Build
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make windows-pro
+  ```
+
+## Suika2 Pro for macOS
+This method will utilize `Xcode` and terminal to build macOS main engine binary.
+
+* Steps
+  * Use macOS 13
+  * Install Xcode 14
+  * From the terminal:
+    * Navigate to the `build/macos` directory and run the following command:
     ```
     ./build-libs.sh
     ```
     * Note:
       * On an Apple Silicon Mac, this script will build the libraries from the source codes
-      * On an Intel Mac, this script will download prebuilt libraries to avoid a build failure of `libpng`
+      * On an Intel Mac, this script will download the prebuilt libraries to avoid a build failure of `libpng`
   * From Xcode, open `build/macos/suika.xcodeproj`
-  * If you want to build apps for local usage:
-    * Select `suika` target
+    * Select `suika-pro` target
     * Navigate to the `Signing & Capabilities` tab
     * Select `Automatically Manage Signing`
-    * Build the app variants (`suika`, `suika-pro`, `suika-capture` and `suika-replay`)
-  * If you want to build apps for distribution:
-    * Select `suika` target
-    * Navigate to the `Signing & Capabilities` tab
-    * Set your development team (Apple ID)
-    * Archive the app
-    * Press `Distribute App` button to notarize the app
-    * Use `Developer ID`
-    * Press `Export Notarized App` button
-    * Export the app to the `build/macos` folder
-  * If you want to distribute a dmg file:
-    * Edit `build/macos/make-dmg.sh` and set your `SIGNATURE`
-    * From the terminal, navigate to the `build/macos` directory
-      * Run the following command to make `mac.dmg`:
-      ```
-      ./make-dmg.sh
-      ```
+    * Build `suika-pro` target
 
-## The Main Game Engine for Web (Emscripten)
-This method will build the Web version.
+## Suika2 Pro for Linux
+This method will build a Linux version of Suika2 Pro using Qt6.
 
-* Prerequisites
-  * You need a UNIX-like environment such as WSL2, Ubuntu, MSYS2 or macOS
-  * Ensure you can access `make` and `python3` commands
-  * Install `Emscripten` using `emsdk`
+* Prerequisite
+  * Use Ubuntu including WSL2
+  * From the terminal, navigate to the source code directory and run the following command:
   ```
-  git clone https://github.com/emscripten-core/emsdk.git
-  cd emsdk && ./emsdk install latest && cd ..
-  cd emsdk && ./emsdk activate latest && cd ..
+  make setup
   ```
-  * Generate your `data01.arc`
-    * To do this, run `Suika2 Pro` app, select `Export Package`
 
-* Build instructions
-  * From the terminal, navigate to the `build/emscripten` directory
-    * Run the following command to create the `build/emscripten/html/index.*` files:
-    ```
-    make
-    ```
+* Build
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make linux-pro
+  ```
 
-* Testing instructions
-  * Put your `data01.arc` into `build/emscripten/html/`
-  * From the terminal, navigate to the `build/emscripten` directory
-    * Run the following command:
-    ```
-    make run
-    ```
-  * From a browser, navigate to `http://localhost:8000/html/`
-
-## Android App
-This method requires `Android Studio` to build the Android app.
-
-* On Windows:
-  * Install `Android Studio`
-  * From the `Git Bash` terminal, navigate to the `build/android` directory
-    * Run the following command:
-    ```
-    ./prepare-libs.sh
-    ```
-  * Open the `build/android` project from `Android Studio`
-  * Build the project
-
-* On macOS or Ubuntu 22.04:
-  * Install `Android Studio`
-  * From the terminal, navigate to the `build/android` directory
-    * Run the following command:
-    ```
-    ./prepare-libs.sh
-    ```
-  * Open the `build/android` project from `Android Studio`
-  * Build the project
-
-Run the app from your device or an emulator.
-
-## iOS App (iPhone and iPad)
-This method will utilize `Xcode` and terminal to build an iOS app.
-
-* Steps
-  * Use macOS 13
-  * Install Xcode 14
-  * From the terminal, navigate to the `build/ios` directory
-    * Run the following command:
-    ```
-    ./build-libs.sh
-    ```
-    * Alternatively, you can run `./build-libs-sim.sh` to build libraries for use with simulators
-  * From Xcode, open `build/ios/suika.xcodeproj`
-  * Complete the following steps:
-    * Navigate to the `Signing & Capabilities` tab
-    * Select `Automatically Manage Signing`
-    * Connect your iOS device via USB cable
-    * Build the project for the device
-    * Run the app from your iOS device
-    * Replace `build/ios/suika/data01.arc` with your own `data01.arc` file if you like
-    * Rebuild and run
-
-* Distribution
-  * You have to learn how to distribute apps on the `App Store`
-  * This procedure has been changing frequently, so you have to search the latest information
-
-## The Main Game Engine for Linux (x86_64)
-This method will build a Linux app.
-
-* Steps
-  * Use WSL2 or Ubuntu
-  * From the terminal, navigate to the source code directory
-    * Run the following command:
-    ```
-    make setup
-    make linux
-    ```
-
-## The Main Game Engine for Raspberry Pi
+## Suika2 for Raspberry Pi (main engine)
 This method will build a Raspberry Pi app.
 
 * Steps
@@ -183,34 +177,39 @@ This method will build a Raspberry Pi app.
   sudo apt-get update
   sudo apt-get install libasound2-dev libx11-dev libxpm-dev mesa-common-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
   ```
-  * From the terminal, navigate to the `build/raspberrypi` directory
-    * Run the following commands:
-    ```
-    make
-    make install
-    ```
-
-## Suika2 Pro for Linux
-This method will build a Linux version of Suika2 Pro (Qt6).
-
-* Steps
-  * If you are on Ubuntu, run the following commands:
+  * From the terminal, navigate to the `build/raspberrypi` directory and run the following command:
   ```
-  sudo apt-get update
-  sudo apt-get install qt6-base-dev qt6-multimedia-dev
-  ```
-  * From the terminal, navigate to the `build/suika-pro-qt` directory, type:
-  ```
-  ./make-deps.sh
-  mkdir build
-  cd build
-  cmake ..
   make
-  cp ..
-  cp build/suika-pro ../../suika-pro
   ```
 
-## FreeBSD Binary
+## Misc
+
+### GCC Static Analysis
+To use static analysis of `gcc`, type the following commands:
+```
+cd build/linux-x86_64
+make analyze
+```
+
+### LLVM Static Analysis
+To use static analysis of LLVM/Clang, you can run the following commands:
+```
+sudo apt-get install -y clang
+cd build/linux-x86_64-clang
+make
+make analyze
+```
+
+### Memory Leak Profiling
+We use `valgrind` to detect memory leaks and keep memory-related bugs at zero.
+
+To use memory leak checks on Linux, type the following commands:
+```
+cd build/linux-x86_64
+make valgrind
+```
+
+### FreeBSD (main engine)
 This method will build a FreeBSD binary.
 
 * On FreeBSD 12 (amd64), install the following packages:
@@ -223,7 +222,7 @@ gmake
 gmake install
 ```
 
-## NetBSD Binary
+### NetBSD (main engine)
 This method will build a NetBSD binary.
 
 * On NetBSD 9 (amd64), install the following packages:
@@ -249,7 +248,7 @@ gmake
 gmake install
 ```
 
-## Switch App
+### Switch (main engine)
 This method will build a Switch app.
 
 **LEGAL NOTICE**: The original author does not have a license for the official
@@ -265,7 +264,6 @@ license.
   * In the `build/switch` directory:
     * `make swika.nro` (this builds nro file that can be loaded by hbmenu)
     * `make debug SWITH_IP=192.168.xx.xx` (this runs the app for debug)
-
 * Docker Building Steps
   * You can use a docker container for the compililation:
   ```
@@ -275,76 +273,9 @@ license.
   docker stop devkita64_run
   docker rm devkita64_run
   ```
-
 * Running Steps
   * Copy `suika.nro` to `yourgamedir`.
   * Copy `yourgamedir` to a Switch compatible sdcard (`/switch/yourgamedir`)
   * Install `hbmenu` and select an arbitrary Switch app, then press `R` to enter `hbmenu`.
     * Note: applet mode is not available as there is not enough memory.
   * Select `swika` to play
-
-## Static Analysis on Linux
-To use static analysis of `gcc`, type the following commands:
-```
-cd build/linux-x86_64
-make analyze
-```
-Also, to check compilation warnings with LLVM/Clang, you can run the following commands:
-```
-sudo apt-get install -y clang
-cd build/linux-x86_64-clang
-make
-make analyze
-```
-
-## Memory Leak Profiling on Linux
-We use `valgrind` to detect memory leaks and keep memory-related bugs at zero.
-
-To use memory leak checks on Linux, type the following commands:
-```
-cd build/linux-x86_64
-make valgrind
-```
-
-## Docker Build
-Docker is optional for Suika2 build.
-You can use it if you would like, but the original author doesn't.
-
-* You can build the following apps in a single step using Docker:
-  * `suika.exe` ... Windows (32-bit)
-  * `suika-64.exe` ... Windows (64-bit)
-  * `suika-arm64.exe` ... Windows (Arm64)
-  * `suika-pro.exe` ... Windows (Suika2 Pro for Creators)
-  * `suika-capture.exe` ... Windows (Capture App)
-  * `suika-replay.exe` ... Windows (Replay App)
-  * `suika-linux` ... Linux (x86_64)
-  * `suika-linux-capture` ... Linux (x86_64 Capture App)
-  * `suika-linux-replay` ... Linux (x86_64 Replay App)
-  * `html` ... Web
-  * `suika.apk` ... Android
-
-* Procedure
-  * On WSL2:
-    * On Windows, install `Docker Desktop`
-    * On Windows, start `Docker Desktop`
-    * From the terminal, navigate to the `build/docker` directory and run the following command:
-    ```
-    ./build.sh
-    ```
-  * On Windows:
-    * Install `Docker Desktop`
-    * Start `Docker Desktop`
-    * Double click `build/docker/build.bat`
-  * On macOS 13:
-    * Install `Docker Desktop`
-    * Start `Docker Desktop`
-    * From the terminal, navigate to the `build/docker` directory and run the following command:
-    ```
-    ./build.sh
-    ```
-  * On Ubuntu 22.04:
-    * Install `docker.io`
-    * From the terminal, navigate to the `build/docker` directory and run the following command:
-    ```
-    ./build.sh
-    ```

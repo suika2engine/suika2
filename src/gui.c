@@ -1937,8 +1937,9 @@ static void update_history_buttons(void)
 		/* スロットのアクティブ状態を求める */
 		if (button[i].rt.history_offset >= 0 &&
 		    button[i].rt.history_offset < get_history_count()) {
-			if (get_history_voice(button[i].rt.history_offset) !=
-			    NULL)
+			if (get_history_voice(button[i].rt.history_offset) != NULL)
+				button[i].rt.is_active = true;
+			else if (conf_tts_enable)
 				button[i].rt.is_active = true;
 			else
 				button[i].rt.is_active = false;
@@ -2177,15 +2178,20 @@ static void process_history_scroll(int delta)
 /* ヒストリのボイスを再生する */
 static void process_history_voice(int button_index)
 {
-	if (button[button_index].rt.history_offset != -1) {
-		/* その他のキャラクタのボリュームを適用する */
-		apply_character_volume(CH_VOL_SLOT_DEFAULT);
+	const char *voice;
 
-		/* ボイスを再生する */
-		play_se(get_history_voice(
-				button[button_index].rt.history_offset),
-			true);
-	}
+	if (button[button_index].rt.history_offset == -1)
+		return;
+
+	/* その他のキャラクタのボリュームを適用する */
+	apply_character_volume(CH_VOL_SLOT_DEFAULT);
+
+	/* ボイスを再生する */
+	voice = get_history_voice(button[button_index].rt.history_offset);
+	if (voice != NULL)
+		play_se(voice, true);
+	else if (conf_tts_enable)
+		speak(get_history_message(button[button_index].rt.history_offset));
 }
 
 /*

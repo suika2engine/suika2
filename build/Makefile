@@ -1,14 +1,11 @@
 usage:
 	@echo "This is an internal build test before a git-commit."
-	@echo "  make setup ... install tools, build libraries and make docker containers"
+	@echo "  make setup ... build libraries and make docker containers"
 	@echo "  make all   ... build all"
 	@echo "  make extra ... build android and switch with docker"
 	@echo ""
 
 setup:
-	sudo apt-get update
-	sudo apt-get install mingw-w64 build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov python3-pip
-	pip3 install opencv-python numpy
 	cd mingw && ./build-libs.sh && cd..
 	cp -Ra mingw/libroot mingw-pro/
 	cp -Ra mingw/libroot mingw-capture/

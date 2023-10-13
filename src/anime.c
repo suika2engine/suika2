@@ -383,6 +383,9 @@ get_anime_layer_params(
 			else if (layer >= ANIME_LAYER_EFFECT1 &&
 				 layer <= ANIME_LAYER_EFFECT4)
 				dir = CG_DIR;
+			else if (layer >= ANIME_LAYER_EFFECT5 &&
+				 layer <= ANIME_LAYER_EFFECT8)
+				dir = CG_DIR;
 			else
 				dir = "";
 			if (image != NULL && *image != NULL) {

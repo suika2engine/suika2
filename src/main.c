@@ -48,6 +48,10 @@ bool is_right_arrow_pressed;
 bool is_page_up_pressed;
 bool is_page_down_pressed;
 bool is_control_pressed;
+bool is_s_pressed;
+bool is_l_pressed;
+bool is_h_pressed;
+
 int mouse_pos_x;
 int mouse_pos_y;
 bool is_mouse_dragging;
@@ -102,6 +106,7 @@ static bool pre_dispatch(void);
  */
 void init_game_loop(void)
 {
+#ifdef ANDROID
 	/* Android NDK用に変数を初期化する */
 	is_left_button_pressed = false;
 	is_right_button_pressed = false;
@@ -115,6 +120,9 @@ void init_game_loop(void)
 	is_page_up_pressed = false;
 	is_page_down_pressed = false;
 	is_control_pressed = false;
+	is_s_pressed = false;
+	is_l_pressed = false;
+	is_h_pressed = false;
 	mouse_pos_x = 0;
 	mouse_pos_y = 0;
 	is_mouse_dragging = false;
@@ -126,11 +134,12 @@ void init_game_loop(void)
 	flag_save_load_enabled = true;
 	flag_non_interruptible = false;
 
-	srand((unsigned int)time(NULL));
-
 	/* Android NDK用に状態を初期化する */
 	check_menu_finish_flag();
 	check_retrospect_finish_flag();
+#endif
+
+	srand((unsigned int)time(NULL));
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
@@ -143,9 +152,11 @@ void init_game_loop(void)
  */
 bool game_loop_iter(int *x, int *y, int *w, int *h)
 {
+	bool is_gui;
 	bool cont;
 
-	if (is_gui_mode()) {
+	is_gui = is_gui_mode();
+	if (is_gui) {
 		/* GUIモードを実行する */
 		if (!run_gui_mode(x, y, w, h))
 			return false; /* エラー */
@@ -161,19 +172,31 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 					return false; /* エラー */
 			}
 		}
-	} else {
+	}
+
+#ifndef USE_DEBUGGER
+	/* ゲームエンジン本体の場合 */
+	if (!is_gui) {
 		/* コマンドを実行する */
 		do {
-#ifdef USE_DEBUGGER
+			/* ディスパッチする */
+			if (!dispatch_command(x, y, w, h, &cont))
+				return false;
+		} while (cont);
+	}
+#else
+	/* デバッガの場合 */
+	if (!is_gui) {
+		/* コマンドを実行する */
+		do {
 			/* 実行中になるまでディスパッチに進めない */
 			if (!pre_dispatch()) {
 				draw_stage_keep();
 				break;
 			}
-#endif
 
+			/* ディスパッチする */
 			if (!dispatch_command(x, y, w, h, &cont)) {
-#ifdef USE_DEBUGGER
 				if (dbg_error_state) {
 					/* エラーによる終了をキャンセルする */
 					dbg_error_state = false;
@@ -193,12 +216,10 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 					return true;
 				}
 				return false;
-#else
-				return false;
-#endif
 			}
 		} while (cont);
 	}
+#endif
 
 	/* サウンドのフェード処理を実行する */
 	process_sound_fading();
@@ -218,6 +239,9 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	is_down_pressed = false;
 	is_left_arrow_pressed = false;
 	is_right_arrow_pressed = false;
+	is_s_pressed = false;
+	is_l_pressed = false;
+	is_h_pressed = false;
 
 	return true;
 }

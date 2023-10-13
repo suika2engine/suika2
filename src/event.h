@@ -29,6 +29,9 @@ enum key_code {
 	KEY_RIGHT,
 	KEY_ESCAPE,
 	KEY_C,
+	KEY_S,
+	KEY_L,
+	KEY_H,
 };
 
 /*

@@ -1,0 +1,95 @@
+###
+### メインメニュー画面のGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    idle:   menu-idle.png;
+    hover:  menu-hover.png;
+    active: menu-hover.png;
+}
+
+# STARTボタン
+START {
+    # 種類:ラベルへジャンプ
+    type: goto;
+
+    # ジャンプ先のラベル
+    label: START;
+
+    # 座標とサイズ
+    x: 2;
+    y: 495;
+    width: 314;
+    height: 192;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# LOADボタン
+LOAD {
+    # 種類:ラベルへジャンプ
+    type: goto;
+
+    # ジャンプ先のラベル
+    label: LOAD;
+
+    # 座標とサイズ
+    x: 316;
+    y: 494;
+    width: 322;
+    height: 203;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# CONFIGボタン
+CONFIG {
+    # 種類:ラベルへジャンプ
+    type: goto;
+
+    # ジャンプ先のラベル
+    label: CONFIG;
+
+    # 座標とサイズ
+    x: 640;
+    y: 492;
+    width: 317;
+    height: 204;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}
+
+# QUITボタン
+QUIT {
+    # 種類:ラベルへジャンプ
+    type: goto;
+
+    # ジャンプ先のラベル
+    label: QUIT;
+
+    # 座標とサイズ
+    x: 960;
+    y: 497;
+    width: 317;
+    height: 201;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}

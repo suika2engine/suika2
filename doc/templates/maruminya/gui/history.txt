@@ -1,0 +1,113 @@
+###
+### メッセージ履歴画面のGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    idle:   history-idle.png;
+    hover:  history-hover.png;
+    active: history-active.png;
+
+    # 1画面あたりの履歴表示数を指定
+    historyslots: 3;
+
+    # 右クリックによるキャンセル時のSE
+    cancelse: click.ogg;
+}
+
+# スクロールバー
+SCROLL {
+    # 種類:スクロールバー
+    type: historyscroll;
+
+    # 座標とサイズ
+    x: 1192;
+    y: 112;
+    width: 67;
+    height: 498;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# 履歴スロット1
+HISTORYSLOT1 {
+    # 種類:履歴
+    type: history;
+
+    # 履歴スロット0番目
+    index: 0;
+
+    # 座標とサイズ
+    x: 32;
+    y: 112;
+    width: 1140;
+    height: 153;
+
+    # テキストのマージン
+    margin: 20;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# 履歴スロット2
+HISTORYSLOT2 {
+    # 種類:履歴
+    type: history;
+
+    # 履歴スロット1番目
+    index: 1;
+
+    # 座標とサイズ
+    x: 32;
+    y: 284;
+    width: 1140;
+    height: 153;
+
+    # テキストのマージン
+    margin: 20;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# 履歴スロット3
+HISTORYSLOT3 {
+    # 種類:履歴
+    type: history;
+
+    # 履歴スロット2番目
+    index: 2;
+
+    # 座標とサイズ
+    x: 32;
+    y: 456;
+    width: 1140;
+    height: 153;
+
+    # テキストのマージン
+    margin: 20;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:キャンセル
+    type: cancel;
+
+    # 座標とサイズ
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+}

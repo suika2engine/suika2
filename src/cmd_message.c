@@ -2218,6 +2218,33 @@ static void action_custom(int index)
 /* システムメニューの処理を行う */
 static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 {
+	/* 視覚障害者モードの場合 */
+	if (conf_tts_enable == 1) {
+		/* システムメニュー表示中に視覚障害者モードになった場合 */
+		if (is_sysmenu) {
+			/* システムメニューを抜ける */
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+			clear_input_state();
+			return true;
+		}
+		/* システムメニューの代わりにキー操作を受け付ける */
+		if (is_s_pressed) {
+			action_save();
+			clear_input_state();
+			return true;
+		} else if (is_l_pressed) {
+			action_load();
+			clear_input_state();
+			return true;
+		} else if (is_h_pressed) {
+			action_history();
+			clear_input_state();
+			return true;
+		}
+		return false;
+	}
+
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested()) {
@@ -2341,10 +2368,14 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	return true;
 }
 
-/* 折りたてみシステムメニューの処理を行う */
+/* 折りたたみシステムメニューの処理を行う */
 static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 {
 	bool enter_sysmenu;
+
+	/* 視覚障害者モードの場合は表示しない */
+	if (conf_tts_enable == 1)
+		return false;
 
 	/* コンフィグでシステムメニューを表示しない場合 */
 	if (conf_sysmenu_hidden)

@@ -43,7 +43,7 @@ make do-release
 ## How to release Kirara
 * On WSL2, navigate to the repository root and run the following command:
 ```
-make do-release-kirara
+make kirara
 ```
 * Release file for Windows and macOS will be built automatically
 * They will be uploaded to `suika2.com/dl/`
@@ -52,7 +52,7 @@ make do-release-kirara
 ## How to update template games
 * On WSL2, navigate to the repository root and run the following command:
 ```
-make do-release-templates
+make update-templates
 ```
 * Template game files will be uploaded to the Web server automatically
 
