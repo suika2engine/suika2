@@ -81,6 +81,7 @@ build/macos/libroot-mac.tar.gz
 
 # Web
 build/emscripten/html
+build/emscripten/emsdk
 
 # Linux
 build/linux-x86_64/*.o

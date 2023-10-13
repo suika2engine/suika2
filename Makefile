@@ -11,7 +11,7 @@ targets:
 	@echo 'Welcome to Suika2! This is the build system of Suika2.'
 	@echo
 	@echo 'You can type the following commands:'
-	@echo '  make setup   ... install development tools'
+	@echo '  make setup   ... setup a build environment'
 	@echo '  make windows ... build the main game engine for Windows'
 	@echo '  make macos   ... build the main game engine for macOS'
 	@echo '  make linux   ... build the main game engine for Linux'
@@ -19,8 +19,9 @@ targets:
 	@echo ''
 	@if [ ! -z "`uname | grep Linux`" ]; then \
 		echo 'On Linux, you can also type the following commands:'; \
-		echo '  make build'; \
-		echo '  sudo make install INSTALL_DIR=/usr'; \
+		echo '  ./configure --prefix=/usr/local'; \
+		echo '  make'; \
+		echo '  sudo make install'; \
 		echo ''; \
 		if [ ! -z "`grep -i WSL2 /proc/version`" ]; then \
 			case `pwd` in \
@@ -35,9 +36,9 @@ targets:
 ## Setup
 ##
 
-# This will setup the compilers and the tools.
+# This will setup a build environment.
 setup:
-	@# For Linux including WSL2.
+	@# For Linux including WSL2, install packages.
 	@if [ ! -z "`uname | grep Linux`" ]; then \
 		if [ -z "`which apt-get`" ]; then \
 			echo 'Error: Your system lacks "apt-get" command.'; \
@@ -48,17 +49,23 @@ setup:
 		echo 'Updating apt sources.'; \
 		echo 'sudo apt-get update'; \
 		sudo apt-get update; \
-		echo 'Installing dependencies for Windows targets.'; \
-		echo 'sudo apt-get install mingw-w64'; \
-		sudo apt-get install mingw-w64; \
-		echo 'Installing dependencies for Linux targets.'; \
-		echo 'sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov cmake qt6-base-dev qt6-multimedia-dev'; \
-		sudo apt-get install build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov debhelper-compat zlib1g-dev libpng-dev libjpeg9-dev libogg-dev libvorbis-dev libfreetype-dev cmake qt6-base-dev qt6-multimedia-dev libqt6core6 libqt6gui6 libqt6widgets6 libqt6opengl6-dev libqt6openglwidgets6 libqt6multimedia6 libqt6multimediawidgets6; \
-		echo 'Installing dependencies for testing targets.'; \
-		echo 'sudo apt-get install python3-pip'; \
-		echo 'pip3 install opencv-python numpy'; \
-		sudo apt-get install python3-pip; \
+		echo 'Installing dependencies.'; \
+		sudo apt-get install mingw-w64 build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov python3-pip debhelper-compat zlib1g-dev libpng-dev libjpeg9-dev libogg-dev libvorbis-dev libfreetype-dev cmake qt6-base-dev qt6-multimedia-dev libqt6core6 libqt6gui6 libqt6widgets6 libqt6opengl6-dev libqt6openglwidgets6 libqt6multimedia6 libqt6multimediawidgets6; \
 		pip3 install opencv-python numpy; \
+	fi
+	@# For WSL2, build libraries with EXE execution turned off.
+	@if [ ! -z "`uname -a | grep WSL2`" ]; then \
+		echo "Disabling EXE file execution."; \
+		echo 0 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
+		echo "Building libraries."; \
+		cd build/mingw && make libroot && cd ../..; \
+		cd build/mingw-64 && make libroot && cd ../..; \
+		cd build/mingw-arm64 && make libroot && cd ../..; \
+		cp -Ra build/mingw/libroot build/mingw-pro/; \
+		cp -Ra build/mingw/libroot build/mingw-capture/; \
+		cp -Ra build/mingw/libroot build/mingw-replay/; \
+		echo "Re-enabling EXE file execution."; \
+		echo 1 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
 	fi
 	@# For macOS
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
@@ -68,6 +75,7 @@ setup:
 		fi; \
 		echo 'Are you sure you want to install all dependencies? (press enter)'; \
 		read str; \
+		echo 'brew install mingw-w64'; \
 		brew install mingw-w64; \
 	fi
 
@@ -170,8 +178,8 @@ macos-capture:
 macos-replay:
 	@echo 'Building macOS replay app'
 	@cd build/macos && \
-		make capture && \
-		cp suika-capture.dmg ../../ && \
+		make replay && \
+		cp suika-replay.dmg ../../ && \
 		make clean && \
 	cd ../..
 
@@ -182,7 +190,7 @@ macos-replay:
 # A target for all Linux binaries.
 all-linux: linux linux-pro linux-capture linux-replay
 
-# suika-linux (the main game engine for 64-bit Linux)
+# suika-linux (the main game engine for 64-bit Linux, static link)
 linux:
 	@echo 'Building a Linux game binary'
 	@cd build/linux-x86_64 && \
@@ -191,7 +199,7 @@ linux:
 	make install && \
 	cd ../..
 
-# suika-linux (the main game engine for 64-bit Linux)
+# suika-linux (the main game engine for 64-bit Linux, dynamic link)
 linux-shared:
 	@echo 'Building a Linux game binary'
 	@cd build/linux-x86_64-shared && \
@@ -199,7 +207,7 @@ linux-shared:
 	make install && \
 	cd ../..
 
-# suika-pro (the debugger for Linux)
+# suika-pro (the debugger for Linux, static link)
 linux-pro:
 	@echo 'Building for Linux'
 	@cd build/linux-x86_64-pro && \
@@ -212,7 +220,7 @@ linux-pro:
 	cp suika-pro ../../../ && \
 	cd ../../..
 
-# suika-pro (the debugger for Linux)
+# suika-pro (the debugger for Linux, dynamic link)
 linux-pro-shared:
 	@echo 'Building for Linux'
 	@cd build/linux-x86_64-pro && \
@@ -247,8 +255,11 @@ linux-replay:
 ## Tests
 ##
 
-# Non-graphical automatic tests.
 test:
+	@echo "Use 'ctest' for CUI and 'gtest' for GUI"
+
+# Non-graphical automatic tests.
+ctest:
 	@echo 'Running non-graphical tests...'
 	@# Check if we are running on Linux including WSL2.
 	@if [ -z "`uname | grep Linux`" ]; then \
@@ -293,7 +304,7 @@ gtest:
 ## Release (dev internal)
 ##
 
-# Make a main release file and upload it.
+# Make a main release file and update the Web site.
 do-release:
 	@# Check if we are running on WSL2.
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
@@ -303,13 +314,10 @@ do-release:
 		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
 		echo ""; \
 	fi
-	@echo "Going to build a main release file and upload it."
-	@cd build && \
-	./do-release.sh && \
-	cd ..
+	@cd build && ./scripts/release-main.sh && cd ..
 
 # Make Kirara release files and upload them.
-do-release-kirara:
+kirara:
 	@# Check if we are running on WSL2.
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
 		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
@@ -318,26 +326,21 @@ do-release-kirara:
 		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
 		echo ""; \
 	fi
-	@echo "Going to build Kirara release files and upload them."
-	@cd build && \
-	./do-release-kirara.sh && \
-	cd ..
+	@cd build && ./scripts/release-kirara.sh && cd ..
 
 # Update template games.
-do-release-templates:
+update-templates:
 	@echo "Going to update template games."
-	@cd build && \
-	./do-release-templates.sh && \
-	cd ..
+	@cd build && ./scripts/release-templates.sh && cd ..
 
 ##
-## POSIX Conventions
+## POSIX Convention
 ##
 
-# Build for Linux
+# Build for Linux/BSD
 build: linux-shared linux-pro-shared
 
-# Install for Linux
+# Install for Linux/BSD
 install:
 	@echo 'Installing Suika2'
 	@install -v -d $(DESTDIR)/bin
@@ -372,6 +375,10 @@ install:
 	@install -v -t $(DESTDIR)/share/suika2/game/rule game/rule/*
 	@install -v -t $(DESTDIR)/share/suika2/game/se game/se/*
 	@install -v -t $(DESTDIR)/share/suika2/game/wms game/wms/*
+
+##
+## Other
+##
 
 # Cleanup.
 clean:
