@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_WMS_YY_WMS_PARSER_TAB_H_INCLUDED
-# define YY_WMS_YY_WMS_PARSER_TAB_H_INCLUDED
+#ifndef YY_WMS_YY_SRC_WMS_PARSER_TAB_H_INCLUDED
+# define YY_WMS_YY_SRC_WMS_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -63,32 +63,33 @@ extern int wms_yydebug;
     TOKEN_MINUS = 264,             /* TOKEN_MINUS  */
     TOKEN_MUL = 265,               /* TOKEN_MUL  */
     TOKEN_DIV = 266,               /* TOKEN_DIV  */
-    TOKEN_ASSIGN = 267,            /* TOKEN_ASSIGN  */
-    TOKEN_LPAR = 268,              /* TOKEN_LPAR  */
-    TOKEN_RPAR = 269,              /* TOKEN_RPAR  */
-    TOKEN_LBLK = 270,              /* TOKEN_LBLK  */
-    TOKEN_RBLK = 271,              /* TOKEN_RBLK  */
-    TOKEN_LARR = 272,              /* TOKEN_LARR  */
-    TOKEN_RARR = 273,              /* TOKEN_RARR  */
-    TOKEN_SEMICOLON = 274,         /* TOKEN_SEMICOLON  */
-    TOKEN_COMMA = 275,             /* TOKEN_COMMA  */
-    TOKEN_IF = 276,                /* TOKEN_IF  */
-    TOKEN_ELSE = 277,              /* TOKEN_ELSE  */
-    TOKEN_WHILE = 278,             /* TOKEN_WHILE  */
-    TOKEN_FOR = 279,               /* TOKEN_FOR  */
-    TOKEN_IN = 280,                /* TOKEN_IN  */
-    TOKEN_DOTDOT = 281,            /* TOKEN_DOTDOT  */
-    TOKEN_GT = 282,                /* TOKEN_GT  */
-    TOKEN_GTE = 283,               /* TOKEN_GTE  */
-    TOKEN_LT = 284,                /* TOKEN_LT  */
-    TOKEN_LTE = 285,               /* TOKEN_LTE  */
-    TOKEN_EQ = 286,                /* TOKEN_EQ  */
-    TOKEN_NEQ = 287,               /* TOKEN_NEQ  */
-    TOKEN_RETURN = 288,            /* TOKEN_RETURN  */
-    TOKEN_BREAK = 289,             /* TOKEN_BREAK  */
-    TOKEN_CONTINUE = 290,          /* TOKEN_CONTINUE  */
-    TOKEN_AND = 291,               /* TOKEN_AND  */
-    TOKEN_OR = 292                 /* TOKEN_OR  */
+    TOKEN_MOD = 267,               /* TOKEN_MOD  */
+    TOKEN_ASSIGN = 268,            /* TOKEN_ASSIGN  */
+    TOKEN_LPAR = 269,              /* TOKEN_LPAR  */
+    TOKEN_RPAR = 270,              /* TOKEN_RPAR  */
+    TOKEN_LBLK = 271,              /* TOKEN_LBLK  */
+    TOKEN_RBLK = 272,              /* TOKEN_RBLK  */
+    TOKEN_LARR = 273,              /* TOKEN_LARR  */
+    TOKEN_RARR = 274,              /* TOKEN_RARR  */
+    TOKEN_SEMICOLON = 275,         /* TOKEN_SEMICOLON  */
+    TOKEN_COMMA = 276,             /* TOKEN_COMMA  */
+    TOKEN_IF = 277,                /* TOKEN_IF  */
+    TOKEN_ELSE = 278,              /* TOKEN_ELSE  */
+    TOKEN_WHILE = 279,             /* TOKEN_WHILE  */
+    TOKEN_FOR = 280,               /* TOKEN_FOR  */
+    TOKEN_IN = 281,                /* TOKEN_IN  */
+    TOKEN_DOTDOT = 282,            /* TOKEN_DOTDOT  */
+    TOKEN_GT = 283,                /* TOKEN_GT  */
+    TOKEN_GTE = 284,               /* TOKEN_GTE  */
+    TOKEN_LT = 285,                /* TOKEN_LT  */
+    TOKEN_LTE = 286,               /* TOKEN_LTE  */
+    TOKEN_EQ = 287,                /* TOKEN_EQ  */
+    TOKEN_NEQ = 288,               /* TOKEN_NEQ  */
+    TOKEN_RETURN = 289,            /* TOKEN_RETURN  */
+    TOKEN_BREAK = 290,             /* TOKEN_BREAK  */
+    TOKEN_CONTINUE = 291,          /* TOKEN_CONTINUE  */
+    TOKEN_AND = 292,               /* TOKEN_AND  */
+    TOKEN_OR = 293                 /* TOKEN_OR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -97,7 +98,7 @@ extern int wms_yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 36 "wms_parser.y"
+#line 36 "../../src/wms_parser.y"
 
 	int ival;
 	double fval;
@@ -112,7 +113,7 @@ union YYSTYPE
 	struct wms_term *term;
 	struct wms_arg_list *arg_list;
 
-#line 116 "wms_parser.tab.h"
+#line 117 "../../src/wms_parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -141,10 +142,10 @@ extern YYLTYPE wms_yylloc;
 int wms_yyparse (void *scanner);
 
 /* "%code provides" blocks.  */
-#line 32 "wms_parser.y"
+#line 32 "../../src/wms_parser.y"
 
 #define YY_DECL int wms_yylex(void *yyscanner)
 
-#line 149 "wms_parser.tab.h"
+#line 150 "../../src/wms_parser.tab.h"
 
-#endif /* !YY_WMS_YY_WMS_PARSER_TAB_H_INCLUDED  */
+#endif /* !YY_WMS_YY_SRC_WMS_PARSER_TAB_H_INCLUDED  */

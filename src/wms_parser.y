@@ -51,7 +51,7 @@ extern void wms_yyerror(void *scanner, char *s);
 %token <sval> TOKEN_SYMBOL TOKEN_STR
 %token <ival> TOKEN_INT
 %token <fval> TOKEN_FLOAT
-%token TOKEN_FUNC TOKEN_PLUS TOKEN_MINUS TOKEN_MUL TOKEN_DIV TOKEN_ASSIGN
+%token TOKEN_FUNC TOKEN_PLUS TOKEN_MINUS TOKEN_MUL TOKEN_DIV TOKEN_MOD TOKEN_ASSIGN
 %token TOKEN_LPAR TOKEN_RPAR TOKEN_LBLK TOKEN_RBLK TOKEN_LARR TOKEN_RARR
 %token TOKEN_SEMICOLON TOKEN_COMMA TOKEN_IF TOKEN_ELSE TOKEN_WHILE TOKEN_FOR
 %token TOKEN_IN TOKEN_DOTDOT TOKEN_GT TOKEN_GTE TOKEN_LT TOKEN_LTE TOKEN_EQ
@@ -89,6 +89,7 @@ extern void wms_yyerror(void *scanner, char *s);
 %left TOKEN_MINUS
 %left TOKEN_MUL
 %left TOKEN_DIV
+%left TOKEN_MOD
 
 %locations
 
@@ -400,6 +401,11 @@ expr		: term
 		| expr TOKEN_DIV expr
 		{
 			$$ = wms_make_expr_with_div($1, $3);
+			debug("div expr");
+		}
+		| expr TOKEN_MOD expr
+		{
+			$$ = wms_make_expr_with_mod($1, $3);
 			debug("div expr");
 		}
 		| TOKEN_MINUS expr

@@ -156,6 +156,7 @@ struct wms_expr {
 		unsigned int is_minus : 1;
 		unsigned int is_mul : 1;
 		unsigned int is_div : 1;
+		unsigned int is_mod : 1;
 		unsigned int is_and : 1;
 		unsigned int is_or : 1;
 		unsigned int is_neg : 1;
@@ -342,6 +343,7 @@ struct wms_expr *wms_make_expr_with_plus(struct wms_expr *expr1, struct wms_expr
 struct wms_expr *wms_make_expr_with_minus(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_mul(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_div(struct wms_expr *expr1, struct wms_expr *expr2);
+struct wms_expr *wms_make_expr_with_mod(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_and(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_or(struct wms_expr *expr1, struct wms_expr *expr2);
 struct wms_expr *wms_make_expr_with_neg(struct wms_expr *expr);
