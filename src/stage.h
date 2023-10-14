@@ -500,6 +500,9 @@ bool lock_temporary_bg_image_for_gui(void);
 /* GUI実行後の仮のBGレイヤイメージのロックを開放する */
 void unlock_temporary_bg_image_for_gui(void);
 
+/* GUI実行後の仮のBGレイヤイメージにイメージを描画する */
+void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img);
+
 /*
  * キラキラエフェクト
  */

@@ -1665,7 +1665,8 @@ static void process_button_draw_activatable(int index)
 
 	if (!is_overlay) {
 		/* コンフィグが選択されていればactive画像を描画する */
-		if (b->rt.is_active && !is_fading_in && !is_fading_out) {
+		if (b->rt.is_active &&
+		    (is_drawing_to_bg || (!is_fading_in && !is_fading_out))) {
 			draw_stage_gui_active(b->x, b->y, b->width, b->height,
 					      b->x, b->y, cur_alpha,
 					      is_drawing_to_bg);
@@ -2060,8 +2061,12 @@ static void process_button_draw_save(int index)
 	}
 
 	/* サムネイルとテキストの描画を行う */
-	render_image(b->x, b->y, b->rt.img, b->width, b->height,
-		     0, 0, cur_alpha, BLEND_FAST);
+	if (!is_drawing_to_bg) {
+		render_image(b->x, b->y, b->rt.img, b->width, b->height,
+			     0, 0, cur_alpha, BLEND_FAST);
+	} else {
+		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
+	}
 }
 
 /*
@@ -2119,8 +2124,12 @@ static void process_button_draw_history(int index)
 	}
 
 	/* テキストの描画を行う */
-	render_image(b->x, b->y, b->rt.img, b->width, b->height, 0, 0,
-		     cur_alpha, BLEND_FAST);
+	if (!is_drawing_to_bg) {
+		render_image(b->x, b->y, b->rt.img, b->width, b->height, 0, 0,
+			     cur_alpha, BLEND_FAST);
+	} else {
+		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
+	}
 }
 
 /* ヒストリのスロットを描画する */
@@ -2534,25 +2543,28 @@ static void reset_preview_button(int index)
 /* テキストプレビューのボタンの描画を行う */
 static void process_button_draw_preview(int index)
 {
+	struct gui_button *b;
 	int lap;
 
+	b = &button[index];
+
 	/* メッセージの途中の場合 */
-	if (!button[index].rt.is_waiting) {
+	if (!b->rt.is_waiting) {
 		/* メインメモリ上のイメージの描画を行う */
 		draw_preview_message(index);
 
 		/* すべての文字を描画し終わった場合 */
-		if (button[index].rt.drawn_chars ==
-		    button[index].rt.total_chars) {
+		if (b->rt.drawn_chars ==
+		    b->rt.total_chars) {
 			/* ストップウォッチを初期化する */
-			reset_stop_watch(&button[index].rt.sw);
+			reset_stop_watch(&b->rt.sw);
 
 			/* オートモードの待ち時間に入る */
-			button[index].rt.is_waiting = true;
+			b->rt.is_waiting = true;
 		}
 	} else {
 		/* オートモードの待ち時間の場合 */
-		lap = get_stop_watch_lap(&button[index].rt.sw);
+		lap = get_stop_watch_lap(&b->rt.sw);
 		if (lap >= get_wait_time(index)) {
 			/* 待ちを終了する */
 			reset_preview_button(index);
@@ -2560,9 +2572,13 @@ static void process_button_draw_preview(int index)
 	}
 
 	/* スクリーンへの描画を行う */
-	render_image(button[index].x, button[index].y,
-		     button[index].rt.img, button[index].width,
-		     button[index].height, 0, 0, cur_alpha, BLEND_FAST);
+	if (!is_drawing_to_bg) {
+		render_image(b->x, b->y,
+			     b->rt.img, b->width,
+			     b->height, 0, 0, cur_alpha, BLEND_FAST);
+	} else {
+		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
+	}
 }
 
 /* メッセージの描画を行う */

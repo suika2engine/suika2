@@ -4077,6 +4077,20 @@ void unlock_temporary_bg_image_for_gui(void)
 }
 
 /*
+ * GUI実行後の仮のBGレイヤイメージにイメージを描画する
+ */
+void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img)
+{
+	draw_image(layer_image[LAYER_BG],
+		   x, y,
+		   img,
+		   get_image_width(img), get_image_height(img),
+		   x, y,
+		   255,
+		   BLEND_FAST);
+}
+
+/*
  * キラキラエフェクト
  */
 
