@@ -1448,13 +1448,8 @@ static void process_button_click(int index)
 		return;
 
 	/* ボタンがクリックされていない場合 */
-	if (!b->rt.is_selected_by_key) {
-		if (!is_left_clicked)
-			return;
-	} else {
-		if (!is_return_pressed)
-			return;
-	}
+	if (!is_left_clicked && !is_return_pressed)
+		return;
 
 	/* ボタンのタイプごとにクリックを処理する */
 	switch (b->type) {
