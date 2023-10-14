@@ -2225,34 +2225,6 @@ static void action_custom(int index)
 /* システムメニューの処理を行う */
 static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 {
-	/* 視覚障害者モードの場合 */
-	if (conf_tts_enable == 1) {
-		/* システムメニュー表示中に視覚障害者モードになった場合 */
-		if (is_sysmenu) {
-			/* システムメニューを抜ける */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-			clear_input_state();
-			return true;
-		}
-
-		/* キー操作を受け付ける */
-		if (is_s_pressed) {
-			action_save();
-			clear_input_state();
-			return true;
-		} else if (is_l_pressed) {
-			action_load();
-			clear_input_state();
-			return true;
-		} else if (is_h_pressed) {
-			action_history();
-			clear_input_state();
-			return true;
-		}
-		return false;
-	}
-
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested()) {
@@ -2278,49 +2250,52 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	}
 #endif
 
+	/* システムメニュー表示中に視覚障害者モードになった場合 */
+	if (is_sysmenu && conf_tts_enable == 1) {
+		/* システムメニューを抜ける */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		clear_input_state();
+		return false;
+	}
+
+	/* キー操作を受け付ける */
+	if (is_s_pressed && conf_sysmenu_hidden != 2) {
+		play_se(conf_sysmenu_save_se);
+		action_save();
+		clear_input_state();
+		if (is_sysmenu) {
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+		}
+		return true;
+	} else if (is_l_pressed && conf_sysmenu_hidden != 2) {
+		play_se(conf_sysmenu_load_se);
+		action_load();
+		clear_input_state();
+		if (is_sysmenu) {
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+		}
+		return true;
+	} else if (is_h_pressed && !conf_msgbox_history_disable) {
+		play_se(conf_msgbox_history_se);
+		action_history();
+		clear_input_state();
+		if (is_sysmenu) {
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+		}
+		return true;
+	}
+
 	/* システムメニューが表示中でないとき */
 	if (!is_sysmenu) {
-		/* キー操作を受け付ける */
-		if (is_s_pressed) {
-			action_save();
-			clear_input_state();
-			return true;
-		} else if (is_l_pressed) {
-			action_load();
-			clear_input_state();
-			return true;
-		} else if (is_h_pressed) {
-			action_history();
-			clear_input_state();
-			return true;
-		}
-
 		/* 折りたたみシステムメニューの処理を行う */
 		return process_collapsed_sysmenu(x, y, w, h);
 	}
 
 	/* 以下、システムメニューを表示中の場合 */
-
-	/* キー操作を受け付ける */
-	if (is_s_pressed) {
-		action_save();
-		clear_input_state();
-		is_sysmenu = false;
-		is_sysmenu_finished = true;
-		return true;
-	} else if (is_l_pressed) {
-		action_load();
-		clear_input_state();
-		is_sysmenu = false;
-		is_sysmenu_finished = true;
-		return true;
-	} else if (is_h_pressed) {
-		action_history();
-		clear_input_state();
-		is_sysmenu = false;
-		is_sysmenu_finished = true;
-		return true;
-	}
 
 	/* ポイントされているシステムメニューのボタンを求める */
 	old_sysmenu_pointed_index = sysmenu_pointed_index;

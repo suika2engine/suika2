@@ -28,7 +28,9 @@
 # When CONFIG is selected:
 :CONFIG
 @chapter Config
-@gui system.txt cancel
+@gui system.txt cancel,nofadeout
+
+# Note that we'll come here only when system.txt is canceled
 @goto MENU
 
 # When QUIT is selected:

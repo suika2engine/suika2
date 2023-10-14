@@ -482,8 +482,10 @@ bool prepare_gui_mode(const char *file, bool sys)
 void set_gui_options(bool cancel, bool nofadein, bool nofadeout)
 {
 	cancelable = cancel;
-	if (nofadein)
+	if (nofadein) {
 		fade_in_time = 0;
+		is_fading_in = false;
+	}
 	if (nofadeout)
 		fade_out_time = 0;
 }
@@ -803,7 +805,6 @@ void start_gui_mode(void)
 	pointed_index = -1;
 	result_index = -1;
 	is_pointed_by_key = false;
-	is_fading_in = fade_in_time > 0;
 	if (is_fading_in)
 		reset_stop_watch(&fade_sw);
 	is_fading_out = false;
@@ -869,7 +870,7 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 		}
 	} else if (is_fading_out) {
 		/* フェードアウトを処理する */
-		progress = (float)get_stop_watch_lap(&fade_sw) / 1000.0f / fade_in_time;
+		progress = (float)get_stop_watch_lap(&fade_sw) / 1000.0f / fade_out_time;
 		if (progress < 1.0f) {
 			/* フェードアウトを継続する */
 			cur_alpha = 255 - (int)(progress * 255.0f);
@@ -969,7 +970,7 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 	/* ボタンが決定された場は終了する */
 	if (!is_fading_in && !is_fading_out && result_index != -1) {
 		if (fade_out_time > 0 &&
-		    (button[result_index].type != TYPE_GUI ||
+		    (button[result_index].type != TYPE_GUI &&
 		     button[result_index].type != TYPE_TITLE)) {
 			is_fading_out = true;
 			reset_stop_watch(&fade_sw);
@@ -980,20 +981,28 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 
 	/* 終了する場合 */
 	if (is_finished) {
+		/* 仮の背景を生成する */
+		if (!is_sys_gui && !is_overlay) {
+			if (result_index == -1 ||
+			    (result_index != -1 &&
+			     button[result_index].type != TYPE_GUI)) {
+				cur_alpha = 255;
+				if (!create_temporary_bg())
+					return false;
+			}
+		}
+
 		/* 続くコマンド実行に影響を与えないようにする */
 		clear_input_state();
 
-		/* 仮の背景を生成する */
-		if (!is_sys_gui && !is_overlay)
-			if (!create_temporary_bg())
-				return false;
-
 		/* 他のGUIに移動する場合 */
-		if (button[result_index].type == TYPE_GUI)
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_GUI)
 			return move_to_other_gui();
 
 		/* タイトルへ戻る場合 */
-		if (button[result_index].type == TYPE_TITLE)
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_TITLE)
 			return move_to_title();
 
 		/* GUIモードを終了する */
@@ -1061,9 +1070,11 @@ static bool move_to_other_gui(void)
 	char *file;
 	bool sys;
 	bool cancel;
+	bool nofadeout;
 
 	sys = is_sys_gui;
 	cancel = cancelable;
+	nofadeout = fade_out_time == 0;
 
 	/* ファイル名をコピーする(cleanup_gui()によって参照不能となるため) */
 	file = strdup(button[result_index].file);
@@ -1085,7 +1096,9 @@ static bool move_to_other_gui(void)
 		return false;
 	}
 	free(file);
-	set_gui_options(cancel, true, true);
+	set_gui_options(cancel,		/* cancalation */
+			true,		/* don't fade in for GUI move */
+			nofadeout);	/* chain the "nofadeout" option */
 
 	/* GUIを開始する */
 	start_gui_mode();
