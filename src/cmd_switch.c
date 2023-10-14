@@ -961,7 +961,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		}
 
 		/* 読み上げを行う */
-		if (conf_tts_enable &&
+		if (conf_tts_enable == 1 &&
 		    is_selected_by_key &&
 		    parent_button[pointed_parent_index].msg != NULL) {
 			speak_text(NULL);

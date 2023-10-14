@@ -15,9 +15,12 @@ void InitSAPI(void)
 	HRESULT hRes;
 
 	/* SAPI5 Text-To-Speechを初期化する */
-	hRes = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
-	if (!SUCCEEDED(hRes))
-		log_info("TTS initialization failed");
+	if (pVoice == NULL)
+	{
+		hRes = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
+		if (!SUCCEEDED(hRes))
+			log_info("TTS initialization failed");
+	}
 }
 
 void SpeakSAPI(const wchar_t *text)

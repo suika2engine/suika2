@@ -530,7 +530,8 @@ static bool set_global_key_value(const char *key, const char *val)
 		fade_out_time = (float)atof(val);
 		return true;
 	} else if (strcmp(key, "alt") == 0) {
-		speak(val);
+		if (conf_tts_enable == 1)
+			speak(val);
 		return true;
 	}
 
@@ -1229,7 +1230,8 @@ static bool process_button_point(int index, bool key)
 		save_mouse_pos_y = mouse_pos_y;
 
 		/* 読み上げる */
-		speak(button[index].alt);
+		if (conf_tts_enable == 1)
+			speak(button[index].alt);
 		return true;
 	}
 
