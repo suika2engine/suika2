@@ -546,7 +546,7 @@ enum chapter_command_param {
 /* guiコマンドのパラメータ */
 enum gui_command_param {
 	GUI_PARAM_FILE = 1,
-	GUI_PARAM_RIGHTCLICKCANCEL,
+	GUI_PARAM_OPTIONS,
 };
 
 /* wmsコマンドのパラメータ */

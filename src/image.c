@@ -254,8 +254,13 @@ bool lock_image(struct image *img)
 
 	if (!lock_texture(img->width, img->height, img->pixels,
 			  &img->locked_pixels, &img->texture))
-		return false;
+		log_info("lock_texture() failed.");
 
+	/*
+	 * Even if a lock is failed, we can draw to CPU memory.
+	 * Our rendering backend will recover VRAM surface
+	 * when a image is actually rendered.
+	 */
 	return true;
 }
 

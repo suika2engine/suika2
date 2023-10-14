@@ -27,8 +27,7 @@ void cleanup_gui(void);
 bool check_gui_flag(void);
 
 /* GUIを準備する */
-bool prepare_gui_mode(const char *file, bool cancel, bool from_command,
-		      bool is_thumb_prepared);
+bool prepare_gui_mode(const char *file, bool cancel, bool sys);
 
 /* GUIを開始する */
 void start_gui_mode(void);
@@ -38,6 +37,9 @@ void stop_gui_mode(void);
 
 /* GUIが有効であるかを返す */
 bool is_gui_mode(void);
+
+/* GUIがオーバレイであるかを返す */
+bool is_gui_overlay(void);
 
 /* GUIを実行する */
 bool run_gui_mode(int *x, int *y, int *w, int *h);

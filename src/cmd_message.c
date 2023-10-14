@@ -566,35 +566,38 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 	if (is_sysmenu_finished)
 		is_sysmenu_finished = false;
 
-	/* クイックセーブされる場合を処理する */
+	/*
+	 * 必要な場合はステージのサムネイルを作成する
+	 *  - クイックセーブされるとき
+	 *  - システムGUIに遷移するとき
+	 */
+	if (will_quick_save
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode ||
+	     need_config_mode))
+		draw_stage_to_thumb();
+
+	/* システムメニューで押されたボタンの処理を行う */
 	if (will_quick_save) {
-		/* クイックセーブを行う */
 		quick_save();
 		will_quick_save = false;
-		return true;
-	}
-
-	/* システムGUIへの遷移を処理する */
-	if (need_save_mode) {
-		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true, false))
+	} else if (need_save_mode) {
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
 		return true;
-	}
-	if (need_load_mode) {
-		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true, false))
+	} else if (need_load_mode) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
 		return true;
-	}
-	if (need_history_mode) {
-		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true, false))
+	} else if (need_history_mode) {
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
 		return true;
-	}
-	if (need_config_mode) {
-		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true, false))
+	} else if (need_config_mode) {
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true))
 			return false;
 		start_gui_mode();
 		return true;

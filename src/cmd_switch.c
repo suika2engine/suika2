@@ -319,7 +319,10 @@ static void preprocess(void)
 /* メイン処理として、描画を行う */
 static void main_process(int *x, int *y, int *w, int *h)
 {
-	/* クイックロードされた場合は処理しない */
+	/*
+	 * クイックロードされた場合は描画を行わない
+	 *  - 同じフレームで、ロード後のコマンドが実行されるため
+	 */
 	if (did_quick_load)
 		return;
 
@@ -333,19 +336,15 @@ static void main_process(int *x, int *y, int *w, int *h)
 /* 後処理として、遷移を処理する */
 static bool postprocess(void)
 {
-	/* クイックロードされた場合は処理しない */
-	if (did_quick_load) {
-		stop_command_repetition();
-		return true;
-	}
-
 	/*
 	 * 必要な場合は繰り返し動作を停止する
 	 *  - クイックロードされたとき
 	 *  - システムGUIに遷移するとき
 	 */
-	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode)
+	if (did_quick_load
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode ||
+	     need_config_mode))
 		stop_command_repetition();
 
 	/*
@@ -353,8 +352,10 @@ static bool postprocess(void)
 	 *  - クイックセーブされるとき
 	 *  - システムGUIに遷移するとき
 	 */
-	if (will_quick_save || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode)
+	if (will_quick_save
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode ||
+	     need_config_mode))
 		draw_stage_fo_thumb();
 
 	/* システムメニューで押されたボタンの処理を行う */
@@ -362,19 +363,19 @@ static bool postprocess(void)
 		quick_save();
 		will_quick_save = false;
 	} else if (need_save_mode) {
-		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true, false))
 			return false;
 		start_gui_mode();
 	} else if (need_load_mode) {
-		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true, false))
 			return false;
 		start_gui_mode();
 	} else if (need_history_mode) {
-		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, false))
 			return false;
 		start_gui_mode();
 	} else if (need_config_mode) {
-		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, false))
 			return false;
 		start_gui_mode();
 	}
