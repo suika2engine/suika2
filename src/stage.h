@@ -481,16 +481,27 @@ bool load_gui_active_image(const char *file);
 bool check_stage_gui_images(void);
 
 /* GUIのidle画像を描画する */
-void draw_stage_gui_idle(void);
+void draw_stage_gui_idle(bool enable_blend, int x, int y, int w, int h,
+			 int alpha, bool to_bg);
 
 /* GUIのhover画像を描画する */
-void draw_stage_gui_hover(int x, int y, int w, int h);
+void draw_stage_gui_hover(int x, int y, int w, int h, int alpha, bool to_bg);
 
 /* GUIのactive画像を描画する */
-void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy);
+void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy,
+			   int alpha, bool to_bg);
 
-/* GUIのidle画像の内容を仮のBGレイヤに設定する */
+/* GUI実行後の仮のBGレイヤイメージを作成する */
 bool create_temporary_bg_for_gui(void);
+
+/* GUI実行後の仮のBGレイヤイメージのロックを取得する */
+bool lock_temporary_bg_image_for_gui(void);
+
+/* GUI実行後の仮のBGレイヤイメージのロックを開放する */
+void unlock_temporary_bg_image_for_gui(void);
+
+/* GUI実行後の仮のBGレイヤイメージにイメージを描画する */
+void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img);
 
 /*
  * キラキラエフェクト

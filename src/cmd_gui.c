@@ -48,76 +48,82 @@ bool gui_command(int *x, int *y, int *w, int *h)
 /* 初期化を行う */
 static bool init(void)
 {
-	const char *file, *cancel_s;
-	bool cancel;
+	const char *file, *opt;
+	bool opt_cancel;
+	bool opt_nofadein;
+	bool opt_nofadeout;
 
 	/* GUIファイル名を取得する */
 	file = get_string_param(GUI_PARAM_FILE);
 
-	/* 右クリックキャンセルするか取得する */
-	cancel_s = get_string_param(GUI_PARAM_RIGHTCLICKCANCEL);
-	if (strcmp(cancel_s, "cancel") == 0 ||
-	    strcmp(cancel_s, U8("キャンセル許可")) == 0)
-		cancel = true;
-	else
-		cancel = false;
+	/* オプションを取得する */
+	opt_cancel = false;
+	opt_nofadein = false;
+	opt_nofadeout = false;
+	opt = get_string_param(GUI_PARAM_OPTIONS);
+	if (strstr(opt, "cancel") != NULL ||
+	    strstr(opt, U8("キャンセル許可")) != NULL)
+		opt_cancel = true;
+	if (strstr(opt, "nofadein") != NULL ||
+	    strstr(opt, "フェードインなし") != NULL)
+		opt_nofadein = true;
+	if (strstr(opt, "nofadeout") != NULL ||
+	    strstr(opt, "フェードアウトなし") != NULL)
+		opt_nofadeout = true;
 
 	/* GUIファイルと指定された画像の読み込みを行う */
-	if (!prepare_gui_mode(file, cancel, false, false)) {
+	if (!prepare_gui_mode(file, false)) {
 		log_script_exec_footer();
 		return false;
 	}
+	set_gui_options(opt_cancel, opt_nofadein, opt_nofadeout);
 
 	/* 背景以外を消す */
-	show_namebox(false);
-	show_msgbox(false);
-	set_layer_file_name(LAYER_CHB, NULL);
-	set_layer_file_name(LAYER_CHL, NULL);
-	set_layer_file_name(LAYER_CHR, NULL);
-	set_layer_file_name(LAYER_CHC, NULL);
-	set_layer_file_name(LAYER_CHF, NULL);
-	set_layer_file_name(LAYER_TEXT1, NULL);
-	set_layer_file_name(LAYER_TEXT2, NULL);
-	set_layer_file_name(LAYER_TEXT3, NULL);
-	set_layer_file_name(LAYER_TEXT4, NULL);
-	set_layer_file_name(LAYER_TEXT5, NULL);
-	set_layer_file_name(LAYER_TEXT6, NULL);
-	set_layer_file_name(LAYER_TEXT7, NULL);
-	set_layer_file_name(LAYER_TEXT8, NULL);
-	set_layer_file_name(LAYER_EFFECT1, NULL);
-	set_layer_file_name(LAYER_EFFECT2, NULL);
-	set_layer_file_name(LAYER_EFFECT3, NULL);
-	set_layer_file_name(LAYER_EFFECT4, NULL);
-	set_layer_image(LAYER_CHB, NULL);
-	set_layer_image(LAYER_CHL, NULL);
-	set_layer_image(LAYER_CHR, NULL);
-	set_layer_image(LAYER_CHC, NULL);
-	set_layer_image(LAYER_CHF, NULL);
-	set_layer_image(LAYER_TEXT1, NULL);
-	set_layer_image(LAYER_TEXT2, NULL);
-	set_layer_image(LAYER_TEXT3, NULL);
-	set_layer_image(LAYER_TEXT4, NULL);
-	set_layer_image(LAYER_TEXT5, NULL);
-	set_layer_image(LAYER_TEXT6, NULL);
-	set_layer_image(LAYER_TEXT7, NULL);
-	set_layer_image(LAYER_TEXT8, NULL);
-	set_layer_image(LAYER_EFFECT1, NULL);
-	set_layer_image(LAYER_EFFECT2, NULL);
-	set_layer_image(LAYER_EFFECT3, NULL);
-	set_layer_image(LAYER_EFFECT4, NULL);
-	set_layer_text(LAYER_TEXT1, NULL);
-	set_layer_text(LAYER_TEXT2, NULL);
-	set_layer_text(LAYER_TEXT3, NULL);
-	set_layer_text(LAYER_TEXT4, NULL);
-	set_layer_text(LAYER_TEXT5, NULL);
-	set_layer_text(LAYER_TEXT6, NULL);
-	set_layer_text(LAYER_TEXT7, NULL);
-	set_layer_text(LAYER_TEXT8, NULL);
-
-	/* 終了後に表示されるBGレイヤを設定する */
-	if (!create_temporary_bg_for_gui()) {
-		log_script_exec_footer();
-		return false;
+	if (!is_gui_overlay()) {
+		show_namebox(false);
+		show_msgbox(false);
+		set_layer_file_name(LAYER_CHB, NULL);
+		set_layer_file_name(LAYER_CHL, NULL);
+		set_layer_file_name(LAYER_CHR, NULL);
+		set_layer_file_name(LAYER_CHC, NULL);
+		set_layer_file_name(LAYER_CHF, NULL);
+		set_layer_file_name(LAYER_TEXT1, NULL);
+		set_layer_file_name(LAYER_TEXT2, NULL);
+		set_layer_file_name(LAYER_TEXT3, NULL);
+		set_layer_file_name(LAYER_TEXT4, NULL);
+		set_layer_file_name(LAYER_TEXT5, NULL);
+		set_layer_file_name(LAYER_TEXT6, NULL);
+		set_layer_file_name(LAYER_TEXT7, NULL);
+		set_layer_file_name(LAYER_TEXT8, NULL);
+		set_layer_file_name(LAYER_EFFECT1, NULL);
+		set_layer_file_name(LAYER_EFFECT2, NULL);
+		set_layer_file_name(LAYER_EFFECT3, NULL);
+		set_layer_file_name(LAYER_EFFECT4, NULL);
+		set_layer_image(LAYER_CHB, NULL);
+		set_layer_image(LAYER_CHL, NULL);
+		set_layer_image(LAYER_CHR, NULL);
+		set_layer_image(LAYER_CHC, NULL);
+		set_layer_image(LAYER_CHF, NULL);
+		set_layer_image(LAYER_TEXT1, NULL);
+		set_layer_image(LAYER_TEXT2, NULL);
+		set_layer_image(LAYER_TEXT3, NULL);
+		set_layer_image(LAYER_TEXT4, NULL);
+		set_layer_image(LAYER_TEXT5, NULL);
+		set_layer_image(LAYER_TEXT6, NULL);
+		set_layer_image(LAYER_TEXT7, NULL);
+		set_layer_image(LAYER_TEXT8, NULL);
+		set_layer_image(LAYER_EFFECT1, NULL);
+		set_layer_image(LAYER_EFFECT2, NULL);
+		set_layer_image(LAYER_EFFECT3, NULL);
+		set_layer_image(LAYER_EFFECT4, NULL);
+		set_layer_text(LAYER_TEXT1, NULL);
+		set_layer_text(LAYER_TEXT2, NULL);
+		set_layer_text(LAYER_TEXT3, NULL);
+		set_layer_text(LAYER_TEXT4, NULL);
+		set_layer_text(LAYER_TEXT5, NULL);
+		set_layer_text(LAYER_TEXT6, NULL);
+		set_layer_text(LAYER_TEXT7, NULL);
+		set_layer_text(LAYER_TEXT8, NULL);
 	}
 
 	/* 繰り返し処理を開始する */

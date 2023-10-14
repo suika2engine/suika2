@@ -3953,30 +3953,85 @@ bool check_stage_gui_images(void)
 /*
  * GUIのidle画像を描画する
  */
-void draw_stage_gui_idle(void)
+void draw_stage_gui_idle(bool enable_blend, int x, int y, int w, int h,
+			 int alpha, bool to_bg)
 {
-	render_image(0, 0, gui_idle_image, conf_window_width,
-		     conf_window_height, 0, 0, 255, BLEND_NONE);
+	if (!to_bg) {
+		/* 通常の描画 */
+		render_image(x, y,
+			     gui_idle_image,
+			     w, h,
+			     x, y,
+			     alpha,
+			     enable_blend ? BLEND_FAST : BLEND_NONE);
+		return;
+	}
+
+	/* 仮のbgへの描画 */
+	if (layer_image[LAYER_BG] != NULL) {
+		draw_image(layer_image[LAYER_BG],
+			   x, y,
+			   gui_idle_image,
+			   w, h,
+			   x, y,
+			   alpha,
+			   enable_blend ? BLEND_FAST : BLEND_NONE);
+	}
 }
 
 /*
  * GUIのhover画像を描画する
  */
-void draw_stage_gui_hover(int x, int y, int w, int h)
+void draw_stage_gui_hover(int x, int y, int w, int h, int alpha, bool to_bg)
 {
-	render_image(x, y, gui_hover_image, w, h, x, y, 255, BLEND_FAST);
+	if (!to_bg) {
+		/* 通常の描画 */
+		render_image(x, y,
+			     gui_hover_image,
+			     w, h,
+			     x, y,
+			     alpha,
+			     BLEND_FAST);
+	} else {
+		/* 仮のbgへの描画 */
+		draw_image(layer_image[LAYER_BG],
+			   x, y,
+			   gui_hover_image,
+			   w, w,
+			   x, y,
+			   255,
+			   BLEND_FAST);
+	}
 }
 
 /*
  * GUIのactive画像を描画する
  */
-void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy)
+void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy,
+			   int alpha, bool to_bg)
 {
-	render_image(x, y, gui_active_image, w, h, sx, sy, 255, BLEND_FAST);
+	if (!to_bg) {
+		/* 通常の描画 */
+		render_image(x, y,
+			     gui_active_image,
+			     w, h,
+			     sx, sy,
+			     alpha,
+			     BLEND_FAST);
+	} else {
+		/* 仮のbgへの描画 */
+		draw_image(layer_image[LAYER_BG],
+			   x, y,
+			   gui_hover_image,
+			   w, w,
+			   sx, sy,
+			   255,
+			   BLEND_FAST);
+	}
 }
 
 /*
- * idle画像の内容を仮のBGレイヤに設定する
+ * GUI実行後の仮のBGレイヤイメージを作成する
  */
 bool create_temporary_bg_for_gui(void)
 {
@@ -3990,21 +4045,49 @@ bool create_temporary_bg_for_gui(void)
 	if (img == NULL)
 		return false;
 
-	/* idleの中身をコピーする */
-	if (gui_idle_image != NULL) {
-		lock_image(img);
-		{
-			draw_image(img, 0, 0, gui_idle_image,
-				   conf_window_width,
-				   conf_window_height, 0, 0, 255, BLEND_NONE);
-		}
-		unlock_image(img);
-	}
-
 	/* BGレイヤにセットする */
 	layer_image[LAYER_BG] = img;
 
 	return true;
+}
+
+/*
+ * GUI実行後の仮のBGレイヤイメージのロックを取得する
+ */
+bool lock_temporary_bg_image_for_gui(void)
+{
+	if (layer_image[LAYER_BG] == NULL)
+		return false;
+
+	if (!lock_image(layer_image[LAYER_BG]))
+		return false;
+
+	return true;
+}
+
+/*
+ * GUI実行後の仮のBGレイヤイメージのロックを開放する
+ */
+void unlock_temporary_bg_image_for_gui(void)
+{
+	if (layer_image[LAYER_BG] == NULL)
+		return;
+
+	unlock_image(layer_image[LAYER_BG]);
+}
+
+/*
+ * GUI実行後の仮のBGレイヤイメージにイメージを描画する
+ */
+void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img)
+{
+	draw_image(layer_image[LAYER_BG],
+		   x, y,
+		   img,
+		   get_image_width(img), get_image_height(img),
+		   x, y,
+		   255,
+		   BLEND_FAST);
 }
 
 /*

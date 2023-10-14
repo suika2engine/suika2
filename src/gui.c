@@ -156,9 +156,6 @@ static struct gui_button {
 		/* TYPE_GALLERYのときボタンが無効化されているか */
 		bool is_disabled;
 
-		/* 前のフレームでポイントされていたか */
-		bool is_pointed;
-
 		/* キー入力によりポイントされているか */
 		bool is_selected_by_key;
 
@@ -199,14 +196,14 @@ static struct gui_button {
 /* GUIモードであるか */
 static bool flag_gui_mode;
 
-/* 最初のフレームであるか */
-static bool is_first_frame;
+/* オーバレイを使うか */
+static bool is_overlay;
 
-/* メッセージ・スイッチの最中に呼ばれたか */
-static bool is_called_from_command;
+/* システムGUIであるか */
+static bool is_sys_gui;
 
 /* 右クリックでキャンセルするか */
-static bool cancel_when_right_click;
+static bool cancelable;
 
 /* 処理中のGUIファイル */
 static const char *gui_file;
@@ -214,11 +211,23 @@ static const char *gui_file;
 /* キャンセル時のSE */
 static char *cancel_se;
 
+/* フェードイン時間 */
+static float fade_in_time;
+
+/* フェードアウト時間 */
+static float fade_out_time;
+
 /* ポイントされているボタンのインデックス */
 static int pointed_index;
 
-/* ポイントされているボタンが変化したか */
-static bool is_pointed_changed;
+/* 前フレームでポイントされていたボタンのインデックス */
+static int prev_pointed_index;
+
+/* キー入力によりポイントされているか */
+static bool is_pointed_by_key;
+
+/* キー入力によりポイントされたときのマウス座標 */
+static int save_mouse_pos_x, save_mouse_pos_y;
 
 /* 選択結果のボタンのインデックス */
 static int result_index;
@@ -253,6 +262,24 @@ static float transient_history_slider;
 /* ヒストリボタンの更新が必要か */
 static bool need_update_history_buttons;
 
+/* フェードイン中であるか */
+static bool is_fading_in;
+
+/* フェードアウト中であるか */
+static bool is_fading_out;
+
+/* フェード用のストップウォッチ */
+static stop_watch_t fade_sw;
+
+/* 現在のフェードのアルファ */
+static int cur_alpha;
+
+/* 背景レイヤへの描画中であるか */
+static bool is_drawing_to_bg;
+
+/* 最初のフレームであるか */
+static bool is_first_frame;
+
 /*
  * 前方参照
  */
@@ -265,6 +292,7 @@ static int get_type_for_name(const char *name);
 static void update_runtime_props(bool is_first_time);
 static bool move_to_other_gui(void);
 static bool move_to_title(void);
+static bool create_temporary_bg(void);
 static bool process_button_point(int index, bool key);
 static void process_button_drag(int index);
 static float calc_slider_value(int index);
@@ -273,6 +301,7 @@ static void process_button_draw(int index);
 static void process_button_draw_slider(int index);
 static void process_button_draw_slider_vertical(int index);
 static void process_button_draw_activatable(int index);
+static void process_button_draw_generic(int index);
 static void process_button_draw_gallery(int index);
 static void process_button_draw_namevar(int index);
 static void process_play_se(void);
@@ -365,8 +394,8 @@ void cleanup_gui(void)
  */
 bool check_gui_flag(void)
 {
-	if (is_called_from_command) {
-		is_called_from_command = false;
+	if (is_sys_gui) {
+		is_sys_gui = false;
 		return true;
 	}
 	return false;
@@ -375,26 +404,25 @@ bool check_gui_flag(void)
 /*
  * GUIを準備する
  */
-bool prepare_gui_mode(const char *file, bool cancel, bool from_command,
-		      bool is_thumb_prepared)
+bool prepare_gui_mode(const char *file, bool sys)
 {
 	assert(!flag_gui_mode);
+
+	/* プロパティを保存する */
+	gui_file = file;
+	is_sys_gui = sys;
 
 	/* ボタンをゼロクリアする */
 	memset(button, 0, sizeof(button));
 
-	/* 初期値を設定する */
-	pointed_index = -1;
+	/* グローバルプロパティの初期値を設定する */
 	save_page = conf_gui_save_last_page;
 	save_slots = 0;
 	history_slots = 0;
 	history_top = -1;
-	is_saved_in_this_frame = false;
-	suppress_se = false;
-
-	/* プロパティを保存する */
-	gui_file = file;
-	is_called_from_command = from_command;
+	fade_in_time = 0;
+	fade_out_time = 0;
+	is_overlay = false;
 
 	/* GUIファイルを開く */
 	if (!load_gui_file(gui_file)) {
@@ -439,17 +467,27 @@ bool prepare_gui_mode(const char *file, bool cancel, bool from_command,
 	/* ボタンの状態を準備する */
 	update_runtime_props(true);
 
-	/*
-	 * セーブされる場合に備えてサムネイルを描画する
-	 *  - switch.cから呼ばれた場合はFOレイヤからサムネイルを作成済み
-	 */
-	if (!is_thumb_prepared)
-		draw_stage_to_thumb();
-
 	/* 右クリックでキャンセルするか */
-	cancel_when_right_click = cancel;
+	cancelable = false;
+
+	/* フェードインを行うか */
+	is_fading_in = fade_in_time > 0;
 
 	return true;
+}
+
+/*
+ * GUIのオプションを指定する
+ */
+void set_gui_options(bool cancel, bool nofadein, bool nofadeout)
+{
+	cancelable = cancel;
+	if (nofadein) {
+		fade_in_time = 0;
+		is_fading_in = false;
+	}
+	if (nofadeout)
+		fade_out_time = 0;
 }
 
 /*
@@ -484,8 +522,18 @@ static bool set_global_key_value(const char *key, const char *val)
 			return false;
 		}
 		return true;
+	} else if (strcmp(key, "overlay") == 0) {
+		is_overlay = true;
+		return true;
+	} else if (strcmp(key, "fadein") == 0) {
+		fade_in_time = (float)atof(val);
+		return true;
+	} else if (strcmp(key, "fadeout") == 0) {
+		fade_out_time = (float)atof(val);
+		return true;
 	} else if (strcmp(key, "alt") == 0) {
-		speak(val);
+		if (conf_tts_enable == 1)
+			speak(val);
 		return true;
 	}
 
@@ -755,6 +803,13 @@ void start_gui_mode(void)
 	flag_gui_mode = true;
 	is_first_frame = true;
 	pointed_index = -1;
+	result_index = -1;
+	is_pointed_by_key = false;
+	if (is_fading_in)
+		reset_stop_watch(&fade_sw);
+	is_fading_out = false;
+	is_saved_in_this_frame = false;
+	suppress_se = false;
 }
 
 /*
@@ -777,59 +832,109 @@ bool is_gui_mode(void)
 }
 
 /*
+ * GUIがオーバレイであるかを返す
+ */
+bool is_gui_overlay(void)
+{
+	return is_overlay;
+}
+
+/*
  * GUIを実行する
  */
 bool run_gui_mode(int *x, int *y, int *w, int *h)
 {
+	float progress;
 	int i;
+	bool is_finished;
 
 	*x = 0;
 	*y = 0;
 	*w = conf_window_width;
 	*h = conf_window_height;
 
-	result_index = -1;
-	is_pointed_changed = false;
+	prev_pointed_index = pointed_index;
 	need_update_history_buttons = false;
+	is_finished = false;
+
+	if (is_fading_in) {
+		/* フェードインを処理する */
+		progress = (float)get_stop_watch_lap(&fade_sw) / 1000.0f / fade_in_time;
+		if (progress < 1.0f) {
+			/* フェードインを継続する */
+			cur_alpha = (int)(progress * 255.0f);
+		} else {
+			/* フェードインを終了する */
+			is_fading_in = false;
+			cur_alpha = 255;
+		}
+	} else if (is_fading_out) {
+		/* フェードアウトを処理する */
+		progress = (float)get_stop_watch_lap(&fade_sw) / 1000.0f / fade_out_time;
+		if (progress < 1.0f) {
+			/* フェードアウトを継続する */
+			cur_alpha = 255 - (int)(progress * 255.0f);
+		} else {
+			/* フェードアウトを終了する */
+			is_finished = true;
+			cur_alpha = 0;
+		}
+	} else {
+		cur_alpha = 255;
+	}
 
 	/* 背景を描画する */
-	draw_stage_gui_idle();
+	if (is_fading_in || is_fading_out || is_overlay)
+		draw_stage();
+	if ((is_fading_in && !is_overlay) ||
+	    (is_fading_out && !is_overlay) ||
+	    (!is_fading_in && !is_fading_out && !is_overlay)) {
+		draw_stage_gui_idle(true,
+				    0, 0,
+				    conf_window_width, conf_window_height,
+				    cur_alpha, false);
+	}
 
 	/* 左右キーを処理する */
-	process_left_right_arrow_keys();
+	if (!is_fading_in && !is_fading_out)
+		process_left_right_arrow_keys();
 
 	/* 各ボタンについて処理する */
 	for (i = 0; i < BUTTON_COUNT; i++) {
-		/* ポイント状態を更新する */
-		process_button_point(i, false);
+		if (!is_fading_in && !is_fading_out) {
+			/* ポイント状態を更新する */
+			process_button_point(i, false);
 
-		/* ドラッグ状態を更新する */
-		process_button_drag(i);
+			/* ドラッグ状態を更新する */
+			process_button_drag(i);
 
-		/* クリック結果を取得する */
-		process_button_click(i);
+			/* クリック結果を取得する */
+			process_button_click(i);
+		}
 
 		/* ボタンの状態に合わせて描画する */
 		process_button_draw(i);
 	}
 
 	/* マウスホイールか上下キーによるスクロールを処理する */
-	if (is_up_pressed) {
-		process_history_scroll(-1);
-		update_runtime_props(false);
-	} else if (is_down_pressed) {
-		process_history_scroll(1);
-		update_runtime_props(false);
+	if (!is_fading_in && !is_fading_out) {
+		if (is_up_pressed) {
+			process_history_scroll(-1);
+			update_runtime_props(false);
+		} else if (is_down_pressed) {
+			process_history_scroll(1);
+			update_runtime_props(false);
+		}
 	}
 
 	/* ヒストリボタンの更新が必要な場合 */
-	if (need_update_history_buttons) {
+	if (!is_fading_in && !is_fading_out && need_update_history_buttons) {
 		update_history_buttons();
 		need_update_history_buttons = false;
 	}
 
 	/* 右クリックでキャンセル可能な場合 */
-	if (cancel_when_right_click) {
+	if (!is_fading_in && !is_fading_out && cancelable) {
 		/* 右クリックされた場合か、エスケープキーが押下された場合 */
 		if (is_right_clicked || is_escape_pressed) {
 			/* どのボタンも選ばれなかったことにする */
@@ -838,39 +943,72 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 			/* SEを再生する */
 			play_sys_se(cancel_se);
 
-			/* GUIモードを終了する */
-			stop_gui_mode();
-
-			/* 続くコマンド実行に影響を与えないようにする */
-			clear_input_state();
-			return true;
-		}			
+			/* フェードアウトか終了処理を行う */
+			if (fade_out_time > 0) {
+				is_fading_out = true;
+				reset_stop_watch(&fade_sw);
+			} else {
+				is_finished = true;
+			}
+		}
 	}
 
 	/* SEを再生する */
-	if (!suppress_se) {
-		if (!is_first_frame)
-			process_play_se();
-		if (is_saved_in_this_frame) {
-			suppress_se = true;
-			is_saved_in_this_frame = false;
+	if (!is_fading_in && !is_fading_out) {
+		if (!suppress_se) {
+			if (!is_first_frame)
+				process_play_se();
+			if (is_saved_in_this_frame) {
+				suppress_se = true;
+				is_saved_in_this_frame = false;
+			}
+		} else {
+			suppress_se = false;
 		}
-	} else {
-		suppress_se = false;
 	}
 
-	/* ボタンが決定された場合 */
-	if (result_index != -1) {
+	/* ボタンが決定された場は終了する */
+	if (!is_fading_in && !is_fading_out && result_index != -1) {
+		if (fade_out_time > 0 &&
+		    (button[result_index].type != TYPE_GUI &&
+		     button[result_index].type != TYPE_TITLE)) {
+			is_fading_out = true;
+			reset_stop_watch(&fade_sw);
+		} else {
+			is_finished = true;
+		}
+	}
+
+	/* 終了する場合 */
+	if (is_finished) {
+		/* 仮の背景を生成する */
+		if (!is_sys_gui && !is_overlay) {
+			if (result_index == -1 ||
+			    (result_index != -1 &&
+			     button[result_index].type != TYPE_GUI)) {
+				cur_alpha = 255;
+				if (!create_temporary_bg())
+					return false;
+			}
+		}
+
+		/* 続くコマンド実行に影響を与えないようにする */
+		clear_input_state();
+
 		/* 他のGUIに移動する場合 */
-		if (button[result_index].type == TYPE_GUI)
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_GUI)
 			return move_to_other_gui();
 
 		/* タイトルへ戻る場合 */
-		if (button[result_index].type == TYPE_TITLE)
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_TITLE)
 			return move_to_title();
 
 		/* GUIモードを終了する */
 		stop_gui_mode();
+
+		/* ラベルへジャンプする場合はcmd_gui.cで処理する */
 		return true;
 	}
 
@@ -881,93 +1019,48 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 /* 左右キーを処理する */
 static void process_left_right_arrow_keys(void)
 {
-	int i, prev_sel, search_start;
+	int i, search_start;
 
-	prev_sel = -1;
 	search_start = -1;
 
 	/* 右キーを処理する */
 	if (is_right_arrow_pressed) {
-		/* 選択されているボタンを探す */
-		for (i = 0; i < BUTTON_COUNT; i++) {
-			if (button[i].rt.is_selected_by_key) {
-				prev_sel = i;
-				search_start = i + 1;
-				break;
-			}
-		}
-		if (i == BUTTON_COUNT) {
-			prev_sel = -1;
-			search_start = 0;
-		}
+		/* 選択されているボタンを求める */
+		search_start = pointed_index + 1;
 
 		/* 選択するボタンを探す */
-		for (i = search_start; i < BUTTON_COUNT; i++) {
-			if (process_button_point(i, true)) {
-				if (prev_sel != -1) {
-					button[prev_sel].rt.is_pointed= false;
-					button[prev_sel].rt.is_selected_by_key = false;
-				}
+		for (i = search_start; i < BUTTON_COUNT; i++)
+			if (process_button_point(i, true))
 				return;
-			}
-		}
 
 		/* 検索をラップする */
 		if (search_start == 0)
 			return;
-		for (i = 0; i < search_start; i++) {
-			if (process_button_point(i, true)) {
-				if (prev_sel != -1) {
-					button[prev_sel].rt.is_pointed= false;
-					button[prev_sel].rt.is_selected_by_key = false;
-				}
+		for (i = 0; i < search_start; i++)
+			if (process_button_point(i, true))
 				return;
-			}
-		}
-
 		return;
 	}
 
 	/* 左キーを処理する */
 	if (is_left_arrow_pressed) {
-		/* 選択されているボタンを探す */
-		for (i = 0; i < BUTTON_COUNT; i++) {
-			if (button[i].rt.is_selected_by_key) {
-				prev_sel = i;
-				search_start = i - 1;
-				break;
-			}
-		}
-		if (i == BUTTON_COUNT) {
-			prev_sel = -1;
+		/* 選択されているボタンを求める */
+		if (pointed_index == -1 || pointed_index == 0)
 			search_start = BUTTON_COUNT - 1;
-		}
-		if (search_start == -1)
-			search_start = BUTTON_COUNT - 1;
+		else
+			search_start = pointed_index - 1;
 
 		/* 選択するボタンを探す */
-		for (i = search_start; i >= 0; i--) {
-			if (process_button_point(i, true)) {
-				if (prev_sel != -1) {
-					button[prev_sel].rt.is_pointed= false;
-					button[prev_sel].rt.is_selected_by_key = false;
-				}
+		for (i = search_start; i >= 0; i--)
+			if (process_button_point(i, true))
 				return;
-			}
-		}
 
 		/* 検索をラップする */
 		if (search_start == BUTTON_COUNT -1)
 			return;
-		for (i = BUTTON_COUNT - 1; i > search_start; i--) {
-			if (process_button_point(i, true)) {
-				if (prev_sel != -1) {
-					button[prev_sel].rt.is_pointed= false;
-					button[prev_sel].rt.is_selected_by_key = false;
-				}
+		for (i = BUTTON_COUNT - 1; i > search_start; i--)
+			if (process_button_point(i, true))
 				return;
-			}
-		}
 	}
 }
 
@@ -975,9 +1068,13 @@ static void process_left_right_arrow_keys(void)
 static bool move_to_other_gui(void)
 {
 	char *file;
-	bool from_command;
+	bool sys;
+	bool cancel;
+	bool nofadeout;
 
-	from_command = is_called_from_command;
+	sys = is_sys_gui;
+	cancel = cancelable;
+	nofadeout = fade_out_time == 0;
 
 	/* ファイル名をコピーする(cleanup_gui()によって参照不能となるため) */
 	file = strdup(button[result_index].file);
@@ -994,17 +1091,14 @@ static bool move_to_other_gui(void)
 	cleanup_gui();
 
 	/* GUIをロードする */
-	if (!prepare_gui_mode(file, cancel_when_right_click, from_command,
-			      false)) {
+	if (!prepare_gui_mode(file, sys)) {
 		free(file);
 		return false;
 	}
 	free(file);
-
-	/* 終了後に表示されるBGレイヤを設定する */
-	if (!is_called_from_command)
-		if (!create_temporary_bg_for_gui())
-			return false;
+	set_gui_options(cancel,		/* cancalation */
+			true,		/* don't fade in for GUI move */
+			nofadeout);	/* chain the "nofadeout" option */
 
 	/* GUIを開始する */
 	start_gui_mode();
@@ -1040,8 +1134,8 @@ static bool move_to_title(void)
 	 * メッセージ・スイッチの最中に呼ばれた場合
 	 *  - この場合はシステムGUIから戻ったという扱いにしない
 	 */
-	if (is_called_from_command)
-		is_called_from_command = false;
+	if (is_sys_gui)
+		is_sys_gui = false;
 
 	/* メッセージをアクティブでなくする */
 	if (is_message_active())
@@ -1049,6 +1143,8 @@ static bool move_to_title(void)
 
 	/* GUIを終了する */
 	stop_gui_mode();
+
+	/* 現在のGUIを破棄する */
 	cleanup_gui();
 
 	/* ステージをクリアする */
@@ -1061,6 +1157,42 @@ static bool move_to_title(void)
 	return true;
 }
 
+/* 仮の背景を作成する */
+static bool create_temporary_bg(void)
+{
+	int i;
+
+	assert(!is_overlay);
+	assert(!is_sys_gui);
+
+	/* 仮の背景イメージを作成する */
+	if (!create_temporary_bg_for_gui())
+		return false;
+
+	/* 背景レイヤへの描画を開始する */
+	is_drawing_to_bg = true;
+
+	/* 描画する */
+	if (lock_temporary_bg_image_for_gui()) {
+		/* 背景を描画する */
+		draw_stage_gui_idle(false,
+				    0, 0,
+				    conf_window_width, conf_window_height,
+				    255,
+				    true);
+
+		/* 各ボタンを描画する */
+		for (i = 0; i < BUTTON_COUNT; i++)
+			process_button_draw(i);
+
+		unlock_temporary_bg_image_for_gui();
+	}
+
+	/* 背景レイヤへの描画を終了する */
+	is_drawing_to_bg = false;
+	return true;
+}
+
 /*
  * ボタンのポイント
  */
@@ -1069,13 +1201,15 @@ static bool move_to_title(void)
 static bool process_button_point(int index, bool key)
 {
 	struct gui_button *b;
-	bool prev_pointed_status;
 
 	b = &button[index];
-	prev_pointed_status = b->rt.is_pointed;
 
 	/* TYPE_INVALIDのときポイントできない(ボタンがない) */
 	if (b->type == TYPE_INVALID)
+		return false;
+
+	/* TYPE_LOADのときセーブデータがないとポイントできない */
+	if (b->type == TYPE_LOAD && !b->rt.is_active)
 		return false;
 
 	/* TYPE_GALLERYのとき、ボタンが無効であればポイントできない */
@@ -1083,22 +1217,16 @@ static bool process_button_point(int index, bool key)
 		return false;
 
 	/* TYPE_FULLSCREENのとき、ボタンがアクティブならポイントできない */
-	if (b->type == TYPE_FULLSCREEN && b->rt.is_active) {
-		b->rt.is_pointed = false;
+	if (b->type == TYPE_FULLSCREEN && b->rt.is_active)
 		return false;
-	}
 
 	/* TYPE_WINDOWのとき、ボタンがアクティブならポイントできない */
-	if (b->type == TYPE_WINDOW && b->rt.is_active) {
-		b->rt.is_pointed = false;
+	if (b->type == TYPE_WINDOW && b->rt.is_active)
 		return false;
-	}
 
 	/* TYPE_HISTORYのとき、ボタンが非アクティブならポイントできない */
-	if (b->type == TYPE_HISTORY && !b->rt.is_active) {
-		b->rt.is_pointed = false;
+	if (b->type == TYPE_HISTORY && !b->rt.is_active)
 		return false;
-	}
 
 	/* TYPE_PREVIEWのとき、ポイントできない */
 	if (b->type == TYPE_PREVIEW)
@@ -1110,34 +1238,45 @@ static bool process_button_point(int index, bool key)
 
 	/* キー操作の場合 */
 	if (key) {
-		b->rt.is_pointed = true;
-		b->rt.is_selected_by_key = true;
+		/* ポイントされている状態にする */
 		pointed_index = index;
-		is_pointed_changed = true;
-		speak(button[index].alt);
+		is_pointed_by_key = true;
+		save_mouse_pos_x = mouse_pos_x;
+		save_mouse_pos_y = mouse_pos_y;
+
+		/* 読み上げる */
+		if (conf_tts_enable == 1)
+			speak(button[index].alt);
 		return true;
 	}
 
-	/* マウスがボタン領域に入っているかチェックする */
+	/* マウスがボタン領域に入っている場合 */
 	if (mouse_pos_x >= b->x && mouse_pos_x <= b->x + b->width &&
 	    mouse_pos_y >= b->y && mouse_pos_y <= b->y + b->height) {
-		/* ポイントされている */
-		b->rt.is_pointed = true;
-		b->rt.is_selected_by_key = false;
-		pointed_index = index;
-	} else {
-		if (!b->rt.is_selected_by_key) {
-			/* ポイントされていない */
-			b->rt.is_pointed = false;
-			b->rt.is_selected_by_key = false;
+		/* すでにキーで選択済みの項目の場合 */
+		if (is_pointed_by_key && index == pointed_index)
+			return false;
+
+		/* キーで選択済みの項目があり、マウスが移動していない場合 */
+		if (is_pointed_by_key &&
+		    mouse_pos_x == save_mouse_pos_x &&
+		    mouse_pos_y == save_mouse_pos_y)
+			return false;
+
+		/* まだポイント済みになっていない場合 */
+		if (index != prev_pointed_index) {
+			/* ポイントされている状態にする */
+			pointed_index = index;
+			is_pointed_by_key = false;
 		}
+		return true;
 	}
 
-	/* ポイント状態が変化した場合 */
-	if (prev_pointed_status != b->rt.is_pointed)
-		is_pointed_changed = true;
+	/* ポイントから外れた場合(キー選択の場合を除く) */
+	if (pointed_index == index && !is_pointed_by_key)
+		pointed_index = -1;
 
-	return true;
+	return false;
 }
 
 /*
@@ -1162,7 +1301,7 @@ static void process_button_drag(int index)
 	/* ドラッグ中でない場合 */
 	if (!b->rt.is_dragging) {
 		/* ポイントされていない場合 */
-		if (!b->rt.is_pointed)
+		if (index != pointed_index)
 			return;
 
 		/* マウスの左ボタンが押下されていない場合 */
@@ -1322,17 +1461,12 @@ static void process_button_click(int index)
 		return;
 
 	/* ボタンがポイントされていない場合 */
-	if (!b->rt.is_pointed)
+	if (index != pointed_index)
 		return;
 
 	/* ボタンがクリックされていない場合 */
-	if (!b->rt.is_selected_by_key) {
-		if (!is_left_clicked)
-			return;
-	} else {
-		if (!is_return_pressed)
-			return;
-	}
+	if (!is_left_clicked && !is_return_pressed)
+		return;
 
 	/* ボタンのタイプごとにクリックを処理する */
 	switch (b->type) {
@@ -1458,9 +1592,8 @@ static void process_button_draw(int index)
 		process_button_draw_namevar(index);
 		break;
 	default:
-		/* ボタンがポイントされているとき、hover画像を描画する */
-		if (b->rt.is_pointed)
-			draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+		/* ボタンを描画する */
+		process_button_draw_generic(index);
 		break;
 	}
 }
@@ -1474,14 +1607,17 @@ static void process_button_draw_slider(int index)
 	b = &button[index];
 
 	/* ポイントされているとき、バー部分をhover画像で描画する */
-	if (b->rt.is_pointed)
-		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+	if (index == pointed_index && !is_fading_in && !is_fading_out) {
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height,
+				     cur_alpha, is_drawing_to_bg);
+	}
 
 	/* 描画位置を計算する */
 	x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
 
 	/* ツマミを描画する */
-	draw_stage_gui_active(x, b->y, b->height, b->height, b->x, b->y);
+	draw_stage_gui_active(x, b->y, b->height, b->height, b->x, b->y,
+			      cur_alpha, is_drawing_to_bg);
 }
 
 /* 垂直スライダーボタンを描画する */
@@ -1493,14 +1629,17 @@ static void process_button_draw_slider_vertical(int index)
 	b = &button[index];
 
 	/* ポイントされているとき、バー部分をhover画像で描画する */
-	if (b->rt.is_pointed)
-		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+	if (index == pointed_index && !is_fading_in && !is_fading_out) {
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height,
+				     cur_alpha, is_drawing_to_bg);
+	}
 
 	/* 描画位置を計算する */
 	y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
 
 	/* ツマミを描画する */
-	draw_stage_gui_active(b->x, y, b->width, b->width, b->x, b->y);
+	draw_stage_gui_active(b->x, y, b->width, b->width, b->x, b->y,
+			      cur_alpha, is_drawing_to_bg);
 }
 
 /* アクティブ化可能ボタンを描画する */
@@ -1518,15 +1657,67 @@ static void process_button_draw_activatable(int index)
 			return;
 
 	/* ポイントされているとき、hover画像を描画する */
-	if (b->rt.is_pointed) {
-		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+	if (index == pointed_index && !is_fading_in && !is_fading_out) {
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height,
+				     cur_alpha, is_drawing_to_bg);
 		return;
 	}
 
-	/* コンフィグが選択されていればactive画像を描画する */
-	if (b->rt.is_active) {
-		draw_stage_gui_active(b->x, b->y, b->width, b->height, b->x,
-				      b->y);
+	if (!is_overlay) {
+		/* コンフィグが選択されていればactive画像を描画する */
+		if (b->rt.is_active &&
+		    (is_drawing_to_bg || (!is_fading_in && !is_fading_out))) {
+			draw_stage_gui_active(b->x, b->y, b->width, b->height,
+					      b->x, b->y, cur_alpha,
+					      is_drawing_to_bg);
+		}
+	} else {
+		/* idleかactive画像を描画する */
+		if (!b->rt.is_active) {
+			draw_stage_gui_idle(true,
+					    b->x, b->y,
+					    b->width, b->height,
+					    cur_alpha, is_drawing_to_bg);
+		} else {
+			draw_stage_gui_active(b->x, b->y, b->width, b->height,
+					      b->x, b->y, cur_alpha,
+					      is_drawing_to_bg);
+		}
+	}
+}
+
+/* 一般のボタンを描画する */
+static void process_button_draw_generic(int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+
+	if (!is_overlay) {
+		/*
+		 * オーバレイを使わない場合
+		 *  - ボタンがポイントされているときだけhover画像を描画する
+		 *    - ボタン背景はidleが全画面描画済み
+		 *  - フェード中はhover画像を描画しない
+		 */
+		if (index == pointed_index && !is_fading_in && !is_fading_out) {
+			draw_stage_gui_hover(b->x, b->y, b->width, b->height,
+					     255, is_drawing_to_bg);
+		}
+	} else {
+		/*
+		 * オーバレイを使う場合
+		 *  - ボタンがポイントされていないときidle画像を描画する
+		 *  - ボタンがポイントされているときhover画像を描画する
+		 */
+		if (index != pointed_index) {
+			draw_stage_gui_idle(true,
+					    b->x, b->y, b->width, b->height,
+					    cur_alpha, false);
+		} else {
+			draw_stage_gui_hover(b->x, b->y, b->width, b->height,
+					     cur_alpha, false);
+		}
 	}
 }
 
@@ -1538,20 +1729,39 @@ static void process_button_draw_gallery(int index)
 	b = &button[index];
 	assert(b->type == TYPE_GALLERY);
 
-	/* 指定された変数が0のとき(解放されていないギャラリーの場合) */
 	if (b->rt.is_disabled) {
-		/* 描画しない */
-		return;
+		/* 指定された変数が0のとき(解放されていないギャラリーの場合) */
+		if (!is_overlay) {
+			/*
+			 * オーバレイでない場合
+			 *  - 描画しない (背景を描画済み)
+			 */
+		} else {
+			/*
+			 * オーバレイの場合
+			 *  - idle画像を描画する
+			 */
+			draw_stage_gui_idle(true,
+					    b->x, b->y,
+					    b->width, b->height,
+					    cur_alpha, is_drawing_to_bg);
+		}
+	} else if (index == pointed_index) {
+		if (is_overlay || (!is_fading_in && !is_fading_out)) {
+			/* ポイントされているとき、hover画像を描画する */
+			draw_stage_gui_hover(b->x, b->y,
+					     b->width, b->height,
+					     cur_alpha, is_drawing_to_bg);
+		}
+	} else {
+		if (is_overlay || (!is_fading_in && !is_fading_out)) {
+			/* ポイントされていないとき、active画像を描画する */
+			draw_stage_gui_active(b->x, b->y,
+					      b->width, b->height,
+					      b->x, b->y,
+					      cur_alpha, is_drawing_to_bg);
+		}
 	}
-
-	/* ポイントされているとき、hover画像を描画する */
-	if (b->rt.is_pointed) {
-		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
-		return;
-	}
-
-	/* ポイントされていないとき、active画像を描画する */
-	draw_stage_gui_active(b->x, b->y, b->width, b->height, b->x, b->y);
 }
 
 /* ギャラリーボタンを描画する */
@@ -1565,7 +1775,7 @@ static void process_button_draw_namevar(int index)
 	/* スクリーンへの描画を行う */
 	render_image(button[index].x, button[index].y,
 		     button[index].rt.img, button[index].width,
-		     button[index].height, 0, 0, 255, BLEND_FAST);
+		     button[index].height, 0, 0, cur_alpha, BLEND_FAST);
 }
 
 /* ボタンの状況に応じたSEを再生する */
@@ -1585,7 +1795,7 @@ static void process_play_se(void)
 	}
 
 	/* 前フレームとは異なるボタンがポイントされた場合 */
-	if (is_pointed_changed && pointed_index != -1) {
+	if (pointed_index != prev_pointed_index && pointed_index != -1) {
 		play_sys_se(button[pointed_index].pointse);
 		return;
 	}
@@ -1838,20 +2048,25 @@ static void process_load(int button_index)
 }
 
 /* セーブ・ロードボタンの描画を行う */
-static void process_button_draw_save(int button_index)
+static void process_button_draw_save(int index)
 {
+	struct gui_button *b;
+
+	b = &button[index];
+
 	/* ポイントされているときの描画を行う */
-	if (button[button_index].rt.is_pointed) {
-		draw_stage_gui_hover(button[button_index].x,
-				     button[button_index].y,
-				     button[button_index].width,
-				     button[button_index].height);
+	if (index == pointed_index) {
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height,
+				     cur_alpha, is_drawing_to_bg);
 	}
 
 	/* サムネイルとテキストの描画を行う */
-	render_image(button[button_index].x, button[button_index].y,
-		     button[button_index].rt.img, button[button_index].width,
-		     button[button_index].height, 0, 0, 255, BLEND_FAST);
+	if (!is_drawing_to_bg) {
+		render_image(b->x, b->y, b->rt.img, b->width, b->height,
+			     0, 0, cur_alpha, BLEND_FAST);
+	} else {
+		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
+	}
 }
 
 /*
@@ -1892,23 +2107,29 @@ static bool init_history_buttons(void)
 }
 
 /* ヒストリボタンの描画を行う */
-static void process_button_draw_history(int button_index)
+static void process_button_draw_history(int index)
 {
 	struct gui_button *b;
 
-	b = &button[button_index];
+	b = &button[index];
 
 	/* ヒストリ項目がない場合(まだヒストリが少ない場合) */
 	if (b->rt.img == NULL)
 		return;
 
 	/* ポイントされているときの描画を行う */
-	if (b->rt.is_active && b->rt.is_pointed)
-		draw_stage_gui_hover(b->x, b->y, b->width, b->height);
+	if (b->rt.is_active && index == pointed_index) {
+		draw_stage_gui_hover(b->x, b->y, b->width, b->height,
+				     cur_alpha, is_drawing_to_bg);
+	}
 
 	/* テキストの描画を行う */
-	render_image(b->x, b->y, b->rt.img, b->width, b->height, 0, 0, 255,
-		     BLEND_FAST);
+	if (!is_drawing_to_bg) {
+		render_image(b->x, b->y, b->rt.img, b->width, b->height, 0, 0,
+			     cur_alpha, BLEND_FAST);
+	} else {
+		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
+	}
 }
 
 /* ヒストリのスロットを描画する */
@@ -2322,25 +2543,28 @@ static void reset_preview_button(int index)
 /* テキストプレビューのボタンの描画を行う */
 static void process_button_draw_preview(int index)
 {
+	struct gui_button *b;
 	int lap;
 
+	b = &button[index];
+
 	/* メッセージの途中の場合 */
-	if (!button[index].rt.is_waiting) {
+	if (!b->rt.is_waiting) {
 		/* メインメモリ上のイメージの描画を行う */
 		draw_preview_message(index);
 
 		/* すべての文字を描画し終わった場合 */
-		if (button[index].rt.drawn_chars ==
-		    button[index].rt.total_chars) {
+		if (b->rt.drawn_chars ==
+		    b->rt.total_chars) {
 			/* ストップウォッチを初期化する */
-			reset_stop_watch(&button[index].rt.sw);
+			reset_stop_watch(&b->rt.sw);
 
 			/* オートモードの待ち時間に入る */
-			button[index].rt.is_waiting = true;
+			b->rt.is_waiting = true;
 		}
 	} else {
 		/* オートモードの待ち時間の場合 */
-		lap = get_stop_watch_lap(&button[index].rt.sw);
+		lap = get_stop_watch_lap(&b->rt.sw);
 		if (lap >= get_wait_time(index)) {
 			/* 待ちを終了する */
 			reset_preview_button(index);
@@ -2348,9 +2572,13 @@ static void process_button_draw_preview(int index)
 	}
 
 	/* スクリーンへの描画を行う */
-	render_image(button[index].x, button[index].y,
-		     button[index].rt.img, button[index].width,
-		     button[index].height, 0, 0, 255, BLEND_FAST);
+	if (!is_drawing_to_bg) {
+		render_image(b->x, b->y,
+			     b->rt.img, b->width,
+			     b->height, 0, 0, cur_alpha, BLEND_FAST);
+	} else {
+		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
+	}
 }
 
 /* メッセージの描画を行う */
@@ -2600,6 +2828,9 @@ const char *get_gui_result_label(void)
 {
 	struct gui_button *b;
 
+	if (is_fading_in)
+		return NULL;
+
 	if (result_index == -1)
 		return NULL;
 
@@ -2617,6 +2848,9 @@ const char *get_gui_result_label(void)
 bool is_gui_result_exit(void)
 {
 	struct gui_button *b;
+
+	if (is_fading_in)
+		return false;
 
 	if (result_index == -1)
 		return false;

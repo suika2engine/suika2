@@ -566,36 +566,43 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 	if (is_sysmenu_finished)
 		is_sysmenu_finished = false;
 
-	/* クイックセーブされる場合を処理する */
+	/*
+	 * 必要な場合はステージのサムネイルを作成する
+	 *  - クイックセーブされるとき
+	 *  - システムGUIに遷移するとき
+	 */
+	if (will_quick_save
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode ||
+	     need_config_mode))
+		draw_stage_to_thumb();
+
+	/* システムメニューで押されたボタンの処理を行う */
 	if (will_quick_save) {
-		/* クイックセーブを行う */
 		quick_save();
 		will_quick_save = false;
-		return true;
-	}
-
-	/* システムGUIへの遷移を処理する */
-	if (need_save_mode) {
-		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true, false))
+	} else if (need_save_mode) {
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 		return true;
-	}
-	if (need_load_mode) {
-		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true, false))
+	} else if (need_load_mode) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 		return true;
-	}
-	if (need_history_mode) {
-		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true, false))
+	} else if (need_history_mode) {
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 		return true;
-	}
-	if (need_config_mode) {
-		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true, false))
+	} else if (need_config_mode) {
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 		return true;
 	}
@@ -2218,33 +2225,6 @@ static void action_custom(int index)
 /* システムメニューの処理を行う */
 static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 {
-	/* 視覚障害者モードの場合 */
-	if (conf_tts_enable == 1) {
-		/* システムメニュー表示中に視覚障害者モードになった場合 */
-		if (is_sysmenu) {
-			/* システムメニューを抜ける */
-			is_sysmenu = false;
-			is_sysmenu_finished = true;
-			clear_input_state();
-			return true;
-		}
-		/* システムメニューの代わりにキー操作を受け付ける */
-		if (is_s_pressed) {
-			action_save();
-			clear_input_state();
-			return true;
-		} else if (is_l_pressed) {
-			action_load();
-			clear_input_state();
-			return true;
-		} else if (is_h_pressed) {
-			action_history();
-			clear_input_state();
-			return true;
-		}
-		return false;
-	}
-
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested()) {
@@ -2269,6 +2249,45 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 		return false;
 	}
 #endif
+
+	/* システムメニュー表示中に視覚障害者モードになった場合 */
+	if (is_sysmenu && conf_tts_enable == 1) {
+		/* システムメニューを抜ける */
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		clear_input_state();
+		return false;
+	}
+
+	/* キー操作を受け付ける */
+	if (is_s_pressed && conf_sysmenu_hidden != 2) {
+		play_se(conf_sysmenu_save_se);
+		action_save();
+		clear_input_state();
+		if (is_sysmenu) {
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+		}
+		return true;
+	} else if (is_l_pressed && conf_sysmenu_hidden != 2) {
+		play_se(conf_sysmenu_load_se);
+		action_load();
+		clear_input_state();
+		if (is_sysmenu) {
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+		}
+		return true;
+	} else if (is_h_pressed && !conf_msgbox_history_disable) {
+		play_se(conf_msgbox_history_se);
+		action_history();
+		clear_input_state();
+		if (is_sysmenu) {
+			is_sysmenu = false;
+			is_sysmenu_finished = true;
+		}
+		return true;
+	}
 
 	/* システムメニューが表示中でないとき */
 	if (!is_sysmenu) {

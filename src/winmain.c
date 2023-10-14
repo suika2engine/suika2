@@ -1087,14 +1087,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SendMessage(hWndMain, WM_SIZE, 0, 0);
 			return 0;
 		}
-		if ((int)wParam == 'V' && !conf_tts_enable)
+		if ((int)wParam == 'V')
 		{
-			InitSAPI();
-			conf_tts_enable = 1;
-			if (strcmp(get_system_locale(), "ja") == 0)
-				SpeakSAPI(L"読み上げを有効にしました");
-			else
-				SpeakSAPI(L"Speech is enabled.");
+			if (!conf_tts_enable) {
+				InitSAPI();
+				conf_tts_enable = conf_tts_user;
+				if (strcmp(get_system_locale(), "ja") == 0)
+					SpeakSAPI(L"テキスト読み上げがオンです。");
+				else
+					SpeakSAPI(L"Text-to-speech is turned on.");
+			} else {
+				conf_tts_enable = 0;
+				if (strcmp(get_system_locale(), "ja") == 0)
+					SpeakSAPI(L"テキスト読み上げがオフです。");
+				else
+					SpeakSAPI(L"Text-to-speech is turned off.");
+			}
 			return 0;
 		}
 		kc = ConvertKeyCode((int)wParam);

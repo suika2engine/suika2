@@ -1,13 +1,13 @@
 global {
-    idle:   language_en.png;
+    idle:   language_en_idle.png;
     hover:  language_en_hover.png;
     active: language_en_hover.png;
+
     alt: 画面では英語のあいさつが表示されています。左右のキーを押してください。;
 }
 
 ACCEPT {
     type: goto;
-
     label: English;
 
     x: 570;
@@ -18,13 +18,12 @@ ACCEPT {
     pointse: btn-change.ogg;
     clickse: click.ogg;
 
-    alt: このボタンを押すと言語を英語に決定して先の画面に進みます。;
+    alt: このボタンを押すと英語に決定して先の画面に進みます。;
 }
 
 JAPANESE {
     type: gui;
-
-    file: language_jp.txt;
+    file: language.txt;
 
     x: 495;
     y: 266;
@@ -35,20 +34,4 @@ JAPANESE {
     clickse: click.ogg;
 
     alt: このボタンを押すと日本語が選択されます。;
-}
-
-ENGLISH {
-    type: gui;
-
-    file: language_en.txt;
-
-    x: 495;
-    y: 316;
-    width: 290;
-    height: 40;
-
-    #pointse: btn-change.ogg;
-    #clickse: click.ogg;
-
-    alt: このボタンを押しても何も起こりません。;
 }

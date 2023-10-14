@@ -174,6 +174,46 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
 <h2>Release History</h2>
 <ul>
 <!-- BEGIN-LATEST -->
+<li>Suika2/14.5 2023/10/14
+  <ul>
+    <li>Add missing 'mov/' path of video URL on the Web version (Thanks to 赤井ルイ-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST -->
+<li>Suika2/14.4 2023/10/14
+  <ul>
+    <li>Improve menu fadings on the sample game</li>
+  </ul>
+</li>
+<li>Suika2/14.3 2023/10/14
+  <ul>
+    <li>Add GUI fade-in and fade-out (Thanks to 花澄匝-san!)
+      <ul>
+        <li>Add <code>fadein: 1.0;</code> and <code>fadeout: 1.0;</code> to GUI files</li>
+        <li>Apply GUI button contents to temporary backgrounds after <code>@gui</code> calls</li>
+        <li><code>@goto $LOAD</code> is obsolete and <code>@gui load.txt cancel,nofadeout</code> is recommended</li>
+      </ul>
+    </li>
+    <li>Add GUI overlay mode (support transparent idle images) (Thanks to 花澄匝-san!)
+      <ul>
+        <li>GUI can now be displayed with background, character, and other layers visible</li>
+        <li>To turn this on, specify <code>overlay: yes;</code> in GUI files</li>
+        <li>When the overlay mode is turned on, no temporary/transitional background image is created at the end of <code>@gui</code></li>
+      </ul>
+    </li>
+    <li>Fix GUI key and mouse operation bug (Thanks to かめの-san!)</li>
+    <li>Fix choose key and mouse operation bug</li>
+    <li>Add text-to-speech turn on/off (Thanks to MATSUNO-san!)</li>
+    <li>Improve the language chooser GUI</li>
+    <li>Notice: You will see warnings for a short period until the number of downloads increases)</li>
+  </ul>
+</li>
+<li>Suika2/14.2 2023/10/13
+  <ul>
+		<li>Add missing mod operator to WMS (Thanks to 花澄匝-san!)</li>
+		<li>Renew a code signing certificate for Windows SmartScreen (warning will be displayed for a short period)</li>
+  </ul>
+</li>
 <li>Suika2/14.1 2023/10/12
   <ul>
 		<li>Fix effect layers (Thanks to ラワン材-san!)</li>
@@ -181,7 +221,6 @@ Suika2 is an open-source, cross-platform visual novel development engine that al
 		<li>Add history text-to-speech (only when TTS is enabled)</li>
   </ul>
 </li>
-<!-- END-LATEST -->
 <li>Suika2/14.0 2023/10/10
   <ul>
     <li>Update to version 14 series</li>

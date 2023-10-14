@@ -6,8 +6,8 @@
 @vol track=bgm volume=1.0 duration=0.0
 @bgm file=00.ogg
 
-# Show menu gradually.
-@bg file=cg/menu-idle.png duration=1.0
+# Show the menu background image.
+@bg file=cg/menu-idle.png 1.0
 
 # This is the menu top. We'll be back here when LOAD or CONFIG is selected.
 :MENU
@@ -16,7 +16,7 @@
 @chapter "Menu"
 
 # Call a menu.
-@gui menu.txt
+@gui menu.txt nofadein
 
 # When START is selected:
 :START
@@ -25,13 +25,15 @@
 # When LOAD is selected:
 :LOAD
 @chapter Load
-@goto $LOAD
+@gui file=load.txt cancel
 @goto MENU
 
 # When CONFIG is selected:
 :CONFIG
 @chapter Config
 @gui system.txt cancel
+
+# Note that we'll come here only when system.txt is canceled
 @goto MENU
 
 # When QUIT is selected:

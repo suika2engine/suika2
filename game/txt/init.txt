@@ -71,6 +71,23 @@
 
 @gui language.txt
 
+#####
+# 日本語が選択された場合
+# For when Japanese is selected
+
+:Japanese
+
+# 日本語モードにします
+# Set Japanese mode
+
+@setconfig locale.force ja
+
+# 日本語のファイルに移動します
+# Move to a Japanese file
+
+@load japanese-main.txt
+
+#####
 # 英語が選択された場合
 # For when English is selected
 
@@ -92,18 +109,3 @@
 # Move to an English file
 
 @load english-main.txt
-
-# 日本語が選択された場合
-# For when Japanese is selected
-
-:Japanese
-
-# 日本語モードにします
-# Set Japanese mode
-
-@setconfig locale.force ja
-
-# 日本語のファイルに移動します
-# Move to a Japanese file
-
-@load japanese-main.txt

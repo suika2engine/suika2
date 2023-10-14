@@ -9,8 +9,38 @@ global {
     hover:  config-page2-hover.png;
     active: config-page2-active.png;
 
+    # フェードイン時間(秒)
+    fadein: 0.5;
+
+    # フェードアウト時間(秒)
+    fadeout: 0.5;
+
     # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
+
+    # 読み上げテキスト
+    alt: 設定ページ2を表示しています。左右のキーを押してください。;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:タイトルへ戻る
+    type: cancel;
+
+    # 座標とサイズ
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとゲームに戻ります。;
 }
 
 # キャラクタごとのボイスボリュームスライダー
@@ -32,6 +62,9 @@ MIDORI {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンは「みどり」のボイス音量を調整するものです。;
 }
 
 # すべて既定値に戻すボタン
@@ -50,6 +83,9 @@ DEFAULT {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはすべての設定を既定値に戻すものです。;
 }
 
 # 設定ページ1への移動ボタン
@@ -71,6 +107,9 @@ PAGE1 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンは設定ページ2に移動するものです。;
 }
 
 # タイトルへ戻るボタン
@@ -92,22 +131,7 @@ TITLE {
 
     # クリックされたときの効果音
     clickse: click.ogg;
-}
 
-# 元の画面に戻るボタン
-BACK {
-    # 種類:タイトルへ戻る
-    type: cancel;
-
-    # 座標とサイズ
-    x: 1156;
-    y: 653;
-    width: 103;
-    height: 21;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
+    # 読み上げテキスト
+    alt: このボタンはゲームのタイトル画面に戻るものです。;
 }

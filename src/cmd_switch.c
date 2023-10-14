@@ -161,6 +161,9 @@ static int pointed_child_index;
 /* キー操作によってポイントが変更されたか */
 static bool is_selected_by_key;
 
+/* キー操作によってポイントが変更されたときのマウス座標 */
+static int save_mouse_pos_x, save_mouse_pos_y;
+
 /*
  * 描画の状態
  */
@@ -319,7 +322,10 @@ static void preprocess(void)
 /* メイン処理として、描画を行う */
 static void main_process(int *x, int *y, int *w, int *h)
 {
-	/* クイックロードされた場合は処理しない */
+	/*
+	 * クイックロードされた場合は描画を行わない
+	 *  - 同じフレームで、ロード後のコマンドが実行されるため
+	 */
 	if (did_quick_load)
 		return;
 
@@ -333,19 +339,15 @@ static void main_process(int *x, int *y, int *w, int *h)
 /* 後処理として、遷移を処理する */
 static bool postprocess(void)
 {
-	/* クイックロードされた場合は処理しない */
-	if (did_quick_load) {
-		stop_command_repetition();
-		return true;
-	}
-
 	/*
 	 * 必要な場合は繰り返し動作を停止する
 	 *  - クイックロードされたとき
 	 *  - システムGUIに遷移するとき
 	 */
-	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode)
+	if (did_quick_load
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode ||
+	     need_config_mode))
 		stop_command_repetition();
 
 	/*
@@ -353,8 +355,10 @@ static bool postprocess(void)
 	 *  - クイックセーブされるとき
 	 *  - システムGUIに遷移するとき
 	 */
-	if (will_quick_save || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode)
+	if (will_quick_save
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode ||
+	     need_config_mode))
 		draw_stage_fo_thumb();
 
 	/* システムメニューで押されたボタンの処理を行う */
@@ -362,20 +366,24 @@ static bool postprocess(void)
 		quick_save();
 		will_quick_save = false;
 	} else if (need_save_mode) {
-		if (!prepare_gui_mode(SAVE_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(SAVE_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	} else if (need_load_mode) {
-		if (!prepare_gui_mode(LOAD_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(LOAD_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	} else if (need_history_mode) {
-		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	} else if (need_config_mode) {
-		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, true, true))
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, true))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	}
 
@@ -743,7 +751,26 @@ static void process_main_click(void)
 	bool enter_sysmenu;
 
 	/* ヒストリ画面への遷移を確認する */
-	if (is_up_pressed && !conf_msgbox_history_disable && get_history_count() != 0) {
+	if (is_up_pressed &&
+	    !conf_msgbox_history_disable &&
+	    get_history_count() != 0) {
+		play_se(conf_msgbox_history_se);
+		need_history_mode = true;
+		return;
+	}
+
+	/* キー操作を受け付ける */
+	if (is_s_pressed && conf_sysmenu_hidden != 2) {
+		play_se(conf_sysmenu_save_se);
+		need_save_mode = true;
+		return;
+	} else if (is_l_pressed && conf_sysmenu_hidden != 2) {
+		play_se(conf_sysmenu_load_se);
+		need_load_mode = true;
+		return;
+	} else if (is_h_pressed &&
+		   !conf_msgbox_history_disable &&
+		   get_history_count() != 0) {
 		play_se(conf_msgbox_history_se);
 		need_history_mode = true;
 		return;
@@ -787,6 +814,27 @@ static void process_main_click(void)
 /* システムメニュー表示中のクリックを処理する */
 static void process_sysmenu_click(void)
 {
+	/* キー操作を受け付ける */
+	if (is_s_pressed) {
+		play_se(conf_sysmenu_save_se);
+		need_save_mode = true;
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		return;
+	} else if (is_l_pressed) {
+		play_se(conf_sysmenu_load_se);
+		need_load_mode = true;
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		return;
+	} else if (is_h_pressed) {
+		play_se(conf_sysmenu_history_se);
+		need_history_mode = true;
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		return;
+	}
+
 	/* 右クリックされた場合と、エスケープキーが押下されたとき */
 	if (is_right_button_pressed || is_escape_pressed) {
 		/* SEを再生する */
@@ -956,7 +1004,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		}
 
 		/* 読み上げを行う */
-		if (conf_tts_enable &&
+		if (conf_tts_enable == 1 &&
 		    is_selected_by_key &&
 		    parent_button[pointed_parent_index].msg != NULL) {
 			speak_text(NULL);
@@ -1063,6 +1111,8 @@ static int get_pointed_parent_index(void)
 	/* 右キーを処理する */
 	if (is_right_arrow_pressed) {
 		is_selected_by_key = true;
+		save_mouse_pos_x = mouse_pos_x;
+		save_mouse_pos_y = mouse_pos_y;
 		if (pointed_parent_index == -1)
 			return 0;
 		if (pointed_parent_index == PARENT_COUNT - 1)
@@ -1076,6 +1126,8 @@ static int get_pointed_parent_index(void)
 	/* 左キーを処理する */
 	if (is_left_arrow_pressed) {
 		is_selected_by_key = true;
+		save_mouse_pos_x = mouse_pos_x;
+		save_mouse_pos_y = mouse_pos_y;
 		if (pointed_parent_index == -1 ||
 		    pointed_parent_index == 0) {
 			for (i = PARENT_COUNT - 1; i >= 0; i--)
@@ -1094,6 +1146,11 @@ static int get_pointed_parent_index(void)
 		    mouse_pos_x < parent_button[i].x + parent_button[i].w &&
 		    mouse_pos_y >= parent_button[i].y &&
 		    mouse_pos_y < parent_button[i].y + parent_button[i].h) {
+			/* キーで選択済みの項目があり、マウスが移動していない場合 */
+			if (is_selected_by_key &&
+			    mouse_pos_x == save_mouse_pos_x &&
+			    mouse_pos_y == save_mouse_pos_y)
+				continue;
 			is_selected_by_key = false;
 			return i;
 		}

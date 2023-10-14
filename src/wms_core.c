@@ -80,6 +80,7 @@ static bool calc_str_plus_str(struct wms_runtime *rt, struct wms_value val1, str
 static bool calc_minus(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_mul(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_div(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
+static bool calc_mod(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_and(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_or(struct wms_runtime *rt, struct wms_value val1, struct wms_value val2, struct wms_value *result);
 static bool calc_neg(struct wms_runtime *rt, struct wms_value val, struct wms_value *result);
@@ -699,6 +700,22 @@ wms_make_expr_with_div(
 	AST_MEM_CHECK(expr);
 	memset(expr, 0, sizeof(struct wms_expr));
 	expr->type.is_div = 1;
+	expr->val.expr[0] = expr1;
+	expr->val.expr[1] = expr2;
+	return expr;
+}
+
+struct wms_expr *
+wms_make_expr_with_mod(
+	struct wms_expr *expr1,
+	struct wms_expr *expr2)
+{
+	struct wms_expr *expr;
+
+	expr = malloc(sizeof(struct wms_expr));
+	AST_MEM_CHECK(expr);
+	memset(expr, 0, sizeof(struct wms_expr));
+	expr->type.is_mod = 1;
 	expr->val.expr[0] = expr1;
 	expr->val.expr[1] = expr2;
 	return expr;
@@ -1669,6 +1686,12 @@ eval_expr(
 		if (!eval_expr(rt, expr->val.expr[1], &val2))
 			return false;
 		return calc_div(rt, val1, val2, val);
+	} else if (expr->type.is_mod) {
+		if (!eval_expr(rt, expr->val.expr[0], &val1))
+			return false;
+		if (!eval_expr(rt, expr->val.expr[1], &val2))
+			return false;
+		return calc_mod(rt, val1, val2, val);
 	} else if (expr->type.is_and) {
 		if (!eval_expr(rt, expr->val.expr[0], &val1))
 			return false;
@@ -2133,6 +2156,25 @@ calc_div(
 		}
 	}
 	return rterror(rt, "Type error (divide operator)");
+}
+
+static bool
+calc_mod(
+	struct wms_runtime *rt,
+	struct wms_value val1,
+	struct wms_value val2,
+	struct wms_value *result)
+{
+	assert(result != NULL);
+
+	if (!val1.type.is_int || !val2.type.is_int)
+		return rterror(rt, "Non integer expression specified for % operator");
+
+	if ((val2.type.is_int && val2.val.i == 0))
+		return rterror(rt, "Division by zero");
+
+	*result = value_by_int(val1.val.i % val2.val.i);
+	return true;
 }
 
 static bool

@@ -1,29 +1,28 @@
 global {
-    idle:   language.png;
+    idle:   language_idle.png;
     hover:  language_hover.png;
     active: language_hover.png;
-    alt: この画面では言語を決定します。左右のキーを押してください。;
+
+    alt: 画面では日本語のあいさつが表示されています。左右のキーを押してください。;
 }
 
-JAPANESE {
-    type: gui;
+ACCEPT {
+    type: goto;
+    label: Japanese;
 
-    file: language_jp.txt;
-
-    x: 495;
-    y: 266;
-    width: 290;
-    height: 40;
+    x: 570;
+    y: 413;
+    width: 140;
+    height: 42;
 
     pointse: btn-change.ogg;
     clickse: click.ogg;
 
-    alt: このボタンを押すと日本語が選択されます。;
+    alt: このボタンを押すと日本語に決定して先の画面に進みます。;
 }
 
 ENGLISH {
     type: gui;
-
     file: language_en.txt;
 
     x: 495;

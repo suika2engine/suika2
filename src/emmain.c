@@ -682,6 +682,10 @@ bool default_dialog(void)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
+	char *path;
+
+	path = make_valid_path(MOV_DIR, fname);
+
 	EM_ASM_({
 		document.getElementById("canvas").style.display = "none";
 
@@ -694,7 +698,9 @@ bool play_video(const char *fname, bool is_skippable)
 			document.getElementById("video").style.display = "none";
 		});
 		v.play();
-	}, fname, strlen(fname));
+	}, path, strlen(path));
+
+	free(path);
 
 	return true;
 }
