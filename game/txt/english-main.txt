@@ -6,9 +6,6 @@
 @vol track=bgm volume=1.0 duration=0.0
 @bgm file=00.ogg
 
-# Show menu gradually.
-@bg file=cg/menu-idle.png duration=1.0
-
 # This is the menu top. We'll be back here when LOAD or CONFIG is selected.
 :MENU
 
@@ -25,7 +22,7 @@
 # When LOAD is selected:
 :LOAD
 @chapter Load
-@goto $LOAD
+@gui file=load.txt cancel,nofadeout
 @goto MENU
 
 # When CONFIG is selected:

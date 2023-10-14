@@ -27,7 +27,10 @@ void cleanup_gui(void);
 bool check_gui_flag(void);
 
 /* GUIを準備する */
-bool prepare_gui_mode(const char *file, bool cancel, bool sys);
+bool prepare_gui_mode(const char *file, bool sys);
+
+/* GUIのオプションを指定する */
+void set_gui_options(bool cancel, bool nofadein, bool nofadeout);
 
 /* GUIを開始する */
 void start_gui_mode(void);

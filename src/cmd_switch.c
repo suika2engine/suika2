@@ -363,20 +363,24 @@ static bool postprocess(void)
 		quick_save();
 		will_quick_save = false;
 	} else if (need_save_mode) {
-		if (!prepare_gui_mode(SAVE_GUI_FILE, true, false))
+		if (!prepare_gui_mode(SAVE_GUI_FILE, false))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	} else if (need_load_mode) {
-		if (!prepare_gui_mode(LOAD_GUI_FILE, true, false))
+		if (!prepare_gui_mode(LOAD_GUI_FILE, false))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	} else if (need_history_mode) {
-		if (!prepare_gui_mode(HISTORY_GUI_FILE, true, false))
+		if (!prepare_gui_mode(HISTORY_GUI_FILE, false))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	} else if (need_config_mode) {
-		if (!prepare_gui_mode(CONFIG_GUI_FILE, true, false))
+		if (!prepare_gui_mode(CONFIG_GUI_FILE, false))
 			return false;
+		set_gui_options(true, false, false);
 		start_gui_mode();
 	}
 

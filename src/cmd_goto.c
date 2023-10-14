@@ -53,10 +53,11 @@ bool goto_command(bool *cont)
 		draw_stage_to_thumb();
 
 		/* ロード画面を開始する */
-		if (!prepare_gui_mode(LOAD_GUI_FILE, true, false)) {
+		if (!prepare_gui_mode(LOAD_GUI_FILE, false)) {
 			log_script_exec_footer();
 			return false;
 		}
+		set_gui_options(true, true, true);
 		start_gui_mode();
 
 		/* キャンセルされた場合のために次のコマンドへ移動しておく */
@@ -87,10 +88,11 @@ bool goto_command(bool *cont)
 		draw_stage_to_thumb();
 
 		/* セーブ画面を開始する */
-		if (!prepare_gui_mode(SAVE_GUI_FILE, true, false)) {
+		if (!prepare_gui_mode(SAVE_GUI_FILE, false)) {
 			log_script_exec_footer();
 			return false;
 		}
+		set_gui_options(true, true, true);
 		start_gui_mode();
 
 		/*

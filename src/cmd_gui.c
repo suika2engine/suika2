@@ -50,23 +50,33 @@ static bool init(void)
 {
 	const char *file, *opt;
 	bool opt_cancel;
+	bool opt_nofadein;
+	bool opt_nofadeout;
 
 	/* GUIファイル名を取得する */
 	file = get_string_param(GUI_PARAM_FILE);
 
 	/* オプションを取得する */
 	opt_cancel = false;
+	opt_nofadein = false;
+	opt_nofadeout = false;
 	opt = get_string_param(GUI_PARAM_OPTIONS);
-	if (strstr(opt, "cancel") != NULL)
+	if (strstr(opt, "cancel") != NULL ||
+	    strstr(opt, U8("キャンセル許可")) != NULL)
 		opt_cancel = true;
-	if (strstr(opt, U8("キャンセル許可")) != NULL)
-		opt_cancel = true;
+	if (strstr(opt, "nofadein") != NULL ||
+	    strstr(opt, "フェードインなし") != NULL)
+		opt_nofadein = true;
+	if (strstr(opt, "nofadeout") != NULL ||
+	    strstr(opt, "フェードアウトなし") != NULL)
+		opt_nofadeout = true;
 
 	/* GUIファイルと指定された画像の読み込みを行う */
-	if (!prepare_gui_mode(file, opt_cancel, false)) {
+	if (!prepare_gui_mode(file, false)) {
 		log_script_exec_footer();
 		return false;
 	}
+	set_gui_options(opt_cancel, opt_nofadein, opt_nofadeout);
 
 	/* 背景以外を消す */
 	if (!is_gui_overlay()) {
