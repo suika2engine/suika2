@@ -1255,6 +1255,10 @@ static bool process_button_point(int index, bool key)
 		return true;
 	}
 
+	/* ポイントから外れた場合(キー選択の場合を除く) */
+	if (pointed_index == index && !is_pointed_by_key)
+		pointed_index = -1;
+
 	return false;
 }
 
