@@ -12,12 +12,14 @@ usage:
 	@echo
 
 setup:
-	npm install
 	@if [ ! -z "`uname | grep Linux`" ]; then \
 		sudo dpkg --add-architecture i386; \
 		sudo apt-get update; \
-		sudo apt-get install wine wine64 wine32; \
+		sudo apt-get install wine wine32 npm; \
+		sudo npm install -g n; \
 	fi
+	hash -r && npm install
+	@echo "Please run 'hash -r'"
 
 update:
 	cd apps && ./update-suika2.sh && cd ..
