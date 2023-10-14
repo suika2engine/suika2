@@ -2235,7 +2235,8 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 			clear_input_state();
 			return true;
 		}
-		/* システムメニューの代わりにキー操作を受け付ける */
+
+		/* キー操作を受け付ける */
 		if (is_s_pressed) {
 			action_save();
 			clear_input_state();
@@ -2279,11 +2280,47 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 
 	/* システムメニューが表示中でないとき */
 	if (!is_sysmenu) {
+		/* キー操作を受け付ける */
+		if (is_s_pressed) {
+			action_save();
+			clear_input_state();
+			return true;
+		} else if (is_l_pressed) {
+			action_load();
+			clear_input_state();
+			return true;
+		} else if (is_h_pressed) {
+			action_history();
+			clear_input_state();
+			return true;
+		}
+
 		/* 折りたたみシステムメニューの処理を行う */
 		return process_collapsed_sysmenu(x, y, w, h);
 	}
 
 	/* 以下、システムメニューを表示中の場合 */
+
+	/* キー操作を受け付ける */
+	if (is_s_pressed) {
+		action_save();
+		clear_input_state();
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		return true;
+	} else if (is_l_pressed) {
+		action_load();
+		clear_input_state();
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		return true;
+	} else if (is_h_pressed) {
+		action_history();
+		clear_input_state();
+		is_sysmenu = false;
+		is_sysmenu_finished = true;
+		return true;
+	}
 
 	/* ポイントされているシステムメニューのボタンを求める */
 	old_sysmenu_pointed_index = sysmenu_pointed_index;

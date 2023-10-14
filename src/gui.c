@@ -968,7 +968,9 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 
 	/* ボタンが決定された場は終了する */
 	if (!is_fading_in && !is_fading_out && result_index != -1) {
-		if (fade_out_time > 0 && button[result_index].type != TYPE_GUI) {
+		if (fade_out_time > 0 &&
+		    (button[result_index].type != TYPE_GUI ||
+		     button[result_index].type != TYPE_TITLE)) {
 			is_fading_out = true;
 			reset_stop_watch(&fade_sw);
 		} else {
