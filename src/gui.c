@@ -995,6 +995,12 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 		/* 続くコマンド実行に影響を与えないようにする */
 		clear_input_state();
 
+		/* ロードの場合は@guiを止める */
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_LOAD &&
+		    is_in_command_repetition())
+			stop_command_repetition();
+
 		/* 他のGUIに移動する場合 */
 		if (result_index != -1 &&
 		    button[result_index].type == TYPE_GUI)
