@@ -30,11 +30,15 @@
 							L"A part of the Suika Studio Professional Development Suite\n" \
 							L"本製品は将来に渡ってオープンソースソフトウェアとして提供されることが保証されます。"
 
-/* デバッガ用メニューを作成する */
-VOID InitDebuggerMenu(HWND hWnd);
+/* デバッガのサイズ */
+#define DEBUGGER_WIDTH			(440)
+#define DEBUGGER_MIN_HEIGHT		(700)
 
-/* デバッガウィンドウを作成する */
-BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow);
+/* デバッガパネルを作成する */
+BOOL InitDebuggerPanel(HWND hWndMain, HWND hWndGame, void *pWndProc);
+
+/* デバッガウィンドウの位置を修正する */
+VOID UpdateDebuggerWindowPosition(int nGameWidth, int nGameHeight);
 
 /* スタートアップファイル/ラインを取得する */
 BOOL GetStartupPosition(void);
@@ -46,9 +50,9 @@ BOOL IsDebuggerHWND(HWND hWnd);
 LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 								  LPARAM lParam);
 
-/* winmain.c */
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
-						 LPARAM lParam);
+/* デバッガのWM_COMMANDハンドラ */
+VOID OnCommandDebug(UINT nID, UINT nEvent);
+
 const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
 const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 

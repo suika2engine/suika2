@@ -66,7 +66,10 @@
 #define CONV_MESSAGE_SIZE	(65536)
 
 /* ウィンドウクラス名 */
-static const wchar_t wszWindowClass[] = L"suika";
+static const wchar_t wszWindowClassMain[] = L"SuikaMain";
+#ifdef USE_DEBUGGER
+static const wchar_t wszWindowClassGame[] = L"SuikaGame";
+#endif
 
 /* ウィンドウタイトル(UTF-16) */
 static wchar_t wszTitle[TITLE_BUF_SIZE];
@@ -83,6 +86,7 @@ static BOOL bOpenGL;
 
 /* Windowsオブジェクト */
 static HWND hWndMain;
+static HWND hWndGame;
 static HDC hWndDC;
 static HDC hBitmapDC;
 static HBITMAP hBitmap;
@@ -218,8 +222,8 @@ static BOOL WaitForNextFrame(void);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 						 LPARAM lParam);
 static int ConvertKeyCode(int nVK);
-static void OnPaint(void);
-static void OnCommand(UINT nID);
+static void OnPaint(HWND hWnd);
+static void OnCommand(UINT nID, UINT nEvent);
 static void OnSizing(int edge, LPRECT lpRect);
 static void OnSize(void);
 static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
@@ -290,6 +294,7 @@ int WINAPI wWinMain(
 /* 基盤レイヤの初期化処理を行う */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
+	RECT rcClient;
 	HRESULT hRes;
 
 #ifdef SSE_VERSIONING
@@ -318,10 +323,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 
 #ifdef USE_DEBUGGER
-	/* デバッガウィンドウを作成する */
-	if (!InitDebuggerWindow(hInstance, nCmdShow))
-		return FALSE;
-
 	/* スタートアップファイル/ラインを取得する */
 	if (!GetStartupPosition())
 		return FALSE;
@@ -330,6 +331,16 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	/* 描画エンジンを初期化する */
 	if (!InitRenderingEngine())
 		return FALSE;
+
+	/* アスペクト比を補正する */
+	GetClientRect(hWndMain, &rcClient);
+#ifndef USE_DEBUGGER
+	if (rcClient.right != conf_window_width ||
+		rcClient.bottom != conf_window_height)
+		UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
+#else
+	UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
+#endif
 
 	/* DirectSoundを初期化する */
 	if (!DSInitialize(hWndMain))
@@ -373,7 +384,7 @@ static BOOL InitRenderingEngine(void)
 		/* We disable window resizing for capture-replay apps. */
 		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
 		dwStyle ^= WS_THICKFRAME;
-		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
+		SetWindowLong(hWndGame, GWL_STYLE, (LONG)dwStyle);
 		conf_window_resize = 0;
 
 		return TRUE;
@@ -388,7 +399,7 @@ static BOOL InitRenderingEngine(void)
 	if (_access("no-direct3d.txt", 0) != 0)
 	{
 		/* Direct3Dを初期化する */
-		if (D3DInitialize(hWndMain))
+		if (D3DInitialize(hWndGame))
 		{
 			bD3D = TRUE;
 			return TRUE;
@@ -507,33 +518,25 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
 	WNDCLASSEX wcex;
 	RECT rc;
-	int vsw, vsh, dw, dh, i;
-#ifndef USE_DEBUGGER
-	int monitors, wwin, hwin;
-#endif
-
-	/* ディスプレイのサイズが足りない場合 */
-	vsw = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	vsh = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-	if (vsw < conf_window_width || vsh < conf_window_height)
-	{
-		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_SMALL_DISPLAY)), vsw, vsw);
-		return FALSE;
-	}
+	int nVirtualScreenWidth, nVirtualScreenHeight;
+	int nFrameAddWidth, nFrameAddHeight;
+	int nMonitors;
+	int nGameWidth, nGameHeight;
+	int nWinWidth, nWinHeight;
+	int nPosX, nPosY;
+	int i;
 
 	/* ウィンドウクラスを登録する */
+	ZeroMemory(&wcex, sizeof(wcex));
 	wcex.cbSize			= sizeof(WNDCLASSEX);
-	wcex.style          = 0;
 	wcex.lpfnWndProc    = WndProc;
-	wcex.cbClsExtra     = 0;
-	wcex.cbWndExtra     = 0;
 	wcex.hInstance      = hInstance;
 	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SUIKA));
 	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ?
-												 WHITE_BRUSH : BLACK_BRUSH);
-	wcex.lpszMenuName   = NULL;
-	wcex.lpszClassName  = wszWindowClass;
+#ifndef USE_DEBUGGER
+	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ? WHITE_BRUSH : BLACK_BRUSH);
+#endif
+	wcex.lpszClassName  = wszWindowClassMain;
 	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
 	if (!RegisterClassEx(&wcex))
 		return FALSE;
@@ -549,47 +552,85 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		dwStyle |= WS_THICKFRAME;
 
 	/* フレームのサイズを取得する */
-	dw = GetSystemMetrics(SM_CXFIXEDFRAME) * 2;
-	dh = GetSystemMetrics(SM_CYCAPTION) +
-		GetSystemMetrics(SM_CYMENU) +
-		GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
+	nFrameAddWidth = GetSystemMetrics(SM_CXFIXEDFRAME) * 2;
+	nFrameAddHeight = GetSystemMetrics(SM_CYCAPTION) +
+					  GetSystemMetrics(SM_CYMENU) +
+					  GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
 	/* ウィンドウのタイトルをUTF-8からUTF-16に変換する */
 	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
 						TITLE_BUF_SIZE - 1);
 
-#ifndef USE_DEBUGGER
 	/* モニタの数を取得する */
-	monitors = GetSystemMetrics(SM_CMONITORS);
+	nMonitors = GetSystemMetrics(SM_CMONITORS);
 
 	/* ウィンドウのサイズをコンフィグから取得する */
 	if (conf_window_resize &&
-		conf_window_default_width > 0 && conf_window_default_height > 0)
+		conf_window_default_width > 0 &&
+		conf_window_default_height > 0)
 	{
-		wwin = conf_window_default_width;
-		hwin = conf_window_default_height;
+		nGameWidth = conf_window_default_width;
+		nGameHeight = conf_window_default_height;
 	}
 	else
 	{
-		wwin = conf_window_width;
-		hwin = conf_window_height;
+		nGameWidth = conf_window_width;
+		nGameHeight = conf_window_height;
 	}
+
+	/* ディスプレイのサイズを取得する */
+	nVirtualScreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	nVirtualScreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+#ifndef USE_DEBUGGER
+	nWinWidth = nGameWidth + nFrameAddWidth;
+	nWinHeight = nGameHeight + nFrameAddHeight;
+#else
+	nWinWidth = nGameWidth + nFrameAddWidth + DEBUGGER_WIDTH;
+	nWinHeight = nGameHeight + nFrameAddHeight;
 #endif
 
-	/* ウィンドウを作成する */
-	hWndMain = CreateWindowEx(
-		0,
-		wszWindowClass,
-		wszTitle,
-		dwStyle,
-#ifdef USE_DEBUGGER
-		10, 10,
+	/* ディスプレイのサイズが足りない場合 */
+	if (nVirtualScreenWidth < conf_window_width ||
+		nVirtualScreenHeight < conf_window_height)
+	{
+#ifndef USE_DEBUGGER
+		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_SMALL_DISPLAY)),
+				  nVirtualScreenWidth, nVirtualScreenHeight);
+		return FALSE;
 #else
-		monitors == 1 ? (vsw - (wwin + dw)) / 2 : CW_USEDEFAULT,
-		monitors == 1 ? (vsh - (hwin + dh)) / 2 : CW_USEDEFAULT,
+		nWinWidth = nVirtualScreenWidth;
+		nWinHeight = nVirtualScreenHeight;
+		nGameWidth = nWinWidth - DEBUGGER_WIDTH;
+		nGameHeight = nWinHeight;
 #endif
-		conf_window_width + dw, conf_window_height + dh,
-		NULL, NULL, hInstance, NULL);
+	}
+
+	/* マルチモニタでなければセンタリングする */
+	if (nMonitors == 1)
+	{
+		nPosX = (nVirtualScreenWidth - nWinWidth) / 2;
+		nPosY = (nVirtualScreenHeight - nWinHeight) / 2;
+	}
+	else
+	{
+		nPosX = CW_USEDEFAULT;
+		nPosY = CW_USEDEFAULT;
+	}
+
+	/* メインウィンドウを作成する */
+	hWndMain = CreateWindowEx(0,
+							  wszWindowClassMain,
+							  wszTitle,
+							  dwStyle,
+							  nPosX,
+							  nPosY,
+							  nWinWidth,
+							  nWinHeight,
+							  NULL,
+							  NULL,
+							  hInstance,
+							  NULL);
 	if (hWndMain == NULL)
 	{
 		log_api_error("CreateWindowEx");
@@ -598,8 +639,8 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 
 	/* ウィンドウのサイズを調整する */
 	SetRectEmpty(&rc);
-	rc.right = conf_window_width;
-	rc.bottom = conf_window_height;
+	rc.right = nGameWidth;
+	rc.bottom = nGameHeight;
 	AdjustWindowRectEx(
 		&rc,
 		dwStyle,
@@ -609,22 +650,55 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		conf_window_menubar,
 #endif
 		(DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
-	SetWindowPos(hWndMain, NULL, 0, 0,
+	SetWindowPos(hWndMain,
+				 NULL,
+				 0,
+				 0,
 				 rc.right - rc.left,
 				 rc.bottom - rc.top,
 				 SWP_NOZORDER | SWP_NOMOVE);
 	GetWindowRect(hWndMain, &rcWindow);
 
-#ifdef USE_DEBUGGER
-	/* デバッガ用メニューを作成する */
-	InitDebuggerMenu(hWndMain);
+#ifndef USE_DEBUGGER
+	hWndGame = hWndMain;
 
-	/* アクセラレータをロードする */
-	hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
-#else
 	/* ゲーム用メニューを作成する */
 	if(conf_window_menubar)
 		InitGameMenu();
+#else
+	/* ゲーム領域の子ウィンドウを作成する */
+	ZeroMemory(&wcex, sizeof(wcex));
+	wcex.cbSize			= sizeof(WNDCLASSEX);
+	wcex.lpfnWndProc    = WndProc;
+	wcex.hInstance      = hInstance;
+	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ? WHITE_BRUSH : BLACK_BRUSH);
+	wcex.lpszClassName  = wszWindowClassGame;
+	if (!RegisterClassEx(&wcex))
+		return FALSE;
+	hWndGame = CreateWindowEx(0,
+							  wszWindowClassGame,
+							  NULL,
+							  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
+							  0,
+							  0,
+							  nGameWidth,
+							  nGameHeight,
+							  hWndMain,
+							  NULL,
+							  hInstance,
+							  NULL);
+	if (hWndGame == NULL)
+	{
+		log_api_error("CreateWindowEx");
+		return FALSE;
+	}
+
+	/* アクセラレータをロードする */
+	hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
+
+	/* デバッガパネルを作成する */
+	if (!InitDebuggerPanel(hWndMain, hWndGame, WndProc))
+		return FALSE;
 #endif
 
 	/* ウィンドウを表示する */
@@ -632,7 +706,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	UpdateWindow(hWndMain);
 
 	/* デバイスコンテキストを取得する */
-	hWndDC = GetDC(hWndMain);
+	hWndDC = GetDC(hWndGame);
 	if(hWndDC == NULL)
 		return FALSE;
 
@@ -1016,18 +1090,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int kc;
 
-#ifdef USE_DEBUGGER
-	/* デバッグウィンドウと子ウィンドウ、あるいはWM_COMMANDの場合 */
-	if(IsDebuggerHWND(hWnd) || message == WM_COMMAND)
-		return WndProcDebugHook(hWnd, message, wParam, lParam);
-#endif
-
 	switch(message)
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
 	case WM_SYSKEYDOWN:
+#ifndef USE_DEBUGGER
 		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
 		{
 			if (!conf_window_fullscreen_disable)
@@ -1039,103 +1108,186 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if(wParam != VK_F4)
 			break;
+#endif
+		if (hWnd == NULL || (hWnd != hWndMain && hWnd != hWndGame))
+			break;
 		/* ALT+F4のとき */
 		/* fall-thru */
 	case WM_CLOSE:
-#ifdef USE_DEBUGGER
-		DestroyWindow(hWnd);
-		return 0;
-#else
-		if (MessageBox(hWnd,
-					   get_ui_message(UIMSG_EXIT),
-					   conv_utf8_to_utf16(conf_window_title),
-					   MB_OKCANCEL) == IDOK)
-			DestroyWindow(hWnd);
-		return 0;
-#endif
-	case WM_LBUTTONDOWN:
-		on_event_mouse_press(
-			MOUSE_LEFT,
-			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
-		return 0;
-	case WM_LBUTTONUP:
-		on_event_mouse_release(
-			MOUSE_LEFT,
-			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
-		return 0;
-	case WM_RBUTTONDOWN:
-		on_event_mouse_press(
-			MOUSE_RIGHT,
-			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
-		return 0;
-	case WM_RBUTTONUP:
-		on_event_mouse_release(
-			MOUSE_RIGHT,
-			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
-		return 0;
-	case WM_KEYDOWN:
-		/* オートリピートの場合を除外する */
-		if((HIWORD(lParam) & 0x4000) != 0)
-			return 0;
-		if((int)wParam == VK_ESCAPE && bFullScreen)
+		if (hWnd != NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{
-			bNeedWindowed = TRUE;
-			SendMessage(hWndMain, WM_SIZE, 0, 0);
+#ifdef USE_DEBUGGER
+			DestroyWindow(hWnd);
+			return 0;
+#else
+			if (MessageBox(hWnd,
+						   get_ui_message(UIMSG_EXIT),
+						   conv_utf8_to_utf16(conf_window_title),
+						   MB_OKCANCEL) == IDOK)
+				DestroyWindow(hWnd);
+			return 0;
+#endif
+		}
+		break;
+	case WM_LBUTTONDOWN:
+		if (hWnd != NULL && hWnd == hWndGame)
+		{
+			on_event_mouse_press(
+				MOUSE_LEFT,
+				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
 			return 0;
 		}
-		if ((int)wParam == 'V')
+		break;
+	case WM_LBUTTONUP:
+		if (hWnd != NULL && hWnd == hWndGame)
 		{
-			if (!conf_tts_enable) {
-				InitSAPI();
-				conf_tts_enable = conf_tts_user;
-				if (strcmp(get_system_locale(), "ja") == 0)
-					SpeakSAPI(L"テキスト読み上げがオンです。");
-				else
-					SpeakSAPI(L"Text-to-speech is turned on.");
-			} else {
-				conf_tts_enable = 0;
-				if (strcmp(get_system_locale(), "ja") == 0)
-					SpeakSAPI(L"テキスト読み上げがオフです。");
-				else
-					SpeakSAPI(L"Text-to-speech is turned off.");
+			on_event_mouse_release(
+				MOUSE_LEFT,
+				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			return 0;
+		}
+		break;
+	case WM_RBUTTONDOWN:
+		if (hWnd != NULL && hWnd == hWndGame)
+		{
+			on_event_mouse_press(
+				MOUSE_RIGHT,
+				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			return 0;
+		}
+		break;
+	case WM_RBUTTONUP:
+		if (hWnd != NULL && hWnd == hWndGame)
+		{
+			on_event_mouse_release(
+				MOUSE_RIGHT,
+				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			return 0;
+		}
+		break;
+	case WM_KEYDOWN:
+		if (hWnd != NULL && hWnd == hWndGame)
+		{
+			/* オートリピートの場合を除外する */
+			if((HIWORD(lParam) & 0x4000) != 0)
+				return 0;
+			if((int)wParam == VK_ESCAPE && bFullScreen)
+			{
+				bNeedWindowed = TRUE;
+				SendMessage(hWndMain, WM_SIZE, 0, 0);
+				return 0;
+			}
+			if ((int)wParam == 'V')
+			{
+				if (!conf_tts_enable) {
+					InitSAPI();
+					conf_tts_enable = conf_tts_user;
+					if (strcmp(get_system_locale(), "ja") == 0)
+						SpeakSAPI(L"テキスト読み上げがオンです。");
+					else
+						SpeakSAPI(L"Text-to-speech is turned on.");
+				} else {
+					conf_tts_enable = 0;
+					if (strcmp(get_system_locale(), "ja") == 0)
+						SpeakSAPI(L"テキスト読み上げがオフです。");
+					else
+						SpeakSAPI(L"Text-to-speech is turned off.");
+				}
+				return 0;
+			}
+			kc = ConvertKeyCode((int)wParam);
+			if(kc != -1)
+				on_event_key_press(kc);
+			return 0;
+		}
+		break;
+	case WM_KEYUP:
+		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
+		{
+			kc = ConvertKeyCode((int)wParam);
+			if(kc != -1)
+				on_event_key_release(kc);
+			return 0;
+		}
+		break;
+	case WM_MOUSEMOVE:
+		if (hWnd != NULL && hWnd == hWndGame)
+		{
+			on_event_mouse_move(
+				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			return 0;
+		}
+		break;
+	case WM_MOUSEWHEEL:
+		if (hWnd != NULL && hWnd == hWndGame)
+		{
+			if((int)(short)HIWORD(wParam) > 0)
+			{
+				on_event_key_press(KEY_UP);
+				on_event_key_release(KEY_UP);
+			}
+			else if((int)(short)HIWORD(wParam) < 0)
+			{
+				on_event_key_press(KEY_DOWN);
+				on_event_key_release(KEY_DOWN);
 			}
 			return 0;
 		}
-		kc = ConvertKeyCode((int)wParam);
-		if(kc != -1)
-			on_event_key_press(kc);
-		return 0;
-	case WM_KEYUP:
-		kc = ConvertKeyCode((int)wParam);
-		if(kc != -1)
-			on_event_key_release(kc);
-		return 0;
-	case WM_MOUSEMOVE:
-		on_event_mouse_move(
-			(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-			(int)((float)(HIWORD(lParam) - nOffsetX) / fMouseScale));
-		return 0;
-	case WM_MOUSEWHEEL:
-		if((int)(short)HIWORD(wParam) > 0)
-		{
-			on_event_key_press(KEY_UP);
-			on_event_key_release(KEY_UP);
-		}
-		else if((int)(short)HIWORD(wParam) < 0)
-		{
-			on_event_key_press(KEY_DOWN);
-			on_event_key_release(KEY_DOWN);
-		}
-		return 0;
+		break;
 	case WM_KILLFOCUS:
-		on_event_key_release(KEY_CONTROL);
-		return 0;
+		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
+		{
+			on_event_key_release(KEY_CONTROL);
+			return 0;
+		}
+		break;
 	case WM_SYSCHAR:
+		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
+		{
+			return 0;
+		}
+		break;
+	case WM_PAINT:
+		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
+		{
+			OnPaint(hWnd);
+			return 0;
+		}
+		break;
+	case WM_COMMAND:
+		OnCommand(LOWORD(wParam), HIWORD(wParam));
 		return 0;
+	case WM_GRAPHNOTIFY:
+		if(!DShowProcessEvent())
+			bDShowMode = FALSE;
+		break;
+	case WM_SIZING:
+		if (hWnd != NULL && hWnd == hWndMain)
+		{
+			if (conf_window_resize)
+			{
+				OnSizing((int)wParam, (LPRECT)lParam);
+				return TRUE;
+			}
+			return FALSE;
+		}
+		break;
+	case WM_SIZE:
+		if (hWnd != NULL && hWnd == hWndMain)
+		{
+			OnSize();
+			return 0;
+		}
+		break;
+#ifndef USE_DEBUGGER
+	/*
+	 * デバッガでない場合だけウィンドウの最大化によるフルスクリーンを処理する
+	 */
 	case WM_SYSCOMMAND:
 		/* Hook maximize and enter full screen mode. */
 		if (wParam == SC_MAXIMIZE && !conf_window_fullscreen_disable)
@@ -1177,30 +1329,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 		break;
-	case WM_PAINT:
-		OnPaint();
-		return 0;
-	case WM_COMMAND:
-		OnCommand(LOWORD(wParam));
-		return 0;
-	case WM_GRAPHNOTIFY:
-		if(!DShowProcessEvent())
-			bDShowMode = FALSE;
-		break;
-	case WM_SIZING:
-		if (conf_window_resize)
-		{
-			OnSizing((int)wParam, (LPRECT)lParam);
-			return TRUE;
-		}
-		return FALSE;
-	case WM_SIZE:
-		OnSize();
-		return 0;
+#endif
 	default:
 		break;
 	}
+#ifndef USE_DEBUGGER
+	/* システムのウィンドウプロシージャにチェインする */
 	return DefWindowProc(hWnd, message, wParam, lParam);
+#else
+	/* デバッガのウィンドウプロシージャにチェインする */
+	return WndProcDebugHook(hWnd, message, wParam, lParam);
+#endif
 }
 
 /* キーコードの変換を行う */
@@ -1239,26 +1378,32 @@ static int ConvertKeyCode(int nVK)
 }
 
 /* ウィンドウの内容を更新する */
-static void OnPaint(void)
+static void OnPaint(HWND hWnd)
 {
 	HDC hDC;
 	PAINTSTRUCT ps;
 
-	hDC = BeginPaint(hWndMain, &ps);
-	RunFrame();
-	EndPaint(hWndMain, &ps);
+	hDC = BeginPaint(hWnd, &ps);
+	if (hWnd == hWndGame)
+		RunFrame();
+	EndPaint(hWnd, &ps);
 
 	UNUSED_PARAMETER(hDC);
 }
 
 /* WM_COMMANDを処理する */
-static void OnCommand(UINT nID)
+static void OnCommand(UINT nID, UINT nEvent)
 {
+#ifndef USE_DEBUGGER
+	UNUSED_PARAMETER(nEvent);
+#endif
+
 	switch(nID)
 	{
 	case ID_QUIT:
 		PostMessage(hWndMain,WM_CLOSE, 0, 0);
 		break;
+#ifndef USE_DEBUGGER
 	case ID_FULLSCREEN:
 		if (!conf_window_fullscreen_disable)
 		{
@@ -1268,6 +1413,11 @@ static void OnCommand(UINT nID)
 		break;
 	default:
 		break;
+#else
+	default:
+		OnCommandDebug(nID, nEvent);
+		break;
+#endif
 	}
 }
 
@@ -1347,6 +1497,10 @@ static void OnSizing(int edge, LPRECT lpRect)
 	}
 	else
 	{
+#ifdef USE_DEBUGGER
+		if (lpRect->bottom - lpRect->top < DEBUGGER_MIN_HEIGHT)
+			lpRect->bottom = lpRect->top + DEBUGGER_MIN_HEIGHT;
+#endif
 		UpdateScreenOffsetAndScale(lpRect->right - lpRect->left + 1,
 								   lpRect->bottom - lpRect->top + 1);
 	}
@@ -1415,6 +1569,10 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 {
 	float fAspect, fUseWidth, fUseHeight;
 
+#ifdef USE_DEBUGGER
+	nClientWidth -= DEBUGGER_WIDTH;
+#endif
+
 	/* Calc the aspect ratio of the game. */
 	fAspect = (float)conf_window_height / (float)conf_window_width;
 
@@ -1434,6 +1592,12 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	nOffsetX = (int)((((float)nClientWidth - fUseWidth) / 2.0f) + 0.5);
 	nOffsetY = (int)((((float)nClientHeight - fUseHeight) / 2.0f) + 0.5);
 
+#ifdef USE_DEBUGGER
+	/* Move the game window. */
+	MoveWindow(hWndGame, 0, 0, nClientWidth, nClientHeight, FALSE);
+	UpdateDebuggerWindowPosition(nClientWidth, nClientHeight);
+#endif
+
 	/* Update the screen offset and scale for drawing subsystem. */
 	if (bD3D)
 	{
@@ -1443,7 +1607,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	{
 		opengl_set_screen(nOffsetX, nOffsetY,
 						  (int)(fUseWidth + 0.5f),
-						  (int)(fUseHeight + 0.5));
+						  (int)(fUseHeight + 0.5f));
 	}
 }
 
