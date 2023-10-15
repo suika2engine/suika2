@@ -1095,24 +1095,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-	case WM_SYSKEYDOWN:
+	case WM_SYSKEYDOWN:	/* Alt + Key */
 #ifndef USE_DEBUGGER
-		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
+		/* Alt + Enter */
+		if (hWnd == NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{
-			if (!conf_window_fullscreen_disable)
+			if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
 			{
-				SendMessage(hWndMain, WM_SYSCOMMAND,
-							(WPARAM)SC_MAXIMIZE, (LPARAM)0);
+				if (!conf_window_fullscreen_disable)
+				{
+					SendMessage(hWndMain, WM_SYSCOMMAND,
+								(WPARAM)SC_MAXIMIZE, (LPARAM)0);
+				}
+				return 0;
 			}
-			return 0;
 		}
-		if(wParam != VK_F4)
-			break;
 #endif
-		if (hWnd == NULL || (hWnd != hWndMain && hWnd != hWndGame))
-			break;
-		/* ALT+F4のとき */
-		/* fall-thru */
+		/* Alt + F4 */
+		if (hWnd == NULL && (hWnd == hWndMain || hWnd == hWndGame))
+		{
+			if(wParam == VK_F4)
+			{
+#ifndef USE_DEBUGGER
+				if (MessageBox(hWnd,
+							   get_ui_message(UIMSG_EXIT),
+							   conv_utf8_to_utf16(conf_window_title),
+							   MB_OKCANCEL) == IDOK)
+#endif
+				{
+					DestroyWindow(hWnd);
+					return 0;
+				}
+			}
+		}
+		break;
 	case WM_CLOSE:
 		if (hWnd != NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{

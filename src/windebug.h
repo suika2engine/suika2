@@ -23,10 +23,10 @@
 #define MSGBOX_TITLE		L"Suika2 Pro"
 
 /* バージョン文字列 */
-#define VERSION_EN			L"Suika2 Pro 13\n" \
+#define VERSION_EN			L"Suika2 Pro 14\n" \
 							L"A part of the Suika Studio Professional Development Suite\n" \
-							L"This product is guaranteed to be available as open source software in the future."
-#define VERSION_JP			L"Suika2 Pro 13\n" \
+							L"This product is guaranteed to be available as an open source software in the future."
+#define VERSION_JP			L"Suika2 Pro 14\n" \
 							L"A part of the Suika Studio Professional Development Suite\n" \
 							L"本製品は将来に渡ってオープンソースソフトウェアとして提供されることが保証されます。"
 
