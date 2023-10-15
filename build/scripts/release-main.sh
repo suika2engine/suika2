@@ -407,4 +407,6 @@ fi
 # Update the Web site.
 echo ""
 echo "Updating the Web site:"
-release-html.sh
+SAVE_DIR=`pwd`
+cd ../doc/web && ./update-version.sh && ./upload.sh
+cd "$SAVE_DIR"

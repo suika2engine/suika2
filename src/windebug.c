@@ -20,18 +20,20 @@
 
 #include <commctrl.h>
 
-/* デバッグウィンドウのサイズ */
-#define DBG_WIN_WIDTH	(440)
-#define DBG_WIN_HEIGHT	(640)
-
 /* UTF-8からSJISへの変換バッファサイズ */
 #define NATIVE_MESSAGE_SIZE	(65536)
 
 /* 変数テキストボックスのテキストの最大長(形: "$00001=12345678901\r\n") */
 #define VAR_TEXTBOX_MAX		(11000 * (1 + 5 + 1 + 11 + 2))
 
+/* ウィンドウクラス名 */
+const wchar_t wszWindowClass[] = L"SuikaDebugPanel";
+
 /* メインウィンドウのハンドル */
 static HWND hWndMain;
+
+/* ゲーム領域のハンドル */
+static HWND hWndGame;
 
 /* 英語モードか */
 static BOOL bEnglish;
@@ -69,6 +71,8 @@ static HWND hWndLabelVar;
 static HWND hWndTextboxVar;
 static HWND hWndBtnVar;
 
+//static HWND hWndRichEdit;
+
 /* ボタンが押下されたか */
 static BOOL bResumePressed;
 static BOOL bNextPressed;
@@ -82,6 +86,7 @@ static BOOL bReloadPressed;
 static wchar_t szTextboxVar[VAR_TEXTBOX_MAX + 1];
 
 /* 前方参照 */
+static VOID InitDebuggerMenu(HWND hWnd);
 static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish,
 						  const wchar_t *pszTextJapanese);
 static VOID OnClickListBox(void);
@@ -104,236 +109,44 @@ static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 static VOID UpdateVariableTextBox(void);
 
 /*
- * メニューを作成する
+ * デバッガパネルを作成する
  */
-VOID InitDebuggerMenu(HWND hWnd)
+BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 {
-	HMENU hMenuFile = CreatePopupMenu();
-	HMENU hMenuScript = CreatePopupMenu();
-	HMENU hMenuExport = CreatePopupMenu();
-	HMENU hMenuHelp = CreatePopupMenu();
-    MENUITEMINFO mi;
-
-	hWndMain = hWnd;
-	bEnglish = conf_locale == LOCALE_JA ? FALSE : TRUE;
-
-	/* メニューを作成する */
-	hMenu = CreateMenu();
-
-	/* 1階層目を作成する準備を行う */
-	ZeroMemory(&mi, sizeof(MENUITEMINFO));
-	mi.cbSize = sizeof(MENUITEMINFO);
-	mi.fMask = MIIM_TYPE | MIIM_SUBMENU;
-	mi.fType = MFT_STRING;
-	mi.fState = MFS_ENABLED;
-
-	/* ファイル(F)を作成する */
-	mi.hSubMenu = hMenuFile;
-	mi.dwTypeData = bEnglish ? L"File(&F)": L"ファイル(&F)";
-	InsertMenuItem(hMenu, 0, TRUE, &mi);
-
-	/* スクリプト(S)を作成する */
-	mi.hSubMenu = hMenuScript;
-	mi.dwTypeData = bEnglish ? L"Script(&S)": L"スクリプト(&S)";
-	InsertMenuItem(hMenu, 1, TRUE, &mi);
-
-	/* エクスポート(E)を作成する */
-	mi.hSubMenu = hMenuExport;
-	mi.dwTypeData = bEnglish ? L"Export(&E)": L"エクスポート(&E)";
-	InsertMenuItem(hMenu, 2, TRUE, &mi);
-
-	/* ヘルプ(H)を作成する */
-	mi.hSubMenu = hMenuHelp;
-	mi.dwTypeData = bEnglish ? L"Help(&H)": L"ヘルプ(&H)";
-	InsertMenuItem(hMenu, 3, TRUE, &mi);
-
-	/* 2階層目を作成する準備を行う */
-	mi.fMask = MIIM_TYPE | MIIM_ID;
-
-	/* スクリプトを開く(Q)を作成する */
-	mi.wID = ID_SELECT_SCRIPT;
-	mi.dwTypeData = bEnglish ?
-		L"Open script(&Q)\tAlt+O" :
-		L"スクリプトを開く(&O)\tAlt+O";
-	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
-
-	/* スクリプトを上書き保存する(S)を作成する */
-	mi.wID = ID_SAVE;
-	mi.dwTypeData = bEnglish ?
-		L"Overwrite script(&S)\tAlt+S" :
-		L"スクリプトを上書き保存する(&S)\tAlt+S";
-	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
-
-	/* 終了(Q)を作成する */
-	mi.wID = ID_QUIT;
-	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tAlt+Q" : L"終了(&Q)\tAlt+Q";
-	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
-
-	/* 続ける(C)を作成する */
-	mi.wID = ID_RESUME;
-	mi.dwTypeData = bEnglish ? L"Resume(&R)\tAlt+R" : L"続ける(&R)\tAlt+R";
-	InsertMenuItem(hMenuScript, 0, TRUE, &mi);
-
-	/* 次へ(N)を作成する */
-	mi.wID = ID_NEXT;
-	mi.dwTypeData = bEnglish ? L"Next(&N)\tAlt+N" : L"次へ(&N)\tAlt+N";
-	InsertMenuItem(hMenuScript, 1, TRUE, &mi);
-
-	/* 停止(P)を作成する */
-	mi.wID = ID_PAUSE;
-	mi.dwTypeData = bEnglish ? L"Pause(&P)\tAlt+P" : L"停止(&P)\tAlt+P";
-	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
-	EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
-
-	/* 次のエラー箇所へ移動(E)を作成する */
-	mi.wID = ID_ERROR;
-	mi.dwTypeData = bEnglish ?
-		L"Go to next error(&E)\tAlt+E" :
-		L"次のエラー箇所へ移動(&E)\tAlt+E";
-	InsertMenuItem(hMenuScript, 3, TRUE, &mi);
-
-	/* 再読み込み(R)を作成する */
-	mi.wID = ID_RELOAD;
-	mi.dwTypeData = bEnglish ? L"Reload(&R)\tF5" : L"再読み込み(&R)\tF5";
-	InsertMenuItem(hMenuScript, 4, TRUE, &mi);
-
-	/* パッケージをエクスポートするを作成する */
-	mi.wID = ID_EXPORT;
-	mi.dwTypeData = bEnglish ?
-		L"Export package(&X)" :
-		L"パッケージをエクスポートする";
-	InsertMenuItem(hMenuExport, 0, TRUE, &mi);
-
-	/* Windows向けにエクスポートするを作成する */
-	mi.wID = ID_EXPORT_WIN;
-	mi.dwTypeData = bEnglish ?
-		L"Export for Windows" :
-		L"Windows向けにエクスポートする";
-	InsertMenuItem(hMenuExport, 1, TRUE, &mi);
-
-	/* Windows EXEインストーラを作成するを作成する */
-	mi.wID = ID_EXPORT_WIN_INST;
-	mi.dwTypeData = bEnglish ?
-		L"Create EXE Installer for Windows" :
-		L"Windows EXEインストーラを作成する";
-	InsertMenuItem(hMenuExport, 2, TRUE, &mi);
-
-	/* Windows/Mac向けにエクスポートするを作成する */
-	mi.wID = ID_EXPORT_WIN_MAC;
-	mi.dwTypeData = bEnglish ?
-		L"Export for Windows/Mac" :
-		L"Windows/Mac向けにエクスポートする";
-	InsertMenuItem(hMenuExport, 3, TRUE, &mi);
-
-	/* Web向けにエクスポートするを作成する */
-	mi.wID = ID_EXPORT_WEB;
-	mi.dwTypeData = bEnglish ?
-		L"Export for Web" :
-		L"Web向けにエクスポートする";
-	InsertMenuItem(hMenuExport, 4, TRUE, &mi);
-
-	/* Androidプロジェクトをエクスポートするを作成する */
-	mi.wID = ID_EXPORT_ANDROID;
-	mi.dwTypeData = bEnglish ?
-		L"Export Android project" :
-		L"Androidプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuExport, 5, TRUE, &mi);
-
-	/* iOSプロジェクトをエクスポートするを作成する */
-	mi.wID = ID_EXPORT_IOS;
-	mi.dwTypeData = bEnglish ?
-		L"Export iOS project" :
-		L"iOSプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuExport, 6, TRUE, &mi);
-
-	/* バージョン(V)を作成する */
-	mi.wID = ID_VERSION;
-	mi.dwTypeData = bEnglish ? L"Version(&V)" : L"バージョン(&V)\tAlt+V";
-	InsertMenuItem(hMenuHelp, 0, TRUE, &mi);
-
-	/* メニューをセットする */
-	SetMenu(hWndMain, hMenu);
-}
-
-/*
- * デバッガウィンドウを作成する
- */
-BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
-{
-	const wchar_t wszWndClass[] = L"suikadebug";
 	WNDCLASSEX wcex;
-	HMONITOR monitor;
-	MONITORINFOEX minfo;
-	RECT rcMain, rcMonitor, rcDebug;
+	RECT rcClient;
 	HFONT hFont, hFontFixed;
-	DWORD style;
-	int dw, dh, left, top;
+
+	hWndMain = hMainWnd;
+	hWndGame= hGameWnd;
+
+	/* 領域の矩形を取得する */
+	GetClientRect(hWndMain, &rcClient);
 
 	/* ウィンドウクラスを登録する */
+	ZeroMemory(&wcex, sizeof(wcex));
 	wcex.cbSize			= sizeof(WNDCLASSEX);
-	wcex.style          = 0;
-	wcex.lpfnWndProc    = WndProc;
-	wcex.cbClsExtra     = 0;
-	wcex.cbWndExtra     = 0;
-	wcex.hInstance      = hInstance;
-	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SUIKA));
-	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
+	wcex.lpfnWndProc    = pWndProc;
 	wcex.hbrBackground  = (HBRUSH)(COLOR_BTNFACE + 1);
-	wcex.lpszMenuName   = NULL;
-	wcex.lpszClassName  = wszWndClass;
-	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
-	if(!RegisterClassEx(&wcex))
+	wcex.lpszClassName  = wszWindowClass;
+	if (!RegisterClassEx(&wcex))
 		return FALSE;
-
-	/* ウィンドウのスタイルを決める */
-	style = WS_CAPTION | WS_OVERLAPPED;
-
-	/* フレームのサイズを取得する */
-	dw = GetSystemMetrics(SM_CXFIXEDFRAME) * 2;
-	dh = GetSystemMetrics(SM_CYCAPTION) +
-		 GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
-
-	/* メインウィンドウの矩形を取得する */
-	GetWindowRect(hWndMain, &rcMain);
-
-	/* モニタの矩形を取得にする */
-	monitor = MonitorFromWindow(hWndMain, MONITOR_DEFAULTTONEAREST);
-	minfo.cbSize = sizeof(MONITORINFOEX);
-	GetMonitorInfo(monitor, (LPMONITORINFO)&minfo);
-	rcMonitor = minfo.rcMonitor;
-
-	/* ウィンドウを横並びにする余白がなければ、モニタ右端を基準にする */
-	if (rcMain.right + DBG_WIN_WIDTH + 10 > rcMonitor.right)
-	{
-		left = minfo.rcMonitor.right - DBG_WIN_WIDTH;
-		top = minfo.rcMonitor.top;
-	}
-	else
-	{
-		left = rcMain.right + 10;
-		top = rcMain.top;
-	}
 
 	/* ウィンドウを作成する */
-	hWndDebug = CreateWindowEx(0, wszWndClass,
-							   bEnglish ? L"Stopped" : L"停止中",
-							   style,
-							   left, top,
-							   DBG_WIN_WIDTH + dw, DBG_WIN_HEIGHT + dh,
-							   NULL, NULL, GetModuleHandle(NULL), NULL);
+	hWndDebug = CreateWindowEx(0,
+							   wszWindowClass,
+							   NULL,
+							   WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
+							   rcClient.right - DEBUGGER_WIDTH,
+							   0,
+							   DEBUGGER_WIDTH,
+							   rcClient.bottom,
+							   hWndMain,
+							   NULL,
+							   GetModuleHandle(NULL),
+							   NULL);
 	if(!hWndDebug)
 		return FALSE;
-
-	/* ウィンドウのサイズを調整する */
-	SetRectEmpty(&rcDebug);
-	rcDebug.right = DBG_WIN_WIDTH;
-	rcDebug.bottom = DBG_WIN_HEIGHT;
-	AdjustWindowRectEx(&rcDebug, (DWORD)GetWindowLong(hWndDebug, GWL_STYLE),
-					   FALSE, (DWORD)GetWindowLong(hWndDebug, GWL_EXSTYLE));
-	SetWindowPos(hWndDebug, NULL, 0, 0,
-				 rcDebug.right - rcDebug.left,
-				 rcDebug.bottom - rcDebug.top,
-				 SWP_NOZORDER | SWP_NOMOVE);
 
 	/* フォントを作成する */
 	hFont = CreateFont(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
@@ -501,7 +314,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Update" : L"更新",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DBG_WIN_WIDTH - 10 - 80, 200, 80, 30,
+		DEBUGGER_WIDTH - 10 - 80, 200, 80, 30,
 		hWndDebug, (HMENU)ID_UPDATE_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnUpdate, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -514,7 +327,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Reset" : L"リセット",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DBG_WIN_WIDTH - 10 - 80, 230, 80, 30,
+		DEBUGGER_WIDTH - 10 - 80, 230, 80, 30,
 		hWndDebug, (HMENU)ID_RESET_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReset, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -564,7 +377,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Overwrite" : L"上書き保存",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DBG_WIN_WIDTH - 10 - 80 - 10 - 80, 510, 80, 30,
+		DEBUGGER_WIDTH - 10 - 80 - 10 - 80, 510, 80, 30,
 		hWndDebug, (HMENU)ID_SAVE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -577,7 +390,7 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 		L"BUTTON",
 		bEnglish ? L"Reload" : L"再読み込み",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DBG_WIN_WIDTH - 10 - 80, 510, 80, 30,
+		DEBUGGER_WIDTH - 10 - 80, 510, 80, 30,
 		hWndDebug, (HMENU)ID_RELOAD,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -623,11 +436,189 @@ BOOL InitDebuggerWindow(HINSTANCE hInstance, int nCmdShow)
 				  L"Write to the variables.",
 				  L"変数の内容を書き込みます。");
 
-	/* ウィンドウを表示する */
-	ShowWindow(hWndDebug, nCmdShow);
-	UpdateWindow(hWndDebug);
+	/* スクリプトのリストボックスを作成する */
+#if 0
+	LoadLibrary(L"Msftedit.dll");
+	hWndRichEdit = CreateWindowEx(
+		0,
+		L"RICHEDIT50W",
+		L"Text",
+		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP,
+		10, 290, 420, 220,
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+	SendMessage(hWndRichEdit, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
+	CreateTooltip(hWndRichEdit,
+				  L"Current script content.",
+				  L"実行中のスクリプトの内容です。");
+#endif
+
+	/* メニューを作成する */
+	InitDebuggerMenu(hWndMain);
 
 	return TRUE;
+}
+
+/* メニューを作成する */
+static VOID InitDebuggerMenu(HWND hWnd)
+{
+	HMENU hMenuFile = CreatePopupMenu();
+	HMENU hMenuScript = CreatePopupMenu();
+	HMENU hMenuExport = CreatePopupMenu();
+	HMENU hMenuHelp = CreatePopupMenu();
+    MENUITEMINFO mi;
+
+	bEnglish = conf_locale == LOCALE_JA ? FALSE : TRUE;
+
+	/* メニューを作成する */
+	hMenu = CreateMenu();
+
+	/* 1階層目を作成する準備を行う */
+	ZeroMemory(&mi, sizeof(MENUITEMINFO));
+	mi.cbSize = sizeof(MENUITEMINFO);
+	mi.fMask = MIIM_TYPE | MIIM_SUBMENU;
+	mi.fType = MFT_STRING;
+	mi.fState = MFS_ENABLED;
+
+	/* ファイル(F)を作成する */
+	mi.hSubMenu = hMenuFile;
+	mi.dwTypeData = bEnglish ? L"File(&F)": L"ファイル(&F)";
+	InsertMenuItem(hMenu, 0, TRUE, &mi);
+
+	/* スクリプト(S)を作成する */
+	mi.hSubMenu = hMenuScript;
+	mi.dwTypeData = bEnglish ? L"Script(&S)": L"スクリプト(&S)";
+	InsertMenuItem(hMenu, 1, TRUE, &mi);
+
+	/* エクスポート(E)を作成する */
+	mi.hSubMenu = hMenuExport;
+	mi.dwTypeData = bEnglish ? L"Export(&E)": L"エクスポート(&E)";
+	InsertMenuItem(hMenu, 2, TRUE, &mi);
+
+	/* ヘルプ(H)を作成する */
+	mi.hSubMenu = hMenuHelp;
+	mi.dwTypeData = bEnglish ? L"Help(&H)": L"ヘルプ(&H)";
+	InsertMenuItem(hMenu, 3, TRUE, &mi);
+
+	/* 2階層目を作成する準備を行う */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+
+	/* スクリプトを開く(Q)を作成する */
+	mi.wID = ID_SELECT_SCRIPT;
+	mi.dwTypeData = bEnglish ?
+		L"Open script(&Q)\tAlt+O" :
+		L"スクリプトを開く(&O)\tAlt+O";
+	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+
+	/* スクリプトを上書き保存する(S)を作成する */
+	mi.wID = ID_SAVE;
+	mi.dwTypeData = bEnglish ?
+		L"Overwrite script(&S)\tAlt+S" :
+		L"スクリプトを上書き保存する(&S)\tAlt+S";
+	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
+
+	/* 終了(Q)を作成する */
+	mi.wID = ID_QUIT;
+	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tAlt+Q" : L"終了(&Q)\tAlt+Q";
+	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
+
+	/* 続ける(C)を作成する */
+	mi.wID = ID_RESUME;
+	mi.dwTypeData = bEnglish ? L"Resume(&R)\tAlt+R" : L"続ける(&R)\tAlt+R";
+	InsertMenuItem(hMenuScript, 0, TRUE, &mi);
+
+	/* 次へ(N)を作成する */
+	mi.wID = ID_NEXT;
+	mi.dwTypeData = bEnglish ? L"Next(&N)\tAlt+N" : L"次へ(&N)\tAlt+N";
+	InsertMenuItem(hMenuScript, 1, TRUE, &mi);
+
+	/* 停止(P)を作成する */
+	mi.wID = ID_PAUSE;
+	mi.dwTypeData = bEnglish ? L"Pause(&P)\tAlt+P" : L"停止(&P)\tAlt+P";
+	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
+
+	/* 次のエラー箇所へ移動(E)を作成する */
+	mi.wID = ID_ERROR;
+	mi.dwTypeData = bEnglish ?
+		L"Go to next error(&E)\tAlt+E" :
+		L"次のエラー箇所へ移動(&E)\tAlt+E";
+	InsertMenuItem(hMenuScript, 3, TRUE, &mi);
+
+	/* 再読み込み(R)を作成する */
+	mi.wID = ID_RELOAD;
+	mi.dwTypeData = bEnglish ? L"Reload(&R)\tF5" : L"再読み込み(&R)\tF5";
+	InsertMenuItem(hMenuScript, 4, TRUE, &mi);
+
+	/* パッケージをエクスポートするを作成する */
+	mi.wID = ID_EXPORT;
+	mi.dwTypeData = bEnglish ?
+		L"Export package(&X)" :
+		L"パッケージをエクスポートする";
+	InsertMenuItem(hMenuExport, 0, TRUE, &mi);
+
+	/* Windows向けにエクスポートするを作成する */
+	mi.wID = ID_EXPORT_WIN;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Windows" :
+		L"Windows向けにエクスポートする";
+	InsertMenuItem(hMenuExport, 1, TRUE, &mi);
+
+	/* Windows EXEインストーラを作成するを作成する */
+	mi.wID = ID_EXPORT_WIN_INST;
+	mi.dwTypeData = bEnglish ?
+		L"Create EXE Installer for Windows" :
+		L"Windows EXEインストーラを作成する";
+	InsertMenuItem(hMenuExport, 2, TRUE, &mi);
+
+	/* Windows/Mac向けにエクスポートするを作成する */
+	mi.wID = ID_EXPORT_WIN_MAC;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Windows/Mac" :
+		L"Windows/Mac向けにエクスポートする";
+	InsertMenuItem(hMenuExport, 3, TRUE, &mi);
+
+	/* Web向けにエクスポートするを作成する */
+	mi.wID = ID_EXPORT_WEB;
+	mi.dwTypeData = bEnglish ?
+		L"Export for Web" :
+		L"Web向けにエクスポートする";
+	InsertMenuItem(hMenuExport, 4, TRUE, &mi);
+
+	/* Androidプロジェクトをエクスポートするを作成する */
+	mi.wID = ID_EXPORT_ANDROID;
+	mi.dwTypeData = bEnglish ?
+		L"Export Android project" :
+		L"Androidプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuExport, 5, TRUE, &mi);
+
+	/* iOSプロジェクトをエクスポートするを作成する */
+	mi.wID = ID_EXPORT_IOS;
+	mi.dwTypeData = bEnglish ?
+		L"Export iOS project" :
+		L"iOSプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuExport, 6, TRUE, &mi);
+
+	/* バージョン(V)を作成する */
+	mi.wID = ID_VERSION;
+	mi.dwTypeData = bEnglish ? L"Version(&V)" : L"バージョン(&V)\tAlt+V";
+	InsertMenuItem(hMenuHelp, 0, TRUE, &mi);
+
+	/* メニューをセットする */
+	SetMenu(hWnd, hMenu);
+}
+
+/*
+ デバッガウィンドウの位置を修正する
+ */
+VOID UpdateDebuggerWindowPosition(int nGameWidth, int nGameHeight)
+{
+	MoveWindow(hWndDebug,
+			   nGameWidth,
+			   0,
+			   DEBUGGER_WIDTH,
+			   nGameHeight,
+			   TRUE);
 }
 
 /*
@@ -708,21 +699,8 @@ static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish,
 LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 								  LPARAM lParam)
 {
-	int nId;
-	int nEvent;
-
 	switch(message)
 	{
-	case WM_SYSKEYDOWN:
-		if(wParam == VK_F4)
-		{
-			DestroyWindow(hWndMain);
-			return 0;
-		}
-		break;
-	case WM_CLOSE:
-		DestroyWindow(hWndMain);
-		return 0;
 	case WM_VKEYTOITEM:
 		if(hWnd == hWndDebug && LOWORD(wParam) == VK_RETURN)
 		{
@@ -730,88 +708,91 @@ LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 			return 0;
 		}
 		break;
-	case WM_COMMAND:
-		nId = LOWORD(wParam);
-		nEvent = HIWORD(wParam);
-		if(nEvent == LBN_DBLCLK)
-		{
-			OnClickListBox();
-			return 0;
-		}
-		switch(nId)
-		{
-		case ID_QUIT:
-			DestroyWindow(hWndMain);
-			break;
-		case ID_VERSION:
-			MessageBox(hWndMain, bEnglish ? VERSION_EN : VERSION_JP,
-					   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
-			break;
-		case ID_RESUME:
-			bResumePressed = TRUE;
-			break;
-		case ID_NEXT:
-			bNextPressed = TRUE;
-			break;
-		case ID_PAUSE:
-			bPausePressed = TRUE;
-			break;
-		case ID_CHANGE_SCRIPT:
-			bChangeScriptPressed = TRUE;
-			break;
-		case ID_SELECT_SCRIPT:
-			OnSelectScript();
-			break;
-		case ID_CHANGE_LINE:
-			bChangeLinePressed = TRUE;
-			break;
-		case ID_UPDATE_COMMAND:
-			bUpdatePressed = TRUE;
-			break;
-		case ID_RESET_COMMAND:
-			OnPressReset();
-			break;
-		case ID_ERROR:
-			OnPressError();
-			break;
-		case ID_SAVE:
-			OnPressSave();
-			break;
-		case ID_RELOAD:
-			bReloadPressed = TRUE;
-			break;
-		case ID_WRITE:
-			OnPressWriteVars();
-			break;
-		case ID_EXPORT:
-			OnExportPackage();
-			break;
-		case ID_EXPORT_WIN:
-			OnExportWin();
-			break;
-		case ID_EXPORT_WIN_INST:
-			OnExportWinInst();
-			break;
-		case ID_EXPORT_WIN_MAC:
-			OnExportWinMac();
-			break;
-		case ID_EXPORT_WEB:
-			OnExportWeb();
-			break;
-		case ID_EXPORT_ANDROID:
-			OnExportAndroid();
-			break;
-		case ID_EXPORT_IOS:
-			OnExportIOS();
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		return 0;
 	default:
 		break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+/*
+ * デバッガのWM_COMMANDハンドラ
+ */
+VOID OnCommandDebug(UINT nID, UINT nEvent)
+{
+	if(nEvent == LBN_DBLCLK)
+	{
+		OnClickListBox();
+		return;
+	}
+	switch(nID)
+	{
+	case ID_QUIT:
+		DestroyWindow(hWndMain);
+		break;
+	case ID_VERSION:
+		MessageBox(hWndMain, bEnglish ? VERSION_EN : VERSION_JP,
+				   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
+		break;
+	case ID_RESUME:
+		bResumePressed = TRUE;
+		break;
+	case ID_NEXT:
+		bNextPressed = TRUE;
+		break;
+	case ID_PAUSE:
+		bPausePressed = TRUE;
+		break;
+	case ID_CHANGE_SCRIPT:
+		bChangeScriptPressed = TRUE;
+		break;
+	case ID_SELECT_SCRIPT:
+		OnSelectScript();
+		break;
+	case ID_CHANGE_LINE:
+		bChangeLinePressed = TRUE;
+		break;
+	case ID_UPDATE_COMMAND:
+		bUpdatePressed = TRUE;
+		break;
+	case ID_RESET_COMMAND:
+		OnPressReset();
+		break;
+	case ID_ERROR:
+		OnPressError();
+		break;
+	case ID_SAVE:
+		OnPressSave();
+		break;
+	case ID_RELOAD:
+		bReloadPressed = TRUE;
+		break;
+	case ID_WRITE:
+		OnPressWriteVars();
+		break;
+	case ID_EXPORT:
+		OnExportPackage();
+		break;
+	case ID_EXPORT_WIN:
+		OnExportWin();
+		break;
+	case ID_EXPORT_WIN_INST:
+		OnExportWinInst();
+		break;
+	case ID_EXPORT_WIN_MAC:
+		OnExportWinMac();
+		break;
+	case ID_EXPORT_WEB:
+		OnExportWeb();
+		break;
+	case ID_EXPORT_ANDROID:
+		OnExportAndroid();
+		break;
+	case ID_EXPORT_IOS:
+		OnExportIOS();
+		break;
+	default:
+		break;
+	}
 }
 
 /* リストボックスのクリックと改行キー入力を処理する */
@@ -1646,11 +1627,6 @@ void set_running_state(bool running, bool request_stop)
 	/* 停止によりコマンドの完了を待機中のとき */
 	if(request_stop)
 	{
-		/* ウィンドウのタイトルを設定する */
-		SetWindowText(hWndDebug, bEnglish ?
-					  L"Waiting for command finish..." :
-					  L"コマンドの完了を待機中...");
-
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
 		SetWindowText(hWndBtnResume, bEnglish ? L"(Resume)" : L"(続ける)");
@@ -1742,9 +1718,6 @@ void set_running_state(bool running, bool request_stop)
 	/* 実行中のとき */
 	else if(running)
 	{
-		/* ウィンドウのタイトルを設定する */
-		SetWindowText(hWndDebug, bEnglish ? L"Running..." : L"実行中...");
-
 		/* 続けるボタンを無効にする */
 		EnableWindow(hWndBtnResume, FALSE);
 		SetWindowText(hWndBtnResume, bEnglish ? L"(Resume)" : L"(続ける)");
@@ -1836,9 +1809,6 @@ void set_running_state(bool running, bool request_stop)
 	/* 完全に停止中のとき */
 	else
 	{
-		/* ウィンドウのタイトルを設定する */
-		SetWindowText(hWndDebug, bEnglish ? L"Stopped" : L"停止中");
-
 		/* 続けるボタンを有効にする */
 		EnableWindow(hWndBtnResume, TRUE);
 		SetWindowText(hWndBtnResume, bEnglish ? L"Resume" : L"続ける");

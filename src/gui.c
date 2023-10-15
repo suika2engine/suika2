@@ -982,11 +982,11 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 	/* 終了する場合 */
 	if (is_finished) {
 		/* 仮の背景を生成する */
-		if (!is_sys_gui && !is_overlay) {
+		if (!is_sys_gui && !is_overlay && fade_out_time == 0) {
 			if (result_index == -1 ||
 			    (result_index != -1 &&
-			     button[result_index].type != TYPE_GUI)) {
-				cur_alpha = 255;
+			     button[result_index].type != TYPE_GUI &&
+			     button[result_index].type != TYPE_LOAD)) {
 				if (!create_temporary_bg())
 					return false;
 			}
@@ -994,6 +994,12 @@ bool run_gui_mode(int *x, int *y, int *w, int *h)
 
 		/* 続くコマンド実行に影響を与えないようにする */
 		clear_input_state();
+
+		/* ロードの場合は@guiを止める */
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_LOAD &&
+		    is_in_command_repetition())
+			stop_command_repetition();
 
 		/* 他のGUIに移動する場合 */
 		if (result_index != -1 &&
@@ -1178,7 +1184,7 @@ static bool create_temporary_bg(void)
 		draw_stage_gui_idle(false,
 				    0, 0,
 				    conf_window_width, conf_window_height,
-				    255,
+				    cur_alpha,
 				    true);
 
 		/* 各ボタンを描画する */

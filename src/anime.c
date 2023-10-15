@@ -97,8 +97,10 @@ static float anime_layer_y[ANIME_LAYER_COUNT];
 static bool start_sequence(const char *name);
 static bool on_key_value(const char *key, const char *val);
 static int layer_name_to_index(const char *name);
-static float calc_pos_x(int anime_layer, int index, const char *value);
-static float calc_pos_y(int anime_layer, int index, const char *value);
+static float calc_pos_x_from(int anime_layer, int index, const char *value);
+static float calc_pos_x_to(int anime_layer, int index, const char *value);
+static float calc_pos_y_from(int anime_layer, int index, const char *value);
+static float calc_pos_y_to(int anime_layer, int index, const char *value);
 static bool load_anime_file(const char *file);
 
 /*
@@ -252,6 +254,7 @@ bool finish_layer_anime(int layer)
 	context[layer].is_finished = true;
 	context[layer].cur_lap = 0;
 	context[layer].loop_rem = 0;
+
 	return true;
 }
 
@@ -346,12 +349,60 @@ get_anime_layer_params(
 	if (context[layer].seq_count == 0)
 		return true;
 
+	/* ファイル読み込みを行う */
+	s = &sequence[layer][0];
+	if (s->file != NULL && strcmp(s->file, "unload") != 0) {
+		if (layer == ANIME_LAYER_BG || layer == ANIME_LAYER_BG2)
+			dir = BG_DIR;
+		else if (layer >= ANIME_LAYER_CHB && layer <= ANIME_LAYER_CHC)
+			dir = CH_DIR;
+		else if (layer == ANIME_LAYER_MSG || layer == ANIME_LAYER_NAME)
+			dir = CG_DIR;
+		else if (layer == ANIME_LAYER_CHF)
+			dir = CH_DIR;
+		else if (layer >= ANIME_LAYER_TEXT1 && layer <= ANIME_LAYER_TEXT8)
+			dir = CG_DIR;
+		else if ((layer >= ANIME_LAYER_EFFECT1 && layer <= ANIME_LAYER_EFFECT4) ||
+			 (layer >= ANIME_LAYER_EFFECT5 && layer <= ANIME_LAYER_EFFECT8))
+			dir = CG_DIR;
+		else
+			dir = "";
+		if (image != NULL && *image != NULL) {
+			destroy_image(*image);
+			*image = NULL;
+		}
+		if (image != NULL) {
+			*image = create_image_from_file(dir, s->file);
+			if (*image == NULL)
+				return false;
+		}
+		if (file != NULL) {
+			free(*file);
+			*file = s->file;
+		}
+		s->file = NULL;
+	} else if (s->file != NULL && strcmp(s->file, "unload") == 0) {
+		if (image != NULL && *image != NULL) {
+			destroy_image(*image);
+			*image = NULL;
+		}
+		if (file != NULL) {
+			free(*file);
+			*file = NULL;
+		}
+		free(s->file);
+		s->file = NULL;
+	}
+
 	/* すでに完了している場合 */
-	if (context[layer].is_finished) {
+	if (context[layer].is_finished &&
+	    context[layer].seq_count > 0) {
 		s = &sequence[layer][context[layer].seq_count - 1];
 		*x = (int)s->to_x;
 		*y = (int)s->to_y;
 		*alpha = (int)s->to_a;
+		anime_layer_x[layer] = s->to_x;
+		anime_layer_y[layer] = s->to_y;
 		return true;
 	}
 
@@ -363,57 +414,6 @@ get_anime_layer_params(
 		if (i != context[layer].seq_count - 1 &&
 		    context[layer].cur_lap > s->end_time)
 			continue;
-
-		/* ファイル読み込みを行う */
-		if (s->file != NULL && strcmp(s->file, "unload") != 0) {
-			if (layer == ANIME_LAYER_BG ||
-			    layer == ANIME_LAYER_BG2)
-				dir = BG_DIR;
-			else if (layer >= ANIME_LAYER_CHB &&
-				 layer <= ANIME_LAYER_CHC)
-				dir = CH_DIR;
-			else if (layer == ANIME_LAYER_MSG ||
-				 layer == ANIME_LAYER_NAME)
-				dir = CG_DIR;
-			else if (layer == ANIME_LAYER_CHF)
-				dir = CH_DIR;
-			else if (layer >= ANIME_LAYER_TEXT1 &&
-				 layer <= ANIME_LAYER_TEXT8)
-				dir = CG_DIR;
-			else if (layer >= ANIME_LAYER_EFFECT1 &&
-				 layer <= ANIME_LAYER_EFFECT4)
-				dir = CG_DIR;
-			else if (layer >= ANIME_LAYER_EFFECT5 &&
-				 layer <= ANIME_LAYER_EFFECT8)
-				dir = CG_DIR;
-			else
-				dir = "";
-			if (image != NULL && *image != NULL) {
-				destroy_image(*image);
-				*image = NULL;
-			}
-			if (image != NULL) {
-				*image = create_image_from_file(dir, s->file);
-				if (*image == NULL)
-					return false;
-			}
-			if (file != NULL) {
-				free(*file);
-				*file = s->file;
-			}
-			s->file = NULL;
-		} else if (s->file != NULL && strcmp(s->file, "unload") == 0) {
-			if (image != NULL && *image != NULL) {
-				destroy_image(*image);
-				*image = NULL;
-			}
-			if (file != NULL) {
-				free(*file);
-				*file = NULL;
-			}
-			free(s->file);
-			s->file = NULL;
-		}
 
 		/* 進捗率を計算する */
 		progress = (context[layer].cur_lap - s->start_time) /
@@ -532,15 +532,15 @@ static bool on_key_value(const char *key, const char *val)
 	} else if (strcmp(key, "end") == 0) {
 		s->end_time = (float)atof(val);
 	} else if (strcmp(key, "from-x") == 0) {
-		s->from_x = calc_pos_x(cur_seq_layer, top, val);
+		s->from_x = calc_pos_x_from(cur_seq_layer, top, val);
 	} else if (strcmp(key, "from-y") == 0) {
-		s->from_y = calc_pos_y(cur_seq_layer, top, val);
+		s->from_y = calc_pos_y_from(cur_seq_layer, top, val);
 	} else if (strcmp(key, "from-a") == 0) {
 		s->from_a = (float)atoi(val);
 	} else if (strcmp(key, "to-x") == 0) {
-		s->to_x = calc_pos_x(cur_seq_layer, top, val);
+		s->to_x = calc_pos_x_to(cur_seq_layer, top, val);
 	} else if (strcmp(key, "to-y") == 0) {
-		s->to_y = calc_pos_y(cur_seq_layer, top, val);
+		s->to_y = calc_pos_y_to(cur_seq_layer, top, val);
 	} else if (strcmp(key, "to-a") == 0) {
 		s->to_a = (float)atoi(val);
 	} else if (strcmp(key, "accel") == 0) {
@@ -577,7 +577,7 @@ static int layer_name_to_index(const char *name)
 }
 
 /* 座標を計算する */
-static float calc_pos_x(int anime_layer, int index, const char *value)
+static float calc_pos_x_from(int anime_layer, int index, const char *value)
 {
 	float ret;
 
@@ -597,7 +597,22 @@ static float calc_pos_x(int anime_layer, int index, const char *value)
 }
 
 /* 座標を計算する */
-static float calc_pos_y(int anime_layer, int index, const char *value)
+static float calc_pos_x_to(int anime_layer, int index, const char *value)
+{
+	float ret;
+
+	assert(value != NULL);
+
+	if (value[0] == '+')
+		ret = sequence[anime_layer][index].from_x + (float)atoi(value + 1);
+	else
+		ret = (float)atoi(value);
+
+	return ret;
+}
+
+/* 座標を計算する */
+static float calc_pos_y_from(int anime_layer, int index, const char *value)
 {
 	float ret;
 
@@ -612,6 +627,21 @@ static float calc_pos_y(int anime_layer, int index, const char *value)
 	} else {
 		ret = (float)atoi(value);
 	}
+
+	return ret;
+}
+
+/* 座標を計算する */
+static float calc_pos_y_to(int anime_layer, int index, const char *value)
+{
+	float ret;
+
+	assert(value != NULL);
+
+	if (value[0] == '+')
+		ret = sequence[anime_layer][index].from_y + (float)atoi(value + 1);
+	else
+		ret = (float)atoi(value);
 
 	return ret;
 }

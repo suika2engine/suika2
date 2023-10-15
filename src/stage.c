@@ -4081,6 +4081,9 @@ void unlock_temporary_bg_image_for_gui(void)
  */
 void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img)
 {
+	if (layer_image[LAYER_BG] == NULL)
+		return;
+
 	draw_image(layer_image[LAYER_BG],
 		   x, y,
 		   img,
