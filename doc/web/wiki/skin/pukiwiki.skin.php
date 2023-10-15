@@ -86,9 +86,9 @@
 
 <?php   if ($is_read and $function_freeze) { ?>
 <?php     if ($is_freeze) { ?>
-<a href="<?php echo $link_unfreeze ?>" title="このページの編集を禁止します。パスワードが必要です。">凍結解除</a>
+<a href="<?php echo $link_unfreeze ?>" title="このページの編集を禁止します。パスワードが必要です。">凍結解除</a>&nbsp;&nbsp;
 <?php     } else { ?>
-<a href="<?php echo $link_freeze ?>" title="このページの編集を許可します。パスワードが必要です。">凍結</a>
+<a href="<?php echo $link_freeze ?>" title="このページの編集を許可します。パスワードが必要です。">凍結</a>&nbsp;&nbsp;
 <?php     } ?>
 <?php   } ?>
 
