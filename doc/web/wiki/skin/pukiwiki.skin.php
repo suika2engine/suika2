@@ -14,16 +14,9 @@
   <link rel="stylesheet" href="/css/adjustments.css">
   <script src="/js/bootstrap.bundle.min.js"></script>
 
-  <!-- gtag -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PLYR5Y3JSJ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-PLYR5Y3JSJ');
-  </script>
-
   <?php echo $head_tag ?>
+
+  <!-- INSERT-GTAG-HERE -->
 </head>
 <body>
 
