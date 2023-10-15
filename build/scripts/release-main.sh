@@ -407,4 +407,4 @@ fi
 # Update the Web site.
 echo ""
 echo "Updating the Web site:"
-release-html.sh
+cd doc/web && ./update-version.sh && ./upload.sh && cd ../..
