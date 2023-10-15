@@ -78,7 +78,7 @@
 			 <a name="navigator"></a>
        <h1><?php echo $title ?> - Suika2 Wiki</h1>
 	     <p>
-         <a href="/wiki/">Wiki Top</a>&nbsp;&nbsp;
+         <a href="/en/wiki/">Wiki Top</a>&nbsp;&nbsp;
          <a href="<?php echo $link_edit ?>" title="Edit this page.">Edit</a>&nbsp;&nbsp;
          <a href="<?php echo $script ?>?plugin=newpage" title="Create a new page.">New</a>&nbsp;&nbsp;
          <a href="<?php echo $link_template ?>" title="Dupulicate this page.">Duplicate</a>&nbsp;&nbsp;
@@ -86,9 +86,9 @@
 
 <?php   if ($is_read and $function_freeze) { ?>
 <?php     if ($is_freeze) { ?>
-<a href="<?php echo $link_unfreeze ?>" title="Unfreeze this page.">Unfreeze</a>
+<a href="<?php echo $link_unfreeze ?>" title="Unfreeze this page.">Unfreeze</a>&nbsp;&nbsp;
 <?php     } else { ?>
-<a href="<?php echo $link_freeze ?>" title="Freeze this page.">Freeze</a>
+<a href="<?php echo $link_freeze ?>" title="Freeze this page.">Freeze</a>&nbsp;&nbsp;
 <?php     } ?>
 <?php   } ?>
 
