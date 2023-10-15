@@ -13,7 +13,7 @@ Don't have a Discord account or would prefer to speak formally? Send an e-mail t
 
 ## Demo
 
-[Click here to start the Web demo](https://suika2.com/game/).
+[Click here to start the Web demo](https://suika2.com/run/sample/).
 
 ![demo](https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg "screenshot")
 
