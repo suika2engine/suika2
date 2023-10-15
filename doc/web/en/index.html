@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+
+	<title>Suika2 | Visual Novel Game Engine</title>
+	<meta name="description" content="Suika2 is a visual novel game engine.">
+	<meta name="theme-color" content="#eb8334">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <link rel="stylesheet" href="/css/adjustments.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+
+	<!-- INSERT-GTAG-HERE -->
+</head>
+<body>
+
+<!-- BEGIN-EN-HEADER -->
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/en/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/dl/">Downloads</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Document
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="/en/doc/">Index</a></li>
+						<li><a class="dropdown-item" href="/en/doc/tutorial.html">Tutorial</a></li>
+						<li><a class="dropdown-item" href="/en/doc/reference.html">Command Reference</a></li>
+						<li><a class="dropdown-item" href="/en/doc/title.html">Title Creation</a></li>
+						<li><a class="dropdown-item" href="/en/doc/font.html">Font Change</a></li>
+						<li><a class="dropdown-item" href="/en/doc/wms.html">WMS Usage</a></li>
+						<li><a class="dropdown-item" href="/en/doc/faq.html">FAQ</a></li>
+					</ul>
+				</li>
+        <li class="nav-item"><a class="nav-link" href="/en/wiki/">Wiki</a></li>
+        <li class="nav-item"><a class="nav-link" href="/en/works/">Works</a></li>
+        <li class="nav-item"><a class="nav-link" href="/">Japanese</a></li>
+        <li class="nav-item dropdown d-block d-md-none">
+          <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+          </ul>
+        </li>
+      </ul>
+      <li class="nav-item dropdown d-none d-md-block">
+        <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+        </ul>
+      </li>
+		</div>
+	</div>
+</nav>
+<!-- END-EN-HEADER -->
+
+<!-- Slideshow -->
+<div>
+	<div id="carousel1" class="carousel slide" data-bs-ride="carousel">
+		<div class="carousel-indicators">
+			<button type="button" data-bs-target="#carousel1" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+			<button type="button" data-bs-target="#carousel1" data-bs-slide-to="1" class="" aria-current="false" aria-label="Slide 2"></button>
+		</div>
+		<div class="carousel-inner">
+			<div class="carousel-item active">
+				<img src="/img/banners/pro_banner.png" alt="Suika2 Pro">
+			</div>
+			<div class="carousel-item">
+				<a href="https://suika2.com/game/" target="_blank">
+					<img src="img/banners/en_web_banner.png" alt="Suika2 Visual Novel Game Engine">
+				</a>
+			</div>
+		</div>
+		<button class="carousel-control-prev" type="button" data-bs-target="#carousel1" data-bs-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Previous</span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#carousel1" data-bs-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Next</span>
+		</button>
+	</div>
+</div>
+
+<!-- Title Strip -->
+<div class="block">
+	<div class="container">
+		<div class="row">
+			<div class="col-md">
+				<h1 class="space">Suika2 - Visual Novel Authoring Tool</h1>
+				<p>Suika2 is a development tool to create visual novels for various platforms.</p>
+			</div>
+			<div class="col-md">
+				<a href="/en/dl/" class="btn btn-info align-middle">Downloads <i class="bi bi-download"></i></a>
+				<a href="/en/doc/tutorial.html" class="btn btn-info align-middle">Tutorial <i class="bi bi-question-circle"></i></a>
+				<a href="https://discord.gg/ZmvXxE8GFg" class="btn btn-info align-middle">Discord Server <i class="bi bi-chat-square-dots"></i></a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- BEGIN-CONTENT -->
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+<!-- ----------- -->
+
+
+<h2 class="spacer">What is Suika2?</h2>
+<p>
+	Suika2 is a portable visual novel game engine that runs on Windows, Mac, iOS and Android.
+	You can produce impressive visual novels using Suika2 - and have fun doing it too!
+</p>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Updates</h2>
+<ul class="alert alert-info">
+<!--LATEST-RELEASE--><li><a href="dl/">2023/10/14 Suika2/14.5 (Latest) Release</a></li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Benefits</h2>
+<ul>
+	<li>Comes with lightweight yet powerful development tools (For Windows/macOS/Linux)</li>
+	<li>Ideal for an introduction to free games and indie game development</li>
+	<li>One-click export for Android/iOS apps</li>
+	<li>One-click export for Steam distribution (multilingual by default)</li>
+	<li>Multi-platform deployment for monetization (zero engine usage fees)</li>
+	<li>Can shift from indie production to commercial production</li>
+	<li>MIT license so you don't have to worry about usage fees when monetizing</li>
+	<li>Just follow our <a href="/tutorial/">easy tutorial</a> and you will be up!</li>
+	<li>Full-scale development tools supports from debugging to publishing for high work efficiency</li>
+	<li>Light and stable operation for players; A great work should have a great feel!</li>
+</div>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">What kind of environment does Suika2 work on?</h2>
+<p>
+  Suika2 is multi-platform compatible.<br>
+	The following apps can be created:
+</p>
+<ul class="checkmark alert alert-info">
+  <li>Windows app (with/without installer)</li>
+  <li>Mac app</li>
+  <li>Web browser app (Exportable from Suika2 Pro by a single click)</li>
+  <li>Androidアプリ (Exportable from Suika2 Pro by a single click)</li>
+  <li>iPhone app (Exportable from Suika2 Pro by a single click)</li>
+  <li>iPad app (Exportable from Suika2 Pro by a single click)</li>
+</ul>
+<p>
+  It is an unofficial port at the moment, but it has worked on Nintendo Switch.<br>
+	For an official port, we need to apply to Nintendo not only for the engine, but also for a work itself.
+	If you are interested in porting your work, please contact us.
+</p>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Recommended for the following developers</h2>
+<ul class="star alert alert-success">
+  <li>Those who want to create visual novels and publish them as free games</li>
+  <li>Those who are looking to eventually publish them to app stores</li>
+  <li>Those who want to run games on their own smartphone/tablet (no store review)</li>
+  <li>Those who want to publish games on Googla Play, App Store, Steam, DLsite and more (need store review)</li>
+</ul>
+<p>Other benefits include:</p>
+<ul class="star alert alert-success">
+  <li>Available for all genres, including Otome-games, Gal-games, and age-appropriate games</li>
+  <li>Completely free for commercial use (MIT license, so App Store compatible)</li>
+  <li>Quick support response (bug reports are fixed on the same day)</li>
+  <li>Can develop on Mac and Linux as well as Windows</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">App Lineup</h2>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Suika2 Pro</h2>
+		<p>
+      Suika2 Pro is a powerful production support tool, bundled with Suika2.<br>
+			Regarding the debugging features, you can see at a glance the line you are executing,
+			double-click to move to a line of your choice, and check the status of variables.<br>
+			Suika2 Pro also comes with an export function,
+			you can also specify the target OS and export your games.
+			You can export, for example, an installer for Windows, Web data,
+			or even source code for Android/iOS, which can be built with a single click.
+		</p>
+	</div>
+	<div class="col-md">
+		<img width="100%" src="img/banners/pro_banner.png" alt="Suika2 Pro">
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Web browser version of Suika2</h2>
+		<p>
+			Games made with Suika2 can be published directly to the web browser.
+		</p>
+		<p>
+			With image and audio compressions, a game as large as 200 MB can be provided on the Web.<br>
+			This is ideal for product demos and trial versions,
+			as users on the go can play the game on the spot with their smartphones.
+		</p>
+	</div>
+	<p>
+		As a specification, all game data is downloaded together at the page display stage.
+		This is not affected by changes in communication quality while playing on a train, etc.
+		On a smartphone/tablet, a two-finger tap has the same effect as a right-click.
+		(the UI is designed without right-clicking)
+	</p>
+	<div class="col-md game-mask">
+		<a href="https://suika2.com/game/" target="_blank">
+			<div class="game">
+				<img class="mb-3" width="100%" src="img/banners/ja_web_banner.png" alt="Suika2 Demo">
+				<div class="game-mask">
+					<div class="caption">Click to run</div>
+				</div>
+			</div>
+		</a>
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Android version of Suika2</h2>
+		<p>
+			After exporting with Suika2 Pro,
+			a game made with Suika2 can be built with a single click by opening it in Android Studio provided by Google.
+			If you just want to transfer your game to your own Android phone,
+			no registration or screening is required,
+			and it takes less than 10 minutes.
+		</p>
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/0nExNwxCJtU?si=PtHKBgDg0lB_6GuC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>iOS version of Suika2</h2>
+		<p>
+			After exporting with Suika2 Pro,
+			a game made with Suika2 can be built with a single click by opening it in Xcode provided by Apple.
+			If you just want to transfer your game to your own iOS device,
+			no screening is required, and it takes less than 10 minutes.
+			You can use Test Flight for beta distribution.
+		</p>
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/FE0gcXSAqqA?si=yKIqHjeW3DOBpDGd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Suika2 Kirara</h2>
+		<p>
+			This is a tool to create visual novels with mouse operation.<br>
+			We have developed this tool in response to the voice of "I can't make a visual novel without using the mouse!"<br>
+			However, it is difficult to create a long story with a mouse, we do not recommend this tool.<br>
+			We hope you will move on to Suika2 after you get a feel for it.
+		</p>
+	</div>
+</div>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">License</h2>
+<p>Suika2 has a very relaxed license!</p>
+<ul class="freesoft alert alert-success">
+  <li>Suika2 is published under MIT license on <a href="https://github.com/suika2engine/suika2">GitHub</a></li>
+  <li>Anyone can use this program freely and free of charge, regardless of commercial/non-commercial use, genre, or age designation</li>
+  <li>The engine developers cannot restrict the use of the game in the first place, due to the OSS license</li>
+  <li>Note: The sample game in the main SDK contains non-free sound files</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<!--
+<h2 class="spacer">チュートリアル動画</h2>
+<div style="text-align: center;">
+	<div class="row">
+		<div class="col-md">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/UZF8ykq2iJU?si=5t7pvBxKbq1xVQ-J" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+		</div>
+	</div>
+</div>
+-->
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">A History of the Suika Series</h2>
+<ul class="alert alert-info">
+  <li>In 2001, "Suika Studio" was first released. It was a visual novel authoring tool, including visual editors and a visual debugger</li>
+	<li>In 2003, the project was halted at version 0.47</li>
+	<li>In 2016, "Suika2" was released without the visual editors and the visual debugger. This version was totally rewritten except the image processing part</li>
+	<li>In 2022, visual debugger came back</li>
+	<li>In 2022, the project was transferred to the Suika2 Development Team</li>
+	<li>In 2023, visual editor came back</li>
+  <li>In 2023, Suika2 Visual Novel Award 2023 was held</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Support</h2>
+<p>
+	We respond quickly to questions.<br>
+	We welcome requests for additional features and requests for bug fixes.<br>
+	Look forward to working with you!
+</p>
+<p>
+  <a class="btn btn-primary mb-3" href="https://discord.gg/ZmvXxE8GFg">Join our Discord Server</a>
+</p>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Who are making Suika2?</h2>
+<ul class="alert alert-info">
+	<li>It is made by a Discord and GitHub community centered on ktabata</li>
+	<li>LUXION SOFT is the name of ktabata's circle</li>
+	<li>Only if we need a corporate transaction, <a href="https://luxion.co.jp">Luxion Soft LLC</a> will work instead of the developers</li>
+		<ul>
+			<li>There are aspects that cannot be contracted by an individual OSS developer, so a legal entity is required</li>
+			<li>This company's income is 0 yen and pays corporate inhabitant tax (70,000 yen per year) with a long-term loan from the representative, mtabata</li>
+			<li>ktabata is not an employee of this company as he is a deemed public employee under the law regarding Nippon Telegraph and Telephone</li>
+		</ul>
+	</li>
+	<li>Please join our <a href="https://discord.gg/ZmvXxE8GFg">Discord server</a> to be a developer</li>
+	<li>Bug reports, feature requests, and actual game production are "the most important participation in the development!</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Contacts</h2>
+<p>Any of the following will do. Feel free to contact us!</p>
+<ul class="alert alert-info">
+	<li><a href="https://discord.gg/ZmvXxE8GFg">Discord (#english channel)</a></li>
+	<li><a href="https://twitter.com/ktabata_suika2">X @ktabata_suika2</a> (you can speak in English with the author)</li>
+	<li>E-mail ktabata (tabata.keiichi&#64;gmail.com)</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Statement: The World We Aim For</h2>
+<p>
+	In the late 1990s and early 2000s,
+	software such as Kirikiri/KAG and NScripter led the doujin
+	and commercial visual novel market and helped the industry grow.
+</p>
+<p>
+	However, after the major gaming platform shifted to smartphones in the 2010s,
+	no standard software was created to run visual novels on smartphones.
+</p>
+<p>
+	This was due to the market's observation that
+	light games would be replaced by HTML5 technology.
+	Thus, many of the visual novel engines that emerged in the 2010s were web technologies.
+	However, the future of light games being HTML5-based did not arrive.
+	There are hybrid apps that mix web and native technologies,
+	but HTML5 never became a mainstream game technology.
+	As a result, as of 2023, there is no standard software that can easily bring visual novels to smartphones.
+	Yes, that kind of software is missing.
+</p>
+<p>
+	Suika2 is something that has never existed anywhere before.
+	Namely, it is open source, cross-platform (including smartphones),
+	and runs natively, not on the Web or in Python.
+	Suika2 is the first visual novel engine with these features
+	that can be used for both doujin and commercial purposes.
+</p>
+<p>
+	Suika2 encourages the creation of games by individuals and doujin,
+	and expands the platform on which these works are published, from PC and Web, to smartphones.
+</p>
+<p>
+	Suika2 makes it easy for popular works to generate revenue on smartphone app stores.
+	By establishing a scheme that allows unique creators to generate revenue,
+	Suika2 aims to create a small market that will eventually grow into an industry.
+</p>
+
+<!-- ------------------------- -->
+
+<h2>Other Recommended Engine</h2>
+<div style="background: #c4edf7; padding: 2em; text-align: center;">
+	<h4>From Novel, to Beyond.</h4>
+	<br>
+	<p>
+		Shed light on works.<br>
+		The highest level of presentation will color creations.<br>
+		Light.vn - a game engine for PC<br>
+		<br>
+		<a href="https://lightvn.net/"><img src="/img/ext/light_splash2.png"></a><br>
+		<br>
+		<a class="btn btn-primary mb-3" href="https://lightvn.net/">Light.vn Official</a>
+	</p>
+</div>
+
+<!-- ----------- -->
+    </div>
+  </div>
+</div>
+<!-- END-CONTENT -->
+
+<!-- BEGIN-EN-FOOTER -->
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+  <div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>Suika2 Visual Novel Game Engine</h5>
+				<p>An open-source, cross-platform visual novel engine for beginners and seasoned writers, amateurs and professionals.</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>Links</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/suika2engine">GitHub</a></li>
+					<li><a href="https://luxion.jp/">Luxion.jp</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">Copyright &copy; 2023 <a href="https://luxion.jp">Keiichi Tabata</a> and <a href="https://github.com/suika2engine">The Suika2 Development Team</a>. All rights reserved.</div>
+</footer>
+<script src="/css/darkmode.js"></script>
+<!-- END-EN-FOOTER -->
+
+</body>
+</html>

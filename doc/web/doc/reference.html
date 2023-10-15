@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+
+  <title>Suika2 | コマンドリファレンス</title>
+  <meta name="description" content="Suika2のコマンドリファレンスです。">
+  <meta name="theme-color" content="#eb8334">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <link rel="stylesheet" href="/css/adjustments.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+
+	<!-- INSERT-GTAG-HERE -->
+</head>
+<body>
+
+<!-- BEGIN-HEADER -->
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item"><a class="nav-link" href="/">ホーム</a></li>
+				<li class="nav-item"><a class="nav-link" href="/dl/">ダウンロード</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ドキュメント
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="/doc/">一覧</a></li>
+						<li><a class="dropdown-item" href="/doc/tutorial.html">チュートリアル</a></li>
+						<li><a class="dropdown-item" href="/doc/reference.html">コマンドリファレンス</a></li>
+						<li><a class="dropdown-item" href="/doc/title.html">タイトル画面の作り方</a></li>
+						<li><a class="dropdown-item" href="/doc/font.html">フォントの変更方法</a></li>
+						<li><a class="dropdown-item" href="/doc/wms.html">WMSの使い方</a></li>
+						<li><a class="dropdown-item" href="/doc/faq.html">よくある質問</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"><a class="nav-link" href="/wiki/">Wiki</a></li>
+				<li class="nav-item"><a class="nav-link" href="/works/">利用作品紹介</a></li>
+				<li class="nav-item"><a class="nav-link" href="/en/">English</a></li>
+				<li class="nav-item dropdown d-block d-md-none">
+					<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+					</ul>
+				</li>
+			</ul>
+			<li class="nav-item dropdown d-none d-md-block">
+				<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+				<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+				</ul>
+			</li>
+		</div>
+	</div>
+</nav>
+<!-- END-HEADER -->
+
+<!-- Title -->
+<div class="block">
+	<div class="container">
+		<div class="row">
+			<div class="col-md">
+				<h1>Suika2 コマンドリファレンス</h1>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- BEGIN-CONTENT -->
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+<!-- ----------- -->
+
+<h2 class="spacer">索引</h2>
+<ul class="refnav">
+	<li><a href="#about">コマンドとは</a></li>
+	<li>
+		画面表示系のコマンド
+		<ul class="refnav">
+			<li><a href="#message">メッセージ</a></li>
+			<li><a href="#serif">セリフ</a></li>
+			<li><a href="#bg">@bg 背景の表示</a></li>
+			<li><a href="#ch">@ch キャラクタの表示</a></li>
+			<li><a href="#chsx">@chsx キャラクタと背景の一括変更</a></li>
+			<li><a href="#cha">@cha キャラクタの移動</a></li>
+			<li><a href="#shake">@shake 画面を揺らす</a></li>
+			<li><a href="#video">@video 動画の再生</a></li>
+			<li><a href="#anime">@anime アニメーションの表示</a></li>
+		</ul>
+	</li>
+  <li>
+		音声再生系のコマンド
+		<ul class="refnav">
+			<li><a href="#bgm">@bgm BGMの再生</a></li>
+			<li><a href="#se">@se SEの再生</a></li>
+			<li><a href="#vol">@vol ボリュームの変更</a></li>
+		</ul>
+	</li>
+  <li>
+		選択肢表示系のコマンド
+		<ul class="refnav">
+			<li><a href="#choose">@choose 選択肢の表示</a></li>
+			<li><a href="#ichoose">@ichoose インライン選択肢の表示</a></li>
+      <li><a href="#gui">@gui GUIの表示</a></li>
+		</ul>
+	</li>
+  <li>
+		ウェイト系のコマンド
+		<ul class="refnav">
+			<li><a href="#click">@click クリックされるまで待機</a></li>
+			<li><a href="#wait">@wait 指定した時間だけ待機</a></li>
+			<li><a href="#skip">@skip ウェイトのスキップを禁止</a></li>
+		</ul>
+	</li>
+  <li>
+		シナリオ分岐系のコマンド
+		<ul class="refnav">
+			<li><a href="#label">ラベル</a></li>
+			<li><a href="#goto">@goto ラベルにジャンプ</a></li>
+			<li><a href="#set">@set 変数に値を設定</a></li>
+			<li><a href="#if">@if 変数の値でジャンプ</a></li>
+			<li><a href="#load">@load スクリプトにジャンプ</a></li>
+			<li><a href="#chapter">@chapter 章のタイトルを設定</a></li>
+		</ul>
+	</li>
+  <li>
+		システム系のコマンド
+		<ul class="refnav">
+			<li><a href="#setconfig">コンフィグの書き換え</a></li>
+			<li><a href="#setsave">セーブ許可/禁止</a></li>
+			<li><a href="#macro">マクロの取り込み</a></li>
+		</ul>
+	</li>
+</ul>
+
+<hr>
+
+<!--
+  -- About
+  -->
+
+<h2 class="spacer" id="about">コマンドとは</h2>
+<p>
+	コマンドとは、Suika2に対する指示のことで、Suika2を使ってノベルゲームを作る上で必要なものです。<br>
+	ほとんどのコマンドは <code>@</code> マークから始まります。<br>
+	コマンドを覚えておく必要はなく、このページを見ながら書くか、一度使ったものをコピペして使うなどすればよいです。
+</p>
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @anime
+  -->
+
+<h2 id="anime">@anime (@アニメ)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@anime [ファイル] (オプション)
+@アニメ [ファイル] (オプション)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	アニメファイルを再生します。レイヤーの移動、エフェクトの表示に使います。<br>
+	アニメファイルはフォルダ <code>anime</code> に配置する必要があります。<br>
+	Suika2/14.5現在、回転や拡大縮小はサポートされていませんが、順次サポートされさす。<br>
+</p>
+
+<h3>使い方1</h3>
+<p>
+	<code>anime1.txt</code> を再生します。再生完了まで待ちます。(<code>sync</code>)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@anime anime1.txt sync</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	<code>anime1.txt</code> を再生します。再生完了を待ちません。(<code>async</code>)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@anime anime1.txt async
+なにかメッセージを表示します。
+@anime finish-all
+</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	<code>anime1.txt</code> を再生します。折りたたみシステムメニューを表示しません。(<code>nosysmenu</code>)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@anime anime1.txt sync,nosysmenu</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方4</h3>
+<p>
+	<code>anime1.txt</code> を再生します。メッセージボックスを表示します。(<code>showmsgbox</code>)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@anime anime1.txt sync,showmsgbox</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方5</h3>
+<p>
+	ループアニメ <code>loop-anime1.txt</code> を再生します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@anime loop-anime1.txt async
+なにかメッセージを表示します。
+@anime stop-all
+</code></pre></div>
+<!-- END-CODE -->
+
+<h3>アニメーションファイルの記述例</h3>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code># アニメーションファイル
+
+# 中央キャラを２回移動する
+move {
+    layer: chc;  # 中央キャラクタ CHaracter Center
+    clear: chc;  # 既存のアニメーションを破棄する(そのレイヤの最初のmoveにだけ記述)
+    start: 0.0;  # 時刻0.0(秒)から開始する
+    end: 2.0;    # 時刻2.0(秒)に終了する
+    from-x: 0;   # 開始するX座標
+    from-y: 0;   # 開始するY座標
+    from-a: 255; # 開始するアルファ値
+    to-x: 100;   # 終了するX座標
+    to-y: 100;   # 終了するY座標
+    to-a: 255;   # 終了するアルファ値
+}
+move {
+    layer: chc;  # 中央キャラクタ CHaracter Center
+    start: 2.0;  # 時刻2.0(秒)から開始する
+    end: 4.0;    # 時刻4.0(秒)に終了する
+    from-x: 100; # 開始するX座標
+    from-y: 100; # 開始するY座標
+    from-a: 255; # 開始するアルファ値
+    to-x: 0;     # 終了するX座標
+    to-y: 0;     # 終了するY座標
+    to-a: 255;   # 終了するアルファ値
+}
+
+# それと同時に、右キャラを１回移動する
+move {
+    layer: chr;  # 中央キャラクタ CHaracter Right
+    clear: chr;  # 既存のアニメーションを破棄する(そのレイヤの最初のmoveにだけ記述)
+    start: 0.0;  # 時刻0.0(秒)から開始する
+    end: 3.0;    # 時刻3.0(秒)に終了する
+    from-x: 1000;# 開始するX座標
+    from-y: 0;   # 開始するY座標
+    from-a: 255; # 開始するアルファ値
+    to-x: 0;     # 終了するX座標
+    to-y: 0;     # 終了するY座標
+    to-a: 255;   # 終了するアルファ値
+}</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- ------------------------- -->
+
+<!--
+  -- @bg
+	-->
+
+<h2 class="spacer" id="bg">@bg (@背景)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@bg [ファイル] (秒) (エフェクト)
+@bg [file=ファイル] (duration=秒) (effect=エフェクト)
+@背景 [ファイル=ファイル] (秒=秒) (エフェクト=エフェクト)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	背景を変更します。背景の変更後、キャラクタはステージ上からいなくなります。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	<code>sample.png</code> を1.5秒かけて背景にセットします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bg sample.png 1.5</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+  <code>sample.png</code> を即座に背景にセットします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bg sample.png</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	<code>sample.png</code> を1.5秒かけて右方向カーテンフェードで背景にセットします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bg sample.png 1.5 c</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方4</h3>
+<p>
+	色を指定して1.5秒かけて左方向カーテンフェードで背景にセットします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bg #ff8080 1.5 curtain-left</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方5</h3>
+<p>
+	目を閉じるような演出を行います。
+</h3>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bg #000000 1.5 eye-close</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方6</h3>
+<p>
+	目を開けるような演出を行います。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bg sample.png 1.5 eye-open</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方7</h3>
+<p>
+	ルール画像を使ってトランジションを行います。
+	ルール画像はグレースケールで、黒い部分から白い部分にかけて順に描画されます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bg sample.png 1.5 rule:rule-star.png</code></pre></div>
+<!-- END-CODE -->
+
+<h3>背景/キャラで共通のエフェクト</h3>
+<p>
+	フェードには次のエフェクトを指定できます。<br>
+	(すべてのエフェクトを <a href="https://akatsuki-club.com/blog/suika2_background_effect_tool/">こちらのサイト</a> からお試しいただけます)
+</p>
+<!-- BEGIN-TABLE -->
+<table class="table" style="margin-top: 20pt;">
+  <thead>
+		<tr>
+			<th>
+				エフェクトの種類
+			</th>
+			<th>
+				エフェクト名
+			</th>
+			<th>
+				エフェクト短縮名1
+			</th>
+			<th>
+				エフェクト短縮名2
+			</th>
+			<th>
+				日本語名
+			</th>
+		</tr>
+	</thead>
+  <tbody>
+		<tr>
+			<th>
+				標準のアルファブレンド
+			</th>
+			<td>
+				<code>normal</code>
+			</td>
+			<td>
+				<code>n</code>
+			</td>
+			<td>
+				<code>(指定を省略した場合)</code>
+			</td>
+			<td>
+				<code>標準</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				ルール指定トランジション(1bit)
+			</th>
+			<td>
+				<code>rule:ルール画像ファイル</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				ルール指定トランジション(8bit)
+			</th>
+			<td>
+				<code>melt:ルール画像ファイル</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				右方向カーテン
+			</th>
+			<td>
+				<code>curtain-right</code>
+			</td>
+			<td>
+				<code>curtain</code>
+			</td>
+			<td>
+				<code>c</code>
+			</td>
+			<td>
+				<code>右カーテン</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				左方向カーテン
+			</th>
+			<td>
+				<code>curtain-left</code>
+			</td>
+			<td>
+				<code>cl</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>左カーテン</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				上方向カーテン
+			</th>
+			<td>
+				<code>curtain-up</code>
+			</td>
+			<td>
+				<code>cu</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>上カーテン</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				下方向カーテン
+			</th>
+			<td>
+				<code>curtain-down</code>
+			</td>
+			<td>
+				<code>cd</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>下カーテン</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				右方向スライド
+			</th>
+			<td>
+				<code>slide-right</code>
+			</td>
+			<td>
+				<code>sr</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>右スライド</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				左方向スライド
+			</th>
+			<td>
+				<code>slide-left</code>
+			</td>
+			<td>
+				<code>sl</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>左スライド</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				上方向スライド
+			</th>
+			<td>
+				<code>slide-up</code>
+			</td>
+			<td>
+				<code>su</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>上スライド</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				下方向スライド
+			</th>
+			<td>
+				<code>slide-down</code>
+			</td>
+			<td>
+				<code>sd</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>下スライド</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				右方向シャッター
+			</th>
+			<td>
+				<code>shutter-right</code>
+			</td>
+			<td>
+				<code>shr</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>右シャッター</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				左方向シャッター
+			</th>
+			<td>
+				<code>shutter-left</code>
+			</td>
+			<td>
+				<code>shl</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>左シャッター</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				上方向シャッター
+			</th>
+			<td>
+				<code>shutter-up</code>
+			</td>
+			<td>
+				<code>shu</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>上シャッター</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				下方向シャッター
+			</th>
+			<td>
+				<code>shutter-down</code>
+			</td>
+			<td>
+				<code>shd</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>下シャッター</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				時計回り
+			</th>
+			<td>
+				<code>clockwise</code>
+			</td>
+			<td>
+				<code>cw</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>時計回り</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				反時計回り
+			</th>
+			<td>
+				<code>counterclockwise</code>
+			</td>
+			<td>
+				<code>ccw</code>
+			</td>
+			<td>
+			</td>
+			<td>
+				<code>反時計回り</code>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				時計回り(20°刻み)
+			</th>
+			<td>
+				<code>clockwise20</code>
+			</td>
+			<td>
+				<code>cw20</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				反時計回り(20°刻み)
+			</th>
+			<td>
+				<code>counterclockwise20</code>
+			</td>
+			<td>
+				<code>ccw20</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				時計回り(30°刻み)
+			</th>
+			<td>
+				<code>clockwise30</code>
+			</td>
+			<td>
+				<code>cw30</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				反時計回り(30°刻み)
+			</th>
+			<td>
+				<code>counterclockwise30</code>
+			</td>
+			<td>
+				<code>ccw30</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				目を開くような効果
+			</th>
+			<td>
+				<code>eye-open</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				目を閉じるような効果
+			</th>
+			<td>
+				<code>eye-close</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				目を開くような効果(垂直)
+			</th>
+			<td>
+				<code>eye-open-v</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				目を閉じるような効果(垂直)
+			</th>
+			<td>
+				<code>eye-close-v</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				スリットが開くような効果
+			</th>
+			<td>
+				<code>slit-open</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				スリットが閉じるような効果
+			</th>
+			<td>
+				<code>slit-close</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				スリットが開くような効果(垂直)
+			</th>
+			<td>
+				<code>slit-open-v</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				スリットが閉じるような効果(垂直)
+			</th>
+			<td>
+				<code>slit-close-v</code>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+			<td>
+			</td>
+		</tr>
+  </tbody>
+</table>
+<!-- END-TABLE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @bgm
+  -->
+
+<h2 class="spacer" id="bgm">@bgm (@音楽)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@bgm [ファイル] (once)
+@bgm [file=ファイル] (once)
+@音楽 [ファイル=ファイル] (once)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	BGMを再生します。<br>
+	BGMファイルはフォルダ <code>bgm</code> に格納されている必要があります。<br>
+	再生可能なファイル形式は、44.1kHzのOgg Vorbisのみです。もし特定の音楽ファイルが遅く聞こえたり、早く聞こえたりした場合は、そのファイルのサンプリングレートを44.1kHzに変換してください。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	sample.oggを再生します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bgm sample.ogg</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	BGMを停止します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bgm stop</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	BGMをループしないで1回だけ再生します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@bgm sample.ogg once</code></pre></div>
+<!-- END-CODE -->
+
+<h3>応用例</h3>
+<p>
+	BGMを2秒かけてフェードアウトします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@vol bgm 0 2
+@wait 2
+@bgm stop</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @ch
+  -->
+
+<h2 class="spacer" id="ch">@ch (@キャラ)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@ch [位置] [ファイル] (秒) (エフェクト) (右オフセット) (下オフセット) (アルファ)
+@ch [position=位置] [file=ファイル] (duration=秒) (effect=エフェクト) (right=右オフセット) (down=下オフセット) (alpha=アルファ)
+@キャラ [位置=位置] [ファイル=ファイル] (秒=秒) (エフェクト=エフェクト) (右=右オフセット) (下=下オフセット) (アルファ=アルファ)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	キャラクタを表示、変更、消去します。<br>
+	キャラクタの位置は、上位レイヤから順に、次のものがあります。
+</p>
+
+<!-- BEGIN-TABLE -->
+<table class="table">
+	<theader>
+		<tr>
+			<th>表示位置</th>
+			<th>コマンドでの指定方法</th>
+		</tr>
+	</theader>
+	<tbody>
+    <tr>
+			<th>顔アイコン</th>
+			<td><code>face</code></td>
+		</tr>
+    <tr>
+			<th>中央前面</th>
+			<td><code>center</code></td>
+		</tr>
+    <tr>
+			<th>右</th>
+			<td><code>right</code></td>
+		</tr>
+    <tr>
+			<th>左</th>
+			<td><code>left</code></td>
+		</tr>
+    <tr>
+			<th>中央背面</th>
+			<td><code>back</code></td>
+		</tr>
+	</tbody>
+</table>
+<!-- END-TABLE -->
+
+<p>
+	エフェクトの種類は <a href="#bg"><code>@bg</code></a> と同じです。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	<code>sample.png</code> を0.5秒かけて中央前面にセットします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch center sample.png 0.5</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	<code>center</code> は <code>c</code> と省略して構いません。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch c sample.png 0.5</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	<code>none</code> を指定するとキャラクタを退場させます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch c none 0.5</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方4</h3>
+<p>
+	時間を指定しないと即座に表示されます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch c sample.png</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方5</h3>
+<p>
+  <code>mask</code> あるいは <code>m</code> を指定すると点描エフェクトを使います。<br>
+	<code>mask</code> 以外にも、 <a href="#bg"><code>@bg</code></a>で使用できるエフェクトは全て使用できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch c sample.png 1.0 mask</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方6</h3>
+<p>
+  <code>normal</code> あるいは <code>n</code> を指定すると通常のアルファブレンドを使います。<br>
+  指定を省略したときにも通常のアルファブレンドが利用されます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch c sample.png 1.0 normal</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方7</h3>
+<p>
+  キャラクタ表示位置をずらすことができます。<br>
+	下記の例では右に100ピクセル、下に50ピクセルずらします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch c sample.png 1.0 n 100 50</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方8</h3>
+<p>
+	アニメの起点を指定するために、アルファ値を指定してキャラクタ画像を読み込みます。<br>
+  アルファ値には <code>0</code> から <code>255</code> を指定できます。
+	また、アルファ値には <code>255</code> の別名で <code>show</code> を指定できるほか、 <code>0</code> の別名で <code>hide</code>を指定できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch c sample.png 1.0 n 0 0 show</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方9</h3>
+<p>
+	メッセージボックスの左にキャラの顔を表示します。(消す場合はnoneを指定します。)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch face face-001.png</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @cha
+  -->
+
+<h2 class="spacer" id="cha">@cha (@キャラ移動)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@cha [位置] [秒] [加速] [Xオフセット] [Yオフセット] [アルファ]
+@cha [position=位置] [duration=秒] [acceleration=加速] [x=Xオフセット] [Y=Yオフセット] [alpha=アルファ]
+@キャラ移動 [position=位置] [duration=秒] [acceleration=加速] [x=Xオフセット] [Y=Yオフセット] [alpha=アルファ]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	キャラクタの移動(アニメーション)を行います。<br>
+	キャラクタの位置の指定とアルファ値の指定は <a href="#ch"><code>@ch</code></a> コマンドを参照してください。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	中央に表示したキャラクタを1.0秒かけて左側に600ピクセル移動して非表示にします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@cha center 1.0 move -600 0 hide</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	使い方1との差分は、移動を加速(アクセル)しながら行うことです。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@cha center 1.0 accel -600 0 hide</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	使い方1との差分は、移動を減速(ブレーキ)しながら行うことです。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@cha center 1.0 brake -600 0 hide</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方4</h3>
+<p>
+	初めに画面の外にキャラクタを読み込んでおいて、画面の中に移動させます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@ch right sample.png 0 n 600 0 hide
+@cha right 2.0 move -600 0 show</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  --  @chapter
+  -->
+
+<h2 class="spacer" id="chapter">@chapter</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@chapter [タイトル]
+@chapter [title=タイトル]
+@章 [タイトル=タイトル]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	章のタイトルを設定します。
+</p>
+
+<h3>使い方</h3>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chapter 第一章</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @choose
+	-->
+
+<h2 class="spacer" id="choose">@choose (@選択肢)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@choose [行き先1] [選択肢1] (行き先2) (選択肢2) (行き先3) (選択肢3) (行き先4) (選択肢4) (行き先5) (選択肢5) (行き先6) (選択肢6) (行き先7) (選択肢7) (行き先8) (選択肢8)
+@choose [destination1=行き先1] [option1=選択肢1] (destination2=行き先2) (option2=選択肢2) (destination3=行き先3) (option3=選択肢3) (destination4=行き先4) (option4=選択肢4) (destination5=行き先5) (option5=選択肢5) (destination6=行き先6) (option6=選択肢6) (destination7=行き先7) (option7=選択肢7) (destination8=行き先8) (option8=選択肢8)
+@選択肢 [行き先1=行き先1] [選択肢1=選択肢1] (行き先2=行き先2) (選択肢2=選択肢2) (行き先3=行き先3) (選択肢3=選択肢3) (行き先4=行き先4) (選択肢4=選択肢4) (行き先5=行き先5) (選択肢5=選択肢5) (行き先6=行き先6) (選択肢6=選択肢6) (行き先7=行き先7) (選択肢7=選択肢7) (行き先8=行き先8) (選択肢8=選択肢8)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	選択肢を表示してラベルにジャンプします。選択肢の数は最大で8つです。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	3つの選択肢を表示します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@choose label1 おはよう label2 こんにちは label3 こんばんは
+:label1
+おはよう
+@goto end
+:label2
+こんにちは
+@goto end
+:label3
+こんばんは
+:end</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	2つの選択肢を表示します。
+</p>
+<!-- BEGIN-CODE --><div class="code-block"><pre><code>@choose label1 おはよう label2 こんにちは
+:label1
+おはよう
+@goto end
+:label2
+こんにちは
+@goto end
+:end</code></pre></div><!-- END-CODE-BLOCK -->
+
+<h3>使い方3</h3>
+<p>
+	1つの選択肢を表示します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@choose label1 おはよう
+:label1
+おはよう</code></pre></div>
+<!-- END-CODE -->
+
+<h3>応用編</h3>
+<p>
+	拡張 <code>switch</code> 文を使うことで、ラベルを使わずに選択肢を表現できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code><<<
+switch "おはよう" "こんにちは" "こんばんは" {
+case "おはよう":
+    @ch center good-morning.png
+    break
+case "こんにちは":
+    @ch center good-afternoon.png
+    break
+case "こんばんは":
+    @ch center good-evening.png
+    break
+}
+>>></code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @ichoose
+  -->
+
+<h2 class="spacer" id="ichoose">@ichoose (@インライン選択肢)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@ichoose [行き先1] [選択肢1] (行き先2) (選択肢2) (行き先3) (選択肢3) (行き先4) (選択肢4) (行き先5) (選択肢5) (行き先6) (選択肢6) (行き先7) (選択肢7) (行き先8) (選択肢8)
+@ichoose [destination1=行き先1] [option1=選択肢1] (destination2=行き先2) (option2=選択肢2) (destination3=行き先3) (option3=選択肢3) (destination4=行き先4) (option4=選択肢4) (destination5=行き先5) (option5=選択肢5) (destination6=行き先6) (option6=選択肢6) (destination7=行き先7) (option7=選択肢7) (destination8=行き先8) (option8=選択肢8)
+@インライン選択肢 [行き先1=行き先1] [選択肢1=選択肢1] (行き先2=行き先2) (選択肢2=選択肢2) (行き先3=行き先3) (選択肢3=選択肢3) (行き先4=行き先4) (選択肢4=選択肢4) (行き先5=行き先5) (選択肢5=選択肢5) (行き先6=行き先6) (選択肢6=選択肢6) (行き先7=行き先7) (選択肢7=選択肢7) (行き先8=行き先8) (選択肢8=選択肢8)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	メッセージボックス内に選択肢を表示してラベルにジャンプします。<br>
+	選択肢をメッセージボックス内に表示する以外は、 <a href="#choose"><code>@choose</code></a> と同じです。<br>
+	この機能を使用するときには、コンフィグの <code>switch.bg.file</code> と <code>switch.fg.file</code> に透明な画像を指定してください。
+</p>
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @chs
+  -->
+
+<h2 class="spacer" id="chs">@chs (@場面転換) (非推奨: @chsxが推奨)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@chs [中央ファイル] [右ファイル] [左ファイル] [背面ファイル] (秒) (背景ファイル) (エフェクト)
+@chs [center=中央ファイル] [right=右ファイル] [left=左ファイル] [back=背面ファイル] (duration=秒) (background=背景ファイル) (effect=エフェクト)
+@場面転換 [中央=中央ファイル] [右=右ファイル] [左=左ファイル] [背面=背面ファイル] (秒=秒) (背景=背景ファイル) (エフェクト=エフェクト)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	キャラクタの一括変更を行います。<br>
+	Suika2/12.37以降では <a href="#chsx"><code>@chsx</code></a> をご利用ください。<br>
+	また、キャラクタと同時に背景も変更できます。<br>
+	キャラクタの指定順は、中央、右、左、後ろです。<br>
+	エフェクトの種類は <a href="#bg"><code>@bg</code></a> と同じです。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	中央と右にキャラクタを1.0秒かけて表示します。<br>
+	他のキャラクタは変更しません。(<code>stay</code> の指定)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chs center.png right.png stay stay 1.0</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+  中央のキャラクタを1.0秒かけて退場させます。(<code>none</code> の指定)<br>
+	他のキャラクタは変更しません。(<code>stay</code> の指定)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chs none stay stay stay 1.0</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+  キャラクタを表示させたまま(<code>stay</code> の指定)、背景を1.0秒かけて変更します。
+</h3>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chs stay stay stay stay 1.0 background.png</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方4</h3>
+<p>
+	中央のキャラクタを1.0秒かけて変更します。<br>
+	背景も変更します。<br>
+	エフェクトはカーテンです。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chs center.png stay stay stay 1.0 background.png curtain</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @chsx
+  -->
+
+<h2 class="spacer" id="chsx">@chsx (@場面転換X)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@chsx (center=center-image) (center-x=center-x-offset) (center-y=center-y-offset) (right=right-image) (right-x=right-x-offset) (right-y=right-y-offset) (left=left-image) (left-x=left-x-offset) (left-y=left-y-offset) (back=back-image) (back-x=back-x-offset) (back-y=back-y-offset) (background=background-image) (bg-x=background-x-offset) (bg-y=background-y-offset) (effect=effect) (duration=seconds)
+@場面転換X (中央=中央ファイル) (中央X=中央キャラのXオフセット) (中央Y=中央キャラのYオフセット) (右=右ファイル) (右X=右キャラのXオフセット) (右Y=右キャラのYオフセット) (左=左ファイル) (左X=左キャラのXオフセット) (左Y=左キャラのYオフセット) (背面=背面ファイル) (背面X=背面キャラのXオフセット) (背面Y=背面キャラのYオフセット) (背景=背景ファイル) (背景X=背景のXオフセット) (背景Y=背景のYオフセット) (エフェクト=エフェクト) (秒=秒)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	キャラクタの一括変更を行います。背景のみの変更や、キャラクタと同時に背景も変更できます。<br>
+	このコマンドに限って、<code>center=</code> のような引数の名前が必須ですが、代わりに引数の指定順に制限がありません。<br>
+	エフェクトの種類は <a href="#bg"><code>@bg</code></a> と同じです。<br>
+	変更のないキャラには <code>stay</stay> を指定します。指定されなかったキャラは退場します。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	中央と右にキャラクタを1.0秒かけて表示します。<br>
+	他のキャラクタは変更しません。(<code>stay</code> の指定)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chsx center=center.png right=right.png left=stay back=stay duration=1.0</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+  中央のキャラクタを1.0秒かけて退場させます。(<code>none</code> の指定)<br>
+	他のキャラクタは変更しません。(<code>stay</code> の指定)
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chsx center=none left=stay right=stay back=stay duration=1.0</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+  キャラクタを表示させたまま(<code>stay</code> の指定)、背景を1.0秒かけて変更します。
+</h3>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chsx background=background.png center=stay left=stay right=stay back=stay duration=1.0</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方4</h3>
+<p>
+	中央のキャラクタを1.0秒かけて変更します。<br>
+	背景も変更します。<br>
+	エフェクトはカーテンです。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@chsx center=center.png background=background.png left=stay right=stay back=stay effect=curtain duration=1.0</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @click
+	-->
+
+<h2 class="spacer" id="click">@click (@クリック)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@click
+@クリック</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	クリックされるのを待ちます。<br>
+	待っている間、メッセージボックスは非表示となります。
+</p>
+
+<h3>使い方</h3>
+<p>
+	クリックを待ちます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@click</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @gosub
+  -->
+
+<h2 class="spacer" id="gosub">@gosub</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@gosub [行き先]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	サブルーチンにジャンプします。 <code>@return</code> で戻ります。<br>
+	普通のノベルゲームを作る分には利用しない機能です。
+</p>
+
+<h3>使い方</h3>
+<p>
+	サブルーチン <code>SUB</code> を実行します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@gosub SUB
+:SUB
+ここに何らかの処理やメッセージを記述します。
+@return</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<h2 class="spacer" id="goto">@goto (@ジャンプ)</h2>
+<div class="decl-block"><pre><code>@goto [行き先]
+@ジャンプ [行き先=行き先]</code></pre></div>
+
+<p>
+	ラベルにジャンプします。<br>
+	ループを作成するときや、ループから抜け出す際にも使用します。
+</p>
+
+<h3>使い方1</h3>
+<p>ラベル <code>abc</code> にジャンプします。</p>
+<div class="code-block"><pre><code>:abc
+ここに何らかの処理やメッセージを記述します。ループします。
+@goto abc</code></pre></div>
+
+<h3>使い方2</h3>
+<p>ロード画面を表示します。 <code>$LOAD</code>は特殊なラベルです。</p>
+<div class="code-block"><pre><code>@goto $LOAD</code></pre></div>
+
+<h3>使い方3</h3>
+<p>セーブ画面を表示します。 <code>$SAVE</code>は特殊なラベルです。</p>
+<div class="code-block"><pre><code>@goto $SAVE</code></pre></div>
+
+<hr><!-- --------------------------------------------------------- -->
+
+<h2 class="spacer" id="gui">@gui (@メニュー)</h2>
+<div class="decl-block"><pre><code>@gui [ファイル] (cancel)
+@gui [file=ファイル] (cancel)
+@メニュー [ファイル=ファイル] (キャンセル許可)</code></pre></div>
+
+<p>
+	GUIを表示します。GUIでは最大128個のボタンを作成できます。<br>
+	ボタンの種類には、押されるとラベルにジャンプするものや、フラグがセットされているときだけ表示されるものなどがあります。<br>
+	なお、GUI定義ファイルはコンフィグ画面やセーブ・ロード・履歴画面の定義にも利用されます。
+</p>
+
+<h3>使い方1</h3>
+<p>GUI定義ファイル <code>menu.txt</code> を読み込んでGUIを実行します。</p>
+<div class="code-block"><pre><code>@gui menu.txt</code></pre></div>
+
+<h3>使い方2</h3>
+<p>右クリックによるキャンセルを許可します。</p>
+<div class="code-block"><pre><code>@gui menu.txt cancel</code></pre></div>
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @if
+  -->
+
+<h2 class="spacer" id="if">@if</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@if [変数] [条件] [数値] [行き先]
+@フラグでジャンプ [変数] [条件] [数値] [行き先]@gui [file=ファイル]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	条件式とマッチするときだけラベルにジャンプします。<br>
+  利用できる条件の種類は下記の通りですが、
+	普通のノベルゲームを作る分には <code>==</code> (等しい場合) だけの利用で問題ありません。
+</p>
+
+<!-- BEGIN-TABLE -->
+<table class="table">
+  <thead>
+		<tr>
+			<th>条件の種類</th><th>意味</th>
+		</tr>
+		<tbody>
+			<tr><td><code>&gt;</code></td><td>a > b (aがbより大きい)</td>
+			<tr><td><code>&gt;=</code></td><td>a ≧ b (aがbより大きいか等しい)</td>
+			<tr><td><code>==</code></td><td>a = b (aとbが等しい)</td>
+			<tr><td><code>&lt;=</code></td><td>a ≦ b (aがbより小さいか等しい)</td>
+			<tr><td><code>&lt;</code></td><td>a < b (aがbより小さい)</td>
+																						<tr><td><code>!=</code></td><td>a ≒ b (aとbが等しくない)</td>
+		</tbody>
+</table>
+<!-- END-TABLE -->
+
+<p>
+	条件文の左側はローカル変数名(<code>$0</code> など)か、グローバル変数名(<code>$10000</code> など)か、名前変数名(<code>%a</code> など)である必要があります。<br>
+	条件文の左側がローカル変数名かグローバル変数名のとき、条件文の右側は整数(<code>1</code> など)か、ローカル変数名(<code>$0</code> など)か、グローバル変数名(<code>$10000</code> など)を指定できます。<br>
+	条件文の左側が名前変数のとき、条件文の右側には文字列のみ指定できます。文字列中の変数名は展開されません。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	ローカル変数の値でシナリオを分岐します。<br>
+	ローカル変数 <code>$1</code> の値が <code>1</code> であれば、ラベル <code>abc</code> にジャンプします。<br>
+	つまり、フラグが立っていればシナリオを分岐します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@if $1 == 1 abc
+変数の値が1以外です。つまり、フラグが立っていないということです。
+ここにシナリオを記述します。
+@goto end
+:abc
+変数の値が1です。つまり、フラグが立っているということです。
+ここにシナリオを記述します。
+:end</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	名前変数の値でシナリオを分岐します。<br>
+	名前変数 <code>%a</code> の値が <code>みどり</code> であれば、ラベル <code>MIDORI</code> にジャンプします。<br>
+	デフォルトの名前のときだけイベントを発生させるときに使えます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@if %a == みどり MIDORI
+名前がみどり以外です。
+ここにシナリオを記述します。
+@goto end
+:MIDORI
+名前がみどりです。
+ここにシナリオを記述します。
+:end</code></pre></div>
+<!-- END-CODE -->
+
+<h3>応用編</h3>
+<p>
+	ラベルやジャンプがわかりにくいときは、拡張 <code>if</code> 文を使うことができます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code><<<
+if $1 == 0 {
+    おはよう。
+}-
+else if $1 == 1 {
+    こんにちは。
+}-
+else {
+    こんばんは。
+}
+>>></code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- Label
+  -->
+
+<h2 class="spacer" id="label">ラベル</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>:ラベル名</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	ジャンプ先となるラベルを作成します。<br>
+	ラベルはゲームの見た目には影響しません。<br>
+	ラベルの名前には日本語を使うことも可能です。
+</p>
+
+<h3>使い方</h3>
+<p>
+	ループします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>:ジャンプ先
+何かメッセージを表示する
+@goto ジャンプ先</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @load
+  -->
+
+<h2 id="load">@load (@シナリオ)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@load [ファイル]
+@load [file=ファイル]
+@シナリオ [ファイル=ファイル]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	スクリプトファイルにジャンプします。<br>
+	スクリプトファイルはフォルダ<code>txt</code>の中に存在する必要があります。
+</p>
+
+<h3>使い方</h3>
+<p>
+	スクリプトファイル <code>001.txt</code> にジャンプします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@load 001.txt</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- Message
+  -->
+
+<h2 class="spacer" id="message">メッセージ</h2>
+
+<p>
+	メッセージボックスにテキストを出力します。<br>
+	<code>\n</code> で改行できます。<br>
+	<code>\#{RRGGBB}</code> でフォントの色を変更できます。<br>
+	<code>\@{サイズ}</code> でフォントのサイズを変更できます。<br>
+	<code>\w{秒数}</code> でウェイトを挿入できます。<br>
+	<code>\p{x座標,y座標}</code> で描画位置を変更できます。<br>
+	<code>長\^{おしゃまんべ}万部</code> でルビを振ることができます。<br>
+	行の先頭に <code>\</code> を置くことで、前の行を継続できます。(全画面ノベルで使用)<br>
+	<code>$数字</code> でローカル変数やグローバル変数の値の数値を出力できます。<br>
+	<code>%アルファベット小文字</code> で名前変数の値の文字列を出力できます。
+</p>
+
+<h3>使い方</h3>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>こんにちは、新しいノベルゲームです。</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @ news
+  -->
+
+<h2 class="spacer" id="news">@news</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@news [...長い...]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	注意: このコマンドは隠しコマンドです。通常のノベルゲームでは使用されません。
+</p>
+<p>
+	<a href="#switch"><code>@switch</code></a> の亜種です。<br>
+	親選択肢の最初の4つが、北、東、西、南に表示されます。<br>
+	ダンジョン探索のような場面のために存在します。<br>
+	親選択肢に限り、表示メッセージに <code>*</code> を指定することで、選択肢を非表示にすることができます。
+</p>
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @return
+  -->
+
+<h2 class="spacer" id="return">@return</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@return</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	サブルーチンから戻ります。<br>
+	通常のノベルゲームでは使用しません。
+</p>
+
+<h3>使い方</h3>
+<p>
+	サブルーチン <code>SUB</code> を実行します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@gosub SUB
+
+:SUB
+ここに何らかの処理やメッセージを記述します。
+@return</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @se
+  -->
+
+<h2 class="spacer" id="se">@se (@効果音)</h2>
+
+<!-- BEGIN-DECL  -->
+<div class="decl-block"><pre><code>@se [ファイル]
+@se [file=ファイル]
+@効果音 [ファイル=ファイル]</code></pre></div>
+<!-- END-DECL  -->
+
+<p>
+	SE(効果音)を再生します。<br>
+	SEファイルはフォルダ <code>se</code> に格納されている必要があります。<br>
+	再生可能なファイル形式は、44.1kHzのOgg Vorbisのみです。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	SEを再生します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@se click.ogg</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	SEを停止します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@se stop</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	SEをリピート再生します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@se sample.ogg loop</code></pre></div>
+<!-- END-CODE -->
+
+<h3>特殊な使い方</h3>
+<p>
+	ボイストラックでSEを再生します。<br>
+	この機能は音量設定画面でボイス再生を行う際に使います。<br>
+  音声ファイルは <code>se</code> フォルダのものが用いられます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@se click.ogg voice</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- Line
+  -->
+
+<h2 class="spacer" id="serif">セリフ</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>キャラ名「セリフ」
+*キャラ名*セリフ
+*キャラ名*音声ファイル*セリフ</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	メッセージボックスにセリフのテキストを出力します。<br>
+	また、名前ボックスにキャラクタの名前を出力します。<br>
+	ボイスを再生することができます。<br>
+	ボイスファイルは、フォルダ <code>cv</code> の中に存在する必要があります。<br>
+	ボイスファイルの形式は、44.1kHzのOgg Vorbisである必要があります。<br>
+	メッセージと同様の装飾が使えます。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	セリフを出力します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>みどり「こんにちは、Suika2です。」</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	ボイスを再生して、セリフを出力します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>*みどり*001.ogg*こんにちは、Suika2です。</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	指定したビープ音をリピート再生して、セリフを出力します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>*名前*@beep.ogg*こんにちは、新しいノベルゲームです。</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @set
+  -->
+
+<h2 class="spacer" id="set">@set (@フラグをセット)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@set [変数] [演算子] [値]
+@フラグをセット [変数] [演算子] [値]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	ローカル変数、グローバル変数、名前変数に値をセットします。<br>
+	「ローカル変数」はセーブデータごとに値が異なり、 <code>$0</code> から <code>$9999</code> までの10000個を利用できます。<br>
+	「グローバル変数」は、全てのセーブデータで共通の値となり、 <code>$10000</code> から <code>$10999</code> までの1000個を利用できます。<br>
+  ローカル変数とグローバル変数は整数で、変数の初期値はすべて <code>0</code> です。<br>
+  「名前変数」はセーブデータごとに値が異なり、 <code>%a</code> から <code>%z</code> までの26個を利用できます。<br>
+	名前変数は文字列で、変数の初期値はすべて空の文字列です。<br>
+	<code>@set</code> で利用できる計算には下記のものがあります。名前変数には代入以外使えません。
+</p>
+
+<!-- BEGIN-TABLE -->
+<table class="table">
+  <thead>
+		<tr>
+			<th>計算の種類</th><th>意味</th>
+		</tr>
+		<tbody>
+			<tr><td><code>=</code></td><td>単純に a に b を入れます(代入)</td>
+			<tr><td><code>+=</code></td><td>a に b を足し算します(加算)</td>
+			<tr><td><code>-=</code></td><td>a から b を引き算します(減算)</td>
+			<tr><td><code>*=</code></td><td>a に b をかけ算します(乗算)</td>
+			<tr><td><code>/=</code></td><td>a を b で割り算します(除算)</td>
+			<tr><td><code>%=</code></td><td>a を b で割った余りを求めます(剰余)</td>
+		</tbody>
+</table>
+<!-- END-TABLE -->
+
+<h3>使い方1</h3>
+<p>
+	ローカル変数 <code>$0</code> に値 <code>1</code> を代入します。<br>
+	フラグのセットに利用します。ローカル変数の初期値は <code>0</code> なので、フラグが立ったことになります。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@set $0 = 1</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方 2</h3>
+<p>
+	ローカル変数 <code>$10</code> に値 <code>23</code> を加算します。
+  好感度の加算などに応用できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@set $10 += 23</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方3</h3>
+<p>
+	ローカル変数 <code>$0</code> に <code>0</code> から <code>9</code> までのランダムな値を代入します。<br>
+  最初にランダムな数を <code>$RAND</code> で求めてから、 <code>10</code> で割った余りを計算しています。<br>
+  ランダムなイベント発生に応用できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@set $0 = $RAND
+@set $0 %= 10</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方4</h3>
+<p>
+	ローカル変数 <code>$1</code> にローカル変数 <code>$2</code> を加算します。<br>
+	好感度の計算などに利用できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@set $1 += $2</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方5</h3>
+<p>
+	名前変数 <code>%a</code> に文字列 <code>みどり</code> を代入します。<br>
+  デフォルトの名前を設定するのに利用できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@set %1 = みどり</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @setconfig
+  -->
+
+<h2 class="spacer" id="setconfig">@setconfig</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@setconfig [コンフィグ名] (値)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	コンフィグをゲーム実行中に書き換えられる便利コマンドです。
+	ですが、コンフィグ変更はできるだけWMSにまとめるて実行するのをおすすめします。
+</p>
+
+<h3>使い方</h3>
+<p>
+	メッセージボックスを変更します。画面いっぱいを使うノベルと、アドベンチャー形式を切り替えるのに使います。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@setconfig msgbox.bg.file msgbox-bg.png
+...
+@setconfig update-msgbox-and-namebox</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @setsave
+  -->
+
+<h2 class="spacer" id="setsave">@setsave</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@setsave [disable/enable]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	セーブ・ロード画面の表示を禁止・解禁します。
+	この機能は通常のノベルゲームでは使いません。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	セーブ・ロード画面を有効化(解禁)します。 [デフォルト設定]
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@setsave enable</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	セーブ・ロード画面を無効化(禁止)します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@setsave disable</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @shake
+  -->
+
+<h2 class="spacer" id="shake">@shake (@スキップ)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@shake [方向] [秒] [回数] [大きさ]
+@shake [direction=方向] [duration=秒] [times=回数] [amplitude=大きさ]
+@振動 [direction=方向] [秒=秒] [回数=回数] [大きさ=大きさ]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	画面を揺らします。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	1.0秒かけて、3回、横方向に100px、画面を揺らします。<br>
+  なお、 <code>horizontal</code> は <code>h</code> と省略できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@shake horizontal 1.0 3 100</code></pre></div>
+<!-- END-CODE -->
+
+<h3>使い方2</h3>
+<p>
+	1.0秒かけて、3回、縦方向に100px、画面を揺らします。<br>
+	なお、 <code>vertical</code> は <code>v</code> と省略できます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@shake vertical 1.0 3 100</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @skip
+  -->
+
+<h2 class="spacer" id="skip">@skip (@スキップ)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@skip [enable/disable]
+@スキップ [許可/不許可]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	待ち時間のあるコマンドのスキップを禁止・解禁します。<br>
+	ゲーム起動時にブランドロゴを表示するのに使用できます。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	スキップを有効にします。 [デフォルト設定]
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@skip enable</code></pre></div>
+<!-- BEGIN-END -->
+
+<h3>使い方2</h3>
+<p>
+	スキップを無効にします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@skip disable</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @switch
+  -->
+
+<h2 class="spacer" id="switch">@switch</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@switch [...長い...]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	注意: このコマンドは隠しコマンドです。<br>
+	2階層の選択肢を表示します。<br>
+	1階層目を親選択肢と呼び、2階層目を子選択肢と呼びます。<br>
+  親選択肢が最大8個、子選択肢が最大8個で、合計で最大64分岐を記述できます。
+</p>
+
+<h3>使い方</h3>
+<p>
+	2階層で4つの選択肢を表示します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@switch 親選択肢1 親選択肢2 * * * * * * LABEL1 子選択肢1 LABEL2 子選択肢2 * * * * * * * * * * * * LABEL3 子選択肢3 LABEL4 子選択肢4 * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+:LABEL4</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @video
+  -->
+
+<h2 class="spacer" id="video">@video (@動画)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@video [ファイル]
+@video [file=ファイル]
+@動画 [ファイル=ファイル]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	動画を再生します。<br>
+	Windowsで再生できる動画は <code>.wmv</code> ファイルです。<br>
+	その他の環境で再生できる動画は <code>.mp4</code> ファイルです。<br>
+	ファイル名の指定で拡張子(<code>.wmv</code> や <code>.mp4</code>)を省略すれば、その環境用に自動選択されます。<br>
+	動画ファイルは <code>mov</code> ディレクトリに格納します。<br>
+  <code>mov</code> ディレクトリは <code>data01.arc</code> ファイルに格納されません。
+</p>
+<p>
+	Webブラウザでは、プレイヤが最初にクリックする前に動画を再生しようとするとゲームが止まります。
+	Web版でゲームの先頭で動画を再生するときは事前に <code>@click</code> を入れてください。
+</p>
+
+<h3>使い方</h3>
+<p>
+	動画を再生します。
+	Windowsでは <code>sample.wmv</code> が再生されます。
+	その他の環境では <code>sample.mp4</code> が再生されます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@video sample</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @vol
+  -->
+
+<h2 class="spacer" id="vol">@vol (@音量)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@vol [トラック] [音量] (秒)
+@vol [track=トラック] [volume=音量] (duration=秒)
+@音量 [トラック=トラック] [音量=音量] (秒=秒)</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	時間を指定してボリュームを調整します。<br>
+	調整できるトラックは、<b>小文字</b>で <code>bgm</code>, <code>voice</code>, <code>se</code> の3つです。<br>
+	または、日本語で <code>音楽</code>, <code>声</code>, <code>効果音</code> と指定することもできます。<br>
+  これらの3トラックの音量は初期値で <code>1.0</code> で、セーブデータごとに別な値に変化します。<br>
+	音量の値は <code>0.0</code> から <code>1.0</code> の範囲で指定できます。 <code>0.0</code> が無音で、 <code>1.0</code> が最大音量です。
+</p>
+
+<h3>使い方1</h3>
+<p>
+	BGMの音量を <code>1.0</code> 秒かけて <code>0.5</code> にします。<br>
+	<code>bgm</code> は <code>b</code> と省略することもできます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@vol bgm 0.5 1.0
+@wait 1.0</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @wait
+  -->
+
+<h2 class="spacer" id="wait">@wait (@時間待ち)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@wait [秒]
+@wait [duration=秒]
+@時間待ち 秒=秒</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	時間を指定して待機します。<br>
+	途中、キーボードやマウスの入力があれば待機を終了します。<br>
+	待機中、メッセージボックスは表示されません。
+</p>
+
+<h3>使い方</h3>
+<p>
+	5秒待ちます。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@wait 5.0</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- @wms
+  -->
+
+<h2 class="spacer" id="wms">@wms (@スクリプト)</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>@wms [ファイル]
+@wms [file=ファイル]
+@スクリプト [ファイル=ファイル]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	WMS (Watermelon Script) を実行します。
+</p>
+
+<h3>使い方</h3>
+<p>
+	<code>wms/hello.txt</code> を実行します。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@wms hello.txt</code></pre></div>
+<!-- END-CODE -->
+
+<hr>
+
+<!-- --------------------------------------------------------- -->
+
+<!--
+  -- using
+  -->
+
+<h2 class="spacer" id="macro">マクロの取り込み</h2>
+
+<!-- BEGIN-DECL -->
+<div class="decl-block"><pre><code>using [マクロファイル]</code></pre></div>
+<!-- END-DECL -->
+
+<p>
+	ファイルにまとめたマクロを取り込みます。<br>
+	マクロ内で定義したサブルーチンを <code>@gosub</code> で呼び出してください。
+</p>
+
+<h3>使い方</h3>
+<p>
+	<code>txt/macro.txt</code> を取り込みます。
+	マクロがそのまま実行されないように、<code>@goto</code>でガードします。
+</p>
+<!-- BEGIN-CODE -->
+<div class="code-block"><pre><code>@goto MACRO_END
+using macro.txt
+:MACRO_END</code></pre></div>
+<!-- END-CODE -->
+
+<!-- ----------- -->
+    </div>
+  </div>
+</div>
+<!-- END-CONTENT -->
+
+<!-- BEGIN-FOOTER -->
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>ビジュアルノベル制作ツール Suika2</h5>
+				<p>Suika2はビジュアルノベルを制作するためのツールです。</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>リンク</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/suika2engine">GitHub</a></li>
+					<li><a href="https://luxion.jp/">luxion.jp</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">
+		Copyright &copy; 2023
+		<a href="https://luxion.jp/">Keiichi Tabata</a>
+		and
+		<a href="https://github.com/suika2engine">The Suika2 Development Team</a>.
+		All rights reserved.
+	</div>
+</footer>
+<script src="/js/darkmode.js"></script>
+<!-- END-FOOTER -->
+
+</body>
+</html>

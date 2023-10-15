@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Suika2 | Command Reference</title>
+	<meta name="description" content="Suika2 Command Reference.">
+	<meta name="theme-color" content="#eb8334">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<link rel="stylesheet" href="/css/bootstrap.css">
+	<link rel="stylesheet" href="/css/adjustments.css">
+	<script src="/js/bootstrap.bundle.min.js"></script>
+
+	<!-- INSERT-GTAG-HERE -->
+</head>
+<body>
+
+<!-- BEGIN-EN-HEADER -->
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/en/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/dl/">Downloads</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Document
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="/en/doc/">Index</a></li>
+						<li><a class="dropdown-item" href="/en/doc/tutorial.html">Tutorial</a></li>
+						<li><a class="dropdown-item" href="/en/doc/reference.html">Command Reference</a></li>
+						<li><a class="dropdown-item" href="/en/doc/title.html">Title Creation</a></li>
+						<li><a class="dropdown-item" href="/en/doc/font.html">Font Change</a></li>
+						<li><a class="dropdown-item" href="/en/doc/wms.html">WMS Usage</a></li>
+						<li><a class="dropdown-item" href="/en/doc/faq.html">FAQ</a></li>
+					</ul>
+				</li>
+        <li class="nav-item"><a class="nav-link" href="/en/wiki/">Wiki</a></li>
+        <li class="nav-item"><a class="nav-link" href="/en/works/">Works</a></li>
+        <li class="nav-item"><a class="nav-link" href="/">Japanese</a></li>
+        <li class="nav-item dropdown d-block d-md-none">
+          <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+          </ul>
+        </li>
+      </ul>
+      <li class="nav-item dropdown d-none d-md-block">
+        <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+        </ul>
+      </li>
+		</div>
+	</div>
+</nav>
+<!-- END-EN-HEADER -->
+
+<!-- Title Strip -->
+<div class="block">
+	<div class="container">
+		<div class="row">
+			<div class="col-md">
+				<h1>Suika2 Command Reference</h1>
+				<p>This is a Suika2 command reference.</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- BEGIN CONTENT -->
+<div class="container"><!-- Main content START -->
+  <div class="row"><!-- Row START -->
+    <div class="col-xs-12 col-sm-12 col-md-12"><!-- Col START -->
+<!-- ------------- -->
+
+<h2 class="spacer">Table of Contents</h2>
+<ul class="refnav">
+	<li><a href="#about">What is a Command?</a></li>
+	<li class="clean-list"><hr></li>
+	<li class="clean-list"><strong>Display Commands</strong>
+		<ul class="refnav">
+			<li><a href="#bg">@bg ... Display a background image</a></li>
+			<li><a href="#ch">@ch ... Display a character image</a></li>
+			<li><a href="#chs">@chs ... Change the characters and background at the same time</a></li>
+			<li><a href="#cha">@cha ... Moves a character (animation)</a></li>
+			<li><a href="#message">Messages</a></li>
+			<li><a href="#serif">Messages with a character's name</a></li>
+			<li><a href="#shake">@shake ... Shakes the screen</a></li>
+			<li><a href="#video">@video ... Plays a movie</a></li>
+			<li><a href="#anime">@anime ... Plays an animation</a></li>
+		</ul>
+	</li>
+	<li class="clean-list"><hr></li>
+	<li class="clean-list"><strong>Sound Commands</strong>
+		<ul class="refnav">
+			<li><a href="#bgm">@bgm ... Plays background music</a></li>
+			<li><a href="#se">@se ... Plays a sound effect</a></li>
+			<li><a href="#vol">@vol ... Sets the volume</a></li>
+		</ul>
+	</li>
+	<li class="clean-list"><hr></li>
+	<li class="clean-list"><strong>Options and Menu Commands</strong>
+		<ul class="refnav">
+			<li><a href="#choose">@choose ... Shows options</a></li>
+			<li><a href="#ichoose">@ichoose ... Shows inline options</a></li>
+			<li><a href="#gui">@gui ... Shows a GUI (new)</a></li>
+		</ul>
+	</li>
+	<li class="clean-list"><hr></li>
+	<li class="clean-list"><strong>Wait Commands</strong>
+		<ul class="refnav">
+			<li><a href="#click">@click ... Waits for the user to click</a></li>
+			<li><a href="#wait">@wait ... Waits for a specified time</a></li>
+			<li><a href="#skip">@skip ... Enables or disables user interruption</a></li>
+		</ul>
+	</li>
+	<li class="clean-list"><hr></li>
+	<li class="clean-list"><strong>Flags and Jump Commands</strong>
+		<ul class="refnav">
+			<li><a href="#label">Label</a></li>
+			<li><a href="#goto">@goto ...  Jumps to a specified label</a></li>
+			<li><a href="#set">@set ... Sets a flag</a></li>
+			<li><a href="#if">@if ... Jumps by a flag's status</a></li>
+			<li><a href="#load">@load ... Jumps to a specified script</a></li>
+			<li><a href="#chapter">@chapter ... Sets a chapter title</a></li>
+		</ul>
+	</li>
+</ul>
+
+
+<h2 id="about">What is a Command?</h2>
+<p>
+	A command is an instruction in Suika2's language, think of them as the building blocks that make up your game.
+	They will almost always begin with an <code>@</code> symbol and usually include at least one value.
+	There's no need to know every command off by heart, so please refer to this page if you're unsure about how or when to use a command.
+</p>
+
+
+<h2 id="bg">@bg</h2>
+<p>
+	This command changes the background image, often called a 'bg'.
+	After changing the background image, all character images will vanish from the stage.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>In this example, we use the command to change the background image to <code>sample.png</code> with a 1.5 second fade-in time.</p>
+<div class="code-block"><pre><code>@bg sample.png 1.5</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>In this example, we use the command to change the background image to <code>sample.png</code> immediately.</p>
+<div class="code-block"><pre><code>@bg sample.png</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>
+	In this example, we use the command to change the background image to <code>sample.png</code> with a 1.5 second fade-in time.
+	You can see that we also use a fading type, in this case right curtain.
+</p>
+<div class="code-block"><pre><code>@bg sample.png 1.5 c</code></pre></div>
+
+
+<h3>Usage 4</h3>
+<p>
+	Changes the background color with a 1.5 second fade-in time.
+	You can see that we also use a fading type, in this case left curtain.
+</p>
+<div class="code-block"><pre><code>@bg #ff8080 1.5 curtain-left</code></pre></div>
+
+
+<h3>Usage 5</h3>
+<p>Close eyes.</p>
+<div class="code-block"><pre><code>@bg #000000 1.5 eye-close</code></pre></div>
+
+
+<h3>Usage 6</h3>
+<p>Open eyes.</p>
+<div class="code-block"><pre><code>@bg sample.png 1.5 eye-open</code></pre></div>
+
+
+<h3>Usage 7</h3>
+<p>In this example we use a rule-based transition called <code>rule-star.png</code></p>
+<div class="code-block"><pre><code>@bg sample.png 1.5 rule:rule-star.png</code></pre></div>
+
+
+<p>You are able to specify the following effects:<p>
+<table class="table" style="margin-top: 20pt;">
+	<thead>
+		<tr>
+			<th>Effect Type</td>
+			<th>Effect Name</th>
+			<th>Abbrev. Name 1</th>
+			<th>Abbrev. Name 2</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<th>fade/dissolve (alpha blending)</th>
+			<td><code>normal</code></td>
+			<td><code>n</code></td>
+			<td><code>(not specified)</code></td>
+		</tr>
+		<tr>
+			<th>rule-based transition (1-bit)</th>
+			<td><code>rule:file-name</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>rule-based transition (8-bit)</th>
+			<td><code>melt:file-name</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>right curtain</th>
+			<td><code>curtain-right</code></td>
+			<td><code>curtain</code></td>
+			<td><code>c</code></td>
+		</tr>
+		<tr>
+			<th>left curtain</th>
+			<td><code>curtain-left</code></td>
+			<td><code>cl</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>up curtain</th>
+			<td><code>curtain-up</code></td>
+			<td><code>cu</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>down curtain</th>
+			<td><code>curtain-down</code></td>
+			<td><code>cd</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>right slide</th>
+			<td><code>slide-right</code></td>
+			<td><code>sr</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>left slide</th>
+			<td><code>slide-left</code></td>
+			<td><code>sl</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>up slide</th>
+			<td><code>slide-up</code></td>
+			<td><code>su</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>down slide</th>
+			<td><code>slide-down</code></td>
+			<td><code>sd</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>right shutter</th>
+			<td><code>shutter-right</code></td>
+			<td><code>shr</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>left shutter</th>
+			<td><code>shutter-left</code></td>
+			<td><code>shl</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>up shutter</th>
+			<td><code>shutter-up</code></td>
+			<td><code>shu</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>down shutter</th>
+			<td><code>shutter-down</code></td>
+			<td><code>shd</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>clockwise wipe</th>
+			<td><code>clockwise</code></td>
+			<td><code>cw</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>counterclockwise wipe</th>
+			<td><code>counterclockwise</code></td>
+			<td><code>ccw</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>clockwise wipe (20 degrees stepped)</th>
+			<td><code>clockwise20</code></td>
+			<td><code>cw20</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>counterclockwise wipe (20 degrees stepped)</th>
+			<td><code>counterclockwise20</code></td>
+			<td><code>ccw20</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>clockwise wipe (30 degrees stepped)</th>
+			<td><code>clockwise30</code></td>
+			<td><code>cw30</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>counterclockwise wipe (30 degrees stepped)</th>
+			<td><code>counterclockwise30</code></td>
+			<td><code>ccw30</code></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>open eyes</th>
+			<td><code>eye-open</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>close eyes</th>
+			<td><code>eye-close</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>open eyes (vertical)</th>
+			<td><code>eye-open-v</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>close eyes (vertical)</th>
+			<td><code>eye-close-v</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>open slit</th>
+			<td><code>slit-open</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>close slit</th>
+			<td><code>slit-close</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>open slit (vertical)</th>
+			<td><code>slit-open-v</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th>close slit (vertical)</th>
+			<td><code>slit-close-v</code></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<p>
+	Effect type <code>mask</code> was removed.
+	Please use <code>rule:rule-mask.png</code> instead.
+</p>
+
+
+<h2 id="bgm">@bgm</h2>
+<p>
+	This command plays background music, often called 'BGM'.
+	BGM files need to be stored in the bgm folder.
+	Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>In this example we are playing <code>sample.ogg</code>.</p>
+<div class="code-block"><pre><code>@bgm sample.ogg</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>In this example we are stopping the BGM.</p>
+<div class="code-block"><pre><code>@bgm stop</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>Plays BGM once.</p>
+<div class="code-block"><pre><code>@bgm sample.ogg once</code></pre></div>
+
+
+<h3>Application</h3>
+<p>In this example we apply a two second fade-out to the BGM </p>
+<div class="code-block"><pre><code>@vol bgm 0 2
+@wait 2
+@bgm stop</code></pre></div>
+
+
+<h2 id="ch">@ch</h2>
+<p>
+	This command changes the character.<br>
+	The available character positions are:
+</p>
+<table class="table">
+	<theader>
+		<tr>
+			<th>Display Position</th>
+			<th>Target Name</th>
+		</tr>
+	</theader>
+	<tbody>
+		<tr>
+			<th>Front Center</th>
+			<td><code>center</code></td>
+		</tr>
+		<tr>
+			<th>Right</th>
+			<td><code>right</code></td>
+		</tr>
+		<tr>
+			<th>Left</th>
+			<td><code>left</code></td>
+		</tr>
+		<tr>
+			<th>Back Center</th>
+			<td><code>back</code></td>
+		</tr>
+	</tbody>
+</table>
+<p>Effect types are the same as <a href="#bg"><code>@bg</code></a>.</p>
+
+
+<h3>Usage 1</h3>
+<p>In this example we will have <code>sample.png</code> fade-in for 0.5 second and display at front center.</p>
+<div class="code-block"><pre><code>@ch center sample.png 0.5</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>You can also abbreviate <code>center</code> as <code>c</code>.</p>
+<div class="code-block"><pre><code>@ch c sample.png 0.5</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>By specifying <code>none</code> we can remove the character from the screen.</p>
+<div class="code-block"><pre><code>@ch c none 0.5</code></pre></div>
+
+
+<h3>Usage 4</h3>
+<p>If there is no fade-in (or fade-out) time specified, our changes are applied immediately.</p>
+<div class="code-block"><pre><code>@ch c sample.png</code></pre></div>
+
+
+<h3>Usage 5</h3>
+<p>Effects can also be applied to characters. (The character command can use the same effects as <a href="#bg"><code>@bg</code></a>)</p>
+<div class="code-block"><pre><code>@ch c sample.png 1.0 mask</code></pre></div>
+
+
+<h3>Usage 6</h3>
+<p>
+	While having preset positions is helpful, sometimes it is necessary to specify an offset character position.
+	In this following example, we'll move the character 100-pixels right and 50-pixels down from the center (<code>c</code>) position.
+</p>
+<div class="code-block"><pre><code>@ch c sample.png 1.0 n 100 50</code></pre></div>
+
+
+<h3>Usage 7</h3>
+<p>
+	In order to set an animation origin, load the character image with an alpha value.<br>
+	Alpha values range from 0 (invisible) to 255 (completely visible).
+	If you prefer, you can also specify <code>show</code> which is the equivalent to an alpha value of <code>255</code>
+	or <code>hide</code> which is the equivalent to an alpha value of <code>0</code>.
+</p>
+<div class="code-block"><pre><code>@ch c sample.png 1.0 n 0 0 show</code></pre></div>
+
+
+<h3>Usage 8</h3>
+<p>We can show a character face on the left side of the message box.</p>
+<div class="code-block"><pre><code>@ch face face-001.png</code></pre></div>
+
+
+<h2 id="cha">@cha</h2>
+<p>
+	This command moves a character image.
+	To better understand this command, please refer to the <a href="#ch"><code>@ch</code></a> section for details on how to specify character positions and alpha values.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>In this example, we're going to move the center character 600-pixels to the left and hide it with an animation that lasts 1.0 second.</p>
+<div class="code-block"><pre><code>@cha center 1.0 move -600 0 hide</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>This usage is similar to Usage 1, but the movement accelerates as the animation plays out.</p>
+<div class="code-block"><pre><code>@cha center 1.0 accel -600 0 hide</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>This usage is similar to Usage 1, but the movement decelerates as the animation plays out.</p>
+<div class="code-block"><pre><code>@cha center 1.0 brake -600 0 hide</code></pre></div>
+
+
+<h3>Usage 4</h3>
+<p>
+	This command also makes it possible to move characters on and off the screen.
+	Before running <code>@cha</code> we can load a character image outside the screen and move it onto the screen.
+</p>
+<div class="code-block"><pre><code>@ch right sample.png 0 n 600 0 hide
+@cha right 2.0 move -600 0 show</code></pre></div>
+
+
+<h2 id="chapter">@chapter</h2>
+<p>This command sets the chapter title.</p>
+<h3>Usage</h3>
+<div class="code-block"><pre><code>@chapter "Chapter 1"</code></pre></div>
+
+
+<h2 id="choose">@choose</h2>
+<p>
+	This command shows options and jumps to the specified label.
+	This is most often used when branching the story or offering an in-game choice to the player.
+	You can create up to eight options with this command.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>In this example we're displaying three options.</p>
+<div class="code-block"><pre><code>@choose label1 "Good morning." label2 "Good afternoon." label3 "Good evening."
+:label1
+Good morning.
+@goto end
+:label2
+Good afternoon.
+@goto end
+:label3
+Good evening.
+:end</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>In this example we're displaying two options.</p>
+<div class="code-block"><pre><code>@choose label1 "Good morning." label2 "Good afternoon."
+:label1
+Good morning.
+@goto end
+:label2
+Good afternoon.
+:end</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>This command also supports single-options.</p>
+<div class="code-block"><pre><code>@choose label1 "Good morning."
+:label1
+Good morning.</code></pre></div>
+
+
+<h2 id="ichoose">@ichoose</h2>
+<p>
+	This command shows inline options and jumps to the specified label.
+	While <a href="#choose"><code>@choose</code></a> shows options outside the message box,
+	this command show options inside the message box.<br>
+	Note that you have to use transparent images for config <code>switch.bg.file</code> and <code>switch.fg.file</code>.<br>
+	Other feature is the same for <a href="#choose"><code>@choose</code></a>.
+</p>
+
+
+<h2 id="chs">@chs</h2>
+<p>
+	This command has the ability to change multiple characters at once.
+	In addition, it can change the background at the same time.<br>
+	The character specification order is:
+	<code>center</code>, <code>right</code>, <code>left</code> and <code>back</code>.<br>
+	The available effects specifiers are the same as <a href="#bg"><code>@bg</code></a>.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>
+	In this example we are changing the center and right characters with a 1.0 second fade-time.<br>
+	Note that other characters won't be changed (<code>stay</code> denotes no change).
+</p>
+<div class="code-block"><pre><code>@chs center.png right.png stay stay 1.0</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>In this example, we're vanishing the center character with a 1.0 second fade-time.</p>
+<div class="code-block"><pre><code>@chs none stay stay stay 1.0</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>In this example, we're changing the background (without any effects on the characters) with a 1.0 second fade-time.</p>
+<div class="code-block"><pre><code>@chs stay stay stay stay 1.0 background.png</code></pre></div>
+
+
+<h3>Usage 4</h3>
+<p>
+	In this example, we're only changing the center character and background with a 1.0 second fade-time.<br>
+	We're also using a curtain effect.
+</p>
+<div class="code-block"><pre><code>@chs center.png stay stay stay 1.0 background.png curtain</code></pre></div>
+
+
+<h2 id="click">@click</h2>
+<p>
+	This command instructs Suika2 to wait for a click before continuing.
+	While waiting, the message box is hidden.
+</p>
+
+
+<h3>Usage</h3>
+<p>Waits for a click.</p>
+<div class="code-block"><pre><code>@click</code></pre></div>
+
+
+<h2 id="gosub">@gosub</h2>
+<p>
+	Note: This command is not used by visual novels.<br>
+	This command jumps to the specified subroutine.
+	Use <a href="#return"><code>@return</code></a> to return.
+</p>
+
+
+<h3>Usage</h3>
+<p>Runs subroutine <code>SUB</code>.</p>
+<div class="code-block"><pre><code>@gosub SUB
+:SUB
+Describe the process here.
+@return</code></pre></div>
+
+
+<h2 id="goto">@goto</h2>
+<p>
+	This command jumps to a label.
+	You can also use <code>@goto</code> to make or break loops.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>
+	In this example, we're telling Suika2 to jump to the <code>abc</code> label.<br>
+	Because the <code>@goto</code> command is included within the <code>abc</code> label, we also create a loop.
+</p>
+<div class="code-block"><pre><code>:abc
+Describe the process here.
+@goto abc</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>
+	Here we show the load screen.<br>
+	Note that <code>$LOAD</code> is a special label.
+</p>
+<div class="code-block"><pre><code>@goto $LOAD</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>
+	Here we show the save screen.<br>
+	Note that <code>$SAVE</code> is a special label.
+</p>
+<div class="code-block"><pre><code>@goto $SAVE</code></pre></div>
+
+
+<h2 id="gui">@gui</h2>
+<p>
+	This command displays a GUI (graphical user interface).
+	You can show up to 128 buttons on the screen using this command with button types such as "jump to label" and "show if variable is set".
+	GUI definition files (found in the GUI folder) are also used for config, save, load and history screens.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>Here we display the menu GUI stored in <code>menu.txt</code>.</p>
+<div class="code-block"><pre><code>@gui menu.txt</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>Allows right click cancel.</p>
+<div class="code-block"><pre><code>@gui menu.txt cancel</code></pre></div>
+
+
+<h2 id="if">@if</h2>
+<p>
+	This command jumps to the specified label if the specified condition (a prerequisite) is true.<br>
+	Available operators are as described below; however, when creating common visual novels, <code>==</code> (equal to) is usually sufficient.
+</p>
+<table class="table">
+	<thead>
+		<tr>
+			<th>Condition Type</th><th>Meaning</th>
+		</tr>
+		<tbody>
+			<tr><td><code>&gt;</code></td><td>a > b (a is greater than b)</td>
+			<tr><td><code>&gt;=</code></td><td>a ≧ b (a is greater than or equal to b)</td>
+			<tr><td><code>==</code></td><td>a = b (a is equal to b)</td>
+			<tr><td><code>&lt;=</code></td><td>a ≦ b (a is less than or equal to b)</td>
+			<tr><td><code>&lt;</code></td><td>a < b (a is less than b)</td>
+			<tr><td><code>!=</code></td><td>a ≒ b (a is not equal to b)</td>
+		</tbody>
+	</table>
+	<p>
+		The LHS must be one of local variable names (e.g., <code>$1</code>),
+		global variable names (e.g., <code>$10000</code>) and
+		name variable names (e.g., <code>%a</code>).<br>
+		If the LHS is a local variable name or a global variable name,
+		the RHS must be an integer value or a local and global variable name.<br>
+		If the LHS is a name of a name variable, the RHS must be a string value.
+		In this case, the variable names in the string will not be expanded into values.
+	</p>
+
+
+<h3>Usage</h3>
+<p>
+	This examples branches the story by jumping to the <code>abc</code> label if the local variable at number <code>1</code> is equal to <code>1</code>.
+	In other words, it branches the story by a flag.
+</p>
+<div class="code-block"><pre><code>@if $1 == 1 abc
+The value of the local variable 1 is not 1. It means, the flag is not set.
+Write story here.
+@goto end
+:abc
+The value of the local variable 1 is 1. It means, the flag is set.
+Write story here.
+:end
+Branched stories join here.</code></pre></div>
+
+
+<h2 id="label">Label</h2>
+<p>
+	This command creates a label, which can be used as a jump target.<br>
+	You can think of labels like interactive chapter headings.<br>
+	Where chapter headings change the window title, labels provide sections the game can jump to and from.<br>
+	They are typically used with the @choose, @goto and @if commands.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>In this example we're creating a simple jump from label <code>A</code> to <code>C</code> while ignoring label <code>B</code>.</p>
+<div class="code-block"><pre><code>:A
+Show some messages.
+@goto B
+
+:B
+These messages are skipped in this label jump!
+@goto end
+
+:C
+Show some more messages.
+@goto end</code></pre></div>
+
+<h3>Usage 2</h3>
+<p>In this example we're creating a simple loop.</p>
+<div class="code-block"><pre><code>:JumpTarget
+Show some messages.
+@goto JumpTarget</code></pre></div>
+
+
+<h2 id="load">@load</h2>
+<p>
+	This command jumps to another script.<br>
+	Script files need to be in the <code>txt</code> folder.
+</p>
+
+
+<h3>Usage</h3>
+<p>In this example, we jump to the script file <code>001.txt</code>.</p>
+<div class="code-block"><pre><code>@load 001.txt</code></pre></div>
+
+
+<h2 id="message">Messages</h2>
+<p>
+	This prints text to the message box.<br>
+	You can put the following special strings in messages:
+</p>
+<ul>
+	<li>Putting <code>\n</code> inserts a line feed.</li>
+	<li>Putting <code>$ + number</code> prints the value of a local or global variable (e.g., <code>$1</code>)</li>
+	<li>Putting <code>% + lower case alphabet</code> prints the value of a name variable (e.g., <code>%a</code>)</li>
+	<li>Putting <code>\</code> at the beginning of a line continues the previous line. (for NVL-style)</li>
+	<li>Putting <code>\#{RRGGBB}</code> changes font color.</li>
+	<li>Putting <code>\@{size}</code> changes font size.</li>
+	<li>Putting <code>\w{seconds}</code> inserts a wait.</li>
+	<li>Putting <code>\p{x,y}</code> moves the pen.</li>
+	<li>Putting <code>長\^{おしゃまんべ}万部</code> inserts a ruby.</li>
+</ul>
+
+
+<h3>Usage</h3>
+<div class="code-block"><pre><code>Hello, world!</code></pre></div>
+
+
+<h2 id="news">@news</h2>
+<p>Caution: This command is not used by common visual novels and is therefore not recommended.</p>
+<p>
+	This command is a variant of <a href="#switch"><code>@switch</code></a>.
+	It shows the first four options on the north, east, west and south areas of the screen.
+	The first eight options (parent options) are hidden when <code>*</code> is specified.
+</p>
+
+
+<h2 id="return">@return</h2>
+<p>
+	Caution: This command is not used by common visual novels.<br>
+	This command is used to return from subroutines.
+</p>
+
+
+<h3>Usage</h3>
+<p>Run subroutine <code>SUB</code>.</>
+<div class="code-block"><pre><code>@gosub SUB
+
+:SUB
+Describe the process here.
+@return</code></pre></div>
+
+
+<h2 id="se">@se</h2>
+<p>
+	This command plays sound effects (se).<br>
+	Sound effect files need to be in the <code>se</code> folder.
+	Note: Suika2 can only play Ogg Vorbis 44.1kHz stereo and monaural format.
+</p>
+
+
+<h3>Usage 1</h3>
+<p> we'reIn this example we're simply playing a sound effect file, in this case a 'click' sound.</p>
+<div class="code-block"><pre><code>@se click.ogg</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>To stop a sound effect simply specify the <code>stop</code> value.</p>
+<div class="code-block"><pre><code>@se stop</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>We can also play sound effects on repeat by specifying the <code>loop</code> value.</p>
+<div class="code-block"><pre><code>@se sample.ogg loop</code></pre></div>
+
+
+<h3>Special Usage</h3>
+<p>We can use the sound effects command to test voice-volume with a sound effect file without a text message.</p>
+<div class="code-block"><pre><code>@se click.ogg voice</code></pre></div>
+
+
+<h2 id="select">@select</h2>
+<p>Caution: This command is deprecated. Use <a href="#choose"><code>@choose</code></a> instead.</p>
+<p>
+	This command, like <a href="#choose"><code>@choose</code></a> shows options and jumps to the specified label.<br>
+	The number of options is fixed to three.
+</p>
+
+
+<h3>Usage :</h3>
+<div class="code-block"><pre><code>@select label1 label2 label3 "Good morning." "Good afternoon." "Good evening."
+:label1
+Good morning.
+@goto end
+:label2
+Good afternoon.
+@goto end
+:label3
+Good evening.
+:end</code></pre></div>
+
+
+<h2 id="serif">Messages with character names</h2>
+<p>
+	This command is similar to <a href="#messages"><code>messages</code></a> in that it displays text in the text box.<br>
+	However, it also prints a character name to the name box.<br>
+	Suika2 can also play voice files when printing messages.
+	Voice files need to be in the <code>voice</code> folder.
+	Note: As previously mentioned, Suika2 can only play the Ogg Vorbis 44.1kHz stereo and monaural format.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>
+	Here, we're printing a message with the character name.<br>
+	Character names should have an <code>*</code> (asterisk) on each side.
+</p>
+<div class="code-block"><pre><code>*Name*Hello, world!</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>
+	Here we're printing a message with the character name as well as plaing the character's voice.<br>
+	Note: In this case we add an <code>*</code> between the name and audio file while still maintain one on each side.<br>
+	(This means we should have three <code>*</code>.)
+</p>
+<div class="code-block"><pre><code>*Name*001.ogg*Hello, world!</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>In this example we're printing a message with the character name and playing a beep.</p>
+<div class="code-block"><pre><code>*Name*@beep.ogg*Hello, world!</code></pre></div>
+
+
+<h2 id="set">@set</h2>
+<p>
+	This sets a value to a local, global, or name variable.<br>
+
+	The local variables range <code>$0</code> to <code>$9999</code>.
+	They are stored independently in each save file.<br>
+
+	The global variables range <code>$10000</code> to <code>$10999</code>.
+	They are stored commonly across all save data.<br>
+
+	Note: all local and global variables have a integer value and initiallized by zero.<br>
+
+	The name variables range <code>%a</code> to <code>%z</code>.
+	They are stored independently in each save file.<br>
+
+	Note: all name variables have a string value and initialized by an empty string.<br>
+
+	Available operators are as below,
+	but a common visual novel will usually only use <code>=</code> to set a flag.
+	In addition, the assignment (<code>=</code>) is the only operator for name variables.
+</p>
+<table class="table">
+	<thead>
+		<tr>
+			<th>Operator Type</th><th>Meaning</th>
+		</tr>
+		<tbody>
+			<tr><td><code>=</code></td><td><code>a = b</code> simply assigns <code>b</code> to <code>a</code></td>
+			<tr><td><code>+=</code></td><td><code>a += b</code> assigns the result of <code>a + b</code> to <code>a</code></td>
+			<tr><td><code>-=</code></td><td><code>a -= b</code> assigns the result of <code>a - b</code> to <code>a</code></td>
+			<tr><td><code>*=</code></td><td><code>a *= b</code> assigns the result of <code>a × b</code> to <code>a</code></td>
+			<tr><td><code>/=</code></td><td><code>a /= b</code> assigns the result of <code>a ÷ b</code> to <code>a</code></td>
+			<tr><td><code>%=</code></td><td><code>a %= b</code> assigns the reminder of <code>a / b</code> to <code>a</code></td>
+		</tbody>
+	</table>
+	<p>
+		If the LHS is a local or global variable name,
+		the RHS can be one of a integer value, a local variable name and a global variable name.<br>
+		If the LHS is a name of a name variable,
+		the RHS must be a simple string, and the variable names in the string will not be expanded into their values.
+	</p>
+
+
+<h3>Usage 1</h3>
+<p>
+	Sets the value <code>1</code> to the local variable <code>$0</code>.<br>
+	This assignment is used for a flag setting.
+	Because the initial value of a local variable is <code>0</code>,
+	setting value <code>1</code> to a local variable means setting a flag.
+</p>
+<div class="code-block"><pre><code>@set $0 = 1</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>Adds the value <code>23</code> to the local variable <code>$10</code>.</p>
+<div class="code-block"><pre><code>@set $10 += 23</code></pre></div>
+
+
+<h3>Usage 3</h3>
+<p>
+	Gets a random number that ranges <code>0</code> to <code>9</code>
+	and assigns it to the local variable <code>$0</code>.
+	You can use this method for random events.
+</p>
+<div class="code-block"><pre><code>@set $0 = $RAND
+@set $0 %= 10</code></pre></div>
+
+
+<h3>Usage 4</h3>
+<p>
+	Adds the value of the local variable <code>$2</code> to the local variable <code>$1</code>.<br>
+	Usually, you don't need to use this feature to create a common visual novel.
+</p>
+<div class="code-block"><pre><code>@set $1 += $2</code></pre></div>
+
+
+<h3>Usage 5</h3>
+<p>
+	Sets the string value <code>midori</code> to the name variable <code>%a</code>.<br>
+	This method is useful to set a default value to a name variable.
+</p>
+<div class="code-block"><pre><code>@set %a = midori</code></pre></div>
+
+
+<h2 id="setsave">@setsave</h2>
+<p>
+	Caution: This command is not used by common visual novels.<br>
+
+	This command enables or disables the save and load screen
+	which is called by right clicking while waiting for message click or option click.
+	When you call <code>@goto $LOAD</code> or <code>@goto $SAVE</code>,
+	<code>@setsave enable</code> is implicitly called.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>Here we enable the save and load screen. [by default]</p>
+<div class="code-block"><pre><code>@setsave enable</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>Here we disable the save and load screen.</p>
+<div class="code-block"><pre><code>@setsave disable</code></pre></div>
+
+
+<h2 id="shake">@shake</h2>
+<p>This command shakes the screen.</p>
+
+
+<h3>Usage 1</h3>
+<p>
+	In this example we're shaking the screen three times horizontally by 100-pixels over 1.0 second.
+	Note: <code>horizontal</code> can be abbreviated to <code>h</code>.
+</p>
+<div class="code-block"><pre><code>@shake horizontal 1.0 3 100</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>
+	In this example we're shaking the screen three times vertically by 100-pixels over 1.0 second.
+	Note: <code>vertical</code> can be abbreviated as <code>v</code>.
+</p>
+<div class="code-block"><pre><code>@shake vertical 1.0 3 100</code></pre></div>
+
+
+<h2 id="skip">@skip</h2>
+<p>
+	This command enables or disables the ability to skip timed commands with user interaction.<br>
+
+	A good use for this command is displaying a brand or game logo during boot time.<br>
+
+	You can also use this command to enable and disable a user's ability to skip messages during sections of gameplay.
+	If you wish to do this however, you have to use <code>@setsave disable</code> to inhibit the save and load screen,
+	as no-skip mode is not saved to the save file.
+
+	In addition, don't use <code>@goto $LOAD</code> and <code>@goto $SAVE</code>
+	while in no-skip mode, this is for similar reasons.
+</p>
+
+
+<h3>Usage 1</h3>
+<p>Enables skip. [by default]</p>
+<div class="code-block"><pre><code>@skip enable</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>Disables skip.</p>
+<div class="code-block"><pre><code>@skip disable</code></pre></div>
+
+
+<h2 id="switch">@switch</h2>
+<p>Note: This command is not recommended. Use <a href="#choose"><code>@choose</code></a> instead.</p>
+<p>
+	This command shows two-level options.
+	There are eight parent options, and each parent option has eight child options.
+</p>
+
+
+<h3>Usage</h3>
+<p>This example shows two levels of two options, four in total.</p>
+<div class="code-block"><pre><code>@switch "Parent option 1" "Parent option 2" * * * * * * LABEL1 "Child option 1" LABEL2 "Child option 2" * * * * * * * * * * * * LABEL3 "Child option 3" LABEL4 "Child option 4" * * * * * * * * * * * *
+:LABEL1
+:LABEL2
+:LABEL3
+:LABEL4</code></pre></div>
+
+
+<h2 id="video">@video</h2>
+<p>
+	This command plays a video file.
+	At the moment, this functionality is enabled on Windows and Mac only.<br>
+
+	On Windows, please use the <code>.wmv</code> video file format.
+	On Mac, please use the <code>.mp4</code> video file format.<br>
+
+	Video files are stored in the <code>mov</code> directory.
+	Note: The <code>mov</code> directory is not stored in <code>data01.arc</code> file.
+</p>
+
+
+<h3>Usage</h3>
+<p>Play a video file.</p>
+<div class="code-block"><pre><code>@video sample.wmv</code></pre></div>
+
+
+<h2 id="vol">@vol</h2>
+<p>
+	This command sets the sound volume.<br>
+
+	Sound tracks are, in <b>lower case</b>,
+	<code>bgm</code> for BGM,
+	<code>voice</code> for voice,
+	<code>se</code> for sound effects.<br>
+
+	The sound volumes of these three tracks are stored in each local save file.
+	You can change the volumes frequently for sound production purposes.
+
+	The initial values of all sound volumes are <code>1.0</code>.
+	They can range from <code>0.0</code> to <code>1.0</code>.
+	<code>0.0</code> means muted and <code>1.0</code> means max.<br>
+
+	If you want to set "global volumes" which are common between save files,
+	you can specify the track name in <b>UPPER CASE</b>.
+	Global volumes indicate volumes which are set in the game config screen.
+	When you set the global volumes, set fading time to 0.<br>
+
+	Note: Actual output volume is "volume for save data × global volume".
+</p>
+
+
+<h3>Usage 1</h3>
+<p>
+	Here we're setting the BGM volume to 0.5, the volume will fade-in or fade-out dependent on its original value over 1.0 second.
+	<code>bgm</code> can be abbreviated as <code>b</code>.
+</p>
+<div class="code-block"><pre><code>@vol bgm 0.5 1.0
+@wait 1.0</code></pre></div>
+
+
+<h3>Usage 2</h3>
+<p>
+	This is an example of setting the global volume. (In this case, we're setting the BGM to 0.5)
+	(this is useful when you create sound config menu.)
+</p>
+<div class="code-block"><pre><code>@vol BGM 0.5 0</code></pre></div>
+
+
+<h2 id="wait">@wait</h2>
+<p>
+	This command instructs Suika2 to wait for a specified time.
+	Input from the keyboard or mouse will interrupt <code>@wait</code>
+	(thus allowing Suika2 to continue).<br>
+
+	If the previous command is a message,
+	the message box is visible while waiting for input.
+	Otherwise, the message box is hidden while waiting for input.
+</p>
+
+
+<h3>Usage</h3>
+<p>Here, we're telling Suika2 to wait for five seconds.</p>
+<div class="code-block"><pre><code>@wait 5.0</code></pre></div>
+
+
+<h2 id="wms">@wms</h2>
+<div class="decl-block"><pre><code>@wms [file]</code></pre></div>
+
+<p>Execute a WMS (Watermelon Script).</p>
+
+
+<h3>Usage</h3>
+<p>Execute <code>hello.txt</code>.</p>
+<div class="code-block"><pre><code>@wms hello.txt</code></pre></div>
+
+
+<h2 id="anime">@anime</h2>
+<div class="decl-block"><pre><code>@anime [file] (options)</code></pre></div>
+<p>
+	Execute an animation file.
+	Animation files must be stored in the folder <code>anime</code>.
+	Currently (Suika2/12.26), we don't support rotate and scale, but we'll support them no later than Suika2/13.0.
+</p>
+
+
+<h3>Usage1</h3>
+<p>Execute <code>anime1.txt</code>.</p>
+<div class="code-block"><pre><code>@anime anime1.txt</code></pre></div>
+
+
+<h3>Usage2</h3>
+<p>Execute <code>anime1.txt</code>. Don't show the collapsed system menu.</p>
+<div class="code-block"><pre><code>@anime anime1.txt nosysmenu</code></pre></div>
+
+
+<h3>Usage3</h3>
+<p>Execute <code>anime1.txt</code> with showing the message box.</p>
+<div class="code-block"><pre><code>@anime anime1.txt showmsgbox</code></pre></div>
+
+
+<h3>Sample animation file</h3>
+<div class="code-block"><pre><code># Animation File
+
+# Move center character twice.
+move {
+    layer: chc;  # CHaracter Center
+    clear: chc;  # Clear existing animations for the layer (only needed for the first move of the layer)
+    start: 0.0;  # Start at time 0.0s
+    end: 2.0;    # End at time 2.0s
+    from-x: 0;   # X coordinate to start
+    from-y: 0;   # Y coordinate to start
+    from-a: 255; # Alpha value to start
+    to-x: 100;   # X coordinate to end
+    to-y: 100;   # Y coordinate to end
+    to-a: 255;   # Alpha value to end
+}
+move {
+    layer: chc;  # CHaracter Center
+    start: 2.0;  # Start at time 2.0s
+    end: 4.0;    # End at time 4.0s
+    from-x: 100; # X coordinate to start
+    from-y: 100; # Y coordinate to start
+    from-a: 255; # Alpha value to start
+    to-x: 0;     # X coordinate to end
+    to-y: 0;     # Y coordinate to end
+    to-a: 255;   # Alpha value to end
+}
+
+# Simultaneously, move the right character.
+move {
+    layer: chr;  # CHaracter Right
+    clear: chr;  # Clear existing animations for the layer (only needed for the first move of the layer)
+    start: 0.0;  # Start at time 0.0s
+    end: 3.0;    # End at time 3.0s
+    from-x: 1000;# X coordinate to start
+    from-y: 0;   # Y coordinate to start
+    from-a: 255; # Alpha value to start
+    to-x: 0;     # X coordinate to end
+    to-y: 0;     # Y coordinate to end
+    to-a: 255;   # Alpha value to end
+}</code></pre></div>
+
+
+<h2>Acknowledgements</h2>
+<p>Initial reference planned and written by ktabata.</p>
+<p>English documentation revised and edited by Kyou (2022 –).</p>
+<p>
+	We are grateful to Maikuolan and Sherlack
+	for improving this document in 2018 and 2021 respectively.
+</p>
+
+
+<!-- ----------- -->
+    </div>
+  </div>
+</div>
+<!-- END-CONTENT -->
+
+<!-- BEGIN-EN-FOOTER -->
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+  <div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>Suika2 Visual Novel Game Engine</h5>
+				<p>An open-source, cross-platform visual novel engine for beginners and seasoned writers, amateurs and professionals.</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>Links</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/suika2engine">GitHub</a></li>
+					<li><a href="https://luxion.jp/">Luxion.jp</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">Copyright &copy; 2023 <a href="https://luxion.jp">Keiichi Tabata</a> and <a href="https://github.com/suika2engine">The Suika2 Development Team</a>. All rights reserved.</div>
+</footer>
+<script src="/css/darkmode.js"></script>
+<!-- END-EN-FOOTER -->
+
+</body>
+</html>
