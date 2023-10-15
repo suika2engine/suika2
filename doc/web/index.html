@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+
+  <title>Suika2 | ビジュアルノベル制作ツール</title>
+  <meta name="description" content="Suika2はビジュアルノベルを制作するためのツールです。">
+  <meta name="theme-color" content="#eb8334">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <link rel="stylesheet" href="/css/adjustments.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+
+	<!-- INSERT-GTAG-HERE -->
+</head>
+<body>
+
+<!-- BEGIN-HEADER -->
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item"><a class="nav-link" href="/">ホーム</a></li>
+				<li class="nav-item"><a class="nav-link" href="/dl/">ダウンロード</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ドキュメント
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="/doc/">一覧</a></li>
+						<li><a class="dropdown-item" href="/doc/tutorial.html">チュートリアル</a></li>
+						<li><a class="dropdown-item" href="/doc/reference.html">コマンドリファレンス</a></li>
+						<li><a class="dropdown-item" href="/doc/title.html">タイトル画面の作り方</a></li>
+						<li><a class="dropdown-item" href="/doc/font.html">フォントの変更方法</a></li>
+						<li><a class="dropdown-item" href="/doc/wms.html">WMSの使い方</a></li>
+						<li><a class="dropdown-item" href="/doc/faq.html">よくある質問</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"><a class="nav-link" href="/wiki/">Wiki</a></li>
+				<li class="nav-item"><a class="nav-link" href="/works/">利用作品紹介</a></li>
+				<li class="nav-item"><a class="nav-link" href="/en/">English</a></li>
+				<li class="nav-item dropdown d-block d-md-none">
+					<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+					</ul>
+				</li>
+			</ul>
+			<li class="nav-item dropdown d-none d-md-block">
+				<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+				<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+				</ul>
+			</li>
+		</div>
+	</div>
+</nav>
+<!-- END-HEADER -->
+
+<!-- Slideshow -->
+<div>
+	<div id="carousel1" class="carousel slide" data-bs-ride="carousel">
+		<div class="carousel-indicators">
+			<button type="button" data-bs-target="#carousel1" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+			<button type="button" data-bs-target="#carousel1" data-bs-slide-to="1" class="" aria-current="false" aria-label="Slide 2"></button>
+		</div>
+		<div class="carousel-inner">
+			<div class="carousel-item active">
+				<img src="img/banners/pro_banner.png" alt="Suika2 Pro">
+			</div>
+			<div class="carousel-item">
+				<a href="https://suika2.com/game/" target="_blank">
+					<img src="img/banners/ja_web_banner.png" alt="Suika2 ノベルゲームエンジン">
+				</a>
+			</div>
+		</div>
+		<button class="carousel-control-prev" type="button" data-bs-target="#carousel1" data-bs-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Previous</span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#carousel1" data-bs-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Next</span>
+		</button>
+	</div>
+</div>
+
+<!-- Title Strip -->
+<div class="block">
+	<div class="container">
+		<div class="row">
+			<div class="col-md">
+				<h1 class="space">ノベルゲーム制作ツール Suika2</h1>
+				<p>Suika2はノベルゲームを制作するためのツールです。</p>
+			</div>
+			<div class="col-md">
+				<a href="/dl/" class="btn btn-info align-middle">ダウンロード <i class="bi bi-download"></i></a>
+				<a href="/doc/tutorial.html" class="btn btn-info align-middle">チュートリアル <i class="bi bi-question-circle"></i></a>
+				<a href="https://discord.gg/ZmvXxE8GFg" class="btn btn-info align-middle">Discordサーバー <i class="bi bi-chat-square-dots"></i></a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- BEGIN-CONTENT -->
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+<!-- ----------- -->
+
+
+<h2 class="spacer">Suika2とは</h2>
+<p>
+	Suika2は、ビジュアルノベル、ノベルゲームを制作するためのツールです。
+	ビジュアルノベルエンジンやビジュアルノベル制作ソフトとも呼ばれます。
+	フリーソフトなので無料でゲームを作成できて、スマホアプリ作成にも対応しています。
+  ゲームの作り方を知らなくても、Suika2なら誰でも簡単に覚えられます。
+</p>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">更新情報</h2>
+<ul class="alert alert-info">
+<!--LATEST-RELEASE--><li><a href="dl/">2023/10/14 Suika2/14.5 (最新版) リリース</a></li>
+  <li>2023/10/15 日本語サイト更改100%, 英語サイト翻訳75%</li>
+  <li><a href="award2023.html">2023/10/01 Suika2ノベルゲーム大賞2023 応募終了</a></li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">特徴</h2>
+<ul>
+	<li>軽いのに強力な開発環境がある (Windows/Mac/Linuxで開発可能)</li>
+	<li>フリーゲームやインディーゲーム開発への入門に最適</li>
+	<li>Android/iOSアプリの出力が1クリックで可能</li>
+	<li>Steam配信用の出力も1クリックで可能 (しかも多言語対応)</li>
+	<li>マルチプラットフォーム展開で収益化が可能 (エンジン利用料ゼロ)</li>
+	<li>インディー制作から商業制作へのシフトが可能</li>
+	<li>MITライセンスなので収益化時に利用料を気にしなくてよい</li>
+	<li><a href="/tutorial/">かんたんなチュートリアル</a>に取り組めば、その日のうちにSuika2を使いこなせるはずです。</li>
+	<li>本格的な開発支援ツールが用意されており、デバッグから公開まで、作業効率の高さも見逃がせません。</li>
+	<li>プレイヤにとっても「動作が軽くて安定」。素晴しい作品には、素晴しい使用感を。</li>
+</div>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">どんな環境で動くの？</h2>
+<p>
+	Suika2はマルチプラットフォーム対応です。<br>
+	以下のアプリを作成することができます。
+</p>
+<ul class="checkmark alert alert-info">
+  <li>Windowsアプリ (インストーラ作成も自動で可能)</li>
+  <li>Macアプリ</li>
+  <li>Webブラウザアプリ (Suika2 Proからワンクリックでエクスポート可能)</li>
+  <li>Androidアプリ (Suika2 Proからエクスポート後、Android Studioでワンクリックビルド可能)</li>
+  <li>iPhoneアプリ (Suika2 Proからエクスポート後、Xcodeでワンクリックビルド可能)</li>
+  <li>iPadアプリ (Suika2 Proからエクスポート後、Xcodeでワンクリックビルド可能)</li>
+</ul>
+<p>
+	今のところ非公式な移植ですがNintendo Switchでも動いた実績があります。
+	公式な移植のためにはエンジンだけでなく作品としてNintendoに申請が必要な状況ですので、
+	作品を移植されたい方はご連絡いただければ対応いたします。
+</p>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">こんな方におすすめ</h2>
+<ul class="star alert alert-success">
+  <li>ノベルゲームを作成してフリーゲームとして公開したい方</li>
+  <li>ゆくゆくはストア公開も視野に入れている方</li>
+  <li>ご自分のスマホ/タブレットで動作させてみたい方 (ストア審査なし)</li>
+  <li>Google Play, App Store, Steam, DLsite などで公開したい方 (ストア審査あり)</li>
+</ul>
+<p>ほかにも、こんなメリットがあります。</p>
+<ul class="star alert alert-success">
+  <li>乙女ゲーム、美少女ゲーム、年齢指定などジャンルを問わず利用可能</li>
+  <li>商用利用でも完全に自由 (MITライセンスなのでApp Store対応)</li>
+  <li>サポートの対応が迅速 (バグ報告後は1時間で修正)</li>
+  <li>WindowsだけでなくMacやLinuxでも開発できる</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">アプリラインナップ</h2>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Suika2 Pro for Creators</h2>
+		<p>
+			Suika2 Proは強力な制作支援ツールで、Suika2に同梱されています。
+			デバッグ機能としては、実行中の行が一目でわかり、
+			ダブルクリックで好きな行へ移動が可能で、
+			変数の状況も確認できます。
+			また、エクスポート機能がついており、
+			ターゲットのOSを指定してゲームを出力可能です。
+			たとえばWindows用のインストーラや、Web用の出力、
+			さらには、ワンクリックでビルドできるAndroid/iOS用のソースコードも出力できます。
+			非常に使いやすいとご好評をいただいております。
+		</p>
+	</div>
+	<div class="col-md">
+		<img width="100%" src="img/banners/pro_banner.png" alt="Suika2 Pro for Creators">
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Webブラウザ版Suika2</h2>
+		<p>Suika2で作ったノベルゲームはそのままWebブラウザでも公開できます。</p>
+		<p>
+			背景画像のJPEG化、音源圧縮などの工夫をすれば、200MB程度の大きさのゲームをWebで提供できます。
+			外出中のユーザ様にもスマホでその場で遊んでいただけるので、製品のデモや体験版にも最適です。
+		</p>
+		<p>
+			ブラウザ版をどこで公開するか迷ったら、
+			<a href="https://www.freem.ne.jp">ふりーむ！</a> 様へどうぞ！
+			Suika2開発サイドでも動作確認が取れている上、
+			ふりーむ！様のサイトでも紹介されています。
+		</p>
+	</div>
+	<p>
+		仕様として、ページ表示の段階でゲームデータを全部まとめてダウンロードするため、
+		電車内などでプレイ中に通信品質が変わっても影響を受けません。
+		スマホ/タブレットでは2本指タップが右クリックと同じ効果ですが、
+		右クリックがなくても使えるようにUIを整備してあります。
+	</p>
+	<div class="col-md game-mask">
+		<a href="https://suika2.com/game/" target="_blank">
+			<div class="game">
+				<img class="mb-3" width="100%" src="img/banners/ja_web_banner.png" alt="Suika2 ノベルゲームエンジン">
+				<div class="game-mask">
+					<div class="caption">クリックでゲームを実行</div>
+				</div>
+			</div>
+		</a>
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Android版Suika2</h2>
+		<p>
+			Suika2で作ったノベルゲームは、Suika2 Proでエクスポート後、
+			Googleから提供されているAndroid Studioで開くとワンクリックでビルドできます。
+			ご自身のAndroidスマホに転送するだけでしたら、登録や審査は不要で、10分もかかりません。
+		</p>
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/0nExNwxCJtU?si=PtHKBgDg0lB_6GuC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>iOS版Suika2</h2>
+		<p>
+			Suika2で作ったノベルゲームは、Suika2 Proでエクスポート後、
+			Appleから提供されているXcodeで開くとワンクリックでビルドできます。<br>
+			ご自身のiPhoneかiPadに転送するだけでしたら、Macさえあれば審査は不要で、10分もかかりません。<br>
+			AppleのTest Flightという仕組みを使えば、審査不要でアプリ配信も可能です。
+		</p>
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/FE0gcXSAqqA?si=yKIqHjeW3DOBpDGd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+	</div>
+</div>
+<div class="row align-items-md-center spacer">
+	<div class="col-md">
+		<h2>Suika2 Kirara</h2>
+		<p>
+			マウス操作でノベルゲームを作るツールです。
+			「マウス操作じゃなきゃ作れない！」という声に応えて開発してみました。<br>
+			ですが、マウス操作では長いシナリオが作りづらいですので、おすすめしていません。
+			感覚だけ掴んだらSuika2に移行していただけますと幸いです。
+		</p>
+	</div>
+</div>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">ライセンス</h2>
+<p>ライセンスが緩やかなのがSuika2の魅力です。</p>
+<ul class="freesoft alert alert-success">
+  <li>Suika2はMITライセンスの下で <a href="https://github.com/suika2engine/suika2">GitHubにて公開</a> されています</li>
+  <li>商用/非商用/ジャンル/年齢指定を問わず誰でも無償で自由に利用できます</li>
+  <li>OSSライセンスですので、エンジン開発者がゲームの用途を限定することが、そもそもできません</li>
+  <li>※サンプルゲームの素材にはフリーでない音源が含まれており、置き換え可能な音源を提供していただける方を探しています</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">チュートリアル動画</h2>
+<div style="text-align: center;">
+	<div class="row">
+		<div class="col-md">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/UZF8ykq2iJU?si=5t7pvBxKbq1xVQ-J" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+		</div>
+	</div>
+</div>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">Suikaシリーズの歴史</h2>
+<ul class="alert alert-info">
+  <li>2001年12月 アドベンチャーゲーム制作ツール <a href="https://www.vector.co.jp/soft/win95/game/se225307.html">「西瓜Studio」</a> として誕生 (<a href="https://github.com/ktabata/suika-studio-2003-gpl">GitHub 2003年版</a>)</li>
+  <li>2003年03月 Ver.0.47.7で開発停止 (そのときのファイルは <a href="http://download.seesaa.jp/contents/win/ent/rgame/08101/">ここに残っています</a>)</li>
+  <li>2016年06月 エディタを廃止して "Suika2" として生まれ変わり、マルチプラットフォーム対応となる</li>
+  <li>2022年06月 デバッガが "Suika2 Pro" として復活する</li>
+  <li>2022年08月 GUI機能の導入により、ゲームエンジン部分が完成する</li>
+  <li>2022年10月 GitHubのコミュニティを作成する</li>
+  <li>2023年01月 ビジュアルエディタ "Kirara" が復活、「西瓜Studio」の後継としてついに完成</li>
+  <li>2023年05月 Suika2ノベルゲーム大賞2023を開催</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">サポート</h2>
+<p>
+	わからないことや、機能追加の要望、バグ修正依頼など、迅速に対応しています。初心者歓迎でお待ちしております！
+</p>
+<p>
+  <a class="btn btn-primary mb-3" href="https://discord.gg/ZmvXxE8GFg">Discord サーバーに参加</a>
+</p>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">誰が作っているの？</h2>
+<ul class="alert alert-info">
+	<li>ktabataを中心にDiscordとGitHubのコミュニティで作っています</li>
+	<li>LUXION SOFTというのはktabataのサークル名義です</li>
+	<li>法人取引が必要な場合だけ、<a href="https://luxion.co.jp">ルクシオンソフト合同会社</a>がフロントに立ちます
+		<ul>
+			<li>個人のOSS開発者では契約できない局面があるため、法人格が必要になっています</li>
+			<li>この会社の<a href="dl/kessan-01.pdf">収入は0円</a>で、代表社員mtabataからの長期借入金で法人住民税(年7万円)を支払っています</li>
+			<li>ktabataはNTT法によるみなし公務員のため、この会社の社員ではありません</li>
+		</ul>
+	</li>
+	<li>開発への参加は <a href="https://discord.gg/ZmvXxE8GFg">Discord</a> にお越しください！</li>
+	<li>バグ報告、機能要望、そして実際のゲーム制作は「開発への最も重要な参画」です！</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">連絡先</h2>
+<p>下記のどれでもいいです。お気軽に！</p>
+<ul class="alert alert-info">
+	<li><a href="https://discord.gg/ZmvXxE8GFg">Discord(チャット)で「日本語」チャンネルまで</a></li>
+	<li><a href="https://twitter.com/ktabata_suika2">Twitter @ktabata_suika2 ktabata まで</a></li>
+	<li>メール ktabata (tabata.keiichi&#64;gmail.com) まで (たまに不着もあるためDiscordまでどうぞ)</li>
+</ul>
+
+<!-- ------------------------- -->
+
+<h2 class="spacer">目指す世界</h2>
+<p>
+	1990年代後半から2000年代前半にかけて、
+	吉里吉里/KAGやNScripterといったソフトウェアが、
+	同人や商業のビジュアルノベル市場を牽引し、業界を成長させました。
+</p>
+<p>
+	ところが、2010年代にゲームの主要なプラットフォームがスマートフォンに移行したあと、
+	ビジュアルノベルをスマートフォンで動作させられる標準的なソフトウェアが誕生しませんでした。
+</p>
+<p>
+	この背景には、ライトなゲームはHTML5技術に取って代わられるのではないかという市場の観測がありました。
+	よって、2010年代に誕生したビジュアルノベルエンジンの多くはWeb技術でした。
+	しかし、ライトなゲームがHTML5ベースになるという未来はやってきませんでした。
+	Web技術とネイティブ技術を混ぜ合わせたハイブリッドアプリはありますが、
+	HTML5は主流なゲーム技術になれませんでした。
+	これにより、2023年現在、ビジュアルノベルをスマートフォンで簡単に実現できるような、
+	標準的と言えるソフトウェアが存在していません。欠けているのです。
+</p>
+<p>
+	Suika2は、これまでどこにも存在しなかったソフトウェアです。
+	つまり、オープンソースで、スマートフォンも含むクロスプラットフォームで、
+	しかも、WebやPythonやSDL2ではなくネイティブ動作するという意味です。
+	この特徴を持った、同人利用にも商用利用にも資する初めてのビジュアルノベルエンジンです。
+</p>
+<p>
+	Suika2は、個人や同人によるゲーム制作を後押しして、
+	これらの作品が公開されるプラットフォームを、これまでのPCとWebから、スマートフォンへと拡大します。
+</p>
+<p>
+	Suika2は、人気のある作品がスマートフォンのアプリストアで簡単に収益を上げられるようにします。
+	個性あるクリエイタが収益を上げられるスキームを整備することで、
+	まずは小さくとも市場を形成し、やがて一つの産業へ発展することを目指します。
+</p>
+
+<!-- ------------------------- -->
+
+<h2>おすすめ他ソフト</h2>
+<div style="background: #c4edf7; padding: 2em; text-align: center;">
+	<h4>ノベルから、その先へ。</h4>
+	<br>
+	<p>
+		作品に光を当てる。<br>
+		最高峰の演出で創作を彩る。<br>
+		PC向け汎用ゲームエンジン Light.vn<br>
+		<br>
+		<a href="https://lightvn.net/"><img src="/img/ext/light_splash2.png"></a><br>
+		<br>
+		<a class="btn btn-primary mb-3" href="https://lightvn.net/">Light.vn 公式サイト</a>
+	</p>
+</div>
+
+<!-- ----------- -->
+    </div>
+  </div>
+</div>
+<!-- END-CONTENT -->
+
+<!-- BEGIN-FOOTER -->
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>ビジュアルノベル制作ツール Suika2</h5>
+				<p>Suika2はビジュアルノベルを制作するためのツールです。</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>リンク</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/suika2engine">GitHub</a></li>
+					<li><a href="https://luxion.jp/">luxion.jp</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">
+		Copyright &copy; 2023
+		<a href="https://luxion.jp/">Keiichi Tabata</a>
+		and
+		<a href="https://github.com/suika2engine">The Suika2 Development Team</a>.
+		All rights reserved.
+	</div>
+</footer>
+<script src="/js/darkmode.js"></script>
+<!-- END-FOOTER -->
+
+</body>
+</html>
