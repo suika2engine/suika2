@@ -779,14 +779,10 @@ int get_pen_position_y(void)
 	return saved_pen_y;
 }
 
-#ifdef USE_DEBUGGER
 /*
- * デバッガの実行状態を取得する
+ * For Suika2 Pro
  */
-bool dbg_is_running(void)
-{
-	return dbg_running;
-}
+#ifdef USE_DEBUGGER
 
 /*
  * デバッガの実行状態を停止にする

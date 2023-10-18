@@ -137,7 +137,7 @@ const char szMeltPixelShader[] =
     "texld r0, t0         \n"	// r0 = texture
     "texld r1, t1         \n"	// r1 = rule
 	// t = (1.0 - rule) + (threshold * 2.0 - 1.0)
-	"add r2, c2, c2       \n"   // r2 = threshold * 2.0
+	"add r2, c2, c2       \n"   // r2 = progress * 2.0
 	"sub r2, r2, r1       \n" 	// r2 = r2 - rule
 	// t = clamp(t)
 	"cmp r2, r2, r2, c0   \n"	// r2 = r2 > 0 ? r2 : 0
@@ -688,11 +688,11 @@ VOID D3DRenderImageRule(struct image * RESTRICT src_image,
 //
 VOID D3DRenderImageMelt(struct image * RESTRICT src_image,
 						struct image * RESTRICT rule_image,
-						int threshold)
+						int progress)
 {
 	DrawPrimitives(0, 0, src_image, rule_image, false, true,
 				   get_image_width(src_image), get_image_height(src_image),
-				   0, 0, threshold, BLEND_FAST);
+				   0, 0, progress, BLEND_FAST);
 }
 
 // プリミティブを描画する

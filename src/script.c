@@ -777,6 +777,7 @@ bool load_script(const char *fname)
 	set_return_point(INVALID_RETURN_POINT);
 
 #ifdef USE_DEBUGGER
+	/* スクリプトロードのタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
 	update_debug_info(true);
@@ -815,6 +816,7 @@ bool move_to_command_index(int index)
 	cur_index = index;
 
 #ifdef USE_DEBUGGER
+	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
 	update_debug_info(false);
@@ -835,6 +837,7 @@ bool move_to_next_command(void)
 		return false;
 
 #ifdef USE_DEBUGGER
+	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
 	update_debug_info(false);
@@ -879,6 +882,7 @@ bool move_to_label(const char *label)
 		cur_index++;
 
 #ifdef USE_DEBUGGER
+	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
 	update_debug_info(false);
@@ -917,6 +921,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 		if (c->type == COMMAND_LABELEDGOTO)
 			cur_index++;
 #ifdef USE_DEBUGGER
+		/* コマンド移動のタイミングでは停止要求を処理する */
 		if (dbg_is_stop_requested())
 			dbg_stop();
 		update_debug_info(false);
@@ -952,6 +957,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 		cur_index++;
 
 #ifdef USE_DEBUGGER
+	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
 	update_debug_info(false);
@@ -2727,6 +2733,8 @@ void translate_failed_command_to_message(int index)
 	}
 	for (i = 1; i < PARAM_SIZE; i++)
 		c->param[i] = NULL;
+
+	dbg_set_error_state();
 }
 
 /*

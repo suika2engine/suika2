@@ -35,7 +35,7 @@ extern char *conf_language_ru;
 extern char *conf_language_other;
 
 /* 言語の設定から導出されたロケール */
-enum {
+enum language_code {
 	LOCALE_EN,
 	LOCALE_FR,
 	LOCALE_DE,

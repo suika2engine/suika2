@@ -1,231 +1,492 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
-/* 
- * HAL API (Hardware Abstraction layer)
+/*
+ * The API of Suika2 HAL (Hardware Abstraction layer)
+ *
+ * Rules:
+ *  - We use the utf-8 encoding for all "const char *" and "char *" string pointers
+ *  - Return values of type "char *" must be freed by callers
  */
 
 #ifndef SUIKA_PLATFORM_H
 #define SUIKA_PLATFORM_H
 
+/*
+ * Define macros for a target.
+ */
 #include "types.h"
 
-/* イメージ */
+/*
+ * Structures that can have multiple backend implementations
+ */
+
+/*
+ * Image:
+ *  - We use "struct image *" for image objects
+ *  - An actual definition of "struct image" can vary:
+ *    - Currently we have the only implementation in image.c
+ *    - In the past there was an implementation for Android's OpenGL wrapper
+ */
 struct image;
 
-/* PCMストリーム */
+/*
+ * Sound stream:
+ *  - We use "struct wave *" for PCM streams
+ *  - Currently We have two implementations:
+ *    - wave.c: a generic OggVorbis decoder that uses libvorbisfile
+ *    - ndkwave.c: a backend implementation with Android's MediaPlayer class
+ */
 struct wave;
 
 /*
- * ログを出力する
- *  - ログを出力してよいのはメインスレッドのみとする
- *  - ネイティブの文字コードを渡すこととする
+ * Logging
  */
-bool log_info(const char *s, ...);
-bool log_warn(const char *s, ...);
-bool log_error(const char *s, ...);
-
-/* セーブディレクトリを作成する */
-bool make_sav_dir(void);
-
-/* データのディレクトリ名とファイル名を指定して有効なパスを取得する */
-char *make_valid_path(const char *dir, const char *fname);
-
-/* GPUを使うか調べる */
-bool is_gpu_accelerated(void);
-
-/* OpenGLが有効か調べる */
-bool is_opengl_enabled(void);
-
-/* テクスチャをロックする */
-bool lock_texture(int width, int height, pixel_t *pixels,
-		  pixel_t **locked_pixels, void **texture);
-
-/* テクスチャをアンロックする */
-void unlock_texture(int width, int height, pixel_t *pixels,
-		    pixel_t **locked_pixels, void **texture);
-
-/* テクスチャを破棄する */
-void destroy_texture(void *texture);
-
-/* 画面にイメージをレンダリングする */
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-		  int width, int height, int src_left, int src_top, int alpha,
-		  int bt);
-
-/* 画面にイメージを暗くレンダリングする */
-void render_image_dim(int dst_left, int dst_top,
-		      struct image * RESTRICT src_image, int width, int height,
-		      int src_left, int src_top);
-
-/* 画面にイメージをルール付きでレンダリングする */
-void render_image_rule(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
-		       int threshold);
-
-/* 画面にイメージをルール付き(メルト)でレンダリングする */
-void render_image_melt(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
-		       int threshold);
-
-/* タイマをリセットする */
-void reset_stop_watch(stop_watch_t *t);
-
-/* タイマのラップをミリ秒単位で取得する */
-int get_stop_watch_lap(stop_watch_t *t);
-
-/* サウンドを再生を開始する */
-bool play_sound(int stream, struct wave *w);
-
-/* サウンドの再生を停止する */
-bool stop_sound(int stream);
-
-/* サウンドのボリュームを設定する */
-bool set_sound_volume(int stream, float vol);
-
-/* サウンドが再生終了したか調べる */
-bool is_sound_finished(int stream);
-
-/* 終了ダイアログを表示する */
-bool exit_dialog(void);
-
-/* タイトルに戻るダイアログを表示する */
-bool title_dialog(void);
-
-/* 削除ダイアログを表示する */
-bool delete_dialog(void);
-
-/* 上書きダイアログを表示する */
-bool overwrite_dialog(void);
-
-/* 初期設定ダイアログを表示する */
-bool default_dialog(void);
-
-/* ビデオを再生する */
-bool play_video(const char *fname, bool is_skippable);
-
-/* ビデオを停止する */
-void stop_video(void);
-
-/* ビデオが再生中か調べる */
-bool is_video_playing(void);
-
-/* ウィンドウタイトルを更新する */
-void update_window_title(void);
-
-/* フルスクリーンモードがサポートされるか調べる */
-bool is_full_screen_supported(void);
-
-/* フルスクリーンモードであるか調べる */
-bool is_full_screen_mode(void);
-
-/* フルスクリーンモードを開始する */
-void enter_full_screen_mode(void);
-
-/* フルスクリーンモードを終了する */
-void leave_full_screen_mode(void);
-
-/* システムのロケールを取得する */
-const char *get_system_locale(void);
 
 /*
- * デバッガの場合のみ
+ * Put a info log with printf formats.
+ *  - An "info" level log will be put into log.txt file
+ *  - Note that sound threads cannot use logging
  */
-#ifdef USE_DEBUGGER
-/* 再開ボタンが押されたか調べる */
-bool is_resume_pushed(void);
+bool log_info(const char *s, ...);
 
-/* 次へボタンが押されたか調べる */
-bool is_next_pushed(void);
+/*
+ * Put a warn log with printf formats.
+ *  - A "warn" level log will be put into log.txt file and a dialog will be shown
+ *  - Note that sound threads cannot use logging
+ */
+bool log_warn(const char *s, ...);
 
-/* 停止ボタンが押されたか調べる */
-bool is_pause_pushed(void);
+/*
+ * Put a error log with printf formats.
+ *  - An "error" level log will be put into log.txt file and a dialog will be shown
+ *  - Note that sound threads cannot use logging
+ */
+bool log_error(const char *s, ...);
 
-/* 実行するスクリプトファイルが変更されたか調べる */
-bool is_script_changed(void);
+/*
+ * Path Manipulation
+ */
 
-/* 変更された実行するスクリプトファイル名を取得する */
-const char *get_changed_script(void);
+/*
+ * Create a save directory if it is does not exist.
+ */
+bool make_sav_dir(void);
 
-/* 実行する行番号が変更されたか調べる */
-bool is_line_changed(void);
+/*
+ * Create an effective path string from a directory name and a file name.
+ *  - This function absorbs OS-specific path handling
+ *  - Resulting strings can be passed to open_rfile() and open_wfile()
+ *  - Resulting strings must be freed by caller
+ */
+char *make_valid_path(const char *dir, const char *fname);
 
-/* 変更された実行するスクリプトファイル名を取得する */
-int get_changed_line(void);
+/*
+ * GPU Checks
+ */
 
-/* コマンドがアップデートされたかを調べる */
-bool is_command_updated(void);
+/*
+ * Return whether the HAL uses GPU acceleration.
+ *  - We can use software rendering on Windows and Linux
+ *    - It will be removed in near future
+ *  - If GPU acceleration is ON, we have to redraw every frames
+ *  - If GPU acceleration is OFF, we can focus on drawing a updated rectangle
+ */
+bool is_gpu_accelerated(void);
 
-/* アップデートされたコマンド文字列を取得する */
-const char *get_updated_command(void);
+/*
+ * Return whether OpenGL is enabled.
+ *  - When we use OpenGL, we reorder pixels from RGB to BGR in readimage.c
+ *  - A HAL can have multiple rendering backends and choose one on a startup time
+ */
+bool is_opengl_enabled(void);
 
-/* スクリプトがリロードされたかを調べる */
-bool is_script_reloaded(void);
+/*
+ * Texture Manipulation
+ */
 
-/* コマンドの実行中状態を設定する */
-void set_running_state(bool running, bool request_stop);
+/*
+ * Lock a texture object.
+ *  - Here, "texture object" is a VRAM backend of "struct image *"
+ *  - This function abstracts a texture lock operation for a rendering backend in use
+ *  - While a texture of an image is locked, stage.c can use draw_image() to the image
+ *    - draw_image() to non-locked images are not allowed
+ *  - A lock operation can be failed and in the case draw_image() renders to CPU memory
+ *    - Pixels will be transfered on a later lock or unlock operation
+ */
+bool
+lock_texture(int width,			/* image width */
+	     int height,		/* image height */
+	     pixel_t *pixels,		/* [IN] image pixels on CPU memory */
+	     pixel_t **locked_pixels,	/* [OUT] temporary pixel pointer */
+	     void **texture);		/* [OUT] a backend-dependent texture object */
 
-/* デバッグ情報を更新する */
-void update_debug_info(bool script_changed);
-#endif
+/*
+ * Unlock a texture object.
+ *  - This function abstracts a texture unlock operation for a rendering backend in use
+ *  - Currently all GPU rendering subsystem upload pixels to VRAM on unlock operations
+ */
+void
+unlock_texture(int width,		/* image width */
+	       int height,		/* image height */
+	       pixel_t *pixels,		/* [IN] image pixels on CPU memory */
+	       pixel_t **locked_pixels,	/* [OUT] temporary pixel pointer */
+	       void **texture);		/* [IN/OUT] a backend-dependent texture object */
 
-#ifdef USE_CAPTURE
-/* キャプチャモジュールを初期化する */
-bool init_capture(void);
+/*
+ * Destroy a texture object.
+ *  - This function abstracts a texture destruction for a rendering backend in use
+ *  - It is called from destroy_image() only
+ */
+void destroy_texture(void *texture);
 
-/* キャプチャモジュールを終了する */
-void cleanup_capture(void);
+/*
+ * Rendering
+ */
 
-/* 入力をキャプチャする */
-bool capture_input(void);
+/*
+ * Render an image to the screen with the "normal" shader.
+ *  - The "normal" shader renders pixels with alpha blending
+ */
+void
+render_image(int dst_left,	/* X coordinate of the screen */
+	     int dst_top,	/* Y coordinate of the screen */
+	     struct image * RESTRICT src_image, /* [IN] an image to be rendered */
+	     int width,		/* width of a drawing rectangle */
+	     int height		/* height of a drawing rectangle */,
+	     int src_left,	/* X coordinate of a source image */
+	     int src_top,	/* Y coordinate of a source image */
+	     int alpha,		/* alpha value (0 to 255) */
+	     int bt);		/* blend type (see also "enum blend_type" in image.h) */
 
-/* 出力をキャプチャする */
-bool capture_output(void);
-#endif
+/*
+ * Render an image to the screen with the "dimming" shader.
+ *  - The "dimming" shader renders pixels at 50% values for each RGB component
+ */
+void
+render_image_dim(int dst_left,	/* X coordinate of the screen */
+		 int dst_top,	/* Y coordinate of the screen */
+		 struct image * RESTRICT src_image, /* [IN] an image to be rendered */
+		 int width,	/* width of a drawing rectangle */
+		 int height,	/* height of a drawing rectangle */
+		 int src_left,	/* X coordinate of a source image */
+		 int src_top);	/* X coordinate of a source image */
 
-#ifdef USE_REPLAY
-/* リプレイモジュールを初期化する */
-#ifdef WIN
-bool init_replay(int argc, wchar_t *argv[]);
-#else
-bool init_replay(int argc, char *argv[]);
-#endif
+/*
+ * Render an image to the screen with the "rule" shader.
+ *  - The "rule" shader is a variation of "universal transition" with **threshold**
+ *  - A rule image must have the same size as the screen
+ */
+void
+render_image_rule(struct image * RESTRICT src_img,	/* [IN] a source image */
+		  struct image * RESTRICT rule_img,	/* [IN] a rule image */
+		  int threshold);			/* threshold (0 to 255) */
 
-/* リプレイモジュールを終了する */
-void cleanup_replay(void);
+/*
+ * Render an image to the screen with the "melt" shader.
+ *  - The "melt" shader is a variation of "universal transition" with a progress value
+ *  - A rule image must have the same size as the screen
+ */
+void render_image_melt(struct image * RESTRICT src_img,		/* [IN] a source image */
+		       struct image * RESTRICT rule_img,	/* [IN] a rule image */
+		       int progress);				/* progress (0 to 255) */
 
-/* 入力をリプレイする */
-bool capture_input(void);
+/*
+ * Lap Timer
+ */
 
-/* リプレイ結果の出力をキャプチャする */
-bool capture_output(void);
-#endif
+/*
+ * Reset a lap timer and initialize it with a current time.
+ */
+void reset_stop_watch(stop_watch_t *t);
 
-#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+/*
+ * Get a timer lap in milliseconds.
+ *  - FIXME: use uint64_t.
+ */
+int get_stop_watch_lap(stop_watch_t *t);
 
-#ifdef MAC
-FILE *open_file(const char *dir, const char *file, const char *mode)
-#endif
+/*
+ * Sound Playback
+ *  - Stream types:
+ *    - BGM_STREAM: background music
+ *    - SE_STREAM: sound effect
+ *    - VOICE_STREAM: character voice
+ *    - SYS_STREAM: system sound
+ */
 
-/* ミリ秒の時刻を取得する */
-uint64_t get_tick_count64(void);
+/*
+ * Start playing a sound file on a track.
+ */
+bool
+play_sound(int stream,		/* A sound stream index */
+	   struct wave *w);	/* [IN] A sound object, delegate to callee */
 
-/* 出力データのディレクトリを作り直す */
-bool reconstruct_dir(const char *dir);
-#endif
+/*
+ * Stop playing a sound track.
+ */
+bool stop_sound(int stream);
+
+/*
+ * Set sound volume.
+ */
+bool set_sound_volume(int stream, float vol);
+
+/*
+ * Return whether a sound playback for a stream is already finished.
+ *  - This is mainly to detect voice playback finish
+ */
+bool is_sound_finished(int stream);
+
+/*
+ * Confirmation prompt dialogs.
+ */
+
+/*
+ * Show a quit dialog.
+ */
+bool exit_dialog(void);
+
+/*
+ * Show a go-back-to-title dialog.
+ */
+bool title_dialog(void);
+
+/*
+ * Show a save data deletion dialog.
+ */
+bool delete_dialog(void);
+
+/*
+ * Show a overwrite save data dialog.
+ */
+bool overwrite_dialog(void);
+
+/*
+ * Show a reset settings dialog.
+ */
+bool default_dialog(void);
+
+/*
+ * Video Playback.
+ */
+
+/*
+ * Start playing a video file.
+ */
+bool play_video(const char *fname,	/* file name */
+		bool is_skippable);	/* allow skip for a unseen video */
+
+/*
+ * Stop playing music stream.
+ */
+void stop_video(void);
+
+/*
+ * Returns whether a video playcack is running.
+ */
+bool is_video_playing(void);
+
+/*
+ * Window Manipulation
+ */
+
+/*
+ * Set a window title.
+ */
+void update_window_title(void);
+
+/*
+ * Return whether the current HAL supports the "full screen mode".
+ *  - The "full screen mode" includes docking of some game consoles
+ *  - A HAL can implement the "full screen mode" but it is optional
+ */
+bool is_full_screen_supported(void);
+
+/*
+ * Return whether the current HAL is in the "full screen mode".
+ */
+bool is_full_screen_mode(void);
+
+/*
+ * Enter the full screen mode.
+ *  - A HAL can ignore this call
+ */
+void enter_full_screen_mode(void);
+
+/*
+ * Leave the full screen mode.
+ *  - A HAL can ignore this call
+ */
+void leave_full_screen_mode(void);
+
+/*
+ * Locale
+ */
+
+/*
+ * Get the system language.
+ *  - Return value can be:
+ *    - "ja": Japanese
+ *    - "en": English
+ *    - "zh": Simplified Chinese
+ *    - "tw": Traditional Chinese
+ *    - "fr": French
+ *    - "it": Italian
+ *    - "es": Spanish (Castellano)
+ *    - "de": Deutsch
+ *    - "el": Greek
+ *    - "ru": Russian
+ *    - "other": Other (must fallback to English)
+ *  - To add a language, please make changes to the following:
+ *    - "enum language_code" in conf.h
+ *    - init_locale_code() in conf.c
+ *    - set_locale_mapping() in conf.c
+ *    - get_ui_message() in uimsg.c
+ *  - Note that:
+ *    - Currently we don't have a support for right-to-left writing systems
+ *      - It should be implemented in draw_msg_common() in glyph.c
+ *    - Glyphs that are composed from multiple Unicode codepoints are not supported
+ *      - Currently we need pre-composed texts
+ */
+const char *get_system_locale(void);
 
 /*
  * Text-To-Speech
  */
+
+/* Currently we support TTS in Windows only. */
 #if defined(WIN)
 /* TTSによる読み上げを行う */
 void speak_text(const char *text);
 #else
-static __inline void speak_text(const char *text) { UNUSED_PARAMETER(text); }
+#define speak_text(t)
 #endif
 
-#endif
+/*****************************************************************************
+ * This is the end of the HAL interface for the main engine.
+ * After this line, it is not required for game execution.
+ * They are for Suika2 Pro, Suika2 Capture and Suika2 Replay, respectively.
+ *****************************************************************************/
+
+/*
+ * For Suika2 Pro:
+ *  - VLS v1 API is a debugger and it cannot change script models
+ *  - VLS v2 API is also an editor so that it can change script models
+ *  - A script view is expected to be:
+ *    - v1: A list view that is not edited by a user
+ *    - v2: An text view that is edited by a user
+ */
+#ifdef USE_DEBUGGER
+
+/*
+ * VLS v1 API (debugger capability)
+ */
+
+/*
+ * Return whether the "resume" botton is pressed.
+ */
+bool is_resume_pushed(void);
+
+/*
+ * Return whether the "next" button is pressed.
+ */
+bool is_next_pushed(void);
+
+/*
+ * Return whether the "stop" button is pressed.
+ */
+bool is_pause_pushed(void);
+
+/*
+ * Return whether the "load" button is pressed.
+ */
+bool is_script_changed(void);
+
+/*
+ * Return a script file name when the "load" button is pressed.
+ */
+const char *get_changed_script(void);
+
+/*
+ * Return whether the "line number" is changed.
+ */
+bool is_line_changed(void);
+
+/*
+ * Return the "line number" if it is changed.
+ */
+int get_changed_line(void);
+
+/*
+ * Return whether "current command string" is updated.
+ */
+bool is_command_updated(void);
+
+/*
+ * Return the "current command string" if it is changed.
+ */
+const char *get_updated_command(void);
+
+/*
+ * Return whether the "reload" button is pressed.
+ */
+bool is_script_reloaded(void);
+
+/*
+ * Update UI elements when the running state is changed.
+ */
+void set_running_state(bool running, bool request_stop);
+
+/*
+ * Update UI elements when the main engine changes the command position to be executed.
+ */
+void
+update_debug_info(
+	bool script_changed	/* is the current script file changed? */
+);
+
+/*
+ * VLS v2 API (editor capability)
+ */
+
+/*
+ * Post a script line update event.
+ *  - A event is queued and executed at frame events
+ */
+bool
+post_update_script_line(
+	int line,		/* line number */
+	const char *text,	/* [IN] a line text (can be NULL) */
+	const char *new_line);	/* [IN] a new line text at line+1 (can be NULL) */
+
+#endif	/* USE_DEBUGGER */
+
+/*
+ * For Suika2 Capture and Suika2 Replay
+ */
+#if defined(USE_CAPTURE) || defined(USE_REPLAY)
+
+/*
+ * Remove and re-create an output directory.
+ */
+bool reconstruct_dir(const char *dir);
+
+/*
+ * Get a clock in a millisecond precise.
+ *  - For replay: a clock value is one from cvs
+ */
+uint64_t get_tick_count64(void);
+
+/*
+ * A wrapper for fopen().
+ */
+FILE *fopen_wrapper(const char *dir, const char *file, const char *mode);
+
+#endif	/* defined(USE_CAPTURE) || defined(USE_REPLAY) */
+
+#endif	/* SUIKA_PLATFORM_H */

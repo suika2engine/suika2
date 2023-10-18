@@ -1276,11 +1276,14 @@ const char *get_system_locale(void)
 	return "other";
 }
 
+//
+// For "Suika2 Capture" and "Suika2 Replay" apps
+//
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
 /*
  * ファイルを開く
  */
-FILE *open_file(const char *dir, const char *file, const char *mode)
+FILE *fopen_wrapper(const char *dir, const char *file, const char *mode)
 {
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
     NSString *basePath = [bundlePath stringByDeletingLastPathComponent];

@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -174,13 +174,28 @@ int get_pen_position_x(void);
 int get_pen_position_y(void);
 
 /*
- * デバッガ
+ * Debugging Support For Suika2 Pro
  */
 #ifdef USE_DEBUGGER
-bool dbg_is_running(void);
-void dbg_stop(void);
-bool dbg_is_stop_requested(void);
-void dbg_set_error_state(void);
-#endif
 
-#endif
+/*
+ * Stop execution and update debugger UI elements.
+ */
+void dbg_stop(void);
+
+/*
+ * Return whether a stop request is pending.
+ *  - This is for:
+ *    - Stopping execution on command moves and script loads in script.c
+ *    - Specia message displaying behaviour in cmd_message.c
+ */
+bool dbg_is_stop_requested(void);
+
+/*
+ * Set an error state.
+ */
+void dbg_set_error_state(void);
+
+#endif	/* USE_DEBUGGER */
+
+#endif	/* SUIKA_MAIN_H */
