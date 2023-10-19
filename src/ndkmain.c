@@ -29,6 +29,11 @@ JNIEnv *jni_env;
 jobject main_activity;
 
 /*
+ * ビデオ再生状態
+ */
+static bool video_playing_flag;
+
+/*
  * 初期化処理を行います。
  */
 JNIEXPORT void JNICALL
@@ -36,6 +41,8 @@ Java_jp_luxion_suika_MainActivity_init(
 	JNIEnv *env,
 	jobject instance)
 {
+    video_playing_flag = false;
+
 	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
 	jni_env = env;
 
@@ -65,6 +72,32 @@ Java_jp_luxion_suika_MainActivity_init(
 
 	/* envをグローバル変数で参照するのを終了する */
 	jni_env = NULL;
+}
+
+/*
+ * 再初期化処理を行います。ビデオ再生処理からの復帰を行います。
+ */
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_reinit(
+        JNIEnv *env,
+        jobject instance)
+{
+    video_playing_flag = false;
+
+    /* この関数呼び出しの間だけenvをグローバル変数で参照する */
+    jni_env = env;
+
+    /* Activityを保持する */
+    main_activity = (*env)->NewGlobalRef(env, instance);
+
+    /* OpenGL ESの初期化を行う */
+    if (!init_opengl()) {
+        log_error("Failed to initialize OpenGL.");
+        return;
+    }
+
+    /* envをグローバル変数で参照するのを終了する */
+    jni_env = NULL;
 }
 
 /*
@@ -106,18 +139,35 @@ Java_jp_luxion_suika_MainActivity_frame(
 	jmethodID mid;
 	int x, y, w, h;
 	jboolean ret;
+	bool draw;
 
 	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
 	jni_env = env;
 
-	opengl_start_rendering();
+	/* ビデオ再生の処理を行う */
+	draw = true;
+	if (video_playing_flag) {
+		cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+		mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()Z");
+		if ((*jni_env)->CallBooleanMethod(jni_env, main_activity, mid))
+			draw = false;
+		else
+            video_playing_flag = false;
+	}
 
+	/* レンダリングを開始する */
+	if (draw)
+		opengl_start_rendering();
+
+	/* フレームのコマンド実行を行う */
 	if (!on_event_frame(&x, &y, &w, &h))
 		ret = JNI_FALSE;
 	else
 		ret = JNI_TRUE;
 
-	opengl_end_rendering();
+	/* レンダリングを終了する */
+	if (draw)
+		opengl_end_rendering();
 
 	/* envをグローバル変数で参照するのを終了する */
 	jni_env = NULL;
@@ -135,7 +185,13 @@ Java_jp_luxion_suika_MainActivity_touchLeftDown(
         jint x,
         jint y)
 {
-    on_event_mouse_press(MOUSE_LEFT, x, y);
+	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
+	jni_env = env;
+
+	on_event_mouse_press(MOUSE_LEFT, x, y);
+
+	/* envをグローバル変数で参照するのを終了する */
+	jni_env = NULL;
 }
 
 /*
@@ -148,7 +204,13 @@ Java_jp_luxion_suika_MainActivity_touchRightDown(
         jint x,
         jint y)
 {
-    on_event_mouse_press(MOUSE_RIGHT, x, y);
+	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
+	jni_env = env;
+
+	on_event_mouse_press(MOUSE_RIGHT, x, y);
+
+	/* envをグローバル変数で参照するのを終了する */
+	jni_env = NULL;
 }
 
 /*
@@ -516,9 +578,15 @@ bool is_sound_finished(int stream)
  */
 bool play_video(const char *fname, bool is_skippable)
 {
-	UNUSED_PARAMETER(fname);
+	jclass cls;
+	jmethodID mid;
 
-	/* stub */
+    video_playing_flag = true;
+
+	/* ビデオの再生を開始する */
+	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	mid = (*jni_env)->GetMethodID(jni_env, cls, "playVideo", "(Ljava/lang/String;Z)V");
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, fname), is_skippable ? JNI_TRUE : JNI_FALSE);
 	return true;
 }
 
@@ -527,7 +595,15 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
-	/* stub */
+	jclass cls;
+	jmethodID mid;
+
+    video_playing_flag = false;
+
+	/* ビデオの再生を開始する */
+	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	mid = (*jni_env)->GetMethodID(jni_env, cls, "stopVideo", "()V");
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid);
 }
 
 /*
@@ -535,8 +611,7 @@ void stop_video(void)
  */
 bool is_video_playing(void)
 {
-	/* stub */
-	return false;
+	return video_playing_flag;
 }
 
 /*
