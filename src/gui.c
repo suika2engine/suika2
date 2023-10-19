@@ -1177,6 +1177,7 @@ static bool create_temporary_bg(void)
 
 	/* 背景レイヤへの描画を開始する */
 	is_drawing_to_bg = true;
+	pointed_index = -1;
 
 	/* 描画する */
 	if (lock_temporary_bg_image_for_gui()) {
