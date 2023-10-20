@@ -1,52 +1,44 @@
+<!-- Big Banner -->
 <img src="https://github.com/suika2engine/suika2/raw/master/doc/img/main_repo.png" width="100%">
 
-<!-- Content -->
-[![Release](https://img.shields.io/github/release/suika2engine/suika2?style=for-the-badge&color=dark-green)](https://github.com/suika2engine/suika2/releases/latest)
+## About
 
-Suika2 is an open-source, cross-platform visual novel development engine that allows you to create a feature-rich visual novel with the care and attention to detail that your stories deserve. Featuring support and documentation in Japanese, Chinese, and English as well as active development and an accepting community, Suika2 could be the perfect start to your thrilling adventure, fawning romance, chilling epic, or anything else you could possibly imagine!
+Suika2 is a visual novel development suite with an open-source philosophy, a true cross-platform design, and production-ready quality.
 
-[Join our Discord server!](https://discord.gg/ZmvXxE8GFg)  ![Discord](https://discord.com/api/guilds/986623112617541677/widget.png)
+## Discord
 
-Visit [the Website](https://suika2.com/en/) and [the Wiki](https://github.com/suika2engine/suika2/wiki).
+<a href="https://discord.gg/ZmvXxE8GFg"><img src="https://discordapp.com/api/guilds/986623112617541677/widget.png?style=banner1"></a>
 
-Don't have a Discord account or would prefer to speak formally? Send an e-mail to `midori@suika2.com`.
+## Web Demo
 
-## Demo
-
-[Click here to start the Web demo](https://suika2.com/run/sample/).
-
-![demo](https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg "screenshot")
+<a href="https://suika2.com/run/sample/"><img src="https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg"></a>
 
 ## Portability
 
-Suika2 runs on Windows, macOS, Web browsers, iPhone, iPad, Android, Linux, FreeBSD, NetBSD and Switch.
+Suika2 runs on Windows, macOS, Web browsers, iPhone, iPad, Android, Linux, FreeBSD, NetBSD, and some consoles.
 
 Suika2 consists of the platform independent layer (PIL) and the hardware abstraction layer (HAL).
 PIL is written in ANSI C, the most portable language in the world.
 HAL is currently written in C, C++, Objective-C and Java.
 
-If you would like to port Suika2 to a new target platform, you are only required to write a HAL.
+If we would like to port Suika2 to a new target platform, we are only required to write a thin HAL.
 
-FYI: We don't use SDL2 and it takes less than a week to port to platforms that do not support SDL2.
+Suika2 never use the `SDL2` library for production.
+It takes less than a week to port to platforms that do not support SDL2.
 
 ## Suika2 Pro
 
-Suika2 Pro is a developer tool for Suika2, available for Windows/macOS/Linux.
+Suika2 Pro is a developer tool for Suika2, available for Windows, macOS and Linux.
 It provides developers with a debugging capability and an export function.
-
-## Suika2 Kirara
-
-Suika2 Kirara is a GUI wrapper of Suika2.
-It provides a capability to edit Suika2 scripts in a window with mouse operations.
-If you are not familiar with scripting, please consider using it at first to get used to scripting.
-
-**Note**: Kirara is still in beta. In addition, it is not suitable for production use.
 
 ## Binary Distribution
 
+<!-- Release Banner -->
+<img src="https://img.shields.io/github/release/suika2engine/suika2?style=for-the-badge&color=dark-green">
+
 Download the latest release from [the official website](https://suika2.com/en/).
 
-**Note:** We provide a zip file that contains binaries for Windows, macOS, Web, and Linux.
+**Note:** We provide a zip file that contains all binaries for Windows, macOS, Web, and Linux.
 
 ## Building from Source
 
@@ -65,14 +57,14 @@ The `Certum code signing certificate in the cloud` we use cannot be used with Gi
 
 This software is released under the MIT license.
 You can redistribute this software commercially.
-See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for the all licenses including dependency libraries.
+See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for all licenses including dependency libraries.
 
 ## Usage
 
 * On Windows:
   * Download a zip file from [the official site](https://suika2.com/en/) and extract it.
   * Open the `suika2` folder in Explorer.
-  * Start the `suika.exe` application.
+  * Start the `suika.exe` app.
 
 * On Mac:
   * Download a zip file from [the official site](https://suika2.com/en/) and extract it.
@@ -81,13 +73,12 @@ See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) fo
   * Start the `suika` app in the `suika2` folder.
 
 * On Linux:
-  * Download a zip file from [the official site](https://suika2.com/en/) and extract it.
-  * Enter suika2 directory and run the following commands:
+  * You can use the `apt` command on Ubuntu:
   ```
-  chmod +x tools/suika-linux
-  cp tools/suika-linux game/
-  cd game
-  ./suika-linux
+  sudo add-apt-repository ppa:ktabata/ppa
+  sudo apt update
+  sudo apt install suika2
+  suika2
   ```
 
 * On iPhone/iPad (iOS):
@@ -99,32 +90,35 @@ See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) fo
   * Build your game using `Android Studio`
   * FYI: A sample game is available on [Google Play](https://play.google.com/store/apps/details?id=jp.luxion.suika&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1).
 
-* Other platforms (Switch Homebrew, FreeBSD and NetBSD)
+* Other platforms
   * Build from the source code.
   * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
 
-## Manuals
+## Documentation
 
-* [Tutorial](https://suika2.com/en/tutorial.html)
-* [Command Reference](https://suika2.com/en/reference.html)
-* [Wiki (not up to date)](https://github.com/suika2engine/suika2/wiki/)
-* [Japanese Documentation](https://suika2.com/)
+* [Japanese Documentation](https://suika2.com/doc/)
+* [English Documentation](https://suika2.com/en/doc/)
 
 ## Contribution
 
-Please feel free to submit any issues as any and all feedback is appreciated!
-
-## What does "suika" mean?
-
-"Suika" means "watermelon" in Japanese.
+Please feel free to submit any issues and pull requests as any and all feedback is appreciated!
 
 ## Suika Studio
 
 Suika2 is the successor to "Suika Studio":
-  * [See the 2002 version here](https://github.com/ktabata/suika-studio-2002-gpl)
-  * [See the 2003 version here](https://github.com/ktabata/suika-studio-2003-gpl)
+* [See the 2002 version here](https://github.com/ktabata/suika-studio-2002-gpl)
+* [See the 2003 version here](https://github.com/ktabata/suika-studio-2003-gpl)
+
+The author is a pioneer in GUI editor field of visual novel creation.
 
 ## Trivia
 
 Did you know that...
 * Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform!
+* "Suika" means "watermelon" in Japanese.
+
+## This software is sponsored by the following
+
+<a href="https://luxion.co.jp/index_en.html"><img src="https://luxion.co.jp/luxion-soft-llc.png" width="256" alt="sponsored-luxion-soft-llc"></a>
+
+Here is the place where you put your banner!
