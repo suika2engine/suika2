@@ -90,6 +90,7 @@ cp ../../src/ndkwave.c app/src/main/cpp/ndkwave.c
 cp ../../src/platform.h app/src/main/cpp/platform.h
 cp ../../src/readimage.c app/src/main/cpp/readimage.c
 cp ../../src/readjpeg.c app/src/main/cpp/readjpeg.c
+cp ../../src/readwebp.c app/src/main/cpp/readwebp.c
 cp ../../src/save.c app/src/main/cpp/save.c
 cp ../../src/save.h app/src/main/cpp/save.h
 cp ../../src/scbuf.c app/src/main/cpp/scbuf.c

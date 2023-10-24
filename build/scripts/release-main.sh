@@ -75,7 +75,7 @@ if [ -z "`uname | grep Darwin`" ]; then
 	exit 1;
     fi;
     MACOS_HOST_IP=`getent ahosts "$MACOS_HOST" | grep "$MACOS_HOST" | awk '{ print $1 }'`;
-    if [ -z "$MACOS_USER" ]; then
+    if [ -z "$MACOS_HOST_IP" ]; then
 	echo "Error: Cannot resolve the IP address for the macOS host $MACOS_HOST.";
 	echo "       Try again.";
 	exit 1;
