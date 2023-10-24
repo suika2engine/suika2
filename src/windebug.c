@@ -1338,8 +1338,7 @@ VOID OnExportAndroid(void)
 			   L"Will open the exported source code folder.\n"
 			   L"Build with Android Studio." :
 			   L"エクスポートしたソースコードフォルダを開きます。\n"
-			   L"Android Studioでそのままビルドできます。\n"
-			   L"build.ps1を実行すれば自動ビルドも可能です。",
+			   L"Android Studioでそのままビルドできます。",
 			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
 
 	/* Explorerを開く */
