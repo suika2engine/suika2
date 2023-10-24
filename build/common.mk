@@ -39,6 +39,7 @@ SRCS_COMMON = \
 	../../src/mixer.c \
 	../../src/readimage.c \
 	../../src/readjpeg.c \
+	../../src/readwebp.c \
 	../../src/save.c \
 	../../src/scbuf.c \
 	../../src/script.c \

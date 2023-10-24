@@ -1,0 +1,16 @@
+project(bz2)
+
+add_library(bz2
+	    blocksort.c
+	    bzlib.c
+	    decompress.c
+	    mk251.c
+	    unzcrash.c
+	    compress.c
+	    dlltest.c
+	    randtable.c
+	    bzip2recover.c
+	    crctable.c
+	    huffman.c
+	    spewG.c
+)

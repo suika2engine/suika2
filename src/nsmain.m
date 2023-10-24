@@ -11,28 +11,45 @@
  *  - 2020/06/11 Add debugger.
  */
 
+// macOS
 #import <Cocoa/Cocoa.h>
 #import <AVFoundation/AVFoundation.h>
-#import <sys/time.h>
 
+// Standard C
 #import <wchar.h>
 
+// POSIX
+#import <sys/time.h>
+
+// Suika2 Base
 #import "suika.h"
-#import "nsmain.h"
 #import "uimsg.h"
+
+// Suika2 HAL Implementation
+#import "nsmain.h"
 #import "aunit.h"
 #import "glrender.h"
+#define GL_SILENCE_DEPRECATION
+#import <OpenGL/gl3.h>
 
-#ifdef SSE_VERSIONING
-#import "x86.h"
-#endif
-
+// Suika2 Pro
 #ifdef USE_DEBUGGER
 #import "nsdebug.h"
 #endif
 
-#define GL_SILENCE_DEPRECATION
-#import <OpenGL/gl3.h>
+// Suika2 Capture
+#ifdef USE_CAPTURE
+#import "capture.h"
+#endif
+
+// Suika2 Replay
+#ifdef USE_REPLAY
+#import "replay.h"
+#endif
+
+//
+// Variables
+//
 
 // ウィンドウ
 static NSWindow *theWindow;
@@ -57,7 +74,9 @@ static AVPlayerLayer *playerLayer;
 // 動画再生状態
 static BOOL isMoviePlaying;
 
-// 前方参照
+//
+// Forward Declaration
+//
 static BOOL initWindow(void);
 static void cleanupWindow(void);
 static NSString *NSStringFromWcs(const wchar_t *wcs);
@@ -1276,11 +1295,14 @@ const char *get_system_locale(void)
 	return "other";
 }
 
+//
+// For "Suika2 Capture" and "Suika2 Replay" apps
+//
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
 /*
  * ファイルを開く
  */
-FILE *open_file(const char *dir, const char *file, const char *mode)
+FILE *fopen_wrapper(const char *dir, const char *file, const char *mode)
 {
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
     NSString *basePath = [bundlePath stringByDeletingLastPathComponent];

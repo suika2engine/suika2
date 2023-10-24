@@ -1,48 +1,30 @@
 /* -*- tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * This is a Hardware Abstraction Layer (HAL) of Suika2 for switch
+ * This is just an example HAL for consoles that support SDL2.
+ *
+ * Note that:
+ *  - The original author does not involved in this particular port
+ *  - This port should not be used for anything beyond personal interest
+ *  - Actual console ports should not be OSS due to SDK license issues
  *
  * [Changes]
  *  2023-03-23 Created by devseed, support Handheld game console
  */
 
-/* Switch */
-#include "switch.h"
-#define LONG_CLICK_TIME 800
+/* Suika2 Base */
+#define AVOID_UTF8_TO_UTF32
+#include "suika.h"
 
-/* right ABXY button */
-#define JOY_A     0
-#define JOY_B     1
-#define JOY_X     2
-#define JOY_Y     3
+/* Suika2 HAL for OpenGL */
+#include "glrender.h"
 
-/* stick button */
-#define JOY_LS    4
-#define JOY_RS    5
-
-/* shoulder button */
-#define JOY_L     6
-#define JOY_R     7
-#define JOY_ZL    8
-#define JOY_ZR    9
-
-/* menu button */
-#define JOY_PLUS  10
-#define JOY_MINUS 11
-
-/* dpad button*/
-#define JOY_LEFT  12
-#define JOY_UP    13
-#define JOY_RIGHT 14
-#define JOY_DOWN  15
-
-/* SDL */
+/* SDL2 */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
@@ -55,61 +37,85 @@
 #include <sys/time.h>	/* gettimeofday() */
 #include <pthread.h>
 
-/* Suika2 */
-#define SUIKA_AVOID_SWITCH_REDEFINITION
-#include "suika.h"
-#include "glrender.h"
+/* Import homebrew; note that this is just an example for demonstration. */
+#include <switch.h>
 
 /*
- * Sound Config
+ * Constants
  */
+
+/* Log buffer size */
+#define LOG_BUF_SIZE	(2048)
+
+/* Sound */
 #define SAMPLING_RATE   (44100)
 #define CHANNELS        (2)
 #define FRAME_SIZE      (4)
-#define TMP_SAMPLES     (4096) /* smaller value makes sound glitch */
+#define TMP_SAMPLES     (4096) /* Note: (512) produces sound glitch */
+
+/* Click time threshould */
+#define LONG_CLICK_TIME 800
+
+/* Right ABXY button */
+#define JOY_A     0
+#define JOY_B     1
+#define JOY_X     2
+#define JOY_Y     3
+
+/* Stick button */
+#define JOY_LS    4
+#define JOY_RS    5
+
+/* Shoulder button */
+#define JOY_L     6
+#define JOY_R     7
+#define JOY_ZL    8
+#define JOY_ZR    9
+
+/* Menu button */
+#define JOY_PLUS  10
+#define JOY_MINUS 11
+
+/* Dpad button*/
+#define JOY_LEFT  12
+#define JOY_UP    13
+#define JOY_RIGHT 14
+#define JOY_DOWN  15
 
 /*
- * The Log File
+ * Variables
  */
+
+/* The Log File */
 static FILE *log_fp;
 
-/*
-* path for game
-*/
+/* Path of the game */
 static char gamedir[FS_MAX_PATH] = {0};
 static char savedir[FS_MAX_PATH] = {0};
 
-/*
- * SDL2 Objects
- */
+/* SDL2 Objects */
 static SDL_Window *window;
 static SDL_GLContext *context;
 static SDL_AudioDeviceID audio;
 static SDL_Joystick *joystick;
 
-/*
- * Sound Objects
- */
+/* Sound Objects */
 static struct wave *wave[MIXER_STREAMS];
 static float volume[MIXER_STREAMS];
 static bool finish[MIXER_STREAMS];
 static uint32_t snd_buf[TMP_SAMPLES];
 static pthread_mutex_t mutex;
 
-/* for sound mixing */
-void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples);
-
-/*
- * Video Objects
- */
+/* Video Objects */
 static bool is_gst_playing;
 static bool is_gst_skippable;
 
 /*
- * forward declaration
+ * Forward Declaration
  */
+
 static bool init(int argc, char *argv[]);
-static void parse_args(int argc, char *argv[]);
+static void init_underlying_sdk(int argc, char *argv[]);
 static void cleanup(void);
 static void run_game_loop(void);
 static bool dispatch_event(SDL_Event *ev);
@@ -123,7 +129,7 @@ static void cleanup_sound(void);
 static void audio_callback(void *userdata, Uint8 *stream, int len);
 
 /*
- * Main args: [gamedir:dirpath] [-savedir:dirpath]
+ * main(): called with args "-gamedir:dirpath -savedir:dirpath"
  */
 int main(int argc, char *argv[])
 {
@@ -149,7 +155,7 @@ int main(int argc, char *argv[])
 		ret = 0;
 	} while (0);
 
-	/* Show error message. */
+	/* Show an error message. */
 	if  (ret != 0 && log_fp != NULL)
 		printf("Check " LOG_FILE "\n");
 
@@ -162,17 +168,14 @@ int main(int argc, char *argv[])
 /* Do lower layer initialization. */
 static bool init(int argc, char *argv[])
 {
-	/* init switch */
-	socketInitializeDefault();
-	nxlinkStdio();
-	parse_args(argc, argv);
+	/* Init an underlying SDK. */
+	init_underlying_sdk(argc, argv);
 
 	/* Initialize the SDL2. */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0) {
 		log_error("Failed to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
-
 	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0) {
 		log_error("Failed to initialize SDL JOYSTICK: %s", SDL_GetError());
 		return false;
@@ -214,35 +217,34 @@ static bool init(int argc, char *argv[])
 	if (!init_sound())
 		return false;
 
-	/* TODO: Initialize video. */
-	is_gst_skippable = true;
-	memset(snd_buf, 0, sizeof(snd_buf));
+	/* TODO: support video rendering. */
 
 	/* Succeeded. */
 	return true;
 }
 
-static void parse_args(int argc, char *argv[]) {
-	
-	printf("Suika2 switch port: argc=%d, ", argc);
-	char *name = strrchr(argv[0], '/');
-	int i=0;
-	for(i=0;i<argc;i++) printf("%s ", argv[i]);
-	printf("\n");
+/* Initialize an underlying SDK. */
+static void init_underlying_sdk(int argc, char *argv[])
+{
+	char *name;
+	int i;
 
-	for(i=1;i<argc;i++) {
-		if (strncmp(argv[i], "gamedir:", 8)==0) {
-			strcpy(gamedir, argv[i]+8);
-		}
-		else if (strncmp(argv[i], "savedir:", 8)==0) {
-			strcpy(savedir, argv[i]+8);
-		}
+	socketInitializeDefault();
+	nxlinkStdio();
+
+	name = strrchr(argv[0], '/');
+	for (i = 1; i < argc;i++) {
+		if (strncmp(argv[i], "gamedir:", 8) == 0)
+			strcpy(gamedir, argv[i] + 8);
+		else if (strncmp(argv[i], "savedir:", 8)==0)
+			strcpy(savedir, argv[i] + 8);
 	}
 
-	if(strstr(argv[0], ".nsp") || strstr(argv[0], ".NSP")) {
+	if (strstr(argv[0], ".nsp") != NULL ||
+	    strstr(argv[0], ".NSP") != NULL) {
 		romfsInit();
 		chdir("romfs:/");
-		if(!savedir[0]) {
+		if (savedir[0] != '\0') {
 			strcpy(savedir, "/switch/");
 			strcpy(savedir, name);
 			savedir[strlen(savedir) - 4] = 0;
@@ -313,29 +315,23 @@ static void run_game_loop(void)
 /* The event dispatcher. */
 static bool dispatch_event(SDL_Event *ev)
 {
-	if (ev->type == SDL_QUIT) {
-		/* Quit the main loop. */
-		return false;
-	}
-	
-	int key;
-	int screenx;
-	int screeny;
-	static Uint32 lastclick = 0;
+	static Uint32 lastclick;
+	int key, screenx, screeny;
 
 	switch (ev->type) {
+	case SDL_QUIT:
+		/* Quit the main loop. */
+		return false;
 	case SDL_FINGERMOTION:
 		lastclick = ev->tfinger.timestamp;
 		get_screen_position(ev->tfinger.x, ev->tfinger.y, &screenx, &screeny);
 		on_event_mouse_move(screenx, screeny);
 		break;
-
 	case SDL_FINGERDOWN:
 		lastclick = ev->tfinger.timestamp;
 		get_screen_position(ev->tfinger.x, ev->tfinger.y, &screenx, &screeny);
 		on_event_mouse_press(MOUSE_LEFT, screenx, screeny);
 		break;
-	
 	case SDL_FINGERUP:
 		get_screen_position(ev->tfinger.x, ev->tfinger.y, &screenx, &screeny);
 		
@@ -348,11 +344,9 @@ static bool dispatch_event(SDL_Event *ev)
 		}
 		on_event_mouse_release(key, screenx, screeny);
 		break;
-
 	case SDL_JOYAXISMOTION:
 		/* Todo: render mouse pointer in screen */
 		break;
-	
 	case SDL_JOYBUTTONDOWN:
 		/* homebrew use menu_plus to exit*/
 		if(ev->jbutton.button == JOY_PLUS) return false;
@@ -360,7 +354,6 @@ static bool dispatch_event(SDL_Event *ev)
 		key = get_keycode(ev->jbutton.button);
 		if(key>=0) on_event_key_press(key);
 		break;
-
 	case SDL_JOYBUTTONUP:
 		key = get_keycode(ev->jbutton.button);
 		if(key>=0) on_event_key_release(key);
@@ -417,19 +410,21 @@ static bool show_video_frame(void)
  */
 bool log_info(const char *s, ...)
 {
+	char buf[LOG_BUF_SIZE];
 	va_list ap;
 
 	open_log_file();
 
 	va_start(ap, s);
-	if (log_fp != NULL) {
-		vfprintf(stdout, s, ap);
-		vfprintf(log_fp, s, ap);
-		fflush(log_fp);
-		if (ferror(log_fp))
-			return false;
-	}
+	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
+
+	printf("%s", buf);
+	if (log_fp != NULL) {
+		fprintf(log_fp, "%s", buf);
+		fflush(log_fp);
+	}
+
 	return true;
 }
 
@@ -438,19 +433,21 @@ bool log_info(const char *s, ...)
  */
 bool log_warn(const char *s, ...)
 {
+	char buf[LOG_BUF_SIZE];
 	va_list ap;
 
 	open_log_file();
 
 	va_start(ap, s);
-	if (log_fp != NULL) {
-		vfprintf(stdout, s, ap);
-		vfprintf(log_fp, s, ap);
-		fflush(log_fp);
-		if (ferror(log_fp))
-			return false;
-	}
+	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
+
+	printf("%s", buf);
+	if (log_fp != NULL) {
+		fprintf(log_fp, "%s", buf);
+		fflush(log_fp);
+	}
+
 	return true;
 }
 
@@ -459,19 +456,21 @@ bool log_warn(const char *s, ...)
  */
 bool log_error(const char *s, ...)
 {
+	char buf[LOG_BUF_SIZE];
 	va_list ap;
 
 	open_log_file();
 
 	va_start(ap, s);
-	if (log_fp != NULL) {
-		vfprintf(stderr, s, ap);
-		vfprintf(log_fp, s, ap);
-		fflush(log_fp);
-		if (ferror(log_fp))
-			return false;
-	}
+	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
+
+	printf("%s", buf);
+	if (log_fp != NULL) {
+		fprintf(log_fp, "%s", buf);
+		fflush(log_fp);
+	}
+
 	return true;
 }
 
@@ -649,7 +648,7 @@ char *make_valid_path(const char *dir, const char *fname)
 }
 
 /*
- * Stop watch
+ * Measuring Time Laps
  */
 
 /*
@@ -849,7 +848,7 @@ const char *get_system_locale(void)
 }
 
 /*
- * Sound
+ * Sound HAL implementaion
  */
 
 /* Initialize sound playback. */
@@ -938,11 +937,13 @@ bool is_sound_finished(int stream)
 	return finish[stream];
 }
 
-/* Audio callback. */
-static void audio_callback(void *userdata, Uint8 *stream, int len)
-{
-	UNUSED_PARAMETER(userdata);
+/* Define mul_add_pcm(). */
+#define MUL_ADD_PCM mul_add_pcm
+#include "muladdpcm.h"
 
+/* Audio callback. */
+static void audio_callback(UNUSED(void *userdata), Uint8 *stream, int len)
+{
 	uint32_t *sample_ptr;
 	int n, ret, remain, read_samples;
 
@@ -995,7 +996,3 @@ static void audio_callback(void *userdata, Uint8 *stream, int len)
 	}
 	pthread_mutex_unlock(&mutex);
 }
-
-/* Define mul_add_pcm(). */
-#define MUL_ADD_PCM mul_add_pcm
-#include "muladdpcm.h"

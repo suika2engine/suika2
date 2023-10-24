@@ -54,12 +54,14 @@ target_link_libraries(
   PRIVATE
   suika2
   png
-  z
   jpeg
+  webp
+  freetype
   vorbisfile
   vorbis
   ogg
-  freetype
+  z
+  bz2
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::OpenGLWidgets
   Qt${QT_VERSION_MAJOR}::Multimedia

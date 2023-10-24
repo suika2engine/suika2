@@ -7,29 +7,33 @@
 
 package jp.luxion.suika;
 
+import static android.opengl.GLSurfaceView.RENDERMODE_CONTINUOUSLY;
+import static android.opengl.GLSurfaceView.RENDERMODE_WHEN_DIRTY;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Bundle;
 import android.util.Log;
-import android.util.AttributeSet;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.GLES20;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
-import android.view.Display;
 import android.view.Window;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
-import android.graphics.Point;
+import android.view.SurfaceHolder;
 
 import androidx.annotation.RequiresApi;
 
@@ -96,6 +100,27 @@ public class MainActivity extends Activity {
     /** BGM/VOICE/SEのMediaPlayerです。 */
     private MediaPlayer[] player = new MediaPlayer[MIXER_STREAMS];
 
+    /** ビデオのMediaPlayerです。 */
+    private MediaPlayer video;
+
+    /** ビデオのビューです。 */
+    private VideoSurfaceView videoView;
+
+    /** ビデオ再生開始のHandlerです。 */
+    private Handler videoStartHandler;
+
+    /** ビデオ再生終了のHandlerです。 */
+    private Handler videoStopHandler;
+
+    /** ビデオ再生中のHandlerです。 */
+    private Handler videoLoopHandler;
+
+    /** ビデオ再生中に一定周期でコマンドのイベント処理を行うスレッドです。 */
+    private Thread videoThread;
+
+    /** ビデオ再生から復帰した直後であるかを表します。 */
+    private boolean resumeFromVideo;
+
     /** 同期用オブジェクトです。 */
     private Object syncObj = new Object();
 
@@ -128,13 +153,110 @@ public class MainActivity extends Activity {
         }
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        // ビューを作成してセットする
+        // メインビューを作成してセットする
         view = new MainView(this);
         setContentView(view);
+
+        // ビデオ用のビューを作成しておく
+        videoView = new VideoSurfaceView(this);
+        videoThread = new Thread(videoView);
+        videoThread.start();
+
+        // ビデオの再生開始・再生終了・再生中をイベントスレッドで処理するためのHandlerを作る
+        videoStartHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                view.setRenderMode(RENDERMODE_WHEN_DIRTY);
+                setContentView(videoView);
+                video.start();
+                super.handleMessage(msg);
+            }
+        };
+        videoStopHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                resumeFromVideo = true;
+                setContentView(view);
+                view.setRenderMode(RENDERMODE_CONTINUOUSLY);
+                super.handleMessage(msg);
+            }
+        };
+        videoLoopHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                videoView.invalidate();
+                super.handleMessage(msg);
+            }
+        };
     }
 
     /**
-     * ビューです。
+     * 一時停止する際に呼ばれます。
+     */
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // サウンドの再生を一時停止する
+        for(int i=0; i<player.length; i++) {
+            if(player[i] != null) {
+                // すでに再生終了している場合を除外する
+                if(!player[i].isPlaying())
+                    player[i] = null;
+                else
+                    player[i].pause();
+            }
+        }
+    }
+
+    /**
+     * 再開する際に呼ばれます。
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // サウンドの再生を再開する
+        for(int i=0; i<player.length; i++)
+            if(player[i] != null)
+                player[i].start();
+    }
+
+    /**
+     * バックキーが押下された際に呼ばれます。
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Quit?");
+        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finishAndRemoveTask();
+            }
+        });
+        builder.setNeutralButton("No", null);
+        builder.create().show();
+    }
+
+    /**
+     * 終了する際に呼ばれます。
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(!isFinished) {
+            // JNIコードで終了処理を行う
+            cleanup();
+
+            isFinished = true;
+        }
+    }
+
+    /**
+     * メインのビューです。ビデオ再生以外で使用されます。
      */
     private class MainView extends GLSurfaceView implements
             View.OnTouchListener,
@@ -157,8 +279,13 @@ public class MainActivity extends Activity {
          */
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            // JNIコードで初期化処理を実行する
-            init();
+            if(!resumeFromVideo) {
+                // JNIコードで初期化処理を実行する
+                init();
+            } else {
+                resumeFromVideo = false;
+                reinit();
+            }
         }
 
         /**
@@ -195,6 +322,8 @@ public class MainActivity extends Activity {
         @Override
         public void onDrawFrame(GL10 gl) {
             if(isFinished)
+                return;
+            if(video != null)
                 return;
 
             // イベントハンドラと排他制御する
@@ -257,67 +386,71 @@ public class MainActivity extends Activity {
         }
     }
 
-    /**
-     * 一時停止する際に呼ばれます。
+    /*
+     * ビデオ再生用のSurfaceViewです。
      */
-    @Override
-    public void onPause() {
-        super.onPause();
+    class VideoSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener, Runnable {
+        public VideoSurfaceView(Context context) {
+            super(context);
+            SurfaceHolder holder = getHolder();
+            holder.addCallback(this);
+            setOnTouchListener(this);
+        }
 
-        // サウンドの再生を一時停止する
-        for(int i=0; i<player.length; i++) {
-            if(player[i] != null) {
-                // すでに再生終了している場合を除外する
-                if(!player[i].isPlaying())
-                    player[i] = null;
-                else
-                    player[i].pause();
+        @Override
+        public void surfaceCreated(SurfaceHolder paramSurfaceHolder) {
+            if(video != null) {
+                SurfaceHolder holder = videoView.getHolder();
+                video.setDisplay(holder);
+                setWillNotDraw(false);
             }
         }
-    }
 
-    /**
-     * 再開する際に呼ばれます。
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
+        @Override
+        public void surfaceChanged(SurfaceHolder paramSurfaceHolder, int paramInt1, int paramInt2, int paramInt3) {
+        }
 
-        // サウンドの再生を再開する
-        for(int i=0; i<player.length; i++)
-            if(player[i] != null)
-                player[i].start();
-    }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder paramSurfaceHolder) {
+        }
 
-    /**
-     * バックキーが押下された際に呼ばれます。
-     */
-    @Override
-    public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Quit?");
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                finishAndRemoveTask();
+        @Override
+        public void onDraw(Canvas canvas) {
+            if(video != null) {
+                // JNIコードでフレームを処理する
+                if (!frame()) {
+                    // JNIコードで終了処理を行う
+                    cleanup();
+
+                    // アプリケーションを終了する
+                    finishAndRemoveTask();
+                    isFinished = true;
+                }
             }
-        });
-        builder.setNeutralButton("No", null);
-        builder.create().show();
-    }
+        }
 
-    /**
-     * 終了する際に呼ばれます。
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+        public void run() {
+            while(true) {
+                if(video != null)
+                    videoLoopHandler.sendEmptyMessage(0);
+                try {
+                    Thread.sleep(33);
+                } catch(InterruptedException e) {
+                }
+            }
+        }
 
-        if(!isFinished) {
-            // JNIコードで終了処理を行う
-            cleanup();
-
-            isFinished = true;
+        /**
+         * タッチされた際に呼ばれます。
+         */
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            // 描画スレッドと排他制御する
+            synchronized(syncObj) {
+                touchLeftDown(0, 0);
+                touchLeftUp(0, 0);
+            }
+            return true;
         }
     }
 
@@ -325,8 +458,11 @@ public class MainActivity extends Activity {
      * ネイティブメソッド
      */
 
-    /** 初期化処理を行います。	*/
+    /** 初期化処理を行います。 */
     private native void init();
+
+    /** 再初期化処理を行います。ビデオ再生から復帰します。 */
+    private native void reinit();
 
     /** 終了処理を行います。 */
     private native void cleanup();
@@ -374,7 +510,6 @@ public class MainActivity extends Activity {
             player[stream].start();
         } catch(IOException e) {
             Log.e("Suika", "Failed to load sound " + fileName);
-            return;
         }
     }
 
@@ -397,6 +532,51 @@ public class MainActivity extends Activity {
 
         if(player[stream] != null)
             player[stream].setVolume(vol, vol);
+    }
+
+    /** 動画の再生を開始します。 */
+    private void playVideo(String fileName, boolean isSkippable) {
+		if (video != null) {
+			video.stop();
+			video = null;
+		}
+
+        try {
+            AssetFileDescriptor afd = getAssets().openFd("mov/" + fileName);
+            video = new MediaPlayer();
+            video.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            video.prepare();
+            videoStartHandler.sendEmptyMessage(0);
+        } catch(IOException e) {
+            Log.e("Suika", "Failed to play video " + fileName);
+        }
+    }
+
+    /** 動画の再生を開始します。 */
+    private void stopVideo() {
+        if(video != null) {
+            video.stop();
+            video.reset();
+            video.release();
+            video = null;
+            videoStopHandler.sendEmptyMessage(0);
+        }
+    }
+
+    /** 動画の再生状態を取得します。 */
+    private boolean isVideoPlaying() {
+        if(video != null) {
+            int pos = video.getCurrentPosition();
+            if (pos == 0)
+                return true;
+            if (video.isPlaying()) {
+                return true;
+            }
+            video.stop();
+            videoStopHandler.sendEmptyMessage(0);
+            video = null;
+        }
+		return false;
     }
 
     /*

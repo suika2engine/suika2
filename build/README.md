@@ -247,35 +247,3 @@ export LD_LIBRARY_PATH=/usr/pkg/lib:/usr/X11R7/lib
 gmake
 gmake install
 ```
-
-### Switch (main engine)
-This method will build a Switch app.
-
-**LEGAL NOTICE**: The original author does not have a license for the official
-Switch SDK, so he just wrote a code that works with SDL2. After that,
-a volunteer made it work with Switch homebrew. However, the original author
-was not involved in this porting, and he is trying to obtain an official
-license.
-
-* Manual Building Steps
-  * Install [devkitpro](https://devkitpro.org/wiki/Getting_Started)
-  * Set an environment variable `DEVKITPRO`, e.g., `export DEVKITPRO=/opt/devkitpro`
-  * Run `sudo dkp-pacman -S switch-dev switch-portlibs`
-  * In the `build/switch` directory:
-    * `make swika.nro` (this builds nro file that can be loaded by hbmenu)
-    * `make debug SWITH_IP=192.168.xx.xx` (this runs the app for debug)
-* Docker Building Steps
-  * You can use a docker container for the compililation:
-  ```
-  docker pull devkitpro/devkita64
-  docker run -d -it --rm -v $(pwd):/project --name devkita64_run devkitpro/devkita64
-  docker exec -i devkita64_run bash -c "cd /project/build/switch && make"
-  docker stop devkita64_run
-  docker rm devkita64_run
-  ```
-* Running Steps
-  * Copy `suika.nro` to `yourgamedir`.
-  * Copy `yourgamedir` to a Switch compatible sdcard (`/switch/yourgamedir`)
-  * Install `hbmenu` and select an arbitrary Switch app, then press `R` to enter `hbmenu`.
-    * Note: applet mode is not available as there is not enough memory.
-  * Select `swika` to play

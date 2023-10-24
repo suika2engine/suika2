@@ -16,6 +16,7 @@ mkdir -p tmp libroot
 
 cd tmp
 
+echo 'building zlib...'
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11
 ./configure --prefix=$PREFIX --static --archs="-arch arm64 -arch x86_64"
@@ -23,6 +24,7 @@ make
 make install
 cd ..
 
+echo 'building libpng...'
 tar xzf ../../libsrc/libpng-1.6.35.tar.gz
 cd libpng-1.6.35
 ./configure --prefix=$PREFIX --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch x86_64"
@@ -30,6 +32,23 @@ make
 make install
 cd ..
 
+echo 'Building bzip2...'
+tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make libbz2.a CFLAGS='-arch arm64 -arch x86_64 -O3 -ffunction-sections -fdata-sections'
+cp bzlib.h ../../libroot/include/
+cp libbz2.a ../../libroot/lib/
+cd ..
+
+echo 'Building libwebp...'
+tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
+cd libwebp-1.3.2
+./configure --prefix=$PREFIX --enable-static --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch x86_64"
+make
+make install
+cd ..
+
+echo 'building jpeg9...'
 tar xzf ../../libsrc/jpegsrc.v9e.tar.gz
 cd jpeg-9e
 ./configure --prefix=$PREFIX --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch x86_64"

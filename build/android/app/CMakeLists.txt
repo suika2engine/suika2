@@ -61,6 +61,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/ndkwave.c
              src/main/cpp/readimage.c
              src/main/cpp/readjpeg.c
+             src/main/cpp/readwebp.c
              src/main/cpp/save.c
              src/main/cpp/scbuf.c
              src/main/cpp/script.c
@@ -70,7 +71,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/wms_core.c
              src/main/cpp/wms_impl.c
              src/main/cpp/wms_lexer.yy.c
-             src/main/cpp/wms_parser.tab.c )
+             src/main/cpp/wms_parser.tab.c
+)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -92,19 +94,26 @@ find_library( # Sets the name of the path variable.
 target_link_libraries( # Specifies the target library.
                        suika
                        GLESv3
-                       z
                        png
-#                       ogg
-#                       vorbis
-#                       vorbisfile
-                       freetype
                        jpeg
+		      		   webp
+                       freetype
+                       z
+		               bz2
+#                      ogg
+#                      vorbis
+#                      vorbisfile
 
                        # Links the target library to the log library
                        # included in the NDK.
-                       ${log-lib} )
+                       ${log-lib}
+)
 
 add_definitions(-DUSE_OPENGL)
+
+# bzip2
+add_subdirectory(src/main/cpp/bzip2)
+include_directories(src/main/cpp/bzip2)
 
 # libpng
 option(HAVE_LD_VERSION_SCRIPT OFF)
@@ -112,13 +121,17 @@ set(HAVE_LD_VERSION_SCRIPT OFF)
 add_subdirectory(src/main/cpp/libpng)
 include_directories(src/main/cpp/libpng)
 
-# freetype
-add_subdirectory(src/main/cpp/freetype)
-include_directories(src/main/cpp/freetype/include)
-
 # libjpeg
 add_subdirectory(src/main/cpp/jpeg)
 include_directories(src/main/cpp/jpeg)
+
+# libwebp
+add_subdirectory(src/main/cpp/libwebp)
+include_directories(src/main/cpp/libwebp)
+
+# freetype
+add_subdirectory(src/main/cpp/freetype)
+include_directories(src/main/cpp/freetype/include)
 
 # libogg
 #add_subdirectory(src/main/cpp/libogg)

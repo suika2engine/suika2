@@ -12,6 +12,7 @@
  */
 
 #include "suika.h"
+#include "replay.h"
 #include "png.h"
 
 #ifdef OSX

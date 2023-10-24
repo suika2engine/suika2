@@ -64,6 +64,9 @@ build/vs/libogg
 build/vs/libvorbis
 build/vs/freetype
 build/vs/jpeg
+build/vs/bzip2
+build/vs/libwebp
+build/vs/obj
 build/vs/Debug
 build/vs/Release
 build/vs/suika/Debug
@@ -120,9 +123,11 @@ suika-pro
 build/android/.idea/caches
 build/android/app/.cxx
 build/android/app/src/main/assets
-build/android/app/src/main/cpp/freetype
+build/android/app/src/main/cpp/bzip2
 build/android/app/src/main/cpp/libpng
 build/android/app/src/main/cpp/jpeg
+build/android/app/src/main/cpp/libwebp
+build/android/app/src/main/cpp/freetype
 build/android/app/src/main/cpp/*.[ch]
 build/android/cmdline-tools
 build/android/commandlinetools-linux-*.zip
@@ -156,16 +161,16 @@ build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
 
-# Switch homebrew
-build/switch/libroot
-build/switch/exefs
-build/switch/romfs
-build/switch/tmp
-build/switch/*.o
-build/switch/*.elf
-build/switch/*.nro
-build/switch/*.nacp
-build/switch/*.nsp
+# Console Example
+build/console/libroot
+build/console/exefs
+build/console/romfs
+build/console/tmp
+build/console/*.o
+build/console/*.elf
+build/console/*.nro
+build/console/*.nacp
+build/console/*.nsp
 
 # Tests
 testcases

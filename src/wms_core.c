@@ -1268,51 +1268,86 @@ eval_stmt(
 
 	if (stmt->type.is_empty) {
 		*val = value_by_int(0);
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_expr) {
 		if (!eval_expr_stmt(rt, stmt->of.expr, val))
 			return false;
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_assign) {
 		if (!eval_assign_stmt(rt, stmt->of.assign, val))
 			return false;
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_if) {
 		if (!eval_if_stmt(rt, stmt->of._if, val, ret, brk, cont))
 			return false;
 		rt->is_after_if = true;
-		if (val->type.is_int && val->val.i == 0)
-			rt->is_after_false_if = true;
+		rt->is_after_false_if = (val->type.is_int && val->val.i == 0);
 		return true;
 	} else if (stmt->type.is_elif) {
-		if (!eval_elif_stmt(rt, stmt->of.elif, val, ret, brk, cont))
-			return false;
-		rt->is_after_if = true;
-		if (val->type.is_int && val->val.i == 0)
-			rt->is_after_false_if = true;
+		if (!rt->is_after_if)
+			return rterror(rt, "else if before if");
+		if (rt->is_after_false_if) {
+			if (!eval_elif_stmt(rt, stmt->of.elif, val, ret, brk, cont))
+				return false;
+			rt->is_after_if = true;
+			rt->is_after_false_if = (val->type.is_int && val->val.i == 0);
+		} else {
+			*val = value_by_int(0);
+			rt->is_after_if = true;
+			rt->is_after_false_if = false;
+		}
 		return true;
 	} else if (stmt->type.is_else) {
+		if (!rt->is_after_if)
+			return rterror(rt, "else before if");
+		if (!rt->is_after_false_if) {
+			*val = value_by_int(0);
+			return true;
+		}
 		if (!eval_else_stmt(rt, stmt->of._else, val, ret, brk, cont))
 			return false;
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_while) {
 		if (!eval_while_stmt(rt, stmt->of._while, val, ret))
 			return false;
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_for) {
 		if (!eval_for_stmt(rt, stmt->of._for, val, ret))
 			return false;
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_return) {
 		if (!eval_return_stmt(rt, stmt->of._return, val))
 			return false;
 		*ret = true;
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_break) {
 		*val = value_by_int(0);
 		*brk = true;
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	} else if (stmt->type.is_continue) {
 		*val = value_by_int(0);
 		*cont = true;
-	} else {
-		return rterror(rt, "Invalid stmt type");
+		rt->is_after_if = false;
+		rt->is_after_false_if = false;
+		return true;
 	}
-	rt->is_after_if = false;
-	rt->is_after_false_if = false;
-	return true;
+	return rterror(rt, "Invalid stmt type");
 }
 
 static bool
@@ -1421,13 +1456,6 @@ eval_elif_stmt(
 	assert(eis != NULL);
 	assert(val != NULL);
 
-	if (!rt->is_after_if)
-		return rterror(rt, "else before if");
-	if (!rt->is_after_false_if) {
-		*val = value_by_int(0);
-		return true;
-	}
-
 	/* Evaluate condition. */
 	if (!eval_expr(rt, eis->cond, &cond_val))
 		return false;
@@ -1461,13 +1489,6 @@ eval_else_stmt(
 	assert(rt != NULL);
 	assert(es != NULL);
 	assert(val != NULL);
-
-	if (!rt->is_after_if)
-		return rterror(rt, "else before if");
-	if (!rt->is_after_false_if) {
-		*val = value_by_int(0);
-		return true;
-	}
 
 	/* Execute stmt_list. */
 	if (es->stmt_list != NULL)

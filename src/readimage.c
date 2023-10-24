@@ -13,6 +13,11 @@
 /* readjpeg.h */
 struct image *create_image_from_file_jpeg(const char *dir, const char *file);
 
+/* readwebp.h */
+#ifndef EM
+struct image *create_image_from_file_webp(const char *dir, const char *file);
+#endif
+
 /*
  * ファイルスコープ変数
  */
@@ -27,6 +32,7 @@ static struct image *image;
 /*
  * 前方参照
  */
+static bool is_webp_ext(const char *str);
 static bool is_jpg_ext(const char *str);
 static struct image *cleanup(void);
 static bool read_image_file(const char *dir, const char *file);
@@ -40,6 +46,12 @@ static bool read_body(void);
  */
 struct image *create_image_from_file(const char *dir, const char *file)
 {
+#ifndef EM
+	/* WebPファイルの場合は別なルーチンを使う */
+	if (is_webp_ext(file))
+		return create_image_from_file_webp(dir, file);
+#endif
+
 	/* JPEGファイルの場合は別なルーチンを使う */
 	if (is_jpg_ext(file))
 		return create_image_from_file_jpeg(dir, file);
@@ -56,6 +68,22 @@ struct image *create_image_from_file(const char *dir, const char *file)
 	/* イメージを返す */
 	return cleanup();
 }
+
+#ifndef EM
+/* 拡張子がWebPであるかチェックする */
+static bool is_webp_ext(const char *str)
+{
+	size_t len1 = strlen(str);
+	size_t len2 = 5;
+	if (len1 >= len2) {
+		if (strcmp(str + len1 - len2, ".webp") == 0)
+			return true;
+		if (strcmp(str + len1 - len2, ".WEBP") == 0)
+			return true;
+	}
+	return false;
+}
+#endif
 
 /* 拡張子がJPGであるかチェックする */
 static bool is_jpg_ext(const char *str)

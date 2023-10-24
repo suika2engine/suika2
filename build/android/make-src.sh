@@ -26,7 +26,6 @@ COPY_LIST="\
 	settings.gradle \
 	gradlew.bat \
 	gradle \
-	build.ps1 \
 "
 for f in $COPY_LIST; do
     cp -R "$f" "$TARGET/";
@@ -136,4 +135,4 @@ cp cmakelists_for_libjpeg.txt "$TARGET/app/src/main/cpp/jpeg/CMakeLists.txt"
 cp "$TARGET/app/src/main/cpp/jpeg/jconfig.txt" "$TARGET/app/src/main/cpp/jpeg/jconfig.h"
 
 # Create a placeholder for assets.
-mkdir "$TARGET/app/src/main/assets"
+mkdir -p "$TARGET/app/src/main/assets"

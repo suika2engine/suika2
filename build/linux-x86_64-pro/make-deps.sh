@@ -89,6 +89,7 @@ SRC="\
 	platform.h \
 	readimage.c \
 	readjpeg.c \
+	readwebp.c \
 	save.h \
 	save.c \
 	scalesamples.h \
@@ -139,6 +140,16 @@ tar xzf "$SUIKA2_ROOT/build/libsrc/jpegsrc.v9e.tar.gz" -C "$DEPS"
 mv "$DEPS/jpeg-9e" "$DEPS/jpeg"
 cp cmake/jpeg.txt "$DEPS/jpeg/CMakeLists.txt"
 cp "$DEPS/jpeg/jconfig.txt" "$DEPS/jpeg/jconfig.h"
+
+# Copy libwebp source files
+tar xzf "$SUIKA2_ROOT/build/libsrc/libwebp-1.3.2.tar.gz" -C "$DEPS"
+mv "$DEPS/libwebp-1.3.2" "$DEPS/libwebp"
+cp cmake/libwebp.txt "$DEPS/libwebp/CMakeLists.txt"
+
+# Copy bzip2 source files
+tar xzf "$SUIKA2_ROOT/build/libsrc/bzip2-1.0.6.tar.gz" -C "$DEPS/libwebp"
+mv "$DEPS/libwebp/bzip2-1.0.6" "$DEPS/libwebp/bzip2"
+cp cmake/bzip2.txt "$DEPS/libwebp/bzip2/CMakeLists.txt"
 
 # Copy libogg source files
 tar xzf "$SUIKA2_ROOT/build/libsrc/libogg-1.3.3.tar.gz" -C "$DEPS"

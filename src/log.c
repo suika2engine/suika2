@@ -288,8 +288,6 @@ void log_script_exec_footer(void)
 #else
 	/* '@'コマンドをメッセージに変換する */
 	translate_failed_command_to_message(get_command_index());
-
-	dbg_set_error_state();
 #endif
 }
 

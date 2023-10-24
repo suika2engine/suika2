@@ -45,12 +45,8 @@ bool reconstruct_glyph(void);
 const char *get_global_font_file_name(void);
 
 /* utf-8文字列の先頭文字をutf-32文字に変換する */
-#if defined(SUIKA_AVOID_SWITCH_REDEFINITION)
-/*
- * We have a duplicated symbol in libnx,
- * so just avoid redefinition for switchmain.c
- */
-#else
+#ifndef AVOID_UTF8_TO_UTF32
+/* We have a duplicated symbol on some platforms, just avoid redefinition here. */
 int utf8_to_utf32(const char *mbs, uint32_t *wc);
 #endif
 

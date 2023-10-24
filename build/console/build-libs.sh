@@ -52,6 +52,22 @@ make -j$CORE_NUM
 make install
 cd ..
 
+# build bzip2
+tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make libbz2.a -j$CORE_NUM CFLAGS='-O3 -ffunction-sections -fdata-sections'
+cp bzlib.h ../../libroot/include/
+cp libbz2.a ../../libroot/lib/
+cd ..
+
+# build libwebp
+tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
+cd libwebp-1.3.2
+./configure --prefix=$PREFIX --enable-static --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib
+make
+make install
+cd ..
+
 # build ogg
 tar xzf ../../libsrc/libogg-1.3.3.tar.gz
 cd libogg-1.3.3
@@ -74,7 +90,7 @@ make -j$CORE_NUM
 make install
 cd ..
 
-# build free type, if windows must have gcc in path
+# build freetype2
 tar xzf ../../libsrc/freetype-2.9.1.tar.gz
 cd freetype-2.9.1
 sed -e 's/FONT_MODULES += type1//' \
@@ -96,7 +112,3 @@ mv modules.cfg.new modules.cfg
 make -j$CORE_NUM
 make install
 cd ..
-exit
-
-cd ..
-rm -rf tmp

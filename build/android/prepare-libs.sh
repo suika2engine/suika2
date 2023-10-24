@@ -1,5 +1,16 @@
 #!/bin/sh
 
+# Extract bzip2 source into the android project tree.
+rm -rf app/src/main/cpp/zlib2
+tar xzf ../libsrc/bzip2-1.0.6.tar.gz -C app/src/main/cpp/
+mv app/src/main/cpp/bzip2-1.0.6 app/src/main/cpp/bzip2
+cp cmakelists_for_bzip2.txt app/src/main/cpp/bzip2/CMakeLists.txt
+
+# Extract libwebp source into the android project tree.
+rm -rf app/src/main/cpp/libwebp
+tar xzf ../libsrc/libwebp-1.3.2.tar.gz -C app/src/main/cpp/
+mv app/src/main/cpp/libwebp-1.3.2 app/src/main/cpp/libwebp
+
 # Extract freetype2 source into the android project tree.
 rm -rf app/src/main/cpp/freetype
 tar xzf ../libsrc/freetype-2.9.1.tar.gz -C app/src/main/cpp/
@@ -79,6 +90,7 @@ cp ../../src/ndkwave.c app/src/main/cpp/ndkwave.c
 cp ../../src/platform.h app/src/main/cpp/platform.h
 cp ../../src/readimage.c app/src/main/cpp/readimage.c
 cp ../../src/readjpeg.c app/src/main/cpp/readjpeg.c
+cp ../../src/readwebp.c app/src/main/cpp/readwebp.c
 cp ../../src/save.c app/src/main/cpp/save.c
 cp ../../src/save.h app/src/main/cpp/save.h
 cp ../../src/scbuf.c app/src/main/cpp/scbuf.c

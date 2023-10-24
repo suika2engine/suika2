@@ -779,14 +779,10 @@ int get_pen_position_y(void)
 	return saved_pen_y;
 }
 
-#ifdef USE_DEBUGGER
 /*
- * デバッガの実行状態を取得する
+ * For Suika2 Pro
  */
-bool dbg_is_running(void)
-{
-	return dbg_running;
-}
+#ifdef USE_DEBUGGER
 
 /*
  * デバッガの実行状態を停止にする
@@ -826,9 +822,11 @@ const char license_info[]
 __attribute__((used))
 #endif
  =	"Suika2: Copyright (c) 2001-2023, Keiichi Tabata.\n"
+	"This program uses bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.\n"
+	"This program uses libwebp: Copyright (C) 2010, Google Inc. All rights reserved.\n"
 	"This program uses zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler.\n"
-	"This program uses libpng: Copyright (c) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors.\n"
+	"This program uses libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors.\n"
 	"This program uses jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding.\n"
-	"This program uses libogg: Copyright (c) 2002, Xiph.org Foundation\n"
-	"This program uses libvorbis: Copyright (c) 2002-2015, Xiph.org Foundation\n"
-	"This program uses FreeType: Copyright 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg.\n";
+	"This program uses libogg: Copyright (C) 2002, Xiph.org Foundation\n"
+	"This program uses libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation\n"
+	"This program uses FreeType: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg.\n";

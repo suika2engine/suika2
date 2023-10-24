@@ -13,12 +13,24 @@
  *  2023-09-20 Android/iOSエクスポート対応
  */
 
+/* Suika2 Base */
 #include "suika.h"
+
+/* Suika2 Pro */
 #include "windebug.h"
 #include "package.h"
+
+/* Windows Resource */
+#include <windows.h>
+#include <commctrl.h>	/* TOOLINFO */
 #include "resource.h"
 
-#include <commctrl.h>
+/* msvcrt */
+#include <stdlib.h>	/* exit() */
+
+/*
+ * Constants
+ */
 
 /* UTF-8からSJISへの変換バッファサイズ */
 #define NATIVE_MESSAGE_SIZE	(65536)
@@ -28,6 +40,10 @@
 
 /* ウィンドウクラス名 */
 const wchar_t wszWindowClass[] = L"SuikaDebugPanel";
+
+/*
+ * Variables
+ */
 
 /* メインウィンドウのハンドル */
 static HWND hWndMain;
@@ -85,10 +101,12 @@ static BOOL bReloadPressed;
 /* 変数のテキストボックスの内容 */
 static wchar_t szTextboxVar[VAR_TEXTBOX_MAX + 1];
 
-/* 前方参照 */
+/*
+ * Forward Declaration
+ */
+
 static VOID InitDebuggerMenu(HWND hWnd);
-static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish,
-						  const wchar_t *pszTextJapanese);
+static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
 static VOID OnPressReset(void);
@@ -107,6 +125,23 @@ static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDi
 static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 static VOID UpdateVariableTextBox(void);
+
+/*
+ * 引数が指定された場合はパッケージャとして機能する
+ *  - 単体機能のpackage.exeはセキュリティソフトに誤認識されるため
+ */
+VOID DoPackagingIfArgExists(VOID)
+{
+	if (__argc == 2 && wcscmp(__wargv[1], L"--package") == 0)
+	{
+		if (!create_package(""))
+		{
+			log_error("Packaging error!");
+			exit(1);
+		}
+		exit(0);
+	}
+}
 
 /*
  * デバッガパネルを作成する
@@ -1303,8 +1338,7 @@ VOID OnExportAndroid(void)
 			   L"Will open the exported source code folder.\n"
 			   L"Build with Android Studio." :
 			   L"エクスポートしたソースコードフォルダを開きます。\n"
-			   L"Android Studioでそのままビルドできます。\n"
-			   L"build.ps1を実行すれば自動ビルドも可能です。",
+			   L"Android Studioでそのままビルドできます。",
 			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
 
 	/* Explorerを開く */

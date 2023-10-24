@@ -16,35 +16,52 @@
  *  2023-07-17 Add capture/replay support.
  */
 
+/* Xlib */
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/xpm.h>
 #include <X11/Xatom.h>
 #include <X11/Xlocale.h>
 
+/* POSIX */
 #include <sys/types.h>
 #include <sys/stat.h>	/* stat(), mkdir() */
 #include <sys/time.h>	/* gettimeofday() */
 #include <unistd.h>	/* usleep(), access() */
 
+/* Suika2 Base */
 #include "suika.h"
 
+/* Suika2 HAL implementation for sound output */
 #if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 #include "asound.h"
 #include "gstplay.h"
 #endif
 
+/* Suika2 HAL implementation for graphics */
 #ifdef USE_X11_OPENGL
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include "glrender.h"
 #endif
 
+/* Suika2 Capture */
+#ifdef USE_CAPTURE
+#include "capture.h"
+#endif
+
+/* Suika2 Replay */
+#ifdef USE_REPLAY
+#include "replay.h"
+#endif
+
+/* x86 SSE/AVX dispatch */
 #ifdef SSE_VERSIONING
 #include "x86.h"
 #endif
 
-#include "icon.xpm"	/* アイコン */
+/* App Icon */
+#include "icon.xpm"
 
 /*
  * 色の情報
