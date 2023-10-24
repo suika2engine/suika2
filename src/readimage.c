@@ -14,7 +14,9 @@
 struct image *create_image_from_file_jpeg(const char *dir, const char *file);
 
 /* readwebp.h */
+#ifndef EM
 struct image *create_image_from_file_webp(const char *dir, const char *file);
+#endif
 
 /*
  * ファイルスコープ変数
@@ -44,9 +46,11 @@ static bool read_body(void);
  */
 struct image *create_image_from_file(const char *dir, const char *file)
 {
+#ifndef EM
 	/* WebPファイルの場合は別なルーチンを使う */
 	if (is_webp_ext(file))
 		return create_image_from_file_webp(dir, file);
+#endif
 
 	/* JPEGファイルの場合は別なルーチンを使う */
 	if (is_jpg_ext(file))
@@ -65,6 +69,7 @@ struct image *create_image_from_file(const char *dir, const char *file)
 	return cleanup();
 }
 
+#ifndef EM
 /* 拡張子がWebPであるかチェックする */
 static bool is_webp_ext(const char *str)
 {
@@ -78,6 +83,7 @@ static bool is_webp_ext(const char *str)
 	}
 	return false;
 }
+#endif
 
 /* 拡張子がJPGであるかチェックする */
 static bool is_jpg_ext(const char *str)

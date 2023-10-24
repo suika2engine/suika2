@@ -373,7 +373,7 @@ const char *get_system_locale(void);
 /* TTSによる読み上げを行う */
 void speak_text(const char *text);
 #else
-#define speak_text(t)
+static inline void speak_text(UNUSED(const char *text)) { }
 #endif
 
 /***********************************************************************
