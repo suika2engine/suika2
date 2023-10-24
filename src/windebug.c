@@ -13,12 +13,24 @@
  *  2023-09-20 Android/iOSエクスポート対応
  */
 
+/* Suika2 Base */
 #include "suika.h"
+
+/* Suika2 Pro */
 #include "windebug.h"
 #include "package.h"
+
+/* Windows Resource */
+#include <windows.h>
+#include <commctrl.h>	/* TOOLINFO */
 #include "resource.h"
 
-#include <commctrl.h>
+/* msvcrt */
+#include <stdlib.h>	/* exit() */
+
+/*
+ * Constants
+ */
 
 /* UTF-8からSJISへの変換バッファサイズ */
 #define NATIVE_MESSAGE_SIZE	(65536)
@@ -28,6 +40,10 @@
 
 /* ウィンドウクラス名 */
 const wchar_t wszWindowClass[] = L"SuikaDebugPanel";
+
+/*
+ * Variables
+ */
 
 /* メインウィンドウのハンドル */
 static HWND hWndMain;
@@ -85,10 +101,12 @@ static BOOL bReloadPressed;
 /* 変数のテキストボックスの内容 */
 static wchar_t szTextboxVar[VAR_TEXTBOX_MAX + 1];
 
-/* 前方参照 */
+/*
+ * Forward Declaration
+ */
+
 static VOID InitDebuggerMenu(HWND hWnd);
-static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish,
-						  const wchar_t *pszTextJapanese);
+static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
 static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
 static VOID OnPressReset(void);
@@ -119,10 +137,11 @@ VOID DoPackagingIfArgExists(VOID)
 		if (!create_package(""))
 		{
 			log_error("Packaging error!");
-			return 1;
+			exit(1);
 		}
-		return 0;
+		exit(0);
 	}
+}
 
 /*
  * デバッガパネルを作成する
