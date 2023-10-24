@@ -77,7 +77,7 @@ include ../common.mk
 
 SRCS = \
 	$(SRCS_COMMON) \
-	../../src/switchmain.c \
+	../../src/consolemain.c \
 	../../src/glrender.c
 
 all: $(TARGET).nro
