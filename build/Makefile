@@ -6,16 +6,6 @@ usage:
 	@echo ""
 
 setup:
-	cd mingw && ./build-libs.sh && cd ..
-	cp -Ra mingw/libroot mingw-pro/
-	cp -Ra mingw/libroot mingw-capture/
-	cp -Ra mingw/libroot mingw-replay/
-	cd mingw-64 && ./build-libs.sh && cd ..
-	cd mingw-arm64 && ./build-libs.sh && cd ..
-	cd linux-x86_64 && ./build-libs.sh && cd ..
-	cp -Ra linux-x86_64/libroot linux-x86_64-capture/libroot
-	cp -Ra linux-x86_64/libroot linux-x86_64-replay/libroot
-	cd linux-x86_64-clang && ./build-libs.sh && cd ..
 	cd android && docker build -t suika2-android . && cd ..
 	docker pull devkitpro/devkita64
 
