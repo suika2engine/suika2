@@ -64,6 +64,9 @@ build/vs/libogg
 build/vs/libvorbis
 build/vs/freetype
 build/vs/jpeg
+build/vs/bzip2
+build/vs/libwebp
+build/vs/obj
 build/vs/Debug
 build/vs/Release
 build/vs/suika/Debug

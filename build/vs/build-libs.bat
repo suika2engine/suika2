@@ -7,6 +7,8 @@ rd /s /q jpeg > NUL 2>&1
 rd /s /q libogg > NUL 2>&1
 rd /s /q libvorbis > NUL 2>&1
 rd /s /q freetype > NUL 2>&1
+rd /s /q bzip2 > NUL 2>&1
+rd /s /q libwebp > NUL 2>&1
 
 echo Extracting zlib...
 tar -xzf ../libsrc/zlib-1.2.11.tar.gz
@@ -31,6 +33,20 @@ cd ..
 copy patch\jpeg\jpeg.sln jpeg\jpeg.sln
 copy patch\jpeg\jpeg.vcxproj jpeg\jpeg.vcxproj
 msbuild jpeg\jpeg.sln /t:build /p:Configuration="Release";Platform="Win32"
+
+echo Building bzip2...
+tar -xzf ../libsrc/bzip2-1.0.6.tar.gz
+ren bzip2-1.0.6 bzip2
+cd bzip2
+nmake -f makefile.msc
+cd ..
+
+echo Building libwebp...
+tar -xzf ../libsrc/libwebp-1.3.2.tar.gz
+ren libwebp-1.3.2 libwebp
+cd libwebp
+nmake /f makefile.vc CFG=release-static
+cd ..
 
 echo Building libogg...
 tar -xzf ../libsrc/libogg-1.3.3.tar.gz
