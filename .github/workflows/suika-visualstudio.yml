@@ -33,6 +33,18 @@ jobs:
           cp patch/jpeg/jpeg.sln jpeg/jpeg.sln
           cp patch/jpeg/jpeg.vcxproj jpeg/jpeg.vcxproj
           msbuild jpeg/jpeg.sln /t:build /p:Configuration="Release" /p:Platform="Win32"
+          echo bzip2
+          tar xzf ../libsrc/bzip2-1.0.6.tar.gz
+          mv bzip2-1.0.6 bzip2
+          cd bzip2
+          nmake -f makefile.msc
+          cd ..
+          echo libwebp
+          tar xzf ../libsrc/libwebp-1.3.2.tar.gz
+          mv libwebp-1.3.2 libwebp
+          cd libwebp
+          nmake /f makefile.vc CFG=release-static
+          cd ..
           echo libogg
           tar xzf ../libsrc/libogg-1.3.3.tar.gz
           mv libogg-1.3.3 libogg
