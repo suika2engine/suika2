@@ -8,7 +8,7 @@ ROMFS := ../../game
 
 # must use msys2 env in windows, cmd might failed
 ifeq ($(strip $(DEVKITPRO)),)
-	$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
+  $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
 endif
 DEVKITPRO := $(subst \\,/,$(DEVKITPRO))
 include $(DEVKITPRO)/libnx/switch_rules
@@ -65,7 +65,7 @@ LDFLAGS = \
 	-L$(DEVKITPRO)/portlibs/switch/lib \
 	-lSDL2 -lGLESv2 -lEGL \
 	-ldrm_nouveau -lglapi -lnx -lc -lstdc++ \
-	-ljpeg -lpng16 -lz \
+	-lwebp -ljpeg -lpng16 -lz -lbz2 \
 	-lvorbisfile -lvorbis -lm \
 	-logg -lfreetype -lbz2
 

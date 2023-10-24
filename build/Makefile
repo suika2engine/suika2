@@ -6,7 +6,7 @@ usage:
 	@echo ""
 
 setup:
-	cd mingw && ./build-libs.sh && cd..
+	cd mingw && ./build-libs.sh && cd ..
 	cp -Ra mingw/libroot mingw-pro/
 	cp -Ra mingw/libroot mingw-capture/
 	cp -Ra mingw/libroot mingw-replay/
