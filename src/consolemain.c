@@ -224,7 +224,7 @@ static bool init(int argc, char *argv[])
 }
 
 /* Initialize an underlying SDK. */
-static void parse_args(int argc, char *argv[])
+static void init_underlying_sdk(int argc, char *argv[])
 {
 	char *name;
 	int i;
