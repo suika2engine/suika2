@@ -26,7 +26,6 @@ COPY_LIST="\
 	settings.gradle \
 	gradlew.bat \
 	gradle \
-	build.ps1 \
 "
 for f in $COPY_LIST; do
     cp -R "$f" "$TARGET/";
