@@ -43,7 +43,7 @@ cd ..
 echo 'Building libwebp...'
 tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
 cd libwebp-1.3.2
-./configure --prefix=$PREFIX --enable-static --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib
+./configure --prefix=$PREFIX --enable-static --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch x86_64"
 make
 make install
 cd ..
