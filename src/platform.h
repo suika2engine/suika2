@@ -6,9 +6,14 @@
  */
 
 /*
- * The API of Suika2 HAL (Hardware Abstraction layer)
+ * HAL API definition of Suika2
  *
- * Rules:
+ * [HAL]
+ *  Hardware Abstraction Layer is a thin layer to port Suika2 to
+ *  various platforms. For a porting, only the basic functions listed in this
+ *  header excluding extensions need to be implemented.
+ *
+ * [Rules]
  *  - We use the utf-8 encoding for all "const char *" and "char *" string pointers
  *  - Return values of type "char *" must be freed by callers
  */
@@ -16,14 +21,15 @@
 #ifndef SUIKA_PLATFORM_H
 #define SUIKA_PLATFORM_H
 
-/*
- * Define macros for a target.
- */
 #include "types.h"
 
-/*
- * Structures that can have multiple backend implementations
- */
+/***********************************************************************
+ * HAL API                                                             *
+ ***********************************************************************/
+
+/**************
+ * Structures *
+ **************/
 
 /*
  * Image:
@@ -43,9 +49,9 @@ struct image;
  */
 struct wave;
 
-/*
- * Logging
- */
+/***********
+ * Logging *
+ ***********/
 
 /*
  * Put a info log with printf formats.
@@ -68,9 +74,9 @@ bool log_warn(const char *s, ...);
  */
 bool log_error(const char *s, ...);
 
-/*
- * Path Manipulation
- */
+/*********************
+ * Path Manipulation *
+ *********************/
 
 /*
  * Create a save directory if it is does not exist.
@@ -85,9 +91,9 @@ bool make_sav_dir(void);
  */
 char *make_valid_path(const char *dir, const char *fname);
 
-/*
- * GPU Checks
- */
+/**************
+ * GPU Checks *
+ **************/
 
 /*
  * Return whether the HAL uses GPU acceleration.
@@ -105,9 +111,9 @@ bool is_gpu_accelerated(void);
  */
 bool is_opengl_enabled(void);
 
-/*
- * Texture Manipulation
- */
+/************************
+ * Texture Manipulation *
+ ************************/
 
 /*
  * Lock a texture object.
@@ -144,9 +150,9 @@ unlock_texture(int width,		/* image width */
  */
 void destroy_texture(void *texture);
 
-/*
- * Rendering
- */
+/*************
+ * Rendering *
+ *************/
 
 /*
  * Render an image to the screen with the "normal" shader.
@@ -195,9 +201,9 @@ void render_image_melt(struct image * RESTRICT src_img,		/* [IN] a source image 
 		       struct image * RESTRICT rule_img,	/* [IN] a rule image */
 		       int progress);				/* progress (0 to 255) */
 
-/*
- * Lap Timer
- */
+/*************
+ * Lap Timer *
+ *************/
 
 /*
  * Reset a lap timer and initialize it with a current time.
@@ -210,13 +216,16 @@ void reset_stop_watch(stop_watch_t *t);
  */
 int get_stop_watch_lap(stop_watch_t *t);
 
+/******************
+ * Sound Playback *
+ ******************/
+
 /*
- * Sound Playback
- *  - Stream types:
- *    - BGM_STREAM: background music
- *    - SE_STREAM: sound effect
- *    - VOICE_STREAM: character voice
- *    - SYS_STREAM: system sound
+ * Note: we have the following sound streams:
+ *  - BGM_STREAM: background music
+ *  - SE_STREAM: sound effect
+ *  - VOICE_STREAM: character voice
+ *  - SYS_STREAM: system sound
  */
 
 /*
@@ -242,9 +251,9 @@ bool set_sound_volume(int stream, float vol);
  */
 bool is_sound_finished(int stream);
 
-/*
- * Confirmation prompt dialogs.
- */
+/*******************************
+ * Confirmation Prompt Dialogs *
+ *******************************/
 
 /*
  * Show a quit dialog.
@@ -271,9 +280,9 @@ bool overwrite_dialog(void);
  */
 bool default_dialog(void);
 
-/*
- * Video Playback.
- */
+/******************
+ * Video Playback *
+ ******************/
 
 /*
  * Start playing a video file.
@@ -291,9 +300,9 @@ void stop_video(void);
  */
 bool is_video_playing(void);
 
-/*
- * Window Manipulation
- */
+/***********************
+ * Window Manipulation *
+ ***********************/
 
 /*
  * Set a window title.
@@ -324,9 +333,9 @@ void enter_full_screen_mode(void);
  */
 void leave_full_screen_mode(void);
 
-/*
- * Locale
- */
+/**********
+ * Locale *
+ **********/
 
 /*
  * Get the system language.
@@ -355,11 +364,11 @@ void leave_full_screen_mode(void);
  */
 const char *get_system_locale(void);
 
-/*
- * Text-To-Speech
- */
+/******************
+ * Text-To-Speech *
+ ******************/
 
-/* Currently we support TTS in Windows only. */
+/* Currently we support TTS on Windows only. */
 #if defined(WIN)
 /* TTSによる読み上げを行う */
 void speak_text(const char *text);
@@ -367,25 +376,15 @@ void speak_text(const char *text);
 #define speak_text(t)
 #endif
 
-/*****************************************************************************
- * This is the end of the HAL interface for the main engine.
- * After this line, it is not required for game execution.
- * They are for Suika2 Pro, Suika2 Capture and Suika2 Replay, respectively.
- *****************************************************************************/
-
+/***********************************************************************
+ * HAL-DBG API                                                         *
+ ***********************************************************************/
 /*
- * For Suika2 Pro:
- *  - VLS v1 API is a debugger and it cannot change script models
- *  - VLS v2 API is also an editor so that it can change script models
- *  - A script view is expected to be:
- *    - v1: A list view that is not edited by a user
- *    - v2: An text view that is edited by a user
+ * For Suika2 Pro (of debugger versions):
+ *  - HAL-DBG is for debuggers and it cannot change script models
+ *  - A script view is expected to be a list view that is not edited by a user
  */
 #ifdef USE_DEBUGGER
-
-/*
- * VLS v1 API (debugger capability)
- */
 
 /*
  * Return whether the "resume" botton is pressed.
@@ -450,22 +449,11 @@ update_debug_info(
 	bool script_changed	/* is the current script file changed? */
 );
 
-/*
- * VLS v2 API (editor capability)
- */
+#endif /* USE_DEBUGGER */
 
-/*
- * Post a script line update event.
- *  - A event is queued and executed at frame events
- */
-bool
-post_update_script_line(
-	int line,		/* line number */
-	const char *text,	/* [IN] a line text (can be NULL) */
-	const char *new_line);	/* [IN] a new line text at line+1 (can be NULL) */
-
-#endif	/* USE_DEBUGGER */
-
+/***********************************************************************
+ * HAL-CAP API                                                         *
+ ***********************************************************************/
 /*
  * For Suika2 Capture and Suika2 Replay
  */
@@ -487,6 +475,6 @@ uint64_t get_tick_count64(void);
  */
 FILE *fopen_wrapper(const char *dir, const char *file, const char *mode);
 
-#endif	/* defined(USE_CAPTURE) || defined(USE_REPLAY) */
+#endif /* defined(USE_CAPTURE) || defined(USE_REPLAY) */
 
-#endif	/* SUIKA_PLATFORM_H */
+#endif /* SUIKA_PLATFORM_H */

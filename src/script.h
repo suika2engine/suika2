@@ -30,6 +30,7 @@
  *  - 2023/08/27 @setconfigに対応
  *  - 2023/08/31 @chsxに対応
  *  - 2023/09/14 @pencilに対応
+ *  - 2023/10/21 スクリプトの動的変更に対応
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -718,6 +719,13 @@ void translate_failed_command_to_message(int index);
 
 /* デバッグ用の仮のスクリプトをロードする */
 bool load_debug_script(void);
-#endif
+
+/* スクリプトの行をアップデートする */
+bool update_script_line(int line, const char *text, const char *new_line);
+
+/* スクリプトの行をアップデートする */
+bool delete_script_line(int line);
+
+#endif /* USE_DEBUGGER */
 
 #endif
