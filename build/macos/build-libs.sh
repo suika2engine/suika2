@@ -35,7 +35,7 @@ cd ..
 echo 'Building bzip2...'
 tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
 cd bzip2-1.0.6
-make libbz2.a CFLAGS='-O3 -ffunction-sections -fdata-sections'
+make libbz2.a CFLAGS='-arch arm64 -arch x86_64 -O3 -ffunction-sections -fdata-sections'
 cp bzlib.h ../../libroot/include/
 cp libbz2.a ../../libroot/lib/
 cd ..
