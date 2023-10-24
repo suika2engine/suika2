@@ -44,6 +44,9 @@
  * Constants
  */
 
+/* Log buffer size */
+#define LOG_BUF_SIZE	(2048)
+
 /* Sound */
 #define SAMPLING_RATE   (44100)
 #define CHANNELS        (2)

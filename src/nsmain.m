@@ -39,12 +39,12 @@
 
 // Suika2 Capture
 #ifdef USE_CAPTURE
-#importr "capture.h"
+#import "capture.h"
 #endif
 
 // Suika2 Replay
 #ifdef USE_REPLAY
-#importr "replay.h"
+#import "replay.h"
 #endif
 
 //
