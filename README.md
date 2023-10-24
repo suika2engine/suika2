@@ -23,8 +23,9 @@ HAL is currently written in C, C++, Objective-C and Java.
 
 If we would like to port Suika2 to a new target platform, we are only required to write a thin HAL.
 
-Suika2 never use the `SDL2` library for production.
-It takes less than a week to port to platforms that do not support SDL2.
+Suika2 never depends on SDK/frameworks such as Unity, Godot, or SDL2.
+In fact, it takes less than a week for us to port Suika2 to a platform that do not support such SDK/frameworks.
+In other words, HAL, our compatibility layer, is very complete in its API design.
 
 ## Suika2 Pro
 
