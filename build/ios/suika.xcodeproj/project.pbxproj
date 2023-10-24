@@ -56,6 +56,7 @@
 		26B385E426D134EE000A7A1C /* cmd_bgm.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385BC26D134EE000A7A1C /* cmd_bgm.c */; };
 		26B385E626D13511000A7A1C /* data01.arc in Resources */ = {isa = PBXBuildFile; fileRef = 26B385E526D13510000A7A1C /* data01.arc */; };
 		26B5E727285F561200450A2B /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26B5E726285F561200450A2B /* Launch Screen.storyboard */; };
+		26C6EF7A2AE7FC47004F2AB4 /* readwebp.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C6EF792AE7FC47004F2AB4 /* readwebp.c */; };
 		26C93FD1295958D3007D092D /* wms_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCA295958D3007D092D /* wms_impl.c */; };
 		26C93FD2295958D3007D092D /* wms_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCB295958D3007D092D /* wms_core.c */; };
 		26C93FD3295958D3007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCC295958D3007D092D /* wms_parser.tab.c */; };
@@ -144,6 +145,7 @@
 		26B385BC26D134EE000A7A1C /* cmd_bgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_bgm.c; path = ../../src/cmd_bgm.c; sourceTree = "<group>"; };
 		26B385E526D13510000A7A1C /* data01.arc */ = {isa = PBXFileReference; lastKnownFileType = file; path = data01.arc; sourceTree = "<group>"; };
 		26B5E726285F561200450A2B /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		26C6EF792AE7FC47004F2AB4 /* readwebp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readwebp.c; path = ../../src/readwebp.c; sourceTree = "<group>"; };
 		26C93FC9295958D3007D092D /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../src/wms_core.h; sourceTree = "<group>"; };
 		26C93FCA295958D3007D092D /* wms_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_impl.c; path = ../../src/wms_impl.c; sourceTree = "<group>"; };
 		26C93FCB295958D3007D092D /* wms_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_core.c; path = ../../src/wms_core.c; sourceTree = "<group>"; };
@@ -203,7 +205,6 @@
 		26B3857C26D13263000A7A1C /* common */ = {
 			isa = PBXGroup;
 			children = (
-				2684DAD42AB36999007042C1 /* cmd_pencil.c */,
 				268B09E026D89FE40074577E /* iosmain.m */,
 				26DA59612A922F0500DBE36B /* anime.c */,
 				26DA595F2A922F0500DBE36B /* anime.h */,
@@ -223,6 +224,7 @@
 				26B385BA26D134EE000A7A1C /* cmd_if.c */,
 				26B385AA26D134EE000A7A1C /* cmd_load.c */,
 				26B385BB26D134EE000A7A1C /* cmd_message.c */,
+				2684DAD42AB36999007042C1 /* cmd_pencil.c */,
 				26B3858926D134EE000A7A1C /* cmd_return.c */,
 				26B3859626D134EE000A7A1C /* cmd_se.c */,
 				26B385B626D134EE000A7A1C /* cmd_set.c */,
@@ -275,6 +277,7 @@
 				26B385B926D134EE000A7A1C /* suika.h */,
 				2689F3BF288C06E600BEF444 /* readimage.c */,
 				2689F3C0288C06E600BEF444 /* readjpeg.c */,
+				26C6EF792AE7FC47004F2AB4 /* readwebp.c */,
 				26B385AB26D134EE000A7A1C /* types.h */,
 				26B3858426D134EE000A7A1C /* vars.c */,
 				26B3859A26D134EE000A7A1C /* vars.h */,
@@ -317,7 +320,7 @@
 		26A4EACD26D116CE00C3C140 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1250;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					26A4EAD426D116CE00C3C140 = {
 						CreatedOnToolsVersion = 12.5.1;
@@ -391,6 +394,7 @@
 				26B385CD26D134EE000A7A1C /* history.c in Sources */,
 				26B385CB26D134EE000A7A1C /* save.c in Sources */,
 				26B385C126D134EE000A7A1C /* vars.c in Sources */,
+				26C6EF7A2AE7FC47004F2AB4 /* readwebp.c in Sources */,
 				2689F3C1288C06E600BEF444 /* readimage.c in Sources */,
 				26DA59622A922F0500DBE36B /* cmd_anime.c in Sources */,
 				26B385DE26D134EE000A7A1C /* main.c in Sources */,
@@ -579,15 +583,30 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Suika;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.adventure-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika2demo;
+				MARKETING_VERSION = 1.0.0;
+				OTHER_LDFLAGS = (
+					"-lpng",
+					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika2ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -598,22 +617,35 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Distribution: Keiichi TABATA (7S742FWR63)";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7S742FWR63;
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7S742FWR63;
 				GCC_PREPROCESSOR_DEFINITIONS = USE_OPENGL;
 				INFOPLIST_FILE = suika/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Suika;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.adventure-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lpng",
+					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika2ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Suika2 iOS";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Suika2 iOS-2";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

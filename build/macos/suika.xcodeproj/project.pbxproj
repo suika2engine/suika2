@@ -217,6 +217,10 @@
 		26B8ACE625EE5846005D9C49 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26B8ACE525EE5846005D9C49 /* Assets.xcassets */; };
 		26C0F5D12A99B37B009F27E4 /* capture.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C0F5D02A99B37B009F27E4 /* capture.c */; };
 		26C0F5D32A99B393009F27E4 /* replay.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C0F5D22A99B393009F27E4 /* replay.c */; };
+		26C6EF7C2AE7FF67004F2AB4 /* readwebp.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C6EF7B2AE7FF67004F2AB4 /* readwebp.c */; };
+		26C6EF7D2AE7FF67004F2AB4 /* readwebp.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C6EF7B2AE7FF67004F2AB4 /* readwebp.c */; };
+		26C6EF7E2AE7FF67004F2AB4 /* readwebp.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C6EF7B2AE7FF67004F2AB4 /* readwebp.c */; };
+		26C6EF7F2AE7FF67004F2AB4 /* readwebp.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C6EF7B2AE7FF67004F2AB4 /* readwebp.c */; };
 		26C8A49F2679CB4B009FE156 /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C8A49D2679CB4B009FE156 /* scbuf.c */; };
 		26C93FBD295953E5007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
 		26C93FBE295953E5007D092D /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FB5295953E5007D092D /* wms_parser.tab.c */; };
@@ -343,6 +347,7 @@
 		26B8ACED25EE5846005D9C49 /* suika.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = suika.entitlements; sourceTree = "<group>"; };
 		26C0F5D02A99B37B009F27E4 /* capture.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = capture.c; path = ../../../src/capture.c; sourceTree = "<group>"; };
 		26C0F5D22A99B393009F27E4 /* replay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = replay.c; path = ../../../src/replay.c; sourceTree = "<group>"; };
+		26C6EF7B2AE7FF67004F2AB4 /* readwebp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readwebp.c; path = ../../../src/readwebp.c; sourceTree = "<group>"; };
 		26C8A49D2679CB4B009FE156 /* scbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scbuf.c; path = ../../../src/scbuf.c; sourceTree = "<group>"; };
 		26C8A49E2679CB4B009FE156 /* scbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scbuf.h; path = ../../../src/scbuf.h; sourceTree = "<group>"; };
 		26C93FB5295953E5007D092D /* wms_parser.tab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_parser.tab.c; path = ../../../src/wms_parser.tab.c; sourceTree = "<group>"; };
@@ -511,6 +516,7 @@
 				26A177FE25EE5DD0006A1ED4 /* platform.h */,
 				26A1780025EE5DD0006A1ED4 /* readimage.c */,
 				26239188288C024100C7DF81 /* readjpeg.c */,
+				26C6EF7B2AE7FF67004F2AB4 /* readwebp.c */,
 				26A1781925EE5DD0006A1ED4 /* save.c */,
 				26A1782225EE5DD0006A1ED4 /* save.h */,
 				26C8A49D2679CB4B009FE156 /* scbuf.c */,
@@ -739,6 +745,7 @@
 				260349642854B29800037370 /* wave.c in Sources */,
 				260349652854B29800037370 /* cmd_skip.c in Sources */,
 				260349662854B29800037370 /* cmd_goto.c in Sources */,
+				26C6EF7D2AE7FF67004F2AB4 /* readwebp.c in Sources */,
 				261B31F728991145006BCD68 /* gui.c in Sources */,
 				260349672854B29800037370 /* cmd_load.c in Sources */,
 				260349682854B29800037370 /* log.c in Sources */,
@@ -792,6 +799,7 @@
 				260AFFCD2A6563D8002E3FF4 /* cmd_chs.c in Sources */,
 				260AFFF62A65641C002E3FF4 /* save.c in Sources */,
 				260AFFD52A6563D8002E3FF4 /* cmd_ch.c in Sources */,
+				26C6EF7E2AE7FF67004F2AB4 /* readwebp.c in Sources */,
 				260AFFDE2A6563D8002E3FF4 /* cmd_bgm.c in Sources */,
 				260AFFE82A6563F0002E3FF4 /* image.c in Sources */,
 				260AFFDC2A6563D8002E3FF4 /* cmd_video.c in Sources */,
@@ -855,6 +863,7 @@
 				260A00342A66B394002E3FF4 /* seen.c in Sources */,
 				260A00432A66B394002E3FF4 /* log.c in Sources */,
 				260A00252A66B366002E3FF4 /* cmd_set.c in Sources */,
+				26C6EF7F2AE7FF67004F2AB4 /* readwebp.c in Sources */,
 				260A00312A66B36B002E3FF4 /* conf.c in Sources */,
 				260A00382A66B394002E3FF4 /* scbuf.c in Sources */,
 				260A00272A66B366002E3FF4 /* cmd_vol.c in Sources */,
@@ -933,6 +942,7 @@
 				26A1784A25EE5DD0006A1ED4 /* log.c in Sources */,
 				26247D7B2872C13A0026FAF4 /* cmd_chapter.c in Sources */,
 				26A1783A25EE5DD0006A1ED4 /* mixer.c in Sources */,
+				26C6EF7C2AE7FF67004F2AB4 /* readwebp.c in Sources */,
 				26557B0E26785269000CDD10 /* cmd_setsave.c in Sources */,
 				26A1782E25EE5DD0006A1ED4 /* main.c in Sources */,
 				2617E957282BF6F500637615 /* cmd_video.c in Sources */,
@@ -1016,13 +1026,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suikapro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1062,13 +1074,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suikapro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1112,13 +1126,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika-replay";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1133,7 +1149,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CODE_SIGN_ENTITLEMENTS = suika/suika.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1165,13 +1181,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika-replay";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1217,13 +1235,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika-capture";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1269,13 +1289,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika-capture";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1429,13 +1451,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1450,6 +1474,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = suika/suika.entitlements;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1476,13 +1501,15 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
-					"-lz",
 					"-lpng",
-					"-logg",
-					"-lvorbis",
-					"-lvorbisfile",
-					"-lfreetype",
 					"-ljpeg",
+					"-lwebp",
+					"-lfreetype",
+					"-lz",
+					"-lbz2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.luxion.suika;
 				PRODUCT_NAME = "$(TARGET_NAME)";
