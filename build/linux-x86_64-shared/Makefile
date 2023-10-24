@@ -40,13 +40,15 @@ LDFLAGS = \
 	-lXpm \
 	-lGL \
 	-lGLX \
-	-ljpeg \
 	-lpng16 \
-	-lz \
+	-ljpeg \
+	-lwebp \
+	-lfreetype \
 	-lvorbisfile \
 	-lvorbis \
 	-logg \
-	-lfreetype \
+	-lz \
+	-lbz2 \
 	-lmvec
 
 #

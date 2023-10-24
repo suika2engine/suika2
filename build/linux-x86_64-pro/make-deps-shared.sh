@@ -89,6 +89,7 @@ SRC="\
 	platform.h \
 	readimage.c \
 	readjpeg.c \
+	readwebp.c \
 	save.h \
 	save.c \
 	scalesamples.h \

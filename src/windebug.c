@@ -109,6 +109,22 @@ static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 static VOID UpdateVariableTextBox(void);
 
 /*
+ * 引数が指定された場合はパッケージャとして機能する
+ *  - 単体機能のpackage.exeはセキュリティソフトに誤認識されるため
+ */
+VOID DoPackagingIfArgExists(VOID)
+{
+	if (__argc == 2 && wcscmp(__wargv[1], L"--package") == 0)
+	{
+		if (!create_package(""))
+		{
+			log_error("Packaging error!");
+			return 1;
+		}
+		return 0;
+	}
+
+/*
  * デバッガパネルを作成する
  */
 BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)

@@ -72,6 +72,7 @@ set(PROJECT_SOURCES
 	package.c
 	readimage.c
 	readjpeg.c
+	readwebp.c
 	save.c
 	scbuf.c
 	script.c
@@ -104,6 +105,10 @@ include_directories(libpng)
 # libjpeg
 add_subdirectory(jpeg)
 include_directories(jpeg)
+
+# libwebp
+add_subdirectory(libwebp)
+include_directories(libwebp/src)
 
 # libogg
 add_subdirectory(libogg)

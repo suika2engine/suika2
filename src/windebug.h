@@ -34,6 +34,9 @@
 #define DEBUGGER_WIDTH			(440)
 #define DEBUGGER_MIN_HEIGHT		(700)
 
+/* コマンドライン引数がある場合にパッケージングを行う */
+VOID DoPackagingIfArgExists(VOID);
+
 /* デバッガパネルを作成する */
 BOOL InitDebuggerPanel(HWND hWndMain, HWND hWndGame, void *pWndProc);
 

@@ -18,33 +18,58 @@
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
+/* Windows */
 #include <windows.h>
-#include <shlobj.h>
-#include <io.h>
+#include <shlobj.h> /* SHGetFolderPath() to obtain "AppData" directory */
 
+/* msvcrt  */
+#include <io.h> /* _access() */
+
+/* Suika2 Base */
 #include "suika.h"
+
+/* Suika2 HAL Implementaion */
 #include "dsound.h"
 #include "dsvideo.h"
 #include "tts_sapi.h"
 #include "uimsg.h"
 #include "resource.h"
 
+/* Suika2 HAL Implementaion (Direct3D) */
+#include "d3drender.h"
+
+/* Suika2 HAL Implementaion (OpenGL) */
+#include <GL/gl.h>
+#include "glrender.h"
+#include "glhelper.h"
+
+/* Suika2 Pro */
 #ifdef USE_DEBUGGER
 #include <commctrl.h>
 #include "windebug.h"
 #include "package.h"
 #endif
 
-#include "d3drender.h"
+/* Suika2 Capture */
+#ifdef USE_CAPTURE
+#include "capture.h"
+#endif
 
-#include <GL/gl.h>
-#include "glhelper.h"
-#include "glrender.h"
+/* Suika2 Replay */
+#ifdef USE_REPLAY
+#include "replay.h"
+#endif
 
+/* x86 SSE/AVX Dispatch */
 #ifdef SSE_VERSIONING
 #include "x86.h"
 #endif
 
+/*
+ * Constants
+ */
+
+/* A message to disable "Aero Snap" */
 #define WM_RESTOREORIGINALSTYLE	(WM_USER + 1)
 
 /* ウィンドウタイトルのバッファサイズ */
@@ -70,6 +95,10 @@ static const wchar_t wszWindowClassMain[] = L"SuikaMain";
 #ifdef USE_DEBUGGER
 static const wchar_t wszWindowClassGame[] = L"SuikaGame";
 #endif
+
+/*
+ * Variables
+ */
 
 /* ウィンドウタイトル(UTF-16) */
 static wchar_t wszTitle[TITLE_BUF_SIZE];
@@ -137,6 +166,10 @@ static BOOL bDShowMode;
 /* DirectShow再生中にクリックでスキップするか */
 static BOOL bDShowSkippable;
 
+/*
+ * OpenGL Function Pointers
+ */
+
 /* OpenGL 3.2 API */
 GLuint (APIENTRY *glCreateShader)(GLenum type);
 void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
@@ -172,6 +205,7 @@ void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
 void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
 void (APIENTRY *glActiveTexture)(GLenum texture);
 
+/* A table to map OpenGL API names to addresses of function pointers. */
 struct GLExtAPITable
 {
 	void **func;
@@ -206,7 +240,11 @@ struct GLExtAPITable
 	{(void **)&glActiveTexture, "glActiveTexture"},
 };
 
-/* 前方参照 */
+/*
+ * Forward Declaration
+ */
+
+/* static */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static BOOL InitRenderingEngine(void);
 static void CleanupApp(void);
@@ -219,8 +257,6 @@ static void GameLoop(void);
 static BOOL RunFrame(void);
 static BOOL SyncEvents(void);
 static BOOL WaitForNextFrame(void);
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
-						 LPARAM lParam);
 static int ConvertKeyCode(int nVK);
 static void OnPaint(HWND hWnd);
 static void OnCommand(UINT nID, UINT nEvent);
@@ -230,6 +266,9 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
 static BOOL OpenLogFile(void);
+
+/* extern */
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
 const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 
@@ -239,32 +278,18 @@ const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 int WINAPI wWinMain(
 	HINSTANCE hInstance,
 	UNUSED(HINSTANCE hPrevInstance),
-	LPWSTR lpszCmd,
+	UNUSED(LPWSTR lpszCmd),
 	int nCmdShow)
 {
 	int result = 1;
 
-	UNUSED_PARAMETER(lpszCmd);
-
 #ifdef USE_DEBUGGER
-	/* 引数が指定された場合はパッケージャとして機能する */
-	if (__argc == 2 && wcscmp(__wargv[1], L"--package") == 0)
-	{
-		if (!create_package(""))
-		{
-			log_error("Packaging error!");
-			return 1;
-		}
-		return 0;
-	}
+	DoPackagingIfArgExists();
+	InitCommonControls();
 #endif
 
 	/* Sleep()の分解能を設定する */
 	timeBeginPeriod(1);
-
-#ifdef USE_DEBUGGER
-	InitCommonControls();
-#endif
 
 	/* 基盤レイヤの初期化処理を行う */
 	if(InitApp(hInstance, nCmdShow))
