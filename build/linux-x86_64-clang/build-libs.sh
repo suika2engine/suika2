@@ -29,6 +29,20 @@ make -j4
 make install
 cd ..
 
+tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make libbz2.a CFLAGS='-O3 -ffunction-sections -fdata-sections' CC=clang
+cp bzlib.h ../../libroot/include/
+cp libbz2.a ../../libroot/lib/
+cd ..
+
+tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
+cd libwebp-1.3.2
+./configure --prefix=$PREFIX --enable-static --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib CC=clang
+make
+make install
+cd ..
+
 tar xzf ../../libsrc/libogg-1.3.3.tar.gz
 cd libogg-1.3.3
 CC=clang LD=lld ./configure --prefix=$PREFIX --disable-shared CFLAGS='-O3 -ffunction-sections -fdata-sections'

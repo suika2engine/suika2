@@ -1,5 +1,11 @@
 #!/bin/sh
 
+set -eu
+
+unset CPPFLAGS
+unset CFLAGS
+unset LDFLAGS
+
 PREFIX=`pwd`/libroot
 
 rm -rf tmp libroot
@@ -25,6 +31,20 @@ tar xzf ../../libsrc/jpegsrc.v9e.tar.gz
 cd jpeg-9e
 ./configure --prefix=$PREFIX --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib
 make -j4
+make install
+cd ..
+
+tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make libbz2.a CFLAGS='-O3 -ffunction-sections -fdata-sections'
+cp bzlib.h ../../libroot/include/
+cp libbz2.a ../../libroot/lib/
+cd ..
+
+tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
+cd libwebp-1.3.2
+./configure --prefix=$PREFIX --enable-static --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib
+make
 make install
 cd ..
 
