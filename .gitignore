@@ -161,16 +161,16 @@ build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
 
-# Switch homebrew
-build/switch/libroot
-build/switch/exefs
-build/switch/romfs
-build/switch/tmp
-build/switch/*.o
-build/switch/*.elf
-build/switch/*.nro
-build/switch/*.nacp
-build/switch/*.nsp
+# Console Example
+build/console/libroot
+build/console/exefs
+build/console/romfs
+build/console/tmp
+build/console/*.o
+build/console/*.elf
+build/console/*.nro
+build/console/*.nacp
+build/console/*.nsp
 
 # Tests
 testcases
