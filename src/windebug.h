@@ -23,15 +23,16 @@
 #define MSGBOX_TITLE		L"Suika2 Pro"
 
 /* バージョン文字列 */
-#define VERSION_EN			L"Suika2 Pro 14\n" \
+#define VERSION_EN		L"Suika2 Pro 14\n" \
 							L"A part of the Suika Studio Professional Development Suite\n" \
 							L"This product is guaranteed to be available as an open source software in the future."
 #define VERSION_JP			L"Suika2 Pro 14\n" \
 							L"A part of the Suika Studio Professional Development Suite\n" \
 							L"本製品は将来に渡ってオープンソースソフトウェアとして提供されることが保証されます。"
 
-/* デバッガのサイズ */
+/* デバッガパネルのサイズ */
 #define DEBUGGER_WIDTH			(440)
+#define DEBUGGER_MIN_WIDTH		(500)
 #define DEBUGGER_MIN_HEIGHT		(700)
 
 /* コマンドライン引数がある場合にパッケージングを行う */
@@ -46,16 +47,16 @@ VOID UpdateDebuggerWindowPosition(int nGameWidth, int nGameHeight);
 /* スタートアップファイル/ラインを取得する */
 BOOL GetStartupPosition(void);
 
-/* デバッガのウィンドウハンドルであるかを返す */
-BOOL IsDebuggerHWND(HWND hWnd);
-
 /* デバッガのウィンドウプロシージャの処理 */
-LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
-								  LPARAM lParam);
+LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+/* エディタのキーボードメッセージ前処理 */
+BOOL PretranslateEditKeyDown(MSG *pMsg);
 
 /* デバッガのWM_COMMANDハンドラ */
 VOID OnCommandDebug(UINT nID, UINT nEvent);
 
+/* winmain.cで定義された関数 */
 const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
 const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 

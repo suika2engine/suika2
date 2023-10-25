@@ -14,13 +14,13 @@
  *  2023-07-17 キャプチャ対応
  */
 
-#ifdef _MSC_VER
-#pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#endif
-
 /* Windows */
 #include <windows.h>
 #include <shlobj.h> /* SHGetFolderPath() to obtain "AppData" directory */
+
+#ifdef _MSC_VER
+#pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
 
 /* msvcrt  */
 #include <io.h> /* _access() */
@@ -149,6 +149,14 @@ static DWORD dwStyle;
 /* ウィンドウモードでの位置 */
 static RECT rcWindow;
 
+/* 最後に設定されたウィンドウサイズ */
+static int nLastClientWidth, nLastClientHeight;
+
+/* 最後に設定されたDPI */
+#ifdef USE_DEBUGGER
+static int nLastDpi;
+#endif
+
 /* RunFrame()が描画してよいか */
 static BOOL bRunFrameAllow;
 
@@ -262,6 +270,7 @@ static void OnPaint(HWND hWnd);
 static void OnCommand(UINT nID, UINT nEvent);
 static void OnSizing(int edge, LPRECT lpRect);
 static void OnSize(void);
+static void OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect);
 static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
@@ -357,14 +366,16 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (!InitRenderingEngine())
 		return FALSE;
 
+#ifdef USE_DEBUGGER
+	/* ゲームパネルを再配置して描画サブシステムに反映する */
+	GetClientRect(hWndMain, &rcClient);
+	nLastClientWidth = nLastClientHeight = 0;
+	UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
+#else
 	/* アスペクト比を補正する */
 	GetClientRect(hWndMain, &rcClient);
-#ifndef USE_DEBUGGER
-	if (rcClient.right != conf_window_width ||
-		rcClient.bottom != conf_window_height)
+	if (rcClient.right != conf_window_width || rcClient.bottom != conf_window_height)
 		UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
-#else
-	UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
 #endif
 
 	/* DirectSoundを初期化する */
@@ -399,7 +410,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 static BOOL InitRenderingEngine(void)
 {
 	/*
-	 * Step.0: Use OpenGL for capture-replay apps.
+	 * Step.0: Use OpenGL for capture/replay apps.
 	 */
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
 	if (InitOpenGL())
@@ -411,6 +422,10 @@ static BOOL InitRenderingEngine(void)
 		dwStyle ^= WS_THICKFRAME;
 		SetWindowLong(hWndGame, GWL_STYLE, (LONG)dwStyle);
 		conf_window_resize = 0;
+
+		/* Set OpenGL screen size. */
+		GetClientRect(hWndGame, &rcClient);
+		opengl_set_screen(nOffsetX, nOffsetY, rc.right, rc.bottom);
 
 		return TRUE;
 	}
@@ -921,15 +936,16 @@ static BOOL CreateBackImage(void)
 		return FALSE;
 
 	/* DIBを作成する */
+	pixels = NULL;
 	hBitmap = CreateDIBSection(hBitmapDC, &bi, DIB_RGB_COLORS,
-							   (VOID **)&pixels, NULL, 0);
+								  (VOID **)&pixels, NULL, 0);
 	if(hBitmap == NULL || pixels == NULL)
 		return FALSE;
 	SelectObject(hBitmapDC, hBitmap);
 
 	/* イメージを作成する */
 	BackImage = create_image_with_pixels(conf_window_width, conf_window_height,
-										 pixels);
+											 pixels);
 	if(BackImage == NULL)
 		return FALSE;
 	if(conf_window_white) {
@@ -1061,9 +1077,11 @@ static BOOL SyncEvents(void)
 	/* イベント処理を行う */
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
-		if(msg.message == WM_QUIT)
+		if (msg.message == WM_QUIT)
 			return FALSE;
-		if(!TranslateAccelerator(msg.hwnd, hAccel, &msg))
+		if (PretranslateEditKeyDown(&msg))
+			continue;
+		if (!TranslateAccelerator(msg.hwnd, hAccel, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -1371,7 +1389,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 #endif
-	default:
+#ifdef USE_DEBUGGER
+	case WM_DPICHANGED:
+		OnDpiChanged(hWnd, HIWORD(wParam), (LPRECT)lParam);
+		return 0;
+#endif
+		default:
 		break;
 	}
 #ifndef USE_DEBUGGER
@@ -1467,24 +1490,32 @@ static void OnSizing(int edge, LPRECT lpRect)
 {
 	RECT rcClient;
 	float fPadX, fPadY, fWidth, fHeight, fAspect;
+	int nOrigWidth, nOrigHeight;
 
+	/* Get the rects before a size change. */
+	GetWindowRect(hWndMain, &rcWindow);
+	GetClientRect(hWndMain, &rcClient);
+
+	/* Save the original window size. */
+	nOrigWidth = rcWindow.right - rcWindow.left + 1;
+	nOrigHeight = rcWindow.bottom - rcWindow.top + 1;
+
+	/* Calc the paddings. */
+	fPadX = (float)((rcWindow.right - rcWindow.left) -
+		(rcClient.right - rcClient.left));
+	fPadY = (float)((rcWindow.bottom - rcWindow.top) -
+		(rcClient.bottom - rcClient.top));
+
+	/* Calc the client size.*/
+	fWidth = (float)(lpRect->right - lpRect->left + 1) - fPadX;
+	fHeight = (float)(lpRect->bottom - lpRect->top + 1) - fPadY;
+
+	/* Appky adjustments.*/
 	if (conf_window_resize == 2)
 	{
-		/* Get the rects before a size change. */
-		GetWindowRect(hWndMain, &rcWindow);
-		GetClientRect(hWndMain, &rcClient);
-
-		/* Calc the paddings. */
-		fPadX = (float)((rcWindow.right - rcWindow.left) -
-			            (rcClient.right - rcClient.left));
-		fPadY = (float)((rcWindow.bottom - rcWindow.top) -
-			            (rcClient.bottom - rcClient.top));
-
-		fWidth = (float)(lpRect->right - lpRect->left + 1) - fPadX;
-		fHeight = (float)(lpRect->bottom - lpRect->top + 1) - fPadY;
 		fAspect = (float)conf_window_height / (float)conf_window_width;
 
-		/* 上端を補正する */
+		/* Adjust the window edges. */
 		switch (edge)
 		{
 		case WMSZ_TOP:
@@ -1534,19 +1565,62 @@ static void OnSizing(int edge, LPRECT lpRect)
 			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
 			break;
 		}
-		UpdateScreenOffsetAndScale((int)(fWidth + 0.5f), (int)(fHeight + 0.5f));
 	}
 	else
 	{
 #ifdef USE_DEBUGGER
-		if (lpRect->bottom - lpRect->top < DEBUGGER_MIN_HEIGHT)
-			lpRect->bottom = lpRect->top + DEBUGGER_MIN_HEIGHT;
+		/* Apply the minimum window size. */
+		if (fWidth < DEBUGGER_MIN_WIDTH)
+			fWidth = DEBUGGER_MIN_WIDTH;
+		if (fHeight < DEBUGGER_MIN_HEIGHT)
+			fHeight = DEBUGGER_MIN_HEIGHT;
+
+		/* Adjust the window edges. */
+		switch (edge)
+		{
+		case WMSZ_TOP:
+			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
+			break;
+		case WMSZ_TOPLEFT:
+			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
+			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_TOPRIGHT:
+			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_BOTTOM:
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			break;
+		case WMSZ_BOTTOMRIGHT:
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_BOTTOMLEFT:
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_LEFT:
+			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
+			break;
+		case WMSZ_RIGHT:
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		default:
+			/* Aero Snap? */
+			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
+			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
+			break;
+		}
 #endif
-		UpdateScreenOffsetAndScale(lpRect->right - lpRect->left + 1,
-								   lpRect->bottom - lpRect->top + 1);
 	}
 
-	InvalidateRect(hWndMain, NULL, TRUE);
+	/* If there's a size change, update the screen size with the debugger panel size. */
+	if (nOrigWidth != lpRect->right - lpRect->left + 1 ||
+		nOrigHeight != lpRect->bottom - lpRect->top + 1)
+	{
+		UpdateScreenOffsetAndScale((int)(fWidth + 0.5f), (int)(fHeight + 0.5f));
+	}
 }
 
 /* WM_SIZE */
@@ -1611,7 +1685,21 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	float fAspect, fUseWidth, fUseHeight;
 
 #ifdef USE_DEBUGGER
-	nClientWidth -= DEBUGGER_WIDTH;
+	int nDpi;
+	int nDebugWidth;
+
+	nDpi = GetDpiForWindow(hWndMain);
+	if (nDpi == 0)
+		nDpi = 96;
+
+	/* If size and dpi are not changed, just return. */
+	if (nClientWidth == nLastClientWidth && nClientHeight == nLastClientHeight && nLastDpi != nDpi)
+		return;
+	else
+		nLastClientWidth = nClientWidth, nLastClientHeight = nClientHeight, nLastDpi = nDpi;
+
+	nDebugWidth = MulDiv(DEBUGGER_WIDTH, nDpi, 96);
+	nClientWidth -= nDebugWidth;
 #endif
 
 	/* Calc the aspect ratio of the game. */
@@ -1623,7 +1711,8 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
     fMouseScale = (float)nClientWidth / (float)conf_window_width;
 
 	/* If height is not enough, determine width with "height-first". */
-    if(fUseHeight > (float)nClientHeight) {
+    if(fUseHeight > (float)nClientHeight)
+	{
         fUseHeight = (float)nClientHeight;
         fUseWidth = (float)nClientHeight / fAspect;
         fMouseScale = (float)nClientHeight / (float)conf_window_height;
@@ -1635,7 +1724,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 
 #ifdef USE_DEBUGGER
 	/* Move the game window. */
-	MoveWindow(hWndGame, 0, 0, nClientWidth, nClientHeight, FALSE);
+	MoveWindow(hWndGame, 0, 0, nClientWidth, nClientHeight, TRUE);
 	UpdateDebuggerWindowPosition(nClientWidth, nClientHeight);
 #endif
 
@@ -1649,6 +1738,25 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 		opengl_set_screen(nOffsetX, nOffsetY,
 						  (int)(fUseWidth + 0.5f),
 						  (int)(fUseHeight + 0.5f));
+	}
+}
+
+/* WM_DPICHANGED */
+VOID OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect)
+{
+	RECT rcClient;
+
+	if (hWnd == hWndMain)
+	{
+		SetWindowPos(hWnd,
+					   NULL,
+					   lpRect->left,
+					   lpRect->top,
+					   lpRect->right - lpRect->left,
+					   lpRect->bottom - lpRect->top,
+					   SWP_NOZORDER | SWP_NOACTIVATE);
+		GetClientRect(hWndMain, &rcClient);
+		UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
 	}
 }
 

@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -11,6 +11,7 @@
  *  2016-05-29 作成 (suika)
  *  2017-11-07 フルスクリーンで解像度変更するように修正
  *  2023-09-20 Android/iOSエクスポート対応
+ *  2023-10-25 エディタ対応
  */
 
 /* Suika2 Base */
@@ -20,12 +21,13 @@
 #include "windebug.h"
 #include "package.h"
 
-/* Windows Resource */
+/* Windows */
 #include <windows.h>
 #include <commctrl.h>	/* TOOLINFO */
+#include <Richedit.h>
 #include "resource.h"
 
-/* msvcrt */
+/* Standard C (msvcrt.dll) */
 #include <stdlib.h>	/* exit() */
 
 /*
@@ -67,27 +69,26 @@ static HWND hWndDebug;
 static HWND hWndBtnResume;
 static HWND hWndBtnNext;
 static HWND hWndBtnPause;
-static HWND hWndLabelScript;
+//static HWND hWndLabelScript;
 static HWND hWndTextboxScript;
-static HWND hWndBtnChangeScript;
+//static HWND hWndBtnChangeScript;
 static HWND hWndBtnSelectScript;
-static HWND hWndLabelLine;
-static HWND hWndTextboxLine;
-static HWND hWndBtnChangeLine;
-static HWND hWndLabelCommand;
-static HWND hWndTextboxCommand;
-static HWND hWndBtnUpdate;
-static HWND hWndBtnReset;
-static HWND hWndLabelContent;
-static HWND hWndListbox;
-static HWND hWndBtnError;
-static HWND hWndBtnSave;
-static HWND hWndBtnReload;
-static HWND hWndLabelVar;
+//static HWND hWndLabelLine;
+//static HWND hWndTextboxLine;
+//static HWND hWndBtnChangeLine;
+//static HWND hWndLabelCommand;
+//static HWND hWndTextboxCommand;
+//static HWND hWndBtnUpdate;
+//static HWND hWndBtnReset;
+//static HWND hWndLabelContent;
+//static HWND hWndListbox;
+//static HWND hWndBtnError;
+//static HWND hWndBtnSave;
+//static HWND hWndBtnReload;
+//static HWND hWndLabelVar;
+static HWND hWndRichEdit;
 static HWND hWndTextboxVar;
 static HWND hWndBtnVar;
-
-//static HWND hWndRichEdit;
 
 /* ボタンが押下されたか */
 static BOOL bResumePressed;
@@ -107,9 +108,9 @@ static wchar_t szTextboxVar[VAR_TEXTBOX_MAX + 1];
 
 static VOID InitDebuggerMenu(HWND hWnd);
 static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
-static VOID OnClickListBox(void);
+//static VOID OnClickListBox(void);
 static VOID OnSelectScript(void);
-static VOID OnPressReset(void);
+//static VOID OnPressReset(void);
 static VOID OnPressSave(void);
 static VOID OnPressError(void);
 static VOID OnPressWriteVars(void);
@@ -125,6 +126,9 @@ static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDi
 static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 static VOID UpdateVariableTextBox(void);
+static VOID UpdateLineHighlight(void);
+static VOID OnInsertLine(void);
+static VOID OnReturn(void);
 
 /*
  * 引数が指定された場合はパッケージャとして機能する
@@ -150,7 +154,8 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 {
 	WNDCLASSEX wcex;
 	RECT rcClient;
-	HFONT hFont, hFontFixed;
+	HFONT hFont;
+	int nDpi;
 
 	hWndMain = hMainWnd;
 	hWndGame= hGameWnd;
@@ -169,38 +174,49 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 
 	/* ウィンドウを作成する */
 	hWndDebug = CreateWindowEx(0,
-							   wszWindowClass,
-							   NULL,
-							   WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
-							   rcClient.right - DEBUGGER_WIDTH,
-							   0,
-							   DEBUGGER_WIDTH,
-							   rcClient.bottom,
-							   hWndMain,
-							   NULL,
-							   GetModuleHandle(NULL),
-							   NULL);
+								  wszWindowClass,
+								  NULL,
+								  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
+								  rcClient.right - DEBUGGER_WIDTH,
+								  0,
+								  DEBUGGER_WIDTH,
+								  rcClient.bottom,
+								  hWndMain,
+								  NULL,
+								  GetModuleHandle(NULL),
+								  NULL);
 	if(!hWndDebug)
 		return FALSE;
 
+	/* DPIを取得する */
+	nDpi = GetDpiForWindow(hWndMain);
+
 	/* フォントを作成する */
-	hFont = CreateFont(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
-					   ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
-					   DEFAULT_QUALITY,
-					   DEFAULT_PITCH | FF_DONTCARE, L"Yu Gothic UI");
+	hFont = CreateFont(MulDiv(18, nDpi, 96),
+						 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
+						 ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+						 DEFAULT_QUALITY,
+						 DEFAULT_PITCH | FF_DONTCARE, L"Yu Gothic UI");
+#if 0
 	hFontFixed = CreateFont(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
-							ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
-							PROOF_QUALITY,
-							DEFAULT_PITCH | FF_DONTCARE, L"Yu Gothic");
+							   DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+							   PROOF_QUALITY,
+							   DEFAULT_PITCH | FF_DONTCARE, L"BIZ UDGothic");
+#endif
 
 	/* 続けるボタンを作成する */
 	hWndBtnResume = CreateWindow(
 		L"BUTTON",
 		bEnglish ? L"Resume" : L"続ける",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		10, 10, 100, 40,
-		hWndDebug, (HMENU)ID_RESUME,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(10, nDpi, 96),
+		MulDiv(10, nDpi, 96),
+		MulDiv(100, nDpi, 96),
+		MulDiv(40, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_RESUME,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndBtnResume, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnResume,
 				  L"Start executing script and run continuosly.",
@@ -211,9 +227,14 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Next" : L"次へ",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		120, 10, 100, 40,
-		hWndDebug, (HMENU)ID_NEXT,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(120, nDpi, 96),
+		MulDiv(10, nDpi, 96),
+		MulDiv(100, nDpi, 96),
+		MulDiv(40, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_NEXT,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndBtnNext, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnNext,
 				  L"Run only one command and stop after it.",
@@ -224,38 +245,56 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"(Paused)" : L"(停止中)",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		330, 10, 100, 40,
-		hWndDebug, (HMENU)ID_PAUSE,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(330, nDpi, 96),
+		MulDiv(10, nDpi, 96),
+		MulDiv(100, nDpi, 96),
+		MulDiv(40, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_PAUSE,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	EnableWindow(hWndBtnPause, FALSE);
 	SendMessage(hWndBtnPause, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnPause,
 				  L"Stop script execution.",
 				  L"コマンドの実行を停止します。");
 
+#if 0
 	/* スクリプトラベルを作成する */
 	hWndLabelScript = CreateWindow(
 		L"STATIC",
 		bEnglish ? L"Script file name:" : L"スクリプトファイル名:",
 		WS_VISIBLE | WS_CHILD,
-		10, 60, 100, 16,
-		hWndDebug, 0,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(10, nDpi, 96),
+		MulDiv(60, nDpi, 96),
+		MulDiv(100, nDpi, 96),
+		MulDiv(16, nDpi, 96),
+		hWndDebug,
+		0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndLabelScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+#endif
 
 	/* スクリプト名のテキストボックスを作成する */
 	hWndTextboxScript = CreateWindow(
 		L"EDIT",
 		NULL,
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
-		10, 80, 300, 30,
-		hWndDebug, 0,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | ES_READONLY| ES_AUTOHSCROLL,
+		MulDiv(10, nDpi, 96),
+		MulDiv(60, nDpi, 96),
+		MulDiv(350, nDpi, 96),
+		MulDiv(30, nDpi, 96),
+		hWndDebug,
+		0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndTextboxScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndTextboxScript,
 				  L"Write script file name to be jumped to.",
 				  L"ジャンプしたいスクリプトファイル名を書きます。");
 
+#if 0
 	/* スクリプトの変更ボタンを作成する */
 	hWndBtnChangeScript = CreateWindow(
 		L"BUTTON",
@@ -268,19 +307,26 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 	CreateTooltip(hWndBtnChangeScript,
 				  L"Jump to the script written in the left text box.",
 				  L"左のテキストボックスに書いたスクリプトにジャンプします。");
+#endif
 
 	/* スクリプトの選択ボタンを作成する */
 	hWndBtnSelectScript = CreateWindow(
 		L"BUTTON", L"...",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		405, 80, 25, 30,
-		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(370, nDpi, 96),
+		MulDiv(60, nDpi, 96),
+		MulDiv(60, nDpi, 96),
+		MulDiv(30, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_SELECT_SCRIPT,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndBtnSelectScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnSelectScript,
 				  L"Select a script file and jump to it.",
 				  L"スクリプトファイルを選択してジャンプします。");
 
+#if 0
 	/* 行番号ラベルを作成する */
 	hWndLabelLine = CreateWindow(
 		L"STATIC",
@@ -393,15 +439,39 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 	CreateTooltip(hWndListbox,
 				  L"Current script content.",
 				  L"実行中のスクリプトの内容です。");
+#endif
 
+	/* スクリプトのリッチエディットを作成する */
+	LoadLibrary(L"Msftedit.dll");
+	hWndRichEdit = CreateWindowEx(
+		0,
+		MSFTEDIT_CLASS,
+		L"Text",
+		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
+		MulDiv(10, nDpi, 96),
+		MulDiv(100, nDpi, 96),
+		MulDiv(420, nDpi, 96),
+		MulDiv(400, nDpi, 96),
+		hWndDebug, 0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
+	SendMessage(hWndRichEdit, EM_SHOWSCROLLBAR, (WPARAM)SB_VERT, (LPARAM)TRUE);
+	SendMessage(hWndRichEdit, EM_FMTLINES, (WPARAM)TRUE, 0);
+
+#if 0
 	/* エラーを探すを有効にする */
 	hWndBtnError = CreateWindow(
 		L"BUTTON",
 		bEnglish ? L"Search for error" : L"エラーを探す",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		10, 510, 120, 30,
-		hWndDebug, (HMENU)ID_ERROR,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(10, nDpi, 96),
+		MulDiv(510, nDpi, 96),
+		MulDiv(120, nDpi, 96),
+		MulDiv(30, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_ERROR,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndBtnError, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnError,
 				  L"Search for a next error.",
@@ -412,9 +482,14 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Overwrite" : L"上書き保存",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DEBUGGER_WIDTH - 10 - 80 - 10 - 80, 510, 80, 30,
-		hWndDebug, (HMENU)ID_SAVE,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(DEBUGGER_WIDTH - 10 - 80 - 10 - 80, nDpi, 96),
+		MulDiv(510, nDpi, 96),
+		MulDiv(80, nDpi, 96),
+		MulDiv(30, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_SAVE,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnSave,
 				  L"Overwrite the contents of the modified script.",
@@ -425,9 +500,14 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Reload" : L"再読み込み",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DEBUGGER_WIDTH - 10 - 80, 510, 80, 30,
-		hWndDebug, (HMENU)ID_RELOAD,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(DEBUGGER_WIDTH - 10 - 80, nDpi, 96),
+		MulDiv(510, nDpi, 96),
+		MulDiv(80, nDpi, 96),
+		MulDiv(30, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_RELOAD,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnReload,
 				  L"Reload the script from file.",
@@ -439,10 +519,16 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		bEnglish ? L"Variables (non-initial values):" :
 				   L"変数 (初期値でない):",
 		WS_VISIBLE | WS_CHILD,
-		10, 550, 200, 16,
-		hWndDebug, 0,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(10, nDpi, 96),
+		MulDiv(550, nDpi, 96),
+		MulDiv(200, nDpi, 96),
+		MulDiv(16, nDpi, 96),
+		hWndDebug,
+		0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndLabelVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+#endif
 
 	/* 変数のテキストボックスを作成する */
 	hWndTextboxVar = CreateWindow(
@@ -450,10 +536,15 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		NULL,
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_VSCROLL |
 		ES_AUTOVSCROLL | ES_MULTILINE | ES_WANTRETURN,
-		10, 570, 280, 60,
-		hWndDebug, 0,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
-	SendMessage(hWndTextboxVar, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
+		MulDiv(10, nDpi, 96),
+		MulDiv(570, nDpi, 96),
+		MulDiv(280, nDpi, 96),
+		MulDiv(60, nDpi, 96),
+		hWndDebug,
+		0,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
+	SendMessage(hWndTextboxVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndTextboxVar,
 				  L"List of variables which have non-initial values.",
 				  L"初期値から変更された変数の一覧です。");
@@ -463,35 +554,95 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Write values" : L"値を書き込む",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		300, 570, 130, 30,
-		hWndDebug, (HMENU)ID_WRITE,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
+		MulDiv(300, nDpi, 96),
+		MulDiv(570, nDpi, 96),
+		MulDiv(130, nDpi, 96),
+		MulDiv(30, nDpi, 96),
+		hWndDebug,
+		(HMENU)ID_WRITE,
+		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
+		NULL);
 	SendMessage(hWndBtnVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnVar,
 				  L"Write to the variables.",
 				  L"変数の内容を書き込みます。");
 
-	/* スクリプトのリストボックスを作成する */
-#if 0
-	LoadLibrary(L"Msftedit.dll");
-	hWndRichEdit = CreateWindowEx(
-		0,
-		L"RICHEDIT50W",
-		L"Text",
-		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP,
-		10, 290, 420, 220,
-		hWndDebug, 0,
-		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
-	SendMessage(hWndRichEdit, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
-	CreateTooltip(hWndRichEdit,
-				  L"Current script content.",
-				  L"実行中のスクリプトの内容です。");
-#endif
-
 	/* メニューを作成する */
 	InitDebuggerMenu(hWndMain);
 
 	return TRUE;
+}
+
+/*
+ デバッガウィンドウの位置を修正する
+ */
+VOID UpdateDebuggerWindowPosition(int nGameWidth, int nGameHeight)
+{
+	int y, nDpi, nDebugWidth, nDebugMinHeight;
+
+	nDpi = GetDpiForWindow(hWndMain);
+	if (nDpi == 0)
+		nDpi = 96;
+
+	nDebugWidth = MulDiv(DEBUGGER_WIDTH, nDpi, 96);
+	nDebugMinHeight = MulDiv(DEBUGGER_MIN_HEIGHT, nDpi, 96);
+
+	/* エディタのコントロールをサイズ変更する */
+	MoveWindow(hWndRichEdit,
+				MulDiv(10, nDpi, 96),
+				MulDiv(100, nDpi, 96),
+				MulDiv(420, nDpi, 96),
+				nGameHeight - MulDiv(180, nDpi, 96),
+				TRUE);
+
+	/* エディタより下のコントロールを移動する */
+	y = nGameHeight - MulDiv(130, nDpi, 96);
+#if 0
+	MoveWindow(hWndBtnError,
+				MulDiv(10, nDpi, 96),
+				y,
+				MulDiv(120, nDpi, 96),
+				MulDiv(30, nDpi, 96),
+				TRUE);
+	MoveWindow(hWndBtnSave,
+				MulDiv(DEBUGGER_WIDTH - 10 - 80 - 10 - 80, nDpi, 96),
+				y,
+				MulDiv(80, nDpi, 96),
+				MulDiv(30, nDpi, 96),
+				TRUE);
+	MoveWindow(hWndBtnReload,
+				MulDiv(DEBUGGER_WIDTH - 10 - 80, nDpi, 96),
+				y,
+				MulDiv(80, nDpi, 96),
+				MulDiv(30, nDpi, 96),
+				TRUE);
+	MoveWindow(hWndLabelVar,
+				MulDiv(10, nDpi, 96),
+				y + MulDiv(40, nDpi, 96),
+				MulDiv(200, nDpi, 96),
+				MulDiv(16, nDpi, 96),
+				TRUE);
+#endif
+	MoveWindow(hWndTextboxVar,
+				MulDiv(10, nDpi, 96),
+				y + MulDiv(60, nDpi, 96),
+				MulDiv(280, nDpi, 96),
+				MulDiv(60, nDpi, 96),
+				TRUE);
+	MoveWindow(hWndBtnVar,
+				MulDiv(300, nDpi, 96),
+				y + MulDiv(70, nDpi, 96),
+				MulDiv(130, nDpi, 96),
+				MulDiv(30, nDpi, 96),
+				TRUE);
+
+	/* パネルの位置を変更する */
+	MoveWindow(hWndDebug,
+				nGameWidth,
+				0,
+				nDebugWidth,
+				nGameHeight,
+				TRUE);
 }
 
 /* メニューを作成する */
@@ -644,19 +795,6 @@ static VOID InitDebuggerMenu(HWND hWnd)
 }
 
 /*
- デバッガウィンドウの位置を修正する
- */
-VOID UpdateDebuggerWindowPosition(int nGameWidth, int nGameHeight)
-{
-	MoveWindow(hWndDebug,
-			   nGameWidth,
-			   0,
-			   DEBUGGER_WIDTH,
-			   nGameHeight,
-			   TRUE);
-}
-
-/*
  * スタートアップファイル/ラインを取得する
  */
 BOOL GetStartupPosition(void)
@@ -686,18 +824,20 @@ BOOL IsDebuggerHWND(HWND hWnd)
 	   hWnd == hWndBtnResume ||
 	   hWnd == hWndBtnNext ||
 	   hWnd == hWndBtnPause ||
-	   hWnd == hWndLabelScript ||
 	   hWnd == hWndTextboxScript ||
-	   hWnd == hWndBtnChangeScript ||
-	   hWnd == hWndLabelLine ||
-	   hWnd == hWndTextboxLine ||
-	   hWnd == hWndBtnChangeLine ||
-	   hWnd == hWndLabelCommand ||
-	   hWnd == hWndTextboxCommand ||
-	   hWnd == hWndBtnUpdate ||
-	   hWnd == hWndBtnReset ||
-	   hWnd == hWndListbox ||
-	   hWnd == hWndBtnError)
+	   hWnd == hWndRichEdit
+//	   hWnd == hWndLabelScript ||
+//     hWnd == hWndBtnChangeScript ||
+//	   hWnd == hWndLabelLine ||
+//	   hWnd == hWndTextboxLine ||
+//	   hWnd == hWndBtnChangeLine ||
+//	   hWnd == hWndLabelCommand ||
+//	   hWnd == hWndTextboxCommand ||
+//	   hWnd == hWndBtnUpdate ||
+//	   hWnd == hWndBtnReset ||
+//	   hWnd == hWndListbox ||
+//	   hWnd == hWndBtnError
+		)
 		return TRUE;
 
 	return FALSE;
@@ -731,22 +871,64 @@ static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish,
 /*
  * デバッガ関連のウィンドウプロシージャの処理を行う
  */
-LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
-								  LPARAM lParam)
+LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
 	{
+#if 0
 	case WM_VKEYTOITEM:
-		if(hWnd == hWndDebug && LOWORD(wParam) == VK_RETURN)
+		if (hWnd == hWndDebug && LOWORD(wParam) == VK_RETURN)
 		{
 			OnClickListBox();
 			return 0;
 		}
 		break;
+#endif
 	default:
 		break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+/*
+ * エディタのキーボードメッセージ前処理
+ *  - return: TRUEならメッセージは無視され、FALSEならメッセージは引き続き処理される
+ */
+BOOL PretranslateEditKeyDown(MSG* pMsg)
+{
+	static BOOL bShiftDown;
+
+	/* シフト押下状態を保存する */
+	if (pMsg->hwnd == hWndRichEdit && pMsg->wParam == VK_SHIFT)
+	{
+		if (pMsg->message == WM_KEYDOWN)
+			bShiftDown = TRUE;
+		if (pMsg->message == WM_KEYUP)
+			bShiftDown = TRUE;
+	}
+
+	/* 改行を処理する */
+	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN)
+	{
+		if (bShiftDown)
+		{
+			/* 改行による行分割をフックして、スクリプトモデルに反映する */
+			OnInsertLine();
+
+			/* このメッセージは引き続きリッチエディットで処理する */
+			return FALSE;
+		}
+		else
+		{
+			/* 改行をフックして、実行位置を移動する */
+			OnReturn();
+
+			/* このメッセージはリッチエディットで処理しない */
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 /*
@@ -756,7 +938,7 @@ VOID OnCommandDebug(UINT nID, UINT nEvent)
 {
 	if(nEvent == LBN_DBLCLK)
 	{
-		OnClickListBox();
+//		OnClickListBox();
 		return;
 	}
 	switch(nID)
@@ -783,6 +965,7 @@ VOID OnCommandDebug(UINT nID, UINT nEvent)
 	case ID_SELECT_SCRIPT:
 		OnSelectScript();
 		break;
+#if 0
 	case ID_CHANGE_LINE:
 		bChangeLinePressed = TRUE;
 		break;
@@ -792,6 +975,7 @@ VOID OnCommandDebug(UINT nID, UINT nEvent)
 	case ID_RESET_COMMAND:
 		OnPressReset();
 		break;
+#endif
 	case ID_ERROR:
 		OnPressError();
 		break;
@@ -830,18 +1014,22 @@ VOID OnCommandDebug(UINT nID, UINT nEvent)
 	}
 }
 
+#if 0
 /* リストボックスのクリックと改行キー入力を処理する */
 static VOID OnClickListBox(void)
 {
 	wchar_t line[10];
 	if(!bRunning)
 	{
-		_snwprintf(line, sizeof(line), L"%d",
-				 (int)SendMessage(hWndListbox, LB_GETCURSEL, 0, 0) + 1);
+		_snwprintf(line, sizeof(line) / sizeof(wchar_t),
+					L"%d",
+					(int)SendMessage(hWndListbox, LB_GETCURSEL, 0, 0) + 1);
+		line[9] = L'\0';
 		SetWindowText(hWndTextboxLine, line);
 		bChangeLinePressed = TRUE;
 	}
 }
+#endif
 
 /* スクリプト選択ボタンが押された場合の処理を行う */
 static VOID OnSelectScript(void)
@@ -850,7 +1038,7 @@ static VOID OnSelectScript(void)
 	wchar_t szPath[1024];
 	size_t i;
 
-	szPath[0] = '\0';
+	memset(szPath, 0, sizeof(szPath));
 
 	ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
 	ofn.lStructSize = sizeof(OPENFILENAMEW);
@@ -870,7 +1058,7 @@ static VOID OnSelectScript(void)
 		for (i = wcslen(szPath) - 1; i != 0; i--) {
 			if (*(szPath + i) == L'\\')
 			{
-				SetWindowText(hWndTextboxScript, szPath + i);
+				SetWindowText(hWndTextboxScript, szPath + i + 1);
 				bChangeScriptPressed = TRUE;
 				break;
 			}
@@ -878,12 +1066,14 @@ static VOID OnSelectScript(void)
 	}
 }
 
+#if 0
 /* コマンドリセットボタンが押下された場合の処理を行う */
 static VOID OnPressReset(void)
 {
 	/* コマンド文字列を設定する */
 	SetWindowText(hWndTextboxCommand, conv_utf8_to_utf16(get_line_string()));
 }
+#endif
 
 /* 上書き保存ボタンが押された場合の処理を行う */
 static VOID OnPressSave(void)
@@ -938,6 +1128,7 @@ static VOID OnPressSave(void)
 /* 次のエラー箇所へ移動ボタンが押下されたとき */
 static VOID OnPressError(void)
 {
+#if 0
 	const char *text;
 	int start, lines;
 	int i;
@@ -971,6 +1162,7 @@ static VOID OnPressError(void)
 	MessageBox(hWndDebug, bEnglish ?
 			   L"No error." : L"エラーはありません。",
 			   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
+#endif
 }
 
 /* 変数の書き込みボタンが押下された場合を処理する */
@@ -980,7 +1172,7 @@ static VOID OnPressWriteVars(void)
 	int index, val;
 
 	/* テキストボックスの内容を取得する */
-	GetWindowText(hWndTextboxVar, szTextboxVar, sizeof(szTextboxVar) - 1);
+	GetWindowText(hWndTextboxVar, szTextboxVar, sizeof(szTextboxVar) / sizeof(wchar_t) - 1);
 
 	/* パースする */
 	p = szTextboxVar;
@@ -1173,15 +1365,19 @@ VOID OnExportWinInst(void)
 	ZeroMemory(&si, sizeof(STARTUPINFOW));
 	si.cb = sizeof(STARTUPINFOW);
 	CreateProcessW(NULL,	/* lpApplication */
-				   cmdline,
-				   NULL,	/* lpProcessAttribute */
-				   NULL,	/* lpThreadAttributes */
-				   FALSE,	/* bInheritHandles */
-				   NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
-				   NULL,	/* lpEnvironment */
-				   L".\\windows-installer-export\\asset",
-				   &si,
-				   &pi);
+					cmdline,
+					NULL,	/* lpProcessAttribute */
+					NULL,	/* lpThreadAttributes */
+					FALSE,	/* bInheritHandles */
+					NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+					NULL,	/* lpEnvironment */
+					L".\\windows-installer-export\\asset",
+					&si,
+					&pi);
+	if (pi.hProcess != NULL)
+		CloseHandle(pi.hThread);
+	if (pi.hProcess != NULL)
+		CloseHandle(pi.hProcess);
 }
 
 /* Windows/Mac向けにエクスポートのメニューが押下されたときの処理を行う */
@@ -1520,7 +1716,12 @@ static VOID UpdateVariableTextBox(void)
 			continue;
 
 		/* 行を追加する */
-		_snwprintf(line, sizeof(line), L"$%d=%d\r\n", index, val);
+		_snwprintf(line,
+					sizeof(line) / sizeof(wchar_t),
+					L"$%d=%d\r\n",
+					index,
+					val);
+		line[1023] = L'\0';
 		wcscat(szTextboxVar, line);
 	}
 
@@ -1579,8 +1780,10 @@ const char *get_changed_script(void)
 {
 	static wchar_t script[256];
 
-	GetWindowText(hWndTextboxScript, script, sizeof(script) - 1);
-
+	GetWindowText(hWndTextboxScript,
+					script,
+					sizeof(script) /sizeof(wchar_t) - 1);
+	script[255] = L'\0';
 	return conv_utf16_to_utf8(script);
 }
 
@@ -1595,18 +1798,33 @@ bool is_line_changed(void)
 }
 
 /*
- * 変更された実行するスクリプトファイル名を取得する
+ * 変更された実行する行番号を取得する
  */
 int get_changed_line(void)
 {
+#if 0
 	static wchar_t text[256];
 	int line;
 
-	GetWindowText(hWndTextboxLine, text, sizeof(text) - 1);
-
+	GetWindowText(hWndTextboxLine,
+					text,
+					sizeof(text) / sizeof(wchar_t) - 1);
 	line = _wtoi(text) - 1;
 
 	return line;
+#endif
+	CHARRANGE cr;
+	int nCursor, nLine;
+
+	/* カーソル位置を取得する */
+	SendMessage(hWndRichEdit, EM_EXGETSEL, 0, (LPARAM)&cr);
+	nCursor = cr.cpMin;
+
+	/* カーソル位置の行番号を取得する*/
+	nLine = SendMessage(hWndRichEdit, EM_EXLINEFROMCHAR, 0, (LPARAM)nCursor);
+	assert(nLine < get_line_count());
+
+	return nLine;
 }
 
 /*
@@ -1624,10 +1842,13 @@ bool is_command_updated(void)
  */
 const char *get_updated_command()
 {
+#if 0
 	static wchar_t text[4096];
 	wchar_t *p;
 
-	GetWindowText(hWndTextboxCommand, text, sizeof(text) - 1);
+	GetWindowText(hWndTextboxCommand,
+					text,
+					sizeof(text) / sizeof(wchar_t) - 1);
 
 	/* 改行をスペースに置き換える */
 	p = text;
@@ -1639,6 +1860,8 @@ const char *get_updated_command()
 	}
 
 	return conv_utf16_to_utf8(text);
+#endif
+	return "";
 }
 
 /*
@@ -1676,11 +1899,12 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプトテキストボックスを無効にする */
 		EnableWindow(hWndTextboxScript, FALSE);
 
-		/* スクリプト変更ボタンを無効にする */
-		EnableWindow(hWndBtnChangeScript, FALSE);
-
 		/* スクリプト選択ボタンを無効にする */
 		EnableWindow(hWndBtnSelectScript, FALSE);
+
+#if 0
+		/* スクリプト変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeScript, FALSE);
 
 		/* 行番号ラベルを設定する */
 		SetWindowText(hWndLabelLine, bEnglish ?
@@ -1707,9 +1931,14 @@ void set_running_state(bool running, bool request_stop)
 		/* コマンドリセットボタンを無効にする */
 		EnableWindow(hWndBtnReset, FALSE);
 
-		/* リストボックスを有効にする */
-		EnableWindow(hWndListbox, FALSE);
+		/* リストボックスを無効にする */
+//		EnableWindow(hWndListbox, FALSE);
+#endif
 
+		/* リッチエディットを無効にする */
+		EnableWindow(hWndRichEdit, FALSE);
+
+#if 0
 		/* エラーを探すを無効にする */
 		EnableWindow(hWndBtnError, FALSE);
 
@@ -1718,6 +1947,7 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
+#endif
 
 		/* 変数のテキストボックスを無効にする */
 		SendMessage(hWndTextboxVar, EM_SETREADONLY, TRUE, 0);
@@ -1767,11 +1997,12 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプトテキストボックスを無効にする */
 		EnableWindow(hWndTextboxScript, FALSE);
 
-		/* スクリプト変更ボタンを無効にする */
-		EnableWindow(hWndBtnChangeScript, FALSE);
-
 		/* スクリプト選択ボタンを無効にする */
 		EnableWindow(hWndBtnSelectScript, FALSE);
+
+#if 0
+		/* スクリプト変更ボタンを無効にする */
+		EnableWindow(hWndBtnChangeScript, FALSE);
 
 		/* 行番号ラベルを設定する */
 		SetWindowText(hWndLabelLine, bEnglish ?
@@ -1799,8 +2030,13 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnReset, FALSE);
 
 		/* リストボックスを無効にする */
-		EnableWindow(hWndListbox, FALSE);
+//		EnableWindow(hWndRichEdit, FALSE);
+#endif
 
+		/* リッチエディットを無効にする */
+		EnableWindow(hWndRichEdit, FALSE);
+
+#if 0
 		/* エラーを探すを無効にする */
 		EnableWindow(hWndBtnError, FALSE);
 
@@ -1809,6 +2045,7 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 再読み込みボタンを無効にする */
 		EnableWindow(hWndBtnReload, FALSE);
+#endif
 
 		/* 変数のテキストボックスを無効にする */
 		SendMessage(hWndTextboxVar, EM_SETREADONLY, TRUE, 0);
@@ -1858,11 +2095,12 @@ void set_running_state(bool running, bool request_stop)
 		/* スクリプトテキストボックスを有効にする */
 		EnableWindow(hWndTextboxScript, TRUE);
 
-		/* スクリプト変更ボタンを有効にする */
-		EnableWindow(hWndBtnChangeScript, TRUE);
-
 		/* スクリプト選択ボタンを有効にする */
 		EnableWindow(hWndBtnSelectScript, TRUE);
+
+#if 0
+		/* スクリプト変更ボタンを有効にする */
+		EnableWindow(hWndBtnChangeScript, TRUE);
 
 		/* 行番号ラベルを設定する */
 		SetWindowText(hWndLabelLine, bEnglish ?
@@ -1890,8 +2128,13 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnReset, TRUE);
 
 		/* リストボックスを有効にする */
-		EnableWindow(hWndListbox, TRUE);
+//		EnableWindow(hWndListbox, TRUE);
+#endif
 
+		/* リッチエディットを有効にする */
+		EnableWindow(hWndRichEdit, TRUE);
+
+#if 0
 		/* エラーを探すを有効にする */
 		EnableWindow(hWndBtnError, TRUE);
 
@@ -1900,6 +2143,7 @@ void set_running_state(bool running, bool request_stop)
 
 		/* 再読み込みボタンを有効にする */
 		EnableWindow(hWndBtnReload, TRUE);
+#endif
 
 		/* 変数のテキストボックスを有効にする */
 		SendMessage(hWndTextboxVar, EM_SETREADONLY, FALSE, 0);
@@ -1938,21 +2182,26 @@ void set_running_state(bool running, bool request_stop)
  */
 void update_debug_info(bool script_changed)
 {
-	wchar_t line[10];
-	const char *command;
-	int line_num;
-	int top;
+	wchar_t *buf;
+	const char *script_file;
+	int line_num, script_size;
 
 	/* スクリプトファイル名を設定する */
-	SetWindowText(hWndTextboxScript,
-				  conv_utf8_to_utf16(get_script_file_name()));
+	script_file = get_script_file_name();
+	SetWindowText(hWndTextboxScript, conv_utf8_to_utf16(script_file));
 
+#if 0
 	/* 行番号を設定する */
-	_snwprintf(line, sizeof(line), L"%d", get_expanded_line_num() + 1);
-	SetWindowText(hWndTextboxLine, line);
+	_snwprintf(line_num_buf,
+				sizeof(line_num_buf) / sizeof(wchar_t),
+				L"%d",
+				get_expanded_line_num() + 1);
+	line_num_buf[9] = L'\0';
+	SetWindowText(hWndTextboxLine, line_num_buf);
 
 	/* コマンド文字列を設定する */
-	SetWindowText(hWndTextboxCommand, conv_utf8_to_utf16(get_line_string()));
+	line_string = get_line_string();
+	SetWindowText(hWndTextboxCommand, conv_utf8_to_utf16(line_string));
 
 	/* スクリプトのリストボックスを設定する */
 	if(script_changed)
@@ -1960,17 +2209,183 @@ void update_debug_info(bool script_changed)
 		SendMessage(hWndListbox, LB_RESETCONTENT, 0 , 0);
 		for(line_num = 0; line_num < get_line_count(); line_num++)
 		{
-			command = get_line_string_at_line_num(line_num);
+			command_string = get_line_string_at_line_num(line_num);
 			SendMessage(hWndListbox, LB_ADDSTRING, 0,
-						(LPARAM)conv_utf8_to_utf16(command));
+						(LPARAM)conv_utf8_to_utf16(command_string));
 		}
 	}
 	line_num = get_expanded_line_num();
 	top = (line_num - 9 < 0) ? 0 : (line_num - 9);
 	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
 	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
+#endif
+
+	/* スクリプトのリッチエディットを設定する */
+	if (script_changed)
+	{
+		script_size = 0;
+		for (line_num = 0; line_num < get_line_count(); line_num++)
+			script_size += strlen(get_line_string_at_line_num(line_num)) + 1;
+
+		buf = malloc((script_size + 1) * sizeof(wchar_t));
+		buf[0] = L'\0';
+		for (line_num = 0; line_num < get_line_count(); line_num++)
+		{
+			wcscat(buf, conv_utf8_to_utf16(get_line_string_at_line_num(line_num)));
+			wcscat(buf, L"\r");
+		}
+		SetWindowText(hWndRichEdit, buf);
+		free(buf);
+	}
+	UpdateLineHighlight();
+
+	// TODO: スクロール
+	// line_num = get_expanded_line_num();
+	// top = (line_num - 9 < 0) ? 0 : (line_num - 9);
+	// SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
+	// SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
 
 	/* 変数の情報を更新する */
 	if(check_variable_updated() || script_changed)
 		UpdateVariableTextBox();
+}
+
+/* 実行行のハイライトを行う */
+static VOID UpdateLineHighlight(void)
+{
+	CHARFORMAT2W cf;
+	CHARRANGE cr;
+	wchar_t* pText, *pCrLf;
+	int nLine, nTextLen, nLineStart, nLineStartWithoutLf, nLineLen, i;
+
+	/* 全体の書式をクリアして、背景を白にする */
+	memset(&cf, 0, sizeof(cf));
+	cf.cbSize = sizeof(cf);
+	cf.dwMask = CFM_BACKCOLOR;
+	cf.crBackColor = 0x00ffffff;
+	wcscpy(&cf.szFaceName[0], L"BIZ UDゴシック");
+	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
+
+	/* 実行行を取得する */
+	nLine = get_expanded_line_num();
+
+	/* リッチエディットのテキストの長さを取得する */
+	nTextLen = SendMessage(hWndRichEdit, WM_GETTEXTLENGTH, 0, 0);
+	if (nTextLen == 0)
+		return;
+
+	/* テキスト全体を取得する */
+	pText = malloc((nTextLen + 1) * sizeof(wchar_t));
+	if (pText == NULL)
+	{
+		log_memory();
+		abort();
+	}
+	SendMessage(hWndRichEdit, WM_GETTEXT, (WPARAM)nTextLen, (LPARAM)pText);
+	pText[nTextLen] = L'\0';
+
+	/* 実行行の開始文字位置を求める */
+	nLineStart = 0;			/* WM_GETTEXTは改行をCRLFで返す */
+	nLineStartWithoutLf = 0;	/* EM_EXSETSELでは改行はCRの1文字 */
+	nLineLen = 0;
+	for (i = 0; i < nLine; i++)
+	{
+		pCrLf = wcswcs(pText + nLineStart, L"\r\n");
+		if (i < get_line_count() - 1)
+		{
+			int len;
+			assert(pCrLf != NULL);
+			len = pCrLf - (pText + nLineStart);
+			nLineStart += len + 2; /* +1 for CRLF */
+			nLineStartWithoutLf += len + 1; /* +1 for CR */
+		}
+	}
+	pCrLf = wcswcs(pText + nLineStart, L"\r\n");
+	nLineLen = (pCrLf != NULL) ? (pCrLf - (pText + nLineStart)) : wcslen(pText + nLineStart);
+
+	/* 実行行を選択する */
+	memset(&cr, 0, sizeof(cr));
+	cr.cpMin = nLineStartWithoutLf;
+	cr.cpMax = nLineStartWithoutLf + nLineLen;
+	SendMessage(hWndRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
+
+	/* 選択範囲(実行行)の背景色を変更する */
+	memset(&cf, 0, sizeof(cf));
+	cf.cbSize = sizeof(cf);
+	cf.dwMask = CFM_BACKCOLOR;
+	cf.crBackColor = 0x00ffc0c0;
+	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&cf);
+
+	/* カーソル位置を実行行の先頭に設定する */
+	memset(&cr, 0, sizeof(cr));
+	cr.cpMin = nLineStart;
+	cr.cpMax = nLineStart;
+	SendMessage(hWndRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
+
+	/* スクロールする */
+	SendMessage(hWndRichEdit, EM_SCROLLCARET, 0, 0);
+}
+
+/* 改行を挿入する */
+static VOID OnInsertLine(void)
+{
+	CHARRANGE cr;
+	GETTEXTEX gt;
+	wchar_t *pLineWcsBefore, *pStop;
+	char *pLineUtf8After;
+	int nCursor, nLine, nLineStart, nLineLen, nOfsInLine;
+
+	/* カーソル位置を取得する */
+	SendMessage(hWndRichEdit, EM_EXGETSEL, 0, (LPARAM)&cr);
+	nCursor = cr.cpMin;
+
+	/* カーソル位置の行番号を取得する*/
+	nLine = SendMessage(hWndRichEdit, EM_EXLINEFROMCHAR, 0, (LPARAM)nCursor);
+	assert(nLine < get_line_count());
+
+	/* カーソル位置の行の先頭文字の位置を取得する*/
+	nLineStart = SendMessage(hWndRichEdit, EM_LINEINDEX, (WPARAM)nLine, 0);
+
+	/* カーソル位置の行の長さを取得する*/
+	nLineLen = SendMessage(hWndRichEdit, EM_LINELENGTH, (WPARAM)nCursor, 0);
+
+	/* 作業用の文字列バッファを確保する */
+	pLineWcsBefore = malloc((nLineLen + 2) * sizeof(wchar_t));
+	pLineUtf8After = malloc(nLineLen + 2);
+	if (pLineWcsBefore == NULL || pLineUtf8After == NULL)
+	{
+		log_memory();
+		abort();
+	}
+
+	/* カーソル位置の行の内容を取得する*/
+	SendMessage(hWndRichEdit, EM_GETLINE, (WPARAM)nLine, (LPARAM)pLineWcsBefore);
+	pLineWcsBefore[nLineLen - 1] = L'\0';	/* NUL termination */
+	pStop = wcswcs(pLineWcsBefore, L"\r");
+	if (pStop != NULL)
+		*pStop = L'\0';	/* ignore CR */
+
+	/* カーソル位置以降をUtf-8に変換して作業用バッファにコピーする */
+	nOfsInLine = nCursor - nLineStart;
+	strcpy(pLineUtf8After, conv_utf16_to_utf8(pLineWcsBefore + nOfsInLine));
+
+	/* カーソル位置でワイド文字列を終端する */
+	pLineWcsBefore[nOfsInLine] = L'\0';
+
+	/* スクリプトモデルで行分割を行う */
+	update_script_line(nLine, conv_utf16_to_utf8(pLineWcsBefore), pLineUtf8After);
+
+	free(pLineWcsBefore);
+	free(pLineUtf8After);
+
+	/*
+	 * このあとリッチテキストエディットに改行が送られ、
+	 * コントロール内でも行分割される
+	 */
+}
+
+/* 改行を処理する */
+static VOID OnReturn(void)
+{
+	bChangeLinePressed = TRUE;
 }

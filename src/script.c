@@ -1554,6 +1554,9 @@ static bool process_switch_block(struct rfile *rf, const char *raw,
 	int opt_count, i, state, accepted, cur_opt;
 	bool escaped;
 
+	memset(opt, 0, sizeof(opt));
+	memset(label, 0, sizeof(label));
+
 	/* rawを保存する */
 	raw_save = strdup(raw);
 	if (raw_save == NULL) {
@@ -2728,6 +2731,12 @@ static void replace_command_to_comment(int cmd_index, const char *text)
 
 	assert(text != NULL);
 
+	/* コマンドが1つしかない場合は現状では編集できない */
+	if (cmd_size == 1) {
+		log_info("You need at least one command.");
+		return;
+	}
+
 	/* 行番号を求める */
 	line = cmd[cmd_index].expanded_line;
 
@@ -2751,7 +2760,7 @@ static void replace_command_to_comment(int cmd_index, const char *text)
 	memset(&cmd[cmd_index], 0, sizeof(struct command));
 
 	/* cmd_index+1以降のコマンドを1つずつ手前にずらす */
-	for (i = cmd_index; i < cmd_index - 1; i++)
+	for (i = cmd_index; i < cmd_size - 1; i++)
 		cmd[i] = cmd[i + 1];
 	memset(&cmd[cmd_size - 1], 0, sizeof(struct command));
 	cmd_size--;
@@ -2850,8 +2859,8 @@ update_script_line(
 	/* 行番号lineの位置にコマンドがあるか */
 	if (cmd_index != -1 && cmd[cmd_index].line == line) {
 		/* あるので、そのコマンドをアップデートする */
-		if (text != NULL)
-			update_command(cmd_index, text);
+		if (text != NULL && strcmp(cmd[cmd_index].text, text) != 0)
+				update_command(cmd_index, text);
 	} else {
 		/* ないので、コメントをコマンドに変換する */
 		if (text != NULL)
