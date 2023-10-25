@@ -357,6 +357,7 @@ install:
 	@install -v -d $(DESTDIR)/share/suika2/game/conf
 	@install -v -d $(DESTDIR)/share/suika2/game/cv
 	@install -v -d $(DESTDIR)/share/suika2/game/gui
+	@install -v -d $(DESTDIR)/share/suika2/game/gui/english-translation
 	@install -v -d $(DESTDIR)/share/suika2/game/txt
 	@install -v -d $(DESTDIR)/share/suika2/game/font
 	@install -v -d $(DESTDIR)/share/suika2/game/rule
@@ -374,6 +375,7 @@ install:
 	@install -v -t $(DESTDIR)/share/suika2/game/conf game/conf/*
 	@install -v -t $(DESTDIR)/share/suika2/game/cv game/cv/*
 	@install -v -t $(DESTDIR)/share/suika2/game/gui game/gui/*
+	@install -v -t $(DESTDIR)/share/suika2/game/gui/english-translation game/gui/english-translation/*
 	@install -v -t $(DESTDIR)/share/suika2/game/txt game/txt/*
 	@install -v -t $(DESTDIR)/share/suika2/game/font game/font/*
 	@install -v -t $(DESTDIR)/share/suika2/game/rule game/rule/*
