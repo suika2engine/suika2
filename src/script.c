@@ -36,7 +36,7 @@
  *  - 2023/08/27 @setconfigに対応
  *  - 2023/08/31 @chsxに対応
  *  - 2023/09/14 @pencilに対応
- *  - 2023/10/21 VLS対応
+ *  - 2023/10/25 Suika2 Proでの編集に対応
  */
 
 #include "suika.h"
@@ -2722,34 +2722,39 @@ bool update_command(int index, const char *cmd_str)
 }
 
 /* コマンド行をコメント行に置き換える */
-static void replace_command_to_comment(int line, const char *text)
+static void replace_command_to_comment(int cmd_index, const char *text)
 {
-	int i, cmd_index;
+	int i, line;
 
 	assert(text != NULL);
-	assert(comment_text[line] != NULL);
 
-	/* 行番号line以降の最初のコマンドを探す */
-	cmd_index = get_command_index_from_line_number(line);
-	assert(cmd_index != -1);
-
-	/* コマンドを解放する */
-	if (cmd[cmd_index].text != NULL)
-		free(cmd[cmd_index].text);
-	if (cmd[cmd_index].param[0] != NULL)
-		free(cmd[cmd_index].param[0]);
-	memset(&cmd[cmd_index], 0, sizeof(struct command));
-
-	/* cmd_index+1以降のコマンドを1つずつ手前にずらす */
-	for (i = cmd_index; i < cmd_index - 1; i++)
-		cmd[i] = cmd[i + 1];
+	/* 行番号を求める */
+	line = cmd[cmd_index].expanded_line;
 
 	/* コメントを保存する */
+	assert(comment_text[line] == NULL);
 	comment_text[line] = strdup(text);
 	if (comment_text[line] == NULL) {
 		log_memory();
 		abort();
 	}
+
+	/* コマンドを解放する */
+	if (cmd[cmd_index].text != NULL) {
+		free(cmd[cmd_index].text);
+		cmd[cmd_index].text = NULL;
+	}
+	if (cmd[cmd_index].param[0] != NULL) {
+		free(cmd[cmd_index].param[0]);
+		cmd[cmd_index].param[0] = NULL;
+	}
+	memset(&cmd[cmd_index], 0, sizeof(struct command));
+
+	/* cmd_index+1以降のコマンドを1つずつ手前にずらす */
+	for (i = cmd_index; i < cmd_index - 1; i++)
+		cmd[i] = cmd[i + 1];
+	memset(&cmd[cmd_size - 1], 0, sizeof(struct command));
+	cmd_size--;
 }
 
 /*
