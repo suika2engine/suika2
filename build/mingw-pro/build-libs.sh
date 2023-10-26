@@ -2,8 +2,6 @@
 
 set -eu
 
-export CC=gcc
-
 PREFIX=`pwd`/libroot
 
 rm -rf tmp libroot
@@ -12,26 +10,10 @@ mkdir -p libroot/include libroot/lib
 
 cd tmp
 
-echo 'Building bzip2...'
-tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
-cd bzip2-1.0.6
-make libbz2.a PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections' CC=i686-w64-mingw32-gcc
-cp bzlib.h ../../libroot/include/
-cp libbz2.a ../../libroot/lib/
-cd ..
-
-echo 'Building libwebp...'
-tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
-cd libwebp-1.3.2
-./configure --prefix=$PREFIX --enable-static --disable-shared --host=i686-w64-mingw32 CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib CC=i686-w64-mingw32-gcc
-make
-make install
-cd ..
-
 echo 'Building zlib...'
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11
-make -f win32/Makefile.gcc PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections'
+make libz.a -f win32/Makefile.gcc PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections'
 cp zlib.h zconf.h ../../libroot/include/
 cp libz.a ../../libroot/lib/
 cd ..
@@ -47,6 +29,22 @@ cd ..
 echo 'Building jpeg9...'
 tar xzf ../../libsrc/jpegsrc.v9e.tar.gz
 cd jpeg-9e
+./configure --prefix=$PREFIX --enable-static --disable-shared --host=i686-w64-mingw32 CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib CC=i686-w64-mingw32-gcc
+make
+make install
+cd ..
+
+echo 'Building bzip2...'
+tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make libbz2.a PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections' CC=i686-w64-mingw32-gcc
+cp bzlib.h ../../libroot/include/
+cp libbz2.a ../../libroot/lib/
+cd ..
+
+echo 'Building libwebp...'
+tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
+cd libwebp-1.3.2
 ./configure --prefix=$PREFIX --enable-static --disable-shared --host=i686-w64-mingw32 CPPFLAGS=-I$PREFIX/include CFLAGS='-O3 -ffunction-sections -fdata-sections' LDFLAGS=-L$PREFIX/lib CC=i686-w64-mingw32-gcc
 make
 make install

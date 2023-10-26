@@ -23,34 +23,48 @@ mac-replay.dmg
 mac.zip
 pack.mac
 
-# mingw (Windows 32-bit)
+# mingw (Windows 32-bit suika.exe)
 build/mingw/*.o
 build/mingw/libroot
 build/mingw/suika.exe
 build/mingw/res/resource.aps
 build/mingw/sync.sh
+build/mingw/game
 
-# mingw-pro (Windows 32-bit)
+# mingw-pro (Windows 32-bit suika.exe)
 build/mingw-pro/*.o
 build/mingw-pro/libroot
 build/mingw-pro/suika-pro.exe
+build/mingw-pro/game
 
-# mingw-capture (Windows 32-bit)
+# mingw-pro (Windows 32-bit debug suika-pro.exe)
+build/mingw-pro-dbg/*.o
+build/mingw-pro-dbg/libroot
+build/mingw-pro-dbg/suika-pro.exe
+build/mingw-pro-dbg/game
+
+# mingw-pro-64 (Windows 64-bit suika-pro.exe)
+build/mingw-pro-64/*.o
+build/mingw-pro-64/libroot
+build/mingw-pro-64/suika-pro.exe
+build/mingw-pro-64/game
+
+# mingw-capture (Windows 32-bit suika-captuer.exe)
 build/mingw-capture/*.o
 build/mingw-capture/libroot
 build/mingw-capture/suika-capture.exe
 
-# mingw-replay (Windows 32-bit)
+# mingw-replay (Windows 32-bit suika-replay.exe)
 build/mingw-replay/*.o
 build/mingw-replay/libroot
 build/mingw-replay/suika-replay.exe
 
-# mingw-64 (Windows 64-bit)
+# mingw-64 (Windows 64-bit suika-64.exe)
 build/mingw-64/*.o
 build/mingw-64/libroot
 build/mingw-64/suika-64.exe
 
-# mingw-arm64 (Windows Arm64)
+# mingw-arm64 (Windows Arm64 suika-arm64.exe)
 build/mingw-arm64/*.o
 build/mingw-arm64/llvm
 build/mingw-arm64/libroot

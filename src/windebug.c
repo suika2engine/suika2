@@ -24,7 +24,7 @@
 /* Windows */
 #include <windows.h>
 #include <commctrl.h>	/* TOOLINFO */
-#include <Richedit.h>
+#include <richedit.h>
 #include "resource.h"
 
 /* Standard C (msvcrt.dll) */
@@ -38,7 +38,7 @@
 #define VAR_TEXTBOX_MAX		(11000 * (1 + 5 + 1 + 11 + 2))
 
 /* ウィンドウクラス名 */
-const wchar_t wszWindowClass[] = L"SuikaDebugPanel";
+static const wchar_t wszWindowClass[] = L"SuikaDebugPanel";
 
 /*
  * Variables
@@ -72,11 +72,11 @@ static BOOL bRunning;
 static BOOL bResumePressed;			/* 「続ける」ボタンが押下された */
 static BOOL bNextPressed;			/* 「次へ」ボタンが押下された */
 static BOOL bPausePressed;			/* 「停止」ボタンが押下された */
-static BOOL bScriptSelected;			/* スクリプトファイルが選択された */
+static BOOL bScriptSelected;		/* スクリプトファイルが選択された */
 static BOOL bLineChanged;			/* 実行行が変更された */
-static int nLineChanged;				/* 実行行が変更された場合の行番号 */
+static int nLineChanged;			/* 実行行が変更された場合の行番号 */
 static BOOL bSelectedRangeChanged;	/* 選択範囲に対して変更が加えられるか */
-static int nChangeStartLine;			/* 変更される選択範囲の開始行 */
+static int nChangeStartLine;		/* 変更される選択範囲の開始行 */
 static int nChangeEndLine;			/* 変更される選択範囲の終了行 */
 
 /*
