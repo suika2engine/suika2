@@ -38,23 +38,20 @@
 /* コマンドライン引数がある場合にパッケージングを行う */
 VOID DoPackagingIfArgExists(VOID);
 
-/* デバッガパネルを作成する */
-BOOL InitDebuggerPanel(HWND hWndMain, HWND hWndGame, void *pWndProc);
-
-/* デバッガウィンドウの位置を修正する */
-VOID UpdateDebuggerWindowPosition(int nGameWidth, int nGameHeight);
-
 /* スタートアップファイル/ラインを取得する */
 BOOL GetStartupPosition(void);
 
-/* デバッガのウィンドウプロシージャの処理 */
-LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+/* デバッガパネルを作成する */
+BOOL InitDebuggerPanel(HWND hWndMain, HWND hWndGame, void *pWndProc);
 
-/* エディタのキーボードメッセージ前処理 */
-BOOL PretranslateEditKeyDown(MSG *pMsg);
+/* デバッガパネルの位置を修正する */
+VOID RearrangeDebuggerPanel(int nGameWidth, int nGameHeight);
+
+/* メッセージのトランスレート前処理を行う */
+BOOL PretranslateForDebugger(MSG *pMsg);
 
 /* デバッガのWM_COMMANDハンドラ */
-VOID OnCommandDebug(UINT nID, UINT nEvent);
+VOID OnCommandForDebugger(WPARAM wParam, LPARAM lParam);
 
 /* winmain.cで定義された関数 */
 const wchar_t *conv_utf8_to_utf16(const char *utf8_message);

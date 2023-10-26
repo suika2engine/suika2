@@ -267,7 +267,7 @@ static BOOL SyncEvents(void);
 static BOOL WaitForNextFrame(void);
 static int ConvertKeyCode(int nVK);
 static void OnPaint(HWND hWnd);
-static void OnCommand(UINT nID, UINT nEvent);
+static void OnCommand(WPARAM wParam, LPARAM lParam);
 static void OnSizing(int edge, LPRECT lpRect);
 static void OnSize(void);
 static void OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect);
@@ -1079,7 +1079,7 @@ static BOOL SyncEvents(void)
 	{
 		if (msg.message == WM_QUIT)
 			return FALSE;
-		if (PretranslateEditKeyDown(&msg))
+		if (PretranslateForDebugger(&msg))
 			continue;
 		if (!TranslateAccelerator(msg.hwnd, hAccel, &msg))
 		{
@@ -1319,7 +1319,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_COMMAND:
-		OnCommand(LOWORD(wParam), HIWORD(wParam));
+		OnCommand(wParam, wParam);
 		return 0;
 	case WM_GRAPHNOTIFY:
 		if(!DShowProcessEvent())
@@ -1397,13 +1397,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		default:
 		break;
 	}
-#ifndef USE_DEBUGGER
+
 	/* システムのウィンドウプロシージャにチェインする */
 	return DefWindowProc(hWnd, message, wParam, lParam);
-#else
-	/* デバッガのウィンドウプロシージャにチェインする */
-	return WndProcDebugHook(hWnd, message, wParam, lParam);
-#endif
 }
 
 /* キーコードの変換を行う */
@@ -1456,12 +1452,15 @@ static void OnPaint(HWND hWnd)
 }
 
 /* WM_COMMANDを処理する */
-static void OnCommand(UINT nID, UINT nEvent)
+static void OnCommand(WPARAM wParam, LPARAM lParam)
 {
+	UINT nID;
+
 #ifndef USE_DEBUGGER
 	UNUSED_PARAMETER(nEvent);
 #endif
 
+	nID = LOWORD(wParam);
 	switch(nID)
 	{
 	case ID_QUIT:
@@ -1479,7 +1478,7 @@ static void OnCommand(UINT nID, UINT nEvent)
 		break;
 #else
 	default:
-		OnCommandDebug(nID, nEvent);
+		OnCommandForDebugger(wParam, lParam);
 		break;
 #endif
 	}
@@ -1725,7 +1724,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 #ifdef USE_DEBUGGER
 	/* Move the game window. */
 	MoveWindow(hWndGame, 0, 0, nClientWidth, nClientHeight, TRUE);
-	UpdateDebuggerWindowPosition(nClientWidth, nClientHeight);
+	RearrangeDebuggerPanel(nClientWidth, nClientHeight);
 #endif
 
 	/* Update the screen offset and scale for drawing subsystem. */
