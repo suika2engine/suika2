@@ -359,6 +359,11 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (!init_conf())
 		return FALSE;
 
+#ifdef USE_DEBUGGER
+	/* HiDPIの初期化を行う */
+	InitDpiExtension();
+#endif
+
 	/* ウィンドウを作成する */
 	if (!InitWindow(hInstance, nCmdShow))
 		return FALSE;
@@ -2317,12 +2322,14 @@ bool is_video_playing(void)
 void update_window_title(void)
 {
 	const char *separator;
-	int cch1, cch2, cch3;
+	int cch1, cch2;
 
 	/* セパレータを取得する */
 	separator = conf_window_title_separator;
 	if (separator == NULL)
 		separator = " ";
+
+	ZeroMemory(&wszTitle[0], sizeof(wszTitle));
 
 	/* コンフィグのウィンドウタイトルをUTF-8からUTF-16に変換する */
 	cch1 = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
@@ -2331,11 +2338,9 @@ void update_window_title(void)
 	cch2 = MultiByteToWideChar(CP_UTF8, 0, separator, -1, wszTitle + cch1,
 							   TITLE_BUF_SIZE - cch1 - 1);
 	cch2--;
-	cch3 = MultiByteToWideChar(CP_UTF8, 0, get_chapter_name(), -1,
+	MultiByteToWideChar(CP_UTF8, 0, get_chapter_name(), -1,
 							   wszTitle + cch1 + cch2,
 							   TITLE_BUF_SIZE - cch1 - cch2 - 1);
-	cch3--;
-	wszTitle[cch1 + cch2 + cch3] = L'\0';
 
 	/* ウィンドウのタイトルを設定する */
 	SetWindowText(hWndMain, wszTitle);
