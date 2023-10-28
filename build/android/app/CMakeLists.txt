@@ -60,6 +60,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/ndkmain.c
              src/main/cpp/ndkwave.c
              src/main/cpp/readimage.c
+             src/main/cpp/readpng.c
              src/main/cpp/readjpeg.c
              src/main/cpp/readwebp.c
              src/main/cpp/save.c
