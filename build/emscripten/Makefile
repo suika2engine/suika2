@@ -42,6 +42,7 @@ SRC = \
 	../../src/main.c \
 	../../src/mixer.c \
 	../../src/readimage.c \
+	../../src/readpng.c \
 	../../src/readjpeg.c \
 	../../src/save.c \
 	../../src/scbuf.c \

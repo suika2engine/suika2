@@ -65,6 +65,9 @@
 #include "x86.h"
 #endif
 
+/* A macro to check whether a file exists. */
+#define FILE_EXISTS(fname)	(_access(fname, 0) != 0)
+
 /*
  * Constants
  */
@@ -149,8 +152,10 @@ static DWORD dwStyle;
 /* ウィンドウモードでの位置 */
 static RECT rcWindow;
 
+#ifdef USE_DEBUGGER
 /* 最後に設定されたウィンドウサイズ */
 static int nLastClientWidth, nLastClientHeight;
+#endif
 
 /* 最後に設定されたDPI */
 #ifdef USE_DEBUGGER
@@ -270,7 +275,9 @@ static void OnPaint(HWND hWnd);
 static void OnCommand(WPARAM wParam, LPARAM lParam);
 static void OnSizing(int edge, LPRECT lpRect);
 static void OnSize(void);
+#ifdef USE_DEBUGGER
 static void OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect);
+#endif
 static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
 static BOOL CreateBackImage(void);
 static void SyncBackImage(int x, int y, int w, int h);
@@ -409,6 +416,8 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 /* 描画エンジンを初期化する */
 static BOOL InitRenderingEngine(void)
 {
+	RECT rcClient;
+
 	/*
 	 * Step.0: Use OpenGL for capture/replay apps.
 	 */
@@ -425,7 +434,7 @@ static BOOL InitRenderingEngine(void)
 
 		/* Set OpenGL screen size. */
 		GetClientRect(hWndGame, &rcClient);
-		opengl_set_screen(nOffsetX, nOffsetY, rc.right, rc.bottom);
+		opengl_set_screen(nOffsetX, nOffsetY, rcClient.right, rcClient.bottom);
 
 		return TRUE;
 	}
@@ -436,7 +445,7 @@ static BOOL InitRenderingEngine(void)
 	/*
 	 * Step.1: Try initializing Direct3D if there isn't "no-direct3d.txt" file.
 	 */
-	if (_access("no-direct3d.txt", 0) != 0)
+	if (FILE_EXISTS("no-direct3d.txt"))
 	{
 		/* Direct3Dを初期化する */
 		if (D3DInitialize(hWndGame))
@@ -456,7 +465,7 @@ static BOOL InitRenderingEngine(void)
 	/*
 	 * Step.2: Try initializing OpenGL if there isn't "no-opengl.txt" file.
 	 */
-	if (_access("no-opengl.txt", 0) != 0)
+	if (FILE_EXISTS("no-opengl.txt"))
 	{
 		/* OpenGLを初期化する */
 		if(InitOpenGL())
@@ -464,6 +473,10 @@ static BOOL InitRenderingEngine(void)
 			bOpenGL = TRUE;
 			return TRUE;
 		}
+
+		/* Set OpenGL screen size. */
+		GetClientRect(hWndGame, &rcClient);
+		opengl_set_screen(nOffsetX, nOffsetY, rcClient.right, rcClient.bottom);
 
 		/* Put error log. */
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
@@ -1454,7 +1467,7 @@ static void OnPaint(HWND hWnd)
 }
 
 /* WM_COMMANDを処理する */
-static void OnCommand(WPARAM wParam, LPARAM lParam)
+static void OnCommand(WPARAM wParam, UNUSED(LPARAM lParam))
 {
 	UINT nID;
 
@@ -1736,6 +1749,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	}
 }
 
+#ifdef USE_DEBUGGER
 /* WM_DPICHANGED */
 VOID OnDpiChanged(HWND hWnd, UNUSED(UINT nDpi), LPRECT lpRect)
 {
@@ -1754,6 +1768,7 @@ VOID OnDpiChanged(HWND hWnd, UNUSED(UINT nDpi), LPRECT lpRect)
 		UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
 	}
 }
+#endif
 
 /*
  * platform.hの実装

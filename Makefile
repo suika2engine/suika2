@@ -38,13 +38,15 @@ targets:
 
 # This will setup a build environment.
 setup:
-	@# For Linux including WSL2, install packages.
+	@# For Linux, including WSL2:
 	@if [ ! -z "`uname | grep Linux`" ]; then \
 		if [ -z "`which apt-get`" ]; then \
 			echo 'Error: Your system lacks "apt-get" command.'; \
 			exit 1; \
 		fi; \
-		echo 'Are you sure you want to install all dependencies? (press enter)'; \
+		echo 'Are you sure you want to install all dependencies?'; \
+		echo '\"apt\" and \"pip3\" commands will be called.'; \
+		echo '(Press enter to proceed)'; \
 		read str; \
 		echo 'Updating apt sources.'; \
 		echo 'sudo apt-get update'; \
@@ -52,35 +54,44 @@ setup:
 		echo 'Installing dependencies.'; \
 		sudo apt-get install mingw-w64 build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov python3-pip debhelper-compat zlib1g-dev libpng-dev libjpeg9-dev libogg-dev libvorbis-dev libfreetype-dev cmake qt6-base-dev qt6-multimedia-dev libqt6core6 libqt6gui6 libqt6widgets6 libqt6opengl6-dev libqt6openglwidgets6 libqt6multimedia6 libqt6multimediawidgets6; \
 		pip3 install opencv-python numpy; \
-		cd build/linux-x86_64 && make libroot && cd ../..; \
-		cd build/linux-x86_64-clang && make libroot && cd ../..; \
+		echo 'Building the libraries for Linux...'; \
+		cd build/linux-x86_64 && ./build-libs.sh && cd ../..; \
+		cd build/linux-x86_64-clang && ./build-libs.sh && cd ../..; \
 		cd build/linux-x86_64-capture && cp -Ra ../linux-x86_64/libroot . && cd ../..; \
 		cd build/linux-x86_64-replay && cp -Ra ../linux-x86_64/libroot . && cd ../..; \
-	fi
-	@# For WSL2, build libraries with EXE execution turned off.
-	@if [ ! -z "`uname -a | grep WSL2`" ]; then \
-		echo "Disabling EXE file execution."; \
-		echo 0 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
-		echo "Building libraries."; \
-		cd build/mingw && make libroot && cd ../..; \
-		cd build/mingw-64 && make libroot && cd ../..; \
-		cd build/mingw-arm64 && make libroot && cd ../..; \
+		echo 'Building the libraries for Windows...'; \
+		if [ ! -z "`uname -a | grep WSL2`" ]; then \
+			echo "Disabling EXE file execution."; \
+			echo 0 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
+		fi; \
+		cd build/mingw && ./build-libs.sh && cd ../..; \
+		cd build/mingw-64 && ./build-libs.sh && cd ../..; \
+		cd build/mingw-arm64 && ./build-libs.sh && cd ../..; \
 		cp -Ra build/mingw/libroot build/mingw-pro/; \
 		cp -Ra build/mingw/libroot build/mingw-capture/; \
 		cp -Ra build/mingw/libroot build/mingw-replay/; \
-		echo "Re-enabling EXE file execution."; \
-		echo 1 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
-	fi
-	@# For macOS
-	@if [ ! -z "`uname | grep Darwin`" ]; then \
-		if [ -z  "`which brew`" ]; then \
-			echo 'Error: Your system lacks "brew" command.'; \
-			exit 1; \
+		if [ ! -z "`uname -a | grep WSL2`" ]; then \
+			echo "Re-enabling EXE file execution."; \
+			echo 1 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
 		fi; \
+	fi
+	@# For macOS:
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
 		echo 'Are you sure you want to install all dependencies? (press enter)'; \
 		read str; \
-		echo 'brew install mingw-w64'; \
+		if [ -z  "`which brew`" ]; then \
+			echo 'Installing Homebrew...'; \
+			/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+		fi; \
+		echo 'Installing mingw-w64...'; \
 		brew install mingw-w64; \
+		echo "Building the libraries."; \
+		cd build/mingw && ./build-libs.sh && cd ../..; \
+		cd build/mingw-64 && ./build-libs.sh && cd ../..; \
+		cd build/mingw-arm64 && ./build-libs.sh && cd ../..; \
+		cp -Ra build/mingw/libroot build/mingw-pro/; \
+		cp -Ra build/mingw/libroot build/mingw-capture/; \
+		cp -Ra build/mingw/libroot build/mingw-replay/; \
 	fi
 
 ##

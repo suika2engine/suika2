@@ -74,6 +74,11 @@ This method will build the Web version of Suika2.
   ```
   * Note that `emsdk` will be installed when the first call of `make`
 
+* Test instructions
+  * Copy your `data01.arc` to `build/emscripten/html/`
+  * `make run`
+  * Open `http://localhost:8000/html/` by a browser
+
 ## Suika2 for Linux (main engine, x86_64)
 This method will build a Linux app.
 
