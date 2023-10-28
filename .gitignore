@@ -83,10 +83,13 @@ build/vs/libwebp
 build/vs/obj
 build/vs/Debug
 build/vs/Release
+build/vs/ARM64
 build/vs/suika/Debug
 build/vs/suika/Release
+build/vs/suika/ARM64
 build/vs/suika-pro/Debug
 build/vs/suika-pro/Release
+build/vs/suika-pro/ARM64
 
 # macOS
 build/macos/libroot

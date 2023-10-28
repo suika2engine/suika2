@@ -79,10 +79,12 @@ static BOOL bSelectedRangeChanged;	/* 選択範囲に対して変更が加えら
 static int nChangeStartLine;		/* 変更される選択範囲の開始行 */
 static int nChangeEndLine;			/* 変更される選択範囲の終了行 */
 
+/* GetDpiForWindow() APIへのポインタ */
+UINT (*pGetDpiForWindow)(HWND);
+
 /*
  * Forward Declaration
  */
-
 static VOID InitMenu(HWND hWnd);
 static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
 static VOID OnOpenScript(void);
@@ -154,6 +156,37 @@ BOOL GetStartupPosition(void)
  */
 
 /*
+ * DPI拡張の初期化を行う
+ */
+VOID InitDpiExtension(void)
+{
+	HMODULE hModule;
+
+	hModule = LoadLibrary(L"user32.dll");
+	if (hModule == NULL)
+		return;
+
+	pGetDpiForWindow = (void *)GetProcAddress(hModule, "GetDpiForWindow");
+}
+
+/*
+ * DPIを取得する
+ */
+int Win11_GetDpiForWindow(HWND hWnd)
+{
+	int nDpi;
+
+	if (pGetDpiForWindow == NULL)
+		return 96;
+
+	nDpi = (int)pGetDpiForWindow(hWnd);
+	if (nDpi == 0)
+		return 96;
+
+	return nDpi;
+}
+
+/*
  * デバッガパネルを作成する
  */
 BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
@@ -183,9 +216,9 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 								  wszWindowClass,
 								  NULL,
 								  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
-								  rcClient.right - DEBUGGER_WIDTH,
+								  rcClient.right - DEBUGGER_PANEL_WIDTH,
 								  0,
-								  DEBUGGER_WIDTH,
+								  DEBUGGER_PANEL_WIDTH,
 								  rcClient.bottom,
 								  hWndMain,
 								  NULL,
@@ -195,7 +228,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		return FALSE;
 
 	/* DPIを取得する */
-	nDpi = GetDpiForWindow(hWndMain);
+	nDpi = Win11_GetDpiForWindow(hWndMain);
 
 	/* フォントを作成する */
 	hFont = CreateFont(MulDiv(18, nDpi, 96),
@@ -286,7 +319,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		MulDiv(60, nDpi, 96),
 		MulDiv(30, nDpi, 96),
 		hWndDebug,
-		(HMENU)ID_OPEN_SCRIPT,
+		(HMENU)ID_OPEN,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
 		NULL);
 	SendMessage(hWndBtnSelectScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -340,7 +373,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		MulDiv(130, nDpi, 96),
 		MulDiv(30, nDpi, 96),
 		hWndDebug,
-		(HMENU)ID_WRITE_VARS,
+		(HMENU)ID_VARS,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE),
 		NULL);
 	SendMessage(hWndBtnVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -359,16 +392,13 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
  */
 VOID RearrangeDebuggerPanel(int nGameWidth, int nGameHeight)
 {
-	int y, nDpi, nDebugWidth, nDebugMinHeight;
+	int y, nDpi, nDebugWidth;
 
 	/* DPIを求める */
-	nDpi = GetDpiForWindow(hWndMain);
-	if (nDpi == 0)
-		nDpi = 96;
+	nDpi = Win11_GetDpiForWindow(hWndMain);
 
 	/* デバッグパネルのサイズを求める*/
-	nDebugWidth = MulDiv(DEBUGGER_WIDTH, nDpi, 96);
-	nDebugMinHeight = MulDiv(DEBUGGER_MIN_HEIGHT, nDpi, 96);
+	nDebugWidth = MulDiv(DEBUGGER_PANEL_WIDTH, nDpi, 96);
 
 	/* エディタのコントロールをサイズ変更する */
 	MoveWindow(hWndRichEdit,
@@ -451,7 +481,7 @@ static VOID InitMenu(HWND hWnd)
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 
 	/* スクリプトを開く(Q)を作成する */
-	mi.wID = ID_OPEN_SCRIPT;
+	mi.wID = ID_OPEN;
 	mi.dwTypeData = bEnglish ?
 		L"Open script(&Q)\tAlt+O" :
 		L"スクリプトを開く(&O)\tAlt+O";
@@ -486,7 +516,7 @@ static VOID InitMenu(HWND hWnd)
 	EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 
 	/* 次のエラー箇所へ移動(E)を作成する */
-	mi.wID = ID_NEXT_ERROR;
+	mi.wID = ID_ERROR;
 	mi.dwTypeData = bEnglish ?
 		L"Go to next error(&E)\tAlt+E" :
 		L"次のエラー箇所へ移動(&E)\tAlt+E";
@@ -633,18 +663,19 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 }
 
 /*
- * デバッガのWM_COMMANDハンドラ
+ * デバッガへのWM_COMMANDを処理する
  */
-VOID OnCommandForDebugger(WPARAM wParam, LPARAM lParam)
+VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 {
 	UINT nID;
+	WORD wNotify;
 
 	/* EN_CHANGEを確認する */
-	WORD wNotify = (wParam >> 16) & 0xFFFF;
+	wNotify = (WORD)(wParam >> 16) & 0xFFFF;
 	if (wNotify == EN_CHANGE)
 	{
 		RichEdit_OnChange();
-		return 0;
+		return;
 	}
 
 	/* その他の通知を処理する */
@@ -667,16 +698,16 @@ VOID OnCommandForDebugger(WPARAM wParam, LPARAM lParam)
 	case ID_PAUSE:
 		bPausePressed = TRUE;
 		break;
-	case ID_OPEN_SCRIPT:
+	case ID_OPEN:
 		OnOpenScript();
 		break;
-	case ID_NEXT_ERROR:
+	case ID_ERROR:
 		OnNextError();
 		break;
 	case ID_SAVE:
 		OnSave();
 		break;
-	case ID_WRITE_VARS:
+	case ID_VARS:
 		OnWriteVars();
 		break;
 	case ID_EXPORT:
@@ -1470,13 +1501,13 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndRichEdit, FALSE);
 		SendMessage(hWndTextboxVar, EM_SETREADONLY, TRUE, 0);
 		EnableWindow(hWndBtnVar, FALSE);
-		EnableMenuItem(hMenu, ID_OPEN_SCRIPT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_NEXT_ERROR, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
 	}
 	else if(running)
 	{
@@ -1492,13 +1523,13 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndRichEdit, FALSE);
 		SendMessage(hWndTextboxVar, EM_SETREADONLY, TRUE, 0);
 		EnableWindow(hWndBtnVar, FALSE);
-		EnableMenuItem(hMenu, ID_OPEN_SCRIPT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);		/* 有効 */
-		EnableMenuItem(hMenu, ID_NEXT_ERROR, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
 	}
 	else
 	{
@@ -1514,13 +1545,13 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndRichEdit, TRUE);
 		SendMessage(hWndTextboxVar, EM_SETREADONLY, FALSE, 0);
 		EnableWindow(hWndBtnVar, TRUE);
-		EnableMenuItem(hMenu, ID_OPEN_SCRIPT, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_OPEN, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);		/* 無効 */
-		EnableMenuItem(hMenu, ID_NEXT_ERROR, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_ERROR, MF_ENABLED);
 	}
 }
 
@@ -1529,9 +1560,7 @@ void set_running_state(bool running, bool request_stop)
  */
 void update_debug_info(bool script_changed)
 {
-	wchar_t *buf;
 	const char *script_file;
-	int line_num, script_size;
 
 	/* スクリプトファイル名を設定する */
 	script_file = get_script_file_name();
@@ -1554,7 +1583,7 @@ void update_debug_info(bool script_changed)
  */
 
 /* リッチエディットへのキーボード入力を処理する */
-static VOID RichEdit_PretranslateChar(BOOL bShiftDown, BOOL bControlDown, WPARAM wParam)
+static VOID RichEdit_PretranslateChar(UNUSED(BOOL bShiftDown), UNUSED(BOOL bControlDown), UNUSED(WPARAM wParam))
 {
 	CHARRANGE cr;
 	wchar_t *pWcs;
@@ -1569,12 +1598,12 @@ static VOID RichEdit_PretranslateChar(BOOL bShiftDown, BOOL bControlDown, WPARAM
 	bSelectedRangeChanged = TRUE;
 
 	/* リッチエディットのテキストの長さを取得する */
-	nTextLen = SendMessage(hWndRichEdit, WM_GETTEXTLENGTH, 0, 0);
+	nTextLen = (int)SendMessage(hWndRichEdit, WM_GETTEXTLENGTH, 0, 0);
 	if (nTextLen == 0)
 		return;
 
 	/* テキスト全体を取得する */
-	pWcs = malloc((nTextLen + 1) * sizeof(wchar_t));
+	pWcs = malloc((size_t)(nTextLen + 1) * sizeof(wchar_t));
 	if (pWcs == NULL)
 	{
 		log_memory();
@@ -1591,7 +1620,9 @@ static VOID RichEdit_PretranslateChar(BOOL bShiftDown, BOOL bControlDown, WPARAM
 	for (i = 0; i < get_line_count(); i++)
 	{
 		wchar_t * pCRLF = wcswcs(pWcs + nLineStartCharCRLF, L"\r\n");
-		int nLen = (pCRLF != NULL) ? (pCRLF - (pWcs + nLineStartCharCRLF)) : wcslen(pWcs + nLineStartCharCRLF);
+		int nLen = (pCRLF != NULL) ?
+			(int)(pCRLF - (pWcs + nLineStartCharCRLF)) :
+			(int)wcslen(pWcs + nLineStartCharCRLF);
 		if (nChangeStartLine == -1 && nLineStartCharCR >= cr.cpMin)
 		{
 			nChangeStartLine = i;
@@ -1636,7 +1667,7 @@ static VOID RichEdit_OnReturn(void)
 	nCursor = cr.cpMin;
 
 	/* カーソル位置の行番号を取得する*/
-	nLine = SendMessage(hWndRichEdit, EM_EXLINEFROMCHAR, 0, (LPARAM)nCursor);
+	nLine = (int)SendMessage(hWndRichEdit, EM_EXLINEFROMCHAR, 0, (LPARAM)nCursor);
 	assert(nLine < get_line_count());
 
 	/* 保存する */
@@ -1648,7 +1679,6 @@ static VOID RichEdit_OnReturn(void)
 static VOID RichEdit_OnShiftReturn(void)
 {
 	CHARRANGE cr;
-	GETTEXTEX gt;
 	wchar_t *pLineWcsBefore, *pStop;
 	char *pLineUtf8After;
 	int nCursor, nLine, nLineStart, nLineLen, nOfsInLine;
@@ -1658,18 +1688,18 @@ static VOID RichEdit_OnShiftReturn(void)
 	nCursor = cr.cpMin;
 
 	/* カーソル位置の行番号を取得する*/
-	nLine = SendMessage(hWndRichEdit, EM_EXLINEFROMCHAR, 0, (LPARAM)nCursor);
+	nLine = (int)SendMessage(hWndRichEdit, EM_EXLINEFROMCHAR, 0, (LPARAM)nCursor);
 	assert(nLine < get_line_count());
 
 	/* カーソル位置の行の先頭文字の位置を取得する*/
-	nLineStart = SendMessage(hWndRichEdit, EM_LINEINDEX, (WPARAM)nLine, 0);
+	nLineStart = (int)SendMessage(hWndRichEdit, EM_LINEINDEX, (WPARAM)nLine, 0);
 
 	/* カーソル位置の行の長さを取得する*/
-	nLineLen = SendMessage(hWndRichEdit, EM_LINELENGTH, (WPARAM)nCursor, 0);
+	nLineLen = (int)SendMessage(hWndRichEdit, EM_LINELENGTH, (WPARAM)nCursor, 0);
 
 	/* 作業用の文字列バッファを確保する */
-	pLineWcsBefore = malloc((nLineLen + 2) * sizeof(wchar_t));
-	pLineUtf8After = malloc(nLineLen + 2);
+	pLineWcsBefore = malloc((size_t)(nLineLen + 2) * sizeof(wchar_t));
+	pLineUtf8After = malloc((size_t)nLineLen + 2);
 	if (pLineWcsBefore == NULL || pLineUtf8After == NULL)
 	{
 		log_memory();
@@ -1714,11 +1744,11 @@ static VOID RichEdit_SetText(void)
 	for (i = 0; i < get_line_count(); i++)
 	{
 		const char* pUtf8Line = get_line_string_at_line_num(i);
-		nScriptSize += strlen(pUtf8Line) + 1; /* +1 for CR */
+		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CR */
 	}
 
 	/* スクリプトを格納するメモリを確保する */
-	pWcs = malloc((nScriptSize + 1) * sizeof(wchar_t));
+	pWcs = malloc((size_t)(nScriptSize + 1) * sizeof(wchar_t));
 	if (pWcs == NULL)
 	{
 		log_memory();
@@ -1761,12 +1791,12 @@ static VOID RichEdit_UpdateHighlight(void)
 	nLine = get_expanded_line_num();
 
 	/* リッチエディットのテキストの長さを取得する */
-	nTextLen = SendMessage(hWndRichEdit, WM_GETTEXTLENGTH, 0, 0);
+	nTextLen = (int)SendMessage(hWndRichEdit, WM_GETTEXTLENGTH, 0, 0);
 	if (nTextLen == 0)
 		return;
 
 	/* テキスト全体を取得する */
-	pText = malloc((nTextLen + 1) * sizeof(wchar_t));
+	pText = malloc((size_t)(nTextLen + 1) * sizeof(wchar_t));
 	if (pText == NULL)
 	{
 		log_memory();
@@ -1786,13 +1816,15 @@ static VOID RichEdit_UpdateHighlight(void)
 		{
 			int len;
 			assert(pCrLf != NULL);
-			len = pCrLf - (pText + nLineStart);
+			len = (int)(pCrLf - (pText + nLineStart));
 			nLineStart += len + 2; /* +1 for CRLF */
 			nLineStartWithoutLf += len + 1; /* +1 for CR */
 		}
 	}
 	pCrLf = wcswcs(pText + nLineStart, L"\r\n");
-	nLineLen = (pCrLf != NULL) ? (pCrLf - (pText + nLineStart)) : wcslen(pText + nLineStart);
+	nLineLen = (pCrLf != NULL) ?
+		(int)(pCrLf - (pText + nLineStart)) :
+		(int)wcslen(pText + nLineStart);
 
 	/* 実行行を選択する */
 	memset(&cr, 0, sizeof(cr));

@@ -626,7 +626,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	nWinWidth = nGameWidth + nFrameAddWidth;
 	nWinHeight = nGameHeight + nFrameAddHeight;
 #else
-	nWinWidth = nGameWidth + nFrameAddWidth + DEBUGGER_WIDTH;
+	nWinWidth = nGameWidth + nFrameAddWidth + DEBUGGER_PANEL_WIDTH;
 	nWinHeight = nGameHeight + nFrameAddHeight;
 #endif
 
@@ -641,7 +641,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 #else
 		nWinWidth = nVirtualScreenWidth;
 		nWinHeight = nVirtualScreenHeight;
-		nGameWidth = nWinWidth - DEBUGGER_WIDTH;
+		nGameWidth = nWinWidth - DEBUGGER_PANEL_WIDTH;
 		nGameHeight = nWinHeight;
 #endif
 	}
@@ -1079,8 +1079,10 @@ static BOOL SyncEvents(void)
 	{
 		if (msg.message == WM_QUIT)
 			return FALSE;
+#ifdef USE_DEBUGGER
 		if (PretranslateForDebugger(&msg))
 			continue;
+#endif
 		if (!TranslateAccelerator(msg.hwnd, hAccel, &msg))
 		{
 			TranslateMessage(&msg);
@@ -1319,7 +1321,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_COMMAND:
-		OnCommand(wParam, wParam);
+		OnCommand(wParam, lParam);
 		return 0;
 	case WM_GRAPHNOTIFY:
 		if(!DShowProcessEvent())
@@ -1456,10 +1458,6 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 {
 	UINT nID;
 
-#ifndef USE_DEBUGGER
-	UNUSED_PARAMETER(nEvent);
-#endif
-
 	nID = LOWORD(wParam);
 	switch(nID)
 	{
@@ -1569,10 +1567,10 @@ static void OnSizing(int edge, LPRECT lpRect)
 	{
 #ifdef USE_DEBUGGER
 		/* Apply the minimum window size. */
-		if (fWidth < DEBUGGER_MIN_WIDTH)
-			fWidth = DEBUGGER_MIN_WIDTH;
-		if (fHeight < DEBUGGER_MIN_HEIGHT)
-			fHeight = DEBUGGER_MIN_HEIGHT;
+		if (fWidth < DEBUGGER_WIN_WIDTH_MIN)
+			fWidth = DEBUGGER_WIN_WIDTH_MIN;
+		if (fHeight < DEBUGGER_WIN_HEIGHT_MIN)
+			fHeight = DEBUGGER_WIN_HEIGHT_MIN;
 
 		/* Adjust the window edges. */
 		switch (edge)
@@ -1687,9 +1685,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	int nDpi;
 	int nDebugWidth;
 
-	nDpi = GetDpiForWindow(hWndMain);
-	if (nDpi == 0)
-		nDpi = 96;
+	nDpi = Win11_GetDpiForWindow(hWndMain);
 
 	/* If size and dpi are not changed, just return. */
 	if (nClientWidth == nLastClientWidth && nClientHeight == nLastClientHeight && nLastDpi != nDpi)
@@ -1697,7 +1693,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	else
 		nLastClientWidth = nClientWidth, nLastClientHeight = nClientHeight, nLastDpi = nDpi;
 
-	nDebugWidth = MulDiv(DEBUGGER_WIDTH, nDpi, 96);
+	nDebugWidth = MulDiv(DEBUGGER_PANEL_WIDTH, nDpi, 96);
 	nClientWidth -= nDebugWidth;
 #endif
 
@@ -1741,7 +1737,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 }
 
 /* WM_DPICHANGED */
-VOID OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect)
+VOID OnDpiChanged(HWND hWnd, UNUSED(UINT nDpi), LPRECT lpRect)
 {
 	RECT rcClient;
 
