@@ -109,6 +109,8 @@ static VOID RichEdit_OnReturn(void);
 static VOID RichEdit_OnShiftReturn(void);
 static VOID RichEdit_SetText(void);
 static VOID RichEdit_UpdateHighlight(void);
+static VOID RichEdit_ClearFormat(void);
+static VOID RichEdit_HighlightExecuteLine(const wchar_t *pText);
 
 /*
  * コマンドライン引数の処理
@@ -1774,21 +1776,8 @@ static VOID RichEdit_SetText(void)
 /* 実行行のハイライトを行う */
 static VOID RichEdit_UpdateHighlight(void)
 {
-	CHARFORMAT2W cf;
-	CHARRANGE cr;
-	wchar_t* pText, * pCrLf;
-	int nLine, nTextLen, nLineStart, nLineStartWithoutLf, nLineLen, i;
-
-	/* 全体の書式をクリアして、背景を白にする */
-	memset(&cf, 0, sizeof(cf));
-	cf.cbSize = sizeof(cf);
-	cf.dwMask = CFM_BACKCOLOR;
-	cf.crBackColor = 0x00ffffff;
-	wcscpy(&cf.szFaceName[0], L"BIZ UDゴシック");
-	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
-
-	/* 実行行を取得する */
-	nLine = get_expanded_line_num();
+	wchar_t *pText;
+	int nTextLen;
 
 	/* リッチエディットのテキストの長さを取得する */
 	nTextLen = (int)SendMessage(hWndRichEdit, WM_GETTEXTLENGTH, 0, 0);
@@ -1805,31 +1794,65 @@ static VOID RichEdit_UpdateHighlight(void)
 	SendMessage(hWndRichEdit, WM_GETTEXT, (WPARAM)nTextLen, (LPARAM)pText);
 	pText[nTextLen] = L'\0';
 
+	/* 全体の書式をクリアして、背景を白にする */
+	RichEdit_ClearFormat();
+
+	/* 実行行の背景色を設定する */
+	RichEdit_HighlightExecuteLine(pText);
+
+	/* スクロールする */
+	SendMessage(hWndRichEdit, EM_SCROLLCARET, 0, 0);
+}
+
+/* 全体の書式をクリアして、背景を白にする */
+static VOID RichEdit_ClearFormat(void)
+{
+	CHARFORMAT2W cf;
+
+	memset(&cf, 0, sizeof(cf));
+	cf.cbSize = sizeof(cf);
+	cf.dwMask = CFM_BACKCOLOR;
+	cf.crBackColor = 0x00ffffff;
+	wcscpy(&cf.szFaceName[0], L"BIZ UDゴシック");
+	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
+}
+
+/* 実行行の背景色を設定する */
+static VOID RichEdit_HighlightExecuteLine(const wchar_t *pText)
+{
+	CHARFORMAT2W cf;
+	CHARRANGE cr;
+	wchar_t *pCRLF;
+	int i, nLine, nLineStartCRLF, nLineStartCR, nLineLen;
+
+	/* 実行行を取得する */
+	nLine = get_expanded_line_num();
+
 	/* 実行行の開始文字位置を求める */
-	nLineStart = 0;			/* WM_GETTEXTは改行をCRLFで返す */
-	nLineStartWithoutLf = 0;	/* EM_EXSETSELでは改行はCRの1文字 */
+	nLineStartCRLF = 0;		/* WM_GETTEXTは改行をCRLFで返す */
+	nLineStartCR = 0;		/* EM_EXSETSELでは改行はCRの1文字 */
 	nLineLen = 0;
 	for (i = 0; i < nLine; i++)
 	{
-		pCrLf = wcswcs(pText + nLineStart, L"\r\n");
+		pCRLF = wcswcs(pText + nLineStartCRLF, L"\r\n");
 		if (i < get_line_count() - 1)
 		{
 			int len;
-			assert(pCrLf != NULL);
-			len = (int)(pCrLf - (pText + nLineStart));
-			nLineStart += len + 2; /* +1 for CRLF */
-			nLineStartWithoutLf += len + 1; /* +1 for CR */
+			assert(pCRLF != NULL);
+			len = (int)(pCRLF - (pText + nLineStartCRLF));
+			nLineStartCRLF += len + 2;	/* +2 for CRLF */
+			nLineStartCR += len + 1;	/* +1 for CR */
 		}
 	}
-	pCrLf = wcswcs(pText + nLineStart, L"\r\n");
-	nLineLen = (pCrLf != NULL) ?
-		(int)(pCrLf - (pText + nLineStart)) :
-		(int)wcslen(pText + nLineStart);
+	pCRLF = wcswcs(pText + nLineStartCRLF, L"\r\n");
+	nLineLen = (pCRLF != NULL) ?
+		(int)(pCRLF - (pText + nLineStartCRLF)) :
+		(int)wcslen(pText + nLineStartCRLF);
 
 	/* 実行行を選択する */
 	memset(&cr, 0, sizeof(cr));
-	cr.cpMin = nLineStartWithoutLf;
-	cr.cpMax = nLineStartWithoutLf + nLineLen;
+	cr.cpMin = nLineStartCR;
+	cr.cpMax = nLineStartCR + nLineLen;
 	SendMessage(hWndRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
 
 	/* 選択範囲(実行行)の背景色を変更する */
@@ -1841,10 +1864,7 @@ static VOID RichEdit_UpdateHighlight(void)
 
 	/* カーソル位置を実行行の先頭に設定する */
 	memset(&cr, 0, sizeof(cr));
-	cr.cpMin = nLineStart;
-	cr.cpMax = nLineStart;
+	cr.cpMin = nLineStartCR;
+	cr.cpMax = nLineStartCR;
 	SendMessage(hWndRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
-
-	/* スクロールする */
-	SendMessage(hWndRichEdit, EM_SCROLLCARET, 0, 0);
 }

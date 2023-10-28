@@ -10,6 +10,7 @@
 		260C732028730C9E0057B37E /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731E28730C9E0057B37E /* cmd_chapter.c */; };
 		260C732128730C9E0057B37E /* glrender.c in Sources */ = {isa = PBXBuildFile; fileRef = 260C731F28730C9E0057B37E /* glrender.c */; };
 		2610D6572A9B72A500A61C0B /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610D6562A9B72A500A61C0B /* cmd_setconfig.c */; };
+		267E04502AED1FCA00EEE8EB /* readpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 267E044F2AED1FCA00EEE8EB /* readpng.c */; };
 		2684DAD52AB36999007042C1 /* cmd_pencil.c in Sources */ = {isa = PBXBuildFile; fileRef = 2684DAD42AB36999007042C1 /* cmd_pencil.c */; };
 		2689F3C1288C06E600BEF444 /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3BF288C06E600BEF444 /* readimage.c */; };
 		2689F3C2288C06E600BEF444 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3C0288C06E600BEF444 /* readjpeg.c */; };
@@ -72,6 +73,7 @@
 		260C731E28730C9E0057B37E /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../src/cmd_chapter.c; sourceTree = "<group>"; };
 		260C731F28730C9E0057B37E /* glrender.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glrender.c; path = ../../src/glrender.c; sourceTree = "<group>"; };
 		2610D6562A9B72A500A61C0B /* cmd_setconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setconfig.c; path = ../../src/cmd_setconfig.c; sourceTree = "<group>"; };
+		267E044F2AED1FCA00EEE8EB /* readpng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readpng.c; path = ../../src/readpng.c; sourceTree = "<group>"; };
 		2684DAD42AB36999007042C1 /* cmd_pencil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_pencil.c; path = ../../src/cmd_pencil.c; sourceTree = "<group>"; };
 		2689F3BF288C06E600BEF444 /* readimage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readimage.c; path = ../../src/readimage.c; sourceTree = "<group>"; };
 		2689F3C0288C06E600BEF444 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../src/readjpeg.c; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 				26B3858326D134EE000A7A1C /* stage.h */,
 				26B385B926D134EE000A7A1C /* suika.h */,
 				2689F3BF288C06E600BEF444 /* readimage.c */,
+				267E044F2AED1FCA00EEE8EB /* readpng.c */,
 				2689F3C0288C06E600BEF444 /* readjpeg.c */,
 				26C6EF792AE7FC47004F2AB4 /* readwebp.c */,
 				26B385AB26D134EE000A7A1C /* types.h */,
@@ -371,6 +374,7 @@
 				26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */,
 				26C93FD5295958D3007D092D /* wms_lexer.yy.c in Sources */,
 				26B385BE26D134EE000A7A1C /* cmd_cha.c in Sources */,
+				267E04502AED1FCA00EEE8EB /* readpng.c in Sources */,
 				26B385CF26D134EE000A7A1C /* cmd_se.c in Sources */,
 				26B385C426D134EE000A7A1C /* cmd_return.c in Sources */,
 				26B385CA26D134EE000A7A1C /* image.c in Sources */,

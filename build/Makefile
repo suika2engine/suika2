@@ -16,10 +16,11 @@ all:
 	cd mingw-arm64 && rm -f *.o suika-arm64.exe && make -j24 && cd ..
 	cd mingw-capture && rm -f *.o suika-capture.exe && make -j24 && cd ..
 	cd mingw-replay && rm -f *.o suika-replay.exe && make -j24 && cd ..
-	if [ "`uname -a | grep Linux`" ]; then cd linux-x86_64 && rm -f *.o suika && make -j24 && cd ..; fi
-	if [ "`uname -a | grep Linux`" ]; then cd linux-x86_64-clang && rm -f *.o suika-replay && make -j24 && cd ..; fi
-	if [ "`uname -a | grep Linux`" ]; then cd linux-x86_64-capture && rm -f *.o suika-capture && make -j24 && cd ..; fi
-	if [ "`uname -a | grep Linux`" ]; then cd linux-x86_64-replay && rm -f *.o suika-replay && make -j24 && cd ..; fi
+	if [ ! -z "`uname -a | grep Linux`" ]; then cd linux-x86_64 && rm -f *.o suika && make -j24 && cd ..; fi
+	if [ ! -z "`uname -a | grep Linux`" ]; then cd linux-x86_64-clang && rm -f *.o suika-replay && make -j24 && cd ..; fi
+	if [ ! -z "`uname -a | grep Linux`" ]; then cd linux-x86_64-capture && rm -f *.o suika-capture && make -j24 && cd ..; fi
+	if [ ! -z "`uname -a | grep Linux`" ]; then cd linux-x86_64-replay && rm -f *.o suika-replay && make -j24 && cd ..; fi
+	if [ ! -z "`uname -a | grep Darwin`" ]; then cd macos && make -j8 main build-only && cd ..; fi
 	cd emscripten && make && cd ..
 
 extra: android-docker console-docker

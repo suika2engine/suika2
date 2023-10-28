@@ -88,6 +88,15 @@ replay: libroot
 	@echo "Creating suika-replay.dmg" && rm -rf tmp mac-replay.dmg && mkdir tmp && cp -Ra build/Release/suika-replay.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac-replay mac-replay.dmg && codesign --sign $(SIGNATURE) mac-replay.dmg && rm -rf tmp
 
 #
+# Build check only
+#
+build-only:
+	@xcodebuild -quiet -scheme suika -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive build
+	@xcodebuild -quiet -scheme suika-pro -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive build
+	@xcodebuild -quiet -scheme suika-capture -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive build
+	@xcodebuild -quiet -scheme suika-replay -project suika.xcodeproj -configuration Release -archivePath `pwd`/build/Release/suika.xcarchive build
+
+#
 # This phony target copies dmg files to the project root.
 #
 install:
