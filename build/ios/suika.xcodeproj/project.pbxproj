@@ -56,6 +56,7 @@
 		26B385E326D134EE000A7A1C /* cmd_message.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385BB26D134EE000A7A1C /* cmd_message.c */; };
 		26B385E426D134EE000A7A1C /* cmd_bgm.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B385BC26D134EE000A7A1C /* cmd_bgm.c */; };
 		26B5E727285F561200450A2B /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26B5E726285F561200450A2B /* Launch Screen.storyboard */; };
+		26C6A1232AEE28E000B11C1A /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26C6A1222AEE28E000B11C1A /* AVKit.framework */; };
 		26C6EF7A2AE7FC47004F2AB4 /* readwebp.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C6EF792AE7FC47004F2AB4 /* readwebp.c */; };
 		26C93FD1295958D3007D092D /* wms_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCA295958D3007D092D /* wms_impl.c */; };
 		26C93FD2295958D3007D092D /* wms_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C93FCB295958D3007D092D /* wms_core.c */; };
@@ -145,6 +146,7 @@
 		26B385BB26D134EE000A7A1C /* cmd_message.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_message.c; path = ../../src/cmd_message.c; sourceTree = "<group>"; };
 		26B385BC26D134EE000A7A1C /* cmd_bgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_bgm.c; path = ../../src/cmd_bgm.c; sourceTree = "<group>"; };
 		26B5E726285F561200450A2B /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		26C6A1222AEE28E000B11C1A /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		26C6EF792AE7FC47004F2AB4 /* readwebp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readwebp.c; path = ../../src/readwebp.c; sourceTree = "<group>"; };
 		26C93FC9295958D3007D092D /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../src/wms_core.h; sourceTree = "<group>"; };
 		26C93FCA295958D3007D092D /* wms_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_impl.c; path = ../../src/wms_impl.c; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26C6A1232AEE28E000B11C1A /* AVKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,6 +182,7 @@
 				26B3857C26D13263000A7A1C /* common */,
 				26A4EAD726D116CE00C3C140 /* suika */,
 				26A4EAD626D116CE00C3C140 /* Products */,
+				26C6A1212AEE28DF00B11C1A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -292,6 +296,14 @@
 				26C93FCD295958D3007D092D /* wms_parser.tab.h */,
 			);
 			name = common;
+			sourceTree = "<group>";
+		};
+		26C6A1212AEE28DF00B11C1A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				26C6A1222AEE28E000B11C1A /* AVKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

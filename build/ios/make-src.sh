@@ -3,6 +3,11 @@
 set -eu
 
 TARGET=ios-src
+SED=sed
+
+if [ ! -z "`uname -a | grep Darwin`" ]; then
+	SED=gsed
+fi
 
 # Remove the target directory.
 rm -rf "$TARGET"
@@ -18,10 +23,10 @@ COPY_LIST="\
 for f in $COPY_LIST; do
     cp -R "$f" "$TARGET/";
 done
-rm "$TARGET/suika/data01.arc"
+rm -f "$TARGET/suika/data01.arc"
 
 # Change the source code paths in the project file.
-sed -i 's|../../src/|src/|g' -i "$TARGET/suika.xcodeproj/project.pbxproj"
+$SED -i 's|../../src/|src/|g' -i "$TARGET/suika.xcodeproj/project.pbxproj"
 
 # Copy the Suika2 source files.
 mkdir "$TARGET/src"
@@ -117,9 +122,11 @@ for f in $COPY_LIST; do
 done
 
 # Deploy libroot.
-rm -f libroot-ios.tar.gz
-wget 'https://suika2.com/dl/libroot-ios.tar.gz'
-tar xzf libroot-ios.tar.gz -C "$TARGET"
+if [ ! -d "libroot" ]; then
+	rm -f libroot-ios.tar.gz;
+	wget 'https://suika2.com/dl/libroot-ios.tar.gz';
+	tar xzf libroot-ios.tar.gz -C "$TARGET";
+fi
 
 # Make a zip file.
 #zip -r ios-src.zip "$TARGET"

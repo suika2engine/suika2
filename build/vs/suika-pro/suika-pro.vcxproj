@@ -236,7 +236,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YY_NO_UNISTD_H;WIN32;_DEBUG;_WINDOWS;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_DEBUGGER;USE_DEBUGGER_V2;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -263,7 +263,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;YY_NO_UNISTD_H;WIN32;NDEBUG;_WINDOWS;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_DEBUGGER;USE_DEBUGGER_V2;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -283,7 +283,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>USE_DEBUGGER;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_DEBUGGER;USE_DEBUGGER_V2;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -299,7 +299,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>USE_DEBUGGER;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_DEBUGGER;USE_DEBUGGER_V2;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -321,7 +321,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>USE_DEBUGGER;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_DEBUGGER;USE_DEBUGGER_V2;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -341,7 +341,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>USE_DEBUGGER;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_DEBUGGER;USE_DEBUGGER_V2;YY_NO_UNISTD_H;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

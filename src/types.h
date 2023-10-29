@@ -158,7 +158,7 @@
  *  - SSE_VERSIONING for dispatching of SSE/AVX codes
  */
 #if defined(X86) || defined(X86_64)
-#if !defined(OSX) && !defined(ANDROID) && !defined(NO_SSE_VERSIONING)
+#if !defined(OSX) && !defined(IOS) && !defined(ANDROID) && !defined(NO_SSE_VERSIONING)
 #define SSE_VERSIONING
 #endif
 #endif

@@ -265,30 +265,7 @@ static bool pre_dispatch(void)
 		return true;
 	}
 
-	/*
-	 * 停止中の場合
-	 */
-
-	/* 続けるが押された場合 */
-	if (is_resume_pushed()) {
-		dbg_running = true;
-		set_running_state(true, false);
-
-		/* コマンドディスパッチへ進む */
-		return true;
-	}
-
-	/* 次へが押された場合 */
-	if (is_next_pushed()) {
-		dbg_running = true;
-		dbg_request_stop = true;
-		set_running_state(true, true);
-
-		/* コマンドディスパッチへ進む */
-		return true;
-	}
-
-	/* 実行するスクリプトが変更された場合 */
+	/* 停止中で、実行するスクリプトが変更された場合 */
 	if (is_script_changed()) {
 		scr = strdup(get_changed_script());
 		if (scr == NULL) {
@@ -308,7 +285,7 @@ static bool pre_dispatch(void)
 		}
 	}
 
-	/* 行番号が変更された場合 */
+	/* 停止中で、行番号が変更された場合 */
 	if (is_line_changed()) {
 		int index = get_command_index_from_line_number(
 			get_changed_line());
@@ -316,7 +293,7 @@ static bool pre_dispatch(void)
 			move_to_command_index(index);
 	}
 
-	/* コマンドが更新された場合 */
+	/* 停止中で、コマンドが更新された場合 */
 	if (is_command_updated()) {
 		update_command(get_command_index(),
 			       get_updated_command());
@@ -324,7 +301,7 @@ static bool pre_dispatch(void)
 		return false;
 	}
 
-	/* 実行中のスクリプトがリロードされば場合 */
+	/* 停止中で、実行中のスクリプトがリロードされた場合 */
 	if (is_script_reloaded()) {
 		scr = strdup(get_script_file_name());
 		if (scr == NULL) {
@@ -358,6 +335,25 @@ static bool pre_dispatch(void)
 
 		/* ジャンプする */
 		move_to_command_index(cmd);
+	}
+
+	/* 停止中で、続けるが押された場合 */
+	if (is_resume_pushed()) {
+		dbg_running = true;
+		set_running_state(true, false);
+
+		/* コマンドディスパッチへ進む */
+		return true;
+	}
+
+	/* 次停止中で、へが押された場合 */
+	if (is_next_pushed()) {
+		dbg_running = true;
+		dbg_request_stop = true;
+		set_running_state(true, true);
+
+		/* コマンドディスパッチへ進む */
+		return true;
 	}
 
 	/* 続けるか次へが押されるまでコマンドディスパッチへ進まない */

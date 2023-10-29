@@ -156,6 +156,7 @@ build/ios/suika.xcodeproj/project.xcworkspace
 build/ios/suika.xcodeproj/xcuserdata
 build/ios/suika.xcodeproj/xcshareddata
 build/ios/ios-src
+build/ios/ios-src.zip
 build/ios/libroot-ios.tar.gz
 
 # Raspberry Pi (Linux Arm)

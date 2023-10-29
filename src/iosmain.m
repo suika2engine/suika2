@@ -10,12 +10,19 @@
  *  - 2021/08/21 Created.
  */
 
+// iOS
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import <AVFoundation/AVFoundation.h>
+
+// OpenGL
 #import <OpenGLES/ES3/gl.h>
 #import <OpenGLES/ES2/glext.h>
+
+// POSIX
 #import <sys/time.h>    // gettimeofday()
 
+// Suika2 Base
 #import "suika.h"
 #import "aunit.h"
 #import "glrender.h"
@@ -53,11 +60,20 @@
 @end
 
 //
+// For Video
+//
+
+static OpenGLView *theView;
+static AVPlayer *player;
+static AVPlayerLayer *playerLayer;
+static BOOL isMoviePlaying;
+
+//
 // main()
 //
 
 int main(int argc, char * argv[]) {
-    NSString * appDelegateClassName;
+    NSString *appDelegateClassName;
     @autoreleasepool {
         // Setup code that might create autoreleased objects goes here.
         appDelegateClassName = NSStringFromClass([AppDelegate class]);
@@ -85,16 +101,13 @@ int main(int argc, char * argv[]) {
     pause_sound();
 }
 
-
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 }
 
-
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
 }
-
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
@@ -206,7 +219,11 @@ int main(int argc, char * argv[]) {
     _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:_context];
 
-	// ロケールを初期化する
+    // For Retina
+    _eaglLayer.contentsScale = [[UIScreen mainScreen] scale];
+    [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
+
+    // ロケールを初期化する
 	init_locale_code();
 
     // data01.arcを読み込む
@@ -238,6 +255,8 @@ int main(int argc, char * argv[]) {
         NSLog(@"Init event error.");
         exit(1);
     }
+
+    theView = self;
 }
 
 - (void)layoutSubviews
@@ -271,8 +290,9 @@ int main(int argc, char * argv[]) {
 
     glViewport(x, y, w, h);
 
-    _left = (int)x;
-    _top = (int)y;
+    _left = (int)(x / self.contentScaleFactor);
+    _top = (int)(y / self.contentScaleFactor);
+    _scale = _scale * self.contentScaleFactor;
 }
 
 - (void)render
@@ -384,6 +404,12 @@ int main(int argc, char * argv[]) {
     _isTouch = NO;
 }
 
+// 動画再生が完了したとき通知される
+- (void)onPlayEnd:(NSNotification *)notification {
+    [player replaceCurrentItemWithPlayerItem:nil];
+    isMoviePlaying = NO;
+}
+
 @end
 
 //
@@ -428,14 +454,26 @@ char *make_valid_path(const char *dir, const char *fname)
             return strdup(cstr);
         }
 
-        // data01.arcにしか対応しない
-        if(dir != NULL || strcmp(fname, "data01.arc") != 0)
-            return strdup("dummy");
+        // data01.arcの場合
+        if(dir == NULL && strcmp(fname, "data01.arc") == 0) {
+            // data01.arcのパスを返す
+            NSString *path = [[NSBundle mainBundle] pathForResource:@"data01" ofType:@"arc"];
+            const char *cstr = [path UTF8String];
+            return strdup(cstr);
+        }
 
-        // data01.arcのパスを返す
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"data01" ofType:@"arc"];
-        const char *cstr = [path UTF8String];
-        return strdup(cstr);
+        // 動画の場合
+        if(dir != NULL && strcmp(dir, MOV_DIR) == 0) {
+            // 動画のパスを返す
+            *strstr(fname, ".") = '\0';
+            NSString *basename = [[NSString alloc] initWithUTF8String:fname];
+            NSString *path = [[NSBundle mainBundle] pathForResource:basename ofType:@"mp4"];
+            const char *cstr = [path UTF8String];
+            return strdup(cstr);
+        }
+
+        // その他のファイルは読み込めない
+        return strdup("dummy");
     }
 }
 
@@ -658,11 +696,37 @@ bool overwrite_dialog(void)
 //
 bool play_video(const char *fname, bool is_skippable)
 {
-	UNUSED_PARAMETER(fname);
-	UNUSED_PARAMETER(is_skippable);
+    // OpenGLのレンダリングを完了させる
+    opengl_end_rendering();
 
-	// stub
-	return true;
+    // パスを生成する
+    char *path = make_valid_path(MOV_DIR, fname);
+    assert(path != NULL);
+    NSString *nsPath = [[NSString alloc] initWithUTF8String:path];
+    free(path);
+    nsPath = [nsPath stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];
+    NSURL *url = [NSURL URLWithString:[@"file://" stringByAppendingString:nsPath]];
+
+    // プレーヤーを作成する
+    AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:url];
+    player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
+
+    // プレーヤーのレイヤーを作成する
+    playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+    [playerLayer setFrame:theView.bounds];
+    [theView.layer addSublayer:playerLayer];
+
+    // 再生を開始する
+    [player play];
+
+    // 再生終了の通知を送るようにする
+    [NSNotificationCenter.defaultCenter addObserver:theView
+                                           selector:@selector(onPlayEnd:)
+                                               name:AVPlayerItemDidPlayToEndTimeNotification
+                                             object:playerItem];
+
+    isMoviePlaying = YES;
+    return true;
 }
 
 //
@@ -670,7 +734,14 @@ bool play_video(const char *fname, bool is_skippable)
 //
 void stop_video(void)
 {
-    // stub
+    if (player != nil)
+        [player replaceCurrentItemWithPlayerItem:nil];
+    isMoviePlaying = NO;
+    player = nil;
+    playerLayer = nil;
+
+    // OpenGLのレンダリングを開始する
+    opengl_start_rendering();
 }
 
 //
@@ -678,8 +749,7 @@ void stop_video(void)
 //
 bool is_video_playing(void)
 {
-    // stub
-    return false;
+    return isMoviePlaying == YES;
 }
 
 //
