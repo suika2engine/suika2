@@ -91,7 +91,9 @@ COPY_LIST="\
 	iosmain.m \
 	platform.h \
 	readimage.c \
+	readpng.c \
 	readjpeg.c \
+	readwebp.c \
 	save.c \
 	save.h \
 	scalesamples.h \
