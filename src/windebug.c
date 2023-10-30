@@ -30,6 +30,9 @@
 /* Standard C (msvcrt.dll) */
 #include <stdlib.h>	/* exit() */
 
+/* MSVC */
+#define wcsdup(s)	_wcsdup(s)
+
 /*
  * Constants
  */
