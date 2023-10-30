@@ -114,7 +114,7 @@ static VOID RichEdit_SetText(void);
 static VOID RichEdit_UpdateHighlight(void);
 static VOID RichEdit_ClearFormat(void);
 static VOID RichEdit_HighlightExecuteLine(void);
-static VOID RichEdit_FormatByContents(const wchar_t *pText);
+static VOID RichEdit_FormatByContents(void);
 static wchar_t *RichEdit_GetText(void);
 static VOID RichEdit_GetLineStartAndLen(int nLine, int *nLineStart, int *nLineLen);
 static VOID RichEdit_SetSel(int nLineStart, int nLineLen);
@@ -1637,9 +1637,26 @@ static VOID RichEdit_OnChange(void)
 /* リッチエディットでのReturnキー押下を処理する */
 static VOID RichEdit_OnReturn(void)
 {
-	/* 保存する */
-	bLineChanged = TRUE;
+	wchar_t *pText, *pLine;
+	int nLineStart, nLineLen;
+
+	/* リッチエディットのカーソル行番号を取得する */
 	nLineChanged = RichEdit_GetCursorLine();
+
+	/* リッチエディットのカーソル行の文字範囲を取得する */
+	RichEdit_GetLineStartAndLen(nLineChanged, &nLineStart, &nLineLen);
+
+	/* 現在の行についてスクリプトモデルを更新する */
+	pText = RichEdit_GetText();
+	pLine = pText + nLineStart;
+	pLine[nLineLen] = L'\0';
+	update_script_line(nLineChanged, conv_utf16_to_utf8(pLine), NULL);
+	free(pText);
+
+	/* 次フレームでの実行行の移動の問い合わせに真を返すようにしておく */
+	bLineChanged = TRUE;
+
+	/* 次フレームでの一行実行の問い合わせに真を返すようにしておく */
 	bNextPressed = TRUE;
 }
 
@@ -1703,29 +1720,11 @@ static VOID RichEdit_OnShiftReturn(void)
 /* 実行行のハイライトを行う */
 static VOID RichEdit_UpdateHighlight(void)
 {
-	wchar_t *pText;
-	int nTextLen;
-
-	/* リッチエディットのテキストの長さを取得する */
-	nTextLen = (int)SendMessage(hWndRichEdit, WM_GETTEXTLENGTH, 0, 0);
-	if (nTextLen == 0)
-		return;
-
-	/* テキスト全体を取得する */
-	pText = malloc((size_t)(nTextLen + 1) * sizeof(wchar_t));
-	if (pText == NULL)
-	{
-		log_memory();
-		abort();
-	}
-	SendMessage(hWndRichEdit, WM_GETTEXT, (WPARAM)nTextLen, (LPARAM)pText);
-	pText[nTextLen] = L'\0';
-
 	/* 全体の書式をクリアして、背景を白にする */
 	RichEdit_ClearFormat();
 
 	/* 行の内容により書式を設定する */
-	RichEdit_FormatByContents(pText);
+	RichEdit_FormatByContents();
 
 	/* 実行行の背景色を設定する */
 	RichEdit_HighlightExecuteLine();
@@ -1745,13 +1744,17 @@ static VOID RichEdit_ClearFormat(void)
 }
 
 /* 行の内容により見た目を変える */
-static VOID RichEdit_FormatByContents(const wchar_t *pText)
+static VOID RichEdit_FormatByContents(void)
 {
 	CHARFORMAT2W cf;
 	CHARRANGE cr;
-	wchar_t *pLineStop, *pCommandStop, *pParamStart, *pParamStop;
+	wchar_t *pText, *pLineStop, *pCommandStop, *pParamStart, *pParamStop;
 	int i, nLineStartCRLF, nLineStartCR, nFormatLen, nInLine;
 
+	/* リッチエディットのテキストを取得する */
+	pText = RichEdit_GetText();
+
+	/* 書式の構造体を初期化する */
 	memset(&cr, 0, sizeof(cr));
 	memset(&cf, 0, sizeof(cf));
 	cf.cbSize = sizeof(cf);
@@ -1858,6 +1861,8 @@ static VOID RichEdit_FormatByContents(const wchar_t *pText)
 			nLineStartCR += nAdd + 1;	/* +1 for CR */
 		}
 	}
+
+	free(pText);
 }
 
 /* 実行行の背景色を設定する */
@@ -2085,9 +2090,9 @@ static int RichEdit_GetCursorLine(void)
 	wchar_t *pWcs, *pCRLF;
 	int i, nCursor, nLineStartCharCR, nLineStartCharCRLF, nCursorLine;
 
-	nCursor = RichEdit_GetCursorPos();
 	pWcs = RichEdit_GetText();
 
+	nCursor = RichEdit_GetCursorPos();
 	nLineStartCharCR = 0;
 	nLineStartCharCRLF = 0;
 	nCursorLine = -1;
@@ -2097,7 +2102,7 @@ static int RichEdit_GetCursorLine(void)
 		int nLen = (pCRLF != NULL) ?
 			(int)(pCRLF - (pWcs + nLineStartCharCRLF)) :
 			(int)wcslen(pWcs + nLineStartCharCRLF);
-		if (nCursor > nChangeStartLine)
+		if (nLineStartCharCR <= nCursor && nCursor < nLineStartCharCR + nLen)
 		{
 			nCursorLine = i;
 			break;
