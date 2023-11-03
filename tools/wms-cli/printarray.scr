@@ -1,0 +1,9 @@
+func main() {
+    for(i in 0..9) {
+        hoge[i] = "array" + i;
+    }
+
+    for(i in 0..9) {
+        print("" + i + "番目の配列の中身は" + hoge[i]);
+    }
+}

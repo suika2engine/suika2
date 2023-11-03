@@ -190,5 +190,8 @@ build/console/*.nro
 build/console/*.nacp
 build/console/*.nsp
 
+# PPA
+build/ppa/work
+
 # Tests
 testcases
