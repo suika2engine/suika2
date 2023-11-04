@@ -47,9 +47,7 @@ See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/R
 
 ## CI
 
-We do CI.
-If you would like to try development versions before they release,
-please go to [Github Actions](https://github.com/ktabata/suika2/actions/workflows/suika-windows.yml) and check artifacts.
+We do CI. [Check artifacts here.](https://github.com/ktabata/suika2/actions/workflows/suika-windows.yml)
 
 Due to a code signing issue, we don't create automatic releases.
 The `Certum code signing certificate in the cloud` we use cannot be used with GitHub Actions.
@@ -97,7 +95,7 @@ See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) fo
 
 ## Documentation
 
-* [Japanese Documentation](https://suika2.com/doc/)
+* [Japanese Documentation](https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88)
 * [English Documentation](https://suika2.com/en/doc/)
 
 ## Contribution
