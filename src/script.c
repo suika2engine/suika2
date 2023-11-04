@@ -2825,6 +2825,7 @@ bool load_debug_script(void)
 
 	cmd[0].type = COMMAND_MESSAGE;
 	cmd[0].line = 0;
+	cmd[0].expanded_line = 0;
 	cmd[0].text = strdup(conf_locale == LOCALE_JA ?
 			     U8("実行を終了しました。") :
 			     "Execution finished.");
