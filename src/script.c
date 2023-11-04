@@ -221,8 +221,8 @@ struct insn_item {
 	{"@labeledgoto", COMMAND_LABELEDGOTO, 2, 2},
 
 	/* シナリオファイルのロード */
-	{"@load", COMMAND_LOAD, 1, 1},
-	{U8("@シナリオ"), COMMAND_LOAD, 1, 1},
+	{"@load", COMMAND_LOAD, 1, 2},
+	{U8("@シナリオ"), COMMAND_LOAD, 1, 2},
 
 	/* ボリューム設定 */
 	{"@vol", COMMAND_VOL, 2, 3},
@@ -363,6 +363,8 @@ struct param_item {
 	/* @load */
 	{COMMAND_LOAD, LOAD_PARAM_FILE, "file="},
 	{COMMAND_LOAD, LOAD_PARAM_FILE, U8("ファイル=")},
+	{COMMAND_LOAD, LOAD_PARAM_FILE, "label="},
+	{COMMAND_LOAD, LOAD_PARAM_FILE, U8("ラベル=")},
 
 	/* @vol */
 	{COMMAND_VOL, VOL_PARAM_STREAM, "track="},
