@@ -800,7 +800,7 @@ bool load_script(const char *fname)
 	/* スクリプトロードのタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(true);
+	on_change_exec_position(true);
 #endif
 
 	clear_last_en_command();
@@ -841,7 +841,7 @@ bool move_to_command_index(int index)
 	if (dbg_is_stop_requested())
 		dbg_stop();
 #endif
-	update_debug_info(false);
+	on_change_exec_position(false);
 #endif
 
 	return true;
@@ -862,7 +862,7 @@ bool move_to_next_command(void)
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(false);
+	on_change_exec_position(false);
 #endif
 
 	return true;
@@ -907,7 +907,7 @@ bool move_to_label(const char *label)
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(false);
+	on_change_exec_position(false);
 #endif
 
 	return true;
@@ -946,7 +946,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 		/* コマンド移動のタイミングでは停止要求を処理する */
 		if (dbg_is_stop_requested())
 			dbg_stop();
-		update_debug_info(false);
+		on_change_exec_position(false);
 #endif
 		return true;
 	}
@@ -982,7 +982,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(false);
+	on_change_exec_position(false);
 #endif
 
 	return true;

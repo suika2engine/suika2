@@ -143,7 +143,7 @@ void init_game_loop(void)
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
-	update_debug_info(true);
+	on_change_exec_position(true);
 #endif
 }
 
@@ -200,7 +200,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 				if (dbg_error_state) {
 					/* エラーによる終了をキャンセルする */
 					dbg_error_state = false;
-					update_debug_info(true);
+					on_change_exec_position(true);
 					dbg_stop();
 					return true;
 				} else {
@@ -211,7 +211,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 					/* 最後まで実行した */
 					if (!load_debug_script())
 						return false;
-					update_debug_info(true);
+					on_change_exec_position(true);
 					dbg_stop();
 					return true;
 				}
@@ -256,9 +256,9 @@ static bool pre_dispatch(void)
 	/* 実行中の場合 */
 	if (dbg_running) {
 		/* 停止が押された場合 */
-		if (is_pause_pushed()) {
+		if (is_stop_pushed()) {
 			dbg_request_stop = true;
-			set_running_state(true, true);
+			on_change_running_state(true, true);
 		}
 
 		/* コマンドディスパッチへ進む */
@@ -266,8 +266,8 @@ static bool pre_dispatch(void)
 	}
 
 	/* 停止中で、実行するスクリプトが変更された場合 */
-	if (is_script_changed()) {
-		scr = strdup(get_changed_script());
+	if (is_script_opened()) {
+		scr = strdup(get_opened_script());
 		if (scr == NULL) {
 			log_memory();
 			return false;
@@ -286,18 +286,19 @@ static bool pre_dispatch(void)
 	}
 
 	/* 停止中で、行番号が変更された場合 */
-	if (is_line_changed()) {
+	if (is_exec_line_changed()) {
 		int index = get_command_index_from_line_number(
-			get_changed_line());
+			get_changed_exec_line());
 		if (index != -1)
 			move_to_command_index(index);
 	}
 
+#ifndef USE_EDITOR
 	/* 停止中で、コマンドが更新された場合 */
 	if (is_command_updated()) {
 		update_command(get_command_index(),
 			       get_updated_command());
-		update_debug_info(true);
+		on_change_exec_position(true);
 		return false;
 	}
 
@@ -336,11 +337,12 @@ static bool pre_dispatch(void)
 		/* ジャンプする */
 		move_to_command_index(cmd);
 	}
+#endif
 
 	/* 停止中で、続けるが押された場合 */
-	if (is_resume_pushed()) {
+	if (is_continue_pushed()) {
 		dbg_running = true;
-		set_running_state(true, false);
+		on_change_running_state(true, false);
 
 		/* コマンドディスパッチへ進む */
 		return true;
@@ -350,7 +352,7 @@ static bool pre_dispatch(void)
 	if (is_next_pushed()) {
 		dbg_running = true;
 		dbg_request_stop = true;
-		set_running_state(true, true);
+		on_change_running_state(true, true);
 
 		/* コマンドディスパッチへ進む */
 		return true;
@@ -789,7 +791,7 @@ void dbg_stop(void)
 	dbg_request_stop = false;
 
 	/* デバッグウィンドウの状態を変更する */
-	set_running_state(false, false);
+	on_change_running_state(false, false);
 }
 
 /*

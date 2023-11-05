@@ -72,15 +72,13 @@ static BOOL bEnglish;
 static BOOL bRunning;
 
 /* 発生したイベントの状態 */	
-static BOOL bResumePressed;			/* 「続ける」ボタンが押下された */
+static BOOL bContinuePressed;		/* 「続ける」ボタンが押下された */
 static BOOL bNextPressed;			/* 「次へ」ボタンが押下された */
-static BOOL bPausePressed;			/* 「停止」ボタンが押下された */
-static BOOL bScriptSelected;		/* スクリプトファイルが選択された */
-static BOOL bLineChanged;			/* 実行行が変更された */
+static BOOL bStopPressed;			/* 「停止」ボタンが押下された */
+static BOOL bScriptOpened;			/* スクリプトファイルが選択された */
+static BOOL bExecLineChanged;		/* 実行行が変更された */
 static int nLineChanged;			/* 実行行が変更された場合の行番号 */
-static BOOL bSelectedRangeChanged;	/* 選択範囲に対して変更が加えられるか */
-static int nChangeStartLine;		/* 変更される選択範囲の開始行 */
-static int nChangeEndLine;			/* 変更される選択範囲の終了行 */
+static BOOL bRangedChanged;			/* 複数行の変更が加えられるか */
 
 /* GetDpiForWindow() APIへのポインタ */
 UINT (__stdcall *pGetDpiForWindow)(HWND);
@@ -88,8 +86,15 @@ UINT (__stdcall *pGetDpiForWindow)(HWND);
 /*
  * Forward Declaration
  */
+
+/* initialization */
 static VOID InitMenu(HWND hWnd);
 static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
+
+/* variable */
+static VOID UpdateVariableTextBox(void);
+
+/* command handlers */
 static VOID OnOpenScript(void);
 static VOID OnSave(void);
 static VOID OnNextError(void);
@@ -105,7 +110,8 @@ static VOID RecreateDirectory(const wchar_t *path);
 static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
-static VOID UpdateVariableTextBox(void);
+
+/* RichEdit handlers */
 static VOID RichEdit_PretranslateChar(BOOL bShiftDown, BOOL bControlDown, WPARAM wParam);
 static VOID RichEdit_OnChange(void);
 static VOID RichEdit_OnReturn(void);
@@ -115,15 +121,20 @@ static VOID RichEdit_UpdateHighlight(void);
 static VOID RichEdit_ClearFormat(void);
 static VOID RichEdit_HighlightExecuteLine(void);
 static VOID RichEdit_FormatByContents(void);
+
+/* RichEdit helpers */
 static wchar_t *RichEdit_GetText(void);
 static wchar_t *RichEdit_GetTextRange(int nStart, int nLen);
+static wchar_t *RichEdit_GetTextCursorLine(void);
+static VOID RichEdit_GetCursorLineAndOffset(int *nLine, int *nOffset);
+static int RichEdit_GetCursorPosition(void);
 static VOID RichEdit_GetLineStartAndLen(int nLine, int *nLineStart, int *nLineLen);
 static VOID RichEdit_SetSel(int nLineStart, int nLineLen);
 static VOID RichEdit_SetSelBackgroundColor(COLORREF cl);
 static VOID RichEdit_AutoScroll(void);
-static VOID RichEdit_GetSelStartEndLines(int *nChangeStartLine, int *nChangeEndLine);
 static VOID RichEdit_GetSelRange(int *nStart, int *nEnd);
 static int RichEdit_GetCursorLine(void);
+static VOID RichEdit_UpdateScriptModel(void);
 
 /*
  * コマンドライン引数の処理
@@ -160,7 +171,7 @@ BOOL GetStartupPosition(void)
 			return FALSE;
 
 		/* 実行開始ボタンが押されたことにする */
-		bResumePressed = TRUE;
+		bContinuePressed = TRUE;
 	}
 
 	return TRUE;
@@ -228,17 +239,17 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 
 	/* ウィンドウを作成する */
 	hWndDebug = CreateWindowEx(0,
-								  wszWindowClass,
-								  NULL,
-								  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
-								  rcClient.right - DEBUGGER_PANEL_WIDTH,
-								  0,
-								  DEBUGGER_PANEL_WIDTH,
-								  rcClient.bottom,
-								  hWndMain,
-								  NULL,
-								  GetModuleHandle(NULL),
-								  NULL);
+							   wszWindowClass,
+							   NULL,
+							   WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
+							   rcClient.right - DEBUGGER_PANEL_WIDTH,
+							   0,
+							   DEBUGGER_PANEL_WIDTH,
+							   rcClient.bottom,
+							   hWndMain,
+							   NULL,
+							   GetModuleHandle(NULL),
+							   NULL);
 	if(!hWndDebug)
 		return FALSE;
 
@@ -247,10 +258,10 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 
 	/* フォントを作成する */
 	hFont = CreateFont(MulDiv(18, nDpi, 96),
-						 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
-						 ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
-						 DEFAULT_QUALITY,
-						 DEFAULT_PITCH | FF_DONTCARE, L"Yu Gothic UI");
+					   0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
+					   ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+					   DEFAULT_QUALITY,
+					   DEFAULT_PITCH | FF_DONTCARE, L"Yu Gothic UI");
 
 	/* 続けるボタンを作成する */
 	hWndBtnResume = CreateWindow(
@@ -403,8 +414,8 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 }
 
 /*
- デバッガウィンドウの位置を修正する
- */
+  デバッガウィンドウの位置を修正する
+*/
 VOID RearrangeDebuggerPanel(int nGameWidth, int nGameHeight)
 {
 	int y, nDpi, nDebugWidth;
@@ -417,38 +428,38 @@ VOID RearrangeDebuggerPanel(int nGameWidth, int nGameHeight)
 
 	/* エディタのコントロールをサイズ変更する */
 	MoveWindow(hWndRichEdit,
-				MulDiv(10, nDpi, 96),
-				MulDiv(100, nDpi, 96),
-				MulDiv(420, nDpi, 96),
-				nGameHeight - MulDiv(180, nDpi, 96),
-				TRUE);
+			   MulDiv(10, nDpi, 96),
+			   MulDiv(100, nDpi, 96),
+			   MulDiv(420, nDpi, 96),
+			   nGameHeight - MulDiv(180, nDpi, 96),
+			   TRUE);
 
 	/* エディタより下のコントロールのY座標を計算する */
 	y = nGameHeight - MulDiv(130, nDpi, 96);
 
 	/* 変数のテキストボックスを移動する */
 	MoveWindow(hWndTextboxVar,
-				MulDiv(10, nDpi, 96),
-				y + MulDiv(60, nDpi, 96),
-				MulDiv(280, nDpi, 96),
-				MulDiv(60, nDpi, 96),
-				TRUE);
+			   MulDiv(10, nDpi, 96),
+			   y + MulDiv(60, nDpi, 96),
+			   MulDiv(280, nDpi, 96),
+			   MulDiv(60, nDpi, 96),
+			   TRUE);
 
 	/* 変数書き込みのボタンを移動する */
 	MoveWindow(hWndBtnVar,
-				MulDiv(300, nDpi, 96),
-				y + MulDiv(70, nDpi, 96),
-				MulDiv(130, nDpi, 96),
-				MulDiv(30, nDpi, 96),
-				TRUE);
+			   MulDiv(300, nDpi, 96),
+			   y + MulDiv(70, nDpi, 96),
+			   MulDiv(130, nDpi, 96),
+			   MulDiv(30, nDpi, 96),
+			   TRUE);
 
 	/* デバッグパネルの位置を変更する */
 	MoveWindow(hWndDebug,
-				nGameWidth,
-				0,
-				nDebugWidth,
-				nGameHeight,
-				TRUE);
+			   nGameWidth,
+			   0,
+			   nDebugWidth,
+			   nGameHeight,
+			   TRUE);
 }
 
 /* メニューを作成する */
@@ -705,13 +716,13 @@ VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 				   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
 		break;
 	case ID_RESUME:
-		bResumePressed = TRUE;
+		bContinuePressed = TRUE;
 		break;
 	case ID_NEXT:
 		bNextPressed = TRUE;
 		break;
 	case ID_PAUSE:
-		bPausePressed = TRUE;
+		bStopPressed = TRUE;
 		break;
 	case ID_OPEN:
 		OnOpenScript();
@@ -784,7 +795,7 @@ static VOID OnOpenScript(void)
 			if (*(szPath + i) == L'\\')
 			{
 				SetWindowText(hWndTextboxScript, szPath + i + 1);
-				bScriptSelected = TRUE;
+				bScriptOpened = TRUE;
 				break;
 			}
 		}
@@ -1048,15 +1059,15 @@ VOID OnExportWinInst(void)
 	ZeroMemory(&si, sizeof(STARTUPINFOW));
 	si.cb = sizeof(STARTUPINFOW);
 	CreateProcessW(NULL,	/* lpApplication */
-					cmdline,
-					NULL,	/* lpProcessAttribute */
-					NULL,	/* lpThreadAttributes */
-					FALSE,	/* bInheritHandles */
-					NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
-					NULL,	/* lpEnvironment */
-					L".\\windows-installer-export\\asset",
-					&si,
-					&pi);
+				   cmdline,
+				   NULL,	/* lpProcessAttribute */
+				   NULL,	/* lpThreadAttributes */
+				   FALSE,	/* bInheritHandles */
+				   NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,
+				   NULL,	/* lpEnvironment */
+				   L".\\windows-installer-export\\asset",
+				   &si,
+				   &pi);
 	if (pi.hProcess != NULL)
 		CloseHandle(pi.hThread);
 	if (pi.hProcess != NULL)
@@ -1345,7 +1356,7 @@ static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir)
 	fos.pFrom = from;
 	fos.pTo = to;
 	fos.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI |
-				 FOF_SILENT;
+		FOF_SILENT;
 	SHFileOperationW(&fos);
 
 	return TRUE;
@@ -1401,10 +1412,10 @@ static VOID UpdateVariableTextBox(void)
 
 		/* 行を追加する */
 		_snwprintf(line,
-					sizeof(line) / sizeof(wchar_t),
-					L"$%d=%d\r\n",
-					index,
-					val);
+				   sizeof(line) / sizeof(wchar_t),
+				   L"$%d=%d\r\n",
+				   index,
+				   val);
 		line[1023] = L'\0';
 		wcscat(szTextboxVar, line);
 	}
@@ -1418,12 +1429,12 @@ static VOID UpdateVariableTextBox(void)
  */
 
 /*
- * 再開ボタンが押されたか調べる
+ * 続けるボタンが押されたか調べる
  */
-bool is_resume_pushed(void)
+bool is_continue_pushed(void)
 {
-	bool ret = bResumePressed;
-	bResumePressed = FALSE;
+	bool ret = bContinuePressed;
+	bContinuePressed = FALSE;
 	return ret;
 }
 
@@ -1440,33 +1451,33 @@ bool is_next_pushed(void)
 /*
  * 停止ボタンが押されたか調べる
  */
-bool is_pause_pushed(void)
+bool is_stop_pushed(void)
 {
-	bool ret = bPausePressed;
-	bPausePressed = FALSE;
+	bool ret = bStopPressed;
+	bStopPressed = FALSE;
 	return ret;
 }
 
 /*
  * 実行するスクリプトファイルが変更されたか調べる
  */
-bool is_script_changed(void)
+bool is_script_opened(void)
 {
-	bool ret = bScriptSelected;
-	bScriptSelected = FALSE;
+	bool ret = bScriptOpened;
+	bScriptOpened = FALSE;
 	return ret;
 }
 
 /*
  * 変更された実行するスクリプトファイル名を取得する
  */
-const char *get_changed_script(void)
+const char *get_opened_script(void)
 {
 	static wchar_t script[256];
 
 	GetWindowText(hWndTextboxScript,
-					script,
-					sizeof(script) /sizeof(wchar_t) - 1);
+				  script,
+				  sizeof(script) /sizeof(wchar_t) - 1);
 	script[255] = L'\0';
 	return conv_utf16_to_utf8(script);
 }
@@ -1474,17 +1485,17 @@ const char *get_changed_script(void)
 /*
  * 実行する行番号が変更されたか調べる
  */
-bool is_line_changed(void)
+bool is_exec_line_changed(void)
 {
-	bool ret = bLineChanged;
-	bLineChanged = FALSE;
+	bool ret = bExecLineChanged;
+	bExecLineChanged = FALSE;
 	return ret;
 }
 
 /*
  * 変更された実行する行番号を取得する
  */
-int get_changed_line(void)
+int get_changed_exec_line(void)
 {
 	return nLineChanged;
 }
@@ -1499,7 +1510,7 @@ bool is_script_reloaded(void) { 	return false; }
 /*
  * コマンドの実行中状態を設定する
  */
-void set_running_state(bool running, bool request_stop)
+void on_change_running_state(bool running, bool request_stop)
 {
 	bRunning = running;
 
@@ -1572,9 +1583,9 @@ void set_running_state(bool running, bool request_stop)
 }
 
 /*
- * デバッグ情報を更新する
+ * 実行位置を更新する
  */
-void update_debug_info(bool script_changed)
+void on_change_exec_position(bool script_changed)
 {
 	const char *script_file;
 
@@ -1601,38 +1612,35 @@ void update_debug_info(bool script_changed)
 /* リッチエディットへのキーボード入力を処理する */
 static VOID RichEdit_PretranslateChar(UNUSED(BOOL bShiftDown), UNUSED(BOOL bControlDown), UNUSED(WPARAM wParam))
 {
-	wchar_t *pText;
 	int nStart, nEnd;
 
-	/* 範囲選択されていなければ何もしない */
-	RichEdit_GetSelRange(&nStart, &nEnd);
-	if (nStart == nEnd)
+	/* ペーストの場合 */
+	if (bControlDown && wParam == 'c')
+	{
+		bRangedChanged = TRUE;
 		return;
+	}
 
-	/* 選択範囲に対して操作された */
-	bSelectedRangeChanged = TRUE;
-
-	/* リッチエディットのテキストを取得する */
-	pText = RichEdit_GetText();
-
-	/* 選択開始行と選択終了行を求める */
-	RichEdit_GetSelStartEndLines(&nChangeStartLine, &nChangeEndLine);
-
-	free(pText);
+	/* 範囲選択に対する置き換えの場合 */
+	RichEdit_GetSelRange(&nStart, &nEnd);
+	if (nStart != nEnd)
+	{
+		bRangedChanged = TRUE;
+		return;
+	}
 }
 
 /* リッチエディットの内容の更新通知を処理する */
 static VOID RichEdit_OnChange(void)
 {
-	/* 選択範囲に対する更新でなければ処理しない */
-	if (!bSelectedRangeChanged)
+	/* 単一行内の変更であれば処理しない */
+	if (!bRangedChanged)
 		return;
 
-	bSelectedRangeChanged = FALSE;
+	bRangedChanged = FALSE;
 
-	/* 差分の影響範囲だけパースする */
-
-	return;
+	/* スクリプトモデルを作り直す */
+	RichEdit_UpdateScriptModel();
 }
 
 /* リッチエディットでのReturnキー押下を処理する */
@@ -1656,7 +1664,7 @@ static VOID RichEdit_OnReturn(void)
 
 	/* 次フレームでの実行行の移動の問い合わせに真を返すようにしておく */
 	if (nLineChanged != get_expanded_line_num())
-		bLineChanged = TRUE;
+		bExecLineChanged = TRUE;
 
 	/* 次フレームでの一行実行の問い合わせに真を返すようにしておく */
 	if (nLineChanged == get_expanded_line_num())
@@ -1666,53 +1674,38 @@ static VOID RichEdit_OnReturn(void)
 /* リッチエディットでのShift+Returnキー押下を処理する */
 static VOID RichEdit_OnShiftReturn(void)
 {
-	CHARRANGE cr;
-	wchar_t *pLineWcsBefore, *pStop;
-	char *pLineUtf8After;
-	int nCursor, nLine, nLineStart, nLineLen, nOfsInLine;
+	wchar_t *pWcsFirstLine;
+	char *pUtf8SecondLine;
+	const char *pConv;
+	int nLine, nOffset;
 
-	/* カーソル位置を取得する */
-	SendMessage(hWndRichEdit, EM_EXGETSEL, 0, (LPARAM)&cr);
-	nCursor = cr.cpMin;
+	/* カーソル行の番号とカーソル位置の行内オフセットを取得する */
+	nLine = nOffset = 0;
+	RichEdit_GetCursorLineAndOffset(&nLine, &nOffset);
 
-	/* カーソル位置の行番号を取得する*/
-	nLine = (int)SendMessage(hWndRichEdit, EM_EXLINEFROMCHAR, 0, (LPARAM)nCursor);
-	assert(nLine < get_line_count());
+	/* カーソル行の文字列を取得する(UTF-16) */
+	pWcsFirstLine = RichEdit_GetTextCursorLine();
+	if (pWcsFirstLine == NULL)
+		return;
 
-	/* カーソル位置の行の先頭文字の位置を取得する*/
-	nLineStart = (int)SendMessage(hWndRichEdit, EM_LINEINDEX, (WPARAM)nLine, 0);
-
-	/* カーソル位置の行の長さを取得する*/
-	nLineLen = (int)SendMessage(hWndRichEdit, EM_LINELENGTH, (WPARAM)nCursor, 0);
-
-	/* 作業用の文字列バッファを確保する */
-	pLineWcsBefore = malloc((size_t)(nLineLen + 2) * sizeof(wchar_t));
-	pLineUtf8After = malloc((size_t)nLineLen + 2);
-	if (pLineWcsBefore == NULL || pLineUtf8After == NULL)
+	/* カーソル位置以降をUTF-8に変換する */
+	pConv = conv_utf16_to_utf8(pWcsFirstLine + nOffset);
+	pUtf8SecondLine = malloc((size_t)strlen(pConv) + 1);
+	if (pUtf8SecondLine == NULL)
 	{
 		log_memory();
 		abort();
 	}
-
-	/* カーソル位置の行の内容を取得する*/
-	SendMessage(hWndRichEdit, EM_GETLINE, (WPARAM)nLine, (LPARAM)pLineWcsBefore);
-	pLineWcsBefore[nLineLen - 1] = L'\0';	/* NUL termination */
-	pStop = wcswcs(pLineWcsBefore, L"\r");
-	if (pStop != NULL)
-		*pStop = L'\0';	/* ignore CR */
-
-	/* カーソル位置以降をUtf-8に変換して作業用バッファにコピーする */
-	nOfsInLine = nCursor - nLineStart;
-	strcpy(pLineUtf8After, conv_utf16_to_utf8(pLineWcsBefore + nOfsInLine));
+	strcpy(pUtf8SecondLine, pConv);
 
 	/* カーソル位置でワイド文字列を終端する */
-	pLineWcsBefore[nOfsInLine] = L'\0';
+	pWcsFirstLine[nOffset] = L'\0';
 
 	/* スクリプトモデルで行分割を行う */
-	update_script_line(nLine, conv_utf16_to_utf8(pLineWcsBefore), pLineUtf8After);
+	update_script_line(nLine, conv_utf16_to_utf8(pWcsFirstLine), pUtf8SecondLine);
 
-	free(pLineWcsBefore);
-	free(pLineUtf8After);
+	free(pWcsFirstLine);
+	free(pUtf8SecondLine);
 
 	/*
 	 * このあとリッチテキストエディットに改行が送られ、
@@ -1987,8 +1980,83 @@ static wchar_t *RichEdit_GetTextRange(int nStart, int nLen)
 	return pText;
 }
 
+/* リッチエディットのカーソル行のテキストを取得する */
+static wchar_t *RichEdit_GetTextCursorLine(void)
+{
+	wchar_t *pWcs, *pCRLF, *pRet;
+	int nTotal, nCursor, nLineStartCharCR, nLineStartCharCRLF;
+
+	pWcs = RichEdit_GetText();
+	nTotal = (int)wcslen(pWcs);
+
+	nCursor = RichEdit_GetCursorPosition();
+	nLineStartCharCR = 0;
+	nLineStartCharCRLF = 0;
+	while (nLineStartCharCRLF < nTotal)
+	{
+		pCRLF = wcswcs(pWcs + nLineStartCharCRLF, L"\r\n");
+		int nLen = (pCRLF != NULL) ?
+			(int)(pCRLF - (pWcs + nLineStartCharCRLF)) :
+			(int)wcslen(pWcs + nLineStartCharCRLF);
+		if (nCursor >= nLineStartCharCR && nCursor <= nLineStartCharCR + nLen)
+		{
+			if (pCRLF != NULL)
+				*pCRLF = L'\0';
+			break;
+		}
+		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
+		nLineStartCharCR += nLen + 1; /* +1 for CR */
+	}
+
+	pRet = NULL;
+	if (nLineStartCharCRLF < nTotal)
+	{
+		pRet = wcsdup(pWcs + nLineStartCharCRLF);
+		if (pRet == NULL)
+		{
+			log_memory();
+			abort();
+		}
+	}
+	free(pWcs);
+
+	return pRet;
+}
+
+/* カーソル位置の物理行番号と、カーソル位置の行頭からのオフセットを取得する */
+static VOID RichEdit_GetCursorLineAndOffset(int *nLine, int *nOffset)
+{
+	wchar_t *pWcs, *pCRLF;
+	int i, nTotal, nCursor, nLineStartCharCR, nLineStartCharCRLF;
+
+	pWcs = RichEdit_GetText();
+	nTotal = (int)wcslen(pWcs);
+
+	nCursor = RichEdit_GetCursorPosition();
+	nLineStartCharCR = 0;
+	nLineStartCharCRLF = 0;
+	i = 0;
+	while (nLineStartCharCRLF < nTotal)
+	{
+		pCRLF = wcswcs(pWcs + nLineStartCharCRLF, L"\r\n");
+		int nLen = (pCRLF != NULL) ?
+			(int)(pCRLF - (pWcs + nLineStartCharCRLF)) :
+			(int)wcslen(pWcs + nLineStartCharCRLF);
+		if (nCursor >= nLineStartCharCR && nCursor <= nLineStartCharCR + nLen)
+		{
+			*nLine = i;
+			*nOffset = nCursor - nLineStartCharCR;
+			break;
+		}
+		i++;
+		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
+		nLineStartCharCR += nLen + 1; /* +1 for CR */
+	}
+	free(pWcs);
+}
+
 /* リッチエディットのカーソル位置を取得する */
-static int RichEdit_GetCursorPos(void)
+static int RichEdit_GetCursorPosition(void)
 {
 	CHARRANGE cr;
 
@@ -2060,45 +2128,6 @@ static VOID RichEdit_AutoScroll(void)
 	InvalidateRect(hWndRichEdit, NULL, TRUE);
 }
 
-/* 選択開始行と選択終了行を求める */
-static VOID RichEdit_GetSelStartEndLines(int *nChangeStartLine, int *nChangeEndLine)
-{
-	wchar_t *pWcs, *pCRLF;
-	int i, nSelStart, nSelEnd, nLineStartCharCR, nLineStartCharCRLF;
-
-	RichEdit_GetSelRange(&nSelStart, &nSelEnd);
-	pWcs = RichEdit_GetText();
-
-	*nChangeStartLine = -1;
-	*nChangeEndLine = -1;
-	nLineStartCharCR = 0;
-	nLineStartCharCRLF = 0;
-	for (i = 0; i < get_line_count(); i++)
-	{
-		pCRLF = wcswcs(pWcs + nLineStartCharCRLF, L"\r\n");
-		int nLen = (pCRLF != NULL) ?
-			(int)(pCRLF - (pWcs + nLineStartCharCRLF)):
-			(int)wcslen(pWcs + nLineStartCharCRLF);
-		if (*nChangeStartLine == -1 && nLineStartCharCR >= nSelStart)
-		{
-			*nChangeStartLine = i;
-		}
-		if (*nChangeStartLine != -1 && *nChangeEndLine == -1 &&
-			nSelEnd >= nLineStartCharCR &&
-			nSelEnd <= nLineStartCharCR + nLen + 1)
-		{
-			*nChangeEndLine = i;
-			break;
-		}
-		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
-		nLineStartCharCR += nLen + 1; /* +1 for CR */
-	}
-	assert(*nChangeStartLine != -1);
-	assert(*nChangeEndLine != -1);
-
-	free(pWcs);
-}
-
 /* 範囲選択範囲を求める */
 static VOID RichEdit_GetSelRange(int *nStart, int *nEnd)
 {
@@ -2117,7 +2146,7 @@ static int RichEdit_GetCursorLine(void)
 
 	pWcs = RichEdit_GetText();
 
-	nCursor = RichEdit_GetCursorPos();
+	nCursor = RichEdit_GetCursorPosition();
 	nLineStartCharCR = 0;
 	nLineStartCharCRLF = 0;
 	nCursorLine = -1;
@@ -2135,10 +2164,47 @@ static int RichEdit_GetCursorLine(void)
 		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
 		nLineStartCharCR += nLen + 1; /* +1 for CR */
 	}
-	assert(nChangeStartLine != -1);
-	assert(nChangeEndLine != -1);
 
 	free(pWcs);
 
 	return nCursorLine;
+}
+
+/* リッチエディットの内容を元にスクリプトモデルを更新する */
+static VOID RichEdit_UpdateScriptModel(void)
+{
+	wchar_t *pWcs, *pCRLF;
+	int nLine, nLineStartCharCR, nLineStartCharCRLF, nTotal;
+
+	pWcs = RichEdit_GetText();
+
+	nTotal = (int)wcslen(pWcs);
+	nLine = 0;
+	nLineStartCharCR = 0;
+	nLineStartCharCRLF = 0;
+	while (nLineStartCharCRLF < nTotal)
+	{
+		wchar_t *pLine;
+		int nLen;
+
+		/* 行を切り出す */
+		pLine = pWcs + nLineStartCharCRLF;
+		pCRLF = wcswcs(pWcs + nLineStartCharCRLF, L"\r\n");
+		nLen = (pCRLF != NULL) ?
+			(int)(pCRLF - (pWcs + nLineStartCharCRLF)) :
+			(int)wcslen(pWcs + nLineStartCharCRLF);
+		*pCRLF = L'\0';
+
+		/* 行を更新する */
+		if (nLine < get_line_count())
+			update_script_line(nLine, conv_utf16_to_utf8(pLine), NULL);
+		else
+			update_script_line(get_line_count() - 1, NULL, conv_utf16_to_utf8(pLine));
+
+		nLine++;
+		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
+		nLineStartCharCR += nLen + 1; /* +1 for CR */
+	}
+
+	free(pWcs);
 }

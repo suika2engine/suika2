@@ -68,7 +68,10 @@ def convert_ks_to_txt(file_name):
             print('@bg ' + file + ' ' + time, file=f)
         elif line.startswith('[playse '):
             m = re.compile('storage="(.+?)"').search(line)
-            file = m.group(1)
+            if m:
+                file = m.group(1)
+            else:
+                file = "stop"
             m = re.compile('time="(\d+?)"').search(line)
             vol = str(float(m.group(1)) / 100)
             print('@se ' + file, file=f)

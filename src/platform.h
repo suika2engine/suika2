@@ -370,7 +370,10 @@ const char *get_system_locale(void);
 
 /* Currently we support TTS on Windows only. */
 #if defined(WIN)
-/* TTSによる読み上げを行う */
+/*
+ * Do TTS.
+ *  - text: Specify NULL to stop speaking.
+ */
 void speak_text(const char *text);
 #else
 static inline void speak_text(UNUSED(const char *text)) { }
@@ -387,9 +390,9 @@ static inline void speak_text(UNUSED(const char *text)) { }
 #ifdef USE_DEBUGGER
 
 /*
- * Return whether the "resume" botton is pressed.
+ * Return whether the "continue" botton is pressed.
  */
-bool is_resume_pushed(void);
+bool is_continue_pushed(void);
 
 /*
  * Return whether the "next" button is pressed.
@@ -399,28 +402,42 @@ bool is_next_pushed(void);
 /*
  * Return whether the "stop" button is pressed.
  */
-bool is_pause_pushed(void);
+bool is_stop_pushed(void);
 
 /*
- * Return whether the "load" button is pressed.
+ * Return whether the "open" button is pressed.
  */
-bool is_script_changed(void);
+bool is_script_opened(void);
 
 /*
- * Return a script file name when the "load" button is pressed.
+ * Return a script file name when the "open" button is pressed.
  */
-const char *get_changed_script(void);
+const char *get_opened_script(void);
 
 /*
- * Return whether the "line number" is changed.
+ * Return whether the "execution line number" is changed.
  */
-bool is_line_changed(void);
+bool is_exec_line_changed(void);
 
 /*
- * Return the "line number" if it is changed.
+ * Return the "execution line number" if it is changed.
  */
-int get_changed_line(void);
+int get_changed_exec_line(void);
 
+/*
+ * Update UI elements when the running state is changed.
+ */
+void on_change_running_state(bool running, bool request_stop);
+
+/*
+ * Update UI elements when the main engine changes the command position to be executed.
+ */
+void on_change_exec_position(bool is_script_loaded);
+
+/*
+ * The following are not used in the newer versions of Suika2 Pro:
+ */
+#ifndef USE_EDITOR
 /*
  * Return whether "current command string" is updated.
  */
@@ -435,19 +452,7 @@ const char *get_updated_command(void);
  * Return whether the "reload" button is pressed.
  */
 bool is_script_reloaded(void);
-
-/*
- * Update UI elements when the running state is changed.
- */
-void set_running_state(bool running, bool request_stop);
-
-/*
- * Update UI elements when the main engine changes the command position to be executed.
- */
-void
-update_debug_info(
-	bool script_changed	/* is the current script file changed? */
-);
+#endif
 
 #endif /* USE_DEBUGGER */
 
@@ -474,7 +479,6 @@ uint64_t get_tick_count64(void);
  * A wrapper for fopen().
  */
 FILE *fopen_wrapper(const char *dir, const char *file, const char *mode);
-
 #endif /* defined(USE_CAPTURE) || defined(USE_REPLAY) */
 
 #endif /* SUIKA_PLATFORM_H */
