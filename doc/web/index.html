@@ -53,6 +53,7 @@
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%90%E3%82%B0%E5%A0%B1%E5%91%8A%E3%81%AE%E4%B8%80%E8%A6%A7">バグ報告の一覧</a></li>
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E6%A9%9F%E8%83%BD%E8%A6%81%E6%9C%9B%E3%81%AE%E4%B8%80%E8%A6%A7">機能要望の一覧</a></li>
 						<li><a class="dropdown-item" href="/wiki/">Wikiトップ</a></li>
+						<li><a class="dropdown-item" href="/wiki/?cmd=search">検索</a></li>
 					</ul>
 				</li>
 				<li class="nav-item"><a class="nav-link" href="/works/">利用作品紹介</a></li>
@@ -145,6 +146,7 @@
 
 <h2 class="spacer">更新情報</h2>
 <ul class="alert alert-info">
+  <li>2023/11/04 <a href="/dl/">KAGからSuika2へ変換するプログラムR1を公開</a></li>
   <li>2023/10/31 ドキュメント全般をPukiWikiに移行</li>
   <li><a href="award2023.html">2023/10/28 Suika2ノベルゲーム大賞2023 結果公表</a></li>
 <!--LATEST-RELEASE--><li><a href="/dl/">2023/10/16 Suika2/14.6 リリース</a></li>
@@ -345,7 +347,7 @@
 
 <h2 class="spacer">誰が作っているの？</h2>
 <ul class="alert alert-info">
-	<li>ktabataを中心にDiscordとGitHubのコミュニティで作っています</li>
+	<li>ktabataを中心にDiscordのコミュニティで作っています</li>
 	<li>開発への参加は <a href="https://discord.gg/ZmvXxE8GFg">Discord</a> にお越しください</li>
 	<li>バグ報告、機能要望、そして実際のゲーム制作は「開発への最も重要な参画」です</li>
 </ul>
@@ -356,17 +358,19 @@
 <ul class="alert alert-info">
 	<li>すでに<a href="/works/">たくさんのゲーム</a>で利用されています</li>
 	<li>iOSやAndroidのストアアプリでも利用されています</li>
-	<li>基本的にはDiscordに参加して情報収集しないと活用できないとお考えください</li>
+	<li>Web上の情報が少ないのでDiscordに参加して質問が必要です</li>
 </ul>
 
 <!-- ------------------------- -->
 
 <h2 class="spacer">連絡先</h2>
-<p>下記のどれでもいいです。お気軽に！</p>
+<p>ktabataへの連絡は下記のどれでも可能です。お気軽に！</p>
 <ul class="alert alert-info">
-	<li><a href="https://discord.gg/ZmvXxE8GFg">Discord(チャット)で「日本語」チャンネルまで</a></li>
-	<li><a href="https://twitter.com/ktabata_suika2">Twitter @ktabata_suika2 ktabata まで</a></li>
-	<li>メール ktabata (keiichi.tabata&#64;outlook.com) まで</li>
+	<li>Discord の <a href="https://discord.gg/ZmvXxE8GFg">Suika2サーバー</a></li>
+	<li>Microsoft Teams のコミュニティ <a href="https://teams.live.com/l/community/FBAR5njlCo_27rKWAI">Suika2</a></li>
+	<li>Microsoft Teams の個人連絡先 keiichi.tabata&#64;outlook.com</li>
+	<li>メール keiichi.tabata&#64;outlook.com</li>
+	<li>X/Twitter <a href="https://twitter.com/ktabata_suika2">@ktabata_suika2</a></li>
 </ul>
 
 <!-- ------------------------- -->
@@ -382,32 +386,43 @@
 	ビジュアルノベルをスマートフォンで動作させられる標準的なソフトウェアが誕生しませんでした。
 </p>
 <p>
-	この背景には、ライトなゲームはHTML5技術に取って代わられるのではないかという市場の観測がありました。
-	よって、2010年代に誕生したビジュアルノベルエンジンの多くはWeb技術でした。
-	しかし、ライトなゲームがHTML5ベースになるという未来はやってきませんでした。
-	Web技術とネイティブ技術を混ぜ合わせたハイブリッドアプリはありつつも、
-	これは課金中心のガチャアプリ以外では、主流なゲーム技術になれませんでした。
-	これにより、2023年に至るまで、ビジュアルノベルをスマートフォンで簡単に実現するための、
+	この背景には、ライトなゲームはHTML/JavaScriptに取って代わられるという市場の観測がありました。
+	よって、2010年代に誕生したビジュアルノベルエンジンの多くは、HTML/JavaScriptの技術を利用していました。
+	しかし、10年経って、ライトなゲームがHTML/JavaScriptヘ移行するという未来はやってきませんでした。
+	これにより、2023年10月に至るまで、ビジュアルノベルをスマートフォンで簡単に実現するための、
 	標準的と言えるソフトウェアが存在しませんでした。
 </p>
 <p>
-	Suika2は、この空白を埋める、これまでどこにも存在しなかったソフトウェアです。
-	オープンソースで誰もが自由に利用でき、
-	スマートフォンや家庭用ゲーム機で動くクロスプラットフォーム設計で、
-	しかも、WebやPythonやSDL2ではなくネイティブ動作するという、
-	理想の条件を満たすソフトウェアです。
-	このような特徴を持った、インディー利用にも商用利用にも資する、初めてのビジュアルノベルエンジンです。
+	Suika2は、2023年10月にこの空白を埋めた、これまでどこにも存在しなかったソフトウェアです。
+</p>
+<ul class="alert">
+	<li>オープンソースで誰もが自由に利用できる</li>
+	<li>スマートフォンや家庭用ゲーム機で動くクロスプラットフォーム設計である</li>
+	<li>完全ネイティブ移植である</li>
+	<li><a href="https://tyrano.jp/">HTML/JavaScript</a> ではない</li>
+	<li><a href="https://ja.renpy.org/">Python</a> ではない</li>
+	<li><a href="https://github.com/krkrsdl2/krkrsdl2">SDL2</a> ではない</li>
+</ul>
+<p>
+	つまり、Suika2は、インディーでも商業でも利用できる、2020年代以降の標準ビジュアルノベルエンジンです。
+	Suika2は、技術の選択が非常に堅実で、現実的で、実用的なソフトウェアです。
+	技術的に目新しいことがないので、オープンソースでは誰も取り組んでこなかったというのが実情かと思います。
+	こういうことは過去にもありました。例えばLinuxカーネルです。
+	みんながマイクロカーネルに熱狂する中で、技術的センスでそれを否定して誕生したのが従来型のカーネルであるLinuxでした。
+	同じように、みんながWebに熱狂する中、Suika2はネイティブで開発されてきました。
 </p>
 <p>
-	Suika2は、個人/同人/インディーの作品が公開されるプラットフォームを、
-	これまでのPCとWebから、スマートフォンアプリへと拡大した実績を持ちます（実現した世界）。
+	【実現した世界】Suika2は、個人/同人/インディーの作品が公開されるプラットフォームを、
+	これまでのPCとWebから、スマートフォンアプリへと拡大した実績を持ちます。
 	現在は家庭用ゲームへも実績を拡大しようとしています。
-	このことにより、インディーと商業でのツールの垣根を撤廃し、
-	かつて同人創作が商業化していった「勢い」を再び取り戻していきます（目指す世界）。
+</p>
+<p>
+	【目指す世界】このことにより、インディーと商業でのツールの垣根を撤廃し、
+	かつて多くの同人創作が商業化していった「勢い」を再び取り戻していきます。
 </p>
 <p>
 	Suika2は、実力派のクリエイタがスマートフォンのアプリストアで簡単に収益を上げられるような市場を、実際に創出しました。
-	これからも、一人でも多くのクリエイタが創作で生計を立てられるように、技術で市場構造を変革していきます。
+	これからは、一人でも多くのクリエイタが創作で生計を立てられるように、この市場を牽引していきます。
 </p>
 
 <!-- ------------------------- -->
