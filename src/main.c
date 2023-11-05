@@ -253,6 +253,17 @@ static bool pre_dispatch(void)
 	char *scr;
 	int line, cmd;
 
+#ifdef USE_EDITOR
+	/* コマンドがない場合 */
+	if (get_command_count() == 0) {
+		dbg_request_stop = true;
+		on_change_running_state(false, false);
+
+		/* コマンドディスパッチへ進めない */
+		return false;
+	}
+#endif
+
 	/* 実行中の場合 */
 	if (dbg_running) {
 		/* 停止が押された場合 */
@@ -299,7 +310,6 @@ static bool pre_dispatch(void)
 		update_command(get_command_index(),
 			       get_updated_command());
 		on_change_exec_position(true);
-		return false;
 	}
 
 	/* 停止中で、実行中のスクリプトがリロードされた場合 */

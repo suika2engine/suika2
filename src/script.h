@@ -579,8 +579,8 @@ bool load_debug_script(void);
 /* スクリプトの行をアップデートする */
 bool update_script_line(int line, const char *text, const char *new_line);
 
-/* スクリプトの行をアップデートする */
-bool delete_script_line(int line);
+/* スクリプトの行を削除する */
+void delete_script_line(int line);
 
 #endif /* USE_DEBUGGER */
 

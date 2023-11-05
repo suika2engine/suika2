@@ -2735,12 +2735,6 @@ static void replace_command_to_comment(int cmd_index, const char *text)
 
 	assert(text != NULL);
 
-	/* コマンドが1つしかない場合は現状では編集できない */
-	if (cmd_size == 1) {
-		log_info("You need at least one command.");
-		return;
-	}
-
 	/* 行番号を求める */
 	line = cmd[cmd_index].expanded_line;
 
@@ -2865,11 +2859,18 @@ update_script_line(
 	if (cmd_index != -1 && cmd[cmd_index].line == line) {
 		/* あるので、そのコマンドをアップデートする */
 		if (text != NULL && strcmp(cmd[cmd_index].text, text) != 0)
-				update_command(cmd_index, text);
-	} else {
-		/* ないので、コメントをコマンドに変換する */
-		if (text != NULL)
+			update_command(cmd_index, text);
+	} else if (text != NULL) {
+		/* ない、かつ、行の更新が必要な場合 */
+		if (text[0] != '#') {
+			/* コメントをコマンドに変換する */
 			replace_comment_to_command(line, text);
+		} else {
+			/* コメントを置き換える */
+			if (comment_text[line] != NULL)
+				free(comment_text[line]);
+			comment_text[line] = strdup(text);
+		}
 	}
 
 	/* 次の行に挿入する場合 */
@@ -2910,6 +2911,8 @@ static void replace_comment_to_command(int line, const char *text)
 	}
 
 	/* コマンドをパースする */
+	cmd[cmd_index].file = cur_script;
+	cmd[cmd_index].line = line;
 	update_command(cmd_index, text);
 }
 
@@ -2967,10 +2970,65 @@ static void insert_command(int line, const char *text)
 	} else {
 		/* コマンドがない場合、末尾に追加する */
 		cmd_index = cmd_size;
+		cmd_size++;
 	}
 
 	/* 追加するコマンドをパースする */
+	cmd[cmd_index].file = cur_script;
+	cmd[cmd_index].line = line;
 	update_command(cmd_index, text);
+}
+
+/*
+ * スクリプトの行を削除する
+ */
+void delete_script_line(int line)
+{
+	int i, cmd_index;
+
+	assert(line < cur_expanded_line);
+
+	/* 行番号line以降の最初の行番号のコマンドを探す */
+	cmd_index = get_command_index_from_line_number(line);
+
+	/* 行番号lineの位置にコマンドがあるか */
+	if (cmd_index != -1 && cmd[cmd_index].line == line) {
+		/* コマンドを解放する */
+		if (cmd[cmd_index].text != NULL) {
+			free(cmd[cmd_index].text);
+			cmd[cmd_index].text = NULL;
+		}
+		if (cmd[cmd_index].param[0] != NULL) {
+			free(cmd[cmd_index].param[0]);
+			cmd[cmd_index].param[0] = NULL;
+		}
+		memset(&cmd[cmd_index], 0, sizeof(struct command));
+
+		/* cmd_index+1以降のコマンドを1つずつ手前にずらす */
+		for (i = cmd_index; i < cmd_size - 1; i++)
+			cmd[i] = cmd[i + 1];
+		memset(&cmd[cmd_size - 1], 0, sizeof(struct command));
+		cmd_size--;
+	} else {
+		/* 行番号lineのコメントを解放する */
+		if (comment_text[line] != NULL) {
+			free(comment_text[line]);
+			comment_text[line] = NULL;
+		}
+	}
+
+	/* コマンドの行番号を1つずつ前にずらす */
+	if (cmd_index != -1) {
+		for (i = cmd_index; i < cmd_size; i++) {
+			cmd[i].line--;
+			cmd[i].expanded_line--;
+		}
+	}
+
+	/* コメントを1つずつ前の要素にずらす */
+	for (i = line; i < SCRIPT_LINE_SIZE - 1; i++)
+		comment_text[i] = comment_text[i + 1];
+	comment_text[SCRIPT_LINE_SIZE - 1] = NULL;
 }
 
 #endif /* USE_DEBUGGER */
