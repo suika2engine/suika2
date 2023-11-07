@@ -118,7 +118,9 @@ static VOID RichEdit_SetText(void);
 static VOID RichEdit_UpdateHighlight(void);
 static VOID RichEdit_ClearFormat(void);
 static VOID RichEdit_HighlightExecuteLine(void);
-static VOID RichEdit_FormatByContents(void);
+static VOID RichEdit_FormatAllLines(void);
+static VOID RichEdit_FormatLine(void);
+static VOID RichEdit_FormatLineHelper(const wchar_t *pText, int nLineStartCR, int nLineStartCRLF, int nLineLen);
 
 /* RichEdit helpers */
 static wchar_t *RichEdit_GetText(void);
@@ -647,6 +649,8 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 	static BOOL bShiftDown;
 	static BOOL bControlDown;
 	int nStart, nEnd;
+
+	bRangedChanged = FALSE;
 
 	/* シフト押下状態を保存する */
 	if (pMsg->hwnd == hWndRichEdit && pMsg->wParam == VK_SHIFT)
@@ -1652,6 +1656,11 @@ static VOID RichEdit_OnChange(void)
 		/* ハイライトを更新する */
 		RichEdit_UpdateHighlight();
 	}
+	else
+	{
+		/* 行の色付けを変更する */
+		RichEdit_FormatLine();
+	}
 }
 
 /* リッチエディットでのReturnキー押下を処理する */
@@ -1689,7 +1698,7 @@ static VOID RichEdit_UpdateHighlight(void)
 	RichEdit_ClearFormat();
 
 	/* 行の内容により書式を設定する */
-	RichEdit_FormatByContents();
+	RichEdit_FormatAllLines();
 
 	/* 実行行の背景色を設定する */
 	RichEdit_HighlightExecuteLine();
@@ -1708,22 +1717,14 @@ static VOID RichEdit_ClearFormat(void)
 	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
 }
 
-/* 行の内容により見た目を変える */
-static VOID RichEdit_FormatByContents(void)
+/* リッチエディットのテキストすべてについて、行の内容により色付けを行う */
+static VOID RichEdit_FormatAllLines(void)
 {
-	CHARFORMAT2W cf;
-	CHARRANGE cr;
-	wchar_t *pText, *pLineStop, *pCommandStop, *pParamStart, *pParamStop;
+	wchar_t *pText, *pLineStop;
 	int i, nLineStartCRLF, nLineStartCR, nLineLen;
 
 	/* リッチエディットのテキストを取得する */
 	pText = RichEdit_GetText();
-
-	/* 書式の構造体を初期化する */
-	memset(&cr, 0, sizeof(cr));
-	memset(&cf, 0, sizeof(cf));
-	cf.cbSize = sizeof(cf);
-	cf.dwMask = CFM_COLOR;
 
 	/* 実行行の開始文字位置を求める */
 	nLineStartCRLF = 0;		/* WM_GETTEXTは改行をCRLFで返す */
@@ -1736,71 +1737,112 @@ static VOID RichEdit_FormatByContents(void)
 			(int)(pLineStop - (pText + nLineStartCRLF)) :
 			(int)wcslen(pText + nLineStartCRLF);
 
-		/* 行を選択して選択範囲のテキスト色をデフォルトに変更する */
-		RichEdit_SetSel(nLineStartCR, nLineLen);
-		RichEdit_SetSelTextColor(0x00000000);
-
-		/* コメントを処理する */
-		if (pText[nLineStartCRLF] == L'#')
-		{
-			/* コメント部分を選択して、選択範囲の背景色を変更する */
-			RichEdit_SetSel(nLineStartCR, nLineLen);
-			RichEdit_SetSelTextColor(0x00808080);
-		}
-		/* ラベルを処理する */
-		else if (pText[nLineStartCRLF] == L':')
-		{
-			/* ラベル名部分を選択して、選択範囲(実行行)の背景色を変更する */
-			RichEdit_SetSel(nLineStartCR, nLineLen);
-			RichEdit_SetSelTextColor(0x00ff0000);
-		}
-		/* コマンド行を処理する */
-		else if (pText[nLineStartCRLF] == L'@')
-		{
-			int nParamLen, nNameOffset;
-
-			pCommandStop = wcswcs(pText + nLineStartCRLF, L" ");
-			nParamLen = pCommandStop != NULL ?
-				(int)(pCommandStop - (pText + nLineStartCRLF)) :
-				(int)wcslen(pText + nLineStartCRLF);
-
-			/* コマンド名部分を選択してテキスト色を変更する */
-			RichEdit_SetSel(nLineStartCR, nParamLen);
-			RichEdit_SetSelTextColor(0x00ff0000);
-
-			/* 引数名を灰色にする */
-			nNameOffset = 0;
-			while ((pParamStart = wcswcs(pText + nLineStartCRLF + nNameOffset, L" ")) != NULL)
-			{
-				int nNameStart;
-				int nNameLen;
-
-				if (pParamStart >= pLineStop)
-					break;
-				pParamStart++;
-				pParamStop = wcswcs(pParamStart, L"=");
-				if (pParamStop == NULL || pParamStop >= pLineStop)
-					break;
-
-				/* 引数名部分を選択してテキスト色を変更する */
-				nNameStart = nLineStartCR + (pParamStart - (pText + nLineStartCRLF));
-				nNameLen = nLineStartCR + (pParamStop - (pText + nLineStartCRLF));
-				RichEdit_SetSel(nNameStart, nNameLen);
-				RichEdit_SetSelTextColor(0x00808080);
-
-				nNameOffset += (int)(pParamStop - (pText + nLineStartCRLF));
-			}
-		}
+		/* 行の色付けを行う */
+		RichEdit_FormatLineHelper(pText, nLineStartCR, nLineStartCRLF, nLineLen);
 
 		/* 次の行へ移動する */
-		if (i < get_line_count() - 1)
-		{
-			nLineStartCRLF += nLineLen + 2;	/* +2 for CRLF */
-			nLineStartCR += nLineLen + 1;	/* +1 for CR */
-		}
+		nLineStartCRLF += nLineLen + 2;	/* +2 for CRLF */
+		nLineStartCR += nLineLen + 1;	/* +1 for CR */
 	}
 
 	free(pText);
+}
+
+/* 現在のカーソル行を */
+static VOID RichEdit_FormatLine(void)
+{
+	wchar_t *pText, *pLineStop;
+	int i, nCursor, nLineStartCRLF, nLineStartCR, nLineLen;
+
+	/* リッチエディットのテキストを取得する */
+	pText = RichEdit_GetText();
+
+	/* 実行行の開始文字位置を求める */
+	nCursor = RichEdit_GetCursorPosition();
+	nLineStartCRLF = 0;		/* WM_GETTEXTは改行をCRLFで返す */
+	nLineStartCR = 0;		/* EM_EXSETSELでは改行はCRの1文字 */
+	for (i = 0; i < get_line_count(); i++)
+	{
+		/* 行の終了位置を求める */
+		pLineStop = wcswcs(pText + nLineStartCRLF, L"\r\n");
+		nLineLen = pLineStop != NULL ?
+			(int)(pLineStop - (pText + nLineStartCRLF)) :
+			(int)wcslen(pText + nLineStartCRLF);
+
+		if (nCursor >= nLineStartCR && nCursor <= nLineStartCR + nLineLen)
+		{
+			/* 行の色付けを行う */
+			RichEdit_FormatLineHelper(pText, nLineStartCR, nLineStartCRLF, nLineLen);
+			break;
+		}
+
+		/* 次の行へ移動する */
+		nLineStartCRLF += nLineLen + 2;	/* +2 for CRLF */
+		nLineStartCR += nLineLen + 1;	/* +1 for CR */
+	}
+
+	free(pText);
+}
+
+/* 行内の色付けを行う */
+static VOID RichEdit_FormatLineHelper(const wchar_t *pText, int nLineStartCR, int nLineStartCRLF, int nLineLen)
+{
+	const wchar_t *pCommandStop, *pParamStart, *pParamStop;
+
+	/* 行を選択して選択範囲のテキスト色をデフォルトに変更する */
+	RichEdit_SetSel(nLineStartCR, nLineLen);
+	RichEdit_SetSelTextColor(0x00000000);
+
+	/* コメントを処理する */
+	if (pText[nLineStartCRLF] == L'#')
+	{
+		/* コメント部分を選択して、選択範囲の背景色を変更する */
+		RichEdit_SetSel(nLineStartCR, nLineLen);
+		RichEdit_SetSelTextColor(0x00808080);
+	}
+	/* ラベルを処理する */
+	else if (pText[nLineStartCRLF] == L':')
+	{
+		/* ラベル名部分を選択して、選択範囲(実行行)の背景色を変更する */
+		RichEdit_SetSel(nLineStartCR, nLineLen);
+		RichEdit_SetSelTextColor(0x00ff0000);
+	}
+	/* コマンド行を処理する */
+	else if (pText[nLineStartCRLF] == L'@')
+	{
+		int nParamLen, nNameOffset;
+
+		/* コマンド名部分を選択してテキスト色を変更する */
+		pCommandStop = wcswcs(pText + nLineStartCRLF, L" ");
+		nParamLen = pCommandStop != NULL ?
+			(int)(pCommandStop - (pText + nLineStartCRLF)) :
+			(int)wcslen(pText + nLineStartCRLF);
+		RichEdit_SetSel(nLineStartCR, nParamLen);
+		RichEdit_SetSelTextColor(0x00ff0000);
+
+		/* 引数名を灰色にする */
+		nNameOffset = 0;
+		while ((pParamStart = wcswcs(pText + nLineStartCRLF + nNameOffset, L" ")) != NULL)
+		{
+			int nNameStart;
+			int nNameLen;
+
+			if (pParamStart >= pText + nLineStartCR + nLineLen)
+				break;
+			pParamStart++;
+			pParamStop = wcswcs(pParamStart, L"=");
+			if (pParamStop == NULL || pParamStop >= pText + nLineStartCR + nLineLen)
+				break;
+
+			/* 引数名部分を選択してテキスト色を変更する */
+			nNameStart = nLineStartCR + (pParamStart - (pText + nLineStartCRLF));
+			nNameLen = nLineStartCR + (pParamStop - (pText + nLineStartCRLF));
+			RichEdit_SetSel(nNameStart, nNameLen);
+			RichEdit_SetSelTextColor(0x00808080);
+
+			nNameOffset += (int)(pParamStop - (pText + nLineStartCRLF));
+		}
+	}
 }
 
 /* 実行行の背景色を設定する */
