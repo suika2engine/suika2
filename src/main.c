@@ -95,7 +95,10 @@ static bool dbg_running;
 static bool dbg_request_stop;
 
 /* エラー状態であるか */
-static bool dbg_error_state;
+static bool dbg_runtime_error;
+
+/* エラーカウント */
+static int dbg_error_count;
 
 /* 前方参照 */
 static bool pre_dispatch(void);
@@ -197,9 +200,9 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 
 			/* ディスパッチする */
 			if (!dispatch_command(x, y, w, h, &cont)) {
-				if (dbg_error_state) {
-					/* エラーによる終了をキャンセルする */
-					dbg_error_state = false;
+				if (dbg_runtime_error) {
+					/* 実行時エラーによる終了をキャンセルする */
+					dbg_runtime_error = false;
 					on_change_exec_position(true);
 					dbg_stop();
 					return true;
@@ -209,10 +212,8 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 						return false;
 
 					/* 最後まで実行した */
-					if (!load_debug_script())
-						return false;
-					on_change_exec_position(true);
 					dbg_stop();
+					on_change_exec_position(false);
 					return true;
 				}
 				return false;
@@ -298,7 +299,7 @@ static bool pre_dispatch(void)
 
 	/* 停止中で、行番号が変更された場合 */
 	if (is_exec_line_changed()) {
-		int index = get_command_index_from_line_number(
+		int index = get_command_index_from_line_num(
 			get_changed_exec_line());
 		if (index != -1)
 			move_to_command_index(index);
@@ -307,8 +308,7 @@ static bool pre_dispatch(void)
 #ifndef USE_EDITOR
 	/* 停止中で、コマンドが更新された場合 */
 	if (is_command_updated()) {
-		update_command(get_command_index(),
-			       get_updated_command());
+		update_script_line(get_command_index(), get_updated_command());
 		on_change_exec_position(true);
 	}
 
@@ -338,7 +338,7 @@ static bool pre_dispatch(void)
 		}
 
 		/* 元の行番号の最寄りコマンドを取得する */
-		cmd = get_command_index_from_line_number(line);
+		cmd = get_command_index_from_line_num(line);
 		if (cmd == -1) {
 			/* 削除された末尾の場合、最終コマンドにする */
 			cmd = get_command_count() - 1;
@@ -815,10 +815,35 @@ bool dbg_is_stop_requested(void)
 /*
  * エラー状態を設定する
  */
-void dbg_set_error_state(void)
+void dbg_raise_runtime_error(void)
 {
-	dbg_error_state = true;
+	dbg_runtime_error = true;
 }
+
+/*
+ * エラーカウントをリセットする
+ */
+void dbg_reset_parse_error_count(void)
+{
+	dbg_error_count = 0;
+}
+
+/*
+ * エラーカウントをインクリメントする
+ */
+void dbg_increment_parse_error_count(void)
+{
+	dbg_error_count++;
+}
+
+/*
+ * エラーカウントを取得する
+ */
+int dbg_get_parse_error_count(void)
+{
+	return dbg_error_count;
+}
+
 #endif
 
 /*
@@ -827,14 +852,15 @@ void dbg_set_error_state(void)
 
 const char license_info[]
 #ifdef __GNUC__
-__attribute__((used))
+ /* Don't remove this string even if it's not referenced. */
+ __attribute__((used))
 #endif
- =	"Suika2: Copyright (c) 2001-2023, Keiichi Tabata.\n"
-	"This program uses bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.\n"
-	"This program uses libwebp: Copyright (C) 2010, Google Inc. All rights reserved.\n"
-	"This program uses zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler.\n"
-	"This program uses libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors.\n"
-	"This program uses jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding.\n"
-	"This program uses libogg: Copyright (C) 2002, Xiph.org Foundation\n"
-	"This program uses libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation\n"
-	"This program uses FreeType: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg.\n";
+ = "Suika2: Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.\n"
+   "zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler. All rights reserved.\n"
+   "libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors. All rights reserved.\n"
+   "jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding. All rights reserved.\n"
+   "bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.\n"
+   "libwebp: Copyright (C) 2010, Google Inc. All rights reserved.\n"
+   "libogg: Copyright (C) 2002, Xiph.org Foundation. All rights reserved.\n"
+   "libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation. All rights reserved.\n"
+   "FreeType2: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg. All rights reserved.\n";

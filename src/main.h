@@ -192,9 +192,24 @@ void dbg_stop(void);
 bool dbg_is_stop_requested(void);
 
 /*
- * Set an error state.
+ * Set the runtime error state.
  */
-void dbg_set_error_state(void);
+void dbg_raise_runtime_error(void);
+
+/*
+ * Reset the error count.
+ */
+void dbg_reset_parse_error_count(void);
+
+/*
+ * Increment the error count.
+ */
+void dbg_increment_parse_error_count(void);
+
+/*
+ * Get the error count.
+ */
+int dbg_get_parse_error_count(void);
 
 #endif	/* USE_DEBUGGER */
 

@@ -145,6 +145,8 @@ void log_memory(void)
 		log_error("Out of memory.\n");
 	else
 		log_error(U8("メモリの確保に失敗しました。\n"));
+
+	abort();
 }
 
 /*
@@ -286,8 +288,8 @@ void log_script_exec_footer(void)
 			  file, line, get_line_string());
 	}
 #else
-	/* '@'コマンドをメッセージに変換する */
-	translate_failed_command_to_message(get_command_index());
+	/* '@'コマンドを'!'メッセージに変換する */
+	translate_command_to_message_for_runtime_error(get_command_index());
 #endif
 }
 
@@ -454,6 +456,11 @@ void log_script_op_error(const char *op)
  */
 void log_script_parse_footer(const char *file, int line, const char *buf)
 {
+#ifdef USE_DEBUGGER
+	if (dbg_get_parse_error_count() > 0)
+		return;
+#endif
+
 	line++;
 	if (is_english_mode()) {
 		log_error("> Script format error: %s:%d\n"
@@ -996,11 +1003,11 @@ void log_inform_translated_commands(void)
 	if (is_english_mode()) {
 		log_info("Invalid commands were translated to messages "
 			 "that start with \'!\'.\n"
-			 "You can search them by a button.\n");
+			 "You can search them by a menu.\n");
 	} else {
 		log_info(U8("エラーを含むコマンドが'!'で始まるメッセージに")
 			 U8("変換されました。\n")
-			 U8("エラーはボタンで検索できます。\n"));
+			 U8("エラーはメニューから検索できます。\n"));
 	}
 }
 

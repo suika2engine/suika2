@@ -562,25 +562,25 @@ bool has_startup_file(void);
 int get_expanded_line_num(void);
 
 /* 指定した行番号以降の最初のコマンドインデックスを取得する */
-int get_command_index_from_line_number(int line);
+int get_command_index_from_line_num(int line);
 
 /* 指定した行番号の行全体を取得する */
 const char *get_line_string_at_line_num(int line);
 
-/*  デバッグ用に1コマンドだけ書き換える */
-bool update_command(int index, const char *cmd_str);
-
 /* エラー時に@コマンドを'!'で始まるメッセージに変換する */
-void translate_failed_command_to_message(int index);
+void translate_command_to_message_for_runtime_error(int index);
 
 /* デバッグ用の仮のスクリプトをロードする */
 bool load_debug_script(void);
 
-/* スクリプトの行をアップデートする */
-bool update_script_line(int line, const char *text, const char *new_line);
+/* スクリプトの行を更新する */
+bool update_script_line(int line, const char *text);
 
 /* スクリプトの行を削除する */
-void delete_script_line(int line);
+bool delete_script_line(int line);
+
+/* スクリプトを保存する */
+bool save_script(void);
 
 #endif /* USE_DEBUGGER */
 
