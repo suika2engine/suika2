@@ -123,6 +123,8 @@ static VOID RichEdit_SetSelectedRange(int nLineStart, int nLineLen);
 static int RichEdit_GetCursorLine(void);
 static wchar_t *RichEdit_GetText(void);
 static VOID RichEdit_SetTextFormatAll(void);
+static VOID RichEdit_SetFontAll(void);
+static VOID RichEdit_ClearBackgroundColorAll(void);
 static VOID RichEdit_SetTextColorForAllLines(void);
 static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR, int nLineStartCRLF, int nLineLen);
 static VOID RichEdit_SetTextColorForCursorLine(void);
@@ -1562,10 +1564,12 @@ void on_change_exec_position(bool script_changed)
 
 	/* 実行中のスクリプトファイルが変更されたとき、リッチエディットにテキストを設定する */
 	if (script_changed)
+	{
 		RichEdit_UpdateTextFromScriptModel();
+		RichEdit_SetTextFormatAll();
+	}
 
-	/* 実行中の行に基づいてリッチエディットのハイライトを行う*/
-	RichEdit_SetTextFormatAll();
+	RichEdit_SetBackgroundColorForExecuteLine();
 
 	/* 変数の情報を更新する */
 	if(check_variable_updated() || script_changed)
@@ -1778,21 +1782,39 @@ static wchar_t *RichEdit_GetText(void)
 /* リッチエディットの書式をすべて更新する */
 static VOID RichEdit_SetTextFormatAll(void)
 {
-	CHARFORMAT2W cf;
-
-	/* 全体の書式をクリアして、背景を白にする */
-	memset(&cf, 0, sizeof(cf));
-	cf.cbSize = sizeof(cf);
-	cf.dwMask = CFM_BACKCOLOR;
-	cf.crBackColor = 0x00ffffff;
-	wcscpy(&cf.szFaceName[0], L"BIZ UDゴシック");
-	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
+	/* 全体の書式をクリアする */
+	RichEdit_SetFontAll();
+	RichEdit_ClearBackgroundColorAll();
 
 	/* 行の内容により書式を設定する */
 	RichEdit_SetTextColorForAllLines();
 
 	/* 実行行の背景色を設定する */
 	RichEdit_SetBackgroundColorForExecuteLine();
+}
+
+/* リッチエディットのフォントを設定する */
+static VOID RichEdit_SetFontAll(void)
+{
+	CHARFORMAT2W cf;
+
+	memset(&cf, 0, sizeof(cf));
+	cf.cbSize = sizeof(cf);
+	cf.dwMask = CFM_FACE;
+	wcscpy(&cf.szFaceName[0], L"BIZ UDゴシック");
+	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
+}
+
+/* リッチエディットのテキスト全体の背景色をクリアする */
+static VOID RichEdit_ClearBackgroundColorAll(void)
+{
+	CHARFORMAT2W cf;
+
+	memset(&cf, 0, sizeof(cf));
+	cf.cbSize = sizeof(cf);
+	cf.dwMask = CFM_BACKCOLOR;
+	cf.crBackColor = 0x00ffffff;
+	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
 }
 
 /* リッチエディットのテキストすべてについて、行の内容により色付けを行う */
@@ -1926,6 +1948,9 @@ static VOID RichEdit_SetTextColorForCursorLine(void)
 static VOID RichEdit_SetBackgroundColorForExecuteLine(void)
 {
 	int nLine, nLineStart, nLineLen;
+
+	/* 全体の背景色をクリアする */
+	RichEdit_ClearBackgroundColorAll();
 
 	/* 実行行を取得する */
 	nLine = get_expanded_line_num();
