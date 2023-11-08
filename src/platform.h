@@ -430,9 +430,19 @@ int get_changed_exec_line(void);
 void on_change_running_state(bool running, bool request_stop);
 
 /*
+ * Update UI elements when the main engine changes the script to be executed.
+ */
+void on_load_script(void);
+
+/*
  * Update UI elements when the main engine changes the command position to be executed.
  */
-void on_change_exec_position(bool is_script_loaded);
+void on_change_position(void);
+
+/*
+ * Update UI elements when the main engine changes variables.
+ */
+void on_update_variable(void);
 
 /*
  * The following are not used in the newer versions of Suika2 Pro:

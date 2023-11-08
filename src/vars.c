@@ -34,8 +34,6 @@ static char *name_var_tbl[NAME_VAR_SIZE];
 static char expand_variable_buf[4096];
 
 #ifdef USE_DEBUGGER
-static bool flag_var_updated;
-static int updated_index;
 static bool is_var_changed[LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE];
 #endif
 
@@ -58,7 +56,6 @@ void init_vars(void)
 	}
 
 #ifdef USE_DEBUGGER
-	flag_var_updated = false;
 	clear_variable_changed();
 #endif
 }
@@ -101,9 +98,8 @@ void set_variable(int index, int32_t val)
 #ifdef USE_DEBUGGER
 	if (index >= VAR_SIZE)
 		return;
-	flag_var_updated = true;
-	updated_index = index;
 	is_var_changed[index] = true;
+	on_update_variable();
 #endif
 
 	if (index < GLOBAL_VAR_OFFSET)
@@ -308,24 +304,6 @@ int32_t *get_global_variables_pointer(void)
  * デバッガ用
  */
 #ifdef USE_DEBUGGER
-/*
- * 変数の値が更新されたかをチェックする
- */
-bool check_variable_updated(void)
-{
-	bool ret = flag_var_updated;
-	flag_var_updated = false;
-	return ret;
-}
-
-/*
- * 更新された変数のインデックスを取得する
- */
-int get_updated_variable_index(void)
-{
-	return updated_index;
-}
-
 /*
  * 変数が初期値から更新されているかを調べる
  */

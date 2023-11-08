@@ -146,7 +146,7 @@ void init_game_loop(void)
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
-	on_change_exec_position(true);
+	on_change_position();
 #endif
 }
 
@@ -203,8 +203,8 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 				if (dbg_runtime_error) {
 					/* 実行時エラーによる終了をキャンセルする */
 					dbg_runtime_error = false;
-					on_change_exec_position(true);
 					dbg_stop();
+					on_change_position();
 					return true;
 				} else {
 					/* スタートアップファイル指定あり */
@@ -213,7 +213,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 
 					/* 最後まで実行した */
 					dbg_stop();
-					on_change_exec_position(false);
+					on_change_position();
 					return true;
 				}
 				return false;
@@ -309,7 +309,8 @@ static bool pre_dispatch(void)
 	/* 停止中で、コマンドが更新された場合 */
 	if (is_command_updated()) {
 		update_script_line(get_command_index(), get_updated_command());
-		on_change_exec_position(true);
+		on_load_script();
+		on_change_position();
 	}
 
 	/* 停止中で、実行中のスクリプトがリロードされた場合 */

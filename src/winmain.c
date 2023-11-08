@@ -1480,7 +1480,7 @@ static void OnCommand(WPARAM wParam, UNUSED(LPARAM lParam))
 	switch(nID)
 	{
 	case ID_QUIT:
-		PostMessage(hWndMain,WM_CLOSE, 0, 0);
+		PostMessage(hWndMain, WM_CLOSE, 0, 0);
 		break;
 #ifndef USE_DEBUGGER
 	case ID_FULLSCREEN:

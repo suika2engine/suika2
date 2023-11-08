@@ -836,7 +836,8 @@ bool quick_load(void)
 
 #ifdef USE_DEBUGGER
 	clear_variable_changed();
-	on_change_exec_position(true);
+	on_load_script();
+	on_change_position();
 #endif
 
 	load_flag = true;
@@ -886,7 +887,8 @@ bool execute_load(int index)
 	
 #ifdef USE_DEBUGGER
 	clear_variable_changed();
-	on_change_exec_position(true);
+	on_load_script();
+	on_change_position();
 #endif
 
 	load_flag = true;

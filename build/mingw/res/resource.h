@@ -38,3 +38,4 @@
 #define ID_EXPORT_ANDROID               165
 #define ID_EXPORT_IOS                   166
 #define ID_FULLSCREEN                   167
+#define ID_RICHEDIT                     168
