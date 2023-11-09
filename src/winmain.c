@@ -125,9 +125,6 @@ static HBITMAP hBitmap;
 static HGLRC hGLRC;
 static HMENU hMenu;
 
-/* アクセラレータ */
-static HACCEL hAccel;
-
 /* イメージオブジェクト */
 static struct image *BackImage;
 
@@ -751,9 +748,6 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	/* アクセラレータをロードする */
-	hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL));
-
 	/* デバッガパネルを作成する */
 	if (!InitDebuggerPanel(hWndMain, hWndGame, WndProc))
 		return FALSE;
@@ -1101,11 +1095,8 @@ static BOOL SyncEvents(void)
 		if (PretranslateForDebugger(&msg))
 			continue;
 #endif
-		if (!TranslateAccelerator(msg.hwnd, hAccel, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	/* イベント処理にかかった時間をストップウォッチから除外するようにする */

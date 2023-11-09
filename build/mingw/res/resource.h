@@ -12,7 +12,7 @@
 // Next default values for new objects
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        168
+#define _APS_NEXT_RESOURCE_VALUE        210
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110
@@ -39,3 +39,25 @@
 #define ID_EXPORT_IOS                   166
 #define ID_FULLSCREEN                   167
 #define ID_RICHEDIT                     168
+#define ID_CMD_MESSAGE			180
+#define ID_CMD_SERIF			181
+#define ID_CMD_BG			182
+#define ID_CMD_BG_ONLY			183
+#define ID_CMD_CH			184
+#define ID_CMD_CHSX			185
+#define ID_CMD_BGM			186
+#define ID_CMD_BGM_STOP			187
+#define ID_CMD_VOL_BGM			188
+#define ID_CMD_SE			189
+#define ID_CMD_SE_STOP			190
+#define ID_CMD_VOL_SE			191
+#define ID_CMD_VIDEO			192
+#define ID_CMD_SHAKE_H			193
+#define ID_CMD_SHAKE_V			194
+#define ID_CMD_CHOOSE_3			195
+#define ID_CMD_CHOOSE_2			196
+#define ID_CMD_CHOOSE_1			197
+#define ID_CMD_GUI			198
+#define ID_CMD_CLICK			199
+#define ID_CMD_WAIT			200
+#define ID_CMD_LOAD			201

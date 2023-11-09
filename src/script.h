@@ -573,6 +573,9 @@ void translate_command_to_message_for_runtime_error(int index);
 /* デバッグ用の仮のスクリプトをロードする */
 bool load_debug_script(void);
 
+/* スクリプトの行を挿入する */
+bool insert_script_line(int line, const char *text);
+
 /* スクリプトの行を更新する */
 bool update_script_line(int line, const char *text);
 
@@ -582,8 +585,8 @@ bool delete_script_line(int line);
 /* スクリプトを保存する */
 bool save_script(void);
 
-/* 文字列がコマンド名であるかを返す */
-bool is_command_name(const char *name);
+/* コマンド名からコマンドタイプを返す */
+int get_command_type_from_name(const char *name);
 
 #endif /* USE_DEBUGGER */
 

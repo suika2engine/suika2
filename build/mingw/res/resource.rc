@@ -23,26 +23,6 @@ IDI_SMALL               ICON    DISCARDABLE     "small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Accelerators
-//
-
-#if defined(USE_DEBUGGER)
-IDR_ACCEL ACCELERATORS
-BEGIN
-	"^o", ID_OPEN
-	"^s", ID_SAVE
-	"^q", ID_QUIT
-	"^r", ID_RESUME
-	"^n", ID_NEXT
-	"^p", ID_PAUSE
-	"^e", ID_ERROR
-	"^w", ID_VARS
-	"^v", ID_VERSION
-END
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Manifest
 //
 

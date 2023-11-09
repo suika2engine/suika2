@@ -2694,18 +2694,41 @@ bool load_debug_script(void)
 }
 
 /*
+ * スクリプトの行を挿入する
+ */
+bool insert_script_line(int line, const char *text)
+{
+	assert(line <= cur_expanded_line);
+	assert(text != NULL);
+
+	if (text[0] != '#' && text[0] != '\0') {
+		/* コマンドを挿入する */
+		if (!insert_command(line, text))
+			return false;
+	} else {
+		/* コメントを挿入する */
+		insert_comment(line, text);
+	}
+
+	return true;
+}
+
+/*
  * スクリプトの行をアップデートする
- *  - new_lineは改行文字の挿入時に利用する
  */
 bool update_script_line(int line, const char *text)
 {
 	int cmd_index;
-	bool err;
 
 	assert(line < cur_expanded_line);
 	assert(text != NULL);
 
-	err = false;
+	/*
+	 * TODO:
+	 * src: comment, command
+	 * dst: comment, command
+	 * などの組み合わせにして、単純化できそう
+	 */
 
 	/* 行番号line以降の最初のコマンドを探す */
 	cmd_index = get_command_index_from_line_num(line);
@@ -2715,10 +2738,10 @@ bool update_script_line(int line, const char *text)
 		/* 行番号lineのちょうどその位置にコマンドがあるか */
 		if (cmd[cmd_index].expanded_line == line) {
 			/* あるので、そのコマンドをアップデートする */
-			if (text != NULL && strcmp(cmd[cmd_index].text, text) != 0) {
+			if (strcmp(cmd[cmd_index].text, text) != 0) {
 				if (text[0] != '#' && text[0] != '\0') {
 					if (!replace_command_by_command(cmd_index, text))
-						err = true;
+						return false;
 				} else {
 					replace_command_by_comment(cmd_index, text);
 				}
@@ -2727,7 +2750,7 @@ bool update_script_line(int line, const char *text)
 			/* ないが、行番号line+1以降にコマンドがある */
 			if (text[0] != '#' && text[0] != '\0') {
 				if (!replace_comment_by_command(line, text))
-					err = true;
+					return false;
 			} else {
 				replace_comment_by_comment(line, text);
 			}
@@ -2737,15 +2760,12 @@ bool update_script_line(int line, const char *text)
 		if (text[0] != '#' && text[0] != '\0') {
 			/* コマンドを挿入する */
 			if (!insert_command(line, text))
-				err = true;
+				return false;
 		} else {
 			/* コメントを挿入する */
 			insert_comment(line, text);
 		}
 	}
-
-	if (err)
-		return false;
 
 	return true;
 }
@@ -2955,6 +2975,8 @@ static void insert_comment(int line, const char *text)
 			cmd[i].expanded_line++;
 		}
 	}
+
+	cur_expanded_line++;
 }
 
 /* コマンドを挿入する */
@@ -2974,16 +2996,20 @@ static bool insert_command(int line, const char *text)
 	}
 
 	/* 行番号line+1以降のコメントについて、1つずつ後ろにずらす */
-	for (i = SCRIPT_LINE_SIZE - 1; i > line + 1; i--)
+	for (i = SCRIPT_LINE_SIZE - 1; i > line; i--)
 		comment_text[i] = comment_text[i - 1];
 
 	/* 行番号line以降の最初のコマンドを探す */
 	cmd_index = get_command_index_from_line_num(line);
 	if (cmd_index != -1) {
 		/* コマンドがある場合、cmd_index以降のコマンドを1つずつ後ろにずらす */
-		for (i = SCRIPT_CMD_SIZE - 1; i > cmd_index; i--)
+		for (i = cmd_size; i > cmd_index; i--) {
 			cmd[i] = cmd[i - 1];
+			cmd[i].line++;
+			cmd[i].expanded_line++;
+		}
 		memset(&cmd[cmd_index], 0, sizeof(struct command));
+		cmd_size++;
 	} else {
 		/* コマンドがない場合、末尾に追加する */
 		cmd_index = cmd_size;
@@ -3120,14 +3146,15 @@ bool save_script(void)
 	return true;
 }
 
-/* 文字列がコマンド名であるかを返す */
-bool is_command_name(const char *name)
+/* コマンド名からコマンドタイプを返す */
+int get_command_type_from_name(const char *name)
 {
 	int i;
 
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++)
 		if (strcmp(name, insn_tbl[i].str) == 0)
-			return true;
+			return insn_tbl[i].type;
+
 	return -1;
 }
 
