@@ -3130,10 +3130,12 @@ bool save_script(void)
 				out = fputs(line, fp);
 			}
 		} else {
-			if (strcmp(line, USING_END) == 0)
-				in_using = false;
-			else
-				out = fputs(line, fp);
+            if (strcmp(line, USING_END) == 0) {
+                in_using = false;
+                out = 1;
+            } else {
+                out = fputs(line, fp);
+            }
 		}
 		lf = fputs("\n", fp);
 		if(out < 0 || lf < 0) {

@@ -584,10 +584,11 @@ BOOL initDebugWindow(void)
     [debugWindowController showWindow:debugWindowController];
 
     // ビューを更新する
-    set_running_state(false, false);
+    on_change_running_state(false, false);
 
     // デバッグ情報表示を更新する
-    update_debug_info(true);
+    on_load_script();
+    on_change_position();
 
 	return YES;
 }
