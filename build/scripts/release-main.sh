@@ -168,6 +168,17 @@ cp suika-pro.exe $RELEASETMP/
 cd ../
 
 #
+# Build suika-studio.exe
+#
+echo "Building suika-studio.exe"
+cd mingw-studio
+rm -f *.o
+if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
+make -j24
+cp suika-studio.exe $RELEASETMP/
+cd ../
+
+#
 # Build suika-capture.exe
 #
 echo "Building suika-capture.exe"
@@ -259,7 +270,7 @@ if [ "$DO_SIGN" -eq "1" ]; then
     echo "Signing the Windows apps on Windows.";
     SAVE_WD=`pwd`;
     cd "$RELEASETMP";
-    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe | tee;
+    $CMDEXE /C start "" "`wslpath -w "$SIGNTOOL"`" sign /n "$SIGNATURE" /td sha256 /fd sha256 /tr http://time.certum.pl/ /v suika.exe suika-pro.exe suika-studio.exe suika-capture.exe suika-replay.exe suika-64.exe suika-arm64.exe | tee;
     cd "$SAVE_WD";
 else
     echo "Skipping code signing for Windows binaries because we are not running on Windows.";
@@ -290,14 +301,9 @@ if [ -z "`uname | grep Darwin`" ]; then
 	echo "Retrying suika-pro.app due to a codesign issue...";
     done;
 
-    # Build Kirara helpers
-    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2/build/macos && make helpers";
-
     # Copy results
     scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac.dmg" "$RELEASETMP/";
     scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac-pro.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac.zip" "$RELEASETMP/";
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/pack.mac" "$RELEASETMP/";
     #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac-capture.dmg" "$RELEASETMP/";
     #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac-replay.dmg" "$RELEASETMP/";
 else
@@ -306,23 +312,10 @@ else
     make all-macos;
     cp mac.dmg "$RELEASETMP/";
     cp mac-pro.dmg "$RELEASETMP/";
-    cp mac.zip "$RELEASETMP/";
-    cp pack.mac "$RELEASETMP/";
     #cp mac-capture.dmg "$RELEASETMP/";
     #cp mac-replay.dmg "$RELEASETMP/";
     cd build;
 fi
-
-#
-# Create a helper zip for Kirara.
-#  - This file is used by 'tools/kirara/apps/update-suika2.sh'
-#
-echo "Creating a helper zip for Kirara."
-
-SAVE_WD=`pwd`
-cd "$RELEASETMP"
-zip kirara-helper-current.zip suika.exe suika-pro.exe mac.dmg mac.zip pack.mac index.html index.js index.wasm
-cd "$SAVE_WD"
 
 #
 # Make a main release file.
@@ -351,6 +344,7 @@ cp -v ../doc/readme-en.html suika2/README-English.html
 mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
 cp -v "$RELEASETMP/suika.exe" suika2/
 cp -v "$RELEASETMP/suika-pro.exe" suika2/
+cp -v "$RELEASETMP/suika-studio.exe" suika2/
 cp -v "$RELEASETMP/mac.dmg" suika2/
 cp -v "$RELEASETMP/mac-pro.dmg" suika2/
 mkdir suika2/tools
@@ -383,12 +377,10 @@ echo "Uploading files."
 
 # Copy the release files to FTPLOCAL directory.
 cp "$RELEASETMP/suika2-$VERSION.zip" $FTP_LOCAL/
-cp "$RELEASETMP/kirara-helper-current.zip" $FTP_LOCAL/
 
 # Upload.
 if [ "$DO_UPLOAD" -eq "1" ]; then
     curl -T "$RELEASETMP/suika2-$VERSION.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.zip" && sleep 5;
-    curl -T "$RELEASETMP/kirara-helper-current.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/kirara-helper-current.zip";
 else
     echo "Skipped upload.";
     exit 0;

@@ -827,7 +827,7 @@ bool move_to_command_index(int index)
 	cur_index = index;
 
 #ifdef USE_DEBUGGER
-#ifndef USE_DEBUGGER_V2
+#ifndef USE_EDITOR
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();

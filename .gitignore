@@ -12,6 +12,7 @@ game/sav
 # Top level objects
 suika.exe
 suika-pro.exe
+suika-studio.exe
 suika-capture.exe
 suika-replay.exe
 suika-64.exe
@@ -37,19 +38,13 @@ build/mingw-pro/libroot
 build/mingw-pro/suika-pro.exe
 build/mingw-pro/game
 
-# mingw-pro (Windows 32-bit debug suika-pro.exe)
-build/mingw-pro-dbg/*.o
-build/mingw-pro-dbg/libroot
-build/mingw-pro-dbg/suika-pro.exe
-build/mingw-pro-dbg/game
+# mingw-studio (Windows 32-bit suika.exe)
+build/mingw-studio/*.o
+build/mingw-studio/libroot
+build/mingw-studio/suika-studio.exe
+build/mingw-studio/game
 
-# mingw-pro-64 (Windows 64-bit suika-pro.exe)
-build/mingw-pro-64/*.o
-build/mingw-pro-64/libroot
-build/mingw-pro-64/suika-pro.exe
-build/mingw-pro-64/game
-
-# mingw-capture (Windows 32-bit suika-captuer.exe)
+# mingw-capture (Windows 32-bit suika-capture.exe)
 build/mingw-capture/*.o
 build/mingw-capture/libroot
 build/mingw-capture/suika-capture.exe

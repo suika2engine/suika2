@@ -387,7 +387,7 @@ static inline void speak_text(UNUSED(const char *text)) { }
  *  - HAL-DBG is for debuggers and it cannot change script models
  *  - A script view is expected to be a list view that is not edited by a user
  */
-#ifdef USE_DEBUGGER
+#if defined(USE_DEBUGGER) || defined(USE_EDITOR)
 
 /*
  * Return whether the "continue" botton is pressed.
@@ -447,7 +447,7 @@ void on_update_variable(void);
 /*
  * The following are not used in the newer versions of Suika2 Pro:
  */
-#ifndef USE_EDITOR
+#if !defined(USE_EDITOR)
 /*
  * Return whether "current command string" is updated.
  */
@@ -464,7 +464,7 @@ const char *get_updated_command(void);
 bool is_script_reloaded(void);
 #endif
 
-#endif /* USE_DEBUGGER */
+#endif /* defined(USE_DEBUGGER) || defined(USE_EDITOR) */
 
 /***********************************************************************
  * HAL-CAP API                                                         *

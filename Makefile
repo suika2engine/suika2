@@ -99,7 +99,7 @@ setup:
 ##
 
 # A target for all Windows binaries.
-all-windows: windows windows-pro windows-64 windows-arm64 windows-capture windows-replay
+all-windows: windows windows-pro windows-studio windows-64 windows-arm64 windows-capture windows-replay
 
 # suika.exe (the main game engine for 32-bit Windows)
 windows:
@@ -114,6 +114,15 @@ windows:
 windows-pro:
 	@echo 'Building suika-pro.exe'
 	@cd build/mingw-pro && \
+	make libroot && \
+	make -j8 && \
+	make install && \
+	cd ../..
+
+# suika-studio.exe (the editor for 32-bit Windows)
+windows-studio:
+	@echo 'Building suika-studio.exe'
+	@cd build/mingw-studio && \
 	make libroot && \
 	make -j8 && \
 	make install && \

@@ -26,10 +26,10 @@ IDI_SMALL               ICON    DISCARDABLE     "small.ico"
 // Manifest
 //
 
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 CREATE_PROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "manifest.xml"
 #else
-CREATE_PROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "manifest-pro.xml"
+CREATE_PROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "manifest-hidpi.xml"
 #endif
 
 #ifdef APSTUDIO_INVOKED

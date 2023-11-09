@@ -15,7 +15,7 @@ WINDRES = i686-w64-mingw32-windres
 
 CPPFLAGS = \
 	-DUSE_DEBUGGER \
-	-DUSE_EDITOR_V2 \
+	-DUSE_EDITOR \
 	-D_WIN32_WINNT=0x0601 \
 	-I. \
 	-I../mingw/res \
@@ -96,7 +96,7 @@ OBJS = \
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
 %.o: ../mingw/res/%.rc
-	$(WINDRES) -DUSE_DEBUGGER $< $@
+	$(WINDRES) -DUSE_EDITOR $< $@
 
 #
 # Target

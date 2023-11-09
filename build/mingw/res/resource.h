@@ -62,3 +62,8 @@
 #define ID_CMD_CLICK			199
 #define ID_CMD_WAIT			200
 #define ID_CMD_LOAD			201
+#define ID_CHANGE_LINE                  210
+#define ID_UPDATE_COMMAND		211
+#define ID_RESET_COMMAND		212
+#define ID_RELOAD			213
+#define ID_CHANGE_SCRIPT		214

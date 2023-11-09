@@ -172,6 +172,22 @@ This method will build a Linux version of Suika2 Pro using Qt6.
   make linux-pro
   ```
 
+## Suika2 Studio for Windows
+This method will build a Suika2 Studio for Windows binary on WSL2, Linux or macOS.
+
+* Prerequisite
+  * Use WSL2, Ubuntu or macOS
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make setup
+  ```
+
+* Build
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make windows-studio
+  ```
+
 ## Suika2 for Raspberry Pi (main engine)
 This method will build a Raspberry Pi app.
 

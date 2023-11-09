@@ -36,7 +36,7 @@ bool load_command(void)
 	/* 既読フラグをセーブする */
 	save_seen();
 
-#ifdef USE_DEBUGGER_V2
+#ifdef USE_EDITOR
 	save_script();
 #endif
 

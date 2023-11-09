@@ -15,7 +15,6 @@ WINDRES = i686-w64-mingw32-windres
 
 CPPFLAGS = \
 	-DUSE_DEBUGGER \
-	-DUSE_DEBUGGER_V2 \
 	-D_WIN32_WINNT=0x0601 \
 	-I. \
 	-I../mingw/res \
