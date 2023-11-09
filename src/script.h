@@ -582,6 +582,9 @@ bool delete_script_line(int line);
 /* スクリプトを保存する */
 bool save_script(void);
 
+/* 文字列がコマンド名であるかを返す */
+bool is_command_name(const char *name);
+
 #endif /* USE_DEBUGGER */
 
 #endif

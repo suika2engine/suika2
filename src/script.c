@@ -2062,7 +2062,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 
 	/* コマンドのタイプを取得する */
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
-		if (strcasecmp(c->param[0], insn_tbl[i].str) == 0) {
+		if (strcmp(c->param[0], insn_tbl[i].str) == 0) {
 			c->type = insn_tbl[i].type;
 			min = insn_tbl[i].min;
 			max = insn_tbl[i].max;
@@ -3118,6 +3118,17 @@ bool save_script(void)
 	fclose(fp);
 
 	return true;
+}
+
+/* 文字列がコマンド名であるかを返す */
+bool is_command_name(const char *name)
+{
+	int i;
+
+	for (i = 0; i < (int)INSN_TBL_SIZE; i++)
+		if (strcmp(name, insn_tbl[i].str) == 0)
+			return true;
+	return -1;
 }
 
 #endif /* USE_DEBUGGER */

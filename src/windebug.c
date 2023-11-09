@@ -43,7 +43,7 @@
 #define COLOR_LABEL			0x00ff0000
 #define COLOR_ERROR			0x000000ff
 #define COLOR_COMMAND_NAME	0x00ff0000
-#define COLOR_PARAM_NAME	0x00808080
+#define COLOR_PARAM_NAME	0x00d0e0d0
 #define COLOR_NEXT_EXEC		0x00ffc0c0
 #define COLOR_CURRENT_EXEC	0x00c0c0ff
 
@@ -1913,6 +1913,7 @@ static VOID RichEdit_SetTextColorForCursorLine(void)
 /* 特定の行のテキスト色を設定する */
 static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR, int nLineStartCRLF, int nLineLen)
 {
+	wchar_t wszCommandName[1024];
 	const wchar_t *pCommandStop, *pParamStart, *pParamStop;
 	int nParamLen;
 
@@ -1944,38 +1945,46 @@ static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR,
 	/* コマンド行を処理する */
 	else if (pText[nLineStartCRLF] == L'@')
 	{
-		/* コマンド名部分を選択してテキスト色を変更する */
+		/* コマンド名部分を抽出する */
 		pCommandStop = wcswcs(pText + nLineStartCRLF, L" ");
 		nParamLen = pCommandStop != NULL ?
 			(int)(pCommandStop - (pText + nLineStartCRLF)) :
 			(int)wcslen(pText + nLineStartCRLF);
-		RichEdit_SetSelectedRange(nLineStartCR, nParamLen);
-		RichEdit_SetTextColorForSelectedRange(COLOR_COMMAND_NAME);
-
-		/* 引数名を灰色にする */
-		pParamStart = pText + nLineStartCRLF + nParamLen;
-		while ((pParamStart = wcswcs(pParamStart, L" ")) != NULL)
+		wcsncpy(wszCommandName, &pText[nLineStartCRLF],
+				(size_t)nParamLen < sizeof(wszCommandName) / sizeof(wchar_t) ?
+				(size_t)nParamLen :
+				sizeof(wszCommandName) / sizeof(wchar_t));
+		if (is_command_name(conv_utf16_to_utf8(wszCommandName)))
 		{
-			int nNameStart;
-			int nNameLen;
+			/* コマンド名のテキストに色を付ける */
+			RichEdit_SetSelectedRange(nLineStartCR, nParamLen);
+			RichEdit_SetTextColorForSelectedRange(COLOR_COMMAND_NAME);
 
-			/* 次の行以降の' 'にヒットしている場合はループから抜ける */
-			if (pParamStart >= pText + nLineStartCRLF + nLineLen)
-				break;
+			/* 引数名を灰色にする */
+			pParamStart = pText + nLineStartCRLF + nParamLen;
+			while ((pParamStart = wcswcs(pParamStart, L" ")) != NULL)
+			{
+				int nNameStart;
+				int nNameLen;
 
-			/* ' 'の次の文字を開始位置にする */
-			pParamStart++;
+				/* 次の行以降の' 'にヒットしている場合はループから抜ける */
+				if (pParamStart >= pText + nLineStartCRLF + nLineLen)
+					break;
 
-			/* '='を探す。次の行以降にヒットした場合はループから抜ける */
-			pParamStop = wcswcs(pParamStart, L"=");
-			if (pParamStop == NULL || pParamStop >= pText + nLineStartCRLF + nLineLen)
-				break;
+				/* ' 'の次の文字を開始位置にする */
+				pParamStart++;
 
-			/* 引数名部分を選択してテキスト色を変更する */
-			nNameStart = nLineStartCR + (pParamStart - (pText + nLineStartCRLF));
-			nNameLen = pParamStop - pParamStart;
-			RichEdit_SetSelectedRange(nNameStart, nNameLen);
-			RichEdit_SetTextColorForSelectedRange(COLOR_PARAM_NAME);
+				/* '='を探す。次の行以降にヒットした場合はループから抜ける */
+				pParamStop = wcswcs(pParamStart, L"=");
+				if (pParamStop == NULL || pParamStop >= pText + nLineStartCRLF + nLineLen)
+					break;
+
+				/* 引数名部分を選択してテキスト色を変更する */
+				nNameStart = nLineStartCR + (pParamStart - (pText + nLineStartCRLF));
+				nNameLen = pParamStop - pParamStart + 1;
+				RichEdit_SetSelectedRange(nNameStart, nNameLen);
+				RichEdit_SetTextColorForSelectedRange(COLOR_PARAM_NAME);
+			}
 		}
 	}
 }
