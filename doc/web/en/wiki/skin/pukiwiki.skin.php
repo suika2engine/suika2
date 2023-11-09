@@ -139,15 +139,14 @@
 			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
 				<h5>Links</h5>
 				<ul class="list-unstyled mb-0">
-					<li><a href="https://github.com/suika2engine">GitHub</a></li>
+					<li><a href="https://github.com/suika2engine/suika2">GitHub</a></li>
 				</ul>
 			</div>
 		</div>
 	</div>
 	<div class="text-center mt-5 ">
-		Copyright &copy; 2023 Keiichi Tabata
-		and <a href="https://github.com/suika2engine">the Suika2 Development Team</a>.
-		All rights reserved.</div>
+		Copyright &copy; 2001-2023, Keiichi Tabata. All rights reserved.
+	</div>
 </footer>
 <script src="/css/darkmode.js"></script>
 <!-- END-EN-FOOTER -->
