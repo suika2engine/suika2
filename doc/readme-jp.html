@@ -44,12 +44,16 @@
 <body>
 
 <h1>Suika 2/14</h1>
-<p>Copyright (c) 2023 the Suika2 Development Team. All rights reserved.</p>
+<p>Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.</p>
 
 <h2>このソフトについて</h2>
 <ul>
-  <li>ビジュアルノベル開発ツールです</li>
-  <li>Windows/Webブラウザ/Mac/Android/iOS/Linuxで動作します</li>
+  <li>ビジュアルノベルの開発ツールです</li>
+  <li>開発はWindows/macOS/Linuxで行えます</li>
+  <li>作成したゲームの動作環境はWindows/macOS/Webブラウザ/iOS/Android/Linuxです</li>
+  <li>商用実績があるのはWindows/iOS/Androidです</li>
+  <li>スマートフォンはPCより性能が低いですが、それでも確実に移植して動作可能とするため、演出を控え気味にしてあります</li>
+  <li>近いうちに家庭用ゲーム機へ公式移植の予定です</li>
   <li>ユーザ参加型で開発しておりますので、ぜひバグ報告や機能要望をお願いいたします</li>
 </ul>
 
@@ -57,7 +61,7 @@
 <ul>
   <li>Windows
     <ul>
-      <li>Intel Core 2 Duo 以降 / Arm 64bit</li>
+      <li>Intel Core 2 Duo 以降 (32bit/64bit両対応) / Arm 64bit</li>
       <li>Windows XP</li>
       <li>Windows Vista</li>
       <li>Windows 7</li>
@@ -65,6 +69,7 @@
       <li>Windows 8.1</li>
       <li>Windows 10</li>
       <li>Windows 11</li>
+			<li>ゲームリリース時には、2023年11月現在のMicrosoft様のサポート対象であるWindows 10以降を動作環境として記載することをおすすめします</li>
     </ul>
   </li>
   <li>Mac
@@ -76,16 +81,20 @@
       <li>macOS 11 Big Sur</li>
       <li>macOS 12 Monterey</li>
       <li>macOS 13 Ventura</li>
+      <li>macOS 14 Sonoma</li>
     </ul>
   </li>
 </ul>
 
 <h2>連絡先</h2>
 <ul>
-  <li>大変活発に開発しております。何でもご連絡ください</li>
-  <li>チャット <a href="https://discord.gg/ZmvXxE8GFg">Discord サーバ</a></li>
-  <li>メール <a href="mailto:tabata.keiichi@gmail.com">tabata.keiichi@gmail.com</a></li>
-  <li>Webサイト <a href="https://suika2.com/">https://suika2.com/</a></li>
+  <li>活発に開発しておりますので、気軽にご連絡いただけるとうれしいです</li>
+  <li>Discord (推奨) <a href="https://discord.gg/ZmvXxE8GFg">Suika2 サーバ</a></li>
+  <li>Microsoft Teams コミュニティ <a href="https://teams.live.com/l/community/FBAR5njlCo_27rKWAI">Suika2</a></li>
+  <li>Microsoft Teams の個人連絡先 keiichi.tabata@outlook.com</li>
+  <li>メール <a href="mailto:keiichi.tabata@outlook.com">keiichi.tabata@outlook.com</a></li>
+	<li>X/Twitter <a href="https://twitter.com/ktabata_suika2">@ktabata_suika2</a></li>
+  <li>公式Webサイト <a href="https://suika2.com/">https://suika2.com/</a></li>
 </ul>
 
 <h2>インストール/アンインストール</h2>
@@ -100,6 +109,7 @@
     <ul>
       <li>実際のゲームを起動する場合 <code>suika.exe</code> を開いてください</li>
       <li>開発用のツールを起動する場合 <code>suika-pro.exe</code> を開いてください</li>
+      <li>開発用のツール(ベータ版)を起動する場合 <code>suika-studio.exe</code> を開いてください</li>
       <li>セキュリティ警告が表示された場合、「詳細情報」をクリックしてから「実行」をクリックしてください</li>
     </ul>
   </li>
@@ -125,12 +135,11 @@
 
 <h2>ゲームの作り方</h2>
 <ul>
-  <li><a href="https://suika2.com/doc.html">https://suika2.com/doc.html</a> をご覧ください</li>
-  <li><a href="https://suika2.com/doc.html">https://suika2.com/wiki/</a> もあります</li>
+  <li><a href="https://suika2.com/">公式サイト</a> をご覧ください</li>
 </ul>
 
 <h2>サンプルゲームのクレジット</h2>
-<p>素晴しいクリエイタの皆様にご参加いただいております。(敬称略)</p>
+<p>才能に溢れる素晴しいクリエイタの皆様にご参加いただいております。(敬称略)</p>
 <ul>
   <li>キャラクタ: みどり
 		<ul>
@@ -146,13 +155,13 @@
 	</li>
   <li>音楽
 		<ul>
-			<li>BGM: 80 (LUXION SOFT)</li>
+			<li>BGM: 80</li>
 			<li>BGM: krol (ymurata58)</li>
 		</ul>
 	</li>
 	<li>美術
 		<ul>
-			<li>GUI: MaxMorgan (the Suika2 Development Team)</li>
+			<li>GUI: MaxMorgan</li>
 			<li>タイトル: heath</li>
 			<li>背景: つる</li>
 			<li>LUXIONロゴ: Ｂecta (chopin1810liszt)</li>
@@ -163,38 +172,28 @@
 <h2>ライセンス</h2>
 <ul>
   <li>アプリ本体(実行ファイル)はMITライセンスです</li>
-  <li>利用ライブラリのライセンス表示は実行ファイルに埋め込んであるため不要です (zlib, libpng, jpeg, libogg, libvorbis, freetype)</li>
-  <li>サンプルゲームのフォントは再配布可能ですが別ライセンスですので、 <a href="font/LICENSE">font/LICENSE</a> ファイルの内容を作品のREADMEに表示してください</li>
-  <li>サンプルゲームの音源のうちBGMの蝉時雨と波の音は二次利用できません。詳細は <a href="bgm/credit.txt">bgm/credit.txt</a> をご覧ください</li>
-</ul>
-
-<h2>The List of The Contributors on GitHub</h2>
-<ul>
-  <li><code>ktabata</code> Lead Developer, Main Programmer</li>
-  <li><code>innocentvoice</code> Maintainer, Community Moderator</li>
-  <li><code>heya-kyou</code> Kirara, macOS, Documentation</li>
-  <li><code>moyashi170607</code> Programmer</li>
-  <li><code>minirop</code> Programmer</li>
-  <li><code>MaxMorgan</code> GUI Designer</li>
-  <li><code>MATSUNO Seiji</code> Quality Management</li>
-  <li><code>DevSeed</code> Switch</li>
-  <li><code>Cvar1984</code> Android</li>
-  <li><code>RaZZlom</code> Android</li>
-  <li><code>2439905184</code> Chinese, Android, CI</li>
-  <li><code>sherlach</code> English</li>
-  <li><code>Maikuolan</code> English</li>
-  <li>...and here's your very own placeholder!</li>
+  <li>利用ライブラリのライセンス表示は実行ファイルに埋め込んであるため不要です (zlib, libpng, jpeg, bzip2, libwebp, libogg, libvorbis, freetype)</li>
+  <li>サンプルゲームのフォントは再配布可能ですが別ライセンスですので、 <a href="font/LICENSE">font/LICENSE</a> ファイルの内容を作品のREADMEやエンドロールで表示してください</li>
+  <li>サンプルゲームの音源のうちBGMの「蝉の声」と「海岸の音」は二次利用できません。詳細は <a href="bgm/credit.txt">bgm/credit.txt</a> をご覧ください</li>
 </ul>
 
 <h2>変更履歴</h2>
 <ul>
 <!-- BEGIN-LATEST -->
+<li>Suika2/14.10 2023/11/10
+  <ul>
+    <li>ベータ版: Suika2 Studioを追加 (スクリプトの編集が可能)</li>
+    <li>iOSで動画再生に対応</li>
+    <li>移植用: 日本語ファイル名の許容(非推奨)</li>
+    <li>移植用: @loadコマンドにジャンプ先ラベル名の指定を追加(非推奨)</li>
+  </ul>
+</li>
+<!-- END-LATEST -->
 <li>Suika2/14.9 2023/10/25
   <ul>
     <li>内部バージョン</li>
   </ul>
 </li>
-<!-- END-LATEST -->
 <li>Suika2/14.8 2023/10/25
   <ul>
     <li>内部バージョン</li>
