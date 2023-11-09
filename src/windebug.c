@@ -43,7 +43,7 @@
 #define COLOR_LABEL			0x00ff0000
 #define COLOR_ERROR			0x000000ff
 #define COLOR_COMMAND_NAME	0x00ff0000
-#define COLOR_PARAM_NAME	0x00c0e0c0
+#define COLOR_PARAM_NAME	0x00c0f0c0
 #define COLOR_NEXT_EXEC		0x00ffc0c0
 #define COLOR_CURRENT_EXEC	0x00c0c0ff
 
@@ -72,8 +72,11 @@ static HWND hWndRichEdit;			/* スクリプトのリッチエディット */
 static HWND hWndTextboxVar;			/* 変数一覧のテキストボックス */
 static HWND hWndBtnVar;				/* 変数を反映するボタン */
 
-/* メニュー */
+/* ウィンドウのメニュー */
 static HMENU hMenu;
+
+/* ポップアップメニュー */
+static HMENU hMenuPopup;
 
 /* 英語モードか */
 static BOOL bEnglish;
@@ -98,14 +101,16 @@ UINT (__stdcall *pGetDpiForWindow)(HWND);
  * Forward Declaration
  */
 
-/* initialization */
+/* Initialization */
 static VOID InitMenu(HWND hWnd);
 static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
 
-/* command handlers */
+/* Command Handlers */
 static VOID OnOpenScript(void);
+static const wchar_t *SelectFile(const char *pszDir);
 static VOID OnSave(void);
 static VOID OnNextError(void);
+static VOID OnPopup(void);
 static VOID OnWriteVars(void);
 static VOID OnExportPackage(void);
 static VOID OnExportWin(void);
@@ -114,15 +119,17 @@ static VOID OnExportWinMac(void);
 static VOID OnExportWeb(void);
 static VOID OnExportAndroid(void);
 static VOID OnExportIOS(void);
+
+/* Export Helpers */
 static VOID RecreateDirectory(const wchar_t *path);
 static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 
-/* Variable TextEdit */
+/* TextEdit for Variables */
 static VOID Variable_UpdateText(void);
 
-/* RichEdit handlers */
+/* RichEdit Handlers */
 static VOID RichEdit_OnChange(void);
 static VOID RichEdit_OnReturn(void);
 
@@ -153,9 +160,31 @@ static BOOL RichEdit_SearchNextError(int nStart, int nEnd);
 static VOID RichEdit_UpdateTextFromScriptModel(void);
 static VOID RichEdit_UpdateScriptModelFromText(void);
 static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void);
+static VOID RichEdit_InsertText(const wchar_t *pLine, ...);
 
-/* Direction */
+/* Command Insertion */
 static VOID OnInsertMessage(void);
+static VOID OnInsertSerif(void);
+static VOID OnInsertBg(void);
+static VOID OnInsertBgOnly(void);
+static VOID OnInsertCh(void);
+static VOID OnInsertChsx(void);
+static VOID OnInsertBgm(void);
+static VOID OnInsertBgmStop(void);
+static VOID OnInsertVolBgm(void);
+static VOID OnInsertSe(void);
+static VOID OnInsertSeStop(void);
+static VOID OnInsertVolSe(void);
+static VOID OnInsertVideo(void);
+static VOID OnInsertShakeH(void);
+static VOID OnInsertShakeV(void);
+static VOID OnInsertChoose3(void);
+static VOID OnInsertChoose2(void);
+static VOID OnInsertChoose1(void);
+static VOID OnInsertGui(void);
+static VOID OnInsertClick(void);
+static VOID OnInsertWait(void);
+static VOID OnInsertLoad(void);
 
 /*
  * コマンドライン引数の処理
@@ -240,7 +269,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 {
 	WNDCLASSEX wcex;
 	RECT rcClient;
-	HFONT hFont;
+	HFONT hFont, hFontFixed;
 	int nDpi;
 
 	hWndMain = hMainWnd;
@@ -283,6 +312,11 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 					   ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
 					   DEFAULT_QUALITY,
 					   DEFAULT_PITCH | FF_DONTCARE, L"Yu Gothic UI");
+	hFontFixed = CreateFont(MulDiv(14, nDpi, 96),
+							0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
+							DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+							DEFAULT_QUALITY,
+							FIXED_PITCH | FF_DONTCARE, L"BIZ UDゴシック");
 
 	/* 続けるボタンを作成する */
 	hWndBtnResume = CreateWindow(
@@ -392,7 +426,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		NULL);
 	SendMessage(hWndRichEdit, EM_SHOWSCROLLBAR, (WPARAM)SB_VERT, (LPARAM)TRUE);
 	SendMessage(hWndRichEdit, EM_SETEVENTMASK, 0, (LPARAM)ENM_CHANGE);
-	RichEdit_SetFont();
+	SendMessage(hWndRichEdit, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
 
 	/* 変数のテキストボックスを作成する */
 	hWndTextboxVar = CreateWindow(
@@ -490,15 +524,19 @@ VOID RearrangeDebuggerPanel(int nGameWidth, int nGameHeight)
 static VOID InitMenu(HWND hWnd)
 {
 	HMENU hMenuFile = CreatePopupMenu();
-	HMENU hMenuScript = CreatePopupMenu();
+	HMENU hMenuRun = CreatePopupMenu();
 	HMENU hMenuDirection = CreatePopupMenu();
 	HMENU hMenuExport = CreatePopupMenu();
 	HMENU hMenuHelp = CreatePopupMenu();
     MENUITEMINFO mi;
+	UINT nOrder;
 
 	bEnglish = conf_locale == LOCALE_JA ? FALSE : TRUE;
 
-	/* メニューを作成する */
+	/* 演出メニューは右クリック時のポップアップとしても使う */
+	hMenuPopup = hMenuDirection;
+
+	/* メインメニューを作成する */
 	hMenu = CreateMenu();
 
 	/* 1階層目を作成する準備を行う */
@@ -509,66 +547,69 @@ static VOID InitMenu(HWND hWnd)
 	mi.fState = MFS_ENABLED;
 
 	/* ファイル(F)を作成する */
+	nOrder = 0;
 	mi.hSubMenu = hMenuFile;
 	mi.dwTypeData = bEnglish ? L"File(&F)": L"ファイル(&F)";
-	InsertMenuItem(hMenu, 0, TRUE, &mi);
+	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
 
-	/* 実行(S)を作成する */
-	mi.hSubMenu = hMenuScript;
-	mi.dwTypeData = bEnglish ? L"Run(&R)": L"Run(&R)";
-	InsertMenuItem(hMenu, 1, TRUE, &mi);
+	/* 実行(R)を作成する */
+	mi.hSubMenu = hMenuRun;
+	mi.dwTypeData = bEnglish ? L"Run(&R)": L"実行(&R)";
+	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
 
 	/* 演出(D)を作成する */
 	mi.hSubMenu = hMenuDirection;
 	mi.dwTypeData = bEnglish ? L"Direction(&D)": L"演出(&D)";
-	InsertMenuItem(hMenu, 2, TRUE, &mi);
+	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
 
 	/* エクスポート(E)を作成する */
 	mi.hSubMenu = hMenuExport;
 	mi.dwTypeData = bEnglish ? L"Export(&E)": L"エクスポート(&E)";
-	InsertMenuItem(hMenu, 3, TRUE, &mi);
+	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
 
 	/* ヘルプ(H)を作成する */
 	mi.hSubMenu = hMenuHelp;
 	mi.dwTypeData = bEnglish ? L"Help(&H)": L"ヘルプ(&H)";
-	InsertMenuItem(hMenu, 4, TRUE, &mi);
+	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
 
 	/* 2階層目を作成する準備を行う */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 
 	/* スクリプトを開く(Q)を作成する */
+	nOrder = 0;
 	mi.wID = ID_OPEN;
 	mi.dwTypeData = bEnglish ?
 		L"Open script(&Q)\tCtrl+O" :
 		L"スクリプトを開く(&O)\tCtrl+O";
-	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* スクリプトを上書き保存する(S)を作成する */
 	mi.wID = ID_SAVE;
 	mi.dwTypeData = bEnglish ?
 		L"Overwrite script(&S)\tCtrl+S" :
 		L"スクリプトを上書き保存する(&S)\tCtrl+S";
-	InsertMenuItem(hMenuFile, 1, TRUE, &mi);
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
 	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tCtrl+Q" : L"終了(&Q)\tCtrl+Q";
-	InsertMenuItem(hMenuFile, 2, TRUE, &mi);
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
+	nOrder = 0;
 	mi.wID = ID_RESUME;
 	mi.dwTypeData = bEnglish ? L"Continue(&R)\tCtrl+R" : L"続ける(&R)\tCtrl+R";
-	InsertMenuItem(hMenuScript, 0, TRUE, &mi);
+	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
 
 	/* 次へ(N)を作成する */
 	mi.wID = ID_NEXT;
 	mi.dwTypeData = bEnglish ? L"Next(&N)\tCtrl+N" : L"次へ(&N)\tCtrl+N";
-	InsertMenuItem(hMenuScript, 1, TRUE, &mi);
+	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
 
 	/* 停止(P)を作成する */
 	mi.wID = ID_PAUSE;
 	mi.dwTypeData = bEnglish ? L"Pause(&P)\tCtrl+P" : L"停止(&P)\tCtrl+P";
-	InsertMenuItem(hMenuScript, 2, TRUE, &mi);
+	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
 	EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 
 	/* 次のエラー箇所へ移動(E)を作成する */
@@ -576,173 +617,176 @@ static VOID InitMenu(HWND hWnd)
 	mi.dwTypeData = bEnglish ?
 		L"Go to next error(&E)\tCtrl+E" :
 		L"次のエラー箇所へ移動(&E)\tCtrl+E";
-	InsertMenuItem(hMenuScript, 3, TRUE, &mi);
+	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
 
 	/* パッケージをエクスポートするを作成する */
+	nOrder = 0;
 	mi.wID = ID_EXPORT;
 	mi.dwTypeData = bEnglish ?
 		L"Export package(&X)" :
 		L"パッケージをエクスポートする";
-	InsertMenuItem(hMenuExport, 0, TRUE, &mi);
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Windows" :
 		L"Windows向けにエクスポートする";
-	InsertMenuItem(hMenuExport, 1, TRUE, &mi);
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows EXEインストーラを作成するを作成する */
 	mi.wID = ID_EXPORT_WIN_INST;
 	mi.dwTypeData = bEnglish ?
 		L"Create EXE Installer for Windows" :
 		L"Windows EXEインストーラを作成する";
-	InsertMenuItem(hMenuExport, 2, TRUE, &mi);
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows/Mac向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN_MAC;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Windows/Mac" :
 		L"Windows/Mac向けにエクスポートする";
-	InsertMenuItem(hMenuExport, 3, TRUE, &mi);
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Web向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WEB;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Web" :
 		L"Web向けにエクスポートする";
-	InsertMenuItem(hMenuExport, 4, TRUE, &mi);
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Androidプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_ANDROID;
 	mi.dwTypeData = bEnglish ?
 		L"Export Android project" :
 		L"Androidプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuExport, 5, TRUE, &mi);
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* iOSプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_IOS;
 	mi.dwTypeData = bEnglish ?
 		L"Export iOS project" :
 		L"iOSプロジェクトをエクスポートする";
-	InsertMenuItem(hMenuExport, 6, TRUE, &mi);
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* 地の文を入力を作成する */
+	nOrder = 0;
 	mi.wID = ID_CMD_MESSAGE;
 	mi.dwTypeData = bEnglish ? L"Message" : L"地の文を入力";
-	InsertMenuItem(hMenuDirection, 0, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* セリフを入力を作成する */
 	mi.wID = ID_CMD_SERIF;
 	mi.dwTypeData = bEnglish ? L"Line" : L"セリフを入力";
-	InsertMenuItem(hMenuDirection, 1, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 背景を作成する */
 	mi.wID = ID_CMD_BG;
 	mi.dwTypeData = bEnglish ? L"Background" : L"背景";
-	InsertMenuItem(hMenuDirection, 2, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 背景だけ変更を作成する */
 	mi.wID = ID_CMD_BG_ONLY;
 	mi.dwTypeData = bEnglish ? L"Change Background Only" : L"背景だけ変更";
-	InsertMenuItem(hMenuDirection, 3, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* キャラクタを作成する */
 	mi.wID = ID_CMD_CH;
 	mi.dwTypeData = bEnglish ? L"Character" : L"キャラクタ";
-	InsertMenuItem(hMenuDirection, 4, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* キャラクタを同時に変更を作成する */
 	mi.wID = ID_CMD_CHSX;
 	mi.dwTypeData = bEnglish ? L"Change Multiple Characters" : L"キャラクタを同時に変更";
-	InsertMenuItem(hMenuDirection, 5, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 音楽を再生を作成する */
 	mi.wID = ID_CMD_BGM;
 	mi.dwTypeData = bEnglish ? L"Play BGM" : L"音楽を再生";
-	InsertMenuItem(hMenuDirection, 6, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 音楽を停止を作成する */
 	mi.wID = ID_CMD_BGM_STOP;
 	mi.dwTypeData = bEnglish ? L"Stop BGM" : L"音楽を停止";
-	InsertMenuItem(hMenuDirection, 6, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 音楽の音量を作成する */
 	mi.wID = ID_CMD_VOL_BGM;
 	mi.dwTypeData = bEnglish ? L"BGM Volume" : L"音楽の音量";
-	InsertMenuItem(hMenuDirection, 7, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 効果音を再生を作成する */
 	mi.wID = ID_CMD_SE;
 	mi.dwTypeData = bEnglish ? L"Play Sound Effect" : L"効果音を再生";
-	InsertMenuItem(hMenuDirection, 7, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 効果音を停止を作成する */
 	mi.wID = ID_CMD_SE_STOP;
 	mi.dwTypeData = bEnglish ? L"Stop Sound Effect" : L"効果音を停止";
-	InsertMenuItem(hMenuDirection, 8, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 効果音の音量を作成する */
 	mi.wID = ID_CMD_VOL_SE;
 	mi.dwTypeData = bEnglish ? L"Sound Effect Volume" : L"効果音の音量";
-	InsertMenuItem(hMenuDirection, 9, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 動画を再生する */
 	mi.wID = ID_CMD_VIDEO;
 	mi.dwTypeData = bEnglish ? L"Play Video" : L"動画を再生する";
-	InsertMenuItem(hMenuDirection, 10, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 画面を横に揺らすを作成する */
 	mi.wID = ID_CMD_SHAKE_H;
 	mi.dwTypeData = bEnglish ? L"Shake Screen Horizontally" : L"画面を横に揺らす";
-	InsertMenuItem(hMenuDirection, 11, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 画面を縦に揺らすを作成する */
 	mi.wID = ID_CMD_SHAKE_V;
 	mi.dwTypeData = bEnglish ? L"Shake Screen Vertically" : L"画面を縦に揺らす";
-	InsertMenuItem(hMenuDirection, 12, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 選択肢(3)を作成する */
 	mi.wID = ID_CMD_CHOOSE_3;
 	mi.dwTypeData = bEnglish ? L"Options (3)" : L"選択肢(3)";
-	InsertMenuItem(hMenuDirection, 13, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 選択肢(2)を作成する */
 	mi.wID = ID_CMD_CHOOSE_2;
 	mi.dwTypeData = bEnglish ? L"Options (2)" : L"選択肢(1)";
-	InsertMenuItem(hMenuDirection, 14, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 選択肢(1)を作成する */
 	mi.wID = ID_CMD_CHOOSE_1;
 	mi.dwTypeData = bEnglish ? L"Option (1)" : L"選択肢(1)";
-	InsertMenuItem(hMenuDirection, 15, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* GUI呼び出しを作成する */
 	mi.wID = ID_CMD_GUI;
-	mi.dwTypeData = bEnglish ? L"GUI" : L"GUI";
-	InsertMenuItem(hMenuDirection, 16, TRUE, &mi);
+	mi.dwTypeData = bEnglish ? L"Menu (GUI)" : L"メニュー (GUI)";
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* クリック待ちを作成する */
 	mi.wID = ID_CMD_CLICK;
 	mi.dwTypeData = bEnglish ? L"Click Wait" : L"クリック待ち";
-	InsertMenuItem(hMenuDirection, 17, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 時間指定待ちを作成する */
 	mi.wID = ID_CMD_WAIT;
 	mi.dwTypeData = bEnglish ? L"Timed Wait" : L"時間指定待ち";
-	InsertMenuItem(hMenuDirection, 18, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 他のスクリプトへ移動を作成する */
 	mi.wID = ID_CMD_LOAD;
 	mi.dwTypeData = bEnglish ? L"Load Other Script" : L"他のスクリプトへ移動";
-	InsertMenuItem(hMenuDirection, 19, TRUE, &mi);
+	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* バージョン(V)を作成する */
+	nOrder = 0;
 	mi.wID = ID_VERSION;
 	mi.dwTypeData = bEnglish ? L"Version(&V)" : L"バージョン(&V)\tCtrl+V";
-	InsertMenuItem(hMenuHelp, 0, TRUE, &mi);
+	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
 
-	/* メニューをセットする */
+	/* メインメニューをセットする */
 	SetMenu(hWnd, hMenu);
 }
 
@@ -790,22 +834,49 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 	bRangedChanged = FALSE;
 
 	/* シフト押下状態を保存する */
-	if (pMsg->hwnd == hWndRichEdit && pMsg->wParam == VK_SHIFT)
+	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_SHIFT)
 	{
-		if (pMsg->message == WM_KEYDOWN)
-			bShiftDown = TRUE;
-		if (pMsg->message == WM_KEYUP)
+		bShiftDown = TRUE;
+		return FALSE;
+	}
+	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYUP && pMsg->wParam == VK_SHIFT)
+	{
+		bShiftDown = FALSE;
+		return FALSE;
+	}
+
+	if (pMsg->message == WM_KEYUP)
+	{
 			bShiftDown = FALSE;
 		return FALSE;
 	}
 
 	/* コントロール押下状態を保存する */
-	if (pMsg->hwnd == hWndRichEdit && pMsg->wParam == VK_CONTROL)
+	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_CONTROL)
 	{
-		if (pMsg->message == WM_KEYDOWN)
-			bControlDown = TRUE;
-		if (pMsg->message == WM_KEYUP)
-			bControlDown = FALSE;
+		bControlDown = TRUE;
+		return FALSE;
+	}
+	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYUP && pMsg->wParam == VK_CONTROL)
+	{
+		bControlDown = FALSE;
+		return FALSE;
+	}
+
+	/* フォーカスを失うときにシフトとコントロールの */
+	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KILLFOCUS)
+	{
+		bShiftDown = FALSE;
+		bControlDown = FALSE;
+		return FALSE;
+	}
+
+	/* 右クリック押下を処理する */
+	if (pMsg->hwnd == hWndRichEdit &&
+		pMsg->message == WM_RBUTTONDOWN)
+	{
+		/* ポップアップを開くためのWM_COMMANDをポストする */
+		PostMessage(hWndMain, WM_COMMAND, (WPARAM)ID_POPUP, 0);
 		return FALSE;
 	}
 
@@ -999,51 +1070,76 @@ VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 	case ID_ERROR:
 		OnNextError();
 		break;
+	/* ポップアップ */
+	case ID_POPUP:
+		OnPopup();
+		break;
 	/* 演出 */
 	case ID_CMD_MESSAGE:
 		OnInsertMessage();
 		break;
 	case ID_CMD_SERIF:
+		OnInsertSerif();
 		break;
 	case ID_CMD_BG:
+		OnInsertBg();
 		break;
 	case ID_CMD_BG_ONLY:
+		OnInsertBgOnly();
 		break;
 	case ID_CMD_CH:
+		OnInsertCh();
 		break;
 	case ID_CMD_CHSX:
+		OnInsertChsx();
 		break;
 	case ID_CMD_BGM:
+		OnInsertBgm();
 		break;
 	case ID_CMD_BGM_STOP:
+		OnInsertBgmStop();
 		break;
 	case ID_CMD_VOL_BGM:
+		OnInsertVolBgm();
 		break;
 	case ID_CMD_SE:
+		OnInsertSe();
 		break;
 	case ID_CMD_SE_STOP:
+		OnInsertSeStop();
 		break;
 	case ID_CMD_VOL_SE:
+		OnInsertVolSe();
 		break;
 	case ID_CMD_VIDEO:
+		OnInsertVideo();
 		break;
 	case ID_CMD_SHAKE_H:
+		OnInsertShakeH();
 		break;
 	case ID_CMD_SHAKE_V:
+		OnInsertShakeV();
 		break;
 	case ID_CMD_CHOOSE_3:
+		OnInsertChoose3();
 		break;
 	case ID_CMD_CHOOSE_2:
+		OnInsertChoose2();
 		break;
 	case ID_CMD_CHOOSE_1:
+		OnInsertChoose1();
 		break;
 	case ID_CMD_GUI:
+		OnInsertGui();
 		break;
 	case ID_CMD_CLICK:
+		OnInsertClick();
 		break;
 	case ID_CMD_WAIT:
+		OnInsertWait();
 		break;
 	case ID_CMD_LOAD:
+		OnInsertLoad();
 		break;
 	/* エクスポート */
 	case ID_EXPORT:
@@ -1088,37 +1184,78 @@ VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 /* スクリプトオープン */
 static VOID OnOpenScript(void)
 {
+	const wchar_t *pFile;
+
+	pFile = SelectFile(SCRIPT_DIR);
+	if (pFile == NULL)
+		return;
+
+	SetWindowText(hWndTextboxScript, pFile);
+	bScriptOpened = TRUE;
+}
+
+/* ファイルを開くダイアログを表示して素材ファイルを選択する */
+static const wchar_t *SelectFile(const char *pszDir)
+{
+	static wchar_t wszPath[1024];
+	wchar_t wszBase[1024];
 	OPENFILENAMEW ofn;
-	wchar_t szPath[1024];
-	size_t i;
 
-	memset(szPath, 0, sizeof(szPath));
-
-	ZeroMemory(&szPath[0], sizeof(szPath));
+	ZeroMemory(&wszPath[0], sizeof(wszPath));
 	ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
+
+	/* ゲームのベースディレクトリを取得する */
+	GetCurrentDirectory(sizeof(wszBase) / sizeof(wchar_t), wszBase);
+
+	/* ファイルダイアログの準備を行う */
 	ofn.lStructSize = sizeof(OPENFILENAMEW);
 	ofn.hwndOwner = hWndMain;
-	ofn.lpstrFilter = bEnglish ?
-		L"Text Files\0*.txt;\0All Files(*.*)\0*.*\0\0" : 
-		L"テキストファイル\0*.txt;\0すべてのファイル(*.*)\0*.*\0\0";
 	ofn.nFilterIndex = 1;
-	ofn.lpstrFile = szPath;
-	ofn.nMaxFile = sizeof(szPath);
-	ofn.lpstrInitialDir = conv_utf8_to_utf16(SCRIPT_DIR);
+	ofn.lpstrFile = wszPath;
+	ofn.nMaxFile = sizeof(wszPath);
+	ofn.lpstrInitialDir = conv_utf8_to_utf16(pszDir);
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-	ofn.lpstrDefExt = L"txt";
-	GetOpenFileNameW(&ofn);
-	if(ofn.lpstrFile[0])
+	if (strcmp(pszDir, BG_DIR) == 0 ||
+		strcmp(pszDir, CH_DIR) == 0)
 	{
-		for (i = wcslen(szPath) - 1; i != 0; i--) {
-			if (*(szPath + i) == L'\\')
-			{
-				SetWindowText(hWndTextboxScript, szPath + i + 1);
-				bScriptOpened = TRUE;
-				break;
-			}
-		}
+		ofn.lpstrFilter = bEnglish ?
+			L"Image Files\0*.png;*.jpg;*.webp;\0All Files(*.*)\0*.*\0\0" : 
+			L"画像ファイル\0*.png;*.jpg;*.webp;\0すべてのファイル(*.*)\0*.*\0\0";
+		ofn.lpstrDefExt = L"png";
 	}
+	else if (strcmp(pszDir, BGM_DIR) == 0 ||
+			 strcmp(pszDir, SE_DIR) == 0)
+	{
+		ofn.lpstrFilter = bEnglish ?
+			L"Sound Files\0*.ogg;\0All Files(*.*)\0*.*\0\0" : 
+			L"音声ファイル\0*.ogg;\0すべてのファイル(*.*)\0*.*\0\0";
+		ofn.lpstrDefExt = L"ogg";
+	}
+	else if (strcmp(pszDir, MOV_DIR) == 0)
+	{
+		ofn.lpstrFilter = bEnglish ?
+			L"Video Files\0*.mp4;*.wmv;\0All Files(*.*)\0*.*\0\0" : 
+			L"動画ファイル\0*.mp4;*.wmv;\0すべてのファイル(*.*)\0*.*\0\0";
+		ofn.lpstrDefExt = L"ogg";
+	}
+	else if (strcmp(pszDir, SCRIPT_DIR) == 0 ||
+			 strcmp(pszDir, GUI_DIR) == 0)
+	{
+		ofn.lpstrFilter = bEnglish ?
+			L"Text Files\0*.txt;\0All Files(*.*)\0*.*\0\0" : 
+			L"テキストファイル\0*.txt;\0すべてのファイル(*.*)\0*.*\0\0";
+		ofn.lpstrDefExt = L"txt";
+	}
+
+	/* ファイルダイアログを開く */
+	GetOpenFileNameW(&ofn);
+	if(ofn.lpstrFile[0] == L'\0')
+		return NULL;
+	if (wcswcs(wszPath, wszBase) == NULL)
+		return NULL;
+
+	/* 素材ディレクトリ内の相対パスを返す */
+	return wszPath + wcslen(wszBase) + 1 + strlen(pszDir) + 1;
 }
 
 /* 上書き保存 */
@@ -1149,6 +1286,15 @@ static VOID OnNextError(void)
 			   L"No error.\n" :
 			   L"エラーはありません。\n",
 			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+}
+
+/* ポップアップを表示する */
+static VOID OnPopup(void)
+{
+	POINT point;
+
+	GetCursorPos(&point);
+	TrackPopupMenu(hMenuPopup, 0, point.x, point.y, 0, hWndMain, NULL);
 }
 
 /* 変数の書き込みボタンが押下された場合を処理する */
@@ -1866,6 +2012,7 @@ void on_load_script(void)
 
 	/* 実行中のスクリプトファイルが変更されたとき、リッチエディットにテキストを設定する */
 	RichEdit_UpdateTextFromScriptModel();
+	RichEdit_SetFont();
 	RichEdit_SetTextColorForAllLines();
 }
 
@@ -2660,9 +2807,16 @@ static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void)
 }
 
 /* テキストを挿入する */
-static VOID RichEdit_InsertText(const wchar_t *pLine)
+static VOID RichEdit_InsertText(const wchar_t *pFormat, ...)
 {
+	va_list ap;
+	wchar_t buf[1024];
+		
 	int nLine, nLineStart, nLineLen;
+
+	va_start(ap, pFormat);
+	vswprintf(buf, sizeof(buf) / sizeof(wchar_t), pFormat, ap);
+	va_end(ap);
 
 	/* カーソル行を取得する */
 	nLine = RichEdit_GetCursorLine();
@@ -2672,21 +2826,254 @@ static VOID RichEdit_InsertText(const wchar_t *pLine)
 	RichEdit_SetCursorPosition(nLineStart);
 
 	/* スクリプトモデルに行を追加する */
-	insert_script_line(nLine, conv_utf16_to_utf8(pLine));
+	insert_script_line(nLine, conv_utf16_to_utf8(buf));
 
 	/* リッチエディットに行を追加する */
+	wcscat(buf, L"\r");
 	RichEdit_SetTextColorForSelectedRange(COLOR_FG_DEFAULT);
-	SendMessage(hWndRichEdit, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)pLine);
+	SendMessage(hWndRichEdit, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)buf);
 
 	/* 行を選択する */
 	RichEdit_SetCursorPosition(nLineStart);
+
+	/* 次のフレームで実行位置を変更する */
+	nLineChanged = nLine;
+	bExecLineChanged = TRUE;
 }
 
 /*
- * 演出の挿入
+ * Suika2コマンドの挿入
  */
 
 static VOID OnInsertMessage(void)
 {
-	RichEdit_InsertText(L"この行のメッセージを編集してください。\r");
+	if (bEnglish)
+		RichEdit_InsertText(L"Edit this message and press return.");
+	else
+		RichEdit_InsertText(L"この行のメッセージを編集して改行してください。");
+}
+
+static VOID OnInsertSerif(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"*Name*Edit this line and press return.");
+	else
+		RichEdit_InsertText(L"名前「このセリフを編集して改行してください。」");
+}
+
+static VOID OnInsertBg(void)
+{
+	const wchar_t *pFile;
+
+	pFile = SelectFile(BG_DIR);
+	if (pFile == NULL)
+		return;
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@bg file=%ls duration=1.0", pFile);
+	else
+		RichEdit_InsertText(L"@背景 ファイル=%ls 秒=1.0", pFile);
+}
+
+static VOID OnInsertBgOnly(void)
+{
+	const wchar_t *pFile;
+
+	pFile = SelectFile(BG_DIR);
+	if (pFile == NULL)
+		return;
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@chsx bg=%ls duration=1.0 left=stay center=stay right=stay back=stay", pFile);
+	else
+		RichEdit_InsertText(L"@場面転換X 背景=%ls 秒=1.0 左=stay 中央=stay 右=stay 背面=stay", pFile);
+}
+
+static VOID OnInsertCh(void)
+{
+	const wchar_t *pFile;
+
+	pFile = SelectFile(CH_DIR);
+	if (pFile == NULL)
+		return;
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@ch position=center file=%ls duration=1.0", pFile);
+	else
+		RichEdit_InsertText(L"@キャラ 位置=中央 ファイル=%ls 秒=1.0", pFile);
+}
+
+static VOID OnInsertChsx(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@chsx left=file-name.png center=file-name.png right=file-name.png back=file-name.png bg=file-name.png duration=1.0");
+	else
+		RichEdit_InsertText(L"@場面転換X 左=ファイル名.png 中央=ファイル名.png 右=ファイル名.png 背面=ファイル名.png 背景=ファイル名.png 秒=1.0");
+}
+
+static VOID OnInsertBgm(void)
+{
+	const wchar_t *pFile;
+
+	pFile = SelectFile(BGM_DIR);
+	if (pFile == NULL)
+		return;
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@bgm file=%ls", pFile);
+	else
+		RichEdit_InsertText(L"@音楽 ファイル=%ls", pFile);
+}
+
+static VOID OnInsertBgmStop(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@bgm stop");
+	else
+		RichEdit_InsertText(L"@音楽 停止");
+}
+
+static VOID OnInsertVolBgm(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@vol track=bgm volume=1.0 duration=1.0");
+	else
+		RichEdit_InsertText(L"@音量 トラック=bgm 音量=1.0 秒=1.0");
+}
+
+static VOID OnInsertSe(void)
+{
+	const wchar_t *pFile;
+
+	pFile = SelectFile(BGM_DIR);
+	if (pFile == NULL)
+		return;
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@se file=%ls", pFile);
+	else
+		RichEdit_InsertText(L"@効果音 ファイル=%ls", pFile);
+}
+
+static VOID OnInsertSeStop(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@se stop");
+	else
+		RichEdit_InsertText(L"@効果音 停止");
+}
+
+static VOID OnInsertVolSe(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@vol track=se volume=1.0 duration=1.0");
+	else
+		RichEdit_InsertText(L"@音量 トラック=se 音量=1.0 秒=1.0");
+}
+
+static VOID OnInsertVideo(void)
+{
+	wchar_t buf[1024], *pExt;
+	const wchar_t *pFile;
+
+	pFile = SelectFile(MOV_DIR);
+	if (pFile == NULL)
+		return;
+
+	/* 拡張子を削除する */
+	wcscpy(buf, pFile);
+	pExt = wcswcs(buf, L".mp4");
+	if (pExt == NULL)
+		pExt = wcswcs(buf, L".wmv");
+	if (pExt != NULL)
+		*pExt = L'\0';
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@video file=%ls", buf);
+	else
+		RichEdit_InsertText(L"@動画 ファイル=%ls", buf);
+}
+
+static VOID OnInsertShakeH(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@shake direction=horizontal duration=1.0 times=3 amplitude-100");
+	else
+		RichEdit_InsertText(L"@振動 方向=横 秒=1.0 回数=3 大きさ=100");
+}
+
+static VOID OnInsertShakeV(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@shake direction=vertical duration=1.0 times=3 amplitude=100");
+	else
+		RichEdit_InsertText(L"@振動 方向=縦 秒=1.0 回数=3 大きさ=100\r");
+}
+
+static VOID OnInsertChoose3(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@choose L1 \"Option1\" L2 \"Option2\" L3 \"Option3\"");
+	else
+		RichEdit_InsertText(L"@選択肢 L1 \"候補1\" L2 \"候補2\" L3 \"候補3\"");
+}
+
+static VOID OnInsertChoose2(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@choose L1 \"Option1\" L2 \"Option2\"");
+	else
+		RichEdit_InsertText(L"@選択肢 L1 \"候補1\" L2 \"候補2\"");
+}
+
+static VOID OnInsertChoose1(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@choose L1 \"Option1\"");
+	else
+		RichEdit_InsertText(L"@選択肢 L1 \"候補1\"");
+}
+
+static VOID OnInsertGui(void)
+{
+	const wchar_t *pFile;
+
+	pFile = SelectFile(GUI_DIR);
+	if (pFile == NULL)
+		return;
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@gui file=%ls", pFile);
+	else
+		RichEdit_InsertText(L"@メニュー ファイル=%ls", pFile);
+}
+
+static VOID OnInsertClick(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@click");
+	else
+		RichEdit_InsertText(L"@クリック");
+}
+
+static VOID OnInsertWait(void)
+{
+	if (bEnglish)
+		RichEdit_InsertText(L"@wait duration=1.0");
+	else
+		RichEdit_InsertText(L"@時間待ち 秒=1.0");
+}
+
+static VOID OnInsertLoad(void)
+{
+	const wchar_t *pFile;
+
+	pFile = SelectFile(SCRIPT_DIR);
+	if (pFile == NULL)
+		return;
+
+	if (bEnglish)
+		RichEdit_InsertText(L"@load file=%ls", pFile);
+	else
+		RichEdit_InsertText(L"@シナリオ ファイル=%ls", pFile);
 }

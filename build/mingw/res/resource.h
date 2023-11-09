@@ -39,6 +39,7 @@
 #define ID_EXPORT_IOS                   166
 #define ID_FULLSCREEN                   167
 #define ID_RICHEDIT                     168
+#define ID_POPUP                        169
 #define ID_CMD_MESSAGE			180
 #define ID_CMD_SERIF			181
 #define ID_CMD_BG			182
