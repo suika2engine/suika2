@@ -252,7 +252,6 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 static bool pre_dispatch(void)
 {
 	char *scr;
-	int line, cmd;
 
 #ifdef USE_EDITOR
 	/* コマンドがない場合 */
@@ -315,6 +314,8 @@ static bool pre_dispatch(void)
 
 	/* 停止中で、実行中のスクリプトがリロードされた場合 */
 	if (is_script_reloaded()) {
+		int line, cmd;
+
 		scr = strdup(get_script_file_name());
 		if (scr == NULL) {
 			log_memory();

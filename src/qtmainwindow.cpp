@@ -1161,7 +1161,7 @@ bool is_sound_finished(int stream)
 //
 // Check if the resume button was pressed.
 //
-bool is_resume_pushed(void)
+bool is_continue_pushed(void)
 {
     bool ret = MainWindow::obj->m_isResumePressed;
     MainWindow::obj->m_isResumePressed = false;
@@ -1181,7 +1181,7 @@ bool is_next_pushed(void)
 //
 // Check if the stop button was pressed.
 //
-bool is_pause_pushed(void)
+bool is_stop_pushed(void)
 {
     bool ret = MainWindow::obj->m_isPausePressed;
     MainWindow::obj->m_isPausePressed = false;
@@ -1191,7 +1191,7 @@ bool is_pause_pushed(void)
 //
 // Check if the script file name changed.
 //
-bool is_script_changed(void)
+bool is_script_opened(void)
 {
     bool ret = MainWindow::obj->m_isChangeScriptPressed;
     MainWindow::obj->m_isChangeScriptPressed = false;
@@ -1201,7 +1201,7 @@ bool is_script_changed(void)
 //
 // Get a script file name after a change.
 //
-const char *get_changed_script(void)
+const char *get_opened_script(void)
 {
     static char script[256];
     snprintf(script, sizeof(script), "%s", MainWindow::obj->ui->fileNameTextEdit->text().toUtf8().data());
@@ -1211,7 +1211,7 @@ const char *get_changed_script(void)
 //
 // Check if the line number to execute is changed.
 //
-bool is_line_changed(void)
+bool is_exec_line_changed(void)
 {
     bool ret = MainWindow::obj->m_isChangeLinePressed;
     MainWindow::obj->m_isChangeLinePressed = false;
@@ -1221,7 +1221,7 @@ bool is_line_changed(void)
 //
 // Get a line number after a change.
 //
-int get_changed_line(void)
+int get_changed_exec_line(void)
 {
     return MainWindow::obj->ui->lineNumberEdit->text().toInt();
 }
@@ -1260,7 +1260,7 @@ bool is_script_reloaded(void)
 //
 // Set the command running state.
 //
-void set_running_state(bool running, bool request_stop)
+void on_change_running_state(bool running, bool request_stop)
 {
     // 実行状態を保存する
     MainWindow::obj->m_isRunning = running;
@@ -1284,16 +1284,28 @@ void set_running_state(bool running, bool request_stop)
 //
 // デバッグ情報を更新する
 //
-void update_debug_info(bool script_changed)
+void on_load_script(void)
 {
     MainWindow::obj->ui->fileNameTextEdit->setText(get_script_file_name());
+    MainWindow::obj->updateScriptView();
+}
+
+//
+// デバッグ情報を更新する
+//
+void on_change_position(void)
+{
     MainWindow::obj->ui->lineNumberEdit->setText(QString::number(get_expanded_line_num()));
     MainWindow::obj->ui->commandEdit->setText(get_line_string());
-    if (script_changed)
-        MainWindow::obj->updateScriptView();
-    if (check_variable_updated() || script_changed)
-        MainWindow::obj->updateVariableText();
     MainWindow::obj->scrollScript();
+}
+
+//
+// デバッグ情報を更新する
+//
+void on_update_variable(void)
+{
+    MainWindow::obj->updateVariableText();
 }
 
 }; // extern "C"
