@@ -160,6 +160,7 @@ static bool reopen(struct wave *w, bool loop)
 	}
 
 	/* コールバックを使ってファイルを開く */
+	memset(&cb, 0, sizeof(cb));
 	cb.read_func = read_func;
 	cb.close_func = close_func;
 	cb.seek_func = NULL;

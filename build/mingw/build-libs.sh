@@ -2,14 +2,11 @@
 
 set -eu
 
-export CC=gcc
-
 PREFIX=`pwd`/libroot
 
+echo 'Reconstructing libroot...'
 rm -rf tmp libroot
-mkdir -p tmp libroot
-mkdir -p libroot/include libroot/lib
-
+mkdir -p tmp libroot libroot/include libroot/lib
 cd tmp
 
 echo 'Building bzip2...'

@@ -154,6 +154,7 @@ static bool get_file_names_recursive(const wchar_t *base_dir, const wchar_t *dir
 
     /* Get directory content. */
     _snwprintf(findpath, PATH_SIZE, L"%s\\*.*", curdir);
+	findpath[PATH_SIZE - 1] = L'\0';
     hFind = FindFirstFileW(findpath, &wfd);
     if(hFind == INVALID_HANDLE_VALUE)
     {

@@ -319,9 +319,11 @@ bool quick_save(void)
 	quick_save_time = (time_t)timestamp;
 
 #ifdef EM
+	void resume_sound(void);
 	EM_ASM_(
 		FS.syncfs(function (err) { alert('Saved to the browser!'); });
 	);
+	resume_sound();
 #endif
 	return true;
 }
@@ -834,7 +836,8 @@ bool quick_load(void)
 
 #ifdef USE_DEBUGGER
 	clear_variable_changed();
-	update_debug_info(true);
+	on_load_script();
+	on_change_position();
 #endif
 
 	load_flag = true;
@@ -884,7 +887,8 @@ bool execute_load(int index)
 	
 #ifdef USE_DEBUGGER
 	clear_variable_changed();
-	update_debug_info(true);
+	on_load_script();
+	on_change_position();
 #endif
 
 	load_flag = true;

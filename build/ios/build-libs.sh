@@ -1,27 +1,13 @@
 #!/bin/sh
 
+set -eu
+
 PREFIX=`pwd`/libroot
 
 rm -rf tmp libroot
-mkdir -p tmp libroot
+mkdir -p tmp libroot libroot/include libroot/lib libroot/bin
 
 cd tmp
-
-echo 'building zlib...'
-tar xzf ../../libsrc/zlib-1.2.11.tar.gz
-cd zlib-1.2.11
-CFLAGS="-O3 -arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" ./configure --prefix=$PREFIX --static --archs="-arch arm64 -arch armv7"
-make -j4
-make install
-cd ..
-
-echo 'building libpng...'
-tar xzf ../../libsrc/libpng-1.6.35.tar.gz
-cd libpng-1.6.35
-./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-O3 -arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch armv7"
-make -j4
-make install
-cd ..
 
 echo 'building bzip2...'
 tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
@@ -36,6 +22,22 @@ tar xzf ../../libsrc/libwebp-1.3.2.tar.gz
 cd libwebp-1.3.2
 ./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-O3 -arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch armv7"
 make
+make install
+cd ..
+
+echo 'building zlib...'
+tar xzf ../../libsrc/zlib-1.2.11.tar.gz
+cd zlib-1.2.11
+CFLAGS="-O3 -arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" ./configure --prefix=$PREFIX --static --archs="-arch arm64 -arch armv7"
+make -j4
+make install
+cd ..
+
+echo 'building libpng...'
+tar xzf ../../libsrc/libpng-1.6.35.tar.gz
+cd libpng-1.6.35
+./configure --prefix=$PREFIX --host=arm-apple-darwin --disable-shared CPPFLAGS=-I$PREFIX/include CFLAGS="-O3 -arch arm64 -arch armv7 -isysroot `xcrun -sdk iphoneos --show-sdk-path` -fembed-bitcode -mios-version-min=8.0" LDFLAGS="-L$PREFIX/lib -arch arm64 -arch armv7"
+make -j4
 make install
 cd ..
 

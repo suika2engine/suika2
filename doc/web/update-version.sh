@@ -11,7 +11,7 @@ NOTE_JP=`cat ../readme-jp.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 
 NOTE_EN=`cat ../readme-en.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | head -n -1`
 
 # Update /index.html
-cat index.html | sed -e "s|.*LATEST-RELEASE.*|<!--LATEST-RELEASE--><li><a href=\"/dl/\">$DATE $VERSION リリース</a></li>|" -i index.html
+sed -e "s|.*LATEST-RELEASE.*|<!--LATEST-RELEASE--><li><a href=\"/dl/\">$DATE $VERSION リリース</a></li>|" -i index.html
 
 # Update /dl/index.html
 cat dl/index.html | \
@@ -27,7 +27,7 @@ cp new dl/index.html
 rm before after new
 
 # Update /en/index.html
-cat index.html | sed -e "s|.*LATEST-RELEASE.*|<!--LATEST-RELEASE--><li><a href=\"/en/dl/\">$DATE $VERSION Released!!</a></li>|" -i index.html
+sed -e "s|.*LATEST-RELEASE.*|<!--LATEST-RELEASE--><li><a href=\"/en/dl/\">$DATE $VERSION Released!!</a></li>|" -i en/index.html
 
 # Update /en/dl/index.html
 cat en/dl/index.html | \

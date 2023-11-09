@@ -95,7 +95,10 @@ static bool dbg_running;
 static bool dbg_request_stop;
 
 /* エラー状態であるか */
-static bool dbg_error_state;
+static bool dbg_runtime_error;
+
+/* エラーカウント */
+static int dbg_error_count;
 
 /* 前方参照 */
 static bool pre_dispatch(void);
@@ -143,7 +146,7 @@ void init_game_loop(void)
 
 #ifdef USE_DEBUGGER
 	dbg_running = false;
-	update_debug_info(true);
+	on_change_position();
 #endif
 }
 
@@ -197,11 +200,11 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 
 			/* ディスパッチする */
 			if (!dispatch_command(x, y, w, h, &cont)) {
-				if (dbg_error_state) {
-					/* エラーによる終了をキャンセルする */
-					dbg_error_state = false;
-					update_debug_info(true);
+				if (dbg_runtime_error) {
+					/* 実行時エラーによる終了をキャンセルする */
+					dbg_runtime_error = false;
 					dbg_stop();
+					on_change_position();
 					return true;
 				} else {
 					/* スタートアップファイル指定あり */
@@ -209,10 +212,8 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 						return false;
 
 					/* 最後まで実行した */
-					if (!load_debug_script())
-						return false;
-					update_debug_info(true);
 					dbg_stop();
+					on_change_position();
 					return true;
 				}
 				return false;
@@ -251,46 +252,33 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 static bool pre_dispatch(void)
 {
 	char *scr;
-	int line, cmd;
+
+#ifdef USE_EDITOR
+	/* コマンドがない場合 */
+	if (get_command_count() == 0) {
+		dbg_request_stop = true;
+		on_change_running_state(false, false);
+
+		/* コマンドディスパッチへ進めない */
+		return false;
+	}
+#endif
 
 	/* 実行中の場合 */
 	if (dbg_running) {
 		/* 停止が押された場合 */
-		if (is_pause_pushed()) {
+		if (is_stop_pushed()) {
 			dbg_request_stop = true;
-			set_running_state(true, true);
+			on_change_running_state(true, true);
 		}
 
 		/* コマンドディスパッチへ進む */
 		return true;
 	}
 
-	/*
-	 * 停止中の場合
-	 */
-
-	/* 続けるが押された場合 */
-	if (is_resume_pushed()) {
-		dbg_running = true;
-		set_running_state(true, false);
-
-		/* コマンドディスパッチへ進む */
-		return true;
-	}
-
-	/* 次へが押された場合 */
-	if (is_next_pushed()) {
-		dbg_running = true;
-		dbg_request_stop = true;
-		set_running_state(true, true);
-
-		/* コマンドディスパッチへ進む */
-		return true;
-	}
-
-	/* 実行するスクリプトが変更された場合 */
-	if (is_script_changed()) {
-		scr = strdup(get_changed_script());
+	/* 停止中で、実行するスクリプトが変更された場合 */
+	if (is_script_opened()) {
+		scr = strdup(get_opened_script());
 		if (scr == NULL) {
 			log_memory();
 			return false;
@@ -308,24 +296,26 @@ static bool pre_dispatch(void)
 		}
 	}
 
-	/* 行番号が変更された場合 */
-	if (is_line_changed()) {
-		int index = get_command_index_from_line_number(
-			get_changed_line());
+	/* 停止中で、行番号が変更された場合 */
+	if (is_exec_line_changed()) {
+		int index = get_command_index_from_line_num(
+			get_changed_exec_line());
 		if (index != -1)
 			move_to_command_index(index);
 	}
 
-	/* コマンドが更新された場合 */
+#ifndef USE_EDITOR
+	/* 停止中で、コマンドが更新された場合 */
 	if (is_command_updated()) {
-		update_command(get_command_index(),
-			       get_updated_command());
-		update_debug_info(true);
-		return false;
+		update_script_line(get_command_index(), get_updated_command());
+		on_load_script();
+		on_change_position();
 	}
 
-	/* 実行中のスクリプトがリロードされば場合 */
+	/* 停止中で、実行中のスクリプトがリロードされた場合 */
 	if (is_script_reloaded()) {
+		int line, cmd;
+
 		scr = strdup(get_script_file_name());
 		if (scr == NULL) {
 			log_memory();
@@ -350,7 +340,7 @@ static bool pre_dispatch(void)
 		}
 
 		/* 元の行番号の最寄りコマンドを取得する */
-		cmd = get_command_index_from_line_number(line);
+		cmd = get_command_index_from_line_num(line);
 		if (cmd == -1) {
 			/* 削除された末尾の場合、最終コマンドにする */
 			cmd = get_command_count() - 1;
@@ -358,6 +348,26 @@ static bool pre_dispatch(void)
 
 		/* ジャンプする */
 		move_to_command_index(cmd);
+	}
+#endif
+
+	/* 停止中で、続けるが押された場合 */
+	if (is_continue_pushed()) {
+		dbg_running = true;
+		on_change_running_state(true, false);
+
+		/* コマンドディスパッチへ進む */
+		return true;
+	}
+
+	/* 次停止中で、へが押された場合 */
+	if (is_next_pushed()) {
+		dbg_running = true;
+		dbg_request_stop = true;
+		on_change_running_state(true, true);
+
+		/* コマンドディスパッチへ進む */
+		return true;
 	}
 
 	/* 続けるか次へが押されるまでコマンドディスパッチへ進まない */
@@ -793,7 +803,7 @@ void dbg_stop(void)
 	dbg_request_stop = false;
 
 	/* デバッグウィンドウの状態を変更する */
-	set_running_state(false, false);
+	on_change_running_state(false, false);
 }
 
 /*
@@ -807,10 +817,35 @@ bool dbg_is_stop_requested(void)
 /*
  * エラー状態を設定する
  */
-void dbg_set_error_state(void)
+void dbg_raise_runtime_error(void)
 {
-	dbg_error_state = true;
+	dbg_runtime_error = true;
 }
+
+/*
+ * エラーカウントをリセットする
+ */
+void dbg_reset_parse_error_count(void)
+{
+	dbg_error_count = 0;
+}
+
+/*
+ * エラーカウントをインクリメントする
+ */
+void dbg_increment_parse_error_count(void)
+{
+	dbg_error_count++;
+}
+
+/*
+ * エラーカウントを取得する
+ */
+int dbg_get_parse_error_count(void)
+{
+	return dbg_error_count;
+}
+
 #endif
 
 /*
@@ -819,14 +854,15 @@ void dbg_set_error_state(void)
 
 const char license_info[]
 #ifdef __GNUC__
-__attribute__((used))
+ /* Don't remove this string even if it's not referenced. */
+ __attribute__((used))
 #endif
- =	"Suika2: Copyright (c) 2001-2023, Keiichi Tabata.\n"
-	"This program uses bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.\n"
-	"This program uses libwebp: Copyright (C) 2010, Google Inc. All rights reserved.\n"
-	"This program uses zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler.\n"
-	"This program uses libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors.\n"
-	"This program uses jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding.\n"
-	"This program uses libogg: Copyright (C) 2002, Xiph.org Foundation\n"
-	"This program uses libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation\n"
-	"This program uses FreeType: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg.\n";
+ = "Suika2: Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.\n"
+   "zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler. All rights reserved.\n"
+   "libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors. All rights reserved.\n"
+   "jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding. All rights reserved.\n"
+   "bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.\n"
+   "libwebp: Copyright (C) 2010, Google Inc. All rights reserved.\n"
+   "libogg: Copyright (C) 2002, Xiph.org Foundation. All rights reserved.\n"
+   "libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation. All rights reserved.\n"
+   "FreeType2: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg. All rights reserved.\n";

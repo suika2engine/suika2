@@ -32,6 +32,15 @@ In other words, HAL, our compatibility layer, is very complete in its API design
 Suika2 Pro is a developer tool for Suika2, available for Windows, macOS and Linux.
 It provides developers with a debugging capability and an export function.
 
+Suika2 Pro will be replaced by Suika2 Studio in the near future.
+
+## Suika2 Studio
+
+Suika2 Studio is an IDE for Suika2, currently available for Windows.
+It provides developers with editing/debugging capabilities as well as an export function.
+
+Suika2 Studio is currently beta version.
+
 ## Binary Distribution
 
 <!-- Release Banner -->

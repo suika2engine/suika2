@@ -71,6 +71,7 @@ set(PROJECT_SOURCES
 	mixer.c
 	package.c
 	readimage.c
+	readpng.c
 	readjpeg.c
 	readwebp.c
 	save.c

@@ -74,6 +74,11 @@ This method will build the Web version of Suika2.
   ```
   * Note that `emsdk` will be installed when the first call of `make`
 
+* Test instructions
+  * Copy your `data01.arc` to `build/emscripten/html/`
+  * `make run`
+  * Open `http://localhost:8000/html/` by a browser
+
 ## Suika2 for Linux (main engine, x86_64)
 This method will build a Linux app.
 
@@ -165,6 +170,22 @@ This method will build a Linux version of Suika2 Pro using Qt6.
   * From the terminal, navigate to the source code directory and run the following command:
   ```
   make linux-pro
+  ```
+
+## Suika2 Studio for Windows
+This method will build a Suika2 Studio for Windows binary on WSL2, Linux or macOS.
+
+* Prerequisite
+  * Use WSL2, Ubuntu or macOS
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make setup
+  ```
+
+* Build
+  * From the terminal, navigate to the source code directory and run the following command:
+  ```
+  make windows-studio
   ```
 
 ## Suika2 for Raspberry Pi (main engine)

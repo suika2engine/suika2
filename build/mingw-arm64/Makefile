@@ -4,7 +4,6 @@ include ../common.mk
 # Toolchain
 #
 
-# For cross compilation
 CC = ./llvm/bin/aarch64-w64-mingw32-gcc
 CXX = ./llvm/bin/aarch64-w64-mingw32-g++
 WINDRES = ./llvm/bin/aarch64-w64-mingw32-windres

@@ -101,6 +101,9 @@ static BOOL bReloadPressed;
 /* 変数のテキストボックスの内容 */
 static wchar_t szTextboxVar[VAR_TEXTBOX_MAX + 1];
 
+/* GetDpiForWindow() APIへのポインタ */
+UINT (__stdcall *pGetDpiForWindow)(HWND);
+
 /*
  * Forward Declaration
  */
@@ -144,6 +147,23 @@ VOID DoPackagingIfArgExists(VOID)
 }
 
 /*
+ * DPI拡張の初期化を行う
+ */
+VOID InitDpiExtension(void)
+{
+	/* stub */
+}
+
+/*
+ * DPIを取得する
+ */
+int Win11_GetDpiForWindow(UNUSED(HWND hWnd))
+{
+	/* stub */
+	return 96;
+}
+
+/*
  * デバッガパネルを作成する
  */
 BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
@@ -172,9 +192,9 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 							   wszWindowClass,
 							   NULL,
 							   WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
-							   rcClient.right - DEBUGGER_WIDTH,
+							   rcClient.right - DEBUGGER_PANEL_WIDTH,
 							   0,
-							   DEBUGGER_WIDTH,
+							   DEBUGGER_PANEL_WIDTH,
 							   rcClient.bottom,
 							   hWndMain,
 							   NULL,
@@ -262,7 +282,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		bEnglish ? L"Change" : L"変更",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		320, 80, 80, 30,
-		hWndDebug, (HMENU)ID_CHANGE_SCRIPT,
+		hWndDebug, (HMENU)ID_OPEN,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnChangeScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnChangeScript,
@@ -274,7 +294,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON", L"...",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		405, 80, 25, 30,
-		hWndDebug, (HMENU)ID_SELECT_SCRIPT,
+		hWndDebug, (HMENU)ID_OPEN,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSelectScript, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnSelectScript,
@@ -349,7 +369,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Update" : L"更新",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DEBUGGER_WIDTH - 10 - 80, 200, 80, 30,
+		DEBUGGER_PANEL_WIDTH - 10 - 80, 200, 80, 30,
 		hWndDebug, (HMENU)ID_UPDATE_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnUpdate, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -362,7 +382,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Reset" : L"リセット",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DEBUGGER_WIDTH - 10 - 80, 230, 80, 30,
+		DEBUGGER_PANEL_WIDTH - 10 - 80, 230, 80, 30,
 		hWndDebug, (HMENU)ID_RESET_COMMAND,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReset, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -412,7 +432,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Overwrite" : L"上書き保存",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DEBUGGER_WIDTH - 10 - 80 - 10 - 80, 510, 80, 30,
+		DEBUGGER_PANEL_WIDTH - 10 - 80 - 10 - 80, 510, 80, 30,
 		hWndDebug, (HMENU)ID_SAVE,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnSave, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -425,7 +445,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		L"BUTTON",
 		bEnglish ? L"Reload" : L"再読み込み",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		DEBUGGER_WIDTH - 10 - 80, 510, 80, 30,
+		DEBUGGER_PANEL_WIDTH - 10 - 80, 510, 80, 30,
 		hWndDebug, (HMENU)ID_RELOAD,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnReload, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
@@ -464,7 +484,7 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 		bEnglish ? L"Write values" : L"値を書き込む",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		300, 570, 130, 30,
-		hWndDebug, (HMENU)ID_WRITE,
+		hWndDebug, (HMENU)ID_VARS,
 		(HINSTANCE)GetWindowLongPtr(hWndDebug, GWLP_HINSTANCE), NULL);
 	SendMessage(hWndBtnVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnVar,
@@ -539,7 +559,7 @@ static VOID InitDebuggerMenu(HWND hWnd)
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 
 	/* スクリプトを開く(Q)を作成する */
-	mi.wID = ID_SELECT_SCRIPT;
+	mi.wID = ID_OPEN;
 	mi.dwTypeData = bEnglish ?
 		L"Open script(&Q)\tAlt+O" :
 		L"スクリプトを開く(&O)\tAlt+O";
@@ -646,12 +666,21 @@ static VOID InitDebuggerMenu(HWND hWnd)
 /*
  デバッガウィンドウの位置を修正する
  */
-VOID UpdateDebuggerWindowPosition(int nGameWidth, int nGameHeight)
+VOID RearrangeDebuggerPanel(int nGameWidth, int nGameHeight)
 {
+	int nDpi, nDebugWidth;
+
+	/* DPIを求める */
+	nDpi = Win11_GetDpiForWindow(hWndMain);
+
+	/* デバッグパネルのサイズを求める*/
+	nDebugWidth = MulDiv(DEBUGGER_PANEL_WIDTH, nDpi, 96);
+
+	/* デバッグパネルの位置を変更する */
 	MoveWindow(hWndDebug,
 			   nGameWidth,
 			   0,
-			   DEBUGGER_WIDTH,
+			   nDebugWidth,
 			   nGameHeight,
 			   TRUE);
 }
@@ -728,6 +757,12 @@ static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish,
 	return hWndTip;
 }
 
+/* stub */
+BOOL PretranslateForDebugger(UNUSED(MSG* pMsg))
+{
+	return FALSE;
+}
+
 /*
  * デバッガ関連のウィンドウプロシージャの処理を行う
  */
@@ -752,9 +787,15 @@ LRESULT CALLBACK WndProcDebugHook(HWND hWnd, UINT message, WPARAM wParam,
 /*
  * デバッガのWM_COMMANDハンドラ
  */
-VOID OnCommandDebug(UINT nID, UINT nEvent)
+VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 {
-	if(nEvent == LBN_DBLCLK)
+	UINT nID;
+	UINT nNotify;
+
+	nID = LOWORD(wParam);
+	nNotify = HIWORD(wParam);
+	
+	if(nNotify == LBN_DBLCLK)
 	{
 		OnClickListBox();
 		return;
@@ -780,7 +821,7 @@ VOID OnCommandDebug(UINT nID, UINT nEvent)
 	case ID_CHANGE_SCRIPT:
 		bChangeScriptPressed = TRUE;
 		break;
-	case ID_SELECT_SCRIPT:
+	case ID_OPEN:
 		OnSelectScript();
 		break;
 	case ID_CHANGE_LINE:
@@ -801,7 +842,7 @@ VOID OnCommandDebug(UINT nID, UINT nEvent)
 	case ID_RELOAD:
 		bReloadPressed = TRUE;
 		break;
-	case ID_WRITE:
+	case ID_VARS:
 		OnPressWriteVars();
 		break;
 	case ID_EXPORT:
@@ -1535,7 +1576,7 @@ static VOID UpdateVariableTextBox(void)
 /*
  * 再開ボタンが押されたか調べる
  */
-bool is_resume_pushed(void)
+bool is_continue_pushed(void)
 {
 	bool ret = bResumePressed;
 	bResumePressed = FALSE;
@@ -1555,7 +1596,7 @@ bool is_next_pushed(void)
 /*
  * 停止ボタンが押されたか調べる
  */
-bool is_pause_pushed(void)
+bool is_stop_pushed(void)
 {
 	bool ret = bPausePressed;
 	bPausePressed = FALSE;
@@ -1565,7 +1606,7 @@ bool is_pause_pushed(void)
 /*
  * 実行するスクリプトファイルが変更されたか調べる
  */
-bool is_script_changed(void)
+bool is_script_opened(void)
 {
 	bool ret = bChangeScriptPressed;
 	bChangeScriptPressed = FALSE;
@@ -1575,7 +1616,7 @@ bool is_script_changed(void)
 /*
  * 変更された実行するスクリプトファイル名を取得する
  */
-const char *get_changed_script(void)
+const char *get_opened_script(void)
 {
 	static wchar_t script[256];
 
@@ -1587,7 +1628,7 @@ const char *get_changed_script(void)
 /*
  * 実行する行番号が変更されたか調べる
  */
-bool is_line_changed(void)
+bool is_exec_line_changed(void)
 {
 	bool ret = bChangeLinePressed;
 	bChangeLinePressed = FALSE;
@@ -1597,7 +1638,7 @@ bool is_line_changed(void)
 /*
  * 変更された実行するスクリプトファイル名を取得する
  */
-int get_changed_line(void)
+int get_changed_exec_line(void)
 {
 	static wchar_t text[256];
 	int line;
@@ -1654,7 +1695,7 @@ bool is_script_reloaded(void)
 /*
  * コマンドの実行中状態を設定する
  */
-void set_running_state(bool running, bool request_stop)
+void on_change_running_state(bool running, bool request_stop)
 {
 	bRunning = running;
 
@@ -1726,7 +1767,7 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 
 		/* スクリプトを開くメニューを無効にする */
-		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 
 		/* 上書き保存メニューを無効にする */
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
@@ -1817,7 +1858,7 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 
 		/* スクリプトを開くメニューを無効にする */
-		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 
 		/* 上書き保存メニューを無効にする */
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
@@ -1908,7 +1949,7 @@ void set_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, TRUE);
 
 		/* スクリプトを開くメニューを有効にする */
-		EnableMenuItem(hMenu, ID_SELECT_SCRIPT, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_OPEN, MF_ENABLED);
 
 		/* 上書き保存メニューを有効にする */
 		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
@@ -1936,16 +1977,37 @@ void set_running_state(bool running, bool request_stop)
 /*
  * デバッグ情報を更新する
  */
-void update_debug_info(bool script_changed)
+void on_load_script(void)
 {
-	wchar_t line[10];
 	const char *command;
-	int line_num;
-	int top;
+	int line_num, top;
 
 	/* スクリプトファイル名を設定する */
-	SetWindowText(hWndTextboxScript,
-				  conv_utf8_to_utf16(get_script_file_name()));
+	SetWindowText(hWndTextboxScript, conv_utf8_to_utf16(get_script_file_name()));
+
+	/* スクリプトのリストボックスを設定する */
+	SendMessage(hWndListbox, LB_RESETCONTENT, 0 , 0);
+	for(line_num = 0; line_num < get_line_count(); line_num++)
+	{
+		command = get_line_string_at_line_num(line_num);
+		SendMessage(hWndListbox, LB_ADDSTRING, 0,
+					(LPARAM)conv_utf8_to_utf16(command));
+	}
+
+	/* リストビューの表示位置を設定する */
+	line_num = get_expanded_line_num();
+	top = (line_num - 9 < 0) ? 0 : (line_num - 9);
+	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
+	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
+}
+
+/*
+ * デバッグ情報を更新する
+ */
+void on_change_position(void)
+{
+	wchar_t line[10];
+	int line_num, top;
 
 	/* 行番号を設定する */
 	_snwprintf(line, sizeof(line), L"%d", get_expanded_line_num() + 1);
@@ -1954,23 +2016,18 @@ void update_debug_info(bool script_changed)
 	/* コマンド文字列を設定する */
 	SetWindowText(hWndTextboxCommand, conv_utf8_to_utf16(get_line_string()));
 
-	/* スクリプトのリストボックスを設定する */
-	if(script_changed)
-	{
-		SendMessage(hWndListbox, LB_RESETCONTENT, 0 , 0);
-		for(line_num = 0; line_num < get_line_count(); line_num++)
-		{
-			command = get_line_string_at_line_num(line_num);
-			SendMessage(hWndListbox, LB_ADDSTRING, 0,
-						(LPARAM)conv_utf8_to_utf16(command));
-		}
-	}
+	/* リストビューの表示位置を設定する */
 	line_num = get_expanded_line_num();
 	top = (line_num - 9 < 0) ? 0 : (line_num - 9);
 	SendMessage(hWndListbox, LB_SETCURSEL, (WPARAM)line_num, 0);
 	SendMessage(hWndListbox, LB_SETTOPINDEX, (WPARAM)top, 0);
+}
 
+/*
+ * Update UI elements when the main engine changes variables.
+ */
+void on_update_variable(void)
+{
 	/* 変数の情報を更新する */
-	if(check_variable_updated() || script_changed)
-		UpdateVariableTextBox();
+	UpdateVariableTextBox();
 }

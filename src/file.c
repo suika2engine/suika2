@@ -77,7 +77,9 @@ const wchar_t *conv_utf8_to_utf16(const char *s);
 /*
  * 前方参照
  */
+#if 0
 static bool check_file_name(const char *file);
+#endif
 static void ungetc_rfile(struct rfile *rf, char c);
 static void set_random_seed(uint64_t index, uint64_t *next_random);
 static char get_next_random(uint64_t *next_random, uint64_t *prev_random);
@@ -181,11 +183,13 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	struct rfile *rf;
 	uint64_t i;
 
+#if 0
 	/* ファイル名に半角英数字以外が含まれるかチェックする */
 	if (!check_file_name(file)) {
 		log_file_name(dir, file);
 		return NULL;
 	}
+#endif
 
 	/* rfile構造体のメモリを確保する */
 	rf = malloc(sizeof(struct rfile));
@@ -282,6 +286,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	return rf;
 }
 
+#if 0
 /* ファイル名に半角英数字以外が含まれるかチェックする */
 static bool check_file_name(const char *file)
 {
@@ -297,6 +302,7 @@ static bool check_file_name(const char *file)
 
 	return true;
 }
+#endif
 
 /*
  * ファイルのサイズを取得する

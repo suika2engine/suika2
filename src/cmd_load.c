@@ -17,7 +17,7 @@
  */
 bool load_command(void)
 {
-	char *file;
+	char *file, *label;
 
 	/* パラメータからファイル名を取得する */
 	file = strdup(get_string_param(LOAD_PARAM_FILE));
@@ -26,15 +26,37 @@ bool load_command(void)
 		return false;
 	}
 
+	/* パラメータからラベル名を取得する */
+	label = strdup(get_string_param(LOAD_PARAM_LABEL));
+	if (label == NULL) {
+		log_memory();
+		return false;
+	}
+
 	/* 既読フラグをセーブする */
 	save_seen();
+
+#ifdef USE_EDITOR
+	save_script();
+#endif
 
 	/* スクリプトをロードする */
 	if (!load_script(file)) {
 		free(file);
 		return false;
 	}
+
+	/* ラベルへジャンプする */
+	if (strcmp(label, "") != 0) {
+		if (!move_to_label(label)) {
+			free(file);
+			free(label);
+			return false;
+		}
+	}
+
 	free(file);
+	free(label);
 
 	/* 既読フラグをロードする */
 	load_seen();

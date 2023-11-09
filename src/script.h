@@ -144,6 +144,7 @@ enum goto_command_param {
 /* loadコマンドのパラメータ */
 enum load_command_param {
 	LOAD_PARAM_FILE = 1,
+	LOAD_PARAM_LABEL,
 };
 
 /* volコマンドのパラメータ */
@@ -182,151 +183,6 @@ enum select_command_param {
 enum se_command_param {
 	SE_PARAM_FILE = 1,
 	SE_PARAM_OPTION,
-};
-
-/* menuコマンドのパラメータ */
-enum menu_command_param {
-	MENU_PARAM_BG_FILE = 1,
-	MENU_PARAM_FG_FILE,
-	MENU_PARAM_LABEL1,
-	MENU_PARAM_X1,
-	MENU_PARAM_Y1,
-	MENU_PARAM_W1,
-	MENU_PARAM_H1,
-	MENU_PARAM_LABEL2,
-	MENU_PARAM_X2,
-	MENU_PARAM_Y2,
-	MENU_PARAM_W2,
-	MENU_PARAM_H2,
-	MENU_PARAM_LABEL3,
-	MENU_PARAM_X3,
-	MENU_PARAM_Y3,
-	MENU_PARAM_W3,
-	MENU_PARAM_H3,
-	MENU_PARAM_LABEL4,
-	MENU_PARAM_X4,
-	MENU_PARAM_Y4,
-	MENU_PARAM_W4,
-	MENU_PARAM_H4,
-	MENU_PARAM_LABEL5,
-	MENU_PARAM_X5,
-	MENU_PARAM_Y5,
-	MENU_PARAM_W5,
-	MENU_PARAM_H5,
-	MENU_PARAM_LABEL6,
-	MENU_PARAM_X6,
-	MENU_PARAM_Y6,
-	MENU_PARAM_W6,
-	MENU_PARAM_H6,
-	MENU_PARAM_LABEL7,
-	MENU_PARAM_X7,
-	MENU_PARAM_Y7,
-	MENU_PARAM_W7,
-	MENU_PARAM_H7,
-	MENU_PARAM_LABEL8,
-	MENU_PARAM_X8,
-	MENU_PARAM_Y8,
-	MENU_PARAM_W8,
-	MENU_PARAM_H8,
-	MENU_PARAM_LABEL9,
-	MENU_PARAM_X9,
-	MENU_PARAM_Y9,
-	MENU_PARAM_W9,
-	MENU_PARAM_H9,
-	MENU_PARAM_LABEL10,
-	MENU_PARAM_X10,
-	MENU_PARAM_Y10,
-	MENU_PARAM_W10,
-	MENU_PARAM_H10,
-	MENU_PARAM_LABEL11,
-	MENU_PARAM_X11,
-	MENU_PARAM_Y11,
-	MENU_PARAM_W11,
-	MENU_PARAM_H11,
-	MENU_PARAM_LABEL12,
-	MENU_PARAM_X12,
-	MENU_PARAM_Y12,
-	MENU_PARAM_W12,
-	MENU_PARAM_H12,
-	MENU_PARAM_LABEL13,
-	MENU_PARAM_X13,
-	MENU_PARAM_Y13,
-	MENU_PARAM_W13,
-	MENU_PARAM_H13,
-	MENU_PARAM_LABEL14,
-	MENU_PARAM_X14,
-	MENU_PARAM_Y14,
-	MENU_PARAM_W14,
-	MENU_PARAM_H14,
-	MENU_PARAM_LABEL15,
-	MENU_PARAM_X15,
-	MENU_PARAM_Y15,
-	MENU_PARAM_W15,
-	MENU_PARAM_H15,
-	MENU_PARAM_LABEL16,
-	MENU_PARAM_X16,
-	MENU_PARAM_Y16,
-	MENU_PARAM_W16,
-	MENU_PARAM_H16,
-};
-
-/* retrospectコマンドのパラメータ */
-enum retrospect_command_param {
-	RETROSPECT_PARAM_BG_FILE = 1,
-	RETROSPECT_PARAM_FG_FILE,
-	RETROSPECT_PARAM_HIDE_R,
-	RETROSPECT_PARAM_HIDE_G,
-	RETROSPECT_PARAM_HIDE_B,
-	RETROSPECT_PARAM_WIDTH,
-	RETROSPECT_PARAM_HEIGHT,
-	RETROSPECT_PARAM_LABEL1,
-	RETROSPECT_PARAM_FLAG1,
-	RETROSPECT_PARAM_X1,
-	RETROSPECT_PARAM_Y1,
-	RETROSPECT_PARAM_LABEL2,
-	RETROSPECT_PARAM_FLAG2,
-	RETROSPECT_PARAM_X2,
-	RETROSPECT_PARAM_Y2,
-	RETROSPECT_PARAM_LABEL3,
-	RETROSPECT_PARAM_FLAG3,
-	RETROSPECT_PARAM_X3,
-	RETROSPECT_PARAM_Y3,
-	RETROSPECT_PARAM_LABEL4,
-	RETROSPECT_PARAM_FLAG4,
-	RETROSPECT_PARAM_X4,
-	RETROSPECT_PARAM_Y4,
-	RETROSPECT_PARAM_LABEL5,
-	RETROSPECT_PARAM_FLAG5,
-	RETROSPECT_PARAM_X5,
-	RETROSPECT_PARAM_Y5,
-	RETROSPECT_PARAM_LABEL6,
-	RETROSPECT_PARAM_FLAG6,
-	RETROSPECT_PARAM_X6,
-	RETROSPECT_PARAM_Y6,
-	RETROSPECT_PARAM_LABEL7,
-	RETROSPECT_PARAM_FLAG7,
-	RETROSPECT_PARAM_X7,
-	RETROSPECT_PARAM_Y7,
-	RETROSPECT_PARAM_LABEL8,
-	RETROSPECT_PARAM_FLAG8,
-	RETROSPECT_PARAM_X8,
-	RETROSPECT_PARAM_Y8,
-	RETROSPECT_PARAM_LABEL9,
-	RETROSPECT_PARAM_FLAG9,
-	RETROSPECT_PARAM_X9,
-	RETROSPECT_PARAM_Y9,
-	RETROSPECT_PARAM_LABEL10,
-	RETROSPECT_PARAM_FLAG10,
-	RETROSPECT_PARAM_X10,
-	RETROSPECT_PARAM_Y10,
-	RETROSPECT_PARAM_LABEL11,
-	RETROSPECT_PARAM_FLAG11,
-	RETROSPECT_PARAM_X11,
-	RETROSPECT_PARAM_Y11,
-	RETROSPECT_PARAM_LABEL12,
-	RETROSPECT_PARAM_FLAG12,
-	RETROSPECT_PARAM_X12,
-	RETROSPECT_PARAM_Y12,
 };
 
 /* switchコマンドのパラメータ */
@@ -706,25 +562,31 @@ bool has_startup_file(void);
 int get_expanded_line_num(void);
 
 /* 指定した行番号以降の最初のコマンドインデックスを取得する */
-int get_command_index_from_line_number(int line);
+int get_command_index_from_line_num(int line);
 
 /* 指定した行番号の行全体を取得する */
 const char *get_line_string_at_line_num(int line);
 
-/*  デバッグ用に1コマンドだけ書き換える */
-bool update_command(int index, const char *cmd_str);
-
 /* エラー時に@コマンドを'!'で始まるメッセージに変換する */
-void translate_failed_command_to_message(int index);
+void translate_command_to_message_for_runtime_error(int index);
 
 /* デバッグ用の仮のスクリプトをロードする */
 bool load_debug_script(void);
 
-/* スクリプトの行をアップデートする */
-bool update_script_line(int line, const char *text, const char *new_line);
+/* スクリプトの行を挿入する */
+bool insert_script_line(int line, const char *text);
 
-/* スクリプトの行をアップデートする */
+/* スクリプトの行を更新する */
+bool update_script_line(int line, const char *text);
+
+/* スクリプトの行を削除する */
 bool delete_script_line(int line);
+
+/* スクリプトを保存する */
+bool save_script(void);
+
+/* コマンド名からコマンドタイプを返す */
+int get_command_type_from_name(const char *name);
 
 #endif /* USE_DEBUGGER */
 

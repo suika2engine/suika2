@@ -68,6 +68,7 @@ for d in ../../doc/templates/*; do
     BASE=$(basename $d);
     cp suika2/suika.exe "./$BASE/";
     cp suika2/suika-pro.exe "./$BASE/";
+    cp suika2/suika-studio.exe "./$BASE/";
     cp suika2/mac.dmg "./$BASE/";
     cp suika2/mac-pro.dmg "./$BASE/";
     cp -R suika2/tools "./$BASE/";

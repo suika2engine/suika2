@@ -584,10 +584,11 @@ BOOL initDebugWindow(void)
     [debugWindowController showWindow:debugWindowController];
 
     // ビューを更新する
-    set_running_state(false, false);
+    on_change_running_state(false, false);
 
     // デバッグ情報表示を更新する
-    update_debug_info(true);
+    on_load_script();
+    on_change_position();
 
 	return YES;
 }
@@ -640,7 +641,7 @@ static NSString *nsstr(const char *utf8str)
 //
 // 再開ボタンが押されたか調べる
 //
-bool is_resume_pushed(void)
+bool is_continue_pushed(void)
 {
     bool ret = isResumePressed;
     isResumePressed = false;
@@ -660,7 +661,7 @@ bool is_next_pushed(void)
 //
 // 停止ボタンが押されたか調べる
 //
-bool is_pause_pushed(void)
+bool is_stop_pushed(void)
 {
     bool ret = isPausePressed;
     isPausePressed = false;
@@ -670,7 +671,7 @@ bool is_pause_pushed(void)
 //
 // 実行するスクリプトファイルが変更されたか調べる
 //
-bool is_script_changed(void)
+bool is_script_opened(void)
 {
     bool ret = isChangeScriptPressed;
     isChangeScriptPressed = false;
@@ -680,7 +681,7 @@ bool is_script_changed(void)
 //
 // 変更された実行するスクリプトファイル名を取得する
 //
-const char *get_changed_script(void)
+const char *get_opened_script(void)
 {
     static char script[256];
     snprintf(script, sizeof(script), "%s",
@@ -691,7 +692,7 @@ const char *get_changed_script(void)
 //
 // 実行する行番号が変更されたか調べる
 //
-bool is_line_changed(void)
+bool is_exec_line_changed(void)
 {
     bool ret = isLineChangePressed;
     isLineChangePressed = false;
@@ -701,7 +702,7 @@ bool is_line_changed(void)
 //
 // 変更された行番号を取得する
 //
-int get_changed_line(void)
+int get_changed_exec_line(void)
 {
     return [debugWindowController getScriptLine];
 }
@@ -742,7 +743,7 @@ bool is_script_reloaded(void)
 //
 // コマンドの実行中状態を設定する
 //
-void set_running_state(bool running, bool request_stop)
+void on_change_running_state(bool running, bool request_stop)
 {
     // 実行状態を保存する
     isRunning = running;
@@ -1090,17 +1091,25 @@ static void setStoppedState(void)
 //
 // デバッグ情報を更新する
 //
-void update_debug_info(bool script_changed)
+void on_load_script(void)
 {
     [debugWindowController setScriptName:nsstr(get_script_file_name())];
+    [debugWindowController updateScriptTableView];
+}
+
+//
+// デバッグ情報を更新する
+//
+void on_change_position(void)
+{
     [debugWindowController setScriptLine:get_expanded_line_num()];
-    [debugWindowController setCommandText:nsstr(get_line_string())];
-
-    if (script_changed)
-        [debugWindowController updateScriptTableView];
-
     [debugWindowController scrollScriptTableView];
-    
-	if (check_variable_updated() || script_changed)
-		[debugWindowController updateVariableTextField];
+}
+
+//
+// デバッグ情報を更新する
+//
+void on_update_variable(void)
+{
+    [debugWindowController updateVariableTextField];
 }

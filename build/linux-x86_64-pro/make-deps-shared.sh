@@ -88,6 +88,7 @@ SRC="\
 	package.c \
 	platform.h \
 	readimage.c \
+	readpng.c \
 	readjpeg.c \
 	readwebp.c \
 	save.h \

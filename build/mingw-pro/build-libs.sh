@@ -2,8 +2,6 @@
 
 set -eu
 
-export CC=gcc
-
 PREFIX=`pwd`/libroot
 
 rm -rf tmp libroot
@@ -31,7 +29,7 @@ cd ..
 echo 'Building zlib...'
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11
-make -f win32/Makefile.gcc PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections'
+make libz.a -f win32/Makefile.gcc PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections'
 cp zlib.h zconf.h ../../libroot/include/
 cp libz.a ../../libroot/lib/
 cd ..

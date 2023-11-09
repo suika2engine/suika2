@@ -149,12 +149,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\avx.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\avx2.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_bg.c">
       <Filter>Source File</Filter>
     </ClCompile>
@@ -242,12 +236,6 @@
     <ClCompile Include="..\..\..\src\script.c">
       <Filter>Source File</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\sse.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\sse2.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\stage.c">
       <Filter>Source File</Filter>
     </ClCompile>
@@ -258,9 +246,6 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\winmain.c">
-      <Filter>Source File</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\x86.c">
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\cmd_cha.c">
@@ -342,6 +327,9 @@
       <Filter>Source File</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\readwebp.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\readpng.c">
       <Filter>Source File</Filter>
     </ClCompile>
   </ItemGroup>

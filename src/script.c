@@ -36,7 +36,7 @@
  *  - 2023/08/27 @setconfigに対応
  *  - 2023/08/31 @chsxに対応
  *  - 2023/09/14 @pencilに対応
- *  - 2023/10/21 VLS対応
+ *  - 2023/10/25 Suika2 Proでの編集に対応
  */
 
 #include "suika.h"
@@ -154,12 +154,6 @@ static int cur_expanded_line;
 /* コメント行 */
 static char *comment_text[SCRIPT_LINE_SIZE];
 
-/* 現在パース中の行でエラーがあったか */
-static bool is_parse_error;
-
-/* パースエラーの初回警告を行ったか */
-static bool is_parse_error_informed;
-
 /* on-the-flyで行を更新中か */
 static bool is_on_the_fly;
 
@@ -176,10 +170,12 @@ static int evacuated_cur_expanded_line;
 #endif
 
 /* 前方参照 */
-static void replace_command_to_comment(int line, const char *text);
-static void replace_comment_to_command(int line, const char *text);
+static bool replace_command_by_command(int index, const char *text);
+static void replace_command_by_comment(int line, const char *text);
+static bool replace_comment_by_command(int line, const char *text);
+static void replace_comment_by_comment(int line, const char *text);
 static void insert_comment(int line, const char *text);
-static void insert_command(int line, const char *text);
+static bool insert_command(int line, const char *text);
 
 #endif /* USE_DEBUGGER */
 
@@ -221,8 +217,8 @@ struct insn_item {
 	{"@labeledgoto", COMMAND_LABELEDGOTO, 2, 2},
 
 	/* シナリオファイルのロード */
-	{"@load", COMMAND_LOAD, 1, 1},
-	{U8("@シナリオ"), COMMAND_LOAD, 1, 1},
+	{"@load", COMMAND_LOAD, 1, 2},
+	{U8("@シナリオ"), COMMAND_LOAD, 1, 2},
 
 	/* ボリューム設定 */
 	{"@vol", COMMAND_VOL, 2, 3},
@@ -363,6 +359,8 @@ struct param_item {
 	/* @load */
 	{COMMAND_LOAD, LOAD_PARAM_FILE, "file="},
 	{COMMAND_LOAD, LOAD_PARAM_FILE, U8("ファイル=")},
+	{COMMAND_LOAD, LOAD_PARAM_FILE, "label="},
+	{COMMAND_LOAD, LOAD_PARAM_FILE, U8("ラベル=")},
 
 	/* @vol */
 	{COMMAND_VOL, VOL_PARAM_STREAM, "track="},
@@ -637,10 +635,10 @@ static bool parse_message(const char *raw, const char *buf, int locale_offset,
 static bool parse_label(const char *raw, const char *buf, int locale_offset,
 			int index);
 static bool starts_with(const char *s, const char *prefix);
-static void show_parse_error_footer(const char *raw);
+static void show_parse_error_footer(int cmd_index, const char *raw);
 
 #ifdef USE_DEBUGGER
-static void recover_from_parse_error(const char *raw);
+static void recover_from_parse_error(int cmd_index, const char *raw);
 static bool add_comment_line(const char *s, ...);
 #endif
 
@@ -763,12 +761,6 @@ bool load_script(const char *fname)
 	/* 行番号情報を初期化する */
 	cur_expanded_line = 0;
 
-#ifdef USE_DEBUGGER
-	/* エラー状態を初期化する */
-	is_parse_error = false;
-	is_parse_error_informed = false;
-#endif
-
 	/* スクリプトファイルを読み込む */
 	if (!read_script_from_file(fname, false))
 		return false;
@@ -798,7 +790,8 @@ bool load_script(const char *fname)
 	/* スクリプトロードのタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(true);
+	on_load_script();
+	on_change_position();
 #endif
 
 	clear_last_en_command();
@@ -834,10 +827,12 @@ bool move_to_command_index(int index)
 	cur_index = index;
 
 #ifdef USE_DEBUGGER
+#ifndef USE_EDITOR
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(false);
+#endif
+	on_change_position();
 #endif
 
 	return true;
@@ -851,14 +846,16 @@ bool move_to_next_command(void)
 	assert(cur_index < cmd_size);
 
 	/* スクリプトの末尾に達した場合 */
-	if (++cur_index == cmd_size)
+	if (cur_index == cmd_size - 1)
 		return false;
+
+	cur_index++;
 
 #ifdef USE_DEBUGGER
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(false);
+	on_change_position();
 #endif
 
 	return true;
@@ -903,7 +900,7 @@ bool move_to_label(const char *label)
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(false);
+	on_change_position();
 #endif
 
 	return true;
@@ -942,7 +939,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 		/* コマンド移動のタイミングでは停止要求を処理する */
 		if (dbg_is_stop_requested())
 			dbg_stop();
-		update_debug_info(false);
+		on_change_position();
 #endif
 		return true;
 	}
@@ -978,7 +975,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
-	update_debug_info(false);
+	on_change_position();
 #endif
 
 	return true;
@@ -1303,11 +1300,9 @@ static bool process_include(char *raw_buf, bool is_included)
 		/* デバッガの場合、回復してコメント行扱いにする */
 		if (!add_comment_line("!%s", raw_buf))
 			return false;
-		if (!is_parse_error_informed) {
+		if (dbg_get_parse_error_count())
 			log_inform_translated_commands();
-			is_parse_error_informed = true;
-		}
-		is_parse_error = true;
+		dbg_increment_parse_error_count();
 		return true;
 #else
 		/* エンジン本体の動作の場合、エラーとする */
@@ -1554,6 +1549,9 @@ static bool process_switch_block(struct rfile *rf, const char *raw,
 	int opt_count, i, state, accepted, cur_opt;
 	bool escaped;
 
+	memset(opt, 0, sizeof(opt));
+	memset(label, 0, sizeof(label));
+
 	/* rawを保存する */
 	raw_save = strdup(raw);
 	if (raw_save == NULL) {
@@ -1571,7 +1569,7 @@ static bool process_switch_block(struct rfile *rf, const char *raw,
 	if (opt[0] == NULL) {
 		free(raw_save);
 		log_script_too_few_param(2, 0);
-		show_parse_error_footer(raw);
+		show_parse_error_footer(cmd_size, raw);
 		return false;
 	}
 
@@ -2009,10 +2007,8 @@ static bool process_normal_line(const char *raw, const char *buf)
 
 #ifdef USE_DEBUGGER
 	/* デバッガの場合、パースエラーから復旧する */
-	if (!ret && is_parse_error) {
-		is_parse_error = false;
+	if (!ret)
 		ret = true;
-	}
 #endif
 
 	if (!ret)
@@ -2066,7 +2062,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 
 	/* コマンドのタイプを取得する */
 	for (i = 0; i < (int)INSN_TBL_SIZE; i++) {
-		if (strcasecmp(c->param[0], insn_tbl[i].str) == 0) {
+		if (strcmp(c->param[0], insn_tbl[i].str) == 0) {
 			c->type = insn_tbl[i].type;
 			min = insn_tbl[i].min;
 			max = insn_tbl[i].max;
@@ -2075,7 +2071,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 	}
 	if (i == INSN_TBL_SIZE) {
 		log_script_command_not_found(c->param[0]);
-		show_parse_error_footer(raw);
+		show_parse_error_footer(index, raw);
 		return false;
 	}
 
@@ -2086,7 +2082,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 	       i < PARAM_SIZE) {
 		if (strcmp(tp, "") == 0) {
 			log_script_empty_string();
-			show_parse_error_footer(raw);
+			show_parse_error_footer(index, raw);
 			return false;
 		}
 
@@ -2106,7 +2102,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 			/*  @chsxだけは引数名が必須 */
 			if (c->type == COMMAND_CHSX) {
 				log_script_parameter_name_not_specified();
-				show_parse_error_footer(raw);
+				show_parse_error_footer(index, raw);
 				return false;
 			}
 
@@ -2126,7 +2122,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 			/* 引数名の順番をチェックする */
 			if (!check_param_name_order(c->type, i, j)) {
 				log_script_param_order_mismatch();
-				show_parse_error_footer(raw);
+				show_parse_error_footer(index, raw);
 				return false;
 			}
 
@@ -2152,7 +2148,7 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 		if (j == PARAM_TBL_SIZE) {
 			*strstr(tp, "=") = '\0';
 			log_script_param_mismatch(tp);
-			show_parse_error_footer(raw);
+			show_parse_error_footer(index, raw);
 			return false;
 		}
 	}
@@ -2160,12 +2156,12 @@ static bool parse_insn(const char *raw, const char *buf, int locale_offset,
 	/* パラメータの数をチェックする */
 	if (i - 1 < min) {
 		log_script_too_few_param(min, i - 1);
-		show_parse_error_footer(raw);
+		show_parse_error_footer(index, raw);
 		return false;
 	}
 	if (i - 1 > max) {
 		log_script_too_many_param(max, i - 1);
-		show_parse_error_footer(raw);
+		show_parse_error_footer(index, raw);
 		return false;
 	}
 
@@ -2294,7 +2290,7 @@ static bool parse_serif(const char *raw, const char *buf, int locale_offset,
 	third = strtok(NULL, "*");
 	if (first == NULL || second == NULL) {
 		log_script_empty_serif();
-		show_parse_error_footer(raw);
+		show_parse_error_footer(index, raw);
 		return false;
 	}
 
@@ -2458,14 +2454,16 @@ static bool starts_with(const char *s, const char *prefix)
 }
 
 /* パースエラーのフッタを表示する */
-static void show_parse_error_footer(const char *raw)
+static void show_parse_error_footer(int index, const char *raw)
 {
 #ifndef USE_DEBUGGER
 	/* フッタを表示する */
 	log_script_parse_footer(cur_parse_file, cur_parse_line, raw);
+
+	UNUSED_PARAMETER(index);
 #else
 	/* デバッガ動作の場合、パースエラーから回復する */
-	recover_from_parse_error(raw);
+	recover_from_parse_error(index, raw);
 #endif
 }
 
@@ -2475,11 +2473,11 @@ static void show_parse_error_footer(const char *raw)
 #ifdef USE_DEBUGGER
 
 /* パースエラーから回復する */
-static void recover_from_parse_error(const char *raw)
+static void recover_from_parse_error(int cmd_index, const char *raw)
 {
 	struct command *c;
 
-	c = &cmd[cmd_size];
+	c = &cmd[cmd_index];
 
 	/* コマンドの種類、ファイル、行番号を設定する */
 	c->type = COMMAND_MESSAGE;
@@ -2517,11 +2515,9 @@ static void recover_from_parse_error(const char *raw)
 		COMMIT_CMD();
 
 	/* 最初のパースエラーであれば、メッセージに変換された旨を表示する */
-	if(!is_parse_error_informed) {
+	if(dbg_get_parse_error_count() == 0)
 		log_inform_translated_commands();
-		is_parse_error_informed = true;
-	}
-	is_parse_error = true;
+	dbg_increment_parse_error_count();
 }
 
 /* コメント行を追加する */
@@ -2588,7 +2584,7 @@ int get_line_count(void)
 /*
  * 指定した行番号以降の最初のコマンドインデックスを取得する
  */
-int get_command_index_from_line_number(int line)
+int get_command_index_from_line_num(int line)
 {
 	int i;
 
@@ -2623,139 +2619,9 @@ const char *get_line_string_at_line_num(int line)
 }
 
 /*
- * デバッグ用に1コマンドだけ書き換える
+ * 実行エラー時に@コマンドを'!'で始まるメッセージに変換する
  */
-bool update_command(int index, const char *cmd_str)
-{
-	struct command *c;
-	const char *save_parse_file;
-	int save_parse_line;
-	int save_expanded_line;
-	int top;
-	bool ret;
-
-	assert(index >= 0 && index < cmd_size);
-
-	c = &cmd[index];
-
-	/* コマンドの文字列を解放する */
-	if (c->text != NULL) {
-		free(c->text);
-		c->text = NULL;
-	}
-	if (c->param[0] != NULL) {
-		free(c->param[0]);
-		c->param[0] = NULL;
-	}
-
-	/* ロケールを処理する */
-	top = 0;
-	if (strlen(cmd_str) > 4 && cmd_str[0] == '+' && cmd_str[3] == '+') {
-		c->locale[0] = cmd_str[1];
-		c->locale[1] = cmd_str[2];
-		c->locale[2] = '\0';
-		top = 4;
-	} else {
-		c->locale[0] = '\0';
-	}
-
-	/* パース位置の情報を設定する */
-	save_parse_file = cur_parse_file;
-	save_parse_line = cur_parse_line;
-	save_expanded_line = cur_expanded_line;
-	cur_parse_file = c->file;
-	cur_parse_line = c->line;
-	cur_expanded_line = c->expanded_line;
-
-	/* on-the-flyのパースであることを設定する */
-	is_on_the_fly = true;
-
-	/* パースエラー時に情報が表示されるようにする */
-	is_parse_error_informed = false;
-
-	/* 行頭の文字で仕分けする */
-	ret = true;
-	switch (cmd_str[top]) {
-	case '@':
-		if (!parse_insn(cmd_str, cmd_str, top, index))
-			ret = false;
-		break;
-	case '*':
-		if (!parse_serif(cmd_str, cmd_str, top, index))
-			ret = false;
-		break;
-	case ':':
-		if (!parse_label(cmd_str, cmd_str, top, index))
-			ret = false;
-		break;
-	case '\0':
-		/* 空行はコメントに変換する */
-		replace_command_to_comment(index, cmd_str);
-		break;
-	case '#':
-		/* コマンドからコメントに変換する */
-		replace_command_to_comment(index, cmd_str);
-		break;
-	default:
-		if (!parse_message(cmd_str, cmd_str, top, index))
-			ret = false;
-		break;
-	}
-
-	/* パースエラーでないエラーはメモリ確保エラーなのでabortする */
-	if (!ret && !is_parse_error)
-		abort();
-
-	/* パースエラーから回復する */
-	if (!ret && is_parse_error) {
-		recover_from_parse_error(cmd_str);
-		is_parse_error = false;
-	}
-
-	/* on-the-flyのパースを終了する */
-	is_on_the_fly = false;
-	cur_parse_file = save_parse_file;
-	cur_parse_line = save_parse_line;
-	cur_expanded_line = save_expanded_line;
-
-	return true;
-}
-
-/* コマンド行をコメント行に置き換える */
-static void replace_command_to_comment(int line, const char *text)
-{
-	int i, cmd_index;
-
-	assert(text != NULL);
-	assert(comment_text[line] != NULL);
-
-	/* 行番号line以降の最初のコマンドを探す */
-	cmd_index = get_command_index_from_line_number(line);
-	assert(cmd_index != -1);
-
-	/* コマンドを解放する */
-	if (cmd[cmd_index].text != NULL)
-		free(cmd[cmd_index].text);
-	if (cmd[cmd_index].param[0] != NULL)
-		free(cmd[cmd_index].param[0]);
-	memset(&cmd[cmd_index], 0, sizeof(struct command));
-
-	/* cmd_index+1以降のコマンドを1つずつ手前にずらす */
-	for (i = cmd_index; i < cmd_index - 1; i++)
-		cmd[i] = cmd[i + 1];
-
-	/* コメントを保存する */
-	comment_text[line] = strdup(text);
-	if (comment_text[line] == NULL) {
-		log_memory();
-		abort();
-	}
-}
-
-/*
- * エラー時に@コマンドを'!'で始まるメッセージに変換する
- */
-void translate_failed_command_to_message(int index)
+void translate_command_to_message_for_runtime_error(int index)
 {
 	struct command *c;
 	int i;
@@ -2784,7 +2650,8 @@ void translate_failed_command_to_message(int index)
 	for (i = 1; i < PARAM_SIZE; i++)
 		c->param[i] = NULL;
 
-	dbg_set_error_state();
+	/* 実行時エラー状態を設定する */
+	dbg_raise_runtime_error();
 }
 
 /*
@@ -2807,6 +2674,7 @@ bool load_debug_script(void)
 
 	cmd[0].type = COMMAND_MESSAGE;
 	cmd[0].line = 0;
+	cmd[0].expanded_line = 0;
 	cmd[0].text = strdup(conf_locale == LOCALE_JA ?
 			     U8("実行を終了しました。") :
 			     "Execution finished.");
@@ -2826,49 +2694,202 @@ bool load_debug_script(void)
 }
 
 /*
- * スクリプトの行をアップデートする
- *  - new_lineは改行文字の挿入時に利用する
+ * スクリプトの行を挿入する
  */
-bool
-update_script_line(
-	int line,		/* 行番号 */
-	const char *text,	/* 行番号における新しいテキスト (NULL可) */
-	const char *new_line)	/* 行番号+1に挿入する新しいテキスト (NULL可) */
+bool insert_script_line(int line, const char *text)
+{
+	assert(line <= cur_expanded_line);
+	assert(text != NULL);
+
+	if (text[0] != '#' && text[0] != '\0') {
+		/* コマンドを挿入する */
+		if (!insert_command(line, text))
+			return false;
+	} else {
+		/* コメントを挿入する */
+		insert_comment(line, text);
+	}
+
+	return true;
+}
+
+/*
+ * スクリプトの行をアップデートする
+ */
+bool update_script_line(int line, const char *text)
 {
 	int cmd_index;
 
 	assert(line < cur_expanded_line);
+	assert(text != NULL);
 
-	/* 行番号line以降の最初の行番号のコマンドを探す */
-	cmd_index = get_command_index_from_line_number(line);
+	/*
+	 * TODO:
+	 * src: comment, command
+	 * dst: comment, command
+	 * などの組み合わせにして、単純化できそう
+	 */
 
-	/* 行番号lineの位置にコマンドがあるか */
-	if (cmd_index != -1 && cmd[cmd_index].line == line) {
-		/* あるので、そのコマンドをアップデートする */
-		if (text != NULL)
-			update_command(cmd_index, text);
-	} else {
-		/* ないので、コメントをコマンドに変換する */
-		if (text != NULL)
-			replace_comment_to_command(line, text);
-	}
+	/* 行番号line以降の最初のコマンドを探す */
+	cmd_index = get_command_index_from_line_num(line);
 
-	/* 次の行に挿入する場合 */
-	if (new_line != NULL) {
-		if (new_line[0] == '#') {
-			/* コメントの場合 */
-			insert_comment(line, new_line);
+	/* 行番号line以降にコマンドがあるか */
+	if (cmd_index != -1) {
+		/* 行番号lineのちょうどその位置にコマンドがあるか */
+		if (cmd[cmd_index].expanded_line == line) {
+			/* あるので、そのコマンドをアップデートする */
+			if (strcmp(cmd[cmd_index].text, text) != 0) {
+				if (text[0] != '#' && text[0] != '\0') {
+					if (!replace_command_by_command(cmd_index, text))
+						return false;
+				} else {
+					replace_command_by_comment(cmd_index, text);
+				}
+			}
 		} else {
-			/* コマンドの場合 */
-			insert_command(line + 1, new_line);
+			/* ないが、行番号line+1以降にコマンドがある */
+			if (text[0] != '#' && text[0] != '\0') {
+				if (!replace_comment_by_command(line, text))
+					return false;
+			} else {
+				replace_comment_by_comment(line, text);
+			}
+		}
+	} else {
+		/* 行番号line以降にコマンドがない場合 */
+		if (text[0] != '#' && text[0] != '\0') {
+			/* コマンドを挿入する */
+			if (!insert_command(line, text))
+				return false;
+		} else {
+			/* コメントを挿入する */
+			insert_comment(line, text);
 		}
 	}
 
 	return true;
 }
 
+/*
+ * コマンドを書き換える
+ */
+static bool replace_command_by_command(int index, const char *text)
+{
+	struct command *c;
+	const char *save_parse_file;
+	int save_parse_line;
+	int save_expanded_line;
+	int top;
+	bool ret;
+
+	assert(index >= 0 && index < cmd_size);
+	assert(text != NULL);
+	assert(text[0] != '#');
+	assert(text[0] != '\0');
+	assert(comment_text[cmd[index].expanded_line] == NULL);
+
+	c = &cmd[index];
+
+	/* コマンドの文字列を解放する */
+	if (c->text != NULL) {
+		free(c->text);
+		c->text = NULL;
+	}
+	if (c->param[0] != NULL) {
+		free(c->param[0]);
+		c->param[0] = NULL;
+	}
+
+	/* ロケールを処理する */
+	top = 0;
+	if (strlen(text) > 4 && text[0] == '+' && text[3] == '+') {
+		c->locale[0] = text[1];
+		c->locale[1] = text[2];
+		c->locale[2] = '\0';
+		top = 4;
+	} else {
+		c->locale[0] = '\0';
+	}
+
+	/* パース位置の情報を設定する */
+	save_parse_file = cur_parse_file;
+	save_parse_line = cur_parse_line;
+	save_expanded_line = cur_expanded_line;
+	cur_parse_file = c->file;
+	cur_parse_line = c->line;
+	cur_expanded_line = c->expanded_line;
+
+	/* on-the-flyのパースであることを設定する */
+	is_on_the_fly = true;
+
+	/* 行頭の文字で仕分けする */
+	ret = true;
+	switch (text[top]) {
+	case '@':
+		if (!parse_insn(text, text, top, index))
+			ret = false;
+		break;
+	case '*':
+		if (!parse_serif(text, text, top, index))
+			ret = false;
+		break;
+	case ':':
+		if (!parse_label(text, text, top, index))
+			ret = false;
+		break;
+	default:
+		if (!parse_message(text, text, top, index))
+			ret = false;
+		break;
+	}
+
+	/* on-the-flyのパースを終了する */
+	is_on_the_fly = false;
+	cur_parse_file = save_parse_file;
+	cur_parse_line = save_parse_line;
+	cur_expanded_line = save_expanded_line;
+
+	return ret;
+}
+
+/* コマンド行をコメント行に置き換える */
+static void replace_command_by_comment(int cmd_index, const char *text)
+{
+	int i, line;
+
+	assert(text != NULL);
+
+	/* 行番号を求める */
+	line = cmd[cmd_index].expanded_line;
+
+	/* コメントを保存する */
+	assert(comment_text[line] == NULL);
+	if (text[0] != '\0') {
+		comment_text[line] = strdup(text);
+		if (comment_text[line] == NULL)
+			log_memory();
+	}
+
+	/* コマンドを解放する */
+	if (cmd[cmd_index].text != NULL) {
+		free(cmd[cmd_index].text);
+		cmd[cmd_index].text = NULL;
+	}
+	if (cmd[cmd_index].param[0] != NULL) {
+		free(cmd[cmd_index].param[0]);
+		cmd[cmd_index].param[0] = NULL;
+	}
+	memset(&cmd[cmd_index], 0, sizeof(struct command));
+
+	/* cmd_index+1以降のコマンドを1つずつ手前にずらす */
+	for (i = cmd_index; i < SCRIPT_CMD_SIZE - 1; i++)
+		cmd[i] = cmd[i + 1];
+	memset(&cmd[SCRIPT_CMD_SIZE - 1], 0, sizeof(struct command));
+	cmd_size--;
+}
+
 /* コメント行をコマンド行に置き換える */
-static void replace_comment_to_command(int line, const char *text)
+static bool replace_comment_by_command(int line, const char *text)
 {
 	int i, cmd_index;
 
@@ -2877,24 +2898,51 @@ static void replace_comment_to_command(int line, const char *text)
 	/* コメント行が存在することをチェックする */
 	assert(line >= 0);
 	assert(line < cur_expanded_line);
-	assert(comment_text[line] != NULL);
+
+	/* コメント行のテキストを解放する */
+	if (comment_text[line] != NULL) {
+		free(comment_text[line]);
+		comment_text[line] = NULL;
+	}
 
 	/* 行番号line以降の最初のコマンドを探す */
-	cmd_index = get_command_index_from_line_number(line);
+	cmd_index = get_command_index_from_line_num(line);
 
 	/* 行番号line以降にコマンドがある場合 (末尾のコメントでない場合) */
 	if (cmd_index != -1) {
 		/* cmd_index以降のコマンドを1つずつ後ろにずらす */
-		for (i = cmd_size - 1; i >= cmd_index; i--)
+		for (i = SCRIPT_CMD_SIZE - 1; i > cmd_index; i--)
 			cmd[i] = cmd[i - 1];
 		memset(&cmd[cmd_index], 0, sizeof(struct command));
 	}
 
 	/* コマンドをパースする */
-	update_command(cmd_index, text);
+	cmd_size++;
+	cmd[cmd_index].file = cur_script;
+	cmd[cmd_index].line = line;
+	cmd[cmd_index].expanded_line = line;
+	if (!replace_command_by_command(cmd_index, text))
+		return false;
+
+	return true;
 }
 
-/* コマンドを挿入する */
+/* コメント行を置き換える */
+static void replace_comment_by_comment(int line, const char *text)
+{
+	/* コメント行のテキストを置き換える */
+	if (comment_text[line] != NULL) {
+		free(comment_text[line]);
+		comment_text[line] = NULL;
+	}
+	if (text[0] != '\0') {
+		comment_text[line] = strdup(text);
+		if (comment_text[line] == NULL)
+			log_memory();
+	}
+}
+
+/* コメントを挿入する */
 static void insert_comment(int line, const char *text)
 {
 	int i, cmd_index;
@@ -2902,35 +2950,9 @@ static void insert_comment(int line, const char *text)
 	assert(text != NULL);
 
 	/* コメントテーブルがいっぱいでないことを確認する */
-	assert(cmd_size < SCRIPT_CMD_SIZE - 1);
-
-	/* 行番号line以降のコマンドについて、行番号を1加算する */
-	cmd_index = get_command_index_from_line_number(line);
-	if (cmd_index != -1) {
-		for (i = cmd_index; i < cmd_size; i++) {
-			cmd[i].line++;
-			cmd[i].expanded_line++;
-		}
-	}
-
-	/* 行番号line以降のコメントについて、1つずつ後ろにずらす */
-	for (i = SCRIPT_LINE_SIZE - 1; i > line; i--)
-		comment_text[i] = comment_text[i - 1];
-
-	/* 空けた行にコメントを設定する */
-	comment_text[i] = strdup(text);
-	if (comment_text[i] == NULL) {
-		log_memory();
-		abort();
-	}
-}
-
-/* コマンドを挿入する */
-static void insert_command(int line, const char *text)
-{
-	int i, cmd_index;
-
-	assert(line <= cur_expanded_line);
+	assert(line < SCRIPT_LINE_SIZE - 1);
+	assert(text != NULL);
+	assert(text[0] == '#' || text[0] == '\0');
 	assert(cmd_size < SCRIPT_CMD_SIZE - 1);
 
 	/* 行番号line以降のコメントについて、1つずつ後ろにずらす */
@@ -2938,20 +2960,204 @@ static void insert_command(int line, const char *text)
 		comment_text[i] = comment_text[i - 1];
 	comment_text[line] = NULL;
 
+	/* 空けた行にコメントを設定する */
+	if (text[0] != '\0') {
+		comment_text[line] = strdup(text);
+		if (comment_text[line] == NULL)
+			log_memory();
+	}
+
+	/* 行番号line以降のコマンドについて、行番号を1加算する */
+	cmd_index = get_command_index_from_line_num(line);
+	if (cmd_index != -1) {
+		for (i = cmd_index; i < cmd_size; i++) {
+			cmd[i].line++;
+			cmd[i].expanded_line++;
+		}
+	}
+
+	cur_expanded_line++;
+}
+
+/* コマンドを挿入する */
+static bool insert_command(int line, const char *text)
+{
+	int i, cmd_index;
+
+	assert(line < SCRIPT_LINE_SIZE - 1);
+	assert(text != NULL);
+	assert(text[0] != '#' && text[0] != '\0');
+	assert(cmd_size < SCRIPT_CMD_SIZE - 1);
+
+	/* 行番号lineにすでにコメントがあれば削除する */
+	if (comment_text[line] != NULL) {
+		free(comment_text[line]);
+		comment_text[line] = NULL;
+	}
+
+	/* 行番号line+1以降のコメントについて、1つずつ後ろにずらす */
+	for (i = SCRIPT_LINE_SIZE - 1; i > line; i--)
+		comment_text[i] = comment_text[i - 1];
+
 	/* 行番号line以降の最初のコマンドを探す */
-	cmd_index = get_command_index_from_line_number(line);
+	cmd_index = get_command_index_from_line_num(line);
 	if (cmd_index != -1) {
 		/* コマンドがある場合、cmd_index以降のコマンドを1つずつ後ろにずらす */
-		for (i = cmd_size - 1; i >= cmd_index; i--)
+		for (i = cmd_size; i > cmd_index; i--) {
 			cmd[i] = cmd[i - 1];
+			cmd[i].line++;
+			cmd[i].expanded_line++;
+		}
 		memset(&cmd[cmd_index], 0, sizeof(struct command));
+		cmd_size++;
 	} else {
 		/* コマンドがない場合、末尾に追加する */
 		cmd_index = cmd_size;
+		cmd_size++;
+		if (line >= cur_expanded_line)
+			cur_expanded_line = line + 1;
 	}
 
 	/* 追加するコマンドをパースする */
-	update_command(cmd_index, text);
+	cmd[cmd_index].file = cur_script;
+	cmd[cmd_index].line = line;
+	cmd[cmd_index].expanded_line = line;
+	if (!replace_command_by_command(cmd_index, text))
+		return false;
+
+	return true;
+}
+
+/*
+ * スクリプトの行を削除する
+ *  - return: 実行行が変更された場合true
+ */
+bool delete_script_line(int line)
+{
+	int i, cmd_index;
+
+	assert(line < cur_expanded_line);
+
+	/* コメント行であればテキストを解放する */
+	if (comment_text[line] != NULL) {
+		free(comment_text[line]);
+		comment_text[line] = NULL;
+	}
+
+	/* line以降のコメントを1つずつ前の要素にずらす */
+	for (i = line; i < SCRIPT_LINE_SIZE - 1; i++)
+		comment_text[i] = comment_text[i + 1];
+	comment_text[SCRIPT_LINE_SIZE - 1] = NULL;
+
+	/* コマンド行であれば解放する */
+	cmd_index = get_command_index_from_line_num(line);
+	if (cmd_index != -1 && cmd[cmd_index].expanded_line == line) {
+		/* コマンドを解放する */
+		if (cmd[cmd_index].text != NULL) {
+			free(cmd[cmd_index].text);
+			cmd[cmd_index].text = NULL;
+		}
+		if (cmd[cmd_index].param[0] != NULL) {
+			free(cmd[cmd_index].param[0]);
+			cmd[cmd_index].param[0] = NULL;
+		}
+		memset(&cmd[cmd_index], 0, sizeof(struct command));
+
+		/* cmd_index+1以降のコマンドを1つずつ手前にずらす */
+		for (i = cmd_index; i < cmd_size - 1; i++)
+			cmd[i] = cmd[i + 1];
+		memset(&cmd[cmd_size - 1], 0, sizeof(struct command));
+		cmd_size--;
+	}
+
+	/* cmd_index以降のコマンドの行番号を1つ減らす */
+	if (cmd_index != -1) {
+		for (i = cmd_index; i < cmd_size; i++) {
+			cmd[i].line--;
+			cmd[i].expanded_line--;
+		}
+	}
+
+	/* 実行行を補正する */
+	if (cur_index >= cmd_size) {
+		cur_index = cmd_size - 1;
+		return true;
+	}
+	return false;
+}
+
+/* スクリプトを保存する */
+bool save_script(void)
+{
+	FILE *fp;
+	char *path;
+	int i;
+	bool in_using;
+
+	const char USING_BEGIN_PREFIX[] = "#<!-- // begin using ";
+	const char USING_END[] = "#--> // end using";
+
+	/* DEBUG画面なら保存しない */
+	if (strcmp(cur_script, "DEBUG") == 0)
+		return false;
+
+	/* パスを生成する */
+	path = make_valid_path(SCRIPT_DIR, cur_script);
+
+	/* ファイルをオープンする */
+	fp = fopen(path, "wb");
+	if (fp == NULL) {
+		free(path);
+		return false;
+	}
+	free(path);
+
+	/* 行ごとに処理する */
+	in_using = false;
+	for (i = 0; i < get_line_count(); i++) {
+		const char *line;
+		int out, lf;
+
+		/* 行の文字列を取得する */
+		line = get_line_string_at_line_num(i);
+
+		/* 行を出力する */
+		if (!in_using) {
+			if (strncmp(line, USING_BEGIN_PREFIX, strlen(USING_BEGIN_PREFIX)) == 0) {
+				in_using = true;
+				out = fputs(strstr(line, "using"), fp);
+			} else {
+				out = fputs(line, fp);
+			}
+		} else {
+            if (strcmp(line, USING_END) == 0) {
+                in_using = false;
+                out = 1;
+            } else {
+                out = fputs(line, fp);
+            }
+		}
+		lf = fputs("\n", fp);
+		if(out < 0 || lf < 0) {
+			fclose(fp);
+			return false;
+		}			
+	}
+	fclose(fp);
+
+	return true;
+}
+
+/* コマンド名からコマンドタイプを返す */
+int get_command_type_from_name(const char *name)
+{
+	int i;
+
+	for (i = 0; i < (int)INSN_TBL_SIZE; i++)
+		if (strcmp(name, insn_tbl[i].str) == 0)
+			return insn_tbl[i].type;
+
+	return -1;
 }
 
 #endif /* USE_DEBUGGER */
