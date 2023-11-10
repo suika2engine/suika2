@@ -93,6 +93,7 @@ static BOOL bExecLineChanged;		/* 実行行が変更された */
 static int nLineChanged;			/* 実行行が変更された場合の行番号 */
 static BOOL bRangedChanged;			/* 複数行の変更が加えられるか */
 static BOOL bFirstChange;			/* スクリプトモデル変更後、最初の通知 */
+static BOOL bIgnoreChange;			/* リッチエディットへの変更を無視する */
 
 /* GetDpiForWindow() APIへのポインタ */
 UINT (__stdcall *pGetDpiForWindow)(HWND);
@@ -2011,9 +2012,11 @@ void on_load_script(void)
 	SetWindowText(hWndTextboxScript, conv_utf8_to_utf16(script_file));
 
 	/* 実行中のスクリプトファイルが変更されたとき、リッチエディットにテキストを設定する */
+	EnableWindow(hWndRichEdit, FALSE);
 	RichEdit_UpdateTextFromScriptModel();
 	RichEdit_SetFont();
 	RichEdit_SetTextColorForAllLines();
+	EnableWindow(hWndRichEdit, TRUE);
 }
 
 /*
@@ -2083,6 +2086,12 @@ static VOID Variable_UpdateText(void)
 static VOID RichEdit_OnChange(void)
 {
 	int nCursor;
+
+	if (bIgnoreChange)
+	{
+		bIgnoreChange = FALSE;
+		return;
+	}
 
 	/* カーソル位置を取得する */
 	nCursor = RichEdit_GetCursorPosition();
@@ -2492,6 +2501,7 @@ static VOID RichEdit_SetTextColorForSelectedRange(COLORREF cl)
 	cf.cbSize = sizeof(cf);
 	cf.dwMask = CFM_COLOR;
 	cf.crTextColor = cl;
+	bIgnoreChange = TRUE;
 	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&cf);
 }
 

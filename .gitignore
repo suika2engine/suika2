@@ -85,6 +85,9 @@ build/vs/suika/ARM64
 build/vs/suika-pro/Debug
 build/vs/suika-pro/Release
 build/vs/suika-pro/ARM64
+build/vs/suika-studio/Debug
+build/vs/suika-studio/Release
+build/vs/suika-studio/ARM64
 
 # macOS
 build/macos/libroot
