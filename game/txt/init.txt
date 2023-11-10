@@ -46,17 +46,6 @@
 @skip enable
 
 ###
-### テキスト読み上げの案内
-### Text-to-speech notice
-###
-
-# 効果音を再生 / Play a sound effect
-#   日本語OS: "テキスト読み上げを有効にするにはVキーを押してください。"
-#   English OS: "Press V key to enable text-to-speech."
-+ja+@se press-v-japanese.ogg
-+en+@se press-v-english.ogg
-
-###
 ### 言語選択
 ### Language Choose
 ###
@@ -69,7 +58,7 @@
 # 言語選択のメニューを表示します
 # Call a menu.
 
-@gui language.txt
+@gui file=language.txt
 
 #####
 # 日本語が選択された場合
@@ -85,7 +74,7 @@
 # 日本語のファイルに移動します
 # Move to a Japanese file
 
-@load japanese-main.txt
+@load file=japanese-main.txt
 
 #####
 # 英語が選択された場合
@@ -108,4 +97,4 @@
 # 英語のファイルに移動します
 # Move to an English file
 
-@load english-main.txt
+@load file=english-main.txt
