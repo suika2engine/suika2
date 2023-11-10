@@ -753,7 +753,7 @@ static VOID InitMenu(HWND hWnd)
 
 	/* 選択肢(2)を作成する */
 	mi.wID = ID_CMD_CHOOSE_2;
-	mi.dwTypeData = bEnglish ? L"Options (2)" : L"選択肢(1)";
+	mi.dwTypeData = bEnglish ? L"Options (2)" : L"選択肢(2)";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 選択肢(1)を作成する */
