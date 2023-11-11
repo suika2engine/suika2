@@ -2761,7 +2761,10 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 			*pCRLF = L'\0';
 
 		/* 行を更新する */
-		update_script_line(nLine, conv_utf16_to_utf8(pLine));
+		if (nLine < get_line_count())
+			update_script_line(nLine, conv_utf16_to_utf8(pLine));
+		else
+			insert_script_line(nLine, conv_utf16_to_utf8(pLine));
 
 		nLine++;
 		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
