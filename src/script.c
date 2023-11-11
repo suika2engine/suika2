@@ -3014,9 +3014,9 @@ static bool insert_command(int line, const char *text)
 		/* コマンドがない場合、末尾に追加する */
 		cmd_index = cmd_size;
 		cmd_size++;
-		if (line >= cur_expanded_line)
-			cur_expanded_line = line + 1;
 	}
+
+	cur_expanded_line++;
 
 	/* 追加するコマンドをパースする */
 	cmd[cmd_index].file = cur_script;

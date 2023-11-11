@@ -846,12 +846,6 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 		return FALSE;
 	}
 
-	if (pMsg->message == WM_KEYUP)
-	{
-			bShiftDown = FALSE;
-		return FALSE;
-	}
-
 	/* コントロール押下状態を保存する */
 	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_CONTROL)
 	{
@@ -864,7 +858,7 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 		return FALSE;
 	}
 
-	/* フォーカスを失うときにシフトとコントロールの */
+	/* フォーカスを失うときにシフトとコントロールの押下状態をクリアする */
 	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KILLFOCUS)
 	{
 		bShiftDown = FALSE;
