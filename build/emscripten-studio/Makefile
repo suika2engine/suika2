@@ -76,6 +76,7 @@ html: emsdk $(SRC)
 		-s USE_LIBJPEG=1 \
 		-s TOTAL_MEMORY=536870912 \
 		-s NO_EXIT_RUNTIME=1 \
+		-s EXPORTED_FUNCTIONS=["_onLoadProject","_onClickContinue","_onClickNext","_onClickStop","_setVisible","_setHidden"] \
 		-s EXPORTED_RUNTIME_METHODS=["ccall","UTF8ToString"] \
 		-lz \
 		-lpng \
@@ -83,6 +84,7 @@ html: emsdk $(SRC)
 		-lvorbis \
 		-lfreetype \
 		-lopenal \
+		--pre-js pre.js \
 		--shell-file shell.html \
 		--use-preload-plugins
 
