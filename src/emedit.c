@@ -2,16 +2,13 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
- *  2021-06-26 Created.
+ *  2023-06-26 Created.
  */
-
-/* デバッグ用にデフォルトのシェルを使うか */
-#undef DEFAULT_SHELL
 
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
@@ -20,19 +17,36 @@
 #include <sys/stat.h>	/* stat(), mkdir() */
 #include <sys/time.h>	/* gettimeofday() */
 
+/* Suika2 Base */
 #include "suika.h"
+
+/* Graphics HAL */
 #include "glrender.h"
+
+/* Sound HAL */
 #include "emopenal.h"
 
 /*
- * タッチのY座標
+ * Variables
  */
+
+/* Touch Position */
 static int touch_start_x;
 static int touch_start_y;
 static int touch_last_y;
 
+/* Debugger Status */
+static bool is_running;
+static bool flag_continue_pushed;
+static bool flag_next_pushed;
+static bool flag_stop_pushed;
+static bool flag_script_opened;
+static char *opened_script_name;
+static bool flag_exec_line_changed;
+static int changed_exec_line;
+
 /*
- * 前方参照
+ * Forward Declarations
  */
 static EM_BOOL loop_iter(double time, void * userData);
 static EM_BOOL cb_mousemove(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
@@ -43,13 +57,22 @@ static EM_BOOL cb_keydown(int eventType, const EmscriptenKeyboardEvent *keyEvent
 static EM_BOOL cb_keyup(int eventType, const EmscriptenKeyboardEvent *keyEvent, void *userData);
 static int get_keycode(const char *key);
 static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
-static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent,void *userData);
 static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 
 /*
  * メイン
  */
 int main(void)
+{
+	emscripten_exit_with_live_runtime();
+	return 0;
+}
+
+/*
+ * メイン(エンジン部)
+ */
+EMSCRIPTEN_KEEPALIVE int engine_main(void)
 {
 	/* ロケールを初期化する */
 	init_locale_code();
@@ -62,34 +85,12 @@ int main(void)
 	if(!init_conf())
 		return 1;
 
-	if (conf_sav_name == NULL)
-		conf_sav_name = "/sav";
-
-	/* セーブデータを読み込む */
-	EM_ASM_({
-		FS.mkdir(UTF8ToString($0));
-		FS.mount(IDBFS, {}, UTF8ToString($0));
-		FS.syncfs(true, function (err) { ccall('main_continue', 'v'); });
-	}, conf_sav_name);
-
-	/* 読み込みは非同期で、main_continue()に継続される */
-	emscripten_exit_with_live_runtime();
-}
-
-/*
- * メインの続き
- */
-EMSCRIPTEN_KEEPALIVE void main_continue(void)
-{
 	/* サウンドの初期化処理を行う */
 	if (!init_openal())
-		return;
+		return 1;
 
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-#ifndef DEFAULT_SHELL
-	EM_ASM_({resizeWindow(null);});
-#endif
 
 	/* OpenGLレンダを初期化する */
 	EmscriptenWebGLContextAttributes attr;
@@ -100,11 +101,11 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	context = emscripten_webgl_create_context("canvas", &attr);
 	emscripten_webgl_make_context_current(context);
 	if (!init_opengl())
-		return;
+		return 1;
 
 	/* 初期化イベントを処理する */
 	if(!on_event_init())
-		return;
+		return 1;
 
 	/* イベントの登録をする */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
@@ -119,6 +120,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
+	return 0;
 }
 
 /* フレームを処理する */
@@ -379,20 +381,44 @@ static EM_BOOL cb_touchend(int eventType,
  * JavaScriptからのコールバック
  */
 
+/* プロジェクトがロードされたときのコールバック */
+EMSCRIPTEN_KEEPALIVE void onLoadProject(void)
+{
+	engine_main();
+}
+
+/* 続けるボタンがクリックされたときのコールバック */
+EMSCRIPTEN_KEEPALIVE void onClickContinue(void)
+{
+	flag_continue_pushed = true;
+}
+
+/* 次へボタンがクリックされたときのコールバック */
+EMSCRIPTEN_KEEPALIVE void onClickNext(void)
+{
+	flag_next_pushed = true;
+}
+
+/* 停止ボタンがクリックされたときのコールバック */
+EMSCRIPTEN_KEEPALIVE void onClickStop(void)
+{
+	flag_stop_pushed = true;
+}
+
 /* タブが表示された際のコールバック */
-void EMSCRIPTEN_KEEPALIVE setVisible(void)
+EMSCRIPTEN_KEEPALIVE void setVisible(void)
 {
 	resume_sound();
 }
 
 /* タブが非表示にされた際のコールバック */
-void EMSCRIPTEN_KEEPALIVE setHidden(void)
+EMSCRIPTEN_KEEPALIVE void setHidden(void)
 {
 	pause_sound();
 }
 
 /*
- * platform.hの実装
+ * platform.hの実装 (エンジン部分)
  */
 
 /* alertを表示する */
@@ -413,7 +439,6 @@ bool log_info(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
 	show_alert(buf);
 
 	return true;
@@ -431,7 +456,6 @@ bool log_warn(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
 	show_alert(buf);
 
 	return true;
@@ -449,7 +473,6 @@ bool log_error(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
 	show_alert(buf);
 
 	return true;
@@ -474,12 +497,10 @@ bool is_opengl_enabled(void)
 /*
  * テクスチャをロックする
  */
-bool lock_texture(int width, int height, pixel_t *pixels,
-				  pixel_t **locked_pixels, void **texture)
+bool lock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pixels, void **texture)
 {
 	fill_sound_buffer();
-	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
-				 texture))
+	if (!opengl_lock_texture(width, height, pixels, locked_pixels, texture))
 		return false;
 	fill_sound_buffer();
 	return true;
@@ -488,8 +509,7 @@ bool lock_texture(int width, int height, pixel_t *pixels,
 /*
  * テクスチャをアンロックする
  */
-void unlock_texture(int width, int height, pixel_t *pixels,
-					pixel_t **locked_pixels, void **texture)
+void unlock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pixels, void **texture)
 {
 	fill_sound_buffer();
 	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
@@ -547,6 +567,9 @@ void render_image_melt(struct image * RESTRICT src_img,
  */
 bool make_sav_dir(void)
 {
+	EM_ASM_({
+		s2CreateDirectory('sav');
+	});
 	return true;
 }
 
@@ -560,8 +583,6 @@ char *make_valid_path(const char *dir, const char *fname)
 
 	if (dir == NULL)
 		dir = "";
-	if (strcmp(dir, SAVE_DIR) == 0)
-		dir = conf_sav_name;
 
 	/* パスのメモリを確保する */
 	len = strlen(dir) + 1 + strlen(fname) + 1;
@@ -671,7 +692,7 @@ bool play_video(const char *fname, bool is_skippable)
 
 		var v = document.getElementById("video");
 		v.style.display = "block";
-		v.src = Module.UTF8ToString($0, $1);
+		v.src = s2GetFileURL(Module.UTF8ToString($0, $1));
 		v.load();
 		v.addEventListener('ended', function() {
 			document.getElementById("canvas").style.display = "block";
@@ -690,7 +711,7 @@ bool play_video(const char *fname, bool is_skippable)
  */
 void stop_video(void)
 {
-	EM_ASM_(
+	EM_ASM_({
 		var c = document.getElementById("canvas");
 		c.style.display = "block";
 
@@ -699,7 +720,7 @@ void stop_video(void)
 		v.pause();
 		v.src = "";
 		v.load();
-	);
+	});
 }
 
 /*
@@ -709,10 +730,10 @@ bool is_video_playing(void)
 {
 	int ended;
 
-	ended = EM_ASM_INT(
+	ended = EM_ASM_INT({
 		var v = document.getElementById("video");
 		return v.ended;
-	);
+	});
 
 	return !ended;
 }
@@ -777,4 +798,111 @@ const char *get_system_locale(void)
 		return "ja";
 	else
 		return "en";
+}
+
+/*
+ * HAL-DBG API for Suika2 Studio
+ */
+
+/*
+ * Return whether the "continue" botton is pressed.
+ */
+bool is_continue_pushed(void)
+{
+	bool ret;
+	ret = flag_continue_pushed;
+	flag_continue_pushed = false;
+	return ret;
+}
+
+/*
+ * Return whether the "next" button is pressed.
+ */
+bool is_next_pushed(void)
+{
+	bool ret;
+	ret = flag_next_pushed;
+	flag_next_pushed = false;
+	return ret;
+}
+
+/*
+ * Return whether the "stop" button is pressed.
+ */
+bool is_stop_pushed(void)
+{
+	bool ret;
+	ret = flag_stop_pushed;
+	flag_stop_pushed = false;
+	return ret;
+}
+
+/*
+ * Return whether the "open" button is pressed.
+ */
+bool is_script_opened(void)
+{
+	bool ret;
+	ret = flag_script_opened;
+	flag_script_opened = false;
+	return ret;
+}
+
+/*
+ * Return a script file name when the "open" button is pressed.
+ */
+const char *get_opened_script(void)
+{
+	return opened_script_name;
+}
+
+/*
+ * Return whether the "execution line number" is changed.
+ */
+bool is_exec_line_changed(void)
+{
+	bool ret;
+	ret = flag_exec_line_changed;
+	flag_exec_line_changed = false;
+	return ret;
+}
+
+/*
+ * Return the "execution line number" if it is changed.
+ */
+int get_changed_exec_line(void)
+{
+	return changed_exec_line;
+}
+
+/*
+ * Update UI elements when the running state is changed.
+ */
+void on_change_running_state(bool running, bool request_stop)
+{
+	/* TODO */
+}
+
+/*
+ * Update UI elements when the main engine changes the script to be executed.
+ */
+void on_load_script(void)
+{
+	/* TODO */
+}
+
+/*
+ * Update UI elements when the main engine changes the command position to be executed.
+ */
+void on_change_position(void)
+{
+	/* TODO */
+}
+
+/*
+ * Update UI elements when the main engine changes variables.
+ */
+void on_update_variable(void)
+{
+	/* TODO */
 }

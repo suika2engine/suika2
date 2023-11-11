@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Suika2 Studio Web</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1, initial-scale=1">
+  <style>
+    html, body {
+        padding 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        position: fixed;
+    }
+    .emscripten {
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    textarea.emscripten {
+        font-family: monospace;
+        width: 80%;
+    }
+    div.emscripten {
+        text-align: center;
+        color: white;
+    }
+    div.emscripten_border {
+        border: 0px;
+        margin: auto;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    canvas.emscripten {
+        border: 0px none;
+        background-color: black;
+        max-width: 100vw;
+        max-height: 100vh;
+        object-fit: contain;
+        display: table-cell;
+        vertical-align: middle;
+        outline: none;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+        width: 1280px;
+        height: 720px;
+				background: yellow;
+    }
+		.grid-holder {
+				display: grid;
+				width: 100%;
+				height: 100%;
+				grid-template-rows: 100%;
+				grid-template-columns: calc(100vw - 440px) 440px;
+		}
+		.grid-left {
+				grid-row: 1;
+				grid-column: 1;
+				width: 100%;
+				height: 100%;
+				background: red;
+		}
+		.grid-right {
+				grid-row: 1;
+				grid-column: 2;
+				width: 100%;
+				height: 100%;
+				background: blue;
+		}
+  </style>
+</head>
+<body style="padding: 0; margin: 0;">
+  <!-- DOM Elements -->
+	<div class="grid-holder">
+		<div class="grid-left">
+			<div class="emscripten_border">
+				<!-- The element for video playback --> 
+				<video id="video" style="width: 100%; display: none;"></video>  
+
+				<!-- The element for game screen -->
+				<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+			</div>
+		</div>
+		<!-- The rigth side panel -->
+		<div class="grid-right">
+			<button id="btnProject">プロジェクトを開く</button><br>
+			<button id="btnContinue">続ける</button>
+			<button id="btnNext">次へ</button>
+			<button id="btnStop">停止</button><br>
+			<p id="fileName">ファイル名</p>
+			<button id="btnOpen">...</button><br>
+			<div id="scriptText">
+
+			<textarea class="emscripten" id="output" rows="3"></textarea>
+		</div>
+	</div>
+
+  <!-- Code for Emscripten foundation-->
+  <script type='text/javascript'>
+    var Module = {
+      preRun: [],
+      postRun: [],
+      print: (function(text) {
+					if(typeof text !== 'undefined')
+            window.alert(text);
+      })(),
+      printErr: function(text) {
+        window.alert(text);
+      },
+      canvas: (function() {
+        var canvas = document.getElementById('canvas');
+        canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+        return canvas;
+      })(),
+      totalDependencies: 0,
+      monitorRunDependencies: function(left) {
+        this.totalDependencies = Math.max(this.totalDependencies, left);
+      }
+    };
+    window.onerror = function() {
+      window.alert('Exception thrown, see JavaScript console');
+    };
+  </script>
+
+  <!-- Code for Suika2 Main Engine -->
+  <script type="text/javascript">
+		var isRunning = false;
+		var isRunning = false;
+    function resizeWindow(event) {
+      canvas = document.getElementById('canvas');
+      aspect = canvas.width / canvas.height;
+      w = window.innerWidth;
+      h = window.innerWidth / aspect;
+      if(h > window.innerHeight) {
+           h = window.innerHeight;
+           w = window.innerHeight * aspect;
+      }
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      canvas.focus();
+    }
+    function visibilityChange() {
+      if(document.visibilityState === 'visible') {
+        Module.ccall('setVisible', null, null, null);
+        document.getElementById('canvas').focus();
+      } else if(document.visibilityState === 'hidden') {
+        Module.ccall('setHidden', null, null, null);
+      }
+    }
+    function preventDefault(e) {
+				e.preventDefault();
+    }
+    window.ontouchmove = preventDefault;
+    window.onwheel = preventDefault;
+    document.ontouchmove = preventDefault;
+    document.onwheel = preventDefault;
+    document.body.addEventListener('touchmove', preventDefault, { passive: false });
+    document.body.addEventListener('wheel', preventDefault, { passive: false });
+    window.addEventListener('resize', resizeWindow);
+    document.addEventListener('visibilitychange', visibilityChange);
+  </script>
+
+  <!-- Code for Suika2 Studio -->
+  <script type="text/javascript">
+		var dirHandle;
+		document.getElementById('btnProject').onclick = async () => {
+				dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
+				Module.ccall('onLoadProject', null, null, null);
+		};
+		document.getElementById('btnContinue').onclick = () => {
+        Module.ccall('onClickContinue', null, null, null);
+		};
+		document.getElementById('btnNext').onclick = () => {
+        Module.ccall('onClickNext', null, null, null);
+		};
+		document.getElementById('btnStop').onclick = () => {
+        Module.ccall('onClickStop', null, null, null);
+		};
+
+		// File I/O
+		async function s2CreateDirectory(dirName) {
+				try {
+						let fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
+						let draftFile = await fileHandle.getFile();
+						return URL.createObjectURL(draftFile);
+				} catch (e) {
+						window.onerror(e);
+				}
+		}
+		async function s2GetFileURL(fileName) {
+				try{
+						const fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
+						const draftFile = await fileHandle.getFile();
+						const accessHandle = await draftFile.createSyncAccessHandle();
+						const fileSize = accessHandle.getSize();
+						accessHandle.close();
+						draftHandle.close();
+						fileHandle.close();
+				} catch (e) {
+						return -1;
+				}
+		}
+		async function s2GetFileSize(fileName) {
+				try{
+						const fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
+						const draftFile = await fileHandle.getFile();
+						const accessHandle = await draftFile.createSyncAccessHandle();
+						const fileSize = accessHandle.getSize();
+						await accessHandle.close();
+						await draftHandle.close();
+						await fileHandle.close();
+				} catch (e) {
+						return -1;
+				}
+		}
+		async function s2ReadFile(fileName) {
+				try {
+						const fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
+						const draftFile = await fileHandle();
+						const accessHandle = await draftFile.createSyncAccessHandle();
+						const fileSize = accessHandle.getSize();
+						const readBuffer = new ArrayBuffer(fileSize);
+						const readSize = accessHandle.read(readBuffer, { "at": 0 });
+						await accessHandle.close();
+						await draftHandle.close();
+						await fileHandle.close();
+						return readBuffer;
+				} catch (e) {
+						window.onerror(e);
+				}
+		}
+		async function s2WriteTextFile(fileName, text) {
+				try {
+						const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+						const draftFile = await fileHandle();
+						const accessHandle = await draftFile.createSyncAccessHandle();
+						const writableStream = await accessHandle.createWritable();
+						await writableStream.write(text);
+						await writableStream.close();
+						await accessHandle.close();
+						await draftHandle.close();
+						await fileHandle.close();
+				} catch (e) {
+						window.onerror(e);
+				}
+		}
+  </script>
+
+	<!-- Placeholder for Emscripten generated code-->
+  {{{ SCRIPT }}}
+
+</body>
+</html>
