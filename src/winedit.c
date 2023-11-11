@@ -1915,6 +1915,8 @@ bool is_script_reloaded(void) { 	return false; }
  */
 void on_change_running_state(bool running, bool request_stop)
 {
+	UINT i;
+
 	bRunning = running;
 
 	if(request_stop)
@@ -1933,11 +1935,19 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_GRAYED);
+		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
+			EnableMenuItem(hMenu, i, MF_GRAYED);
 
 		/* 実行中の背景色を設定する */
 		RichEdit_SetBackgroundColorForCurrentExecuteLine();
@@ -1958,11 +1968,19 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);		/* 有効 */
 		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_GRAYED);
+		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
+			EnableMenuItem(hMenu, i, MF_GRAYED);
 
 		/* 実行中の背景色を設定する */
 		RichEdit_SetBackgroundColorForCurrentExecuteLine();
@@ -1988,6 +2006,15 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);		/* 無効 */
 		EnableMenuItem(hMenu, ID_ERROR, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_ENABLED);
+		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
+			EnableMenuItem(hMenu, i, MF_ENABLED);
 
 		/* 次の実行される行の背景色を設定する */
 		RichEdit_SetBackgroundColorForNextExecuteLine();
