@@ -71,7 +71,8 @@
 
 		<!-- The middle panel -->
 		<div class="grid-middle">
-			<button id="btnProject">プロジェクトを開く</button>
+			<button id="btnOpenProject">プロジェクトを開く</button>
+			<button id="btnNewProject">プロジェクトを作る</button>
 			<button id="btnContinue">続ける</button>
 			<button id="btnNext">次へ</button>
 			<button id="btnStop">停止</button>
@@ -156,9 +157,11 @@
   <!-- Code for Suika2 Studio -->
   <script type="text/javascript">
 		var dirHandle = null;
-		document.getElementById('btnProject').onclick = async () => {
+		document.getElementById('btnOpenProject').onclick = async () => {
 				dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
-				Module.ccall('onLoadProject', null, null, null);
+				if (typeof dirHandle !== 'undefined') {
+						Module.ccall('onLoadProject', null, null, null);
+				}
 		};
 		document.getElementById('btnContinue').onclick = () => {
 				Module.ccall('onClickContinue', null, null, null);
@@ -169,6 +172,188 @@
 		document.getElementById('btnStop').onclick = () => {
 				Module.ccall('onClickStop', null, null, null);
 		};
+		document.getElementById('btnNewProject').onclick = async () => {
+				dirHandle = await navigator.storage.getDirectory();
+				if (typeof dirHandle === 'undefined')
+						return;
+				await downloadTemplateFile('anime', 'msgbox-shake-loop.txt');
+				await downloadTemplateFile('anime', 'msgbox-shake.txt');
+				await downloadTemplateFile('bg', 'black.png');
+				await downloadTemplateFile('bg', 'coast.png');
+				await downloadTemplateFile('bg', 'credit.txt');
+				await downloadTemplateFile('bg', 'roof.png');
+				await downloadTemplateFile('bg', 'white.png');
+				await downloadTemplateFile('bgm', '00.ogg');
+				await downloadTemplateFile('bgm', '01.ogg');
+				await downloadTemplateFile('bgm', '02.ogg');
+				await downloadTemplateFile('bgm', 'cicada.ogg');
+				await downloadTemplateFile('bgm', 'coast.ogg');
+				await downloadTemplateFile('bgm', 'credit.txt');
+				await downloadTemplateFile('cg', 'auto.png');
+				await downloadTemplateFile('cg', 'click1.png');
+				await downloadTemplateFile('cg', 'click2.png');
+				await downloadTemplateFile('cg', 'click3.png');
+				await downloadTemplateFile('cg', 'click4.png');
+				await downloadTemplateFile('cg', 'click5.png');
+				await downloadTemplateFile('cg', 'config-active.png');
+				await downloadTemplateFile('cg', 'config-hover.png');
+				await downloadTemplateFile('cg', 'config-idle.png');
+				await downloadTemplateFile('cg', 'config-page2-active.png');
+				await downloadTemplateFile('cg', 'config-page2-hover.png');
+				await downloadTemplateFile('cg', 'config-page2-idle.png');
+				await downloadTemplateFile('cg', 'credit.txt');
+				await downloadTemplateFile('cg', 'history-active.png');
+				await downloadTemplateFile('cg', 'history-hover.png');
+				await downloadTemplateFile('cg', 'history-idle.png');
+				await downloadTemplateFile('cg', 'language.png');
+				await downloadTemplateFile('cg', 'language_en_hover.png');
+				await downloadTemplateFile('cg', 'language_en_idle.png');
+				await downloadTemplateFile('cg', 'language_hover.png');
+				await downloadTemplateFile('cg', 'language_idle.png');
+				await downloadTemplateFile('cg', 'load-active.png');
+				await downloadTemplateFile('cg', 'load-hover.png');
+				await downloadTemplateFile('cg', 'load-idle.png');
+				await downloadTemplateFile('cg', 'menu-hover.png');
+				await downloadTemplateFile('cg', 'menu-idle.png');
+				await downloadTemplateFile('cg', 'msgbox-bg.png');
+				await downloadTemplateFile('cg', 'msgbox-fg.png');
+				await downloadTemplateFile('cg', 'namebox.png');
+				await downloadTemplateFile('cg', 'new-msgbox-bg.png');
+				await downloadTemplateFile('cg', 'overlay-menu-hover.png');
+				await downloadTemplateFile('cg', 'overlay-menu-idle.png');
+				await downloadTemplateFile('cg', 'save-active.png');
+				await downloadTemplateFile('cg', 'save-hover.png');
+				await downloadTemplateFile('cg', 'save-idle.png');
+				await downloadTemplateFile('cg', 'skip.png');
+				await downloadTemplateFile('cg', 'switch-bg.png');
+				await downloadTemplateFile('cg', 'switch-fg.png');
+				await downloadTemplateFile('cg', 'sysmenu-collapsed-hover.png');
+				await downloadTemplateFile('cg', 'sysmenu-collapsed-idle.png');
+				await downloadTemplateFile('cg', 'sysmenu-disable.png');
+				await downloadTemplateFile('cg', 'sysmenu-hover.png');
+				await downloadTemplateFile('cg', 'sysmenu-idle.png');
+				await downloadTemplateFile('ch', '001-angry.png');
+				await downloadTemplateFile('ch', '001-fun.png');
+				await downloadTemplateFile('ch', '001-happy.png');
+				await downloadTemplateFile('ch', '001-normal.png');
+				await downloadTemplateFile('ch', '001-sad.png');
+				await downloadTemplateFile('ch', '002-normal.png');
+				await downloadTemplateFile('ch', 'credit.txt');
+				await downloadTemplateFile('ch', 'luxion.png');
+				await downloadTemplateFile('ch', 'suika.png');
+				await downloadTemplateFile('conf', 'config-english-sample.txt');
+				await downloadTemplateFile('conf', 'config.txt');
+				await downloadTemplateFile('cv', '001.ogg');
+				await downloadTemplateFile('cv', '002.ogg');
+				await downloadTemplateFile('cv', '003.ogg');
+				await downloadTemplateFile('cv', '004.ogg');
+				await downloadTemplateFile('cv', '005.ogg');
+				await downloadTemplateFile('cv', '006.ogg');
+				await downloadTemplateFile('cv', '007.ogg');
+				await downloadTemplateFile('cv', '008.ogg');
+				await downloadTemplateFile('cv', '009.ogg');
+				await downloadTemplateFile('cv', '010.ogg');
+				await downloadTemplateFile('cv', '011.ogg');
+				await downloadTemplateFile('cv', '012.ogg');
+				await downloadTemplateFile('cv', '013.ogg');
+				await downloadTemplateFile('cv', '014.ogg');
+				await downloadTemplateFile('cv', '015.ogg');
+				await downloadTemplateFile('cv', '016.ogg');
+				await downloadTemplateFile('cv', '017.ogg');
+				await downloadTemplateFile('cv', '018.ogg');
+				await downloadTemplateFile('cv', '019.ogg');
+				await downloadTemplateFile('cv', '020.ogg');
+				await downloadTemplateFile('cv', '021.ogg');
+				await downloadTemplateFile('cv', '022.ogg');
+				await downloadTemplateFile('cv', '023.ogg');
+				await downloadTemplateFile('cv', '024.ogg');
+				await downloadTemplateFile('cv', '025.ogg');
+				await downloadTemplateFile('cv', 'credit.txt');
+				await downloadTemplateFile('cv', 'e001.ogg');
+				await downloadTemplateFile('cv', 'e002.ogg');
+				await downloadTemplateFile('cv', 'e003.ogg');
+				await downloadTemplateFile('cv', 'e004.ogg');
+				await downloadTemplateFile('cv', 'e005.ogg');
+				await downloadTemplateFile('cv', 'e006.ogg');
+				await downloadTemplateFile('cv', 'e007.ogg');
+				await downloadTemplateFile('cv', 'e008.ogg');
+				await downloadTemplateFile('cv', 'e009.ogg');
+				await downloadTemplateFile('cv', 'e010.ogg');
+				await downloadTemplateFile('cv', 'e011.ogg');
+				await downloadTemplateFile('cv', 'e012.ogg');
+				await downloadTemplateFile('cv', 'e013.ogg');
+				await downloadTemplateFile('cv', 'e014.ogg');
+				await downloadTemplateFile('cv', 'e015.ogg');
+				await downloadTemplateFile('cv', 'e016.ogg');
+				await downloadTemplateFile('cv', 'e017.ogg');
+				await downloadTemplateFile('cv', 'e018.ogg');
+				await downloadTemplateFile('cv', 'e019.ogg');
+				await downloadTemplateFile('cv', 'e020.ogg');
+				await downloadTemplateFile('cv', 'e021.ogg');
+				await downloadTemplateFile('cv', 'e022.ogg');
+				await downloadTemplateFile('cv', 'e023.ogg');
+				await downloadTemplateFile('cv', 'e024.ogg');
+				await downloadTemplateFile('cv', 'e025.ogg');
+				await downloadTemplateFile('cv', 'e026.ogg');
+				await downloadTemplateFile('cv', 'e027.ogg');
+				await downloadTemplateFile('cv', 'e028.ogg');
+				await downloadTemplateFile('cv', 'e029.ogg');
+				await downloadTemplateFile('cv', 'e030.ogg');
+				await downloadTemplateFile('cv', 'e031.ogg');
+				await downloadTemplateFile('font', 'LICENSE');
+				await downloadTemplateFile('font', 'VL-PGothic-Regular.ttf');
+				await downloadTemplateFile('font', 'yasashisa.ttf');
+				await downloadTemplateFile('gui', 'history.txt');
+				await downloadTemplateFile('gui', 'language.txt');
+				await downloadTemplateFile('gui', 'language_en.txt');
+				await downloadTemplateFile('gui', 'load.txt');
+				await downloadTemplateFile('gui', 'menu.txt');
+				await downloadTemplateFile('gui', 'overlay-menu-sample.txt');
+				await downloadTemplateFile('gui', 'save.txt');
+				await downloadTemplateFile('gui', 'system-page2.txt');
+				await downloadTemplateFile('gui', 'system.txt');
+				await downloadTemplateFile('rule', 'rule-mask.png');
+				await downloadTemplateFile('rule', 'rule-star.png');
+				await downloadTemplateFile('se', '025.ogg');
+				await downloadTemplateFile('se', 'btn-change.ogg');
+				await downloadTemplateFile('se', 'click.ogg');
+				await downloadTemplateFile('se', 'credit.txt');
+				await downloadTemplateFile('se', 'press-v-english.ogg');
+				await downloadTemplateFile('se', 'press-v-japanese.ogg');
+				await downloadTemplateFile('se', 'suika.ogg');
+				await downloadTemplateFile('txt', 'english-main.txt');
+				await downloadTemplateFile('txt', 'init.txt');
+				await downloadTemplateFile('txt', 'japanese-main.txt');
+				await downloadTemplateFile('wms', 'change-msgbox-1.txt');
+				await downloadTemplateFile('wms', 'clear-history.txt');
+				await downloadTemplateFile('wms', 'clear-msgbox.txt');
+				await downloadTemplateFile('wms', 'clear-namebox.txt');
+				await downloadTemplateFile('wms', 'hide-msgbox.txt');
+				await downloadTemplateFile('wms', 'hide-namebox.txt');
+				await downloadTemplateFile('wms', 'save-global.txt');
+				document.getElementById('runningStatus').innerHTML = 'OK';
+				Module.ccall('onLoadProject', null, null, null);
+		}
+		async function downloadTemplateFile(dirName, fileName) {
+				document.getElementById('runningStatus').innerHTML = 'Downloading ' + dirName + '/' + fileName + '...';
+				const blob = await new Promise((resolve) => {
+						const xhr = new XMLHttpRequest();
+						xhr.open('GET', 'https://suika2.com/vls/template/' + dirName + '/' + fileName, true);
+						xhr.responseType = 'arraybuffer';
+						xhr.onreadystatechange = async function () {
+								if (xhr.readyState == 4 && xhr.status == 200 ) {
+										const blob = new Blob([xhr.response], {text: 'application/octet-stream'});
+										resolve(blob);
+								}
+						}
+						xhr.send();
+				});
+				const subdirHandle = await dirHandle.getDirectoryHandle(dirName, { create: true });
+				const fileHandle = await subdirHandle.getFileHandle(fileName, { create: true });
+				const writableStream = await fileHandle.createWritable();
+				await writableStream.write(blob);
+				await writableStream.close();
+		}
 	</script>
 
 	<!-- Placeholder for Emscripten generated code-->
