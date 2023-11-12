@@ -27,6 +27,13 @@
 #include "emopenal.h"
 
 /*
+ * Constants
+ */
+
+/* Frame milli seconds */
+#define FRAME_MILLI	33
+
+/*
  * Variables
  */
 
@@ -36,7 +43,6 @@ static int touch_start_y;
 static int touch_last_y;
 
 /* Debugger Status */
-static bool is_running;
 static bool flag_continue_pushed;
 static bool flag_next_pushed;
 static bool flag_stop_pushed;
@@ -48,7 +54,7 @@ static int changed_exec_line;
 /*
  * Forward Declarations
  */
-static EM_BOOL loop_iter(double time, void * userData);
+static void loop_iter(void *userData);
 static EM_BOOL cb_mousemove(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
 static EM_BOOL cb_mousedown(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
 static EM_BOOL cb_mouseup(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
@@ -72,25 +78,26 @@ int main(void)
 /*
  * メイン(エンジン部)
  */
-EMSCRIPTEN_KEEPALIVE int engine_main(void)
+EMSCRIPTEN_KEEPALIVE void start_engine(void)
 {
 	/* ロケールを初期化する */
 	init_locale_code();
 
 	/* パッケージの初期化処理を行う */
 	if(!init_file())
-		return 1;
+		return;
 
 	/* コンフィグの初期化処理を行う */
 	if(!init_conf())
-		return 1;
+		return;
 
 	/* サウンドの初期化処理を行う */
 	if (!init_openal())
-		return 1;
+		return;
 
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
+	EM_ASM_({resizeWindow(null);});
 
 	/* OpenGLレンダを初期化する */
 	EmscriptenWebGLContextAttributes attr;
@@ -101,11 +108,11 @@ EMSCRIPTEN_KEEPALIVE int engine_main(void)
 	context = emscripten_webgl_create_context("canvas", &attr);
 	emscripten_webgl_make_context_current(context);
 	if (!init_opengl())
-		return 1;
+		return;
 
 	/* 初期化イベントを処理する */
 	if(!on_event_init())
-		return 1;
+		return;
 
 	/* イベントの登録をする */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
@@ -118,43 +125,35 @@ EMSCRIPTEN_KEEPALIVE int engine_main(void)
 	emscripten_set_touchmove_callback("canvas", 0, true, cb_touchmove);
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
 
-	/* アニメーションの処理を開始する */
-	emscripten_request_animation_frame_loop(loop_iter, 0);
-	return 0;
+	/* フレームを予約する */
+	emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
 }
 
 /* フレームを処理する */
-static EM_BOOL loop_iter(double time, void * userData)
+static void loop_iter(void *userData)
 {
 	int x, y, w, h;
-	static bool stop = false;
-
-	/* 停止済みであれば */
-	if (stop)
-		return EM_FALSE;
+	bool ret;
 
 	/* サウンドの処理を行う */
 	fill_sound_buffer();
 
+	/* フレームイベントを呼び出す */
+	x = y = w = h = 0;
+
 	/* フレームのレンダリングを開始する */
 	opengl_start_rendering();
 
-	/* フレームイベントを呼び出す */
-	x = y = w = h = 0;
-	if (!on_event_frame(&x, &y, &w, &h)) {
-		stop = true;
-
-		/* グローバルデータを保存する */
-		save_global_data();
-
-		/* スクリプトの終端に達した */
-		EM_FALSE;
-	}
+	/* フレームのコマンドを実行する */
+	ret = on_event_frame(&x, &y, &w, &h);
 
 	/* フレームのレンダリングを終了する */
 	opengl_end_rendering();
 
-	return EM_TRUE;
+	if (!ret)
+		EM_ASM({alert('Stopped');});
+	else
+		emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
 }
 
 /* mousemoveのコールバック */
@@ -384,7 +383,7 @@ static EM_BOOL cb_touchend(int eventType,
 /* プロジェクトがロードされたときのコールバック */
 EMSCRIPTEN_KEEPALIVE void onLoadProject(void)
 {
-	engine_main();
+	start_engine();
 }
 
 /* 続けるボタンがクリックされたときのコールバック */
@@ -421,12 +420,6 @@ EMSCRIPTEN_KEEPALIVE void setHidden(void)
  * platform.hの実装 (エンジン部分)
  */
 
-/* alertを表示する */
-EM_JS(void, show_alert, (const char *msg), {
-    var jsMsg = UTF8ToString(msg);
-    window.alert(jsMsg);
-});
-
 /*
  * INFOログを出力する
  */
@@ -439,7 +432,9 @@ bool log_info(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -456,7 +451,9 @@ bool log_warn(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -473,7 +470,9 @@ bool log_error(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -567,9 +566,6 @@ void render_image_melt(struct image * RESTRICT src_img,
  */
 bool make_sav_dir(void)
 {
-	EM_ASM_({
-		s2CreateDirectory('sav');
-	});
 	return true;
 }
 
@@ -578,26 +574,7 @@ bool make_sav_dir(void)
  */
 char *make_valid_path(const char *dir, const char *fname)
 {
-	char *buf;
-	size_t len;
-
-	if (dir == NULL)
-		dir = "";
-
-	/* パスのメモリを確保する */
-	len = strlen(dir) + 1 + strlen(fname) + 1;
-	buf = malloc(len);
-	if (buf == NULL) {
-		log_memory();
-		return NULL;
-	}
-
-	strcpy(buf, dir);
-	if (strlen(dir) != 0)
-		strcat(buf, "/");
-	strcat(buf, fname);
-
-	return buf;
+	return strdup("");
 }
 
 /*
@@ -783,21 +760,20 @@ void leave_full_screen_mode(void)
 /*
  * システムのロケールを取得する
  */
-EM_JS(int, get_lang_code, (void), {
-	if (window.navigator.language.startsWith("ja"))
-		return 0;
-	return 1;
-});
 const char *get_system_locale(void)
 {
 	int lang_code;
 
-	/* FIXME */
-	lang_code = get_lang_code();
+	lang_code = EM_ASM_INT({
+		if (window.navigator.language.startsWith("ja"))
+			return 0;
+		return 1;
+	});
+
 	if (lang_code == 0)
 		return "ja";
-	else
-		return "en";
+
+	return "en";
 }
 
 /*
@@ -880,7 +856,15 @@ int get_changed_exec_line(void)
  */
 void on_change_running_state(bool running, bool request_stop)
 {
-	/* TODO */
+	if (running) {
+		EM_ASM({
+			document.getElementById('runningStatus').innerHTML = 'RUNNING';
+		});
+	} else {
+		EM_ASM({
+			document.getElementById('runningStatus').innerHTML = 'STOPPED';
+		});
+	}
 }
 
 /*
@@ -888,7 +872,22 @@ void on_change_running_state(bool running, bool request_stop)
  */
 void on_load_script(void)
 {
-	/* TODO */
+	const char *script_file;
+	int i, line_count;
+
+	script_file = get_script_file_name();
+	line_count = get_line_count();
+
+	EM_ASM({
+		document.getElementById('lineNumber').innerHTML = $0;
+	}, get_line_num());
+
+	for (i = 0; i < line_count; i++) {
+		EM_ASM({
+			var text = document.getElementById('scriptText').innerHTML;
+			document.getElementById('scriptText').innerHTML = text + '<br>' + UTF8ToString($0);
+		}, get_line_string_at_line_num(i));
+	}
 }
 
 /*
@@ -896,7 +895,17 @@ void on_load_script(void)
  */
 void on_change_position(void)
 {
-	/* TODO */
+	int line;
+
+	line = get_line_num();
+
+	EM_ASM({
+		document.getElementById('lineNumber').innerHTML = $0;
+	}, line);
+
+	EM_ASM({
+		document.getElementById('scriptLineText').innerHTML = UTF8ToString($0);
+	}, get_line_string_at_line_num(line));
 }
 
 /*

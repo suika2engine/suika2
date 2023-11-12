@@ -30,9 +30,10 @@ SRC = \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c \
 	../../src/conf.c \
+	../../src/emedit.c \
+	../../src/emfile.c \
 	../../src/emopenal.c \
 	../../src/event.c \
-	../../src/file.c \
 	../../src/glrender.c \
 	../../src/glyph.c \
 	../../src/gui.c \
@@ -54,8 +55,7 @@ SRC = \
 	../../src/wms_core.c \
 	../../src/wms_impl.c \
 	../../src/wms_lexer.yy.c \
-	../../src/wms_parser.tab.c \
-	../../src/emedit.c
+	../../src/wms_parser.tab.c
 
 all: html
 
@@ -68,6 +68,8 @@ html: emsdk $(SRC)
 		-o html/index.html \
 		-O3 \
 		-DUSE_OPENGL \
+		-DUSE_DEBUGGER \
+		-DUSE_EDITOR \
 		-s USE_ZLIB=1 \
 		-s USE_LIBPNG=1 \
 		-s USE_OGG=1 \
@@ -76,8 +78,9 @@ html: emsdk $(SRC)
 		-s USE_LIBJPEG=1 \
 		-s TOTAL_MEMORY=536870912 \
 		-s NO_EXIT_RUNTIME=1 \
-		-s EXPORTED_FUNCTIONS=["_onLoadProject","_onClickContinue","_onClickNext","_onClickStop","_setVisible","_setHidden"] \
-		-s EXPORTED_RUNTIME_METHODS=["ccall","UTF8ToString"] \
+		-s EXPORTED_FUNCTIONS=["_onLoadProject","_onClickContinue","_onClickNext","_onClickStop","_setVisible","_setHidden","_malloc"] \
+		-s EXPORTED_RUNTIME_METHODS=["ccall","UTF8ToString","writeArrayToMemory"] \
+		-s ASYNCIFY \
 		-lz \
 		-lpng \
 		-logg \

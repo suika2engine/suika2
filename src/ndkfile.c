@@ -123,7 +123,7 @@ size_t read_rfile(struct rfile *rf, void *buf, size_t size)
 /* ファイル読み込みストリームに1文字戻す */
 static void ungetc_rfile(struct rfile *rf, char c)
 {
-	/* HINT: cを戻していないがcは参考情報ということで */
+	/* HINT: cを戻していない */
 	assert(rf->pos != 0);
 	rf->pos--;
 }

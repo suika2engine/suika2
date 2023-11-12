@@ -11,24 +11,8 @@
         margin: 0;
         width: 100%;
         height: 100%;
-        background-color: black;
-        position: fixed;
     }
-    .emscripten {
-        padding-right: 0;
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
-    }
-    textarea.emscripten {
-        font-family: monospace;
-        width: 80%;
-    }
-    div.emscripten {
-        text-align: center;
-        color: white;
-    }
-    div.emscripten_border {
+    div.holder {
         border: 0px;
         margin: auto;
         width: 100%;
@@ -38,67 +22,72 @@
         align-items: center;
     }
     canvas.emscripten {
-        border: 0px none;
         background-color: black;
-        max-width: 100vw;
-        max-height: 100vh;
-        object-fit: contain;
-        display: table-cell;
         vertical-align: middle;
-        outline: none;
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-        width: 1280px;
-        height: 720px;
-				background: yellow;
     }
-		.grid-holder {
+		div.grid-holder {
 				display: grid;
 				width: 100%;
 				height: 100%;
-				grid-template-rows: 100%;
-				grid-template-columns: calc(100vw - 440px) 440px;
+				grid-template-rows: calc(100vh - 440px) 40px 400px;
+				grid-template-columns: 100%;
 		}
-		.grid-left {
+		div.grid-top {
 				grid-row: 1;
 				grid-column: 1;
 				width: 100%;
 				height: 100%;
-				background: red;
 		}
-		.grid-right {
-				grid-row: 1;
-				grid-column: 2;
+		div.grid-middle {
+				grid-row: 2;
+				grid-column: 1;
 				width: 100%;
 				height: 100%;
-				background: blue;
+		}
+		div.grid-bottom {
+				grid-row: 3;
+				grid-column: 1;
+				width: 100%;
+				height: 100%;
 		}
   </style>
 </head>
 <body style="padding: 0; margin: 0;">
-  <!-- DOM Elements -->
+
+  <!-- The DOM Elements -->
 	<div class="grid-holder">
-		<div class="grid-left">
-			<div class="emscripten_border">
+
+		<!-- The top panel -->
+		<div class="grid-top">
+			<div id="holder" class="holder">
 				<!-- The element for video playback --> 
 				<video id="video" style="width: 100%; display: none;"></video>  
 
 				<!-- The element for game screen -->
-				<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+				<canvas id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
 			</div>
 		</div>
-		<!-- The rigth side panel -->
-		<div class="grid-right">
-			<button id="btnProject">プロジェクトを開く</button><br>
+
+		<!-- The middle panel -->
+		<div class="grid-middle">
+			<button id="btnProject">プロジェクトを開く</button>
 			<button id="btnContinue">続ける</button>
 			<button id="btnNext">次へ</button>
-			<button id="btnStop">停止</button><br>
-			<p id="fileName">ファイル名</p>
-			<button id="btnOpen">...</button><br>
-			<div id="scriptText">
+			<button id="btnStop">停止</button>
+			<span id="fileName">ファイル名</span>
+			<button id="btnOpen">...</button>
+			<span id="runningStatus"></span>
+			<span id="lineNumber"></span>
+			<span id="scriptLineText"></span>
+		</div>
 
-			<textarea class="emscripten" id="output" rows="3"></textarea>
+		<!-- The bottom side panel -->
+		<div class="grid-bottom">
+			<span id="scriptText"></span>
 		</div>
 	</div>
+	<!-- End of the DOM Elements -->
 
   <!-- Code for Emscripten foundation-->
   <script type='text/javascript'>
@@ -129,16 +118,15 @@
 
   <!-- Code for Suika2 Main Engine -->
   <script type="text/javascript">
-		var isRunning = false;
-		var isRunning = false;
     function resizeWindow(event) {
       canvas = document.getElementById('canvas');
       aspect = canvas.width / canvas.height;
-      w = window.innerWidth;
-      h = window.innerWidth / aspect;
+      holder = document.getElementById('holder');
+      w = holder.offsetWidth ;
+      h = holder.offsetWidth / aspect;
       if(h > window.innerHeight) {
-           h = window.innerHeight;
-           w = window.innerHeight * aspect;
+           h = holder.offsetHeight;
+           w = holder.offsetHeight * aspect;
       }
       canvas.style.width = w + 'px';
       canvas.style.height = h + 'px';
@@ -173,83 +161,15 @@
 				Module.ccall('onLoadProject', null, null, null);
 		};
 		document.getElementById('btnContinue').onclick = () => {
-        Module.ccall('onClickContinue', null, null, null);
+				Module.ccall('onClickContinue', null, null, null);
 		};
 		document.getElementById('btnNext').onclick = () => {
-        Module.ccall('onClickNext', null, null, null);
+				Module.ccall('onClickNext', null, null, null);
 		};
 		document.getElementById('btnStop').onclick = () => {
-        Module.ccall('onClickStop', null, null, null);
+				Module.ccall('onClickStop', null, null, null);
 		};
-
-		// File I/O
-		async function s2CreateDirectory(dirName) {
-				try {
-						let fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
-						let draftFile = await fileHandle.getFile();
-						return URL.createObjectURL(draftFile);
-				} catch (e) {
-						window.onerror(e);
-				}
-		}
-		async function s2GetFileURL(fileName) {
-				try{
-						const fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
-						const draftFile = await fileHandle.getFile();
-						const accessHandle = await draftFile.createSyncAccessHandle();
-						const fileSize = accessHandle.getSize();
-						accessHandle.close();
-						draftHandle.close();
-						fileHandle.close();
-				} catch (e) {
-						return -1;
-				}
-		}
-		async function s2GetFileSize(fileName) {
-				try{
-						const fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
-						const draftFile = await fileHandle.getFile();
-						const accessHandle = await draftFile.createSyncAccessHandle();
-						const fileSize = accessHandle.getSize();
-						await accessHandle.close();
-						await draftHandle.close();
-						await fileHandle.close();
-				} catch (e) {
-						return -1;
-				}
-		}
-		async function s2ReadFile(fileName) {
-				try {
-						const fileHandle = await dirHandle.getFileHandle(fileName, { create: false });
-						const draftFile = await fileHandle();
-						const accessHandle = await draftFile.createSyncAccessHandle();
-						const fileSize = accessHandle.getSize();
-						const readBuffer = new ArrayBuffer(fileSize);
-						const readSize = accessHandle.read(readBuffer, { "at": 0 });
-						await accessHandle.close();
-						await draftHandle.close();
-						await fileHandle.close();
-						return readBuffer;
-				} catch (e) {
-						window.onerror(e);
-				}
-		}
-		async function s2WriteTextFile(fileName, text) {
-				try {
-						const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
-						const draftFile = await fileHandle();
-						const accessHandle = await draftFile.createSyncAccessHandle();
-						const writableStream = await accessHandle.createWritable();
-						await writableStream.write(text);
-						await writableStream.close();
-						await accessHandle.close();
-						await draftHandle.close();
-						await fileHandle.close();
-				} catch (e) {
-						window.onerror(e);
-				}
-		}
-  </script>
+	</script>
 
 	<!-- Placeholder for Emscripten generated code-->
   {{{ SCRIPT }}}

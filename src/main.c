@@ -251,8 +251,6 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 /* デバッガ用のコマンドディスパッチの前処理 */
 static bool pre_dispatch(void)
 {
-	char *scr;
-
 #ifdef USE_EDITOR
 	/* コマンドがない場合 */
 	if (get_command_count() == 0) {
@@ -278,6 +276,7 @@ static bool pre_dispatch(void)
 
 	/* 停止中で、実行するスクリプトが変更された場合 */
 	if (is_script_opened()) {
+		char *scr;
 		scr = strdup(get_opened_script());
 		if (scr == NULL) {
 			log_memory();

@@ -34,7 +34,7 @@ static int touch_last_y;
 /*
  * 前方参照
  */
-static EM_BOOL loop_iter(double time, void * userData);
+static EM_BOOL loop_iter(double time, void *userData);
 static EM_BOOL cb_mousemove(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
 static EM_BOOL cb_mousedown(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
 static EM_BOOL cb_mouseup(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
@@ -122,7 +122,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 }
 
 /* フレームを処理する */
-static EM_BOOL loop_iter(double time, void * userData)
+static EM_BOOL loop_iter(double time, void *userData)
 {
 	int x, y, w, h;
 	static bool stop = false;
@@ -395,12 +395,6 @@ void EMSCRIPTEN_KEEPALIVE setHidden(void)
  * platform.hの実装
  */
 
-/* alertを表示する */
-EM_JS(void, show_alert, (const char *msg), {
-    var jsMsg = UTF8ToString(msg);
-    window.alert(jsMsg);
-});
-
 /*
  * INFOログを出力する
  */
@@ -413,8 +407,9 @@ bool log_info(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -431,8 +426,9 @@ bool log_warn(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -449,8 +445,9 @@ bool log_error(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
