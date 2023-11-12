@@ -2,35 +2,39 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
+ * Suika2 Studio HAL for WASM (Emscripten)
+ *
  * [Changes]
- *  2023-06-26 Created.
+ *  2023-11-12 Created.
  */
-
-#include <emscripten/emscripten.h>
-#include <emscripten/html5.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>	/* stat(), mkdir() */
-#include <sys/time.h>	/* gettimeofday() */
 
 /* Suika2 Base */
 #include "suika.h"
 
-/* Graphics HAL */
+/* Suika2 Graphics HAL for OpenGL */
 #include "glrender.h"
 
-/* Sound HAL */
+/* Suika2 Sound HAL for Emscripten OpenAL */
 #include "emopenal.h"
+
+/* Emscripten Core */
+#include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
+
+/* Emscripten POSIX Emulation */
+#include <sys/types.h>
+#include <sys/stat.h>	/* stat(), mkdir() */
+#include <sys/time.h>	/* gettimeofday() */
 
 /*
  * Constants
  */
 
-/* Frame milli seconds */
+/* Frame Milli Seconds */
 #define FRAME_MILLI	33
 
 /*
@@ -76,7 +80,7 @@ int main(void)
 }
 
 /*
- * メイン(エンジン部)
+ * エンジン起動
  */
 EMSCRIPTEN_KEEPALIVE void start_engine(void)
 {
@@ -132,28 +136,28 @@ EMSCRIPTEN_KEEPALIVE void start_engine(void)
 /* フレームを処理する */
 static void loop_iter(void *userData)
 {
+	static bool is_flip_pending = false;
 	int x, y, w, h;
-	bool ret;
 
 	/* サウンドの処理を行う */
 	fill_sound_buffer();
 
-	/* フレームイベントを呼び出す */
-	x = y = w = h = 0;
-
-	/* フレームのレンダリングを開始する */
-	opengl_start_rendering();
+	/*
+	 * フレームのレンダリングを開始する
+	 *  - ChromeではファイルI/OでawaitするときにglFlush()されてしまうらしい
+	 *  - これによるチラつきを避けるためにglClear()を呼ばない
+	 */
+	/* opengl_start_rendering(); */
 
 	/* フレームのコマンドを実行する */
-	ret = on_event_frame(&x, &y, &w, &h);
+	x = y = w = h = 0;
+	on_event_frame(&x, &y, &w, &h);
 
 	/* フレームのレンダリングを終了する */
 	opengl_end_rendering();
 
-	if (!ret)
-		EM_ASM({alert('Stopped');});
-	else
-		emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
+	/* 次のフレームを予約する */
+	emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
 }
 
 /* mousemoveのコールバック */
@@ -417,7 +421,7 @@ EMSCRIPTEN_KEEPALIVE void setHidden(void)
 }
 
 /*
- * platform.hの実装 (エンジン部分)
+ * HAL-API for Suika2 Main Engine
  */
 
 /*
@@ -774,6 +778,14 @@ const char *get_system_locale(void)
 		return "ja";
 
 	return "en";
+}
+
+/*
+ * フレームのI/O完了時に呼ばれる
+ */
+void finish_frame_io(void)
+{
+	opengl_start_rendering();
 }
 
 /*

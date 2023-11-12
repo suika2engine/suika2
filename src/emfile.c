@@ -62,17 +62,17 @@ void cleanup_file(void)
 /* JS: ファイルのサイズを取得する */
 EM_ASYNC_JS(int, s2GetFileSize, (const char *dir_name, const char *file_name),
 {
+	/* TODO: 'sav'のファイルが存在しない場合に対応する */
 	const dirName = UTF8ToString(dir_name);
 	if (dirName === 'sav')
 		return -1;
+
 	const fileName = UTF8ToString(file_name);
-//alert('s2GetFileSize() :' + dirName + '/' + fileName);
 	try{
 		const subdirHandle = await dirHandle.getDirectoryHandle(dirName, { create: false });
 		const fileHandle = await subdirHandle.getFileHandle(fileName, { create: false });
 		const file = await fileHandle.getFile();
 		const fileSize = file.size;
-//alert('s2GetFileSize() ok: ' + fileSize);
 		return fileSize;
 	} catch(e) {
 		alert('s2GetFileSize(): error '+ e);
@@ -83,27 +83,20 @@ EM_ASYNC_JS(int, s2GetFileSize, (const char *dir_name, const char *file_name),
 /* JS: ファイルの内容を取得する */
 EM_ASYNC_JS(int, s2ReadFile, (const char *dir_name, const char *file_name, char *data),
 {
-	async function syncRead(reader, file) {
-		return new Promise((resolve, reject) => {
-				reader.addEventListener('load', () => resolve(reader.result));
-				reader.readAsArrayBuffer(file);
-		});
-	}
-
 	const dirName = UTF8ToString(dir_name);
 	const fileName = UTF8ToString(file_name);
-//alert('s2ReadFile() :' + dirName + '/' + fileName);
 	try{
 		const subdirHandle = await dirHandle.getDirectoryHandle(dirName, { create: false });
 		const fileHandle = await subdirHandle.getFileHandle(fileName, { create: false });
 		const file = await fileHandle.getFile();
 		const fileSize = file.size;
 		const fileReader = new FileReader();
-		const arrayBuffer = await syncRead(fileReader, file);
+		const arrayBuffer = await new Promise((resolve, reject) => {
+			fileReader.addEventListener('load', () => resolve(fileReader.result));
+			fileReader.readAsArrayBuffer(file);
+		});
 		const u8Array = new Uint8Array(arrayBuffer);
-//alert('s2ReadFile() :' + u8Array.length);
 		writeArrayToMemory(u8Array, data);
-//alert('s2ReadFile() : ok');
 		return 0;
 	} catch(e) {
 		alert('s2ReadFile(): error ' + e);
@@ -118,6 +111,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 {
 	struct rfile *rf;
 	uint64_t size;
+	int result;
 
 	/* ファイルのサイズを取得する */
 	size = s2GetFileSize(dir, file);
@@ -149,7 +143,8 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	memset(rf->data, 0, size);
 
 	/* ファイルの内容を取得する */
-	if (s2ReadFile(dir, file, rf->data) == -1) {
+	result = s2ReadFile(dir, file, rf->data);
+	if (result == -1) {
 		log_error("ASM ERROR.");
 		free(rf);
 		return NULL;

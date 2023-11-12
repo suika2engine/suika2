@@ -2,10 +2,12 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
+ * Suika2 HAL for WASM (Emscripten)
+ *
  * [Changes]
  *  2021-06-26 Created.
  */

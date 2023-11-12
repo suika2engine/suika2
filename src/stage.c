@@ -1254,8 +1254,12 @@ void draw_stage(void)
  */
 void draw_stage_keep(void)
 {
+#if defined(EM) || defined(OSX) || defined(IOS) || defined(ANDROID)
+	draw_stage();
+#else
 	if (is_gpu_accelerated())
 		draw_stage();
+#endif
 }
 
 /*

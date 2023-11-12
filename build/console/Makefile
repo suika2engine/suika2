@@ -49,7 +49,7 @@ CFLAGS = \
 	-Wno-conversion \
 	-Wno-sign-conversion \
 	-Wno-implicit-function-declaration \
-	-DSWITCH \
+	-DCONSOLE_SAMPLE \
 	$(ARCH)
 
 #

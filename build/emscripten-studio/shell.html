@@ -155,7 +155,7 @@
 
   <!-- Code for Suika2 Studio -->
   <script type="text/javascript">
-		var dirHandle;
+		var dirHandle = null;
 		document.getElementById('btnProject').onclick = async () => {
 				dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
 				Module.ccall('onLoadProject', null, null, null);

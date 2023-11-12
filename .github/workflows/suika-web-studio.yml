@@ -1,0 +1,23 @@
+name: suika-web-studio
+on:
+  push:
+  pull_request:
+jobs:
+  emscripten:
+    runs-on: "ubuntu-22.04"
+    name: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Emsdk
+        uses: mymindstorm/setup-emsdk@v11
+      - name: Build
+        run: |
+          cd build/emscripten-studio
+          make
+          tar czf web-studio.tar.gz html
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: suika-web.tar.gz
+          path: build/emscripten-studio/web-studio.tar.gz

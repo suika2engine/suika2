@@ -629,7 +629,7 @@ void cleanup_opengl(void)
  */
 void opengl_start_rendering(void)
 {
-#ifndef USE_QT
+#if !defined(USE_QT)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 #else

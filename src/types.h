@@ -48,7 +48,7 @@
 #define FREEBSD
 #elif defined(__EMSCRIPTEN__)
 #define EM
-#elif !defined(SWITCH)
+#elif !defined(CONSOLE_SAMPLE)
 #define LINUX
 #endif
 
@@ -236,6 +236,8 @@ typedef unsigned long uintptr_t;    /* VC2010以前では64bitコンパイルし
 #define X86
 #elif defined(_M_X64)
 #define X86_64
+#elif defined(_M_ARM64)
+#define ARM64
 #endif
 
 /*
