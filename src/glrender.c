@@ -84,10 +84,10 @@
 #endif
 
 /*
- * Switch
+ * Console Sample
  *  - We use OpenGL ES 3.0
  */
-#if defined(SWITCH)
+#if defined(CONSOLE_SAMPLE)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 #endif
