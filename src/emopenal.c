@@ -59,6 +59,11 @@ static struct wave *stream[MIXER_STREAMS];
 static bool finish[MIXER_STREAMS];
 
 /*
+ * ストリームが尽きた時点で書き込んだ領域数
+ */
+static bool remain[MIXER_STREAMS];
+
+/*
  * サンプルの一時格納場所
  */
 static uint32_t tmp_buf[SAMPLES];
@@ -170,7 +175,7 @@ bool set_sound_volume(int n, float vol)
  */
 bool is_sound_finished(int n)
 {
-	if(finish[n])
+	if(finish[n] && remain[n] == 0)
 		return true;
 
 	return false;
@@ -183,7 +188,7 @@ void fill_sound_buffer(void)
 {
 	ALuint buf;
 	ALint state;
-	int n, processed, samples;
+	int n, i, processed, samples;
 
 	for (n = 0; n < MIXER_STREAMS; n++) {
 		/* 高負荷による処理落ちで再生が停止している場合、再開する */
@@ -193,18 +198,25 @@ void fill_sound_buffer(void)
 
 		/* 処理済みのバッファ数を取得する */
 		alGetSourcei(source[n], AL_BUFFERS_PROCESSED, &processed);
+		if (finish[n])
+			remain[n] = remain[n] - processed < 0 ? 0 : remain - processed;
 
 		/* 処理済みのバッファについて */
-		while (processed-- > 0) {
+		for (i = 0; i < processed; i++) {
 			/* バッファをアンキューする */
 			alSourceUnqueueBuffers(source[n], 1, &buf);
 
-			/* サンプルを取得する */
-			samples = get_wave_samples(stream[n], tmp_buf,
-						   SAMPLES);
-			if (samples < SAMPLES) {
-				/* 再生終了フラグをセットする */
-				finish[n] = true;
+			if (!finish[n]) {
+				/* サンプルを取得する */
+				samples = get_wave_samples(stream[n], tmp_buf, SAMPLES);
+				if (samples < SAMPLES) {
+					/* 再生終了フラグをセットする */
+					remain[n] = i + 1;
+					finish[n] = true;
+				}
+
+			} else {
+				samples = 0;
 			}
 
 			/* バッファに書き込む */
