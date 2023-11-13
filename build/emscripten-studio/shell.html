@@ -80,10 +80,9 @@
 			<button id="btnContinue" style="display: none;">続ける</button>
 			<button id="btnNext" style="display: none;">次へ</button>
 			<button id="btnStop" style="display: none;">停止</button>
+			<button id="btnMove" style="display: none;">行移動</button>
 			<button id="btnOpen" style="display: none;">開く</button>
 			<span id="fileName"></span>
-			<span id="lineNumber"></span>
-			<span id="scriptLineText"></span>
 			<span id="runningStatus"></span>
     </div>
 		<div class="grid-row2">
@@ -162,10 +161,15 @@
 		// "プロジェクトを開く"がクリックされたときのハンドラ
 		document.getElementById('btnOpenLocalProject').onclick = async () => {
 				// ユーザ選択のディレクトリを開く
-				dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
-				if (typeof dirHandle === 'undefined') {
-            alert('ディレクトリを開けません。');
-						return;
+        try {
+            dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
+            if (typeof dirHandle === 'undefined') {
+                alert('ディレクトリを開けません。');
+                return;
+            }
+        } catch (e) {
+            alert('ブラウザがファイルの表示を許可していません。');
+            return;
         }
 
 				// ボタンを消す
@@ -176,9 +180,10 @@
         document.getElementById('btnContinue').style.display = 'inline';
         document.getElementById('btnNext').style.display = 'inline';
         document.getElementById('btnStop').style.display = 'inline';
+        document.getElementById('btnMove').style.display = 'inline';
 
 		    // 実行を開始する
-        document.getElementById('runningStatus').innerHTML = 'Opened';
+        document.getElementById('runningStatus').innerHTML = 'オープン';
 				Module.ccall('onLoadProject', null, null, null);
 		};
 
@@ -193,17 +198,22 @@
         document.getElementById('btnOpenLocalProject').style.display = 'none';
         document.getElementById('btnOpenSampleProject').style.display = 'none';
 
+		    // プロジェクトのファイルをダウンロードする
+				fileList = await downloadProjectFileList();
+				for (let file of fileList.split(/\n/)) {
+		        if (file !== '') {
+								if (! await downloadAndSaveBinary(file)) {
+                    document.getElementById('runningStatus').innerHTML = 'ダウンロード失敗';
+                    return;
+                }
+            }
+		    }
+
 		    // ボタンを表示する
         document.getElementById('btnContinue').style.display = 'inline';
         document.getElementById('btnNext').style.display = 'inline';
         document.getElementById('btnStop').style.display = 'inline';
-
-		    // プロジェクトのファイルをダウンロードする
-				fileList = await downloadProjectFileList();
-				for (let file of fileList.split(/\n/)) {
-		        if (file !== '')
-								await downloadAndSaveBinary(file);
-		    }
+        document.getElementById('btnMove').style.display = 'inline';
 
 		    // 実行を開始する
         document.getElementById('runningStatus').innerHTML = 'Opened';
@@ -226,6 +236,12 @@
 		document.getElementById('btnStop').onclick = () => {
 				// emedit.cのonClickStop()を呼び出す
 				Module.ccall('onClickStop', null, null, null);
+		};
+
+		// "行移動"がクリックされたときのハンドラ
+		document.getElementById('btnMove').onclick = () => {
+				// emedit.cのonCtrlReturn()を呼び出す
+				Module.ccall('onCtrlReturn', null, null, null);
 		};
 
 		// プロジェクトファイルの一覧をダウンロードする
@@ -258,12 +274,18 @@
 				});
 				const dir = fileName.split('/')[0];
 				const file = fileName.split('/')[1];
-				const subdirHandle = await dirHandle.getDirectoryHandle(dir, { create: true });
-				const fileHandle = await subdirHandle.getFileHandle(file, { create: true });
-				const writableStream = await fileHandle.createWritable();
-		    await writableStream.write({ type: "truncate", size: 0 });
-				await writableStream.write(blob);
-				await writableStream.close();
+		    try {
+		        const subdirHandle = await dirHandle.getDirectoryHandle(dir, { create: true });
+		        const fileHandle = await subdirHandle.getFileHandle(file, { create: true });
+            const writableStream = await fileHandle.createWritable();
+            await writableStream.write({ type: "truncate", size: 0 });
+            await writableStream.write(blob);
+            await writableStream.close();
+        } catch (e) {
+           alert('ブラウザがファイルの保存を許可していません。');
+           return false;
+        }
+        return true;
 		}
 	</script>
 
@@ -279,10 +301,19 @@
 		document.getElementById('editor').addEventListener('keydown', (e) => {
       const range = editor.getSelectionRange();
 			if ((e.ctrlKey && (e.key == 'z' || e.key == 'x' || e.key == 'c' || e.key == 'v' || e.key == 'y')) ||
-          (range.start != range.end))
+			    (e.metaKey && (e.key == 'z' || e.key == 'x' || e.key == 'c' || e.key == 'v' || e.key == 'y')) ||
+          (range.start != range.end) ||
+			    (!e.ctrlKey && e.key == 'Enter') ||
+			    (!e.ctrlKey && e.key == 'Backspace') ||
+			    (!e.ctrlKey && e.key == 'Delete'))
         Module.ccall('onRangeChange', null, null, null);
 			if (e.ctrlKey && e.key == 'Enter')
         Module.ccall('onCtrlReturn', null, null, null);
+		});
+
+    // 変更ハンドラ
+		editor.session.on('change', () => {
+        Module.ccall('onRangeChange', null, null, null);
 		});
 
 		// キーボード表示時にCanvasを隠す

@@ -69,8 +69,9 @@ static int get_keycode(const char *key);
 static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent,void *userData);
 static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
-static void update_text_from_script_model(void);
 static void update_script_model_from_text(void);
+static void update_script_model_from_current_line_text(void);
+static void update_text_from_script_model(void);
 
 /*
  * メイン
@@ -431,6 +432,8 @@ EMSCRIPTEN_KEEPALIVE void onRangeChange(void)
 /* Ctrl+Returnのコールバック */
 EMSCRIPTEN_KEEPALIVE void onCtrlReturn(void)
 {
+	update_script_model_from_current_line_text();
+
 	changed_exec_line = EM_ASM_INT({
 		return editor.getSelection().getRange().start.row;
 	});
@@ -905,6 +908,7 @@ void on_change_running_state(bool running, bool request_stop)
 			document.getElementById('btnNext').disabled = 'disabled';
 			document.getElementById('btnStop').disabled = 'disabled';
 			document.getElementById('btnOpen').disabled = 'disabled';
+			document.getElementById('btnMove').disabled = 'disabled';
 		});
 	} else if(running) {
 		/*
@@ -917,6 +921,7 @@ void on_change_running_state(bool running, bool request_stop)
 			document.getElementById('btnNext').disabled = 'disabled';
 			document.getElementById('btnStop').disabled = "";
 			document.getElementById('btnOpen').disabled = 'disabled';
+			document.getElementById('btnMove').disabled = 'disabled';
 		});
 	} else {
 		/*
@@ -929,6 +934,7 @@ void on_change_running_state(bool running, bool request_stop)
 			document.getElementById('btnNext').disabled = "";
 			document.getElementById('btnStop').disabled = 'disabled';
 			document.getElementById('btnOpen').disabled = "";
+			document.getElementById('btnMove').disabled = "";
 		});
 	}
 }
@@ -951,19 +957,11 @@ void on_load_script(void)
  */
 void on_change_position(void)
 {
-	int line, line_count;
-
-	line = get_line_num();
-
-	EM_ASM({
-		document.getElementById('scriptLineText').innerHTML = UTF8ToString($0);
-	}, get_line_string_at_line_num(line));
-
 	EM_ASM({
 		editor.session.clearBreakpoints();
 		editor.session.setBreakpoint($0, 'execLine');
 		editor.scrollToLine($0, true, true);
-	}, line);
+	}, get_line_num());
 }
 
 /*
@@ -1017,6 +1015,35 @@ static void update_script_model_from_text(void)
 			editor.gotoLine($0, 0, true);
 		}, get_line_num());
 	}
+
+	/* コマンドのパースに失敗した場合 */
+	if (dbg_get_parse_error_count() > 0) {
+		/* 行頭の'!'を反映するためにテキストを再設定する */
+		update_text_from_script_model();
+	}
+}
+
+/* 現在の行のテキストを元にスクリプトモデルを更新する */
+static void update_script_model_from_current_line_text(void)
+{
+	char line_buf[4096];
+	int line;
+
+	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
+	dbg_reset_parse_error_count();
+
+	/* 現在のカーソル行番号を取得する */
+	line = EM_ASM_INT({
+		return editor.getSelection().getRange().start.row;
+	});
+
+	/* 行を取得する */
+	EM_ASM({
+		stringToUTF8(editor.session.getLine($0), $1, $2);
+	}, line, line_buf, sizeof(line_buf));
+
+	/* 行を更新する */
+	update_script_line(line, line_buf);
 
 	/* コマンドのパースに失敗した場合 */
 	if (dbg_get_parse_error_count() > 0) {
