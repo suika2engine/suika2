@@ -143,7 +143,7 @@
 				holder = document.getElementById('canvasHolder');
 				w = holder.offsetWidth;
 				h = holder.offsetWidth / aspect;
-				if (h > window.innerHeight) {
+				if (h > holder.offsetHeight) {
 						h = holder.offsetHeight;
 						w = holder.offsetHeight * aspect;
 				}
@@ -261,9 +261,12 @@
 						}
 						xhr.send();
 				});
-				const subdirHandle = await dirHandle.getDirectoryHandle(fileName.split('/')[0], { create: true });
-				const fileHandle = await subdirHandle.getFileHandle(fileName.split[1], { create: true });
+				const dir = fileName.split('/')[0];
+				const file = fileName.split('/')[1];
+				const subdirHandle = await dirHandle.getDirectoryHandle(dir, { create: true });
+				const fileHandle = await subdirHandle.getFileHandle(file, { create: true });
 				const writableStream = await fileHandle.createWritable();
+		    await writableStream.write({ type: "truncate", size: 0 });
 				await writableStream.write(blob);
 				await writableStream.close();
 		}
