@@ -17,7 +17,7 @@
 				display: grid;
 				width: 100%;
 				height: 100%;
-				grid-template-rows: 40px 480px 40px calc(100vh - 560px);
+				grid-template-rows: 30px 40% 30px calc(100vh - 40% - 60px);
 				grid-template-columns: 100%;
 		}
 		div.grid-row1 {
@@ -82,9 +82,8 @@
 <body style="padding: 0; margin: 0;">
 	<div class="grid-holder">
 		<div class="grid-row1">
-			<button id="btnOpenLocalProject">PC版: プロジェクトを開く</button>
-			<button id="btnOpenSampleProject">スマホ版: サンプルゲームをダウンロードして開始する</button>
-			<button id="btnOpenGoogleDriveProject">Googleドライブのプロジェクトを開く</button>
+			<button id="btnOpenLocalProject">ローカル</button>
+			<button id="btnOpenSampleProject">ダウンロード</button>
 			<span id="runningStatus"></span>
     </div>
 		<div class="grid-row2">
@@ -179,7 +178,6 @@
 				// ボタンを消す
         document.getElementById('btnOpenLocalProject').style.display = 'none';
         document.getElementById('btnOpenSampleProject').style.display = 'none';
-        document.getElementById('btnOpenGoogleDriveProject').style.display = 'none';
 
 		    // 実行を開始する
         document.getElementById('runningStatus').innerHTML = 'Opened';
@@ -196,7 +194,6 @@
 				// ボタンを消す
         document.getElementById('btnOpenLocalProject').style.display = 'none';
         document.getElementById('btnOpenSampleProject').style.display = 'none';
-        document.getElementById('btnOpenGoogleDriveProject').style.display = 'none';
 
 		    // プロジェクトのファイルをダウンロードする
 				fileList = await downloadProjectFileList();
@@ -209,11 +206,6 @@
         document.getElementById('runningStatus').innerHTML = 'Opened';
         Module.ccall('onLoadProject', null, null, null);
     };
-
-		// "Googleドライブのプロジェクトを開く"がクリックされたときのハンドラ
-		document.getElementById('btnOpenGoogleDriveProject').onclick = async () => {
-		    alert('未実装です');
-		};
 
 		// "続ける"がクリックされたときのハンドラ
 		document.getElementById('btnContinue').onclick = () => {
