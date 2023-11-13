@@ -17,7 +17,7 @@
 				display: grid;
 				width: 100%;
 				height: 100%;
-				grid-template-rows: 30px 40% 30px calc(100vh - 40% - 60px);
+				grid-template-rows: 30px calc(100vh - 40% - 30px) 40%;
 				grid-template-columns: 100%;
 		}
 		div.grid-row1 {
@@ -34,12 +34,6 @@
 		}
 		div.grid-row3 {
 				grid-row: 3;
-				grid-column: 1;
-				width: 100%;
-				height: 100%;
-		}
-		div.grid-row4 {
-				grid-row: 4;
 				grid-column: 1;
 				width: 100%;
 				height: 100%;
@@ -66,11 +60,6 @@
         max-height: 100vh;
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     }
-		textarea.scriptText {
-        width: 95%;
-        height: 380px;
-        box-sizing: border-box; 
-    }
     #editor { 
         width: 100%;
         height: 100%;
@@ -82,27 +71,25 @@
 <body style="padding: 0; margin: 0;">
 	<div class="grid-holder">
 		<div class="grid-row1">
-			<button id="btnOpenLocalProject">ローカル</button>
-			<button id="btnOpenSampleProject">ダウンロード</button>
+			<button id="btnOpenLocalProject">ローカル編集</button>
+			<button id="btnOpenSampleProject">ダウンロード編集</button>
+			<button id="btnContinue" style="display: none;">続ける</button>
+			<button id="btnNext" style="display: none;">次へ</button>
+			<button id="btnStop" style="display: none;">停止</button>
+			<button id="btnOpen" style="display: none;">開く</button>
+			<span id="fileName"></span>
+			<span id="lineNumber"></span>
+			<span id="scriptLineText"></span>
 			<span id="runningStatus"></span>
     </div>
 		<div class="grid-row2">
+			<div id="editor">スクリプトがここに表示されます。</div>
+		</div>
+		<div class="grid-row3">
 			<div id="canvasHolder" class="canvasHolder">
 				<video id="video" style="width: 100%; display: none;"></video>  
 				<canvas id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
 			</div>
-		</div>
-		<div class="grid-row3">
-			<button id="btnContinue">続ける</button>
-			<button id="btnNext">次へ</button>
-			<button id="btnStop">停止</button>
-			<span id="fileName"></span>
-			<button id="btnOpen">開く</button>
-			<span id="lineNumber"></span>
-			<span id="scriptLineText"></span>
-		</div>
-		<div class="grid-row4">
-			<div id="editor">スクリプトがここに表示されます。</div>
 		</div>
 	</div>
 
@@ -168,23 +155,30 @@
 		// File System API
 		var dirHandle = null;
 
-		// "PC版: プロジェクトを開く"がクリックされたときのハンドラ
+		// "プロジェクトを開く"がクリックされたときのハンドラ
 		document.getElementById('btnOpenLocalProject').onclick = async () => {
 				// ユーザ選択のディレクトリを開く
 				dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
-				if (typeof dirHandle === 'undefined')
+				if (typeof dirHandle === 'undefined') {
+            alert('ディレクトリを開けません。');
 						return;
+        }
 
 				// ボタンを消す
         document.getElementById('btnOpenLocalProject').style.display = 'none';
         document.getElementById('btnOpenSampleProject').style.display = 'none';
+
+		    // ボタンを表示する
+        document.getElementById('btnContinue').style.display = 'inline';
+        document.getElementById('btnNext').style.display = 'inline';
+        document.getElementById('btnStop').style.display = 'inline';
 
 		    // 実行を開始する
         document.getElementById('runningStatus').innerHTML = 'Opened';
 				Module.ccall('onLoadProject', null, null, null);
 		};
 
-		// "スマホ版: サンプルゲームをダウンロードして開始する"がクリックされたときのハンドラ
+		// "ダウンロードして開く"がクリックされたときのハンドラ
 		document.getElementById('btnOpenSampleProject').onclick = async () => {
 				// OPFSのディレクトリを開く
 				dirHandle = await navigator.storage.getDirectory();
@@ -194,6 +188,11 @@
 				// ボタンを消す
         document.getElementById('btnOpenLocalProject').style.display = 'none';
         document.getElementById('btnOpenSampleProject').style.display = 'none';
+
+		    // ボタンを表示する
+        document.getElementById('btnContinue').style.display = 'inline';
+        document.getElementById('btnNext').style.display = 'inline';
+        document.getElementById('btnStop').style.display = 'inline';
 
 		    // プロジェクトのファイルをダウンロードする
 				fileList = await downloadProjectFileList();
@@ -266,6 +265,7 @@
     // エディタ
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
+		editor.resize();
     //editor.session.setMode("ace/mode/javascript");
 		var editorText = "";
 	</script>
