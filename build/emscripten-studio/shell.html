@@ -15,10 +15,10 @@
     }
 		div.grid-holder {
 				display: grid;
+				grid-template-rows: 30px calc(100svh - 40% - 30px) 40%;
+				grid-template-columns: 100%;
 				width: 100%;
 				height: 100%;
-				grid-template-rows: 30px calc(100vh - 40% - 30px) 40%;
-				grid-template-columns: 100%;
 		}
 		div.grid-row1 {
 				grid-row: 1;
@@ -56,19 +56,23 @@
         vertical-align: middle;
         background-color: black;
         outline: none;
-        max-width: 100vw;
-        max-height: 100vh;
+        max-width: 100svw;
+        max-height: 100svh;
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     }
     #editor { 
         width: 100%;
         height: 100%;
     }
+		.execLine {
+        background: rgba(255, 200, 200, 0.5);
+    }
   </style>
 	<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/ace.min.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/css/ace.min.css" rel="stylesheet">
 </head>
 <body style="padding: 0; margin: 0;">
+
 	<div class="grid-holder">
 		<div class="grid-row1">
 			<button id="btnOpenLocalProject">ローカル編集</button>
@@ -88,7 +92,7 @@
 		<div class="grid-row3">
 			<div id="canvasHolder" class="canvasHolder">
 				<video id="video" style="width: 100%; display: none;"></video>  
-				<canvas id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+				<canvas id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
 			</div>
 		</div>
 	</div>
@@ -261,12 +265,38 @@
 				await writableStream.write(blob);
 				await writableStream.close();
 		}
+	</script>
 
+  <!-- Code for Ace Editor -->
+	<script>
     // エディタ
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
 		editor.resize();
     //editor.session.setMode("ace/mode/javascript");
+
+		// キーハンドラ
+		document.getElementById('editor').addEventListener('keydown', (e) => {
+      const range = editor.getSelectionRange();
+			if ((e.ctrlKey && (e.key == 'z' || e.key == 'x' || e.key == 'c' || e.key == 'v' || e.key == 'y')) ||
+          (range.start != range.end))
+        Module.ccall('onRangeChange', null, null, null);
+			if (e.ctrlKey && e.key == 'Enter')
+        Module.ccall('onCtrlReturn', null, null, null);
+		});
+
+		// キーボード表示時にCanvasを隠す
+    window.visualViewport.addEventListener('resize', () => {
+			const MIN_KEYBOARD_HEIGHT = 300;
+			const isMobile = window.innerWidth < 768;
+			const isKeyboard = isMobile && window.screen.height - MIN_KEYBOARD_HEIGHT > window.visualViewport.height;
+      if (isKeyboard)
+          document.getElementById('canvas').style.display = 'none';
+      else
+          document.getElementById('canvas').style.display = 'block';
+    });
+
+		// エディタのコンテンツを設定するときに一時変数
 		var editorText = "";
 	</script>
 

@@ -69,6 +69,8 @@ static int get_keycode(const char *key);
 static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent,void *userData);
 static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static void update_text_from_script_model(void);
+static void update_script_model_from_text(void);
 
 /*
  * メイン
@@ -418,6 +420,22 @@ EMSCRIPTEN_KEEPALIVE void setVisible(void)
 EMSCRIPTEN_KEEPALIVE void setHidden(void)
 {
 	pause_sound();
+}
+
+/* 範囲変更のコールバック */
+EMSCRIPTEN_KEEPALIVE void onRangeChange(void)
+{
+	update_script_model_from_text();
+}
+
+/* Ctrl+Returnのコールバック */
+EMSCRIPTEN_KEEPALIVE void onCtrlReturn(void)
+{
+	changed_exec_line = EM_ASM_INT({
+		return editor.getSelection().getRange().start.row;
+	});
+	flag_exec_line_changed = true;
+	flag_next_pushed = true;
 }
 
 /*
@@ -924,13 +942,96 @@ void on_load_script(void)
 	int i, line_count;
 
 	script_file = get_script_file_name();
-	line_count = get_line_count();
+
+	update_text_from_script_model();
+}
+
+/*
+ * Update UI elements when the main engine changes the command position to be executed.
+ */
+void on_change_position(void)
+{
+	int line, line_count;
+
+	line = get_line_num();
 
 	EM_ASM({
-		document.getElementById('lineNumber').innerHTML = $0;
-	}, get_line_num());
+		document.getElementById('scriptLineText').innerHTML = UTF8ToString($0);
+	}, get_line_string_at_line_num(line));
 
-	for (i = 0; i < line_count; i++) {
+	EM_ASM({
+		editor.session.clearBreakpoints();
+		editor.session.setBreakpoint($0, 'execLine');
+		editor.scrollToLine($0, true, true);
+	}, line);
+}
+
+/*
+ * Update UI elements when the main engine changes variables.
+ */
+void on_update_variable(void)
+{
+	/* TODO */
+}
+
+/*
+ * Script Model
+ */
+
+/* テキストを元にスクリプトモデルを更新する */
+static void update_script_model_from_text(void)
+{
+	char line_buf[4096];
+	int lines, i;
+
+	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
+	dbg_reset_parse_error_count();
+
+	/* エディタの行数を求める */
+	lines = EM_ASM_INT({ return editor.session.getLength(); }); /*  */
+
+	/* 各行ごとにアップデートする */
+	for (i = 0; i < lines; i++) {
+		/* 行を取得する */
+		EM_ASM({
+			stringToUTF8(editor.session.getLine($0), $1, $2);
+		}, i, line_buf, sizeof(line_buf));
+
+		/* 行を更新する */
+		if (i < get_line_count())
+			update_script_line(i, line_buf);
+		else
+			insert_script_line(i, line_buf);
+	}
+
+	/* 削除された末尾の行を処理する */
+	flag_exec_line_changed = false;
+	for (i = get_line_count() - 1; i >= lines; i--)
+		if (delete_script_line(i))
+			flag_exec_line_changed = true;
+	if (flag_exec_line_changed) {
+		EM_ASM({
+			editor.session.clearBreakpoints();
+			editor.session.setBreakpoint($0, 'execLine');
+			editor.scrollToLine($0, true, true);
+			editor.gotoLine($0, 0, true);
+		}, get_line_num());
+	}
+
+	/* コマンドのパースに失敗した場合 */
+	if (dbg_get_parse_error_count() > 0) {
+		/* 行頭の'!'を反映するためにテキストを再設定する */
+		update_text_from_script_model();
+	}
+}
+
+/* スクリプトモデルを元にエディタのテキストを更新する */
+static void update_text_from_script_model(void)
+{
+	int i, lines;
+
+	lines = get_line_count();
+	for (i = 0; i < lines; i++) {
 		EM_ASM({
 			if ($0 == 0)
 				editorText = UTF8ToString($1);
@@ -942,30 +1043,4 @@ void on_load_script(void)
 	EM_ASM({
 		editor.setValue(editorText);
 	});
-}
-
-/*
- * Update UI elements when the main engine changes the command position to be executed.
- */
-void on_change_position(void)
-{
-	int line;
-
-	line = get_line_num();
-
-	EM_ASM({
-		document.getElementById('lineNumber').innerHTML = $0;
-	}, line);
-
-	EM_ASM({
-		document.getElementById('scriptLineText').innerHTML = UTF8ToString($0);
-	}, get_line_string_at_line_num(line));
-}
-
-/*
- * Update UI elements when the main engine changes variables.
- */
-void on_update_variable(void)
-{
-	/* TODO */
 }

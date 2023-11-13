@@ -60,7 +60,7 @@ SRC = \
 all: html
 
 html: emsdk $(SRC)
-	source ./emsdk/emsdk_env.sh && \
+	EMSDK_QUIET=1 source ./emsdk/emsdk_env.sh && \
 	rm -f html/index.* && \
 	mkdir -p html && \
 	emcc \
@@ -78,7 +78,7 @@ html: emsdk $(SRC)
 		-s USE_LIBJPEG=1 \
 		-s TOTAL_MEMORY=536870912 \
 		-s NO_EXIT_RUNTIME=1 \
-		-s EXPORTED_FUNCTIONS=["_onLoadProject","_onClickContinue","_onClickNext","_onClickStop","_setVisible","_setHidden","_malloc"] \
+		-s EXPORTED_FUNCTIONS=["_onLoadProject","_onClickContinue","_onClickNext","_onClickStop","_setVisible","_setHidden","_malloc","_onRangeChange","_onCtrlReturn"] \
 		-s EXPORTED_RUNTIME_METHODS=["ccall","UTF8ToString","writeArrayToMemory"] \
 		-s ASYNCIFY \
 		-lz \
