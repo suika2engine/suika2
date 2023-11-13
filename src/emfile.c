@@ -6,7 +6,7 @@
  */
 
 /*
- * File I/O implementation for OPFS
+ * File I/O implementation for Browser's File System API
  *
  * [Changes]
  *  - 2023/11/12 作成

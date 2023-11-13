@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Suika2 Studio Web</title>
+  <title>Suika2 Studio WASM</title>
   <meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1, initial-scale=1">
   <style>
     html, body {
@@ -11,97 +11,115 @@
         margin: 0;
         width: 100%;
         height: 100%;
-    }
-    div.holder {
-        border: 0px;
-        margin: auto;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    canvas.emscripten {
-        background-color: black;
-        vertical-align: middle;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+        position: fixed;
     }
 		div.grid-holder {
 				display: grid;
 				width: 100%;
 				height: 100%;
-				grid-template-rows: calc(100vh - 440px) 40px 400px;
+				grid-template-rows: 40px 480px 40px calc(100vh - 560px);
 				grid-template-columns: 100%;
 		}
-		div.grid-top {
+		div.grid-row1 {
 				grid-row: 1;
 				grid-column: 1;
 				width: 100%;
 				height: 100%;
 		}
-		div.grid-middle {
+		div.grid-row2 {
 				grid-row: 2;
 				grid-column: 1;
 				width: 100%;
 				height: 100%;
 		}
-		div.grid-bottom {
+		div.grid-row3 {
 				grid-row: 3;
 				grid-column: 1;
 				width: 100%;
 				height: 100%;
 		}
+		div.grid-row4 {
+				grid-row: 4;
+				grid-column: 1;
+				width: 100%;
+				height: 100%;
+		}
+    div.canvasHolder {
+        border: 0px;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+    canvas.emscripten {
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        display: table-cell;
+        vertical-align: middle;
+        background-color: black;
+        outline: none;
+        max-width: 100vw;
+        max-height: 100vh;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    }
+		textarea.scriptText {
+        width: 95%;
+        height: 380px;
+        box-sizing: border-box; 
+    }
+    #editor { 
+        width: 100%;
+        height: 100%;
+    }
   </style>
+	<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/ace.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/css/ace.min.css" rel="stylesheet">
 </head>
 <body style="padding: 0; margin: 0;">
-
-  <!-- The DOM Elements -->
 	<div class="grid-holder">
-
-		<!-- The top panel -->
-		<div class="grid-top">
-			<div id="holder" class="holder">
-				<!-- The element for video playback --> 
+		<div class="grid-row1">
+			<button id="btnOpenLocalProject">PC版: プロジェクトを開く</button>
+			<button id="btnOpenSampleProject">スマホ版: サンプルゲームをダウンロードして開始する</button>
+			<button id="btnOpenGoogleDriveProject">Googleドライブのプロジェクトを開く</button>
+			<span id="runningStatus"></span>
+    </div>
+		<div class="grid-row2">
+			<div id="canvasHolder" class="canvasHolder">
 				<video id="video" style="width: 100%; display: none;"></video>  
-
-				<!-- The element for game screen -->
 				<canvas id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
 			</div>
 		</div>
-
-		<!-- The middle panel -->
-		<div class="grid-middle">
-			<button id="btnOpenProject">プロジェクトを開く</button>
-			<button id="btnNewProject">プロジェクトを作る</button>
+		<div class="grid-row3">
 			<button id="btnContinue">続ける</button>
 			<button id="btnNext">次へ</button>
 			<button id="btnStop">停止</button>
-			<span id="fileName">ファイル名</span>
-			<button id="btnOpen">...</button>
-			<span id="runningStatus"></span>
+			<span id="fileName"></span>
+			<button id="btnOpen">開く</button>
 			<span id="lineNumber"></span>
 			<span id="scriptLineText"></span>
 		</div>
-
-		<!-- The bottom side panel -->
-		<div class="grid-bottom">
-			<span id="scriptText"></span>
+		<div class="grid-row4">
+			<div id="editor">スクリプトがここに表示されます。</div>
 		</div>
 	</div>
-	<!-- End of the DOM Elements -->
 
-  <!-- Code for Emscripten foundation-->
+  <!-- Code for Emscripten Base -->
   <script type='text/javascript'>
     var Module = {
       preRun: [],
       postRun: [],
       print: (function(text) {
 					if(typeof text !== 'undefined')
-            window.alert(text);
+							window.alert(text);
       })(),
-      printErr: function(text) {
-        window.alert(text);
-      },
+			printErr: (function(text) {
+					if(typeof text !== 'undefined')
+							window.alert(text);
+			})(),
       canvas: (function() {
         var canvas = document.getElementById('canvas');
         canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
@@ -119,241 +137,142 @@
 
   <!-- Code for Suika2 Main Engine -->
   <script type="text/javascript">
-    function resizeWindow(event) {
-      canvas = document.getElementById('canvas');
-      aspect = canvas.width / canvas.height;
-      holder = document.getElementById('holder');
-      w = holder.offsetWidth ;
-      h = holder.offsetWidth / aspect;
-      if(h > window.innerHeight) {
-           h = holder.offsetHeight;
-           w = holder.offsetHeight * aspect;
-      }
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-      canvas.focus();
+		function resizeWindow(event) {
+				canvas = document.getElementById('canvas');
+				aspect = canvas.width / canvas.height;
+				holder = document.getElementById('canvasHolder');
+				w = holder.offsetWidth;
+				h = holder.offsetWidth / aspect;
+				if (h > window.innerHeight) {
+						h = holder.offsetHeight;
+						w = holder.offsetHeight * aspect;
+				}
+				canvas.style.width = w + 'px';
+				canvas.style.height = h + 'px';
+				canvas.focus();
     }
-    function visibilityChange() {
-      if(document.visibilityState === 'visible') {
-        Module.ccall('setVisible', null, null, null);
-        document.getElementById('canvas').focus();
-      } else if(document.visibilityState === 'hidden') {
-        Module.ccall('setHidden', null, null, null);
-      }
-    }
-    function preventDefault(e) {
-				e.preventDefault();
-    }
-    window.ontouchmove = preventDefault;
-    window.onwheel = preventDefault;
-    document.ontouchmove = preventDefault;
-    document.onwheel = preventDefault;
-    document.body.addEventListener('touchmove', preventDefault, { passive: false });
-    document.body.addEventListener('wheel', preventDefault, { passive: false });
     window.addEventListener('resize', resizeWindow);
-    document.addEventListener('visibilitychange', visibilityChange);
+
+		function changeVisibility() {
+				if (document.visibilityState === 'visible') {
+						Module.ccall('setVisible', null, null, null);
+						document.getElementById('canvas').focus();
+				} else if (document.visibilityState === 'hidden') {
+						Module.ccall('setHidden', null, null, null);
+				}
+	  }
+		document.addEventListener('visibilitychange', changeVisibility);
   </script>
 
   <!-- Code for Suika2 Studio -->
   <script type="text/javascript">
+		// File System API
 		var dirHandle = null;
-		document.getElementById('btnOpenProject').onclick = async () => {
+
+		// "PC版: プロジェクトを開く"がクリックされたときのハンドラ
+		document.getElementById('btnOpenLocalProject').onclick = async () => {
+				// ユーザ選択のディレクトリを開く
 				dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
-				if (typeof dirHandle !== 'undefined') {
-						Module.ccall('onLoadProject', null, null, null);
-				}
+				if (typeof dirHandle === 'undefined')
+						return;
+
+				// ボタンを消す
+        document.getElementById('btnOpenLocalProject').style.display = 'none';
+        document.getElementById('btnOpenSampleProject').style.display = 'none';
+        document.getElementById('btnOpenGoogleDriveProject').style.display = 'none';
+
+		    // 実行を開始する
+        document.getElementById('runningStatus').innerHTML = 'Opened';
+				Module.ccall('onLoadProject', null, null, null);
 		};
-		document.getElementById('btnContinue').onclick = () => {
-				Module.ccall('onClickContinue', null, null, null);
-		};
-		document.getElementById('btnNext').onclick = () => {
-				Module.ccall('onClickNext', null, null, null);
-		};
-		document.getElementById('btnStop').onclick = () => {
-				Module.ccall('onClickStop', null, null, null);
-		};
-		document.getElementById('btnNewProject').onclick = async () => {
+
+		// "スマホ版: サンプルゲームをダウンロードして開始する"がクリックされたときのハンドラ
+		document.getElementById('btnOpenSampleProject').onclick = async () => {
+				// OPFSのディレクトリを開く
 				dirHandle = await navigator.storage.getDirectory();
 				if (typeof dirHandle === 'undefined')
 						return;
-				await downloadTemplateFile('anime', 'msgbox-shake-loop.txt');
-				await downloadTemplateFile('anime', 'msgbox-shake.txt');
-				await downloadTemplateFile('bg', 'black.png');
-				await downloadTemplateFile('bg', 'coast.png');
-				await downloadTemplateFile('bg', 'credit.txt');
-				await downloadTemplateFile('bg', 'roof.png');
-				await downloadTemplateFile('bg', 'white.png');
-				await downloadTemplateFile('bgm', '00.ogg');
-				await downloadTemplateFile('bgm', '01.ogg');
-				await downloadTemplateFile('bgm', '02.ogg');
-				await downloadTemplateFile('bgm', 'cicada.ogg');
-				await downloadTemplateFile('bgm', 'coast.ogg');
-				await downloadTemplateFile('bgm', 'credit.txt');
-				await downloadTemplateFile('cg', 'auto.png');
-				await downloadTemplateFile('cg', 'click1.png');
-				await downloadTemplateFile('cg', 'click2.png');
-				await downloadTemplateFile('cg', 'click3.png');
-				await downloadTemplateFile('cg', 'click4.png');
-				await downloadTemplateFile('cg', 'click5.png');
-				await downloadTemplateFile('cg', 'config-active.png');
-				await downloadTemplateFile('cg', 'config-hover.png');
-				await downloadTemplateFile('cg', 'config-idle.png');
-				await downloadTemplateFile('cg', 'config-page2-active.png');
-				await downloadTemplateFile('cg', 'config-page2-hover.png');
-				await downloadTemplateFile('cg', 'config-page2-idle.png');
-				await downloadTemplateFile('cg', 'credit.txt');
-				await downloadTemplateFile('cg', 'history-active.png');
-				await downloadTemplateFile('cg', 'history-hover.png');
-				await downloadTemplateFile('cg', 'history-idle.png');
-				await downloadTemplateFile('cg', 'language.png');
-				await downloadTemplateFile('cg', 'language_en_hover.png');
-				await downloadTemplateFile('cg', 'language_en_idle.png');
-				await downloadTemplateFile('cg', 'language_hover.png');
-				await downloadTemplateFile('cg', 'language_idle.png');
-				await downloadTemplateFile('cg', 'load-active.png');
-				await downloadTemplateFile('cg', 'load-hover.png');
-				await downloadTemplateFile('cg', 'load-idle.png');
-				await downloadTemplateFile('cg', 'menu-hover.png');
-				await downloadTemplateFile('cg', 'menu-idle.png');
-				await downloadTemplateFile('cg', 'msgbox-bg.png');
-				await downloadTemplateFile('cg', 'msgbox-fg.png');
-				await downloadTemplateFile('cg', 'namebox.png');
-				await downloadTemplateFile('cg', 'new-msgbox-bg.png');
-				await downloadTemplateFile('cg', 'overlay-menu-hover.png');
-				await downloadTemplateFile('cg', 'overlay-menu-idle.png');
-				await downloadTemplateFile('cg', 'save-active.png');
-				await downloadTemplateFile('cg', 'save-hover.png');
-				await downloadTemplateFile('cg', 'save-idle.png');
-				await downloadTemplateFile('cg', 'skip.png');
-				await downloadTemplateFile('cg', 'switch-bg.png');
-				await downloadTemplateFile('cg', 'switch-fg.png');
-				await downloadTemplateFile('cg', 'sysmenu-collapsed-hover.png');
-				await downloadTemplateFile('cg', 'sysmenu-collapsed-idle.png');
-				await downloadTemplateFile('cg', 'sysmenu-disable.png');
-				await downloadTemplateFile('cg', 'sysmenu-hover.png');
-				await downloadTemplateFile('cg', 'sysmenu-idle.png');
-				await downloadTemplateFile('ch', '001-angry.png');
-				await downloadTemplateFile('ch', '001-fun.png');
-				await downloadTemplateFile('ch', '001-happy.png');
-				await downloadTemplateFile('ch', '001-normal.png');
-				await downloadTemplateFile('ch', '001-sad.png');
-				await downloadTemplateFile('ch', '002-normal.png');
-				await downloadTemplateFile('ch', 'credit.txt');
-				await downloadTemplateFile('ch', 'luxion.png');
-				await downloadTemplateFile('ch', 'suika.png');
-				await downloadTemplateFile('conf', 'config-english-sample.txt');
-				await downloadTemplateFile('conf', 'config.txt');
-				await downloadTemplateFile('cv', '001.ogg');
-				await downloadTemplateFile('cv', '002.ogg');
-				await downloadTemplateFile('cv', '003.ogg');
-				await downloadTemplateFile('cv', '004.ogg');
-				await downloadTemplateFile('cv', '005.ogg');
-				await downloadTemplateFile('cv', '006.ogg');
-				await downloadTemplateFile('cv', '007.ogg');
-				await downloadTemplateFile('cv', '008.ogg');
-				await downloadTemplateFile('cv', '009.ogg');
-				await downloadTemplateFile('cv', '010.ogg');
-				await downloadTemplateFile('cv', '011.ogg');
-				await downloadTemplateFile('cv', '012.ogg');
-				await downloadTemplateFile('cv', '013.ogg');
-				await downloadTemplateFile('cv', '014.ogg');
-				await downloadTemplateFile('cv', '015.ogg');
-				await downloadTemplateFile('cv', '016.ogg');
-				await downloadTemplateFile('cv', '017.ogg');
-				await downloadTemplateFile('cv', '018.ogg');
-				await downloadTemplateFile('cv', '019.ogg');
-				await downloadTemplateFile('cv', '020.ogg');
-				await downloadTemplateFile('cv', '021.ogg');
-				await downloadTemplateFile('cv', '022.ogg');
-				await downloadTemplateFile('cv', '023.ogg');
-				await downloadTemplateFile('cv', '024.ogg');
-				await downloadTemplateFile('cv', '025.ogg');
-				await downloadTemplateFile('cv', 'credit.txt');
-				await downloadTemplateFile('cv', 'e001.ogg');
-				await downloadTemplateFile('cv', 'e002.ogg');
-				await downloadTemplateFile('cv', 'e003.ogg');
-				await downloadTemplateFile('cv', 'e004.ogg');
-				await downloadTemplateFile('cv', 'e005.ogg');
-				await downloadTemplateFile('cv', 'e006.ogg');
-				await downloadTemplateFile('cv', 'e007.ogg');
-				await downloadTemplateFile('cv', 'e008.ogg');
-				await downloadTemplateFile('cv', 'e009.ogg');
-				await downloadTemplateFile('cv', 'e010.ogg');
-				await downloadTemplateFile('cv', 'e011.ogg');
-				await downloadTemplateFile('cv', 'e012.ogg');
-				await downloadTemplateFile('cv', 'e013.ogg');
-				await downloadTemplateFile('cv', 'e014.ogg');
-				await downloadTemplateFile('cv', 'e015.ogg');
-				await downloadTemplateFile('cv', 'e016.ogg');
-				await downloadTemplateFile('cv', 'e017.ogg');
-				await downloadTemplateFile('cv', 'e018.ogg');
-				await downloadTemplateFile('cv', 'e019.ogg');
-				await downloadTemplateFile('cv', 'e020.ogg');
-				await downloadTemplateFile('cv', 'e021.ogg');
-				await downloadTemplateFile('cv', 'e022.ogg');
-				await downloadTemplateFile('cv', 'e023.ogg');
-				await downloadTemplateFile('cv', 'e024.ogg');
-				await downloadTemplateFile('cv', 'e025.ogg');
-				await downloadTemplateFile('cv', 'e026.ogg');
-				await downloadTemplateFile('cv', 'e027.ogg');
-				await downloadTemplateFile('cv', 'e028.ogg');
-				await downloadTemplateFile('cv', 'e029.ogg');
-				await downloadTemplateFile('cv', 'e030.ogg');
-				await downloadTemplateFile('cv', 'e031.ogg');
-				await downloadTemplateFile('font', 'LICENSE');
-				await downloadTemplateFile('font', 'VL-PGothic-Regular.ttf');
-				await downloadTemplateFile('font', 'yasashisa.ttf');
-				await downloadTemplateFile('gui', 'history.txt');
-				await downloadTemplateFile('gui', 'language.txt');
-				await downloadTemplateFile('gui', 'language_en.txt');
-				await downloadTemplateFile('gui', 'load.txt');
-				await downloadTemplateFile('gui', 'menu.txt');
-				await downloadTemplateFile('gui', 'overlay-menu-sample.txt');
-				await downloadTemplateFile('gui', 'save.txt');
-				await downloadTemplateFile('gui', 'system-page2.txt');
-				await downloadTemplateFile('gui', 'system.txt');
-				await downloadTemplateFile('rule', 'rule-mask.png');
-				await downloadTemplateFile('rule', 'rule-star.png');
-				await downloadTemplateFile('se', '025.ogg');
-				await downloadTemplateFile('se', 'btn-change.ogg');
-				await downloadTemplateFile('se', 'click.ogg');
-				await downloadTemplateFile('se', 'credit.txt');
-				await downloadTemplateFile('se', 'press-v-english.ogg');
-				await downloadTemplateFile('se', 'press-v-japanese.ogg');
-				await downloadTemplateFile('se', 'suika.ogg');
-				await downloadTemplateFile('txt', 'english-main.txt');
-				await downloadTemplateFile('txt', 'init.txt');
-				await downloadTemplateFile('txt', 'japanese-main.txt');
-				await downloadTemplateFile('wms', 'change-msgbox-1.txt');
-				await downloadTemplateFile('wms', 'clear-history.txt');
-				await downloadTemplateFile('wms', 'clear-msgbox.txt');
-				await downloadTemplateFile('wms', 'clear-namebox.txt');
-				await downloadTemplateFile('wms', 'hide-msgbox.txt');
-				await downloadTemplateFile('wms', 'hide-namebox.txt');
-				await downloadTemplateFile('wms', 'save-global.txt');
-				document.getElementById('runningStatus').innerHTML = 'OK';
-				Module.ccall('onLoadProject', null, null, null);
-		}
-		async function downloadTemplateFile(dirName, fileName) {
-				document.getElementById('runningStatus').innerHTML = 'Downloading ' + dirName + '/' + fileName + '...';
-				const blob = await new Promise((resolve) => {
+
+				// ボタンを消す
+        document.getElementById('btnOpenLocalProject').style.display = 'none';
+        document.getElementById('btnOpenSampleProject').style.display = 'none';
+        document.getElementById('btnOpenGoogleDriveProject').style.display = 'none';
+
+		    // プロジェクトのファイルをダウンロードする
+				fileList = await downloadProjectFileList();
+				for (let file of fileList.split(/\n/)) {
+		        if (file !== '')
+								await downloadAndSaveBinary(file);
+		    }
+
+		    // 実行を開始する
+        document.getElementById('runningStatus').innerHTML = 'Opened';
+        Module.ccall('onLoadProject', null, null, null);
+    };
+
+		// "Googleドライブのプロジェクトを開く"がクリックされたときのハンドラ
+		document.getElementById('btnOpenGoogleDriveProject').onclick = async () => {
+		    alert('未実装です');
+		};
+
+		// "続ける"がクリックされたときのハンドラ
+		document.getElementById('btnContinue').onclick = () => {
+				// emedit.cのonClickContinue()を呼び出す
+				Module.ccall('onClickContinue', null, null, null);
+		};
+
+		// "次へ"がクリックされたときのハンドラ
+		document.getElementById('btnNext').onclick = () => {
+				// emedit.cのonClickNext()を呼び出す
+				Module.ccall('onClickNext', null, null, null);
+		};
+
+		// "停止"がクリックされたときのハンドラ
+		document.getElementById('btnStop').onclick = () => {
+				// emedit.cのonClickStop()を呼び出す
+				Module.ccall('onClickStop', null, null, null);
+		};
+
+		// プロジェクトファイルの一覧をダウンロードする
+		async function downloadProjectFileList() {
+				document.getElementById('runningStatus').innerHTML = 'Downloading files.txt...';
+				const text = await new Promise((resolve) => {
 						const xhr = new XMLHttpRequest();
-						xhr.open('GET', 'https://suika2.com/vls/template/' + dirName + '/' + fileName, true);
-						xhr.responseType = 'arraybuffer';
-						xhr.onreadystatechange = async function () {
-								if (xhr.readyState == 4 && xhr.status == 200 ) {
-										const blob = new Blob([xhr.response], {text: 'application/octet-stream'});
-										resolve(blob);
-								}
+						xhr.open('GET', 'https://suika2.com/vls/template/files.txt', true);
+						xhr.onreadystatechange = async function(resolv, reject) {
+								if (xhr.readyState == 4 && xhr.status == 200)
+										resolve(xhr.responseText);
 						}
 						xhr.send();
 				});
-				const subdirHandle = await dirHandle.getDirectoryHandle(dirName, { create: true });
-				const fileHandle = await subdirHandle.getFileHandle(fileName, { create: true });
+        return text;
+		}
+
+		// プロジェクト内のファイルを1つダウンロードして保存する
+		async function downloadAndSaveBinary(fileName) {
+				document.getElementById('runningStatus').innerHTML = 'Downloading ' + fileName + '...';
+				const blob = await new Promise((resolve) => {
+						const xhr = new XMLHttpRequest();
+						xhr.open('GET', 'https://suika2.com/vls/template/' + fileName, true);
+						xhr.responseType = 'arraybuffer';
+						xhr.onreadystatechange = async function(resolv, reject) {
+								if (xhr.readyState == 4 && xhr.status == 200)
+										resolve(new Blob([xhr.response], {text: 'application/octet-stream'}));
+						}
+						xhr.send();
+				});
+				const subdirHandle = await dirHandle.getDirectoryHandle(fileName.split('/')[0], { create: true });
+				const fileHandle = await subdirHandle.getFileHandle(fileName.split[1], { create: true });
 				const writableStream = await fileHandle.createWritable();
 				await writableStream.write(blob);
 				await writableStream.close();
 		}
+
+    // エディタ
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    //editor.session.setMode("ace/mode/javascript");
+		var editorText = "";
 	</script>
 
 	<!-- Placeholder for Emscripten generated code-->

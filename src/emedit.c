@@ -673,14 +673,14 @@ bool play_video(const char *fname, bool is_skippable)
 
 		var v = document.getElementById("video");
 		v.style.display = "block";
-		v.src = s2GetFileURL(Module.UTF8ToString($0, $1));
+		v.src = s2GetFileURL(Module.UTF8ToString($0));
 		v.load();
 		v.addEventListener('ended', function() {
 			document.getElementById("canvas").style.display = "block";
 			document.getElementById("video").style.display = "none";
 		});
 		v.play();
-	}, path, strlen(path));
+	}, path);
 
 	free(path);
 
@@ -724,9 +724,17 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
+	const char *separator, *chapter;
+
+	separator = conf_window_title_separator;
+	if (separator == NULL)
+		separator = " ";
+
+	chapter = get_chapter_name();
+
 	EM_ASM_({
-		document.title = Module.UTF8ToString($0, $1);
-	}, conf_window_title, strlen(conf_window_title));
+		document.title = 'Suika2 Studio WASM - ' + Module.UTF8ToString($0) + Module.UTF8ToString($1) + Module.UTF8ToString($2);
+	}, conf_window_title, separator, chapter);
 }
 
 /*
@@ -868,13 +876,41 @@ int get_changed_exec_line(void)
  */
 void on_change_running_state(bool running, bool request_stop)
 {
-	if (running) {
+	if(request_stop) {
+		/*
+		 * 停止によりコマンドの完了を待機中のとき
+		 *  - コントロールとメニューアイテムを無効にする
+		 */
 		EM_ASM({
-			document.getElementById('runningStatus').innerHTML = 'RUNNING';
+			document.getElementById('runningStatus').innerHTML = '実行中(停止待ち)';
+			document.getElementById('btnContinue').disabled = 'disabled';
+			document.getElementById('btnNext').disabled = 'disabled';
+			document.getElementById('btnStop').disabled = 'disabled';
+			document.getElementById('btnOpen').disabled = 'disabled';
+		});
+	} else if(running) {
+		/*
+		 * 実行中のとき
+		 *  - 「停止」だけ有効、他は無効にする
+		 */
+		EM_ASM({
+			document.getElementById('runningStatus').innerHTML = '実行中';
+			document.getElementById('btnContinue').disabled = 'disabled';
+			document.getElementById('btnNext').disabled = 'disabled';
+			document.getElementById('btnStop').disabled = "";
+			document.getElementById('btnOpen').disabled = 'disabled';
 		});
 	} else {
+		/*
+		 * 完全に停止中のとき
+		 *  - 「停止」だけ無効、他は有効にする
+		 */
 		EM_ASM({
-			document.getElementById('runningStatus').innerHTML = 'STOPPED';
+			document.getElementById('runningStatus').innerHTML = '停止中';
+			document.getElementById('btnContinue').disabled = "";
+			document.getElementById('btnNext').disabled = "";
+			document.getElementById('btnStop').disabled = 'disabled';
+			document.getElementById('btnOpen').disabled = "";
 		});
 	}
 }
@@ -896,10 +932,16 @@ void on_load_script(void)
 
 	for (i = 0; i < line_count; i++) {
 		EM_ASM({
-			var text = document.getElementById('scriptText').innerHTML;
-			document.getElementById('scriptText').innerHTML = text + '<br>' + UTF8ToString($0);
-		}, get_line_string_at_line_num(i));
+			if ($0 == 0)
+				editorText = UTF8ToString($1);
+			else
+				editorText = editorText + '\n' + UTF8ToString($1);
+		}, i, get_line_string_at_line_num(i));
 	}
+
+	EM_ASM({
+		editor.setValue(editorText);
+	});
 }
 
 /*
