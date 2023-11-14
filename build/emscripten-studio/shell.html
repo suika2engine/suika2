@@ -13,9 +13,10 @@
         height: 100%;
         position: fixed;
     }
+    /* A vertical 3 rows layout */
 		div.grid-holder {
 				display: grid;
-				grid-template-rows: 30px calc(100svh - 40% - 30px) 40%;
+				grid-template-rows: 40px calc(100svh - 40% - 40px) 40%;
 				grid-template-columns: 100%;
 				width: 100%;
 				height: 100%;
@@ -38,6 +39,7 @@
 				width: 100%;
 				height: 100%;
 		}
+    /* The Canvas holder */
     div.canvasHolder {
         border: 0px;
         margin: auto;
@@ -47,6 +49,7 @@
         width: 100%;
         height: 100%;
     }
+    /* The Canvas */
     canvas.emscripten {
         padding-right: 0;
         margin-left: auto;
@@ -60,33 +63,57 @@
         max-height: 100svh;
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     }
+    /* The Ace editor */
     #editor { 
         width: 100%;
         height: 100%;
     }
-		.execLine {
-        background: rgba(255, 200, 200, 0.5);
+    /* The continue button */
+    button.topButton {
+        font-family: sans-serif;
+        width: 100px;
+        height: 40px;
+    }
+    /* Highlight */
+    .nextExecLine {
+        background: rgba(255, 200, 200, 1.0);
+    }
+    .currentExecLine {
+        background: rgba(200, 255, 200, 1.0);
     }
   </style>
 	<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/ace.min.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/css/ace.min.css" rel="stylesheet">
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PLYR5Y3JSJ"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() {
+				dataLayer.push(arguments);
+		}
+		gtag("js", new Date());
+		gtag("config", "G-PLYR5Y3JSJ");
+	</script>
 </head>
 <body style="padding: 0; margin: 0;">
 
 	<div class="grid-holder">
 		<div class="grid-row1">
-			<button id="btnOpenLocalProject">ローカル編集</button>
-			<button id="btnOpenSampleProject">ダウンロード編集</button>
-			<button id="btnContinue" style="display: none;">続ける</button>
-			<button id="btnNext" style="display: none;">次へ</button>
-			<button id="btnStop" style="display: none;">停止</button>
-			<button id="btnMove" style="display: none;">行移動</button>
-			<button id="btnOpen" style="display: none;">開く</button>
+      <!-- 初期画面 -->
+			<button id="btnOpenLocalProject" class="topButton">ローカル編集</button>
+			<button id="btnDownloadProject" class="topButton">ブラウザへDL</button>
+			<button id="btnOpenBrowserProject" class="topButton">ブラウザ編集</button>
+
+      <!-- 編集画面 -->
+      <button id="btnContinue" class="topButton" style="display: none;">&#x23f5;</button>
+			<button id="btnNext" class="topButton" style="display: none;">&#x23ef;</button>
+			<button id="btnStop" class="topButton" style="display: none;">&#x23f8;</button>
+			<button id="btnMove" class="topButton" style="display: none;">&#x2713;</button>
+			<button id="btnOpen" class="topButton" style="display: none;">&#x1f4c1;</button>
 			<span id="fileName"></span>
 			<span id="runningStatus"></span>
     </div>
 		<div class="grid-row2">
-			<div id="editor">スクリプトがここに表示されます。</div>
+			<div id="editor">Suika2 Studio WASM - Visual Live Scripting Technology</div>
 		</div>
 		<div class="grid-row3">
 			<div id="canvasHolder" class="canvasHolder">
@@ -158,7 +185,7 @@
 		// File System API
 		var dirHandle = null;
 
-		// "プロジェクトを開く"がクリックされたときのハンドラ
+		// btnOpenLocalProjectがクリックされたときのハンドラ
 		document.getElementById('btnOpenLocalProject').onclick = async () => {
 				// ユーザ選択のディレクトリを開く
         try {
@@ -174,7 +201,8 @@
 
 				// ボタンを消す
         document.getElementById('btnOpenLocalProject').style.display = 'none';
-        document.getElementById('btnOpenSampleProject').style.display = 'none';
+        document.getElementById('btnDownloadProject').style.display = 'none';
+        document.getElementById('btnOpenBrowserProject').style.display = 'none';
 
 		    // ボタンを表示する
         document.getElementById('btnContinue').style.display = 'inline';
@@ -187,8 +215,8 @@
 				Module.ccall('onLoadProject', null, null, null);
 		};
 
-		// "ダウンロードして開く"がクリックされたときのハンドラ
-		document.getElementById('btnOpenSampleProject').onclick = async () => {
+		// btnDownloadProjectがクリックされたときのハンドラ
+		document.getElementById('btnDownloadProject').onclick = async () => {
 				// OPFSのディレクトリを開く
 				dirHandle = await navigator.storage.getDirectory();
 				if (typeof dirHandle === 'undefined')
@@ -196,7 +224,8 @@
 
 				// ボタンを消す
         document.getElementById('btnOpenLocalProject').style.display = 'none';
-        document.getElementById('btnOpenSampleProject').style.display = 'none';
+        document.getElementById('btnDownloadProject').style.display = 'none';
+        document.getElementById('btnOpenBrowserProject').style.display = 'none';
 
 		    // プロジェクトのファイルをダウンロードする
 				fileList = await downloadProjectFileList();
@@ -216,8 +245,47 @@
         document.getElementById('btnMove').style.display = 'inline';
 
 		    // 実行を開始する
-        document.getElementById('runningStatus').innerHTML = 'Opened';
-        Module.ccall('onLoadProject', null, null, null);
+        document.getElementById('runningStatus').innerHTML = '編集を開始します。';
+        try {
+            Module.ccall('onLoadProject', null, null, null);
+        } catch (e) {
+            alert('ゲーム初期化時にエラーが発生しました。' + e);
+        }
+    };
+
+		// btnOpenBrowserProjectがクリックされたときのハンドラ
+		document.getElementById('btnOpenBrowserProject').onclick = async () => {
+				// OPFSのディレクトリを開く
+				dirHandle = await navigator.storage.getDirectory();
+				if (typeof dirHandle === 'undefined')
+						return;
+
+				// ボタンを消す
+        document.getElementById('btnOpenLocalProject').style.display = 'none';
+        document.getElementById('btnDownloadProject').style.display = 'none';
+        document.getElementById('btnOpenBrowserProject').style.display = 'none';
+
+		    // ボタンを表示する
+        document.getElementById('btnContinue').style.display = 'inline';
+        document.getElementById('btnNext').style.display = 'inline';
+        document.getElementById('btnStop').style.display = 'inline';
+        document.getElementById('btnMove').style.display = 'inline';
+
+		    // 実行を開始する
+        document.getElementById('runningStatus').innerHTML = '開いています...';
+		    try {
+            Module.ccall('onLoadProject', null, null, null);
+        } catch (e) {
+            alert('ブラウザにプロジェクトがダウンロードされていないようです。');
+
+            document.getElementById('runningStatus').innerHTML = 'エラー: リロードしてください。';
+
+            // ボタンを消す
+            document.getElementById('btnContinue').style.display = 'none';
+            document.getElementById('btnNext').style.display = 'none';
+            document.getElementById('btnStop').style.display = 'none';
+            document.getElementById('btnMove').style.display = 'none';
+        }
     };
 
 		// "続ける"がクリックされたときのハンドラ
@@ -246,7 +314,7 @@
 
 		// プロジェクトファイルの一覧をダウンロードする
 		async function downloadProjectFileList() {
-				document.getElementById('runningStatus').innerHTML = 'Downloading files.txt...';
+				document.getElementById('runningStatus').innerHTML = 'ダウンロード中 files.txt ...';
 				const text = await new Promise((resolve) => {
 						const xhr = new XMLHttpRequest();
 						xhr.open('GET', 'https://suika2.com/vls/template/files.txt', true);
@@ -261,7 +329,7 @@
 
 		// プロジェクト内のファイルを1つダウンロードして保存する
 		async function downloadAndSaveBinary(fileName) {
-				document.getElementById('runningStatus').innerHTML = 'Downloading ' + fileName + '...';
+				document.getElementById('runningStatus').innerHTML = 'ダウンロード中 ' + fileName + ' ...';
 				const blob = await new Promise((resolve) => {
 						const xhr = new XMLHttpRequest();
 						xhr.open('GET', 'https://suika2.com/vls/template/' + fileName, true);

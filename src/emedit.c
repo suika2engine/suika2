@@ -47,6 +47,7 @@ static int touch_start_y;
 static int touch_last_y;
 
 /* Debugger Status */
+static bool is_running;
 static bool flag_continue_pushed;
 static bool flag_next_pushed;
 static bool flag_stop_pushed;
@@ -897,6 +898,21 @@ int get_changed_exec_line(void)
  */
 void on_change_running_state(bool running, bool request_stop)
 {
+	is_running = running;
+	if (is_running) {
+		EM_ASM({
+			editor.session.clearBreakpoints();
+			editor.session.setBreakpoint($0, 'currentExecLine');
+			editor.scrollToLine($0, true, true);
+		}, get_line_num());
+	} else {
+		EM_ASM({
+			editor.session.clearBreakpoints();
+			editor.session.setBreakpoint($0, 'nextExecLine');
+			editor.scrollToLine($0, true, true);
+		}, get_line_num());
+	}
+
 	if(request_stop) {
 		/*
 		 * 停止によりコマンドの完了を待機中のとき
@@ -957,11 +973,19 @@ void on_load_script(void)
  */
 void on_change_position(void)
 {
-	EM_ASM({
-		editor.session.clearBreakpoints();
-		editor.session.setBreakpoint($0, 'execLine');
-		editor.scrollToLine($0, true, true);
-	}, get_line_num());
+	if (is_running) {
+		EM_ASM({
+			editor.session.clearBreakpoints();
+			editor.session.setBreakpoint($0, 'currentExecLine');
+			editor.scrollToLine($0, true, true);
+		}, get_line_num());
+	} else {
+		EM_ASM({
+			editor.session.clearBreakpoints();
+			editor.session.setBreakpoint($0, 'nextExecLine');
+			editor.scrollToLine($0, true, true);
+		}, get_line_num());
+	}
 }
 
 /*
