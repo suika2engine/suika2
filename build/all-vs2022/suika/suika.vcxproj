@@ -27,14 +27,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\mingw\res\manifest.xml" />
+    <Xml Include="..\..\engine-windows-x86\res\manifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\mingw\res\resource.rc" />
+    <ResourceCompile Include="..\..\engine-windows-x86\res\resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\mingw\res\small.ico" />
-    <Image Include="..\..\mingw\res\suika.ico" />
+    <Image Include="..\..\engine-windows-x86\res\small.ico" />
+    <Image Include="..\..\engine-windows-x86\res\suika.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\anime.h" />
@@ -74,7 +74,7 @@
     <ClInclude Include="..\..\..\src\wms_core.h" />
     <ClInclude Include="..\..\..\src\wms_parser.tab.h" />
     <ClInclude Include="..\..\..\src\x86.h" />
-    <ClInclude Include="..\..\mingw\res\resource.h" />
+    <ClInclude Include="..\..\engine-windows-x86\res\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\anime.c" />
@@ -247,7 +247,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\engine-windows-x86\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -267,7 +267,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\engine-windows-x86\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>
@@ -290,7 +290,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\engine-windows-x86\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -306,7 +306,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\engine-windows-x86\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -325,7 +325,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\engine-windows-x86\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -345,7 +345,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\mingw\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\engine-windows-x86\res;..\zlib;..\libpng;..\libogg\include;..\libvorbis\include;..\freetype\include;..\jpeg;..\bzip2\src;..\libwebp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>

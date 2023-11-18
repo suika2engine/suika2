@@ -14,25 +14,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\mingw\res\manifest-pro.xml">
+    <Xml Include="..\..\engine-windows-x86\res\manifest-pro.xml">
       <Filter>Resource File</Filter>
     </Xml>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\mingw\res\resource.rc">
+    <ResourceCompile Include="..\..\engine-windows-x86\res\resource.rc">
       <Filter>Resource File</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\mingw\res\small.ico">
+    <Image Include="..\..\engine-windows-x86\res\small.ico">
       <Filter>Resource File</Filter>
     </Image>
-    <Image Include="..\..\mingw\res\suika.ico">
+    <Image Include="..\..\engine-windows-x86\res\suika.ico">
       <Filter>Resource File</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\mingw\res\resource.h">
+    <ClInclude Include="..\..\engine-windows-x86\res\resource.h">
       <Filter>Header File</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\x86.h">

@@ -17,7 +17,7 @@ CPPFLAGS = \
 	-DUSE_DEBUGGER \
 	-D_WIN32_WINNT=0x0601 \
 	-I. \
-	-I../mingw/res \
+	-I../engine-windows-arm64/res \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -77,7 +77,7 @@ SRCS_CC = \
 	../../src/dsvideo.cc \
 	../../src/tts_sapi.cc
 
-SRCS_R = ../mingw/res/resource.rc
+SRCS_R = ../engine-windows-x86/res/resource.rc
 
 #
 # .c.o compilation rules
@@ -86,7 +86,7 @@ SRCS_R = ../mingw/res/resource.rc
 OBJS = \
 	$(SRCS_C:../../src/%.c=%.o) \
 	$(SRCS_CC:../../src/%.cc=%.o) \
-	$(SRCS_R:../mingw/res/%.rc=%.o)
+	$(SRCS_R:../engine-windows-x86/res/%.rc=%.o)
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
@@ -94,7 +94,7 @@ OBJS = \
 %.o: ../../src/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
-%.o: ../mingw/res/%.rc
+%.o: ../engine-windows-x86/res/%.rc
 	$(WINDRES) -DUSE_DEBUGGER $< $@
 
 #

@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         run: |
-          cd build/capture-macos
+          cd build/all-macos
           wget https://suika2.com/dl/libroot-mac.tar.gz
           tar xzf libroot-mac.tar.gz
           xcodebuild -target suika-capture -project suika.xcodeproj -configuration Debug build
