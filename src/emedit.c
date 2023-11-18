@@ -425,13 +425,13 @@ EMSCRIPTEN_KEEPALIVE void setHidden(void)
 }
 
 /* 範囲変更のコールバック */
-EMSCRIPTEN_KEEPALIVE void onRangeChange(void)
+EMSCRIPTEN_KEEPALIVE void onEditorRangeChange(void)
 {
 	update_script_model_from_text();
 }
 
 /* Ctrl+Returnのコールバック */
-EMSCRIPTEN_KEEPALIVE void onCtrlReturn(void)
+EMSCRIPTEN_KEEPALIVE void onEditorCtrlReturn(void)
 {
 	update_script_model_from_current_line_text();
 
