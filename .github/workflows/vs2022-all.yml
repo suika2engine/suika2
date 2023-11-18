@@ -13,7 +13,7 @@ jobs:
           arch: x86
       - name: Build
         run: |
-          cd build/vs
+          cd build/all-vs2022
           echo zlib
           tar xzf ../libsrc/zlib-1.2.11.tar.gz
           mv zlib-1.2.11 zlib
@@ -74,5 +74,5 @@ jobs:
         with:
           name: suika-vs
           path: |
-            build/vs/Release/suika.exe
-            build/vs/Release/suika-pro.exe
+            build/all-vs2022/Release/suika.exe
+            build/all-vs2022/Release/suika-pro.exe
