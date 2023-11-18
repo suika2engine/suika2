@@ -27,13 +27,12 @@ Suika2 never depends on SDK/frameworks such as Unity, Godot, or SDL2.
 In fact, it takes less than a week for us to port Suika2 to a platform that do not support such SDK/frameworks.
 In other words, HAL, our compatibility layer, is very complete in its API design.
 
-## Suika2 Studio 2024 Wasm
+## Suika2 Pro
 
-Suika2 Studio 2024 Wasm is an IDE for Suika2, available on Web.
-It provides developers with editing/debugging capabilities as well as an export function on Web browsers.
-It is currently in development.
+Suika2 Pro is a developer tool for Suika2, available for Windows, macOS and Linux.
+It provides developers with a debugging capability and an export function.
 
-See the [live demo](https://suika2.com/vls)
+Suika2 Pro will be replaced by Suika2 Studio in the near future.
 
 ## Suika2 Studio
 
@@ -42,12 +41,13 @@ It provides developers with editing/debugging capabilities as well as an export 
 
 Suika2 Studio is currently beta version.
 
-## Suika2 Pro
+## Suika2 Studio 2024 Wasm
 
-Suika2 Pro is a developer tool for Suika2, available for Windows, macOS and Linux.
-It provides developers with a debugging capability and an export function.
+Suika2 Studio 2024 Wasm is an IDE for Suika2, available on Web.
+It provides developers with editing/debugging capabilities as well as an export function on Web browsers.
+It is currently in development.
 
-Suika2 Pro will be replaced by Suika2 Studio in the near future.
+See the [live demo](https://suika2.com/vls)
 
 ## Binary Distribution
 
