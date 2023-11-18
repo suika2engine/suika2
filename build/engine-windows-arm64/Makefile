@@ -90,7 +90,7 @@ OBJS = \
 %.o: ../../src/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
-%.o: ../capture-windows-x86/res/%.rc
+%.o: ../engine-windows-x86/res/%.rc
 	$(WINDRES) $< $@
 
 #

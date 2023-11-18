@@ -17,7 +17,7 @@ CPPFLAGS = \
 	-DUSE_DEBUGGER \
 	-D_WIN32_WINNT=0x0601 \
 	-I. \
-	-I../engine-windows-arm64/res \
+	-I../engine-windows-x86/res \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
