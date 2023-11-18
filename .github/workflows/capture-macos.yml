@@ -1,4 +1,4 @@
-name: suika-mac-pro
+name: capture-macos
 on:
   push:
   pull_request:
@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         run: |
-          cd build/macos
+          cd build/capture-macos
           wget https://suika2.com/dl/libroot-mac.tar.gz
           tar xzf libroot-mac.tar.gz
-          xcodebuild -target suika-pro -project suika.xcodeproj -configuration Debug build
+          xcodebuild -target suika-capture -project suika.xcodeproj -configuration Debug build

@@ -1,4 +1,4 @@
-name: suika-visualstudio
+name: visualstudio-all
 on:
   push:
   pull_request:

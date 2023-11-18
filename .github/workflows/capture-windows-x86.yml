@@ -1,4 +1,4 @@
-name: suika-windows-capture
+name: capture-windows-x86
 on:
   push:
   pull_request:
@@ -13,7 +13,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mingw-w64
-          cd build/mingw-capture
+          cd build/capture-windows-x86
           ./build-libs.sh
           make
           make install

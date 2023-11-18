@@ -1,4 +1,4 @@
-name: suika-windows
+name: pro-windows-x86
 on:
   push:
   pull_request:
@@ -13,12 +13,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mingw-w64
-          cd build/mingw
+          cd build/pro-windows-x86
           ./build-libs.sh
           make
           make install
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika.exe
-          path: suika.exe
+          name: suika-pro.exe
+          path: suika-pro.exe

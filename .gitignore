@@ -1,201 +1,251 @@
+#
 # Credentials
+#
+
+# Hostname/username/password for remote macOS build
 build/.env
-build/macos/.passwd
 
-# Garbage
-*.DS_Store
-*~
-.vscode/settings.json
-game/log.txt
-game/sav
+# Password file for remote macOS build
+build/all-macos/.passwd
 
+#
 # Top level objects
+#
+
+# Binaries
 suika.exe
-suika-pro.exe
-suika-studio.exe
-suika-capture.exe
-suika-replay.exe
 suika-64.exe
 suika-arm64.exe
+suika-studio.exe
+suika-pro.exe
+suika-capture.exe
+suika-replay.exe
 mac.dmg
 mac-pro.dmg
 mac-capture.dmg
 mac-replay.dmg
-mac.zip
-pack.mac
 
-# mingw (Windows 32-bit suika.exe)
-build/mingw/*.o
-build/mingw/libroot
-build/mingw/suika.exe
-build/mingw/res/resource.aps
-build/mingw/sync.sh
-build/mingw/game
+#
+# Main Engine
+#
 
-# mingw-pro (Windows 32-bit suika.exe)
-build/mingw-pro/*.o
-build/mingw-pro/libroot
-build/mingw-pro/suika-pro.exe
-build/mingw-pro/game
+# Main Engine for Windows 32-bit with mingw-w64 (suika.exe)
+build/engine-windows-x86/*.o
+build/engine-windows-x86/libroot
+build/engine-windows-x86/suika.exe
+build/engine-windows-x86/res/resource.aps
+build/engine-windows-x86/sync.sh
+build/engine-windows-x86/game
 
-# mingw-studio (Windows 32-bit suika.exe)
-build/mingw-studio/*.o
-build/mingw-studio/libroot
-build/mingw-studio/suika-studio.exe
-build/mingw-studio/game
+# Main Engine for Windows 64-bit with mingw-w64 (suika-64.exe)
+build/engine-windows-x86_64/*.o
+build/engine-windows-x86_64/libroot
+build/engine-windows-x86_64/suika-64.exe
 
-# mingw-capture (Windows 32-bit suika-capture.exe)
-build/mingw-capture/*.o
-build/mingw-capture/libroot
-build/mingw-capture/suika-capture.exe
+# Main Engine for Windows Arm64 with clang/mignw (suika-arm64.exe)
+build/engine-windows-arm64/*.o
+build/engine-windows-arm64/llvm
+build/engine-windows-arm64/libroot
+build/engine-windows-arm64/suika-arm64.exe
 
-# mingw-replay (Windows 32-bit suika-replay.exe)
-build/mingw-replay/*.o
-build/mingw-replay/libroot
-build/mingw-replay/suika-replay.exe
+# Main Engine for Wasm
+build/engine-wasm/html
+build/engine-wasm/emsdk
+build/engine-wasm/data01.arc
 
-# mingw-64 (Windows 64-bit suika-64.exe)
-build/mingw-64/*.o
-build/mingw-64/libroot
-build/mingw-64/suika-64.exe
+# Main Engine for iOS (iPhone and iPad)
+build/engine-ios/libroot
+build/engine-ios/suika.xcodeproj/project.xcworkspace
+build/engine-ios/suika.xcodeproj/xcuserdata
+build/engine-ios/suika.xcodeproj/xcshareddata
+build/engine-ios/ios-src
+build/engine-ios/ios-src.zip
+build/engine-ios/libroot-ios.tar.gz
 
-# mingw-arm64 (Windows Arm64 suika-arm64.exe)
-build/mingw-arm64/*.o
-build/mingw-arm64/llvm
-build/mingw-arm64/libroot
-build/mingw-arm64/suika-arm64.exe
+# Main Engine for Android
+build/engine-android/.idea/caches
+build/engine-android/app/.cxx
+build/engine-android/app/src/main/assets
+build/engine-android/app/src/main/cpp/bzip2
+build/engine-android/app/src/main/cpp/libpng
+build/engine-android/app/src/main/cpp/jpeg
+build/engine-android/app/src/main/cpp/libwebp
+build/engine-android/app/src/main/cpp/freetype
+build/engine-android/app/src/main/cpp/*.[ch]
+build/engine-android/cmdline-tools
+build/engine-android/commandlinetools-linux-*.zip
+build/engine-android/android-src
 
-# Visual Studio (for debug purpose only)
-build/vs/.vs
-build/vs/zlib
-build/vs/libpng
-build/vs/libogg
-build/vs/libvorbis
-build/vs/freetype
-build/vs/jpeg
-build/vs/bzip2
-build/vs/libwebp
-build/vs/obj
-build/vs/Debug
-build/vs/Release
-build/vs/ARM64
-build/vs/suika/Debug
-build/vs/suika/Release
-build/vs/suika/ARM64
-build/vs/suika-pro/Debug
-build/vs/suika-pro/Release
-build/vs/suika-pro/ARM64
-build/vs/suika-studio/Debug
-build/vs/suika-studio/Release
-build/vs/suika-studio/ARM64
+# Main Engine for Linux x86_64 static
+build/engine-linux-x86_64/*.o
+build/engine-linux-x86_64/libroot
+build/engine-linux-x86_64/suika
 
+# Main Engine for Linux x86_64 shared
+build/engine-linux-x86_64-shared/*.o
+build/engine-linux-x86_64-shared/libroot
+build/engine-linux-x86_64-shared/suika
+
+# Main Engine for Linux x86_64 with clang
+build/engine-linux-x86_64-clang/*.o
+build/engine-linux-x86_64-clang/libroot
+build/engine-linux-x86_64-clang/suika
+
+# Main Engine for Linux Aarch 64 e.g. Raspberry Pi
+build/engine-linux-aarch64/*.o
+build/engine-linux-aarch64/libroot
+build/engine-linux-aarch64/suika
+
+#
+# Studio
+#
+
+# Studio for Windows 32-bit with mingw-w64 (suika-studio.exe)
+build/studio-windows-x86/*.o
+build/studio-windows-x86/libroot
+build/studio-windows-x86/suika-studio.exe
+build/studio-windows-x86/game
+
+# Studio for Wasm
+build/studio-wasm/html
+build/studio-wasm/emsdk
+build/studio-wasm/data01.arc
+
+#
+# Pro
+#
+
+# Pro for Windows 32-bit with mingw-w64 (suika-pro.exe)
+build/pro-windows-x86/*.o
+build/pro-windows-x86/libroot
+build/pro-windows-x86/suika-pro.exe
+build/pro-windows-x86/game
+
+# Pro for Linux x86_64 static
+build/pro-qt6/deps
+build/pro-qt6/build
+build/pro-qt6/CMakeLists.txt.user
+build/pro-qt6/*.cpp
+build/pro-qt6/*.h
+build/pro-qt6/*.ui
+build/pro-qt6/build/suika-pro
+
+#
+# Capture
+#
+
+# Capture for Windows 32-bit with mingw-w64 (suika-capture.exe)
+build/capture-windows-x86/*.o
+build/capture-windows-x86/libroot
+build/capture-windows-x86/suika-capture.exe
+
+# Capture for Linux x86_64
+build/capture-linux-x86_64/*.o
+build/capture-linux-x86_64/libroot
+build/capture-linux-x86_64/suika-capture
+
+#
+# Replay
+#
+
+# Replay for Windows 64-bit with mingw-w64 (suika-replay.exe)
+build/replay-windows-x86/*.o
+build/replay-windows-x86/libroot
+build/replay-windows-x86/suika-replay.exe
+
+# Replay for Linux x86_64
+build/replay-linux-x86_64/*.o
+build/replay-linux-x86_64/*.gcda
+build/replay-linux-x86_64/*.gcno
+build/replay-linux-x86_64/libroot
+build/replay-linux-x86_64/suika-replay
+build/replay-linux-x86_64/app.info
+build/replay-linux-x86_64/lcovoutput
+
+#
 # macOS
-build/macos/libroot
-build/macos/build
-build/macos/suika.xcodeproj/project.xcworkspace
-build/macos/suika.xcodeproj/xcshareddata
-build/macos/suika.xcodeproj/xcuserdata
-build/macos/libroot-mac.tar.gz
+#
 
-# Web
-build/emscripten/html
-build/emscripten/emsdk
-build/emscripten/data01.arc
+# Engine/Pro/Capture/Replay on macOS
+build/all-macos/libroot
+build/all-macos/build
+build/all-macos/suika.xcodeproj/project.xcworkspace
+build/all-macos/suika.xcodeproj/xcshareddata
+build/all-macos/suika.xcodeproj/xcuserdata
+build/all-macos/libroot-mac.tar.gz
 
-# Web Studio
-build/emscripten-studio/html
-build/emscripten-studio/emsdk
-build/emscripten-studio/data01.arc
+#
+# Visual Studio
+#
 
-# Linux
-build/linux-x86_64/*.o
-build/linux-x86_64/libroot
-build/linux-x86_64/suika
+# Engine/Pro/Studio on Visual Studio 2022 (for debug purpose only)
+build/all-vs2022/.vs
+build/all-vs2022/zlib
+build/all-vs2022/libpng
+build/all-vs2022/libogg
+build/all-vs2022/libvorbis
+build/all-vs2022/freetype
+build/all-vs2022/jpeg
+build/all-vs2022/bzip2
+build/all-vs2022/libwebp
+build/all-vs2022/obj
+build/all-vs2022/Debug
+build/all-vs2022/Release
+build/all-vs2022/ARM64
+build/all-vs2022/suika/Debug
+build/all-vs2022/suika/Release
+build/all-vs2022/suika/ARM64
+build/all-vs2022/suika-pro/Debug
+build/all-vs2022/suika-pro/Release
+build/all-vs2022/suika-pro/ARM64
+build/all-vs2022/suika-studio/Debug
+build/all-vs2022/suika-studio/Release
+build/all-vs2022/suika-studio/ARM64
 
-# Linux Pro
-build/linux-x86_64-pro/deps
-build/linux-x86_64-pro/build
-build/linux-x86_64-pro/CMakeLists.txt.user
-build/linux-x86_64-pro/*.cpp
-build/linux-x86_64-pro/*.h
-build/linux-x86_64-pro/*.ui
+#
+# Misc.
+#
 
-# Linux Capture
-build/linux-x86_64-capture/*.o
-build/linux-x86_64-capture/libroot
-build/linux-x86_64-capture/suika-capture
-
-# Linux Replay
-build/linux-x86_64-replay/*.o
-build/linux-x86_64-replay/*.gcda
-build/linux-x86_64-replay/*.gcno
-build/linux-x86_64-replay/libroot
-build/linux-x86_64-replay/suika-replay
-build/linux-x86_64-replay/app.info
-build/linux-x86_64-replay/lcovoutput
-
-# Linux (clang)
-build/linux-x86_64-clang/*.o
-build/linux-x86_64-clang/libroot
-build/linux-x86_64-clang/suika
-suika-pro
-
-# Android
-build/android/.idea/caches
-build/android/app/.cxx
-build/android/app/src/main/assets
-build/android/app/src/main/cpp/bzip2
-build/android/app/src/main/cpp/libpng
-build/android/app/src/main/cpp/jpeg
-build/android/app/src/main/cpp/libwebp
-build/android/app/src/main/cpp/freetype
-build/android/app/src/main/cpp/*.[ch]
-build/android/cmdline-tools
-build/android/commandlinetools-linux-*.zip
-build/android/android-src
-
-# iOS (iPhone and iPad)
-build/ios/libroot
-build/ios/suika.xcodeproj/project.xcworkspace
-build/ios/suika.xcodeproj/xcuserdata
-build/ios/suika.xcodeproj/xcshareddata
-build/ios/ios-src
-build/ios/ios-src.zip
-build/ios/libroot-ios.tar.gz
-
-# Raspberry Pi (Linux Arm)
-build/raspberrypi/*.o
-build/raspberrypi/libroot
-build/raspberrypi/suika
-
-# Linux (SDL2: a virtual porting base for game consoles)
+# Linux/SDL2 (a virtual porting base for game consoles)
 build/sdl2/*.o
 build/sdl2/libroot
 build/sdl2/suika
 
-# FreeBSD
+# FreeBSD x86_64
 build/freebsd/*.o
 build/freebsd/libroot
 build/freebsd/suika
 
-# NetBSD
+# NetBSD x86_64
 build/netbsd/*.o
 build/netbsd/libroot
 build/netbsd/suika
 
-# Console Example
-build/console/libroot
-build/console/exefs
-build/console/romfs
-build/console/tmp
-build/console/*.o
-build/console/*.elf
-build/console/*.nro
-build/console/*.nacp
-build/console/*.nsp
+# Console Example with SDL2
+build/engine-console/libroot
+build/engine-console/exefs
+build/engine-console/romfs
+build/engine-console/tmp
+build/engine-console/*.o
+build/engine-console/*.elf
+build/engine-console/*.nro
+build/engine-console/*.nacp
+build/engine-console/*.nsp
 
-# PPA
+# Ubuntu PPA
 build/ppa/work
 
+#
 # Tests
+#
+
 testcases
+
+#
+# Garbages
+#
+*.DS_Store
+*~
+.vscode/settings.json
+log.txt
+sav

@@ -1,4 +1,4 @@
-name: suika-web-studio
+name: studio-wasm
 on:
   push:
   pull_request:
@@ -13,11 +13,11 @@ jobs:
         uses: mymindstorm/setup-emsdk@v11
       - name: Build
         run: |
-          cd build/emscripten-studio
+          cd build/studio-wasm
           make
-          tar czf web-studio.tar.gz html
+          tar czf studio-wasm.tar.gz html
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika-web.tar.gz
-          path: build/emscripten-studio/web-studio.tar.gz
+          name: studio-wasm.tar.gz
+          path: build/studio-wasm/studio-wasm.tar.gz

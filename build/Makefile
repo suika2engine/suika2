@@ -22,8 +22,8 @@ all:
 	if [ ! -z "`uname -a | grep Linux`" ]; then cd linux-x86_64-capture && rm -f *.o suika-capture && make -j24 && cd ..; fi
 	if [ ! -z "`uname -a | grep Linux`" ]; then cd linux-x86_64-replay && rm -f *.o suika-replay && make -j24 && cd ..; fi
 	if [ ! -z "`uname -a | grep Darwin`" ]; then cd macos && make -j8 main build-only && cd ..; fi
-	cd emscripten && make && cd ..
-	cd emscripten-studio && make && cd ..
+	cd wasm && make && cd ..
+	cd wasm-studio && make && cd ..
 
 extra: android-docker console-docker
 

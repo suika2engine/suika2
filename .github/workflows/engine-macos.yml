@@ -1,4 +1,4 @@
-name: suika-mac
+name: engine-macos
 on:
   push:
   pull_request:
@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         run: |
-          cd build/macos
+          cd build/engine-macos
           wget https://suika2.com/dl/libroot-mac.tar.gz
           tar xzf libroot-mac.tar.gz
           xcodebuild -target suika -project suika.xcodeproj -configuration Debug build

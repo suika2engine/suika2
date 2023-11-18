@@ -1,23 +1,22 @@
-name: suika-web
+name: engine-windows-arm64
 on:
   push:
   pull_request:
 jobs:
-  emscripten:
+  linux:
     runs-on: "ubuntu-22.04"
-    name: web
+    name: windows
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Emsdk
-        uses: mymindstorm/setup-emsdk@v11
       - name: Build
         run: |
-          cd build/emscripten
+          cd build/engine-windows-arm64
+          ./build-libs.sh
           make
-          tar czf web.tar.gz html
+          make install
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika-web.tar.gz
-          path: build/emscripten/web.tar.gz
+          name: suika-arm64.exe
+          path: suika-arm64.exe

@@ -149,7 +149,7 @@ cd ..
 # Build suika.exe
 #
 echo "Building suika.exe"
-cd mingw
+cd engine-windows-x86
 rm -f *.o
 if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
@@ -157,54 +157,10 @@ cp suika.exe $RELEASETMP/
 cd ../
 
 #
-# Build suika-pro.exe
-#
-echo "Building suika-pro.exe"
-cd mingw-pro
-rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
-make -j24
-cp suika-pro.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-studio.exe
-#
-echo "Building suika-studio.exe"
-cd mingw-studio
-rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
-make -j24
-cp suika-studio.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-capture.exe
-#
-echo "Building suika-capture.exe"
-cd mingw-capture
-rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
-make -j24
-cp suika-capture.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-replay.exe
-#
-echo "Building suika-replay.exe"
-cd mingw-replay
-rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../mingw/libroot .; fi
-make -j24
-cp suika-replay.exe $RELEASETMP/
-cd ../
-
-#
 # Build suika-64.exe
 #
 echo "Building suika-64.exe"
-cd mingw-64
+cd engine-windows-x86_64
 rm -f *.o
 if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
@@ -215,7 +171,7 @@ cd ../
 # Build suika-arm64.exe
 #
 echo "Building suika-arm64.exe"
-cd mingw-arm64
+cd engine-windows-arm64
 rm -f *.o
 if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j24
@@ -223,11 +179,55 @@ cp suika-arm64.exe $RELEASETMP/
 cd ../
 
 #
+# Build suika-studio.exe
+#
+echo "Building suika-studio.exe"
+cd studio-windows-x86
+rm -f *.o
+if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
+make -j24
+cp suika-studio.exe $RELEASETMP/
+cd ../
+
+#
+# Build suika-pro.exe
+#
+echo "Building suika-pro.exe"
+cd pro-windows-x86
+rm -f *.o
+if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
+make -j24
+cp suika-pro.exe $RELEASETMP/
+cd ../
+
+#
+# Build suika-capture.exe
+#
+echo "Building suika-capture.exe"
+cd capture-windows-x86
+rm -f *.o
+if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
+make -j24
+cp suika-capture.exe $RELEASETMP/
+cd ../
+
+#
+# Build suika-replay.exe
+#
+echo "Building suika-replay.exe"
+cd replay-windows-x86
+rm -f *.o
+if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
+make -j24
+cp suika-replay.exe $RELEASETMP/
+cd ../
+
+#
 # Build suika-linux
 #
 if [ ! -z "`uname | grep Linux`" ]; then
     echo "Building suika-linux";
-    cd linux-x86_64;
+    cd engine-linux-x86_64;
     rm -f *.o;
     if [ ! -e libroot ]; then ./build-libs.sh; fi
     make -j24;
@@ -238,20 +238,30 @@ else
 fi
 
 #
-# Build Web files
+# Build Wasm files
 #
-echo "Building Emscripten files."
-cd emscripten
+echo "Building Wasm files."
+cd engine-wasm
 make clean
 make
 cp html/index.html html/index.js html/index.wasm $RELEASETMP/
 cd ../
 
 #
+# Build Studio Wasm files
+#
+echo "Building Studio Wasm files."
+cd studio-wasm
+make clean
+make
+make upload
+cd ../
+
+#
 # Build Android source tree
 #
 echo "Building Android source tree."
-cd android
+cd engine-android
 ./make-src.sh
 cd ..
 
@@ -259,7 +269,7 @@ cd ..
 # Build iOS source tree
 #
 echo "Building iOS source tree."
-cd ios
+cd engine-ios
 ./make-src.sh
 cd ..
 
@@ -285,27 +295,27 @@ if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
 
     # Pull master branch
-    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && git reset --hard && git checkout master && git reset --hard && git pull github master && cd build/macos && make clean";
+    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && git reset --hard && git checkout master && git reset --hard && git pull github master && cd build/all-macos && make clean";
 
     # Build suika.app
     until \
-	ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2/build/macos && make main";
+	ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2/build/all-macos && make main";
     do \
 	echo "Retrying suika.app due to a codesign issue...";
     done;
 
     # Build suika-pro.app
     until \
-	ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && cd build/macos && make pro";
+	ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && cd build/all-macos && make pro";
     do \
 	echo "Retrying suika-pro.app due to a codesign issue...";
     done;
 
     # Copy results
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac-pro.dmg" "$RELEASETMP/";
-    #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac-capture.dmg" "$RELEASETMP/";
-    #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/macos/mac-replay.dmg" "$RELEASETMP/";
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac.dmg" "$RELEASETMP/";
+    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-pro.dmg" "$RELEASETMP/";
+    #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-capture.dmg" "$RELEASETMP/";
+    #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-replay.dmg" "$RELEASETMP/";
 else
     echo "Building on localhost...";
     cd ../;
@@ -343,8 +353,8 @@ cp -v ../doc/readme-jp.html suika2/README.html
 cp -v ../doc/readme-en.html suika2/README-English.html
 mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
 cp -v "$RELEASETMP/suika.exe" suika2/
-cp -v "$RELEASETMP/suika-pro.exe" suika2/
 cp -v "$RELEASETMP/suika-studio.exe" suika2/
+cp -v "$RELEASETMP/suika-pro.exe" suika2/
 cp -v "$RELEASETMP/mac.dmg" suika2/
 cp -v "$RELEASETMP/mac-pro.dmg" suika2/
 mkdir suika2/tools
@@ -364,8 +374,8 @@ cp -v "$RELEASETMP/index.js" suika2/tools/web/
 cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
 cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
 cp -v emscripten/about-en.txt suika2/tools/web/about-english.txt
-cp -R android/android-src suika2/tools/
-cp -R ios/ios-src suika2/tools/
+cp -R engine-android/android-src suika2/tools/
+cp -R engine-ios/ios-src suika2/tools/
 cp -R ../tools/installer suika2/tools/
 zip -r "$RELEASETMP/suika2-$VERSION.zip" suika2
 rm -rf suika2

@@ -1,4 +1,4 @@
-name: suika-android
+name: engine-android
 on:
   push:
   pull_request:
@@ -27,5 +27,5 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika.apk
-          path: build/android/app/build/outputs/apk/debug/app-debug.apk
+          name: suika-demo.apk
+          path: build/engine-android/app/build/outputs/apk/debug/app-debug.apk

@@ -1,4 +1,4 @@
-name: suika-linux-pro
+name: pro-linux-x86_64
 on:
   push:
   pull_request:
@@ -11,7 +11,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev
-          cd build/linux-x86_64-pro
+          cd build/pro-qt6
           ./make-deps.sh
           mkdir build
           cd build
@@ -20,5 +20,5 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika-linux-pro
-          path: build/linux-x86_64-pro/build/suika-pro
+          name: pro-linux-x86_64
+          path: build/pro-linux/build/pro-qt6
