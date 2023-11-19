@@ -96,7 +96,7 @@ emsdk:
 	cd emsdk && ./emsdk install latest && cd ..
 	cd emsdk && ./emsdk activate latest && cd ..
 
-run:
+upload:
 	ftp-upload.sh html/index.html vls/index.html
 	ftp-upload.sh html/index.js vls/index.js
 	ftp-upload.sh html/index.wasm vls/index.wasm

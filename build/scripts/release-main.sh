@@ -73,6 +73,14 @@ if [ -z "`uname | grep Darwin`" ]; then
 	echo "Error: Please specify MACOS_HOST in build/.env";
 	echo "       This information is utilized to build macOS apps by ssh.";
 	exit 1;
+    else
+	MACOS_IP="";
+	until \
+	    echo "Resolving host $MACOS_HOST...";
+	    MACOS_IP=`getent ahosts arvensis.local | head -n1 | cut -d ' ' -f 1`;
+	do \
+	    echo "Retrying host resolve...";
+	done;
     fi;
     if [ -z "$MACOS_USER" ]; then
 	echo "Error: Please specify MACOS_USER in build/.env";
@@ -295,27 +303,27 @@ if [ -z "`uname | grep Darwin`" ]; then
     echo "Building on a remote host...";
 
     # Pull master branch
-    ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && git reset --hard && git checkout master && git reset --hard && git pull github master && cd build/all-macos && make clean";
+    ssh "$MACOS_IP" "cd /Users/$MACOS_USER/src/suika2 && git reset --hard && git checkout master && git reset --hard && git pull github master && cd build/all-macos && make clean";
 
     # Build suika.app
     until \
-	ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2/build/all-macos && make main";
+	ssh "$MACOS_IP" "cd /Users/$MACOS_USER/src/suika2/build/all-macos && make main";
     do \
 	echo "Retrying suika.app due to a codesign issue...";
     done;
 
     # Build suika-pro.app
     until \
-	ssh "$MACOS_HOST" "cd /Users/$MACOS_USER/src/suika2 && cd build/all-macos && make pro";
+	ssh "$MACOS_IP" "cd /Users/$MACOS_USER/src/suika2 && cd build/all-macos && make pro";
     do \
 	echo "Retrying suika-pro.app due to a codesign issue...";
     done;
 
     # Copy results
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac.dmg" "$RELEASETMP/";
-    scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-pro.dmg" "$RELEASETMP/";
-    #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-capture.dmg" "$RELEASETMP/";
-    #scp "$MACOS_HOST:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-replay.dmg" "$RELEASETMP/";
+    scp "$MACOS_IP:/Users/$MACOS_USER/src/suika2/build/all-macos/mac.dmg" "$RELEASETMP/";
+    scp "$MACOS_IP:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-pro.dmg" "$RELEASETMP/";
+    #scp "$MACOS_IP:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-capture.dmg" "$RELEASETMP/";
+    #scp "$MACOS_IP:/Users/$MACOS_USER/src/suika2/build/all-macos/mac-replay.dmg" "$RELEASETMP/";
 else
     echo "Building on localhost...";
     cd ../;
@@ -372,8 +380,8 @@ mkdir suika2/tools/web
 cp -v "$RELEASETMP/index.html" suika2/tools/web/
 cp -v "$RELEASETMP/index.js" suika2/tools/web/
 cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
-cp -v emscripten/about-jp.txt suika2/tools/web/about.txt
-cp -v emscripten/about-en.txt suika2/tools/web/about-english.txt
+cp -v engine-wasm/about-jp.txt suika2/tools/web/about.txt
+cp -v engine-wasm/about-en.txt suika2/tools/web/about-english.txt
 cp -R engine-android/android-src suika2/tools/
 cp -R engine-ios/ios-src suika2/tools/
 cp -R ../tools/installer suika2/tools/
