@@ -29,17 +29,11 @@
 
 #define SCALE	(64)
 
-/* フォントファイル名 */
-static char *font_file_name_tbl[FONT_COUNT];
-
 /* FreeType2のオブジェクト */
 static FT_Library library;
 static FT_Face face[FONT_COUNT];
 static FT_Byte *font_file_content[FONT_COUNT];
 static FT_Long font_file_size[FONT_COUNT];
-
-/* 選択されたフォント */
-static int selected_font;
 
 /*
  * 前方参照
@@ -109,23 +103,6 @@ static int translate_font_type(int font_ype);
 static bool apply_font_size(int font_type, int size);
 
 /*
- * Set a global font file name before init_glyph().
- * This function will be called when a load time of global save data.
- */
-bool preinit_set_global_font_file_name(const char *fname)
-{
-	assert(font_file_name_tbl[FONT_GLOBAL] == NULL);
-
-	font_file_name_tbl[FONT_GLOBAL] = strdup(fname);
-	if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
-		log_memory();
-		return false;
-	}
-
-	return true;	
-}
-
-/*
  * フォントレンダラの初期化処理を行う
  */
 bool init_glyph(void)
@@ -146,8 +123,7 @@ bool init_glyph(void)
 	}
 
 	/* コンフィグを読み込む */
-	fname[FONT_GLOBAL] = font_file_name_tbl[FONT_GLOBAL] == NULL ?
-		conf_font_global_file : font_file_name_tbl[FONT_GLOBAL];
+	fname[FONT_GLOBAL] = conf_font_global_file;
 	fname[FONT_MAIN] = conf_font_main_file;
 	fname[FONT_ALT1] = conf_font_alt1_file;
 	fname[FONT_ALT2] = conf_font_alt2_file;
@@ -157,14 +133,8 @@ bool init_glyph(void)
 		if (fname[i] == NULL)
 			continue;
 
-		font_file_name_tbl[i] = strdup(fname[i]);
-		if (font_file_name_tbl[i] == NULL) {
-			log_memory();
-			return false;
-		}
-
 		/* フォントファイルの内容を読み込む */
-		if (!read_font_file_content(font_file_name_tbl[i],
+		if (!read_font_file_content(fname[i],
 					    &font_file_content[i],
 					    &font_file_size[i]))
 			return false;
@@ -176,7 +146,7 @@ bool init_glyph(void)
 					 0,
 					 &face[i]);
 		if (err != 0) {
-			log_font_file_error(font_file_name_tbl[i]);
+			log_font_file_error(conf_font_global_file);
 			return false;
 		}
 	}
@@ -204,10 +174,6 @@ void cleanup_glyph(void)
 			free(font_file_content[i]);
 			font_file_content[i] = NULL;
 		}
-		if (font_file_name_tbl[i] != NULL) {
-			free(font_file_name_tbl[i]);
-			font_file_name_tbl[i] = NULL;
-		}
 	}
 
 	if (library != NULL) {
@@ -217,38 +183,28 @@ void cleanup_glyph(void)
 }
 
 /*
- * グローバルフォントの更新を行う
+ * グローバルフォントを変更する
  */
-bool reconstruct_glyph(void)
+bool update_global_font(void)
 {
 	FT_Error err;
 
 	assert(conf_font_global_file != NULL);
-	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
+
+	/* Return if before init. */
+	if (face[FONT_GLOBAL] == NULL)
+		return true;
 
 	/* Cleanup the current global font. */
-
 	assert(face[FONT_GLOBAL] != NULL);
 	FT_Done_Face(face[FONT_GLOBAL]);
 	face[FONT_GLOBAL] = NULL;
-
 	assert(font_file_content[FONT_GLOBAL] != NULL);
 	free(font_file_content[FONT_GLOBAL]);
 	font_file_content[FONT_GLOBAL] = NULL;
 
-	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
-	free(font_file_name_tbl[FONT_GLOBAL]);
-	font_file_name_tbl[FONT_GLOBAL] = NULL;
-
-	/* グローバルフォントファイル名を更新する */
-	font_file_name_tbl[FONT_GLOBAL] = strdup(conf_font_global_file);
-	if (font_file_name_tbl[FONT_GLOBAL] == NULL) {
-		log_memory();
-		return false;
-	}
-
 	/* フォントファイルの内容を読み込む */
-	if (!read_font_file_content(font_file_name_tbl[FONT_GLOBAL],
+	if (!read_font_file_content(conf_font_global_file,
 				    &font_file_content[FONT_GLOBAL],
 				    &font_file_size[FONT_GLOBAL]))
 		return false;
@@ -260,7 +216,7 @@ bool reconstruct_glyph(void)
 				 0,
 				 &face[FONT_GLOBAL]);
 	if (err != 0) {
-		log_font_file_error(font_file_name_tbl[FONT_GLOBAL]);
+		log_font_file_error(conf_font_global_file);
 		return false;
 	}
 
@@ -539,14 +495,15 @@ bool draw_glyph(struct image *img,
 						  color, codepoint,
 						  ret_w, ret_h, is_dim);
 	}
+	font_type = translate_font_type(font_type);
 	apply_font_size(font_type, font_size);
 
 	/* アウトライン(内側)を描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
-	glyphIndex = FT_Get_Char_Index(face[selected_font], codepoint);
-	FT_Load_Glyph(face[selected_font], glyphIndex, FT_LOAD_DEFAULT);
-	FT_Get_Glyph(face[selected_font]->glyph, &glyph);
+	glyphIndex = FT_Get_Char_Index(face[font_type], codepoint);
+	FT_Load_Glyph(face[font_type], glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face[font_type]->glyph, &glyph);
 	FT_Glyph_StrokeBorder(&glyph, stroker, true, true);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
@@ -569,9 +526,9 @@ bool draw_glyph(struct image *img,
 	/* アウトライン(外側)を描画する */
 	FT_Stroker_New(library, &stroker);
 	FT_Stroker_Set(stroker, 2*64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
-	glyphIndex = FT_Get_Char_Index(face[selected_font], codepoint);
-	FT_Load_Glyph(face[selected_font], glyphIndex, FT_LOAD_DEFAULT);
-	FT_Get_Glyph(face[selected_font]->glyph, &glyph);
+	glyphIndex = FT_Get_Char_Index(face[font_type], codepoint);
+	FT_Load_Glyph(face[font_type], glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face[font_type]->glyph, &glyph);
 	FT_Glyph_StrokeBorder(&glyph, stroker, false, true);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
@@ -588,9 +545,9 @@ bool draw_glyph(struct image *img,
 				y - (font_size - base_font_size),
 				outline_color);
 	}
-	descent = (int)(face[selected_font]->glyph->metrics.height / SCALE) -
-		  (int)(face[selected_font]->glyph->metrics.horiBearingY / SCALE);
-	*ret_w = (int)face[selected_font]->glyph->advance.x / SCALE;
+	descent = (int)(face[font_type]->glyph->metrics.height / SCALE) -
+		  (int)(face[font_type]->glyph->metrics.horiBearingY / SCALE);
+	*ret_w = (int)face[font_type]->glyph->advance.x / SCALE;
 	*ret_h = font_size + descent + 2;
 	FT_Done_Glyph(glyph);
 	FT_Stroker_Done(stroker);
@@ -598,9 +555,9 @@ bool draw_glyph(struct image *img,
 		return true;
 
 	/* 中身を描画する */
-	glyphIndex = FT_Get_Char_Index(face[selected_font], codepoint);
-	FT_Load_Glyph(face[selected_font], glyphIndex, FT_LOAD_DEFAULT);
-	FT_Get_Glyph(face[selected_font]->glyph, &glyph);
+	glyphIndex = FT_Get_Char_Index(face[font_type], codepoint);
+	FT_Load_Glyph(face[font_type], glyphIndex, FT_LOAD_DEFAULT);
+	FT_Get_Glyph(face[font_type]->glyph, &glyph);
 	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, NULL, true);
 	bitmapGlyph = (FT_BitmapGlyph)glyph;
 	draw_glyph_func(bitmapGlyph->bitmap.buffer,
@@ -639,7 +596,7 @@ static bool draw_glyph_without_outline(struct image *img,
 	apply_font_size(font_type, font_size);
 
 	/* 文字をグレースケールビットマップとして取得する */
-	err = FT_Load_Char(face[selected_font], codepoint, FT_LOAD_RENDER);
+	err = FT_Load_Char(face[font_type], codepoint, FT_LOAD_RENDER);
 	if (err != 0) {
 		log_api_error("FT_Load_Char");
 		return false;
@@ -647,11 +604,11 @@ static bool draw_glyph_without_outline(struct image *img,
 
 	/* 文字のビットマップを対象イメージに描画する */
 	if (img != NULL && !is_dim) {
-		draw_glyph_func(face[selected_font]->glyph->bitmap.buffer,
-				(int)face[selected_font]->glyph->bitmap.width,
-				(int)face[selected_font]->glyph->bitmap.rows,
-				face[selected_font]->glyph->bitmap_left,
-				font_size - face[selected_font]->glyph->bitmap_top,
+		draw_glyph_func(face[font_type]->glyph->bitmap.buffer,
+				(int)face[font_type]->glyph->bitmap.width,
+				(int)face[font_type]->glyph->bitmap.rows,
+				face[font_type]->glyph->bitmap_left,
+				font_size - face[font_type]->glyph->bitmap_top,
 				get_image_pixels(img),
 				get_image_width(img),
 				get_image_height(img),
@@ -659,11 +616,11 @@ static bool draw_glyph_without_outline(struct image *img,
 				y - (font_size - base_font_size),
 				color);
 	} else if (img != NULL && is_dim) {
-		draw_glyph_dim_func(face[selected_font]->glyph->bitmap.buffer,
-				    (int)face[selected_font]->glyph->bitmap.width,
-				    (int)face[selected_font]->glyph->bitmap.rows,
-				    face[selected_font]->glyph->bitmap_left,
-				    font_size - face[selected_font]->glyph->bitmap_top,
+		draw_glyph_dim_func(face[font_type]->glyph->bitmap.buffer,
+				    (int)face[font_type]->glyph->bitmap.width,
+				    (int)face[font_type]->glyph->bitmap.rows,
+				    face[font_type]->glyph->bitmap_left,
+				    font_size - face[font_type]->glyph->bitmap_top,
 				    get_image_pixels(img),
 				    get_image_width(img),
 				    get_image_height(img),
@@ -673,23 +630,14 @@ static bool draw_glyph_without_outline(struct image *img,
 	}
 
 	/* descentを求める */
-	descent = (int)(face[selected_font]->glyph->metrics.height / SCALE) -
-		  (int)(face[selected_font]->glyph->metrics.horiBearingY / SCALE);
+	descent = (int)(face[font_type]->glyph->metrics.height / SCALE) -
+		  (int)(face[font_type]->glyph->metrics.horiBearingY / SCALE);
 
 	/* 描画した幅と高さを求める */
-	*ret_w = (int)face[selected_font]->glyph->advance.x / SCALE;
+	*ret_w = (int)face[font_type]->glyph->advance.x / SCALE;
 	*ret_h = font_size + descent;
 
 	return true;
-}
-
-/*
- * グローバルのフォントファイル名を取得する
- */
-const char *get_global_font_file_name(void)
-{
-	assert(font_file_name_tbl[FONT_GLOBAL] != NULL);
-	return font_file_name_tbl[FONT_GLOBAL];
 }
 
 /* サポートされているアルファベットか調べる */
@@ -751,19 +699,19 @@ static int translate_font_type(int font_type)
 	if (font_type == FONT_GLOBAL)
 		return FONT_GLOBAL;
 	if (font_type == FONT_MAIN) {
-		if (font_file_name_tbl[FONT_MAIN] == NULL)
+		if (conf_font_main_file == NULL)
 			return FONT_GLOBAL;
 		else
 			return FONT_MAIN;
 	}
 	if (font_type == FONT_ALT1) {
-		if (font_file_name_tbl[FONT_ALT1] == NULL)
+		if (conf_font_alt1_file == NULL)
 			return FONT_GLOBAL;
 		else
 			return FONT_ALT1;
 	}
 	if (font_type == FONT_ALT2) {
-		if (font_file_name_tbl[FONT_ALT2] == NULL)
+		if (conf_font_alt2_file == NULL)
 			return FONT_GLOBAL;
 		else
 			return FONT_ALT2;

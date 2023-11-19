@@ -954,10 +954,10 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 
 		/* ラベルがみつかった場合 */
 		if (c->type == COMMAND_LABEL &&
-		    strcmp(c->param[LABEL_PARAM_LABEL], label) == 0)
+		    strcmp(c->param[LABEL_PARAM_LABEL], finally_label) == 0)
 			break;
 		if (c->type == COMMAND_LABELEDGOTO &&
-		    strcmp(c->param[LABELEDGOTO_PARAM_LABEL], label) == 0)
+		    strcmp(c->param[LABELEDGOTO_PARAM_LABEL], finally_label) == 0)
 			break;
 	}
 	if (c == NULL || i == cmd_size) {
@@ -3014,9 +3014,9 @@ static bool insert_command(int line, const char *text)
 		/* コマンドがない場合、末尾に追加する */
 		cmd_index = cmd_size;
 		cmd_size++;
-		if (line >= cur_expanded_line)
-			cur_expanded_line = line + 1;
 	}
+
+	cur_expanded_line++;
 
 	/* 追加するコマンドをパースする */
 	cmd[cmd_index].file = cur_script;

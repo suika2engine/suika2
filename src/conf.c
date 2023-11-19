@@ -477,7 +477,7 @@ static struct rule {
 	{"window.default.width", 'i', &conf_window_default_width, OPTIONAL, NOSAVE},
 	{"window.default.height", 'i', &conf_window_default_height, OPTIONAL, NOSAVE},
 	{"font.select", 'i', &conf_font_select, OPTIONAL, SAVE},
-	{"font.file", 's', &conf_font_global_file, MUST, NOSAVE},
+	{"font.file", 's', &conf_font_global_file, MUST, SAVE},
 	{"font.main.file", 's', &conf_font_main_file, OPTIONAL, NOSAVE},
 	{"font.alt1.file", 's', &conf_font_alt1_file, OPTIONAL, NOSAVE},
 	{"font.alt2.file", 's', &conf_font_alt2_file, OPTIONAL, NOSAVE},
@@ -1320,6 +1320,7 @@ static struct rule {
 
 /* グローバルセーブデータに保存するキーのテーブル */
 const char *global_tbl[] = {
+	"font.file",
 	"locale.force",
 	"gui.save.last.page",
 };
@@ -1721,7 +1722,7 @@ static bool overwrite_config_font_file(const char *val)
 	}
 
 	/* フォントサブシステムを更新する */
-	if (!reconstruct_glyph())
+	if (!update_global_font())
 		return false;
 
 	return true;

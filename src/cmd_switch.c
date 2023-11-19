@@ -158,6 +158,9 @@ static int selected_parent_index;
 /* ポイントされている子項目のインデックス */
 static int pointed_child_index;
 
+/* 処理中のポイントされている項目のインデックス */
+static int new_pointed_index;
+
 /* キー操作によってポイントが変更されたか */
 static bool is_selected_by_key;
 
@@ -243,9 +246,9 @@ static bool get_select_info(void);
 static bool get_switch_parents_info(void);
 static bool get_switch_children_info(void);
 
-/* クリック処理 */
-static void process_main_click(void);
-static void process_sysmenu_click(void);
+/* 入力処理 */
+static void process_main_input(void);
+static void process_sysmenu_input(void);
 
 /* 描画 */
 static void draw_frame(int *x, int *y, int *w, int *h);
@@ -311,12 +314,12 @@ static void preprocess(void)
 {
 	/* システムメニューが表示されていない場合 */
 	if (!is_sysmenu) {
-		process_main_click();
+		process_main_input();
 		return;
 	}
 
 	/* システムメニューが表示されている場合 */
-	process_sysmenu_click();
+	process_sysmenu_input();
 }
 
 /* メイン処理として、描画を行う */
@@ -745,10 +748,29 @@ static bool get_switch_children_info(void)
  * クリック処理
  */
 
-/* システムメニュー非表示中のクリックを処理する */
-static void process_main_click(void)
+/* システムメニュー非表示中の入力を処理する */
+static void process_main_input(void)
 {
+	int old_pointed_index;
 	bool enter_sysmenu;
+
+	/* 選択項目の変更を処理する */
+	if (selected_parent_index == -1) {
+		old_pointed_index = pointed_parent_index;
+		new_pointed_index = get_pointed_parent_index();
+	} else {
+		old_pointed_index = pointed_child_index;
+		new_pointed_index = get_pointed_child_index();
+	}
+	if (new_pointed_index != -1 &&
+	    new_pointed_index != old_pointed_index &&
+	    !is_sysmenu_finished) {
+		if (!is_left_clicked) {
+			play_se(get_command_type() == COMMAND_NEWS ? conf_news_change_se : conf_switch_change_se);
+		} else {
+			play_se(conf_switch_parent_click_se_file);
+		}
+	}
 
 	/* ヒストリ画面への遷移を確認する */
 	if (is_up_pressed &&
@@ -775,6 +797,8 @@ static void process_main_click(void)
 		need_history_mode = true;
 		return;
 	}
+
+	new_pointed_index = get_pointed_parent_index();
 
 	/* システムメニューを常に使用しない場合 */
 	if (conf_sysmenu_hidden == 2)
@@ -812,7 +836,7 @@ static void process_main_click(void)
 }
 
 /* システムメニュー表示中のクリックを処理する */
-static void process_sysmenu_click(void)
+static void process_sysmenu_input(void)
 {
 	/* キー操作を受け付ける */
 	if (is_s_pressed) {
@@ -983,10 +1007,6 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 /* 親選択肢の描画を行う */
 static void draw_frame_parent(int *x, int *y, int *w, int *h)
 {
-	int new_pointed_index;
-
-	new_pointed_index = get_pointed_parent_index();
-
 	if (new_pointed_index == -1 && pointed_parent_index == -1) {
 		draw_keep();
 	} else if (new_pointed_index == pointed_parent_index) {
@@ -995,13 +1015,6 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		/* ボタンを描画する */
 		pointed_parent_index = new_pointed_index;
 		update_switch_parent(x, y, w, h);
-
-		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_clicked &&
-		    !is_sysmenu_finished) {
-			play_se(get_command_type() == COMMAND_NEWS ?
-				conf_news_change_se : conf_switch_change_se);
-		}
 
 		/* 読み上げを行う */
 		if (conf_tts_enable == 1 &&
@@ -1024,9 +1037,6 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 			/* 子選択肢の描画を行う */
 			draw_fo_fi_child();
 			update_switch_child(x, y, w, h);
-
-			/* SEを鳴らす */
-			play_se(conf_switch_parent_click_se_file);
 		} else {
 			/* ステージをボタンなしで描画しなおす */
 			draw_stage();

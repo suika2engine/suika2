@@ -41,6 +41,14 @@ It provides developers with editing/debugging capabilities as well as an export 
 
 Suika2 Studio is currently beta version.
 
+## Suika2 Studio 2024 Wasm
+
+Suika2 Studio 2024 Wasm is an IDE for Suika2, available on Web.
+It provides developers with editing/debugging capabilities as well as an export function on Web browsers.
+It is currently in development.
+
+See the [live demo](https://suika2.com/vls)
+
 ## Binary Distribution
 
 <!-- Release Banner -->

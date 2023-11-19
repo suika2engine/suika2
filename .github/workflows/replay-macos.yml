@@ -1,0 +1,15 @@
+name: replay-macos
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          cd build/all-macos
+          wget https://suika2.com/dl/libroot-mac.tar.gz
+          tar xzf libroot-mac.tar.gz
+          xcodebuild -target suika-replay -project suika.xcodeproj -configuration Debug build

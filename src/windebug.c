@@ -175,6 +175,9 @@ BOOL InitDebuggerPanel(HWND hMainWnd, HWND hGameWnd, void *pWndProc)
 	hWndMain = hMainWnd;
 	hWndGame= hGameWnd;
 
+	/* 英語モードにするかを決定する */
+	bEnglish = strcmp(get_system_locale(), "ja") != 0;
+
 	/* 領域の矩形を取得する */
 	GetClientRect(hWndMain, &rcClient);
 
@@ -522,8 +525,6 @@ static VOID InitDebuggerMenu(HWND hWnd)
 	HMENU hMenuExport = CreatePopupMenu();
 	HMENU hMenuHelp = CreatePopupMenu();
     MENUITEMINFO mi;
-
-	bEnglish = conf_locale == LOCALE_JA ? FALSE : TRUE;
 
 	/* メニューを作成する */
 	hMenu = CreateMenu();

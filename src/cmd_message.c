@@ -2325,6 +2325,12 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	/* 状態に応じて、ポイント中の項目を無効にする */
 	adjust_sysmenu_pointed_index();
 
+	/* ポイント項目が変化したときSEを再生する */
+	if (sysmenu_pointed_index != SYSMENU_NONE &&
+	    sysmenu_pointed_index != old_sysmenu_pointed_index &&
+	    !is_sysmenu_first_frame)
+		play_se(conf_sysmenu_change_se);
+
 	/* 左クリックされていない場合、何もしない */
 	if (!is_left_clicked)
 		return false;
@@ -3080,15 +3086,13 @@ static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
 	if (is_sysmenu_first_frame)
 		redraw = true;
 
-	/* クイックセーブボタンがポイントされているかを取得する */
+	/* システムメニューボタンがポイントされているかを取得する */
 	for (i = 0; i < SYSMENU_COUNT; i++) {
 		if (sysmenu_pointed_index == i) {
 			sel[i] = true;
 			if (old_sysmenu_pointed_index != i &&
-			    !is_sysmenu_first_frame) {
-				play_se(conf_sysmenu_change_se);
+			    !is_sysmenu_first_frame)
 				redraw = true;
-			}
 		} else {
 			sel[i] = false;
 		}

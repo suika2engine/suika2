@@ -1,0 +1,14 @@
+name: engine-ios
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          cd build/engine-ios
+          ./build-libs.sh
+          xcodebuild -target suika -project suika.xcodeproj -configuration Debug -allowProvisioningUpdates clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO

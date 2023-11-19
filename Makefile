@@ -45,31 +45,31 @@ setup:
 			exit 1; \
 		fi; \
 		echo 'Are you sure you want to install all dependencies?'; \
-		echo '\"apt\" and \"pip3\" commands will be called.'; \
+		echo '"apt" and "pip3" commands will be called.'; \
 		echo '(Press enter to proceed)'; \
 		read str; \
 		echo 'Updating apt sources.'; \
 		echo 'sudo apt-get update'; \
 		sudo apt-get update; \
 		echo 'Installing dependencies.'; \
-		sudo apt-get install mingw-w64 build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov python3-pip debhelper-compat zlib1g-dev libpng-dev libjpeg9-dev libogg-dev libvorbis-dev libfreetype-dev cmake qt6-base-dev qt6-multimedia-dev libqt6core6 libqt6gui6 libqt6widgets6 libqt6opengl6-dev libqt6openglwidgets6 libqt6multimedia6 libqt6multimediawidgets6; \
+		sudo apt-get install mingw-w64 build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov python3-pip debhelper-compat zlib1g-dev libpng-dev libjpeg9-dev libogg-dev libvorbis-dev libfreetype-dev cmake qt6-base-dev qt6-multimedia-dev libqt6core6 libqt6gui6 libqt6widgets6 libqt6opengl6-dev libqt6openglwidgets6 libqt6multimedia6 libqt6multimediawidgets6 zip unzip; \
 		pip3 install opencv-python numpy; \
 		echo 'Building the libraries for Linux...'; \
-		cd build/linux-x86_64 && ./build-libs.sh && cd ../..; \
-		cd build/linux-x86_64-clang && ./build-libs.sh && cd ../..; \
-		cd build/linux-x86_64-capture && cp -Ra ../linux-x86_64/libroot . && cd ../..; \
-		cd build/linux-x86_64-replay && cp -Ra ../linux-x86_64/libroot . && cd ../..; \
+		cd build/engine-linux-x86_64 && ./build-libs.sh && cd ../..; \
+		cp -Ra build/engine-linux-x86_64 capture-linux-x86_64/; \
+		cp -Ra build/engine-linux-x86_64 replay-linux-x86_64/; \
+		cd build/engine-linux-x86_64-clang && ./build-libs.sh && cd ../..; \
 		echo 'Building the libraries for Windows...'; \
 		if [ ! -z "`uname -a | grep WSL2`" ]; then \
 			echo "Disabling EXE file execution."; \
 			echo 0 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
 		fi; \
-		cd build/mingw && ./build-libs.sh && cd ../..; \
-		cd build/mingw-64 && ./build-libs.sh && cd ../..; \
-		cd build/mingw-arm64 && ./build-libs.sh && cd ../..; \
-		cp -Ra build/mingw/libroot build/mingw-pro/; \
-		cp -Ra build/mingw/libroot build/mingw-capture/; \
-		cp -Ra build/mingw/libroot build/mingw-replay/; \
+		cd build/engine-windows-x86 && ./build-libs.sh && cd ../..; \
+		cp -Ra build/engine-windows-x86/libroot build/pro-windows-x86/; \
+		cp -Ra build/engine-windows-x86/libroot build/capture-windows-x86/; \
+		cp -Ra build/engine-windows-x86/libroot build/replay-windows-x86/; \
+		cd build/engine-windows-x86_64 && ./build-libs.sh && cd ../..; \
+		cd build/engine-windows-arm64 && ./build-libs.sh && cd ../..; \
 		if [ ! -z "`uname -a | grep WSL2`" ]; then \
 			echo "Re-enabling EXE file execution."; \
 			echo 1 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
@@ -86,12 +86,12 @@ setup:
 		echo 'Installing mingw-w64...'; \
 		brew install mingw-w64; \
 		echo "Building the libraries."; \
-		cd build/mingw && ./build-libs.sh && cd ../..; \
-		cd build/mingw-64 && ./build-libs.sh && cd ../..; \
-		cd build/mingw-arm64 && ./build-libs.sh && cd ../..; \
-		cp -Ra build/mingw/libroot build/mingw-pro/; \
-		cp -Ra build/mingw/libroot build/mingw-capture/; \
-		cp -Ra build/mingw/libroot build/mingw-replay/; \
+		cd build/engine-windows-x86 && ./build-libs.sh && cd ../..; \
+		cp -Ra build/engine-windows-x86/libroot build/pro-windows-x86/; \
+		cp -Ra build/engine-windows-x86/libroot build/capture-windows-x86/; \
+		cp -Ra build/engine-windows-x86/libroot build/replay-windows-x86/; \
+		cd build/engine-windows-x86_64 && ./build-libs.sh && cd ../..; \
+		cd build/engine-windows-arm64 && ./build-libs.sh && cd ../..; \
 	fi
 
 ##
@@ -104,7 +104,7 @@ all-windows: windows windows-pro windows-studio windows-64 windows-arm64 windows
 # suika.exe (the main game engine for 32-bit Windows)
 windows:
 	@echo 'Building suika.exe'
-	@cd build/mingw && \
+	@cd build/engine-windows-x86 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -113,7 +113,7 @@ windows:
 # suika-pro.exe (the debugger for 32-bit Windows)
 windows-pro:
 	@echo 'Building suika-pro.exe'
-	@cd build/mingw-pro && \
+	@cd build/pro-windows-x86 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -122,7 +122,7 @@ windows-pro:
 # suika-studio.exe (the editor for 32-bit Windows)
 windows-studio:
 	@echo 'Building suika-studio.exe'
-	@cd build/mingw-studio && \
+	@cd build/studio-windows-x86 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -131,7 +131,7 @@ windows-studio:
 # suika-64.exe (the main game engine for 64-bit Windows)
 windows-64:
 	@echo 'Building suika-64.exe'
-	@cd build/mingw-64 && \
+	@cd build/engine-windows-x86_64 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -140,7 +140,7 @@ windows-64:
 # suika-arm64.exe (the main game engine for Arm64 Windows)
 windows-arm64:
 	@echo 'Building suika-arm64.exe'
-	@cd build/mingw-arm64 && \
+	@cd build/engine-windows-arm64 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -149,7 +149,7 @@ windows-arm64:
 # suika-capture.exe (the caputure app)
 windows-capture:
 	@echo 'Building suika-capture.exe'
-	@cd build/mingw-capture && \
+	@cd build/capture-windows-x86 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -158,7 +158,7 @@ windows-capture:
 # suika-replay.exe (the replay app)
 windows-replay:
 	@echo 'Building suika-replay.exe'
-	@cd build/mingw-capture && \
+	@cd build/replay-windows-x86 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -174,7 +174,7 @@ all-macos: macos-main macos-pro macos-capture macos-replay
 # A target for the main game engine for macOS.
 macos:
 	@echo 'Building macOS app'
-	@cd build/macos && \
+	@cd build/all-macos && \
 		make main && \
 		cp suika.dmg ../../ && \
 		make clean && \
@@ -183,7 +183,7 @@ macos:
 # A target for the debugger for macOS.
 macos-pro:
 	@echo 'Building macOS debugger app'
-	@cd build/macos && \
+	@cd build/all-macos && \
 		make pro && \
 		cp suika-pro.dmg ../../ && \
 		make clean && \
@@ -192,7 +192,7 @@ macos-pro:
 # A target for the capture app for macOS.
 macos-capture:
 	@echo 'Building macOS capture app'
-	@cd build/macos && \
+	@cd build/all-macos && \
 		make capture && \
 		cp suika-capture.dmg ../../ && \
 		make clean && \
@@ -201,7 +201,7 @@ macos-capture:
 # A target for the replay app for macOS.
 macos-replay:
 	@echo 'Building macOS replay app'
-	@cd build/macos && \
+	@cd build/all-macos && \
 		make replay && \
 		cp suika-replay.dmg ../../ && \
 		make clean && \
@@ -217,7 +217,7 @@ all-linux: linux linux-pro linux-capture linux-replay
 # suika-linux (the main game engine for 64-bit Linux, static link)
 linux:
 	@echo 'Building a Linux game binary'
-	@cd build/linux-x86_64 && \
+	@cd build/engine-linux-x86_64 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -226,7 +226,7 @@ linux:
 # suika-linux (the main game engine for 64-bit Linux, dynamic link)
 linux-shared:
 	@echo 'Building a Linux game binary'
-	@cd build/linux-x86_64-shared && \
+	@cd build/engine-linux-x86_64-shared && \
 	make -j8 && \
 	make install && \
 	cd ../..
@@ -234,7 +234,7 @@ linux-shared:
 # suika-pro (the debugger for Linux, static link)
 linux-pro:
 	@echo 'Building for Linux'
-	@cd build/linux-x86_64-pro && \
+	@cd build/pro-qt6 && \
 	./make-deps.sh && \
 	rm -rf build && \
 	mkdir build && \
@@ -247,7 +247,7 @@ linux-pro:
 # suika-pro (the debugger for Linux, dynamic link)
 linux-pro-shared:
 	@echo 'Building for Linux'
-	@cd build/linux-x86_64-pro && \
+	@cd build/pro-qt6 && \
 	./make-deps-shared.sh && \
 	rm -rf build && \
 	mkdir build && \
@@ -260,7 +260,7 @@ linux-pro-shared:
 # suika-linux-capture (the capture app for 64-bit Linux)
 linux-capture:
 	@echo 'Building a Linux capture binary'
-	@cd build/linux-x86_64-capture && \
+	@cd build/capture-linux-x86_64 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -269,7 +269,7 @@ linux-capture:
 # suika-linux-replay (the replay app for 64-bit Linux)
 linux-replay:
 	@echo 'Building a Linux replay binary'
-	@cd build/linux-x86_64-replay && \
+	@cd build/replay-linux-x86_64 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -340,18 +340,6 @@ do-release:
 	fi
 	@cd build && ./scripts/release-main.sh && cd ..
 
-# Make Kirara release files and upload them.
-kirara:
-	@# Check if we are running on WSL2.
-	@if [ ! -z "`uname | grep Darwin`" ]; then \
-		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
-		echo ""; \
-	elif [ -z "`grep -i WSL2 /proc/version`" ]; then \
-		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
-		echo ""; \
-	fi
-	@cd build && ./scripts/release-kirara.sh && cd ..
-
 # Update template games.
 update-templates:
 	@echo "Going to update template games."
@@ -411,3 +399,14 @@ clean:
 	rm -f suika.exe suika-pro.exe suika-64.exe suika-arm64.exe suika-capture.exe suika-replay.exe
 	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg mac.zip pack.mac
 	rm -f suika-linux suika-pro suika-linux-capture suika-linux-replay
+# Make Kirara release files and upload them.
+kirara:
+	@# Check if we are running on WSL2.
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
+		echo ""; \
+	elif [ -z "`grep -i WSL2 /proc/version`" ]; then \
+		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
+		echo ""; \
+	fi
+	@cd build && ./scripts/release-kirara.sh && cd ..

@@ -158,6 +158,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	bool is_gui;
 	bool cont;
 
+	/* GUI実行中の場合を処理する */
 	is_gui = is_gui_mode();
 	if (is_gui) {
 		/* GUIモードを実行する */
@@ -178,7 +179,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	}
 
 #ifndef USE_DEBUGGER
-	/* ゲームエンジン本体の場合 */
+	/* ゲームエンジン本体の場合、コマンドを実行する */
 	if (!is_gui) {
 		/* コマンドを実行する */
 		do {
@@ -188,37 +189,32 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 		} while (cont);
 	}
 #else
-	/* デバッガの場合 */
+	/* デバッガの場合、実行中の場合だけコマンドを実行する */
 	if (!is_gui) {
-		/* コマンドを実行する */
-		do {
-			/* 実行中になるまでディスパッチに進めない */
-			if (!pre_dispatch()) {
-				draw_stage_keep();
-				break;
-			}
-
+		if (!pre_dispatch()) {
+			/* 実行中でないので画面を再描画する */
+			draw_stage_keep();
+		} else {
 			/* ディスパッチする */
 			if (!dispatch_command(x, y, w, h, &cont)) {
+				/* 実行時エラーの場合、エラー終了をキャンセルする */
 				if (dbg_runtime_error) {
-					/* 実行時エラーによる終了をキャンセルする */
 					dbg_runtime_error = false;
 					dbg_stop();
 					on_change_position();
 					return true;
-				} else {
-					/* スタートアップファイル指定あり */
-					if (has_startup_file())
-						return false;
-
-					/* 最後まで実行した */
-					dbg_stop();
-					on_change_position();
-					return true;
 				}
-				return false;
+
+				/* スタートアップファイル指定あり FIXME:削除可能 */
+				if (has_startup_file())
+					return false;
+
+				/* 最後まで実行した場合、最後のコマンドに留まる */
+				dbg_stop();
+				on_change_position();
+				return true;
 			}
-		} while (cont);
+		}
 	}
 #endif
 
@@ -251,8 +247,6 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 /* デバッガ用のコマンドディスパッチの前処理 */
 static bool pre_dispatch(void)
 {
-	char *scr;
-
 #ifdef USE_EDITOR
 	/* コマンドがない場合 */
 	if (get_command_count() == 0) {
@@ -278,6 +272,7 @@ static bool pre_dispatch(void)
 
 	/* 停止中で、実行するスクリプトが変更された場合 */
 	if (is_script_opened()) {
+		char *scr;
 		scr = strdup(get_opened_script());
 		if (scr == NULL) {
 			log_memory();
@@ -314,8 +309,8 @@ static bool pre_dispatch(void)
 
 	/* 停止中で、実行中のスクリプトがリロードされた場合 */
 	if (is_script_reloaded()) {
+		char *scr;
 		int line, cmd;
-
 		scr = strdup(get_script_file_name());
 		if (scr == NULL) {
 			log_memory();

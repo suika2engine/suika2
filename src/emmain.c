@@ -1,11 +1,13 @@
 /* -*- tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
+ * Suika2 HAL for WASM (Emscripten)
+ *
  * [Changes]
  *  2021-06-26 Created.
  */
@@ -34,36 +36,17 @@ static int touch_last_y;
 /*
  * 前方参照
  */
-static bool create_back_image(void);
-static EM_BOOL loop_iter(double time, void * userData);
-static EM_BOOL cb_mousemove(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData);
-static EM_BOOL cb_mousedown(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData);
-static EM_BOOL cb_mouseup(int eventType,
-			  const EmscriptenMouseEvent *mouseEvent,
-			  void *userData);
-static EM_BOOL cb_wheel(int eventType,
-			const EmscriptenWheelEvent *wheelEvent,
-			void *userData);
-static EM_BOOL cb_keydown(int eventType,
-			  const EmscriptenKeyboardEvent *keyEvent,
-			  void *userData);
-static EM_BOOL cb_keyup(int eventType,
-			const EmscriptenKeyboardEvent *keyEvent,
-			void *userData);
+static EM_BOOL loop_iter(double time, void *userData);
+static EM_BOOL cb_mousemove(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
+static EM_BOOL cb_mousedown(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
+static EM_BOOL cb_mouseup(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData);
+static EM_BOOL cb_wheel(int eventType, const EmscriptenWheelEvent *wheelEvent, void *userData);
+static EM_BOOL cb_keydown(int eventType, const EmscriptenKeyboardEvent *keyEvent, void *userData);
+static EM_BOOL cb_keyup(int eventType, const EmscriptenKeyboardEvent *keyEvent, void *userData);
 static int get_keycode(const char *key);
-static EM_BOOL cb_touchstart(int eventType,
-			     const EmscriptenTouchEvent *touchEvent,
-			     void *userData);
-static EM_BOOL cb_touchmove(int eventType,
-			    const EmscriptenTouchEvent *touchEvent,
-			    void *userData);
-static EM_BOOL cb_touchend(int eventType,
-			   const EmscriptenTouchEvent *touchEvent,
-			   void *userData);
+static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 
 /*
  * メイン
@@ -93,7 +76,6 @@ int main(void)
 
 	/* 読み込みは非同期で、main_continue()に継続される */
 	emscripten_exit_with_live_runtime();
-	return 0;
 }
 
 /*
@@ -142,7 +124,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 }
 
 /* フレームを処理する */
-static EM_BOOL loop_iter(double time, void * userData)
+static EM_BOOL loop_iter(double time, void *userData)
 {
 	int x, y, w, h;
 	static bool stop = false;
@@ -400,13 +382,13 @@ static EM_BOOL cb_touchend(int eventType,
  */
 
 /* タブが表示された際のコールバック */
-void EMSCRIPTEN_KEEPALIVE setVisible(int argc, char *argv[])
+void EMSCRIPTEN_KEEPALIVE setVisible(void)
 {
 	resume_sound();
 }
 
 /* タブが非表示にされた際のコールバック */
-void EMSCRIPTEN_KEEPALIVE setHidden(int argc, char *argv[])
+void EMSCRIPTEN_KEEPALIVE setHidden(void)
 {
 	pause_sound();
 }
@@ -414,12 +396,6 @@ void EMSCRIPTEN_KEEPALIVE setHidden(int argc, char *argv[])
 /*
  * platform.hの実装
  */
-
-/* alertを表示する */
-EM_JS(void, show_alert, (const char *msg), {
-    var jsMsg = UTF8ToString(msg);
-    window.alert(jsMsg);
-});
 
 /*
  * INFOログを出力する
@@ -433,8 +409,9 @@ bool log_info(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -451,8 +428,9 @@ bool log_warn(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -469,8 +447,9 @@ bool log_error(const char *s, ...)
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
 
-	printf("%s", buf);
-	show_alert(buf);
+	EM_ASM({
+		alert(UTF8ToString($0));
+	}, buf);
 
 	return true;
 }
@@ -742,6 +721,9 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
+	EM_ASM_({
+		document.title = Module.UTF8ToString($0, $1);
+	}, conf_window_title, strlen(conf_window_title));
 }
 
 /*
@@ -779,8 +761,19 @@ void leave_full_screen_mode(void)
 /*
  * システムのロケールを取得する
  */
+EM_JS(int, get_lang_code, (void), {
+	if (window.navigator.language.startsWith("ja"))
+		return 0;
+	return 1;
+});
 const char *get_system_locale(void)
 {
-	/* stub */
-	return "ja";
+	int lang_code;
+
+	/* FIXME */
+	lang_code = get_lang_code();
+	if (lang_code == 0)
+		return "ja";
+	else
+		return "en";
 }

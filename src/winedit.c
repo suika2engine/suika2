@@ -93,6 +93,7 @@ static BOOL bExecLineChanged;		/* 実行行が変更された */
 static int nLineChanged;			/* 実行行が変更された場合の行番号 */
 static BOOL bRangedChanged;			/* 複数行の変更が加えられるか */
 static BOOL bFirstChange;			/* スクリプトモデル変更後、最初の通知 */
+static BOOL bIgnoreChange;			/* リッチエディットへの変更を無視する */
 
 /* GetDpiForWindow() APIへのポインタ */
 UINT (__stdcall *pGetDpiForWindow)(HWND);
@@ -752,7 +753,7 @@ static VOID InitMenu(HWND hWnd)
 
 	/* 選択肢(2)を作成する */
 	mi.wID = ID_CMD_CHOOSE_2;
-	mi.dwTypeData = bEnglish ? L"Options (2)" : L"選択肢(1)";
+	mi.dwTypeData = bEnglish ? L"Options (2)" : L"選択肢(2)";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 
 	/* 選択肢(1)を作成する */
@@ -845,12 +846,6 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 		return FALSE;
 	}
 
-	if (pMsg->message == WM_KEYUP)
-	{
-			bShiftDown = FALSE;
-		return FALSE;
-	}
-
 	/* コントロール押下状態を保存する */
 	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_CONTROL)
 	{
@@ -863,7 +858,7 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 		return FALSE;
 	}
 
-	/* フォーカスを失うときにシフトとコントロールの */
+	/* フォーカスを失うときにシフトとコントロールの押下状態をクリアする */
 	if (pMsg->hwnd == hWndRichEdit && pMsg->message == WM_KILLFOCUS)
 	{
 		bShiftDown = FALSE;
@@ -1920,6 +1915,8 @@ bool is_script_reloaded(void) { 	return false; }
  */
 void on_change_running_state(bool running, bool request_stop)
 {
+	UINT i;
+
 	bRunning = running;
 
 	if(request_stop)
@@ -1938,11 +1935,19 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_GRAYED);
+		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
+			EnableMenuItem(hMenu, i, MF_GRAYED);
 
 		/* 実行中の背景色を設定する */
 		RichEdit_SetBackgroundColorForCurrentExecuteLine();
@@ -1963,11 +1968,19 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);		/* 有効 */
 		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_GRAYED);
+		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
+			EnableMenuItem(hMenu, i, MF_GRAYED);
 
 		/* 実行中の背景色を設定する */
 		RichEdit_SetBackgroundColorForCurrentExecuteLine();
@@ -1993,6 +2006,15 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);		/* 無効 */
 		EnableMenuItem(hMenu, ID_ERROR, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_ENABLED);
+		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
+			EnableMenuItem(hMenu, i, MF_ENABLED);
 
 		/* 次の実行される行の背景色を設定する */
 		RichEdit_SetBackgroundColorForNextExecuteLine();
@@ -2011,9 +2033,11 @@ void on_load_script(void)
 	SetWindowText(hWndTextboxScript, conv_utf8_to_utf16(script_file));
 
 	/* 実行中のスクリプトファイルが変更されたとき、リッチエディットにテキストを設定する */
+	EnableWindow(hWndRichEdit, FALSE);
 	RichEdit_UpdateTextFromScriptModel();
 	RichEdit_SetFont();
 	RichEdit_SetTextColorForAllLines();
+	EnableWindow(hWndRichEdit, TRUE);
 }
 
 /*
@@ -2083,6 +2107,12 @@ static VOID Variable_UpdateText(void)
 static VOID RichEdit_OnChange(void)
 {
 	int nCursor;
+
+	if (bIgnoreChange)
+	{
+		bIgnoreChange = FALSE;
+		return;
+	}
 
 	/* カーソル位置を取得する */
 	nCursor = RichEdit_GetCursorPosition();
@@ -2492,6 +2522,7 @@ static VOID RichEdit_SetTextColorForSelectedRange(COLORREF cl)
 	cf.cbSize = sizeof(cf);
 	cf.dwMask = CFM_COLOR;
 	cf.crTextColor = cl;
+	bIgnoreChange = TRUE;
 	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&cf);
 }
 
@@ -2730,7 +2761,10 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 			*pCRLF = L'\0';
 
 		/* 行を更新する */
-		update_script_line(nLine, conv_utf16_to_utf8(pLine));
+		if (nLine < get_line_count())
+			update_script_line(nLine, conv_utf16_to_utf8(pLine));
+		else
+			insert_script_line(nLine, conv_utf16_to_utf8(pLine));
 
 		nLine++;
 		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
