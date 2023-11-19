@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 if [ `uname -m` = "x86_64" ]; then
     curl -O https://suika2.com/dl/libroot-mac.tar.gz
     tar xzf libroot-mac.tar.gz
@@ -65,7 +67,9 @@ cd ..
 
 tar xzf ../../libsrc/libvorbis-1.3.6.tar.gz
 cd libvorbis-1.3.6
-./configure --prefix=$PREFIX --disable-shared PKG_CONFIG="" --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-arch arm64 -arch x86_64"
+sed -e 's/-force_cpusubtype_ALL//g' < configure > configure.new
+chmod +x configure.new
+./configure.new --prefix=$PREFIX --disable-shared PKG_CONFIG="" --with-ogg-includes=$PREFIX/include --with-ogg-libraries=$PREFIX/lib CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-arch arm64 -arch x86_64"
 make
 make install
 cd ..
