@@ -138,7 +138,7 @@ echo "$RELEASETMP created."
 # Update the macOS project version
 #
 
-cd macos
+cd all-macos
 ./update-version.sh $VERSION
 git add suika.xcodeproj/project.pbxproj ../../doc/readme-jp.html ../../doc/readme-en.html
 git commit -m "doc: update the version number to $VERSION" || true
