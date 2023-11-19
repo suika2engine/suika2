@@ -29,20 +29,14 @@
 #define FONT_ALT2		(3)
 #define FONT_COUNT		(4)
 
-/* Set a global font file name before init_glyph(). */
-bool preinit_set_global_font_file_name(const char *fname);
-
 /* フォントレンダラの初期化処理を行う */
 bool init_glyph(void);
 
 /* フォントレンダラの終了処理を行う */
 void cleanup_glyph(void);
 
-/* グローバルフォントの更新を行う */
-bool reconstruct_glyph(void);
-
-/* グローバルのフォントファイル名を取得する */
-const char *get_global_font_file_name(void);
+/* グローバルフォントを変更する */
+bool update_global_font(void);
 
 /* utf-8文字列の先頭文字をutf-32文字に変換する */
 #ifndef AVOID_UTF8_TO_UTF32

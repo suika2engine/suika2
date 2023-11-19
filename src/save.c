@@ -23,7 +23,7 @@
 #include "suika.h"
 
 /* セーブデータの互換性バージョン(12.42で導入) */
-#define SAVE_VER	(0xabcd1321)
+#define SAVE_VER	(0xabcd1415)
 
 #ifdef EM
 #include <emscripten/emscripten.h>
@@ -1310,7 +1310,6 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 /* グローバルデータのロードを行う */
 static void load_global_data(void)
 {
-	char fname[128];
 	struct rfile *rf;
 	float f;
 	uint32_t ver;
@@ -1366,11 +1365,6 @@ static void load_global_data(void)
 		(msg_auto_speed < 0 || msg_auto_speed > 10000.0f) ?
 		1.0f : msg_auto_speed;
 
-	/* フォントファイル名をデシリアライズする */
-	if (gets_rfile(rf, fname, sizeof(fname)) != NULL)
-		if (strcmp(fname, "") != 0)
-			preinit_set_global_font_file_name(fname);
-
 	/* コンフィグをデシリアライズする */
 	deserialize_config_common(rf);
 
@@ -1384,7 +1378,6 @@ static void load_global_data(void)
 void save_global_data(void)
 {
 	struct wfile *wf;
-	const char *fname;
 	uint32_t ver;
 	float f;
 	int i;
@@ -1424,10 +1417,6 @@ void save_global_data(void)
 	
 	/* オートモードスピードをシリアライズする */
 	write_wfile(wf, &msg_auto_speed, sizeof(f));
-
-	/* フォントファイル名をシリアライズする */
-	fname = get_global_font_file_name();
-	write_wfile(wf, fname, strlen(fname) + 1);
 
 	/* コンフィグをデシリアライズする */
 	serialize_config_helper(wf, true);
