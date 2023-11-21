@@ -353,9 +353,11 @@ bool execute_save(int index)
 	save_time[index] = (time_t)timestamp;
 
 #ifdef EM
+	void resume_sound(void);
 	EM_ASM_(
 		FS.syncfs(function (err) { alert('Saved to the browser!'); });
 	);
+	resume_sound();
 #endif
 	return true;
 }
