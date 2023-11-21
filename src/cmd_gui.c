@@ -144,7 +144,9 @@ static bool cleanup(void)
 	const char *label;
 	bool ret;
 
-	/* 繰り返し処理を終了する */
+    ret = true;
+
+    /* 繰り返し処理を終了する */
 	stop_command_repetition();
 
 	/* ラベルジャンプボタンが押下された場合 */
@@ -166,7 +168,6 @@ static bool cleanup(void)
 	 * 右クリックでキャンセルされた場合で、
 	 * セーブされていなければ、次のコマンドへ移動する
 	 */
-	ret = true;
 	if (!is_gui_saved())
 		ret = move_to_next_command();
 
