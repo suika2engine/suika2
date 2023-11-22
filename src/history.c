@@ -73,6 +73,15 @@ bool register_message(const char *name, const char *msg, const char *voice,
 		      pixel_t name_color, pixel_t name_outline_color)
 {
 	struct history *h;
+	const char *quote_start, *quote_end;
+
+	/* 引用符を取得する */
+	quote_start = conf_gui_history_quote_start;
+	quote_end = conf_gui_history_quote_end;
+	if (quote_start == NULL)
+		quote_start = conf_locale == LOCALE_JA ? U8("「") : U8(" \"");
+	if (quote_end == NULL)
+		quote_end = conf_locale == LOCALE_JA ? U8("」") : U8("\"");
 
 	/* 格納位置を求める */
 	h = &history[history_index];
@@ -126,9 +135,12 @@ bool register_message(const char *name, const char *msg, const char *voice,
 				if (!conf_msgbox_tategaki) {
 					snprintf(tmp_text, TEXT_SIZE,
 						 "\\#{%06x}%s"
-						 U8("\\#{%06x}「%s」"),
+						 U8("\\#{%06x}%s%s%s"),
 						 name_color, name,
-						 body_color, msg);
+						 body_color,
+						 quote_start,
+						 msg,
+						 quote_end);
 				} else {
 					snprintf(tmp_text, TEXT_SIZE,
 						 "\\#{%06x}%s"

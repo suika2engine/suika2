@@ -651,6 +651,10 @@ gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
 
+# ヒストリーのカギカッコ
+gui.history.quote.start=「
+gui.history.quote.end=」
+
 # [プレビューの縦書き] (省略可)
 #  - 0: 横書き
 #  - 1: 縦書き
@@ -725,6 +729,15 @@ character.name3=りな
 character.file3=002-
 
 # 以降、character.name32まで続くが、省略可能
+
+###
+### ステージの設定
+###
+
+# キャラクタの位置補正
+stage.ch.margin.bottom=0
+stage.ch.margin.left=0
+stage.ch.margin.right=0
 
 ###
 ### タップ時のキラキラエフェクト
