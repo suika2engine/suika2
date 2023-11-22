@@ -265,6 +265,17 @@ msgbox.skip.cancel.se=click.ogg
 #  - 1: スキップする
 msgbox.skip.unseen=0
 
+# [既読メッセージの色を変更する] (省略可)
+#  - color=0: 無効(通常)
+#  - color=1: 有効(色を変更する)
+msgbox.seen.color=0
+msgbox.seen.color.r=80
+msgbox.seen.color.g=80
+msgbox.seen.color.b=80
+msgbox.seen.outline.color.r=40
+msgbox.seen.outline.color.g=40
+msgbox.seen.outline.color.b=40
+
 # [全画面小説モードで読んだメッセージを暗くする] (省略可)
 #  - dim=0: 無効(通常)
 #  - dim=1: 有効(暗くする)

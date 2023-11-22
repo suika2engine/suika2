@@ -169,6 +169,13 @@ extern int conf_msgbox_dim_color_b;
 extern int conf_msgbox_dim_color_outline_r;
 extern int conf_msgbox_dim_color_outline_g;
 extern int conf_msgbox_dim_color_outline_b;
+extern int conf_msgbox_seen_color;
+extern int conf_msgbox_seen_color_r;
+extern int conf_msgbox_seen_color_g;
+extern int conf_msgbox_seen_color_b;
+extern int conf_msgbox_seen_outline_color_r;
+extern int conf_msgbox_seen_outline_color_g;
+extern int conf_msgbox_seen_outline_color_b;
 extern int conf_msgbox_tategaki;
 extern int conf_msgbox_nowait;
 

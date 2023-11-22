@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -25,6 +25,7 @@
  *  - 2023/08/19 インラインウェイトの実装
  *  - 2023/08/19 ペン移動の実装
  *  - 2023/09/12 メッセージ描画の共通化
+ *  - 2023/11/22 既読カラーの追加
  */
 
 /*
@@ -828,6 +829,20 @@ static void init_font_color(void)
 	/* システムGUIから戻った場合 */
 	if (gui_sys_flag)
 		return;
+
+	/* 既読であり、既読の色が設定されている場合 */
+	if (get_seen() && conf_msgbox_seen_color) {
+		body_color = make_pixel_slow(0xff,
+					     (pixel_t)conf_msgbox_seen_color_r,
+					     (pixel_t)conf_msgbox_seen_color_g,
+					     (pixel_t)conf_msgbox_seen_color_b);
+		body_outline_color =
+			make_pixel_slow(0xff,
+					(pixel_t)conf_msgbox_seen_outline_color_r,
+					(pixel_t)conf_msgbox_seen_outline_color_g,
+					(pixel_t)conf_msgbox_seen_outline_color_b);
+		return;
+	}
 
 	/* 色は、まずデフォルトの色をロードする */
 	body_color = make_pixel_slow(0xff,

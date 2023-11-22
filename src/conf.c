@@ -159,6 +159,13 @@ int conf_msgbox_dim_color_b;
 int conf_msgbox_dim_color_outline_r;
 int conf_msgbox_dim_color_outline_g;
 int conf_msgbox_dim_color_outline_b;
+int conf_msgbox_seen_color;
+int conf_msgbox_seen_color_r;
+int conf_msgbox_seen_color_g;
+int conf_msgbox_seen_color_b;
+int conf_msgbox_seen_outline_color_r;
+int conf_msgbox_seen_outline_color_g;
+int conf_msgbox_seen_outline_color_b;
 int conf_msgbox_tategaki;
 int conf_msgbox_nowait;
 
@@ -580,6 +587,13 @@ static struct rule {
 	{"msgbox.dim.color.outline.r", 'i', &conf_msgbox_dim_color_outline_r, OPTIONAL, SAVE},
 	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, OPTIONAL, SAVE},
 	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, OPTIONAL, SAVE},
+	{"msgbox.seen.color", 'i', &conf_msgbox_seen_color, OPTIONAL, SAVE},
+	{"msgbox.seen.color.r", 'i', &conf_msgbox_seen_color_r, OPTIONAL, SAVE},
+	{"msgbox.seen.color.g", 'i', &conf_msgbox_seen_color_g, OPTIONAL, SAVE},
+	{"msgbox.seen.color.b", 'i', &conf_msgbox_seen_color_b, OPTIONAL, SAVE},
+	{"msgbox.seen.outline.color.r", 'i', &conf_msgbox_seen_outline_color_r, OPTIONAL, SAVE},
+	{"msgbox.seen.outline.color.g", 'i', &conf_msgbox_seen_outline_color_g, OPTIONAL, SAVE},
+	{"msgbox.seen.outline.color.b", 'i', &conf_msgbox_seen_outline_color_b, OPTIONAL, SAVE},
 	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, OPTIONAL, SAVE},
 	{"msgbox.nowait", 'i', &conf_msgbox_nowait, OPTIONAL, SAVE},
 	{"click.x", 'i', &conf_click_x, MUST, SAVE},
