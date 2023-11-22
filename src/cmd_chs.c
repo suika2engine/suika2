@@ -139,7 +139,8 @@ static bool init(void)
 		/* 変更なしが指定された場合 */
 		if (i != BG_INDEX) {
 			if (strcmp(fname[i], "stay") == 0 ||
-			    strcmp(fname[i], U8("変更なし")) == 0) {
+			    strcmp(fname[i], U8("変更なし")) == 0 ||
+			    (get_command_type() == COMMAND_CHSX && strcmp(fname[i], "") == 0)) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
 				x[i] = get_layer_x(layer);
@@ -162,7 +163,7 @@ static bool init(void)
 		if (i != BG_INDEX &&
 		    (strcmp(fname[i], "none") == 0 ||
 		     strcmp(fname[i], U8("消す")) == 0 ||
-		     strcmp(fname[i], "") == 0)) {
+		     (get_command_type() == COMMAND_CHS && strcmp(fname[i], "") == 0))) {
 			fname[i] = NULL;
 			continue;
 		}
