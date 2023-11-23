@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "if [ ! -d libroot ]; then ./build-libs.sh; fi&#10;"
+               scriptText = "if [ ! -d &quot;$WORSPACE_PATH/../../libroot&quot; ]; then cd &quot;$WORKSPACE_PATH/../..&quot; &amp;&amp; curl -O https://suika2.com/dl/libroot-mac.tar.gz &amp;&amp; tar xzf libroot-mac.tar.gz; fi&#10;"
                shellToInvoke = "/bin/sh">
             </ActionContent>
          </ExecutionAction>

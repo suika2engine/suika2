@@ -84,7 +84,7 @@ setup:
 			/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
 		fi; \
 		echo 'Installing mingw-w64...'; \
-		brew install mingw-w64; \
+		brew install mingw-w64 gsed coreutils wget; \
 		echo "Building the libraries."; \
 		cd build/engine-windows-x86 && ./build-libs.sh && cd ../..; \
 		cp -Ra build/engine-windows-x86/libroot build/pro-windows-x86/; \
@@ -328,7 +328,7 @@ gtest:
 ## Release (dev internal)
 ##
 
-# Make a main release file and update the Web site.
+# Internal: Make a main release file and update the Web site on WSL2.
 do-release:
 	@# Check if we are running on WSL2.
 	@if [ ! -z "`uname | grep Darwin`" ]; then \
@@ -340,7 +340,16 @@ do-release:
 	fi
 	@cd build && ./scripts/release-main.sh && cd ..
 
-# Update template games.
+# Internal: Make a main release file and update the Web site on macOS.
+do-release-on-mac:
+	@# Check if we are running on macOS.
+	@if [ -z "`uname | grep Darwin`" ]; then \
+		echo "You are not running on macOS."; \
+		exit 1; \
+	fi
+	@cd build && ./scripts/release-main-on-mac.sh && cd ..
+
+# Internal: Update template games.
 update-templates:
 	@echo "Going to update template games."
 	@cd build && ./scripts/release-templates.sh && cd ..
