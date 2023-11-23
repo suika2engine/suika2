@@ -2,6 +2,11 @@
 
 set -eu
 
+HEAD='head'
+if [ ! -z "`which ghead`" ]; then
+	HEAD='ghead';
+fi
+
 # Signature for code signing (you can modify here)
 SIGNATURE="Open Source Developer, Keiichi Tabata"
 
@@ -21,8 +26,8 @@ VERSION=`echo $VERSION | cut -d '/' -f 2`
 #
 # Get the release notes.
 #
-NOTE_JP=`cat ../doc/readme-jp.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | ghead -n -1`
-NOTE_EN=`cat ../doc/readme-en.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | ghead -n -1`
+NOTE_JP=`cat ../doc/readme-jp.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | $HEAD -n -1`
+NOTE_EN=`cat ../doc/readme-en.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | $HEAD -n -1`
 
 #
 # Confirmation.
@@ -300,9 +305,6 @@ else
     exit 0;
 fi
 echo "Upload completed."
-if [ "$DO_SIGN" -eq "0" ]; then
-    echo "Note: We have not signed to the Windows binaries.";
-fi
 
 # Update the Web site.
 echo ""
