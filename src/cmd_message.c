@@ -841,6 +841,8 @@ static void init_font_color(void)
 					(pixel_t)conf_msgbox_seen_outline_color_r,
 					(pixel_t)conf_msgbox_seen_outline_color_g,
 					(pixel_t)conf_msgbox_seen_outline_color_b);
+		name_color = body_color;
+		name_outline_color = body_outline_color;
 		return;
 	}
 
