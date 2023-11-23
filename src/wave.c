@@ -319,7 +319,7 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 	last_ret_bytes = -1;
 	while (retain < samples) {
 		/* LOOPSTARTのためのスキップを処理する */
-		skip_if_needed(w, 2);
+		skip_if_needed(w, 4);
 
 		/* デコードする */
 		ret_bytes = ov_read(&w->ovf, (char *)(buf + retain),

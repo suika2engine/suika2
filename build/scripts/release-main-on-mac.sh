@@ -266,7 +266,7 @@ cp -v "$RELEASETMP/suika-studio.exe" suika2/
 mkdir suika2/tools
 cp -v "$RELEASETMP/suika-pro.exe" suika2/tools/
 cp -v "$RELEASETMP/mac.dmg" suika2/tools/
-cp -v "$RELEASETMP/mac-pro.dmg" suika2/
+cp -v "$RELEASETMP/mac-pro.dmg" suika2/tools/
 cp -v ../doc/readme-tools-jp.txt suika2/tools/README.txt
 cp -v ../doc/readme-tools-en.txt suika2/tools/README-English.txt
 cp -v ../doc/readme-tools-zh.txt suika2/tools/README-Chinese.txt
