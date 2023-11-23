@@ -165,6 +165,8 @@ static bool init(void)
 		     strcmp(fname[i], U8("消す")) == 0 ||
 		     (get_command_type() == COMMAND_CHS && strcmp(fname[i], "") == 0))) {
 			fname[i] = NULL;
+			x[i] = get_layer_x(layer);
+			y[i] = get_layer_y(layer);
 			continue;
 		}
 

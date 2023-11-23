@@ -2227,6 +2227,10 @@ static void draw_fo_common(void)
 {
 	lock_image(layer_image[LAYER_FO]);
 	{
+		if (conf_window_white)
+			clear_image_white(layer_image[LAYER_FO]);
+		else
+			clear_image_black(layer_image[LAYER_FO]);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_BG);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_BG2);
 		draw_layer_image(layer_image[LAYER_FO], LAYER_EFFECT5);
@@ -2268,6 +2272,10 @@ static void draw_fi_common(bool show_msgbox)
 {
 	lock_image(layer_image[LAYER_FI]);
 	{
+		if (conf_window_white)
+			clear_image_white(layer_image[LAYER_FI]);
+		else
+			clear_image_black(layer_image[LAYER_FI]);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_BG);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_BG2);
 		draw_layer_image(layer_image[LAYER_FI], LAYER_EFFECT5);
