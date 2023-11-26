@@ -21,7 +21,6 @@ static bool init(void);
 static bool get_position(const char *pos, struct image *img, int ofs_x,
 			 int ofs_y, int *chpos, int *xpos, int *ypos);
 static int get_alpha(const char *alpha);
-int chpos_to_layer(int chpos);
 static void focus_character(int chpos, const char *fname);
 static void draw(void);
 static bool cleanup(void);

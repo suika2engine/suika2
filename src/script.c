@@ -286,6 +286,8 @@ struct insn_item {
 	/* アニメ */
 	{"@anime", COMMAND_ANIME, 1, 2},
 	{U8("@アニメ"), COMMAND_ANIME, 1, 2},
+	{"@layer", COMMAND_LAYER, 2, 5},
+	{U8("@レイヤ"), COMMAND_LAYER, 2, 5},
 
 	/* マクロ */
 	{"@gosub", COMMAND_GOSUB, 1, 1},
@@ -497,9 +499,18 @@ struct param_item {
 	{COMMAND_WMS, WMS_PARAM_FILE, "file="},
 	{COMMAND_WMS, WMS_PARAM_FILE, U8("ファイル=")},
 
-	/* @wms */
+	/* @anime */
 	{COMMAND_ANIME, ANIME_PARAM_FILE, "file="},
 	{COMMAND_ANIME, ANIME_PARAM_FILE, U8("ファイル=")},
+
+	/* @layer */
+	{COMMAND_LAYER, LAYER_PARAM_NAME, "name="},
+	{COMMAND_LAYER, LAYER_PARAM_NAME, U8("名前=")},
+	{COMMAND_LAYER, LAYER_PARAM_FILE, "file="},
+	{COMMAND_LAYER, LAYER_PARAM_FILE, U8("ファイル=")},
+	{COMMAND_LAYER, LAYER_PARAM_X, "x="},
+	{COMMAND_LAYER, LAYER_PARAM_Y, "y="},
+	{COMMAND_LAYER, LAYER_PARAM_A, "a="},
 
 	/* @setconfig */
 	{COMMAND_SETCONFIG, SETCONFIG_PARAM_KEY, "key="},

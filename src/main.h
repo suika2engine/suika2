@@ -106,6 +106,7 @@ bool wms_command(void);
 bool anime_command(int *x, int *y, int *w, int *h);
 bool pencil_command(int *x, int *y, int *w, int *h);
 bool setconfig_command(void);
+bool layer_command(void);
 
 /*
  * 複数のイテレーションに渡るコマンドの実行中であるかの設定

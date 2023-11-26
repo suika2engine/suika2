@@ -103,6 +103,7 @@ void log_anime_parse_property_before_type(const char *prop);
 void log_anime_parse_footer(const char *file, int line);
 void log_anime_unknown_key(const char *key);
 void log_anime_long_sequence(void);
+void log_invalid_layer_name(const char *name);
 
 #ifdef USE_DEBUGGER
 void log_inform_translated_commands(void);

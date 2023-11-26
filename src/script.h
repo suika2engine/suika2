@@ -85,6 +85,7 @@ enum command_type {
 	COMMAND_SETCONFIG,
 	COMMAND_CHSX,
 	COMMAND_PENCIL,
+	COMMAND_LAYER,
 	COMMAND_MAX		/* invalid value */
 };
 
@@ -475,6 +476,15 @@ enum chsx_command_param {
 enum pencil_command_param {
 	PENCIL_PARAM_LAYER = 1,
 	PENCIL_PARAM_TEXT,
+};
+
+/* layerコマンドのパラメータ */
+enum layer_command_param {
+	LAYER_PARAM_NAME = 1,
+	LAYER_PARAM_FILE,
+	LAYER_PARAM_X,
+	LAYER_PARAM_Y,
+	LAYER_PARAM_A,
 };
 
 /*

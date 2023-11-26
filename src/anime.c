@@ -486,8 +486,10 @@ static bool on_key_value(const char *key, const char *val)
 	/* 最初にレイヤのキーが指定される必要がある */
 	if (strcmp(key, "layer") == 0) {
 		cur_seq_layer = layer_name_to_index(val);
-		if (cur_seq_layer == -1)
+		if (cur_seq_layer == -1) {
+			log_invalid_layer_name(val);
 			return false;
+		}
 		context[cur_seq_layer].seq_count++;
 		context[cur_seq_layer].sw = cur_sw;
 		context[cur_seq_layer].is_running = true;
