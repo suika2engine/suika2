@@ -341,5 +341,8 @@
     <ClCompile Include="..\..\..\src\tts_sapi.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_layer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
