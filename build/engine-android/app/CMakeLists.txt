@@ -31,6 +31,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/cmd_goto.c
              src/main/cpp/cmd_gui.c
              src/main/cpp/cmd_if.c
+             src/main/cpp/cmd_layer.c
              src/main/cpp/cmd_load.c
              src/main/cpp/cmd_message.c
              src/main/cpp/cmd_pencil.c
