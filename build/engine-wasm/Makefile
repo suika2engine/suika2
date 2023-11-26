@@ -14,6 +14,7 @@ SRC = \
 	../../src/cmd_goto.c \
 	../../src/cmd_gui.c \
 	../../src/cmd_if.c \
+	../../src/cmd_layer.c \
 	../../src/cmd_load.c \
 	../../src/cmd_message.c \
 	../../src/cmd_pencil.c \
