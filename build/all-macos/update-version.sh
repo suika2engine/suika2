@@ -17,4 +17,4 @@ if [ ! -n "$VERSION" ]; then
     exit 1;
 fi
 
-sed -i "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" suika.xcodeproj/project.pbxproj
+$SED -i "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" suika.xcodeproj/project.pbxproj
