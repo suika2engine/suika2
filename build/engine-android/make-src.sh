@@ -47,6 +47,7 @@ COPY_LIST="\
 	cmd_goto.c \
 	cmd_gui.c \
 	cmd_if.c \
+	cmd_layer.c \
 	cmd_load.c \
 	cmd_message.c \
 	cmd_pencil.c \
