@@ -56,4 +56,7 @@ bool is_gui_result_title(void);
 /* GUIの実行結果が終了であるかを取得する */
 bool is_gui_result_exit(void);
 
+/* GUIでセーブされたか */
+bool is_gui_saved(void);
+
 #endif

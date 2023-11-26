@@ -71,6 +71,9 @@ static bool init(void)
 	    strstr(opt, "フェードアウトなし") != NULL)
 		opt_nofadeout = true;
 
+	/* セーブに備えてサムネイルを作成する */
+	draw_stage_to_thumb();
+
 	/* GUIファイルと指定された画像の読み込みを行う */
 	if (!prepare_gui_mode(file, false)) {
 		log_script_exec_footer();
@@ -141,7 +144,9 @@ static bool cleanup(void)
 	const char *label;
 	bool ret;
 
-	/* 繰り返し処理を終了する */
+    ret = true;
+
+    /* 繰り返し処理を終了する */
 	stop_command_repetition();
 
 	/* ラベルジャンプボタンが押下された場合 */
@@ -160,9 +165,12 @@ static bool cleanup(void)
 
 	/*
 	 * キャンセルボタンが押下された場合と、
-	 * 右クリックでキャンセルされた場合は、次のコマンドへ移動する
+	 * 右クリックでキャンセルされた場合で、
+	 * セーブされていなければ、次のコマンドへ移動する
 	 */
-	ret = move_to_next_command();
+	if (!is_gui_saved())
+		ret = move_to_next_command();
+
 	cleanup_gui();
 	return ret;
 }

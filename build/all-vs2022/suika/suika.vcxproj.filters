@@ -332,5 +332,8 @@
     <ClCompile Include="..\..\..\src\readpng.c">
       <Filter>Source File</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\cmd_layer.c">
+      <Filter>Source File</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

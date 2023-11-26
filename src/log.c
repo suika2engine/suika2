@@ -994,6 +994,17 @@ void log_anime_parse_footer(const char *file, int line)
 		log_error(U8("> アニメファイルエラー: %s:%d"), file, line);
 }
 
+/*
+ * レイヤ名の誤りを記録する
+ */
+void log_invalid_layer_name(const char *name)
+{
+	if (is_english_mode())
+		log_error("Unknown layer name \"%s\"\n", name);
+	else
+		log_error(U8("未知のレイヤ名 \"%s\"が指定されました"), name);
+}
+
 #ifdef USE_DEBUGGER
 /*
  * スクリプトにエラーがあった際の情報提供を行う

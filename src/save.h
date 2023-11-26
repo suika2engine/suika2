@@ -22,9 +22,19 @@
 #include "types.h"
 
 /*
- * グローバル変数のセーブファイル
+ * グローバルセーブファイル
  */
-#define GLOBAL_VARS_FILE	"g000.sav"
+#define GLOBAL_SAVE_FILE	"g000.sav"
+
+/*
+ * クイックセーブファイル
+ */
+#define QUICK_SAVE_FILE		"q000.sav"
+
+/*
+ * セーブデータ数
+ */
+#define SAVE_SLOTS		(100)
 
 /* セーブデータに関する初期化処理を行う */
 bool init_save(void);
@@ -53,8 +63,11 @@ bool quick_save(void);
 /* クイックロードを行う */
 bool quick_load(void);
 
-/* セーブデータの削除を処理する */
-void delete_save_data(int index);
+/* ローカルセーブデータの削除を行う */
+void delete_local_save(int index);
+
+/* グローバルセーブデータの削除を行う */
+void delete_global_save(void);
 
 /* セーブデータの日付を取得する */
 time_t get_save_date(int index);

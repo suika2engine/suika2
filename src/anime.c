@@ -64,7 +64,9 @@ static struct layer_name_map layer_name_map[] = {
 	{"effect8", ANIME_LAYER_EFFECT8},
 	{"chb", ANIME_LAYER_CHB}, {U8("背面キャラ"), ANIME_LAYER_CHB},
 	{"chl", ANIME_LAYER_CHL}, {U8("左キャラ"), ANIME_LAYER_CHL},
+	{"chlc", ANIME_LAYER_CHL}, {U8("左中キャラ"), ANIME_LAYER_CHLC},
 	{"chr", ANIME_LAYER_CHR}, {U8("右キャラ"), ANIME_LAYER_CHR},
+	{"chrc", ANIME_LAYER_CHRC}, {U8("右中キャラ"), ANIME_LAYER_CHRC},
 	{"chc", ANIME_LAYER_CHC}, {U8("中央キャラ"), ANIME_LAYER_CHC},
 	{"effect1", ANIME_LAYER_EFFECT1},
 	{"effect2", ANIME_LAYER_EFFECT2},
@@ -484,8 +486,10 @@ static bool on_key_value(const char *key, const char *val)
 	/* 最初にレイヤのキーが指定される必要がある */
 	if (strcmp(key, "layer") == 0) {
 		cur_seq_layer = layer_name_to_index(val);
-		if (cur_seq_layer == -1)
+		if (cur_seq_layer == -1) {
+			log_invalid_layer_name(val);
 			return false;
+		}
 		context[cur_seq_layer].seq_count++;
 		context[cur_seq_layer].sw = cur_sw;
 		context[cur_seq_layer].is_running = true;

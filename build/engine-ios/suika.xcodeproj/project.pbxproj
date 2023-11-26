@@ -15,6 +15,7 @@
 		2689F3C1288C06E600BEF444 /* readimage.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3BF288C06E600BEF444 /* readimage.c */; };
 		2689F3C2288C06E600BEF444 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 2689F3C0288C06E600BEF444 /* readjpeg.c */; };
 		268B09E126D89FE40074577E /* iosmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 268B09E026D89FE40074577E /* iosmain.m */; };
+		2697CE432B13C975002D5035 /* cmd_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2697CE422B13C975002D5035 /* cmd_layer.c */; };
 		26A4EAE626D116CE00C3C140 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE426D116CE00C3C140 /* Main.storyboard */; };
 		26A4EAE826D116D000C3C140 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26A4EAE726D116D000C3C140 /* Assets.xcassets */; };
 		26B231B9285F454B0058D377 /* cmd_video.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B231B7285F454B0058D377 /* cmd_video.c */; };
@@ -79,6 +80,7 @@
 		2689F3BF288C06E600BEF444 /* readimage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readimage.c; path = ../../src/readimage.c; sourceTree = "<group>"; };
 		2689F3C0288C06E600BEF444 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../src/readjpeg.c; sourceTree = "<group>"; };
 		268B09E026D89FE40074577E /* iosmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iosmain.m; path = ../../src/iosmain.m; sourceTree = "<group>"; };
+		2697CE422B13C975002D5035 /* cmd_layer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_layer.c; path = ../../src/cmd_layer.c; sourceTree = "<group>"; };
 		26A4EAD526D116CE00C3C140 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A4EAE526D116CE00C3C140 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		26A4EAE726D116D000C3C140 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				26B3859726D134EE000A7A1C /* cmd_goto.c */,
 				26D910BF2914C8D700876016 /* cmd_gui.c */,
 				26B385BA26D134EE000A7A1C /* cmd_if.c */,
+				2697CE422B13C975002D5035 /* cmd_layer.c */,
 				26B385AA26D134EE000A7A1C /* cmd_load.c */,
 				26B385BB26D134EE000A7A1C /* cmd_message.c */,
 				2684DAD42AB36999007042C1 /* cmd_pencil.c */,
@@ -382,6 +385,7 @@
 				26B385C026D134EE000A7A1C /* conf.c in Sources */,
 				26DA59632A922F0500DBE36B /* anime.c in Sources */,
 				26B385CC26D134EE000A7A1C /* file.c in Sources */,
+				2697CE432B13C975002D5035 /* cmd_layer.c in Sources */,
 				260C732128730C9E0057B37E /* glrender.c in Sources */,
 				26B385D026D134EE000A7A1C /* cmd_goto.c in Sources */,
 				26C93FD5295958D3007D092D /* wms_lexer.yy.c in Sources */,

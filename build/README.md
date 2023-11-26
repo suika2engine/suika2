@@ -36,14 +36,6 @@ This method will utilize `Xcode` and terminal to build macOS main engine binary.
 * Steps
   * Use macOS 13
   * Install Xcode 14
-  * From the terminal:
-    * Navigate to the `build/all-macos` directory and run the following command:
-    ```
-    ./build-libs.sh
-    ```
-    * Note:
-      * On an Apple Silicon Mac, `build-libs.sh` will build the libraries from the source codes
-      * On an Intel Mac, `build-libs.sh` will download the prebuilt libraries to avoid a build failure of `libpng`
   * From Xcode, open `build/all-macos/suika.xcodeproj`
     * Select the `suika` target
     * Navigate to the `Signing & Capabilities` tab
@@ -103,7 +95,7 @@ This method will utilize `Xcode` and terminal to build an iOS app.
 * Use macOS 13
 * Install Xcode 14
 * Run `Suika2 Pro` and export iOS source code
-  * Note that the iOS export function is currently supported on only Windows version of `Suika2 Pro`
+  * Note that the iOS export function is currently supported on only Windows version of `Suika2 Pro` and `Suika2 Studio`
 * From Xcode, open the exported project
 * Complete the following steps:
   * Navigate to the `Signing & Capabilities` tab
@@ -176,14 +168,6 @@ This method will utilize `Xcode` and terminal to build macOS main engine binary.
 * Steps
   * Use macOS 13
   * Install Xcode 14
-  * From the terminal:
-    * Navigate to the `build/all-macos` directory and run the following command:
-    ```
-    ./build-libs.sh
-    ```
-    * Note:
-      * On an Apple Silicon Mac, this script will build the libraries from the source codes
-      * On an Intel Mac, this script will download the prebuilt libraries to avoid a build failure of `libpng`
   * From Xcode, open `build/all-macos/suika.xcodeproj`
     * Select `suika-pro` target
     * Navigate to the `Signing & Capabilities` tab

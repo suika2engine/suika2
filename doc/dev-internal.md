@@ -13,6 +13,7 @@ The author uses a Windows/WSL2 host and a macOS host because:
   ```
   MACOS_HOST=his-mac-host-name.local
   MACOS_USER=his-mac-user-name
+  MACOS_PASSWORD=his-mac-user-password
   FTP_LOCAL=~/Sites/suika2.com/dl
   FTP_USER=his-ftp-account
   FTP_PASSWORD=his-ftp-password

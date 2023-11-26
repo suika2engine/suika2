@@ -14,9 +14,15 @@ mkdir -p tmp libroot
 mkdir -p libroot/include libroot/lib
 
 if [ ! -z "`uname | grep Linux`" ]; then
-    wget https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz;
-    tar xJf llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz;
-    mv llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64 llvm;
+	if [ ! -z "`uname -a | grep x86`" ]; then
+		wget https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz;
+		tar xJf llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64.tar.xz;
+		mv llvm-mingw-20230614-ucrt-ubuntu-20.04-x86_64 llvm;
+	else
+		wget https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-ubuntu-20.04-aarch64.tar.xz;
+		tar xJf llvm-mingw-20230614-ucrt-ubuntu-20.04-aarch64.tar.xz;
+		mv llvm-mingw-20230614-ucrt-ubuntu-20.04-aarch64 llvm;
+	fi;
 else
     curl -L -O https://github.com/mstorsjo/llvm-mingw/releases/download/20230614/llvm-mingw-20230614-ucrt-macos-universal.tar.xz;
     tar xJf llvm-mingw-20230614-ucrt-macos-universal.tar.xz;

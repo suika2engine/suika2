@@ -166,6 +166,10 @@
 		2623918A288C024100C7DF81 /* readjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26239188288C024100C7DF81 /* readjpeg.c */; };
 		26247D7B2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
 		26247D7C2872C13A0026FAF4 /* cmd_chapter.c in Sources */ = {isa = PBXBuildFile; fileRef = 26247D7A2872C13A0026FAF4 /* cmd_chapter.c */; };
+		26302C252B13C93B00D50FD1 /* cmd_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26302C242B13C93B00D50FD1 /* cmd_layer.c */; };
+		26302C262B13C93B00D50FD1 /* cmd_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26302C242B13C93B00D50FD1 /* cmd_layer.c */; };
+		26302C272B13C93B00D50FD1 /* cmd_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26302C242B13C93B00D50FD1 /* cmd_layer.c */; };
+		26302C282B13C93B00D50FD1 /* cmd_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 26302C242B13C93B00D50FD1 /* cmd_layer.c */; };
 		263B526F2AED213700F6C61D /* readpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 267E044D2AED1BF400EEE8EB /* readpng.c */; };
 		263B52702AED213700F6C61D /* readpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 267E044D2AED1BF400EEE8EB /* readpng.c */; };
 		263B52712AED213800F6C61D /* readpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 267E044D2AED1BF400EEE8EB /* readpng.c */; };
@@ -269,6 +273,7 @@
 		261B31F328991145006BCD68 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../../../src/gui.h; sourceTree = "<group>"; };
 		26239188288C024100C7DF81 /* readjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readjpeg.c; path = ../../../src/readjpeg.c; sourceTree = "<group>"; };
 		26247D7A2872C13A0026FAF4 /* cmd_chapter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chapter.c; path = ../../../src/cmd_chapter.c; sourceTree = "<group>"; };
+		26302C242B13C93B00D50FD1 /* cmd_layer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_layer.c; path = ../../../src/cmd_layer.c; sourceTree = "<group>"; };
 		26410A73290DF9B0002962BB /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		26410A75290DF9BA002962BB /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		2646C360284C635D00DF86E1 /* cmd_skip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_skip.c; path = ../../../src/cmd_skip.c; sourceTree = "<group>"; };
@@ -469,6 +474,7 @@
 				26A1781E25EE5DD0006A1ED4 /* cmd_goto.c */,
 				261B31F128991145006BCD68 /* cmd_gui.c */,
 				26A1782125EE5DD0006A1ED4 /* cmd_if.c */,
+				26302C242B13C93B00D50FD1 /* cmd_layer.c */,
 				26A1781C25EE5DD0006A1ED4 /* cmd_load.c */,
 				26A1780125EE5DD0006A1ED4 /* cmd_message.c */,
 				2684DACF2AB3694C007042C1 /* cmd_pencil.c */,
@@ -738,6 +744,7 @@
 				260349582854B29800037370 /* aunit.c in Sources */,
 				260349592854B29800037370 /* cmd_set.c in Sources */,
 				2603495A2854B29800037370 /* cmd_ch.c in Sources */,
+				26302C262B13C93B00D50FD1 /* cmd_layer.c in Sources */,
 				26F85C432A9B727B0013A3B3 /* cmd_setconfig.c in Sources */,
 				2603495B2854B29800037370 /* cmd_chs.c in Sources */,
 				2603495C2854B29800037370 /* cmd_bg.c in Sources */,
@@ -793,6 +800,7 @@
 				260AFFCB2A6563D8002E3FF4 /* cmd_wms.c in Sources */,
 				26C0F5D12A99B37B009F27E4 /* capture.c in Sources */,
 				260AFFF32A65641C002E3FF4 /* wms_core.c in Sources */,
+				26302C272B13C93B00D50FD1 /* cmd_layer.c in Sources */,
 				260AFFF22A65641C002E3FF4 /* wave.c in Sources */,
 				260AFFF52A65641C002E3FF4 /* stage.c in Sources */,
 				260AFFE32A6563E1002E3FF4 /* file.c in Sources */,
@@ -858,6 +866,7 @@
 				260A00402A66B394002E3FF4 /* script.c in Sources */,
 				260A00302A66B366002E3FF4 /* cmd_gui.c in Sources */,
 				260A003F2A66B394002E3FF4 /* gui.c in Sources */,
+				26302C282B13C93B00D50FD1 /* cmd_layer.c in Sources */,
 				260A00362A66B394002E3FF4 /* readjpeg.c in Sources */,
 				260A00482A66B394002E3FF4 /* wave.c in Sources */,
 				260A00392A66B394002E3FF4 /* readimage.c in Sources */,
@@ -914,6 +923,7 @@
 				26A1784125EE5DD0006A1ED4 /* vars.c in Sources */,
 				26DA59572A922EB700DBE36B /* anime.c in Sources */,
 				267E044E2AED1BF400EEE8EB /* readpng.c in Sources */,
+				26302C252B13C93B00D50FD1 /* cmd_layer.c in Sources */,
 				26A1784525EE5DD0006A1ED4 /* glyph.c in Sources */,
 				26A1784025EE5DD0006A1ED4 /* cmd_vol.c in Sources */,
 				26A1782D25EE5DD0006A1ED4 /* nsmain.m in Sources */,
@@ -1027,7 +1037,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -1075,7 +1085,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
@@ -1127,7 +1137,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_REPLAY",
@@ -1182,7 +1192,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_REPLAY",
@@ -1236,7 +1246,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_CAPTURE",
@@ -1290,7 +1300,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_CAPTURE",
@@ -1453,7 +1463,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",
@@ -1503,7 +1513,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 14.15;
+				MARKETING_VERSION = 14.16;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-ffast-math",

@@ -169,6 +169,13 @@ extern int conf_msgbox_dim_color_b;
 extern int conf_msgbox_dim_color_outline_r;
 extern int conf_msgbox_dim_color_outline_g;
 extern int conf_msgbox_dim_color_outline_b;
+extern int conf_msgbox_seen_color;
+extern int conf_msgbox_seen_color_r;
+extern int conf_msgbox_seen_color_g;
+extern int conf_msgbox_seen_color_b;
+extern int conf_msgbox_seen_outline_color_r;
+extern int conf_msgbox_seen_outline_color_g;
+extern int conf_msgbox_seen_outline_color_b;
 extern int conf_msgbox_tategaki;
 extern int conf_msgbox_nowait;
 
@@ -337,6 +344,8 @@ extern int conf_gui_history_font_color_b;
 extern int conf_gui_history_font_outline_color_r;
 extern int conf_gui_history_font_outline_color_g;
 extern int conf_gui_history_font_outline_color_b;
+extern char *conf_gui_history_quote_start;
+extern char *conf_gui_history_quote_end;
 extern int conf_gui_preview_tategaki;
 
 /*
@@ -371,6 +380,14 @@ extern int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 extern int conf_character_focus;
 extern char *conf_character_name[CHARACTER_MAP_COUNT];
 extern char *conf_character_file[CHARACTER_MAP_COUNT];
+
+/*
+ * ステージのマージン(キャラクタレイヤの位置補正)
+ */
+
+extern int conf_stage_ch_margin_bottom;
+extern int conf_stage_ch_margin_left;
+extern int conf_stage_ch_margin_right;
 
 /*
  * キラキラエフェクトの設定

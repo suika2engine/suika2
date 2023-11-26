@@ -21,7 +21,6 @@ static bool init(void);
 static bool get_position(const char *pos, struct image *img, int ofs_x,
 			 int ofs_y, int *chpos, int *xpos, int *ypos);
 static int get_alpha(const char *alpha);
-int chpos_to_layer(int chpos);
 static void focus_character(int chpos, const char *fname);
 static void draw(void);
 static bool cleanup(void);
@@ -166,49 +165,58 @@ static bool get_position(const char *pos,	/* IN: character position name */
 	    strcmp(pos, U8("背面")) == 0) {
 		/* 中央背面に配置する */
 		*chpos = CH_BACK;
-		if (img != NULL) {
-			*xpos = (conf_window_width - get_image_width(img)) / 2;
-			*xpos += ofs_x;
-		} else {
+		if (img != NULL)
+			*xpos = (conf_window_width - get_image_width(img)) / 2 + ofs_x;
+		else
 			*xpos = 0;
-		}
 	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0 ||
 		   strcmp(pos, U8("左")) == 0) {
 		/* 左に配置する */
 		*chpos = CH_LEFT;
 		if (img != NULL)
-			*xpos = ofs_x;
+			*xpos = conf_stage_ch_margin_left + ofs_x;
+		else
+			*xpos = 0;
+	} else if (strcmp(pos, "left-center") == 0 || strcmp(pos, "lc") == 0 ||
+		   strcmp(pos, U8("左中")) == 0) {
+		/* 左中に配置する */
+		*chpos = CH_LEFT_CENTER;
+		if (img != NULL)
+			*xpos = (conf_window_width - get_image_width(img)) / 4 + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
 		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
-		if (img != NULL) {
-			*xpos = conf_window_width - get_image_width(img);
-			*xpos += ofs_x;
-		} else {
+		if (img != NULL)
+			*xpos = conf_window_width - get_image_width(img) - conf_stage_ch_margin_right + ofs_x;
+		else
 			*xpos = 0;
-		}
+	} else if (strcmp(pos, "right-center") == 0 || strcmp(pos, "rc") == 0 ||
+		   strcmp(pos, U8("右中")) == 0) {
+		/* 右中に配置する */
+		*chpos = CH_RIGHT_CENTER;
+		if (img != NULL)
+			*xpos = conf_window_width - (get_image_width(img) / 2 * 3) + ofs_x;
+		else
+			*xpos = 0;
 	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
 		   strcmp(pos, "c") == 0 || strcmp(pos, U8("中央")) == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
-		if (img != NULL) {
-			*xpos = (conf_window_width - get_image_width(img)) / 2;
-			*xpos += ofs_x;
-		} else {
+		if (img != NULL)
+			*xpos = (conf_window_width - get_image_width(img)) / 2 + ofs_x;
+		else
 			*xpos = 0;
-		}
 	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0 ||
 		   strcmp(pos, U8("顔")) == 0) {
 		/* 顔に配置する */
 		*chpos = CH_FACE;
-		if (img != NULL) {
-			*xpos = ofs_x;
-		} else {
+		if (img != NULL)
+			*xpos = conf_stage_ch_margin_left + ofs_x;
+		else
 			*xpos = 0;
-		}
 	} else {
 		/* スクリプト実行エラー */
 		log_script_ch_position(pos);
@@ -217,10 +225,14 @@ static bool get_position(const char *pos,	/* IN: character position name */
 	}
 
 	/* 縦方向の位置を求める */
-	if (img != NULL)
-		*ypos = conf_window_height - get_image_height(img) + ofs_y;
-	else
+	if (img != NULL) {
+		*ypos = conf_window_height -
+			get_image_height(img) -
+			conf_stage_ch_margin_bottom +
+			ofs_y;
+	} else {
 		*ypos = 0;
+	}
 
 	return true;
 }

@@ -1,9 +1,14 @@
 #!/bin/bash
 
+SED='sed'
+if [ ! -z "`which gsed`" ]; then
+	SED='gsed';
+fi
+
 function upload()
 {
     if [ ! -z "$GTAG" ]; then
-		sed -e 's|.*INSERT-GTAG-HERE.*|\<script async src="https://www.googletagmanager.com/gtag/js\?id=G-PLYR5Y3JSJ"\>\</script\>\<script\>window.dataLayer = window.dataLayer \|\| \[\];function gtag\(\){dataLayer.push\(arguments\);}gtag\("js", new Date\(\)\);gtag\("config", "$GTAG"\);\</script\>|' < $1 > tmp
+		$SED -e 's|.*INSERT-GTAG-HERE.*|\<script async src="https://www.googletagmanager.com/gtag/js\?id=G-PLYR5Y3JSJ"\>\</script\>\<script\>window.dataLayer = window.dataLayer \|\| \[\];function gtag\(\){dataLayer.push\(arguments\);}gtag\("js", new Date\(\)\);gtag\("config", "$GTAG"\);\</script\>|' < $1 > tmp
         ftp-upload.sh tmp $1;
 		rm tmp
     else

@@ -42,6 +42,8 @@ static bool s2_hide_namebox(struct wms_runtime *rt);
 static bool s2_save_global(struct wms_runtime *rt);
 static bool s2_push_stage(struct wms_runtime *rt);
 static bool s2_pop_stage(struct wms_runtime *rt);
+static bool s2_remove_local_save(struct wms_runtime *rt);
+static bool s2_remove_global_save(struct wms_runtime *rt);
 
 /*
  * FFI function table 
@@ -53,9 +55,9 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_get_name_variable, "s2_get_name_variable", {"index", NULL}},
 	{s2_set_name_variable, "s2_set_name_variable", {"index", "value", NULL}},
 	{s2_random, "s2_random", {NULL}},
-	{s2_round,"s2_round",{"value",NULL}},
-	{s2_ceil,"s2_ceil",{"value",NULL}},
-	{s2_floor,"s2_floor",{"value",NULL}},
+	{s2_round,"s2_round", {"value",NULL}},
+	{s2_ceil,"s2_ceil", {"value",NULL}},
+	{s2_floor,"s2_floor", {"value",NULL}},
 	{s2_set_config, "s2_set_config", {"key", "value", NULL}},
 	{s2_reflect_msgbox_and_namebox_config, "s2_reflect_msgbox_and_namebox_config", {NULL}},
 	{s2_reflect_font_config, "s2_reflect_font_config", {NULL}},
@@ -67,6 +69,8 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_save_global, "s2_save_global", {NULL}},
 	{s2_push_stage, "s2_push_stage", {NULL}},
 	{s2_pop_stage, "s2_pop_stage", {NULL}},
+	{s2_remove_local_save, "s2_remove_local_save", {"index", NULL}},
+	{s2_remove_global_save, "s2_remove_global_save", {NULL}},
 };
 
 #define FFI_FUNC_TBL_SIZE (sizeof(ffi_func_tbl) / sizeof(ffi_func_tbl[0]))
@@ -543,6 +547,36 @@ static bool s2_pop_stage(struct wms_runtime *rt)
 			saved_layer_file_name[i] = NULL;
 		}
 	}
+
+	return true;
+}
+
+/* Remove all local save data. */
+static bool s2_remove_local_save(struct wms_runtime *rt)
+{
+	struct wms_value *index;
+	int index_i;
+
+	assert(rt != NULL);
+
+	/* Get the argument pointer. */
+	if (!wms_get_var_value(rt, "index", &index))
+		return false;
+
+	/* Get the argument value. */
+	if (!wms_get_int_value(rt, index, &index_i))
+		return false;
+
+	/* Delete a save file. */
+	delete_local_save(index_i);
+
+	return true;
+}
+
+/* Remove a global save data. */
+static bool s2_remove_global_save(UNUSED(struct wms_runtime *rt))
+{
+	delete_global_save();
 
 	return true;
 }

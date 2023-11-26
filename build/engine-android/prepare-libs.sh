@@ -45,6 +45,7 @@ cp ../../src/cmd_gosub.c app/src/main/cpp/cmd_gosub.c
 cp ../../src/cmd_goto.c app/src/main/cpp/cmd_goto.c
 cp ../../src/cmd_gui.c app/src/main/cpp/cmd_gui.c
 cp ../../src/cmd_if.c app/src/main/cpp/cmd_if.c
+cp ../../src/cmd_layer.c app/src/main/cpp/cmd_layer.c
 cp ../../src/cmd_load.c app/src/main/cpp/cmd_load.c
 cp ../../src/cmd_message.c app/src/main/cpp/cmd_message.c
 cp ../../src/cmd_pencil.c app/src/main/cpp/cmd_pencil.c

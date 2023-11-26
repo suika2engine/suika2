@@ -92,6 +92,7 @@
     <ClCompile Include="..\..\..\src\cmd_goto.c" />
     <ClCompile Include="..\..\..\src\cmd_gui.c" />
     <ClCompile Include="..\..\..\src\cmd_if.c" />
+    <ClCompile Include="..\..\..\src\cmd_layer.c" />
     <ClCompile Include="..\..\..\src\cmd_load.c" />
     <ClCompile Include="..\..\..\src\cmd_message.c" />
     <ClCompile Include="..\..\..\src\cmd_pencil.c" />

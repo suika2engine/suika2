@@ -280,6 +280,9 @@ static bool is_drawing_to_bg;
 /* 最初のフレームであるか */
 static bool is_first_frame;
 
+/* セーブを行ったか */
+static bool did_save;
+
 /*
  * 前方参照
  */
@@ -423,6 +426,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	fade_in_time = 0;
 	fade_out_time = 0;
 	is_overlay = false;
+	did_save = false;
 
 	/* GUIファイルを開く */
 	if (!load_gui_file(gui_file)) {
@@ -2021,6 +2025,13 @@ static void process_save(int button_index)
 	/* SEを再生する */
 	play_sys_se(button[button_index].clickse);
 
+	/* "@gui save.txt"の場合は、次のコマンドに進めておく */
+	if (!is_sys_gui && !did_save) {
+		if (!move_to_next_command())
+			return;
+		did_save = true;
+	}
+
 	/* セーブを実行する */
 	execute_save(data_index);
 
@@ -2868,6 +2879,17 @@ bool is_gui_result_exit(void)
 		return false;
 
 	return true;
+}
+
+/*
+ * GUIでセーブされたか
+ */
+bool is_gui_saved(void)
+{
+	if (did_save)
+		return true;
+
+	return false;
 }
 
 /*

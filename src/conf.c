@@ -159,6 +159,13 @@ int conf_msgbox_dim_color_b;
 int conf_msgbox_dim_color_outline_r;
 int conf_msgbox_dim_color_outline_g;
 int conf_msgbox_dim_color_outline_b;
+int conf_msgbox_seen_color;
+int conf_msgbox_seen_color_r;
+int conf_msgbox_seen_color_g;
+int conf_msgbox_seen_color_b;
+int conf_msgbox_seen_outline_color_r;
+int conf_msgbox_seen_outline_color_g;
+int conf_msgbox_seen_outline_color_b;
 int conf_msgbox_tategaki;
 int conf_msgbox_nowait;
 
@@ -327,6 +334,8 @@ int conf_gui_history_font_color_b;
 int conf_gui_history_font_outline_color_r;
 int conf_gui_history_font_outline_color_g;
 int conf_gui_history_font_outline_color_b;
+char *conf_gui_history_quote_start;
+char *conf_gui_history_quote_end;
 int conf_gui_preview_tategaki;
 
 /*
@@ -356,6 +365,14 @@ int conf_serif_outline_color_b[SERIF_COLOR_COUNT];
 int conf_character_focus;
 char *conf_character_name[CHARACTER_MAP_COUNT];
 char *conf_character_file[CHARACTER_MAP_COUNT];
+
+/*
+ * ステージのマージン(キャラクタレイヤの位置補正)
+ */
+
+int conf_stage_ch_margin_bottom;
+int conf_stage_ch_margin_left;
+int conf_stage_ch_margin_right;
 
 /*
  * キラキラエフェクトの設定
@@ -570,6 +587,13 @@ static struct rule {
 	{"msgbox.dim.color.outline.r", 'i', &conf_msgbox_dim_color_outline_r, OPTIONAL, SAVE},
 	{"msgbox.dim.color.outline.g", 'i', &conf_msgbox_dim_color_outline_g, OPTIONAL, SAVE},
 	{"msgbox.dim.color.outline.b", 'i', &conf_msgbox_dim_color_outline_b, OPTIONAL, SAVE},
+	{"msgbox.seen.color", 'i', &conf_msgbox_seen_color, OPTIONAL, SAVE},
+	{"msgbox.seen.color.r", 'i', &conf_msgbox_seen_color_r, OPTIONAL, SAVE},
+	{"msgbox.seen.color.g", 'i', &conf_msgbox_seen_color_g, OPTIONAL, SAVE},
+	{"msgbox.seen.color.b", 'i', &conf_msgbox_seen_color_b, OPTIONAL, SAVE},
+	{"msgbox.seen.outline.color.r", 'i', &conf_msgbox_seen_outline_color_r, OPTIONAL, SAVE},
+	{"msgbox.seen.outline.color.g", 'i', &conf_msgbox_seen_outline_color_g, OPTIONAL, SAVE},
+	{"msgbox.seen.outline.color.b", 'i', &conf_msgbox_seen_outline_color_b, OPTIONAL, SAVE},
 	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, OPTIONAL, SAVE},
 	{"msgbox.nowait", 'i', &conf_msgbox_nowait, OPTIONAL, SAVE},
 	{"click.x", 'i', &conf_click_x, MUST, SAVE},
@@ -740,6 +764,8 @@ static struct rule {
 	{"gui.history.font.outline.color.r", 'i', &conf_gui_history_font_outline_color_r, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.g", 'i', &conf_gui_history_font_outline_color_g, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.b", 'i', &conf_gui_history_font_outline_color_b, OPTIONAL, SAVE},
+	{"gui.history.quote.start", 's', &conf_gui_history_quote_start, OPTIONAL, SAVE},
+	{"gui.history.quote.end", 's', &conf_gui_history_quote_end, OPTIONAL, SAVE},
 	{"gui.preview.tategaki", 'i', &conf_gui_preview_tategaki, OPTIONAL, SAVE},
 	/* 下記は初期音量なのでセーブしない */
 	{"sound.vol.bgm", 'f', &conf_sound_vol_bgm, MUST, NOSAVE},
@@ -1277,6 +1303,9 @@ static struct rule {
 	{"character.file31", 's', &conf_character_file[30], OPTIONAL, NOSAVE},
 	{"character.name32", 's', &conf_character_name[31], OPTIONAL, NOSAVE},
 	{"character.file32", 's', &conf_character_file[31], OPTIONAL, NOSAVE},
+	{"stage.ch.margin.bottom", 'i', &conf_stage_ch_margin_bottom, OPTIONAL, SAVE},
+	{"stage.ch.margin.left", 'i', &conf_stage_ch_margin_left, OPTIONAL, SAVE},
+	{"stage.ch.margin.right", 'i', &conf_stage_ch_margin_right, OPTIONAL, SAVE},
 	{"kirakira.on", 'i', &conf_kirakira_on, OPTIONAL, SAVE},
 	{"kirakira.frame", 'f', &conf_kirakira_frame, OPTIONAL, SAVE},
 	{"kirakira.file1", 's', &conf_kirakira_file[0], OPTIONAL, SAVE},

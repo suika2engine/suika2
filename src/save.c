@@ -32,12 +32,6 @@
 /* False assertion */
 #define CONFIG_TYPE_ERROR	(0)
 
-/* クイックセーブのファイル名 */
-#define QUICK_SAVE_FILE_NAME	"q000.sav"
-
-/* セーブデータ数 */
-#define SAVE_SLOTS		(100)
-
 /* クイックセーブデータのインデックス */
 #define QUICK_SAVE_INDEX	(SAVE_SLOTS)
 
@@ -306,7 +300,7 @@ bool quick_save(void)
 	*/
 
 	/* ローカルデータのシリアライズを行う */
-	if (!serialize_all(QUICK_SAVE_FILE_NAME, &timestamp, -1))
+	if (!serialize_all(QUICK_SAVE_FILE, &timestamp, -1))
 		return false;
 
 	/* 既読フラグのセーブを行う */
@@ -353,9 +347,11 @@ bool execute_save(int index)
 	save_time[index] = (time_t)timestamp;
 
 #ifdef EM
+	void resume_sound(void);
 	EM_ASM_(
 		FS.syncfs(function (err) { alert('Saved to the browser!'); });
 	);
+	resume_sound();
 #endif
 	return true;
 }
@@ -807,7 +803,7 @@ bool quick_load(void)
 	save_global_data();
 
 	/* ローカルデータのデシリアライズを行う */
-	if (!deserialize_all(QUICK_SAVE_FILE_NAME))
+	if (!deserialize_all(QUICK_SAVE_FILE))
 		return false;
 
 	/* ステージを初期化する */
@@ -1226,7 +1222,7 @@ static void load_basic_save_data(void)
 	}
 
 	/* セーブデータファイルを開く */
-	rf = open_rfile(SAVE_DIR, QUICK_SAVE_FILE_NAME, true);
+	rf = open_rfile(SAVE_DIR, QUICK_SAVE_FILE, true);
 	if (rf != NULL) {
 		/* セーブ時刻を取得する */
 		if (read_rfile(rf, &t, sizeof(t)) == sizeof(t))
@@ -1316,7 +1312,7 @@ static void load_global_data(void)
 	int i;
 
 	/* ファイルを開く */
-	rf = open_rfile(SAVE_DIR, GLOBAL_VARS_FILE, true);
+	rf = open_rfile(SAVE_DIR, GLOBAL_SAVE_FILE, true);
 	if (rf == NULL)
 		return;
 
@@ -1386,7 +1382,7 @@ void save_global_data(void)
 	make_sav_dir();
 
 	/* ファイルを開く */
-	wf = open_wfile(SAVE_DIR, GLOBAL_VARS_FILE);
+	wf = open_wfile(SAVE_DIR, GLOBAL_SAVE_FILE);
 	if (wf == NULL)
 		return;
 
@@ -1426,18 +1422,17 @@ void save_global_data(void)
 }
 
 /*
- * セーブデータの削除を処理する
+ * ローカルセーブデータの削除を行う
  */
-void delete_save_data(int index)
+void delete_local_save(int index)
 {
 	char s[128];
 
+	if (index == -1)
+		index = QUICK_SAVE_INDEX;
+
 	/* セーブデータがない場合、何もしない */
 	if (save_time[index] == 0)
-		return;
-
-	/* プロンプトを表示する */
-	if (!delete_dialog())
 		return;
 
 	/* ファイル名を求める */
@@ -1460,6 +1455,15 @@ void delete_save_data(int index)
 		destroy_image(save_thumb[index]);
 		save_thumb[index] = NULL;
 	}
+}
+
+/*
+ * グローバルセーブデータの削除を処理する
+ */
+void delete_global_save(void)
+{
+	/* セーブファイルを削除する */
+	remove_file(SAVE_DIR, GLOBAL_SAVE_FILE);
 }
 
 /*

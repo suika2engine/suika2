@@ -265,6 +265,17 @@ msgbox.skip.cancel.se=click.ogg
 #  - 1: スキップする
 msgbox.skip.unseen=0
 
+# [既読メッセージの色を変更する] (省略可)
+#  - color=0: 無効(通常)
+#  - color=1: 有効(色を変更する)
+msgbox.seen.color=0
+msgbox.seen.color.r=80
+msgbox.seen.color.g=80
+msgbox.seen.color.b=80
+msgbox.seen.outline.color.r=40
+msgbox.seen.outline.color.g=40
+msgbox.seen.outline.color.b=40
+
 # [全画面小説モードで読んだメッセージを暗くする] (省略可)
 #  - dim=0: 無効(通常)
 #  - dim=1: 有効(暗くする)
@@ -651,6 +662,10 @@ gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
 
+# ヒストリーのカギカッコ
+gui.history.quote.start=「
+gui.history.quote.end=」
+
 # [プレビューの縦書き] (省略可)
 #  - 0: 横書き
 #  - 1: 縦書き
@@ -725,6 +740,15 @@ character.name3=りな
 character.file3=002-
 
 # 以降、character.name32まで続くが、省略可能
+
+###
+### ステージの設定
+###
+
+# キャラクタの位置補正
+stage.ch.margin.bottom=0
+stage.ch.margin.left=0
+stage.ch.margin.right=0
 
 ###
 ### タップ時のキラキラエフェクト

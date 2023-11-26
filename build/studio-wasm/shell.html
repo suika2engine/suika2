@@ -1196,7 +1196,7 @@
 		// 引数を正規化し、引数名の引数名のないフォーマットに変換する
 		//  - token: 正規化するトークン
 		//  - names: 受容する引数名の配列
-		//  - default: 引数名が指定されたが値が空白だった場合にフォールバックする値
+		//  - def: 引数名が指定されたが値が空白だった場合にフォールバックする値
 		//
 		function normalizeParameter(token, names, def) {
 				for(const name of names) {
@@ -1208,11 +1208,9 @@
 								} else {
 										return ret;
 								}
-						} else {
-								return token;
 						}
 				}
-				return name;
+				return token;
 		}
 
 		function normalizeBgEffect(effect) {

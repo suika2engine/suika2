@@ -252,7 +252,7 @@ struct insn_item {
 	{U8("@場面転換"), COMMAND_CHS, 4, 7},
 
 	/* ステージの一括変更(オフセット付き) */
-	{"@chsx", COMMAND_CHSX, 0, 21},
+	{"@chsx", COMMAND_CHSX, 0, 29},
 	{U8("@場面転換X"), COMMAND_CHSX, 0, 21},
 
 	/* ビデオ再生 */
@@ -286,6 +286,8 @@ struct insn_item {
 	/* アニメ */
 	{"@anime", COMMAND_ANIME, 1, 2},
 	{U8("@アニメ"), COMMAND_ANIME, 1, 2},
+	{"@layer", COMMAND_LAYER, 2, 5},
+	{U8("@レイヤ"), COMMAND_LAYER, 2, 5},
 
 	/* マクロ */
 	{"@gosub", COMMAND_GOSUB, 1, 1},
@@ -497,9 +499,18 @@ struct param_item {
 	{COMMAND_WMS, WMS_PARAM_FILE, "file="},
 	{COMMAND_WMS, WMS_PARAM_FILE, U8("ファイル=")},
 
-	/* @wms */
+	/* @anime */
 	{COMMAND_ANIME, ANIME_PARAM_FILE, "file="},
 	{COMMAND_ANIME, ANIME_PARAM_FILE, U8("ファイル=")},
+
+	/* @layer */
+	{COMMAND_LAYER, LAYER_PARAM_NAME, "name="},
+	{COMMAND_LAYER, LAYER_PARAM_NAME, U8("名前=")},
+	{COMMAND_LAYER, LAYER_PARAM_FILE, "file="},
+	{COMMAND_LAYER, LAYER_PARAM_FILE, U8("ファイル=")},
+	{COMMAND_LAYER, LAYER_PARAM_X, "x="},
+	{COMMAND_LAYER, LAYER_PARAM_Y, "y="},
+	{COMMAND_LAYER, LAYER_PARAM_A, "a="},
 
 	/* @setconfig */
 	{COMMAND_SETCONFIG, SETCONFIG_PARAM_KEY, "key="},
@@ -528,6 +539,14 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_RY, "右Y="},
 	{COMMAND_CHSX, CHSX_PARAM_RA, "right-a="},
 	{COMMAND_CHSX, CHSX_PARAM_RA, "右A="},
+	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, "right-center="},
+	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, U8("右中=")},
+	{COMMAND_CHSX, CHSX_PARAM_RCX, "right-center-x="},
+	{COMMAND_CHSX, CHSX_PARAM_RCX, U8("右中X=")},
+	{COMMAND_CHSX, CHSX_PARAM_RCY, "right-center-y="},
+	{COMMAND_CHSX, CHSX_PARAM_RCY, "右中Y="},
+	{COMMAND_CHSX, CHSX_PARAM_RCA, "right-center-a="},
+	{COMMAND_CHSX, CHSX_PARAM_RCA, "右中A="},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT, "left="},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT, U8("左=")},
 	{COMMAND_CHSX, CHSX_PARAM_LX, "left-x="},
@@ -536,6 +555,14 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_LY, U8("左Y=")},
 	{COMMAND_CHSX, CHSX_PARAM_LA, "left-a="},
 	{COMMAND_CHSX, CHSX_PARAM_LA, U8("左A=")},
+	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, "left-center="},
+	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, U8("左中=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCX, "left-center-x="},
+	{COMMAND_CHSX, CHSX_PARAM_LCX, U8("左中X=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCY, "left-center-y="},
+	{COMMAND_CHSX, CHSX_PARAM_LCY, U8("左中Y=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCA, "left-center-a="},
+	{COMMAND_CHSX, CHSX_PARAM_LCA, U8("左中A=")},
 	{COMMAND_CHSX, CHSX_PARAM_BACK, "back="},
 	{COMMAND_CHSX, CHSX_PARAM_BACK, U8("背面=")},
 	{COMMAND_CHSX, CHSX_PARAM_BX, "back-x="},
