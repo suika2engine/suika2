@@ -76,6 +76,8 @@ static bool init(void)
 		fname[CH_LEFT] = get_string_param(CHS_PARAM_LEFT);
 		fname[CH_BACK] = get_string_param(CHS_PARAM_BACK);
 		fname[BG_INDEX] = get_string_param(CHS_PARAM_BG);
+		fname[CH_LEFT_CENTER] = "";
+		fname[CH_RIGHT_CENTER] = "";
 		ofs_x[CH_CENTER] = 0;
 		ofs_y[CH_CENTER] = 0;
 		ofs_x[CH_RIGHT] = 0;
@@ -86,16 +88,24 @@ static bool init(void)
 		ofs_y[CH_BACK] = 0;
 		ofs_x[BG_INDEX] = 0;
 		ofs_y[BG_INDEX] = 0;
+		ofs_x[CH_RIGHT_CENTER] = 0;
+		ofs_y[CH_RIGHT_CENTER] = 0;
+		ofs_x[CH_LEFT_CENTER] = 0;
+		ofs_y[CH_LEFT_CENTER] = 0;
 		alpha[CH_CENTER] = 255;
 		alpha[CH_RIGHT] = 255;
 		alpha[CH_LEFT] = 255;
+		alpha[CH_RIGHT_CENTER] = 255;
+		alpha[CH_LEFT_CENTER] = 255;
 		alpha[CH_BACK] = 255;
 		span = get_float_param(CHS_PARAM_SPAN);
 		method = get_string_param(CHS_PARAM_METHOD);
 	} else {
 		fname[CH_CENTER] = get_string_param(CHSX_PARAM_CENTER);
 		fname[CH_RIGHT] = get_string_param(CHSX_PARAM_RIGHT);
+		fname[CH_RIGHT_CENTER] = get_string_param(CHSX_PARAM_RIGHT_CENTER);
 		fname[CH_LEFT] = get_string_param(CHSX_PARAM_LEFT);
+		fname[CH_LEFT_CENTER] = get_string_param(CHSX_PARAM_LEFT_CENTER);
 		fname[CH_BACK] = get_string_param(CHSX_PARAM_BACK);
 		fname[BG_INDEX] = get_string_param(CHSX_PARAM_BG);
 		ofs_x[CH_CENTER] = get_int_param(CHSX_PARAM_CX);
@@ -104,6 +114,10 @@ static bool init(void)
 		ofs_y[CH_RIGHT] = get_int_param(CHSX_PARAM_RY);
 		ofs_x[CH_LEFT] = get_int_param(CHSX_PARAM_LX);
 		ofs_y[CH_LEFT] = get_int_param(CHSX_PARAM_LY);
+		ofs_x[CH_RIGHT_CENTER] = get_int_param(CHSX_PARAM_RCX);
+		ofs_y[CH_RIGHT_CENTER] = get_int_param(CHSX_PARAM_RCY);
+		ofs_x[CH_LEFT_CENTER] = get_int_param(CHSX_PARAM_LCX);
+		ofs_y[CH_LEFT_CENTER] = get_int_param(CHSX_PARAM_LCY);
 		ofs_x[CH_BACK] = get_int_param(CHSX_PARAM_BX);
 		ofs_y[CH_BACK] = get_int_param(CHSX_PARAM_BY);
 		ofs_x[BG_INDEX] = get_int_param(CHSX_PARAM_BGX);
@@ -112,6 +126,8 @@ static bool init(void)
 		alpha[CH_RIGHT] = get_alpha(get_string_param(CHSX_PARAM_RA));
 		alpha[CH_LEFT] = get_alpha(get_string_param(CHSX_PARAM_LA));
 		alpha[CH_BACK] = get_alpha(get_string_param(CHSX_PARAM_BA));
+		alpha[CH_RIGHT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_RCA));
+		alpha[CH_LEFT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_LCA));
 		span = get_float_param(CHSX_PARAM_SPAN);
 		method = get_string_param(CHSX_PARAM_METHOD);
 	}
@@ -287,12 +303,21 @@ static void get_position(int *xpos, int *ypos, int chpos, struct image *img)
 		break;
 	case CH_LEFT:
 		/* 左に配置する */
-		*xpos = 0;
+		*xpos = conf_stage_ch_margin_left;
+		break;
+	case CH_LEFT_CENTER:
+		/* 左中に配置する */
+		*xpos = (conf_window_width - get_image_width(img)) / 4;
 		break;
 	case CH_RIGHT:
 		/* 右に配置する */
 		if (img != NULL)
-			*xpos = conf_window_width - get_image_width(img);
+			*xpos = conf_window_width - get_image_width(img) - conf_stage_ch_margin_right;
+		break;
+	case CH_RIGHT_CENTER:
+		/* 右に配置する */
+		if (img != NULL)
+			*xpos = conf_window_width - (get_image_width(img) / 2 * 3);
 		break;
 	}
 

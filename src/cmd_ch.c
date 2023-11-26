@@ -178,12 +178,28 @@ static bool get_position(const char *pos,	/* IN: character position name */
 			*xpos = conf_stage_ch_margin_left + ofs_x;
 		else
 			*xpos = 0;
+	} else if (strcmp(pos, "left-center") == 0 || strcmp(pos, "lc") == 0 ||
+		   strcmp(pos, U8("左中")) == 0) {
+		/* 左中に配置する */
+		*chpos = CH_LEFT_CENTER;
+		if (img != NULL)
+			*xpos = (conf_window_width - get_image_width(img)) / 4 + ofs_x;
+		else
+			*xpos = 0;
 	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
 		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
 		if (img != NULL)
 			*xpos = conf_window_width - get_image_width(img) - conf_stage_ch_margin_right + ofs_x;
+		else
+			*xpos = 0;
+	} else if (strcmp(pos, "right-center") == 0 || strcmp(pos, "rc") == 0 ||
+		   strcmp(pos, U8("右中")) == 0) {
+		/* 右中に配置する */
+		*chpos = CH_RIGHT_CENTER;
+		if (img != NULL)
+			*xpos = conf_window_width - (get_image_width(img) / 2 * 3) + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||

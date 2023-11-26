@@ -45,7 +45,9 @@ enum {
 	/* キャラクタレイヤ(顔以外) */
 	LAYER_CHB,
 	LAYER_CHL,
+	LAYER_CHLC,
 	LAYER_CHR,
+	LAYER_CHRC,
 	LAYER_CHC,
 
 	/* エフェクトレイヤ */
@@ -124,13 +126,15 @@ enum {
  * キャラクタの位置
  */
 enum ch_position {
-	CH_BACK = 0,
-	CH_LEFT = 1,
-	CH_RIGHT = 2,
-	CH_CENTER = 3,
-	CH_BASIC_LAYERS = 4,
-	CH_FACE = 4,
-	CH_ALL_LAYERS = 5,
+	CH_BACK,
+	CH_LEFT,
+	CH_LEFT_CENTER,
+	CH_RIGHT,
+	CH_RIGHT_CENTER,
+	CH_CENTER,
+	CH_BASIC_LAYERS = 6,
+	CH_FACE = 6,
+	CH_ALL_LAYERS = 6,
 };
 
 /*

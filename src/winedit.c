@@ -2918,9 +2918,9 @@ static VOID OnInsertBgOnly(void)
 		return;
 
 	if (bEnglish)
-		RichEdit_InsertText(L"@chsx bg=%ls duration=1.0 left=stay center=stay right=stay back=stay", pFile);
+		RichEdit_InsertText(L"@chsx bg=%ls duration=1.0", pFile);
 	else
-		RichEdit_InsertText(L"@場面転換X 背景=%ls 秒=1.0 左=stay 中央=stay 右=stay 背面=stay", pFile);
+		RichEdit_InsertText(L"@場面転換X 背景=%ls 秒=1.0", pFile);
 }
 
 static VOID OnInsertCh(void)
