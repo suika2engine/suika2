@@ -132,9 +132,9 @@ enum ch_position {
 	CH_RIGHT,
 	CH_RIGHT_CENTER,
 	CH_CENTER,
+	CH_FACE,
 	CH_BASIC_LAYERS = 6,
-	CH_FACE = 6,
-	CH_ALL_LAYERS = 6,
+	CH_ALL_LAYERS = 7,
 };
 
 /*
