@@ -317,7 +317,7 @@ static void get_position(int *xpos, int *ypos, int chpos, struct image *img)
 	case CH_RIGHT_CENTER:
 		/* 右に配置する */
 		if (img != NULL)
-			*xpos = conf_window_width - (get_image_width(img) / 2 * 3);
+			*xpos = (conf_window_width - get_image_width(img)) - get_image_width(img) / 2;
 		break;
 	}
 

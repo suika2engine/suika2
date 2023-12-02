@@ -198,7 +198,7 @@ static bool get_position(const char *pos,	/* IN: character position name */
 		/* 右中に配置する */
 		*chpos = CH_RIGHT_CENTER;
 		if (img != NULL)
-			*xpos = conf_window_width - (get_image_width(img) / 2 * 3) + ofs_x;
+			*xpos = (conf_window_width - get_image_width(img)) - get_image_width(img) / 2 + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
