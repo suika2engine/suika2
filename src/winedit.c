@@ -17,7 +17,7 @@
 /* Suika2 Base */
 #include "suika.h"
 
-/* Suika2 Pro */
+/* Suika2 Pro/Studio */
 #include "windebug.h"
 #include "package.h"
 
@@ -1539,7 +1539,7 @@ VOID OnExportWinMac(void)
 	}
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\mac.dmg", L".\\windows-mac-export\\mac.dmg"))
+	if (!CopySourceFiles(L".\\tools\\mac.dmg", L".\\windows-mac-export\\mac.dmg"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :

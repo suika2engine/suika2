@@ -4,7 +4,15 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QColor>
+
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+#if TARGET_OS_IPHONE || defined(__ANDROID__)
+#include <QOpenGLFunctions_ES2>
+#else
 #include <QOpenGLFunctions_1_0>
+#endif
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class OpenGLWidget; }

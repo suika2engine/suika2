@@ -66,10 +66,10 @@
 #endif
 
 /*
- * Linux (excluding Qt adn SDL2)
+ * Linux (excluding SDL2)
  *  - We use OpenGL 3.2
  */
-#if defined(LINUX) && !defined(USE_QT) && !defined(USE_SDL2_OPENGL)
+#if defined(LINUX) && !defined(USE_SDL2_OPENGL)
 #include <GL/gl.h>
 #include "glhelper.h"
 #endif
@@ -79,7 +79,6 @@
  *  - We use a wrapper for QOpenGLFunctions class
  */
 #if defined(USE_QT)
-#include <GL/gl.h>
 #include "glhelper.h"
 #endif
 
@@ -191,7 +190,7 @@ static GLuint ibo_melt;
 
 /* The source string. */
 static const char *vertex_shader_src =
-#if !defined(EM)
+#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                 \n"
 #endif
 	"attribute vec4 a_position;   \n" /* FIXME: vec3? */
@@ -226,13 +225,12 @@ struct pseudo_vertex_info {
 
 /* The normal alpha blending shader. */
 static const char *fragment_shader_src_normal =
-#if !defined(EM)
+#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT)
-	"#undef mediump                                      \n"
-#endif
+#if !defined(USE_QT)
 	"precision mediump float;                            \n"
+#endif
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
@@ -245,13 +243,12 @@ static const char *fragment_shader_src_normal =
 
 /* The character dimming shader. (RGB 50%) */
 static const char *fragment_shader_src_dim =
-#if !defined(EM)
+#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT)
-	"#undef mediump                                      \n"
+#if !defined(USE_QT)
+    "precision mediump float;                            \n"
 #endif
-	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
 	"uniform sampler2D s_texture;                        \n"
 	"void main()                                         \n"
@@ -265,13 +262,12 @@ static const char *fragment_shader_src_dim =
 
 /* The rule shader. (1-bit universal transition) */
 static const char *fragment_shader_src_rule =
-#if !defined(EM)
+#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT)
-	"#undef mediump                                      \n"
+#if !defined(USE_QT)
+    "precision mediump float;                            \n"
 #endif
-	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
@@ -286,13 +282,12 @@ static const char *fragment_shader_src_rule =
 
 /* The melt shader. (8-bit universal transition) */
 static const char *fragment_shader_src_melt =
-#if !defined(EM)
+#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT)
-	"#undef mediump                                      \n"
+#if !defined(USE_QT)
+    "precision mediump float;                            \n"
 #endif
-	"precision mediump float;                            \n"
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
