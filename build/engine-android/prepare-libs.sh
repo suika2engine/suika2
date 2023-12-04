@@ -119,7 +119,7 @@ cp ../../src/wms_parser.tab.h app/src/main/cpp/wms_parser.tab.h
 # Copy the game assets for our testing builds.
 # You can comment this out when your game is ready.
 mkdir -p app/src/main/assets
-cp -R ../../game/* app/src/main/assets/
+cp -R ../../games/demo/* app/src/main/assets/
 
 # Please modify and use this line for your game.
 #mkdir app/src/main/assets
