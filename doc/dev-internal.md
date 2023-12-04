@@ -2,53 +2,33 @@ Automatic Release
 =================
 This is the official way of releases.
 
-The author uses a Windows/WSL2 host and a macOS host because:
-* He preferred Windows to sign exe files
-* He uses `Certum Open Source Code Signing in the Cloud` product
-* He thinks the product cannot be used in a CI because its private key is not extractable
+The author creates release files on a macOS host because:
+* He can build Windows binaries on a macOS host using mingw-w64
+* He needs at least one macOS host to build macOS binaries
+* He uses `Certum Open Source Code Signing in the Cloud` product on his macOS host
+* He thinks the certificate cannot be used in a CI because its private key is not extractable
 
 ## Preparation
-* On the WSL2 host:
-  * He has a `build/.env` file for his credentials:
-  ```
-  MACOS_HOST=his-mac-host-name.local
-  MACOS_USER=his-mac-user-name
-  MACOS_PASSWORD=his-mac-user-password
-  FTP_LOCAL=~/Sites/suika2.com/dl
-  FTP_USER=his-ftp-account
-  FTP_PASSWORD=his-ftp-password
-  FTP_URL=ftp://suika2.com/dl
-  ```
-* On the macOS host:
-  * He has a public key on WSL2 in Mac's `~/.ssh/authorized_keys`
-  * He has a ssh server turned on
-  * He has a `build/macos/.passwd` file and its content is his login password for keychain access to sign codes
-  * He has a `SIGNATURE` variable in `build/macos/Makefile` to sign dmg files
-
-## IMPORTANT NOTICE
-Remember, **open the lid of a MacBook Pro with Apple Silicon** during builds.
-Otherwise, sign and notarization via ssh will frequently fail.
+* He has a `build/.env` file for his credentials:
+```
+FTP_LOCAL=~/Sites/suika2.com/dl
+FTP_USER=his-ftp-account
+FTP_PASSWORD=his-ftp-password
+FTP_URL=ftp://suika2.com/dl
+```
+* He has a `SIGNATURE` variable in `build/macos/Makefile` to sign dmg files
 
 ## How to release a main ZIP
-* Update the changelog in readme on WSL2 (this tells the release script a new version number):
+* Update the changelog in readme files (this tells the release script a new version number):
   * `doc/readme-jp.html`
   * `doc/readme-en.html`
-* On WSL2, navigate to the repository root and run the following command:
+* On terminal, navigate to the repository root and run the following command:
 ```
 make do-release
 ```
-* A release file and a helper zip will be built automatically
-* They will be uploaded to `suika2.com/dl/`
-* The HTML pages on `suika2.com` will be updated automatically using `release-html.sh` script
-
-## How to release Kirara
-* On WSL2, navigate to the repository root and run the following command:
-```
-make kirara
-```
-* Release file for Windows and macOS will be built automatically
-* They will be uploaded to `suika2.com/dl/`
-* The HTML pages on `suika2.com` will **NOT** be updated automatically
+* A release zip file will be built automatically
+* The zip file will be uploaded to `suika2.com/dl/`
+* The HTML pages on `suika2.com` will be updated automatically
 
 ## How to update template games
 * On WSL2, navigate to the repository root and run the following command:
