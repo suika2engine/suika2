@@ -96,7 +96,7 @@ OBJS = \
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
 %.o: ../engine-windows-x86/res/%.rc
-	$(WINDRES) -DUSE_DEBUGGER $< $@
+	$(WINDRES) -DUSE_EDITOR $< $@
 
 #
 # Target

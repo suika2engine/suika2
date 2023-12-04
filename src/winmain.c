@@ -66,7 +66,7 @@
 #endif
 
 /* A macro to check whether a file exists. */
-#define FILE_EXISTS(fname)	(_access(fname, 0) != 0)
+#define FILE_EXISTS(fname)	(_access(fname, 0) != -1)
 
 /*
  * Constants
@@ -416,7 +416,7 @@ static BOOL InitRenderingEngine(void)
 	RECT rcClient;
 
 	/*
-	 * Step.0: Use OpenGL for capture/replay apps.
+	 * Step.0: Use OpenGL for the capture/replay apps.
 	 */
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
 	if (InitOpenGL())
@@ -442,7 +442,7 @@ static BOOL InitRenderingEngine(void)
 	/*
 	 * Step.1: Try initializing Direct3D if there isn't "no-direct3d.txt" file.
 	 */
-	if (FILE_EXISTS("no-direct3d.txt"))
+	if (!FILE_EXISTS("no-direct3d.txt"))
 	{
 		/* Direct3Dを初期化する */
 		if (D3DInitialize(hWndGame))
@@ -462,7 +462,7 @@ static BOOL InitRenderingEngine(void)
 	/*
 	 * Step.2: Try initializing OpenGL if there isn't "no-opengl.txt" file.
 	 */
-	if (FILE_EXISTS("no-opengl.txt"))
+	if (!FILE_EXISTS("no-opengl.txt"))
 	{
 		/* OpenGLを初期化する */
 		if(InitOpenGL())
@@ -479,18 +479,8 @@ static BOOL InitRenderingEngine(void)
 		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
 	}
 
-	/*
-	 * Step.3: Use GDI instead of accelerations.
-	 */
-
-	/* Disable window resizing on GDI. */
-	dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
-	dwStyle ^= WS_THICKFRAME;
-	SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
-	conf_window_resize = 0;
-
 	/* Put error log. */
-	log_info("Fallback from OpenGL to GDI.");
+	log_info("No Graphics subsystem available.");
 
 	return TRUE;
 }
@@ -2431,7 +2421,7 @@ bool reconstruct_dir(const char *dir)
 		return false;
 	}
 	if (!CreateDirectory(conv_utf8_to_utf16(dir), NULL)) {
-		if (_access(dir, 0) != 0) {
+		if (!FILE_EXISTS(dir)) {
 			log_error("Failed to create record directory.");
 			return false;
 		}

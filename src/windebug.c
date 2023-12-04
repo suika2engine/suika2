@@ -209,13 +209,20 @@ BOOL InitWithParameters(VOID)
 	if (__argc < 2)
 	{
 		/* ゲームディレクトリ内にいる場合 */
-		if (_access("conf\\config.txt", 0) != 0 &&
-			_access("txt\\init.txt", 0) != 0)
+		if (_access("conf\\config.txt", 0) != -1 &&
+			_access("txt\\init.txt", 0) != -1)
 			return TRUE;
 
 		/* 新規プロジェクトの作成を行う */
 		if (!CreateProject())
+		{
+			MessageBox(NULL, bEnglish ?
+					   L"Failed to create a project." :
+					   L"プロジェクトの作成に失敗しました。",
+					   L"Suika2",
+					   MB_OK | MB_ICONERROR);
 			return FALSE;
+		}
 
 		return TRUE;
 	}
@@ -2300,7 +2307,7 @@ static BOOL CreateProject(VOID)
 				   L"Suika2", MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
-	
+
 	/* プロジェクトファイルを作成する */
 	hFile = CreateFileW(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
 	CloseHandle(hFile);
@@ -2324,7 +2331,7 @@ static BOOL CreateProject(VOID)
 			return CopyProject(L"nvl");
 	}
 	if (bEnglish)
-			return CopyProject(L"english");
+		return CopyProject(L"english");
 	return CopyProject(L"japanese");
 }
 
@@ -2360,7 +2367,7 @@ static BOOL CopyProject(const wchar_t *pszName)
 	ret = SHFileOperationW(&fos);
 	if (ret != 0)
 	{
-		log_info("error code = %d", ret);
+		MessageBox(NULL, L"Copy error.", L"Suika2", MB_OK |MB_ICONERROR);
 		return FALSE;
 	}
 
