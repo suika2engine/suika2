@@ -1202,7 +1202,7 @@ static void draw_fo_fi_parent(void)
 {
 	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 	{
-		draw_stage_fo_fi();
+		draw_stage_fo_fi(get_command_type() == COMMAND_ICHOOSE);
 		draw_switch_parent_images();
 	}
 	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
@@ -1279,7 +1279,7 @@ static void draw_fo_fi_child(void)
 {
 	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
 	{
-		draw_stage_fo_fi();
+		draw_stage_fo_fi(false);
 		draw_switch_child_images();
 	}
 	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);

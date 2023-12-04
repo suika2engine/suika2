@@ -265,7 +265,7 @@ void draw_fo_all_and_fi_rect_accelerated(int x, int y, int w, int h);
 void draw_fo_rect_accelerated(int x, int y, int w, int h);
 
 /* ステージの背景(FO)と前景(FI)にステージ全体を描画する */
-void draw_stage_fo_fi(void);
+void draw_stage_fo_fi(bool force_draw_msgbox);
 
 /*
  * システムメニューの描画

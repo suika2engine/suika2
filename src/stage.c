@@ -1469,13 +1469,13 @@ void draw_fo_rect_accelerated(int x, int y, int w, int h)
  * ステージの背景(FO)と前景(FI)にステージ全体を描画する
  *  - cmd_switch.c
  */
-void draw_stage_fo_fi(void)
+void draw_stage_fo_fi(bool force_draw_msgbox)
 {
 	/* FOレイヤを描画する */
 	draw_fo_common_inner();
-	
+
 	/* FIレイヤを描画する */
-	draw_fi_common_inner(conf_msgbox_show_on_choose);
+	draw_fi_common_inner(force_draw_msgbox ? true : conf_msgbox_show_on_choose);
 }
 
 /*
