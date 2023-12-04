@@ -3035,7 +3035,7 @@ static BOOL CopyLibraryFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestD
 	ret = SHFileOperationW(&fos);
 	if (ret != 0)
 	{
-		log_info("error code = %d", ret);
+		log_info("%s: error code = %d", conv_utf16_to_utf8(lpszSrcDir), ret);
 		return FALSE;
 	}
 
@@ -3065,7 +3065,7 @@ static BOOL CopyGameFiles(const wchar_t* lpszSrcDir, const wchar_t* lpszDestDir)
 	ret = SHFileOperationW(&fos);
 	if (ret != 0)
 	{
-		log_info("error code = %d", ret);
+		log_info("%s: error code = %d", conv_utf16_to_utf8(lpszSrcDir), ret);
 		return FALSE;
 	}
 
@@ -3078,6 +3078,7 @@ static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir)
 	wchar_t from[MAX_PATH];
 	wchar_t to[MAX_PATH];
 	SHFILEOPSTRUCTW fos;
+	int ret;
 
 	/* 二重のNUL終端を行う */
 	wcscpy(from, lpszSrcDir);
@@ -3092,7 +3093,12 @@ static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir)
 	fos.pTo = to;
 	fos.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI |
 		FOF_SILENT;
-	SHFileOperationW(&fos);
+	ret = SHFileOperationW(&fos);
+	if (ret != 0)
+	{
+		log_info("%s: error code = %d", conv_utf16_to_utf8(lpszSrcDir), ret);
+		return FALSE;
+	}
 
 	return TRUE;
 }
