@@ -145,7 +145,6 @@ static VOID RichEdit_InsertText(const wchar_t *pLine, ...);
 
 /* Project */
 static BOOL CreateProject(void);
-static BOOL CopyProject(const wchar_t *pszName);
 static BOOL OpenProject(const wchar_t *pszPath);
 
 /* Command Handlers */
@@ -2363,45 +2362,6 @@ static BOOL CreateProject(void)
 	if (bEnglish)
 		return CopyLibraryFiles(L"games\\english\\*", L".\\");
 	return CopyLibraryFiles(L"games\\japanese\\*", L".\\");
-}
-
-/* プロジェクトテンプレートをコピーする */
-static BOOL CopyProject(const wchar_t *pszName)
-{
-	wchar_t from[MAX_PATH];
-	wchar_t to[MAX_PATH];
-	SHFILEOPSTRUCTW fos;
-	wchar_t *pLastSeparator;
-	int ret;
-
-	/* コピー元(実行ファイルのパス)を取得する */
-	GetModuleFileNameW(NULL, from, MAX_PATH);
-	pLastSeparator = wcsrchr(from, L'\\');
-	if (pLastSeparator != NULL)
-		*pLastSeparator = L'\0';
-	wcscat(from, L"\\games\\");
-	wcscat(from, pszName);
-	wcscat(from, L"\\*");
-	from[wcslen(from) + 1] = L'\0';	/* 二重のNUL終端を行う */
-
-	/* コピー先のパスを取得する */
-	GetCurrentDirectory(MAX_PATH, to);
-	to[wcslen(to) + 1] = L'\0'; /* 二重のNUL終端を行う */
-
-	/* コピーする */
-	ZeroMemory(&fos, sizeof(SHFILEOPSTRUCT));
-	fos.wFunc = FO_COPY;
-	fos.pFrom = from;
-	fos.pTo = to;
-	fos.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR;
-	ret = SHFileOperationW(&fos);
-	if (ret != 0)
-	{
-		MessageBox(NULL, L"Copy error.", MSGBOX_TITLE, MB_OK |MB_ICONERROR);
-		return FALSE;
-	}
-
-	return TRUE;
 }
 
 /* プロジェクトを開く */
