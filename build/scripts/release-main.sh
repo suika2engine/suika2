@@ -274,8 +274,8 @@ curl -T "$RELEASETMP/suika2-$VERSION.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL
 echo "Upload completed."
 
 # Update the Web site.
-# echo ""
-# echo "Updating the Web site:"
-# SAVE_DIR=`pwd`
-# cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
-# cd "$SAVE_DIR"
+echo ""
+echo "Updating the Web site:"
+SAVE_DIR=`pwd`
+cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
+cd "$SAVE_DIR"
