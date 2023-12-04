@@ -84,7 +84,7 @@ setup:
 			/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
 		fi; \
 		echo 'Installing mingw-w64...'; \
-		brew install mingw-w64 gsed coreutils wget; \
+		brew install mingw-w64 gsed coreutils gsed wget; \
 		echo "Building the libraries."; \
 		cd build/engine-windows-x86 && ./build-libs.sh && cd ../..; \
 		cp -Ra build/engine-windows-x86/libroot build/pro-windows-x86/; \
@@ -384,20 +384,19 @@ install:
 	@install -v suika-linux $(DESTDIR)/bin
 	@install -v build/linux-x86_64-pro/build/suika-pro $(DESTDIR)/bin
 	@install -v build/linux-x86_64-pro/suika2 $(DESTDIR)/bin
-	@install -v -t $(DESTDIR)/share/suika2/game/anime game/anime/*
-	@install -v -t $(DESTDIR)/share/suika2/game/bg game/bg/*
-	@install -v -t $(DESTDIR)/share/suika2/game/bgm game/bgm/*
-	@install -v -t $(DESTDIR)/share/suika2/game/ch game/ch/*
-	@install -v -t $(DESTDIR)/share/suika2/game/cg game/cg/*
-	@install -v -t $(DESTDIR)/share/suika2/game/conf game/conf/*
-	@install -v -t $(DESTDIR)/share/suika2/game/cv game/cv/*
-	@install -v -t $(DESTDIR)/share/suika2/game/gui game/gui/*.txt
-	@install -v -t $(DESTDIR)/share/suika2/game/gui/english-translation game/gui/english-translation/*.txt
-	@install -v -t $(DESTDIR)/share/suika2/game/txt game/txt/*
-	@install -v -t $(DESTDIR)/share/suika2/game/font game/font/*
-	@install -v -t $(DESTDIR)/share/suika2/game/rule game/rule/*
-	@install -v -t $(DESTDIR)/share/suika2/game/se game/se/*
-	@install -v -t $(DESTDIR)/share/suika2/game/wms game/wms/*
+	@install -v -t $(DESTDIR)/share/suika2/game/anime games/english/anime/*
+	@install -v -t $(DESTDIR)/share/suika2/game/bg games/english/bg/*
+	@install -v -t $(DESTDIR)/share/suika2/game/bgm games/english/bgm/*
+	@install -v -t $(DESTDIR)/share/suika2/game/ch games/english/ch/*
+	@install -v -t $(DESTDIR)/share/suika2/game/cg games/english/cg/*
+	@install -v -t $(DESTDIR)/share/suika2/game/conf games/english/conf/*
+	@install -v -t $(DESTDIR)/share/suika2/game/cv games/english/cv/*
+	@install -v -t $(DESTDIR)/share/suika2/game/gui games/english/gui/*
+	@install -v -t $(DESTDIR)/share/suika2/game/txt games/english/txt/*
+	@install -v -t $(DESTDIR)/share/suika2/game/font games/english/font/*
+	@install -v -t $(DESTDIR)/share/suika2/game/rule games/english/rule/*
+	@install -v -t $(DESTDIR)/share/suika2/game/se games/english/se/*
+	@install -v -t $(DESTDIR)/share/suika2/game/wms games/english/wms/*
 
 ##
 ## Other

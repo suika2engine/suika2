@@ -108,6 +108,17 @@ cp suika.exe $RELEASETMP/
 cd ../
 
 #
+# Build suika-pro.exe
+#
+echo "Building suika-pro.exe"
+cd pro-windows-x86
+rm -f *.o
+if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
+make -j8
+cp suika-pro.exe $RELEASETMP/
+cd ../
+
+#
 # Build suika-64.exe
 #
 echo "Building suika-64.exe"
@@ -127,28 +138,6 @@ rm -f *.o
 if [ ! -e libroot ]; then ./build-libs.sh; fi
 make -j8
 cp suika-arm64.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-studio.exe
-#
-echo "Building suika-studio.exe"
-cd studio-windows-x86
-rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
-make -j8
-cp suika-studio.exe $RELEASETMP/
-cd ../
-
-#
-# Build suika-pro.exe
-#
-echo "Building suika-pro.exe"
-cd pro-windows-x86
-rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
-make -j8
-cp suika-pro.exe $RELEASETMP/
 cd ../
 
 #
@@ -217,19 +206,21 @@ cd ..
 #
 # Sign main exe files.
 #
-echo "Please sign the Windows apps on Windows. (press enter)"
-cp "$RELEASETMP/suika.exe" "$RELEASETMP/suika-64.exe" "$RELEASETMP/suika-arm64.exe" "$RELEASETMP/suika-studio.exe" "$RELEASETMP/suika-pro.exe" "$RELEASETMP/suika-capture.exe" "$RELEASETMP/suika-replay.exe" ~/OneDrive/Sign/
-read str
-cp ~/OneDrive/Sign/suika.exe ~/OneDrive/Sign/suika-64.exe ~/OneDrive/Sign/suika-arm64.exe ~/OneDrive/Sign/suika-studio.exe ~/OneDrive/Sign/suika-pro.exe ~/OneDrive/Sign/suika-capture.exe ~/OneDrive/Sign/suika-replay.exe "$RELEASETMP/"
+echo "Signing the Windows apps."
+sign.sh "$RELEASETMP/suika-pro.exe"
+sign.sh "$RELEASETMP/suika.exe"
+sign.sh "$RELEASETMP/suika-64.exe"
+sign.sh "$RELEASETMP/suika-arm64.exe"
+sign.sh "$RELEASETMP/suika-capture.exe"
+sign.sh "$RELEASETMP/suika-replay.exe"
 
 #
 # Build macOS apps.
 #
 echo "Building macOS apps."
 cd all-macos
-make main pro capture replay
-cp mac.dmg "$RELEASETMP/"
-cp mac-pro.dmg "$RELEASETMP/"
+make main pro
+cp mac.dmg mac-pro.dmg "$RELEASETMP/"
 cd ..
 
 #
@@ -280,8 +271,8 @@ curl -T "$RELEASETMP/suika2-$VERSION.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL
 echo "Upload completed."
 
 # Update the Web site.
-echo ""
-echo "Updating the Web site:"
-SAVE_DIR=`pwd`
-cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
-cd "$SAVE_DIR"
+# echo ""
+# echo "Updating the Web site:"
+# SAVE_DIR=`pwd`
+# cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
+# cd "$SAVE_DIR"

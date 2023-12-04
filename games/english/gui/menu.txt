@@ -1,119 +1,95 @@
 ###
-### メインメニュー画面のGUI定義
+### GUI Definition for Main Menu Screen
 ###
 
-# このファイルの基本設定
+# Basic Settings
 global {
-    # 下記の画像を使用する
+    # Use these images
     idle:   menu-idle.png;
     hover:  menu-hover.png;
     active: menu-hover.png;
-
-    # idle画像に透明度のある画像を使う場合は下記を指定する
-    # overlay: yes;
-
-    # フェードイン時間(秒) [この画面ではフェードアウトを使わない]
-    # fadein: 1.0;
-
-    # フェードアウト時間(秒) [この画面ではフェードアウトを使わない]
-    # fadeout: 1.0;
-
-    # 読み上げ
-    alt: ゲームのメニュー画面が表示されています。左右のキーを押してください。;
 }
 
-# STARTボタン
+# START Button
 START {
-    # 種類:ラベルへジャンプ
+    # Jump-to-label type
     type: goto;
 
-    # ジャンプ先のラベル
+    # Jump to label
     label: START;
 
-    # 座標とサイズ
+    # Position and size
     x: 2;
     y: 495;
     width: 314;
     height: 192;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
+    # Sound effect when clicked
     clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンを押すとゲームを開始します。;
 }
 
-# LOADボタン
+# LOAD Button
 LOAD {
-    # 種類:ラベルへジャンプ
+    # Jump-to-label type
     type: goto;
 
-    # ジャンプ先のラベル
+    # Jump to label
     label: LOAD;
 
-    # 座標とサイズ
+    # Position and size
     x: 316;
     y: 494;
     width: 322;
     height: 203;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
+    # Sound effect when clicked
     clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンを押すとロード画面を表示します。;
 }
 
-# CONFIGボタン
+# CONFIG Button
 CONFIG {
-    # 種類:ラベルへジャンプ
+    # Jump-to-label type
     type: goto;
 
-    # ジャンプ先のラベル
+    # Jump to label
     label: CONFIG;
 
-    # 座標とサイズ
+    # Position and size
     x: 640;
     y: 492;
     width: 317;
     height: 204;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
+    # Sound effect when clicked
     clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンを押すとコンフィグ画面を表示します。;
 }
 
-# QUITボタン
+# QUIT Button
 QUIT {
-    # 種類:ラベルへジャンプ
+    # Jump-to-label type
     type: goto;
 
-    # ジャンプ先のラベル
+    # Jump to label
     label: QUIT;
 
-    # 座標とサイズ
+    # Position and size
     x: 960;
     y: 497;
     width: 317;
     height: 201;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
+    # Sound effect when clicked
     clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンを押すとゲームを終了します。;
 }

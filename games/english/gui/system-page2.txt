@@ -1,137 +1,119 @@
 ###
-### コンフィグ画面(2ページ目)のGUI定義
+### GUI Definition for Config Screen (Page 1)
 ###
 
-# このファイルの基本設定
+# Basic Settings
 global {
-    # 下記の画像を使用する
+    # Use these images
     idle:   config-page2-idle.png;
     hover:  config-page2-hover.png;
     active: config-page2-active.png;
 
-    # フェードイン時間(秒)
+    # fade-in time (seconds)
     fadein: 0.5;
 
-    # フェードアウト時間(秒)
+    # fade-out time (seconds)
     fadeout: 0.5;
 
-    # 右クリックによるキャンセル時のSE
+    # Sound effect when canceled by right click
     cancelse: click.ogg;
-
-    # 読み上げテキスト
-    alt: 設定ページ2を表示しています。左右のキーを押してください。;
 }
 
-# 元の画面に戻るボタン
-BACK {
-    # 種類:タイトルへ戻る
-    type: cancel;
-
-    # 座標とサイズ
-    x: 1156;
-    y: 653;
-    width: 103;
-    height: 21;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンを押すとゲームに戻ります。;
-}
-
-# キャラクタごとのボイスボリュームスライダー
+# Per-Character Voice Volume
 MIDORI {
-    # 種類:キャラクタボリューム
+    # Character volume type
     type: charactervol;
 
-    # キャラクタ番号 (conf/config.txtで設定)
+    # Character index (Specified in conf/config.txt)
     index: 1;
 
-    # スライダーが変更されたときに再生するCVファイル
-    file: 025.ogg;
+    # Character voice file to play when slider moved
+    file: 026.ogg;
 
-    # 位置とサイズ
+    # Position and size
     x: 506;
     y: 506;
     width: 266;
     height: 21;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンは「みどり」のボイス音量を調整するものです。;
 }
 
-# すべて既定値に戻すボタン
+# Reset Button
 DEFAULT {
-    # 種類:既定値
+    # Default type
     type: default;
 
-    # 座標とサイズ
+    # Position and size
     x: 1131;
     y: 61;
     width: 115;
     height: 40;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
+    # Sound effect when clicked
     clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンはすべての設定を既定値に戻すものです。;
 }
 
-# 設定ページ1への移動ボタン
+# Config Page 1 Button
 PAGE1 {
-    # 種類:他のGUIへの移動
+    # Jump-to-other-GUI type
     type: gui;
 
-    # 移動先のGUIファイル
+    # GUI file name
     file: system.txt;
 
-    # 座標とサイズ
+    # Position and size
     x: 1189;
     y: 132;
     width: 35;
     height: 35;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
+    # Sound effect when clicked
     clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンは設定ページ2に移動するものです。;
 }
 
-# タイトルへ戻るボタン
+# Back to Title Button
 TITLE {
-    # 種類:タイトルへ戻る
+    # Back-to-Title type
     type: title;
 
-    # 移動先のスクリプトファイル
+    # Title script file name
     file: init.txt;
 
-    # 座標とサイズ
+    # Position and size
     x: 1007;
     y: 652;
     width: 109;
     height: 25;
 
-    # ポイントされたときの効果音
+    # Sound effect when pointed
     pointse: btn-change.ogg;
 
-    # クリックされたときの効果音
+    # Sound effect when clicked
     clickse: click.ogg;
+}
 
-    # 読み上げテキスト
-    alt: このボタンはゲームのタイトル画面に戻るものです。;
+# Back Button
+BACK {
+    # Cancel type
+    type: cancel;
+
+    # Position and size
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
 }

@@ -1,14 +1,8 @@
 #!/bin/bash
 
 SED='sed'
-
-if [ -z "`sed --version | grep GNU`" ]; then
-    if [ ! -z `which gsed` ]; then
-	SED='gsed';
-    else
-	echo "Please install GNU sed by Homebrew.";
-	exit 1;
-    fi
+if [ ! -z "`which gsed`" ]; then
+    SED='gsed';
 fi
 
 VERSION=$1
