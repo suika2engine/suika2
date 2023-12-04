@@ -1,0 +1,149 @@
+###
+### GUI Definition for Load Screen
+###
+
+# Basic Settings
+global {
+    # Use these images
+    idle:   load-idle.png;
+    hover:  load-hover.png;
+    active: load-active.png;
+
+    # 3 slots per page
+    saveslots: 3;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
+}
+
+# Save Page 1 Button
+PAGE1 {
+    # Save page type
+    type: savepage;
+
+    # Page index 0
+    index: 0;
+
+    # Position and size
+    x: 1137;
+    y: 0;
+    width: 70;
+    height: 63;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Save Page 2 Button
+PAGE2 {
+    # Save page type
+    type: savepage;
+
+    # Page index 1
+    index: 1;
+
+    # Position and size
+    x: 1206;
+    y: 0;
+    width: 70;
+    height: 63;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Save Slot 1
+SAVESLOT1 {
+    # Load type
+    type: load;
+
+    # Slot index 0
+    index: 0;
+
+    # Position and size
+    x: 50;
+    y: 138;
+    width: 1106;
+    height: 140;
+
+    # Image and text margin
+    margin: 10;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Save Slot 2
+SAVESLOT2 {
+    # Load type
+    type: load;
+
+    # Slot index 1
+    index: 1;
+
+    # Position and size
+    x: 50;
+    y: 283;
+    width: 1106;
+    height: 140;
+
+    # Image and text margin
+    margin: 10;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Save Slot 3
+SAVESLOT3 {
+    # Load type
+    type: load;
+
+    # Slot index 2
+    index: 2;
+
+    # Position and size
+    x: 50;
+    y: 429;
+    width: 1106;
+    height: 140;
+
+    # Image and text margin
+    margin: 10;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Back Button
+BACK {
+    # Cancel type
+    type: cancel;
+
+    # Position and size
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}

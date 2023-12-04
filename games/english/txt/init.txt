@@ -1,0 +1,287 @@
+###
+### Logo
+###
+
+# Set the chapter name.
+@chapter title="Logo"
+
+# Disable skip (for logo)
+@skip disable
+
+# Clear the stage by white background.
+@bg file=white.png duration=0
+
+# Show our Suika logo.
+@ch position=center file=suika.png duration=1.0
+
+# Play the Suika voice.
+@se file=suika.ogg
+
+# Wait for 2 seconds.
+@wait duration=2.0
+
+# Remove the Suika logo.
+@ch position=center file=none duration=1.0
+
+# Re-enable skip
+@skip enable
+
+###
+### Menu
+###
+
+# Start the music.
+@vol track=bgm volume=1.0 duration=0.0
+@bgm file=00.ogg
+
+# Show the menu background image.
+@bg file=cg/menu-idle.png 1.0
+
+# This is the menu top. We'll be back here when LOAD or CONFIG is selected.
+:MENU
+
+# Set chapter name.
+@chapter "Menu"
+
+# Call the menu.
+@gui menu.txt nofadein
+
+# When START is selected:
+:START
+@goto SCENE1
+
+# When LOAD is selected:
+:LOAD
+@chapter Load
+@gui file=load.txt cancel
+@goto MENU
+
+# When CONFIG is selected:
+:CONFIG
+@chapter Config
+@gui system.txt cancel
+
+# Note that we'll come here only when system.txt is canceled
+@goto MENU
+
+# When QUIT is selected:
+:QUIT
+@goto END
+
+###
+### Scene 1 (Mixture of Midori's lines and monologues)
+###
+
+:SCENE1
+
+@chapter "Scene 1 – Rooftop Introductions"
+
+@vol bgm 0.0 1.0
+@bg white.png 1.0
+@bgm cicada.ogg
+@vol bgm 1.0 1.0
+@bg roof.png 1.0 rule:rule-star.png
+@ch c 001-fun.png 1.0
+*???*e001.ogg*Isn't the breeze great from up here? It's so cool...
+
+@vol bgm 0.5 1.0
+@ch c none 1.0
+*???*e002.ogg*(I'm on my school's rooftop, having skipped my remedial class.)
+
+@vol bgm 1.0 1.0
+@ch c 001-happy.png 1.0
+*???*e003.ogg*Hm? Oh, you're here. Hey, it's fine, they don't call the roll for remedial classes anymore.
+
+@vol bgm 0.5 1.0
+@ch c none 1.0
+*???*e004.ogg*(Since this is a country town in Hokkaido, and on the coast, I can see the sea peaking up over the horizon. During the cultural festival, the sun turns the whole ocean amber.)
+
+@vol bgm 1.0 1.0
+@ch c 001-fun.png 1.0
+*???*e005.ogg*Now, you're probably wondering why I skipped the remedial class, right?
+
+@vol bgm 0.5 1.0
+*???*e006.ogg*Oh actually, I should probably introduce myself first, shouldn't I?
+*???*e007.ogg*My name's \#{00ff00}Midori\#{ffffff}, nice to meet you!
+*Midori*e008.ogg*I'm a senior student here. If you couldn't already tell, I love watermelon, my parents even own a watermelon farm!
+
+@vol bgm 1.0 1.0
+@ch c 001-angry.png 1.0
+*Midori*e009.ogg*Now for the reason I dragged you up here all of a sudden...
+*Midori*e010.ogg*It's because...
+
+@vol bgm 0.5 1.0
+@ch c none 1.0
+*Midori*e011.ogg*(This is really important... I can't mess this up!)
+
+@vol bgm 1.0 1.0
+@ch c 001-sad.png 1.0
+*Midori*e012.ogg*I want to... to...
+
+@vol bgm 0.0 1.0
+@ch c 001-happy.png 1.0
+*Midori*e013.ogg*I want to tell you about Suika2!
+
+###
+### Scene2 (Rooftop Explanations)
+###
+
+@chapter "Scene 2 – Rooftop Explanations"
+
+@ch c 001-happy.png 1.0
+*Midori*e014.ogg*Ahem, okay, now that that's out in the open...
+
+@bgm 02.ogg
+@vol bgm 1.0 1.0
+
++en+*Midori*e015.ogg*Heya!
++fr+*Midori*e015.ogg*Bonjour!
++de+*Midori*e015.ogg*Guten Tag!
++es+*Midori*e015.ogg*Buenas Tardes!
++it+*Midori*e015.ogg*Buon giorno!
++el+*Midori*e015.ogg*Καλημέρα!
++ru+*Midori*e015.ogg*Добрый день!
++zh+*Midori*e015.ogg*你好！
++tw+*Midori*e015.ogg*你好！
++ja+*Midori*e015.ogg*こんにちは！
+
+*Midori*e016.ogg*Thank you for using Suika2!
+*Midori*e017.ogg*As you may already know, Suika2 is a visual novel authoring tool, commonly known as an "engine".
+*Midori*e018.ogg*It's free, open-source, runs on Windows, Mac, and loads of other systems – awesome, right?
+
+@ch c 001-fun.png 1.0
+*Midori*e019.ogg*The Team asked me to see if you had any questions. Anything you'd like to ask them?
+@ch c none 1.0
+
+###
+### Scene3 (Rooftop Questions)
+###
+
+@chapter "Scene 3 – Rooftop Questions"
+
+:LOOP1
+@choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "Any system requirements?" L1_NEXT Next
+
+:L1_ADVANTAGE
+Suika2 has three main advantages. The most important being portability. We have Windows and Mac applications as well as Web and Linux. All of them work in pretty much the same way.
+This means game developers don't need to worry about the users' O.S.!
+In addition, game developers can use their favorite O.S. to develop a game.
+Secondly, simplicity. Anyone can start writing scripts with nothing more than a text editor. What's even better: scripts are pretty much just plain English!
+Last but not least, freedom. You can use Suika2 in your commercial projects for free!
+
+@set $1 = 1
+@ch c 001-fun.png 1.0
+*Midori*e020.ogg*Great! I'm glad my stories will keep working, even on my new computer! Being able to focus on the story, rather than syntax is nice too!
+*Midori*e021.ogg*Do you have any other questions?
+@ch c none 1.0
+@goto LOOP1
+
+:L1_ENV
+We support most versions of Windows from Windows XP all the way up to Windows 11.
+We also support macOS 10.9 and later. (Of course, we now support the latest Ventura release as well as the M2 Chip.)
+When it comes to Web browsers, we support Chrome, Safari, Firefox, and Edge.
+In addition to all of those, Suika2 runs on iPhone, iPad, Android, and Linux. (Did you know, Suika2 was initially written on Linux!)
+@set $2 = 1
+@ch c 001-fun.png 1.0
+*Midori*e022.ogg*Oh yeah, that's right!
+*Midori*e021.ogg*Do you have any other questions?
+@ch c none 1.0
+@goto LOOP1
+
+:L1_NEXT
+
+###
+### Scene4 (Coastal Questions)
+###
+
+@chapter "Scene 4 – Coastal Questions"
+
+@ch c 001-fun.png 1.0
+*Midori*e023.ogg*How about we step out and take a walk? ...Hm, how about we go to the beach?
+
+@vol bgm 0.0 1.0
+@bg coast.png 1.0 c
+@vol bgm 1.0 0.0
+@bgm coast.ogg
+@ch c 001-happy.png 1.0
+*Midori*e024.ogg*Is there anything else you were wondering?
+@ch c none 1.0
+
+:LOOP2
+@choose L2_OLD "Is there a Suika1?" L2_CUSTOMIZE "Can I customize it?" L2_NEXT Next
+
+:L2_OLD
+Releases before version 2.0.0 were named 'Suika Studio' and the author developed it when he was just a high school student.
+The release of version 2.0.0 saw the visual editor and 'Studio' naming removed.
+@set $3 = 1
+@ch c 001-fun.png 1.0
+*Midori*e025.ogg*Oh, cool! Even I didn't know that!
+*Midori*e021.ogg*Do you have any other questions?
+@ch c none 1.0
+@goto LOOP2
+
+:L2_CUSTOMIZE
+You can customize the engine with relative ease; this includes the font, text box, and save screen.
+If there's anything you want to customize, but can't, please contact the Team.
+@set $4 = 1
+@ch c 001-fun.png 1.0
+*Midori*e026.ogg*Oh, yes!
+*Midori*e021.ogg*Do you have any other questions?
+@ch c none 1.0
+@goto LOOP2
+
+:L2_NEXT
+
+###
+### Scene5
+### (Last scene on the coast/Mixture of Midori's lines and monologues)
+###
+
+@chapter "Scene 5 – Thank You"
+
+@ch c 001-fun.png 1.0
+*Midori*e027.ogg*Thanks for asking so many questions today!
+
+@vol bgm 0.5 1.0
+@ch c none 1.0
+*Midori*e028.ogg*(I just wanted to tell you about Suika2... That's pretty much a confession, right? ...Right?)
+
+@vol bgm 1.0 1.0
+@ch c 001-fun.png 1.0
+*Midori*e029.ogg*If you have any questions, send me an e-mail at \#{ff0000}midori@suika2.com\#{ffffff} anytime!
+
+@vol bgm 0.5 1.0
+*Midori*e031.ogg*I hope you'll send me an e-mail with your questions, feedback, issues, or even just to say hi! – See you next time!
+
+# Shake the message box.
+@anime msgbox-shake.txt sync,showmsgbox
+
+@vol bgm 0.0 1.0
+
+###
+### Scene6 (Added bonus)
+###
+
+@if $1 != 1 END
+@if $2 != 1 END
+@if $3 != 1 END
+@if $4 != 1 END
+
+@chapter Bonus
+
+@ch right 002-normal.png 1.0
+*Rina*I'm \#{00ff00}Rina\#{ffffff}. Whoa, you got through all the questions, thank you!
+@goto END
+
+###
+### Quit Logo
+###
+
+:END
+@chapter Logo
+@skip disable
+@vol bgm 0.0 2.0
+@bg white.png 1.0
+@ch c luxion.png 0.5
+@wait 1.0
+@ch c none 1.0

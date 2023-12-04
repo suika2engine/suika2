@@ -240,32 +240,16 @@ echo "Creating a main release file."
 # Main ZIP
 rm -rf suika2
 mkdir suika2
-mkdir suika2/anime && cp -Rv ../game/anime/* suika2/anime/
-mkdir suika2/bg && cp -Rv ../game/bg/* suika2/bg/
-mkdir suika2/bgm && cp -Rv ../game/bgm/* suika2/bgm/
-mkdir suika2/cg && cp -Rv ../game/cg/* suika2/cg/
-mkdir suika2/ch && cp -Rv ../game/ch/* suika2/ch/
-mkdir suika2/conf && cp -Rv ../game/conf/*.txt suika2/conf/
-mkdir suika2/cv && cp -Rv ../game/cv/* suika2/cv/
-mkdir suika2/font && cp -Rv ../game/font/* suika2/font/
-mkdir suika2/gui && cp -Rv ../game/gui/*.txt suika2/gui/
-mkdir suika2/rule && cp -Rv ../game/rule/* suika2/rule/
-mkdir suika2/mov
-mkdir suika2/se && cp -Rv ../game/se/* suika2/se/
-mkdir suika2/txt && cp -Rv ../game/txt/*.txt suika2/txt/
-mkdir suika2/wms && cp -Rv ../game/wms/*.txt suika2/wms/
-cp -v ../doc/readme-jp.html suika2/README.html
-cp -v ../doc/readme-en.html suika2/README-English.html
-mkdir suika2/.vscode && cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
-cp -v "$RELEASETMP/suika.exe" suika2/
-cp -v "$RELEASETMP/suika-studio.exe" suika2/
+cp ../doc/readme-jp.html suika2/readme-jp.html
+cp ../doc/readme-en.html suika2/readme-en.html
+mkdir suika2/.vscode
+cp -v ../tools/snippets/jp-normal/plaintext.code-snippets suika2/.vscode/
+cp -v "$RELEASETMP/suika-pro.exe" suika2/
+cp -R ../games suika2/
 mkdir suika2/tools
-cp -v "$RELEASETMP/suika-pro.exe" suika2/tools/
+cp -v "$RELEASETMP/suika.exe" suika2/tools/
 cp -v "$RELEASETMP/mac.dmg" suika2/tools/
 cp -v "$RELEASETMP/mac-pro.dmg" suika2/tools/
-cp -v ../doc/readme-tools-jp.txt suika2/tools/README.txt
-cp -v ../doc/readme-tools-en.txt suika2/tools/README-English.txt
-cp -v ../doc/readme-tools-zh.txt suika2/tools/README-Chinese.txt
 cp -v "$RELEASETMP/suika-capture.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-replay.exe" suika2/tools/
 cp -v "$RELEASETMP/suika-64.exe" suika2/tools/
@@ -277,8 +261,6 @@ mkdir suika2/tools/web
 cp -v "$RELEASETMP/index.html" suika2/tools/web/
 cp -v "$RELEASETMP/index.js" suika2/tools/web/
 cp -v "$RELEASETMP/index.wasm" suika2/tools/web/
-cp -v engine-wasm/about-jp.txt suika2/tools/web/about.txt
-cp -v engine-wasm/about-en.txt suika2/tools/web/about-english.txt
 cp -R engine-android/android-src suika2/tools/
 cp -R engine-ios/ios-src suika2/tools/
 cp -R ../tools/installer suika2/tools/

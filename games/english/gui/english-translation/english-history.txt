@@ -1,0 +1,113 @@
+###
+### GUI Definition for Message History Screen
+###
+
+# Basic Settings
+global {
+    # Use these images
+    idle:   history-idle.png;
+    hover:  history-hover.png;
+    active: history-active.png;
+
+    # 3 slots per page
+    historyslots: 3;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
+}
+
+# Scroll Bar
+SCROLL {
+    # Scroll bar type
+    type: historyscroll;
+
+    # Position and size
+    x: 1192;
+    y: 112;
+    width: 67;
+    height: 498;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# History Slot 1
+HISTORYSLOT1 {
+    # History type
+    type: history;
+
+    # History slot 0
+    index: 0;
+
+    # Position and size
+    x: 32;
+    y: 112;
+    width: 1140;
+    height: 153;
+
+    # Text margin
+    margin: 20;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# History Slot 2
+HISTORYSLOT2 {
+    # History type
+    type: history;
+
+    # History slot 1
+    index: 1;
+
+    # Position and size
+    x: 32;
+    y: 284;
+    width: 1140;
+    height: 153;
+
+    # Text margin
+    margin: 20;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# History Slot 3
+HISTORYSLOT3 {
+    # History type
+    type: history;
+
+    # History slot 2
+    index: 2;
+
+    # Position and size
+    x: 32;
+    y: 456;
+    width: 1140;
+    height: 153;
+
+    # Text margin
+    margin: 20;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# Back Button
+BACK {
+    # Cancel type
+    type: cancel;
+
+    # Position and size
+    x: 33;
+    y: 623;
+    width: 170;
+    height: 64;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}

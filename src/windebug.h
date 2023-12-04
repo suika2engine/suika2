@@ -48,8 +48,8 @@
  * windebug.cからエクスポートされる関数
  */
 
-/* コマンドライン引数がある場合にパッケージングを行う */
-VOID DoPackagingIfArgExists(VOID);
+/* コマンドライン引数を元に初期化を行う */
+BOOL InitWithParameters(VOID);
 
 /* スタートアップファイル/ラインを取得する */
 BOOL GetStartupPosition(void);

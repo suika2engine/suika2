@@ -1,0 +1,113 @@
+###
+### GUI Definition for Config Screen (Page 1)
+###
+
+# Basic Settings
+global {
+    # Use these images
+    idle:   config-page2-idle.png;
+    hover:  config-page2-hover.png;
+    active: config-page2-active.png;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
+}
+
+# Per-Character Voice Volume
+MIDORI {
+    # Character volume type
+    type: charactervol;
+
+    # Character index (Specified in conf/config.txt)
+    index: 1;
+
+    # Character voice file to play when slider moved
+    file: 026.ogg;
+
+    # Position and size
+    x: 506;
+    y: 506;
+    width: 266;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# Reset Button
+DEFAULT {
+    # Default type
+    type: default;
+
+    # Position and size
+    x: 1131;
+    y: 61;
+    width: 115;
+    height: 40;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Config Page 1 Button
+PAGE1 {
+    # Jump-to-other-GUI type
+    type: gui;
+
+    # GUI file name
+    file: system.txt;
+
+    # Position and size
+    x: 1189;
+    y: 132;
+    width: 35;
+    height: 35;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Back to Title Button
+TITLE {
+    # Back-to-Title type
+    type: title;
+
+    # Title script file name
+    file: init.txt;
+
+    # Position and size
+    x: 1007;
+    y: 652;
+    width: 109;
+    height: 25;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Back Button
+BACK {
+    # Cancel type
+    type: cancel;
+
+    # Position and size
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}

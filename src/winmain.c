@@ -297,8 +297,9 @@ int WINAPI wWinMain(
 	int result = 1;
 
 #ifdef USE_DEBUGGER
-	DoPackagingIfArgExists();
 	InitCommonControls();
+	if (!InitWithParameters())
+		return 0;
 #endif
 
 	/* Sleep()の分解能を設定する */
@@ -364,12 +365,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	/* ウィンドウを作成する */
 	if (!InitWindow(hInstance, nCmdShow))
 		return FALSE;
-
-#ifdef USE_DEBUGGER
-	/* スタートアップファイル/ラインを取得する */
-	if (!GetStartupPosition())
-		return FALSE;
-#endif
 
 	/* 描画エンジンを初期化する */
 	if (!InitRenderingEngine())

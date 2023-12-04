@@ -1,0 +1,13 @@
+func main() {
+    // コンフィグを変更する
+    s2_set_config("msgbox.bg.file", "new-msgbox-bg.png");
+    s2_set_config("msgbox.fg.file", "new-msgbox-bg.png");
+    s2_set_config("msgbox.x", "0");
+    s2_set_config("msgbox.y", "0");
+    s2_set_config("font.color.r", "255");
+    s2_set_config("font.color.g", "255");
+    s2_set_config("font.color.b", "255");
+
+    // メッセージボックスと名前ボックスの画像をリロードする
+    s2_reflect_msgbox_and_namebox_config();
+}
