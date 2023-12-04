@@ -30,7 +30,8 @@
 /* Standard C (msvcrt.dll) */
 #include <stdlib.h>	/* exit() */
 
-/* MSVC */
+/* msvcrt  */
+#include <io.h> /* _access() */
 #define wcsdup(s)	_wcsdup(s)
 
 /*
@@ -204,18 +205,24 @@ BOOL InitWithParameters(VOID)
 	/* 日本語か英語を決定する */
 	bEnglish = GetUserDefaultLCID() == 1041 ? FALSE : TRUE;
 
+	/* 引数が指定されていない場合 */
 	if (__argc < 2)
 	{
-		/* 引数が指定されていない場合、新規プロジェクトの作成を行う */
+		/* ゲームディレクトリ内にいる場合 */
+		if (_access("conf\\config.txt", 0) != 0 &&
+			_access("txt\\init.txt", 0) != 0)
+			return TRUE;
+
+		/* 新規プロジェクトの作成を行う */
 		if (!CreateProject())
 			return FALSE;
+
+		return TRUE;
 	}
-	else
-	{
-		/* 引数が指定された場合、既存プロジェクトのオープンを行う */
-		if (!OpenProject(__wargv[1]))
-			return FALSE;
-	}
+
+	/* 引数が指定された場合、既存プロジェクトのオープンを行う */
+	if (!OpenProject(__wargv[1]))
+		return FALSE;
 
 	return TRUE;
 }
