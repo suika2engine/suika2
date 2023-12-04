@@ -228,7 +228,10 @@ static const char *fragment_shader_src_normal =
 #if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if !defined(USE_QT)
+#if defined(USE_QT) && defined(LINUX)
+	"#undef mediump                                      \n"
+#endif
+#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
 	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
@@ -246,8 +249,11 @@ static const char *fragment_shader_src_dim =
 #if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if !defined(USE_QT)
-    "precision mediump float;                            \n"
+#if defined(USE_QT) && defined(LINUX)
+	"#undef mediump                                      \n"
+#endif
+#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
+	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
 	"uniform sampler2D s_texture;                        \n"
@@ -265,8 +271,11 @@ static const char *fragment_shader_src_rule =
 #if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if !defined(USE_QT)
-    "precision mediump float;                            \n"
+#if defined(USE_QT) && defined(LINUX)
+	"#undef mediump                                      \n"
+#endif
+#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
+	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
@@ -285,8 +294,11 @@ static const char *fragment_shader_src_melt =
 #if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
 	"#version 100                                        \n"
 #endif
-#if !defined(USE_QT)
-    "precision mediump float;                            \n"
+#if defined(USE_QT) && defined(LINUX)
+	"#undef mediump                                      \n"
+#endif
+#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
+	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
