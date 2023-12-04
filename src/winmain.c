@@ -294,10 +294,19 @@ int WINAPI wWinMain(
 	UNUSED(LPWSTR lpszCmd),
 	int nCmdShow)
 {
+	HRESULT hRes;
 	int result = 1;
 
+	/* COMの初期化を行う */
+	hRes = CoInitialize(0);
+	if (hRes != S_OK)
+		return FALSE;
+
 #ifdef USE_DEBUGGER
+	/* コモンコントロールの使用を開始する */
 	InitCommonControls();
+
+	/* デバッガの初期化を行う */
 	if (!InitWithParameters())
 		return 0;
 #endif
@@ -334,17 +343,11 @@ int WINAPI wWinMain(
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	RECT rcClient;
-	HRESULT hRes;
 
 #ifdef SSE_VERSIONING
 	/* ベクトル命令の対応を確認する */
 	x86_check_cpuid_flags();
 #endif
-
-	/* COMの初期化を行う */
-	hRes = CoInitialize(0);
-	if (hRes != S_OK)
-		return FALSE;
 
 	/* ロケールを初期化する */
 	init_locale_code();

@@ -228,6 +228,9 @@ cd ..
 #
 echo "Creating a main release file."
 
+# Remove .DS_Store
+find games -name '.*' | xargs rm
+
 # Main ZIP
 rm -rf suika2
 mkdir suika2

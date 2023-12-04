@@ -107,14 +107,12 @@ UINT (__stdcall *pGetDpiForWindow)(HWND);
 static VOID InitMenu(HWND hWnd);
 static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
 
-/* TextEdit for Variables */
+/* TextEdit (for Variables) */
 static VOID Variable_UpdateText(void);
 
-/* RichEdit Handlers */
+/* RichEdit */
 static VOID RichEdit_OnChange(void);
 static VOID RichEdit_OnReturn(void);
-
-/* RichEdit helpers */
 static VOID RichEdit_SetFont(void);
 static int RichEdit_GetCursorPosition(void);
 static VOID RichEdit_SetCursorPosition(int nCursor);
@@ -136,19 +134,18 @@ static BOOL RichEdit_IsLineTop(void);
 static BOOL RichEdit_IsLineEnd(void);
 static VOID RichEdit_GetLineStartAndLength(int nLine, int *nLineStart, int *nLineLen);
 static BOOL RichEdit_SearchNextError(int nStart, int nEnd);
-
-/* Script Model */
 static VOID RichEdit_UpdateTextFromScriptModel(void);
 static VOID RichEdit_UpdateScriptModelFromText(void);
 static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void);
 static VOID RichEdit_InsertText(const wchar_t *pLine, ...);
 
 /* Project */
-static BOOL CreateProject(VOID);
+static BOOL CreateProject(void);
 static BOOL CopyProject(const wchar_t *pszName);
 static BOOL OpenProject(const wchar_t *pszPath);
 
 /* Command Handlers */
+static VOID OnOpenGameFolder(void);
 static VOID OnOpenScript(void);
 static const wchar_t *SelectFile(const char *pszDir);
 static VOID OnSave(void);
@@ -165,7 +162,8 @@ static VOID OnExportIOS(void);
 
 /* Export Helpers */
 static VOID RecreateDirectory(const wchar_t *path);
-static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
+static BOOL CopyLibraryFiles(const wchar_t* lpszSrcDir, const wchar_t* lpszDestDir);
+static BOOL CopyGameFiles(const wchar_t* lpszSrcDir, const wchar_t* lpszDestDir);
 static BOOL CopyMovFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir);
 static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir);
 
@@ -576,11 +574,18 @@ static VOID InitMenu(HWND hWnd)
 	/* 2階層目を作成する準備を行う */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 
-	/* スクリプトを開く(Q)を作成する */
+	/* ゲームフォルダを開くを作成する */
 	nOrder = 0;
+	mi.wID = ID_OPEN_GAME_FOLDER;
+	mi.dwTypeData = bEnglish ?
+		L"Open game folder" :
+		L"ゲームフォルダを開く";
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+
+	/* スクリプトを開く(O)を作成する */
 	mi.wID = ID_OPEN;
 	mi.dwTypeData = bEnglish ?
-		L"Open script(&Q)\tCtrl+O" :
+		L"Open script(&O)\tCtrl+O" :
 		L"スクリプトを開く(&O)\tCtrl+O";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
@@ -593,7 +598,9 @@ static VOID InitMenu(HWND hWnd)
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
-	mi.dwTypeData = bEnglish ? L"Quit(&Q)\tCtrl+Q" : L"終了(&Q)\tCtrl+Q";
+	mi.dwTypeData = bEnglish ?
+		L"Quit(&Q)\tCtrl+Q" :
+		L"終了(&Q)\tCtrl+Q";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* 続ける(C)を作成する */
@@ -620,40 +627,33 @@ static VOID InitMenu(HWND hWnd)
 		L"次のエラー箇所へ移動(&E)\tCtrl+E";
 	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
 
-	/* パッケージをエクスポートするを作成する */
+	/* Windowsゲームをエクスポートするを作成する */
 	nOrder = 0;
-	mi.wID = ID_EXPORT;
-	mi.dwTypeData = bEnglish ?
-		L"Export package(&X)" :
-		L"パッケージをエクスポートする";
-	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
-
-	/* Windows向けにエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Windows" :
-		L"Windows向けにエクスポートする";
+		L"Windowsゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows EXEインストーラを作成するを作成する */
 	mi.wID = ID_EXPORT_WIN_INST;
 	mi.dwTypeData = bEnglish ?
 		L"Create EXE Installer for Windows" :
-		L"Windows EXEインストーラを作成する";
+		L"Windows EXE インストーラを作成する";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
-	/* Windows/Mac向けにエクスポートするを作成する */
+	/* Windows/Macゲームをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN_MAC;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Windows/Mac" :
-		L"Windows/Mac向けにエクスポートする";
+		L"Windows/Macゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
-	/* Web向けにエクスポートするを作成する */
+	/* Webゲームをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WEB;
 	mi.dwTypeData = bEnglish ?
 		L"Export for Web" :
-		L"Web向けにエクスポートする";
+		L"Webゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Androidプロジェクトをエクスポートするを作成する */
@@ -668,6 +668,13 @@ static VOID InitMenu(HWND hWnd)
 	mi.dwTypeData = bEnglish ?
 		L"Export iOS project" :
 		L"iOSプロジェクトをエクスポートする";
+	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+
+	/* パッケージをエクスポートするを作成する */
+	mi.wID = ID_EXPORT;
+	mi.dwTypeData = bEnglish ?
+		L"Export package only" :
+		L"パッケージのみをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* 地の文を入力を作成する */
@@ -1043,6 +1050,9 @@ VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 	switch(nID)
 	{
 	/* ファイル */
+	case ID_OPEN_GAME_FOLDER:
+		OnOpenGameFolder();
+		break;
 	case ID_OPEN:
 		OnOpenScript();
 		break;
@@ -1445,7 +1455,7 @@ static VOID Variable_UpdateText(void)
 }
 
 /*
- * リッチエディットのハンドラ
+ * リッチエディット
  */
 
 /* リッチエディットの内容の更新通知を処理する */
@@ -1531,10 +1541,6 @@ static VOID RichEdit_OnReturn(void)
 	if (dbg_get_parse_error_count() == 0)
 		bNextPressed = TRUE;
 }
-
-/*
- * リッチエディットを操作するヘルパー
- */
 
 /* リッチエディットのフォントを設定する */
 static VOID RichEdit_SetFont(void)
@@ -2028,10 +2034,6 @@ static BOOL RichEdit_SearchNextError(int nStart, int nEnd)
 	return bFound;
 }
 
-/*
- * リッチエディットとスクリプトモデルの対応付け
- */
-
 /* リッチエディットのテキストをスクリプトモデルを元に設定する */
 static VOID RichEdit_UpdateTextFromScriptModel(void)
 {
@@ -2225,14 +2227,15 @@ static VOID RichEdit_InsertText(const wchar_t *pFormat, ...)
  */
 
 /* プロジェクトを作成する */
-static BOOL CreateProject(VOID)
+static BOOL CreateProject(void)
 {
 	static wchar_t wszPath[1024];
 	OPENFILENAMEW ofn;
     WIN32_FIND_DATAW wfd;
     HANDLE hFind;
 	HANDLE hFile;
-	BOOL bErr;
+	wchar_t *pFile;
+	BOOL bNonEmpty;
 
 	/* ダイアログを表示する */
 	if (MessageBox(NULL,
@@ -2244,7 +2247,7 @@ static BOOL CreateProject(VOID)
 				   L"「はい」を押すと新規ゲームデータの保存先を指定できます。\n"
 				   L"「いいえ」を押すと既存ゲームデータを選択します。\n",
 				   L"Suika2",
-				   MB_YESNO) != IDYES)
+				   MB_YESNO) == IDNO)
 	{
 		/* ファイルダイアログを開く */
 		ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
@@ -2258,7 +2261,8 @@ static BOOL CreateProject(VOID)
 			L"Suika2 Project Files\0*.suika2project;*.suika2project\0\0" :
 			L"Suika2 プロジェクトファイル\0*.suika2project\0\0";
 		ofn.lpstrDefExt = L".suika2project";
-		GetOpenFileNameW(&ofn);
+		if (!GetOpenFileNameW(&ofn))
+			return FALSE;
 		if(ofn.lpstrFile[0] == L'\0')
 			return FALSE;
 		return TRUE;
@@ -2278,61 +2282,82 @@ static BOOL CreateProject(VOID)
 	ofn.lpstrDefExt = L".suika2project";
 
 	/* ファイルダイアログを開く */
-	GetSaveFileNameW(&ofn);
-	if(ofn.lpstrFile[0] == L'\0')
+	if (!GetSaveFileNameW(&ofn))
+		return FALSE;
+	if (ofn.lpstrFile[0] == L'\0')
+		return FALSE;
+	pFile = wcsrchr(ofn.lpstrFile, L'\\');
+	if (pFile == NULL)
 		return FALSE;
 
 	/* 変更先のディレクトリが空であるか確認する */
-    hFind = FindFirstFileW(L".\\*.*", &wfd);
-    if(hFind == INVALID_HANDLE_VALUE)
-    {
+	hFind = FindFirstFileW(L".\\*.*", &wfd);
+	if (hFind == INVALID_HANDLE_VALUE)
+	{
 		MessageBox(NULL, bEnglish ?
 				   L"Invalid folder.\n" : L"フォルダが存在しません。",
 				   L"Suika2", MB_OK | MB_ICONERROR);
-        return FALSE;
-    }
-	bErr = FALSE;
-    do
-    {
-        if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && wfd.cFileName[0] == L'.')
-			continue;
-		bErr = TRUE;
-		break;
-    } while(FindNextFileW(hFind, &wfd));
-    FindClose(hFind);
-	if (bErr)
-	{
-		MessageBox(NULL, bEnglish ?
-				   L"Folder is not empty.\n" : L"フォルダが空ではありません。",
-				   L"Suika2", MB_OK | MB_ICONERROR);
 		return FALSE;
+	}
+	bNonEmpty = FALSE;
+	do
+	{
+		if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && wfd.cFileName[0] == L'.')
+			continue;
+		bNonEmpty = TRUE;
+		break;
+	} while(FindNextFileW(hFind, &wfd));
+    FindClose(hFind);
+	if (bNonEmpty)
+	{
+		if (_access("new-game", 0) != -1)
+		{
+			MessageBox(NULL, bEnglish ?
+					   L"Folder is not empty and there is already a new-game folder." :
+					   L"フォルダが空ではありません。new-gameフォルダもすでに存在します。",
+					   L"Suika2", MB_OK | MB_ICONERROR);
+			return FALSE;
+		}
+
+		MessageBox(NULL, bEnglish ?
+				   L"Folder is not empty.\n"
+				   L"Going to create a folder." :
+				   L"フォルダが空ではありません。\n"
+				   L"new-gameフォルダを作成します。",
+				   L"Suika2", MB_OK | MB_ICONINFORMATION);
+
+		/* ディレクトリを作成する */
+		CreateDirectory(L".\\new-game", 0);
+		SetCurrentDirectory(L".\\new-game");
 	}
 
 	/* プロジェクトファイルを作成する */
-	hFile = CreateFileW(ofn.lpstrFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
+	hFile = CreateFileW(pFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
 	CloseHandle(hFile);
 
 	/* テンプレートを選択する */
 	if (MessageBox(NULL,
 				   bEnglish ?
 				   L"Do you want to use the full screen style?" :
-				   L"全画面スタイルにしますか？",
+				   L"全画面スタイルにしますか？\n"
+				   L"「はい」を押すと全画面スタイルにします。\n"
+				   L"「いいえ」を押すとアドベンチャースタイルにします。\n",
 				   L"Suika2",
 				   MB_YESNO) == IDYES)
 	{
 		/* 英語の場合 */
 		if (bEnglish)
-			return CopyProject(L"nvl");
+			return CopyLibraryFiles(L"games\\nvl\\*", L".\\");
 
 		/* 日本語の場合 */
 		if (MessageBox(NULL, L"縦書きにしますか？", L"Suika2", MB_YESNO) == IDYES)
-			return CopyProject(L"nvl-tategaki");
+			return CopyLibraryFiles(L"games\\nvl-tategaki\\*", L".\\");
 		else
-			return CopyProject(L"nvl");
+			return CopyLibraryFiles(L"games\\nvl\\*", L".\\");
 	}
 	if (bEnglish)
-		return CopyProject(L"english");
-	return CopyProject(L"japanese");
+		return CopyLibraryFiles(L"games\\english\\*", L".\\");
+	return CopyLibraryFiles(L"games\\japanese\\*", L".\\");
 }
 
 /* プロジェクトテンプレートをコピーする */
@@ -2349,9 +2374,9 @@ static BOOL CopyProject(const wchar_t *pszName)
 	pLastSeparator = wcsrchr(from, L'\\');
 	if (pLastSeparator != NULL)
 		*pLastSeparator = L'\0';
-	wcsncat(from, L"\\games\\", MAX_PATH);
-	wcsncat(from, pszName, MAX_PATH);
-	wcsncat(from, L"\\*", MAX_PATH);
+	wcscat(from, L"\\games\\");
+	wcscat(from, pszName);
+	wcscat(from, L"\\*");
 	from[wcslen(from) + 1] = L'\0';	/* 二重のNUL終端を行う */
 
 	/* コピー先のパスを取得する */
@@ -2402,6 +2427,13 @@ static BOOL OpenProject(const wchar_t *pszPath)
 /*
  * コマンド処理
  */
+
+/* ゲームフォルダオープン */
+static VOID OnOpenGameFolder(void)
+{
+	/* Explorerを開く */
+	ShellExecuteW(NULL, L"explore", L".\\", NULL, NULL, SW_SHOW);
+}
 
 /* スクリプトオープン */
 static VOID OnOpenScript(void)
@@ -2612,7 +2644,7 @@ VOID OnExportWin(void)
 	RecreateDirectory(L".\\windows-export");
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\tools\\suika.exe", L".\\windows-export\\suika.exe"))
+	if (!CopyLibraryFiles(L"tools\\suika.exe", L".\\windows-export\\suika.exe"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :
@@ -2668,7 +2700,7 @@ VOID OnExportWinInst(void)
 	CreateDirectory(L".\\windows-installer-export\\asset", 0);
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\tools\\suika.exe", L".\\windows-installer-export\\asset\\suika.exe"))
+	if (!CopyLibraryFiles(L"tools\\suika.exe", L".\\windows-installer-export\\asset\\suika.exe"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :
@@ -2677,7 +2709,7 @@ VOID OnExportWinInst(void)
 	}
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\tools\\installer\\create-installer.bat", L".\\windows-installer-export\\asset\\create-installer.bat"))
+	if (!CopyLibraryFiles(L"tools\\installer\\create-installer.bat", L".\\windows-installer-export\\asset\\create-installer.bat"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :
@@ -2686,7 +2718,7 @@ VOID OnExportWinInst(void)
 	}
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\tools\\installer\\icon.ico", L".\\windows-installer-export\\asset\\icon.ico"))
+	if (!CopyLibraryFiles(L"tools\\installer\\icon.ico", L".\\windows-installer-export\\asset\\icon.ico"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :
@@ -2695,7 +2727,7 @@ VOID OnExportWinInst(void)
 	}
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\tools\\installer\\install-script.nsi", L".\\windows-installer-export\\asset\\install-script.nsi"))
+	if (!CopyLibraryFiles(L"tools\\installer\\install-script.nsi", L".\\windows-installer-export\\asset\\install-script.nsi"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :
@@ -2757,7 +2789,7 @@ VOID OnExportWinMac(void)
 	RecreateDirectory(L".\\windows-mac-export");
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\tools\\suika.exe", L".\\windows-mac-export\\suika.exe"))
+	if (!CopyLibraryFiles(L"tools\\suika.exe", L".\\windows-mac-export\\suika.exe"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :
@@ -2766,7 +2798,7 @@ VOID OnExportWinMac(void)
 	}
 
 	/* ファイルをコピーする */
-	if (!CopySourceFiles(L".\\tools\\mac.dmg", L".\\windows-mac-export\\mac.dmg"))
+	if (!CopyLibraryFiles(L"tools\\mac.dmg", L".\\windows-mac-export\\mac.dmg"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :
@@ -2817,7 +2849,7 @@ VOID OnExportWeb(void)
 	RecreateDirectory(L".\\web-export");
 
 	/* ソースをコピーする */
-	if (!CopySourceFiles(L".\\tools\\web\\*", L".\\web-export"))
+	if (!CopyLibraryFiles(L"tools\\web\\*", L".\\web-export"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy source files for Web." :
@@ -2860,7 +2892,7 @@ VOID OnExportAndroid(void)
 	RecreateDirectory(L".\\android-export");
 
 	/* ソースをコピーする */
-	if (!CopySourceFiles(L".\\tools\\android-src", L".\\android-export"))
+	if (!CopyLibraryFiles(L"tools\\android-src", L".\\android-export"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy source files for Android." :
@@ -2870,20 +2902,20 @@ VOID OnExportAndroid(void)
 	}
 
 	/* アセットをコピーする */
-	CopySourceFiles(L".\\anime", L".\\android-export\\app\\src\\main\\assets\\anime");
-	CopySourceFiles(L".\\bg", L".\\android-export\\app\\src\\main\\assets\\bg");
-	CopySourceFiles(L".\\bgm", L".\\android-export\\app\\src\\main\\assets\\bgm");
-	CopySourceFiles(L".\\cg", L".\\android-export\\app\\src\\main\\assets\\cg");
-	CopySourceFiles(L".\\ch", L".\\android-export\\app\\src\\main\\assets\\ch");
-	CopySourceFiles(L".\\conf", L".\\android-export\\app\\src\\main\\assets\\conf");
-	CopySourceFiles(L".\\cv", L".\\android-export\\app\\src\\main\\assets\\cv");
-	CopySourceFiles(L".\\font", L".\\android-export\\app\\src\\main\\assets\\font");
-	CopySourceFiles(L".\\gui", L".\\android-export\\app\\src\\main\\assets\\gui");
-	CopySourceFiles(L".\\mov", L".\\android-export\\app\\src\\main\\assets\\mov");
-	CopySourceFiles(L".\\rule", L".\\android-export\\app\\src\\main\\assets\\rule");
-	CopySourceFiles(L".\\se", L".\\android-export\\app\\src\\main\\assets\\se");
-	CopySourceFiles(L".\\txt", L".\\android-export\\app\\src\\main\\assets\\txt");
-	CopySourceFiles(L".\\wms", L".\\android-export\\app\\src\\main\\assets\\wms");
+	CopyGameFiles(L".\\anime", L".\\android-export\\app\\src\\main\\assets\\anime");
+	CopyGameFiles(L".\\bg", L".\\android-export\\app\\src\\main\\assets\\bg");
+	CopyGameFiles(L".\\bgm", L".\\android-export\\app\\src\\main\\assets\\bgm");
+	CopyGameFiles(L".\\cg", L".\\android-export\\app\\src\\main\\assets\\cg");
+	CopyGameFiles(L".\\ch", L".\\android-export\\app\\src\\main\\assets\\ch");
+	CopyGameFiles(L".\\conf", L".\\android-export\\app\\src\\main\\assets\\conf");
+	CopyGameFiles(L".\\cv", L".\\android-export\\app\\src\\main\\assets\\cv");
+	CopyGameFiles(L".\\font", L".\\android-export\\app\\src\\main\\assets\\font");
+	CopyGameFiles(L".\\gui", L".\\android-export\\app\\src\\main\\assets\\gui");
+	CopyGameFiles(L".\\mov", L".\\android-export\\app\\src\\main\\assets\\mov");
+	CopyGameFiles(L".\\rule", L".\\android-export\\app\\src\\main\\assets\\rule");
+	CopyGameFiles(L".\\se", L".\\android-export\\app\\src\\main\\assets\\se");
+	CopyGameFiles(L".\\txt", L".\\android-export\\app\\src\\main\\assets\\txt");
+	CopyGameFiles(L".\\wms", L".\\android-export\\app\\src\\main\\assets\\wms");
 
 	MessageBox(hWndMain, bEnglish ?
 			   L"Will open the exported source code folder.\n"
@@ -2918,7 +2950,7 @@ VOID OnExportIOS(void)
 	RecreateDirectory(L".\\ios-export");
 
 	/* ソースをコピーする */
-	if (!CopySourceFiles(L".\\tools\\ios-src", L".\\ios-export"))
+	if (!CopyLibraryFiles(L"tools\\ios-src", L".\\ios-export"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy source files for Android." :
@@ -2968,8 +3000,45 @@ static VOID RecreateDirectory(const wchar_t *path)
 	SHFileOperationW(&fos);
 }
 
-/* ソースツリーをコピーする */
-static BOOL CopySourceFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir)
+/* ライブラリファイルをコピーする (インストール先 to エクスポート先) */
+static BOOL CopyLibraryFiles(const wchar_t *lpszSrcDir, const wchar_t *lpszDestDir)
+{
+	wchar_t from[MAX_PATH];
+	wchar_t to[MAX_PATH];
+	SHFILEOPSTRUCTW fos;
+	wchar_t *pSep;
+	int ret;
+
+	/* コピー元を求める */
+	GetModuleFileName(NULL, from, MAX_PATH);
+	pSep = wcsrchr(from, L'\\');
+	if (pSep != NULL)
+		*(pSep + 1) = L'\0';
+	wcscat(from, lpszSrcDir);
+	from[wcslen(from) + 1] = L'\0';	/* 二重のNUL終端を行う */
+
+	/* コピー先を求める */
+	wcscpy(to, lpszDestDir);
+	to[wcslen(lpszDestDir) + 1] = L'\0';	/* 二重のNUL終端を行う */
+
+	/* コピーする */
+	ZeroMemory(&fos, sizeof(SHFILEOPSTRUCT));
+	fos.wFunc = FO_COPY;
+	fos.pFrom = from;
+	fos.pTo = to;
+	fos.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR;
+	ret = SHFileOperationW(&fos);
+	if (ret != 0)
+	{
+		log_info("error code = %d", ret);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+/* ゲームファイルをコピーする (ゲーム内 to エクスポート先) */
+static BOOL CopyGameFiles(const wchar_t* lpszSrcDir, const wchar_t* lpszDestDir)
 {
 	wchar_t from[MAX_PATH];
 	wchar_t to[MAX_PATH];
