@@ -6,12 +6,15 @@
  */
 
 /*
+ * Suika2 Pro
+ *
  * [Changes]
  *  2014-05-24 作成 (conskit)
  *  2016-05-29 作成 (suika)
  *  2017-11-07 フルスクリーンで解像度変更するように修正
  *  2023-09-20 Android/iOSエクスポート対応
  *  2023-10-25 エディタ対応
+ *  2023-12-05 プロジェクト管理対応
  */
 
 /* Suika2 Base */
@@ -38,6 +41,7 @@
  * Constants
  */
 
+/* Colors */
 #define COLOR_BG_DEFAULT	0x00ffffff
 #define COLOR_FG_DEFAULT	0x00000000
 #define COLOR_COMMENT		0x00808080
@@ -217,7 +221,7 @@ BOOL InitWithParameters(VOID)
 			MessageBox(NULL, bEnglish ?
 					   L"Failed to create a project." :
 					   L"プロジェクトの作成に失敗しました。",
-					   L"Suika2",
+					   MSGBOX_TITLE,
 					   MB_OK | MB_ICONERROR);
 			return FALSE;
 		}
@@ -2246,7 +2250,7 @@ static BOOL CreateProject(void)
 				   L"新規ゲームを作成します。\n"
 				   L"「はい」を押すと新規ゲームデータの保存先を指定できます。\n"
 				   L"「いいえ」を押すと既存ゲームデータを選択します。\n",
-				   L"Suika2",
+				   MSGBOX_TITLE,
 				   MB_YESNO) == IDNO)
 	{
 		/* ファイルダイアログを開く */
@@ -2289,6 +2293,7 @@ static BOOL CreateProject(void)
 	pFile = wcsrchr(ofn.lpstrFile, L'\\');
 	if (pFile == NULL)
 		return FALSE;
+	pFile++;
 
 	/* 変更先のディレクトリが空であるか確認する */
 	hFind = FindFirstFileW(L".\\*.*", &wfd);
@@ -2296,7 +2301,7 @@ static BOOL CreateProject(void)
 	{
 		MessageBox(NULL, bEnglish ?
 				   L"Invalid folder.\n" : L"フォルダが存在しません。",
-				   L"Suika2", MB_OK | MB_ICONERROR);
+				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	bNonEmpty = FALSE;
@@ -2315,7 +2320,7 @@ static BOOL CreateProject(void)
 			MessageBox(NULL, bEnglish ?
 					   L"Folder is not empty and there is already a new-game folder." :
 					   L"フォルダが空ではありません。new-gameフォルダもすでに存在します。",
-					   L"Suika2", MB_OK | MB_ICONERROR);
+					   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 			return FALSE;
 		}
 
@@ -2324,7 +2329,7 @@ static BOOL CreateProject(void)
 				   L"Going to create a folder." :
 				   L"フォルダが空ではありません。\n"
 				   L"new-gameフォルダを作成します。",
-				   L"Suika2", MB_OK | MB_ICONINFORMATION);
+				   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
 
 		/* ディレクトリを作成する */
 		CreateDirectory(L".\\new-game", 0);
@@ -2342,7 +2347,7 @@ static BOOL CreateProject(void)
 				   L"全画面スタイルにしますか？\n"
 				   L"「はい」を押すと全画面スタイルにします。\n"
 				   L"「いいえ」を押すとアドベンチャースタイルにします。\n",
-				   L"Suika2",
+				   MSGBOX_TITLE,
 				   MB_YESNO) == IDYES)
 	{
 		/* 英語の場合 */
@@ -2350,7 +2355,7 @@ static BOOL CreateProject(void)
 			return CopyLibraryFiles(L"games\\nvl\\*", L".\\");
 
 		/* 日本語の場合 */
-		if (MessageBox(NULL, L"縦書きにしますか？", L"Suika2", MB_YESNO) == IDYES)
+		if (MessageBox(NULL, L"縦書きにしますか？", MSGBOX_TITLE, MB_YESNO) == IDYES)
 			return CopyLibraryFiles(L"games\\nvl-tategaki\\*", L".\\");
 		else
 			return CopyLibraryFiles(L"games\\nvl\\*", L".\\");
@@ -2392,7 +2397,7 @@ static BOOL CopyProject(const wchar_t *pszName)
 	ret = SHFileOperationW(&fos);
 	if (ret != 0)
 	{
-		MessageBox(NULL, L"Copy error.", L"Suika2", MB_OK |MB_ICONERROR);
+		MessageBox(NULL, L"Copy error.", MSGBOX_TITLE, MB_OK |MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -2410,14 +2415,14 @@ static BOOL OpenProject(const wchar_t *pszPath)
 	pLastSeparator = wcsrchr(path, L'\\');
 	if (pLastSeparator == NULL)
 	{
-		MessageBox(NULL, L"ファイル名が正しくありません", L"Suika2", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, L"ファイル名が正しくありません", MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	*pLastSeparator = L'\0';
 
 	if (!SetCurrentDirectory(path))
 	{
-		MessageBox(NULL, L"ゲームフォルダが正しくありません", L"Suika2", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, L"ゲームフォルダが正しくありません", MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 
