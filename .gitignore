@@ -168,10 +168,13 @@ build/replay-linux-x86_64/lcovoutput
 # Engine/Pro/Capture/Replay on macOS
 libroot-mac.tar.gz
 libroot
-build
 project.xcworkspace
 xcshareddata
 xcuserdata
+build/engine-macos/build
+build/pro-macos/build
+build/capture-macos/build
+build/replay-macos/build
 
 #
 # Visual Studio
