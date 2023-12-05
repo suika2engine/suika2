@@ -119,15 +119,6 @@ windows-pro:
 	make install && \
 	cd ../..
 
-# suika-studio.exe (the editor for 32-bit Windows)
-windows-studio:
-	@echo 'Building suika-studio.exe'
-	@cd build/studio-windows-x86 && \
-	make libroot && \
-	make -j8 && \
-	make install && \
-	cd ../..
-
 # suika-64.exe (the main game engine for 64-bit Windows)
 windows-64:
 	@echo 'Building suika-64.exe'
@@ -335,12 +326,12 @@ do-release:
 		echo "You are not running on macOS."; \
 		exit 1; \
 	fi
-	@cd build && ./scripts/release-main.sh && cd ..
+	@cd build && ./scripts/do-release.sh && cd ..
 
 # Internal: Update template games.
 update-templates:
 	@echo "Going to update template games."
-	@cd build && ./scripts/release-templates.sh && cd ..
+	@cd build && ./scripts/update-templates.sh && cd ..
 
 ##
 ## POSIX Convention
@@ -393,5 +384,5 @@ install:
 # Cleanup.
 clean:
 	rm -f suika.exe suika-pro.exe suika-64.exe suika-arm64.exe suika-capture.exe suika-replay.exe
-	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg mac.zip pack.mac
+	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg
 	rm -f suika-linux suika-pro suika-linux-capture suika-linux-replay

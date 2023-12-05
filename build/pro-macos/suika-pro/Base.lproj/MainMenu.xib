@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="DebugWindowController"/>
@@ -11,18 +11,18 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" autoenablesItems="NO" id="AYu-sK-qS6">
             <items>
-                <menuItem title="Suika2 Pro for Creators" id="1Xt-HY-uBw">
+                <menuItem title="Suika2 Pro" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Suika2 Pro for Creators" systemMenu="apple" id="uQy-DD-JDr">
+                    <menu key="submenu" title="Suika2 Pro" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About Suika2 Pro for Creators" id="5kV-Vb-QxS">
+                            <menuItem title="About Suika2 Pro" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-1" id="Exp-CZ-Vem"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Hide Suika2 Pro for Creators" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide Suika2 Pro" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
@@ -40,7 +40,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                            <menuItem title="Quit Suika2 Pro for Creators" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit Suika2 Pro" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="terminate:" target="-1" id="Te7-pn-YzF"/>
                                 </connections>

@@ -1,5 +1,5 @@
-/* Class = "NSMenuItem"; title = "Suika2 Pro for Creators"; ObjectID = "1Xt-HY-uBw"; */
-"1Xt-HY-uBw.title" = "Suika2 Pro for Creators";
+/* Class = "NSMenuItem"; title = "Suika2 Pro"; ObjectID = "1Xt-HY-uBw"; */
+"1Xt-HY-uBw.title" = "Suika2 Pro";
 
 /* Class = "NSMenuItem"; title = "Pause"; ObjectID = "37C-jP-LaG"; */
 "37C-jP-LaG.title" = "停止";
@@ -7,11 +7,11 @@
 /* Class = "NSMenu"; title = "Script"; ObjectID = "3xf-2b-yxB"; */
 "3xf-2b-yxB.title" = "スクリプト";
 
-/* Class = "NSMenuItem"; title = "Quit Suika2 Pro for Creators"; ObjectID = "4sb-4s-VLi"; */
-"4sb-4s-VLi.title" = "Suika2 Pro for Creatorsを終了する";
+/* Class = "NSMenuItem"; title = "Quit Suika2 Pro"; ObjectID = "4sb-4s-VLi"; */
+"4sb-4s-VLi.title" = "Suika2 Proを終了する";
 
-/* Class = "NSMenuItem"; title = "About Suika2 Pro for Creators"; ObjectID = "5kV-Vb-QxS"; */
-"5kV-Vb-QxS.title" = "Suika2 Pro for Creatorsについて";
+/* Class = "NSMenuItem"; title = "About Suika2 Pro"; ObjectID = "5kV-Vb-QxS"; */
+"5kV-Vb-QxS.title" = "Suika2 Proについて";
 
 /* Class = "NSMenu"; title = "Main Menu"; ObjectID = "AYu-sK-qS6"; */
 "AYu-sK-qS6.title" = "Main Menu";
@@ -28,8 +28,8 @@
 /* Class = "NSMenuItem"; title = "Minimize"; ObjectID = "OY7-WF-poV"; */
 "OY7-WF-poV.title" = "しまう";
 
-/* Class = "NSMenuItem"; title = "Hide Suika2 Pro for Creators"; ObjectID = "Olw-nP-bQN"; */
-"Olw-nP-bQN.title" = "Suika2 Pro for Creatorsを隠す";
+/* Class = "NSMenuItem"; title = "Hide Suika2 Pro"; ObjectID = "Olw-nP-bQN"; */
+"Olw-nP-bQN.title" = "Suika2 Proを隠す";
 
 /* Class = "NSMenuItem"; title = "Zoom"; ObjectID = "R4o-n2-Eq4"; */
 "R4o-n2-Eq4.title" = "拡大/縮小";
@@ -73,8 +73,8 @@
 /* Class = "NSMenuItem"; title = "Open Recent"; ObjectID = "tXI-mr-wws"; */
 "tXI-mr-wws.title" = "最近使った項目を開く";
 
-/* Class = "NSMenu"; title = "Suika2 Pro for Creators"; ObjectID = "uQy-DD-JDr"; */
-"uQy-DD-JDr.title" = "Suika2 Pro for Creators";
+/* Class = "NSMenu"; title = "Suika2 Pro"; ObjectID = "uQy-DD-JDr"; */
+"uQy-DD-JDr.title" = "Suika2 Pro";
 
 /* Class = "NSMenuItem"; title = "メニューを消去"; ObjectID = "vNY-rz-j42"; */
 "vNY-rz-j42.title" = "メニューを消去";

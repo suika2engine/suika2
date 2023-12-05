@@ -70,10 +70,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2603497A2854B29800037370 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "suika-pro/Info.plist"; sourceTree = SOURCE_ROOT; };
 		2608233B26724676009D979A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../../src/cmd_cha.c; sourceTree = "<group>"; };
-		260A00152A66B33A002E3FF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = "suika-replay/Info.plist"; sourceTree = SOURCE_ROOT; };
-		260AFFC12A656386002E3FF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = "suika-capture/Info.plist"; sourceTree = SOURCE_ROOT; };
 		260F30512674A3C000AF8E21 /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../../src/cmd_shake.c; sourceTree = "<group>"; };
 		2617E956282BF6F500637615 /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../../src/cmd_video.c; sourceTree = "<group>"; };
 		261B31F128991145006BCD68 /* cmd_gui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_gui.c; path = ../../../src/cmd_gui.c; sourceTree = "<group>"; };
@@ -87,8 +84,6 @@
 		2646C360284C635D00DF86E1 /* cmd_skip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_skip.c; path = ../../../src/cmd_skip.c; sourceTree = "<group>"; };
 		2649E0D728558837006831C5 /* nsmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nsmain.h; path = ../../../src/nsmain.h; sourceTree = "<group>"; };
 		26557B0D26785269000CDD10 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../../src/cmd_setsave.c; sourceTree = "<group>"; };
-		265EA7CB285732E000A02167 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Credits.rtf; path = "suika-pro/Credits.rtf"; sourceTree = SOURCE_ROOT; };
-		265EA7CD2857372300A02167 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = "suika-pro/InfoPlist.strings"; sourceTree = SOURCE_ROOT; };
 		26616DC726B4CED20094B23C /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../../src/seen.h; sourceTree = "<group>"; };
 		26616DC826B4CED20094B23C /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../../src/seen.c; sourceTree = "<group>"; };
 		267078F92916513C003C61C1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -96,11 +91,7 @@
 		267078FE29165158003C61C1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		267078FF2917992E003C61C1 /* uimsg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uimsg.h; path = ../../../src/uimsg.h; sourceTree = "<group>"; };
 		267079002917992E003C61C1 /* uimsg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = uimsg.c; path = ../../../src/uimsg.c; sourceTree = "<group>"; };
-		2679EC7A28575DA000C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DebugWindow.xib; sourceTree = "<group>"; };
-		2679EC7D28575DC200C20499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		2679EC8028575DD100C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/DebugWindow.strings; sourceTree = "<group>"; };
 		2679EC84285813B000C20499 /* package.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = package.c; path = ../../../src/package.c; sourceTree = "<group>"; };
-		2679EC8B2858242200C20499 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		2679EC8C2858258600C20499 /* key.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = key.h; path = ../../../src/key.h; sourceTree = "<group>"; };
 		2679EC8D285825A800C20499 /* package.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = package.h; path = ../../../src/package.h; sourceTree = "<group>"; };
 		267E044D2AED1BF400EEE8EB /* readpng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readpng.c; path = ../../../src/readpng.c; sourceTree = "<group>"; };
@@ -231,14 +222,7 @@
 			children = (
 				26B8ACE525EE5846005D9C49 /* Assets.xcassets */,
 				267078FA2916513C003C61C1 /* MainMenu.xib */,
-				2679EC7E28575DC200C20499 /* MainMenu.xib */,
-				2679EC7B28575DA000C20499 /* DebugWindow.xib */,
-				265EA7CB285732E000A02167 /* Credits.rtf */,
-				265EA7CD2857372300A02167 /* InfoPlist.strings */,
 				26B8ACEA25EE5846005D9C49 /* Info.plist */,
-				2603497A2854B29800037370 /* Info.plist */,
-				260AFFC12A656386002E3FF4 /* Info.plist */,
-				260A00152A66B33A002E3FF4 /* Info.plist */,
 				26B8ACED25EE5846005D9C49 /* suika.entitlements */,
 				26DA59542A922EB600DBE36B /* anime.c */,
 				26DA59552A922EB600DBE36B /* anime.h */,
@@ -478,26 +462,6 @@
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
-		};
-		2679EC7B28575DA000C20499 /* DebugWindow.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2679EC7A28575DA000C20499 /* Base */,
-				2679EC8028575DD100C20499 /* ja */,
-			);
-			name = DebugWindow.xib;
-			path = "suika-pro";
-			sourceTree = SOURCE_ROOT;
-		};
-		2679EC7E28575DC200C20499 /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2679EC7D28575DC200C20499 /* Base */,
-				2679EC8B2858242200C20499 /* ja */,
-			);
-			name = MainMenu.xib;
-			path = "suika-pro";
-			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXVariantGroup section */
 

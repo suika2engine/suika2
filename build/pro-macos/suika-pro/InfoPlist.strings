@@ -5,6 +5,5 @@
   Created by tabata on 2022/06/13.
   
 */
-CFBundleName = "Suika2 Pro for Creators";
-CFBundleDisplayName = "Suika2 Pro for Creators";
-
+CFBundleName = "Suika2 Pro";
+CFBundleDisplayName = "Suika2 Pro";

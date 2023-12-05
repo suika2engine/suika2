@@ -169,9 +169,9 @@ build/replay-linux-x86_64/lcovoutput
 libroot-mac.tar.gz
 libroot
 build
-suika.xcodeproj/project.xcworkspace
-suika.xcodeproj/xcshareddata
-suika.xcodeproj/xcuserdata
+project.xcworkspace
+xcshareddata
+xcuserdata
 
 #
 # Visual Studio
