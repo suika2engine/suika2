@@ -166,12 +166,12 @@ build/replay-linux-x86_64/lcovoutput
 #
 
 # Engine/Pro/Capture/Replay on macOS
-build/all-macos/libroot
-build/all-macos/build
-build/all-macos/suika.xcodeproj/project.xcworkspace
-build/all-macos/suika.xcodeproj/xcshareddata
-build/all-macos/suika.xcodeproj/xcuserdata
-build/all-macos/libroot-mac.tar.gz
+libroot-mac.tar.gz
+libroot
+build
+suika.xcodeproj/project.xcworkspace
+suika.xcodeproj/xcshareddata
+suika.xcodeproj/xcuserdata
 
 #
 # Visual Studio
@@ -230,6 +230,12 @@ build/engine-console/*.elf
 build/engine-console/*.nro
 build/engine-console/*.nacp
 build/engine-console/*.nsp
+
+# Windows Installer
+suika-pro.exe
+games/
+tools/
+suika2-x.x.exe
 
 # Ubuntu PPA
 build/ppa/work
