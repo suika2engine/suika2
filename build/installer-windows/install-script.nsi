@@ -13,8 +13,8 @@ Page instfiles
 Section ""
   SetOutPath "$INSTDIR"
   File "suika-pro.exe"
-  File "games\"
-  File "tools\"
+  File /r "games"
+  File /r "tools"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateDirectory "$SMPROGRAMS\Suika2"
   SetOutPath "$INSTDIR"
@@ -25,14 +25,14 @@ SectionEnd
 
 Section "Desktop Shortcut" SectionX
   SetShellVarContext current
-  CreateShortCut "$DESKTOP\Suika2.lnk" "$INSTDIR\suika2.exe"
+  CreateShortCut "$DESKTOP\Suika2.lnk" "$INSTDIR\suika-pro.exe"
 SectionEnd
 
 Section "Uninstall"
   Delete "$INSTDIR\Uninstall.exe"
   Delete "$INSTDIR\suika-pro.exe"
-  Delete "$INSTDIR\games\"
-  Delete "$INSTDIR\tools\"
+  Delete "$INSTDIR\games"
+  Delete "$INSTDIR\tools"
   RMDir /r "$INSTDIR"
   Delete "$SMPROGRAMS\Suika2\Suika2.lnk"
   RMDir "$SMPROGRAMS\Suika2"
