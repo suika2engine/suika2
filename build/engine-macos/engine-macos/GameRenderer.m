@@ -11,9 +11,13 @@ static id<MTLRenderPipelineState> theDimPipelineState;
 static id<MTLRenderPipelineState> theRulePipelineState;
 static id<MTLRenderPipelineState> theMeltPipelineState;
 static id<MTLCommandBuffer> theCommandBuffer;
+static id<MTLBlitCommandEncoder> theBlitEncoder;
+static id<MTLRenderCommandEncoder> theRenderEncoder;
+
 static MTKView *theMTKView;
 static NSSize theViewportSize;
 static NSMutableArray *thePurgeArray;
+static dispatch_semaphore_t in_flight_semaphore;
 
 static BOOL runSuika2Frame(void);
 
@@ -46,16 +50,16 @@ static BOOL runSuika2Frame(void);
     normalPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     normalPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     normalPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    normalPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-    normalPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    normalPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    normalPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     normalPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    normalPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
+    normalPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
     theNormalPipelineState = [theDevice newRenderPipelineStateWithDescriptor:normalPipelineStateDescriptor error:&error];
     NSAssert(theNormalPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Construct a copy shader pipeline.
     MTLRenderPipelineDescriptor *copyPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    copyPipelineStateDescriptor.label = @"Normal Texturing Pipeline";
+    copyPipelineStateDescriptor.label = @"Copy Texturing Pipeline";
     copyPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
     copyPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentCopyShader"];
     copyPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
@@ -72,10 +76,10 @@ static BOOL runSuika2Frame(void);
     dimPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     dimPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     dimPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    dimPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-    dimPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    dimPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    dimPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     dimPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    dimPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
+    dimPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
     theDimPipelineState = [theDevice newRenderPipelineStateWithDescriptor:dimPipelineStateDescriptor error:&error];
     NSAssert(theDimPipelineState, @"Failed to create pipeline state: %@", error);
 
@@ -88,10 +92,9 @@ static BOOL runSuika2Frame(void);
     rulePipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     rulePipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     rulePipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    rulePipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-    rulePipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    rulePipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    rulePipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     rulePipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    rulePipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
     theRulePipelineState = [theDevice newRenderPipelineStateWithDescriptor:rulePipelineStateDescriptor error:&error];
     NSAssert(theRulePipelineState, @"Failed to create pipeline state: %@", error);
 
@@ -104,15 +107,16 @@ static BOOL runSuika2Frame(void);
     meltPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     meltPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     meltPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    meltPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-    meltPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    meltPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    meltPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     meltPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    meltPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
     theMeltPipelineState = [theDevice newRenderPipelineStateWithDescriptor:meltPipelineStateDescriptor error:&error];
     NSAssert(theMeltPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Create a command queue.
     commandQueue = [theDevice newCommandQueue];
+
+    in_flight_semaphore = dispatch_semaphore_create(1);
 
     return self;
 }
@@ -130,14 +134,30 @@ static BOOL runSuika2Frame(void);
     // Create a command buffer.
     theCommandBuffer = [commandQueue commandBuffer];
     theCommandBuffer.label = @"MyCommand";
-    
+
+    // Nil-ify the encoders.
+    theBlitEncoder = nil;
+    theRenderEncoder = nil;
+
+    dispatch_semaphore_wait(in_flight_semaphore, DISPATCH_TIME_FOREVER);
+    __block dispatch_semaphore_t block_sema = in_flight_semaphore;
+    [theCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
+         dispatch_semaphore_signal(block_sema);
+    }];
+
     // Create an array for textures to be destroyed.
     thePurgeArray = [NSMutableArray array];
     
     // Run a Suika2 frame event and do rendering.
     if(!runSuika2Frame())
         exit(0);
-    
+
+    // End an encoding.
+    if (theBlitEncoder != nil)
+        [theBlitEncoder endEncoding];
+    if (theRenderEncoder != nil)
+        [theRenderEncoder endEncoding];
+
     // Schedule a rendering to the current drawable.
     [theCommandBuffer presentDrawable:view.currentDrawable];
     
@@ -181,8 +201,7 @@ static NSString *NSStringFromWcs(const wchar_t *wcs);
 //
 static BOOL runSuika2Frame(void)
 {
-    int x, y, w, h;
-    if(!on_event_frame(&x, &y, &w, &h)) {
+    if(!on_event_frame()) {
         save_global_data();
         save_seen();
         return FALSE;
@@ -477,10 +496,13 @@ void unlock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pix
     }
 
     // Upload the pixels.
-    id<MTLBlitCommandEncoder> blitEncoder = [theCommandBuffer blitCommandEncoder];
+    assert(theRenderEncoder == nil);
+    if (theBlitEncoder == nil) {
+        theBlitEncoder = [theCommandBuffer blitCommandEncoder];
+        theBlitEncoder.label = @"Texture Encoder";
+    }
     [tex replaceRegion:region mipmapLevel:0 withBytes:*locked_pixels bytesPerRow:width * 4];
-    [blitEncoder synchronizeResource:tex];
-    [blitEncoder endEncoding];
+    [theBlitEncoder synchronizeResource:tex];
 
     *locked_pixels = NULL;
 }
@@ -523,6 +545,9 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
     float tw = (float)get_image_width(src_image);
     float th = (float)get_image_height(src_image);
 
+    if (bt == BLEND_NONE)
+        alpha = 255;
+    
     // Set the left top vertex.
     pos[0] = ((float)dst_left - hw) / hw;   // X (-1.0 to 1.0, left to right)
     pos[1] = -((float)dst_top - hh) / hh;   // Y (-1.0 to 1.0, bottom to top)
@@ -555,15 +580,25 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
     pos[22] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
     pos[23] = 0;                                            // Padding for a 64-bit boundary
 
+    // Upload textures.
+    if (theBlitEncoder != nil) {
+        [theBlitEncoder endEncoding];
+        theBlitEncoder = nil;
+    }
+
     // Draw.
-    id<MTLRenderCommandEncoder> renderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
-    renderEncoder.label = @"MyRenderEncoder";
+    if (theRenderEncoder == nil) {
+        theRenderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
+        theRenderEncoder.label = @"MyRenderEncoder";
+    }
     id<MTLTexture> tex = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image));
-    [renderEncoder setRenderPipelineState:(bt == BLEND_NONE ? theCopyPipelineState :  theNormalPipelineState)];
-    [renderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:GameVertexInputIndexVertices];
-    [renderEncoder setFragmentTexture:tex atIndex:GameTextureIndexBaseColor];
-    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
-    [renderEncoder endEncoding];
+    if (bt == BLEND_NONE)
+        [theRenderEncoder setRenderPipelineState:theCopyPipelineState];
+    else
+        [theRenderEncoder setRenderPipelineState:theNormalPipelineState];
+    [theRenderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:GameVertexInputIndexVertices];
+    [theRenderEncoder setFragmentTexture:tex atIndex:GameTextureIndexBaseColor];
+    [theRenderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
 }
 
 //

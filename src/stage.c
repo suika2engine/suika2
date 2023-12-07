@@ -2438,9 +2438,9 @@ static void draw_fade_curtain_left(void)
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (left <= conf_window_width - CURTAIN_WIDTH) {
 		render_image(left + CURTAIN_WIDTH, 0, layer_image[LAYER_FI],
-			   conf_window_width - left - CURTAIN_WIDTH,
-			   conf_window_height, left + CURTAIN_WIDTH, 0, 255,
-			   BLEND_NONE);
+			     conf_window_width - left - CURTAIN_WIDTH,
+			     conf_window_height, left + CURTAIN_WIDTH, 0, 255,
+			     BLEND_NONE);
 	}
 
 	/* カーテンを描画する */
@@ -2474,9 +2474,9 @@ static void draw_fade_curtain_up(void)
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (top <= conf_window_height - CURTAIN_WIDTH) {
 		render_image(0, top + CURTAIN_WIDTH, layer_image[LAYER_FI],
-			   conf_window_width,
-			   conf_window_height - top - CURTAIN_WIDTH,
-			   0, top + CURTAIN_WIDTH, 255, BLEND_NONE);
+			     conf_window_width,
+			     conf_window_height - top - CURTAIN_WIDTH,
+			     0, top + CURTAIN_WIDTH, 255, BLEND_NONE);
 	}
 
 	/* カーテンを描画する */
@@ -2995,7 +2995,7 @@ static void draw_fade_eye_open_v(void)
 
 	/* 右幕の左端を求める */
 	right = (int)((float)(conf_window_width / 2) +
-		     (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎた後の背景をコピーする */
 	render_image(0, 0, layer_image[LAYER_FI],
@@ -3128,7 +3128,7 @@ static void draw_fade_slit_open_v(void)
 
 	/* 右幕の左端を求める */
 	right = (int)((float)(conf_window_width / 2) +
-		     (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
+		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎた後の背景をコピーする */
 	render_image(0, 0, layer_image[LAYER_FI],
@@ -3646,48 +3646,48 @@ void show_skipmode_banner(bool show)
 /* レイヤをレンダリングする */
 static void render_layer_image(int layer)
 {
-    render_layer_image_helper(layer, layer_blend[layer]);
+	render_layer_image_helper(layer, layer_blend[layer]);
 }
 
 static void render_layer_image_copy(int layer)
 {
-    render_layer_image_helper(layer, BLEND_NONE);
+	render_layer_image_helper(layer, BLEND_NONE);
 }
 
 static void render_layer_image_helper(int layer, int bt)
 {
-    assert(layer >= 0 && layer < STAGE_LAYERS);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
-    /* 背景イメージは必ずセットされている必要がある */
-    if (layer == LAYER_BG)
-        assert(layer_image[LAYER_BG] != NULL);
+	/* 背景イメージは必ずセットされている必要がある */
+	if (layer == LAYER_BG)
+		assert(layer_image[LAYER_BG] != NULL);
 
-    /* イメージがセットされていなければ描画しない */
-    if (layer_image[layer] == NULL)
-        return;
+	/* イメージがセットされていなければ描画しない */
+	if (layer_image[layer] == NULL)
+		return;
 
-    if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
-        conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
-        /* 暗く描画する */
-        render_image_dim(layer_x[layer],
-                 layer_y[layer],
-                 layer_image[layer],
-                 get_image_width(layer_image[layer]),
-                 get_image_height(layer_image[layer]),
-                 0,
-                 0);
-    } else {
-        /* 普通に描画する */
-        render_image(layer_x[layer],
-                 layer_y[layer],
-                 layer_image[layer],
-                 get_image_width(layer_image[layer]),
-                 get_image_height(layer_image[layer]),
-                 0,
-                 0,
-                 layer_alpha[layer],
-                 bt);
-    }
+	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
+	    conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
+		/* 暗く描画する */
+		render_image_dim(layer_x[layer],
+				 layer_y[layer],
+				 layer_image[layer],
+				 get_image_width(layer_image[layer]),
+				 get_image_height(layer_image[layer]),
+				 0,
+				 0);
+	} else {
+		/* 普通に描画する */
+		render_image(layer_x[layer],
+			     layer_y[layer],
+			     layer_image[layer],
+			     get_image_width(layer_image[layer]),
+			     get_image_height(layer_image[layer]),
+			     0,
+			     0,
+			     layer_alpha[layer],
+			     bt);
+	}
 }
 
 /* レイヤを描画する */
@@ -4051,15 +4051,15 @@ bool set_layer_text(int layer, const char *msg)
 	if (layer_text[layer] != NULL)
 		layer_text[layer] = NULL;
 
-       if (msg != NULL && strcmp(msg, "") != 0) {
-	       layer_text[layer] = strdup(msg);
-	       if (layer_text[layer] == NULL) {
-		       log_memory();
-		       return false;
-	       }
-       }
+	if (msg != NULL && strcmp(msg, "") != 0) {
+		layer_text[layer] = strdup(msg);
+		if (layer_text[layer] == NULL) {
+			log_memory();
+			return false;
+		}
+	}
 
-       return true;
+	return true;
 }
 
 /*
