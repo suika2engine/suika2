@@ -2139,7 +2139,7 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 	}
 }
 
-/* リッチエディットの現在の内容を元にスクリプトモデルを更新する */
+/* リッチエディットの現在の行の内容を元にスクリプトモデルを更新する */
 static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void)
 {
 	wchar_t *pWcs, *pCRLF, *pLine;

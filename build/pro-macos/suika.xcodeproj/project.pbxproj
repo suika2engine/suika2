@@ -69,10 +69,8 @@
 		26C614F72B1F05A90064871A /* cmd_bg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C614BB2B1F05A90064871A /* cmd_bg.c */; };
 		26C614F82B1F05A90064871A /* nsdebug.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C614BC2B1F05A90064871A /* nsdebug.m */; };
 		26C614F92B1F05A90064871A /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C614BD2B1F05A90064871A /* cmd_cha.c */; };
-		26C615132B1F07B30064871A /* Base.lproj in Resources */ = {isa = PBXBuildFile; fileRef = 26C615102B1F07B30064871A /* Base.lproj */; };
-		26C615142B1F07B30064871A /* ja.lproj in Resources */ = {isa = PBXBuildFile; fileRef = 26C615112B1F07B30064871A /* ja.lproj */; };
-		26C615152B1F07B30064871A /* en.lproj in Resources */ = {isa = PBXBuildFile; fileRef = 26C615122B1F07B30064871A /* en.lproj */; };
 		26C615182B1F08620064871A /* stage.c in Sources */ = {isa = PBXBuildFile; fileRef = 26C615162B1F08620064871A /* stage.c */; };
+		26C6151C2B1F69D30064871A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 26C6151B2B1F69D30064871A /* MainMenu.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -176,12 +174,11 @@
 		26C614BB2B1F05A90064871A /* cmd_bg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_bg.c; path = ../../src/cmd_bg.c; sourceTree = "<group>"; };
 		26C614BC2B1F05A90064871A /* nsdebug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nsdebug.m; path = ../../src/nsdebug.m; sourceTree = "<group>"; };
 		26C614BD2B1F05A90064871A /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../src/cmd_cha.c; sourceTree = "<group>"; };
-		26C615102B1F07B30064871A /* Base.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Base.lproj; sourceTree = "<group>"; };
-		26C615112B1F07B30064871A /* ja.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ja.lproj; sourceTree = "<group>"; };
-		26C615122B1F07B30064871A /* en.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = en.lproj; sourceTree = "<group>"; };
 		26C615162B1F08620064871A /* stage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stage.c; path = ../../src/stage.c; sourceTree = "<group>"; };
 		26C615172B1F08620064871A /* stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stage.h; path = ../../src/stage.h; sourceTree = "<group>"; };
 		26C615192B1F09650064871A /* suika-pro.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "suika-pro.entitlements"; sourceTree = "<group>"; };
+		26C6151A2B1F0F560064871A /* DebugWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DebugWindow.xib; sourceTree = "<group>"; };
+		26C6151B2B1F69D30064871A /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,9 +229,8 @@
 		26C613FE2B1F04D50064871A /* suika-pro */ = {
 			isa = PBXGroup;
 			children = (
-				26C615102B1F07B30064871A /* Base.lproj */,
-				26C615122B1F07B30064871A /* en.lproj */,
-				26C615112B1F07B30064871A /* ja.lproj */,
+				26C6151A2B1F0F560064871A /* DebugWindow.xib */,
+				26C6151B2B1F69D30064871A /* MainMenu.xib */,
 				26121C5D2B1EFF6F003B9F3E /* Assets.xcassets */,
 				2603497A2854B29800037370 /* Info.plist */,
 				265EA7CD2857372300A02167 /* InfoPlist.strings */,
@@ -299,10 +295,10 @@
 				26C614B12B1F05A90064871A /* mixer.c */,
 				26C614982B1F05A90064871A /* mixer.h */,
 				26C614AB2B1F05A90064871A /* muladdpcm.h */,
-				26C614642B1F05A80064871A /* nsdebug.h */,
-				26C614BC2B1F05A90064871A /* nsdebug.m */,
 				26C614A72B1F05A90064871A /* nsmain.h */,
 				26C614652B1F05A80064871A /* nsmain.m */,
+				26C614642B1F05A80064871A /* nsdebug.h */,
+				26C614BC2B1F05A90064871A /* nsdebug.m */,
 				26C6146A2B1F05A80064871A /* package.c */,
 				26C614AC2B1F05A90064871A /* package.h */,
 				26C614AD2B1F05A90064871A /* platform.h */,
@@ -393,10 +389,8 @@
 			files = (
 				265EA7CC285732E000A02167 /* Credits.rtf in Resources */,
 				26121C5E2B1EFF6F003B9F3E /* Assets.xcassets in Resources */,
-				26C615132B1F07B30064871A /* Base.lproj in Resources */,
-				26C615142B1F07B30064871A /* ja.lproj in Resources */,
-				26C615152B1F07B30064871A /* en.lproj in Resources */,
 				265EA7CE2857372300A02167 /* InfoPlist.strings in Resources */,
+				26C6151C2B1F69D30064871A /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,11 +491,13 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 15.3;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
+					"-DUSE_EDITOR",
+					"-DGL_SILENCE_DEPRECATION",
 					"-ffast-math",
 					"-fvectorize",
 				);
@@ -545,11 +541,13 @@
 					"@executable_path/../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = libroot/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 15.3;
 				OTHER_CFLAGS = (
 					"-DXCODE",
 					"-DUSE_DEBUGGER",
+					"-DUSE_EDITOR",
+					"-DGL_SILENCE_DEPRECATION",
 					"-ffast-math",
 					"-fvectorize",
 				);

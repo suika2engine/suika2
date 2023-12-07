@@ -331,6 +331,14 @@ void *get_texture_object(struct image *img)
 }
 
 /*
+ * テクスチャを設定する
+ */
+void set_texture_object(struct image *img, void *obj)
+{
+    img->texture = obj;
+}
+
+/*
  * クリア
  */
 

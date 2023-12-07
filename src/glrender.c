@@ -33,7 +33,6 @@
  *  - We use OpenGL 3.2
  */
 #if defined(OSX)
-#define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl3.h>
 #endif
 

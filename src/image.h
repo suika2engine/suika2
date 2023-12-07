@@ -185,6 +185,9 @@ int get_image_height(struct image *img);
 /* テクスチャを取得する */
 void *get_texture_object(struct image *img);
 
+/* テクスチャを設定する */
+void set_texture_object(struct image *img, void *obj);
+
 /* イメージに関連付けられたオブジェクトを取得する(for NDK, iOS) */
 void *get_image_object(struct image *img);
 

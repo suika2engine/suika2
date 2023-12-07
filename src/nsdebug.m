@@ -8,14 +8,20 @@
 /*
  * [Changed]
  *  - 2020/06/11 Created.
+ *  - 2023/12/05 Changed to editor.
  */
 
 #import <stdio.h>
 #import <stdlib.h>
 #import <string.h>
+
 #import "suika.h"
 #import "nsdebug.h"
 #import "package.h"
+
+#import "nsmain.h"
+
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 // デバッグウィンドウのコントローラ
 static DebugWindowController *debugWindowController;
@@ -27,13 +33,17 @@ static bool isEnglish;
 static bool isRunning;
 
 // ボタンが押下されたか
-static bool isResumePressed;
+static bool isContinuePressed;
 static bool isNextPressed;
-static bool isPausePressed;
-static bool isChangeScriptPressed;
-static bool isLineChangePressed;
-static bool isCommandUpdatePressed;
-static bool isReloadPressed;
+static bool isStopPressed;
+static bool isOpenScriptPressed;
+static bool isExecLineChanged;
+
+// 変更された実行行
+static int changedExecLine;
+
+static BOOL isFirstChange;
+static BOOL isRangedChange;
 
 // 前方参照
 static NSString *nsstr(const char *utf8str);
@@ -42,27 +52,51 @@ static void setRunningState(void);
 static void setStoppedState(void);
 
 //
+// main()
+//
+
+int main(int argc, char * argv[]) {
+    NSString *appDelegateClassName;
+    @autoreleasepool {
+        appDelegateClassName = NSStringFromClass([AppDelegate class]);
+    }
+    return NSApplicationMain(argc, argv, nil, appDelegateClassName);
+}
+
+//
+// DebugAppDelegate
+//
+
+@implementation DebugAppDelegate
+
+- (void)applicationDidFinishLaunching:(NSNotification*)notification
+{
+    debugWindowController = [[DebugWindowController alloc] init];
+    [debugWindowController showWindow:self];
+}
+
+- (void)dealloc
+{
+    [debugWindowController release];
+    [super dealloc];
+}
+
+@end
+
+//
 // DebugWindowController
 //
 
 @interface DebugWindowController ()
-@property (strong) IBOutlet NSWindow *debugWindow;
-@property (weak) IBOutlet NSButton *buttonResume;
+@property (strong) IBOutlet NSWindow *window;
+@property (strong) IBOutlet SuikaView *view;
+@property (weak) IBOutlet NSButton *buttonContinue;
 @property (weak) IBOutlet NSButton *buttonNext;
-@property (weak) IBOutlet NSButton *buttonPause;
-@property (weak) IBOutlet NSTextField *textFieldScriptName;
-@property (weak) IBOutlet NSButton *buttonScriptNameUpdate;
-@property (weak) IBOutlet NSTextField *labelScriptLine;
-@property (weak) IBOutlet NSTextField *textFieldScriptLine;
-@property (weak) IBOutlet NSButton *buttonScriptLine;
-@property (weak) IBOutlet NSTextField *labelCommand;
-@property (unsafe_unretained) IBOutlet NSTextView *textFieldCommand;
-@property (weak) IBOutlet NSButtonCell *buttonCommandUpdate;
-@property (weak) IBOutlet NSTableView *tableViewScript;
-@property (weak) IBOutlet NSButton *buttonSearchError;
-@property (weak) IBOutlet NSButton *buttonOverwriteScript;
-@property (weak) IBOutlet NSButton *buttonReloadScript;
-@property (unsafe_unretained) IBOutlet NSTextView *textFieldVariables;
+@property (weak) IBOutlet NSButton *buttonStop;
+@property (weak) IBOutlet NSTextField *textViewScriptName;
+@property (weak) IBOutlet NSButton *buttonOpenScript;
+@property (unsafe_unretained) IBOutlet NSTextView *textViewScript;
+@property (unsafe_unretained) IBOutlet NSTextView *textViewVariables;
 @property (weak) IBOutlet NSButton *buttonUpdateVariables;
 @end
 
@@ -71,15 +105,24 @@ static void setStoppedState(void);
 //
 // NSWindowDelegate
 //
+#if defined(USE_DEBUGGER)
+    // ビューを更新する
+    on_change_running_state(false, false);
+
+    // デバッグ情報表示を更新する
+    on_load_script();
+    on_change_position();
+#endif
+
+- (id)init {
+    self = [super initWithWindowNibName:@"DebugWindow"];
+    return self;
+}
 
 // ウィンドウがロードされたときのイベント
 - (void)windowDidLoad {
     [super windowDidLoad];
     [[self window] setDelegate:self];
-    [[self tableViewScript] setDataSource:self];
-    [[self tableViewScript] setDelegate:self];
-    [[self tableViewScript] setTarget:self];
-    [[self tableViewScript] setDoubleAction:@selector(doubleClickTableView:)];
 
     // メインスクリーンの位置とサイズを取得する
     NSRect sr = [[NSScreen mainScreen] visibleFrame];
@@ -109,8 +152,8 @@ static void setStoppedState(void);
 //
 
 // 続けるボタンが押下されたイベント
-- (IBAction) onResumeButton:(id)sender {
-    isResumePressed = true;
+- (IBAction) onContinueButton:(id)sender {
+    isContinuePressed = true;
 }
 
 // 次へボタンが押下されたイベント
@@ -119,110 +162,14 @@ static void setStoppedState(void);
 }
 
 // 停止ボタンが押下されたイベント
-- (IBAction) onPauseButton:(id)sender {
-    isPausePressed = true;
+- (IBAction) onStopButton:(id)sender {
+    isStopPressed = true;
 }
 
 // スクリプトファイル名の反映ボタンが押下されたイベント
-- (IBAction)onUpdateScriptNameButton:(id)sender {
-    isChangeScriptPressed = true;
-}
-
-// 行番号の反映ボタンが押下されたイベント
-- (IBAction)onUpdateLineNumber:(id)sender {
-    isLineChangePressed = true;
-}
-
-// コマンドの反映ボタンが押下されたイベント
-- (IBAction)onUpdateCommandTextButton:(id)sender {
-    isCommandUpdatePressed = true;
-}
-
-// エラーを探すボタンが押下されたイベント
-- (IBAction)onNextErrorButton:(id)sender {
-    // 行数を取得する
-	int lines = get_line_count();
-
-    // 選択されている行を取得する
-	int start = (int)[[self tableViewScript] selectedRow];
-
-    // 選択されている行より下を検索する
-	for (int i = start + 1; i < lines; i++) {
-        const char *text = get_line_string_at_line_num(i);
-		if(text[0] == '!') {
-            // みつかったので選択する
-            NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:i];
-            [[self tableViewScript] selectRowIndexes:indexSet
-                                byExtendingSelection:NO];
-            [[self tableViewScript] scrollRowToVisible:i];
-			return;
-		}
-	}
-
-    // 先頭行から、選択されている行までを検索する
-	if (start != 0) {
-		for (int i = 0; i <= start; i++) {
-			const char *text = get_line_string_at_line_num(i);
-			if(text[0] == '!') {
-                // みつかったので選択する
-                NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:i];
-                [[self tableViewScript] selectRowIndexes:indexSet
-                                    byExtendingSelection:NO];
-                [[self tableViewScript] scrollRowToVisible:i];
-                return;
-			}
-		}
-	}
-
-    log_info(isEnglish ? "No error." : "エラーはありません。");
-}
-
-// 上書き保存ボタンが押下されたイベント
-- (IBAction)onOverwriteButton:(id)sender {
-    // スクリプトファイル名を取得する
-	const char *scr = get_script_file_name();
-	if(strcmp(scr, "DEBUG") == 0)
-		return;
-
-    // 確認のダイアログを開く
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:!isEnglish ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:!isEnglish ? @"いいえ" : @"No"];
-    [alert setMessageText:isEnglish ?
-           @"Are you sure you want to overwrite the script file?" :
-           @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
-    [alert setAlertStyle:NSAlertStyleWarning];
-    if([alert runModal] != NSAlertFirstButtonReturn)
-        return;
-
-    // ファイルを開く
-	char *path = make_valid_path(SCRIPT_DIR, scr);
-    if (path == NULL)
-        return;
-    FILE *fp = fopen(path, "w");
-    free(path);
-    if (fp == NULL)	{
-        log_error(isEnglish ?
-                  "Cannot write to file." : "ファイルに書き込めません。");
-        return;
-    }
-
-    // 書き出す
-	for (int i = 0; i < get_line_count(); i++) {
-		int body = fputs(get_line_string_at_line_num(i), fp);
-		int lf = fputs("\n", fp);
-		if (body < 0 || lf < 0) {
-            log_error(isEnglish ?
-                      "Cannot write to file." : "ファイルに書き込めません。");
-            break;
-		}
-	}
-	fclose(fp);
-}
-
-// 再読み込みボタンが押下されたイベント
-- (IBAction)onReloadButton:(id)sender {
-    isReloadPressed = true;
+- (IBAction)onOpenScriptButton:(id)sender {
+    // TODO: Open a script
+    isOpenScriptPressed = true;
 }
 
 // 変数の反映ボタンが押下されたイベント
@@ -273,8 +220,12 @@ static void setStoppedState(void);
 // IBAction (Menus)
 //
 
+// ゲームフォルダを開くメニューが押下されたイベント
+- (IBAction)onMenuOpenGameFolder:(id)sender {
+}
+
 // スクリプトを開くメニューが押下されたイベント
-- (IBAction)onMenuScriptOpen:(id)sender {
+- (IBAction)onMenuOpenScript:(id)sender {
     // .appバンドルのパスを取得する
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
 
@@ -293,19 +244,57 @@ static void setStoppedState(void);
         NSString *file = [[panel URL] lastPathComponent];
         if ([file hasPrefix:txtPath]) {
                 [self setScriptName:file];
-                isChangeScriptPressed = true;
+                isOpenScriptPressed = true;
         }
     }
 }
 
-// スクリプトを上書き保存するメニューが押下されたイベント
-- (IBAction)onMenuScriptOverwrite:(id)sender {
-    [self onOverwriteButton:sender];
+// 保存ボタンが押下されたイベント
+- (IBAction)onMenuSave:(id)sender {
+    // スクリプトファイル名を取得する
+    const char *scr = get_script_file_name();
+    if(strcmp(scr, "DEBUG") == 0)
+        return;
+
+    // 確認のダイアログを開く
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:!isEnglish ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:!isEnglish ? @"いいえ" : @"No"];
+    [alert setMessageText:isEnglish ?
+           @"Are you sure you want to overwrite the script file?" :
+           @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
+    [alert setAlertStyle:NSAlertStyleWarning];
+    if([alert runModal] != NSAlertFirstButtonReturn)
+        return;
+
+    // ファイルを開く
+    char *path = make_valid_path(SCRIPT_DIR, scr);
+    if (path == NULL)
+        return;
+    FILE *fp = fopen(path, "w");
+    free(path);
+    if (fp == NULL)    {
+        log_error(isEnglish ?
+                  "Cannot write to file." : "ファイルに書き込めません。");
+        return;
+    }
+
+    // 書き出す
+    for (int i = 0; i < get_line_count(); i++) {
+        int body = fputs(get_line_string_at_line_num(i), fp);
+        int lf = fputs("\n", fp);
+        if (body < 0 || lf < 0) {
+            log_error(isEnglish ?
+                      "Cannot write to file." : "ファイルに書き込めません。");
+            break;
+        }
+    }
+    fclose(fp);
 }
 
 // 続けるメニューが押下されたイベント
-- (IBAction)onMenuResume:(id)sender {
-    [self onResumeButton:sender];
+- (IBAction)onMenuContinue:(id)sender {
+    [self onContinueButton:sender];
 }
 
 // 次へメニューが押下されたイベント
@@ -314,18 +303,224 @@ static void setStoppedState(void);
 }
 
 // 停止メニューが押下されたイベント
-- (IBAction)onMenuPause:(id)sender {
-    [self onPauseButton:sender];
+- (IBAction)onMenuStop:(id)sender {
+    [self onStopButton:sender];
 }
 
 // 次のエラー箇所へ移動メニューが押下されたイベント
 - (IBAction)onMenuNextError:(id)sender {
-    [self onNextErrorButton:sender];
+    // 行数を取得する
+    int lines = get_line_count();
+
+    // カーソル行を取得する
+    NSRange sel = [self.textViewScript selectedRange];
+    NSString *viewContent = [self.textViewScript string];
+    NSRange lineRange = [viewContent lineRangeForRange:NSMakeRange(sel.location, 0)];
+    int start = (int)lineRange.location;
+
+    // カーソル行より下を検索する
+    for (int i = start + 1; i < lines; i++) {
+        const char *text = get_line_string_at_line_num(i);
+        if(text[0] == '!') {
+            // みつかったので選択する
+            [self selectScriptLine:i];
+            //[self.textViewScript scrollRowToVisible:i];
+            return;
+        }
+    }
+
+    // 先頭行から、選択されている行までを検索する
+    if (start != 0) {
+        for (int i = 0; i <= start; i++) {
+            const char *text = get_line_string_at_line_num(i);
+            if(text[0] == '!') {
+                // みつかったので選択する
+                [self selectScriptLine:i];
+                //[self.textViewScript scrollRowToVisible:i];
+                return;
+            }
+        }
+    }
+
+    log_info(isEnglish ? "No error." : "エラーはありません。");
 }
 
-// 再読み込みが押下されたイベント
-- (IBAction)onMenuReload:(id)sender {
-    [self onReloadButton:sender];
+// from: https://stackoverflow.com/questions/54238610/nstextview-select-specific-line
+- (void)selectScriptLine:(NSUInteger)line {
+    NSLayoutManager *layoutManager = [self.textViewScript layoutManager];
+    NSUInteger numberOfLines = 0;
+    NSUInteger numberOfGlyphs = [layoutManager numberOfGlyphs];
+    NSRange lineRange;
+    for (NSUInteger indexOfGlyph = 0; indexOfGlyph < numberOfGlyphs; numberOfLines++) {
+        [layoutManager lineFragmentRectForGlyphAtIndex:indexOfGlyph effectiveRange:&lineRange];
+        if (numberOfLines == line) {
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [self.textViewScript setSelectedRange:lineRange];
+            }];
+            break;
+        }
+        indexOfGlyph = NSMaxRange(lineRange);
+    }
+}
+
+// メッセージの挿入
+- (IBAction)onMenuMessage:(id)sender {
+}
+
+// セリフの挿入
+- (IBAction)onMenuLine:(id)sender {
+}
+
+// セリフ(ボイスつき)の挿入
+- (IBAction)onMenuLineWithVoice:(id)sender {
+}
+
+// 背景変更の挿入
+- (IBAction)onMenuBackground:(id)sender {
+}
+
+// 背景のみ変更の挿入
+- (IBAction)onMenuBackgroundOnly:(id)sender {
+}
+
+// 左キャラの表示
+- (IBAction)onMenuShowLeftCharacter:(id)sender {
+}
+
+// 左キャラの非表示
+- (IBAction)onMenuHideLeftCharacter:(id)sender {
+}
+
+// 左中央キャラの表示
+- (IBAction)onMenuShowLeftCenterCharacter:(id)sender {
+}
+
+// 左中央キャラの非表示
+- (IBAction)onMenuHideLeftCenterCharacter:(id)sender {
+}
+
+// 中央キャラの表示
+- (IBAction)onMenuShowCenterCharacter:(id)sender {
+}
+
+// 中央キャラの非表示
+- (IBAction)onMenuHideCenterCharacter:(id)sender {
+}
+
+// 右中央キャラの表示
+- (IBAction)onMenuShoRightwCenterCharacter:(id)sender {
+}
+
+// 右中央キャラの非表示
+- (IBAction)onMenuHideRightCenterCharacter:(id)sender {
+}
+
+// 右キャラの表示
+- (IBAction)onMenuShowRightCharacter:(id)sender {
+}
+
+// 右キャラの非表示
+- (IBAction)onMenuHideRightCharacter:(id)sender {
+}
+
+// 複数キャラの変更
+- (IBAction)onMenuChsx:(id)sender {
+}
+
+// BGM再生
+- (IBAction)onMenuBgmPlay:(id)sender {
+}
+
+// BGM停止
+- (IBAction)onMenuBgmStop:(id)sender {
+}
+
+// BGMボリューム
+- (IBAction)onMenuBgmVolume:(id)sender {
+}
+
+// SE再生
+- (IBAction)onMenuSePlay:(id)sender {
+}
+
+// SE停止
+- (IBAction)onMenuSeStop:(id)sender {
+}
+
+// SEボリューム
+- (IBAction)onMenuSeVolume:(id)sender {
+}
+
+// ボイス再生
+- (IBAction)onMenuVoicePlay:(id)sender {
+}
+
+// ボイス停止
+- (IBAction)onMenuVoiceStop:(id)sender {
+}
+
+// ボイスボリューム
+- (IBAction)onMenuVoiceVolume:(id)sender {
+}
+
+// ビデオ
+- (IBAction)onMenuVideo:(id)sender {
+}
+
+// 選択肢1
+- (IBAction)onMenuChoose1:(id)sender {
+}
+
+// 選択肢2
+- (IBAction)onMenuChoose2:(id)sender {
+}
+
+// 選択肢3
+- (IBAction)onMenuChoose3:(id)sender {
+}
+
+// クリック
+- (IBAction)onMenuClick:(id)sender {
+}
+
+// 時間待ち
+- (IBAction)onMenuWait:(id)sender {
+}
+
+// GUI
+- (IBAction)onMenuGUI:(id)sender {
+}
+
+// WMS
+- (IBAction)onMenuWMS:(id)sender {
+}
+
+// Load
+- (IBAction)onMenuLoad:(id)sender {
+}
+
+// パッケージのエクスポートが押下されたイベント
+- (IBAction)onMenuExportForMac:(id)sender {
+}
+
+// パッケージのエクスポートが押下されたイベント
+- (IBAction)onMenuExportForWindows:(id)sender {
+}
+
+// パッケージのエクスポートが押下されたイベント
+- (IBAction)onMenuExportForMacAndWindows:(id)sender {
+}
+
+// パッケージのエクスポートが押下されたイベント
+- (IBAction)onMenuExportForWeb:(id)sender {
+}
+
+// パッケージのエクスポートが押下されたイベント
+- (IBAction)onMenuExportForIOS:(id)sender {
+}
+
+// パッケージのエクスポートが押下されたイベント
+- (IBAction)onMenuExportForAndroid:(id)sender {
 }
 
 // パッケージのエクスポートが押下されたイベント
@@ -345,31 +540,6 @@ static void setStoppedState(void);
 }
 
 //
-// NSTableViewDataSourceおよびNSTableViewのダブルクリックアクション
-//
-
-// テーブルビューの行数を返す
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
-    return get_line_count();
-}
-
-// テーブルビューの行の文字列を返す
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-    const char *s = get_line_string_at_line_num((int)rowIndex);
-    if (s == NULL)
-        return @"";
-    return nsstr(s);
-}
-
-// ダブルクリックされたときのイベント
-- (void)doubleClickTableView:(id)object {
-    NSInteger line = [[self tableViewScript] clickedRow];
-    [[self textFieldScriptLine] setStringValue:
-                                    [NSString stringWithFormat:@"%ld", line]];
-    isLineChangePressed = true;
-}
-
-//
 // ウィンドウ/ビューの設定/取得
 //
 
@@ -380,8 +550,8 @@ static void setStoppedState(void);
 
 // 続けるボタンを設定する
 - (void)setResumeButton:(BOOL)enabled text:(NSString *)text {
-    [[self buttonResume] setEnabled:enabled];
-    [[self buttonResume] setTitle:text];
+    [[self buttonContinue] setEnabled:enabled];
+    [[self buttonContinue] setTitle:text];
 }
 
 // 次へボタンを設定する
@@ -391,107 +561,34 @@ static void setStoppedState(void);
 }
 
 // 停止ボタンを設定する
-- (void)setPauseButton:(BOOL)enabled text:(NSString *)text {
-    [[self buttonPause] setEnabled:enabled];
-    [[self buttonPause] setTitle:text];
-}
-
-// スクリプト名のテキストフィールの有効状態を設定する
-- (void)enableScriptTextField:(BOOL)state {
-    [[self textFieldScriptName] setEnabled:state];
+- (void)setStopButton:(BOOL)enabled text:(NSString *)text {
+    [[self buttonStop] setEnabled:enabled];
+    [[self buttonStop] setTitle:text];
 }
 
 // スクリプト名のテキストフィールドの値を設定する
 - (void)setScriptName:(NSString *)name {
-    [[self textFieldScriptName] setStringValue:name];
+    [[self textViewScriptName] setStringValue:name];
 }
 
 // スクリプト名のテキストフィールドの値を取得する
 - (NSString *)getScriptName {
-    return [[self textFieldScriptName] stringValue];
+    return [[self textViewScriptName] stringValue];
 }
 
-// スクリプト変更ボタンの有効状態を設定する
-- (void)enableScriptUpdateButton:(BOOL)state {
-    [[self buttonScriptNameUpdate] setEnabled:state];
+// スクリプトを開くボタンの有効状態を設定する
+- (void)enableOpenScriptButton:(BOOL)state {
+    [[self buttonOpenScript] setEnabled:state];
 }
 
-// スクリプト行番号ラベルを設定する
-- (void)setLineNumberLabel:(NSString *)text {
-    [[self labelScriptLine] setStringValue:text];
-}
-
-// スクリプト行番号のテキストフィールドの有効状態を設定する
-- (void)enableLineNumberTextField:(BOOL)state {
-    [[self textFieldScriptLine] setEnabled:state];
-}
-
-// スクリプト行番号のテキストフィールドの値を設定する
-- (void)setScriptLine:(int)num {
-    NSString *s = [NSString stringWithFormat:@"%d", num];
-    [[self textFieldScriptLine] setStringValue:s];
-}
-
-// スクリプト行番号のテキストフィールドの値を取得する
-- (int)getScriptLine {
-    NSString *s = [[self textFieldScriptLine] stringValue];
-    int num = atoi([s UTF8String]);
-    return num;
-}
-
-// スクリプト行番号変更ボタンの有効状態を設定する
-- (void)enableLineNumberUpdateButton:(BOOL)state {
-    [[self buttonScriptLine] setEnabled:state];
-}
-
-// コマンドのラベルのテキストを設定する
-- (void)setCommandLabel:(NSString *)text {
-    [[self labelCommand] setStringValue:text];
-}
-
-// コマンドのテキストフィールドの有効状態を設定する
-- (void)enableCommandTextField:(BOOL)state {
-    [[self textFieldCommand] setEditable:state];
-}
-
-// コマンドのテキストフィールドの値を設定する
-- (void)setCommandText:(NSString *)text {
-    [[self textFieldCommand] setString:text];
-}
-
-// コマンドのテキストフィールドの値を取得する
-- (NSString *)getCommandText {
-    return [[[self textFieldCommand] textStorage] string];
-}
-
-// コマンド反映ボタンの有効状態を設定する
-- (void)enableCommandUpdateButton:(BOOL)state {
-    [[self buttonCommandUpdate] setEnabled:state];
-}
-
-// スクリプトテーブルビューの有効状態を設定する
-- (void)enableScriptTableView:(BOOL)state {
-    [[self tableViewScript] setEnabled:state];
-}
-
-// エラーを探すボタンの有効状態を設定する
-- (void)enableNextErrorButton:(BOOL)state {
-    [[self buttonSearchError] setEnabled:state];
-}
-
-// 上書きボタンの有効状態を設定する
-- (void)enableOverwriteButton:(BOOL)state {
-    [[self buttonOverwriteScript] setEnabled:state];
-}
-
-// リロードボタンの有効状態を設定する
-- (void)enableReloadButton:(BOOL)state {
-    [[self buttonReloadScript] setEnabled:state];
+// スクリプトテキストエディットの有効状態を設定する
+- (void)enableScriptTextView:(BOOL)state {
+    [[self textViewScript] setEditable:state];
 }
 
 // 変数のテキストフィールドの有効状態を設定する
-- (void)enableVariableTextField:(BOOL)state {
-    [[self textFieldVariables] setEditable:state];
+- (void)enableVariableTextView:(BOOL)state {
+    [[self textViewVariables] setEditable:state];
 }
 
 // 変数の書き込みボタンの有効状態を設定する
@@ -501,35 +598,187 @@ static void setStoppedState(void);
 
 // 変数のテキストフィールドの値を設定する
 - (void)setVariablesText:(NSString *)text {
-    [[self textFieldVariables] setString:text];
+    [[self textViewVariables] setString:text];
 }
 
 // 変数のテキストフィールドの値を取得する
 - (NSString *)getVariablesText {
-    return [[[self textFieldVariables] textStorage] string];
+    return [[self.textViewVariables textStorage] string];
 }
 
 ///
-/// スクリプトのテーブルビュー
+/// スクリプトのテキストビュー
 ///
 
+// 実行行を設定する
+- (void)setExecLine:(int)line {
+    // TODO
+}
+
 // スクリプトのテキストビューの内容を更新する
-- (void)updateScriptTableView {
-    [[self tableViewScript] reloadData];
+- (void)updateScriptTextView {
+    // TODO
 }
 
 // スクリプトのテーブルビューをスクロールする
-- (void)scrollScriptTableView {
-    int line = get_expanded_line_num();
-    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:line];
-    [[self tableViewScript] selectRowIndexes:indexSet byExtendingSelection:NO];
-    [[self tableViewScript] scrollRowToVisible:line];
+- (void)scrollScriptTextView {
+    //int line = get_expanded_line_num();
+    // TODO
+}
+
+// テキストビューの内容をスクリプトモデルを元に設定する
+- (void)updateTextFromScriptModel {
+	// 行を連列してスクリプト文字列を作成する
+    NSString *text = @"";
+	for (int i = 0; i < get_line_count(); i++)
+        [text stringByAppendingString:[[NSString alloc] initWithUTF8String:get_line_string_at_line_num(i)]];
+
+	// テキストビューにテキストを設定する
+    isFirstChange = TRUE;
+	[self.textViewScript setString:text];
+
+	// 複数行の変更があったことを記録する
+	isRangedChange = TRUE;
+}
+
+// テキストビューの内容を元にスクリプトモデルを更新する
+- (void)updateScriptModelFromText {
+	// パースエラーをリセットして、最初のパースエラーで通知を行う
+	dbg_reset_parse_error_count();
+
+	// リッチエディットのテキストの内容でスクリプトの各行をアップデートする
+    const char *ctext= [self.textViewScript.string UTF8String];
+    char *text = strdup(ctext);
+	int total = (int)strlen(text);
+	int lineNum = 0;
+	int lineStart = 0;
+	while (lineStart < total) {
+		// 行を切り出す
+		char *lineText = text + lineStart;
+		char *lf = strstr(lineText, "\n");
+		int lineLen = lf != NULL ? (int)(lf - lineText) : (int)strlen(lineText);
+		if (lf != NULL)
+			*lf = '\0';
+
+		// 行を更新する
+		if (lineNum < get_line_count())
+			update_script_line(lineNum, lineText);
+		else
+			insert_script_line(lineNum, lineText);
+
+		lineNum++;
+		lineStart += lineLen;
+	}
+	free(text);
+
+	// 削除された末尾の行を処理する
+	isExecLineChanged = FALSE;
+	for (int i = get_line_count() - 1; i >= lineNum; i--)
+		if (delete_script_line(i))
+			isExecLineChanged = TRUE;
+	if (isExecLineChanged)
+		[self setTextColorForAllLines];
+
+	// コマンドのパースに失敗した場合
+	if (dbg_get_parse_error_count() > 0) {
+		// 行頭の'!'を反映するためにテキストを再設定する
+		[self updateTextFromScriptModel];
+        [self setTextColorForAllLines];
+	}
+}
+
+// テキストビューの現在の行の内容を元にスクリプトモデルを更新する
+- (void)updateScriptModelFromCurrentLineText {
+    // TODO
+    [self updateScriptModelFromText];
+}
+
+- (void)setTextColorForAllLines {
+    // すべてのテキスト装飾を削除する
+    NSString *text = self.textViewScript.string;
+    NSRange allRange = NSMakeRange(0, [text length]);
+    [self.textViewScript.textStorage removeAttribute:NSForegroundColorAttributeName range:allRange];
+    [self.textViewScript.textStorage removeAttribute:NSBackgroundColorAttributeName range:allRange];
+
+    // 行ごとに処理する
+    NSArray *lineArray = [text componentsSeparatedByString:@"\n"];
+    int startPos = 0;
+    int execLineNum = get_expanded_line_num();
+    for (int i = 0; i < execLineNum; i++) {
+        NSString *lineText = lineArray[i];
+        NSUInteger lineLen = [lineText length];
+
+        // 実行行であれば背景色を設定する
+        NSRange lineRange = NSMakeRange(startPos, [lineArray[i] length]);
+        NSColor *bgColor = isRunning ? [NSColor redColor] : [NSColor blueColor];
+        [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:bgColor range:lineRange];
+
+        // コメントを処理する
+        if ([lineText characterAtIndex:0] == L'#') {
+            // 行全体のテキスト色を変更する
+            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor grayColor] range:lineRange];
+        }
+        // ラベルを処理する
+        else if ([lineText characterAtIndex:0] == L':') {
+            // 行全体のテキスト色を変更する
+            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor greenColor] range:lineRange];
+        }
+        // エラー行を処理する
+        else if ([lineText characterAtIndex:0] == L'!') {
+            // 行全体のテキスト色を変更する
+            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor redColor] range:lineRange];
+        }
+        // コマンド行を処理する
+        else if ([lineText characterAtIndex:0] == L'@') {
+            // コマンド名部分を抽出する
+            NSUInteger commandNameLen = [lineText rangeOfString:@" "].location;
+            if (commandNameLen == NSNotFound)
+                commandNameLen = [lineText length];
+
+            // コマンド名のテキストに色を付ける
+            NSRange commandRange = NSMakeRange(startPos, commandNameLen);
+            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor blueColor] range:commandRange];
+
+            // 引数に色を付ける
+            int commandType = get_command_type_from_name([[lineText substringToIndex:commandNameLen] UTF8String]);
+            if (commandType != COMMAND_SET && commandType != COMMAND_IF &&
+                commandType != COMMAND_UNLESS && commandType != COMMAND_PENCIL &&
+                [lineText length] != commandNameLen) {
+                // 引数名を灰色にする
+                NSUInteger paramStart = startPos + commandNameLen;
+                do {
+                    NSString *sub = [lineText substringFromIndex:commandNameLen + 1];
+                    if ([sub length] == 0)
+                        break;
+
+                    // '='を探す
+                    NSUInteger eqPos = [sub rangeOfString:@"="].location;
+                    if (eqPos == NSNotFound)
+                        break;
+
+                    // '='の手前に' 'があればスキップする
+                    NSUInteger spacePos = [sub rangeOfString:@" "].location;
+                    if (spacePos != NSNotFound && spacePos < eqPos)
+                        continue;
+
+                    // 引数名部分のテキスト色を変更する
+                    NSRange paramNameRange = NSMakeRange(paramStart, eqPos - paramStart);
+                    [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor grayColor] range:paramNameRange];
+
+                    paramStart += spacePos;
+                } while (paramStart < lineLen);
+            }
+        }
+        
+        startPos += [lineText length] + 1;
+    }
 }
 
 //
 // 変数のテキストフィールド
 //
 
+// 変数のテキストフィールドの内容を更新する
 - (void)updateVariableTextField {
     @autoreleasepool {
         int index, val;
@@ -546,7 +795,7 @@ static void setStoppedState(void);
                       [NSString stringWithFormat:@"$%d=%d\n", index, val]];
         }
 
-        [[self textFieldVariables] setString:text];
+        [[self textViewVariables] setString:text];
     }
 }
 
@@ -557,69 +806,71 @@ static void setStoppedState(void);
 //
 
 //
-// デバッグウィンドウを初期化する
+// プロジェクトを初期化する
 //
-BOOL initDebugWindow(void)
+BOOL initProject(void)
 {
-    assert(debugWindowController == NULL);
-
     // 英語モードかどうかをロケールから決定する
     NSString *lang = [[NSLocale preferredLanguages] objectAtIndex:0];
     isEnglish = [lang hasPrefix:@"ja-"] ? false : true;
+    
+    // 開くダイアログを作る
+    NSOpenPanel *panel= [NSOpenPanel openPanel];
+    [panel setAllowedContentTypes:@[[UTType typeWithFilenameExtension:@"suika2project" conformingToType:UTTypeData]]];
+    if ([panel runModal] != NSModalResponseOK)
+        return FALSE;
 
-    // デバッグウィンドウのXibファイルをロードする
-    debugWindowController = [[DebugWindowController alloc]
-                                  initWithWindowNibName:@"DebugWindow"];
+    NSString *dir = [[[panel URL] URLByDeletingLastPathComponent] path];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager changeCurrentDirectoryPath:dir];
+
+    return TRUE;
+}
+
+//
+// デバッガを初期化する
+//
+BOOL initDebugger(void)
+{
+    assert(debugWindowController == NULL);
+    
+    // ウィンドウのNibファイルをロードする
+    debugWindowController = [[DebugWindowController alloc] initWithWindowNibName:@"DebugWindow"];
     if (debugWindowController == NULL)
         return YES;
-
-    // メニューのXibをロードする
+    
+    // メニューのNibをロードする
     NSBundle *bundle = [NSBundle mainBundle];
     NSArray *objects = [NSArray new];
     [bundle loadNibNamed:@"MainMenu"
                    owner:debugWindowController
          topLevelObjects:&objects];
 
-    // デバッグウィンドウを表示する
+    // Set delegate.
+    [NSApp setDelegate:debugWindowController.view];
+    [debugWindowController.window setDelegate:debugWindowController.view];
+    [debugWindowController.window makeFirstResponder:debugWindowController.view];
+
+    // ウィンドウを表示する
     [debugWindowController showWindow:debugWindowController];
 
-    // ビューを更新する
-    on_change_running_state(false, false);
-
-    // デバッグ情報表示を更新する
-    on_load_script();
-    on_change_position();
-
-	return YES;
+    /*
+    // タイマをセットする
+    [NSTimer scheduledTimerWithTimeInterval:1.0/30.0
+                                     target:theView
+                                   selector:@selector(timerFired:)
+                                   userInfo:nil
+                                    repeats:YES];
+*/
+    return YES;
 }
 
 //
-// スタートアップファイル/ラインを取得する
+// デバッガの終了処理を行う
 //
-BOOL getStartupPosition(void)
+void cleanupDebugger(void)
 {
-    const char *file = NULL;
-    int line = -1;
-    
-    NSArray *args = [[NSProcessInfo processInfo] arguments];
-    for (int i = 0; i < [args count]; i++) {
-        NSString *s = [args objectAtIndex:i];
-        if ([s hasPrefix:@"scenario-file="])
-            file = [[s substringFromIndex:[@"scenario-file=" length]] UTF8String];
-        else if ([s hasPrefix:@"scenario-line="])
-            line = [[s substringFromIndex:[@"scenario-line=" length]] intValue];
-    }
-
-    if (file != NULL && line != -1) {
-        /* スタートアップファイル/ラインを指定する */
-        if (!set_startup_file_and_line(file, line))
-            return NO;
-
-        /* 実行開始ボタンが押されたことにする */
-        isResumePressed = true;
-    }
-
-	return YES;
+    // TODO: destroy something.
 }
 
 //
@@ -643,8 +894,8 @@ static NSString *nsstr(const char *utf8str)
 //
 bool is_continue_pushed(void)
 {
-    bool ret = isResumePressed;
-    isResumePressed = false;
+    bool ret = isContinuePressed;
+    isContinuePressed = false;
     return ret;
 }
 
@@ -663,8 +914,8 @@ bool is_next_pushed(void)
 //
 bool is_stop_pushed(void)
 {
-    bool ret = isPausePressed;
-    isPausePressed = false;
+    bool ret = isStopPressed;
+    isStopPressed = false;
     return ret;
 }
 
@@ -673,8 +924,8 @@ bool is_stop_pushed(void)
 //
 bool is_script_opened(void)
 {
-    bool ret = isChangeScriptPressed;
-    isChangeScriptPressed = false;
+    bool ret = isOpenScriptPressed;
+    isOpenScriptPressed = false;
     return ret;
 }
 
@@ -684,8 +935,7 @@ bool is_script_opened(void)
 const char *get_opened_script(void)
 {
     static char script[256];
-    snprintf(script, sizeof(script), "%s",
-             [[debugWindowController getScriptName] UTF8String]);
+    snprintf(script, sizeof(script), "%s", [[debugWindowController getScriptName] UTF8String]);
     return script;
 }
 
@@ -694,8 +944,8 @@ const char *get_opened_script(void)
 //
 bool is_exec_line_changed(void)
 {
-    bool ret = isLineChangePressed;
-    isLineChangePressed = false;
+    bool ret = isExecLineChanged;
+    isExecLineChanged = false;
     return ret;
 }
 
@@ -704,40 +954,7 @@ bool is_exec_line_changed(void)
 //
 int get_changed_exec_line(void)
 {
-    return [debugWindowController getScriptLine];
-}
-
-//
-// コマンドがアップデートされたかを調べる
-//
-bool is_command_updated(void)
-{
-    bool ret = isCommandUpdatePressed;
-    isCommandUpdatePressed = false;
-    return ret;
-}
-
-//
-// アップデートされたコマンド文字列を取得する
-//
-const char *get_updated_command(void)
-{
-    @autoreleasepool {
-        static char command[4096];
-        snprintf(command, sizeof(command), "%s",
-                 [[debugWindowController getCommandText] UTF8String]);
-        return command;
-    }
-}
-
-//
-// スクリプトがリロードされたかを調べる
-//
-bool is_script_reloaded(void)
-{
-    bool ret = isReloadPressed;
-    isReloadPressed = false;
-    return ret;
+    return changedExecLine;
 }
 
 //
@@ -767,325 +984,160 @@ void on_change_running_state(bool running, bool request_stop)
 // 停止によりコマンドの完了を待機中のときのビューの状態を設定する
 static void setWaitingState(void)
 {
-    // ウィンドウのタイトルを設定する
-    [debugWindowController setTitle:isEnglish ?
-                           @"Waiting for command finish..." :
-                           @"コマンドの完了を待機中..."];
-
     // 続けるボタンを無効にする
-    [debugWindowController setResumeButton:NO text:isEnglish ?
-                           @"Resume" :
-                           @"続ける"];
+    [debugWindowController setResumeButton:NO text:isEnglish ? @"Continue" : @"続ける"];
 
     // 次へボタンを無効にする
-    [debugWindowController setNextButton:NO text:isEnglish ?
-                           @"Next" :
-                           @"次へ"];
+    [debugWindowController setNextButton:NO text:isEnglish ? @"Next" : @"次へ"];
 
     // 停止ボタンを無効にする
-    [debugWindowController setPauseButton:NO text:isEnglish ?
-                           @"Pause" :
-                           @"停止"];
-
-    // スクリプトテキストボックスを無効にする
-    [debugWindowController enableScriptTextField:NO];
-
-    // スクリプト変更ボタンを無効にする
-    [debugWindowController enableScriptUpdateButton:NO];
+    [debugWindowController setStopButton:NO text:isEnglish ? @"Stop" : @"停止"];
 
     // スクリプト選択ボタンを無効にする
-    //[debugWindowController enableScriptOpenButton:NO];
+    [debugWindowController enableOpenScriptButton:NO];
 
-    // 行番号ラベルを設定する
-    [debugWindowController setLineNumberLabel:isEnglish ?
-                           @"Current Waiting Line:" :
-                           @"現在完了待ちの行番号:"];
-
-    // 行番号テキストボックスを無効にする
-    [debugWindowController enableLineNumberTextField:NO];
-
-    // 行番号変更ボタンを無効にする
-    [debugWindowController enableLineNumberUpdateButton:NO];
-
-    // コマンドラベルを設定する
-    [debugWindowController setCommandLabel:isEnglish ?
-                           @"Current Waiting Command:" :
-                           @"現在完了待ちのコマンド:"];
-
-    // コマンドテキストボックスを無効にする
-    [debugWindowController enableCommandTextField:NO];
-
-    // コマンドアップデートボタンを無効にする
-    [debugWindowController enableCommandUpdateButton:NO];
-
-    // コマンドリセットボタンを無効にする
-    //[debugWindowController enableCommandResetButton:NO];
-
-    // リストボックスを有効にする
-    [debugWindowController enableScriptTableView:NO];
-
-    // エラーを探すを無効にする
-    [debugWindowController enableNextErrorButton:NO];
-
-    // 上書き保存ボタンを無効にする
-    [debugWindowController enableOverwriteButton:NO];
-
-    // 再読み込みボタンを無効にする */
-    [debugWindowController enableReloadButton:NO];
+    // スクリプトのテキストボックスを有効にする
+    [debugWindowController enableScriptTextView:NO];
 
     // 変数のテキストボックスを無効にする
-    [debugWindowController enableVariableTextField:NO];
+    [debugWindowController enableVariableTextView:NO];
 
     // 変数の書き込みボタンを無効にする
     [debugWindowController enableVariableUpdateButton:NO];
 
     // スクリプトを開くメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
 
-    // 上書き保存メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
-
-    // パッケージエクスポートメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
+    // 保存メニューを無効にする
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
 
     // 続けるメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
 
     // 次へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
 
     // 停止メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
 
     // 次のエラー箇所へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
 
-    // 再読み込みメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:106] setEnabled:NO];
+    // 演出メニューを無効にする
+    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+        [item setEnabled:NO];
+
+    // エクスポートメニューを無効にする
+    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+        [item setEnabled:NO];
 }
 
 // 実行中のときのビューの状態を設定する
 static void setRunningState(void)
 {
-    // ウィンドウのタイトルを設定する
-    [debugWindowController setTitle:isEnglish ?
-                           @"Running..." :
-                           @"実行中..."];
-
     // 続けるボタンを無効にする
-    [debugWindowController setResumeButton:NO text:isEnglish ?
-                           @"Resume" :
-                           @"続ける"];
+    [debugWindowController setResumeButton:NO text:isEnglish ? @"Continue" : @"続ける"];
 
     /* 次へボタンを無効にする */
-    [debugWindowController setNextButton:NO text:isEnglish ?
-                           @"Next" :
-                           @"次へ"];
+    [debugWindowController setNextButton:NO text:isEnglish ? @"Next" : @"次へ"];
 
     /* 停止ボタンを有効にする */
-    [debugWindowController setPauseButton:TRUE text:isEnglish ?
-                           @"Pause" :
-                           @"停止"];
+    [debugWindowController setStopButton:TRUE text:isEnglish ? @"Stop" : @"停止"];
 
-    // スクリプトテキストボックスを無効にする
-    [debugWindowController enableScriptTextField:NO];
+    // スクリプトを開くボタンを無効にする
+    [debugWindowController enableOpenScriptButton:NO];
 
-    // スクリプト変更ボタンを無効にする
-    [debugWindowController enableScriptUpdateButton:NO];
-
-    // スクリプト選択ボタンを無効にする
-    //[debugWindowController enableScriptOpenButton:NO];
-
-    // 行番号ラベルを設定する
-    [debugWindowController setLineNumberLabel:isEnglish ?
-                           @"Current Running Line:" :
-                           @"現在実行中の行番号:"];
-
-    // 行番号テキストボックスを無効にする
-    [debugWindowController enableLineNumberTextField:NO];
-
-    // 行番号変更ボタンを無効にする
-    [debugWindowController enableLineNumberUpdateButton:NO];
-
-    // コマンドラベルを設定する
-    [debugWindowController setCommandLabel:isEnglish ?
-                           @"Current Running Command:" :
-                           @"現在実行中のコマンド:"];
-
-    // コマンドテキストボックスを無効にする
-    [debugWindowController enableCommandTextField:NO];
-
-    // コマンドアップデートボタンを無効にする
-    [debugWindowController enableCommandUpdateButton:NO];
-
-    // コマンドリセットボタンを無効にする
-    //[debugWindowController enableCommandResetButton:NO];
-
-    // リストボックスを有効にする
-    [debugWindowController enableScriptTableView:NO];
-
-    // エラーを探すを無効にする
-    [debugWindowController enableNextErrorButton:NO];
-
-    // 上書きボタンを無効にする
-    [debugWindowController enableOverwriteButton:NO];
-
-    // 再読み込みボタンを無効にする
-    [debugWindowController enableReloadButton:NO];
+    // スクリプトのテキストボックスを有効にする
+    [debugWindowController.textViewScript setEditable:YES];
 
     // 変数のテキストボックスを無効にする
-    [debugWindowController enableVariableTextField:NO];
+    [debugWindowController enableVariableTextView:NO];
 
     // 変数の書き込みボタンを無効にする
     [debugWindowController enableVariableUpdateButton:NO];
 
     // スクリプトを開くメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
 
     // 上書き保存メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
 
     // パッケージエクスポートメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
 
     // 続けるメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
 
     // 次へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
 
     // 停止メニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:104] setEnabled:YES];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:YES];
 
     // 次のエラー箇所へメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
 
-    // 再読み込みメニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:106] setEnabled:NO];
+    // 演出メニューを無効にする
+    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+        [item setEnabled:NO];
+
+    // エクスポートメニューを無効にする
+    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+        [item setEnabled:NO];
 }
 
 // 完全に停止中のときのビューの状態を設定する
 static void setStoppedState(void)
 {
-    // ウィンドウのタイトルを設定する
-    [debugWindowController setTitle:isEnglish ?
-                           @"Stopped" :
-                           @"停止中"];
-
     // 続けるボタンを有効にする
-    [debugWindowController setResumeButton:YES text:isEnglish ?
-                           @"Resume" :
-                           @"続ける"];
+    [debugWindowController setResumeButton:YES text:isEnglish ? @"Resume" : @"続ける"];
 
     // 次へボタンを有効にする
-    [debugWindowController setNextButton:YES text:isEnglish ?
-                           @"Next" :
-                           @"次へ"];
+    [debugWindowController setNextButton:YES text:isEnglish ? @"Next" : @"次へ"];
 
     // 停止ボタンを無効にする
-    [debugWindowController setPauseButton:NO text:isEnglish ?
-                           @"Pause" :
-                           @"停止"];
-
-    // スクリプトテキストボックスを有効にする
-    [debugWindowController enableScriptTextField:YES];
-
-    // スクリプト変更ボタンを有効にする
-    [debugWindowController enableScriptUpdateButton:YES];
+    [debugWindowController setStopButton:NO text:isEnglish ? @"Pause" : @"停止"];
 
     // スクリプト選択ボタンを有効にする
-    //[debugWindowController enableScriptOpenButton:YES];
+    [debugWindowController enableOpenScriptButton:YES];
 
-    // 行番号ラベルを設定する
-    [debugWindowController setLineNumberLabel:isEnglish ?
-                           @"Next Line to be Executed:" :
-                           @"次に実行される行番号:"];
-
-    // 行番号テキストボックスを有効にする
-    [debugWindowController enableLineNumberTextField:YES];
-
-    // 行番号変更ボタンを有効にする
-    [debugWindowController enableLineNumberUpdateButton:YES];
-
-    // コマンドラベルを設定する
-    [debugWindowController setCommandLabel:isEnglish ?
-                           @"Next Command to be Executed:" :
-                           @"次に実行されるコマンド:"];
-
-    // コマンドテキストボックスを有効にする
-    [debugWindowController enableCommandTextField:YES];
-
-    // コマンドアップデートボタンを有効にする
-    [debugWindowController enableCommandUpdateButton:YES];
-
-    // コマンドリセットボタンを有効にする
-    //[debugWindowController enableCommandResetButton:YES];
-
-    // リストボックスを有効にする
-    [debugWindowController enableScriptTableView:YES];
-
-    // エラーを探すを有効にする
-    [debugWindowController enableNextErrorButton:YES];
-
-    // 上書き保存ボタンを有効にする
-    [debugWindowController enableOverwriteButton:YES];
-
-    // 再読み込みボタンを有効にする
-    [debugWindowController enableReloadButton:YES];
+    // スクリプトのテキストボックスを有効にする
+    [debugWindowController enableScriptTextView:YES];
 
     // 変数のテキストボックスを有効にする
-    [debugWindowController enableVariableTextField:YES];
+    [debugWindowController enableVariableTextView:YES];
 
     // 変数の書き込みボタンを有効にする
     [debugWindowController enableVariableUpdateButton:YES];
 
     // スクリプトを開くメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:100] setEnabled:YES];
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:YES];
 
     // 上書き保存メニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
 
     // パッケージエクスポートメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:1] submenu] itemWithTag:107] setEnabled:YES];
+    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:YES];
 
     // 続けるメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:102] setEnabled:YES];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:YES];
 
     // 次へメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:103] setEnabled:YES];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:YES];
 
     // 停止メニューを無効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
 
     // 次のエラー箇所へメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:105] setEnabled:YES];
+    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:YES];
 
-    // 再読み込みメニューを有効にする
-    [[[[[NSApp mainMenu]
-           itemAtIndex:2] submenu] itemWithTag:106] setEnabled:YES];
+    // 演出メニューを有効にする
+    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+        [item setEnabled:YES];
+
+    // エクスポートメニューを有効にする
+    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+        [item setEnabled:YES];
 }
 
 //
@@ -1094,7 +1146,7 @@ static void setStoppedState(void)
 void on_load_script(void)
 {
     [debugWindowController setScriptName:nsstr(get_script_file_name())];
-    [debugWindowController updateScriptTableView];
+    [debugWindowController updateScriptTextView];
 }
 
 //
@@ -1102,8 +1154,7 @@ void on_load_script(void)
 //
 void on_change_position(void)
 {
-    [debugWindowController setScriptLine:get_expanded_line_num()];
-    [debugWindowController scrollScriptTableView];
+    [debugWindowController setExecLine:get_expanded_line_num()];
 }
 
 //

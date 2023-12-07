@@ -1,14 +1,15 @@
 // -*- tab-width: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 
 /*
- * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
  * [Changed]
  *  - 2016/06/15 Created.
  *  - 2020/06/11 Add debugger.
+ *  - 2023/12/06 Refactored.
  */
 
 // macOS
@@ -25,17 +26,11 @@
 #import "suika.h"
 #import "uimsg.h"
 
-// Suika2 HAL Implementation
+// Suika2 HAL implementations
 #import "nsmain.h"
 #import "aunit.h"
 #import "glrender.h"
-#define GL_SILENCE_DEPRECATION
 #import <OpenGL/gl3.h>
-
-// Suika2 Pro
-#ifdef USE_DEBUGGER
-#import "nsdebug.h"
-#endif
 
 // Suika2 Capture
 #ifdef USE_CAPTURE
@@ -48,58 +43,135 @@
 #endif
 
 //
-// Variables
-//
-
-// ウィンドウ
-static NSWindow *theWindow;
-
-// ビュー
-static SuikaView *theView;
-
-// フルスクリーン状態
-static BOOL isFullScreen;
-
-// ログファイル
-#ifndef USE_DEBUGGER
-static FILE *logFp;
-#endif
-
-// 動画プレーヤー
-static AVPlayer *player;
-
-// 動画プレーヤーのレイヤー
-static AVPlayerLayer *playerLayer;
-
-// 動画再生状態
-static BOOL isMoviePlaying;
-
-//
 // Forward Declaration
 //
-static BOOL initWindow(void);
-static void cleanupWindow(void);
 static NSString *NSStringFromWcs(const wchar_t *wcs);
-#ifndef USE_DEBUGGER
-static BOOL openLog(void);
-static void closeLog(void);
+
+//
+// main() for the main game engine.
+//
+#if !defined(USE_DEBUGGER)
+int main(int argc, char *argv[])
+{
+    return NSApplicationMain(argc, (const char **)argv);
+}
 #endif
 
-//
-// メインビュー
-//
+////////////////////////////////////////////////////////////////////////
+// GameWindowController
+////////////////////////////////////////////////////////////////////////
+#if !defined(USE_DEBUGGER)
 
-@interface SuikaView ()
-- (IBAction)onQuit:(id)sender;
-@end
+GameWindowController *windowController;
 
-@implementation SuikaView
+@implementation GameWindowController
 
-// フルスクリーン時の拡大率(マウス座標の計算に利用)
+// フルスクリーン状態
+BOOL isFullScreen;
+
+// スクリーンの拡大率
 float screenScale;
 
-// フルスクリーンになる前のウィンドウ位置とサイズ
+// 全画面に以降する前のウィンドウサイズ
 NSRect savedFrame;
+
+// フルスクリーンになる前に呼び出される
+- (NSSize)window:(NSWindow *)window willUseFullScreenContentSize:(NSSize)proposedSize {
+    UNUSED_PARAMETER(window);
+
+    // ゲーム画面のアスペクト比を求める
+    float aspect = (float)conf_window_height / (float)conf_window_width;
+
+    // 横幅優先で高さを仮決めする
+    float width = proposedSize.width;
+    float height = width * aspect;
+    screenScale = (float)conf_window_width / width;
+
+    // 高さが足りなければ、縦幅優先で横幅を決める
+    if(height > proposedSize.height) {
+        height = proposedSize.height;
+        width = proposedSize.height / aspect;
+        screenScale = (float)conf_window_height / height;
+    }
+
+    // 動画プレーヤレイヤのサイズを更新する
+    if(self.view.playerLayer != nil)
+        [self.view.playerLayer setFrame:NSMakeRect(0, 0, width, height)];
+
+    // スクリーンサイズを返す
+    return NSMakeSize(width, height);
+}
+
+// フルスクリーンになるとき呼び出される
+- (void)windowWillEnterFullScreen:(NSNotification *)notification {
+    isFullScreen = YES;
+
+    // ウィンドウサイズを保存する
+    savedFrame = self.window.frame;
+}
+
+// フルスクリーンから戻るときに呼び出される
+- (void)windowWillExitFullScreen:(NSNotification *)notification {
+    isFullScreen = NO;
+
+    // 動画プレーヤレイヤのサイズを元に戻す
+    if(self.view.playerLayer != nil)
+        [self.view.playerLayer setFrame:NSMakeRect(0, 0, savedFrame.size.width, savedFrame.size.height)];
+
+    // ウィンドウサイズを復元する
+    [self.window setFrame:savedFrame display:YES animate:NO];
+
+    // 拡大率を1.0にする
+    screenScale = 1.0f;
+}
+
+// 閉じるボタンイベント
+- (BOOL)windowShouldClose:(id)sender {
+    UNUSED_PARAMETER(sender);
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
+        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
+        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return YES;
+        else
+            return NO;
+    }
+}
+
+// ウィンドウが閉じられるイベント
+- (void)windowWillClose:(NSNotification *)notification {
+    // クリーンアップを行う
+    [self.view cleanup];
+
+    // メインループから抜ける
+    [NSApp stop:nil];
+}
+
+// 最後のウィンドウが閉じられたあと終了するか
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app {
+    UNUSED_PARAMETER(app);
+    return YES;
+}
+
+// Quitが選択されたか
+- (IBAction)onQuit:(id)sender {
+    if ([self windowShouldClose:sender]) {
+        // メインループから抜ける
+        [NSApp stop:nil];
+    }
+}
+@end // GamwWindowController
+#endif // !defined(USE_DEBUGGER)
+
+////////////////////////////////////////////////////////////////////////
+// GameView (common between the main game engine and the debugger)    //
+////////////////////////////////////////////////////////////////////////
+@implementation GameView
+// フルスクリーン時の拡大率(マウス座標の計算に利用)
+float screenScale;
 
 // 終了処理の必要があるか
 BOOL isFinished;
@@ -115,23 +187,35 @@ BOOL isRedrawPrepared;
     return AVPlayerLayer.class;
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-#ifndef USE_DEBUGGER
-    // メニューのXibをロードする
-    NSBundle *bundle = [NSBundle mainBundle];
-    NSArray *objects = [NSArray new];
-    [bundle loadNibNamed:@"MainMenu"
-                   owner:theView
-         topLevelObjects:&objects];
-#endif
-
-    // メニューのタイトルを変更する
-    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
-    [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
-}
-
 // ビューが作成されるときに呼び出される
 - (id)initWithFrame:(NSRect)frame {
+    // ロケールを初期化する
+    init_locale_code();
+
+    // パッケージの初期化処理を行う
+    if (!init_file())
+        abort();
+
+    // コンフィグの初期化処理を行う
+    if (!init_conf())
+        abort();
+            
+    // オーディオユニットの初期化処理を行う
+    if (!init_aunit())
+        abort();
+
+#if defined(USE_CAPTURE)
+    // キャプチャを初期化する
+    if (!init_capture())
+        abort();
+#endif
+
+#if defined(USE_REPLAY)
+    // リプレイを初期化する
+    if (!init_replay())
+        abort();
+#endif
+
     // OpenGLコンテキストを作成する
     NSOpenGLPixelFormatAttribute pixelFormatAttributes[] = {
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
@@ -143,7 +227,7 @@ BOOL isRedrawPrepared;
         0
     };
     NSOpenGLPixelFormat *pixelFormat =
-        [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
+    [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
     self = [super initWithFrame:frame pixelFormat:pixelFormat];
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
     [self setWantsBestResolutionOpenGLSurface:NO];
@@ -170,41 +254,107 @@ BOOL isRedrawPrepared;
         log_error("Failed to initialize OpenGL.");
         return self;
     }
-
+    
     // アプリケーション本体の初期化を行う
     if (!on_event_init()) {
         isFinished = YES;
         return self;
     }
 
+    // メインスクリーンの位置とサイズを取得する
+    NSRect sr = [[NSScreen mainScreen] visibleFrame];
+
+    // ウィンドウの座標をメインスクリーンの中央に設定する
+    NSRect cr = NSMakeRect(sr.origin.x +
+                           (sr.size.width - conf_window_width) / 2,
+                           sr.origin.y +
+                           (sr.size.height - conf_window_height) / 2,
+                           conf_window_width,
+                           conf_window_height);
+    [self.window setFrame:cr display:YES animate:FALSE];
+
+    // ウィンドウの最大化を制御する
+    if (!conf_window_fullscreen_disable) {
+        [self.window setCollectionBehavior:
+            [self.window collectionBehavior] |
+            NSWindowCollectionBehaviorFullScreenPrimary];
+    }
+
+    // ウィンドウのタイトルを設定する
+    [self.window setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
+
+    // キーとマウスの入力を受け取る
+    [self.window makeKeyAndOrderFront:nil];
+    [self.window setAcceptsMouseMovedEvents:YES];
+
+    // メニューのタイトルを変更する
+    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
+    [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
+
+    // タイマをセットする
+    [NSTimer scheduledTimerWithTimeInterval:1.0/30.0
+                                     target:self
+                                   selector:@selector(timerFired:)
+                                   userInfo:nil
+                                    repeats:YES];
+
     return self;
 }
 
-// タイマコールバック
+- (void)cleanup {
+    // アプリケーション本体の終了処理を行う
+    on_event_cleanup();
+    
+    // OpenGLの終了処理を行う
+    cleanup_opengl();
+    
+    // オーディオユニットの終了処理を行う
+    cleanup_aunit();
+    
+    // コンフィグの終了処理を行う
+    cleanup_conf();
+    
+    // パッケージの終了処理を行う
+    cleanup_file();
+
+#if defined(USE_CAPTURE)
+    // キャプチャを終了する
+    cleanup_capture();
+#endif
+    
+#if defined(USE_REPLAY)
+    // リプレイを終了する
+    cleanup_replay();
+#endif
+
+    if(self.logFp != NULL)
+        fclose(self.logFp);
+}
+
+// 描画用のタイマコールバック
 - (void)timerFired:(NSTimer *)timer {
     // 終了する場合
     if (isFinished) {
         // タイマを停止する
         [timer invalidate];
-
+        
         // イベントループを終了する
         [NSApp stop:nil];
-
+        
         // Magic: 空のイベントを1つポストしてイベントループから抜ける
-        NSEvent* event =
-            [NSEvent otherEventWithType:NSEventTypeApplicationDefined
-                               location:NSMakePoint(0, 0)
-                          modifierFlags:0
-                              timestamp:0
-                           windowNumber:0
-                                context:nil
-                                subtype:0
-                                  data1:0
-                                  data2:0];
+        NSEvent* event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                                            location:NSMakePoint(0, 0)
+                                       modifierFlags:0
+                                           timestamp:0
+                                        windowNumber:0
+                                             context:nil
+                                             subtype:0
+                                               data1:0
+                                               data2:0];
         [NSApp postEvent:event atStart:YES];
         return;
     }
-
+    
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
     // 入力のキャプチャを行う
     if (!capture_input()) {
@@ -212,25 +362,25 @@ BOOL isRedrawPrepared;
         return;
     }
 #endif
-
+    
     // OpenGLの描画を開始する
-    if (!isMoviePlaying)
+    if (!windowController.view.isMoviePlaying)
         opengl_start_rendering();
 
     // フレーム描画イベントを実行する
     int x = 0, y = 0, w = 0, h = 0;
     if (!on_event_frame(&x, &y, &w, &h))
         isFinished = YES;
-
+    
     // OpenGLの描画を終了する
-    if (!isMoviePlaying) {
+    if (!windowController.view.isMoviePlaying) {
         opengl_end_rendering();
         isRedrawPrepared = YES;
-
+        
         // drawRectの呼び出しを予約する
         [self setNeedsDisplay:YES];
     }
-
+    
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)
     // 出力のキャプチャを行う
     if (!capture_output())
@@ -243,9 +393,9 @@ BOOL isRedrawPrepared;
     [super drawRect:rect];
     if (isFinished)
         return;
-    if (isMoviePlaying)
+    if (windowController.view.isMoviePlaying)
         return;
-
+    
     if (!isRedrawPrepared) {
         if (conf_window_white)
             [[NSColor whiteColor] setFill];
@@ -254,10 +404,15 @@ BOOL isRedrawPrepared;
         NSRectFill(rect);
         return;
     }
-
+    
     [[self openGLContext] flushBuffer];
-
+    
     isRedrawPrepared = NO;
+}
+
+// First Responderとなるか
+- (BOOL)acceptsFirstResponder {
+    return YES;
 }
 
 // マウス押下イベント
@@ -269,8 +424,8 @@ BOOL isRedrawPrepared;
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
-        
-	on_event_mouse_press(MOUSE_LEFT, (int)pos.x,
+    
+    on_event_mouse_press(MOUSE_LEFT, (int)pos.x,
                          conf_window_height - (int)pos.y);
 }
 
@@ -283,8 +438,8 @@ BOOL isRedrawPrepared;
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
-
-	on_event_mouse_release(MOUSE_LEFT, (int)pos.x,
+    
+    on_event_mouse_release(MOUSE_LEFT, (int)pos.x,
                            conf_window_height - (int)pos.y);
 }
 
@@ -297,8 +452,8 @@ BOOL isRedrawPrepared;
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
-        
-	on_event_mouse_press(MOUSE_RIGHT, (int)pos.x,
+    
+    on_event_mouse_press(MOUSE_RIGHT, (int)pos.x,
                          conf_window_height - (int)pos.y);
 }
 
@@ -311,8 +466,8 @@ BOOL isRedrawPrepared;
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
-
-	on_event_mouse_release(MOUSE_RIGHT, (int)pos.x,
+    
+    on_event_mouse_release(MOUSE_RIGHT, (int)pos.x,
                            conf_window_height - (int)pos.y);
 }
 
@@ -325,8 +480,8 @@ BOOL isRedrawPrepared;
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
-
-	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
+    
+    on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
 }
 
 // マウスドラッグイベント
@@ -338,8 +493,8 @@ BOOL isRedrawPrepared;
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
-
-	on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
+    
+    on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
 }
 
 // マウスホイールイベント
@@ -373,7 +528,7 @@ BOOL isRedrawPrepared;
 - (void)keyDown:(NSEvent *)theEvent {
     if ([theEvent isARepeat])
         return;
-
+    
     int kc = [self convertKeyCode:[theEvent keyCode]];
     if (kc != -1)
         on_event_key_press(kc);
@@ -388,221 +543,164 @@ BOOL isRedrawPrepared;
 
 // キーコードを変換する
 - (int)convertKeyCode:(int)keyCode {
+    const int KC_SPACE = 49;
+    const int KC_RETURN = 36;
+    const int KC_UP = 126;
+    const int KC_DOWN = 125;
+    const int KC_ESCAPE = 53;
+    const int KC_C = 8;
+
     switch(keyCode) {
-    case KC_SPACE:
-        return KEY_SPACE;
-    case KC_RETURN:
-        return KEY_RETURN;
-    case KC_UP:
-        return KEY_UP;
-    case KC_DOWN:
-        return KEY_DOWN;
-    case KC_ESCAPE:
-        return KEY_ESCAPE;
-    case KC_C:
-        return KEY_C;
+        case KC_SPACE:
+            return KEY_SPACE;
+        case KC_RETURN:
+            return KEY_RETURN;
+        case KC_UP:
+            return KEY_UP;
+        case KC_DOWN:
+            return KEY_DOWN;
+        case KC_ESCAPE:
+            return KEY_ESCAPE;
+        case KC_C:
+            return KEY_C;
     }
     return -1;
 }
 
-// フルスクリーンになる前に呼び出される
-- (NSSize)window:(NSWindow *)window
-willUseFullScreenContentSize:(NSSize)proposedSize {
-    UNUSED_PARAMETER(window);
-
-    // ゲーム画面のアスペクト比を求める
-    float aspect = (float)conf_window_height / (float)conf_window_width;
-
-    // 横幅優先で高さを仮決めする
-    float width = proposedSize.width;
-    float height = width * aspect;
-    screenScale = (float)conf_window_width / width;
-
-    // 高さが足りなければ、縦幅優先で横幅を決める
-    if(height > proposedSize.height) {
-        height = proposedSize.height;
-        width = proposedSize.height / aspect;
-        screenScale = (float)conf_window_height / height;
-    }
-
-    // 動画プレーヤレイヤのサイズを更新する
-    if(playerLayer != nil)
-        [playerLayer setFrame:NSMakeRect(0, 0, width, height)];
-
-    // スクリーンサイズを返す
-    return NSMakeSize(width, height);
-}
-
-// フルスクリーンになるとき呼び出される
-- (void)windowWillEnterFullScreen:(NSNotification *)notification {
-    isFullScreen = YES;
-
-    // ウィンドウサイズを保存する
-    savedFrame = [theWindow frame];
-}
-
-// フルスクリーンから戻るときに呼び出される
-- (void)windowWillExitFullScreen:(NSNotification *)notification {
-    isFullScreen = NO;
-
-    // 動画プレーヤレイヤのサイズを元に戻す
-    if(playerLayer != nil) {
-        [playerLayer setFrame:NSMakeRect(0, 0,
-                                         savedFrame.size.width,
-                                         savedFrame.size.height)];
-    }
-
-    [theWindow setFrame:savedFrame display:YES animate:NO];
-    screenScale = 1.0f;
-}
-
-// 閉じるボタンイベント
-- (BOOL)windowShouldClose:(id)sender {
-    UNUSED_PARAMETER(sender);
-
-#ifdef USE_DEBUGGER
-    return YES;
-#else
-    @autoreleasepool {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
-        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
-        [alert setAlertStyle:NSAlertStyleWarning];
-        if ([alert runModal] == NSAlertFirstButtonReturn)
-            return YES;
-        else
-            return NO;
-    }
-#endif
-}
-
-// ウィンドウが閉じられるイベント
-- (void)windowWillClose:(NSNotification *)notification {
-    // メインループから抜ける
-    [NSApp stop:nil];
-}
-
-// 最後のウィンドウが閉じられたあと終了するか
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app {
-    UNUSED_PARAMETER(app);
-    return YES;
-}
-
-// Quitが選択されたか
-- (IBAction)onQuit:(id)sender {
-    if ([self windowShouldClose:sender]) {
-        // メインループから抜ける
-        [NSApp stop:nil];
-    }
-}
-
-// First Responderとなるか
-- (BOOL)acceptsFirstResponder {
-    return YES;
-}
-
 // 動画再生が完了したとき通知される
 - (void)onPlayEnd:(NSNotification *)notification {
-    [player replaceCurrentItemWithPlayerItem:nil];
-    isMoviePlaying = NO;
+    [self.player replaceCurrentItemWithPlayerItem:nil];
+    windowController.view.isMoviePlaying = NO;
 }
-@end
+@end // GameView
+
+////////////////////////////////////////////////////////////////////////
+// Suika2 HAL (an implementation of platform.h)                       //
+////////////////////////////////////////////////////////////////////////
+
+#if !defined(USE_DEBUGGER)
+static BOOL openLog(void);
+#endif
 
 //
-// メイン
+// INFOログを出力する
 //
-int main(int argc, char *argv[])
+bool log_info(const char *s, ...)
 {
-#ifdef SSE_VERSIONING
-	// ベクトル命令の対応を確認する
-    x86_check_cpuid_flags();
+    char buf[1024];
+    va_list ap;
+    
+    va_start(ap, s);
+    vsnprintf(buf, sizeof(buf), s, ap);
+    va_end(ap);
+
+    // ログファイルをオープンする
+#if !defined(USE_DEBUGGER)
+    if (!openLog())
+        return false;
 #endif
 
-    @autoreleasepool {
-        // ロケールを初期化する
-        init_locale_code();
-
-#ifdef USE_DEBUGGER
-        // スタートアップファイル/ラインを取得する
-        if (!getStartupPosition())
-            return 1;
-#endif
-
-        // パッケージの初期化処理を行う
-        if (init_file()) {
-            // コンフィグの初期化処理を行う
-            if (init_conf()) {
-                // オーディオユニットの初期化処理を行う
-                if (init_aunit()) {
-                    // ウィンドウを作成する
-                    if (initWindow()) {
-#if defined(USE_DEBUGGER)
-                        // デバッグウィンドウを作成する
-                        if (initDebugWindow()) {
-#elif defined(USE_CAPTURE)
-                        // キャプチャを初期化する
-                        if (init_capture()) {
-#elif defined(USE_REPLAY)
-                        // リプレイを初期化する
-                            if (init_replay(argc, argv)) {
-#else
-                        {
-#endif
-                            // メインループを実行する
-                            [NSApp activateIgnoringOtherApps:YES];
-                            [NSApp run];
-
-                            // アプリケーション本体の終了処理を行う
-                            on_event_cleanup();
-
-                            // OpenGLの終了処理を行う
-                            cleanup_opengl();
-                        }
-                    }
-
-                    // ウィンドウの終了処理を行う
-                    cleanupWindow();
-                }
-
-                // オーディオユニットの終了処理を行う
-                cleanup_aunit();
-            }
-
-            // コンフィグの終了処理を行う
-            cleanup_conf();
-        }
-
-        // パッケージの終了処理を行う
-        cleanup_file();
-
-#ifndef USE_DEBUGGER
-        // ログをクローズする
-        closeLog();
-#endif
-
-#ifdef USE_CAPTURE
-        // キャプチャを終了する
-        cleanup_capture();
-#endif
-#ifdef USE_REPLAY
-        // リプレイを終了する
-        cleanup_replay();
-#endif
+    // ログファイルに出力する
+    if (windowController.view.logFp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(windowController.view.logFp, "%s", buf);
+        fflush(windowController.view.logFp);
     }
 
-    [NSApp terminate:nil];
-	return 0;
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_INFO))];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
+
+    return true;
 }
 
-#ifndef USE_DEBUGGER
+//
+// WARNログを出力する
+//
+bool log_warn(const char *s, ...)
+{
+    char buf[1024];
+    va_list ap;
+
+    va_start(ap, s);
+    vsnprintf(buf, sizeof(buf), s, ap);
+    va_end(ap);
+
+    // ログファイルをオープンする
+#if !defined(USE_DEBUGGER)
+    if (!openLog())
+        return false;
+#endif
+
+    // ログファイルに出力する
+    if (windowController.view.logFp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(windowController.view.logFp, "%s", buf);
+        fflush(windowController.view.logFp);
+    }
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_WARN))];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
+
+    return true;
+}
+
+//
+// Errorログを出力する
+//
+bool log_error(const char *s, ...)
+{
+    char buf[1024];
+    va_list ap;
+
+    va_start(ap, s);
+    vsnprintf(buf, sizeof(buf), s, ap);
+    va_end(ap);
+
+    // ログファイルをオープンする
+#if !defined(USE_DEBUGGER)
+    if (!openLog())
+        return false;
+#endif
+
+    // ログファイルに出力する
+    if (windowController.view.logFp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(windowController.view.logFp, "%s", buf);
+        fflush(windowController.view.logFp);
+    }
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_ERROR))];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
+
+    return true;
+}
+
 // ログをオープンする
+#if !defined(USE_DEBUGGER)
 static BOOL openLog(void)
 {
     const char *cpath;
 
     // すでにオープン済みの場合、成功とする
-    if (logFp != NULL)
+    if (windowController.view.logFp != NULL)
         return TRUE;
 
     if (conf_release && conf_window_title != NULL) {
@@ -628,8 +726,8 @@ static BOOL openLog(void)
     }
 
     // ログをオープンする
-    logFp = fopen(cpath, "w");
-    if (logFp == NULL) {
+    windowController.view.logFp = fopen(cpath, "w");
+    if (windowController.view.logFp == NULL) {
         // 失敗
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:@"Error"];
@@ -641,94 +739,7 @@ static BOOL openLog(void)
     // 成功
     return YES;
 }
-
-// ログをクローズする
-static void closeLog(void)
-{
-    // ログをクローズする
-    if (logFp != NULL)
-        fclose(logFp);
-}
 #endif
-
-// ウィンドウの初期化処理を行う
-static BOOL initWindow(void)
-{
-    // アプリケーションの初期化処理を行う
-    [NSApplication sharedApplication];
-    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-
-    // メインスクリーンの位置とサイズを取得する
-    NSRect sr = [[NSScreen mainScreen] visibleFrame];
-
-    // ウィンドウの座標を計算する
-    NSRect cr = NSMakeRect(sr.origin.x +
-                           (sr.size.width - conf_window_width) / 2,
-                           sr.origin.y +
-                           (sr.size.height - conf_window_height) / 2,
-                           conf_window_width,
-                           conf_window_height);
-
-    // ウィンドウを作成する
-    theWindow = [[NSWindow alloc]
-                     initWithContentRect:cr
-                               styleMask:NSWindowStyleMaskTitled |
-                                         NSWindowStyleMaskClosable  |
-                                         NSWindowStyleMaskMiniaturizable
-                                 backing:NSBackingStoreBuffered
-                                   defer:NO];
-#ifndef USE_DEBUGGER
-    if (!conf_window_fullscreen_disable) {
-        [theWindow setCollectionBehavior:
-                       [theWindow collectionBehavior] |
-                   NSWindowCollectionBehaviorFullScreenPrimary];
-    }
-#endif
-    [theWindow setTitle:[[NSString alloc]
-                            initWithUTF8String:conf_window_title]];
-    [theWindow makeKeyAndOrderFront:nil];
-    [theWindow setAcceptsMouseMovedEvents:YES];
-
-    // ビューを作成する
-    theView = [[SuikaView alloc] init];
-    [theWindow setContentView:theView];
-    [theWindow makeFirstResponder:theView];
-
-    // デリゲートを設定する
-    [NSApp setDelegate:theView];
-    [theWindow setDelegate:theView];
-
-    // タイマをセットする
-    [NSTimer scheduledTimerWithTimeInterval:1.0/30.0
-                                     target:theView
-                                   selector:@selector(timerFired:)
-                                   userInfo:nil
-                                    repeats:YES];
-
-    // Hack: コマンドラインから起動された際にメニューを有効にする
-    ProcessSerialNumber psn = {0, kCurrentProcess};
-    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-
-    return YES;
-}
-
-// ウィンドウの終了処理を行う
-static void cleanupWindow(void)
-{
-    // TODO: destroy theView and theWindow
-}
-
-// ワイド文字列をNSStringに変換する
-static NSString *NSStringFromWcs(const wchar_t *wcs)
-{
-    return [[NSString alloc] initWithBytes:wcs
-                                    length:wcslen(wcs) * sizeof(*wcs)
-                                  encoding:NSUTF32LittleEndianStringEncoding];
-}
-
-//
-// platform.hの実装
-//
 
 //
 // セーブディレクトリを作成する
@@ -736,6 +747,7 @@ static NSString *NSStringFromWcs(const wchar_t *wcs)
 bool make_sav_dir(void)
 {
     @autoreleasepool {
+#if !defined(USE_DEBUGGER)
         if (conf_release) {
             NSString *path = NSHomeDirectory();
             path = [path stringByAppendingString:@"/Library/Application Support/"];
@@ -764,6 +776,15 @@ bool make_sav_dir(void)
                                                        attributes:nil
                                                             error:&error];
         }
+#else
+        NSString *path = [[NSFileManager defaultManager] currentDirectoryPath];
+        path = [path stringByAppendingString:@"/"];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:SAVE_DIR]];
+        [[NSFileManager defaultManager] createDirectoryAtPath:path
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:NULL];
+#endif
     }
 	return true;
 }
@@ -773,12 +794,14 @@ bool make_sav_dir(void)
 //
 char *make_valid_path(const char *dir, const char *fname)
 {
-    char *ret;
-
+    
+    char *ret = NULL;
+    
     @autoreleasepool {
+#if !defined(USE_DEBUGGER)
         if (conf_release && dir != NULL && strcmp(dir, SAVE_DIR) == 0) {
             assert(fname != NULL);
-
+            
             NSString *path = NSHomeDirectory();
             path = [path stringByAppendingString:@"/Library/Application Support/"];
             path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:conf_window_title]];
@@ -790,10 +813,10 @@ char *make_valid_path(const char *dir, const char *fname)
         } else {
             // .appバンドルのパスを取得する
             NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
-
+            
             // .appバンドルの1つ上のディレクトリのパスを取得する
             NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
-
+            
             // ファイルのパスを作成する
             NSString *filePath;
             if (dir != NULL) {
@@ -807,10 +830,19 @@ char *make_valid_path(const char *dir, const char *fname)
                 else
                     filePath = basePath;
             }
-
+            
             const char *cstr = [filePath UTF8String];
             ret = strdup(cstr);
         }
+#else
+        NSString *path = [[NSFileManager defaultManager] currentDirectoryPath];
+        path = [path stringByAppendingString:@"/"];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:dir]];
+        path = [path stringByAppendingString:@"/"];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:fname]];
+        const char *cstr = [path UTF8String];
+        ret = strdup(cstr);
+#endif
     }
 
     if (ret == NULL) {
@@ -820,110 +852,6 @@ char *make_valid_path(const char *dir, const char *fname)
     return ret;
 }
 
-//
-// INFOログを出力する
-//
-bool log_info(const char *s, ...)
-{
-	char buf[1024];
-    va_list ap;
-    
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
-
-#ifndef USE_DEBUGGER
-    // ログファイルに出力する
-    if (!openLog())
-        return false;
-    if (logFp != NULL) {
-        fprintf(stderr, "%s", buf);
-        fprintf(logFp, "%s", buf);
-        fflush(logFp);
-    }
-#endif
-
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_INFO))];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
-
-    return true;
-}
-
-//
-// WARNログを出力する
-//
-bool log_warn(const char *s, ...)
-{
-	char buf[1024];
-    va_list ap;
-
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
-
-#ifndef USE_DEBUGGER
-    // ログファイルに出力する
-    if (!openLog())
-        return false;
-    if (logFp != NULL) {
-        fprintf(stderr, "%s", buf);
-        fprintf(logFp, "%s", buf);
-        fflush(logFp);
-    }
-#endif
-
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_WARN))];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
-
-    return true;
-}
-
-//
-// Errorログを出力する
-//
-bool log_error(const char *s, ...)
-{
-	char buf[1024];
-    va_list ap;
-
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
-
-#ifndef USE_DEBUGGER
-    // ログファイルに出力する
-    if (!openLog())
-        return false;
-    if (logFp != NULL) {
-        fprintf(stderr, "%s", buf);
-        fprintf(logFp, "%s", buf);
-        fflush(logFp);
-    }
-#endif
-
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_ERROR))];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
-
-    return true;
-}
 
 //
 // GPUを使うか調べる
@@ -1138,6 +1066,14 @@ bool default_dialog(void)
     }
 }
 
+// ワイド文字列をNSStringに変換する
+static NSString *NSStringFromWcs(const wchar_t *wcs)
+{
+    return [[NSString alloc] initWithBytes:wcs
+                                    length:wcslen(wcs) * sizeof(*wcs)
+                                  encoding:NSUTF32LittleEndianStringEncoding];
+}
+
 //
 // ビデオを再生する
 //
@@ -1156,24 +1092,24 @@ bool play_video(const char *fname, bool is_skippable)
 
     // プレーヤーを作成する
     AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:url];
-    player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
+    windowController.view.player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
 
     // プレーヤーのレイヤーを作成する
-    [theView setWantsLayer:YES];
-    playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-    [playerLayer setFrame:theView.bounds];
-    [theView.layer addSublayer:playerLayer];
+    [[windowController view] setWantsLayer:YES];
+    windowController.view.playerLayer = [AVPlayerLayer playerLayerWithPlayer:windowController.view.player];
+    [windowController.view.playerLayer setFrame:windowController.view.bounds];
+    [windowController.view.layer addSublayer:windowController.view.playerLayer];
 
     // 再生を開始する
-    [player play];
+    [windowController.view.player play];
 
     // 再生終了の通知を送るようにする
-    [NSNotificationCenter.defaultCenter addObserver:theView
+    [NSNotificationCenter.defaultCenter addObserver:[windowController view]
                                            selector:@selector(onPlayEnd:)
                                                name:AVPlayerItemDidPlayToEndTimeNotification
                                              object:playerItem];
 
-    isMoviePlaying = YES;
+    windowController.view.isMoviePlaying = YES;
     return true;
 }
 
@@ -1182,11 +1118,11 @@ bool play_video(const char *fname, bool is_skippable)
 //
 void stop_video(void)
 {
-    if (player != nil)
-        [player replaceCurrentItemWithPlayerItem:nil];
-    isMoviePlaying = NO;
-    player = nil;
-    playerLayer = nil;
+    if (windowController.view.player != nil)
+        [windowController.view.player replaceCurrentItemWithPlayerItem:nil];
+    windowController.view.isMoviePlaying = NO;
+    windowController.view.player = nil;
+    windowController.view.playerLayer = nil;
 
     // OpenGLのレンダリングを開始する
     opengl_start_rendering();
@@ -1197,7 +1133,7 @@ void stop_video(void)
 //
 bool is_video_playing(void)
 {
-    return isMoviePlaying == YES;
+    return windowController.view.isMoviePlaying == YES;
 }
 
 //
@@ -1228,7 +1164,7 @@ void update_window_title(void)
         s = [s stringByAppendingString:chapterTitle];
 
         // ウィンドウのタイトルを設定する
-        [theWindow setTitle:s];
+        [[windowController window] setTitle:s];
     }
 }
 
@@ -1253,8 +1189,10 @@ bool is_full_screen_mode(void)
 //
 void enter_full_screen_mode(void)
 {
+#if !defined(USE_DEBUGGER)
     if (!isFullScreen)
-        [theWindow toggleFullScreen:theView];
+        [[windowController window] toggleFullScreen:[windowController view]];
+#endif
 }
 
 ///
@@ -1262,8 +1200,10 @@ void enter_full_screen_mode(void)
 //
 void leave_full_screen_mode(void)
 {
+#if !defined(USE_DEBUGGER)
     if (isFullScreen)
-        [theWindow toggleFullScreen:theView];
+        [windowController.window toggleFullScreen:windowController.view];
+#endif
 }
 
 //
