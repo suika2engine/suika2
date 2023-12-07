@@ -20,29 +20,24 @@ static bool init(void);
 static bool get_position(int *chpos, const char *pos);
 static int get_accel(const char *accel_s);
 static int get_alpha(const char *alpha);
-static void draw(int *x, int *y, int *w, int *h);
+static void draw(void);
 static void process_finish(void);
 static bool cleanup(void);
 
 /*
  * キャラクタアニメコマンド
  */
-bool cha_command(int *x, int *y, int *w, int *h)
+bool cha_command(void)
 {
 	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
-	draw(x, y, w, h);
+	draw();
 
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
-
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	return true;
 }
@@ -186,21 +181,17 @@ static int get_alpha(const char *alpha)
 }
 
 /* 描画を行う */
-static void draw(int *x, int *y, int *w, int *h)
+static void draw(void)
 {
 	/* アニメ終了の場合を処理する */
 	process_finish();
 
 	/* ステージを描画する */
 	draw_stage();
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	/* 折りたたみシステムメニューを描画する */
 	if (conf_sysmenu_transition && !is_non_interruptible())
-		draw_stage_collapsed_sysmenu(false, x, y, w, h);
+		draw_stage_collapsed_sysmenu(false);
 }
 
 /* アニメ終了を処理する */

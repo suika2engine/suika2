@@ -235,7 +235,7 @@ static bool is_quick_load_failed;
 
 /* 主な処理 */
 static void preprocess(void);
-static void main_process(int *x, int *y, int *w, int *h);
+static void main_process(void);
 static bool postprocess(void);
 
 /* 初期化 */
@@ -251,23 +251,23 @@ static void process_main_input(void);
 static void process_sysmenu_input(void);
 
 /* 描画 */
-static void draw_frame(int *x, int *y, int *w, int *h);
-static void draw_frame_parent(int *x, int *y, int *w, int *h);
-static void draw_frame_child(int *x, int *y, int *w, int *h);
+static void draw_frame(void);
+static void draw_frame_parent(void);
+static void draw_frame_child(void);
 static int get_pointed_parent_index(void);
 static int get_pointed_child_index(void);
 static void draw_fo_fi_parent(void);
 static void draw_switch_parent_images(void);
-static void update_switch_parent(int *x, int *y, int *w, int *h);
+static void update_switch_parent(void);
 static void draw_fo_fi_child(void);
 static void draw_switch_child_images(void);
-static void update_switch_child(int *x, int *y, int *w, int *h);
+static void update_switch_child(void);
 static void draw_text(int x, int y, int w, int h, const char *t, bool is_news);
 static void draw_keep(void);
 
 /* システムメニュー */
-static void draw_sysmenu(int *x, int *y, int *w, int *h);
-static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
+static void draw_sysmenu(void);
+static void draw_collapsed_sysmenu(void);
 static bool is_collapsed_sysmenu_pointed(void);
 static int get_sysmenu_pointed_button(void);
 static void adjust_sysmenu_pointed_index(void);
@@ -282,7 +282,7 @@ static bool cleanup(void);
 /*
  * switchコマンド
  */
-bool switch_command(int *x, int *y, int *w, int *h)
+bool switch_command(void)
 {
 	/* 初期化処理を行う */
 	if (!is_in_command_repetition())
@@ -295,7 +295,7 @@ bool switch_command(int *x, int *y, int *w, int *h)
 		return false;
 
 	/* メイン処理として、描画を行う */
-	main_process(x, y, w, h);
+	main_process();
 
 	/* 後処理として、遷移を処理する */
 	if (!postprocess())
@@ -323,7 +323,7 @@ static void preprocess(void)
 }
 
 /* メイン処理として、描画を行う */
-static void main_process(int *x, int *y, int *w, int *h)
+static void main_process(void)
 {
 	/*
 	 * クイックロードされた場合は描画を行わない
@@ -333,7 +333,7 @@ static void main_process(int *x, int *y, int *w, int *h)
 		return;
 
 	/* 描画を行う */
-	draw_frame(x, y, w, h);
+	draw_frame();
 
 	/* システムメニューの表示完了直後のフラグをクリアする */
 	is_sysmenu_finished = false;
@@ -947,13 +947,8 @@ static void process_sysmenu_input(void)
  */
 
 /* フレームを描画する */
-static void draw_frame(int *x, int *y, int *w, int *h)
+static void draw_frame(void)
 {
-	*x = 0;
-	*y = 0;
-	*w = 0;
-	*h = 0;
-
 	/* セーブ画面かヒストリ画面から復帰した場合のフラグをクリアする */
 	check_gui_flag();
 
@@ -963,17 +958,11 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 
 		/* 親選択肢の描画を行う */
 		draw_fo_fi_parent();
-		update_switch_parent(x, y, w, h);
+		update_switch_parent();
 
 		/* 折りたたみシステムメニューを描画する */
 		if (conf_sysmenu_transition && !is_non_interruptible())
-			draw_stage_collapsed_sysmenu(false, x, y, w, h);
-
-		/* 名前ボックス、メッセージボックスを消すため再描画する */
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
+			draw_stage_collapsed_sysmenu(false);
 
 		is_first_frame = false;
 		return;
@@ -983,29 +972,29 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 	if (!is_sysmenu) {
 		if (selected_parent_index == -1) {
 			/* 親選択肢を選んでいる最中の場合 */
-			draw_frame_parent(x, y, w, h);
+			draw_frame_parent();
 		} else {
 			/* 子選択肢を選んでいる最中の場合 */
-			draw_frame_child(x, y, w, h);
+			draw_frame_child();
 		}
 
 		/* 折りたたみシステムメニューを表示する */
-		draw_collapsed_sysmenu(x, y, w, h);
+		draw_collapsed_sysmenu();
 	}
 
 	/* システムメニューを表示中の場合 */
 	if (is_sysmenu)
-		draw_sysmenu(x, y, w, h);
+		draw_sysmenu();
 
 	/* システムメニューを終了した直後の場合 */
 	if (is_sysmenu_finished) {
-		update_switch_parent(x, y, w, h);
-		draw_collapsed_sysmenu(x, y, w, h);
+		update_switch_parent();
+		draw_collapsed_sysmenu();
 	}
 }
 
 /* 親選択肢の描画を行う */
-static void draw_frame_parent(int *x, int *y, int *w, int *h)
+static void draw_frame_parent(void)
 {
 	if (new_pointed_index == -1 && pointed_parent_index == -1) {
 		draw_keep();
@@ -1014,7 +1003,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 	} else {
 		/* ボタンを描画する */
 		pointed_parent_index = new_pointed_index;
-		update_switch_parent(x, y, w, h);
+		update_switch_parent();
 
 		/* 読み上げを行う */
 		if (conf_tts_enable == 1 &&
@@ -1036,7 +1025,7 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 		if (parent_button[new_pointed_index].has_child) {
 			/* 子選択肢の描画を行う */
 			draw_fo_fi_child();
-			update_switch_child(x, y, w, h);
+			update_switch_child();
 		} else {
 			/* ステージをボタンなしで描画しなおす */
 			draw_stage();
@@ -1047,17 +1036,11 @@ static void draw_frame_parent(int *x, int *y, int *w, int *h)
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
 		}
-
-		/* ステージ全体を再描画する */
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
 	}
 }
 
 /* 子選択肢の描画を行う */
-static void draw_frame_child(int *x, int *y, int *w, int *h)
+static void draw_frame_child(void)
 {
 	int new_pointed_index;
 
@@ -1066,7 +1049,7 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 
 		/* 親選択肢の描画を行う */
 		draw_fo_fi_parent();
-		update_switch_parent(x, y, w, h);
+		update_switch_parent();
 		return;
 	}
 
@@ -1077,7 +1060,7 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 
 		/* ボタンを描画する */
 		pointed_child_index = new_pointed_index;
-		update_switch_child(x, y, w, h);
+		update_switch_child();
 	} else if (new_pointed_index == -1 && pointed_child_index == -1) {
 		draw_keep();
 	} else if (new_pointed_index == pointed_child_index) {
@@ -1085,7 +1068,7 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 	} else {
 		/* ボタンを描画する */
 		pointed_child_index = new_pointed_index;
-		update_switch_child(x, y, w, h);
+		update_switch_child();
 
 		/* SEを再生する */
 		if (new_pointed_index != -1 && !is_left_clicked)
@@ -1099,10 +1082,6 @@ static void draw_frame_child(int *x, int *y, int *w, int *h)
 
 		/* ステージをボタンなしで描画しなおす */
 		draw_stage();
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
 
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
@@ -1247,7 +1226,7 @@ void draw_switch_parent_images(void)
 }
 
 /* 親選択肢を画面に描画する */
-void update_switch_parent(int *x, int *y, int *w, int *h)
+void update_switch_parent(void)
 {
 	int i, bx, by, bw, bh;
 
@@ -1266,12 +1245,6 @@ void update_switch_parent(int *x, int *y, int *w, int *h)
 
 	/* FOレイヤ全体とFIレイヤの矩形を画面に描画する */
 	draw_fo_all_and_fi_rect(bx, by, bw, bh);
-
-	/* 更新範囲を設定する */
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 }
 
 /* 子選択肢のFO/FIレイヤを描画する */
@@ -1311,7 +1284,7 @@ void draw_switch_child_images(void)
 }
 
 /* 親選択肢を画面に描画する */
-void update_switch_child(int *x, int *y, int *w, int *h)
+void update_switch_child(void)
 {
 	int i, j, bx, by, bw, bh;
 
@@ -1331,12 +1304,6 @@ void update_switch_child(int *x, int *y, int *w, int *h)
 
 	/* FO全体とFIの1矩形を描画する(GPU用) */
 	draw_fo_all_and_fi_rect(bx, by, bw, bh);
-
-	/* 更新範囲を設定する */
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 }
 
 /* 選択肢のテキストを描画する */
@@ -1346,7 +1313,6 @@ static void draw_text(int x, int y, int w, int h, const char *text, bool is_news
 	pixel_t active_color, active_outline_color;
 	pixel_t inactive_color, inactive_outline_color;
 	int font_size, char_count;
-	int ret_x, ret_y, ret_w, ret_h;
 	bool use_outline;
 
 	/* フォントサイズを取得する */
@@ -1441,7 +1407,7 @@ static void draw_text(int x, int y, int w, int h, const char *text, bool is_news
 		NULL,			/* inline_wait_hook */
 		conf_msgbox_tategaki);	/* use_tategaki */
 	char_count = count_chars_common(&context);
-	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+	draw_msg_common(&context, char_count);
 
 	/* FOレイヤに非選択時の色で文字を描画する */
 	construct_draw_msg_context(
@@ -1476,7 +1442,7 @@ static void draw_text(int x, int y, int w, int h, const char *text, bool is_news
 		true,			/* ignore_wait */
 		NULL,			/* inline_wait_hook */
 		conf_msgbox_tategaki);	/* use_tategaki */
-	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+	draw_msg_common(&context, char_count);
 }
 
 /* 描画する(GPU用) */
@@ -1504,8 +1470,8 @@ static void draw_keep(void)
 		}
 	}
 
-	/* FO全体とFIの1矩形を描画する(GPU用) */
-	draw_fo_all_and_fi_rect_accelerated(x, y, w, h);
+	/* FO全体とFIの1矩形を描画する */
+	draw_fo_all_and_fi_rect(x, y, w, h);
 }
 
 /*
@@ -1513,11 +1479,10 @@ static void draw_keep(void)
  */
 
 /* システムメニューを描画する */
-static void draw_sysmenu(int *x, int *y, int *w, int *h)
+static void draw_sysmenu(void)
 {
-	int bx, by, bw, bh;
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
-	bool history_sel, config_sel, custom1_sel, custom2_sel, redraw;
+	bool history_sel, config_sel, custom1_sel, custom2_sel;
 
 	/* 描画するかの判定状態を初期化する */
 	qsave_sel = false;
@@ -1530,18 +1495,10 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	config_sel = false;
 	custom1_sel = false;
 	custom2_sel = false;
-	redraw = false;
 
 	/* システムメニューの最初のフレームの場合、描画する */
-	if (is_sysmenu_first_frame) {
-		redraw = true;
+	if (is_sysmenu_first_frame)
 		is_sysmenu_first_frame = false;
-	}
-
-	/* 選択項目に変更がある場合、描画する */
-	if (sysmenu_pointed_index != old_sysmenu_pointed_index &&
-	    !is_sysmenu_first_frame)
-		redraw = true;
 
 	/* クイックセーブボタンがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_QSAVE)
@@ -1575,40 +1532,30 @@ static void draw_sysmenu(int *x, int *y, int *w, int *h)
 	if (sysmenu_pointed_index == SYSMENU_CUSTOM2)
 		custom2_sel = true;
 
-	/* GPUを利用している場合 */
-	if (is_gpu_accelerated())
-		redraw = true;
+	/* 背景を描画する */
+	draw_fo_all_and_fi_rect(0, 0, 0, 0);
 
-	/* 描画する */
-	if (redraw) {
-		/* 背景を描画する */
-		get_sysmenu_rect(&bx, &by, &bw, &bh);
-		union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
-		draw_fo_rect_accelerated(bx, by, bw, bh);
-
-		/* システムメニューを描画する */
-		draw_stage_sysmenu(false,
-				   false,
-				   is_save_load_enabled(),
-				   is_save_load_enabled() &&
-				   have_quick_save_data(),
-				   qsave_sel,
-				   qload_sel,
-				   save_sel,
-				   load_sel,
-				   auto_sel,
-				   skip_sel,
-				   history_sel,
-				   config_sel,
-				   custom1_sel,
-				   custom2_sel,
-				   x, y, w, h);
-		is_sysmenu_first_frame = false;
-	}
+	/* システムメニューを描画する */
+	draw_stage_sysmenu(false,
+			   false,
+			   is_save_load_enabled(),
+			   is_save_load_enabled() &&
+			   have_quick_save_data(),
+			   qsave_sel,
+			   qload_sel,
+			   save_sel,
+			   load_sel,
+			   auto_sel,
+			   skip_sel,
+			   history_sel,
+			   config_sel,
+			   custom1_sel,
+			   custom2_sel);
+	is_sysmenu_first_frame = false;
 }
 
 /* 折りたたみシステムメニューを描画する */
-static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
+static void draw_collapsed_sysmenu(void)
 {
 	bool is_pointed;
 
@@ -1620,7 +1567,7 @@ static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 	is_pointed = is_collapsed_sysmenu_pointed();
 
 	/* 描画する */
-	draw_stage_collapsed_sysmenu(is_pointed, x, y, w, h);
+	draw_stage_collapsed_sysmenu(is_pointed);
 
 	/* SEを再生する */
 	if (!is_sysmenu_finished &&

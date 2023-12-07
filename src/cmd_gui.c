@@ -19,7 +19,7 @@ static bool cleanup(void);
 /*
  * GUIコマンド
  */
-bool gui_command(int *x, int *y, int *w, int *h)
+bool gui_command(void)
 {
 	/* 最初のフレームの場合 */
 	if (!is_in_command_repetition()) {
@@ -28,7 +28,7 @@ bool gui_command(int *x, int *y, int *w, int *h)
 			return false;
 
 		/* 最初のフレームの描画を行う */
-		if (!run_gui_mode(x, y, w, h))
+		if (!run_gui_mode())
 			return false;
 
 		/* 次のフレーム以降はmain.cでrun_gui_mode()が呼ばれる */

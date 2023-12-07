@@ -15,13 +15,13 @@
 /*
  * pencilコマンド
  */
-bool pencil_command(int *x, int *y, int *w, int *h)
+bool pencil_command(void)
 {
 	struct draw_msg_context context;
 	struct image *img;
 	const char *text;
 	pixel_t color, outline_color;
-	int layer, layer_x, layer_y, layer_w, layer_h, total_chars;
+	int layer, layer_w, layer_h,total_chars;
 
 	/* パラメータを取得する */
 	layer = get_int_param(PENCIL_PARAM_LAYER);
@@ -93,16 +93,9 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 	total_chars = count_chars_common(&context);
 	lock_layers_for_msgdraw(layer, -1);
 	{
-		draw_msg_common(&context, total_chars, x, y, w, h);
+		draw_msg_common(&context, total_chars);
 	}
 	unlock_layers_for_msgdraw(layer, -1);
-
-	/* 更新領域を追加する */
-	layer_x = get_layer_x(layer);
-	layer_y = get_layer_y(layer);
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   layer_x, layer_y, layer_w, layer_h);
 
 	/* 描画する */
 	draw_stage();

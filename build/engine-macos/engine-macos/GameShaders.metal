@@ -11,7 +11,6 @@ struct RasterizerData {
     float4 position [[position]];
     float2 textureCoordinate;
     float alpha;
-    float4 color;
 };
 
 vertex RasterizerData
@@ -31,7 +30,17 @@ fragmentNormalShader(RasterizerData in [[stage_in]],
 {
     constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
     const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
-    colorSample.a *= in.alpha;
+    colorSample.rgba *= in.alpha;
+    return float4(colorSample);
+}
+
+fragment float4
+fragmentCopyShader(RasterizerData in [[stage_in]],
+                   texture2d<half> colorTexture [[texture(GameTextureIndexBaseColor)]])
+{
+    constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
+    const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
+    colorSample.a = 1.0;
     return float4(colorSample);
 }
 

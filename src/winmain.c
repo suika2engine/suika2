@@ -120,13 +120,8 @@ static BOOL bOpenGL;
 static HWND hWndMain;
 static HWND hWndGame;
 static HDC hWndDC;
-static HDC hBitmapDC;
-static HBITMAP hBitmap;
 static HGLRC hGLRC;
 static HMENU hMenu;
-
-/* イメージオブジェクト */
-static struct image *BackImage;
 
 /* WaitForNextFrame()の時間管理用 */
 static DWORD dwStartTime;
@@ -276,8 +271,6 @@ static void OnSize(void);
 static void OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect);
 #endif
 static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
-static BOOL CreateBackImage(void);
-static void SyncBackImage(int x, int y, int w, int h);
 static BOOL OpenLogFile(void);
 
 /* extern */
@@ -390,13 +383,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	{
 		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_NO_SOUND_DEVICE)));
 		return FALSE;
-	}
-
-	if (!bD3D && !bOpenGL)
-	{
-		/* バックイメージを作成する */
-		if(!CreateBackImage())
-			return FALSE;
 	}
 
 	if (conf_tts_enable)
@@ -515,30 +501,6 @@ static void CleanupApp(void)
 	{
 		ReleaseDC(hWndMain, hWndDC);
 		hWndDC = NULL;
-	}
-
-	if (!bOpenGL && !bD3D)
-	{
-		/* バックイメージのビットマップを破棄する */
-		if (hBitmap != NULL)
-		{
-			DeleteObject(hBitmap);
-			hBitmap = NULL;
-		}
-
-		/* バックイメージのデバイスコンテキストを破棄する */
-		if (hBitmapDC != NULL)
-		{
-			DeleteDC(hBitmapDC);
-			hBitmapDC = NULL;
-		}
-
-		/* バックイメージを破棄する */
-		if (BackImage != NULL)
-		{
-			destroy_image(BackImage);
-			BackImage = NULL;
-		}
 	}
 
 	/* DirectSoundの終了処理を行う */
@@ -917,46 +879,6 @@ static BOOL InitOpenGL(void)
 	return TRUE;
 }
 
-/* バックイメージを作成する */
-static BOOL CreateBackImage(void)
-{
-	BITMAPINFO bi;
-	pixel_t *pixels;
-
-	/* ビットマップを作成する */
-	memset(&bi, 0, sizeof(BITMAPINFO));
-	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = conf_window_width;
-	bi.bmiHeader.biHeight = -conf_window_height; /* Top-down */
-	bi.bmiHeader.biPlanes = 1;
-	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biCompression = BI_RGB;
-	hBitmapDC = CreateCompatibleDC(NULL);
-	if(hBitmapDC == NULL)
-		return FALSE;
-
-	/* DIBを作成する */
-	pixels = NULL;
-	hBitmap = CreateDIBSection(hBitmapDC, &bi, DIB_RGB_COLORS,
-								  (VOID **)&pixels, NULL, 0);
-	if(hBitmap == NULL || pixels == NULL)
-		return FALSE;
-	SelectObject(hBitmapDC, hBitmap);
-
-	/* イメージを作成する */
-	BackImage = create_image_with_pixels(conf_window_width, conf_window_height,
-											 pixels);
-	if(BackImage == NULL)
-		return FALSE;
-	if(conf_window_white) {
-		lock_image(BackImage);
-		clear_image_white(BackImage);
-		unlock_image(BackImage);
-	}
-
-	return TRUE;
-}
-
 /* ゲームループを実行する */
 static void GameLoop(void)
 {
@@ -1001,7 +923,6 @@ static void GameLoop(void)
 /* フレームを実行する */
 static BOOL RunFrame(void)
 {
-	int x, y, w, h;
 	BOOL bRet;
 
 	/* 実行許可前の場合 */
@@ -1016,7 +937,7 @@ static BOOL RunFrame(void)
 			return FALSE;
 
 		/* @videoコマンドを実行する */
-		if(!on_event_frame(&x, &y, &w, &h))
+		if(!on_event_frame())
 			return FALSE;
 
 		return TRUE;
@@ -1030,7 +951,7 @@ static BOOL RunFrame(void)
 
 	/* フレームの実行と描画を行う */
 	bRet = TRUE;
-	if(!on_event_frame(&x, &y, &w, &h))
+	if(!on_event_frame())
 	{
 		/* スクリプトの終端に達した */
 		bRet = FALSE;
@@ -1048,21 +969,8 @@ static BOOL RunFrame(void)
 		opengl_end_rendering();
 		SwapBuffers(hWndDC);
 	}
-	else
-	{
-		SyncBackImage(x, y, w, h);
-	}
 
 	return bRet;
-}
-
-/* ウィンドウにバックイメージを転送する */
-static void SyncBackImage(int x, int y, int w, int h)
-{
-	if (w == 0 || h == 0)
-		return;
-
-	BitBlt(hWndDC, x + nOffsetX, y + nOffsetY, w, h, hBitmapDC, x, y, SRCCOPY);
 }
 
 /* キューにあるイベントを処理する */
@@ -2025,11 +1933,6 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
 		opengl_render_image(dst_left, dst_top, src_image, width, height,
 							src_left, src_top, alpha, bt);
 	}
-	else
-	{
-		draw_image(BackImage, dst_left, dst_top, src_image, width, height,
-				   src_left, src_top, alpha, bt);
-	}
 }
 
 /*
@@ -2049,11 +1952,6 @@ void render_image_dim(int dst_left, int dst_top,
 		opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
 								src_left, src_top);
 	}
-	else
-	{
-		draw_image_dim(BackImage, dst_left, dst_top, src_image, width, height,
-					   src_left, src_top);
-	}
 }
 
 /*
@@ -2067,8 +1965,6 @@ void render_image_rule(struct image * RESTRICT src_img,
 		D3DRenderImageRule(src_img, rule_img, threshold);
 	else if(bOpenGL)
 		opengl_render_image_rule(src_img, rule_img, threshold);
-	else
-		draw_image_rule(BackImage, src_img, rule_img, threshold);
 }
 
 /*
@@ -2082,8 +1978,6 @@ void render_image_melt(struct image * RESTRICT src_img,
 		D3DRenderImageMelt(src_img, rule_img, threshold);
 	else if(bOpenGL)
 		opengl_render_image_melt(src_img, rule_img, threshold);
-	else
-		draw_image_melt(BackImage, src_img, rule_img, threshold);
 }
 
 /*
@@ -2145,14 +2039,6 @@ char *make_valid_path(const char *dir, const char *fname)
 	result = conv_utf16_to_utf8(buf);
 	free(buf);
 	return strdup(result);
-}
-
-/*
- * バックイメージを取得する
- */
-struct image *get_back_image(void)
-{
-	return BackImage;
 }
 
 /*

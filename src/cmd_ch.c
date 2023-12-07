@@ -28,7 +28,7 @@ static bool cleanup(void);
 /*
  * キャラクタコマンド
  */
-bool ch_command(int *x, int *y, int *w, int *h)
+bool ch_command(void)
 {
 	if (!is_in_command_repetition())
 		if (!init())
@@ -39,11 +39,6 @@ bool ch_command(int *x, int *y, int *w, int *h)
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
-
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	return true;
 }
@@ -278,7 +273,6 @@ static void focus_character(int chpos, const char *fname)
 static void draw(void)
 {
 	float lap;
-	int x, y, w, h;
 
 	/* 経過時間を取得する */
 	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
@@ -353,10 +347,8 @@ static void draw(void)
 		draw_stage();
 
 	/* 折りたたみシステムメニューを描画する */
-	if (conf_sysmenu_transition && !is_non_interruptible()) {
-		x = y = w = h = 0;
-		draw_stage_collapsed_sysmenu(false, &x, &y, &w, &h);
-	}
+	if (conf_sysmenu_transition && !is_non_interruptible())
+		draw_stage_collapsed_sysmenu(false);
 }
 
 /* 終了処理を行う */

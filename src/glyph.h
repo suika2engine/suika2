@@ -171,8 +171,7 @@ void set_alternative_target_image(struct draw_msg_context *context,
 int count_chars_common(struct draw_msg_context *context);
 
 /* Draw characters in a message up to (max_chars) characters. */
-int draw_msg_common(struct draw_msg_context *context, int max_chars,
-		    int *x, int *y, int *w, int *h);
+int draw_msg_common(struct draw_msg_context *context, int max_chars);
 
 /* Get a pen position. */
 void get_pen_position_common(struct draw_msg_context *context, int *pen_x,

@@ -315,12 +315,12 @@ static const char *custom_gosub_label;
  */
 
 /* 主な処理 */
-static bool preprocess(int *x, int *y, int *w, int *h);
-static void main_process(int *x, int *y, int *w, int *h);
-static bool postprocess(int *x, int *y, int *w, int *h);
+static bool preprocess(void);
+static void main_process(void);
+static bool postprocess(void);
 
 /* 初期化 */
-static bool init(int *x, int *y, int *w, int *h);
+static bool init(void);
 static void init_flags_and_vars(void);
 static void init_auto_mode(void);
 static void init_skip_mode(void);
@@ -332,15 +332,15 @@ static const char *skip_lf(const char *m, int *lf);
 static void put_space(void);
 static bool register_message_for_history(const char *msg);
 static char *concat_serif(const char *name, const char *serif);
-static void init_msgbox(int *x, int *y, int *w, int *h);
-static bool init_serif(int *x, int *y, int *w, int *h);
+static void init_msgbox(void);
+static bool init_serif(void);
 static bool check_play_voice(void);
 static bool play_voice(void);
 static void set_character_volume_by_name(const char *name);
 static void draw_namebox(void);
 static void focus_character(void);
 static void init_click(void);
-static void init_first_draw_area(int *x, int *y, int *w, int *h);
+static void init_first_draw_area(void);
 static void init_pointed_index(void);
 static int get_pointed_button(void);
 static void adjust_pointed_index(void);
@@ -349,47 +349,46 @@ static void init_repetition(void);
 static void speak(void);
 
 /* フレーム処理 */
-static bool frame_auto_mode(int *x, int *y, int *w, int *h);
-static void action_auto_start(int *x, int *y, int *w, int *h);
-static void action_auto_end(int *x, int *y, int *w, int *h);
+static bool frame_auto_mode(void);
+static void action_auto_start(void);
+static void action_auto_end(void);
 static bool check_auto_play_condition(void);
 static int get_wait_time(void);
-static bool frame_buttons(int *x, int *y, int *w, int *h);
-static bool draw_buttons(int *x, int *y, int *w, int *h);
-static bool process_button_click(int *x, int *y, int *w, int *h);
-static bool process_hide_click(int *x, int *y, int *w, int *h);
-static void action_hide_start(int *x, int *y, int *w, int *h);
-static void action_hide_end(int *x, int *y, int *w, int *h);
+static bool frame_buttons(void);
+static bool draw_buttons(void);
+static bool process_button_click(void);
+static bool process_hide_click(void);
+static void action_hide_start(void);
+static void action_hide_end(void);
 static void action_qsave(void);
 static void action_qload(void);
 static void action_save(void);
 static void action_load(void);
-static void action_skip(int *x, int *y, int *w, int *h);
+static void action_skip(void);
 static void action_history(void);
 static void action_config(void);
 static void action_custom(int index);
-static bool frame_sysmenu(int *x, int *y, int *w, int *h);
-static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h);
+static bool frame_sysmenu(void);
+static bool process_collapsed_sysmenu(void);
 static void adjust_sysmenu_pointed_index(void);
 static int get_sysmenu_pointed_button(void);
 static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h);
 
 /* メイン描画処理 */
-static void draw_frame(int *x, int *y, int *w, int *h);
+static void draw_frame(void);
 static bool is_end_of_msg(void);
-static void draw_msgbox(int *x, int *y, int *w, int *h);
+static void draw_msgbox(void);
 static void inline_wait_hook(float wait_time);
 static int get_frame_chars(void);
 static bool is_canceled_by_skip(void);
 static bool is_fast_forward_by_click(void);
 static int calc_frame_chars_by_lap(void);
-static void draw_click(int *x, int *y, int *w, int *h);
+static void draw_click(void);
 static bool check_stop_click_animation(void);
-static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h);
-static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h);
+static void draw_sysmenu(void);
+static void draw_collapsed_sysmenu(void);
 static bool is_collapsed_sysmenu_pointed(void);
-static void union_banners(int *x, int *y, int *w, int *h);
-static void draw_dimming(int *x, int *y, int *w, int *h);
+static void draw_dimming(void);
 
 /* その他 */
 static void play_se(const char *file);
@@ -401,11 +400,11 @@ static bool cleanup(void);
 /*
  * メッセージ・セリフコマンド
  */
-bool message_command(int *x, int *y, int *w, int *h, bool *cont)
+bool message_command(bool *cont)
 {
 	/* 初期化処理を行う */
 	if (!is_in_command_repetition())
-		if (!init(x, y, w, h))
+		if (!init())
 			return false;
 
 	/*
@@ -414,7 +413,7 @@ bool message_command(int *x, int *y, int *w, int *h, bool *cont)
 	 *  - メッセージボックス内のボタンへの入力の処理
 	 *  - システムメニューへの入力の処理
 	 */
-	if (!preprocess(x, y, w, h))
+	if (!preprocess())
 		return false;
 
 	/*
@@ -423,7 +422,7 @@ bool message_command(int *x, int *y, int *w, int *h, bool *cont)
 	 *  - 文字描画完了後のクリックアニメーションの制御
 	 *  - 次のコマンドに進むためのクリックの処理
 	 */
-	main_process(x, y, w, h);
+	main_process();
 
 	/*
 	 * フレームの後処理を行う
@@ -431,7 +430,7 @@ bool message_command(int *x, int *y, int *w, int *h, bool *cont)
 	 *  - システムGUIの開始を行う
 	 *  - 重ね塗り(dimming)の描画を行う
 	 */
-	if (!postprocess(x, y, w, h))
+	if (!postprocess())
 		return false;
 
 	/* 終了処理を行う */
@@ -450,7 +449,7 @@ bool message_command(int *x, int *y, int *w, int *h, bool *cont)
 }
 
 /* 前処理を行う */
-static bool preprocess(int *x, int *y, int *w, int *h)
+static bool preprocess(void)
 {
 	/* インラインウェイトのキャンセルを処理する */
 	if (is_inline_wait) {
@@ -466,13 +465,13 @@ static bool preprocess(int *x, int *y, int *w, int *h)
 	}
 
 	/* オートモードを処理する */
-	if (frame_auto_mode(x, y, w, h)) {
+	if (frame_auto_mode()) {
 		/* 入力がキャプチャされたので、ここでリターンする */
 		return true;
 	}
 
 	/* メッセージボックス内のボタンを処理する */
-	if (frame_buttons(x, y, w, h)) {
+	if (frame_buttons()) {
 		/* ロードに失敗した場合 */
 		if (is_quick_load_failed) {
 			/* 継続不能 */
@@ -484,7 +483,7 @@ static bool preprocess(int *x, int *y, int *w, int *h)
 	}
 
 	/* システムメニューを処理する */
-	if (frame_sysmenu(x, y, w, h)) {
+	if (frame_sysmenu()) {
 		/* ロードに失敗した場合 */
 		if (is_quick_load_failed) {
 			/* 継続不能 */
@@ -500,7 +499,7 @@ static bool preprocess(int *x, int *y, int *w, int *h)
 }
 
 /* メッセージレイヤ描画と、クリック表示のアップデートを行う */
-static void main_process(int *x, int *y, int *w, int *h)
+static void main_process(void)
 {
 	/* クイックロードされた場合は描画しない */
 	if (did_quick_load) {
@@ -515,7 +514,7 @@ static void main_process(int *x, int *y, int *w, int *h)
 	 * 文字の描画/クリックアニメーションの制御を行う
 	 *  - システムGUIに遷移する場合でもサムネイル描画のため処理する
 	 */
-	draw_frame(x, y, w, h);
+	draw_frame();
 
 	/* システムGUIへ遷移する場合 */
 	if (need_save_mode || need_load_mode || need_history_mode ||
@@ -526,7 +525,7 @@ static void main_process(int *x, int *y, int *w, int *h)
 }
 
 /* 後処理を行う */
-static bool postprocess(int *x, int *y, int *w, int *h)
+static bool postprocess(void)
 {
 	/*
 	 * クイックロードされた場合は描画を行わない
@@ -535,32 +534,23 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 	if (did_quick_load)
 		return true;
 
-	/*
-	 * ロードされて最初のフレームの場合、画面全体を描画する
-	 *  - これはGPUを使わない場合の最適化で、GPUを使う場合は関係ない
-	 */
-	if (load_flag) {
-		union_rect(x, y, w, h, *w, *y, *w, *h, 0, 0, conf_window_width,
-			   conf_window_height);
+	/* ロードされた場合のフラグをクリアする */
+	if (load_flag)
 		load_flag = false;
-	}
 
 	/*
-	 * ステージの更新領域(x, y) (w, h)を描画する
-	 *  - アニメ中、またはGPU利用時は、画面全体の描画になる
-	 *  - アニメのアップデート処理はこの内部で行われる
+	 * ステージを描画する
 	 */
-	union_rect(x, y, w, h, 0, 0, 0, 0, 0, 0, 0, 0); /* normalize */
-	draw_stage_rect(*x, *y, *w, *h);
+	draw_stage();
 
 	/* システムメニューを描画する */
 	if (!conf_sysmenu_hidden && !is_hidden) {
 		if (is_sysmenu)
-			draw_sysmenu(false, x, y, w, h);
+			draw_sysmenu();
 		else if (conf_sysmenu_transition)
-			draw_collapsed_sysmenu(x, y, w, h);
+			draw_collapsed_sysmenu();
 		else if (!is_auto_mode() && !is_skip_mode())
-			draw_collapsed_sysmenu(x, y, w, h);
+			draw_collapsed_sysmenu();
 	}
 
 	/* システムメニューを表示開始したフレームのフラグをクリアする */
@@ -616,7 +606,7 @@ static bool postprocess(int *x, int *y, int *w, int *h)
 	 *  - 次のメッセージ/セリフの表示開始時に初めて見える
 	 */
 	if (conf_msgbox_dim && !is_in_command_repetition())
-		draw_dimming(x, y, w, h);
+		draw_dimming();
 
 	return true;
 }
@@ -626,7 +616,7 @@ static bool postprocess(int *x, int *y, int *w, int *h)
  */
 
 /* 初期化処理を行う */
-static bool init(int *x, int *y, int *w, int *h)
+static bool init(void)
 {
 	/* フラグを初期化する */
 	init_flags_and_vars();
@@ -649,10 +639,10 @@ static bool init(int *x, int *y, int *w, int *h)
 		return false;
 
 	/* メッセージボックスを初期化する */
-	init_msgbox(x, y, w, h);
+	init_msgbox();
 
 	/* セリフ固有の初期化を行う */
-	if (!init_serif(x, y, w, h))
+	if (!init_serif())
 		return false;
 
 	/*
@@ -669,7 +659,7 @@ static bool init(int *x, int *y, int *w, int *h)
 	init_click();
 
 	/* 初回に描画する矩形を求める */
-	init_first_draw_area(x, y, w, h);
+	init_first_draw_area();
 
 	/* ボタンの選択状態を初期化する */
 	init_pointed_index();
@@ -1163,7 +1153,7 @@ static char *concat_serif(const char *name, const char *serif)
 }
 
 /* メッセージボックスを初期化する */
-static void init_msgbox(int *x, int *y, int *w, int *h)
+static void init_msgbox(void)
 {
 	/* システムGUIから戻った場合 */
 	if (gui_sys_flag)
@@ -1171,11 +1161,6 @@ static void init_msgbox(int *x, int *y, int *w, int *h)
 
 	/* メッセージボックスの矩形を取得する */
 	get_msgbox_rect(&msgbox_x, &msgbox_y, &msgbox_w, &msgbox_h);
-
-	/* 更新領域に含める */
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 
 	/* 継続行でなければ、メッセージの描画位置を初期化する */
 	if (!is_continue_mode) {
@@ -1240,23 +1225,11 @@ static void init_msgbox(int *x, int *y, int *w, int *h)
 }
 
 /* セリフコマンドを処理する */
-static bool init_serif(int *x, int *y, int *w, int *h)
+static bool init_serif(void)
 {
-	int namebox_x, namebox_y, namebox_w, namebox_h;
-
 	/* システムGUIから戻った場合 */
 	if (gui_sys_flag)
 		return true;
-
-	/*
-	 * 描画範囲を更新する
-	 *  - セリフコマンドだけでなく、メッセージコマンドでも、
-	 *    名前ボックス領域を消すために描画範囲を設定する
-	 */
-	get_namebox_rect(&namebox_x, &namebox_y, &namebox_w, &namebox_h);
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   namebox_x, namebox_y, namebox_w, namebox_h);
 
 	/* セリフコマンドではない場合 */
 	if (get_command_type() != COMMAND_SERIF) {
@@ -1290,12 +1263,6 @@ static bool init_serif(int *x, int *y, int *w, int *h)
 	if (conf_character_focus) {
 		/* フォーカスを設定する */
 		focus_character();
-
-		/* 再描画する */
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
 	}
 
 	return true;
@@ -1406,7 +1373,6 @@ static void draw_namebox(void)
 	struct draw_msg_context context;
 	int font_size, pen_x, pen_y, char_count;
 	int namebox_x, namebox_y, namebox_width, namebox_height;
-	int ret_x, ret_y, ret_w, ret_h;
 	bool use_outline;
 
 	/* フォントサイズを取得する */
@@ -1488,7 +1454,7 @@ static void draw_namebox(void)
 	/* 文字描画する */
 	lock_layers_for_msgdraw(LAYER_NAME, -1);
 	{
-		draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+		draw_msg_common(&context, char_count);
 	}
 	unlock_layers_for_msgdraw(LAYER_NAME, -1);
 }
@@ -1530,7 +1496,7 @@ static void init_click(void)
 }
 
 /* 初期化処理において、初回に更新する矩形を求める */
-static void init_first_draw_area(int *x, int *y, int *w, int *h)
+static void init_first_draw_area(void)
 {
 	/*
 	 * ここで求めた更新矩形は、GPUを利用しないときに適用される
@@ -1539,29 +1505,12 @@ static void init_first_draw_area(int *x, int *y, int *w, int *h)
 	 */
 
 	/* deprecatedなメニュー系コマンドが終了した直後の場合 */
-	if (check_menu_finish_flag() || check_retrospect_finish_flag()) {
-		/* 画面全体を更新する */
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
+	if (check_menu_finish_flag() || check_retrospect_finish_flag())
 		return;
-	}
 
 	/* GUIが終了した直後の場合 */
-	if (gui_cmd_flag || gui_sys_flag) {
-		/* 画面全体を更新する */
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
+	if (gui_cmd_flag || gui_sys_flag)
 		return;
-	}
-
-	/* それ以外の場合、メッセージボックスの領域を更新する */
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   msgbox_x, msgbox_y, msgbox_w, msgbox_h);
 }
 
 /* 初期化処理においてポイントされているボタンを求め描画する */
@@ -1743,7 +1692,7 @@ static void init_repetition(void)
  */
 
 /* オートモード制御を処理する */
-static bool frame_auto_mode(int *x, int *y, int *w, int *h)
+static bool frame_auto_mode(void)
 {
 	int lap;
 
@@ -1781,7 +1730,7 @@ static bool frame_auto_mode(int *x, int *y, int *w, int *h)
 		clear_input_state();
 
 		/* オートモード終了アクションを処理する */
-		action_auto_end(x, y, w, h);
+		action_auto_end();
 
 		/* クリックされた */
 		return true;
@@ -1816,7 +1765,7 @@ static bool frame_auto_mode(int *x, int *y, int *w, int *h)
 }
 
 /* オートモード開始アクションを処理する */
-static void action_auto_start(int *x, int *y, int *w, int *h)
+static void action_auto_start(void)
 {
 	/* オートモードを開始する */
 	start_auto_mode();
@@ -1826,16 +1775,10 @@ static void action_auto_start(int *x, int *y, int *w, int *h)
 
 	/* メッセージ表示とボイス再生を未完了にする */
 	is_auto_mode_wait = false;
-
-	/* バナーを再描画する */
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 }
 
 /* オートモード終了アクションを処理する */
-static void action_auto_end(int *x, int *y, int *w, int *h)
+static void action_auto_end(void)
 {
 	/* オートモードを終了する */
 	stop_auto_mode();
@@ -1845,12 +1788,6 @@ static void action_auto_end(int *x, int *y, int *w, int *h)
 
 	/* メッセージ表示とボイス再生を未完了にする */
 	is_auto_mode_wait = false;
-
-	/* バナーを再描画する */
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 }
 
 /* オートプレイ用の表示完了チェックを行う */
@@ -1903,10 +1840,10 @@ static int get_wait_time(void)
 }
 
 /* メッセージボックス内のボタンを処理する (非表示中も呼ばれる) */
-static bool frame_buttons(int *x, int *y, int *w, int *h)
+static bool frame_buttons(void)
 {
 	/* ボタンを描画する */
-	if (draw_buttons(x, y, w, h)) {
+	if (draw_buttons()) {
 		/* アクティブなボタンが変わったのでSEを再生する */
 		play_se(conf_msgbox_btn_change_se);
 	}
@@ -1926,7 +1863,7 @@ static bool frame_buttons(int *x, int *y, int *w, int *h)
 		return false;
 
 	/* ボタンのクリックを処理する (非表示のキャンセルもここで処理する) */
-	if (process_button_click(x, y, w, h))
+	if (process_button_click())
 		return true;	/* クリックされた */
 
 	/* クリックされなかった */
@@ -1934,7 +1871,7 @@ static bool frame_buttons(int *x, int *y, int *w, int *h)
 }
 
 /* メッセージボックス内のボタンを描画する */
-static bool draw_buttons(int *x, int *y, int *w, int *h)
+static bool draw_buttons(void)
 {
 	int last_pointed_index, btn_x, btn_y, btn_w, btn_h;
 
@@ -1956,20 +1893,12 @@ static bool draw_buttons(int *x, int *y, int *w, int *h)
 		get_button_rect(last_pointed_index, &btn_x, &btn_y, &btn_w,
 				&btn_h);
 		fill_msgbox_rect_with_bg(btn_x, btn_y, btn_w, btn_h);
-		union_rect(x, y, w, h,
-			   *x, *y, *w, *h,
-			   btn_x + conf_msgbox_x, btn_y + conf_msgbox_y,
-			   btn_w, btn_h);
 	}
 
 	/* アクティブになるボタンのfgを描画する */
 	if (pointed_index != BTN_NONE) {
 		get_button_rect(pointed_index, &btn_x, &btn_y, &btn_w, &btn_h);
 		fill_msgbox_rect_with_fg(btn_x, btn_y, btn_w, btn_h);
-		union_rect(x, y, w, h,
-			   *x, *y, *w, *h,
-			   btn_x + conf_msgbox_x, btn_y + conf_msgbox_y,
-			   btn_w, btn_h);
 	}
 
 	/* ポイントが解除された場合 */
@@ -1981,7 +1910,7 @@ static bool draw_buttons(int *x, int *y, int *w, int *h)
 }
 
 /* メッセージボックス内のボタンのクリックを処理する */
-static bool process_button_click(int *x, int *y, int *w, int *h)
+static bool process_button_click(void)
 {
 	/*
 	 * システムメニュー表示中は処理しない
@@ -1993,7 +1922,7 @@ static bool process_button_click(int *x, int *y, int *w, int *h)
 		return false;
 
 	/* 隠すボタンを処理する (非表示の解除もここで行う) */
-	if (process_hide_click(x, y, w, h)) {
+	if (process_hide_click()) {
 		/* 入力は処理済みなので、以降は入力を処理しない */
 		clear_input_state();
 		return true;
@@ -2040,11 +1969,11 @@ static bool process_button_click(int *x, int *y, int *w, int *h)
 		break;
 	case BTN_AUTO:
 		play_se(conf_msgbox_btn_auto_se);
-		action_auto_start(x, y, w, h);
+		action_auto_start();
 		break;
 	case BTN_SKIP:
 		play_se(conf_msgbox_btn_skip_se);
-		action_skip(x, y, w, h);
+		action_skip();
 		break;
 	case BTN_HISTORY:
 		play_se(is_up_pressed ?
@@ -2071,7 +2000,7 @@ static bool process_button_click(int *x, int *y, int *w, int *h)
  * メッセージボックス内の消すボタン押下を処理する
  * (スペースキーもここで処理する)
  */
-static bool process_hide_click(int *x, int *y, int *w, int *h)
+static bool process_hide_click(void)
 {
 	/* メッセージボックスを表示中の場合 */
 	if (!is_hidden) {
@@ -2082,7 +2011,7 @@ static bool process_hide_click(int *x, int *y, int *w, int *h)
 			play_se(conf_msgbox_hide_se);
 
 			/* メッセージボックスの非表示を開始する */
-			action_hide_start(x, y, w, h);
+			action_hide_start();
 
 			/* 入力が処理された */
 			return true;
@@ -2099,7 +2028,7 @@ static bool process_hide_click(int *x, int *y, int *w, int *h)
 		play_se(conf_msgbox_show_se);
 
 		/* メッセージボックスの非表示を終了する */
-		action_hide_end(x, y, w, h);
+		action_hide_end();
 
 		/* 入力が処理された */
 		return true;
@@ -2110,7 +2039,7 @@ static bool process_hide_click(int *x, int *y, int *w, int *h)
 }
 
 /* メッセージボックスの非表示を開始する */
-static void action_hide_start(int *x, int *y, int *w, int *h)
+static void action_hide_start(void)
 {
 	/* メッセージボックスを非表示にする */
 	is_hidden = true;
@@ -2118,16 +2047,10 @@ static void action_hide_start(int *x, int *y, int *w, int *h)
 		show_namebox(false);
 	show_msgbox(false);
 	show_click(false);
-
-	/* 画面全体を再描画する */
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 }
 
 /* メッセージボックスの非表示を終了する */
-static void action_hide_end(int *x, int *y, int *w, int *h)
+static void action_hide_end(void)
 {
 	/* メッセージボックスを表示する */
 	is_hidden = false;
@@ -2135,12 +2058,6 @@ static void action_hide_end(int *x, int *y, int *w, int *h)
 		show_namebox(true);
 	show_msgbox(true);
 	show_click(is_click_visible);
-
-	/* 画面全体を再描画する */
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 }
 
 /* クイックセーブを処理する */
@@ -2181,19 +2098,13 @@ static void action_load(void)
 }
 
 /* スキップモードを開始する */
-static void action_skip(int *x, int *y, int *w, int *h)
+static void action_skip(void)
 {
 	/* スキップモードを開始する */
 	start_skip_mode();
 
 	/* スキップモードバナーを表示する */
 	show_skipmode_banner(true);
-
-	/* バナーを再描画する */
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 }
 
 /* ヒストリ画面への遷移を処理する */
@@ -2240,7 +2151,7 @@ static void action_custom(int index)
 }
 
 /* システムメニューの処理を行う */
-static bool frame_sysmenu(int *x, int *y, int *w, int *h)
+static bool frame_sysmenu(void)
 {
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中の場合 */
@@ -2309,7 +2220,7 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 	/* システムメニューが表示中でないとき */
 	if (!is_sysmenu) {
 		/* 折りたたみシステムメニューの処理を行う */
-		return process_collapsed_sysmenu(x, y, w, h);
+		return process_collapsed_sysmenu();
 	}
 
 	/* 以下、システムメニューを表示中の場合 */
@@ -2376,11 +2287,11 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 		break;
 	case SYSMENU_AUTO:
 		play_se(conf_sysmenu_auto_se);
-		action_auto_start(x, y, w, h);
+		action_auto_start();
 		break;
 	case SYSMENU_SKIP:
 		play_se(conf_sysmenu_skip_se);
-		action_skip(x, y, w, h);
+		action_skip();
 		break;
 	case SYSMENU_HISTORY:
 		play_se(conf_sysmenu_history_se);
@@ -2411,7 +2322,7 @@ static bool frame_sysmenu(int *x, int *y, int *w, int *h)
 }
 
 /* 折りたたみシステムメニューの処理を行う */
-static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h)
+static bool process_collapsed_sysmenu(void)
 {
 	bool enter_sysmenu;
 
@@ -2465,7 +2376,7 @@ static bool process_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 	adjust_sysmenu_pointed_index();
 
 	/* メッセージボックス内のボタンをクリアする */
-	draw_buttons(x, y, w, h);
+	draw_buttons();
 
 	return true;
 }
@@ -2600,18 +2511,15 @@ static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
  */
 
 /* フレーム描画を行う */
-static void draw_frame(int *x, int *y, int *w, int *h)
+static void draw_frame(void)
 {
 	/* メッセージボックス非表示中は処理しない */
 	if (is_hidden)
 		return;
 
 	/* システムメニューを表示中の場合 */
-	if (is_sysmenu) {
-		/* ステージを再描画するか求める(計算だけで描画しない) */
-		draw_sysmenu(true, x, y, w, h);
+	if (is_sysmenu)
 		return;
-	}
 
 	/* 以下、メインの表示処理を行う */
 
@@ -2629,7 +2537,7 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		}
 		if (!is_inline_wait) {
 			/* 本文を描画する */
-			draw_msgbox(x, y, w, h);
+			draw_msgbox();
 		}
 	} else {
 		/*
@@ -2638,20 +2546,8 @@ static void draw_frame(int *x, int *y, int *w, int *h)
 		 *  - ただしシステムメニューが終了したフレームでは描画しない
 		 */
 		if (!is_sysmenu_finished)
-			draw_click(x, y, w, h);
+			draw_click();
 	}
-
-	/* システムメニューが終了したフレームの場合 */
-	if (is_sysmenu_finished) {
-		/* 画面全体を再描画する */
-		*x = 0;
-		*y = 0;
-		*w = conf_window_width;
-		*h = conf_window_height;
-	}
-
-	/* オートモードとスキップモードのバナーの描画領域を取得する */
-	union_banners(x, y, w, h);
 }
 
 /* メッセージ本文の描画が完了しているか */
@@ -2670,7 +2566,7 @@ static bool is_end_of_msg(void)
 }
 
 /* メッセージボックスの描画を行う */
-static void draw_msgbox(int *x, int *y, int *w, int *h)
+static void draw_msgbox(void)
 {
 	int char_count, ret;
 
@@ -2689,7 +2585,7 @@ static void draw_msgbox(int *x, int *y, int *w, int *h)
 	/* 描画を行う */
 	lock_layers_for_msgdraw(LAYER_MSG, -1);
 	{
-		ret = draw_msg_common(&msgbox_context, char_count, x, y, w, h);
+		ret = draw_msg_common(&msgbox_context, char_count);
 	}
 	unlock_layers_for_msgdraw(LAYER_MSG, -1);
 	if (is_inline_wait) {
@@ -2883,7 +2779,7 @@ static int calc_frame_chars_by_lap(void)
 }
 
 /* クリックアニメーションを描画する */
-static void draw_click(int *x, int *y, int *w, int *h)
+static void draw_click(void)
 {
 	int click_x, click_y, click_w, click_h;
 	int lap, index;
@@ -2950,12 +2846,6 @@ static void draw_click(int *x, int *y, int *w, int *h)
 		show_click(true);
 		is_click_visible = true;
 	}
-
-	/* 描画範囲を求める */
-	get_click_rect(&click_x, &click_y, &click_w, &click_h);
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   click_x, click_y, click_w, click_h);
 }
 
 /* クリックアニメーションで入力があったら繰り返しを終了する */
@@ -3090,70 +2980,41 @@ static bool check_stop_click_animation(void)
 }
 
 /* システムメニューを描画する */
-static void draw_sysmenu(bool calc_only, int *x, int *y, int *w, int *h)
+static void draw_sysmenu(void)
 {
-	int i, bx, by, bw, bh;
-	bool redraw;
+	int i;
 	bool sel[SYSMENU_COUNT];
-
-	/* 描画するかの判定状態を初期化する */
-	redraw = false;
-
-	/* システムメニューの最初のフレームの場合、描画する */
-	if (is_sysmenu_first_frame)
-		redraw = true;
 
 	/* システムメニューボタンがポイントされているかを取得する */
 	for (i = 0; i < SYSMENU_COUNT; i++) {
-		if (sysmenu_pointed_index == i) {
+		if (sysmenu_pointed_index == i)
 			sel[i] = true;
-			if (old_sysmenu_pointed_index != i &&
-			    !is_sysmenu_first_frame)
-				redraw = true;
-		} else {
+		else
 			sel[i] = false;
-		}
 	}
-
-	/* ポイント項目がなくなった場合 */
-	if (sysmenu_pointed_index == SYSMENU_NONE) {
-		if (old_sysmenu_pointed_index != SYSMENU_NONE)
-			redraw = true;
-	}
-
-	/* GPUを利用している場合 */
-	if (is_gpu_accelerated())
-		redraw = true;
 
 	/* 描画する */
-	if (redraw) {
-		if (!calc_only) {
-			draw_stage_sysmenu(true,
-					   is_skippable(),
-					   is_save_load_enabled(),
-					   is_save_load_enabled() &&
-					   have_quick_save_data(),
-					   sel[SYSMENU_QSAVE],
-					   sel[SYSMENU_QLOAD],
-					   sel[SYSMENU_SAVE],
-					   sel[SYSMENU_LOAD],
-					   sel[SYSMENU_AUTO],
-					   sel[SYSMENU_SKIP],
-					   sel[SYSMENU_HISTORY],
-					   sel[SYSMENU_CONFIG],
-					   sel[SYSMENU_CUSTOM1],
-					   sel[SYSMENU_CUSTOM2],
-					   x, y, w, h);
-			is_sysmenu_first_frame = false;
-		} else {
-			get_sysmenu_rect(&bx, &by, &bw, &bh);
-			union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
-		}
-	}
+	draw_stage_sysmenu(true,
+			   is_skippable(),
+			   is_save_load_enabled(),
+			   is_save_load_enabled() &&
+			   have_quick_save_data(),
+			   sel[SYSMENU_QSAVE],
+			   sel[SYSMENU_QLOAD],
+			   sel[SYSMENU_SAVE],
+			   sel[SYSMENU_LOAD],
+			   sel[SYSMENU_AUTO],
+			   sel[SYSMENU_SKIP],
+			   sel[SYSMENU_HISTORY],
+			   sel[SYSMENU_CONFIG],
+			   sel[SYSMENU_CUSTOM1],
+			   sel[SYSMENU_CUSTOM2]);
+
+	is_sysmenu_first_frame = false;
 }
 
 /* 折りたたみシステムメニューを描画する */
-static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
+static void draw_collapsed_sysmenu(void)
 {
 	bool is_pointed;
 
@@ -3161,7 +3022,7 @@ static void draw_collapsed_sysmenu(int *x, int *y, int *w, int *h)
 	is_pointed = is_collapsed_sysmenu_pointed();
 
 	/* 描画する */
-	draw_stage_collapsed_sysmenu(is_pointed, x, y, w, h);
+	draw_stage_collapsed_sysmenu(is_pointed);
 
 	/* SEを再生する */
 	if (!is_sysmenu_finished &&
@@ -3200,25 +3061,11 @@ static bool is_collapsed_sysmenu_pointed(void)
 	return false;
 }
 
-/* バナーの描画領域を取得する */
-static void union_banners(int *x, int *y, int *w, int *h)
-{
-	int bx, by,bw, bh;
-
-	if (is_auto_mode()) {
-		get_automode_banner_rect(&bx, &by, &bw, &bh);
-		union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
-	} else if (is_skip_mode()) {
-		get_skipmode_banner_rect(&bx, &by, &bw, &bh);
-		union_rect(x, y, w, h, *x, *y, *w, *h, bx, by, bw, bh);
-	}
-}
-
 /*
  * 重ね塗りを行う (dimming)
  *  - 全画面スタイルで、すでに読んだ部分を暗くするための文字描画
  */
-static void draw_dimming(int *x, int *y, int *w, int *h)
+static void draw_dimming(void)
 {
 	struct draw_msg_context context;
 
@@ -3283,7 +3130,7 @@ static void draw_dimming(int *x, int *y, int *w, int *h)
 		conf_msgbox_tategaki);
 	lock_layers_for_msgdraw(LAYER_MSG, -1);
 	{
-		draw_msg_common(&context, total_chars, x, y, w, h);
+		draw_msg_common(&context, total_chars);
 	}
 	unlock_layers_for_msgdraw(LAYER_MSG, -1);
 }

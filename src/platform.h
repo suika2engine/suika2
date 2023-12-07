@@ -96,17 +96,8 @@ char *make_valid_path(const char *dir, const char *fname);
  **************/
 
 /*
- * Return whether the HAL uses GPU acceleration.
- *  - We can use software rendering on Windows and Linux
- *    - It will be removed in near future
- *  - If GPU acceleration is ON, we have to redraw every frames
- *  - If GPU acceleration is OFF, we can focus on drawing a updated rectangle
- */
-bool is_gpu_accelerated(void);
-
-/*
  * Return whether OpenGL is enabled.
- *  - When we use OpenGL, we reorder pixels from RGB to BGR in readimage.c
+ *  - When we use OpenGL, we reorder pixels from RGBA to BGRA in readimage.c
  *  - A HAL can have multiple rendering backends and choose one on a startup time
  */
 bool is_opengl_enabled(void);

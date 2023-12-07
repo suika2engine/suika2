@@ -104,19 +104,16 @@ void on_event_cleanup(void)
 /*
  * 再描画時に呼び出される
  */
-bool on_event_frame(int *x, int *y, int *w, int *h)
+bool on_event_frame(void)
 {
-	/* デフォルトの書き換え領域をなしとする */
-	*x = *y = *w = *h = 0;
-	
 	/* ゲームループの中身を実行する */
-	if (!game_loop_iter(x, y, w, h)) {
+	if (!game_loop_iter()) {
 		/* アプリケーションを終了する */
 		return false;
 	}
 
 	/* キラキラエフェクトを描画する */
-	if (conf_kirakira_on && is_gpu_accelerated())
+	if (conf_kirakira_on)
 		draw_kirakira();
 
 	/* アプリケーションを続行する */

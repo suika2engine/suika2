@@ -242,27 +242,8 @@ void clear_stage(void);
 /* ステージ全体を描画する */
 void draw_stage(void);
 
-/*
- * ステージ全体を描画する(GPU用)
- *  - GPU利用時はdraw_stage()を呼び出し、そうでなければ何もしない
- *  - 参考: CPU描画時は変更部分のみを描画、GPU描画時は毎フレーム再描画
- */
-void draw_stage_keep(void);
-
-/*
- * ステージの矩形を描画する
- *  - GPU利用時は画面全体が再描画される
- */
-void draw_stage_rect(int x, int y, int w, int h);
-
 /* ステージの背景(FO)全体と、前景(FI)の矩形を描画する */
 void draw_fo_all_and_fi_rect(int x, int y, int w, int h);
-
-/* ステージの背景(FO)全体と、前景(FI)の矩形を描画する(GPU用) */
-void draw_fo_all_and_fi_rect_accelerated(int x, int y, int w, int h);
-
-/* CPU描画の場合はFOのうち1矩形、GPU描画の場合はFO全体を描画する */
-void draw_fo_rect_accelerated(int x, int y, int w, int h);
 
 /* ステージの背景(FO)と前景(FI)にステージ全体を描画する */
 void draw_stage_fo_fi(bool force_draw_msgbox);
@@ -285,15 +266,13 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_history_selected,
 			bool is_config_selected,
 			bool is_custom1_selected,
-			bool is_custom2_selected,
-			int *x, int *y, int *w, int *h);
+			bool is_custom2_selected);
 
 /* システムメニューの座標を取得する */
 void get_sysmenu_rect(int *x, int *y, int *w, int *h);
 
 /* 折りたたみシステムメニューを描画する */
-void draw_stage_collapsed_sysmenu(bool is_pointed, int *x, int *y, int *w,
-				  int *h);
+void draw_stage_collapsed_sysmenu(bool is_pointed);
 
 /* 折りたたみシステムメニューの座標を取得する */
 void get_collapsed_sysmenu_rect(int *x, int *y, int *w, int *h);

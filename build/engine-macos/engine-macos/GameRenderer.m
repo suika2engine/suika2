@@ -6,6 +6,7 @@
 
 static id<MTLDevice> theDevice;
 static id<MTLRenderPipelineState> theNormalPipelineState;
+static id<MTLRenderPipelineState> theCopyPipelineState;
 static id<MTLRenderPipelineState> theDimPipelineState;
 static id<MTLRenderPipelineState> theRulePipelineState;
 static id<MTLRenderPipelineState> theMeltPipelineState;
@@ -25,6 +26,8 @@ static BOOL runSuika2Frame(void);
 }
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)mtkView {
+    NSError *error = NULL;
+
     self = [super init];
     if(self == nil)
         return nil;
@@ -33,46 +36,80 @@ static BOOL runSuika2Frame(void);
     
     // Load shaders.
     id<MTLLibrary> defaultLibrary = [theDevice newDefaultLibrary];
-    id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
-    id<MTLFunction> fragmentNormalFunction = [defaultLibrary newFunctionWithName:@"fragmentNormalShader"];
-    id<MTLFunction> fragmentDimFunction = [defaultLibrary newFunctionWithName:@"fragmentDimShader"];
-    id<MTLFunction> fragmentRuleFunction = [defaultLibrary newFunctionWithName:@"fragmentRuleShader"];
-    id<MTLFunction> fragmentMeltFunction = [defaultLibrary newFunctionWithName:@"fragmentMeltShader"];
-
-    NSError *error = NULL;
 
     // Construct a normal shader pipeline.
     MTLRenderPipelineDescriptor *normalPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     normalPipelineStateDescriptor.label = @"Normal Texturing Pipeline";
-    normalPipelineStateDescriptor.vertexFunction = vertexFunction;
+    normalPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+    normalPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentNormalShader"];
     normalPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
-    normalPipelineStateDescriptor.fragmentFunction = fragmentNormalFunction;
+    normalPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
+    normalPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    normalPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    normalPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+    normalPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    normalPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    normalPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
     theNormalPipelineState = [theDevice newRenderPipelineStateWithDescriptor:normalPipelineStateDescriptor error:&error];
     NSAssert(theNormalPipelineState, @"Failed to create pipeline state: %@", error);
+
+    // Construct a copy shader pipeline.
+    MTLRenderPipelineDescriptor *copyPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    copyPipelineStateDescriptor.label = @"Normal Texturing Pipeline";
+    copyPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+    copyPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentCopyShader"];
+    copyPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
+    copyPipelineStateDescriptor.colorAttachments[0].blendingEnabled = FALSE;
+    theCopyPipelineState = [theDevice newRenderPipelineStateWithDescriptor:copyPipelineStateDescriptor error:&error];
+    NSAssert(theCopyPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Construct a dim shader pipeline.
     MTLRenderPipelineDescriptor *dimPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     dimPipelineStateDescriptor.label = @"Dim Texturing Pipeline";
-    dimPipelineStateDescriptor.vertexFunction = vertexFunction;
+    dimPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+    dimPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentDimShader"];
     dimPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
-    dimPipelineStateDescriptor.fragmentFunction = fragmentDimFunction;
-    theNormalPipelineState = [theDevice newRenderPipelineStateWithDescriptor:dimPipelineStateDescriptor error:&error];
+    dimPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
+    dimPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    dimPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    dimPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+    dimPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    dimPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    dimPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
+    theDimPipelineState = [theDevice newRenderPipelineStateWithDescriptor:dimPipelineStateDescriptor error:&error];
+    NSAssert(theDimPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Construct a rule shader pipeline.
     MTLRenderPipelineDescriptor *rulePipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     rulePipelineStateDescriptor.label = @"Rule Texturing Pipeline";
-    rulePipelineStateDescriptor.vertexFunction = vertexFunction;
+    rulePipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+    rulePipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentRuleShader"];
     rulePipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
-    rulePipelineStateDescriptor.fragmentFunction = fragmentRuleFunction;
-    theNormalPipelineState = [theDevice newRenderPipelineStateWithDescriptor:rulePipelineStateDescriptor error:&error];
+    rulePipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
+    rulePipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    rulePipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    rulePipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+    rulePipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    rulePipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    rulePipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
+    theRulePipelineState = [theDevice newRenderPipelineStateWithDescriptor:rulePipelineStateDescriptor error:&error];
+    NSAssert(theRulePipelineState, @"Failed to create pipeline state: %@", error);
 
     // Construct a melt shader pipeline.
     MTLRenderPipelineDescriptor *meltPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     meltPipelineStateDescriptor.label = @"Melt Texturing Pipeline";
-    meltPipelineStateDescriptor.vertexFunction = vertexFunction;
+    meltPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+    meltPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentMeltShader"];
     meltPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
-    meltPipelineStateDescriptor.fragmentFunction = fragmentMeltFunction;
-    theNormalPipelineState = [theDevice newRenderPipelineStateWithDescriptor:rulePipelineStateDescriptor error:&error];
+    meltPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
+    meltPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    meltPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    meltPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+    meltPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    meltPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    meltPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOneMinusSourceAlpha;
+    theMeltPipelineState = [theDevice newRenderPipelineStateWithDescriptor:meltPipelineStateDescriptor error:&error];
+    NSAssert(theMeltPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Create a command queue.
     commandQueue = [theDevice newCommandQueue];
@@ -521,9 +558,8 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
     // Draw.
     id<MTLRenderCommandEncoder> renderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
     renderEncoder.label = @"MyRenderEncoder";
-    //[renderEncoder setViewport:(MTLViewport){0.0, 0.0, theViewportSize.width, theViewportSize.height, -1.0, 1.0}];
     id<MTLTexture> tex = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image));
-    [renderEncoder setRenderPipelineState:theNormalPipelineState];
+    [renderEncoder setRenderPipelineState:(bt == BLEND_NONE ? theCopyPipelineState :  theNormalPipelineState)];
     [renderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:GameVertexInputIndexVertices];
     [renderEncoder setFragmentTexture:tex atIndex:GameTextureIndexBaseColor];
     [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];

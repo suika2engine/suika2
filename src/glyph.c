@@ -55,13 +55,7 @@ static bool draw_glyph_wrapper(
 	uint32_t wc,
 	int *ret_width,
 	int *ret_height,
-	bool is_dimming,
-	int layer_x,
-	int layer_y,
-	int *union_x,
-	int *union_y,
-	int *union_w,
-	int *union_h);
+	bool is_dimming);
 static bool draw_glyph_without_outline(
 	struct image *img,
 	int font_type,
@@ -925,8 +919,7 @@ static void draw_glyph_dim_func(unsigned char * RESTRICT font,
  */
 
 /* Forward declarations. */
-static void process_escape_sequence(struct draw_msg_context *context,
-				    int *x, int *y, int *w, int *h);
+static void process_escape_sequence(struct draw_msg_context *context);
 static void process_escape_sequence_lf(struct draw_msg_context *context);
 static bool process_escape_sequence_font(struct draw_msg_context *context);
 static bool process_escape_sequence_outline(struct draw_msg_context *context);
@@ -934,8 +927,7 @@ static bool process_escape_sequence_color(struct draw_msg_context *context);
 static bool process_escape_sequence_size(struct draw_msg_context *context);
 static bool process_escape_sequence_wait(struct draw_msg_context *context);
 static bool process_escape_sequence_pen(struct draw_msg_context *context);
-static bool process_escape_sequence_ruby(struct draw_msg_context *context,
-					 int *x, int *y, int *w, int *h);
+static bool process_escape_sequence_ruby(struct draw_msg_context *context);
 static bool search_for_end_of_escape_sequence(const char **msg);
 static bool do_word_wrapping(struct draw_msg_context *context);
 static int get_en_word_width(struct draw_msg_context *context);
@@ -1119,12 +1111,8 @@ static bool search_for_end_of_escape_sequence(const char **msg)
  */
 int
 draw_msg_common(
-	struct draw_msg_context *context, /* a drawing context. */
-	int char_count,	/* characters to draw. */
-	int *x,		/* left coordinate of the update rect. */
-	int *y,		/* top coordinate of the update rect. */
-	int *w,		/* width of the update rect. */
-	int *h)		/* height of the update rect. */
+	struct draw_msg_context *context,	/* a drawing context. */
+	int char_count)				/* characters to draw. */
 {
 	uint32_t wc = 0;
 	int i, mblen;
@@ -1143,7 +1131,7 @@ draw_msg_common(
 			break;
 
 		/* 先頭のエスケープシーケンスをすべて処理する */
-		process_escape_sequence(context, x, y, w, h);
+		process_escape_sequence(context);
 		if (context->runtime_is_inline_wait) {
 			context->runtime_is_inline_wait = false;
 			return i;
@@ -1195,10 +1183,7 @@ draw_msg_common(
 				   wc,
 				   &ret_width,
 				   &ret_height,
-				   context->is_dimming,
-				   context->layer_x,
-				   context->layer_y,
-				   x, y, w, h);
+				   context->is_dimming);
 
 		/* ルビ用のペン位置を更新する */
 		if (!context->use_tategaki) {
@@ -1224,7 +1209,7 @@ draw_msg_common(
 	}
 
 	/* 末尾のエスケープシーケンスを処理する */
-	process_escape_sequence(context, x, y, w, h);
+	process_escape_sequence(context);
 	if (context->runtime_is_inline_wait)
 		context->runtime_is_inline_wait = false;
 
@@ -1399,8 +1384,7 @@ static bool is_small_kana(uint32_t wc)
 }
 
 /* 先頭のエスケープシーケンスを処理する */
-static void process_escape_sequence(struct draw_msg_context *context,
-				    int *x, int *y, int *w, int *h)
+static void process_escape_sequence(struct draw_msg_context *context)
 {
 	/* エスケープシーケンスが続く限り処理する */
 	while (*context->msg == '\\') {
@@ -1441,7 +1425,7 @@ static void process_escape_sequence(struct draw_msg_context *context,
 			break;
 		case '^':
 			/* ルビ */
-			if (!process_escape_sequence_ruby(context, x, y, w, h))
+			if (!process_escape_sequence_ruby(context))
 				return; /* 不正: 読み飛ばさない */
 			break;
 		default:
@@ -1731,8 +1715,7 @@ static bool process_escape_sequence_pen(struct draw_msg_context *context)
 }
 
 /* ルビ("\\^{ルビ}")を処理する */
-static bool process_escape_sequence_ruby(struct draw_msg_context *context,
-					 int *x, int *y, int *w, int *h)
+static bool process_escape_sequence_ruby(struct draw_msg_context *context)
 {
 	char ruby[64];
 	const char *p;
@@ -1782,10 +1765,7 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context,
 				   wc,
 				   &ret_w,
 				   &ret_h,
-				   context->is_dimming,
-				   context->layer_x,
-				   context->layer_y,
-				   x, y, w, h);
+				   context->is_dimming);
 
 		if (!context->use_tategaki)
 			context->runtime_ruby_x += ret_w;
@@ -1803,9 +1783,7 @@ static bool draw_glyph_wrapper(
 	int font, int font_size, int base_font_size, bool use_outline,
 	int x, int y, pixel_t color, pixel_t outline_color,
 	uint32_t wc, int *ret_width, int *ret_height,
-	bool is_dimming,
-	int layer_x, int layer_y,
-	int *union_x, int *union_y, int *union_w, int *union_h)
+	bool is_dimming)
 {
 	bool ret;
 
@@ -1828,12 +1806,6 @@ static bool draw_glyph_wrapper(
 		/* グリフがない、コードポイントがおかしい、など */
 		return false;
 	}
-
-	/* 更新領域を求める */
-	union_rect(union_x, union_y, union_w, union_h,
-		   *union_x, *union_y, *union_w, *union_h,
-		   layer_x + x, layer_y + y,
-		   *ret_width, *ret_height);
 
 	return true;
 }

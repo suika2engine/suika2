@@ -846,16 +846,11 @@ bool is_gui_overlay(void)
 /*
  * GUIを実行する
  */
-bool run_gui_mode(int *x, int *y, int *w, int *h)
+bool run_gui_mode(void)
 {
 	float progress;
 	int i;
 	bool is_finished;
-
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	prev_pointed_index = pointed_index;
 	need_update_history_buttons = false;
@@ -1934,7 +1929,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 	struct gui_button *b;
 	pixel_t color, outline_color;
 	int font_size, ruby_size, total_chars;
-	int ret_x, ret_y, ret_w, ret_h, width;
+	int width;
 	bool use_outline;
 
 	b = &button[button_index];
@@ -2003,7 +1998,7 @@ static int draw_save_text_item(int button_index, int x, int y,
 		conf_gui_save_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
 	total_chars = count_chars_common(&context);
-	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);
+	draw_msg_common(&context, total_chars);
 
 	width = get_string_width(context.font, context.font_size, text);
 	return width;
@@ -2221,7 +2216,6 @@ static void draw_history_text_item(int button_index)
 	pixel_t color, outline_color;
 	int font_size, ruby_size, margin_line, total_chars;
 	int pen_x, pen_y;
-	int ret_x, ret_y, ret_w, ret_h;
 	bool use_outline, ignore_color;
 
 	b = &button[button_index];
@@ -2343,7 +2337,7 @@ static void draw_history_text_item(int button_index)
 		conf_gui_history_tategaki);
 	set_alternative_target_image(&context, b->rt.img);
 	total_chars = count_chars_common(&context);
-	draw_msg_common(&context, total_chars, &ret_x, &ret_y, &ret_w, &ret_h);
+	draw_msg_common(&context, total_chars);
 }
 
 /* history_topを更新する */
@@ -2604,7 +2598,7 @@ static void draw_preview_message(int index)
 {
 	struct gui_button *b;
 	int char_count;
-	int ret_chars, ret_x, ret_y, ret_w, ret_h;
+	int ret_chars;
 
 	b = &button[index];
 
@@ -2616,12 +2610,7 @@ static void draw_preview_message(int index)
 	/* 描画する */
 	lock_image(b->rt.img);
 	{
-		ret_chars = draw_msg_common(&b->rt.msg_context,
-					    char_count,
-					    &ret_x,
-					    &ret_y,
-					    &ret_w,
-					    &ret_h);
+		ret_chars = draw_msg_common(&b->rt.msg_context, char_count);
 	}
 	unlock_image(b->rt.img);
 
@@ -2730,7 +2719,6 @@ static void draw_name(int index)
 	const char *name;
 	pixel_t color, outline_color;
 	int char_count;
-	int ret_x, ret_y, ret_w, ret_h;
 
 	b = &button[index];
 
@@ -2783,7 +2771,7 @@ static void draw_name(int index)
 		false);		/* use_tategaki */
 	set_alternative_target_image(&context, b->rt.img);
 	char_count = count_chars_common(&context);
-	draw_msg_common(&context, char_count, &ret_x, &ret_y, &ret_w, &ret_h);
+	draw_msg_common(&context, char_count);
 }
 
 /*

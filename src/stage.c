@@ -258,7 +258,8 @@ static void draw_fade_slit_close_v(void);
 static void draw_fade_shake(void);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
-static void render_layer_image_rect(int layer, int x, int y, int w, int h);
+static void render_layer_image_copy(int layer);
+static void render_layer_image_helper(int layer, int bt);
 
 /*
  * 初期化
@@ -782,13 +783,11 @@ static bool create_fade_layer_images(void)
 	if (layer_image[LAYER_FI] == NULL)
 		return false;
 
-	if (is_gpu_accelerated()) {
-		/* 時間のかかるGPUテクスチャ生成を先に行っておく */
-		lock_image(layer_image[LAYER_FO]);
-		unlock_image(layer_image[LAYER_FO]);
-		lock_image(layer_image[LAYER_FI]);
-		unlock_image(layer_image[LAYER_FI]);
-	}
+	/* 時間のかかるGPUテクスチャ生成を先に行っておく */
+	lock_image(layer_image[LAYER_FO]);
+	unlock_image(layer_image[LAYER_FO]);
+	lock_image(layer_image[LAYER_FI]);
+	unlock_image(layer_image[LAYER_FI]);
 
 	return true;
 }
@@ -1264,32 +1263,6 @@ void clear_stage(void)
  */
 void draw_stage(void)
 {
-	/* 描画を行う */
-	draw_stage_rect(0, 0, conf_window_width, conf_window_height);
-}
-
-/*
- * ステージ全体を描画する(GPU用)
- *  - GPU利用時はdraw_stage()を呼び出し、そうでなければ何もしない
- *  - 参考: CPU描画時は変更部分のみを描画、GPU描画時は毎フレーム再描画
- */
-void draw_stage_keep(void)
-{
-#if defined(EM) || defined(OSX) || defined(IOS) || defined(ANDROID)
-	draw_stage();
-#else
-	if (is_gpu_accelerated())
-		draw_stage();
-#endif
-}
-
-/*
- * ステージの矩形を描画する
- *  - GPU利用時は画面全体が再描画される
- *  - アニメ実行中は画面全体が再描画される
- */
-void draw_stage_rect(int x, int y, int w, int h)
-{
 	struct image **imgpp;
 	char **fnamepp;
 	int i, anime_layer;
@@ -1299,12 +1272,6 @@ void draw_stage_rect(int x, int y, int w, int h)
 	assert(stage_mode != STAGE_MODE_CH_FADE);
 	assert(stage_mode != STAGE_MODE_CHS_FADE);
 	assert(stage_mode != STAGE_MODE_SHAKE_FADE);
-
-	/* x, y ともに0以上 */
-	assert(x >= 0 && y >= 0);
-
-	/* w, h は0以上 (0でもいい) */
-	assert(w >= 0 && h >= 0);
 
 	/*
 	 * アニメーションのフレーム時刻を更新し、
@@ -1351,63 +1318,43 @@ void draw_stage_rect(int x, int y, int w, int h)
 				       &layer_alpha[i]);
 	}
 
-	/* GPU利用時は更新範囲を画面全体にする */
-	if (is_gpu_accelerated()) {
-		x = 0;
-		y = 0;
-		w = conf_window_width;
-		h = conf_window_height;
-	}
-
-	/* 更新範囲がない場合は描画しない */
-	if (w == 0 || h == 0)
-		return;
-	if (x >= conf_window_width || y >= conf_window_height)
-		return;
-
-	/* 右側と下側のはみだし部分をクリッピングする */
-	if (x + w >= conf_window_width)
-		w = conf_window_width - x;
-	if (y + h >= conf_window_height)
-		h = conf_window_height - y;
-
 	/* 各レイヤで画面上の矩形(x, y) (w, h)に位置する部分を描画する */
-	render_layer_image_rect(LAYER_BG, x, y, w, h);
-	render_layer_image_rect(LAYER_BG2, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT5, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT6, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT7, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT8, x, y, w, h);
-	render_layer_image_rect(LAYER_CHB, x, y, w, h);
-	render_layer_image_rect(LAYER_CHL, x, y, w, h);
-	render_layer_image_rect(LAYER_CHLC, x, y, w, h);
-	render_layer_image_rect(LAYER_CHR, x, y, w, h);
-	render_layer_image_rect(LAYER_CHRC, x, y, w, h);
-	render_layer_image_rect(LAYER_CHC, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT1, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT2, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT3, x, y, w, h);
-	render_layer_image_rect(LAYER_EFFECT4, x, y, w, h);
+	render_layer_image_copy(LAYER_BG);
+	render_layer_image(LAYER_BG2);
+	render_layer_image(LAYER_EFFECT5);
+	render_layer_image(LAYER_EFFECT6);
+	render_layer_image(LAYER_EFFECT7);
+	render_layer_image(LAYER_EFFECT8);
+	render_layer_image(LAYER_CHB);
+	render_layer_image(LAYER_CHL);
+	render_layer_image(LAYER_CHLC);
+	render_layer_image(LAYER_CHR);
+	render_layer_image(LAYER_CHRC);
+	render_layer_image(LAYER_CHC);
+	render_layer_image(LAYER_EFFECT1);
+	render_layer_image(LAYER_EFFECT2);
+	render_layer_image(LAYER_EFFECT3);
+	render_layer_image(LAYER_EFFECT4);
 	if (is_msgbox_visible)
-		render_layer_image_rect(LAYER_MSG, x, y, w, h);
+		render_layer_image(LAYER_MSG);
 	if (is_namebox_visible && !conf_namebox_hidden)
-		render_layer_image_rect(LAYER_NAME, x, y, w,h);
+		render_layer_image(LAYER_NAME);
 	if (is_msgbox_visible)
-		render_layer_image_rect(LAYER_CHF, x, y, w, h);
+		render_layer_image(LAYER_CHF);
 	if (is_click_visible && !conf_click_disable)
-		render_layer_image_rect(LAYER_CLICK, x, y, w, h);
+		render_layer_image(LAYER_CLICK);
 	if (is_auto_visible)
-		render_layer_image_rect(LAYER_AUTO, x, y, w, h);
+		render_layer_image(LAYER_AUTO);
 	if (is_skip_visible)
-		render_layer_image_rect(LAYER_SKIP, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT1, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT2, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT3, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT4, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT5, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT6, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT7, x, y, w, h);
-	render_layer_image_rect(LAYER_TEXT8, x, y, w, h);
+		render_layer_image(LAYER_SKIP);
+	render_layer_image(LAYER_TEXT1);
+	render_layer_image(LAYER_TEXT2);
+	render_layer_image(LAYER_TEXT3);
+	render_layer_image(LAYER_TEXT4);
+	render_layer_image(LAYER_TEXT5);
+	render_layer_image(LAYER_TEXT6);
+	render_layer_image(LAYER_TEXT7);
+	render_layer_image(LAYER_TEXT8);
 }
 
 /*
@@ -1430,39 +1377,6 @@ void draw_fo_all_and_fi_rect(int x, int y, int w, int h)
 
 	/* ボタンを描画する */
 	render_image(x, y, layer_image[LAYER_FI], w, h, x, y, 255, BLEND_NONE);
-}
-
-/*
- * ステージの背景(FO)全体と、前景(FI)の矩形を描画する(GPU用)
- *  - cmd_switch.c
- */
-void draw_fo_all_and_fi_rect_accelerated(int x, int y, int w, int h)
-{
-	if (is_gpu_accelerated())
-		draw_fo_all_and_fi_rect(x, y, w, h);
-}
-
-/*
- * CPU描画の場合はFOのうち1矩形、GPU描画の場合はFO全体を描画する
- *  - cmd_switch.c
- */
-void draw_fo_rect_accelerated(int x, int y, int w, int h)
-{
-	assert(stage_mode != STAGE_MODE_BG_FADE);
-	assert(stage_mode != STAGE_MODE_CH_FADE);
-	assert(stage_mode != STAGE_MODE_CHS_FADE);
-
-	if (is_gpu_accelerated()) {
-		/* 背景を描画する */
-		render_image(0, 0, layer_image[LAYER_FO],
-			     get_image_width(layer_image[LAYER_FO]),
-			     get_image_height(layer_image[LAYER_FO]),
-			     0, 0, 255, BLEND_NONE);
-	} else {
-		/* 古いボタンを消す */
-		render_image(x, y, layer_image[LAYER_FO], w, h, x, y, 255,
-			     BLEND_NONE);
-	}
 }
 
 /*
@@ -1498,17 +1412,8 @@ void draw_stage_sysmenu(bool is_auto_enabled,
 			bool is_history_selected,
 			bool is_config_selected,
 			bool is_custom1_selected,
-			bool is_custom2_selected,
-			int *x, int *y, int *w, int *h)
+			bool is_custom2_selected)
 {
-	/* 描画範囲を更新する */
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   conf_sysmenu_x,
-		   conf_sysmenu_y,
-		   get_image_width(sysmenu_idle_image),
-		   get_image_height(sysmenu_idle_image));
-
 	/* システムメニューの背景を描画する */
 	render_image(conf_sysmenu_x, conf_sysmenu_y,
 		     sysmenu_idle_image,
@@ -1702,17 +1607,8 @@ void get_sysmenu_rect(int *x, int *y, int *w, int *h)
 /*
  * 折りたたみシステムメニューを描画する
  */
-void draw_stage_collapsed_sysmenu(bool is_pointed,
-				  int *x, int *y, int *w, int *h)
+void draw_stage_collapsed_sysmenu(bool is_pointed)
 {
-	/* 描画範囲を更新する */
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   conf_sysmenu_collapsed_x,
-		   conf_sysmenu_collapsed_y,
-		   get_image_width(sysmenu_collapsed_idle_image),
-		   get_image_height(sysmenu_collapsed_idle_image));
-
 	/* 折りたたみシステムメニューの背景を描画する */
 	if (!is_pointed) {
 		render_image(conf_sysmenu_collapsed_x,
@@ -2432,7 +2328,7 @@ void draw_fade(void)
 /* デフォルトの背景フェードの描画を行う  */
 static void draw_fade_normal(void)
 {
-	render_layer_image(LAYER_FO);
+	render_layer_image_copy(LAYER_FO);
 	render_layer_image(LAYER_FI);
 }
 
@@ -3750,38 +3646,48 @@ void show_skipmode_banner(bool show)
 /* レイヤをレンダリングする */
 static void render_layer_image(int layer)
 {
-	assert(layer >= 0 && layer < STAGE_LAYERS);
+    render_layer_image_helper(layer, layer_blend[layer]);
+}
 
-	/* 背景イメージは必ずセットされている必要がある */
-	if (layer == LAYER_BG)
-		assert(layer_image[LAYER_BG] != NULL);
+static void render_layer_image_copy(int layer)
+{
+    render_layer_image_helper(layer, BLEND_NONE);
+}
 
-	/* イメージがセットされていなければ描画しない */
-	if (layer_image[layer] == NULL)
-		return;
+static void render_layer_image_helper(int layer, int bt)
+{
+    assert(layer >= 0 && layer < STAGE_LAYERS);
 
-	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
-	    conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
-		/* 暗く描画する */
-		render_image_dim(layer_x[layer],
-				 layer_y[layer],
-				 layer_image[layer],
-				 get_image_width(layer_image[layer]),
-				 get_image_height(layer_image[layer]),
-				 0,
-				 0);
-	} else {
-		/* 普通に描画する */
-		render_image(layer_x[layer],
-			     layer_y[layer],
-			     layer_image[layer],
-			     get_image_width(layer_image[layer]),
-			     get_image_height(layer_image[layer]),
-			     0,
-			     0,
-			     layer_alpha[layer],
-			     layer_blend[layer]);
-	}
+    /* 背景イメージは必ずセットされている必要がある */
+    if (layer == LAYER_BG)
+        assert(layer_image[LAYER_BG] != NULL);
+
+    /* イメージがセットされていなければ描画しない */
+    if (layer_image[layer] == NULL)
+        return;
+
+    if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
+        conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
+        /* 暗く描画する */
+        render_image_dim(layer_x[layer],
+                 layer_y[layer],
+                 layer_image[layer],
+                 get_image_width(layer_image[layer]),
+                 get_image_height(layer_image[layer]),
+                 0,
+                 0);
+    } else {
+        /* 普通に描画する */
+        render_image(layer_x[layer],
+                 layer_y[layer],
+                 layer_image[layer],
+                 get_image_width(layer_image[layer]),
+                 get_image_height(layer_image[layer]),
+                 0,
+                 0,
+                 layer_alpha[layer],
+                 bt);
+    }
 }
 
 /* レイヤを描画する */
@@ -3820,43 +3726,6 @@ static void draw_layer_image(struct image *target, int layer)
 			   0,
 			   layer_alpha[layer],
 			   layer_blend[layer]);
-	}
-}
-
-/* レイヤの矩形をレンダリングする */
-static void render_layer_image_rect(int layer, int x, int y, int w, int h)
-{
-	assert(layer >= 0 && layer < STAGE_LAYERS);
-
-	/* 背景イメージは必ずセットされている必要がある */
-	if (layer == LAYER_BG)
-		assert(layer_image[LAYER_BG] != NULL);
-
-	/* イメージがセットされていなければ描画しない */
-	if (layer_image[layer] == NULL)
-		return;
-
-	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
-	    ch_dim[layer_to_chpos(layer)]) {
-		/* 暗く描画する */
-		render_image_dim(x,
-				 y,
-				 layer_image[layer],
-				 w,
-				 h,
-				 x - layer_x[layer],
-				 y - layer_y[layer]);
-	} else {
-		/* 普通に描画する */
-		render_image(x,
-			     y,
-			     layer_image[layer],
-			     w,
-			     h,
-			     x - layer_x[layer],
-			     y - layer_y[layer],
-			     layer_alpha[layer],
-			     layer_blend[layer]);
 	}
 }
 

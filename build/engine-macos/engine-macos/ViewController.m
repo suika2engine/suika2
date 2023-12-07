@@ -1,5 +1,4 @@
 #import "ViewController.h"
-#import "WindowController.h"
 #import "GameView.h"
 #import "GameRenderer.h"
 

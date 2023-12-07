@@ -53,8 +53,8 @@ bool click_command(void)
 	      (float)get_stop_watch_lap(&sw) >= AUTO_MODE_WAIT))
 		stop_command_repetition();
 
-	/* ステージの描画を維持する */
-	draw_stage_keep();
+	/* ステージの描画を行う */
+	draw_stage();
 
 	/* 後処理を行う */
 	if (!is_in_command_repetition()) {

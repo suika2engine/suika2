@@ -85,7 +85,7 @@ static int saved_pen_x;
 static int saved_pen_y;
 
 /* 前方参照 */
-static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont);
+static bool dispatch_command(bool *cont);
 
 #ifdef USE_DEBUGGER
 /* 実行中であるか */
@@ -153,7 +153,7 @@ void init_game_loop(void)
 /*
  * ゲームループの中身を実行する
  */
-bool game_loop_iter(int *x, int *y, int *w, int *h)
+bool game_loop_iter(void)
 {
 	bool is_gui;
 	bool cont;
@@ -162,7 +162,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 	is_gui = is_gui_mode();
 	if (is_gui) {
 		/* GUIモードを実行する */
-		if (!run_gui_mode(x, y, w, h))
+		if (!run_gui_mode())
 			return false; /* エラー */
 
 		/* GUIモードが終了した場合 */
@@ -172,7 +172,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 				cleanup_gui();
 			} else {
 				/* @guiを終了する */
-				if (!gui_command(x, y, w, h))
+				if (!gui_command())
 					return false; /* エラー */
 			}
 		}
@@ -184,7 +184,7 @@ bool game_loop_iter(int *x, int *y, int *w, int *h)
 		/* コマンドを実行する */
 		do {
 			/* ディスパッチする */
-			if (!dispatch_command(x, y, w, h, &cont))
+			if (!dispatch_command(&cont))
 				return false;
 		} while (cont);
 	}
@@ -371,7 +371,7 @@ static bool pre_dispatch(void)
 #endif
 
 /* コマンドをディスパッチする */
-static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
+static bool dispatch_command(bool *cont)
 {
 	const char *locale;
 
@@ -408,11 +408,11 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		break;
 	case COMMAND_MESSAGE:
 	case COMMAND_SERIF:
-		if (!message_command(x, y, w, h, cont))
+		if (!message_command(cont))
 			return false;
 		break;
 	case COMMAND_BG:
-		if (!bg_command(x, y, w, h))
+		if (!bg_command())
 			return false;
 		break;
 	case COMMAND_BGM:
@@ -421,7 +421,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		*cont = true;
 		break;
 	case COMMAND_CH:
-		if (!ch_command(x, y, w, h))
+		if (!ch_command())
 			return false;
 		break;
 	case COMMAND_CLICK:
@@ -468,7 +468,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 	case COMMAND_SWITCH:	/* deprecated */
 	case COMMAND_NEWS:	/* deprecated */
 	case COMMAND_SELECT:	/* deprecated */
-		if (!switch_command(x, y, w, h))
+		if (!switch_command())
 			return false;
 		break;
 	case COMMAND_GOSUB:
@@ -482,11 +482,11 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		*cont = true;
 		break;
 	case COMMAND_CHA:
-		if (!cha_command(x, y, w, h))
+		if (!cha_command())
 			return false;
 		break;
 	case COMMAND_SHAKE:
-		if (!shake_command(x, y, w, h))
+		if (!shake_command())
 			return false;
 		break;
 	case COMMAND_SETSAVE:
@@ -496,7 +496,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		break;
 	case COMMAND_CHS:
 	case COMMAND_CHSX:
-		if (!chs_command(x, y, w, h))
+		if (!chs_command())
 			return false;
 		break;
 	case COMMAND_VIDEO:
@@ -514,7 +514,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		*cont = true;
 		break;
 	case COMMAND_GUI:
-		if (!gui_command(x, y, w, h))
+		if (!gui_command())
 			return false;
 		break;
 	case COMMAND_WMS:
@@ -522,7 +522,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 			return false;
 		break;
 	case COMMAND_ANIME:
-		if (!anime_command(x, y, w, h))
+		if (!anime_command())
 			return false;
 		break;
 	case COMMAND_SETCONFIG:
@@ -531,7 +531,7 @@ static bool dispatch_command(int *x, int *y, int *w, int *h, bool *cont)
 		*cont = true;
 		break;
 	case COMMAND_PENCIL:
-		if (!pencil_command(x, y, w, h))
+		if (!pencil_command())
 			return false;
 		break;
 	case COMMAND_LAYER:
