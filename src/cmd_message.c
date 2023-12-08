@@ -1707,7 +1707,7 @@ static bool frame_auto_mode(void)
 	/* オートモード中に停止要求があった場合 */
 	if (dbg_is_stop_requested()) {
 		/* オートモード終了アクションを処理する */
-		action_auto_end(x, y, w, h);
+		action_auto_end();
 
 		/* クリックされたものとして処理する */
 		return true;

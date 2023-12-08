@@ -28,10 +28,10 @@
 #include "d3drender.h"
 
 /* Suika2 Pro */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 #include <commctrl.h>
-#include "windebug.h"
-#include "package.h"
+#include "pro.h"
+#include "winpro.h"
 #endif
 
 /* Windows */
@@ -75,7 +75,7 @@
 
 /* ウィンドウクラス名 */
 static const wchar_t wszWindowClassMain[] = L"SuikaMain";
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 static const wchar_t wszWindowClassGame[] = L"SuikaGame";
 #endif
 
@@ -117,13 +117,13 @@ static DWORD dwStyle;
 /* ウィンドウモードでの位置 */
 static RECT rcWindow;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /* 最後に設定されたウィンドウサイズ */
 static int nLastClientWidth, nLastClientHeight;
 #endif
 
 /* 最後に設定されたDPI */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 static int nLastDpi;
 #endif
 
@@ -196,7 +196,7 @@ int WINAPI wWinMain(
 	if (hRes != S_OK)
 		return FALSE;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* コモンコントロールの使用を開始する */
 	InitCommonControls();
 
@@ -255,7 +255,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (!init_conf())
 		return FALSE;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* HiDPIの初期化を行う */
 	InitDpiExtension();
 #endif
@@ -271,7 +271,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* ゲームパネルを再配置して描画サブシステムに反映する */
 	GetClientRect(hWndMain, &rcClient);
 	nLastClientWidth = nLastClientHeight = 0;
@@ -351,7 +351,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.hInstance      = hInstance;
 	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ? WHITE_BRUSH : BLACK_BRUSH);
 #endif
 	wcex.lpszClassName  = wszWindowClassMain;
@@ -400,7 +400,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	nVirtualScreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	nVirtualScreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	nWinWidth = nGameWidth + nFrameAddWidth;
 	nWinHeight = nGameHeight + nFrameAddHeight;
 #else
@@ -412,7 +412,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	if (nVirtualScreenWidth < conf_window_width ||
 		nVirtualScreenHeight < conf_window_height)
 	{
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 		log_error(get_ui_message(UIMSG_WIN32_SMALL_DISPLAY),
 				  nVirtualScreenWidth, nVirtualScreenHeight);
 		return FALSE;
@@ -462,7 +462,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	AdjustWindowRectEx(
 		&rc,
 		dwStyle,
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		TRUE,
 #else
 		conf_window_menubar,
@@ -477,7 +477,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 				 SWP_NOZORDER | SWP_NOMOVE);
 	GetWindowRect(hWndMain, &rcWindow);
 
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	hWndGame = hWndMain;
 
 	/* ゲーム用メニューを作成する */
@@ -533,7 +533,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 /* ゲームウィンドウのメニューを初期化する */
 static VOID InitGameMenu(void)
 {
@@ -675,7 +675,7 @@ static BOOL SyncEvents(void)
 	{
 		if (msg.message == WM_QUIT)
 			return FALSE;
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		if (PretranslateForDebugger(&msg))
 			continue;
 #endif
@@ -734,7 +734,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		PostQuitMessage(0);
 		return 0;
 	case WM_SYSKEYDOWN:	/* Alt + Key */
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 		/* Alt + Enter */
 		if (hWnd == NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{
@@ -754,7 +754,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		{
 			if(wParam == VK_F4)
 			{
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 				if (MessageBox(hWnd,
 							   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
 							   wszTitle, MB_OKCANCEL) == IDOK)
@@ -769,7 +769,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_CLOSE:
 		if (hWnd != NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 			DestroyWindow(hWnd);
 			return 0;
 #else
@@ -937,7 +937,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			return 0;
 		}
 		break;
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	/*
 	 * デバッガでない場合だけウィンドウの最大化によるフルスクリーンを処理する
 	 */
@@ -983,7 +983,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		}
 		break;
 #endif
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	case WM_DPICHANGED:
 		OnDpiChanged(hWnd, HIWORD(wParam), (LPRECT)lParam);
 		return 0;
@@ -1058,7 +1058,7 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 	case ID_QUIT:
 		PostMessage(hWndMain, WM_CLOSE, 0, 0);
 		break;
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	case ID_FULLSCREEN:
 		if (!conf_window_fullscreen_disable)
 		{
@@ -1159,7 +1159,7 @@ static void OnSizing(int edge, LPRECT lpRect)
 	}
 	else
 	{
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		/* Apply the minimum window size. */
 		if (fWidth < DEBUGGER_WIN_WIDTH_MIN)
 			fWidth = DEBUGGER_WIN_WIDTH_MIN;
@@ -1275,7 +1275,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 {
 	float fAspect, fUseWidth, fUseHeight;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	int nDpi;
 	int nDebugWidth;
 
@@ -1311,7 +1311,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	nOffsetX = (int)((((float)nClientWidth - fUseWidth) / 2.0f) + 0.5);
 	nOffsetY = (int)((((float)nClientHeight - fUseHeight) / 2.0f) + 0.5);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* Move the game window. */
 	MoveWindow(hWndGame, 0, 0, nClientWidth, nClientHeight, TRUE);
 	RearrangeDebuggerPanel(nClientWidth, nClientHeight);
@@ -1321,11 +1321,13 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
 }
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /* WM_DPICHANGED */
-VOID OnDpiChanged(HWND hWnd, UNUSED(UINT nDpi), LPRECT lpRect)
+VOID OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect)
 {
 	RECT rcClient;
+
+	UNUSED_PARAMETER(nDpi);
 
 	if (hWnd == hWndMain)
 	{
@@ -1362,7 +1364,7 @@ bool log_info(const char *s, ...)
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	MessageBox(hWndMain, conv_utf8_to_utf16(buf), wszTitle,
 			   MB_OK | MB_ICONINFORMATION);
 #endif
@@ -1444,7 +1446,7 @@ bool log_error(const char *s, ...)
 /* ログをオープンする */
 static BOOL OpenLogFile(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	return TRUE;
 #else
 	wchar_t path[MAX_PATH] = {0};

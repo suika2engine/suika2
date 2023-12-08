@@ -504,7 +504,7 @@ void unlock_texture(struct image *img)
     if (*texture == NULL) {
         // For the first time, create a texture.
         MTLTextureDescriptor *textureDescriptor = [[MTLTextureDescriptor alloc] init];
-        textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+        textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
         textureDescriptor.width = width;
         textureDescriptor.height = height;
         tex = [theDevice newTextureWithDescriptor:textureDescriptor];

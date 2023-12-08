@@ -15,7 +15,6 @@ WINDRES = i686-w64-mingw32-windres
 
 CPPFLAGS = \
 	-I. \
-	-Ires \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -69,7 +68,7 @@ SRCS_CC = \
 	../../src/dsvideo.cc \
 	../../src/tts_sapi.cc
 
-SRCS_R = res/resource.rc
+SRCS_R = resource.rc
 
 #
 # .c.o compilation rules
@@ -78,7 +77,7 @@ SRCS_R = res/resource.rc
 OBJS = \
 	$(SRCS_C:../../src/%.c=%.o) \
 	$(SRCS_CC:../../src/%.cc=%.o) \
-	$(SRCS_R:res/%.rc=%.o)
+	$(SRCS_R:%.rc=%.o)
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
@@ -86,7 +85,7 @@ OBJS = \
 %.o: ../../src/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
-%.o: res/%.rc
+%.o: %.rc
 	$(WINDRES) $< $@
 
 #

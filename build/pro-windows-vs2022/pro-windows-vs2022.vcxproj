@@ -69,6 +69,7 @@
     <ClCompile Include="..\..\src\log.c" />
     <ClCompile Include="..\..\src\main.c" />
     <ClCompile Include="..\..\src\mixer.c" />
+    <ClCompile Include="..\..\src\package.c" />
     <ClCompile Include="..\..\src\readimage.c" />
     <ClCompile Include="..\..\src\readjpeg.c" />
     <ClCompile Include="..\..\src\readpng.c" />
@@ -83,6 +84,7 @@
     <ClCompile Include="..\..\src\vars.c" />
     <ClCompile Include="..\..\src\wave.c" />
     <ClCompile Include="..\..\src\winmain.c" />
+    <ClCompile Include="..\..\src\winpro.c" />
     <ClCompile Include="..\..\src\wms_core.c" />
     <ClCompile Include="..\..\src\wms_impl.c" />
     <ClCompile Include="..\..\src\wms_lexer.yy.c">
@@ -109,6 +111,8 @@
     <ClInclude Include="..\..\src\log.h" />
     <ClInclude Include="..\..\src\main.h" />
     <ClInclude Include="..\..\src\mixer.h" />
+    <ClInclude Include="..\..\src\package.h" />
+    <ClInclude Include="..\..\src\pro.h" />
     <ClInclude Include="..\..\src\save.h" />
     <ClInclude Include="..\..\src\scbuf.h" />
     <ClInclude Include="..\..\src\script.h" />
@@ -120,6 +124,7 @@
     <ClInclude Include="..\..\src\uimsg.h" />
     <ClInclude Include="..\..\src\vars.h" />
     <ClInclude Include="..\..\src\wave.h" />
+    <ClInclude Include="..\..\src\winpro.h" />
     <ClInclude Include="..\..\src\wms.h" />
     <ClInclude Include="..\..\src\wms_core.h" />
     <ClInclude Include="..\..\src\wms_parser.tab.h" />
@@ -130,13 +135,13 @@
     <Image Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="engine-windows-vs2022.rc" />
+    <ResourceCompile Include="pro-windows-vs2022.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{406d9402-3f17-438e-9abf-839df6786489}</ProjectGuid>
-    <RootNamespace>enginewindowsvs2022</RootNamespace>
+    <RootNamespace>prowindowsvs2022</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -212,7 +217,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_EDITOR;USE_DEBUGGER;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.\;zlib;libpng;libogg\include;libvorbis\include;freetype\include;jpeg;bzip2\src;libwebp\src;%(AdditionalIncludeDirectories)
 </AdditionalIncludeDirectories>
@@ -227,7 +232,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;ole32.lib;uuid.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;jpeg.lib;libbz2.lib;libwebpdecoder.lib;winmm.lib;strmiids.lib;dxguid.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;uuid.lib;zlib.lib;libpng16.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;freetype.lib;jpeg.lib;libbz2.lib;libwebpdecoder.lib;winmm.lib;strmiids.lib;dxguid.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>zlib\contrib\vstudio\vc14\x86\ZlibStatRelease;libpng\projects\vstudio\Release Library;libogg\win32\VS2015\Win32\Release;libvorbis\win32\VS2010\Win32\Release;freetype\objs;jpeg\Release\Win32;bzip2;obj\release-static\x86\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

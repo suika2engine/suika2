@@ -53,6 +53,11 @@
 #include "wave.h"	/* The sound stream subsystem */
 #include "wms.h"	/* The WMS subsystem */
 
+/* Suika2 Pro */
+#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
+#include "pro.h"
+#endif
+
 /*
  * Directory Names
  */

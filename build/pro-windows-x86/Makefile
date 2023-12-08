@@ -14,11 +14,10 @@ WINDRES = i686-w64-mingw32-windres
 #
 
 CPPFLAGS = \
-	-DUSE_DEBUGGER \
 	-DUSE_EDITOR \
+	-DUSE_DEBUGGER \
 	-D_WIN32_WINNT=0x0601 \
 	-I. \
-	-I../engine-windows-x86/res \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -52,7 +51,6 @@ LDFLAGS = \
 	-lstrmiids \
 	-lwinmm \
 	-lcomctl32 \
-	-lopengl32 \
 	-ld3d9 \
 	-lsapi \
 	-L./libroot/lib \
@@ -65,20 +63,18 @@ LDFLAGS = \
 
 SRCS_C = \
 	$(SRCS_COMMON) \
-	$(SRCS_SSE) \
 	../../src/winmain.c \
-	../../src/windebug.c \
+	../../src/winpro.c \
 	../../src/uimsg.c \
 	../../src/package.c \
 	../../src/dsound.c \
-	../../src/glrender.c \
 	../../src/d3drender.cc
 
 SRCS_CC = \
 	../../src/dsvideo.cc \
 	../../src/tts_sapi.cc
 
-SRCS_R = ../engine-windows-x86/res/resource.rc
+SRCS_R = resource.rc
 
 #
 # .c.o compilation rules
@@ -87,7 +83,7 @@ SRCS_R = ../engine-windows-x86/res/resource.rc
 OBJS = \
 	$(SRCS_C:../../src/%.c=%.o) \
 	$(SRCS_CC:../../src/%.cc=%.o) \
-	$(SRCS_R:../engine-windows-x86/res/%.rc=%.o)
+	$(SRCS_R:%.rc=%.o)
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
@@ -95,7 +91,7 @@ OBJS = \
 %.o: ../../src/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
-%.o: ../engine-windows-x86/res/%.rc
+%.o: %.rc
 	$(WINDRES) -DUSE_EDITOR $< $@
 
 #
@@ -109,12 +105,6 @@ suika-pro.exe: libroot $(OBJS)
 
 libroot:
 	./build-libs.sh
-
-#
-# Feature specific source files.
-#
-
-include ../sse.mk
 
 #
 # Phony

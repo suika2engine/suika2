@@ -48,14 +48,20 @@ struct image {
 };
 
 /*
- * Direct3D, Metalの場合はRGBA形式
+ * Direct3Dの場合はRGBA形式
  */
-#if defined(OSX) || defined(IOS)
+#if defined(SUIKA_TARGET_WIN32)
 
 /* ピクセル値を合成する */
 static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
 {
-	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
+	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
+}
+
+/* ピクセル値のアルファチャンネルを取得する */
+static INLINE uint32_t get_pixel_a(pixel_t p)
+{
+	return (p >> 24) & 0xff;
 }
 
 /* ピクセル値の赤チャンネルを取得する */
@@ -76,14 +82,8 @@ static INLINE uint32_t get_pixel_b(pixel_t p)
 	return p & 0xff;
 }
 
-/* ピクセル値のアルファチャンネルを取得する */
-static INLINE uint32_t get_pixel_a(pixel_t p)
-{
-	return (p >> 24) & 0xff;
-}
-
 /*
- * OpenGLの場合はBGRA形式
+ * Metal, OpenGLの場合はBGRA形式
  */
 #else
 
@@ -93,6 +93,12 @@ static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
 	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
 }
 
+/* ピクセル値のアルファチャンネルを取得する */
+static INLINE uint32_t get_pixel_a(pixel_t p)
+{
+	return (p >> 24) & 0xff;
+}
+
 /* ピクセル値の赤チャンネルを取得する */
 static INLINE uint32_t get_pixel_r(pixel_t p)
 {
@@ -109,12 +115,6 @@ static INLINE uint32_t get_pixel_g(pixel_t p)
 static INLINE uint32_t get_pixel_b(pixel_t p)
 {
 	return (p >> 16) & 0xff;
-}
-
-/* ピクセル値のアルファチャンネルを取得する */
-static INLINE uint32_t get_pixel_a(pixel_t p)
-{
-	return (p >> 24) & 0xff;
 }
 
 #endif

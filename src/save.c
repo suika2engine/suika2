@@ -22,6 +22,10 @@
 
 #include "suika.h"
 
+#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
+#include "pro.h"
+#endif
+
 /* セーブデータの互換性バージョン(12.42で導入) */
 #define SAVE_VER	(0xabcd1415)
 

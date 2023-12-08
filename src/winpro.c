@@ -21,7 +21,8 @@
 #include "suika.h"
 
 /* Suika2 Pro */
-#include "windebug.h"
+#include "pro.h"
+#include "winpro.h"
 #include "package.h"
 
 /* Windows */
@@ -674,7 +675,7 @@ static VOID InitMenu(HWND hWnd)
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* パッケージをエクスポートするを作成する */
-	mi.wID = ID_EXPORT;
+	mi.wID = ID_EXPORT_PACKAGE;
 	mi.dwTypeData = bEnglish ?
 		L"Export package only" :
 		L"パッケージのみをエクスポートする";
@@ -1034,10 +1035,12 @@ BOOL PretranslateForDebugger(MSG* pMsg)
 /*
  * デバッガへのWM_COMMANDを処理する
  */
-VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
+VOID OnCommandForDebugger(WPARAM wParam, LPARAM lParam)
 {
 	UINT nID;
 	UINT nNotify;
+
+	UNUSED_PARAMETER(lParam);
 
 	nID = LOWORD(wParam);
 	nNotify = (WORD)(wParam >> 16) & 0xFFFF;
@@ -1150,9 +1153,6 @@ VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 		OnInsertLoad();
 		break;
 	/* エクスポート */
-	case ID_EXPORT:
-		OnExportPackage();
-		break;
 	case ID_EXPORT_WIN:
 		OnExportWin();
 		break;
@@ -1170,6 +1170,9 @@ VOID OnCommandForDebugger(WPARAM wParam, UNUSED(LPARAM lParam))
 		break;
 	case ID_EXPORT_IOS:
 		OnExportIOS();
+		break;
+	case ID_EXPORT_PACKAGE:
+		OnExportPackage();
 		break;
 	/* ヘルプ */
 	case ID_VERSION:
@@ -1297,13 +1300,13 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_PACKAGE, MF_GRAYED);
 		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
 			EnableMenuItem(hMenu, i, MF_GRAYED);
 
@@ -1330,13 +1333,13 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);		/* 有効 */
 		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_EXPORT_PACKAGE, MF_GRAYED);
 		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
 			EnableMenuItem(hMenu, i, MF_GRAYED);
 
@@ -1359,18 +1362,17 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, TRUE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);		/* 無効 */
 		EnableMenuItem(hMenu, ID_ERROR, MF_ENABLED);
-		EnableMenuItem(hMenu, ID_EXPORT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_PACKAGE, MF_ENABLED);
 		for (i = ID_CMD_MESSAGE; i <= ID_CMD_LOAD; i++)
 			EnableMenuItem(hMenu, i, MF_ENABLED);
 
@@ -2258,7 +2260,7 @@ static BOOL CreateProject(void)
 		ofn.lStructSize = sizeof(OPENFILENAMEW);
 		ofn.nFilterIndex = 1;
 		ofn.lpstrFile = wszPath;
-		ofn.nMaxFile = sizeof(wszPath);
+		ofn.nMaxFile = sizeof(wszPath) / sizeof(wchar_t);
 		ofn.Flags = OFN_FILEMUSTEXIST;
 		ofn.lpstrFilter = bEnglish ?
 			L"Suika2 Project Files\0*.suika2project;*.suika2project\0\0" :
@@ -2266,7 +2268,7 @@ static BOOL CreateProject(void)
 		ofn.lpstrDefExt = L".suika2project";
 		if (!GetOpenFileNameW(&ofn))
 			return FALSE;
-		if(ofn.lpstrFile[0] == L'\0')
+		if(ofn. lpstrFile[0] == L'\0')
 			return FALSE;
 		return TRUE;
 	}
@@ -2275,9 +2277,9 @@ static BOOL CreateProject(void)
 	ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
 	wcscpy(&wszPath[0], L"game.suika2project");
 	ofn.lStructSize = sizeof(OPENFILENAMEW);
-	ofn.nFilterIndex = 1;
+	ofn.nFilterIndex  = 1;
 	ofn.lpstrFile = wszPath;
-	ofn.nMaxFile = sizeof(wszPath);
+	ofn.nMaxFile = sizeof(wszPath) / sizeof(wchar_t);
 	ofn.Flags = OFN_OVERWRITEPROMPT;
 	ofn.lpstrFilter = bEnglish ?
 		L"Suika2 Project Files\0*.suika2project;*.suika2project\0\0" :
