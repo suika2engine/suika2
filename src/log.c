@@ -18,22 +18,21 @@
  *  - 2022/06/14 Suika2 Pro for Creators
  *  - 2022/11/06 UTF-8
  *  - 2023/01/06 パラメータ名のエラーを追加
+ *
+ * [TODO]
+ *  - uimsgを利用する
  */
-
-/*
- * 2.11.7以降、log_error()へ渡す文字列の文字コードはUTF-8に変更された。
- */
-
-#include <stddef.h>
-#include <assert.h>
 
 #include "suika.h"
 
+/* Forward declaration */
 static bool is_english_mode(void);
 
 /* 英語モードであるかチェックする */
 static bool is_english_mode(void)
 {
+	/* TODO: uimsgを利用して多言語対応する */
+
 	/* FIXME: 日本語ロケールでなければ英語メッセージする */
 	if (strcmp(get_system_locale(), "ja") == 0)
 		return false;

@@ -78,6 +78,7 @@
 /* Begin PBXFileReference section */
 		268EAEAA2B21E41400CF559E /* GameView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
 		268EAEAB2B21E41400CF559E /* GameView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
+		268EAEAD2B222C3800CF559E /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewControllerProtocol.h; sourceTree = "<group>"; };
 		26EAF2572B1F9B1F003530F4 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26EAF25A2B1F9B1F003530F4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		26EAF25B2B1F9B1F003530F4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -221,6 +222,7 @@
 				26EAF2652B1F9B20003530F4 /* main.m */,
 				26EAF25A2B1F9B1F003530F4 /* AppDelegate.h */,
 				26EAF25B2B1F9B1F003530F4 /* AppDelegate.m */,
+				268EAEAD2B222C3800CF559E /* GameViewControllerProtocol.h */,
 				26EAF3122B206E0E003530F4 /* ViewController.h */,
 				26EAF3132B206E0E003530F4 /* ViewController.m */,
 				268EAEAA2B21E41400CF559E /* GameView.h */,

@@ -43,19 +43,18 @@ bool pencil_command(void)
 
 	/* レイヤのサイズを取得する */
 	img = get_layer_image(layer);
-	layer_w = get_image_width(img);
-	layer_h = get_image_height(img);
+	layer_w = img->width;
+	layer_h = img->height;
 
 	/* デフォルトの色を取得する */
-	color = make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	outline_color =
-		make_pixel_slow(0xff,
-				(pixel_t)conf_font_outline_color_r,
-				(pixel_t)conf_font_outline_color_g,
-				(pixel_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
 	/* 描画する */
 	construct_draw_msg_context(
@@ -91,11 +90,7 @@ bool pencil_command(void)
 		NULL,	/* inline_wait_hook */
 		false);	/* use_tategaki */
 	total_chars = count_chars_common(&context);
-	lock_layers_for_msgdraw(layer, -1);
-	{
-		draw_msg_common(&context, total_chars);
-	}
-	unlock_layers_for_msgdraw(layer, -1);
+	draw_msg_common(&context, total_chars);
 
 	/* 描画する */
 	draw_stage();

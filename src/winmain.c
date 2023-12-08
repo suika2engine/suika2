@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -12,7 +12,27 @@
  *  2017-11-07 フルスクリーンで解像度変更するように修正
  *  2022-06-08 デバッガ対応
  *  2023-07-17 キャプチャ対応
+ *  2023-12-09 リファクタリング
  */
+
+/* Suika2 Base */
+#include "suika.h"
+
+/* Suika2 HAL Implementaions */
+#include "dsound.h"		/* Sound HAL */
+#include "dsvideo.h"		/* Vdeo HAL */
+#include "tts_sapi.h"		/* TTS HAL */
+#include "resource.h"
+
+/* Suika2 HAL Implementaion (Direct3D) */
+#include "d3drender.h"
+
+/* Suika2 Pro */
+#ifdef USE_DEBUGGER
+#include <commctrl.h>
+#include "windebug.h"
+#include "package.h"
+#endif
 
 /* Windows */
 #include <windows.h>
@@ -24,46 +44,6 @@
 
 /* msvcrt  */
 #include <io.h> /* _access() */
-
-/* Suika2 Base */
-#include "suika.h"
-
-/* Suika2 HAL Implementaion */
-#include "dsound.h"
-#include "dsvideo.h"
-#include "tts_sapi.h"
-#include "uimsg.h"
-#include "resource.h"
-
-/* Suika2 HAL Implementaion (Direct3D) */
-#include "d3drender.h"
-
-/* Suika2 HAL Implementaion (OpenGL) */
-#include <GL/gl.h>
-#include "glrender.h"
-#include "glhelper.h"
-
-/* Suika2 Pro */
-#ifdef USE_DEBUGGER
-#include <commctrl.h>
-#include "windebug.h"
-#include "package.h"
-#endif
-
-/* Suika2 Capture */
-#ifdef USE_CAPTURE
-#include "capture.h"
-#endif
-
-/* Suika2 Replay */
-#ifdef USE_REPLAY
-#include "replay.h"
-#endif
-
-/* x86 SSE/AVX Dispatch */
-#ifdef SSE_VERSIONING
-#include "x86.h"
-#endif
 
 /* A macro to check whether a file exists. */
 #define FILE_EXISTS(fname)	(_access(fname, 0) != -1)
@@ -85,7 +65,7 @@
 #define FPS				(30)
 
 /* 1フレームの時間 */
-#define FRAME_MILLI		(33)
+#define FRAME_MILLI		(16)
 
 /* 1回にスリープする時間 */
 #define SLEEP_MILLI		(5)
@@ -110,17 +90,10 @@ static wchar_t wszTitle[TITLE_BUF_SIZE];
 static wchar_t wszMessage[CONV_MESSAGE_SIZE];
 static char szMessage[CONV_MESSAGE_SIZE];
 
-/* Direct3Dを利用するか */
-static BOOL bD3D;
-
-/* OpenGLを利用するか */
-static BOOL bOpenGL;
-
 /* Windowsオブジェクト */
 static HWND hWndMain;
 static HWND hWndGame;
 static HDC hWndDC;
-static HGLRC hGLRC;
 static HMENU hMenu;
 
 /* WaitForNextFrame()の時間管理用 */
@@ -172,123 +145,51 @@ static BOOL bDShowMode;
 static BOOL bDShowSkippable;
 
 /*
- * OpenGL Function Pointers
- */
-
-/* OpenGL 3.2 API */
-GLuint (APIENTRY *glCreateShader)(GLenum type);
-void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count,
-								const GLchar *const*string,
-								const GLint *length);
-void (APIENTRY *glCompileShader)(GLuint shader);
-void (APIENTRY *glGetShaderiv)(GLuint shader, GLenum pname, GLint *params);
-void (APIENTRY *glGetShaderInfoLog)(GLuint shader, GLsizei bufSize,
-									GLsizei *length, GLchar *infoLog);
-void (APIENTRY *glAttachShader)(GLuint program, GLuint shader);
-void (APIENTRY *glLinkProgram)(GLuint program);
-void (APIENTRY *glGetProgramiv)(GLuint program, GLenum pname, GLint *params);
-void (APIENTRY *glGetProgramInfoLog)(GLuint program, GLsizei bufSize,
-									 GLsizei *length, GLchar *infoLog);
-GLuint (APIENTRY *glCreateProgram)(void);
-void (APIENTRY *glUseProgram)(GLuint program);
-void (APIENTRY *glGenVertexArrays)(GLsizei n, GLuint *arrays);
-void (APIENTRY *glBindVertexArray)(GLuint array);
-void (APIENTRY *glGenBuffers)(GLsizei n, GLuint *buffers);
-void (APIENTRY *glBindBuffer)(GLenum target, GLuint buffer);
-GLint (APIENTRY *glGetAttribLocation)(GLuint program, const GLchar *name);
-void (APIENTRY *glVertexAttribPointer)(GLuint index, GLint size,
-									   GLenum type, GLboolean normalized,
-									   GLsizei stride, const void *pointer);
-void (APIENTRY *glEnableVertexAttribArray)(GLuint index);
-GLint (APIENTRY *glGetUniformLocation)(GLuint program, const GLchar *name);
-void (APIENTRY *glUniform1i)(GLint location, GLint v0);
-void (APIENTRY *glBufferData)(GLenum target, GLsizeiptr size, const void *data,
-							  GLenum usage);
-void (APIENTRY *glDeleteShader)(GLuint shader);
-void (APIENTRY *glDeleteProgram)(GLuint program);
-void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
-void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
-void (APIENTRY *glActiveTexture)(GLenum texture);
-
-/* A table to map OpenGL API names to addresses of function pointers. */
-struct GLExtAPITable
-{
-	void **func;
-	const char *name;
-} APITable[] =
-{
-	{(void **)&glCreateShader, "glCreateShader"},
-	{(void **)&glShaderSource, "glShaderSource"},
-	{(void **)&glCompileShader, "glCompileShader"},
-	{(void **)&glGetShaderiv, "glGetShaderiv"},
-	{(void **)&glGetShaderInfoLog, "glGetShaderInfoLog"},
-	{(void **)&glAttachShader, "glAttachShader"},
-	{(void **)&glLinkProgram, "glLinkProgram"},
-	{(void **)&glGetProgramiv, "glGetProgramiv"},
-	{(void **)&glGetProgramInfoLog, "glGetProgramInfoLog"},
-	{(void **)&glCreateProgram, "glCreateProgram"},
-	{(void **)&glUseProgram, "glUseProgram"},
-	{(void **)&glGenVertexArrays, "glGenVertexArrays"},
-	{(void **)&glBindVertexArray, "glBindVertexArray"},
-	{(void **)&glGenBuffers, "glGenBuffers"},
-	{(void **)&glBindBuffer, "glBindBuffer"},
-	{(void **)&glGetAttribLocation, "glGetAttribLocation"},
-	{(void **)&glVertexAttribPointer, "glVertexAttribPointer"},
-	{(void **)&glEnableVertexAttribArray, "glEnableVertexAttribArray"},
-	{(void **)&glGetUniformLocation, "glGetUniformLocation"},
-	{(void **)&glUniform1i, "glUniform1i"},
-	{(void **)&glBufferData, "glBufferData"},
-	{(void **)&glDeleteShader, "glDeleteShader"},
-	{(void **)&glDeleteProgram, "glDeleteProgram"},
-	{(void **)&glDeleteVertexArrays, "glDeleteVertexArrays"},
-	{(void **)&glDeleteBuffers, "glDeleteBuffers"},
-	{(void **)&glActiveTexture, "glActiveTexture"},
-};
-
-/*
  * Forward Declaration
  */
 
 /* static */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
-static BOOL InitRenderingEngine(void);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
-#ifndef USE_DEBUGGER
+#if !defined(USE_EDITOR)
 static VOID InitGameMenu(void);
 #endif
-static BOOL InitOpenGL(void);
 static void GameLoop(void);
 static BOOL RunFrame(void);
 static BOOL SyncEvents(void);
 static BOOL WaitForNextFrame(void);
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 static int ConvertKeyCode(int nVK);
 static void OnPaint(HWND hWnd);
 static void OnCommand(WPARAM wParam, LPARAM lParam);
 static void OnSizing(int edge, LPRECT lpRect);
 static void OnSize(void);
-#ifdef USE_DEBUGGER
+#if defined(USE_EDITOR)
 static void OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect);
 #endif
 static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
 static BOOL OpenLogFile(void);
 
-/* extern */
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+/* Note: the following functions are "extern" scope and used in windebug.c */
 const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
 const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 
 /*
  * WinMain
  */
+
 int WINAPI wWinMain(
 	HINSTANCE hInstance,
-	UNUSED(HINSTANCE hPrevInstance),
-	UNUSED(LPWSTR lpszCmd),
+	HINSTANCE hPrevInstance,
+	LPWSTR lpszCmd,
 	int nCmdShow)
 {
 	HRESULT hRes;
 	int result = 1;
+
+	UNUSED_PARAMETER(hPrevInstance);
+	UNUSED_PARAMETER(lpszCmd);
 
 	/* COMの初期化を行う */
 	hRes = CoInitialize(0);
@@ -337,10 +238,11 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	RECT rcClient;
 
-#ifdef SSE_VERSIONING
-	/* ベクトル命令の対応を確認する */
-	x86_check_cpuid_flags();
-#endif
+	if (!FILE_EXISTS("conf\\config.txt"))
+	{
+		log_error(get_ui_message(UIMSG_NO_GAME_FILES));
+		return FALSE;
+	}
 
 	/* ロケールを初期化する */
 	init_locale_code();
@@ -363,8 +265,11 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 
 	/* 描画エンジンを初期化する */
-	if (!InitRenderingEngine())
+	if (!D3DInitialize(hWndGame))
+	{
+		log_error(get_ui_message(UIMSG_WIN32_NO_DIRECT3D));
 		return FALSE;
+	}
 
 #ifdef USE_DEBUGGER
 	/* ゲームパネルを再配置して描画サブシステムに反映する */
@@ -381,7 +286,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	/* DirectSoundを初期化する */
 	if (!DSInitialize(hWndMain))
 	{
-		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_NO_SOUND_DEVICE)));
+		log_error(get_ui_message(UIMSG_NO_SOUND_DEVICE));
 		return FALSE;
 	}
 
@@ -399,81 +304,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-/* 描画エンジンを初期化する */
-static BOOL InitRenderingEngine(void)
-{
-	RECT rcClient;
-
-	/*
-	 * Step.0: Use OpenGL for the capture/replay apps.
-	 */
-#if defined(USE_CAPTURE) || defined(USE_REPLAY)
-	if (InitOpenGL())
-	{
-		bOpenGL = TRUE;
-
-		/* We disable window resizing for capture-replay apps. */
-		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
-		dwStyle ^= WS_THICKFRAME;
-		SetWindowLong(hWndGame, GWL_STYLE, (LONG)dwStyle);
-		conf_window_resize = 0;
-
-		/* Set OpenGL screen size. */
-		GetClientRect(hWndGame, &rcClient);
-		opengl_set_screen(nOffsetX, nOffsetY, rcClient.right, rcClient.bottom);
-
-		return TRUE;
-	}
-	log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
-	return FALSE;
-#endif	/* defined(USE_CAPTURE) || defined(USE_REPLAY) */
-
-	/*
-	 * Step.1: Try initializing Direct3D if there isn't "no-direct3d.txt" file.
-	 */
-	if (!FILE_EXISTS("no-direct3d.txt"))
-	{
-		/* Direct3Dを初期化する */
-		if (D3DInitialize(hWndGame))
-		{
-			bD3D = TRUE;
-			return TRUE;
-		}
-
-		/* Put error log. */
-		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_DIRECT3D)));
-	}
-	else
-	{
-		log_info("Fallback from Direct3D to OpenGL.");
-	}
-
-	/*
-	 * Step.2: Try initializing OpenGL if there isn't "no-opengl.txt" file.
-	 */
-	if (!FILE_EXISTS("no-opengl.txt"))
-	{
-		/* OpenGLを初期化する */
-		if(InitOpenGL())
-		{
-			bOpenGL = TRUE;
-			return TRUE;
-		}
-
-		/* Set OpenGL screen size. */
-		GetClientRect(hWndGame, &rcClient);
-		opengl_set_screen(nOffsetX, nOffsetY, rcClient.right, rcClient.bottom);
-
-		/* Put error log. */
-		log_info(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_NO_OPENGL)));
-	}
-
-	/* Put error log. */
-	log_info("No Graphics subsystem available.");
-
-	return TRUE;
-}
-
 /* 基盤レイヤの終了処理を行う */
 static void CleanupApp(void)
 {
@@ -484,17 +314,7 @@ static void CleanupApp(void)
     cleanup_file();
 
 	/* Direct3Dの終了処理を行う */
-	if (bD3D)
-		D3DCleanup();
-
-	/* OpenGLコンテキストを破棄する */
-	if (bOpenGL && hGLRC != NULL)
-	{
-		cleanup_opengl();
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRC);
-		hGLRC = NULL;
-	}
+	D3DCleanup();
 
 	/* ウィンドウのデバイスコンテキストを破棄する */
 	if (hWndDC != NULL)
@@ -509,13 +329,6 @@ static void CleanupApp(void)
 	/* ログファイルをクローズする */
 	if(pLogFile != NULL)
 		fclose(pLogFile);
-
-#ifdef USE_CAPTURE
-	cleanup_capture();
-#endif
-#ifdef USE_REPLAY
-	cleanup_replay();
-#endif
 }
 
 /* ウィンドウを作成する */
@@ -536,13 +349,13 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.cbSize			= sizeof(WNDCLASSEX);
 	wcex.lpfnWndProc    = WndProc;
 	wcex.hInstance      = hInstance;
-	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SUIKA));
+	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
 #ifndef USE_DEBUGGER
 	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ? WHITE_BRUSH : BLACK_BRUSH);
 #endif
 	wcex.lpszClassName  = wszWindowClassMain;
-	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	if (!RegisterClassEx(&wcex))
 		return FALSE;
 
@@ -600,7 +413,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 		nVirtualScreenHeight < conf_window_height)
 	{
 #ifndef USE_DEBUGGER
-		log_error(conv_utf16_to_utf8(get_ui_message(UIMSG_WIN_SMALL_DISPLAY)),
+		log_error(get_ui_message(UIMSG_WIN32_SMALL_DISPLAY),
 				  nVirtualScreenWidth, nVirtualScreenHeight);
 		return FALSE;
 #else
@@ -740,12 +553,12 @@ static VOID InitGameMenu(void)
 
 	/* ファイル(F)を作成する */
 	mi.hSubMenu = hMenuFile;
-	mi.dwTypeData = (wchar_t *)get_ui_message(UIMSG_WIN_MENU_FILE);
+	mi.dwTypeData = _wcsdup(conv_utf8_to_utf16(get_ui_message(UIMSG_WIN32_MENU_FILE)));
 	InsertMenuItem(hMenu, 0, TRUE, &mi);
 
 	/* 表示(V)を作成する */
 	mi.hSubMenu = hMenuView;
-	mi.dwTypeData = (wchar_t *)get_ui_message(UIMSG_WIN_MENU_VIEW);
+	mi.dwTypeData = _wcsdup(conv_utf8_to_utf16(get_ui_message(UIMSG_WIN32_MENU_VIEW)));
 	InsertMenuItem(hMenu, 1, TRUE, &mi);
 
 	/* 2階層目を作成する準備を行う */
@@ -753,131 +566,18 @@ static VOID InitGameMenu(void)
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
-	mi.dwTypeData = (wchar_t *)get_ui_message(UIMSG_WIN_MENU_QUIT);
+	mi.dwTypeData = _wcsdup(conv_utf8_to_utf16(get_ui_message(UIMSG_WIN32_MENU_QUIT)));
 	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
 
 	/* フルスクリーン(S)を作成する */
 	mi.wID = ID_FULLSCREEN;
-	mi.dwTypeData = (wchar_t *)get_ui_message(UIMSG_WIN_MENU_FULLSCREEN);
+	mi.dwTypeData = _wcsdup(conv_utf8_to_utf16(get_ui_message(UIMSG_WIN32_MENU_FULLSCREEN)));
 	InsertMenuItem(hMenuView, 0, TRUE, &mi);
 
 	/* メニューをセットする */
 	SetMenu(hWndMain, hMenu);
 }
 #endif
-
-/* OpenGLを初期化する */
-static BOOL InitOpenGL(void)
-{
-	PIXELFORMATDESCRIPTOR pfd = {
-		sizeof(PIXELFORMATDESCRIPTOR),
-		1,
-		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-		PFD_TYPE_RGBA,
-		24, /* 24-bit color */
-		0, 0, 0, 0, 0, 0,
-		0,
-		0,
-		0,
-		0, 0, 0, 0,
-		0, /* no z-buffer */
-		0,
-		0,
-		PFD_MAIN_PLANE,
-		0,
-		0, 0, 0
-	};
-	static const int  contextAttibs[]= {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
-		WGL_CONTEXT_MINOR_VERSION_ARB, 0,
-		WGL_CONTEXT_FLAGS_ARB, 0,
-		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-		0
-	};
-	HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext,
-											   const int *attribList);
-	HGLRC hGLRCOld;
-	int pixelFormat;
-	int i;
-
-	/* ピクセルフォーマットを選択する */
-	pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
-	if (pixelFormat == 0)
-	{
-		log_info("Failed to call ChoosePixelFormat()");
-		return FALSE;
-	}
-	SetPixelFormat(hWndDC, pixelFormat, &pfd);
-
-	/* OpenGLコンテキストを作成する */
-	hGLRC = wglCreateContext(hWndDC);
-	if (hGLRC == NULL)
-	{
-		log_info("Failed to call wglCreateContext()");
-		return FALSE;
-	}
-	wglMakeCurrent(hWndDC, hGLRC);
-
-	/* wglCreateContextAttribsARB()へのポインタを取得する */
-	wglCreateContextAttribsARB =
-		(void *)wglGetProcAddress("wglCreateContextAttribsARB");
-	if (wglCreateContextAttribsARB == NULL)
-	{
-		log_info("API wglCreateContextAttribsARB not found.");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRC);
-		hGLRC = NULL;
-		return FALSE;
-	}
-
-	/* 新しい HGLRC の作成 */
-	hGLRCOld = hGLRC;
-	hGLRC = wglCreateContextAttribsARB(hWndDC, NULL, contextAttibs);
-	if (hGLRC == NULL)
-	{
-		log_info("Failed to call wglCreateContextAttribsARB()");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRCOld);
-		return FALSE;
-	}
-	wglMakeCurrent(hWndDC, hGLRC);
-	wglDeleteContext(hGLRCOld);
-
-	/* 仮想マシンを検出したらOpenGLを使わない */
-	if (strcmp((const char *)glGetString(GL_VENDOR), "VMware, Inc.") == 0) {
-		log_info("Detected virtual machine environment.");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRC);
-		hGLRC = NULL;
-		return FALSE;
-	}
-
-	/* APIのポインタを取得する */
-	for (i = 0; i < (int)(sizeof(APITable) / sizeof(struct GLExtAPITable)); i++)
-	{
-		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
-		if (*APITable[i].func == NULL)
-		{
-			log_info("API %s not found.", APITable[i].name);
-			wglMakeCurrent(NULL, NULL);
-			wglDeleteContext(hGLRC);
-			hGLRC = NULL;
-			return FALSE;
-		}
-	}
-
-	/* レンダラを初期化する */
-	if (!init_opengl())
-	{
-		log_info("Failed to initialize OpenGL.");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRC);
-		hGLRC = NULL;
-		return FALSE;
-	}
-
-	return TRUE;
-}
 
 /* ゲームループを実行する */
 static void GameLoop(void)
@@ -944,10 +644,7 @@ static BOOL RunFrame(void)
 	}
 
 	/* フレームの描画を開始する */
-	if (bD3D)
-		D3DStartFrame();
-	else if (bOpenGL)
-		opengl_start_rendering();
+	D3DStartFrame();
 
 	/* フレームの実行と描画を行う */
 	bRet = TRUE;
@@ -959,16 +656,7 @@ static BOOL RunFrame(void)
 	}
 
 	/* フレームの描画を終了する */
-	if (bD3D)
-	{
-		D3DEndFrame();
-		assert(get_image_lock_count() == 0);
-	}
-	else if(bOpenGL)
-	{
-		opengl_end_rendering();
-		SwapBuffers(hWndDC);
-	}
+	D3DEndFrame();
 
 	return bRet;
 }
@@ -1006,8 +694,8 @@ static BOOL WaitForNextFrame(void)
 {
 	DWORD end, lap, wait, span;
 
-	/* 3Dのときは60FPSを目指し、GDIのときは30FPSを目指す */
-	span = (bD3D || bOpenGL) ? FRAME_MILLI / 2 : FRAME_MILLI;
+	/* 60FPSを目指す */
+	span = FRAME_MILLI;
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -1036,7 +724,7 @@ static BOOL WaitForNextFrame(void)
 }
 
 /* ウィンドウプロシージャ */
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int kc;
 
@@ -1068,9 +756,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 #ifndef USE_DEBUGGER
 				if (MessageBox(hWnd,
-							   get_ui_message(UIMSG_EXIT),
-							   conv_utf8_to_utf16(conf_window_title),
-							   MB_OKCANCEL) == IDOK)
+							   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
+							   wszTitle, MB_OKCANCEL) == IDOK)
 #endif
 				{
 					DestroyWindow(hWnd);
@@ -1087,8 +774,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 #else
 			if (MessageBox(hWnd,
-						   get_ui_message(UIMSG_EXIT),
-						   conv_utf8_to_utf16(conf_window_title),
+						   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
+						   wszTitle,
 						   MB_OKCANCEL) == IDOK)
 				DestroyWindow(hWnd);
 			return 0;
@@ -1359,9 +1046,11 @@ static void OnPaint(HWND hWnd)
 }
 
 /* WM_COMMANDを処理する */
-static void OnCommand(WPARAM wParam, UNUSED(LPARAM lParam))
+static void OnCommand(WPARAM wParam, LPARAM lParam)
 {
 	UINT nID;
+
+	UNUSED_PARAMETER(lParam);
 
 	nID = LOWORD(wParam);
 	switch(nID)
@@ -1629,16 +1318,7 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 #endif
 
 	/* Update the screen offset and scale for drawing subsystem. */
-	if (bD3D)
-	{
-		D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
-	}
-	else if (bOpenGL)
-	{
-		opengl_set_screen(nOffsetX, nOffsetY,
-						  (int)(fUseWidth + 0.5f),
-						  (int)(fUseHeight + 0.5f));
-	}
+	D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
 }
 
 #ifdef USE_DEBUGGER
@@ -1783,8 +1463,8 @@ static BOOL OpenLogFile(void)
 		if (pLogFile == NULL)
 		{
 			/* 失敗 */
-			MessageBox(NULL, get_ui_message(UIMSG_CANNOT_OPEN_LOG), wszTitle,
-					   MB_OK | MB_ICONWARNING);
+			MessageBox(NULL, conv_utf8_to_utf16(get_ui_message(UIMSG_CANNOT_OPEN_LOG)),
+					   wszTitle, MB_OK | MB_ICONWARNING);
 			return FALSE;
 		}
 	}
@@ -1800,9 +1480,8 @@ static BOOL OpenLogFile(void)
 		if (pLogFile == NULL)
 		{
 			/* 失敗 */
-			MessageBox(NULL, get_ui_message(UIMSG_CANNOT_OPEN_LOG),
-					   get_ui_message(UIMSG_ERROR),
-					   MB_OK | MB_ICONWARNING);
+			MessageBox(NULL, conv_utf8_to_utf16(get_ui_message(UIMSG_CANNOT_OPEN_LOG)),
+					   wszTitle, MB_OK | MB_ICONERROR);
 			return FALSE;
 		}
 	}
@@ -1838,146 +1517,6 @@ const char *conv_utf16_to_utf8(const wchar_t *utf16_message)
 						CONV_MESSAGE_SIZE - 1, NULL, NULL);
 
 	return szMessage;
-}
-
-/*
- * GPUを使うか調べる
- */
-bool is_gpu_accelerated(void)
-{
-	if (bD3D || bOpenGL)
-		return TRUE;
-
-	return FALSE;
-}
-
-/*
- * OpenGLが有効か調べる
- */
-bool is_opengl_enabled(void)
-{
-	return bOpenGL;
-}
-
-/*
- * テクスチャをロックする
- */
-bool lock_texture(int width, int height, pixel_t *pixels,
-				  pixel_t **locked_pixels, void **texture)
-{
-	if (bD3D)
-	{
-		if (!D3DLockTexture(width, height, pixels, locked_pixels, texture))
-			return false;
-	}
-	else if (bOpenGL)
-	{
-		if (!opengl_lock_texture(width, height, pixels, locked_pixels,
-								 texture))
-			return false;
-	}
-	else
-	{
-		assert(*locked_pixels == NULL);
-		*locked_pixels = pixels;
-	}
-	return true;
-}
-
-/*
- * テクスチャをアンロックする
- */
-void unlock_texture(int width, int height, pixel_t *pixels,
-					pixel_t **locked_pixels, void **texture)
-{
-	if (bD3D)
-	{
-		D3DUnlockTexture(width, height, pixels, locked_pixels, texture);
-	}
-	else if (bOpenGL)
-	{
-		opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
-	}
-	else
-	{
-		assert(*locked_pixels != NULL);
-		*locked_pixels = NULL;
-	}
-}
-
-/*
- * テクスチャを破棄する
- */
-void destroy_texture(void *texture)
-{
-	if (bD3D)
-		D3DDestroyTexture(texture);
-	else if (bOpenGL)
-		opengl_destroy_texture(texture);
-}
-
-/*
- * イメージをレンダリングする
- */
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
-{
-	if (bD3D)
-	{
-		D3DRenderImage(dst_left, dst_top, src_image, width, height, src_left,
-					   src_top, alpha, bt);
-	}
-	else if (bOpenGL)
-	{
-		opengl_render_image(dst_left, dst_top, src_image, width, height,
-							src_left, src_top, alpha, bt);
-	}
-}
-
-/*
- * イメージを暗くレンダリングする
- */
-void render_image_dim(int dst_left, int dst_top,
-					  struct image * RESTRICT src_image, int width, int height,
-					  int src_left, int src_top)
-{
-	if (bD3D)
-	{
-		D3DRenderImageDim(dst_left, dst_top, src_image, width, height,
-						  src_left, src_top);
-	}
-	else if (bOpenGL)
-	{
-		opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-								src_left, src_top);
-	}
-}
-
-/*
- * 画面にイメージをルール付きでレンダリングする
- */
-void render_image_rule(struct image * RESTRICT src_img,
-					   struct image * RESTRICT rule_img,
-					   int threshold)
-{
-	if (bD3D)
-		D3DRenderImageRule(src_img, rule_img, threshold);
-	else if(bOpenGL)
-		opengl_render_image_rule(src_img, rule_img, threshold);
-}
-
-/*
- * 画面にイメージをルール付き(メルト)でレンダリングする
- */
-void render_image_melt(struct image * RESTRICT src_img,
-					   struct image * RESTRICT rule_img,
-					   int threshold)
-{
-	if (bD3D)
-		D3DRenderImageMelt(src_img, rule_img, threshold);
-	else if(bOpenGL)
-		opengl_render_image_melt(src_img, rule_img, threshold);
 }
 
 /*
@@ -2044,35 +1583,19 @@ char *make_valid_path(const char *dir, const char *fname)
 /*
  * タイマをリセットする
  */
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *origin)
 {
-#if defined(USE_CAPTURE)
-	extern uint64_t cap_cur_time;
-	*t = cap_cur_time;
-#elif defined(USE_REPLAY)
-	extern uint64_t sim_time;
-	*t = sim_time;
-#else
-	*t = GetTickCount();
+	*origin = GetTickCount();
 	dwStopWatchOffset = 0;
-#endif
 }
 
 /*
- * タイマのラップをミリ秒単位で取得する
+ * タイマのラップを秒単位で取得する
  */
-int get_stop_watch_lap(stop_watch_t *t)
+uint64_t get_lap_timer_millisec(uint64_t *origin)
 {
-#if defined(USE_CAPTURE)
-	extern uint64_t cap_cur_time;
-	return (int32_t)(cap_cur_time - *t);
-#elif defined(USE_REPLAY)
-	extern uint64_t sim_time;
-	return (int)(sim_time - *t);
-#else
 	DWORD dwCur = GetTickCount();
-	return (int32_t)(dwCur - *t - dwStopWatchOffset);
-#endif
+	return (uint64_t)(dwCur - *origin - dwStopWatchOffset);
 }
 
 /*
@@ -2081,9 +1604,8 @@ int get_stop_watch_lap(stop_watch_t *t)
 bool exit_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   get_ui_message(UIMSG_EXIT),
-				   conv_utf8_to_utf16(conf_window_title),
-				   MB_OKCANCEL) == IDOK)
+				   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
+				   wszTitle, MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2094,9 +1616,8 @@ bool exit_dialog(void)
 bool title_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   get_ui_message(UIMSG_TITLE),
-				   conv_utf8_to_utf16(conf_window_title),
-				   MB_OKCANCEL) == IDOK)
+				   conv_utf8_to_utf16(get_ui_message(UIMSG_TITLE)),
+				   wszTitle, MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2107,9 +1628,8 @@ bool title_dialog(void)
 bool delete_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   get_ui_message(UIMSG_DELETE),
-  				   conv_utf8_to_utf16(conf_window_title),
-				   MB_OKCANCEL) == IDOK)
+				   conv_utf8_to_utf16(get_ui_message(UIMSG_DELETE)),
+				   wszTitle, MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2120,9 +1640,8 @@ bool delete_dialog(void)
 bool overwrite_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   get_ui_message(UIMSG_OVERWRITE),
-				   conv_utf8_to_utf16(conf_window_title),
-				   MB_OKCANCEL) == IDOK)
+				   conv_utf8_to_utf16(get_ui_message(UIMSG_OVERWRITE)),
+				   wszTitle, MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2133,9 +1652,8 @@ bool overwrite_dialog(void)
 bool default_dialog(void)
 {
 	if (MessageBox(hWndMain,
-				   get_ui_message(UIMSG_DEFAULT),
-				   conv_utf8_to_utf16(conf_window_title),
-				   MB_OKCANCEL) == IDOK)
+				   conv_utf8_to_utf16(get_ui_message(UIMSG_DEFAULT)),
+				   wszTitle, MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }

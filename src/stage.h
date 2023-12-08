@@ -416,12 +416,6 @@ void draw_image_on_fo_fi(int x, int y, struct image *img);
  * 文字描画
  */
 
-/* 文字を描画する前にレイヤをロックする */
-void lock_layers_for_msgdraw(int layer, int additional_layer);
-
-/* 文字を描画した後にレイヤをアンロックする */
-void unlock_layers_for_msgdraw(int layer, int additional_layer);
-
 /* レイヤに文字を描画する */
 bool draw_char_on_layer(int layer, int x, int y, uint32_t wc, pixel_t color,
 			pixel_t outline_color, int base_font_size,
@@ -476,12 +470,6 @@ void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy,
 
 /* GUI実行後の仮のBGレイヤイメージを作成する */
 bool create_temporary_bg_for_gui(void);
-
-/* GUI実行後の仮のBGレイヤイメージのロックを取得する */
-bool lock_temporary_bg_image_for_gui(void);
-
-/* GUI実行後の仮のBGレイヤイメージのロックを開放する */
-void unlock_temporary_bg_image_for_gui(void);
 
 /* GUI実行後の仮のBGレイヤイメージにBGを描画する */
 void draw_bg_to_temporary_bg_for_gui(void);

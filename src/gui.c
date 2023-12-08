@@ -188,7 +188,7 @@ static struct gui_button {
 		int drawn_chars;
 
 		/* メッセージ表示用あるいはオートモード待機用の時計 */
-		stop_watch_t sw;
+		uint64_t sw;
 	} rt;
 
 } button[BUTTON_COUNT];
@@ -269,7 +269,7 @@ static bool is_fading_in;
 static bool is_fading_out;
 
 /* フェード用のストップウォッチ */
-static stop_watch_t fade_sw;
+static uint64_t fade_sw;
 
 /* 現在のフェードのアルファ */
 static int cur_alpha;
@@ -810,7 +810,7 @@ void start_gui_mode(void)
 	result_index = -1;
 	is_pointed_by_key = false;
 	if (is_fading_in)
-		reset_stop_watch(&fade_sw);
+		reset_lap_timer(&fade_sw);
 	is_fading_out = false;
 	is_saved_in_this_frame = false;
 	suppress_se = false;
@@ -856,9 +856,71 @@ bool run_gui_mode(void)
 	need_update_history_buttons = false;
 	is_finished = false;
 
+    /* 左右キーを処理する */
+    if (!is_fading_in && !is_fading_out)
+        process_left_right_arrow_keys();
+
+    /* マウスホイールか上下キーによるスクロールを処理する */
+    if (!is_fading_in && !is_fading_out) {
+        if (is_up_pressed) {
+            process_history_scroll(-1);
+            update_runtime_props(false);
+        } else if (is_down_pressed) {
+            process_history_scroll(1);
+            update_runtime_props(false);
+        }
+    }
+
+    /* 各ボタンについて処理する */
+    for (i = 0; i < BUTTON_COUNT; i++) {
+        if (!is_fading_in && !is_fading_out) {
+            /* ポイント状態を更新する */
+            process_button_point(i, false);
+
+            /* ドラッグ状態を更新する */
+            process_button_drag(i);
+
+            /* クリック結果を取得する */
+            process_button_click(i);
+        }
+    }
+    
+    /* 右クリックでキャンセル可能な場合 */
+    if (!is_fading_in && !is_fading_out && cancelable) {
+        /* 右クリックされた場合か、エスケープキーが押下された場合 */
+        if (is_right_clicked || is_escape_pressed) {
+            /* どのボタンも選ばれなかったことにする */
+            result_index = -1;
+
+            /* SEを再生する */
+            play_sys_se(cancel_se);
+
+            /* フェードアウトか終了処理を行う */
+            if (fade_out_time > 0) {
+                is_fading_out = true;
+                reset_lap_timer(&fade_sw);
+            } else {
+                is_finished = true;
+            }
+        }
+    }
+
+    /* ボタンが決定された場合は終了する */
+    if (!is_fading_in && !is_fading_out && result_index != -1) {
+        if (fade_out_time > 0 &&
+            (button[result_index].type != TYPE_GUI &&
+             button[result_index].type != TYPE_TITLE)) {
+            is_fading_out = true;
+            reset_lap_timer(&fade_sw);
+        } else {
+            is_finished = true;
+        }
+    }
+
+    /* フェードイン・フェードアウト中のアルファ値を計算する */
 	if (is_fading_in) {
 		/* フェードインを処理する */
-		progress = (float)get_stop_watch_lap(&fade_sw) / 1000.0f / fade_in_time;
+		progress = (float)get_lap_timer_millisec(&fade_sw) / 1000.0f / fade_in_time;
 		if (progress < 1.0f) {
 			/* フェードインを継続する */
 			cur_alpha = (int)(progress * 255.0f);
@@ -869,7 +931,7 @@ bool run_gui_mode(void)
 		}
 	} else if (is_fading_out) {
 		/* フェードアウトを処理する */
-		progress = (float)get_stop_watch_lap(&fade_sw) / 1000.0f / fade_out_time;
+		progress = (float)get_lap_timer_millisec(&fade_sw) / 1000.0f / fade_out_time;
 		if (progress < 1.0f) {
 			/* フェードアウトを継続する */
 			cur_alpha = 255 - (int)(progress * 255.0f);
@@ -882,10 +944,31 @@ bool run_gui_mode(void)
 		cur_alpha = 255;
 	}
 
-	/* 背景を描画する */
+    /* 仮の背景を生成する */
+    if (is_finished) {
+        if (!is_sys_gui && !is_overlay && fade_out_time == 0) {
+            if (result_index == -1 ||
+                (result_index != -1 &&
+                 button[result_index].type != TYPE_GUI &&
+                 button[result_index].type != TYPE_LOAD)) {
+                if (!create_temporary_bg())
+                    return false;
+            }
+        }
+    }
+
+    /* ヒストリボタンの更新が必要な場合 */
+    if (!is_fading_in && !is_fading_out && need_update_history_buttons) {
+        update_history_buttons();
+        need_update_history_buttons = false;
+    }
+
+	/* フェードイン・フェードアウト中の場合、背景としてステージを描画する */
 	if (is_fading_in || is_fading_out || is_overlay)
 		draw_stage();
-	if ((is_fading_in && !is_overlay) ||
+
+    /* フェードイン・フェードアウト中でない場合、背景としてidle画像を描画する*/
+    if ((is_fading_in && !is_overlay) ||
 	    (is_fading_out && !is_overlay) ||
 	    (!is_fading_in && !is_fading_out && !is_overlay)) {
 		draw_stage_gui_idle(true,
@@ -894,65 +977,11 @@ bool run_gui_mode(void)
 				    cur_alpha, false);
 	}
 
-	/* 左右キーを処理する */
-	if (!is_fading_in && !is_fading_out)
-		process_left_right_arrow_keys();
+    /* 各ボタンの状態に合わせて描画する */
+    for (i = 0; i < BUTTON_COUNT; i++)
+        process_button_draw(i);
 
-	/* 各ボタンについて処理する */
-	for (i = 0; i < BUTTON_COUNT; i++) {
-		if (!is_fading_in && !is_fading_out) {
-			/* ポイント状態を更新する */
-			process_button_point(i, false);
-
-			/* ドラッグ状態を更新する */
-			process_button_drag(i);
-
-			/* クリック結果を取得する */
-			process_button_click(i);
-		}
-
-		/* ボタンの状態に合わせて描画する */
-		process_button_draw(i);
-	}
-
-	/* マウスホイールか上下キーによるスクロールを処理する */
-	if (!is_fading_in && !is_fading_out) {
-		if (is_up_pressed) {
-			process_history_scroll(-1);
-			update_runtime_props(false);
-		} else if (is_down_pressed) {
-			process_history_scroll(1);
-			update_runtime_props(false);
-		}
-	}
-
-	/* ヒストリボタンの更新が必要な場合 */
-	if (!is_fading_in && !is_fading_out && need_update_history_buttons) {
-		update_history_buttons();
-		need_update_history_buttons = false;
-	}
-
-	/* 右クリックでキャンセル可能な場合 */
-	if (!is_fading_in && !is_fading_out && cancelable) {
-		/* 右クリックされた場合か、エスケープキーが押下された場合 */
-		if (is_right_clicked || is_escape_pressed) {
-			/* どのボタンも選ばれなかったことにする */
-			result_index = -1;
-
-			/* SEを再生する */
-			play_sys_se(cancel_se);
-
-			/* フェードアウトか終了処理を行う */
-			if (fade_out_time > 0) {
-				is_fading_out = true;
-				reset_stop_watch(&fade_sw);
-			} else {
-				is_finished = true;
-			}
-		}
-	}
-
-	/* SEを再生する */
+    /* SEを再生する */
 	if (!is_fading_in && !is_fading_out) {
 		if (!suppress_se) {
 			if (!is_first_frame)
@@ -966,31 +995,8 @@ bool run_gui_mode(void)
 		}
 	}
 
-	/* ボタンが決定された場は終了する */
-	if (!is_fading_in && !is_fading_out && result_index != -1) {
-		if (fade_out_time > 0 &&
-		    (button[result_index].type != TYPE_GUI &&
-		     button[result_index].type != TYPE_TITLE)) {
-			is_fading_out = true;
-			reset_stop_watch(&fade_sw);
-		} else {
-			is_finished = true;
-		}
-	}
-
 	/* 終了する場合 */
 	if (is_finished) {
-		/* 仮の背景を生成する */
-		if (!is_sys_gui && !is_overlay && fade_out_time == 0) {
-			if (result_index == -1 ||
-			    (result_index != -1 &&
-			     button[result_index].type != TYPE_GUI &&
-			     button[result_index].type != TYPE_LOAD)) {
-				if (!create_temporary_bg())
-					return false;
-			}
-		}
-
 		/* 続くコマンド実行に影響を与えないようにする */
 		clear_input_state();
 
@@ -1178,21 +1184,16 @@ static bool create_temporary_bg(void)
 	is_drawing_to_bg = true;
 	pointed_index = -1;
 
-	/* 描画する */
-	if (lock_temporary_bg_image_for_gui()) {
-		/* 背景を描画する */
-		draw_stage_gui_idle(false,
-				    0, 0,
-				    conf_window_width, conf_window_height,
-				    cur_alpha,
-				    true);
+	/* 背景を描画する */
+	draw_stage_gui_idle(false,
+			    0, 0,
+			    conf_window_width, conf_window_height,
+			    cur_alpha,
+			    true);
 
-		/* 各ボタンを描画する */
-		for (i = 0; i < BUTTON_COUNT; i++)
-			process_button_draw(i);
-
-		unlock_temporary_bg_image_for_gui();
-	}
+	/* 各ボタンを描画する */
+	for (i = 0; i < BUTTON_COUNT; i++)
+		process_button_draw(i);
 
 	/* 背景レイヤへの描画を終了する */
 	is_drawing_to_bg = false;
@@ -1779,23 +1780,22 @@ static void process_button_draw_namevar(int index)
 	assert(b->type == TYPE_NAMEVAR);
 
 	/* スクリーンへの描画を行う */
-	render_image(button[index].x, button[index].y,
-		     button[index].rt.img, button[index].width,
-		     button[index].height, 0, 0, cur_alpha, BLEND_FAST);
+	render_image_normal(button[index].x, button[index].y,
+			    button[index].rt.img, button[index].width,
+			    button[index].height, 0, 0, cur_alpha);
 }
 
 /* ボタンの状況に応じたSEを再生する */
 static void process_play_se(void)
 {
-	/* 音量系のボタンの場合、SEは再生しない */
-	if (button[result_index].type == TYPE_BGMVOL ||
-	    button[result_index].type == TYPE_VOICEVOL ||
-	    button[result_index].type == TYPE_SEVOL ||
-	    button[result_index].type == TYPE_CHARACTERVOL)
-		return;
-
 	/* ボタンが選択された場合 */
 	if (result_index != -1) {
+		/* 音量系のボタンの場合、SEは再生しない */
+		if (button[result_index].type == TYPE_BGMVOL ||
+			button[result_index].type == TYPE_VOICEVOL ||
+			button[result_index].type == TYPE_SEVOL ||
+			button[result_index].type == TYPE_CHARACTERVOL)
+			return;
 		play_sys_se(button[result_index].clickse);
 		return;
 	}
@@ -1872,53 +1872,49 @@ static void draw_save_button(int button_index)
 	/* セーブ時刻を求める */
 	save_time = get_save_date(save_index);
 
-	/* 描画する */
-	lock_image(b->rt.img);
-	{
-		/* イメージをクリアする */
-		clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
+	/* イメージをクリアする */
+	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
 
-		/* サムネイルを描画する */
-		thumb = get_save_thumbnail(save_index);
-		if (thumb != NULL) {
-			draw_image(b->rt.img, b->margin, b->margin, thumb,
-				   conf_save_data_thumb_width,
-				   conf_save_data_thumb_height, 0, 0, 255,
-				   BLEND_NONE);
-		}
-
-		/* 日時を描画する */
-		if (get_save_date(save_index) == 0) {
-			snprintf(text, sizeof(text), "[%02d] NO DATA", save_index);
-		} else {
-			timeptr = localtime(&save_time);
-			snprintf(text, sizeof(text), "[%02d] ", save_index);
-			strftime(&text[5], sizeof(text) - 5, "%y/%m/%d %H:%M ",
-				 timeptr);
-		}
-		width = draw_save_text_item(button_index,
-					    conf_save_data_thumb_width + b->margin * 2,
-					    b->margin, text);
-
-		/* 章タイトルを描画する */
-		chapter = get_save_chapter_name(save_index);
-		if (chapter != NULL) {
-			draw_save_text_item(button_index,
-					    conf_save_data_thumb_width +
-					    b->margin * 2 + width,
-					    b->margin, chapter);
-		}
-
-		/* 最後のメッセージを描画する */
-		msg = get_save_last_message(save_index);
-		if (msg) {
-			draw_save_text_item(button_index,
-					    conf_save_data_thumb_width + b->margin * 2,
-					    b->margin + conf_msgbox_margin_line,
-					    msg);
-		}
+	/* サムネイルを描画する */
+	thumb = get_save_thumbnail(save_index);
+	if (thumb != NULL) {
+		draw_image_copy(b->rt.img, b->margin, b->margin, thumb,
+			   conf_save_data_thumb_width,
+			   conf_save_data_thumb_height, 0, 0);
 	}
-	unlock_image(b->rt.img);
+
+	/* 日時を描画する */
+	if (get_save_date(save_index) == 0) {
+		snprintf(text, sizeof(text), "[%02d] NO DATA", save_index);
+	} else {
+		timeptr = localtime(&save_time);
+		snprintf(text, sizeof(text), "[%02d] ", save_index);
+		strftime(&text[5], sizeof(text) - 5, "%y/%m/%d %H:%M ",
+			 timeptr);
+	}
+	width = draw_save_text_item(button_index,
+				    conf_save_data_thumb_width + b->margin * 2,
+				    b->margin, text);
+
+	/* 章タイトルを描画する */
+	chapter = get_save_chapter_name(save_index);
+	if (chapter != NULL) {
+		draw_save_text_item(button_index,
+				    conf_save_data_thumb_width +
+				    b->margin * 2 + width,
+				    b->margin, chapter);
+	}
+
+	/* 最後のメッセージを描画する */
+	msg = get_save_last_message(save_index);
+	if (msg) {
+		draw_save_text_item(button_index,
+				    conf_save_data_thumb_width + b->margin * 2,
+				    b->margin + conf_msgbox_margin_line,
+				    msg);
+	}
+
+	notify_image_update(b->rt.img);
 }
 
 /* セーブデータのテキストを描画する */
@@ -1954,14 +1950,14 @@ static int draw_save_text_item(int button_index, int x, int y,
 		conf_font_size / 5;
 
 	/* 色を決定する */
-	color = make_pixel_slow(0xff,
-				(uint32_t)conf_font_color_r,
-				(uint32_t)conf_font_color_g,
-				(uint32_t)conf_font_color_b);
-	outline_color =make_pixel_slow(0xff,
-				       (uint32_t)conf_font_outline_color_r,
-				       (uint32_t)conf_font_outline_color_g,
-				       (uint32_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (uint32_t)conf_font_color_r,
+			   (uint32_t)conf_font_color_g,
+			   (uint32_t)conf_font_color_b);
+	outline_color =make_pixel(0xff,
+				  (uint32_t)conf_font_outline_color_r,
+				  (uint32_t)conf_font_outline_color_g,
+				  (uint32_t)conf_font_outline_color_b);
 
 	/* 描画する */
 	construct_draw_msg_context(
@@ -2074,12 +2070,10 @@ static void process_button_draw_save(int index)
 	}
 
 	/* サムネイルとテキストの描画を行う */
-	if (!is_drawing_to_bg) {
-		render_image(b->x, b->y, b->rt.img, b->width, b->height,
-			     0, 0, cur_alpha, BLEND_FAST);
-	} else {
+	if (!is_drawing_to_bg)
+		render_image_normal(b->x, b->y, b->rt.img, b->width, b->height, 0, 0, cur_alpha);
+	else
 		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
-	}
 }
 
 /*
@@ -2137,12 +2131,10 @@ static void process_button_draw_history(int index)
 	}
 
 	/* テキストの描画を行う */
-	if (!is_drawing_to_bg) {
-		render_image(b->x, b->y, b->rt.img, b->width, b->height, 0, 0,
-			     cur_alpha, BLEND_FAST);
-	} else {
+	if (!is_drawing_to_bg)
+		render_image_normal(b->x, b->y, b->rt.img, b->width, b->height, 0, 0, cur_alpha);
+	else
 		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
-	}
 }
 
 /* ヒストリのスロットを描画する */
@@ -2195,16 +2187,14 @@ static void draw_history_button(int button_index)
 	if (b->rt.img == NULL)
 		return;
 
-	lock_image(b->rt.img);
-	{
-		/* イメージをクリアする */
-		clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
+	/* イメージをクリアする */
+	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
 
-		/* メッセージを描画する */
-		if (button[button_index].rt.history_offset != -1)
-			draw_history_text_item(button_index);
-	}
-	unlock_image(b->rt.img);
+	/* メッセージを描画する */
+	if (button[button_index].rt.history_offset != -1)
+		draw_history_text_item(button_index);
+
+	notify_image_update(b->rt.img);
 }
 
 /* ヒストリのテキストを描画する */
@@ -2243,38 +2233,38 @@ static void draw_history_text_item(int button_index)
 		 * string head as an escape sequece.
 		 */
 		ignore_color = false;
-		color = make_pixel_slow(0xff,
-					(pixel_t)conf_font_color_r,
-					(pixel_t)conf_font_color_g,
-					(pixel_t)conf_font_color_b);
-		outline_color = make_pixel_slow(0xff,
-						(pixel_t)conf_font_outline_color_r,
-						(pixel_t)conf_font_outline_color_g,
-						(pixel_t)conf_font_outline_color_b);
+		color = make_pixel(0xff,
+				   (pixel_t)conf_font_color_r,
+				   (pixel_t)conf_font_color_g,
+				   (pixel_t)conf_font_color_b);
+		outline_color = make_pixel(0xff,
+					   (pixel_t)conf_font_outline_color_r,
+					   (pixel_t)conf_font_outline_color_g,
+					   (pixel_t)conf_font_outline_color_b);
 		break;
 	case 1:
 		/* Use font.color */
 		ignore_color = true;
-		color = make_pixel_slow(0xff,
-					(pixel_t)conf_font_color_r,
-					(pixel_t)conf_font_color_g,
-					(pixel_t)conf_font_color_b);
-		outline_color = make_pixel_slow(0xff,
-						(pixel_t)conf_font_outline_color_r,
-						(pixel_t)conf_font_outline_color_g,
-						(pixel_t)conf_font_outline_color_b);
+		color = make_pixel(0xff,
+				   (pixel_t)conf_font_color_r,
+				   (pixel_t)conf_font_color_g,
+				   (pixel_t)conf_font_color_b);
+		outline_color = make_pixel(0xff,
+					   (pixel_t)conf_font_outline_color_r,
+					   (pixel_t)conf_font_outline_color_g,
+					   (pixel_t)conf_font_outline_color_b);
 		break;
 	case 2:
 		/* Use gui.history.font.color */
 		ignore_color = true;
-		color = make_pixel_slow(0xff,
-					(pixel_t)conf_gui_history_font_color_r,
-					(pixel_t)conf_gui_history_font_color_g,
-					(pixel_t)conf_gui_history_font_color_b);
-		outline_color = make_pixel_slow(0xff,
-						(pixel_t)conf_gui_history_font_outline_color_r,
-						(pixel_t)conf_gui_history_font_outline_color_g,
-						(pixel_t)conf_gui_history_font_outline_color_b);
+		color = make_pixel(0xff,
+				   (pixel_t)conf_gui_history_font_color_r,
+				   (pixel_t)conf_gui_history_font_color_g,
+				   (pixel_t)conf_gui_history_font_color_b);
+		outline_color = make_pixel(0xff,
+					   (pixel_t)conf_gui_history_font_outline_color_r,
+					   (pixel_t)conf_gui_history_font_outline_color_g,
+					   (pixel_t)conf_gui_history_font_outline_color_b);
 		break;
 	default:
 		/* A strage value, but ignore for now. */
@@ -2488,20 +2478,17 @@ static void reset_preview_button(int index)
 
 	b = &button[index];
 
-	lock_image(b->rt.img);
-	{
-		clear_image_color(b->rt.img, make_pixel_slow(0, 0, 0, 0));
-	}
-	unlock_image(b->rt.img);
+	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
+	notify_image_update(b->rt.img);
 
-	color = make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	outline_color = make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
 	/* ペン位置を計算する */
 	if (!conf_gui_preview_tategaki) {
@@ -2549,14 +2536,14 @@ static void reset_preview_button(int index)
 	b->rt.is_waiting = false;
 	b->rt.total_chars = count_chars_common(&b->rt.msg_context);
 	b->rt.drawn_chars = 0;
-	reset_stop_watch(&b->rt.sw);
+	reset_lap_timer(&b->rt.sw);
 }
 
 /* テキストプレビューのボタンの描画を行う */
 static void process_button_draw_preview(int index)
 {
 	struct gui_button *b;
-	int lap;
+	uint64_t lap;
 
 	b = &button[index];
 
@@ -2569,15 +2556,15 @@ static void process_button_draw_preview(int index)
 		if (b->rt.drawn_chars ==
 		    b->rt.total_chars) {
 			/* ストップウォッチを初期化する */
-			reset_stop_watch(&b->rt.sw);
+			reset_lap_timer(&b->rt.sw);
 
 			/* オートモードの待ち時間に入る */
 			b->rt.is_waiting = true;
 		}
 	} else {
 		/* オートモードの待ち時間の場合 */
-		lap = get_stop_watch_lap(&b->rt.sw);
-		if (lap >= get_wait_time(index)) {
+		lap = get_lap_timer_millisec(&b->rt.sw);
+		if (lap >= (uint64_t)get_wait_time(index)) {
 			/* 待ちを終了する */
 			reset_preview_button(index);
 		}
@@ -2585,9 +2572,9 @@ static void process_button_draw_preview(int index)
 
 	/* スクリーンへの描画を行う */
 	if (!is_drawing_to_bg) {
-		render_image(b->x, b->y,
-			     b->rt.img, b->width,
-			     b->height, 0, 0, cur_alpha, BLEND_FAST);
+		render_image_normal(b->x, b->y,
+				    b->rt.img, b->width,
+				    b->height, 0, 0, cur_alpha);
 	} else {
 		draw_image_to_temporary_bg_for_gui(b->x, b->y, b->rt.img);
 	}
@@ -2608,11 +2595,8 @@ static void draw_preview_message(int index)
 		return;
 
 	/* 描画する */
-	lock_image(b->rt.img);
-	{
-		ret_chars = draw_msg_common(&b->rt.msg_context, char_count);
-	}
-	unlock_image(b->rt.img);
+	ret_chars = draw_msg_common(&b->rt.msg_context, char_count);
+	notify_image_update(b->rt.img);
 
 	/* 描画した文字数を加算する */
 	b->rt.drawn_chars += ret_chars;
@@ -2631,7 +2615,7 @@ static int get_frame_chars(int index)
 	}
 
 	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&button[index].rt.sw) / 1000.0f;
+	lap = (float)get_lap_timer_millisec(&button[index].rt.sw) / 1000.0f;
 
 	/* 今回描画する文字数を取得する */
 	char_count = (int)ceil(conf_msgbox_speed * (get_text_speed() + 0.1) *
@@ -2681,12 +2665,8 @@ static bool init_namevar_buttons(void)
 		if (button[i].rt.img == NULL)
 			return false;
 
-		lock_image(button[i].rt.img);
-		{
-			clear_image_color(button[i].rt.img,
-					  make_pixel_slow(0, 0, 0, 0));
-		}
-		unlock_image(button[i].rt.img);
+		clear_image_color(button[i].rt.img, make_pixel(0, 0, 0, 0));
+		notify_image_update(button[i].rt.img);
 	}
 
 	return true;
@@ -2698,16 +2678,10 @@ static void update_namevar_buttons(void)
 	int i;
 
 	for (i = 0; i < BUTTON_COUNT; i++) {
-		if (button[i].type != TYPE_NAMEVAR)
-			continue;
-
-		lock_image(button[i].rt.img);
-		{
-			clear_image_color(button[i].rt.img,
-					  make_pixel_slow(0, 0, 0, 0));
+		if (button[i].type == TYPE_NAMEVAR) {
+			clear_image_color(button[i].rt.img, make_pixel(0, 0, 0, 0));
 			draw_name(i);
 		}
-		unlock_image(button[i].rt.img);
 	}
 }
 
@@ -2723,14 +2697,14 @@ static void draw_name(int index)
 	b = &button[index];
 
 	/* 色を取得する */
-	color = make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	outline_color = make_pixel_slow(0xff,
-					(pixel_t)conf_font_outline_color_r,
-					(pixel_t)conf_font_outline_color_g,
-					(pixel_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
 	/* 描画する文字列を取得する */
 	name = get_name_variable(b->namevar);

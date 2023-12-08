@@ -22,7 +22,7 @@ enum shake_move_type {
 	SHAKE_MOVE_VERTICAL,
 };
 
-static stop_watch_t sw;
+static uint64_t sw;
 static int move;
 static float span;
 static int times;
@@ -75,7 +75,7 @@ static bool init(void)
 	start_command_repetition();
 
 	/* 時間計測を開始する */
-	reset_stop_watch(&sw);
+	reset_lap_timer(&sw);
 
 	/* メッセージボックスを消す */
 	show_namebox(false);
@@ -110,7 +110,7 @@ static void draw(void)
 	float lap, t, s;
 
 	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
+	lap = (float)get_lap_timer_millisec(&sw) / 1000.0f;
 	if (lap >= span)
 		lap = span;
 

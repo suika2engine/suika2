@@ -11,72 +11,76 @@
  */
 
 extern "C" {
-
 #include "suika.h"
 #include "d3drender.h"
-
 };
 
 #include <d3d9.h>
 
-/*
- * シェーダの開発時に使うマクロ
- */
-//#define COMPILE_SHADER
-
-// テクスチャ管理用構造体
-struct TextureListNode
-{
-	// Direct3Dのテクスチャオブジェクト
-	IDirect3DTexture9 *pTex;	
-
-	// イメージ情報
-	int width;
-	int height;
-	pixel_t *pixels;
-
-	// リンクリスト
-	TextureListNode *pNext;
+//
+// パイプラインの種類
+//
+enum  {
+	PIPELINE_COPY,
+	PIPELINE_NORMAL,
+	PIPELINE_ADD,
+	PIPELINE_DIM,
+	PIPELINE_RULE,
+	PIPELINE_MELT,
 };
 
-// 座標変換済み頂点 (テクスチャ2枚)
-struct VertexRHWTex
+//
+// 座標変換済み頂点の構造体
+//  - 頂点シェーダを使わないため、変換済み座標を直接指定している
+//
+struct Vertex
 {
-	float x, y, z, rhw;
-	DWORD color;
-	float u1, v1;
-	float u2, v2;
+	float x, y, z;	// (x, y, 0)
+	float rhw;		// (1.0)
+	DWORD color;	// (alpha, 1.0, 1.0, 1.0)
+	float u1, v1;	// (u, v) of samplerColor
+	float u2, v2;	// (u, v) of samplerRule
 };
 
+//
 // Direct3Dオブジェクト
+//
 static LPDIRECT3D9 pD3D;
 static LPDIRECT3DDEVICE9 pD3DDevice;
 static IDirect3DPixelShader9 *pDimShader;
 static IDirect3DPixelShader9 *pRuleShader;
 static IDirect3DPixelShader9 *pMeltShader;
 
-// テクスチャリストの先頭
-static TextureListNode *pTexList;
-
-// メインウィンドウ
+//
+// レンダリング対象のウィンドウ
+//
 static HWND hMainWnd;
 
+//
 // オフセットとスケール
+//
 static float fDisplayOffsetX;
 static float fDisplayOffsetY;
 static float fScale;
 
-#ifdef COMPILE_SHADER
-// 暗い描画のピクセルシェーダ
-const char szDimPixelShader[] =
-	"ps_1_4                       \n"
-	"def c0, 0.7, 0.7, 0.7, 1.0   \n"
-    "texld r0, t0                 \n"
-    "mul r0, r0, c0               \n";
+//
+// シェーダ
+//
 
-unsigned char dimShaderBin[1024];
-#else
-// コンパイル済みのシェーダバイナリ
+// Note: 頂点シェーダはなく、固定シェーダを使用している
+
+// Note: "copy"パイプラインは固定シェーダで実行する
+
+// Note: "normal"パイプラインは固定シェーダで実行する
+
+// Note: "add"パイプラインは固定シェーダで実行する
+
+// "dim"パイプラインのピクセルシェーダ
+// ps_1_4
+// def c0, 0.5, 0.5, 0.5, 1.0 // c0: float4(0.5, 0.5, 0.5, 1.0)
+// texld r0, t0               // r0 = samplerColor;
+// mul r0, r0, c0             // r0 *= c0;
+//                            // return r0;
 static const unsigned char dimShaderBin[] = {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x0f, 0xa0, 0x33, 0x33, 0x33, 0x3f,
@@ -87,26 +91,18 @@ static const unsigned char dimShaderBin[] = {
 	0x00, 0x00, 0xe4, 0x80, 0x00, 0x00, 0xe4, 0xa0,
 	0xff, 0xff, 0x00, 0x00,
 };
-#endif
 
-#if 0
-// ルール付き描画のピクセルシェーダ
-static const char szRulePixelShader[] =
-	"ps_1_4               \n"
-	"def c0, 0, 0, 0, 0   \n"
-	"def c1, 1, 1, 1, 1   \n"
-	// c2 is threshould
-    "texld r0, t0         \n"
-    "texld r1, t1         \n"
-	// t = 1.0 - step(threshold, rule);
-	"sub r1, r1, c2       \n"
-	"cmp r2, r1, c0, c1   \n"
-	// result
-    "mov r0.a, r2.b       \n";
-
-static unsigned char ruleShaderBin[1024];
-#else
-// コンパイル済みのシェーダバイナリ
+// "rule"パイプラインは下記のピクセルシェーダ
+// ps_1_4
+// def c0, 0, 0, 0, 0  // c0: zeros
+// def c1, 1, 1, 1, 1  // c1: ones
+//                     // c2: the slot for the threshould argument
+// texld r0, t0        // r0 = samplerColor
+// texld r1, t1        // r1 = samplerRule
+// sub r1, r1, c2      // tmp = 1.0 - step(threshold, samplerRule);
+// cmp r2, r1, c0, c1  // ...
+// mov r0.a, r2.b      // samplerColor.a = tmp.b;
+//                     // return samplerColor;
 static const unsigned char ruleShaderBin[] = {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00,
@@ -125,30 +121,23 @@ static const unsigned char ruleShaderBin[] = {
 	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x80,
 	0x02, 0x00, 0xaa, 0x80, 0xff, 0xff, 0x00, 0x00,
 };
-#endif
 
-#if 0
-// ルール付き(メルト)描画のピクセルシェーダ
-const char szMeltPixelShader[] =
-	"ps_1_4               \n"
-	"def c0, 0, 0, 0, 0   \n"
-	"def c1, 1, 1, 1, 1   \n"
-	// c2 is threshould
-    "texld r0, t0         \n"	// r0 = texture
-    "texld r1, t1         \n"	// r1 = rule
-	// t = (1.0 - rule) + (threshold * 2.0 - 1.0)
-	"add r2, c2, c2       \n"   // r2 = progress * 2.0
-	"sub r2, r2, r1       \n" 	// r2 = r2 - rule
-	// t = clamp(t)
-	"cmp r2, r2, r2, c0   \n"	// r2 = r2 > 0 ? r2 : 0
-	"sub r3, c1, r2       \n"	// r3 = 1.0 - r3
-	"cmp r2, r3, r2, c1   \n"	// r2 = r3 > 0 ? r2 : c1
-	// result
-    "mov r0.a, r2.b       \n";
-
-unsigned char meltShaderBin[1024];
-#else
-// コンパイル済みのシェーダバイナリ
+// "melt"パイプラインのピクセルシェーダ
+// ps_1_4
+// def c0, 0, 0, 0, 0	// c0: zeros
+// def c1, 1, 1, 1, 1   // c1: ones
+//                      // c2: the slot for the threshould argument
+// texld r0, t0			// r0 = samplerColor
+// texld r1, t1			// r1 = samplerRule
+//						// tmp = (1.0 - rule) + (threshold * 2.0 - 1.0);
+// add r2, c2, c2		//   ... <<r2 = progress * 2.0>>
+// sub r2, r2, r1		//   ... <<r2 = r2 - rule>>
+//						// tmp = clamp(tmp);
+// cmp r2, r2, r2, c0	//   ... <<r2 = r2 > 0 ? r2 : 0>>
+// sub r3, c1, r2		//   ... <<r3 = 1.0 - r3>>
+// cmp r2, r3, r2, c1	//   ... <<r2 = r3 > 0 ? r2 : c1>>
+// mov r0.a, r2.b		// samplerRule.a = tmp.b;
+//                      // return samplerRule.a;
 static const unsigned char meltShaderBin[] = {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00, 
@@ -174,13 +163,9 @@ static const unsigned char meltShaderBin[] = {
 	0x00, 0x00, 0x08, 0x80, 0x02, 0x00, 0xaa, 0x80, 
 	0xff, 0xff, 0x00, 0x00, 
 };
-#endif
 
-//
-// 注意: 未使用、ただのサンプル
-//
+// HLSLのサンプル(未使用, 今後の参考)
 #if 0
-#ifdef COMPILE_SHADER
 // ブラーのピクセルシェーダ
 static const char szBlurPixelShader[] =
 	"texture tex0 : register(s0);                                          \n"
@@ -202,27 +187,18 @@ static const char szBlurPixelShader[] =
 	"    color.a = 1.0;                                                    \n"
 	"    return color;                                                     \n"
 	"}                                                                     \n";
-
-static unsigned char blurShaderBin[1024];
-#else
-// コンパイル済みのシェーダバイナリ
-static const unsigned char blurShaderBin[] = {
-};
-#endif
 #endif
 
+//
 // 前方参照
-static VOID DestroyDirect3DTextureObjects();
+//
 static VOID DrawPrimitives(int dst_left, int dst_top,
 						   struct image * RESTRICT src_image,
 						   struct image * RESTRICT rule_image,
-						   bool is_dim, bool is_melt,
 						   int width, int height,
 						   int src_left, int src_top,
-						   int alpha, int bt);
-#ifdef COMPILE_SHADER
-void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL);
-#endif
+						   int alpha, int pipeline);
+static BOOL UploadTextureIfNeeded(struct image *img);
 
 //
 // Direct3Dの初期化を行う
@@ -231,11 +207,16 @@ BOOL D3DInitialize(HWND hWnd)
 {
 	HRESULT hResult;
 
+	hMainWnd = hWnd;
+	fDisplayOffsetX = 0.0f;
+	fDisplayOffsetY = 0.0f;
+	fScale = 1.0f;
+
 	// Direct3Dの作成を行う
 	pD3D = Direct3DCreate9(D3D_SDK_VERSION);
 	if (pD3D == NULL)
     {
-		log_info("Direct3DCreate9() failed.");
+		log_api_error("Direct3DCreate9()");
         return FALSE;
     }
 
@@ -256,7 +237,7 @@ BOOL D3DInitialize(HWND hWnd)
 									 &d3dpp, &pD3DDevice);
 		if (FAILED(hResult))
         {
-			log_info("Direct3D::CreateDevice() failed.");
+			log_api_error("Direct3D::CreateDevice()");
 			pD3D->Release();
 			pD3D = NULL;
             return FALSE;
@@ -264,49 +245,28 @@ BOOL D3DInitialize(HWND hWnd)
     }
 
 	// シェーダを作成する
-#ifdef COMPILE_SHADER
-	// d3dx9_43.dllのある環境でコンパイルして、shader.txtに出力する
-	CompileShader(szDimPixelShader, dimShaderBin, FALSE);
-#endif
-	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)dimShaderBin,
-											 &pDimShader)))
+	do {
+		hResult = pD3DDevice->CreatePixelShader((DWORD *)dimShaderBin, &pDimShader);
+		if (FAILED(hResult))
+			break;
+
+		hResult = pD3DDevice->CreatePixelShader((DWORD *)ruleShaderBin, &pRuleShader);
+		if (FAILED(hResult))
+			break;
+
+		hResult = pD3DDevice->CreatePixelShader((DWORD *)meltShaderBin, &pMeltShader);
+		if (FAILED(hResult))
+			break;
+	} while (0);
+	if (FAILED(hResult))
 	{
-		log_info("Direct3DDevice9::CreatePixelShader() for dim failed.");
+		log_api_error("Direct3DDevice9::CreatePixelShader()");
 		pD3DDevice->Release();
 		pD3DDevice = NULL;
 		pD3D->Release();
 		pD3D = NULL;
 		return FALSE;
 	}
-
-	// シェーダを作成する
-	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)ruleShaderBin,
-											 &pRuleShader)))
-	{
-		log_info("Direct3DDevice9::CreatePixelShader() for rule failed.");
-		pD3DDevice->Release();
-		pD3DDevice = NULL;
-		pD3D->Release();
-		pD3D = NULL;
-		return FALSE;
-	}
-
-	// シェーダを作成する
-	if (FAILED(pD3DDevice->CreatePixelShader((DWORD *)meltShaderBin,
-											 &pMeltShader)))
-	{
-		log_info("Direct3DDevice9::CreatePixelShader() melt failed.");
-		pD3DDevice->Release();
-		pD3DDevice = NULL;
-		pD3D->Release();
-		pD3D = NULL;
-		return FALSE;
-	}
-
-	hMainWnd = hWnd;
-	fDisplayOffsetX = 0.0f;
-	fDisplayOffsetY = 0.0f;
-	fScale = 1.0f;
 
 	return TRUE;
 }
@@ -316,33 +276,23 @@ BOOL D3DInitialize(HWND hWnd)
 //
 VOID D3DCleanup(void)
 {
-	// すべてのDirect3Dテクスチャオブジェクトを破棄する
-	DestroyDirect3DTextureObjects();
-
-	// ピクセルシェーダを破棄する
 	if (pMeltShader != NULL)
 	{
 		pD3DDevice->SetPixelShader(NULL);
 		pMeltShader->Release();
 		pMeltShader = NULL;
 	}
-
-	// ピクセルシェーダを破棄する
 	if (pRuleShader != NULL)
 	{
 		pD3DDevice->SetPixelShader(NULL);
 		pRuleShader->Release();
 		pRuleShader = NULL;
 	}
-
-	// Direct3Dデバイスを破棄する
 	if (pD3DDevice != NULL)
 	{
 		pD3DDevice->Release();
 		pD3DDevice = NULL;
 	}
-
-	// Direct3Dオブジェクトを破棄する
 	if (pD3D != NULL)
 	{
 		pD3D->Release();
@@ -359,221 +309,16 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 	fDisplayOffsetY = (float)nOffsetY;
 	fScale = scale;
 
-	// Direct3Dデバイスをリセットする
-	D3DPRESENT_PARAMETERS d3dpp;
-	ZeroMemory(&d3dpp, sizeof(d3dpp));
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.BackBufferCount = 1;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dpp.Windowed = TRUE;
-	pD3DDevice->Reset(&d3dpp);
-
-	return TRUE;
-}
-
-//
-// テクスチャをロックする
-// (lock_texture()のDirect3D版実装)
-//
-BOOL D3DLockTexture(int width, int height, pixel_t *pixels,
-					pixel_t **locked_pixels, void **texture)
-{
-	assert(*locked_pixels == NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-
-	if(*texture == NULL)
+	if (pD3DDevice != NULL)
 	{
-		// テクスチャ管理用オブジェクトを作成する
-		TextureListNode *t = (TextureListNode *)
-			malloc(sizeof(TextureListNode));
-		if(t == NULL)
-			return FALSE;
-
-		// 初期化してリストの先頭に加える
-		t->pTex = NULL;
-		t->pNext = pTexList;
-		pTexList = t;
-		t->width = width;
-		t->height = height;
-		t->pixels = pixels;
-
-		// ポインタを設定する
-		*texture = t;
-	}
-
-	// ロック中の描画先ポインタを設定する
-	*locked_pixels = pixels;
-
-	return TRUE;
-}
-
-//
-// テクスチャをアンロックする
-// (unlock_texture()のDirect3D版実装)
-//
-BOOL D3DUnlockTexture(int width, int height, pixel_t *pixels,
-					  pixel_t **locked_pixels, void **texture)
-{
-	assert(*locked_pixels != NULL);
-	assert(*texture != NULL);
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-	UNUSED_PARAMETER(pixels);
-
-	TextureListNode *t = (TextureListNode *)*texture;
-	if(t->pTex == NULL)
-	{
-		// Direct3Dテクスチャオブジェクトを作成する
-		HRESULT hResult = pD3DDevice->CreateTexture(width,
-													height,
-													1, // mip map levels
-													0, // usage
-													D3DFMT_A8R8G8B8,
-													D3DPOOL_MANAGED,
-													&t->pTex,
-													NULL);
-		if(FAILED(hResult))
-		{
-			// 最小化中の失敗は無視する
-			if (!IsIconic(hMainWnd))
-				log_api_error("Direct3DDevice9::CreateTexture");
-			t->pTex = NULL;
-			*locked_pixels = NULL;
-			return TRUE;
-		}
-	}
-
-	// Direct3Dテクスチャオブジェクトの矩形をロックする
-	D3DLOCKED_RECT lockedRect;
-	HRESULT hResult = t->pTex->LockRect(0, &lockedRect, NULL, 0);
-	if (FAILED(hResult))
-	{
-		t->pTex->Release();
-		t->pTex = NULL;
-		*locked_pixels = NULL;
-		return TRUE;
-	}
-
-	// ピクセルデータをコピーする
-	memcpy(lockedRect.pBits, *locked_pixels, width * height * sizeof(pixel_t));
-
-	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
-	hResult = t->pTex->UnlockRect(0);
-	if (FAILED(hResult))
-	{
-		t->pTex->Release();
-		t->pTex = NULL;
-		*locked_pixels = NULL;
-		return TRUE;
-	}
-
-	*locked_pixels = NULL;
-
-	return TRUE;
-}
-
-//
-// テクスチャを破棄する
-// (destroy_texture()のDirect3D版実装)
-//
-VOID D3DDestroyTexture(void *texture)
-{
-	// テクスチャ管理用オブジェクトが作成されていなければ何もしない
-	if(texture == NULL)
-		return;
-
-	// Direct3Dテクスチャオブジェクトを破棄する
-	TextureListNode *t = (TextureListNode *)texture;
-	if(t->pTex != NULL)
-		t->pTex->Release();
-
-	// テクスチャ管理用オブジェクトのリストから外す
-	TextureListNode *p = pTexList;
-	if(p == t)
-	{
-		pTexList = t->pNext;
-	}
-	else
-	{
-		while(p->pNext != NULL)
-		{
-			if(p->pNext == t)
-			{
-				p->pNext = t->pNext;
-				break;
-			}
-			p = p->pNext;
-		}
-	}
-
-	// テクスチャ管理用オブジェクトを破棄する
-	free(t);
-}
-
-// すべてのDirect3Dテクスチャオブジェクトを破棄する
-static VOID DestroyDirect3DTextureObjects()
-{
-	TextureListNode *t = pTexList;
-	while(t != NULL)
-	{
-		if(t->pTex != NULL)
-		{
-			t->pTex->Release();
-			t->pTex = NULL;
-		}
-		t = t->pNext;
-	}
-}
-
-// テクスチャの再作成を行う
-//  - ウィンドウの最小化中に描画が行われた場合、テクスチャの作成に失敗している
-//  - その他にもVRAMを確保できなかったと思われるケースが報告された
-static BOOL RecoverTexture(TextureListNode *pTexNode)
-{
-	// すでにテクスチャをVRAMに転送済みならTRUEを返す
-	if (pTexNode->pTex != NULL)
-		return TRUE;
-
-	// Direct3Dテクスチャオブジェクトを作成する
-	HRESULT hResult = pD3DDevice->CreateTexture(pTexNode->width,
-												pTexNode->height,
-												1, // mip map levels
-												0, // usage
-												D3DFMT_A8R8G8B8,
-												D3DPOOL_MANAGED,
-												&pTexNode->pTex,
-												NULL);
-	if (FAILED(hResult))
-	{
-		pTexNode->pTex = NULL;
-		return FALSE;
-	}
-
-	// Direct3Dテクスチャオブジェクトの矩形をロックする
-	D3DLOCKED_RECT lockedRect;
-	hResult = pTexNode->pTex->LockRect(0, &lockedRect, NULL, 0);
-	if (FAILED(hResult))
-	{
-		pTexNode->pTex->Release();
-		pTexNode->pTex = NULL;
-		return FALSE;
-	}
-
-	// ピクセルデータをコピーする
-	memcpy(lockedRect.pBits, pTexNode->pixels,
-		   pTexNode->width * pTexNode->height * sizeof(pixel_t));
-
-	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
-	hResult = pTexNode->pTex->UnlockRect(0);
-	if (FAILED(hResult))
-	{
-		pTexNode->pTex->Release();
-		pTexNode->pTex = NULL;
-		return FALSE;
+		// Direct3Dデバイスをリセットする
+		D3DPRESENT_PARAMETERS d3dpp;
+		ZeroMemory(&d3dpp, sizeof(d3dpp));
+		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+		d3dpp.BackBufferCount = 1;
+		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		d3dpp.Windowed = TRUE;
+		pD3DDevice->Reset(&d3dpp);
 	}
 
 	return TRUE;
@@ -644,98 +389,118 @@ BOOL D3DRedraw(void)
 	return TRUE;
 }
 
+
+//
+// HAL: Notifies an image update.
+//  - TODO: Support lazy upload. (Probably I'll write for the Direct3D 12 support.)
+//
+bool notify_image_update(struct image *img)
+{
+	img->need_upload = true;
+	return true;
+}
+
+//
+// HAL: Notifies an image free.
+//
+void notify_image_free(struct image *img)
+{
+	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)img->texture;
+	if(pTex == NULL)
+		return;
+	pTex->Release();
+	img->texture = NULL;
+}
+
 //
 // イメージをレンダリングする
-// (render_image()のDirect3D版実装)
 //
-VOID D3DRenderImage(int dst_left, int dst_top,
-					struct image * RESTRICT src_image, int width, int height,
-					int src_left, int src_top, int alpha, int bt)
+void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image,
+					   int width, int height, int src_left, int src_top)
 {
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, false, false,
-				   width, height, src_left, src_top, alpha, bt);
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_COPY);
 }
 
 //
-// イメージを暗くレンダリングする
-// (render_image_dim()のDirect3D版実装)
+// イメージをレンダリングする
 //
-VOID D3DRenderImageDim(int dst_left, int dst_top,
-					   struct image * RESTRICT src_image,
-					   int width, int height,
-					   int src_left, int src_top)
+void render_image_normal(int dst_left, int dst_top, struct image * RESTRICT src_image,
+						 int width, int height, int src_left, int src_top, int alpha)
 {
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, true, false,
-				   width, height, src_left, src_top, 255, BLEND_FAST);
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_NORMAL);
 }
 
 //
-// イメージをルール付きでレンダリングする
-// (render_image_rule()のDirect3D版実装)
+// イメージをレンダリングする
 //
-VOID D3DRenderImageRule(struct image * RESTRICT src_image,
-						struct image * RESTRICT rule_image,
-						int threshold)
+void render_image_add(int dst_left, int dst_top, struct image * RESTRICT src_image,
+					  int width, int height, int src_left, int src_top, int alpha)
 {
-	DrawPrimitives(0, 0, src_image, rule_image, false, false,
-				   get_image_width(src_image), get_image_height(src_image),
-				   0, 0, threshold, BLEND_FAST);
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_ADD);
 }
 
 //
-// イメージをルール付き(メルト)でレンダリングする
-// (render_image_melt()のDirect3D版実装)
+// イメージをレンダリングする
 //
-VOID D3DRenderImageMelt(struct image * RESTRICT src_image,
-						struct image * RESTRICT rule_image,
-						int progress)
+void render_image_dim(int dst_left, int dst_top, struct image * RESTRICT src_image,
+					  int width, int height, int src_left, int src_top)
 {
-	DrawPrimitives(0, 0, src_image, rule_image, false, true,
-				   get_image_width(src_image), get_image_height(src_image),
-				   0, 0, progress, BLEND_FAST);
+	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_DIM);
+}
+
+//
+// 画面にイメージをルール付きでレンダリングする
+//
+void render_image_rule(struct image *src_image, struct image *rule_image, int threshold)
+{
+	DrawPrimitives(0, 0, src_image, rule_image, src_image->width, src_image->height, 0, 0, threshold, PIPELINE_RULE);
+}
+
+//
+// 画面にイメージをルール付き(メルト)でレンダリングする
+//
+void render_image_melt(struct image *src_image, struct image *rule_image, int threshold)
+{
+	DrawPrimitives(0, 0, src_image, rule_image, src_image->width, src_image->height, 0, 0, threshold, PIPELINE_MELT);
 }
 
 // プリミティブを描画する
 static VOID DrawPrimitives(int dst_left, int dst_top,
-						   struct image * RESTRICT src_image,
-						   struct image * RESTRICT rule_image,
-						   bool is_dim,
-						   bool is_melt,
+						   struct image *src_image,
+						   struct image *rule_image,
 						   int width, int height,
 						   int src_left, int src_top,
-						   int alpha, int bt)
+						   int alpha,
+						   int pipeline)
 {
-	// ソース画像のテクスチャを取得する
-	TextureListNode *src_tex = (TextureListNode *)get_texture_object(src_image);
-	assert(src_tex != NULL);
-	if (!RecoverTexture(src_tex))
-		return;
+	IDirect3DTexture9 *pTexColor = NULL;
+	IDirect3DTexture9 *pTexRule = NULL;
 
-	// ルール画像のテクスチャを取得する
-	TextureListNode *rule_tex = NULL;
-	if (rule_image != NULL)
-	{
-		rule_tex = (TextureListNode *)get_texture_object(rule_image);
-		assert(rule_tex != NULL);
-		if (!RecoverTexture(src_tex))
+	// テクスチャをアップロードする
+	if (!UploadTextureIfNeeded(src_image))
+		return;
+	pTexColor = (IDirect3DTexture9 *)src_image->texture;
+	if (rule_image != NULL) {
+		if (!UploadTextureIfNeeded(src_image))
 			return;
+		pTexRule = (IDirect3DTexture9 *)rule_image->texture;
 	}
 
 	// 描画の必要があるか判定する
-	if(width == 0 || height == 0)
+	if (width == 0 || height == 0)
 		return;	// 描画の必要がない
-	if(!clip_by_source(get_image_width(src_image), get_image_height(src_image),
-					   &width, &height, &dst_left, &dst_top, &src_left,
-					   &src_top))
+	if (!clip_by_source(src_image->width, src_image->height,
+						&width, &height, &dst_left, &dst_top, &src_left,
+						&src_top))
 		return;	// 描画範囲外
-	if(!clip_by_dest(conf_window_width, conf_window_height, &width, &height,
-					 &dst_left, &dst_top, &src_left, &src_top))
+	if (!clip_by_dest(conf_window_width, conf_window_height, &width, &height,
+					  &dst_left, &dst_top, &src_left, &src_top))
 		return;	// 描画範囲外
 
-	float img_w = (float)get_image_width(src_image);
-	float img_h = (float)get_image_height(src_image);
+	float img_w = (float)src_image->width;
+	float img_h = (float)src_image->height;
 
-	VertexRHWTex v[4];
+	Vertex v[4];
 
 	// 左上
 	v[0].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
@@ -781,15 +546,28 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[3].v2 = v[3].v1;
 	v[3].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
-	if (bt == BLEND_NONE)
+	FLOAT th = (float)alpha / 255.0f;
+	FLOAT th4[4] = {th, th, th, th};
+
+	switch (pipeline)
 	{
-		// ブレンドしない場合(コピー)
+	case PIPELINE_COPY:
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	}
-	else if (bt == BLEND_ADD)
-	{
-		// 加算ブレンドを使用する場合
+		break;
+	case PIPELINE_NORMAL:
+		pD3DDevice->SetPixelShader(NULL);
+		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
+		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLOROP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+		break;
+	case PIPELINE_ADD:
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_ONE);
@@ -800,61 +578,36 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-	}
-	else if (rule_image == NULL && !is_dim)
-	{
-		// 通常のアルファブレンドを行う場合
-		pD3DDevice->SetPixelShader(NULL);
-		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
-		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLOROP, D3DTOP_MODULATE);
-		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-	}
-	else if (is_dim)
-	{
-		// DIMシェーダを使用する場合
+		break;
+	case PIPELINE_DIM:
 		pD3DDevice->SetPixelShader(pDimShader);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	}
-	else if (rule_image != NULL && !is_melt)
-	{
-		// ルールシェーダを使用する場合
-		FLOAT th = (float)alpha / 255.0f;
-		FLOAT th4[4] = {th, th, th, th};
+		break;
+	case PIPELINE_RULE:
 		pD3DDevice->SetPixelShader(pRuleShader);
 		pD3DDevice->SetPixelShaderConstantF(2, th4, 1);
-		pD3DDevice->SetTexture(1, rule_tex->pTex);
+		pD3DDevice->SetTexture(1, pTexRule);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		if (!RecoverTexture(rule_tex))
-			return;
-	}
-	else if (rule_image != NULL && is_melt)
-	{
-		// メルトシェーダを使用する場合
-		FLOAT th = (float)alpha / 255.0f;
-		FLOAT th4[4] = {th, th, th, th};
+		break;
+	case PIPELINE_MELT:
 		pD3DDevice->SetPixelShader(pMeltShader);
 		pD3DDevice->SetPixelShaderConstantF(2, th4, 1);
-		pD3DDevice->SetTexture(1, rule_tex->pTex);
+		pD3DDevice->SetTexture(1, pTexRule);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	}
-	else
-	{
+		break;
+	default:
 		assert(0);
+		break;
 	}
 
-	pD3DDevice->SetTexture(0, src_tex->pTex);
+	// テクスチャ0を設定する
+	pD3DDevice->SetTexture(0, pTexColor);
 	pD3DDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2 | D3DFVF_DIFFUSE);
 
 	// リニアフィルタを設定する
@@ -869,40 +622,95 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
+	// 描画する
 	if(width == 1 && height == 1)
 	{
-		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v,
-									sizeof(VertexRHWTex));
+		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v, sizeof(Vertex));
 	}
 	else if(width == 1)
 	{
-		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v + 1,
-									sizeof(VertexRHWTex));
+		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v + 1, sizeof(Vertex));
 	}
 	else if(height == 1)
 	{
 		v[1].y += 1.0f;
-		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v,
-									sizeof(VertexRHWTex));
+		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v, sizeof(Vertex));
 	}
 	else
 	{
-		pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v,
-									sizeof(VertexRHWTex));
+		pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex));
 	}
 }
 
-/*
- * シェーダ言語(アセンブリ/HLSL)のコンパイル用
- *  - 実行時にコンパイルするにはd3dx9_43.dllのインストールが必要になる
- *  - これがインストールされていなくても実行可能なようにしたい
- *  - そこで、シェーダは開発者がコンパイルしてバイトコードをベタ書きする
- *  - 下記コードでコンパイルを行って、shader.txtの内容を利用すること
- *  - 開発中のみリンカオプションで-ld3dx9とする
- */
-#ifdef COMPILE_SHADER
+// テクスチャのアップロードを行う
+static BOOL UploadTextureIfNeeded(struct image *img)
+{
+	HRESULT hResult;
+
+	if (!img->need_upload)
+		return TRUE;
+
+	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)img->texture;
+	if (pTex == NULL)
+	{
+		// Direct3Dテクスチャオブジェクトを作成する
+		hResult = pD3DDevice->CreateTexture(img->width,
+											img->height,
+											1, // mip map levels
+											0, // usage
+											D3DFMT_A8R8G8B8,
+											D3DPOOL_MANAGED,
+											&pTex,
+											NULL);
+		if (FAILED(hResult))
+		{
+			if (!IsIconic(hMainWnd))
+				log_api_error("Direct3DDevice9::CreateTexture");
+
+			return FALSE;
+		}
+
+		img->texture = pTex;
+	}
+
+	// Direct3Dテクスチャオブジェクトの矩形をロックする
+	D3DLOCKED_RECT lockedRect;
+	hResult = pTex->LockRect(0, &lockedRect, NULL, 0);
+	if (FAILED(hResult))
+	{
+		pTex->Release();
+		img->texture = NULL;
+		return FALSE;
+	}
+
+	// ピクセルデータをコピーする
+	memcpy(lockedRect.pBits, img->pixels, img->width * img->height * sizeof(pixel_t));
+
+	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
+	hResult = pTex->UnlockRect(0);
+	if (FAILED(hResult))
+	{
+		pTex->Release();
+		img->texture = NULL;
+		return FALSE;
+	}
+
+	// アップロード完了した
+	img->need_upload = false;
+	return TRUE;
+}
+
+//
+// [参考]
+//  - シェーダ言語(アセンブリ or HLSL)のコンパイル
+//    - 実行時にコンパイルするにはd3dx9_43.dllのインストールが必要になる
+//    - これがインストールされていなくても実行可能なようにしたい
+//    - そこで、シェーダは開発者がコンパイルしてバイトコードをベタ書きする
+//    - 下記コードでコンパイルを行って、shader.txtの内容を利用すること
+//    - 開発中のみリンカオプションで-ld3dx9とする
+//
+#if 0
 #include <d3dx9.h>
-#include "log.h"
 
 void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
 {

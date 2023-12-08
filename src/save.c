@@ -520,29 +520,24 @@ static bool serialize_thumb(struct wfile *wf, int index)
 		if (save_thumb[index] == NULL)
 			return false;
 	}
-	lock_image(save_thumb[index]);
-	{
-		draw_image(save_thumb[index], 0, 0, get_thumb_image(),
-			   conf_save_data_thumb_width,
-			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
-	}
-	unlock_image(save_thumb[index]);
+	draw_image_copy(save_thumb[index], 0, 0, get_thumb_image(),
+			conf_save_data_thumb_width, conf_save_data_thumb_height, 0, 0);
+	notify_image_update(save_thumb[index]);
 
 	/* ピクセル列を準備する */
-	src = get_image_pixels(get_thumb_image());
+	src = get_thumb_image()->pixels;
 	dst = tmp_pixels;
 	for (y = 0; y < conf_save_data_thumb_height; y++) {
 		for (x = 0; x < conf_save_data_thumb_width; x++) {
 			pix = *src++;
-			*dst++ = (unsigned char)get_pixel_r_slow(pix);
-			*dst++ = (unsigned char)get_pixel_g_slow(pix);
-			*dst++ = (unsigned char)get_pixel_b_slow(pix);
+			*dst++ = (unsigned char)get_pixel_r(pix);
+			*dst++ = (unsigned char)get_pixel_g(pix);
+			*dst++ = (unsigned char)get_pixel_b(pix);
 		}
 	}
 
 	/* 書き出す */
-	len = (size_t)(conf_save_data_thumb_width *
-		       conf_save_data_thumb_height * 3);
+	len = (size_t)(conf_save_data_thumb_width * conf_save_data_thumb_height * 3);
 	if (write_wfile(wf, tmp_pixels, len) < len)
 		return false;
 
@@ -1283,20 +1278,17 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 					 conf_save_data_thumb_height);
 	if (save_thumb[index] == NULL)
 		return;
-	lock_image(save_thumb[index]);
-	{
-		dst = get_image_pixels(save_thumb[index]);
-		src = tmp_pixels;
-		for (y = 0; y < conf_save_data_thumb_height; y++) {
-			for (x = 0; x < conf_save_data_thumb_width; x++) {
-				r = *src++;
-				g = *src++;
-				b = *src++;
-				*dst++ = make_pixel_slow(0xff, r, g, b);
-			}
+	dst = save_thumb[index]->pixels;
+	src = tmp_pixels;
+	for (y = 0; y < conf_save_data_thumb_height; y++) {
+		for (x = 0; x < conf_save_data_thumb_width; x++) {
+			r = *src++;
+			g = *src++;
+			b = *src++;
+			*dst++ = make_pixel(0xff, r, g, b);
 		}
 	}
-	unlock_image(save_thumb[index]);
+	notify_image_update(save_thumb[index]);
 }
 
 /*

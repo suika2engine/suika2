@@ -199,7 +199,7 @@ static bool is_click_first;
 static bool is_click_visible;
 
 /* コマンドの経過時刻を表すストップウォッチ */
-static stop_watch_t click_sw;
+static uint64_t click_sw;
 
 /*
  * オートモード
@@ -209,7 +209,7 @@ static stop_watch_t click_sw;
 static bool is_auto_mode_wait;
 
 /* オートモードの経過時刻を表すストップウォッチ */
-static stop_watch_t auto_sw;
+static uint64_t auto_sw;
 
 /*
  * インラインウェイト
@@ -225,7 +225,7 @@ static float inline_wait_time;
 static float inline_wait_time_total;
 
 /* インラインウェイトの経過時刻を表すストップウォッチ */
-static stop_watch_t inline_sw;
+static uint64_t inline_sw;
 
 
 /*
@@ -822,30 +822,30 @@ static void init_font_color(void)
 
 	/* 既読であり、既読の色が設定されている場合 */
 	if (get_seen() && conf_msgbox_seen_color) {
-		body_color = make_pixel_slow(0xff,
-					     (pixel_t)conf_msgbox_seen_color_r,
-					     (pixel_t)conf_msgbox_seen_color_g,
-					     (pixel_t)conf_msgbox_seen_color_b);
+		body_color = make_pixel(0xff,
+					(pixel_t)conf_msgbox_seen_color_r,
+					(pixel_t)conf_msgbox_seen_color_g,
+					(pixel_t)conf_msgbox_seen_color_b);
 		body_outline_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_msgbox_seen_outline_color_r,
-					(pixel_t)conf_msgbox_seen_outline_color_g,
-					(pixel_t)conf_msgbox_seen_outline_color_b);
+			make_pixel(0xff,
+				   (pixel_t)conf_msgbox_seen_outline_color_r,
+				   (pixel_t)conf_msgbox_seen_outline_color_g,
+				   (pixel_t)conf_msgbox_seen_outline_color_b);
 		name_color = body_color;
 		name_outline_color = body_outline_color;
 		return;
 	}
 
 	/* 色は、まずデフォルトの色をロードする */
-	body_color = make_pixel_slow(0xff,
-				     (pixel_t)conf_font_color_r,
-				     (pixel_t)conf_font_color_g,
-				     (pixel_t)conf_font_color_b);
+	body_color = make_pixel(0xff,
+				(pixel_t)conf_font_color_r,
+				(pixel_t)conf_font_color_g,
+				(pixel_t)conf_font_color_b);
 	body_outline_color =
-		make_pixel_slow(0xff,
-				(pixel_t)conf_font_outline_color_r,
-				(pixel_t)conf_font_outline_color_g,
-				(pixel_t)conf_font_outline_color_b);
+		make_pixel(0xff,
+			   (pixel_t)conf_font_outline_color_r,
+			   (pixel_t)conf_font_outline_color_g,
+			   (pixel_t)conf_font_outline_color_b);
 	name_color = body_color;
 	name_outline_color = body_outline_color;
 
@@ -857,16 +857,14 @@ static void init_font_color(void)
 				continue;
 			if (strcmp(name_top, conf_serif_color_name[i]) == 0) {
 				/* コンフィグで指定された色にする */
-				name_color = make_pixel_slow(
-					0xff,
-					(uint32_t)conf_serif_color_r[i],
-					(uint32_t)conf_serif_color_g[i],
-					(uint32_t)conf_serif_color_b[i]);
-				name_outline_color = make_pixel_slow(
-					0xff,
-					(uint32_t)conf_serif_outline_color_r[i],
-					(uint32_t)conf_serif_outline_color_g[i],
-					(uint32_t)conf_serif_outline_color_b[i]);
+				name_color = make_pixel(0xff,
+							(uint32_t)conf_serif_color_r[i],
+							(uint32_t)conf_serif_color_g[i],
+							(uint32_t)conf_serif_color_b[i]);
+				name_outline_color = make_pixel(0xff,
+								(uint32_t)conf_serif_outline_color_r[i],
+								(uint32_t)conf_serif_outline_color_g[i],
+								(uint32_t)conf_serif_outline_color_b[i]);
 				if (!conf_serif_color_name_only) {
 					body_color = name_color;
 					body_outline_color = name_outline_color;
@@ -1452,11 +1450,7 @@ static void draw_namebox(void)
 	char_count = count_chars_common(&context);
 
 	/* 文字描画する */
-	lock_layers_for_msgdraw(LAYER_NAME, -1);
-	{
-		draw_msg_common(&context, char_count);
-	}
-	unlock_layers_for_msgdraw(LAYER_NAME, -1);
+	draw_msg_common(&context, char_count);
 }
 
 /* キャラクタのフォーカスを行う */
@@ -1683,7 +1677,7 @@ static void init_repetition(void)
 		start_command_repetition();
 
 		/* 時間計測を開始する */
-		reset_stop_watch(&click_sw);
+		reset_lap_timer(&click_sw);
 	}
 }
 
@@ -1694,7 +1688,7 @@ static void init_repetition(void)
 /* オートモード制御を処理する */
 static bool frame_auto_mode(void)
 {
-	int lap;
+	uint64_t lap;
 
 	/* オートモードでない場合、何もしない */
 	if (!is_auto_mode())
@@ -1743,16 +1737,16 @@ static bool frame_auto_mode(void)
 			is_auto_mode_wait = true;
 
 			/* 時間計測を開始する */
-			reset_stop_watch(&auto_sw);
+			reset_lap_timer(&auto_sw);
 		}
 	} else {
 		/* 待ち時間の場合 */
 
 		/* 時間を計測する */
-		lap = get_stop_watch_lap(&auto_sw);
+		lap = get_lap_timer_millisec(&auto_sw);
 
 		/* 時間が経過していれば、コマンドの終了処理に移る */
-		if (lap >= get_wait_time()) {
+		if (lap >= (uint64_t)get_wait_time()) {
 			stop_command_repetition();
 
 			/* コマンドを終了する */
@@ -2531,7 +2525,7 @@ static void draw_frame(void)
 	if (!is_end_of_msg()) {
 		/* インラインウェイトを処理する */
 		if (is_inline_wait) {
-			if ((float)get_stop_watch_lap(&inline_sw) / 1000.0f >
+			if ((float)get_lap_timer_millisec(&inline_sw) / 1000.0f >
 			    inline_wait_time)
 				is_inline_wait = false;
 		}
@@ -2583,11 +2577,7 @@ static void draw_msgbox(void)
 		return;
 
 	/* 描画を行う */
-	lock_layers_for_msgdraw(LAYER_MSG, -1);
-	{
-		ret = draw_msg_common(&msgbox_context, char_count);
-	}
-	unlock_layers_for_msgdraw(LAYER_MSG, -1);
+	ret = draw_msg_common(&msgbox_context, char_count);
 	if (is_inline_wait) {
 		/* インラインウェイトが現れた場合 */
 		drawn_chars += ret;
@@ -2610,7 +2600,7 @@ static void inline_wait_hook(float wait_time)
 		is_inline_wait = true;
 		inline_wait_time = wait_time;
 		inline_wait_time_total += inline_wait_time;
-		reset_stop_watch(&inline_sw);
+		reset_lap_timer(&inline_sw);
 	}
 }
 
@@ -2756,7 +2746,7 @@ static int calc_frame_chars_by_lap(void)
 	 * 経過時間(秒)を取得する
 	 *  - インラインウェイトの分を差し引く
 	 */
-	lap = (float)get_stop_watch_lap(&click_sw) / 1000.0f -
+	lap = (float)get_lap_timer_millisec(&click_sw) / 1000.0f -
 		inline_wait_time_total;
 
 	/* 進捗(文字数)を求める */
@@ -2781,8 +2771,9 @@ static int calc_frame_chars_by_lap(void)
 /* クリックアニメーションを描画する */
 static void draw_click(void)
 {
+	uint64_t lap;
 	int click_x, click_y, click_w, click_h;
-	int lap, index;
+	int index;
 
 	assert(!is_sysmenu);
 
@@ -2825,11 +2816,11 @@ static void draw_click(void)
 		}
 
 		/* 時間計測を開始する */
-		reset_stop_watch(&click_sw);
+		reset_lap_timer(&click_sw);
 	}
 
 	/* 経過時間を取得する */
-	lap = get_stop_watch_lap(&click_sw);
+	lap = get_lap_timer_millisec(&click_sw);
 
 	/* クリックアニメーションの表示を行う */
 	if (conf_click_disable) {
@@ -2837,9 +2828,9 @@ static void draw_click(void)
 		show_click(true);
 		is_click_visible = true;
 	} else {
-		index = (lap % (int)(conf_click_interval * 1000)) /
-			((int)(conf_click_interval * 1000) / click_frames) %
-			click_frames;
+		index = (int)((lap % (uint64_t)(conf_click_interval * 1000)) /
+			((uint64_t)(conf_click_interval * 1000) / (uint64_t)click_frames) %
+			      (uint64_t)click_frames);
 		index = index < 0 ? 0 : index;
 		index = index >= click_frames ? 0 : index;
 		set_click_index(index);
@@ -3083,15 +3074,14 @@ static void draw_dimming(void)
 	assert(!need_config_mode);
 
 	/* dimming用の文字色を求める */
-	body_color = make_pixel_slow(0xff,
+	body_color = make_pixel(0xff,
 				     (uint32_t)conf_msgbox_dim_color_r,
 				     (uint32_t)conf_msgbox_dim_color_g,
 				     (uint32_t)conf_msgbox_dim_color_b);
-	body_outline_color =
-			make_pixel_slow(0xff,
-				(uint32_t)conf_msgbox_dim_color_outline_r,
-				(uint32_t)conf_msgbox_dim_color_outline_g,
-				(uint32_t)conf_msgbox_dim_color_outline_b);
+	body_outline_color = make_pixel(0xff,
+					(uint32_t)conf_msgbox_dim_color_outline_r,
+					(uint32_t)conf_msgbox_dim_color_outline_g,
+					(uint32_t)conf_msgbox_dim_color_outline_b);
 	if (conf_font_outline_remove)
 		body_outline_color = body_color;
 
@@ -3128,11 +3118,7 @@ static void draw_dimming(void)
 		true,	/* ignore_wait */
 		NULL,	/* inline_wait_hook */
 		conf_msgbox_tategaki);
-	lock_layers_for_msgdraw(LAYER_MSG, -1);
-	{
-		draw_msg_common(&context, total_chars);
-	}
-	unlock_layers_for_msgdraw(LAYER_MSG, -1);
+	draw_msg_common(&context, total_chars);
 }
 
 /*

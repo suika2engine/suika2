@@ -884,7 +884,7 @@ char *make_valid_path(const char *dir, const char *fname)
         return NULL;
     }
     return ret;
-#elif defined(WIN)
+#elif defined(SUIKA_TARGET_WIN32)
     QDir qdir(QCoreApplication::applicationDirPath());
     QString path = qdir.currentPath();
     if (dir != NULL)

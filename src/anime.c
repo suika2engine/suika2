@@ -44,7 +44,7 @@ struct layer_context {
 	int seq_count;
 	bool is_running;
 	bool is_finished;
-	stop_watch_t sw;
+	uint64_t sw;
 	float cur_lap;
 	int loop_rem;
 };
@@ -87,7 +87,7 @@ static struct layer_name_map layer_name_map[] = {
 
 /* ロード中の情報 */
 static int cur_seq_layer;
-static stop_watch_t cur_sw;
+static uint64_t cur_sw;
 
 /* 座標 */
 static float anime_layer_x[ANIME_LAYER_COUNT];
@@ -143,7 +143,7 @@ bool load_anime_from_file(const char *fname)
 {
 	cur_seq_layer = -1;
 
-	reset_stop_watch(&cur_sw);
+	reset_lap_timer(&cur_sw);
 
 	if (!load_anime_file(fname))
 		return false;
@@ -228,7 +228,7 @@ bool start_layer_anime(int layer)
 	if (context[layer].seq_count == 0)
 		return true;
 
-	reset_stop_watch(&context[layer].sw);
+	reset_lap_timer(&context[layer].sw);
 	context[layer].is_running = true;
 	context[layer].is_finished = false;
 	context[layer].cur_lap = 0;
@@ -305,7 +305,8 @@ bool is_anime_running_for_layer(int layer)
  */
 void update_anime_time(void)
 {
-	int i, last_seq, lap;
+	int i, last_seq;
+	uint64_t lap;
 
 	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
 		if (!context[i].is_running)
@@ -313,9 +314,9 @@ void update_anime_time(void)
 		if (context[i].is_finished)
 			continue;
 
-		lap = get_stop_watch_lap(&context[i].sw);
+		lap = get_lap_timer_millisec(&context[i].sw);
 		if (context[i].loop_rem > 0)
-			lap %= context[i].loop_rem;
+			lap %= (uint64_t)context[i].loop_rem;
 		context[i].cur_lap = (float)lap / 1000.0f;
 
 		last_seq = context[i].seq_count - 1;

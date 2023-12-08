@@ -1179,12 +1179,8 @@ static int get_pointed_child_index(void)
 /* 親選択肢のFO/FIレイヤを描画する */
 static void draw_fo_fi_parent(void)
 {
-	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
-	{
-		draw_stage_fo_fi(get_command_type() == COMMAND_ICHOOSE);
-		draw_switch_parent_images();
-	}
-	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
+	draw_stage_fo_fi(get_command_type() == COMMAND_ICHOOSE);
+	draw_switch_parent_images();
 }
 
 /* 親選択肢のイメージを描画する */
@@ -1250,12 +1246,8 @@ void update_switch_parent(void)
 /* 子選択肢のFO/FIレイヤを描画する */
 static void draw_fo_fi_child(void)
 {
-	lock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
-	{
-		draw_stage_fo_fi(false);
-		draw_switch_child_images();
-	}
-	unlock_layers_for_msgdraw(LAYER_FO, LAYER_FI);
+	draw_stage_fo_fi(false);
+	draw_switch_child_images();
 }
 
 /* 子選択肢のイメージを描画する */
@@ -1328,27 +1320,23 @@ static void draw_text(int x, int y, int w, int h, const char *text, bool is_news
 	}
 
 	/* 色を決める FIXME: add font color for switch. */
-	inactive_color =
-		make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	inactive_outline_color =
-		make_pixel_slow(0xff,
-				(pixel_t)conf_font_outline_color_r,
-				(pixel_t)conf_font_outline_color_g,
-				(pixel_t)conf_font_outline_color_b);
+	inactive_color = make_pixel(0xff,
+				    (pixel_t)conf_font_color_r,
+				    (pixel_t)conf_font_color_g,
+				    (pixel_t)conf_font_color_b);
+	inactive_outline_color = make_pixel(0xff,
+					    (pixel_t)conf_font_outline_color_r,
+					    (pixel_t)conf_font_outline_color_g,
+					    (pixel_t)conf_font_outline_color_b);
 	if (conf_switch_color_active) {
-		active_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_switch_color_active_body_r,
-					(pixel_t)conf_switch_color_active_body_g,
-					(pixel_t)conf_switch_color_active_body_b);
-		active_outline_color =
-			make_pixel_slow(0xff,
-					(pixel_t)conf_switch_color_active_outline_r,
-					(pixel_t)conf_switch_color_active_outline_g,
-					(pixel_t)conf_switch_color_active_outline_b);
+		active_color = make_pixel(0xff,
+					  (pixel_t)conf_switch_color_active_body_r,
+					  (pixel_t)conf_switch_color_active_body_g,
+					  (pixel_t)conf_switch_color_active_body_b);
+		active_outline_color = make_pixel(0xff,
+						  (pixel_t)conf_switch_color_active_outline_r,
+						  (pixel_t)conf_switch_color_active_outline_g,
+						  (pixel_t)conf_switch_color_active_outline_b);
 	} else {
 		active_color = inactive_color;
 		active_outline_color = inactive_outline_color;

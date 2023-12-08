@@ -15,7 +15,7 @@
 /* オートモードのとき待ち時間 */
 #define AUTO_MODE_WAIT	(2000)
 
-static stop_watch_t sw;
+static uint64_t sw;
 
 /*
  * clickコマンド
@@ -35,7 +35,7 @@ bool click_command(void)
 		}
 
 		/* 時間の計測を開始する */
-		reset_stop_watch(&sw);
+		reset_lap_timer(&sw);
 
 		/* 繰り返し動作を開始する */
 		start_command_repetition();
@@ -50,7 +50,7 @@ bool click_command(void)
 	      is_left_clicked))
 	    ||
 	    (is_auto_mode() &&
-	      (float)get_stop_watch_lap(&sw) >= AUTO_MODE_WAIT))
+	      (float)get_lap_timer_millisec(&sw) >= AUTO_MODE_WAIT))
 		stop_command_repetition();
 
 	/* ステージの描画を行う */

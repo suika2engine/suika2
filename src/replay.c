@@ -58,7 +58,7 @@ static int prev_mouse_y;
 /* 前方参照 */
 static bool read_csv_line(void);
 
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 /* winmain.c */
 const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 #endif
@@ -66,13 +66,13 @@ const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 /*
  * リプレイモジュールを初期化する
  */
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 bool init_replay(int argc, wchar_t *argv[])
 #else
 bool init_replay(int argc, char *argv[])
 #endif
 {
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 	wchar_t path[1024];
 #else
 	char path[1024];
@@ -81,7 +81,7 @@ bool init_replay(int argc, char *argv[])
 	int y;
 
 	/* CSVファイルを開く */
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 	if (argc < 2)
 		swprintf(path, sizeof(path) / sizeof(wchar_t), L"%s/%s", REC_DIR, CSV_FILE);
 	else
@@ -201,7 +201,7 @@ bool capture_output(void)
 	/* ファイル名を決める */
 	snprintf(fname,
 		 sizeof(fname),
-#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
+#if (defined(SUIKA_TARGET_WIN32) && !defined(__WIN64)) || defined(OSX)
 		 "%s/%llu.png",
 #else
 		 "%s/%lu.png",
@@ -273,7 +273,7 @@ static bool read_csv_line(void)
 
 	/* fscanf()はboolを受け取れないので、intで受け取ってコピーする */
 	ret = fscanf(csv_fp,
-#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
+#if (defined(SUIKA_TARGET_WIN32) && !defined(__WIN64)) || defined(OSX)
 		     "%llu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
 #else
 		     "%lu,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",

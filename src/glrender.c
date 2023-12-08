@@ -22,7 +22,7 @@
  * Windows
  *  - We use OpenGL 3.2
  */
-#if defined(WIN)
+#if defined(SUIKA_TARGET_WIN32)
 #include <windows.h>
 #include <GL/gl.h>
 #include "glhelper.h"
@@ -666,12 +666,7 @@ void opengl_end_rendering(void)
  *  - We just use pixels of a frontend image for modification
  */
 bool
-opengl_lock_texture(
-	int width,			/* IN: Image width */
-	int height,			/* IN: Image height */
-	pixel_t *pixels,		/* IN: Image pixels */
-	pixel_t **locked_pixels,	/* OUT: Pixel pointer to modify image */
-	void **texture)			/* OUT: Texture object */
+opengl_update_gpu_texture(struct image *img)
 {
 	struct texture *tex;
 
@@ -679,6 +674,8 @@ opengl_lock_texture(
 	UNUSED_PARAMETER(height);
 
 	assert(*locked_pixels == NULL);
+
+	tex = get_texture_object(img);
 
 	/*
 	 * If a texture object for the image that uses "pixels" is not created yet.
@@ -707,20 +704,6 @@ opengl_lock_texture(
 	return true;
 }
 
-/*
- * Unlock a texture.
- *  - This function uploads the contents that "pixels" points to,
- *    from CPU memory to GPU memory
- */
-void
-opengl_unlock_texture(
-	int width,			/* IN: Image width */
-	int height,			/* IN: Image height */
-	pixel_t *pixels,		/* IN: Image pixels */
-	pixel_t **locked_pixels,	/* IN/OUT: Pixel pointer to modify image (to be NULL) */
-	void **texture)			/* IN: Texture object */
-{
-	struct texture *tex;
 
 	UNUSED_PARAMETER(pixels);
 
@@ -963,7 +946,7 @@ static void draw_elements(int dst_left, int dst_top,
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 }
 
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 /*
  * 全画面表示のときのスクリーンオフセットを指定する
  */

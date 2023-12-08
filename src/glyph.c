@@ -1,24 +1,24 @@
 /* -*- coding: utf-8; indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * freetype2 レンダリング
+ * Glyph rendering and text layout subsystem
  *
  * [Changes]
- *  - 2016/06/18 作成
- *  - 2021/07/28 フォントのアウトラインを描画するように変更
+ *  - 2016-06-18 Created.
+ *  - 2021-07-28 Add font outline.
+ *  - 2023-12-08 Refactored.
  */
 
 #include "suika.h"
 
-#ifdef SSE_VERSIONING
-#include "x86.h"
-#endif
-
+/*
+ * FreeType2 headers
+ */
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #ifdef EM
@@ -27,16 +27,21 @@
 #include <freetype/ftstroke.h>
 #endif
 
+/*
+ * The scale constant
+ */
 #define SCALE	(64)
 
-/* FreeType2のオブジェクト */
+/*
+ * FreeType2 objects
+ */
 static FT_Library library;
 static FT_Face face[FONT_COUNT];
 static FT_Byte *font_file_content[FONT_COUNT];
 static FT_Long font_file_size[FONT_COUNT];
 
 /*
- * 前方参照
+ * Forward declarations
  */
 static bool read_font_file_content(
 	const char *file_name,
@@ -507,9 +512,9 @@ bool draw_glyph(struct image *img,
 				(int)bitmapGlyph->bitmap.rows,
 				bitmapGlyph->left,
 				font_size - bitmapGlyph->top,
-				get_image_pixels(img),
-				get_image_width(img),
-				get_image_height(img),
+				img->pixels,
+				img->width,
+				img->height,
 				x,
 				y - (font_size - base_font_size),
 				outline_color);
@@ -532,9 +537,9 @@ bool draw_glyph(struct image *img,
 				(int)bitmapGlyph->bitmap.rows,
 				bitmapGlyph->left,
 				font_size - bitmapGlyph->top,
-				get_image_pixels(img),
-				get_image_width(img),
-				get_image_height(img),
+				img->pixels,
+				img->width,
+				img->height,
 				x,
 				y - (font_size - base_font_size),
 				outline_color);
@@ -559,13 +564,15 @@ bool draw_glyph(struct image *img,
 			(int)bitmapGlyph->bitmap.rows,
 			bitmapGlyph->left,
 			font_size - bitmapGlyph->top,
-			get_image_pixels(img),
-			get_image_width(img),
-			get_image_height(img),
+			img->pixels,
+			img->width,
+			img->height,
 			x,
 			y - (font_size - base_font_size),
 			color);
 	FT_Done_Glyph(glyph);
+
+	notify_image_update(img);
 
 	/* 成功 */
 	return true;
@@ -603,9 +610,9 @@ static bool draw_glyph_without_outline(struct image *img,
 				(int)face[font_type]->glyph->bitmap.rows,
 				face[font_type]->glyph->bitmap_left,
 				font_size - face[font_type]->glyph->bitmap_top,
-				get_image_pixels(img),
-				get_image_width(img),
-				get_image_height(img),
+				img->pixels,
+				img->width,
+				img->height,
 				x,
 				y - (font_size - base_font_size),
 				color);
@@ -615,9 +622,9 @@ static bool draw_glyph_without_outline(struct image *img,
 				    (int)face[font_type]->glyph->bitmap.rows,
 				    face[font_type]->glyph->bitmap_left,
 				    font_size - face[font_type]->glyph->bitmap_top,
-				    get_image_pixels(img),
-				    get_image_width(img),
-				    get_image_height(img),
+				    img->pixels,
+				    img->width,
+				    img->height,
 				    x,
 				    y - (font_size - base_font_size),
 				    color);
@@ -715,79 +722,9 @@ static int translate_font_type(int font_type)
 }
 
 /*
- * SSEバージョニングを行わない場合
+ * フォントをイメージに描画する
  */
-#ifndef SSE_VERSIONING
-
-#define DRAW_GLYPH_FUNC draw_glyph_func
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func
-#include "drawglyph.h"
-
-/*
- * SSEバージョニングを行う場合
- */
-#else
-
-/* AVX-512版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_avx512
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_avx512
-#include "drawglyph.h"
-
-/* AVX2版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_avx2
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_avx2
-#include "drawglyph.h"
-
-/* AVX版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_avx
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_avx
-#include "drawglyph.h"
-
-#if !defined(_MSC_VER)
-
-/* SSE4.2版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_sse42
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse42
-#include "drawglyph.h"
-
-/* SSE4.1版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_sse41
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse41
-#include "drawglyph.h"
-
-/* SSE3版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_sse3
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse3
-#include "drawglyph.h"
-
-#endif /* !defined(_MSC_VER) */
-
-/* SSE2版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_sse2
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse2
-#include "drawglyph.h"
-
-/* SSE版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_sse
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_sse
-#include "drawglyph.h"
-
-/* 非ベクトル化版の描画関数を宣言する */
-#define PROTOTYPE_ONLY
-#define DRAW_GLYPH_FUNC draw_glyph_func_novec
-#define DRAW_GLYPH_DIM_FUNC draw_glyph_dim_func_novec
-#include "drawglyph.h"
-
-/* draw_glyph_func()をディスパッチする */
-static void draw_glyph_func(unsigned char * RESTRICT font,
+static void draw_glyph_func(unsigned char *font,
 			    int font_width,
 			    int font_height,
 			    int margin_left,
@@ -799,58 +736,96 @@ static void draw_glyph_func(unsigned char * RESTRICT font,
 			    int image_y,
 			    pixel_t color)
 {
-	if (has_avx512) {
-		draw_glyph_func_avx512(font, font_width, font_height,
-				       margin_left, margin_top, image,
-				       image_width, image_height, image_x,
-				       image_y, color);
-	} else if (has_avx2) {
-		draw_glyph_func_avx2(font, font_width, font_height,
-				     margin_left, margin_top, image,
-				     image_width, image_height, image_x,
-				     image_y, color);
-	} else if (has_avx) {
-		draw_glyph_func_avx(font, font_width, font_height,
-				    margin_left, margin_top, image,
-				    image_width, image_height, image_x,
-				    image_y, color);
-#if !defined(_MSC_VER)
-	} else if (has_sse42) {
-		draw_glyph_func_sse42(font, font_width, font_height,
-				      margin_left, margin_top, image,
-				      image_width, image_height, image_x,
-				      image_y, color);
-	} else if (has_sse41) {
-		draw_glyph_func_sse41(font, font_width, font_height,
-				      margin_left, margin_top, image,
-				      image_width, image_height, image_x,
-				      image_y, color);
-	} else if (has_sse3) {
-		draw_glyph_func_sse3(font, font_width, font_height,
-				     margin_left, margin_top, image,
-				     image_width, image_height, image_x,
-				     image_y, color);
-#endif
-	} else if (has_sse2) {
-		draw_glyph_func_sse2(font, font_width, font_height,
-				     margin_left, margin_top, image,
-				     image_width, image_height, image_x,
-				     image_y, color);
-	} else if (has_sse) {
-		draw_glyph_func_sse(font, font_width, font_height,
-				    margin_left, margin_top, image,
-				    image_width, image_height, image_x,
-				    image_y, color);
-	} else {
-		draw_glyph_func_novec(font, font_width, font_height,
-				      margin_left, margin_top, image,
-				      image_width, image_height, image_x,
-				      image_y, color);
+	unsigned char *src_ptr, src_pix;
+	pixel_t *dst_ptr, dst_pix, dst_aa;
+	float color_r, color_g, color_b;
+	float src_a, src_r, src_g, src_b;
+	float dst_a, dst_r, dst_g, dst_b;
+	int image_real_x, image_real_y;
+	int font_real_x, font_real_y;
+	int font_real_width, font_real_height;
+	int px, py;
+
+	/* 完全に描画しない場合のクリッピングを行う */
+	if (image_x + margin_left + font_width < 0)
+		return;
+	if (image_x + margin_left >= image_width)
+		return;
+	if (image_y + margin_top + font_height < 0)
+		return;
+	if (image_y + margin_top > image_height)
+		return;
+
+	/* 部分的に描画しない場合のクリッピングを行う */
+	image_real_x = image_x + margin_left;
+	image_real_y = image_y + margin_top;
+	font_real_x = 0;
+	font_real_y = 0;
+	font_real_width = font_width;
+	font_real_height = font_height;
+	if (image_real_x < 0) {
+		font_real_x -= image_real_x;
+		font_real_width += image_real_x;
+		image_real_x = 0;
+	}
+	if (image_real_x + font_real_width >= image_width) {
+		font_real_width -= (image_real_x + font_real_width) -
+				   image_width;
+	}
+	if (image_real_y < 0) {
+		font_real_y -= image_real_y;
+		font_real_height += image_real_y;
+		image_real_y = 0;
+	}
+	if (image_real_y + font_real_height >= image_height) {
+		font_real_height -= (image_real_y + font_real_height) -
+				    image_height;
+	}
+
+	/* 描画する */
+	color_r = (float)get_pixel_r(color);
+	color_g = (float)get_pixel_g(color);
+	color_b = (float)get_pixel_b(color);
+	dst_ptr = image + image_real_y * image_width + image_real_x;
+	src_ptr = font + font_real_y * font_width + font_real_x;
+	for (py = font_real_y; py < font_real_y + font_real_height; py++) {
+		for (px = font_real_x; px < font_real_x + font_real_width;
+		     px++) {
+			/* アルファ値を計算する */
+			src_pix = *src_ptr++;
+			src_a = src_pix / 255.0f;
+			dst_a = 1.0f - src_a;
+
+			/* 色にアルファ値を乗算する */
+			src_r = src_a * color_r;
+			src_g = src_a * color_g;
+			src_b = src_a * color_b;
+
+			/* 転送先ピクセルにアルファ値を乗算する */
+			dst_pix	= *dst_ptr;
+			dst_r = dst_a * (float)get_pixel_r(dst_pix);
+			dst_g = dst_a * (float)get_pixel_g(dst_pix);
+			dst_b = dst_a * (float)get_pixel_b(dst_pix);
+
+			/* 転送先ピクセルのアルファ値を求める */
+			dst_aa = src_pix + get_pixel_a(dst_pix);
+			dst_aa = dst_aa >= 255 ? 255 : dst_aa;
+
+			/* 転送先に格納する */
+			*dst_ptr++ = make_pixel(dst_aa,
+						(uint32_t)(src_r + dst_r),
+						(uint32_t)(src_g + dst_g),
+						(uint32_t)(src_b + dst_b));
+		}
+		dst_ptr += image_width - font_real_width;
+		src_ptr += font_width - font_real_width;
 	}
 }
 
-/* draw_glyph_dim_func()をディスパッチする */
-static void draw_glyph_dim_func(unsigned char * RESTRICT font,
+/*
+ * フォントをイメージに描画する(dim用)
+ */
+static void draw_glyph_dim_func(unsigned char *font,
 				int font_width,
 				int font_height,
 				int margin_left,
@@ -862,60 +837,94 @@ static void draw_glyph_dim_func(unsigned char * RESTRICT font,
 				int image_y,
 				pixel_t color)
 {
-	if (has_avx512) {
-		draw_glyph_dim_func_avx512(font, font_width, font_height,
-					   margin_left, margin_top, image,
-					   image_width, image_height, image_x,
-					   image_y, color);
-	} else if (has_avx2) {
-		draw_glyph_dim_func_avx2(font, font_width, font_height,
-					 margin_left, margin_top, image,
-					 image_width, image_height, image_x,
-					 image_y, color);
-	} else if (has_avx) {
-		draw_glyph_dim_func_avx(font, font_width, font_height,
-					margin_left, margin_top, image,
-					image_width, image_height, image_x,
-					image_y, color);
-#if !defined(_MSC_VER)
-	} else if (has_sse42) {
-		draw_glyph_dim_func_sse42(font, font_width, font_height,
-					  margin_left, margin_top, image,
-					  image_width, image_height, image_x,
-					  image_y, color);
-	} else if (has_sse41) {
-		draw_glyph_dim_func_sse41(font, font_width, font_height,
-					  margin_left, margin_top, image,
-					  image_width, image_height, image_x,
-					  image_y, color);
-	} else if (has_sse3) {
-		draw_glyph_dim_func_sse3(font, font_width, font_height,
-					 margin_left, margin_top, image,
-					 image_width, image_height, image_x,
-					 image_y, color);
-#endif
-	} else if (has_sse2) {
-		draw_glyph_dim_func_sse2(font, font_width, font_height,
-					 margin_left, margin_top, image,
-					 image_width, image_height, image_x,
-					 image_y, color);
-	} else if (has_sse) {
-		draw_glyph_dim_func_sse(font, font_width, font_height,
-					margin_left, margin_top, image,
-					image_width, image_height, image_x,
-					image_y, color);
-	} else {
-		draw_glyph_dim_func_novec(font, font_width, font_height,
-					  margin_left, margin_top, image,
-					  image_width, image_height, image_x,
-					  image_y, color);
+	unsigned char *src_ptr, src_pix;
+	pixel_t *dst_ptr, dst_pix, dst_aa;
+	float color_r, color_g, color_b;
+	float src_a, src_r, src_g, src_b;
+	float dst_a, dst_r, dst_g, dst_b;
+	int image_real_x, image_real_y;
+	int font_real_x, font_real_y;
+	int font_real_width, font_real_height;
+	int px, py;
+
+	/* 完全に描画しない場合のクリッピングを行う */
+	if (image_x + margin_left + font_width < 0)
+		return;
+	if (image_x + margin_left >= image_width)
+		return;
+	if (image_y + margin_top + font_height < 0)
+		return;
+	if (image_y + margin_top > image_height)
+		return;
+
+	/* 部分的に描画しない場合のクリッピングを行う */
+	image_real_x = image_x + margin_left;
+	image_real_y = image_y + margin_top;
+	font_real_x = 0;
+	font_real_y = 0;
+	font_real_width = font_width;
+	font_real_height = font_height;
+	if (image_real_x < 0) {
+		font_real_x -= image_real_x;
+		font_real_width += image_real_x;
+		image_real_x = 0;
+	}
+	if (image_real_x + font_real_width >= image_width) {
+		font_real_width -= (image_real_x + font_real_width) -
+				   image_width;
+	}
+	if (image_real_y < 0) {
+		font_real_y -= image_real_y;
+		font_real_height += image_real_y;
+		image_real_y = 0;
+	}
+	if (image_real_y + font_real_height >= image_height) {
+		font_real_height -= (image_real_y + font_real_height) -
+				    image_height;
+	}
+
+	/* 描画する */
+	color_r = (float)get_pixel_r(color);
+	color_g = (float)get_pixel_g(color);
+	color_b = (float)get_pixel_b(color);
+	dst_ptr = image + image_real_y * image_width + image_real_x;
+	src_ptr = font + font_real_y * font_width + font_real_x;
+	for (py = font_real_y; py < font_real_y + font_real_height; py++) {
+		for (px = font_real_x; px < font_real_x + font_real_width;
+		     px++) {
+			/* アルファ値を計算する */
+			src_pix = *src_ptr++;
+			src_a = src_pix > 0 ? 1.0f : 0.0f;
+			dst_a = 1.0f - src_a;
+
+			/* 色にアルファ値を乗算する */
+			src_r = src_a * color_r;
+			src_g = src_a * color_g;
+			src_b = src_a * color_b;
+
+			/* 転送先ピクセルにアルファ値を乗算する */
+			dst_pix	= *dst_ptr;
+			dst_r = dst_a * (float)get_pixel_r(dst_pix);
+			dst_g = dst_a * (float)get_pixel_g(dst_pix);
+			dst_b = dst_a * (float)get_pixel_b(dst_pix);
+
+			/* 転送先ピクセルのアルファ値を求める */
+			dst_aa = src_pix + get_pixel_a(dst_pix);
+			dst_aa = dst_aa >= 255 ? 255 : dst_aa;
+
+			/* 転送先に格納する */
+			*dst_ptr++ = make_pixel(dst_aa,
+						(uint32_t)(src_r + dst_r),
+						(uint32_t)(src_g + dst_g),
+						(uint32_t)(src_b + dst_b));
+		}
+		dst_ptr += image_width - font_real_width;
+		src_ptr += font_width - font_real_width;
 	}
 }
 
-#endif
-
 /*
- * Message drawing
+ * Text layout and drawing
  */
 
 /* Forward declarations. */
@@ -1582,7 +1591,7 @@ static bool process_escape_sequence_color(struct draw_msg_context *context)
 		r = (rgb >> 16) & 0xff;
 		g = (rgb >> 8) & 0xff;
 		b = rgb & 0xff;
-		context->color = make_pixel_slow(0xff, r, g, b);
+		context->color = make_pixel(0xff, r, g, b);
 	}
 
 	/* "\\#{" + "RRGGBB" + "}" */

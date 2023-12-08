@@ -16,7 +16,7 @@
 #define strcasecmp _stricmp
 #endif
 
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 #include <fcntl.h>
 #endif
 
@@ -70,7 +70,7 @@ static uint64_t entry_count;
 /* パッケージファイルのパス */
 static char *package_path;
 
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 const wchar_t *conv_utf8_to_utf16(const char *s);
 #endif
 
@@ -108,7 +108,7 @@ bool init_file(void)
 		return false;
 
 	/* パッケージファイルを開いてみる */
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 	_fmode = _O_BINARY;
 	fp = _wfopen(conv_utf8_to_utf16(package_path), L"r");
 #else
@@ -207,7 +207,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	}
 
 	/* まずファイルシステム上のファイルを開いてみる */
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 	_fmode = _O_BINARY;
 	rf->fp = _wfopen(conv_utf8_to_utf16(real_path), L"r");
 #else
@@ -254,7 +254,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 	}
 
 	/* みつかった場合、パッケージファイルを別なファイルポインタで開く */
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 	_fmode = _O_BINARY;
 	rf->fp = _wfopen(conv_utf8_to_utf16(package_path), L"r");
 #else
@@ -519,7 +519,7 @@ struct wfile *open_wfile(const char *dir, const char *file)
 	}
 
 	/* ファイルをオープンする */
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 	_fmode = _O_BINARY;
 	wf->fp = _wfopen(conv_utf8_to_utf16(path), L"w");
 #else

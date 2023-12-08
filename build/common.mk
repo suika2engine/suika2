@@ -1,4 +1,30 @@
 SRCS_COMMON = \
+	../../src/anime.c \
+	../../src/conf.c \
+	../../src/event.c \
+	../../src/file.c \
+	../../src/glyph.c \
+	../../src/gui.c \
+	../../src/history.c \
+	../../src/image.c \
+	../../src/log.c \
+	../../src/main.c \
+	../../src/mixer.c \
+	../../src/readimage.c \
+	../../src/readpng.c \
+	../../src/readjpeg.c \
+	../../src/readwebp.c \
+	../../src/save.c \
+	../../src/scbuf.c \
+	../../src/script.c \
+	../../src/seen.c \
+	../../src/stage.c \
+	../../src/vars.c \
+	../../src/wave.c \
+	../../src/wms_core.c \
+	../../src/wms_lexer.yy.c \
+	../../src/wms_parser.tab.c \
+	../../src/wms_impl.c \
 	../../src/cmd_anime.c \
 	../../src/cmd_bg.c \
 	../../src/cmd_bgm.c \
@@ -26,42 +52,4 @@ SRCS_COMMON = \
 	../../src/cmd_video.c \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
-	../../src/cmd_wms.c \
-	../../src/anime.c \
-	../../src/conf.c \
-	../../src/event.c \
-	../../src/file.c \
-	../../src/glyph.c \
-	../../src/gui.c \
-	../../src/history.c \
-	../../src/image.c \
-	../../src/log.c \
-	../../src/main.c \
-	../../src/mixer.c \
-	../../src/readimage.c \
-	../../src/readpng.c \
-	../../src/readjpeg.c \
-	../../src/readwebp.c \
-	../../src/save.c \
-	../../src/scbuf.c \
-	../../src/script.c \
-	../../src/seen.c \
-	../../src/stage.c \
-	../../src/vars.c \
-	../../src/wave.c \
-	../../src/wms_core.c \
-	../../src/wms_lexer.yy.c \
-	../../src/wms_parser.tab.c \
-	../../src/wms_impl.c
-
-SRCS_SSE = \
-	../../src/x86.c \
-	../../src/novec.c \
-	../../src/sse.c \
-	../../src/sse2.c \
-	../../src/sse3.c \
-	../../src/sse41.c \
-	../../src/sse42.c \
-	../../src/avx.c \
-	../../src/avx2.c \
-	../../src/avx512.c
+	../../src/cmd_wms.c

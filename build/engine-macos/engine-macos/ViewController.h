@@ -1,10 +1,7 @@
 @import AppKit;
 @import AVFoundation;
 
-@interface ViewController : NSViewController <NSWindowDelegate>
-@property AVPlayer *player;
-@property AVPlayerLayer *playerLayer;
-@property BOOL isFullscreen;
-@end
+#import "GameViewControllerProtocol.h"
 
-void doFirstFrameInitialization(void);
+@interface ViewController : NSViewController <NSWindowDelegate, GameViewControllerProtocol>
+@end

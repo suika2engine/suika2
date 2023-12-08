@@ -48,7 +48,6 @@ LDFLAGS = \
 	-ldsound \
 	-lstrmiids \
 	-lwinmm \
-	-lopengl32 \
 	-ld3d9 \
 	-lsapi \
 	-L./libroot/lib \
@@ -61,10 +60,8 @@ LDFLAGS = \
 
 SRCS_C = \
 	$(SRCS_COMMON) \
-	$(SRCS_SSE) \
 	../../src/winmain.c \
 	../../src/uimsg.c \
-	../../src/glrender.c \
 	../../src/dsound.c
 
 SRCS_CC = \
@@ -103,12 +100,6 @@ suika.exe: libroot $(OBJS)
 
 libroot:
 	./build-libs.sh
-
-#
-# Feature specific source files.
-#
-
-include ../sse.mk
 
 #
 # Phony

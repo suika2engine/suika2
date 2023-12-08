@@ -1,8 +1,6 @@
 //{{NO_DEPENDENCIES}}
 
-#define IDI_SUIKA                       107
-#define IDI_SMALL                       108
-#define IDC_STATIC                      -1
+#define IDI_ICON                       107
 #define CREATE_PROCESS_MANIFEST_RESOURCE_ID 1
 
 #ifndef RT_MANIFEST

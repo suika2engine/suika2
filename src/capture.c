@@ -156,7 +156,7 @@ bool capture_input(void)
 
 	/* フレームの時刻と入力の状態を出力する */
 	fprintf(csv_fp,
-#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
+#if (defined(SUIKA_TARGET_WIN32) && !defined(__WIN64)) || defined(OSX)
 		"%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 #else
 		"%ld,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
@@ -207,7 +207,7 @@ bool capture_output(void)
 
 	/* ファイル名を決める */
 	snprintf(fname, sizeof(fname),
-#if (defined(WIN) && !defined(__WIN64)) || defined(OSX)
+#if (defined(SUIKA_TARGET_WIN32) && !defined(__WIN64)) || defined(OSX)
 		 "%s\\%lld.png",
 #else
 		 "%s\\%ld.png",

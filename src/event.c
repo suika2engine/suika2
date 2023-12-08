@@ -245,11 +245,3 @@ void on_event_mouse_move(int x, int y)
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 }
-
-/*
- * マウススクロール時に呼び出される
- */
-void on_event_mouse_scroll(UNUSED(int n))
-{
-	/* FIXME: このイベントはいらないのでは？ */
-}

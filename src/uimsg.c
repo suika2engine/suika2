@@ -18,502 +18,484 @@
 /*
  * Get a UI message
  */
-const wchar_t *get_ui_message(int id)
+const char *get_ui_message(int id)
 {
 	switch (id) {
 	case UIMSG_YES:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"YES";
+			return U8("YES");
 		case LOCALE_JA:
-			return L"はい";
+			return U8("はい");
 		case LOCALE_ZH:
-			return L"是";
+			return U8("是");
 		case LOCALE_TW:
-			return L"是";
+			return U8("是");
 		case LOCALE_FR:
-			return L"Oui";
+			return U8("Oui");
 		case LOCALE_RU:
-			return L"Да";
+			return U8("Да");
 		case LOCALE_DE:
-			return L"Ja";
+			return U8("Ja");
 		case LOCALE_IT:
-			return L"Sì";
+			return U8("Sì");
 		case LOCALE_ES:
-			return L"Sí";
+			return U8("Sí");
 		case LOCALE_EL:
-			return L"Ναί";
+			return U8("Ναί");
 		default:
-			return L"Yes";
+			return U8("Yes");
 		}
 		break;
 	case UIMSG_NO:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"No";
+			return U8("No");
 		case LOCALE_JA:
-			return L"いいえ";
+			return U8("いいえ");
 		case LOCALE_ZH:
-			return L"不是";
+			return U8("不是");
 		case LOCALE_TW:
-			return L"不是";
+			return U8("不是");
 		case LOCALE_FR:
-			return L"Non";
+			return U8("Non");
 		case LOCALE_RU:
-			return L"Нет";
+			return U8("Нет");
 		case LOCALE_DE:
-			return L"Nein";
+			return U8("Nein");
 		case LOCALE_IT:
-			return L"No";
+			return U8("No");
 		case LOCALE_ES:
-			return L"No";
+			return U8("No");
 		case LOCALE_EL:
-			return L"Οχι";
+			return U8("Οχι");
 		default:
-			return L"No";
+			return U8("No");
 		}
 		break;
 	case UIMSG_INFO:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Information";
+			return U8("Information");
 		case LOCALE_JA:
-			return L"情報";
+			return U8("情報");
 		case LOCALE_ZH:
-			return L"信息";
+			return U8("信息");
 		case LOCALE_TW:
-			return L"信息";
+			return U8("信息");
 		case LOCALE_FR:
-			return L"Informations";
+			return U8("Informations");
 		case LOCALE_RU:
-			return L"Информация";
+			return U8("Информация");
 		case LOCALE_DE:
-			return L"Information";
+			return U8("Information");
 		case LOCALE_IT:
-			return L"Informazione";
+			return U8("Informazione");
 		case LOCALE_ES:
-			return L"Información";
+			return U8("Información");
 		case LOCALE_EL:
-			return L"Πληροφορίες";
+			return U8("Πληροφορίες");
 		default:
-			return L"Information";
+			return U8("Information");
 		}
 		break;
 	case UIMSG_WARN:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Warning";
+			return U8("Warning");
 		case LOCALE_JA:
-			return L"警告";
+			return U8("警告");
 		case LOCALE_ZH:
-			return L"警告";
+			return U8("警告");
 		case LOCALE_TW:
-			return L"警告";
+			return U8("警告");
 		case LOCALE_FR:
-			return L"Attention";
+			return U8("Attention");
 		case LOCALE_RU:
-			return L"Предупреждение";
+			return U8("Предупреждение");
 		case LOCALE_DE:
-			return L"Warnung";
+			return U8("Warnung");
 		case LOCALE_IT:
-			return L"Avvertimento";
+			return U8("Avvertimento");
 		case LOCALE_ES:
-			return L"Advertencia";
+			return U8("Advertencia");
 		case LOCALE_EL:
-			return L"Προειδοποίηση";
+			return U8("Προειδοποίηση");
 		default:
-			return L"Warning";
+			return U8("Warning");
 		}
 		break;
 	case UIMSG_ERROR:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Error";
+			return U8("Error");
 		case LOCALE_JA:
-			return L"エラー";
+			return U8("エラー");
 		case LOCALE_ZH:
-			return L"错误";
+			return U8("错误");
 		case LOCALE_TW:
-			return L"錯誤";
+			return U8("錯誤");
 		case LOCALE_FR:
-			return L"Erreur";
+			return U8("Erreur");
 		case LOCALE_RU:
-			return L"Ошибка";
+			return U8("Ошибка");
 		case LOCALE_DE:
-			return L"Fehler";
+			return U8("Fehler");
 		case LOCALE_IT:
-			return L"Errore";
+			return U8("Errore");
 		case LOCALE_ES:
-			return L"Error";
+			return U8("Error");
 		case LOCALE_EL:
-			return L"Λάθος";
+			return U8("Λάθος");
 		default:
-			return L"Error";
+			return U8("Error");
 		}
 		break;
 	case UIMSG_CANNOT_OPEN_LOG:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Cannot open log file.";
+			return U8("Cannot open log file.");
 		case LOCALE_JA:
-			return L"ログファイルをオープンできません。";
+			return U8("ログファイルをオープンできません。");
 		case LOCALE_ZH:
-			return L"无法打开日志文件。";
+			return U8("无法打开日志文件。");
 		case LOCALE_TW:
-			return L"無法打開日誌文件。";
+			return U8("無法打開日誌文件。");
 		case LOCALE_FR:
-			return L"Impossible d'ouvrir le fichier journal.";
+			return U8("Impossible d'ouvrir le fichier journal.");
 		case LOCALE_RU:
-			return L"Не удаётся открыть файл журнала.";
+			return U8("Не удаётся открыть файл журнала.");
 		case LOCALE_DE:
-			return L"Protokolldatei kann nicht geöffnet werden.";
+			return U8("Protokolldatei kann nicht geöffnet werden.");
 		case LOCALE_IT:
-			return L"Impossibile aprire il file di registro.";
+			return U8("Impossibile aprire il file di registro.");
 		case LOCALE_ES:
-			return L"No se puede abrir el archivo de registro.";
+			return U8("No se puede abrir el archivo de registro.");
 		case LOCALE_EL:
-			return L"Δεν είναι δυνατό το άνοιγμα του αρχείου καταγραφής.";
+			return U8("Δεν είναι δυνατό το άνοιγμα του αρχείου καταγραφής.");
 		default:
-			return L"Cannot open log file.";
+			return U8("Cannot open log file.");
 		}
 		break;
 	case UIMSG_EXIT:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Are you sure you want to quit?";
+			return U8("Are you sure you want to quit?");
 		case LOCALE_JA:
-			return L"ゲームを終了しますか？";
+			return U8("ゲームを終了しますか？");
 		case LOCALE_ZH:
-			return L"游戏结束了吗？";
+			return U8("游戏结束了吗？");
 		case LOCALE_TW:
-			return L"遊戲結束了嗎？";
+			return U8("遊戲結束了嗎？");
 		case LOCALE_FR:
-			return L"Le jeu est-il terminé?";
+			return U8("Le jeu est-il terminé?");
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите выйти?";
+			return U8("Вы уверены, что хотите выйти?");
 		case LOCALE_DE:
-			return L"Sind Sie sicher, dass Sie aufhören wollen?";
+			return U8("Sind Sie sicher, dass Sie aufhören wollen?");
 		case LOCALE_IT:
-			return L"Sei sicuro di voler uscire?";
+			return U8("Sei sicuro di voler uscire?");
 		case LOCALE_ES:
-			return L"¿Seguro que quieres salir?";
+			return U8("¿Seguro que quieres salir?");
 		case LOCALE_EL:
-			return L"Είσαι σίγουρος ότι θέλεις να παραιτηθείς?";
+			return U8("Είσαι σίγουρος ότι θέλεις να παραιτηθείς?");
 		default:
-			return L"Are you sure you want to quit?";
+			return U8("Are you sure you want to quit?");
 		}
 		break;
 	case UIMSG_TITLE:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Are you sure you want to go to title?";
+			return U8("Are you sure you want to go to title?");
 		case LOCALE_JA:
-			return L"タイトルに戻りますか？";
+			return U8("タイトルに戻りますか？");
 		case LOCALE_ZH:
-			return L"回到标题？";
+			return U8("回到标题？");
 		case LOCALE_TW:
-			return L"回到標題？";
+			return U8("回到標題？");
 		case LOCALE_FR:
-			return L"Retour au titre?";
+			return U8("Retour au titre?");
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите вернуться к началу игры?";
+			return U8("Вы уверены, что хотите вернуться к началу игры?");
 		case LOCALE_DE:
-			return L"Sind Sie sicher, dass Sie zum Titel wechseln möchten?";
+			return U8("Sind Sie sicher, dass Sie zum Titel wechseln möchten?");
 		case LOCALE_IT:
-			return L"Sei sicuro di voler andare al titolo?";
+			return U8("Sei sicuro di voler andare al titolo?");
 		case LOCALE_ES:
-			return L"¿Seguro que quieres ir al título?";
+			return U8("¿Seguro que quieres ir al título?");
 		case LOCALE_EL:
-			return L"Είστε σίγουροι ότι θέλετε να πάτε στον τίτλο;";
+			return U8("Είστε σίγουροι ότι θέλετε να πάτε στον τίτλο;");
 		default:
-			return L"Are you sure you want to go to title?";
+			return U8("Are you sure you want to go to title?");
 		}
 		break;
 	case UIMSG_DELETE:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Are you sure you want to delete the save data?";
+			return U8("Are you sure you want to delete the save data?");
 		case LOCALE_JA:
-			return L"削除してもよろしいですか？";
+			return U8("削除してもよろしいですか？");
 		case LOCALE_ZH:
-			return L"删除确定要删除吗？";
+			return U8("删除确定要删除吗？");
 		case LOCALE_TW:
-			return L"刪除確定要刪除嗎？";
+			return U8("刪除確定要刪除嗎？");
 		case LOCALE_FR:
-			return L"Supprimer Voulez-vous vraiment?";
+			return U8("Supprimer Voulez-vous vraiment?");
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите удалить сохранённые данные?";
+			return U8("Вы уверены, что хотите удалить сохранённые данные?");
 		case LOCALE_DE:
-			return L"Möchten Sie die Speicherdaten wirklich löschen?";
+			return U8("Möchten Sie die Speicherdaten wirklich löschen?");
 		case LOCALE_IT:
-			return L"Sei sicuro di voler eliminare i dati di salvataggio?";
+			return U8("Sei sicuro di voler eliminare i dati di salvataggio?");
 		case LOCALE_ES:
-			return L"¿Está seguro de que desea eliminar los datos guardados?";
+			return U8("¿Está seguro de que desea eliminar los datos guardados?");
 		case LOCALE_EL:
-			return L"Είστε βέβαιοι ότι θέλετε να διαγράψετε τα δεδομένα αποθήκευσης;";
+			return U8("Είστε βέβαιοι ότι θέλετε να διαγράψετε τα δεδομένα αποθήκευσης;");
 		default:
-			return L"Are you sure you want to delete the save data?";
+			return U8("Are you sure you want to delete the save data?");
 		}
 		break;
 	case UIMSG_OVERWRITE:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Are you sure you want to overwrite the save data?";
+			return U8("Are you sure you want to overwrite the save data?");
 		case LOCALE_JA:
-			return L"上書きしてもよろしいですか？";
+			return U8("上書きしてもよろしいですか？");
 		case LOCALE_ZH:
-			return L"您确定要覆盖吗？";
+			return U8("您确定要覆盖吗？");
 		case LOCALE_TW:
-			return L"您確定要覆蓋嗎？";
+			return U8("您確定要覆蓋嗎？");
 		case LOCALE_FR:
-			return L"Voulez-vous vraiment écraser?";
+			return U8("Voulez-vous vraiment écraser?");
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите перезаписать сохранённые данные?";
+			return U8("Вы уверены, что хотите перезаписать сохранённые данные?");
 		case LOCALE_DE:
-			return L"Möchten Sie die Speicherdaten wirklich überschreiben?";
+			return U8("Möchten Sie die Speicherdaten wirklich überschreiben?");
 		case LOCALE_IT:
-			return L"Sei sicuro di voler sovrascrivere i dati di salvataggio?";
+			return U8("Sei sicuro di voler sovrascrivere i dati di salvataggio?");
 		case LOCALE_ES:
-			return L"¿Está seguro de que desea sobrescribir los datos guardados?";
+			return U8("¿Está seguro de que desea sobrescribir los datos guardados?");
 		case LOCALE_EL:
-			return L"Είστε βέβαιοι ότι θέλετε να αντικαταστήσετε τα δεδομένα αποθήκευσης;";
+			return U8("Είστε βέβαιοι ότι θέλετε να αντικαταστήσετε τα δεδομένα αποθήκευσης;");
 		default:
-			return L"Are you sure you want to overwrite the save data?";
+			return U8("Are you sure you want to overwrite the save data?");
 		}
 		break;
 	case UIMSG_DEFAULT:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Are you sure you want to reset the settings?";
+			return U8("Are you sure you want to reset the settings?");
 		case LOCALE_JA:
-			return L"設定をリセットしてもよろしいですか？";
+			return U8("設定をリセットしてもよろしいですか？");
 		case LOCALE_ZH:
-			return L"您确定要重置设置吗？";
+			return U8("您确定要重置设置吗？");
 		case LOCALE_TW:
-			return L"您確定要重置設置嗎？";
+			return U8("您確定要重置設置嗎？");
 		case LOCALE_FR:
-			return L"Voulez-vous vraiment réinitialiser les paramètres?";
+			return U8("Voulez-vous vraiment réinitialiser les paramètres?");
 		case LOCALE_RU:
-			return L"Вы уверены, что хотите сбросить настройки?";
+			return U8("Вы уверены, что хотите сбросить настройки?");
 		case LOCALE_DE:
-			return L"Möchten Sie die Einstellungen wirklich zurücksetzen?";
+			return U8("Möchten Sie die Einstellungen wirklich zurücksetzen?");
 		case LOCALE_IT:
-			return L"Sei sicuro di voler ripristinare le impostazioni?";
+			return U8("Sei sicuro di voler ripristinare le impostazioni?");
 		case LOCALE_ES:
-			return L"¿Está seguro de que desea restablecer la configuración?";
+			return U8("¿Está seguro de que desea restablecer la configuración?");
 		case LOCALE_EL:
-			return L"Είστε βέβαιοι ότι θέλετε να επαναφέρετε τις ρυθμίσεις;";
+			return U8("Είστε βέβαιοι ότι θέλετε να επαναφέρετε τις ρυθμίσεις;");
 		default:
-			return L"Are you sure you want to reset the settings?";
+			return U8("Are you sure you want to reset the settings?");
 		}
 		break;
 	case UIMSG_NO_SOUND_DEVICE:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_JA:
-			return L"サウンド出力デバイスがありません。";
+			return U8("サウンド出力デバイスがありません。");
 		case LOCALE_ZH:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_TW:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_FR:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_RU:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_DE:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_IT:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_ES:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		case LOCALE_EL:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		default:
-			return L"No sound output device.";
+			return U8("No sound output device.");
 		}
 		break;
-#ifdef WIN
-	case UIMSG_WIN_NO_DIRECT3D:
+	case UIMSG_NO_GAME_FILES:
 		switch (conf_locale) {
-		case LOCALE_EN:
-			return L"Direct3D is not supported.";
 		case LOCALE_JA:
-			return L"Direct3Dはサポートされません。";
-		case LOCALE_ZH:
-			return L"不支持Direct3D。";
-		case LOCALE_TW:
-			return L"不支持Direct3D。";
-		case LOCALE_FR:
-			return L"Direct3D n'est pas pris en charge.";
-		case LOCALE_RU:
-			return L"Direct3D не поддерживается.";
-		case LOCALE_DE:
-			return L"Direct3D wird nicht unterstützt.";
-		case LOCALE_IT:
-			return L"Direct3D non è supportato.";
-		case LOCALE_ES:
-			return L"Direct3D no es compatible.";
-		case LOCALE_EL:
-			return L"Το Direct3D δεν υποστηρίζεται.";
+			return U8("ゲームデータがありません。");
 		default:
-			return L"Direct3D is not supported.";
+			return U8("No game data.");
 		}
 		break;
-	case UIMSG_WIN_NO_OPENGL:
+#ifdef SUIKA_TARGET_WIN32
+	case UIMSG_WIN32_NO_DIRECT3D:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"DOpenGLD is not supported.";
+			return U8("Direct3D is not supported.");
 		case LOCALE_JA:
-			return L"OpenGLはサポートされません。";
+			return U8("Direct3Dはサポートされません。");
 		case LOCALE_ZH:
-			return L"不支持OpenGL。";
+			return U8("不支持Direct3D。");
 		case LOCALE_TW:
-			return L"不支持OpenGL。";
+			return U8("不支持Direct3D。");
 		case LOCALE_FR:
-			return L"OpenGL n'est pas pris en charge.";
+			return U8("Direct3D n'est pas pris en charge.");
 		case LOCALE_RU:
-			return L"OpenGL не поддерживается.";
+			return U8("Direct3D не поддерживается.");
 		case LOCALE_DE:
-			return L"OpenGL wird nicht unterstützt.";
+			return U8("Direct3D wird nicht unterstützt.");
 		case LOCALE_IT:
-			return L"OpenGL non è supportato.";
+			return U8("Direct3D non è supportato.");
 		case LOCALE_ES:
-			return L"OpenGL no es compatible.";
+			return U8("Direct3D no es compatible.");
 		case LOCALE_EL:
-			return L"Το OpenGL δεν υποστηρίζεται.";
+			return U8("Το Direct3D δεν υποστηρίζεται.");
 		default:
-			return L"OpenGL is not supported.";
+			return U8("Direct3D is not supported.");
 		}
 		break;
-	case UIMSG_WIN_SMALL_DISPLAY:
+	case UIMSG_WIN32_SMALL_DISPLAY:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Display size too small (%d x %d).";
+			return U8("Display size too small (%d x %d).");
 		case LOCALE_JA:
-			return L"ディスプレイのサイズが足りません。(%d x %d)";
+			return U8("ディスプレイのサイズが足りません。(%d x %d)");
 		case LOCALE_ZH:
-			return L"显示尺寸不足。(%d x %d)";
+			return U8("显示尺寸不足。(%d x %d)");
 		case LOCALE_TW:
-			return L"顯示尺寸不足。(%d x %d)";
+			return U8("顯示尺寸不足。(%d x %d)");
 		case LOCALE_FR:
-			return L"Taille d'affichage insuffisante. (%d x %d)";
+			return U8("Taille d'affichage insuffisante. (%d x %d)");
 		case LOCALE_RU:
-			return L"Размер экрана слишком маленький. (%d x %d)";
+			return U8("Размер экрана слишком маленький. (%d x %d)");
 		case LOCALE_DE:
-			return L"Anzeigegrö ÿe zu klein. (%d x %d)";
+			return U8("Anzeigegrö ÿe zu klein. (%d x %d)");
 		case LOCALE_IT:
-			return L"Dimensioni del display troppo piccole. (%d x %d)";
+			return U8("Dimensioni del display troppo piccole. (%d x %d)");
 		case LOCALE_ES:
-			return L"Tamaño de la pantalla demasiado pequeño. (%d x %d)";
+			return U8("Tamaño de la pantalla demasiado pequeño. (%d x %d)");
 		case LOCALE_EL:
-			return L"Το μέγεθος της οθόνης είναι πολύ μικρό. (%d x %d)";
+			return U8("Το μέγεθος της οθόνης είναι πολύ μικρό. (%d x %d)");
 		default:
-			return L"Display size too small. (%d x %d)";
+			return U8("Display size too small. (%d x %d)");
 		}
 		break;
-	case UIMSG_WIN_MENU_FILE:
+	case UIMSG_WIN32_MENU_FILE:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"File(&F)";
+			return U8("File(&F)");
 		case LOCALE_JA:
-			return L"ファイル(&F)";
+			return U8("ファイル(&F)");
 		case LOCALE_ZH:
-			return L"文件(&F)";
+			return U8("文件(&F)");
 		case LOCALE_TW:
-			return L"文件(&F)";
+			return U8("文件(&F)");
 		case LOCALE_FR:
-			return L"Fichier(&F)";
+			return U8("Fichier(&F)");
 		case LOCALE_RU:
-			return L"Файл(&F)";
+			return U8("Файл(&F)");
 		case LOCALE_DE:
-			return L"Datei(&F)";
+			return U8("Datei(&F)");
 		case LOCALE_IT:
-			return L"File(&F)";
+			return U8("File(&F)");
 		case LOCALE_ES:
-			return L"Archivar(&F)";
+			return U8("Archivar(&F)");
 		case LOCALE_EL:
-			return L"Αρχείο(&F)";
+			return U8("Αρχείο(&F)");
 		default:
-			return L"File(&F)";
+			return U8("File(&F)");
 		}
 		break;
-	case UIMSG_WIN_MENU_VIEW:
+	case UIMSG_WIN32_MENU_VIEW:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"View(&V)";
+			return U8("View(&V)");
 		case LOCALE_JA:
-			return L"表示(&V)";
+			return U8("表示(&V)");
 		case LOCALE_ZH:
-			return L"展示(&V)";
+			return U8("展示(&V)");
 		case LOCALE_TW:
-			return L"展示(&V)";
+			return U8("展示(&V)");
 		case LOCALE_FR:
-			return L"Voir(&V)";
+			return U8("Voir(&V)");
 		case LOCALE_RU:
-			return L"Вид(&V)";
+			return U8("Вид(&V)");
 		case LOCALE_DE:
-			return L"Aussicht(&V)";
+			return U8("Aussicht(&V)");
 		case LOCALE_IT:
-			return L"View(&V)";
+			return U8("View(&V)");
 		case LOCALE_ES:
-			return L"View(&V)";
+			return U8("View(&V)");
 		case LOCALE_EL:
-			return L"Απεικόνιση(&V)";
+			return U8("Απεικόνιση(&V)");
 		default:
-			return L"View(&V)";
+			return U8("View(&V)");
 		}
 		break;
-	case UIMSG_WIN_MENU_QUIT:
+	case UIMSG_WIN32_MENU_QUIT:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Quit(&Q)";
+			return U8("Quit(&Q)");
 		case LOCALE_JA:
-			return L"終了(&Q)";
+			return U8("終了(&Q)");
 		case LOCALE_ZH:
-			return L"退出(&Q)";
+			return U8("退出(&Q)");
 		case LOCALE_TW:
-			return L"退出(&Q)";
+			return U8("退出(&Q)");
 		case LOCALE_FR:
-			return L"Quitter(&Q)";
+			return U8("Quitter(&Q)");
 		case LOCALE_RU:
-			return L"Выход(&Q)";
+			return U8("Выход(&Q)");
 		case LOCALE_DE:
-			return L"Aufhören(&Q)";
+			return U8("Aufhören(&Q)");
 		case LOCALE_IT:
-			return L"Smettere(&Q)";
+			return U8("Smettere(&Q)");
 		case LOCALE_ES:
-			return L"Abandonar(&Q)";
+			return U8("Abandonar(&Q)");
 		case LOCALE_EL:
-			return L"Παρατώ(&Q)";
+			return U8("Παρατώ(&Q)");
 		default:
-			return L"Quit(&Q)";
+			return U8("Quit(&Q)");
 		}
 		break;
-	case UIMSG_WIN_MENU_FULLSCREEN:
+	case UIMSG_WIN32_MENU_FULLSCREEN:
 		switch (conf_locale) {
 		case LOCALE_EN:
-			return L"Full Screen(&F)\tAlt+Enter";
+			return U8("Full Screen(&F)\tAlt+Enter");
 		case LOCALE_JA:
-			return L"フルスクリーン(&F)\tAlt+Enter";
+			return U8("フルスクリーン(&F)\tAlt+Enter");
 		case LOCALE_ZH:
-			return L"全屏(&F)\tAlt+Enter";
+			return U8("全屏(&F)\tAlt+Enter");
 		case LOCALE_TW:
-			return L"全屏(&F)\tAlt+Enter";
+			return U8("全屏(&F)\tAlt+Enter");
 		case LOCALE_FR:
-			return L"Plein écran(&F)\tAlt+Enter";
+			return U8("Plein écran(&F)\tAlt+Enter");
 		case LOCALE_RU:
-			return L"На весь экран(&F)\tAlt+Enter";
+			return U8("На весь экран(&F)\tAlt+Enter");
 		case LOCALE_DE:
-			return L"Ganzer Bildschirm(&F)\tAlt+Enter";
+			return U8("Ganzer Bildschirm(&F)\tAlt+Enter");
 		case LOCALE_IT:
-			return L"Schermo Intero(&F)\tAlt+Enter";
+			return U8("Schermo Intero(&F)\tAlt+Enter");
 		case LOCALE_ES:
-			return L"Pantalla completa(&F)\tAlt+Enter";
+			return U8("Pantalla completa(&F)\tAlt+Enter");
 		case LOCALE_EL:
-			return L"Πλήρης οθόνη(&F)\tAlt+Enter";
+			return U8("Πλήρης οθόνη(&F)\tAlt+Enter");
 		default:
-			return L"Full Screen(&F)\tAlt+Enter";
+			return U8("Full Screen(&F)\tAlt+Enter");
 		}
 		break;
 #endif

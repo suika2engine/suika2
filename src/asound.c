@@ -367,7 +367,7 @@ static void *sound_thread(void *p)
 			 *  - sched_yield()ではだめ
 			 */
 			sleep(0);
-#elif defined(NETBSD)
+#elif defined(__NetBSD__)
 			/*
 			 * [重要]
 			 *  - コンテキストスイッチを明示的に行う

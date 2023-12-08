@@ -3,7 +3,10 @@
 
 #import "GameRenderer.h"
 #import "GameShaderTypes.h"
+#import "GameViewControllerProtocol.h"
 
+static id<GameViewControllerProtocol> theViewController;
+static MTKView *theMTKView;
 static id<MTLDevice> theDevice;
 static id<MTLRenderPipelineState> theNormalPipelineState;
 static id<MTLRenderPipelineState> theCopyPipelineState;
@@ -13,10 +16,9 @@ static id<MTLRenderPipelineState> theMeltPipelineState;
 static id<MTLCommandBuffer> theCommandBuffer;
 static id<MTLBlitCommandEncoder> theBlitEncoder;
 static id<MTLRenderCommandEncoder> theRenderEncoder;
-
-static MTKView *theMTKView;
 static NSSize theViewportSize;
 static NSMutableArray *thePurgeArray;
+static NSMutableArray *theDelayLoadArray;
 static dispatch_semaphore_t in_flight_semaphore;
 
 static BOOL runSuika2Frame(void);
@@ -26,18 +28,20 @@ static BOOL runSuika2Frame(void);
 
 @implementation GameRenderer
 {
-    id<MTLCommandQueue> commandQueue;
+    id<MTLCommandQueue> _commandQueue;
 }
 
-- (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)mtkView {
+- (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)mtkView andController:(nonnull id<GameViewControllerProtocol>)controller;{
     NSError *error = NULL;
 
     self = [super init];
     if(self == nil)
         return nil;
 
+    theMTKView = mtkView;
     theDevice = mtkView.device;
-    
+    theViewController = controller;
+
     // Load shaders.
     id<MTLLibrary> defaultLibrary = [theDevice newDefaultLibrary];
 
@@ -114,8 +118,12 @@ static BOOL runSuika2Frame(void);
     NSAssert(theMeltPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Create a command queue.
-    commandQueue = [theDevice newCommandQueue];
+    _commandQueue = [theDevice newCommandQueue];
 
+    // Create a delay load texture array for images loaded before the first rendering.
+    theDelayLoadArray = [NSMutableArray array];
+
+    // TODO:
     in_flight_semaphore = dispatch_semaphore_create(1);
 
     return self;
@@ -127,23 +135,32 @@ static BOOL runSuika2Frame(void);
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view {
-    theMTKView = view;
     if(view.currentRenderPassDescriptor == nil)
         return;
     
     // Create a command buffer.
-    theCommandBuffer = [commandQueue commandBuffer];
+    theCommandBuffer = [_commandQueue commandBuffer];
     theCommandBuffer.label = @"MyCommand";
 
     // Nil-ify the encoders.
     theBlitEncoder = nil;
     theRenderEncoder = nil;
 
+    // Create textures for images that are loaded before the first rendering.
+    if (theDelayLoadArray != nil) {
+        for (struct image *img in theDelayLoadArray)
+            unlock_texture(img);
+        theDelayLoadArray = nil;
+    }
+
     dispatch_semaphore_wait(in_flight_semaphore, DISPATCH_TIME_FOREVER);
     __block dispatch_semaphore_t block_sema = in_flight_semaphore;
     [theCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
          dispatch_semaphore_signal(block_sema);
     }];
+
+    // Create an array for delayed texture loading.
+    theDelayLoadArray = [NSMutableArray array];
 
     // Create an array for textures to be destroyed.
     thePurgeArray = [NSMutableArray array];
@@ -195,6 +212,9 @@ static BOOL runSuika2Frame(void);
 // Forward declarations
 static FILE *openLog(void);
 static NSString *NSStringFromWcs(const wchar_t *wcs);
+static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
+                           int width, int height, int src_left, int src_top, int alpha,
+                           struct image *rule_image, id<MTLRenderPipelineState> pipeline);
 
 //
 // Run a Suika2 frame.
@@ -462,20 +482,19 @@ bool is_opengl_enabled(void)
 //
 // テクスチャをロックする
 //
-bool lock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pixels, void **texture)
+bool lock_texture(struct image *img)
 {
-    assert(*locked_pixels == NULL);
-    *locked_pixels = pixels;
     return true;
 }
 
 //
 // テクスチャをアンロックする
 //
-void unlock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pixels, void **texture)
+void unlock_texture(struct image *img)
 {
     if (theCommandBuffer == nil) {
         *locked_pixels = NULL;
+        [theDelayLoadArray addObject:img];
         return;
     }
 
@@ -503,8 +522,6 @@ void unlock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pix
     }
     [tex replaceRegion:region mipmapLevel:0 withBytes:*locked_pixels bytesPerRow:width * 4];
     [theBlitEncoder synchronizeResource:tex];
-
-    *locked_pixels = NULL;
 }
 
 //
@@ -521,22 +538,69 @@ void destroy_texture(void *texture)
 }
 
 //
-// イメージをレンダリングする
+// Render an image to the screen with "copy" fragment shader.
 //
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
+void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image, int width, int height, int src_left, int src_top)
+{
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL, theCopyPipelineState);
+}
+
+//
+// Render an image to the screen.
+//
+void render_image_alpha(int dst_left, int dst_top, struct image * RESTRICT src_image, int width, int height, int src_left, int src_top, int alpha, int bt)
+{
+    id<MTLRenderPipelineState> pipeline;
+
+    if (bt == BLEND_NONE) {
+        alpha = 255;
+        pipeline = theCopyPipelineState;
+    } else {
+        pipeline = theNormalPipelineState;
+    }
+
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL,  pipeline);
+}
+
+//
+// Render an image to the screen with dimming.
+//
+void render_image_dim(int dst_left, int dst_top,
+                      struct image * RESTRICT src_image,
+                      int width, int height, int src_left, int src_top)
+{
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, 0, NULL, theDimPipelineState);
+}
+
+//
+// Render an image to the screen with 1-bit rule image.
+//
+void render_image_rule(struct image * RESTRICT src_img,
+                       struct image * RESTRICT rule_img,
+                       int threshold)
+{
+    drawPrimitives(0, 0, src_img, get_image_width(src_img), get_image_height(src_img), 0, 0, threshold, NULL, theRulePipelineState);
+}
+
+//
+// Render an image to the screen with 8-bit rule image.
+//
+void render_image_melt(struct image * RESTRICT src_img,
+                       struct image * RESTRICT rule_img,
+                       int threshold)
+{
+    drawPrimitives(0, 0, src_img, get_image_width(src_img), get_image_height(src_img), 0, 0, threshold, NULL, theMeltPipelineState);
+}
+
+//
+// Draw a rectangle with a specified pipeline.
+//
+static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
+                           int width, int height, int src_left, int src_top, int alpha,
+                           struct image *rule_image, id<MTLRenderPipelineState> pipeline)
 {
     float pos[24];
 
-    // If the texture is not created.
-    if (get_texture_object(src_image) == NULL) {
-        pixel_t *locked_pixels = get_image_pixels(src_image);
-        void *texobj = NULL;
-        unlock_texture(get_image_width(src_image), get_image_height(src_image), get_image_pixels(src_image), &locked_pixels, &texobj);
-        set_texture_object(src_image, texobj);
-    }
-    
     // Get the viewport size.
     float hw = (float)conf_window_width / 2.0f;
     float hh = (float)conf_window_height / 2.0f;
@@ -544,9 +608,6 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
     // Get the texture size.
     float tw = (float)get_image_width(src_image);
     float th = (float)get_image_height(src_image);
-
-    if (bt == BLEND_NONE)
-        alpha = 255;
     
     // Set the left top vertex.
     pos[0] = ((float)dst_left - hw) / hw;   // X (-1.0 to 1.0, left to right)
@@ -580,245 +641,25 @@ void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
     pos[22] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
     pos[23] = 0;                                            // Padding for a 64-bit boundary
 
-    // Upload textures.
+    // Upload textures if they are pending.
     if (theBlitEncoder != nil) {
         [theBlitEncoder endEncoding];
         theBlitEncoder = nil;
     }
 
-    // Draw.
+    // Draw two triangles.
     if (theRenderEncoder == nil) {
         theRenderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
         theRenderEncoder.label = @"MyRenderEncoder";
     }
-    id<MTLTexture> tex = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image));
-    if (bt == BLEND_NONE)
-        [theRenderEncoder setRenderPipelineState:theCopyPipelineState];
-    else
-        [theRenderEncoder setRenderPipelineState:theNormalPipelineState];
+    [theRenderEncoder setRenderPipelineState:pipeline];
+    id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image));
+    id<MTLTexture> tex2 = rule_image != NULL ? (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image)) : nil;
     [theRenderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:GameVertexInputIndexVertices];
-    [theRenderEncoder setFragmentTexture:tex atIndex:GameTextureIndexBaseColor];
+    [theRenderEncoder setFragmentTexture:tex1 atIndex:GameTextureIndexBaseColor];
+    if (tex2 != nil)
+        [theRenderEncoder setFragmentTexture:tex2 atIndex:GameTextureIndexRuleLevel];
     [theRenderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
-}
-
-//
-// イメージを暗くレンダリングする
-//
-void render_image_dim(int dst_left, int dst_top,
-                      struct image * RESTRICT src_image,
-                      int width, int height, int src_left, int src_top)
-{
-    float pos[20];
-
-    // If the texture is not created.
-    if (get_texture_object(src_image) == NULL) {
-        pixel_t *locked_pixels = get_image_pixels(src_image);
-        void *texobj = NULL;
-        unlock_texture(get_image_width(src_image), get_image_height(src_image), get_image_pixels(src_image), &locked_pixels, &texobj);
-        set_texture_object(src_image, texobj);
-    }
-
-    // Get the viewport size.
-    float hw = (float)conf_window_width / 2.0f;
-    float hh = (float)conf_window_height / 2.0f;
-
-    // Get the texture size.
-    float tw = (float)get_image_width(src_image);
-    float th = (float)get_image_height(src_image);
-
-    // Set the left top vertex.
-    pos[0] = ((float)dst_left - hw) / hw;
-    pos[1] = -((float)dst_top - hh) / hh;
-    pos[2] = (float)src_left / tw;
-    pos[3] = (float)src_top / th;
-    pos[4] = 1.0f;
-
-    // Set the right top vertex.
-    pos[5] = ((float)dst_left + (float)width - hw) / hw;
-    pos[6] = -((float)dst_top - hh) / hh;
-    pos[7] = (float)(src_left + width) / tw;
-    pos[8] = (float)(src_top) / th;
-    pos[9] = 1.0f;
-
-    // Set the left bottom vertex.
-    pos[10] = ((float)dst_left - hw) / hw;
-    pos[11] = -((float)dst_top + (float)height - hh) / hh;
-    pos[12] = (float)src_left / tw;
-    pos[13] = (float)(src_top + height) / th;
-    pos[14] = 1.0f;
-
-    // Set the right bottom vertex.
-    pos[15] = ((float)dst_left + (float)width - hw) / hw;
-    pos[16] = -((float)dst_top + (float)height - hh) / hh;
-    pos[17] = (float)(src_left + width) / tw;
-    pos[18] = (float)(src_top + height) / th;
-    pos[19] = 1.0f;
-
-    // Draw.
-    id<MTLRenderCommandEncoder> renderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
-    renderEncoder.label = @"MyRenderEncoder";
-    [renderEncoder setViewport:(MTLViewport){0.0, 0.0, theViewportSize.width, theViewportSize.height, -1.0, 1.0}];
-    id<MTLTexture> tex = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image));
-    [renderEncoder setRenderPipelineState:theNormalPipelineState];
-    [renderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:0];
-    [renderEncoder setFragmentTexture:tex atIndex:GameTextureIndexBaseColor];
-    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
-    [renderEncoder endEncoding];
-}
-
-//
-// 画面にイメージをルール付きでレンダリングする
-//
-void render_image_rule(struct image * RESTRICT src_img,
-                       struct image * RESTRICT rule_img,
-                       int threshold)
-{
-    float pos[20];
-
-    // If the textures are not created.
-    if (get_texture_object(src_img) == NULL) {
-        pixel_t *locked_pixels = get_image_pixels(src_img);
-        void *texobj = NULL;
-        unlock_texture(get_image_width(src_img), get_image_height(src_img), get_image_pixels(src_img), &locked_pixels, &texobj);
-        set_texture_object(src_img, texobj);
-    }
-    if (get_texture_object(rule_img) == NULL) {
-        pixel_t *locked_pixels = get_image_pixels(rule_img);
-        void *texobj = NULL;
-        unlock_texture(get_image_width(rule_img), get_image_height(rule_img), get_image_pixels(rule_img), &locked_pixels, &texobj);
-        set_texture_object(rule_img, texobj);
-    }
-
-    // Get the image size.
-    float width = get_image_width(src_img);
-    float height = get_image_height(src_img);
-
-    // Get the viewport size.
-    float hw = (float)conf_window_width / 2.0f;
-    float hh = (float)conf_window_height / 2.0f;
-
-    // Get the texture size.
-    float tw = (float)get_image_width(src_img);
-    float th = (float)get_image_height(src_img);
-
-    // Set the left top vertex.
-    pos[0] = -1.0f;
-    pos[1] = 1.0f;
-    pos[2] = 0;
-    pos[3] = 0;
-    pos[4] = (float)threshold / 255.0f;
-
-    // Set the right top vertex.
-    pos[5] = (width - hw) / hw;
-    pos[6] = 1.0f;
-    pos[7] = width / tw;
-    pos[8] = 0;
-    pos[9] = (float)threshold / 255.0f;
-
-    // Set the left bottom vertex.
-    pos[10] = -1.0f;
-    pos[11] = -(height - hh) / hh;
-    pos[12] = 0;
-    pos[13] = height / th;
-    pos[14] = (float)threshold / 255.0f;
-
-    // Set the right bottom vertex.
-    pos[15] = (width - hw) / hw;
-    pos[16] = -(height - hh) / hh;
-    pos[17] = width / tw;
-    pos[18] = height / th;
-    pos[19] = (float)threshold / 255.0f;
-
-    // Draw.
-    id<MTLRenderCommandEncoder> renderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
-    renderEncoder.label = @"MyRenderEncoder";
-    [renderEncoder setViewport:(MTLViewport){0.0, 0.0, theViewportSize.width, theViewportSize.height, -1.0, 1.0}];
-    id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_img));
-    id<MTLTexture> tex2 = (__bridge id<MTLTexture> _Nullable)(get_texture_object(rule_img));
-    [renderEncoder setRenderPipelineState:theRulePipelineState];
-    [renderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:GameVertexInputIndexVertices];
-    [renderEncoder setFragmentTexture:tex1 atIndex:GameTextureIndexBaseColor];
-    [renderEncoder setFragmentTexture:tex2 atIndex:GameTextureIndexRuleLevel];
-    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
-    [renderEncoder endEncoding];
-}
-
-//
-// 画面にイメージをルール付き(メルト)でレンダリングする
-//
-void render_image_melt(struct image * RESTRICT src_img,
-                       struct image * RESTRICT rule_img,
-                       int threshold)
-{
-    float pos[20];
-
-    // If the textures are not created.
-    if (get_texture_object(src_img) == NULL) {
-        pixel_t *locked_pixels = get_image_pixels(src_img);
-        void *texobj = NULL;
-        unlock_texture(get_image_width(src_img), get_image_height(src_img), get_image_pixels(src_img), &locked_pixels, &texobj);
-        set_texture_object(src_img, texobj);
-    }
-    if (get_texture_object(rule_img) == NULL) {
-        pixel_t *locked_pixels = get_image_pixels(rule_img);
-        void *texobj = NULL;
-        unlock_texture(get_image_width(rule_img), get_image_height(rule_img), get_image_pixels(rule_img), &locked_pixels, &texobj);
-        set_texture_object(rule_img, texobj);
-    }
-
-    // Get the image size.
-    float width = get_image_width(src_img);
-    float height = get_image_height(src_img);
-
-    // Get the viewport size.
-    float hw = (float)conf_window_width / 2.0f;
-    float hh = (float)conf_window_height / 2.0f;
-
-    // Get the texture size.
-    float tw = (float)get_image_width(src_img);
-    float th = (float)get_image_height(src_img);
-
-    // Set the left top vertex.
-    pos[0] = -1.0f;
-    pos[1] = 1.0f;
-    pos[2] = 0;
-    pos[3] = 0;
-    pos[4] = (float)threshold / 255.0f;
-
-    // Set the right top vertex.
-    pos[5] = (width - hw) / hw;
-    pos[6] = 1.0f;
-    pos[7] = width / tw;
-    pos[8] = 0;
-    pos[9] = (float)threshold / 255.0f;
-
-    // Set the left bottom vertex.
-    pos[10] = -1.0f;
-    pos[11] = -(height - hh) / hh;
-    pos[12] = 0;
-    pos[13] = height / th;
-    pos[14] = (float)threshold / 255.0f;
-
-    // Set the right bottom vertex.
-    pos[15] = (width - hw) / hw;
-    pos[16] = -(height - hh) / hh;
-    pos[17] = width / tw;
-    pos[18] = height / th;
-    pos[19] = (float)threshold / 255.0f;
-
-    // Draw.
-    // Draw.
-    id<MTLRenderCommandEncoder> renderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
-    renderEncoder.label = @"MyRenderEncoder";
-    [renderEncoder setViewport:(MTLViewport){0.0, 0.0, theViewportSize.width, theViewportSize.height, -1.0, 1.0}];
-    id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_img));
-    id<MTLTexture> tex2 = (__bridge id<MTLTexture> _Nullable)(get_texture_object(rule_img));
-    [renderEncoder setRenderPipelineState:theNormalPipelineState];
-    [renderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:GameVertexInputIndexVertices];
-    [renderEncoder setFragmentTexture:tex1 atIndex:GameTextureIndexBaseColor];
-    [renderEncoder setFragmentTexture:tex2 atIndex:GameTextureIndexRuleLevel];
-    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
-    [renderEncoder endEncoding];
 }
 
 //
@@ -947,7 +788,7 @@ bool play_video(const char *fname, bool is_skippable)
     path = [path stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];
 
     // ビデオを再生する
-    //[theView playVideo:path skippable:is_skippable ? YES : NO];
+    [theViewController playVideoWithPath:path skippable:is_skippable ? YES : NO];
 
     return true;
 }
@@ -957,7 +798,7 @@ bool play_video(const char *fname, bool is_skippable)
 //
 void stop_video(void)
 {
-    //[theView stopVideo];
+    [theViewController stopVideo];
 }
 
 //
@@ -965,8 +806,7 @@ void stop_video(void)
 //
 bool is_video_playing(void)
 {
-    return false;
-//    return [theView isMoviePlaying] ? true : false;
+    return [theViewController isVideoPlaying] ? true : false;
 }
 
 //
@@ -1014,8 +854,7 @@ bool is_full_screen_supported(void)
 //
 bool is_full_screen_mode(void)
 {
-    return false;
-//    return [theView isFullScreen];
+    return [theViewController isFullScreen] ? true : false;
 }
 
 //

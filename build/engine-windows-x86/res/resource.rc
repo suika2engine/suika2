@@ -18,8 +18,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // Icon
 //
 
-IDI_SUIKA               ICON    DISCARDABLE     "suika.ico"
-IDI_SMALL               ICON    DISCARDABLE     "small.ico"
+IDI_ICON               ICON    DISCARDABLE     "suika.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

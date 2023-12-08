@@ -21,7 +21,7 @@
 #define CG_DIR_PREFIX "cg/"
 
 /* コマンドの経過時刻を表すストップウォッチ */
-static stop_watch_t sw;
+static uint64_t sw;
 
 /* コマンドの長さ(秒) */
 static float span;
@@ -140,7 +140,7 @@ static bool init(void)
 	start_command_repetition();
 
 	/* 時間計測を開始する */
-	reset_stop_watch(&sw);
+	reset_lap_timer(&sw);
 
 	return true;
 }
@@ -151,7 +151,7 @@ static void draw(void)
 	float lap;
 
 	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
+	lap = (float)get_lap_timer_millisec(&sw) / 1000.0f;
 	if (lap >= span)
 		lap = span;
 

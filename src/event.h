@@ -54,6 +54,5 @@ void on_event_key_release(int key);
 void on_event_mouse_press(int button, int x, int y);
 void on_event_mouse_release(int button, int x, int y);
 void on_event_mouse_move(int x, int y);
-void on_event_mouse_scroll(int n);
 
 #endif
