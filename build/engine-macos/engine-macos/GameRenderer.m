@@ -5,6 +5,18 @@
 #import "GameShaderTypes.h"
 #import "GameViewControllerProtocol.h"
 
+// Suika2 Base
+#import "suika.h"
+
+// POSIX
+#import <sys/time.h>
+
+// Suika2 HAL implementation
+#import "aunit.h"
+
+//
+// GameView Objects (accessed by the HAL functions)
+//
 static id<GameViewControllerProtocol> theViewController;
 static MTKView *theMTKView;
 static id<MTLDevice> theDevice;
@@ -17,11 +29,24 @@ static id<MTLCommandBuffer> theCommandBuffer;
 static id<MTLBlitCommandEncoder> theBlitEncoder;
 static id<MTLRenderCommandEncoder> theRenderEncoder;
 static NSSize theViewportSize;
-static NSMutableArray *thePurgeArray;
-static NSMutableArray *theDelayLoadArray;
+static struct image *theInitialUploadArray[128];
+static int theInitialUploadArrayCount;
+static struct image *thePurgeArray[128];
+static int thePurgeArrayCount;
 static dispatch_semaphore_t in_flight_semaphore;
 
+//
+// Forward declarations
+//
 static BOOL runSuika2Frame(void);
+static FILE *openLog(void);
+static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
+                           int width, int height, int src_left, int src_top, int alpha,
+                           struct image *rule_image, id<MTLRenderPipelineState> pipeline);
+
+//
+// GameRender
+//
 
 @interface GameRenderer ()
 @end
@@ -120,9 +145,6 @@ static BOOL runSuika2Frame(void);
     // Create a command queue.
     _commandQueue = [theDevice newCommandQueue];
 
-    // Create a delay load texture array for images loaded before the first rendering.
-    theDelayLoadArray = [NSMutableArray array];
-
     // TODO:
     in_flight_semaphore = dispatch_semaphore_create(1);
 
@@ -147,11 +169,9 @@ static BOOL runSuika2Frame(void);
     theRenderEncoder = nil;
 
     // Create textures for images that are loaded before the first rendering.
-    if (theDelayLoadArray != nil) {
-        for (struct image *img in theDelayLoadArray)
-            unlock_texture(img);
-        theDelayLoadArray = nil;
-    }
+    for (int i = 0; i < theInitialUploadArrayCount; i++)
+        if (theInitialUploadArray[i] != NULL)
+            notify_image_update(theInitialUploadArray[i]);
 
     dispatch_semaphore_wait(in_flight_semaphore, DISPATCH_TIME_FOREVER);
     __block dispatch_semaphore_t block_sema = in_flight_semaphore;
@@ -159,11 +179,8 @@ static BOOL runSuika2Frame(void);
          dispatch_semaphore_signal(block_sema);
     }];
 
-    // Create an array for delayed texture loading.
-    theDelayLoadArray = [NSMutableArray array];
-
     // Create an array for textures to be destroyed.
-    thePurgeArray = [NSMutableArray array];
+    thePurgeArrayCount = 0;
     
     // Run a Suika2 frame event and do rendering.
     if(!runSuika2Frame())
@@ -185,8 +202,12 @@ static BOOL runSuika2Frame(void);
     [theCommandBuffer waitUntilCompleted];
     
     // Set destroyed textures purgeable.
-    for(id<MTLTexture> tex in thePurgeArray)
-        [tex setPurgeableState:MTLPurgeableStateEmpty];
+    for (int i = 0; i < thePurgeArrayCount; i++) {
+        id<MTLTexture> texture = (__bridge id<MTLTexture>)(thePurgeArray[i]->texture);
+        [texture setPurgeableState:MTLPurgeableStateEmpty];
+        CFBridgingRelease(thePurgeArray[i]->texture);
+        thePurgeArray[i]->texture = NULL;
+    }
 }
 
 @end
@@ -194,27 +215,6 @@ static BOOL runSuika2Frame(void);
 //
 // Suika2 HAL (an implementation of platform.h)
 //
-
-// Suika2 Base
-#import "suika.h"
-#import "uimsg.h"
-
-// Standard C
-#import <wchar.h>
-
-// POSIX
-#import <sys/time.h>
-
-// Suika2 HAL implementation
-#import "aunit.h"
-#import "GameRenderer.h"
-
-// Forward declarations
-static FILE *openLog(void);
-static NSString *NSStringFromWcs(const wchar_t *wcs);
-static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
-                           int width, int height, int src_left, int src_top, int alpha,
-                           struct image *rule_image, id<MTLRenderPipelineState> pipeline);
 
 //
 // Run a Suika2 frame.
@@ -252,7 +252,7 @@ bool log_info(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_INFO))];
+    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_INFO)]];
     NSString *text = [[NSString alloc] initWithUTF8String:buf];
     if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
         text = @"(invalid utf-8 string)";
@@ -284,7 +284,7 @@ bool log_warn(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_WARN))];
+    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_WARN)]];
     NSString *text = [[NSString alloc] initWithUTF8String:buf];
     if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
         text = @"(invalid utf-8 string)";
@@ -316,7 +316,7 @@ bool log_error(const char *s, ...)
 
     // アラートを表示する
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_ERROR))];
+    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_ERROR)]];
     NSString *text = [[NSString alloc] initWithUTF8String:buf];
     if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
         text = @"(invalid utf-8 string)";
@@ -371,14 +371,6 @@ static FILE *openLog(void)
         [alert runModal];
     }
     return fp;
-}
-
-// ワイド文字列をNSStringに変換する
-static NSString *NSStringFromWcs(const wchar_t *wcs)
-{
-    return [[NSString alloc] initWithBytes:wcs
-                                    length:wcslen(wcs) * sizeof(*wcs)
-                                  encoding:NSUTF32LittleEndianStringEncoding];
 }
 
 //
@@ -464,132 +456,106 @@ char *make_valid_path(const char *dir, const char *fname)
 }
 
 //
-// GPUを使うか調べる
+// テクスチャの更新を通知する
 //
-bool is_gpu_accelerated(void)
-{
-    return true;
-}
-
-//
-// OpenGLが有効か調べる
-//
-bool is_opengl_enabled(void)
-{
-    return false;
-}
-
-//
-// テクスチャをロックする
-//
-bool lock_texture(struct image *img)
-{
-    return true;
-}
-
-//
-// テクスチャをアンロックする
-//
-void unlock_texture(struct image *img)
+void notify_image_update(struct image *img)
 {
     if (theCommandBuffer == nil) {
-        *locked_pixels = NULL;
-        [theDelayLoadArray addObject:img];
+        assert(theInitialUploadArrayCount < 128);
+        assert(img->width > 0 && img->width < 4096);
+        assert(img->height > 0 && img->height < 4096);
+        theInitialUploadArray[theInitialUploadArrayCount++] = img;
         return;
     }
 
-    MTLRegion region = {{ 0, 0, 0 },  {width, height, 1}};
-    id<MTLTexture> tex = nil;
-
-    if (*texture == NULL) {
+    MTLRegion region = {{ 0, 0, 0 }, {img->width, img->height, 1}};
+    id<MTLTexture> texture = nil;
+    
+    if (img->texture == NULL) {
         // For the first time, create a texture.
         MTLTextureDescriptor *textureDescriptor = [[MTLTextureDescriptor alloc] init];
         textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
-        textureDescriptor.width = width;
-        textureDescriptor.height = height;
-        tex = [theDevice newTextureWithDescriptor:textureDescriptor];
-        *texture = (__bridge void * _Nonnull)(tex);
-        CFBridgingRetain(tex);
+        textureDescriptor.width = img->width;
+        textureDescriptor.height = img->height;
+        texture = [theDevice newTextureWithDescriptor:textureDescriptor];
+        img->texture = (__bridge void * _Nonnull)(texture);
+        CFBridgingRetain(texture);
     } else {
-        tex = (__bridge id<MTLTexture>)(*texture);
+        // Get the existing texture.
+        texture = (__bridge id<MTLTexture>)(img->texture);
     }
-
+    
     // Upload the pixels.
     assert(theRenderEncoder == nil);
     if (theBlitEncoder == nil) {
         theBlitEncoder = [theCommandBuffer blitCommandEncoder];
         theBlitEncoder.label = @"Texture Encoder";
     }
-    [tex replaceRegion:region mipmapLevel:0 withBytes:*locked_pixels bytesPerRow:width * 4];
-    [theBlitEncoder synchronizeResource:tex];
+    [texture replaceRegion:region mipmapLevel:0 withBytes:img->pixels bytesPerRow:img->width * 4];
+    [theBlitEncoder synchronizeResource:texture];
 }
 
 //
-// テクスチャを破棄する
+// テクスチャの破棄を通知する
 //
-void destroy_texture(void *texture)
+void notify_image_free(struct image *img)
 {
-    if (texture != NULL) {
-        id<MTLTexture> tex = (__bridge id<MTLTexture>)texture;
-        assert(tex != nil);
-        [thePurgeArray addObject:tex];
-        CFBridgingRelease(texture);
-    }
+    for (int i = 0; i < theInitialUploadArrayCount; i++)
+        if (theInitialUploadArray[i] == img)
+            theInitialUploadArray[i] = NULL;
+
+    thePurgeArray[thePurgeArrayCount++] = img;
 }
 
 //
-// Render an image to the screen with "copy" fragment shader.
+// Render an image to the screen with the "copy" pipeline.
 //
-void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image, int width, int height, int src_left, int src_top)
+void render_image_copy(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top)
 {
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL, theCopyPipelineState);
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, 255, NULL, theCopyPipelineState);
 }
 
 //
-// Render an image to the screen.
+// Render an image to the screen with the "normal" pipeline.
 //
-void render_image_alpha(int dst_left, int dst_top, struct image * RESTRICT src_image, int width, int height, int src_left, int src_top, int alpha, int bt)
+void render_image_normal(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top, int alpha)
 {
-    id<MTLRenderPipelineState> pipeline;
-
-    if (bt == BLEND_NONE) {
-        alpha = 255;
-        pipeline = theCopyPipelineState;
-    } else {
-        pipeline = theNormalPipelineState;
-    }
-
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL,  pipeline);
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL,     theNormalPipelineState);
 }
 
 //
-// Render an image to the screen with dimming.
+// Render an image to the screen with the "add" pipeline.
+//
+void render_image_add(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top, int alpha)
+{
+    // TODO: add
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL,     theNormalPipelineState);
+}
+
+//
+// Render an image to the screen with the "dim" pipeline.
 //
 void render_image_dim(int dst_left, int dst_top,
-                      struct image * RESTRICT src_image,
+                      struct image *src_image,
                       int width, int height, int src_left, int src_top)
 {
     drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, 0, NULL, theDimPipelineState);
 }
 
 //
-// Render an image to the screen with 1-bit rule image.
+// Render an image to the screen with the "rule" pipeline.
 //
-void render_image_rule(struct image * RESTRICT src_img,
-                       struct image * RESTRICT rule_img,
-                       int threshold)
+void render_image_rule(struct image *src_img, struct image *rule_img, int threshold)
 {
-    drawPrimitives(0, 0, src_img, get_image_width(src_img), get_image_height(src_img), 0, 0, threshold, NULL, theRulePipelineState);
+    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, NULL, theRulePipelineState);
 }
 
 //
-// Render an image to the screen with 8-bit rule image.
+// Render an image to the screen with the "melt" pipeline.
 //
-void render_image_melt(struct image * RESTRICT src_img,
-                       struct image * RESTRICT rule_img,
-                       int threshold)
+void render_image_melt(struct image *src_img, struct image *rule_img, int threshold)
 {
-    drawPrimitives(0, 0, src_img, get_image_width(src_img), get_image_height(src_img), 0, 0, threshold, NULL, theMeltPipelineState);
+    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, NULL, theMeltPipelineState);
 }
 
 //
@@ -599,47 +565,48 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
                            int width, int height, int src_left, int src_top, int alpha,
                            struct image *rule_image, id<MTLRenderPipelineState> pipeline)
 {
-    float pos[24];
-
     // Get the viewport size.
     float hw = (float)conf_window_width / 2.0f;
     float hh = (float)conf_window_height / 2.0f;
 
     // Get the texture size.
-    float tw = (float)get_image_width(src_image);
-    float th = (float)get_image_height(src_image);
+    float tw = (float)src_image->width;
+    float th = (float)src_image->height;
     
+    // The vertex shader input
+    float vsIn[24];
+
     // Set the left top vertex.
-    pos[0] = ((float)dst_left - hw) / hw;   // X (-1.0 to 1.0, left to right)
-    pos[1] = -((float)dst_top - hh) / hh;   // Y (-1.0 to 1.0, bottom to top)
-    pos[2] = (float)src_left / tw;          // U (0.0 to 1.0, left to right)
-    pos[3] = (float)src_top / th;           // V (0.0 to 1.0, top to bottom)
-    pos[4] = (float)alpha / 255.0f;         // Alpha (0.0 to 1.0)
-    pos[5] = 0;                             // Padding for a 64-bit boundary
+    vsIn[0] = ((float)dst_left - hw) / hw;   // X (-1.0 to 1.0, left to right)
+    vsIn[1] = -((float)dst_top - hh) / hh;   // Y (-1.0 to 1.0, bottom to top)
+    vsIn[2] = (float)src_left / tw;          // U (0.0 to 1.0, left to right)
+    vsIn[3] = (float)src_top / th;           // V (0.0 to 1.0, top to bottom)
+    vsIn[4] = (float)alpha / 255.0f;         // Alpha (0.0 to 1.0)
+    vsIn[5] = 0;                             // Padding for a 64-bit boundary
 
     // Set the right top vertex.
-    pos[6] = ((float)dst_left + (float)width - hw) / hw;    // X (-1.0 to 1.0, left to right)
-    pos[7] = -((float)dst_top - hh) / hh;                   // Y (-1.0 to 1.0, bottom to top)
-    pos[8] = (float)(src_left + width) / tw;                // U (0.0 to 1.0, left to right)
-    pos[9] = (float)(src_top) / th;                         // V (0.0 to 1.0, top to bottom)
-    pos[10] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
-    pos[11] = 0;                                            // Padding for a 64-bit boundary
+    vsIn[6] = ((float)dst_left + (float)width - hw) / hw;    // X (-1.0 to 1.0, left to right)
+    vsIn[7] = -((float)dst_top - hh) / hh;                   // Y (-1.0 to 1.0, bottom to top)
+    vsIn[8] = (float)(src_left + width) / tw;                // U (0.0 to 1.0, left to right)
+    vsIn[9] = (float)(src_top) / th;                         // V (0.0 to 1.0, top to bottom)
+    vsIn[10] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
+    vsIn[11] = 0;                                            // Padding for a 64-bit boundary
     
     // Set the left bottom vertex.
-    pos[12] = ((float)dst_left - hw) / hw;                  // X (-1.0 to 1.0, left to right)
-    pos[13] = -((float)dst_top + (float)height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
-    pos[14] = (float)src_left / tw;                         // U (0.0 to 1.0, left to right)
-    pos[15] = (float)(src_top + height) / th;               // V (0.0 to 1.0, top to bottom)
-    pos[16] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
-    pos[17] = 0;                                            // Padding for a 64-bit boundary
+    vsIn[12] = ((float)dst_left - hw) / hw;                  // X (-1.0 to 1.0, left to right)
+    vsIn[13] = -((float)dst_top + (float)height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
+    vsIn[14] = (float)src_left / tw;                         // U (0.0 to 1.0, left to right)
+    vsIn[15] = (float)(src_top + height) / th;               // V (0.0 to 1.0, top to bottom)
+    vsIn[16] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
+    vsIn[17] = 0;                                            // Padding for a 64-bit boundary
 
     // Set the right bottom vertex.
-    pos[18] = ((float)dst_left + (float)width - hw) / hw;   // X (-1.0 to 1.0, left to right)
-    pos[19] = -((float)dst_top + (float)height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
-    pos[20] = (float)(src_left + width) / tw;               // U (0.0 to 1.0, left to right)
-    pos[21] = (float)(src_top + height) / th;               // V (0.0 to 1.0, top to bottom)
-    pos[22] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
-    pos[23] = 0;                                            // Padding for a 64-bit boundary
+    vsIn[18] = ((float)dst_left + (float)width - hw) / hw;   // X (-1.0 to 1.0, left to right)
+    vsIn[19] = -((float)dst_top + (float)height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
+    vsIn[20] = (float)(src_left + width) / tw;               // U (0.0 to 1.0, left to right)
+    vsIn[21] = (float)(src_top + height) / th;               // V (0.0 to 1.0, top to bottom)
+    vsIn[22] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
+    vsIn[23] = 0;                                            // Padding for a 64-bit boundary
 
     // Upload textures if they are pending.
     if (theBlitEncoder != nil) {
@@ -653,9 +620,9 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
         theRenderEncoder.label = @"MyRenderEncoder";
     }
     [theRenderEncoder setRenderPipelineState:pipeline];
-    id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image));
-    id<MTLTexture> tex2 = rule_image != NULL ? (__bridge id<MTLTexture> _Nullable)(get_texture_object(src_image)) : nil;
-    [theRenderEncoder setVertexBytes:pos length:sizeof(pos) atIndex:GameVertexInputIndexVertices];
+    id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(src_image->texture);
+    id<MTLTexture> tex2 = rule_image != NULL ? (__bridge id<MTLTexture> _Nullable)(src_image->texture) : nil;
+    [theRenderEncoder setVertexBytes:vsIn length:sizeof(vsIn) atIndex:GameVertexInputIndexVertices];
     [theRenderEncoder setFragmentTexture:tex1 atIndex:GameTextureIndexBaseColor];
     if (tex2 != nil)
         [theRenderEncoder setFragmentTexture:tex2 atIndex:GameTextureIndexRuleLevel];
@@ -665,29 +632,29 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
 //
 // タイマをリセットする
 //
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *origin)
 {
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
-    *t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+    *origin = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
 //
 // タイマのラップをミリ秒単位で取得する
 //
-int get_stop_watch_lap(stop_watch_t *t)
+uint64_t get_lap_timer_millisec(uint64_t *origin)
 {
     struct timeval tv;
-    stop_watch_t end;
+    uint64_t now;
 
     gettimeofday(&tv, NULL);
-    end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
-    if (end < *t) {
-        reset_stop_watch(t);
+    now = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+    if (now < *origin) {
+        reset_lap_timer(origin);
         return 0;
     }
-    return (int)(end - *t);
+    return (int)(now - *origin);
 }
 
 //
@@ -697,9 +664,9 @@ bool exit_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
-        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_EXIT))];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_EXIT)]];
         [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -714,9 +681,9 @@ bool title_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
-        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_TITLE))];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_TITLE)]];
         [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -731,9 +698,9 @@ bool delete_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
-        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DELETE))];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_DELETE)]];
         [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -748,9 +715,9 @@ bool overwrite_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
-        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_OVERWRITE))];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_OVERWRITE)]];
         [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -765,9 +732,9 @@ bool default_dialog(void)
 {
     @autoreleasepool {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_YES))];
-        [alert addButtonWithTitle:NSStringFromWcs(get_ui_message(UIMSG_NO))];
-        [alert setMessageText:NSStringFromWcs(get_ui_message(UIMSG_DEFAULT))];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
+        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_DEFAULT)]];
         [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return true;
@@ -900,4 +867,9 @@ const char *get_system_locale(void)
     if ([language hasPrefix:@"zh-Hant"])
         return "tw";
     return "other";
+}
+
+void speak_text(const char *text)
+{
+    // TODO: Use NSSpeechSynthesizer
 }

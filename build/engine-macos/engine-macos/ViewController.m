@@ -170,10 +170,7 @@ static ViewController *theViewController;
 }
 
 - (NSString *)uiMessage:(int)id {
-    const wchar_t *wcs = get_ui_message(id);
-    return [[NSString alloc] initWithBytes:wcs
-                                    length:wcslen(wcs) * sizeof(*wcs)
-                                  encoding:NSUTF32LittleEndianStringEncoding];
+    return [[NSString alloc] initWithUTF8String:get_ui_message(id)];
 }
 
 - (NSSize)layout:(NSSize)size {
@@ -218,20 +215,11 @@ static ViewController *theViewController;
 
 // キーコードを変換する
 - (int)convertKeyCode:(int)keyCode {
-    const int KC_SPACE = 49;
-    const int KC_RETURN = 36;
-    const int KC_RIGHT = 123;
-    const int KC_LEFT = 124;
-    const int KC_DOWN = 125;
-    const int KC_UP = 126;
-    const int KC_ESCAPE = 53;
-    const int KC_C = 8;
-
     switch(keyCode) {
         case 49: return KEY_SPACE;
         case 36: return KEY_RETURN;
-        case 123: return KEY_RIGHT;
-        case 124: return KEY_LEFT;
+        case 123: return KEY_LEFT;
+        case 124: return KEY_RIGHT;
         case 125: return KEY_DOWN;
         case 126: return KEY_UP;
         case 53: return KEY_ESCAPE;

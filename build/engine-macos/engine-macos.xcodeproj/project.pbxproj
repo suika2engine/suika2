@@ -79,6 +79,7 @@
 		268EAEAA2B21E41400CF559E /* GameView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
 		268EAEAB2B21E41400CF559E /* GameView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
 		268EAEAD2B222C3800CF559E /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewControllerProtocol.h; sourceTree = "<group>"; };
+		268EAEAE2B23C12800CF559E /* hal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hal.h; path = ../../src/hal.h; sourceTree = "<group>"; };
 		26EAF2572B1F9B1F003530F4 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26EAF25A2B1F9B1F003530F4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		26EAF25B2B1F9B1F003530F4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -134,7 +135,6 @@
 		26EAF2C02B202D86003530F4 /* wms_parser.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_parser.tab.h; path = ../../src/wms_parser.tab.h; sourceTree = "<group>"; };
 		26EAF2C12B202D86003530F4 /* readpng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readpng.c; path = ../../src/readpng.c; sourceTree = "<group>"; };
 		26EAF2C22B202D86003530F4 /* history.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = history.c; path = ../../src/history.c; sourceTree = "<group>"; };
-		26EAF2C32B202D86003530F4 /* muladdpcm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = muladdpcm.h; path = ../../src/muladdpcm.h; sourceTree = "<group>"; };
 		26EAF2C42B202D86003530F4 /* save.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = save.h; path = ../../src/save.h; sourceTree = "<group>"; };
 		26EAF2C52B202D86003530F4 /* uimsg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uimsg.h; path = ../../src/uimsg.h; sourceTree = "<group>"; };
 		26EAF2C62B202D86003530F4 /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../src/wms_core.h; sourceTree = "<group>"; };
@@ -155,7 +155,6 @@
 		26EAF2D72B202D86003530F4 /* suika.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = suika.h; path = ../../src/suika.h; sourceTree = "<group>"; };
 		26EAF2D92B202D86003530F4 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../../src/gui.h; sourceTree = "<group>"; };
 		26EAF2DA2B202D86003530F4 /* script.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = script.c; path = ../../src/script.c; sourceTree = "<group>"; };
-		26EAF2DB2B202D86003530F4 /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = platform.h; path = ../../src/platform.h; sourceTree = "<group>"; };
 		26EAF2DC2B202D86003530F4 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = main.h; path = ../../src/main.h; sourceTree = "<group>"; };
 		26EAF2DD2B202D86003530F4 /* seen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seen.c; path = ../../src/seen.c; sourceTree = "<group>"; };
 		26EAF2DE2B202D87003530F4 /* wave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wave.c; path = ../../src/wave.c; sourceTree = "<group>"; };
@@ -248,6 +247,7 @@
 		26EAF2712B202CA6003530F4 /* suika2 */ = {
 			isa = PBXGroup;
 			children = (
+				268EAEAE2B23C12800CF559E /* hal.h */,
 				26EAF27E2B202CEC003530F4 /* anime.c */,
 				26EAF27F2B202CEC003530F4 /* anime.h */,
 				26EAF2722B202CEC003530F4 /* aunit.c */,
@@ -304,8 +304,6 @@
 				26EAF2DC2B202D86003530F4 /* main.h */,
 				26EAF2C72B202D86003530F4 /* mixer.c */,
 				26EAF2E72B202D87003530F4 /* mixer.h */,
-				26EAF2C32B202D86003530F4 /* muladdpcm.h */,
-				26EAF2DB2B202D86003530F4 /* platform.h */,
 				26EAF2E82B202D87003530F4 /* readimage.c */,
 				26EAF2D32B202D86003530F4 /* readjpeg.c */,
 				26EAF2C12B202D86003530F4 /* readpng.c */,

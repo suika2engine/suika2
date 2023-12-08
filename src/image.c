@@ -83,6 +83,7 @@ struct image *create_image(int w, int h)
 	img->height = h;
 	img->pixels = pixels;
 	img->texture = NULL;
+	img->need_upload = false;
 
 	return img;
 }

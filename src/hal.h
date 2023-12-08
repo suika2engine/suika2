@@ -94,7 +94,7 @@ char *make_valid_path(const char *dir, const char *fname);
  *  - This function tells a HAL that an image needs to be uploaded to GPU
  *  - A HAL can upload images to GPU at an appropriate time
  */
-bool notify_image_update(struct image *img);
+void notify_image_update(struct image *img);
 
 /*
  * Notifies an image free.

@@ -20,6 +20,5 @@ bool init_aunit(void);
 void cleanup_aunit(void);
 void pause_sound(void);
 void resume_sound(void);
-void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples);
 
 #endif
