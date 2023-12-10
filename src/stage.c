@@ -111,15 +111,6 @@ static struct image *sysmenu_hover_image;
 /* システムメニュー(禁止項目)のイメージ */
 static struct image *sysmenu_disable_image;
 
-/* GUIのidle(ベース)イメージ */
-static struct image *gui_idle_image;
-
-/* GUIのhover(ポイント項目)イメージ */
-static struct image *gui_hover_image;
-
-/* GUIのactive(選択中項目やスライダーのボタン)イメージ */
-static struct image *gui_active_image;
-
 /* セーブデータ用のサムネイルイメージ */
 static struct image *thumb_image;
 
@@ -844,18 +835,6 @@ void cleanup_stage(void)
 	if (fade_rule_img != NULL) {
 		destroy_image(fade_rule_img);
 		fade_rule_img = NULL;
-	}
-	if (gui_idle_image != NULL) {
-		destroy_image(gui_idle_image);
-		gui_idle_image = NULL;
-	}
-	if (gui_hover_image != NULL) {
-		destroy_image(gui_hover_image);
-		gui_hover_image = NULL;
-	}
-	if (gui_active_image != NULL) {
-		destroy_image(gui_active_image);
-		gui_active_image = NULL;
 	}
 }
 
@@ -3380,6 +3359,7 @@ static void render_layer_image(int layer)
 	/* キャラクタレイヤを暗く描画する場合 */
 	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
 	    conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
+        assert(0);
 		render_image_dim(layer_x[layer],
 				 layer_y[layer],
 				 layer_image[layer],
@@ -3462,217 +3442,6 @@ static void draw_layer_image(struct image *target, int layer)
 			  0,
 			  0,
 			  layer_alpha[layer]);
-}
-
-/*
- * GUI
- */
-
-/*
- * GUIの画像を削除する
- */
-void remove_gui_images(void)
-{
-	if (gui_idle_image != NULL) {
-		destroy_image(gui_idle_image);
-		gui_idle_image = NULL;
-	}
-	if (gui_hover_image != NULL) {
-		destroy_image(gui_hover_image);
-		gui_hover_image = NULL;
-	}
-	if (gui_active_image != NULL) {
-		destroy_image(gui_active_image);
-		gui_active_image = NULL;
-	}
-}
-
-/*
- * GUIのidle画像を読み込む
- */
-bool load_gui_idle_image(const char *file)
-{
-	if (gui_idle_image != NULL) {
-		destroy_image(gui_idle_image);
-		gui_idle_image = NULL;
-	}
-
-	gui_idle_image = create_image_from_file(CG_DIR, file);
-	if (gui_idle_image == NULL)
-		return false;
-
-	return true;
-}
-
-/*
- * GUIのhover画像を読み込む
- */
-bool load_gui_hover_image(const char *file)
-{
-	if (gui_hover_image != NULL) {
-		destroy_image(gui_hover_image);
-		gui_hover_image = NULL;
-	}
-
-	gui_hover_image = create_image_from_file(CG_DIR, file);
-	if (gui_hover_image == NULL)
-		return false;
-
-	return true;
-}
-
-/*
- * GUIのactive画像を読み込む
- */
-bool load_gui_active_image(const char *file)
-{
-	if (gui_active_image != NULL) {
-		destroy_image(gui_active_image);
-		gui_active_image = NULL;
-	}
-
-	gui_active_image = create_image_from_file(CG_DIR, file);
-	if (gui_active_image == NULL)
-		return false;
-
-	return true;
-}
-
-/*
- * GUIのイメージがすべて揃っているか調べる
- */
-bool check_stage_gui_images(void)
-{
-	if (gui_idle_image == NULL || gui_hover_image == NULL ||
-	    gui_active_image == NULL)
-		return false;
-	return true;
-}
-
-/*
- * GUIのidle画像を描画する
- */
-void draw_stage_gui_idle(bool enable_blend, int x, int y, int w, int h,
-			 int alpha, bool to_bg)
-{
-	if (!to_bg) {
-		if (enable_blend) {
-			render_image_normal(x, y,
-					    gui_idle_image,
-					    w, h,
-					    x, y,
-					    alpha);
-		} else {
-			render_image_copy(x, y,
-					  gui_idle_image,
-					  w, h,
-					  x, y);
-		}
-		return;
-	}
-
-	/* 仮のbgへの描画 */
-	if (layer_image[LAYER_BG] != NULL) {
-		if (enable_blend) {
-			draw_image_normal(layer_image[LAYER_BG],
-					  x, y,
-					  gui_idle_image,
-					  w, h,
-					  x, y,
-					  alpha);
-		} else {
-			draw_image_copy(layer_image[LAYER_BG],
-					x, y,
-					gui_idle_image,
-					w, h,
-					x, y);
-		}
-	}
-}
-
-/*
- * GUIのhover画像を描画する
- */
-void draw_stage_gui_hover(int x, int y, int w, int h, int alpha, bool to_bg)
-{
-	if (!to_bg) {
-		/* 通常の描画 */
-		render_image_normal(x, y,
-				    gui_hover_image,
-				    w, h,
-				    x, y,
-				    alpha);
-	} else {
-		/* 仮のbgへの描画 */
-		draw_image_normal(layer_image[LAYER_BG],
-				  x, y,
-				  gui_hover_image,
-				  w, w,
-				  x, y,
-				  255);
-	}
-}
-
-/*
- * GUIのactive画像を描画する
- */
-void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy,
-			   int alpha, bool to_bg)
-{
-	if (!to_bg) {
-		/* 通常の描画 */
-		render_image_normal(x, y,
-				    gui_active_image,
-				    w, h,
-				    sx, sy,
-				    alpha);
-	} else {
-		/* 仮のbgへの描画 */
-		draw_image_normal(layer_image[LAYER_BG],
-				  x, y,
-				  gui_hover_image,
-				  w, w,
-				  sx, sy,
-				  255);
-	}
-}
-
-/*
- * GUI実行後の仮のBGレイヤイメージを作成する
- */
-bool create_temporary_bg_for_gui(void)
-{
-	struct image *img;
-
-	/* 既存のBGレイヤのイメージを破棄する */
-	destroy_layer_image(LAYER_BG);
-
-	/* 背景のイメージを作成する */
-	img = create_image(conf_window_width, conf_window_height);
-	if (img == NULL)
-		return false;
-
-	/* BGレイヤにセットする */
-	layer_image[LAYER_BG] = img;
-
-	return true;
-}
-
-/*
- * GUI実行後の仮のBGレイヤイメージにイメージを描画する
- */
-void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img)
-{
-	if (layer_image[LAYER_BG] == NULL)
-		return;
-
-	draw_image_normal(layer_image[LAYER_BG],
-			  x, y,
-			  img,
-			  img->width,
-			  img->height,
-			  x, y,
-			  255);
 }
 
 /*

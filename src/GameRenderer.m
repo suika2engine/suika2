@@ -33,6 +33,7 @@ static MTKView *theMTKView;
 static id<MTLDevice> theDevice;
 static id<MTLRenderPipelineState> theNormalPipelineState;
 static id<MTLRenderPipelineState> theCopyPipelineState;
+static id<MTLRenderPipelineState> theAddPipelineState;
 static id<MTLRenderPipelineState> theDimPipelineState;
 static id<MTLRenderPipelineState> theRulePipelineState;
 static id<MTLRenderPipelineState> theMeltPipelineState;
@@ -81,23 +82,23 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     // Load shaders.
     id<MTLLibrary> defaultLibrary = [theDevice newDefaultLibrary];
 
-    // Construct a normal shader pipeline.
+    // Construct the normal shader pipeline.
     MTLRenderPipelineDescriptor *normalPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     normalPipelineStateDescriptor.label = @"Normal Texturing Pipeline";
     normalPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
     normalPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentNormalShader"];
     normalPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
-    normalPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
+    normalPipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
     normalPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     normalPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    normalPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    normalPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
     normalPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     normalPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     normalPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
     theNormalPipelineState = [theDevice newRenderPipelineStateWithDescriptor:normalPipelineStateDescriptor error:&error];
     NSAssert(theNormalPipelineState, @"Failed to create pipeline state: %@", error);
 
-    // Construct a copy shader pipeline.
+    // Construct the copy shader pipeline.
     MTLRenderPipelineDescriptor *copyPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     copyPipelineStateDescriptor.label = @"Copy Texturing Pipeline";
     copyPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
@@ -106,6 +107,22 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     copyPipelineStateDescriptor.colorAttachments[0].blendingEnabled = FALSE;
     theCopyPipelineState = [theDevice newRenderPipelineStateWithDescriptor:copyPipelineStateDescriptor error:&error];
     NSAssert(theCopyPipelineState, @"Failed to create pipeline state: %@", error);
+
+    // Construct the add shader pipeline.
+    MTLRenderPipelineDescriptor *addPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    addPipelineStateDescriptor.label = @"Normal Texturing Pipeline";
+    addPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+    addPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentNormalShader"];
+    addPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
+    addPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
+    addPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    addPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    addPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    addPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+    addPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
+    addPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
+    theAddPipelineState = [theDevice newRenderPipelineStateWithDescriptor:addPipelineStateDescriptor error:&error];
+    NSAssert(theAddPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Construct a dim shader pipeline.
     MTLRenderPipelineDescriptor *dimPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
@@ -541,7 +558,7 @@ void render_image_copy(int dst_left, int dst_top, struct image *src_image, int w
 //
 void render_image_normal(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top, int alpha)
 {
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL,     theNormalPipelineState);
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL, theNormalPipelineState);
 }
 
 //
@@ -550,7 +567,7 @@ void render_image_normal(int dst_left, int dst_top, struct image *src_image, int
 void render_image_add(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top, int alpha)
 {
     // TODO: add
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL,     theNormalPipelineState);
+    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL, theAddPipelineState);
 }
 
 //

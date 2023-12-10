@@ -41,8 +41,7 @@ fragmentNormalShader(RasterizerData in [[stage_in]],
 {
     constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
     const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
-    colorSample.rgba *= in.alpha;
-    return float4(colorSample);
+    return float4(colorSample.r, colorSample.g, colorSample.b, colorSample.a * in.alpha);
 }
 
 fragment float4

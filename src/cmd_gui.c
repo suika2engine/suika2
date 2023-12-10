@@ -52,7 +52,7 @@ static bool init(void)
 	bool opt_cancel;
 	bool opt_nofadein;
 	bool opt_nofadeout;
-	bool opt_nowipe;
+	bool opt_msgbox;
 
 	/* GUIファイル名を取得する */
 	file = get_string_param(GUI_PARAM_FILE);
@@ -61,6 +61,7 @@ static bool init(void)
 	opt_cancel = false;
 	opt_nofadein = false;
 	opt_nofadeout = false;
+	opt_msgbox = false;
 	opt = get_string_param(GUI_PARAM_OPTIONS);
 	if (strstr(opt, "cancel") != NULL ||
 	    strstr(opt, U8("キャンセル許可")) != NULL)
@@ -71,9 +72,9 @@ static bool init(void)
 	if (strstr(opt, "nofadeout") != NULL ||
 	    strstr(opt, "フェードアウトなし") != NULL)
 		opt_nofadeout = true;
-	if (strstr(opt, "nowipe") != NULL ||
-	    strstr(opt, U8("ワイプなし")) != NULL)
-		opt_nowipe = true;
+	if (strstr(opt, "msgbox") != NULL ||
+	    strstr(opt, U8("メッセージボックスあり")) != NULL)
+		opt_msgbox = true;
 
 	/* セーブに備えてサムネイルを作成する */
 	draw_stage_to_thumb();
@@ -86,12 +87,9 @@ static bool init(void)
 	set_gui_options(opt_cancel, opt_nofadein, opt_nofadeout);
 
 	/* 背景以外を消す */
-	if (!opt_nowipe) {
-		if (!is_gui_overlay()) {
-			show_namebox(false);
-			show_msgbox(false);
-			clear_stage_basic();
-		}
+	if (!opt_msgbox) {
+		show_namebox(false);
+		show_msgbox(false);
 	}
 
 	/* 繰り返し処理を開始する */
@@ -109,9 +107,9 @@ static bool cleanup(void)
 	const char *label;
 	bool ret;
 
-    ret = true;
+	ret = true;
 
-    /* 繰り返し処理を終了する */
+	/* 繰り返し処理を終了する */
 	stop_command_repetition();
 
 	/* ラベルジャンプボタンが押下された場合 */

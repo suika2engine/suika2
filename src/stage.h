@@ -456,45 +456,6 @@ void show_automode_banner(bool show);
 void show_skipmode_banner(bool show);
 
 /*
- * GUI
- */
-
-/* GUIの画像を削除する */
-void remove_gui_images(void);
-
-/* GUIのidle画像を読み込む */
-bool load_gui_idle_image(const char *file);
-
-/* GUIのhover画像を読み込む */
-bool load_gui_hover_image(const char *file);
-
-/* GUIのactive画像を読み込む */
-bool load_gui_active_image(const char *file);
-
-/* GUIのイメージがすべて揃っているか調べる */
-bool check_stage_gui_images(void);
-
-/* GUIのidle画像を描画する */
-void draw_stage_gui_idle(bool enable_blend, int x, int y, int w, int h,
-			 int alpha, bool to_bg);
-
-/* GUIのhover画像を描画する */
-void draw_stage_gui_hover(int x, int y, int w, int h, int alpha, bool to_bg);
-
-/* GUIのactive画像を描画する */
-void draw_stage_gui_active(int x, int y, int w, int h, int sx, int sy,
-			   int alpha, bool to_bg);
-
-/* GUI実行後の仮のBGレイヤイメージを作成する */
-bool create_temporary_bg_for_gui(void);
-
-/* GUI実行後の仮のBGレイヤイメージにBGを描画する */
-void draw_bg_to_temporary_bg_for_gui(void);
-
-/* GUI実行後の仮のBGレイヤイメージにイメージを描画する */
-void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img);
-
-/*
  * キラキラエフェクト
  */
 
