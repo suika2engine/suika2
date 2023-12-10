@@ -37,7 +37,7 @@ vertexShader(uint vertexID [[vertex_id]],
 
 fragment float4
 fragmentNormalShader(RasterizerData in [[stage_in]],
-                     texture2d<half> colorTexture [[texture(GameTextureIndexBaseColor)]])
+                     texture2d<half> colorTexture [[texture(GameTextureIndexColor)]])
 {
     constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
     const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
@@ -46,7 +46,7 @@ fragmentNormalShader(RasterizerData in [[stage_in]],
 
 fragment float4
 fragmentCopyShader(RasterizerData in [[stage_in]],
-                   texture2d<half> colorTexture [[texture(GameTextureIndexBaseColor)]])
+                   texture2d<half> colorTexture [[texture(GameTextureIndexColor)]])
 {
     constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
     const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
@@ -56,7 +56,7 @@ fragmentCopyShader(RasterizerData in [[stage_in]],
 
 fragment float4
 fragmentDimShader(RasterizerData in [[stage_in]],
-                  texture2d<half> colorTexture [[texture(GameTextureIndexBaseColor)]])
+                  texture2d<half> colorTexture [[texture(GameTextureIndexColor)]])
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
@@ -66,20 +66,20 @@ fragmentDimShader(RasterizerData in [[stage_in]],
 
 fragment float4
 fragmentRuleShader(RasterizerData in [[stage_in]],
-                   texture2d<half> colorTexture [[texture(GameTextureIndexBaseColor)]],
-                   texture2d<half> ruleTexture [[texture(GameTextureIndexRuleLevel)]])
+                   texture2d<half> colorTexture [[texture(GameTextureIndexColor)]],
+                   texture2d<half> ruleTexture [[texture(GameTextureIndexRule)]])
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
     const half4 ruleSample = ruleTexture.sample(textureSampler, in.textureCoordinate);
     colorSample.a = 1.0 - step(in.alpha, (float)ruleSample.b);
-    return float4(colorSample);
+    return float4(colorSample.r, colorSample.g, colorSample.b, colorSample.a);
 }
 
 fragment float4
 fragmentMeltShader(RasterizerData in [[stage_in]],
-                   texture2d<half> colorTexture [[texture(GameTextureIndexBaseColor)]],
-                   texture2d<half> ruleTexture [[texture(GameTextureIndexRuleLevel)]])
+                   texture2d<half> colorTexture [[texture(GameTextureIndexColor)]],
+                   texture2d<half> ruleTexture [[texture(GameTextureIndexRule)]])
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);

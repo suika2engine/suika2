@@ -19,8 +19,8 @@ enum GameVertexInputIndex {
 };
 
 enum {
-    GameTextureIndexBaseColor = 0,
-    GameTextureIndexRuleLevel = 1,
+    GameTextureIndexColor = 0,
+    GameTextureIndexRule = 1,
 };
 
 struct GameVertex {

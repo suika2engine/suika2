@@ -117,9 +117,9 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     addPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     addPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     addPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    addPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    addPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
     addPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
-    addPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
+    addPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     addPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
     theAddPipelineState = [theDevice newRenderPipelineStateWithDescriptor:addPipelineStateDescriptor error:&error];
     NSAssert(theAddPipelineState, @"Failed to create pipeline state: %@", error);
@@ -133,7 +133,7 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     dimPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     dimPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     dimPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    dimPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    dimPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
     dimPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     dimPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     dimPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
@@ -149,9 +149,10 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     rulePipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     rulePipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     rulePipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    rulePipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    rulePipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
     rulePipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     rulePipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    rulePipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
     theRulePipelineState = [theDevice newRenderPipelineStateWithDescriptor:rulePipelineStateDescriptor error:&error];
     NSAssert(theRulePipelineState, @"Failed to create pipeline state: %@", error);
 
@@ -164,9 +165,10 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     meltPipelineStateDescriptor.colorAttachments[0].blendingEnabled = TRUE;
     meltPipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
     meltPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    meltPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+    meltPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
     meltPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     meltPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    meltPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
     theMeltPipelineState = [theDevice newRenderPipelineStateWithDescriptor:meltPipelineStateDescriptor error:&error];
     NSAssert(theMeltPipelineState, @"Failed to create pipeline state: %@", error);
 
@@ -585,7 +587,7 @@ void render_image_dim(int dst_left, int dst_top,
 //
 void render_image_rule(struct image *src_img, struct image *rule_img, int threshold)
 {
-    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, NULL, theRulePipelineState);
+    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, rule_img, theRulePipelineState);
 }
 
 //
@@ -593,7 +595,7 @@ void render_image_rule(struct image *src_img, struct image *rule_img, int thresh
 //
 void render_image_melt(struct image *src_img, struct image *rule_img, int threshold)
 {
-    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, NULL, theMeltPipelineState);
+    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, rule_img, theMeltPipelineState);
 }
 
 //
@@ -659,11 +661,11 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     }
     [theRenderEncoder setRenderPipelineState:pipeline];
     id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(src_image->texture);
-    id<MTLTexture> tex2 = rule_image != NULL ? (__bridge id<MTLTexture> _Nullable)(src_image->texture) : nil;
+    id<MTLTexture> tex2 = rule_image != NULL ? (__bridge id<MTLTexture> _Nullable)(rule_image->texture) : nil;
     [theRenderEncoder setVertexBytes:vsIn length:sizeof(vsIn) atIndex:GameVertexInputIndexVertices];
-    [theRenderEncoder setFragmentTexture:tex1 atIndex:GameTextureIndexBaseColor];
+    [theRenderEncoder setFragmentTexture:tex1 atIndex:GameTextureIndexColor];
     if (tex2 != nil)
-        [theRenderEncoder setFragmentTexture:tex2 atIndex:GameTextureIndexRuleLevel];
+        [theRenderEncoder setFragmentTexture:tex2 atIndex:GameTextureIndexRule];
     [theRenderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
 }
 

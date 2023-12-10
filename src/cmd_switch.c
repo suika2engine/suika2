@@ -1215,9 +1215,11 @@ static void render_frame(void)
 	/* 選択肢を描画する */
 	if (selected_parent_index == -1) {
 		for (i = 0; i < PARENT_COUNT; i++) {
-			struct image *img = i != pointed_index ?
+			struct image *img = i != pointed_index && i != -1?
 				parent_button[i].img_idle : parent_button[i].img_hover;
-			render_image_normal(parent_button[i].x,
+            if (img == NULL)
+                return;
+            render_image_normal(parent_button[i].x,
 					    parent_button[i].y,
 					    img,
 					    img->width,
@@ -1226,9 +1228,11 @@ static void render_frame(void)
 		}
 	} else {
 		for (i = 0; i < CHILD_COUNT; i++) {
-			struct image *img = i != pointed_index ?
+			struct image *img = i != pointed_index && i != -1 ?
 				child_button[selected_parent_index][i].img_idle : parent_button[i].img_hover;
-			render_image_normal(child_button[selected_parent_index][i].x,
+            if (img == NULL)
+                return;
+            render_image_normal(child_button[selected_parent_index][i].x,
 					    child_button[selected_parent_index][i].y,
 					    img,
 					    img->width,
