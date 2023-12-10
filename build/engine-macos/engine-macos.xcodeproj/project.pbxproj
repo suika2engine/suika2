@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		268EAEAC2B21E41400CF559E /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 268EAEAB2B21E41400CF559E /* GameView.m */; };
+		268EAEB32B23C4C700CF559E /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 268EAEAF2B23C4C700CF559E /* GameShaders.metal */; };
+		268EAEB42B23C4C700CF559E /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 268EAEB02B23C4C700CF559E /* GameRenderer.m */; };
 		26EAF25C2B1F9B1F003530F4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26EAF25B2B1F9B1F003530F4 /* AppDelegate.m */; };
 		26EAF2612B1F9B20003530F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26EAF2602B1F9B20003530F4 /* Assets.xcassets */; };
 		26EAF2642B1F9B20003530F4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26EAF2622B1F9B20003530F4 /* Main.storyboard */; };
@@ -71,8 +73,6 @@
 		26EAF30A2B2049DE003530F4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26EAF3092B2049DE003530F4 /* CoreAudio.framework */; };
 		26EAF30C2B2049E7003530F4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26EAF30B2B2049E7003530F4 /* AVFoundation.framework */; };
 		26EAF3142B206E0E003530F4 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26EAF3132B206E0E003530F4 /* ViewController.m */; };
-		26EAF3172B206FCF003530F4 /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 26EAF3162B206FCF003530F4 /* GameRenderer.m */; };
-		26EAF3192B208949003530F4 /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 26EAF3182B208949003530F4 /* GameShaders.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -80,6 +80,10 @@
 		268EAEAB2B21E41400CF559E /* GameView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
 		268EAEAD2B222C3800CF559E /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewControllerProtocol.h; sourceTree = "<group>"; };
 		268EAEAE2B23C12800CF559E /* hal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hal.h; path = ../../src/hal.h; sourceTree = "<group>"; };
+		268EAEAF2B23C4C700CF559E /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/GameShaders.metal; sourceTree = "<group>"; };
+		268EAEB02B23C4C700CF559E /* GameRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameRenderer.m; path = ../../src/GameRenderer.m; sourceTree = "<group>"; };
+		268EAEB12B23C4C700CF559E /* GameRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameRenderer.h; path = ../../src/GameRenderer.h; sourceTree = "<group>"; };
+		268EAEB22B23C4C700CF559E /* GameShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameShaderTypes.h; path = ../../src/GameShaderTypes.h; sourceTree = "<group>"; };
 		26EAF2572B1F9B1F003530F4 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26EAF25A2B1F9B1F003530F4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		26EAF25B2B1F9B1F003530F4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -177,10 +181,6 @@
 		26EAF30D2B2049FC003530F4 /* CoreAudioTypes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioTypes.framework; path = System/Library/Frameworks/CoreAudioTypes.framework; sourceTree = SDKROOT; };
 		26EAF3122B206E0E003530F4 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		26EAF3132B206E0E003530F4 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		26EAF3152B206FCF003530F4 /* GameRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameRenderer.h; sourceTree = "<group>"; };
-		26EAF3162B206FCF003530F4 /* GameRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameRenderer.m; sourceTree = "<group>"; };
-		26EAF3182B208949003530F4 /* GameShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = GameShaders.metal; sourceTree = "<group>"; };
-		26EAF31A2B208981003530F4 /* GameShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameShaderTypes.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,10 +226,6 @@
 				26EAF3132B206E0E003530F4 /* ViewController.m */,
 				268EAEAA2B21E41400CF559E /* GameView.h */,
 				268EAEAB2B21E41400CF559E /* GameView.m */,
-				26EAF3152B206FCF003530F4 /* GameRenderer.h */,
-				26EAF3162B206FCF003530F4 /* GameRenderer.m */,
-				26EAF31A2B208981003530F4 /* GameShaderTypes.h */,
-				26EAF3182B208949003530F4 /* GameShaders.metal */,
 				26EAF2602B1F9B20003530F4 /* Assets.xcassets */,
 				26EAF2622B1F9B20003530F4 /* Main.storyboard */,
 				26EAF2672B1F9B20003530F4 /* engine_macos.entitlements */,
@@ -247,6 +243,10 @@
 		26EAF2712B202CA6003530F4 /* suika2 */ = {
 			isa = PBXGroup;
 			children = (
+				268EAEB12B23C4C700CF559E /* GameRenderer.h */,
+				268EAEB02B23C4C700CF559E /* GameRenderer.m */,
+				268EAEAF2B23C4C700CF559E /* GameShaders.metal */,
+				268EAEB22B23C4C700CF559E /* GameShaderTypes.h */,
 				268EAEAE2B23C12800CF559E /* hal.h */,
 				26EAF27E2B202CEC003530F4 /* anime.c */,
 				26EAF27F2B202CEC003530F4 /* anime.h */,
@@ -421,11 +421,10 @@
 				26EAF2A12B202CEC003530F4 /* anime.c in Sources */,
 				26EAF29F2B202CEC003530F4 /* cmd_pencil.c in Sources */,
 				26EAF2F22B202D87003530F4 /* readpng.c in Sources */,
+				268EAEB32B23C4C700CF559E /* GameShaders.metal in Sources */,
 				26EAF3072B202D87003530F4 /* uimsg.c in Sources */,
 				26EAF2B22B202CEC003530F4 /* cmd_bgm.c in Sources */,
 				26EAF2B32B202CEC003530F4 /* cmd_load.c in Sources */,
-				26EAF3192B208949003530F4 /* GameShaders.metal in Sources */,
-				26EAF3172B206FCF003530F4 /* GameRenderer.m in Sources */,
 				26EAF3052B202D87003530F4 /* readimage.c in Sources */,
 				26EAF2EF2B202D87003530F4 /* image.c in Sources */,
 				26EAF2A92B202CEC003530F4 /* cmd_gosub.c in Sources */,
@@ -477,6 +476,7 @@
 				26EAF2992B202CEC003530F4 /* cmd_gui.c in Sources */,
 				26EAF2F52B202D87003530F4 /* event.c in Sources */,
 				268EAEAC2B21E41400CF559E /* GameView.m in Sources */,
+				268EAEB42B23C4C700CF559E /* GameRenderer.m in Sources */,
 				26EAF2982B202CEC003530F4 /* cmd_skip.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
