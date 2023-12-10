@@ -394,10 +394,9 @@ BOOL D3DRedraw(void)
 // HAL: Notifies an image update.
 //  - TODO: Support lazy upload. (Probably I'll write for the Direct3D 12 support.)
 //
-bool notify_image_update(struct image *img)
+void notify_image_update(struct image *img)
 {
 	img->need_upload = true;
-	return true;
 }
 
 //

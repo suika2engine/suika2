@@ -63,20 +63,6 @@
 #define BTN_HIDE		(8)
 #define MAX_BTN			(8)
 
-/* システムメニューのボタンのインデックス */
-#define SYSMENU_NONE		(-1)
-#define SYSMENU_QSAVE		(0)
-#define SYSMENU_QLOAD		(1)
-#define SYSMENU_SAVE		(2)
-#define SYSMENU_LOAD		(3)
-#define SYSMENU_AUTO		(4)
-#define SYSMENU_SKIP		(5)
-#define SYSMENU_HISTORY		(6)
-#define SYSMENU_CONFIG		(7)
-#define SYSMENU_CUSTOM1		(8)
-#define SYSMENU_CUSTOM2		(9)
-#define SYSMENU_COUNT		(10)
-
 /*
  * オートモードでボイスありのときの待ち時間
  *  - 表示と再生の完了からどれくらい待つかの基本時間
@@ -371,8 +357,8 @@ static void action_custom(int index);
 static bool frame_sysmenu(void);
 static bool process_collapsed_sysmenu(void);
 static void adjust_sysmenu_pointed_index(void);
-static int get_sysmenu_pointed_button(void);
-static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h);
+static int get_pointed_sysmenu_item_extended(void);
+static bool is_collapsed_sysmenu_pointed_extended(void);
 
 /* メイン描画処理 */
 static void draw_frame(void);
@@ -387,7 +373,6 @@ static void draw_click(void);
 static bool check_stop_click_animation(void);
 static void draw_sysmenu(void);
 static void draw_collapsed_sysmenu(void);
-static bool is_collapsed_sysmenu_pointed(void);
 static void draw_dimming(void);
 
 /* その他 */
@@ -541,7 +526,7 @@ static bool postprocess(void)
 	/*
 	 * ステージを描画する
 	 */
-	draw_stage();
+	render_stage();
 
 	/* システムメニューを描画する */
 	if (!conf_sysmenu_hidden && !is_hidden) {
@@ -1495,7 +1480,7 @@ static void init_first_draw_area(void)
 	/*
 	 * ここで求めた更新矩形は、GPUを利用しないときに適用される
 	 *  - GPUを利用するときは、毎フレーム画面全体を更新する
-	 *  - See also draw_stage() in stage.c
+	 *  - See also render_stage() in stage.c
 	 */
 
 	/* deprecatedなメニュー系コマンドが終了した直後の場合 */
@@ -2221,7 +2206,7 @@ static bool frame_sysmenu(void)
 
 	/* ポイントされているシステムメニューのボタンを求める */
 	old_sysmenu_pointed_index = sysmenu_pointed_index;
-	sysmenu_pointed_index = get_sysmenu_pointed_button();
+	sysmenu_pointed_index = get_pointed_sysmenu_item_extended();
 
 	/*
 	 * キャンセルの処理を行う
@@ -2346,7 +2331,7 @@ static bool process_collapsed_sysmenu(void)
 		/* 右クリックされた場合と、エスケープキーが押下された場合 */
 		enter_sysmenu = true;
 		clear_input_state();
-	} else if (is_left_clicked && is_collapsed_sysmenu_pointed()) {
+	} else if (is_left_clicked && is_collapsed_sysmenu_pointed_extended()) {
 		/* 折りたたみシステムメニューがクリックされたとき */
 		enter_sysmenu = true;
 		clear_input_state();
@@ -2365,7 +2350,7 @@ static bool process_collapsed_sysmenu(void)
 	is_sysmenu = true;
 	is_sysmenu_first_frame = true;
 	is_sysmenu_finished = false;
-	sysmenu_pointed_index = get_sysmenu_pointed_button();
+	sysmenu_pointed_index = get_pointed_sysmenu_item_extended();
 	old_sysmenu_pointed_index = SYSMENU_NONE;
 	adjust_sysmenu_pointed_index();
 
@@ -2397,10 +2382,8 @@ static void adjust_sysmenu_pointed_index(void)
 }
 
 /* 選択中のシステムメニューのボタンを取得する */
-static int get_sysmenu_pointed_button(void)
+static int get_pointed_sysmenu_item_extended(void)
 {
-	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
-
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中の場合、ボタンを選択できなくする */
 	if (dbg_is_stop_requested())
@@ -2411,93 +2394,8 @@ static int get_sysmenu_pointed_button(void)
 	if (!is_sysmenu)
 		return SYSMENU_NONE;
 
-	/* マウス座標からシステムメニュー画像内座標に変換する */
-	rx = mouse_pos_x - conf_sysmenu_x;
-	ry = mouse_pos_y - conf_sysmenu_y;
-
-	/* ボタンを順番に見ていく */
-	for (i = SYSMENU_QSAVE; i <= SYSMENU_CUSTOM2; i++) {
-		/* ボタンの座標を取得する */
-		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
-
-		/* マウスがボタンの中にあればボタンの番号を返す */
-		if ((rx >= btn_x && rx < btn_x + btn_w) &&
-		    (ry >= btn_y && ry < btn_y + btn_h))
-			return i;
-	}
-
-	/* ボタンがポイントされていない */
-	return SYSMENU_NONE;
-}
-
-/* システムメニューのボタンの座標を取得する */
-static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
-{
-	switch (btn) {
-	case SYSMENU_QSAVE:
-		*x = conf_sysmenu_qsave_x;
-		*y = conf_sysmenu_qsave_y;
-		*w = conf_sysmenu_qsave_width;
-		*h = conf_sysmenu_qsave_height;
-		break;
-	case SYSMENU_QLOAD:
-		*x = conf_sysmenu_qload_x;
-		*y = conf_sysmenu_qload_y;
-		*w = conf_sysmenu_qload_width;
-		*h = conf_sysmenu_qload_height;
-		break;
-	case SYSMENU_SAVE:
-		*x = conf_sysmenu_save_x;
-		*y = conf_sysmenu_save_y;
-		*w = conf_sysmenu_save_width;
-		*h = conf_sysmenu_save_height;
-		break;
-	case SYSMENU_LOAD:
-		*x = conf_sysmenu_load_x;
-		*y = conf_sysmenu_load_y;
-		*w = conf_sysmenu_load_width;
-		*h = conf_sysmenu_load_height;
-		break;
-	case SYSMENU_AUTO:
-		*x = conf_sysmenu_auto_x;
-		*y = conf_sysmenu_auto_y;
-		*w = conf_sysmenu_auto_width;
-		*h = conf_sysmenu_auto_height;
-		break;
-	case SYSMENU_SKIP:
-		*x = conf_sysmenu_skip_x;
-		*y = conf_sysmenu_skip_y;
-		*w = conf_sysmenu_skip_width;
-		*h = conf_sysmenu_skip_height;
-		break;
-	case SYSMENU_HISTORY:
-		*x = conf_sysmenu_history_x;
-		*y = conf_sysmenu_history_y;
-		*w = conf_sysmenu_history_width;
-		*h = conf_sysmenu_history_height;
-		break;
-	case SYSMENU_CONFIG:
-		*x = conf_sysmenu_config_x;
-		*y = conf_sysmenu_config_y;
-		*w = conf_sysmenu_config_width;
-		*h = conf_sysmenu_config_height;
-		break;
-	case SYSMENU_CUSTOM1:
-		*x = conf_sysmenu_custom1_x;
-		*y = conf_sysmenu_custom1_y;
-		*w = conf_sysmenu_custom1_width;
-		*h = conf_sysmenu_custom1_height;
-		break;
-	case SYSMENU_CUSTOM2:
-		*x = conf_sysmenu_custom2_x;
-		*y = conf_sysmenu_custom2_y;
-		*w = conf_sysmenu_custom2_width;
-		*h = conf_sysmenu_custom2_height;
-		break;
-	default:
-		assert(ASSERT_INVALID_BTN_INDEX);
-		break;
-	}
+	/* ポイントされているボタンを返す */
+	return get_pointed_sysmenu_item();
 }
 
 /*
@@ -2862,7 +2760,7 @@ static bool check_stop_click_animation(void)
 		/* 何もないところをクリックされた場合は停止する */
 		if (is_left_clicked &&
 		    (pointed_index == BTN_NONE) &&
-		    is_collapsed_sysmenu_pointed() &&
+		    is_collapsed_sysmenu_pointed_extended() &&
 		    !is_sysmenu)
 			return true;
 
@@ -2933,7 +2831,7 @@ static bool check_stop_click_animation(void)
 		/* 何もないところをクリックされた場合は停止する */
 		if (is_left_clicked &&
 		    (pointed_index == BTN_NONE) &&
-		    !is_collapsed_sysmenu_pointed())
+		    !is_collapsed_sysmenu_pointed_extended())
 			return true;
 
 		/* キーが押下された場合は停止する */
@@ -2946,7 +2844,7 @@ static bool check_stop_click_animation(void)
 
 	/* 何もないところをクリックされた場合と、キーが押下された場合 */
 	if ((is_left_clicked && (pointed_index == BTN_NONE) &&
-	     !is_collapsed_sysmenu_pointed()) ||
+	     !is_collapsed_sysmenu_pointed_extended()) ||
 	    (is_return_pressed || is_down_pressed)) {
 		/*
 		 * 割り込み不可モードでない場合は停止する
@@ -2985,21 +2883,21 @@ static void draw_sysmenu(void)
 	}
 
 	/* 描画する */
-	draw_stage_sysmenu(true,
-			   is_skippable(),
-			   is_save_load_enabled(),
-			   is_save_load_enabled() &&
-			   have_quick_save_data(),
-			   sel[SYSMENU_QSAVE],
-			   sel[SYSMENU_QLOAD],
-			   sel[SYSMENU_SAVE],
-			   sel[SYSMENU_LOAD],
-			   sel[SYSMENU_AUTO],
-			   sel[SYSMENU_SKIP],
-			   sel[SYSMENU_HISTORY],
-			   sel[SYSMENU_CONFIG],
-			   sel[SYSMENU_CUSTOM1],
-			   sel[SYSMENU_CUSTOM2]);
+	render_sysmenu(true,
+		       is_skippable(),
+		       is_save_load_enabled(),
+		       is_save_load_enabled() &&
+		       have_quick_save_data(),
+		       sel[SYSMENU_QSAVE],
+		       sel[SYSMENU_QLOAD],
+		       sel[SYSMENU_SAVE],
+		       sel[SYSMENU_LOAD],
+		       sel[SYSMENU_AUTO],
+		       sel[SYSMENU_SKIP],
+		       sel[SYSMENU_HISTORY],
+		       sel[SYSMENU_CONFIG],
+		       sel[SYSMENU_CUSTOM1],
+		       sel[SYSMENU_CUSTOM2]);
 
 	is_sysmenu_first_frame = false;
 }
@@ -3010,10 +2908,10 @@ static void draw_collapsed_sysmenu(void)
 	bool is_pointed;
 
 	/* 折りたたみシステムメニューがポイントされているか調べる */
-	is_pointed = is_collapsed_sysmenu_pointed();
+	is_pointed = is_collapsed_sysmenu_pointed_extended();
 
 	/* 描画する */
-	draw_stage_collapsed_sysmenu(is_pointed);
+	render_collapsed_sysmenu(is_pointed);
 
 	/* SEを再生する */
 	if (!is_sysmenu_finished &&
@@ -3025,10 +2923,8 @@ static void draw_collapsed_sysmenu(void)
 }
 
 /* 折りたたみシステムメニューがポイントされているか調べる */
-static bool is_collapsed_sysmenu_pointed(void)
+static bool is_collapsed_sysmenu_pointed_extended(void)
 {
-	int bx, by, bw, bh;
-
 #ifdef USE_DEBUGGER
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested())
@@ -3044,9 +2940,7 @@ static bool is_collapsed_sysmenu_pointed(void)
 		return false;
 
 	/* マウスカーソル座標をチェックする */
-	get_collapsed_sysmenu_rect(&bx, &by, &bw, &bh);
-	if (mouse_pos_x >= bx && mouse_pos_x < bx + bw &&
-	    mouse_pos_y >= by && mouse_pos_y < by + bh)
+	if (is_collapsed_sysmenu_pointed())
 		return true;
 
 	return false;

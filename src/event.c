@@ -114,7 +114,7 @@ bool on_event_frame(void)
 
 	/* キラキラエフェクトを描画する */
 	if (conf_kirakira_on)
-		draw_kirakira();
+		render_kirakira();
 
 	/* アプリケーションを続行する */
 	return true;

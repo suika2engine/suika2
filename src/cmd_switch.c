@@ -6,9 +6,8 @@
  */
 
 /*
- * @chooseコマンドの実装
- *  - バックエンドとして@switchの実装を用いている
- *  - @choose, @select, @switch, @newsの4つがここで実装されている
+ * swicthコマンドの実装
+ *  - @choose, @switch, @newsがここで実装されている
  *
  * [Changes]
  *  - 2017/08/14 作成
@@ -34,7 +33,8 @@
  *      - チュートリアル「ミッチーにおまかせ！」では@switchの2階層を使っている
  *        - ただ、引数が多すぎて他の方には使えないと思われる
  *      - ひとまずは2階層の実装のままにする (大して複雑でもないため)
- *      - 2階層のユーザがいなくなったら1階層に単純化するつもり
+ *    - @selectは削除された
+ *    - GPU必須化に伴って、FO/FIの使用をやめ、ボタン画像を作成するように変更した
  *  - システムメニューについて
  *    - システムメニューの非表示時には、折りたたみシステムメニューが表示される
  *    - コンフィグのsysmenu.hidden=1は選択肢コマンドには影響しない
@@ -65,12 +65,6 @@
 #define CHILD_COUNT		(8)
 
 /*
- * @selectの選択肢の数
- *  - deprecatedなコマンドである@selectは、固定で3つの選択肢を持つ
- */
-#define SELECT_OPTION_COUNT	(3)
-
-/*
  * 引数インデックスの計算
  *  - コマンドの種類によって変わる
  */
@@ -90,12 +84,6 @@
 /* @switchと@newsの親選択肢の引数インデックス */
 #define SWITCH_CHILD_MESSAGE(p,c)	(SWITCH_PARAM_CHILD1_M1 + 16 * p + 2 * c)
 
-/* @selectのラベルの引数インデックス */
-#define SELECT_LABEL(n)			(SELECT_PARAM_LABEL1 + n)
-
-/* @selectのメッセージの引数インデックス */
-#define SELECT_MESSAGE(n)		(SELECT_PARAM_TEXT1 + n)
-
 /*
  * @newsコマンドの場合の、東西南北以外の項目の開始オフセット
  *  - 先頭4つの親選択肢が北東西南に配置される
@@ -105,19 +93,6 @@
 
 /* 指定した親選択肢が無効であるか */
 #define IS_PARENT_DISABLED(n)	(parent_button[n].msg == NULL)
-
-/* システムメニューのボタンのインデックス */
-#define SYSMENU_NONE	(-1)
-#define SYSMENU_QSAVE	(0)
-#define SYSMENU_QLOAD	(1)
-#define SYSMENU_SAVE	(2)
-#define SYSMENU_LOAD	(3)
-#define SYSMENU_AUTO	(4)
-#define SYSMENU_SKIP	(5)
-#define SYSMENU_HISTORY	(6)
-#define SYSMENU_CONFIG	(7)
-#define SYSMENU_CUSTOM1	(8)
-#define SYSMENU_CUSTOM2	(9)
 
 /*
  * 選択肢の項目
@@ -133,6 +108,8 @@ static struct parent_button {
 	int y;
 	int w;
 	int h;
+	struct image *img_idle;
+	struct image *img_hover;
 } parent_button[PARENT_COUNT];
 
 /* 子選択肢のボタン */
@@ -143,23 +120,19 @@ static struct child_button {
 	int y;
 	int w;
 	int h;
+	struct image *img_idle;
+	struct image *img_hover;
 } child_button[PARENT_COUNT][CHILD_COUNT];
 
 /*
  * 選択肢の状態
  */
 
-/* ポイントされている親項目のインデックス */
-static int pointed_parent_index;
+/* ポイントされている項目のインデックス */
+static int pointed_index;
 
-/* 選択されているされている親項目のインデックス */
+/* 1階層目で選択済みの親項目のインデックス */
 static int selected_parent_index;
-
-/* ポイントされている子項目のインデックス */
-static int pointed_child_index;
-
-/* 処理中のポイントされている項目のインデックス */
-static int new_pointed_index;
 
 /* キー操作によってポイントが変更されたか */
 static bool is_selected_by_key;
@@ -171,18 +144,11 @@ static int save_mouse_pos_x, save_mouse_pos_y;
  * 描画の状態
  */
 
-/* 最初の描画であるか */
-static bool is_first_frame;
-
-/* 子選択肢の最初の描画であるか */
-static bool is_child_first_frame;
-
 /* センタリングするか */
 static bool is_centered;
 
 /*
  * システムメニュー
- *  - TODO: cmd_message.cと共通化する
  */
 
 /* システムメニューを表示中か */
@@ -205,7 +171,6 @@ static bool is_collapsed_sysmenu_pointed_prev;
 
 /*
  * システム遷移フラグ
- *  - TODO: cmd_message.cと共通化する
  */
 
 /* クイックセーブを行うか */
@@ -240,38 +205,23 @@ static bool postprocess(void);
 
 /* 初期化 */
 static bool init(void);
-static bool get_choose_info(void);
-static bool get_ichoose_info(void);
-static bool get_select_info(void);
-static bool get_switch_parents_info(void);
-static bool get_switch_children_info(void);
+static bool init_choose(void);
+static bool init_ichoose(void);
+static bool init_switch(void);
+static void draw_text(struct image *target, const char *text, int w, int h, bool is_bg, bool is_news);
 
 /* 入力処理 */
 static void process_main_input(void);
-static void process_sysmenu_input(void);
-
-/* 描画 */
-static void draw_frame(void);
-static void draw_frame_parent(void);
-static void draw_frame_child(void);
+static int get_pointed_index(void);
 static int get_pointed_parent_index(void);
 static int get_pointed_child_index(void);
-static void draw_fo_fi_parent(void);
-static void draw_switch_parent_images(void);
-static void update_switch_parent(void);
-static void draw_fo_fi_child(void);
-static void draw_switch_child_images(void);
-static void update_switch_child(void);
-static void draw_text(int x, int y, int w, int h, const char *t, bool is_news);
-static void draw_keep(void);
+static void process_sysmenu_input(void);
+static int get_pointed_sysmenu_item_extended(void);
 
-/* システムメニュー */
-static void draw_sysmenu(void);
-static void draw_collapsed_sysmenu(void);
-static bool is_collapsed_sysmenu_pointed(void);
-static int get_sysmenu_pointed_button(void);
-static void adjust_sysmenu_pointed_index(void);
-static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h);
+/* 描画 */
+static void render_frame(void);
+static void render_sysmenu_extended(void);
+static void render_collapsed_sysmenu_extended(void);
 
 /* その他 */
 static void play_se(const char *file);
@@ -333,7 +283,7 @@ static void main_process(void)
 		return;
 
 	/* 描画を行う */
-	draw_frame();
+	render_frame();
 
 	/* システムメニューの表示完了直後のフラグをクリアする */
 	is_sysmenu_finished = false;
@@ -342,6 +292,8 @@ static void main_process(void)
 /* 後処理として、遷移を処理する */
 static bool postprocess(void)
 {
+	int i;
+
 	/*
 	 * 必要な場合は繰り返し動作を停止する
 	 *  - クイックロードされたとき
@@ -361,8 +313,22 @@ static bool postprocess(void)
 	if (will_quick_save
 	    ||
 	    (need_save_mode || need_load_mode || need_history_mode ||
-	     need_config_mode))
-		draw_stage_fo_thumb();
+	     need_config_mode)) {
+		draw_stage_to_thumb();
+		if (selected_parent_index == -1) {
+			for (i = 0; i < PARENT_COUNT; i++) {
+				draw_switch_to_thumb(parent_button[i].img_idle,
+						     parent_button[i].x,
+						     parent_button[i].y);
+			}
+		} else {
+			for (i = 0; i < CHILD_COUNT; i++) {
+				draw_switch_to_thumb(child_button[selected_parent_index][i].img_idle,
+						     child_button[selected_parent_index][i].x,
+						     child_button[selected_parent_index][i].y);
+			}
+		}
+	}
 
 	/* システムメニューで押されたボタンの処理を行う */
 	if (will_quick_save) {
@@ -404,14 +370,10 @@ bool init(void)
 
 	start_command_repetition();
 
-	pointed_parent_index = -1;
+	pointed_index = -1;
 	selected_parent_index = -1;
-	pointed_child_index = -1;
 
 	is_centered = true;
-
-	is_first_frame = true;
-	is_child_first_frame = false;
 
 	is_sysmenu = false;
 	is_sysmenu_first_frame = false;
@@ -425,26 +387,34 @@ bool init(void)
 	need_config_mode = false;
 	is_quick_load_failed = false;
 
+	/* Android NDKの場合、画像を破棄する */
+#ifdef SUIKA_TARGET_ANDROID
+	for (i = 0; i < PARENT_COUNT; i++) {
+		if (parent_button[i].img_idle != NULL)
+			destroy_image(parent_button[i].img_idle);
+		if (parent_button[i].img_hover != NULL)
+			destroy_image(parent_button[i].img_hover);
+		parent_button[i].img_idle = NULL;
+		parent_button[i].img_hover = NULL;
+		for (j = 0; j < CHILD_COUNT; j++) {
+			if (child_button[i][j].img_idle != NULL)
+				destroy_image(parent_button[i].img_idle);
+			if (child_button[i][j].img_hover != NULL)
+				destroy_image(parent_button[i].img_hover);
+		}
+	}
+#endif
+
+	/* コマンドの種類ごとに初期化を行う */
 	type = get_command_type();
 	if (type == COMMAND_CHOOSE) {
-		/* @chooseコマンドの引数情報を取得する */
-		if (!get_choose_info())
+		if (!init_choose())
 			return false;
 	} else if (type == COMMAND_ICHOOSE) {
-		/* @ichooseコマンドの引数情報を取得する */
-		if (!get_ichoose_info())
-			return false;
-	} else if (type == COMMAND_SELECT) {
-		/* @selectコマンドの引数情報を取得する */
-		if (!get_select_info())
+		if (!init_ichoose())
 			return false;
 	} else {
-		/* 親選択肢の情報を取得する */
-		if (!get_switch_parents_info())
-			return false;
-
-		/* 子選択肢の情報を取得する */
-		if (!get_switch_children_info())
+		if (!init_switch())
 			return false;
 	}
 
@@ -473,8 +443,8 @@ bool init(void)
 	return true;
 }
 
-/* @chooseコマンドの引数情報を取得する */
-static bool get_choose_info(void)
+/* @chooseコマンドの初期化を行う */
+static bool init_choose(void)
 {
 	const char *label, *msg;
 	int i;
@@ -509,6 +479,22 @@ static bool get_choose_info(void)
 				&parent_button[i].y,
 				&parent_button[i].w,
 				&parent_button[i].h);
+
+		/* idle画像を作成する */
+		parent_button[i].img_idle = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_idle == NULL)
+			return false;
+		draw_switch_bg_image(parent_button[i].img_idle, i);
+
+		/* hover画像を作成する */
+		parent_button[i].img_hover = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_hover == NULL)
+			return false;
+		draw_switch_fg_image(parent_button[i].img_hover, i);
+
+		/* テキストを描画する */
+		draw_text(parent_button[i].img_idle, parent_button[i].msg, parent_button[i].w, parent_button[i].h, true, false);
+		draw_text(parent_button[i].img_hover, parent_button[i].msg, parent_button[i].w, parent_button[i].h, false, false);
 	}
 
 	/* テキスト読み上げする */
@@ -524,7 +510,7 @@ static bool get_choose_info(void)
 }
 
 /* @ichooseコマンドの引数情報を取得する */
-static bool get_ichoose_info(void)
+static bool init_ichoose(void)
 {
 	const char *label, *msg;
 	int i, pen_x, pen_y;
@@ -574,52 +560,36 @@ static bool get_ichoose_info(void)
 			pen_x -= conf_msgbox_margin_line;
 		else
 			pen_y += conf_msgbox_margin_line;
+
+		/* idle画像を作成する */
+		parent_button[i].img_idle = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_idle == NULL)
+			return false;
+		draw_switch_bg_image(parent_button[i].img_idle, i);
+
+		/* hover画像を作成する */
+		parent_button[i].img_hover = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_hover == NULL)
+			return false;
+		draw_switch_fg_image(parent_button[i].img_hover, i);
+
+		/* テキストを描画する */
+		draw_text(parent_button[i].img_idle, parent_button[i].msg, parent_button[i].w, parent_button[i].h, true, false);
+		draw_text(parent_button[i].img_hover, parent_button[i].msg, parent_button[i].w, parent_button[i].h, false, false);
 	}
 
 	return true;
 }
 
-/* @selectコマンドの引数情報を取得する */
-static bool get_select_info(void)
-{
-	const char *label, *msg;
-	int i;
-
-	memset(parent_button, 0, sizeof(parent_button));
-	memset(child_button, 0, sizeof(child_button));
-
-	/* 選択肢の情報を取得する */
-	for (i = 0; i < SELECT_OPTION_COUNT; i++) {
-		/* ラベルを取得する */
-		label = get_string_param(SELECT_LABEL(i));
-
-		/* メッセージを取得する */
-		msg = get_string_param(SELECT_MESSAGE(i));
-
-		/* ボタンの情報を保存する */
-		parent_button[i].msg = msg;
-		parent_button[i].label = label;
-		parent_button[i].has_child = false;
-		parent_button[i].child_count = 0;
-
-		/* 座標を計算する */
-		get_switch_rect(i, &parent_button[i].x,
-				&parent_button[i].y,
-				&parent_button[i].w,
-				&parent_button[i].h);
-	}
-
-	return true;
-}
-
-/* 親選択肢の情報を取得する */
-static bool get_switch_parents_info(void)
+/* @switchの初期化を行う */
+static bool init_switch(void)
 {
 	const char *p;
-	int i, parent_button_count = 0;
+	int i, j, parent_button_count = 0;
 	bool is_first;
 
 	memset(parent_button, 0, sizeof(parent_button));
+	memset(child_button, 0, sizeof(child_button));
 
 	/* 親選択肢の情報を取得する */
 	is_first = true;
@@ -684,6 +654,18 @@ static bool get_switch_parents_info(void)
 				      &parent_button[i].h);
 		}
 
+		/* idle画像を作成する */
+		parent_button[i].img_idle = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_idle == NULL)
+			return false;
+		draw_switch_bg_image(parent_button[i].img_idle, i);
+
+		/* hover画像を作成する */
+		parent_button[i].img_hover = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_hover == NULL)
+			return false;
+		draw_switch_fg_image(parent_button[i].img_hover, i);
+
 		parent_button_count++;
 	}
 	if (parent_button_count == 0) {
@@ -691,17 +673,6 @@ static bool get_switch_parents_info(void)
 		log_script_exec_footer();
 		return false;
 	}
-
-	return true;
-}
-
-/* 子選択肢の情報を取得する */
-static bool get_switch_children_info(void)
-{
-	const char *p;
-	int i, j;
-
-	memset(child_button, 0, sizeof(child_button));
 
 	/* 子選択肢の情報を取得する */
 	for (i = 0; i < PARENT_COUNT; i++) {
@@ -736,12 +707,139 @@ static bool get_switch_children_info(void)
 					&child_button[i][j].y,
 					&child_button[i][j].w,
 					&child_button[i][j].h);
+
+			/* idle画像を作成する */
+			child_button[i][j].img_idle = create_image(child_button[i][j].w, child_button[i][j].h);
+			if (child_button[i][j].img_idle == NULL)
+				return false;
+			draw_switch_bg_image(child_button[i][j].img_idle, i);
+
+			/* hover画像を作成する */
+			child_button[i][j].img_hover = create_image(child_button[i][j].w, child_button[i][j].h);
+			if (child_button[i][j].img_hover == NULL)
+				return false;
+			draw_switch_fg_image(child_button[i][j].img_hover, i);
+
+			/* テキストを描画する */
+			draw_text(child_button[i][j].img_idle,
+				  child_button[i][j].msg,
+				  child_button[i][j].w,
+				  child_button[i][j].h,
+				  true,
+				  get_command_type() == COMMAND_NEWS);
+			draw_text(child_button[i][j].img_hover,
+				  child_button[i][j].msg,
+				  child_button[i][j].w,
+				  child_button[i][j].h,
+				  false,
+				  get_command_type() == COMMAND_NEWS);
 		}
 		assert(j > 0);
 		parent_button[i].child_count = j;
 	}
 
 	return true;
+}
+
+/* 選択肢のテキストを描画する */
+static void draw_text(struct image *target, const char *text, int w, int h, bool is_bg, bool is_news)
+{
+	struct draw_msg_context context;
+	pixel_t color, outline_color;
+	int font_size, char_count;
+	int x, y;
+	bool use_outline;
+
+	x = 0;
+	y = 0;
+
+	/* フォントサイズを取得する */
+	font_size = conf_switch_font_size > 0 ? conf_switch_font_size : conf_font_size;
+
+	/* ふちどりを決定する */
+	switch (conf_switch_font_outline) {
+	case 0: use_outline = !conf_font_outline_remove; break;
+	case 1: use_outline = true; break;
+	case 2: use_outline = false; break;
+	default: use_outline = false; break;
+	}
+
+	/* 色を決める */
+	if (is_bg || (!is_bg && !conf_switch_color_active)) {
+		color = make_pixel(0xff,
+				   (pixel_t)conf_font_color_r,
+				   (pixel_t)conf_font_color_g,
+				   (pixel_t)conf_font_color_b);
+		outline_color = make_pixel(0xff,
+					   (pixel_t)conf_font_outline_color_r,
+					   (pixel_t)conf_font_outline_color_g,
+					   (pixel_t)conf_font_outline_color_b);
+	} else {
+		color = make_pixel(0xff,
+					  (pixel_t)conf_switch_color_active_body_r,
+					  (pixel_t)conf_switch_color_active_body_g,
+					  (pixel_t)conf_switch_color_active_body_b);
+		outline_color = make_pixel(0xff,
+						  (pixel_t)conf_switch_color_active_outline_r,
+						  (pixel_t)conf_switch_color_active_outline_g,
+						  (pixel_t)conf_switch_color_active_outline_b);
+	}
+
+	/* 描画位置を決める */
+	if (is_centered) {
+		if (!conf_msgbox_tategaki) {
+			x = x + (w - get_string_width(conf_switch_font_select,
+						      font_size,
+						      text)) / 2;
+			y += conf_switch_text_margin_y;
+		} else {
+			x = x + (w - font_size) / 2;
+			y = y + (h - get_string_height(conf_switch_font_select,
+						       font_size,
+						       text)) / 2;
+		}
+	} else {
+		y += is_news ?
+			conf_news_text_margin_y :
+			conf_switch_text_margin_y;
+	}
+
+	/* 文字を描画する */
+	construct_draw_msg_context(
+		&context,
+		-1,
+		text,
+		conf_switch_font_select,
+		font_size,
+		font_size,		/* base_font_size */
+		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
+		use_outline,
+		x,
+		y,
+		conf_window_width,
+		conf_window_height,
+		x,			/* left_margin */
+		0,			/* right_margin */
+		conf_switch_text_margin_y,
+		0,			/* bottom_margin */
+		0,			/* line_margin */
+		conf_msgbox_margin_char,
+		color,
+		outline_color,
+		false,			/* is_dimming */
+		true,			/* ignore_linefeed */
+		false,			/* ignore_font */
+		false,			/* ignore_size */
+		false,			/* ignore_color */
+		false,			/* ignore_size */
+		false,			/* ignore_position */
+		false,			/* ignore_ruby */
+		true,			/* ignore_wait */
+		NULL,			/* inline_wait_hook */
+		conf_msgbox_tategaki);	/* use_tategaki */
+	set_alternative_target_image(&context, target);
+	char_count = count_chars_common(&context);
+	draw_msg_common(&context, char_count);
 }
 
 /*
@@ -751,16 +849,32 @@ static bool get_switch_children_info(void)
 /* システムメニュー非表示中の入力を処理する */
 static void process_main_input(void)
 {
-	int old_pointed_index;
+	int old_pointed_index, new_pointed_index;
 	bool enter_sysmenu;
 
 	/* 選択項目の変更を処理する */
 	if (selected_parent_index == -1) {
-		old_pointed_index = pointed_parent_index;
-		new_pointed_index = get_pointed_parent_index();
+		old_pointed_index = pointed_index;
+		new_pointed_index = get_pointed_index();
+		if (new_pointed_index != old_pointed_index &&
+		    new_pointed_index != -1 &&
+		    conf_tts_enable == 1 &&
+		    is_selected_by_key &&
+		    parent_button[new_pointed_index].msg != NULL) {
+			speak_text(NULL);
+			speak_text(parent_button[pointed_index].msg);
+		}
 	} else {
-		old_pointed_index = pointed_child_index;
-		new_pointed_index = get_pointed_child_index();
+		old_pointed_index = pointed_index;
+		new_pointed_index = get_pointed_index();
+		if (new_pointed_index != old_pointed_index &&
+		    new_pointed_index != -1 &&
+		    conf_tts_enable == 1 &&
+		    is_selected_by_key &&
+		    child_button[selected_parent_index][new_pointed_index].msg != NULL) {
+			speak_text(NULL);
+			speak_text(child_button[selected_parent_index][pointed_index].msg);
+		}
 	}
 	if (new_pointed_index != -1 &&
 	    new_pointed_index != old_pointed_index &&
@@ -798,7 +912,7 @@ static void process_main_input(void)
 		return;
 	}
 
-	new_pointed_index = get_pointed_parent_index();
+	pointed_index = get_pointed_index();
 
 	/* システムメニューを常に使用しない場合 */
 	if (conf_sysmenu_hidden == 2)
@@ -827,12 +941,122 @@ static void process_main_input(void)
 		/* システムメニューを表示する */
 		is_sysmenu = true;
 		is_sysmenu_first_frame = true;
-		sysmenu_pointed_index = get_sysmenu_pointed_button();
-		adjust_sysmenu_pointed_index();
+		sysmenu_pointed_index = get_pointed_sysmenu_item_extended();
 		old_sysmenu_pointed_index = sysmenu_pointed_index;
 		is_sysmenu_finished = false;
 		return;
 	}
+
+	/* マウスの左ボタンでクリックされた場合 */
+	if (pointed_index != -1 &&
+	    (is_left_clicked || is_return_pressed) &&
+	    !is_sysmenu_finished) {
+		if (selected_parent_index == -1) {
+			play_se(conf_switch_parent_click_se_file);
+			if (!parent_button[pointed_index].has_child)
+				stop_command_repetition();
+		} else {
+			play_se(conf_switch_child_click_se_file);
+			stop_command_repetition();
+		}
+	}
+}
+
+/* ポイントされている選択肢を取得する */
+static int get_pointed_index(void)
+{
+	if (selected_parent_index == -1)
+		return get_pointed_parent_index();
+	else
+		return get_pointed_child_index();
+}
+
+/* 親選択肢でポイントされているものを取得する */
+static int get_pointed_parent_index(void)
+{
+	int i;
+
+	/* システムメニュー表示中は選択しない */
+	if (is_sysmenu)
+		return -1;
+
+	/* 右キーを処理する */
+	if (is_right_arrow_pressed) {
+		is_selected_by_key = true;
+		save_mouse_pos_x = mouse_pos_x;
+		save_mouse_pos_y = mouse_pos_y;
+		if (pointed_index == -1)
+			return 0;
+		if (pointed_index == PARENT_COUNT - 1)
+			return 0;
+		if (parent_button[pointed_index + 1].msg != NULL)
+			return pointed_index + 1;
+		else
+			return 0;
+	}
+
+	/* 左キーを処理する */
+	if (is_left_arrow_pressed) {
+		is_selected_by_key = true;
+		save_mouse_pos_x = mouse_pos_x;
+		save_mouse_pos_y = mouse_pos_y;
+		if (pointed_index == -1 ||
+		    pointed_index == 0) {
+			for (i = PARENT_COUNT - 1; i >= 0; i--)
+				if (parent_button[i].msg != NULL)
+					return i;
+		}
+		return pointed_index - 1;
+	}
+
+	/* マウスポイントを処理する */
+	for (i = 0; i < PARENT_COUNT; i++) {
+		if (IS_PARENT_DISABLED(i))
+			continue;
+
+		if (mouse_pos_x >= parent_button[i].x &&
+		    mouse_pos_x < parent_button[i].x + parent_button[i].w &&
+		    mouse_pos_y >= parent_button[i].y &&
+		    mouse_pos_y < parent_button[i].y + parent_button[i].h) {
+			/* キーで選択済みの項目があり、マウスが移動していない場合 */
+			if (is_selected_by_key &&
+			    mouse_pos_x == save_mouse_pos_x &&
+			    mouse_pos_y == save_mouse_pos_y)
+				continue;
+			is_selected_by_key = false;
+			return i;
+		}
+	}
+
+	/* キーによる選択が行われている場合は維持する */
+	if (is_selected_by_key)
+		return pointed_index;
+
+	/* その他の場合、何も選択しない */
+	return -1;
+}
+
+/* 子選択肢でポイントされているものを取得する */
+static int get_pointed_child_index(void)
+{
+	int i, n;
+
+	/* システムメニュー表示中は選択しない */
+	if (is_sysmenu)
+		return -1;
+
+	n = selected_parent_index;
+	for (i = 0; i < parent_button[n].child_count; i++) {
+		if (mouse_pos_x >= child_button[n][i].x &&
+		    mouse_pos_x < child_button[n][i].x +
+		    child_button[n][i].w &&
+		    mouse_pos_y >= child_button[n][i].y &&
+		    mouse_pos_y < child_button[n][i].y +
+		    child_button[n][i].h)
+			return i;
+	}
+
+	return -1;
 }
 
 /* システムメニュー表示中のクリックを処理する */
@@ -872,8 +1096,7 @@ static void process_sysmenu_input(void)
 
 	/* ポイントされているシステムメニューのボタンを求める */
 	old_sysmenu_pointed_index = sysmenu_pointed_index;
-	sysmenu_pointed_index = get_sysmenu_pointed_button();
-	adjust_sysmenu_pointed_index();
+	sysmenu_pointed_index = get_pointed_sysmenu_item_extended();
 
 	/* ポイントされている項目が変化した場合で、クリックではない場合 */
 	if (sysmenu_pointed_index != old_sysmenu_pointed_index &&
@@ -942,524 +1165,85 @@ static void process_sysmenu_input(void)
 	is_sysmenu_finished = true;
 }
 
+/* 選択中のシステムメニューのボタンを取得する */
+static int get_pointed_sysmenu_item_extended(void)
+{
+	int index;
+
+	/* システムメニューを表示中でない場合は非選択とする */
+	if (!is_sysmenu)
+		return SYSMENU_NONE;
+
+	/* ポイントされているボタンを返す */
+	index = get_pointed_sysmenu_item();
+
+	/* セーブロードが無効な場合、セーブロードのポイントを無効にする */
+	if (!is_save_load_enabled() &&
+	    (index == SYSMENU_QSAVE ||
+	     index == SYSMENU_QLOAD ||
+	     index == SYSMENU_SAVE ||
+	     index == SYSMENU_LOAD))
+		index = SYSMENU_NONE;
+
+	/* クイックセーブデータがない場合、QLOADのポイントを無効にする */
+	if (!have_quick_save_data() &&
+	    index == SYSMENU_QLOAD)
+		index = SYSMENU_NONE;
+
+	/* オートとスキップのポイントを無効にする */
+	if (index == SYSMENU_AUTO || index == SYSMENU_SKIP)
+		index  = SYSMENU_NONE;
+
+	return index;
+}
+
 /*
  * 描画
  */
 
 /* フレームを描画する */
-static void draw_frame(void)
+static void render_frame(void)
 {
+	int i;
+
 	/* セーブ画面かヒストリ画面から復帰した場合のフラグをクリアする */
 	check_gui_flag();
 
-	/* 初回描画の場合 */
-	if (is_first_frame) {
-		pointed_parent_index = get_pointed_parent_index();
+	/* ステージを描画する */
+	render_stage();
 
-		/* 親選択肢の描画を行う */
-		draw_fo_fi_parent();
-		update_switch_parent();
-
-		/* 折りたたみシステムメニューを描画する */
-		if (conf_sysmenu_transition && !is_non_interruptible())
-			draw_stage_collapsed_sysmenu(false);
-
-		is_first_frame = false;
-		return;
-	}
-
-	/* システムメニューを表示中でない場合 */
-	if (!is_sysmenu) {
-		if (selected_parent_index == -1) {
-			/* 親選択肢を選んでいる最中の場合 */
-			draw_frame_parent();
-		} else {
-			/* 子選択肢を選んでいる最中の場合 */
-			draw_frame_child();
-		}
-
-		/* 折りたたみシステムメニューを表示する */
-		draw_collapsed_sysmenu();
-	}
-
-	/* システムメニューを表示中の場合 */
-	if (is_sysmenu)
-		draw_sysmenu();
-
-	/* システムメニューを終了した直後の場合 */
-	if (is_sysmenu_finished) {
-		update_switch_parent();
-		draw_collapsed_sysmenu();
-	}
-}
-
-/* 親選択肢の描画を行う */
-static void draw_frame_parent(void)
-{
-	if (new_pointed_index == -1 && pointed_parent_index == -1) {
-		draw_keep();
-	} else if (new_pointed_index == pointed_parent_index) {
-		draw_keep();
-	} else {
-		/* ボタンを描画する */
-		pointed_parent_index = new_pointed_index;
-		update_switch_parent();
-
-		/* 読み上げを行う */
-		if (conf_tts_enable == 1 &&
-		    is_selected_by_key &&
-		    parent_button[pointed_parent_index].msg != NULL) {
-			speak_text(NULL);
-			speak_text(parent_button[pointed_parent_index].msg);
-		}
-	}
-
-	/* マウスの左ボタンでクリックされた場合 */
-	if (new_pointed_index != -1 &&
-	    (is_left_clicked || is_return_pressed) &&
-	    !is_sysmenu_finished) {
-		selected_parent_index = new_pointed_index;
-		pointed_child_index = -1;
-		is_child_first_frame = true;
-
-		if (parent_button[new_pointed_index].has_child) {
-			/* 子選択肢の描画を行う */
-			draw_fo_fi_child();
-			update_switch_child();
-		} else {
-			/* ステージをボタンなしで描画しなおす */
-			draw_stage();
-
-			/* SEを鳴らす */
-			play_se(conf_switch_child_click_se_file);
-
-			/* 繰り返し動作を終了する */
-			stop_command_repetition();
-		}
-	}
-}
-
-/* 子選択肢の描画を行う */
-static void draw_frame_child(void)
-{
-	int new_pointed_index;
-
-	if (is_right_button_pressed) {
-		selected_parent_index = -1;
-
-		/* 親選択肢の描画を行う */
-		draw_fo_fi_parent();
-		update_switch_parent();
-		return;
-	}
-
-	new_pointed_index = get_pointed_child_index();
-
-	if (is_child_first_frame) {
-		is_child_first_frame = false;
-
-		/* ボタンを描画する */
-		pointed_child_index = new_pointed_index;
-		update_switch_child();
-	} else if (new_pointed_index == -1 && pointed_child_index == -1) {
-		draw_keep();
-	} else if (new_pointed_index == pointed_child_index) {
-		draw_keep();
-	} else {
-		/* ボタンを描画する */
-		pointed_child_index = new_pointed_index;
-		update_switch_child();
-
-		/* SEを再生する */
-		if (new_pointed_index != -1 && !is_left_clicked)
-			play_se(conf_switch_change_se);
-	}
-
-	/* マウスの左ボタンでクリックされた場合 */
-	if (new_pointed_index != -1 && is_left_clicked) {
-		/* SEを鳴らす */
-		play_se(conf_switch_child_click_se_file);
-
-		/* ステージをボタンなしで描画しなおす */
-		draw_stage();
-
-		/* 繰り返し動作を終了する */
-		stop_command_repetition();
-	}
-}
-
-/* 親選択肢でポイントされているものを取得する */
-static int get_pointed_parent_index(void)
-{
-	int i;
-
-	/* システムメニュー表示中は選択しない */
-	if (is_sysmenu)
-		return -1;
-
-	/* 右キーを処理する */
-	if (is_right_arrow_pressed) {
-		is_selected_by_key = true;
-		save_mouse_pos_x = mouse_pos_x;
-		save_mouse_pos_y = mouse_pos_y;
-		if (pointed_parent_index == -1)
-			return 0;
-		if (pointed_parent_index == PARENT_COUNT - 1)
-			return 0;
-		if (parent_button[pointed_parent_index + 1].msg != NULL)
-			return pointed_parent_index + 1;
-		else
-			return 0;
-	}
-
-	/* 左キーを処理する */
-	if (is_left_arrow_pressed) {
-		is_selected_by_key = true;
-		save_mouse_pos_x = mouse_pos_x;
-		save_mouse_pos_y = mouse_pos_y;
-		if (pointed_parent_index == -1 ||
-		    pointed_parent_index == 0) {
-			for (i = PARENT_COUNT - 1; i >= 0; i--)
-				if (parent_button[i].msg != NULL)
-					return i;
-		}
-		return pointed_parent_index - 1;
-	}
-
-	/* マウスポイントを処理する */
-	for (i = 0; i < PARENT_COUNT; i++) {
-		if (IS_PARENT_DISABLED(i))
-			continue;
-
-		if (mouse_pos_x >= parent_button[i].x &&
-		    mouse_pos_x < parent_button[i].x + parent_button[i].w &&
-		    mouse_pos_y >= parent_button[i].y &&
-		    mouse_pos_y < parent_button[i].y + parent_button[i].h) {
-			/* キーで選択済みの項目があり、マウスが移動していない場合 */
-			if (is_selected_by_key &&
-			    mouse_pos_x == save_mouse_pos_x &&
-			    mouse_pos_y == save_mouse_pos_y)
-				continue;
-			is_selected_by_key = false;
-			return i;
-		}
-	}
-
-	/* キーによる選択が行われている場合は維持する */
-	if (is_selected_by_key)
-		return pointed_parent_index;
-
-	/* その他の場合、何も選択しない */
-	return -1;
-}
-
-/* 子選択肢でポイントされているものを取得する */
-static int get_pointed_child_index(void)
-{
-	int i, n;
-
-	/* システムメニュー表示中は選択しない */
-	if (is_sysmenu)
-		return -1;
-
-	n = selected_parent_index;
-	for (i = 0; i < parent_button[n].child_count; i++) {
-		if (mouse_pos_x >= child_button[n][i].x &&
-		    mouse_pos_x < child_button[n][i].x +
-		    child_button[n][i].w &&
-		    mouse_pos_y >= child_button[n][i].y &&
-		    mouse_pos_y < child_button[n][i].y +
-		    child_button[n][i].h)
-			return i;
-	}
-
-	return -1;
-}
-
-/* 親選択肢のFO/FIレイヤを描画する */
-static void draw_fo_fi_parent(void)
-{
-	draw_stage_fo_fi(get_command_type() == COMMAND_ICHOOSE);
-	draw_switch_parent_images();
-}
-
-/* 親選択肢のイメージを描画する */
-void draw_switch_parent_images(void)
-{
-	int i;
-	bool is_news;
-
-	assert(selected_parent_index == -1);
-
-	for (i = 0; i < PARENT_COUNT; i++) {
-		if (IS_PARENT_DISABLED(i))
-			continue;
-
-		/* @newsの東西南北の項目であるか調べる */
-		is_news = get_command_type() == COMMAND_NEWS &&
-			i < NEWS_SWITCH_BASE;
-
-		/* FO/FIレイヤにスイッチを描画する */
-		if (!is_news) {
-			draw_switch_fg_image(i,
-					     parent_button[i].x,
-					     parent_button[i].y);
-			draw_switch_bg_image(i,
-					     parent_button[i].x,
-					     parent_button[i].y);
-		} else {
-			draw_news_fg_image(parent_button[i].x,
-					   parent_button[i].y);
-			draw_news_bg_image(parent_button[i].x,
-					   parent_button[i].y);
-		}
-
-		/* テキストを描画する */
-		draw_text(parent_button[i].x, parent_button[i].y,
-			  parent_button[i].w, parent_button[i].h,
-			  parent_button[i].msg, is_news);
-	}
-}
-
-/* 親選択肢を画面に描画する */
-void update_switch_parent(void)
-{
-	int i, bx, by, bw, bh;
-
-	assert(selected_parent_index == -1);
-
-	i = pointed_parent_index;
-
-	/* 描画するFIレイヤの矩形を求める */
-	bx = by = bw = bh = 0;
-	if (i != -1) {
-		bx = parent_button[i].x;
-		by = parent_button[i].y;
-		bw = parent_button[i].w;
-		bh = parent_button[i].h;
-	}
-
-	/* FOレイヤ全体とFIレイヤの矩形を画面に描画する */
-	draw_fo_all_and_fi_rect(bx, by, bw, bh);
-}
-
-/* 子選択肢のFO/FIレイヤを描画する */
-static void draw_fo_fi_child(void)
-{
-	draw_stage_fo_fi(false);
-	draw_switch_child_images();
-}
-
-/* 子選択肢のイメージを描画する */
-void draw_switch_child_images(void)
-{
-	int i, j;
-
-	assert(selected_parent_index != -1);
-	assert(parent_button[selected_parent_index].child_count > 0);
-
-	i = selected_parent_index;
-	for (j = 0; j < parent_button[i].child_count; j++) {
-		/* FO/FIレイヤにスイッチを描画する */
-		draw_switch_fg_image(i,
-				     child_button[i][j].x,
-				     child_button[i][j].y);
-		draw_switch_bg_image(i,
-				     child_button[i][j].x,
-				     child_button[i][j].y);
-
-		/* テキストを描画する */
-		draw_text(child_button[i][j].x, child_button[i][j].y,
-			  child_button[i][j].w, child_button[i][j].h,
-			  child_button[i][j].msg, false);
-	}
-}
-
-/* 親選択肢を画面に描画する */
-void update_switch_child(void)
-{
-	int i, j, bx, by, bw, bh;
-
-	assert(selected_parent_index != -1);
-
-	i = selected_parent_index;
-	j = pointed_child_index;
-
-	/* 描画するFIレイヤの矩形を求める */
-	bx = by = bw = bh = 0;
-	if (j != -1) {
-		bx = child_button[i][j].x;
-		by = child_button[i][j].y;
-		bw = child_button[i][j].w;
-		bh = child_button[i][j].h;
-	}
-
-	/* FO全体とFIの1矩形を描画する(GPU用) */
-	draw_fo_all_and_fi_rect(bx, by, bw, bh);
-}
-
-/* 選択肢のテキストを描画する */
-static void draw_text(int x, int y, int w, int h, const char *text, bool is_news)
-{
-	struct draw_msg_context context;
-	pixel_t active_color, active_outline_color;
-	pixel_t inactive_color, inactive_outline_color;
-	int font_size, char_count;
-	bool use_outline;
-
-	/* フォントサイズを取得する */
-	font_size = conf_switch_font_size > 0 ?
-		conf_switch_font_size : conf_font_size;
-
-	/* ふちどりを決定する */
-	switch (conf_switch_font_outline) {
-	case 0: use_outline = !conf_font_outline_remove; break;
-	case 1: use_outline = true; break;
-	case 2: use_outline = false; break;
-	default: use_outline = false; break;
-	}
-
-	/* 色を決める FIXME: add font color for switch. */
-	inactive_color = make_pixel(0xff,
-				    (pixel_t)conf_font_color_r,
-				    (pixel_t)conf_font_color_g,
-				    (pixel_t)conf_font_color_b);
-	inactive_outline_color = make_pixel(0xff,
-					    (pixel_t)conf_font_outline_color_r,
-					    (pixel_t)conf_font_outline_color_g,
-					    (pixel_t)conf_font_outline_color_b);
-	if (conf_switch_color_active) {
-		active_color = make_pixel(0xff,
-					  (pixel_t)conf_switch_color_active_body_r,
-					  (pixel_t)conf_switch_color_active_body_g,
-					  (pixel_t)conf_switch_color_active_body_b);
-		active_outline_color = make_pixel(0xff,
-						  (pixel_t)conf_switch_color_active_outline_r,
-						  (pixel_t)conf_switch_color_active_outline_g,
-						  (pixel_t)conf_switch_color_active_outline_b);
-	} else {
-		active_color = inactive_color;
-		active_outline_color = inactive_outline_color;
-	}
-
-	/* 描画位置を決める */
-	if (is_centered) {
-		if (!conf_msgbox_tategaki) {
-			x = x + (w - get_string_width(conf_switch_font_select,
-						      font_size,
-						      text)) / 2;
-			y += conf_switch_text_margin_y;
-		} else {
-			x = x + (w - font_size) / 2;
-			y = y + (h - get_string_height(conf_switch_font_select,
-						      font_size,
-						      text)) / 2;
-		}
-	} else {
-		y += is_news ?
-			conf_news_text_margin_y :
-			conf_switch_text_margin_y;
-	}
-
-	/* FIレイヤに選択時の色で文字を描画する */
-	construct_draw_msg_context(
-		&context,
-		LAYER_FI,
-		text,
-		conf_switch_font_select,
-		font_size,
-		font_size,		/* base_font_size */
-		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
-		use_outline,
-		x,
-		y,
-		conf_window_width,
-		conf_window_height,
-		x,			/* left_margin */
-		0,			/* right_margin */
-		conf_switch_text_margin_y,
-		0,			/* bottom_margin */
-		0,			/* line_margin */
-		conf_msgbox_margin_char,
-		active_color,
-		active_outline_color,
-		false,			/* is_dimming */
-		true,			/* ignore_linefeed */
-		false,			/* ignore_font */
-		false,			/* ignore_size */
-		false,			/* ignore_color */
-		false,			/* ignore_size */
-		false,			/* ignore_position */
-		false,			/* ignore_ruby */
-		true,			/* ignore_wait */
-		NULL,			/* inline_wait_hook */
-		conf_msgbox_tategaki);	/* use_tategaki */
-	char_count = count_chars_common(&context);
-	draw_msg_common(&context, char_count);
-
-	/* FOレイヤに非選択時の色で文字を描画する */
-	construct_draw_msg_context(
-		&context,
-		LAYER_FO,
-		text,
-		conf_switch_font_select,
-		font_size,
-		font_size,		/* base_font_size */
-		conf_font_ruby_size,	/* FIXME: namebox.ruby.sizeの導入 */
-		use_outline,
-		x,
-		y,
-		conf_window_width,
-		conf_window_height,
-		x,			/* left_margin */
-		0,			/* right_margin */
-		conf_switch_text_margin_y,
-		0,			/* bottom_margin */
-		0,			/* line_margin */
-		conf_msgbox_margin_char,
-		inactive_color,
-		inactive_outline_color,
-		false,			/* is_dimming */
-		true,			/* ignore_linefeed */
-		false,			/* ignore_font*/
-		false,			/* ignore_outline */
-		false,			/* ignore_color */
-		false,			/* ignore_size */
-		false,			/* ignore_position */
-		false,			/* ignore_ruby */
-		true,			/* ignore_wait */
-		NULL,			/* inline_wait_hook */
-		conf_msgbox_tategaki);	/* use_tategaki */
-	draw_msg_common(&context, char_count);
-}
-
-/* 描画する(GPU用) */
-static void draw_keep(void)
-{
-	int x, y, w, h, i, j;
-
-	x = y = w = h = 0;
+	/* 選択肢を描画する */
 	if (selected_parent_index == -1) {
-		i = pointed_parent_index;
-		if (i != -1) {
-			x = parent_button[i].x;
-			y = parent_button[i].y;
-			w = parent_button[i].w;
-			h = parent_button[i].h;
+		for (i = 0; i < PARENT_COUNT; i++) {
+			struct image *img = i != pointed_index ?
+				parent_button[i].img_idle : parent_button[i].img_hover;
+			render_image_normal(parent_button[i].x,
+					    parent_button[i].y,
+					    img,
+					    img->width,
+					    img->height,
+					    0, 0, 255);
 		}
 	} else {
-		i = selected_parent_index;
-		j = pointed_child_index;
-		if (j != -1) {
-			x = child_button[i][j].x;
-			y = child_button[i][j].y;
-			w = child_button[i][j].w;
-			h = child_button[i][j].h;
+		for (i = 0; i < CHILD_COUNT; i++) {
+			struct image *img = i != pointed_index ?
+				child_button[selected_parent_index][i].img_idle : parent_button[i].img_hover;
+			render_image_normal(child_button[selected_parent_index][i].x,
+					    child_button[selected_parent_index][i].y,
+					    img,
+					    img->width,
+					    img->height,
+					    0, 0, 255);
 		}
 	}
 
-	/* FO全体とFIの1矩形を描画する */
-	draw_fo_all_and_fi_rect(x, y, w, h);
+	/* 折りたたみシステムメニューを描画する */
+	if (!is_non_interruptible() && !is_sysmenu)
+		render_collapsed_sysmenu_extended();
+
+	/* システムメニューを表示する */
+	if (!is_non_interruptible() && is_sysmenu)
+		render_sysmenu_extended();
 }
 
 /*
@@ -1467,7 +1251,7 @@ static void draw_keep(void)
  */
 
 /* システムメニューを描画する */
-static void draw_sysmenu(void)
+static void render_sysmenu_extended(void)
 {
 	bool qsave_sel, qload_sel, save_sel, load_sel, auto_sel, skip_sel;
 	bool history_sel, config_sel, custom1_sel, custom2_sel;
@@ -1483,10 +1267,6 @@ static void draw_sysmenu(void)
 	config_sel = false;
 	custom1_sel = false;
 	custom2_sel = false;
-
-	/* システムメニューの最初のフレームの場合、描画する */
-	if (is_sysmenu_first_frame)
-		is_sysmenu_first_frame = false;
 
 	/* クイックセーブボタンがポイントされているかを取得する */
 	if (sysmenu_pointed_index == SYSMENU_QSAVE)
@@ -1520,30 +1300,27 @@ static void draw_sysmenu(void)
 	if (sysmenu_pointed_index == SYSMENU_CUSTOM2)
 		custom2_sel = true;
 
-	/* 背景を描画する */
-	draw_fo_all_and_fi_rect(0, 0, 0, 0);
-
 	/* システムメニューを描画する */
-	draw_stage_sysmenu(false,
-			   false,
-			   is_save_load_enabled(),
-			   is_save_load_enabled() &&
-			   have_quick_save_data(),
-			   qsave_sel,
-			   qload_sel,
-			   save_sel,
-			   load_sel,
-			   auto_sel,
-			   skip_sel,
-			   history_sel,
-			   config_sel,
-			   custom1_sel,
-			   custom2_sel);
+	render_sysmenu(false,
+		       false,
+		       is_save_load_enabled(),
+		       is_save_load_enabled() &&
+		       have_quick_save_data(),
+		       qsave_sel,
+		       qload_sel,
+		       save_sel,
+		       load_sel,
+		       auto_sel,
+		       skip_sel,
+		       history_sel,
+		       config_sel,
+		       custom1_sel,
+		       custom2_sel);
 	is_sysmenu_first_frame = false;
 }
 
 /* 折りたたみシステムメニューを描画する */
-static void draw_collapsed_sysmenu(void)
+static void render_collapsed_sysmenu_extended(void)
 {
 	bool is_pointed;
 
@@ -1555,7 +1332,7 @@ static void draw_collapsed_sysmenu(void)
 	is_pointed = is_collapsed_sysmenu_pointed();
 
 	/* 描画する */
-	draw_stage_collapsed_sysmenu(is_pointed);
+	render_collapsed_sysmenu(is_pointed);
 
 	/* SEを再生する */
 	if (!is_sysmenu_finished &&
@@ -1564,130 +1341,6 @@ static void draw_collapsed_sysmenu(void)
 
 	/* 折りたたみシステムメニューのポイント状態を保持する */
 	is_collapsed_sysmenu_pointed_prev = is_pointed;
-}
-
-/* 折りたたみシステムメニューがポイントされているか調べる */
-static bool is_collapsed_sysmenu_pointed(void)
-{
-	int bx, by, bw, bh;
-
- 	/* システムメニューを常に使用しない場合 */
-	if (conf_sysmenu_hidden == 2)
-		return false;
-
-	get_collapsed_sysmenu_rect(&bx, &by, &bw, &bh);
-	if (mouse_pos_x >= bx && mouse_pos_x < bx + bw &&
-	    mouse_pos_y >= by && mouse_pos_y < by + bh)
-		return true;
-
-	return false;
-}
-
-/* 選択中のシステムメニューのボタンを取得する */
-static int get_sysmenu_pointed_button(void)
-{
-	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
-
-	/* システムメニューを表示中でない場合は非選択とする */
-	if (!is_sysmenu)
-		return SYSMENU_NONE;
-
-	/* マウス座標からシステムメニュー画像内座標に変換する */
-	rx = mouse_pos_x - conf_sysmenu_x;
-	ry = mouse_pos_y - conf_sysmenu_y;
-
-	/* ボタンを順番に見ていく */
-	for (i = SYSMENU_QSAVE; i <= SYSMENU_CONFIG; i++) {
-		/* ボタンの座標を取得する */
-		get_sysmenu_button_rect(i, &btn_x, &btn_y, &btn_w, &btn_h);
-
-		/* マウスがボタンの中にあればボタンの番号を返す */
-		if ((rx >= btn_x && rx < btn_x + btn_w) &&
-		    (ry >= btn_y && ry < btn_y + btn_h))
-			return i;
-	}
-
-	/* ボタンがポイントされていない */
-	return SYSMENU_NONE;
-}
-
-/* 状態に応じて、ポイント中の項目を無効にする */
-static void adjust_sysmenu_pointed_index(void)
-{
-	/* セーブロードが無効な場合、セーブロードのポイントを無効にする */
-	if (!is_save_load_enabled() &&
-	    (sysmenu_pointed_index == SYSMENU_QSAVE ||
-	     sysmenu_pointed_index == SYSMENU_QLOAD ||
-	     sysmenu_pointed_index == SYSMENU_SAVE ||
-	     sysmenu_pointed_index == SYSMENU_LOAD))
-		sysmenu_pointed_index = SYSMENU_NONE;
-
-	/* クイックセーブデータがない場合、QLOADのポイントを無効にする */
-	if (!have_quick_save_data() &&
-	    sysmenu_pointed_index == SYSMENU_QLOAD)
-		sysmenu_pointed_index = SYSMENU_NONE;
-
-	/* オートとスキップのポイントを無効にする */
-	if (sysmenu_pointed_index == SYSMENU_AUTO || sysmenu_pointed_index == SYSMENU_SKIP)
-		sysmenu_pointed_index = SYSMENU_NONE;
-}
-
-/* システムメニューのボタンの座標を取得する */
-static void get_sysmenu_button_rect(int btn, int *x, int *y, int *w, int *h)
-{
-	switch (btn) {
-	case SYSMENU_QSAVE:
-		*x = conf_sysmenu_qsave_x;
-		*y = conf_sysmenu_qsave_y;
-		*w = conf_sysmenu_qsave_width;
-		*h = conf_sysmenu_qsave_height;
-		break;
-	case SYSMENU_QLOAD:
-		*x = conf_sysmenu_qload_x;
-		*y = conf_sysmenu_qload_y;
-		*w = conf_sysmenu_qload_width;
-		*h = conf_sysmenu_qload_height;
-		break;
-	case SYSMENU_SAVE:
-		*x = conf_sysmenu_save_x;
-		*y = conf_sysmenu_save_y;
-		*w = conf_sysmenu_save_width;
-		*h = conf_sysmenu_save_height;
-		break;
-	case SYSMENU_LOAD:
-		*x = conf_sysmenu_load_x;
-		*y = conf_sysmenu_load_y;
-		*w = conf_sysmenu_load_width;
-		*h = conf_sysmenu_load_height;
-		break;
-	case SYSMENU_AUTO:
-		*x = conf_sysmenu_auto_x;
-		*y = conf_sysmenu_auto_y;
-		*w = conf_sysmenu_auto_width;
-		*h = conf_sysmenu_auto_height;
-		break;
-	case SYSMENU_SKIP:
-		*x = conf_sysmenu_skip_x;
-		*y = conf_sysmenu_skip_y;
-		*w = conf_sysmenu_skip_width;
-		*h = conf_sysmenu_skip_height;
-		break;
-	case SYSMENU_HISTORY:
-		*x = conf_sysmenu_history_x;
-		*y = conf_sysmenu_history_y;
-		*w = conf_sysmenu_history_width;
-		*h = conf_sysmenu_history_height;
-		break;
-	case SYSMENU_CONFIG:
-		*x = conf_sysmenu_config_x;
-		*y = conf_sysmenu_config_y;
-		*w = conf_sysmenu_config_width;
-		*h = conf_sysmenu_config_height;
-		break;
-	default:
-		assert(ASSERT_INVALID_BTN_INDEX);
-		break;
-	}
 }
 
 /*
@@ -1716,7 +1369,7 @@ static void play_se(const char *file)
 /* コマンドを終了する */
 static bool cleanup(void)
 {
-	int n, m;
+	int i, j;
 
 	/* クイックロードやシステムGUIへの遷移を行う場合 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
@@ -1725,21 +1378,37 @@ static bool cleanup(void)
 		return true;
 	}
 
-	n = selected_parent_index;
+	/* 画像を破棄する */
+	for (i = 0; i < PARENT_COUNT; i++) {
+		if (parent_button[i].img_idle != NULL)
+			destroy_image(parent_button[i].img_idle);
+		if (parent_button[i].img_hover != NULL)
+			destroy_image(parent_button[i].img_hover);
+		parent_button[i].img_idle = NULL;
+		parent_button[i].img_hover = NULL;
+
+		if (!parent_button[i].has_child)
+			continue;
+
+		for (j = 0; j < CHILD_COUNT; j++) {
+			if (child_button[i][j].img_idle != NULL)
+				destroy_image(parent_button[i].img_idle);
+			if (child_button[i][j].img_hover != NULL)
+				destroy_image(parent_button[i].img_hover);
+		}
+	}
 
 	/*
 	 * 子選択肢が選択された場合
 	 *  - @switch/@newsのときだけ
 	 */
-	if (parent_button[n].has_child) {
-		m = pointed_child_index;
-		return move_to_label(child_button[n][m].label);
-	}
+	if (selected_parent_index != -1 && parent_button[selected_parent_index].has_child)
+		return move_to_label(child_button[selected_parent_index][pointed_index].label);
 
 	/*
 	 * 親選択肢が選択された場合
 	 *  - @choose/@selectのときは常に親選択肢
 	 *  - @switch/@newsのときは子選択肢がない親選択肢のときのみ
 	 */
-	return move_to_label(parent_button[n].label);
+	return move_to_label(parent_button[pointed_index].label);
 }

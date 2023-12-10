@@ -54,7 +54,7 @@ bool click_command(void)
 		stop_command_repetition();
 
 	/* ステージの描画を行う */
-	draw_stage();
+	render_stage();
 
 	/* 後処理を行う */
 	if (!is_in_command_repetition()) {

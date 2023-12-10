@@ -219,11 +219,11 @@ static void draw(void)
 	if (is_in_command_repetition())
 		draw_fade();
 	else
-		draw_stage();
+		render_stage();
 
 	/* 折りたたみシステムメニューを描画する */
 	if (conf_sysmenu_transition && !is_non_interruptible())
-		draw_stage_collapsed_sysmenu(false);
+		render_collapsed_sysmenu(false);
 }
 
 /* 終了処理を行う */

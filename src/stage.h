@@ -21,6 +21,11 @@
  *  - 2023-10-10 エフェクトレイヤを移動/追加
  */
 
+/*
+ * draw_*(): draw image(s) to an image. (CPU memory to CPU memory)
+ * render_*(): draw image(s) to the screen. (VRAM to VRAM)
+ */
+
 #ifndef SUIKA_STAGE_H
 #define SUIKA_STAGE_H
 
@@ -57,10 +62,10 @@ enum {
 	LAYER_EFFECT4,
 
 	/* メッセージレイヤ */
-	LAYER_MSG,	/* 特殊: 実体イメージあり */
+	LAYER_MSG,	/* 特殊: ユーザがロードできない */
 
 	/* 名前レイヤ */
-	LAYER_NAME,	/* 特殊: 実体イメージあり */
+	LAYER_NAME,	/* 特殊: ユーザがロードできない */
 
 	/* キャラクタレイヤ(顔) */
 	LAYER_CHF,
@@ -84,25 +89,8 @@ enum {
 	LAYER_TEXT7,
 	LAYER_TEXT8,
 
-	/*
-	 * フェードアウト用レイヤで、次の場合に有効:
-	 *  - 背景/キャラフェード時
-	 *  - switch.cの描画
-	 */
-	LAYER_FO,	/* 特殊: 実体イメージあり */
-
-	/*
-	 * 下記のレイヤは次の場合に有効
-	 *  - キャラフェード
-	 *  - イメージボタン
-	 *  - セーブ
-	 *  - ロード
-	 *  - スイッチ
-	 */
-	LAYER_FI,	/* 特殊: 実体イメージあり */
-
 	/* 総レイヤ数 */
-	STAGE_LAYERS
+	STAGE_LAYERS,
 };
 
 /*
@@ -174,108 +162,140 @@ enum fade_method {
 };
 
 /*
+ * システムメニューのボタンのインデックス
+ */
+enum {
+	SYSMENU_NONE = -1,
+        SYSMENU_QSAVE = 0,
+	SYSMENU_QLOAD = 1,
+	SYSMENU_SAVE = 2,
+	SYSMENU_LOAD = 3,
+	SYSMENU_AUTO = 4,
+	SYSMENU_SKIP = 5,
+	SYSMENU_HISTORY = 6,
+	SYSMENU_CONFIG = 7,
+	SYSMENU_CUSTOM1 = 8,
+	SYSMENU_CUSTOM2 = 9,
+	SYSMENU_COUNT = 10,
+};
+
+/*
  * 初期化
  */
 
 /* ステージの初期化処理をする */
 bool init_stage(void);
 
-/* ステージの終了処理を行う */
-void cleanup_stage(void);
+/* ステージのリロードを行う */
+bool reload_stage(void);
 
 /* 起動・ロード直後の一時的な背景を作成する */
 struct image *create_initial_bg(void);
 
-/* ステージのリロードを行う */
-bool reload_stage(void);
+/* メッセージボックスと名前ボックスを更新する */
+bool update_msgbox_and_namebox(void);
+
+/* ステージの終了処理を行う */
+void cleanup_stage(void);
 
 /*
- * 基本
+ * Basic Functionality
  */
 
-/* レイヤイメージを取得する */
-struct image *get_layer_image(int layer);
-
-/* レイヤイメージを取得する */
-void set_layer_image(int layer, struct image *img);
-
-/* レイヤーのX座標を取得する */
+/* Gets a layer x position. */
 int get_layer_x(int layer);
 
-/* レイヤーのY座標を取得する */
+/* Gets a layer y position. */
 int get_layer_y(int layer);
 
-/* レイヤーの座標を設定する */
+/* Sets a layer position. */
 void set_layer_position(int layer, int x, int y);
 
-/* レイヤーのアルファ値を取得する */
+/* Gets a layer image width. */
+int get_layer_width(int layer);
+
+/* Gets a layer image height. */
+int get_layer_height(int layer);
+
+/* Get a layer alpha. */
 int get_layer_alpha(int layer);
 
-/* レイヤーのアルファ値を取得する */
+/* Sets a layer alpha. */
 void set_layer_alpha(int layer, int alpha);
 
-/* レイヤーのファイル名を取得する */
+/* Gets a layer file name. */
 const char *get_layer_file_name(int layer);
 
-/* レイヤーのファイル名を設定する */
+/* Sets a layer file name. */
 bool set_layer_file_name(int layer, const char *file_name);
 
-/* キャラ位置からステージレイヤへ変換する */
-int chpos_to_layer(int chpos);
+/* Gets a layer image for a glyph drawing. */
+struct image *get_layer_image(int layer);
 
-/* キャラ位置からアニメレイヤへ変換する */
-int chpos_to_anime_layer(int chpos);
+/* Sets a layer image for a load.*/
+void set_layer_image(int layer, struct image *img);
 
-/* ステージレイヤからキャラ位置へ変換する */
-int layer_to_chpos(int chpos);
+/* Clear basic layers. */
+void clear_stage_basic(void);
 
-/* ステージレイヤからアニメレイヤに変換する */
-int stage_layer_to_anime_layer(int stage_layer);
-
-/* ステージをクリアする */
+/* Clear the stage and make it initial state. */
 void clear_stage(void);
 
 /*
- * ステージ描画
+ * Conversion of Layer Index and Character Position
  */
 
-/* ステージ全体を描画する */
-void draw_stage(void);
+/* Convert a character position to a stage layer index. */
+int chpos_to_layer(int chpos);
 
-/* ステージの背景(FO)全体と、前景(FI)の矩形を描画する */
-void draw_fo_all_and_fi_rect(int x, int y, int w, int h);
-
-/* ステージの背景(FO)と前景(FI)にステージ全体を描画する */
-void draw_stage_fo_fi(bool force_draw_msgbox);
+/* Convert a stage layer index to a character position. */
+int layer_to_chpos(int chpos);
 
 /*
- * システムメニューの描画
+ * Stage Rendering
  */
 
-/* システムメニューを描画する */
-void draw_stage_sysmenu(bool is_auto_enabled,
-			bool is_skip_enabled,
-			bool is_save_load_enabled,
-			bool is_qload_enabled,
-			bool is_qsave_selected,
-			bool is_qload_selected,
-			bool is_save_selected,
-			bool is_load_selected,
-			bool is_auto_selected,
-			bool is_skip_selected,
-			bool is_history_selected,
-			bool is_config_selected,
-			bool is_custom1_selected,
-			bool is_custom2_selected);
+/* Renders the stage with all stage layers. */
+void render_stage(void);
 
-/* システムメニューの座標を取得する */
-void get_sysmenu_rect(int *x, int *y, int *w, int *h);
+/*
+ * cmd_switch.c
+ */
+
+/* Draws the stage to both FO and FI images. */
+void draw_stage_to_fo_fi(bool force_draw_msgbox);
+
+/*  Renders the entire FO image and a specified rectangle of the FI image to the screen. (TODO: remove) */
+void render_fo_all_and_fi_rect(int x, int y, int w, int h);
+
+/*
+ * System Menu Rendering and Pointing Check
+ */
+
+/* Renders the system menu to the screen. */
+void render_sysmenu(bool is_auto_enabled,
+		    bool is_skip_enabled,
+		    bool is_save_load_enabled,
+		    bool is_qload_enabled,
+		    bool is_qsave_selected,
+		    bool is_qload_selected,
+		    bool is_save_selected,
+		    bool is_load_selected,
+		    bool is_auto_selected,
+		    bool is_skip_selected,
+		    bool is_history_selected,
+		    bool is_config_selected,
+		    bool is_custom1_selected,
+		    bool is_custom2_selected);
 
 /* 折りたたみシステムメニューを描画する */
-void draw_stage_collapsed_sysmenu(bool is_pointed);
+void render_collapsed_sysmenu(bool is_pointed);
 
-/* 折りたたみシステムメニューの座標を取得する */
-void get_collapsed_sysmenu_rect(int *x, int *y, int *w, int *h);
+/* Returns the pointed system menu item. */
+int get_pointed_sysmenu_item(void);
+
+/* Checks if the collapsed system menu is pointed. */
+bool is_collapsed_sysmenu_pointed(void);
 
 /*
  * セーブデータ用サムネイルの描画
@@ -284,8 +304,8 @@ void get_collapsed_sysmenu_rect(int *x, int *y, int *w, int *h);
 /* セーブデータ用サムネイル画像にステージ全体を描画する */
 void draw_stage_to_thumb(void);
 
-/* セーブデータ用サムネイル画像にFO全体を描画する */
-void draw_stage_fo_thumb(void);
+/* セーブデータ用サムネイル画像にswitchの画像を描画する */
+void draw_switch_to_thumb(struct image *img, int x, int y);
 
 /* セーブデータ用サムネイル画像を取得する */
 struct image *get_thumb_image(void);
@@ -391,26 +411,23 @@ void set_click_index(int index);
  * スイッチ(@choose, @select, @switch, @news)の描画
  */
 
-/* スイッチの親選択肢の矩形を取得する */
+/* スイッチの矩形を取得する */
 void get_switch_rect(int index, int *x, int *y, int *w, int *h);
 
-/* FOレイヤにスイッチの非選択イメージを描画する */
-void draw_switch_bg_image(int index, int x, int y);
-
-/* FIレイヤにスイッチの選択イメージを描画する */
-void draw_switch_fg_image(int index, int x, int y);
-
-/* NEWSの親選択肢の矩形を取得する */
+/* NEWSの矩形を取得する */
 void get_news_rect(int index, int *x, int *y, int *w, int *h);
 
-/* FIレイヤにNEWSの非選択イメージを描画する */
-void draw_news_bg_image(int x, int y);
+/* スイッチの非選択イメージを描画する */
+void draw_switch_bg_image(struct image *target, int index);
 
-/* FIレイヤにNEWSの選択イメージを描画する */
-void draw_news_fg_image(int x, int y);
+/* スイッチの選択イメージを描画する */
+void draw_switch_fg_image(struct image *target, int index);
 
-/* FO/FIの2レイヤに画像を描画する */
-void draw_image_on_fo_fi(int x, int y, struct image *img);
+/* NEWSの非選択イメージを描画する */
+void draw_news_bg_image(struct image *target);
+
+/* NEWSの選択イメージを描画する */
+void draw_news_fg_image(struct image *target);
 
 /*
  * 文字描画
@@ -485,10 +502,10 @@ void draw_image_to_temporary_bg_for_gui(int x, int y, struct image *img);
 void start_kirakira(int x, int y);
 
 /* キラキラエフェクトを描画する */
-void draw_kirakira(void);
+void render_kirakira(void);
 
 /*
- * テキストレイヤ
+ * Text Layers
  */
 
 /* テキストレイヤのテキストを取得する */
@@ -496,20 +513,5 @@ const char *get_layer_text(int text_layer_index);
 
 /* テキストレイヤのテキストを設定する */
 bool set_layer_text(int text_layer_index, const char *msg);
-
-/*
- * 更新領域の計算
- */
-
-/* 2つの矩形を囲う矩形を求める */
-void union_rect(int *x, int *y, int *w, int *h, int x1, int y1, int w1, int h1,
-		int x2, int y2, int w2, int h2);
-
-/*
- * コンフィグの動的な変更
- */
-
-/* メッセージボックスと名前ボックスを更新する */
-bool update_msgbox_and_namebox(void);
 
 #endif

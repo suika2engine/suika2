@@ -52,6 +52,7 @@ static bool init(void)
 	bool opt_cancel;
 	bool opt_nofadein;
 	bool opt_nofadeout;
+	bool opt_nowipe;
 
 	/* GUIファイル名を取得する */
 	file = get_string_param(GUI_PARAM_FILE);
@@ -70,6 +71,9 @@ static bool init(void)
 	if (strstr(opt, "nofadeout") != NULL ||
 	    strstr(opt, "フェードアウトなし") != NULL)
 		opt_nofadeout = true;
+	if (strstr(opt, "nowipe") != NULL ||
+	    strstr(opt, U8("ワイプなし")) != NULL)
+		opt_nowipe = true;
 
 	/* セーブに備えてサムネイルを作成する */
 	draw_stage_to_thumb();
@@ -82,51 +86,12 @@ static bool init(void)
 	set_gui_options(opt_cancel, opt_nofadein, opt_nofadeout);
 
 	/* 背景以外を消す */
-	if (!is_gui_overlay()) {
-		show_namebox(false);
-		show_msgbox(false);
-		set_layer_file_name(LAYER_CHB, NULL);
-		set_layer_file_name(LAYER_CHL, NULL);
-		set_layer_file_name(LAYER_CHR, NULL);
-		set_layer_file_name(LAYER_CHC, NULL);
-		set_layer_file_name(LAYER_CHF, NULL);
-		set_layer_file_name(LAYER_TEXT1, NULL);
-		set_layer_file_name(LAYER_TEXT2, NULL);
-		set_layer_file_name(LAYER_TEXT3, NULL);
-		set_layer_file_name(LAYER_TEXT4, NULL);
-		set_layer_file_name(LAYER_TEXT5, NULL);
-		set_layer_file_name(LAYER_TEXT6, NULL);
-		set_layer_file_name(LAYER_TEXT7, NULL);
-		set_layer_file_name(LAYER_TEXT8, NULL);
-		set_layer_file_name(LAYER_EFFECT1, NULL);
-		set_layer_file_name(LAYER_EFFECT2, NULL);
-		set_layer_file_name(LAYER_EFFECT3, NULL);
-		set_layer_file_name(LAYER_EFFECT4, NULL);
-		set_layer_image(LAYER_CHB, NULL);
-		set_layer_image(LAYER_CHL, NULL);
-		set_layer_image(LAYER_CHR, NULL);
-		set_layer_image(LAYER_CHC, NULL);
-		set_layer_image(LAYER_CHF, NULL);
-		set_layer_image(LAYER_TEXT1, NULL);
-		set_layer_image(LAYER_TEXT2, NULL);
-		set_layer_image(LAYER_TEXT3, NULL);
-		set_layer_image(LAYER_TEXT4, NULL);
-		set_layer_image(LAYER_TEXT5, NULL);
-		set_layer_image(LAYER_TEXT6, NULL);
-		set_layer_image(LAYER_TEXT7, NULL);
-		set_layer_image(LAYER_TEXT8, NULL);
-		set_layer_image(LAYER_EFFECT1, NULL);
-		set_layer_image(LAYER_EFFECT2, NULL);
-		set_layer_image(LAYER_EFFECT3, NULL);
-		set_layer_image(LAYER_EFFECT4, NULL);
-		set_layer_text(LAYER_TEXT1, NULL);
-		set_layer_text(LAYER_TEXT2, NULL);
-		set_layer_text(LAYER_TEXT3, NULL);
-		set_layer_text(LAYER_TEXT4, NULL);
-		set_layer_text(LAYER_TEXT5, NULL);
-		set_layer_text(LAYER_TEXT6, NULL);
-		set_layer_text(LAYER_TEXT7, NULL);
-		set_layer_text(LAYER_TEXT8, NULL);
+	if (!opt_nowipe) {
+		if (!is_gui_overlay()) {
+			show_namebox(false);
+			show_msgbox(false);
+			clear_stage_basic();
+		}
 	}
 
 	/* 繰り返し処理を開始する */

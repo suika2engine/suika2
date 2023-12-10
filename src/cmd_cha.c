@@ -50,7 +50,7 @@ static bool init(void)
 	const char *pos_s, *alpha_s, *accel_s;
 	float span;
 	int chpos, ofs_x, ofs_y, alpha, from_x, from_y, to_x, to_y, accel;
-	int stage_layer;
+	int layer;
 
 	/* パラメータを取得する */
 	pos_s = get_string_param(CHA_PARAM_POS);
@@ -65,8 +65,8 @@ static bool init(void)
 		return false;
 
 	/* キャラの位置からアニメレイヤーを求める */
-	stage_layer = chpos_to_layer(chpos);
-	if (get_layer_file_name(stage_layer) == NULL) {
+	layer = chpos_to_layer(chpos);
+	if (get_layer_file_name(layer) == NULL) {
 		log_script_cha_no_image(pos_s);
 		log_script_exec_footer();
 		return false;
@@ -81,29 +81,28 @@ static bool init(void)
 	alpha = get_alpha(alpha_s);
 
 	/* キャラのfrom位置を取得する */
-	from_x = get_layer_x(stage_layer);
-	from_y = get_layer_y(stage_layer);
+	from_x = get_layer_x(layer);
+	from_y = get_layer_y(layer);
 
 	/* キャラのto位置を計算する */
 	to_x = from_x + ofs_x;
 	to_y = from_y + ofs_y;
 
 	/* アニメ定義を行う */
-	anime_layer = chpos_to_anime_layer(chpos);
-	clear_anime_sequence(anime_layer);
-	new_anime_sequence(anime_layer);
+	clear_anime_sequence(layer);
+	new_anime_sequence(layer);
 	add_anime_sequence_property_f("start", 0);
 	add_anime_sequence_property_f("end", span);
 	add_anime_sequence_property_i("from-x", from_x);
 	add_anime_sequence_property_i("from-y", from_y);
-	add_anime_sequence_property_i("from-a", get_layer_alpha(anime_layer));
+	add_anime_sequence_property_i("from-a", get_layer_alpha(layer));
 	add_anime_sequence_property_i("to-x", to_x);
 	add_anime_sequence_property_i("to-y", to_y);
 	add_anime_sequence_property_i("to-a", alpha);
 	add_anime_sequence_property_i("accel", accel);
 
 	/* アニメを開始する */
-	start_layer_anime(anime_layer);
+	start_layer_anime(layer);
 
 	/* 繰り返し動作を開始する */
 	start_command_repetition();
@@ -187,11 +186,11 @@ static void draw(void)
 	process_finish();
 
 	/* ステージを描画する */
-	draw_stage();
+	render_stage();
 
 	/* 折りたたみシステムメニューを描画する */
 	if (conf_sysmenu_transition && !is_non_interruptible())
-		draw_stage_collapsed_sysmenu(false);
+		render_collapsed_sysmenu(false);
 }
 
 /* アニメ終了を処理する */

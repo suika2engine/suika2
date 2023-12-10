@@ -214,10 +214,16 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     
     // Set destroyed textures purgeable.
     for (int i = 0; i < thePurgeArrayCount; i++) {
+        if (thePurgeArray[i] == NULL)
+            continue;
+        if (thePurgeArray[i]->texture == nil)
+            continue;
+
         id<MTLTexture> texture = (__bridge id<MTLTexture>)(thePurgeArray[i]->texture);
         [texture setPurgeableState:MTLPurgeableStateEmpty];
         CFBridgingRelease(thePurgeArray[i]->texture);
         thePurgeArray[i]->texture = NULL;
+        thePurgeArray[i] = NULL;
     }
 }
 
@@ -511,10 +517,14 @@ void notify_image_update(struct image *img)
 //
 void notify_image_free(struct image *img)
 {
-    for (int i = 0; i < theInitialUploadArrayCount; i++)
-        if (theInitialUploadArray[i] == img)
+    // Metal初期化前に作成され、Metal初期化前に削除されるイメージを、theInitialUploadArrayから削除する
+    for (int i = 0; i < theInitialUploadArrayCount; i++) {
+        if (theInitialUploadArray[i] == img) {
             theInitialUploadArray[i] = NULL;
-
+            return;
+        }
+    }
+    
     thePurgeArray[thePurgeArrayCount++] = img;
 }
 

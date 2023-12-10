@@ -32,7 +32,7 @@ bool wait_command(void)
 	}
 
 	/* 描画を行う */
-	draw_stage();
+	render_stage();
 
 	/* 時間が経過した場合か、入力があった場合 */
 	if ((float)get_lap_timer_millisec(&sw) / 1000.0f >= span ||

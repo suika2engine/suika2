@@ -217,6 +217,9 @@ static float fade_in_time;
 /* フェードアウト時間 */
 static float fade_out_time;
 
+/* 終了したか */
+static bool is_finished;
+
 /* ポイントされているボタンのインデックス */
 static int pointed_index;
 
@@ -286,6 +289,10 @@ static bool did_save;
 /*
  * 前方参照
  */
+static void process_input(void);
+static bool process_drawing(void);
+static void process_rendering(void);
+static bool process_move(void);
 static void process_left_right_arrow_keys(void);
 static bool add_button(int index);
 static bool set_global_key_value(const char *key, const char *val);
@@ -427,6 +434,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	fade_out_time = 0;
 	is_overlay = false;
 	did_save = false;
+	is_finished = false;
 
 	/* GUIファイルを開く */
 	if (!load_gui_file(gui_file)) {
@@ -848,76 +856,137 @@ bool is_gui_overlay(void)
  */
 bool run_gui_mode(void)
 {
-	float progress;
+	/* 入力を処理する */
+	process_input();
+
+	/* 画像の更新を処理する */
+	if (!process_drawing())
+		return false;
+
+	/*
+	 * レンダリングを行う
+	 *  - ただしGUIのチェインを行う場合を除く
+	 *  - 理由は、チェインイ先のGUIの読み込みで画像の更新が発生するから
+	 *  - HALによっては、テクスチャの更新をレンダリング後に行ってはいけない
+	 */
+	if ((result_index == -1) ||
+	    (result_index != -1 && button[result_index].type != TYPE_GUI))
+		process_rendering();
+
+	if (!process_move())
+		return false;
+
+	is_first_frame = false;
+	return true;
+}
+
+/* 入力を処理する */
+static void process_input(void)
+{
 	int i;
-	bool is_finished;
 
 	prev_pointed_index = pointed_index;
 	need_update_history_buttons = false;
-	is_finished = false;
 
-    /* 左右キーを処理する */
-    if (!is_fading_in && !is_fading_out)
-        process_left_right_arrow_keys();
+	/* フェード中の場合は入力を受け付けない */
+	if (is_fading_in || is_fading_out)
+		return;
 
-    /* マウスホイールか上下キーによるスクロールを処理する */
-    if (!is_fading_in && !is_fading_out) {
-        if (is_up_pressed) {
-            process_history_scroll(-1);
-            update_runtime_props(false);
-        } else if (is_down_pressed) {
-            process_history_scroll(1);
-            update_runtime_props(false);
-        }
-    }
+	/* 左右キーを処理する */
+	process_left_right_arrow_keys();
 
-    /* 各ボタンについて処理する */
-    for (i = 0; i < BUTTON_COUNT; i++) {
-        if (!is_fading_in && !is_fading_out) {
-            /* ポイント状態を更新する */
-            process_button_point(i, false);
+	/* マウスホイールか上下キーによるスクロールを処理する */
+	if (is_up_pressed) {
+		process_history_scroll(-1);
+		update_runtime_props(false);
+	} else if (is_down_pressed) {
+		process_history_scroll(1);
+		update_runtime_props(false);
+	}
 
-            /* ドラッグ状態を更新する */
-            process_button_drag(i);
+	/* 右クリックでキャンセル可能な場合 */
+	if (cancelable) {
+		/* 右クリックされた場合か、エスケープキーが押下された場合 */
+		if (is_right_clicked || is_escape_pressed) {
+			/* どのボタンも選ばれなかったことにする */
+			result_index = -1;
 
-            /* クリック結果を取得する */
-            process_button_click(i);
-        }
-    }
+			/* SEを再生する */
+			play_sys_se(cancel_se);
+
+			/* フェードアウトか終了処理を行う */
+			if (fade_out_time > 0) {
+				is_fading_out = true;
+				reset_lap_timer(&fade_sw);
+			} else {
+				is_finished = true;
+			}
+		}
+	}
+
+	/* 各ボタンについて処理する */
+	for (i = 0; i < BUTTON_COUNT; i++) {
+		if (!is_fading_in && !is_fading_out) {
+			/* ポイント状態を更新する */
+			process_button_point(i, false);
+
+			/* ドラッグ状態を更新する */
+			process_button_drag(i);
+
+			/* クリック結果を取得する */
+			process_button_click(i);
+		}
+	}
     
-    /* 右クリックでキャンセル可能な場合 */
-    if (!is_fading_in && !is_fading_out && cancelable) {
-        /* 右クリックされた場合か、エスケープキーが押下された場合 */
-        if (is_right_clicked || is_escape_pressed) {
-            /* どのボタンも選ばれなかったことにする */
-            result_index = -1;
+	/* ボタンが決定された場合は終了する */
+	if (result_index != -1) {
+		if (fade_out_time > 0 &&
+		    (button[result_index].type != TYPE_GUI &&
+		     button[result_index].type != TYPE_TITLE)) {
+			is_fading_out = true;
+			reset_lap_timer(&fade_sw);
+		} else {
+			is_finished = true;
+		}
+	}
+}
 
-            /* SEを再生する */
-            play_sys_se(cancel_se);
+/* 画像の描画を処理する */
+static bool process_drawing(void)
+{
+	int i;
 
-            /* フェードアウトか終了処理を行う */
-            if (fade_out_time > 0) {
-                is_fading_out = true;
-                reset_lap_timer(&fade_sw);
-            } else {
-                is_finished = true;
-            }
-        }
-    }
+	/* ヒストリボタンの更新が必要な場合 */
+	if (!is_fading_in && !is_fading_out && need_update_history_buttons) {
+		update_history_buttons();
+		need_update_history_buttons = false;
+	}
 
-    /* ボタンが決定された場合は終了する */
-    if (!is_fading_in && !is_fading_out && result_index != -1) {
-        if (fade_out_time > 0 &&
-            (button[result_index].type != TYPE_GUI &&
-             button[result_index].type != TYPE_TITLE)) {
-            is_fading_out = true;
-            reset_lap_timer(&fade_sw);
-        } else {
-            is_finished = true;
-        }
-    }
+	/* 各ボタンの状態に合わせて描画する */
+	for (i = 0; i < BUTTON_COUNT; i++)
+		process_button_draw(i);
 
-    /* フェードイン・フェードアウト中のアルファ値を計算する */
+	/* 仮の背景を生成する */
+	if (is_finished) {
+		if (!is_sys_gui && !is_overlay && fade_out_time == 0) {
+			if (result_index == -1 ||
+			    (result_index != -1 &&
+			     button[result_index].type != TYPE_GUI &&
+			     button[result_index].type != TYPE_LOAD)) {
+				if (!create_temporary_bg())
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+static void process_rendering(void)
+{
+	float progress;
+
+	/* フェードイン・フェードアウト中のアルファ値を計算する */
 	if (is_fading_in) {
 		/* フェードインを処理する */
 		progress = (float)get_lap_timer_millisec(&fade_sw) / 1000.0f / fade_in_time;
@@ -944,31 +1013,8 @@ bool run_gui_mode(void)
 		cur_alpha = 255;
 	}
 
-    /* 仮の背景を生成する */
-    if (is_finished) {
-        if (!is_sys_gui && !is_overlay && fade_out_time == 0) {
-            if (result_index == -1 ||
-                (result_index != -1 &&
-                 button[result_index].type != TYPE_GUI &&
-                 button[result_index].type != TYPE_LOAD)) {
-                if (!create_temporary_bg())
-                    return false;
-            }
-        }
-    }
-
-    /* ヒストリボタンの更新が必要な場合 */
-    if (!is_fading_in && !is_fading_out && need_update_history_buttons) {
-        update_history_buttons();
-        need_update_history_buttons = false;
-    }
-
-	/* フェードイン・フェードアウト中の場合、背景としてステージを描画する */
-	if (is_fading_in || is_fading_out || is_overlay)
-		draw_stage();
-
-    /* フェードイン・フェードアウト中でない場合、背景としてidle画像を描画する*/
-    if ((is_fading_in && !is_overlay) ||
+	/* フェードイン・フェードアウト中でない場合、背景としてidle画像を描画する*/
+	if ((is_fading_in && !is_overlay) ||
 	    (is_fading_out && !is_overlay) ||
 	    (!is_fading_in && !is_fading_out && !is_overlay)) {
 		draw_stage_gui_idle(true,
@@ -977,11 +1023,7 @@ bool run_gui_mode(void)
 				    cur_alpha, false);
 	}
 
-    /* 各ボタンの状態に合わせて描画する */
-    for (i = 0; i < BUTTON_COUNT; i++)
-        process_button_draw(i);
-
-    /* SEを再生する */
+	/* SEを再生する */
 	if (!is_fading_in && !is_fading_out) {
 		if (!suppress_se) {
 			if (!is_first_frame)
@@ -995,6 +1037,15 @@ bool run_gui_mode(void)
 		}
 	}
 
+	/* フェードイン・フェードアウト中の場合、背景としてステージを描画する */
+	if (is_fading_in || is_fading_out || is_overlay)
+		render_stage();
+}
+
+
+
+static bool process_move(void)
+{
 	/* 終了する場合 */
 	if (is_finished) {
 		/* 続くコマンド実行に影響を与えないようにする */
@@ -1023,7 +1074,6 @@ bool run_gui_mode(void)
 		return true;
 	}
 
-	is_first_frame = false;
 	return true;
 }
 

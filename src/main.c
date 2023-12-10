@@ -193,7 +193,7 @@ bool game_loop_iter(void)
 	if (!is_gui) {
 		if (!pre_dispatch()) {
 			/* 実行中でないので画面を再描画する */
-			draw_stage();
+			render_stage();
 		} else {
 			/* ディスパッチする */
 			if (!dispatch_command(&cont)) {
@@ -547,7 +547,7 @@ static bool dispatch_command(bool *cont)
 
 #ifdef USE_DEBUGGER
 	if (*cont) {
-		draw_stage();
+		render_stage();
 		*cont = false;
 	}
 #endif

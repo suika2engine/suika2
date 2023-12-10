@@ -810,7 +810,7 @@ bool quick_load(void)
 		abort();
 
 	/* アニメを停止する */
-	for (i = 0; i < ANIME_LAYER_COUNT; i++)
+	for (i = 0; i < STAGE_LAYERS; i++)
 		clear_anime_sequence(i);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
@@ -869,7 +869,7 @@ bool execute_load(int index)
 		abort();
 
 	/* アニメを停止する */
-	for (i = 0; i < ANIME_LAYER_COUNT; i++)
+	for (i = 0; i < STAGE_LAYERS; i++)
 		clear_anime_sequence(i);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */

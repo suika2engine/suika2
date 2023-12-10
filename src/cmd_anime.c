@@ -62,7 +62,7 @@ static bool init(void)
 		 * アニメファイルはロードしない
 		 *  - 全レイヤのアニメを強制的に完了する
 		 */
-		for (i = 0; i < ANIME_LAYER_COUNT; i++)
+		for (i = 0; i < STAGE_LAYERS; i++)
 			finish_layer_anime(i);
 	} else {
 		/* アニメファイルをロードする */
@@ -95,13 +95,13 @@ static bool init(void)
 /* 描画を行う */
 static void draw(void)
 {
-	draw_stage();
+	render_stage();
 
 	/* システムメニューを表示する場合 */
 	if (is_sysmenu) {
 		/* 折りたたみシステムメニューを描画する */
 		if (conf_sysmenu_transition && !is_non_interruptible())
-			draw_stage_collapsed_sysmenu(false);
+			render_collapsed_sysmenu(false);
 	}
 
 	/* 同期処理の場合 */
@@ -121,7 +121,7 @@ static bool cleanup(void)
 
 	/* 同期処理の場合、アニメシーケンスをクリアする */
 	if (!is_async) {
-		for (i = 0; i < ANIME_LAYER_COUNT; i++)
+		for (i = 0; i < STAGE_LAYERS; i++)
 			clear_anime_sequence(i);
 	}
 

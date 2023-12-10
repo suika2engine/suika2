@@ -24,6 +24,7 @@ static ViewController *theViewController;
     float _screenScale, _left, _top;
     NSRect _savedFrame;
     BOOL _isFullScreen;
+    BOOL _isControlPressed;
     AVPlayer *_avPlayer;
     AVPlayerLayer *_avPlayerLayer;
     BOOL _isVideoPlaying;
@@ -202,11 +203,11 @@ static ViewController *theViewController;
     BOOL bit = ([theEvent modifierFlags] & NSEventModifierFlagControl) == NSEventModifierFlagControl;
 
     // Controlキーの状態が変化した場合は通知する
-    if (!isControlPressed && bit) {
-        isControlPressed = YES;
+    if (!_isControlPressed && bit) {
+        _isControlPressed = YES;
         on_event_key_press(KEY_CONTROL);
-    } else if (isControlPressed && !bit) {
-        isControlPressed = NO;
+    } else if (_isControlPressed && !bit) {
+        _isControlPressed = NO;
         on_event_key_release(KEY_CONTROL);
     }
 }
@@ -245,65 +246,60 @@ static ViewController *theViewController;
 // マウス押下イベント
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    pos.x *= screenScale;
-    pos.y *= screenScale;
+    pos.x *= _screenScale;
+    pos.y *= _screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
 
-    on_event_mouse_press(MOUSE_LEFT, (int)pos.x,
-                         conf_window_height - (int)pos.y);
+    on_event_mouse_press(MOUSE_LEFT, (int)pos.x, conf_window_height - (int)pos.y);
 }
 
 // マウス解放イベント
 - (void)mouseUp:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    pos.x *= screenScale;
-    pos.y *= screenScale;
+    pos.x *= _screenScale;
+    pos.y *= _screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
 
-    on_event_mouse_release(MOUSE_LEFT, (int)pos.x,
-                           conf_window_height - (int)pos.y);
+    on_event_mouse_release(MOUSE_LEFT, (int)pos.x, conf_window_height - (int)pos.y);
 }
-
 
 // マウス右ボタン押下イベント
 - (void)rightMouseDown:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    pos.x *= screenScale;
-    pos.y *= screenScale;
+    pos.x *= _screenScale;
+    pos.y *= _screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
 
-    on_event_mouse_press(MOUSE_RIGHT, (int)pos.x,
-                         conf_window_height - (int)pos.y);
+    on_event_mouse_press(MOUSE_RIGHT, (int)pos.x, conf_window_height - (int)pos.y);
 }
 
 // マウス右ボタン解放イベント
 - (void)rightMouseUp:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    pos.x *= screenScale;
-    pos.y *= screenScale;
+    pos.x *= _screenScale;
+    pos.y *= _screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
         return;
 
-    on_event_mouse_release(MOUSE_RIGHT, (int)pos.x,
-                           conf_window_height - (int)pos.y);
+    on_event_mouse_release(MOUSE_RIGHT, (int)pos.x, conf_window_height - (int)pos.y);
 }
 
 // マウス移動イベント
 - (void)mouseMoved:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    pos.x *= screenScale;
-    pos.y *= screenScale;
+    pos.x *= _screenScale;
+    pos.y *= _screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)
@@ -315,8 +311,8 @@ static ViewController *theViewController;
 // マウスドラッグイベント
 - (void)mouseDragged:(NSEvent *)theEvent {
     NSPoint pos = [theEvent locationInWindow];
-    pos.x *= screenScale;
-    pos.y *= screenScale;
+    pos.x *= _screenScale;
+    pos.y *= _screenScale;
     if (pos.x < 0 && pos.x >= conf_window_width)
         return;
     if (pos.y < 0 && pos.y >= conf_window_height)

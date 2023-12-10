@@ -37,7 +37,7 @@ struct sequence {
 };
 
 /* アニメーションシーケンス(レイヤxシーケンス長) */
-static struct sequence sequence[ANIME_LAYER_COUNT][SEQUENCE_COUNT];
+static struct sequence sequence[STAGE_LAYERS][SEQUENCE_COUNT];
 
 /* レイヤごとのアニメーションの状況 */
 struct layer_context {
@@ -48,7 +48,7 @@ struct layer_context {
 	float cur_lap;
 	int loop_rem;
 };
-static struct layer_context context[ANIME_LAYER_COUNT];
+static struct layer_context context[STAGE_LAYERS];
 
 /* レイヤー名とレイヤーのインデックスのマップ */
 struct layer_name_map {
@@ -56,42 +56,48 @@ struct layer_name_map {
 	int index;
 };
 static struct layer_name_map layer_name_map[] = {
-	{"bg", ANIME_LAYER_BG}, {U8("背景"), ANIME_LAYER_BG},
-	{"bg2", ANIME_LAYER_BG2},
-	{"effect5", ANIME_LAYER_EFFECT5},
-	{"effect6", ANIME_LAYER_EFFECT6},
-	{"effect7", ANIME_LAYER_EFFECT7},
-	{"effect8", ANIME_LAYER_EFFECT8},
-	{"chb", ANIME_LAYER_CHB}, {U8("背面キャラ"), ANIME_LAYER_CHB},
-	{"chl", ANIME_LAYER_CHL}, {U8("左キャラ"), ANIME_LAYER_CHL},
-	{"chlc", ANIME_LAYER_CHL}, {U8("左中キャラ"), ANIME_LAYER_CHLC},
-	{"chr", ANIME_LAYER_CHR}, {U8("右キャラ"), ANIME_LAYER_CHR},
-	{"chrc", ANIME_LAYER_CHRC}, {U8("右中キャラ"), ANIME_LAYER_CHRC},
-	{"chc", ANIME_LAYER_CHC}, {U8("中央キャラ"), ANIME_LAYER_CHC},
-	{"effect1", ANIME_LAYER_EFFECT1},
-	{"effect2", ANIME_LAYER_EFFECT2},
-	{"effect3", ANIME_LAYER_EFFECT3},
-	{"effect4", ANIME_LAYER_EFFECT4},
-	{"msg", ANIME_LAYER_MSG}, {U8("メッセージ"), ANIME_LAYER_MSG},
-	{"name", ANIME_LAYER_NAME}, {U8("名前"), ANIME_LAYER_NAME},
-	{"face", ANIME_LAYER_CHF}, {U8("顔"), ANIME_LAYER_CHF},
-	{"text1", ANIME_LAYER_TEXT1},
-	{"text2", ANIME_LAYER_TEXT2},
-	{"text3", ANIME_LAYER_TEXT3},
-	{"text4", ANIME_LAYER_TEXT4},
-	{"text5", ANIME_LAYER_TEXT5},
-	{"text6", ANIME_LAYER_TEXT6},
-	{"text7", ANIME_LAYER_TEXT7},
-	{"text8", ANIME_LAYER_TEXT8},
+	{"bg", LAYER_BG},
+	{U8("背景"), LAYER_BG},
+	{"bg2", LAYER_BG2},
+	{"effect5", LAYER_EFFECT5},
+	{"effect6", LAYER_EFFECT6},
+	{"effect7", LAYER_EFFECT7},
+	{"effect8", LAYER_EFFECT8},
+	{"chb", LAYER_CHB},
+	{U8("背面キャラ"), LAYER_CHB},
+	{"chl", LAYER_CHL},
+	{U8("左キャラ"), LAYER_CHL},
+	{"chlc", LAYER_CHL},
+	{U8("左中キャラ"), LAYER_CHLC},
+	{"chr", LAYER_CHR},
+	{U8("右キャラ"), LAYER_CHR},
+	{"chrc", LAYER_CHRC},
+	{U8("右中キャラ"), LAYER_CHRC},
+	{"chc", LAYER_CHC},
+	{U8("中央キャラ"), LAYER_CHC},
+	{"effect1", LAYER_EFFECT1},
+	{"effect2", LAYER_EFFECT2},
+	{"effect3", LAYER_EFFECT3},
+	{"effect4", LAYER_EFFECT4},
+	{"msg", LAYER_MSG},
+	{U8("メッセージ"), LAYER_MSG},
+	{"name", LAYER_NAME},
+	{U8("名前"), LAYER_NAME},
+	{"face", LAYER_CHF},
+	{U8("顔"), LAYER_CHF},
+	{"text1", LAYER_TEXT1},
+	{"text2", LAYER_TEXT2},
+	{"text3", LAYER_TEXT3},
+	{"text4", LAYER_TEXT4},
+	{"text5", LAYER_TEXT5},
+	{"text6", LAYER_TEXT6},
+	{"text7", LAYER_TEXT7},
+	{"text8", LAYER_TEXT8},
 };
 
 /* ロード中の情報 */
 static int cur_seq_layer;
 static uint64_t cur_sw;
-
-/* 座標 */
-static float anime_layer_x[ANIME_LAYER_COUNT];
-static float anime_layer_y[ANIME_LAYER_COUNT];
 
 /*
  * 前方参照
@@ -104,6 +110,8 @@ static float calc_pos_x_to(int anime_layer, int index, const char *value);
 static float calc_pos_y_from(int anime_layer, int index, const char *value);
 static float calc_pos_y_to(int anime_layer, int index, const char *value);
 static bool load_anime_file(const char *file);
+static bool update_layer_params(int layer);
+static bool load_anime_image(int layer);
 
 /*
  * アニメーションサブシステムに関する初期化処理を行う
@@ -124,7 +132,7 @@ void cleanup_anime(void)
 {
 	int i, j;
 
-	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
+	for (i = 0; i < STAGE_LAYERS; i++) {
 		for (j = 0 ; j < SEQUENCE_COUNT; j++) {
 			if (sequence[i][j].file != NULL) {
 				free(sequence[i][j].file);
@@ -158,13 +166,13 @@ void clear_anime_sequence(int layer)
 {
 	int i, j;
 
-	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	context[layer].seq_count = 0;
 	context[layer].is_running = false;
 	context[layer].is_finished = false;
 
-	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
+	for (i = 0; i < STAGE_LAYERS; i++) {
 		for (j = 0 ; j < SEQUENCE_COUNT; j++) {
 			if (sequence[i][j].file != NULL) {
 				free(sequence[i][j].file);
@@ -180,7 +188,7 @@ void clear_anime_sequence(int layer)
  */
 bool new_anime_sequence(int layer)
 {
-	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	cur_seq_layer = layer;
 	context[layer].seq_count++;
@@ -223,7 +231,7 @@ bool add_anime_sequence_property_i(const char *key, int val)
  */
 bool start_layer_anime(int layer)
 {
-	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	if (context[layer].seq_count == 0)
 		return true;
@@ -245,7 +253,7 @@ bool start_layer_anime(int layer)
  */
 bool finish_layer_anime(int layer)
 {
-	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	if (!context[layer].is_running)
 		return true;
@@ -267,7 +275,7 @@ bool is_anime_running(void)
 {
 	int i;
 
-	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
+	for (i = 0; i < STAGE_LAYERS; i++) {
 		if (context[i].is_running)
 			return true;
 	}
@@ -275,40 +283,23 @@ bool is_anime_running(void)
 }
 
 /*
- * アニメーションが完了したか調べる
+ * 指定したレイヤーのアニメーションが実行中であるか調べる
  */
 bool is_anime_finished_for_layer(int layer)
 {
-	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
-
-	if (context[layer].is_finished)
-		return true;
-
-	return false;
-}
-
-/*
- * レイヤでアニメーションが実行中であるか調べる
- */
-bool is_anime_running_for_layer(int layer)
-{
-	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
-
-	if (context[layer].is_running)
-		return true;
-
-	return false;
+	return context[layer].is_finished;
 }
 
 /*
  * アニメーションのフレーム時刻を更新し、完了したレイヤにフラグをセットする
  */
-void update_anime_time(void)
+void update_anime_frame(void)
 {
 	int i, last_seq;
 	uint64_t lap;
 
-	for (i = 0; i < ANIME_LAYER_COUNT; i++) {
+	/* 経過時刻を更新するとともに、アニメの完了を検出する */
+	for (i = 0; i < STAGE_LAYERS; i++) {
 		if (!context[i].is_running)
 			continue;
 		if (context[i].is_finished)
@@ -327,85 +318,54 @@ void update_anime_time(void)
 			context[i].is_finished = true;
 		}
 	}
+
+	/*
+	 * 各レイヤの描画パラメータを更新する
+	 *  - アニメシーケンスの"file:"指定により画像とファイル名も変更される
+	 */
+	for (i = 0; i < STAGE_LAYERS; i++) {
+		/* 下記3つのレイヤはアニメレイヤがない */
+		if (i == LAYER_CLICK || i == LAYER_AUTO || i == LAYER_SKIP)
+			continue;
+
+		/* 更新の必要がない場合 */
+		if (!context[i].is_finished && !context[i].is_running)
+			continue;
+
+		/* レイヤの情報を更新する */
+		update_layer_params(i);
+	}
+
 }
 
 /*
  * レイヤのパラメータを取得する
  */
-bool
-get_anime_layer_params(
-	int layer,
-	struct image **image,
-	char **file,
-	int *x,
-	int *y,
-	int *alpha)
+static bool update_layer_params(int layer)
 {
 	struct sequence *s;
 	float progress;
-	const char *dir;
-	int i;
+	int i, x, y, alpha;
 
-	assert(layer >= 0 && layer < ANIME_LAYER_COUNT);
+	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	/* シーケンスが定義されていない場合 */
 	if (context[layer].seq_count == 0)
 		return true;
 
-	/* ファイル読み込みを行う */
-	s = &sequence[layer][0];
-	if (s->file != NULL && strcmp(s->file, "unload") != 0) {
-		if (layer == ANIME_LAYER_BG || layer == ANIME_LAYER_BG2)
-			dir = BG_DIR;
-		else if (layer >= ANIME_LAYER_CHB && layer <= ANIME_LAYER_CHC)
-			dir = CH_DIR;
-		else if (layer == ANIME_LAYER_MSG || layer == ANIME_LAYER_NAME)
-			dir = CG_DIR;
-		else if (layer == ANIME_LAYER_CHF)
-			dir = CH_DIR;
-		else if (layer >= ANIME_LAYER_TEXT1 && layer <= ANIME_LAYER_TEXT8)
-			dir = CG_DIR;
-		else if ((layer >= ANIME_LAYER_EFFECT1 && layer <= ANIME_LAYER_EFFECT4) ||
-			 (layer >= ANIME_LAYER_EFFECT5 && layer <= ANIME_LAYER_EFFECT8))
-			dir = CG_DIR;
-		else
-			dir = "";
-		if (image != NULL && *image != NULL) {
-			destroy_image(*image);
-			*image = NULL;
-		}
-		if (image != NULL) {
-			*image = create_image_from_file(dir, s->file);
-			if (*image == NULL)
-				return false;
-		}
-		if (file != NULL) {
-			free(*file);
-			*file = s->file;
-		}
-		s->file = NULL;
-	} else if (s->file != NULL && strcmp(s->file, "unload") == 0) {
-		if (image != NULL && *image != NULL) {
-			destroy_image(*image);
-			*image = NULL;
-		}
-		if (file != NULL) {
-			free(*file);
-			*file = NULL;
-		}
-		free(s->file);
-		s->file = NULL;
-	}
+	/* 画像ファイル読み込みを行う */
+	if (!load_anime_image(layer))
+		return false;
 
 	/* すでに完了している場合 */
 	if (context[layer].is_finished &&
 	    context[layer].seq_count > 0) {
 		s = &sequence[layer][context[layer].seq_count - 1];
-		*x = (int)s->to_x;
-		*y = (int)s->to_y;
-		*alpha = (int)s->to_a;
-		anime_layer_x[layer] = s->to_x;
-		anime_layer_y[layer] = s->to_y;
+		x = (int)s->to_x;
+		y = (int)s->to_y;
+		alpha = (int)s->to_a;
+		set_layer_position(layer, (int)s->to_x, (int)s->to_y);
+		set_layer_alpha(layer, alpha);
 		return true;
 	}
 
@@ -440,29 +400,68 @@ get_anime_layer_params(
 		}
 
 		/* パラメータを計算する */
-		*x = (int)(s->from_x + (s->to_x - s->from_x) * progress);
-		*y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
-		*alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
-
-		anime_layer_x[i] = (float)*x;
-		anime_layer_y[i] = (float)*y;
-
+		x = (int)(s->from_x + (s->to_x - s->from_x) * progress);
+		y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
+		alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
+		set_layer_position(i, x, y);
+		set_layer_alpha(i, alpha);
 		break;
 	}
 
 	return true;
 }
 
-/*
- * アニメレイヤの座標を更新する
- *  - アニメ以外の@bg, @ch, @chsを使ったときに設定する
- */
-void set_anime_layer_position(int anime_layer, int x, int y)
+/* ファイル読み込みを行う */
+static bool load_anime_image(int layer)
 {
-	assert(anime_layer >= 0 && anime_layer < ANIME_LAYER_COUNT);
+	struct sequence *s = &sequence[layer][0];
+	struct image *img;
+	const char *dir;
 
-	anime_layer_x[anime_layer] = (float)x;
-	anime_layer_y[anime_layer] = (float)y;
+	/* msgとnameはfile:指定で画像を変更できない */
+	if (layer == LAYER_MSG && layer == LAYER_NAME)
+		return true;
+
+	/* 画像をロードする場合 */
+	if (s->file != NULL && strcmp(s->file, "unload") != 0) {
+		if (layer == LAYER_BG || layer == LAYER_BG2)
+			dir = BG_DIR;
+		else if (layer >= LAYER_CHB && layer <= LAYER_CHC)
+			dir = CH_DIR;
+		else if (layer == LAYER_CHF)
+			dir = CH_DIR;
+		else if (layer == LAYER_MSG || layer == LAYER_NAME)
+			dir = CG_DIR;
+		else if (layer >= LAYER_TEXT1 && layer <= LAYER_TEXT8)
+			dir = CG_DIR;
+		else if (layer >= LAYER_EFFECT1 && layer <= LAYER_EFFECT4)
+			dir = CG_DIR;
+		else if (layer >= LAYER_EFFECT5 && layer <= LAYER_EFFECT8)
+			dir = CG_DIR;
+		else
+			dir = "";
+
+		img = create_image_from_file(dir, s->file);
+		if (img == NULL)
+			return false;
+
+		set_layer_image(layer, img);
+		set_layer_file_name(layer, s->file);
+
+		free(s->file);
+		s->file = NULL;
+		return true;
+	}
+
+	/* 画像をアンロードする場合 */
+	if (s->file != NULL && strcmp(s->file, "unload") == 0) {
+		set_layer_image(layer, NULL);
+		set_layer_file_name(layer, NULL);
+		free(s->file);
+		s->file = NULL;
+	}
+
+	return true;
 }
 
 /*
@@ -582,7 +581,7 @@ static int layer_name_to_index(const char *name)
 }
 
 /* 座標を計算する */
-static float calc_pos_x_from(int anime_layer, int index, const char *value)
+static float calc_pos_x_from(int layer, int index, const char *value)
 {
 	float ret;
 
@@ -590,9 +589,9 @@ static float calc_pos_x_from(int anime_layer, int index, const char *value)
 
 	if (value[0] == '+') {
 		if (index == 0)
-			ret = anime_layer_x[anime_layer];
+			ret = (float)get_layer_x(layer);
 		else
-			ret = sequence[anime_layer][index - 1].to_x;
+			ret = sequence[layer][index - 1].to_x;
 		ret += (float)atoi(value + 1);
 	} else {
 		ret = (float)atoi(value);
@@ -602,14 +601,14 @@ static float calc_pos_x_from(int anime_layer, int index, const char *value)
 }
 
 /* 座標を計算する */
-static float calc_pos_x_to(int anime_layer, int index, const char *value)
+static float calc_pos_x_to(int layer, int index, const char *value)
 {
 	float ret;
 
 	assert(value != NULL);
 
 	if (value[0] == '+')
-		ret = sequence[anime_layer][index].from_x + (float)atoi(value + 1);
+		ret = sequence[layer][index].from_x + (float)atoi(value + 1);
 	else
 		ret = (float)atoi(value);
 
@@ -625,7 +624,7 @@ static float calc_pos_y_from(int anime_layer, int index, const char *value)
 
 	if (value[0] == '+') {
 		if (index == 0)
-			ret = anime_layer_y[anime_layer];
+			ret = (float)get_layer_y(anime_layer);
 		else
 			ret = sequence[anime_layer][index - 1].to_y;
 		ret += (float)atoi(value + 1);

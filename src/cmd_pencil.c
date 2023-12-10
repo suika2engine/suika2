@@ -93,7 +93,7 @@ bool pencil_command(void)
 	draw_msg_common(&context, total_chars);
 
 	/* 描画する */
-	draw_stage();
+	render_stage();
 
 	return move_to_next_command();
 }
