@@ -1,3 +1,14 @@
+// -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; -*-
+
+/*
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ */
+
+//
+// GameShaders: The Metal version of the shaders for Suika2
+//
+
 #include <metal_stdlib>
 #include <metal_common>
 #include <simd/simd.h>

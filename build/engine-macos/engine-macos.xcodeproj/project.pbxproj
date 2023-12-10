@@ -76,9 +76,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2626E0912B257D230095C563 /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/GameViewControllerProtocol.h; sourceTree = "<group>"; };
 		268EAEAA2B21E41400CF559E /* GameView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
 		268EAEAB2B21E41400CF559E /* GameView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
-		268EAEAD2B222C3800CF559E /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewControllerProtocol.h; sourceTree = "<group>"; };
 		268EAEAE2B23C12800CF559E /* hal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hal.h; path = ../../src/hal.h; sourceTree = "<group>"; };
 		268EAEAF2B23C4C700CF559E /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/GameShaders.metal; sourceTree = "<group>"; };
 		268EAEB02B23C4C700CF559E /* GameRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameRenderer.m; path = ../../src/GameRenderer.m; sourceTree = "<group>"; };
@@ -221,7 +221,6 @@
 				26EAF2652B1F9B20003530F4 /* main.m */,
 				26EAF25A2B1F9B1F003530F4 /* AppDelegate.h */,
 				26EAF25B2B1F9B1F003530F4 /* AppDelegate.m */,
-				268EAEAD2B222C3800CF559E /* GameViewControllerProtocol.h */,
 				26EAF3122B206E0E003530F4 /* ViewController.h */,
 				26EAF3132B206E0E003530F4 /* ViewController.m */,
 				268EAEAA2B21E41400CF559E /* GameView.h */,
@@ -243,6 +242,7 @@
 		26EAF2712B202CA6003530F4 /* suika2 */ = {
 			isa = PBXGroup;
 			children = (
+				2626E0912B257D230095C563 /* GameViewControllerProtocol.h */,
 				268EAEB12B23C4C700CF559E /* GameRenderer.h */,
 				268EAEB02B23C4C700CF559E /* GameRenderer.m */,
 				268EAEAF2B23C4C700CF559E /* GameShaders.metal */,
