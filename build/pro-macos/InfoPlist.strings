@@ -1,9 +1,0 @@
-/* 
-  InfoPlist.strings
-  suika
-
-  Created by tabata on 2022/06/13.
-  
-*/
-CFBundleName = "Suika2 Pro";
-CFBundleDisplayName = "Suika2 Pro";

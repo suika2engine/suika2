@@ -1,10 +1,14 @@
+#
+# Linux (and FreeBSD/NetBSD)
+#
+
 include ../common.mk
 
 #
 # Toolchain selection
 #
 
-CC = gcc
+CC = cc
 
 #
 # CPPFLAGS
@@ -12,7 +16,10 @@ CC = gcc
 
 CPPFLAGS = \
 	-I./libroot/include \
-	-I./libroot/include/freetype2
+	-I./libroot/include/freetype2  \
+	-I/usr/local/include \
+	-I/usr/pkg/include \
+	-I/usr/X11R7/include
 
 #
 # CFLAGS
@@ -38,13 +45,17 @@ LDFLAGS = \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lvorbisfile,-lvorbis,-logg,-lz,-lbz2,-dy \
 	-Wl,--gc-sections \
-	-lpthread \
+	-L/usr/local/lib \
+	-L/usr/pkg/lib \
 	-lasound \
+	-L/usr/X11R7/lib \
 	-lX11 \
 	-lXpm \
 	-lGL \
-	-lGLX \
+	-lpthread \
 	-lm
+
+LDFLAGS_EXTRA = -lGLX
 
 #
 # Source files
@@ -73,7 +84,8 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 all: suika
 
 suika: libroot $(OBJS)
-	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
+	$(CC) -o suika $(OBJS) $(LDFLAGS) $(LDFLAGS_EXTRA) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0` || \
+	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0` || 
 
 libroot:
 	./build-libs.sh
@@ -96,8 +108,11 @@ lines:
 	grep -E '/\*|\*/|^([ \t]+\*)' ../../src/*.[cm] | wc -l
 	grep 'assert' ../../src/*.[chm] | wc -l
 
-analyze:
-	$(CC) $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS)
+gcc-analyze:
+	gcc $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS)
+
+clang-analyze:
+	clang $(CPPFLAGS) --analyze -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS)
 
 valgrind:
 	cp suika ../../game/demo

@@ -15,7 +15,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 
 APP_TITLE := $(TARGET)
 APP_VERSION := 12.1.0
-APP_AUTHOR := TABATA Keiichi & devseed
+APP_AUTHOR := devseed
 APP_ICON := icon.jpg
 NROFLAGS += --icon=$(APP_ICON) --nacp=$(TARGET).nacp
 # NROFLAGS += --romfsdir=$(ROMFS)
@@ -67,7 +67,7 @@ LDFLAGS = \
 	-ldrm_nouveau -lglapi -lnx -lc -lstdc++ \
 	-lwebp -ljpeg -lpng16 -lz -lbz2 \
 	-lvorbisfile -lvorbis -lm \
-	-logg -lfreetype -lbz2
+	-logg -lfreetype
 
 #
 # Source files

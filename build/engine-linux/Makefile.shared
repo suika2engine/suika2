@@ -10,40 +10,45 @@ CC = gcc
 
 CPPFLAGS = \
 	-DUSE_X11_OPENGL \
-	-I./libroot/include \
-	-I./libroot/include/freetype2
+	-I/usr/include/freetype2
 
 #
 # CFLAGS
 #
 
 CFLAGS = \
-	-O0 -g3 \
+	-O3 \
 	-ffast-math \
 	-ftree-vectorize \
-	-fopt-info-vec \
 	-std=gnu11 \
 	-Wall \
 	-Werror \
 	-Wextra \
-	-Wundef
+	-Wundef \
+	-Wconversion \
+	-Wno-multichar
 
 #
 # LDFLAGS
 #
 
 LDFLAGS = \
-	-lm \
-	-lmvec \
 	-lpthread \
 	-lasound \
 	-lX11 \
 	-lXpm \
 	-lGL \
 	-lGLX \
-	-L./libroot/lib \
-	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lvorbisfile,-lvorbis,-logg,-lz,-lbz2,-dy \
-	-Wl,--gc-sections
+	-lpng16 \
+	-ljpeg \
+	-lwebp \
+	-lfreetype \
+	-lvorbisfile \
+	-lvorbis \
+	-logg \
+	-lz \
+	-lbz2 \
+	-lm
 
 #
 # Source files
@@ -53,6 +58,7 @@ include ../common.mk
 
 SRCS = \
 	$(SRCS_COMMON) \
+	$(SRCS_SSE) \
 	../../src/asound.c \
 	../../src/glrender.c \
 	../../src/gstplay.c \
@@ -71,18 +77,23 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 # Target
 #
 
-suika: libroot $(OBJS)
+all: suika
+
+suika: $(OBJS)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
-libroot:
-	./build-libs.sh
+#
+# Feature specific source files.
+#
+
+include ../sse.mk
 
 #
 # Phony
 #
 
 install: suika
-	cp suika ../../
+	cp suika ../../suika-linux
 
 clean:
-	rm -rf *~ *.o suika log.txt sav tmp libroot
+	rm -rf *~ *.o suika log.txt sav tmp

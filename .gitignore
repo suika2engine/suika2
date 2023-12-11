@@ -2,11 +2,18 @@
 # Credentials
 #
 
-# Hostname/username/password for remote macOS build
-build/.env
+.env
+.passwd
 
-# Password file for remote macOS build
-build/all-macos/.passwd
+#
+# Garbages
+#
+
+*.DS_Store
+*~
+.vscode/settings.json
+log.txt
+sav
 
 #
 # Top level objects
@@ -29,39 +36,49 @@ mac-replay.dmg
 # Main Engine
 #
 
-# Main Engine for Windows 32-bit with mingw-w64 (suika.exe)
-build/engine-windows-x86/*.o
-build/engine-windows-x86/libroot
-build/engine-windows-x86/suika.exe
-build/engine-windows-x86/res/resource.aps
-build/engine-windows-x86/sync.sh
-build/engine-windows-x86/game
+# Windows
+*.o
+libroot
+*.exe
+*.aps
+llvm
+llvm-mingw-*-aarch64.tar.xz
 
-# Main Engine for Windows 64-bit with mingw-w64 (suika-64.exe)
-build/engine-windows-x86_64/*.o
-build/engine-windows-x86_64/libroot
-build/engine-windows-x86_64/suika-64.exe
+# Visual Studio 2022
+build/engine-windows-vs2022/.vs
+build/engine-windows-vs2022/zlib
+build/engine-windows-vs2022/libpng
+build/engine-windows-vs2022/libogg
+build/engine-windows-vs2022/libvorbis
+build/engine-windows-vs2022/freetype
+build/engine-windows-vs2022/jpeg
+build/engine-windows-vs2022/bzip2
+build/engine-windows-vs2022/libwebp
+build/engine-windows-vs2022/obj
+build/engine-windows-vs2022/Debug
+build/engine-windows-vs2022/Release
+build/engine-windows-vs2022/ARM64
 
-# Main Engine for Windows Arm64 with clang/mignw (suika-arm64.exe)
-build/engine-windows-arm64/*.o
-build/engine-windows-arm64/llvm
-build/engine-windows-arm64/libroot
-build/engine-windows-arm64/suika-arm64.exe
+# macOS
+build/engine-macos/engine-macos.xcodeproj/project.xcworkspace
+build/engine-macos/engine-macos.xcodeproj/xcshareddata
+build/engine-macos/engine-macos.xcodeproj/cuserdata
+build/engine-macos/engine-macos.xcodeproj/xcuserdata
+build/engine-macos/libroot-mac.tar.gz
 
-# Main Engine for Wasm
+# Wasm
 build/engine-wasm/html
 build/engine-wasm/emsdk
 build/engine-wasm/data01.arc
 
-# Main Engine for iOS (iPhone and iPad)
+# iOS
 build/engine-ios/libroot
 build/engine-ios/suika.xcodeproj/project.xcworkspace
 build/engine-ios/suika.xcodeproj/xcuserdata
 build/engine-ios/ios-src
-build/engine-ios/ios-src.zip
 build/engine-ios/libroot-ios.tar.gz
 
-# Main Engine for Android
+# Android
 build/engine-android/.idea/caches
 build/engine-android/app/.cxx
 build/engine-android/app/src/main/assets
@@ -75,185 +92,49 @@ build/engine-android/cmdline-tools
 build/engine-android/commandlinetools-linux-*.zip
 build/engine-android/android-src
 
-# Main Engine for Linux x86_64 static
-build/engine-linux-x86_64/*.o
-build/engine-linux-x86_64/libroot
-build/engine-linux-x86_64/suika
-
-# Main Engine for Linux x86_64 shared
-build/engine-linux-x86_64-shared/*.o
-build/engine-linux-x86_64-shared/libroot
-build/engine-linux-x86_64-shared/suika
-
-# Main Engine for Linux x86_64 with clang
-build/engine-linux-x86_64-clang/*.o
-build/engine-linux-x86_64-clang/libroot
-build/engine-linux-x86_64-clang/suika
-
-# Main Engine for Linux Aarch 64 e.g. Raspberry Pi
-build/engine-linux-aarch64/*.o
-build/engine-linux-aarch64/libroot
-build/engine-linux-aarch64/suika
-
-#
-# Studio
-#
-
-# Studio for Windows 32-bit with mingw-w64 (suika-studio.exe)
-build/studio-windows-x86/*.o
-build/studio-windows-x86/libroot
-build/studio-windows-x86/suika-studio.exe
-build/studio-windows-x86/game
-
-# Studio for Wasm
-build/studio-wasm/html
-build/studio-wasm/emsdk
-build/studio-wasm/data01.arc
+# Linux
+build/engine-linux/suika
 
 #
 # Pro
 #
 
-# Pro for Windows 32-bit with mingw-w64 (suika-pro.exe)
-build/pro-windows-x86/*.o
-build/pro-windows-x86/libroot
-build/pro-windows-x86/suika-pro.exe
-build/pro-windows-x86/game
-
-# Pro for Linux x86_64 static
-build/pro-qt6/deps
-build/pro-qt6/build
-build/pro-qt6/CMakeLists.txt.user
-build/pro-qt6/*.cpp
-build/pro-qt6/*.h
-build/pro-qt6/*.ui
-build/pro-qt6/build/suika-pro
-
-#
-# Capture
-#
-
-# Capture for Windows 32-bit with mingw-w64 (suika-capture.exe)
-build/capture-windows-x86/*.o
-build/capture-windows-x86/libroot
-build/capture-windows-x86/suika-capture.exe
-
-# Capture for Linux x86_64
-build/capture-linux-x86_64/*.o
-build/capture-linux-x86_64/libroot
-build/capture-linux-x86_64/suika-capture
-
-#
-# Replay
-#
-
-# Replay for Windows 64-bit with mingw-w64 (suika-replay.exe)
-build/replay-windows-x86/*.o
-build/replay-windows-x86/libroot
-build/replay-windows-x86/suika-replay.exe
-
-# Replay for Linux x86_64
-build/replay-linux-x86_64/*.o
-build/replay-linux-x86_64/*.gcda
-build/replay-linux-x86_64/*.gcno
-build/replay-linux-x86_64/libroot
-build/replay-linux-x86_64/suika-replay
-build/replay-linux-x86_64/app.info
-build/replay-linux-x86_64/lcovoutput
-
-#
 # macOS
-#
+build/pro-macos/pro-macos.xcodeproj/project.xcworkspace
+build/pro-macos/pro-macos.xcodeproj/xcshareddata
+build/pro-macos/pro-macos.xcodeproj/cuserdata
+build/pro-macos/pro-macos.xcodeproj/xcuserdata
+build/pro-macos/libroot-mac.tar.gz
 
-# Engine/Pro/Capture/Replay on macOS
-libroot-mac.tar.gz
-libroot
-project.xcworkspace
-xcshareddata
-xcuserdata
-build/engine-macos/build
-build/pro-macos/build
-build/capture-macos/build
-build/replay-macos/build
-
-#
-# Visual Studio
-#
-
-# Engine/Pro/Studio on Visual Studio 2022 (for debug purpose only)
-build/all-vs2022/.vs
-build/all-vs2022/zlib
-build/all-vs2022/libpng
-build/all-vs2022/libogg
-build/all-vs2022/libvorbis
-build/all-vs2022/freetype
-build/all-vs2022/jpeg
-build/all-vs2022/bzip2
-build/all-vs2022/libwebp
-build/all-vs2022/obj
-build/all-vs2022/Debug
-build/all-vs2022/Release
-build/all-vs2022/ARM64
-build/all-vs2022/suika/Debug
-build/all-vs2022/suika/Release
-build/all-vs2022/suika/ARM64
-build/all-vs2022/suika-pro/Debug
-build/all-vs2022/suika-pro/Release
-build/all-vs2022/suika-pro/ARM64
-build/all-vs2022/suika-studio/Debug
-build/all-vs2022/suika-studio/Release
-build/all-vs2022/suika-studio/ARM64
+# Linux
+build/pro-linux/deps
+build/pro-linux/build
+build/pro-linux/CMakeLists.txt.user
 
 #
 # Misc.
 #
 
-# Linux/SDL2 (a virtual porting base for game consoles)
-build/sdl2/*.o
-build/sdl2/libroot
-build/sdl2/suika
-
-# FreeBSD x86_64
-build/freebsd/*.o
-build/freebsd/libroot
-build/freebsd/suika
-
-# NetBSD x86_64
-build/netbsd/*.o
-build/netbsd/libroot
-build/netbsd/suika
-
-# Console Example with SDL2
-build/engine-console/libroot
-build/engine-console/exefs
-build/engine-console/romfs
-build/engine-console/tmp
-build/engine-console/*.o
-build/engine-console/*.elf
-build/engine-console/*.nro
-build/engine-console/*.nacp
-build/engine-console/*.nsp
-
-# Windows Installer
-suika-pro.exe
-games/
-tools/
-suika2-x.x.exe
-
 # Ubuntu PPA
 build/ppa/work
 
-#
-# Tests
-#
+# Studio Wasm
+build/experimental-studio-wasm/html
+build/experimental-studio-wasm/emsdk
+build/experimental-studio-wasm/data01.arc
 
-testcases
+# Console Example with SDL2
+build/experimental-engine-console/libroot
+build/experimental-engine-console/exefs
+build/experimental-engine-console/romfs
+build/experimental-engine-console/tmp
+build/experimental-engine-console/*.o
+build/experimental-engine-console/*.elf
+build/experimental-engine-console/*.nro
+build/experimental-engine-console/*.nacp
+build/experimental-engine-console/*.nsp
 
-#
-# Garbages
-#
-*.DS_Store
-*~
-.vscode/settings.json
-log.txt
-sav
+# Windows Installer
+build/experimental-windows-installer/suika-pro.exe
+build/experimental-windows-installer/games
+build/experimental-windows-installer/tools
