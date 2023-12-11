@@ -63,11 +63,10 @@ LDFLAGS = \
 SRCS_C = \
 	$(SRCS_COMMON) \
 	../../src/winmain.c \
-	../../src/uimsg.c \
-	../../src/d3drender.c \
 	../../src/dsound.c
 
 SRCS_CC = \
+	../../src/d3drender.cc \
 	../../src/dsvideo.cc \
 	../../src/tts_sapi.cc
 
