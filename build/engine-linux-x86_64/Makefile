@@ -35,16 +35,16 @@ CFLAGS = \
 #
 
 LDFLAGS = \
-	-lm \
+	-L./libroot/lib \
+	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lvorbisfile,-lvorbis,-logg,-lz,-lbz2,-dy \
+	-Wl,--gc-sections \
 	-lpthread \
 	-lasound \
 	-lX11 \
 	-lXpm \
 	-lGL \
 	-lGLX \
-	-L./libroot/lib \
-	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lvorbisfile,-lvorbis,-logg,-lz,-lbz2,-dy \
-	-Wl,--gc-sections \
+	-lm
 
 #
 # Source files
