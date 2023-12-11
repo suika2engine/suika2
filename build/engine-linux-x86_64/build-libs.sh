@@ -3,7 +3,7 @@
 PREFIX=`pwd`/libroot
 
 rm -rf tmp libroot
-mkdir -p tmp libroot
+mkdir -p tmp libroot libroot/include libroot/lib
 
 cd tmp
 

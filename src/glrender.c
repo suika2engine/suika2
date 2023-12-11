@@ -65,10 +65,10 @@
 #endif
 
 /*
- * Linux (excluding SDL2)
+ * POSIX
  *  - We use OpenGL 3.2
  */
-#if defined(LINUX) && !defined(USE_SDL2_OPENGL)
+#if defined(SUIKA_TARGET_POSIX)
 #include <GL/gl.h>
 #include "glhelper.h"
 #endif
@@ -82,21 +82,17 @@
 #endif
 
 /*
- * Console Sample
- *  - We use OpenGL ES 3.0
+ * Pipeline types.
  */
-#if defined(CONSOLE_SAMPLE)
-#include <GLES3/gl3.h>
-#include <GLES2/gl2ext.h>
-#endif
 
-/*
- * SDL2
- *  - We simply use GLEW because the SDL2 port is just for porting base.
- */
-#if defined(USE_SDL2_OPENGL)
-#include <GL/glew.h>
-#endif
+enum {
+	PIPELINE_COPY,
+	PIPELINE_NORMAL,
+	PIPELINE_ADD,
+	PIPELINE_DIM,
+	PIPELINE_RULE,
+	PIPELINE_MELT,
+};
 
 /*
  * The sole vertex shader that is shared between all fragment shaders.
@@ -312,18 +308,6 @@ static const char *fragment_shader_src_melt =
 	"}                                                   \n";
 
 /*
- * Internal texture management struct.
- *  - We call glGenTextures() when a texture first unlocked
- */
-struct texture {
-	/* Texture ID. */
-	GLuint id;
-
-	/* This shows whether glGenTextures() was called. */
-	bool is_initialized;
-};
-
-/*
  * The following functions are defined in this file if we don't use Qt.
  * In the case we use Qt, they are defined in openglwidget.cpp because
  * VAO/VBO/IBO are abstracted in a very different way on the framework.
@@ -343,10 +327,9 @@ void cleanup_fragment_shader(GLuint fshader, GLuint prog, GLuint vao,
 static void draw_elements(int dst_left, int dst_top,
 			  struct image * RESTRICT src_image,
 			  struct image * RESTRICT rule_image,
-			  bool is_dim, bool is_melt,
 			  int width, int height,
 			  int src_left, int src_top,
-			  int alpha, int bt);
+			  int alpha, int pipeline);
 
 /*
  * Initialize the Suika2's OpenGL rendering subsystem.
@@ -665,120 +648,105 @@ void opengl_end_rendering(void)
  *  - This will just allocate memory for a texture management struct
  *  - We just use pixels of a frontend image for modification
  */
-bool
-opengl_update_gpu_texture(struct image *img)
+void opengl_notify_image_update(struct image *img)
 {
-	struct texture *tex;
-
-	UNUSED_PARAMETER(width);
-	UNUSED_PARAMETER(height);
-
-	assert(*locked_pixels == NULL);
-
-	tex = get_texture_object(img);
-
-	/*
-	 * If a texture object for the image that uses "pixels" is not created yet.
-	 * (In other words, the image was created by create_image(), but still
-	 *  not drawn or cleared. This lazy initialization achieves a bit
-	 *  optimization.)
-	 */
-	if (*texture == NULL) {
-		/* Allocate memory for a texture struct. */
-		tex = malloc(sizeof(struct texture));
-		if (tex == NULL) {
-			log_memory();
-			return false;
-		}
-
-		tex->is_initialized = false;
-		*texture = tex;
-	}
-
-	/*
-	 * For image updates until unlock, we'll just use the area
-	 * that "pixels" points to.
-	 */
-	*locked_pixels = pixels;
-
-	return true;
-}
-
-
-	UNUSED_PARAMETER(pixels);
-
-	assert(*locked_pixels != NULL);
-
-	tex = (struct texture *)*texture;
-
-	/* If this is the first unlock. */
-	if (!tex->is_initialized) {
-		glGenTextures(1, &tex->id);
-		tex->is_initialized = true;
+	GLuint id;
+	
+	if (img->texture == NULL) {
+		glGenTextures(1, &id);
+		img->texture = (void *)(intptr_t)(id + 1);
+	} else {
+		id = (GLuint)(intptr_t)img->texture - 1;
 	}
 
 	/* Create or update an OpenGL texture. */
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glBindTexture(GL_TEXTURE_2D, tex->id);
-#ifdef EM
+	glBindTexture(GL_TEXTURE_2D, id);
+#ifdef SUIKA_TARGET_WASM
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #else
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 #endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-		     GL_RGBA, GL_UNSIGNED_BYTE, *locked_pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0,
+		     GL_RGBA, GL_UNSIGNED_BYTE, img->pixels);
 	glActiveTexture(GL_TEXTURE0);
-
-	/* Set NULL to "locked_pixels" to show it is not active. */
-	*locked_pixels = NULL;
 }
 
 /*
  * Destroy a texture.
  */
-void opengl_destroy_texture(void *texture)
+void opengl_notify_image_free(struct image *img)
 {
-	struct texture *tex;
+	GLuint id;
 
-	/* Destroy if a texture struct is allocated. */
-	if (texture != NULL) {
-		tex = (struct texture *)texture;
+	id = (GLuint)(uintptr_t)img->texture - 1;
 
-		/* Delete an OpenGL texture if it exists. */
-		if (tex->is_initialized)
-			glDeleteTextures(1, &tex->id);
-
-		/* Free a texture struct. */
-		free(tex);
+	if (id != 0) {
+		glDeleteTextures(1, &id);
+		img->texture = NULL;
 	}
 }
 
 /*
  * 画面にイメージをレンダリングする
  */
-void opengl_render_image(int dst_left, int dst_top,
-			 struct image * RESTRICT src_image, int width,
-			 int height, int src_left, int src_top, int alpha,
-			 int bt)
+void opengl_render_image_copy(int dst_left, int dst_top,
+			      struct image * RESTRICT src_image, int width,
+			      int height, int src_left, int src_top)
 {
-	UNUSED_PARAMETER(bt);
-
 	/* 描画の必要があるか判定する */
-	if (alpha == 0 || width == 0 || height == 0)
+	if (width == 0 || height == 0)
 		return;	/* 描画の必要がない */
-	if (!clip_by_source(get_image_width(src_image),
-			   get_image_height(src_image),
-			   &width, &height, &dst_left, &dst_top, &src_left,
-			   &src_top))
+	if (!clip_by_source(src_image->width, src_image->height,
+			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
 		return;	/* 描画範囲外 */
 	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
 			 &height, &dst_left, &dst_top, &src_left, &src_top))
 		return;	/* 描画範囲外 */
 
-	draw_elements(dst_left, dst_top, src_image, NULL, false, false,
-		      width, height, src_left, src_top, alpha, bt);
+	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_COPY);
+}
+
+/*
+ * 画面にイメージをレンダリングする
+ */
+void opengl_render_image_normal(int dst_left, int dst_top,
+				struct image * RESTRICT src_image, int width,
+				int height, int src_left, int src_top, int alpha)
+{
+	/* 描画の必要があるか判定する */
+	if (alpha == 0 || width == 0 || height == 0)
+		return;	/* 描画の必要がない */
+	if (!clip_by_source(src_image->width, src_image->height,
+			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
+	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
+			 &height, &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
+
+	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_NORMAL);
+}
+
+/*
+ * 画面にイメージをレンダリングする
+ */
+void opengl_render_image_add(int dst_left, int dst_top,
+			     struct image * RESTRICT src_image, int width,
+			     int height, int src_left, int src_top, int alpha)
+{
+	/* 描画の必要があるか判定する */
+	if (alpha == 0 || width == 0 || height == 0)
+		return;	/* 描画の必要がない */
+	if (!clip_by_source(src_image->width, src_image->height,
+			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
+	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
+			 &height, &dst_left, &dst_top, &src_left, &src_top))
+		return;	/* 描画範囲外 */
+
+	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_ADD);
 }
 
 /*
@@ -791,17 +759,14 @@ void opengl_render_image_dim(int dst_left, int dst_top,
 	/* 描画の必要があるか判定する */
 	if (width == 0 || height == 0)
 		return;	/* 描画の必要がない */
-	if (!clip_by_source(get_image_width(src_image),
-			   get_image_height(src_image),
-			   &width, &height, &dst_left, &dst_top, &src_left,
-			   &src_top))
+	if (!clip_by_source(src_image->width, src_image->height,
+			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
 		return;	/* 描画範囲外 */
 	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
 			 &height, &dst_left, &dst_top, &src_left, &src_top))
 		return;	/* 描画範囲外 */
 
-	draw_elements(dst_left, dst_top, src_image, NULL, true, false,
-		      width, height, src_left, src_top, 255, BLEND_FAST);
+	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_DIM);
 }
 
 /*
@@ -811,9 +776,7 @@ void opengl_render_image_rule(struct image * RESTRICT src_image,
 			      struct image * RESTRICT rule_image,
 			      int threshold)
 {
-	draw_elements(0, 0, src_image, rule_image, false, false,
-		      conf_window_width, conf_window_height,
-		      0, 0, threshold, BLEND_FAST);
+	draw_elements(0, 0, src_image, rule_image, conf_window_width, conf_window_height, 0, 0, threshold, PIPELINE_RULE);
 
 }
 
@@ -824,45 +787,38 @@ void opengl_render_image_melt(struct image * RESTRICT src_image,
 			      struct image * RESTRICT rule_image,
 			      int threshold)
 {
-	draw_elements(0, 0, src_image, rule_image, false, true,
-		      conf_window_width, conf_window_height,
-		      0, 0, threshold, BLEND_FAST);
-
+	draw_elements(0, 0, src_image, rule_image, conf_window_width, conf_window_height, 0, 0, threshold, PIPELINE_MELT);
 }
 
 /* 画像を描画する */
 static void draw_elements(int dst_left, int dst_top,
 			  struct image * RESTRICT src_image,
 			  struct image * RESTRICT rule_image,
-			  bool is_dim, bool is_melt,
 			  int width, int height,
 			  int src_left, int src_top,
-			  int alpha, int bt)
+			  int alpha, int pipeline)
 {
 	GLfloat pos[24];
-	struct texture *tex, *rule;
 	float hw, hh, tw, th;
+	GLuint tex1, tex2;
 
-	/* struct textureを取得する */
-	tex = get_texture_object(src_image);
-	assert(tex != NULL);
+	/* テクスチャを取得する */
+	tex1 = (GLuint)(intptr_t)src_image->texture - 1;
+	assert(tex1 != 0);
 	if (rule_image != NULL) {
-		rule = get_texture_object(rule_image);
-		assert(rule != NULL);
+		tex2 = (GLuint)(intptr_t)rule_image->texture - 1;
+		assert(tex1 != 0);
 	} else {
-		rule = NULL;
+		tex2 = 0;
 	}
-
-	if (bt == BLEND_NONE)
-		alpha = 255;
 
 	/* ウィンドウサイズの半分を求める */
 	hw = (float)conf_window_width / 2.0f;
 	hh = (float)conf_window_height / 2.0f;
 
 	/* テキスチャサイズを求める */
-	tw = (float)get_image_width(src_image);
-	th = (float)get_image_height(src_image);
+	tw = (float)src_image->width;
+	th = (float)src_image->height;
 
 	/* 左上 */
 	pos[0] = ((float)dst_left - hw) / hw;
@@ -897,56 +853,68 @@ static void draw_elements(int dst_left, int dst_top,
 	pos[23] = (float)alpha / 255.0f;
 
 	/* シェーダを設定して頂点バッファに書き込む */
-	if (rule_image == NULL) {
-		if (!is_dim) {
-			/* 通常のアルファブレンド */
-			glUseProgram(program_normal);
-			glBindVertexArray(vao_normal);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_normal);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		} else {
-			/* DIMシェーダ */
-			glUseProgram(program_dim);
-			glBindVertexArray(vao_dim);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo_dim);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_dim);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-	} else if (!is_melt) {
-		/* ルールシェーダ */
+	switch (pipeline) {
+	case PIPELINE_COPY:
+	case PIPELINE_NORMAL:
+		glUseProgram(program_normal);
+		glBindVertexArray(vao_normal);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_normal);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	case PIPELINE_ADD:
+		glUseProgram(program_normal);
+		glBindVertexArray(vao_normal);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_normal);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		break;
+	case PIPELINE_DIM:
+		glUseProgram(program_dim);
+		glBindVertexArray(vao_dim);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_dim);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_dim);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	case PIPELINE_RULE:
 		glUseProgram(program_rule);
 		glBindVertexArray(vao_rule);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_rule);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_rule);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	} else {
-		/* メルトシェーダ */
+		break;
+	case PIPELINE_MELT:
 		glUseProgram(program_melt);
 		glBindVertexArray(vao_melt);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_melt);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_melt);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	default:
+		assert(0);
+		break;
 	}
+
+	/* 頂点を転送する */
 	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
 
 	/* テクスチャを選択する */
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex->id);
+	glBindTexture(GL_TEXTURE_2D, tex1);
 	if (rule_image != NULL) {
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, rule->id);
+		glBindTexture(GL_TEXTURE_2D, tex2);
 	}
 
 	/* 図形を描画する */
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 }
 
-#ifdef SUIKA_TARGET_WIN32
 /*
  * 全画面表示のときのスクリーンオフセットを指定する
  */
@@ -954,4 +922,3 @@ void opengl_set_screen(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
 }
-#endif

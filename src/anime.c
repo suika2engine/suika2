@@ -419,7 +419,7 @@ static bool load_anime_image(int layer)
 	const char *dir;
 
 	/* msgとnameはfile:指定で画像を変更できない */
-	if (layer == LAYER_MSG && layer == LAYER_NAME)
+	if (layer == LAYER_MSG || layer == LAYER_NAME)
 		return true;
 
 	/* 画像をロードする場合 */

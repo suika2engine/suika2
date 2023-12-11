@@ -11,8 +11,13 @@
  */
 
 #include "gstplay.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <gst/gst.h>
 #include <gst/video/videooverlay.h>
+#pragma GCC diagnostic pop
 
 #include <stdio.h>
 

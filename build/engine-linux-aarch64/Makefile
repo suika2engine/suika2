@@ -34,6 +34,7 @@ CFLAGS = \
 
 LDFLAGS = \
 	-lm \
+	-lmvec \
 	-lpthread \
 	-lasound \
 	-lX11 \

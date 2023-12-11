@@ -14,6 +14,7 @@
  *  2016-05-27 Updated. (suika2)
  *  2022-07-22 Add OpenGL support.
  *  2023-07-17 Add capture/replay support.
+ *  2023-12-11 Drop non-OpenGL code.
  */
 
 /* Xlib */
@@ -39,11 +40,9 @@
 #endif
 
 /* Suika2 HAL implementation for graphics */
-#ifdef USE_X11_OPENGL
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include "glrender.h"
-#endif
 
 /* Suika2 Capture */
 #ifdef USE_CAPTURE
@@ -53,11 +52,6 @@
 /* Suika2 Replay */
 #ifdef USE_REPLAY
 #include "replay.h"
-#endif
-
-/* x86 SSE/AVX dispatch */
-#ifdef SSE_VERSIONING
-#include "x86.h"
 #endif
 
 /* App Icon */
@@ -85,7 +79,6 @@
  */
 static int is_opengl;
 
-#ifdef USE_X11_OPENGL
 /*
  * GLXオブジェクト
  */
@@ -161,7 +154,6 @@ static struct API api[] =
 	{(void **)&glDeleteBuffers, "glDeleteBuffers"},
 /*	{(void **)&glActiveTexture, "glActiveTexture"}, */
 };
-#endif
 
 /*
  * X11オブジェクト
@@ -219,16 +211,11 @@ static bool create_window(void);
 static void destroy_window(void);
 static bool create_icon_image(void);
 static void destroy_icon_image(void);
-#ifdef USE_X11_OPENGL
 static bool init_glx(void);
 static void cleanup_glx(void);
-#endif
-static bool create_back_image(void);
-static void destroy_back_image(void);
 static void run_game_loop(void);
 static bool run_frame(void);
 static bool wait_for_next_frame(void);
-static void sync_back_image(int x, int y, int w, int h);
 static bool next_event(void);
 static void event_key_press(XEvent *event);
 static void event_key_release(XEvent *event);
@@ -313,19 +300,11 @@ static bool init(int argc, char *argv[])
 		return false;
 	}
 
-#ifdef USE_X11_OPENGL
-	if (access("no-opengl.txt", F_OK) == 0) {
-		log_info("Force 2D mode.");
-	} else {
-		/* OpenGLを初期化する */
-		if (init_glx()) {
-			is_opengl = true;
-		} else {
-			log_info("Failed to initialize OpenGL.");
-			log_info("Fall back to 2D mode.");
-		}
+	/* OpenGLを初期化する */
+	if (!init_glx()) {
+		log_error("Failed to initialize OpenGL.");
+		return false;
 	}
-#endif
 
 	/* ウィンドウを作成する */
 	if (!create_window()) {
@@ -339,13 +318,6 @@ static bool init(int argc, char *argv[])
 		return false;
 	}
 
-	if (!is_opengl) {
-		/* バックイメージを作成する */
-		if (!create_back_image()) {
-			log_error("Can't create back image.\n");
-			return false;
-		}
-	}
 
 #if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
 	gstplay_init(argc, argv);
@@ -375,18 +347,13 @@ static void cleanup(void)
 #endif
 
 	/* OpenGLの利用を終了する */
-#ifdef USE_X11_OPENGL
 	cleanup_glx();
-#endif
 
 	/* ウィンドウを破棄する */
 	destroy_window();
 
 	/* アイコンを破棄する */
 	destroy_icon_image();
-
-	/* バックイメージを破棄する */
-	destroy_back_image();
 
 	/* ディスプレイをクローズする */
 	close_display();
@@ -589,83 +556,6 @@ static void destroy_icon_image(void)
 	}
 }
 
-/* 背景イメージを作成する */
-static bool create_back_image(void)
-{
-	pixel_t *pixels;
-	XVisualInfo vi;
-	int screen;
-
-	assert(!is_opengl);
-
-	/* XDestroyImage()がピクセル列を解放してしまうので手動で確保する */
-#ifndef SSE_VERSIONING
-	pixels = malloc((size_t)(conf_window_width * conf_window_height *
-				 BPP / 8));
-	if (pixels == NULL)
-		return false;
-#else
-	if (posix_memalign((void **)&pixels, SSE_ALIGN,
-			   (size_t)(conf_window_width * conf_window_height *
-				    BPP / 8)) != 0)
-		return false;
-#endif
-
-	/* 初期状態でバックイメージを白く塗り潰す */
-	if (conf_window_white) {
-		memset(pixels, 0xff, (size_t)(conf_window_width *
-					      conf_window_height * BPP / 8));
-	}
-
-	/* 背景イメージを作成する */
-	back_image = create_image_with_pixels(conf_window_width,
-					      conf_window_height,
-					      pixels);
-	if (back_image == NULL) {
-		free(pixels);
-		return false;
-	}
-
-	/* 32bppのVisualを取得する */
-	screen = DefaultScreen(display);
-	if (!XMatchVisualInfo(display, screen, BPP, TrueColor, &vi)) {
-		log_error("Your X server is not capable of 32bpp mode.\n");
-		destroy_image(back_image);
-		free(pixels);
-		return false;
-	}
-
-	/* 背景イメージを持つXImageオブジェクトを作成する */
-	ximage = XCreateImage(display, vi.visual, DEPTH, ZPixmap, 0,
-			      (char *)pixels,
-			      (unsigned int)conf_window_width,
-			      (unsigned int)conf_window_height,
-			      BPP,
-			      conf_window_width * BPP / 8);
-	if (ximage == NULL) {
-		destroy_image(back_image);
-		free(pixels);
-		return false;
-	}
-
-	return true;
-}
-
-/* 背景イメージを破棄する */
-static void destroy_back_image(void)
-{
-	if (ximage != NULL) {
-		XDestroyImage(ximage);
-		ximage = NULL;
-	}
-
-	if (back_image != NULL) {
-		destroy_image(back_image);
-		back_image = NULL;
-	}
-}
-
-#ifdef USE_X11_OPENGL
 /*
  * OpenGL
  */
@@ -787,7 +677,6 @@ static void cleanup_glx(void)
 
 	cleanup_opengl();
 }
-#endif
 
 /*
  * X11のイベント処理
@@ -845,48 +734,23 @@ static void run_game_loop(void)
 /* Run a frame. */
 static bool run_frame(void)
 {
-	int x, y, w, h;
 	bool cont;
 
-#ifdef USE_X11_OPENGL
 	/* レンダリングを開始する */
 	if (!is_gst_playing) {
-		if (is_opengl) {
-			opengl_start_rendering();
-		}
+		opengl_start_rendering();
 	}
-#endif
 
 	/* フレームイベントを呼び出す */
-	x = y = w = h = 0;
-	cont = on_event_frame(&x, &y, &w, &h);
+	cont = on_event_frame();
 
 	/* レンダリングを終了する */
 	if (!is_gst_playing) {
-#ifdef USE_X11_OPENGL
-		if (is_opengl) {
-			opengl_end_rendering();
-			glXSwapBuffers(display, glx_window);
-		} else {
-			if (w != 0 && h != 0)
-				sync_back_image(x, y, w, h);
-		}
-#else
-		if (w != 0 && h != 0)
-			sync_back_image(x, y, w, h);
-#endif
+		opengl_end_rendering();
+		glXSwapBuffers(display, glx_window);
 	}
 
 	return cont;
-}
-
-/* ウィンドウにイメージを転送する */
-static void sync_back_image(int x, int y, int w, int h)
-{
-	GC gc = XCreateGC(display, window, 0, 0);
-	XPutImage(display, window, gc, ximage, x, y, x, y, (unsigned int)w,
-		  (unsigned int)h);
-	XFreeGC(display, gc);
 }
 
 /* フレームの描画を行う */
@@ -1173,128 +1037,66 @@ bool log_error(const char *s, ...)
 }
 
 /*
- * GPUを使うか調べる
+ * イメージの更新を通知する
  */
-bool is_gpu_accelerated(void)
+void notify_image_update(struct image *img)
 {
-	return is_opengl;
+	opengl_notify_image_update(img);
 }
 
 /*
- * OpenGLが有効か調べる
+ * イメージの破棄を通知する
  */
-bool is_opengl_enabled(void)
+void notify_image_free(struct image *img)
 {
-	return is_opengl;
-}
-
-/*
- * テクスチャをロックする
- */
-bool lock_texture(int width, int height, pixel_t *pixels,
-		  pixel_t **locked_pixels, void **texture)
-{
-	if (is_opengl) {
-#ifdef USE_X11_OPENGL
-		if (!opengl_lock_texture(width, height, pixels, locked_pixels,
-					 texture))
-			return false;
-#endif
-	} else {
-		UNUSED_PARAMETER(width);
-		UNUSED_PARAMETER(height);
-		UNUSED_PARAMETER(texture);
-		assert(*locked_pixels == NULL);
-		*locked_pixels = pixels;
-	}
-	return true;
-}
-
-/*
- * テクスチャをアンロックする
- */
-void unlock_texture(int width, int height, pixel_t *pixels,
-		    pixel_t **locked_pixels, void **texture)
-{
-	if (is_opengl) {
-#ifdef USE_X11_OPENGL
-		opengl_unlock_texture(width, height, pixels, locked_pixels,
-				      texture);
-#endif
-	} else {
-		UNUSED_PARAMETER(width);
-		UNUSED_PARAMETER(height);
-		UNUSED_PARAMETER(texture);
-		UNUSED_PARAMETER(pixels);
-		assert(*locked_pixels != NULL);
-		*locked_pixels = NULL;
-	}
-}
-
-/*
- * テクスチャを破棄する
- */
-void destroy_texture(void *texture)
-{
-	if (is_opengl) {
-#ifdef USE_X11_OPENGL
-		opengl_destroy_texture(texture);
-#endif
-	} else {
-		UNUSED_PARAMETER(texture);
-	}
+	opengl_notify_image_free(img);
 }
 
 /*
  * イメージをレンダリングする
  */
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
+void render_image_copy(int dst_left, int dst_top, struct image *src_image,
+		      int width, int height, int src_left, int src_top)
 {
-	if (is_opengl) {
-#ifdef USE_X11_OPENGL
-		opengl_render_image(dst_left, dst_top, src_image, width, height,
-				    src_left, src_top, alpha, bt);
-#endif
-	} else {
-		draw_image(back_image, dst_left, dst_top, src_image, width,
-			   height, src_left, src_top, alpha, bt);
-	}
+	opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_normal(int dst_left, int dst_top, struct image *src_image,
+			 int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_normal(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_add(int dst_left, int dst_top, struct image *src_image,
+			 int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_add(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
 }
 
 /*
  * イメージを暗くレンダリングする
  */
 void render_image_dim(int dst_left, int dst_top,
-		      struct image * RESTRICT src_image,
+		      struct image *src_image,
 		      int width, int height, int src_left, int src_top)
 {
-	if (is_opengl) {
-#ifdef USE_X11_OPENGL
-		opengl_render_image_dim(dst_left, dst_top, src_image,
-					width, height, src_left, src_top);
-#endif
-	} else {
-		draw_image_dim(back_image, dst_left, dst_top, src_image, width,
-			       height, src_left, src_top);
-	}
+	opengl_render_image_dim(dst_left, dst_top, src_image, width, height, src_left, src_top);
 }
 
 /*
  * 画面にイメージをルール付きでレンダリングする
  */
-void render_image_rule(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
+void render_image_rule(struct image *src_img,
+		       struct image *rule_img,
 		       int threshold)
 {
-	if (is_opengl) {
-#ifdef USE_X11_OPENGL
-		opengl_render_image_rule(src_img, rule_img, threshold);
-#endif
-	} else {
-		draw_image_rule(back_image, src_img, rule_img, threshold);
-	}
+	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
 /*
@@ -1302,15 +1104,9 @@ void render_image_rule(struct image * RESTRICT src_img,
  */
 void render_image_melt(struct image * RESTRICT src_img,
 		       struct image * RESTRICT rule_img,
-		       int threshold)
+		       int progress)
 {
-	if (is_opengl) {
-#ifdef USE_X11_OPENGL
-		opengl_render_image_melt(src_img, rule_img, threshold);
-#endif
-	} else {
-		draw_image_melt(back_image, src_img, rule_img, threshold);
-	}
+	opengl_render_image_melt(src_img, rule_img, progress);
 }
 
 /*
@@ -1364,14 +1160,14 @@ struct image *get_back_image(void)
 /*
  * タイマをリセットする
  */
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *t)
 {
 #ifndef USE_REPLAY
 	struct timeval tv;
 
 	gettimeofday(&tv, NULL);
 
-	*t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	*t = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 #else
 	extern uint64_t sim_time;
 	*t = sim_time;
@@ -1381,26 +1177,26 @@ void reset_stop_watch(stop_watch_t *t)
 /*
  * タイマのラップをミリ秒単位で取得する
  */
-int get_stop_watch_lap(stop_watch_t *t)
+uint64_t get_lap_timer_millisec(uint64_t *t)
 {
 #ifndef USE_REPLAY
 	struct timeval tv;
-	stop_watch_t end;
+	uint64_t end;
 	
 	gettimeofday(&tv, NULL);
 
-	end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	end = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 
 	if (end < *t) {
 		/* オーバーフローの場合、タイマをリセットして0を返す */
-		reset_stop_watch(t);
+		reset_lap_timer(t);
 		return 0;
 	}
 
-	return (int)(end - *t);
+	return (uint64_t)(end - *t);
 #else
 	extern uint64_t sim_time;
-	return (int)(sim_time - *t);
+	return (uint64_t)(sim_time - *t);
 #endif
 }
 
@@ -1591,6 +1387,11 @@ const char *get_system_locale(void)
 		return "ja";
 
 	return "other";
+}
+
+void speak_text(const char *msg)
+{
+	UNUSED_PARAMETER(msg);
 }
 
 #if defined(USE_CAPTURE) || defined(USE_REPLAY)

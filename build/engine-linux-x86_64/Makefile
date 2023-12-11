@@ -1,3 +1,5 @@
+include ../common.mk
+
 #
 # Toolchain selection
 #
@@ -9,7 +11,6 @@ CC = gcc
 #
 
 CPPFLAGS = \
-	-DUSE_X11_OPENGL \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -44,17 +45,13 @@ LDFLAGS = \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lvorbisfile,-lvorbis,-logg,-lz,-lbz2,-dy \
 	-Wl,--gc-sections \
-	-lmvec
 
 #
 # Source files
 #
 
-include ../common.mk
-
 SRCS = \
 	$(SRCS_COMMON) \
-	$(SRCS_SSE) \
 	../../src/asound.c \
 	../../src/glrender.c \
 	../../src/gstplay.c \
@@ -82,12 +79,6 @@ libroot:
 	./build-libs.sh
 
 #
-# Feature specific source files.
-#
-
-include ../sse.mk
-
-#
 # Phony
 #
 
@@ -109,5 +100,6 @@ analyze:
 	$(CC) $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS)
 
 valgrind:
-	cp suika ../../game/
-	cd ../../game && valgrind --leak-check=full ./suika
+	cp suika ../../game/demo
+	cd ../../game/demo && valgrind --leak-check=full ./suika
+	rm ../../game/demo/suika

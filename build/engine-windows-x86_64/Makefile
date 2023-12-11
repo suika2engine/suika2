@@ -46,12 +46,11 @@ LDFLAGS = \
 	-municode \
 	-lgdi32 \
 	-lole32 \
+	-lwinmm \
 	-ldxguid \
 	-ldsound \
-	-lstrmiids \
-	-lwinmm \
-	-lopengl32 \
 	-ld3d9 \
+	-lstrmiids \
 	-lsapi \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lvorbisfile,-lvorbis,-logg,-dy \
@@ -63,10 +62,8 @@ LDFLAGS = \
 
 SRCS_C = \
 	$(SRCS_COMMON) \
-	$(SRCS_SSE) \
 	../../src/winmain.c \
 	../../src/uimsg.c \
-	../../src/glrender.c \
 	../../src/d3drender.c \
 	../../src/dsound.c
 
@@ -74,7 +71,7 @@ SRCS_CC = \
 	../../src/dsvideo.cc \
 	../../src/tts_sapi.cc
 
-SRCS_R = ../engine-windows-x86/res/resource.rc
+SRCS_R = resource.rc
 
 #
 # .c.o compilation rules
@@ -83,7 +80,7 @@ SRCS_R = ../engine-windows-x86/res/resource.rc
 OBJS = \
 	$(SRCS_C:../../src/%.c=%.o) \
 	$(SRCS_CC:../../src/%.cc=%.o) \
-	$(SRCS_R:../engine-windows-x86/res/%.rc=%.o)
+	$(SRCS_R:%.rc=%.o)
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
@@ -91,7 +88,8 @@ OBJS = \
 %.o: ../../src/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
-%.o: ../engine-windows-x86/res/%.rc
+
+%.o: %.rc
 	$(WINDRES) $< $@
 
 #
@@ -105,12 +103,6 @@ suika-64.exe: libroot $(OBJS)
 
 libroot:
 	./build-libs.sh
-
-#
-# Feature specific source files.
-#
-
-include ../sse.mk
 
 #
 # Phony

@@ -15,10 +15,6 @@
 #include <pthread.h>
 #include <alsa/asoundlib.h>
 
-#ifdef SSE_VERSIONING
-#include "x86.h"
-#endif
-
 /*
  * フォーマット
  */
@@ -60,12 +56,7 @@ static pthread_cond_t req[MIXER_STREAMS];
 static pthread_cond_t ack[MIXER_STREAMS];
 
 /* バッファ */
-#ifndef SSE_VERSIONING
-static uint32_t period_buf[MIXER_STREAMS][PERIOD_FRAMES + PERIOD_FRAMES_PAD];
-#else
-ALIGN_DECL(SSE_ALIGN, static uint32_t period_buf[MIXER_STREAMS][PERIOD_FRAMES +
-							PERIOD_FRAMES_PAD]);
-#endif
+SIMD_ALIGNED_MEMBER(static uint32_t period_buf[MIXER_STREAMS][PERIOD_FRAMES + PERIOD_FRAMES_PAD]);
 
 /* 使用終了の要求に使うフラグ */
 static bool quit[MIXER_STREAMS];
@@ -82,6 +73,7 @@ static bool finish[MIXER_STREAMS];
 static bool init_pcm(int n);
 static void *sound_thread(void *p);
 static bool playback_period(int n);
+static void scale_samples(uint32_t *buf, int frames, float vol);
 
 /*
  * ALSAの初期化処理を行う
@@ -425,86 +417,38 @@ static bool playback_period(int n)
 	return true;
 }
 
-/*
- * SSEバージョニングを行わない場合
- */
-#ifndef SSE_VERSIONING
-
-/* scale_samples()を定義する */
-#define SCALE_SAMPLES scale_samples
-#include "scalesamples.h"
-
-/*
- * SSEバージョニングを行う場合
- */
-#else
-
-/* AVX-512版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_avx512
-#include "scalesamples.h"
-
-/* AVX2版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_avx2
-#include "scalesamples.h"
-
-/* AVX版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_avx
-#include "scalesamples.h"
-
-/* SSE4.2版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_sse42
-#include "scalesamples.h"
-
-/* SSE4.1版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_sse41
-#include "scalesamples.h"
-
-/* SSE3版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_sse3
-#include "scalesamples.h"
-
-/* SSE2版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_sse2
-#include "scalesamples.h"
-
-/* SSE版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_sse
-#include "scalesamples.h"
-
-/* 非ベクトル版scale_samples()を定義する */
-#define PROTOTYPE_ONLY
-#define SCALE_SAMPLES scale_samples_novec
-#include "scalesamples.h"
-
-/* scale_samples()をディスパッチする */
-void scale_samples(uint32_t *buf, int n, float vol)
+/* ボリュームを適用する */
+static void scale_samples(uint32_t *buf, int frames, float vol)
 {
-	if (has_avx512)
-		scale_samples_avx512(buf, n, vol);
-	else if (has_avx2)
-		scale_samples_avx2(buf, n, vol);
-	else if (has_avx)
-		scale_samples_avx(buf, n, vol);
-	else if (has_sse42)
-		scale_samples_sse42(buf, n, vol);
-	else if (has_sse41)
-		scale_samples_sse41(buf, n, vol);
-	else if (has_sse3)
-		scale_samples_sse3(buf, n, vol);
-	else if (has_sse2)
-		scale_samples_sse2(buf, n, vol);
-	else if (has_sse)
-		scale_samples_sse(buf, n, vol);
-	else
-		scale_samples_novec(buf, n, vol);
-}
+	float scale;
+	uint32_t frame;
+	int32_t il, ir;	/* intermediate L/R */
+	int16_t sl, sr;	/* source L/R*/
+	int16_t dl, dr;	/* destination L/R */
+	int i;
 
-#endif
+	/* スケールファクタを指数関数にする */
+	scale = (powf(10.0f, vol) - 1.0f) / (10.0f - 1.0f);
+
+	/* 各サンプルをスケールする */
+	for (i = 0; i < frames; i++) {
+		frame = buf[i];
+
+		sl = (int16_t)(uint16_t)frame;
+		sr = (int16_t)(uint16_t)(frame >> 16);
+
+		il = (int)(sl * scale);
+		ir = (int)(sr * scale);
+
+		il = il > 32767 ? 32767 : il;
+		il = il < -32768 ? -32768 : il;
+		ir = ir > 32767 ? 32767 : ir;
+		ir = ir < -32768 ? -32768 : ir;
+
+		dl = (int16_t)il;
+		dr = (int16_t)ir;
+
+		buf[i] = ((uint32_t)(uint16_t)dl) |
+			 (((uint32_t)(uint16_t)dr) << 16);
+	}
+}
