@@ -7,46 +7,40 @@
 
 /*
  * [Changes]
- *  2014-05-24 作成 (conskit)
- *  2016-05-29 作成 (suika)
- *  2017-11-07 フルスクリーンで解像度変更するように修正
- *  2022-06-08 デバッガ対応
- *  2023-07-17 キャプチャ対応
- *  2023-12-09 リファクタリング
+ *  2014-05-24 Created (conskit)
+ *  2016-05-29 Created (suika)
+ *  2017-11-07 Added a support for screen resolution change
+ *  2022-06-08 Added Suika2 Pro
+ *  2023-07-17 Added a support for capture/replay (later dropped)
+ *  2023-09-17 Added a support the full screen mode without resolution change
+ *  2023-12-09 Refactored
+ *  2023-12-11 Separated winmain.c to winengine.c and winpro.c
  */
 
 /* Suika2 Base */
 #include "suika.h"
 
 /* Suika2 HAL Implementaions */
-#include "dsound.h"		/* Sound HAL */
-#include "dsvideo.h"		/* Vdeo HAL */
+#include "d3drender.h"		/* Graphics HAL */
+#include "dsound.h"			/* Sound HAL */
+#include "dsvideo.h"		/* Video HAL */
 #include "tts_sapi.h"		/* TTS HAL */
-#include "resource.h"
-
-/* Suika2 HAL Implementaion (Direct3D) */
-#include "d3drender.h"
-
-/* Suika2 Pro */
-#ifdef USE_EDITOR
-#include <commctrl.h>
-#include "pro.h"
-#include "winpro.h"
-#endif
 
 /* Windows */
 #include <windows.h>
-#include <shlobj.h> /* SHGetFolderPath() to obtain "AppData" directory */
-
-#ifdef _MSC_VER
-#pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#endif
+#include <shlobj.h>			/* SHGetFolderPath() */
+#include "resource.h"
 
 /* msvcrt  */
 #include <io.h> /* _access() */
 
 /* A macro to check whether a file exists. */
 #define FILE_EXISTS(fname)	(_access(fname, 0) != -1)
+
+/* A manifest for Windows XP control style */
+#ifdef _MSC_VER
+#pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
 
 /*
  * Constants
@@ -75,9 +69,6 @@
 
 /* ウィンドウクラス名 */
 static const wchar_t wszWindowClassMain[] = L"SuikaMain";
-#ifdef USE_EDITOR
-static const wchar_t wszWindowClassGame[] = L"SuikaGame";
-#endif
 
 /*
  * Variables
@@ -93,7 +84,6 @@ static char szMessage[CONV_MESSAGE_SIZE];
 /* Windowsオブジェクト */
 static HWND hWndMain;
 static HWND hWndGame;
-static HDC hWndDC;
 static HMENU hMenu;
 
 /* WaitForNextFrame()の時間管理用 */
@@ -116,16 +106,6 @@ static DWORD dwStyle;
 
 /* ウィンドウモードでの位置 */
 static RECT rcWindow;
-
-#ifdef USE_EDITOR
-/* 最後に設定されたウィンドウサイズ */
-static int nLastClientWidth, nLastClientHeight;
-#endif
-
-/* 最後に設定されたDPI */
-#ifdef USE_EDITOR
-static int nLastDpi;
-#endif
 
 /* RunFrame()が描画してよいか */
 static BOOL bRunFrameAllow;
@@ -152,9 +132,7 @@ static BOOL bDShowSkippable;
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
-#if !defined(USE_EDITOR)
 static VOID InitGameMenu(void);
-#endif
 static void GameLoop(void);
 static BOOL RunFrame(void);
 static BOOL SyncEvents(void);
@@ -165,20 +143,14 @@ static void OnPaint(HWND hWnd);
 static void OnCommand(WPARAM wParam, LPARAM lParam);
 static void OnSizing(int edge, LPRECT lpRect);
 static void OnSize(void);
-#if defined(USE_EDITOR)
-static void OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect);
-#endif
 static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight);
 static BOOL OpenLogFile(void);
-
-/* Note: the following functions are "extern" scope and used in windebug.c */
 const wchar_t *conv_utf8_to_utf16(const char *utf8_message);
 const char *conv_utf16_to_utf8(const wchar_t *utf16_message);
 
 /*
  * WinMain
  */
-
 int WINAPI wWinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -195,15 +167,6 @@ int WINAPI wWinMain(
 	hRes = CoInitialize(0);
 	if (hRes != S_OK)
 		return FALSE;
-
-#ifdef USE_EDITOR
-	/* コモンコントロールの使用を開始する */
-	InitCommonControls();
-
-	/* デバッガの初期化を行う */
-	if (!InitWithParameters())
-		return 0;
-#endif
 
 	/* Sleep()の分解能を設定する */
 	timeBeginPeriod(1);
@@ -255,11 +218,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (!init_conf())
 		return FALSE;
 
-#ifdef USE_EDITOR
-	/* HiDPIの初期化を行う */
-	InitDpiExtension();
-#endif
-
 	/* ウィンドウを作成する */
 	if (!InitWindow(hInstance, nCmdShow))
 		return FALSE;
@@ -271,17 +229,10 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-#ifdef USE_EDITOR
-	/* ゲームパネルを再配置して描画サブシステムに反映する */
-	GetClientRect(hWndMain, &rcClient);
-	nLastClientWidth = nLastClientHeight = 0;
-	UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
-#else
 	/* アスペクト比を補正する */
 	GetClientRect(hWndMain, &rcClient);
 	if (rcClient.right != conf_window_width || rcClient.bottom != conf_window_height)
 		UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
-#endif
 
 	/* DirectSoundを初期化する */
 	if (!DSInitialize(hWndMain))
@@ -292,14 +243,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 
 	if (conf_tts_enable)
 		InitSAPI();
-
-#if defined(USE_CAPTURE)
-	if (!init_capture())
-		return FALSE;
-#elif defined(USE_REPLAY)
-	if (!init_replay(__argc, __wargv))
-		return FALSE;
-#endif
 
 	return TRUE;
 }
@@ -315,13 +258,6 @@ static void CleanupApp(void)
 
 	/* Direct3Dの終了処理を行う */
 	D3DCleanup();
-
-	/* ウィンドウのデバイスコンテキストを破棄する */
-	if (hWndDC != NULL)
-	{
-		ReleaseDC(hWndMain, hWndDC);
-		hWndDC = NULL;
-	}
 
 	/* DirectSoundの終了処理を行う */
 	DSCleanup();
@@ -351,9 +287,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.hInstance      = hInstance;
 	wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
-#ifndef USE_EDITOR
 	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ? WHITE_BRUSH : BLACK_BRUSH);
-#endif
 	wcex.lpszClassName  = wszWindowClassMain;
 	wcex.hIconSm		= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 	if (!RegisterClassEx(&wcex))
@@ -400,28 +334,16 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	nVirtualScreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	nVirtualScreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-#ifndef USE_EDITOR
 	nWinWidth = nGameWidth + nFrameAddWidth;
 	nWinHeight = nGameHeight + nFrameAddHeight;
-#else
-	nWinWidth = nGameWidth + nFrameAddWidth + DEBUGGER_PANEL_WIDTH;
-	nWinHeight = nGameHeight + nFrameAddHeight;
-#endif
 
 	/* ディスプレイのサイズが足りない場合 */
 	if (nVirtualScreenWidth < conf_window_width ||
 		nVirtualScreenHeight < conf_window_height)
 	{
-#ifndef USE_EDITOR
 		log_error(get_ui_message(UIMSG_WIN32_SMALL_DISPLAY),
 				  nVirtualScreenWidth, nVirtualScreenHeight);
 		return FALSE;
-#else
-		nWinWidth = nVirtualScreenWidth;
-		nWinHeight = nVirtualScreenHeight;
-		nGameWidth = nWinWidth - DEBUGGER_PANEL_WIDTH;
-		nGameHeight = nWinHeight;
-#endif
 	}
 
 	/* マルチモニタでなければセンタリングする */
@@ -459,71 +381,19 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	SetRectEmpty(&rc);
 	rc.right = nGameWidth;
 	rc.bottom = nGameHeight;
-	AdjustWindowRectEx(
-		&rc,
-		dwStyle,
-#ifdef USE_EDITOR
-		TRUE,
-#else
-		conf_window_menubar,
-#endif
-		(DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
-	SetWindowPos(hWndMain,
-				 NULL,
-				 0,
-				 0,
-				 rc.right - rc.left,
-				 rc.bottom - rc.top,
-				 SWP_NOZORDER | SWP_NOMOVE);
+	AdjustWindowRectEx(&rc, dwStyle,conf_window_menubar, (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE));
+	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOMOVE);
 	GetWindowRect(hWndMain, &rcWindow);
 
-#ifndef USE_EDITOR
 	hWndGame = hWndMain;
 
 	/* ゲーム用メニューを作成する */
 	if(conf_window_menubar)
 		InitGameMenu();
-#else
-	/* ゲーム領域の子ウィンドウを作成する */
-	ZeroMemory(&wcex, sizeof(wcex));
-	wcex.cbSize			= sizeof(WNDCLASSEX);
-	wcex.lpfnWndProc    = WndProc;
-	wcex.hInstance      = hInstance;
-	wcex.hbrBackground  = (HBRUSH)GetStockObject(conf_window_white ? WHITE_BRUSH : BLACK_BRUSH);
-	wcex.lpszClassName  = wszWindowClassGame;
-	if (!RegisterClassEx(&wcex))
-		return FALSE;
-	hWndGame = CreateWindowEx(0,
-							  wszWindowClassGame,
-							  NULL,
-							  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
-							  0,
-							  0,
-							  nGameWidth,
-							  nGameHeight,
-							  hWndMain,
-							  NULL,
-							  hInstance,
-							  NULL);
-	if (hWndGame == NULL)
-	{
-		log_api_error("CreateWindowEx");
-		return FALSE;
-	}
-
-	/* デバッガパネルを作成する */
-	if (!InitDebuggerPanel(hWndMain, hWndGame, WndProc))
-		return FALSE;
-#endif
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndMain, nCmdShow);
 	UpdateWindow(hWndMain);
-
-	/* デバイスコンテキストを取得する */
-	hWndDC = GetDC(hWndGame);
-	if(hWndDC == NULL)
-		return FALSE;
 
 	/* 0.1秒間(3フレーム)でウィンドウに関連するイベントを処理してしまう */
 	dwStartTime = GetTickCount();
@@ -533,7 +403,6 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-#ifndef USE_EDITOR
 /* ゲームウィンドウのメニューを初期化する */
 static VOID InitGameMenu(void)
 {
@@ -577,7 +446,6 @@ static VOID InitGameMenu(void)
 	/* メニューをセットする */
 	SetMenu(hWndMain, hMenu);
 }
-#endif
 
 /* ゲームループを実行する */
 static void GameLoop(void)
@@ -602,21 +470,9 @@ static void GameLoop(void)
 		/* フレームの開始時刻を取得する */
 		dwStartTime = GetTickCount();
 
-#if defined(USE_CAPTURE) || defined(USE_REPLAY)
-		/* 入力のキャプチャ/エミュレートを行う */
-		if (!capture_input())
-			break;
-#endif
-
 		/* フレームを実行する */
 		if (!RunFrame())
 			bBreak = TRUE;
-
-#if defined(USE_CAPTURE) || defined(USE_REPLAY)
-		/* 出力のキャプチャを行う */
-		if (!bDShowMode && !capture_output())
-			bBreak = TRUE;
-#endif
 	}
 }
 
@@ -675,10 +531,7 @@ static BOOL SyncEvents(void)
 	{
 		if (msg.message == WM_QUIT)
 			return FALSE;
-#ifdef USE_EDITOR
-		if (PretranslateForDebugger(&msg))
-			continue;
-#endif
+
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
@@ -734,7 +587,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		PostQuitMessage(0);
 		return 0;
 	case WM_SYSKEYDOWN:	/* Alt + Key */
-#ifndef USE_EDITOR
 		/* Alt + Enter */
 		if (hWnd == NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{
@@ -748,17 +600,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				return 0;
 			}
 		}
-#endif
+
 		/* Alt + F4 */
 		if (hWnd == NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{
 			if(wParam == VK_F4)
 			{
-#ifndef USE_EDITOR
 				if (MessageBox(hWnd,
 							   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
 							   wszTitle, MB_OKCANCEL) == IDOK)
-#endif
 				{
 					DestroyWindow(hWnd);
 					return 0;
@@ -769,56 +619,47 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_CLOSE:
 		if (hWnd != NULL && (hWnd == hWndMain || hWnd == hWndGame))
 		{
-#ifdef USE_EDITOR
-			DestroyWindow(hWnd);
-			return 0;
-#else
 			if (MessageBox(hWnd,
 						   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
 						   wszTitle,
 						   MB_OKCANCEL) == IDOK)
 				DestroyWindow(hWnd);
 			return 0;
-#endif
 		}
 		break;
 	case WM_LBUTTONDOWN:
 		if (hWnd != NULL && hWnd == hWndGame)
 		{
-			on_event_mouse_press(
-				MOUSE_LEFT,
-				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			on_event_mouse_press(MOUSE_LEFT,
+								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
 	case WM_LBUTTONUP:
 		if (hWnd != NULL && hWnd == hWndGame)
 		{
-			on_event_mouse_release(
-				MOUSE_LEFT,
-				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			on_event_mouse_release(MOUSE_LEFT,
+								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
 	case WM_RBUTTONDOWN:
 		if (hWnd != NULL && hWnd == hWndGame)
 		{
-			on_event_mouse_press(
-				MOUSE_RIGHT,
-				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			on_event_mouse_press(MOUSE_RIGHT,
+								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
 	case WM_RBUTTONUP:
 		if (hWnd != NULL && hWnd == hWndGame)
 		{
-			on_event_mouse_release(
-				MOUSE_RIGHT,
-				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			on_event_mouse_release(MOUSE_RIGHT,
+								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -937,7 +778,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			return 0;
 		}
 		break;
-#ifndef USE_EDITOR
 	/*
 	 * デバッガでない場合だけウィンドウの最大化によるフルスクリーンを処理する
 	 */
@@ -982,13 +822,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			return 0;
 		}
 		break;
-#endif
-#ifdef USE_EDITOR
-	case WM_DPICHANGED:
-		OnDpiChanged(hWnd, HIWORD(wParam), (LPRECT)lParam);
-		return 0;
-#endif
-		default:
+	default:
 		break;
 	}
 
@@ -1058,7 +892,6 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 	case ID_QUIT:
 		PostMessage(hWndMain, WM_CLOSE, 0, 0);
 		break;
-#ifndef USE_EDITOR
 	case ID_FULLSCREEN:
 		if (!conf_window_fullscreen_disable)
 		{
@@ -1068,11 +901,6 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	default:
 		break;
-#else
-	default:
-		OnCommandForDebugger(wParam, lParam);
-		break;
-#endif
 	}
 }
 
@@ -1157,54 +985,6 @@ static void OnSizing(int edge, LPRECT lpRect)
 			break;
 		}
 	}
-	else
-	{
-#ifdef USE_EDITOR
-		/* Apply the minimum window size. */
-		if (fWidth < DEBUGGER_WIN_WIDTH_MIN)
-			fWidth = DEBUGGER_WIN_WIDTH_MIN;
-		if (fHeight < DEBUGGER_WIN_HEIGHT_MIN)
-			fHeight = DEBUGGER_WIN_HEIGHT_MIN;
-
-		/* Adjust the window edges. */
-		switch (edge)
-		{
-		case WMSZ_TOP:
-			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
-			break;
-		case WMSZ_TOPLEFT:
-			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
-			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
-			break;
-		case WMSZ_TOPRIGHT:
-			lpRect->top = lpRect->bottom - (int)(fHeight + fPadY + 0.5);
-			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
-			break;
-		case WMSZ_BOTTOM:
-			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
-			break;
-		case WMSZ_BOTTOMRIGHT:
-			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
-			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
-			break;
-		case WMSZ_BOTTOMLEFT:
-			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
-			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
-			break;
-		case WMSZ_LEFT:
-			lpRect->left = lpRect->right - (int)(fWidth + fPadX + 0.5);
-			break;
-		case WMSZ_RIGHT:
-			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
-			break;
-		default:
-			/* Aero Snap? */
-			lpRect->bottom = lpRect->top + (int)(fHeight + fPadY + 0.5);
-			lpRect->right = lpRect->left + (int)(fWidth + fPadX + 0.5);
-			break;
-		}
-#endif
-	}
 
 	/* If there's a size change, update the screen size with the debugger panel size. */
 	if (nOrigWidth != lpRect->right - lpRect->left + 1 ||
@@ -1275,22 +1055,6 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 {
 	float fAspect, fUseWidth, fUseHeight;
 
-#ifdef USE_EDITOR
-	int nDpi;
-	int nDebugWidth;
-
-	nDpi = Win11_GetDpiForWindow(hWndMain);
-
-	/* If size and dpi are not changed, just return. */
-	if (nClientWidth == nLastClientWidth && nClientHeight == nLastClientHeight && nLastDpi != nDpi)
-		return;
-	else
-		nLastClientWidth = nClientWidth, nLastClientHeight = nClientHeight, nLastDpi = nDpi;
-
-	nDebugWidth = MulDiv(DEBUGGER_PANEL_WIDTH, nDpi, 96);
-	nClientWidth -= nDebugWidth;
-#endif
-
 	/* Calc the aspect ratio of the game. */
 	fAspect = (float)conf_window_height / (float)conf_window_width;
 
@@ -1311,41 +1075,12 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 	nOffsetX = (int)((((float)nClientWidth - fUseWidth) / 2.0f) + 0.5);
 	nOffsetY = (int)((((float)nClientHeight - fUseHeight) / 2.0f) + 0.5);
 
-#ifdef USE_EDITOR
-	/* Move the game window. */
-	MoveWindow(hWndGame, 0, 0, nClientWidth, nClientHeight, TRUE);
-	RearrangeDebuggerPanel(nClientWidth, nClientHeight);
-#endif
-
 	/* Update the screen offset and scale for drawing subsystem. */
 	D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
 }
 
-#ifdef USE_EDITOR
-/* WM_DPICHANGED */
-VOID OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect)
-{
-	RECT rcClient;
-
-	UNUSED_PARAMETER(nDpi);
-
-	if (hWnd == hWndMain)
-	{
-		SetWindowPos(hWnd,
-					   NULL,
-					   lpRect->left,
-					   lpRect->top,
-					   lpRect->right - lpRect->left,
-					   lpRect->bottom - lpRect->top,
-					   SWP_NOZORDER | SWP_NOACTIVATE);
-		GetClientRect(hWndMain, &rcClient);
-		UpdateScreenOffsetAndScale(rcClient.right, rcClient.bottom);
-	}
-}
-#endif
-
 /*
- * platform.hの実装
+ * HAL
  */
 
 /*
@@ -1364,10 +1099,6 @@ bool log_info(const char *s, ...)
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-#ifdef USE_EDITOR
-	MessageBox(hWndMain, conv_utf8_to_utf16(buf), wszTitle,
-			   MB_OK | MB_ICONINFORMATION);
-#endif
 
 	/* ログファイルがオープンされている場合 */
 	if(pLogFile != NULL)
@@ -1446,9 +1177,6 @@ bool log_error(const char *s, ...)
 /* ログをオープンする */
 static BOOL OpenLogFile(void)
 {
-#ifdef USE_EDITOR
-	return TRUE;
-#else
 	wchar_t path[MAX_PATH] = {0};
 
 	/* すでにオープンされていれば成功とする */
@@ -1490,7 +1218,6 @@ static BOOL OpenLogFile(void)
 
 	/* 成功 */
 	return TRUE;
-#endif
 }
 
 /*
@@ -1807,77 +1534,6 @@ const char *get_system_locale(void)
 	}
 	return "other";
 }
-
-#if defined(USE_CAPTURE) || defined(USE_REPLAY)
-/* ディレクトリを削除する */
-static bool delete_directory(LPCWSTR pszDirName);
-
-/*
- * ミリ秒の時刻を取得する
- */
-uint64_t get_tick_count64(void)
-{
-	return GetTickCount64();
-}
-
-/*
- * 出力データのディレクトリを作り直す
- */
-bool reconstruct_dir(const char *dir)
-{
-	if (!delete_directory(conv_utf8_to_utf16(dir))) {
-		log_error("Failed to remove record directory.");
-		return false;
-	}
-	if (!CreateDirectory(conv_utf8_to_utf16(dir), NULL)) {
-		if (!FILE_EXISTS(dir)) {
-			log_error("Failed to create record directory.");
-			return false;
-		}
-	}
-	return true;
-}
-
-/* ディレクトリを削除する */
-static bool delete_directory(LPCWSTR pszDirName)
-{
-	wchar_t path[256];
-	HANDLE hFind;
-	WIN32_FIND_DATA wfd;
-
-	/* ディレクトリの内容を取得する */
-	_snwprintf(path, sizeof(path), L"%s\\*.*", pszDirName);
-	hFind = FindFirstFile(path, &wfd);
-	if(hFind == INVALID_HANDLE_VALUE)
-		return true;
-
-	/* 再帰的に削除する */
-	do
-	{
-		if (wcscmp(wfd.cFileName, L".") == 0)
-			continue;
-		if (wcscmp(wfd.cFileName, L"..") == 0)
-			continue;
-
-		if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			_snwprintf(path, sizeof(path), L"%s\\%s", pszDirName,
-				   wfd.cFileName);
-			if (!delete_directory(path))
-				return false;
-		}
-		else
-		{
-			_snwprintf(path, sizeof(path), L"%s\\%s", pszDirName,
-				   wfd.cFileName);
-			DeleteFile(path);
-		}
-    } while(FindNextFile(hFind, &wfd));
-
-    FindClose(hFind);
-    return true;
-}
-#endif
 
 /*
  * Text-To-Speech

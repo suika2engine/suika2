@@ -2,6 +2,10 @@
 
 @protocol GameViewControllerProtocol <NSObject>
 
+// Screen scaling
+- (float)screenScale;
+- (NSPoint)screenOffset;
+
 // Full screen implementation
 - (BOOL)isFullScreen;
 - (void)enterFullScreen;

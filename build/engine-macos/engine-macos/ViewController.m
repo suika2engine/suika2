@@ -57,7 +57,8 @@ static ViewController *theViewController;
     }
     [_renderer mtkView:_view drawableSizeWillChange:_view.drawableSize];
     _view.delegate = _renderer;
-    
+    [self layout:_view.frame.size];
+
     // Setup a rendering timer.
     [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
                                      target:self
@@ -241,6 +242,18 @@ static ViewController *theViewController;
         case 53: return KEY_ESCAPE;
     }
     return -1;
+}
+
+//
+// GameViewControllerProtocol
+//
+
+- (float)screenScale {
+    return _screenScale;
+}
+
+- (NSPoint)screenOffset {
+    return NSMakePoint(_left, _top);
 }
 
 - (BOOL)isFullScreen {

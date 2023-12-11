@@ -19,6 +19,7 @@ SRCS_COMMON = \
 	../../src/script.c \
 	../../src/seen.c \
 	../../src/stage.c \
+	../../src/uimsg.c \
 	../../src/vars.c \
 	../../src/wave.c \
 	../../src/wms_core.c \

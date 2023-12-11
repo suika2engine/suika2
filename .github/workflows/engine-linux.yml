@@ -1,4 +1,4 @@
-name: engine-linux-x86_64
+name: engine-linux
 on:
   push:
   pull_request:
@@ -26,11 +26,11 @@ jobs:
           sudo apt-get install -y libgstreamer1.0-dev
           echo Installing libgstreamer-plugins-base1.0-dev
           sudo apt-get install -y libgstreamer-plugins-base1.0-dev
-          cd build/engine-linux-x86_64
+          cd build/engine-linux
           ./build-libs.sh
           make
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: engine-linux-x86_64
-          path: build/engine-linux-x86_64/suika
+          name: engine-linux
+          path: build/engine-linux/suika

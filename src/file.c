@@ -94,7 +94,7 @@ static void rewind_random(uint64_t *next_random, uint64_t *prev_random);
  */
 bool init_file(void)
 {
-#ifdef USE_DEBUGGER
+#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
 	/* ユーザの気持ちを考えて、デバッガ版ではパッケージを開けない */
 	return true;
 #else

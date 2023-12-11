@@ -60,7 +60,6 @@ LDFLAGS = \
 SRCS_C = \
 	$(SRCS_COMMON) \
 	../../src/winmain.c \
-	../../src/uimsg.c \
 	../../src/dsound.c
 
 SRCS_CC = \

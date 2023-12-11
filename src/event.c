@@ -205,6 +205,9 @@ void on_event_key_release(int key)
  */
 void on_event_mouse_press(int button, int x, int y)
 {
+	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height)
+		return;
+
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 
@@ -224,6 +227,9 @@ void on_event_mouse_press(int button, int x, int y)
  */
 void on_event_mouse_release(int button, int x, int y)
 {
+	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height)
+		return;
+
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 
@@ -242,6 +248,9 @@ void on_event_mouse_release(int button, int x, int y)
  */
 void on_event_mouse_move(int x, int y)
 {
+	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height)
+		return;
+
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 }

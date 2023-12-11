@@ -1,95 +1,82 @@
 #import "GameView.h"
+#import "GameViewControllerProtocol.h"
+
 #import <AVFoundation/AVFoundation.h>
+
+#import "suika.h"
 
 @implementation GameView
 + (Class)layerClass {
     return AVPlayerLayer.class;
 }
 
-// マウス押下イベント
 - (void)mouseDown:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    pos.x *= theViewController._screenScale;
-    pos.y *= theViewController._screenScale;
-    if (pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if (pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-    on_event_mouse_press(MOUSE_LEFT, (int)pos.x, conf_window_height - (int)pos.y);
+    id<GameViewControllerProtocol> theViewController = theEvent.window.contentViewController;
+    NSPoint point = [theEvent locationInWindow];
+    float scale = [theViewController screenScale];
+    NSPoint offset = [theViewController screenOffset];
+    int x = (int)((point.x - offset.x) / scale);
+    int y = (int)((point.y - offset.y) / scale);
+    on_event_mouse_press(MOUSE_LEFT, x, conf_window_height - y);
 }
 
-// マウス解放イベント
 - (void)mouseUp:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    pos.x *= _screenScale;
-    pos.y *= _screenScale;
-    if (pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if (pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-    on_event_mouse_release(MOUSE_LEFT, (int)pos.x, conf_window_height - (int)pos.y);
+    id<GameViewControllerProtocol> theViewController = theEvent.window.contentViewController;
+    NSPoint point = [theEvent locationInWindow];
+    float scale = [theViewController screenScale];
+    NSPoint offset = [theViewController screenOffset];
+    int x = (int)((point.x - offset.x) * scale);
+    int y = (int)((point.y - offset.y) * scale);
+    on_event_mouse_release(MOUSE_LEFT, x, conf_window_height - y);
 }
 
-// マウス右ボタン押下イベント
 - (void)rightMouseDown:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    pos.x *= _screenScale;
-    pos.y *= _screenScale;
-    if (pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if (pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-    on_event_mouse_press(MOUSE_RIGHT, (int)pos.x, conf_window_height - (int)pos.y);
+    id<GameViewControllerProtocol> theViewController = theEvent.window.contentViewController;
+    NSPoint point = [theEvent locationInWindow];
+    float scale = [theViewController screenScale];
+    NSPoint offset = [theViewController screenOffset];
+    int x = (int)((point.x - offset.x) * scale);
+    int y = (int)((point.y - offset.y) * scale);
+    on_event_mouse_press(MOUSE_RIGHT, x, conf_window_height - y);
 }
 
-// マウス右ボタン解放イベント
 - (void)rightMouseUp:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    pos.x *= _screenScale;
-    pos.y *= _screenScale;
-    if (pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if (pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-    on_event_mouse_release(MOUSE_RIGHT, (int)pos.x, conf_window_height - (int)pos.y);
+    id<GameViewControllerProtocol> theViewController = theEvent.window.contentViewController;
+    NSPoint point = [theEvent locationInWindow];
+    float scale = [theViewController screenScale];
+    NSPoint offset = [theViewController screenOffset];
+    int x = (int)((point.x - offset.x) * scale);
+    int y = (int)((point.y - offset.y) * scale);
+    on_event_mouse_release(MOUSE_RIGHT, x, conf_window_height - y);
 }
 
-// マウス移動イベント
 - (void)mouseMoved:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    pos.x *= _screenScale;
-    pos.y *= _screenScale;
-    if (pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if (pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-    on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
+    id<GameViewControllerProtocol> theViewController = theEvent.window.contentViewController;
+    NSPoint point = [theEvent locationInWindow];
+    float scale = [theViewController screenScale];
+    NSPoint offset = [theViewController screenOffset];
+    int x = (int)((point.x - offset.x) * scale);
+    int y = (int)((point.y - offset.y) * scale);
+    on_event_mouse_move(x, conf_window_height - y);
 }
 
-// マウスドラッグイベント
 - (void)mouseDragged:(NSEvent *)theEvent {
-    NSPoint pos = [theEvent locationInWindow];
-    pos.x *= _screenScale;
-    pos.y *= _screenScale;
-    if (pos.x < 0 && pos.x >= conf_window_width)
-        return;
-    if (pos.y < 0 && pos.y >= conf_window_height)
-        return;
-
-    on_event_mouse_move((int)pos.x, conf_window_height - (int)pos.y);
+    id<GameViewControllerProtocol> theViewController = theEvent.window.contentViewController;
+    NSPoint point = [theEvent locationInWindow];
+    float scale = [theViewController screenScale];
+    NSPoint offset = [theViewController screenOffset];
+    int x = (int)((point.x - offset.x) * scale);
+    int y = (int)((point.x - offset.y) * scale);
+    on_event_mouse_move(x, conf_window_height - y);
 }
 
-// マウスホイールイベント
 - (void)scrollWheel:(NSEvent *)theEvent {
-    if ([theEvent deltaY] > 0) {
+    id<GameViewControllerProtocol> theViewController = theEvent.window.contentViewController;
+    int delta = [theEvent deltaY];
+    if (delta > 0) {
         on_event_key_press(KEY_UP);
         on_event_key_release(KEY_UP);
-    } else if ([theEvent deltaY] < 0) {
+    } else if (delta < 0) {
         on_event_key_press(KEY_DOWN);
         on_event_key_release(KEY_DOWN);
     }

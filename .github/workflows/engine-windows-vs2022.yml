@@ -1,4 +1,4 @@
-name: visualstudio-all
+name: engine-windows-vs2022
 on:
   push:
   pull_request:
@@ -13,7 +13,7 @@ jobs:
           arch: x86
       - name: Build
         run: |
-          cd build/all-vs2022
+          cd build/engine-windows-vs2022
           echo zlib
           tar xzf ../libsrc/zlib-1.2.11.tar.gz
           mv zlib-1.2.11 zlib
@@ -68,11 +68,4 @@ jobs:
           cp patch/freetype/freetype.vcxproj freetype/builds/windows/vc2010/freetype.vcxproj
           msbuild freetype/builds/windows/vc2010/freetype.sln /t:build /p:Configuration="Release Static" /p:Platform="Win32"
           echo Suika2
-          msbuild suika.sln /t:build /p:Configuration="Release" /p:Platform="x86"
-      - name: UploadSuika
-        uses: actions/upload-artifact@v2
-        with:
-          name: suika-vs
-          path: |
-            build/all-vs2022/Release/suika.exe
-            build/all-vs2022/Release/suika-pro.exe
+          msbuild engine-windows-vs2022.sln /t:build /p:Configuration="Debug" /p:Platform="x86"

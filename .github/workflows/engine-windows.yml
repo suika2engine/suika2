@@ -13,7 +13,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mingw-w64
-          cd build/engine-windows-x86
+          cd build/engine-windows
           ./build-libs.sh
           make
           make install

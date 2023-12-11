@@ -662,12 +662,7 @@ static BOOL UploadTextureIfNeeded(struct image *img)
 											&pTex,
 											NULL);
 		if (FAILED(hResult))
-		{
-			if (!IsIconic(hMainWnd))
-				log_api_error("Direct3DDevice9::CreateTexture");
-
 			return FALSE;
-		}
 
 		img->texture = pTex;
 	}
