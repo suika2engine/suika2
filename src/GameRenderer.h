@@ -15,4 +15,6 @@
 
 @interface GameRenderer : NSObject <MTKViewDelegate>
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)mtkView andController:(nonnull id<GameViewControllerProtocol>)controller;
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
+
 @end

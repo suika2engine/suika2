@@ -40,7 +40,6 @@ static id<MTLRenderPipelineState> theMeltPipelineState;
 static id<MTLCommandBuffer> theCommandBuffer;
 static id<MTLBlitCommandEncoder> theBlitEncoder;
 static id<MTLRenderCommandEncoder> theRenderEncoder;
-static NSSize theViewportSize;
 static struct image *theInitialUploadArray[128];
 static int theInitialUploadArrayCount;
 static struct image *thePurgeArray[128];
@@ -181,11 +180,6 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     return self;
 }
 
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
-    theViewportSize.width = size.width;
-    theViewportSize.height = size.height;
-}
-
 - (void)drawInMTKView:(nonnull MTKView *)view {
     if(view.currentRenderPassDescriptor == nil)
         return;
@@ -244,6 +238,9 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
         thePurgeArray[i]->texture = NULL;
         thePurgeArray[i] = NULL;
     }
+}
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
 }
 
 @end
@@ -605,7 +602,7 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
                            int width, int height, int src_left, int src_top, int alpha,
                            struct image *rule_image, id<MTLRenderPipelineState> pipeline)
 {
-    // Get the viewport size.
+    // Calc the half size of the window.
     float hw = (float)conf_window_width / 2.0f;
     float hh = (float)conf_window_height / 2.0f;
 
@@ -658,6 +655,15 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     if (theRenderEncoder == nil) {
         theRenderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
         theRenderEncoder.label = @"MyRenderEncoder";
+
+        MTLViewport viewport;
+        viewport.originX = [theViewController screenOffset].x;
+        viewport.originY = [theViewController screenOffset].y;
+        viewport.width = [theViewController screenSize].width;
+        viewport.height = [theViewController screenSize].height;
+        viewport.zfar = 0;
+        viewport.znear = 0;
+        [theRenderEncoder setViewport:viewport];
     }
     [theRenderEncoder setRenderPipelineState:pipeline];
     id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(src_image->texture);

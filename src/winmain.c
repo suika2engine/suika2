@@ -14,7 +14,7 @@
  *  2023-07-17 Added a support for capture/replay (later dropped)
  *  2023-09-17 Added a support the full screen mode without resolution change
  *  2023-12-09 Refactored
- *  2023-12-11 Separated winmain.c to winengine.c and winpro.c
+ *  2023-12-11 Separated winmain.c to winmain.c and winpro.c
  */
 
 /* Suika2 Base */
@@ -83,7 +83,6 @@ static char szMessage[CONV_MESSAGE_SIZE];
 
 /* Windowsオブジェクト */
 static HWND hWndMain;
-static HWND hWndGame;
 static HMENU hMenu;
 
 /* WaitForNextFrame()の時間管理用 */
@@ -132,7 +131,7 @@ static BOOL bDShowSkippable;
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
-static VOID InitGameMenu(void);
+static VOID InitMenu(void);
 static void GameLoop(void);
 static BOOL RunFrame(void);
 static BOOL SyncEvents(void);
@@ -157,49 +156,45 @@ int WINAPI wWinMain(
 	LPWSTR lpszCmd,
 	int nCmdShow)
 {
-	HRESULT hRes;
-	int result = 1;
+	int nRet = 1;
 
 	UNUSED_PARAMETER(hPrevInstance);
 	UNUSED_PARAMETER(lpszCmd);
 
-	/* COMの初期化を行う */
-	hRes = CoInitialize(0);
-	if (hRes != S_OK)
-		return FALSE;
+	do {
+		/* Do the lower layer initialization. */
+		if (!InitApp(hInstance, nCmdShow))
+			break;
 
-	/* Sleep()の分解能を設定する */
-	timeBeginPeriod(1);
+		/* Do the upper layer initialization. */
+		if (!on_event_init())
+			break;
 
-	/* 基盤レイヤの初期化処理を行う */
-	if(InitApp(hInstance, nCmdShow))
-	{
-		/* アプリケーション本体の初期化を行う */
-		if(on_event_init())
-		{
-			/* イベントループを実行する */
-			GameLoop();
+		/* Run the main loop. */
+		GameLoop();
 
-			/* アプリケーション本体の終了処理を行う */
-			on_event_cleanup();
+		/* Do the upper layer cleanup. */
+		on_event_cleanup();
 
-			result = 0;
-		}
-	}
+		nRet = 0;
+	} while (0);
 
-	/* 基盤レイヤの終了処理を行う */
+	/* Do the lower layer cleanup. */
 	CleanupApp();
 
-	/* Sleep()の分解能を元に戻す */
-	timeEndPeriod(1);
-
-	return result;
+	return nRet;
 }
 
 /* 基盤レイヤの初期化処理を行う */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	RECT rcClient;
+	HRESULT hResult;
+
+	/* COMの初期化を行う */
+	hResult = CoInitialize(0);
+	if (FAILED(hResult))
+		return FALSE;
 
 	if (!FILE_EXISTS("conf\\config.txt"))
 	{
@@ -223,7 +218,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 
 	/* 描画エンジンを初期化する */
-	if (!D3DInitialize(hWndGame))
+	if (!D3DInitialize(hWndMain))
 	{
 		log_error(get_ui_message(UIMSG_WIN32_NO_DIRECT3D));
 		return FALSE;
@@ -359,18 +354,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	/* メインウィンドウを作成する */
-	hWndMain = CreateWindowEx(0,
-							  wszWindowClassMain,
-							  wszTitle,
-							  dwStyle,
-							  nPosX,
-							  nPosY,
-							  nWinWidth,
-							  nWinHeight,
-							  NULL,
-							  NULL,
-							  hInstance,
-							  NULL);
+	hWndMain = CreateWindowEx(0, wszWindowClassMain, wszTitle, dwStyle,
+							  nPosX, nPosY, nWinWidth, nWinHeight,
+							  NULL, NULL, hInstance, NULL);
 	if (hWndMain == NULL)
 	{
 		log_api_error("CreateWindowEx");
@@ -385,11 +371,9 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	SetWindowPos(hWndMain, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOMOVE);
 	GetWindowRect(hWndMain, &rcWindow);
 
-	hWndGame = hWndMain;
-
 	/* ゲーム用メニューを作成する */
 	if(conf_window_menubar)
-		InitGameMenu();
+		InitMenu();
 
 	/* ウィンドウを表示する */
 	ShowWindow(hWndMain, nCmdShow);
@@ -403,8 +387,8 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-/* ゲームウィンドウのメニューを初期化する */
-static VOID InitGameMenu(void)
+/* メニューを初期化する */
+static VOID InitMenu(void)
 {
 	HMENU hMenuFile = CreatePopupMenu();
 	HMENU hMenuView = CreatePopupMenu();
@@ -588,171 +572,120 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		return 0;
 	case WM_SYSKEYDOWN:	/* Alt + Key */
 		/* Alt + Enter */
-		if (hWnd == NULL && (hWnd == hWndMain || hWnd == hWndGame))
+		if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
 		{
-			if(wParam == VK_RETURN && (HIWORD(lParam) & KF_ALTDOWN))
+			if (!conf_window_fullscreen_disable)
 			{
-				if (!conf_window_fullscreen_disable)
-				{
-					SendMessage(hWndMain, WM_SYSCOMMAND,
-								(WPARAM)SC_MAXIMIZE, (LPARAM)0);
-				}
-				return 0;
+				SendMessage(hWndMain, WM_SYSCOMMAND,
+							(WPARAM)SC_MAXIMIZE, (LPARAM)0);
 			}
+			return 0;
 		}
 
 		/* Alt + F4 */
-		if (hWnd == NULL && (hWnd == hWndMain || hWnd == hWndGame))
+		if(wParam == VK_F4)
 		{
-			if(wParam == VK_F4)
+			if (MessageBox(hWnd,
+						   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
+						   wszTitle, MB_OKCANCEL) == IDOK)
 			{
-				if (MessageBox(hWnd,
-							   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
-							   wszTitle, MB_OKCANCEL) == IDOK)
-				{
-					DestroyWindow(hWnd);
-					return 0;
-				}
+				DestroyWindow(hWnd);
+				return 0;
 			}
 		}
 		break;
 	case WM_CLOSE:
-		if (hWnd != NULL && (hWnd == hWndMain || hWnd == hWndGame))
-		{
-			if (MessageBox(hWnd,
-						   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
-						   wszTitle,
-						   MB_OKCANCEL) == IDOK)
-				DestroyWindow(hWnd);
-			return 0;
-		}
-		break;
+		if (MessageBox(hWnd,
+					   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
+					   wszTitle,
+					   MB_OKCANCEL) == IDOK)
+			DestroyWindow(hWnd);
+		return 0;
 	case WM_LBUTTONDOWN:
-		if (hWnd != NULL && hWnd == hWndGame)
-		{
-			on_event_mouse_press(MOUSE_LEFT,
-								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
-			return 0;
-		}
-		break;
+		on_event_mouse_press(MOUSE_LEFT,
+							 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+							 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+		return 0;
 	case WM_LBUTTONUP:
-		if (hWnd != NULL && hWnd == hWndGame)
-		{
-			on_event_mouse_release(MOUSE_LEFT,
-								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
-			return 0;
-		}
-		break;
+		on_event_mouse_release(MOUSE_LEFT,
+							   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+							   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+		return 0;
 	case WM_RBUTTONDOWN:
-		if (hWnd != NULL && hWnd == hWndGame)
-		{
-			on_event_mouse_press(MOUSE_RIGHT,
-								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
-			return 0;
-		}
-		break;
+		on_event_mouse_press(MOUSE_RIGHT,
+							 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+							 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+		return 0;
 	case WM_RBUTTONUP:
-		if (hWnd != NULL && hWnd == hWndGame)
-		{
-			on_event_mouse_release(MOUSE_RIGHT,
-								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
-			return 0;
-		}
-		break;
+		on_event_mouse_release(MOUSE_RIGHT,
+							   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+							   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+		return 0;
 	case WM_KEYDOWN:
-		if (hWnd != NULL && hWnd == hWndGame)
+		/* オートリピートの場合を除外する */
+		if((HIWORD(lParam) & 0x4000) != 0)
+			return 0;
+
+		/* フルスクリーン時にESCが押された場合 */
+		if((int)wParam == VK_ESCAPE && bFullScreen)
 		{
-			/* オートリピートの場合を除外する */
-			if((HIWORD(lParam) & 0x4000) != 0)
-				return 0;
-			if((int)wParam == VK_ESCAPE && bFullScreen)
-			{
-				bNeedWindowed = TRUE;
-				SendMessage(hWndMain, WM_SIZE, 0, 0);
-				return 0;
-			}
-			if ((int)wParam == 'V')
-			{
-				if (!conf_tts_enable) {
-					InitSAPI();
-					conf_tts_enable = conf_tts_user;
-					if (strcmp(get_system_locale(), "ja") == 0)
-						SpeakSAPI(L"テキスト読み上げがオンです。");
-					else
-						SpeakSAPI(L"Text-to-speech is turned on.");
-				} else {
-					conf_tts_enable = 0;
-					if (strcmp(get_system_locale(), "ja") == 0)
-						SpeakSAPI(L"テキスト読み上げがオフです。");
-					else
-						SpeakSAPI(L"Text-to-speech is turned off.");
-				}
-				return 0;
-			}
-			kc = ConvertKeyCode((int)wParam);
-			if(kc != -1)
-				on_event_key_press(kc);
+			bNeedWindowed = TRUE;
+			SendMessage(hWndMain, WM_SIZE, 0, 0);
 			return 0;
 		}
-		break;
+
+		/* Vキーが押された場合 */
+		if ((int)wParam == 'V')
+		{
+			if (!conf_tts_enable) {
+				InitSAPI();
+				conf_tts_enable = conf_tts_user;
+				if (strcmp(get_system_locale(), "ja") == 0)
+					SpeakSAPI(L"テキスト読み上げがオンです。");
+				else
+					SpeakSAPI(L"Text-to-speech is turned on.");
+			} else {
+				conf_tts_enable = 0;
+				if (strcmp(get_system_locale(), "ja") == 0)
+					SpeakSAPI(L"テキスト読み上げがオフです。");
+				else
+					SpeakSAPI(L"Text-to-speech is turned off.");
+			}
+			return 0;
+		}
+
+		/* その他のキーの場合 */
+		kc = ConvertKeyCode((int)wParam);
+		if(kc != -1)
+			on_event_key_press(kc);
+		return 0;
 	case WM_KEYUP:
-		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
-		{
-			kc = ConvertKeyCode((int)wParam);
-			if(kc != -1)
-				on_event_key_release(kc);
-			return 0;
-		}
-		break;
+		kc = ConvertKeyCode((int)wParam);
+		if(kc != -1)
+			on_event_key_release(kc);
+		return 0;
 	case WM_MOUSEMOVE:
-		if (hWnd != NULL && hWnd == hWndGame)
-		{
-			on_event_mouse_move(
-				(int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-				(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
-			return 0;
-		}
-		break;
+		on_event_mouse_move((int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
+							(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+		return 0;
 	case WM_MOUSEWHEEL:
-		if (hWnd != NULL && hWnd == hWndGame)
+		if((int)(short)HIWORD(wParam) > 0)
 		{
-			if((int)(short)HIWORD(wParam) > 0)
-			{
-				on_event_key_press(KEY_UP);
-				on_event_key_release(KEY_UP);
-			}
-			else if((int)(short)HIWORD(wParam) < 0)
-			{
-				on_event_key_press(KEY_DOWN);
-				on_event_key_release(KEY_DOWN);
-			}
-			return 0;
+			on_event_key_press(KEY_UP);
+			on_event_key_release(KEY_UP);
 		}
-		break;
+		else if((int)(short)HIWORD(wParam) < 0)
+		{
+			on_event_key_press(KEY_DOWN);
+			on_event_key_release(KEY_DOWN);
+		}
+		return 0;
 	case WM_KILLFOCUS:
-		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
-		{
-			on_event_key_release(KEY_CONTROL);
-			return 0;
-		}
-		break;
-	case WM_SYSCHAR:
-		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
-		{
-			return 0;
-		}
-		break;
+		on_event_key_release(KEY_CONTROL);
+		return 0;
 	case WM_PAINT:
-		if (hWnd != NULL && (hWnd == hWndGame || hWnd == hWndMain))
-		{
-			OnPaint(hWnd);
-			return 0;
-		}
-		break;
+		OnPaint(hWnd);
+		return 0;
 	case WM_COMMAND:
 		OnCommand(wParam, lParam);
 		return 0;
@@ -761,26 +694,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			bDShowMode = FALSE;
 		break;
 	case WM_SIZING:
-		if (hWnd != NULL && hWnd == hWndMain)
+		if (conf_window_resize)
 		{
-			if (conf_window_resize)
-			{
-				OnSizing((int)wParam, (LPRECT)lParam);
-				return TRUE;
-			}
-			return FALSE;
+			OnSizing((int)wParam, (LPRECT)lParam);
+			return TRUE;
 		}
-		break;
+		return FALSE;
 	case WM_SIZE:
-		if (hWnd != NULL && hWnd == hWndMain)
-		{
-			OnSize();
-			return 0;
-		}
-		break;
-	/*
-	 * デバッガでない場合だけウィンドウの最大化によるフルスクリーンを処理する
-	 */
+		OnSize();
+		return 0;
 	case WM_SYSCOMMAND:
 		/* Hook maximize and enter full screen mode. */
 		if (wParam == SC_MAXIMIZE && !conf_window_fullscreen_disable)
@@ -872,8 +794,7 @@ static void OnPaint(HWND hWnd)
 	PAINTSTRUCT ps;
 
 	hDC = BeginPaint(hWnd, &ps);
-	if (hWnd == hWndGame)
-		RunFrame();
+	RunFrame();
 	EndPaint(hWnd, &ps);
 
 	UNUSED_PARAMETER(hDC);
@@ -929,7 +850,7 @@ static void OnSizing(int edge, LPRECT lpRect)
 	fWidth = (float)(lpRect->right - lpRect->left + 1) - fPadX;
 	fHeight = (float)(lpRect->bottom - lpRect->top + 1) - fPadY;
 
-	/* Appky adjustments.*/
+	/* Apply adjustments.*/
 	if (conf_window_resize == 2)
 	{
 		fAspect = (float)conf_window_height / (float)conf_window_width;
@@ -986,7 +907,7 @@ static void OnSizing(int edge, LPRECT lpRect)
 		}
 	}
 
-	/* If there's a size change, update the screen size with the debugger panel size. */
+	/* If there's a size change, update the viewport size. */
 	if (nOrigWidth != lpRect->right - lpRect->left + 1 ||
 		nOrigHeight != lpRect->bottom - lpRect->top + 1)
 	{

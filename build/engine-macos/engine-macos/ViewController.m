@@ -19,12 +19,30 @@ static ViewController *theViewController;
 
 @implementation ViewController
 {
+    // The GameView for AppKit
     GameView *_view;
+
+    // The GameRender (common for AppKit and UIKit)
     GameRenderer *_renderer;
-    float _screenScale, _left, _top;
-    NSRect _savedFrame;
+
+    // The screen information
+    float _screenScale;
+    NSSize _screenSize;
+    NSPoint _screenOffset;
+
+    // The view frame before entering a full screen mode.
+    NSRect _savedViewFrame;
+
+    // The temporary window frame size on resizing.
+    NSSize _resizeFrame;
+
+    // The full screen status.
     BOOL _isFullScreen;
+
+    // The control key status.
     BOOL _isControlPressed;
+
+    // The video player objects and status.
     AVPlayer *_avPlayer;
     AVPlayerLayer *_avPlayerLayer;
     BOOL _isVideoPlaying;
@@ -57,7 +75,7 @@ static ViewController *theViewController;
     }
     [_renderer mtkView:_view drawableSizeWillChange:_view.drawableSize];
     _view.delegate = _renderer;
-    [self layout:_view.frame.size];
+    [self updateViewport:_view.frame.size];
 
     // Setup a rendering timer.
     [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
@@ -71,12 +89,13 @@ static ViewController *theViewController;
     self.view.window.delegate = self;
     
     // Set the window position and size.
-    NSRect sr = [[NSScreen mainScreen] visibleFrame];
-    NSRect cr = NSMakeRect(sr.origin.x + (sr.size.width - conf_window_width) / 2,
-                           sr.origin.y + (sr.size.height - conf_window_height) / 2,
-                           conf_window_width,
-                           conf_window_height);
-    [self.view.window setFrame:cr display:TRUE];
+    NSRect screenRect = [[NSScreen mainScreen] visibleFrame];
+    NSRect contentRect = NSMakeRect(screenRect.origin.x + (screenRect.size.width - conf_window_width) / 2,
+                                    screenRect.origin.y + (screenRect.size.height - conf_window_height) / 2,
+                                    conf_window_width,
+                                    conf_window_height);
+    NSRect windowRect = [self.view.window frameRectForContentRect:contentRect];
+    [self.view.window setFrame:windowRect display:TRUE];
     
     // Enable the window maximization.
     if (!conf_window_fullscreen_disable)
@@ -90,10 +109,12 @@ static ViewController *theViewController;
     [self.view.window setAcceptsMouseMovedEvents:YES];
     [self.view.window.delegate self];
     [self.view.window makeFirstResponder:self];
-
+    
     // Set the app name in the main menu.
     NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
     [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
+
+    [self updateViewport:_view.frame.size];
 }
 
 - (void)timerFired:(NSTimer *)timer {
@@ -142,14 +163,15 @@ static ViewController *theViewController;
 
 // フルスクリーンになる前に呼び出される
 - (NSSize)window:(NSWindow *)window willUseFullScreenContentSize:(NSSize)proposedSize {
-    NSSize size = [self layout:proposedSize];
+    // 表示位置を更新する
+    [self updateViewport:proposedSize];
     
     // 動画プレーヤレイヤのサイズを更新する
     if (_avPlayerLayer != nil)
-        [_avPlayerLayer setFrame:NSMakeRect(0, 0, size.width, size.height)];
+        [_avPlayerLayer setFrame:NSMakeRect(_screenOffset.x, _screenOffset.y, _screenSize.width, _screenSize.height)];
     
     // スクリーンサイズを返す
-    return size;
+    return proposedSize;
 }
 
 // フルスクリーンになるとき呼び出される
@@ -157,7 +179,7 @@ static ViewController *theViewController;
     _isFullScreen = YES;
     
     // ウィンドウサイズを保存する
-    _savedFrame = self.view.window.frame;
+    _savedViewFrame = self.view.frame;
 }
 
 // フルスクリーンから戻るときに呼び出される
@@ -166,36 +188,73 @@ static ViewController *theViewController;
     
     // 動画プレーヤレイヤのサイズを元に戻す
     if(_avPlayerLayer != nil)
-        [_avPlayerLayer setFrame:NSMakeRect(0, 0, _savedFrame.size.width, _savedFrame.size.height)];
+        [_avPlayerLayer setFrame:NSMakeRect(0, 0, _savedViewFrame.size.width, _savedViewFrame.size.height)];
     
-    [self layout:_savedFrame.size];
+    [self updateViewport:_savedViewFrame.size];
 }
 
-- (NSString *)uiMessage:(int)id {
-    return [[NSString alloc] initWithUTF8String:get_ui_message(id)];
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
+    NSRect contentRect = [self.view.window contentRectForFrameRect:NSMakeRect(0, 0, frameSize.width, frameSize.height)];
+
+    // Keep the original window size if (conf_window_size == 0).
+    if (conf_window_resize == 0) {
+        return NSMakeSize(conf_window_width, conf_window_height);
+    }
+
+    // Keep the aspect ratio if (conf_window_resize == 2).
+    if (conf_window_resize == 2) {
+        float aspect = (float)conf_window_height / (float)conf_window_width;
+        if (self.view.window.frame.size.width != frameSize.width)
+            contentRect.size.height = contentRect.size.width * aspect;
+        else
+            contentRect.size.width = contentRect.size.height / aspect;
+    }
+
+    // Save the contentRect.size for windowDidResize.
+    _resizeFrame = contentRect.size;
+
+    // Return the window size.
+    NSRect windowRect = [self.view.window frameRectForContentRect:NSMakeRect(0, 0, contentRect.size.width, contentRect.size.height)];
+    return windowRect.size;
 }
 
-- (NSSize)layout:(NSSize)size {
+- (void)windowDidResize:(NSNotification *)notification {
+    [self updateViewport:_resizeFrame];
+}
+
+- (void)updateViewport:(NSSize)newViewSize {
+    if (newViewSize.width == 0 || newViewSize.height == 0) {
+        _screenScale = 1.0f;
+        _screenSize = NSMakeSize(conf_window_width, conf_window_height);
+        _screenOffset.x = 0;
+        _screenOffset.y = 0;
+        return;
+    }
+    
     // ゲーム画面のアスペクト比を求める
     float aspect = (float)conf_window_height / (float)conf_window_width;
     
-    // 横幅優先で高さを仮決めする
-    float width = size.width;
-    float height = width * aspect;
-    _screenScale = (float)conf_window_width / width;
+    // 1. 横幅優先で高さを仮決めする
+    _screenSize.width = newViewSize.width;
+    _screenSize.height = _screenSize.width * aspect;
+    _screenScale = (float)conf_window_width / _screenSize.width;
     
-    // 高さが足りなければ、縦幅優先で横幅を決める
-    if(height > size.height) {
-        height = size.height;
-        width = size.height / aspect;
-        _screenScale = (float)conf_window_height / height;
+    // 2. 高さが足りなければ、縦幅優先で横幅を決める
+    if(_screenSize.height > newViewSize.height) {
+        _screenSize.height = newViewSize.height;
+        _screenSize.width = _screenSize.height / aspect;
+        _screenScale = (float)conf_window_height / _screenSize.height;
     }
     
+    // スケールファクタを乗算する
+    _screenSize.width *= _view.layer.contentsScale;
+    _screenSize.height *= _view.layer.contentsScale;
+    newViewSize.width *= _view.layer.contentsScale;
+    newViewSize.height *= _view.layer.contentsScale;
+
     // マージンを計算する
-    _left = (size.width - width) / 2.0f;
-    _top = (size.height - height) / 2.0f;
-    
-    return NSMakeSize(width, height);
+    _screenOffset.x = (newViewSize.width - _screenSize.width) / 2.0f;
+    _screenOffset.y = (newViewSize.height - _screenSize.height) / 2.0f;
 }
 
 // キーボード修飾変化イベント
@@ -244,6 +303,10 @@ static ViewController *theViewController;
     return -1;
 }
 
+- (NSString *)uiMessage:(int)id {
+    return [[NSString alloc] initWithUTF8String:get_ui_message(id)];
+}
+
 //
 // GameViewControllerProtocol
 //
@@ -253,7 +316,11 @@ static ViewController *theViewController;
 }
 
 - (NSPoint)screenOffset {
-    return NSMakePoint(_left, _top);
+    return _screenOffset;
+}
+
+- (NSSize)screenSize {
+    return _screenSize;
 }
 
 - (BOOL)isFullScreen {

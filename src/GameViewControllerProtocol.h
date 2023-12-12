@@ -5,6 +5,7 @@
 // Screen scaling
 - (float)screenScale;
 - (NSPoint)screenOffset;
+- (NSSize)screenSize;
 
 // Full screen implementation
 - (BOOL)isFullScreen;

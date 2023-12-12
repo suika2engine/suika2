@@ -43,11 +43,10 @@ LDFLAGS = \
 	-municode \
 	-lgdi32 \
 	-lole32 \
-	-ldxguid \
 	-ldsound \
-	-lstrmiids \
-	-lwinmm \
+	-ldxguid \
 	-ld3d9 \
+	-lstrmiids \
 	-lsapi \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lvorbisfile,-lvorbis,-logg,-dy \
