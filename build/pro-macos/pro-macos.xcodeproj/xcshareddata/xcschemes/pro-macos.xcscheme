@@ -24,8 +24,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2669F7072B283866001AEF17"
-               BuildableName = "pro-macos.app"
-               BlueprintName = "pro-macos"
+               BuildableName = "Suika2.app"
+               BlueprintName = "Suika2"
                ReferencedContainer = "container:pro-macos.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -53,8 +53,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2669F7072B283866001AEF17"
-            BuildableName = "pro-macos.app"
-            BlueprintName = "pro-macos"
+            BuildableName = "Suika2.app"
+            BlueprintName = "Suika2"
             ReferencedContainer = "container:pro-macos.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -70,8 +70,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2669F7072B283866001AEF17"
-            BuildableName = "pro-macos.app"
-            BlueprintName = "pro-macos"
+            BuildableName = "Suika2.app"
+            BlueprintName = "Suika2"
             ReferencedContainer = "container:pro-macos.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

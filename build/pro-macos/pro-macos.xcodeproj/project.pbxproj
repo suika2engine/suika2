@@ -67,13 +67,14 @@
 		2610CD182B287ACD00300004 /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDC2B287ACD00300004 /* cmd_cha.c */; };
 		2610CD192B287ACD00300004 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDD2B287ACD00300004 /* cmd_setsave.c */; };
 		2610CD1A2B287ACD00300004 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDF2B287ACD00300004 /* log.c */; };
+		2610CD1D2B287CD600300004 /* games in Resources */ = {isa = PBXBuildFile; fileRef = 2610CD1C2B287CD600300004 /* games */; };
 		2669F7CB2B2843D5001AEF17 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */; };
 		2669F7D72B284675001AEF17 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CD2B284675001AEF17 /* AppDelegate.m */; };
 		2669F7D82B284675001AEF17 /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CF2B284675001AEF17 /* GameView.m */; };
 		2669F7D92B284675001AEF17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D02B284675001AEF17 /* main.m */; };
-		2669F7DB2B284675001AEF17 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2669F7D42B284675001AEF17 /* Info.plist */; };
 		2669F7DC2B284675001AEF17 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D62B284675001AEF17 /* ViewController.m */; };
 		2669F7DE2B28467D001AEF17 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2669F7DD2B28467D001AEF17 /* Main.storyboard */; };
+		269D04722B28891C00934EE2 /* ScriptTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269D04712B28891C00934EE2 /* ScriptTextView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -169,7 +170,8 @@
 		2610CCDD2B287ACD00300004 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		2610CCDE2B287ACD00300004 /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../src/glyph.h; sourceTree = "<group>"; };
 		2610CCDF2B287ACD00300004 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = ../../src/log.c; sourceTree = "<group>"; };
-		2669F7082B283866001AEF17 /* pro-macos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pro-macos.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2610CD1C2B287CD600300004 /* games */ = {isa = PBXFileReference; lastKnownFileType = folder; name = games; path = ../../../games; sourceTree = "<group>"; };
+		2669F7082B283866001AEF17 /* Suika2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suika2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2669F7CD2B284675001AEF17 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		2669F7CE2B284675001AEF17 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -181,6 +183,8 @@
 		2669F7D52B284675001AEF17 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		2669F7D62B284675001AEF17 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		2669F7DD2B28467D001AEF17 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		269D04702B28891C00934EE2 /* ScriptTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScriptTextView.h; sourceTree = "<group>"; };
+		269D04712B28891C00934EE2 /* ScriptTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScriptTextView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -198,6 +202,11 @@
 		2610CC822B2878AE00300004 /* suika2 */ = {
 			isa = PBXGroup;
 			children = (
+				2610CCC02B287ACD00300004 /* GameRenderer.h */,
+				2610CCB02B287ACC00300004 /* GameRenderer.m */,
+				2610CC982B287ACC00300004 /* GameShaders.metal */,
+				2610CCD52B287ACD00300004 /* GameShaderTypes.h */,
+				2610CCB72B287ACC00300004 /* GameViewControllerProtocol.h */,
 				2610CC8D2B287ACC00300004 /* anime.c */,
 				2610CC9E2B287ACC00300004 /* anime.h */,
 				2610CCD02B287ACD00300004 /* aunit.c */,
@@ -236,11 +245,6 @@
 				2610CCC72B287ACD00300004 /* event.h */,
 				2610CC942B287ACC00300004 /* file.c */,
 				2610CCA62B287ACC00300004 /* file.h */,
-				2610CCC02B287ACD00300004 /* GameRenderer.h */,
-				2610CCB02B287ACC00300004 /* GameRenderer.m */,
-				2610CC982B287ACC00300004 /* GameShaders.metal */,
-				2610CCD52B287ACD00300004 /* GameShaderTypes.h */,
-				2610CCB72B287ACC00300004 /* GameViewControllerProtocol.h */,
 				2610CCCD2B287ACD00300004 /* glyph.c */,
 				2610CCDE2B287ACD00300004 /* glyph.h */,
 				2610CCA92B287ACC00300004 /* gui.c */,
@@ -293,11 +297,20 @@
 			name = suika2;
 			sourceTree = "<group>";
 		};
+		2610CD1B2B287C9100300004 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2610CD1C2B287CD600300004 /* games */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		2669F6FF2B283866001AEF17 = {
 			isa = PBXGroup;
 			children = (
 				2669F70A2B283866001AEF17 /* pro-macos */,
 				2610CC822B2878AE00300004 /* suika2 */,
+				2610CD1B2B287C9100300004 /* Resources */,
 				2669F7092B283866001AEF17 /* Products */,
 				2669F7C92B2843D5001AEF17 /* Frameworks */,
 			);
@@ -306,7 +319,7 @@
 		2669F7092B283866001AEF17 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2669F7082B283866001AEF17 /* pro-macos.app */,
+				2669F7082B283866001AEF17 /* Suika2.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -325,6 +338,8 @@
 				2669F7D62B284675001AEF17 /* ViewController.m */,
 				2669F7D22B284675001AEF17 /* GameView.h */,
 				2669F7CF2B284675001AEF17 /* GameView.m */,
+				269D04702B28891C00934EE2 /* ScriptTextView.h */,
+				269D04712B28891C00934EE2 /* ScriptTextView.m */,
 			);
 			path = "pro-macos";
 			sourceTree = "<group>";
@@ -340,9 +355,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2669F7072B283866001AEF17 /* pro-macos */ = {
+		2669F7072B283866001AEF17 /* Suika2 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "pro-macos" */;
+			buildConfigurationList = 2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2" */;
 			buildPhases = (
 				2669F7042B283866001AEF17 /* Sources */,
 				2669F7052B283866001AEF17 /* Frameworks */,
@@ -352,9 +367,9 @@
 			);
 			dependencies = (
 			);
-			name = "pro-macos";
+			name = Suika2;
 			productName = "pro-macos";
-			productReference = 2669F7082B283866001AEF17 /* pro-macos.app */;
+			productReference = 2669F7082B283866001AEF17 /* Suika2.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -384,7 +399,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2669F7072B283866001AEF17 /* pro-macos */,
+				2669F7072B283866001AEF17 /* Suika2 */,
 			);
 		};
 /* End PBXProject section */
@@ -394,9 +409,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2669F7DB2B284675001AEF17 /* Info.plist in Resources */,
 				2610CC842B2878C900300004 /* Assets.xcassets in Resources */,
 				2669F7DE2B28467D001AEF17 /* Main.storyboard in Resources */,
+				2610CD1D2B287CD600300004 /* games in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,6 +454,7 @@
 				2610CD002B287ACD00300004 /* cmd_wait.c in Sources */,
 				2610CCF32B287ACD00300004 /* wms_impl.c in Sources */,
 				2610CCE52B287ACD00300004 /* cmd_bgm.c in Sources */,
+				269D04722B28891C00934EE2 /* ScriptTextView.m in Sources */,
 				2610CCE12B287ACD00300004 /* cmd_ch.c in Sources */,
 				2610CCF22B287ACD00300004 /* cmd_chapter.c in Sources */,
 				2610CD142B287ACD00300004 /* cmd_video.c in Sources */,
@@ -615,7 +631,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 1.0;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
@@ -665,7 +681,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 1.0;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
@@ -703,7 +719,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "pro-macos" */ = {
+		2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2669F71C2B283867001AEF17 /* Debug */,

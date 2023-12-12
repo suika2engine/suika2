@@ -17,6 +17,10 @@
 
 static ViewController *theViewController;
 
+static void setWaitingState(void);
+static void setRunningState(void);
+static void setStoppedState(void);
+
 @interface ViewController ()
 // Status
 @property BOOL isEnglish;
@@ -60,9 +64,6 @@ static ViewController *theViewController;
     
     // The full screen status.
     BOOL _isFullScreen;
-    
-    // The control key status.
-    BOOL _isControlPressed;
     
     // The video player objects and status.
     AVPlayer *_avPlayer;
@@ -124,6 +125,12 @@ static ViewController *theViewController;
     [self.view.window setAcceptsMouseMovedEvents:YES];
     [self.view.window.delegate self];
     [self.view.window makeFirstResponder:self];
+
+    // Set the window title.
+    [self.view.window setTitle:@"Suika2"];
+
+    // Set the script view delegate.
+    _textViewScript.delegate = (id<NSTextViewDelegate>)_textViewScript;
 
     // Update the viewport size.
     [self updateViewport:self.renderView.frame.size];
@@ -226,16 +233,20 @@ static ViewController *theViewController;
 }
 
 // キーボード修飾変化イベント
-- (void)flagsChanged:(NSEvent *)theEvent {
-    // Controlキーの状態を取得する
-    BOOL bit = ([theEvent modifierFlags] & NSEventModifierFlagControl) == NSEventModifierFlagControl;
+- (void)flagsChanged:(NSEvent *)event {
+    BOOL newControllPressed = ([event modifierFlags] & NSEventModifierFlagControl) ==
+        NSEventModifierFlagControl;
+    self.isShiftPressed = ([event modifierFlags] & NSEventModifierFlagShift) ==
+        NSEventModifierFlagShift;
+    self.isCommandPressed = ([event modifierFlags] & NSEventModifierFlagCommand) ==
+        NSEventModifierFlagCommand;
 
     // Controlキーの状態が変化した場合は通知する
-    if (!_isControlPressed && bit) {
-        _isControlPressed = YES;
+    if (!self.isControlPressed && newControllPressed) {
+        self.isControlPressed = YES;
         on_event_key_press(KEY_CONTROL);
-    } else if (_isControlPressed && !bit) {
-        _isControlPressed = NO;
+    } else if (self.isControlPressed && !newControllPressed) {
+        self.isControlPressed = NO;
         on_event_key_release(KEY_CONTROL);
     }
 }
@@ -368,6 +379,10 @@ static ViewController *theViewController;
 // IB Actions
 //
 
+- (IBAction)onAbout:(id)sender {
+    [NSApp orderFrontStandardAboutPanel:self];
+}
+
 // 続けるボタンが押下されたイベント
 - (IBAction) onContinueButton:(id)sender {
     self.isContinuePressed = true;
@@ -385,8 +400,18 @@ static ViewController *theViewController;
 
 // スクリプトファイル名の反映ボタンが押下されたイベント
 - (IBAction)onOpenScriptButton:(id)sender {
-    // TODO: Open a script
-    self.isOpenScriptPressed = true;
+    NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
+    NSString *txtPath = [NSString stringWithFormat:@"%@/%@", basePath, @"txt"];
+    NSOpenPanel *panel= [NSOpenPanel openPanel];
+    [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"txt", @"'TEXT'", nil]];
+    [panel setDirectoryURL:[[NSURL alloc] initFileURLWithPath:txtPath]];
+    if ([panel runModal] == NSModalResponseOK) {
+        NSString *file = [[panel URL] lastPathComponent];
+        if ([file hasPrefix:txtPath]) {
+                [self setScriptName:file];
+                self.isOpenScriptPressed = true;
+        }
+    }
 }
 
 // 変数の反映ボタンが押下されたイベント
@@ -434,8 +459,7 @@ static ViewController *theViewController;
 }
 
 - (IBAction)onQuit:(id)sender {
-    if ([self windowShouldClose:sender])
-        [NSApp stop:nil];
+    [NSApp stop:nil];
 }
 
 // ゲームフォルダを開くメニューが押下されたイベント
@@ -561,24 +585,6 @@ static ViewController *theViewController;
     }
 
     log_info(self.isEnglish ? "No error." : "エラーはありません。");
-}
-
-// from: https://stackoverflow.com/questions/54238610/nstextview-select-specific-line
-- (void)selectScriptLine:(NSUInteger)line {
-    NSLayoutManager *layoutManager = [self.textViewScript layoutManager];
-    NSUInteger numberOfLines = 0;
-    NSUInteger numberOfGlyphs = [layoutManager numberOfGlyphs];
-    NSRange lineRange;
-    for (NSUInteger indexOfGlyph = 0; indexOfGlyph < numberOfGlyphs; numberOfLines++) {
-        [layoutManager lineFragmentRectForGlyphAtIndex:indexOfGlyph effectiveRange:&lineRange];
-        if (numberOfLines == line) {
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                [self.textViewScript setSelectedRange:lineRange];
-            }];
-            break;
-        }
-        indexOfGlyph = NSMaxRange(lineRange);
-    }
 }
 
 // メッセージの挿入
@@ -749,6 +755,14 @@ static ViewController *theViewController;
     }
 }
 
+- (IBAction)onHelp:(id)sender {
+    if (_isEnglish) {
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://suika2.com/en/doc/"]];
+    } else {
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88"]];
+    }
+}
+
 //
 // ウィンドウ/ビューの設定/取得
 //
@@ -822,30 +836,41 @@ static ViewController *theViewController;
 
 // 実行行を設定する
 - (void)setExecLine:(int)line {
-    // TODO
+    [self selectScriptLine:line];
+    [self setTextColorForAllLines];
+    
+    // Scroll.
+    NSRange caretRange = NSMakeRange(_textViewScript.selectedRange.location, 0);
+    NSLayoutManager *layoutManager = [_textViewScript layoutManager];
+    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:caretRange actualCharacterRange:nil];
+    NSRect glyphRect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:[_textViewScript textContainer]];
+    [_textViewScript scrollRectToVisible:glyphRect];
 }
 
 // スクリプトのテキストビューの内容を更新する
 - (void)updateScriptTextView {
-    // TODO
+    [self updateTextFromScriptModel];
+    [self setTextColorForAllLines];
 }
 
 // スクリプトのテーブルビューをスクロールする
 - (void)scrollScriptTextView {
+    //TODO
     //int line = get_expanded_line_num();
-    // TODO
 }
 
 // テキストビューの内容をスクリプトモデルを元に設定する
 - (void)updateTextFromScriptModel {
     // 行を連列してスクリプト文字列を作成する
     NSString *text = @"";
-    for (int i = 0; i < get_line_count(); i++)
-        [text stringByAppendingString:[[NSString alloc] initWithUTF8String:get_line_string_at_line_num(i)]];
+    for (int i = 0; i < get_line_count(); i++) {
+        text = [text stringByAppendingString:[[NSString alloc] initWithUTF8String:get_line_string_at_line_num(i)]];
+        text = [text stringByAppendingString:@"\n"];
+    }
 
     // テキストビューにテキストを設定する
     _isFirstChange = TRUE;
-    [self.textViewScript setString:text];
+    self.textViewScript.string = text;
 
     // 複数行の変更があったことを記録する
     _isRangedChange = TRUE;
@@ -857,29 +882,16 @@ static ViewController *theViewController;
     dbg_reset_parse_error_count();
 
     // リッチエディットのテキストの内容でスクリプトの各行をアップデートする
-    const char *ctext= [self.textViewScript.string UTF8String];
-    char *text = strdup(ctext);
-    int total = (int)strlen(text);
+    NSString *text = _textViewScript.string;
+    NSArray *lines = [text componentsSeparatedByString:@"\n"];
     int lineNum = 0;
-    int lineStart = 0;
-    while (lineStart < total) {
-        // 行を切り出す
-        char *lineText = text + lineStart;
-        char *lf = strstr(lineText, "\n");
-        int lineLen = lf != NULL ? (int)(lf - lineText) : (int)strlen(lineText);
-        if (lf != NULL)
-            *lf = '\0';
-
-        // 行を更新する
+    for (NSString *line in lines) {
         if (lineNum < get_line_count())
-            update_script_line(lineNum, lineText);
+            update_script_line(lineNum, [line UTF8String]);
         else
-            insert_script_line(lineNum, lineText);
-
+            insert_script_line(lineNum, [line UTF8String]);
         lineNum++;
-        lineStart += lineLen;
     }
-    free(text);
 
     // 削除された末尾の行を処理する
     self.isExecLineChanged = FALSE;
@@ -914,29 +926,47 @@ static ViewController *theViewController;
     NSArray *lineArray = [text componentsSeparatedByString:@"\n"];
     int startPos = 0;
     int execLineNum = get_expanded_line_num();
-    for (int i = 0; i < execLineNum; i++) {
+    for (int i = 0; i < lineArray.count; i++) {
         NSString *lineText = lineArray[i];
         NSUInteger lineLen = [lineText length];
+        if (lineLen == 0) {
+            startPos++;
+            continue;
+        }
+
+        NSRange lineRange = NSMakeRange(startPos, [lineArray[i] length]);
 
         // 実行行であれば背景色を設定する
-        NSRange lineRange = NSMakeRange(startPos, [lineArray[i] length]);
-        NSColor *bgColor = self.isRunning ? [NSColor redColor] : [NSColor blueColor];
-        [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:bgColor range:lineRange];
+        if (i == execLineNum) {
+            NSColor *bgColor = self.isRunning ?
+                [NSColor colorWithRed:0xff/255.0f green:0xc0/255.0f blue:0xc0/255.0f alpha:1.0f] :
+                [NSColor colorWithRed:0xc0/255.0f green:0xc0/255.0f blue:0xff/255.0f alpha:1.0f];
+            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:bgColor range:lineRange];
+        }
 
         // コメントを処理する
         if ([lineText characterAtIndex:0] == L'#') {
             // 行全体のテキスト色を変更する
-            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor grayColor] range:lineRange];
+            [self.textViewScript.textStorage
+                addAttribute:NSForegroundColorAttributeName
+                       value:[NSColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f]
+                       range:lineRange];
         }
         // ラベルを処理する
         else if ([lineText characterAtIndex:0] == L':') {
             // 行全体のテキスト色を変更する
-            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor greenColor] range:lineRange];
+            [self.textViewScript.textStorage
+                addAttribute:NSForegroundColorAttributeName
+                       value:[NSColor colorWithRed:1.0f green:0 blue:0 alpha:1.0f]
+                       range:lineRange];
         }
         // エラー行を処理する
         else if ([lineText characterAtIndex:0] == L'!') {
             // 行全体のテキスト色を変更する
-            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor redColor] range:lineRange];
+            [self.textViewScript.textStorage
+                addAttribute:NSForegroundColorAttributeName
+                       value:[NSColor colorWithRed:1.0f green:0 blue:0 alpha:1.0f]
+                       range:lineRange];
         }
         // コマンド行を処理する
         else if ([lineText characterAtIndex:0] == L'@') {
@@ -947,7 +977,10 @@ static ViewController *theViewController;
 
             // コマンド名のテキストに色を付ける
             NSRange commandRange = NSMakeRange(startPos, commandNameLen);
-            [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor blueColor] range:commandRange];
+            [self.textViewScript.textStorage
+                addAttribute:NSForegroundColorAttributeName
+                       value:[NSColor colorWithRed:0 green:0 blue:1.0f alpha:1.0f]
+                       range:commandRange];
 
             // 引数に色を付ける
             int commandType = get_command_type_from_name([[lineText substringToIndex:commandNameLen] UTF8String]);
@@ -972,8 +1005,10 @@ static ViewController *theViewController;
                         continue;
 
                     // 引数名部分のテキスト色を変更する
-                    NSRange paramNameRange = NSMakeRange(paramStart, eqPos - paramStart);
-                    [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:[NSColor grayColor] range:paramNameRange];
+                    NSRange paramNameRange = NSMakeRange(paramStart, eqPos + 2);
+                    [self.textViewScript.textStorage addAttribute:NSForegroundColorAttributeName
+                               value:[NSColor colorWithRed:0xc0/255.0f green:0xf0/255.0f blue:0xc0/255.0f alpha:1.0f]
+                               range:paramNameRange];
 
                     paramStart += spacePos;
                 } while (paramStart < lineLen);
@@ -981,6 +1016,55 @@ static ViewController *theViewController;
         }
         
         startPos += [lineText length] + 1;
+    }
+}
+
+- (void)onScriptShiftEnter {
+    self.changedExecLine = [self scriptCursorLine];
+    self.isExecLineChanged = YES;
+    self.isNextPressed = YES;
+}
+
+- (void)onScriptRangedChange {
+    _isRangedChange = YES;
+}
+
+- (void)onScriptChange {
+    if (_isRangedChange) {
+        [self updateScriptModelFromText];
+        [self setTextColorForAllLines];
+    }
+}
+
+- (int)scriptCursorLine {
+    NSString *text = _textViewScript.string;
+    NSArray *lines = [text componentsSeparatedByString:@"\n"];
+    int cur = (int)_textViewScript.selectedRange.location;
+    int lineCount = 0;
+    int lineTop = 0;
+    for (NSString *line in lines) {
+        int lineLen = (int)line.length;
+        if (cur >= lineTop && cur <= lineTop + lineLen)
+            return lineCount;
+        lineCount++;
+        lineTop += lineLen + 1;
+    }
+    return 0;
+}
+
+- (void)selectScriptLine:(int)lineToSelect {
+    NSString *text = _textViewScript.string;
+    NSArray *lines = [text componentsSeparatedByString:@"\n"];
+    int lineCount = 0;
+    int lineTop = 0;
+    for (NSString *line in lines) {
+        int lineLen = (int)line.length;
+        if (lineCount == lineToSelect) {
+            _textViewScript.selectedRange = NSMakeRange(lineTop, lineLen);
+            return;
+        }
+        lineCount++;
+        lineTop += lineLen + 1;
     }
 }
 
@@ -1008,6 +1092,60 @@ static ViewController *theViewController;
         self.textFieldVariables.stringValue = text;
     }
 }
+
+@end
+
+
+//
+// Main HAL
+//
+
+//
+// セーブディレクトリを作成する
+//
+bool make_sav_dir(void)
+{
+    @autoreleasepool {
+        NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
+        NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath, SAVE_DIR];
+        NSError *error;
+        [[NSFileManager defaultManager] createDirectoryAtPath:savePath
+                                  withIntermediateDirectories:NO
+                                                   attributes:nil
+                                                        error:&error];
+        return true;
+    }
+}
+
+//
+// データファイルのディレクトリ名とファイル名を指定して有効なパスを取得する
+//
+char *make_valid_path(const char *dir, const char *fname)
+{
+    @autoreleasepool {
+        NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
+        NSString *filePath;
+        if (dir != NULL) {
+            if (fname != NULL)
+                filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir, fname];
+            else
+                filePath = [NSString stringWithFormat:@"%@/%s", basePath, dir];
+        } else {
+            if (fname != NULL)
+                filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
+            else
+                filePath = basePath;
+        }
+        const char *cstr = [filePath UTF8String];
+        char *ret = strdup(cstr);
+        if (ret == NULL) {
+            log_memory();
+            return NULL;
+        }
+        return ret;
+    }
+}
+
 //
 // Pro HAL
 //
@@ -1080,22 +1218,25 @@ int get_changed_exec_line(void)
 void on_change_running_state(bool running, bool request_stop)
 {
     // 実行状態を保存する
-    theViewController.isRunning = running;
+    theViewController.isRunning = running ? YES : NO;
 
     // 停止によりコマンドの完了を待機中のとき
     if(request_stop) {
         setWaitingState();
+        [theViewController setTextColorForAllLines];
         return;
     }
 
     // 実行中のとき
     if(running) {
         setRunningState();
+        [theViewController setTextColorForAllLines];
         return;
     }
 
     // 完全に停止中のとき
     setStoppedState();
+    [theViewController setTextColorForAllLines];
 }
 
 // 停止によりコマンドの完了を待機中のときのビューの状態を設定する
@@ -1271,56 +1412,4 @@ void on_change_position(void)
 void on_update_variable(void)
 {
     [theViewController updateVariableTextField];
-}
-
-@end
-
-//
-// HAL
-//
-
-//
-// セーブディレクトリを作成する
-//
-bool make_sav_dir(void)
-{
-    @autoreleasepool {
-        NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
-        NSString *savePath = [NSString stringWithFormat:@"%@/%s", basePath, SAVE_DIR];
-        NSError *error;
-        [[NSFileManager defaultManager] createDirectoryAtPath:savePath
-                                  withIntermediateDirectories:NO
-                                                   attributes:nil
-                                                        error:&error];
-        return true;
-    }
-}
-
-//
-// データファイルのディレクトリ名とファイル名を指定して有効なパスを取得する
-//
-char *make_valid_path(const char *dir, const char *fname)
-{
-    @autoreleasepool {
-        NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
-        NSString *filePath;
-        if (dir != NULL) {
-            if (fname != NULL)
-                filePath = [NSString stringWithFormat:@"%@/%s/%s", basePath, dir, fname];
-            else
-                filePath = [NSString stringWithFormat:@"%@/%s", basePath, dir];
-        } else {
-            if (fname != NULL)
-                filePath = [NSString stringWithFormat:@"%@/%s", basePath, fname];
-            else
-                filePath = basePath;
-        }
-        const char *cstr = [filePath UTF8String];
-        char *ret = strdup(cstr);
-        if (ret == NULL) {
-            log_memory();
-            return NULL;
-        }
-        return ret;
-    }
 }
