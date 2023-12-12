@@ -49,7 +49,7 @@ fragmentCopyShader(RasterizerData in [[stage_in]],
                    texture2d<half> colorTexture [[texture(GameTextureIndexColor)]])
 {
     constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
-    const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
+    half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
     colorSample.a = 1.0;
     return float4(colorSample);
 }
@@ -59,7 +59,7 @@ fragmentDimShader(RasterizerData in [[stage_in]],
                   texture2d<half> colorTexture [[texture(GameTextureIndexColor)]])
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
+    half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
     colorSample.rgb *= 0.5;
     return float4(colorSample);
 }
@@ -70,7 +70,7 @@ fragmentRuleShader(RasterizerData in [[stage_in]],
                    texture2d<half> ruleTexture [[texture(GameTextureIndexRule)]])
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
+    half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
     const half4 ruleSample = ruleTexture.sample(textureSampler, in.textureCoordinate);
     colorSample.a = 1.0 - step(in.alpha, (float)ruleSample.b);
     return float4(colorSample.r, colorSample.g, colorSample.b, colorSample.a);
@@ -82,7 +82,7 @@ fragmentMeltShader(RasterizerData in [[stage_in]],
                    texture2d<half> ruleTexture [[texture(GameTextureIndexRule)]])
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
+    half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);
     const half4 ruleSample = ruleTexture.sample(textureSampler, in.textureCoordinate);
     colorSample.a = clamp((1.0 - ruleSample.b) + (in.alpha * 2.0 - 1.0), 0.0, 1.0);
     return float4(colorSample);

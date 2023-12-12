@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="bU7-R8-ocO">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Application-->
+        <scene sceneID="6W3-bb-hIy">
+            <objects>
+                <application id="ks4-GK-by0" sceneMemberID="viewController">
+                    <menu key="mainMenu" title="Main Menu" systemMenu="main" id="P58-m4-Zsw">
+                        <items>
+                            <menuItem title="Suika2" id="2FM-S8-DbW">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Suika2" systemMenu="apple" id="a5e-0f-EOK">
+                                    <items>
+                                        <menuItem title="About Suika2" id="tQI-3P-65Z">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="xYw-1J-jP0"/>
+                                        <menuItem title="Preferences…" keyEquivalent="," id="zu7-aF-4um"/>
+                                        <menuItem isSeparatorItem="YES" id="fg5-x3-mnU"/>
+                                        <menuItem title="Services" id="LgX-YC-1Aw">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Services" systemMenu="services" id="Wj2-6X-uMf"/>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="AQ6-jt-tXG"/>
+                                        <menuItem title="Hide pro-macos" keyEquivalent="h" id="KMA-l6-M0q"/>
+                                        <menuItem title="Hide Others" keyEquivalent="h" id="FPj-5I-obY">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                        </menuItem>
+                                        <menuItem title="Show All" id="aCh-Eg-hXv">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="1aw-E3-SLO"/>
+                                        <menuItem title="Quit Suika2" keyEquivalent="q" id="LJx-rt-yWh"/>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="File" id="iYP-s4-VJR">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="File" id="pwB-TW-3Yp">
+                                    <items>
+                                        <menuItem title="Open Game Folder" keyEquivalent="o" id="mLT-6t-baM"/>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Window" id="9wg-X1-OHe">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Window" systemMenu="window" id="hXY-ch-iyX">
+                                    <items>
+                                        <menuItem title="Minimize" keyEquivalent="m" id="XzX-sm-FWx"/>
+                                        <menuItem title="Zoom" id="nzq-Ge-BEB">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="mT3-u7-Ixv"/>
+                                        <menuItem title="Bring All to Front" id="6Ul-4e-Rua">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Help" id="7P0-S2-7rY">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Help" systemMenu="help" id="2z2-Gq-I3I">
+                                    <items>
+                                        <menuItem title="Suika2 Help" keyEquivalent="?" id="qpJ-Rq-wnN"/>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </application>
+                <customObject id="YSZ-o6-Pfm" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="74" y="-221"/>
+        </scene>
+        <!--Boot View Controller-->
+        <scene sceneID="PEd-7d-5j0">
+            <objects>
+                <viewController id="bU7-R8-ocO" customClass="BootViewController" sceneMemberID="viewController">
+                    <view key="view" id="tOy-S4-hL0">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="282"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nyJ-X8-oLA">
+                                <rect key="frame" x="18" y="189" width="84" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="Japanese" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="jFM-Am-TbZ">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dn5-7q-G4B">
+                                <rect key="frame" x="18" y="154" width="131" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="Full Screen Novel" bezelStyle="regularSquare" imagePosition="left" inset="2" id="CxT-ST-Icw">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YCI-Ud-daU">
+                                <rect key="frame" x="18" y="121" width="167" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="Vertical Writing System" bezelStyle="regularSquare" imagePosition="left" inset="2" id="f0C-Fl-8wr">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1h4-ai-SwA">
+                                <rect key="frame" x="18" y="246" width="124" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="left" title="Welcome to Suika2!" id="0GY-Bd-ZnM">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EBx-Be-i2S">
+                                <rect key="frame" x="247" y="13" width="190" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Open..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="na7-ma-XTB">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="openExistingProjectButton:" target="bU7-R8-ocO" id="b5Q-Fw-Snf"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dXu-NA-fyJ">
+                                <rect key="frame" x="247" y="45" width="190" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Create new project" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2A2-Sm-P9G">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="createProjectButton:" target="bU7-R8-ocO" id="0Iw-Nd-gUq"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </view>
+                </viewController>
+                <customObject id="9uD-mB-xHs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="91" y="122"/>
+        </scene>
+    </scenes>
+</document>
