@@ -127,11 +127,12 @@
                         </subviews>
                     </view>
                     <connections>
-                        <outlet property="buttonContinue" destination="Yno-l0-3FI" id="YqH-Gu-wkz"/>
+                        <outlet property="buttonContinue" destination="Yno-l0-3FI" id="Iwi-PS-bsj"/>
                         <outlet property="buttonNext" destination="OSO-WU-w5I" id="eOf-LZ-FDl"/>
                         <outlet property="buttonOpenScript" destination="2SF-cW-5wW" id="yRu-kv-1s2"/>
                         <outlet property="buttonStop" destination="cuq-YS-HUw" id="x7l-rn-LMU"/>
                         <outlet property="buttonUpdateVariables" destination="8Aw-CL-PPH" id="0Ao-ye-Eld"/>
+                        <outlet property="editorPanel" destination="HIp-eA-I2E" id="nBt-Xh-LAy"/>
                         <outlet property="renderView" destination="Lbu-97-mre" id="mKG-sK-TdO"/>
                         <outlet property="textFieldScriptName" destination="j6U-Gp-49N" id="eBT-M9-7F2"/>
                         <outlet property="textFieldVariables" destination="orL-MQ-cnl" id="zBA-Fd-NHw"/>

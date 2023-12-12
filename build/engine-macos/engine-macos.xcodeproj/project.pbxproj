@@ -84,7 +84,7 @@
 		268EAEB02B23C4C700CF559E /* GameRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameRenderer.m; path = ../../src/GameRenderer.m; sourceTree = "<group>"; };
 		268EAEB12B23C4C700CF559E /* GameRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameRenderer.h; path = ../../src/GameRenderer.h; sourceTree = "<group>"; };
 		268EAEB22B23C4C700CF559E /* GameShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameShaderTypes.h; path = ../../src/GameShaderTypes.h; sourceTree = "<group>"; };
-		26EAF2572B1F9B1F003530F4 /* suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		26EAF2572B1F9B1F003530F4 /* Suika.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suika.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26EAF25A2B1F9B1F003530F4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		26EAF25B2B1F9B1F003530F4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		26EAF2602B1F9B20003530F4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -208,7 +208,7 @@
 		26EAF2582B1F9B1F003530F4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				26EAF2572B1F9B1F003530F4 /* suika.app */,
+				26EAF2572B1F9B1F003530F4 /* Suika.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -346,9 +346,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		26EAF2562B1F9B1F003530F4 /* suika */ = {
+		26EAF2562B1F9B1F003530F4 /* Suika */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 26EAF26A2B1F9B20003530F4 /* Build configuration list for PBXNativeTarget "suika" */;
+			buildConfigurationList = 26EAF26A2B1F9B20003530F4 /* Build configuration list for PBXNativeTarget "Suika" */;
 			buildPhases = (
 				26EAF2532B1F9B1F003530F4 /* Sources */,
 				26EAF2542B1F9B1F003530F4 /* Frameworks */,
@@ -358,9 +358,9 @@
 			);
 			dependencies = (
 			);
-			name = suika;
+			name = Suika;
 			productName = "engine-macos";
-			productReference = 26EAF2572B1F9B1F003530F4 /* suika.app */;
+			productReference = 26EAF2572B1F9B1F003530F4 /* Suika.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -390,7 +390,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				26EAF2562B1F9B1F003530F4 /* suika */,
+				26EAF2562B1F9B1F003530F4 /* Suika */,
 			);
 		};
 /* End PBXProject section */
@@ -720,7 +720,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		26EAF26A2B1F9B20003530F4 /* Build configuration list for PBXNativeTarget "suika" */ = {
+		26EAF26A2B1F9B20003530F4 /* Build configuration list for PBXNativeTarget "Suika" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				26EAF26B2B1F9B20003530F4 /* Debug */,

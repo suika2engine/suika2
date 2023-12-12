@@ -747,20 +747,17 @@ void update_window_title(void)
 {
     @autoreleasepool {
         // ウィンドウタイトルを取得する
-        NSString *windowTitle = [[NSString alloc]
-                                    initWithUTF8String:conf_window_title];
+        NSString *windowTitle = [[NSString alloc] initWithUTF8String:conf_window_title];
 
         // 章タイトルを取得する
-        NSString *chapterTitle = [[NSString alloc]
-                                     initWithUTF8String:get_chapter_name()];
+        NSString *chapterTitle = [[NSString alloc] initWithUTF8String:get_chapter_name()];
 
         // セパレータを取得する
         NSString *sep;
         if (conf_window_title_separator == NULL) {
             sep = @" ";
         } else {
-            sep = [[NSString alloc] initWithUTF8String:
-                                        conf_window_title_separator];
+            sep = [[NSString alloc] initWithUTF8String:conf_window_title_separator];
         }
 
         // タイトルを連結する
@@ -768,7 +765,7 @@ void update_window_title(void)
         s = [s stringByAppendingString:chapterTitle];
 
         // ウィンドウのタイトルを設定する
-        //[theView.window setTitle:s];
+        [theViewController setTitle:s];
     }
 }
 

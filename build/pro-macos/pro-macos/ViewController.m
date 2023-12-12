@@ -36,6 +36,7 @@ static void setStoppedState(void);
 @property (strong) IBOutlet GameView *renderView;
 
 // IBOutlet
+@property (weak) IBOutlet NSView *editorPanel;
 @property (weak) IBOutlet NSButton *buttonContinue;
 @property (weak) IBOutlet NSButton *buttonNext;
 @property (weak) IBOutlet NSButton *buttonStop;
@@ -164,6 +165,7 @@ static void setStoppedState(void);
 // フルスクリーンになる前に呼び出される
 - (NSSize)window:(NSWindow *)window willUseFullScreenContentSize:(NSSize)proposedSize {
     // 表示位置を更新する
+    proposedSize.width -= _editorPanel.frame.size.width;
     [self updateViewport:proposedSize];
     
     // 動画プレーヤレイヤのサイズを更新する
@@ -230,6 +232,14 @@ static void setStoppedState(void);
     // マージンを計算する
     _screenOffset.x = (newViewSize.width - _screenSize.width) / 2.0f;
     _screenOffset.y = (newViewSize.height - _screenSize.height) / 2.0f;
+}
+
+- (void)mouseMoved:(NSEvent *)event {
+    NSPoint point = [event locationInWindow];
+    point = [self windowPointToViewPoint:point];
+    int x = (int)((point.x - self.screenOffset.x) / _screenScale);
+    int y = (int)((point.y - self.screenOffset.y) / _screenScale);
+    on_event_mouse_move(x, conf_window_height - y);
 }
 
 // キーボード修飾変化イベント
@@ -317,6 +327,14 @@ static void setStoppedState(void);
 
 - (NSSize)screenSize {
     return _screenSize;
+}
+
+- (NSPoint)windowPointToViewPoint:(NSPoint)windowPoint {
+    NSRect windowRect = [self.view.window frameRectForContentRect:self.view.window.contentView.frame];
+    int marginY = windowRect.size.height - self.view.window.contentView.frame.size.height;
+    windowPoint.x = windowPoint.x * self.renderView.layer.contentsScale;
+    windowPoint.y = (windowPoint.y + marginY) * self.renderView.layer.contentsScale;
+    return windowPoint;
 }
 
 - (BOOL)isFullScreen {

@@ -2,10 +2,14 @@
 
 @protocol GameViewControllerProtocol <NSObject>
 
+// Set title.
+- (void)setTitle:(NSString *)name;
+
 // Screen scaling
 - (float)screenScale;
 - (NSPoint)screenOffset;
 - (NSSize)screenSize;
+- (NSPoint)windowPointToViewPoint:(NSPoint)windowPoint;
 
 // Full screen implementation
 - (BOOL)isFullScreen;

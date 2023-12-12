@@ -109,12 +109,16 @@ static ViewController *theViewController;
     [self.view.window setAcceptsMouseMovedEvents:YES];
     [self.view.window.delegate self];
     [self.view.window makeFirstResponder:self];
-    
+
     // Set the app name in the main menu.
-    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
-    [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
+    [self setAppName];
 
     [self updateViewport:_view.frame.size];
+}
+
+- (void)setAppName {
+    NSMenu *menu = [[[NSApp mainMenu] itemAtIndex:0] submenu];
+    [menu setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
 }
 
 - (void)timerFired:(NSTimer *)timer {
@@ -180,6 +184,8 @@ static ViewController *theViewController;
     
     // ウィンドウサイズを保存する
     _savedViewFrame = self.view.frame;
+
+    [self setAppName];
 }
 
 // フルスクリーンから戻るときに呼び出される
@@ -191,6 +197,14 @@ static ViewController *theViewController;
         [_avPlayerLayer setFrame:NSMakeRect(0, 0, _savedViewFrame.size.width, _savedViewFrame.size.height)];
     
     [self updateViewport:_savedViewFrame.size];
+}
+
+- (void)windowDidEnterFullScreen:(NSNotification *)notification {
+    [self setAppName];
+}
+
+- (void)windowDidLeaveFullScreen:(NSNotification *)notification {
+    [self setAppName];
 }
 
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
@@ -257,6 +271,13 @@ static ViewController *theViewController;
     _screenOffset.y = (newViewSize.height - _screenSize.height) / 2.0f;
 }
 
+- (void)mouseMoved:(NSEvent *)event {
+    NSPoint point = [event locationInWindow];
+    int x = (int)((point.x - self.screenOffset.x) * _screenScale);
+    int y = (int)((point.y - self.screenOffset.y) * _screenScale);
+    on_event_mouse_move(x, conf_window_height - y);
+}
+
 // キーボード修飾変化イベント
 - (void)flagsChanged:(NSEvent *)theEvent {
     // Controlキーの状態を取得する
@@ -311,6 +332,10 @@ static ViewController *theViewController;
 // GameViewControllerProtocol
 //
 
+- (void)setTitle:(NSString *)name {
+    [self.view.window setTitle:name];
+}
+
 - (float)screenScale {
     return _screenScale;
 }
@@ -328,13 +353,17 @@ static ViewController *theViewController;
 }
 
 - (void)enterFullScreen {
-    if (!_isFullScreen)
+    if (!_isFullScreen) {
         [self.view.window toggleFullScreen:self.view];
+        [self setAppName];
+    }
 }
 
 - (void)leaveFullScreen {
-    if (!_isFullScreen)
+    if (!_isFullScreen) {
         [self.view.window toggleFullScreen:self.view];
+        [self setAppName];
+    }
 }
 
 - (BOOL)isVideoPlaying {
