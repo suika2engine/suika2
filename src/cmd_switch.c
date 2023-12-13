@@ -396,7 +396,7 @@ bool init(void)
 			destroy_image(parent_button[i].img_hover);
 		parent_button[i].img_idle = NULL;
 		parent_button[i].img_hover = NULL;
-		for (j = 0; j < CHILD_COUNT; j++) {
+		for (int j = 0; j < CHILD_COUNT; j++) {
 			if (child_button[i][j].img_idle != NULL)
 				destroy_image(parent_button[i].img_idle);
 			if (child_button[i][j].img_hover != NULL)
