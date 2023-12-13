@@ -898,7 +898,7 @@ static void setStoppedState(void);
         return;
     }
 
-    NSArray *appArray = @[@"libroot", @"src", @"suika", @"suika.xcodeproj"];
+    NSArray *appArray = @[@"libroot", @"src", @"engine-ios", @"engine-ios.xcodeproj"];
     for (NSString *sub in appArray) {
         if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/ios-src/%@", [[NSBundle  mainBundle] bundlePath], sub]
                                   toPath:[NSString stringWithFormat:@"%@/export-ios/%@", [fileManager currentDirectoryPath], sub]
@@ -909,7 +909,7 @@ static void setStoppedState(void);
     }
 
     if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/data01.arc", [fileManager currentDirectoryPath]]
-                              toPath:[NSString stringWithFormat:@"%@/suika/data01.arc", exportPath]
+                              toPath:[NSString stringWithFormat:@"%@/engine-ios/data01.arc", exportPath]
                                error:nil]) {
         log_warn("Copy error (2).");
         return;

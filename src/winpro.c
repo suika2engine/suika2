@@ -4282,10 +4282,10 @@ VOID OnExportIOS(void)
 	}
 
 	/* movをコピーする */
-	CopyMovFiles(L".\\mov", L".\\ios-export\\suika\\mov");
+	CopyMovFiles(L".\\mov", L".\\ios-export\\engine-ios\\mov");
 
 	/* パッケージを移動する */
-	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\suika\\data01.arc"))
+	if (!MovePackageFile(L".\\data01.arc", L".\\ios-export\\engine-ios\\data01.arc"))
 	{
 		log_info(bEnglish ?
 				 "Failed to move data01.arc" :
