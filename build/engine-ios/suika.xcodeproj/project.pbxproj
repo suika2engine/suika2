@@ -499,7 +499,7 @@
 					./libroot/include,
 					./libroot/include/freetype2,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				"LD_MAP_FILE_PATH[arch=*]" = "$(TARGET_TEMP_DIR)/$(PRODUCT_NAME)-LinkMap-$(CURRENT_VARIANT)-$(CURRENT_ARCH).txt";
 				LIBRARY_SEARCH_PATHS = ./libroot/lib;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -567,7 +567,7 @@
 					./libroot/include,
 					./libroot/include/freetype2,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LIBRARY_SEARCH_PATHS = ./libroot/lib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -597,7 +597,7 @@
 				INFOPLIST_FILE = suika/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Suika;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.adventure-games";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -633,7 +633,7 @@
 				INFOPLIST_FILE = suika/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Suika;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.adventure-games";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

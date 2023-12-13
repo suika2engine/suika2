@@ -76,7 +76,7 @@ LDFLAGS = \
 include ../common.mk
 
 SRCS = \
-	$(SRCS_COMMON) \
+	$(SRCS_MAIN) \
 	../../src/consolemain.c \
 	../../src/glrender.c
 

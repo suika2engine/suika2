@@ -10,6 +10,4 @@ jobs:
       - name: Build
         run: |
           cd build/engine-macos
-          wget https://suika2.com/dl/libroot-mac.tar.gz
-          tar xzf libroot-mac.tar.gz
-          xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive build
+	  make build-only

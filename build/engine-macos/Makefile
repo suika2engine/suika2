@@ -25,11 +25,11 @@ suika-mac.zip: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(HDRS_APPLE) $(SRCS_APPLE) $(F
 	@rm -f suika-mac.zip
 	@cd build/Release && zip -r ../../suika-mac.zip Suika.app && cd ../..
 
+build-only: libroot
+	@xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive build
+
 libroot:
 	./build-libs.sh
-
-build-only:
-	@xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive build
 
 clean:
 	@rm -rf build suika-mac.zip libroot-mac.tar.gz libroot

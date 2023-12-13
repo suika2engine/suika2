@@ -61,7 +61,7 @@ LDFLAGS = \
 #
 
 SRCS = \
-	$(SRCS_COMMON) \
+	$(SRCS_MAIN) \
 	../../src/asound.c \
 	../../src/glrender.c \
 	../../src/gstplay.c \
