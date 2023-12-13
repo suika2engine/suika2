@@ -50,7 +50,6 @@ static dispatch_semaphore_t in_flight_semaphore;
 // Forward declarations
 //
 static BOOL runSuika2Frame(void);
-static FILE *openLog(void);
 static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
                            int width, int height, int src_left, int src_top, int alpha,
                            struct image *rule_image, id<MTLRenderPipelineState> pipeline);
@@ -258,149 +257,6 @@ static BOOL runSuika2Frame(void)
 }
 
 //
-// INFOログを出力する
-//
-bool log_info(const char *s, ...)
-{
-    char buf[1024];
-    va_list ap;
-    
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
-
-    // ログファイルに出力する
-    FILE *fp = openLog();
-    if (fp != NULL) {
-        fprintf(stderr, "%s", buf);
-        fprintf(fp, "%s", buf);
-        fflush(fp);
-    }
-
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_INFO)]];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
-
-    return true;
-}
-
-//
-// WARNログを出力する
-//
-bool log_warn(const char *s, ...)
-{
-    char buf[1024];
-    va_list ap;
-
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
-
-    // ログファイルに出力する
-    FILE *fp = openLog();
-    if (fp != NULL) {
-        fprintf(stderr, "%s", buf);
-        fprintf(fp, "%s", buf);
-        fflush(fp);
-    }
-
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_WARN)]];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
-
-    return true;
-}
-
-//
-// Errorログを出力する
-//
-bool log_error(const char *s, ...)
-{
-    char buf[1024];
-    va_list ap;
-
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
-
-    // ログファイルに出力する
-    FILE *fp = openLog();
-    if (fp != NULL) {
-        fprintf(stderr, "%s", buf);
-        fprintf(fp, "%s", buf);
-        fflush(fp);
-    }
-
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_ERROR)]];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
-
-    return true;
-}
-
-// ログをオープンする
-static FILE *openLog(void)
-{
-    static FILE *fp = NULL;
-    const char *cpath;
-
-    // すでにオープン済みの場合、成功とする
-    if (fp != NULL)
-        return fp;
-
-    // リリースモードの場合
-    if (conf_release && conf_window_title != NULL) {
-        // "Aplication Support"の下にウィンドウタイトルのフォルダを作成して、その下にログファイルを作成する
-        NSString *path = NSHomeDirectory();
-        path = [path stringByAppendingString:@"/Library/Application Support/"];
-        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:conf_window_title]];
-        [[NSFileManager defaultManager] createDirectoryAtPath:path
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                                                        error:NULL];
-        path = [path stringByAppendingString:@"/"];
-        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:LOG_FILE]];
-        cpath = [path UTF8String];
-        fp = fopen(cpath, "w");
-        if (fp == NULL) {
-            NSAlert *alert = [[NSAlert alloc] init];
-            [alert setMessageText:@"Error"];
-            [alert setInformativeText:@"Cannot open log file."];
-            [alert runModal];
-        }
-        return fp;
-    }
-
-    // .appバンドルのあるディレクトリにログファイルを作成する
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
-    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
-    cpath = [[NSString stringWithFormat:@"%@/%s", basePath, LOG_FILE] UTF8String];
-    fp = fopen(cpath, "w");
-    if (fp == NULL) {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Error"];
-        [alert setInformativeText:@"Cannot open log file."];
-        [alert runModal];
-    }
-    return fp;
-}
-
-//
 // テクスチャの更新を通知する
 //
 void notify_image_update(struct image *img)
@@ -437,7 +293,6 @@ void notify_image_update(struct image *img)
         theBlitEncoder.label = @"Texture Encoder";
     }
     [texture replaceRegion:region mipmapLevel:0 withBytes:img->pixels bytesPerRow:img->width * 4];
-    [theBlitEncoder synchronizeResource:texture];
 }
 
 //
@@ -621,16 +476,7 @@ uint64_t get_lap_timer_millisec(uint64_t *origin)
 //
 bool exit_dialog(void)
 {
-    @autoreleasepool {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
-        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_EXIT)]];
-        [alert setAlertStyle:NSAlertStyleWarning];
-        if ([alert runModal] == NSAlertFirstButtonReturn)
-            return true;
-        return false;
-    }
+    return true;
 }
 
 //
@@ -638,16 +484,7 @@ bool exit_dialog(void)
 //
 bool title_dialog(void)
 {
-    @autoreleasepool {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
-        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_TITLE)]];
-        [alert setAlertStyle:NSAlertStyleWarning];
-        if ([alert runModal] == NSAlertFirstButtonReturn)
-            return true;
-        return false;
-    }
+    return true;
 }
 
 //
@@ -655,16 +492,7 @@ bool title_dialog(void)
 //
 bool delete_dialog(void)
 {
-    @autoreleasepool {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
-        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_DELETE)]];
-        [alert setAlertStyle:NSAlertStyleWarning];
-        if ([alert runModal] == NSAlertFirstButtonReturn)
-            return true;
-        return false;
-    }
+    return true;
 }
 
 //
@@ -672,16 +500,7 @@ bool delete_dialog(void)
 //
 bool overwrite_dialog(void)
 {
-    @autoreleasepool {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
-        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_OVERWRITE)]];
-        [alert setAlertStyle:NSAlertStyleWarning];
-        if ([alert runModal] == NSAlertFirstButtonReturn)
-            return true;
-        return false;
-    }
+    return true;
 }
 
 //
@@ -689,16 +508,7 @@ bool overwrite_dialog(void)
 //
 bool default_dialog(void)
 {
-    @autoreleasepool {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_YES)]];
-        [alert addButtonWithTitle:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_NO)]];
-        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_DEFAULT)]];
-        [alert setAlertStyle:NSAlertStyleWarning];
-        if ([alert runModal] == NSAlertFirstButtonReturn)
-            return true;
-        return false;
-    }
+    return true;
 }
 
 //
@@ -740,28 +550,6 @@ bool is_video_playing(void)
 //
 void update_window_title(void)
 {
-    @autoreleasepool {
-        // ウィンドウタイトルを取得する
-        NSString *windowTitle = [[NSString alloc] initWithUTF8String:conf_window_title];
-
-        // 章タイトルを取得する
-        NSString *chapterTitle = [[NSString alloc] initWithUTF8String:get_chapter_name()];
-
-        // セパレータを取得する
-        NSString *sep;
-        if (conf_window_title_separator == NULL) {
-            sep = @" ";
-        } else {
-            sep = [[NSString alloc] initWithUTF8String:conf_window_title_separator];
-        }
-
-        // タイトルを連結する
-        NSString *s = [windowTitle stringByAppendingString:sep];
-        s = [s stringByAppendingString:chapterTitle];
-
-        // ウィンドウのタイトルを設定する
-        [theViewController setTitle:s];
-    }
 }
 
 //
@@ -777,7 +565,7 @@ bool is_full_screen_supported(void)
 //
 bool is_full_screen_mode(void)
 {
-    return [theViewController isFullScreen] ? true : false;
+    return false;
 }
 
 //
@@ -785,7 +573,6 @@ bool is_full_screen_mode(void)
 //
 void enter_full_screen_mode(void)
 {
-//    [theView enterFullScreen];
 }
 
 ///
@@ -793,7 +580,6 @@ void enter_full_screen_mode(void)
 //
 void leave_full_screen_mode(void)
 {
-//    [theView leaveFullScreen];
 }
 
 //

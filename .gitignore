@@ -72,8 +72,10 @@ build/engine-wasm/data01.arc
 
 # iOS
 build/engine-ios/libroot
-build/engine-ios/suika.xcodeproj/project.xcworkspace
-build/engine-ios/suika.xcodeproj/xcuserdata
+build/engine-ios/engine-ios.xcodeproj/project.xcworkspace
+build/engine-ios/engine-ios.xcodeproj/xcshareddata
+build/engine-ios/engine-ios.xcodeproj/cuserdata
+build/engine-ios/engine-ios.xcodeproj/xcuserdata
 build/engine-ios/ios-src
 build/engine-ios/libroot-ios.tar.gz
 

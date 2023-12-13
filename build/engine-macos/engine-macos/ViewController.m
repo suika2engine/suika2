@@ -504,3 +504,147 @@ char *make_valid_path(const char *dir, const char *fname)
         return ret;
     }
 }
+
+//
+// INFOログを出力する
+//
+bool log_info(const char *s, ...)
+{
+    char buf[1024];
+    va_list ap;
+    
+    va_start(ap, s);
+    vsnprintf(buf, sizeof(buf), s, ap);
+    va_end(ap);
+
+    // ログファイルに出力する
+    FILE *fp = openLog();
+    if (fp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(fp, "%s", buf);
+        fflush(fp);
+    }
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_INFO)]];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
+
+    return true;
+}
+
+//
+// WARNログを出力する
+//
+bool log_warn(const char *s, ...)
+{
+    char buf[1024];
+    va_list ap;
+
+    va_start(ap, s);
+    vsnprintf(buf, sizeof(buf), s, ap);
+    va_end(ap);
+
+    // ログファイルに出力する
+    FILE *fp = openLog();
+    if (fp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(fp, "%s", buf);
+        fflush(fp);
+    }
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_WARN)]];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
+
+    return true;
+}
+
+//
+// Errorログを出力する
+//
+bool log_error(const char *s, ...)
+{
+    char buf[1024];
+    va_list ap;
+
+    va_start(ap, s);
+    vsnprintf(buf, sizeof(buf), s, ap);
+    va_end(ap);
+
+    // ログファイルに出力する
+    FILE *fp = openLog();
+    if (fp != NULL) {
+        fprintf(stderr, "%s", buf);
+        fprintf(fp, "%s", buf);
+        fflush(fp);
+    }
+
+    // アラートを表示する
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_ERROR)]];
+    NSString *text = [[NSString alloc] initWithUTF8String:buf];
+    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+        text = @"(invalid utf-8 string)";
+    [alert setInformativeText:text];
+    [alert runModal];
+
+    return true;
+}
+
+// ログをオープンする
+static FILE *openLog(void)
+{
+    static FILE *fp = NULL;
+    const char *cpath;
+
+    // すでにオープン済みの場合、成功とする
+    if (fp != NULL)
+        return fp;
+
+    // リリースモードの場合
+    if (conf_release && conf_window_title != NULL) {
+        // "Aplication Support"の下にウィンドウタイトルのフォルダを作成して、その下にログファイルを作成する
+        NSString *path = NSHomeDirectory();
+        path = [path stringByAppendingString:@"/Library/Application Support/"];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:conf_window_title]];
+        [[NSFileManager defaultManager] createDirectoryAtPath:path
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:NULL];
+        path = [path stringByAppendingString:@"/"];
+        path = [path stringByAppendingString:[[NSString alloc] initWithUTF8String:LOG_FILE]];
+        cpath = [path UTF8String];
+        fp = fopen(cpath, "w");
+        if (fp == NULL) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setMessageText:@"Error"];
+            [alert setInformativeText:@"Cannot open log file."];
+            [alert runModal];
+        }
+        return fp;
+    }
+
+    // .appバンドルのあるディレクトリにログファイルを作成する
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
+    cpath = [[NSString stringWithFormat:@"%@/%s", basePath, LOG_FILE] UTF8String];
+    fp = fopen(cpath, "w");
+    if (fp == NULL) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"Error"];
+        [alert setInformativeText:@"Cannot open log file."];
+        [alert runModal];
+    }
+    return fp;
+}
+

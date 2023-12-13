@@ -297,13 +297,20 @@ static bool need_custom_gosub;
 static const char *custom_gosub_label;
 
 /*
+ * dimming
+ */
+
+static bool need_dimming;
+
+/*
  * 前方参照
  */
 
 /* 主な処理 */
-static bool preprocess(void);
-static void main_process(void);
-static bool postprocess(void);
+static bool pre_process(void);
+static bool blit_process(void);
+static void render_process(void);
+static void post_process(void);
 
 /* 初期化 */
 static bool init(void);
@@ -323,10 +330,9 @@ static bool init_serif(void);
 static bool check_play_voice(void);
 static bool play_voice(void);
 static void set_character_volume_by_name(const char *name);
-static void draw_namebox(void);
+static void blit_namebox(void);
 static void focus_character(void);
 static void init_click(void);
-static void init_first_draw_area(void);
 static void init_pointed_index(void);
 static int get_pointed_button(void);
 static void adjust_pointed_index(void);
@@ -360,26 +366,31 @@ static void adjust_sysmenu_pointed_index(void);
 static int get_pointed_sysmenu_item_extended(void);
 static bool is_collapsed_sysmenu_pointed_extended(void);
 
-/* メイン描画処理 */
-static void draw_frame(void);
+/* blit描画処理 */
+static void blit_frame(void);
 static bool is_end_of_msg(void);
-static void draw_msgbox(void);
+static void blit_msgbox(void);
 static void inline_wait_hook(float wait_time);
 static int get_frame_chars(void);
 static bool is_canceled_by_skip(void);
 static bool is_fast_forward_by_click(void);
 static int calc_frame_chars_by_lap(void);
-static void draw_click(void);
+static void set_click(void);
 static bool check_stop_click_animation(void);
-static void draw_sysmenu(void);
-static void draw_collapsed_sysmenu(void);
-static void draw_dimming(void);
+
+/* sysmenu */
+static void render_sysmenu_extended(void);
+static void render_collapsed_sysmenu_extended(void);
+
+/* dimming */
+static void blit_dimming(void);
 
 /* その他 */
 static void play_se(const char *file);
 static bool is_skippable(void);
 
 /* 終了処理 */
+static void stop(void);
 static bool cleanup(void);
 
 /*
@@ -392,31 +403,12 @@ bool message_command(bool *cont)
 		if (!init())
 			return false;
 
-	/*
-	 * フレームの前処理を行う
-	 *  - オートモード時の時間経過に伴う処理
-	 *  - メッセージボックス内のボタンへの入力の処理
-	 *  - システムメニューへの入力の処理
-	 */
-	if (!preprocess())
+	if (!pre_process())
 		return false;
-
-	/*
-	 * アップデートを行う
-	 *  - メッセージボックスレイヤに対する文字描画 (時間経過に伴う)
-	 *  - 文字描画完了後のクリックアニメーションの制御
-	 *  - 次のコマンドに進むためのクリックの処理
-	 */
-	main_process();
-
-	/*
-	 * フレームの後処理を行う
-	 *  - ステージの描画を行う
-	 *  - システムGUIの開始を行う
-	 *  - 重ね塗り(dimming)の描画を行う
-	 */
-	if (!postprocess())
+	if (!blit_process())
 		return false;
+	render_process();
+	post_process();
 
 	/* 終了処理を行う */
 	if (!is_in_command_repetition())
@@ -433,8 +425,7 @@ bool message_command(bool *cont)
 	return true;
 }
 
-/* 前処理を行う */
-static bool preprocess(void)
+static bool pre_process(void)
 {
 	/* インラインウェイトのキャンセルを処理する */
 	if (is_inline_wait) {
@@ -483,70 +474,16 @@ static bool preprocess(void)
 	return true;
 }
 
-/* メッセージレイヤ描画と、クリック表示のアップデートを行う */
-static void main_process(void)
+static bool blit_process(void)
 {
-	/* クイックロードされた場合は描画しない */
-	if (did_quick_load) {
-		/* 繰り返しを停止する */
+	/* dimmingを行う場合 */
+	if (need_dimming) {
+		blit_dimming();
 		stop_command_repetition();
-
-		/* 文字の描画を行わない */
-		return;
-	}
-
-	/*
-	 * 文字の描画/クリックアニメーションの制御を行う
-	 *  - システムGUIに遷移する場合でもサムネイル描画のため処理する
-	 */
-	draw_frame();
-
-	/* システムGUIへ遷移する場合 */
-	if (need_save_mode || need_load_mode || need_history_mode ||
-	    need_config_mode || need_custom_gosub) {
-		/* 繰り返しを停止する */
-		stop_command_repetition();
-	}
-}
-
-/* 後処理を行う */
-static bool postprocess(void)
-{
-	/*
-	 * クイックロードされた場合は描画を行わない
-	 *  - 同じフレームで、ロード後のコマンドが実行されるため
-	 */
-	if (did_quick_load)
 		return true;
-
-	/* ロードされた場合のフラグをクリアする */
-	if (load_flag)
-		load_flag = false;
-
-	/*
-	 * ステージを描画する
-	 */
-	render_stage();
-
-	/* システムメニューを描画する */
-	if (!conf_sysmenu_hidden && !is_hidden) {
-		if (is_sysmenu)
-			draw_sysmenu();
-		else if (conf_sysmenu_transition)
-			draw_collapsed_sysmenu();
-		else if (!is_auto_mode() && !is_skip_mode())
-			draw_collapsed_sysmenu();
 	}
 
-	/* システムメニューを表示開始したフレームのフラグをクリアする */
-	if (is_sysmenu_finished)
-		is_sysmenu_finished = false;
-
-	/*
-	 * 必要な場合はステージのサムネイルを作成する
-	 *  - クイックセーブされるとき
-	 *  - システムGUIに遷移するとき
-	 */
+	/* 必要な場合はステージのサムネイルを作成する (クイックセーブ/システムGUI遷移) */
 	if (will_quick_save
 	    ||
 	    (need_save_mode || need_load_mode || need_history_mode ||
@@ -554,10 +491,7 @@ static bool postprocess(void)
 		draw_stage_to_thumb();
 
 	/* システムメニューで押されたボタンの処理を行う */
-	if (will_quick_save) {
-		quick_save();
-		will_quick_save = false;
-	} else if (need_save_mode) {
+	if (need_save_mode) {
 		if (!prepare_gui_mode(SAVE_GUI_FILE, true))
 			return false;
 		set_gui_options(true, false, false);
@@ -583,17 +517,52 @@ static bool postprocess(void)
 		return true;
 	}
 
-	/*
-	 * 重ね塗り(dimming)をする場合
-	 *  - コマンドを終了するときに描画する
-	 *  - ステージ描画後にメッセージレイヤを更新している
-	 *  - つまり現在のフレームの見た目には影響しない
-	 *  - 次のメッセージ/セリフの表示開始時に初めて見える
-	 */
-	if (conf_msgbox_dim && !is_in_command_repetition())
-		draw_dimming();
+	/* 文字の描画/クリックアニメーションの制御を行う */
+	blit_frame();
 
 	return true;
+}
+
+static void render_process(void)
+{
+	/* クイックロードされた場合はレンダリングを行わない(同じフレームでロード後のコマンドが実行されるため) */
+	if (did_quick_load)
+		return;
+
+	/* ステージを描画する */
+	render_stage();
+
+	/* システムメニューを描画する */
+	if (!conf_sysmenu_hidden && !is_hidden) {
+		if (is_sysmenu)
+			render_sysmenu_extended();
+		else if (conf_sysmenu_transition)
+			render_collapsed_sysmenu_extended();
+		else if (!is_auto_mode() && !is_skip_mode())
+			render_collapsed_sysmenu_extended();
+	}
+
+	/* システムメニューを表示開始したフレームのフラグをクリアする */
+	if (is_sysmenu_finished)
+		is_sysmenu_finished = false;
+}
+
+static void post_process(void)
+{
+	/* ロードされた場合のフラグをクリアする */
+	if (load_flag)
+		load_flag = false;
+
+	/* クイックセーブを行う */
+	if (will_quick_save) {
+		quick_save();
+		will_quick_save = false;
+	}
+
+	/* システムGUIへ遷移する場合 */
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode || need_config_mode || need_custom_gosub)
+		stop();
 }
 
 /*
@@ -642,9 +611,6 @@ static bool init(void)
 
 	/* クリックアニメーションを非表示の状態にする */
 	init_click();
-
-	/* 初回に描画する矩形を求める */
-	init_first_draw_area();
 
 	/* ボタンの選択状態を初期化する */
 	init_pointed_index();
@@ -709,6 +675,7 @@ static void init_flags_and_vars(void)
 	is_collapsed_sysmenu_pointed_prev = false;
 
 	/* 重ね塗り(dimming)でない状態にする */
+	need_dimming = false;
 	is_dimming = false;
 
 	/* インラインウェイトでない状態にする */
@@ -1237,7 +1204,7 @@ static bool init_serif(void)
 
 	/* 名前を描画する */
 	if (!conf_namebox_hidden)
-		draw_namebox();
+		blit_namebox();
 
 	/* 名前ボックスを表示する */
 	show_namebox(true);
@@ -1351,7 +1318,7 @@ static void set_character_volume_by_name(const char *name)
 }
 
 /* 名前ボックスを描画する */
-static void draw_namebox(void)
+static void blit_namebox(void)
 {
 	struct draw_msg_context context;
 	int font_size, pen_x, pen_y, char_count;
@@ -1472,24 +1439,6 @@ static void init_click(void)
 
 	/* クリックアニメーションの表示状態を保存する */
 	is_click_visible = false;
-}
-
-/* 初期化処理において、初回に更新する矩形を求める */
-static void init_first_draw_area(void)
-{
-	/*
-	 * ここで求めた更新矩形は、GPUを利用しないときに適用される
-	 *  - GPUを利用するときは、毎フレーム画面全体を更新する
-	 *  - See also render_stage() in stage.c
-	 */
-
-	/* deprecatedなメニュー系コマンドが終了した直後の場合 */
-	if (check_menu_finish_flag() || check_retrospect_finish_flag())
-		return;
-
-	/* GUIが終了した直後の場合 */
-	if (gui_cmd_flag || gui_sys_flag)
-		return;
 }
 
 /* 初期化処理においてポイントされているボタンを求め描画する */
@@ -1732,7 +1681,10 @@ static bool frame_auto_mode(void)
 
 		/* 時間が経過していれば、コマンドの終了処理に移る */
 		if (lap >= (uint64_t)get_wait_time()) {
-			stop_command_repetition();
+			if (conf_msgbox_dim)
+				need_dimming = true;
+
+			stop();
 
 			/* コマンドを終了する */
 			return true;
@@ -2403,7 +2355,7 @@ static int get_pointed_sysmenu_item_extended(void)
  */
 
 /* フレーム描画を行う */
-static void draw_frame(void)
+static void blit_frame(void)
 {
 	/* メッセージボックス非表示中は処理しない */
 	if (is_hidden)
@@ -2429,7 +2381,7 @@ static void draw_frame(void)
 		}
 		if (!is_inline_wait) {
 			/* 本文を描画する */
-			draw_msgbox();
+			blit_msgbox();
 		}
 	} else {
 		/*
@@ -2438,7 +2390,7 @@ static void draw_frame(void)
 		 *  - ただしシステムメニューが終了したフレームでは描画しない
 		 */
 		if (!is_sysmenu_finished)
-			draw_click();
+			set_click();
 	}
 }
 
@@ -2458,7 +2410,7 @@ static bool is_end_of_msg(void)
 }
 
 /* メッセージボックスの描画を行う */
-static void draw_msgbox(void)
+static void blit_msgbox(void)
 {
 	int char_count, ret;
 
@@ -2538,8 +2490,11 @@ static int get_frame_chars(void)
 
 	/* スキップ処理する場合 */
 	if (is_canceled_by_skip()) {
+		if (conf_msgbox_dim)
+			need_dimming = true;
+
 		/* 繰り返し動作を停止する */
-		stop_command_repetition();
+		stop();
 
 		/* 残りの文字をすべて描画する */
 		do_draw_all = true;
@@ -2666,8 +2621,8 @@ static int calc_frame_chars_by_lap(void)
 	return char_count;
 }
 
-/* クリックアニメーションを描画する */
-static void draw_click(void)
+/* クリックアニメーションを設定する */
+static void set_click(void)
 {
 	uint64_t lap;
 	int click_x, click_y, click_w, click_h;
@@ -2678,13 +2633,16 @@ static void draw_click(void)
 	/* 継続行で、改行のみの場合、クリック待ちを行わない */
 	if (is_continue_mode && total_chars == 0) {
 		if (is_in_command_repetition())
-			stop_command_repetition();
+			stop();
 		return;
 	}
 
 	/* 入力があったら繰り返しを終了する */
-	if (check_stop_click_animation())
-		stop_command_repetition();
+	if (check_stop_click_animation()) {
+		if (conf_msgbox_dim)
+			need_dimming = true;
+		stop();
+	}
 
 	/* クリックアニメーションの初回表示のとき */
 	if (is_click_first) {
@@ -2869,7 +2827,7 @@ static bool check_stop_click_animation(void)
 }
 
 /* システムメニューを描画する */
-static void draw_sysmenu(void)
+static void render_sysmenu_extended(void)
 {
 	int i;
 	bool sel[SYSMENU_COUNT];
@@ -2903,7 +2861,7 @@ static void draw_sysmenu(void)
 }
 
 /* 折りたたみシステムメニューを描画する */
-static void draw_collapsed_sysmenu(void)
+static void render_collapsed_sysmenu_extended(void)
 {
 	bool is_pointed;
 
@@ -2950,7 +2908,7 @@ static bool is_collapsed_sysmenu_pointed_extended(void)
  * 重ね塗りを行う (dimming)
  *  - 全画面スタイルで、すでに読んだ部分を暗くするための文字描画
  */
-static void draw_dimming(void)
+static void blit_dimming(void)
 {
 	struct draw_msg_context context;
 
@@ -3063,6 +3021,14 @@ static void speak(void)
 /*
  * 終了処理
  */
+
+static void stop(void)
+{
+	if (conf_msgbox_dim)
+		need_dimming = true;
+	else
+		stop_command_repetition();
+}
 
 /* 終了処理を行う */
 static bool cleanup(void)

@@ -2,25 +2,27 @@
 
 @protocol GameViewControllerProtocol <NSObject>
 
+// Screen scaling
+- (float)screenScale;
+- (CGPoint)screenOffset;
+- (CGSize)screenSize;
+
+// Video playback implementation
+- (BOOL)isVideoPlaying;
+- (void)playVideoWithPath:(NSString *)path skippable:(BOOL)isSkippable;
+- (void)stopVideo;
+
+#ifdef SUIKA_TARGET_MACOS
 // Set title.
 - (void)setTitle:(NSString *)name;
 
 // Point conversion.
 - (NSPoint)windowPointToScreenPoint:(NSPoint)windowPoint;
 
-// Screen scaling
-- (float)screenScale;
-- (NSPoint)screenOffset;
-- (NSSize)screenSize;
-
 // Full screen implementation
 - (BOOL)isFullScreen;
 - (void)enterFullScreen;
 - (void)leaveFullScreen;
-
-// Video playback implementation
-- (BOOL)isVideoPlaying;
-- (void)playVideoWithPath:(NSString *)path skippable:(BOOL)isSkippable;
-- (void)stopVideo;
+#endif
 
 @end

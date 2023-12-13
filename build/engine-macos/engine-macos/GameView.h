@@ -1,4 +1,4 @@
-#import <MetalKit/MetalKit.h>
+@import MetalKit;
 
 @interface GameView : MTKView
 @end
