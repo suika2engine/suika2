@@ -137,7 +137,6 @@ Java_jp_luxion_suika_MainActivity_frame(
 {
 	jclass cls;
 	jmethodID mid;
-	int x, y, w, h;
 	jboolean ret;
 	bool draw;
 
@@ -160,7 +159,7 @@ Java_jp_luxion_suika_MainActivity_frame(
 		opengl_start_rendering();
 
 	/* フレームのコマンド実行を行う */
-	if (!on_event_frame(&x, &y, &w, &h))
+	if (!on_event_frame())
 		ret = JNI_FALSE;
 	else
 		ret = JNI_TRUE;
@@ -326,83 +325,61 @@ bool log_error(const char *s, ...)
 }
 
 /*
- * GPUを使うか調べる
+ * テクスチャを更新する
  */
-bool is_gpu_accelerated(void)
+void notify_image_update(struct image *img)
 {
-	return true;
-}
-
-/*
- * OpenGLが有効か調べる
- */
-bool is_opengl_enabled(void)
-{
-	return true;
-}
-
-/*
- * テクスチャをロックする
- */
-bool lock_texture(int width, int height, pixel_t *pixels,
-				  pixel_t **locked_pixels, void **texture)
-{
-	assert(*locked_pixels == NULL);
-
-	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
-				 texture))
-		return false;
-
-	return true;
-}
-
-/*
- * テクスチャをアンロックする
- */
-void unlock_texture(int width, int height, pixel_t *pixels,
-					pixel_t **locked_pixels, void **texture)
-{
-	assert(*locked_pixels != NULL);
-
-	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
+	opengl_notify_image_update(img);
 }
 
 /*
  * テクスチャを破棄する
  */
-void destroy_texture(void *texture)
+void notify_image_free(struct image *img)
 {
-	opengl_destroy_texture(texture);
+	opengl_notify_image_free(img);
 }
 
 /*
  * イメージをレンダリングする
  */
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
+void render_image_copy(int dst_left, int dst_top, struct image *src_image,
+		       int width, int height, int src_left, int src_top)
 {
-	opengl_render_image(dst_left, dst_top, src_image, width, height,
-			    src_left, src_top, alpha, bt);
+	opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_normal(int dst_left, int dst_top, struct image *src_image,
+			 int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_normal(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_add(int dst_left, int dst_top, struct image *src_image,
+		      int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_add(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
 }
 
 /*
  * イメージを暗くレンダリングする
  */
-void render_image_dim(int dst_left, int dst_top,
-		      struct image * RESTRICT src_image,
+void render_image_dim(int dst_left, int dst_top, struct image *src_image,
 		      int width, int height, int src_left, int src_top)
 {
-	opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-				src_left, src_top);
+	opengl_render_image_dim(dst_left, dst_top, src_image, width, height, src_left, src_top);
 }
 
 /*
  * イメージをルール付きでレンダリングする
  */
-void render_image_rule(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
-		       int threshold)
+void render_image_rule(struct image *src_img, struct image *rule_img, int threshold)
 {
 	opengl_render_image_rule(src_img, rule_img, threshold);
 }
@@ -410,9 +387,7 @@ void render_image_rule(struct image * RESTRICT src_img,
 /*
  * イメージをルール付き(メルト)でレンダリングする
  */
-void render_image_melt(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
-		       int threshold)
+void render_image_melt(struct image *src_img, struct image *rule_img, int threshold)
 {
 	opengl_render_image_melt(src_img, rule_img, threshold);
 }
