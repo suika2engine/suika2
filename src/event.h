@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2016-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -44,7 +44,6 @@ enum mouse_button {
 
 /*
  * イベントハンドラ
- *  - platform.hの実装から呼び出される
  */
 bool on_event_init(void);
 void on_event_cleanup(void);

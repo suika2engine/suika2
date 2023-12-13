@@ -276,7 +276,7 @@ Java_jp_luxion_suika_MainActivity_touchRightUp(
 }
 
 /*
- * platform.hの実装
+ * HAL
  */
 
 /*

@@ -343,7 +343,7 @@ static bool show_video_frame(void)
 }
 
 /*
- * Implementation of "platform.h" functions (HAL API)
+ * HAL
  */
 
 /*

@@ -1,13 +1,12 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * イベントハンドラ
- *  - platform.hの実装から呼び出される
+ * Event handlers that are called from a HAL
  *
  * [Changes]
  *  - 2016/05/27 作成

@@ -240,7 +240,7 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
 @end
 
 //
-// Suika2 HAL (an implementation of platform.h)
+// HAL
 //
 
 //

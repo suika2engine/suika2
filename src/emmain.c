@@ -392,7 +392,7 @@ void EMSCRIPTEN_KEEPALIVE setHidden(void)
 }
 
 /*
- * platform.hの実装
+ * HAL
  */
 
 /*

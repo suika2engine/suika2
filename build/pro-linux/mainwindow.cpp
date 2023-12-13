@@ -676,9 +676,9 @@ void MainWindow::on_actionExport_for_Web_triggered()
 
 }
 
-/*
- * A HAL (platform.h API) implementation for Qt.
- */
+//
+// Main HAL
+//
 
 extern "C" {
 
@@ -1150,9 +1150,14 @@ bool is_sound_finished(int stream)
     return true;
 }
 
-/*
- * A debugger HAL (platform.h API) implementation for Qt.
- */
+void speak_text(const char *text)
+{
+    UNUSED_PARAMETER(text);
+}
+
+//
+// Pro HAL
+//
 
 //
 // Check if the resume button was pressed.

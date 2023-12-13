@@ -226,7 +226,7 @@ VOID DSCleanup()
 }
 
 /*
- * platform.hの実装
+ * HAL
  */
 
 /*
