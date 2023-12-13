@@ -5,11 +5,13 @@
 // Set title.
 - (void)setTitle:(NSString *)name;
 
+// Point conversion.
+- (NSPoint)windowPointToScreenPoint:(NSPoint)windowPoint;
+
 // Screen scaling
 - (float)screenScale;
 - (NSPoint)screenOffset;
 - (NSSize)screenSize;
-- (NSPoint)windowPointToViewPoint:(NSPoint)windowPoint;
 
 // Full screen implementation
 - (BOOL)isFullScreen;

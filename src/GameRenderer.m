@@ -42,7 +42,7 @@ static id<MTLBlitCommandEncoder> theBlitEncoder;
 static id<MTLRenderCommandEncoder> theRenderEncoder;
 static struct image *theInitialUploadArray[128];
 static int theInitialUploadArrayCount;
-static struct image *thePurgeArray[128];
+static id<MTLTexture> thePurgeArray[128];
 static int thePurgeArrayCount;
 static dispatch_semaphore_t in_flight_semaphore;
 
@@ -210,7 +210,7 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     if(!runSuika2Frame())
         exit(0);
 
-    // End an encoding.
+    // End encodings.
     if (theBlitEncoder != nil)
         [theBlitEncoder endEncoding];
     if (theRenderEncoder != nil)
@@ -229,13 +229,7 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     for (int i = 0; i < thePurgeArrayCount; i++) {
         if (thePurgeArray[i] == NULL)
             continue;
-        if (thePurgeArray[i]->texture == nil)
-            continue;
-
-        id<MTLTexture> texture = (__bridge id<MTLTexture>)(thePurgeArray[i]->texture);
-        [texture setPurgeableState:MTLPurgeableStateEmpty];
-        CFBridgingRelease(thePurgeArray[i]->texture);
-        thePurgeArray[i]->texture = NULL;
+        [thePurgeArray[i] setPurgeableState:MTLPurgeableStateEmpty];
         thePurgeArray[i] = NULL;
     }
 }
@@ -459,7 +453,8 @@ void notify_image_free(struct image *img)
         }
     }
     
-    thePurgeArray[thePurgeArrayCount++] = img;
+    thePurgeArray[thePurgeArrayCount++] = (__bridge id<MTLTexture>)(img->texture);
+    CFBridgingRelease(img->texture);
 }
 
 //

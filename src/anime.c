@@ -335,7 +335,6 @@ void update_anime_frame(void)
 		/* レイヤの情報を更新する */
 		update_layer_params(i);
 	}
-
 }
 
 /*
@@ -403,8 +402,8 @@ static bool update_layer_params(int layer)
 		x = (int)(s->from_x + (s->to_x - s->from_x) * progress);
 		y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
 		alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
-		set_layer_position(i, x, y);
-		set_layer_alpha(i, alpha);
+		set_layer_position(layer, x, y);
+		set_layer_alpha(layer, alpha);
 		break;
 	}
 

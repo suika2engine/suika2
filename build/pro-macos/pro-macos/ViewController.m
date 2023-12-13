@@ -235,11 +235,8 @@ static void setStoppedState(void);
 }
 
 - (void)mouseMoved:(NSEvent *)event {
-    NSPoint point = [event locationInWindow];
-    point = [self windowPointToViewPoint:point];
-    int x = (int)((point.x - self.screenOffset.x) / _screenScale);
-    int y = (int)((point.y - self.screenOffset.y) / _screenScale);
-    on_event_mouse_move(x, conf_window_height - y);
+    NSPoint point = [self windowPointToScreenPoint:[event locationInWindow]];
+    on_event_mouse_move(point.x, point.y);
 }
 
 // キーボード修飾変化イベント
@@ -329,12 +326,13 @@ static void setStoppedState(void);
     return _screenSize;
 }
 
-- (NSPoint)windowPointToViewPoint:(NSPoint)windowPoint {
-    NSRect windowRect = [self.view.window frameRectForContentRect:self.view.window.contentView.frame];
-    int marginY = windowRect.size.height - self.view.window.contentView.frame.size.height;
-    windowPoint.x = windowPoint.x * self.renderView.layer.contentsScale;
-    windowPoint.y = (windowPoint.y + marginY) * self.renderView.layer.contentsScale;
-    return windowPoint;
+- (NSPoint)windowPointToScreenPoint:(NSPoint)windowPoint {
+    float retinaScale = _renderView.layer.contentsScale;
+
+    int x = (int)(windowPoint.x - (_screenOffset.x / retinaScale)) * _screenScale;
+    int y = (int)(windowPoint.y - (_screenOffset.y / retinaScale)) * _screenScale;
+
+    return NSMakePoint(x, conf_window_height - y);
 }
 
 - (BOOL)isFullScreen {

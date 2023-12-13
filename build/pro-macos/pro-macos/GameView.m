@@ -17,44 +17,28 @@
     return nil;
 }
 
-- (void)mouseDown:(NSEvent *)theEvent {
-    id<GameViewControllerProtocol> viewController = [self viewControllerFrom:theEvent];
-    NSPoint point = [viewController windowPointToViewPoint:[theEvent locationInWindow]];
-    float scale = [viewController screenScale];
-    NSPoint offset = [viewController screenOffset];
-    int x = (int)((point.x - offset.x) / scale);
-    int y = (int)((point.y - offset.y) / scale);
-    on_event_mouse_press(MOUSE_LEFT, x, conf_window_height - y);
+- (void)mouseDown:(NSEvent *)event {
+    id<GameViewControllerProtocol> viewController = [self viewControllerFrom:event];
+    NSPoint point = [viewController windowPointToScreenPoint:[event locationInWindow]];
+    on_event_mouse_press(MOUSE_LEFT, point.x, point.y);
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
     id<GameViewControllerProtocol> viewController = [self viewControllerFrom:theEvent];
-    NSPoint point = [viewController windowPointToViewPoint:[theEvent locationInWindow]];
-    float scale = [viewController screenScale];
-    NSPoint offset = [viewController screenOffset];
-    int x = (int)((point.x - offset.x) / scale);
-    int y = (int)((point.y - offset.y) / scale);
-    on_event_mouse_release(MOUSE_LEFT, x, conf_window_height - y);
+    NSPoint point = [viewController windowPointToScreenPoint:[theEvent locationInWindow]];
+    on_event_mouse_release(MOUSE_LEFT, point.x, point.y);
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
     id<GameViewControllerProtocol> viewController = [self viewControllerFrom:theEvent];
-    NSPoint point = [viewController windowPointToViewPoint:[theEvent locationInWindow]];
-    float scale = [viewController screenScale];
-    NSPoint offset = [viewController screenOffset];
-    int x = (int)((point.x - offset.x) / scale);
-    int y = (int)((point.y - offset.y) / scale);
-    on_event_mouse_press(MOUSE_RIGHT, x, conf_window_height - y);
+    NSPoint point = [viewController windowPointToScreenPoint:[theEvent locationInWindow]];
+    on_event_mouse_press(MOUSE_RIGHT, point.x, point.y);
 }
 
-- (void)rightMouseUp:(NSEvent *)theEvent {
-    id<GameViewControllerProtocol> viewController = [self viewControllerFrom:theEvent];
-    NSPoint point = [viewController windowPointToViewPoint:[theEvent locationInWindow]];
-    float scale = [viewController screenScale];
-    NSPoint offset = [viewController screenOffset];
-    int x = (int)((point.x - offset.x) / scale);
-    int y = (int)((point.y - offset.y) / scale);
-    on_event_mouse_release(MOUSE_RIGHT, x, conf_window_height - y);
+- (void)rightMouseUp:(NSEvent *)event {
+    id<GameViewControllerProtocol> viewController = [self viewControllerFrom:event];
+    NSPoint point = [viewController windowPointToScreenPoint:[event locationInWindow]];
+    on_event_mouse_release(MOUSE_RIGHT, point.x, point.y);
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
