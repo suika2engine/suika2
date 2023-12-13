@@ -11,7 +11,7 @@
  */
 
 extern "C" {
-#include "suika.h"
+#include "../suika.h"
 #include "d3drender.h"
 };
 
@@ -653,8 +653,8 @@ static BOOL UploadTextureIfNeeded(struct image *img)
 	if (pTex == NULL)
 	{
 		// Direct3Dテクスチャオブジェクトを作成する
-		hResult = pD3DDevice->CreateTexture(img->width,
-											img->height,
+		hResult = pD3DDevice->CreateTexture((UINT)img->width,
+											(UINT)img->height,
 											1, // mip map levels
 											0, // usage
 											D3DFMT_A8R8G8B8,
@@ -678,7 +678,7 @@ static BOOL UploadTextureIfNeeded(struct image *img)
 	}
 
 	// ピクセルデータをコピーする
-	memcpy(lockedRect.pBits, img->pixels, img->width * img->height * sizeof(pixel_t));
+	memcpy(lockedRect.pBits, img->pixels, (UINT)img->width * (UINT)img->height * sizeof(pixel_t));
 
 	// Direct3Dテクスチャオブジェクトの矩形をアンロックする
 	hResult = pTex->UnlockRect(0);

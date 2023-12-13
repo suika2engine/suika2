@@ -12,7 +12,7 @@
 
 extern "C" {
 
-#include "suika.h"
+#include "../suika.h"
 #include "dsvideo.h"
 
 };

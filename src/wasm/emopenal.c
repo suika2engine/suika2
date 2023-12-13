@@ -12,7 +12,7 @@
  *  2021-06-27 作成
  */
 
-#include "suika.h"
+#include "../suika.h"
 
 #include <AL/al.h>
 #include <AL/alc.h>

@@ -8,7 +8,7 @@
 #ifndef SUIKA_EMOPENAL_H
 #define SUIKA_EMOPENAL_H
 
-#include "types.h"
+#include "../suika.h"
 
 /* OpenALの初期化処理を行う */
 bool init_openal(void);

@@ -4,7 +4,7 @@
 #include <sapi.h>
 
 extern "C" {
-#include "suika.h"
+#include "../suika.h"
 #include "tts_sapi.h"
 };
 

@@ -18,7 +18,7 @@
  */
 
 /* Suika2 Base */
-#include "suika.h"
+#include "../suika.h"
 
 /* Suika2 HAL Implementaions */
 #include "d3drender.h"		/* Graphics HAL */

@@ -13,7 +13,7 @@
 #ifndef SUIKA_D3D_H
 #define SUIKA_D3D_H
 
-#include "suika.h"
+#include "../suika.h"
 
 #include <windows.h>
 

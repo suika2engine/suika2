@@ -26,7 +26,6 @@ CFLAGS = \
 	-O3 \
 	-municode \
 	-ffast-math \
-	-std=gnu11 \
 	-finput-charset=utf-8 \
 	-fexec-charset=utf-8 \
 	-Wall \
@@ -47,9 +46,8 @@ LDFLAGS = \
 	-lole32 \
 	-ldxguid \
 	-ldsound \
-	-lstrmiids \
-	-lwinmm \
 	-ld3d9 \
+	-lstrmiids \
 	-lsapi \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lvorbisfile,-lvorbis,-logg,-dy \
@@ -60,31 +58,40 @@ LDFLAGS = \
 #
 
 SRCS_C = \
-	$(SRCS_MAIN) \
-	../../src/winmain.c \
-	../../src/dsound.c
+	../../src/microsoft/winmain.c \
+	../../src/microsoft/dsound.c
 
 SRCS_CC = \
-	../../src/d3drender.cc \
-	../../src/dsvideo.cc \
-	../../src/tts_sapi.cc
+	../../src/microsoft/d3drender.cc \
+	../../src/microsoft/dsvideo.cc \
+	../../src/microsoft/tts_sapi.cc
 
 SRCS_R = resource.rc
+
+HDRS = \
+	../../src/microsoft/dsound.h \
+	../../src/microsoft/d3drender.h \
+	../../src/microsoft/dsvideo.h \
+	../../src/microsoft/tts_sapi.h
 
 #
 # .c.o compilation rules
 #
 
 OBJS = \
-	$(SRCS_C:../../src/%.c=%.o) \
-	$(SRCS_CC:../../src/%.cc=%.o) \
+	$(SRCS_MAIN:../../src/%.c=%.o) \
+	$(SRCS_C:../../src/microsoft/%.c=%.o) \
+	$(SRCS_CC:../../src/microsoft/%.cc=%.o) \
 	$(SRCS_R:%.rc=%.o)
+
+%.o: ../../src/microsoft/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+%.o: ../../src/microsoft/%.cc
+	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
-
-%.o: ../../src/%.cc
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
 %.o: %.rc
 	$(WINDRES) $< $@
@@ -95,7 +102,7 @@ OBJS = \
 
 all: suika-arm64.exe
 
-suika-arm64.exe: libroot $(OBJS) $(HDRS_MAIN)
+suika-arm64.exe: libroot $(OBJS) $(HDRS_MAIN) $(HDRS)
 	$(CC) -s -o suika-arm64.exe $(OBJS) $(LDFLAGS)
 
 libroot:

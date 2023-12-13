@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-#include "suika.h"
+#include "../suika.h"
 
 #define DIRECTSOUND_VERSION 0x0500 /* Windows 98 default */
 #include <dsound.h>

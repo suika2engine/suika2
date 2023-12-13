@@ -6,14 +6,11 @@
  */
 
 /*
- * Suika2 HAL for WASM (Emscripten)
+ * HAL for Wasm [Emscripten)
  *
  * [Changes]
  *  2021-06-26 Created.
  */
-
-/* デバッグ用にデフォルトのシェルを使うか */
-#undef DEFAULT_SHELL
 
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
@@ -22,9 +19,16 @@
 #include <sys/stat.h>	/* stat(), mkdir() */
 #include <sys/time.h>	/* gettimeofday() */
 
-#include "suika.h"
-#include "glrender.h"
-#include "emopenal.h"
+/*
+ * Suika2 Base
+ */
+#include "../suika.h"
+
+/*
+ * HAL
+ */
+#include "../khronos/glrender.h"	/* Graphics HAL */
+#include "emopenal.h"			/* Sound HAL */
 
 /*
  * タッチのY座標
@@ -64,15 +68,12 @@ int main(void)
 	if(!init_conf())
 		return 1;
 
-	if (conf_sav_name == NULL)
-		conf_sav_name = "/sav";
-
-	/* セーブデータを読み込む */
+	/* IDBFSのセーブデータをマウントする */
 	EM_ASM_({
-		FS.mkdir(UTF8ToString($0));
-		FS.mount(IDBFS, {}, UTF8ToString($0));
+		FS.mkdir("suika2-sav");
+		FS.mount(IDBFS, {}, "suika2-sav");
 		FS.syncfs(true, function (err) { ccall('main_continue', 'v'); });
-	}, conf_sav_name);
+	});
 
 	/* 読み込みは非同期で、main_continue()に継続される */
 	emscripten_exit_with_live_runtime();
@@ -553,28 +554,42 @@ bool make_sav_dir(void)
  */
 char *make_valid_path(const char *dir, const char *fname)
 {
-	char *buf;
+	char buf[1204];
+	char *ret;
 	size_t len;
 
-	if (dir == NULL)
-		dir = "";
-	if (strcmp(dir, SAVE_DIR) == 0)
-		dir = conf_sav_name;
+	/* If it is a save directory. */
+	if (dir != NULL && strcmp(dir, SAVE_DIR) == 0) {
+		if (conf_sav_name[0] == '/')
+			conf_sav_name[0] = '_';
 
-	/* パスのメモリを確保する */
-	len = strlen(dir) + 1 + strlen(fname) + 1;
-	buf = malloc(len);
-	if (buf == NULL) {
+		snprintf(buf, sizeof(buf), "suika2-sav/%s-%s", conf_sav_name, fname);
+		ret = strdup(buf);
+		if (ret == NULL) {
+			log_memory();
+			return NULL;
+		}
+		return ret;
+	}
+
+	/* If it is a top level file. */
+	if (dir == NULL) {
+		ret = strdup(fname);
+		if (ret == NULL) {
+			log_memory();
+			return NULL;
+		}
+		return ret;
+	}
+
+	/* If it is a file in the mov directory. */
+	snprintf(buf, sizeof(buf), "%s/%s", dir, fname);
+	ret = strdup(buf);
+	if (ret == NULL) {
 		log_memory();
 		return NULL;
 	}
-
-	strcpy(buf, dir);
-	if (strlen(dir) != 0)
-		strcat(buf, "/");
-	strcat(buf, fname);
-
-	return buf;
+	return ret;
 }
 
 /*

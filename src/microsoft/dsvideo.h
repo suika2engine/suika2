@@ -13,7 +13,7 @@
 #ifndef SUIKA_DSVIDEO_H
 #define SUIKA_DSVIDEO_H
 
-#include "suika.h"
+#include "../suika.h"
 
 #include <windows.h>
 

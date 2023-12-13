@@ -33,6 +33,12 @@ done
 
 # Copy the Suika2 source files.
 COPY_LIST="\
+	google/ndkfile.c \
+	google/ndkmain.c \
+	google/ndkmain.h \
+	google/ndkwave.c \
+	khronos/glrender.c \
+	khronos/glrender.h \
 	suika.h \
 	anime.c \
 	anime.h \
@@ -69,12 +75,11 @@ COPY_LIST="\
 	event.c \
 	event.h \
 	file.h \
-	glrender.c \
-	glrender.h \
 	glyph.c \
 	glyph.h \
 	gui.c \
 	gui.h \
+	hal.h \
 	history.c \
 	history.h \
 	image.c \
@@ -85,11 +90,6 @@ COPY_LIST="\
 	main.h \
 	mixer.c \
 	mixer.h \
-	ndkfile.c \
-	ndkmain.c \
-	ndkmain.h \
-	ndkwave.c \
-	hal.h \
 	readimage.c \
 	readpng.c \
 	readjpeg.c \
@@ -117,7 +117,7 @@ COPY_LIST="\
 	wms_parser.tab.h \
 "
 for f in $COPY_LIST; do
-    cp "../../src/$f" "$TARGET/app/src/main/cpp/$f";
+    cp "../../src/$f" "$TARGET/app/src/main/cpp/`basename $f`";
 done
 
 # Extract freetype2 source into the android project tree.
