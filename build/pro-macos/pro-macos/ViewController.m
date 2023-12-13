@@ -105,7 +105,7 @@ static void setStoppedState(void);
     // Create an MTKView.
     self.renderView.enableSetNeedsDisplay = YES;
     self.renderView.device = MTLCreateSystemDefaultDevice();
-    self.renderView.clearColor = MTLClearColorMake(0.0, 0.5, 1.0, 1.0);
+    self.renderView.clearColor = MTLClearColorMake(0.0, 0, 0, 1.0);
     _renderer = [[GameRenderer alloc] initWithMetalKitView:self.renderView andController:self];
     if(!_renderer) {
         NSLog(@"Renderer initialization failed");

@@ -50,7 +50,7 @@ static ViewController *theViewController;
     _view = (GameView *)self.view;
     _view.enableSetNeedsDisplay = YES;
     _view.device = MTLCreateSystemDefaultDevice();
-    _view.clearColor = MTLClearColorMake(0.0, 0.5, 1.0, 1.0);
+    _view.clearColor = MTLClearColorMake(0.0, 0, 0, 1.0);
     _renderer = [[GameRenderer alloc] initWithMetalKitView:_view andController:self];
     if(!_renderer) {
         NSLog(@"Renderer initialization failed");

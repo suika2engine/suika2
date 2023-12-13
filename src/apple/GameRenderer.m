@@ -182,7 +182,7 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
 - (void)drawInMTKView:(nonnull MTKView *)view {
     if(view.currentRenderPassDescriptor == nil)
         return;
-    
+
     // Create a command buffer.
     theCommandBuffer = [_commandQueue commandBuffer];
     theCommandBuffer.label = @"MyCommand";
@@ -421,6 +421,11 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
 
     // Draw two triangles.
     if (theRenderEncoder == nil) {
+        theMTKView.currentRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        theMTKView.currentRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+        theMTKView.currentRenderPassDescriptor.colorAttachments[0].clearColor = conf_window_white ?
+            MTLClearColorMake(1.0, 1.0, 1.0, 1.0) :
+            MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
         theRenderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
         theRenderEncoder.label = @"MyRenderEncoder";
 
