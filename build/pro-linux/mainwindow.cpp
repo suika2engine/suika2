@@ -916,18 +916,17 @@ char *make_valid_path(const char *dir, const char *fname)
 //
 // Reset a lap timer.
 //
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *t)
 {
-    uint64_t ms = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
-    *t = ms;
+    *t = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
 }
 
 //
 // Get a lap from a lap timer.
 //
-int get_stop_watch_lap(stop_watch_t *t)
+uint64_t get_lap_timer_millisec(uint64_t *t)
 {
-    uint64_t ms = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+    uint64t ms = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
     return ms - *t;
 }
 
