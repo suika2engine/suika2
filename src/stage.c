@@ -263,7 +263,7 @@ bool init_stage(void)
 {
 	int i;
 
-#ifdef ANDROID
+#ifdef SUIKA_TARGET_ANDROID
 	/* 再初期化のための処理 */
 	cleanup_stage();
 #endif

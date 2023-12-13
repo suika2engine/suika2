@@ -21,7 +21,7 @@
  */
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#ifdef EM
+#ifdef SUIKA_TARGET_WASM
 #include <ftstroke.h>
 #else
 #include <freetype/ftstroke.h>
@@ -110,7 +110,7 @@ bool init_glyph(void)
 	FT_Error err;
 	int i;
 
-#ifdef ANDROID
+#ifdef SUIKA_TARGET_ANDROID
 	cleanup_glyph();
 #endif
 

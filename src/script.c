@@ -678,7 +678,7 @@ static bool add_comment_line(const char *s, ...);
  */
 bool init_script(void)
 {
-#ifdef ANDROID
+#ifdef SUIKA_TARGET_ANDROID
 	/* NDKではプロセスが再利用されるため、解放を行う */
 	cleanup_script();
 #endif

@@ -190,7 +190,7 @@ bool capture_output(void)
 		return true;
 
 	/* フレームバッファの内容を取得する */
-#if defined(LINUX)
+#if defined(SUIKA_TARGET_LINUX)
 	glReadBuffer(GL_BACK);
 #else
 	glReadBuffer(GL_FRONT);

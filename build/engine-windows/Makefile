@@ -57,7 +57,7 @@ LDFLAGS = \
 #
 
 SRCS_C = \
-	$(SRCS_COMMON) \
+	$(SRCS_MAIN) \
 	../../src/winmain.c \
 	../../src/dsound.c
 
@@ -92,11 +92,17 @@ OBJS = \
 
 all: suika.exe
 
-suika.exe: libroot $(OBJS)
+suika.exe: libroot $(OBJS) $(HDRS_MAIN)
 	$(CC) -s -o suika.exe $(OBJS) $(LDFLAGS)
 
 libroot:
 	./build-libs.sh
+
+sign: suika.exe
+	sign.sh suika.exe
+
+upload: suika.exe
+	ftp-upload.sh suika.exe dl/suika.exe
 
 #
 # Phony

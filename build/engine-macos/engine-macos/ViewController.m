@@ -348,6 +348,15 @@ static ViewController *theViewController;
     return _screenSize;
 }
 
+- (NSPoint)windowPointToScreenPoint:(NSPoint)windowPoint {
+  float retinaScale = _view.layer.contentsScale;
+
+  int x = (int)(windowPoint.x - (_screenOffset.x / retinaScale)) * _screenScale;
+  int y = (int)(windowPoint.y - (_screenOffset.y / retinaScale)) * _screenScale;
+
+  return NSMakePoint(x, conf_window_height - y);
+}
+
 - (BOOL)isFullScreen {
     return _isFullScreen;
 }

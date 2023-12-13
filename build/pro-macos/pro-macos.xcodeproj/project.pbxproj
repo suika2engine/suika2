@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		260E2D9C2B2996270047525A /* ios-src in Resources */ = {isa = PBXBuildFile; fileRef = 260E2D9B2B2996270047525A /* ios-src */; };
+		260E2D9E2B2996330047525A /* android-src in Resources */ = {isa = PBXBuildFile; fileRef = 260E2D9D2B2996330047525A /* android-src */; };
+		260E2DA22B2996600047525A /* suika.exe in Resources */ = {isa = PBXBuildFile; fileRef = 260E2DA12B2996600047525A /* suika.exe */; };
+		260E2DA42B29966E0047525A /* suika-mac.zip in Resources */ = {isa = PBXBuildFile; fileRef = 260E2DA32B29966E0047525A /* suika-mac.zip */; };
 		2610CC842B2878C900300004 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2610CC832B2878C900300004 /* Assets.xcassets */; };
 		2610CCE02B287ACD00300004 /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CC862B287ACC00300004 /* cmd_setconfig.c */; };
 		2610CCE12B287ACD00300004 /* cmd_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CC872B287ACC00300004 /* cmd_ch.c */; };
@@ -67,7 +71,13 @@
 		2610CD182B287ACD00300004 /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDC2B287ACD00300004 /* cmd_cha.c */; };
 		2610CD192B287ACD00300004 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDD2B287ACD00300004 /* cmd_setsave.c */; };
 		2610CD1A2B287ACD00300004 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDF2B287ACD00300004 /* log.c */; };
-		2610CD1D2B287CD600300004 /* games in Resources */ = {isa = PBXBuildFile; fileRef = 2610CD1C2B287CD600300004 /* games */; };
+		261D5BED2B296F7E006577B3 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BEA2B296F7E006577B3 /* index.html */; };
+		261D5BEE2B296F7E006577B3 /* index.js in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BEB2B296F7E006577B3 /* index.js */; };
+		261D5BEF2B296F7E006577B3 /* index.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BEC2B296F7E006577B3 /* index.wasm */; };
+		261D5BF42B297B69006577B3 /* nvl-tategaki in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF02B297B69006577B3 /* nvl-tategaki */; };
+		261D5BF52B297B69006577B3 /* english in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF12B297B69006577B3 /* english */; };
+		261D5BF62B297B69006577B3 /* japanese in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF22B297B69006577B3 /* japanese */; };
+		261D5BF72B297B69006577B3 /* nvl in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF32B297B69006577B3 /* nvl */; };
 		2669F7CB2B2843D5001AEF17 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */; };
 		2669F7D72B284675001AEF17 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CD2B284675001AEF17 /* AppDelegate.m */; };
 		2669F7D82B284675001AEF17 /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CF2B284675001AEF17 /* GameView.m */; };
@@ -78,6 +88,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		260E2D9B2B2996270047525A /* ios-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ios-src"; path = "../../engine-ios/ios-src"; sourceTree = "<group>"; };
+		260E2D9D2B2996330047525A /* android-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "android-src"; path = "../../engine-android/android-src"; sourceTree = "<group>"; };
+		260E2DA12B2996600047525A /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
+		260E2DA32B29966E0047525A /* suika-mac.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "suika-mac.zip"; path = "../../engine-macos/suika-mac.zip"; sourceTree = "<group>"; };
 		2610CC832B2878C900300004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2610CC852B287ACC00300004 /* suika.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = suika.h; path = ../../src/suika.h; sourceTree = "<group>"; };
 		2610CC862B287ACC00300004 /* cmd_setconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setconfig.c; path = ../../src/cmd_setconfig.c; sourceTree = "<group>"; };
@@ -170,8 +184,14 @@
 		2610CCDD2B287ACD00300004 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		2610CCDE2B287ACD00300004 /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../src/glyph.h; sourceTree = "<group>"; };
 		2610CCDF2B287ACD00300004 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = ../../src/log.c; sourceTree = "<group>"; };
-		2610CD1C2B287CD600300004 /* games */ = {isa = PBXFileReference; lastKnownFileType = folder; name = games; path = ../../../games; sourceTree = "<group>"; };
-		2669F7082B283866001AEF17 /* Suika2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suika2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		261D5BEA2B296F7E006577B3 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = "../../engine-wasm/html/index.html"; sourceTree = "<group>"; };
+		261D5BEB2B296F7E006577B3 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = "../../engine-wasm/html/index.js"; sourceTree = "<group>"; };
+		261D5BEC2B296F7E006577B3 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
+		261D5BF02B297B69006577B3 /* nvl-tategaki */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "nvl-tategaki"; path = "../../../games/nvl-tategaki"; sourceTree = "<group>"; };
+		261D5BF12B297B69006577B3 /* english */ = {isa = PBXFileReference; lastKnownFileType = folder; name = english; path = ../../../games/english; sourceTree = "<group>"; };
+		261D5BF22B297B69006577B3 /* japanese */ = {isa = PBXFileReference; lastKnownFileType = folder; name = japanese; path = ../../../games/japanese; sourceTree = "<group>"; };
+		261D5BF32B297B69006577B3 /* nvl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nvl; path = ../../../games/nvl; sourceTree = "<group>"; };
+		2669F7082B283866001AEF17 /* Suika2 Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2669F7CD2B284675001AEF17 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		2669F7CE2B284675001AEF17 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -300,7 +320,17 @@
 		2610CD1B2B287C9100300004 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2610CD1C2B287CD600300004 /* games */,
+				260E2D9B2B2996270047525A /* ios-src */,
+				260E2D9D2B2996330047525A /* android-src */,
+				261D5BF12B297B69006577B3 /* english */,
+				261D5BF22B297B69006577B3 /* japanese */,
+				261D5BF32B297B69006577B3 /* nvl */,
+				261D5BF02B297B69006577B3 /* nvl-tategaki */,
+				261D5BEA2B296F7E006577B3 /* index.html */,
+				261D5BEB2B296F7E006577B3 /* index.js */,
+				261D5BEC2B296F7E006577B3 /* index.wasm */,
+				260E2DA32B29966E0047525A /* suika-mac.zip */,
+				260E2DA12B2996600047525A /* suika.exe */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -319,7 +349,7 @@
 		2669F7092B283866001AEF17 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2669F7082B283866001AEF17 /* Suika2.app */,
+				2669F7082B283866001AEF17 /* Suika2 Pro.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -355,9 +385,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2669F7072B283866001AEF17 /* Suika2 */ = {
+		2669F7072B283866001AEF17 /* Suika2 Pro */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2" */;
+			buildConfigurationList = 2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2 Pro" */;
 			buildPhases = (
 				2669F7042B283866001AEF17 /* Sources */,
 				2669F7052B283866001AEF17 /* Frameworks */,
@@ -367,9 +397,9 @@
 			);
 			dependencies = (
 			);
-			name = Suika2;
+			name = "Suika2 Pro";
 			productName = "pro-macos";
-			productReference = 2669F7082B283866001AEF17 /* Suika2.app */;
+			productReference = 2669F7082B283866001AEF17 /* Suika2 Pro.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -399,7 +429,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2669F7072B283866001AEF17 /* Suika2 */,
+				2669F7072B283866001AEF17 /* Suika2 Pro */,
 			);
 		};
 /* End PBXProject section */
@@ -409,9 +439,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				260E2D9E2B2996330047525A /* android-src in Resources */,
+				261D5BEF2B296F7E006577B3 /* index.wasm in Resources */,
+				260E2D9C2B2996270047525A /* ios-src in Resources */,
 				2610CC842B2878C900300004 /* Assets.xcassets in Resources */,
+				261D5BF62B297B69006577B3 /* japanese in Resources */,
+				261D5BF42B297B69006577B3 /* nvl-tategaki in Resources */,
 				2669F7DE2B28467D001AEF17 /* Main.storyboard in Resources */,
-				2610CD1D2B287CD600300004 /* games in Resources */,
+				261D5BED2B296F7E006577B3 /* index.html in Resources */,
+				261D5BF72B297B69006577B3 /* nvl in Resources */,
+				261D5BF52B297B69006577B3 /* english in Resources */,
+				260E2DA22B2996600047525A /* suika.exe in Resources */,
+				260E2DA42B29966E0047525A /* suika-mac.zip in Resources */,
+				261D5BEE2B296F7E006577B3 /* index.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -527,6 +567,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -588,6 +629,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -639,6 +681,7 @@
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
 				);
+				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
 					"-L./libroot/lib",
 					"-lpng",
@@ -689,6 +732,7 @@
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
 				);
+				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
 					"-L./libroot/lib",
 					"-lpng",
@@ -719,7 +763,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2" */ = {
+		2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2 Pro" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2669F71C2B283867001AEF17 /* Debug */,

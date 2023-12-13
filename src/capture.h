@@ -31,9 +31,4 @@ bool reconstruct_dir(const char *dir);
  */
 uint64_t get_tick_count64(void);
 
-/*
- * HAL: A wrapper for fopen().
- */
-FILE *fopen_wrapper(const char *dir, const char *file, const char *mode);
-
 #endif

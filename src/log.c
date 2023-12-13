@@ -176,7 +176,7 @@ void log_duplicated_conf(const char *key)
 void log_undefined_conf(const char *key)
 {
 	if (is_english_mode()) {
-#ifndef EM
+#ifndef SUIKA_TARGET_WASM
 		log_error("Missing key \"%s\" in config.txt\n", key);
 #else
 		log_error("Missing key \"%s\" in config.txt\n"
@@ -186,7 +186,7 @@ void log_undefined_conf(const char *key)
 			  key);
 #endif
 	} else {
-#ifndef EM
+#ifndef SUIKA_TARGET_WASM
 		log_error(U8("コンフィグに\"%s\"が記述されていません。\n"), key);
 #else
 		log_error(U8("コンフィグに\"%s\"が記述されていません。\n")

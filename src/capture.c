@@ -15,13 +15,6 @@
 #include "capture.h"
 #include "png.h"
 
-#ifdef OSX
-#define GL_SILENCE_DEPRECATION
-#include <OpenGL/gl3.h>
-#else
-#include <GL/gl.h>
-#endif
-
 /* ディレクトリとファイルの名前 */
 #define CAP_DIR		"record"
 #define CSV_FILE	"main.csv"
@@ -64,11 +57,7 @@ bool init_capture(void)
 	reconstruct_dir(CAP_DIR);
 
 	/* CSVファイルを開く */
-#ifdef MAC
-	csv_fp = open_csv_file(CAP_DIR, CSV_FILE, "wb");
-#else
 	csv_fp = fopen(CAP_DIR "\\" CSV_FILE, "wb");
-#endif
 	if (csv_fp == NULL) {
 		log_error("Failed to create record file.");
 		return false;
@@ -197,7 +186,7 @@ bool capture_output(void)
 		return true;
 
 	/* フレームバッファの内容を取得する */
-#if defined(LINUX)
+#if defined(SUIKA_TARGET_POSIX)
 	glReadBuffer(GL_BACK);
 #else
 	glReadBuffer(GL_FRONT);
@@ -207,7 +196,7 @@ bool capture_output(void)
 
 	/* ファイル名を決める */
 	snprintf(fname, sizeof(fname),
-#if (defined(SUIKA_TARGET_WIN32) && !defined(__WIN64)) || defined(OSX)
+#if (defined(SUIKA_TARGET_WIN32) && !defined(__WIN64))
 		 "%s\\%lld.png",
 #else
 		 "%s\\%ld.png",

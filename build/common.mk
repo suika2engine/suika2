@@ -1,4 +1,36 @@
-SRCS_COMMON = \
+HDRS_MAIN = \
+	../../src/suika.h \
+	../../src/anime.h \
+	../../src/conf.h \
+	../../src/event.h \
+	../../src/file.h \
+	../../src/glyph.h \
+	../../src/gui.h \
+	../../src/history.h \
+	../../src/image.h \
+	../../src/log.h \
+	../../src/main.h \
+	../../src/mixer.h \
+	../../src/save.h \
+	../../src/scbuf.h \
+	../../src/script.h \
+	../../src/seen.h \
+	../../src/stage.h \
+	../../src/uimsg.h \
+	../../src/vars.h \
+	../../src/wave.h \
+	../../src/wms.h
+
+HDRS_PRO = \
+	../../src/pro.h \
+	../../src/package.h
+
+HDRS_APPLE = \
+	../../src/GameRenderer.h \
+	../../src/GameShaderTypes.h \
+	../../src/GameViewControllerProtocol.h
+
+SRCS_MAIN = \
 	../../src/anime.c \
 	../../src/conf.c \
 	../../src/event.c \
@@ -54,3 +86,10 @@ SRCS_COMMON = \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c
+
+SRCS_PRO = \
+	../../src/package.c
+
+SRCS_APPLE = \
+	../../src/GameRenderer.m \
+	../../src/GameShaders.metal

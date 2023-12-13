@@ -350,7 +350,7 @@ static void *sound_thread(void *p)
 
 		/* 再生ループを実行する */
 		while (playback_period(n)) {
-#if defined(LINUX)
+#if defined(__linux__)
 			/*
 			 * [重要]
 			 *  - コンテキストスイッチを明示的に行う

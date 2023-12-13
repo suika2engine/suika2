@@ -622,31 +622,26 @@ void render_image_melt(struct image * RESTRICT src_img,
 //
 // タイマをリセットする
 //
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *t)
 {
     struct timeval tv;
     
     gettimeofday(&tv, NULL);
     
-    *t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+    *t = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
 //
 // タイマのラップをミリ秒単位で取得する
 //
-int get_stop_watch_lap(stop_watch_t *t)
+int get_lap_timer_millisec(uint64_t *t)
 {
     struct timeval tv;
-    stop_watch_t end;
+    uint64_t end;
         
     gettimeofday(&tv, NULL);
         
-    end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
-        
-    if (end < *t) {
-        reset_stop_watch(t);
-            return 0;
-    }
+    end = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
         
     return (int)(end - *t);
 }
@@ -816,4 +811,9 @@ const char *get_system_locale(void)
     if ([language hasPrefix:@"zh-Hant"])
 		return "tw";
 	return "other";
+}
+
+void speak_text(const char *text)
+{
+	UNUSED_PARAMETER(text);
 }

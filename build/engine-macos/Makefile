@@ -1,33 +1,35 @@
-#
-# Change this line for your signature.
-#
-SIGNATURE='Developer ID Application: Keiichi TABATA'
+include ../common.mk
 
-#
-# Build release main app
-#
-main: libroot
-	@echo "Building..."
-	@echo "Builing Engine" && xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive archive
-	@echo "Uploading Engine" && xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/engine-macos.xcarchive -exportOptionsPlist export-options.plist
-	@echo "Notarizing Engine" && rm -rf build/Release/engine-macos.app && until xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/engine-macos.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
-	@echo "Creating DMG for Engine"
-	@rm -rf tmp suika.dmg && mkdir tmp && cp -Ra build/Release/engine-macos.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika2 suika.dmg && codesign --sign $(SIGNATURE) suika.dmg && rm -rf tmp
+FILES_ENGINE_MACOS = \
+	engine-macos/main.m \
+	engine-macos/AppDelegate.h \
+	engine-macos/AppDelegate.m \
+	engine-macos/ViewController.h \
+	engine-macos/ViewController.m \
+	engine-macos/GameView.h \
+	engine-macos/GameView.m
 
-#
-# This builds "libroot" directory.
-#
+main: suika-mac.zip
+
+suika-mac.zip: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(HDRS_APPLE) $(SRCS_APPLE) $(FILES_ENGINE_MACOS)
+	@echo "Building Suika.app"
+	@xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive archive
+	@xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/engine-macos.xcarchive -exportOptionsPlist export-options.plist
+	@rm -rf build/Release/Suika.app
+	@until \
+		xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/engine-macos.xcarchive -exportPath `pwd`/build/Release; \
+	do \
+		echo "Waiting..."; \
+		sleep 10; \
+	done
+	@rm -f suika-mac.zip
+	@cd build/Release && zip -r ../../suika-mac.zip Suika.app && cd ../..
+
 libroot:
 	./build-libs.sh
 
-#
-# Build check only
-#
 build-only:
 	@xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive build
 
-#
-# This phony target cleans up this directory.
-#
 clean:
-	@rm -rf build suika.dmg libroot-mac.tar.gz libroot
+	@rm -rf build suika-mac.zip libroot-mac.tar.gz libroot

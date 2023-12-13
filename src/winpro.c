@@ -4120,7 +4120,7 @@ VOID OnExportWinMac(void)
 	}
 
 	/* ファイルをコピーする */
-	if (!CopyLibraryFiles(L"tools\\mac.dmg", L".\\windows-mac-export\\mac.dmg"))
+	if (!CopyLibraryFiles(L"tools\\suika-mac.zip", L".\\windows-mac-export\\suika-mac.zip"))
 	{
 		log_info(bEnglish ?
 				 "Failed to copy exe file." :

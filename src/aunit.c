@@ -105,7 +105,7 @@ static bool create_audio_unit(void)
 
     /* オーディオコンポーネントを取得する */
     cd.componentType = kAudioUnitType_Output;
-#ifdef IOS
+#ifdef SUIKA_TARGET_IOS
     cd.componentSubType = kAudioUnitSubType_RemoteIO;
 #else
     cd.componentSubType = kAudioUnitSubType_DefaultOutput;

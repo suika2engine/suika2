@@ -438,7 +438,7 @@ char *make_valid_path(const char *dir, const char *fname)
 /*
  * タイマをリセットする
  */
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *t)
 {
 	jclass cls;
 	jmethodID mid;
@@ -450,13 +450,13 @@ void reset_stop_watch(stop_watch_t *t)
 	ret = (*jni_env)->CallStaticLongMethod(jni_env, cls, mid);
 
 	/* 時刻を格納する */
-	*t = (stop_watch_t)ret;
+	*t = (uint64_t)ret;
 }
 
 /*
  * タイマのラップをミリ秒単位で取得する
  */
-int get_stop_watch_lap(stop_watch_t *t)
+int get_lap_timer_millisec(uint64_t *t)
 {
 	jclass cls;
 	jmethodID mid;
@@ -467,7 +467,7 @@ int get_stop_watch_lap(stop_watch_t *t)
 	mid = (*jni_env)->GetStaticMethodID(jni_env, cls, "currentTimeMillis", "()J");
 	ret = (*jni_env)->CallStaticLongMethod(jni_env, cls, mid);
 
-	return (int)(ret - (long)*t);
+	return (uint64_t)(ret - (long)*t);
 }
 
 /*

@@ -29,7 +29,7 @@
 /* セーブデータの互換性バージョン(12.42で導入) */
 #define SAVE_VER	(0xabcd1415)
 
-#ifdef EM
+#ifdef SUIKA_TARGET_WASM
 #include <emscripten/emscripten.h>
 #endif
 
@@ -316,7 +316,7 @@ bool quick_save(void)
 	/* クイックセーブの時刻を更新する */
 	quick_save_time = (time_t)timestamp;
 
-#ifdef EM
+#ifdef SUIKA_TARGET_WASM
 	void resume_sound(void);
 	EM_ASM_(
 		FS.syncfs(function (err) { alert('Saved to the browser!'); });
@@ -350,7 +350,7 @@ bool execute_save(int index)
 	/* 時刻を保存する */
 	save_time[index] = (time_t)timestamp;
 
-#ifdef EM
+#ifdef SUIKA_TARGET_WASM
 	void resume_sound(void);
 	EM_ASM_(
 		FS.syncfs(function (err) { alert('Saved to the browser!'); });

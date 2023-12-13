@@ -117,7 +117,7 @@ bool init_file(void)
 	if (fp == NULL) {
 		free(package_path);
 		package_path = NULL;
-#if defined(IOS) || defined(EM)
+#if defined(SUIKA_TARGET_IOS) || defined(SUIKA_TARGET_WASM)
 		/* 開ける必要がある */
 		return false;
 #else

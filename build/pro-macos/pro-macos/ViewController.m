@@ -1,4 +1,5 @@
 #import "ViewController.h"
+#import "ViewController.h"
 #import "GameView.h"
 #import "GameRenderer.h"
 
@@ -294,6 +295,77 @@ static void setStoppedState(void);
 }
 
 - (BOOL)initProject {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:_isEnglish ? @"Going to create a new game.\n" : @"新規ゲームを作成します。\n"];
+    [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
+    [alert addButtonWithTitle:_isEnglish ? @"No" : @"いいえ"];
+    [alert setAlertStyle:NSAlertStyleInformational];
+    if ([alert runModal] == NSAlertFirstButtonReturn)
+        return [self createProject];
+    
+    return [self openProject];
+}
+
+- (BOOL)createProject {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    [panel setCanChooseDirectories:YES];
+    [panel setCanCreateDirectories:YES];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return NO;
+    }
+    if ([[NSFileManager defaultManager] isReadableFileAtPath:[[[panel directoryURL] path] stringByAppendingString:@"/conf/config.txt"]]) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:_isEnglish ? @"The folder you selected in not empty" : @"フォルダが空ではありません。"];
+        [alert addButtonWithTitle:@"OK"];
+        [alert setAlertStyle:NSAlertStyleCritical];
+        [alert runModal];
+        return NO;
+    }
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[[panel directoryURL] path]];
+
+    FILE *fp = fopen([[[[panel URL] path] stringByAppendingString:@"/game.suika2project"] UTF8String], "w");
+    if (fp == NULL)
+        return NO;
+    fclose(fp);
+
+    NSAlert *alert;
+    alert = [[NSAlert alloc] init];
+    [alert setMessageText:_isEnglish ? @"Do you want to use the full screen style?" : @"全画面スタイルにしますか？\n"];
+    [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
+    [alert addButtonWithTitle:_isEnglish ? @"No" : @"いいえ"];
+    [alert setAlertStyle:NSAlertStyleInformational];
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        if (_isEnglish)
+            return [self copyResourceTemplate:@"nvl"];
+
+        alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"縦書きにしますか？"];
+        [alert addButtonWithTitle:@"はい"];
+        [alert setMessageText:@"いいえ"];
+        [alert setAlertStyle:NSAlertStyleInformational];
+        if ([alert runModal] == NSAlertFirstButtonReturn)
+            return [self copyResourceTemplate:@"nvl-tategaki"];
+        else
+            return [self copyResourceTemplate:@"nvl"];
+    }
+    if (_isEnglish)
+        return [self copyResourceTemplate:@"english"];
+    return [self copyResourceTemplate:@"japanese"];
+}
+
+- (BOOL)copyResourceTemplate:(NSString *)from {
+    NSArray *subfolderArray = @[@"/anime", @"/bg", @"/bgm", @"/cg", @"/ch", @"/conf", @"/cv", @"/font", @"/gui", @"/mov", @"/rule", @"/se", @"/txt", @"/wms"];
+    for (NSString *sub in subfolderArray) {
+        NSString *src = [NSString stringWithFormat:@"%@/Contents/Resources/%@%@", [[NSBundle mainBundle] bundlePath], from, sub];
+        NSString *dst = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:sub];
+        if (![[NSFileManager defaultManager] copyItemAtPath:src toPath:dst error:nil])
+            return NO;
+    }
+    return YES;
+}
+
+- (BOOL)openProject {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     if (@available(macOS 11.0, *)) {
         [panel setAllowedContentTypes:@[[UTType typeWithFilenameExtension:@"suika2project" conformingToType:UTTypeData]]];
@@ -727,48 +799,181 @@ static void setStoppedState(void);
 - (IBAction)onMenuWait:(id)sender {
 }
 
-// GUI
+// gui
 - (IBAction)onMenuGUI:(id)sender {
 }
 
-// WMS
+// wms
 - (IBAction)onMenuWMS:(id)sender {
 }
 
-// Load
+// load
 - (IBAction)onMenuLoad:(id)sender {
 }
 
-// パッケージのエクスポートが押下されたイベント
 - (IBAction)onMenuExportForDesktop:(id)sender {
+    if (!create_package("")) {
+        log_info("Export error.");
+        return;
+    }
+   
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *exportPath = [NSString stringWithFormat:@"%@/export-desktop", [fileManager currentDirectoryPath]];
+    [fileManager removeItemAtURL:[NSURL fileURLWithPath:exportPath] error:nil];
+    if (![fileManager createDirectoryAtURL:[NSURL fileURLWithPath:exportPath] withIntermediateDirectories:NO attributes:nil error:nil]) {
+        log_warn("mkdir error.");
+        return;
+    }
+
+    if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/data01.arc", [fileManager currentDirectoryPath]]
+                            toPath:[NSString stringWithFormat:@"%@/export-desktop/data01.arc", [fileManager currentDirectoryPath]]
+                               error:nil]) {
+        log_warn("Copy error (1).");
+        return;
+    }
+
+    NSArray *appArray = @[@"suika-mac.zip", @"suika.exe"];
+    for (NSString *sub in appArray) {
+        if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/%@", [[NSBundle  mainBundle] bundlePath], sub]
+                                  toPath:[NSString stringWithFormat:@"%@/export-desktop/%@", [fileManager currentDirectoryPath], sub]
+                                   error:nil]) {
+            log_warn("Copy error (2).");
+            return;
+        }
+    }
+
+    log_info(_isEnglish ? "Successflully exported" : "エクスポートに成功しました。");
+
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[fileManager currentDirectoryPath] stringByAppendingString:@"/export-desktop"]]];
 }
 
-// パッケージのエクスポートが押下されたイベント
 - (IBAction)onMenuExportForWeb:(id)sender {
+    if (!create_package("")) {
+        log_info("Export error.");
+        return;
+    }
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *exportPath = [NSString stringWithFormat:@"%@/export-web", [fileManager currentDirectoryPath]];
+    [fileManager removeItemAtURL:[NSURL fileURLWithPath:exportPath] error:nil];
+    if (![fileManager createDirectoryAtURL:[NSURL fileURLWithPath:exportPath] withIntermediateDirectories:NO attributes:nil error:nil]) {
+        log_warn("mkdir error.");
+        return;
+    }
+
+    if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/data01.arc", [fileManager currentDirectoryPath]]
+                            toPath:[NSString stringWithFormat:@"%@/data01.arc", exportPath]
+                             error:nil]) {
+        log_warn("Copy error (1).");
+        return;
+    }
+
+    NSArray *appArray = @[@"index.html", @"index.js", @"index.wasm"];
+    for (NSString *sub in appArray) {
+        if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/%@", [[NSBundle  mainBundle] bundlePath], sub]
+                                  toPath:[NSString stringWithFormat:@"%@/%@", exportPath, sub]
+                                   error:nil]) {
+            log_warn("Copy error (2).");
+            return;
+        }
+    }
+    
+    log_info(_isEnglish ? "Successflully exported" : "エクスポートに成功しました。");
+    
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[fileManager currentDirectoryPath] stringByAppendingString:@"/export-web"]]];
 }
 
 // パッケージのエクスポートが押下されたイベント
 - (IBAction)onMenuExportForIOS:(id)sender {
+    if (!create_package("")) {
+        log_info("Export error.");
+        return;
+    }
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *exportPath = [NSString stringWithFormat:@"%@/export-ios", [fileManager currentDirectoryPath]];
+    [fileManager removeItemAtURL:[NSURL fileURLWithPath:exportPath] error:nil];
+    if (![fileManager createDirectoryAtURL:[NSURL fileURLWithPath:exportPath] withIntermediateDirectories:NO attributes:nil error:nil]) {
+        log_warn("mkdir error.");
+        return;
+    }
+
+    NSArray *appArray = @[@"libroot", @"src", @"suika", @"suika.xcodeproj"];
+    for (NSString *sub in appArray) {
+        if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/ios-src/%@", [[NSBundle  mainBundle] bundlePath], sub]
+                                  toPath:[NSString stringWithFormat:@"%@/export-ios/%@", [fileManager currentDirectoryPath], sub]
+                                   error:nil]) {
+            log_warn("Copy error (1).");
+            return;
+        }
+    }
+
+    if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/data01.arc", [fileManager currentDirectoryPath]]
+                              toPath:[NSString stringWithFormat:@"%@/suika/data01.arc", exportPath]
+                               error:nil]) {
+        log_warn("Copy error (2).");
+        return;
+    }
+
+    log_info(_isEnglish ? "Successflully exported" : "エクスポートに成功しました。");
+    
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[fileManager currentDirectoryPath] stringByAppendingString:@"/export-ios"]]];
 }
 
-// パッケージのエクスポートが押下されたイベント
 - (IBAction)onMenuExportForAndroid:(id)sender {
+    if (!create_package("")) {
+        log_info("Export error.");
+        return;
+    }
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *exportPath = [NSString stringWithFormat:@"%@/export-android", [fileManager currentDirectoryPath]];
+    [fileManager removeItemAtURL:[NSURL fileURLWithPath:exportPath] error:nil];
+    if (![fileManager createDirectoryAtURL:[NSURL fileURLWithPath:exportPath] withIntermediateDirectories:NO attributes:nil error:nil]) {
+        log_warn("mkdir error (1).");
+        return;
+    }
+
+    NSArray *appArray = @[@"app", @"gradle", @"gradlew", @"settings.gradle", @"build.gradle", @"gradle.properties", @"gradlew.bat"];
+    for (NSString *sub in appArray) {
+        if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/android-src/%@", [[NSBundle  mainBundle] bundlePath], sub]
+                                  toPath:[NSString stringWithFormat:@"%@/%@", exportPath, sub]
+                                   error:nil]) {
+            log_warn("Copy error (1).");
+            return;
+        }
+    }
+
+    if (![fileManager createDirectoryAtURL:[NSURL fileURLWithPath:[exportPath stringByAppendingString:@"/app/src/main/assets"]] withIntermediateDirectories:YES attributes:nil error:nil]) {
+        log_warn("mkdir error (2).");
+        return;
+    }
+
+    NSArray *subfolderArray = @[@"anime", @"bg", @"bgm", @"cg", @"ch", @"conf", @"cv", @"font", @"gui", @"mov", @"rule", @"se", @"txt", @"wms"];
+    for (NSString *sub in subfolderArray) {
+        if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/%@", [fileManager currentDirectoryPath], sub]
+                                  toPath:[NSString stringWithFormat:@"%@/app/src/main/assets/%@", exportPath, sub]
+                                   error:nil]) {
+            log_warn("Copy error (2).");
+            return;
+        }
+    }
+ 
+    log_info(_isEnglish ? "Successflully exported" : "エクスポートに成功しました。");
+    
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[fileManager currentDirectoryPath] stringByAppendingString:@"/export-android"]]];
 }
 
 // パッケージのエクスポートが押下されたイベント
 - (IBAction)onMenuExportPackage:(id)sender {
-    // .appバンドルのパスを取得する
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
-
-    // .appバンドルの1つ上のディレクトリのパスを取得する
-    NSString *basePath = [bundlePath stringByDeletingLastPathComponent];
-
-    // パッケージを作成する
-    if (create_package([basePath UTF8String])) {
-        log_info(self.isEnglish ?
-                 "Successfully exported data01.arc" :
-                 "data01.arcのエクスポートに成功しました。");
+    if (!create_package("")) {
+        log_info("Export error.");
+        return;
     }
+
+    log_info(_isEnglish ? "Successflully exported" : "エクスポートに成功しました。");
+    
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[NSFileManager defaultManager] currentDirectoryPath]]];
 }
 
 - (IBAction)onHelp:(id)sender {

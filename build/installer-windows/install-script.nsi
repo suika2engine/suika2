@@ -3,7 +3,7 @@
 !define MUI_UNICON "icon.ico"
 
 Name "Suika2"
-OutFile "suika2-x.x.exe"
+OutFile "suika2-installer.exe"
 InstallDir "$APPDATA\Local\Suika2"
 
 !insertmacro MUI_PAGE_WELCOME

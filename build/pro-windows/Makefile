@@ -60,10 +60,10 @@ LDFLAGS = \
 #
 
 SRCS_C = \
-	$(SRCS_COMMON) \
+	$(SRCS_MAIN) \
+	$(SRCS_PRO) \
 	../../src/winpro.c \
-	../../src/dsound.c \
-	../../src/package.c
+	../../src/dsound.c
 
 SRCS_CC = \
 	../../src/d3drender.cc \
@@ -95,7 +95,7 @@ OBJS = \
 
 all: suika-pro.exe
 
-suika-pro.exe: libroot $(OBJS)
+suika-pro.exe: libroot $(OBJS) $(HDRS_MAIN)
 	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS)
 
 libroot:

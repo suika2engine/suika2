@@ -1,33 +1,47 @@
-#
-# Change this line for your signature.
-#
-SIGNATURE='Developer ID Application: Keiichi TABATA'
+include ../common.mk
 
-#
-# Build release main app
-#
-main: libroot
-	@echo "Building..."
-	@echo "Builing Pro" && xcodebuild -quiet -scheme pro-macos -project pro-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/pro-macos.xcarchive archive
-	@echo "Uploading Pro" && xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/pro-macos.xcarchive -exportOptionsPlist export-options.plist
-	@echo "Notarizing Pro" && rm -rf build/Release/pro-macos.app && until xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/pro-macos.xcarchive -exportPath `pwd`/build/Release; do echo "Sleep..."; sleep 10; done
-	@echo "Creating DMG for Pro"
-	@rm -rf tmp suika2.dmg && mkdir tmp && cp -Ra build/Release/pro-macos.app tmp/ && hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika2 suika2.dmg && codesign --sign $(SIGNATURE) suika2.dmg && rm -rf tmp
+FILES_ENGINE_MACOS = \
+	pro-macos/main.m \
+	pro-macos/AppDelegate.h \
+	pro-macos/AppDelegate.m \
+	pro-macos/ViewController.h \
+	pro-macos/ViewController.m \
+	pro-macos/GameView.h \
+	pro-macos/GameView.m
 
-#
-# This builds "libroot" directory.
-#
+main: suika2.dmg
+
+suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(HDRS_APPLE) $(SRCS_APPLE) $(FILES_ENGINE_MACOS)
+	@echo "Building Suika2 Pro.app"
+	@rm -rf build
+	@xcodebuild -quiet -scheme pro-macos -project pro-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/pro-macos.xcarchive archive
+	@xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/pro-macos.xcarchive -exportOptionsPlist export-options.plist
+	@rm -rf "build/Release/Suika2 Pro.app"
+	@until \
+		xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/pro-macos.xcarchive -exportPath `pwd`/build/Release; \
+	do \
+		echo "waiting..."; \
+		sleep 10; \
+	done
+	@rm -rf tmp suika2-pro.dmg
+	@mkdir tmp
+	@cp -Ra "build/Release/Suika2 Pro.app" "tmp/Suika2 Pro.app"
+	@create-dmg \
+		--volname "Suika2 Installer" \
+		--background "installer_background.png" \
+		--window-pos 200 120 \
+		--window-size 800 400 \
+		--icon-size 100 \
+		--icon "Suika2 Pro.app" 200 190 \
+		--app-drop-link 600 185 \
+		"suika2.dmg" \
+		"tmp"
+
 libroot:
 	./build-libs.sh
 
-#
-# Build check only
-#
 build-only:
 	@xcodebuild -quiet -scheme pro-macos -project pro-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/pro-macos.xcarchive build
 
-#
-# This phony target cleans up this directory.
-#
 clean:
 	@rm -rf build suika2.dmg libroot-mac.tar.gz libroot

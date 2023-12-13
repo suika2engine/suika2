@@ -64,8 +64,6 @@ COPY_LIST="\
 	cmd_wms.c \
 	conf.c \
 	conf.h \
-	drawglyph.h \
-	drawimage.h \
 	event.c \
 	event.h \
 	file.h \
@@ -87,16 +85,14 @@ COPY_LIST="\
 	main.h \
 	mixer.c \
 	mixer.h \
-	muladdpcm.h \
 	iosmain.m \
-	platform.h \
+	hal.h \
 	readimage.c \
 	readpng.c \
 	readjpeg.c \
 	readwebp.c \
 	save.c \
 	save.h \
-	scalesamples.h \
 	scbuf.c \
 	scbuf.h \
 	script.c \
@@ -128,7 +124,5 @@ if [ ! -d "libroot" ]; then
 	rm -f libroot-ios.tar.gz;
 	wget 'https://suika2.com/dl/libroot-ios.tar.gz';
 	tar xzf libroot-ios.tar.gz -C "$TARGET";
+	rm -rf "$TARGET/libroot/bin";
 fi
-
-# Make a zip file.
-#zip -r ios-src.zip "$TARGET"

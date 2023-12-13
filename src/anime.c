@@ -118,7 +118,7 @@ static bool load_anime_image(int layer);
  */
 bool init_anime(void)
 {
-#ifdef ANDROID
+#ifdef SUIKA_TARGET_ANDROID
 	/* Android NDK用に再初期化する */
 	cleanup_anime();
 #endif

@@ -27,10 +27,8 @@ suika-studio.exe
 suika-pro.exe
 suika-capture.exe
 suika-replay.exe
-mac.dmg
-mac-pro.dmg
-mac-capture.dmg
-mac-replay.dmg
+suika-mac.zip
+suika-pro.zip
 
 #
 # Main Engine
@@ -65,6 +63,7 @@ build/engine-macos/engine-macos.xcodeproj/xcshareddata
 build/engine-macos/engine-macos.xcodeproj/cuserdata
 build/engine-macos/engine-macos.xcodeproj/xcuserdata
 build/engine-macos/libroot-mac.tar.gz
+build/engine-macos/build/
 
 # Wasm
 build/engine-wasm/html
@@ -105,11 +104,24 @@ build/pro-macos/pro-macos.xcodeproj/xcshareddata
 build/pro-macos/pro-macos.xcodeproj/cuserdata
 build/pro-macos/pro-macos.xcodeproj/xcuserdata
 build/pro-macos/libroot-mac.tar.gz
+build/pro-macos/build/
+build/pro-macos/tmp/
+build/pro-macos/suika2.dmg
 
 # Linux
 build/pro-linux/deps
 build/pro-linux/build
 build/pro-linux/CMakeLists.txt.user
+
+#
+# Installer
+#
+build/installer-windows/games
+build/installer-windows/tools/
+build/installer-windows/readme-en.html
+build/installer-windows/readme-jp.html
+build/installer-windows/plaintext.code-snippets.en
+build/installer-windows/plaintext.code-snippets.jp
 
 #
 # Misc.

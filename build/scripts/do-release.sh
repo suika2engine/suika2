@@ -81,50 +81,22 @@ echo "(press enter to proceed)"
 read str
 
 #
-# Update the macOS project version.
-#
-$SED -i "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" engine-macos/suika.xcodeproj/project.pbxproj
-$SED -i "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" pro-macos/suika.xcodeproj/project.pbxproj
-$SED -i "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" capture-macos/suika.xcodeproj/project.pbxproj
-$SED -i "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" replay-macos/suika.xcodeproj/project.pbxproj
-
-#
-# Git push (Xcode projects and readmes).
-#
-git add engine-macos/suika.xcodeproj/project.pbxproj
-git add pro-macos/suika.xcodeproj/project.pbxproj
-git add capture-macos/suika.xcodeproj/project.pbxproj
-git add replay-macos/suika.xcodeproj/project.pbxproj
-git add ../doc/readme-jp.html ../doc/readme-en.html
-git commit -m "doc: update the version number to $VERSION" || true
-git push github master
-
-#
 # Build "suika.exe".
 #
 echo "Building suika.exe"
-cd engine-windows-x86
+cd engine-windows
 rm -f *.o
-if [ ! -e libroot ]; then ./build-libs.sh; fi
-make -j8
+if [ ! -e libroot ]; then
+    ./build-libs.sh;
+fi
+make -j12
 sign.sh suika.exe
 cd ..
 
 #
-# Build "suika-pro.exe".
+# Build "Suika.app".
 #
-echo "Building suika-pro.exe"
-cd pro-windows-x86
-rm -f *.o
-if [ ! -e libroot ]; then cp -Rav ../engine-windows-x86/libroot .; fi
-make -j8
-sign.sh suika-pro.exe
-cd ..
-
-#
-# Build "suika.app".
-#
-echo "Building a macOS main engine."
+echo "Building Suika.app (suika-mac.zip)."
 cd engine-macos
 make
 cd ..
@@ -136,20 +108,7 @@ echo "Building Wasm files."
 cd engine-wasm
 make clean
 make
-cp html/index.html html/index.js html/index.wasm
 cd ..
-
-#
-# Build "suika-linux".
-#
-# echo "Building suika-linux"
-# cd engine-linux-x86_64-clang
-# rm -f *.o
-# if [ ! -e libroot ]; then
-#     ./build-libs.sh;
-# fi
-# make -j8
-# cd ..
 
 #
 # Build the iOS source tree.
@@ -168,12 +127,25 @@ cd engine-android
 cd ..
 
 #
+# Build "suika-pro.exe".
+#
+echo "Building suika-pro.exe"
+cd pro-windows
+rm -f *.o
+if [ ! -e libroot ]; then
+    cp -Rav ../engine-windows/libroot .;
+fi
+make -j12
+sign.sh suika-pro.exe
+cd ..
+
+#
 # Make an installer for Windows.
 #
 echo "Creating an installer for Windows."
 
 # /
-cp -v pro-windows-x86/suika-pro.exe installer-windows/suika-pro.exe
+cp -v pro-windows/suika-pro.exe installer-windows/suika-pro.exe
 cp -v ../doc/readme-jp.html installer-windows/readme-jp.html
 cp -v ../doc/readme-en.html installer-windows/readme-en.html
 
@@ -185,34 +157,30 @@ cp -Rv ../games installer-windows/games
 # /tools
 rm -rf installer-windows/tools
 mkdir -p installer-windows/tools
-cp -v engine-windows-x86/suika.exe suika2/tools/
-cp -v engine-macos/mac.dmg suika2/tools/
+cp -v engine-windows/suika.exe installer-windows/tools/
+cp -v engine-macos/suika-mac.zip installer-windows/tools/
 cp -Rv engine-android/android-src installer-windows/tools/android-src
-cp -Rv engine-ios/ios-src suika2/tools/ios-src
+cp -Rv engine-ios/ios-src installer-windows/tools/ios-src
 mkdir -p installer-windows/tools/web
-cp -v engine-wasm/index.html installer-windows/tools/web/index.html
-cp -v engine-wasm/index.js installer-windows/tools/web/index.js
-cp -v engine-wasm/index.wasm installer-windows/tools/web/index.wasm
-cp -Rv ../tools/installer suika2/tools/installer
+cp -v engine-wasm/html/index.html installer-windows/tools/web/index.html
+cp -v engine-wasm/html/index.js installer-windows/tools/web/index.js
+cp -v engine-wasm/html/index.wasm installer-windows/tools/web/index.wasm
+cp -Rv ../tools/installer installer-windows/tools/installer
 cp -v ../tools/snippets/jp-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.jp
 cp -v ../tools/snippets/en-normal/plaintext.code-snippets installer-windows/plaintext.code-snippets.en
 
 # Make an installer
 cd installer-windows
 make
-sign.sh suika2-x.x.exe
-mv suika2-x.x.exe "suika2-win-$VERSION.exe"
+sign.sh suika2-installer.exe
+cd ..
 
 #
-# Make an installer for macOS.
+# Build "Suika2 Pro.app".
 #
-echo "Creating an installer for macOS."
-
-find ../games -name '.*' | xargs rm
-
+echo "Building Suika2 Pro.app (suika2.dmg)"
 cd pro-macos
 make
-mv suika.pkg "suika2-mac-$VERSION.pkg"
 cd ..
 
 #
@@ -220,16 +188,15 @@ cd ..
 #
 echo "Uploading files."
 
-curl -T "installer-windows/suika2-win-$VERSION.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-win-$VERSION.exe"
-wait 5
-curl -T "pro-macos/suika2-mac-$VERSION.pkg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-mac-$VERSION.pkg"
+curl -T "installer-windows/suika2-installer.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.exe"
+curl -T "pro-macos/suika2.dmg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.dmg"
 echo "Upload completed."
 
 #
 # Update the Web site.
 #
-# echo ""
-# echo "Updating the Web site:"
-# SAVE_DIR=`pwd`
-# cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
-# cd "$SAVE_DIR"
+echo ""
+echo "Updating the Web site:"
+SAVE_DIR=`pwd`
+cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
+cd "$SAVE_DIR"

@@ -19,28 +19,11 @@
  */
 
 /*
- * Windows
- *  - We use OpenGL 3.2
- */
-#if defined(SUIKA_TARGET_WIN32)
-#include <windows.h>
-#include <GL/gl.h>
-#include "glhelper.h"
-#endif
-
-/*
- * macOS
- *  - We use OpenGL 3.2
- */
-#if defined(OSX)
-#include <OpenGL/gl3.h>
-#endif
-
-/*
  * iOS
  *  - We use OpenGL ES 3.0
+ *  - Will be replaced by Metal soon!
  */
-#if defined(IOS)
+#if defined(SUIKA_TARGET_IOS)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES2/glext.h>
@@ -50,7 +33,7 @@
  * Android
  *  - We use OpenGL ES 3.0
  */
-#if defined(ANDROID)
+#if defined(SUIKA_TARGET_ANDROID)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 #endif
@@ -59,7 +42,7 @@
  * Emscripten
  *  - We use OpenGL ES 3.0
  */
-#if defined(EM)
+#if defined(SUIKA_TARGET_WASM)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 #endif
@@ -185,7 +168,7 @@ static GLuint ibo_melt;
 
 /* The source string. */
 static const char *vertex_shader_src =
-#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
+#if !defined(SUIKA_TARGET_WASM)
 	"#version 100                 \n"
 #endif
 	"attribute vec4 a_position;   \n" /* FIXME: vec3? */
@@ -220,13 +203,13 @@ struct pseudo_vertex_info {
 
 /* The normal alpha blending shader. */
 static const char *fragment_shader_src_normal =
-#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
+#if !defined(SUIKA_TARGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(LINUX)
+#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
 	"#undef mediump                                      \n"
 #endif
-#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
+#if !defined(USE_QT)
 	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
@@ -241,13 +224,13 @@ static const char *fragment_shader_src_normal =
 
 /* The character dimming shader. (RGB 50%) */
 static const char *fragment_shader_src_dim =
-#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
+#if !defined(SUIKA_TARGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(LINUX)
+#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
 	"#undef mediump                                      \n"
 #endif
-#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
+#if !defined(USE_QT)
 	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
@@ -263,13 +246,13 @@ static const char *fragment_shader_src_dim =
 
 /* The rule shader. (1-bit universal transition) */
 static const char *fragment_shader_src_rule =
-#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
+#if !defined(SUIKA_TARGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(LINUX)
+#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
 	"#undef mediump                                      \n"
 #endif
-#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
+#if !defined(USE_QT)
 	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
@@ -286,13 +269,13 @@ static const char *fragment_shader_src_rule =
 
 /* The melt shader. (8-bit universal transition) */
 static const char *fragment_shader_src_melt =
-#if !defined(EM) && !(defined(USE_QT) && (defined(OSX) || defined(IOS)))
+#if !defined(SUIKA_ATERGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(LINUX)
+#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
 	"#undef mediump                                      \n"
 #endif
-#if !(defined(USE_QT) && (defined(IOS) || defined(ANDROID)))
+#if !defined(USE_QT)
 	"precision mediump float;                            \n"
 #endif
 	"varying vec2 v_texCoord;                            \n"
@@ -336,7 +319,7 @@ static void draw_elements(int dst_left, int dst_top,
  */
 bool init_opengl(void)
 {
-#ifdef ANDROID
+#ifdef SUIKA_TARGET_ANDROID
 	cleanup_opengl();
 #endif
 
