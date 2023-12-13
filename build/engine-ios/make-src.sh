@@ -31,6 +31,11 @@ $SED -i 's|../../src/|src/|g' -i "$TARGET/engine-ios.xcodeproj/project.pbxproj"
 # Copy the Suika2 source files.
 mkdir "$TARGET/src"
 COPY_LIST="\
+	GameRenderer.h \
+	GameRenderer.m \
+	GameShaders.metal \
+	GameShaderTypes.h \
+	GameViewControllerProtocol.h \
 	anime.c \
 	anime.h \
 	aunit.c \
@@ -47,6 +52,7 @@ COPY_LIST="\
 	cmd_goto.c \
 	cmd_gui.c \
 	cmd_if.c \
+	cmd_layer.c \
 	cmd_load.c \
 	cmd_message.c \
 	cmd_pencil.c \
@@ -102,6 +108,8 @@ COPY_LIST="\
 	stage.h \
 	suika.h \
 	types.h \
+	uimsg.h \
+	uimsg.c \
 	vars.c \
 	vars.h \
 	wave.c \
@@ -119,9 +127,7 @@ for f in $COPY_LIST; do
 done
 
 # Deploy libroot.
-if [ ! -d "libroot" ]; then
-	rm -f libroot-ios.tar.gz;
-	wget 'https://suika2.com/dl/libroot-ios.tar.gz';
-	tar xzf libroot-ios.tar.gz -C "$TARGET";
-	rm -rf "$TARGET/libroot/bin";
-fi
+rm -f libroot-ios.tar.gz
+wget 'https://suika2.com/dl/libroot-ios.tar.gz'
+tar xzf libroot-ios.tar.gz -C "$TARGET"
+rm -rf "$TARGET/libroot/bin"

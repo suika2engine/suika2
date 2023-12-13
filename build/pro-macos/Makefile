@@ -23,7 +23,7 @@ suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(HDRS_APPLE) $(SRCS_APPLE) $(FILE
 		echo "waiting..."; \
 		sleep 10; \
 	done
-	@rm -rf tmp suika2-pro.dmg
+	@rm -rf tmp *.dmg
 	@mkdir tmp
 	@cp -Ra "build/Release/Suika2 Pro.app" "tmp/Suika2 Pro.app"
 	@create-dmg \
@@ -34,6 +34,7 @@ suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(HDRS_APPLE) $(SRCS_APPLE) $(FILE
 		--icon-size 100 \
 		--icon "Suika2 Pro.app" 200 190 \
 		--app-drop-link 600 185 \
+		--format UDBZ \
 		"suika2.dmg" \
 		"tmp"
 

@@ -13,6 +13,7 @@
 #import "aunit.h"
 
 static ViewController *theViewController;
+static FILE *openLog(void);
 
 @interface ViewController ()
 @end

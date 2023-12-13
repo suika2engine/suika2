@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
 
+#include "types.h"
+
 @protocol GameViewControllerProtocol <NSObject>
 
 // Screen scaling
