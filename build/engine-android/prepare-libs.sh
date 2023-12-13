@@ -102,6 +102,8 @@ cp ../../src/seen.h app/src/main/cpp/seen.h
 cp ../../src/stage.c app/src/main/cpp/stage.c
 cp ../../src/stage.h app/src/main/cpp/stage.h
 cp ../../src/suika.h app/src/main/cpp/suika.h
+cp ../../src/uimsg.h app/src/main/cpp/uimsg.h
+cp ../../src/uimsg.c app/src/main/cpp/uimsg.c
 cp ../../src/types.h app/src/main/cpp/types.h
 cp ../../src/vars.c app/src/main/cpp/vars.c
 cp ../../src/vars.h app/src/main/cpp/vars.h
