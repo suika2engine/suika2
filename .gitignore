@@ -76,6 +76,7 @@ build/engine-ios/engine-ios.xcodeproj/project.xcworkspace
 build/engine-ios/engine-ios.xcodeproj/xcshareddata
 build/engine-ios/engine-ios.xcodeproj/cuserdata
 build/engine-ios/engine-ios.xcodeproj/xcuserdata
+build/engine-ios/engine-ios/data01.arc
 build/engine-ios/ios-src
 build/engine-ios/libroot-ios.tar.gz
 

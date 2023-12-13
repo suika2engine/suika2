@@ -17,16 +17,16 @@ mkdir "$TARGET"
 
 # Copy the base files.
 COPY_LIST="\
-	suika \
-	suika.xcodeproj \
+	engine-ios \
+	engine-ios.xcodeproj \
 "
 for f in $COPY_LIST; do
     cp -R "$f" "$TARGET/";
 done
-rm -f "$TARGET/suika/data01.arc"
+rm -f "$TARGET/engine-ios/data01.arc"
 
 # Change the source code paths in the project file.
-$SED -i 's|../../src/|src/|g' -i "$TARGET/suika.xcodeproj/project.pbxproj"
+$SED -i 's|../../src/|src/|g' -i "$TARGET/engine-ios.xcodeproj/project.pbxproj"
 
 # Copy the Suika2 source files.
 mkdir "$TARGET/src"
@@ -85,7 +85,6 @@ COPY_LIST="\
 	main.h \
 	mixer.c \
 	mixer.h \
-	iosmain.m \
 	hal.h \
 	readimage.c \
 	readpng.c \
