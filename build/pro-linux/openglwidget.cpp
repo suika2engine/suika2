@@ -72,9 +72,7 @@ void OpenGLWidget::paintGL()
     opengl_start_rendering();
 
     // Run an event frame rendering.
-    //  - x, y, w and h are ignored
-    int x, y, w, h;
-    bool cont = on_event_frame(&x, &y, &w, &h);
+    bool cont = on_event_frame();
 
     // End Suika2's OpenGL rendering.
     opengl_end_rendering();

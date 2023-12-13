@@ -635,3 +635,8 @@ const char *get_system_locale(void)
 {
 	return "other";
 }
+
+void speak_text(const char *text)
+{
+	UNUSED_PARAMETER(text);
+}
