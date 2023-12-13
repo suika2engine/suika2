@@ -926,7 +926,7 @@ void reset_lap_timer(uint64_t *t)
 //
 uint64_t get_lap_timer_millisec(uint64_t *t)
 {
-    uint64t ms = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+    uint64_t ms = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
     return ms - *t;
 }
 
