@@ -27,41 +27,43 @@ void opengl_start_rendering(void);
 /* フレームのレンダリングを終了する */
 void opengl_end_rendering(void);
 
-/* テクスチャをロックする */
-bool opengl_lock_texture(int width, int height, pixel_t *pixels,
-			 pixel_t **locked_pixels, void **texture);
-
-/* テクスチャをアンロックする */
-void opengl_unlock_texture(int width, int height, pixel_t *pixels,
-			   pixel_t **locked_pixels, void **texture);
+/* テクスチャを更新する */
+void opengl_notify_image_update(struct image *img);
 
 /* テクスチャを破棄する */
-void opengl_destroy_texture(void *texture);
+void opengl_notify_image_free(struct image *img);
 
 /* 画面にイメージをレンダリングする */
-void opengl_render_image(int dst_left, int dst_top,
-			 struct image * RESTRICT src_image, int width,
-			 int height, int src_left, int src_top, int alpha,
-			 int bt);
+void opengl_render_image_copy(int dst_left, int dst_top,
+			      struct image *src_image, int width,
+			      int height, int src_left, int src_top);
+
+/* 画面にイメージをレンダリングする */
+void opengl_render_image_normal(int dst_left, int dst_top,
+				struct image *src_image, int width,
+				int height, int src_left, int src_top, int alpha);
+
+/* 画面にイメージをレンダリングする */
+void opengl_render_image_add(int dst_left, int dst_top,
+			     struct image *src_image, int width,
+			     int height, int src_left, int src_top, int alpha);
 
 /* 画面にイメージを暗くレンダリングする */
 void opengl_render_image_dim(int dst_left, int dst_top,
-			     struct image * RESTRICT src_image, int width,
+			     struct image *src_image, int width,
 			     int height, int src_left, int src_top);
 
 /* 画面にイメージをルール付きでレンダリングする */
-void opengl_render_image_rule(struct image * RESTRICT src_image,
-			      struct image * RESTRICT rule_image,
+void opengl_render_image_rule(struct image *src_image,
+			      struct image *rule_image,
 			      int threshold);
 
 /* 画面にイメージをルール付き(メルト)でレンダリングする */
-void opengl_render_image_melt(struct image * RESTRICT src_image,
-			      struct image * RESTRICT rule_image,
-			      int threshold);
+void opengl_render_image_melt(struct image *src_image,
+			      struct image *rule_image,
+			      int progress);
 
-#ifdef WIN
 /* 全画面表示のときのスクリーンオフセットを指定する */
 void opengl_set_screen(int x, int y, int w, int h);
-#endif
 
 #endif

@@ -15,7 +15,6 @@ WINDRES = ./llvm/bin/aarch64-w64-mingw32-windres
 CPPFLAGS = \
 	-I./llvm/aarch64-w64-mingw32/include \
 	-I. \
-	-I../engine-windows-x86/res \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -50,7 +49,6 @@ LDFLAGS = \
 	-ldsound \
 	-lstrmiids \
 	-lwinmm \
-	-lopengl32 \
 	-ld3d9 \
 	-lsapi \
 	-L./libroot/lib \
@@ -62,18 +60,16 @@ LDFLAGS = \
 #
 
 SRCS_C = \
-	$(SRCS_COMMON) \
+	$(SRCS_MAIN) \
 	../../src/winmain.c \
-	../../src/uimsg.c \
-	../../src/glrender.c \
-	../../src/d3drender.c \
 	../../src/dsound.c
 
 SRCS_CC = \
+	../../src/d3drender.cc \
 	../../src/dsvideo.cc \
 	../../src/tts_sapi.cc
 
-SRCS_R = ../engine-windows-x86/res/resource.rc
+SRCS_R = resource.rc
 
 #
 # .c.o compilation rules
@@ -82,7 +78,7 @@ SRCS_R = ../engine-windows-x86/res/resource.rc
 OBJS = \
 	$(SRCS_C:../../src/%.c=%.o) \
 	$(SRCS_CC:../../src/%.cc=%.o) \
-	$(SRCS_R:../engine-windows-x86/res/%.rc=%.o)
+	$(SRCS_R:%.rc=%.o)
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
@@ -90,7 +86,7 @@ OBJS = \
 %.o: ../../src/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
-%.o: ../engine-windows-x86/res/%.rc
+%.o: %.rc
 	$(WINDRES) $< $@
 
 #
@@ -99,12 +95,11 @@ OBJS = \
 
 all: suika-arm64.exe
 
-suika-arm64.exe: libroot $(OBJS)
+suika-arm64.exe: libroot $(OBJS) $(HDRS_MAIN)
 	$(CC) -s -o suika-arm64.exe $(OBJS) $(LDFLAGS)
 
 libroot:
 	./build-libs.sh
-
 
 #
 # Phony

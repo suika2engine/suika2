@@ -8,6 +8,7 @@
 /*
  * [Changed]
  *  - 2020/06/11 Created.
+ *  - 2023/12/05 Change to an editor.
  */
 
 #ifndef SUIKA_NSDEBUG_H
@@ -16,11 +17,15 @@
 #import <Cocoa/Cocoa.h>
 #import "suika.h"
 
-@interface DebugWindowController : NSWindowController <NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate>
-- (void)doubleClickTableView:(id)nid;
+@interface DebugAppDelegate : NSObject
 @end
 
-BOOL initDebugWindow(void);
-BOOL getStartupPosition(void);
+@interface DebugWindowController : NSWindowController <NSWindowDelegate>
+@end
+
+
+BOOL initProject(void);
+BOOL initDebugger(void);
+void cleanupDebugger(void);
 
 #endif

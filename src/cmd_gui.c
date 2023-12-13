@@ -19,7 +19,7 @@ static bool cleanup(void);
 /*
  * GUIコマンド
  */
-bool gui_command(int *x, int *y, int *w, int *h)
+bool gui_command(void)
 {
 	/* 最初のフレームの場合 */
 	if (!is_in_command_repetition()) {
@@ -28,7 +28,7 @@ bool gui_command(int *x, int *y, int *w, int *h)
 			return false;
 
 		/* 最初のフレームの描画を行う */
-		if (!run_gui_mode(x, y, w, h))
+		if (!run_gui_mode())
 			return false;
 
 		/* 次のフレーム以降はmain.cでrun_gui_mode()が呼ばれる */
@@ -52,6 +52,7 @@ static bool init(void)
 	bool opt_cancel;
 	bool opt_nofadein;
 	bool opt_nofadeout;
+	bool opt_msgbox;
 
 	/* GUIファイル名を取得する */
 	file = get_string_param(GUI_PARAM_FILE);
@@ -60,6 +61,7 @@ static bool init(void)
 	opt_cancel = false;
 	opt_nofadein = false;
 	opt_nofadeout = false;
+	opt_msgbox = false;
 	opt = get_string_param(GUI_PARAM_OPTIONS);
 	if (strstr(opt, "cancel") != NULL ||
 	    strstr(opt, U8("キャンセル許可")) != NULL)
@@ -70,6 +72,9 @@ static bool init(void)
 	if (strstr(opt, "nofadeout") != NULL ||
 	    strstr(opt, "フェードアウトなし") != NULL)
 		opt_nofadeout = true;
+	if (strstr(opt, "msgbox") != NULL ||
+	    strstr(opt, U8("メッセージボックスあり")) != NULL)
+		opt_msgbox = true;
 
 	/* セーブに備えてサムネイルを作成する */
 	draw_stage_to_thumb();
@@ -82,51 +87,9 @@ static bool init(void)
 	set_gui_options(opt_cancel, opt_nofadein, opt_nofadeout);
 
 	/* 背景以外を消す */
-	if (!is_gui_overlay()) {
+	if (!opt_msgbox) {
 		show_namebox(false);
 		show_msgbox(false);
-		set_layer_file_name(LAYER_CHB, NULL);
-		set_layer_file_name(LAYER_CHL, NULL);
-		set_layer_file_name(LAYER_CHR, NULL);
-		set_layer_file_name(LAYER_CHC, NULL);
-		set_layer_file_name(LAYER_CHF, NULL);
-		set_layer_file_name(LAYER_TEXT1, NULL);
-		set_layer_file_name(LAYER_TEXT2, NULL);
-		set_layer_file_name(LAYER_TEXT3, NULL);
-		set_layer_file_name(LAYER_TEXT4, NULL);
-		set_layer_file_name(LAYER_TEXT5, NULL);
-		set_layer_file_name(LAYER_TEXT6, NULL);
-		set_layer_file_name(LAYER_TEXT7, NULL);
-		set_layer_file_name(LAYER_TEXT8, NULL);
-		set_layer_file_name(LAYER_EFFECT1, NULL);
-		set_layer_file_name(LAYER_EFFECT2, NULL);
-		set_layer_file_name(LAYER_EFFECT3, NULL);
-		set_layer_file_name(LAYER_EFFECT4, NULL);
-		set_layer_image(LAYER_CHB, NULL);
-		set_layer_image(LAYER_CHL, NULL);
-		set_layer_image(LAYER_CHR, NULL);
-		set_layer_image(LAYER_CHC, NULL);
-		set_layer_image(LAYER_CHF, NULL);
-		set_layer_image(LAYER_TEXT1, NULL);
-		set_layer_image(LAYER_TEXT2, NULL);
-		set_layer_image(LAYER_TEXT3, NULL);
-		set_layer_image(LAYER_TEXT4, NULL);
-		set_layer_image(LAYER_TEXT5, NULL);
-		set_layer_image(LAYER_TEXT6, NULL);
-		set_layer_image(LAYER_TEXT7, NULL);
-		set_layer_image(LAYER_TEXT8, NULL);
-		set_layer_image(LAYER_EFFECT1, NULL);
-		set_layer_image(LAYER_EFFECT2, NULL);
-		set_layer_image(LAYER_EFFECT3, NULL);
-		set_layer_image(LAYER_EFFECT4, NULL);
-		set_layer_text(LAYER_TEXT1, NULL);
-		set_layer_text(LAYER_TEXT2, NULL);
-		set_layer_text(LAYER_TEXT3, NULL);
-		set_layer_text(LAYER_TEXT4, NULL);
-		set_layer_text(LAYER_TEXT5, NULL);
-		set_layer_text(LAYER_TEXT6, NULL);
-		set_layer_text(LAYER_TEXT7, NULL);
-		set_layer_text(LAYER_TEXT8, NULL);
 	}
 
 	/* 繰り返し処理を開始する */
@@ -144,9 +107,9 @@ static bool cleanup(void)
 	const char *label;
 	bool ret;
 
-    ret = true;
+	ret = true;
 
-    /* 繰り返し処理を終了する */
+	/* 繰り返し処理を終了する */
 	stop_command_repetition();
 
 	/* ラベルジャンプボタンが押下された場合 */

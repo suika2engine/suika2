@@ -1,13 +1,9 @@
 /*
- * Watermelon Script
- * Copyright (c) 2022, Keiichi Tabata. All rights reserved.
+ * Suika2
+ * Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <assert.h>
+#include "suika.h"
 #include "wms_core.h"
 
 #ifdef _MSC_VER

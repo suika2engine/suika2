@@ -33,6 +33,7 @@ done
 
 # Copy the Suika2 source files.
 COPY_LIST="\
+	suika.h \
 	anime.c \
 	anime.h \
 	cmd_anime.c \
@@ -65,8 +66,6 @@ COPY_LIST="\
 	cmd_wms.c \
 	conf.c \
 	conf.h \
-	drawglyph.h \
-	drawimage.h \
 	event.c \
 	event.h \
 	file.h \
@@ -90,9 +89,11 @@ COPY_LIST="\
 	ndkmain.c \
 	ndkmain.h \
 	ndkwave.c \
-	platform.h \
+	hal.h \
 	readimage.c \
+	readpng.c \
 	readjpeg.c \
+	readwebp.c \
 	save.c \
 	save.h \
 	scbuf.c \
@@ -103,7 +104,6 @@ COPY_LIST="\
 	seen.h \
 	stage.c \
 	stage.h \
-	suika.h \
 	types.h \
 	vars.c \
 	vars.h \

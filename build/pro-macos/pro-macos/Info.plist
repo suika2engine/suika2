@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved.</string>
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+      <dict>
+	<key>UTTypeConformsTo</key>
+	<array>
+	  <string>public.suika2</string>
+	</array>
+	<key>UTTypeDescription</key>
+	<string>Suika2 Project</string>
+	<key>UTTypeIdentifier</key>
+	<string>jp.luxion.suika</string>
+	<key>UTTypeTagSpecification</key>
+	<dict>
+	  <key>public.filename-extension</key>
+	  <array>
+	    <string>suika2project</string>
+	  </array>
+	</dict>
+      </dict>
+    </array>
+  </dict>
+</plist>

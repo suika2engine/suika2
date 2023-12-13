@@ -84,7 +84,7 @@ setup:
 			/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
 		fi; \
 		echo 'Installing mingw-w64...'; \
-		brew install mingw-w64 gsed coreutils wget; \
+		brew install mingw-w64 gsed coreutils gsed wget makensis create-dmg; \
 		echo "Building the libraries."; \
 		cd build/engine-windows-x86 && ./build-libs.sh && cd ../..; \
 		cp -Ra build/engine-windows-x86/libroot build/pro-windows-x86/; \
@@ -114,15 +114,6 @@ windows:
 windows-pro:
 	@echo 'Building suika-pro.exe'
 	@cd build/pro-windows-x86 && \
-	make libroot && \
-	make -j8 && \
-	make install && \
-	cd ../..
-
-# suika-studio.exe (the editor for 32-bit Windows)
-windows-studio:
-	@echo 'Building suika-studio.exe'
-	@cd build/studio-windows-x86 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -328,31 +319,19 @@ gtest:
 ## Release (dev internal)
 ##
 
-# Internal: Make a main release file and update the Web site on WSL2.
+# Internal: Make a main release file and update the Web site on a macOS host..
 do-release:
-	@# Check if we are running on WSL2.
-	@if [ ! -z "`uname | grep Darwin`" ]; then \
-		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
-		echo ""; \
-	elif [ -z "`grep -i WSL2 /proc/version`" ]; then \
-		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
-		echo ""; \
-	fi
-	@cd build && ./scripts/release-main.sh && cd ..
-
-# Internal: Make a main release file and update the Web site on macOS.
-do-release-on-mac:
 	@# Check if we are running on macOS.
 	@if [ -z "`uname | grep Darwin`" ]; then \
 		echo "You are not running on macOS."; \
 		exit 1; \
 	fi
-	@cd build && ./scripts/release-main-on-mac.sh && cd ..
+	@cd build && ./scripts/do-release.sh && cd ..
 
 # Internal: Update template games.
 update-templates:
 	@echo "Going to update template games."
-	@cd build && ./scripts/release-templates.sh && cd ..
+	@cd build && ./scripts/update-templates.sh && cd ..
 
 ##
 ## POSIX Convention
@@ -382,22 +361,21 @@ install:
 	@install -v -d $(DESTDIR)/share/suika2/game/wms
 	@install -v -d $(DESTDIR)/share/suika2/game/mov
 	@install -v suika-linux $(DESTDIR)/bin
-	@install -v build/linux-x86_64-pro/build/suika-pro $(DESTDIR)/bin
-	@install -v build/linux-x86_64-pro/suika2 $(DESTDIR)/bin
-	@install -v -t $(DESTDIR)/share/suika2/game/anime game/anime/*
-	@install -v -t $(DESTDIR)/share/suika2/game/bg game/bg/*
-	@install -v -t $(DESTDIR)/share/suika2/game/bgm game/bgm/*
-	@install -v -t $(DESTDIR)/share/suika2/game/ch game/ch/*
-	@install -v -t $(DESTDIR)/share/suika2/game/cg game/cg/*
-	@install -v -t $(DESTDIR)/share/suika2/game/conf game/conf/*
-	@install -v -t $(DESTDIR)/share/suika2/game/cv game/cv/*
-	@install -v -t $(DESTDIR)/share/suika2/game/gui game/gui/*.txt
-	@install -v -t $(DESTDIR)/share/suika2/game/gui/english-translation game/gui/english-translation/*.txt
-	@install -v -t $(DESTDIR)/share/suika2/game/txt game/txt/*
-	@install -v -t $(DESTDIR)/share/suika2/game/font game/font/*
-	@install -v -t $(DESTDIR)/share/suika2/game/rule game/rule/*
-	@install -v -t $(DESTDIR)/share/suika2/game/se game/se/*
-	@install -v -t $(DESTDIR)/share/suika2/game/wms game/wms/*
+	@install -v build/pro-qt6/build/suika-pro $(DESTDIR)/bin
+	@install -v build/pro-qt6/suika2 $(DESTDIR)/bin
+	@install -v -t $(DESTDIR)/share/suika2/game/anime games/english/anime/*
+	@install -v -t $(DESTDIR)/share/suika2/game/bg games/english/bg/*
+	@install -v -t $(DESTDIR)/share/suika2/game/bgm games/english/bgm/*
+	@install -v -t $(DESTDIR)/share/suika2/game/ch games/english/ch/*
+	@install -v -t $(DESTDIR)/share/suika2/game/cg games/english/cg/*
+	@install -v -t $(DESTDIR)/share/suika2/game/conf games/english/conf/*
+	@install -v -t $(DESTDIR)/share/suika2/game/cv games/english/cv/*
+	@install -v -t $(DESTDIR)/share/suika2/game/gui games/english/gui/*
+	@install -v -t $(DESTDIR)/share/suika2/game/txt games/english/txt/*
+	@install -v -t $(DESTDIR)/share/suika2/game/font games/english/font/*
+	@install -v -t $(DESTDIR)/share/suika2/game/rule games/english/rule/*
+	@install -v -t $(DESTDIR)/share/suika2/game/se games/english/se/*
+	@install -v -t $(DESTDIR)/share/suika2/game/wms games/english/wms/*
 
 ##
 ## Other
@@ -406,16 +384,5 @@ install:
 # Cleanup.
 clean:
 	rm -f suika.exe suika-pro.exe suika-64.exe suika-arm64.exe suika-capture.exe suika-replay.exe
-	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg mac.zip pack.mac
+	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg
 	rm -f suika-linux suika-pro suika-linux-capture suika-linux-replay
-# Make Kirara release files and upload them.
-kirara:
-	@# Check if we are running on WSL2.
-	@if [ ! -z "`uname | grep Darwin`" ]; then \
-		echo "Warning: we are on macOS and we will make Windows binaries without code signing."; \
-		echo ""; \
-	elif [ -z "`grep -i WSL2 /proc/version`" ]; then \
-		echo "Warning: we are on non-WSL2 Linux and we will make Windows binaries without code signing."; \
-		echo ""; \
-	fi
-	@cd build && ./scripts/release-kirara.sh && cd ..

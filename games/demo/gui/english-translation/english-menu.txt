@@ -1,0 +1,95 @@
+###
+### GUI Definition for Main Menu Screen
+###
+
+# Basic Settings
+global {
+    # Use these images
+    idle:   menu-idle.png;
+    hover:  menu-hover.png;
+    active: menu-hover.png;
+}
+
+# START Button
+START {
+    # Jump-to-label type
+    type: goto;
+
+    # Jump to label
+    label: START;
+
+    # Position and size
+    x: 2;
+    y: 495;
+    width: 314;
+    height: 192;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# LOAD Button
+LOAD {
+    # Jump-to-label type
+    type: goto;
+
+    # Jump to label
+    label: LOAD;
+
+    # Position and size
+    x: 316;
+    y: 494;
+    width: 322;
+    height: 203;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# CONFIG Button
+CONFIG {
+    # Jump-to-label type
+    type: goto;
+
+    # Jump to label
+    label: CONFIG;
+
+    # Position and size
+    x: 640;
+    y: 492;
+    width: 317;
+    height: 204;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# QUIT Button
+QUIT {
+    # Jump-to-label type
+    type: goto;
+
+    # Jump to label
+    label: QUIT;
+
+    # Position and size
+    x: 960;
+    y: 497;
+    width: 317;
+    height: 201;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}

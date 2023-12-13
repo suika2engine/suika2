@@ -146,9 +146,7 @@
 
 <h2 class="spacer">更新情報</h2>
 <ul class="alert alert-info">
-<!--LATEST-RELEASE--><li><a href="/dl/">2023/11/27 Suika2/15.1 リリース</a></li>
-  <li><a href="/dl/">2023/11/04 KAGからSuika2へ変換するプログラムR1を公開</a></li>
-  <li>2023/10/31 ドキュメント全般をPukiWikiに移行</li>
+<!--LATEST-RELEASE--><li><a href="/dl/">2023/12/13 Suika2/15.4 リリース</a></li>
   <li><a href="award2023.html">2023/10/28 Suika2ノベルゲーム大賞2023 結果公表</a></li>
 </ul>
 
@@ -178,9 +176,9 @@
   <li>Windowsアプリ (オプションでインストーラ作成も可能)</li>
   <li>Macアプリ</li>
   <li>Webブラウザアプリ (ワンクリックでエクスポート可能)</li>
-  <li>Androidアプリ (Suika2 Studioからエクスポート後、Android Studioでワンクリックビルド可能)</li>
-  <li>iPhoneアプリ (Suika2 Studioからエクスポート後、Xcodeでワンクリックビルド可能)</li>
-  <li>iPadアプリ (Suika2 Studioからエクスポート後、Xcodeでワンクリックビルド可能)</li>
+  <li>Androidアプリ (Suika2 Proからエクスポート後、Android Studioでワンクリックビルド可能)</li>
+  <li>iPhoneアプリ (Suika2 Proからエクスポート後、Xcodeでワンクリックビルド可能)</li>
+  <li>iPadアプリ (Suika2 Proからエクスポート後、Xcodeでワンクリックビルド可能)</li>
   <li>家庭用ゲーム機 (オープンソースにできないので、詳しくはご相談ください)</li>
 </ul>
 
@@ -208,27 +206,13 @@
 <h2 class="spacer">アプリラインナップ</h2>
 <div class="row align-items-md-center spacer">
 	<div class="col-md">
-		<h2>Suika2 Studio</h2>
-		<p>
-			Suika2 Studioは、Suika2に同梱されている無料のエディタ＆デバッグツールです。<br>
-			右クリックして演出を選べばゲームを作ることができます。<br>
-			Suika2 StudioのVisual Live Scripting技術は、GUIの便利さとスクリプト記述の効率性の間でバランスを取った、2001年からの研究開発の成果です。<br>
-			さらに、１行ずつ実行できるデバッグ機能や、変数の変化を確認する機能もあります。<br>
-			極めつけにゲームのエクスポート機能がついており、公開先サイトを指定して、Windows/macOS/iOS/Android/Web向けのゲームを出力可能です。<br>
-			まだベータ版ですので、どんどんバグ報告をください！
-		</p>
-	</div>
-	<div class="col-md">
-		<img width="100%" src="img/banners/studio_banner.png" alt="Suika2 Studio">
-	</div>
-</div>
-<div class="row align-items-md-center spacer">
-	<div class="col-md">
 		<h2>Suika2 Pro</h2>
 		<p>
-			Suika2 Proは強力な制作支援ツールで、Suika2に同梱されています。
-			Proという名前ですが無料です。
-			現在は後継のSuika2 Studioへ移行しているところですが、まだ安定版のデバッグツールとして同梱されています。
+			Suika2 Proは、Suika2に同梱されている無料のエディタ＆デバッグツールです。<br>
+			基本となる小説を書いた上で、右クリックして演出を追加すればゲームを作ることができます。<br>
+			Suika2 ProのVisual Live Scripting技術は、GUIの便利さとスクリプト記述の効率性の間でバランスを取った、2001年からの研究開発の成果です。<br>
+			さらに、１行ずつ実行できるデバッグ機能や、変数の変化を確認する機能もあります。<br>
+			ゲームのエクスポート機能もついており、公開先サイトを指定して、Windows/macOS/iOS/Android/Web向けのゲームを出力可能です。<br>
 		</p>
 	</div>
 	<div class="col-md">
@@ -271,7 +255,7 @@
 	<div class="col-md">
 		<h2>iOS版Suika2</h2>
 		<p>
-			Suika2で作ったゲームは、Suika2 Studioでエクスポート後、
+			Suika2で作ったゲームは、Suika2 Proでエクスポート後、
 			Appleから提供されているXcodeで開くとワンクリックでビルドできます。<br>
 			ご自身のiPhoneかiPadに転送するだけでしたら、
 			MacとApple Developer Programアカウントがあれば審査は不要で、
@@ -292,7 +276,7 @@
 	<div class="col-md">
 		<h2>Android版Suika2</h2>
 		<p>
-			Suika2で作ったゲームは、Suika2 Studioでエクスポート後、
+			Suika2で作ったゲームは、Suika2 Proでエクスポート後、
 			Googleから提供されているAndroid Studioで開くとワンクリックでビルドできます。
 			ご自身のAndroidスマホに転送するだけでしたら、登録や審査は不要で、10分もかかりません。
 		</p>
@@ -313,7 +297,7 @@
 			「マウス操作じゃなきゃ作れない！」という声に応えて、１週間程度で試作してみました。<br>
 			2001年に公開した初代・西瓜Studioの流れを汲んでいます。<br>
 			このようなビジュアルエディタはとっつきやすい反面、作業効率の点で長いストーリーには不向きですので、
-			Suika2 StudioのVisual Live Scripting技術に移行中です。
+			Suika2 ProのVisual Live Scripting技術に移行中です。
 		</p>
 	</div>
 </div>
@@ -342,7 +326,7 @@
   <li>2023年01月 ビジュアルエディタ Kirara の試作</li>
   <li>2023年05月 Suika2ノベルゲーム大賞2023を開催</li>
   <li>2023年10月 ストア配信での利用が始まる</li>
-  <li>2023年11月 "Suika2 Studio" で22年に及ぶ開発成果であるVisual Live Scripting技術を公表</li>
+  <li>2023年11月 22年に及ぶ研究開発成果であるVisual Live Scripting技術を公表</li>
 </ul>
 
 <!-- ------------------------- -->

@@ -1,0 +1,41 @@
+###
+### A Sample Overlay GUI
+###
+
+# Basic Settings
+global {
+    # Use these iamges.
+    idle:   overlay-menu-idle.png;
+    hover:  overlay-menu-hover.png;
+    active: overlay-menu-hover.png;
+
+    # Show stage (including bg and ch) and overlay GUI on it.
+    overlay: yes;
+
+    # fade-in time (seconds)
+    fadein: 1.0;
+
+    # fade-out time (seconds)
+    fadeout: 1.0;
+}
+
+# Test Button
+TEST {
+    # Type: jump-to-label.
+    type: goto;
+
+    # The label to jump to.
+    label: TEST;
+
+    # Position and Size.
+    x: 57;
+    y: 59;
+    width: 193;
+    height: 77;
+
+    # Sound effect when pointed.
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked.
+    clickse: click.ogg;
+}

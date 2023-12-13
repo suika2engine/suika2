@@ -1,6 +1,6 @@
 /*
- * Watermelon Script
- * Copyright (c) 2022, Keiichi Tabata. All rights reserved.
+ * Suika2
+ * Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 #ifndef WMS_H

@@ -22,10 +22,14 @@
 
 #include "suika.h"
 
+#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
+#include "pro.h"
+#endif
+
 /* セーブデータの互換性バージョン(12.42で導入) */
 #define SAVE_VER	(0xabcd1415)
 
-#ifdef EM
+#ifdef SUIKA_TARGET_WASM
 #include <emscripten/emscripten.h>
 #endif
 
@@ -312,7 +316,7 @@ bool quick_save(void)
 	/* クイックセーブの時刻を更新する */
 	quick_save_time = (time_t)timestamp;
 
-#ifdef EM
+#ifdef SUIKA_TARGET_WASM
 	void resume_sound(void);
 	EM_ASM_(
 		FS.syncfs(function (err) { alert('Saved to the browser!'); });
@@ -346,7 +350,7 @@ bool execute_save(int index)
 	/* 時刻を保存する */
 	save_time[index] = (time_t)timestamp;
 
-#ifdef EM
+#ifdef SUIKA_TARGET_WASM
 	void resume_sound(void);
 	EM_ASM_(
 		FS.syncfs(function (err) { alert('Saved to the browser!'); });
@@ -520,29 +524,24 @@ static bool serialize_thumb(struct wfile *wf, int index)
 		if (save_thumb[index] == NULL)
 			return false;
 	}
-	lock_image(save_thumb[index]);
-	{
-		draw_image(save_thumb[index], 0, 0, get_thumb_image(),
-			   conf_save_data_thumb_width,
-			   conf_save_data_thumb_height, 0, 0, 255, BLEND_NONE);
-	}
-	unlock_image(save_thumb[index]);
+	draw_image_copy(save_thumb[index], 0, 0, get_thumb_image(),
+			conf_save_data_thumb_width, conf_save_data_thumb_height, 0, 0);
+	notify_image_update(save_thumb[index]);
 
 	/* ピクセル列を準備する */
-	src = get_image_pixels(get_thumb_image());
+	src = get_thumb_image()->pixels;
 	dst = tmp_pixels;
 	for (y = 0; y < conf_save_data_thumb_height; y++) {
 		for (x = 0; x < conf_save_data_thumb_width; x++) {
 			pix = *src++;
-			*dst++ = (unsigned char)get_pixel_r_slow(pix);
-			*dst++ = (unsigned char)get_pixel_g_slow(pix);
-			*dst++ = (unsigned char)get_pixel_b_slow(pix);
+			*dst++ = (unsigned char)get_pixel_r(pix);
+			*dst++ = (unsigned char)get_pixel_g(pix);
+			*dst++ = (unsigned char)get_pixel_b(pix);
 		}
 	}
 
 	/* 書き出す */
-	len = (size_t)(conf_save_data_thumb_width *
-		       conf_save_data_thumb_height * 3);
+	len = (size_t)(conf_save_data_thumb_width * conf_save_data_thumb_height * 3);
 	if (write_wfile(wf, tmp_pixels, len) < len)
 		return false;
 
@@ -811,7 +810,7 @@ bool quick_load(void)
 		abort();
 
 	/* アニメを停止する */
-	for (i = 0; i < ANIME_LAYER_COUNT; i++)
+	for (i = 0; i < STAGE_LAYERS; i++)
 		clear_anime_sequence(i);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
@@ -870,7 +869,7 @@ bool execute_load(int index)
 		abort();
 
 	/* アニメを停止する */
-	for (i = 0; i < ANIME_LAYER_COUNT; i++)
+	for (i = 0; i < STAGE_LAYERS; i++)
 		clear_anime_sequence(i);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
@@ -1283,20 +1282,17 @@ static void load_basic_save_data_file(struct rfile *rf, int index)
 					 conf_save_data_thumb_height);
 	if (save_thumb[index] == NULL)
 		return;
-	lock_image(save_thumb[index]);
-	{
-		dst = get_image_pixels(save_thumb[index]);
-		src = tmp_pixels;
-		for (y = 0; y < conf_save_data_thumb_height; y++) {
-			for (x = 0; x < conf_save_data_thumb_width; x++) {
-				r = *src++;
-				g = *src++;
-				b = *src++;
-				*dst++ = make_pixel_slow(0xff, r, g, b);
-			}
+	dst = save_thumb[index]->pixels;
+	src = tmp_pixels;
+	for (y = 0; y < conf_save_data_thumb_height; y++) {
+		for (x = 0; x < conf_save_data_thumb_width; x++) {
+			r = *src++;
+			g = *src++;
+			b = *src++;
+			*dst++ = make_pixel(0xff, r, g, b);
 		}
 	}
-	unlock_image(save_thumb[index]);
+	notify_image_update(save_thumb[index]);
 }
 
 /*

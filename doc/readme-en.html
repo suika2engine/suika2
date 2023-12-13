@@ -42,7 +42,7 @@
 </head>
 <body>
 
-<h1>Suika 2/14</h1>
+<h1>Suika 2/15</h1>
 <p>Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.</p>
 
 <h2>About Suika2</h2>
@@ -94,39 +94,15 @@
 <ul>
   <li>On Windows:
     <ul>
-      <li>For Playing and Testing:
-        <ul>
-          <li>Download the zip file from <a href="https://github.com/suika2engine/suika2/releases">GitHub</a> and extract it.*</li>
-          <li>Open the <code>suika2</code> folder in Explorer.</li>
-          <li>Open the <code>suika.exe</code> application.</li>
-        </ul>
-      </li>
-      <li>For Development and Debugging:
-        <ul>
-          <li>Open the <code>suika2</code> folder in Explorer.</li>
-          <li>Open the <code>suika-pro.exe</code> application.</li>
-          <li>(Beta) Open the <code>suika-studio.exe</code> application.</li>
-        </ul>
-      </li>
+      <li>Open the <code>suika-pro.exe</code> application.</li>
     </ul>
   </li>
   <li>On Mac:
     <ul>
-      <li>For Playing and Testing:
-        <ul>
-          <li>Download the zip file from <a href="https://github.com/suika2engine/suika2/releases">GitHub</a> and extract it.*</li>
-          <li>Open the <code>suika2</code> folder in Finder.</li>
-          <li>Copy the <code>suika</code> application in <code>tools/mac.dmg</code> to the <code>suika2</code> folder.</li>
-          <li>Open the <code>suika</code> application in the <code>suika2</code> folder.</li>
-        </ul>
-      </li>
-      <li>For Development and Debugging:
-        <ul>
-          <li>Open the <code>suika2</code> folder in Finder.</li>
-          <li>Copy the <code>Suika2 Pro for Creators</code> application in <code>tools/mac-pro.dmg</code> to the <code>suika2</code> folder.</li>
-          <li>Open the <code>Suika2 Pro for Creators</code> application in the <code>suika2</code> folder.</li>
-        </ul>
-      </li>
+      <li>Open the <code>suika2</code> folder.</li>
+      <li>Open the <code>tools/mac-pro.dmg</code> disk image.</li>
+      <li>Copy the <code>Suika2 Pro for Creators</code> application to the <code>suika2</code> folder.</li>
+      <li>Open the <code>Suika2 Pro for Creators</code> application in the <code>suika2</code> folder.</li>
     </ul>
   </li>
   <li>On Linux (Ubuntu):
@@ -147,12 +123,31 @@
 <h2>Release History</h2>
 <ul>
 <!-- BEGIN-LATEST -->
+<li>Suika2/15.4 2023/12/13
+  <ul>
+    <li>Changed to installer distributions</li>
+    <li>macOS: Rewritten with AppKit and Metal</li>
+    <li>macOS: Added an editor to Suika2 Pro</li>
+  </ul>
+</li>
+<!-- END-LATEST -->
+<li>Suika2/15.3 2023/12/5
+  <ul>
+    <li>Windows: Separate a Suika2 installation folder and game folders</li>
+    <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li>
+    <li>Windows: Add a template chooser on boot time</li>
+  </ul>
+</li>
+<li>Suika2/15.2 2023/12/1
+  <ul>
+    <li>Fix "@ch face" bug (Thanks to ソロー-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.1 2023/11/27
   <ul>
     <li>Add layer command</li>
 	</ul>
 </li>
-<!-- END-LATEST -->
 <li>Suika2/15.0 2023/11/27
   <ul>
     <li>Characters are now increased to left, left-center, center, back, right-center and right.</li>

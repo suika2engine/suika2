@@ -2,299 +2,147 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * A header to absorb compiler differences.
- *  - We support:
- *    - GCC up to 11
- *    - LLVM/Clang up to 14
- *    - MSVC (From Visual C++ 6.0 to Visual Studio 2023)
+ * Handles non-C89 and/or compiler-specific features.
+ *
+ * - The compilers we support as of December 2023 are:
+ *   - GCC 13
+ *   - LLVM/Clang 15
+ *   - MSVC 14
  */
 
 #ifndef SUIKA_TYPES_H
 #define SUIKA_TYPES_H
 
 /*
- * Use NULL macro.
- */
-#include <stddef.h>
-
-/*
- * Define a macro that indicates a platform we are compiling to.
- *  - WIN: for Win32 and Win64
- *  - OSX: for macOS
- *  - ANDROID: for Android
- *  - IOS: for iOS
- *  - EM: for Web (Emscripten)
+ * Define macros that indicate a target platform we are compiling to.
+ *  - SUIKA_TARGET_WIN32   for Win32 (x86/x64/Arm64)
+ *  - SUIKA_TARGET_MACOS   for macOS (Arm64/x86_64)
+ *  - SUIKA_TARGET_IOS     for iOS (Arm64)
+ *  - SUIKA_TARGET_ANDROID for Android (armv8/armv7/x86_64)
+ *  - SUIKA_TARGET_WASM    for Wasm with Emscripten
+ *  - SUIKA_TARGET_POSIX   for Linux and *BSD
  */
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
 #if TARGET_OS_IPHONE
-#define IOS
+#define SUIKA_TARGET_IOS
 #else
-#define OSX
+#define SUIKA_TARGET_MACOS
 #endif
 #elif defined(_WIN32)
-#define WIN
+#define SUIKA_TARGET_WIN32
 #elif defined(__ANDROID__)
-#ifndef ANDROID
-#define ANDROID
-#endif
-#elif defined(__NetBSD__)
-#define NETBSD
-#elif defined(__FreeBSD__)
-#define FREEBSD
+#define SUIKA_TARGET_ANDROID
 #elif defined(__EMSCRIPTEN__)
-#define EM
-#elif !defined(CONSOLE_SAMPLE)
-#define LINUX
-#endif
-
-/*
- * For GCC
- */
-#if defined(__GNUC__) && !defined(__llvm__)
-
-/*
- * Use uint8_t, uint16_t, uint32_t and their signed ones.
- */
-#include <stdint.h>
-
-/*
- * Use bool.
- *  - If this header is included from a .cc or .cpp file, avoid including stdbool.h
- */
-#ifndef __cplusplus
-#include <stdbool.h>
-#endif
-
-/*
- * Define a macro that indicates a target architecture.
- *  - X86 for ia32 (x86)
- *  - X86_64 for amd64 (x86_64)
- */
-#if defined(__i386__) && !defined(__x86_64__)
-#define X86
-#elif defined(__x86_64__)
-#define X86_64
-#endif
-
-/*
- * Decide wehether to use dynamic dispatching of the fastest SSE/AVX extension.
- *  - SSE_VERSIONING for dispatching of SSE/AVX codes
- */
-#if defined(X86) || defined(X86_64)
-#if !defined(ANDROID) && !defined(IOS) && !defined(NO_SSE_VERSIONING)
-#define SSE_VERSIONING
-#endif
+#define SUIKA_TARGET_WASM
 #else
-#undef SSE_VERSIONING
+#define SUIKA_TARGET_POSIX
 #endif
 
-/*
- * Non-C89 keyword wrappers
- */
+ /*
+  * For GCC and LLVM/Clang
+  */
+#if defined(__GNUC__) || defined(__llvm__)
 
-/* Inline function. */
-#define INLINE			__inline
-
-/* No pointer aliasing. */
-#define RESTRICT	 	__restrict
-
-/* Suppress unused warnings. */
-#define UNUSED(x)		x __attribute__((unused))
-#define UNUSED_PARAMETER(x)	(void)(x)
-
-/* Declare a variable with memory alignment. */
-#define ALIGN_DECL(n, cdecl)	cdecl __attribute__((aligned(n)))
-
-/* Utf-8 string literal for non-ASCII strings. */
-#define U8(s)			s
-
-/* Utf-32 character literal for non-ASCII characters. */
-#define U32_C(s)		U##s
-
-/* Aligned malloc() for mingw excluding mingw-w64. */
-#if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
-#define _aligned_malloc	__mingw_aligned_malloc
-#define _aligned_free	__mingw_aligned_free
-#endif
-
-#endif /* End of GCC */
-
-/*
- * For LLVM
- */
-#if defined(__llvm__)
-
-/*
- * Use uint8_t, uint16_t, uint32_t and their signed ones.
- */
-#include <stdint.h>
-
-/*
- * Use bool.
- *  - If this header is included from a .cc or .cpp file, avoid including stdbool.h
- */
-#ifndef __cplusplus
-#include <stdbool.h>
-#endif
-
-/*
- * Define a macro that indicates a target architecture.
- *  - X86 for ia32 (x86)
- *  - X86_64 for amd64 (x86_64)
- */
+ /*
+  * Define a macro that indicates a target architecture.
+  *  - SUIKA_ARCH_X86 for ia32 (x86)
+  *  - SUIKA_ARCH_X86_64 for amd64 (x86_64)
+  *  - SUIKA_ARCH_ARM32 for armv7
+  *  - SUIKA_ARCH_ARM64 for armv8
+  */
 #if defined(__i386__) && !defined(__x86_64__)
-#define X86
+#define SUIKA_ARCH_X86
 #elif defined(__x86_64__)
-#define X86_64
+#define SUIKA_ARCH_X86_64
+#elif defined(__arm__)
+#define SUIKA_ARCH_ARM32
+#elif defined(__aarch64__)
+#define SUIKA_ARCH_ARM64
 #endif
 
 /*
- * Decide wehether to use dynamic dispatching of the fastest SSE/AVX extension.
- *  - SSE_VERSIONING for dispatching of SSE/AVX codes
+ * Struct member definition with 512-bit memory alignment.
  */
-#if defined(X86) || defined(X86_64)
-#if !defined(OSX) && !defined(IOS) && !defined(ANDROID) && !defined(NO_SSE_VERSIONING)
-#define SSE_VERSIONING
-#endif
-#endif
+#define SIMD_ALIGNED_MEMBER(cdecl) cdecl __attribute__((aligned(64)))
 
-/*
- * Non-C89 keyword wrappers
- */
-
-/* Inline function. */
-#define INLINE			__inline
-
-/* No pointer aliasing. */
-#define RESTRICT	 	__restrict
-
-/* Suppress unused warnings. */
-#define UNUSED(x)		x __attribute__((unused))
-#define UNUSED_PARAMETER(x)	(void)(x)
-
-/* Declare a variable with memory alignment. */
-#define ALIGN_DECL(n, cdecl)	cdecl __attribute__((aligned(n)))
-
-/* Utf-8 string literal for non-ASCII strings. */
-#define U8(s)			s
-
-/* Utf-32 character literal for non-ASCII characters. */
-#define U32_C(s)		U##s
-
-#endif	/* End of LLVM */
+#endif /* End of the GCC/Clang section*/
 
 /*
  * For MSVC
  */
 #ifdef _MSC_VER
 
-/*
- * Use uint8_t, uint16_t, uint32_t and their signed ones.
- */
-#if _MSC_VER >= 1600 /* VC2010 */
-#include <stdint.h>
-#else
-typedef __int8 int8_t;
-typedef __int16 int16_t;
-typedef __int32 int32_t;
-typedef __int64 int64_t;
-typedef long intptr_t;
-typedef unsigned __int8 uint8_t;
-typedef unsigned __int16 uint16_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int64 uint64_t;
-typedef unsigned long uintptr_t;    /* VC2010以前では64bitコンパイルしないこと */
-#endif
-
-/*
- * Use bool.
- *  - If this header is included from a .cc or .cpp file, avoid including stdbool.h
- */
-#if _MSC_VER >= 1800 /* VC2013 */
-#ifndef __cplusplus
-#include <stdbool.h>
-#endif
-#else
-#ifndef __cplusplus
-#define bool	int
-#define false	(0)
-#define true	(1)
-#endif
-#endif
-
-/*
- * Define a macro that indicates a target architecture.
- *  - X86 for ia32 (x86)
- *  - X86_64 for amd64 (x86_64)
- */
+ /*
+  * Define a macro that indicates a target architecture.
+  *  - SUIKA_ARCH_X86    for ia32 (x86)
+  *  - SUIKA_ARCH_X86_64 for amd64 (x86_64)
+  *  - SUIKA_ARCH_ARM64  for armv8
+  */
 #if defined(_M_IX86)
-#define X86
+#define SUIKA_ARCH_X86
 #elif defined(_M_X64)
-#define X86_64
+#define SUIKA_ARCH_X86_64
 #elif defined(_M_ARM64)
-#define ARM64
+#define SUIKA_ARCH_ARM64
 #endif
 
 /*
- * Decide wehether to use dynamic dispatching of the fastest SSE/AVX extension.
- *  - SSE_VERSIONING for dispatching of SSE/AVX codes
+ * Struct member definition with 512-bit memory alignment.
  */
-#if _MSCVER >= 1920 /* VC2019 */
-#if defined(X86) || defined(X86_64)
-#define SSE_VERSIONING
-#endif
-#endif
+#define SIMD_ALIGNED_MEMBER(cdecl) __declspec(align(64)) cdecl
 
 /*
- * Non-C89 keyword wrappers
+ * Do not get warnings for usages of string.h functions.
  */
-
-/* Inline function. */
-#define INLINE			__inline
-
-/* No pointer aliasing. */
-#if _MSC_VER >= 1400		/* VC2005 */
-#define RESTRICT		__restrict
-#else
-#define RESTRICT
-#endif
-
-/* Suppress unused warnings. */
-#define UNUSED(x)		x
-#define UNUSED_PARAMETER(x)	(void)(x)
-
-/* Declare a variable with memory alignment. */
-#define ALIGN_DECL(n, cdecl)	__declspec(align(n) cdecl)
-
-/* Utf-8 string literal for non-ASCII strings. */
-#define U8(s)			u8##s
-
-/* Utf-8 string literal for non-ASCII strings. */
-#define U32_C(s)		U##s
+#define _CRT_SECURE_NO_WARNINGS
 
 /*
- * POSIX libc functions
+ * POSIX libc to MSVCRT mapping
  */
-#define strdup			_strdup
-#if _MSC_VER <= 1600		/* VC2010 */
-#define vsnprintf		_vsnprintf
-#define snprintf		_snprintf
-#endif
+#define strdup _strdup
 
 #endif /* End of MSVC */
 
 /*
- * Additional staff. (platform independent)
+ * Use the C99 stdint.h header for the following integer types.
+ *  - uint8_t
+ *  - uint16_t
+ *  - uint32_t
+ *  - int8_t
+ *  - int16_t
+ *  - int32_t
  */
+#include <stdint.h>
 
 /*
- * Milliseconds lap timers - we call it stop watches.
+ * Use the C99 stdbool.h header for the bool type.
  */
-typedef uint64_t stop_watch_t;
+#ifndef __cplusplus
+#include <stdbool.h>
+#endif
+
+/*
+ * Common non-C89 keyword wrappers.
+ */
+
+/* Inline function. */
+#define INLINE				__inline
+
+/* No pointer aliasing. */
+#define RESTRICT			__restrict
+
+/* Suppress unused warnings. */
+#define UNUSED_PARAMETER(x)		(void)(x)
+
+/* UTF-8 string literal. */
+#define U8(s)				u8##s
+
+/* UTF-32 character literal. */
+#define U32_C(s)			U##s
 
 #endif

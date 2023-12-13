@@ -113,14 +113,14 @@ bool register_message(const char *name, const char *msg, const char *voice,
 
 	/* ヒストリの色を使う場合 */
 	if (conf_gui_history_disable_color == 2) {
-		body_color = make_pixel_slow(0,
-					     (pixel_t)conf_gui_history_font_color_r,
-					     (pixel_t)conf_gui_history_font_color_g,
-					     (pixel_t)conf_gui_history_font_color_b);
-		body_outline_color = make_pixel_slow(0,
-					     (pixel_t)conf_gui_history_font_outline_color_r,
-					     (pixel_t)conf_gui_history_font_outline_color_g,
-					     (pixel_t)conf_gui_history_font_outline_color_b);
+		body_color = make_pixel(0,
+					(pixel_t)conf_gui_history_font_color_r,
+					(pixel_t)conf_gui_history_font_color_g,
+					(pixel_t)conf_gui_history_font_color_b);
+		body_outline_color = make_pixel(0,
+						(pixel_t)conf_gui_history_font_outline_color_r,
+						(pixel_t)conf_gui_history_font_outline_color_g,
+						(pixel_t)conf_gui_history_font_outline_color_b);
 		name_color = body_color;
 		name_outline_color = body_outline_color;
 	}

@@ -1,4 +1,63 @@
-SRCS_COMMON = \
+HDRS_MAIN = \
+	../../src/suika.h \
+	../../src/anime.h \
+	../../src/conf.h \
+	../../src/event.h \
+	../../src/file.h \
+	../../src/glyph.h \
+	../../src/gui.h \
+	../../src/history.h \
+	../../src/image.h \
+	../../src/log.h \
+	../../src/main.h \
+	../../src/mixer.h \
+	../../src/save.h \
+	../../src/scbuf.h \
+	../../src/script.h \
+	../../src/seen.h \
+	../../src/stage.h \
+	../../src/uimsg.h \
+	../../src/vars.h \
+	../../src/wave.h \
+	../../src/wms.h
+
+HDRS_PRO = \
+	../../src/pro.h \
+	../../src/package.h
+
+HDRS_APPLE = \
+	../../src/GameRenderer.h \
+	../../src/GameShaderTypes.h \
+	../../src/GameViewControllerProtocol.h
+
+SRCS_MAIN = \
+	../../src/anime.c \
+	../../src/conf.c \
+	../../src/event.c \
+	../../src/file.c \
+	../../src/glyph.c \
+	../../src/gui.c \
+	../../src/history.c \
+	../../src/image.c \
+	../../src/log.c \
+	../../src/main.c \
+	../../src/mixer.c \
+	../../src/readimage.c \
+	../../src/readpng.c \
+	../../src/readjpeg.c \
+	../../src/readwebp.c \
+	../../src/save.c \
+	../../src/scbuf.c \
+	../../src/script.c \
+	../../src/seen.c \
+	../../src/stage.c \
+	../../src/uimsg.c \
+	../../src/vars.c \
+	../../src/wave.c \
+	../../src/wms_core.c \
+	../../src/wms_lexer.yy.c \
+	../../src/wms_parser.tab.c \
+	../../src/wms_impl.c \
 	../../src/cmd_anime.c \
 	../../src/cmd_bg.c \
 	../../src/cmd_bgm.c \
@@ -26,42 +85,11 @@ SRCS_COMMON = \
 	../../src/cmd_video.c \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
-	../../src/cmd_wms.c \
-	../../src/anime.c \
-	../../src/conf.c \
-	../../src/event.c \
-	../../src/file.c \
-	../../src/glyph.c \
-	../../src/gui.c \
-	../../src/history.c \
-	../../src/image.c \
-	../../src/log.c \
-	../../src/main.c \
-	../../src/mixer.c \
-	../../src/readimage.c \
-	../../src/readpng.c \
-	../../src/readjpeg.c \
-	../../src/readwebp.c \
-	../../src/save.c \
-	../../src/scbuf.c \
-	../../src/script.c \
-	../../src/seen.c \
-	../../src/stage.c \
-	../../src/vars.c \
-	../../src/wave.c \
-	../../src/wms_core.c \
-	../../src/wms_lexer.yy.c \
-	../../src/wms_parser.tab.c \
-	../../src/wms_impl.c
+	../../src/cmd_wms.c
 
-SRCS_SSE = \
-	../../src/x86.c \
-	../../src/novec.c \
-	../../src/sse.c \
-	../../src/sse2.c \
-	../../src/sse3.c \
-	../../src/sse41.c \
-	../../src/sse42.c \
-	../../src/avx.c \
-	../../src/avx2.c \
-	../../src/avx512.c
+SRCS_PRO = \
+	../../src/package.c
+
+SRCS_APPLE = \
+	../../src/GameRenderer.m \
+	../../src/GameShaders.metal

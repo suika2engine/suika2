@@ -19,7 +19,7 @@
 #define PARAM_SIZE	(CH_BASIC_LAYERS + 1)
 #define BG_INDEX	(CH_BASIC_LAYERS)
 
-static stop_watch_t sw;
+static uint64_t sw;
 static float span;
 static int fade_method;
 
@@ -31,9 +31,9 @@ static void draw(void);
 static bool cleanup(void);
 
 /*
- * キャラクタコマンド
+ * 場面転換コマンド
  */
-bool chs_command(int *x, int *y, int *w, int *h)
+bool chs_command(void)
 {
 	if (!is_in_command_repetition())
 		if (!init())
@@ -44,11 +44,6 @@ bool chs_command(int *x, int *y, int *w, int *h)
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
-
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	return true;
 }
@@ -260,7 +255,7 @@ static bool init(void)
 	}
 
 	/* 時間計測を開始する */
-	reset_stop_watch(&sw);
+	reset_lap_timer(&sw);
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {
@@ -299,7 +294,7 @@ static void get_position(int *xpos, int *ypos, int chpos, struct image *img)
 	case CH_CENTER:
 		/* 中央に配置する */
 		if (img != NULL)
-			*xpos = (conf_window_width - get_image_width(img)) / 2;
+			*xpos = (conf_window_width - img->width) / 2;
 		break;
 	case CH_LEFT:
 		/* 左に配置する */
@@ -307,22 +302,22 @@ static void get_position(int *xpos, int *ypos, int chpos, struct image *img)
 		break;
 	case CH_LEFT_CENTER:
 		/* 左中に配置する */
-		*xpos = (conf_window_width - get_image_width(img)) / 4;
+		*xpos = (conf_window_width - img->width) / 4;
 		break;
 	case CH_RIGHT:
 		/* 右に配置する */
 		if (img != NULL)
-			*xpos = conf_window_width - get_image_width(img) - conf_stage_ch_margin_right;
+			*xpos = conf_window_width - img->width - conf_stage_ch_margin_right;
 		break;
 	case CH_RIGHT_CENTER:
 		/* 右に配置する */
 		if (img != NULL)
-			*xpos = conf_window_width - (get_image_width(img) / 2 * 3);
+			*xpos = (conf_window_width - img->width) - img->width / 2;
 		break;
 	}
 
 	/* 縦方向の位置を求める */
-	*ypos = img != NULL ? conf_window_height - get_image_height(img) : 0;
+	*ypos = img != NULL ? conf_window_height - img->height : 0;
 }
 
 /* キャラクタのフォーカスを行う */
@@ -351,10 +346,9 @@ static void focus_character(int chpos, const char *fname)
 static void draw(void)
 {
 	float lap;
-	int x, y, w, h;
 
 	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
+	lap = (float)get_lap_timer_millisec(&sw) / 1000.0f;
 	if (lap >= span)
 		lap = span;
 
@@ -422,13 +416,11 @@ static void draw(void)
 	if (is_in_command_repetition())
 		draw_fade();
 	else
-		draw_stage();
+		render_stage();
 
 	/* 折りたたみシステムメニューを描画する */
-	if (conf_sysmenu_transition && !is_non_interruptible()) {
-		x = y = w = h = 0;
-		draw_stage_collapsed_sysmenu(false, &x, &y, &w, &h);
-	}
+	if (conf_sysmenu_transition && !is_non_interruptible())
+		render_collapsed_sysmenu(false);
 }
 
 /* 終了処理を行う */

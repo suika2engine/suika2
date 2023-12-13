@@ -1399,7 +1399,7 @@ static bool read_conf(void)
 	struct rfile *rf;
 	char *k, *v;
 
-	rf = open_rfile(CONF_DIR, PROP_FILE, false);
+	rf = open_rfile(CONF_DIR, CONFIG_FILE, false);
 	if (rf == NULL)
 		return false;
 

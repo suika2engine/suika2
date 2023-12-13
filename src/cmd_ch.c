@@ -14,7 +14,7 @@
 
 #include "suika.h"
 
-static stop_watch_t sw;
+static uint64_t sw;
 static float span;
 
 static bool init(void);
@@ -28,7 +28,7 @@ static bool cleanup(void);
 /*
  * キャラクタコマンド
  */
-bool ch_command(int *x, int *y, int *w, int *h)
+bool ch_command(void)
 {
 	if (!is_in_command_repetition())
 		if (!init())
@@ -39,11 +39,6 @@ bool ch_command(int *x, int *y, int *w, int *h)
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
-
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	return true;
 }
@@ -145,7 +140,7 @@ static bool init(void)
 	start_command_repetition();
 
 	/* 時間計測を開始する */
-	reset_stop_watch(&sw);
+	reset_lap_timer(&sw);
 
 	return true;
 }
@@ -166,7 +161,7 @@ static bool get_position(const char *pos,	/* IN: character position name */
 		/* 中央背面に配置する */
 		*chpos = CH_BACK;
 		if (img != NULL)
-			*xpos = (conf_window_width - get_image_width(img)) / 2 + ofs_x;
+			*xpos = (conf_window_width - img->width) / 2 + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0 ||
@@ -182,7 +177,7 @@ static bool get_position(const char *pos,	/* IN: character position name */
 		/* 左中に配置する */
 		*chpos = CH_LEFT_CENTER;
 		if (img != NULL)
-			*xpos = (conf_window_width - get_image_width(img)) / 4 + ofs_x;
+			*xpos = (conf_window_width - img->width) / 4 + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
@@ -190,7 +185,7 @@ static bool get_position(const char *pos,	/* IN: character position name */
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
 		if (img != NULL)
-			*xpos = conf_window_width - get_image_width(img) - conf_stage_ch_margin_right + ofs_x;
+			*xpos = conf_window_width - img->width - conf_stage_ch_margin_right + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "right-center") == 0 || strcmp(pos, "rc") == 0 ||
@@ -198,7 +193,7 @@ static bool get_position(const char *pos,	/* IN: character position name */
 		/* 右中に配置する */
 		*chpos = CH_RIGHT_CENTER;
 		if (img != NULL)
-			*xpos = conf_window_width - (get_image_width(img) / 2 * 3) + ofs_x;
+			*xpos = (conf_window_width - img->width) - img->width / 2 + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
@@ -206,7 +201,7 @@ static bool get_position(const char *pos,	/* IN: character position name */
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
 		if (img != NULL)
-			*xpos = (conf_window_width - get_image_width(img)) / 2 + ofs_x;
+			*xpos = (conf_window_width - img->width) / 2 + ofs_x;
 		else
 			*xpos = 0;
 	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0 ||
@@ -227,7 +222,7 @@ static bool get_position(const char *pos,	/* IN: character position name */
 	/* 縦方向の位置を求める */
 	if (img != NULL) {
 		*ypos = conf_window_height -
-			get_image_height(img) -
+			img->height -
 			conf_stage_ch_margin_bottom +
 			ofs_y;
 	} else {
@@ -278,10 +273,9 @@ static void focus_character(int chpos, const char *fname)
 static void draw(void)
 {
 	float lap;
-	int x, y, w, h;
 
 	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
+	lap = (float)get_lap_timer_millisec(&sw) / 1000.0f;
 	if (lap >= span)
 		lap = span;
 
@@ -350,13 +344,11 @@ static void draw(void)
 	if (is_in_command_repetition())
 		draw_fade();
 	else
-		draw_stage();
+		render_stage();
 
 	/* 折りたたみシステムメニューを描画する */
-	if (conf_sysmenu_transition && !is_non_interruptible()) {
-		x = y = w = h = 0;
-		draw_stage_collapsed_sysmenu(false, &x, &y, &w, &h);
-	}
+	if (conf_sysmenu_transition && !is_non_interruptible())
+		render_collapsed_sysmenu(false);
 }
 
 /* 終了処理を行う */

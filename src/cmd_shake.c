@@ -22,7 +22,7 @@ enum shake_move_type {
 	SHAKE_MOVE_VERTICAL,
 };
 
-static stop_watch_t sw;
+static uint64_t sw;
 static int move;
 static float span;
 static int times;
@@ -36,7 +36,7 @@ static bool cleanup(void);
 /*
  * 画面揺らしコマンド
  */
-bool shake_command(int *x, int *y, int *w, int *h)
+bool shake_command(void)
 {
 	if (!is_in_command_repetition())
 		if (!init())
@@ -47,11 +47,6 @@ bool shake_command(int *x, int *y, int *w, int *h)
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
-
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	return true;
 }
@@ -80,7 +75,7 @@ static bool init(void)
 	start_command_repetition();
 
 	/* 時間計測を開始する */
-	reset_stop_watch(&sw);
+	reset_lap_timer(&sw);
 
 	/* メッセージボックスを消す */
 	show_namebox(false);
@@ -113,10 +108,9 @@ static bool get_move(const char *move_s)
 static void draw(void)
 {
 	float lap, t, s;
-	int x, y, w, h;
 
 	/* 経過時間を取得する */
-	lap = (float)get_stop_watch_lap(&sw) / 1000.0f;
+	lap = (float)get_lap_timer_millisec(&sw) / 1000.0f;
 	if (lap >= span)
 		lap = span;
 
@@ -153,13 +147,11 @@ static void draw(void)
 	if (is_in_command_repetition())
 		draw_fade();
 	else
-		draw_stage();
+		render_stage();
 
 	/* 折りたたみシステムメニューを描画する */
-	if (conf_sysmenu_transition && !is_non_interruptible()) {
-		x = y = w = h = 0;
-		draw_stage_collapsed_sysmenu(false, &x, &y, &w, &h);
-	}
+	if (conf_sysmenu_transition && !is_non_interruptible())
+		render_collapsed_sysmenu(false);
 }
 
 /* 終了処理を行う */

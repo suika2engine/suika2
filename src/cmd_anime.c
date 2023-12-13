@@ -19,28 +19,23 @@ static bool is_sysmenu;
  * 前方参照
  */
 static bool init(void);
-static void draw(int *x, int *y, int *w, int *h);
+static void draw(void);
 static bool cleanup(void);
 
 /*
  * animeコマンド
  */
-bool anime_command(int *x, int *y, int *w, int *h)
+bool anime_command(void)
 {
 	if (!is_in_command_repetition())
 		if (!init())
 			return false;
 
-	draw(x, y, w, h);
+	draw();
 
 	if (!is_in_command_repetition())
 		if (!cleanup())
 			return false;
-
-	*x = 0;
-	*y = 0;
-	*w = conf_window_width;
-	*h = conf_window_height;
 
 	return true;
 }
@@ -67,7 +62,7 @@ static bool init(void)
 		 * アニメファイルはロードしない
 		 *  - 全レイヤのアニメを強制的に完了する
 		 */
-		for (i = 0; i < ANIME_LAYER_COUNT; i++)
+		for (i = 0; i < STAGE_LAYERS; i++)
 			finish_layer_anime(i);
 	} else {
 		/* アニメファイルをロードする */
@@ -98,15 +93,15 @@ static bool init(void)
 }
 
 /* 描画を行う */
-static void draw(int *x, int *y, int *w, int *h)
+static void draw(void)
 {
-	draw_stage();
+	render_stage();
 
 	/* システムメニューを表示する場合 */
 	if (is_sysmenu) {
 		/* 折りたたみシステムメニューを描画する */
 		if (conf_sysmenu_transition && !is_non_interruptible())
-			draw_stage_collapsed_sysmenu(false, x, y, w, h);
+			render_collapsed_sysmenu(false);
 	}
 
 	/* 同期処理の場合 */
@@ -126,7 +121,7 @@ static bool cleanup(void)
 
 	/* 同期処理の場合、アニメシーケンスをクリアする */
 	if (!is_async) {
-		for (i = 0; i < ANIME_LAYER_COUNT; i++)
+		for (i = 0; i < STAGE_LAYERS; i++)
 			clear_anime_sequence(i);
 	}
 

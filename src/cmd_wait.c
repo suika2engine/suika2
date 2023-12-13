@@ -13,7 +13,7 @@
 #include "suika.h"
 
 static float span;
-static stop_watch_t sw;
+static uint64_t sw;
 
 /*
  * waitコマンド
@@ -28,14 +28,14 @@ bool wait_command(void)
 		span = get_float_param(WAIT_PARAM_SPAN);
 
 		/* 時間の計測を開始する */
-		reset_stop_watch(&sw);
+		reset_lap_timer(&sw);
 	}
 
-	/* 描画を行う(GPU用) */
-	draw_stage_keep();
+	/* 描画を行う */
+	render_stage();
 
 	/* 時間が経過した場合か、入力があった場合 */
-	if ((float)get_stop_watch_lap(&sw) / 1000.0f >= span ||
+	if ((float)get_lap_timer_millisec(&sw) / 1000.0f >= span ||
 	    (is_skip_mode() && !is_non_interruptible()) ||
 	    (!is_auto_mode() && !is_non_interruptible() &&
 	     (is_control_pressed || is_return_pressed || is_down_pressed ||

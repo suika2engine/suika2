@@ -55,7 +55,7 @@ static bool init(void)
 
 	/* 拡張子の自動付与を行う */
 	if (strstr(fname, ".") == NULL) {
-#if defined(WIN)
+#if defined(SUIKA_TARGET_WIN32)
 		snprintf(fn, sizeof(fn), "%s.wmv", fname);
 #else
 		snprintf(fn, sizeof(fn), "%s.mp4", fname);

@@ -61,6 +61,7 @@ static OSStatus callback(void *inRef,
                          UInt32 inBusNumber,
                          UInt32 inNumberFrames,
                          AudioBufferList *ioData);
+static void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples);
 
 /*
  * ミキサの初期化処理を行う
@@ -104,7 +105,7 @@ static bool create_audio_unit(void)
 
     /* オーディオコンポーネントを取得する */
     cd.componentType = kAudioUnitType_Output;
-#ifdef IOS
+#ifdef SUIKA_TARGET_IOS
     cd.componentSubType = kAudioUnitSubType_RemoteIO;
 #else
     cd.componentSubType = kAudioUnitSubType_DefaultOutput;
@@ -357,86 +358,34 @@ void resume_sound(void)
     pthread_mutex_unlock(&mutex);
 }
 
-/*
- * SSEバージョニングを行わない場合
- */
-#ifndef SSE_VERSIONING
-
-/* mul_add_pcm()を定義する */
-#define MUL_ADD_PCM mul_add_pcm
-#include "muladdpcm.h"
-
-/*
- * SSEバージョニングを行う場合
- */
-#else
-
-/* AVX-512版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_avx512
-#include "muladdpcm.h"
-
-/* AVX2版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_avx2
-#include "muladdpcm.h"
-
-/* AVX版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_avx
-#include "muladdpcm.h"
-
-/* SSE4.2版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_sse42
-#include "muladdpcm.h"
-
-/* SSE4.1版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_sse41
-#include "muladdpcm.h"
-
-/* SSE3版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_sse3
-#include "muladdpcm.h"
-
-/* SSE2版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_sse2
-#include "muladdpcm.h"
-
-/* SSE版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_sse
-#include "muladdpcm.h"
-
-/* 非ベクトル版mul_add_pcm()を宣言する */
-#define PROTOTYPE_ONLY
-#define MUL_ADD_PCM mul_add_pcm_novec
-#include "muladdpcm.h"
-
-/* mul_add_pcm()をディスパッチする */
-void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples)
+static void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples)
 {
-	if (has_avx512)
-		mul_add_pcm_avx512(dst, src, vol, samples);
-	else if (has_avx2)
-		mul_add_pcm_avx2(dst, src, vol, samples);
-	else if (has_avx)
-		mul_add_pcm_avx(dst, src, vol, samples);
-	else if (has_sse42)
-		mul_add_pcm_sse42(dst, src, vol, samples);
-	else if (has_sse41)
-		mul_add_pcm_sse41(dst, src, vol, samples);
-	else if (has_sse3)
-		mul_add_pcm_sse3(dst, src, vol, samples);
-	else if (has_sse2)
-		mul_add_pcm_sse2(dst, src, vol, samples);
-	else if (has_sse)
-		mul_add_pcm_sse(dst, src, vol, samples);
-	else
-		mul_add_pcm_novec(dst, src, vol, samples);
-}
+    float scale;
+    int i;
+    int32_t il, ir; /* intermediate L/R */
+    int16_t sl, sr; /* source L/R*/
+    int16_t dl, dr; /* destination L/R */
 
-#endif
+    /* スケールファクタを指数関数にする */
+    scale = (powf(10.0f, vol) - 1.0f) / (10.0f - 1.0f);
+
+    /* 各サンプルを合成する */
+    for (i = 0; i < samples; i++) {
+        dl = (int16_t)(uint16_t)dst[i];
+        dr = (int16_t)(uint16_t)(dst[i] >> 16);
+
+        sl = (int16_t)(uint16_t)src[i];
+        sr = (int16_t)(uint16_t)(src[i] >> 16);
+
+        il = (int32_t)dl + (int32_t)(sl * scale);
+        ir = (int32_t)dr + (int32_t)(sr * scale);
+
+        il = il > 32767 ? 32767 : il;
+        il = il < -32768 ? -32768 : il;
+        ir = ir > 32767 ? 32767 : ir;
+        ir = ir < -32768 ? -32768 : ir;
+
+        dst[i] = ((uint32_t)(uint16_t)(int16_t)il) |
+                 (((uint32_t)(uint16_t)(int16_t)ir) << 16);
+    }
+}

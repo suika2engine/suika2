@@ -1,13 +1,12 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * イベントハンドラ
- *  - platform.hの実装から呼び出される
+ * Event handlers that are called from a HAL
  *
  * [Changes]
  *  - 2016/05/27 作成
@@ -104,20 +103,17 @@ void on_event_cleanup(void)
 /*
  * 再描画時に呼び出される
  */
-bool on_event_frame(int *x, int *y, int *w, int *h)
+bool on_event_frame(void)
 {
-	/* デフォルトの書き換え領域をなしとする */
-	*x = *y = *w = *h = 0;
-	
 	/* ゲームループの中身を実行する */
-	if (!game_loop_iter(x, y, w, h)) {
+	if (!game_loop_iter()) {
 		/* アプリケーションを終了する */
 		return false;
 	}
 
 	/* キラキラエフェクトを描画する */
-	if (conf_kirakira_on && is_gpu_accelerated())
-		draw_kirakira();
+	if (conf_kirakira_on)
+		render_kirakira();
 
 	/* アプリケーションを続行する */
 	return true;
@@ -208,6 +204,9 @@ void on_event_key_release(int key)
  */
 void on_event_mouse_press(int button, int x, int y)
 {
+	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height)
+		return;
+
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 
@@ -227,6 +226,9 @@ void on_event_mouse_press(int button, int x, int y)
  */
 void on_event_mouse_release(int button, int x, int y)
 {
+	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height)
+		return;
+
 	mouse_pos_x = x;
 	mouse_pos_y = y;
 
@@ -245,14 +247,9 @@ void on_event_mouse_release(int button, int x, int y)
  */
 void on_event_mouse_move(int x, int y)
 {
+	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height)
+		return;
+
 	mouse_pos_x = x;
 	mouse_pos_y = y;
-}
-
-/*
- * マウススクロール時に呼び出される
- */
-void on_event_mouse_scroll(UNUSED(int n))
-{
-	/* FIXME: このイベントはいらないのでは？ */
 }

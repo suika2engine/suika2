@@ -126,7 +126,6 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 /* フレームを処理する */
 static EM_BOOL loop_iter(double time, void *userData)
 {
-	int x, y, w, h;
 	static bool stop = false;
 
 	/* 停止済みであれば */
@@ -140,8 +139,7 @@ static EM_BOOL loop_iter(double time, void *userData)
 	opengl_start_rendering();
 
 	/* フレームイベントを呼び出す */
-	x = y = w = h = 0;
-	if (!on_event_frame(&x, &y, &w, &h)) {
+	if (!on_event_frame()) {
 		stop = true;
 
 		/* グローバルデータを保存する */
@@ -394,7 +392,7 @@ void EMSCRIPTEN_KEEPALIVE setHidden(void)
 }
 
 /*
- * platform.hの実装
+ * HAL
  */
 
 /*
@@ -473,45 +471,47 @@ bool is_opengl_enabled(void)
 /*
  * テクスチャをロックする
  */
-bool lock_texture(int width, int height, pixel_t *pixels,
-				  pixel_t **locked_pixels, void **texture)
+void notify_image_update(struct image *img)
 {
 	fill_sound_buffer();
-	if (!opengl_lock_texture(width, height, pixels, locked_pixels,
-				 texture))
-		return false;
-	fill_sound_buffer();
-	return true;
-}
-
-/*
- * テクスチャをアンロックする
- */
-void unlock_texture(int width, int height, pixel_t *pixels,
-					pixel_t **locked_pixels, void **texture)
-{
-	fill_sound_buffer();
-	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
+	opengl_notify_image_update(img);
 	fill_sound_buffer();
 }
 
 /*
  * テクスチャを破棄する
  */
-void destroy_texture(void *texture)
+void notify_image_free(struct image *img)
 {
-	opengl_destroy_texture(texture);
+	opengl_notify_image_free(img);
 }
 
 /*
  * イメージをレンダリングする
  */
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
+void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image,
+		       int width, int height, int src_left, int src_top)
 {
-	opengl_render_image(dst_left, dst_top, src_image, width, height,
-			    src_left, src_top, alpha, bt);
+	opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_normal(int dst_left, int dst_top, struct image * RESTRICT src_image,
+			 int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_normal(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_add(int dst_left, int dst_top, struct image * RESTRICT src_image,
+		      int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_add(dst_left, dst_top, src_image, width, height,
+				src_left, src_top, alpha);
 }
 
 /*
@@ -521,8 +521,7 @@ void render_image_dim(int dst_left, int dst_top,
 		      struct image * RESTRICT src_image,
 		      int width, int height, int src_left, int src_top)
 {
-	opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-				src_left, src_top);
+	opengl_render_image_dim(dst_left, dst_top, src_image, width, height, src_left, src_top);
 }
 
 /* イメージをルール付きでレンダリングする */
@@ -581,34 +580,28 @@ char *make_valid_path(const char *dir, const char *fname)
 /*
  * タイマをリセットする
  */
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *t)
 {
 	struct timeval tv;
 
 	gettimeofday(&tv, NULL);
 
-	*t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	*t = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
 /*
  * タイマのラップをミリ秒単位で取得する
  */
-int get_stop_watch_lap(stop_watch_t *t)
+uint64_t get_lap_timer_millisec(uint64_t *t)
 {
 	struct timeval tv;
-	stop_watch_t end;
+	uint64_t end;
 	
 	gettimeofday(&tv, NULL);
 
-	end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	end = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 
-	if (end < *t) {
-		/* オーバーフローの場合、タイマをリセットして0を返す */
-		reset_stop_watch(t);
-		return 0;
-	}
-
-	return (int)(end - *t);
+	return (uint64_t)(end - *t);
 }
 
 /*
@@ -776,4 +769,9 @@ const char *get_system_locale(void)
 		return "ja";
 	else
 		return "en";
+}
+
+void speak_text(const char *text)
+{
+	UNUSED_PARAMETER(text);
 }

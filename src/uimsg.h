@@ -1,12 +1,12 @@
 /* -*- coding: utf-8; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * uimsg.c: UI message management.
+ * uimsg.c: Internationalized UI message subsystem
  */
 
 #ifndef SUIKA_UIMSG_H
@@ -25,17 +25,17 @@ enum {
 	UIMSG_OVERWRITE,
 	UIMSG_DEFAULT,
 	UIMSG_NO_SOUND_DEVICE,
-#ifdef WIN
-	UIMSG_WIN_NO_DIRECT3D,
-	UIMSG_WIN_NO_OPENGL,
-	UIMSG_WIN_SMALL_DISPLAY,
-	UIMSG_WIN_MENU_FILE,
-	UIMSG_WIN_MENU_VIEW,
-	UIMSG_WIN_MENU_QUIT,
-	UIMSG_WIN_MENU_FULLSCREEN,
+	UIMSG_NO_GAME_FILES,
+#ifdef SUIKA_TARGET_WIN32
+	UIMSG_WIN32_NO_DIRECT3D,
+	UIMSG_WIN32_SMALL_DISPLAY,
+	UIMSG_WIN32_MENU_FILE,
+	UIMSG_WIN32_MENU_VIEW,
+	UIMSG_WIN32_MENU_QUIT,
+	UIMSG_WIN32_MENU_FULLSCREEN,
 #endif
 };
 
-const wchar_t *get_ui_message(int id);
+const char *get_ui_message(int id);
 
 #endif

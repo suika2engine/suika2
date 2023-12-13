@@ -343,7 +343,7 @@ static bool show_video_frame(void)
 }
 
 /*
- * Implementation of "platform.h" functions (HAL API)
+ * HAL
  */
 
 /*
@@ -586,34 +586,28 @@ char *make_valid_path(const char *dir, const char *fname)
 /*
  * Reset a stop watch.
  */
-void reset_stop_watch(stop_watch_t *t)
+void reset_lap_timer(uint64_t *t)
 {
 	struct timeval tv;
 
 	gettimeofday(&tv, NULL);
 
-	*t = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	*t = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
 /*
  * Get a lap time of stop watch in milli seconds.
  */
-int get_stop_watch_lap(stop_watch_t *t)
+uint64_t get_lap_timer_millisec(uint64_t *t)
 {
 	struct timeval tv;
-	stop_watch_t end;
+	uint64_t end;
 	
 	gettimeofday(&tv, NULL);
 
-	end = (stop_watch_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	end = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 
-	if (end < *t) {
-		/* オーバーフローの場合、タイマをリセットして0を返す */
-		reset_stop_watch(t);
-		return 0;
-	}
-
-	return (int)(end - *t);
+	return (uint64_t)(end - *t);
 }
 
 /*

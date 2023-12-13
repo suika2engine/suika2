@@ -45,7 +45,7 @@ bool is_gui_mode(void);
 bool is_gui_overlay(void);
 
 /* GUIを実行する */
-bool run_gui_mode(int *x, int *y, int *w, int *h);
+bool run_gui_mode(void);
 
 /* GUIの実行結果のジャンプ先ラベルを取得する */
 const char *get_gui_result_label(void);

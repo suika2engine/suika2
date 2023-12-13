@@ -91,15 +91,12 @@ static bool read_png(const char *dir, const char *file)
 	if (image == NULL)
 		return false;
 
-	lock_image(image);
-
 	if (!read_body()) {
 		log_image_file_error(dir, file);
-		unlock_image(image);
 		return false;
 	}
 
-	unlock_image(image);
+	notify_image_update(image);
 
 	return true;
 }
@@ -159,19 +156,13 @@ static bool read_header(void)
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_PALETTE:
-#if defined(WIN) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD)
-		if (!is_opengl_enabled())
-			png_set_bgr(png_ptr);
-#endif
+		png_set_bgr(png_ptr);
 		png_set_palette_to_rgb(png_ptr);
 		png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_RGB:
-#if defined(WIN) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD)
-		if (!is_opengl_enabled())
-			png_set_bgr(png_ptr);
-#endif
+		png_set_bgr(png_ptr);
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
 			png_set_tRNS_to_alpha(png_ptr);
 		} else {
@@ -180,10 +171,7 @@ static bool read_header(void)
 		}
 		break;
 	case PNG_COLOR_TYPE_RGB_ALPHA:
-#if defined(WIN) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD)
-		if (!is_opengl_enabled())
-			png_set_bgr(png_ptr);
-#endif
+		png_set_bgr(png_ptr);
 		break;
 	case PNG_COLOR_TYPE_GRAY_ALPHA:
 		png_set_gray_to_rgb(png_ptr);
@@ -231,7 +219,7 @@ static bool read_body(void)
 #ifdef _MSC_VER
 #pragma warning(disable:6386)
 #endif
-	pixels = get_image_pixels(image);
+	pixels = image->pixels;
 	for (y = 0; y < height; y++)
 		rows[y] = (png_bytep)&pixels[width * y];
 

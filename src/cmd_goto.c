@@ -38,7 +38,7 @@ bool goto_command(bool *cont)
 		*cont = false;
 
 		/* 画面を描画する */
-		draw_stage();
+		render_stage();
 
 		/* 最後のコマンドを実行中なら、ロードできない */
 		if (is_final_command()) {
@@ -70,7 +70,7 @@ bool goto_command(bool *cont)
 		*cont = false;
 
 		/* 画面を描画する */
-		draw_stage();
+		render_stage();
 
 		/* 最後のメッセージを空白にする */
 		set_last_message("");

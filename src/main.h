@@ -69,17 +69,17 @@ void clear_input_state(void);
  */
 
 void init_game_loop(void);
-bool game_loop_iter(int *x, int *y, int *w, int *h);
+bool game_loop_iter(void);
 void cleanup_game_loop(void);
 
 /*
  * コマンドの実装
  */
 
-bool message_command(int *x, int *y, int *w, int *h, bool *cont);
-bool bg_command(int *x, int *y, int *w, int *h);
+bool message_command(bool *cont);
+bool bg_command(void);
 bool bgm_command(void);
-bool ch_command(int *x, int *y, int *w, int *h);
+bool ch_command(void);
 bool click_command(void);
 bool wait_command(void);
 bool goto_command(bool *cont);
@@ -87,24 +87,24 @@ bool load_command(void);
 bool vol_command(void);
 bool set_command(void);
 bool if_command(void);
-bool select_command(int *x, int *y, int *w, int *h);
+bool select_command(void);
 bool se_command(void);
-bool menu_command(int *x, int *y, int *w, int *h);
-bool retrospect_command(int *x, int *y, int *w, int *h);
-bool switch_command(int *x, int *y, int *w, int *h);
+bool menu_command(void);
+bool retrospect_command(void);
+bool switch_command(void);
 bool gosub_command(void);
 bool return_command(void);
-bool cha_command(int *x, int *y, int *w, int *h);
-bool shake_command(int *x, int *y, int *w, int *h);
+bool cha_command(void);
+bool shake_command(void);
 bool setsave_command(void);
-bool chs_command(int *x, int *y, int *w, int *h);
+bool chs_command(void);
 bool video_command(void);
 bool skip_command(void);
 bool chapter_command(void);
-bool gui_command(int *x, int *y, int *w, int *h);
+bool gui_command(void);
 bool wms_command(void);
-bool anime_command(int *x, int *y, int *w, int *h);
-bool pencil_command(int *x, int *y, int *w, int *h);
+bool anime_command(void);
+bool pencil_command(void);
 bool setconfig_command(void);
 bool layer_command(void);
 

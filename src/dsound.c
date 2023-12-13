@@ -226,7 +226,7 @@ VOID DSCleanup()
 }
 
 /*
- * platform.hの実装
+ * HAL
  */
 
 /*
@@ -621,11 +621,13 @@ static BOOL WriteNext(int nBuffer)
 /*
  * イベントスレッドのメインループ
  */
-static void EventThread(UNUSED(void *p))
+static void EventThread(void *p)
 {
 	HANDLE hEvents[MIXER_STREAMS+1];
 	DWORD dwResult;
 	int i, nBuf;
+
+	UNUSED_PARAMETER(p);
 
 	/* イベントの配列を作成する */
 	for(i=0; i<MIXER_STREAMS; i++)

@@ -1,0 +1,6 @@
+func main() {
+     // メッセージ履歴を消去します
+          // Clear the history.
+
+     s2_clear_history();
+}

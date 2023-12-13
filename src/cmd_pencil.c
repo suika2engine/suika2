@@ -15,13 +15,13 @@
 /*
  * pencilコマンド
  */
-bool pencil_command(int *x, int *y, int *w, int *h)
+bool pencil_command(void)
 {
 	struct draw_msg_context context;
 	struct image *img;
 	const char *text;
 	pixel_t color, outline_color;
-	int layer, layer_x, layer_y, layer_w, layer_h, total_chars;
+	int layer, layer_w, layer_h,total_chars;
 
 	/* パラメータを取得する */
 	layer = get_int_param(PENCIL_PARAM_LAYER);
@@ -43,19 +43,18 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 
 	/* レイヤのサイズを取得する */
 	img = get_layer_image(layer);
-	layer_w = get_image_width(img);
-	layer_h = get_image_height(img);
+	layer_w = img->width;
+	layer_h = img->height;
 
 	/* デフォルトの色を取得する */
-	color = make_pixel_slow(0xff,
-				(pixel_t)conf_font_color_r,
-				(pixel_t)conf_font_color_g,
-				(pixel_t)conf_font_color_b);
-	outline_color =
-		make_pixel_slow(0xff,
-				(pixel_t)conf_font_outline_color_r,
-				(pixel_t)conf_font_outline_color_g,
-				(pixel_t)conf_font_outline_color_b);
+	color = make_pixel(0xff,
+			   (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
 
 	/* 描画する */
 	construct_draw_msg_context(
@@ -91,21 +90,10 @@ bool pencil_command(int *x, int *y, int *w, int *h)
 		NULL,	/* inline_wait_hook */
 		false);	/* use_tategaki */
 	total_chars = count_chars_common(&context);
-	lock_layers_for_msgdraw(layer, -1);
-	{
-		draw_msg_common(&context, total_chars, x, y, w, h);
-	}
-	unlock_layers_for_msgdraw(layer, -1);
-
-	/* 更新領域を追加する */
-	layer_x = get_layer_x(layer);
-	layer_y = get_layer_y(layer);
-	union_rect(x, y, w, h,
-		   *x, *y, *w, *h,
-		   layer_x, layer_y, layer_w, layer_h);
+	draw_msg_common(&context, total_chars);
 
 	/* 描画する */
-	draw_stage();
+	render_stage();
 
 	return move_to_next_command();
 }

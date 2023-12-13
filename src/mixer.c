@@ -32,7 +32,7 @@ static float vol_end[MIXER_STREAMS];
 static float vol_span[MIXER_STREAMS];
 
 /* フェードの開始時刻 */
-static stop_watch_t sw[MIXER_STREAMS];
+static uint64_t sw[MIXER_STREAMS];
 
 /* ローカルセーブデータに書き込まれるべきボリュームの値 */
 static float vol_local[MIXER_STREAMS];
@@ -191,7 +191,7 @@ void set_mixer_volume(int n, float vol, float span)
 		vol_end[n] = vol;
 		vol_span[n] = span;
 		vol_local[n] = vol;
-		reset_stop_watch(&sw[n]);
+		reset_lap_timer(&sw[n]);
 	} else {
 		is_fading[n] = false;
 		vol_cur[n] = vol;
@@ -305,7 +305,7 @@ void process_sound_fading(void)
 			continue;
 
 		/* 経過時刻を取得する */
-		lap = (float)get_stop_watch_lap(&sw[n]) / 1000.0f;
+		lap = (float)get_lap_timer_millisec(&sw[n]) / 1000.0f;
 		if (lap >= vol_span[n]) {
 			lap = vol_span[n];
 			is_fading[n] = false;

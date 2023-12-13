@@ -99,7 +99,7 @@ static bool run(void)
 	}
 
 	/* 描画を行う */
-	draw_stage();
+	render_stage();
 	return true;
 }
 

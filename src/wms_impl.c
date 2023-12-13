@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2022, Keiichi Tabata. All rights reserved.
  */
 
 #include "suika.h"
@@ -574,8 +574,10 @@ static bool s2_remove_local_save(struct wms_runtime *rt)
 }
 
 /* Remove a global save data. */
-static bool s2_remove_global_save(UNUSED(struct wms_runtime *rt))
+static bool s2_remove_global_save(struct wms_runtime *rt)
 {
+	UNUSED_PARAMETER(rt);
+
 	delete_global_save();
 
 	return true;

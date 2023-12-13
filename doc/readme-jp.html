@@ -43,7 +43,7 @@
 </head>
 <body>
 
-<h1>Suika 2/14</h1>
+<h1>Suika 2/15</h1>
 <p>Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.</p>
 
 <h2>このソフトについて</h2>
@@ -107,28 +107,16 @@
 <ul>
   <li>Windowsでは、
     <ul>
-      <li>実際のゲームを起動する場合 <code>suika.exe</code> を開いてください</li>
-      <li>開発用のツールを起動する場合 <code>suika-pro.exe</code> を開いてください</li>
-      <li>開発用のツール(ベータ版)を起動する場合 <code>suika-studio.exe</code> を開いてください</li>
+      <li><code>suika-pro.exe</code> を開いてください</li>
       <li>セキュリティ警告が表示された場合、「詳細情報」をクリックしてから「実行」をクリックしてください</li>
     </ul>
   </li>
   <li>Macでは、
     <ul>
-      <li>実際のゲームを起動する場合、
-        <ul>
-          <li>展開されたフォルダ <code>suika2</code> を開いてください</li>
-          <li><code>tools/mac.dmg</code> を開いて、中に入っているアプリ <code>suika</code> を、ゲームフォルダである <code>suika2</code> にコピーします</li>
-          <li>ゲームフォルダ <code>suika2</code> の中で、アプリ <code>suika</code> を開いてください</li>
-        </ul>
-      </li>
-      <li>開発用のツールを起動する場合、
-        <ul>
-          <li>展開されたフォルダ <code>suika2</code> を開いてください</li>
-          <li><code>tools/mac-pro.dmg</code> を開いて、中に入っているアプリ <code>Suika2 Pro for Creators</code> を、ゲームフォルダである <code>suika2</code> にコピーします</li>
-          <li>ゲームフォルダ <code>suika2</code> の中で、アプリ <code>Suika2 Pro for Creators</code> を開いてください</li>
-        </ul>
-      </li>
+      <li>展開されたフォルダ <code>suika2</code> を開いてください (※1)</li>
+      <li><code>tools</code> フォルダを開いてください</li>
+      <li><code>mac-pro.dmg</code> を開いて、中に入っているアプリ <code>Suika2 Pro for Creators</code> を、ゲームフォルダである <code>suika2</code> (※1)にコピーします</li>
+      <li>ゲームフォルダ <code>suika2</code> の中で、アプリ <code>Suika2 Pro for Creators</code> を開いてください</li>
     </ul>
   </li>
 </ul>
@@ -171,21 +159,40 @@
 
 <h2>ライセンス</h2>
 <ul>
-  <li>アプリ本体(実行ファイル)はMITライセンスです</li>
+  <li>アプリ本体と開発ツールはMITライセンスです</li>
   <li>利用ライブラリのライセンス表示は実行ファイルに埋め込んであるため不要です (zlib, libpng, jpeg, bzip2, libwebp, libogg, libvorbis, freetype)</li>
-  <li>サンプルゲームのフォントは再配布可能ですが別ライセンスですので、 <a href="font/LICENSE">font/LICENSE</a> ファイルの内容を作品のREADMEやエンドロールで表示してください</li>
-  <li>サンプルゲームの音源のうちBGMの「蝉の声」と「海岸の音」は二次利用できません。詳細は <a href="bgm/credit.txt">bgm/credit.txt</a> をご覧ください</li>
+  <li>サンプルゲームのフォントは再配布可能ですが別ライセンスですので、フォントフォルダにあるライセンスファイルの内容を、作品のREADMEやエンドロールで表示してください</li>
+  <li>サンプルゲームの音源のうちBGMの「蝉の声」と「海岸の音」は二次利用できません</li>
 </ul>
 
 <h2>変更履歴</h2>
 <ul>
 <!-- BEGIN-LATEST -->
+<li>Suika2/15.4 2023/12/13
+  <ul>
+    <li>インストーラ配布に変更</li>
+    <li>macOS版: 最新のAppKitやMetalを使って書き直した</li>
+    <li>macOS版: Proにエディタを追加</li>
+  </ul>
+</li>
+<!-- END-LATEST -->
+<li>Suika2/15.3 2023/12/5
+  <ul>
+    <li>Windows版でSuika2のインストール先とゲーム制作フォルダを分離</li>
+    <li>Windows版でDirect3Dを必須化 (拡大縮小のサポートに向けて)</li>
+    <li>起動時にゲームテンプレート選択を追加</li>
+  </ul>
+</li>
+<li>Suika2/15.2 2023/12/1
+  <ul>
+    <li>@ch faceのバグを修正 (Thanks to ソロー-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.1 2023/11/27
   <ul>
     <li>ちらつきのないレイヤロードのコマンド @layer を追加</li>
   </ul>
 </li>
-<!-- END-LATEST -->
 <li>Suika2/15.0 2023/11/27
   <ul>
     <li>キャラクタを左、左中、中央、中央背面、右中、右の6枚に増やした</li>

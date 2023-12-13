@@ -28,7 +28,7 @@ typedef SSIZE_T ssize_t;
 /*
  * Define the missing extension macros for WGL.
  */
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 #define WGL_CONTEXT_MAJOR_VERSION_ARB		0x2091
 #define WGL_CONTEXT_MINOR_VERSION_ARB		0x2092
 #define WGL_CONTEXT_FLAGS_ARB			0x2094
@@ -71,7 +71,7 @@ typedef ssize_t GLsizeiptr;
  *
  * With Qt, we use replacement macros and don't define the API symbols directly.
  */
-#if defined(WIN) || (defined(LINUX) && !defined(USE_QT))
+#if defined(SUIKA_TARGET_POSIX) && !defined(USE_QT)
 extern GLuint (APIENTRY *glCreateShader)(GLenum type);
 extern void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count, const GLchar *const *string, const GLint *length);
 extern void (APIENTRY *glCompileShader)(GLuint shader);
@@ -97,11 +97,11 @@ extern void (APIENTRY *glDeleteShader)(GLuint shader);
 extern void (APIENTRY *glDeleteProgram)(GLuint program);
 extern void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
 extern void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
-#ifdef WIN
+#ifdef SUIKA_TARGET_WIN32
 /* Note: only Windows lacks glActiveTexture(), libOpenGL.so exports one that actually works. */
 extern void (APIENTRY *glActiveTexture)(GLenum texture);
 #endif
-#endif /* if defined(WIN) || (defined(LINUX) && !defined(USE_QT) */
+#endif /* if defined(SUIKA_TARGET_WIN32) || (defined(LINUX) && !defined(USE_QT) */
 
 /*
  * With Qt, we use a wrapper to call the Qt's OpenGL functions.

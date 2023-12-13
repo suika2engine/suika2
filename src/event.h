@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2016-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -44,16 +44,14 @@ enum mouse_button {
 
 /*
  * イベントハンドラ
- *  - platform.hの実装から呼び出される
  */
 bool on_event_init(void);
 void on_event_cleanup(void);
-bool on_event_frame(int *x, int *y, int *w, int *h);
+bool on_event_frame(void);
 void on_event_key_press(int key);
 void on_event_key_release(int key);
 void on_event_mouse_press(int button, int x, int y);
 void on_event_mouse_release(int button, int x, int y);
 void on_event_mouse_move(int x, int y);
-void on_event_mouse_scroll(int n);
 
 #endif

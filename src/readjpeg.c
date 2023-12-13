@@ -88,21 +88,20 @@ struct image *create_image_from_file_jpeg(const char *dir, const char *file)
 	}
 
 	/* 行ごとにデコードする */
-	lock_image(img);
-	p = get_image_pixels(img);
+	p = img->pixels;
 	for (y = 0; y < height; y++) {
 		/* 1行デコードする */
 		jpeg_read_scanlines(&jpeg, &line, 1);
 
 		/* イメージにコピーする */
 		for (x = 0; x < width; x++) {
-			*p++ = make_pixel_slow(255,
-					       line[x * 3],
-					       line[x * 3 + 1],
-					       line[x * 3 + 2]);
+			*p++ = make_pixel(255,
+					  line[x * 3],
+					  line[x * 3 + 1],
+					  line[x * 3 + 2]);
 		}
 	}
-	unlock_image(img);
+	notify_image_update(img);
 
 	/* 終了処理を行う */
 	free(line);

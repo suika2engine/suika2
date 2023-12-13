@@ -26,8 +26,9 @@ $SED -e "s|.*LATEST-RELEASE.*|<!--LATEST-RELEASE--><li><a href=\"/dl/\">$DATE $V
 # Update /dl/index.html
 cat dl/index.html | \
 $SED -e "s|.*LATEST-VERSION-AND-DATE.*|<!-- LATEST-VERSION-AND-DATE -->最新版 $VERSION \($DATE\):<br>|" \
-    -e "s|.*LATEST-ZIP.*|<!-- LATEST-ZIP --><a href=\"/dl/suika2-$VERSION_DIGIT.zip\"><img src=\"/img/icons/zip.png\" width=\"48\" alt=\"suik2 zip icon\"> ZIPファイル Windows/Mac/Web/Linux対応 Suika2 新機能の入った最新版</a><br>|" \
-	> tmp
+     -e "s|.*LATEST-EXE.*|<!-- LATEST-EXE --><a href=\"/dl/suika2-$VERSION_DIGIT.exe\">Windows exe<br>|" \
+     -e "s|.*LATEST-DMG.*|<!-- LATEST-DMG --><a href=\"/dl/suika2-$VERSION_DIGIT.dmg\">macOS dmg<br>|" \
+  > tmp
 cat tmp | awk '/.*DOCTYPE html.*/,/.*LATEST-RELEASE-NOTE.*/' > before
 cat tmp | awk '/.*LATEST-RELEASE-NOTE.*/,/\<\/html\>/' | tail -n +2 > after
 cat before > new
@@ -42,8 +43,9 @@ $SED -e "s|.*LATEST-RELEASE.*|<!--LATEST-RELEASE--><li><a href=\"/en/dl/\">$DATE
 # Update /en/dl/index.html
 cat en/dl/index.html | \
 $SED -e "s|.*LATEST-VERSION-AND-DATE.*|<!-- LATEST-VERSION-AND-DATE -->Latest $VERSION \($DATE\):<br>|" \
-    -e "s|.*LATEST-ZIP.*|<!-- LATEST-ZIP --><a href=\"/dl/suika2-$VERSION_DIGIT.zip\"><img src=\"/img/icons/zip.png\" width=\"48\" alt=\"suik2 zip icon\"> Download for Windows/Mac/Web/Linux Suika2 latest</a><br>|" \
-	> tmp
+     -e "s|.*LATEST-EXE.*|<!-- LATEST-EXE --><a href=\"/dl/suika2-$VERSION_DIGIT.exe\">Windows exe</a><br>|" \
+     -e "s|.*LATEST-DMG.*|<!-- LATEST-DMG --><a href=\"/dl/suika2-$VERSION_DIGIT.dmg\">macOS exe</a><br>|" \
+  > tmp
 cat tmp | awk '/.*DOCTYPE html.*/,/.*LATEST-RELEASE-NOTE.*/' > before
 cat tmp | awk '/.*LATEST-RELEASE-NOTE.*/,/\<\/html\>/' | tail -n +2 > after
 cat before > new

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Extract bzip2 source into the android project tree.
-rm -rf app/src/main/cpp/zlib2
+rm -rf app/src/main/cpp/bzip2
 tar xzf ../libsrc/bzip2-1.0.6.tar.gz -C app/src/main/cpp/
 mv app/src/main/cpp/bzip2-1.0.6 app/src/main/cpp/bzip2
 cp cmakelists_for_bzip2.txt app/src/main/cpp/bzip2/CMakeLists.txt
@@ -63,8 +63,6 @@ cp ../../src/cmd_wait.c app/src/main/cpp/cmd_wait.c
 cp ../../src/cmd_wms.c app/src/main/cpp/cmd_wms.c
 cp ../../src/conf.c app/src/main/cpp/conf.c
 cp ../../src/conf.h app/src/main/cpp/conf.h
-cp ../../src/drawglyph.h app/src/main/cpp/drawglyph.h
-cp ../../src/drawimage.h app/src/main/cpp/drawimage.h
 cp ../../src/event.c app/src/main/cpp/event.c
 cp ../../src/event.h app/src/main/cpp/event.h
 cp ../../src/file.h app/src/main/cpp/file.h
@@ -88,7 +86,7 @@ cp ../../src/ndkfile.c app/src/main/cpp/ndkfile.c
 cp ../../src/ndkmain.c app/src/main/cpp/ndkmain.c
 cp ../../src/ndkmain.h app/src/main/cpp/ndkmain.h
 cp ../../src/ndkwave.c app/src/main/cpp/ndkwave.c
-cp ../../src/platform.h app/src/main/cpp/platform.h
+cp ../../src/hal.h app/src/main/cpp/hal.h
 cp ../../src/readimage.c app/src/main/cpp/readimage.c
 cp ../../src/readpng.c app/src/main/cpp/readpng.c
 cp ../../src/readjpeg.c app/src/main/cpp/readjpeg.c
@@ -104,6 +102,8 @@ cp ../../src/seen.h app/src/main/cpp/seen.h
 cp ../../src/stage.c app/src/main/cpp/stage.c
 cp ../../src/stage.h app/src/main/cpp/stage.h
 cp ../../src/suika.h app/src/main/cpp/suika.h
+cp ../../src/uimsg.h app/src/main/cpp/uimsg.h
+cp ../../src/uimsg.c app/src/main/cpp/uimsg.c
 cp ../../src/types.h app/src/main/cpp/types.h
 cp ../../src/vars.c app/src/main/cpp/vars.c
 cp ../../src/vars.h app/src/main/cpp/vars.h
@@ -119,7 +119,7 @@ cp ../../src/wms_parser.tab.h app/src/main/cpp/wms_parser.tab.h
 # Copy the game assets for our testing builds.
 # You can comment this out when your game is ready.
 mkdir -p app/src/main/assets
-cp -R ../../game/* app/src/main/assets/
+cp -R ../../games/demo/* app/src/main/assets/
 
 # Please modify and use this line for your game.
 #mkdir app/src/main/assets
