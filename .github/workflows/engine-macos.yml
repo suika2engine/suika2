@@ -12,4 +12,4 @@ jobs:
           cd build/engine-macos
           wget https://suika2.com/dl/libroot-mac.tar.gz
           tar xzf libroot-mac.tar.gz
-          xcodebuild -target suika -project engine-macos.xcodeproj -configuration Debug build
+          xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive build

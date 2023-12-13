@@ -15,7 +15,6 @@ WINDRES = x86_64-w64-mingw32-windres
 
 CPPFLAGS = \
 	-I. \
-	-I../engine-windows-x86/res \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
 
@@ -61,7 +60,7 @@ LDFLAGS = \
 #
 
 SRCS_C = \
-	$(SRCS_COMMON) \
+	$(SRCS_MAIN) \
 	../../src/winmain.c \
 	../../src/dsound.c
 
@@ -97,7 +96,7 @@ OBJS = \
 
 all: suika-64.exe
 
-suika-64.exe: libroot $(OBJS)
+suika-64.exe: libroot $(OBJS) $(HDRS_MAIN)
 	$(CC) -s -o suika-64.exe $(OBJS) $(LDFLAGS)
 
 libroot:

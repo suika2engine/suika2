@@ -60,13 +60,12 @@ LDFLAGS = \
 #
 
 SRCS_C = \
-	$(SRCS_COMMON) \
+	$(SRCS_MAIN) \
 	../../src/winmain.c \
-	../../src/uimsg.c \
-	../../src/d3drender.c \
 	../../src/dsound.c
 
 SRCS_CC = \
+	../../src/d3drender.cc \
 	../../src/dsvideo.cc \
 	../../src/tts_sapi.cc
 
@@ -96,7 +95,7 @@ OBJS = \
 
 all: suika-arm64.exe
 
-suika-arm64.exe: libroot $(OBJS)
+suika-arm64.exe: libroot $(OBJS) $(HDRS_MAIN)
 	$(CC) -s -o suika-arm64.exe $(OBJS) $(LDFLAGS)
 
 libroot:

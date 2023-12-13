@@ -52,10 +52,9 @@ LDFLAGS = \
 	-lX11 \
 	-lXpm \
 	-lGL \
+	-lGLX \
 	-lpthread \
 	-lm
-
-LDFLAGS_EXTRA = -lGLX
 
 #
 # Source files
@@ -84,8 +83,7 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 all: suika
 
 suika: libroot $(OBJS)
-	$(CC) -o suika $(OBJS) $(LDFLAGS) $(LDFLAGS_EXTRA) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0` || \
-	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0` || 
+	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
 libroot:
 	./build-libs.sh
