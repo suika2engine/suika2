@@ -431,7 +431,7 @@ void reset_lap_timer(uint64_t *t)
 /*
  * タイマのラップをミリ秒単位で取得する
  */
-int get_lap_timer_millisec(uint64_t *t)
+uint64_t get_lap_timer_millisec(uint64_t *t)
 {
 	jclass cls;
 	jmethodID mid;

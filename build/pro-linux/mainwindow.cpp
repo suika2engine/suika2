@@ -795,33 +795,44 @@ void destroy_texture(void *texture)
 }
 
 //
+// Render an image to screen using copy shader.
+//
+void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image,
+                       int width, int height, int src_left, int src_top)
+{
+    opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+}
+
+//
 // Render an image to screen using normal shader.
 //
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
+void render_image_normal(int dst_left, int dst_top, struct image * RESTRICT src_image,
+                         int width, int height, int src_left, int src_top, int alpha)
 {
-    opengl_render_image(dst_left, dst_top, src_image, width, height,
-                        src_left, src_top, alpha, bt);
+    opengl_render_image_normal(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+}
+
+//
+// Render an image to screen using normal shader.
+//
+void render_image_add(int dst_left, int dst_top, struct image * RESTRICT src_image,
+                      int width, int height, int src_left, int src_top, int alpha)
+{
+    opengl_render_image_add(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
 }
 
 //
 // Render an image to screen with dim shader.
 //
-void render_image_dim(int dst_left, int dst_top,
-                      struct image * RESTRICT src_image,
-                      int width, int height, int src_left, int src_top)
+void render_image_dim(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top)
 {
-    opengl_render_image_dim(dst_left, dst_top, src_image,
-                            width, height, src_left, src_top);
+    opengl_render_image_dim(dst_left, dst_top, src_image, width, height, src_left, src_top);
 }
 
 //
 // Render an image to screen with rule shader.
 //
-void render_image_rule(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
-		       int threshold)
+void render_image_rule(struct image *src_img, struct image *rule_img, int threshold)
 {
     opengl_render_image_rule(src_img, rule_img, threshold);
 }
