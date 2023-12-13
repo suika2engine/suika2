@@ -765,33 +765,19 @@ bool is_opengl_enabled(void)
 }
 
 //
-// Lock a GPU texture for an image.
+// Update a texture.
 //
-bool lock_texture(int width, int height, pixel_t *pixels,
-                  pixel_t **locked_pixels, void **texture)
+void notify_image_update(struct image *img)
 {
-    if (!opengl_lock_texture(width, height, pixels, locked_pixels, texture))
-        return false;
-
-    return true;
+    opengl_notify_image_update(img);
 }
 
 //
-// Unlock a GPU texture for an image.
+// Destroy a texture.
 //
-void unlock_texture(int width, int height, pixel_t *pixels,
-                    pixel_t **locked_pixels, void **texture)
+void notify_image_free(struct image *img)
 {
-    opengl_unlock_texture(width, height, pixels, locked_pixels,
-                          texture);
-}
-
-//
-// Destroy a GPU texture for an image.
-//
-void destroy_texture(void *texture)
-{
-    opengl_destroy_texture(texture);
+    opengl_notify_image_free(img);
 }
 
 //
@@ -800,7 +786,7 @@ void destroy_texture(void *texture)
 void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image,
                        int width, int height, int src_left, int src_top)
 {
-    opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+    opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top);
 }
 
 //

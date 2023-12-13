@@ -346,7 +346,7 @@ void notify_image_free(struct image *img)
 void render_image_copy(int dst_left, int dst_top, struct image *src_image,
 		       int width, int height, int src_left, int src_top)
 {
-	opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+	opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top);
 }
 
 /*
