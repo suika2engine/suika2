@@ -671,6 +671,20 @@ static bool init_switch(void)
 			return false;
 		draw_switch_fg_image(parent_button[i].img_hover, i);
 
+		/* テキストを描画する */
+		draw_text(parent_button[i].img_idle,
+			  parent_button[i].msg,
+			  parent_button[i].w,
+			  parent_button[i].h,
+			  true,
+			  false);
+		draw_text(parent_button[i].img_hover,
+			  parent_button[i].msg,
+			  parent_button[i].w,
+			  parent_button[i].h,
+			  false,
+			  false);
+
 		parent_button_count++;
 	}
 	if (parent_button_count == 0) {

@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		260E2D9C2B2996270047525A /* ios-src in Resources */ = {isa = PBXBuildFile; fileRef = 260E2D9B2B2996270047525A /* ios-src */; };
-		260E2D9E2B2996330047525A /* android-src in Resources */ = {isa = PBXBuildFile; fileRef = 260E2D9D2B2996330047525A /* android-src */; };
-		260E2DA22B2996600047525A /* suika.exe in Resources */ = {isa = PBXBuildFile; fileRef = 260E2DA12B2996600047525A /* suika.exe */; };
-		260E2DA42B29966E0047525A /* suika-mac.zip in Resources */ = {isa = PBXBuildFile; fileRef = 260E2DA32B29966E0047525A /* suika-mac.zip */; };
 		2610CC842B2878C900300004 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2610CC832B2878C900300004 /* Assets.xcassets */; };
 		2610CCE02B287ACD00300004 /* cmd_setconfig.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CC862B287ACC00300004 /* cmd_setconfig.c */; };
 		2610CCE12B287ACD00300004 /* cmd_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CC872B287ACC00300004 /* cmd_ch.c */; };
@@ -68,13 +64,6 @@
 		2610CD182B287ACD00300004 /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDC2B287ACD00300004 /* cmd_cha.c */; };
 		2610CD192B287ACD00300004 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDD2B287ACD00300004 /* cmd_setsave.c */; };
 		2610CD1A2B287ACD00300004 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDF2B287ACD00300004 /* log.c */; };
-		261D5BED2B296F7E006577B3 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BEA2B296F7E006577B3 /* index.html */; };
-		261D5BEE2B296F7E006577B3 /* index.js in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BEB2B296F7E006577B3 /* index.js */; };
-		261D5BEF2B296F7E006577B3 /* index.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BEC2B296F7E006577B3 /* index.wasm */; };
-		261D5BF42B297B69006577B3 /* nvl-tategaki in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF02B297B69006577B3 /* nvl-tategaki */; };
-		261D5BF52B297B69006577B3 /* english in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF12B297B69006577B3 /* english */; };
-		261D5BF62B297B69006577B3 /* japanese in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF22B297B69006577B3 /* japanese */; };
-		261D5BF72B297B69006577B3 /* nvl in Resources */ = {isa = PBXBuildFile; fileRef = 261D5BF32B297B69006577B3 /* nvl */; };
 		26495D112B2A7BFD0050EDDF /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0C2B2A7BFD0050EDDF /* GameShaders.metal */; };
 		26495D122B2A7BFD0050EDDF /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0D2B2A7BFD0050EDDF /* GameRenderer.m */; };
 		26495D132B2A7BFD0050EDDF /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0F2B2A7BFD0050EDDF /* aunit.c */; };
@@ -85,13 +74,20 @@
 		2669F7DC2B284675001AEF17 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D62B284675001AEF17 /* ViewController.m */; };
 		2669F7DE2B28467D001AEF17 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2669F7DD2B28467D001AEF17 /* Main.storyboard */; };
 		269D04722B28891C00934EE2 /* ScriptTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269D04712B28891C00934EE2 /* ScriptTextView.m */; };
+		26A1BAE32B2AD78800761444 /* ios-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE22B2AD78700761444 /* ios-src */; };
+		26A1BAE72B2AD79E00761444 /* android-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE62B2AD79E00761444 /* android-src */; };
+		26A1BAEC2B2AD7B200761444 /* japanese in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE82B2AD7B200761444 /* japanese */; };
+		26A1BAED2B2AD7B200761444 /* nvl in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE92B2AD7B200761444 /* nvl */; };
+		26A1BAEE2B2AD7B200761444 /* english in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAEA2B2AD7B200761444 /* english */; };
+		26A1BAEF2B2AD7B200761444 /* nvl-tategaki in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAEB2B2AD7B200761444 /* nvl-tategaki */; };
+		26A1BAF32B2AD7D700761444 /* index.js in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF02B2AD7D700761444 /* index.js */; };
+		26A1BAF42B2AD7D700761444 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF12B2AD7D700761444 /* index.html */; };
+		26A1BAF52B2AD7D700761444 /* index.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF22B2AD7D700761444 /* index.wasm */; };
+		26A1BAF72B2AD7E700761444 /* suika-mac.zip in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF62B2AD7E700761444 /* suika-mac.zip */; };
+		26A1BAF92B2AD7F600761444 /* suika.exe in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF82B2AD7F600761444 /* suika.exe */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		260E2D9B2B2996270047525A /* ios-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ios-src"; path = "../../engine-ios/ios-src"; sourceTree = "<group>"; };
-		260E2D9D2B2996330047525A /* android-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "android-src"; path = "../../engine-android/android-src"; sourceTree = "<group>"; };
-		260E2DA12B2996600047525A /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
-		260E2DA32B29966E0047525A /* suika-mac.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "suika-mac.zip"; path = "../../engine-macos/suika-mac.zip"; sourceTree = "<group>"; };
 		2610CC832B2878C900300004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2610CC852B287ACC00300004 /* suika.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = suika.h; path = ../../src/suika.h; sourceTree = "<group>"; };
 		2610CC862B287ACC00300004 /* cmd_setconfig.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setconfig.c; path = ../../src/cmd_setconfig.c; sourceTree = "<group>"; };
@@ -177,13 +173,6 @@
 		2610CCDD2B287ACD00300004 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		2610CCDE2B287ACD00300004 /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../src/glyph.h; sourceTree = "<group>"; };
 		2610CCDF2B287ACD00300004 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = ../../src/log.c; sourceTree = "<group>"; };
-		261D5BEA2B296F7E006577B3 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = "../../engine-wasm/html/index.html"; sourceTree = "<group>"; };
-		261D5BEB2B296F7E006577B3 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = "../../engine-wasm/html/index.js"; sourceTree = "<group>"; };
-		261D5BEC2B296F7E006577B3 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
-		261D5BF02B297B69006577B3 /* nvl-tategaki */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "nvl-tategaki"; path = "../../../games/nvl-tategaki"; sourceTree = "<group>"; };
-		261D5BF12B297B69006577B3 /* english */ = {isa = PBXFileReference; lastKnownFileType = folder; name = english; path = ../../../games/english; sourceTree = "<group>"; };
-		261D5BF22B297B69006577B3 /* japanese */ = {isa = PBXFileReference; lastKnownFileType = folder; name = japanese; path = ../../../games/japanese; sourceTree = "<group>"; };
-		261D5BF32B297B69006577B3 /* nvl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nvl; path = ../../../games/nvl; sourceTree = "<group>"; };
 		26495D0A2B2A7BFD0050EDDF /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/apple/GameViewControllerProtocol.h; sourceTree = "<group>"; };
 		26495D0B2B2A7BFD0050EDDF /* aunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aunit.h; path = ../../src/apple/aunit.h; sourceTree = "<group>"; };
 		26495D0C2B2A7BFD0050EDDF /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/apple/GameShaders.metal; sourceTree = "<group>"; };
@@ -205,6 +194,17 @@
 		2669F7DD2B28467D001AEF17 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		269D04702B28891C00934EE2 /* ScriptTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScriptTextView.h; sourceTree = "<group>"; };
 		269D04712B28891C00934EE2 /* ScriptTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScriptTextView.m; sourceTree = "<group>"; };
+		26A1BAE22B2AD78700761444 /* ios-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ios-src"; path = "../../engine-ios/ios-src"; sourceTree = "<group>"; };
+		26A1BAE62B2AD79E00761444 /* android-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "android-src"; path = "../../engine-android/android-src"; sourceTree = "<group>"; };
+		26A1BAE82B2AD7B200761444 /* japanese */ = {isa = PBXFileReference; lastKnownFileType = folder; name = japanese; path = ../../../games/japanese; sourceTree = "<group>"; };
+		26A1BAE92B2AD7B200761444 /* nvl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nvl; path = ../../../games/nvl; sourceTree = "<group>"; };
+		26A1BAEA2B2AD7B200761444 /* english */ = {isa = PBXFileReference; lastKnownFileType = folder; name = english; path = ../../../games/english; sourceTree = "<group>"; };
+		26A1BAEB2B2AD7B200761444 /* nvl-tategaki */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "nvl-tategaki"; path = "../../../games/nvl-tategaki"; sourceTree = "<group>"; };
+		26A1BAF02B2AD7D700761444 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = "../../engine-wasm/html/index.js"; sourceTree = "<group>"; };
+		26A1BAF12B2AD7D700761444 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = "../../engine-wasm/html/index.html"; sourceTree = "<group>"; };
+		26A1BAF22B2AD7D700761444 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
+		26A1BAF62B2AD7E700761444 /* suika-mac.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "suika-mac.zip"; path = "../../engine-macos/suika-mac.zip"; sourceTree = "<group>"; };
+		26A1BAF82B2AD7F600761444 /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -314,17 +314,17 @@
 		2610CD1B2B287C9100300004 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				260E2D9B2B2996270047525A /* ios-src */,
-				260E2D9D2B2996330047525A /* android-src */,
-				261D5BF12B297B69006577B3 /* english */,
-				261D5BF22B297B69006577B3 /* japanese */,
-				261D5BF32B297B69006577B3 /* nvl */,
-				261D5BF02B297B69006577B3 /* nvl-tategaki */,
-				261D5BEA2B296F7E006577B3 /* index.html */,
-				261D5BEB2B296F7E006577B3 /* index.js */,
-				261D5BEC2B296F7E006577B3 /* index.wasm */,
-				260E2DA32B29966E0047525A /* suika-mac.zip */,
-				260E2DA12B2996600047525A /* suika.exe */,
+				26A1BAF62B2AD7E700761444 /* suika-mac.zip */,
+				26A1BAF82B2AD7F600761444 /* suika.exe */,
+				26A1BAF12B2AD7D700761444 /* index.html */,
+				26A1BAF02B2AD7D700761444 /* index.js */,
+				26A1BAF22B2AD7D700761444 /* index.wasm */,
+				26A1BAEA2B2AD7B200761444 /* english */,
+				26A1BAE82B2AD7B200761444 /* japanese */,
+				26A1BAE92B2AD7B200761444 /* nvl */,
+				26A1BAEB2B2AD7B200761444 /* nvl-tategaki */,
+				26A1BAE62B2AD79E00761444 /* android-src */,
+				26A1BAE22B2AD78700761444 /* ios-src */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -447,19 +447,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				260E2D9E2B2996330047525A /* android-src in Resources */,
-				261D5BEF2B296F7E006577B3 /* index.wasm in Resources */,
-				260E2D9C2B2996270047525A /* ios-src in Resources */,
 				2610CC842B2878C900300004 /* Assets.xcassets in Resources */,
-				261D5BF62B297B69006577B3 /* japanese in Resources */,
-				261D5BF42B297B69006577B3 /* nvl-tategaki in Resources */,
 				2669F7DE2B28467D001AEF17 /* Main.storyboard in Resources */,
-				261D5BED2B296F7E006577B3 /* index.html in Resources */,
-				261D5BF72B297B69006577B3 /* nvl in Resources */,
-				261D5BF52B297B69006577B3 /* english in Resources */,
-				260E2DA22B2996600047525A /* suika.exe in Resources */,
-				260E2DA42B29966E0047525A /* suika-mac.zip in Resources */,
-				261D5BEE2B296F7E006577B3 /* index.js in Resources */,
+				26A1BAEC2B2AD7B200761444 /* japanese in Resources */,
+				26A1BAE32B2AD78800761444 /* ios-src in Resources */,
+				26A1BAED2B2AD7B200761444 /* nvl in Resources */,
+				26A1BAF92B2AD7F600761444 /* suika.exe in Resources */,
+				26A1BAF52B2AD7D700761444 /* index.wasm in Resources */,
+				26A1BAF32B2AD7D700761444 /* index.js in Resources */,
+				26A1BAEF2B2AD7B200761444 /* nvl-tategaki in Resources */,
+				26A1BAE72B2AD79E00761444 /* android-src in Resources */,
+				26A1BAF42B2AD7D700761444 /* index.html in Resources */,
+				26A1BAF72B2AD7E700761444 /* suika-mac.zip in Resources */,
+				26A1BAEE2B2AD7B200761444 /* english in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
