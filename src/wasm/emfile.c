@@ -12,7 +12,7 @@
  *  - 2023/11/12 作成
  */
 
-#include "suika.h"
+#include "../suika.h"
 
 #include <emscripten.h>
 

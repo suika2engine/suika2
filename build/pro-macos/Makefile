@@ -1,17 +1,24 @@
 include ../common.mk
 
-FILES_ENGINE_MACOS = \
+FILES_MACOS = \
 	pro-macos/main.m \
 	pro-macos/AppDelegate.h \
 	pro-macos/AppDelegate.m \
 	pro-macos/ViewController.h \
 	pro-macos/ViewController.m \
 	pro-macos/GameView.h \
-	pro-macos/GameView.m
+	pro-macos/GameView.m \
+	../../src/apple/aunit.h \
+	../../src/apple/aunit.c \
+	../../src/apple/GameRenderer.h \
+	../../src/apple/GameShaderTypes.h \
+	../../src/apple/GameViewControllerProtocol.h \
+	../../src/apple/GameRenderer.m \
+	../../src/apple/GameShaders.metal
 
 main: suika2.dmg
 
-suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(HDRS_APPLE) $(SRCS_APPLE) $(FILES_ENGINE_MACOS)
+suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_MACOS)
 	@echo "Building Suika2 Pro.app"
 	@rm -rf build
 	@xcodebuild -quiet -scheme pro-macos -project pro-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/pro-macos.xcarchive archive

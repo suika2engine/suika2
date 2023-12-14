@@ -17,7 +17,9 @@ all:
 	cd pro-windows && rm -f *.o suika-pro.exe && make -j24 && cd ..
 	if [ ! -z "`uname -a | grep Linux`" ]; then cd engine-linux && rm -f *.o suika && make -j24 && cd ..; fi
 	if [ ! -z "`uname -a | grep Linux`" ]; then cd engine-linux && rm -f *.o suika && CC=clang make -j24 && cd ..; fi
-	if [ ! -z "`uname -a | grep Darwin`" ]; then cd engine-macos && make -j8 main build-only && cd ..; fi
+	if [ ! -z "`uname -a | grep Darwin`" ]; then cd engine-macos && make build-only && cd ..; fi
+	if [ ! -z "`uname -a | grep Darwin`" ]; then cd pro-macos && make build-only && cd ..; fi
+	if [ ! -z "`uname -a | grep Darwin`" ]; then cd engine-ios && make build-only && cd ..; fi
 
 extra:
 	cd engine-android && docker run -it --rm -v `readlink -f ../../`:/project suika2-android bash -c "cd /project/build/engine-android && ./build-on-docker.sh" && cd ..

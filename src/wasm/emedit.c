@@ -13,10 +13,10 @@
  */
 
 /* Suika2 Base */
-#include "suika.h"
+#include "../suika.h"
 
 /* Suika2 Graphics HAL for OpenGL */
-#include "glrender.h"
+#include "../khronos/glrender.h"
 
 /* Suika2 Sound HAL for Emscripten OpenAL */
 #include "emopenal.h"
@@ -141,7 +141,6 @@ EMSCRIPTEN_KEEPALIVE void start_engine(void)
 static void loop_iter(void *userData)
 {
 	static bool is_flip_pending = false;
-	int x, y, w, h;
 
 	/* サウンドの処理を行う */
 	fill_sound_buffer();
@@ -154,8 +153,7 @@ static void loop_iter(void *userData)
 	/* opengl_start_rendering(); */
 
 	/* フレームのコマンドを実行する */
-	x = y = w = h = 0;
-	on_event_frame(&x, &y, &w, &h);
+	on_event_frame();
 
 	/* フレームのレンダリングを終了する */
 	opengl_end_rendering();
@@ -520,68 +518,74 @@ bool is_opengl_enabled(void)
 }
 
 /*
- * テクスチャをロックする
+ * テクスチャを更新する
  */
-bool lock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pixels, void **texture)
+void notify_image_update(struct image *img)
 {
 	fill_sound_buffer();
-	if (!opengl_lock_texture(width, height, pixels, locked_pixels, texture))
-		return false;
-	fill_sound_buffer();
-	return true;
-}
-
-/*
- * テクスチャをアンロックする
- */
-void unlock_texture(int width, int height, pixel_t *pixels, pixel_t **locked_pixels, void **texture)
-{
-	fill_sound_buffer();
-	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
+	opengl_notify_image_update(img);
 	fill_sound_buffer();
 }
 
 /*
  * テクスチャを破棄する
  */
-void destroy_texture(void *texture)
+void notify_image_free(struct image *img)
 {
-	opengl_destroy_texture(texture);
+	fill_sound_buffer();
+	opengl_notify_image_free(img);
+	fill_sound_buffer();
 }
 
 /*
  * イメージをレンダリングする
  */
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
+void render_image_copy(int dst_left, int dst_top, struct image *src_image,
+		       int width, int height, int src_left, int src_top)
 {
-	opengl_render_image(dst_left, dst_top, src_image, width, height,
-			    src_left, src_top, alpha, bt);
+	opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_normal(int dst_left, int dst_top, struct image *src_image,
+			 int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_normal(dst_left, dst_top, src_image, width, height,
+				   src_left, src_top, alpha);
+}
+
+/*
+ * イメージをレンダリングする
+ */
+void render_image_add(int dst_left, int dst_top, struct image *src_image,
+		      int width, int height, int src_left, int src_top, int alpha)
+{
+	opengl_render_image_add(dst_left, dst_top, src_image, width, height,
+				src_left, src_top, alpha);
 }
 
 /*
  * イメージを暗くレンダリングする
  */
-void render_image_dim(int dst_left, int dst_top,
-		      struct image * RESTRICT src_image,
+void render_image_dim(int dst_left, int dst_top, struct image *src_image,
 		      int width, int height, int src_left, int src_top)
 {
-	opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-				src_left, src_top);
+	opengl_render_image_dim(dst_left, dst_top, src_image, width, height, src_left, src_top);
 }
 
 /* イメージをルール付きでレンダリングする */
-void render_image_rule(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
+void render_image_rule(struct image *src_img,
+		       struct image *rule_img,
 		       int threshold)
 {
 	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
 /* イメージをルール付き(メルト)でレンダリングする */
-void render_image_melt(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
+void render_image_melt(struct image *src_img,
+		       struct image *rule_img,
 		       int threshold)
 {
 	opengl_render_image_melt(src_img, rule_img, threshold);
@@ -1088,4 +1092,9 @@ static void update_text_from_script_model(void)
 	EM_ASM({
 		editor.setValue(editorText);
 	});
+}
+
+void speak_text(const char *text)
+{
+	UNUSED_PARAMETER(text);
 }

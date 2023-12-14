@@ -23,11 +23,11 @@
  */
 
 /* Suika2 Base */
-#include "suika.h"
+#include "../suika.h"
 
 /* Suika2 Pro */
-#include "pro.h"
-#include "package.h"
+#include "../pro.h"
+#include "../package.h"
 
 /* Suika2 HAL Implementaions */
 #include "d3drender.h"		/* Graphics HAL */

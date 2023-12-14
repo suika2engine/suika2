@@ -31,7 +31,7 @@
 #include <unistd.h>	/* usleep(), access() */
 
 /* Suika2 Base */
-#include "suika.h"
+#include "../suika.h"
 
 /* Suika2 HAL implementation for sound output */
 #if !defined(USE_REPLAY) && !defined(USE_CAPTURE)
@@ -42,7 +42,7 @@
 /* Suika2 HAL implementation for graphics */
 #include <GL/gl.h>
 #include <GL/glx.h>
-#include "glrender.h"
+#include "../khronos/glrender.h"
 
 /* Suika2 Capture */
 #ifdef USE_CAPTURE

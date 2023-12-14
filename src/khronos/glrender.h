@@ -13,7 +13,11 @@
 #ifndef SUIKA_GLRENDER_H
 #define SUIKA_GLRENDER_H
 
+#ifndef USE_QT
 #include "../suika.h"
+#else
+#include "suika.h"
+#endif
 
 /* OpenGLの初期化処理を行う */
 bool init_opengl(void);

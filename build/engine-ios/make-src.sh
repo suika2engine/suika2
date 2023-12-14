@@ -29,17 +29,17 @@ rm -f "$TARGET/engine-ios/data01.arc"
 $SED -i 's|../../src/|src/|g' -i "$TARGET/engine-ios.xcodeproj/project.pbxproj"
 
 # Copy the Suika2 source files.
-mkdir "$TARGET/src"
+mkdir -p "$TARGET/src/apple"
 COPY_LIST="\
-	GameRenderer.h \
-	GameRenderer.m \
-	GameShaders.metal \
-	GameShaderTypes.h \
-	GameViewControllerProtocol.h \
+	apple/GameRenderer.h \
+	apple/GameRenderer.m \
+	apple/GameShaders.metal \
+	apple/GameShaderTypes.h \
+	apple/GameViewControllerProtocol.h \
+	apple/aunit.c \
+	apple/aunit.h \
 	anime.c \
 	anime.h \
-	aunit.c \
-	aunit.h \
 	cmd_anime.c \
 	cmd_bg.c \
 	cmd_bgm.c \
@@ -74,8 +74,6 @@ COPY_LIST="\
 	event.h \
 	file.h \
 	file.c \
-	glrender.c \
-	glrender.h \
 	glyph.c \
 	glyph.h \
 	gui.c \

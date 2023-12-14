@@ -12,7 +12,6 @@
  *  2023-12-14 Removed Apple OpenGL.
  */
 
-#include "../suika.h"
 #include "glrender.h"
 
 /*

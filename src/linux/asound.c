@@ -10,7 +10,7 @@
  *  2016-06-06 作成
  */
 
-#include "suika.h"
+#include "../suika.h"
 
 #include <pthread.h>
 #include <alsa/asoundlib.h>

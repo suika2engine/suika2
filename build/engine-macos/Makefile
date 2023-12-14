@@ -1,17 +1,24 @@
 include ../common.mk
 
-FILES_ENGINE_MACOS = \
+FILES_APPLE = \
 	engine-macos/main.m \
 	engine-macos/AppDelegate.h \
 	engine-macos/AppDelegate.m \
 	engine-macos/ViewController.h \
 	engine-macos/ViewController.m \
 	engine-macos/GameView.h \
-	engine-macos/GameView.m
+	engine-macos/GameView.m \
+	../../src/apple/aunit.h \
+	../../src/apple/aunit.c \
+	../../src/apple/GameRenderer.h \
+	../../src/apple/GameShaderTypes.h \
+	../../src/apple/GameViewControllerProtocol.h \
+	../../src/apple/GameRenderer.m \
+	../../src/apple/GameShaders.metal
 
 main: suika-mac.zip
 
-suika-mac.zip: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(HDRS_APPLE) $(SRCS_APPLE) $(FILES_ENGINE_MACOS)
+suika-mac.zip: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
 	@echo "Building Suika.app"
 	@xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive archive
 	@xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/engine-macos.xcarchive -exportOptionsPlist export-options.plist

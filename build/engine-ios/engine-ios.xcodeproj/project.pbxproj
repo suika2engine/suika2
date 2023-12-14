@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		260EDAE92B2A7C30006C214F /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 260EDAE22B2A7C30006C214F /* GameRenderer.m */; };
+		260EDAEA2B2A7C30006C214F /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 260EDAE42B2A7C30006C214F /* aunit.c */; };
+		260EDAEB2B2A7C30006C214F /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 260EDAE82B2A7C30006C214F /* GameShaders.metal */; };
 		26A500062B29E4BA00C1ED7D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A5FFFC2B29E4BA00C1ED7D /* main.m */; };
 		26A500072B29E4BA00C1ED7D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A5FFFD2B29E4BA00C1ED7D /* AppDelegate.m */; };
 		26A500092B29E4BA00C1ED7D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26A500012B29E4BA00C1ED7D /* Assets.xcassets */; };
@@ -45,11 +48,9 @@
 		26BF133F2B29E2EB006A0F6E /* wms_parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF12F82B29E2EA006A0F6E /* wms_parser.tab.c */; };
 		26BF13402B29E2EB006A0F6E /* cmd_chs.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF12F92B29E2EA006A0F6E /* cmd_chs.c */; };
 		26BF13412B29E2EB006A0F6E /* cmd_bg.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF12FB2B29E2EA006A0F6E /* cmd_bg.c */; };
-		26BF13422B29E2EB006A0F6E /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF12FC2B29E2EA006A0F6E /* aunit.c */; };
 		26BF13432B29E2EB006A0F6E /* cmd_anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF12FE2B29E2EA006A0F6E /* cmd_anime.c */; };
 		26BF13442B29E2EB006A0F6E /* cmd_switch.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF12FF2B29E2EA006A0F6E /* cmd_switch.c */; };
 		26BF13452B29E2EB006A0F6E /* event.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13012B29E2EA006A0F6E /* event.c */; };
-		26BF13462B29E2EB006A0F6E /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13022B29E2EB006A0F6E /* GameShaders.metal */; };
 		26BF13472B29E2EB006A0F6E /* cmd_goto.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13032B29E2EB006A0F6E /* cmd_goto.c */; };
 		26BF13482B29E2EB006A0F6E /* history.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13042B29E2EB006A0F6E /* history.c */; };
 		26BF13492B29E2EB006A0F6E /* cmd_return.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13052B29E2EB006A0F6E /* cmd_return.c */; };
@@ -62,7 +63,6 @@
 		26BF13502B29E2EB006A0F6E /* scbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF130E2B29E2EB006A0F6E /* scbuf.c */; };
 		26BF13512B29E2EB006A0F6E /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF130F2B29E2EB006A0F6E /* script.c */; };
 		26BF13522B29E2EB006A0F6E /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13102B29E2EB006A0F6E /* cmd_setsave.c */; };
-		26BF13532B29E2EB006A0F6E /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13112B29E2EB006A0F6E /* GameRenderer.m */; };
 		26BF13542B29E2EB006A0F6E /* anime.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13122B29E2EB006A0F6E /* anime.c */; };
 		26BF13552B29E2EB006A0F6E /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13132B29E2EB006A0F6E /* conf.c */; };
 		26BF13562B29E2EB006A0F6E /* cmd_vol.c in Sources */ = {isa = PBXBuildFile; fileRef = 26BF13162B29E2EB006A0F6E /* cmd_vol.c */; };
@@ -77,6 +77,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		260EDAE22B2A7C30006C214F /* GameRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameRenderer.m; path = ../../src/apple/GameRenderer.m; sourceTree = "<group>"; };
+		260EDAE32B2A7C30006C214F /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/apple/GameViewControllerProtocol.h; sourceTree = "<group>"; };
+		260EDAE42B2A7C30006C214F /* aunit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aunit.c; path = ../../src/apple/aunit.c; sourceTree = "<group>"; };
+		260EDAE52B2A7C30006C214F /* GameShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameShaderTypes.h; path = ../../src/apple/GameShaderTypes.h; sourceTree = "<group>"; };
+		260EDAE62B2A7C30006C214F /* aunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aunit.h; path = ../../src/apple/aunit.h; sourceTree = "<group>"; };
+		260EDAE72B2A7C30006C214F /* GameRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameRenderer.h; path = ../../src/apple/GameRenderer.h; sourceTree = "<group>"; };
+		260EDAE82B2A7C30006C214F /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/apple/GameShaders.metal; sourceTree = "<group>"; };
 		26A500002B29E4BA00C1ED7D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26A500012B29E4BA00C1ED7D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26A500022B29E4BA00C1ED7D /* SceneDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
@@ -94,7 +101,6 @@
 		26BF12B02B29E225006A0F6E /* Suika2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suika2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26BF12CD2B29E2EA006A0F6E /* cmd_bgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_bgm.c; path = ../../src/cmd_bgm.c; sourceTree = "<group>"; };
 		26BF12CE2B29E2EA006A0F6E /* cmd_shake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_shake.c; path = ../../src/cmd_shake.c; sourceTree = "<group>"; };
-		26BF12CF2B29E2EA006A0F6E /* GameShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameShaderTypes.h; path = ../../src/GameShaderTypes.h; sourceTree = "<group>"; };
 		26BF12D02B29E2EA006A0F6E /* cmd_cha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_cha.c; path = ../../src/cmd_cha.c; sourceTree = "<group>"; };
 		26BF12D12B29E2EA006A0F6E /* glyph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glyph.c; path = ../../src/glyph.c; sourceTree = "<group>"; };
 		26BF12D22B29E2EA006A0F6E /* cmd_click.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_click.c; path = ../../src/cmd_click.c; sourceTree = "<group>"; };
@@ -123,7 +129,6 @@
 		26BF12E92B29E2EA006A0F6E /* seen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seen.h; path = ../../src/seen.h; sourceTree = "<group>"; };
 		26BF12EA2B29E2EA006A0F6E /* cmd_video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_video.c; path = ../../src/cmd_video.c; sourceTree = "<group>"; };
 		26BF12EB2B29E2EA006A0F6E /* anime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = anime.h; path = ../../src/anime.h; sourceTree = "<group>"; };
-		26BF12EC2B29E2EA006A0F6E /* GameRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameRenderer.h; path = ../../src/GameRenderer.h; sourceTree = "<group>"; };
 		26BF12ED2B29E2EA006A0F6E /* history.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = history.h; path = ../../src/history.h; sourceTree = "<group>"; };
 		26BF12EE2B29E2EA006A0F6E /* cmd_wms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_wms.c; path = ../../src/cmd_wms.c; sourceTree = "<group>"; };
 		26BF12EF2B29E2EA006A0F6E /* cmd_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_load.c; path = ../../src/cmd_load.c; sourceTree = "<group>"; };
@@ -139,13 +144,11 @@
 		26BF12F92B29E2EA006A0F6E /* cmd_chs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_chs.c; path = ../../src/cmd_chs.c; sourceTree = "<group>"; };
 		26BF12FA2B29E2EA006A0F6E /* hal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hal.h; path = ../../src/hal.h; sourceTree = "<group>"; };
 		26BF12FB2B29E2EA006A0F6E /* cmd_bg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_bg.c; path = ../../src/cmd_bg.c; sourceTree = "<group>"; };
-		26BF12FC2B29E2EA006A0F6E /* aunit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aunit.c; path = ../../src/aunit.c; sourceTree = "<group>"; };
 		26BF12FD2B29E2EA006A0F6E /* save.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = save.h; path = ../../src/save.h; sourceTree = "<group>"; };
 		26BF12FE2B29E2EA006A0F6E /* cmd_anime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_anime.c; path = ../../src/cmd_anime.c; sourceTree = "<group>"; };
 		26BF12FF2B29E2EA006A0F6E /* cmd_switch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_switch.c; path = ../../src/cmd_switch.c; sourceTree = "<group>"; };
 		26BF13002B29E2EA006A0F6E /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../src/glyph.h; sourceTree = "<group>"; };
 		26BF13012B29E2EA006A0F6E /* event.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = event.c; path = ../../src/event.c; sourceTree = "<group>"; };
-		26BF13022B29E2EB006A0F6E /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/GameShaders.metal; sourceTree = "<group>"; };
 		26BF13032B29E2EB006A0F6E /* cmd_goto.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_goto.c; path = ../../src/cmd_goto.c; sourceTree = "<group>"; };
 		26BF13042B29E2EB006A0F6E /* history.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = history.c; path = ../../src/history.c; sourceTree = "<group>"; };
 		26BF13052B29E2EB006A0F6E /* cmd_return.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_return.c; path = ../../src/cmd_return.c; sourceTree = "<group>"; };
@@ -154,13 +157,11 @@
 		26BF13082B29E2EB006A0F6E /* wave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wave.c; path = ../../src/wave.c; sourceTree = "<group>"; };
 		26BF13092B29E2EB006A0F6E /* wms_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wms_core.c; path = ../../src/wms_core.c; sourceTree = "<group>"; };
 		26BF130A2B29E2EB006A0F6E /* stage.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stage.c; path = ../../src/stage.c; sourceTree = "<group>"; };
-		26BF130B2B29E2EB006A0F6E /* aunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aunit.h; path = ../../src/aunit.h; sourceTree = "<group>"; };
 		26BF130C2B29E2EB006A0F6E /* cmd_ch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_ch.c; path = ../../src/cmd_ch.c; sourceTree = "<group>"; };
 		26BF130D2B29E2EB006A0F6E /* cmd_skip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_skip.c; path = ../../src/cmd_skip.c; sourceTree = "<group>"; };
 		26BF130E2B29E2EB006A0F6E /* scbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scbuf.c; path = ../../src/scbuf.c; sourceTree = "<group>"; };
 		26BF130F2B29E2EB006A0F6E /* script.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = script.c; path = ../../src/script.c; sourceTree = "<group>"; };
 		26BF13102B29E2EB006A0F6E /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../src/cmd_setsave.c; sourceTree = "<group>"; };
-		26BF13112B29E2EB006A0F6E /* GameRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameRenderer.m; path = ../../src/GameRenderer.m; sourceTree = "<group>"; };
 		26BF13122B29E2EB006A0F6E /* anime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = anime.c; path = ../../src/anime.c; sourceTree = "<group>"; };
 		26BF13132B29E2EB006A0F6E /* conf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = conf.c; path = ../../src/conf.c; sourceTree = "<group>"; };
 		26BF13142B29E2EB006A0F6E /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = types.h; path = ../../src/types.h; sourceTree = "<group>"; };
@@ -179,7 +180,6 @@
 		26BF13212B29E2EB006A0F6E /* mixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mixer.h; path = ../../src/mixer.h; sourceTree = "<group>"; };
 		26BF13222B29E2EB006A0F6E /* stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stage.h; path = ../../src/stage.h; sourceTree = "<group>"; };
 		26BF13232B29E2EB006A0F6E /* wms_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wms_core.h; path = ../../src/wms_core.h; sourceTree = "<group>"; };
-		26BF13242B29E2EB006A0F6E /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/GameViewControllerProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +193,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		260EDAE12B2A7C21006C214F /* apple */ = {
+			isa = PBXGroup;
+			children = (
+				260EDAE42B2A7C30006C214F /* aunit.c */,
+				260EDAE62B2A7C30006C214F /* aunit.h */,
+				260EDAE72B2A7C30006C214F /* GameRenderer.h */,
+				260EDAE22B2A7C30006C214F /* GameRenderer.m */,
+				260EDAE82B2A7C30006C214F /* GameShaders.metal */,
+				260EDAE52B2A7C30006C214F /* GameShaderTypes.h */,
+				260EDAE32B2A7C30006C214F /* GameViewControllerProtocol.h */,
+			);
+			name = apple;
+			sourceTree = "<group>";
+		};
 		26A5FFFA2B29E4A500C1ED7D /* engine-ios */ = {
 			isa = PBXGroup;
 			children = (
@@ -234,15 +248,9 @@
 		26BF12CC2B29E290006A0F6E /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				26BF12EC2B29E2EA006A0F6E /* GameRenderer.h */,
-				26BF13112B29E2EB006A0F6E /* GameRenderer.m */,
-				26BF13022B29E2EB006A0F6E /* GameShaders.metal */,
-				26BF12CF2B29E2EA006A0F6E /* GameShaderTypes.h */,
-				26BF13242B29E2EB006A0F6E /* GameViewControllerProtocol.h */,
+				260EDAE12B2A7C21006C214F /* apple */,
 				26BF13122B29E2EB006A0F6E /* anime.c */,
 				26BF12EB2B29E2EA006A0F6E /* anime.h */,
-				26BF12FC2B29E2EA006A0F6E /* aunit.c */,
-				26BF130B2B29E2EB006A0F6E /* aunit.h */,
 				26BF12FE2B29E2EA006A0F6E /* cmd_anime.c */,
 				26BF12FB2B29E2EA006A0F6E /* cmd_bg.c */,
 				26BF12CD2B29E2EA006A0F6E /* cmd_bgm.c */,
@@ -405,6 +413,8 @@
 				26BF13352B29E2EB006A0F6E /* file.c in Sources */,
 				26A5000F2B29E55400C1ED7D /* GameView.m in Sources */,
 				26BF135B2B29E2EB006A0F6E /* wms_impl.c in Sources */,
+				260EDAEB2B2A7C30006C214F /* GameShaders.metal in Sources */,
+				260EDAE92B2A7C30006C214F /* GameRenderer.m in Sources */,
 				26BF13392B29E2EB006A0F6E /* cmd_se.c in Sources */,
 				26BF134B2B29E2EB006A0F6E /* wave.c in Sources */,
 				26BF132A2B29E2EB006A0F6E /* main.c in Sources */,
@@ -427,13 +437,13 @@
 				26BF133D2B29E2EB006A0F6E /* readwebp.c in Sources */,
 				26BF13312B29E2EB006A0F6E /* cmd_gui.c in Sources */,
 				26BF133A2B29E2EB006A0F6E /* cmd_pencil.c in Sources */,
+				260EDAEA2B2A7C30006C214F /* aunit.c in Sources */,
 				26BF13542B29E2EB006A0F6E /* anime.c in Sources */,
 				26BF135A2B29E2EB006A0F6E /* uimsg.c in Sources */,
 				26BF132D2B29E2EB006A0F6E /* log.c in Sources */,
 				26BF13472B29E2EB006A0F6E /* cmd_goto.c in Sources */,
 				26BF132E2B29E2EB006A0F6E /* vars.c in Sources */,
 				26BF133F2B29E2EB006A0F6E /* wms_parser.tab.c in Sources */,
-				26BF13532B29E2EB006A0F6E /* GameRenderer.m in Sources */,
 				26BF13442B29E2EB006A0F6E /* cmd_switch.c in Sources */,
 				26BF133C2B29E2EB006A0F6E /* readjpeg.c in Sources */,
 				26BF13502B29E2EB006A0F6E /* scbuf.c in Sources */,
@@ -452,13 +462,11 @@
 				26BF134A2B29E2EB006A0F6E /* cmd_chapter.c in Sources */,
 				26BF135D2B29E2EB006A0F6E /* wms_lexer.yy.c in Sources */,
 				26BF13412B29E2EB006A0F6E /* cmd_bg.c in Sources */,
-				26BF13462B29E2EB006A0F6E /* GameShaders.metal in Sources */,
 				26BF13482B29E2EB006A0F6E /* history.c in Sources */,
 				26BF13382B29E2EB006A0F6E /* cmd_load.c in Sources */,
 				26BF132B2B29E2EB006A0F6E /* mixer.c in Sources */,
 				26BF134C2B29E2EB006A0F6E /* wms_core.c in Sources */,
 				26BF135C2B29E2EB006A0F6E /* cmd_set.c in Sources */,
-				26BF13422B29E2EB006A0F6E /* aunit.c in Sources */,
 				26BF134E2B29E2EB006A0F6E /* cmd_ch.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -595,6 +603,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -639,6 +648,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

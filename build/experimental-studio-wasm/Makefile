@@ -1,6 +1,10 @@
 SHELL=/bin/bash
 
 SRC = \
+	../../src/wasm/emedit.c \
+	../../src/wasm/emfile.c \
+	../../src/wasm/emopenal.c \
+	../../src/khronos/glrender.c \
 	../../src/anime.c \
 	../../src/cmd_anime.c \
 	../../src/cmd_bg.c \
@@ -31,11 +35,7 @@ SRC = \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c \
 	../../src/conf.c \
-	../../src/emedit.c \
-	../../src/emfile.c \
-	../../src/emopenal.c \
 	../../src/event.c \
-	../../src/glrender.c \
 	../../src/glyph.c \
 	../../src/gui.c \
 	../../src/history.c \

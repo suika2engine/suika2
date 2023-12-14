@@ -89,7 +89,3 @@ SRCS_MAIN = \
 
 SRCS_PRO = \
 	../../src/package.c
-
-SRCS_APPLE = \
-	../../src/GameRenderer.m \
-	../../src/GameShaders.metal

@@ -60,21 +60,36 @@ LDFLAGS = \
 # Source files
 #
 
-SRCS = \
-	$(SRCS_MAIN) \
-	../../src/asound.c \
-	../../src/glrender.c \
-	../../src/gstplay.c \
-	../../src/x11main.c
+SRCS_LINUX = \
+	../../src/linux/asound.c \
+	../../src/linux/gstplay.c \
+	../../src/linux/x11main.c
+
+SRCS_KHRONOS = \
+	../../src/khronos/glrender.c
+
+HDRS = \
+	../../src/khronos/glrender.h \
+	../../src/linux/asound.h \
+	../../src/linux/gstplay.h
 
 #
 # .c.o compilation rules
 #
 
-OBJS = $(SRCS:../../src/%.c=%.o) \
+OBJS = \
+	$(SRCS_KHRONOS:../../src/khronos/%.c=%.o) \
+	$(SRCS_LINUX:../../src/linux/%.c=%.o) \
+	$(SRCS_MAIN:../../src/%.c=%.o)
+
+%.o: ../../src/khronos/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+%.o: ../../src/linux/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
 
 %.o: ../../src/%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 #
 # Target
@@ -82,7 +97,8 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 
 all: suika
 
-suika: libroot $(OBJS)
+suika: libroot $(OBJS) $(HDRS) $(HDRS_MAIN)
+	echo $(OBJS)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
 libroot:
@@ -102,17 +118,17 @@ erase:
 	rm -rf *~ *.o suika log.txt sav tmp libroot
 
 lines:
-	cat ../../src/*.[chm] | wc -l
+	cat ../../src/*.[ch] ../../src/microsoft/* ../../src/apple/* ../../src/google/* ../../src/khronos/* | wc -l
 	grep -E '/\*|\*/|^([ \t]+\*)' ../../src/*.[cm] | wc -l
 	grep 'assert' ../../src/*.[chm] | wc -l
 
 gcc-analyze:
-	gcc $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS)
+	gcc $(CPPFLAGS) -fanalyzer -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS) $(SRCS_MAIN)
 
 clang-analyze:
-	clang $(CPPFLAGS) --analyze -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS)
+	clang $(CPPFLAGS) --analyze -finput-charset=utf-8 `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` -c $(SRCS) $(SRCS_MAIN)
 
 valgrind:
-	cp suika ../../game/demo
-	cd ../../game/demo && valgrind --leak-check=full ./suika
-	rm ../../game/demo/suika
+	cp -R ../../game/demo ./demo
+	cd demo && valgrind --leak-check=full ./suika && cd ..
+	rm -rf demo

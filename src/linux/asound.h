@@ -8,7 +8,7 @@
 #ifndef SUIKA_ASOUND_H
 #define SUIKA_ASOUND_H
 
-#include "types.h"
+#include "../suika.h"
 
 /* ALSAの初期化処理を行う */
 bool init_asound(void);

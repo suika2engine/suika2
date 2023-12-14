@@ -14,6 +14,9 @@ mkdir "$DEPS"
 
 # Copy Suika2 source files to $DEPS directory.
 SRC="\
+	khronos/glhelper.h \
+	khronos/glrender.h \
+	khronos/glrender.c \
 	suika.h \
 	pro.h \
 	anime.h \
@@ -52,9 +55,6 @@ SRC="\
 	event.c \
 	file.h \
 	file.c \
-	glhelper.h \
-	glrender.h \
-	glrender.c \
 	glyph.h \
 	glyph.c \
 	gui.h \
@@ -103,7 +103,7 @@ SRC="\
 	wms_parser.tab.c \
 "
 for file in $SRC; do
-    cp "$SUIKA2_ROOT/src/$file" "$DEPS/"
+    cp "$SUIKA2_ROOT/src/$file" "$DEPS/`basename $file`"
 done
 
 # Copy Suika2 CMakeLists.txt
