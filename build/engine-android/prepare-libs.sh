@@ -35,8 +35,8 @@ cp ../../src/google/ndkfile.c app/src/main/cpp/ndkfile.c
 cp ../../src/google/ndkmain.c app/src/main/cpp/ndkmain.c
 cp ../../src/google/ndkmain.h app/src/main/cpp/ndkmain.h
 cp ../../src/google/ndkwave.c app/src/main/cpp/ndkwave.c
-cp ../../src/glcommon/glrender.c app/src/main/cpp/glrender.c
-cp ../../src/glcommon/glrender.h app/src/main/cpp/glrender.h
+cp ../../src/khronos/glrender.c app/src/main/cpp/glrender.c
+cp ../../src/khronos/glrender.h app/src/main/cpp/glrender.h
 cp ../../src/anime.c app/src/main/cpp/anime.c
 cp ../../src/anime.h app/src/main/cpp/anime.h
 cp ../../src/cmd_anime.c app/src/main/cpp/cmd_anime.c
