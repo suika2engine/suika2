@@ -56,6 +56,7 @@ build/engine-windows-vs2022/obj
 build/engine-windows-vs2022/Debug
 build/engine-windows-vs2022/Release
 build/engine-windows-vs2022/ARM64
+build/engine-windows-vs2022/x64
 
 # macOS
 build/engine-macos/engine-macos.xcodeproj/project.xcworkspace
@@ -79,6 +80,7 @@ build/engine-ios/engine-ios.xcodeproj/xcuserdata
 build/engine-ios/engine-ios/data01.arc
 build/engine-ios/ios-src
 build/engine-ios/libroot-ios.tar.gz
+build/engine-ios/build
 
 # Android
 build/engine-android/.idea/caches
@@ -100,6 +102,20 @@ build/engine-linux/suika
 #
 # Pro
 #
+
+# Windows
+build/pro-windows-vs2022/.vs/
+build/pro-windows-vs2022/Debug/
+build/pro-windows-vs2022/bzip2/
+build/pro-windows-vs2022/freetype/
+build/pro-windows-vs2022/jpeg/
+build/pro-windows-vs2022/libogg/
+build/pro-windows-vs2022/libpng/
+build/pro-windows-vs2022/libvorbis/
+build/pro-windows-vs2022/libwebp/
+build/pro-windows-vs2022/obj/
+build/pro-windows-vs2022/x64/
+build/pro-windows-vs2022/zlib/
 
 # macOS
 build/pro-macos/pro-macos.xcodeproj/project.xcworkspace
