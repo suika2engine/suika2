@@ -212,20 +212,10 @@ int conf_news_text_margin_y;
 char *conf_news_change_se;
 
 /*
- * 回想画面(@retrospect)の設定
- */
-char *conf_retrospect_change_se;
-
-/*
  * セーブ・ロード画面の設定
  */
 int conf_save_data_thumb_width;
 int conf_save_data_thumb_height;
-
-/*
- * メニュー(@menu)の設定
- */
-char *conf_menu_change_se;
 
 /* 
  * システムメニューの設定
@@ -668,10 +658,8 @@ static struct rule {
 	{"news.margin", 'i', &conf_news_margin, OPTIONAL, SAVE},
 	{"news.text.margin.y", 'i', &conf_news_text_margin_y, OPTIONAL, SAVE},
 	{"news.change.se", 's', &conf_news_change_se, OPTIONAL, SAVE},
-	{"retrospect.change.se", 's', &conf_retrospect_change_se, OPTIONAL, SAVE},
 	{"save.data.thumb.width", 'i', &conf_save_data_thumb_width, MUST, NOSAVE},
 	{"save.data.thumb.height", 'i', &conf_save_data_thumb_height, MUST, NOSAVE},
-	{"menu.change.se", 's', &conf_menu_change_se, OPTIONAL, SAVE},
 	{"sysmenu.x", 'i', &conf_sysmenu_x, MUST, SAVE},
 	{"sysmenu.y", 'i', &conf_sysmenu_y, MUST, SAVE},
 	{"sysmenu.idle.file", 's', &conf_sysmenu_idle_file, MUST, SAVE},

@@ -125,15 +125,10 @@ void init_game_loop(void)
 	is_mouse_dragging = false;
 	is_in_repetition = false;
 	flag_message_active = false;
-	flag_menu_finished = false;
-	flag_retrospect_finished = false;
 	flag_auto_mode = false;
 	flag_save_load_enabled = true;
 	flag_non_interruptible = false;
 
-	/* Android NDK用に状態を初期化する */
-	check_menu_finish_flag();
-	check_retrospect_finish_flag();
 #endif
 
 	srand((unsigned int)time(NULL));
