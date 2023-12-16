@@ -1,8 +1,8 @@
 /* -*- tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -438,86 +438,82 @@ static void close_log_file(void)
  */
 
 /*
- * Check if we use GPU acceleration.
- * The result will affect whether entire screen is rewritten every frame.
+ * Update an image texture.
  */
-bool is_gpu_accelerated(void)
-{
-	/* We use OpenGL, so just return true. */
-	return true;
-}
-
-/*
- * Check if we use OpenGL.
- * The result will affect to the byte-order of the images.
- */
-bool is_opengl_enabled(void)
-{
-	/* We use OpenGL, so just return true. */
-	return true;
-}
-
-/*
- * Lock the texture object for an image.
- * While the texture for the image is locked, the image can be drawn.
- */
-bool lock_texture(int width, int height, pixel_t *pixels,
-		  pixel_t **locked_pixels, void **texture)
+void notify_image_update(struct image *img)
 {
 	/* See also glrender.c */
-	return opengl_lock_texture(width, height, pixels, locked_pixels,
-				   texture);
-}
-
-/*
- * Unlock the texture object for an image.
- * When the texture is unlocked, the pixels are uploaded to VRAM.
- */
-void unlock_texture(int width, int height, pixel_t *pixels,
-		    pixel_t **locked_pixels, void **texture)
-{
-	/* See also glrender.c */
-	opengl_unlock_texture(width, height, pixels, locked_pixels, texture);
+	opengl_notify_image_update(img);
 }
 
 /*
  * Destroy the texture object for the image.
  */
-void destroy_texture(void *texture)
+void notify_image_free(struct image *img)
 {
 	/* See also glrender.c */
-	opengl_destroy_texture(texture);
+	opengl_notify_image_free(img);
 }
 
 /*
  * Render an image to the screen.
  */
-void render_image(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                  int width, int height, int src_left, int src_top, int alpha,
-                  int bt)
+void render_image(int dst_left,
+		  int dst_top,
+                  int dst_width,
+		  int dst_height,
+		  struct image *src_image,
+		  int src_left,
+		  int src_top,
+                  int src_width,
+		  int src_height,
+		  int alpha)
 {
 	/* See also glrender.c */
-	opengl_render_image(dst_left, dst_top, src_image, width, height,
-			    src_left, src_top, alpha, bt);
+	opengl_render_image(dst_left,
+			    dst_top,
+			    dst_width,
+			    dst_height,
+			    src_image,
+			    src_left,
+			    src_top,
+			    src_width,
+			    src_height,
+			    alpha);
 }
 
 /*
  * Render an image to screen with dim shader.
  */
-void render_image_dim(int dst_left, int dst_top,
-		      struct image * RESTRICT src_image,
-		      int width, int height, int src_left, int src_top)
+void render_image_dim(int dst_left,
+		      int dst_top,
+		      int dst_width,
+		      int dst_height,
+		      struct image *src_image,
+		      int src_left,
+		      int src_top,
+		      int src_width,
+		      int src_height,
+		      int alpha)
 {
 	/* See also glrender.c */
-	opengl_render_image_dim(dst_left, dst_top, src_image, width, height,
-				src_left, src_top);
+	opengl_render_image_dim(dst_left,
+				dst_top,
+				dst_width,
+				dst_height,
+				src_image,
+				src_left,
+				src_top,
+				src_width,
+				src_height,
+				alpha);
 }
 
 /*
  * Render an image to the screen with a rule image.
  */
-void render_image_rule(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
+void render_image_rule(struct image *src_img,
+		       struct image *rule_img,
 		       int threshold)
 {
 	/* See also glrender.c */
@@ -527,12 +523,12 @@ void render_image_rule(struct image * RESTRICT src_img,
 /*
  * Render an image to the screen with a rule image, using the melt effect.
  */
-void render_image_melt(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
-		       int threshold)
+void render_image_melt(struct image *src_img,
+		       struct image *rule_img,
+		       int progress)
 {
 	/* See also glrender.c */
-	opengl_render_image_melt(src_img, rule_img, threshold);
+	opengl_render_image_melt(src_img, rule_img, progress);
 }
 
 /*
