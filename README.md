@@ -23,7 +23,6 @@ It provides developers with many functionalities such as editing, debugging and 
 
 This software is released under the MIT license.
 You can redistribute this software commercially.
-See [COPYING](https://github.com/suika2engine/suika2/blob/master/doc/COPYING) for all licenses including dependency libraries.
 
 ## Contribution
 
@@ -36,7 +35,7 @@ Please feel free to submit any issues and pull requests as any and all feedback 
 ## Usage
 
 * On Windows:
-  * Download a exe file from [the official site](https://suika2.com/en/) and run it.
+  * Download an exe file from [the official site](https://suika2.com/en/) and run it.
   * Click `Suika2` from Windows menu.
 
 * On Mac:
@@ -53,19 +52,6 @@ Please feel free to submit any issues and pull requests as any and all feedback 
   suika2
   ```
 
-* On iPhone/iPad (iOS):
-  * Export your game from `Suika2 Pro`
-  * Build your game using Xcode
-
-* On Android:
-  * Export your game from `Suika2 Pro`
-  * Build your game using `Android Studio`
-  * FYI: A sample game is available on [Google Play](https://play.google.com/store/apps/details?id=jp.luxion.suika&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1).
-
-* Other platforms
-  * Build from the source code.
-  * See [build/README.md](https://github.com/suika2engine/suika2/blob/master/build/README.md).
-
 ## Documentation
 
 * [Japanese Documentation](https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88)
@@ -73,11 +59,11 @@ Please feel free to submit any issues and pull requests as any and all feedback 
 
 ## Portability
 
-Games made with Suika2 runs on Windows, macOS, Web browsers, iPhone, iPad, Android, Linux, FreeBSD, NetBSD, and some consoles.
+Games made with Suika2 run on Windows, macOS, Web browsers, iPhone, iPad, Android, Linux, FreeBSD, NetBSD, and some consoles.
 
-Suika2 consists of the platform independent layer (PIL) and the hardware abstraction layer (HAL).
-The PIL is written in ANSI C, the most portable programming language in the world.
-HAL implementations are currently written in C, C++, Objective-C and Java.
+Suika2 consists of a platform independent core and a hardware abstraction layer (HAL).
+The core is written in ANSI C, the most portable programming language in the world.
+The HAL implementations are currently written in C, C++, Objective-C and Java.
 
 If we would like to port Suika2 to a new target platform, we are only required to write a thin HAL.
 
@@ -90,7 +76,7 @@ In other words, HAL, our compatibility layer, is very complete in its API design
 We do CI for "regression testing".
 
 Currently we don't make releases automatically due to a code signing issue of Windows binaries.
-The `Certum code signing certificate in the cloud` the author uses cannot be used in GitHub Actions.
+The `Certum code signing certificate in the cloud` we use cannot be used in GitHub Actions.
 
 ## Suika Studio
 
@@ -98,11 +84,14 @@ Suika2 is the successor to "Suika Studio":
 * [See the 2002 version here](https://github.com/ktabata/suika-studio-2002-gpl)
 * [See the 2003 version here](https://github.com/ktabata/suika-studio-2003-gpl)
 
-The author is a pioneer in GUI editor field of visual novel creation.
+The author is a pioneer in the field of GUI editors for visual novel creation.
 
 ## Suika2 Studio 2024 Wasm
 
-Suika2 Studio 2024 Wasm is a [live demo](https://suika2.com/vls/) IDE for Suika2, available on Web.
+Suika2 Studio 2024 Wasm is an IDE for Suika2, available on Web.
+The author believes that the current Wasm runtimes on the major browsers are not mature enough.
+
+[See live demo](https://suika2.com/vls/)
 
 ## Trivia
 
