@@ -1113,7 +1113,7 @@ void render_image_dim(int dst_left,
 		      int dst_height,
 		      struct image *src_image,
 		      int src_left,
-		      int src_top
+		      int src_top,
 		      int src_width,
 		      int src_height,
 		      int alpha)
