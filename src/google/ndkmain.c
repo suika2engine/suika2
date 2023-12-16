@@ -387,8 +387,8 @@ void render_image_add(int dst_left,
 				src_image,
 				src_left,
 				src_top,
-				width,
-				height,
+				src_width,
+				src_height,
 				alpha);
 }
 
