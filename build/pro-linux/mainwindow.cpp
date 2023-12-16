@@ -816,8 +816,8 @@ void render_image_add(int dst_left,
                       struct image *src_image,
                       int src_left,
                       int src_top,
-                      int width,
-                      int height,
+                      int src_width,
+                      int src_height,
                       int alpha)
 {
     opengl_render_image_add(dst_left,
@@ -835,7 +835,16 @@ void render_image_add(int dst_left,
 //
 // Render an image to screen with dim shader.
 //
-void render_image_dim(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top, int alpha)
+void render_image_dim(int dst_left,
+                      int dst_top,
+                      int dst_width,
+                      int dst_height,
+                      struct image *src_image,
+                      int src_left,
+                      int src_top,
+                      int src_width,
+                      int src_height,
+                      int alpha)
 {
     opengl_render_image_dim(dst_left,
                             dst_top,
