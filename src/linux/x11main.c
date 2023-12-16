@@ -1124,7 +1124,7 @@ void render_image_dim(int dst_left,
 				dst_height,
 				src_image,
 				src_left,
-				src_top
+				src_top,
 				src_width,
 				src_height,
 				alpha);
