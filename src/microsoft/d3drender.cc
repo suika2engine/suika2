@@ -21,7 +21,6 @@ extern "C" {
 // パイプラインの種類
 //
 enum  {
-	PIPELINE_COPY,
 	PIPELINE_NORMAL,
 	PIPELINE_ADD,
 	PIPELINE_DIM,
@@ -192,12 +191,18 @@ static const char szBlurPixelShader[] =
 //
 // 前方参照
 //
-static VOID DrawPrimitives(int dst_left, int dst_top,
-						   struct image * RESTRICT src_image,
-						   struct image * RESTRICT rule_image,
-						   int width, int height,
-						   int src_left, int src_top,
-						   int alpha, int pipeline);
+static VOID DrawPrimitives(int dst_left,
+						   int dst_top,
+						   int dst_width,
+						   int dst_height,
+						   struct image *src_image,
+						   struct image *rule_image,
+						   int src_left,
+						   int src_top,
+						   int src_width,
+						   int src_height,
+						   int alpha,
+						   int pipeline);
 static BOOL UploadTextureIfNeeded(struct image *img);
 
 //
@@ -412,39 +417,93 @@ void notify_image_free(struct image *img)
 }
 
 //
-// イメージをレンダリングする
+// イメージをレンダリングする(normal)
 //
-void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image,
-					   int width, int height, int src_left, int src_top)
+void
+render_image_normal(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
 {
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_COPY);
+	DrawPrimitives(dst_left,
+				   dst_top,
+				   dst_width,
+				   dst_height,
+				   src_image,
+				   NULL,
+				   src_left,
+				   src_top,
+				   src_width,
+				   src_height,
+				   alpha,
+				   PIPELINE_NORMAL);
 }
 
 //
-// イメージをレンダリングする
+// イメージをレンダリングする(add)
 //
-void render_image_normal(int dst_left, int dst_top, struct image * RESTRICT src_image,
-						 int width, int height, int src_left, int src_top, int alpha)
+void
+render_image_add(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
 {
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_NORMAL);
+	DrawPrimitives(dst_left,
+				   dst_top,
+				   dst_width,
+				   dst_height,
+				   src_image,
+				   NULL,
+				   src_left,
+				   src_top,
+				   src_width,
+				   src_height,
+				   alpha,
+				   PIPELINE_ADD);
 }
 
 //
-// イメージをレンダリングする
+// イメージをレンダリングする(dim)
 //
-void render_image_add(int dst_left, int dst_top, struct image * RESTRICT src_image,
-					  int width, int height, int src_left, int src_top, int alpha)
+void
+render_image_dim(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The height of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
 {
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_ADD);
-}
-
-//
-// イメージをレンダリングする
-//
-void render_image_dim(int dst_left, int dst_top, struct image * RESTRICT src_image,
-					  int width, int height, int src_left, int src_top)
-{
-	DrawPrimitives(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_DIM);
+	DrawPrimitives(dst_left,
+				   dst_top,
+				   dst_width,
+				   dst_height,
+				   src_image,
+				   NULL,
+				   src_left,
+				   src_top,
+				   src_width,
+				   src_height,
+				   alpha,
+				   PIPELINE_DIM);
 }
 
 //
@@ -452,25 +511,32 @@ void render_image_dim(int dst_left, int dst_top, struct image * RESTRICT src_ima
 //
 void render_image_rule(struct image *src_image, struct image *rule_image, int threshold)
 {
-	DrawPrimitives(0, 0, src_image, rule_image, src_image->width, src_image->height, 0, 0, threshold, PIPELINE_RULE);
+	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, threshold, PIPELINE_RULE);
 }
 
 //
 // 画面にイメージをルール付き(メルト)でレンダリングする
 //
-void render_image_melt(struct image *src_image, struct image *rule_image, int threshold)
+void render_image_melt(struct image *src_image, struct image *rule_image, int progress)
 {
-	DrawPrimitives(0, 0, src_image, rule_image, src_image->width, src_image->height, 0, 0, threshold, PIPELINE_MELT);
+	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, progress, PIPELINE_RULE);
 }
 
 // プリミティブを描画する
-static VOID DrawPrimitives(int dst_left, int dst_top,
-						   struct image *src_image,
-						   struct image *rule_image,
-						   int width, int height,
-						   int src_left, int src_top,
-						   int alpha,
-						   int pipeline)
+static VOID
+DrawPrimitives(
+	int dst_left,
+	int dst_top,
+	int dst_width,
+	int dst_height,
+	struct image *src_image,
+	struct image *rule_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha,
+	int pipeline)
 {
 	IDirect3DTexture9 *pTexColor = NULL;
 	IDirect3DTexture9 *pTexRule = NULL;
@@ -486,15 +552,17 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	}
 
 	// 描画の必要があるか判定する
-	if (width == 0 || height == 0)
+	if (dst_width == 0 || dst_height == 0)
 		return;	// 描画の必要がない
-	if (!clip_by_source(src_image->width, src_image->height,
-						&width, &height, &dst_left, &dst_top, &src_left,
-						&src_top))
-		return;	// 描画範囲外
-	if (!clip_by_dest(conf_window_width, conf_window_height, &width, &height,
-					  &dst_left, &dst_top, &src_left, &src_top))
-		return;	// 描画範囲外
+
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
 
 	float img_w = (float)src_image->width;
 	float img_h = (float)src_image->height;
@@ -513,11 +581,11 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)dst_left * fScale + (float)width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
+	v[1].x = (float)dst_left * fScale + (float)dst_width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
 	v[1].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
-	v[1].u1 = (float)(src_left + width) / img_w;
+	v[1].u1 = (float)(src_left + src_width) / img_w;
 	v[1].v1 = (float)src_top / img_h;
 	v[1].u2 = v[1].u1;
 	v[1].v2 = v[1].v1;
@@ -525,22 +593,22 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 
 	// 左下
 	v[2].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
-	v[2].y = (float)dst_top * fScale + (float)height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
+	v[2].y = (float)dst_top * fScale + (float)dst_height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u1 = (float)src_left / img_w;
-	v[2].v1 = (float)(src_top + height) / img_h;
+	v[2].v1 = (float)(src_top + src_height) / img_h;
 	v[2].u2 = v[2].u1;
 	v[2].v2 = v[2].v1;
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)dst_left * fScale + (float)width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
-	v[3].y = (float)dst_top * fScale + (float)height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
+	v[3].x = (float)dst_left * fScale + (float)dst_width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
+	v[3].y = (float)dst_top * fScale + (float)dst_height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
-	v[3].u1 = (float)(src_left + width) / img_w;
-	v[3].v1 = (float)(src_top + height) / img_h;
+	v[3].u1 = (float)(src_left + src_width) / img_w;
+	v[3].v1 = (float)(src_top + src_height) / img_h;
 	v[3].u2 = v[3].u1;
 	v[3].v2 = v[3].v1;
 	v[3].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
@@ -550,10 +618,6 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 
 	switch (pipeline)
 	{
-	case PIPELINE_COPY:
-		pD3DDevice->SetPixelShader(NULL);
-		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-		break;
 	case PIPELINE_NORMAL:
 		pD3DDevice->SetPixelShader(NULL);
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
@@ -622,15 +686,15 @@ static VOID DrawPrimitives(int dst_left, int dst_top,
 	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	// 描画する
-	if(width == 1 && height == 1)
+	if(dst_width == 1 && dst_height == 1)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v, sizeof(Vertex));
 	}
-	else if(width == 1)
+	else if(dst_width == 1)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v + 1, sizeof(Vertex));
 	}
-	else if(height == 1)
+	else if(dst_height == 1)
 	{
 		v[1].y += 1.0f;
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v, sizeof(Vertex));

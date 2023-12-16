@@ -29,9 +29,13 @@ struct sequence {
 	float from_x;
 	float from_y;
 	float from_a;
+	float from_scale_x;
+	float from_scale_y;
 	float to_x;
 	float to_y;
 	float to_a;
+	float to_scale_x;
+	float to_scale_y;
 	int accel;
 	bool loop;
 };
@@ -345,6 +349,7 @@ static bool update_layer_params(int layer)
 	struct sequence *s;
 	float progress;
 	int i, x, y, alpha;
+	float scale_x, scale_y;
 
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
@@ -401,8 +406,11 @@ static bool update_layer_params(int layer)
 		/* パラメータを計算する */
 		x = (int)(s->from_x + (s->to_x - s->from_x) * progress);
 		y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
+		scale_x = (int)(s->from_scale_x + (s->to_scale_x - s->from_scale_x) * progress);
+		scale_y = (int)(s->from_scale_x + (s->to_scale_x - s->from_scale_x) * progress);
 		alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
 		set_layer_position(layer, x, y);
+		set_layer_scale(layer, scale_x, scale_y);
 		set_layer_alpha(layer, alpha);
 		break;
 	}
@@ -493,6 +501,12 @@ static bool on_key_value(const char *key, const char *val)
 		context[cur_seq_layer].sw = cur_sw;
 		context[cur_seq_layer].is_running = true;
 		context[cur_seq_layer].is_finished = false;
+
+		s = &sequence[cur_seq_layer][context[cur_seq_layer].seq_count];
+		s->from_scale_x = 1.0f;
+		s->from_scale_y = 1.0f;
+		s->to_scale_x = 1.0f;
+		s->to_scale_y = 1.0f;
 		return true;
 	}
 	if (cur_seq_layer == -1) {
@@ -540,12 +554,20 @@ static bool on_key_value(const char *key, const char *val)
 		s->from_y = calc_pos_y_from(cur_seq_layer, top, val);
 	} else if (strcmp(key, "from-a") == 0) {
 		s->from_a = (float)atoi(val);
+	} else if (strcmp(key, "from-scale-x") == 0) {
+		s->from_scale_x = (float)atof(val);
+	} else if (strcmp(key, "from-scale-y") == 0) {
+		s->from_scale_y = (float)atof(val);
 	} else if (strcmp(key, "to-x") == 0) {
 		s->to_x = calc_pos_x_to(cur_seq_layer, top, val);
 	} else if (strcmp(key, "to-y") == 0) {
 		s->to_y = calc_pos_y_to(cur_seq_layer, top, val);
 	} else if (strcmp(key, "to-a") == 0) {
 		s->to_a = (float)atoi(val);
+	} else if (strcmp(key, "to-scale-x") == 0) {
+		s->to_scale_x = (float)atof(val);
+	} else if (strcmp(key, "to-scale-y") == 0) {
+		s->to_scale_y = (float)atof(val);
 	} else if (strcmp(key, "accel") == 0) {
 		s->accel = atoi(val);
 	} else if (strcmp(key, "loop") == 0) {

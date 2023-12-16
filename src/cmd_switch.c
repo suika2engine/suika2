@@ -1240,10 +1240,14 @@ static void render_frame(void)
 				break;
 			render_image_normal(parent_button[i].x,
 					    parent_button[i].y,
-					    img,
 					    img->width,
 					    img->height,
-					    0, 0, 255);
+					    img,
+					    0,
+					    0,
+					    img->width,
+					    img->height,
+					    255);
 		}
 	} else {
 		for (i = 0; i < CHILD_COUNT; i++) {
@@ -1253,10 +1257,14 @@ static void render_frame(void)
 				break;
 			render_image_normal(child_button[selected_parent_index][i].x,
 					    child_button[selected_parent_index][i].y,
-					    img,
 					    img->width,
 					    img->height,
-					    0, 0, 255);
+					    img,
+					    0,
+					    0,
+					    img->width,
+					    img->height,
+					    255);
 		}
 	}
 

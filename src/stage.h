@@ -211,6 +211,9 @@ int get_layer_y(int layer);
 /* Sets a layer position. */
 void set_layer_position(int layer, int x, int y);
 
+/* Sets a layer scale. */
+void set_layer_scale(int layer, float scale_x, float scale_y);
+
 /* Gets a layer image width. */
 int get_layer_width(int layer);
 
@@ -261,9 +264,6 @@ void render_stage(void);
 /*
  * cmd_switch.c
  */
-
-/* Draws the stage to both FO and FI images. */
-void draw_stage_to_fo_fi(bool force_draw_msgbox);
 
 /*  Renders the entire FO image and a specified rectangle of the FI image to the screen. (TODO: remove) */
 void render_fo_all_and_fi_rect(int x, int y, int w, int h);

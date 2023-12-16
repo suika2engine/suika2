@@ -196,7 +196,8 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (FAILED(hResult))
 		return FALSE;
 
-	if (!FILE_EXISTS("conf\\config.txt"))
+	if (!FILE_EXISTS("conf\\config.txt") &&
+		!FILE_EXISTS("data01.arc") )
 	{
 		log_error(get_ui_message(UIMSG_NO_GAME_FILES));
 		return FALSE;
