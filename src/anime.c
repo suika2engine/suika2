@@ -369,6 +369,7 @@ static bool update_layer_params(int layer)
 		y = (int)s->to_y;
 		alpha = (int)s->to_a;
 		set_layer_position(layer, (int)s->to_x, (int)s->to_y);
+		set_layer_scale(layer, s->to_scale_x, s->to_scale_y);
 		set_layer_alpha(layer, alpha);
 		return true;
 	}
@@ -406,8 +407,8 @@ static bool update_layer_params(int layer)
 		/* パラメータを計算する */
 		x = (int)(s->from_x + (s->to_x - s->from_x) * progress);
 		y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
-		scale_x = (int)(s->from_scale_x + (s->to_scale_x - s->from_scale_x) * progress);
-		scale_y = (int)(s->from_scale_x + (s->to_scale_x - s->from_scale_x) * progress);
+		scale_x = s->from_scale_x + (s->to_scale_x - s->from_scale_x) * progress;
+		scale_y = s->from_scale_y + (s->to_scale_y - s->from_scale_y) * progress;
 		alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
 		set_layer_position(layer, x, y);
 		set_layer_scale(layer, scale_x, scale_y);

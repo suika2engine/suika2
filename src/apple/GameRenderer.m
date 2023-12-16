@@ -50,9 +50,12 @@ static dispatch_semaphore_t in_flight_semaphore;
 // Forward declarations
 //
 static BOOL runSuika2Frame(void);
-static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
-                           int width, int height, int src_left, int src_top, int alpha,
-                           struct image *rule_image, id<MTLRenderPipelineState> pipeline);
+static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_height,
+                           struct image *src_image,
+                           struct image *rule_image,
+                           int src_left, int src_top, int src_width, int src_height,
+                           int alpha,
+                           id<MTLRenderPipelineState> pipeline);
 
 //
 // GameRender
@@ -313,38 +316,54 @@ void notify_image_free(struct image *img)
 }
 
 //
-// Render an image to the screen with the "copy" pipeline.
-//
-void render_image_copy(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top)
-{
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, 255, NULL, theCopyPipelineState);
-}
-
-//
 // Render an image to the screen with the "normal" pipeline.
 //
-void render_image_normal(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top, int alpha)
+void render_image_normal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
 {
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL, theNormalPipelineState);
+    if (dst_width == -1)
+        dst_width = src_image->width;
+    if (dst_height == -1)
+        dst_height = src_image->height;
+    if (src_width == -1)
+        src_width = src_image->width;
+    if (src_height == -1)
+        src_height = src_image->height;
+
+    drawPrimitives(dst_left, dst_top, dst_width, dst_height, src_image, NULL, src_left, src_top, src_width, src_height, alpha, theNormalPipelineState);
 }
 
 //
 // Render an image to the screen with the "add" pipeline.
 //
-void render_image_add(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top, int alpha)
+void render_image_add(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
 {
-    // TODO: add
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha, NULL, theAddPipelineState);
+    if (dst_width == -1)
+        dst_width = src_image->width;
+    if (dst_height == -1)
+        dst_height = src_image->height;
+    if (src_width == -1)
+        src_width = src_image->width;
+    if (src_height == -1)
+        src_height = src_image->height;
+
+    drawPrimitives(dst_left, dst_top, dst_width, dst_height, src_image, NULL, src_left, src_top, src_width, src_height, alpha, theAddPipelineState);
 }
 
 //
 // Render an image to the screen with the "dim" pipeline.
 //
-void render_image_dim(int dst_left, int dst_top,
-                      struct image *src_image,
-                      int width, int height, int src_left, int src_top)
+void render_image_dim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
 {
-    drawPrimitives(dst_left, dst_top, src_image, width, height, src_left, src_top, 0, NULL, theDimPipelineState);
+    if (dst_width == -1)
+        dst_width = src_image->width;
+    if (dst_height == -1)
+        dst_height = src_image->height;
+    if (src_width == -1)
+        src_width = src_image->width;
+    if (src_height == -1)
+        src_height = src_image->height;
+
+    drawPrimitives(dst_left, dst_top, dst_width, dst_height, src_image, NULL, src_left, src_top, src_width, src_height, alpha, theDimPipelineState);
 }
 
 //
@@ -352,23 +371,26 @@ void render_image_dim(int dst_left, int dst_top,
 //
 void render_image_rule(struct image *src_img, struct image *rule_img, int threshold)
 {
-    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, rule_img, theRulePipelineState);
+    drawPrimitives(0, 0, src_img->width, src_img->height, src_img, rule_img, 0, 0, src_img->width, src_img->height, threshold, theRulePipelineState);
 }
 
 //
 // Render an image to the screen with the "melt" pipeline.
 //
-void render_image_melt(struct image *src_img, struct image *rule_img, int threshold)
+void render_image_melt(struct image *src_img, struct image *rule_img, int progress)
 {
-    drawPrimitives(0, 0, src_img, src_img->width, src_img->height, 0, 0, threshold, rule_img, theMeltPipelineState);
+    drawPrimitives(0, 0, src_img->width, src_img->height, src_img, rule_img, 0, 0, src_img->width, src_img->height, progress, theMeltPipelineState);
 }
 
 //
 // Draw a rectangle with a specified pipeline.
 //
-static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
-                           int width, int height, int src_left, int src_top, int alpha,
-                           struct image *rule_image, id<MTLRenderPipelineState> pipeline)
+static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_height,
+                           struct image *src_image,
+                           struct image *rule_image,
+                           int src_left, int src_top, int src_width, int src_height,
+                           int alpha,
+                           id<MTLRenderPipelineState> pipeline)
 {
     // Calc the half size of the window.
     float hw = (float)conf_window_width / 2.0f;
@@ -390,26 +412,26 @@ static void drawPrimitives(int dst_left, int dst_top, struct image *src_image,
     vsIn[5] = 0;                             // Padding for a 64-bit boundary
 
     // Set the right top vertex.
-    vsIn[6] = ((float)dst_left + (float)width - hw) / hw;    // X (-1.0 to 1.0, left to right)
+    vsIn[6] = ((float)dst_left + (float)dst_width - hw) / hw;    // X (-1.0 to 1.0, left to right)
     vsIn[7] = -((float)dst_top - hh) / hh;                   // Y (-1.0 to 1.0, bottom to top)
-    vsIn[8] = (float)(src_left + width) / tw;                // U (0.0 to 1.0, left to right)
+    vsIn[8] = (float)(src_left + src_width) / tw;                // U (0.0 to 1.0, left to right)
     vsIn[9] = (float)(src_top) / th;                         // V (0.0 to 1.0, top to bottom)
     vsIn[10] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
     vsIn[11] = 0;                                            // Padding for a 64-bit boundary
     
     // Set the left bottom vertex.
     vsIn[12] = ((float)dst_left - hw) / hw;                  // X (-1.0 to 1.0, left to right)
-    vsIn[13] = -((float)dst_top + (float)height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
+    vsIn[13] = -((float)dst_top + (float)dst_height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
     vsIn[14] = (float)src_left / tw;                         // U (0.0 to 1.0, left to right)
-    vsIn[15] = (float)(src_top + height) / th;               // V (0.0 to 1.0, top to bottom)
+    vsIn[15] = (float)(src_top + src_height) / th;               // V (0.0 to 1.0, top to bottom)
     vsIn[16] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
     vsIn[17] = 0;                                            // Padding for a 64-bit boundary
 
     // Set the right bottom vertex.
-    vsIn[18] = ((float)dst_left + (float)width - hw) / hw;   // X (-1.0 to 1.0, left to right)
-    vsIn[19] = -((float)dst_top + (float)height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
-    vsIn[20] = (float)(src_left + width) / tw;               // U (0.0 to 1.0, left to right)
-    vsIn[21] = (float)(src_top + height) / th;               // V (0.0 to 1.0, top to bottom)
+    vsIn[18] = ((float)dst_left + (float)dst_width - hw) / hw;   // X (-1.0 to 1.0, left to right)
+    vsIn[19] = -((float)dst_top + (float)dst_height - hh) / hh;  // Y (-1.0 to 1.0, bottom to top)
+    vsIn[20] = (float)(src_left + src_width) / tw;               // U (0.0 to 1.0, left to right)
+    vsIn[21] = (float)(src_top + src_height) / th;               // V (0.0 to 1.0, top to bottom)
     vsIn[22] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
     vsIn[23] = 0;                                            // Padding for a 64-bit boundary
 

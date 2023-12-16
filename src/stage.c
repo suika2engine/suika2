@@ -290,9 +290,12 @@ bool init_stage(void)
 	if (!create_fade_layer_images())
 		return false;
 
-	/* アルファ値を設定する */
-	for (i = 0; i < STAGE_LAYERS; i++)
+	/* 初期値を設定する */
+	for (i = 0; i < STAGE_LAYERS; i++) {
+		layer_scale_x[i] = 1.0f;
+		layer_scale_y[i] = 1.0f;
 		layer_alpha[i] = 255;
+	}
 
 	return true;
 }
@@ -3936,13 +3939,13 @@ static void render_layer_image(int layer)
 	    conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
 		render_image_dim(layer_x[layer],
 				 layer_y[layer],
-				 -1,
-				 -1,
+				 (int)((float)layer_image[layer]->width * layer_scale_x[layer]),
+				 (int)((float)layer_image[layer]->height * layer_scale_y[layer]),
 				 layer_image[layer],
 				 0,
 				 0,
-				 -1,
-				 -1,
+				 layer_image[layer]->width,
+				 layer_image[layer]->height,
 				 layer_alpha[layer]);
 		return;
 	}
@@ -3950,13 +3953,13 @@ static void render_layer_image(int layer)
 	/* それ以外の描画の場合 */
 	render_image_normal(layer_x[layer],
 			    layer_y[layer],
-			    -1,
-			    -1,
+			    (int)((float)layer_image[layer]->width * layer_scale_x[layer]),
+			    (int)((float)layer_image[layer]->height * layer_scale_y[layer]),
 			    layer_image[layer],
 			    0,
 			    0,
-			    -1,
-			    -1,
+			    layer_image[layer]->width,
+			    layer_image[layer]->height,
 			    layer_alpha[layer]);
 }
 

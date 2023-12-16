@@ -54,7 +54,6 @@
  */
 
 enum {
-	PIPELINE_COPY,
 	PIPELINE_NORMAL,
 	PIPELINE_ADD,
 	PIPELINE_DIM,
@@ -298,12 +297,18 @@ void cleanup_fragment_shader(GLuint fshader, GLuint prog, GLuint vao,
 /*
  * Forward declaration.
  */
-static void draw_elements(int dst_left, int dst_top,
-			  struct image * RESTRICT src_image,
-			  struct image * RESTRICT rule_image,
-			  int width, int height,
-			  int src_left, int src_top,
-			  int alpha, int pipeline);
+static void draw_elements(int dst_left,
+			  int dst_top,
+			  int dst_width,
+			  int dst_height,
+			  struct image *src_image,
+			  struct image *rule_image,
+			  int src_left,
+			  int src_top,
+			  int src_width,
+			  int src_height,
+			  int alpha,
+			  int pipeline);
 
 /*
  * Initialize the Suika2's OpenGL rendering subsystem.
@@ -666,111 +671,181 @@ void opengl_notify_image_free(struct image *img)
 /*
  * 画面にイメージをレンダリングする
  */
-void opengl_render_image_copy(int dst_left, int dst_top,
-			      struct image * RESTRICT src_image, int width,
-			      int height, int src_left, int src_top)
+void opengl_render_image_normal(int dst_left,
+				int dst_top,
+				int dst_width,
+				int dst_height,
+				struct image *src_image,
+				int src_left,
+				int src_top,
+				int src_width,
+				int src_height,
+				int alpha)
 {
-	/* 描画の必要があるか判定する */
-	if (width == 0 || height == 0)
-		return;	/* 描画の必要がない */
-	if (!clip_by_source(src_image->width, src_image->height,
-			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
-	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
-			 &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
 
-	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_COPY);
+	/* 描画の必要があるか判定する */
+	if (alpha == 0 || dst_width == 0 || dst_height == 0)
+		return;	/* 描画の必要がない */
+
+	draw_elements(dst_left,
+		      dst_top,
+		      dst_width,
+		      dst_height,
+		      src_image,
+		      NULL,
+		      src_left,
+		      src_top,
+		      src_width,
+		      src_height,
+		      alpha,
+		      PIPELINE_NORMAL);
 }
 
 /*
  * 画面にイメージをレンダリングする
  */
-void opengl_render_image_normal(int dst_left, int dst_top,
-				struct image * RESTRICT src_image, int width,
-				int height, int src_left, int src_top, int alpha)
+void opengl_render_image_add(int dst_left,
+			     int dst_top,
+			     int dst_width,
+			     int dst_height,
+			     struct image *src_image,
+			     int src_left,
+			     int src_top,
+			     int src_width,
+			     int src_height,
+			     int alpha)
 {
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
 	/* 描画の必要があるか判定する */
-	if (alpha == 0 || width == 0 || height == 0)
+	if (alpha == 0 || dst_width == 0 || dst_height == 0)
 		return;	/* 描画の必要がない */
-	if (!clip_by_source(src_image->width, src_image->height,
-			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
-	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
-			 &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
 
-	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_NORMAL);
-}
-
-/*
- * 画面にイメージをレンダリングする
- */
-void opengl_render_image_add(int dst_left, int dst_top,
-			     struct image * RESTRICT src_image, int width,
-			     int height, int src_left, int src_top, int alpha)
-{
-	/* 描画の必要があるか判定する */
-	if (alpha == 0 || width == 0 || height == 0)
-		return;	/* 描画の必要がない */
-	if (!clip_by_source(src_image->width, src_image->height,
-			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
-	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
-			 &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
-
-	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, alpha, PIPELINE_ADD);
+	draw_elements(dst_left,
+		      dst_top,
+		      dst_width,
+		      dst_height,
+		      src_image,
+		      NULL,
+		      src_left,
+		      src_top,
+		      src_width,
+		      src_height,
+		      alpha,
+		      PIPELINE_ADD);
 }
 
 /*
  * 画面にイメージを暗くレンダリングする
  */
-void opengl_render_image_dim(int dst_left, int dst_top,
-			     struct image * RESTRICT src_image, int width,
-			     int height, int src_left, int src_top)
+void opengl_render_image_dim(int dst_left,
+			     int dst_top,
+			     int dst_width,
+			     int dst_height,
+			     struct image *src_image,
+			     int src_left,
+			     int src_top,
+			     int src_width,
+			     int src_height,
+			     int alpha)
 {
-	/* 描画の必要があるか判定する */
-	if (width == 0 || height == 0)
-		return;	/* 描画の必要がない */
-	if (!clip_by_source(src_image->width, src_image->height,
-			   &width, &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
-	if (!clip_by_dest(conf_window_width, conf_window_height, &width,
-			 &height, &dst_left, &dst_top, &src_left, &src_top))
-		return;	/* 描画範囲外 */
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
 
-	draw_elements(dst_left, dst_top, src_image, NULL, width, height, src_left, src_top, 255, PIPELINE_DIM);
+	/* 描画の必要があるか判定する */
+	if (alpha == 0 || dst_width == 0 || dst_height == 0)
+		return;	/* 描画の必要がない */
+
+	draw_elements(dst_left,
+		      dst_top,
+		      dst_width,
+		      dst_height,
+		      src_image,
+		      NULL,
+		      src_left,
+		      src_top,
+		      src_width,
+		      src_height,
+		      255,
+		      PIPELINE_DIM);
 }
 
 /*
  * 画面にイメージをルール付きでレンダリングする
  */
-void opengl_render_image_rule(struct image * RESTRICT src_image,
-			      struct image * RESTRICT rule_image,
+void opengl_render_image_rule(struct image *src_image,
+			      struct image *rule_image,
 			      int threshold)
 {
-	draw_elements(0, 0, src_image, rule_image, conf_window_width, conf_window_height, 0, 0, threshold, PIPELINE_RULE);
-
+	draw_elements(0,
+		      0,
+		      conf_window_width,
+		      conf_window_height,
+		      src_image,
+		      rule_image,
+		      0,
+		      0,
+		      conf_window_width,
+		      conf_window_height,
+		      threshold,
+		      PIPELINE_RULE);
 }
 
 /*
  * 画面にイメージをルール付き(メルト)でレンダリングする
  */
-void opengl_render_image_melt(struct image * RESTRICT src_image,
-			      struct image * RESTRICT rule_image,
-			      int threshold)
+void opengl_render_image_melt(struct image *src_image,
+			      struct image *rule_image,
+			      int progress)
 {
-	draw_elements(0, 0, src_image, rule_image, conf_window_width, conf_window_height, 0, 0, threshold, PIPELINE_MELT);
+	draw_elements(0,
+		      0,
+		      conf_window_width,
+		      conf_window_height,
+		      src_image,
+		      rule_image,
+		      0,
+		      0,
+		      conf_window_width,
+		      conf_window_height,
+		      progress,
+		      PIPELINE_MELT);
 }
 
 /* 画像を描画する */
-static void draw_elements(int dst_left, int dst_top,
-			  struct image * RESTRICT src_image,
-			  struct image * RESTRICT rule_image,
-			  int width, int height,
-			  int src_left, int src_top,
-			  int alpha, int pipeline)
+static void draw_elements(int dst_left,
+			  int dst_top,
+			  int dst_width,
+			  int dst_height,
+			  struct image *src_image,
+			  struct image *rule_image,
+			  int src_left,
+			  int src_top,
+			  int src_width,
+			  int src_height,
+			  int alpha,
+			  int pipeline)
 {
 	GLfloat pos[24];
 	float hw, hh, tw, th;
@@ -803,32 +878,31 @@ static void draw_elements(int dst_left, int dst_top,
 	pos[5] = (float)alpha / 255.0f;
 
 	/* 右上 */
-	pos[6] = ((float)dst_left + (float)width - hw) / hw;
+	pos[6] = ((float)dst_left + (float)dst_width - hw) / hw;
 	pos[7] = -((float)dst_top - hh) / hh;
 	pos[8] = 0.0f;
-	pos[9] = (float)(src_left + width) / tw;
+	pos[9] = (float)(src_left + src_width) / tw;
 	pos[10] = (float)(src_top) / th;
 	pos[11] = (float)alpha / 255.0f;
 
 	/* 左下 */
 	pos[12] = ((float)dst_left - hw) / hw;
-	pos[13] = -((float)dst_top + (float)height - hh) / hh;
+	pos[13] = -((float)dst_top + (float)dst_height - hh) / hh;
 	pos[14] = 0.0f;
 	pos[15] = (float)src_left / tw;
-	pos[16] = (float)(src_top + height) / th;
+	pos[16] = (float)(src_top + src_height) / th;
 	pos[17] = (float)alpha / 255.0f;
 
 	/* 右下 */
-	pos[18] = ((float)dst_left + (float)width - hw) / hw;
-	pos[19] = -((float)dst_top + (float)height - hh) / hh;
+	pos[18] = ((float)dst_left + (float)dst_width - hw) / hw;
+	pos[19] = -((float)dst_top + (float)dst_height - hh) / hh;
 	pos[20] = 0.0f;
-	pos[21] = (float)(src_left + width) / tw;
-	pos[22] = (float)(src_top + height) / th;
+	pos[21] = (float)(src_left + src_width) / tw;
+	pos[22] = (float)(src_top + src_height) / th;
 	pos[23] = (float)alpha / 255.0f;
 
 	/* シェーダを設定して頂点バッファに書き込む */
 	switch (pipeline) {
-	case PIPELINE_COPY:
 	case PIPELINE_NORMAL:
 		glUseProgram(program_normal);
 		glBindVertexArray(vao_normal);

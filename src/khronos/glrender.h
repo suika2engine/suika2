@@ -38,24 +38,40 @@ void opengl_notify_image_update(struct image *img);
 void opengl_notify_image_free(struct image *img);
 
 /* 画面にイメージをレンダリングする */
-void opengl_render_image_copy(int dst_left, int dst_top,
-			      struct image *src_image, int width,
-			      int height, int src_left, int src_top);
+void opengl_render_image_normal(int dst_left,
+				int dst_top,
+				int dst_width,
+				int dst_height,
+				struct image *src_image,
+				int src_top,
+				int src_left,
+				int src_width,
+				int src_height,
+				int alpha);
 
 /* 画面にイメージをレンダリングする */
-void opengl_render_image_normal(int dst_left, int dst_top,
-				struct image *src_image, int width,
-				int height, int src_left, int src_top, int alpha);
-
-/* 画面にイメージをレンダリングする */
-void opengl_render_image_add(int dst_left, int dst_top,
-			     struct image *src_image, int width,
-			     int height, int src_left, int src_top, int alpha);
+void opengl_render_image_add(int dst_left,
+			     int dst_top,
+			     int dst_width,
+			     int dst_height,
+			     struct image *src_image,
+			     int src_left,
+			     int src_top,
+			     int src_width,
+			     int src_height,
+			     int alpha);
 
 /* 画面にイメージを暗くレンダリングする */
-void opengl_render_image_dim(int dst_left, int dst_top,
-			     struct image *src_image, int width,
-			     int height, int src_left, int src_top);
+void opengl_render_image_dim(int dst_left,
+			     int dst_top,
+			     int dst_width,
+			     int dst_hieght,
+			     struct image *src_image,
+			     int src_left,
+			     int src_top,
+			     int src_width,
+			     int src_height,
+			     int alpha);
 
 /* 画面にイメージをルール付きでレンダリングする */
 void opengl_render_image_rule(struct image *src_image,
