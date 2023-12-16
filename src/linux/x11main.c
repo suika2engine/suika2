@@ -1055,38 +1055,79 @@ void notify_image_free(struct image *img)
 /*
  * イメージをレンダリングする
  */
-void render_image_copy(int dst_left, int dst_top, struct image *src_image,
-		      int width, int height, int src_left, int src_top)
+void render_image_normal(int dst_left,
+			 int dst_top,
+			 int dst_width,
+			 int dst_height,
+			 struct image *src_image,
+			 int src_left,
+			 int src_top,
+			 int src_width,
+			 int src_height,
+			 int alpha)
 {
-	opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top);
+	opengl_render_image_normal(dst_left,
+				   dst_top,
+				   dst_width,
+				   dst_height,
+				   src_image,
+				   src_left,
+				   src_top,
+				   src_width,
+				   src_height,
+				   alpha);
 }
 
 /*
  * イメージをレンダリングする
  */
-void render_image_normal(int dst_left, int dst_top, struct image *src_image,
-			 int width, int height, int src_left, int src_top, int alpha)
+void render_image_add(int dst_left,
+		      int dst_top,
+		      int dst_width,
+		      int dst_height,
+		      struct image *src_image,
+		      int src_left,
+		      int src_top,
+		      int src_width,
+		      int src_height,
+		      int alpha)
 {
-	opengl_render_image_normal(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
-}
-
-/*
- * イメージをレンダリングする
- */
-void render_image_add(int dst_left, int dst_top, struct image *src_image,
-			 int width, int height, int src_left, int src_top, int alpha)
-{
-	opengl_render_image_add(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+	opengl_render_image_add(dst_left,
+				dst_top,
+				dst_width,
+				dst_height,
+				src_image,
+				src_left,
+				src_top,
+				src_width,
+				src_height,
+				alpha);
 }
 
 /*
  * イメージを暗くレンダリングする
  */
-void render_image_dim(int dst_left, int dst_top,
+void render_image_dim(int dst_left,
+		      int dst_top,
+		      int dst_width,
+		      int dst_height,
 		      struct image *src_image,
-		      int width, int height, int src_left, int src_top)
+		      int src_left,
+		      int src_top
+		      int src_width,
+		      int src_height,
+		      int alpha)
 {
-	opengl_render_image_dim(dst_left, dst_top, src_image, width, height, src_left, src_top);
+	opengl_render_image_dim(dst_left,
+				dst_top,
+				dst_width,
+				dst_height,
+				src_image,
+				src_left,
+				src_top
+				src_width,
+				src_height,
+				alpha);
 }
 
 /*
@@ -1102,8 +1143,8 @@ void render_image_rule(struct image *src_img,
 /*
  * 画面にイメージをルール付き(メルト)でレンダリングする
  */
-void render_image_melt(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
+void render_image_melt(struct image *src_img,
+		       struct image *rule_img,
 		       int progress)
 {
 	opengl_render_image_melt(src_img, rule_img, progress);
