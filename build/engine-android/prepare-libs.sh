@@ -31,6 +31,12 @@ cp app/src/main/cpp/jpeg/jconfig.txt app/src/main/cpp/jpeg/jconfig.h
 
 # Copy the source files into the android project tree.
 # We do copy because Windows doesn't support symlinks in a normal way.
+cp ../../src/google/ndkfile.c app/src/main/cpp/ndkfile.c
+cp ../../src/google/ndkmain.c app/src/main/cpp/ndkmain.c
+cp ../../src/google/ndkmain.h app/src/main/cpp/ndkmain.h
+cp ../../src/google/ndkwave.c app/src/main/cpp/ndkwave.c
+cp ../../src/khronos/glrender.c app/src/main/cpp/glrender.c
+cp ../../src/khronos/glrender.h app/src/main/cpp/glrender.h
 cp ../../src/anime.c app/src/main/cpp/anime.c
 cp ../../src/anime.h app/src/main/cpp/anime.h
 cp ../../src/cmd_anime.c app/src/main/cpp/cmd_anime.c
@@ -66,12 +72,11 @@ cp ../../src/conf.h app/src/main/cpp/conf.h
 cp ../../src/event.c app/src/main/cpp/event.c
 cp ../../src/event.h app/src/main/cpp/event.h
 cp ../../src/file.h app/src/main/cpp/file.h
-cp ../../src/glrender.c app/src/main/cpp/glrender.c
-cp ../../src/glrender.h app/src/main/cpp/glrender.h
 cp ../../src/glyph.c app/src/main/cpp/glyph.c
 cp ../../src/glyph.h app/src/main/cpp/glyph.h
 cp ../../src/gui.c app/src/main/cpp/gui.c
 cp ../../src/gui.h app/src/main/cpp/gui.h
+cp ../../src/hal.h app/src/main/cpp/hal.h
 cp ../../src/history.c app/src/main/cpp/history.c
 cp ../../src/history.h app/src/main/cpp/history.h
 cp ../../src/image.c app/src/main/cpp/image.c
@@ -82,11 +87,6 @@ cp ../../src/main.c app/src/main/cpp/main.c
 cp ../../src/main.h app/src/main/cpp/main.h
 cp ../../src/mixer.c app/src/main/cpp/mixer.c
 cp ../../src/mixer.h app/src/main/cpp/mixer.h
-cp ../../src/ndkfile.c app/src/main/cpp/ndkfile.c
-cp ../../src/ndkmain.c app/src/main/cpp/ndkmain.c
-cp ../../src/ndkmain.h app/src/main/cpp/ndkmain.h
-cp ../../src/ndkwave.c app/src/main/cpp/ndkwave.c
-cp ../../src/hal.h app/src/main/cpp/hal.h
 cp ../../src/readimage.c app/src/main/cpp/readimage.c
 cp ../../src/readpng.c app/src/main/cpp/readpng.c
 cp ../../src/readjpeg.c app/src/main/cpp/readjpeg.c
@@ -120,7 +120,3 @@ cp ../../src/wms_parser.tab.h app/src/main/cpp/wms_parser.tab.h
 # You can comment this out when your game is ready.
 mkdir -p app/src/main/assets
 cp -R ../../games/demo/* app/src/main/assets/
-
-# Please modify and use this line for your game.
-#mkdir app/src/main/assets
-#cp ../../data01.arc app/src/main/assets/

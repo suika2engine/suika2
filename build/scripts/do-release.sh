@@ -98,6 +98,7 @@ cd ..
 #
 echo "Building Suika.app (suika-mac.zip)."
 cd engine-macos
+rm -f suika-mac.zip
 make
 cd ..
 
@@ -180,6 +181,7 @@ cd ..
 #
 echo "Building Suika2 Pro.app (suika2.dmg)"
 cd pro-macos
+rm -f suika2.dmg
 make
 cd ..
 
@@ -196,7 +198,9 @@ echo "Upload completed."
 # Update the Web site.
 #
 echo ""
-echo "Updating the Web site:"
+echo "Updating the Web site."
+echo "(press enter to proceed)"
+read str
 SAVE_DIR=`pwd`
 cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
 cd "$SAVE_DIR"

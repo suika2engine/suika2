@@ -48,9 +48,9 @@ struct image {
 };
 
 /*
- * Direct3Dの場合はRGBA形式
+ * Direct3D, Metal の場合は RGBA形式
  */
-#if defined(SUIKA_TARGET_WIN32)
+#if defined(SUIKA_TARGET_WIN32) || defined(SUIKA_TARGET_MACOS) || defined(SUIKA_TARGET_IOS)
 
 /* ピクセル値を合成する */
 static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
@@ -83,7 +83,7 @@ static INLINE uint32_t get_pixel_b(pixel_t p)
 }
 
 /*
- * Metal, OpenGLの場合はBGRA形式
+ * OpenGLの場合はBGRA形式
  */
 #else
 

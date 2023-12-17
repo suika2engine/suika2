@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -28,9 +28,7 @@
  *  - 2023-08-29 @chsxを追加
  *  - 2023-09-14 テキストレイヤ、エフェクトレイヤを追加
  *  - 2023-09-18 リファクタリング
- *
- * [検討中]
- *  - スケールと回転のサポート
+ *  - 2023-12-16 スケーリング対応
  */
 
 #include "suika.h"
@@ -146,14 +144,20 @@ static bool is_skip_visible;
  *  - TODO: scale, rotateを追加する
  */
 
-/* レイヤのx座標 */
+/* レイヤのX座標 */
 static int layer_x[STAGE_LAYERS];
 
-/* レイヤのy座標 */
+/* レイヤのY座標 */
 static int layer_y[STAGE_LAYERS];
 
 /* レイヤのアルファ値 */
 static int layer_alpha[STAGE_LAYERS];
+
+/* レイヤのXスケール */
+static float layer_scale_x[STAGE_LAYERS];
+
+/* レイヤのYスケール */
+static float layer_scale_y[STAGE_LAYERS];
 
 /* ファイル名(FI/FOを除く) */
 static char *layer_file_name[STAGE_LAYERS];
@@ -250,7 +254,6 @@ static void draw_fade_slit_close_v(void);
 static void draw_fade_shake(void);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
-static void render_layer_image_copy(int layer);
 
 /*
  * 初期化
@@ -285,9 +288,12 @@ bool init_stage(void)
 	if (!create_fade_layer_images())
 		return false;
 
-	/* アルファ値を設定する */
-	for (i = 0; i < STAGE_LAYERS; i++)
+	/* 初期値を設定する */
+	for (i = 0; i < STAGE_LAYERS; i++) {
+		layer_scale_x[i] = 1.0f;
+		layer_scale_y[i] = 1.0f;
 		layer_alpha[i] = 255;
+	}
 
 	return true;
 }
@@ -892,6 +898,17 @@ void set_layer_position(int layer, int x, int y)
 }
 
 /*
+ * Sets a layer scale.
+ */
+void set_layer_scale(int layer, float scale_x, float scale_y)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+
+	layer_scale_x[layer] = scale_x;
+	layer_scale_y[layer] = scale_y;
+}
+
+/*
  * Gets a layer image width.
  */
 int get_layer_width(int layer)
@@ -1179,7 +1196,7 @@ void render_stage(void)
 	update_anime_frame();
 
 	/* Render stage layers. */
-	render_layer_image_copy(LAYER_BG);
+	render_layer_image(LAYER_BG);
 	render_layer_image(LAYER_BG2);
 	render_layer_image(LAYER_EFFECT5);
 	render_layer_image(LAYER_EFFECT6);
@@ -1240,79 +1257,105 @@ void render_sysmenu(bool is_auto_enabled,
 		    bool is_custom2_selected)
 {
 	/* システムメニューの背景を描画する */
-	render_image_normal(conf_sysmenu_x, conf_sysmenu_y,
-			    sysmenu_idle_image,
+	render_image_normal(conf_sysmenu_x,
+			    conf_sysmenu_y,
 			    sysmenu_idle_image->width,
 			    sysmenu_idle_image->height,
-			    0, 0, 255);
+			    sysmenu_idle_image,
+			    0,
+			    0,
+			    sysmenu_idle_image->width,
+			    sysmenu_idle_image->height,
+			    255);
 
 	/* 禁止になっている項目を描画する */
 	if (!is_auto_enabled) {
 		/* オートの項目(禁止)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_auto_x,
 				    conf_sysmenu_y + conf_sysmenu_auto_y,
-				    sysmenu_disable_image,
 				    conf_sysmenu_auto_width,
 				    conf_sysmenu_auto_height,
+				    sysmenu_disable_image,
 				    conf_sysmenu_auto_x,
-				    conf_sysmenu_auto_y, 255);
+				    conf_sysmenu_auto_y,
+				    conf_sysmenu_auto_width,
+				    conf_sysmenu_auto_height,
+				    255);
 	}
 	if (!is_skip_enabled) {
 		/* スキップの項目(禁止)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_skip_x,
 				    conf_sysmenu_y + conf_sysmenu_skip_y,
-				    sysmenu_disable_image,
 				    conf_sysmenu_skip_width,
 				    conf_sysmenu_skip_height,
+				    sysmenu_disable_image,
 				    conf_sysmenu_skip_x,
-				    conf_sysmenu_skip_y, 255);
+				    conf_sysmenu_skip_y,
+				    conf_sysmenu_skip_width,
+				    conf_sysmenu_skip_height,
+				    255);
 	}
 	if (!is_save_load_enabled) {
 		/* クイックセーブの項目(禁止)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_qsave_x,
 				    conf_sysmenu_y + conf_sysmenu_qsave_y,
+				    conf_sysmenu_qsave_x,
+				    conf_sysmenu_qsave_y,
 				    sysmenu_disable_image,
+				    conf_sysmenu_qsave_x,
+				    conf_sysmenu_qsave_y,
 				    conf_sysmenu_qsave_width,
 				    conf_sysmenu_qsave_height,
-				    conf_sysmenu_qsave_x,
-				    conf_sysmenu_qsave_y, 255);
+				    255);
 
 		/* クイックロードの項目(禁止)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_qload_x,
 				    conf_sysmenu_y + conf_sysmenu_qload_y,
-				    sysmenu_disable_image,
 				    conf_sysmenu_qload_width,
 				    conf_sysmenu_qload_height,
+				    sysmenu_disable_image,
 				    conf_sysmenu_qload_x,
-				    conf_sysmenu_qload_y, 255);
+				    conf_sysmenu_qload_y,
+				    conf_sysmenu_qload_width,
+				    conf_sysmenu_qload_height,
+				    255);
 
 		/* セーブの項目(禁止)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_save_x,
 				    conf_sysmenu_y + conf_sysmenu_save_y,
-				    sysmenu_disable_image,
 				    conf_sysmenu_save_width,
 				    conf_sysmenu_save_height,
+				    sysmenu_disable_image,
 				    conf_sysmenu_save_x,
-				    conf_sysmenu_save_y, 255);
+				    conf_sysmenu_save_y,
+				    conf_sysmenu_save_width,
+				    conf_sysmenu_save_height,
+				    255);
 
 		/* ロードの項目(禁止)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_load_x,
 				    conf_sysmenu_y + conf_sysmenu_load_y,
-				    sysmenu_disable_image,
 				    conf_sysmenu_load_width,
 				    conf_sysmenu_load_height,
+				    sysmenu_disable_image,
 				    conf_sysmenu_load_x,
-				    conf_sysmenu_load_y, 255);
+				    conf_sysmenu_load_y,
+				    conf_sysmenu_load_width,
+				    conf_sysmenu_load_height,
+				    255);
 	}
 	if (is_save_load_enabled && !is_qload_enabled) {
 		/* クイックロードの項目(禁止)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_qload_x,
 				    conf_sysmenu_y + conf_sysmenu_qload_y,
-				    sysmenu_disable_image,
 				    conf_sysmenu_qload_width,
 				    conf_sysmenu_qload_height,
+				    sysmenu_disable_image,
 				    conf_sysmenu_qload_x,
-				    conf_sysmenu_qload_y, 255);
+				    conf_sysmenu_qload_y,
+				    conf_sysmenu_qload_width,
+				    conf_sysmenu_qload_height,
+				    255);
 	}
 
 	/* 選択されている項目を描画する */
@@ -1320,101 +1363,131 @@ void render_sysmenu(bool is_auto_enabled,
 		/* クイックセーブの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_qsave_x,
 				    conf_sysmenu_y + conf_sysmenu_qsave_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_qsave_width,
 				    conf_sysmenu_qsave_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_qsave_x,
-				    conf_sysmenu_qsave_y, 255);
+				    conf_sysmenu_qsave_y,
+				    conf_sysmenu_qsave_width,
+				    conf_sysmenu_qsave_height,
+				    255);
 	}
 	if (is_qload_selected) {
 		/* クイックロードの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_qload_x,
 				    conf_sysmenu_y + conf_sysmenu_qload_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_qload_width,
 				    conf_sysmenu_qload_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_qload_x,
-				    conf_sysmenu_qload_y, 255);
+				    conf_sysmenu_qload_y,
+				    conf_sysmenu_qload_width,
+				    conf_sysmenu_qload_height,
+				    255);
 	}
 	if (is_save_selected) {
 		/* セーブの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_save_x,
 				    conf_sysmenu_y + conf_sysmenu_save_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_save_width,
 				    conf_sysmenu_save_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_save_x,
-				    conf_sysmenu_save_y, 255);
+				    conf_sysmenu_save_y,
+				    conf_sysmenu_save_width,
+				    conf_sysmenu_save_height,
+				    255);
 	}
 	if (is_load_selected) {
 		/* ロードの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_load_x,
 				    conf_sysmenu_y + conf_sysmenu_load_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_load_width,
 				    conf_sysmenu_load_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_load_x,
-				    conf_sysmenu_load_y, 255);
+				    conf_sysmenu_load_y,
+				    conf_sysmenu_load_width,
+				    conf_sysmenu_load_height,
+				    255);
 	}
 	if (is_auto_selected) {
 		/* オートの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_auto_x,
 				    conf_sysmenu_y + conf_sysmenu_auto_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_auto_width,
 				    conf_sysmenu_auto_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_auto_x,
-				    conf_sysmenu_auto_y, 255);
+				    conf_sysmenu_auto_y,
+				    conf_sysmenu_auto_width,
+				    conf_sysmenu_auto_height,
+				    255);
 	}
 	if (is_skip_selected) {
 		/* スキップの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_skip_x,
 				    conf_sysmenu_y + conf_sysmenu_skip_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_skip_width,
 				    conf_sysmenu_skip_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_skip_x,
-				    conf_sysmenu_skip_y, 255);
+				    conf_sysmenu_skip_y,
+				    conf_sysmenu_skip_width,
+				    conf_sysmenu_skip_height,
+				    255);
 	}
 	if (is_history_selected) {
 		/* ヒストリの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_history_x,
 				    conf_sysmenu_y + conf_sysmenu_history_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_history_width,
 				    conf_sysmenu_history_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_history_x,
-				    conf_sysmenu_history_y, 255);
+				    conf_sysmenu_history_y,
+				    conf_sysmenu_history_width,
+				    conf_sysmenu_history_height,
+				    255);
 	}
 	if (is_config_selected) {
 		/* コンフィグの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_config_x,
 				    conf_sysmenu_y + conf_sysmenu_config_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_config_width,
 				    conf_sysmenu_config_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_config_x,
-				    conf_sysmenu_config_y, 255);
+				    conf_sysmenu_config_y,
+				    conf_sysmenu_config_width,
+				    conf_sysmenu_config_height,
+				    255);
 	}
 	if (is_custom1_selected) {
 		/* コンフィグの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_custom1_x,
 				    conf_sysmenu_y + conf_sysmenu_custom1_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_custom1_width,
 				    conf_sysmenu_custom1_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_custom1_x,
-				    conf_sysmenu_custom1_y, 255);
+				    conf_sysmenu_custom1_y,
+				    conf_sysmenu_custom1_width,
+				    conf_sysmenu_custom1_height,
+				    255);
 	}
 	if (is_custom2_selected) {
 		/* コンフィグの項目(選択)を描画する */
 		render_image_normal(conf_sysmenu_x + conf_sysmenu_custom2_x,
 				    conf_sysmenu_y + conf_sysmenu_custom2_y,
-				    sysmenu_hover_image,
 				    conf_sysmenu_custom2_width,
 				    conf_sysmenu_custom2_height,
+				    sysmenu_hover_image,
 				    conf_sysmenu_custom2_x,
-				    conf_sysmenu_custom2_y, 255);
+				    conf_sysmenu_custom2_y,
+				    conf_sysmenu_custom2_width,
+				    conf_sysmenu_custom2_height,
+				    255);
 	}
 }
 
@@ -1515,17 +1588,19 @@ void render_collapsed_sysmenu(bool is_pointed)
 	if (!is_pointed) {
 		render_image_normal(conf_sysmenu_collapsed_x,
 				    conf_sysmenu_collapsed_y,
+				    -1, -1,
 				    sysmenu_collapsed_idle_image,
-				    sysmenu_collapsed_idle_image->width,
-				    sysmenu_collapsed_idle_image->height,
-				    0, 0, 255);
+				    0, 0,
+				    -1, -1,
+				    255);
 	} else {
 		render_image_normal(conf_sysmenu_collapsed_x,
 				    conf_sysmenu_collapsed_y,
+				    -1, -1,
 				    sysmenu_collapsed_hover_image,
-				    sysmenu_collapsed_hover_image->width,
-				    sysmenu_collapsed_hover_image->height,
-				    0, 0, 255);
+				    0, 0,
+				    -1, -1,
+				    255);
 	}
 }
 
@@ -2159,8 +2234,8 @@ void draw_fade(void)
 /* デフォルトの背景フェードの描画を行う  */
 static void draw_fade_normal(void)
 {
-	render_image_copy(0, 0, fo_image, conf_window_width, conf_window_height, 0, 0);
-	render_image_normal(0, 0, fi_image, conf_window_width, conf_window_height, 0, 0, (int)(fi_fo_fade_progress * 255.0f));
+	render_image_normal(0, 0, -1, -1, fo_image, 0, 0, -1, -1, 255);
+	render_image_normal(0, 0, -1, -1, fi_image, 0, 0, -1, -1, (int)(fi_fo_fade_progress * 255.0f));
 }
 
 /* ルール描画を行う */
@@ -2177,9 +2252,7 @@ static void draw_fade_rule(void)
 	threshold = (int)(255.0f * fi_fo_fade_progress);
 
 	/* フェードアウトする画像をコピーする */
-	render_image_copy(0, 0, fo_image,
-			  conf_window_width, conf_window_height,
-			  0, 0);
+	render_image_normal(0, 0, -1, -1, fo_image, 0, 0, -1, -1, 255);
 
 	/* フェードインする画像をレンダリングする */
 	render_image_rule(fi_image, fade_rule_img, threshold);
@@ -2199,9 +2272,7 @@ static void draw_fade_melt(void)
 	threshold = (int)(255.0f * fi_fo_fade_progress);
 
 	/* フェードアウトする画像をコピーする */
-	render_image_copy(0, 0, fo_image,
-			  conf_window_width, conf_window_height,
-			  0, 0);
+	render_image_normal(0, 0, -1, -1, fo_image, 0, 0, -1, -1, 255);
 
 	/* フェードインする画像をレンダリングする */
 	render_image_melt(fi_image, fade_rule_img, threshold);
@@ -2216,25 +2287,46 @@ static void draw_fade_curtain_right(void)
 	 * カーテンの右端を求める
 	 *  - カーテンの右端は0からconf_window_width+CURTAIN_WIDTHになる
 	 */
-	right = (int)((float)(conf_window_width + CURTAIN_WIDTH) *
-		      fi_fo_fade_progress);
+	right = (int)((float)(conf_window_width + CURTAIN_WIDTH) * fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (right < conf_window_width) {
-		render_image_copy(right, 0, fo_image,
-				  conf_window_width - right, conf_window_height,
-				  right, 0);
+		render_image_normal(right,
+				    0,
+				    conf_window_width - right,
+				    conf_window_height,
+				    fo_image,
+				    right,
+				    0,
+				    conf_window_width - right,
+				    conf_window_height,
+				    255);
 	}
 
 	/* カーテンの部分の背景をコピーする */
-	render_image_copy(right - CURTAIN_WIDTH, 0, fo_image,
-			  CURTAIN_WIDTH, conf_window_height,
-			  right - CURTAIN_WIDTH, 0);
+	render_image_normal(right - CURTAIN_WIDTH,
+			    0,
+			    CURTAIN_WIDTH,
+			    conf_window_height,
+			    fo_image,
+			    right - CURTAIN_WIDTH,
+			    0,
+			    CURTAIN_WIDTH,
+			    conf_window_height,
+			    255);
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (right >= CURTAIN_WIDTH) {
-		render_image_copy(0, 0, fi_image,
-				  right - CURTAIN_WIDTH, conf_window_height, 0, 0);
+		render_image_normal(0,
+				    0,
+				    right - CURTAIN_WIDTH,
+				    conf_window_height,
+				    fi_image,
+				    0,
+				    0,
+				    right - CURTAIN_WIDTH,
+				    conf_window_height,
+				    255);
 	}
 
 	/* カーテンを描画する */
@@ -2243,8 +2335,16 @@ static void draw_fade_curtain_right(void)
 			continue;
 		if (alpha > 255)
 			alpha = 255;
-		render_image_normal(i, 0, fi_image, 2,
-				    conf_window_height, i, 0, alpha);
+		render_image_normal(i,
+				    0,
+				    2,
+				    conf_window_height,
+				    fi_image,
+				    i,
+				    0,
+				    2,
+				    conf_window_height,
+				    alpha);
 	}
 }
 
@@ -2262,14 +2362,29 @@ static void draw_fade_curtain_left(void)
 		      fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
-	render_image_copy(0, 0, fo_image, left + CURTAIN_WIDTH,
-			  conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    left + CURTAIN_WIDTH,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    left + CURTAIN_WIDTH,
+			    conf_window_height,
+			    255);
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (left <= conf_window_width - CURTAIN_WIDTH) {
-		render_image_copy(left + CURTAIN_WIDTH, 0, fi_image,
-				  conf_window_width - left - CURTAIN_WIDTH,
-				  conf_window_height, left + CURTAIN_WIDTH, 0);
+		render_image_normal(left + CURTAIN_WIDTH,
+				    0,
+				    conf_window_width - left - CURTAIN_WIDTH,
+				    conf_window_height,
+				    fi_image,
+				    left + CURTAIN_WIDTH,
+				    0,
+				    conf_window_width - left - CURTAIN_WIDTH,
+				    conf_window_height,
+				    255);
 	}
 
 	/* カーテンを描画する */
@@ -2278,8 +2393,16 @@ static void draw_fade_curtain_left(void)
 			continue;
 		if (alpha > 255)
 			alpha = 255;
-		render_image_normal(i, 0, fi_image, 1,
-				    conf_window_height, i, 0, alpha);
+		render_image_normal(i,
+				    0,
+				    1,
+				    conf_window_height,
+				    fi_image,
+				    i,
+				    0,
+				    1,
+				    conf_window_height,
+				    alpha);
 	}
 }
 
@@ -2297,15 +2420,29 @@ static void draw_fade_curtain_up(void)
 		      fi_fo_fade_progress);
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
-	render_image_copy(0, 0, fo_image, conf_window_width,
-			  top + CURTAIN_WIDTH, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    top + CURTAIN_WIDTH,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    top + CURTAIN_WIDTH,
+			    255);
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (top <= conf_window_height - CURTAIN_WIDTH) {
-		render_image_copy(0, top + CURTAIN_WIDTH, fi_image,
-				  conf_window_width,
-				  conf_window_height - top - CURTAIN_WIDTH,
-				  0, top + CURTAIN_WIDTH);
+		render_image_normal(0,
+				    top + CURTAIN_WIDTH,
+				    conf_window_width,
+				    conf_window_height - top - CURTAIN_WIDTH,
+				    fi_image,
+				    0,
+				    top + CURTAIN_WIDTH,
+				    conf_window_width,
+				    conf_window_height - top - CURTAIN_WIDTH,
+				    255);
 	}
 
 	/* カーテンを描画する */
@@ -2314,8 +2451,16 @@ static void draw_fade_curtain_up(void)
 			continue;
 		if (alpha > 255)
 			alpha = 255;
-		render_image_normal(0, i, fi_image,
-				    conf_window_width, 1, 0, i, alpha);
+		render_image_normal(0,
+				    i,
+				    conf_window_width,
+				    1,
+				    fi_image,
+				    0,
+				    i,
+				    conf_window_width,
+				    1,
+				    alpha);
 	}
 }
 
@@ -2333,20 +2478,42 @@ static void draw_fade_curtain_down(void)
 
 	/* カーテンが通り過ぎる前の背景をコピーする */
 	if (bottom < conf_window_height) {
-		render_image_copy(0, bottom, fo_image,
-				  conf_window_width, conf_window_height - bottom,
-				  0, bottom);
+		render_image_normal(0,
+				    bottom,
+				    conf_window_width,
+				    conf_window_height - bottom,
+				    fo_image,
+				    0,
+				    bottom,
+				    conf_window_width,
+				    conf_window_height - bottom,
+				    255);
 	}
 
 	/* カーテンの部分の背景をコピーする */
-	render_image_copy(0, bottom - CURTAIN_WIDTH, fo_image,
-			  conf_window_width, CURTAIN_WIDTH,
-			  0, bottom - CURTAIN_WIDTH);
+	render_image_normal(0,
+			    bottom - CURTAIN_WIDTH,
+			    conf_window_width,
+			    CURTAIN_WIDTH,
+			    fo_image,
+			    0,
+			    bottom - CURTAIN_WIDTH,
+			    conf_window_width,
+			    CURTAIN_WIDTH,
+			    255);
 
 	/* カーテンが通り過ぎた後の背景を描画する */
 	if (bottom >= CURTAIN_WIDTH) {
-		render_image_copy(0, 0, fi_image, conf_window_width,
-				  bottom - CURTAIN_WIDTH, 0, 0);
+		render_image_normal(0,
+				    0,
+				    conf_window_width,
+				    bottom - CURTAIN_WIDTH,
+				    fi_image,
+				    0,
+				    0,
+				    conf_window_width,
+				    bottom - CURTAIN_WIDTH,
+				    255);
 	}
 
 	/* カーテンを描画する */
@@ -2356,8 +2523,16 @@ static void draw_fade_curtain_down(void)
 			continue;
 		if (alpha > 255)
 			alpha = 255;
-		render_image_normal(0, i, fi_image,
-				    conf_window_width, 1, 0, i, alpha);
+		render_image_normal(0,
+				    i,
+				    conf_window_width,
+				    1,
+				    fi_image,
+				    0,
+				    i,
+				    conf_window_width,
+				    1,
+				    alpha);
 	}
 }
 
@@ -2373,12 +2548,28 @@ static void draw_fade_slide_right(void)
 	right = (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 左側の背景を表示する */
-	render_image_copy(0, 0, fi_image, right, conf_window_height,
-			  conf_window_width - right, 0);
+	render_image_normal(0,
+			    0,
+			    right,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    right,
+			    conf_window_width - right,
+			    255);
 
 	/* 右側の背景を表示する */
-	render_image_copy(right, 0, fo_image,
-			  conf_window_width - right, conf_window_height, 0, 0);
+	render_image_normal(right,
+			    0,
+			    conf_window_width - right,
+			    conf_window_height,
+			    fo_image,
+			    right,
+			    0,
+			    conf_window_width - right,
+			    conf_window_height,
+			    255);
 }
 
 /* 左方向スライドフェードの描画を行う */
@@ -2393,10 +2584,28 @@ static void draw_fade_slide_left(void)
 	left = conf_window_width - (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 右側の背景を表示する */
-	render_image_copy(left, 0, fi_image, conf_window_width - left, conf_window_height, 0, 0);
+	render_image_normal(left,
+			    0,
+			    conf_window_width - left,
+			    conf_window_height,
+			    fi_image,
+			    left,
+			    0,
+			    conf_window_width - left,
+			    conf_window_height,
+			    255);
 
 	/* 左側の背景を表示する */
-	render_image_copy(0, 0, fo_image, left, conf_window_height, conf_window_width - left, 0);
+	render_image_normal(0,
+			    0,
+			    left,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    left,
+			    conf_window_width - left,
+			    255);
 }
 
 /* 上方向スライドフェードの描画を行う */
@@ -2411,12 +2620,28 @@ static void draw_fade_slide_up(void)
 	top = conf_window_height - (int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	render_image_copy(0, 0, fo_image, conf_window_width, top, 0,
-			  conf_window_height - top);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    top,
+			    fo_image,
+			    0,
+			    conf_window_height - top,
+			    conf_window_width,
+			    top,
+			    255);
 
 	/* 下側の背景を表示する */
-	render_image_copy(0, top, fi_image, conf_window_width,
-			  conf_window_height - top, 0, 0);
+	render_image_normal(0,
+			    top,
+			    conf_window_width,
+			    conf_window_height - top,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height - top,
+			    255);
 }
 
 /* 下方向スライドフェードの描画を行う */
@@ -2431,12 +2656,28 @@ static void draw_fade_slide_down(void)
 	bottom = (int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	render_image_copy(0, 0, fi_image, conf_window_width, bottom, 0,
-			  conf_window_height - bottom);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    bottom,
+			    fi_image,
+			    0,
+			    conf_window_height - bottom,
+			    conf_window_width,
+			    bottom,
+			    255);
 
 	/* 下側の背景を表示する */
-	render_image_copy(0, bottom, fo_image, conf_window_width,
-			  conf_window_height - bottom, 0, 0);
+	render_image_normal(0,
+			    bottom,
+			    conf_window_width,
+			    conf_window_height - bottom,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height - bottom,
+			    255);
 }
 
 /* 右方向シャッターフェードの描画を行う Right direction shutter fade */
@@ -2451,12 +2692,28 @@ static void draw_fade_shutter_right(void)
 	right = (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 左側の背景を表示する */
-	render_image_copy(0, 0, fi_image, right, conf_window_height,
-			  conf_window_width - right, 0);
+	render_image_normal(0,
+			    0,
+			    right,
+			    conf_window_height,
+			    fi_image,
+			    conf_window_width - right,
+			    0,
+			    right,
+			    conf_window_height,
+			    255);
 
 	/* 右側の背景を表示する */
-	render_image_copy(right, 0, fo_image,
-			  conf_window_width - right, conf_window_height, right, 0);
+	render_image_normal(right,
+			    0,
+			    conf_window_width - right,
+			    conf_window_height,
+			    fo_image,
+			    right,
+			    0,
+			    conf_window_width - right,
+			    conf_window_height,
+			    255);
 }
 
 /* 左方向シャッターフェードの描画を行う Left direction shutter fade */
@@ -2468,15 +2725,31 @@ static void draw_fade_shutter_left(void)
 	 * スライドの左端を求める
 	 *  - スライドの左端はconf_window_widthから0になる
 	 */
-	left = conf_window_width -
-		(int)((float)conf_window_width * fi_fo_fade_progress);
+	left = conf_window_width - (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 右側の背景を表示する */
-	render_image_copy(left, 0, fi_image, conf_window_width - left,
-			  conf_window_height, 0, 0);
+	render_image_normal(left,
+			    0,
+			    conf_window_width - left,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width - left,
+			    conf_window_height,
+			    255);
 
 	/* 左側の背景を表示する */
-	render_image_copy(0, 0, fo_image, left, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    left,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    left,
+			    conf_window_height,
+			    255);
 }
 
 /* 上方向シャッターフェードの描画を行う Up direction shutter fade */
@@ -2488,15 +2761,31 @@ static void draw_fade_shutter_up(void)
 	 * スライドの上端を求める
 	 *  - スライドの上端はconf_window_heightから0になる
 	 */
-	top = conf_window_height -
-		(int)((float)conf_window_height * fi_fo_fade_progress);
+	top = conf_window_height - (int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	render_image_copy(0, 0, fo_image, conf_window_width, top, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    top,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    top,
+			    255);
 
 	/* 下側の背景を表示する */
-	render_image_copy(0, top, fi_image, conf_window_width,
-			  conf_window_height - top, 0, 0);
+	render_image_normal(0,
+			    top,
+			    conf_window_width,
+			    conf_window_height - top,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height - top,
+			    255);
 }
 
 /* 下方向シャッターフェードの描画を行う Down direction shutter fade */
@@ -2511,12 +2800,28 @@ static void draw_fade_shutter_down(void)
 	bottom = (int)((float)conf_window_height * fi_fo_fade_progress);
 
 	/* 上側の背景を表示する */
-	render_image_copy(0, 0, fi_image, conf_window_width, bottom, 0,
-			  conf_window_height - bottom);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    bottom,
+			    fi_image,
+			    0,
+			    conf_window_height - bottom,
+			    conf_window_width,
+			    bottom,
+			    255);
 
 	/* 下側の背景を表示する */
-	render_image_copy(0, bottom, fo_image, conf_window_width,
-			  conf_window_height - bottom, 0, bottom);
+	render_image_normal(0,
+			    bottom,
+			    conf_window_width,
+			    conf_window_height - bottom,
+			    fo_image,
+			    0,
+			    bottom,
+			    conf_window_width,
+			    conf_window_height - bottom,
+			    255);
 }
 
 /* 時計回りフェードの描画を行う */
@@ -2534,8 +2839,16 @@ static void draw_fade_clockwise(int method)
 	half_h = conf_window_height / 2;
 
 	/* フェードアウトする背景の描画を行う */
-	render_image_copy(0, 0, fo_image, conf_window_width,
-			  conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 時計の針の位置を計算する */
 	center_x = conf_window_width / 2;
@@ -2549,20 +2862,44 @@ static void draw_fade_clockwise(int method)
 
 	/* 第一象限を埋める */
 	if (progress >= 0.25f) {
-		render_image_copy(center_x, 0, fi_image, half_w,
-				  half_h + 1, center_x, 0);
+		render_image_normal(center_x,
+				    0,
+				    half_w,
+				    half_h + 1,
+				    fi_image,
+				    center_x,
+				    0,
+				    half_w,
+				    half_h + 1,
+				    255);
 	}
 
 	/* 第四象限を埋める */
 	if (progress >= 0.5f) {
-		render_image_copy(center_x, center_y, fi_image,
-				  half_w, half_h, center_x, center_y);
+		render_image_normal(center_x,
+				    center_y,
+				    half_w,
+				    half_h,
+				    fi_image,
+				    center_x,
+				    center_y,
+				    half_w,
+				    half_h,
+				    255);
 	}
 
 	/* 第三象限を埋める */
 	if (progress >= 0.75f) {
-		render_image_copy(0, center_y, fi_image, half_w + 1,
-				  half_h, 0, center_y);
+		render_image_normal(0,
+				    center_y,
+				    half_w + 1,
+				    half_h,
+				    fi_image,
+				    0,
+				    center_y,
+				    half_w + 1,
+				    half_h,
+				    255);
 	}
 
 	/* エッジをスキャンする */
@@ -2597,7 +2934,16 @@ static void draw_fade_clockwise(int method)
 			continue;
 
 		/* 走査線を描画する */
-		render_image_copy(min, i, fi_image, max - min + 1, 1, min, i);
+		render_image_normal(min,
+				    i,
+				    max - min + 1,
+				    1,
+				    fi_image,
+				    min,
+				    i,
+				    max - min + 1,
+				    1,
+				    255);
 	}
 }
 
@@ -2616,8 +2962,16 @@ static void draw_fade_counterclockwise(int method)
 	half_h = conf_window_height / 2;
 
 	/* フェードアウトする背景の描画を行う */
-	render_image_copy(0, 0, fo_image, conf_window_width,
-			  conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 時計の針の位置を計算する */
 	center_x = conf_window_width / 2;
@@ -2629,22 +2983,46 @@ static void draw_fade_counterclockwise(int method)
 	hand_y = center_y + (int)(hand_len *
 				  cosf(2.0f * PI * progress - PI));
 
-	render_image_copy(hand_x, hand_y, fi_image, 100, 100, 0, 0);
-
 	/* 第二象限を埋める */
-	if (progress >= 0.25f)
-		render_image_copy(0, 0, fi_image, half_w, half_h + 1, 0, 0);
+	if (progress >= 0.25f) {
+		render_image_normal(0,
+				    0,
+				    half_w,
+				    half_h + 1,
+				    fi_image,
+				    0,
+				    0,
+				    half_w,
+				    half_h + 1,
+				    255);
+	}
 
 	/* 第三象限を埋める */
 	if (progress >= 0.5f) {
-		render_image_copy(0, center_y + 1, fi_image, half_w + 1,
-				  half_h, 0, center_y + 1);
+		render_image_normal(0,
+				   center_y,
+				   half_w + 1,
+				   half_h,
+				   fi_image,
+				   0,
+				   center_y + 1,
+				   half_w + 1,
+				   half_h,
+				   255);
 	}
 
 	/* 第四象限を埋める */
 	if (progress >= 0.75f) {
-		render_image_copy(center_x, center_y, fi_image,
-			     half_w, half_h, center_x, center_y);
+		render_image_normal(center_x,
+				    center_y,
+				    half_w,
+				    half_h,
+				    fi_image,
+				    center_x,
+				    center_y,
+				    half_w,
+				    half_h,
+				    255);
 	}
 
 	/* エッジをスキャンする */
@@ -2680,7 +3058,16 @@ static void draw_fade_counterclockwise(int method)
 			continue;
 	
 		/* 走査線を描画する */
-		render_image_copy(min, i, fi_image, max - min + 1, 1, min, i);
+		render_image_normal(min,
+				    i,
+				    max - min + 1,
+				    1,
+				    fi_image,
+				    min,
+				    i,
+				    max - min + 1,
+				    1,
+				    255);
 	}
 }
 
@@ -2733,13 +3120,29 @@ static void draw_fade_eye_open(void)
 		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎた後の背景をコピーする */
-	render_image_copy(0, 0, fi_image,
-			  conf_window_width, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 上幕の描画を行う */
 	for (i = up, a = 0; i >= 0; i--) {
-		render_image_normal(0, i, fo_image,
-				    conf_window_width, 1, 0, i, a);
+		render_image_normal(0,
+				    0,
+				    conf_window_width,
+				    1,
+				    fo_image,
+				    0,
+				    i,
+				    conf_window_width,
+				    1,
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2747,8 +3150,16 @@ static void draw_fade_eye_open(void)
 
 	/* 下幕の描画を行う */
 	for (i = down, a = 0; i <= conf_window_height - 1; i++) {
-		render_image_normal(0, i, fo_image,
-				    conf_window_width, 1, 0, i, a);
+		render_image_normal(0,
+				    i,
+				    conf_window_width,
+				    1,
+				    fo_image,
+				    0,
+				    i,
+				    conf_window_width,
+				    1,
+				    255);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2769,13 +3180,29 @@ static void draw_fade_eye_close(void)
 		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎる前の背景をコピーする */
-	render_image_copy(0, 0, fo_image,
-			  conf_window_width, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 上幕の描画を行う */
 	for (i = up, a = 0; i >= 0; i--) {
-		render_image_normal(0, i, fi_image,
-				    conf_window_width, 1, 0, i, a);
+		render_image_normal(0,
+				    i,
+				    conf_window_width,
+				    1,
+				    fi_image,
+				    0,
+				    i,
+				    conf_window_width,
+				    1,
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2783,8 +3210,16 @@ static void draw_fade_eye_close(void)
 
 	/* 下幕の描画を行う */
 	for (i = down, a = 0; i <= conf_window_height - 1; i++) {
-		render_image_normal(0, i, fi_image,
-				    conf_window_width, 1, 0, i, a);
+		render_image_normal(0,
+				    i,
+				    conf_window_width,
+				    1,
+				    fi_image,
+				    0,
+				    i,
+				    conf_window_width,
+				    1,
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2806,14 +3241,29 @@ static void draw_fade_eye_open_v(void)
 		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎた後の背景をコピーする */
-	render_image_copy(0, 0, fi_image,
-			  conf_window_width, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 左幕の描画を行う */
 	for (i = left, a = 0; i >= 0; i--) {
-		render_image_normal(i, 0, fo_image,
-				    1, conf_window_height,
-				    i, 0, a);
+		render_image_normal(i,
+				    0,
+				    1,
+				    conf_window_height,
+				    fo_image,
+				    i,
+				    0,
+				    1,
+				    conf_window_height,
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2821,9 +3271,16 @@ static void draw_fade_eye_open_v(void)
 
 	/* 下幕の描画を行う */
 	for (i = right, a = 0; i <= conf_window_width - 1; i++) {
-		render_image_normal(i, 0, fo_image,
-				    1, conf_window_height,
-				    i, 0, a);
+		render_image_normal(i,
+				    0,
+				    1,
+				    conf_window_height,
+				    fo_image,
+				    i,
+				    0,
+				    1,
+				    conf_window_height,
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2844,13 +3301,29 @@ static void draw_fade_eye_close_v(void)
 		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎる前の背景をコピーする */
-	render_image_copy(0, 0, fo_image,
-			  conf_window_width, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 左幕の描画を行う */
 	for (i = left, a = 0; i >= 0; i--) {
-		render_image_normal(i, 0, fi_image,
-				    1, conf_window_height, i, 0, a);
+		render_image_normal(i,
+				    0,
+				    1,
+				    conf_window_height,
+				    fi_image,
+				    i,
+				    0,
+				    1,
+				    conf_window_height,
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2858,9 +3331,16 @@ static void draw_fade_eye_close_v(void)
 
 	/* 右幕の描画を行う */
 	for (i = right, a = 0; i <= conf_window_width - 1; i++) {
-		render_image_normal(i, 0, fi_image,
-				    1, conf_window_height,
-				    i, 0, a);
+		render_image_normal(i,
+				    0,
+				    1,
+				    conf_window_height,
+				    fi_image,
+				    i,
+				    0,
+				    1,
+				    conf_window_height,
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;
@@ -2881,16 +3361,40 @@ static void draw_fade_slit_open(void)
 		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎた後の背景をコピーする */
-	render_image_copy(0, 0, fi_image,
-			  conf_window_width, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 上幕の描画を行う */
-	render_image_copy(0, 0, fo_image, conf_window_width, up + 1, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    up + 1,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    up + 1,
+			    255);
 
 	/* 下幕の描画を行う */
-	render_image_copy(0, down, fo_image,
-			  conf_window_width, conf_window_height - down + 1,
-			  0, down);
+	render_image_normal(0,
+			    down,
+			    conf_window_width,
+			    conf_window_height - down + 1,
+			    fo_image,
+			    0,
+			    down,
+			    conf_window_width,
+			    conf_window_height - down + 1,
+			    255);
 }
 
 /* スリット閉じフェードの描画を行う */
@@ -2906,16 +3410,40 @@ static void draw_fade_slit_close(void)
 		     (float)(conf_window_height / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎる前の背景をコピーする */
-	render_image_copy(0, 0, fo_image,
-			  conf_window_width, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 上幕の描画を行う */
-	render_image_copy(0, 0, fi_image, conf_window_width, up + 1, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    up + 1,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    up + 1,
+			    255);
 
 	/* 下幕の描画を行う */
-	render_image_copy(0, down, fi_image,
-			  conf_window_width, conf_window_height - down + 1,
-			  0, down);
+	render_image_normal(0,
+			    down,
+			    conf_window_width,
+			    conf_window_height - down + 1,
+			    fi_image,
+			    0,
+			    down,
+			    conf_window_width,
+			    conf_window_height - down + 1,
+			    255);
 }
 
 /* スリット開きフェード(垂直)の描画を行う */
@@ -2932,19 +3460,40 @@ static void draw_fade_slit_open_v(void)
 		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎた後の背景をコピーする */
-	render_image_copy(0, 0, fi_image,
-			  conf_window_width, conf_window_height,
-			  0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 左幕の描画を行う */
-	render_image_copy(0, 0, fo_image,
-			  left + 1, conf_window_height,
-			  0, 0);
+	render_image_normal(0,
+			    0,
+			    left + 1,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    left + 1,
+			    conf_window_height,
+			    255);
 
 	/* 下幕の描画を行う */
-	render_image_copy(right, 0, fo_image,
-			  conf_window_width - right + 1, conf_window_height,
-			  right, 0);
+	render_image_normal(right,
+			    0,
+			    conf_window_width - right + 1,
+			    conf_window_height,
+			    fo_image,
+			    right,
+			    0,
+			    conf_window_width - right + 1,
+			    conf_window_height,
+			    255);
 }
 
 /* スリット開きフェード(垂直)の描画を行う */
@@ -2960,29 +3509,68 @@ static void draw_fade_slit_close_v(void)
 		      (float)(conf_window_width / 2 - 1) * fi_fo_fade_progress);
 
 	/* 幕が通り過ぎる前の背景をコピーする */
-	render_image_copy(0, 0, fo_image,
-			  conf_window_width, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* 左幕の描画を行う */
-	render_image_copy(0, 0, fi_image, left + 1, conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    left + 1,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    left + 1,
+			    conf_window_height,
+			    255);
 
 	/* 下幕の描画を行う */
-	render_image_copy(right, 0, fi_image,
-			  conf_window_width - right + 1, conf_window_height,
-			  right, 0);
+	render_image_normal(right,
+			    0,
+			    conf_window_width - right + 1,
+			    conf_window_height,
+			    fi_image,
+			    right,
+			    0,
+			    conf_window_width - right + 1,
+			    conf_window_height,
+			    255);
 }
 
 /* 画面揺らしモードが有効な際のステージ描画を行う */
 static void draw_fade_shake(void)
 {
 	/* FOレイヤを描画する */
-	render_image_copy(0, 0, fo_image, conf_window_width,
-			  conf_window_height, 0, 0);
+	render_image_normal(0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    fo_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	/* FIレイヤを描画する */
-	render_image_copy(shake_offset_x, shake_offset_y,
-			  fi_image, conf_window_width,
-			  conf_window_height, 0, 0);
+	render_image_normal(shake_offset_x,
+			    shake_offset_y,
+			    conf_window_width,
+			    conf_window_height,
+			    fi_image,
+			    0,
+			    0,
+			    conf_window_width,
+			    conf_window_height,
+			    255);
 
 	if (is_auto_visible)
 		render_layer_image(LAYER_AUTO);
@@ -3345,53 +3933,33 @@ static void render_layer_image(int layer)
 	if (layer_image[layer] == NULL)
 		return;
 
-	/* 背景レイヤの場合 */
-	if (layer == LAYER_BG) {
-		render_image_copy(layer_x[layer],
-				  layer_y[layer],
-				  layer_image[layer],
-				  layer_image[layer]->width,
-				  layer_image[layer]->height,
-				  0, 0);
-		return;
-	}
-
 	/* キャラクタレイヤを暗く描画する場合 */
 	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
 	    conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
-        assert(0);
 		render_image_dim(layer_x[layer],
 				 layer_y[layer],
+				 (int)((float)layer_image[layer]->width * layer_scale_x[layer]),
+				 (int)((float)layer_image[layer]->height * layer_scale_y[layer]),
 				 layer_image[layer],
+				 0,
+				 0,
 				 layer_image[layer]->width,
 				 layer_image[layer]->height,
-				 0, 0);
+				 layer_alpha[layer]);
 		return;
 	}
 
-	/* 描画する */
+	/* それ以外の描画の場合 */
 	render_image_normal(layer_x[layer],
 			    layer_y[layer],
+			    (int)((float)layer_image[layer]->width * layer_scale_x[layer]),
+			    (int)((float)layer_image[layer]->height * layer_scale_y[layer]),
 			    layer_image[layer],
+			    0,
+			    0,
 			    layer_image[layer]->width,
 			    layer_image[layer]->height,
-			    0,
-			    0,
 			    layer_alpha[layer]);
-}
-
-static void render_layer_image_copy(int layer)
-{
-	/* 背景イメージは必ずセットされている必要がある */
-	if (layer == LAYER_BG)
-		assert(layer_image[LAYER_BG] != NULL);
-
-	render_image_copy(layer_x[layer],
-			  layer_y[layer],
-			  layer_image[layer],
-			  layer_image[layer]->width,
-			  layer_image[layer]->height,
-			  0, 0);
 }
 
 /* レイヤを描画する */
@@ -3439,8 +4007,7 @@ static void draw_layer_image(struct image *target, int layer)
 			  layer_image[layer],
 			  layer_image[layer]->width,
 			  layer_image[layer]->height,
-			  0,
-			  0,
+			  0, 0,
 			  layer_alpha[layer]);
 }
 
@@ -3456,13 +4023,28 @@ void render_fo_all_and_fi_rect(int x, int y, int w, int h)
 	assert(stage_mode == STAGE_MODE_IDLE);
 
 	/* 背景を描画する */
-	render_image_copy(0, 0, fo_image,
-			  fo_image->width,
-			  fo_image->height,
-			  0, 0);
+	render_image_normal(0,
+			    0,
+			    -1,
+			    -1,
+			    fo_image,
+			    0,
+			    0,
+			    -1,
+			    -1,
+			    255);
 
 	/* ボタンを描画する */
-	render_image_copy(x, y, fi_image, w, h, x, y);
+	render_image_normal(x,
+			    y,
+			    w,
+			    h,
+			    fi_image,
+			    x,
+			    y,
+			    w,
+			    h,
+			    255);
 }
 
 /*
@@ -3507,15 +4089,27 @@ void render_kirakira(void)
 		return;
 
 	if (conf_kirakira_on == 1) {
-		render_image_normal(kirakira_x, kirakira_y, kirakira_image[index],
-				    kirakira_image[index]->width,
-				    kirakira_image[index]->height,
-				    0, 0, 255);
+		render_image_normal(kirakira_x,
+				    kirakira_y,
+				    -1,
+				    -1,
+				    kirakira_image[index],
+				    0,
+				    0,
+				    -1,
+				    -1,
+				    255);
 	} else {
-		render_image_add(kirakira_x, kirakira_y, kirakira_image[index],
-				 kirakira_image[index]->width,
-				 kirakira_image[index]->height,
-				 0, 0, 255);
+		render_image_add(kirakira_x,
+				 kirakira_y,
+				 -1,
+				 -1,
+				 kirakira_image[index],
+				 0,
+				 0,
+				 -1,
+				 -1,
+				 255);
 	}
 }
 

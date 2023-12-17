@@ -875,6 +875,11 @@ bool run_gui_mode(void)
 	/* 入力を処理する */
 	process_input();
 
+	/* タイトルへ戻る場合 */
+	if (result_index != -1 &&
+	    button[result_index].type == TYPE_TITLE)
+		return move_to_title();
+
 	/* 画像の更新を処理する */
 	process_draw();
 
@@ -1031,11 +1036,11 @@ static void process_render(void)
 
 	/* baseをレンダリングする */
 	if (base_image != NULL)
-		render_image_normal(0, 0, base_image, base_image->width, base_image->height, 0, 0, cur_alpha);
+		render_image_normal(0, 0, -1, -1, base_image, 0, 0, -1, -1, cur_alpha);
 
 	/* GUIv2でなければidleをレンダリングする */
 	if (!is_v2)
-		render_image_normal(0, 0, idle_image, idle_image->width, idle_image->height, 0, 0, cur_alpha);
+		render_image_normal(0, 0, -1, -1, idle_image, 0, 0, -1, -1, cur_alpha);
 
 	/* 各ボタンの状態に合わせてレンダリングする */
 	for (i = 0; i < BUTTON_COUNT; i++)
@@ -1060,11 +1065,6 @@ static bool process_move(void)
 	if (result_index != -1 &&
 	    button[result_index].type == TYPE_GUI)
 		return move_to_other_gui();
-
-	/* タイトルへ戻る場合 */
-	if (result_index != -1 &&
-	    button[result_index].type == TYPE_TITLE)
-		return move_to_title();
 
 	/* キャンセルの場合 */
 	if (result_index != -1 &&
@@ -1668,13 +1668,13 @@ static void process_button_render_slider(int index)
 
 	/* ポイントされているとき、バー部分をhover画像で描画する */
 	if (index == pointed_index && !is_fading_in && !is_fading_out)
-		render_image_normal(b->x, b->y, hover_image, b->width, b->height, 0, 0,cur_alpha);
+		render_image_normal(b->x, b->y, b->width, b->height, hover_image, 0, 0, b->width, b->height, cur_alpha);
 
 	/* 描画位置を計算する */
 	x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
 
 	/* ツマミをactive画像で描画する */
-	render_image_normal(x, b->y, active_image, b->height, b->height, b->x, b->y, cur_alpha);
+	render_image_normal(x, b->y, b->height, b->height, active_image, b->x, b->y, b->height, b->height, cur_alpha);
 }
 
 /* 垂直スライダーボタンをレンダリングする */
@@ -1687,13 +1687,13 @@ static void process_button_render_slider_vertical(int index)
 
 	/* ポイントされているとき、バー部分をhover画像で描画する */
 	if (index == pointed_index && !is_fading_in && !is_fading_out)
-		render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+		render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 
 	/* 描画位置を計算する */
 	y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
 
 	/* ツマミをactive画像で描画する */
-	render_image_normal(b->x, y, active_image, b->width, b->width, b->x, b->y, cur_alpha);
+	render_image_normal(b->x, y, b->width, b->width, active_image, b->x, b->y, b->width, b->width, cur_alpha);
 }
 
 /* アクティブ化可能ボタンをレンダリングする */
@@ -1712,19 +1712,19 @@ static void process_button_render_activatable(int index)
 
 	/* ポイントされているとき、hover画像を描画する */
 	if (index == pointed_index && !is_fading_in && !is_fading_out) {
-		render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+		render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 		return;
 	}
 
 	if (!is_v2) {
 		/* コンフィグが選択されていればactive画像を描画する */
 		if (b->rt.is_active)
-			render_image_normal(b->x, b->y, active_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
 	} else {
 		if (!b->rt.is_active)
-			render_image_normal(b->x, b->y, idle_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
-			render_image_normal(b->x, b->y, active_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 }
 
@@ -1735,7 +1735,7 @@ static void process_button_render_preview(int index)
 
 	b = &button[index];
 
-	render_image_normal(b->x, b->y, b->rt.img, b->width, b->height, 0, 0, cur_alpha);
+	render_image_normal(b->x, b->y, b->width, b->height, b->rt.img, 0, 0, b->width, b->height, cur_alpha);
 }
 
 /* 一般のボタンをレンダリングする */
@@ -1748,13 +1748,13 @@ static void process_button_render_generic(int index)
 	if (!is_v2) {
 		/* GUIv1 */
 		if (index == pointed_index)
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	} else {
 		/* GUIv2 */
 		if (index != pointed_index)
-			render_image_normal(b->x, b->y, idle_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 }
 
@@ -1776,22 +1776,22 @@ static void process_button_render_gallery(int index)
 			 */
 		} else if (index != pointed_index) {
 			/* ポイントされていないとき、active画像を描画する */
-			render_image_normal(b->x, b->y, active_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
 		} else {
 			/* ポイントされているとき、hover画像を描画する */
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 		}
 	} else {
 		/* GUIv2 */
 		if (b->rt.is_disabled) {
 			/* 指定された変数が0のときはidleを描画する */
-			render_image_normal(b->x, b->y, idle_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		} else if (index != pointed_index) {
 			/* ポイントされていないとき、active画像を描画する */
-			render_image_normal(b->x, b->y, active_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
 		} else {
 			/* ポイントされているとき、hover画像を描画する */
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 		}
 	}
 }
@@ -1805,9 +1805,16 @@ static void process_button_render_namevar(int index)
 	assert(b->type == TYPE_NAMEVAR);
 
 	/* スクリーンへの描画を行う */
-	render_image_normal(button[index].x, button[index].y,
-			    button[index].rt.img, button[index].width,
-			    button[index].height, 0, 0, cur_alpha);
+	render_image_normal(button[index].x,
+			    button[index].y,
+			    button[index].width,
+			    button[index].height,
+			    button[index].rt.img,
+			    0,
+			    0,
+			    button[index].width,
+			    button[index].height,
+			    cur_alpha);
 }
 
 /*
@@ -2069,16 +2076,16 @@ static void process_button_render_save(int index)
 	if (!is_v2) {
 		/* ポイントされているときの描画を行う */
 		if (index == pointed_index)
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	} else {
 		if (index != pointed_index)
-			render_image_normal(b->x, b->y, idle_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 
 	/* サムネイルとテキストの描画を行う */
-	render_image_normal(b->x, b->y, b->rt.img, b->width, b->height, 0, 0, cur_alpha);
+	render_image_normal(b->x, b->y, b->width, b->height, b->rt.img, 0, 0, b->width, b->height, cur_alpha);
 }
 
 /*
@@ -2132,16 +2139,16 @@ static void process_button_render_history(int index)
 	if (!is_v2) {
 		/* ポイントされているときの描画を行う */
 		if (b->rt.is_active && index == pointed_index)
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	} else {
 		if (b->rt.is_active && index == pointed_index)
-			render_image_normal(b->x, b->y, hover_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
-			render_image_normal(b->x, b->y, idle_image, b->width, b->height, b->x, b->y, cur_alpha);
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 
 	/* テキストの描画を行う */
-	render_image_normal(b->x, b->y, b->rt.img, b->width, b->height, 0, 0, cur_alpha);
+	render_image_normal(b->x, b->y, b->width, b->height, b->rt.img, 0, 0, b->width, b->height, cur_alpha);
 }
 
 /* すべてのヒストリのスロットを描画する */

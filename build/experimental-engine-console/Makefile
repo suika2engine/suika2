@@ -75,10 +75,8 @@ LDFLAGS = \
 
 include ../common.mk
 
-SRCS = \
-	$(SRCS_MAIN) \
-	../../src/consolemain.c \
-	../../src/glrender.c
+SRCS_KHRONOS = ../../src/khronos/glrender.c
+SRCS_ECTRA = ../../src/extra/consolemain.c
 
 all: $(TARGET).nro
 
@@ -86,7 +84,16 @@ all: $(TARGET).nro
 # .c.o compilation rules
 #
 
-OBJS = $(SRCS:../../src/%.c=%.o)
+OBJS = \
+	$(SRCS_KHRONOS:../../src/khronos/%.c=%.o) \
+	$(SRCS_EXTRA:../../src/extra/%.c=%.o) \
+	$(SRCS_MAIN:../../src/%.c=%.o)
+
+%.o: ../../src/khronos/%.c
+	$(CC) -c $(INCLUDES) $(CFLAGS) $<
+
+%.o: ../../src/extra/%.c
+	$(CC) -c $(INCLUDES) $(CFLAGS) $<
 
 %.o: ../../src/%.c
 	$(CC) -c $(INCLUDES) $(CFLAGS) $<

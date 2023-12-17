@@ -62,12 +62,6 @@ static bool is_in_repetition;
 /* メッセージの表示中状態であるか */
 static bool flag_message_active;
 
-/* menuコマンドが完了したばかりであるか */
-static bool flag_menu_finished;
-
-/* retrospectコマンドが完了したばかりであるか */
-static bool flag_retrospect_finished;
-
 /* オートモードが実行中であるか */
 static bool flag_auto_mode;
 
@@ -131,15 +125,10 @@ void init_game_loop(void)
 	is_mouse_dragging = false;
 	is_in_repetition = false;
 	flag_message_active = false;
-	flag_menu_finished = false;
-	flag_retrospect_finished = false;
 	flag_auto_mode = false;
 	flag_save_load_enabled = true;
 	flag_non_interruptible = false;
 
-	/* Android NDK用に状態を初期化する */
-	check_menu_finish_flag();
-	check_retrospect_finish_flag();
 #endif
 
 	srand((unsigned int)time(NULL));
@@ -632,48 +621,6 @@ void clear_message_active(void)
 bool is_message_active(void)
 {
 	return flag_message_active;
-}
-
-/*
- * メニューコマンドが完了したばかりであることを記憶する
- */
-void set_menu_finish_flag(void)
-{
-	flag_menu_finished = true;
-}
-
-/*
- * メニューコマンドが完了したばかりであるかをチェックする
- */
-bool check_menu_finish_flag(void)
-{
-	bool ret;
-
-	ret = flag_menu_finished;
-	flag_menu_finished = false;
-
-	return ret;
-}
-
-/*
- * 回想コマンドが完了したばかりであることを記憶する
- */
-void set_retrospect_finish_flag(void)
-{
-	flag_retrospect_finished = true;
-}
-
-/*
- * 回想コマンドが完了したばかりであるかをチェックする
- */
-bool check_retrospect_finish_flag(void)
-{
-	bool ret;
-
-	ret = flag_retrospect_finished;
-	flag_retrospect_finished = false;
-
-	return ret;
 }
 
 /*

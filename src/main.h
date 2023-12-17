@@ -89,8 +89,6 @@ bool set_command(void);
 bool if_command(void);
 bool select_command(void);
 bool se_command(void);
-bool menu_command(void);
-bool retrospect_command(void);
 bool switch_command(void);
 bool gosub_command(void);
 bool return_command(void);
@@ -126,15 +124,6 @@ bool is_in_command_repetition(void);
 void set_message_active(void);
 void clear_message_active(void);
 bool is_message_active(void);
-
-/*
- * コマンドが終了した直後であるかのチェック
- */
-
-void set_menu_finish_flag(void);
-bool check_menu_finish_flag(void);
-void set_retrospect_finish_flag(void);
-bool check_retrospect_finish_flag(void);
 
 /*
  * オートモードの設定

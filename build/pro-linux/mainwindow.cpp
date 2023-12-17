@@ -781,38 +781,81 @@ void notify_image_free(struct image *img)
 }
 
 //
-// Render an image to screen using copy shader.
+// Render an image to screen using normal shader.
 //
-void render_image_copy(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                       int width, int height, int src_left, int src_top)
+void render_image_normal(int dst_left,
+                         int dst_top,
+                         int dst_width,
+                         int dst_height,
+                         struct image *src_image,
+                         int src_left,
+                         int src_top,
+                         int src_width,
+                         int src_height,
+                         int alpha)
 {
-    opengl_render_image_copy(dst_left, dst_top, src_image, width, height, src_left, src_top);
+    opengl_render_image_normal(dst_left,
+                               dst_top,
+                               dst_width,
+                               dst_height,
+                               src_image,
+                               src_left,
+                               src_top,
+                               src_width,
+                               src_height,
+                               alpha);
 }
 
 //
 // Render an image to screen using normal shader.
 //
-void render_image_normal(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                         int width, int height, int src_left, int src_top, int alpha)
+void render_image_add(int dst_left,
+                      int dst_top,
+                      int dst_width,
+                      int dst_height,
+                      struct image *src_image,
+                      int src_left,
+                      int src_top,
+                      int src_width,
+                      int src_height,
+                      int alpha)
 {
-    opengl_render_image_normal(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
-}
-
-//
-// Render an image to screen using normal shader.
-//
-void render_image_add(int dst_left, int dst_top, struct image * RESTRICT src_image,
-                      int width, int height, int src_left, int src_top, int alpha)
-{
-    opengl_render_image_add(dst_left, dst_top, src_image, width, height, src_left, src_top, alpha);
+    opengl_render_image_add(dst_left,
+                            dst_top,
+                            dst_width,
+                            dst_height,
+                            src_image,
+                            src_left,
+                            src_top,
+                            src_width,
+                            src_height,
+                            alpha);
 }
 
 //
 // Render an image to screen with dim shader.
 //
-void render_image_dim(int dst_left, int dst_top, struct image *src_image, int width, int height, int src_left, int src_top)
+void render_image_dim(int dst_left,
+                      int dst_top,
+                      int dst_width,
+                      int dst_height,
+                      struct image *src_image,
+                      int src_left,
+                      int src_top,
+                      int src_width,
+                      int src_height,
+                      int alpha)
 {
-    opengl_render_image_dim(dst_left, dst_top, src_image, width, height, src_left, src_top);
+    opengl_render_image_dim(dst_left,
+                            dst_top,
+                            dst_width,
+                            dst_height,
+                            src_image,
+                            src_left,
+                            src_top,
+                            src_width,
+                            src_height,
+                            alpha);
 }
 
 //
@@ -826,11 +869,9 @@ void render_image_rule(struct image *src_img, struct image *rule_img, int thresh
 //
 // Render an image to screen with melt shader.
 //
-void render_image_melt(struct image * RESTRICT src_img,
-		       struct image * RESTRICT rule_img,
-		       int threshold)
+void render_image_melt(struct image *src_img, struct image *rule_img, int progress)
 {
-    opengl_render_image_melt(src_img, rule_img, threshold);
+    opengl_render_image_melt(src_img, rule_img, progress);
 }
 
 //
@@ -838,26 +879,12 @@ void render_image_melt(struct image * RESTRICT src_img,
 //
 bool make_sav_dir(void)
 {
-#if defined(OSX)
-    QDir qdir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
-    qdir.cdUp(); // dir points to /XXX/suika.app/Contents
-    qdir.cdUp(); // dir points to /XXX/suika.app
-    qdir.cdUp(); // dir points to /XXX
-    QString path = qdir.currentPath() + QString("/") + QString(SAVE_DIR);
-    if (QDir(path).exists())
-        return true;
-    QDir mdir;
-    if (!mdir.mkdir(path))
-        return false;
-    return true;
-#else
     if (QDir(SAVE_DIR).exists())
         return true;
     QDir qdir;
     if (!qdir.mkdir(SAVE_DIR))
         return false;
     return true;
-#endif
 }
 
 //
@@ -865,36 +892,6 @@ bool make_sav_dir(void)
 //
 char *make_valid_path(const char *dir, const char *fname)
 {
-#if defined(OSX)
-    QDir qdir(QCoreApplication::applicationDirPath()); // dir points to /XXX/suika.app/Contents/MacOS
-    qdir.cdUp(); // dir points to /XXX/suika.app/Contents
-    qdir.cdUp(); // dir points to /XXX/suika.app
-    qdir.cdUp(); // dir points to /XXX
-    QString path = qdir.currentPath();
-    if (dir != NULL)
-        path += QString("/") + QString(dir);
-    if (fname != NULL)
-        path += QString("/") + QString(fname);
-    char *ret = strdup(path.toUtf8().data());
-    if (ret == NULL) {
-        log_memory();
-        return NULL;
-    }
-    return ret;
-#elif defined(SUIKA_TARGET_WIN32)
-    QDir qdir(QCoreApplication::applicationDirPath());
-    QString path = qdir.currentPath();
-    if (dir != NULL)
-        path += QString("\\") + QString(dir);
-    if (fname != NULL)
-        path += QString("\\") + QString(fname);
-    char *ret = strdup(path.toUtf8().data());
-    if (ret == NULL) {
-        log_memory();
-        return NULL;
-    }
-    return ret;
-#else
     QDir qdir(QCoreApplication::applicationDirPath());
     QString path = qdir.currentPath();
     if (dir != NULL)
@@ -907,7 +904,6 @@ char *make_valid_path(const char *dir, const char *fname)
         return NULL;
     }
     return ret;
-#endif
 }
 
 //

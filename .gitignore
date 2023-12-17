@@ -56,6 +56,7 @@ build/engine-windows-vs2022/obj
 build/engine-windows-vs2022/Debug
 build/engine-windows-vs2022/Release
 build/engine-windows-vs2022/ARM64
+build/engine-windows-vs2022/x64
 
 # macOS
 build/engine-macos/engine-macos.xcodeproj/project.xcworkspace
@@ -72,10 +73,14 @@ build/engine-wasm/data01.arc
 
 # iOS
 build/engine-ios/libroot
-build/engine-ios/suika.xcodeproj/project.xcworkspace
-build/engine-ios/suika.xcodeproj/xcuserdata
+build/engine-ios/engine-ios.xcodeproj/project.xcworkspace
+build/engine-ios/engine-ios.xcodeproj/xcshareddata
+build/engine-ios/engine-ios.xcodeproj/cuserdata
+build/engine-ios/engine-ios.xcodeproj/xcuserdata
+build/engine-ios/engine-ios/data01.arc
 build/engine-ios/ios-src
 build/engine-ios/libroot-ios.tar.gz
+build/engine-ios/build
 
 # Android
 build/engine-android/.idea/caches
@@ -98,6 +103,20 @@ build/engine-linux/suika
 # Pro
 #
 
+# Windows
+build/pro-windows-vs2022/.vs/
+build/pro-windows-vs2022/Debug/
+build/pro-windows-vs2022/bzip2/
+build/pro-windows-vs2022/freetype/
+build/pro-windows-vs2022/jpeg/
+build/pro-windows-vs2022/libogg/
+build/pro-windows-vs2022/libpng/
+build/pro-windows-vs2022/libvorbis/
+build/pro-windows-vs2022/libwebp/
+build/pro-windows-vs2022/obj/
+build/pro-windows-vs2022/x64/
+build/pro-windows-vs2022/zlib/
+
 # macOS
 build/pro-macos/pro-macos.xcodeproj/project.xcworkspace
 build/pro-macos/pro-macos.xcodeproj/xcshareddata
@@ -107,6 +126,15 @@ build/pro-macos/libroot-mac.tar.gz
 build/pro-macos/build/
 build/pro-macos/tmp/
 build/pro-macos/suika2.dmg
+
+# iOS
+build/pro-ios/pro-ios.xcodeproj/project.xcworkspace
+build/pro-ios/pro-ios.xcodeproj/xcshareddata
+build/pro-ios/pro-ios.xcodeproj/cuserdata
+build/pro-ios/pro-ios.xcodeproj/xcuserdata
+build/pro-ios/libroot-ios.tar.gz
+build/pro-ios/build/
+build/pro-ios/tmp/
 
 # Linux
 build/pro-linux/deps

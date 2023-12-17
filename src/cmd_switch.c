@@ -199,9 +199,10 @@ static bool is_quick_load_failed;
  */
 
 /* 主な処理 */
-static void preprocess(void);
-static void main_process(void);
-static bool postprocess(void);
+static void pre_process(void);
+static bool blit_process(void);
+static void render_process(void);
+static bool post_process(void);
 
 /* 初期化 */
 static bool init(void);
@@ -239,16 +240,12 @@ bool switch_command(void)
 		if (!init())
 			return false;
 
-	/* 前処理として、入力を受け付ける */
-	preprocess();
+	pre_process();
 	if (is_quick_load_failed)
 		return false;
-
-	/* メイン処理として、描画を行う */
-	main_process();
-
-	/* 後処理として、遷移を処理する */
-	if (!postprocess())
+	blit_process();
+	render_process();
+	if (!post_process())
 		return false;
 
 	/* 終了処理を行う */
@@ -259,8 +256,7 @@ bool switch_command(void)
 	return true;
 }
 
-/* 前処理として、入力を受け付ける */
-static void preprocess(void)
+static void pre_process(void)
 {
 	/* システムメニューが表示されていない場合 */
 	if (!is_sysmenu) {
@@ -272,38 +268,9 @@ static void preprocess(void)
 	process_sysmenu_input();
 }
 
-/* メイン処理として、描画を行う */
-static void main_process(void)
-{
-	/*
-	 * クイックロードされた場合は描画を行わない
-	 *  - 同じフレームで、ロード後のコマンドが実行されるため
-	 */
-	if (did_quick_load)
-		return;
-
-	/* 描画を行う */
-	render_frame();
-
-	/* システムメニューの表示完了直後のフラグをクリアする */
-	is_sysmenu_finished = false;
-}
-
-/* 後処理として、遷移を処理する */
-static bool postprocess(void)
+static bool blit_process(void)
 {
 	int i;
-
-	/*
-	 * 必要な場合は繰り返し動作を停止する
-	 *  - クイックロードされたとき
-	 *  - システムGUIに遷移するとき
-	 */
-	if (did_quick_load
-	    ||
-	    (need_save_mode || need_load_mode || need_history_mode ||
-	     need_config_mode))
-		stop_command_repetition();
 
 	/*
 	 * 必要な場合はステージのサムネイルを作成する
@@ -317,12 +284,16 @@ static bool postprocess(void)
 		draw_stage_to_thumb();
 		if (selected_parent_index == -1) {
 			for (i = 0; i < PARENT_COUNT; i++) {
+				if (parent_button[i].img_idle == NULL)
+					continue;
 				draw_switch_to_thumb(parent_button[i].img_idle,
 						     parent_button[i].x,
 						     parent_button[i].y);
 			}
 		} else {
 			for (i = 0; i < CHILD_COUNT; i++) {
+				if (child_button[selected_parent_index][i].img_idle == NULL)
+					continue;
 				draw_switch_to_thumb(child_button[selected_parent_index][i].img_idle,
 						     child_button[selected_parent_index][i].x,
 						     child_button[selected_parent_index][i].y);
@@ -330,11 +301,7 @@ static bool postprocess(void)
 		}
 	}
 
-	/* システムメニューで押されたボタンの処理を行う */
-	if (will_quick_save) {
-		quick_save();
-		will_quick_save = false;
-	} else if (need_save_mode) {
+	 if (need_save_mode) {
 		if (!prepare_gui_mode(SAVE_GUI_FILE, true))
 			return false;
 		set_gui_options(true, false, false);
@@ -355,6 +322,43 @@ static bool postprocess(void)
 		set_gui_options(true, false, false);
 		start_gui_mode();
 	}
+
+	 return true;
+}
+
+static void render_process(void)
+{
+	/* レンダリングを行わない場合 */
+	if (did_quick_load
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode || need_config_mode))
+		return;
+
+	/* レンダリングを行う */
+	render_frame();
+
+	/* システムメニューの表示完了直後のフラグをクリアする */
+	is_sysmenu_finished = false;
+}
+
+static bool post_process(void)
+{
+	/* システムメニューで押されたボタンの処理を行う */
+	if (will_quick_save) {
+		quick_save();
+		will_quick_save = false;
+	}
+
+	/*
+	 * 必要な場合は繰り返し動作を停止する
+	 *  - クイックロードされたとき
+	 *  - システムGUIに遷移するとき
+	 */
+	if (did_quick_load
+	    ||
+	    (need_save_mode || need_load_mode || need_history_mode ||
+	     need_config_mode))
+		stop_command_repetition();
 
 	return true;
 }
@@ -378,6 +382,7 @@ bool init(void)
 	is_sysmenu = false;
 	is_sysmenu_first_frame = false;
 	is_sysmenu_finished = false;
+	is_collapsed_sysmenu_pointed_prev = false;
 
 	will_quick_save = false;
 	did_quick_load = false;
@@ -665,6 +670,20 @@ static bool init_switch(void)
 		if (parent_button[i].img_hover == NULL)
 			return false;
 		draw_switch_fg_image(parent_button[i].img_hover, i);
+
+		/* テキストを描画する */
+		draw_text(parent_button[i].img_idle,
+			  parent_button[i].msg,
+			  parent_button[i].w,
+			  parent_button[i].h,
+			  true,
+			  false);
+		draw_text(parent_button[i].img_hover,
+			  parent_button[i].msg,
+			  parent_button[i].w,
+			  parent_button[i].h,
+			  false,
+			  false);
 
 		parent_button_count++;
 	}
@@ -1217,27 +1236,35 @@ static void render_frame(void)
 		for (i = 0; i < PARENT_COUNT; i++) {
 			struct image *img = i != pointed_index && i != -1?
 				parent_button[i].img_idle : parent_button[i].img_hover;
-            if (img == NULL)
-                return;
-            render_image_normal(parent_button[i].x,
+			if (img == NULL)
+				break;
+			render_image_normal(parent_button[i].x,
 					    parent_button[i].y,
-					    img,
 					    img->width,
 					    img->height,
-					    0, 0, 255);
+					    img,
+					    0,
+					    0,
+					    img->width,
+					    img->height,
+					    255);
 		}
 	} else {
 		for (i = 0; i < CHILD_COUNT; i++) {
 			struct image *img = i != pointed_index && i != -1 ?
 				child_button[selected_parent_index][i].img_idle : parent_button[i].img_hover;
-            if (img == NULL)
-                return;
-            render_image_normal(child_button[selected_parent_index][i].x,
+			if (img == NULL)
+				break;
+			render_image_normal(child_button[selected_parent_index][i].x,
 					    child_button[selected_parent_index][i].y,
-					    img,
 					    img->width,
 					    img->height,
-					    0, 0, 255);
+					    img,
+					    0,
+					    0,
+					    img->width,
+					    img->height,
+					    255);
 		}
 	}
 

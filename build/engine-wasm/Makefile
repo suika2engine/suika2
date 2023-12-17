@@ -1,6 +1,9 @@
 SHELL=/bin/bash
 
 SRC = \
+	../../src/wasm/emmain.c \
+	../../src/wasm/emopenal.c \
+	../../src/khronos/glrender.c \
 	../../src/anime.c \
 	../../src/cmd_anime.c \
 	../../src/cmd_bg.c \
@@ -31,10 +34,8 @@ SRC = \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c \
 	../../src/conf.c \
-	../../src/emopenal.c \
 	../../src/event.c \
 	../../src/file.c \
-	../../src/glrender.c \
 	../../src/glyph.c \
 	../../src/gui.c \
 	../../src/history.c \
@@ -55,8 +56,7 @@ SRC = \
 	../../src/wms_core.c \
 	../../src/wms_impl.c \
 	../../src/wms_lexer.yy.c \
-	../../src/wms_parser.tab.c \
-	../../src/emmain.c
+	../../src/wms_parser.tab.c
 
 all: html
 

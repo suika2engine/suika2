@@ -222,20 +222,10 @@ extern int conf_news_text_margin_y;
 extern char *conf_news_change_se;
 
 /*
- * 回想画面(@retrospect)の設定
- */
-extern char *conf_retrospect_change_se;
-
-/*
  * セーブ・ロード画面の設定
  */
 extern int conf_save_data_thumb_width;
 extern int conf_save_data_thumb_height;
-
-/*
- * メニュー(@menu)の設定
- */
-extern char *conf_menu_change_se;
 
 /* 
  * システムメニューの設定

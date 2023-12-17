@@ -108,58 +108,55 @@ void notify_image_free(struct image *img);
  *************/
 
 /*
- * Renders an image to the screen with the "copy" shader pipeline.
- *  - The "copy" shader pipeline renders pixels without alpha blending.
+ * Renders an image to the screen with the "normal" shader pipeline.
+ *  - The "normal" shader pipeline renders pixels with alpha blending
  */
 void
-render_image_copy(int dst_left,			/* X coordinate of the screen */
-		  int dst_top,			/* Y coordinate of the screen */
-		  struct image *src_image,	/* [IN] an image to be rendered */
-		  int width,			/* width of a drawing rectangle */
-		  int height			/* height of a drawing rectangle */,
-		  int src_left,			/* X coordinate of a source image */
-		  int src_top);			/* Y coordinate of a source image */
+render_image_normal(
+	int dst_left,			/* The X coordinate of the screen */
+	int dst_top,			/* The Y coordinate of the screen */
+	int dst_width,			/* The width of the destination rectangle */
+	int dst_height,			/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] The image to be rendered */
+	int src_left,			/* The X coordinate of a source image */
+	int src_top,			/* The Y coordinate of a source image */
+	int src_width,			/* The width of the source rectangle */
+	int src_height,			/* The height of the source rectangle */
+	int alpha);			/* The alpha value (0 to 255) */
 
 /*
  * Renders an image to the screen with the "normal" shader pipeline.
  *  - The "normal" shader pipeline renders pixels with alpha blending
  */
 void
-render_image_normal(int dst_left,		/* X coordinate of the screen */
-		    int dst_top,		/* Y coordinate of the screen */
-		    struct image *src_image,	/* [IN] an image to be rendered */
-		    int width,			/* width of a drawing rectangle */
-		    int height			/* height of a drawing rectangle */,
-		    int src_left,		/* X coordinate of a source image */
-		    int src_top,		/* Y coordinate of a source image */
-		    int alpha);			/* alpha value (0 to 255) */
-
-/*
- * Renders an image to the screen with the "normal" shader pipeline.
- *  - The "normal" shader pipeline renders pixels with alpha blending
- */
-void
-render_image_add(int dst_left,			/* X coordinate of the screen */
-		 int dst_top,			/* Y coordinate of the screen */
-		 struct image *src_image,	/* [IN] an image to be rendered */
-		 int width,			/* width of a drawing rectangle */
-		 int height			/* height of a drawing rectangle */,
-		 int src_left,			/* X coordinate of a source image */
-		 int src_top,			/* Y coordinate of a source image */
-		 int alpha);			/* alpha value (0 to 255) */
+render_image_add(
+	int dst_left,			/* The X coordinate of the screen */
+	int dst_top,			/* The Y coordinate of the screen */
+	int dst_width,			/* The width of the destination rectangle */
+	int dst_height,			/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] The image to be rendered */
+	int src_left,			/* The X coordinate of a source image */
+	int src_top,			/* The Y coordinate of a source image */
+	int src_width,			/* The width of the source rectangle */
+	int src_height,			/* The height of the source rectangle */
+	int alpha);			/* The alpha value (0 to 255) */
 
 /*
  * Renders an image to the screen with the "dim" shader pipeline.
  *  - The "dim" shader pipeline renders pixels at 50% values for each RGB component
  */
 void
-render_image_dim(int dst_left,			/* X coordinate of the screen */
-		 int dst_top,			/* Y coordinate of the screen */
-		 struct image *src_image,	/* [IN] an image to be rendered */
-		 int width,			/* width of a drawing rectangle */
-		 int height			/* height of a drawing rectangle */,
-		 int src_left,			/* X coordinate of a source image */
-		 int src_top);			/* Y coordinate of a source image */
+render_image_dim(
+	int dst_left,			/* The X coordinate of the screen */
+	int dst_top,			/* The Y coordinate of the screen */
+	int dst_width,			/* The width of the destination rectangle */
+	int dst_height,			/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] The image to be rendered */
+	int src_left,			/* The X coordinate of a source image */
+	int src_top,			/* The Y coordinate of a source image */
+	int src_width,			/* The width of the source rectangle */
+	int src_height,			/* The height of the source rectangle */
+	int alpha);			/* The alpha value (0 to 255) */
 
 /*
  * Renders an image to the screen with the "rule" shader pipeline.
@@ -167,18 +164,20 @@ render_image_dim(int dst_left,			/* X coordinate of the screen */
  *  - A rule image must have the same size as the screen
  */
 void
-render_image_rule(struct image *src_img,	/* [IN] a source image */
-		  struct image *rule_img,	/* [IN] a rule image */
-		  int threshold);		/* threshold (0 to 255) */
+render_image_rule(
+	struct image *src_img,	/* [IN] The source image */
+	struct image *rule_img,	/* [IN] The rule image */
+	int threshold);		/* The threshold (0 to 255) */
 
 /*
  * Renders an image to the screen with the "melt" shader pipeline.
  *  - The "melt" shader pipeline is a variation of "universal transition" with a progress value
  *  - A rule image must have the same size as the screen
  */
-void render_image_melt(struct image *src_img,	/* [IN] a source image */
-		       struct image *rule_img,	/* [IN] a rule image */
-		       int progress);		/* progress (0 to 255) */
+void render_image_melt(
+	struct image *src_img,	/* [IN] The source image */
+	struct image *rule_img,	/* [IN] The rule image */
+	int progress);		/* The progress (0 to 255) */
 
 /*************
  * Lap Timer *

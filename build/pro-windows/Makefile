@@ -60,14 +60,12 @@ LDFLAGS = \
 #
 
 SRCS_C = \
-	$(SRCS_MAIN) \
-	$(SRCS_PRO) \
-	../../src/winpro.c \
-	../../src/dsound.c
+	../../src/microsoft/winpro.c \
+	../../src/microsoft/dsound.c
 
 SRCS_CC = \
-	../../src/d3drender.cc \
-	../../src/dsvideo.cc
+	../../src/microsoft/d3drender.cc \
+	../../src/microsoft/dsvideo.cc
 
 SRCS_R = resource.rc
 
@@ -76,15 +74,20 @@ SRCS_R = resource.rc
 #
 
 OBJS = \
-	$(SRCS_C:../../src/%.c=%.o) \
-	$(SRCS_CC:../../src/%.cc=%.o) \
+	$(SRCS_C:../../src/microsoft/%.c=%.o) \
+	$(SRCS_CC:../../src/microsoft/%.cc=%.o) \
+	$(SRCS_MAIN:../../src/%.c=%.o) \
+	$(SRCS_PRO:../../src/%.c=%.o) \
 	$(SRCS_R:%.rc=%.o)
+
+%.o: ../../src/microsoft/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+%.o: ../../src/microsoft/%.cc
+	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
 %.o: ../../src/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
-
-%.o: ../../src/%.cc
-	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 
 %.o: %.rc
 	$(WINDRES) -DUSE_EDITOR $< $@

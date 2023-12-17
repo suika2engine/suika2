@@ -57,9 +57,6 @@
     <ClCompile Include="..\..\src\cmd_wait.c" />
     <ClCompile Include="..\..\src\cmd_wms.c" />
     <ClCompile Include="..\..\src\conf.c" />
-    <ClCompile Include="..\..\src\d3drender.cc" />
-    <ClCompile Include="..\..\src\dsound.c" />
-    <ClCompile Include="..\..\src\dsvideo.cc" />
     <ClCompile Include="..\..\src\event.c" />
     <ClCompile Include="..\..\src\file.c" />
     <ClCompile Include="..\..\src\glyph.c" />
@@ -68,6 +65,11 @@
     <ClCompile Include="..\..\src\image.c" />
     <ClCompile Include="..\..\src\log.c" />
     <ClCompile Include="..\..\src\main.c" />
+    <ClCompile Include="..\..\src\microsoft\d3drender.cc" />
+    <ClCompile Include="..\..\src\microsoft\dsound.c" />
+    <ClCompile Include="..\..\src\microsoft\dsvideo.cc" />
+    <ClCompile Include="..\..\src\microsoft\tts_sapi.cc" />
+    <ClCompile Include="..\..\src\microsoft\winpro.c" />
     <ClCompile Include="..\..\src\mixer.c" />
     <ClCompile Include="..\..\src\package.c" />
     <ClCompile Include="..\..\src\readimage.c" />
@@ -79,12 +81,9 @@
     <ClCompile Include="..\..\src\script.c" />
     <ClCompile Include="..\..\src\seen.c" />
     <ClCompile Include="..\..\src\stage.c" />
-    <ClCompile Include="..\..\src\tts_sapi.cc" />
     <ClCompile Include="..\..\src\uimsg.c" />
     <ClCompile Include="..\..\src\vars.c" />
     <ClCompile Include="..\..\src\wave.c" />
-    <ClCompile Include="..\..\src\winmain.c" />
-    <ClCompile Include="..\..\src\winpro.c" />
     <ClCompile Include="..\..\src\wms_core.c" />
     <ClCompile Include="..\..\src\wms_impl.c" />
     <ClCompile Include="..\..\src\wms_lexer.yy.c">
