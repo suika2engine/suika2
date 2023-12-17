@@ -79,26 +79,26 @@
                                         <rect key="frame" x="20" y="128" width="384" height="515"/>
                                         <autoresizingMask key="autoresizingMask" heightSizable="YES" flexibleMaxY="YES"/>
                                         <clipView key="contentView" drawsBackground="NO" id="ch8-tk-BbV">
-                                            <rect key="frame" x="0.0" y="0.0" width="369" height="515"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="384" height="515"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView wantsLayer="YES" importsGraphics="NO" verticallyResizable="YES" findStyle="bar" incrementalSearchingEnabled="YES" allowsDocumentBackgroundColorChange="YES" allowsUndo="YES" smartInsertDelete="YES" id="QzS-Gc-TNo" customClass="ScriptTextView">
-                                                    <rect key="frame" x="0.0" y="0.0" width="369" height="515"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="384" height="515"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <size key="minSize" width="369" height="515"/>
+                                                    <size key="minSize" width="384" height="515"/>
                                                     <size key="maxSize" width="389" height="10000000"/>
                                                     <color key="insertionPointColor" name="textInsertionPointColor" catalog="System" colorSpace="catalog"/>
                                                 </textView>
                                             </subviews>
                                         </clipView>
-                                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="JEF-qS-5XL">
+                                        <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="JEF-qS-5XL">
                                             <rect key="frame" x="-100" y="-100" width="225" height="15"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
-                                        <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="OxO-Dc-Mec">
-                                            <rect key="frame" x="369" y="0.0" width="15" height="515"/>
+                                        <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="OxO-Dc-Mec">
+                                            <rect key="frame" x="368" y="0.0" width="16" height="515"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>

@@ -790,76 +790,37 @@ void on_change_running_state(bool running, bool request_stop)
 // 停止によりコマンドの完了を待機中のときのビューの状態を設定する
 static void setWaitingState(void)
 {
-    // 続けるボタンを無効にする
-    [theViewController setResumeButton:NO];
-
-    // 次へボタンを無効にする
-    [theViewController setNextButton:NO];
-
-    // 停止ボタンを無効にする
-    [theViewController setStopButton:NO];
-
-    // スクリプト選択ボタンを無効にする
-    [theViewController enableOpenScriptButton:NO];
-
-    // スクリプトのテキストボックスを有効にする
-    [theViewController enableScriptTextView:NO];
-
-    // 変数のテキストボックスを無効にする
-    [theViewController enableVariableTextView:NO];
-
-    // 変数の書き込みボタンを無効にする
-    [theViewController enableVariableUpdateButton:NO];
+    theViewController.buttonContinue.enabled = NO;
+    theViewController.buttonNext.enabled = NO;
+    theViewController.buttonStop.enabled = NO;
+    theViewController.buttonOpenScript.enabled = NO;
+    theViewController.textViewScript.editable = NO;
+    theViewController.textFieldVariables.enabled = NO;
+    theViewController.buttonUpdateVariables.enabled = NO;
 }
 
 // 実行中のときのビューの状態を設定する
 static void setRunningState(void)
 {
-    // 続けるボタンを無効にする
-    [theViewController setResumeButton:NO];
-
-    /* 次へボタンを無効にする */
-    [theViewController setNextButton:NO];
-
-    /* 停止ボタンを有効にする */
-    [theViewController setStopButton:TRUE];
-
-    // スクリプトを開くボタンを無効にする
-    [theViewController enableOpenScriptButton:NO];
-
-    // スクリプトのテキストボックスを有効にする
-    [theViewController.textViewScript setEditable:YES];
-
-    // 変数のテキストボックスを無効にする
-    [theViewController enableVariableTextView:NO];
-
-    // 変数の書き込みボタンを無効にする
-    [theViewController enableVariableUpdateButton:NO];
+    theViewController.buttonContinue.enabled = NO;
+    theViewController.buttonNext.enabled = NO;
+    theViewController.buttonStop.enabled = YES;
+    theViewController.buttonOpenScript.enabled = NO;
+    theViewController.textViewScript.editable = NO;
+    theViewController.textFieldVariables.enabled = NO;
+    theViewController.buttonUpdateVariables.enabled = NO;
 }
 
 // 完全に停止中のときのビューの状態を設定する
 static void setStoppedState(void)
 {
-    // 続けるボタンを有効にする
-    [theViewController setResumeButton:YES];
-
-    // 次へボタンを有効にする
-    [theViewController setNextButton:YES];
-
-    // 停止ボタンを無効にする
-    [theViewController setStopButton:NO];
-
-    // スクリプト選択ボタンを有効にする
-    [theViewController enableOpenScriptButton:YES];
-
-    // スクリプトのテキストボックスを有効にする
-    [theViewController enableScriptTextView:YES];
-
-    // 変数のテキストボックスを有効にする
-    [theViewController enableVariableTextView:YES];
-
-    // 変数の書き込みボタンを有効にする
-    [theViewController enableVariableUpdateButton:YES];
+    theViewController.buttonContinue.enabled = YES;
+    theViewController.buttonNext.enabled = YES;
+    theViewController.buttonStop.enabled = NO;
+    theViewController.buttonOpenScript.enabled = YES;
+    theViewController.textViewScript.editable = YES;
+    theViewController.textFieldVariables.enabled = YES;
+    theViewController.buttonUpdateVariables.enabled = YES;
 }
 
 void on_load_script(void)
