@@ -893,6 +893,7 @@ static void process_main_input(void)
 		    child_button[selected_parent_index][new_pointed_index].msg != NULL) {
 			speak_text(NULL);
 			speak_text(child_button[selected_parent_index][pointed_index].msg);
+			selected_parent_index = new_pointed_index;
 		}
 	}
 	if (new_pointed_index != -1 &&
