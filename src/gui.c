@@ -1068,8 +1068,10 @@ static bool process_move(void)
 
 	/* キャンセルの場合 */
 	if (result_index != -1 &&
-	    button[result_index].type == TYPE_CANCEL)
-		stop_command_repetition();
+	    button[result_index].type == TYPE_CANCEL) {
+		if (is_in_command_repetition())
+			stop_command_repetition();
+	}
 
 	/* GUIモードを終了する */
 	stop_gui_mode();

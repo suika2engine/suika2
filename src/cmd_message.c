@@ -2915,9 +2915,6 @@ static void blit_dimming(void)
 	/* コンフィグでdimmingが有効 */
 	assert(conf_msgbox_dim);
 
-	/* 次のコマンドに移るときだけdimmingする */
-	assert(!is_in_command_repetition());
-
 	/* システムGUIに移行するときにはdimmingしない */
 	assert(!did_quick_load);
 	assert(!need_save_mode);
@@ -2927,9 +2924,9 @@ static void blit_dimming(void)
 
 	/* dimming用の文字色を求める */
 	body_color = make_pixel(0xff,
-				     (uint32_t)conf_msgbox_dim_color_r,
-				     (uint32_t)conf_msgbox_dim_color_g,
-				     (uint32_t)conf_msgbox_dim_color_b);
+				(uint32_t)conf_msgbox_dim_color_r,
+				(uint32_t)conf_msgbox_dim_color_g,
+				(uint32_t)conf_msgbox_dim_color_b);
 	body_outline_color = make_pixel(0xff,
 					(uint32_t)conf_msgbox_dim_color_outline_r,
 					(uint32_t)conf_msgbox_dim_color_outline_g,
