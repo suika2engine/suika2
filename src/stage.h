@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -19,6 +19,7 @@
  *  - 2023-09-03 キラキラエフェクトを追加
  *  - 2023-09-14 テキスト・エフェクトレイヤを追加、描画処理を整理
  *  - 2023-10-10 エフェクトレイヤを移動/追加
+ *  - 2023-12-16 スケーリング対応
  */
 
 /*

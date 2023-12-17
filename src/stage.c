@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -28,9 +28,7 @@
  *  - 2023-08-29 @chsxを追加
  *  - 2023-09-14 テキストレイヤ、エフェクトレイヤを追加
  *  - 2023-09-18 リファクタリング
- *
- * [検討中]
- *  - スケールと回転のサポート
+ *  - 2023-12-16 スケーリング対応
  */
 
 #include "suika.h"
@@ -1261,13 +1259,14 @@ void render_sysmenu(bool is_auto_enabled,
 	/* システムメニューの背景を描画する */
 	render_image_normal(conf_sysmenu_x,
 			    conf_sysmenu_y,
-			    -1,
-			    -1,
-		sysmenu_idle_image,
-		sysmenu_idle_image->width,
-		sysmenu_idle_image->height,
-		0, 0,
-		255);
+			    sysmenu_idle_image->width,
+			    sysmenu_idle_image->height,
+			    sysmenu_idle_image,
+			    0,
+			    0,
+			    sysmenu_idle_image->width,
+			    sysmenu_idle_image->height,
+			    255);
 
 	/* 禁止になっている項目を描画する */
 	if (!is_auto_enabled) {

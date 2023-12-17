@@ -875,6 +875,11 @@ bool run_gui_mode(void)
 	/* 入力を処理する */
 	process_input();
 
+	/* タイトルへ戻る場合 */
+	if (result_index != -1 &&
+	    button[result_index].type == TYPE_TITLE)
+		return move_to_title();
+
 	/* 画像の更新を処理する */
 	process_draw();
 
@@ -1060,11 +1065,6 @@ static bool process_move(void)
 	if (result_index != -1 &&
 	    button[result_index].type == TYPE_GUI)
 		return move_to_other_gui();
-
-	/* タイトルへ戻る場合 */
-	if (result_index != -1 &&
-	    button[result_index].type == TYPE_TITLE)
-		return move_to_title();
 
 	/* キャンセルの場合 */
 	if (result_index != -1 &&

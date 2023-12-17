@@ -98,6 +98,7 @@ cd ..
 #
 echo "Building Suika.app (suika-mac.zip)."
 cd engine-macos
+rm -f suika-mac.zip
 make
 cd ..
 
@@ -180,7 +181,7 @@ cd ..
 #
 echo "Building Suika2 Pro.app (suika2.dmg)"
 cd pro-macos
-rm *.dmg
+rm -f suika2.dmg
 make
 cd ..
 

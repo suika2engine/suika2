@@ -32,7 +32,6 @@ static id<GameViewControllerProtocol> theViewController;
 static MTKView *theMTKView;
 static id<MTLDevice> theDevice;
 static id<MTLRenderPipelineState> theNormalPipelineState;
-static id<MTLRenderPipelineState> theCopyPipelineState;
 static id<MTLRenderPipelineState> theAddPipelineState;
 static id<MTLRenderPipelineState> theDimPipelineState;
 static id<MTLRenderPipelineState> theRulePipelineState;
@@ -96,18 +95,9 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
     normalPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     normalPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     normalPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
+    normalPipelineStateDescriptor.depthAttachmentPixelFormat = theMTKView.depthStencilPixelFormat;
     theNormalPipelineState = [theDevice newRenderPipelineStateWithDescriptor:normalPipelineStateDescriptor error:&error];
     NSAssert(theNormalPipelineState, @"Failed to create pipeline state: %@", error);
-
-    // Construct the copy shader pipeline.
-    MTLRenderPipelineDescriptor *copyPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    copyPipelineStateDescriptor.label = @"Copy Texturing Pipeline";
-    copyPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
-    copyPipelineStateDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentCopyShader"];
-    copyPipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
-    copyPipelineStateDescriptor.colorAttachments[0].blendingEnabled = FALSE;
-    theCopyPipelineState = [theDevice newRenderPipelineStateWithDescriptor:copyPipelineStateDescriptor error:&error];
-    NSAssert(theCopyPipelineState, @"Failed to create pipeline state: %@", error);
 
     // Construct the add shader pipeline.
     MTLRenderPipelineDescriptor *addPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
@@ -122,6 +112,7 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
     addPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     addPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     addPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
+    addPipelineStateDescriptor.depthAttachmentPixelFormat = theMTKView.depthStencilPixelFormat;
     theAddPipelineState = [theDevice newRenderPipelineStateWithDescriptor:addPipelineStateDescriptor error:&error];
     NSAssert(theAddPipelineState, @"Failed to create pipeline state: %@", error);
 
@@ -138,6 +129,7 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
     dimPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     dimPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     dimPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
+    dimPipelineStateDescriptor.depthAttachmentPixelFormat = theMTKView.depthStencilPixelFormat;
     theDimPipelineState = [theDevice newRenderPipelineStateWithDescriptor:dimPipelineStateDescriptor error:&error];
     NSAssert(theDimPipelineState, @"Failed to create pipeline state: %@", error);
 
@@ -154,6 +146,7 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
     rulePipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     rulePipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     rulePipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
+    rulePipelineStateDescriptor.depthAttachmentPixelFormat = theMTKView.depthStencilPixelFormat;
     theRulePipelineState = [theDevice newRenderPipelineStateWithDescriptor:rulePipelineStateDescriptor error:&error];
     NSAssert(theRulePipelineState, @"Failed to create pipeline state: %@", error);
 
@@ -170,6 +163,7 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
     meltPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
     meltPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     meltPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
+    meltPipelineStateDescriptor.depthAttachmentPixelFormat = theMTKView.depthStencilPixelFormat;
     theMeltPipelineState = [theDevice newRenderPipelineStateWithDescriptor:meltPipelineStateDescriptor error:&error];
     NSAssert(theMeltPipelineState, @"Failed to create pipeline state: %@", error);
 

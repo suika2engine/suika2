@@ -183,6 +183,10 @@ void clear_anime_sequence(int layer)
 				sequence[i][j].file = NULL;
 			}
 			memset(&sequence[i][j], 0, sizeof(struct sequence));
+			sequence[i][j].from_scale_x = 1.0f;
+			sequence[i][j].from_scale_y = 1.0f;
+			sequence[i][j].to_scale_x = 1.0f;
+			sequence[i][j].to_scale_y = 1.0f;
 		}
 	}
 }

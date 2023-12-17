@@ -418,7 +418,6 @@
         <ul>
 
 <!-- LATEST-RELEASE-NOTE -->
-<li>Suika2/15.9 2023/12/16 <ul> <li>Fix icon</li> </ul> </li>
 <li>Suika2/15.8 2023/12/16 <ul> <li>Support image scaling <ul> <li>Currently scaling is not applied to save thumbnails</li> <li>Currently scaling is not applied to transitions such as @bg/@ch</li> </ul> </li> </ul> </li>
 <li>Suika2/15.7 2023/12/14 <ul> <li>internal version</li> </ul> </li>
 <li>Suika2/15.7 2023/12/14 <ul> <li>internal version</li> </ul> </li>

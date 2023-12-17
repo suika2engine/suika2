@@ -118,23 +118,29 @@ static bool init(void)
 /* キャラの位置指定を取得する */
 static bool get_position(int *chpos, const char *pos)
 {
-	if (strcmp(pos, "back") == 0 || strcmp(pos, "b") == 0 ||
+	if (strcmp(pos, "back") == 0 ||
+	    strcmp(pos, "b") == 0 ||
 	    strcmp(pos, U8("背面")) == 0) {
 		/* 中央背面に配置する */
 		*chpos = CH_BACK;
-	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0 ||
+	} else if (strcmp(pos, "left") == 0 ||
+		   strcmp(pos, "l") == 0 ||
 		   strcmp(pos, U8("左")) == 0) {
 		/* 左に配置する */
 		*chpos = CH_LEFT;
-	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
+	} else if (strcmp(pos, "right") == 0 ||
+		   strcmp(pos, "r") == 0 ||
 		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
-	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
-		   strcmp(pos, "c") == 0 || strcmp(pos, U8("右")) == 0) {
+	} else if (strcmp(pos, "center") == 0 ||
+		   strcmp(pos, "centre") == 0 ||
+		   strcmp(pos, "c") == 0 ||
+		   strcmp(pos, U8("右")) == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
-	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0 ||
+	} else if (strcmp(pos, "face") == 0 ||
+		   strcmp(pos, "f") == 0 ||
 		   strcmp(pos, U8("顔")) == 0) {
 		/* 顔に配置する */
 		*chpos = CH_FACE;

@@ -127,6 +127,15 @@ build/pro-macos/build/
 build/pro-macos/tmp/
 build/pro-macos/suika2.dmg
 
+# iOS
+build/pro-ios/pro-ios.xcodeproj/project.xcworkspace
+build/pro-ios/pro-ios.xcodeproj/xcshareddata
+build/pro-ios/pro-ios.xcodeproj/cuserdata
+build/pro-ios/pro-ios.xcodeproj/xcuserdata
+build/pro-ios/libroot-ios.tar.gz
+build/pro-ios/build/
+build/pro-ios/tmp/
+
 # Linux
 build/pro-linux/deps
 build/pro-linux/build
