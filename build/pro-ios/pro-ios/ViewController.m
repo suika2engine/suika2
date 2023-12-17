@@ -16,6 +16,8 @@ static void setStoppedState(void);
 
 @interface ViewController ()
 
+// iCloud Drive Path
+@property NSString *iCloudDrivePath;
 // Status
 @property BOOL isEnglish;
 @property BOOL isRunning;
@@ -106,7 +108,7 @@ static void setStoppedState(void);
     [self.textViewScript setDelegate:self];
     
     // Setup a rendering timer.
-    [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
+    [NSTimer scheduledTimerWithTimeInterval:1.0/15.0
                                      target:self
                                    selector:@selector(timerFired:)
                                    userInfo:nil
@@ -159,11 +161,20 @@ static void setStoppedState(void);
 //
 
 - (BOOL)initProject {
-    NSString *path = [NSString stringWithFormat:@"%@/Library/Application Support/Suika2 Pro", NSHomeDirectory()];
-    
+    self.iCloudDrivePath = [[[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:nil] path];
+    if (self.iCloudDrivePath == nil) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"エラー"
+                                       message:@"iCloud Driveが有効ではありません。"
+                                       preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) { exit(0); }];
+        [alert addAction:defaultAction];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    self.iCloudDrivePath = [self.iCloudDrivePath stringByAppendingString:@"/Documents"];
+
     NSError *error;
-    if (![[NSFileManager defaultManager] isReadableFileAtPath:[path stringByAppendingString:@"/conf/config.txt"]]) {
-        if(![[NSFileManager defaultManager] createDirectoryAtPath:path
+//    if (![[NSFileManager defaultManager] isReadableFileAtPath:[self.iCloudDrivePath stringByAppendingString:@"/conf/config.txt"]]) {
+        if(![[NSFileManager defaultManager] createDirectoryAtPath:self.iCloudDrivePath
                                       withIntermediateDirectories:YES
                                                        attributes:nil
                                                             error:&error]) {
@@ -187,14 +198,11 @@ static void setStoppedState(void);
                                     @"wms"];
         for (NSString *sub in subfolderArray) {
             NSString *src = [NSString stringWithFormat:@"%@/japanese/%@", [[NSBundle mainBundle] bundlePath], sub];
-            NSString *dst = [NSString stringWithFormat:@"%@/%@", path, sub];
+            NSString *dst = [NSString stringWithFormat:@"%@/%@", self.iCloudDrivePath, sub];
+            [[NSFileManager defaultManager] removeItemAtPath:dst error:&error];
             [[NSFileManager defaultManager] copyItemAtPath:src toPath:dst error:&error];
-            if (error != nil) {
-                NSLog(@"copyItemAtPath error: %@", [error localizedDescription]);
-                return NO;
-            }
         }
-    }
+//    }
 
     return YES;
 }
@@ -646,10 +654,9 @@ bool log_error(const char *s, ...)
 bool make_sav_dir(void)
 {
     @autoreleasepool {
-        NSString *path = [NSString stringWithFormat:@"%@/Library/Application Support/Suika2 Pro/sav", NSHomeDirectory()];
         NSFileManager *manager = [NSFileManager defaultManager];
         NSError *error;
-        if (![manager createDirectoryAtPath:path
+        if (![manager createDirectoryAtPath:theViewController.iCloudDrivePath
                 withIntermediateDirectories:YES
                                  attributes:nil
                                       error:&error]) {
@@ -667,23 +674,23 @@ char *make_valid_path(const char *dir, const char *fname)
 {
     @autoreleasepool {
         if(dir != NULL && fname != NULL) {
-            NSString *path = [NSString stringWithFormat:@"%@/Library/Application Support/Suika2 Pro/%s/%s",
-                              NSHomeDirectory(),
+            NSString *path = [NSString stringWithFormat:@"%@/%s/%s",
+                              theViewController.iCloudDrivePath,
                               dir,
                               fname];
             const char *cstr = [path UTF8String];
             return strdup(cstr);
         }
         if(dir == NULL && fname != NULL) {
-            NSString *path = [NSString stringWithFormat:@"%@/Library/Application Support/Suika2 Pro/%s",
-                              NSHomeDirectory(),
+            NSString *path = [NSString stringWithFormat:@"%@/%s",
+                              theViewController.iCloudDrivePath,
                               fname];
             const char *cstr = [path UTF8String];
             return strdup(cstr);
         }
         if(dir != NULL && fname == NULL) {
-            NSString *path = [NSString stringWithFormat:@"%@/Library/Application Support/Suika2 Pro/%s",
-                              NSHomeDirectory(),
+            NSString *path = [NSString stringWithFormat:@"%@/%s",
+                              theViewController.iCloudDrivePath,
                               fname];
             const char *cstr = [path UTF8String];
             return strdup(cstr);
