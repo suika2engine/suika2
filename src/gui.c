@@ -1069,8 +1069,7 @@ static bool process_move(void)
 	/* キャンセルの場合 */
 	if (result_index != -1 &&
 	    button[result_index].type == TYPE_CANCEL) {
-		if (is_in_command_repetition())
-			stop_command_repetition();
+		/* Do nothing here, move to cmd_gui.c */
 	}
 
 	/* GUIモードを終了する */

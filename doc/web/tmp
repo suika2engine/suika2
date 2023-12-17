@@ -97,7 +97,7 @@
 			SDK contains a sample game and binaries.
 		</p>
 		<p>
-<!-- LATEST-VERSION-AND-DATE -->Latest Suika2/15.10 (2023/12/17):<br>
+<!-- LATEST-VERSION-AND-DATE -->Latest Suika2/15.11 (2023/12/17):<br>
 <!-- LATEST-ZIP --><a href="/dl/suika2-15.3.zip"><img src="/img/icons/zip.png" width="48" alt="suik2 zip icon"> Download for Windows/Mac/Web/Linux Suika2 latest</a><br>
 		</p>
 		<p>
@@ -418,6 +418,7 @@
         <ul>
 
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/15.10 2023/12/17 <ul> <li>Fix the system menu (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.9 2023/12/16 <ul> <li>Fix icon</li> </ul> </li>
 <li>Suika2/15.8 2023/12/16 <ul> <li>Support image scaling <ul> <li>Currently scaling is not applied to save thumbnails</li> <li>Currently scaling is not applied to transitions such as @bg/@ch</li> </ul> </li> </ul> </li>
 <li>Suika2/15.7 2023/12/14 <ul> <li>internal version</li> </ul> </li>
