@@ -535,6 +535,13 @@ static bool on_key_value(const char *key, const char *val)
 			}
 		}
 		memset(&sequence[cur_seq_layer], 0, sizeof(struct sequence) * SEQUENCE_COUNT);
+		for (i = 0; i < SEQUENCE_COUNT; i++) {
+			sequence[cur_seq_layer][i].from_scale_x = 1.0f;
+			sequence[cur_seq_layer][i].from_scale_y = 1.0f;
+			sequence[cur_seq_layer][i].to_scale_x = 1.0f;
+			sequence[cur_seq_layer][i].to_scale_y = 1.0f;
+		}
+
 		return true;
 	}
 
