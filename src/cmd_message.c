@@ -772,6 +772,7 @@ static void init_font_color(void)
 	if (gui_sys_flag)
 		return;
 
+#if !defined(USE_EDITOR) && !defined(USE_DEBUGGER)
 	/* 既読であり、既読の色が設定されている場合 */
 	if (get_seen() && conf_msgbox_seen_color) {
 		body_color = make_pixel(0xff,
@@ -787,6 +788,7 @@ static void init_font_color(void)
 		name_outline_color = body_outline_color;
 		return;
 	}
+#endif
 
 	/* 色は、まずデフォルトの色をロードする */
 	body_color = make_pixel(0xff,

@@ -893,7 +893,6 @@ static void process_main_input(void)
 		    child_button[selected_parent_index][new_pointed_index].msg != NULL) {
 			speak_text(NULL);
 			speak_text(child_button[selected_parent_index][pointed_index].msg);
-			selected_parent_index = new_pointed_index;
 		}
 	}
 	if (new_pointed_index != -1 &&
@@ -905,6 +904,7 @@ static void process_main_input(void)
 			play_se(conf_switch_parent_click_se_file);
 		}
 	}
+	pointed_index = new_pointed_index;
 
 	/* ヒストリ画面への遷移を確認する */
 	if (is_up_pressed &&
@@ -931,8 +931,6 @@ static void process_main_input(void)
 		need_history_mode = true;
 		return;
 	}
-
-	pointed_index = get_pointed_index();
 
 	/* システムメニューを常に使用しない場合 */
 	if (conf_sysmenu_hidden == 2)
@@ -975,6 +973,8 @@ static void process_main_input(void)
 			play_se(conf_switch_parent_click_se_file);
 			if (!parent_button[pointed_index].has_child)
 				stop_command_repetition();
+			else
+				selected_parent_index = pointed_index;
 		} else {
 			play_se(conf_switch_child_click_se_file);
 			stop_command_repetition();
@@ -1253,7 +1253,8 @@ static void render_frame(void)
 	} else {
 		for (i = 0; i < CHILD_COUNT; i++) {
 			struct image *img = i != pointed_index && i != -1 ?
-				child_button[selected_parent_index][i].img_idle : parent_button[i].img_hover;
+				child_button[selected_parent_index][i].img_idle :
+				child_button[selected_parent_index][i].img_hover;
 			if (img == NULL)
 				break;
 			render_image_normal(child_button[selected_parent_index][i].x,
@@ -1424,9 +1425,9 @@ static bool cleanup(void)
 
 		for (j = 0; j < CHILD_COUNT; j++) {
 			if (child_button[i][j].img_idle != NULL)
-				destroy_image(parent_button[i].img_idle);
+				destroy_image(child_button[i][j].img_idle);
 			if (child_button[i][j].img_hover != NULL)
-				destroy_image(parent_button[i].img_hover);
+				destroy_image(child_button[i][j].img_hover);
 		}
 	}
 
