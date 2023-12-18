@@ -173,7 +173,7 @@ static void setStoppedState(void);
     self.iCloudDrivePath = [self.iCloudDrivePath stringByAppendingString:@"/Documents"];
 
     NSError *error;
-//    if (![[NSFileManager defaultManager] isReadableFileAtPath:[self.iCloudDrivePath stringByAppendingString:@"/conf/config.txt"]]) {
+    if (![[NSFileManager defaultManager] isReadableFileAtPath:[self.iCloudDrivePath stringByAppendingString:@"/conf/config.txt"]]) {
         if(![[NSFileManager defaultManager] createDirectoryAtPath:self.iCloudDrivePath
                                       withIntermediateDirectories:YES
                                                        attributes:nil
@@ -202,7 +202,7 @@ static void setStoppedState(void);
             [[NSFileManager defaultManager] removeItemAtPath:dst error:&error];
             [[NSFileManager defaultManager] copyItemAtPath:src toPath:dst error:&error];
         }
-//    }
+    }
 
     return YES;
 }
@@ -334,8 +334,7 @@ static void setStoppedState(void);
 - (void)setExecLine:(int)line {
     [self selectScriptLine:line];
     [self setTextColorForAllLines];
-    
-    // TODO: Scroll.
+    [self scrollToCurrentLine];
 }
 
 // スクリプトのテキストビューの内容を更新する
@@ -545,6 +544,10 @@ static void setStoppedState(void);
     }
 }
 
+- (void)scrollToCurrentLine {
+    [_textViewScript scrollRangeToVisible:NSMakeRange(_textViewScript.selectedRange.location, 0)];
+}
+
 //
 // 変数のテキストフィールド
 //
@@ -589,6 +592,7 @@ static void setStoppedState(void);
 
     [self updateScriptModelFromText];
     [self setTextColorForAllLines];
+    [self scrollToCurrentLine];
 }
 
 @end
@@ -800,6 +804,7 @@ static void setWaitingState(void)
     theViewController.buttonContinue.enabled = NO;
     theViewController.buttonNext.enabled = NO;
     theViewController.buttonStop.enabled = NO;
+    theViewController.buttonUpdate.enabled = NO;
     theViewController.buttonOpenScript.enabled = NO;
     theViewController.textViewScript.editable = NO;
     theViewController.textFieldVariables.enabled = NO;
@@ -812,6 +817,7 @@ static void setRunningState(void)
     theViewController.buttonContinue.enabled = NO;
     theViewController.buttonNext.enabled = NO;
     theViewController.buttonStop.enabled = YES;
+    theViewController.buttonUpdate.enabled = NO;
     theViewController.buttonOpenScript.enabled = NO;
     theViewController.textViewScript.editable = NO;
     theViewController.textFieldVariables.enabled = NO;
@@ -824,6 +830,7 @@ static void setStoppedState(void)
     theViewController.buttonContinue.enabled = YES;
     theViewController.buttonNext.enabled = YES;
     theViewController.buttonStop.enabled = NO;
+    theViewController.buttonUpdate.enabled = YES;
     theViewController.buttonOpenScript.enabled = YES;
     theViewController.textViewScript.editable = YES;
     theViewController.textFieldVariables.enabled = YES;

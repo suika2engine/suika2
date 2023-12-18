@@ -1061,6 +1061,10 @@ static void setStoppedState(void);
     [self setTextColorForAllLines];
     
     // Scroll.
+    [self scrollToCurrentLine];
+}
+
+- (void)scrollToCurrentLine {
     NSRange caretRange = NSMakeRange(_textViewScript.selectedRange.location, 0);
     NSLayoutManager *layoutManager = [_textViewScript layoutManager];
     NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:caretRange actualCharacterRange:nil];
@@ -1072,12 +1076,6 @@ static void setStoppedState(void);
 - (void)updateScriptTextView {
     [self updateTextFromScriptModel];
     [self setTextColorForAllLines];
-}
-
-// スクリプトのテーブルビューをスクロールする
-- (void)scrollScriptTextView {
-    //TODO
-    //int line = get_expanded_line_num();
 }
 
 // テキストビューの内容をスクリプトモデルを元に設定する
@@ -1132,7 +1130,6 @@ static void setStoppedState(void);
 
 // テキストビューの現在の行の内容を元にスクリプトモデルを更新する
 - (void)updateScriptModelFromCurrentLineText {
-    // TODO
     [self updateScriptModelFromText];
 }
 

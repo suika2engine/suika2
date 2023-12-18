@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>6</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -25,7 +25,7 @@
 	</dict>
 	<key>NSUbiquitousContainers</key>
 	<dict>
-		<key>iCloud.jp.luxion.suika</key>
+		<key>iCloud.jp.luxion.suika.pro-ios</key>
 		<dict>
 			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
 			<true/>
