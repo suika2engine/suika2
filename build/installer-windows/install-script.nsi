@@ -6,6 +6,8 @@ Name "Suika2"
 OutFile "suika2-installer.exe"
 InstallDir "$APPDATA\Local\Suika2"
 
+SetCompressor /SOLID /FINAL lzma
+
 !insertmacro MUI_PAGE_WELCOME
 Page directory
 Page instfiles

@@ -940,8 +940,12 @@ static void process_main_input(void)
 	enter_sysmenu = false;
 
 	/* 右クリックされたとき */
-	if (selected_parent_index == -1 && is_right_button_pressed)
-		enter_sysmenu = true;
+	if (is_right_button_pressed) {
+		if (selected_parent_index == -1)
+			enter_sysmenu = true;
+		else
+			selected_parent_index = -1;
+	}
 
 	/* エスケープキーが押下されたとき */
 	if (is_escape_pressed)

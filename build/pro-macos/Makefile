@@ -41,7 +41,7 @@ suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_MACOS)
 		--icon-size 100 \
 		--icon "Suika2 Pro.app" 200 190 \
 		--app-drop-link 600 185 \
-		--format UDBZ \
+		--format ULFO \
 		"suika2.dmg" \
 		"tmp"
 
