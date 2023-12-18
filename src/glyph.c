@@ -638,6 +638,9 @@ static bool draw_glyph_without_outline(struct image *img,
 	*ret_w = (int)face[font_type]->glyph->advance.x / SCALE;
 	*ret_h = font_size + descent;
 
+	if (img != NULL)
+		notify_image_update(img);
+
 	return true;
 }
 

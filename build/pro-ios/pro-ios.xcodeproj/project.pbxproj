@@ -79,6 +79,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		26ADBD442B2F3C7E00566642 /* Suika2 Pro.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Suika2 Pro.entitlements"; sourceTree = "<group>"; };
 		26E7F0832B2E979B0076C82C /* Suika2 Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26E7F0862B2E979B0076C82C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		26E7F0872B2E979B0076C82C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -203,6 +204,7 @@
 		26E7F07A2B2E979B0076C82C = {
 			isa = PBXGroup;
 			children = (
+				26ADBD442B2F3C7E00566642 /* Suika2 Pro.entitlements */,
 				26E7F0852B2E979B0076C82C /* pro-ios */,
 				26E7F09F2B2E9AC80076C82C /* suika2 */,
 				26E7F1442B2EA6BA0076C82C /* Resources */,
@@ -628,6 +630,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Suika2 Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7S742FWR63;
@@ -676,6 +679,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Suika2 Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7S742FWR63;

@@ -143,8 +143,14 @@ void cleanup_anime(void)
 				sequence[i][j].file = NULL;
 			}
 		}
+		memset(sequence, 0, sizeof(sequence));
+		for (j = 0 ; j < SEQUENCE_COUNT; j++) {
+			sequence[i][j].from_scale_x = 1.0f;
+			sequence[i][j].from_scale_y = 1.0f;
+			sequence[i][j].to_scale_x = 1.0f;
+			sequence[i][j].to_scale_y = 1.0f;
+		}
 	}
-	memset(sequence, 0, sizeof(sequence));
 	memset(context, 0, sizeof(context));
 }
 
@@ -529,6 +535,13 @@ static bool on_key_value(const char *key, const char *val)
 			}
 		}
 		memset(&sequence[cur_seq_layer], 0, sizeof(struct sequence) * SEQUENCE_COUNT);
+		for (i = 0; i < SEQUENCE_COUNT; i++) {
+			sequence[cur_seq_layer][i].from_scale_x = 1.0f;
+			sequence[cur_seq_layer][i].from_scale_y = 1.0f;
+			sequence[cur_seq_layer][i].to_scale_x = 1.0f;
+			sequence[cur_seq_layer][i].to_scale_y = 1.0f;
+		}
+
 		return true;
 	}
 
