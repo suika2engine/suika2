@@ -265,6 +265,7 @@ static BOOL OpenProject(const wchar_t *pszPath);
 /* Command Handlers */
 static VOID OnOpenGameFolder(void);
 static VOID OnOpenScript(void);
+static VOID OnReloadScript(void);
 static const wchar_t *SelectFile(const char *pszDir);
 static VOID OnSave(void);
 static VOID OnNextError(void);
@@ -922,6 +923,13 @@ static VOID InitMenu(HWND hWnd)
 		L"スクリプトを開く(&O)\tCtrl+O";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
+	/* スクリプトをリロードを作成する */
+	mi.wID = ID_RELOAD;
+	mi.dwTypeData = bEnglish ?
+		L"Reload script(&L)\tCtrl+L" :
+		L"スクリプトをリロードする(&L)\tCtrl+L";
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+
 	/* スクリプトを上書き保存する(S)を作成する */
 	mi.wID = ID_SAVE;
 	mi.dwTypeData = bEnglish ?
@@ -1394,6 +1402,16 @@ static BOOL PretranslateMessage(MSG* pMsg)
 				pMsg->lParam = 0;
 			}
 			break;
+		case 'L':
+			/* Ctrl+Rを処理する */
+			if (bControlDown)
+			{
+				pMsg->hwnd = hWndMain;
+				pMsg->message = WM_COMMAND;
+				pMsg->wParam = ID_RELOAD;
+				pMsg->lParam = 0;
+			}
+			break;
 		case 'S':
 			/* Ctrl+Sを処理する */
 			if (bControlDown)
@@ -1746,6 +1764,9 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	case ID_OPEN:
 		OnOpenScript();
+		break;
+	case ID_RELOAD:
+		OnReloadScript();
 		break;
 	case ID_SAVE:
 		OnSave();
@@ -3696,6 +3717,13 @@ static BOOL CreateProject(void)
 	hFile = CreateFileW(pFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
 	CloseHandle(hFile);
 
+	/* .vscodeを生成する */
+	CreateDirectory(L".\\.vscode", 0);
+	CopyLibraryFiles(bEnglish ?
+					 L"plaintext.code-snippets.en" :
+					 L"plaintext.code-snippets.jp",
+					 L".\\plaintext.code-snippets");
+
 	/* テンプレートを選択する */
 	if (MessageBox(NULL,
 				   bEnglish ?
@@ -3767,6 +3795,12 @@ static VOID OnOpenScript(void)
 		return;
 
 	SetWindowText(hWndTextboxScript, pFile);
+	bScriptOpened = TRUE;
+}
+
+/* スクリプトリロード */
+static VOID OnReloadScript(void)
+{
 	bScriptOpened = TRUE;
 }
 
