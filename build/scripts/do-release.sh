@@ -199,8 +199,6 @@ echo "Upload completed."
 #
 echo ""
 echo "Updating the Web site."
-echo "(press enter to proceed)"
-read str
 SAVE_DIR=`pwd`
 cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
 cd "$SAVE_DIR"
