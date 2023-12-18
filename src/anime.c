@@ -143,8 +143,14 @@ void cleanup_anime(void)
 				sequence[i][j].file = NULL;
 			}
 		}
+		memset(sequence, 0, sizeof(sequence));
+		for (j = 0 ; j < SEQUENCE_COUNT; j++) {
+			sequence[i][j].from_scale_x = 1.0f;
+			sequence[i][j].from_scale_y = 1.0f;
+			sequence[i][j].to_scale_x = 1.0f;
+			sequence[i][j].to_scale_y = 1.0f;
+		}
 	}
-	memset(sequence, 0, sizeof(sequence));
 	memset(context, 0, sizeof(context));
 }
 
