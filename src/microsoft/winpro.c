@@ -3722,7 +3722,7 @@ static BOOL CreateProject(void)
 	CopyLibraryFiles(bEnglish ?
 					 L"plaintext.code-snippets.en" :
 					 L"plaintext.code-snippets.jp",
-					 L".\\plaintext.code-snippets");
+					 L".\\.vscode\\plaintext.code-snippets");
 
 	/* テンプレートを選択する */
 	if (MessageBox(NULL,
