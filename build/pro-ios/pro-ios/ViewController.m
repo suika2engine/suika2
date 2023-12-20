@@ -601,6 +601,8 @@ static void setStoppedState(void);
 // HAL
 //
 
+static FILE *fp;
+
 //
 // INFOログを出力する
 //
@@ -614,7 +616,12 @@ bool log_info(const char *s, ...)
     va_end(ap);
 
     NSLog(@"%s", buf);
-    
+
+    if (fp == NULL)
+        fp = fopen(make_valid_path(NULL, "log.txt"), "w");
+    if (fp != NULL)
+        fprintf(fp, "%s\n", buf);
+
     return true;
 }
 
@@ -632,6 +639,11 @@ bool log_warn(const char *s, ...)
 
     NSLog(@"%s", buf);
 
+    if (fp == NULL)
+        fp = fopen(make_valid_path(NULL, "log.txt"), "w");
+    if (fp != NULL)
+        fprintf(fp, "%s\n", buf);
+
     return true;
 }
 
@@ -648,6 +660,11 @@ bool log_error(const char *s, ...)
     va_end(ap);
 
     NSLog(@"%s", buf);
+
+    if (fp == NULL)
+        fp = fopen(make_valid_path(NULL, "log.txt"), "w");
+    if (fp != NULL)
+        fprintf(fp, "%s\n", buf);
 
     return true;
 }

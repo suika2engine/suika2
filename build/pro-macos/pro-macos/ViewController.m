@@ -347,9 +347,9 @@ static void setStoppedState(void);
             return [self copyResourceTemplate:@"nvl"];
 
         alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"縦書きにしますか？"];
+        [alert setMessageText:@"縦書きにしますか？"];
         [alert addButtonWithTitle:@"はい"];
-        [alert setMessageText:@"いいえ"];
+        [alert addButtonWithTitle:@"いいえ"];
         [alert setAlertStyle:NSAlertStyleInformational];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return [self copyResourceTemplate:@"nvl-tategaki"];
@@ -595,11 +595,11 @@ static void setStoppedState(void);
 
     // 確認のダイアログを開く
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:!self.isEnglish ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:!self.isEnglish ? @"いいえ" : @"No"];
     [alert setMessageText:self.isEnglish ?
            @"Are you sure you want to overwrite the script file?" :
            @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
+    [alert addButtonWithTitle:!self.isEnglish ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:!self.isEnglish ? @"いいえ" : @"No"];
     [alert setAlertStyle:NSAlertStyleWarning];
     if([alert runModal] != NSAlertFirstButtonReturn)
         return;
