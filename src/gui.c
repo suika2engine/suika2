@@ -1668,14 +1668,33 @@ static void process_button_render_slider(int index)
 	b = &button[index];
 
 	/* ポイントされているとき、バー部分をhover画像で描画する */
-	if (index == pointed_index && !is_fading_in && !is_fading_out)
-		render_image_normal(b->x, b->y, b->width, b->height, hover_image, 0, 0, b->width, b->height, cur_alpha);
+	if (index == pointed_index && !is_fading_in && !is_fading_out) {
+		render_image_normal(b->x,
+				    b->y,
+				    b->width,
+				    b->height,
+				    hover_image,
+				    b->x,
+				    b->y,
+				    b->width,
+				    b->height,
+				    cur_alpha);
+	}
 
 	/* 描画位置を計算する */
 	x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
 
 	/* ツマミをactive画像で描画する */
-	render_image_normal(x, b->y, b->height, b->height, active_image, b->x, b->y, b->height, b->height, cur_alpha);
+	render_image_normal(x,
+			    b->y,
+			    b->height,
+			    b->height,
+			    active_image,
+			    b->x,
+			    b->y,
+			    b->height,
+			    b->height,
+			    cur_alpha);
 }
 
 /* 垂直スライダーボタンをレンダリングする */
