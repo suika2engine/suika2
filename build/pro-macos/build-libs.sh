@@ -11,7 +11,7 @@ fi
 
 PREFIX=`pwd`/libroot
 
-export MACOSX_DEPLOYMENT_TARGET=10.13
+export MACOSX_DEPLOYMENT_TARGET=11.0
 
 rm -rf tmp libroot
 mkdir -p tmp libroot

@@ -1,0 +1,1728 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "0BM-Zi-Cug.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Call GUI\"; ObjectID = \"0BM-Zi-Cug\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Call GUI"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GUIを呼び出す"
+          }
+        }
+      }
+    },
+    "1Pb-g2-APY.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Show Background\"; ObjectID = \"1Pb-g2-APY\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show Background"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景を表示"
+          }
+        }
+      }
+    },
+    "2IF-Ve-lcD.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Hide\"; ObjectID = \"2IF-Ve-lcD\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示"
+          }
+        }
+      }
+    },
+    "4LJ-VS-aC0.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Stop\"; ObjectID = \"4LJ-VS-aC0\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止"
+          }
+        }
+      }
+    },
+    "5dG-b6-2DA.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Play\"; ObjectID = \"5dG-b6-2DA\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Play"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生"
+          }
+        }
+      }
+    },
+    "7ty-ky-Azi.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Message\"; ObjectID = \"7ty-ky-Azi\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Message"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メッセージ"
+          }
+        }
+      }
+    },
+    "8Ga-Z3-by4.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Hide\"; ObjectID = \"8Ga-Z3-by4\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示"
+          }
+        }
+      }
+    },
+    "8PU-vu-t9o.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Export for iPhone and iPad\"; ObjectID = \"8PU-vu-t9o\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export for iPhone and iPad"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhoneとiPadのアプリを出力"
+          }
+        }
+      }
+    },
+    "9WY-HZ-a1i.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"File\"; ObjectID = \"9WY-HZ-a1i\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "File"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイル"
+          }
+        }
+      }
+    },
+    "46a-vv-wS6.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Open Script\"; ObjectID = \"46a-vv-wS6\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open Script"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリプトを開く"
+          }
+        }
+      }
+    },
+    "48t-hm-7j7.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Help\"; ObjectID = \"48t-hm-7j7\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Help"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ヘルプ"
+          }
+        }
+      }
+    },
+    "229-sE-M1n.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Stop\"; ObjectID = \"229-sE-M1n\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止"
+          }
+        }
+      }
+    },
+    "a6d-Ci-fPe.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Suika2 Pro Desktop\"; ObjectID = \"a6d-Ci-fPe\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Suika2 Pro Desktop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suika2 Pro Desktop"
+          }
+        }
+      }
+    },
+    "aAa-5x-ufg.title" : {
+      "comment" : "Class = \"NSButtonCell\"; title = \"Continue\"; ObjectID = \"aAa-5x-ufg\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Continue"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "続ける"
+          }
+        }
+      }
+    },
+    "Ah9-XJ-yra.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Show\"; ObjectID = \"Ah9-XJ-yra\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示"
+          }
+        }
+      }
+    },
+    "AHE-qT-PMe.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Export for Web Browsers\"; ObjectID = \"AHE-qT-PMe\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export for Web Browsers"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webブラウザアプリを出力"
+          }
+        }
+      }
+    },
+    "akB-3L-oog.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Suika2 Pro Desktop\"; ObjectID = \"akB-3L-oog\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Suika2 Pro Desktop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suika2 Pro Desktop"
+          }
+        }
+      }
+    },
+    "Aol-KM-6A5.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Play Video\"; ObjectID = \"Aol-KM-6A5\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Play Video"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動画を再生"
+          }
+        }
+      }
+    },
+    "APJ-Jg-tMs.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Hide\"; ObjectID = \"APJ-Jg-tMs\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示"
+          }
+        }
+      }
+    },
+    "avs-le-99L.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"About Suika2 Pro Desktop\"; ObjectID = \"avs-le-99L\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Suika2 Pro Desktop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suika2 Pro Desktop について"
+          }
+        }
+      }
+    },
+    "b6D-6C-JWV.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Stop\"; ObjectID = \"b6D-6C-JWV\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止"
+          }
+        }
+      }
+    },
+    "BAL-gp-QJe.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Wait For Time\"; ObjectID = \"BAL-gp-QJe\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Wait For Time"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時間指定して待つ"
+          }
+        }
+      }
+    },
+    "BsI-32-ifm.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Show\"; ObjectID = \"BsI-32-ifm\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示"
+          }
+        }
+      }
+    },
+    "BYO-of-WC4.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Hide\"; ObjectID = \"BYO-of-WC4\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示"
+          }
+        }
+      }
+    },
+    "c0k-GC-g86.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"One Option\"; ObjectID = \"c0k-GC-g86\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "One Option"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択肢（１つ）"
+          }
+        }
+      }
+    },
+    "C8x-MA-l1t.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Call WMS\"; ObjectID = \"C8x-MA-l1t\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Call WMS"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WMSを呼び出す"
+          }
+        }
+      }
+    },
+    "CuQ-Dw-f40.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Center\"; ObjectID = \"CuQ-Dw-f40\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Center"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中央"
+          }
+        }
+      }
+    },
+    "cYz-Mw-gy8.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Choice\"; ObjectID = \"cYz-Mw-gy8\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Choice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択肢"
+          }
+        }
+      }
+    },
+    "d1R-iD-hcL.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Voice\"; ObjectID = \"d1R-iD-hcL\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Voice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ボイス"
+          }
+        }
+      }
+    },
+    "d3x-jP-cX5.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Move to Other Script\"; ObjectID = \"d3x-jP-cX5\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Move to Other Script"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリプトを移動"
+          }
+        }
+      }
+    },
+    "dri-aF-9a6.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Line with Voice\"; ObjectID = \"dri-aF-9a6\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Line with Voice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セリフ（音声つき）"
+          }
+        }
+      }
+    },
+    "EB8-K8-Je8.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Suika2 Pro Desktop Help\"; ObjectID = \"EB8-K8-Je8\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Suika2 Pro Desktop Help"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suika2 Pro Desktop Help"
+          }
+        }
+      }
+    },
+    "efu-6L-oRL.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Export for Desktop\"; ObjectID = \"efu-6L-oRL\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export for Desktop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デスクトップのアプリをエクスポート"
+          }
+        }
+      }
+    },
+    "eim-Ro-1iH.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Multiple\"; ObjectID = \"eim-Ro-1iH\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multiple"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "複数"
+          }
+        }
+      }
+    },
+    "FCx-re-lDJ.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Run\"; ObjectID = \"FCx-re-lDJ\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Run"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行"
+          }
+        }
+      }
+    },
+    "fXc-I6-ypM.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"File\"; ObjectID = \"fXc-I6-ypM\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "File"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイル"
+          }
+        }
+      }
+    },
+    "FXl-8v-WOD.title" : {
+      "comment" : "Class = \"NSButtonCell\"; title = \"Stop\"; ObjectID = \"FXl-8v-WOD\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止"
+          }
+        }
+      }
+    },
+    "FYZ-kh-mRZ.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Right Center\"; ObjectID = \"FYZ-kh-mRZ\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Right Center"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右中央"
+          }
+        }
+      }
+    },
+    "GLm-m1-4fE.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Right\"; ObjectID = \"GLm-m1-4fE\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Right"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右"
+          }
+        }
+      }
+    },
+    "GPg-C8-Ihb.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Play\"; ObjectID = \"GPg-C8-Ihb\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Play"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生"
+          }
+        }
+      }
+    },
+    "gsq-rI-5Hg.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Voice\"; ObjectID = \"gsq-rI-5Hg\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Voice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ボイス"
+          }
+        }
+      }
+    },
+    "HAH-LY-b6X.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Export\"; ObjectID = \"HAH-LY-b6X\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクスポート"
+          }
+        }
+      }
+    },
+    "hiA-A3-j0S.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Play\"; ObjectID = \"hiA-A3-j0S\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Play"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生"
+          }
+        }
+      }
+    },
+    "HJu-Kh-AkX.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Message\"; ObjectID = \"HJu-Kh-AkX\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Message"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "地の文"
+          }
+        }
+      }
+    },
+    "hLV-kU-lap.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Services\"; ObjectID = \"hLV-kU-lap\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Services"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サービス"
+          }
+        }
+      }
+    },
+    "hSA-fX-ANB.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Wait For Click\"; ObjectID = \"hSA-fX-ANB\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Wait For Click"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリックを待つ"
+          }
+        }
+      }
+    },
+    "JJf-JV-I4K.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Background\"; ObjectID = \"JJf-JV-I4K\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Background"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景"
+          }
+        }
+      }
+    },
+    "kdP-XO-1d1.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Next Error\"; ObjectID = \"kdP-XO-1d1\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Next Error"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次のエラーへ"
+          }
+        }
+      }
+    },
+    "Kh6-ec-i1l.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Left Center\"; ObjectID = \"Kh6-ec-i1l\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Left Center"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左中央"
+          }
+        }
+      }
+    },
+    "KwQ-Xd-aHm.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Three Options\"; ObjectID = \"KwQ-Xd-aHm\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Three Options"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択肢（３つ）"
+          }
+        }
+      }
+    },
+    "kYn-dL-xoH.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Background\"; ObjectID = \"kYn-dL-xoH\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Background"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景"
+          }
+        }
+      }
+    },
+    "L1z-rs-P4S.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Stop\"; ObjectID = \"L1z-rs-P4S\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止"
+          }
+        }
+      }
+    },
+    "liJ-Xm-bmj.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Show\"; ObjectID = \"liJ-Xm-bmj\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示"
+          }
+        }
+      }
+    },
+    "lQL-24-sfb.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Choice\"; ObjectID = \"lQL-24-sfb\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Choice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択肢"
+          }
+        }
+      }
+    },
+    "M0B-z0-myr.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Continue\"; ObjectID = \"M0B-z0-myr\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Continue"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "続ける"
+          }
+        }
+      }
+    },
+    "Mak-pH-yty.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Two Options\"; ObjectID = \"Mak-pH-yty\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Two Options"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択肢（２つ）"
+          }
+        }
+      }
+    },
+    "mqB-TW-SyD.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Sound Effect\"; ObjectID = \"mqB-TW-SyD\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sound Effect"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "効果音"
+          }
+        }
+      }
+    },
+    "mvd-5q-CON.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Volume\"; ObjectID = \"mvd-5q-CON\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Volume"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ボリューム"
+          }
+        }
+      }
+    },
+    "Ncv-1D-bUI.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Volume\"; ObjectID = \"Ncv-1D-bUI\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Volume"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音量"
+          }
+        }
+      }
+    },
+    "Nux-c4-aG7.title" : {
+      "comment" : "Class = \"NSButtonCell\"; title = \"Next\"; ObjectID = \"Nux-c4-aG7\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Next"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次へ"
+          }
+        }
+      }
+    },
+    "NzA-TH-gK8.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Left\"; ObjectID = \"NzA-TH-gK8\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Left"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左"
+          }
+        }
+      }
+    },
+    "o7U-tS-QIk.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Help\"; ObjectID = \"o7U-tS-QIk\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Help"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ヘルプ"
+          }
+        }
+      }
+    },
+    "oc6-A5-Oqn.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Main Menu\"; ObjectID = \"oc6-A5-Oqn\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Main Menu"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メインメニュー"
+          }
+        }
+      }
+    },
+    "p3I-8W-ibk.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Change Background Only\"; ObjectID = \"p3I-8W-ibk\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Change Background Only"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景だけ変更"
+          }
+        }
+      }
+    },
+    "PGL-T9-rCM.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Next\"; ObjectID = \"PGL-T9-rCM\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Next"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次へ"
+          }
+        }
+      }
+    },
+    "POm-Bu-lhz.title" : {
+      "comment" : "Class = \"NSButtonCell\"; title = \"Write\"; ObjectID = \"POm-Bu-lhz\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Write"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "書き込む"
+          }
+        }
+      }
+    },
+    "PzB-CR-MjL.title" : {
+      "comment" : "Class = \"NSButtonCell\"; title = \"...\"; ObjectID = \"PzB-CR-MjL\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "..."
+          }
+        }
+      }
+    },
+    "QJg-TJ-Hwe.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Hide Suika2 Pro Desktop\"; ObjectID = \"QJg-TJ-Hwe\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide Suika2 Pro Desktop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suika2 Pro Desktop を隠す"
+          }
+        }
+      }
+    },
+    "QMk-Ey-jOt.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Run\"; ObjectID = \"QMk-Ey-jOt\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Run"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行"
+          }
+        }
+      }
+    },
+    "qNM-vx-ZCV.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Quit Suika2 Pro Desktop\"; ObjectID = \"qNM-vx-ZCV\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quit Suika2 Pro Desktop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suika2 Pro Desktopを終了"
+          }
+        }
+      }
+    },
+    "Rvq-H1-14g.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Open Game Folder\"; ObjectID = \"Rvq-H1-14g\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open Game Folder"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲームフォルダを開く"
+          }
+        }
+      }
+    },
+    "S0T-li-CFF.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Right\"; ObjectID = \"S0T-li-CFF\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Right"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右"
+          }
+        }
+      }
+    },
+    "SQe-Hh-FZG.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Save…\"; ObjectID = \"SQe-Hh-FZG\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "su8-dn-muC.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Character\"; ObjectID = \"su8-dn-muC\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Character"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャラクタ"
+          }
+        }
+      }
+    },
+    "tBg-ov-FE2.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Hide Others\"; ObjectID = \"tBg-ov-FE2\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide Others"
+          }
+        }
+      }
+    },
+    "tww-K1-3is.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Show All\"; ObjectID = \"tww-K1-3is\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show All"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて表示"
+          }
+        }
+      }
+    },
+    "ulc-k2-i1p.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Center\"; ObjectID = \"ulc-k2-i1p\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Center"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中央"
+          }
+        }
+      }
+    },
+    "vE0-Vv-F0q.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Export for non-iOS phones\"; ObjectID = \"vE0-Vv-F0q\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export for non-iOS phones"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iOS以外のスマートフォンのアプリを出力"
+          }
+        }
+      }
+    },
+    "we9-It-odM.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Message\"; ObjectID = \"we9-It-odM\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Message"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メッセージ"
+          }
+        }
+      }
+    },
+    "wQP-xK-62W.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Export\"; ObjectID = \"wQP-xK-62W\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクスポート"
+          }
+        }
+      }
+    },
+    "X7F-kL-uld.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Services\"; ObjectID = \"X7F-kL-uld\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Services"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サービス"
+          }
+        }
+      }
+    },
+    "x7k-gM-3EP.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Line\"; ObjectID = \"x7k-gM-3EP\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Line"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セリフ"
+          }
+        }
+      }
+    },
+    "xsj-oX-Q0T.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Direction\"; ObjectID = \"xsj-oX-Q0T\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Direction"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "演出"
+          }
+        }
+      }
+    },
+    "Xzq-p7-qid.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Character\"; ObjectID = \"Xzq-p7-qid\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Character"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャラクタ"
+          }
+        }
+      }
+    },
+    "YbF-1P-BuL.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Export Package Only\"; ObjectID = \"YbF-1P-BuL\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export Package Only"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パッケージのみエクスポートする"
+          }
+        }
+      }
+    },
+    "yHM-UO-xzD.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Music\"; ObjectID = \"yHM-UO-xzD\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Music"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音楽"
+          }
+        }
+      }
+    },
+    "yid-xo-m3T.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Direction\"; ObjectID = \"yid-xo-m3T\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Direction"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "演出"
+          }
+        }
+      }
+    },
+    "Yqx-N6-CcQ.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Show\"; ObjectID = \"Yqx-N6-CcQ\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示"
+          }
+        }
+      }
+    },
+    "ytL-kl-g6o.title" : {
+      "comment" : "Class = \"NSMenu\"; title = \"Left\"; ObjectID = \"ytL-kl-g6o\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Left"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左"
+          }
+        }
+      }
+    },
+    "Z7J-ix-hEs.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Sound Effect\"; ObjectID = \"Z7J-ix-hEs\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sound Effect"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "効果音"
+          }
+        }
+      }
+    },
+    "Zg1-fR-VSk.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Music\"; ObjectID = \"Zg1-fR-VSk\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Music"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音楽"
+          }
+        }
+      }
+    },
+    "zQ3-la-xo9.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Hide\"; ObjectID = \"zQ3-la-xo9\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示"
+          }
+        }
+      }
+    },
+    "zTe-Ke-OHD.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Volume\"; ObjectID = \"zTe-Ke-OHD\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Volume"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音量"
+          }
+        }
+      }
+    },
+    "zWu-YS-V1W.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Show\"; ObjectID = \"zWu-YS-V1W\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示"
+          }
+        }
+      }
+    },
+    "ZXz-Bg-OeC.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Right Center\"; ObjectID = \"ZXz-Bg-OeC\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Right Center"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右中央"
+          }
+        }
+      }
+    },
+    "zYn-xc-1dG.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Left Center\"; ObjectID = \"zYn-xc-1dG\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Left Center"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左中央"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
