@@ -115,3 +115,5 @@ Did you know that...
 Here is the very place where you raise your banner.
 
 **Come forward**, those who resonate with our vision and are of like mind.
+
+Venite et videbitis.
