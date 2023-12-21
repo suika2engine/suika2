@@ -12,12 +12,12 @@ Suika2 will be the standard of visual novel creation for the 2020s and later.
 ## What Suika2 Values
 
 1. Simple: Anyone can easily create visual novels.
-2. Fast: We build apps with native technologies only.
-3. Free: We are an open source project that is not monopolized by anyone.
+2. Fast: We build apps with fast native technologies only.
+3. Free: We are an open source project and we make our technology public as pro-bono while we respect other developers' intellectual properties.
 4. Diverse: Games can be developed on a variety of platforms and run on any device.
-5. Cultural: We believe that creation is the true value of humanity.
+5. Cultural: We believe that creation of information is the true value of humanity.
 6. Earning: Game developers can publish their games on stores and get income.
-7. Prosperity: Anyone of any birth can make a living from a computer.
+7. Prosperity: We aim to create a world where people of any birth can make a living with a single computer.
 
 ## Downloads
 
