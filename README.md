@@ -31,12 +31,12 @@ Note that Releases on GitHub are not frequently done, so please visit the websit
 ## Discord
 
 We form a precious and invaluable community that embraces developers of any nationality,
-language, race, creed, gender, religion or identity for the advancement of visual novels.
-You definitely deserve to be a part of it and are encouraged to join the following server.
+language, race, color, lineage, creed, gender, education, age, religion or identity.
+You definitely deserve to be a part of it and are encouraged to join the server.
 
 <a href="https://discord.gg/ZmvXxE8GFg"><img src="https://discordapp.com/api/guilds/986623112617541677/widget.png?style=banner1"></a>
 
-We have a large vision of cultural development, and we have some lofty conversations,
+We have a great vision of cultural development and we have some lofty conversations,
 but basically we are just developers.
 
 ## Suika2 Pro
