@@ -203,6 +203,14 @@ static void setStoppedState(void);
     [self updateViewport:_savedViewFrame.size];
 }
 
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
+    if (frameSize.width < 1280)
+        frameSize.width = 1280;
+    if (frameSize.height < 720)
+        frameSize.height = 720;
+    return frameSize;
+}
+
 - (void)windowDidResize:(NSNotification *)notification {
     [self updateViewport:self.renderView.frame.size];
 }

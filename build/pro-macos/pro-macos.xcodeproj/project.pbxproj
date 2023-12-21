@@ -698,7 +698,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 15.22;
+				MARKETING_VERSION = 1;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",
@@ -749,7 +749,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 15.22;
+				MARKETING_VERSION = 1;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",
