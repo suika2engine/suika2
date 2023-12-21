@@ -62,13 +62,11 @@
 
 /* バージョン文字列 */
 #define VERSION_EN \
-	L"Suika2 15\n" \
-	L"A part of the Suika Studio Professional Development Suite\n"	\
-	L"This product is guaranteed to be available as an open source software in the future."
+	L"Suika2 Pro Desktop 15\n" \
+	L"Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved."
 #define VERSION_JP \
-	L"Suika2 15\n" \
-	L"A part of the Suika Studio Professional Development Suite\n"	\
-	L"本製品は将来に渡ってオープンソースソフトウェアとして提供されることが保証されます。"
+	L"Suika2 Pro Desktop 15\n" \
+	L"Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved."
 
 /* 最小ウィンドウサイズ */
 #define WINDOW_WIDTH_MIN	(800)
@@ -972,22 +970,22 @@ static VOID InitMenu(HWND hWnd)
 	nOrder = 0;
 	mi.wID = ID_EXPORT_WIN;
 	mi.dwTypeData = bEnglish ?
-		L"Export for Windows" :
+		L"Export a Windows game" :
 		L"Windowsゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows EXEインストーラを作成するを作成する */
 	mi.wID = ID_EXPORT_WIN_INST;
 	mi.dwTypeData = bEnglish ?
-		L"Create EXE Installer for Windows" :
-		L"Windows EXE インストーラを作成する";
+		L"Export a Windows game (installer)" :
+		L"Windowsゲームをエクスポートする(インストーラ)";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows/Macゲームをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN_MAC;
 	mi.dwTypeData = bEnglish ?
-		L"Export for Windows/Mac" :
-		L"Windows/Macゲームをエクスポートする";
+		L"Export a desktop game for Windows and others" :
+		L"Windowsなどのデスクトップゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Webゲームをエクスポートするを作成する */

@@ -373,19 +373,42 @@ static void setStoppedState(void);
 }
 
 - (BOOL)openProject {
-    NSOpenPanel *panel = [NSOpenPanel openPanel];
-    if (@available(macOS 11.0, *)) {
-        [panel setAllowedContentTypes:@[[UTType typeWithFilenameExtension:@"suika2project" conformingToType:UTTypeData]]];
-    } else {
-        [panel setAllowedFileTypes:@[@"suika2project"]];
+    while (YES) {
+        NSOpenPanel *panel = [NSOpenPanel openPanel];
+        [panel setCanChooseDirectories:YES];
+        if ([panel runModal] != NSModalResponseOK) {
+            [NSApp stop:nil];
+            return NO;
+        }
+
+        NSString *path = [[panel URL] path];
+        if ([[path lastPathComponent] hasSuffix:@"suika2project"]) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setMessageText:_isEnglish ?
+             @"Please select a game folder, not a project file." :
+             @"プロジェクトファイルではなくゲームフォルダを選択してください。"];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setAlertStyle:NSAlertStyleCritical];
+            [alert runModal];
+            continue;
+        }
+
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if (![fileManager isReadableFileAtPath:[path stringByAppendingString:@"/conf/config.txt"]]) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setMessageText:_isEnglish ?
+                @"The folder you selected doesn't contain a game. Please select a game folder." :
+                @"ゲームフォルダではありません。ゲームフォルダを選択してください。"];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setAlertStyle:NSAlertStyleCritical];
+            [alert runModal];
+            continue;
+        }
+
+        [fileManager changeCurrentDirectoryPath:path];
+        break;
     }
-    if ([panel runModal] != NSModalResponseOK) {
-        [NSApp stop:nil];
-        return NO;
-    }
-    NSString *dir = [[[panel URL] URLByDeletingLastPathComponent] path];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager changeCurrentDirectoryPath:dir];
+
     return YES;
 }
 
@@ -1510,6 +1533,7 @@ static void setStoppedState(void);
         [self updateScriptModelFromText];
         [self setTextColorForAllLines];
     }
+    _isRangedChange = NO;
 }
 
 - (int)scriptCursorLine {
