@@ -178,3 +178,9 @@ build/experimental-engine-console/*.nsp
 build/experimental-windows-installer/suika-pro.exe
 build/experimental-windows-installer/games
 build/experimental-windows-installer/tools
+
+#
+# Website
+#
+
+doc/web/tmp

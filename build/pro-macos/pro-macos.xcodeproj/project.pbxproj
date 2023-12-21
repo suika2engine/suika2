@@ -72,7 +72,6 @@
 		2669F7D82B284675001AEF17 /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CF2B284675001AEF17 /* GameView.m */; };
 		2669F7D92B284675001AEF17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D02B284675001AEF17 /* main.m */; };
 		2669F7DC2B284675001AEF17 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7D62B284675001AEF17 /* ViewController.m */; };
-		2669F7DE2B28467D001AEF17 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2669F7DD2B28467D001AEF17 /* Main.storyboard */; };
 		269D04722B28891C00934EE2 /* ScriptTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269D04712B28891C00934EE2 /* ScriptTextView.m */; };
 		26A1BAE32B2AD78800761444 /* ios-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE22B2AD78700761444 /* ios-src */; };
 		26A1BAE72B2AD79E00761444 /* android-src in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAE62B2AD79E00761444 /* android-src */; };
@@ -85,6 +84,7 @@
 		26A1BAF52B2AD7D700761444 /* index.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF22B2AD7D700761444 /* index.wasm */; };
 		26A1BAF72B2AD7E700761444 /* suika-mac.zip in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF62B2AD7E700761444 /* suika-mac.zip */; };
 		26A1BAF92B2AD7F600761444 /* suika.exe in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF82B2AD7F600761444 /* suika.exe */; };
+		26F4E5AF2B32CE61003E4B5A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26F4E5B12B32CE61003E4B5A /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -180,7 +180,9 @@
 		26495D0E2B2A7BFD0050EDDF /* GameRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameRenderer.h; path = ../../src/apple/GameRenderer.h; sourceTree = "<group>"; };
 		26495D0F2B2A7BFD0050EDDF /* aunit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aunit.c; path = ../../src/apple/aunit.c; sourceTree = "<group>"; };
 		26495D102B2A7BFD0050EDDF /* GameShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameShaderTypes.h; path = ../../src/apple/GameShaderTypes.h; sourceTree = "<group>"; };
-		2669F7082B283866001AEF17 /* Suika2 Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		265C81652B33D89F00061F38 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
+		265C81692B33DB3500061F38 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
+		2669F7082B283866001AEF17 /* Suika2 Pro Desktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro Desktop.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2669F7CD2B284675001AEF17 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		2669F7CE2B284675001AEF17 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -191,7 +193,6 @@
 		2669F7D42B284675001AEF17 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2669F7D52B284675001AEF17 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		2669F7D62B284675001AEF17 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		2669F7DD2B28467D001AEF17 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		269D04702B28891C00934EE2 /* ScriptTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScriptTextView.h; sourceTree = "<group>"; };
 		269D04712B28891C00934EE2 /* ScriptTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScriptTextView.m; sourceTree = "<group>"; };
 		26A1BAE22B2AD78700761444 /* ios-src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ios-src"; path = "../../engine-ios/ios-src"; sourceTree = "<group>"; };
@@ -205,6 +206,7 @@
 		26A1BAF22B2AD7D700761444 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
 		26A1BAF62B2AD7E700761444 /* suika-mac.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "suika-mac.zip"; path = "../../engine-macos/suika-mac.zip"; sourceTree = "<group>"; };
 		26A1BAF82B2AD7F600761444 /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
+		26F4E5B02B32CE61003E4B5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -357,7 +359,7 @@
 		2669F7092B283866001AEF17 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2669F7082B283866001AEF17 /* Suika2 Pro.app */,
+				2669F7082B283866001AEF17 /* Suika2 Pro Desktop.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -366,7 +368,7 @@
 			isa = PBXGroup;
 			children = (
 				2610CC832B2878C900300004 /* Assets.xcassets */,
-				2669F7DD2B28467D001AEF17 /* Main.storyboard */,
+				26F4E5B12B32CE61003E4B5A /* Main.storyboard */,
 				2669F7D42B284675001AEF17 /* Info.plist */,
 				2669F7D32B284675001AEF17 /* pro_macos.entitlements */,
 				2669F7D02B284675001AEF17 /* main.m */,
@@ -393,9 +395,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2669F7072B283866001AEF17 /* Suika2 Pro */ = {
+		2669F7072B283866001AEF17 /* Suika2 Pro Desktop */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2 Pro" */;
+			buildConfigurationList = 2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2 Pro Desktop" */;
 			buildPhases = (
 				2669F7042B283866001AEF17 /* Sources */,
 				2669F7052B283866001AEF17 /* Frameworks */,
@@ -405,9 +407,9 @@
 			);
 			dependencies = (
 			);
-			name = "Suika2 Pro";
+			name = "Suika2 Pro Desktop";
 			productName = "pro-macos";
-			productReference = 2669F7082B283866001AEF17 /* Suika2 Pro.app */;
+			productReference = 2669F7082B283866001AEF17 /* Suika2 Pro Desktop.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -431,13 +433,14 @@
 			knownRegions = (
 				en,
 				Base,
+				ja,
 			);
 			mainGroup = 2669F6FF2B283866001AEF17;
 			productRefGroup = 2669F7092B283866001AEF17 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2669F7072B283866001AEF17 /* Suika2 Pro */,
+				2669F7072B283866001AEF17 /* Suika2 Pro Desktop */,
 			);
 		};
 /* End PBXProject section */
@@ -448,7 +451,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2610CC842B2878C900300004 /* Assets.xcassets in Resources */,
-				2669F7DE2B28467D001AEF17 /* Main.storyboard in Resources */,
+				26F4E5AF2B32CE61003E4B5A /* Main.storyboard in Resources */,
 				26A1BAEC2B2AD7B200761444 /* japanese in Resources */,
 				26A1BAE32B2AD78800761444 /* ios-src in Resources */,
 				26A1BAED2B2AD7B200761444 /* nvl in Resources */,
@@ -539,6 +542,19 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXVariantGroup section */
+		26F4E5B12B32CE61003E4B5A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				26F4E5B02B32CE61003E4B5A /* Base */,
+				265C81652B33D89F00061F38 /* en */,
+				265C81692B33DB3500061F38 /* ja */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		2669F7192B283867001AEF17 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -594,7 +610,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -650,7 +666,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -664,10 +680,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "pro-macos/pro_macos.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -681,8 +697,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",
@@ -718,7 +734,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -732,8 +748,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",
@@ -771,7 +787,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2 Pro" */ = {
+		2669F71B2B283867001AEF17 /* Build configuration list for PBXNativeTarget "Suika2 Pro Desktop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2669F71C2B283867001AEF17 /* Debug */,

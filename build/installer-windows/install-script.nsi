@@ -2,9 +2,11 @@
 !define MUI_ICON "icon.ico"
 !define MUI_UNICON "icon.ico"
 
-Name "Suika2"
+Name "Suika2 Pro Desktop"
 OutFile "suika2-installer.exe"
-InstallDir "$APPDATA\Local\Suika2"
+InstallDir "$APPDATA\Local\Suika2 Pro Desktop"
+
+SetCompressor /SOLID /FINAL lzma
 
 !insertmacro MUI_PAGE_WELCOME
 Page directory
@@ -15,17 +17,19 @@ Section ""
   File "suika-pro.exe"
   File /r "games"
   File /r "tools"
+  File "plaintext.code-snippets.en"
+  File "plaintext.code-snippets.jp"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
-  CreateDirectory "$SMPROGRAMS\Suika2"
+  CreateDirectory "$SMPROGRAMS\Suika2 Pro Desktop"
   SetOutPath "$INSTDIR"
-  CreateShortcut "$SMPROGRAMS\Suika2\Suika2.lnk" "$INSTDIR\suika-pro.exe" ""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2" "DisplayName" "Suika2"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2" "UninstallString" '"$INSTDIR\Uninstall.exe"'
+  CreateShortcut "$SMPROGRAMS\Suika2 Pro Desktop\Suika2 Pro Desktop.lnk" "$INSTDIR\suika-pro.exe" ""
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayName" "Suika2 Pro Desktop"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "UninstallString" '"$INSTDIR\Uninstall.exe"'
 SectionEnd
 
 Section "Desktop Shortcut" SectionX
   SetShellVarContext current
-  CreateShortCut "$DESKTOP\Suika2.lnk" "$INSTDIR\suika-pro.exe"
+  CreateShortCut "$DESKTOP\Suika2 Pro Desktop.lnk" "$INSTDIR\suika-pro.exe"
 SectionEnd
 
 Section "Uninstall"
@@ -34,9 +38,9 @@ Section "Uninstall"
   Delete "$INSTDIR\games"
   Delete "$INSTDIR\tools"
   RMDir /r "$INSTDIR"
-  Delete "$SMPROGRAMS\Suika2\Suika2.lnk"
-  RMDir "$SMPROGRAMS\Suika2"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2"
+  Delete "$SMPROGRAMS\Suika2 Pro Desktop\Suika2.lnk"
+  RMDir "$SMPROGRAMS\Suika2 Pro Desktop"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop"
 SectionEnd
 
 !insertmacro MUI_LANGUAGE "English"

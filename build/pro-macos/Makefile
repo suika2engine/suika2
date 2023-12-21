@@ -19,11 +19,11 @@ FILES_MACOS = \
 main: suika2.dmg
 
 suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_MACOS)
-	@echo "Building Suika2 Pro.app"
+	@echo "Building Suika2 Pro Desktop.app"
 	@rm -rf build
 	@xcodebuild -quiet -scheme pro-macos -project pro-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/pro-macos.xcarchive archive
 	@xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/pro-macos.xcarchive -exportOptionsPlist export-options.plist
-	@rm -rf "build/Release/Suika2 Pro.app"
+	@rm -rf "build/Release/Suika2 Pro Desktop.app"
 	@until \
 		xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/pro-macos.xcarchive -exportPath `pwd`/build/Release; \
 	do \
@@ -32,16 +32,16 @@ suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_MACOS)
 	done
 	@rm -rf tmp *.dmg
 	@mkdir tmp
-	@cp -Ra "build/Release/Suika2 Pro.app" "tmp/Suika2 Pro.app"
+	@cp -Ra "build/Release/Suika2 Pro Desktop.app" "tmp/Suika2 Pro Desktop.app"
 	@create-dmg \
-		--volname "Suika2 Installer" \
+		--volname "Suika2 Pro Desktop Installer" \
 		--background "installer_background.png" \
 		--window-pos 200 120 \
 		--window-size 800 400 \
 		--icon-size 100 \
-		--icon "Suika2 Pro.app" 200 190 \
+		--icon "Suika2 Pro Desktop.app" 200 190 \
 		--app-drop-link 600 185 \
-		--format UDBZ \
+		--format ULFO \
 		"suika2.dmg" \
 		"tmp"
 

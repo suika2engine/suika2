@@ -62,13 +62,11 @@
 
 /* バージョン文字列 */
 #define VERSION_EN \
-	L"Suika2 15\n" \
-	L"A part of the Suika Studio Professional Development Suite\n"	\
-	L"This product is guaranteed to be available as an open source software in the future."
+	L"Suika2 Pro Desktop 15\n" \
+	L"Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved."
 #define VERSION_JP \
-	L"Suika2 15\n" \
-	L"A part of the Suika Studio Professional Development Suite\n"	\
-	L"本製品は将来に渡ってオープンソースソフトウェアとして提供されることが保証されます。"
+	L"Suika2 Pro Desktop 15\n" \
+	L"Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved."
 
 /* 最小ウィンドウサイズ */
 #define WINDOW_WIDTH_MIN	(800)
@@ -265,6 +263,7 @@ static BOOL OpenProject(const wchar_t *pszPath);
 /* Command Handlers */
 static VOID OnOpenGameFolder(void);
 static VOID OnOpenScript(void);
+static VOID OnReloadScript(void);
 static const wchar_t *SelectFile(const char *pszDir);
 static VOID OnSave(void);
 static VOID OnNextError(void);
@@ -922,6 +921,13 @@ static VOID InitMenu(HWND hWnd)
 		L"スクリプトを開く(&O)\tCtrl+O";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
+	/* スクリプトをリロードを作成する */
+	mi.wID = ID_RELOAD;
+	mi.dwTypeData = bEnglish ?
+		L"Reload script(&L)\tCtrl+L" :
+		L"スクリプトをリロードする(&L)\tCtrl+L";
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+
 	/* スクリプトを上書き保存する(S)を作成する */
 	mi.wID = ID_SAVE;
 	mi.dwTypeData = bEnglish ?
@@ -964,22 +970,22 @@ static VOID InitMenu(HWND hWnd)
 	nOrder = 0;
 	mi.wID = ID_EXPORT_WIN;
 	mi.dwTypeData = bEnglish ?
-		L"Export for Windows" :
+		L"Export a Windows game" :
 		L"Windowsゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows EXEインストーラを作成するを作成する */
 	mi.wID = ID_EXPORT_WIN_INST;
 	mi.dwTypeData = bEnglish ?
-		L"Create EXE Installer for Windows" :
-		L"Windows EXE インストーラを作成する";
+		L"Export a Windows game (installer)" :
+		L"Windowsゲームをエクスポートする(インストーラ)";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Windows/Macゲームをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN_MAC;
 	mi.dwTypeData = bEnglish ?
-		L"Export for Windows/Mac" :
-		L"Windows/Macゲームをエクスポートする";
+		L"Export a desktop game for Windows and others" :
+		L"Windowsなどのデスクトップゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
 
 	/* Webゲームをエクスポートするを作成する */
@@ -1394,6 +1400,16 @@ static BOOL PretranslateMessage(MSG* pMsg)
 				pMsg->lParam = 0;
 			}
 			break;
+		case 'L':
+			/* Ctrl+Rを処理する */
+			if (bControlDown)
+			{
+				pMsg->hwnd = hWndMain;
+				pMsg->message = WM_COMMAND;
+				pMsg->wParam = ID_RELOAD;
+				pMsg->lParam = 0;
+			}
+			break;
 		case 'S':
 			/* Ctrl+Sを処理する */
 			if (bControlDown)
@@ -1746,6 +1762,9 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	case ID_OPEN:
 		OnOpenScript();
+		break;
+	case ID_RELOAD:
+		OnReloadScript();
 		break;
 	case ID_SAVE:
 		OnSave();
@@ -3696,6 +3715,13 @@ static BOOL CreateProject(void)
 	hFile = CreateFileW(pFile, GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
 	CloseHandle(hFile);
 
+	/* .vscodeを生成する */
+	CreateDirectory(L".\\.vscode", 0);
+	CopyLibraryFiles(bEnglish ?
+					 L"plaintext.code-snippets.en" :
+					 L"plaintext.code-snippets.jp",
+					 L".\\.vscode\\plaintext.code-snippets");
+
 	/* テンプレートを選択する */
 	if (MessageBox(NULL,
 				   bEnglish ?
@@ -3767,6 +3793,12 @@ static VOID OnOpenScript(void)
 		return;
 
 	SetWindowText(hWndTextboxScript, pFile);
+	bScriptOpened = TRUE;
+}
+
+/* スクリプトリロード */
+static VOID OnReloadScript(void)
+{
 	bScriptOpened = TRUE;
 }
 

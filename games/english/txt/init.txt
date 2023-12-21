@@ -147,7 +147,7 @@
 
 *Midori*e016.ogg*Thank you for using Suika2!
 *Midori*e017.ogg*As you may already know, Suika2 is a visual novel authoring tool, commonly known as an "engine".
-*Midori*e018.ogg*It's free, open-source, runs on Windows, Mac, and loads of other systems – awesome, right?
+*Midori*e018.ogg*It's free, open-source, runs on PC, Mac, and loads of other systems - awesome, right?
 
 @ch c 001-fun.png 1.0
 *Midori*e019.ogg*The Team asked me to see if you had any questions. Anything you'd like to ask them?
@@ -163,11 +163,14 @@
 @choose L1_ADVANTAGE "Why choose Suika2?" L1_ENV "Any system requirements?" L1_NEXT Next
 
 :L1_ADVANTAGE
-Suika2 has three main advantages. The most important being portability. We have Windows and Mac applications as well as Web and Linux. All of them work in pretty much the same way.
-This means game developers don't need to worry about the users' O.S.!
-In addition, game developers can use their favorite O.S. to develop a game.
-Secondly, simplicity. Anyone can start writing scripts with nothing more than a text editor. What's even better: scripts are pretty much just plain English!
-Last but not least, freedom. You can use Suika2 in your commercial projects for free!
+Suika2 has three main advantages.
+Firstly, it's portable.
+We have Suika2 Pro apps for Mac, iPhone, iPad and PC.
+Games made with Suika2 Pro run on iPhone, iPad, PC and so on. All of them work in pretty much the same way.
+Secondly, it's simple.
+Anyone can start writing scripts with nothing more than a text editor.
+What's even better: scripts are pretty much just plain English!
+Last but not least, freedom. You can use Suika2 Pro in your commercial projects for free!
 
 @set $1 = 1
 @ch c 001-fun.png 1.0
@@ -177,10 +180,10 @@ Last but not least, freedom. You can use Suika2 in your commercial projects for 
 @goto LOOP1
 
 :L1_ENV
-We support most versions of Windows from Windows XP all the way up to Windows 11.
-We also support macOS 10.9 and later. (Of course, we now support the latest Ventura release as well as the M2 Chip.)
-When it comes to Web browsers, we support Chrome, Safari, Firefox, and Edge.
-In addition to all of those, Suika2 runs on iPhone, iPad, Android, and Linux. (Did you know, Suika2 was initially written on Linux!)
+You can create games that run on iPhone, iPad, non-iOS phones, Mac, PC and so on!
+Market trends for devices that run games differ from country to country.
+You can create games for all markets.
+
 @set $2 = 1
 @ch c 001-fun.png 1.0
 *Midori*e022.ogg*Oh yeah, that's right!

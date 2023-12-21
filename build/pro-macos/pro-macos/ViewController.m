@@ -1,3 +1,10 @@
+// -*- coding: utf-8; indent-tabs-mode: nil; tab-width: 4; c-basic-offset: 4; -*-
+
+/*
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ */
+
 #import "ViewController.h"
 #import "ViewController.h"
 #import "GameView.h"
@@ -196,6 +203,14 @@ static void setStoppedState(void);
     [self updateViewport:_savedViewFrame.size];
 }
 
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
+    if (frameSize.width < 1280)
+        frameSize.width = 1280;
+    if (frameSize.height < 720)
+        frameSize.height = 720;
+    return frameSize;
+}
+
 - (void)windowDidResize:(NSNotification *)notification {
     [self updateViewport:self.renderView.frame.size];
 }
@@ -340,9 +355,9 @@ static void setStoppedState(void);
             return [self copyResourceTemplate:@"nvl"];
 
         alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"縦書きにしますか？"];
+        [alert setMessageText:@"縦書きにしますか？"];
         [alert addButtonWithTitle:@"はい"];
-        [alert setMessageText:@"いいえ"];
+        [alert addButtonWithTitle:@"いいえ"];
         [alert setAlertStyle:NSAlertStyleInformational];
         if ([alert runModal] == NSAlertFirstButtonReturn)
             return [self copyResourceTemplate:@"nvl-tategaki"];
@@ -366,19 +381,42 @@ static void setStoppedState(void);
 }
 
 - (BOOL)openProject {
-    NSOpenPanel *panel = [NSOpenPanel openPanel];
-    if (@available(macOS 11.0, *)) {
-        [panel setAllowedContentTypes:@[[UTType typeWithFilenameExtension:@"suika2project" conformingToType:UTTypeData]]];
-    } else {
-        [panel setAllowedFileTypes:@[@"suika2project"]];
+    while (YES) {
+        NSOpenPanel *panel = [NSOpenPanel openPanel];
+        [panel setCanChooseDirectories:YES];
+        if ([panel runModal] != NSModalResponseOK) {
+            [NSApp stop:nil];
+            return NO;
+        }
+
+        NSString *path = [[panel URL] path];
+        if ([[path lastPathComponent] hasSuffix:@"suika2project"]) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setMessageText:_isEnglish ?
+             @"Please select a game folder, not a project file." :
+             @"プロジェクトファイルではなくゲームフォルダを選択してください。"];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setAlertStyle:NSAlertStyleCritical];
+            [alert runModal];
+            continue;
+        }
+
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if (![fileManager isReadableFileAtPath:[path stringByAppendingString:@"/conf/config.txt"]]) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setMessageText:_isEnglish ?
+                @"The folder you selected doesn't contain a game. Please select a game folder." :
+                @"ゲームフォルダではありません。ゲームフォルダを選択してください。"];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setAlertStyle:NSAlertStyleCritical];
+            [alert runModal];
+            continue;
+        }
+
+        [fileManager changeCurrentDirectoryPath:path];
+        break;
     }
-    if ([panel runModal] != NSModalResponseOK) {
-        [NSApp stop:nil];
-        return NO;
-    }
-    NSString *dir = [[[panel URL] URLByDeletingLastPathComponent] path];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager changeCurrentDirectoryPath:dir];
+
     return YES;
 }
 
@@ -588,11 +626,11 @@ static void setStoppedState(void);
 
     // 確認のダイアログを開く
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:!self.isEnglish ? @"はい" : @"Yes"];
-    [alert addButtonWithTitle:!self.isEnglish ? @"いいえ" : @"No"];
     [alert setMessageText:self.isEnglish ?
            @"Are you sure you want to overwrite the script file?" :
            @"スクリプトファイルを上書き保存します。\nよろしいですか？"];
+    [alert addButtonWithTitle:!self.isEnglish ? @"はい" : @"Yes"];
+    [alert addButtonWithTitle:!self.isEnglish ? @"いいえ" : @"No"];
     [alert setAlertStyle:NSAlertStyleWarning];
     if([alert runModal] != NSAlertFirstButtonReturn)
         return;
@@ -675,140 +713,391 @@ static void setStoppedState(void);
     log_info(self.isEnglish ? "No error." : "エラーはありません。");
 }
 
+- (void)insertText:(NSString *)command {
+    NSString *text = _textViewScript.string;
+    NSArray *lines = [text componentsSeparatedByString:@"\n"];
+    int cur = (int)_textViewScript.selectedRange.location;
+    int lineCount = 0;
+    int lineTop = 0;
+    for (NSString *line in lines) {
+        int lineLen = (int)line.length;
+        if (cur >= lineTop && cur <= lineTop + lineLen)
+            break;
+        lineCount++;
+        lineTop += lineLen + 1;
+    }
+
+    [_textViewScript insertText:command replacementRange:NSMakeRange(lineTop, 0)];
+}
+
 // メッセージの挿入
 - (IBAction)onMenuMessage:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"Edit this message and press return."];
+    else
+        [self insertText:@"この行のメッセージを編集して改行してください。"];
 }
 
 // セリフの挿入
 - (IBAction)onMenuLine:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"*Name*Edit this line and press return."];
+    else
+        [self insertText:@"名前「このセリフを編集して改行してください。」"];
 }
 
 // セリフ(ボイスつき)の挿入
 - (IBAction)onMenuLineWithVoice:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"*Name*001.ogg*Edit this line and press return."];
+    else
+        [self insertText:@"*名前*001.ogg*このセリフを編集して改行してください。"];
 }
 
 // 背景変更の挿入
 - (IBAction)onMenuBackground:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/bg"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@bg file=%@ duration=1.0", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@背景 ファイル=%@ 秒=1.0", file]];
 }
 
 // 背景のみ変更の挿入
 - (IBAction)onMenuBackgroundOnly:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/bg"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@chsx bg=%@ duration=1.0", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@場面転換X 背景=%@ 秒=1.0", file]];
 }
 
 // 左キャラの表示
 - (IBAction)onMenuShowLeftCharacter:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@ch position=left file=%@ duration=1.0", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@キャラ 位置=左 ファイル=%@ 秒=1.0", file]];
 }
 
 // 左キャラの非表示
 - (IBAction)onMenuHideLeftCharacter:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@ch position=left file=none duration=1.0"];
+    else
+        [self insertText:@"@キャラ 位置=左 ファイル=なし 秒=1.0"];
 }
 
 // 左中央キャラの表示
 - (IBAction)onMenuShowLeftCenterCharacter:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@ch position=left-center file=%@ duration=1.0", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@キャラ 位置=左中央 ファイル=%@ 秒=1.0", file]];
 }
 
 // 左中央キャラの非表示
 - (IBAction)onMenuHideLeftCenterCharacter:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@ch position=left-center file=none duration=1.0"];
+    else
+        [self insertText:@"@キャラ 位置=左中央 ファイル=なし 秒=1.0"];
 }
 
 // 中央キャラの表示
 - (IBAction)onMenuShowCenterCharacter:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@ch position=center file=%@ duration=1.0", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@キャラ 位置=中央 ファイル=%@ 秒=1.0", file]];
 }
 
 // 中央キャラの非表示
 - (IBAction)onMenuHideCenterCharacter:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@ch position=center file=none duration=1.0"];
+    else
+        [self insertText:@"@キャラ 位置=中央 ファイル=なし 秒=1.0"];
 }
 
 // 右中央キャラの表示
 - (IBAction)onMenuShowRightwCenterCharacter:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@ch position=right-center file=%@ duration=1.0", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@キャラ 位置=右中央 ファイル=%@ 秒=1.0", file]];
 }
 
 // 右中央キャラの非表示
 - (IBAction)onMenuHideRightCenterCharacter:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@ch position=right-center file=none duration=1.0"];
+    else
+        [self insertText:@"@キャラ 位置=右中央 ファイル=なし 秒=1.0"];
 }
 
 // 右キャラの表示
 - (IBAction)onMenuShowRightCharacter:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@ch position=right file=%@ duration=1.0", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@キャラ 位置=右 ファイル=%@ 秒=1.0", file]];
 }
 
 // 右キャラの非表示
 - (IBAction)onMenuHideRightCharacter:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@ch position=right file=none duration=1.0"];
+    else
+        [self insertText:@"@キャラ 位置=右 ファイル=なし 秒=1.0"];
 }
 
 // 複数キャラの変更
 - (IBAction)onMenuChsx:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@chsx left=stay center=stay right=stay duration=1.0"];
+    else
+        [self insertText:@"@場面転換X left=stay center=stay right=stay duration=1.0"];
 }
 
 // BGM再生
 - (IBAction)onMenuBgmPlay:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/bgm"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@bgm file=%@", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@音楽 ファイル=%@", file]];
 }
 
 // BGM停止
 - (IBAction)onMenuBgmStop:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@bgm file=stop"];
+    else
+        [self insertText:@"@音楽 ファイル=停止"];
 }
 
 // BGMボリューム
 - (IBAction)onMenuBgmVolume:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@vol track=bgm volume=1.0"];
+    else
+        [self insertText:@"@音量 トラック=bgm 音量=1.0"];
 }
 
 // SE再生
 - (IBAction)onMenuSePlay:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/se"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@se file=%@", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@効果音 ファイル=%@", file]];
 }
 
 // SE停止
 - (IBAction)onMenuSeStop:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@se file=stop"];
+    else
+        [self insertText:@"@効果音 ファイル=停止"];
 }
 
 // SEボリューム
 - (IBAction)onMenuSeVolume:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@vol track=se volume=1.0"];
+    else
+        [self insertText:@"@音量 トラック=se 音量=1.0"];
 }
 
 // ボイス再生
 - (IBAction)onMenuVoicePlay:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/cv"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@se file=%@ voice", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@効果音 ファイル=%@ voice", file]];
 }
 
 // ボイス停止
 - (IBAction)onMenuVoiceStop:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@se file=stop voice"];
+    else
+        [self insertText:@"@効果音 ファイル=停止 voice"];
 }
 
 // ボイスボリューム
 - (IBAction)onMenuVoiceVolume:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@vol track=voice volume=1.0"];
+    else
+        [self insertText:@"@音量 トラック=voice 音量=1.0"];
 }
 
 // ビデオ
 - (IBAction)onMenuVideo:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/mov"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@video file=%@", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@動画 ファイル=%@", file]];
 }
 
 // 選択肢1
 - (IBAction)onMenuChoose1:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@choose Label1 \"Option1\""];
+    else
+        [self insertText:@"@選択肢 ラベル1 \"選択肢１\""];
 }
 
 // 選択肢2
 - (IBAction)onMenuChoose2:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@choose Label1 \"Option1\" Label2 \"Option2\""];
+    else
+        [self insertText:@"@選択肢 ラベル1 \"選択肢１\" ラベル2 \"選択肢２\""];
 }
 
 // 選択肢3
 - (IBAction)onMenuChoose3:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@choose Label1 \"Option1\" Label2 \"Option2\" Label3 \"Option3\""];
+    else
+        [self insertText:@"@選択肢 ラベル1 \"選択肢１\" ラベル2 \"選択肢２\" ラベル3 \"選択肢３\""];
 }
 
 // クリック
 - (IBAction)onMenuClick:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@click"];
+    else
+        [self insertText:@"@クリック待ち"];
 }
 
 // 時間待ち
 - (IBAction)onMenuWait:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@wait duration=1.0"];
+    else
+        [self insertText:@"@時間待ち 秒=1.0"];
 }
 
 // gui
 - (IBAction)onMenuGUI:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/gui"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@gui file=%@", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@メニュー ファイル=%@", file]];
 }
 
 // wms
 - (IBAction)onMenuWMS:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/wms"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@wms file=%@", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@スクリプト ファイル=%@", file]];
 }
 
 // load
 - (IBAction)onMenuLoad:(id)sender {
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/txt"]];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return;
+    }
+    NSString *file = [[[panel URL] path] lastPathComponent];
+    if (self.isEnglish)
+        [self insertText:[NSString stringWithFormat:@"@load file=%@", file]];
+    else
+        [self insertText:[NSString stringWithFormat:@"@シナリオ ファイル=%@", file]];
 }
 
 - (IBAction)onMenuExportForDesktop:(id)sender {
@@ -1252,6 +1541,7 @@ static void setStoppedState(void);
         [self updateScriptModelFromText];
         [self setTextColorForAllLines];
     }
+    _isRangedChange = NO;
 }
 
 - (int)scriptCursorLine {
