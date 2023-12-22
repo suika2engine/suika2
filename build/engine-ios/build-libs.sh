@@ -91,4 +91,6 @@ cd ..
 cd ..
 rm -rf tmp
 
+rm -rf libroot/bin libroot/share
+
 echo 'finished.'

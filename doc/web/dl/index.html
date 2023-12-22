@@ -79,7 +79,7 @@
 		<div class="row">
 			<div class="col-md">
 				<h1>Suika2ダウンロードページ</h1>
-				<p>Suika2本体やテンプレートのダウンロードページです。</p>
+				<p>Suika2アプリやサンプルのダウンロードページです。</p>
 			</div>
 		</div>
 	</div>
@@ -93,80 +93,154 @@
 
 <!-- ------------------------- -->
 
-<h2>実行ファイル</h2>
-<br>
 <div class="download">
-	<h4>本体</h4>
-	<div style="margin-left:2em;">
-		<p>
-			インストーラです。すぐに試せるようにテンプレートが入っております。<br>
-			テンプレートの種類は日本語アドベンチャー、英語アドベンチャー、日本語横書きノベル、日本語縦書きノベルです。<br>
-			日本語と英語の選択はSuika2 Proの起動時のOS設定で決まります。
-		</p>
-		<p>
-<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.25 (2023/12/20):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-15.25.exe">Windows exe インストーラ</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-15.25.dmg">macOS dmg インストーラ</a><br>
-		</p>
-	</div>
-	<h4>旧版</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/suika2-15.3.zip">Suika2/15.3 本体 Windows/macOS対応 ZIP</a><br>
-			<a href="/dl/suika2-14.19.zip">Suika2/14.19 本体 Windows/macOS対応 ZIP</a><br>
-			<a href="/dl/suika2-13.35.zip">Suika2/13.35 本体 Windows/macOS対応 ZIP</a><br>
-			<a href="/dl/kirara-win-13.28.exe">Suika2 Kirara 13.28 Windows対応 最終版 (新しいProへ移行)</a><br>
-			<a href="/dl/kirara-mac-13.28.dmg">Suika2 Kirara 13.28 macOS対応 最終版 (新しいProへ移行)</a><br>
-		</p>
-	</div>
-	<br>
-	<h4>iOSサンプル</h4>
-	<div style="margin-left:2em;">
-		<p>一例として<a href="https://apps.apple.com/jp/app/imperfect-blue-re-start/id6470741697">こちらのページ</a>で作品が公開されています。</p>
-	</div>
-	<br>
-	<h4>Androidサンプル</h4>
-	<div style="margin-left:2em;">
-		<p>一例として<a href="https://play.google.com/store/apps/dev?id=7504425589390191824">こちらのページ</a>で作品が公開されています。</p>
-	</div>
-	<br>
-	<h4>Web版テスト起動ツール</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/tools/suika-webtest.zip">Web版のテスト起動ツール R1 (2023/9/7)</a><br>
-			このツールを使えば、ゲーム投稿サイト様にアップロードする前に、ご自身のPCでブラウザで動作確認ができます。
-		</p>
-	</div>
-	<br>
-	<h4>KAGからSuika2に変換するツール</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/tools/kag2suika.zip">KAGからSuika2に変換するツール R1 (2023/11/04)</a><br>
-			<a href="/dl/tools/kag2suika.py.zip">ただの短いPythonスクリプトで、ティラノビルダーのデータの基本部分を変換するのに使いました</a>
-		</p>
-	</div>
-	<br>
-	<h4>実行結果比較ツール</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/tools/suika-compare.zip">自動テスト用 実行結果比較ツール R2 (2023/9/3)</a><br>
-			キャプチャ・アンド・リプレイの <code>record</code> と <code>replay</code> を比較するツールです。<br>
-			実行ファイルが大きいので別途配布しています。詳細はreadme-jp.txtをご参照ください。
-		</p>
-	</div>
-	<br>
-	<h4>自動ルート探索ツール</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/tools/suika-routes.zip">自動ルート探索ツール R6 (2023/9/3)</a><br>
-			シナリオのルートを探索して、エンディングに至るまでのすべての選択肢の組み合わせをExcel化します。<br>
-			実行ファイルが大きいので別途配布しています。詳細はreadme-jp.txtをご参照ください。
-		</p>
-	</div>
-</div>
 
-<h2 class="spacer">サンプル/テンプレート集</h2>
+	<!-- Tabs -->
+	<ul class="nav nav-pills" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-tab-pane" type="button" role="tab" aria-controls="preview-tab-pane" aria-selected="true">Direct</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="macos-tab" data-bs-toggle="tab" data-bs-target="#macos-tab-pane" type="button" role="tab" aria-controls="macos-tab-pane" aria-selected="false">Mac</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="ios-tab" data-bs-toggle="tab" data-bs-target="#ios-tab-pane" type="button" role="tab" aria-controls="ios-tab-pane" aria-selected="false">iPhone/iPad</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="windows-tab" data-bs-toggle="tab" data-bs-target="#windows-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Windows</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux</button>
+		</li>
+	</ul>
+
+	<!-- Contents of Tabs -->
+	<div class="tab-content" id="myTabContent">
+
+		<!-- Self Hosted Distribution -->
+		<div class="tab-pane fade show active" id="preview-tab-pane" role="tabpanel" aria-labelledby="preview-tab" tabindex="0">
+			<br>
+			<h4>公式サイト配布 最新版</h4>
+			<p>
+				ストア版よりも新しいバージョンです。<br>
+				こちらのバージョンで新機能を搭載して、バグが減り安定したと思われるバージョンを不定期にストアへ登録申請します。<br>
+				アプリはインストーラ形式です。インストール後に起動すると、ゲームのテンプレートを選ぶことができます。<br>
+				テンプレートは日本語アドベンチャー、英語アドベンチャー、日本語横書きノベル、日本語縦書きノベルから選択でき、日本語と英語の選択はアプリ起動時のOS設定で決まります。
+			</p>
+			<p>
+<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.25 (2023/12/20):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.25.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.25.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
+			</p>
+			<br>
+			<h4>公式サイト 旧版</h4>
+				<p>
+					大幅な変更を行った直前のバージョンを念のために残してあります。<br>
+					<a href="/dl/suika2-15.3.zip">Suika2/15.3 本体 Windows/macOS対応 ZIP</a><br>
+					<a href="/dl/suika2-14.19.zip">Suika2/14.19 本体 Windows/macOS対応 ZIP</a><br>
+					<a href="/dl/suika2-13.35.zip">Suika2/13.35 本体 Windows/macOS対応 ZIP</a><br>
+					<a href="/dl/kirara-win-13.28.exe">Suika2 Kirara 13.28 Windows対応 最終版 (Suika2 Proへ移行済み)</a><br>
+					<a href="/dl/kirara-mac-13.28.dmg">Suika2 Kirara 13.28 macOS対応 最終版 (Suika2 Proへ移行済み)</a>
+				</p>
+		</div>
+
+		<!-- Mac -->
+		<div class="tab-pane fade" id="macos-tab-pane" role="tabpanel" aria-labelledby="macos-tab" tabindex="0">
+			<a href="https://apps.apple.com/jp/app/suika2-pro-desktop/id6474658254"><img src="/img/banners/pro-macos.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
+		<!-- iOS -->
+		<div class="tab-pane fade" id="ios-tab-pane" role="tabpanel" aria-labelledby="ios-tab" tabindex="0">
+			<a href="https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680"><img src="/img/banners/pro-ios.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
+		<!-- Windows -->
+		<div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab" tabindex="0">
+			<a href="#" onclick="alert('近日公開！');"><img src="/img/banners/pro-windows.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
+		<!-- Linux -->
+		<div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab" tabindex="0">
+			<div style="margin-left:1em;">
+				<p>For Ubuntu 22.04:</p>
+				<pre><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
+				<p>From source code:</p>
+				<pre><code>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>./configure<br>make<br>sudo make install<br>/usr/local/bin/suika2</code></pre>
+			</div>
+		</div>
+
+	</div>
+
+<hr>
 <br>
+<h2>サンプルゲーム/作品事例</h2>
+<br>
+<h4>iOS</h4>
+<div style="margin-left: 2em;">
+	<p>
+		制作事例として
+		<a href="https://apps.apple.com/jp/app/imperfect-blue-re-start/id6470741697">こちらの作品</a>
+		や
+		<a href="https://apps.apple.com/jp/app/%E3%82%AF%E3%83%AA%E3%83%A0%E3%82%BE%E3%83%B3%E3%83%AC%E3%83%83%E3%83%89%E3%81%AE%E6%AD%BB%E7%A5%9E/id6470746277">こちらの作品</a>
+		など、いくつかの作品が公開されています。<br>
+		公式デモについてはAppleから"Too short."のコメントとともに却下されました。
+	</p>
+</div>
+<br>
+<h4>Android</h4>
+<div style="margin-left: 2em;">
+	<p>
+		公式デモは <a href="https://play.google.com/store/apps/details?id=jp.luxion.suika&pli=1">こちらのページ</a> で公開されています。<br>
+		また、制作事例として <a href="https://play.google.com/store/apps/dev?id=7504425589390191824">こちらの作品</a> を初めとして、いくつかの作品が公開されています。
+	</p>
+</div>
+<br>
+<h4>Steam</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="https://store.steampowered.com/app/2599620/Zarie_The_Story_of_Sin/?l=japanese">こちらの作品</a> がSteamでの多言語対応の作例です。
+	</p>
+</div>
+<br>
+<h2>ツール</h2>
+<br>
+<h4>Web版テスト起動ツール</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="/dl/tools/suika-webtest.zip">Web版のテスト起動ツール R1 (2023/9/7)</a><br>
+		このツールを使えば、ゲーム投稿サイト様にアップロードする前に、ご自身のPCでブラウザで動作確認ができます。
+	</p>
+</div>
+<br>
+<h4>KAGからSuika2に変換するツール</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="/dl/tools/kag2suika.zip">KAGからSuika2に変換するツール R1 (2023/11/04)</a><br>
+		<a href="/dl/tools/kag2suika.py.zip">ただの短いPythonスクリプトで、ティラノビルダーのデータの基本部分を変換するのに使いました</a>
+	</p>
+</div>
+<br>
+<h4>実行結果比較ツール</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="/dl/tools/suika-compare.zip">自動テスト用 実行結果比較ツール R2 (2023/9/3)</a><br>
+		キャプチャ・アンド・リプレイの <code>record</code> と <code>replay</code> を比較するツールです。<br>
+		実行ファイルが大きいので別途配布しています。詳細はreadme-jp.txtをご参照ください。
+	</p>
+</div>
+<br>
+<h4>自動ルート探索ツール</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="/dl/tools/suika-routes.zip">自動ルート探索ツール R6 (2023/9/3)</a><br>
+		シナリオのルートを探索して、エンディングに至るまでのすべての選択肢の組み合わせをExcel化します。<br>
+		実行ファイルが大きいので別途配布しています。詳細はreadme-jp.txtをご参照ください。
+	</p>
+</div>
+<br>
+<hr>
+<br>
+<h2 class="spacer">サンプル素材集</h2>
 <br>
 <div style="text-align: center;">
   <div style="width: 100%; text-align: center;">
@@ -314,48 +388,6 @@
 
 <hr>
 
-<!--
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://suika2.com/run/nvl/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/nvl.png" alt="Suika2 全画面スタイル">
-				<div class="game-mask">
-					<div class="caption">クリックでゲームを実行</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-	<h3>全画面のノベルスタイルのテンプレート</h3>
-  <p>
-    <a href="/dl/sample/nvl-demo.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
-  </p>
-</div>
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://suika2.com/run/nvl-tategaki/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/nvl-tategaki.png" alt="Suika2 全画面スタイル 縦書き">
-				<div class="game-mask">
-					<div class="caption">クリックでゲームを実行</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>縦書きで全画面のノベルスタイルのテンプレート</h3>
-  <p>
-    <a href="/dl/sample/nvl-tategaki-demo.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
-  </p>
-</div>
-
-<hr>
-
--->
-
 <div style="text-align: center;">
   <h3>エンディングスタッフロールサンプル</h3>
 	<p>
@@ -436,7 +468,7 @@
 
 <hr>
 
-<a name="relnote"><h2 class="spacer">リリースノート - 変更点について</h2></a>
+<a name="relnote"><h2 class="spacer">リリースノート - 変更の一覧</h2></a>
 <div class="accordion" id="accordionPanelsStayOpenExample">
   <!-- 直近の更新 -->
 	<div class="accordion-item">
@@ -450,6 +482,7 @@
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
 <li>Suika2/15.25 2023/12/20 <ul> <li>Windows版インストーラの細かい修正</li> </ul> </li>
+<li>Suika2/15.24 2023/12/20 <ul> <li>macOS版の細かい修正</li> </ul> </li>
 <li>Suika2/15.23 2023/12/20 <ul> <li>アプリ名をSuika2 Pro Desktopに変更</li> </ul> </li>
 <li>Suika2/15.21 2023/12/20 <ul> <li>GUIのスライダーをポイントしたときの画像を修正 (Thanks to ラワン材-san!)</li> </ul> </li>
 <li>Suika2/15.21 2023/12/20 <ul> <li>GUIのスライダーをポイントしたときの画像を修正 (Thanks to ラワン材-san!)</li> </ul> </li>
@@ -1247,53 +1280,99 @@
 
 <h2>動作環境</h2>
 
-<h3>Windows (Pro/ゲーム)</h3>
+<h3>Windows</h3>
 <ul class="white">
-  <li>CPU: Intel Core 2 Duo 以降 / Arm 64bit (Surface Pro)</li>
-  <li>OS: Windows 10 (32bit/64bit)</li>
-  <li>OS: Windows 11</li>
-  <li>下記はMicrosoftのサポート終了OSですが、Suika2は動作可能です:
+	<li>制作ツール Suika2 Pro Desktop (Windows)
 		<ul>
-			<li>Windows 8.1</li>
-			<li>Windows 8</li>
-			<li>Windows 7</li>
-			<li>Windows Vista</li>
-			<li>Windows XP</li>
+			<li>OS: Windows 11, Windows 10 (Windows 10は32bit/64bit対応)</li>
+			<li>CPU: Intel/AMD/Arm64</li>
+			<li>GPU: Direct3D 9 (今後DirectX 11に移行予定)</li>
+		</ul>
+	</li>
+	<li>出力ゲーム (Windows)
+		<ul>
+			<li>OS: Windows 11, Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, Windows XP (Windows 11以外は32bit/64bit対応)</li>
+			<li>CPU: Intel/AMD/Arm64</li>
+			<li>GPU: Direct3D 9 (今後DirectX 11を選択可能にする予定)</li>
 		</ul>
 	</li>
 </ul>
 
-<h3>macOS (Pro/ゲーム)</h3>
+<h3>macOS</h3>
 <ul class="white">
-  <li>Intel Core / Apple Silicon</li>
-	<li>macOS 10.13 High Sierra</li>
-	<li>macOS 10.14 Mojave</li>
-  <li>macOS 10.15 Catalina</li>
-	<li>macOS 11 Big Sur</li>
-	<li>macOS 12 Monterey</li>
-	<li>macOS 13 Ventura</li>
-	<li>macOS 14 Sonoma</li>
+	<li>制作ツール Suika2 Pro Desktop (macOS)
+		<ul>
+			<li>macOS 11 Big Sur</li>
+			<li>macOS 12 Monterey</li>
+			<li>macOS 13 Ventura</li>
+			<li>macOS 14 Sonoma</li>
+		</ul>
+	</li>
+	<li>出力ゲーム (macOS)
+		<ul>
+			<li>macOS 10.13 High Sierra</li>
+			<li>macOS 10.14 Mojave</li>
+			<li>macOS 10.15 Catalina</li>
+			<li>macOS 11 Big Sur</li>
+			<li>macOS 12 Monterey</li>
+			<li>macOS 13 Ventura</li>
+			<li>macOS 14 Sonoma</li>
+		</ul>
+	</li>
 </ul>
 
-<h3>iOS (ゲーム)</h3>
+<h3>iOS/iPadOS</h3>
 <ul class="white">
-	<li>iOS 12以降</li>
+	<li>制作ツール Suika2 Pro Mobile (iOS)
+		<ul>
+			<li>iCloud Driveが必要</li>
+			<li>iOS 13 / iPadOS 13</li>
+			<li>iOS 14 / iPadOS 14</li>
+			<li>iOS 15 / iPadOS 15</li>
+			<li>iOS 16 / iPadOS 16</li>
+			<li>iOS 17 / iPadOS 17</li>
+		</ul>
+	</li>
+	<li>出力ゲーム (iOS)
+		<ul>
+			<li>iOS 11 (ビルドにはmacOS 13 Ventura以前とXcode14以前が必要)</li>
+			<li>iOS 12 (ビルドにmacOS 14 SonomaとXcode 15を用いた場合の最低要件)</li>
+			<li>iOS 13 / iPadOS 13</li>
+			<li>iOS 14 / iPadOS 14</li>
+			<li>iOS 15 / iPadOS 15</li>
+			<li>iOS 16 / iPadOS 16</li>
+			<li>iOS 17 / iPadOS 17</li>
+		</ul>
+	</li>
 </ul>
 
-<h3>Android (ゲーム)</h3>
+<h3>Android</h3>
 <ul class="white">
-	<li>Android 4.4以降</li>
+	<li>制作ツール Suika2 Pro Mobile (Android)
+		<ul>
+			<li>iPhoneに相当する高スペック端末が非常に少ないため、未対応</li>
+		</ul>
+	</li>
+	<li>出力ゲーム (Android)
+		<ul>
+			<li>Android 4.4以降</li>
+		</ul>
+	</li>
 </ul>
 
-<h3>ブラウザ版 (ゲーム)</h3>
+<h3>ブラウザ版</h3>
 <ul class="white">
-  <li>Chrome</li>
-  <li>Chromium</li>
-  <li>Edge</li>
-  <li>Safari</li>
-  <li>Firefox</li>
-	<li>AndroidのChrome</li>
-	<li>iOSのSafari</li>
+	<li>出力ゲーム
+		<ul>
+			<li>Google Chrome</li>
+			<li>Chromium</li>
+			<li>Microsoft Edge</li>
+			<li>Safari</li>
+			<li>Mozilla Firefox</li>
+			<li>Google Chrome (Android)</li>
+			<li>Safari (iOS/iPadOS)</li>
+		</ul>
+	</li>
 </ul>
 
 <!-- ----------- -->
