@@ -98,7 +98,6 @@ OBJS = \
 all: suika
 
 suika: libroot $(OBJS) $(HDRS) $(HDRS_MAIN)
-	echo $(OBJS)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
 libroot:

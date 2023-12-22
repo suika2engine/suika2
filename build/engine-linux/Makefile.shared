@@ -15,8 +15,6 @@ CC = cc
 #
 
 CPPFLAGS = \
-	-I./libroot/include \
-	-I./libroot/include/freetype2  \
 	-I/usr/local/include \
 	-I/usr/pkg/include \
 	-I/usr/X11R7/include
@@ -42,7 +40,6 @@ CFLAGS = \
 #
 
 LDFLAGS = \
-	-L./libroot/lib \
 	-lpng16 \
 	-ljpeg \
 	-lwebp \
@@ -68,13 +65,6 @@ LDFLAGS = \
 # Source files
 #
 
-include ../common.mk
-
-
-#
-# Source files
-#
-
 SRCS_LINUX = \
 	../../src/linux/asound.c \
 	../../src/linux/gstplay.c \
@@ -92,10 +82,19 @@ HDRS = \
 # .c.o compilation rules
 #
 
-OBJS = $(SRCS:../../src/%.c=%.o) \
+OBJS = \
+	$(SRCS_KHRONOS:../../src/khronos/%.c=%.o) \
+	$(SRCS_LINUX:../../src/linux/%.c=%.o) \
+	$(SRCS_MAIN:../../src/%.c=%.o)
+
+%.o: ../../src/khronos/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+%.o: ../../src/linux/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
 
 %.o: ../../src/%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 #
 # Target
@@ -103,7 +102,7 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 
 all: suika
 
-suika: $(OBJS)
+suika: $(OBJS) $(HDRS) $(HDRS_MAIN)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
 
 #

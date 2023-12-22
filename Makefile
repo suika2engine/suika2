@@ -193,7 +193,6 @@ linux:
 linux-shared:
 	@echo 'Building a Linux game binary (shared)'
 	@cd build/engine-linux && \
-	make libroot && \
 	make -j8 -f Makefile.shared && \
 	make install && \
 	cd ../..
