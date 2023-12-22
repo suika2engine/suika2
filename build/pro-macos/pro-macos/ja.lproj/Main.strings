@@ -1,579 +1,294 @@
+
+/* Class = "NSMenuItem"; title = "Call GUI"; ObjectID = "0BM-Zi-Cug"; */
+"0BM-Zi-Cug.title" = "Call GUI";
+
+/* Class = "NSMenuItem"; title = "Show Background"; ObjectID = "1Pb-g2-APY"; */
+"1Pb-g2-APY.title" = "Show Background";
+
+/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "229-sE-M1n"; */
+"229-sE-M1n.title" = "Stop";
+
+/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "2IF-Ve-lcD"; */
+"2IF-Ve-lcD.title" = "Hide";
+
+/* Class = "NSMenuItem"; title = "Open Script"; ObjectID = "46a-vv-wS6"; */
+"46a-vv-wS6.title" = "Open Script";
+
+/* Class = "NSMenuItem"; title = "Help"; ObjectID = "48t-hm-7j7"; */
+"48t-hm-7j7.title" = "Help";
+
+/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "4LJ-VS-aC0"; */
+"4LJ-VS-aC0.title" = "Stop";
+
+/* Class = "NSMenuItem"; title = "Play"; ObjectID = "5dG-b6-2DA"; */
+"5dG-b6-2DA.title" = "Play";
+
+/* Class = "NSMenuItem"; title = "Message"; ObjectID = "7ty-ky-Azi"; */
+"7ty-ky-Azi.title" = "Message";
+
+/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "8Ga-Z3-by4"; */
+"8Ga-Z3-by4.title" = "Hide";
+
+/* Class = "NSMenuItem"; title = "Export for iPhone and iPad"; ObjectID = "8PU-vu-t9o"; */
+"8PU-vu-t9o.title" = "Export for iPhone and iPad";
+
+/* Class = "NSMenuItem"; title = "File"; ObjectID = "9WY-HZ-a1i"; */
+"9WY-HZ-a1i.title" = "File";
+
+/* Class = "NSMenuItem"; title = "Export for Web Browsers"; ObjectID = "AHE-qT-PMe"; */
+"AHE-qT-PMe.title" = "Export for Web Browsers";
+
+/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "APJ-Jg-tMs"; */
+"APJ-Jg-tMs.title" = "Hide";
+
+/* Class = "NSMenuItem"; title = "Show"; ObjectID = "Ah9-XJ-yra"; */
+"Ah9-XJ-yra.title" = "Show";
+
+/* Class = "NSMenuItem"; title = "Play Video"; ObjectID = "Aol-KM-6A5"; */
+"Aol-KM-6A5.title" = "Play Video";
+
+/* Class = "NSMenuItem"; title = "Wait For Time"; ObjectID = "BAL-gp-QJe"; */
+"BAL-gp-QJe.title" = "Wait For Time";
+
+/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "BYO-of-WC4"; */
+"BYO-of-WC4.title" = "Hide";
+
+/* Class = "NSMenuItem"; title = "Show"; ObjectID = "BsI-32-ifm"; */
+"BsI-32-ifm.title" = "Show";
+
+/* Class = "NSMenuItem"; title = "Call WMS"; ObjectID = "C8x-MA-l1t"; */
+"C8x-MA-l1t.title" = "Call WMS";
+
+/* Class = "NSMenuItem"; title = "Center"; ObjectID = "CuQ-Dw-f40"; */
+"CuQ-Dw-f40.title" = "Center";
+
+/* Class = "NSMenuItem"; title = "Suika2 Pro Desktop Help"; ObjectID = "EB8-K8-Je8"; */
+"EB8-K8-Je8.title" = "Suika2 Pro Desktop Help";
+
+/* Class = "NSMenu"; title = "Run"; ObjectID = "FCx-re-lDJ"; */
+"FCx-re-lDJ.title" = "Run";
+
+/* Class = "NSButtonCell"; title = "Stop"; ObjectID = "FXl-8v-WOD"; */
+"FXl-8v-WOD.title" = "Stop";
+
+/* Class = "NSMenu"; title = "Right Center"; ObjectID = "FYZ-kh-mRZ"; */
+"FYZ-kh-mRZ.title" = "Right Center";
+
+/* Class = "NSMenuItem"; title = "Right"; ObjectID = "GLm-m1-4fE"; */
+"GLm-m1-4fE.title" = "Right";
+
+/* Class = "NSMenuItem"; title = "Play"; ObjectID = "GPg-C8-Ihb"; */
+"GPg-C8-Ihb.title" = "Play";
+
+/* Class = "NSMenu"; title = "Export"; ObjectID = "HAH-LY-b6X"; */
+"HAH-LY-b6X.title" = "Export";
+
+/* Class = "NSMenuItem"; title = "Message"; ObjectID = "HJu-Kh-AkX"; */
+"HJu-Kh-AkX.title" = "Message";
+
+/* Class = "NSMenuItem"; title = "Background"; ObjectID = "JJf-JV-I4K"; */
+"JJf-JV-I4K.title" = "Background";
+
+/* Class = "NSMenu"; title = "Left Center"; ObjectID = "Kh6-ec-i1l"; */
+"Kh6-ec-i1l.title" = "Left Center";
+
+/* Class = "NSMenuItem"; title = "Three Options"; ObjectID = "KwQ-Xd-aHm"; */
+"KwQ-Xd-aHm.title" = "Three Options";
+
+/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "L1z-rs-P4S"; */
+"L1z-rs-P4S.title" = "Stop";
+
+/* Class = "NSMenuItem"; title = "Continue"; ObjectID = "M0B-z0-myr"; */
+"M0B-z0-myr.title" = "Continue";
+
+/* Class = "NSMenuItem"; title = "Two Options"; ObjectID = "Mak-pH-yty"; */
+"Mak-pH-yty.title" = "Two Options";
+
 /* Class = "NSTextFieldCell"; title = "Changed Variables (non-initial values only):"; ObjectID = "MeG-bF-4Iq"; */
-"MeG-bF-4Iq.title" = "変更された変数 (初期値でないもののみ):";
-
-/* Class = "NSMenuItem"; title = "Call GUI"; ObjectID = "0BM-Zi-Cug"; */
-"0BM-Zi-Cug.title" = "GUIを呼び出し";
-
-/* Class = "NSMenuItem"; title = "Show Background"; ObjectID = "1Pb-g2-APY"; */
-"1Pb-g2-APY.title" = "背景を表示";
-
-/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "229-sE-M1n"; */
-"229-sE-M1n.title" = "停止";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "2IF-Ve-lcD"; */
-"2IF-Ve-lcD.title" = "非表示";
-
-/* Class = "NSMenuItem"; title = "Open Script"; ObjectID = "46a-vv-wS6"; */
-"46a-vv-wS6.title" = "スクリプトを開く";
-
-/* Class = "NSMenuItem"; title = "Help"; ObjectID = "48t-hm-7j7"; */
-"48t-hm-7j7.title" = "ヘルプ";
-
-/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "4LJ-VS-aC0"; */
-"4LJ-VS-aC0.title" = "停止";
-
-/* Class = "NSMenuItem"; title = "Play"; ObjectID = "5dG-b6-2DA"; */
-"5dG-b6-2DA.title" = "再生";
-
-/* Class = "NSMenuItem"; title = "Message"; ObjectID = "7ty-ky-Azi"; */
-"7ty-ky-Azi.title" = "メッセージ";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "8Ga-Z3-by4"; */
-"8Ga-Z3-by4.title" = "非表示";
-
-/* Class = "NSMenuItem"; title = "Export for iPhone and iPad"; ObjectID = "8PU-vu-t9o"; */
-"8PU-vu-t9o.title" = "iPhoneとiPadのゲームをエクスポート";
-
-/* Class = "NSMenuItem"; title = "File"; ObjectID = "9WY-HZ-a1i"; */
-"9WY-HZ-a1i.title" = "ファイル";
-
-/* Class = "NSMenuItem"; title = "Export for Web Browsers"; ObjectID = "AHE-qT-PMe"; */
-"AHE-qT-PMe.title" = "ブラウザのゲームをエクスポート";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "APJ-Jg-tMs"; */
-"APJ-Jg-tMs.title" = "隠す";
-
-/* Class = "NSMenuItem"; title = "Show"; ObjectID = "Ah9-XJ-yra"; */
-"Ah9-XJ-yra.title" = "表示";
-
-/* Class = "NSMenuItem"; title = "Play Video"; ObjectID = "Aol-KM-6A5"; */
-"Aol-KM-6A5.title" = "動画を再生";
-
-/* Class = "NSMenuItem"; title = "Wait For Time"; ObjectID = "BAL-gp-QJe"; */
-"BAL-gp-QJe.title" = "時間指定で待つ";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "BYO-of-WC4"; */
-"BYO-of-WC4.title" = "非表示";
-
-/* Class = "NSMenuItem"; title = "Show"; ObjectID = "BsI-32-ifm"; */
-"BsI-32-ifm.title" = "表示";
-
-/* Class = "NSMenuItem"; title = "Call WMS"; ObjectID = "C8x-MA-l1t"; */
-"C8x-MA-l1t.title" = "WMSを呼び出し";
-
-/* Class = "NSMenuItem"; title = "Center"; ObjectID = "CuQ-Dw-f40"; */
-"CuQ-Dw-f40.title" = "中央";
-
-/* Class = "NSMenuItem"; title = "Suika2 Pro Desktop Help"; ObjectID = "EB8-K8-Je8"; */
-"EB8-K8-Je8.title" = "Suika2 Pro Desktop ヘルプ";
-
-/* Class = "NSMenu"; title = "Run"; ObjectID = "FCx-re-lDJ"; */
-"FCx-re-lDJ.title" = "実行";
-
-/* Class = "NSButtonCell"; title = "Stop"; ObjectID = "FXl-8v-WOD"; */
-"FXl-8v-WOD.title" = "停止";
-
-/* Class = "NSMenu"; title = "Right Center"; ObjectID = "FYZ-kh-mRZ"; */
-"FYZ-kh-mRZ.title" = "右中央";
-
-/* Class = "NSMenuItem"; title = "Right"; ObjectID = "GLm-m1-4fE"; */
-"GLm-m1-4fE.title" = "右";
-
-/* Class = "NSMenuItem"; title = "Play"; ObjectID = "GPg-C8-Ihb"; */
-"GPg-C8-Ihb.title" = "再生";
-
-/* Class = "NSMenu"; title = "Export"; ObjectID = "HAH-LY-b6X"; */
-"HAH-LY-b6X.title" = "エクスポート";
-
-/* Class = "NSMenuItem"; title = "Message"; ObjectID = "HJu-Kh-AkX"; */
-"HJu-Kh-AkX.title" = "メッセージ";
-
-/* Class = "NSMenuItem"; title = "Background"; ObjectID = "JJf-JV-I4K"; */
-"JJf-JV-I4K.title" = "背景";
-
-/* Class = "NSMenu"; title = "Left Center"; ObjectID = "Kh6-ec-i1l"; */
-"Kh6-ec-i1l.title" = "左中央";
-
-/* Class = "NSMenuItem"; title = "Three Options"; ObjectID = "KwQ-Xd-aHm"; */
-"KwQ-Xd-aHm.title" = "選択肢（３つ）";
-
-/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "L1z-rs-P4S"; */
-"L1z-rs-P4S.title" = "停止";
-
-/* Class = "NSMenuItem"; title = "Continue"; ObjectID = "M0B-z0-myr"; */
-"M0B-z0-myr.title" = "続ける";
-
-/* Class = "NSMenuItem"; title = "Two Options"; ObjectID = "Mak-pH-yty"; */
-"Mak-pH-yty.title" = "選択肢（２つ）";
+"MeG-bF-4Iq.title" = "Changed Variables (non-initial values only):";
 
 /* Class = "NSMenuItem"; title = "Volume"; ObjectID = "Ncv-1D-bUI"; */
-"Ncv-1D-bUI.title" = "音量";
+"Ncv-1D-bUI.title" = "Volume";
 
 /* Class = "NSButtonCell"; title = "Next"; ObjectID = "Nux-c4-aG7"; */
-"Nux-c4-aG7.title" = "次へ";
+"Nux-c4-aG7.title" = "Next";
 
 /* Class = "NSMenuItem"; title = "Left"; ObjectID = "NzA-TH-gK8"; */
-"NzA-TH-gK8.title" = "左";
+"NzA-TH-gK8.title" = "Left";
 
 /* Class = "NSMenuItem"; title = "Next"; ObjectID = "PGL-T9-rCM"; */
-"PGL-T9-rCM.title" = "次へ";
+"PGL-T9-rCM.title" = "Next";
 
-/* Class = "NSButtonCell"; title = "Write"; ObjectID = "POm-Bu-lhz"; */
-"POm-Bu-lhz.title" = "変数更新";
+/* Class = "NSButtonCell"; title = "Apply Vars"; ObjectID = "POm-Bu-lhz"; */
+"POm-Bu-lhz.title" = "Apply Vars";
 
 /* Class = "NSButtonCell"; title = "..."; ObjectID = "PzB-CR-MjL"; */
 "PzB-CR-MjL.title" = "...";
 
 /* Class = "NSMenuItem"; title = "Hide Suika2 Pro Desktop"; ObjectID = "QJg-TJ-Hwe"; */
-"QJg-TJ-Hwe.title" = "Suika2 Pro Desktop を隠す";
+"QJg-TJ-Hwe.title" = "Hide Suika2 Pro Desktop";
 
 /* Class = "NSMenuItem"; title = "Run"; ObjectID = "QMk-Ey-jOt"; */
-"QMk-Ey-jOt.title" = "実行";
+"QMk-Ey-jOt.title" = "Run";
 
 /* Class = "NSMenuItem"; title = "Open Game Folder"; ObjectID = "Rvq-H1-14g"; */
-"Rvq-H1-14g.title" = "ゲームフォルダを開く";
+"Rvq-H1-14g.title" = "Open Game Folder";
 
 /* Class = "NSMenu"; title = "Right"; ObjectID = "S0T-li-CFF"; */
-"S0T-li-CFF.title" = "右";
+"S0T-li-CFF.title" = "Right";
 
 /* Class = "NSMenuItem"; title = "Save…"; ObjectID = "SQe-Hh-FZG"; */
-"SQe-Hh-FZG.title" = "スクリプトを保存";
+"SQe-Hh-FZG.title" = "Save…";
 
 /* Class = "NSMenu"; title = "Services"; ObjectID = "X7F-kL-uld"; */
-"X7F-kL-uld.title" = "サービス";
+"X7F-kL-uld.title" = "Services";
 
 /* Class = "NSMenu"; title = "Character"; ObjectID = "Xzq-p7-qid"; */
-"Xzq-p7-qid.title" = "キャラクタ";
+"Xzq-p7-qid.title" = "Character";
 
 /* Class = "NSMenuItem"; title = "Export Package Only"; ObjectID = "YbF-1P-BuL"; */
-"YbF-1P-BuL.title" = "パッケージのみエクスポート";
+"YbF-1P-BuL.title" = "Export Package Only";
 
 /* Class = "NSMenuItem"; title = "Show"; ObjectID = "Yqx-N6-CcQ"; */
-"Yqx-N6-CcQ.title" = "表示";
+"Yqx-N6-CcQ.title" = "Show";
 
 /* Class = "NSMenuItem"; title = "Sound Effect"; ObjectID = "Z7J-ix-hEs"; */
-"Z7J-ix-hEs.title" = "効果音";
+"Z7J-ix-hEs.title" = "Sound Effect";
 
 /* Class = "NSMenuItem"; title = "Right Center"; ObjectID = "ZXz-Bg-OeC"; */
-"ZXz-Bg-OeC.title" = "右中央";
+"ZXz-Bg-OeC.title" = "Right Center";
 
 /* Class = "NSMenuItem"; title = "Music"; ObjectID = "Zg1-fR-VSk"; */
-"Zg1-fR-VSk.title" = "音楽";
+"Zg1-fR-VSk.title" = "Music";
 
 /* Class = "NSMenuItem"; title = "Suika2 Pro Desktop"; ObjectID = "a6d-Ci-fPe"; */
 "a6d-Ci-fPe.title" = "Suika2 Pro Desktop";
 
 /* Class = "NSButtonCell"; title = "Continue"; ObjectID = "aAa-5x-ufg"; */
-"aAa-5x-ufg.title" = "続ける";
+"aAa-5x-ufg.title" = "Continue";
 
 /* Class = "NSMenu"; title = "Suika2 Pro Desktop"; ObjectID = "akB-3L-oog"; */
 "akB-3L-oog.title" = "Suika2 Pro Desktop";
 
 /* Class = "NSMenuItem"; title = "About Suika2 Pro Desktop"; ObjectID = "avs-le-99L"; */
-"avs-le-99L.title" = "Suika2 Pro Desktop について";
+"avs-le-99L.title" = "About Suika2 Pro Desktop";
 
 /* Class = "NSMenuItem"; title = "Stop"; ObjectID = "b6D-6C-JWV"; */
-"b6D-6C-JWV.title" = "停止";
+"b6D-6C-JWV.title" = "Stop";
 
 /* Class = "NSMenuItem"; title = "One Option"; ObjectID = "c0k-GC-g86"; */
-"c0k-GC-g86.title" = "選択肢（１つ）";
+"c0k-GC-g86.title" = "One Option";
 
 /* Class = "NSMenuItem"; title = "Choice"; ObjectID = "cYz-Mw-gy8"; */
-"cYz-Mw-gy8.title" = "選択肢";
+"cYz-Mw-gy8.title" = "Choice";
 
 /* Class = "NSMenu"; title = "Voice"; ObjectID = "d1R-iD-hcL"; */
-"d1R-iD-hcL.title" = "ボイス";
+"d1R-iD-hcL.title" = "Voice";
 
 /* Class = "NSMenuItem"; title = "Move to Other Script"; ObjectID = "d3x-jP-cX5"; */
-"d3x-jP-cX5.title" = "スクリプトを移動";
+"d3x-jP-cX5.title" = "Move to Other Script";
 
 /* Class = "NSMenuItem"; title = "Line with Voice"; ObjectID = "dri-aF-9a6"; */
-"dri-aF-9a6.title" = "セリフ（ボイスつき）";
+"dri-aF-9a6.title" = "Line with Voice";
 
 /* Class = "NSMenuItem"; title = "Export for Desktop"; ObjectID = "efu-6L-oRL"; */
-"efu-6L-oRL.title" = "デスクトップゲームのエクスポート";
+"efu-6L-oRL.title" = "Export for Desktop";
 
 /* Class = "NSMenuItem"; title = "Multiple"; ObjectID = "eim-Ro-1iH"; */
-"eim-Ro-1iH.title" = "複数";
+"eim-Ro-1iH.title" = "Multiple";
 
 /* Class = "NSMenu"; title = "File"; ObjectID = "fXc-I6-ypM"; */
-"fXc-I6-ypM.title" = "ファイル";
+"fXc-I6-ypM.title" = "File";
 
 /* Class = "NSMenuItem"; title = "Voice"; ObjectID = "gsq-rI-5Hg"; */
-"gsq-rI-5Hg.title" = "ボイス";
+"gsq-rI-5Hg.title" = "Voice";
 
 /* Class = "NSMenuItem"; title = "Services"; ObjectID = "hLV-kU-lap"; */
-"hLV-kU-lap.title" = "サービス";
+"hLV-kU-lap.title" = "Services";
 
 /* Class = "NSMenuItem"; title = "Wait For Click"; ObjectID = "hSA-fX-ANB"; */
-"hSA-fX-ANB.title" = "クリック待ち";
+"hSA-fX-ANB.title" = "Wait For Click";
 
 /* Class = "NSMenuItem"; title = "Play"; ObjectID = "hiA-A3-j0S"; */
-"hiA-A3-j0S.title" = "再生";
+"hiA-A3-j0S.title" = "Play";
 
 /* Class = "NSMenu"; title = "Background"; ObjectID = "kYn-dL-xoH"; */
-"kYn-dL-xoH.title" = "背景";
+"kYn-dL-xoH.title" = "Background";
 
 /* Class = "NSMenuItem"; title = "Next Error"; ObjectID = "kdP-XO-1d1"; */
-"kdP-XO-1d1.title" = "次のエラーへ";
+"kdP-XO-1d1.title" = "Next Error";
 
 /* Class = "NSMenu"; title = "Choice"; ObjectID = "lQL-24-sfb"; */
-"lQL-24-sfb.title" = "選択肢";
+"lQL-24-sfb.title" = "Choice";
 
 /* Class = "NSMenuItem"; title = "Show"; ObjectID = "liJ-Xm-bmj"; */
-"liJ-Xm-bmj.title" = "表示";
+"liJ-Xm-bmj.title" = "Show";
 
 /* Class = "NSMenu"; title = "Sound Effect"; ObjectID = "mqB-TW-SyD"; */
-"mqB-TW-SyD.title" = "効果音";
+"mqB-TW-SyD.title" = "Sound Effect";
 
 /* Class = "NSMenuItem"; title = "Volume"; ObjectID = "mvd-5q-CON"; */
-"mvd-5q-CON.title" = "音量";
+"mvd-5q-CON.title" = "Volume";
 
 /* Class = "NSMenu"; title = "Help"; ObjectID = "o7U-tS-QIk"; */
-"o7U-tS-QIk.title" = "ヘルプ";
+"o7U-tS-QIk.title" = "Help";
 
 /* Class = "NSMenu"; title = "Main Menu"; ObjectID = "oc6-A5-Oqn"; */
-"oc6-A5-Oqn.title" = "メインメニュー";
+"oc6-A5-Oqn.title" = "Main Menu";
 
 /* Class = "NSMenuItem"; title = "Change Background Only"; ObjectID = "p3I-8W-ibk"; */
-"p3I-8W-ibk.title" = "背景のみ変更";
+"p3I-8W-ibk.title" = "Change Background Only";
+
+/* Class = "NSButtonCell"; title = "Move"; ObjectID = "pQe-OI-VM5"; */
+"pQe-OI-VM5.title" = "Move";
 
 /* Class = "NSMenuItem"; title = "Quit Suika2 Pro Desktop"; ObjectID = "qNM-vx-ZCV"; */
-"qNM-vx-ZCV.title" = "Suika2 Pro Desktop を終了";
+"qNM-vx-ZCV.title" = "Quit Suika2 Pro Desktop";
 
 /* Class = "NSMenuItem"; title = "Character"; ObjectID = "su8-dn-muC"; */
-"su8-dn-muC.title" = "キャラクタ";
+"su8-dn-muC.title" = "Character";
 
 /* Class = "NSMenuItem"; title = "Hide Others"; ObjectID = "tBg-ov-FE2"; */
-"tBg-ov-FE2.title" = "他のウィンドウを隠す";
+"tBg-ov-FE2.title" = "Hide Others";
 
 /* Class = "NSMenuItem"; title = "Show All"; ObjectID = "tww-K1-3is"; */
-"tww-K1-3is.title" = "すべて表示する";
+"tww-K1-3is.title" = "Show All";
 
 /* Class = "NSMenu"; title = "Center"; ObjectID = "ulc-k2-i1p"; */
-"ulc-k2-i1p.title" = "中央";
+"ulc-k2-i1p.title" = "Center";
 
 /* Class = "NSMenuItem"; title = "Export for non-iOS phones"; ObjectID = "vE0-Vv-F0q"; */
-"vE0-Vv-F0q.title" = "iOSでないスマートフォンゲームをエクスポート";
+"vE0-Vv-F0q.title" = "Export for non-iOS phones";
 
 /* Class = "NSMenuItem"; title = "Export"; ObjectID = "wQP-xK-62W"; */
-"wQP-xK-62W.title" = "エクスポート";
+"wQP-xK-62W.title" = "Export";
 
 /* Class = "NSMenu"; title = "Message"; ObjectID = "we9-It-odM"; */
-"we9-It-odM.title" = "メッセージ";
+"we9-It-odM.title" = "Message";
 
 /* Class = "NSMenuItem"; title = "Line"; ObjectID = "x7k-gM-3EP"; */
-"x7k-gM-3EP.title" = "セリフ";
+"x7k-gM-3EP.title" = "Line";
 
 /* Class = "NSMenu"; title = "Direction"; ObjectID = "xsj-oX-Q0T"; */
-"xsj-oX-Q0T.title" = "演出";
+"xsj-oX-Q0T.title" = "Direction";
 
 /* Class = "NSMenu"; title = "Music"; ObjectID = "yHM-UO-xzD"; */
-"yHM-UO-xzD.title" = "音楽";
+"yHM-UO-xzD.title" = "Music";
 
 /* Class = "NSMenuItem"; title = "Direction"; ObjectID = "yid-xo-m3T"; */
-"yid-xo-m3T.title" = "演出";
+"yid-xo-m3T.title" = "Direction";
 
 /* Class = "NSMenu"; title = "Left"; ObjectID = "ytL-kl-g6o"; */
-"ytL-kl-g6o.title" = "左";
+"ytL-kl-g6o.title" = "Left";
 
 /* Class = "NSMenuItem"; title = "Hide"; ObjectID = "zQ3-la-xo9"; */
-"zQ3-la-xo9.title" = "非表示";
+"zQ3-la-xo9.title" = "Hide";
 
 /* Class = "NSMenuItem"; title = "Volume"; ObjectID = "zTe-Ke-OHD"; */
-"zTe-Ke-OHD.title" = "音量";
+"zTe-Ke-OHD.title" = "Volume";
 
 /* Class = "NSMenuItem"; title = "Show"; ObjectID = "zWu-YS-V1W"; */
-"zWu-YS-V1W.title" = "表示";
+"zWu-YS-V1W.title" = "Show";
 
 /* Class = "NSMenuItem"; title = "Left Center"; ObjectID = "zYn-xc-1dG"; */
-"zYn-xc-1dG.title" = "左中央";
-
-
-/* Class = "NSMenuItem"; title = "Call GUI"; ObjectID = "0BM-Zi-Cug"; */
-"0BM-Zi-Cug.title" = "GUIを呼び出し";
-
-/* Class = "NSMenuItem"; title = "Show Background"; ObjectID = "1Pb-g2-APY"; */
-"1Pb-g2-APY.title" = "背景を表示";
-
-/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "229-sE-M1n"; */
-"229-sE-M1n.title" = "停止";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "2IF-Ve-lcD"; */
-"2IF-Ve-lcD.title" = "非表示";
-
-/* Class = "NSMenuItem"; title = "Open Script"; ObjectID = "46a-vv-wS6"; */
-"46a-vv-wS6.title" = "スクリプトを開く";
-
-/* Class = "NSMenuItem"; title = "Help"; ObjectID = "48t-hm-7j7"; */
-"48t-hm-7j7.title" = "ヘルプ";
-
-/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "4LJ-VS-aC0"; */
-"4LJ-VS-aC0.title" = "停止";
-
-/* Class = "NSMenuItem"; title = "Play"; ObjectID = "5dG-b6-2DA"; */
-"5dG-b6-2DA.title" = "再生";
-
-/* Class = "NSMenuItem"; title = "Message"; ObjectID = "7ty-ky-Azi"; */
-"7ty-ky-Azi.title" = "メッセージ";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "8Ga-Z3-by4"; */
-"8Ga-Z3-by4.title" = "非表示";
-
-/* Class = "NSMenuItem"; title = "Export for iPhone and iPad"; ObjectID = "8PU-vu-t9o"; */
-"8PU-vu-t9o.title" = "iPhoneとiPadのゲームをエクスポート";
-
-/* Class = "NSMenuItem"; title = "File"; ObjectID = "9WY-HZ-a1i"; */
-"9WY-HZ-a1i.title" = "ファイル";
-
-/* Class = "NSMenuItem"; title = "Export for Web Browsers"; ObjectID = "AHE-qT-PMe"; */
-"AHE-qT-PMe.title" = "ブラウザのゲームをエクスポート";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "APJ-Jg-tMs"; */
-"APJ-Jg-tMs.title" = "隠す";
-
-/* Class = "NSMenuItem"; title = "Show"; ObjectID = "Ah9-XJ-yra"; */
-"Ah9-XJ-yra.title" = "表示";
-
-/* Class = "NSMenuItem"; title = "Play Video"; ObjectID = "Aol-KM-6A5"; */
-"Aol-KM-6A5.title" = "動画を再生";
-
-/* Class = "NSMenuItem"; title = "Wait For Time"; ObjectID = "BAL-gp-QJe"; */
-"BAL-gp-QJe.title" = "時間指定で待つ";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "BYO-of-WC4"; */
-"BYO-of-WC4.title" = "非表示";
-
-/* Class = "NSMenuItem"; title = "Show"; ObjectID = "BsI-32-ifm"; */
-"BsI-32-ifm.title" = "表示";
-
-/* Class = "NSMenuItem"; title = "Call WMS"; ObjectID = "C8x-MA-l1t"; */
-"C8x-MA-l1t.title" = "WMSを呼び出し";
-
-/* Class = "NSMenuItem"; title = "Center"; ObjectID = "CuQ-Dw-f40"; */
-"CuQ-Dw-f40.title" = "中央";
-
-/* Class = "NSMenuItem"; title = "Suika2 Pro Desktop Help"; ObjectID = "EB8-K8-Je8"; */
-"EB8-K8-Je8.title" = "Suika2 Pro Desktop ヘルプ";
-
-/* Class = "NSMenu"; title = "Run"; ObjectID = "FCx-re-lDJ"; */
-"FCx-re-lDJ.title" = "実行";
-
-/* Class = "NSButtonCell"; title = "Stop"; ObjectID = "FXl-8v-WOD"; */
-"FXl-8v-WOD.title" = "停止";
-
-/* Class = "NSMenu"; title = "Right Center"; ObjectID = "FYZ-kh-mRZ"; */
-"FYZ-kh-mRZ.title" = "右中央";
-
-/* Class = "NSMenuItem"; title = "Right"; ObjectID = "GLm-m1-4fE"; */
-"GLm-m1-4fE.title" = "右";
-
-/* Class = "NSMenuItem"; title = "Play"; ObjectID = "GPg-C8-Ihb"; */
-"GPg-C8-Ihb.title" = "再生";
-
-/* Class = "NSMenu"; title = "Export"; ObjectID = "HAH-LY-b6X"; */
-"HAH-LY-b6X.title" = "エクスポート";
-
-/* Class = "NSMenuItem"; title = "Message"; ObjectID = "HJu-Kh-AkX"; */
-"HJu-Kh-AkX.title" = "メッセージ";
-
-/* Class = "NSMenuItem"; title = "Background"; ObjectID = "JJf-JV-I4K"; */
-"JJf-JV-I4K.title" = "背景";
-
-/* Class = "NSMenu"; title = "Left Center"; ObjectID = "Kh6-ec-i1l"; */
-"Kh6-ec-i1l.title" = "左中央";
-
-/* Class = "NSMenuItem"; title = "Three Options"; ObjectID = "KwQ-Xd-aHm"; */
-"KwQ-Xd-aHm.title" = "選択肢（３つ）";
-
-/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "L1z-rs-P4S"; */
-"L1z-rs-P4S.title" = "停止";
-
-/* Class = "NSMenuItem"; title = "Continue"; ObjectID = "M0B-z0-myr"; */
-"M0B-z0-myr.title" = "続ける";
-
-/* Class = "NSMenuItem"; title = "Two Options"; ObjectID = "Mak-pH-yty"; */
-"Mak-pH-yty.title" = "選択肢（２つ）";
-
-/* Class = "NSMenuItem"; title = "Volume"; ObjectID = "Ncv-1D-bUI"; */
-"Ncv-1D-bUI.title" = "音量";
-
-/* Class = "NSButtonCell"; title = "Next"; ObjectID = "Nux-c4-aG7"; */
-"Nux-c4-aG7.title" = "次へ";
-
-/* Class = "NSMenuItem"; title = "Left"; ObjectID = "NzA-TH-gK8"; */
-"NzA-TH-gK8.title" = "左";
-
-/* Class = "NSMenuItem"; title = "Next"; ObjectID = "PGL-T9-rCM"; */
-"PGL-T9-rCM.title" = "次へ";
-
-/* Class = "NSButtonCell"; title = "Write"; ObjectID = "POm-Bu-lhz"; */
-"POm-Bu-lhz.title" = "変数更新";
-
-/* Class = "NSButtonCell"; title = "..."; ObjectID = "PzB-CR-MjL"; */
-"PzB-CR-MjL.title" = "...";
-
-/* Class = "NSMenuItem"; title = "Hide Suika2 Pro Desktop"; ObjectID = "QJg-TJ-Hwe"; */
-"QJg-TJ-Hwe.title" = "Suika2 Pro Desktop を隠す";
-
-/* Class = "NSMenuItem"; title = "Run"; ObjectID = "QMk-Ey-jOt"; */
-"QMk-Ey-jOt.title" = "実行";
-
-/* Class = "NSMenuItem"; title = "Open Game Folder"; ObjectID = "Rvq-H1-14g"; */
-"Rvq-H1-14g.title" = "ゲームフォルダを開く";
-
-/* Class = "NSMenu"; title = "Right"; ObjectID = "S0T-li-CFF"; */
-"S0T-li-CFF.title" = "右";
-
-/* Class = "NSMenuItem"; title = "Save…"; ObjectID = "SQe-Hh-FZG"; */
-"SQe-Hh-FZG.title" = "スクリプトを保存";
-
-/* Class = "NSMenu"; title = "Services"; ObjectID = "X7F-kL-uld"; */
-"X7F-kL-uld.title" = "サービス";
-
-/* Class = "NSMenu"; title = "Character"; ObjectID = "Xzq-p7-qid"; */
-"Xzq-p7-qid.title" = "キャラクタ";
-
-/* Class = "NSMenuItem"; title = "Export Package Only"; ObjectID = "YbF-1P-BuL"; */
-"YbF-1P-BuL.title" = "パッケージのみエクスポート";
-
-/* Class = "NSMenuItem"; title = "Show"; ObjectID = "Yqx-N6-CcQ"; */
-"Yqx-N6-CcQ.title" = "表示";
-
-/* Class = "NSMenuItem"; title = "Sound Effect"; ObjectID = "Z7J-ix-hEs"; */
-"Z7J-ix-hEs.title" = "効果音";
-
-/* Class = "NSMenuItem"; title = "Right Center"; ObjectID = "ZXz-Bg-OeC"; */
-"ZXz-Bg-OeC.title" = "右中央";
-
-/* Class = "NSMenuItem"; title = "Music"; ObjectID = "Zg1-fR-VSk"; */
-"Zg1-fR-VSk.title" = "音楽";
-
-/* Class = "NSMenuItem"; title = "Suika2 Pro Desktop"; ObjectID = "a6d-Ci-fPe"; */
-"a6d-Ci-fPe.title" = "Suika2 Pro Desktop";
-
-/* Class = "NSButtonCell"; title = "Continue"; ObjectID = "aAa-5x-ufg"; */
-"aAa-5x-ufg.title" = "続ける";
-
-/* Class = "NSMenu"; title = "Suika2 Pro Desktop"; ObjectID = "akB-3L-oog"; */
-"akB-3L-oog.title" = "Suika2 Pro Desktop";
-
-/* Class = "NSMenuItem"; title = "About Suika2 Pro Desktop"; ObjectID = "avs-le-99L"; */
-"avs-le-99L.title" = "Suika2 Pro Desktop について";
-
-/* Class = "NSMenuItem"; title = "Stop"; ObjectID = "b6D-6C-JWV"; */
-"b6D-6C-JWV.title" = "停止";
-
-/* Class = "NSMenuItem"; title = "One Option"; ObjectID = "c0k-GC-g86"; */
-"c0k-GC-g86.title" = "選択肢（１つ）";
-
-/* Class = "NSMenuItem"; title = "Choice"; ObjectID = "cYz-Mw-gy8"; */
-"cYz-Mw-gy8.title" = "選択肢";
-
-/* Class = "NSMenu"; title = "Voice"; ObjectID = "d1R-iD-hcL"; */
-"d1R-iD-hcL.title" = "ボイス";
-
-/* Class = "NSMenuItem"; title = "Move to Other Script"; ObjectID = "d3x-jP-cX5"; */
-"d3x-jP-cX5.title" = "スクリプトを移動";
-
-/* Class = "NSMenuItem"; title = "Line with Voice"; ObjectID = "dri-aF-9a6"; */
-"dri-aF-9a6.title" = "セリフ（ボイスつき）";
-
-/* Class = "NSMenuItem"; title = "Export for Desktop"; ObjectID = "efu-6L-oRL"; */
-"efu-6L-oRL.title" = "デスクトップゲームのエクスポート";
-
-/* Class = "NSMenuItem"; title = "Multiple"; ObjectID = "eim-Ro-1iH"; */
-"eim-Ro-1iH.title" = "複数";
-
-/* Class = "NSMenu"; title = "File"; ObjectID = "fXc-I6-ypM"; */
-"fXc-I6-ypM.title" = "ファイル";
-
-/* Class = "NSMenuItem"; title = "Voice"; ObjectID = "gsq-rI-5Hg"; */
-"gsq-rI-5Hg.title" = "ボイス";
-
-/* Class = "NSMenuItem"; title = "Services"; ObjectID = "hLV-kU-lap"; */
-"hLV-kU-lap.title" = "サービス";
-
-/* Class = "NSMenuItem"; title = "Wait For Click"; ObjectID = "hSA-fX-ANB"; */
-"hSA-fX-ANB.title" = "クリック待ち";
-
-/* Class = "NSMenuItem"; title = "Play"; ObjectID = "hiA-A3-j0S"; */
-"hiA-A3-j0S.title" = "再生";
-
-/* Class = "NSMenu"; title = "Background"; ObjectID = "kYn-dL-xoH"; */
-"kYn-dL-xoH.title" = "背景";
-
-/* Class = "NSMenuItem"; title = "Next Error"; ObjectID = "kdP-XO-1d1"; */
-"kdP-XO-1d1.title" = "次のエラーへ";
-
-/* Class = "NSMenu"; title = "Choice"; ObjectID = "lQL-24-sfb"; */
-"lQL-24-sfb.title" = "選択肢";
-
-/* Class = "NSMenuItem"; title = "Show"; ObjectID = "liJ-Xm-bmj"; */
-"liJ-Xm-bmj.title" = "表示";
-
-/* Class = "NSMenu"; title = "Sound Effect"; ObjectID = "mqB-TW-SyD"; */
-"mqB-TW-SyD.title" = "効果音";
-
-/* Class = "NSMenuItem"; title = "Volume"; ObjectID = "mvd-5q-CON"; */
-"mvd-5q-CON.title" = "音量";
-
-/* Class = "NSMenu"; title = "Help"; ObjectID = "o7U-tS-QIk"; */
-"o7U-tS-QIk.title" = "ヘルプ";
-
-/* Class = "NSMenu"; title = "Main Menu"; ObjectID = "oc6-A5-Oqn"; */
-"oc6-A5-Oqn.title" = "メインメニュー";
-
-/* Class = "NSMenuItem"; title = "Change Background Only"; ObjectID = "p3I-8W-ibk"; */
-"p3I-8W-ibk.title" = "背景のみ変更";
-
-/* Class = "NSMenuItem"; title = "Quit Suika2 Pro Desktop"; ObjectID = "qNM-vx-ZCV"; */
-"qNM-vx-ZCV.title" = "Suika2 Pro Desktop を終了";
-
-/* Class = "NSMenuItem"; title = "Character"; ObjectID = "su8-dn-muC"; */
-"su8-dn-muC.title" = "キャラクタ";
-
-/* Class = "NSMenuItem"; title = "Hide Others"; ObjectID = "tBg-ov-FE2"; */
-"tBg-ov-FE2.title" = "他のウィンドウを隠す";
-
-/* Class = "NSMenuItem"; title = "Show All"; ObjectID = "tww-K1-3is"; */
-"tww-K1-3is.title" = "すべて表示する";
-
-/* Class = "NSMenu"; title = "Center"; ObjectID = "ulc-k2-i1p"; */
-"ulc-k2-i1p.title" = "中央";
-
-/* Class = "NSMenuItem"; title = "Export for non-iOS phones"; ObjectID = "vE0-Vv-F0q"; */
-"vE0-Vv-F0q.title" = "iOSでないスマートフォンゲームをエクスポート";
-
-/* Class = "NSMenuItem"; title = "Export"; ObjectID = "wQP-xK-62W"; */
-"wQP-xK-62W.title" = "エクスポート";
-
-/* Class = "NSMenu"; title = "Message"; ObjectID = "we9-It-odM"; */
-"we9-It-odM.title" = "メッセージ";
-
-/* Class = "NSMenuItem"; title = "Line"; ObjectID = "x7k-gM-3EP"; */
-"x7k-gM-3EP.title" = "セリフ";
-
-/* Class = "NSMenu"; title = "Direction"; ObjectID = "xsj-oX-Q0T"; */
-"xsj-oX-Q0T.title" = "演出";
-
-/* Class = "NSMenu"; title = "Music"; ObjectID = "yHM-UO-xzD"; */
-"yHM-UO-xzD.title" = "音楽";
-
-/* Class = "NSMenuItem"; title = "Direction"; ObjectID = "yid-xo-m3T"; */
-"yid-xo-m3T.title" = "演出";
-
-/* Class = "NSMenu"; title = "Left"; ObjectID = "ytL-kl-g6o"; */
-"ytL-kl-g6o.title" = "左";
-
-/* Class = "NSMenuItem"; title = "Hide"; ObjectID = "zQ3-la-xo9"; */
-"zQ3-la-xo9.title" = "非表示";
-
-/* Class = "NSMenuItem"; title = "Volume"; ObjectID = "zTe-Ke-OHD"; */
-"zTe-Ke-OHD.title" = "音量";
-
-/* Class = "NSMenuItem"; title = "Show"; ObjectID = "zWu-YS-V1W"; */
-"zWu-YS-V1W.title" = "表示";
-
-/* Class = "NSMenuItem"; title = "Left Center"; ObjectID = "zYn-xc-1dG"; */
-"zYn-xc-1dG.title" = "左中央";
+"zYn-xc-1dG.title" = "Left Center";

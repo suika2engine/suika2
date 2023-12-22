@@ -104,6 +104,9 @@
 /* Class = "NSMenuItem"; title = "Two Options"; ObjectID = "Mak-pH-yty"; */
 "Mak-pH-yty.title" = "Two Options";
 
+/* Class = "NSTextFieldCell"; title = "Changed Variables (non-initial values only):"; ObjectID = "MeG-bF-4Iq"; */
+"MeG-bF-4Iq.title" = "Changed Variables (non-initial values only):";
+
 /* Class = "NSMenuItem"; title = "Volume"; ObjectID = "Ncv-1D-bUI"; */
 "Ncv-1D-bUI.title" = "Volume";
 
@@ -235,6 +238,9 @@
 
 /* Class = "NSMenuItem"; title = "Change Background Only"; ObjectID = "p3I-8W-ibk"; */
 "p3I-8W-ibk.title" = "Change Background Only";
+
+/* Class = "NSButtonCell"; title = "Move"; ObjectID = "pQe-OI-VM5"; */
+"pQe-OI-VM5.title" = "Move";
 
 /* Class = "NSMenuItem"; title = "Quit Suika2 Pro Desktop"; ObjectID = "qNM-vx-ZCV"; */
 "qNM-vx-ZCV.title" = "Quit Suika2 Pro Desktop";
