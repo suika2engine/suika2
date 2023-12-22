@@ -75,7 +75,7 @@
 		<div class="row">
 			<div class="col-md">
 				<h1>Suika2 Downloads</h1>
-				<p>The official downloads of Suika2 and templates.</p>
+				<p>Suika2 apps and materials</p>
 			</div>
 		</div>
 	</div>
@@ -89,52 +89,112 @@
 
 <!-- ------------------------- -->
 
-<h2>Binaries</h2>
-<br>
-<div class="download">
-	<h4>The Main SDK</h4>
-	<div style="margin-left:2em;">
-		<p>
-			SDK contains a sample game and binaries.
-		</p>
-		<p>
+	<!-- Tabs -->
+	<ul class="nav nav-pills" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-tab-pane" type="button" role="tab" aria-controls="preview-tab-pane" aria-selected="true">Direct</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="macos-tab" data-bs-toggle="tab" data-bs-target="#macos-tab-pane" type="button" role="tab" aria-controls="macos-tab-pane" aria-selected="false">Mac</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="ios-tab" data-bs-toggle="tab" data-bs-target="#ios-tab-pane" type="button" role="tab" aria-controls="ios-tab-pane" aria-selected="false">iPhone/iPad</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="windows-tab" data-bs-toggle="tab" data-bs-target="#windows-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Windows</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux</button>
+		</li>
+	</ul>
+
+	<!-- Contents of Tabs -->
+	<div class="tab-content" id="myTabContent">
+
+		<!-- Self Hosted Distribution -->
+		<div class="tab-pane fade show active" id="preview-tab-pane" role="tabpanel" aria-labelledby="preview-tab" tabindex="0">
+			<br>
+			<h4>The Latest Distribution</h4>
+			<p>
 <!-- LATEST-VERSION-AND-DATE -->Latest Suika2/15.25 (2023/12/20):<br>
-<!-- LATEST-ZIP --><a href="/dl/suika2-15.3.zip"><img src="/img/icons/zip.png" width="48" alt="suik2 zip icon"> Download for Windows/Mac/Web/Linux Suika2 latest</a><br>
-		</p>
-		<p>
-			Old: Suika2/14.19 (2023/11/24):<br>
-			<a href="/dl/suika2-13.35.zip"><img src="/img/suika-icon.png" width="48" alt="suik2 zip icon"> ZIP: Windows/Mac/Web/Linux Suika2/13.35</a><br>
-			Old: Suika2/13.35 (2023/10/09):<br>
-			<a href="/dl/suika2-13.35.zip"><img src="/img/suika-icon.png" width="48" alt="suik2 zip icon"> ZIP: Windows/Mac/Web/Linux Suika2/13.35</a><br>
-		</p>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.25.exe">Windows Suika2 Pro Desktop Installer</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.25.dmg">macOS Suika2 Pro Desktop Installer</a><br>
+			</p>
+			<br>
+			<h4>Older Versions:</h4>
+				<p>
+					<a href="/dl/suika2-15.3.zip">Suika2/15.3 Windows/macOS ZIP</a><br>
+					<a href="/dl/suika2-14.19.zip">Suika2/14.19 Windows/macOS ZIP</a><br>
+					<a href="/dl/suika2-13.35.zip">Suika2/13.35 Windows/macOS ZIP</a><br>
+					<a href="/dl/kirara-win-13.28.exe">Suika2 Kirara 13.28 Windows Final</a><br>
+					<a href="/dl/kirara-mac-13.28.dmg">Suika2 Kirara 13.28 macOS Final</a>
+				</p>
+		</div>
+
+		<!-- Mac -->
+		<div class="tab-pane fade" id="macos-tab-pane" role="tabpanel" aria-labelledby="macos-tab" tabindex="0">
+			<a href="https://apps.apple.com/jp/app/suika2-pro-desktop/id6474658254"><img src="/img/banners/pro-macos-en.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
+		<!-- iOS -->
+		<div class="tab-pane fade" id="ios-tab-pane" role="tabpanel" aria-labelledby="ios-tab" tabindex="0">
+			<a href="https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680"><img src="/img/banners/pro-ios-en.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
+		<!-- Windows -->
+		<div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab" tabindex="0">
+			<a href="#" onclick="alert('近日公開！');"><img src="/img/banners/pro-windows-en.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
+		<!-- Linux -->
+		<div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab" tabindex="0">
+			<div style="margin-left:1em;">
+				<p>For Ubuntu 22.04:</p>
+				<pre><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
+				<p>From source code:</p>
+				<pre><code>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>./configure<br>make<br>sudo make install<br>/usr/local/bin/suika2</code></pre>
+			</div>
+		</div>
+
 	</div>
-	<br>
-	<h4>Suika2 Kirara</h4>
-	<div style="margin-left:2em;">
-		<p>
-			GUI wrapper for Suika2.<br>
-<!-- LATEST-KIRARA-WIN --><a href="/dl/kirara-win-13.28.exe">For Windows</a><br>
-<!-- LATEST-KIRARA-MAC --><a href="/dl/kirara-mac-13.28.dmg">For macOS</a><br>
-		</p>
-	</div>
-	<br>
-	<h4>Android App</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<span style="font-size: 1.7em;">📲</span> <a href='https://play.google.com/store/apps/details?id=jp.luxion.suika&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>スマホ版(Android用)サンプルゲーム (2023/9/23) <img alt='Google Play で手に入れよう' width="120" src='https://play.google.com/intl/en_us/badges/images/generic/ja_badge_web_generic.png'/></a><br>
-			Try this on Android!
-		</p>
-	</div>
-	<br>
-	<h4>Web Testing Tool</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/tools/suika-webtest.zip">Web testing tool R1 (2023-09-07)</a><br>
-			Try your Web games before upload!
-		</p>
-	</div>
-	<br>
-	<h4>Compare Tools</h4>
+
+<hr>
+<h2>Sample Productions</h2>
+<br>
+<h4>iOS</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="https://apps.apple.com/jp/app/imperfect-blue-re-start/id6470741697">Imperfect Blue -Re:Start-</a><br>
+		<a href="https://apps.apple.com/jp/app/%E3%82%AF%E3%83%AA%E3%83%A0%E3%82%BE%E3%83%B3%E3%83%AC%E3%83%83%E3%83%89%E3%81%AE%E6%AD%BB%E7%A5%9E/id6470746277">Crimson Red no Shinigami</a>
+	</p>
+</div>
+<br>
+<h4>Android</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="https://play.google.com/store/apps/details?id=jp.luxion.suika&pli=1">The Official Demo</a><br>
+		<a href="https://play.google.com/store/apps/dev?id=7504425589390191824">Imperfect Blue -Re:Start-</a>
+	</p>
+</div>
+<br>
+<h4>Steam</h4>
+<div style="margin-left: 2em;">
+	<p>
+		<a href="https://store.steampowered.com/app/2599620/Zarie_The_Story_of_Sin/?l=japanese">Zarie</a> is a multilingualization example.
+	</p>
+</div>
+<hr>
+<h2>Tools</h2>
+<br>
+<h4>Web Testing Tool</h4>
+<div style="margin-left:2em;">
+	<p>
+		<a href="/dl/tools/suika-webtest.zip">Web testing tool R1 (2023-09-07)</a><br>
+		Try your Web games before upload!
+	</p>
+</div>
+<br>
+<h4>Compare Tools</h4>
 	<div style="margin-left:2em;">
 		<p>
 			<a href="/dl/tools/suika-compare.zip">For automatic testing: Test result comparator R2 (2023-09-03)</a><br>
@@ -150,8 +210,9 @@
 		</p>
 	</div>
 </div>
-
-<h2 class="spacer">Samples and Templates</h2>
+<hr>
+<br>
+<h2 class="spacer">Samples and Materials</h2>
 <br>
 <br>
 <div style="text-align: center;">
@@ -321,6 +382,8 @@
   </p>
 </div>
 
+<hr>
+
 <div style="text-align: center;">
   <div style="width: 100%; text-align: center;">
 		<a href="https://suika2.com/run/nvl-tategaki/" target="_blank">
@@ -359,13 +422,6 @@
   </p>
   <a href="/dl/material/VtuberBGM.zip"><img src="/img/icons/zip.png" width="48"> Download ZIP</a><br>
 	<figure><figcaption>001 Job</figcaption><audio controls src="/dl/music/vtuber/001.mp3"></audio></figure>
-	<figure><figcaption>002 Cat</figcaption><audio controls src="/dl/music/vtuber/002.mp3"></audio></figure>
-	<figure><figcaption>003 Greeting</figcaption><audio controls src="/dl/music/vtuber/003.mp3"></audio></figure>
-	<figure><figcaption>004 Battle</figcaption><audio controls src="/dl/music/vtuber/004.mp3"></audio></figure>
-	<figure><figcaption>005 Strange</figcaption><audio controls src="/dl/music/vtuber/005.mp3"></audio></figure>
-	<figure><figcaption>006 Uhe</figcaption><audio controls src="/dl/music/vtuber/006.mp3"></audio></figure>
-	<figure><figcaption>007 Anger</figcaption><audio controls src="/dl/music/vtuber/007.mp3"></audio></figure>
-	<figure><figcaption>008 Shootout</figcaption><audio controls src="/dl/music/vtuber/008.mp3"></audio></figure>
 </div>
 
 <hr>
@@ -405,19 +461,122 @@
 
 <hr>
 
+<h2>System Requirements</h2>
+<h3>Windows</h3>
+<div style="margin-left: 2em;">
+	<ul>
+		<li>Suika2 Pro Desktop (Windows)
+			<ul>
+				<li>OS: Windows 11, Windows 10(32-bit/64-bit)</li>
+				<li>CPU: Intel/AMD/Arm64</li>
+				<li>GPU: Direct3D 9</li>
+			</ul>
+		</li>
+		<li>Games made with Suika2 (Windows)
+			<ul>
+				<li>OS: Windows 11, Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, Windows XP (32-bit/64-bit)</li>
+				<li>CPU: Intel/AMD/Arm64</li>
+				<li>GPU: Direct3D 9</li>
+			</ul>
+		</li>
+	</ul>
+</div>
+<h3>macOS</h3>
+<div style="margin-left: 2em;">
+	<ul>
+		<li>Suika2 Pro Desktop (macOS)
+			<ul>
+				<li>macOS 11 Big Sur</li>
+				<li>macOS 12 Monterey</li>
+				<li>macOS 13 Ventura</li>
+				<li>macOS 14 Sonoma</li>
+			</ul>
+		</li>
+		<li>Games made with Suika2 (macOS)
+			<ul>
+				<li>macOS 10.13 High Sierra</li>
+				<li>macOS 10.14 Mojave</li>
+				<li>macOS 10.15 Catalina</li>
+				<li>macOS 11 Big Sur</li>
+				<li>macOS 12 Monterey</li>
+				<li>macOS 13 Ventura</li>
+				<li>macOS 14 Sonoma</li>
+			</ul>
+		</li>
+	</ul>
+</div>
+<h3>iOS/iPadOS</h3>
+<div style="margin-left: 2em;">
+	<ul>
+		<li>Suika2 Pro Mobile (iOS)
+			<ul>
+				<li>iCloud Drive</li>
+				<li>iOS 13 / iPadOS 13</li>
+				<li>iOS 14 / iPadOS 14</li>
+				<li>iOS 15 / iPadOS 15</li>
+				<li>iOS 16 / iPadOS 16</li>
+				<li>iOS 17 / iPadOS 17</li>
+			</ul>
+		</li>
+		<li>Games made with Suika2 (iOS)
+			<ul>
+				<li>iOS 11 (You need Xcode 14 with macOS 13 Ventura)</li>
+				<li>iOS 12 (This is the minimum deployment target of the current Xcode 15 with macOS 14 Sonoma)</li>
+				<li>iOS 13 / iPadOS 13</li>
+				<li>iOS 14 / iPadOS 14</li>
+				<li>iOS 15 / iPadOS 15</li>
+				<li>iOS 16 / iPadOS 16</li>
+				<li>iOS 17 / iPadOS 17</li>
+			</ul>
+		</li>
+	</ul>
+</div>
+<h3>Android</h3>
+<div style="margin-left: 2em;">
+	<ul>
+		<li>Suika2 Pro Mobile (Android)
+			<ul>
+				<li>Not supported yet</li>
+			</ul>
+		</li>
+		<li>Games made with Suika2 (Android)
+			<ul>
+				<li>Android 4.4 and later</li>
+			</ul>
+		</li>
+	</ul>
+</div>
+<h3>Browsers</h3>
+<div style="margin-left: 2em;">
+	<ul>
+		<li>Games made with Suika2
+			<ul>
+				<li>Google Chrome</li>
+				<li>Chromium</li>
+				<li>Microsoft Edge</li>
+				<li>Safari</li>
+				<li>Mozilla Firefox</li>
+				<li>Google Chrome (Android)</li>
+				<li>Safari (iOS/iPadOS)</li>
+			</ul>
+		</li>
+	</ul>
+</div>
+
+<hr>
+
 <a name="relnote"><h2 class="spacer">Release Notes</h2></a>
 <div class="accordion" id="accordionPanelsStayOpenExample">
   <!-- Recent Changes -->
 	<div class="accordion-item">
 		<h4 class="accordion-header" id="panelsStayOpen-heading1" style="margin-top: 0;">
 			<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-				<span style="font-size: 1.3em;">October 2023</span>
+				<span style="font-size: 1.3em;">Recent Releases</span>
 			</button>
 		</h4>
 		<div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
 			<div class="accordion-body">
         <ul>
-
 <!-- LATEST-RELEASE-NOTE -->
 <li>Suika2/15.25 2023/12/20 <ul> <li>Some minor fixes on the Windows version installer</li> </ul> </li>
 <li>Suika2/15.24 2023/12/20 <ul> <li>Some minor fixes on macOS version</li> </ul> </li>
@@ -453,30 +612,6 @@
 <li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
 <li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
 <li>Suika2/15.2 2023/12/1 <ul> <li>Fix "@ch face" bug (Thanks to ソロー-san!)</li> </ul> </li>
-<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
-<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
-<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
-<li>Suika2/15.0 2023/11/27 <ul> <li>Characters are now increased to left, left-center, center, back, right-center and right.</li> </ul> </li>
-<li>Suika2/14.19 2023/11/24 <ul> <li>Fix LOOPSTART tag of stereo ogg files (Thanks to 鏡読み-san!)</li> </ul> </li>
-<li>Suika2/14.18 2023/11/23 <ul> <li>Fix the specification of anime when there is an area that is not filled by bg (Thanks to 花澄匝-san!)</li> <li>Fix seen color for character names (Thanks to MATSUNO-san!)</li> </ul> </li>
-<li>Suika2/14.17 2023/11/23 <ul> <li>Add a config key to change Japanese quotations (Thanks to 小鳩えん-san!)</li> <li>Add the stage margins of character position (Thanks to かめの-san)</li> <li>Add WMS functions to remove save data (Thanks to Mirin-san!)</li> <li>Add a config to change seen messages (Thanks to Mirin-san!)</li> <li>Fix behavior of @chsx (Thanks to 花澄匝-san!)</li> </ul> </li>
-<li>Suika2/14.17 2023/11/23 <ul> <li>Add a config key to change Japanese quotations (Thanks to 小鳩えん-san!)</li> <li>Add the stage margins of character position (Thanks to かめの-san)</li> <li>Add WMS functions to remove save data (Thanks to Mirin-san!)</li> <li>Add a config to change seen messages (Thanks to Mirin-san!)</li> <li>Fix behavior of @chsx (Thanks to 花澄匝-san!)</li> </ul> </li>
-<li>Suika2/14.17 2023/11/23 <ul> <li>Add a config key to change Japanese quotations (Thanks to 小鳩えん-san!)</li> <li>Add the stage margins of character position (Thanks to かめの-san)</li> <li>Add WMS functions to remove save data (Thanks to Mirin-san!)</li> <li>Add a config to change seen messages (Thanks to Mirin-san!)</li> <li>Fix behavior of @chsx (Thanks to 花澄匝-san!)</li> </ul> </li>
-
-
-
-
-<li>Suika2/14.16 2023/11/21 <ul> <li>bugfix: fix a bug of force-save-screen (Thanks to MATSUNO-san!)</li> </ul> </li>
-<li>Suika2/14.15 2023/11/19 <ul> <li>bugfix: fix a bug that fonts other than a global font are not selectable (Thanks to ソロー-san!)</li> <li>bugifx: fix a bug of extended-if block (Thanks to ソロー-san!)</li> </ul> </li>
-<li>Suika2/14.14 2023/11/11 <ul> <li>bugfix: fix crash when insert a line on Suika2 Studio (Thanks to ソロー-san!)</li> </ul> </li>
-<li>Suika2/14.13 2023/11/11 <ul> <li>bugfix: fix crash when insert a line on Suika2 Studio (Thanks to ソロー-san!)</li> </ul> </li>
-<li>Suika2/14.12 2023/11/11 <ul> <li>bugfix: fix load delay on Suika2 Studio (Thanks to クロウズの嫁つる-san!)</li> </ul> </li>
-<li>Suika2/14.11 2023/11/10 <ul> <li>An internal version</li> </ul> </li>
-<li>Suika2/14.10 2023/11/10 <ul> <li>Beta: Introduce "Suika2 Studio", the editor for Suika2</li> <li>iOS: add support for video playback</li> <li>for port: allow non-ASCII file names (not recommended)</li> <li>for port: add label parameter for @load command (not recommended)</li> </ul> </li>
-<li>Suika2/14.7 2023/10/25 <ul> <li>Add video playback on Android</li> <li>Add support for WebP image format on Windows/macOS/Linux/iOS/Android, excluding Web (only for compression in iOS/Android apps)</li> </ul> </li>
-<li>Suika2/14.7 2023/10/25 <ul> <li>Add video playback on Android</li> <li>Add support for WebP image format on Windows/macOS/Linux/iOS/Android, excluding Web (only for compression in iOS/Android apps)</li> </ul> </li>
-<li>Suika2/14.6 2023/10/16 <ul> <li>Change Suika2 Pro (Windows) to single window app</li> <li>Fix a bug that load screen remains after load (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that the program aborts on fade-in/fade-out of custom system menu (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that anime relative positions are not available (Thanks to MATSUNO-san!)</li> <li>Fix a bug that anime "file:" specifiers are not executed (Thanks to MATSUNO-san!)</li> </ul> </li>
-<li>Suika2/14.6 2023/10/16 <ul> <li>Change Suika2 Pro (Windows) to single window app</li> <li>Fix a bug that load screen remains after load (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that the program aborts on fade-in/fade-out of custom system menu (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that anime relative positions are not available (Thanks to MATSUNO-san!)</li> <li>Fix a bug that anime "file:" specifiers are not executed (Thanks to MATSUNO-san!)</li> </ul> </li>
 				</ul>
 			</div>
 		</div>
@@ -485,12 +620,32 @@
 	<div class="accordion-item">
 		<h4 class="accordion-header" id="panelsStayOpen-heading2" style="margin-top: 0;">
 			<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-				<span style="font-size: 1.3em;">以前の更新</span>
+				<span style="font-size: 1.3em;">Older Releases</span>
 			</button>
 		</h4>
 		<div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
 			<div class="accordion-body">
         <ul>
+					<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
+					<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
+					<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
+					<li>Suika2/15.0 2023/11/27 <ul> <li>Characters are now increased to left, left-center, center, back, right-center and right.</li> </ul> </li>
+					<li>Suika2/14.19 2023/11/24 <ul> <li>Fix LOOPSTART tag of stereo ogg files (Thanks to 鏡読み-san!)</li> </ul> </li>
+					<li>Suika2/14.18 2023/11/23 <ul> <li>Fix the specification of anime when there is an area that is not filled by bg (Thanks to 花澄匝-san!)</li> <li>Fix seen color for character names (Thanks to MATSUNO-san!)</li> </ul> </li>
+					<li>Suika2/14.17 2023/11/23 <ul> <li>Add a config key to change Japanese quotations (Thanks to 小鳩えん-san!)</li> <li>Add the stage margins of character position (Thanks to かめの-san)</li> <li>Add WMS functions to remove save data (Thanks to Mirin-san!)</li> <li>Add a config to change seen messages (Thanks to Mirin-san!)</li> <li>Fix behavior of @chsx (Thanks to 花澄匝-san!)</li> </ul> </li>
+					<li>Suika2/14.17 2023/11/23 <ul> <li>Add a config key to change Japanese quotations (Thanks to 小鳩えん-san!)</li> <li>Add the stage margins of character position (Thanks to かめの-san)</li> <li>Add WMS functions to remove save data (Thanks to Mirin-san!)</li> <li>Add a config to change seen messages (Thanks to Mirin-san!)</li> <li>Fix behavior of @chsx (Thanks to 花澄匝-san!)</li> </ul> </li>
+					<li>Suika2/14.17 2023/11/23 <ul> <li>Add a config key to change Japanese quotations (Thanks to 小鳩えん-san!)</li> <li>Add the stage margins of character position (Thanks to かめの-san)</li> <li>Add WMS functions to remove save data (Thanks to Mirin-san!)</li> <li>Add a config to change seen messages (Thanks to Mirin-san!)</li> <li>Fix behavior of @chsx (Thanks to 花澄匝-san!)</li> </ul> </li>
+					<li>Suika2/14.16 2023/11/21 <ul> <li>bugfix: fix a bug of force-save-screen (Thanks to MATSUNO-san!)</li> </ul> </li>
+					<li>Suika2/14.15 2023/11/19 <ul> <li>bugfix: fix a bug that fonts other than a global font are not selectable (Thanks to ソロー-san!)</li> <li>bugifx: fix a bug of extended-if block (Thanks to ソロー-san!)</li> </ul> </li>
+					<li>Suika2/14.14 2023/11/11 <ul> <li>bugfix: fix crash when insert a line on Suika2 Studio (Thanks to ソロー-san!)</li> </ul> </li>
+					<li>Suika2/14.13 2023/11/11 <ul> <li>bugfix: fix crash when insert a line on Suika2 Studio (Thanks to ソロー-san!)</li> </ul> </li>
+					<li>Suika2/14.12 2023/11/11 <ul> <li>bugfix: fix load delay on Suika2 Studio (Thanks to クロウズの嫁つる-san!)</li> </ul> </li>
+					<li>Suika2/14.11 2023/11/10 <ul> <li>An internal version</li> </ul> </li>
+					<li>Suika2/14.10 2023/11/10 <ul> <li>Beta: Introduce "Suika2 Studio", the editor for Suika2</li> <li>iOS: add support for video playback</li> <li>for port: allow non-ASCII file names (not recommended)</li> <li>for port: add label parameter for @load command (not recommended)</li> </ul> </li>
+					<li>Suika2/14.7 2023/10/25 <ul> <li>Add video playback on Android</li> <li>Add support for WebP image format on Windows/macOS/Linux/iOS/Android, excluding Web (only for compression in iOS/Android apps)</li> </ul> </li>
+					<li>Suika2/14.7 2023/10/25 <ul> <li>Add video playback on Android</li> <li>Add support for WebP image format on Windows/macOS/Linux/iOS/Android, excluding Web (only for compression in iOS/Android apps)</li> </ul> </li>
+					<li>Suika2/14.6 2023/10/16 <ul> <li>Change Suika2 Pro (Windows) to single window app</li> <li>Fix a bug that load screen remains after load (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that the program aborts on fade-in/fade-out of custom system menu (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that anime relative positions are not available (Thanks to MATSUNO-san!)</li> <li>Fix a bug that anime "file:" specifiers are not executed (Thanks to MATSUNO-san!)</li> </ul> </li>
+					<li>Suika2/14.6 2023/10/16 <ul> <li>Change Suika2 Pro (Windows) to single window app</li> <li>Fix a bug that load screen remains after load (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that the program aborts on fade-in/fade-out of custom system menu (Thanks to ubi_2/aramasi0.9-san!)</li> <li>Fix a bug that anime relative positions are not available (Thanks to MATSUNO-san!)</li> <li>Fix a bug that anime "file:" specifiers are not executed (Thanks to MATSUNO-san!)</li> </ul> </li>
 					<li>Suika2/14.5 2023/10/14 <ul> <li>Add missing 'mov/' path of video URL on the Web version (Thanks to 赤井ルイ-san!)</li> </ul> </li>
 					<li>Suika2/14.4 2023/10/14 <ul> <li>Improve menu fadings on the sample game</li> </ul> </li>
 					<li>Suika2/14.4 2023/10/14 <ul> <li>Improve menu fadings on the sample game</li> </ul> </li>
@@ -858,47 +1013,6 @@
 		</div>
 	</div>
 </div>
-
-<h2>Requirements</h2>
-
-<h3>Windows App</h3>
-<ul class="white">
-  <li>CPU: Intel Core 2 Duo or later / Arm 64bit (Surface Pro)</li>
-  <li>OS: Windows 10 (32bit/64bit)</li>
-  <li>OS: Windows 11</li>
-  <li>The following are supported by Suika2 but are already unsupported by Microsoft:
-		<ul>
-			<li>Windows 8.1</li>
-			<li>Windows 8</li>
-			<li>Windows 7</li>
-			<li>Windows Vista</li>
-			<li>Windows XP</li>
-		</ul>
-	</li>
-</ul>
-
-<h3>Mac App</h3>
-<ul class="white">
-  <li>Intel Core / Apple Silicon</li>
-	<li>macOS 10.13 High Sierra</li>
-	<li>macOS 10.14 Mojave</li>
-  <li>macOS 10.15 Catalina</li>
-	<li>macOS 11 Big Sur</li>
-	<li>macOS 12 Monterey</li>
-	<li>macOS 13 Ventura</li>
-</ul>
-
-<h3>Web Browser App</h3>
-<ul class="white">
-  <li>Chrome</li>
-  <li>Chromium</li>
-  <li>Edge</li>
-  <li>Safari</li>
-  <li>Firefox</li>
-	<li>Android Chrome</li>
-	<li>iOS Safari</li>
-</ul>
-
 
 <!-- ----------- -->
     </div>
