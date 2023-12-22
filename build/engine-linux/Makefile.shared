@@ -1,16 +1,25 @@
 #
+# Linux (and FreeBSD/NetBSD)
+#
+
+include ../common.mk
+
+#
 # Toolchain selection
 #
 
-CC = gcc
+CC = cc
 
 #
 # CPPFLAGS
 #
 
 CPPFLAGS = \
-	-DUSE_X11_OPENGL \
-	-I/usr/include/freetype2
+	-I./libroot/include \
+	-I./libroot/include/freetype2  \
+	-I/usr/local/include \
+	-I/usr/pkg/include \
+	-I/usr/X11R7/include
 
 #
 # CFLAGS
@@ -33,12 +42,7 @@ CFLAGS = \
 #
 
 LDFLAGS = \
-	-lpthread \
-	-lasound \
-	-lX11 \
-	-lXpm \
-	-lGL \
-	-lGLX \
+	-L./libroot/lib \
 	-lpng16 \
 	-ljpeg \
 	-lwebp \
@@ -48,6 +52,16 @@ LDFLAGS = \
 	-logg \
 	-lz \
 	-lbz2 \
+	-Wl,--gc-sections \
+	-L/usr/local/lib \
+	-L/usr/pkg/lib \
+	-lasound \
+	-L/usr/X11R7/lib \
+	-lX11 \
+	-lXpm \
+	-lGL \
+	-lGLX \
+	-lpthread \
 	-lm
 
 #
@@ -56,13 +70,23 @@ LDFLAGS = \
 
 include ../common.mk
 
-SRCS = \
-	$(SRCS_COMMON) \
-	$(SRCS_SSE) \
-	../../src/asound.c \
-	../../src/glrender.c \
-	../../src/gstplay.c \
-	../../src/x11main.c
+
+#
+# Source files
+#
+
+SRCS_LINUX = \
+	../../src/linux/asound.c \
+	../../src/linux/gstplay.c \
+	../../src/linux/x11main.c
+
+SRCS_KHRONOS = \
+	../../src/khronos/glrender.c
+
+HDRS = \
+	../../src/khronos/glrender.h \
+	../../src/linux/asound.h \
+	../../src/linux/gstplay.h
 
 #
 # .c.o compilation rules
@@ -81,12 +105,6 @@ all: suika
 
 suika: $(OBJS)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
-
-#
-# Feature specific source files.
-#
-
-include ../sse.mk
 
 #
 # Phony
