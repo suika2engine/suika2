@@ -1,8 +1,8 @@
-/* -*- coding: utf-8; tab-width: 4; indent-tabs-mode: t; -*- */
+/* -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 package jp.luxion.suikapro;
@@ -10,22 +10,12 @@ package jp.luxion.suikapro;
 import static android.opengl.GLSurfaceView.RENDERMODE_CONTINUOUSLY;
 import static android.opengl.GLSurfaceView.RENDERMODE_WHEN_DIRTY;
 
-import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
-
-import static java.security.AccessController.getContext;
-
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Canvas;
-import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -36,24 +26,18 @@ import android.opengl.GLES20;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowInsetsController;
-import android.view.WindowManager;
 import android.view.SurfaceHolder;
-import android.widget.LinearLayout;
 
-import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.File;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -66,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
 	//
 	// JNI
 	//
-
     static {
-        System.loadLibrary("suika");
-    }
+		// Load libsuika.so and native*() methods will be available.
+		System.loadLibrary("suika");
+	}
 	private native void nativeInitGame();
 	private native void nativeReinitOpenGL();
 	private native void nativeRunFrame();
@@ -102,17 +86,11 @@ public class MainActivity extends AppCompatActivity {
 	private String basePath;
 
 	//
-	// Views
+	// Non-resource View
 	//
-
-    // The game rendering view.
-    private GameView gameView;
 
     // The video view.
     private VideoSurfaceView videoView;
-
-	// The editor view.
-	private EditView editView;
 
 	//
 	// Screen Information
@@ -128,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private int offsetY;
 
     // Touch coordiantes.
-    private int touchStartX, touchStartY, touchLastY;
+    private int touchLastY;
 
     // A count of touched fingers.
     private int touchCount;
@@ -155,11 +133,8 @@ public class MainActivity extends AppCompatActivity {
 	private MediaPlayer video;
 
 	//
-	// Threads and Handlers
+	// Handlers
 	//
-
-    // A thread to call frame() periodically when a video is playing.
-    private Thread videoThread;
 
     // A handler to start video playback in the main thread.
     private Handler videoStartHandler;
@@ -171,58 +146,49 @@ public class MainActivity extends AppCompatActivity {
     private Handler videoLoopHandler;
 
     // An object to synchronize between the main thread and rendering or video threads. 
-    private Object syncObj = new Object();
+    private final Object syncObj = new Object();
 
 	//
 	// MainActivity
 	//
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    @SuppressWarnings("deprecation")
-    @Override
+    @SuppressLint("HandlerLeak")
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Create the game and editviews.
-        LinearLayout linearLayout = new LinearLayout(this);
-		linearLayout.setOrientation(LinearLayout.VERTICAL);
-		setContentView(linearLayout);
-        gameView = new GameView(this);
-		gameView.setLayoutParams(new WindowManager.LayoutParams(-1, -1));
-		editView = new EditView(this);
-		editView.setLayoutParams(new WindowManager.LayoutParams(EditView.VIEW_WIDTH, -1));
-		linearLayout.addView(gameView);
-		linearLayout.addView(editView);
+        // Load layout.
+		setContentView(R.layout.mainlayout);
 
         // Prepare the video view.
         videoView = new VideoSurfaceView(this);
-        videoThread = new Thread(videoView);
+        Thread videoThread = new Thread(videoView);
         videoThread.start();
 
         // Create handlers for video playback.
         videoStartHandler = new Handler() {
             @Override
-            public void handleMessage(Message msg) {
-                gameView.setRenderMode(RENDERMODE_WHEN_DIRTY);
-                setContentView(videoView);
-                video.start();
-                super.handleMessage(msg);
+            public void handleMessage(@NonNull Message msg) {
+				//findViewById(R.id.gameView).setRenderMode(RENDERMODE_WHEN_DIRTY);
+                //setContentView(videoView);
+                //video.start();
+                //super.handleMessage(msg);
             }
         };
         videoStopHandler = new Handler() {
             @Override
-            public void handleMessage(Message msg) {
-                resumeFromVideo = true;
-                setContentView(gameView);
-                gameView.setRenderMode(RENDERMODE_CONTINUOUSLY);
-                super.handleMessage(msg);
+            public void handleMessage(@NonNull Message msg) {
+                //resumeFromVideo = true;
+                //setContentView(findViewById(R.id.gameView));
+				//findViewById(R.id.gameView).setRenderMode(RENDERMODE_CONTINUOUSLY);
+                //super.handleMessage(msg);
             }
         };
         videoLoopHandler = new Handler() {
             @Override
-            public void handleMessage(Message msg) {
-                videoView.invalidate();
-                super.handleMessage(msg);
+            public void handleMessage(@NonNull Message msg) {
+                //videoView.invalidate();
+                //super.handleMessage(msg);
             }
         };
 
@@ -245,8 +211,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
 
-        if(!isGameInitialized)
-			isGameInitialized = false;
+		isGameInitialized = false;
     }
 
 	//
@@ -471,8 +436,6 @@ public class MainActivity extends AppCompatActivity {
 			synchronized(syncObj) {
 				switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_DOWN:
-					touchStartX = x;
-					touchStartY = y;
 					touchLastY = y;
 					if (pointed == 1)
 						nativeOnTouchOneDown(x, y);
@@ -480,8 +443,6 @@ public class MainActivity extends AppCompatActivity {
 						nativeOnTouchTwoDown(x, y);
 					break;
 				case MotionEvent.ACTION_MOVE:
-					touchStartX = x;
-					touchStartY = y;
 					if (delta > LINE_HEIGHT)
 						nativeOnTouchScrollDown();
 					else if (delta < -LINE_HEIGHT)
@@ -524,11 +485,11 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		@Override
-		public void surfaceChanged(SurfaceHolder paramSurfaceHolder, int paramInt1, int paramInt2, int paramInt3) {
+		public void surfaceChanged(@NonNull SurfaceHolder paramSurfaceHolder, int paramInt1, int paramInt2, int paramInt3) {
 		}
 
 		@Override
-		public void surfaceDestroyed(SurfaceHolder paramSurfaceHolder) {
+		public void surfaceDestroyed(@NonNull SurfaceHolder paramSurfaceHolder) {
 		}
 
 		@Override
@@ -557,17 +518,6 @@ public class MainActivity extends AppCompatActivity {
 				nativeOnTouchOneUp(0, 0);
 			}
 			return true;
-		}
-	}
-
-	/**
-	 * The editor view.
-	 */
-	private class EditView extends View {
-		public static final int VIEW_WIDTH = 440;
-
-		public EditView(Context context) {
-			super(context);
 		}
 	}
 }

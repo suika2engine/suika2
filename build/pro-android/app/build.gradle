@@ -1,59 +1,35 @@
 plugins {
-    id 'com.android.application'
+    id "com.android.application"
 }
 
 android {
-    namespace 'jp.luxion.suikapro'
-    compileSdk 33
-    ndkVersion "25.2.9519653"
+    namespace "jp.luxion.suikapro"
+    compileSdk 34
+    ndkVersion "26.1.10909125"
     defaultConfig {
-        applicationId 'jp.luxion.suikapro'
-        minSdk 24
-        targetSdk 33
+        applicationId "jp.luxion.suikapro"
+        minSdk 19
+        targetSdk 34
         versionCode 1
         versionName "1.0"
-        externalNativeBuild {
-            cmake {
-                targets "suika"
-            }
-            cmake {
-                cppFlags ''
-                arguments "-DSKIP_INSTALL_ALL=YES"
-                targets "png"
-            }
-        }
-        vectorDrawables {
-            useSupportLibrary true
-        }
     }
     externalNativeBuild {
         cmake {
-            path 'CMakeLists.txt'
-            version '3.22.1'
+            path "CMakeLists.txt"
         }
     }
     lint {
         abortOnError false
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    buildFeatures {
-        compose true
-    }
-    packaging {
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
-        }
-    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.compose.ui:ui'
-    implementation 'androidx.compose.ui:ui-graphics'
-    implementation 'androidx.compose.ui:ui-tooling-preview'
-    implementation 'androidx.compose.material3:material3'
+    implementation "androidx.activity:activity:1.8.2"
+    implementation "androidx.appcompat:appcompat:1.5.0"
+    implementation "androidx.appcompat:appcompat-resources:1.5.0"
+    implementation 'com.android.support:appcompat-v7:27.0.0'
+    constraints{
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0"
+    }
 }

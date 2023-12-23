@@ -7,7 +7,7 @@ mkdir -p app/src/main/cpp
 rm -rf app/src/main/cpp/bzip2
 tar xzf ../libsrc/bzip2-1.0.6.tar.gz -C app/src/main/cpp/
 mv app/src/main/cpp/bzip2-1.0.6 app/src/main/cpp/bzip2
-cp cmakelists_for_bzip2.txt app/src/main/cpp/bzip2/CMakeLists.txt
+cp cmake/bzip2.txt app/src/main/cpp/bzip2/CMakeLists.txt
 
 # Extract libwebp source into the android project tree.
 rm -rf app/src/main/cpp/libwebp
@@ -29,7 +29,7 @@ cp app/src/main/cpp/libpng/scripts/pnglibconf.h.prebuilt app/src/main/cpp/libpng
 rm -rf app/src/main/cpp/jpeg
 tar xzf ../libsrc/jpegsrc.v9e.tar.gz -C app/src/main/cpp/
 mv app/src/main/cpp/jpeg-9e app/src/main/cpp/jpeg
-cp cmakelists_for_libjpeg.txt app/src/main/cpp/jpeg/CMakeLists.txt
+cp cmake/jpeg.txt app/src/main/cpp/jpeg/CMakeLists.txt
 cp app/src/main/cpp/jpeg/jconfig.txt app/src/main/cpp/jpeg/jconfig.h
 
 # Copy the source files into the android project tree.
