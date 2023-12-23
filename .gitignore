@@ -141,6 +141,11 @@ build/pro-linux/deps
 build/pro-linux/build
 build/pro-linux/CMakeLists.txt.user
 
+# Android
+build/pro-android/.idea
+build/pro-android/app/src/main/assets
+build/pro-android/app/src/main/cpp
+
 #
 # Installer
 #

@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'jp.luxion.suika'
+    namespace 'jp.luxion.suikapro'
     compileSdk 33
     ndkVersion "25.2.9519653"
     defaultConfig {
-        applicationId "jp.luxion.suika"
+        applicationId 'jp.luxion.suikapro'
         minSdk 24
         targetSdk 33
         versionCode 1
@@ -22,7 +22,6 @@ android {
                 targets "png"
             }
         }
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -52,15 +51,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.0'
-    implementation platform('androidx.compose:compose-bom:2023.03.00')
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
-    androidTestImplementation platform('androidx.compose:compose-bom:2023.03.00')
-    debugImplementation 'androidx.compose.ui:ui-tooling'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }

@@ -9,9 +9,6 @@
  * Suika2 Pro for Mobile (Android NDK)
  */
 
-/* Android NDK */
-#include <android/log.h>
-
 /* Suika2 Base */
 #include "suika.h"
 
@@ -19,7 +16,6 @@
 #include "pro.h"
 
 /* HAL */
-#include "ndkmain.h"
 #include "glrender.h"
 
 /* Standard C */
@@ -30,6 +26,12 @@
 #include <sys/stat.h>	/* stat(), mkdir() */
 #include <sys/time.h>	/* gettimeofday() */
 #include <unistd.h>	/* usleep(), access() */
+
+/* JNI */
+#include <jni.h>
+
+/* Android NDK */
+#include <android/log.h>
 
 /*
  * Constants
@@ -42,17 +44,13 @@
  * Variables
  */
 
-/*
- * JNI関数呼び出しの間だけ有効なJNIEnvへの参照
- */
-JNIEnv *jni_env;
+/* The reference to the MainActivity instance. */
+static jobject main_activity;
 
-/*
- * MainActivityのインスタンスへの参照
- */
-jobject main_activity;
+/* JNIEnv pointer that is only effective in a JNI call and used by some HAL functions. */
+static JNIEnv *jni_env;
 
-/* 状態 */
+/* Control status. */
 static bool is_running;
 static bool is_continue_pressed;
 static bool is_next_pressed;
@@ -61,49 +59,52 @@ static bool is_line_changed;
 static int changed_line;
 static bool is_opened;
 static char *opened_file;
-
-/*
- * ビデオ再生状態
- */
 static bool video_playing_flag;
 
 /*
- * ゲーム初期化処理を行います。
+ * Initialize the game.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_initGame(
+Java_jp_luxion_suikapro_MainActivity_nativeInitGame(
 	JNIEnv *env,
-	jobject instance)
+	jobject instance,
+	jstring basePath)
 {
 	video_playing_flag = false;
 
-	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
-	jni_env = env;
-
-	/* Activityを保持する */
+	/* Retain the main activity. */
 	main_activity = (*env)->NewGlobalRef(env, instance);
 
-	/* ロケールを初期化する */
+	/* Save the env pointer to a global variable until the end of this call. */
+	jni_env = env;
+
+	/* Change the working directory. */
+	const char *cstr = (*env)->GetStringUTFChars(env, basePath, 0);
+	chdir(cstr);
+	(*env)->ReleaseStringUTFChars(env, basePath, cstr);
+
+	/* Initialize the locale. */
 	init_locale_code();
 
-	/* コンフィグの初期化処理を行う */
+	/* Initialize the config. */
 	if (!init_conf()) {
 		log_error("Failed to initialize config.");
-		return;
+		exit(1);
 	}
 
-	/* OpenGL ESの初期化を行う */
+	/* Initialize the graphics subsystem for OpenGL ES. */
 	if (!init_opengl()) {
 		log_error("Failed to initialize OpenGL.");
-		return;
+		exit(1);
 	}
 
-	/* アプリケーション本体の初期化処理を行う */
+	/* Initialize the game. */
 	if (!on_event_init()) {
 		log_error("Failed to initialize event loop.");
-		return;
+		exit(1);
 	}
 
+	/* Reset flags. */
 	is_running = false;
 	is_continue_pressed = false;
 	is_next_pressed = false;
@@ -111,274 +112,276 @@ Java_jp_luxion_suika_MainActivity_initGame(
 	is_line_changed = false;
 	changed_line = 0;
 	is_opened = false;
-	if (opened_file != NULL)
+	if (opened_file != NULL) {
 		free(opened_file);
-	opened_file = NULL;
+		opened_file = NULL;
+	}
 
-	/* envをグローバル変数で参照するのを終了する */
+	/* Finish referencing the env pointer. */
 	jni_env = NULL;
 }
 
 /*
- * 再初期化処理を行います。ビデオ再生処理からの復帰を行います。
+ * Re-initialze after a video playback.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_reinitGame(
+Java_jp_luxion_suikapro_MainActivity_nativeReinitOpenGL(
         JNIEnv *env,
         jobject instance)
 {
 	video_playing_flag = false;
 
-	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
+	/* Save the env pointer to a global variable until the end of this call. */
 	jni_env = env;
 
-	/* Activityを保持する */
+	/* Retain the main activity. (FIXME: not needed?) */
 	main_activity = (*env)->NewGlobalRef(env, instance);
 
-	/* OpenGL ESの初期化を行う */
+	/* Re-initialize OpenGL ES. */
 	if (!init_opengl()) {
 		log_error("Failed to initialize OpenGL.");
-		return;
+		exit(1);
 	}
 
-	/* envをグローバル変数で参照するのを終了する */
-	jni_env = NULL;
-}
-
-/*
- * 終了処理を行います。
- */
-JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_cleanupGame(
-	JNIEnv *env,
-	jobject instance)
-{
-	/* envをグローバル変数で参照する */
-	jni_env = env;
-
-	/* アプリケーション本体の終了処理を行う */
-	on_event_cleanup();
-
-	/* コンフィグの終了処理を行う */
-	cleanup_conf();
-
-	/* MainActivityの保持を終了する */
-	if (main_activity != NULL) {
-		(*env)->DeleteGlobalRef(env, main_activity);
-		main_activity = NULL;
-	}
-
-	/* envをグローバル変数で参照するのを終了する */
+	/* Finish referencing the env pointer. */
 	jni_env = NULL;
 }
 
 /*
  * フレーム処理を行います。
  */
-JNIEXPORT jboolean JNICALL
-Java_jp_luxion_suika_MainActivity_frame(
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeRunFrame(
 	JNIEnv *env,
 	jobject instance)
 {
-	jclass cls;
-	jmethodID mid;
-	jboolean ret;
-	bool draw;
-
-	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
+	/* Save the env pointer to a global variable until the end of this call. */
 	jni_env = env;
 
-	/* ビデオ再生の処理を行う */
-	draw = true;
+	/* Process video playback. */
+	bool draw = true;
 	if (video_playing_flag) {
-		cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-		mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()Z");
+		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()Z");
 		if ((*jni_env)->CallBooleanMethod(jni_env, main_activity, mid))
 			draw = false;
 		else
-            video_playing_flag = false;
+			video_playing_flag = false;
 	}
 
-	/* レンダリングを開始する */
+	/* Start rendering. */
 	if (draw)
 		opengl_start_rendering();
 
-	/* フレームのコマンド実行を行う */
+	/* Do a frame. */
 	if (!on_event_frame())
-		ret = JNI_FALSE;
-	else
-		ret = JNI_TRUE;
+		exit(1);
 
-	/* レンダリングを終了する */
+	/* End rendering. */
 	if (draw)
 		opengl_end_rendering();
 
-	/* envをグローバル変数で参照するのを終了する */
+	/* Finish referencing the env pointer. */
 	jni_env = NULL;
-
-	return ret;
 }
 
 /*
- * タッチ(左押下)を処理します。
+ * Called on one-finger touch.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchLeftDown(
+Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneDown(
         JNIEnv *env,
         jobject instance,
         jint x,
         jint y)
 {
-	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
 	jni_env = env;
-
 	on_event_mouse_press(MOUSE_LEFT, x, y);
-
-	/* envをグローバル変数で参照するのを終了する */
 	jni_env = NULL;
 }
 
 /*
- * タッチ(右押下)を処理します。
+ * Called on two-finger touch.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchRightDown(
+Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoDown(
         JNIEnv *env,
         jobject instance,
         jint x,
         jint y)
 {
-	/* この関数呼び出しの間だけenvをグローバル変数で参照する */
 	jni_env = env;
-
 	on_event_mouse_press(MOUSE_RIGHT, x, y);
-
-	/* envをグローバル変数で参照するのを終了する */
 	jni_env = NULL;
 }
 
 /*
- * タッチ(移動)を処理します。
+ * Called on touch-move.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchMove(
+Java_jp_luxion_suikapro_MainActivity_nativeOnTouchMove(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
+	jni_env = env;
 	on_event_mouse_move(x, y);
+	jni_env = NULL;
 }
 
 /*
- * タッチ(上スクロール)を処理します。
+ * Called on touch-scroll-up.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchScrollUp(
+Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollUp(
 	JNIEnv *env,
 	jobject instance)
 {
+	jni_env = env;
         on_event_key_press(KEY_UP);
         on_event_key_release(KEY_UP);
+	jni_env = NULL;
 }
 
 /*
- * タッチ(下スクロール)を処理します。
+ * Called on touch-scroll-down.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchScrollDown(
+Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollDown(
 	JNIEnv *env,
 	jobject instance)
 {
+	jni_env = env;
         on_event_key_press(KEY_DOWN);
         on_event_key_release(KEY_DOWN);
+	jni_env = NULL;
 }
 
 /*
- * タッチ(左解放)を処理します。
+ * Called on a release of one-finger touch.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchLeftUp(
+Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneUp(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
+	jni_env = env;
         on_event_mouse_release(MOUSE_LEFT, x, y);
+	jni_env = NULL;
 }
 
 /*
- * タッチ(右解放)を処理します。
+ * Called on a release of two-finger touch.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_touchRightUp(
+Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoUp(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
+	jni_env = env;
         on_event_mouse_release(MOUSE_RIGHT, x, y);
+	jni_env = NULL;
 }
 
 /*
- * マウス左押下を処理します。
+ * Called on a left mouse button down.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_clickLeftDown(
+Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftDown(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
+	jni_env = env;
         on_event_mouse_press(MOUSE_LEFT, x, y);
+	jni_env = NULL;
 }
 
 /*
- * マウス左開放を処理します。
+ * Called on a right mouse button down.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_clickLeftUp(
+Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftUp(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
+	jni_env = env;
         on_event_mouse_release(MOUSE_LEFT, x, y);
+	jni_env = NULL;
 }
 
 /*
- * マウス右押下を処理します。
+ * Called on a right mouse button down.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_clickRightDown(
+Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightDown(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
+	jni_env = env;
         on_event_mouse_press(MOUSE_RIGHT, x, y);
+	jni_env = NULL;
 }
 
 /*
- * マウス左開放を処理します。
+ * Called on a right mouse button up.
  */
 JNIEXPORT void JNICALL
-Java_jp_luxion_suika_MainActivity_clickRightUp(
+Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightUp(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
+	jni_env = env;
         on_event_mouse_release(MOUSE_RIGHT, x, y);
+	jni_env = NULL;
+}
+
+/*
+ * Called on a mouse move.
+ */
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeOnMouseMove(
+	JNIEnv *env,
+	jobject instance,
+	jint x,
+	jint y)
+{
+        on_event_mouse_move(x, y);
+}
+
+/*
+ * Get an integer config value.
+ */
+JNIEXPORT jint JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeGetIntConfigForKey(
+	JNIEnv *env,
+	jobject instance,
+	jstring key)
+{
+	jni_env = env;
+	const char *cstr = (*env)->GetStringUTFChars(env, key, 0);
+	jint ret = get_int_config_value_for_key(cstr);
+	(*env)->ReleaseStringUTFChars(env, key, cstr);
+	jni_env = NULL;
+	return ret;
 }
 
 /*
  * HAL
  */
 
-/*
- * infoログを出力する
- */
 bool log_info(const char *s, ...)
 {
 	char buf[LOG_BUF_SIZE];
@@ -396,9 +399,6 @@ bool log_info(const char *s, ...)
 	return true;
 }
 
-/*
- * warnログを出力する
- */
 bool log_warn(const char *s, ...)
 {
 	char buf[LOG_BUF_SIZE];
@@ -416,9 +416,6 @@ bool log_warn(const char *s, ...)
 	return true;
 }
 
-/*
- * errorログを出力する
- */
 bool log_error(const char *s, ...)
 {
 	char buf[LOG_BUF_SIZE];
@@ -436,25 +433,16 @@ bool log_error(const char *s, ...)
 	return true;
 }
 
-/*
- * テクスチャを更新する
- */
 void notify_image_update(struct image *img)
 {
 	opengl_notify_image_update(img);
 }
 
-/*
- * テクスチャを破棄する
- */
 void notify_image_free(struct image *img)
 {
 	opengl_notify_image_free(img);
 }
 
-/*
- * イメージをレンダリングする
- */
 void render_image_normal(
 	int dst_left,
 	int dst_top,
@@ -479,9 +467,6 @@ void render_image_normal(
 				   alpha);
 }
 
-/*
- * イメージをレンダリングする
- */
 void render_image_add(
 	int dst_left,
 	int dst_top,
@@ -506,9 +491,6 @@ void render_image_add(
 				alpha);
 }
 
-/*
- * イメージを暗くレンダリングする
- */
 void render_image_dim(
 	int dst_left,
 	int dst_top,
@@ -533,25 +515,16 @@ void render_image_dim(
 				alpha);
 }
 
-/*
- * イメージをルール付きでレンダリングする
- */
 void render_image_rule(struct image *src_img, struct image *rule_img, int threshold)
 {
 	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
-/*
- * イメージをルール付き(メルト)でレンダリングする
- */
 void render_image_melt(struct image *src_img, struct image *rule_img, int progress)
 {
 	opengl_render_image_melt(src_img, rule_img, progress);
 }
 
-/*
- * セーブディレクトリを作成する
- */
 bool make_sav_dir(void)
 {
 	struct stat st = {0};
@@ -562,9 +535,6 @@ bool make_sav_dir(void)
 	return true;
 }
 
-/*
- * データのディレクトリ名とファイル名を指定して有効なパスを取得する
- */
 char *make_valid_path(const char *dir, const char *fname)
 {
 	char *buf;
@@ -589,205 +559,128 @@ char *make_valid_path(const char *dir, const char *fname)
 	return buf;
 }
 
-/*
- * タイマをリセットする
- */
 void reset_lap_timer(uint64_t *t)
 {
-	jclass cls;
-	jmethodID mid;
-	long ret;
+	struct timeval tv;
 
-	/* 現在の時刻を取得する */
-	cls = (*jni_env)->FindClass(jni_env, "java/lang/System");
-	mid = (*jni_env)->GetStaticMethodID(jni_env, cls, "currentTimeMillis", "()J");
-	ret = (*jni_env)->CallStaticLongMethod(jni_env, cls, mid);
+	gettimeofday(&tv, NULL);
 
-	/* 時刻を格納する */
-	*t = (uint64_t)ret;
+	*t = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-/*
- * タイマのラップをミリ秒単位で取得する
- */
 uint64_t get_lap_timer_millisec(uint64_t *t)
 {
-	jclass cls;
-	jmethodID mid;
-	long ret;
+	struct timeval tv;
+	uint64_t end;
+	
+	gettimeofday(&tv, NULL);
 
-	/* 現在の時刻を取得する */
-	cls = (*jni_env)->FindClass(jni_env, "java/lang/System");
-	mid = (*jni_env)->GetStaticMethodID(jni_env, cls, "currentTimeMillis", "()J");
-	ret = (*jni_env)->CallStaticLongMethod(jni_env, cls, mid);
+	end = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 
-	return (uint64_t)(ret - (long)*t);
+	return (uint64_t)(end - *t);
 }
 
-/*
- * サウンドを再生を開始する
- */
 bool play_sound(int n, struct wave *w)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * サウンドの再生を停止する
- */
 bool stop_sound(int n)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * サウンドのボリュームを設定する
- */
 bool set_sound_volume(int n, float vol)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * 終了ダイアログを表示する
- */
 bool exit_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * タイトルに戻るダイアログを表示する
- */
 bool title_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * 削除ダイアログを表示する
- */
 bool delete_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * 上書きダイアログを表示する
- */
 bool overwrite_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * 初期設定ダイアログを表示する
- */
 bool default_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * サウンドが再生終了したか調べる
- */
 bool is_sound_finished(int stream)
 {
 	return false;
 }
 
-/*
- * ビデオを再生する
- */
 bool play_video(const char *fname, bool is_skippable)
 {
-	jclass cls;
-	jmethodID mid;
-
 	video_playing_flag = true;
 
-	/* ビデオの再生を開始する */
-	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	mid = (*jni_env)->GetMethodID(jni_env, cls, "playVideo", "(Ljava/lang/String;Z)V");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "playVideo", "(Ljava/lang/String;Z)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, fname), is_skippable ? JNI_TRUE : JNI_FALSE);
 
 	return true;
 }
 
-/*
- * ビデオを停止する
- */
 void stop_video(void)
 {
-	jclass cls;
-	jmethodID mid;
-
 	video_playing_flag = false;
 
-	/* ビデオの再生を開始する */
-	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	mid = (*jni_env)->GetMethodID(jni_env, cls, "stopVideo", "()V");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "stopVideo", "()V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid);
 }
 
-/*
- * ビデオが再生中か調べる
- */
 bool is_video_playing(void)
 {
 	return video_playing_flag;
 }
 
-/*
- * ウィンドウタイトルを更新する
- */
 void update_window_title(void)
 {
+	/* TODO: Does ChromeOS have window titles? */
 }
 
-/*
- * フルスクリーンモードがサポートされるか調べる
- */
 bool is_full_screen_supported(void)
 {
 	return false;
 }
 
-/*
- * フルスクリーンモードであるか調べる
- */
 bool is_full_screen_mode(void)
 {
 	return false;
 }
 
-/*
- * フルスクリーンモードを開始する
- */
 void enter_full_screen_mode(void)
 {
-	/* stub */
 }
 
-/*
- * フルスクリーンモードを終了する
- */
 void leave_full_screen_mode(void)
 {
-	/* stub */
 }
 
-/*
- * システムのロケールを取得する
- */
 const char *get_system_locale(void)
 {
 	const char *locale;
@@ -830,9 +723,6 @@ void speak_text(const char *text)
  * Pro HAL
  */
 
-/*
- * 続けるボタンが押されたか調べる
- */
 bool is_continue_pushed(void)
 {
 	bool ret = is_continue_pressed;
@@ -840,9 +730,6 @@ bool is_continue_pushed(void)
 	return ret;
 }
 
-/*
- * 次へボタンが押されたか調べる
- */
 bool is_next_pushed(void)
 {
 	bool ret = is_next_pressed;
@@ -850,9 +737,6 @@ bool is_next_pushed(void)
 	return ret;
 }
 
-/*
- * 停止ボタンが押されたか調べる
- */
 bool is_stop_pushed(void)
 {
 	bool ret = is_stop_pressed;
@@ -860,9 +744,6 @@ bool is_stop_pushed(void)
 	return ret;
 }
 
-/*
- * 実行するスクリプトファイルが変更されたか調べる
- */
 bool is_script_opened(void)
 {
 	bool ret = is_opened;
@@ -870,17 +751,12 @@ bool is_script_opened(void)
 	return ret;
 }
 
-/*
- * 変更された実行するスクリプトファイル名を取得する
- */
 const char *get_opened_script(void)
 {
+	/* stub */
 	return "init.txt";
 }
 
-/*
- * 実行する行番号が変更されたか調べる
- */
 bool is_exec_line_changed(void)
 {
 	bool ret = is_line_changed;
@@ -888,17 +764,11 @@ bool is_exec_line_changed(void)
 	return ret;
 }
 
-/*
- * 変更された実行する行番号を取得する
- */
 int get_changed_exec_line(void)
 {
 	return changed_line;
 }
 
-/*
- * コマンドの実行中状態を設定する
- */
 void on_change_running_state(bool running, bool request_stop)
 {
 	is_running = running;
@@ -932,34 +802,25 @@ void on_change_running_state(bool running, bool request_stop)
 	}
 }
 
-/*
- * スクリプトがロードされたときのコールバック
- */
 void on_load_script(void)
 {
 	/* スクリプトファイル名を設定する */
 	/* スクリプトテキストビューを設定する */
 }
 
-/*
- * 実行位置が変更されたときのコールバック
- */
 void on_change_position(void)
 {
 	/* 実行行のハイライトを行う */
 	/* スクロールする */
 }
 
-/*
- * 変数が変更されたときのコールバック
- */
 void on_update_variable(void)
 {
 	/* TODO */
 }
 
 /*
- * Stubs
+ * stubs for sound
  */
 
 struct wave {
@@ -971,31 +832,19 @@ struct wave *create_wave_from_file(const char *dir, const char *file, bool loop)
 	return &wave_instance;
 }
 
-/*
- * PCMストリームのループ回数を設定する
- */
 void set_wave_repeat_times(struct wave *w, int n)
 {
 }
 
-/*
- * PCMストリームを破棄する
- */
 void destroy_wave(struct wave *w)
 {
 }
 
-/*
- * PCMストリームのファイル名を取得する(NDK)
- */
 const char *get_wave_file_name(struct wave *w)
 {
 	return "";
 }
 
-/*
- * PCMストリームがループ再生されるかを取得する(NDK)
- */
 bool is_wave_looped(struct wave *w)
 {
 	return false;

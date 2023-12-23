@@ -1900,7 +1900,7 @@ bool reparse_script_for_structured_syntax(void)
 			i = ret_index;
 
 			/* Change the ">>>" message to a NULL command. */
-			if (cmd[i].type == COMMAND_MESSAGE && strcmp(cmd[i].text, SMODE_END) == 0)
+			if (cmd[i].text != NULL && strcmp(cmd[i].text, SMODE_END) == 0)
 				nullify_command(i);
 		}
 	}
@@ -1939,8 +1939,7 @@ static bool reparse_smode(int index, int *end_index)
 		/* 構造化モードの行を処理する */
 		if (!reparse_smode_line(index, state, &accepted, &ret_index))
 			return false;
-
-		index = ret_index + 1;
+		index = ret_index;
 	}
 
 	*end_index = index;

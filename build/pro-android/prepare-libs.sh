@@ -1,5 +1,6 @@
 #!/bin/sh
 
+rm -rf app/src/main/cpp
 mkdir -p app/src/main/cpp
 
 # Extract bzip2 source into the android project tree.
@@ -120,6 +121,10 @@ cp ../../src/wms_lexer.yy.c app/src/main/cpp/
 cp ../../src/wms_parser.tab.c app/src/main/cpp/
 cp ../../src/wms_parser.tab.h app/src/main/cpp/
 
-# Copy the template games.
+# Create a template game zip.
+rm -rf app/src/main/assets
 mkdir -p app/src/main/assets
-cp -R ../../games app/src/main/assets/
+SAVDIR=`pwd`
+cd ../../games/japanese
+zip -r ../../build/pro-android/app/src/main/assets/game.zip *
+cd "$PWD"
