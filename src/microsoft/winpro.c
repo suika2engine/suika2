@@ -123,6 +123,7 @@ static HWND hWndEditor;				/* エディタ部分のパネル */
 static HWND hWndBtnResume;			/* 「続ける」ボタン */
 static HWND hWndBtnNext;			/* 「次へ」ボタン */
 static HWND hWndBtnPause;			/* 「停止」ボタン */
+static HWND hWndBtnMove;			/* 「移動」ボタン */
 static HWND hWndTextboxScript;		/* ファイル名のテキストボックス */
 static HWND hWndBtnSelectScript;	/* ファイル選択のボタン */
 static HWND hWndRichEdit;			/* スクリプトのリッチエディット */
@@ -737,7 +738,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	SendMessage(hWndBtnNext, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
 	CreateTooltip(hWndBtnNext,
 				  L"Run only one command and stop after it.",
-				  L"コマンドを1個だけ実行し、停止します。");
+				  L"コマンドを1つだけ実行し、停止します。");
 
 	/* 停止ボタンを作成する */
 	hWndBtnPause = CreateWindow(
@@ -757,6 +758,25 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	CreateTooltip(hWndBtnPause,
 				  L"Stop script execution.",
 				  L"コマンドの実行を停止します。");
+
+	/* 移動ボタンを作成する */
+	hWndBtnMove = CreateWindow(
+		L"BUTTON",
+		bEnglish ? L"Move" : L"移動",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+		MulDiv(220, nDpi, 96),
+		MulDiv(10, nDpi, 96),
+		MulDiv(100, nDpi, 96),
+		MulDiv(40, nDpi, 96),
+		hWndEditor,
+		(HMENU)ID_MOVE,
+		hInstance,
+		NULL);
+	EnableWindow(hWndBtnMove, TRUE);
+	SendMessage(hWndBtnMove, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	CreateTooltip(hWndBtnMove,
+				  L"Move to the cursor line and run only one command.",
+				  L"カーソル行に移動してコマンドを1つだけ実行します。");
 
 	/* スクリプト名のテキストボックスを作成する */
 	hWndTextboxScript = CreateWindow(
@@ -1489,7 +1509,7 @@ static BOOL WaitForNextFrame(void)
 {
 	DWORD end, lap, wait, span;
 
-	/* 60FPSを目指す */
+	/* 30FPSを目指す */
 	span = FRAME_MILLI;
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
@@ -1781,6 +1801,12 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	case ID_PAUSE:
 		bStopPressed = TRUE;
+		break;
+	case ID_MOVE:
+		RichEdit_UpdateScriptModelFromText();
+		nLineChanged = RichEdit_GetCursorLine();
+		bExecLineChanged = TRUE;
+		bNextPressed = TRUE;
 		break;
 	case ID_ERROR:
 		OnNextError();
@@ -2657,12 +2683,13 @@ void on_change_running_state(bool running, bool request_stop)
 	if(request_stop)
 	{
 		/*
-		 * 停止によりコマンドの完了を待機中のとき
+		 * 実行中だが停止要求によりコマンドの完了を待機中のとき
 		 *  - コントロールとメニューアイテムを無効にする
 		 */
 		EnableWindow(hWndBtnResume, FALSE);
 		EnableWindow(hWndBtnNext, FALSE);
 		EnableWindow(hWndBtnPause, FALSE);
+		EnableWindow(hWndBtnMove, FALSE);
 		EnableWindow(hWndTextboxScript, FALSE);
 		EnableWindow(hWndBtnSelectScript, FALSE);
 		SendMessage(hWndRichEdit, EM_SETREADONLY, TRUE, 0);
@@ -2695,7 +2722,8 @@ void on_change_running_state(bool running, bool request_stop)
 		 */
 		EnableWindow(hWndBtnResume, FALSE);
 		EnableWindow(hWndBtnNext, FALSE);
-		EnableWindow(hWndBtnPause, TRUE);					/* 有効 */
+		EnableWindow(hWndBtnPause, TRUE);
+		EnableWindow(hWndBtnMove, FALSE);
 		EnableWindow(hWndTextboxScript, FALSE);
 		EnableWindow(hWndBtnSelectScript, FALSE);
 		SendMessage(hWndRichEdit, EM_SETREADONLY, TRUE, 0);
@@ -2705,7 +2733,7 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
-		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);		/* 有効 */
+		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
@@ -2728,7 +2756,8 @@ void on_change_running_state(bool running, bool request_stop)
 		 */
 		EnableWindow(hWndBtnResume, TRUE);
 		EnableWindow(hWndBtnNext, TRUE);
-		EnableWindow(hWndBtnPause, FALSE);					/* 無効 */
+		EnableWindow(hWndBtnPause, FALSE);
+		EnableWindow(hWndBtnMove, TRUE);
 		EnableWindow(hWndTextboxScript, TRUE);
 		EnableWindow(hWndBtnSelectScript, TRUE);
 		SendMessage(hWndRichEdit, EM_SETREADONLY, FALSE, 0);
@@ -2738,7 +2767,7 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
-		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);		/* 無効 */
+		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_ERROR, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_ENABLED);
@@ -2854,13 +2883,13 @@ static VOID RichEdit_OnChange(void)
 	/* スクリプトモデルの変更後、最初の通知のとき */
 	if (bFirstChange)
 	{
-		bFirstChange = FALSE;
-
 		/* フォントを設定する */
 		RichEdit_SetFont();
 
 		/* ハイライトを更新する */
 		RichEdit_SetTextColorForAllLines();
+
+		bFirstChange = FALSE;
 	}
 	/* 複数行にまたがる可能性のある変更の通知のとき */
 	else if (bRangedChanged)
@@ -3451,9 +3480,6 @@ static VOID RichEdit_UpdateTextFromScriptModel(void)
 
 	/* メモリを解放する */
 	free(pWcs);
-
-	/* 複数行の変更があったことを記録する */
-	bRangedChanged = TRUE;
 }
 
 /* リッチエディットの内容を元にスクリプトモデルを更新する */
@@ -3461,7 +3487,7 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 {
 	wchar_t *pWcs, *pCRLF;
 	int i, nTotal, nLine, nLineStartCharCR, nLineStartCharCRLF;
-	BOOL bExecLineChanged;
+	BOOL bExecLineChanged, bReloaded;
 
 	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
 	dbg_reset_parse_error_count();
@@ -3472,6 +3498,7 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 	nLine = 0;
 	nLineStartCharCR = 0;
 	nLineStartCharCRLF = 0;
+	bReloaded = FALSE;
 	while (nLineStartCharCRLF < nTotal)
 	{
 		wchar_t *pLine;
@@ -3499,12 +3526,18 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 	free(pWcs);
 
 	/* 削除された末尾の行を処理する */
-	bExecLineChanged = FALSE;
-	for (i = get_line_count() - 1; i >= nLine; i--)
-		if (delete_script_line(nLine))
-			bExecLineChanged = TRUE;
-	if (bExecLineChanged)
-		RichEdit_SetBackgroundColorForNextExecuteLine();
+	if (!bReloaded)
+	{
+		bExecLineChanged = FALSE;
+		for (i = get_line_count() - 1; i >= nLine; i--)
+			if (delete_script_line(nLine))
+				bExecLineChanged = TRUE;
+		if (bExecLineChanged)
+			RichEdit_SetBackgroundColorForNextExecuteLine();
+	}
+
+	/* 拡張構文がある場合に対応する */
+	reparse_script_for_structured_syntax();
 
 	/* コマンドのパースに失敗した場合 */
 	if (dbg_get_parse_error_count() > 0)
@@ -3556,6 +3589,9 @@ static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void)
 		nLine++;
 	}
 	free(pWcs);
+
+	/* 拡張構文がある場合に対応する */
+	reparse_script_for_structured_syntax();
 
 	/* コマンドのパースに失敗した場合 */
 	if (dbg_get_parse_error_count() > 0)
@@ -3794,12 +3830,16 @@ static VOID OnOpenScript(void)
 
 	SetWindowText(hWndTextboxScript, pFile);
 	bScriptOpened = TRUE;
+	bExecLineChanged = FALSE;
+	nLineChanged = 0;
 }
 
 /* スクリプトリロード */
 static VOID OnReloadScript(void)
 {
 	bScriptOpened = TRUE;
+	bExecLineChanged = TRUE;
+	nLineChanged = get_expanded_line_num();
 }
 
 /* ファイルを開くダイアログを表示して素材ファイルを選択する */
@@ -3860,6 +3900,8 @@ static const wchar_t *SelectFile(const char *pszDir)
 	if(ofn.lpstrFile[0] == L'\0')
 		return NULL;
 	if (wcswcs(wszPath, wszBase) == NULL)
+		return NULL;
+	if (wcslen(wszPath) < strlen(pszDir) + 1)
 		return NULL;
 
 	/* 素材ディレクトリ内の相対パスを返す */

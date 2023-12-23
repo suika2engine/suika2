@@ -519,7 +519,7 @@ void render_image_rule(struct image *src_image, struct image *rule_image, int th
 //
 void render_image_melt(struct image *src_image, struct image *rule_image, int progress)
 {
-	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, progress, PIPELINE_RULE);
+	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, progress, PIPELINE_MELT);
 }
 
 // プリミティブを描画する
@@ -546,7 +546,7 @@ DrawPrimitives(
 		return;
 	pTexColor = (IDirect3DTexture9 *)src_image->texture;
 	if (rule_image != NULL) {
-		if (!UploadTextureIfNeeded(src_image))
+		if (!UploadTextureIfNeeded(rule_image))
 			return;
 		pTexRule = (IDirect3DTexture9 *)rule_image->texture;
 	}

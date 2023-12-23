@@ -1,16 +1,26 @@
 #
+# Linux (and FreeBSD/NetBSD)
+#
+
+include ../common.mk
+
+#
 # Toolchain selection
 #
 
-CC = gcc
+CC = cc
 
 #
 # CPPFLAGS
 #
 
 CPPFLAGS = \
-	-DUSE_X11_OPENGL \
-	-I/usr/include/freetype2
+	-I/usr/include/freetype2 \
+	-I/usr/local/include \
+	-I/usr/local/include/freetype2 \
+	-I/usr/pkg/include \
+	-I/usr/pkg/include/freetype2 \
+	-I/usr/X11R7/include
 
 #
 # CFLAGS
@@ -33,12 +43,6 @@ CFLAGS = \
 #
 
 LDFLAGS = \
-	-lpthread \
-	-lasound \
-	-lX11 \
-	-lXpm \
-	-lGL \
-	-lGLX \
 	-lpng16 \
 	-ljpeg \
 	-lwebp \
@@ -48,30 +52,52 @@ LDFLAGS = \
 	-logg \
 	-lz \
 	-lbz2 \
+	-Wl,--gc-sections \
+	-L/usr/local/lib \
+	-L/usr/pkg/lib \
+	-lasound \
+	-L/usr/X11R7/lib \
+	-lX11 \
+	-lXpm \
+	-lGL \
+	-lGLX \
+	-lpthread \
 	-lm
 
 #
 # Source files
 #
 
-include ../common.mk
+SRCS_LINUX = \
+	../../src/linux/asound.c \
+	../../src/linux/gstplay.c \
+	../../src/linux/x11main.c
 
-SRCS = \
-	$(SRCS_COMMON) \
-	$(SRCS_SSE) \
-	../../src/asound.c \
-	../../src/glrender.c \
-	../../src/gstplay.c \
-	../../src/x11main.c
+SRCS_KHRONOS = \
+	../../src/khronos/glrender.c
+
+HDRS = \
+	../../src/khronos/glrender.h \
+	../../src/linux/asound.h \
+	../../src/linux/gstplay.h
 
 #
 # .c.o compilation rules
 #
 
-OBJS = $(SRCS:../../src/%.c=%.o) \
+OBJS = \
+	$(SRCS_KHRONOS:../../src/khronos/%.c=%.o) \
+	$(SRCS_LINUX:../../src/linux/%.c=%.o) \
+	$(SRCS_MAIN:../../src/%.c=%.o)
+
+%.o: ../../src/khronos/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+%.o: ../../src/linux/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
 
 %.o: ../../src/%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) `pkg-config --cflags gstreamer-1.0 gstreamer-video-1.0` $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 #
 # Target
@@ -79,14 +105,8 @@ OBJS = $(SRCS:../../src/%.c=%.o) \
 
 all: suika
 
-suika: $(OBJS)
+suika: $(OBJS) $(HDRS) $(HDRS_MAIN)
 	$(CC) -o suika $(OBJS) $(LDFLAGS) `pkg-config --libs gstreamer-1.0 gstreamer-video-1.0`
-
-#
-# Feature specific source files.
-#
-
-include ../sse.mk
 
 #
 # Phony

@@ -14,7 +14,7 @@
 
 #include "suika.h"
 
-static int anime_layer;
+static int layer;
 
 static bool init(void);
 static bool get_position(int *chpos, const char *pos);
@@ -50,7 +50,6 @@ static bool init(void)
 	const char *pos_s, *alpha_s, *accel_s;
 	float span;
 	int chpos, ofs_x, ofs_y, alpha, from_x, from_y, to_x, to_y, accel;
-	int layer;
 
 	/* パラメータを取得する */
 	pos_s = get_string_param(CHA_PARAM_POS);
@@ -207,7 +206,7 @@ static void process_finish(void)
 		return;
 
 	/* アニメが終了した場合 */
-	if (is_anime_finished_for_layer(anime_layer)) {
+	if (is_anime_finished_for_layer(layer)) {
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
 		return;
@@ -235,7 +234,7 @@ static void process_finish(void)
 			return;
 		} else {
 			/* アニメを終了する */
-			finish_layer_anime(anime_layer);
+			finish_layer_anime(layer);
 
 			/* 繰り返し動作を終了する */
 			stop_command_repetition();
@@ -247,7 +246,7 @@ static void process_finish(void)
 	     (is_control_pressed || is_return_pressed ||
 	      is_left_clicked || is_down_pressed)) {
 		/* アニメを終了する */
-		finish_layer_anime(anime_layer);
+		finish_layer_anime(layer);
 
 		/* 繰り返し動作を終了する */
 		stop_command_repetition();
@@ -259,8 +258,8 @@ static void process_finish(void)
 static bool cleanup(void)
 {
 	/* アニメが終了した場合は削除する */
-	if (is_anime_finished_for_layer(anime_layer))
-		clear_anime_sequence(anime_layer);
+	if (is_anime_finished_for_layer(layer))
+		clear_anime_sequence(layer);
 
 	/* 次のコマンドに移動する */
 	if (!move_to_next_command())

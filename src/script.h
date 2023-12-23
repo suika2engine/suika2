@@ -1,36 +1,47 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
+ * Scenario Script Model
+ *
  * [Changes]
- *  - 2016/06/01 作成
- *  - 2017/08/14 スイッチに対応
- *  - 2018/07/21 @gosubに対応
- *  - 2019/09/17 @newsに対応
- *  - 2021/06/05 @menuのボタン数を増やした
- *  - 2021/06/10 @chにエフェクトとオフセットとアルファを追加
- *  - 2021/06/10 @chaに対応
- *  - 2021/06/12 @shakeに対応
- *  - 2021/06/15 @setsaveに対応
- *  - 2021/07/07 @goto $SAVEに対応
- *  - 2021/07/19 @chsに対応
- *  - 2022/05/11 @videoに対応
- *  - 2022/06/17 @chooseに対応
- *  - 2022/07/04 @chapterに対応
- *  - 2022/07/29 @guiに対応
- *  - 2023/01/06 利用されていないパラメータインデックスを削除
- *  - 2023/01/14 スタートアップファイル/ラインに対応
- *  - 2022/08/14 @ichooseに対応
- *  - 2023/08/20 @animeに対応
- *  - 2023/08/27 構造化構文に対応
- *  - 2023/08/27 @setconfigに対応
- *  - 2023/08/31 @chsxに対応
- *  - 2023/09/14 @pencilに対応
- *  - 2023/10/21 スクリプトの動的変更に対応
+ *  - 2016-06-01 Created
+ *  - 2017-08-14 Added @switch
+ *  - 2018-07-21 Added @gosub
+ *  - 2019-09-17 Added @news
+ *  - 2021-06-05 Added effects to @bg
+ *  - 2021-06-05 Added system wide volumes to @vol
+ *  - 2021-06-05 Added @menu button count
+ *  - 2021-06-06 Added voice output to @se
+ *  - 2021-06-10 Added the mask effect to @bg and @ch
+ *  - 2021-06-10 Added effect, offset and alpha parameters to @ch
+ *  - 2021-06-10 Added @cha
+ *  - 2021-06-12 Added @shake
+ *  - 2021-06-15 Added @setsave
+ *  - 2021-07-07 Added @goto $SAVE
+ *  - 2021-07-19 Added @chs
+ *  - 2022-05-11 Added @video
+ *  - 2022-06-05 Added @skip
+ *  - 2022-06-06 Added the debugger support
+ *  - 2022-06-17 Added @choose
+ *  - 2022-07-04 Added @chapter
+ *  - 2022-07-29 Added @gui
+ *  - 2022-10-19 Added locales
+ *  - 2023-01-06 Removed unused parameter indices
+ *  - 2023-01-06 Added Japanese command names, parameter names and quotations
+ *  - 2023-01-14 Added startup file and line (later removed)
+ *  - 2023-08-14 Added using
+ *  - 2022-08-14 Added @ichoose
+ *  - 2023-08-20 Added @anime
+ *  - 2023-08-27 Added structured syntax (SMODE)
+ *  - 2023-08-27 Added @setconfig
+ *  - 2023-08-31 Added @chsx
+ *  - 2023-09-14 Added @pencil
+ *  - 2023-10-21 Supported dynamic update of script model
  */
 
 #ifndef SUIKA_SCRIPT_H
@@ -38,7 +49,7 @@
 
 #include "types.h"
 
-/* コマンドの最大数 */
+/* Maximum command number. */
 #define SCRIPT_CMD_SIZE	(65536)
 
 /* コマンド構造体 */
@@ -46,7 +57,8 @@ struct command;
 
 /* コマンドの種類 */
 enum command_type {
-	COMMAND_MIN,		/* invalid value */
+	COMMAND_INVALID = 0,	/* invalid value */
+	COMMAND_NULL,		/* NULL command (for reparse internal) */
 	COMMAND_LABEL,
 	COMMAND_SERIF,
 	COMMAND_MESSAGE,
@@ -491,11 +503,6 @@ enum layer_command_param {
  * 初期化
  */
 
-#ifdef USE_DEBUGGER
-/* スタートアップファイル/ラインを設定する */
-bool set_startup_file_and_line(const char *file, int line);
-#endif
-
 /* 初期スクリプトを読み込む */
 bool init_script(void);
 
@@ -572,9 +579,10 @@ int get_line_count(void);
 /* コマンドの数を取得する */
 int get_command_count(void);
 
-#ifdef USE_DEBUGGER
-/* スタートアップファイルが指定されたか */
-bool has_startup_file(void);
+/*
+ * For Suika2 Pro
+ */
+#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
 
 /* using展開後のコマンドの行番号を取得する(ログ用) */
 int get_expanded_line_num(void);
@@ -600,12 +608,15 @@ bool update_script_line(int line, const char *text);
 /* スクリプトの行を削除する */
 bool delete_script_line(int line);
 
-/* スクリプトを保存する */
+/* スクリプトモデルを元にスクリプトファイルを保存する */
 bool save_script(void);
+
+/* スクリプトの拡張構文を再度パースする */
+bool reparse_script_for_structured_syntax(void);
 
 /* コマンド名からコマンドタイプを返す */
 int get_command_type_from_name(const char *name);
 
-#endif /* USE_DEBUGGER */
+#endif /* defined(USE_EDITOR) || defined(USE_DEBUGGER) */
 
 #endif

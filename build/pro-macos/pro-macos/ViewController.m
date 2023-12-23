@@ -25,10 +25,6 @@
 
 static ViewController *theViewController;
 
-static void setWaitingState(void);
-static void setRunningState(void);
-static void setStoppedState(void);
-
 @interface ViewController ()
 // Status
 @property BOOL isEnglish;
@@ -48,6 +44,7 @@ static void setStoppedState(void);
 @property (weak) IBOutlet NSButton *buttonContinue;
 @property (weak) IBOutlet NSButton *buttonNext;
 @property (weak) IBOutlet NSButton *buttonStop;
+@property (weak) IBOutlet NSButton *buttonMove;
 @property (weak) IBOutlet NSTextField *textFieldScriptName;
 @property (weak) IBOutlet NSButton *buttonOpenScript;
 @property (unsafe_unretained) IBOutlet NSTextView *textViewScript;
@@ -524,6 +521,15 @@ static void setStoppedState(void);
     self.isStopPressed = true;
 }
 
+// 移動ボタンが押下されたイベント
+- (IBAction) onMoveButton:(id)sender {
+    [self updateScriptModelFromText];
+    [self setTextColorForAllLines];
+    self.isExecLineChanged = YES;
+    self.changedExecLine = [self scriptCursorLine];
+    self.isNextPressed = YES;
+}
+
 // スクリプトファイル名の反映ボタンが押下されたイベント
 - (IBAction)onOpenScriptButton:(id)sender {
     NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
@@ -532,9 +538,9 @@ static void setStoppedState(void);
     [panel setAllowedFileTypes:[NSArray arrayWithObjects:@"txt", @"'TEXT'", nil]];
     [panel setDirectoryURL:[[NSURL alloc] initFileURLWithPath:txtPath]];
     if ([panel runModal] == NSModalResponseOK) {
-        NSString *file = [[panel URL] lastPathComponent];
-        if ([file hasPrefix:txtPath]) {
-                [self setScriptName:file];
+        NSString *choose = [[panel URL] path];
+        if ([choose hasPrefix:txtPath] && [choose length] > [txtPath length] + 1) {
+                self.textFieldScriptName.stringValue = [choose substringFromIndex:[txtPath length] + 1];
                 self.isOpenScriptPressed = true;
         }
     }
@@ -543,7 +549,7 @@ static void setStoppedState(void);
 // 変数の反映ボタンが押下されたイベント
 - (IBAction)onUpdateVariablesButton:(id)sender {
     // テキストフィールドの内容を取得する
-    NSString *text = [self getVariablesText];
+    NSString *text = self.textFieldVariables.stringValue;
 
     // パースする
     const char *p = [text UTF8String];
@@ -581,7 +587,7 @@ static void setStoppedState(void);
     }
 
     // 変更された後の変数でテキストフィールドを更新する
-    [self updateVariableTextField];
+    on_update_variable();
 }
 
 - (IBAction)onQuit:(id)sender {
@@ -611,7 +617,7 @@ static void setStoppedState(void);
     if ([panel runModal] == NSModalResponseOK) {
         NSString *file = [[panel URL] lastPathComponent];
         if ([file hasPrefix:txtPath]) {
-                [self setScriptName:file];
+                self.textFieldScriptName.stringValue = file;
                 self.isOpenScriptPressed = true;
         }
     }
@@ -691,7 +697,7 @@ static void setStoppedState(void);
         const char *text = get_line_string_at_line_num(i);
         if(text[0] == '!') {
             // みつかったので選択する
-            [self selectScriptLine:i];
+            [self scrollToLine:i];
             //[self.textViewScript scrollRowToVisible:i];
             return;
         }
@@ -703,7 +709,7 @@ static void setStoppedState(void);
             const char *text = get_line_string_at_line_num(i);
             if(text[0] == '!') {
                 // みつかったので選択する
-                [self selectScriptLine:i];
+                [self scrollToLine:i];
                 //[self.textViewScript scrollRowToVisible:i];
                 return;
             }
@@ -1282,97 +1288,17 @@ static void setStoppedState(void);
     [self.view.window setTitle:title];
 }
 
-// 続けるボタンを設定する
-- (void)setResumeButton:(BOOL)enabled text:(NSString *)text {
-    [[self buttonContinue] setEnabled:enabled];
-    [[self buttonContinue] setTitle:text];
-}
-
-// 次へボタンを設定する
-- (void)setNextButton:(BOOL)enabled text:(NSString *)text {
-    [[self buttonNext] setEnabled:enabled];
-    [[self buttonNext] setTitle:text];
-}
-
-// 停止ボタンを設定する
-- (void)setStopButton:(BOOL)enabled text:(NSString *)text {
-    [[self buttonStop] setEnabled:enabled];
-    [[self buttonStop] setTitle:text];
-}
-
-// スクリプト名のテキストフィールドの値を設定する
-- (void)setScriptName:(NSString *)name {
-    [self.textFieldScriptName setStringValue:name];
-}
-
-// スクリプト名のテキストフィールドの値を取得する
-- (NSString *)getScriptName {
-    return [[self textFieldScriptName] stringValue];
-}
-
-// スクリプトを開くボタンの有効状態を設定する
-- (void)enableOpenScriptButton:(BOOL)state {
-    [[self buttonOpenScript] setEnabled:state];
-}
-
-// スクリプトテキストエディットの有効状態を設定する
-- (void)enableScriptTextView:(BOOL)state {
-    [[self textViewScript] setEditable:state];
-}
-
-// 変数のテキストフィールドの有効状態を設定する
-- (void)enableVariableTextView:(BOOL)state {
-    [[self textFieldVariables] setEditable:state];
-}
-
-// 変数の書き込みボタンの有効状態を設定する
-- (void)enableVariableUpdateButton:(BOOL)state {
-    [self.buttonUpdateVariables  setEnabled:state];
-}
-
-// 変数のテキストフィールドの値を設定する
-- (void)setVariablesText:(NSString *)text {
-    self.textFieldVariables.stringValue = text;
-}
-
-// 変数のテキストフィールドの値を取得する
-- (NSString *)getVariablesText {
-    return self.textFieldVariables.stringValue;
-}
-
 ///
 /// スクリプトのテキストビュー
 ///
-
-// 実行行を設定する
-- (void)setExecLine:(int)line {
-    [self selectScriptLine:line];
-    [self setTextColorForAllLines];
-    
-    // Scroll.
-    [self scrollToCurrentLine];
-}
-
-- (void)scrollToCurrentLine {
-    NSRange caretRange = NSMakeRange(_textViewScript.selectedRange.location, 0);
-    NSLayoutManager *layoutManager = [_textViewScript layoutManager];
-    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:caretRange actualCharacterRange:nil];
-    NSRect glyphRect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:[_textViewScript textContainer]];
-    [_textViewScript scrollRectToVisible:glyphRect];
-}
-
-// スクリプトのテキストビューの内容を更新する
-- (void)updateScriptTextView {
-    [self updateTextFromScriptModel];
-    [self setTextColorForAllLines];
-}
 
 // テキストビューの内容をスクリプトモデルを元に設定する
 - (void)updateTextFromScriptModel {
     // 行を連列してスクリプト文字列を作成する
     NSString *text = @"";
     for (int i = 0; i < get_line_count(); i++) {
-        text = [text stringByAppendingString:[[NSString alloc] initWithUTF8String:get_line_string_at_line_num(i)]];
+        NSString *line = [[NSString alloc] initWithUTF8String:get_line_string_at_line_num(i)];
+        text = [text stringByAppendingString:line];
         text = [text stringByAppendingString:@"\n"];
     }
 
@@ -1401,6 +1327,9 @@ static void setStoppedState(void);
         lineNum++;
     }
 
+    // メッセージになった拡張構文を再度パースする
+    reparse_script_for_structured_syntax();
+    
     // 削除された末尾の行を処理する
     self.isExecLineChanged = FALSE;
     for (int i = get_line_count() - 1; i >= lineNum; i--)
@@ -1560,77 +1489,62 @@ static void setStoppedState(void);
     return 0;
 }
 
-- (void)selectScriptLine:(int)lineToSelect {
+- (void)scrollToExecLine {
+    int line = get_expanded_line_num();
+    [self scrollToLine:line];
+}
+
+- (void)scrollToLine:(int)lineToScroll {
     NSString *text = _textViewScript.string;
     NSArray *lines = [text componentsSeparatedByString:@"\n"];
     int lineCount = 0;
     int lineTop = 0;
     for (NSString *line in lines) {
         int lineLen = (int)line.length;
-        if (lineCount == lineToSelect) {
-            _textViewScript.selectedRange = NSMakeRange(lineTop, lineLen);
-            return;
+        if (lineCount == lineToScroll) {
+            NSRange caretRange = NSMakeRange(lineTop, 0);
+            _textViewScript.selectedRange = caretRange;
+            NSLayoutManager *layoutManager = [_textViewScript layoutManager];
+            NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:caretRange actualCharacterRange:nil];
+            NSRect glyphRect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:[_textViewScript textContainer]];
+            [_textViewScript scrollRectToVisible:glyphRect];
+            break;
         }
         lineCount++;
         lineTop += lineLen + 1;
     }
 }
 
-//
-// 変数のテキストフィールド
-//
-
-// 変数のテキストフィールドの内容を更新する
-- (void)updateVariableTextField {
-    @autoreleasepool {
-        int index, val;
-        NSMutableString *text = [NSMutableString new];
-
-        for (index = 0; index < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; index++) {
-            // 変数が初期値の場合
-            val = get_variable(index);
-            if(val == 0 && !is_variable_changed(index))
-                continue;
-
-            // 行を追加する
-            [text appendString:
-                      [NSString stringWithFormat:@"$%d=%d\n", index, val]];
-        }
-
-        self.textFieldVariables.stringValue = text;
-    }
-}
-
 @end
-
 
 //
 // Main HAL
 //
-
 
 //
 // INFOログを出力する
 //
 bool log_info(const char *s, ...)
 {
-    char buf[1024];
-    va_list ap;
+    @autoreleasepool {
+        char buf[1024];
+        va_list ap;
     
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
+        va_start(ap, s);
+        vsnprintf(buf, sizeof(buf), s, ap);
+        va_end(ap);
 
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_INFO)]];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
+        // アラートを表示する
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_INFO)]];
+        NSString *text = [[NSString alloc] initWithUTF8String:buf];
+        if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+            text = @"(invalid utf-8 string)";
+        [alert setInformativeText:text];
+        [alert runModal];
 
-    return true;
+        return true;
+    }
 }
 
 //
@@ -1638,23 +1552,25 @@ bool log_info(const char *s, ...)
 //
 bool log_warn(const char *s, ...)
 {
-    char buf[1024];
-    va_list ap;
+    @autoreleasepool {
+        char buf[1024];
+        va_list ap;
 
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
+        va_start(ap, s);
+        vsnprintf(buf, sizeof(buf), s, ap);
+        va_end(ap);
 
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_WARN)]];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
+        // アラートを表示する
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_WARN)]];
+        NSString *text = [[NSString alloc] initWithUTF8String:buf];
+        if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+            text = @"(invalid utf-8 string)";
+        [alert setInformativeText:text];
+        [alert runModal];
 
-    return true;
+        return true;
+    }
 }
 
 //
@@ -1662,23 +1578,24 @@ bool log_warn(const char *s, ...)
 //
 bool log_error(const char *s, ...)
 {
-    char buf[1024];
-    va_list ap;
+    @autoreleasepool {
+        char buf[1024];
+        va_list ap;
 
-    va_start(ap, s);
-    vsnprintf(buf, sizeof(buf), s, ap);
-    va_end(ap);
+        va_start(ap, s);
+        vsnprintf(buf, sizeof(buf), s, ap);
+        va_end(ap);
 
-    // アラートを表示する
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_ERROR)]];
-    NSString *text = [[NSString alloc] initWithUTF8String:buf];
-    if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
-        text = @"(invalid utf-8 string)";
-    [alert setInformativeText:text];
-    [alert runModal];
-
-    return true;
+        // アラートを表示する
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:[[NSString alloc] initWithUTF8String:get_ui_message(UIMSG_ERROR)]];
+        NSString *text = [[NSString alloc] initWithUTF8String:buf];
+        if (![text canBeConvertedToEncoding:NSUTF8StringEncoding])
+            text = @"(invalid utf-8 string)";
+        [alert setInformativeText:text];
+        [alert runModal];
+        return true;
+    }
 }
 
 //
@@ -1733,16 +1650,20 @@ char *make_valid_path(const char *dir, const char *fname)
 
 bool is_continue_pushed(void)
 {
-    bool ret = theViewController.isContinuePressed;
-    theViewController.isContinuePressed = false;
-    return ret;
+    @autoreleasepool {
+        bool ret = theViewController.isContinuePressed;
+        theViewController.isContinuePressed = false;
+        return ret;
+    }
 }
 
 bool is_next_pushed(void)
 {
-    bool ret = theViewController.isNextPressed;
-    theViewController.isNextPressed = false;
-    return ret;
+    @autoreleasepool {
+        bool ret = theViewController.isNextPressed;
+        theViewController.isNextPressed = false;
+        return ret;
+    }
 }
 
 //
@@ -1750,9 +1671,11 @@ bool is_next_pushed(void)
 //
 bool is_stop_pushed(void)
 {
-    bool ret = theViewController.isStopPressed;
-    theViewController.isStopPressed = false;
-    return ret;
+    @autoreleasepool {
+        bool ret = theViewController.isStopPressed;
+        theViewController.isStopPressed = false;
+        return ret;
+    }
 }
 
 //
@@ -1760,9 +1683,11 @@ bool is_stop_pushed(void)
 //
 bool is_script_opened(void)
 {
-    bool ret = theViewController.isOpenScriptPressed;
-    theViewController.isOpenScriptPressed = false;
-    return ret;
+    @autoreleasepool {
+        bool ret = theViewController.isOpenScriptPressed;
+        theViewController.isOpenScriptPressed = false;
+        return ret;
+    }
 }
 
 //
@@ -1771,7 +1696,11 @@ bool is_script_opened(void)
 const char *get_opened_script(void)
 {
     static char script[256];
-    snprintf(script, sizeof(script), "%s", [[theViewController getScriptName] UTF8String]);
+
+    @autoreleasepool {
+        snprintf(script, sizeof(script), "%s", [theViewController.textFieldScriptName.stringValue UTF8String]);
+    }
+
     return script;
 }
 
@@ -1780,9 +1709,11 @@ const char *get_opened_script(void)
 //
 bool is_exec_line_changed(void)
 {
-    bool ret = theViewController.isExecLineChanged;
-    theViewController.isExecLineChanged = false;
-    return ret;
+    @autoreleasepool {
+        bool ret = theViewController.isExecLineChanged;
+        theViewController.isExecLineChanged = false;
+        return ret;
+    }
 }
 
 //
@@ -1790,7 +1721,9 @@ bool is_exec_line_changed(void)
 //
 int get_changed_exec_line(void)
 {
-    return theViewController.changedExecLine;
+    @autoreleasepool {
+        return theViewController.changedExecLine;
+    }
 }
 
 //
@@ -1798,199 +1731,114 @@ int get_changed_exec_line(void)
 //
 void on_change_running_state(bool running, bool request_stop)
 {
-    // 実行状態を保存する
-    theViewController.isRunning = running ? YES : NO;
-
-    // 停止によりコマンドの完了を待機中のとき
-    if(request_stop) {
-        setWaitingState();
-        [theViewController setTextColorForAllLines];
-        return;
+    @autoreleasepool {
+        theViewController.isRunning = running ? YES : NO;
+        if(request_stop) {
+            // Running and there is a stop request.
+            [theViewController.buttonContinue setEnabled:NO];
+            [theViewController.buttonNext setEnabled:NO];
+            [theViewController.buttonStop setEnabled:NO];
+            [theViewController.buttonMove setEnabled:NO];
+            [theViewController.buttonOpenScript setEnabled:NO];
+            [theViewController.textViewScript setEditable:NO];
+            [theViewController.textFieldVariables setEnabled:NO];
+            [theViewController.buttonUpdateVariables setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+                [item setEnabled:NO];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+                [item setEnabled:NO];
+            [theViewController setTextColorForAllLines];
+            return;
+        } else if (running) {
+            // Running and there is no stop request.
+            [theViewController.buttonContinue setEnabled:NO];
+            [theViewController.buttonNext setEnabled:NO];
+            [theViewController.buttonStop setEnabled:YES];
+            [theViewController.buttonMove setEnabled:NO];
+            [theViewController.buttonOpenScript setEnabled:NO];
+            [theViewController.textViewScript setEditable:YES];
+            [theViewController.textFieldVariables setEditable:NO];
+            [theViewController.buttonUpdateVariables setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+                [item setEnabled:NO];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+                [item setEnabled:NO];
+            [theViewController setTextColorForAllLines];
+            return;
+        } else {
+            // Stopped.
+            [theViewController.buttonContinue setEnabled:YES];
+            [theViewController.buttonNext setEnabled:YES];
+            [theViewController.buttonStop setEnabled:NO];
+            [theViewController.buttonMove setEnabled:YES];
+            [theViewController.buttonOpenScript setEnabled:YES];
+            [theViewController.textViewScript setEditable:YES];
+            [theViewController.textFieldVariables setEditable:YES];
+            [theViewController.buttonUpdateVariables setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
+            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:YES];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+                [item setEnabled:YES];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+                [item setEnabled:YES];
+            [theViewController setTextColorForAllLines];
+        }
     }
-
-    // 実行中のとき
-    if(running) {
-        setRunningState();
-        [theViewController setTextColorForAllLines];
-        return;
-    }
-
-    // 完全に停止中のとき
-    setStoppedState();
-    [theViewController setTextColorForAllLines];
-}
-
-// 停止によりコマンドの完了を待機中のときのビューの状態を設定する
-static void setWaitingState(void)
-{
-    // 続けるボタンを無効にする
-    [theViewController setResumeButton:NO text:theViewController.isEnglish ? @"Continue" : @"続ける"];
-
-    // 次へボタンを無効にする
-    [theViewController setNextButton:NO text:theViewController.isEnglish ? @"Next" : @"次へ"];
-
-    // 停止ボタンを無効にする
-    [theViewController setStopButton:NO text:theViewController.isEnglish ? @"Stop" : @"停止"];
-
-    // スクリプト選択ボタンを無効にする
-    [theViewController enableOpenScriptButton:NO];
-
-    // スクリプトのテキストボックスを有効にする
-    [theViewController enableScriptTextView:NO];
-
-    // 変数のテキストボックスを無効にする
-    [theViewController enableVariableTextView:NO];
-
-    // 変数の書き込みボタンを無効にする
-    [theViewController enableVariableUpdateButton:NO];
-
-    // スクリプトを開くメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
-
-    // 保存メニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
-
-    // 続けるメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
-
-    // 次へメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
-
-    // 停止メニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
-
-    // 次のエラー箇所へメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
-
-    // 演出メニューを無効にする
-    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
-        [item setEnabled:NO];
-
-    // エクスポートメニューを無効にする
-    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
-        [item setEnabled:NO];
-}
-
-// 実行中のときのビューの状態を設定する
-static void setRunningState(void)
-{
-    // 続けるボタンを無効にする
-    [theViewController setResumeButton:NO text:theViewController.isEnglish ? @"Continue" : @"続ける"];
-
-    /* 次へボタンを無効にする */
-    [theViewController setNextButton:NO text:theViewController.isEnglish ? @"Next" : @"次へ"];
-
-    /* 停止ボタンを有効にする */
-    [theViewController setStopButton:TRUE text:theViewController.isEnglish ? @"Stop" : @"停止"];
-
-    // スクリプトを開くボタンを無効にする
-    [theViewController enableOpenScriptButton:NO];
-
-    // スクリプトのテキストボックスを有効にする
-    [theViewController.textViewScript setEditable:YES];
-
-    // 変数のテキストボックスを無効にする
-    [theViewController enableVariableTextView:NO];
-
-    // 変数の書き込みボタンを無効にする
-    [theViewController enableVariableUpdateButton:NO];
-
-    // スクリプトを開くメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
-
-    // 上書き保存メニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
-
-    // パッケージエクスポートメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
-
-    // 続けるメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
-
-    // 次へメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
-
-    // 停止メニューを有効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:YES];
-
-    // 次のエラー箇所へメニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
-
-    // 演出メニューを無効にする
-    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
-        [item setEnabled:NO];
-
-    // エクスポートメニューを無効にする
-    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
-        [item setEnabled:NO];
-}
-
-// 完全に停止中のときのビューの状態を設定する
-static void setStoppedState(void)
-{
-    // 続けるボタンを有効にする
-    [theViewController setResumeButton:YES text:theViewController.isEnglish ? @"Resume" : @"続ける"];
-
-    // 次へボタンを有効にする
-    [theViewController setNextButton:YES text:theViewController.isEnglish ? @"Next" : @"次へ"];
-
-    // 停止ボタンを無効にする
-    [theViewController setStopButton:NO text:theViewController.isEnglish ? @"Pause" : @"停止"];
-
-    // スクリプト選択ボタンを有効にする
-    [theViewController enableOpenScriptButton:YES];
-
-    // スクリプトのテキストボックスを有効にする
-    [theViewController enableScriptTextView:YES];
-
-    // 変数のテキストボックスを有効にする
-    [theViewController enableVariableTextView:YES];
-
-    // 変数の書き込みボタンを有効にする
-    [theViewController enableVariableUpdateButton:YES];
-
-    // スクリプトを開くメニューを有効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:YES];
-
-    // 上書き保存メニューを有効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
-
-    // パッケージエクスポートメニューを有効にする
-    [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:YES];
-
-    // 続けるメニューを有効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:YES];
-
-    // 次へメニューを有効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:YES];
-
-    // 停止メニューを無効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
-
-    // 次のエラー箇所へメニューを有効にする
-    [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:YES];
-
-    // 演出メニューを有効にする
-    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
-        [item setEnabled:YES];
-
-    // エクスポートメニューを有効にする
-    for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
-        [item setEnabled:YES];
 }
 
 void on_load_script(void)
 {
-    [theViewController setScriptName:[[NSString alloc] initWithUTF8String:get_script_file_name()]];
-    [theViewController updateScriptTextView];
+    @autoreleasepool {
+        NSString *scriptName = [[NSString alloc] initWithUTF8String:get_script_file_name()];
+        theViewController.textViewScript.string = scriptName;
+        [theViewController updateTextFromScriptModel];
+        [theViewController setTextColorForAllLines];
+    }
 }
 
 void on_change_position(void)
 {
-    [theViewController setExecLine:get_expanded_line_num()];
+    @autoreleasepool {
+        [theViewController scrollToExecLine];
+        [theViewController setTextColorForAllLines];
+    }
 }
 
 void on_update_variable(void)
 {
-    [theViewController updateVariableTextField];
+    @autoreleasepool {
+        int index, val;
+        NSMutableString *text = [NSMutableString new];
+
+        for (index = 0; index < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; index++) {
+            // 変数が初期値の場合
+            val = get_variable(index);
+            if(val == 0 && !is_variable_changed(index))
+                continue;
+
+            // 行を追加する
+            [text appendString:
+                      [NSString stringWithFormat:@"$%d=%d\n", index, val]];
+        }
+
+        theViewController.textFieldVariables.stringValue = text;
+    }
 }

@@ -4,7 +4,7 @@
 
 DESTDIR=/usr/local
 
-all: targets
+all: build
 
 # This will show the usage of this Makefile if no target is specified.
 targets:
@@ -55,20 +55,15 @@ setup:
 		sudo apt-get install mingw-w64 build-essential libasound2-dev libx11-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libxpm-dev mesa-common-dev xvfb lcov python3-pip debhelper-compat zlib1g-dev libpng-dev libjpeg9-dev libogg-dev libvorbis-dev libfreetype-dev cmake qt6-base-dev qt6-multimedia-dev libqt6core6 libqt6gui6 libqt6widgets6 libqt6opengl6-dev libqt6openglwidgets6 libqt6multimedia6 libqt6multimediawidgets6 zip unzip; \
 		pip3 install opencv-python numpy; \
 		echo 'Building the libraries for Linux...'; \
-		cd build/engine-linux-x86_64 && ./build-libs.sh && cd ../..; \
-		cp -Ra build/engine-linux-x86_64 capture-linux-x86_64/; \
-		cp -Ra build/engine-linux-x86_64 replay-linux-x86_64/; \
-		cd build/engine-linux-x86_64-clang && ./build-libs.sh && cd ../..; \
+		cd build/engine-linux && ./build-libs.sh && cd ../..; \
 		echo 'Building the libraries for Windows...'; \
 		if [ ! -z "`uname -a | grep WSL2`" ]; then \
 			echo "Disabling EXE file execution."; \
 			echo 0 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
 		fi; \
-		cd build/engine-windows-x86 && ./build-libs.sh && cd ../..; \
-		cp -Ra build/engine-windows-x86/libroot build/pro-windows-x86/; \
-		cp -Ra build/engine-windows-x86/libroot build/capture-windows-x86/; \
-		cp -Ra build/engine-windows-x86/libroot build/replay-windows-x86/; \
-		cd build/engine-windows-x86_64 && ./build-libs.sh && cd ../..; \
+		cd build/engine-windows && ./build-libs.sh && cd ../..; \
+		cp -Ra build/engine-windows-x86/libroot build/pro-windows/; \
+		cd build/engine-windows-64 && ./build-libs.sh && cd ../..; \
 		cd build/engine-windows-arm64 && ./build-libs.sh && cd ../..; \
 		if [ ! -z "`uname -a | grep WSL2`" ]; then \
 			echo "Re-enabling EXE file execution."; \
@@ -86,11 +81,9 @@ setup:
 		echo 'Installing mingw-w64...'; \
 		brew install mingw-w64 gsed coreutils gsed wget makensis create-dmg; \
 		echo "Building the libraries."; \
-		cd build/engine-windows-x86 && ./build-libs.sh && cd ../..; \
-		cp -Ra build/engine-windows-x86/libroot build/pro-windows-x86/; \
-		cp -Ra build/engine-windows-x86/libroot build/capture-windows-x86/; \
-		cp -Ra build/engine-windows-x86/libroot build/replay-windows-x86/; \
-		cd build/engine-windows-x86_64 && ./build-libs.sh && cd ../..; \
+		cd build/engine-windows && ./build-libs.sh && cd ../..; \
+		cp -Ra build/engine-windows/libroot build/pro-windows/; \
+		cd build/engine-windows-64 && ./build-libs.sh && cd ../..; \
 		cd build/engine-windows-arm64 && ./build-libs.sh && cd ../..; \
 	fi
 
@@ -104,7 +97,7 @@ all-windows: windows windows-pro windows-studio windows-64 windows-arm64 windows
 # suika.exe (the main game engine for 32-bit Windows)
 windows:
 	@echo 'Building suika.exe'
-	@cd build/engine-windows-x86 && \
+	@cd build/engine-windows && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -113,7 +106,7 @@ windows:
 # suika-pro.exe (the debugger for 32-bit Windows)
 windows-pro:
 	@echo 'Building suika-pro.exe'
-	@cd build/pro-windows-x86 && \
+	@cd build/pro-windows && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -122,7 +115,7 @@ windows-pro:
 # suika-64.exe (the main game engine for 64-bit Windows)
 windows-64:
 	@echo 'Building suika-64.exe'
-	@cd build/engine-windows-x86_64 && \
+	@cd build/engine-windows-64 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -132,24 +125,6 @@ windows-64:
 windows-arm64:
 	@echo 'Building suika-arm64.exe'
 	@cd build/engine-windows-arm64 && \
-	make libroot && \
-	make -j8 && \
-	make install && \
-	cd ../..
-
-# suika-capture.exe (the caputure app)
-windows-capture:
-	@echo 'Building suika-capture.exe'
-	@cd build/capture-windows-x86 && \
-	make libroot && \
-	make -j8 && \
-	make install && \
-	cd ../..
-
-# suika-replay.exe (the replay app)
-windows-replay:
-	@echo 'Building suika-replay.exe'
-	@cd build/replay-windows-x86 && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -208,7 +183,7 @@ all-linux: linux linux-pro linux-capture linux-replay
 # suika-linux (the main game engine for 64-bit Linux, static link)
 linux:
 	@echo 'Building a Linux game binary'
-	@cd build/engine-linux-x86_64 && \
+	@cd build/engine-linux && \
 	make libroot && \
 	make -j8 && \
 	make install && \
@@ -216,16 +191,16 @@ linux:
 
 # suika-linux (the main game engine for 64-bit Linux, dynamic link)
 linux-shared:
-	@echo 'Building a Linux game binary'
-	@cd build/engine-linux-x86_64-shared && \
-	make -j8 && \
+	@echo 'Building a Linux game binary (shared)'
+	@cd build/engine-linux && \
+	make -j8 -f Makefile.shared && \
 	make install && \
 	cd ../..
 
 # suika-pro (the debugger for Linux, static link)
 linux-pro:
 	@echo 'Building for Linux'
-	@cd build/pro-qt6 && \
+	@cd build/pro-linux && \
 	./make-deps.sh && \
 	rm -rf build && \
 	mkdir build && \
@@ -238,7 +213,7 @@ linux-pro:
 # suika-pro (the debugger for Linux, dynamic link)
 linux-pro-shared:
 	@echo 'Building for Linux'
-	@cd build/pro-qt6 && \
+	@cd build/pro-linux && \
 	./make-deps-shared.sh && \
 	rm -rf build && \
 	mkdir build && \
@@ -248,33 +223,15 @@ linux-pro-shared:
 	cp suika-pro ../../../ && \
 	cd ../../..
 
-# suika-linux-capture (the capture app for 64-bit Linux)
-linux-capture:
-	@echo 'Building a Linux capture binary'
-	@cd build/capture-linux-x86_64 && \
-	make libroot && \
-	make -j8 && \
-	make install && \
-	cd ../..
-
-# suika-linux-replay (the replay app for 64-bit Linux)
-linux-replay:
-	@echo 'Building a Linux replay binary'
-	@cd build/replay-linux-x86_64 && \
-	make libroot && \
-	make -j8 && \
-	make install && \
-	cd ../..
-
 ##
 ## Tests
 ##
 
-test:
+run-run-test:
 	@echo "Use 'ctest' for CUI and 'gtest' for GUI"
 
 # Non-graphical automatic tests.
-ctest:
+crun-run-test:
 	@echo 'Running non-graphical tests...'
 	@# Check if we are running on Linux including WSL2.
 	@if [ -z "`uname | grep Linux`" ]; then \
@@ -295,7 +252,7 @@ ctest:
 	cd ..
 
 # Graphical automatic tests.
-gtest:
+grun-run-test:
 	@echo 'Running graphical tests...'
 	@# Check if we are running on Linux including WSL2.
 	@if [ -z "`uname | grep Linux`" ]; then \
@@ -361,8 +318,8 @@ install:
 	@install -v -d $(DESTDIR)/share/suika2/game/wms
 	@install -v -d $(DESTDIR)/share/suika2/game/mov
 	@install -v suika-linux $(DESTDIR)/bin
-	@install -v build/pro-qt6/build/suika-pro $(DESTDIR)/bin
-	@install -v build/pro-qt6/suika2 $(DESTDIR)/bin
+	@install -v build/pro-linux/build/suika-pro $(DESTDIR)/bin
+	@install -v build/pro-linux/suika2 $(DESTDIR)/bin
 	@install -v -t $(DESTDIR)/share/suika2/game/anime games/english/anime/*
 	@install -v -t $(DESTDIR)/share/suika2/game/bg games/english/bg/*
 	@install -v -t $(DESTDIR)/share/suika2/game/bgm games/english/bgm/*
@@ -383,6 +340,4 @@ install:
 
 # Cleanup.
 clean:
-	rm -f suika.exe suika-pro.exe suika-64.exe suika-arm64.exe suika-capture.exe suika-replay.exe
-	rm -f mac.dmg mac-pro.dmg mac-capture.dmg mac-replay.dmg
-	rm -f suika-linux suika-pro suika-linux-capture suika-linux-replay
+	rm -f suika.exe suika-pro.exe suika-64.exe suika-arm64.exe suika-linux suika-pro

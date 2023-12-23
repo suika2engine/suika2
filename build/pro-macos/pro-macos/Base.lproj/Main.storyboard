@@ -131,12 +131,24 @@
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
+                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pxh-hk-FR3">
+                                        <rect key="frame" x="159" y="673" width="67" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="Move" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pQe-OI-VM5">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="onMoveButton:" target="XfG-lQ-9wD" id="IGT-wi-NHQ"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </customView>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="buttonContinue" destination="Yno-l0-3FI" id="Iwi-PS-bsj"/>
+                        <outlet property="buttonMove" destination="Pxh-hk-FR3" id="dvC-MY-Zec"/>
                         <outlet property="buttonNext" destination="OSO-WU-w5I" id="eOf-LZ-FDl"/>
                         <outlet property="buttonOpenScript" destination="2SF-cW-5wW" id="yRu-kv-1s2"/>
                         <outlet property="buttonStop" destination="cuq-YS-HUw" id="x7l-rn-LMU"/>
