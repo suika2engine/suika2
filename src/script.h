@@ -57,7 +57,7 @@ struct command;
 
 /* コマンドの種類 */
 enum command_type {
-	COMMAND_MIN,		/* invalid value */
+	COMMAND_INVALID = 0,	/* invalid value */
 	COMMAND_NULL,		/* NULL command (for reparse internal) */
 	COMMAND_LABEL,
 	COMMAND_SERIF,

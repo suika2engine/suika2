@@ -1509,7 +1509,7 @@ static BOOL WaitForNextFrame(void)
 {
 	DWORD end, lap, wait, span;
 
-	/* 60FPSを目指す */
+	/* 30FPSを目指す */
 	span = FRAME_MILLI;
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
