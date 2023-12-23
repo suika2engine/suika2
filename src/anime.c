@@ -267,12 +267,21 @@ bool start_layer_anime(int layer)
  */
 bool finish_layer_anime(int layer)
 {
+	struct sequence *s;
+
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	if (!context[layer].is_running)
 		return true;
 	if (context[layer].is_finished)
 		return true;
+	if (context[layer].seq_count <= 0)
+		return true;
+
+	s = &sequence[layer][context[layer].seq_count - 1];
+	set_layer_position(layer, (int)s->to_x, (int)s->to_y);
+	set_layer_scale(layer, s->to_scale_x, s->to_scale_y);
+	set_layer_alpha(layer, (int)s->to_a);
 
 	context[layer].is_running = false;
 	context[layer].is_finished = true;

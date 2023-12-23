@@ -2665,13 +2665,6 @@ int get_changed_exec_line(void)
 }
 
 /*
- * 旧Suika2 Pro用: VLSでは使用しない TODO: 削除
- */
-bool is_command_updated(void) { return false; }
-const char* get_updated_command(void) { assert(0); return NULL; }
-bool is_script_reloaded(void) { 	return false; }
-
-/*
  * コマンドの実行中状態を設定する
  */
 void on_change_running_state(bool running, bool request_stop)
