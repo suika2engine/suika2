@@ -194,10 +194,6 @@ bool game_loop_iter(void)
 					return true;
 				}
 
-				/* スタートアップファイル指定あり FIXME:削除可能 */
-				if (has_startup_file())
-					return false;
-
 				/* 最後まで実行した場合、最後のコマンドに留まる */
 				dbg_stop();
 				on_change_position();
