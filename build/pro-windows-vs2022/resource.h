@@ -12,8 +12,9 @@
 #define ID_RESUME                           155
 #define ID_NEXT                             156
 #define ID_PAUSE                            157
-#define ID_ERROR                            158
-#define ID_VARS                             159
+#define ID_MOVE                             158
+#define ID_ERROR                            159
+#define ID_VARS                             160
 
 /* Direction Menu / Popup Menu */
 #define ID_CMD_MESSAGE			    180

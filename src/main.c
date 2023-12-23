@@ -280,12 +280,13 @@ static bool pre_dispatch(void)
 		}
 	}
 
-	/* 停止中で、行番号が変更された場合 */
+	/* 行番号が変更された場合 */
 	if (is_exec_line_changed()) {
-		int index = get_command_index_from_line_num(
-			get_changed_exec_line());
+		int index = get_command_index_from_line_num(get_changed_exec_line());
 		if (index != -1)
 			move_to_command_index(index);
+		else
+			move_to_command_index(get_command_count() - 1);
 	}
 
 #ifndef USE_EDITOR
@@ -525,6 +526,11 @@ static bool dispatch_command(bool *cont)
 		break;
 	case COMMAND_LAYER:
 		if (!layer_command())
+			return false;
+		*cont = true;
+		break;
+	case COMMAND_NULL:
+		if (!move_to_next_command())
 			return false;
 		*cont = true;
 		break;

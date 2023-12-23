@@ -15,8 +15,11 @@ CC = cc
 #
 
 CPPFLAGS = \
+	-I/usr/include/freetype2 \
 	-I/usr/local/include \
+	-I/usr/local/include/freetype2 \
 	-I/usr/pkg/include \
+	-I/usr/pkg/include/freetype2 \
 	-I/usr/X11R7/include
 
 #

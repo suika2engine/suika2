@@ -180,8 +180,6 @@
 		26495D0E2B2A7BFD0050EDDF /* GameRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameRenderer.h; path = ../../src/apple/GameRenderer.h; sourceTree = "<group>"; };
 		26495D0F2B2A7BFD0050EDDF /* aunit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aunit.c; path = ../../src/apple/aunit.c; sourceTree = "<group>"; };
 		26495D102B2A7BFD0050EDDF /* GameShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameShaderTypes.h; path = ../../src/apple/GameShaderTypes.h; sourceTree = "<group>"; };
-		265C81652B33D89F00061F38 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
-		265C81692B33DB3500061F38 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		2669F7082B283866001AEF17 /* Suika2 Pro Desktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro Desktop.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2669F7CD2B284675001AEF17 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -206,6 +204,8 @@
 		26A1BAF22B2AD7D700761444 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
 		26A1BAF62B2AD7E700761444 /* suika-mac.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "suika-mac.zip"; path = "../../engine-macos/suika-mac.zip"; sourceTree = "<group>"; };
 		26A1BAF82B2AD7F600761444 /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
+		26B673AD2B3562DA00E83202 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
+		26B673AF2B3562DC00E83202 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		26F4E5B02B32CE61003E4B5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -547,8 +547,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				26F4E5B02B32CE61003E4B5A /* Base */,
-				265C81652B33D89F00061F38 /* en */,
-				265C81692B33DB3500061F38 /* ja */,
+				26B673AD2B3562DA00E83202 /* en */,
+				26B673AF2B3562DC00E83202 /* ja */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
