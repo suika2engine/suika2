@@ -149,6 +149,13 @@ static int cur_expanded_line;
 #define INC_OUTPUT_LINE()	cur_expanded_line++
 
 /*
+ * For the main engine
+ */
+#if !defined(USE_EDITOR) && !defined(USE_DEBUGGER)
+bool reparse_script_for_structured_syntax(void);
+#endif
+
+/*
  * For Suika2 Pro
  */
 #ifdef USE_DEBUGGER
@@ -158,18 +165,6 @@ static int cur_expanded_line;
 
 /* コメント行 */
 static char *comment_text[SCRIPT_LINE_SIZE];
-
-/* スクリプトロード時の退避用 */
-#if 0
-struct command evacuated_cmd[SCRIPT_CMD_SIZE];
-static char *file_name_tbl[FILE_NAME_TBL_ENTRIES];
-static const char *evacuated_cur_script;
-static int evacuated_used_file_names;
-static int evacuated_cmd_size;
-static int evacuated_cur_index;
-static int evacuated_return_point;
-static int evacuated_cur_expanded_line;
-#endif
 
 /* 前方参照 */
 static bool replace_command_by_command(int index, const char *text);

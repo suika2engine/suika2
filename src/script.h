@@ -49,7 +49,7 @@
 
 #include "types.h"
 
-/* コマンドの最大数 */
+/* Maximum command number. */
 #define SCRIPT_CMD_SIZE	(65536)
 
 /* コマンド構造体 */
@@ -503,11 +503,6 @@ enum layer_command_param {
  * 初期化
  */
 
-#ifdef USE_DEBUGGER
-/* スタートアップファイル/ラインを設定する */
-bool set_startup_file_and_line(const char *file, int line);
-#endif
-
 /* 初期スクリプトを読み込む */
 bool init_script(void);
 
@@ -584,9 +579,10 @@ int get_line_count(void);
 /* コマンドの数を取得する */
 int get_command_count(void);
 
-#ifdef USE_DEBUGGER
-/* スタートアップファイルが指定されたか */
-bool has_startup_file(void);
+/*
+ * For Suika2 Pro
+ */
+#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
 
 /* using展開後のコマンドの行番号を取得する(ログ用) */
 int get_expanded_line_num(void);
@@ -621,6 +617,6 @@ bool reparse_script_for_structured_syntax(void);
 /* コマンド名からコマンドタイプを返す */
 int get_command_type_from_name(const char *name);
 
-#endif /* USE_DEBUGGER */
+#endif /* defined(USE_EDITOR) || defined(USE_DEBUGGER) */
 
 #endif
