@@ -8,14 +8,20 @@
 package jp.luxion.suikapro;
 
 import android.annotation.SuppressLint;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.graphics.Canvas;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.opengl.GLSurfaceView;
@@ -43,8 +49,10 @@ import java.util.zip.ZipInputStream;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+/**
+ * The main activity.
+ */
 public class MainActivity extends ComponentActivity {
-
 	//
 	// JNI
 	//
@@ -52,29 +60,28 @@ public class MainActivity extends ComponentActivity {
 		// Load libsuika.so and native*() methods will be available.
 		System.loadLibrary("suika");
 	}
-	private native void nativeInitGame();
-	private native void nativeReinitOpenGL();
-	private native void nativeRunFrame();
-	private native void nativeOnTouchOneDown(int x, int y);
-	private native void nativeOnTouchTwoDown(int x, int y);
-	private native void nativeOnTouchMove(int x, int y);
-	private native void nativeOnTouchScrollUp();
-	private native void nativeOnTouchScrollDown();
-	private native void nativeOnTouchOneUp(int x, int y);
-	private native void nativeOnTouchTwoUp(int x, int y);
-	private native void nativeOnMouseLeftDown(int x, int y);
-	private native void nativeOnMouseLeftUp(int x, int y);
-	private native void nativeOnMouseRightDown(int x, int y);
-	private native void nativeOnMouseRightUp(int x, int y);
-	private native void nativeOnMouseMove(int x, int y);
-	private native int nativeGetIntConfigForKey(String key);
+	public native void nativeInitGame();
+	public native void nativeReinitOpenGL();
+	public native void nativeRunFrame();
+	public native void nativeOnTouchOneDown(int x, int y);
+	public native void nativeOnTouchTwoDown(int x, int y);
+	public native void nativeOnTouchMove(int x, int y);
+	public native void nativeOnTouchScrollUp();
+	public native void nativeOnTouchScrollDown();
+	public native void nativeOnTouchOneUp(int x, int y);
+	public native void nativeOnTouchTwoUp(int x, int y);
+	public native void nativeOnMouseLeftDown(int x, int y);
+	public native void nativeOnMouseLeftUp(int x, int y);
+	public native void nativeOnMouseRightDown(int x, int y);
+	public native void nativeOnMouseRightUp(int x, int y);
+	public native void nativeOnMouseMove(int x, int y);
+	public native int nativeGetIntConfigForKey(String key);
 
-	//
-	// Constants
-	//
+    //
+    // Singleton
+    //
 
-    // Y-direction pixels to detect touch-move scroll.
-    private static final int LINE_HEIGHT = 10;
+    public static MainActivity instance;
 
 	//
 	// Project
@@ -95,26 +102,26 @@ public class MainActivity extends ComponentActivity {
 	//
 
     // The scale factor of the game view.
-    private float scale;
+    public float scale;
 
     // The view port X offset.
-    private int offsetX;
+	public int offsetX;
 
     // The view port Y offset.
-    private int offsetY;
+	public int offsetY;
 
     // Touch coordiantes.
-    private int touchLastY;
+	public int touchLastY;
 
     // A count of touched fingers.
-    private int touchCount;
+	public int touchCount;
 
 	//
 	// Running Status
 	//
 
 	// A flag to show if the game project is loaded.
-	private boolean isGameInitialized;
+	public boolean isGameInitialized;
 
 	// Buttons.
 	private boolean isContinuePressed;
@@ -123,37 +130,25 @@ public class MainActivity extends ComponentActivity {
 	private boolean isMovePressed;
 
     // A flag to show if we are restarting game view after a video playback.
-    private boolean resumeFromVideo;
+    public boolean resumeFromVideo;
 
 	//
 	// MediaPlayer
 	//
-	private MediaPlayer video;
-
-	//
-	// Handlers
-	//
-
-    // A handler to start video playback in the main thread.
-    private Handler videoStartHandler;
-
-	// A handler to stop video playback in the main thread.
-    private Handler videoStopHandler;
-
-    // A Hander to invalidate the video view in the main thread.
-    private Handler videoLoopHandler;
+	public MediaPlayer video;
 
     // An object to synchronize between the main thread and rendering or video threads. 
-    private final Object syncObj = new Object();
+    public final Object syncObj = new Object();
 
 	//
 	// MainActivity
 	//
 
-    @SuppressLint("HandlerLeak")
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        instance = this;
 
         // Load layout.
 		setContentView(R.layout.main);
@@ -163,62 +158,16 @@ public class MainActivity extends ComponentActivity {
         Thread videoThread = new Thread(videoView);
         videoThread.start();
 
-        // Create handlers for video playback.
-        videoStartHandler = new Handler() {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-				//findViewById(R.id.gameView).setRenderMode(RENDERMODE_WHEN_DIRTY);
-                //setContentView(videoView);
-                //video.start();
-                //super.handleMessage(msg);
-            }
-        };
-        videoStopHandler = new Handler() {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                //resumeFromVideo = true;
-                //setContentView(findViewById(R.id.gameView));
-				//findViewById(R.id.gameView).setRenderMode(RENDERMODE_CONTINUOUSLY);
-                //super.handleMessage(msg);
-            }
-        };
-        videoLoopHandler = new Handler() {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                //videoView.invalidate();
-                //super.handleMessage(msg);
-            }
-        };
-
 		// Start.
-		initProject();
-		nativeInitGame();
+		openProject();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
 		isGameInitialized = false;
-    }
+	}
 
-	//
-	// Frame execution
-	//
-
-	/**
-	 * Run a frame.
-	 */
 	public void runFrame() {
 		if (isGameInitialized) {
 			// Run a native code.
@@ -230,12 +179,9 @@ public class MainActivity extends ComponentActivity {
 	// Project
 	//
 
-	private void initProject() {
-		openProject();
-
-		// If a game does not exist, copy the template game.
-		if (!new File(basePath + "conf/config.txt").exists() || !new File(basePath + "txt/init.txt").exists())
-			extractTemplateGame();
+	private void openProject() {
+		// This will call onActivityResult() if a user give us a permission to a folder.
+		dirRequest.launch(null);
 	}
 
 	final ActivityResultLauncher<Uri> dirRequest = registerForActivityResult(
@@ -244,11 +190,21 @@ public class MainActivity extends ComponentActivity {
 				@Override
 				public void onActivityResult(Uri uri) {
 					if (uri != null) {
-						// Persist the permission.
-						//getContentResolver().takePersistableUriPermission(uri, Intent.AC;
+						// Get the real path.
+						String basePath = getPathFromUri(MainActivity.instance, uri);
 
-						// Get the base path.
-						basePath = uri.getPath() + "/";
+						// Append the "Suika2 Pro" directory path/
+						basePath = basePath + "/Suika2 Pro/";
+
+						// Copy the template game.
+						File fmd = new File(basePath);
+						if (!fmd.exists()) {
+							fmd.mkdirs();
+							extractTemplateGame();
+						}
+
+						// Initialize the Suika2 engine.
+						nativeInitGame();
 					} else {
 						// Exit.
 						finishAndRemoveTask();
@@ -256,8 +212,66 @@ public class MainActivity extends ComponentActivity {
 				}
 			});
 
-	private void openProject() {
-		dirRequest.launch(null);
+	// From https://stackoverflow.com/questions/32661221/android-cursor-didnt-have-data-column-not-found/33930169#33930169
+	public String getPathFromUri(Context context, Uri uri) {
+		boolean isAfterKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+		// DocumentProvider
+		Log.e("Suika2 Pro Mobile","uri:" + uri.getAuthority());
+		if (isAfterKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+			if ("com.android.externalstorage.documents".equals(
+					uri.getAuthority())) {// ExternalStorageProvider
+				final String docId = DocumentsContract.getDocumentId(uri);
+				final String[] split = docId.split(":");
+				final String type = split[0];
+				if ("primary".equalsIgnoreCase(type)) {
+					return Environment.getExternalStorageDirectory() + "/" + split[1];
+				}else {
+					return "/stroage/" + type +  "/" + split[1];
+				}
+			}else if ("com.android.providers.downloads.documents".equals(
+					uri.getAuthority())) {// DownloadsProvider
+				final String id = DocumentsContract.getDocumentId(uri);
+				final Uri contentUri = ContentUris.withAppendedId(
+						Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+				return getDataColumn(context, contentUri, null, null);
+			}else if ("com.android.providers.media.documents".equals(
+					uri.getAuthority())) {// MediaProvider
+				final String docId = DocumentsContract.getDocumentId(uri);
+				final String[] split = docId.split(":");
+				final String type = split[0];
+				Uri contentUri = null;
+				contentUri = MediaStore.Files.getContentUri("external");
+				final String selection = "_id=?";
+				final String[] selectionArgs = new String[] {
+						split[1]
+				};
+				return getDataColumn(context, contentUri, selection, selectionArgs);
+			}
+		}else if ("content".equalsIgnoreCase(uri.getScheme())) {//MediaStore
+			return getDataColumn(context, uri, null, null);
+		}else if ("file".equalsIgnoreCase(uri.getScheme())) {// File
+			return uri.getPath();
+		}
+		return null;
+	}
+
+	public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+		Cursor cursor = null;
+		final String[] projection = {
+				MediaStore.Files.FileColumns.DATA
+		};
+		try {
+			cursor = context.getContentResolver().query(
+					uri, projection, selection, selectionArgs, null);
+			if (cursor != null && cursor.moveToFirst()) {
+				final int cindex = cursor.getColumnIndexOrThrow(projection[0]);
+				return cursor.getString(cindex);
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return null;
 	}
 
 	private void extractTemplateGame() {
@@ -289,17 +303,50 @@ public class MainActivity extends ComponentActivity {
 		}
 	}
 
-	/*
-	 * Utilities for the NDK code.
-	 */
+	//
+	// Video playback
+	//
 
-	/** Start video playback. */
+	// A handler to start video playback in the main thread.
+	@SuppressLint("HandlerLeak")
+	public Handler videoStartHandler = new Handler() {
+		@Override
+		public void handleMessage(@NonNull Message msg) {
+			//findViewById(R.id.gameView).setRenderMode(RENDERMODE_WHEN_DIRTY);
+			//setContentView(videoView);
+			//video.start();
+			//super.handleMessage(msg);
+		}
+	};
+
+	// A handler to stop video playback in the main thread.
+	@SuppressLint("HandlerLeak")
+	public Handler videoStopHandler = new Handler() {
+		@Override
+		public void handleMessage(@NonNull Message msg) {
+			//resumeFromVideo = true;
+			//setContentView(findViewById(R.id.gameView));
+			//findViewById(R.id.gameView).setRenderMode(RENDERMODE_CONTINUOUSLY);
+			//super.handleMessage(msg);
+		}
+	};
+
+	// A Hander to invalidate the video view in the main thread.
+	@SuppressLint("HandlerLeak")
+	public Handler videoLoopHandler = new Handler() {
+		@Override
+		public void handleMessage(@NonNull Message msg) {
+			//videoView.invalidate();
+			//super.handleMessage(msg);
+		}
+	};
+
+	// Called from JNI code.
 	private void playVideo(String fileName, boolean isSkippable) {
 		if (video != null) {
 			video.stop();
 			video = null;
 		}
-
 		try {
 			AssetFileDescriptor afd = getAssets().openFd("mov/" + fileName);
 			video = new MediaPlayer();
@@ -311,7 +358,7 @@ public class MainActivity extends ComponentActivity {
 		}
 	}
 
-	/** Stop video playback. */
+	// Called from JNI code.
 	private void stopVideo() {
 		if(video != null) {
 			video.stop();
@@ -322,7 +369,7 @@ public class MainActivity extends ComponentActivity {
 		}
 	}
 
-	/** Get video playback status. */
+	// Called from JNI code.
  	private boolean isVideoPlaying() {
 		if(video != null) {
 			int pos = video.getCurrentPosition();
@@ -336,179 +383,5 @@ public class MainActivity extends ComponentActivity {
 			video = null;
 		}
 		return false;
-	}
-
-	/**
-	 * The game view.
-	 */
-	public class GameView extends GLSurfaceView implements View.OnTouchListener, Renderer {
-		/** 仮想ビューポートの幅です。 */
-		private static final int VIEWPORT_WIDTH = 1280;
-
-		/** 仮想ビューポートの高さです。 */
-		private static final int VIEWPORT_HEIGHT = 720;
-
-		/**
-		 * コンストラクタです。
-		 */
-		public GameView(Context context) {
-			super(context);
-
-			setFocusable(true);
-			setOnTouchListener(this);
-			setEGLConfigChooser(8, 8, 8, 8, 0, 0);
-			setEGLContextClientVersion(2);
-			setRenderer(this);
-		}
-		public GameView(Context context, AttributeSet attrs) { super(context, attrs); }
-		public GameView(Context context, AttributeSet attrs, int defStyleAttr) { super(context, attrs); }
-
-		@Override
-		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-			if(resumeFromVideo) {
-				resumeFromVideo = false;
-				if (isGameInitialized)
-					nativeReinitOpenGL();
-			}
-		}
-
-		@Override
-		public void onSurfaceChanged(GL10 gl, int width, int height) {
-			int viewportWidth = 1280;
-			int viewportHeight = 720;
-			if (isGameInitialized) {
-				viewportWidth = nativeGetIntConfigForKey("window.width");
-				viewportHeight = nativeGetIntConfigForKey("window.height");
-			}
-
-			float aspect = (float)viewportHeight / (float)viewportWidth;
-
-			// 1. Width-first.
-			float w = width;
-			float h = width * aspect;
-			scale = w / (float)VIEWPORT_WIDTH;
-			offsetX = 0;
-			offsetY = (int)((float)(height - h) / 2.0f);
-
-			// 2. Height-first.
-			if(h > height) {
-				h = height;
-				w = height / aspect;
-				scale = h / (float)VIEWPORT_HEIGHT;
-				offsetX = (int)((float)(width - w) / 2.0f);
-				offsetY = 0;
-			}
-
-			// Update the viewport.
-			GLES20.glViewport(offsetX, offsetY, (int)w, (int)h);
-		}
-
-		@Override
-		public void onDrawFrame(GL10 gl) {
-			if(!isGameInitialized)
-				return;
-			if(video != null)
-				return;
-
-			// Mutually exclude with the main thread's event handlers.
-			synchronized(syncObj) {
-				nativeRunFrame();
-			}
-		}
-
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			int x = (int)((event.getX() - offsetX) / scale);
-			int y = (int)((event.getY() - offsetY) / scale);
-			int pointed = event.getPointerCount();
-			int delta = y - touchLastY;
-
-			// 描画スレッドと排他制御する
-			synchronized(syncObj) {
-				switch (event.getActionMasked()) {
-				case MotionEvent.ACTION_DOWN:
-					touchLastY = y;
-					if (pointed == 1)
-						nativeOnTouchOneDown(x, y);
-					else
-						nativeOnTouchTwoDown(x, y);
-					break;
-				case MotionEvent.ACTION_MOVE:
-					if (delta > LINE_HEIGHT)
-						nativeOnTouchScrollDown();
-					else if (delta < -LINE_HEIGHT)
-						nativeOnTouchScrollUp();
-					touchLastY = y;
-					nativeOnTouchMove(x, y);
-					break;
-				case MotionEvent.ACTION_UP:
-					if (touchCount == 1)
-						nativeOnTouchOneUp(x, y);
-					else
-						nativeOnTouchTwoUp(x, y);
-					break;
-				}
-			}
-
-			touchCount = pointed;
-			return true;
-		}
-	}
-
-	/**
-	 * The SurfaceView for video playback.
-	 */
-	public class VideoSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener, Runnable {
-		public VideoSurfaceView(Context context) {
-			super(context);
-			SurfaceHolder holder = getHolder();
-			holder.addCallback(this);
-			setOnTouchListener(this);
-		}
-
-		@Override
-		public void surfaceCreated(SurfaceHolder paramSurfaceHolder) {
-			if(video != null) {
-				SurfaceHolder holder = videoView.getHolder();
-				video.setDisplay(holder);
-				setWillNotDraw(false);
-			}
-		}
-
-		@Override
-		public void surfaceChanged(@NonNull SurfaceHolder paramSurfaceHolder, int paramInt1, int paramInt2, int paramInt3) {
-		}
-
-		@Override
-		public void surfaceDestroyed(@NonNull SurfaceHolder paramSurfaceHolder) {
-		}
-
-		@Override
-		public void onDraw(Canvas canvas) {
-			if(video != null)
-				runFrame();
-		}
-
-		public void run() {
-			while(true) {
-				if(video != null)
-					videoLoopHandler.sendEmptyMessage(0);
-				try {
-					Thread.sleep(33);
-				} catch(InterruptedException e) {
-				}
-			}
-		}
-
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			// Mutually exclude with the rendering thread.
-			synchronized(syncObj) {
-				// No need for a coordinate, just skip the video.
-				nativeOnTouchOneDown(0, 0);
-				nativeOnTouchOneUp(0, 0);
-			}
-			return true;
-		}
 	}
 }

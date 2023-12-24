@@ -10,7 +10,7 @@
 
         <view
             android:id="@+id/gameView"
-            class="jp.luxion.suikapro.MainActivity$GameView"
+            class="jp.luxion.suikapro.GameView"
             android:layout_width="match_parent"
             android:layout_height="267dp" />
 
