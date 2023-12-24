@@ -943,8 +943,8 @@ void on_load_script(void)
 	jstring content = make_script_jstring();
 
 	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeLoadScript", "()V");
-	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, file, content);
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeLoadScript", "(java/lang/String;Ljava/lang/String;)V"); 
+	(*jni/_env)->CallVoidMethod(jni_env, main_activity, mid, file, content);
 }
 
 void on_change_position(void)
