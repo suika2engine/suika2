@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Suika2 Pro Mobile</string>
+
+    <style name="Theme.AppCompat" parent="android:Theme.Light" />
 </resources>

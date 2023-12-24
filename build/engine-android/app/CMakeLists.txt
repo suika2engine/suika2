@@ -120,6 +120,7 @@ include_directories(src/main/cpp/bzip2)
 # libpng
 option(HAVE_LD_VERSION_SCRIPT OFF)
 set(HAVE_LD_VERSION_SCRIPT OFF)
+add_compile_definitions(SKIP_INSTALL_ALL=YES)
 add_subdirectory(src/main/cpp/libpng)
 include_directories(src/main/cpp/libpng)
 

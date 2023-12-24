@@ -7,9 +7,6 @@
 
 package jp.luxion.suikapro;
 
-import static android.opengl.GLSurfaceView.RENDERMODE_CONTINUOUSLY;
-import static android.opengl.GLSurfaceView.RENDERMODE_WHEN_DIRTY;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -19,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
@@ -28,11 +26,11 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.SurfaceHolder;
 
+import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
@@ -45,7 +43,7 @@ import java.util.zip.ZipInputStream;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ComponentActivity {
 
 	//
 	// JNI
@@ -158,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Load layout.
-		setContentView(R.layout.mainlayout);
+		setContentView(R.layout.main);
 
         // Prepare the video view.
         videoView = new VideoSurfaceView(this);
@@ -343,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
 	/**
 	 * The game view.
 	 */
-	private class GameView extends GLSurfaceView implements View.OnTouchListener, Renderer {
+	public class GameView extends GLSurfaceView implements View.OnTouchListener, Renderer {
 		/** 仮想ビューポートの幅です。 */
 		private static final int VIEWPORT_WIDTH = 1280;
 
@@ -362,10 +360,9 @@ public class MainActivity extends AppCompatActivity {
 			setEGLContextClientVersion(2);
 			setRenderer(this);
 		}
+		public GameView(Context context, AttributeSet attrs) { super(context, attrs); }
+		public GameView(Context context, AttributeSet attrs, int defStyleAttr) { super(context, attrs); }
 
-		/**
-		 * ビューが作成されるときに呼ばれます。
-		 */
 		@Override
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 			if(resumeFromVideo) {
@@ -375,9 +372,6 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}
 
-		/**
-		 * ビューのサイズが決定した際に呼ばれます。
-		 */
 		@Override
 		public void onSurfaceChanged(GL10 gl, int width, int height) {
 			int viewportWidth = 1280;
@@ -422,9 +416,6 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}
 
-		/**
-		 * タッチされた際に呼ばれます。
-		 */
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 			int x = (int)((event.getX() - offsetX) / scale);
@@ -467,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
 	/**
 	 * The SurfaceView for video playback.
 	 */
-	class VideoSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener, Runnable {
+	public class VideoSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener, Runnable {
 		public VideoSurfaceView(Context context) {
 			super(context);
 			SurfaceHolder holder = getHolder();

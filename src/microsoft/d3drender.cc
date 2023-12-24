@@ -334,18 +334,13 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 //
 VOID D3DStartFrame(void)
 {
-	RECT rc;
-	D3DRECT d3dRect;
-
 	// クリアする
-	GetClientRect(hMainWnd, &rc);
-	d3dRect.x1 = 0;
-	d3dRect.y1 = 0;
-	d3dRect.x2 = rc.right;
-	d3dRect.y2 = rc.bottom;
-	pD3DDevice->Clear(1, &d3dRect,
-					  D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER,
-					  D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+	pD3DDevice->Clear(0,
+					  NULL,
+					  D3DCLEAR_TARGET,
+					  D3DCOLOR_RGBA(0, 0, 0, 255),
+					  0,
+					  0);
 
 	// 描画を開始する
 	pD3DDevice->BeginScene();
