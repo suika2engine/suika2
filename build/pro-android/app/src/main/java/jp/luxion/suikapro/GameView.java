@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.GLES20;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -110,11 +111,19 @@ public class GameView extends GLSurfaceView implements View.OnTouchListener, Ren
         synchronized(MainActivity.instance.syncObj) {
             // Run native codes.
             if (!isGameInitialized) {
-                MainActivity.instance.nativeInitGame(MainActivity.instance.basePath);
-                initialScriptText = MainActivity.instance.nativeGetScript();
+                try {
+                    MainActivity.instance.nativeInitGame(MainActivity.instance.basePath);
+                    initialScriptText = MainActivity.instance.nativeGetScript();
+                } catch (Exception e) {
+                    Log.e("Suika2 Pro", e.toString());
+                }
                 isGameInitialized = true;
             } else {
-                MainActivity.instance.nativeRunFrame();
+                try {
+                    MainActivity.instance.nativeRunFrame();
+                } catch (Exception e) {
+                    Log.e("Suika2 Pro", e.toString());
+                }
             }
         }
 

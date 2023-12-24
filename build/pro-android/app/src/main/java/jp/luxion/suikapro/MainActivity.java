@@ -13,6 +13,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -221,7 +222,10 @@ public class MainActivity extends ComponentActivity {
 						basePath = FileUtil.getFullPathFromTreeUri(uri, MainActivity.instance);
 
 						// Append the "Suika2 Pro" directory path/
-						basePath = basePath + "/Suika2 Pro/";
+						if (!basePath.endsWith("/Suika2 Pro"))
+							basePath = basePath + "/Suika2 Pro/";
+						else
+							basePath = basePath + "/";
 
 						// Copy the template game.
 						File fileBasePath = new File(basePath);
@@ -274,6 +278,7 @@ public class MainActivity extends ComponentActivity {
 	//
 	// Bridges
 	//  - We name methods that are called from JNI codes "bridge*()"
+	//  - It's because they delegate Suika2 HAL's "on_*()" C functions to Java methods i.e. bridging.
 	//
 
 	public void bridgeAlert(String text) {
@@ -281,19 +286,27 @@ public class MainActivity extends ComponentActivity {
 		Log.e("Suika2 Pro", text);
 	}
 
+	public void bridgeSetScriptText(String scriptText) {
+		EditText editScript = findViewById(R.id.editScript);
+		editScript.setText(scriptText);
+	}
+
 	public void bridgeChangeRunningState(boolean running, boolean stopRequested) {
 		// TODO: enable and disable views.
 	}
 
 	public void bridgeLoadScript(String scriptName, String scriptContent) {
-		// Set script name.
-		TextView textViewScriptFile = findViewById(R.id.textViewScriptFile);
-		textViewScriptFile.setText(scriptName);
+		// A handler to start video playback in the main thread.
+		new Handler(Looper.getMainLooper()).post(()->{
+			// Set script name.
+			TextView textViewScriptFile = findViewById(R.id.textViewScriptFile);
+			textViewScriptFile.setText(scriptName);
 
-		// Set script text.
-		EditText editScript = findViewById(R.id.editScript);
-		editScript.setText(scriptContent);
-		// TODO: do the coloring.
+			// Set script text.
+			EditText editScript = findViewById(R.id.editScript);
+			editScript.setText(scriptContent);
+			// TODO: do the coloring.
+		});
 	}
 
 	public void bridgeChangePosition(int line) {
@@ -304,55 +317,7 @@ public class MainActivity extends ComponentActivity {
 		// TODO: add variable view.
 	}
 
-	//
-	// Called from GameView
-	//
-
-	public void setInitialScriptText(String scriptText) {
-		EditText editScript = findViewById(R.id.editScript);
-		editScript.setText(scriptText);
-	}
-
-	//
-	// Video playback
-	//
-
-	// A handler to start video playback in the main thread.
-	@SuppressLint("HandlerLeak")
-	public Handler videoStartHandler = new Handler() {
-		@Override
-		public void handleMessage(@NonNull Message msg) {
-			//findViewById(R.id.gameView).setRenderMode(RENDERMODE_WHEN_DIRTY);
-			//setContentView(videoView);
-			//video.start();
-			//super.handleMessage(msg);
-		}
-	};
-
-	// A handler to stop video playback in the main thread.
-	@SuppressLint("HandlerLeak")
-	public Handler videoStopHandler = new Handler() {
-		@Override
-		public void handleMessage(@NonNull Message msg) {
-			//resumeFromVideo = true;
-			//setContentView(findViewById(R.id.gameView));
-			//findViewById(R.id.gameView).setRenderMode(RENDERMODE_CONTINUOUSLY);
-			//super.handleMessage(msg);
-		}
-	};
-
-	// A Handler to invalidate the video view in the main thread.
-	@SuppressLint("HandlerLeak")
-	public Handler videoLoopHandler = new Handler() {
-		@Override
-		public void handleMessage(@NonNull Message msg) {
-			//videoView.invalidate();
-			//super.handleMessage(msg);
-		}
-	};
-
-	// Called from the JNI code.
-	private void playVideo(String fileName, boolean isSkippable) {
+	private void bridgePlayVideo(String fileName, boolean isSkippable) {
 		if (video != null) {
 			video.stop();
 			video = null;
@@ -362,35 +327,46 @@ public class MainActivity extends ComponentActivity {
 			video = new MediaPlayer();
 			video.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 			video.prepare();
-			videoStartHandler.sendEmptyMessage(0);
+			new Handler(Looper.getMainLooper()).post(() -> {
+				//findViewById(R.id.gameView).setRenderMode(RENDERMODE_WHEN_DIRTY);
+				//setContentView(videoView);
+				//video.start();
+				//super.handleMessage(msg);
+			});
 		} catch(IOException e) {
 			Log.e("Suika2 Pro Mobile", "Failed to play video " + fileName);
 		}
 	}
 
-	// Called from the JNI code.
-	private void stopVideo() {
+	private void bridgeStopVideo() {
 		if(video != null) {
 			video.stop();
 			video.reset();
 			video.release();
 			video = null;
-			videoStopHandler.sendEmptyMessage(0);
+			new Handler(Looper.getMainLooper()).post(() -> {
+				//resumeFromVideo = true;
+				//setContentView(findViewById(R.id.gameView));
+				//findViewById(R.id.gameView).setRenderMode(RENDERMODE_CONTINUOUSLY);
+				//super.handleMessage(msg);
+			});
 		}
 	}
 
-	// Called from the JNI code.
- 	private boolean isVideoPlaying() {
+	private boolean bridgeIsVideoPlaying() {
 		if(video != null) {
 			int pos = video.getCurrentPosition();
 			if (pos == 0)
 				return true;
-			if (video.isPlaying()) {
+			if (video.isPlaying())
 				return true;
-			}
 			video.stop();
-			videoStopHandler.sendEmptyMessage(0);
-			video = null;
+			new Handler(Looper.getMainLooper()).post(() -> {
+				//resumeFromVideo = true;
+				//setContentView(findViewById(R.id.gameView));
+				//findViewById(R.id.gameView).setRenderMode(RENDERMODE_CONTINUOUSLY);
+				//super.handleMessage(msg);
+			});
 		}
 		return false;
 	}

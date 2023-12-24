@@ -404,7 +404,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeSetLineFlag(
 	flag_line = true;
 }
 
-JNIEXPORT jint JNICALL
+JNIEXPORT jboolean JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeUpdateScriptModel(
 	JNIEnv *env,
 	jobject instance,
@@ -470,6 +470,8 @@ Java_jp_luxion_suikapro_MainActivity_nativeGetScript(
 	jstring ret = make_script_jstring();
 	jni_env = NULL;
 
+	(*jni_env)->DeleteLocalRef(jni_env, ret);
+
 	return ret;
 }
 
@@ -496,13 +498,12 @@ static jstring make_script_jstring(void)
 		int line_len = strlen(line_string);
 		memcpy(cur, line_string, line_len);
 		*(cur + line_len) = '\n';
-		cur += line_len;
+		cur += line_len + 1;
 	}
 	*cur = '\0';
 
 	/* Create a Java String. */
 	jstring ret = (*jni_env)->NewStringUTF(jni_env, buf);
-	(*jni_env)->DeleteLocalRef(jni_env, ret);
 	free(buf);
 
 	return ret;
@@ -787,7 +788,7 @@ bool is_video_playing(void)
 {
 	if (state_video) {
 		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
-		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()V");
+		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()Z");
 		if (!(*jni_env)->CallBooleanMethod(jni_env, main_activity, mid)) {
 			state_video = false;
 			return false;
@@ -943,8 +944,10 @@ void on_load_script(void)
 	jstring content = make_script_jstring();
 
 	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeLoadScript", "(java/lang/String;Ljava/lang/String;)V"); 
-	(*jni/_env)->CallVoidMethod(jni_env, main_activity, mid, file, content);
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeLoadScript", "(Ljava/lang/String;Ljava/lang/String;)V"); 
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, file, content);
+
+	(*jni_env)->DeleteLocalRef(jni_env, content);
 }
 
 void on_change_position(void)

@@ -7,8 +7,12 @@
 
 package jp.luxion.suikapro;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
@@ -53,8 +57,13 @@ public class VideoSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 
 	public void run() {
 		while(true) {
-			if(MainActivity.instance.video != null)
-				MainActivity.instance.videoLoopHandler.sendEmptyMessage(0);
+			if(MainActivity.instance.video != null) {
+				new Handler(Looper.getMainLooper()).post(() -> {
+					//videoView.invalidate();
+					//super.handleMessage(msg);
+				});
+				video = null;
+			}
 			try {
 				Thread.sleep(33);
 			} catch(InterruptedException e) {
