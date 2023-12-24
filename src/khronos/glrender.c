@@ -280,6 +280,9 @@ static const char *fragment_shader_src_melt =
 	"  gl_FragColor = tex;                               \n"
 	"}                                                   \n";
 
+/* Indicates if the first rendering after re-init. */
+static bool is_after_reinit;
+
 /*
  * The following functions are defined in this file if we don't use Qt.
  * In the case we use Qt, they are defined in openglwidget.cpp because
@@ -309,6 +312,7 @@ static void draw_elements(int dst_left,
 			  int src_height,
 			  int alpha,
 			  int pipeline);
+static void update_texture_if_needed(struct image *img);
 
 /*
  * Initialize the Suika2's OpenGL rendering subsystem.
@@ -369,6 +373,8 @@ bool init_opengl(void)
 				   &vbo_melt,
 				   &ibo_melt))
 		return false;
+
+	is_after_reinit = true;
 
 	return true;
 }
@@ -612,6 +618,7 @@ void opengl_start_rendering(void)
 void opengl_end_rendering(void)
 {
 	glFlush();
+	is_after_reinit = false;
 }
 
 /*
@@ -629,28 +636,7 @@ void opengl_end_rendering(void)
  */
 void opengl_notify_image_update(struct image *img)
 {
-	GLuint id;
-	
-	if (img->texture == NULL) {
-		glGenTextures(1, &id);
-		img->texture = (void *)(intptr_t)(id + 1);
-	} else {
-		id = (GLuint)(intptr_t)img->texture - 1;
-	}
-
-	/* Create or update an OpenGL texture. */
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-	glBindTexture(GL_TEXTURE_2D, id);
-#ifdef SUIKA_TARGET_WASM
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-#else
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#endif
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0,
-		     GL_RGBA, GL_UNSIGNED_BYTE, img->pixels);
-	glActiveTexture(GL_TEXTURE0);
+	img->need_upload = true;
 }
 
 /*
@@ -662,10 +648,13 @@ void opengl_notify_image_free(struct image *img)
 
 	id = (GLuint)(uintptr_t)img->texture - 1;
 
+	/* FIXME: is_after_reinit */
 	if (id != 0) {
 		glDeleteTextures(1, &id);
 		img->texture = NULL;
 	}
+
+	img->need_upload = false;
 }
 
 /*
@@ -851,6 +840,9 @@ static void draw_elements(int dst_left,
 	float hw, hh, tw, th;
 	GLuint tex1, tex2;
 
+	update_texture_if_needed(src_image);
+	update_texture_if_needed(rule_image);
+
 	/* テクスチャを取得する */
 	tex1 = (GLuint)(intptr_t)src_image->texture - 1;
 	assert(tex1 != 0);
@@ -961,6 +953,39 @@ static void draw_elements(int dst_left,
 
 	/* 図形を描画する */
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
+}
+
+static void update_texture_if_needed(struct image *img)
+{
+	GLuint id;
+
+	if (img == NULL)
+		return;
+	if (!is_after_reinit && !img->need_upload)
+		return;
+
+	if (is_after_reinit || img->texture == NULL) {
+		glGenTextures(1, &id);
+		img->texture = (void *)(intptr_t)(id + 1);
+	} else {
+		id = (GLuint)(intptr_t)img->texture - 1;
+	}
+
+	/* Create or update an OpenGL texture. */
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	glBindTexture(GL_TEXTURE_2D, id);
+#ifdef SUIKA_TARGET_WASM
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+#else
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#endif
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0,
+		     GL_RGBA, GL_UNSIGNED_BYTE, img->pixels);
+	glActiveTexture(GL_TEXTURE0);
+
+	img->need_upload = false;
 }
 
 /*

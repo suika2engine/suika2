@@ -31,7 +31,6 @@ setup:
 	@
 	@echo 'Copying source files.'
 	@cp ../../src/google/ndkpro.c app/src/main/cpp/
-	@cp ../../src/google/ndkmain.h app/src/main/cpp/
 	@cp ../../src/khronos/glrender.c app/src/main/cpp/
 	@cp ../../src/khronos/glrender.h app/src/main/cpp/
 	@cp ../../src/anime.c app/src/main/cpp/
@@ -121,4 +120,3 @@ setup:
 	@echo 'Create a template game zip.'
 	@mkdir -p app/src/main/assets
 	@cd ../../games/japanese && zip -r ../../build/pro-android/app/src/main/assets/game.zip *
-

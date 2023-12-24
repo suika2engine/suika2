@@ -628,7 +628,15 @@ void stop_video(void)
  */
 bool is_video_playing(void)
 {
-	return video_playing_flag;
+	if (state_video) {
+		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()V");
+		if (!(*jni_env)->CallBooleanMethod(jni_env, main_activity, mid)) {
+			state_video = false;
+			return false;
+		}
+	}
+	return false;
 }
 
 /*

@@ -50,28 +50,46 @@ static jobject main_activity;
 /* JNIEnv pointer that is only effective in a JNI call and used by some HAL functions. */
 static JNIEnv *jni_env;
 
-/* Control status. */
-static bool is_running;
-static bool is_continue_pressed;
-static bool is_next_pressed;
-static bool is_stop_pressed;
-static bool is_line_changed;
-static int changed_line;
-static bool is_opened;
-static char *opened_file;
-static bool video_playing_flag;
+/* A flag that indicates if the "continue" button is pressed. */
+static bool flag_continue;
+
+/* A flag that indicates if the "next" button is pressed. */
+static bool flag_next;
+
+/* A flag that indicates if the "stop" button is pressed. */
+static bool flag_stop;
+
+/* A flag that indicates if the "open" button is pressed. */
+static bool flag_open;
+
+/* A new file name for the flag_open state. */
+static char *new_file;
+
+/* A flag that indicates if the execution line is going to be changed. */
+static bool flag_line;
+
+/* A new line number for the the flag_line state. */
+static int new_line;
+
+/* The video playback state. */
+static bool state_video;
 
 /*
- * Initialize the game.
+ * Forward declarations
  */
+
+static jstring make_script_jstring(void);
+
+/*
+ * Exports
+ */
+
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeInitGame(
 	JNIEnv *env,
 	jobject instance,
 	jstring basePath)
 {
-	video_playing_flag = false;
-
 	/* Retain the main activity. */
 	main_activity = (*env)->NewGlobalRef(env, instance);
 
@@ -104,33 +122,28 @@ Java_jp_luxion_suikapro_MainActivity_nativeInitGame(
 		exit(1);
 	}
 
-	/* Reset flags. */
-	is_running = false;
-	is_continue_pressed = false;
-	is_next_pressed = false;
-	is_stop_pressed = false;
-	is_line_changed = false;
-	changed_line = 0;
-	is_opened = false;
-	if (opened_file != NULL) {
-		free(opened_file);
-		opened_file = NULL;
+	/* Our process will be recycled and we have to clear the .bss section. */
+	flag_continue = false;
+	flag_next = false;
+	flag_stop = false;
+	flag_open = false;
+	if (new_file != NULL) {
+		free(new_file);
+		new_file = NULL;
 	}
+	flag_line = false;
+	new_line = 0;
+	state_video = false;
 
 	/* Finish referencing the env pointer. */
 	jni_env = NULL;
 }
 
-/*
- * Re-initialze after a video playback.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeReinitOpenGL(
         JNIEnv *env,
         jobject instance)
 {
-	video_playing_flag = false;
-
 	/* Save the env pointer to a global variable until the end of this call. */
 	jni_env = env;
 
@@ -143,13 +156,13 @@ Java_jp_luxion_suikapro_MainActivity_nativeReinitOpenGL(
 		exit(1);
 	}
 
+	/* Make sure state_video is false. */
+	state_video = false;
+
 	/* Finish referencing the env pointer. */
 	jni_env = NULL;
 }
 
-/*
- * フレーム処理を行います。
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeRunFrame(
 	JNIEnv *env,
@@ -160,13 +173,13 @@ Java_jp_luxion_suikapro_MainActivity_nativeRunFrame(
 
 	/* Process video playback. */
 	bool draw = true;
-	if (video_playing_flag) {
-		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	if (state_video) {
+		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
 		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()Z");
 		if ((*jni_env)->CallBooleanMethod(jni_env, main_activity, mid))
 			draw = false;
 		else
-			video_playing_flag = false;
+			state_video = false;
 	}
 
 	/* Start rendering. */
@@ -185,9 +198,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeRunFrame(
 	jni_env = NULL;
 }
 
-/*
- * Called on one-finger touch.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneDown(
         JNIEnv *env,
@@ -200,9 +210,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneDown(
 	jni_env = NULL;
 }
 
-/*
- * Called on two-finger touch.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoDown(
         JNIEnv *env,
@@ -215,9 +222,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoDown(
 	jni_env = NULL;
 }
 
-/*
- * Called on touch-move.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchMove(
 	JNIEnv *env,
@@ -230,9 +234,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchMove(
 	jni_env = NULL;
 }
 
-/*
- * Called on touch-scroll-up.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollUp(
 	JNIEnv *env,
@@ -244,9 +245,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollUp(
 	jni_env = NULL;
 }
 
-/*
- * Called on touch-scroll-down.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollDown(
 	JNIEnv *env,
@@ -258,9 +256,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollDown(
 	jni_env = NULL;
 }
 
-/*
- * Called on a release of one-finger touch.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneUp(
 	JNIEnv *env,
@@ -273,9 +268,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneUp(
 	jni_env = NULL;
 }
 
-/*
- * Called on a release of two-finger touch.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoUp(
 	JNIEnv *env,
@@ -288,9 +280,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoUp(
 	jni_env = NULL;
 }
 
-/*
- * Called on a left mouse button down.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftDown(
 	JNIEnv *env,
@@ -303,9 +292,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftDown(
 	jni_env = NULL;
 }
 
-/*
- * Called on a right mouse button down.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftUp(
 	JNIEnv *env,
@@ -318,9 +304,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftUp(
 	jni_env = NULL;
 }
 
-/*
- * Called on a right mouse button down.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightDown(
 	JNIEnv *env,
@@ -333,9 +316,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightDown(
 	jni_env = NULL;
 }
 
-/*
- * Called on a right mouse button up.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightUp(
 	JNIEnv *env,
@@ -348,9 +328,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightUp(
 	jni_env = NULL;
 }
 
-/*
- * Called on a mouse move.
- */
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnMouseMove(
 	JNIEnv *env,
@@ -361,9 +338,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseMove(
         on_event_mouse_move(x, y);
 }
 
-/*
- * Get an integer config value.
- */
 JNIEXPORT jint JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeGetIntConfigForKey(
 	JNIEnv *env,
@@ -375,6 +349,162 @@ Java_jp_luxion_suikapro_MainActivity_nativeGetIntConfigForKey(
 	jint ret = get_int_config_value_for_key(cstr);
 	(*env)->ReleaseStringUTFChars(env, key, cstr);
 	jni_env = NULL;
+	return ret;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeSetContinueFlag(
+	JNIEnv *env,
+	jobject instance)
+{
+	flag_continue = true;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeSetNextFlag(
+	JNIEnv *env,
+	jobject instance)
+{
+	flag_next = true;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeSetStopFlag(
+	JNIEnv *env,
+	jobject instance)
+{
+	flag_stop = true;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeSetOpenFlag(
+	JNIEnv *env,
+	jobject instance,
+	jstring file)
+{
+	if (new_file != NULL) {
+		free(new_file);
+		new_file = NULL;
+	}
+
+	const char *cstr = (*env)->GetStringUTFChars(env, file, 0);
+	new_file = strdup(cstr);
+	(*env)->ReleaseStringUTFChars(env, file, cstr);
+
+	flag_open = true;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeSetLineFlag(
+	JNIEnv *env,
+	jobject instance,
+	jint line)
+{
+	new_line = line;
+	flag_line = true;
+}
+
+JNIEXPORT jint JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeUpdateScriptModel(
+	JNIEnv *env,
+	jobject instance,
+	jstring script)
+{
+	/* Copy the script text. */
+	const char *cstr = (*env)->GetStringUTFChars(env, script, 0);
+	char *text = strdup(cstr);
+	(*env)->ReleaseStringUTFChars(env, script, cstr);
+
+	/* Reset parse errors and will notify a first error. */
+	dbg_reset_parse_error_count();
+
+	/* Update the script model. */
+	int total = (int)strlen(cstr);
+	int line_num = 0;
+	int line_start = 0;
+	while (line_start < total) {
+		/* Cut the current line by replacing LF to NUL. */
+		const char *line_text = text + line_start;
+		char *lf = strstr(text + line_start, "\n");
+		if (lf != NULL)
+			*lf = '\0';
+
+		/* 行を更新する */
+		if (line_num < get_line_count())
+			update_script_line(line_num, line_text);
+		else
+			insert_script_line(line_num, line_text);
+
+		/* Get the line length. */
+		int line_len = (lf != NULL) ?
+			(int)(lf - (text + line_start)) :
+			(int)strlen(text + line_start);
+
+		/* Increment the line number and the line start position. */
+		line_num++;
+		line_start += line_len + 1; /* +1 for LF */
+	}
+	free(text);
+
+	/* Delete the lines that have been shortened. */
+	for (int i = get_line_count() - 1; i >= line_num; i--)
+		delete_script_line(line_num);
+
+	/* Reparse for "<<<" syntax. */
+	reparse_script_for_structured_syntax();
+
+	/* If there are syntax errors, return false. */
+	if (dbg_get_parse_error_count() > 0)
+		return JNI_FALSE;
+
+	/* No syntax error, so return true. */
+	return JNI_TRUE;
+}
+
+JNIEXPORT jstring JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeGetScript(
+	JNIEnv *env,
+	jobject instance)
+{
+	jni_env = env;
+	jstring ret = make_script_jstring();
+	jni_env = NULL;
+
+	return ret;
+}
+
+static jstring make_script_jstring(void)
+{
+	/* Get the total bytes of the script string. */
+	int total = 0;
+	int lines = get_line_count();
+	for (int i = 0; i < lines; i++) {
+		const char *line_string = get_line_string_at_line_num(i);
+		total += strlen(line_string) + 1; /* +1 for '\n' */
+	}
+	total++; /* +1 for '\0' */
+
+	/* Allocate a buffer for the string.  */
+	char *buf = malloc(total);
+	if (buf == NULL)
+		return NULL;
+
+	/* Copy the script to buf. */
+	char *cur = buf;
+	for (int i = 0; i < lines; i++) {
+		const char *line_string = get_line_string_at_line_num(i);
+		int line_len = strlen(line_string);
+		memcpy(cur, line_string, line_len);
+		*(cur + line_len) = '\n';
+		cur += line_len;
+	}
+	*cur = '\0';
+
+	/* Create a Java String. */
+	jstring ret = (*jni_env)->NewStringUTF(jni_env, buf);
+	(*jni_env)->DeleteLocalRef(jni_env, ret);
+	free(buf);
+
 	return ret;
 }
 
@@ -392,8 +522,8 @@ bool log_info(const char *s, ...)
 	__android_log_print(ANDROID_LOG_INFO, "Suika", "%s", buf);
 	va_end(ap);
 
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "alert", "(Ljava/lang/String;)V");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeAlert", "(Ljava/lang/String;)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, buf));
 
 	return true;
@@ -409,8 +539,8 @@ bool log_warn(const char *s, ...)
 	__android_log_print(ANDROID_LOG_WARN, "Suika", "%s", buf);
 	va_end(ap);
 
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "alert", "(Ljava/lang/String;)V");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeAlert", "(Ljava/lang/String;)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, buf));
 
 	return true;
@@ -426,8 +556,8 @@ bool log_error(const char *s, ...)
 	__android_log_print(ANDROID_LOG_ERROR, "Suika", "%s", buf);
 	va_end(ap);
 
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "alert", "(Ljava/lang/String;)V");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeAlert", "(Ljava/lang/String;)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, buf));
 
 	return true;
@@ -635,9 +765,9 @@ bool is_sound_finished(int stream)
 
 bool play_video(const char *fname, bool is_skippable)
 {
-	video_playing_flag = true;
+	state_video = true;
 
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
 	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "playVideo", "(Ljava/lang/String;Z)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, fname), is_skippable ? JNI_TRUE : JNI_FALSE);
 
@@ -646,21 +776,33 @@ bool play_video(const char *fname, bool is_skippable)
 
 void stop_video(void)
 {
-	video_playing_flag = false;
+	state_video = false;
 
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
 	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "stopVideo", "()V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid);
 }
 
 bool is_video_playing(void)
 {
-	return video_playing_flag;
+	if (state_video) {
+		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "isVideoPlaying", "()V");
+		if (!(*jni_env)->CallBooleanMethod(jni_env, main_activity, mid)) {
+			state_video = false;
+			return false;
+		}
+	}
+	return false;
 }
 
 void update_window_title(void)
 {
-	/* TODO: Does ChromeOS have window titles? */
+	/*
+	 * FIXME:
+	 *  - Does ChromeOS have window titles?
+	 *  - If so, I'll implement this function.
+	 */
 }
 
 bool is_full_screen_supported(void)
@@ -725,98 +867,102 @@ void speak_text(const char *text)
 
 bool is_continue_pushed(void)
 {
-	bool ret = is_continue_pressed;
-	is_continue_pressed = false;
+	assert(jni_env != NULL);
+
+	bool ret = flag_continue;
+	flag_continue = false;
 	return ret;
 }
 
 bool is_next_pushed(void)
 {
-	bool ret = is_next_pressed;
-	is_next_pressed = false;
+	assert(jni_env != NULL);
+
+	bool ret = flag_next;
+	flag_next = false;
 	return ret;
 }
 
 bool is_stop_pushed(void)
 {
-	bool ret = is_stop_pressed;
-	is_stop_pressed = false;
+	assert(jni_env != NULL);
+
+	bool ret = flag_stop;
+	flag_stop = false;
 	return ret;
 }
 
 bool is_script_opened(void)
 {
-	bool ret = is_opened;
-	is_opened = false;
+	assert(jni_env != NULL);
+
+	bool ret = flag_open;
+	flag_open = false;
 	return ret;
 }
 
 const char *get_opened_script(void)
 {
-	/* stub */
-	return "init.txt";
+	assert(jni_env != NULL);
+
+	return new_file;
 }
 
 bool is_exec_line_changed(void)
 {
-	bool ret = is_line_changed;
-	is_line_changed = false;
+	assert(jni_env != NULL);
+
+	bool ret = flag_line;
+	flag_line = false;
 	return ret;
 }
 
 int get_changed_exec_line(void)
 {
-	return changed_line;
+	assert(jni_env != NULL);
+
+	return new_line;
 }
 
 void on_change_running_state(bool running, bool request_stop)
 {
-	is_running = running;
+	assert(jni_env != NULL);
 
-	if(request_stop)
-	{
-		/*
-		 * 実行中だが停止要求によりコマンドの完了を待機中のとき
-		 *  - コントロールとメニューアイテムを無効にする
-		 */
-
-		/* 実行中の背景色を設定する */
-	}
-	else if(running)
-	{
-		/*
-		 * 実行中のとき
-		 *  - 「停止」だけ有効、他は無効にする
-		 */
-
-		/* 実行中の背景色を設定する */
-	}
-	else
-	{
-		/*
-		 * 完全に停止中のとき
-		 *  - 「停止」だけ無効、他は有効にする
-		 */
-
-		/* 次の実行される行の背景色を設定する */
-	}
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeChangeRunningState", "(ZZ)V");
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid,
+				   running ? JNI_TRUE: JNI_FALSE,
+				   request_stop ? JNI_TRUE : JNI_FALSE);
 }
 
 void on_load_script(void)
 {
-	/* スクリプトファイル名を設定する */
-	/* スクリプトテキストビューを設定する */
+	assert(jni_env != NULL);
+
+	jstring file = (*jni_env)->NewStringUTF(jni_env, get_script_file_name());
+	jstring content = make_script_jstring();
+
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeLoadScript", "()V");
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, file, content);
 }
 
 void on_change_position(void)
 {
-	/* 実行行のハイライトを行う */
-	/* スクロールする */
+	assert(jni_env != NULL);
+
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeChangePosition", "(I)V");
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, get_expanded_line_num());
 }
 
 void on_update_variable(void)
 {
-	/* TODO */
+	assert(jni_env != NULL);
+
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeUpdateVariable", "()V");
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid);
 }
 
 /*
