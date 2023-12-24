@@ -1,27 +1,15 @@
 
-/* Class = "UIButton"; configuration.title = "Next"; ObjectID = "6GR-nn-wKQ"; */
-"6GR-nn-wKQ.configuration.title" = "次へ";
-
-/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "6GR-nn-wKQ"; */
-"6GR-nn-wKQ.normalTitle" = "ボタン";
+/* Class = "UIButton"; configuration.title = "Next"; ObjectID = "6GR-nn-wKQ"; Note = "Next"; */
+"6GR-nn-wKQ.normalTitle" = "次へ";
 
 /* Class = "UITextView"; text = "The script will be shown here."; ObjectID = "N7a-mo-ke9"; */
-"N7a-mo-ke9.text" = "ここにスクリプトが表示されます。";
+"N7a-mo-ke9.text" = "The script will be shown here.";
 
-/* Class = "UIButton"; configuration.title = "Continue"; ObjectID = "Pqm-Dd-Gsj"; */
-"Pqm-Dd-Gsj.configuration.title" = "続ける";
+/* Class = "UIButton"; configuration.title = "Continue"; ObjectID = "Pqm-Dd-Gsj"; Note = "Continue"; */
+"Pqm-Dd-Gsj.normalTitle" = "続ける";
 
-/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "Pqm-Dd-Gsj"; */
-"Pqm-Dd-Gsj.normalTitle" = "ボタン";
+/* Class = "UIButton"; configuration.title = "Stop"; ObjectID = "QW6-BI-7fU"; Note = "Stop"; */
+"QW6-BI-7fU.normalTitle" = "停止";
 
-/* Class = "UIButton"; configuration.title = "Stop"; ObjectID = "QW6-BI-7fU"; */
-"QW6-BI-7fU.configuration.title" = "停止";
-
-/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "QW6-BI-7fU"; */
-"QW6-BI-7fU.normalTitle" = "ボタン";
-
-/* Class = "UIButton"; configuration.title = "Update"; ObjectID = "yX8-lw-X6T"; */
-"yX8-lw-X6T.configuration.title" = "更新";
-
-/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "yX8-lw-X6T"; */
-"yX8-lw-X6T.normalTitle" = "ボタン";
+/* Class = "UIButton"; configuration.title = "Move"; ObjectID = "yX8-lw-X6T"; Note = "Move"; */
+"yX8-lw-X6T.normalTitle" = "移動";
