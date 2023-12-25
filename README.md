@@ -86,7 +86,7 @@ The core is written in ANSI C, the most portable programming language in the wor
 The implementations of HAL are currently written in C, C++, Objective-C and Java.
 
 If you would like to port Suika2 to a new target platform,
-you are only required to write a thin HAL and it will take for you to only one week.
+you are only required to write a thin HAL and it will take for you only one week.
 
 Suika2 never depends on SDKs or frameworks such as Unity, Godot or SDL2.
 This is because HAL, our compatibility layer, is very complete in its API design.
