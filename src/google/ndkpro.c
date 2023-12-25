@@ -90,7 +90,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeInitGame(
 	jobject instance,
 	jstring basePath)
 {
-	/* Retain the main activity. */
+	/* Retain the main activity instance globally. */
 	main_activity = (*env)->NewGlobalRef(env, instance);
 
 	/* Save the env pointer to a global variable until the end of this call. */
@@ -141,13 +141,12 @@ Java_jp_luxion_suikapro_MainActivity_nativeInitGame(
 
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeReinitOpenGL(
-        JNIEnv *env,
-        jobject instance)
+	JNIEnv *env,
+	jobject instance)
 {
-	/* Save the env pointer to a global variable until the end of this call. */
 	jni_env = env;
 
-	/* Retain the main activity. (FIXME: not needed?) */
+	/* Make sure to retain the main activity instance globally. */
 	main_activity = (*env)->NewGlobalRef(env, instance);
 
 	/* Re-initialize OpenGL ES. */
@@ -159,7 +158,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeReinitOpenGL(
 	/* Make sure state_video is false. */
 	state_video = false;
 
-	/* Finish referencing the env pointer. */
 	jni_env = NULL;
 }
 
@@ -168,7 +166,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeRunFrame(
 	JNIEnv *env,
 	jobject instance)
 {
-	/* Save the env pointer to a global variable until the end of this call. */
 	jni_env = env;
 
 	/* Process video playback. */
@@ -182,28 +179,27 @@ Java_jp_luxion_suikapro_MainActivity_nativeRunFrame(
 			state_video = false;
 	}
 
-	/* Start rendering. */
+	/* Start a rendering. */
 	if (draw)
 		opengl_start_rendering();
 
-	/* Do a frame. */
+	/* Run a frame. */
 	if (!on_event_frame())
 		exit(1);
 
-	/* End rendering. */
+	/* End a rendering. */
 	if (draw)
 		opengl_end_rendering();
 
-	/* Finish referencing the env pointer. */
 	jni_env = NULL;
 }
 
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneDown(
-        JNIEnv *env,
-        jobject instance,
-        jint x,
-        jint y)
+	JNIEnv *env,
+	jobject instance,
+	jint x,
+	jint y)
 {
 	jni_env = env;
 	on_event_mouse_press(MOUSE_LEFT, x, y);
@@ -212,10 +208,10 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneDown(
 
 JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoDown(
-        JNIEnv *env,
-        jobject instance,
-        jint x,
-        jint y)
+	JNIEnv *env,
+	jobject instance,
+	jint x,
+	jint y)
 {
 	jni_env = env;
 	on_event_mouse_press(MOUSE_RIGHT, x, y);
@@ -240,8 +236,8 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollUp(
 	jobject instance)
 {
 	jni_env = env;
-        on_event_key_press(KEY_UP);
-        on_event_key_release(KEY_UP);
+	on_event_key_press(KEY_UP);
+	on_event_key_release(KEY_UP);
 	jni_env = NULL;
 }
 
@@ -251,8 +247,8 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollDown(
 	jobject instance)
 {
 	jni_env = env;
-        on_event_key_press(KEY_DOWN);
-        on_event_key_release(KEY_DOWN);
+	on_event_key_press(KEY_DOWN);
+	on_event_key_release(KEY_DOWN);
 	jni_env = NULL;
 }
 
@@ -264,7 +260,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneUp(
 	jint y)
 {
 	jni_env = env;
-        on_event_mouse_release(MOUSE_LEFT, x, y);
+	on_event_mouse_release(MOUSE_LEFT, x, y);
 	jni_env = NULL;
 }
 
@@ -276,7 +272,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoUp(
 	jint y)
 {
 	jni_env = env;
-        on_event_mouse_release(MOUSE_RIGHT, x, y);
+	on_event_mouse_release(MOUSE_RIGHT, x, y);
 	jni_env = NULL;
 }
 
@@ -288,7 +284,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftDown(
 	jint y)
 {
 	jni_env = env;
-        on_event_mouse_press(MOUSE_LEFT, x, y);
+	on_event_mouse_press(MOUSE_LEFT, x, y);
 	jni_env = NULL;
 }
 
@@ -300,7 +296,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftUp(
 	jint y)
 {
 	jni_env = env;
-        on_event_mouse_release(MOUSE_LEFT, x, y);
+	on_event_mouse_release(MOUSE_LEFT, x, y);
 	jni_env = NULL;
 }
 
@@ -312,7 +308,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightDown(
 	jint y)
 {
 	jni_env = env;
-        on_event_mouse_press(MOUSE_RIGHT, x, y);
+	on_event_mouse_press(MOUSE_RIGHT, x, y);
 	jni_env = NULL;
 }
 
@@ -324,7 +320,7 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightUp(
 	jint y)
 {
 	jni_env = env;
-        on_event_mouse_release(MOUSE_RIGHT, x, y);
+	on_event_mouse_release(MOUSE_RIGHT, x, y);
 	jni_env = NULL;
 }
 
@@ -335,7 +331,9 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnMouseMove(
 	jint x,
 	jint y)
 {
-        on_event_mouse_move(x, y);
+	jni_env = env;
+	on_event_mouse_move(x, y);
+	jni_env = NULL;
 }
 
 JNIEXPORT jint JNICALL
@@ -469,8 +467,6 @@ Java_jp_luxion_suikapro_MainActivity_nativeGetScript(
 	jni_env = env;
 	jstring ret = make_script_jstring();
 	jni_env = NULL;
-
-	(*jni_env)->DeleteLocalRef(jni_env, ret);
 
 	return ret;
 }
@@ -931,7 +927,9 @@ void on_change_running_state(bool running, bool request_stop)
 
 	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
 	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeChangeRunningState", "(ZZ)V");
-	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid,
+	(*jni_env)->CallVoidMethod(jni_env,
+				   main_activity,
+				   mid,
 				   running ? JNI_TRUE: JNI_FALSE,
 				   request_stop ? JNI_TRUE : JNI_FALSE);
 }
@@ -947,6 +945,7 @@ void on_load_script(void)
 	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeLoadScript", "(Ljava/lang/String;Ljava/lang/String;)V"); 
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, file, content);
 
+	(*jni_env)->DeleteLocalRef(jni_env, file);
 	(*jni_env)->DeleteLocalRef(jni_env, content);
 }
 
@@ -954,9 +953,11 @@ void on_change_position(void)
 {
 	assert(jni_env != NULL);
 
+	int line = get_expanded_line_num();
+
 	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
 	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeChangePosition", "(I)V");
-	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, get_expanded_line_num());
+	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, line);
 }
 
 void on_update_variable(void)
@@ -964,7 +965,7 @@ void on_update_variable(void)
 	assert(jni_env != NULL);
 
 	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeUpdateVariable", "()V");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeUpdateVariables", "()V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid);
 }
 

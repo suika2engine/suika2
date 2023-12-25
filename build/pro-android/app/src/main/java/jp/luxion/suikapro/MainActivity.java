@@ -286,11 +286,6 @@ public class MainActivity extends ComponentActivity {
 		Log.e("Suika2 Pro", text);
 	}
 
-	public void bridgeSetScriptText(String scriptText) {
-		EditText editScript = findViewById(R.id.editScript);
-		editScript.setText(scriptText);
-	}
-
 	public void bridgeChangeRunningState(boolean running, boolean stopRequested) {
 		// TODO: enable and disable views.
 	}

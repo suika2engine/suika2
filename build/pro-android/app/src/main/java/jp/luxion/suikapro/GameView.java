@@ -107,13 +107,12 @@ public class GameView extends GLSurfaceView implements View.OnTouchListener, Ren
             return;
 
         // Mutually exclude with the main thread's event handlers.
-        String initialScriptText = null;
         synchronized(MainActivity.instance.syncObj) {
             // Run native codes.
             if (!isGameInitialized) {
                 try {
                     MainActivity.instance.nativeInitGame(MainActivity.instance.basePath);
-                    initialScriptText = MainActivity.instance.nativeGetScript();
+                    MainActivity.instance.nativeGetScript();
                 } catch (Exception e) {
                     Log.e("Suika2 Pro", e.toString());
                 }
@@ -126,10 +125,6 @@ public class GameView extends GLSurfaceView implements View.OnTouchListener, Ren
                 }
             }
         }
-
-        // Set a script text.
-        if (initialScriptText != null)
-            MainActivity.instance.setInitialScriptText(initialScriptText);
     }
 
     @Override

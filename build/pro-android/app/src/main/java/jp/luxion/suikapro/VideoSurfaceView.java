@@ -61,8 +61,8 @@ public class VideoSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 				new Handler(Looper.getMainLooper()).post(() -> {
 					//videoView.invalidate();
 					//super.handleMessage(msg);
+					//video = null;
 				});
-				video = null;
 			}
 			try {
 				Thread.sleep(33);
