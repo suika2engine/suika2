@@ -15,6 +15,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -38,6 +42,9 @@ import java.util.zip.ZipInputStream;
  * The main activity.
  */
 public class MainActivity extends ComponentActivity {
+	// The app name for logging.
+	public static final String APP_NAME = "Suika2 Pro";
+
 	// JNI
     static {
 		// Load libsuika.so and native*() methods will be available.
@@ -270,9 +277,40 @@ public class MainActivity extends ComponentActivity {
 			}
 			zis.close();
 		} catch(IOException e) {
-			Log.e("Suika2 Pro Mobile", "Failed to read file.");
+			Log.e(APP_NAME, "Failed to read file.");
 			finishAndRemoveTask();
 		}
+	}
+
+	//
+	// Script view
+	//
+
+	private void doColoring(int execLine) {
+		EditText editScript = findViewById(R.id.editScript);
+		Spannable spannableScript = editScript.getText();
+		String plainScript = spannableScript.toString();
+
+		//noinspection ReassignedVariable
+		int curLine = 0;
+		//noinspection ReassignedVariable
+		int startAt = 0;
+		for(String line : plainScript.split("\n")) {
+			if(curLine != execLine)
+				spannableScript.setSpan(new BackgroundColorSpan(0xffffffff), startAt, startAt + line.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			else
+				spannableScript.setSpan(new BackgroundColorSpan(0xffc0c0ff), startAt, startAt + line.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			curLine++;
+			startAt += line.length() + 1; // +1 for a line-feed
+		}
+	}
+
+	private void doScroll(int line) {
+		EditText editScript = findViewById(R.id.editScript);
+		editScript.post(() -> {
+			int y = editScript.getLayout().getLineTop(line);
+			editScript.scrollTo(0, y);
+		});
 	}
 
 	//
@@ -283,7 +321,7 @@ public class MainActivity extends ComponentActivity {
 
 	public void bridgeAlert(String text) {
 		// FIXME: implement a dialog.
-		Log.e("Suika2 Pro", text);
+		Log.e(APP_NAME, text);
 	}
 
 	public void bridgeChangeRunningState(boolean running, boolean stopRequested) {
@@ -291,7 +329,6 @@ public class MainActivity extends ComponentActivity {
 	}
 
 	public void bridgeLoadScript(String scriptName, String scriptContent) {
-		// A handler to start video playback in the main thread.
 		new Handler(Looper.getMainLooper()).post(()->{
 			// Set script name.
 			TextView textViewScriptFile = findViewById(R.id.textViewScriptFile);
@@ -300,12 +337,14 @@ public class MainActivity extends ComponentActivity {
 			// Set script text.
 			EditText editScript = findViewById(R.id.editScript);
 			editScript.setText(scriptContent);
-			// TODO: do the coloring.
 		});
 	}
 
 	public void bridgeChangePosition(int line) {
-		// TODO: color and scroll.
+		new Handler(Looper.getMainLooper()).post(()-> {
+			doColoring(line);
+			doScroll(line);
+		});
 	}
 
 	public void bridgeUpdateVariables() {
@@ -318,7 +357,8 @@ public class MainActivity extends ComponentActivity {
 			video = null;
 		}
 		try {
-			AssetFileDescriptor afd = getAssets().openFd("mov/" + fileName);
+			AssetFileDescriptor afd;
+			afd = getAssets().openFd("mov/" + fileName);
 			video = new MediaPlayer();
 			video.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 			video.prepare();
@@ -329,7 +369,7 @@ public class MainActivity extends ComponentActivity {
 				//super.handleMessage(msg);
 			});
 		} catch(IOException e) {
-			Log.e("Suika2 Pro Mobile", "Failed to play video " + fileName);
+			Log.e(APP_NAME, "Failed to play video " + fileName);
 		}
 	}
 

@@ -114,14 +114,14 @@ public class GameView extends GLSurfaceView implements View.OnTouchListener, Ren
                     MainActivity.instance.nativeInitGame(MainActivity.instance.basePath);
                     MainActivity.instance.nativeGetScript();
                 } catch (Exception e) {
-                    Log.e("Suika2 Pro", e.toString());
+                    Log.e(MainActivity.APP_NAME, e.toString());
                 }
                 isGameInitialized = true;
             } else {
                 try {
                     MainActivity.instance.nativeRunFrame();
                 } catch (Exception e) {
-                    Log.e("Suika2 Pro", e.toString());
+                    Log.e(MainActivity.APP_NAME, e.toString());
                 }
             }
         }

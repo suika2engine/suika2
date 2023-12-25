@@ -938,7 +938,9 @@ void on_load_script(void)
 {
 	assert(jni_env != NULL);
 
-	jstring file = (*jni_env)->NewStringUTF(jni_env, get_script_file_name());
+	const char *cfile = get_script_file_name();
+
+	jstring file = (*jni_env)->NewStringUTF(jni_env, cfile);
 	jstring content = make_script_jstring();
 
 	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
@@ -999,3 +1001,4 @@ bool is_wave_looped(struct wave *w)
 {
 	return false;
 }
+
