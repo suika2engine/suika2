@@ -8,14 +8,12 @@ TARGET=android-src
 rm -rf \
    app/build \
    app/.cxx \
-   app/src/main/cpp/*.[ch] \
-   app/src/main/cpp/jpeg \
-   app/src/main/cpp/freetype \
-   app/src/main/cpp/libpng \
+   app/src/main/cpp \
    "$TARGET"
 
 # Create the target directory.
 mkdir "$TARGET"
+mkdir -p "$TARGET/app/src/main/cpp"
 
 # Copy the base files.
 COPY_LIST="\
@@ -33,9 +31,9 @@ done
 
 # Copy the Suika2 source files.
 COPY_LIST="\
-	google/ndkfile.c \
-	google/ndkmain.c \
 	google/ndkmain.h \
+	google/ndkmain.c \
+	google/ndkfile.c \
 	google/ndkwave.c \
 	khronos/glrender.c \
 	khronos/glrender.h \
@@ -120,20 +118,29 @@ for f in $COPY_LIST; do
     cp "../../src/$f" "$TARGET/app/src/main/cpp/`basename $f`";
 done
 
-# Extract freetype2 source into the android project tree.
-tar xzf ../libsrc/freetype-2.9.1.tar.gz -C "$TARGET/app/src/main/cpp/"
-mv "$TARGET/app/src/main/cpp/freetype-2.9.1" "$TARGET/app/src/main/cpp/freetype"
-
 # Extract libpng source into the android project tree.
-tar xzf ../libsrc/libpng-1.6.35.tar.gz -C "$TARGET/app/src/main/cpp/"
-mv "$TARGET/app/src/main/cpp/libpng-1.6.35" "$TARGET/app/src/main/cpp/libpng"
+mkdir -p "$TARGET/app/src/main/cpp/libpng"
+tar xzf ../libsrc/libpng-1.6.35.tar.gz -C "$TARGET/app/src/main/cpp/libpng" --strip-components 1
 cp "$TARGET/app/src/main/cpp/libpng/scripts/pnglibconf.h.prebuilt" "$TARGET/app/src/main/cpp/libpng/pnglibconf.h"
 
-# Extract libjpeg source into the android project tree.
-tar xzf ../libsrc/jpegsrc.v9e.tar.gz -C "$TARGET/app/src/main/cpp/"
-mv "$TARGET/app/src/main/cpp/jpeg-9e" "$TARGET/app/src/main/cpp/jpeg"
-cp cmakelists_for_libjpeg.txt "$TARGET/app/src/main/cpp/jpeg/CMakeLists.txt"
+# Extract jpeg9 source into the android project tree.
+mkdir -p "$TARGET/app/src/main/cpp/jpeg"
+tar xzf ../libsrc/jpegsrc.v9e.tar.gz -C "$TARGET/app/src/main/cpp/jpeg" --strip-components 1
+cp cmake/jpeg.txt "$TARGET/app/src/main/cpp/jpeg/CMakeLists.txt"
 cp "$TARGET/app/src/main/cpp/jpeg/jconfig.txt" "$TARGET/app/src/main/cpp/jpeg/jconfig.h"
+
+# Extract bzip2 into the android project tree.
+mkdir -p "$TARGET/app/src/main/cpp/bzip2"
+tar xzf ../libsrc/bzip2-1.0.6.tar.gz -C "$TARGET/app/src/main/cpp/bzip2" --strip-components 1
+cp cmake/bzip2.txt "$TARGET/app/src/main/cpp/bzip2/CMakeLists.txt"
+
+# Extracting libwebp into the android project tree.
+mkdir -p "$TARGET/app/src/main/cpp/libwebp"
+tar xzf ../libsrc/libwebp-1.3.2.tar.gz -C "$TARGET/app/src/main/cpp/libwebp" --strip-components 1
+
+# Extract freetype2 source into the android project tree.
+mkdir -p "$TARGET/app/src/main/cpp/freetype"
+tar xzf ../libsrc/freetype-2.9.1.tar.gz -C "$TARGET/app/src/main/cpp/freetype" --strip-components 1
 
 # Create a placeholder for assets.
 mkdir -p "$TARGET/app/src/main/assets"

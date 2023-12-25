@@ -9,13 +9,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build1
+      - name: Build
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk-headless
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           cd build/engine-android
-          ./prepare-libs.sh
+	  make
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip commandlinetools-linux-10406996_latest.zip
           unset ANDROID_HOME

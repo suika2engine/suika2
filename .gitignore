@@ -83,15 +83,10 @@ build/engine-ios/libroot-ios.tar.gz
 build/engine-ios/build
 
 # Android
-build/engine-android/.idea/caches
+build/engine-android/.idea
 build/engine-android/app/.cxx
 build/engine-android/app/src/main/assets
-build/engine-android/app/src/main/cpp/bzip2
-build/engine-android/app/src/main/cpp/libpng
-build/engine-android/app/src/main/cpp/jpeg
-build/engine-android/app/src/main/cpp/libwebp
-build/engine-android/app/src/main/cpp/freetype
-build/engine-android/app/src/main/cpp/*.[ch]
+build/engine-android/app/src/main/cpp
 build/engine-android/cmdline-tools
 build/engine-android/commandlinetools-linux-*.zip
 build/engine-android/android-src

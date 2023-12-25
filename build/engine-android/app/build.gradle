@@ -2,20 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     namespace 'jp.luxion.suika'
-    compileSdk 33
-    buildToolsVersion "33.0.1"
+    compileSdk 34
     ndkVersion "25.2.9519653"
     defaultConfig {
         applicationId "jp.luxion.suika"
         minSdkVersion 19
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionCode 5
-        versionName "2.12.24"
-        externalNativeBuild {
-            cmake {
-                targets "suika"
-            }
-        }
+        versionName "2.15.33"
     }
     externalNativeBuild {
         cmake {
