@@ -54,7 +54,7 @@ The best way to contribute this project is to use it and give us feedback. We ar
 
 ## Usage
 
-* On Windows:
+* On Windows (Suika2 Pro Desktop for Windows):
   * Download the exe file from [the official site](https://suika2.com/en/) and run it.
   * Click `Suika2 Pro Desktop` link on your desktop.
 
@@ -67,23 +67,23 @@ The best way to contribute this project is to use it and give us feedback. We ar
   * Open [App Store](https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680)
 
 * On Android:
-  * Coming Soon...
+  * Coming Soon (Google Play)
 
-* On Linux:
-  * You can use the `apt` command on Ubuntu:
-  ```
-  sudo add-apt-repository ppa:ktabata/ppa
-  sudo apt update
-  sudo apt install suika2
-  suika2
-  ```
-  * Or you can build from the souce code:
+* On Linux including ChromeOS:
+  * You can build from the souce code:
   ```
   sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev
   git clone https://github.com/suika2engine/suika2.git
   ./configure
   make
   sudo make install
+  suika2
+  ```
+  * Or you can use the `apt` command on Ubuntu:
+  ```
+  sudo add-apt-repository ppa:ktabata/ppa
+  sudo apt update
+  sudo apt install suika2
   suika2
   ```
 
