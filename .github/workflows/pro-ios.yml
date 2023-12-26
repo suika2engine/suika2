@@ -1,4 +1,4 @@
-name: engine-ios
+name: pro-ios
 on:
   push:
   pull_request:
@@ -9,5 +9,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         run: |
-          cd build/engine-ios
+          cd build/pro-ios
           make build-only

@@ -49,7 +49,7 @@ libroot:
 	./build-libs.sh
 
 build-only:
-	@xcodebuild -quiet -scheme pro-macos -project pro-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/pro-macos.xcarchive build
+	@xcodebuild -target "Suika2 Pro Desktop" -project pro-macos.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
 clean:
 	@rm -rf build suika2.dmg libroot-mac.tar.gz libroot

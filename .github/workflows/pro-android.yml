@@ -1,4 +1,4 @@
-name: engine-android
+name: pro-android
 on:
   push:
   pull_request:
