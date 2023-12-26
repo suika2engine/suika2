@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-
 project(suika-pro VERSION 0.1 LANGUAGES CXX C)
-
-#
-# Note: this file is for Debian packaging.
-#
 
 # We use .ui file translation.
 set(CMAKE_AUTOUIC ON)
@@ -23,10 +18,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGL OpenGLWidg
 add_compile_definitions(
   USE_DEBUGGER
   USE_QT
-  NO_SSE_VERSIONING
 )
 
-# The following are Pro source files that implements a debugger HAL for Qt6.
+# We use the following source files.
 set(PROJECT_SOURCES
   main.cpp
   mainwindow.cpp
@@ -48,7 +42,7 @@ qt_add_executable(
   ${PROJECT_SOURCES}
 )
 
-# Dynamic linking for a self compilation on Linux:
+# Linking.
 target_link_libraries(
   suika-pro
   PRIVATE
