@@ -72,8 +72,8 @@ set(PROJECT_SOURCES
   wms.h
   wms_core.c
   wms_impl.c
-  wms_lexer.yy.h
   wms_lexer.yy.c
+  wms_parser.tab.h
   wms_parser.tab.c
   cmd_anime.c
   cmd_bg.c
