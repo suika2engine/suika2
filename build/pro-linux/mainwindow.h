@@ -2,15 +2,21 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QIODevice>
+#include <QCoreApplication>
 #include <QTimer>
-//#include <QAudioSink>
+#include <QStandardItemModel>
+#include <QResizeEvent>
+#include <QModelIndex>
+#include <QMessageBox>
+#include <QDir>
+#include <QLocale>
 
-extern "C" {
-#include "suika.h"
-#include "package.h"
-#include "glrender.h"
-};
+// We dropped Qt's sound support.
+#if 0
+#include <QAudioFormat>
+#include <QAudioSink>
+#include <QIODevice>
+#endif
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
