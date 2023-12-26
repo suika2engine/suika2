@@ -199,6 +199,26 @@ Java_jp_luxion_suikapro_MainActivity_nativeRunFrame(
 }
 
 JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeOnPause(
+        JNIEnv *env,
+        jobject instance)
+{
+	jni_env = env;
+	sl_pause_sound();
+	jni_env = NULL;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeOnResume(
+        JNIEnv *env,
+        jobject instance)
+{
+	jni_env = env;
+	sl_resume_sound();
+	jni_env = NULL;
+}
+
+JNIEXPORT void JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneDown(
 	JNIEnv *env,
 	jobject instance,

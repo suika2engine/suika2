@@ -164,9 +164,7 @@ Java_jp_luxion_suika_MainActivity_nativeRunFrame(
 JNIEXPORT void JNICALL
 Java_jp_luxion_suika_MainActivity_nativeOnPause(
         JNIEnv *env,
-        jobject instance,
-        jint x,
-        jint y)
+        jobject instance)
 {
 	jni_env = env;
 	sl_pause_sound();
@@ -176,9 +174,7 @@ Java_jp_luxion_suika_MainActivity_nativeOnPause(
 JNIEXPORT void JNICALL
 Java_jp_luxion_suika_MainActivity_nativeOnResume(
         JNIEnv *env,
-        jobject instance,
-        jint x,
-        jint y)
+        jobject instance)
 {
 	jni_env = env;
 	sl_resume_sound();
