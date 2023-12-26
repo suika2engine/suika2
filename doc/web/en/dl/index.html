@@ -104,10 +104,10 @@
 			<button class="nav-link" id="ios-tab" data-bs-toggle="tab" data-bs-target="#ios-tab-pane" type="button" role="tab" aria-controls="ios-tab-pane" aria-selected="false">iPhone/iPad</button>
 		</li>
 		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="android-tab" data-bs-toggle="tab" data-bs-target="#android-tab-pane" type="button" role="tab" aria-controls="android-tab-pane" aria-selected="false">Chromebook</button>
+			<button class="nav-link" id="android-tab" data-bs-toggle="tab" data-bs-target="#android-tab-pane" type="button" role="tab" aria-controls="android-tab-pane" aria-selected="false">Android</button>
 		</li>
 		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux</button>
+			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux/Chromebook</button>
 		</li>
 	</ul>
 
@@ -149,22 +149,23 @@
 			<a href="https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680"><img src="/img/banners/pro-ios-en.png" style="width:min(90vw, 500px);"></a>
 		</div>
 
-		<!-- Chromebook -->
+		<!-- Android -->
 		<div class="tab-pane fade" id="android-tab-pane" role="tabpanel" aria-labelledby="android-tab" tabindex="0">
 			<p>
 				<br>
-				<h3>Comming Soon!</h3>
+				<h3>Comming Up!</h3>
 				<br>
 			</p>
 		</div>
 
-		<!-- Linux -->
+		<!-- Linux/Chromebook -->
 		<div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab" tabindex="0">
 			<div style="margin-left:1em;">
-				<p>For Ubuntu 22.04:</p>
+				<h3>Linux/Chromebook</h3>
+				<p>From the source code (recommended):</p>
+				<pre><code>sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev<br>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>make<br>sudo make install<br>suika2</code></pre>
+				<p>From Ubuntu PPA:</p>
 				<pre><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
-				<p>From source code:</p>
-				<pre><code>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>./configure<br>make<br>sudo make install<br>/usr/local/bin/suika2</code></pre>
 			</div>
 		</div>
 
