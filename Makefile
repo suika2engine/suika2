@@ -4,8 +4,8 @@ build: suika-linux suika-pro
 
 suika-linux:
 	@cd build/engine-linux && \
-		make -j8 -f Makefile.shared && \
-		make install && \
+		make -f Makefile.shared -j8 && \
+		make -f Makefile.shared install && \
 		cd ../..
 
 suika-pro:
