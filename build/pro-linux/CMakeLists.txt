@@ -18,9 +18,10 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGL OpenGLWidg
 add_compile_definitions(
   USE_DEBUGGER
   USE_QT
+  NO_SSE_VERSIONING
 )
 
-# We use the following source files.
+# The following source files.
 set(PROJECT_SOURCES
   main.cpp
   mainwindow.cpp
@@ -42,7 +43,7 @@ qt_add_executable(
   ${PROJECT_SOURCES}
 )
 
-# Linking.
+# Dynamic linking for a self compilation on Linux:
 target_link_libraries(
   suika-pro
   PRIVATE
@@ -54,8 +55,8 @@ target_link_libraries(
   vorbisfile
   vorbis
   ogg
-  bz2
   z
+  bz2
   asound
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::OpenGLWidgets

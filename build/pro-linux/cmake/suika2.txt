@@ -13,6 +13,10 @@ add_compile_definitions(
   USE_QT
 )
 
+# Use libraries
+include_directories(/usr/include/libpng)
+include_directories(/usr/include/freetype2)
+
 # Base source files
 set(PROJECT_SOURCES
   # HAL
@@ -108,18 +112,6 @@ add_library(
   ${PROJECT_SOURCES}
 )
 
-# libpng
-add_subdirectory(libpng)
-include_directories(libpng)
-
-# libjpeg
-add_subdirectory(jpeg)
-include_directories(jpeg)
-
-# libwebp
-add_subdirectory(libwebp)
-include_directories(libwebp/src)
-
 # libogg
 add_subdirectory(libogg)
 include_directories(libogg/include)
@@ -128,7 +120,3 @@ include_directories(libogg/include)
 set(OGG_INCLUDE_DIR libogg/include)
 add_subdirectory(libvorbis)
 include_directories(libvorbis/include)
-
-# freetype
-add_subdirectory(freetype)
-include_directories(freetype/include)
