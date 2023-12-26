@@ -62,7 +62,7 @@ setup:
 			echo 0 | sudo tee /proc/sys/fs/binfmt_misc/WSLInterop; \
 		fi; \
 		cd build/engine-windows && ./build-libs.sh && cd ../..; \
-		cp -Ra build/engine-windows-x86/libroot build/pro-windows/; \
+		cp -Ra build/engine-windows/libroot build/pro-windows/; \
 		cd build/engine-windows-64 && ./build-libs.sh && cd ../..; \
 		cd build/engine-windows-arm64 && ./build-libs.sh && cd ../..; \
 		if [ ! -z "`uname -a | grep WSL2`" ]; then \
