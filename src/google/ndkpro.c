@@ -17,7 +17,7 @@
 
 /* HAL */
 #include "glrender.h"
-#include "asound.h"
+#include "slessound.h"
 
 /* Standard C */
 #include <locale.h>	/* setlocale() */
@@ -113,14 +113,12 @@ Java_jp_luxion_suikapro_MainActivity_nativeInitGame(
 
 	/* Initialize the graphics subsystem for OpenGL ES. */
 	if (!init_opengl()) {
-		log_error("Failed to initialize OpenGL.");
+		log_error("Failed to initialize OpenGL ES.");
 		exit(1);
 	}
 
 	/* Initialize the sound subsystem for ALSA. */
-	cleanup_asound();
-	if (!init_asound())
-		__android_log_print(ANDROID_LOG_WARN, "Suika", "Cannot setup ALSA.");
+	init_opensl_es();
 
 	/* Initialize the game. */
 	if (!on_event_init()) {
@@ -952,45 +950,4 @@ void on_update_variable(void)
 	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
 	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeUpdateVariables", "()V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid);
-}
-
-/*
- * stubs for sound
- */
-
-struct wave {
-	int dummy;
-} wave_instance;
-
-struct wave *create_wave_from_file(const char *dir, const char *file, bool loop)
-{
-	return &wave_instance;
-}
-
-void set_wave_repeat_times(struct wave *w, int n)
-{
-}
-
-void destroy_wave(struct wave *w)
-{
-}
-
-const char *get_wave_file_name(struct wave *w)
-{
-	return "";
-}
-
-bool is_wave_looped(struct wave *w)
-{
-	return false;
-}
-
-int get_wave_samples(struct wave *w, uint32_t *buf, int samples)
-{
-	return 0;
-}
-
-bool is_wave_eos(struct wave *w)
-{
-	return true;
 }

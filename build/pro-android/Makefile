@@ -33,53 +33,21 @@ setup:
 	@mkdir -p app/src/main/cpp/libogg
 	@tar xzf ../libsrc/libogg-1.3.3.tar.gz -C app/src/main/cpp/libogg --strip-components 1
 	@cp cmake/libogg.txt app/src/main/cpp/libogg/CMakeLists.txt
-	@sed -e 's/@INCLUDE_INTTYPES_H@/1/g' -e 's/@INCLUDE_STDINT_H@/1/g' -e 's/@INCLUDE_SYS_TYPES_H@/1/g' -e 's/@SIZE16@/int16_t/g' -e 's/@USIZE16@/uint16_t/g' -e 's/@SIZE32@/int32_t/g' -e 's/@USIZE32@/uint32_t/g' -e 's/@SIZE64@/uint64_t/g' < app/src/main/cpp/libogg/include/ogg/config_types.h.in > app/src/main/cpp/libogg/include/ogg/config_types.h
+	@sed -e 's/@INCLUDE_INTTYPES_H@/1/g' -e 's/@INCLUDE_STDINT_H@/1/g' -e 's/@INCLUDE_SYS_TYPES_H@/1/g' -e 's/@SIZE16@/int16_t/g' -e 's/@USIZE16@/uint16_t/g' -e 's/@SIZE32@/int32_t/g' -e 's/@USIZE32@/uint32_t/g' -e 's/@SIZE64@/int64_t/g' -e 's/@USIZE64@/uint64_t/g' < app/src/main/cpp/libogg/include/ogg/config_types.h.in > app/src/main/cpp/libogg/include/ogg/config_types.h
 	@
 	@echo 'Extracting libvorbis.'
 	@mkdir -p app/src/main/cpp/libvorbis
 	@tar xzf ../libsrc/libvorbis-1.3.6.tar.gz -C app/src/main/cpp/libvorbis --strip-components 1
 	@cp cmake/libvorbis.txt app/src/main/cpp/libvorbis/CMakeLists.txt
 	@
-	@echo 'Extracting tinyalsa.'
-	@mkdir -p app/src/main/cpp/tinyalsa
-	@tar xzf ../libsrc/tinyalsa-2.0.0.tar.gz -C app/src/main/cpp/tinyalsa --strip-components 1
-	@
 	@echo 'Copying source files.'
 	@cp ../../src/google/ndkpro.c app/src/main/cpp/
-	@cp ../../src/khronos/glrender.c app/src/main/cpp/
 	@cp ../../src/khronos/glrender.h app/src/main/cpp/
-	@cp ../../src/linux/asound.c app/src/main/cpp/
-	@cp ../../src/linux/asound.h app/src/main/cpp/
-	@cp ../../src/anime.c app/src/main/cpp/
+	@cp ../../src/khronos/glrender.c app/src/main/cpp/
+	@cp ../../src/khronos/slessound.h app/src/main/cpp/
+	@cp ../../src/khronos/slessound.c app/src/main/cpp/
 	@cp ../../src/anime.h app/src/main/cpp/
-	@cp ../../src/cmd_anime.c app/src/main/cpp/
-	@cp ../../src/cmd_bg.c app/src/main/cpp/
-	@cp ../../src/cmd_bgm.c app/src/main/cpp/
-	@cp ../../src/cmd_cha.c app/src/main/cpp/
-	@cp ../../src/cmd_chapter.c app/src/main/cpp/
-	@cp ../../src/cmd_ch.c app/src/main/cpp/
-	@cp ../../src/cmd_chs.c app/src/main/cpp/
-	@cp ../../src/cmd_click.c app/src/main/cpp/
-	@cp ../../src/cmd_gosub.c app/src/main/cpp/
-	@cp ../../src/cmd_goto.c app/src/main/cpp/
-	@cp ../../src/cmd_gui.c app/src/main/cpp/
-	@cp ../../src/cmd_if.c app/src/main/cpp/
-	@cp ../../src/cmd_layer.c app/src/main/cpp/
-	@cp ../../src/cmd_load.c app/src/main/cpp/
-	@cp ../../src/cmd_message.c app/src/main/cpp/
-	@cp ../../src/cmd_pencil.c app/src/main/cpp/
-	@cp ../../src/cmd_return.c app/src/main/cpp/
-	@cp ../../src/cmd_se.c app/src/main/cpp/
-	@cp ../../src/cmd_set.c app/src/main/cpp/
-	@cp ../../src/cmd_setconfig.c app/src/main/cpp/
-	@cp ../../src/cmd_setsave.c app/src/main/cpp/
-	@cp ../../src/cmd_shake.c app/src/main/cpp/
-	@cp ../../src/cmd_skip.c app/src/main/cpp/
-	@cp ../../src/cmd_switch.c app/src/main/cpp/
-	@cp ../../src/cmd_video.c app/src/main/cpp/
-	@cp ../../src/cmd_vol.c app/src/main/cpp/
-	@cp ../../src/cmd_wait.c app/src/main/cpp/
-	@cp ../../src/cmd_wms.c app/src/main/cpp/
+	@cp ../../src/anime.c app/src/main/cpp/
 	@cp ../../src/conf.c app/src/main/cpp/
 	@cp ../../src/conf.h app/src/main/cpp/
 	@cp ../../src/event.c app/src/main/cpp/
@@ -123,9 +91,10 @@ setup:
 	@cp ../../src/uimsg.h app/src/main/cpp/
 	@cp ../../src/uimsg.c app/src/main/cpp/
 	@cp ../../src/types.h app/src/main/cpp/
-	@cp ../../src/vars.c app/src/main/cpp/
 	@cp ../../src/vars.h app/src/main/cpp/
+	@cp ../../src/vars.c app/src/main/cpp/
 	@cp ../../src/wave.h app/src/main/cpp/
+	@cp ../../src/wave.c app/src/main/cpp/
 	@cp ../../src/wms_core.c app/src/main/cpp/
 	@cp ../../src/wms_core.h app/src/main/cpp/
 	@cp ../../src/wms.h app/src/main/cpp/
@@ -133,6 +102,34 @@ setup:
 	@cp ../../src/wms_lexer.yy.c app/src/main/cpp/
 	@cp ../../src/wms_parser.tab.c app/src/main/cpp/
 	@cp ../../src/wms_parser.tab.h app/src/main/cpp/
+	@cp ../../src/cmd_anime.c app/src/main/cpp/
+	@cp ../../src/cmd_bg.c app/src/main/cpp/
+	@cp ../../src/cmd_bgm.c app/src/main/cpp/
+	@cp ../../src/cmd_cha.c app/src/main/cpp/
+	@cp ../../src/cmd_chapter.c app/src/main/cpp/
+	@cp ../../src/cmd_ch.c app/src/main/cpp/
+	@cp ../../src/cmd_chs.c app/src/main/cpp/
+	@cp ../../src/cmd_click.c app/src/main/cpp/
+	@cp ../../src/cmd_gosub.c app/src/main/cpp/
+	@cp ../../src/cmd_goto.c app/src/main/cpp/
+	@cp ../../src/cmd_gui.c app/src/main/cpp/
+	@cp ../../src/cmd_if.c app/src/main/cpp/
+	@cp ../../src/cmd_layer.c app/src/main/cpp/
+	@cp ../../src/cmd_load.c app/src/main/cpp/
+	@cp ../../src/cmd_message.c app/src/main/cpp/
+	@cp ../../src/cmd_pencil.c app/src/main/cpp/
+	@cp ../../src/cmd_return.c app/src/main/cpp/
+	@cp ../../src/cmd_se.c app/src/main/cpp/
+	@cp ../../src/cmd_set.c app/src/main/cpp/
+	@cp ../../src/cmd_setconfig.c app/src/main/cpp/
+	@cp ../../src/cmd_setsave.c app/src/main/cpp/
+	@cp ../../src/cmd_shake.c app/src/main/cpp/
+	@cp ../../src/cmd_skip.c app/src/main/cpp/
+	@cp ../../src/cmd_switch.c app/src/main/cpp/
+	@cp ../../src/cmd_video.c app/src/main/cpp/
+	@cp ../../src/cmd_vol.c app/src/main/cpp/
+	@cp ../../src/cmd_wait.c app/src/main/cpp/
+	@cp ../../src/cmd_wms.c app/src/main/cpp/
 	@
 	@echo 'Create a template game zip.'
 	@mkdir -p app/src/main/assets

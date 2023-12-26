@@ -13,7 +13,7 @@
 #ifndef SUIKA_GLRENDER_H
 #define SUIKA_GLRENDER_H
 
-#ifndef USE_QT
+#if !defined(USE_QT) && !defined(SUIKA_TARGET_ANDROID)
 #include "../suika.h"
 #else
 #include "suika.h"

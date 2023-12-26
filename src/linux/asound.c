@@ -6,29 +6,21 @@
  */
 
 /*
+ * Suika2 HAL Implementation for ALSA
+ *
  * [Changes]
  *  - 2016-06-06 Created.
  *  - 2023-12-25 Refactored.
  */
 
+/* Suika2 Base */
 #include "../suika.h"
 
+/* POSIX */
 #include <pthread.h>
 
-#if !defined(__ANDROID__)
-/* GNU/Linux */
+/* ALSA */
 #include <alsa/asoundlib.h>
-#else
-/* Android NDK with tinyalsa */
-#include <tinyalsa/asoundlib.h>
-#include <unistd.h>	/* sleep() */
-#define snd_pcm_t			struct pcm
-#define snd_pcm_close			pcm_close
-#define snd_config_update_free_global()
-#define snd_pcm_writei			pcm_writei
-#define snd_pcm_prepare			pcm_prepare
-#define snd_pcm_drop(s)			pcm_stop(s)
-#endif
 
 /*
  * Format
@@ -76,7 +68,7 @@ SIMD_ALIGNED_MEMBER(static uint32_t period_buf[MIXER_STREAMS][PERIOD_FRAMES + PE
 /* Flags of Quit Requests */
 static bool quit[MIXER_STREAMS];
 
-/* Volume Values per Stream */
+/* Volume Values */
 static float volume[MIXER_STREAMS];
 
 /* Finish Flags */
@@ -242,7 +234,7 @@ bool set_sound_volume(int n, float vol)
 
 	volume[n] = vol;
 
-	/* For relaxed consistencies. Not need for x86 and arm processors. */
+	/* For relaxed consistencies. Not needed for x86 and arm processors. */
 	__sync_synchronize();
 
 	return true;
@@ -257,10 +249,13 @@ bool is_sound_finished(int n)
 	if (pcm[n] == NULL)
 		return true;
 
-	if (finish[n])
-		return true;
+	/* For relaxed consistencies. Not needed for x86 and arm processors. */
+	__sync_synchronize();
 
-	return false;
+	if (!finish[n])
+		return false;
+
+	return true;
 }
 
 /* Initialize a device for a stream. */
@@ -441,7 +436,7 @@ static void scale_samples(uint32_t *buf, int frames, float vol)
 	int16_t dl, dr;	/* destination L/R */
 	int i;
 
-	/* For relaxed consistencies. Not need for x86 and arm processors. */
+	/* For relaxed consistencies. Not needed for x86 and arm processors. */
 	__sync_synchronize();
 
 	/* Convert a scale factor to an exponential value. */
