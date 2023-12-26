@@ -10,7 +10,7 @@ suika-linux:
 
 suika-pro:
 	@cd build/pro-linux && \
-		./make-deps-shared.sh && \
+		./make-deps.sh && \
 		rm -rf build && \
 		mkdir build && \
 		cd build && \
@@ -107,8 +107,6 @@ pro-macos:
 engine-wasm:
 	cd build/engine-wasm  && make && cd ../..
 
-engine-linux:
-	cd build/engine-linux  && make && cd ../..
+engine-linux: suika-linux
 
-pro-linux:
-	cd build/engine-linux  && make && cd ../..
+pro-linux: suika-pro
