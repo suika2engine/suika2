@@ -60,8 +60,9 @@ target_link_libraries(
   vorbisfile
   vorbis
   ogg
-  z
   bz2
+  z
+  asound
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::OpenGLWidgets
   Qt${QT_VERSION_MAJOR}::Multimedia
