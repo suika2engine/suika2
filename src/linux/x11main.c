@@ -1228,12 +1228,6 @@ uint64_t get_lap_timer_millisec(uint64_t *t)
 
 	end = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 
-	if (end < *t) {
-		/* オーバーフローの場合、タイマをリセットして0を返す */
-		reset_lap_timer(t);
-		return 0;
-	}
-
 	return (uint64_t)(end - *t);
 #else
 	extern uint64_t sim_time;

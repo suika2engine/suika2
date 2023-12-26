@@ -1,0 +1,13 @@
+project(bz2)
+
+add_library(
+  bz2
+  SHARED
+  bzlib.c
+  compress.c
+  decompress.c
+  blocksort.c
+  huffman.c
+  crctable.c
+  randtable.c
+)

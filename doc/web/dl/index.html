@@ -101,13 +101,16 @@
 			<button class="nav-link active" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-tab-pane" type="button" role="tab" aria-controls="preview-tab-pane" aria-selected="true">Direct</button>
 		</li>
 		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="windows-tab" data-bs-toggle="tab" data-bs-target="#windows-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Windows</button>
+		</li>
+		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="macos-tab" data-bs-toggle="tab" data-bs-target="#macos-tab-pane" type="button" role="tab" aria-controls="macos-tab-pane" aria-selected="false">Mac</button>
 		</li>
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="ios-tab" data-bs-toggle="tab" data-bs-target="#ios-tab-pane" type="button" role="tab" aria-controls="ios-tab-pane" aria-selected="false">iPhone/iPad</button>
 		</li>
 		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="windows-tab" data-bs-toggle="tab" data-bs-target="#windows-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Windows</button>
+			<button class="nav-link" id="android-tab" data-bs-toggle="tab" data-bs-target="#android-tab-pane" type="button" role="tab" aria-controls="android-tab-pane" aria-selected="false">Chromebook</button>
 		</li>
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux</button>
@@ -128,9 +131,9 @@
 				テンプレートは日本語アドベンチャー、英語アドベンチャー、日本語横書きノベル、日本語縦書きノベルから選択でき、日本語と英語の選択はアプリ起動時のOS設定で決まります。
 			</p>
 			<p>
-<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.25 (2023/12/20):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-15.25.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-15.25.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.32 (2023/12/25):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.32.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.32.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
 			</p>
 			<br>
 			<h4>公式サイト 旧版</h4>
@@ -144,6 +147,11 @@
 				</p>
 		</div>
 
+		<!-- Windows -->
+		<div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab" tabindex="0">
+			<a href="https://apps.microsoft.com/detail/XP99CQV05PR79W?cid=PCCongratsBnr&hl=ja-jp&gl=JP"><img src="/img/banners/pro-windows.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
 		<!-- Mac -->
 		<div class="tab-pane fade" id="macos-tab-pane" role="tabpanel" aria-labelledby="macos-tab" tabindex="0">
 			<a href="https://apps.apple.com/jp/app/suika2-pro-desktop/id6474658254"><img src="/img/banners/pro-macos.png" style="width:min(90vw, 500px);"></a>
@@ -154,9 +162,13 @@
 			<a href="https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680"><img src="/img/banners/pro-ios.png" style="width:min(90vw, 500px);"></a>
 		</div>
 
-		<!-- Windows -->
-		<div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab" tabindex="0">
-			<a href="https://apps.microsoft.com/detail/XP99CQV05PR79W?cid=PCCongratsBnr&hl=ja-jp&gl=JP"><img src="/img/banners/pro-windows.png" style="width:min(90vw, 500px);"></a>
+		<!-- Chromebook -->
+		<div class="tab-pane fade" id="android-tab-pane" role="tabpanel" aria-labelledby="android-tab" tabindex="0">
+			<p>
+				<br>
+				<h3>Comming Soon!</h3>
+				<br>
+			</p>
 		</div>
 
 		<!-- Linux -->
@@ -389,6 +401,20 @@
 <hr>
 
 <div style="text-align: center;">
+  <h3>キラキラエフェクトの素材</h3>
+	<p>
+		Ronronさんご提供のキラキラエフェクトです。
+  </p>
+  <a href="/dl/material/kirakira-effect-ronron-v2.zip"><img src="/img/icons/zip.png" width="48"> ZIPダウンロード</a><br>
+	<figure>
+		<figcaption>サンプル:</figcaption>
+		<video controls src="/dl/kirakira-effect-ronron-v2.mp4" width="80%"></video>
+	</figure>
+</div>
+
+<hr>
+
+<div style="text-align: center;">
   <h3>エンディングスタッフロールサンプル</h3>
 	<p>
 		松野さんご提供のスタッフロールサンプルです。
@@ -424,7 +450,7 @@
 	<h3>『ミッチーにおまかせ』(マイマイさん)</h3>
   <p>
     11系列までの全演出の利用例で、スクリプトの中身が公開されています<br>
-    <a href="/dl/material/micchi-14.15.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+    <a href="/dl/material/micchi-14.15.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a><br>
     <a href="/dl/sample/name-demo-type3.zip"><img src="/img/icons/zip.png" width="48"> 名前入力のみのサンプル [Type3]</a>
   </p>
 </div>
@@ -580,6 +606,11 @@
 			<div class="accordion-body">
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/15.32 2023/12/25 <ul> <li>ストア申請用内部バージョン</li> </ul> </li>
+<li>Suika2/15.31 2023/12/24 <ul> <li>キラキラエフェクトが消えない問題を修正 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/15.30 2023/12/23 <ul> <li>拡張構文のバグを修正 (Thanks to Ronron-san!)</li> <li>キラキラエフェクトが消えない問題を調整 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/15.29 2023/12/23 <ul> <li><code>@cha</code>をクリックでスキップしたときにアニメが完了しないバグを修正</li> </ul> </li>
+<li>Suika2/15.28 2023/12/22 <ul> <li><code>@cha</code>が完了しないバグを修正 (Thanks to ラワン材-san and いたみ-san!)</li> <li>拡張構文のバグを修正 (Thanks to Ronron-san!)</li> <li>拡張構文を使っていても簡易エディタで編集できるように改善</li> </ul> </li>
 <li>Suika2/15.25 2023/12/20 <ul> <li>Windows版インストーラの細かい修正</li> </ul> </li>
 <li>Suika2/15.24 2023/12/20 <ul> <li>macOS版の細かい修正</li> </ul> </li>
 <li>Suika2/15.23 2023/12/20 <ul> <li>アプリ名をSuika2 Pro Desktopに変更</li> </ul> </li>

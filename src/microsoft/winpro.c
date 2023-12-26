@@ -2665,13 +2665,6 @@ int get_changed_exec_line(void)
 }
 
 /*
- * 旧Suika2 Pro用: VLSでは使用しない TODO: 削除
- */
-bool is_command_updated(void) { return false; }
-const char* get_updated_command(void) { assert(0); return NULL; }
-bool is_script_reloaded(void) { 	return false; }
-
-/*
  * コマンドの実行中状態を設定する
  */
 void on_change_running_state(bool running, bool request_stop)
@@ -3487,7 +3480,7 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 {
 	wchar_t *pWcs, *pCRLF;
 	int i, nTotal, nLine, nLineStartCharCR, nLineStartCharCRLF;
-	BOOL bExecLineChanged, bReloaded;
+	BOOL bExecLineChanged;
 
 	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
 	dbg_reset_parse_error_count();
@@ -3498,7 +3491,6 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 	nLine = 0;
 	nLineStartCharCR = 0;
 	nLineStartCharCRLF = 0;
-	bReloaded = FALSE;
 	while (nLineStartCharCRLF < nTotal)
 	{
 		wchar_t *pLine;
@@ -3526,15 +3518,12 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 	free(pWcs);
 
 	/* 削除された末尾の行を処理する */
-	if (!bReloaded)
-	{
-		bExecLineChanged = FALSE;
-		for (i = get_line_count() - 1; i >= nLine; i--)
-			if (delete_script_line(nLine))
-				bExecLineChanged = TRUE;
-		if (bExecLineChanged)
-			RichEdit_SetBackgroundColorForNextExecuteLine();
-	}
+	bExecLineChanged = FALSE;
+	for (i = get_line_count() - 1; i >= nLine; i--)
+		if (delete_script_line(nLine))
+			bExecLineChanged = TRUE;
+	if (bExecLineChanged)
+		RichEdit_SetBackgroundColorForNextExecuteLine();
 
 	/* 拡張構文がある場合に対応する */
 	reparse_script_for_structured_syntax();

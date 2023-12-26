@@ -1,0 +1,39 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "jp.luxion.suikapro"
+    compileSdk 34
+    ndkVersion "26.1.10909125"
+    defaultConfig {
+        applicationId "jp.luxion.suikapro"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation "androidx.activity:activity:1.8.2"
+    implementation "androidx.documentfile:documentfile:1.0.1"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.appcompat:appcompat-resources:1.6.1"
+
+    //implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //implementation 'com.android.support:appcompat-v7:27.0.0'
+
+    constraints{
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0"
+    }
+}

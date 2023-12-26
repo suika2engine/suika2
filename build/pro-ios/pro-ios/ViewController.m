@@ -586,13 +586,11 @@ static void setStoppedState(void);
 }
 
 - (IBAction)onUpdateButton:(id)sender {
+    [self updateScriptModelFromText];
+
     self.changedExecLine = [self scriptCursorLine];
     self.isExecLineChanged = YES;
     self.isNextPressed = YES;
-
-    [self updateScriptModelFromText];
-    [self setTextColorForAllLines];
-    [self scrollToCurrentLine];
 }
 
 @end

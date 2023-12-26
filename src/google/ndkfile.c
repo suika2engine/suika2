@@ -1,16 +1,20 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
  * [Changes]
- *  - 2016/08/08 作成
+ *  - 2016-08-08 Created.
+ *  - 2023-12-25 Refactored.
  */
 
+/* Suika2 Base */
 #include "suika.h"
+
+/* HAL */
 #include "ndkmain.h"
 
 /* パスの長さ */
@@ -74,7 +78,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 
 	/* ファイルの内容を取得する */
 	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	mid = (*jni_env)->GetMethodID(jni_env, cls, "getFileContent", "(Ljava/lang/String;)[B");
+	mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeGetFileContent", "(Ljava/lang/String;)[B");
 	ret = (*jni_env)->CallObjectMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, path));
 	if (ret == NULL) {
 		if (!save_data)
@@ -188,24 +192,19 @@ void close_rfile(struct rfile *rf)
  */
 struct wfile *open_wfile(const char *dir, const char *file)
 {
-	struct wfile *wf;
-	jclass cls;
-	jmethodID mid;
-	jobject ret;
-
 	assert(strcmp(dir, SAVE_DIR) == 0);
 
 	/* wfile構造体のメモリを確保する */
-	wf = malloc(sizeof(struct wfile));
+	struct wfile *wf = malloc(sizeof(struct wfile));
 	if (wf == NULL) {
 		log_memory();
 		return NULL;
 	}
 
 	/* ファイルをオープンする */
-	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	mid = (*jni_env)->GetMethodID(jni_env, cls, "openSaveFile", "(Ljava/lang/String;)Ljava/io/OutputStream;");
-	ret = (*jni_env)->CallObjectMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, file));
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeOpenSaveFile", "(Ljava/lang/String;)Ljava/io/OutputStream;");
+	jobject ret = (*jni_env)->CallObjectMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, file));
 	if (ret == NULL) {
 		log_dir_file_open(dir, file);
 		free(wf);
@@ -221,18 +220,13 @@ struct wfile *open_wfile(const char *dir, const char *file)
  */
 size_t write_wfile(struct wfile *wf, const void *buf, size_t size)
 {
-	jclass cls;
-	jmethodID mid;
-	jboolean ret;
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeWriteSaveFile", "(Ljava/io/OutputStream;I)Z");
+
 	size_t i;
-	int c;
-
-	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	mid = (*jni_env)->GetMethodID(jni_env, cls, "writeSaveFile", "(Ljava/io/OutputStream;I)Z");
-
 	for (i = 0; i < size; i++) {
-		c = (unsigned char)*((char *)buf + i);
-		ret = (*jni_env)->CallBooleanMethod(jni_env, main_activity, mid, wf->os, c);
+		int c = (unsigned char)*((char *)buf + i);
+		jboolean ret = (*jni_env)->CallBooleanMethod(jni_env, main_activity, mid, wf->os, c);
 		if (ret != JNI_TRUE)
 			return i;
 	}
@@ -248,15 +242,10 @@ size_t write_wfile(struct wfile *wf, const void *buf, size_t size)
  */
 void close_wfile(struct wfile *wf)
 {
-	jclass cls;
-	jmethodID mid;
-
-	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	mid = (*jni_env)->GetMethodID(jni_env, cls, "closeSaveFile", "(Ljava/io/OutputStream;)V");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeCloseSaveFile", "(Ljava/io/OutputStream;)V");
 	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, wf->os);
-	
 	(*jni_env)->DeleteGlobalRef(jni_env, wf->os);
-
 	free(wf);
 }
 
@@ -265,10 +254,7 @@ void close_wfile(struct wfile *wf)
  */
 void remove_file(const char *dir, const char *file)
 {
-	jclass cls;
-	jmethodID mid;
-
-	cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	mid = (*jni_env)->GetMethodID(jni_env, cls, "removeSaveFile", "(Ljava/lang/String;)V;");
+	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
+	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeRemoveSaveFile", "(Ljava/lang/String;)V;");
 	(*jni_env)->CallObjectMethod(jni_env, main_activity, mid, (*jni_env)->NewStringUTF(jni_env, file));
 }

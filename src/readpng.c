@@ -156,13 +156,17 @@ static bool read_header(void)
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_PALETTE:
+#if !defined(SUIKA_TARGET_ANDROID)
 		png_set_bgr(png_ptr);
+#endif
 		png_set_palette_to_rgb(png_ptr);
 		png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_RGB:
+#if !defined(SUIKA_TARGET_ANDROID)
 		png_set_bgr(png_ptr);
+#endif
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
 			png_set_tRNS_to_alpha(png_ptr);
 		} else {
@@ -171,7 +175,9 @@ static bool read_header(void)
 		}
 		break;
 	case PNG_COLOR_TYPE_RGB_ALPHA:
+#if !defined(SUIKA_TARGET_ANDROID)
 		png_set_bgr(png_ptr);
+#endif
 		break;
 	case PNG_COLOR_TYPE_GRAY_ALPHA:
 		png_set_gray_to_rgb(png_ptr);

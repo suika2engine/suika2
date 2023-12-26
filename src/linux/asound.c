@@ -1,22 +1,29 @@
 /* -*- tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
+ * Suika2 HAL Implementation for ALSA
+ *
  * [Changes]
- *  2016-06-06 作成
+ *  - 2016-06-06 Created.
+ *  - 2023-12-25 Refactored.
  */
 
+/* Suika2 Base */
 #include "../suika.h"
 
+/* POSIX */
 #include <pthread.h>
+
+/* ALSA */
 #include <alsa/asoundlib.h>
 
 /*
- * フォーマット
+ * Format
  */
 #define SAMPLING_RATE	(44100)
 #define CHANNELS	(2)
@@ -24,7 +31,7 @@
 #define FRAME_SIZE	(4)
 
 /*
- * 再生バッファ
+ * Sound Buffer
  */
 #define BUF_FRAMES		(SAMPLING_RATE / 8)
 #define BUF_SIZE		(BUF_FRAMES * FRAME_SIZE)
@@ -34,41 +41,41 @@
 #define PERIOD_FRAMES_PAD	((PERIOD_SIZE + 63) / 64 * 64 - PERIOD_SIZE)
 
 /*
- * ストリームごとのデータ
+ * Stream Data
  */
 
-/* ALSAデバイス */
+/* ALSA Devices */
 static snd_pcm_t *pcm[MIXER_STREAMS];
 
-/* 入力ストリーム */
+/* Input Streams */
 static struct wave *wave[MIXER_STREAMS];
 
-/* サウンドスレッド */
+/* Sound Threads */
 static pthread_t thread[MIXER_STREAMS];
 
-/* メインスレッドとサウンドスレッドの排他制御用ミューテックス */
+/* Mutex Objects (mutually exclude between the main thread and a sound thread) */
 static pthread_mutex_t mutex[MIXER_STREAMS];
 
-/* メインスレッドからサウンドスレッドへの要求用条件変数 */
+/* Conditional Variables (for requests from the main thread to a sound thread) */
 static pthread_cond_t req[MIXER_STREAMS];
 
-/* サウンドスレッドからメインスレッドへの応答用条件変数 */
+/* Conditional Variables (for renponses from a sound thread to the main thread */
 static pthread_cond_t ack[MIXER_STREAMS];
 
-/* バッファ */
+/* Buffers */
 SIMD_ALIGNED_MEMBER(static uint32_t period_buf[MIXER_STREAMS][PERIOD_FRAMES + PERIOD_FRAMES_PAD]);
 
-/* 使用終了の要求に使うフラグ */
+/* Flags of Quit Requests */
 static bool quit[MIXER_STREAMS];
 
-/* ボリューム */
+/* Volume Values */
 static float volume[MIXER_STREAMS];
 
-/* 再生終了フラグ */
+/* Finish Flags */
 static bool finish[MIXER_STREAMS];
 
 /*
- * 前方参照
+ * Forward Declarations
  */
 static bool init_pcm(int n);
 static void *sound_thread(void *p);
@@ -76,42 +83,41 @@ static bool playback_period(int n);
 static void scale_samples(uint32_t *buf, int frames, float vol);
 
 /*
- * ALSAの初期化処理を行う
+ * Initialize ALSA.
  */
 bool init_asound(void)
 {
 	int n, ret;
 
 	for (n = 0; n < MIXER_STREAMS; n++) {
-		/* ストリームごとのデータを初期化する */
+		/* Initialize per stream data. */
 		pcm[n] = NULL;
 		wave[n] = NULL;
 		quit[n] = false;
 		volume[n] = 1.0f;
 		finish[n] = false;
 
-		/* デバイスを初期化する */
+		/* Initialize a device. */
 		if (!init_pcm(n))
 			return false;
 
-		/* ミューテックスを作成する */
+		/* Create a mutex object. */
 		pthread_mutex_init(&mutex[n], NULL);
 
-		/* 条件変数を作成する */
+		/* Create conditional variables. */
 		pthread_cond_init(&req[n], NULL);
 		pthread_cond_init(&ack[n], NULL);
 
 		pthread_mutex_lock(&mutex[n]);
 		{
-			/* スレッドを開始する */
-			ret = pthread_create(&thread[n], NULL, sound_thread,
-					     (void *)(intptr_t)n);
+			/* Start a sound thread. */
+			ret = pthread_create(&thread[n], NULL, sound_thread, (void *)(intptr_t)n);
 			if (ret != 0) {
 				pthread_mutex_unlock(&mutex[n]);
 				return false;
 			}
 
-			/* 待ち状態に入ったことの応答を受信する */
+			/* Receive a response that indicates the sound thread is in a wait. */
 			pthread_cond_wait(&ack[n], &mutex[n]);
 		}
 		pthread_mutex_unlock(&mutex[n]);
@@ -121,7 +127,7 @@ bool init_asound(void)
 }
 
 /*
- * ALSAの終了処理を行う
+ * Cleanup ALSA.
  */
 void cleanup_asound(void)
 {
@@ -132,59 +138,58 @@ void cleanup_asound(void)
 		if (pcm[n] == NULL)
 			continue;
 
-		/* 再生を終了する */
 		stop_sound(n);
 
 		pthread_mutex_lock(&mutex[n]);
 		{
-			/* 使用終了の通知を行う */
+			/* Send a quit signal to a sound thread. */
 			quit[n] = true;
 			pthread_cond_signal(&req[n]);
 		}
 		pthread_mutex_unlock(&mutex[n]);
 
-		/* スレッドの終了を待つ */
+		/* Wait for an exit of the sound thread. */
 		pthread_join(thread[n], &p1);
 
-		/* デバイスをクローズする */
+		/* Close a device. */
 		if (pcm[n] != NULL)
 			snd_pcm_close(pcm[n]);
 
-		/* 条件変数を破棄する */
+		/* Destroy a conditional variable. */
 		pthread_cond_destroy(&req[n]);
 
-		/* ミューテックスを破棄する */
+		/* Destroy a mutex. */
 		pthread_mutex_destroy(&mutex[n]);
 	}
 
-	/* キャッシュを解放する */
+	/* Free caches for Valgrind check. */
 	snd_config_update_free_global();
 }
 
 /*
- * サウンドの再生を開始する
+ * Start sound playback.
  */
 bool play_sound(int n, struct wave *w)
 {
 	assert(n < MIXER_STREAMS);
 	assert(w != NULL);
 
-	/* サウンドデバイスが利用できないとき */
+	/* If ALSA is not available, just return. */
 	if (pcm[n] == NULL)
 		return true;
 
-	/* 再生中であれば停止する */
+	/* Stop an in-flight playback. */
 	stop_sound(n);
 
 	pthread_mutex_lock(&mutex[n]);
 	{
-		/* PCMストリームを設定する */
+		/* Set a PCM stream. */
 		wave[n] = w;
 
-		/* 再生終了状態をリセットする */
+		/* Reset a finish flag. */
 		finish[n] = false;
 
-		/* 再生開始の要求を行う */
+		/* Send a signal of a playback start. */
 		pthread_cond_signal(&req[n]);
 	}
 	pthread_mutex_unlock(&mutex[n]);
@@ -192,26 +197,26 @@ bool play_sound(int n, struct wave *w)
 }
 
 /*
- * サウンドの再生を停止する
+ * Stop sound playback on a stream.
  */
 bool stop_sound(int n)
 {
 	assert(n < MIXER_STREAMS);
 
-	/* サウンドデバイスが利用できないとき */
+	/* If ALSA is not available, just return. */
 	if (pcm[n] == NULL)
 		return true;
 
 	pthread_mutex_lock(&mutex[n]);
 	{
 		if (wave[n] != NULL) {
-			/* 再生状態を取り消す */
+			/* Cancel playback status. */
 			wave[n] = NULL;
 
-			/* バッファの再生を途中でやめる */
+			/* Stop an in-flight buffer. */
 			snd_pcm_drop(pcm[n]);
 
-			/* 待ち状態に入ったことの応答を受信する */
+			/* Receive a signal that indicates a sound thread is in a wait. */
 			pthread_cond_wait(&ack[n], &mutex[n]);
 		}
 	}
@@ -220,77 +225,68 @@ bool stop_sound(int n)
 }
 
 /*
- * サウンドのボリュームを設定する
+ * Set a sound volume for a stream.
  */
 bool set_sound_volume(int n, float vol)
 {
 	assert(n < MIXER_STREAMS);
 	assert(vol >= 0 && vol <= 1.0f);
 
-	/*
-	 * FIXME: POSIXのセマンティクスに厳密であるためにはロックが必要だが、
-	 *        現実のコンシステンシモデルでは不要である。ロックを取ると、
-	 *        だいたい1/4秒待つことになるため、取らないことにした。
-	 */
-/*
- *	pthread_mutex_lock(&mutex[n]);
- *	{
- */
-		volume[n] = vol;
-/* 
- *	}
- *	pthread_mutex_unlock(&mutex[n]);
- */
+	volume[n] = vol;
+
+	/* For relaxed consistencies. Not needed for x86 and arm processors. */
+	__sync_synchronize();
+
 	return true;
 }
 
 /*
- * サウンドが再生終了したか調べる
+ * Check if a sound stream is finished.
  */
 bool is_sound_finished(int n)
 {
-	/* サウンドデバイスが利用できないとき */
+	/* If ALSA is not available, just return. */
 	if (pcm[n] == NULL)
 		return true;
 
-	if (finish[n])
-		return true;
+	/* For relaxed consistencies. Not needed for x86 and arm processors. */
+	__sync_synchronize();
 
-	return false;
+	if (!finish[n])
+		return false;
+
+	return true;
 }
 
-/* デバイスを初期化する */
+/* Initialize a device for a stream. */
 static bool init_pcm(int n)
 {
-	snd_pcm_hw_params_t *params;
-	snd_pcm_uframes_t frames;
-	int ret;
+#if !defined(__ANDROID__)
+	/* Normal GNU/Linux */
 
-	/* デバイスをオープンする */
+	/* Open a device. */
+	int ret;
 	ret = snd_pcm_open(&pcm[n], "default", SND_PCM_STREAM_PLAYBACK, 0);
 	if (ret < 0) {
 		log_api_error("snd_pcm_open");
 		return false;
 	}
 
-	/*
-	 * フォーマットを設定する
-	 */
-
+	/* Set the format (44.1kHz, stereo, 16-bit signed little endian) */
+	snd_pcm_hw_params_t *params;
+	snd_pcm_uframes_t frames;
 	snd_pcm_hw_params_alloca(&params);
 	ret = snd_pcm_hw_params_any(pcm[n], params);
 	if (ret < 0) {
 		log_api_error("snd_pcm_hw_params_any");
 		return false;
 	}
-
 	if (snd_pcm_hw_params_set_access(pcm[n], params,
 					 SND_PCM_ACCESS_RW_INTERLEAVED) < 0) {
 		log_api_error("snd_pcm_hw_params_set_access");
 		return false;
 	}
-	if (snd_pcm_hw_params_set_format(pcm[n], params,
-					 SND_PCM_FORMAT_S16_LE) < 0) {
+	if (snd_pcm_hw_params_set_format(pcm[n], params, SND_PCM_FORMAT_S16_LE) < 0) {
 		log_api_error("snd_pcm_hw_params_set_format");
 		return false;
 	}
@@ -306,13 +302,10 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params_set_periods");
 		return false;
 	}
-	if (snd_pcm_hw_params_set_buffer_size(pcm[n], params, BUF_FRAMES) <
-	    0) {
+	if (snd_pcm_hw_params_set_buffer_size(pcm[n], params, BUF_FRAMES) < 0) {
 		frames = BUF_FRAMES;
-		if (snd_pcm_hw_params_set_buffer_size_near(pcm[n], params,
-							   &frames) < 0) {
-			log_api_error(
-				"snd_pcm_hw_params_set_buffer_size_near");
+		if (snd_pcm_hw_params_set_buffer_size_near(pcm[n], params, &frames) < 0) {
+			log_api_error("snd_pcm_hw_params_set_buffer_size_near");
 			return false;
 		}
 	}
@@ -320,15 +313,33 @@ static bool init_pcm(int n)
 		log_api_error("snd_pcm_hw_params");
 		return false;
 	}
+#else
+	/* tinyalsa */
 
+	/* Describe the format (44.1kHz, stereo, 16-bit signed little endian) */
+	struct pcm_config config;
+	memset(&config, 0, sizeof(config));
+	config.channels = 2;
+	config.rate = 44100;
+	config.period_size = BUF_FRAMES;
+	config.period_count = PERIODS;
+	config.format = PCM_FORMAT_S16_LE;
+
+	/* Open a PCM device. */
+	pcm[n] = pcm_open(0, 0, PCM_OUT, &config);
+	if (pcm[n] == NULL) {
+		log_api_error("pcm_open_by_name");
+		return false;
+	}
+#endif
 	return true;
 }
 
 /*
- * サウンドスレッド
+ * Sound Threads
  */
 
-/* サウンドスレッドのエントリポイント */
+/* The entrypoint of a per-device sound thread. */
 static void *sound_thread(void *p)
 {
 	int n = (int)(intptr_t)p;
@@ -336,10 +347,10 @@ static void *sound_thread(void *p)
 	while (1) {
 		pthread_mutex_lock(&mutex[n]);
 		{
-			/* 待ち状態に入ったことの応答を送る */
+			/* Send a signal that indicates the sound thread is in a wait. */
 			pthread_cond_signal(&ack[n]);
 
-			/* 再生開始か使用終了の要求を待つ */
+			/* Wait for a signal. (start or exit) */
 			pthread_cond_wait(&req[n], &mutex[n]);
 			if (quit[n]) {
 				pthread_mutex_unlock(&mutex[n]);
@@ -348,24 +359,24 @@ static void *sound_thread(void *p)
 		}
 		pthread_mutex_unlock(&mutex[n]);
 
-		/* 再生ループを実行する */
+		/* Run a playback loop. */
 		while (playback_period(n)) {
 #if defined(__linux__)
 			/*
-			 * [重要]
-			 *  - コンテキストスイッチを明示的に行う
-			 *  - これがないとメインスレッドが止まる
-			 *  - linux 4.4.0で確認
-			 *  - sched_yield()ではだめ
+			 * [Important]
+			 *  - We execute context-switch explicitly on Linux by sleep(0).
+			 *  - If we do not call sleep(0), the main thread stops.
+			 *  - We have confirmed this issue on Linux 4.4.0 x86_64.
+			 *  - As we understand, sched_yield() does not solve this issue.
 			 */
 			sleep(0);
 #elif defined(__NetBSD__)
 			/*
-			 * [重要]
-			 *  - コンテキストスイッチを明示的に行う
-			 *  - これがないとメインスレッドでmutexを取得できない
-			 *  - NetBSD 9.1で確認
-			 *  - sleep(0)ではだめ
+			 * [Important]
+			 *  - We execute context-switch explicitly on NetBSD by sched_yield().
+			 *  - If we do not call sched_yield(), the main thread cannot acquire a mutex.
+			 *  - We have confirmed this issue on NetBSD 9.1 amd64.
+			 *  - As we understand, sleep(0) does not solve this issue.
 			 */
 			sched_yield();
 #endif
@@ -375,36 +386,34 @@ static void *sound_thread(void *p)
 	return (void *)0;
 }
 
-/* 再生を実行する */
+/* Write to a buffer. */
 static bool playback_period(int n)
 {
 	int size;
 
 	pthread_mutex_lock(&mutex[n]);
 	{
-		/* メインスレッドで再生が停止された場合 */
+		/* Return false if the main thread stopped a playback. */
 		if (wave[n] == NULL) {
 			pthread_mutex_unlock(&mutex[n]);
 			return false;
 		}
 
-		/* PCMサンプルを取得する */
+		/* Get PCM samples. */
 		size = get_wave_samples(wave[n], period_buf[n], PERIOD_FRAMES);
 
-		/* 終端でサンプル数が足りない場合、ゼロで埋める */
+		/* Fill the remaining samples by zeros for a case where we have reached an end-of-stream. */
 		if (size < PERIOD_FRAMES)
-			memset(period_buf[n] + size, 0,
-			       (size_t)(PERIOD_FRAMES - size) * FRAME_SIZE);
+			memset(period_buf[n] + size, 0, (size_t)(PERIOD_FRAMES - size) * FRAME_SIZE);
 
-		/* ボリュームの値でサンプルをスケールする */
+		/* Scale samples by a volume value. */
 		scale_samples(period_buf[n], PERIOD_FRAMES, volume[n]);
 
-		/* デバイスに書き込む(アンダーランしている間繰り返す) */
-		while (snd_pcm_writei(pcm[n], period_buf[n],
-				      PERIOD_FRAMES) < 0)
+		/* Write to the device (repeat while under-running) */
+		while (snd_pcm_writei(pcm[n], period_buf[n], PERIOD_FRAMES) < 0)
 			snd_pcm_prepare(pcm[n]);
 
-		/* 終端まで再生した場合 */
+		/* Return false if we reached an end-of-stream. */
 		if (is_wave_eos(wave[n])) {
 			wave[n] = NULL;
 			finish[n] = true;
@@ -417,7 +426,7 @@ static bool playback_period(int n)
 	return true;
 }
 
-/* ボリュームを適用する */
+/* Apply a volume value. */
 static void scale_samples(uint32_t *buf, int frames, float vol)
 {
 	float scale;
@@ -427,10 +436,13 @@ static void scale_samples(uint32_t *buf, int frames, float vol)
 	int16_t dl, dr;	/* destination L/R */
 	int i;
 
-	/* スケールファクタを指数関数にする */
+	/* For relaxed consistencies. Not needed for x86 and arm processors. */
+	__sync_synchronize();
+
+	/* Convert a scale factor to an exponential value. */
 	scale = (powf(10.0f, vol) - 1.0f) / (10.0f - 1.0f);
 
-	/* 各サンプルをスケールする */
+	/* Scale samples. */
 	for (i = 0; i < frames; i++) {
 		frame = buf[i];
 
@@ -448,7 +460,6 @@ static void scale_samples(uint32_t *buf, int frames, float vol)
 		dl = (int16_t)il;
 		dr = (int16_t)ir;
 
-		buf[i] = ((uint32_t)(uint16_t)dl) |
-			 (((uint32_t)(uint16_t)dr) << 16);
+		buf[i] = ((uint32_t)(uint16_t)dl) | (((uint32_t)(uint16_t)dr) << 16);
 	}
 }
