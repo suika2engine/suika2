@@ -13,3 +13,5 @@
  */
 
 void init_opensl_es(void);
+void sl_pause_sound(void);
+void sl_resume_sound(void);

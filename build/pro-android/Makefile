@@ -44,8 +44,8 @@ setup:
 	@cp ../../src/google/ndkpro.c app/src/main/cpp/
 	@cp ../../src/khronos/glrender.h app/src/main/cpp/
 	@cp ../../src/khronos/glrender.c app/src/main/cpp/
-	@cp ../../src/khronos/slessound.h app/src/main/cpp/
-	@cp ../../src/khronos/slessound.c app/src/main/cpp/
+	@cp ../../src/khronos/slsound.h app/src/main/cpp/
+	@cp ../../src/khronos/slsound.c app/src/main/cpp/
 	@cp ../../src/anime.h app/src/main/cpp/
 	@cp ../../src/anime.c app/src/main/cpp/
 	@cp ../../src/conf.c app/src/main/cpp/

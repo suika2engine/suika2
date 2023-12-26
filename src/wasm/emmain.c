@@ -28,7 +28,7 @@
  * HAL
  */
 #include "../khronos/glrender.h"	/* Graphics HAL */
-#include "emopenal.h"			/* Sound HAL */
+#include "alsound.h"			/* Sound HAL */
 
 /*
  * タッチのY座標

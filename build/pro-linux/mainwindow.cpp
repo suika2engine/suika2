@@ -10,21 +10,35 @@
  *  - 2023/09/07 作成
  */
 
+// Suika2 Base
+extern "C" {
+#include "suika.h"
+};
+
+// Suika2 Pro
+extern "C" {
+#include "package.h"
+};
+
+// HAL
+extern "C" {
+#include "glrender.h"
+#include "asound.h"
+};
+
+// Qt6
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include <QCoreApplication>
-#include <QStandardItemModel>
-#include <QResizeEvent>
-#include <QModelIndex>
-#include <QMessageBox>
-#include <QDir>
-#include <QLocale>
-#include <QAudioFormat>
-
+// Standard C++
 #include <chrono>
 
+// The sole instance of MainWindow.
 MainWindow *MainWindow::obj;
+
+//
+// MainWindow class
+//
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,6 +63,10 @@ MainWindow::MainWindow(QWidget *parent)
     // Determine the language to use.
     m_isEnglish = !QLocale().name().startsWith("ja");
 
+    // Initialize sound.
+    init_asound();
+
+#if 0
     // Setup the sound outputs.
     QAudioFormat format;
     format.setSampleFormat(QAudioFormat::Int16);
@@ -69,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent)
             m_soundDevice[i] = NULL;
         }
     }
+#endif
 
     // Setup a 33ms timer for game frames.
     m_timer = new QTimer();
@@ -101,28 +120,17 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-
-    // Destroy the sound outputs.
-    for (int i = 0; i < MIXER_STREAMS; i++) {
-        if (m_soundDevice[i] != NULL) {
-            m_soundDevice[i] = NULL;
-        }
-        if (m_soundSink[i] != NULL) {
-            m_soundSink[i]->stop();
-            delete m_soundSink[i];
-            m_soundSink[i] = NULL;
-        }
-    }
 }
 
 // The timer callback for game frames.
 void MainWindow::onTimer()
 {
-    const int SNDBUFSIZE = 4096;
-    static uint32_t soundBuf[SNDBUFSIZE];
-
     // Do a game frame.
     ui->openGLWidget->update();
+
+#if 0
+    const int SNDBUFSIZE = 4096;
+    static uint32_t soundBuf[SNDBUFSIZE];
 
     // Do sound bufferings.
     for (int i = 0; i < MIXER_STREAMS; i++) {
@@ -143,6 +151,7 @@ void MainWindow::onTimer()
             restSamples -= readSamples;
         }
     }
+#endif
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -217,21 +226,21 @@ void MainWindow::on_scriptListView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_writeButton_clicked()
 {
-    // テキストボックスの内容を取得する
+    // Get a text from the vars text box.
     char buf[4096];
     strncpy(&buf[0], ui->variableTextEdit->toPlainText().toUtf8().data(), sizeof(buf) - 1);
     buf[sizeof(buf) - 1] = '\0';
 
-    // パースする
+    // Parse the text.
     char *p = buf;
     while(*p) {
-        // 空行を読み飛ばす
+        // Skip an empty line.
         if(*p == '\n') {
             p++;
             continue;
         }
 
-        // 次の行の開始文字を探す
+        // Search for a start char of a next line.
         char *next_line = p;
         while(*next_line) {
             if(*next_line == '\n') {
@@ -241,18 +250,18 @@ void MainWindow::on_writeButton_clicked()
             next_line++;
         }
 
-        // パースする
+        // Parse.
         int index, val;
         if(sscanf(p, "$%d=%d", &index, &val) != 2)
             index = -1, val = -1;
         if(index >= LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE)
             index = -1;
 
-        // 変数を設定する
+        // Set a variable value.
         if(index != -1)
             set_variable(index, val);
 
-        // 次の行へポインタを進める
+        // Move to a next line.
         p = next_line;
     }
 
@@ -1083,8 +1092,9 @@ const char *get_system_locale(void)
 }
 
 //
-// Start a sound stream playing.
+// We use ALSA because Qt lacks ALSA support and crashes on a sound initialize.
 //
+#if 0
 bool play_sound(int stream, struct wave *w)
 {
     if (MainWindow::obj == NULL)
@@ -1100,9 +1110,6 @@ bool play_sound(int stream, struct wave *w)
     return true;
 }
 
-//
-// Stop a sound stream playing.
-//
 bool stop_sound(int stream)
 {
     if (MainWindow::obj == NULL)
@@ -1116,9 +1123,6 @@ bool stop_sound(int stream)
     return true;
 }
 
-//
-// Set a sound volume.
-//
 bool set_sound_volume(int stream, float vol)
 {
     if (MainWindow::obj == NULL)
@@ -1130,9 +1134,6 @@ bool set_sound_volume(int stream, float vol)
     return true;
 }
 
-//
-// Return whether a sound stream is finished.
-//
 bool is_sound_finished(int stream)
 {
     if (MainWindow::obj == NULL)
@@ -1145,6 +1146,7 @@ bool is_sound_finished(int stream)
 
     return true;
 }
+#endif
 
 void speak_text(const char *text)
 {

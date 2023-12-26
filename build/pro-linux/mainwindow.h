@@ -2,15 +2,21 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCoreApplication>
+#include <QTimer>
+#include <QStandardItemModel>
+#include <QResizeEvent>
+#include <QModelIndex>
+#include <QMessageBox>
+#include <QDir>
+#include <QLocale>
+
+// We dropped Qt's sound support.
+#if 0
+#include <QAudioFormat>
 #include <QAudioSink>
 #include <QIODevice>
-#include <QTimer>
-
-extern "C" {
-#include "suika.h"
-#include "package.h"
-#include "glrender.h"
-};
+#endif
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,7 +54,6 @@ private slots:
     void on_scriptListView_doubleClicked(const QModelIndex &index);
 
     void on_actionExport_data01_arc_triggered();
-
     void on_actionExport_for_Web_triggered();
 
 private:
@@ -56,7 +61,7 @@ private:
     QTimer *m_timer;
 
     // The sound devices.
-    QIODevice *m_soundDevice[MIXER_STREAMS];
+    //QIODevice *m_soundDevice[MIXER_STREAMS];
 
     // Whether we are in English mode.
     bool m_isEnglish;
@@ -76,13 +81,13 @@ public:
     static MainWindow *obj;
 
     // The sound sinks.
-    QAudioSink *m_soundSink[MIXER_STREAMS];
+    //QAudioSink *m_soundSink[MIXER_STREAMS];
 
     // Wave streams.
-    struct wave *m_wave[MIXER_STREAMS];
+    //struct wave *m_wave[MIXER_STREAMS];
 
     // Whether waves stream are finished.
-    bool m_waveFinish[MIXER_STREAMS];
+    //bool m_waveFinish[MIXER_STREAMS];
 
     // State. (read/written from
     bool m_isRunning;

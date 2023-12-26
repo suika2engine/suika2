@@ -1,0 +1,10 @@
+project(ogg)
+
+include_directories(include)
+
+add_library(
+  ogg
+  SHARED
+  src/bitwise.c
+  src/framing.c
+)

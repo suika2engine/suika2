@@ -2,11 +2,15 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabat. All rights reserved.
+ * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
 /*
  * JNI code for Android NDK.
+ *
+ * [Changes]
+ *  - 2016-08-06 Created.
+ *  - 2023-12-26 Refactored.
  */
 
 /* Suika2 Base */
@@ -15,6 +19,7 @@
 /* HAL */
 #include "ndkmain.h"
 #include "glrender.h"
+#include "slsound.h"
 
 /* Standard C */
 #include <locale.h>
@@ -69,6 +74,7 @@ Java_jp_luxion_suika_MainActivity_nativeInitGame(
 		log_error("Failed to initialize OpenGL.");
 		return;
 	}
+	init_opensl_es();
 	if (!on_event_init()) {
 		log_error("Failed to initialize event loop.");
 		return;
@@ -153,6 +159,26 @@ Java_jp_luxion_suika_MainActivity_nativeRunFrame(
 	jni_env = NULL;
 
 	return ret;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_nativeOnPause(
+        JNIEnv *env,
+        jobject instance)
+{
+	jni_env = env;
+	sl_pause_sound();
+	jni_env = NULL;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_nativeOnResume(
+        JNIEnv *env,
+        jobject instance)
+{
+	jni_env = env;
+	sl_resume_sound();
+	jni_env = NULL;
 }
 
 JNIEXPORT void JNICALL
@@ -400,39 +426,6 @@ uint64_t get_lap_timer_millisec(uint64_t *t)
 	return (uint64_t)(end - *t);
 }
 
-bool play_sound(int stream, struct wave *w)
-{
-	const char *file = get_wave_file_name(w);
-	bool loop = is_wave_looped(w);
-
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgePlaySound", "(ILjava/lang/String;Z)V");
-	(*jni_env)->CallVoidMethod(jni_env,
-				   main_activity,
-				   mid,
-				   stream,
-				   (*jni_env)->NewStringUTF(jni_env, file),
-				   loop ? JNI_TRUE : JNI_FALSE);
-
-	return true;
-}
-
-bool stop_sound(int stream)
-{
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeStopSound", "(I)V");
-	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, stream);
-	return true;
-}
-
-bool set_sound_volume(int stream, float vol)
-{
-	jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
-	jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeSetVolume", "(IF)V");
-	(*jni_env)->CallVoidMethod(jni_env, main_activity, mid, stream, vol);
-	return true;
-}
-
 bool exit_dialog(void)
 {
 	/* stub */
@@ -461,11 +454,6 @@ bool default_dialog(void)
 {
 	/* stub */
 	return true;
-}
-
-bool is_sound_finished(int stream)
-{
-	return false;
 }
 
 bool play_video(const char *fname, bool is_skippable)

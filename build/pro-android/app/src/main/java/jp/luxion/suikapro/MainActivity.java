@@ -53,6 +53,8 @@ public class MainActivity extends ComponentActivity {
 	public native void nativeInitGame(String basePath);
 	public native void nativeReinitOpenGL();
 	public native void nativeRunFrame();
+    public native boolean nativeOnPause();
+    public native boolean nativeOnResume();
 	public native void nativeOnTouchOneDown(int x, int y);
 	public native void nativeOnTouchTwoDown(int x, int y);
 	public native void nativeOnTouchMove(int x, int y);
@@ -205,6 +207,18 @@ public class MainActivity extends ComponentActivity {
 
 		// Start.
 		openProject();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        nativeOnPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        nativeOnResume();
     }
 
 	@Override

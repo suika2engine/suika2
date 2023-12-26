@@ -73,6 +73,8 @@ public class MainActivity extends Activity {
     private native void nativeReinitOpenGL();
     private native void nativeCleanup();
     private native boolean nativeRunFrame();
+    private native boolean nativeOnPause();
+    private native boolean nativeOnResume();
     private native void nativeOnTouchOneDown(int x, int y);
     private native void nativeOnTouchTwoDown(int x, int y);
     private native void nativeOnTouchMove(int x, int y);
@@ -87,9 +89,6 @@ public class MainActivity extends Activity {
 
     // Amount of touch-move to determine scroll.
     private static final int LINE_HEIGHT = 10;
-
-    // The mixer stream count. (BGM, SE, VOICE and SYS)
-    private static final int MIXER_STREAMS = 4;
 
     //
     // Variables
@@ -115,9 +114,6 @@ public class MainActivity extends Activity {
 
     // A flag that indicates if the game is finished.
     private boolean isFinished;
-
-    // MediaPlayer for sound streams.
-    private final MediaPlayer[] player = new MediaPlayer[MIXER_STREAMS];
 
     // MediaPlayer for a video playback.
     private MediaPlayer video;
@@ -157,47 +153,15 @@ public class MainActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-
-        for(int i=0; i<player.length; i++) {
-            if(player[i] != null) {
-                if(!player[i].isPlaying())
-                    player[i] = null;
-                else
-                    player[i].pause();
-            }
-        }
+        nativeOnPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        for (MediaPlayer mediaPlayer : player) {
-            if (mediaPlayer != null)
-                mediaPlayer.start();
-        }
+        nativeOnResume();
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Quit?");
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    finishAndRemoveTask();
-                }
-            }
-        });
-        builder.setNeutralButton("No", null);
-        builder.create().show();
-    }
-
-    /**
-     * 終了する際に呼ばれます。
-     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -390,40 +354,7 @@ public class MainActivity extends Activity {
     //  - We name methods that are called from JNI code "bridge*()".
     //
 
-    private void bridgePlaySound(int stream, String fileName, boolean loop) {
-        assert stream >= 0 && stream < MIXER_STREAMS;
-        bridgeStopSound(stream);
-        try {
-            AssetFileDescriptor afd = getAssets().openFd(fileName);
-            player[stream] = new MediaPlayer();
-            player[stream].setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            player[stream].setLooping(loop);
-            player[stream].prepare();
-            player[stream].start();
-        } catch(IOException e) {
-            Log.e(APP_NAME, "Failed to load sound " + fileName);
-        }
-    }
-
-    private void bridgeStopSound(int stream) {
-        assert stream >= 0 && stream < MIXER_STREAMS;
-        if(player[stream] != null) {
-            player[stream].stop();
-            player[stream].reset();
-            player[stream].release();
-            player[stream] = null;
-        }
-    }
-
-    private void bridgeSetVolume(int stream, float vol) {
-        assert stream >= 0 && stream < MIXER_STREAMS;
-        assert vol >= 0.0f && vol <= 1.0f;
-
-        if(player[stream] != null)
-            player[stream].setVolume(vol, vol);
-    }
-
-    private void bridgePlayVideo(String fileName, boolean isSkippable) {
+	private void bridgePlayVideo(String fileName, boolean isSkippable) {
 		if (video != null) {
 			video.stop();
 			video = null;
