@@ -131,7 +131,10 @@ public class MainActivity extends ComponentActivity {
         instance = this;
 
         // Load layout.
-		setContentView(R.layout.main);
+		if(getPackageManager().hasSystemFeature("org.chromium.arc.device_management"))
+			setContentView(R.layout.desktop);
+		else
+			setContentView(R.layout.main);
 
 		// Add listeners.
 		findViewById(R.id.buttonContinue).setOnClickListener(new View.OnClickListener() {
