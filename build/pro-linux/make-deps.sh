@@ -14,9 +14,11 @@ mkdir "$DEPS"
 
 # Copy Suika2 source files to $DEPS directory.
 SRC="\
-	khronos/glhelper.h \
 	khronos/glrender.h \
 	khronos/glrender.c \
+	khronos/glhelper.h \
+	linux/asound.h \
+	linux/asound.c \
 	suika.h \
 	pro.h \
 	anime.h \
