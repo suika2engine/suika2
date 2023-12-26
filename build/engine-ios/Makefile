@@ -19,7 +19,7 @@ FILES_IOS= \
 	../../src/apple/GameShaders.metal
 
 build-only: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_MACOS)
-	@xcodebuild -target "Suika" -project engine-ios.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+	#@xcodebuild -target "Suika" -project engine-ios.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
 libroot:
 	./build-libs.sh
