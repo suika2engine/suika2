@@ -3,7 +3,6 @@ project(jpeg)
 add_library(
   jpeg
   SHARED
-
   jaricom.c
   jcomapi.c
   jdapimin.c

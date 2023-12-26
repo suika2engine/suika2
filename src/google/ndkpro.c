@@ -17,6 +17,7 @@
 
 /* HAL */
 #include "glrender.h"
+#include "asound.h"
 
 /* Standard C */
 #include <locale.h>	/* setlocale() */
@@ -115,6 +116,11 @@ Java_jp_luxion_suikapro_MainActivity_nativeInitGame(
 		log_error("Failed to initialize OpenGL.");
 		exit(1);
 	}
+
+	/* Initialize the sound subsystem for ALSA. */
+	cleanup_asound();
+	if (!init_asound())
+		__android_log_print(ANDROID_LOG_WARN, "Suika", "Cannot setup ALSA.");
 
 	/* Initialize the game. */
 	if (!on_event_init()) {
@@ -707,24 +713,6 @@ uint64_t get_lap_timer_millisec(uint64_t *t)
 	return (uint64_t)(end - *t);
 }
 
-bool play_sound(int n, struct wave *w)
-{
-	/* stub */
-	return true;
-}
-
-bool stop_sound(int n)
-{
-	/* stub */
-	return true;
-}
-
-bool set_sound_volume(int n, float vol)
-{
-	/* stub */
-	return true;
-}
-
 bool exit_dialog(void)
 {
 	/* stub */
@@ -753,11 +741,6 @@ bool default_dialog(void)
 {
 	/* stub */
 	return true;
-}
-
-bool is_sound_finished(int stream)
-{
-	return false;
 }
 
 bool play_video(const char *fname, bool is_skippable)
@@ -1002,3 +985,12 @@ bool is_wave_looped(struct wave *w)
 	return false;
 }
 
+int get_wave_samples(struct wave *w, uint32_t *buf, int samples)
+{
+	return 0;
+}
+
+bool is_wave_eos(struct wave *w)
+{
+	return true;
+}

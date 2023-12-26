@@ -5,6 +5,11 @@ setup:
 	@echo 'Creating a directory.'
 	@mkdir -p app/src/main/cpp
 	@
+	@echo 'Extracting libpng.'
+	@mkdir -p app/src/main/cpp/libpng
+	@tar xzf ../libsrc/libpng-1.6.35.tar.gz -C app/src/main/cpp/libpng --strip-components 1
+	@cp app/src/main/cpp/libpng/scripts/pnglibconf.h.prebuilt app/src/main/cpp/libpng/pnglibconf.h
+	@
 	@echo 'Extracting bzip2.'
 	@mkdir -p app/src/main/cpp/bzip2
 	@tar xzf ../libsrc/bzip2-1.0.6.tar.gz -C app/src/main/cpp/bzip2 --strip-components 1
@@ -18,21 +23,33 @@ setup:
 	@mkdir -p app/src/main/cpp/freetype
 	@tar xzf ../libsrc/freetype-2.9.1.tar.gz -C app/src/main/cpp/freetype --strip-components 1
 	@
-	@echo 'Extract libpng source into the android project tree.'
-	@mkdir -p app/src/main/cpp/libpng
-	@tar xzf ../libsrc/libpng-1.6.35.tar.gz -C app/src/main/cpp/libpng --strip-components 1
-	@cp app/src/main/cpp/libpng/scripts/pnglibconf.h.prebuilt app/src/main/cpp/libpng/pnglibconf.h
-	@
 	@echo 'Extracting jpeg9.'
 	@mkdir -p app/src/main/cpp/jpeg
 	@tar xzf ../libsrc/jpegsrc.v9e.tar.gz -C app/src/main/cpp/jpeg --strip-components 1
 	@cp cmake/jpeg.txt app/src/main/cpp/jpeg/CMakeLists.txt
 	@cp app/src/main/cpp/jpeg/jconfig.txt app/src/main/cpp/jpeg/jconfig.h
 	@
+	@echo 'Extracting libogg.'
+	@mkdir -p app/src/main/cpp/libogg
+	@tar xzf ../libsrc/libogg-1.3.3.tar.gz -C app/src/main/cpp/libogg --strip-components 1
+	@cp cmake/libogg.txt app/src/main/cpp/libogg/CMakeLists.txt
+	@sed -e 's/@INCLUDE_INTTYPES_H@/1/g' -e 's/@INCLUDE_STDINT_H@/1/g' -e 's/@INCLUDE_SYS_TYPES_H@/1/g' -e 's/@SIZE16@/int16_t/g' -e 's/@USIZE16@/uint16_t/g' -e 's/@SIZE32@/int32_t/g' -e 's/@USIZE32@/uint32_t/g' -e 's/@SIZE64@/uint64_t/g' < app/src/main/cpp/libogg/include/ogg/config_types.h.in > app/src/main/cpp/libogg/include/ogg/config_types.h
+	@
+	@echo 'Extracting libvorbis.'
+	@mkdir -p app/src/main/cpp/libvorbis
+	@tar xzf ../libsrc/libvorbis-1.3.6.tar.gz -C app/src/main/cpp/libvorbis --strip-components 1
+	@cp cmake/libvorbis.txt app/src/main/cpp/libvorbis/CMakeLists.txt
+	@
+	@echo 'Extracting tinyalsa.'
+	@mkdir -p app/src/main/cpp/tinyalsa
+	@tar xzf ../libsrc/tinyalsa-2.0.0.tar.gz -C app/src/main/cpp/tinyalsa --strip-components 1
+	@
 	@echo 'Copying source files.'
 	@cp ../../src/google/ndkpro.c app/src/main/cpp/
 	@cp ../../src/khronos/glrender.c app/src/main/cpp/
 	@cp ../../src/khronos/glrender.h app/src/main/cpp/
+	@cp ../../src/linux/asound.c app/src/main/cpp/
+	@cp ../../src/linux/asound.h app/src/main/cpp/
 	@cp ../../src/anime.c app/src/main/cpp/
 	@cp ../../src/anime.h app/src/main/cpp/
 	@cp ../../src/cmd_anime.c app/src/main/cpp/

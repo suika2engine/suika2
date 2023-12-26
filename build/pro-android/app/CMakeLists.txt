@@ -10,6 +10,7 @@ add_library(
   suika
   SHARED
   src/main/cpp/ndkpro.c
+  src/main/cpp/asound.c
   src/main/cpp/cmd_anime.c
   src/main/cpp/cmd_bg.c
   src/main/cpp/cmd_bgm.c
@@ -78,9 +79,9 @@ target_link_libraries(
   freetype
   bz2
   z
-# ogg
-# vorbis
-# vorbisfile
+  tinyalsa
+  ogg
+  vorbis
   ${log-lib}
 )
 
@@ -107,12 +108,14 @@ include_directories(src/main/cpp/libwebp)
 add_subdirectory(src/main/cpp/freetype)
 include_directories(src/main/cpp/freetype/include)
 
-#############
-# (not used) Add libogg
-# add_subdirectory(src/main/cpp/libogg)
-# include_directories(src/main/cpp/libogg/include)
-#
-# (not used) Add libvorbis
-# set(OGG_INCLUDE_DIR src/main/cpp/libogg)
-# add_subdirectory(src/main/cpp/libvorbis)
-# include_directories(src/main/cpp/libvorbis/include)
+# Add libogg
+add_subdirectory(src/main/cpp/libogg)
+include_directories(src/main/cpp/libogg/include)
+
+# Add libvorbis
+add_subdirectory(src/main/cpp/libvorbis)
+include_directories(src/main/cpp/libvorbis/lib)
+
+# Add tinyalsa
+add_subdirectory(src/main/cpp/tinyalsa)
+include_directories(src/main/cpp/tinyalsa/include)
