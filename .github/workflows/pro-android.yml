@@ -14,8 +14,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk-headless
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          cd build/engine-android
-          make debug
+          cd build/pro-android
+          make
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip commandlinetools-linux-10406996_latest.zip
           unset ANDROID_HOME
@@ -27,5 +27,5 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: suika-demo.apk
-          path: build/engine-android/app/build/outputs/apk/debug/app-debug.apk
+          name: suika2-pro.apk
+          path: build/pro-android/app/build/outputs/apk/debug/app-debug.apk
