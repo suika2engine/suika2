@@ -2,7 +2,7 @@ SHELL=/bin/bash
 
 SRC = \
 	../../src/wasm/emmain.c \
-	../../src/wasm/emopenal.c \
+	../../src/wasm/alsound.c \
 	../../src/khronos/glrender.c \
 	../../src/anime.c \
 	../../src/cmd_anime.c \

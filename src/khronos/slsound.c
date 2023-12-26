@@ -54,7 +54,8 @@ static struct wave *wave[MIXER_STREAMS];
 static float volume[MIXER_STREAMS];
 
 /* Finish Flags */
-static bool finish[MIXER_STREAMS];
+static bool pre_finish[MIXER_STREAMS];	 /* Shows if we reached an end-of-stream. */
+static bool post_finish[MIXER_STREAMS];	 /* Shows if we finished a playback of a final buffer. */
 
 /*
  * Forward Declarations
@@ -106,30 +107,40 @@ void init_opensl_es(void)
 	}
 }
 
+void sl_pause_sound(void)
+{
+	for (int i = 0; i < MIXER_STREAMS; i++) {
+		if (bq_player_play[i] != NULL)
+			(*bq_player_play[i])->SetPlayState(bq_player_play[i], SL_PLAYSTATE_STOPPED);
+	}
+}
+
+void sl_resume_sound(void)
+{
+	for (int i = 0; i < MIXER_STREAMS; i++) {
+		if (bq_player_play[i] != NULL)
+			(*bq_player_play[i])->SetPlayState(bq_player_play[i], SL_PLAYSTATE_PLAYING);
+	}
+}
+
 static void play_callback(SLAndroidSimpleBufferQueueItf bq, void *context)
 {
 	int stream = (intptr_t)context;
 
 	pthread_mutex_lock(&sound_mutex[stream]);
-	do {
-		/* Break if the main thread stopped a playback. */
-		if (wave[stream] == NULL)
-			break;
-
-		/* Enqueue. */
-		enqueue(stream);
-
-		/* Set a finish flag if we reached an end-of-stream. */
-		if (is_wave_eos(wave[stream])) {
-			wave[stream] = NULL;
-			finish[stream] = true;
-		}
-	} while (0);
+	enqueue(stream);
 	pthread_mutex_unlock(&sound_mutex[stream]);
 }
 
 static void enqueue(int stream)
 {
+	/* Set a post-finish flag if an end-of-stream was detected in a previous filling. */
+	if (pre_finish[stream]) {
+		wave[stream] = NULL;
+		post_finish[stream] = true;
+		return;
+	}
+
 	/* Get PCM samples. */
 	int read_samples = get_wave_samples(wave[stream], sample_buf[stream], BUF_FRAMES);
 
@@ -142,6 +153,10 @@ static void enqueue(int stream)
 
 	/* Write the buffer. */
 	(*bq_player_buffer_queue[stream])->Enqueue(bq_player_buffer_queue[stream], sample_buf[stream], read_samples * FRAME_SIZE);
+
+	/* Set a pre-finish flag if we reached an end-of-stream. */
+	if (is_wave_eos(wave[stream]))
+		pre_finish[stream] = true;
 }
 
 static void scale_samples(uint32_t *buf, int frames, float vol)
@@ -192,6 +207,8 @@ bool play_sound(int stream, struct wave *w)
 	pthread_mutex_lock(&sound_mutex[stream]);
 	{
 		wave[stream] = w;
+		pre_finish[stream] = false;
+		post_finish[stream] = false;
 		enqueue(stream);
 	}
 	pthread_mutex_unlock(&sound_mutex[stream]);
@@ -207,6 +224,8 @@ bool stop_sound(int stream)
 	pthread_mutex_lock(&sound_mutex[stream]);
 	{
 		wave[stream] = NULL;
+		pre_finish[stream] = false;
+		post_finish[stream] = false;
 	}
 	pthread_mutex_unlock(&sound_mutex[stream]);
 
@@ -226,7 +245,7 @@ bool is_sound_finished(int stream)
 {
 	__sync_synchronize();
 
-	if (!finish[stream])
+	if (!post_finish[stream])
 	    return false;
 
 	return true;

@@ -16,7 +16,7 @@ add_library(
   # HAL
   src/main/cpp/ndkpro.c
   src/main/cpp/glrender.c
-  src/main/cpp/slessound.c
+  src/main/cpp/slsound.c
 
   # platform-independent
   src/main/cpp/anime.c

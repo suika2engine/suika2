@@ -1,11 +1,46 @@
 cmake_minimum_required(VERSION 3.4.1)
 project(suika-lib)
 
+# Find Android NDK log library.
+find_library(log-lib log)
+
+# We make libsuika.so
 add_library(
   suika
   SHARED
 
+  # HAL
+  src/main/cpp/ndkmain.c
+  src/main/cpp/ndkfile.c
+  src/main/cpp/glrender.c
+  src/main/cpp/slsound.c
+
+  # platform-independent
   src/main/cpp/anime.c
+  src/main/cpp/conf.c
+  src/main/cpp/event.c
+  src/main/cpp/glyph.c
+  src/main/cpp/gui.c
+  src/main/cpp/history.c
+  src/main/cpp/image.c
+  src/main/cpp/log.c
+  src/main/cpp/main.c
+  src/main/cpp/mixer.c
+  src/main/cpp/readimage.c
+  src/main/cpp/readpng.c
+  src/main/cpp/readjpeg.c
+  src/main/cpp/readwebp.c
+  src/main/cpp/save.c
+  src/main/cpp/scbuf.c
+  src/main/cpp/script.c
+  src/main/cpp/seen.c
+  src/main/cpp/stage.c
+  src/main/cpp/vars.c
+  src/main/cpp/wave.c
+  src/main/cpp/wms_core.c
+  src/main/cpp/wms_impl.c
+  src/main/cpp/wms_lexer.yy.c
+  src/main/cpp/wms_parser.tab.c
   src/main/cpp/cmd_anime.c
   src/main/cpp/cmd_bg.c
   src/main/cpp/cmd_bgm.c
@@ -34,37 +69,7 @@ add_library(
   src/main/cpp/cmd_vol.c
   src/main/cpp/cmd_wait.c
   src/main/cpp/cmd_wms.c
-  src/main/cpp/conf.c
-  src/main/cpp/event.c
-  src/main/cpp/glrender.c
-  src/main/cpp/glyph.c
-  src/main/cpp/gui.c
-  src/main/cpp/history.c
-  src/main/cpp/image.c
-  src/main/cpp/log.c
-  src/main/cpp/main.c
-  src/main/cpp/mixer.c
-  src/main/cpp/ndkfile.c
-  src/main/cpp/ndkmain.c
-  src/main/cpp/ndkwave.c
-  src/main/cpp/readimage.c
-  src/main/cpp/readpng.c
-  src/main/cpp/readjpeg.c
-  src/main/cpp/readwebp.c
-  src/main/cpp/save.c
-  src/main/cpp/scbuf.c
-  src/main/cpp/script.c
-  src/main/cpp/seen.c
-  src/main/cpp/stage.c
-  src/main/cpp/vars.c
-  src/main/cpp/wms_core.c
-  src/main/cpp/wms_impl.c
-  src/main/cpp/wms_lexer.yy.c
-  src/main/cpp/wms_parser.tab.c
 )
-
-find_library(log-lib log)
-
 target_link_libraries(
   suika
   GLESv3
@@ -74,40 +79,39 @@ target_link_libraries(
   freetype
   bz2
   z
-# ogg
-# vorbis
-# vorbisfile
+  ogg
+  vorbis
+  OpenSLES
   ${log-lib}
 )
 
-# bzip2
+# Add bzip2
 add_subdirectory(src/main/cpp/bzip2)
 include_directories(src/main/cpp/bzip2)
 
-# libpng
+# Add libpng
 option(HAVE_LD_VERSION_SCRIPT OFF)
 set(HAVE_LD_VERSION_SCRIPT OFF)
 add_compile_definitions(SKIP_INSTALL_ALL=YES)
 add_subdirectory(src/main/cpp/libpng)
 include_directories(src/main/cpp/libpng)
 
-# libjpeg
+# Add jpeg
 add_subdirectory(src/main/cpp/jpeg)
 include_directories(src/main/cpp/jpeg)
 
-# libwebp
+# Add libwebp
 add_subdirectory(src/main/cpp/libwebp)
 include_directories(src/main/cpp/libwebp)
 
-# freetype
+# Add freetype2
 add_subdirectory(src/main/cpp/freetype)
 include_directories(src/main/cpp/freetype/include)
 
-# libogg
-#add_subdirectory(src/main/cpp/libogg)
-#include_directories(src/main/cpp/libogg/include)
+# Add libogg
+add_subdirectory(src/main/cpp/libogg)
+include_directories(src/main/cpp/libogg/include)
 
-# libvorbis
-#set(OGG_INCLUDE_DIR src/main/cpp/libogg)
-#add_subdirectory(src/main/cpp/libvorbis)
-#include_directories(src/main/cpp/libvorbis/include)
+# Add libvorbis
+add_subdirectory(src/main/cpp/libvorbis)
+include_directories(src/main/cpp/libvorbis/include)

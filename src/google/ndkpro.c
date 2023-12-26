@@ -17,7 +17,7 @@
 
 /* HAL */
 #include "glrender.h"
-#include "slessound.h"
+#include "slsound.h"
 
 /* Standard C */
 #include <locale.h>	/* setlocale() */

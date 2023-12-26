@@ -6,6 +6,9 @@
  */
 
 /*
+ * Android App Assets and Save Data Access
+ *  - This file is used by engine-android, but not used by pro-android.
+ *
  * [Changes]
  *  - 2016-08-08 Created.
  *  - 2023-12-25 Refactored.
