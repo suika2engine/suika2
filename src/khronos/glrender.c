@@ -196,12 +196,10 @@ static const char *fragment_shader_src_normal =
 #if !defined(SUIKA_TARGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
+#if defined(USE_QT)
 	"#undef mediump                                      \n"
 #endif
-#if !defined(USE_QT)
 	"precision mediump float;                            \n"
-#endif
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
@@ -217,12 +215,10 @@ static const char *fragment_shader_src_dim =
 #if !defined(SUIKA_TARGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
+#if defined(USE_QT)
 	"#undef mediump                                      \n"
 #endif
-#if !defined(USE_QT)
 	"precision mediump float;                            \n"
-#endif
 	"varying vec2 v_texCoord;                            \n"
 	"uniform sampler2D s_texture;                        \n"
 	"void main()                                         \n"
@@ -239,12 +235,10 @@ static const char *fragment_shader_src_rule =
 #if !defined(SUIKA_TARGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
+#if defined(USE_QT)
 	"#undef mediump                                      \n"
 #endif
-#if !defined(USE_QT)
 	"precision mediump float;                            \n"
-#endif
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
@@ -262,12 +256,10 @@ static const char *fragment_shader_src_melt =
 #if !defined(SUIKA_ATERGET_WASM)
 	"#version 100                                        \n"
 #endif
-#if defined(USE_QT) && defined(SUIKA_TARGET_POSIX)
+#if defined(USE_QT)
 	"#undef mediump                                      \n"
 #endif
-#if !defined(USE_QT)
 	"precision mediump float;                            \n"
-#endif
 	"varying vec2 v_texCoord;                            \n"
 	"varying float v_alpha;                              \n"
 	"uniform sampler2D s_texture;                        \n"
