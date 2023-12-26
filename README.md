@@ -63,12 +63,27 @@ The best way to contribute this project is to use it and give us feedback. We ar
   * Copy the `Suika2 Pro Desktop` app to your `Applications` folder.
   * Open the copied app.
 
+* On iPhone/iPad:
+  * Open [App Store](https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680)
+
+* On Android:
+  * Coming Soon...
+
 * On Linux:
   * You can use the `apt` command on Ubuntu:
   ```
   sudo add-apt-repository ppa:ktabata/ppa
   sudo apt update
   sudo apt install suika2
+  suika2
+  ```
+  * Or you can build from the souce code:
+  ```
+  sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev
+  git clone https://github.com/suika2engine/suika2.git
+  ./configure
+  make
+  sudo make install
   suika2
   ```
 
