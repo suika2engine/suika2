@@ -14,7 +14,11 @@
  */
 
 /* Suika2 Base */
+#if !defined(USE_QT)
 #include "../suika.h"
+#else
+#include "suika.h"
+#endif
 
 /* POSIX */
 #include <pthread.h>
