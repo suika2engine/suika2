@@ -3,12 +3,20 @@ DESTDIR=/usr/local
 build: suika-linux suika-pro
 
 suika-linux:
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		echo 'Run on Linux.'; \
+		exit 1; \
+	fi;
 	@cd build/engine-linux && \
 		make -f Makefile.shared -j8 && \
 		make -f Makefile.shared install && \
 		cd ../..
 
 suika-pro:
+	@if [ ! -z "`uname | grep Darwin`" ]; then \
+		echo 'Run on Linux.'; \
+		exit 1; \
+	fi;
 	@cd build/pro-linux && \
 		./make-deps.sh && \
 		rm -rf build && \

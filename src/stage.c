@@ -1633,7 +1633,13 @@ void draw_stage_to_thumb(void)
 		if (i== LAYER_NAME)
 			if (!is_namebox_visible || conf_namebox_hidden)
 				continue;
+		if (i == LAYER_AUTO)
+			continue;
+		if (i == LAYER_SKIP)
+			continue;
 		if (layer_image[i] == NULL)
+			continue;
+		if (layer_alpha[i] == 0)
 			continue;
 		draw_image_scale(thumb_image,
 				 conf_window_width,
