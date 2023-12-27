@@ -67,7 +67,7 @@ We hold a grand vision for cultural growth and engage in profound discussions, b
 
 ## Suika2 Pro
 
-`Suika2 Pro Desktop` and `Suika2 Pro Mobile` are Suika2's creator tools, available for Windows, MacOS, IOS, and Linux.
+`Suika2 Pro Desktop` and `Suika2 Pro Mobile` are Suika2's creator tools, available for Windows PC, Mac, iPhone, iPad, Android phone/tablet, Chromebook and Linux.
 They provide creators with all the functionality they need, such as editing, debugging, and exporting games out of the box.
 
 ## License
