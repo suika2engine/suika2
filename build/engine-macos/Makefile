@@ -16,9 +16,9 @@ FILES_APPLE = \
 	../../src/apple/GameRenderer.m \
 	../../src/apple/GameShaders.metal
 
-main: suika-mac.zip
+main: suika-mac.dmg
 
-suika-mac.zip: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
+suika-mac.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
 	@echo "Building Suika.app"
 	@xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive archive
 	@xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/engine-macos.xcarchive -exportOptionsPlist export-options.plist
@@ -29,8 +29,12 @@ suika-mac.zip: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
 		echo "Waiting..."; \
 		sleep 10; \
 	done
-	@rm -f suika-mac.zip
-	@cd build/Release && zip -r ../../suika-mac.zip Suika.app && cd ../..
+	@rm -f suika-mac.dmg
+	@mkdir tmp
+	@cp -Rv build/Release/Suika.app tmp/
+	@hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac suika-mac.dmg
+	@codesign --sign 'Developer ID Application: Keiichi TABATA' suika-mac.dmg
+	@rm -rf tmp
 
 build-only: libroot
 	@xcodebuild -target Suika -project engine-macos.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
@@ -39,4 +43,4 @@ libroot:
 	./build-libs.sh
 
 clean:
-	@rm -rf build suika-mac.zip libroot-mac.tar.gz libroot
+	@rm -rf build suika-mac.dmg libroot-mac.tar.gz libroot

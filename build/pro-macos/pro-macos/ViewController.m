@@ -1127,7 +1127,7 @@ static ViewController *theViewController;
         return;
     }
 
-    NSArray *appArray = @[@"suika-mac.zip", @"suika.exe"];
+    NSArray *appArray = @[@"suika-mac.dmg", @"suika.exe"];
     for (NSString *sub in appArray) {
         if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/%@", [[NSBundle  mainBundle] bundlePath], sub]
                                   toPath:[NSString stringWithFormat:@"%@/export-desktop/%@", [fileManager currentDirectoryPath], sub]
@@ -1305,9 +1305,6 @@ static ViewController *theViewController;
     // テキストビューにテキストを設定する
     _isFirstChange = TRUE;
     self.textViewScript.string = text;
-
-    // 複数行の変更があったことを記録する
-    _isRangedChange = TRUE;
 }
 
 // テキストビューの内容を元にスクリプトモデルを更新する

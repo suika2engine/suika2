@@ -64,6 +64,7 @@
 		2610CD182B287ACD00300004 /* cmd_cha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDC2B287ACD00300004 /* cmd_cha.c */; };
 		2610CD192B287ACD00300004 /* cmd_setsave.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDD2B287ACD00300004 /* cmd_setsave.c */; };
 		2610CD1A2B287ACD00300004 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 2610CCDF2B287ACD00300004 /* log.c */; };
+		2617DE232B3C5EB2006F4211 /* suika-mac.dmg in Resources */ = {isa = PBXBuildFile; fileRef = 2617DE222B3C5EB2006F4211 /* suika-mac.dmg */; };
 		26495D112B2A7BFD0050EDDF /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0C2B2A7BFD0050EDDF /* GameShaders.metal */; };
 		26495D122B2A7BFD0050EDDF /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0D2B2A7BFD0050EDDF /* GameRenderer.m */; };
 		26495D132B2A7BFD0050EDDF /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0F2B2A7BFD0050EDDF /* aunit.c */; };
@@ -82,7 +83,6 @@
 		26A1BAF32B2AD7D700761444 /* index.js in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF02B2AD7D700761444 /* index.js */; };
 		26A1BAF42B2AD7D700761444 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF12B2AD7D700761444 /* index.html */; };
 		26A1BAF52B2AD7D700761444 /* index.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF22B2AD7D700761444 /* index.wasm */; };
-		26A1BAF72B2AD7E700761444 /* suika-mac.zip in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF62B2AD7E700761444 /* suika-mac.zip */; };
 		26A1BAF92B2AD7F600761444 /* suika.exe in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF82B2AD7F600761444 /* suika.exe */; };
 		26F4E5AF2B32CE61003E4B5A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26F4E5B12B32CE61003E4B5A /* Main.storyboard */; };
 /* End PBXBuildFile section */
@@ -173,6 +173,7 @@
 		2610CCDD2B287ACD00300004 /* cmd_setsave.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd_setsave.c; path = ../../src/cmd_setsave.c; sourceTree = "<group>"; };
 		2610CCDE2B287ACD00300004 /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../src/glyph.h; sourceTree = "<group>"; };
 		2610CCDF2B287ACD00300004 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = ../../src/log.c; sourceTree = "<group>"; };
+		2617DE222B3C5EB2006F4211 /* suika-mac.dmg */ = {isa = PBXFileReference; lastKnownFileType = file; name = "suika-mac.dmg"; path = "../../engine-macos/suika-mac.dmg"; sourceTree = "<group>"; };
 		26495D0A2B2A7BFD0050EDDF /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/apple/GameViewControllerProtocol.h; sourceTree = "<group>"; };
 		26495D0B2B2A7BFD0050EDDF /* aunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aunit.h; path = ../../src/apple/aunit.h; sourceTree = "<group>"; };
 		26495D0C2B2A7BFD0050EDDF /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/apple/GameShaders.metal; sourceTree = "<group>"; };
@@ -202,7 +203,6 @@
 		26A1BAF02B2AD7D700761444 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = "../../engine-wasm/html/index.js"; sourceTree = "<group>"; };
 		26A1BAF12B2AD7D700761444 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = "../../engine-wasm/html/index.html"; sourceTree = "<group>"; };
 		26A1BAF22B2AD7D700761444 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
-		26A1BAF62B2AD7E700761444 /* suika-mac.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "suika-mac.zip"; path = "../../engine-macos/suika-mac.zip"; sourceTree = "<group>"; };
 		26A1BAF82B2AD7F600761444 /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
 		26B673AD2B3562DA00E83202 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		26B673AF2B3562DC00E83202 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
@@ -316,7 +316,7 @@
 		2610CD1B2B287C9100300004 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				26A1BAF62B2AD7E700761444 /* suika-mac.zip */,
+				2617DE222B3C5EB2006F4211 /* suika-mac.dmg */,
 				26A1BAF82B2AD7F600761444 /* suika.exe */,
 				26A1BAF12B2AD7D700761444 /* index.html */,
 				26A1BAF02B2AD7D700761444 /* index.js */,
@@ -454,6 +454,7 @@
 				26F4E5AF2B32CE61003E4B5A /* Main.storyboard in Resources */,
 				26A1BAEC2B2AD7B200761444 /* japanese in Resources */,
 				26A1BAE32B2AD78800761444 /* ios-src in Resources */,
+				2617DE232B3C5EB2006F4211 /* suika-mac.dmg in Resources */,
 				26A1BAED2B2AD7B200761444 /* nvl in Resources */,
 				26A1BAF92B2AD7F600761444 /* suika.exe in Resources */,
 				26A1BAF52B2AD7D700761444 /* index.wasm in Resources */,
@@ -461,7 +462,6 @@
 				26A1BAEF2B2AD7B200761444 /* nvl-tategaki in Resources */,
 				26A1BAE72B2AD79E00761444 /* android-src in Resources */,
 				26A1BAF42B2AD7D700761444 /* index.html in Resources */,
-				26A1BAF72B2AD7E700761444 /* suika-mac.zip in Resources */,
 				26A1BAEE2B2AD7B200761444 /* english in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -698,7 +698,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 15.32;
+				MARKETING_VERSION = 15.36;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",
@@ -749,7 +749,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 15.32;
+				MARKETING_VERSION = 15.36;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",

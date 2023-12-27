@@ -355,9 +355,6 @@ static void setStoppedState(void);
     // テキストビューにテキストを設定する
     _isFirstChange = TRUE;
     [self.textViewScript setText:text];
-
-    // 複数行の変更があったことを記録する
-    _isRangedChange = TRUE;
 }
 
 // テキストビューの内容を元にスクリプトモデルを更新する
