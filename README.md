@@ -3,23 +3,23 @@
 
 ## What is Suika2?
 
-Suika2 is an open-source suite for developing Visual Novels, designed with a focus on cross-platform compatibility, and equipped with features and tools of production-grade quality.
+Suika2 is an open-source suite for developing visual novels; designed with a focus on cross-platform compatibility and equipped with features and tools of production-grade quality, Suika2 is perfect for both beginners and seasoned creators alike.
 
-## What are the Development Goals of Suika2?
+## What are Suika2's Development Goals?
 
-Suika2 aspires to set the benchmark for future Visual Novel Creation Tools.
-It facilitates creators to craft their projects effortlessly and efficiently, without sacrificing features and usability.
-It provides tools and features to enrich both the developer's and user's experience.
+Suika2 aspires to set a new benchmark for future visual novel creation tools, facilitating creators throughout their journey of creation.
+Effortlessness and efficiently are key concepts, and Suika2 provides that without sacrificing features or usability, providing tools
+and features to enrich both the creator and user experience.
 
-## What are the Characteristics of Suika2?
+## What are Suika2's characteristics?
 
-1. Simplicity: Suika2 enables the creation of Visual Novels in an easy and efficient manner.
-2. Speed: Apps are constructed using native technologies, ensuring resource efficiency.
-3. Cost-free: Suika2 is a FOSS (Free and Open Source Software), available for use by anyone without any hidden costs, fees, or payments.
-4. Portability: Suika2 allows games to be developed on various platforms, and its nature makes porting to any platform extremely straightforward.
-5. Cultural Value: We hold the belief that the creation of information is humanity’s true value.
-6. Ready for Commerce: Game developers can publish their games on stores and earn income. Suika2 does not charge any royalty fees!
-7. Prosperity: Our aim is to create a world where anyone can make a living with just a single computer.
+1. **Simplicity:** Suika2 enables the creation of Visual Novels in an easy and efficient manner.
+2. **Speed:** Apps are constructed using native technologies, ensuring resource efficiency.
+3. **Cost-free:** Suika2 is a FOSS (Free and Open Source Software) project, available for use by anyone without any hidden costs or fees.
+4. **Portability:** Develop, distribute, and publish on almost any platform – Suika2 defines portability.
+5. **Cultural Value:** We hold the belief that the creation of information is humanity’s true value.
+6. **Ready for Commerce:** Game developers can publish their games on stores and earn income. Suika2 does not charge any royalty fees!
+7. **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer.
 
 ## Downloads
 
@@ -58,29 +58,49 @@ Please visit [the official website](https://suika2.com/en/dl/) to obtain latest 
 
 ## Discord
 
-Our community is a cherished and invaluable space that embraces developers irrespective of their nationality, language, ethnicity, color, lineage, beliefs, gender, education, age, religion, or identity. You are undoubtedly deserving of being a part of this community and we invite you to join our server.
+Our community is a cherished and invaluable space that embraces developers, creators, and end-users irrespective of their nationality, language, ethnicity, color, lineage, beliefs, gender, education, age, religion, or identity.
+That's why we'd love you to join our community!
 
 <a href="https://discord.gg/ZmvXxE8GFg"><img src="https://discordapp.com/api/guilds/986623112617541677/widget.png?style=banner1"></a>
 
-We hold a grand vision for cultural growth and engage in profound discussions, but at our core, we are simply developers.
-We are always receptive to dialogues and conversations!
+We hold a grand vision for cultural growth and engage in profound discussions, but at our core, we are simply developers and creators, so we are always interested in dialogue and conversation!
 
 ## Suika2 Pro
 
-`Suika2 Pro Desktop` and `Suika2 Pro Mobile` are the developer tools for Suika2, available for Windows, macOS, iOS, iPadOS, Android, Chromebook and Linux.
-They provide developers with many functionalities such as editing, debugging and exporting games.
+`Suika2 Pro Desktop` and `Suika2 Pro Mobile` are Suika2's creator tools, available for Windows, MacOS, IOS, and Linux.
+They provide creators with all the functionality they need, such as editing, debugging, and exporting games out of the box.
 
 ## License
 
-This software is released under the MIT license. There is no restriction on distribution and modification of the Suika2 Source Code.
+This software is released under the MIT license. There is no restriction on distribution and or modification of the Suika2 Source Code.
 
 ## Contribution
 
-The best way to contribute this project is to use it and give us feedback. We are also open to suggestions and ideas.
+The best way to contribute to this project is to use it and give us feedback. We are always open to suggestions and ideas.
 
 ## Live Web Demo
 
 <a href="https://suika2.com/run/sample/"><img src="https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg"></a>
+
+## Usage
+
+* On Windows:
+  * Download the `exe` file from [the official site](https://suika2.com/en/) and run it.
+  * Click the `Suika2 Pro Desktop` icon on your desktop.
+
+* On Mac:
+  * Download the `dmg` file from [the official site](https://suika2.com/en/) and open it.
+  * Copy the `Suika2 Pro Desktop` app to your `Applications` folder.
+  * Open the copied app.
+
+* On Linux:
+  * You can use the `apt` command on Ubuntu:
+  ```
+  sudo add-apt-repository ppa:ktabata/ppa
+  sudo apt update
+  sudo apt install suika2
+  suika2
+  ```
 
 ## Documentation
 
@@ -92,16 +112,13 @@ The best way to contribute this project is to use it and give us feedback. We ar
 Games made with Suika2 can run on Windows PC, Mac, iPhone, iPad, Android phone/tablet, Web browser, Chromebook, Linux, *BSD, and some consoles.
 
 Suika2 consists of a platform independent core and a hardware abstraction layer (HAL).
-The core is written in ANSI C, the most portable programming language in the world.
-The implementations of HAL are currently written in C, C++, Objective-C and Java.
+The core is written in ANSI C, the most portable programming language in the world, while HAL implementations are currently written in C, C++, Objective-C, and Java.
 
-If you would like to port Suika2 to a new target platform,
-you are only required to write a thin HAL and it will take for you only one week.
+If you would like to port Suika2 to a new target platform, you only need to write a thin HAL, this is generally possible within a week.
 
-Suika2 never depends on SDKs or frameworks such as Unity, Godot or SDL2.
-This is because HAL, our compatibility layer, is very complete in its API design.
+Suika2 does not depend on SDKs or frameworks such as Unity, Godot, or SDL2, this is thanks to the extensive design of our compatibility layer's API.
 
-## CI/CD
+## Continuous Integration (CI) and Continuous Deployment
 
 * We do CI for build sanity checks on every push to the repository.
 * We will do CD with Apple's Xcode Cloud.
@@ -110,8 +127,8 @@ This is because HAL, our compatibility layer, is very complete in its API design
 ## Trivia
 
 Did you know that...
-* Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform!
-* "Suika" means "watermelon" in Japanese.
+* Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform?
+* "Suika" means "watermelon" in Japanese?
 * Suika2 is the successor to "Suika Studio":
   * [See the 2002 version here](https://github.com/ktabata/suika-studio-2002-gpl)
   * [See the 2003 version here](https://github.com/ktabata/suika-studio-2003-gpl)
@@ -119,7 +136,7 @@ Did you know that...
 
 ## Sponsors
 
-Here is the very place where you raise your banner.
+You've taken your stand, here's where you raise your banner!
 
 **Come forward**, those who resonate with our vision and are of like mind.
 
