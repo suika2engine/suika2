@@ -16,21 +16,6 @@ log.txt
 sav
 
 #
-# Top level objects
-#
-
-# Binaries
-suika.exe
-suika-64.exe
-suika-arm64.exe
-suika-studio.exe
-suika-pro.exe
-suika-capture.exe
-suika-replay.exe
-suika-mac.zip
-suika-pro.zip
-
-#
 # Main Engine
 #
 
@@ -63,8 +48,10 @@ build/engine-macos/engine-macos.xcodeproj/project.xcworkspace
 build/engine-macos/engine-macos.xcodeproj/xcshareddata
 build/engine-macos/engine-macos.xcodeproj/cuserdata
 build/engine-macos/engine-macos.xcodeproj/xcuserdata
+build/engine-macos/libroot
 build/engine-macos/libroot-mac.tar.gz
-build/engine-macos/build/
+build/engine-macos/suika-mac.dmg
+build/engine-macos/build
 
 # Wasm
 build/engine-wasm/html

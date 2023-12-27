@@ -96,9 +96,9 @@ cd ..
 #
 # Build "Suika.app".
 #
-echo "Building Suika.app (suika-mac.zip)."
+echo "Building Suika.app (suika-mac.dmg)."
 cd engine-macos
-rm -f suika-mac.zip
+rm -f suika-mac.dmg
 make
 cd ..
 
@@ -159,7 +159,7 @@ cp -Rv ../games installer-windows/games
 rm -rf installer-windows/tools
 mkdir -p installer-windows/tools
 cp -v engine-windows/suika.exe installer-windows/tools/
-cp -v engine-macos/suika-mac.zip installer-windows/tools/
+cp -v engine-macos/suika-mac.dmg installer-windows/tools/
 cp -Rv engine-android/android-src installer-windows/tools/android-src
 cp -Rv engine-ios/ios-src installer-windows/tools/ios-src
 mkdir -p installer-windows/tools/web
