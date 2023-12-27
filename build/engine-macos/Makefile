@@ -18,7 +18,10 @@ FILES_APPLE = \
 
 main: suika-mac.dmg
 
-suika-mac.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
+suika-mac.dmg: suika-mac-nosign.dmg
+	@codesign --sign 'Apple Distribution: Keiichi TABATA' suika-mac.dmg
+
+suika-mac-nosign.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
 	@echo "Building Suika.app"
 	@xcodebuild -quiet -scheme engine-macos -project engine-macos.xcodeproj -configuration Release -archivePath `pwd`/build/Release/engine-macos.xcarchive archive
 	@xcodebuild -quiet -exportArchive -archivePath `pwd`/build/Release/engine-macos.xcarchive -exportOptionsPlist export-options.plist
@@ -32,8 +35,7 @@ suika-mac.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
 	@rm -f suika-mac.dmg
 	@mkdir tmp
 	@cp -Rv build/Release/Suika.app tmp/
-	@hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac suika-mac.dmg
-	@codesign --sign 'Developer ID Application: Keiichi TABATA' suika-mac.dmg
+	@hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac suika-mac-nosign.dmg
 	@rm -rf tmp
 
 build-only: libroot

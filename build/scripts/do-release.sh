@@ -98,8 +98,9 @@ cd ..
 #
 echo "Building Suika.app (suika-mac.dmg)."
 cd engine-macos
-rm -f suika-mac.dmg
+rm -f suika-mac-nosign.dmg
 make
+mv suika-mac-nosign.dmg suika-mac.dmg
 cd ..
 
 #
