@@ -125,15 +125,12 @@
 			<br>
 			<h4>公式サイト配布 最新版</h4>
 			<p>
-				ストア版よりも新しいバージョンです。<br>
-				こちらのバージョンで新機能を搭載して、バグが減り安定したと思われるバージョンを不定期にストアへ登録申請します。<br>
-				アプリはインストーラ形式です。インストール後に起動すると、ゲームのテンプレートを選ぶことができます。<br>
-				テンプレートは日本語アドベンチャー、英語アドベンチャー、日本語横書きノベル、日本語縦書きノベルから選択でき、日本語と英語の選択はアプリ起動時のOS設定で決まります。
+				ストア版よりも新しいバージョンです。
 			</p>
 			<p>
-<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.33 (2023/12/27):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-15.33.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-15.33.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.34 (2023/12/27):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.34.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.34.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
 			</p>
 			<br>
 			<h4>公式サイト 旧版</h4>
@@ -164,20 +161,16 @@
 
 		<!-- Android -->
 		<div class="tab-pane fade" id="android-tab-pane" role="tabpanel" aria-labelledby="android-tab" tabindex="0">
-			<p>
-				<br>
-				<h3>Comming Soon!</h3>
-				<br>
-			</p>
+			<a onclick="alert('coming soon!');" href="https://play.google.com/store/apps/details?id=jp.luxion.suikapro"><img src="/img/banners/pro-android.png" style="width:min(90vw, 500px);"></a>
 		</div>
 
 		<!-- Linux/Chromebook -->
 		<div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab" tabindex="0">
-			<div style="margin-left:1em;">
+			<div style="margin-left:1em;margin-top:1em;">
 				<h3>Linux/Chromebook</h3>
-				<p>From the source code (recommended):</p>
+				<p>ソースコードからビルド (推奨):</p>
 				<pre><code>sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev<br>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>make<br>sudo make install<br>suika2</code></pre>
-				<p>From Ubuntu PPA:</p>
+				<p>Ubuntuパッケージのインストール (22.04 LTSのみ):</p>
 				<pre><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
 			</div>
 		</div>
@@ -448,6 +441,9 @@
 <hr>
 
 <div style="text-align: center;">
+  <div style="width: 100%; text-align: center;">
+		<img style="width: 50%; height: 50%;" src="/img/screenshots/micchi.png" alt="ミッチーにおまかせ">
+	</div>
 	<h3>『ミッチーにおまかせ』(マイマイさん)</h3>
   <p>
     11系列までの全演出の利用例で、スクリプトの中身が公開されています<br>
@@ -567,7 +563,7 @@
 <ul>
 	<li>制作ツール Suika2 Pro Mobile (Android)
 		<ul>
-			<li>iPhoneに相当する高スペック端末が非常に少ないため、未対応</li>
+			<li>Android 8.0以降</li>
 		</ul>
 	</li>
 	<li>出力ゲーム (Android)
@@ -590,6 +586,11 @@
 			<li>Safari (iOS/iPadOS)</li>
 		</ul>
 	</li>
+	<li>制作ツール Suika2 Studio Wasm 2024 (まだ制作中)
+		<ul>
+			<li><a href="/vls/">Google Chromeのみ対応</a></li>
+		</ul>
+	</li>
 </ul>
 
 <hr>
@@ -607,6 +608,7 @@
 			<div class="accordion-body">
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/15.34 2023/12/27 <ul> <li>Androidでのサウンドのバグを修正</li> </ul> </li>
 <li>Suika2/15.33 2023/12/27 <ul> <li>Android版Suika2 Pro Mobileを追加</li> <li>Androidでのサウンド対応を強化 (リピートやビープの制約を撤廃)</li> <li>Linux版Suika2 ProのChromeOS対応 (編集は未対応)</li> </ul> </li>
 <li>Suika2/15.32 2023/12/25 <ul> <li>ストア申請用内部バージョン</li> </ul> </li>
 <li>Suika2/15.31 2023/12/24 <ul> <li>キラキラエフェクトが消えない問題を修正 (Thanks to Ronron-san!)</li> </ul> </li>

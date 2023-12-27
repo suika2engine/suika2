@@ -8,9 +8,9 @@ android {
     ndkVersion "26.1.10909125"
     defaultConfig {
         applicationId "jp.luxion.suikapro"
-        minSdk 21
+        minSdk 33
         targetSdk 34
-        versionCode 1
+        versionCode 5
         versionName "1.0"
     }
     externalNativeBuild {
