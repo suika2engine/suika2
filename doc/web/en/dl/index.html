@@ -119,9 +119,9 @@
 			<br>
 			<h4>The Latest Distribution</h4>
 			<p>
-<!-- LATEST-VERSION-AND-DATE -->Latest Suika2/15.32 (2023/12/25):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-15.32.exe">Windows version of Suika2 Pro Desktop Installer</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-15.32.dmg">macOS version of Suika2 Pro Desktop Installer</a><br>
+<!-- LATEST-VERSION-AND-DATE -->Latest Suika2/15.34 (2023/12/27):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.34.exe">Windows version of Suika2 Pro Desktop Installer</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.34.dmg">macOS version of Suika2 Pro Desktop Installer</a><br>
 			</p>
 			<br>
 			<h4>Older Versions:</h4>
@@ -151,20 +151,16 @@
 
 		<!-- Android -->
 		<div class="tab-pane fade" id="android-tab-pane" role="tabpanel" aria-labelledby="android-tab" tabindex="0">
-			<p>
-				<br>
-				<h3>Comming Up!</h3>
-				<br>
-			</p>
+			<a href="https://play.google.com/store/apps/details?id=jp.luxion.suikapro"><img src="/img/banners/pro-android.png" style="width:min(90vw, 500px);"></a>
 		</div>
 
 		<!-- Linux/Chromebook -->
 		<div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab" tabindex="0">
-			<div style="margin-left:1em;">
+			<div style="margin-left:1em;margin-top:1em;">
 				<h3>Linux/Chromebook</h3>
-				<p>From the source code (recommended):</p>
+				<p>From the source code on Ubuntu/Debian/Chromebook (recommended):</p>
 				<pre><code>sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev<br>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>make<br>sudo make install<br>suika2</code></pre>
-				<p>From Ubuntu PPA:</p>
+				<p>Ubuntu package:</p>
 				<pre><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
 			</div>
 		</div>
@@ -608,6 +604,8 @@
 			<div class="accordion-body">
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/15.34 2023/12/27 <ul> <li>Fixed a bug where Android apps crash on a sound play</li> </ul> </li>
+<li>Suika2/15.33 2023/12/27 <ul> <li>Added Suika2 Pro Mobile for Android</li> <li>Fixed sound support on Android (add repeat and beep)</li> <li>Added ChromeOS support for Suika2 Pro Desktop for Linux (editor is not implemented)</li> </ul> </li>
 <li>Suika2/15.32 2023/12/25 <ul> <li>An internal version for store registration</li> </ul> </li>
 <li>Suika2/15.31 2023/12/24 <ul> <li>Fixed a bug that Kirakira effect remains on the screen (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.30 2023/12/23 <ul> <li>Fixed a bug of the structured syntax (Thanks to Ronron-san!)</li> <li>Fixed a problem of Kirakira effect (Thanks to Ronron-san!)</li> </ul> </li>

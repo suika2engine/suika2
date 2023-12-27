@@ -134,6 +134,9 @@ static void play_callback(SLAndroidSimpleBufferQueueItf bq, void *context)
 
 static void enqueue(int stream)
 {
+	if (wave[stream] == NULL)
+		return;
+
 	/* Set a post-finish flag if an end-of-stream was detected in a previous filling. */
 	if (pre_finish[stream]) {
 		wave[stream] = NULL;

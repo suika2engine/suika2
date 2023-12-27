@@ -1,8 +1,8 @@
 /* -*- c-basic-offset: 2; indent-tabs-mode: nil; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2022, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2022, Keiichi Tabata. All rights reserved.
  */
 
 /*

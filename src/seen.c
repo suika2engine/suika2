@@ -1,8 +1,8 @@
 /* -*- coding: utf-8; tab-width: 8; indent-tabs-mode: t; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2021, Keiichi Tabata. All rights reserved.
  */
 
 /*

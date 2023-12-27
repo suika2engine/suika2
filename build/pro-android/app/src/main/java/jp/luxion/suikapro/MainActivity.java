@@ -278,14 +278,19 @@ public class MainActivity extends ComponentActivity {
 			byte[] buffer = new byte[1024];
 			int count;
 			while((ze = zis.getNextEntry()) != null) {
-				String filename = ze.getName();
+				File f = new File(basePath, ze.getName());
+				String canonicalPath = f.getCanonicalPath();
+				if (!canonicalPath.startsWith(basePath)) {
+					throw new SecurityException("Zip Path Traversal Vulnerability");
+				}
+
 				if (ze.isDirectory()) {
-					File fmd = new File(basePath + filename);
+					File fmd = new File(canonicalPath);
 					fmd.mkdirs();
 					continue;
 				}
 
-				FileOutputStream fout = new FileOutputStream(basePath + filename);
+				FileOutputStream fout = new FileOutputStream(canonicalPath);
 				while ((count = zis.read(buffer)) != -1) {
 					fout.write(buffer, 0, count);
 				}
