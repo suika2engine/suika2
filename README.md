@@ -55,21 +55,18 @@ The best way to contribute this project is to use it and give us feedback. We ar
 ## Usage
 
 * On Windows (Suika2 Pro Desktop for Windows):
-  * Download the exe file from [the official site](https://suika2.com/en/) and run it.
-  * Click `Suika2 Pro Desktop` link on your desktop.
+  * Open [Microsoft Store](https://apps.microsoft.com/detail/XP99CQV05PR79W)
 
 * On Mac:
-  * Download the dmg file from [the official site](https://suika2.com/en/) and open it.
-  * Copy the `Suika2 Pro Desktop` app to your `Applications` folder.
-  * Open the copied app.
+  * Open [Mac App Store](https://apps.apple.com/us/app/suika2-pro-desktop/id6474658254)
 
 * On iPhone/iPad:
-  * Open [App Store](https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680)
+  * Open [App Store](https://apps.apple.com/us/app/suika2-pro-mobile/id6474521680)
 
-* On Android:
-  * Coming Soon (Google Play)
+* On Android/Chromebook:
+  * Open [Google Play](https://play.google.com/store/apps/details?id=jp.luxion.suikapro)
 
-* On Linux including ChromeOS:
+* On Linux including Chromebook:
   * You can build from the souce code:
   ```
   sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev
