@@ -171,6 +171,7 @@ src:
 	@cp ../../src/main.c android-src/app/src/main/cpp/
 	@cp ../../src/mixer.h android-src/app/src/main/cpp/
 	@cp ../../src/mixer.c android-src/app/src/main/cpp/
+	@cp ../../src/motion.h android-src/app/src/main/cpp/
 	@cp ../../src/readimage.c android-src/app/src/main/cpp/
 	@cp ../../src/readpng.c android-src/app/src/main/cpp/
 	@cp ../../src/readjpeg.c android-src/app/src/main/cpp/
