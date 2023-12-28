@@ -73,6 +73,7 @@ SRC="\
 	main.c \
 	mixer.h \
 	mixer.c \
+	motion.h \
 	package.h \
 	package.c \
 	readimage.c \
