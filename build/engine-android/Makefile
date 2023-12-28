@@ -38,6 +38,7 @@ debug:
 	@cp ../../src/main.c app/src/main/cpp/
 	@cp ../../src/mixer.h app/src/main/cpp/
 	@cp ../../src/mixer.c app/src/main/cpp/
+	@cp ../../src/motion.h app/src/main/cpp/
 	@cp ../../src/readimage.c app/src/main/cpp/
 	@cp ../../src/readpng.c app/src/main/cpp/
 	@cp ../../src/readjpeg.c app/src/main/cpp/
