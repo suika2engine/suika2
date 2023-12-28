@@ -64,6 +64,7 @@
     <ClCompile Include="..\..\src\history.c" />
     <ClCompile Include="..\..\src\image.c" />
     <ClCompile Include="..\..\src\log.c" />
+    <ClCompile Include="..\..\src\m2\emoted3d9.cc" />
     <ClCompile Include="..\..\src\main.c" />
     <ClCompile Include="..\..\src\microsoft\d3drender.cc" />
     <ClCompile Include="..\..\src\microsoft\dsound.c" />
@@ -110,6 +111,7 @@
     <ClInclude Include="..\..\src\main.h" />
     <ClInclude Include="..\..\src\microsoft\d3drender.h" />
     <ClInclude Include="..\..\src\mixer.h" />
+    <ClInclude Include="..\..\src\motion.h" />
     <ClInclude Include="..\..\src\save.h" />
     <ClInclude Include="..\..\src\scbuf.h" />
     <ClInclude Include="..\..\src\script.h" />
@@ -213,7 +215,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_MOTION;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.\;zlib;libpng;libogg\include;libvorbis\include;freetype\include;jpeg;bzip2\src;libwebp\src;%(AdditionalIncludeDirectories)
 </AdditionalIncludeDirectories>

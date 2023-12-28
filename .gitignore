@@ -6,6 +6,15 @@
 .passwd
 
 #
+# Third-party IP
+#
+
+iemote.h
+emotedriver.dll
+emotedriver.lib
+emote_test.psb
+
+#
 # Garbages
 #
 
@@ -42,6 +51,7 @@ build/engine-windows-vs2022/Debug
 build/engine-windows-vs2022/Release
 build/engine-windows-vs2022/ARM64
 build/engine-windows-vs2022/x64
+build/engine-windows-vs2022/testgame
 
 # macOS
 build/engine-macos/engine-macos.xcodeproj/project.xcworkspace

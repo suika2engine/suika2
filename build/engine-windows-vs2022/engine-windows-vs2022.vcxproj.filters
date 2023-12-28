@@ -195,6 +195,9 @@
     <ClCompile Include="..\..\src\microsoft\winmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\m2\emoted3d9.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\anime.h">
@@ -301,6 +304,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\microsoft\d3drender.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\motion.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
