@@ -2,7 +2,7 @@
 
 /*
  * E-mote support for Suika2 (Direct3D 9 version)
- * Written by Keiichi Tabata in 28th December 2023.
+ * Written by Keiichi Tabata on 28th December 2023.
  *
  * [Note]
  *  - Make sure you agreed the license of the E-mote SDK
