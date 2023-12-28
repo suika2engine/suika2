@@ -369,4 +369,6 @@ void set_motion_rotate(int index, float rot)
 {
 }
 
+};
+
 #endif
