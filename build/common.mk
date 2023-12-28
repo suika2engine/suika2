@@ -11,6 +11,7 @@ HDRS_MAIN = \
 	../../src/log.h \
 	../../src/main.h \
 	../../src/mixer.h \
+	../../src/motion.h \
 	../../src/save.h \
 	../../src/scbuf.h \
 	../../src/script.h \

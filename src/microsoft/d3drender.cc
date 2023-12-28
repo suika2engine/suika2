@@ -63,6 +63,13 @@ static float fDisplayOffsetY;
 static float fScale;
 
 //
+// デバイスロスト時のコールバック
+//
+extern "C" {
+void (*pDeviceLostCallback)(void);
+};
+
+//
 // シェーダ
 //
 
@@ -368,6 +375,9 @@ VOID D3DEndFrame(void)
 			d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 			d3dpp.Windowed = TRUE;
 			pD3DDevice->Reset(&d3dpp);
+
+			if (pDeviceLostCallback != NULL)
+				pDeviceLostCallback();
 		}
 	}
 }
@@ -759,6 +769,16 @@ static BOOL UploadTextureIfNeeded(struct image *img)
 	// アップロード完了した
 	img->need_upload = false;
 	return TRUE;
+}
+
+VOID *D3DGetDevice(void)
+{
+	return pD3DDevice;
+}
+
+VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
+{
+	pDeviceLostCallback = pFunc;
 }
 
 //

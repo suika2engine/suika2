@@ -43,6 +43,7 @@
 #include "log.h"	/* The log subsystem */
 #include "main.h"	/* The main subsystem */
 #include "mixer.h"	/* The mixer subsystem */
+#include "motion.h"	/* The motion subsystem */
 #include "save.h"	/* The save subsystem */
 #include "scbuf.h"	/* The scan conversion buffer subsystem */
 #include "script.h"	/* The scenario script subsystem */
