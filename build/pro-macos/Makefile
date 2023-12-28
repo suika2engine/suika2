@@ -59,7 +59,7 @@ build-only:
 	@touch ../engine-wasm/html/index.html
 	@touch ../engine-wasm/html/index.js
 	@touch ../engine-wasm/html/index.wasm
-	@xcodebuild -target "Suika2 Pro Desktop" -project pro-macos.xcodeproj -configuration Debug -destination "generic/platform=macOS,arch=armv8" build ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+	#@xcodebuild -target "Suika2 Pro Desktop" -project pro-macos.xcodeproj -configuration Debug -destination "generic/platform=macOS,arch=armv8" build ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
 clean:
 	@rm -rf build suika2.dmg libroot-mac.tar.gz libroot
