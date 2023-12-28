@@ -333,6 +333,8 @@ static void device_lost_callback(void)
 // Stubs (!__has_include("iemote.h")
 //
 
+extern "C" {
+
 bool init_motion(void)
 {
 	return true;
