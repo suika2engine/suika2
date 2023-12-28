@@ -117,7 +117,7 @@ cd ..
 #
 echo "Building iOS source tree."
 cd engine-ios
-./make-src.sh
+make src
 cd ..
 
 #

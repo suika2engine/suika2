@@ -20,6 +20,9 @@
 #error "We need MSVC to compile emoted3d9.cc for a C++ name mangling issue"
 #endif
 
+// Guard
+#if __has_include("iemote.h")
+
 // Suika2 Base
 extern "C" {
 #include "../suika.h"
@@ -27,7 +30,6 @@ extern "C" {
 
 // E-mote
 #include "iemote.h"
-#pragma comment(lib, "emotedriver.lib")
 
 // Windows
 #include <windows.h>
@@ -324,3 +326,49 @@ static void device_lost_callback(void)
 	if (pEmoteDevice != NULL)
 		pEmoteDevice->OnDeviceLost();
 }
+
+#else // __has_include("iemote.h")
+
+//
+// Stubs (!__has_include("iemote.h")
+//
+
+extern "C" {
+
+bool init_motion(void)
+{
+	return true;
+}
+
+bool load_motion(int index, const char *fname)
+{
+	return true;
+}
+
+void update_motion(void)
+{
+}
+
+void render_motion(void)
+{
+}
+
+void unload_motion(int index)
+{
+}
+
+void set_motion_offset(int index, int offset_x, int offset_y)
+{
+}
+
+void set_motion_scale(int index, float scale)
+{
+}
+
+void set_motion_rotate(int index, float rot)
+{
+}
+
+};
+
+#endif

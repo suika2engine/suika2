@@ -70,6 +70,7 @@ setup:
 	@cp ../../src/main.h app/src/main/cpp/
 	@cp ../../src/mixer.c app/src/main/cpp/
 	@cp ../../src/mixer.h app/src/main/cpp/
+	@cp ../../src/motion.h app/src/main/cpp/
 	@cp ../../src/package.c app/src/main/cpp/
 	@cp ../../src/package.h app/src/main/cpp/
 	@cp ../../src/pro.h app/src/main/cpp/

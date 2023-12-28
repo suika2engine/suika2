@@ -40,34 +40,6 @@ COPY_LIST="\
 	apple/aunit.h \
 	anime.c \
 	anime.h \
-	cmd_anime.c \
-	cmd_bg.c \
-	cmd_bgm.c \
-	cmd_cha.c \
-	cmd_chapter.c \
-	cmd_ch.c \
-	cmd_chs.c \
-	cmd_click.c \
-	cmd_gosub.c \
-	cmd_goto.c \
-	cmd_gui.c \
-	cmd_if.c \
-	cmd_layer.c \
-	cmd_load.c \
-	cmd_message.c \
-	cmd_pencil.c \
-	cmd_return.c \
-	cmd_se.c \
-	cmd_set.c \
-	cmd_setconfig.c \
-	cmd_setsave.c \
-	cmd_shake.c \
-	cmd_skip.c \
-	cmd_switch.c \
-	cmd_video.c \
-	cmd_vol.c \
-	cmd_wait.c \
-	cmd_wms.c \
 	conf.c \
 	conf.h \
 	event.c \
@@ -89,6 +61,7 @@ COPY_LIST="\
 	main.h \
 	mixer.c \
 	mixer.h \
+	motion.h \
 	hal.h \
 	readimage.c \
 	readpng.c \
@@ -119,6 +92,34 @@ COPY_LIST="\
 	wms_lexer.yy.c \
 	wms_parser.tab.c \
 	wms_parser.tab.h \
+	cmd_anime.c \
+	cmd_bg.c \
+	cmd_bgm.c \
+	cmd_cha.c \
+	cmd_chapter.c \
+	cmd_ch.c \
+	cmd_chs.c \
+	cmd_click.c \
+	cmd_gosub.c \
+	cmd_goto.c \
+	cmd_gui.c \
+	cmd_if.c \
+	cmd_layer.c \
+	cmd_load.c \
+	cmd_message.c \
+	cmd_pencil.c \
+	cmd_return.c \
+	cmd_se.c \
+	cmd_set.c \
+	cmd_setconfig.c \
+	cmd_setsave.c \
+	cmd_shake.c \
+	cmd_skip.c \
+	cmd_switch.c \
+	cmd_video.c \
+	cmd_vol.c \
+	cmd_wait.c \
+	cmd_wms.c \
 "
 for f in $COPY_LIST; do
     cp "../../src/$f" "$TARGET/src/$f";

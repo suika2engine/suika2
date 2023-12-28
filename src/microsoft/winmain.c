@@ -240,6 +240,11 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	if (conf_tts_enable)
 		InitSAPI();
 
+	if (!init_motion())
+		return FALSE;
+
+	load_motion(0, "emote_test.psb");
+
 	return TRUE;
 }
 
@@ -495,6 +500,10 @@ static BOOL RunFrame(void)
 		bRet = FALSE;
 		bRunFrameAllow = FALSE;
 	}
+
+	set_motion_scale(0, 0.5f);
+	update_motion();
+	render_motion();
 
 	/* フレームの描画を終了する */
 	D3DEndFrame();
