@@ -49,6 +49,8 @@ libroot:
 	./build-libs.sh
 
 build-only:
+	@curl -O https://suika2.com/dl/libroot-mac.tar.gz
+	@tar xzf libroot-mac.tar.gz
 	@touch ../engine-windows/suika.exe
 	@touch ../engine-macos/suika-mac.dmg
 	@mkdir -p ../engine-ios/ios-src
@@ -57,7 +59,7 @@ build-only:
 	@touch ../engine-wasm/html/index.html
 	@touch ../engine-wasm/html/index.js
 	@touch ../engine-wasm/html/index.wasm
-	@xcodebuild -target "Suika2 Pro Desktop" -project pro-macos.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+	@xcodebuild -target "Suika2 Pro Desktop" -project pro-macos.xcodeproj -configuration Debug -destination "generic/platform=macOS" build ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
 clean:
 	@rm -rf build suika2.dmg libroot-mac.tar.gz libroot
