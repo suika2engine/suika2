@@ -340,8 +340,6 @@ static bool init_motion(void)
 
 static bool load_motion(int index, const char *fname)
 {
-	UNUSED_PARAMETER(index);
-	UNUSED_PARAMETER(fname);
 	return true;
 }
 
@@ -355,26 +353,18 @@ static void render_motion(void)
 
 static void unload_motion(int index)
 {
-	UNUSED_PARAMETER(index);
 }
 
 static void set_motion_offset(int index, int offset_x, int offset_y)
 {
-	UNUSED_PARAMETER(index);
-	UNUSED_PARAMETER(offset_x);
-	UNUSED_PARAMETER(offset_y);
 }
 
 static void set_motion_scale(int index, float scale)
 {
-	UNUSED_PARAMETER(index);
-	UNUSED_PARAMETER(scale);
 }
 
 static void set_motion_rotate(int index, float rot)
 {
-	UNUSED_PARAMETER(index);
-	UNUSED_PARAMETER(rot);
 }
 
 #endif
