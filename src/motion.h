@@ -54,6 +54,9 @@ static __inline void unload_motion(int index)
 
 static __inline void set_motion_offset(int index, int offfset_x, int offset_y)
 {
+	UNUSED_PARAMETER(index);
+	UNUSED_PARAMETER(offset_x);
+	UNUSED_PARAMETER(offset_y);
 }
 
 static __inline void set_motion_scale(int index, float scale)
