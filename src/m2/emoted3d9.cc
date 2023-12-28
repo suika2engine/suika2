@@ -333,37 +333,37 @@ static void device_lost_callback(void)
 // Stubs (!__has_include("iemote.h")
 //
 
-static bool init_motion(void)
+bool init_motion(void)
 {
 	return true;
 }
 
-static bool load_motion(int index, const char *fname)
+bool load_motion(int index, const char *fname)
 {
 	return true;
 }
 
-static void update_motion(void)
+void update_motion(void)
 {
 }
 
-static void render_motion(void)
+void render_motion(void)
 {
 }
 
-static void unload_motion(int index)
+void unload_motion(int index)
 {
 }
 
-static void set_motion_offset(int index, int offset_x, int offset_y)
+void set_motion_offset(int index, int offset_x, int offset_y)
 {
 }
 
-static void set_motion_scale(int index, float scale)
+void set_motion_scale(int index, float scale)
 {
 }
 
-static void set_motion_rotate(int index, float rot)
+void set_motion_rotate(int index, float rot)
 {
 }
 
