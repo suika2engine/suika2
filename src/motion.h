@@ -21,7 +21,7 @@ bool load_motion(int index, const char *fname);
 void update_motion(void);
 void render_motion(void);
 void unload_motion(int index);
-void set_motion_offset(int index, int offfset_x, int offset_y);
+void set_motion_offset(int index, int offset_x, int offset_y);
 void set_motion_scale(int index, float scale);
 void set_motion_rotate(int index, float rot);
 
@@ -52,7 +52,7 @@ static __inline void unload_motion(int index)
 	UNUSED_PARAMETER(index);
 }
 
-static __inline void set_motion_offset(int index, int offfset_x, int offset_y)
+static __inline void set_motion_offset(int index, int offset_x, int offset_y)
 {
 	UNUSED_PARAMETER(index);
 	UNUSED_PARAMETER(offset_x);
