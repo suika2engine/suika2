@@ -3,9 +3,32 @@ SHELL=/bin/bash
 SRC = \
 	../../src/wasm/emedit.c \
 	../../src/wasm/emfile.c \
-	../../src/wasm/emopenal.c \
+	../../src/wasm/alsound.c \
 	../../src/khronos/glrender.c \
 	../../src/anime.c \
+	../../src/conf.c \
+	../../src/event.c \
+	../../src/glyph.c \
+	../../src/gui.c \
+	../../src/history.c \
+	../../src/image.c \
+	../../src/log.c \
+	../../src/main.c \
+	../../src/mixer.c \
+	../../src/readimage.c \
+	../../src/readpng.c \
+	../../src/readjpeg.c \
+	../../src/save.c \
+	../../src/scbuf.c \
+	../../src/script.c \
+	../../src/seen.c \
+	../../src/stage.c \
+	../../src/vars.c \
+	../../src/wave.c \
+	../../src/wms_core.c \
+	../../src/wms_impl.c \
+	../../src/wms_lexer.yy.c \
+	../../src/wms_parser.tab.c \
 	../../src/cmd_anime.c \
 	../../src/cmd_bg.c \
 	../../src/cmd_bgm.c \
@@ -34,29 +57,6 @@ SRC = \
 	../../src/cmd_vol.c \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c \
-	../../src/conf.c \
-	../../src/event.c \
-	../../src/glyph.c \
-	../../src/gui.c \
-	../../src/history.c \
-	../../src/image.c \
-	../../src/log.c \
-	../../src/main.c \
-	../../src/mixer.c \
-	../../src/readimage.c \
-	../../src/readpng.c \
-	../../src/readjpeg.c \
-	../../src/save.c \
-	../../src/scbuf.c \
-	../../src/script.c \
-	../../src/seen.c \
-	../../src/stage.c \
-	../../src/vars.c \
-	../../src/wave.c \
-	../../src/wms_core.c \
-	../../src/wms_impl.c \
-	../../src/wms_lexer.yy.c \
-	../../src/wms_parser.tab.c
 
 all: html
 

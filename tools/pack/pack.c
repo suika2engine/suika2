@@ -153,3 +153,14 @@ void translate_failed_command_to_message(int index)
 void dbg_set_error_state(void)
 {
 }
+
+int dbg_get_parse_error_count(void)
+{
+	return 0;
+}
+
+void translate_command_to_message_for_runtime_error(int index)
+{
+	(void)index;
+}
+

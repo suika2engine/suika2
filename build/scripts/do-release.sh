@@ -98,9 +98,10 @@ cd ..
 #
 echo "Building Suika.app (suika-mac.dmg)."
 cd engine-macos
-rm -f suika-mac-nosign.dmg
-make
-mv suika-mac-nosign.dmg suika-mac.dmg
+rm -f suika-mac.dmg suika-mac-nosign.dmg
+make suika-mac.dmg
+cp suika-mac.dmg suika-mac-nosign.dmg
+codesign --sign 'Developer ID Application: Keiichi TABATA' suika-mac.dmg
 cd ..
 
 #
@@ -203,3 +204,8 @@ echo "Updating the Web site."
 SAVE_DIR=`pwd`
 cd ../doc/web && ./update-templates.sh && ./update-version.sh && ./upload.sh
 cd "$SAVE_DIR"
+
+#
+# Restore a non-signed dmg for a store release.
+#
+mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
