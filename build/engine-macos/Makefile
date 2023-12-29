@@ -32,7 +32,7 @@ suika-mac.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_APPLE)
 	@rm -f suika-mac.dmg
 	@mkdir tmp
 	@cp -Rv build/Release/Suika.app tmp/
-	@hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac suika-mac-nosign.dmg
+	@hdiutil create -fs HFS+ -format UDBZ -srcfolder tmp -volname suika-mac suika-mac.dmg
 	@rm -rf tmp
 
 build-only: libroot
