@@ -1925,7 +1925,7 @@ static bool reparse_smode(int index, int *end_index)
 	/* 行ごとに処理する */
 	while (true) {
 		index++;
-		if (index == cmd_size)
+		if (index >= cmd_size)
 			break;
 
 		/* メッセージ行として処理された拡張構文の行以外はスキップする */
@@ -2073,7 +2073,6 @@ static bool reparse_smode_line(int index, int state, int *accepted, int *end_ind
 
 	/* 字下げされた行はメッセージになっているので、本来のコマンドに変換する */
 	int orig = cmd_size;
-	assert(cmd[index].type == COMMAND_MESSAGE);
 	if (spaces > 0) {
 		if (!reparse_normal_line(index, spaces))
 			return false;
@@ -2179,7 +2178,9 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 #if defined(__GNUC__) && __GNUC__ >= 13 && !defined(__llvm__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
 	smode_target_finally = finally_label;
+#if defined(__GNUC__) && __GNUC__ >= 13 && !defined(__llvm__)
 #pragma GCC diagnostic pop
 #endif
 	smode_target_case = NULL;
@@ -2188,7 +2189,7 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 	cur_opt = 0;
 	while (true) {
 		index++;
-		if (index == cmd_size)
+		if (index >= cmd_size)
 			break;
 
 		/* ステートと移動先ラベルを設定する */
@@ -2197,7 +2198,9 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 #if defined(__GNUC__) && __GNUC__ >= 13 && !defined(__llvm__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
 			smode_target_case = label[cur_opt];
+#if defined(__GNUC__) && __GNUC__ >= 13 && !defined(__llvm__)
 #pragma GCC diagnostic pop
 #endif
 		} else {
@@ -2232,20 +2235,30 @@ static bool reparse_case_block(int index, const char *raw, int *end_index)
 {
 	char tmp_command[GEN_CMD_SIZE];
 	int state, accepted, ret_index;
+	char *raw_copy;
+
+	raw_copy = strdup(raw);
+	if (raw_copy == NULL) {
+		log_memory();
+		return NULL;
+	}
 
 	/* ラベルコマンドを生成して格納する */
 	snprintf(tmp_command,
 		 sizeof(tmp_command),
 		 ":%s",
 		 smode_target_case);
-	if (!parse_label(raw, tmp_command, 0, index))
+	if (!parse_label(raw_copy, tmp_command, 0, index)) {
+		free(raw_copy);
 		return false;
+	}
+	free(raw_copy);
 
 	/* breakが現れるまで読み込む */
 	state = SMODE_ACCEPT_BREAK | SMODE_ACCEPT_IF | SMODE_ACCEPT_SWITCH;
 	while (true) {
 		index++;
-		if (index == cmd_size)
+		if (index >= cmd_size)
 			break;
 
 		/* 行を処理する */
@@ -2394,7 +2407,7 @@ static bool reparse_if_block(int index, char *params, int *end_index)
 	/* ifブロックが終了するまで読み込む */
 	while (true) {
 		index++;
-		if (index == cmd_size)
+		if (index >= cmd_size)
 			break;
 
 		/* 行を処理する */
@@ -2823,8 +2836,10 @@ const char *get_line_string_at_line_num(int line)
 
 	/* コマンドを探す */
 	for (i = 0; i < cmd_size; i++) {
-		if (cmd[i].expanded_line == line)
+		if (cmd[i].expanded_line == line) {
+			assert(cmd[i].text != NULL);
 			return cmd[i].text;
+		}
 		if (cmd[i].expanded_line > line)
 			break;
 	}
