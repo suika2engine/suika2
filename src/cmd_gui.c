@@ -92,6 +92,11 @@ static bool init(void)
 		show_msgbox(false);
 	}
 
+	if (is_auto_mode())
+		stop_auto_mode();
+	if (is_skip_mode())
+		stop_skip_mode();
+
 	/* 繰り返し処理を開始する */
 	start_command_repetition();
 
