@@ -1297,7 +1297,8 @@ static ViewController *theViewController;
     // 行を連列してスクリプト文字列を作成する
     NSString *text = @"";
     for (int i = 0; i < get_line_count(); i++) {
-        NSString *line = [[NSString alloc] initWithUTF8String:get_line_string_at_line_num(i)];
+        const char *cstr = get_line_string_at_line_num(i);
+        NSString *line = [[NSString alloc] initWithUTF8String:cstr];
         text = [text stringByAppendingString:line];
         text = [text stringByAppendingString:@"\n"];
     }
