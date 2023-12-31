@@ -409,10 +409,7 @@ static bool create_window(void)
 {
 	XSizeHints *sh;
 	XTextProperty tp;
-	int screen, ret;
-
-	/* ディスプレイの情報を取得する */
-	screen = DefaultScreen(display);
+	int ret;
 
 	/* ウィンドウのタイトルを設定する */
 	ret = XmbTextListToTextProperty(display, &conf_window_title, 1,
