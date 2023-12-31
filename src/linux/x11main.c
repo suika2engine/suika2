@@ -411,14 +411,11 @@ static bool create_window(void)
 	Window root;
 	XSizeHints *sh;
 	XTextProperty tp;
-	unsigned long black, white;
 	int screen, ret;
 
 	/* ディスプレイの情報を取得する */
 	screen = DefaultScreen(display);
 	root  = RootWindow(display, screen);
-	black = BlackPixel(display, screen);
-	white = WhitePixel(display, screen);
 
 	/* ウィンドウのタイトルを設定する */
 	ret = XmbTextListToTextProperty(display, &conf_window_title, 1,
@@ -1150,14 +1147,6 @@ char *make_valid_path(const char *dir, const char *fname)
 	strcat(buf, fname);
 
 	return buf;
-}
-
-/*
- * バックイメージを取得する
- */
-struct image *get_back_image(void)
-{
-	return back_image;
 }
 
 /*
