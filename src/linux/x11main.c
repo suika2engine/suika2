@@ -407,14 +407,12 @@ static void close_display(void)
 /* ウィンドウを作成する */
 static bool create_window(void)
 {
-	Window root;
 	XSizeHints *sh;
 	XTextProperty tp;
 	int screen, ret;
 
 	/* ディスプレイの情報を取得する */
 	screen = DefaultScreen(display);
-	root  = RootWindow(display, screen);
 
 	/* ウィンドウのタイトルを設定する */
 	ret = XmbTextListToTextProperty(display, &conf_window_title, 1,
