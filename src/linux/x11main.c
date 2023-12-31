@@ -66,18 +66,13 @@
 /*
  * フレーム調整のための時間
  */
-#define FRAME_MILLI	(33)	/* 1フレームの時間 */
+#define FRAME_MILLI	(16)	/* 1フレームの時間 */
 #define SLEEP_MILLI	(5)	/* 1回にスリープする時間 */
 
 /*
  * ログ1行のサイズ
  */
 #define LOG_BUF_SIZE	(4096)
-
-/*
- * OpenGLを利用するか
- */
-static int is_opengl;
 
 /*
  * GLXオブジェクト
@@ -162,13 +157,7 @@ static Display *display;
 static Window window = BadAlloc;
 static Pixmap icon = BadAlloc;
 static Pixmap icon_mask = BadAlloc;
-static XImage *ximage;
 static Atom delete_message = BadAlloc;
-
-/*
- * 背景イメージ
- */
-static struct image *back_image;
 
 /*
  * フレーム開始時刻
@@ -223,7 +212,6 @@ static int get_key_code(XEvent *event);
 static void event_button_press(XEvent *event);
 static void event_button_release(XEvent *event);
 static void event_motion_notify(XEvent *event);
-static void event_expose(XEvent *event);
 
 /*
  * メイン
@@ -419,30 +407,9 @@ static void close_display(void)
 /* ウィンドウを作成する */
 static bool create_window(void)
 {
-	Window root;
 	XSizeHints *sh;
 	XTextProperty tp;
-	unsigned long black, white;
-	int screen, ret;
-
-	/* ディスプレイの情報を取得する */
-	screen = DefaultScreen(display);
-	root  = RootWindow(display, screen);
-	black = BlackPixel(display, screen);
-	white = WhitePixel(display, screen);
-
-	/* ウィンドウを作成する (OpenGLを使用する場合ウィンドウは作成済み) */
-	if (!is_opengl) {
-		window = XCreateSimpleWindow(display, root, 0, 0,
-					     (unsigned int)conf_window_width,
-					     (unsigned int)conf_window_height,
-					     1, black, white);
-		if (window == BadAlloc || window == BadMatch ||
-		    window == BadValue || window == BadWindow) {
-			log_api_error("XCreateSimpleWindow");
-			return false;
-		}
-	}
+	int ret;
 
 	/* ウィンドウのタイトルを設定する */
 	ret = XmbTextListToTextProperty(display, &conf_window_title, 1,
@@ -759,7 +726,7 @@ static bool wait_for_next_frame(void)
 	struct timeval tv_end;
 	uint32_t lap, wait, span;
 
-	span = is_opengl ? FRAME_MILLI / 2 : FRAME_MILLI;
+	span = FRAME_MILLI;
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -818,9 +785,6 @@ static bool next_event(void)
 		break;
 	case MotionNotify:
 		event_motion_notify(&event);
-		break;
-	case Expose:
-		event_expose(&event);
 		break;
 	case MappingNotify:
 		XRefreshKeyboardMapping(&event.xmapping);
@@ -953,20 +917,6 @@ static void event_motion_notify(XEvent *event)
 {
 	/* イベントをディスパッチする */
 	on_event_mouse_move(event->xmotion.x, event->xmotion.y);
-}
-
-/* Exposeイベントを処理する */
-static void event_expose(XEvent *event)
-{
-	if (event->xexpose.count == 0) {
-		if (!is_opengl) {
-			GC gc = XCreateGC(display, window, 0, 0);
-			XPutImage(display, window, gc, ximage, 0, 0, 0, 0,
-				  (unsigned int)conf_window_width,
-				  (unsigned int)conf_window_height);
-			XFreeGC(display, gc);
-		}
-	}
 }
 
 /*
@@ -1188,14 +1138,6 @@ char *make_valid_path(const char *dir, const char *fname)
 	strcat(buf, fname);
 
 	return buf;
-}
-
-/*
- * バックイメージを取得する
- */
-struct image *get_back_image(void)
-{
-	return back_image;
 }
 
 /*
