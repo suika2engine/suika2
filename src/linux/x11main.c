@@ -212,7 +212,6 @@ static int get_key_code(XEvent *event);
 static void event_button_press(XEvent *event);
 static void event_button_release(XEvent *event);
 static void event_motion_notify(XEvent *event);
-static void event_expose(XEvent *event);
 
 /*
  * メイン
