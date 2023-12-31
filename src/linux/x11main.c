@@ -791,9 +791,6 @@ static bool next_event(void)
 	case MotionNotify:
 		event_motion_notify(&event);
 		break;
-	case Expose:
-		event_expose(&event);
-		break;
 	case MappingNotify:
 		XRefreshKeyboardMapping(&event.xmapping);
 		break;
