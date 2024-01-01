@@ -1,186 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>Suika2 | Frequently Asked Questions</title>
-	<meta name="description" content="This is an FAQ of Suika2.">
+
+<head>
+
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+
+
+	<link href="https://cdn.jsdelivr.net/npm/beercss@3.4.11/dist/cdn/beer.min.css" rel="stylesheet">
+	<script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.4.11/dist/cdn/beer.min.js" defer></script>
+
+
+	<title>Suika2 | Visual Novel Game Engine</title>
+	<meta name="description" content="Suika2 is a visual novel game engine.">
 	<meta name="theme-color" content="#eb8334">
 
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-	<link rel="stylesheet" href="/css/bootstrap.css">
-	<link rel="stylesheet" href="/css/adjustments.css">
-	<script src="/js/bootstrap.bundle.min.js"></script>
 
 	<!-- INSERT-GTAG-HERE -->
+
+
 </head>
+
+
 <body>
 
-<!-- BEGIN-EN-HEADER -->
-<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
-	<div class="container">
-		<a class="navbar-brand d-none d-md-block" href="/en/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/">Home</a></li>
-        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/dl/">Downloads</a></li>
-				<li class="nav-item dropdown" aria-current="page">
-					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Document
-					</a>
-					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-						<li><a class="dropdown-item" href="/en/doc/">Index</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/?Tutorial">Tutorial</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/?Command+Reference">Command Reference</a></li>
-						<li><a class="dropdown-item" href="/en/doc/title.html">Title Creation</a></li>
-						<li><a class="dropdown-item" href="/en/doc/font.html">Font Change</a></li>
-						<li><a class="dropdown-item" href="/en/doc/wms.html">WMS Usage</a></li>
-						<li><a class="dropdown-item" href="/en/doc/faq.html">FAQ</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/">Wiki Top</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/?cmd=search">Search</a></li>
-					</ul>
-				</li>
-        <li class="nav-item"><a class="nav-link" href="/en/works/">Works</a></li>
-        <li class="nav-item"><a class="nav-link" href="/">Japanese</a></li>
-        <li class="nav-item dropdown d-block d-md-none">
-          <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
-            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
-            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
-            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
-          </ul>
-        </li>
-      </ul>
-      <li class="nav-item dropdown d-none d-md-block">
-        <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
-          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
-          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
-          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
-        </ul>
-      </li>
-		</div>
-	</div>
-</nav>
-<!-- END-EN-HEADER -->
-  
-<!-- Title Strip -->
-<div class="block">
-	<div class="container">
-		<div class="row">
-			<div class="col-md">
-				<h1>Suika2 Frequently Asked Questions</h1>
-				<p>This is an FAQ of Suika2.</p>
-			</div>
-		</div>
-	</div>
-</div>
 
-<!-- BEGIN CONTENT -->
-<div class="container"><!-- Main content START -->
-  <div class="row"><!-- Row START -->
-    <div class="col-xs-12 col-sm-12 col-md-12"><!-- Col START -->
-<!-- ------------- -->
-
-<h1 class="spacer">Suika2 FAQ</h1>
-
-<h2>How can I distribute a game?</h2>
-<p>You can distribute a game as a ZIP file.</p>
-<ul>
-  <li>Create a ZIP file which includes <code>data01.arc</code>, <code>suika.exe</code> and <code>COPYING</code></li>
-  <li>If you use movies, add the <code>mov</code> folder to the ZIP file.</li>
-  <li>If you plan to support Mac, add <code>mac.dmg</code> to the ZIP file.</li>
-</ul>
-
-<h2>Can I change the file name of <code>suika.exe</code>?</h2>
-<p>Yes, you can.</p>
-
-<h2>Can I change the icon of <code>suika.exe</code>?</h2>
-<p>
-	Yes. You can use <a href="http://www.angusj.com/resourcehacker/">Resource Hacker</a> to change the icon file.
-	However, if you change the icon, you have to sign the app by yourself.
-	If you don't have a code signing certificate, please send me an e-mail.
-</p>
-<p>
-	For Mac distributions, changing the icon breaks code signing and notarization.
-	You must register your application with the Apple Developer Program (not as Suika2).
-  If you don't have an ADP certificate, contact us and we'll do it for you!
-</p>
-
-<div class="alert alert-info">
-  <p class="m-0 p-0">Ready to distribute? Contact us and we'll make sure that your icon and application name are correctly set.</p>
-</div>
-
-<h2>Which bitrate should I use for sound files?</h2>
-<p>
-	In the demo game, we use 128kbps stereo and 64kbps monaural.
-</p>
-
-<h2>Flag management is hard work.</h2>
-<p>
-	I recommend to use Microsoft Excel or Google Spreadsheets to manage flags.
-	Also, add comments to your scripts when you use <code>@set</code> and <code>@if</code> commands.
-</p>
-
-<h2>Why does Suika2 runs so quickly?</h2>
-<p>
-	Firstly, it's because we write native C code for each platform.
-	We don't use Python, HTML5 or JavaScript for cross-platform support.
-	C is apparently the fastest language at runtime,
-	but it takes a bit of time and effort to portion.
-	In near future, we would like to port Suika2 to game console.
-</p>
-<p>
-	Secondly, Suika2 has the rendering engine which automatically chooses
-	the fastest instruction extension	CPU has.
-</p>
-<p>
-	Finally, Suika2 reduces the frame rate to 30fps,
-	and it enables a significant reduction in CPU usage.
-	While 60fps is the standard of games,
-	we consider 30fps is enough for visual novels.
-</p>
-
-<h2>Does Suika2 use GPU?</h2>
-<p>
-	Before 2.9.8, we used to use software rendering engine on Windows and Mac.<br>
-	From 2.9.8, we decided to use OpenGL for GPU rendering on Windows and Mac.<br>
-	From 2.9.10, we use Direct3D 9 by default on Windows.<br>
-	If your PC doesn't support Direct3D 9 or OpenGL, we use software rendering.
-</p>
-
-<!-- ----------- -->
-		</div>
-	</div>
-</div>
-<!-- END_CONTENT -->
-
-<!-- BEGIN-EN-FOOTER -->
-<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
-  <div class="container">
-		<div class="row">
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>Suika2 Visual Novel Game Engine</h5>
-				<p>An open-source, cross-platform visual novel development suite.</p>
-			</div>
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>Links</h5>
-				<ul class="list-unstyled mb-0">
-					<li><a href="https://github.com/suika2engine/suika2">GitHub</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-	<div class="text-center mt-5 ">
-		Copyright &copy; 2001-2023, Keiichi Tabata. All rights reserved.
-	</div>
+	<!-- BEGIN-EN-HEADER -->
+<footer class="secondary medium-padding m l">
+    <nav style="width: 75%; margin: auto;">
+        <i>info</i>
+        <p>Welcome to the new-look suika2.com/en!</p>
+    </nav>
 </footer>
-<script src="/css/darkmode.js"></script>
-<!-- END-EN-FOOTER -->
+<footer class="secondary medium-padding s">
+    <nav>
+        <i>info</i>
+        <p>Welcome to the new-look suika2.com/en!</p>
+    </nav>
+</footer>
+
+
+<footer class="m l">
+    <nav style="width: 75%; margin: auto;">
+        <button class="transparent small-round"><img class="responsive" style="margin: auto;" src="/img/icons/suika.png"></button>
+        <a href="/en/" class="button transparent small-round"><i>home</i>Home</a>
+        <a href="/en/dl/" class="button transparent small-round"><i>download</i>Downloads</a>
+        <button data-ui="#menu_help" class="button transparent small-round"><i>help</i><span>Help</span><i>arrow_drop_down</i>
+            <menu id="menu_help" class="no-wrap">
+                <a href="/en/doc/">Index</a>
+                <a href="/en/wiki/?Tutorial">Tutorial</a>
+                <a href="/en/wiki/?Command+Reference">Command Reference</a>
+                <a href="/en/doc/title.html">Title Creation (Under Translation)</a>
+                <a href="/en/doc/font.html">Font Change (Under Translation)</a>
+                <a href="/en/doc/wms.html">WMS Usage (Under Translation)</a>
+                <a href="/en/doc/faq.html">FAQ</a>
+                <a href="/en/wiki/">Wiki Top</a>
+                <a href="/en/wiki/?cmd=search">Search</a>
+            </menu>
+        </button>
+        <a href="/en/works/" class="button transparent small-round"><i>gamepad</i>Works</a>
+        <a href="/" class="button transparent small-round">日本語</a>
+        <div class="max"></div>
+        <button id="btn_theme" class="square round extra secondary-container"><i>dark_mode</i></button>
+    </nav>
+</footer>
+
+
+<footer class="s">
+    <nav>
+        <button class="transparent small-round">
+            <img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
+        </button>
+        <div class="max"></div>
+        <button class="square round extra secondary-container" data-ui="#drawer_mobile"><i>menu</i></button>
+    </nav>
+</footer>
+
+
+<dialog class="left no-padding no-round" id="drawer_mobile">
+    <nav class="drawer">
+        <header>
+            <nav>
+                <img class="circle" src="/img/icons/suika.png">
+                <h6 class="max">Suika2</h6>
+                <button class="transparent large small-round" data-ui="#drawer_mobile"><i>close</i></button>
+            </nav>
+        </header>
+        <a href="/en/" class="button transparent small-round"><i>home</i>Home</a>
+        <a href="/en/dl/" class="button transparent small-round"><i>download</i>Downloads</a>
+        <a href="/en/doc/" class="button transparent small-round"><i>help</i>Help</a>
+        <a href="/en/works/" class="button transparent small-round"><i>gamepad</i>Works</a>
+        <a href="/" class="button transparent small-round">日本語</a>
+        <div class="max"></div>
+        <button id="btn_theme_mobile" class="square round extra secondary-container"><i>dark_mode</i></button>
+    </nav>
+</dialog></dialog></dialog>	<!-- END-EN-HEADER -->
+
+
+	<!-- Title Strip -->
+	<footer class="medium-padding m l">
+		<div style="width: 75%; margin: auto;">
+			<h3>Suika2 Frequently Asked Questions</h3>
+			<p class="large-text large-line">Suika2's most frequently asked questions, all in one place.</p>
+		</div>
+	</footer>
+	<footer class="medium-padding s">
+		<div>
+			<h3>Suika2 Frequently Asked Questions</h3>
+			<p class="large-text large-line">Suika2's most frequently asked questions, all in one place.</p>
+		</div>
+	</footer>
+
+
+	<!-- BEGIN-CONTENT -->
+	<main style="width: 75%; margin: auto;">
+
+
+		<div class="large-padding"></div>
+
+
+		<!-- ------------------------- -->
+
+
+		<h4>How can I distribute a game?</h4>
+		<p class="large-line large-text">
+			You can distribute a game as a ZIP file.
+		</p>
+		<ul class="large-line large-text">
+			<li>Create a ZIP file which includes <code>data01.arc</code>, <code>suika.exe</code> and <code>COPYING</code></li>
+			<li>If you use movies, add the <code>mov</code> folder to the ZIP file.</li>
+			<li>If you plan to support Mac, add <code>mac.dmg</code> to the ZIP file.</li>
+		</ul>
+
+
+		<div class="large-padding"></div>
+
+
+		<!-- ------------------------- -->
+
+
+		<h4>Can I change the file name of suika.exe</h4>
+		<p class="large-line large-text">Yes, you can.</p>
+
+
+		<div class="large-padding"></div>
+
+
+		<!-- ------------------------- -->
+
+
+		<h4>Can I change the icon of suika.exe?</h4>
+		<p class="large-line large-text">
+			Yes. You can use Resource Hacker to change the icon file.
+			However, if you change the icon, you have to sign the app by yourself. 
+			If you don't have a code signing certificate, please send me an e-mail.
+		</p>
+		<p class="large-line large-text">
+			For Mac distributions, changing the icon breaks code signing and notarization.
+			You must register your application with the Apple Developer Program (not as Suika2).
+			If you don't have an ADP certificate, contact us and we'll do it for you!
+		</p>
+
+
+		<div class="large-padding"></div>
+
+
+		<!-- ------------------------- -->
+
+
+		<h4>Which bitrate should I use for sound files?</h4>
+		<p class="large-line large-text">In the demo game, we use 128kbps stereo and 64kbps monaural.</p>
+
+
+		<div class="large-padding"></div>
+
+
+		<!-- ------------------------- -->
+
+
+		<h4>Flag management is hard work.</h4>
+		<p class="large-line large-text">
+			I recommend to use Microsoft Excel or Google Spreadsheets to manage flags.
+			Also, add comments to your scripts when you use <code>@set</code> and <code>@if</code> commands.
+		</p>
+
+
+		<div class="large-padding"></div>
+
+
+		<!-- ------------------------- -->
+
+
+		<h4>Why does Suika2 runs so quickly?</h4>
+		<p class="large-line large-text">
+			Firstly, it's because we write native C code for each platform. We don't use Python, HTML5 or JavaScript for cross-platform support.
+			C is apparently the fastest language at runtime, but it takes a bit of time and effort to portion. In near future, we would like
+			to port Suika2 to game console.
+		</p>
+		<p class="large-line large-text">
+			Secondly, Suika2 has the rendering engine which automatically chooses the fastest instruction extension CPU has.
+		</p>
+		<p class="large-line large-text">
+			Finally, Suika2 reduces the frame rate to 30fps, and it enables a significant reduction in CPU usage.
+			While 60fps is the standard of games, we consider 30fps is enough for visual novels.
+		</p>
+
+
+		<div class="large-padding"></div>
+
+
+		<!-- ------------------------- -->
+
+
+		<h4>Does Suika2 use GPU?</h4>
+		<p class="large-line large-text">
+			Before 2.9.8, we used to use software rendering engine on Windows and Mac.<br>
+			From 2.9.8, we decided to use OpenGL for GPU rendering on Windows and Mac.<br>
+			From 2.9.10, we use Direct3D 9 by default on Windows.<br>
+			If your PC doesn't support Direct3D 9 or OpenGL, we use software rendering.<br>
+		</p>
+
+
+		<div class="large-padding"></div>
+
+
+
+	</main>
+	<!-- END-CONTENT -->
+
+
+
+	<!-- BEGIN-EN-FOOTER -->
+<footer class="m l">
+	<nav style="width: 75%; margin: auto;">
+		<button class="transparent small-round">
+			<img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
+		</button>
+		<span>&copy; 2001 - 2023 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">About this Website</button>
+		<a href="https://github.com/suika2engine/" class="button transparent small-round">GitHub</a>
+	</nav>
+</footer>
+<footer class="s">
+	<nav>
+		<span>&copy; 2001 - 2023 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">About</button>
+	</nav>
+</footer>
+
+
+<dialog id="dialogue_about" class="small-round">
+	<h5>About suika2.com</h5>
+	<p class="large-text large-line">
+		Welcome to suika2.com, the home of Suika2,
+		the Visual Novel development system.
+	</p>
+	<p class="large-text large-line">Built and Edited by Kyou.</p>
+	<p class="large-text large-line">
+		We're actively working on improvements. Please excuse duplicated points or text
+		as we aim to clean these up over the next few weeks. Please also note that not
+		all pages have been updated, this will happen gradually.
+	</p>
+	<nav class="left-align no-space">
+		<button data-ui="#dialogue_about" class="button secondary transparent small-round">Close</button>
+	</nav>
+</dialog>
+
+
+<!-- Dark mode -->
+<script src="/js/dm.js" defer></script><script src="/js/dm.js" defer></script><script src="/js/dm.js" defer></script>	<!-- END-EN-FOOTER -->
+
 
 </body>
+
+
 </html>
