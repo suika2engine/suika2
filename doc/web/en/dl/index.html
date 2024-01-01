@@ -1,670 +1,780 @@
 <!DOCTYPE html>
 <html lang="en">
+
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
+
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+
+
+	<link href="https://cdn.jsdelivr.net/npm/beercss@3.4.11/dist/cdn/beer.min.css" rel="stylesheet">
+	<script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.4.11/dist/cdn/beer.min.js" defer></script>
+
 
 	<title>Suika2 | Visual Novel Game Engine</title>
 	<meta name="description" content="Suika2 is a visual novel game engine.">
 	<meta name="theme-color" content="#eb8334">
 
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="/css/bootstrap.css">
-  <link rel="stylesheet" href="/css/adjustments.css">
-  <script src="/js/bootstrap.bundle.min.js"></script>
 
 	<!-- INSERT-GTAG-HERE -->
+
+
 </head>
+
+
 <body>
 
-<!-- BEGIN-EN-HEADER -->
-<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
-	<div class="container">
-		<a class="navbar-brand d-none d-md-block" href="/en/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/">Home</a></li>
-        <li class="nav-item"><a class="nav-link" aria-current="page" href="/en/dl/">Downloads</a></li>
-				<li class="nav-item dropdown" aria-current="page">
-					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Document
-					</a>
-					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-						<li><a class="dropdown-item" href="/en/doc/">Index</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/?Tutorial">Tutorial</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/?Command+Reference">Command Reference</a></li>
-						<li><a class="dropdown-item" href="/en/doc/title.html">Title Creation</a></li>
-						<li><a class="dropdown-item" href="/en/doc/font.html">Font Change</a></li>
-						<li><a class="dropdown-item" href="/en/doc/wms.html">WMS Usage</a></li>
-						<li><a class="dropdown-item" href="/en/doc/faq.html">FAQ</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/">Wiki Top</a></li>
-						<li><a class="dropdown-item" href="/en/wiki/?cmd=search">Search</a></li>
-					</ul>
-				</li>
-        <li class="nav-item"><a class="nav-link" href="/en/works/">Works</a></li>
-        <li class="nav-item"><a class="nav-link" href="/">Japanese</a></li>
-        <li class="nav-item dropdown d-block d-md-none">
-          <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
-            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
-            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
-            <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
-          </ul>
-        </li>
-      </ul>
-      <li class="nav-item dropdown d-none d-md-block">
-        <a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
-          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
-          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
-          <li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
-        </ul>
-      </li>
-		</div>
-	</div>
-</nav>
-<!-- END-EN-HEADER -->
 
-<!-- Title -->
-<div class="block">
-	<div class="container">
-		<div class="row">
-			<div class="col-md">
-				<h1>Suika2 Downloads</h1>
-				<p>Suika2 apps and materials</p>
+	<!-- BEGIN-EN-HEADER -->
+<footer class="secondary medium-padding m l">
+    <nav style="width: 75%; margin: auto;">
+        <i>info</i>
+        <p>Welcome to the new-look suika2.com/en!</p>
+    </nav>
+</footer>
+<footer class="secondary medium-padding s">
+    <nav>
+        <i>info</i>
+        <p>Welcome to the new-look suika2.com/en!</p>
+    </nav>
+</footer>
+
+
+<footer class="m l">
+    <nav style="width: 75%; margin: auto;">
+        <button class="transparent small-round"><img class="responsive" style="margin: auto;" src="/img/icons/suika.png"></button>
+        <a href="/en/" class="button transparent small-round"><i>home</i>Home</a>
+        <a href="/en/dl/" class="button transparent small-round"><i>download</i>Downloads</a>
+        <button data-ui="#menu_help" class="button transparent small-round"><i>help</i><span>Help</span><i>arrow_drop_down</i>
+            <menu id="menu_help" class="no-wrap">
+                <a href="/en/doc/">Index</a>
+                <a href="/en/wiki/?Tutorial">Tutorial</a>
+                <a href="/en/wiki/?Command+Reference">Command Reference</a>
+                <a href="/en/doc/title.html">Title Creation (Under Translation)</a>
+                <a href="/en/doc/font.html">Font Change (Under Translation)</a>
+                <a href="/en/doc/wms.html">WMS Usage (Under Translation)</a>
+                <a href="/en/doc/faq.html">FAQ</a>
+                <a href="/en/wiki/">Wiki Top</a>
+                <a href="/en/wiki/?cmd=search">Search</a>
+            </menu>
+        </button>
+        <a href="/en/works/" class="button transparent small-round"><i>gamepad</i>Works</a>
+        <a href="/" class="button transparent small-round">日本語</a>
+        <div class="max"></div>
+        <button id="btn_theme" class="square round extra secondary-container"><i>dark_mode</i></button>
+    </nav>
+</footer>
+
+
+<footer class="s">
+    <nav>
+        <button class="transparent small-round">
+            <img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
+        </button>
+        <div class="max"></div>
+        <button class="square round extra secondary-container" data-ui="#drawer_mobile"><i>menu</i></button>
+    </nav>
+</footer>
+
+
+<dialog class="left no-padding no-round" id="drawer_mobile">
+    <nav class="drawer">
+        <header>
+            <nav>
+                <img class="circle" src="/img/icons/suika.png">
+                <h6 class="max">Suika2</h6>
+                <button class="transparent large small-round" data-ui="#drawer_mobile"><i>close</i></button>
+            </nav>
+        </header>
+        <a href="/en/" class="button transparent small-round"><i>home</i>Home</a>
+        <a href="/en/dl/" class="button transparent small-round"><i>download</i>Downloads</a>
+        <a href="/en/doc/" class="button transparent small-round"><i>help</i>Help</a>
+        <a href="/en/works/" class="button transparent small-round"><i>gamepad</i>Works</a>
+        <a href="/" class="button transparent small-round">日本語</a>
+        <div class="max"></div>
+        <button id="btn_theme_mobile" class="square round extra secondary-container"><i>dark_mode</i></button>
+    </nav>
+</dialog></dialog></dialog>	<!-- END-EN-HEADER -->
+
+
+	<!-- Title Strip -->
+	<footer class="medium-padding m l">
+		<div style="width: 75%; margin: auto;">
+			<h3>Suika2 Downloads</h3>
+			<p class="large-text large-line">Suika2 apps and materials</p>
+		</div>
+	</footer>
+	<footer class="medium-padding s">
+		<div>
+			<h3>Suika2 Downloads</h3>
+			<p class="large-text large-line">Suika2 apps and materials</p>
+		</div>
+	</footer>
+
+
+	<!-- BEGIN-CONTENT -->
+	<main style="width: 75%; margin: auto;">
+		<div>
+
+
+			<div class="tabs left-align scroll">
+				<a class="s m">Scrollable –></a>
+				<a data-ui="#direct-download" class="active">Direct Download</a>
+				<a data-ui="#windows">Windows</a>
+				<a data-ui="#mac">Mac</a>
+				<a data-ui="#iphone-and-ipad">iPhone &amp; iPad</a>
+				<a data-ui="#android">Android</a>
+				<a data-ui="#linux-and-chromebook">Linux &amp; Chromebook</a>
+				<a data-ui="#system-requirements">System Requirements</a>
+				<a data-ui="#change-logs">Change Logs</a>
 			</div>
-		</div>
-	</div>
-</div>
 
-<!-- BEGIN-CONTENT -->
-<div class="container">
-  <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12">
-<!-- ----------- -->
 
-<!-- ------------------------- -->
+			<div class="large-padding"></div>
 
-	<!-- Tabs -->
-	<ul class="nav nav-pills" id="myTab" role="tablist">
-		<li class="nav-item" role="presentation">
-			<button class="nav-link active" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-tab-pane" type="button" role="tab" aria-controls="preview-tab-pane" aria-selected="true">Direct</button>
-		</li>
-		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="windows-tab" data-bs-toggle="tab" data-bs-target="#windows-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Windows</button>
-		</li>
-		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="macos-tab" data-bs-toggle="tab" data-bs-target="#macos-tab-pane" type="button" role="tab" aria-controls="macos-tab-pane" aria-selected="false">Mac</button>
-		</li>
-		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="ios-tab" data-bs-toggle="tab" data-bs-target="#ios-tab-pane" type="button" role="tab" aria-controls="ios-tab-pane" aria-selected="false">iPhone/iPad</button>
-		</li>
-		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="android-tab" data-bs-toggle="tab" data-bs-target="#android-tab-pane" type="button" role="tab" aria-controls="android-tab-pane" aria-selected="false">Android</button>
-		</li>
-		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux/Chromebook</button>
-		</li>
-	</ul>
 
-	<!-- Contents of Tabs -->
-	<div class="tab-content" id="myTabContent">
-
-		<!-- Self Hosted Distribution -->
-		<div class="tab-pane fade show active" id="preview-tab-pane" role="tabpanel" aria-labelledby="preview-tab" tabindex="0">
-			<br>
-			<h4>The Latest Distribution</h4>
-			<p>
+			<div id="direct-download" class="page padding active">
+				<h3>Latest Distributables</h3>
+				<p class="large-line large-text">
 <!-- LATEST-VERSION-AND-DATE -->Latest Suika2/15.40 (2023/12/31):<br>
 <!-- LATEST-EXE --><a href="/dl/suika2-15.40.exe">Windows version of Suika2 Pro Desktop Installer</a><br>
 <!-- LATEST-DMG --><a href="/dl/suika2-15.40.dmg">macOS version of Suika2 Pro Desktop Installer</a><br>
-			</p>
-			<br>
-			<h4>Older Versions:</h4>
-				<p>
-					<a href="/dl/suika2-15.3.zip">Suika2/15.3 Windows/macOS ZIP</a><br>
-					<a href="/dl/suika2-14.19.zip">Suika2/14.19 Windows/macOS ZIP</a><br>
-					<a href="/dl/suika2-13.35.zip">Suika2/13.35 Windows/macOS ZIP</a><br>
-					<a href="/dl/kirara-win-13.28.exe">Suika2 Kirara 13.28 Windows Final</a><br>
-					<a href="/dl/kirara-mac-13.28.dmg">Suika2 Kirara 13.28 macOS Final</a>
 				</p>
-		</div>
 
-		<!-- Windows -->
-		<div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab" tabindex="0">
-			<a href="https://apps.microsoft.com/detail/XP99CQV05PR79W?cid=PCCongratsBnr&hl=ja-jp&gl=US"><img src="/img/banners/pro-windows-en.png" style="width:min(90vw, 500px);"></a>
-		</div>
 
-		<!-- Mac -->
-		<div class="tab-pane fade" id="macos-tab-pane" role="tabpanel" aria-labelledby="macos-tab" tabindex="0">
-			<a href="https://apps.apple.com/jp/app/suika2-pro-desktop/id6474658254"><img src="/img/banners/pro-macos-en.png" style="width:min(90vw, 500px);"></a>
-		</div>
+				<div class="large-padding"></div>
 
-		<!-- iOS -->
-		<div class="tab-pane fade" id="ios-tab-pane" role="tabpanel" aria-labelledby="ios-tab" tabindex="0">
-			<a href="https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680"><img src="/img/banners/pro-ios-en.png" style="width:min(90vw, 500px);"></a>
-		</div>
 
-		<!-- Android -->
-		<div class="tab-pane fade" id="android-tab-pane" role="tabpanel" aria-labelledby="android-tab" tabindex="0">
-			<a href="https://play.google.com/store/apps/details?id=jp.luxion.suikapro"><img src="/img/banners/pro-android.png" style="width:min(90vw, 500px);"></a>
-		</div>
+				<h3>Older Versions</h3>
+				<p class="large-line large-text">
+					<a href="/dl/suika2-15.3.zip" class="link">Suika2/15.3 Windows/macOS ZIP</a><br>
+					<a href="/dl/suika2-14.19.zip" class="link">Suika2/14.19 Windows/macOS ZIP</a><br>
+					<a href="/dl/suika2-13.35.zip" class="link">Suika2/13.35 Windows/macOS ZIP</a><br>
+					<a href="/dl/kirara-win-13.28.exe" class="link">Suika2 Kirara 13.28 Windows Final</a><br>
+					<a href="/dl/kirara-mac-13.28.dmg" class="link">Suika2 Kirara 13.28 macOS Final</a>
+				</p>
 
-		<!-- Linux/Chromebook -->
-		<div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab" tabindex="0">
-			<div style="margin-left:1em;margin-top:1em;">
-				<h3>Linux/Chromebook</h3>
-				<p>From the source code on Ubuntu/Debian/Chromebook (recommended):</p>
-				<pre><code>sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev<br>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>make<br>sudo make install<br>suika2</code></pre>
-				<p>Ubuntu package:</p>
-				<pre><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
-			</div>
-		</div>
 
-	</div>
+				<div class="large-padding"></div>
 
-<hr>
-<h2>Sample Productions</h2>
-<br>
-<h4>iOS</h4>
-<div style="margin-left: 2em;">
-	<p>
-		<a href="https://apps.apple.com/jp/app/imperfect-blue-re-start/id6470741697">Imperfect Blue -Re:Start-</a><br>
-		<a href="https://apps.apple.com/jp/app/%E3%82%AF%E3%83%AA%E3%83%A0%E3%82%BE%E3%83%B3%E3%83%AC%E3%83%83%E3%83%89%E3%81%AE%E6%AD%BB%E7%A5%9E/id6470746277">Crimson Red no Shinigami</a>
-	</p>
-</div>
-<br>
-<h4>Android</h4>
-<div style="margin-left: 2em;">
-	<p>
-		<a href="https://play.google.com/store/apps/details?id=jp.luxion.suika&pli=1">The Official Demo</a><br>
-		<a href="https://play.google.com/store/apps/dev?id=7504425589390191824">Imperfect Blue -Re:Start-</a>
-	</p>
-</div>
-<br>
-<h4>Steam</h4>
-<div style="margin-left: 2em;">
-	<p>
-		<a href="https://store.steampowered.com/app/2599620/Zarie_The_Story_of_Sin/?l=japanese">Zarie</a> is a multilingualization example.
-	</p>
-</div>
-<hr>
-<h2>Tools</h2>
-<br>
-<h4>Web Testing Tool</h4>
-<div style="margin-left:2em;">
-	<p>
-		<a href="/dl/tools/suika-webtest.zip">Web testing tool R1 (2023-09-07)</a><br>
-		Try your Web games before upload!
-	</p>
-</div>
-<br>
-<h4>Compare Tools</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/tools/suika-compare.zip">For automatic testing: Test result comparator R2 (2023-09-03)</a><br>
-			Check diffs between <code>record</code> and <code>replay</code> folders of your games!<br>
-		</p>
-	</div>
-	<br>
-	<h4>Route Search Tool</h4>
-	<div style="margin-left:2em;">
-		<p>
-			<a href="/dl/tools/suika-routes.zip">Automatic Route Search Tool R6 (2023-09-03)</a><br>
-			Search all options for all routes of your games!<br>
-		</p>
-	</div>
-</div>
-<hr>
-<br>
-<h2 class="spacer">Samples and Materials</h2>
-<br>
-<br>
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="/run/sample/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/config-gui.png" alt="Suika2 GUI">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-	<h3>Photoshop materials of the sample game</h3>
-	<p>
-		<a href="/dl/material/gui-config-psd.zip"><img src="/img/icons/zip.png" width="48">Config GUI (By MaxMorgan)</a>
-		<a href="/dl/material/gui-menu-psd.zip"><img src="/img/icons/zip.png" width="48">Menu GUI (By heath)</a>
-		<a href="/dl/material/gui-save-psd.zip"><img src="/img/icons/zip.png" width="48">Save GUI (By heath)</a>
-	</p>
-</div>
 
-<hr>
+				<h3>Sample Productions</h3>
 
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://suika2.com/run/mori-demo/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/mori.png" alt="Suika2 mori demo">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-	<h3>UI material of "In a Forest"</h3>
-	<p>
-		UI material of "In a Forest" provided by SOrow-san <a href="https://plicy.net/GamePlay/156139">Game</a><br>
-		<a href="/dl/material/mori_demo.zip"><img src="/img/icons/zip.png" width="48"> Download Script ZIP</a>
-		<a href="/dl/material/mori_gui_psd.zip">Download Photoshop PSD</a>
-	</p>
-</div>
 
-<hr>
+				<div class="small-padding"></div>
 
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://plicy.net/GamePlay/160965" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/nikki.png" alt="Suika2 Diary Demo">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>A sample of diary function</h3>
-  <p>
-		This is a sample of a diary function used in "Beautiful Decapitation"<br>
-    <a href="/dl/material/diarysamplesuika2-13.31utukusiidansyu.zip"><img src="/img/icons/zip.png" width="48"> Download Script ZIP</a>
-  </p>
-</div>
 
-<hr>
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://suika2.com/run/name2/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/name2.png" alt="Suika2 Name Input Type2">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>Name Input Sample [Type2]</h3>
-  <p>
-		By Asatsuki-san, free<br>
-    <a href="/dl/sample/name-demo-type2.zip"><img src="/img/icons/zip.png" width="48"> Download Script ZIP</a>
-  </p>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://suika2.com/run/name1/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/name1.png" alt="Suika2 Name Input Sample Type1">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>Name Input Sample [Type1]</h3>
-  <p>
-		By ubi_2/aramasi0.9-san, free</h3>
-    <a href="/dl/sample/name-demo-type1.zip"><img src="/img/icons/zip.png" width="48"> Download Script ZIP</a>
-  </p>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://suika2.com/run/animation/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/cha.png" alt="Suika2 Character Animation">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>Character Animation Sample</h3>
-  <p>
-    <a href="/dl/sample/animation.zip"><img src="/img/icons/zip.png" width="48"> Download Script ZIP</a>
-  </p>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://suika2.com/run/gallery/" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/gallery.png" alt="Suika2 CG Gallery Mode">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>A sample of CG Gallery</h3>
-  <p>
-    It's a clickable map.<br>
-		You can also use this for a moving, or even a flow chart.<br>
-    <a href="/dl/sample/gallery-demo.zip"><img src="/img/icons/zip.png" width="48"> Download Script ZIP</a>
-  </p>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-  <h3>Kirakira Sparkling Effect Materials</h3>
-	<p>
-		Brought to you by Ronron-san.
-  </p>
-  <a href="/dl/material/kirakira-effect-ronron-v2.zip"><img src="/img/icons/zip.png" width="48"> ZIP Download</a><br>
-	<figure>
-		<figcaption>Sample:</figcaption>
-		<video controls src="/dl/kirakira-effect-ronron-v2.mp4" width="80%"></video>
-	</figure>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-  <h3>Ending Staff Roll Example</h3>
-	<p>
-		Brought to you by MATSUNO Seiji.
-  </p>
-  <a href="/dl/material/staff-roll.zip"><img src="/img/icons/zip.png" width="48"> ZIP Download</a><br>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://www.freem.ne.jp/win/game/31531" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/callcenter.png" alt="コールセンターの鈴木さんとVtuberの佐藤さん">
-				<div class="game-mask">
-					<div class="caption">クリックでゲームへ移動</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>"Call Center no Suzuki-san to Vtuber no Sato-san" - The BGM Collection</h3>
-	<p>
-		Brought to you by Kagaiyomi <a href="https://www.freem.ne.jp/dl/win/31531">[WORK]</a>
-  </p>
-  <a href="/dl/material/VtuberBGM.zip"><img src="/img/icons/zip.png" width="48"> ZIP Download</a><br>
-	<figure><figcaption>サンプル</figcaption><audio controls src="/dl/music/vtuber/001.mp3"></audio></figure>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-	<h3>『Micchi ni Omakase!』(MaiMia MaiMai)</h3>
-  <p>
-    This is a synthetic usecase of the earlier days but still very helpful to understand Suika2!<br>
-    <a href="/dl/material/micchi-14.15.zip"><img src="/img/icons/zip.png" width="48"> Script ZIP Download</a><br>
-    <a href="/dl/sample/name-demo-type3.zip"><img src="/img/icons/zip.png" width="48"> Name Input Only [Type3]</a>
-  </p>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-  <div style="width: 100%; text-align: center;">
-		<a href="https://www.freem.ne.jp/win/game/31531" target="_blank">
-			<div class="game">
-				<img style="width: 50%; height: 50%;" src="/img/screenshots/callcenter.png" alt="Suzuki Call Center Vtuber Sato">
-				<div class="game-mask">
-					<div class="caption">Click to run</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	<br>
-  <h3>A Music Library from "コールセンターの鈴木さんとVtuberの佐藤さん"</h3>
-	<p>
-		By 鏡読み-san <a href="https://www.freem.ne.jp/dl/win/31531">The work is here</a>
-  </p>
-  <a href="/dl/material/VtuberBGM.zip"><img src="/img/icons/zip.png" width="48"> Download ZIP</a><br>
-	<figure><figcaption>001 Job</figcaption><audio controls src="/dl/music/vtuber/001.mp3"></audio></figure>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-	<h3>Hi Micchi</h3>
-  <p>
-    A example of all directions of 11-series and some features of 12/13-series<br>
-    <a href="/dl/material/micchi-13.30.zip"><img src="/img/icons/zip.png" width="48"> Download Script ZIP</a>
-    <a href="/dl/sample/name-demo-type3.zip"><img src="/img/icons/zip.png" width="48"> Name Input [Type3]</a>
-  </p>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-	<h3>An Example of Macro</h3>
-  <p>
-		An example of external macros.<br>
-    <a href="/dl/sample/macro-demo.zip"><img src="/img/icons/zip.png" width="48"> Download Scrip ZIP</a><br>
-  </p>
-</div>
-
-<hr>
-
-<div style="text-align: center;">
-	<h3>Voice Beep</h3>
-  <p>
-		Voice beep by Maimai, contains some tones.<br>
-		<a href="/dl/material/VOICE_BEEP_SET_2.0.zip"><img src="/img/icons/zip.png" width="64"> Download ZIP</a>
-	</p>
-	<figure>
-		<figcaption>Sample Beep:</figcaption>
-		<audio controls src="/dl/music/maimai/beep-sample.mp3"></audio>
-	</figure>
-</div>
-
-<hr>
-
-<h2>System Requirements</h2>
-<h3>Windows</h3>
-<div style="margin-left: 2em;">
-	<ul>
-		<li>Suika2 Pro Desktop (Windows)
-			<ul>
-				<li>OS: Windows 11, Windows 10(32-bit/64-bit)</li>
-				<li>CPU: Intel/AMD/Arm64</li>
-				<li>GPU: Direct3D 9</li>
-			</ul>
-		</li>
-		<li>Games made with Suika2 (Windows)
-			<ul>
-				<li>OS: Windows 11, Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, Windows XP (32-bit/64-bit)</li>
-				<li>CPU: Intel/AMD/Arm64</li>
-				<li>GPU: Direct3D 9</li>
-			</ul>
-		</li>
-	</ul>
-</div>
-<h3>macOS</h3>
-<div style="margin-left: 2em;">
-	<ul>
-		<li>Suika2 Pro Desktop (macOS)
-			<ul>
-				<li>macOS 11 Big Sur</li>
-				<li>macOS 12 Monterey</li>
-				<li>macOS 13 Ventura</li>
-				<li>macOS 14 Sonoma</li>
-			</ul>
-		</li>
-		<li>Games made with Suika2 (macOS)
-			<ul>
-				<li>macOS 10.13 High Sierra</li>
-				<li>macOS 10.14 Mojave</li>
-				<li>macOS 10.15 Catalina</li>
-				<li>macOS 11 Big Sur</li>
-				<li>macOS 12 Monterey</li>
-				<li>macOS 13 Ventura</li>
-				<li>macOS 14 Sonoma</li>
-			</ul>
-		</li>
-	</ul>
-</div>
-<h3>iOS/iPadOS</h3>
-<div style="margin-left: 2em;">
-	<ul>
-		<li>Suika2 Pro Mobile (iOS)
-			<ul>
-				<li>iCloud Drive</li>
-				<li>iOS 13 / iPadOS 13</li>
-				<li>iOS 14 / iPadOS 14</li>
-				<li>iOS 15 / iPadOS 15</li>
-				<li>iOS 16 / iPadOS 16</li>
-				<li>iOS 17 / iPadOS 17</li>
-			</ul>
-		</li>
-		<li>Games made with Suika2 (iOS)
-			<ul>
-				<li>iOS 11 (You need Xcode 14 with macOS 13 Ventura)</li>
-				<li>iOS 12 (This is the minimum deployment target of the current Xcode 15 with macOS 14 Sonoma)</li>
-				<li>iOS 13 / iPadOS 13</li>
-				<li>iOS 14 / iPadOS 14</li>
-				<li>iOS 15 / iPadOS 15</li>
-				<li>iOS 16 / iPadOS 16</li>
-				<li>iOS 17 / iPadOS 17</li>
-			</ul>
-		</li>
-	</ul>
-</div>
-<h3>Android</h3>
-<div style="margin-left: 2em;">
-	<ul>
-		<li>Suika2 Pro Mobile (Android)
-			<ul>
-				<li>Not supported yet</li>
-			</ul>
-		</li>
-		<li>Games made with Suika2 (Android)
-			<ul>
-				<li>Android 4.4 and later</li>
-			</ul>
-		</li>
-	</ul>
-</div>
-<h3>Browsers</h3>
-<div style="margin-left: 2em;">
-	<ul>
-		<li>Games made with Suika2
-			<ul>
-				<li>Google Chrome</li>
-				<li>Chromium</li>
-				<li>Microsoft Edge</li>
-				<li>Safari</li>
-				<li>Mozilla Firefox</li>
-				<li>Google Chrome (Android)</li>
-				<li>Safari (iOS/iPadOS)</li>
-			</ul>
-		</li>
-	</ul>
-</div>
-
-<hr>
-
-<a name="relnote"><h2 class="spacer">Release Notes</h2></a>
-<div class="accordion" id="accordionPanelsStayOpenExample">
-  <!-- Recent Changes -->
-	<div class="accordion-item">
-		<h4 class="accordion-header" id="panelsStayOpen-heading1" style="margin-top: 0;">
-			<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-				<span style="font-size: 1.3em;">Recent Releases</span>
-			</button>
-		</h4>
-		<div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-			<div class="accordion-body">
-        <ul>
-<!-- LATEST-RELEASE-NOTE -->
-<li>Suika2/15.40 2023/12/31 <ul> <li>Changed to stop AUTO/AKIP on a GUI command</li> </ul> </li>
-<li>Suika2/15.39 2023/12/30 <ul> <li>Fixed a bug where a failure on the extended syntax</li> </ul> </li>
-<li>Suika2/15.38 2023/12/29 <ul> <li>engine-wasm: fixed a bug where colors of PNG is negative</li> </ul> </li>
-<li>Suika2/15.36 2023/12/27 <ul> <li>pro-macos: fixed a bug where users get an error on entering README.md after award2023.html before css dl doc en favicon.ico img inc index.html js new tmp update-templates.sh update-version.sh upload.sh wiki works (Thanks to ヒラメ丼-san!)</li> <li>pro-macos: changed suika-mac.zip to suika-mac.dmg (Thanks to ヒラメ丼-san!)</li> </ul> </li>
-<li>Suika2/15.35 2023/12/27 <ul> <li>Fixed a bug where AUTO and SKIP are rendered in save thumbnails</li> </ul> </li>
-<li>Suika2/15.34 2023/12/27 <ul> <li>Fixed a bug where Android apps crash on a sound play</li> </ul> </li>
-<li>Suika2/15.33 2023/12/27 <ul> <li>Added Suika2 Pro Mobile for Android</li> <li>Fixed sound support on Android (add repeat and beep)</li> <li>Added ChromeOS support for Suika2 Pro Desktop for Linux (editor is not implemented)</li> </ul> </li>
-<li>Suika2/15.32 2023/12/25 <ul> <li>An internal version for store registration</li> </ul> </li>
-<li>Suika2/15.31 2023/12/24 <ul> <li>Fixed a bug that Kirakira effect remains on the screen (Thanks to Ronron-san!)</li> </ul> </li>
-<li>Suika2/15.30 2023/12/23 <ul> <li>Fixed a bug of the structured syntax (Thanks to Ronron-san!)</li> <li>Fixed a problem of Kirakira effect (Thanks to Ronron-san!)</li> </ul> </li>
-<li>Suika2/15.29 2023/12/23 <ul> <li>Fixed a bug that a click in <code>@cha</code> causes an incomplete anime status</li> </ul> </li>
-<li>Suika2/15.28 2023/12/22 <ul> <li>Fixed a bug that <code>@cha</code> cannot finish (Thanks to ラワン材-san and いたみ-san!)</li> <li>Fixed a bug of the structured syntax (Thanks to Ronron-san!)</li> <li>Improved to be able to edit scripts with the structured syntax in the text view</li> </ul> </li>
-<li>Suika2/15.25 2023/12/20 <ul> <li>Some minor fixes on the Windows version installer</li> </ul> </li>
-<li>Suika2/15.24 2023/12/20 <ul> <li>Some minor fixes on macOS version</li> </ul> </li>
-<li>Suika2/15.23 2023/12/20 <ul> <li>Changed the app name to Suika2 Pro Desktop</li> </ul> </li>
-<li>Suika2/15.22 2023/12/20 <ul> <li>Fixed an alert message on Suika2 Pro Desktop (macOS)</li> </ul> </li>
-<li>Suika2/15.21 2023/12/20 <ul> <li>Fixed a bug that GUI sliders' hover image wre wrong (Thanks to ラワン材-san!)</li> </ul> </li>
-<li>Suika2/15.20 2023/12/19 <ul> <li>Fixed VScode snippets location</li> </ul> </li>
-<li>Suika2/15.19 2023/12/18 <ul> <li>Fixed VScode snippets</li> </ul> </li>
-<li>Suika2/15.18 2023/12/18 <ul> <li>Re-enabled VScode snippets (Thanks to こつ子-san!)</li> </ul> </li>
-<li>Suika2/15.17 2023/12/18 <ul> <li>Added a reload menu and a reload key (Ctrl+L)</li> </ul> </li>
-<li>Suika2/15.16 2023/12/18 <ul> <li>Fixed a degrade of switch (Thanks to MATSUNO-san!)</li> </ul> </li>
-<li>Suika2/15.15 2023/12/18 <ul> <li>Fixed a degrade of switch (Thanks to MATSUNO-san!)</li> <li>Fixed a spec that Pro always uses "seen" color on Pro</li> </ul> </li>
-<li>Suika2/15.15 2023/12/18 <ul> <li>Fixed a degrade of switch (Thanks to MATSUNO-san!)</li> <li>Fixed a spec that Pro always uses "seen" color on Pro</li> </ul> </li>
-<li>Suika2/15.14 2023/12/18 <ul> <li>Fixed a bug of anime rendering (Thanks to Ronron-san and MATSUNO-san!)</li> </ul> </li>
-<li>Suika2/15.13 2023/12/18 <ul> <li>Fixed a bug of anime rendering (Thanks to MATSUNO-san!)</li> </ul> </li>
-<li>Suika2/15.12 2023/12/17 <ul> <li>Fixed a bug that GUI cannot be canceled (Thanks to Ronron-san!)</li> <li>Fixed a bug that @switch cannot be move to the second layer options (Thanks to MATSUNO-san!)</li> </ul> </li>
-<li>Suika2/15.11 2023/12/17 <ul> <li>Fixed a bug that the Windows version failes when font.outline.remove=1 (Thanks to Ronron-san!)</li> <li>Fixed a bug of GUI cancels (Thanks to Ronron-san!)</li> <li>Fixed a bug of NVL dimming (Thanks to nekoha-san!)</li> </ul> </li>
-<li>Suika2/15.10 2023/12/17 <ul> <li>Fix the system menu (Thanks to Ronron-san!)</li> </ul> </li>
-<li>Suika2/15.9 2023/12/16 <ul> <li>Fix icon</li> </ul> </li>
-<li>Suika2/15.8 2023/12/16 <ul> <li>Support image scaling <ul> <li>Currently scaling is not applied to save thumbnails</li> <li>Currently scaling is not applied to transitions such as @bg/@ch</li> </ul> </li> </ul> </li>
-<li>Suika2/15.7 2023/12/14 <ul> <li>internal version</li> </ul> </li>
-<li>Suika2/15.7 2023/12/14 <ul> <li>internal version</li> </ul> </li>
-<li>Suika2/15.6 2023/12/14 <ul> <li>macOS, iOS: Fix Metal background color</li> </ul> </li>
-<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
-<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
-<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
-<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
-<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
-<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
-<li>Suika2/15.4 2023/12/13 <ul> <li>Changed to installer distributions</li> <li>macOS: Rewritten with AppKit and Metal</li> <li>macOS: Added an editor to Suika2 Pro</li> </ul> </li>
-<li>Suika2/15.4 2023/12/13 <ul> <li>Changed to installer distributions</li> <li>macOS: Rewritten with AppKit and Metal</li> <li>macOS: Added an editor to Suika2 Pro</li> </ul> </li>
-<li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
-<li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
-<li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
-<li>Suika2/15.2 2023/12/1 <ul> <li>Fix "@ch face" bug (Thanks to ソロー-san!)</li> </ul> </li>
+				<h4>iOS</h4>
+				<ul>
+					<li><a class="link"
+							href="https://apps.apple.com/jp/app/imperfect-blue-re-start/id6470741697">Imperfect Blue
+							-Re:Start-</a><br></li>
+					<li><a class="link"
+							href="https://apps.apple.com/jp/app/%E3%82%AF%E3%83%AA%E3%83%A0%E3%82%BE%E3%83%B3%E3%83%AC%E3%83%83%E3%83%89%E3%81%AE%E6%AD%BB%E7%A5%9E/id6470746277">Crimson
+							Red no Shinigami</a></li>
 				</ul>
+
+
+				<div class="small-padding"></div>
+
+
+				<h4>Android</h4>
+				<ul>
+					<li><a class="link" href="https://play.google.com/store/apps/details?id=jp.luxion.suika&pli=1">The
+							Official Demo</a><br></li>
+					<li><a class="link" href="https://play.google.com/store/apps/dev?id=7504425589390191824">Imperfect
+							Blue -Re:Start-</a></li>
+				</ul>
+
+
+				<div class="small-padding"></div>
+
+
+				<h4>Steam</h4>
+				<ul>
+					<li><a class="link"
+							href="https://store.steampowered.com/app/2599620/Zarie_The_Story_of_Sin/?l=japanese">Zarie</a>
+						is a multilingualization example.</li>
+				</ul>
+
+
+				<div class="small-padding"></div>
+
+
+				<h3>Tools</h3>
+
+
+				<div class="small-padding"></div>
+
+
+				<h4>Web Testing Tool</h4>
+				<ul>
+					<li>
+						<a class="link" href="/dl/tools/suika-webtest.zip">Web testing tool R1 (2023-09-07)</a><br>
+						Try your Web games before uploading them!
+					</li>
+				</ul>
+
+
+				<div class="small-padding"></div>
+
+
+				<h4>Compare Tools</h4>
+				<ul>
+					<li>
+						<a class="link" href="/dl/tools/suika-compare.zip">For automatic testing: Test result comparator
+							R2 (2023-09-03)</a><br>
+						Check diffs between <code>record</code> and <code>replay</code> folders of your games!<br>
+					</li>
+				</ul>
+
+
+				<div class="small-padding"></div>
+
+
+				<h3>Route Search Tool</h3>
+				<ul>
+					<li>
+						<a class="link" href="/dl/tools/suika-routes.zip">Automatic Route Search Tool R6
+							(2023-09-03)</a><br>
+						Search all options for all routes of your games!<br>
+					</li>
+				</ul>
+
+
+				<div class="large-padding"></div>
+
+
+				<div>
+
+
+					<h3>Sample Materials</h3>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<img class="responsive" src="/img/screenshots/config-gui.png">
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>Suika2 GUI (Click to Run)</h5>
+									<p class="large-text large-line">
+										Sample game Photoshop materials:<br>
+										<a class="link" href="/dl/material/gui-config-psd.zip">Config GUI (By
+											MaxMorgan)</a><br>
+										<a class="link" href="/dl/material/gui-menu-psd.zip">Menu GUI (By heath)</a><br>
+										<a class="link" href="/dl/material/gui-save-psd.zip">Save GUI (By heath)</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round" href="/run/sample/"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<img class="responsive" src="/img/screenshots/mori.png">
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>'In a Forest' UI Material</h5>
+									<p class="large-text large-line">
+										UI material of "In a Forest" provided by SOrow-san <a class="link"
+											href="https://plicy.net/GamePlay/156139">Game</a><br>
+										<a class="link" href="/dl/material/mori_demo.zip">Download Script ZIP</a><br>
+										<a class="link" href="/dl/material/mori_gui_psd.zip">Download Photoshop PSD</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round" href="/run/mori-demo/"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<img class="responsive" src="/img/screenshots/nikki.png">
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>A Sample of a Diary Functio</h5>
+									<p class="large-text large-line">
+										This is a sample of a diary function used in "Beautiful Decapitation"<br>
+										<a class="link"
+											href="/dl/material/diarysamplesuika2-13.31utukusiidansyu.zip">Download
+											Script ZIP</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round"
+											href="https://plicy.net/GamePlay/160965"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<img class="responsive" src="/img/screenshots/name2.png">
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>Name Input Sample [Type2]</h5>
+									<p class="large-text large-line">
+										By Asatsuki-san, free<br>
+										<a class="link" href="/dl/sample/name-demo-type2.zip">Download Script ZIP</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round" href="/run/name2/"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<img class="responsive" src="/img/screenshots/name1.png">
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>Name Input Sample [Type2]</h5>
+									<p class="large-text large-line">
+										By ubi_2/aramasi0.9-san, free<br>
+										<a class="link" href="/dl/sample/name-demo-type1.zip">Download Script ZIP</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round" href="/run/name1/"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<img class="responsive" src="/img/screenshots/cha.png">
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>Character Animation Sample</h5>
+									<p class="large-text large-line">
+										<a class="link" href="/dl/sample/animation.zip">Download Script ZIP</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round" href="/run/animation/"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<img class="responsive" src="/img/screenshots/gallery.png">
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>A simple sample of a CG Gallery</h5>
+									<p class="large-text large-line">
+										It's a clickable map.<br>
+										You can also use this for a moving, or even a flow chart.<br>
+										<a class="link" href="/dl/sample/gallery-demo.zip">Download Script ZIP</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round" href="/run/gallery/"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<video controls src="/dl/kirakira-effect-ronron-v2.mp4" class="responsive"></video>
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>Kirakira Sparkling Effect Materials</h5>
+									<p class="large-text large-line">
+										Brought to you by Ronron-san.<br>
+										<a class="link" href="/dl/material/kirakira-effect-ronron-v2.zip">ZIP
+											Download</a>
+									</p>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="padding">
+							<h5>Ending Staff Roll Example</h5>
+							<p class="large-text large-line">
+								Brought to you by MATSUNO Seiji.<br>
+								<a class="link" href="/dl/material/staff-roll.zip">ZIP Download</a>
+							</p>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<audio class="responsive" controls src="/dl/music/vtuber/001.mp3"></audio>
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>'Call Center no Suzuki-san to Vtuber no Sato-san' - The BGM Collection</h5>
+									<p class="large-text large-line">
+										Brought to you by Kagaiyomi <a class="link"
+											href="https://www.freem.ne.jp/dl/win/31531">[WORK]</a><br>
+										<a class="link" href="/dl/material/VtuberBGM.zip">ZIP Download</a><br>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round"
+											href="https://www.freem.ne.jp/win/game/31531"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="padding">
+							<h5>『Micchi ni Omakase!』(MaiMia MaiMai)</h5>
+							<p class="large-text large-line">
+								This is a synthetic usecase of the earlier days but still very helpful to understand
+								Suika2!<br>
+								<a class="link" href="/dl/material/micchi-14.15.zip">Script ZIP Download</a><br>
+								<a class="link" href="/dl/sample/name-demo-type3.zip">Name Input Only [Type3]</a>
+							</p>
+							<nav>
+								<a class="button secondary-container small-round"
+									href="https://www.freem.ne.jp/win/game/31531"
+									target="_blank"><i>open_in_new</i>Try</a>
+							</nav>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<audio class="responsive" controls src="/dl/music/vtuber/001.mp3"></audio>
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>A Music Library from "コールセンターの鈴木さんとVtuberの佐藤さん"</h5>
+									<p class="large-text large-line">
+										By 鏡読み-san<br>
+										<a class="link" href="/dl/material/VtuberBGM.zip">Download ZIP</a><br>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round"
+											href="https://www.freem.ne.jp/win/game/31531"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="padding">
+							<h5>Hi Micchi</h5>
+							<p class="large-text large-line">
+								An example of all directions of 11-series and some features of 12/13-series<br>
+								<a class="link" href="/dl/material/micchi-13.30.zip">Download Script ZIP</a>
+								<a class="link" href="/dl/sample/name-demo-type3.zip">Name Input [Type3]</a>
+							</p>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="padding">
+							<h5>A Macro Example</h5>
+							<p class="large-text large-line">
+								An example of external macros.<br>
+								<a class="link" href="/dl/sample/macro-demo.zip">Download Scrip ZIP</a><br>
+							</p>
+						</div>
+					</article>
+
+
+					<article class="no-padding">
+						<div class="grid no-space">
+							<div class="s12 m6 l6">
+								<audio class="responsive" controls src="/dl/music/maimai/beep-sample.mp3"></audio>
+							</div>
+							<div class="s12 m6 l6">
+								<div class="padding">
+									<h5>Voice Beep</h5>
+									<p class="large-text large-line">
+										Voice beep by Maimai, contains some tones.<br>
+										<a class="link" href="/dl/material/VOICE_BEEP_SET_2.0.zip">Download ZIP</a>
+									</p>
+									<nav>
+										<a class="button secondary-container small-round"
+											href="https://www.freem.ne.jp/win/game/31531"
+											target="_blank"><i>open_in_new</i>Try</a>
+									</nav>
+								</div>
+							</div>
+						</div>
+					</article>
+
+
+				</div>
+
+
 			</div>
-		</div>
-  </div>
-  <!-- Past Releases -->
-	<div class="accordion-item">
-		<h4 class="accordion-header" id="panelsStayOpen-heading2" style="margin-top: 0;">
-			<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-				<span style="font-size: 1.3em;">Older Releases</span>
-			</button>
-		</h4>
-		<div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
-			<div class="accordion-body">
-        <ul>
-					<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
+
+
+			<!---->
+
+
+			<div id="windows" class="page padding">
+				<a href="https://apps.microsoft.com/detail/XP99CQV05PR79W?cid=PCCongratsBnr&hl=ja-jp&gl=US">
+					<img src="/img/banners/pro-windows-en.png" style="width: 50%;">
+				</a>
+			</div>
+
+
+			<div id="mac" class="page padding">
+				<a href="https://apps.apple.com/jp/app/suika2-pro-desktop/id6474658254">
+					<img src="/img/banners/pro-macos-en.png" style="width: 50%;">
+				</a>
+			</div>
+
+
+			<div id="iphone-and-ipad" class="page padding">
+				<a href="https://apps.apple.com/jp/app/suika2-pro-mobile/id6474521680">
+					<img src="/img/banners/pro-ios-en.png" style="width: 50%;">
+				</a>
+			</div>
+
+
+			<div id="android" class="page padding">
+				<a href="https://play.google.com/store/apps/details?id=jp.luxion.suikapro">
+					<img src="/img/banners/pro-android.png" style="width: 50%;">
+				</a>
+			</div>
+
+
+			<div id="linux-and-chromebook" class="page padding">
+				<h3>Linux and Chromebook</h3>
+				<p>From the source code on Ubuntu/Debian/Chromebook (recommended):</p>
+
+				<pre
+					class="secondary medium-padding small-round"><code>sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev<br>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>make<br>sudo make install<br>suika2</code></pre>
+
+				<p>Ubuntu package:</p>
+
+				<pre
+					class="secondary medium-padding small-round"><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
+
+			</div>
+
+
+			<div id="system-requirements" class="page padding">
+				<h3>Windows</h3>
+				<div>
+					<ul class="large-line large-text">
+						<li>Suika2 Pro Desktop (Windows)
+							<ul>
+								<li>OS: Windows 11, Windows 10(32-bit/64-bit)</li>
+								<li>CPU: Intel/AMD/Arm64</li>
+								<li>GPU: Direct3D 9</li>
+							</ul>
+						</li>
+						<li>Games made with Suika2 (Windows)
+							<ul>
+								<li>OS: Windows 11, Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista,
+									Windows XP (32-bit/64-bit)</li>
+								<li>CPU: Intel/AMD/Arm64</li>
+								<li>GPU: Direct3D 9</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<h3>macOS</h3>
+				<div>
+					<ul class="large-line large-text">
+						<li>Suika2 Pro Desktop (macOS)
+							<ul>
+								<li>macOS 11 Big Sur</li>
+								<li>macOS 12 Monterey</li>
+								<li>macOS 13 Ventura</li>
+								<li>macOS 14 Sonoma</li>
+							</ul>
+						</li>
+						<li>Games made with Suika2 (macOS)
+							<ul>
+								<li>macOS 10.13 High Sierra</li>
+								<li>macOS 10.14 Mojave</li>
+								<li>macOS 10.15 Catalina</li>
+								<li>macOS 11 Big Sur</li>
+								<li>macOS 12 Monterey</li>
+								<li>macOS 13 Ventura</li>
+								<li>macOS 14 Sonoma</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<h3>iOS/iPadOS</h3>
+				<div>
+					<ul class="large-line large-text">
+						<li>Suika2 Pro Mobile (iOS)
+							<ul>
+								<li>iCloud Drive</li>
+								<li>iOS 13 / iPadOS 13</li>
+								<li>iOS 14 / iPadOS 14</li>
+								<li>iOS 15 / iPadOS 15</li>
+								<li>iOS 16 / iPadOS 16</li>
+								<li>iOS 17 / iPadOS 17</li>
+							</ul>
+						</li>
+						<li>Games made with Suika2 (iOS)
+							<ul>
+								<li>iOS 11 (You need Xcode 14 with macOS 13 Ventura)</li>
+								<li>iOS 12 (This is the minimum deployment target of the current Xcode 15 with macOS 14
+									Sonoma)</li>
+								<li>iOS 13 / iPadOS 13</li>
+								<li>iOS 14 / iPadOS 14</li>
+								<li>iOS 15 / iPadOS 15</li>
+								<li>iOS 16 / iPadOS 16</li>
+								<li>iOS 17 / iPadOS 17</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<h3>Android</h3>
+				<div>
+					<ul class="large-line large-text">
+						<li>Suika2 Pro Mobile (Android)
+							<ul>
+								<li>Not supported yet</li>
+							</ul>
+						</li>
+						<li>Games made with Suika2 (Android)
+							<ul>
+								<li>Android 4.4 and later</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<h3>Browsers</h3>
+				<div>
+					<ul class="large-line large-text">
+						<li>Games made with Suika2
+							<ul>
+								<li>Google Chrome</li>
+								<li>Chromium</li>
+								<li>Microsoft Edge</li>
+								<li>Safari</li>
+								<li>Mozilla Firefox</li>
+								<li>Google Chrome (Android)</li>
+								<li>Safari (iOS/iPadOS)</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+
+			<div id="change-logs" class="page padding">
+				<div class="secondary large-padding small-round">
+					<i>info</i>
+					This section will be styled later.
+				</div>
+
+
+				<div class="large-padding"></div>
+
+				<h3>Recent Releases</h3>
+				<!-- LATEST-RELEASE-NOTE -->
+
+
+				<li>Suika2/15.40 2023/12/31 <ul> <li>Changed to stop AUTO/AKIP on a GUI command</li> </ul> </li>
+				<li>Suika2/15.39 2023/12/30 <ul> <li>Fixed a bug where a failure on the extended syntax</li> </ul> </li>
+				<li>Suika2/15.38 2023/12/29 <ul> <li>engine-wasm: fixed a bug where colors of PNG is negative</li> </ul> </li>
+				<li>Suika2/15.36 2023/12/27 <ul> <li>pro-macos: fixed a bug where users get an error on entering README.md after award2023.html before css dl doc en favicon.ico img inc index.html js new tmp update-templates.sh update-version.sh upload.sh wiki works (Thanks to ヒラメ丼-san!)</li> <li>pro-macos: changed suika-mac.zip to suika-mac.dmg (Thanks to ヒラメ丼-san!)</li> </ul> </li>
+				<li>Suika2/15.35 2023/12/27 <ul> <li>Fixed a bug where AUTO and SKIP are rendered in save thumbnails</li> </ul> </li>
+				<li>Suika2/15.34 2023/12/27 <ul> <li>Fixed a bug where Android apps crash on a sound play</li> </ul> </li>
+				<li>Suika2/15.33 2023/12/27 <ul> <li>Added Suika2 Pro Mobile for Android</li> <li>Fixed sound support on Android (add repeat and beep)</li> <li>Added ChromeOS support for Suika2 Pro Desktop for Linux (editor is not implemented)</li> </ul> </li>
+				<li>Suika2/15.32 2023/12/25 <ul> <li>An internal version for store registration</li> </ul> </li>
+				<li>Suika2/15.31 2023/12/24 <ul> <li>Fixed a bug that Kirakira effect remains on the screen (Thanks to Ronron-san!)</li> </ul> </li>
+				<li>Suika2/15.30 2023/12/23 <ul> <li>Fixed a bug of the structured syntax (Thanks to Ronron-san!)</li> <li>Fixed a problem of Kirakira effect (Thanks to Ronron-san!)</li> </ul> </li>
+				<li>Suika2/15.29 2023/12/23 <ul> <li>Fixed a bug that a click in <code>@cha</code> causes an incomplete anime status</li> </ul> </li>
+				<li>Suika2/15.28 2023/12/22 <ul> <li>Fixed a bug that <code>@cha</code> cannot finish (Thanks to ラワン材-san and いたみ-san!)</li> <li>Fixed a bug of the structured syntax (Thanks to Ronron-san!)</li> <li>Improved to be able to edit scripts with the structured syntax in the text view</li> </ul> </li>
+				<li>Suika2/15.25 2023/12/20 <ul> <li>Some minor fixes on the Windows version installer</li> </ul> </li>
+				<li>Suika2/15.24 2023/12/20 <ul> <li>Some minor fixes on macOS version</li> </ul> </li>
+				<li>Suika2/15.23 2023/12/20 <ul> <li>Changed the app name to Suika2 Pro Desktop</li> </ul> </li>
+				<li>Suika2/15.22 2023/12/20 <ul> <li>Fixed an alert message on Suika2 Pro Desktop (macOS)</li> </ul> </li>
+				<li>Suika2/15.21 2023/12/20 <ul> <li>Fixed a bug that GUI sliders' hover image wre wrong (Thanks to ラワン材-san!)</li> </ul> </li>
+				<li>Suika2/15.20 2023/12/19 <ul> <li>Fixed VScode snippets location</li> </ul> </li>
+				<li>Suika2/15.19 2023/12/18 <ul> <li>Fixed VScode snippets</li> </ul> </li>
+				<li>Suika2/15.18 2023/12/18 <ul> <li>Re-enabled VScode snippets (Thanks to こつ子-san!)</li> </ul> </li>
+				<li>Suika2/15.17 2023/12/18 <ul> <li>Added a reload menu and a reload key (Ctrl+L)</li> </ul> </li>
+				<li>Suika2/15.16 2023/12/18 <ul> <li>Fixed a degrade of switch (Thanks to MATSUNO-san!)</li> </ul> </li>
+				<li>Suika2/15.15 2023/12/18 <ul> <li>Fixed a degrade of switch (Thanks to MATSUNO-san!)</li> <li>Fixed a spec that Pro always uses "seen" color on Pro</li> </ul> </li>
+				<li>Suika2/15.15 2023/12/18 <ul> <li>Fixed a degrade of switch (Thanks to MATSUNO-san!)</li> <li>Fixed a spec that Pro always uses "seen" color on Pro</li> </ul> </li>
+				<li>Suika2/15.14 2023/12/18 <ul> <li>Fixed a bug of anime rendering (Thanks to Ronron-san and MATSUNO-san!)</li> </ul> </li>
+				<li>Suika2/15.13 2023/12/18 <ul> <li>Fixed a bug of anime rendering (Thanks to MATSUNO-san!)</li> </ul> </li>
+				<li>Suika2/15.12 2023/12/17 <ul> <li>Fixed a bug that GUI cannot be canceled (Thanks to Ronron-san!)</li> <li>Fixed a bug that @switch cannot be move to the second layer options (Thanks to MATSUNO-san!)</li> </ul> </li>
+				<li>Suika2/15.11 2023/12/17 <ul> <li>Fixed a bug that the Windows version failes when font.outline.remove=1 (Thanks to Ronron-san!)</li> <li>Fixed a bug of GUI cancels (Thanks to Ronron-san!)</li> <li>Fixed a bug of NVL dimming (Thanks to nekoha-san!)</li> </ul> </li>
+				<li>Suika2/15.10 2023/12/17 <ul> <li>Fix the system menu (Thanks to Ronron-san!)</li> </ul> </li>
+				<li>Suika2/15.9 2023/12/16 <ul> <li>Fix icon</li> </ul> </li>
+				<li>Suika2/15.8 2023/12/16 <ul> <li>Support image scaling <ul> <li>Currently scaling is not applied to save thumbnails</li> <li>Currently scaling is not applied to transitions such as @bg/@ch</li> </ul> </li> </ul> </li>
+				<li>Suika2/15.7 2023/12/14 <ul> <li>internal version</li> </ul> </li>
+				<li>Suika2/15.7 2023/12/14 <ul> <li>internal version</li> </ul> </li>
+				<li>Suika2/15.6 2023/12/14 <ul> <li>macOS, iOS: Fix Metal background color</li> </ul> </li>
+				<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
+				<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
+				<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
+				<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
+				<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
+				<li>Suika2/15.5 2023/12/14 <ul> <li>iOS: Supported Metal</li> <li>macOS: Fixed message and @choose bugs</li> </ul> </li>
+				<li>Suika2/15.4 2023/12/13 <ul> <li>Changed to installer distributions</li> <li>macOS: Rewritten with AppKit and Metal</li> <li>macOS: Added an editor to Suika2 Pro</li> </ul> </li>
+				<li>Suika2/15.4 2023/12/13 <ul> <li>Changed to installer distributions</li> <li>macOS: Rewritten with AppKit and Metal</li> <li>macOS: Added an editor to Suika2 Pro</li> </ul> </li>
+				<li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
+				<li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
+				<li>Suika2/15.3 2023/12/5 <ul> <li>Windows: Separate a Suika2 installation folder and game folders</li> <li>Windows: Drop the GDI 2D renderer, force use Direct3D or OpenGL</li> <li>Windows: Add a template chooser on boot time</li> </ul> </li>
+				<li>Suika2/15.2 2023/12/1 <ul> <li>Fix "@ch face" bug (Thanks to ソロー-san!)</li> </ul> </li>
+				<h3>Older Releases</h3>
+				<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
 					<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
 					<li>Suika2/15.1 2023/11/27 <ul> <li>Add layer command</li> </ul> </li>
 					<li>Suika2/15.0 2023/11/27 <ul> <li>Characters are now increased to left, left-center, center, back, right-center and right.</li> </ul> </li>
@@ -998,88 +1108,106 @@
 							<li>Added the NVL-style feature</li>
 						</ul>
 					</li>
-					<li><a href="https://luxion.jp/2022/10/suika2-11-4-release-note/">Suika2.11.4 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/10/suika2-11-3-release-note/">Suika2.11.3 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/10/suika2-11-2-release-note/">Suika2.11.2 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/09/suika2-11-1-release-note/">Suika2.11.1 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/08/suika2-11-0-release-note/">Suika2.11.0 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/08/suika2-10-5-release-note/">Suika2.10.5 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/08/suika2-10-4-release-note/">Suika2.10.4 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-10-3-release-note/">Suika2.10.3 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-10-2-release-note/">Suika2.10.2 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-10-1-release-note/">Suika2.10.1 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-10-0-release-note/">Suika2.10.0 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-9-12-release-note/">Suika2.9.12 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-9-11-release-note/">Suika2.9.11 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-9-10-release-note/">Suika2.9.10 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-9-9-release-note/">Suika2.9.9 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/07/suika2-9-8-release-note/">Suika2.9.8 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/06/suika2-9-7-release-note/">Suika2.9.7 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/06/suika2-9-6-release-note/">Suika2.9.6 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/06/suika2-9-5-release-note/">Suika2.9.5 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/06/suika2-9-4-release-note/">Suika2.9.4 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/06/suika2-9-3-release-note/">Suika2.9.3 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/06/suika2-9-2-release-note/">Suika2.9.2 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/05/suika2-9-1-release-note/">Suika2.9.1 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/05/suika2-9-0-release-note/">Suika2.9.0 Release Note</a></li>
-					<li><a href="https://luxion.jp/2022/05/suika2-8-13-release-note/">Suika2.8.13 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/11/suika2-8-12-release-note/">Suika2.8.12 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/11/suika2-8-11-release-note/">Suika2.8.11 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/09/suika2-8-10-release-note/">Suika2.8.10 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/08/suika2-8-9-release-note/">Suika2.8.9 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/08/suika2-8-8-release-note/">Suika2.8.8 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/08/suika2-8-7-release-note/">Suika2.8.7 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/08/suika2-8-6-release-note/">Suika2.8.6 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-8-5-release-note/">Suika2.8.5 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-8-4-release-note/">Suika2.8.4 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-8-3-release-note/">Suika2.8.3 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-8-2-release-note/">Suika2.8.2 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-8-1-release-note/">Suika2.8.1 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-8-0-release-note/">Suika2.8.0 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-7-11-release-note/">Suika2.7.11 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-7-10-release-note/">Suika2.7.10 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/07/suika2-7-9-release-note/">Suika2.7.9 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/06/suika2-7-8-release-note/">Suika2.7.8 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/06/suika2-7-7-release-note/">Suika2.7.7 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/06/suika-2-7-6-release-note/">Suika2.7.6 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/06/suika-2-7-5-release-note/">Suika2.7.5 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/06/suika-2-7-4-release-noteト/">Suika2.7.4 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/06/suika-2-7-3-release-note/">Suika2.7.3 Release Note</a></li>
-					<li><a href="https://luxion.jp/2021/06/suika-2-7-2-release-note-2/">Suika2.7.2 Release Note</a></li>
-        </ul>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- ----------- -->
-    </div>
-  </div>
-</div>
-<!-- END-CONTENT -->
-
-<!-- BEGIN-EN-FOOTER -->
-<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
-  <div class="container">
-		<div class="row">
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>Suika2 Visual Novel Game Engine</h5>
-				<p>An open-source, cross-platform visual novel development suite.</p>
-			</div>
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>Links</h5>
-				<ul class="list-unstyled mb-0">
-					<li><a href="https://github.com/suika2engine/suika2">GitHub</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/10/suika2-11-4-release-note/">Suika2.11.4 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/10/suika2-11-3-release-note/">Suika2.11.3 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/10/suika2-11-2-release-note/">Suika2.11.2 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/09/suika2-11-1-release-note/">Suika2.11.1 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/08/suika2-11-0-release-note/">Suika2.11.0 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/08/suika2-10-5-release-note/">Suika2.10.5 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/08/suika2-10-4-release-note/">Suika2.10.4 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-10-3-release-note/">Suika2.10.3 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-10-2-release-note/">Suika2.10.2 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-10-1-release-note/">Suika2.10.1 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-10-0-release-note/">Suika2.10.0 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-9-12-release-note/">Suika2.9.12 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-9-11-release-note/">Suika2.9.11 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-9-10-release-note/">Suika2.9.10 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-9-9-release-note/">Suika2.9.9 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/07/suika2-9-8-release-note/">Suika2.9.8 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/06/suika2-9-7-release-note/">Suika2.9.7 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/06/suika2-9-6-release-note/">Suika2.9.6 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/06/suika2-9-5-release-note/">Suika2.9.5 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/06/suika2-9-4-release-note/">Suika2.9.4 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/06/suika2-9-3-release-note/">Suika2.9.3 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/06/suika2-9-2-release-note/">Suika2.9.2 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/05/suika2-9-1-release-note/">Suika2.9.1 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/05/suika2-9-0-release-note/">Suika2.9.0 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2022/05/suika2-8-13-release-note/">Suika2.8.13 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/11/suika2-8-12-release-note/">Suika2.8.12 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/11/suika2-8-11-release-note/">Suika2.8.11 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/09/suika2-8-10-release-note/">Suika2.8.10 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/08/suika2-8-9-release-note/">Suika2.8.9 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/08/suika2-8-8-release-note/">Suika2.8.8 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/08/suika2-8-7-release-note/">Suika2.8.7 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/08/suika2-8-6-release-note/">Suika2.8.6 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-8-5-release-note/">Suika2.8.5 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-8-4-release-note/">Suika2.8.4 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-8-3-release-note/">Suika2.8.3 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-8-2-release-note/">Suika2.8.2 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-8-1-release-note/">Suika2.8.1 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-8-0-release-note/">Suika2.8.0 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-7-11-release-note/">Suika2.7.11 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-7-10-release-note/">Suika2.7.10 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/07/suika2-7-9-release-note/">Suika2.7.9 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/06/suika2-7-8-release-note/">Suika2.7.8 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/06/suika2-7-7-release-note/">Suika2.7.7 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/06/suika-2-7-6-release-note/">Suika2.7.6 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/06/suika-2-7-5-release-note/">Suika2.7.5 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/06/suika-2-7-4-release-noteト/">Suika2.7.4 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/06/suika-2-7-3-release-note/">Suika2.7.3 Release Note</a></li>
+					<li><a class="link" href="https://luxion.jp/2021/06/suika-2-7-2-release-note-2/">Suika2.7.2 Release Note</a></li>
 				</ul>
 			</div>
+
 		</div>
-	</div>
-	<div class="text-center mt-5 ">
-		Copyright &copy; 2001-2023, Keiichi Tabata. All rights reserved.
-	</div>
+	</main>
+	<!-- END-CONTENT -->
+
+
+	<!-- BEGIN-EN-FOOTER -->
+<footer class="m l">
+	<nav style="width: 75%; margin: auto;">
+		<button class="transparent small-round">
+			<img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
+		</button>
+		<span>&copy; 2001 - 2023 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">About this Website</button>
+		<a href="https://github.com/suika2engine/" class="button transparent small-round">GitHub</a>
+	</nav>
 </footer>
-<script src="/css/darkmode.js"></script>
-<!-- END-EN-FOOTER -->
+<footer class="s">
+	<nav>
+		<span>&copy; 2001 - 2023 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">About</button>
+	</nav>
+</footer>
+
+
+<dialog id="dialogue_about" class="small-round">
+	<h5>About suika2.com</h5>
+	<p class="large-text large-line">
+		Welcome to suika2.com, the home of Suika2,
+		the Visual Novel development system.
+	</p>
+	<p class="large-text large-line">Built and Edited by Kyou.</p>
+	<p class="large-text large-line">
+		We're actively working on improvements. Please excuse duplicated points or text
+		as we aim to clean these up over the next few weeks. Please also note that not
+		all pages have been updated, this will happen gradually.
+	</p>
+	<nav class="left-align no-space">
+		<button data-ui="#dialogue_about" class="button secondary transparent small-round">Close</button>
+	</nav>
+</dialog>
+
+
+<!-- Dark mode -->
+<script src="/js/dm.js" defer></script><script src="/js/dm.js" defer></script><script src="/js/dm.js" defer></script>	<!-- END-EN-FOOTER -->
+
 
 </body>
+
+
 </html>
