@@ -29,3 +29,28 @@
 .game:hover .game-mask {
   opacity: 1;
 }
+
+a {
+    text-decoration: underline;
+    color: blue;
+}
+
+ul, ol {
+    margin-left: 2em;
+}
+
+h1 {
+    font-size:2.0em!important;
+}
+
+h2 {
+    font-size:1.5em!important;
+}
+
+h3, h4, h5 {
+    font-size: 1.3em!important;
+}
+
+.w-25 {
+    width:25%!important;
+}

@@ -1,20 +1,29 @@
-<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>ビジュアルノベル制作ツール Suika2</h5>
-				<p>Suika2はビジュアルノベルを制作するためのツールです。</p>
-			</div>
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>リンク</h5>
-				<ul class="list-unstyled mb-0">
-					<li><a href="https://github.com/suika2engine/suika2">GitHub</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-	<div class="text-center mt-5 ">
-		Copyright &copy; 2001-2023, Keiichi Tabata. All rights reserved.
-	</div>
+<footer class="m l">
+	<nav style="width: 75%; margin: auto;">
+		<button class="transparent small-round">
+			<img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
+		</button>
+		<span>&copy; 2001-2024 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">このサイトについて</button>
+		<a href="https://github.com/suika2engine/suika2" class="button transparent small-round">GitHub</a>
+	</nav>
 </footer>
-<script src="/js/darkmode.js"></script>
+<footer class="s">
+	<nav>
+		<span>&copy; 2001-2024 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">このサイトについて</button>
+	</nav>
+</footer>
+<dialog id="dialogue_about" class="small-round">
+	<h5>suika2.com</h5>
+	<p class="large-text large-line">
+		suika2.comはノベル制作ツールSuika2の公式サイトです。
+	</p>
+	<p class="large-text large-line">Webデザイン: Kyou</p>
+	<nav class="left-align no-space">
+		<button data-ui="#dialogue_about" class="button secondary transparent small-round">閉じる</button>
+	</nav>
+</dialog>
+<script src="/js/dm.js" defer></script>

@@ -19,21 +19,15 @@ function upload()
 upload index.html
 upload dl/index.html
 upload doc/index.html
-upload doc/tutorial.html
-upload doc/reference.html
 upload doc/font.html
-upload doc/title.html
-upload doc/wms.html
 upload doc/scriptgen.html
-upload doc/faq.html
 upload works/index.html
 upload wiki/skin/pukiwiki.skin.php
+upload award2023.html
 
 upload en/index.html
 upload en/dl/index.html
 upload en/doc/index.html
-upload en/doc/tutorial.html
-upload en/doc/reference.html
 upload en/doc/font.html
 upload en/doc/title.html
 upload en/doc/wms.html
