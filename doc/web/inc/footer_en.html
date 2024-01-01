@@ -1,20 +1,40 @@
-<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
-  <div class="container">
-		<div class="row">
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>Suika2 Visual Novel Game Engine</h5>
-				<p>An open-source, cross-platform visual novel development suite.</p>
-			</div>
-			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-				<h5>Links</h5>
-				<ul class="list-unstyled mb-0">
-					<li><a href="https://github.com/suika2engine/suika2">GitHub</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-	<div class="text-center mt-5 ">
-		Copyright &copy; 2001-2023, Keiichi Tabata. All rights reserved.
-	</div>
+<footer class="m l">
+	<nav style="width: 75%; margin: auto;">
+		<button class="transparent small-round">
+			<img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
+		</button>
+		<span>&copy; 2001 - 2023 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">About this Website</button>
+		<a href="https://github.com/suika2engine/" class="button transparent small-round">GitHub</a>
+	</nav>
 </footer>
-<script src="/css/darkmode.js"></script>
+<footer class="s">
+	<nav>
+		<span>&copy; 2001 - 2023 Keiichi Tabata.</span>
+		<div class="max"></div>
+		<button data-ui="#dialogue_about" class="button transparent small-round">About</button>
+	</nav>
+</footer>
+
+
+<dialog id="dialogue_about" class="small-round">
+	<h5>About suika2.com</h5>
+	<p class="large-text large-line">
+		Welcome to suika2.com, the home of Suika2,
+		the Visual Novel development system.
+	</p>
+	<p class="large-text large-line">Built and Edited by Kyou.</p>
+	<p class="large-text large-line">
+		We're actively working on improvements. Please excuse duplicated points or text
+		as we aim to clean these up over the next few weeks. Please also note that not
+		all pages have been updated, this will happen gradually.
+	</p>
+	<nav class="left-align no-space">
+		<button data-ui="#dialogue_about" class="button secondary transparent small-round">Close</button>
+	</nav>
+</dialog>
+
+
+<!-- Dark mode -->
+<script src="/js/dm.js" defer></script>
