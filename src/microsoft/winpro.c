@@ -94,14 +94,14 @@
 #define CONV_MESSAGE_SIZE	(65536)
 
 /* Colors */
-#define COLOR_BG_DEFAULT	0x00ffffff
-#define COLOR_FG_DEFAULT	0x00000000
+#define COLOR_BG_DEFAULT	0x00282828
+#define COLOR_FG_DEFAULT	0x00ffffff
 #define COLOR_COMMENT		0x00808080
-#define COLOR_LABEL			0x00ff0000
+#define COLOR_LABEL			0x006200ee
 #define COLOR_ERROR			0x000000ff
-#define COLOR_COMMAND_NAME	0x00ff0000
-#define COLOR_PARAM_NAME	0x00c0f0c0
-#define COLOR_NEXT_EXEC		0x00ffc0c0
+#define COLOR_COMMAND_NAME	0x0088c8cb
+#define COLOR_PARAM_NAME	0x00c08c8c
+#define COLOR_NEXT_EXEC		0x00bbf68c
 #define COLOR_CURRENT_EXEC	0x00c0c0ff
 
 /* 変数テキストボックスのテキストの最大長(形: "$00001=12345678901\r\n") */
@@ -831,6 +831,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		NULL);
 	SendMessage(hWndRichEdit, EM_SHOWSCROLLBAR, (WPARAM)SB_VERT, (LPARAM)TRUE);
 	SendMessage(hWndRichEdit, EM_SETEVENTMASK, 0, (LPARAM)ENM_CHANGE);
+	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)COLOR_BG_DEFAULT);
 	SendMessage(hWndRichEdit, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
 
 	/* 変数のテキストボックスを作成する */
@@ -3161,45 +3162,50 @@ static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR,
 				(size_t)nParamLen < sizeof(wszCommandName) / sizeof(wchar_t) ?
 				(size_t)nParamLen :
 				sizeof(wszCommandName) / sizeof(wchar_t));
+		wszCommandName[nParamLen] = L'\0';
+
 		nCommandType = get_command_type_from_name(conv_utf16_to_utf8(wszCommandName));
-		if (nCommandType != COMMAND_SET &&
-			nCommandType != COMMAND_IF &&
-			nCommandType != COMMAND_UNLESS &&
-			nCommandType != COMMAND_PENCIL)
+		if (nCommandType != -1)
 		{
 			/* コマンド名のテキストに色を付ける */
 			RichEdit_SetSelectedRange(nLineStartCR, nParamLen);
 			RichEdit_SetTextColorForSelectedRange(COLOR_COMMAND_NAME);
 
-			/* 引数名を灰色にする */
-			pParamStart = pText + nLineStartCRLF + nParamLen;
-			while ((pParamStart = wcswcs(pParamStart, L" ")) != NULL)
+			if (nCommandType != COMMAND_SET &&
+				nCommandType != COMMAND_IF &&
+				nCommandType != COMMAND_UNLESS &&
+				nCommandType != COMMAND_PENCIL)
 			{
-				int nNameStart;
-				int nNameLen;
+				/* 引数名を灰色にする */
+				pParamStart = pText + nLineStartCRLF + nParamLen;
+				while ((pParamStart = wcswcs(pParamStart, L" ")) != NULL)
+				{
+					int nNameStart;
+					int nNameLen;
 
-				/* 次の行以降の' 'にヒットしている場合はループから抜ける */
-				if (pParamStart >= pText + nLineStartCRLF + nLineLen)
-					break;
+					/* 次の行以降の' 'にヒットしている場合はループから抜ける */
+					if (pParamStart >= pText + nLineStartCRLF + nLineLen)
+						break;
 
-				/* ' 'の次の文字を開始位置にする */
-				pParamStart++;
+					/* ' 'の次の文字を開始位置にする */
+					pParamStart++;
 
-				/* '='を探す。次の行以降にヒットした場合はループから抜ける */
-				pParamStop = wcswcs(pParamStart, L"=");
-				if (pParamStop == NULL || pParamStop >= pText + nLineStartCRLF + nLineLen)
-					break;
+					/* '='を探す。次の行以降にヒットした場合はループから抜ける */
+					pParamStop = wcswcs(pParamStart, L"=");
+					if (pParamStop == NULL || pParamStop >= pText + nLineStartCRLF + nLineLen)
+						break;
 
-				/* '='の手前に' 'があればスキップする */
-				pParamSpace = wcswcs(pParamStart, L" ");
-				if (pParamSpace != NULL && pParamSpace < pParamStop)
-					continue;
+					/* '='の手前に' 'があればスキップする */
+					pParamSpace = wcswcs(pParamStart, L" ");
+					if (pParamSpace != NULL && pParamSpace < pParamStop)
+						continue;
 
-				/* 引数名部分を選択してテキスト色を変更する */
-				nNameStart = nLineStartCR + (pParamStart - (pText + nLineStartCRLF));
-				nNameLen = pParamStop - pParamStart + 1;
-				RichEdit_SetSelectedRange(nNameStart, nNameLen);
-				RichEdit_SetTextColorForSelectedRange(COLOR_PARAM_NAME);
+					/* 引数名部分を選択してテキスト色を変更する */
+					nNameStart = nLineStartCR + (pParamStart - (pText + nLineStartCRLF));
+					nNameLen = pParamStop - pParamStart + 1;
+					RichEdit_SetSelectedRange(nNameStart, nNameLen);
+					RichEdit_SetTextColorForSelectedRange(COLOR_PARAM_NAME);
+				}
 			}
 		}
 	}
