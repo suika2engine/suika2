@@ -319,51 +319,82 @@ static ViewController *theViewController;
 }
 
 - (BOOL)createProject {
-    NSOpenPanel *panel = [NSOpenPanel openPanel];
-    [panel setCanChooseDirectories:YES];
-    [panel setCanCreateDirectories:YES];
-    if ([panel runModal] != NSModalResponseOK) {
-        [NSApp stop:nil];
-        return NO;
-    }
-    if ([[NSFileManager defaultManager] isReadableFileAtPath:[[[panel directoryURL] path] stringByAppendingString:@"/conf/config.txt"]]) {
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:_isEnglish ? @"The folder you selected in not empty" : @"フォルダが空ではありません。"];
-        [alert addButtonWithTitle:@"OK"];
-        [alert setAlertStyle:NSAlertStyleCritical];
-        [alert runModal];
-        return NO;
-    }
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[[panel directoryURL] path]];
+    while (YES) {
+        // Open folder.
+        NSOpenPanel *panel = [NSOpenPanel openPanel];
+        [panel setCanChooseDirectories:YES];
+        [panel setCanCreateDirectories:YES];
+        if ([panel runModal] != NSModalResponseOK) {
+            [NSApp stop:nil];
+            return NO;
+        }
 
-    FILE *fp = fopen([[[[panel URL] path] stringByAppendingString:@"/game.suika2project"] UTF8String], "w");
-    if (fp == NULL)
-        return NO;
-    fclose(fp);
+        // Create a project file.
+        NSString *path = [[panel directoryURL] path];
+        [[NSFileManager defaultManager] changeCurrentDirectoryPath:path];
+        FILE *fp = fopen([[[[panel URL] path] stringByAppendingString:@"/game.suika2project"] UTF8String], "w");
+        if (fp == NULL) {
+            NSAlert *alert;
+            alert = [[NSAlert alloc] init];
+            [alert setMessageText:_isEnglish ?
+             @"Failed to write to the folder. Choose another one." :
+             @"フォルダへの書き込みに失敗しました。別のフォルダを指定してください。"];
+            [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
+            [alert setAlertStyle:NSAlertStyleInformational];
+            [alert runModal];
+            return NO;
+        }
+        fclose(fp);
 
-    NSAlert *alert;
-    alert = [[NSAlert alloc] init];
-    [alert setMessageText:_isEnglish ? @"Do you want to use the full screen style?" : @"全画面スタイルにしますか？\n"];
-    [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
-    [alert addButtonWithTitle:_isEnglish ? @"No" : @"いいえ"];
-    [alert setAlertStyle:NSAlertStyleInformational];
-    if ([alert runModal] == NSAlertFirstButtonReturn) {
-        if (_isEnglish)
-            return [self copyResourceTemplate:@"nvl"];
-
+        // Ask if the user needs NVL.
+        NSAlert *alert;
         alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"縦書きにしますか？"];
-        [alert addButtonWithTitle:@"はい"];
-        [alert addButtonWithTitle:@"いいえ"];
+        [alert setMessageText:_isEnglish ?
+         @"Do you want to use the full screen style?" :
+         @"全画面スタイルにしますか？\n"];
+        [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
+        [alert addButtonWithTitle:_isEnglish ? @"No" : @"いいえ"];
         [alert setAlertStyle:NSAlertStyleInformational];
-        if ([alert runModal] == NSAlertFirstButtonReturn)
-            return [self copyResourceTemplate:@"nvl-tategaki"];
-        else
-            return [self copyResourceTemplate:@"nvl"];
+        if ([alert runModal] == NSAlertFirstButtonReturn) {
+            // If English, we use the horizontal.
+            if (_isEnglish) {
+                if (![self copyResourceTemplate:@"nvl"])
+                    continue;
+                break;
+            }
+            
+            // If Japanese, ask if the user needs the vertical.
+            alert = [[NSAlert alloc] init];
+            [alert setMessageText:@"縦書きにしますか？"];
+            [alert addButtonWithTitle:@"はい"];
+            [alert addButtonWithTitle:@"いいえ"];
+            [alert setAlertStyle:NSAlertStyleInformational];
+            if ([alert runModal] == NSAlertFirstButtonReturn) {
+                // Use the vertical.
+                if (![self copyResourceTemplate:@"nvl-tategaki"])
+                    continue;
+                break;
+            } else {
+                // Use the horizontal.
+                if (![self copyResourceTemplate:@"nvl"])
+                    continue;
+                break;
+            }
+        }
+
+        // If not NVL and English, we use the English-ADV.
+        if (_isEnglish) {
+            if (![self copyResourceTemplate:@"english"])
+                continue;
+            break;
+        }
+
+        // If not NVL and Japanese, we use the Japanese-ADV.
+        if (![self copyResourceTemplate:@"japanese"])
+            continue;
+        break;
     }
-    if (_isEnglish)
-        return [self copyResourceTemplate:@"english"];
-    return [self copyResourceTemplate:@"japanese"];
+    return YES;
 }
 
 - (BOOL)copyResourceTemplate:(NSString *)from {
@@ -371,8 +402,16 @@ static ViewController *theViewController;
     for (NSString *sub in subfolderArray) {
         NSString *src = [NSString stringWithFormat:@"%@/Contents/Resources/%@%@", [[NSBundle mainBundle] bundlePath], from, sub];
         NSString *dst = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:sub];
-        if (![[NSFileManager defaultManager] copyItemAtPath:src toPath:dst error:nil])
+        if (![[NSFileManager defaultManager] copyItemAtPath:src toPath:dst error:nil]) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setMessageText:_isEnglish ?
+                @"Failed to copy files. The folder you selected might not not empty. Create new one and choose it again." :
+                @"ファイルのコピーに失敗しました。フォルダが空ではありません。フォルダを新規作成し、選択しなおしてください。"];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setAlertStyle:NSAlertStyleCritical];
+            [alert runModal];
             return NO;
+        }
     }
     return YES;
 }

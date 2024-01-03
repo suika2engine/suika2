@@ -55,6 +55,7 @@ bool layer_command(void)
 	struct image *img;
 	const char *name;
 	const char *file;
+	const char *dir;
 	int x, y, a, layer;
 
 	/* パラメータを取得する */
@@ -68,10 +69,36 @@ bool layer_command(void)
 	if (strcmp(file, "none") == 0 || strcmp(file, U8("消去")) == 0)
 		file = NULL;
 
+	/* レイヤ名からレイヤインデックスを求める */
+	layer = name_to_layer(name);
+	if (layer == -1) {
+		log_invalid_layer_name(name);
+		return false;
+	}
+
 	/* イメージが指定された場合 */
 	if (file != NULL) {
+		switch (layer) {
+		case LAYER_BG:
+		case LAYER_BG2:
+			dir = BG_DIR;
+			break;
+		case LAYER_CHB:
+		case LAYER_CHL:
+		case LAYER_CHLC:
+		case LAYER_CHR:
+		case LAYER_CHRC:
+		case LAYER_CHC:
+		case LAYER_CHF:
+			dir = CH_DIR;
+			break;
+		default:
+			dir = CG_DIR;
+			break;
+		}
+
 		/* イメージを読み込む */
-		img = create_image_from_file(CG_DIR, file);
+		img = create_image_from_file(dir, file);
 		if (img == NULL) {
 			log_script_exec_footer();
 			return false;
@@ -79,13 +106,6 @@ bool layer_command(void)
 	} else {
 		/* イメージが指定されなかった場合(消す) */
 		img = NULL;
-	}
-
-	/* レイヤ名からレイヤインデックスを求める */
-	layer = name_to_layer(name);
-	if (layer == -1) {
-		log_invalid_layer_name(name);
-		return false;
 	}
 
 	/* レイヤを設定する */

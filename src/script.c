@@ -2149,7 +2149,7 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 	}
 	snprintf(finally_label,
 		 sizeof(finally_label),
-		 "CHOOSE_%d_FINALLYd",
+		 "CHOOSE_%d_FINALLY",
 		 cur_expanded_line);
 
 	/* @chooseコマンドを生成して格納する */

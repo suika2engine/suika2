@@ -54,60 +54,57 @@
 <body>
 
 <!-- BEGIN-HEADER -->
-<footer class="m l">
-  <nav style="width: 75%; margin: auto;">
-    <button class="transparent small-round"><img class="responsive" style="margin: auto;" src="/img/icons/suika.png"></button>
-    <a href="/" class="button transparent small-round"><i>home</i>ホーム</a>
-    <a href="/dl/" class="button transparent small-round"><i>download</i>ダウンロード</a>
-    <button data-ui="#menu_help" class="button transparent small-round"><i>help</i><span>ドキュメント</span><i>arrow_drop_down</i>
-      <menu id="menu_help" class="no-wrap">
-				<a href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">一覧</a>
-				<a href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">チュートリアル</a>
-        <a href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">コマンドリファレンス</a>
-				<a href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">タイトル画面の作り方</a>
-				<a href="/doc/font.html">フォントの変更方法</a>
-				<a href="https://suika2.com/wiki/?%E3%82%B3%E3%83%B3%E3%83%95%E3%82%A3%E3%82%B0%E4%B8%80%E8%A6%A7">コンフィグ一覧</a>
-				<a href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">WMSの使い方</a>
-				<a href="https://suika2.com/wiki/?%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E8%B3%AA%E5%95%8F">よくある質問</a>
-				<a href="https://suika2.com/wiki/?%E3%83%90%E3%82%B0%E5%A0%B1%E5%91%8A%E3%81%AE%E4%B8%80%E8%A6%A7">バグ報告の一覧</a>
-				<a href="https://suika2.com/wiki/?%E6%A9%9F%E8%83%BD%E8%A6%81%E6%9C%9B%E3%81%AE%E4%B8%80%E8%A6%A7">機能要望の一覧</a>
-				<a href="/wiki/">Wikiトップ</a>
-				<a href="/wiki/?cmd=search">検索</a>
-      </menu>
-    </button>
-    <a href="/works/" class="button transparent small-round"><i>gamepad</i>利用作品一覧</a>
-    <a href="/en/" class="button transparent small-round">English</a>
-    <div class="max"></div>
-    <button id="btn_theme" class="square round extra secondary-container"><i>dark_mode</i></button>
-  </nav>
-</footer>
-<footer class="s">
-  <nav>
-    <button class="transparent small-round">
-      <img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
-    </button>
-    <div class="max"></div>
-    <button class="square round extra secondary-container" data-ui="#drawer_mobile"><i>menu</i></button>
-  </nav>
-</footer>
-<dialog class="left no-padding no-round" id="drawer_mobile">
-  <nav class="drawer">
-    <header>
-      <nav>
-        <img class="circle" src="/img/icons/suika.png">
-        <h6 class="max">Suika2</h6>
-        <button class="transparent large small-round" data-ui="#drawer_mobile"><i>close</i></button>
-      </nav>
-    </header>
-    <a href="/" class="button transparent small-round"><i>home</i>Home</a>
-    <a href="/dl/" class="button transparent small-round"><i>download</i>Downloads</a>
-    <a href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88" class="button transparent small-round"><i>help</i>Help</a>
-    <a href="/works/" class="button transparent small-round"><i>gamepad</i>利用作品紹介</a>
-    <a href="/" class="button transparent small-round">English</a>
-    <div class="max"></div>
-    <button id="btn_theme_mobile" class="square round extra secondary-container"><i>dark_mode</i></button>
-  </nav>
-</dialog>
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item"><a class="nav-link" href="/">ホーム</a></li>
+				<li class="nav-item"><a class="nav-link" href="/dl/">ダウンロード</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ドキュメント
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">チュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">コマンドリファレンス</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">タイトル画面の作り方</a></li>
+						<li><a class="dropdown-item" href="/doc/font.html">フォントの変更方法</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%B3%E3%83%95%E3%82%A3%E3%82%B0%E4%B8%80%E8%A6%A7">コンフィグ一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">WMSの使い方</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E8%B3%AA%E5%95%8F">よくある質問</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%90%E3%82%B0%E5%A0%B1%E5%91%8A%E3%81%AE%E4%B8%80%E8%A6%A7">バグ報告の一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E6%A9%9F%E8%83%BD%E8%A6%81%E6%9C%9B%E3%81%AE%E4%B8%80%E8%A6%A7">機能要望の一覧</a></li>
+						<li><a class="dropdown-item" href="/wiki/">Wikiトップ</a></li>
+						<li><a class="dropdown-item" href="/wiki/?cmd=search">検索</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"><a class="nav-link" href="/works/">利用作品紹介</a></li>
+				<li class="nav-item"><a class="nav-link" href="/en/">English</a></li>
+				<li class="nav-item dropdown d-block d-md-none">
+					<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+					</ul>
+				</li>
+			</ul>
+			<li class="nav-item dropdown d-none d-md-block">
+				<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+				<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+				</ul>
+			</li>
+		</div>
+	</div>
+</nav>
 <!-- END-HEADER -->
 
 <!-- Title Strip -->
@@ -477,35 +474,26 @@
 </main>
 
 <!-- BEGIN-FOOTER -->
-<footer class="m l">
-	<nav style="width: 75%; margin: auto;">
-		<button class="transparent small-round">
-			<img class="responsive" style="margin: auto;" src="/img/icons/suika.png">
-		</button>
-		<span>&copy; 2001-2024 Keiichi Tabata.</span>
-		<div class="max"></div>
-		<button data-ui="#dialogue_about" class="button transparent small-round">このサイトについて</button>
-		<a href="https://github.com/suika2engine/suika2" class="button transparent small-round">GitHub</a>
-	</nav>
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>ビジュアルノベル制作ツール Suika2</h5>
+				<p>Suika2はビジュアルノベルを制作するためのツールです。</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>リンク</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/suika2engine/suika2">GitHub</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">
+		Copyright &copy; 2001-2024, Keiichi Tabata. All rights reserved.
+	</div>
 </footer>
-<footer class="s">
-	<nav>
-		<span>&copy; 2001-2024 Keiichi Tabata.</span>
-		<div class="max"></div>
-		<button data-ui="#dialogue_about" class="button transparent small-round">このサイトについて</button>
-	</nav>
-</footer>
-<dialog id="dialogue_about" class="small-round">
-	<h5>suika2.com</h5>
-	<p class="large-text large-line">
-		suika2.comはノベル制作ツールSuika2の公式サイトです。
-	</p>
-	<p class="large-text large-line">Webデザイン: Kyou</p>
-	<nav class="left-align no-space">
-		<button data-ui="#dialogue_about" class="button secondary transparent small-round">閉じる</button>
-	</nav>
-</dialog>
-<script src="/js/dm.js" defer></script>
+<script src="/js/darkmode.js"></script>
 <!-- END-FOOTER -->
 
 </body>
