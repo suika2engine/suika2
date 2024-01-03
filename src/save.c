@@ -1027,7 +1027,7 @@ static bool deserialize_stage(struct rfile *rf)
 		text[0] = '\0';
 		if (gets_rfile(rf, text, sizeof(text)) == NULL)
 			strcpy(text, "none");
-		if (i == LAYER_BG) {
+		if (i == LAYER_BG || i == LAYER_BG2) {
 			if (strcmp(text, "none") == 0 ||
 			    strcmp(text, "") == 0) {
 				fname = NULL;
@@ -1055,13 +1055,29 @@ static bool deserialize_stage(struct rfile *rf)
 					return false;
 			}
 		} else {
+			const char *dir;
+			switch (i) {
+			case LAYER_CHB:
+			case LAYER_CHL:
+			case LAYER_CHLC:
+			case LAYER_CHR:
+			case LAYER_CHRC:
+			case LAYER_CHC:
+			case LAYER_CHF:
+				dir = CH_DIR;
+				break;
+			default:
+				dir = CG_DIR;
+				break;
+			}
+
 			if (strcmp(text, "none") == 0 ||
 			    strcmp(text, "") == 0) {
 				fname = NULL;
 				img = NULL;
 			} else {
 				fname = &text[0];
-				img = create_image_from_file(CH_DIR, text);
+				img = create_image_from_file(dir, text);
 				if (img == NULL)
 					return false;
 			}
