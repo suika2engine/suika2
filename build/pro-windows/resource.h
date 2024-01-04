@@ -45,6 +45,7 @@
 
 /* Help Menu */
 #define ID_VERSION                          210
+#define ID_DARKMODE                         211
 
 /* Export Menu */
 #define ID_EXPORT_WIN                       220

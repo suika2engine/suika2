@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -18,6 +18,7 @@
  *  - 2022/06/09 デバッガに対応
  *  - 2022/08/07 GUIに機能を移管
  *  - 2023/06/11 名前変数に対応
+ *  - 2024/01/04 ループアニメの登録に対応
  */
 
 #include "suika.h"
@@ -27,7 +28,7 @@
 #endif
 
 /* セーブデータの互換性バージョン(12.42で導入) */
-#define SAVE_VER	(0xabcd1415)
+#define SAVE_VER	(0xabcd1546)
 
 #ifdef SUIKA_TARGET_WASM
 #include <emscripten/emscripten.h>
@@ -102,6 +103,7 @@ static bool serialize_message(struct wfile *wf, int index);
 static bool serialize_thumb(struct wfile *wf, int index);
 static bool serialize_command(struct wfile *wf);
 static bool serialize_stage(struct wfile *wf);
+static bool serialize_anime(struct wfile *wf);
 static bool serialize_sound(struct wfile *wf);
 static bool serialize_volumes(struct wfile *wf);
 static bool serialize_vars(struct wfile *wf);
@@ -111,6 +113,7 @@ static bool serialize_config_helper(struct wfile *wf, bool is_global);
 static bool deserialize_all(const char *fname);
 static bool deserialize_command(struct rfile *rf);
 static bool deserialize_stage(struct rfile *rf);
+static bool deserialize_anime(struct rfile *rf);
 static bool deserialize_sound(struct rfile *rf);
 static bool deserialize_volumes(struct rfile *rf);
 static bool deserialize_vars(struct rfile *rf);
@@ -409,6 +412,10 @@ static bool serialize_all(const char *fname, uint64_t *timestamp, int index)
 		if (!serialize_stage(wf))
 			break;
 
+		/* アニメのシリアライズを行う */
+		if (!serialize_anime(wf))
+			break;
+
 		/* サウンドのシリアライズを行う */
 		if (!serialize_sound(wf))
 			break;
@@ -626,6 +633,25 @@ static bool serialize_stage(struct wfile *wf)
 	return true;
 }
 
+/* アニメをシリアライズする */
+static bool serialize_anime(struct wfile *wf)
+{
+	const char *file;
+	int i;
+
+	for (i = 0; i < REG_ANIME_COUNT; i++) {
+		file = get_reg_anime_file_name(i);
+		if (file == NULL)
+			file = "none";
+		if (strcmp(file, "") == 0)
+			file = "none";
+		if (write_wfile(wf, file, strlen(file) + 1) < strlen(file) + 1)
+			return false;
+	}
+
+	return true;
+}
+
 /* サウンドをシリアライズする */
 static bool serialize_sound(struct wfile *wf)
 {
@@ -793,8 +819,6 @@ bool have_quick_save_data(void)
  */
 bool quick_load(void)
 {
-	int i;
-
 	/* 既読フラグのセーブを行う */
 	save_seen();
 
@@ -808,10 +832,6 @@ bool quick_load(void)
 	/* ステージを初期化する */
 	if (!reload_stage())
 		abort();
-
-	/* アニメを停止する */
-	for (i = 0; i < STAGE_LAYERS; i++)
-		clear_anime_sequence(i);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
@@ -849,7 +869,6 @@ bool quick_load(void)
 bool execute_load(int index)
 {
 	char s[128];
-	int i;
 
 	/* ファイル名を求める */
 	snprintf(s, sizeof(s), "%03d.sav", index);
@@ -867,10 +886,6 @@ bool execute_load(int index)
 	/* ステージを初期化する */
 	if (!reload_stage())
 		abort();
-
-	/* アニメを停止する */
-	for (i = 0; i < STAGE_LAYERS; i++)
-		clear_anime_sequence(i);
 
 	/* 名前ボックス、メッセージボックス、選択ボックスを非表示とする */
 	show_namebox(false);
@@ -942,6 +957,10 @@ static bool deserialize_all(const char *fname)
 
 		/* ステージのデシリアライズを行う */
 		if (!deserialize_stage(rf))
+			break;
+
+		/* アニメのデシリアライズを行う */
+		if (!deserialize_anime(rf))
 			break;
 
 		/* サウンドのデシリアライズを行う */
@@ -1104,6 +1123,26 @@ static bool deserialize_stage(struct rfile *rf)
 			else
 				set_layer_text(i, NULL);
 		}
+	}
+
+	return true;
+}
+
+/* アニメをデシリアライズする */
+static bool deserialize_anime(struct rfile *rf)
+{
+	char text[4096];
+	int i;
+
+	cleanup_anime();
+
+	for (i = 0; i < REG_ANIME_COUNT; i++) {
+		if (gets_rfile(rf, text, sizeof(text)) == NULL)
+			continue;
+		if (strcmp(text, "none") == 0)
+			continue;
+		if (!load_anime_from_file(text, i))
+			return false;
 	}
 
 	return true;

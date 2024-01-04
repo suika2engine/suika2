@@ -46,10 +46,41 @@ static bool init(void)
 	const char *fname;
 	const char *spec;
 	int i;
+	bool reg_index;
 
 	/* パラメータを取得する */
 	fname = get_string_param(ANIME_PARAM_FILE);
 	spec = get_string_param(ANIME_PARAM_SPEC);
+
+	/* 修飾を処理する */
+	is_async = false;
+	is_sysmenu = true;
+	reg_index = -1;
+	if (strstr(spec, "async") != NULL)
+		is_async = true;
+	if (strstr(spec, "nosysmenu") != NULL)
+		is_sysmenu = false;
+	if (!is_async && strstr(spec, "showmsgbox") == NULL) {
+		show_namebox(false);
+		show_msgbox(false);
+		show_click(false);
+	}
+	if (strstr(spec, "reg00") != NULL)
+		reg_index = 0;
+	if (strstr(spec, "reg01") != NULL)
+		reg_index = 1;
+	if (strstr(spec, "reg02") != NULL)
+		reg_index = 2;
+	if (strstr(spec, "reg03") != NULL)
+		reg_index = 3;
+	if (strstr(spec, "reg04") != NULL)
+		reg_index = 4;
+	if (strstr(spec, "reg05") != NULL)
+		reg_index = 5;
+	if (strstr(spec, "reg06") != NULL)
+		reg_index = 6;
+	if (strstr(spec, "reg07") != NULL)
+		reg_index = 7;
 
 	/* アニメファイル名を処理する */
 	if (strcmp(fname, "finish-all") == 0) {
@@ -66,23 +97,10 @@ static bool init(void)
 			finish_layer_anime(i);
 	} else {
 		/* アニメファイルをロードする */
-		if (!load_anime_from_file(fname)) {
+		if (!load_anime_from_file(fname, reg_index)) {
 			log_script_exec_footer();
 			return false;
 		}
-	}
-
-	/* 修飾を処理する */
-	is_async = false;
-	is_sysmenu = true;
-	if (strstr(spec, "async") != NULL)
-		is_async = true;
-	if (strstr(spec, "nosysmenu") != NULL)
-		is_sysmenu = false;
-	if (!is_async && strstr(spec, "showmsgbox") == NULL) {
-		show_namebox(false);
-		show_msgbox(false);
-		show_click(false);
 	}
 
 	/* 繰り返し動作を開始する */
