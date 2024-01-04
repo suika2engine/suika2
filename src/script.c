@@ -2210,7 +2210,7 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 		/* 行を処理する */
 		if (!reparse_smode_line(index, state, &accepted, &ret_index))
 			return false;
-		index = ret_index + 1;
+		index = ret_index;
 		if (accepted == SMODE_ACCEPT_NONE)
 			continue;
 		if (accepted == SMODE_ACCEPT_CASE) {
