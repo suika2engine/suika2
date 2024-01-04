@@ -51,6 +51,7 @@ struct layer_context {
 	uint64_t sw;
 	float cur_lap;
 	int loop_rem;
+	char *file;
 };
 static struct layer_context context[STAGE_LAYERS];
 
@@ -98,6 +99,9 @@ static struct layer_name_map layer_name_map[] = {
 	{"text7", LAYER_TEXT7},
 	{"text8", LAYER_TEXT8},
 };
+
+/* Registered Anime Files */
+static char *reg_anime_file[REG_ANIME_COUNT];
 
 /* ロード中の情報 */
 static int cur_seq_layer;
@@ -152,19 +156,36 @@ void cleanup_anime(void)
 		}
 	}
 	memset(context, 0, sizeof(context));
+
+	for (i = 0; i < REG_ANIME_COUNT; i++) {
+		if (reg_anime_file[i] != NULL) {
+			free(reg_anime_file[i]);
+			reg_anime_file[i] = NULL;
+		}
+	}
 }
 
 /*
  * アニメーションファイルを読み込む
  */
-bool load_anime_from_file(const char *fname)
+bool load_anime_from_file(const char *fname, int reg_index)
 {
+	/* Load the anime file. */
 	cur_seq_layer = -1;
-
 	reset_lap_timer(&cur_sw);
-
 	if (!load_anime_file(fname))
 		return false;
+
+	/* Register an anime file for looping. */
+	if (reg_anime_file[reg_index] != NULL) {
+		free(reg_anime_file[reg_index]);
+		reg_anime_file[reg_index] = NULL;
+	}
+	reg_anime_file[reg_index] = strdup(fname);
+	if (reg_anime_file[reg_index] == NULL) {
+		log_memory();
+		return false;
+	}
 
 	return true;
 }
@@ -181,6 +202,10 @@ void clear_anime_sequence(int layer)
 	context[layer].seq_count = 0;
 	context[layer].is_running = false;
 	context[layer].is_finished = false;
+	if (context[layer].file != NULL) {
+		free(context[layer].file);
+		context[layer].file = NULL;
+	}
 
 	for (i = 0; i < STAGE_LAYERS; i++) {
 		for (j = 0 ; j < SEQUENCE_COUNT; j++) {
@@ -287,6 +312,10 @@ bool finish_layer_anime(int layer)
 	context[layer].is_finished = true;
 	context[layer].cur_lap = 0;
 	context[layer].loop_rem = 0;
+	if (context[layer].file != NULL) {
+		free(context[layer].file);
+		context[layer].file = NULL;
+	}
 
 	return true;
 }
@@ -696,6 +725,12 @@ static float calc_pos_y_to(int anime_layer, int index, const char *value)
 		ret = (float)atoi(value);
 
 	return ret;
+}
+
+/* ループアニメファイル名を取得する */
+const char *get_reg_anime_file_name(int reg_index)
+{
+	return reg_anime_file[reg_index];
 }
 
 /* アニメーションファイルをロードする */

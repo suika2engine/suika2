@@ -12,6 +12,11 @@
 #include "image.h"
 
 /*
+ * Maximum amount of registered anime files.
+ */
+#define REG_ANIME_COUNT		(8)
+
+/*
  * アニメーションの加速
  */
 enum anime_accel {
@@ -27,7 +32,7 @@ bool init_anime(void);
 void cleanup_anime(void);
 
 /* アニメーションファイルを読み込む */
-bool load_anime_from_file(const char *fname);
+bool load_anime_from_file(const char *fname, int reg_index);
 
 /* アニメーションシーケンスをクリアする */
 void clear_anime_sequence(int layer);
@@ -53,5 +58,8 @@ bool is_anime_finished_for_layer(int layer);
 
 /* アニメーションのフレームを更新する */
 void update_anime_frame(void);
+
+/* ループアニメファイル名を取得する */
+const char *get_reg_anime_file_name(int reg_index);
 
 #endif
