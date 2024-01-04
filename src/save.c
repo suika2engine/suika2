@@ -1046,7 +1046,7 @@ static bool deserialize_stage(struct rfile *rf)
 		text[0] = '\0';
 		if (gets_rfile(rf, text, sizeof(text)) == NULL)
 			strcpy(text, "none");
-		if (i == LAYER_BG || i == LAYER_BG2) {
+		if (i == LAYER_BG) {
 			if (strcmp(text, "none") == 0 ||
 			    strcmp(text, "") == 0) {
 				fname = NULL;
@@ -1076,6 +1076,9 @@ static bool deserialize_stage(struct rfile *rf)
 		} else {
 			const char *dir;
 			switch (i) {
+			case LAYER_BG2:
+				dir = BG_DIR;
+				break;
 			case LAYER_CHB:
 			case LAYER_CHL:
 			case LAYER_CHLC:
@@ -1090,8 +1093,7 @@ static bool deserialize_stage(struct rfile *rf)
 				break;
 			}
 
-			if (strcmp(text, "none") == 0 ||
-			    strcmp(text, "") == 0) {
+			if (strcmp(text, "none") == 0 || strcmp(text, "") == 0) {
 				fname = NULL;
 				img = NULL;
 			} else {
