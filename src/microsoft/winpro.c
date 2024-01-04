@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -20,6 +20,7 @@
  *  2023-12-05 Added a support for project files
  *  2023-12-09 Refactored
  *  2023-12-11 Separated winmain.c to winmain.c and winpro.c
+ *  2024-01-04 Added the dark mode and the preference save/load.
  */
 
 /* Suika2 Base */
@@ -94,15 +95,26 @@
 #define CONV_MESSAGE_SIZE	(65536)
 
 /* Colors */
-#define COLOR_BG_DEFAULT	0x00282828
-#define COLOR_FG_DEFAULT	0x00ffffff
-#define COLOR_COMMENT		0x00808080
-#define COLOR_LABEL			0x006200ee
-#define COLOR_ERROR			0x000000ff
-#define COLOR_COMMAND_NAME	0x0088c8cb
-#define COLOR_PARAM_NAME	0x00c08c8c
-#define COLOR_NEXT_EXEC		0x00bbf68c
-#define COLOR_CURRENT_EXEC	0x00c0c0ff
+#define LIGHT_BG_DEFAULT	0x00ffffff
+#define LIGHT_FG_DEFAULT	0x00000000
+#define LIGHT_COMMENT		0x00808080
+#define LIGHT_LABEL			0x00ff0000
+#define LIGHT_ERROR			0x000000ff
+#define LIGHT_COMMAND_NAME	0x00ff0000
+#define LIGHT_PARAM_NAME	0x00c0f0c0
+#define LIGHT_NEXT_EXEC		0x00ffc0c0
+#define LIGHT_CURRENT_EXEC	0x00c0c0ff
+#define LIGHT_SELECTED		0x0033ccff
+#define DARK_BG_DEFAULT		0x00282828
+#define DARK_FG_DEFAULT		0x00ffffff
+#define DARK_COMMENT		0x00808080
+#define DARK_LABEL			0x006200ee
+#define DARK_ERROR			0x000000ff
+#define DARK_COMMAND_NAME	0x0060a0a0
+#define DARK_PARAM_NAME		0x00e0acac
+#define DARK_NEXT_EXEC		0x00a0e070
+#define DARK_CURRENT_EXEC	0x00b0b0e0
+#define DARK_SELECTED		0x00282828
 
 /* 変数テキストボックスのテキストの最大長(形: "$00001=12345678901\r\n") */
 #define VAR_TEXTBOX_MAX		(11000 * (1 + 5 + 1 + 11 + 2))
@@ -180,7 +192,10 @@ static BOOL bEnglish;
 /* 実行中であるか */
 static BOOL bRunning;
 
-/* 発生したイベントの状態 */	
+/* ダークモードか */
+static BOOL bDarkMode;
+
+/* 発生したイベントの状態 */
 static BOOL bContinuePressed;		/* 「続ける」ボタンが押下された */
 static BOOL bNextPressed;			/* 「次へ」ボタンが押下された */
 static BOOL bStopPressed;			/* 「停止」ボタンが押下された */
@@ -190,6 +205,17 @@ static int nLineChanged;			/* 実行行が変更された場合の行番号 */
 static BOOL bRangedChanged;			/* 複数行の変更が加えられるか */
 static BOOL bFirstChange;			/* スクリプトモデル変更後、最初の通知 */
 static BOOL bIgnoreChange;			/* リッチエディットへの変更を無視する */
+
+/* Colors */
+static DWORD dwColorBgDefault = LIGHT_BG_DEFAULT;
+static DWORD dwColorFgDefault = LIGHT_FG_DEFAULT;
+static DWORD dwColorComment = LIGHT_COMMENT;
+static DWORD dwColorLabel = LIGHT_LABEL;
+static DWORD dwColorError = LIGHT_ERROR;
+static DWORD dwColorCommandName = LIGHT_COMMAND_NAME;
+static DWORD dwColorParamName = LIGHT_PARAM_NAME;
+static DWORD dwColorNextExec = LIGHT_NEXT_EXEC;
+static DWORD dwColorCurrentExec = LIGHT_CURRENT_EXEC;
 
 /*
  * Forward Declaration
@@ -258,8 +284,12 @@ static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void);
 static VOID RichEdit_InsertText(const wchar_t *pLine, ...);
 
 /* Project */
-static BOOL CreateProject(void);
-static BOOL OpenProject(const wchar_t *pszPath);
+static BOOL CreateOrChooseProject(void);
+static BOOL CreateProjectFromTemplate(void);
+static BOOL ChooseProject(void);
+static BOOL OpenProjectAtPath(const wchar_t *pszPath);
+static VOID ReadProjectFile(void);
+static VOID WriteProjectFile(void);
 
 /* Command Handlers */
 static VOID OnOpenGameFolder(void);
@@ -277,6 +307,9 @@ static VOID OnExportWinMac(void);
 static VOID OnExportWeb(void);
 static VOID OnExportAndroid(void);
 static VOID OnExportIOS(void);
+
+/* Dark Mode */
+static VOID OnDarkMode(void);
 
 /* Export Helpers */
 static VOID RecreateDirectory(const wchar_t *path);
@@ -383,10 +416,13 @@ static BOOL InitProject(VOID)
 		/* If we are in a game directory: */
 		if (FILE_EXISTS("conf\\config.txt") &&
 			FILE_EXISTS("txt\\init.txt"))
+		{
+			/* We use "in-folder mode" for compatibilities. */
 			return TRUE;
+		}
 
-		/* Create a new project. */
-		if (!CreateProject())
+		/* Create a new project or choose an existing project. */
+		if (!CreateOrChooseProject())
 		{
 			MessageBox(NULL, bEnglish ?
 					   L"Failed to create a project." :
@@ -395,13 +431,16 @@ static BOOL InitProject(VOID)
 					   MB_OK | MB_ICONERROR);
 			return FALSE;
 		}
+
+		/* Succeeded. */
 		return TRUE;
 	}
 
-	/* If an argument is specified, open an existing project. */
-	if (!OpenProject(__wargv[1]))
+	/* If an argument is specified, open it as an existing project. */
+	if (!OpenProjectAtPath(__wargv[1]))
 		return FALSE;
 
+	/* Succeeded. */
 	return TRUE;
 }
 
@@ -831,7 +870,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		NULL);
 	SendMessage(hWndRichEdit, EM_SHOWSCROLLBAR, (WPARAM)SB_VERT, (LPARAM)TRUE);
 	SendMessage(hWndRichEdit, EM_SETEVENTMASK, 0, (LPARAM)ENM_CHANGE);
-	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)COLOR_BG_DEFAULT);
+	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
 	SendMessage(hWndRichEdit, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
 
 	/* 変数のテキストボックスを作成する */
@@ -1152,6 +1191,11 @@ static VOID InitMenu(HWND hWnd)
 	nOrder = 0;
 	mi.wID = ID_VERSION;
 	mi.dwTypeData = bEnglish ? L"Version(&V)" : L"バージョン(&V)\tCtrl+V";
+	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
+
+	/* ダークモードを作成する */
+	mi.wID = ID_DARKMODE;
+	mi.dwTypeData = bEnglish ? L"Dark mode" : L"ダークモード";
 	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
 
 	/* メインメニューをセットする */
@@ -1909,6 +1953,9 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 	case ID_VERSION:
 		MessageBox(hWndMain, bEnglish ? VERSION_EN : VERSION_JP,
 				   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
+		break;
+	case ID_DARKMODE:
+		OnDarkMode();
 		break;
 	/* ボタン */
 	case ID_VARS:
@@ -3127,28 +3174,28 @@ static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR,
 
 	/* 行を選択して選択範囲のテキスト色をデフォルトに変更する */
 	RichEdit_SetSelectedRange(nLineStartCR, nLineLen);
-	RichEdit_SetTextColorForSelectedRange(COLOR_FG_DEFAULT);
+	RichEdit_SetTextColorForSelectedRange(dwColorFgDefault);
 
 	/* コメントを処理する */
 	if (pText[nLineStartCRLF] == L'#')
 	{
 		/* 行全体を選択して、選択範囲のテキスト色を変更する */
 		RichEdit_SetSelectedRange(nLineStartCR, nLineLen);
-		RichEdit_SetTextColorForSelectedRange(COLOR_COMMENT);
+		RichEdit_SetTextColorForSelectedRange(dwColorComment);
 	}
 	/* ラベルを処理する */
 	else if (pText[nLineStartCRLF] == L':')
 	{
 		/* 行全体を選択して、選択範囲のテキスト色を変更する */
 		RichEdit_SetSelectedRange(nLineStartCR, nLineLen);
-		RichEdit_SetTextColorForSelectedRange(COLOR_LABEL);
+		RichEdit_SetTextColorForSelectedRange(dwColorLabel);
 	}
 	/* エラー行を処理する */
 	if (pText[nLineStartCRLF] == L'!')
 	{
 		/* 行全体を選択して、選択範囲のテキスト色を変更する */
 		RichEdit_SetSelectedRange(nLineStartCR, nLineLen);
-		RichEdit_SetTextColorForSelectedRange(COLOR_ERROR);
+		RichEdit_SetTextColorForSelectedRange(dwColorError);
 	}
 	/* コマンド行を処理する */
 	else if (pText[nLineStartCRLF] == L'@')
@@ -3169,7 +3216,7 @@ static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR,
 		{
 			/* コマンド名のテキストに色を付ける */
 			RichEdit_SetSelectedRange(nLineStartCR, nParamLen);
-			RichEdit_SetTextColorForSelectedRange(COLOR_COMMAND_NAME);
+			RichEdit_SetTextColorForSelectedRange(dwColorCommandName);
 
 			if (nCommandType != COMMAND_SET &&
 				nCommandType != COMMAND_IF &&
@@ -3204,7 +3251,7 @@ static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR,
 					nNameStart = nLineStartCR + (pParamStart - (pText + nLineStartCRLF));
 					nNameLen = pParamStop - pParamStart + 1;
 					RichEdit_SetSelectedRange(nNameStart, nNameLen);
-					RichEdit_SetTextColorForSelectedRange(COLOR_PARAM_NAME);
+					RichEdit_SetTextColorForSelectedRange(dwColorParamName);
 				}
 			}
 		}
@@ -3229,7 +3276,7 @@ static VOID RichEdit_SetBackgroundColorForNextExecuteLine(void)
 	RichEdit_SetSelectedRange(nLineStart, nLineLen);
 
 	/* 選択範囲の背景色を変更する */
-	RichEdit_SetBackgroundColorForSelectedRange(COLOR_NEXT_EXEC);
+	RichEdit_SetBackgroundColorForSelectedRange(dwColorNextExec);
 
 	/* カーソル位置を実行行の先頭に設定する */
 	RichEdit_SetCursorPosition(nLineStart);
@@ -3253,7 +3300,7 @@ static VOID RichEdit_SetBackgroundColorForCurrentExecuteLine(void)
 	RichEdit_SetSelectedRange(nLineStart, nLineLen);
 
 	/* 選択範囲の背景色を変更する */
-	RichEdit_SetBackgroundColorForSelectedRange(COLOR_CURRENT_EXEC);
+	RichEdit_SetBackgroundColorForSelectedRange(dwColorCurrentExec);
 
 	/* カーソル位置を実行行の先頭に設定する */
 	RichEdit_SetCursorPosition(nLineStart);
@@ -3267,7 +3314,7 @@ static VOID RichEdit_ClearBackgroundColorAll(void)
 	memset(&cf, 0, sizeof(cf));
 	cf.cbSize = sizeof(cf);
 	cf.dwMask = CFM_BACKCOLOR;
-	cf.crBackColor = COLOR_BG_DEFAULT;
+	cf.crBackColor = dwColorBgDefault;
 	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
 }
 
@@ -3621,7 +3668,7 @@ static VOID RichEdit_InsertText(const wchar_t *pFormat, ...)
 
 	/* リッチエディットに行を追加する */
 	wcscat(buf, L"\r");
-	RichEdit_SetTextColorForSelectedRange(COLOR_FG_DEFAULT);
+	RichEdit_SetTextColorForSelectedRange(dwColorFgDefault);
 	SendMessage(hWndRichEdit, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)buf);
 
 	/* 行を選択する */
@@ -3633,21 +3680,13 @@ static VOID RichEdit_InsertText(const wchar_t *pFormat, ...)
 }
 
 /*
- * プロジェクト
+ * Project
  */
 
-/* プロジェクトを作成する */
-static BOOL CreateProject(void)
+/* Create a new project or choose an existing project. */
+static BOOL CreateOrChooseProject(void)
 {
-	static wchar_t wszPath[1024];
-	OPENFILENAMEW ofn;
-    WIN32_FIND_DATAW wfd;
-    HANDLE hFind;
-	HANDLE hFile;
-	wchar_t *pFile;
-	BOOL bNonEmpty;
-
-	/* ダイアログを表示する */
+	/* Show a dialog and ask if the user wants to create new project. */
 	if (MessageBox(NULL,
 				   bEnglish ?
 				   L"Going to create a new game.\n"
@@ -3659,87 +3698,78 @@ static BOOL CreateProject(void)
 				   MSGBOX_TITLE,
 				   MB_YESNO) == IDNO)
 	{
-		/* ファイルダイアログを開く */
+		return ChooseProject();
+	}
+
+	return CreateProjectFromTemplate();
+}
+
+/* Create a new project from a template. */
+static BOOL CreateProjectFromTemplate(void)
+{
+	static wchar_t wszPath[1024];
+	OPENFILENAMEW ofn;
+    WIN32_FIND_DATAW wfd;
+    HANDLE hFind;
+	HANDLE hFile;
+	wchar_t *pFile;
+	BOOL bNonEmpty;
+
+	while (1)
+	{
+		/* Show a save dialog. */
 		ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
 		wcscpy(&wszPath[0], L"game.suika2project");
 		ofn.lStructSize = sizeof(OPENFILENAMEW);
-		ofn.nFilterIndex = 1;
+		ofn.nFilterIndex  = 1;
 		ofn.lpstrFile = wszPath;
 		ofn.nMaxFile = sizeof(wszPath) / sizeof(wchar_t);
-		ofn.Flags = OFN_FILEMUSTEXIST;
+		ofn.Flags = OFN_OVERWRITEPROMPT;
 		ofn.lpstrFilter = bEnglish ?
 			L"Suika2 Project Files\0*.suika2project;*.suika2project\0\0" :
 			L"Suika2 プロジェクトファイル\0*.suika2project\0\0";
 		ofn.lpstrDefExt = L".suika2project";
-		if (!GetOpenFileNameW(&ofn))
+		if (!GetSaveFileNameW(&ofn))
 			return FALSE;
-		if(ofn. lpstrFile[0] == L'\0')
+		if (ofn.lpstrFile[0] == L'\0')
 			return FALSE;
-		return TRUE;
-	}
 
-	/* ファイルダイアログの準備を行う */
-	ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
-	wcscpy(&wszPath[0], L"game.suika2project");
-	ofn.lStructSize = sizeof(OPENFILENAMEW);
-	ofn.nFilterIndex  = 1;
-	ofn.lpstrFile = wszPath;
-	ofn.nMaxFile = sizeof(wszPath) / sizeof(wchar_t);
-	ofn.Flags = OFN_OVERWRITEPROMPT;
-	ofn.lpstrFilter = bEnglish ?
-		L"Suika2 Project Files\0*.suika2project;*.suika2project\0\0" :
-		L"Suika2 プロジェクトファイル\0*.suika2project\0\0";
-	ofn.lpstrDefExt = L".suika2project";
+		/* Get the base file name. */
+		pFile = wcsrchr(ofn.lpstrFile, L'\\');
+		if (pFile == NULL)
+			return FALSE;
+		pFile++;
 
-	/* ファイルダイアログを開く */
-	if (!GetSaveFileNameW(&ofn))
-		return FALSE;
-	if (ofn.lpstrFile[0] == L'\0')
-		return FALSE;
-	pFile = wcsrchr(ofn.lpstrFile, L'\\');
-	if (pFile == NULL)
-		return FALSE;
-	pFile++;
-
-	/* 変更先のディレクトリが空であるか確認する */
-	hFind = FindFirstFileW(L".\\*.*", &wfd);
-	if (hFind == INVALID_HANDLE_VALUE)
-	{
-		MessageBox(NULL, bEnglish ?
-				   L"Invalid folder.\n" : L"フォルダが存在しません。",
-				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
-		return FALSE;
-	}
-	bNonEmpty = FALSE;
-	do
-	{
-		if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && wfd.cFileName[0] == L'.')
-			continue;
-		bNonEmpty = TRUE;
-		break;
-	} while(FindNextFileW(hFind, &wfd));
-    FindClose(hFind);
-	if (bNonEmpty)
-	{
-		if (_access("new-game", 0) != -1)
+		/* Check if the directory is empty. */
+		hFind = FindFirstFileW(L".\\*.*", &wfd);
+		if (hFind == INVALID_HANDLE_VALUE)
 		{
 			MessageBox(NULL, bEnglish ?
-					   L"Folder is not empty and there is already a new-game folder." :
-					   L"フォルダが空ではありません。new-gameフォルダもすでに存在します。",
+					   L"Invalid folder. Please choose one again." :
+					   L"フォルダが存在しません。選択しなおしてください。",
 					   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
-			return FALSE;
+			continue;
+		}
+		bNonEmpty = FALSE;
+		do
+		{
+			if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && wfd.cFileName[0] == L'.')
+				continue;
+			bNonEmpty = TRUE;
+			break;
+		} while(FindNextFileW(hFind, &wfd));
+		FindClose(hFind);
+		if (bNonEmpty)
+		{
+			MessageBox(NULL, bEnglish ?
+					   L"Folder is not empty. Please create an empty folder." :
+					   L"フォルダが空ではありません。空のフォルダを作成してください。",
+					   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+			continue;
 		}
 
-		MessageBox(NULL, bEnglish ?
-				   L"Folder is not empty.\n"
-				   L"Going to create a folder." :
-				   L"フォルダが空ではありません。\n"
-				   L"new-gameフォルダを作成します。",
-				   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
-
-		/* ディレクトリを作成する */
-		CreateDirectory(L".\\new-game", 0);
-		SetCurrentDirectory(L".\\new-game");
+		/* Finish choosing a directory. */
+		break;
 	}
 
 	/* プロジェクトファイルを作成する */
@@ -3778,29 +3808,135 @@ static BOOL CreateProject(void)
 	return CopyLibraryFiles(L"games\\japanese\\*", L".\\");
 }
 
-/* プロジェクトを開く */
-static BOOL OpenProject(const wchar_t *pszPath)
+/* Choose a project and open it. */
+static BOOL ChooseProject(void)
+{
+	static wchar_t wszPath[1024];
+	OPENFILENAMEW ofn;
+
+	/* Open a file dialog. */
+	ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
+	wcscpy(&wszPath[0], L"game.suika2project");
+	ofn.lStructSize = sizeof(OPENFILENAMEW);
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = wszPath;
+	ofn.nMaxFile = sizeof(wszPath) / sizeof(wchar_t);
+	ofn.Flags = OFN_FILEMUSTEXIST;
+	ofn.lpstrFilter = bEnglish ?
+		L"Suika2 Project Files\0*.suika2project;*.suika2project\0\0" :
+		L"Suika2 プロジェクトファイル\0*.suika2project\0\0";
+	ofn.lpstrDefExt = L".suika2project";
+
+	/* This will set the working directory to the game directory. */
+	if (!GetOpenFileNameW(&ofn))
+		return FALSE;
+
+	/* If no file was selected. */
+	if(ofn. lpstrFile[0] == L'\0')
+		return FALSE;
+
+	/* Read a project file. */
+	ReadProjectFile();
+
+	return TRUE;
+}
+
+/* Open a project by a path. */
+static BOOL OpenProjectAtPath(const wchar_t *pszPath)
 {
 	wchar_t path[1024];
 	wchar_t *pLastSeparator;
 
+	/* Get the folder name. */
 	wcsncpy(path, pszPath, sizeof(path) / sizeof(wchar_t) - 1);
 	path[sizeof(path) / sizeof(wchar_t) - 1] = L'\0';
 	pLastSeparator = wcsrchr(path, L'\\');
 	if (pLastSeparator == NULL)
 	{
-		MessageBox(NULL, L"ファイル名が正しくありません", MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+		MessageBox(NULL, bEnglish ?
+				   L"Invalid file name." :
+				   L"ファイル名が正しくありません。",
+				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	*pLastSeparator = L'\0';
 
+	/* Set the working directory. */
 	if (!SetCurrentDirectory(path))
 	{
-		MessageBox(NULL, L"ゲームフォルダが正しくありません", MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+		MessageBox(NULL, bEnglish ?
+				   L"Invalid game folder." :
+				   L"ゲームフォルダが正しくありません。",
+				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 
+	/* Read a project file. */
+	ReadProjectFile();
+
 	return TRUE;
+}
+
+static void ReadProjectFile(void)
+{
+	const char *DARKMODE = "darkmode\n";
+
+	char buf[1024];
+	FILE *fp;
+
+	/* Defaults */
+	bDarkMode = FALSE;
+	dwColorBgDefault = LIGHT_BG_DEFAULT;
+	dwColorFgDefault = LIGHT_FG_DEFAULT;
+	dwColorComment = LIGHT_COMMENT;
+	dwColorLabel = LIGHT_LABEL;
+	dwColorError = LIGHT_ERROR;
+	dwColorCommandName = LIGHT_COMMAND_NAME;
+	dwColorParamName = LIGHT_PARAM_NAME;
+	dwColorNextExec = LIGHT_NEXT_EXEC;
+	dwColorCurrentExec = LIGHT_CURRENT_EXEC;
+
+	/* Read the preference. */
+	fp = fopen("game.suika2project", "r");
+	if (fp == NULL)
+		return;
+	while (1)
+	{
+		if (fread(buf, 1, sizeof(buf) - 1, fp) < 1)
+			break;
+
+		if (strcmp(buf, DARKMODE) == 0)
+		{
+			bDarkMode = TRUE;
+			dwColorBgDefault = DARK_BG_DEFAULT;
+			dwColorFgDefault = DARK_FG_DEFAULT;
+			dwColorComment = DARK_COMMENT;
+			dwColorLabel = DARK_LABEL;
+			dwColorError = DARK_ERROR;
+			dwColorCommandName = DARK_COMMAND_NAME;
+			dwColorParamName = DARK_PARAM_NAME;
+			dwColorNextExec = DARK_NEXT_EXEC;
+			dwColorCurrentExec = DARK_CURRENT_EXEC;
+		}
+	}
+	fclose(fp);
+
+	if (hWndRichEdit != NULL)
+		SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
+}
+
+static void WriteProjectFile(void)
+{
+	FILE *fp;
+
+	fp = fopen("game.suika2project", "w");
+	if (fp == NULL)
+		return;
+
+	if (bDarkMode)
+		fprintf(fp, "darkmode\n");
+
+	fclose(fp);
 }
 
 /*
@@ -4518,6 +4654,36 @@ static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir)
 	}
 
 	return TRUE;
+}
+
+/*
+ * Dark Mode
+ */
+
+static VOID OnDarkMode(void)
+{
+	if (!bDarkMode)
+	{
+		CheckMenuItem(hMenu, ID_DARKMODE, MF_CHECKED);
+		bDarkMode = TRUE;
+	}
+	else
+	{
+		CheckMenuItem(hMenu, ID_DARKMODE, MF_UNCHECKED);
+		bDarkMode = FALSE;
+	}
+
+	WriteProjectFile();
+	ReadProjectFile();
+
+	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
+	RichEdit_ClearBackgroundColorAll();
+	RichEdit_SetTextColorForAllLines();
+	if (!bRunning)
+		RichEdit_SetBackgroundColorForNextExecuteLine();
+	else
+		RichEdit_SetBackgroundColorForCurrentExecuteLine();
+	RichEdit_AutoScroll();
 }
 
 /*
