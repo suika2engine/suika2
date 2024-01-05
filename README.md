@@ -3,23 +3,31 @@
 
 ## What is Suika2?
 
-Suika2 is an open-source suite for developing visual novels; designed with a focus on cross-platform compatibility and equipped with features and tools of production-grade quality, Suika2 is perfect for both beginners and seasoned creators alike.
+Suika2 is a development suite for developing visual novels.
+It has an open-source philosophy and is designed with a true cross-platform portablity including iOS and Android.
+It is equipped with features and tools of production-grade quality.
+Suika2 is perfect for both beginners and seasoned creators alike.
 
-## What are Suika2's Development Goals?
+Effortlessness and efficiently are key concepts of Suika2,
+and it provides that without sacrificing features or usability,
+providing tools and features to enrich both the creator and user experience.
 
-Suika2 aspires to set a new benchmark for future visual novel creation tools, facilitating creators throughout their journey of creation.
-Effortlessness and efficiently are key concepts, and Suika2 provides that without sacrificing features or usability, providing tools
-and features to enrich both the creator and user experience.
+## What is the Suika2's Development Goal?
 
-## What are Suika2's characteristics?
+**A new standard for Visual Novel creation** in the era of 2020s is the goal of Suika2 development.
 
-1. **Simplicity:** Suika2 enables the creation of Visual Novels in an easy and efficient manner.
-2. **Speed:** Apps are constructed using native technologies, ensuring resource efficiency.
-3. **Cost-free:** Suika2 is a FOSS (Free and Open Source Software) project, available for use by anyone without any hidden costs or fees.
-4. **Portability:** Develop, distribute, and publish on almost any platform – Suika2 defines portability.
-5. **Cultural Value:** We hold the belief that the creation of information is humanity’s true value.
-6. **Ready for Commerce:** Game developers can publish their games on stores and earn income. Suika2 does not charge any royalty fees!
-7. **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer.
+## What are the Suika2's Mission, Vision and Value (MVV)?
+
+* Mission
+  * **Simple:** Suika2 enables the creation of Visual Novels in an easy and efficient manner.
+  * **Fast:** Apps are constructed using native technologies only, ensuring resource efficiency on mobile devices.
+  * **Free:** Suika2 is an OSS project and free for anyone without any hidden costs while it respects intellectual properties of others.
+* Vision
+  * **Earning:** Game developers can publish their games on stores and earn income.
+  * **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer including mobile devices.
+* Value
+  * **Portable:** Develop, distribute, and publish on almost any platform - Suika2 seeks the true portability.
+  * **Cultural:** We hold the belief that the creation of information is humanity's true value.
 
 ## Downloads
 
@@ -54,18 +62,19 @@ and features to enrich both the creator and user experience.
   ```
 
 Note that releases on GitHub and the official stores are infrequent.
-Please visit [the official website](https://suika2.com/en/dl/) to obtain latest releases.
+Please visit [the official website](https://suika2.com/en/dl/) to obtain the latest release.
 
 ## Discord
 
 Our community is a cherished and invaluable space that embraces developers, creators, and end-users irrespective of their nationality, language, ethnicity, color, lineage, beliefs, gender, education, age, religion, or identity.
 That's why we'd love you to join our community!
+You're definitely deserved to be a part of it.
 
 <a href="https://discord.gg/ZmvXxE8GFg"><img src="https://discordapp.com/api/guilds/986623112617541677/widget.png?style=banner1"></a>
 
 We hold a grand vision for cultural growth and engage in profound discussions, but at our core, we are simply developers and creators, so we are always interested in dialogue and conversation!
 
-## Suika2 Pro
+## Suika2 Pro series
 
 `Suika2 Pro Desktop` and `Suika2 Pro Mobile` are Suika2's creator tools, available for Windows PC, Mac, iPhone, iPad, Android phone/tablet, Chromebook and Linux.
 They provide creators with all the functionality they need, such as editing, debugging, and exporting games out of the box.
@@ -76,31 +85,12 @@ This software is released under the MIT license. There is no restriction on dist
 
 ## Contribution
 
-The best way to contribute to this project is to use it and give us feedback. We are always open to suggestions and ideas.
+The best way to contribute to this project is to use it and give us feedback.
+We are always open to suggestions and ideas.
 
 ## Live Web Demo
 
 <a href="https://suika2.com/run/sample/"><img src="https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg"></a>
-
-## Usage
-
-* On Windows:
-  * Download the `exe` file from [the official site](https://suika2.com/en/) and run it.
-  * Click the `Suika2 Pro Desktop` icon on your desktop.
-
-* On Mac:
-  * Download the `dmg` file from [the official site](https://suika2.com/en/) and open it.
-  * Copy the `Suika2 Pro Desktop` app to your `Applications` folder.
-  * Open the copied app.
-
-* On Linux:
-  * You can use the `apt` command on Ubuntu:
-  ```
-  sudo add-apt-repository ppa:ktabata/ppa
-  sudo apt update
-  sudo apt install suika2
-  suika2
-  ```
 
 ## Documentation
 
@@ -109,30 +99,29 @@ The best way to contribute to this project is to use it and give us feedback. We
 
 ## Portability
 
-Games made with Suika2 can run on Windows PC, Mac, iPhone, iPad, Android phone/tablet, Web browser, Chromebook, Linux, *BSD, and some consoles.
+Games made with Suika2 can run on Windows PC, Mac, iPhone, iPad, Android phone/tablet, Web browser, Chromebook, Linux, FreeBSD, NetBSD, OpenBSD, and some consoles.
 
-Suika2 consists of a platform independent core and a hardware abstraction layer (HAL).
-The core is written in ANSI C, the most portable programming language in the world, while HAL implementations are currently written in C, C++, Objective-C, and Java.
+Suika2 consists of a platform independent core (CORE) and a hardware abstraction layer (HAL).
+The CORE is written in ANSI C, the most portable programming language in the world, while HAL implementations are currently written in C, C++, Objective-C, and Java.
 
 If you would like to port Suika2 to a new target platform, you only need to write a thin HAL, this is generally possible within a week.
 
 Suika2 does not depend on SDKs or frameworks such as Unity, Godot, or SDL2, this is thanks to the extensive design of our compatibility layer's API.
 
-## Continuous Integration (CI) and Continuous Deployment
+## CI/CD (Continuous Integration and Continuous Deployment)
 
 * We do CI for build sanity checks on every push to the repository.
-* We will do CD with Apple's Xcode Cloud.
-* We currently don't have a way to release automatically for Windows and Android stores.
+* We currently don't have a way to do CD on the cloud due to a lack of signing capability.
+* However, the author has a release script and releases are fully automated on his MacBook Pro.
 
 ## Trivia
 
 Did you know that...
 * Midori wears a watermelon themed tie and pair of hair ribbons to stand out in her uniform?
 * "Suika" means "watermelon" in Japanese?
-* Suika2 is the successor to "Suika Studio":
+* Suika2 is the successor to "Suika Studio" and the author is a pioneer in the field of GUI editors for visual novel creation?
   * [See the 2002 version here](https://github.com/ktabata/suika-studio-2002-gpl)
   * [See the 2003 version here](https://github.com/ktabata/suika-studio-2003-gpl)
-  * The author is a pioneer in the field of GUI editors for visual novel creation.
 
 ## Sponsors
 

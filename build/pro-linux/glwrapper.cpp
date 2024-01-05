@@ -1,14 +1,14 @@
 /* -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2023, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
  * OpenGL API wrapper for Qt:
  *  - OpenGL 1.1 API is wrapped by a Qt class and we have to use it
- *  - OpenGL 2+/3+ API is wrapped by some Qt classes and we have to use them
+ *  - OpenGL 2+/3+ API is wrapped by some separated Qt classes and we have to use them
  *
  * [Changes]
  *  2023-09-07 Created.
@@ -54,18 +54,6 @@ static QOpenGLBuffer *ibo_tbl[FSHADER_COUNT];
 // Current selected program.
 //
 static GLuint cur_program = (GLuint)-1;
-
-/*
-//
-// Viewport. (referenced by OpenGLWidget::paintGL())
-//
-namespace glwrapper {
-int viewportX;
-int viewportY;
-int viewportWidth;
-int viewportHeight;
-};
-*/
 
 //
 // OpenGL 2+/3+ initialization
@@ -276,9 +264,9 @@ cleanup_fragment_shader(
 //    - API calls in glrender.c are repladed to q_gl*() by macros defined in glhelper.h
 //  - API 1.1:
 //    - Most q_gl*() are simple translations to QOpenGLFunctions::gl*()
-//    - Only q_glViewport() has a lazy applying mechanism
+//    - Only q_glViewport() is a stub for a lazy applying mechanism
 //  - API 2+:
-//    - We need some Qt's classes for shaders/program/VAO/VBO/IBO
+//    - We need some Qt classes for shader/program/VAO/VBO/IBO
 //    - We implement only glUseProgram(), glBindBuffer() and glBufferData()
 //  - API 3+
 //    - It's a stub because we call glBindVertexArray() in q_glUseProgram()
@@ -292,6 +280,8 @@ extern "C" {
 
 void q_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
+    // Nothing to do here.
+    // See also openglview.cpp
 }
 
 void q_glClear(GLbitfield mask)

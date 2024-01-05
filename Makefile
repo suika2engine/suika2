@@ -8,8 +8,8 @@ suika-linux:
 		exit 1; \
 	fi;
 	@cd build/engine-linux && \
-		make -f Makefile.shared -j8 && \
-		make -f Makefile.shared install && \
+		make -f Makefile.linux -j8 && \
+		make -f Makefile.linux install && \
 		cd ../..
 
 suika-pro:
@@ -103,6 +103,12 @@ setup:
 engine-windows:
 	cd build/engine-windows && make && cd ../..
 
+engine-windows-64:
+	cd build/engine-windows-64 && make && cd ../..
+
+engine-windows-arm64:
+	cd build/engine-windows-arm64 && make && cd ../..
+
 pro-windows:
 	cd build/pro-windows && make && cd ../..
 
@@ -114,6 +120,9 @@ pro-macos:
 
 engine-wasm:
 	cd build/engine-wasm  && make && cd ../..
+
+pro-wasm:
+	cd build/pro-wasm  && make && cd ../..
 
 engine-linux: suika-linux
 

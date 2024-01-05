@@ -11,8 +11,8 @@
 #include <QDir>
 #include <QLocale>
 
-// We dropped Qt's sound support.
-#if 0
+// We've dropped the sound support of Qt by default.
+#ifdef USE_QTAUDIO
 #include <QAudioFormat>
 #include <QAudioSink>
 #include <QIODevice>
@@ -80,15 +80,6 @@ public:
     // The unique instance of this class.
     static MainWindow *obj;
 
-    // The sound sinks.
-    //QAudioSink *m_soundSink[MIXER_STREAMS];
-
-    // Wave streams.
-    //struct wave *m_wave[MIXER_STREAMS];
-
-    // Whether waves stream are finished.
-    //bool m_waveFinish[MIXER_STREAMS];
-
     // State. (read/written from
     bool m_isRunning;
     bool m_isResumePressed;
@@ -106,6 +97,18 @@ public:
     void updateScriptView();
     void updateVariableText();
     void scrollScript();
+
+    // We've dropped the sound support of Qt by default.
+#ifdef USE_QTAUDIO
+    // The sound sinks.
+    QAudioSink *m_soundSink[MIXER_STREAMS];
+
+    // Wave streams.
+    struct wave *m_wave[MIXER_STREAMS];
+
+    // Whether waves stream are finished.
+    bool m_waveFinish[MIXER_STREAMS];
+#endif
 };
 
 #endif // MAINWINDOW_H
