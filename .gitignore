@@ -132,6 +132,8 @@ build/pro-ios/tmp/
 build/pro-android/.idea
 build/pro-android/app/src/main/assets
 build/pro-android/app/src/main/cpp
+build/pro-android/app/release
+build/pro-android/app/debug
 
 # Linux
 build/pro-linux/deps
