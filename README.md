@@ -26,7 +26,7 @@ providing tools and features to enrich both the creator and user experience.
   * **Earning:** Game developers can publish their games on stores and earn income.
   * **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer including mobile devices.
 * Value
-  * **Portable:** Develop, distribute, and publish on almost any platform - Suika2 seeks the true portability.
+  * **Diverse:** Develop, distribute, and publish on almost any platform - Suika2 seeks the true portability and we call it diversity.
   * **Cultural:** We hold the belief that the creation of information is humanity's true value.
 
 ## Downloads
