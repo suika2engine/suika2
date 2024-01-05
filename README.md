@@ -14,7 +14,7 @@ providing tools and features to enrich both the creator and user experience.
 
 ## What is the Suika2's Development Goal?
 
-**A new standard for Visual Novel creation** in the era of 2020s is the goal of Suika2 development.
+**A new standard for Visual Novel creation** in the era of 2020s is the goal of the Suika2 development.
 
 ## What are the Suika2's Mission, Vision and Value (MVV)?
 
