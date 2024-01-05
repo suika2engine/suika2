@@ -59,7 +59,11 @@ build-only:
 	@touch ../engine-wasm/html/index.html
 	@touch ../engine-wasm/html/index.js
 	@touch ../engine-wasm/html/index.wasm
-	#@xcodebuild -target "Suika2 Pro Desktop" -project pro-macos.xcodeproj -configuration Debug -destination "generic/platform=macOS,arch=armv8" build ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+	@if [ ! -z "`uname -a | grep arm64`" ]; then \
+		xcodebuild -target "Suika2 Pro Desktop" -project pro-macos.xcodeproj -configuration Debug -destination "generic/platform=macOS,arch=armv8" build ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO; \
+	else \
+		echo 'We cannot build on a x86_64 host.'
+	fi
 
 clean:
 	@rm -rf build suika2.dmg libroot-mac.tar.gz libroot

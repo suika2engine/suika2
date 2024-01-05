@@ -1,13 +1,14 @@
 /* -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2016, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2024, TABATA Keiichi. All rights reserved.
  */
 
 /*
  * [Changes]
- *  - 2023/09/07 作成
+ *  - 2023-09-07 Created.
+ *  - 2023-12-26 Changed audio output to ALSA.
  */
 
 // Suika2 Base
@@ -23,8 +24,13 @@ extern "C" {
 // HAL
 extern "C" {
 #include "glrender.h"
+};
+// We use ALSA by default.
+#ifndef USE_QTSOUND
+extern "C" {
 #include "asound.h"
 };
+#endif
 
 // Qt6
 #include "mainwindow.h"
@@ -66,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Initialize sound.
     init_asound();
 
-#if 0
+#ifdef USE_QTAUDIO
     // Setup the sound outputs.
     QAudioFormat format;
     format.setSampleFormat(QAudioFormat::Int16);
@@ -128,7 +134,7 @@ void MainWindow::onTimer()
     // Do a game frame.
     ui->openGLWidget->update();
 
-#if 0
+#ifdef USE_QTAUDIO
     const int SNDBUFSIZE = 4096;
     static uint32_t soundBuf[SNDBUFSIZE];
 
@@ -654,21 +660,8 @@ void MainWindow::on_actionExport_data01_arc_triggered()
     if (msgbox.exec() != QMessageBox::Yes)
         return;
 
-#if defined(OSX)
-    // Get the game directory.
-    char *gamePath = make_valid_path(NULL, NULL);
-    if (gamePath == NULL) {
-        log_memory();
-        return;
-    }
-
-	// Generate a package in the game folder.
-    bool ret = create_package(gamePath);
-    free(gamePath);
-#else
     // Generate a package in the current directory.
     bool ret = create_package("");
-#endif
 
     if (ret) {
 		log_info(m_isEnglish ?
@@ -682,18 +675,14 @@ void MainWindow::on_actionExport_data01_arc_triggered()
 //
 void MainWindow::on_actionExport_for_Web_triggered()
 {
-
 }
 
 //
-// Main HAL
+// Main HAL (See also src/hal.h)
 //
 
 extern "C" {
 
-//
-// Put an INFO level log.
-//
 bool log_info(const char *s, ...)
 {
     char buf[1024];
@@ -713,9 +702,6 @@ bool log_info(const char *s, ...)
     return true;
 }
 
-//
-// Put a WARN level log.
-//
 bool log_warn(const char *s, ...)
 {
     char buf[1024];
@@ -735,9 +721,6 @@ bool log_warn(const char *s, ...)
     return true;
 }
 
-//
-// Put an ERROR level log.
-//
 bool log_error(const char *s, ...)
 {
     char buf[1024];
@@ -757,41 +740,26 @@ bool log_error(const char *s, ...)
     return true;
 }
 
-//
-// Return whether we use GPU.
-//
 bool is_gpu_accelerated(void)
 {
     return true;
 }
 
-//
-// Return whether we use OpenGL (for BGRA pixel order)
-//
 bool is_opengl_enabled(void)
 {
     return true;
 }
 
-//
-// Update a texture.
-//
 void notify_image_update(struct image *img)
 {
     opengl_notify_image_update(img);
 }
 
-//
-// Destroy a texture.
-//
 void notify_image_free(struct image *img)
 {
     opengl_notify_image_free(img);
 }
 
-//
-// Render an image to screen using normal shader.
-//
 void render_image_normal(int dst_left,
                          int dst_top,
                          int dst_width,
@@ -815,9 +783,6 @@ void render_image_normal(int dst_left,
                                alpha);
 }
 
-//
-// Render an image to screen using normal shader.
-//
 void render_image_add(int dst_left,
                       int dst_top,
                       int dst_width,
@@ -841,9 +806,6 @@ void render_image_add(int dst_left,
                             alpha);
 }
 
-//
-// Render an image to screen with dim shader.
-//
 void render_image_dim(int dst_left,
                       int dst_top,
                       int dst_width,
@@ -867,25 +829,16 @@ void render_image_dim(int dst_left,
                             alpha);
 }
 
-//
-// Render an image to screen with rule shader.
-//
 void render_image_rule(struct image *src_img, struct image *rule_img, int threshold)
 {
     opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
-//
-// Render an image to screen with melt shader.
-//
 void render_image_melt(struct image *src_img, struct image *rule_img, int progress)
 {
     opengl_render_image_melt(src_img, rule_img, progress);
 }
 
-//
-// Make a sav directory.
-//
 bool make_sav_dir(void)
 {
     if (QDir(SAVE_DIR).exists())
@@ -896,9 +849,6 @@ bool make_sav_dir(void)
     return true;
 }
 
-//
-// Make a valid path for a file in a directory.
-//
 char *make_valid_path(const char *dir, const char *fname)
 {
     QDir qdir(QCoreApplication::applicationDirPath());
@@ -915,71 +865,47 @@ char *make_valid_path(const char *dir, const char *fname)
     return ret;
 }
 
-//
-// Reset a lap timer.
-//
 void reset_lap_timer(uint64_t *t)
 {
     *t = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
 }
 
-//
-// Get a lap from a lap timer.
-//
 uint64_t get_lap_timer_millisec(uint64_t *t)
 {
     uint64_t ms = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
     return ms - *t;
 }
 
-//
-// Show an exit confirmation.
-//
 bool exit_dialog(void)
 {
     // We don't show it for a debugger.
     return true;
 }
 
-//
-// Show a go-to-title confirmation.
-//
 bool title_dialog(void)
 {
     // We don't show it for a debugger.
     return true;
 }
 
-//
-// Show a delete confirmation.
-//
 bool delete_dialog(void)
 {
     // We don't show it for a debugger.
     return true;
 }
 
-//
-// Show an overwrite confirmation.
-//
 bool overwrite_dialog(void)
 {
     // We don't show it for a debugger.
     return true;
 }
 
-//
-// Show a reset confirmation.
-//
 bool default_dialog(void)
 {
     // We don't show it for a debugger.
     return true;
 }
 
-//
-// Play a video.
-//
 bool play_video(const char *fname, bool is_skippable)
 {
     // TODO:
@@ -993,9 +919,6 @@ bool play_video(const char *fname, bool is_skippable)
     return true;
 }
 
-//
-// Stop a video.
-//
 void stop_video(void)
 {
     // TODO:
@@ -1004,9 +927,6 @@ void stop_video(void)
     //is_gst_playing = false;
 }
 
-//
-// Return whether a video is playing.
-//
 bool is_video_playing(void)
 {
     // TODO:
@@ -1015,51 +935,33 @@ bool is_video_playing(void)
     return false;
 }
 
-//
-// Update a window title.
-//
 void update_window_title(void)
 {
     // TODO:
 }
 
-//
-// Return whether we support full screen mode.
-//
 bool is_full_screen_supported(void)
 {
     // We don't use full screen mode for a debugger.
     return false;
 }
 
-//
-// Return whether we are in full screen mode.
-//
 bool is_full_screen_mode(void)
 {
     // We don't use full screen mode for a debugger.
     return false;
 }
 
-//
-// Start full screen mode.
-//
 void enter_full_screen_mode(void)
 {
     // We don't use full screen mode for a debugger.
 }
 
-//
-// Exit full screen mode.
-//
 void leave_full_screen_mode(void)
 {
     // We don't use full screen mode for a debugger.
 }
 
-//
-// Get a system locale.
-//
 const char *get_system_locale(void)
 {
     const char *locale = QLocale().name().toUtf8().data();
@@ -1092,9 +994,9 @@ const char *get_system_locale(void)
 }
 
 //
-// We use ALSA because Qt lacks ALSA support and crashes on a sound initialize.
+// We use ALSA by default instead of the sound support of Qt.
 //
-#if 0
+#ifdef USE_QTAUDIO
 bool play_sound(int stream, struct wave *w)
 {
     if (MainWindow::obj == NULL)
@@ -1154,12 +1056,9 @@ void speak_text(const char *text)
 }
 
 //
-// Pro HAL
+// Pro HAL (See also src/pro.h)
 //
 
-//
-// Check if the resume button was pressed.
-//
 bool is_continue_pushed(void)
 {
     bool ret = MainWindow::obj->m_isResumePressed;
@@ -1167,9 +1066,6 @@ bool is_continue_pushed(void)
     return ret;
 }
 
-//
-// Check if the next button was pressed.
-//
 bool is_next_pushed(void)
 {
     bool ret = MainWindow::obj->m_isNextPressed;
@@ -1177,9 +1073,6 @@ bool is_next_pushed(void)
     return ret;
 }
 
-//
-// Check if the stop button was pressed.
-//
 bool is_stop_pushed(void)
 {
     bool ret = MainWindow::obj->m_isPausePressed;
@@ -1187,9 +1080,6 @@ bool is_stop_pushed(void)
     return ret;
 }
 
-//
-// Check if the script file name changed.
-//
 bool is_script_opened(void)
 {
     bool ret = MainWindow::obj->m_isChangeScriptPressed;
@@ -1197,9 +1087,6 @@ bool is_script_opened(void)
     return ret;
 }
 
-//
-// Get a script file name after a change.
-//
 const char *get_opened_script(void)
 {
     static char script[256];
@@ -1207,9 +1094,6 @@ const char *get_opened_script(void)
     return script;
 }
 
-//
-// Check if the line number to execute is changed.
-//
 bool is_exec_line_changed(void)
 {
     bool ret = MainWindow::obj->m_isChangeLinePressed;
@@ -1217,17 +1101,11 @@ bool is_exec_line_changed(void)
     return ret;
 }
 
-//
-// Get a line number after a change.
-//
 int get_changed_exec_line(void)
 {
     return MainWindow::obj->ui->lineNumberEdit->text().toInt();
 }
 
-//
-// Check if the command string is updated.
-//
 bool is_command_updated(void)
 {
     bool ret = MainWindow::obj->m_isCommandUpdatePressed;
@@ -1235,9 +1113,6 @@ bool is_command_updated(void)
     return ret;
 }
 
-//
-// Get a command string after a update.
-//
 const char *get_updated_command(void)
 {
     static char command[4096];
@@ -1245,9 +1120,6 @@ const char *get_updated_command(void)
     return command;
 }
 
-//
-// Check if the script is reloaded.
-//
 bool is_script_reloaded(void)
 {
     bool ret = MainWindow::obj->m_isReloadPressed;
@@ -1256,42 +1128,33 @@ bool is_script_reloaded(void)
     return false;
 }
 
-//
-// Set the command running state.
-//
 void on_change_running_state(bool running, bool request_stop)
 {
-    // 実行状態を保存する
+    // Save the running state.
     MainWindow::obj->m_isRunning = running;
 
-    // 停止によりコマンドの完了を待機中のとき
+    // If we are waiting for a stop by a request.
     if(request_stop) {
         MainWindow::obj->setWaitingState();
         return;
     }
 
-    // 実行中のとき 
+    // If we are running.
     if(running) {
         MainWindow::obj->setRunningState();
         return;
     }
 
-    // 完全に停止中のとき
+    // If we are stopping.
     MainWindow::obj->setStoppedState();
 }
 
-//
-// デバッグ情報を更新する
-//
 void on_load_script(void)
 {
     MainWindow::obj->ui->fileNameTextEdit->setText(get_script_file_name());
     MainWindow::obj->updateScriptView();
 }
 
-//
-// デバッグ情報を更新する
-//
 void on_change_position(void)
 {
     MainWindow::obj->ui->lineNumberEdit->setText(QString::number(get_expanded_line_num()));
@@ -1299,13 +1162,9 @@ void on_change_position(void)
     MainWindow::obj->scrollScript();
 }
 
-//
-// デバッグ情報を更新する
-//
 void on_update_variable(void)
 {
     MainWindow::obj->updateVariableText();
 }
 
 }; // extern "C"
-

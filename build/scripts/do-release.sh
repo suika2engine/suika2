@@ -126,7 +126,11 @@ cd ..
 #
 echo "Building Android source tree."
 cd engine-android
+make debug
 make src
+cd ..
+cd pro-android
+make
 cd ..
 
 #

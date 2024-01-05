@@ -1,13 +1,13 @@
 /* -*- coding: utf-8; indent-tabs-mode: t; tab-width: 4; c-basic-offset: 4; -*- */
 
 /*
- * Suika 2
- * Copyright (C) 2001-2021, TABATA Keiichi. All rights reserved.
+ * Suika2
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
  * [Changes]
- *  2021-08-03 作成
+ *  2021-08-03 Created.
  */
 
 extern "C" {

@@ -128,15 +128,20 @@ build/pro-ios/libroot-ios.tar.gz
 build/pro-ios/build/
 build/pro-ios/tmp/
 
+# Android
+build/pro-android/.idea
+build/pro-android/app/src/main/assets
+build/pro-android/app/src/main/cpp
+
 # Linux
 build/pro-linux/deps
 build/pro-linux/build
 build/pro-linux/CMakeLists.txt.user
 
-# Android
-build/pro-android/.idea
-build/pro-android/app/src/main/assets
-build/pro-android/app/src/main/cpp
+# Wasm
+build/pro-wasm/html
+build/pro-wasm/emsdk
+build/pro-wasm/data01.arc
 
 #
 # Installer
@@ -155,11 +160,6 @@ build/installer-windows/plaintext.code-snippets.jp
 # Ubuntu PPA
 build/ppa/work
 
-# Studio Wasm
-build/experimental-studio-wasm/html
-build/experimental-studio-wasm/emsdk
-build/experimental-studio-wasm/data01.arc
-
 # Console Example with SDL2
 build/experimental-engine-console/libroot
 build/experimental-engine-console/exefs
@@ -170,11 +170,6 @@ build/experimental-engine-console/*.elf
 build/experimental-engine-console/*.nro
 build/experimental-engine-console/*.nacp
 build/experimental-engine-console/*.nsp
-
-# Windows Installer
-build/experimental-windows-installer/suika-pro.exe
-build/experimental-windows-installer/games
-build/experimental-windows-installer/tools
 
 #
 # Website

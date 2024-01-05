@@ -2,6 +2,11 @@
 
 set -eu
 
+SED=sed
+if [ ! -z "`which gsed`" ]; then
+    SED=gsed;
+fi
+
 # Copy dependency source files to $DEPS directory.
 DEPS=deps
 
@@ -116,15 +121,15 @@ cp cmake/suika2.txt "$DEPS/CMakeLists.txt"
 tar xzf "$SUIKA2_ROOT/build/libsrc/libogg-1.3.3.tar.gz" -C "$DEPS"
 mv "$DEPS/libogg-1.3.3" "$DEPS/libogg"
 cp deps/libogg/include/ogg/config_types.h.in deps/libogg/include/ogg/config_types.h
-sed -i 's/@INCLUDE_INTTYPES_H@/1/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@INCLUDE_STDINT_H@/1/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@INCLUDE_SYS_TYPES_H@/1/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@SIZE16@/short/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@USIZE16@/unsigned short/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@SIZE32@/int/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@USIZE32@/unsigned int/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@SIZE64@/long/g' deps/libogg/include/ogg/config_types.h
-sed -i 's/@USIZE64@/unsigned long/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@INCLUDE_INTTYPES_H@/1/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@INCLUDE_STDINT_H@/1/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@INCLUDE_SYS_TYPES_H@/1/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@SIZE16@/short/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@USIZE16@/unsigned short/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@SIZE32@/int/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@USIZE32@/unsigned int/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@SIZE64@/long/g' deps/libogg/include/ogg/config_types.h
+$SED -i 's/@USIZE64@/unsigned long/g' deps/libogg/include/ogg/config_types.h
 cp cmake/libogg.txt "$DEPS/libogg/CMakeLists.txt"
 
 # Copy libvorbis source files

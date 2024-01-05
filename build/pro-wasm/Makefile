@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 
 SRC = \
-	../../src/wasm/emedit.c \
+	../../src/wasm/empro.c \
 	../../src/wasm/emfile.c \
 	../../src/wasm/alsound.c \
 	../../src/khronos/glrender.c \

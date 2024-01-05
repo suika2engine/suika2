@@ -1,0 +1,23 @@
+name: pro-wasm
+on:
+  push:
+  pull_request:
+jobs:
+  emscripten:
+    runs-on: "ubuntu-22.04"
+    name: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Emsdk
+        uses: mymindstorm/setup-emsdk@v11
+      - name: Build
+        run: |
+          cd build/pro-wasm
+          make
+          tar czf pro-wasm.tar.gz html
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: pro-wasm.tar.gz
+          path: build/pro-wasm/pro-wasm.tar.gz

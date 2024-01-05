@@ -1,5 +1,5 @@
 #
-# Linux (and FreeBSD/NetBSD)
+# FreeBSD
 #
 
 include ../common.mk
@@ -17,10 +17,7 @@ CC = cc
 CPPFLAGS = \
 	-I/usr/include/freetype2 \
 	-I/usr/local/include \
-	-I/usr/local/include/freetype2 \
-	-I/usr/pkg/include \
-	-I/usr/pkg/include/freetype2 \
-	-I/usr/X11R7/include
+	-I/usr/local/include/freetype2
 
 #
 # CFLAGS
@@ -50,19 +47,16 @@ LDFLAGS = \
 	-lvorbisfile \
 	-lvorbis \
 	-logg \
-	-lz \
 	-lbz2 \
-	-Wl,--gc-sections \
+	-lz \
 	-L/usr/local/lib \
-	-L/usr/pkg/lib \
 	-lasound \
-	-L/usr/X11R7/lib \
 	-lX11 \
 	-lXpm \
 	-lGL \
-	-lGLX \
 	-lpthread \
-	-lm
+	-lm \
+	-Wl,--gc-sections
 
 #
 # Source files

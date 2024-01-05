@@ -2,17 +2,26 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
- * Dummy Sound Module
+ * Dummy ALSA Sound Module
  *
  * [Changes]
- *  - 2023/09/07 Created.
+ *  - 2023-09-07 Created.
  */
 
 #include "suika.h"
+
+bool init_asound(void)
+{
+	return false;
+}
+
+void cleanup_asound(void)
+{
+}
 
 /*
  * Main HAL
