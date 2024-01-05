@@ -932,6 +932,22 @@ static void process_main_input(void)
 		return;
 	}
 
+	/* マウスの左ボタンでクリックされた場合 */
+	if (pointed_index != -1 &&
+	    (is_left_clicked || is_return_pressed) &&
+	    !is_sysmenu_finished) {
+		if (selected_parent_index == -1) {
+			play_se(conf_switch_parent_click_se_file);
+			if (!parent_button[pointed_index].has_child)
+				stop_command_repetition();
+			else
+				selected_parent_index = pointed_index;
+		} else {
+			play_se(conf_switch_child_click_se_file);
+			stop_command_repetition();
+		}
+	}
+
 	/* システムメニューを常に使用しない場合 */
 	if (conf_sysmenu_hidden == 2)
 		return;
@@ -967,22 +983,6 @@ static void process_main_input(void)
 		old_sysmenu_pointed_index = sysmenu_pointed_index;
 		is_sysmenu_finished = false;
 		return;
-	}
-
-	/* マウスの左ボタンでクリックされた場合 */
-	if (pointed_index != -1 &&
-	    (is_left_clicked || is_return_pressed) &&
-	    !is_sysmenu_finished) {
-		if (selected_parent_index == -1) {
-			play_se(conf_switch_parent_click_se_file);
-			if (!parent_button[pointed_index].has_child)
-				stop_command_repetition();
-			else
-				selected_parent_index = pointed_index;
-		} else {
-			play_se(conf_switch_child_click_se_file);
-			stop_command_repetition();
-		}
 	}
 }
 
