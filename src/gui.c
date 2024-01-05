@@ -921,13 +921,13 @@ static void process_input(void)
 {
 	int i;
 
-	result_index = -1;
-	prev_pointed_index = pointed_index;
-	need_update_history_buttons = false;
-
 	/* フェード中の場合は入力を受け付けない */
 	if (is_fading_in || is_fading_out)
 		return;
+
+	result_index = -1;
+	prev_pointed_index = pointed_index;
+	need_update_history_buttons = false;
 
 	/* 左右キーを処理する */
 	process_left_right_arrow_keys();
@@ -1010,7 +1010,7 @@ static void process_blit(void)
 	draw_preview_buttons();
 
 	/* GUIv2ではなく、システムGUIでなく、フェードアウトしないとき、終了時に背景を作成する */
-	if (is_finished && !is_sys_gui && !is_v2 && fade_out_time > 0) {
+	if (is_finished && !is_sys_gui && !is_v2 && fade_out_time == 0) {
 		struct image *img;
 		int i;
 
@@ -1031,6 +1031,7 @@ static void process_blit(void)
 		for (i = 0; i < BUTTON_COUNT; i++)
 			process_button_draw(img, i);
 
+		notify_image_update(img);
 	}
 }
 
