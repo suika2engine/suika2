@@ -21,7 +21,7 @@
 #include "../suika.h"
 
 /* Suika2 HAL Implementaions */
-#include "d3drender.h"		/* Graphics HAL */
+#include "dx9render.h"		/* Graphics HAL */
 #include "dsound.h"			/* Sound HAL */
 #include "dsvideo.h"		/* Video HAL */
 #include "tts_sapi.h"		/* TTS HAL */

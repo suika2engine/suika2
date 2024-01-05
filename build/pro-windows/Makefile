@@ -64,10 +64,16 @@ SRCS_C = \
 	../../src/microsoft/dsound.c
 
 SRCS_CC = \
-	../../src/microsoft/d3drender.cc \
+	../../src/microsoft/dx9render.cc \
 	../../src/microsoft/dsvideo.cc
 
 SRCS_R = resource.rc
+
+HDRS = \
+	../../src/microsoft/dsound.h \
+	../../src/microsoft/dx9render.h \
+	../../src/microsoft/dsvideo.h \
+	../../src/microsoft/tts_sapi.h
 
 #
 # .c.o compilation rules
@@ -98,7 +104,7 @@ OBJS = \
 
 all: suika-pro.exe
 
-suika-pro.exe: libroot $(OBJS) $(HDRS_MAIN)
+suika-pro.exe: libroot $(OBJS) $(HDRS_MAIN) $(HDRS)
 	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS)
 
 libroot:

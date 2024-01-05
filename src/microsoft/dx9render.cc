@@ -12,7 +12,7 @@
 
 extern "C" {
 #include "../suika.h"
-#include "d3drender.h"
+#include "dx9render.h"
 };
 
 #include <d3d9.h>
