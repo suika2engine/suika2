@@ -2068,7 +2068,7 @@ static void process_button_draw_gallery(struct image *target, int index)
 		 *  - つまり解放されていないギャラリー
 		 *  - idleに無効項目を書いておく
 		 */
-	} else if (index != pointed_index) {
+	} else if (index != result_index) {
 		/* ポイントされていないとき、active画像を描画する */
 		draw_image_normal(target, b->x, b->y, active_image, b->width, b->height, b->x, b->y, 255);
 	} else {
