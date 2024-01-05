@@ -12,10 +12,9 @@ Effortlessness and efficiently are key concepts of Suika2,
 and it provides that without sacrificing features or usability,
 providing tools and features to enrich both the creator and user experience.
 
-## What are the Suika2's Development Goals?
+## What is the Suika2's Development Goal?
 
-Suika2 aimes to be **a new standard for Visual Novel creation** in the era of 2020s,
-facilitating creators throughout their journey of creation.
+**A new standard for Visual Novel creation** in the era of 2020s is the goal of Suika2 development.
 
 ## What are the Suika2's Mission, Vision and Value (MVV)?
 
