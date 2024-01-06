@@ -225,33 +225,33 @@ static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
 static void draw_fo_common(void);
 static void draw_fi_common(bool show_msgbox);
-static void draw_fade_normal(void);
-static void draw_fade_rule(void);
-static void draw_fade_melt(void);
-static void draw_fade_curtain_right(void);
-static void draw_fade_curtain_left(void);
-static void draw_fade_curtain_up(void);
-static void draw_fade_curtain_down(void);
-static void draw_fade_slide_right(void);
-static void draw_fade_slide_left(void);
-static void draw_fade_slide_up(void);
-static void draw_fade_slide_down(void);
-static void draw_fade_shutter_right(void);
-static void draw_fade_shutter_left(void);
-static void draw_fade_shutter_up(void);
-static void draw_fade_shutter_down(void);
-static void draw_fade_clockwise(int method);
-static void draw_fade_counterclockwise(int method);
+static void render_fade_normal(void);
+static void render_fade_rule(void);
+static void render_fade_melt(void);
+static void render_fade_curtain_right(void);
+static void render_fade_curtain_left(void);
+static void render_fade_curtain_up(void);
+static void render_fade_curtain_down(void);
+static void render_fade_slide_right(void);
+static void render_fade_slide_left(void);
+static void render_fade_slide_up(void);
+static void render_fade_slide_down(void);
+static void render_fade_shutter_right(void);
+static void render_fade_shutter_left(void);
+static void render_fade_shutter_up(void);
+static void render_fade_shutter_down(void);
+static void render_fade_clockwise(int method);
+static void render_fade_counterclockwise(int method);
 static float cw_step(int method, float progress);
-static void draw_fade_eye_open(void);
-static void draw_fade_eye_close(void);
-static void draw_fade_eye_open_v(void);
-static void draw_fade_eye_close_v(void);
-static void draw_fade_slit_open(void);
-static void draw_fade_slit_close(void);
-static void draw_fade_slit_open_v(void);
-static void draw_fade_slit_close_v(void);
-static void draw_fade_shake(void);
+static void render_fade_eye_open(void);
+static void render_fade_eye_close(void);
+static void render_fade_eye_open_v(void);
+static void render_fade_eye_close_v(void);
+static void render_fade_slit_open(void);
+static void render_fade_slit_close(void);
+static void render_fade_slit_open_v(void);
+static void render_fade_slit_close_v(void);
+static void render_fade_shake(void);
 static void render_layer_image(int layer);
 static void draw_layer_image(struct image *target, int layer);
 
@@ -2126,9 +2126,9 @@ static void draw_fi_common(bool show_msgbox)
 }
 
 /*
- * フェードの描画を行う
+ * フェードのレンダリングを行う
  */
-void draw_fade(void)
+void render_fade(void)
 {
 	assert(stage_mode == STAGE_MODE_BG_FADE ||
 	       stage_mode == STAGE_MODE_CH_FADE ||
@@ -2136,100 +2136,100 @@ void draw_fade(void)
 	       stage_mode == STAGE_MODE_SHAKE_FADE);
 
 	if (stage_mode == STAGE_MODE_SHAKE_FADE) {
-		draw_fade_shake();
+		render_fade_shake();
 		return;
 	}
 
 	switch (fade_method) {
 	case FADE_METHOD_NORMAL:
-		draw_fade_normal();
+		render_fade_normal();
 		break;
 	case FADE_METHOD_RULE:
-		draw_fade_rule();
+		render_fade_rule();
 		break;
 	case FADE_METHOD_MELT:
-		draw_fade_melt();
+		render_fade_melt();
 		break;
 	case FADE_METHOD_CURTAIN_RIGHT:
-		draw_fade_curtain_right();
+		render_fade_curtain_right();
 		break;
 	case FADE_METHOD_CURTAIN_LEFT:
-		draw_fade_curtain_left();
+		render_fade_curtain_left();
 		break;
 	case FADE_METHOD_CURTAIN_UP:
-		draw_fade_curtain_up();
+		render_fade_curtain_up();
 		break;
 	case FADE_METHOD_CURTAIN_DOWN:
-		draw_fade_curtain_down();
+		render_fade_curtain_down();
 		break;
 	case FADE_METHOD_SLIDE_RIGHT:
-		draw_fade_slide_right();
+		render_fade_slide_right();
 		break;
 	case FADE_METHOD_SLIDE_LEFT:
-		draw_fade_slide_left();
+		render_fade_slide_left();
 		break;
 	case FADE_METHOD_SLIDE_UP:
-		draw_fade_slide_up();
+		render_fade_slide_up();
 		break;
 	case FADE_METHOD_SLIDE_DOWN:
-		draw_fade_slide_down();
+		render_fade_slide_down();
 		break;
 	case FADE_METHOD_SHUTTER_RIGHT:
-		draw_fade_shutter_right();
+		render_fade_shutter_right();
 		break;
 	case FADE_METHOD_SHUTTER_LEFT:
-		draw_fade_shutter_left();
+		render_fade_shutter_left();
 		break;
 	case FADE_METHOD_SHUTTER_UP:
-		draw_fade_shutter_up();
+		render_fade_shutter_up();
 		break;
 	case FADE_METHOD_SHUTTER_DOWN:
-		draw_fade_shutter_down();
+		render_fade_shutter_down();
 		break;
 	case FADE_METHOD_CLOCKWISE:
-		draw_fade_clockwise(FADE_METHOD_CLOCKWISE);
+		render_fade_clockwise(FADE_METHOD_CLOCKWISE);
 		break;
 	case FADE_METHOD_COUNTERCLOCKWISE:
-		draw_fade_counterclockwise(
+		render_fade_counterclockwise(
 			FADE_METHOD_COUNTERCLOCKWISE);
 		break;
 	case FADE_METHOD_CLOCKWISE20:
-		draw_fade_clockwise(FADE_METHOD_CLOCKWISE20);
+		render_fade_clockwise(FADE_METHOD_CLOCKWISE20);
 		break;
 	case FADE_METHOD_COUNTERCLOCKWISE20:
-		draw_fade_counterclockwise(
+		render_fade_counterclockwise(
 			FADE_METHOD_COUNTERCLOCKWISE20);
 		break;
 	case FADE_METHOD_CLOCKWISE30:
-		draw_fade_clockwise(FADE_METHOD_CLOCKWISE30);
+		render_fade_clockwise(FADE_METHOD_CLOCKWISE30);
 		break;
 	case FADE_METHOD_COUNTERCLOCKWISE30:
-		draw_fade_counterclockwise(
+		render_fade_counterclockwise(
 			FADE_METHOD_COUNTERCLOCKWISE30);
 		break;
 	case FADE_METHOD_EYE_OPEN:
-		draw_fade_eye_open();
+		render_fade_eye_open();
 		break;
 	case FADE_METHOD_EYE_CLOSE:
-		draw_fade_eye_close();
+		render_fade_eye_close();
 		break;
 	case FADE_METHOD_EYE_OPEN_V:
-		draw_fade_eye_open_v();
+		render_fade_eye_open_v();
 		break;
 	case FADE_METHOD_EYE_CLOSE_V:
-		draw_fade_eye_close_v();
+		render_fade_eye_close_v();
 		break;
 	case FADE_METHOD_SLIT_OPEN:
-		draw_fade_slit_open();
+		render_fade_slit_open();
 		break;
 	case FADE_METHOD_SLIT_CLOSE:
-		draw_fade_slit_close();
+		render_fade_slit_close();
 		break;
 	case FADE_METHOD_SLIT_OPEN_V:
-		draw_fade_slit_open_v();
+		render_fade_slit_open_v();
 		break;
 	case FADE_METHOD_SLIT_CLOSE_V:
-		draw_fade_slit_close_v();
+		render_fade_slit_close_v();
 		break;
 	default:
 		assert(INVALID_FADE_METHOD);
@@ -2238,14 +2238,14 @@ void draw_fade(void)
 }
 
 /* デフォルトの背景フェードの描画を行う  */
-static void draw_fade_normal(void)
+static void render_fade_normal(void)
 {
 	render_image_normal(0, 0, -1, -1, fo_image, 0, 0, -1, -1, 255);
 	render_image_normal(0, 0, -1, -1, fi_image, 0, 0, -1, -1, (int)(fi_fo_fade_progress * 255.0f));
 }
 
 /* ルール描画を行う */
-static void draw_fade_rule(void)
+static void render_fade_rule(void)
 {
 	int threshold;
 
@@ -2265,7 +2265,7 @@ static void draw_fade_rule(void)
 }
 
 /* ルール描画(メルト)を行う */
-static void draw_fade_melt(void)
+static void render_fade_melt(void)
 {
 	int threshold;
 
@@ -2285,7 +2285,7 @@ static void draw_fade_melt(void)
 }
 
 /* 右方向カーテンフェードの描画を行う */
-static void draw_fade_curtain_right(void)
+static void render_fade_curtain_right(void)
 {
 	int right, alpha, i;
 
@@ -2355,7 +2355,7 @@ static void draw_fade_curtain_right(void)
 }
 
 /* 左方向カーテンフェードの描画を行う */
-static void draw_fade_curtain_left(void)
+static void render_fade_curtain_left(void)
 {
 	int left, alpha, i;
 
@@ -2413,7 +2413,7 @@ static void draw_fade_curtain_left(void)
 }
 
 /* 上方向カーテンフェードの描画を行う */
-static void draw_fade_curtain_up(void)
+static void render_fade_curtain_up(void)
 {
 	int top, alpha, i;
 
@@ -2471,7 +2471,7 @@ static void draw_fade_curtain_up(void)
 }
 
 /* 下方向カーテンフェードの描画を行う */
-static void draw_fade_curtain_down(void)
+static void render_fade_curtain_down(void)
 {
 	int bottom, alpha, i;
 
@@ -2543,7 +2543,7 @@ static void draw_fade_curtain_down(void)
 }
 
 /* 右方向スライドフェードの描画を行う */
-static void draw_fade_slide_right(void)
+static void render_fade_slide_right(void)
 {
 	int right;
 
@@ -2579,7 +2579,7 @@ static void draw_fade_slide_right(void)
 }
 
 /* 左方向スライドフェードの描画を行う */
-static void draw_fade_slide_left(void)
+static void render_fade_slide_left(void)
 {
 	int left;
 
@@ -2615,7 +2615,7 @@ static void draw_fade_slide_left(void)
 }
 
 /* 上方向スライドフェードの描画を行う */
-static void draw_fade_slide_up(void)
+static void render_fade_slide_up(void)
 {
 	int top;
 
@@ -2651,7 +2651,7 @@ static void draw_fade_slide_up(void)
 }
 
 /* 下方向スライドフェードの描画を行う */
-static void draw_fade_slide_down(void)
+static void render_fade_slide_down(void)
 {
 	int bottom;
 
@@ -2687,7 +2687,7 @@ static void draw_fade_slide_down(void)
 }
 
 /* 右方向シャッターフェードの描画を行う Right direction shutter fade */
-static void draw_fade_shutter_right(void)
+static void render_fade_shutter_right(void)
 {
 	int right;
 
@@ -2723,7 +2723,7 @@ static void draw_fade_shutter_right(void)
 }
 
 /* 左方向シャッターフェードの描画を行う Left direction shutter fade */
-static void draw_fade_shutter_left(void)
+static void render_fade_shutter_left(void)
 {
 	int left;
 
@@ -2759,7 +2759,7 @@ static void draw_fade_shutter_left(void)
 }
 
 /* 上方向シャッターフェードの描画を行う Up direction shutter fade */
-static void draw_fade_shutter_up(void)
+static void render_fade_shutter_up(void)
 {
 	int top;
 
@@ -2795,7 +2795,7 @@ static void draw_fade_shutter_up(void)
 }
 
 /* 下方向シャッターフェードの描画を行う Down direction shutter fade */
-static void draw_fade_shutter_down(void)
+static void render_fade_shutter_down(void)
 {
 	int bottom;
 
@@ -2831,7 +2831,7 @@ static void draw_fade_shutter_down(void)
 }
 
 /* 時計回りフェードの描画を行う */
-static void draw_fade_clockwise(int method)
+static void render_fade_clockwise(int method)
 {
 	const float PI = 3.14159265f;
 	float progress, hand_len;
@@ -2954,7 +2954,7 @@ static void draw_fade_clockwise(int method)
 }
 
 /* 反時計回りフェードの描画を行う */
-static void draw_fade_counterclockwise(int method)
+static void render_fade_counterclockwise(int method)
 {
 	const float PI = 3.14159265f;
 	float progress, hand_len;
@@ -3112,7 +3112,7 @@ static float cw_step(int method, float progress)
 }
 
 /* 目開きフェードの描画を行う */
-static void draw_fade_eye_open(void)
+static void render_fade_eye_open(void)
 {
 	int up, down, i, a;
 	const int ALPHA_STEP = 4;
@@ -3173,7 +3173,7 @@ static void draw_fade_eye_open(void)
 }
 
 /* 目閉じフェードの描画を行う */
-static void draw_fade_eye_close(void)
+static void render_fade_eye_close(void)
 {
 	int up, down, i, a;
 	const int ALPHA_STEP = 4;
@@ -3233,7 +3233,7 @@ static void draw_fade_eye_close(void)
 }
 
 /* 目開きフェード(垂直)の描画を行う */
-static void draw_fade_eye_open_v(void)
+static void render_fade_eye_open_v(void)
 {
 	int left, right, i, a;
 	const int ALPHA_STEP = 4;
@@ -3294,7 +3294,7 @@ static void draw_fade_eye_open_v(void)
 }
 
 /* 目閉じフェード(垂直)の描画を行う */
-static void draw_fade_eye_close_v(void)
+static void render_fade_eye_close_v(void)
 {
 	int left, right, i, a;
 	const int ALPHA_STEP = 4;
@@ -3354,7 +3354,7 @@ static void draw_fade_eye_close_v(void)
 }
 
 /* スリット開きフェードの描画を行う */
-static void draw_fade_slit_open(void)
+static void render_fade_slit_open(void)
 {
 	int up, down;
 
@@ -3404,7 +3404,7 @@ static void draw_fade_slit_open(void)
 }
 
 /* スリット閉じフェードの描画を行う */
-static void draw_fade_slit_close(void)
+static void render_fade_slit_close(void)
 {
 	int up, down;
 
@@ -3453,7 +3453,7 @@ static void draw_fade_slit_close(void)
 }
 
 /* スリット開きフェード(垂直)の描画を行う */
-static void draw_fade_slit_open_v(void)
+static void render_fade_slit_open_v(void)
 {
 	int left, right;
 
@@ -3503,7 +3503,7 @@ static void draw_fade_slit_open_v(void)
 }
 
 /* スリット開きフェード(垂直)の描画を行う */
-static void draw_fade_slit_close_v(void)
+static void render_fade_slit_close_v(void)
 {
 	int left, right;
 
@@ -3552,7 +3552,7 @@ static void draw_fade_slit_close_v(void)
 }
 
 /* 画面揺らしモードが有効な際のステージ描画を行う */
-static void draw_fade_shake(void)
+static void render_fade_shake(void)
 {
 	/* FOレイヤを描画する */
 	render_image_normal(0,
@@ -3589,7 +3589,7 @@ static void draw_fade_shake(void)
  */
 
 /*
- * キャラのマッピングを行う
+ * キャラ位置にキャラ番号を指定する
  */
 void set_ch_name_mapping(int pos, int ch_name_index)
 {
@@ -3599,7 +3599,8 @@ void set_ch_name_mapping(int pos, int ch_name_index)
 }
 
 /*
- * 発話中のキャラを設定する
+ * 発話キャラを設定する
+ *  - ch_name_index == -1 であれば誰も発話していない
  */
 void set_ch_talking(int ch_name_index)
 {
@@ -3607,9 +3608,9 @@ void set_ch_talking(int ch_name_index)
 }
 
 /*
- * キャラを暗くするかを更新する
+ * キャラの自動明暗を発話キャラを元に更新する
  */
-void update_ch_dim(void)
+void update_ch_dim_by_talking_ch(void)
 {
 	int i;
 
@@ -3627,6 +3628,16 @@ void update_ch_dim(void)
 		else
 			ch_dim[i] = true;
 	}
+}
+
+/*
+ * キャラの明暗を手動で設定する
+ */
+void force_ch_dim(int chpos, bool is_dim)
+{
+	assert(chpos >= 0 && chpos < CH_BASIC_LAYERS);
+
+	ch_dim[chpos] = is_dim;
 }
 
 /*
@@ -3941,7 +3952,7 @@ static void render_layer_image(int layer)
 
 	/* キャラクタレイヤを暗く描画する場合 */
 	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&
-	    conf_character_focus && ch_dim[layer_to_chpos(layer)]) {
+	    ch_dim[layer_to_chpos(layer)]) {
 		render_image_dim(layer_x[layer],
 				 layer_y[layer],
 				 (int)((float)layer_image[layer]->width * layer_scale_x[layer]),

@@ -85,18 +85,14 @@ void (*pDeviceLostCallback)(void);
 // ps_1_4
 // def c0, 0.5, 0.5, 0.5, 1.0 // c0: float4(0.5, 0.5, 0.5, 1.0)
 // texld r0, t0               // r0 = samplerColor;
-// mul r0, r0, c0             // r0 *= c0;
+// mul r0, r0, c0             // r0.r *= c0;
 //                            // return r0;
-static const unsigned char dimShaderBin[] = {
-	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x0f, 0xa0, 0x33, 0x33, 0x33, 0x3f,
-	0x33, 0x33, 0x33, 0x3f, 0x33, 0x33, 0x33, 0x3f,
-	0x00, 0x00, 0x80, 0x3f, 0x42, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x0f, 0x80, 0x00, 0x00, 0xe4, 0xb0,
-	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x80,
-	0x00, 0x00, 0xe4, 0x80, 0x00, 0x00, 0xe4, 0xa0,
-	0xff, 0xff, 0x00, 0x00,
-};
+static  unsigned char dimShaderBin[4096];
+static const char dimShaderSrc[] =
+	"ps_1_4                                                             \n"
+	"def c0, 0.5, 0.5, 0.5, 1.0 // c0: float4(0.5, 0.5, 0.5, 1.0)       \n"
+	"texld r0, t0               // r0 = samplerColor;                   \n"
+	"mul r0, r0, c0             // r0 *= c0                             \n";
 
 // "rule"パイプラインは下記のピクセルシェーダ
 // ps_1_4
@@ -258,6 +254,8 @@ BOOL D3DInitialize(HWND hWnd)
 
 	// シェーダを作成する
 	do {
+		void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL);
+		CompileShader(dimShaderSrc, dimShaderBin, FALSE);
 		hResult = pD3DDevice->CreatePixelShader((DWORD *)dimShaderBin, &pDimShader);
 		if (FAILED(hResult))
 			break;
@@ -660,6 +658,12 @@ DrawPrimitives(
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLOROP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		pD3DDevice->SetTextureStageState(0,	D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 		break;
 	case PIPELINE_RULE:
 		pD3DDevice->SetPixelShader(pRuleShader);
@@ -790,7 +794,7 @@ VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
 //    - 下記コードでコンパイルを行って、shader.txtの内容を利用すること
 //    - 開発中のみリンカオプションで-ld3dx9とする
 //
-#if 0
+#if 1
 #include <d3dx9.h>
 
 void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)

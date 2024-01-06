@@ -1412,6 +1412,8 @@ static void focus_character(void)
 {
 	int i;
 
+	assert(conf_character_focus != 0);
+
 	/* 名前が登録されているキャラクタであるかチェックする */
 	for (i = 0; i < CHARACTER_MAP_COUNT; i++) {
 		if (conf_character_name[i] == NULL)
@@ -1421,13 +1423,12 @@ static void focus_character(void)
 		if (strcmp(conf_character_name[i], raw_name) == 0)
 			break;
 	}
-	if (i == CHARACTER_MAP_COUNT) {
-		set_ch_talking(-1);
-		update_ch_dim();
-	} else {
-		set_ch_talking(i);
-		update_ch_dim();
-	}
+
+	/* 発話キャラを設定する */
+	set_ch_talking(i < CHARACTER_MAP_COUNT ? i : -1);
+
+	/* 発話キャラを元に明暗を更新する */
+	update_ch_dim_by_talking_ch();
 }
 
 /* クリックアニメーションを初期化する */

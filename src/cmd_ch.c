@@ -273,10 +273,16 @@ static void focus_character(int chpos, const char *fname)
 	if (i == CHARACTER_MAP_COUNT)
 		i = -1;
 
+	/* キャラ位置chposのキャラ番号を設定する */
 	set_ch_name_mapping(chpos, i);
+
+	/* 自動明暗を使い(!=0)、かつ、登場時に明るくする(==1)、かつ、未登録キャラの場合(-1) */
 	if (conf_character_focus == 1 && i == -1)
 		set_ch_talking(-1);
-	update_ch_dim();
+
+	/* 自動明暗を使う(!=0)場合、明暗を更新する */
+	if (conf_character_focus != 0)
+		update_ch_dim_by_talking_ch();
 }
 
 /* 描画を行う */
@@ -352,7 +358,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_fade();
+		render_fade();
 	else
 		render_stage();
 

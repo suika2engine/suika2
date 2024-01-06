@@ -49,6 +49,7 @@ LDFLAGS = \
 	-ldsound \
 	-ldxguid \
 	-ld3d9 \
+	-ld3dx9_43 \
 	-lstrmiids \
 	-lcomctl32 \
 	-L./libroot/lib \

@@ -342,7 +342,7 @@ void set_fade_progress(float progress);
 void set_shake_offset(int x, int y);
 
 /* フェードの描画を行う */
-void draw_fade(void);
+void render_fade(void);
 
 /* フェードを終了する */
 void finish_fade(void);
@@ -351,14 +351,17 @@ void finish_fade(void);
  * キャラの変更
  */
 
-/* キャラを暗くするかを設定する */
+/* キャラ位置にキャラ番号を指定する */
 void set_ch_name_mapping(int chpos, int ch_name_index);
 
-/* 発話中のキャラを設定する */
+/* 発話キャラを設定する */
 void set_ch_talking(int ch_name_index);
 
-/* キャラを暗くするかを設定する */
-void update_ch_dim(void);
+/* キャラの自動明暗を発話キャラを元に更新する */
+void update_ch_dim_by_talking_ch(void);
+
+/* キャラの明暗を手動で設定する */
+void force_ch_dim(int chpos, bool is_dim);
 
 /*
  * 名前ボックスの描画
