@@ -64,9 +64,9 @@
     <ClCompile Include="..\..\src\history.c" />
     <ClCompile Include="..\..\src\image.c" />
     <ClCompile Include="..\..\src\log.c" />
-    <ClCompile Include="..\..\src\m2\emoted3d9.cc" />
+    <ClCompile Include="..\..\src\m2\emotedx9.cc" />
     <ClCompile Include="..\..\src\main.c" />
-    <ClCompile Include="..\..\src\microsoft\d3drender.cc" />
+    <ClCompile Include="..\..\src\microsoft\dx9render.cc" />
     <ClCompile Include="..\..\src\microsoft\dsound.c" />
     <ClCompile Include="..\..\src\microsoft\dsvideo.cc" />
     <ClCompile Include="..\..\src\microsoft\tts_sapi.cc" />
@@ -94,11 +94,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\anime.h" />
     <ClInclude Include="..\..\src\conf.h" />
-    <ClInclude Include="..\..\src\d3drender.h" />
-    <ClInclude Include="..\..\src\drawglyph.h" />
-    <ClInclude Include="..\..\src\drawimage.h" />
-    <ClInclude Include="..\..\src\dsound.h" />
-    <ClInclude Include="..\..\src\dsvideo.h" />
     <ClInclude Include="..\..\src\event.h" />
     <ClInclude Include="..\..\src\file.h" />
     <ClInclude Include="..\..\src\glyph.h" />
@@ -109,7 +104,8 @@
     <ClInclude Include="..\..\src\key.h" />
     <ClInclude Include="..\..\src\log.h" />
     <ClInclude Include="..\..\src\main.h" />
-    <ClInclude Include="..\..\src\microsoft\d3drender.h" />
+    <ClInclude Include="..\..\src\microsoft\dx9render.h" />
+    <ClInclude Include="..\..\src\microsoft\tts_sapi.h" />
     <ClInclude Include="..\..\src\mixer.h" />
     <ClInclude Include="..\..\src\motion.h" />
     <ClInclude Include="..\..\src\save.h" />
@@ -118,7 +114,6 @@
     <ClInclude Include="..\..\src\seen.h" />
     <ClInclude Include="..\..\src\stage.h" />
     <ClInclude Include="..\..\src\suika.h" />
-    <ClInclude Include="..\..\src\tts_sapi.h" />
     <ClInclude Include="..\..\src\types.h" />
     <ClInclude Include="..\..\src\uimsg.h" />
     <ClInclude Include="..\..\src\vars.h" />
@@ -127,7 +122,6 @@
     <ClInclude Include="..\..\src\wms_core.h" />
     <ClInclude Include="..\..\src\wms_parser.tab.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="resource1.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.ico" />

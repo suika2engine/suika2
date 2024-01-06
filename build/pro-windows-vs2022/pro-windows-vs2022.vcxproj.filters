@@ -183,7 +183,7 @@
     <ClCompile Include="..\..\src\package.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\microsoft\d3drender.cc">
+    <ClCompile Include="..\..\src\microsoft\dx9render.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\microsoft\dsound.c">
@@ -206,19 +206,13 @@
     <ClInclude Include="..\..\src\conf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\d3drender.h">
+    <ClInclude Include="..\..\src\microsoft\dx9render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\drawglyph.h">
+    <ClInclude Include="..\..\src\microsoft\dsound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\drawimage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\dsound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\dsvideo.h">
+    <ClInclude Include="..\..\src\microsoft\dsvideo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\event.h">
@@ -299,13 +293,10 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\pro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\winpro.h">
+    <ClInclude Include="..\..\src\microsoft\winpro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\package.h">
