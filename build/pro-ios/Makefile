@@ -1,15 +1,17 @@
 include ../common.mk
 
 FILES_IOS= \
-	engine-ios/main.m \
-	engine-ios/AppDelegate.h \
-	engine-ios/AppDelegate.m \
-	engine-ios/SceneDelegate.h \
-	engine-ios/SceneDelegate.m \
-	engine-ios/ViewController.h \
-	engine-ios/ViewController.m \
-	engine-ios/GameView.h \
-	engine-ios/GameView.m \
+	pro-ios/main.m \
+	pro-ios/AppDelegate.h \
+	pro-ios/AppDelegate.m \
+	pro-ios/SceneDelegate.h \
+	pro-ios/SceneDelegate.m \
+	pro-ios/ViewController.h \
+	pro-ios/ViewController.m \
+	pro-ios/GameView.h \
+	pro-ios/GameView.m \
+	pro-ios/ScriptTextView.h \
+	pro-ios/ScriptTextView.m \
 	../../src/apple/aunit.h \
 	../../src/apple/aunit.c \
 	../../src/apple/GameRenderer.h \
