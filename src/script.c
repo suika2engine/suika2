@@ -2240,7 +2240,7 @@ static bool reparse_case_block(int index, const char *raw, int *end_index)
 	raw_copy = strdup(raw);
 	if (raw_copy == NULL) {
 		log_memory();
-		return NULL;
+		return false;
 	}
 
 	/* ラベルコマンドを生成して格納する */
