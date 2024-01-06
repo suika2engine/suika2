@@ -205,8 +205,8 @@
 		26A1BAF22B2AD7D700761444 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
 		26A1BAF82B2AD7F600761444 /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
 		26B673AD2B3562DA00E83202 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
-		26B673AF2B3562DC00E83202 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		26F4E5B02B32CE61003E4B5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		26F5AD772B49657A00C15A53 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -548,7 +548,7 @@
 			children = (
 				26F4E5B02B32CE61003E4B5A /* Base */,
 				26B673AD2B3562DA00E83202 /* en */,
-				26B673AF2B3562DC00E83202 /* ja */,
+				26F5AD772B49657A00C15A53 /* ja */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -683,7 +683,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -698,7 +698,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 15.50;
+				MARKETING_VERSION = 15.52;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",
@@ -734,7 +734,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -749,7 +749,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 15.50;
+				MARKETING_VERSION = 15.52;
 				OTHER_CFLAGS = (
 					"-DUSE_EDITOR",
 					"-DUSE_DEBUGGER",

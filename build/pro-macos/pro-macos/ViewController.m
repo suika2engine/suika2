@@ -662,6 +662,13 @@ static ViewController *theViewController;
     }
 }
 
+// リロードメニューが押下されたイベント
+- (IBAction)onMenuReloadScript:(id)sender {
+    _isOpenScriptPressed = YES;
+    _isExecLineChanged = YES;
+    _changedExecLine = get_expanded_line_num();
+}
+
 // 保存ボタンが押下されたイベント
 - (IBAction)onMenuSave:(id)sender {
     // スクリプトファイル名を取得する
@@ -1845,7 +1852,7 @@ void on_load_script(void)
 {
     @autoreleasepool {
         NSString *scriptName = [[NSString alloc] initWithUTF8String:get_script_file_name()];
-        theViewController.textViewScript.string = scriptName;
+        theViewController.textFieldScriptName.stringValue = scriptName;
         [theViewController updateTextFromScriptModel];
         [theViewController setTextColorForAllLines];
     }
