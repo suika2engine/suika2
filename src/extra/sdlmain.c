@@ -764,7 +764,7 @@ const char *get_system_locale(void)
 	else if (strncmp(locale, "fr", 2) == 0)
 		return "fr";
 	else if (strncmp(locale, "de", 2) == 0)
-		return "fr";
+		return "de";
 	else if (strncmp(locale, "it", 2) == 0)
 		return "it";
 	else if (strncmp(locale, "es", 2) == 0)
