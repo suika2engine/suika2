@@ -2738,6 +2738,7 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_RELOAD, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
@@ -2772,6 +2773,7 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, FALSE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_RELOAD, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);
@@ -2806,6 +2808,7 @@ void on_change_running_state(bool running, bool request_stop)
 		EnableWindow(hWndBtnVar, TRUE);
 		EnableMenuItem(hMenu, ID_OPEN, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_RELOAD, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_PAUSE, MF_GRAYED);
