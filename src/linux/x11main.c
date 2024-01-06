@@ -221,6 +221,7 @@ int main(int argc, char *argv[])
 	int ret;
 
 	setlocale(LC_ALL, "");
+	setlocale(LC_NUMERIC, "C");
 
 	/* 互換レイヤの初期化処理を行う */
 	if (init(argc, argv)) {
@@ -387,8 +388,6 @@ static void close_log_file(void)
 /* ディスプレイをオープンする */
 static bool open_display(void)
 {
-	setlocale(LC_ALL, "");
-
 	display = XOpenDisplay(NULL);
 	if (display == NULL) {
 		log_api_error("XOpenDisplay");
@@ -1337,7 +1336,7 @@ const char *get_system_locale(void)
 {
 	const char *locale;
 
-	locale = setlocale(LC_ALL, "");
+	locale = setlocale(LC_NAME, NULL);
 	if (locale == NULL)
 		return "en";
 	else if (locale[0] == '\0' || locale[1] == '\0')
