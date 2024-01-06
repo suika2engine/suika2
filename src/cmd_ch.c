@@ -156,7 +156,8 @@ static bool get_position(const char *pos,	/* IN: character position name */
 {
 	*xpos = 0;
 
-	if (strcmp(pos, "back") == 0 || strcmp(pos, "b") == 0 ||
+	if (strcmp(pos, "back") == 0 ||
+	    strcmp(pos, "b") == 0 ||
 	    strcmp(pos, U8("背面")) == 0) {
 		/* 中央背面に配置する */
 		*chpos = CH_BACK;
@@ -164,7 +165,8 @@ static bool get_position(const char *pos,	/* IN: character position name */
 			*xpos = (conf_window_width - img->width) / 2 + ofs_x;
 		else
 			*xpos = 0;
-	} else if (strcmp(pos, "left") == 0 || strcmp(pos, "l") == 0 ||
+	} else if (strcmp(pos, "left") == 0 ||
+		   strcmp(pos, "l") == 0 ||
 		   strcmp(pos, U8("左")) == 0) {
 		/* 左に配置する */
 		*chpos = CH_LEFT;
@@ -172,7 +174,9 @@ static bool get_position(const char *pos,	/* IN: character position name */
 			*xpos = conf_stage_ch_margin_left + ofs_x;
 		else
 			*xpos = 0;
-	} else if (strcmp(pos, "left-center") == 0 || strcmp(pos, "lc") == 0 ||
+	} else if (strcmp(pos, "left-center") == 0 ||
+		   strcmp(pos, "left-centre") == 0 ||
+		   strcmp(pos, "lc") == 0 ||
 		   strcmp(pos, U8("左中")) == 0) {
 		/* 左中に配置する */
 		*chpos = CH_LEFT_CENTER;
@@ -180,7 +184,8 @@ static bool get_position(const char *pos,	/* IN: character position name */
 			*xpos = (conf_window_width - img->width) / 4 + ofs_x;
 		else
 			*xpos = 0;
-	} else if (strcmp(pos, "right") == 0 || strcmp(pos, "r") == 0 ||
+	} else if (strcmp(pos, "right") == 0 ||
+		   strcmp(pos, "r") == 0 ||
 		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
@@ -188,7 +193,9 @@ static bool get_position(const char *pos,	/* IN: character position name */
 			*xpos = conf_window_width - img->width - conf_stage_ch_margin_right + ofs_x;
 		else
 			*xpos = 0;
-	} else if (strcmp(pos, "right-center") == 0 || strcmp(pos, "rc") == 0 ||
+	} else if (strcmp(pos, "right-center") == 0 ||
+		   strcmp(pos, "right-centre") == 0 ||
+		   strcmp(pos, "rc") == 0 ||
 		   strcmp(pos, U8("右中")) == 0) {
 		/* 右中に配置する */
 		*chpos = CH_RIGHT_CENTER;
@@ -196,15 +203,18 @@ static bool get_position(const char *pos,	/* IN: character position name */
 			*xpos = (conf_window_width - img->width) - img->width / 2 + ofs_x;
 		else
 			*xpos = 0;
-	} else if (strcmp(pos, "center") == 0 || strcmp(pos, "centre") == 0 ||
-		   strcmp(pos, "c") == 0 || strcmp(pos, U8("中央")) == 0) {
+	} else if (strcmp(pos, "center") == 0 ||
+		   strcmp(pos, "centre") == 0 ||
+		   strcmp(pos, "c") == 0 ||
+		   strcmp(pos, U8("中央")) == 0) {
 		/* 中央に配置する */
 		*chpos = CH_CENTER;
 		if (img != NULL)
 			*xpos = (conf_window_width - img->width) / 2 + ofs_x;
 		else
 			*xpos = 0;
-	} else if (strcmp(pos, "face") == 0 || strcmp(pos, "f") == 0 ||
+	} else if (strcmp(pos, "face") == 0 ||
+		   strcmp(pos, "f") == 0 ||
 		   strcmp(pos, U8("顔")) == 0) {
 		/* 顔に配置する */
 		*chpos = CH_FACE;
