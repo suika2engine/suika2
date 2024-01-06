@@ -14,5 +14,5 @@ jobs:
       - name: Build
         run: |
           cd build/engine-windows-vs2022
-          build-libs.bat
+          .\build-libs.bat
           msbuild engine-windows-vs2022.sln /t:build /p:Configuration="Debug" /p:Platform="x86"
