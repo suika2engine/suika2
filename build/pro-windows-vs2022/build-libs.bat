@@ -45,7 +45,7 @@ echo Building libwebp...
 tar -xzf ../libsrc/libwebp-1.3.2.tar.gz
 ren libwebp-1.3.2 libwebp
 cd libwebp
-nmake /f makefile.vc CFG=release-static ARCH=x86
+nmake /f makefile.vc CFG=release-static ARCH=x86 RTLIBCFG=dll
 cd ..
 
 echo Building libogg...
