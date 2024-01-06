@@ -81,30 +81,42 @@ void (*pDeviceLostCallback)(void);
 
 // Note: "add"パイプラインは固定シェーダで実行する
 
+//
 // "dim"パイプラインのピクセルシェーダ
-// ps_1_4
-// def c0, 0.5, 0.5, 0.5, 1.0 // c0: float4(0.5, 0.5, 0.5, 1.0)
-// texld r0, t0               // r0 = samplerColor;
-// mul r0, r0, c0             // r0.r *= c0;
-//                            // return r0;
-static  unsigned char dimShaderBin[4096];
-static const char dimShaderSrc[] =
-	"ps_1_4                                                             \n"
-	"def c0, 0.5, 0.5, 0.5, 1.0 // c0: float4(0.5, 0.5, 0.5, 1.0)       \n"
-	"texld r0, t0               // r0 = samplerColor;                   \n"
-	"mul r0, r0, c0             // r0 *= c0                             \n";
+//
+// dimShaderSrc[] =
+//	"ps_1_4                                                             \n"
+//	"def c0, 0.5, 0.5, 0.5, 1.0 // c0: float4(0.5, 0.5, 0.5, 1.0)       \n"
+//	"texld r0, t0               // r0 = samplerColor;                   \n"
+//	"mul r0, r0, c0             // r0 *= c0;                            \n";
+//                              // return r0;
+//
+static  unsigned char dimShaderBin[] {
+	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x3f,
+	0x00, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x3f,
+	0x00, 0x00, 0x80, 0x3f, 0x42, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x0f, 0x80, 0x00, 0x00, 0xe4, 0xb0,
+	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x80,
+	0x00, 0x00, 0xe4, 0x80, 0x00, 0x00, 0xe4, 0xa0,
+	0xff, 0xff, 0x00, 0x00,
+};
 
+//
 // "rule"パイプラインは下記のピクセルシェーダ
-// ps_1_4
-// def c0, 0, 0, 0, 0  // c0: zeros
-// def c1, 1, 1, 1, 1  // c1: ones
-//                     // c2: the slot for the threshould argument
-// texld r0, t0        // r0 = samplerColor
-// texld r1, t1        // r1 = samplerRule
-// sub r1, r1, c2      // tmp = 1.0 - step(threshold, samplerRule);
-// cmp r2, r1, c0, c1  // ...
-// mov r0.a, r2.b      // samplerColor.a = tmp.b;
-//                     // return samplerColor;
+//
+// ruleShaderSrc[] =
+//	"ps_1_4                                                             \n"
+//	"def c0, 0, 0, 0, 0  // c0: zeros                                   \n"
+//	"def c1, 1, 1, 1, 1  // c1: ones                                    \n"
+//	"                    // c2: the slot for the threshould argument    \n"
+//	"texld r0, t0        // r0 = samplerColor                           \n"
+//	"texld r1, t1        // r1 = samplerRule                            \n"
+//	"sub r1, r1, c2      // tmp = 1.0 - step(threshold, samplerRule);   \n"
+//	"cmp r2, r1, c0, c1  // ...                                         \n"
+//	"mov r0.a, r2.b      // samplerColor.a = tmp.b;                     \n";
+//                       // return samplerColor;
+//
 static const unsigned char ruleShaderBin[] = {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00,
@@ -124,22 +136,26 @@ static const unsigned char ruleShaderBin[] = {
 	0x02, 0x00, 0xaa, 0x80, 0xff, 0xff, 0x00, 0x00,
 };
 
+//
 // "melt"パイプラインのピクセルシェーダ
-// ps_1_4
-// def c0, 0, 0, 0, 0	// c0: zeros
-// def c1, 1, 1, 1, 1   // c1: ones
-//                      // c2: the slot for the threshould argument
-// texld r0, t0			// r0 = samplerColor
-// texld r1, t1			// r1 = samplerRule
-//						// tmp = (1.0 - rule) + (threshold * 2.0 - 1.0);
-// add r2, c2, c2		//   ... <<r2 = progress * 2.0>>
-// sub r2, r2, r1		//   ... <<r2 = r2 - rule>>
-//						// tmp = clamp(tmp);
-// cmp r2, r2, r2, c0	//   ... <<r2 = r2 > 0 ? r2 : 0>>
-// sub r3, c1, r2		//   ... <<r3 = 1.0 - r3>>
-// cmp r2, r3, r2, c1	//   ... <<r2 = r3 > 0 ? r2 : c1>>
-// mov r0.a, r2.b		// samplerRule.a = tmp.b;
-//                      // return samplerRule.a;
+//
+// meltShaderSrc[] =
+//	"ps_1_4                                                                  \n"
+//	"def c0, 0, 0, 0, 0	  // c0: zeros                                         \n"
+//	"def c1, 1, 1, 1, 1   // c1: ones                                          \n"
+//	                      // c2: the slot for the threshould argument          \n"
+//	"texld r0, t0         // r0 = samplerColor                                 \n"
+//	"texld r1, t1         // r1 = samplerRule                                  \n"
+//	                      // tmp = (1.0 - rule) + (threshold * 2.0 - 1.0);     \n"
+//	"add r2, c2, c2       //   ... <<r2 = progress * 2.0>>                     \n"
+//	"sub r2, r2, r1       //   ... <<r2 = r2 - rule>>                          \n"
+//	                      // tmp = clamp(tmp);                                 \n"
+//	"cmp r2, r2, r2, c0   //   ... <<r2 = r2 > 0 ? r2 : 0>>                    \n"
+//	"sub r3, c1, r2       //   ... <<r3 = 1.0 - r3>>                           \n"
+//	"cmp r2, r3, r2, c1   //   ... <<r2 = r3 > 0 ? r2 : c1>>                   \n"
+//	"mov r0.a, r2.b       // samplerRule.a = tmp.b;                            \n";
+//                        // return samplerRule.a;
+//
 static const unsigned char meltShaderBin[] = {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x0f, 0xa0, 0x00, 0x00, 0x00, 0x00, 
@@ -166,7 +182,9 @@ static const unsigned char meltShaderBin[] = {
 	0xff, 0xff, 0x00, 0x00, 
 };
 
+//
 // HLSLのサンプル(未使用, 今後の参考)
+//
 #if 0
 // ブラーのピクセルシェーダ
 static const char szBlurPixelShader[] =
@@ -254,8 +272,6 @@ BOOL D3DInitialize(HWND hWnd)
 
 	// シェーダを作成する
 	do {
-		void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL);
-		CompileShader(dimShaderSrc, dimShaderBin, FALSE);
 		hResult = pD3DDevice->CreatePixelShader((DWORD *)dimShaderBin, &pDimShader);
 		if (FAILED(hResult))
 			break;
@@ -794,7 +810,7 @@ VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
 //    - 下記コードでコンパイルを行って、shader.txtの内容を利用すること
 //    - 開発中のみリンカオプションで-ld3dx9とする
 //
-#if 1
+#if 0
 #include <d3dx9.h>
 
 void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
