@@ -314,7 +314,8 @@ void draw_image_dim(struct image *dst_image,
 		    int width,
 		    int height,
 		    int src_left,
-		    int src_top)
+		    int src_top,
+		    int alpha)
 {
 	pixel_t * RESTRICT src_ptr, * RESTRICT dst_ptr;
 	float a, src_r, src_g, src_b, src_a, dst_r, dst_g, dst_b, dst_a;
@@ -330,7 +331,7 @@ void draw_image_dim(struct image *dst_image,
 	dst_ptr = dst_image->pixels + dw * dst_top + dst_left;
 	src_line_inc = sw - width;
 	dst_line_inc = dw - width;
-	a = 1.0f;
+	a = (float)alpha / 255.0f;
 
 	for(y = 0; y < height; y++) {
 		for(x = 0; x < width; x++) {
@@ -342,13 +343,10 @@ void draw_image_dim(struct image *dst_image,
 			src_a = a * ((float)get_pixel_a(src_pix) / 255.0f);
 			dst_a = 1.0f - src_a;
 
-			/* 暗くする */
-			src_a *= 0.7f;
-
-			/* 転送元ピクセルにアルファ値を乗算する */
-			src_r = src_a * (float)get_pixel_r(src_pix);
-			src_g = src_a * (float)get_pixel_g(src_pix);
-			src_b = src_a * (float)get_pixel_b(src_pix);
+			/* 転送元ピクセルにアルファ値とdim係数を乗算する */
+			src_r = src_a * 0.5f * (float)get_pixel_r(src_pix);
+			src_g = src_a * 0.5f * (float)get_pixel_g(src_pix);
+			src_b = src_a * 0.5f * (float)get_pixel_b(src_pix);
 
 			/* 転送先ピクセルにアルファ値を乗算する */
 			dst_r = dst_a * (float)get_pixel_r(dst_pix);

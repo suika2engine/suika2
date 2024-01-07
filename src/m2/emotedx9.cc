@@ -29,7 +29,7 @@
 #endif
 
 // Guard
-#if __has_include("iemote.h")
+#if __has_include("iemote.h") && defined(USE_MOTION)
 
 // Suika2 Base
 extern "C" {
@@ -45,7 +45,7 @@ extern "C" {
 // Direct3D 9
 #include <d3d9.h>
 extern "C" {
-#include "../microsoft/d3drender.h"
+#include "../microsoft/dx9render.h"
 };
 
 //

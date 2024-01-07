@@ -5,19 +5,21 @@
 #define CREATE_PROCESS_MANIFEST_RESOURCE_ID 1
 
 /* File Menu / Open Button*/
-#define ID_OPEN_GAME_FOLDER		    150
-#define ID_OPEN                             151
-#define ID_RELOAD                           152
-#define ID_SAVE                             153
-#define ID_QUIT                             154
+#define ID_NEW_PROJECT			    150
+#define ID_OPEN_PROJECT			    151
+#define ID_OPEN_GAME_FOLDER		    152
+#define ID_OPEN                             153
+#define ID_RELOAD                           154
+#define ID_SAVE                             155
+#define ID_QUIT                             156
 
 /* Run Menu / Buttons */
-#define ID_RESUME                           155
-#define ID_NEXT                             156
-#define ID_PAUSE                            157
-#define ID_MOVE                             158
-#define ID_ERROR                            159
-#define ID_VARS                             160
+#define ID_RESUME                           160
+#define ID_NEXT                             161
+#define ID_PAUSE                            162
+#define ID_MOVE                             163
+#define ID_ERROR                            164
+#define ID_VARS                             165
 
 /* Direction Menu / Popup Menu */
 #define ID_CMD_MESSAGE			    180
@@ -43,21 +45,25 @@
 #define ID_CMD_WAIT			    200
 #define ID_CMD_LOAD			    201
 
+/* View Menu */
+#define ID_FONT		                    210
+#define ID_HIGHLIGHTMODE                    211
+#define ID_DARKMODE                         212
+
 /* Help Menu */
-#define ID_VERSION                          210
-#define ID_DARKMODE                         211
+#define ID_VERSION                          220
 
 /* Export Menu */
-#define ID_EXPORT_WIN                       220
-#define ID_EXPORT_WIN_INST                  221
-#define ID_EXPORT_WIN_MAC                   222
-#define ID_EXPORT_WEB                       223
-#define ID_EXPORT_ANDROID                   224
-#define ID_EXPORT_IOS                       225
-#define ID_EXPORT_PACKAGE                   226
+#define ID_EXPORT_WIN                       230
+#define ID_EXPORT_WIN_INST                  231
+#define ID_EXPORT_WIN_MAC                   232
+#define ID_EXPORT_WEB                       233
+#define ID_EXPORT_ANDROID                   234
+#define ID_EXPORT_IOS                       235
+#define ID_EXPORT_PACKAGE                   236
 
 /* RichEdit */
-#define ID_RICHEDIT                         230
+#define ID_RICHEDIT                         240
 
 /* Popup Menu */
-#define ID_POPUP                            231
+#define ID_POPUP                            251

@@ -1,3 +1,158 @@
+/* Class = "NSMenuItem"; title = "Window"; ObjectID = "1R0-Tu-CZo"; */
+"1R0-Tu-CZo.title" = "ウィンドウ";
+
+/* Class = "NSMenu"; title = "Window"; ObjectID = "QY5-xv-Sx1"; */
+"QY5-xv-Sx1.title" = "ウィンドウ";
+
+/* Class = "NSMenuItem"; title = "Zoom"; ObjectID = "1xq-O7-ThQ"; */
+"1xq-O7-ThQ.title" = "拡大";
+
+/* Class = "NSMenuItem"; title = "Minimize"; ObjectID = "AdN-cD-o8J"; */
+"AdN-cD-o8J.title" = "最小化";
+
+/* Class = "NSMenuItem"; title = "Hide Others"; ObjectID = "tBg-ov-FE2"; */
+"tBg-ov-FE2.title" = "他を隠す";
+
+/* Class = "NSMenuItem"; title = "Show All"; ObjectID = "tww-K1-3is"; */
+"tww-K1-3is.title" = "すべて表示";
+
+/* Class = "NSMenuItem"; title = "Bring All to Front"; ObjectID = "vIu-1A-bB6"; */
+"vIu-1A-bB6.title" = "すべて全面へ";
+
+"1T4-18-HVg.title" = "タイピング中のスペルチェック";
+
+/* Class = "NSMenu"; title = "Spelling"; ObjectID = "1zI-RN-bS6"; */
+"1zI-RN-bS6.title" = "スペルチェック";
+
+/* Class = "NSMenuItem"; title = "Redo"; ObjectID = "2Iy-aO-UXe"; */
+"2Iy-aO-UXe.title" = "やり直し";
+
+/* Class = "NSMenuItem"; title = "Find and Replace…"; ObjectID = "2bG-Ea-YJZ"; */
+"2bG-Ea-YJZ.title" = "検索と置換";
+
+/* Class = "NSMenuItem"; title = "Spelling and Grammar"; ObjectID = "8HN-Jc-Udg"; */
+"8HN-Jc-Udg.title" = "スペルと文法";
+
+/* Class = "NSMenuItem"; title = "Start Speaking"; ObjectID = "93N-Is-JdN"; */
+"93N-Is-JdN.title" = "発話を開始する";
+
+/* Class = "NSMenuItem"; title = "Jump to Selection"; ObjectID = "AgK-qp-mYr"; */
+"AgK-qp-mYr.title" = "選択範囲へジャンプ";
+
+/* Class = "NSMenuItem"; title = "Capitalize"; ObjectID = "BJd-dq-t03"; */
+"BJd-dq-t03.title" = "大文字にする";
+
+/* Class = "NSMenu"; title = "Speech"; ObjectID = "BnI-Vt-dbH"; */
+"BnI-Vt-dbH.title" = "スピーチ";
+
+/* Class = "NSMenuItem"; title = "Check Document Now"; ObjectID = "BoV-nl-V57"; */
+"BoV-nl-V57.title" = "文書をチェック";
+
+/* Class = "NSMenuItem"; title = "Cut"; ObjectID = "Cjc-2x-21s"; */
+"Cjc-2x-21s.title" = "カット";
+
+/* Class = "NSMenuItem"; title = "Text Replacement"; ObjectID = "DFc-Uy-afZ"; */
+"DFc-Uy-afZ.title" = "テキストの置換";
+
+/* Class = "NSMenuItem"; title = "Transformations"; ObjectID = "E1v-se-bFY"; */
+"E1v-se-bFY.title" = "変形";
+
+/* Class = "NSMenuItem"; title = "Delete"; ObjectID = "HiL-Wo-U0a"; */
+"HiL-Wo-U0a.title" = "削除";
+
+/* Class = "NSMenuItem"; title = "Make Upper Case"; ObjectID = "IZi-ve-TOF"; */
+"IZi-ve-TOF.title" = "大文字にする";
+
+/* Class = "NSMenu"; title = "Find"; ObjectID = "Iov-ZS-3VQ"; */
+"Iov-ZS-3VQ.title" = "検索";
+
+/* Class = "NSMenuItem"; title = "Substitutions"; ObjectID = "Jkd-iq-N8q"; */
+"Jkd-iq-N8q.title" = "代入";
+
+/* Class = "NSMenuItem"; title = "Find Previous"; ObjectID = "L25-2q-Hi3"; */
+"L25-2q-Hi3.title" = "前を検索";
+
+/* Class = "NSMenu"; title = "Substitutions"; ObjectID = "LVd-kQ-3YS"; */
+"LVd-kQ-3YS.title" = "代入";
+
+/* Class = "NSMenuItem"; title = "Show Substitutions"; ObjectID = "OUP-aE-XtL"; */
+"OUP-aE-XtL.title" = "代替を表示";
+
+/* Class = "NSMenuItem"; title = "Correct Spelling Automatically"; ObjectID = "PRJ-RC-Q3H"; */
+"PRJ-RC-Q3H.title" = "スペルを自動補正する";
+
+/* Class = "NSMenuItem"; title = "Paste"; ObjectID = "Pvr-UX-Ok7"; */
+"Pvr-UX-Ok7.title" = "ペースト";
+
+/* Class = "NSMenuItem"; title = "Data Detectors"; ObjectID = "R0r-gN-x3h"; */
+"R0r-gN-x3h.title" = "データ検出";
+
+/* Class = "NSMenu"; title = "Transformations"; ObjectID = "TZ2-q6-gSx"; */
+"TZ2-q6-gSx.title" = "変形";
+
+/* Class = "NSMenuItem"; title = "Smart Copy/Paste"; ObjectID = "VgU-TQ-Hhv"; */
+"VgU-TQ-Hhv.title" = "スマートコピー/ペースト";
+
+/* Class = "NSMenuItem"; title = "Stop Speaking"; ObjectID = "VpJ-N1-ZTj"; */
+"VpJ-N1-ZTj.title" = "発話を停止";
+
+/* Class = "NSMenuItem"; title = "Smart Dashes"; ObjectID = "VxN-R1-9ZV"; */
+"VxN-R1-9ZV.title" = "スマートな引用符";
+
+/* Class = "NSMenuItem"; title = "Undo"; ObjectID = "WMI-Bo-CgL"; */
+"WMI-Bo-CgL.title" = "アンドゥ";
+
+/* Class = "NSMenu"; title = "Services"; ObjectID = "X7F-kL-uld"; */
+"X7F-kL-uld.title" = "サービス";
+
+/* Class = "NSMenuItem"; title = "Make Lower Case"; ObjectID = "adp-Ls-gEi"; */
+"adp-Ls-gEi.title" = "小文字にする";
+
+/* Class = "NSMenuItem"; title = "Smart Links"; ObjectID = "byd-Yq-IRg"; */
+"byd-Yq-IRg.title" = "スマートリンク";
+
+/* Class = "NSMenuItem"; title = "Copy"; ObjectID = "dvJ-CN-CnM"; */
+"dvJ-CN-CnM.title" = "コピー";
+
+/* Class = "NSMenuItem"; title = "Edit"; ObjectID = "eAj-tj-adt"; */
+"eAj-tj-adt.title" = "編集";
+
+/* Class = "NSMenuItem"; title = "Find Next"; ObjectID = "hBq-Gk-GBP"; */
+"hBq-Gk-GBP.title" = "次を検索";
+
+/* Class = "NSMenuItem"; title = "Services"; ObjectID = "hLV-kU-lap"; */
+"hLV-kU-lap.title" = "サービス";
+
+/* Class = "NSMenuItem"; title = "Smart Quotes"; ObjectID = "jEE-ow-1Mb"; */
+"jEE-ow-1Mb.title" = "スマート引用符";
+
+/* Class = "NSMenu"; title = "Edit"; ObjectID = "mE7-E7-fxB"; */
+"mE7-E7-fxB.title" = "編集";
+
+/* Class = "NSMenuItem"; title = "Find"; ObjectID = "nPX-tt-xMY"; */
+"nPX-tt-xMY.title" = "検索";
+
+/* Class = "NSMenuItem"; title = "Find…"; ObjectID = "oS8-bc-mln"; */
+"oS8-bc-mln.title" = "検索";
+
+/* Class = "NSMenuItem"; title = "Use Selection for Find"; ObjectID = "qXf-If-qcB"; */
+"qXf-If-qcB.title" = "選択範囲で検索";
+
+/* Class = "NSMenuItem"; title = "Select All"; ObjectID = "qqO-Dv-s4Y"; */
+"qqO-Dv-s4Y.title" = "すべて選択";
+
+/* Class = "NSMenuItem"; title = "Speech"; ObjectID = "rFa-ek-5WV"; */
+"rFa-ek-5WV.title" = "スピーチ";
+
+/* Class = "NSMenuItem"; title = "Paste and Match Style"; ObjectID = "tUn-cu-2Mv"; */
+"tUn-cu-2Mv.title" = "ペーストしてスタイルをマッチ";
+
+/* Class = "NSMenuItem"; title = "Check Grammar With Spelling"; ObjectID = "ws5-Uc-1r3"; */
+"ws5-Uc-1r3.title" = "文法とスペルをチェック";
+
+/* Class = "NSMenuItem"; title = "Reload Script"; ObjectID = "E1e-Wf-tzc"; */
+"E1e-Wf-tzc.title" = "現在のスクリプトをリロードする";
+
 /* Class = "NSButtonCell"; title = "Move"; ObjectID = "pQe-OI-VM5"; */
 "pQe-OI-VM5.title" = "移動";
 

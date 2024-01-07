@@ -528,6 +528,9 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_CA, "center-a="},
 	{COMMAND_CHSX, CHSX_PARAM_CA, "centre-a="},
 	{COMMAND_CHSX, CHSX_PARAM_CA, U8("中央A=")},
+	{COMMAND_CHSX, CHSX_PARAM_CD, "center-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_CD, "centre-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_CD, U8("中央の明暗=")},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT, "right="},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT, U8("右=")},
 	{COMMAND_CHSX, CHSX_PARAM_RX, "right-x="},
@@ -536,6 +539,8 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_RY, "右Y="},
 	{COMMAND_CHSX, CHSX_PARAM_RA, "right-a="},
 	{COMMAND_CHSX, CHSX_PARAM_RA, "右A="},
+	{COMMAND_CHSX, CHSX_PARAM_RD, "right-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_RD, U8("右の明暗=")},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, "right-center="},
 	{COMMAND_CHSX, CHSX_PARAM_RIGHT_CENTER, U8("右中=")},
 	{COMMAND_CHSX, CHSX_PARAM_RCX, "right-center-x="},
@@ -544,6 +549,9 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_RCY, "右中Y="},
 	{COMMAND_CHSX, CHSX_PARAM_RCA, "right-center-a="},
 	{COMMAND_CHSX, CHSX_PARAM_RCA, "右中A="},
+	{COMMAND_CHSX, CHSX_PARAM_RCD, "right-center-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_RCD, "right-centre-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_RCD, U8("右中央の明暗=")},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT, "left="},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT, U8("左=")},
 	{COMMAND_CHSX, CHSX_PARAM_LX, "left-x="},
@@ -552,6 +560,8 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_LY, U8("左Y=")},
 	{COMMAND_CHSX, CHSX_PARAM_LA, "left-a="},
 	{COMMAND_CHSX, CHSX_PARAM_LA, U8("左A=")},
+	{COMMAND_CHSX, CHSX_PARAM_LD, "left-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_LD, U8("左の明暗=")},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, "left-center="},
 	{COMMAND_CHSX, CHSX_PARAM_LEFT_CENTER, U8("左中=")},
 	{COMMAND_CHSX, CHSX_PARAM_LCX, "left-center-x="},
@@ -560,6 +570,9 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_LCY, U8("左中Y=")},
 	{COMMAND_CHSX, CHSX_PARAM_LCA, "left-center-a="},
 	{COMMAND_CHSX, CHSX_PARAM_LCA, U8("左中A=")},
+	{COMMAND_CHSX, CHSX_PARAM_LCD, "left-center-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_LCD, "left-centre-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_LCD, U8("左中央の明暗=")},
 	{COMMAND_CHSX, CHSX_PARAM_BACK, "back="},
 	{COMMAND_CHSX, CHSX_PARAM_BACK, U8("背面=")},
 	{COMMAND_CHSX, CHSX_PARAM_BX, "back-x="},
@@ -568,6 +581,8 @@ struct param_item {
 	{COMMAND_CHSX, CHSX_PARAM_BY, U8("背面Y=")},
 	{COMMAND_CHSX, CHSX_PARAM_BA, "back-a="},
 	{COMMAND_CHSX, CHSX_PARAM_BA, U8("背面A=")},
+	{COMMAND_CHSX, CHSX_PARAM_BD, "back-dim="},
+	{COMMAND_CHSX, CHSX_PARAM_BD, "背面の明暗="},
 	{COMMAND_CHSX, CHSX_PARAM_BG, "background="},
 	{COMMAND_CHSX, CHSX_PARAM_BG, U8("背景=")},
 	{COMMAND_CHSX, CHSX_PARAM_BGX, "bg-x="},
@@ -2240,7 +2255,7 @@ static bool reparse_case_block(int index, const char *raw, int *end_index)
 	raw_copy = strdup(raw);
 	if (raw_copy == NULL) {
 		log_memory();
-		return NULL;
+		return false;
 	}
 
 	/* ラベルコマンドを生成して格納する */
@@ -2953,13 +2968,6 @@ bool update_script_line(int line, const char *text)
 	assert(line < cur_expanded_line);
 	assert(text != NULL);
 
-	/*
-	 * TODO:
-	 * src: comment, command
-	 * dst: comment, command
-	 * などの組み合わせにして、単純化できそう
-	 */
-
 	/* 行番号line以降の最初のコマンドを探す */
 	cmd_index = get_command_index_from_line_num(line);
 
@@ -3029,6 +3037,7 @@ static bool replace_command_by_command(int index, const char *text)
 
 	/* コマンドの文字列を解放する */
 	if (c->text != NULL) {
+		assert(text != c->text);
 		free(c->text);
 		c->text = NULL;
 	}
@@ -3144,7 +3153,7 @@ static bool replace_comment_by_command(int line, const char *text)
 	/* 行番号line以降にコマンドがある場合 (末尾のコメントでない場合) */
 	if (cmd_index != -1) {
 		/* cmd_index以降のコマンドを1つずつ後ろにずらす */
-		for (i = SCRIPT_CMD_SIZE - 1; i > cmd_index; i--)
+		for (i = cmd_size; i > cmd_index; i--)
 			cmd[i] = cmd[i - 1];
 		memset(&cmd[cmd_index], 0, sizeof(struct command));
 	}

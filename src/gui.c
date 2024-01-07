@@ -302,7 +302,7 @@ static bool did_save;
  * 前方参照
  */
 static void process_input(void);
-static void process_draw(void);
+static void process_blit(void);
 static void process_render(void);
 static bool process_move(void);
 static void process_se(void);
@@ -365,6 +365,18 @@ static bool load_base_image(const char *file);
 static bool load_idle_image(const char *file);
 static bool load_hover_image(const char *file);
 static bool load_active_image(const char *file);
+
+/* TODO: will be replaced by rendering target. */
+static void process_button_draw(struct image *target, int index);
+static void process_button_draw_history(struct image *target, int index);
+static void process_button_draw_save(struct image *target, int index);
+static void process_button_draw_slider(struct image *taget, int index);
+static void process_button_draw_slider_vertical(struct image *target, int index);
+static void process_button_draw_activatable(struct image *target, int index);
+static void process_button_draw_preview(struct image *target, int index);
+static void process_button_draw_generic(struct image *target, int index);
+static void process_button_draw_gallery(struct image *target, int index);
+static void process_button_draw_namevar(struct image *target, int index);
 
 bool register_s2_functions(struct wms_runtime *rt);
 
@@ -881,7 +893,7 @@ bool run_gui_mode(void)
 		return move_to_title();
 
 	/* 画像の更新を処理する */
-	process_draw();
+	process_blit();
 
 	/*
 	 * レンダリングを行う
@@ -909,13 +921,13 @@ static void process_input(void)
 {
 	int i;
 
-	result_index = -1;
-	prev_pointed_index = pointed_index;
-	need_update_history_buttons = false;
-
 	/* フェード中の場合は入力を受け付けない */
 	if (is_fading_in || is_fading_out)
 		return;
+
+	result_index = -1;
+	prev_pointed_index = pointed_index;
+	need_update_history_buttons = false;
 
 	/* 左右キーを処理する */
 	process_left_right_arrow_keys();
@@ -980,7 +992,7 @@ static void process_input(void)
 }
 
 /* 画像の描画を処理する */
-static void process_draw(void)
+static void process_blit(void)
 {
 	/* ヒストリボタンの更新が必要な場合 */
 	if (need_update_history_buttons) {
@@ -996,6 +1008,35 @@ static void process_draw(void)
 
 	/* プレビューボタンの更新を行う */
 	draw_preview_buttons();
+
+	/* 終了時、GUIv2ではなく、システムGUIでなく、ロードされず、フェードアウトしないとき、終了時に背景を作成する */
+	if (is_finished &&
+	    !is_v2 &&
+	    !is_sys_gui &&
+	    ((result_index == -1) || !(result_index != -1 && button[result_index].type != TYPE_LOAD)) &&
+	    fade_out_time == 0) {
+		struct image *img;
+		int i;
+
+		/* 一時的な背景を作成する */
+		img = create_initial_bg();
+		if (img == NULL)
+			return;
+		clear_stage_basic();
+		set_layer_image(LAYER_BG, img);
+		set_layer_file_name(LAYER_BG, NULL);
+		set_layer_position(LAYER_BG, 0, 0);
+		set_layer_alpha(LAYER_BG, 255);
+
+		/* idleをコピーする */
+		draw_image_copy(img, 0, 0, idle_image, idle_image->width, idle_image->height, 0, 0);
+
+		/* 各ボタンの状態に合わせて描画する */
+		for (i = 0; i < BUTTON_COUNT; i++)
+			process_button_draw(img, i);
+
+		notify_image_update(img);
+	}
 }
 
 /* 描画を処理する */
@@ -1835,6 +1876,228 @@ static void process_button_render_namevar(int index)
 			    button[index].width,
 			    button[index].height,
 			    cur_alpha);
+}
+
+/*
+ * 一時的な背景へのボタンの描画
+ *  - TODO: レンダリングターゲットを導入して、process_button_render()と統合する
+ */
+
+static void process_button_draw(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+
+	switch (b->type) {
+	case TYPE_BGMVOL:
+	case TYPE_VOICEVOL:
+	case TYPE_SEVOL:
+	case TYPE_CHARACTERVOL:
+	case TYPE_TEXTSPEED:
+	case TYPE_AUTOSPEED:
+		process_button_draw_slider(target, index);
+		break;
+	case TYPE_FONT:
+	case TYPE_FULLSCREEN:
+	case TYPE_WINDOW:
+	case TYPE_SAVEPAGE:
+		process_button_draw_activatable(target, index);
+		break;
+	case TYPE_GALLERY:
+		process_button_draw_gallery(target, index);
+		break;
+	case TYPE_SAVE:
+	case TYPE_LOAD:
+		process_button_draw_save(target, index);
+		break;
+	case TYPE_HISTORY:
+		process_button_draw_history(target, index);
+		break;
+	case TYPE_HISTORYSCROLL:
+		process_button_draw_slider_vertical(target, index);
+		break;
+	case TYPE_HISTORYSCROLL_HORIZONTAL:
+		process_button_draw_slider(target, index);
+		break;
+	case TYPE_PREVIEW:
+		process_button_draw_preview(target, index);
+		break;
+	case TYPE_NAMEVAR:
+		process_button_draw_namevar(target, index);
+		break;
+	default:
+		process_button_draw_generic(target, index);
+		break;
+	}
+}
+
+static void process_button_draw_history(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+
+	/* ヒストリ項目がない場合(まだヒストリが少ない場合) */
+	if (b->rt.img == NULL)
+		return;
+
+	/* ポイントされているときの描画を行う */
+	if (b->rt.is_active && index == result_index)
+		draw_image_normal(target, b->x, b->y, hover_image, b->width, b->height, b->x, b->y, 255);
+
+	/* テキストの描画を行う */
+	draw_image_normal(target, b->x, b->y, b->rt.img, b->width, b->height, 0, 0, 255);
+}
+
+static void process_button_draw_save(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+
+	/* ポイントされているときの描画を行う */
+	if (index == result_index)
+		draw_image_normal(target, b->x, b->y, hover_image, b->width, b->height, b->x, b->y, 255);
+
+	/* サムネイルとテキストの描画を行う */
+	draw_image_normal(target, b->x, b->y, b->rt.img, b->width, b->height, 0, 0, 255);
+}
+
+static void process_button_draw_slider(struct image *target, int index)
+{
+	struct gui_button *b;
+	int x;
+
+	b = &button[index];
+
+	/* ポイントされているとき、バー部分をhover画像で描画する */
+	if (index == result_index) {
+		draw_image_normal(target,
+				  b->x,
+				  b->y,
+				  hover_image,
+				  b->width,
+				  b->height,
+				  b->x,
+				  b->y,
+				  255);
+	}
+
+	/* 描画位置を計算する */
+	x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
+
+	/* ツマミをactive画像で描画する */
+	draw_image_normal(target,
+			  x,
+			  b->y,
+			  active_image,
+			  b->height,
+			  b->height,
+			  b->x,
+			  b->y,
+			  255);
+}
+
+static void process_button_draw_slider_vertical(struct image *target, int index)
+{
+	struct gui_button *b;
+	int y;
+
+	b = &button[index];
+
+	/* ポイントされているとき、バー部分をhover画像で描画する */
+	if (index == result_index)
+		draw_image_normal(target, b->x, b->y, hover_image, b->width, b->height, b->x, b->y, 255);
+
+	/* 描画位置を計算する */
+	y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
+
+	/* ツマミをactive画像で描画する */
+	draw_image_normal(target, b->x, y, active_image, b->width, b->width, b->x, b->y, 255);
+}
+
+static void process_button_draw_activatable(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+	assert(b->type == TYPE_FONT || b->type == TYPE_FULLSCREEN ||
+	       b->type == TYPE_WINDOW || b->type == TYPE_SAVEPAGE);
+
+	/* フルスクリーンにできない場合 */
+	if (conf_window_fullscreen_disable)
+		if (b->type == TYPE_FULLSCREEN || b->type == TYPE_WINDOW)
+			return;
+
+	/* ポイントされているとき、hover画像を描画する */
+	if (index == result_index) {
+		draw_image_normal(target, b->x, b->y, hover_image, b->width, b->height, b->x, b->y, 255);
+		return;
+	}
+
+	/* コンフィグが選択されていればactive画像を描画する */
+	if (b->rt.is_active)
+		draw_image_normal(target, b->x, b->y, active_image, b->width, b->height, b->x, b->y, 255);
+}
+
+static void process_button_draw_preview(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+
+	draw_image_normal(target, b->x, b->y, b->rt.img, b->width, b->height, 0, 0, 255);
+}
+
+static void process_button_draw_generic(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+
+	if (index == result_index)
+		draw_image_normal(target, b->x, b->y, hover_image, b->width, b->height, b->x, b->y, 255);
+}
+
+static void process_button_draw_gallery(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+	assert(b->type == TYPE_GALLERY);
+
+	if (b->rt.is_disabled) {
+		/*
+		 * 指定された変数が0のときは描画しない
+		 *  - つまり解放されていないギャラリー
+		 *  - idleに無効項目を書いておく
+		 */
+	} else if (index != result_index) {
+		/* ポイントされていないとき、active画像を描画する */
+		draw_image_normal(target, b->x, b->y, active_image, b->width, b->height, b->x, b->y, 255);
+	} else {
+		/* ポイントされているとき、hover画像を描画する */
+		draw_image_normal(target, b->x, b->y, hover_image, b->width, b->height, b->x, b->y, 255);
+	}
+}
+
+static void process_button_draw_namevar(struct image *target, int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+	assert(b->type == TYPE_NAMEVAR);
+
+	draw_image_normal(target,
+			  button[index].x,
+			  button[index].y,
+			  button[index].rt.img,
+			  button[index].width,
+			  button[index].height,
+			  0,
+			  0,
+			  255);
 }
 
 /*

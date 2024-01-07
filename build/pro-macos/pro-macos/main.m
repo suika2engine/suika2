@@ -12,5 +12,6 @@
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
     }
+    setlocale(LC_NUMERIC, "C");
     return NSApplicationMain(argc, argv);
 }

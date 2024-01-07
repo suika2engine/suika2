@@ -98,6 +98,7 @@ build/engine-linux/suika
 # Windows
 build/pro-windows-vs2022/.vs/
 build/pro-windows-vs2022/Debug/
+build/pro-windows-vs2022/Release/
 build/pro-windows-vs2022/bzip2/
 build/pro-windows-vs2022/freetype/
 build/pro-windows-vs2022/jpeg/
@@ -132,6 +133,8 @@ build/pro-ios/tmp/
 build/pro-android/.idea
 build/pro-android/app/src/main/assets
 build/pro-android/app/src/main/cpp
+build/pro-android/app/release
+build/pro-android/app/debug
 
 # Linux
 build/pro-linux/deps

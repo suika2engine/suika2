@@ -679,7 +679,7 @@ bool make_sav_dir(void)
     @autoreleasepool {
         NSFileManager *manager = [NSFileManager defaultManager];
         NSError *error;
-        if (![manager createDirectoryAtPath:theViewController.iCloudDrivePath
+        if (![manager createDirectoryAtPath:[theViewController.iCloudDrivePath stringByAppendingString:@"/sav"]
                 withIntermediateDirectories:YES
                                  attributes:nil
                                       error:&error]) {

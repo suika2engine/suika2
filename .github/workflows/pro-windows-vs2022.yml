@@ -1,0 +1,18 @@
+name: pro-windows-vs2022
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v2
+      - uses: microsoft/setup-msbuild@v1
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+      - name: Build
+        run: |
+          cd build/pro-windows-vs2022
+          .\build-libs.bat
+          msbuild pro-windows-vs2022.sln /t:build /p:Configuration="Debug" /p:Platform="x86"

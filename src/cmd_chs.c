@@ -11,6 +11,7 @@
  *  - 2022/06/26 テンプレートに対応
  *  - 2023/01/06 日本語の指定に対応
  *  - 2023/08/31 @chsxに対応
+ *  - 2024/01/06 *-dimに対応
  */
 
 #include "suika.h"
@@ -25,6 +26,7 @@ static int fade_method;
 
 static bool init(void);
 static int get_alpha(const char *alpha_s);
+static int get_dim(const char *dim_s);
 static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
 static void focus_character(int chpos, const char *fname);
 static void draw(void);
@@ -61,6 +63,7 @@ static bool init(void)
 	int alpha[PARAM_SIZE - 1];
 	int x[PARAM_SIZE];
 	int y[PARAM_SIZE];
+	int dim[PARAM_SIZE];
 	const char *method;
 	int i, layer;
 
@@ -93,6 +96,12 @@ static bool init(void)
 		alpha[CH_RIGHT_CENTER] = 255;
 		alpha[CH_LEFT_CENTER] = 255;
 		alpha[CH_BACK] = 255;
+		dim[CH_CENTER] = 0;
+		dim[CH_RIGHT] = 0;
+		dim[CH_LEFT] = 0;
+		dim[CH_RIGHT_CENTER] = 0;
+		dim[CH_LEFT_CENTER] = 0;
+		dim[CH_BACK] = 0;
 		span = get_float_param(CHS_PARAM_SPAN);
 		method = get_string_param(CHS_PARAM_METHOD);
 	} else {
@@ -123,6 +132,12 @@ static bool init(void)
 		alpha[CH_BACK] = get_alpha(get_string_param(CHSX_PARAM_BA));
 		alpha[CH_RIGHT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_RCA));
 		alpha[CH_LEFT_CENTER] = get_alpha(get_string_param(CHSX_PARAM_LCA));
+		dim[CH_CENTER] = get_dim(get_string_param(CHSX_PARAM_CD));
+		dim[CH_RIGHT] = get_dim(get_string_param(CHSX_PARAM_RD));
+		dim[CH_LEFT] = get_dim(get_string_param(CHSX_PARAM_LD));
+		dim[CH_RIGHT_CENTER] = get_dim(get_string_param(CHSX_PARAM_RCD));
+		dim[CH_LEFT_CENTER] = get_dim(get_string_param(CHSX_PARAM_LCD));
+		dim[CH_BACK] = get_dim(get_string_param(CHSX_PARAM_BD));
 		span = get_float_param(CHSX_PARAM_SPAN);
 		method = get_string_param(CHSX_PARAM_METHOD);
 	}
@@ -219,10 +234,21 @@ static bool init(void)
 		}
 	}
 
-	/* キャラの発話中状態を更新する */
+	/* 発話中のキャラをなしにする */
 	if (conf_character_focus == 1)
 		set_ch_talking(-1);
-	update_ch_dim();
+
+	/* キャラのdim状態を発話中のキャラを元に更新する */
+	if (conf_character_focus != 0)
+		update_ch_dim_by_talking_ch();
+
+	/* 手動でキャラのdim状態を設定する */
+	for (i = 0; i < CH_BASIC_LAYERS; i++) {
+		if (dim[i] == 1)
+			force_ch_dim(i, false);
+		else if (dim[i] == -1)
+			force_ch_dim(i, true);
+	}
 
 	/* ルールが使用される場合 */
 	if (fade_method == FADE_METHOD_RULE ||
@@ -248,8 +274,7 @@ static bool init(void)
 	start_command_repetition();
 
 	/* キャラフェードモードを有効にする */
-	if (!start_fade_for_chs(stay, fname, img, x, y, alpha, fade_method,
-				rule_img)) {
+	if (!start_fade_for_chs(stay, fname, img, x, y, alpha, fade_method, rule_img)) {
 		log_script_exec_footer();
 		return false;
 	}
@@ -282,6 +307,29 @@ static int get_alpha(const char *alpha_s)
 	if (ret > 255)
 		ret = 255;
 	return ret;
+}
+
+/* 文字列の明暗を整数に変換する */
+static int get_dim(const char *dim_s)
+{
+	/* 未指定の場合は変更しない */
+	if (strcmp(dim_s, "") == 0)
+		return 0;
+
+	/* 暗くすることが指定された場合 */
+	if (strcmp(dim_s, "dark") == 0 ||
+	    strcmp(dim_s, "yes") == 0 ||
+	    strcmp(dim_s, U8("暗")) == 0)
+	    return -1;
+
+	/* 明るくすることが指定された場合 */
+	if (strcmp(dim_s, "light") == 0 ||
+	    strcmp(dim_s, "no") == 0 ||
+	    strcmp(dim_s, U8("明")) == 0)
+	    return -1;
+
+	/* 指定が誤っている場合は変更しない */
+	return 0;
 }
 
 /* キャラの横方向の位置を取得する */
@@ -414,7 +462,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_fade();
+		render_fade();
 	else
 		render_stage();
 

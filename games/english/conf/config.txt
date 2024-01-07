@@ -1,5 +1,3 @@
-### For English users, rename this file to config.txt
-
 ###
 ### Configuration
 ###  - Note that when given the option of '0' or '1' in 'optional' settings,
@@ -14,8 +12,8 @@
 ###
 
 # Locale (Optional)
-#  - This config forces the English locale
-#  - Remove the following line to use a user's OS locale
+#  - Here we force the English locale
+#  - Remove the following line to use a user locale
 locale.force=en
 
 # Language mapping (system locale => story language) (Optional)
@@ -35,19 +33,23 @@ language.other=en
 ### Window Settings
 ###
 
-# Window title
-window.title=Suika
+# The window title.
+window.title=Suika2
 
-# Window width
+# The window width.
 window.width=1280
 
-# Window height
+# The window height.
 window.height=720
 
-# Background color (0:black, 1:white)
+# Use a white background?
+#  0: black
+#  1: white
 window.white=1
 
-# Show menu bar (0:don't show, 1:show)
+# Use the menu bar?
+#  0: No
+#  1: Yes
 window.menubar=1
 
 # Window resize (Optional)
@@ -67,149 +69,213 @@ window.resize=2
 ### Font Settings
 ###
 
+# Font Selection (Optional)
+#  - 0: global (user-selectable)
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+#  - How to change a font in a game:
+#    - For the global, `@setconfig font.select 0`
+#    - For the main,   `@setconfig font.select 1`
+#    - For the alt1,   `@setconfig font.select 2`
+#    - For the alt2,   `@setconfig font.select 3`
 font.select=0
 
-# Font file name
+# The global font file name.
+#  - This will be changed by SystemGUI
 font.file=VL-PGothic-Regular.ttf
 
+# The main font file name. (Optional)
+#  - This cannot be changed in a game
 #font.main.file=
+
+# The alt1 font file name. (Optional)
+#  - This cannot be changed in a game
 #font.alt1.file=
+
+# The alt2 font file name. (Optional)
+#  - This cannot be changed in a game
 #font.alt2.file=
 
-# Font size
+# The font size.
 font.size=28
 
-# Font color
+# The font color.
 font.color.r=255
 font.color.g=255
 font.color.b=255
 
-# Font outline color
+# The font outline color.
 font.outline.color.r=128
 font.outline.color.g=128
 font.outline.color.b=128
 
-# Font outline (0:show, 1:hide)
+# Use font outlines?
+#  0: Yes
+#  1: No
 font.outline.remove=0
 
-# Ruby font size
+# Ruby font size.
 font.ruby.size=16
 
 ###
 ### Namebox Settings
 ###
 
-# Namebox image file name
+# The Namebox file name.
 namebox.file=namebox.png
 
+# The Namebox font size.
 namebox.font.size=38
+
+# The font selection for the NameBox. (Optional)
+#  - 0: global
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+namebox.font.select=0
+
+# The font size for the NameBox. (Optional)
+namebox.font.size=38
+
+# Use font outline for the NameBox? (Optional)
+#  - 0: As same as the MessageBox
+#  - 1: Outlined
+#  - 2: No outline
 namebox.font.outline=0
 
 # Position to show the namebox image
 namebox.x=95
 namebox.y=480
 
-# Top margin of text in the namebox image
+# The top margin in the Namebox.
 namebox.margin.top=11
 
-# Center namebox text (0:center, 1:left justified)
+# Use name centering?
+#  0: Centered
+#  1: Left-justified
 namebox.centering.no=0
 
-# Left margin of text in the namebox image when left justified (Optional)
+# The left margin in the NameBox when left-justified (Optional)
 namebox.margin.left=0
 
 # Hide namebox (0:show, 1:hide) (Optional)
 namebox.hidden=0
 
 ###
-### Message Box Settings
+### MessageBox Settings
 ###
 
-# Message box (background) image file name
+# The MessageBox file name. (background)
 msgbox.bg.file=msgbox-bg.png
 
-# Message box (foreground) image file name
+# The MessageBox file name. (foreground)
 msgbox.fg.file=msgbox-fg.png
 
-# Position to show the message box image
+# The position of the MessageBox.
 msgbox.x=43
 msgbox.y=503
 
-# Left margin of text in the message box image
+# The left margin of texts in the MessageBox.
 msgbox.margin.left=80
 
-# Top margin of text in the message box image
+# The top margin of texts in the MessageBox.
 msgbox.margin.top=50
 
-# Right margin of text in the message box image
+# The right margin of texts in the MessageBox.
 msgbox.margin.right=80
 
-# Line spacing
+# The line height of texts.
 msgbox.margin.line=45
 
-# Character spacing
+# The Character spacing. (Optional)
 msgbox.margin.char=0
 
-# Message speed (x characters per second)
+# The message speed. (x characters per second)
 msgbox.speed=40.0
 
-# Position of the hide button (position inside message box) (Optional)
+# Use skipping for unseen messages? (optional)
+#  0: No
+#  1: Yes
+msgbox.skip.unseen=0
+
+# Use dimming for previously read messages? (optional)
+#  dim=0: Disabled
+#  dim=1: Enabled
+#msgbox.dim=0
+#msgbox.dim.color.r=80
+#msgbox.dim.color.g=80
+#msgbox.dim.color.b=80
+#msgbox.dim.color.outline.r=40
+#msgbox.dim.color.outline.g=40
+#msgbox.dim.color.outline.b=40
+
+# Sound effects.
+msgbox.btn.change.se=btn-change.ogg
+msgbox.history.se=click.ogg
+msgbox.config.se=click.ogg
+msgbox.hide.se=click.ogg
+msgbox.show.se=click.ogg
+msgbox.auto.cancel.se=click.ogg
+msgbox.skip.cancel.se=click.ogg
+
+# The position of the hide button (position inside message box) (Optional)
 msgbox.btn.hide.x=1146
 msgbox.btn.hide.y=16
 msgbox.btn.hide.width=29
 msgbox.btn.hide.height=29
 
 # [Unused in the sample]
-# Position of the save button (position inside message box) (Optional)
+# The position of the save button (position inside message box) (Optional)
 # msgbox.btn.save.x=0
 # msgbox.btn.save.y=0
 # msgbox.btn.save.width=0
 # msgbox.btn.save.height=0
 
 # [Unused in the sample]
-# Position of the load button (position inside message box) (Optional)
+# The position of the load button (position inside message box) (Optional)
 # msgbox.btn.load.x=0
 # msgbox.btn.load.y=0
 # msgbox.btn.load.width=0
 # msgbox.btn.load.height=0
 
 # [Unused in the sample]
-# Position of the qsave button (position inside message box) (Optional)
+# The position of the qsave button (position inside message box) (Optional)
 # msgbox.btn.qsave.x=0
 # msgbox.btn.qsave.y=0
 # msgbox.btn.qsave.width=0
 # msgbox.btn.qsave.height=0
 
 # [Unused in the sample]
-# Position of the qload button (position inside message box) (Optional)
+# The position of the qload button (position inside message box) (Optional)
 # msgbox.btn.qload.x=0
 # msgbox.btn.qload.y=0
 # msgbox.btn.qload.width=0
 # msgbox.btn.qload.height=0
 
 # [Unused in the sample]
-# Position of the auto button (position inside message box) (Optional)
+# The position of the auto button (position inside message box) (Optional)
 # msgbox.btn.auto.x=0
 # msgbox.btn.auto.y=0
 # msgbox.btn.auto.width=0
 # msgbox.btn.auto.height=0
 
 # [Unused in the sample]
-# Position of the skip button (position inside message box) (Optional)
+# The position of the skip button (position inside message box) (Optional)
 # msgbox.btn.skip.x=0
 # msgbox.btn.skip.y=0
 # msgbox.btn.skip.width=0
 # msgbox.btn.skip.height=0
 
 # [Unused in the sample]
-# Position of the history button (position inside message box) (Optional)
+# The position of the history button (position inside message box) (Optional)
 # msgbox.btn.history.x=0
 # msgbox.btn.history.y=0
 # msgbox.btn.history.width=0
 # msgbox.btn.history.height=0
 
 # [Unused in the sample]
-# Position of the config button (position inside message box) (Optional)
+# The position of the config button (position inside message box) (Optional)
 # msgbox.btn.config.x=0
 # msgbox.btn.config.y=0
 # msgbox.btn.config.width=0
@@ -236,70 +302,68 @@ msgbox.auto.cancel.se=click.ogg
 # Sound effect when skip mode is canceled (Optional)
 msgbox.skip.cancel.se=click.ogg
 
-# Unseen messages (0:don't skip, 1: skip)
-msgbox.skip.unseen=0
-
-# Settings for dimming read messages in NVL mode (dim=0:disable, dim=1:enable) (Optional)
-msgbox.dim=0
-msgbox.dim.color.r=80
-msgbox.dim.color.g=80
-msgbox.dim.color.b=80
-msgbox.dim.color.outline.r=40
-msgbox.dim.color.outline.g=40
-msgbox.dim.color.outline.b=40
-
 ###
 ### Click Animation Settings
 ###
 
-# Position to show the click animation image
+# The position of the click animation.
 click.x=1170
 click.y=660
 
-# Append the click animation to the end of each message (0:don't append, 1:append) (Optional)
+# Use click animation auto-move?
+#  0: No
+#  1: Yes
 click.move=0
 
-# Click animation image file name
+# The click animation image file names.
+#  - click.file1 is required, 2..16 are optional
 click.file1=click1.png
-
-# Other click animation image file names (optional, continues to click.file16)
 click.file2=click2.png
 click.file3=click3.png
 click.file4=click4.png
 click.file5=click5.png
 click.file6=click5.png
 
-# Click animation interval (seconds)
+# The interval of the click animation (seconds).
 click.interval=1.0
 
-# Click animation (0:show, 1:hide) (Optional)
+# Use click animation? (optional)
+#  0: Yes
+#  1: No
 click.disable=0
 
 ###
-### Options Settings (@choose, @select, @switch, @news)
+### Choose Settings (@choose, @ichoose)
 ###
 
-# Option box (non-selected) image file name
+# The image file of choose item. (background, idle)
 switch.bg.file=switch-bg.png
 
-# Option box (selected) image file name
+# The image file of choose item. (foreground, pointed or active)
 switch.fg.file=switch-fg.png
 
+# The position of the first choose item.
+switch.x=406
+switch.y=129
+
+# The font selection for choose items. (Optional)
+#  - 0: global
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
 switch.font.select=0
 switch.font.size=28
 switch.font.outline=0
 
-# Position of the first option box
-switch.x=406
-switch.y=129
-
-# Vertical space between the option box images
+# Vertical space between choose items.
 switch.margin.y=20
 
-# Top margin of text in the option box image
+# The top margin of the choose item text.
 switch.text.margin.y=16
 
-# Text color of pointed option (active=0:disable, active=1:enable) (Optional)
+# The color of a text of a pointed choose item. (optional)
+#  active=0: Do not change the color of a pointed item.
+#  active=1: Change the color of a pointed item.
 switch.color.active=0
 switch.color.active.body.r=255
 switch.color.active.body.g=0
@@ -308,135 +372,153 @@ switch.color.active.outline.r=128
 switch.color.active.outline.g=128
 switch.color.active.outline.b=128
 
-# Click sound file when the option is clicked (optional)
+# Sound effect for a click. (optional)
 switch.parent.click.se.file=click.ogg
 
 # (Only for @switch) Click sound file when the second level option is clicked (Optional)
 switch.child.click.se.file=click.ogg
 
-# Sound effect when the pointed item changes (Optional)
+# Sound effect for a point-change (optional)
 switch.change.se=btn-change.ogg
 
 ###
-### Save/Load Screen Settings
+### Save/Load Settings
 ###
 
-# Thumbnail size
+# The size of save thumbnail image.
 save.data.thumb.width=213
 save.data.thumb.height=120
 
 ###
-### System Menu Settings
+### SysMenu Settings
 ###
 
-# Position to show the system menu image
+# Use SysMenu?
+#  0: Yes
+#  1: No
+sysmenu.hidden=0
+
+# The position of the Collapsed SysMenu.
+sysmenu.collapsed.x=1219
+sysmenu.collapsed.y=29
+
+# The Collapsed SysMenu image file. (idle)
+sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
+
+# The Collapsed SysMenu image file. (hover)
+sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
+
+# Sound effect when the collapsed system menu is pointed (Optional)
+sysmenu.collapsed.se=btn-change.ogg
+
+# The position of the SysMenu.
 sysmenu.x=731
 sysmenu.y=29
 
-# System menu image (base) file name
+# The image file name of the SysMenu. (idle)
 sysmenu.idle.file=sysmenu-idle.png
 
-# System menu image (pointed) file name
+# The image file name of the SysMenu. (hover)
 sysmenu.hover.file=sysmenu-hover.png
 
-# System menu image (disabled) file name
+# The image file name of the SysMenu. (disabled)
 sysmenu.disable.file=sysmenu-disable.png
 
-# You can disable buttons by setting sysmenu.*.with=0
+# Note: you can disable buttons by setting sysmenu.*.with=0
 
-# Position of the quick save button (position inside system menu image)
+# The offset position and the size of the quick save button inside the SysMenu.
 sysmenu.qsave.x=62
 sysmenu.qsave.y=7
 sysmenu.qsave.width=60
 sysmenu.qsave.height=58
 
-# Position of the quick load button (position inside system menu image)
+# The offset position and the size of the quick load button inside the SysMenu.
 sysmenu.qload.x=123
 sysmenu.qload.y=7
 sysmenu.qload.width=60
 sysmenu.qload.height=58
 
-# Position of the save button (Position inside system menu image)
+# The offset position and the size of the save button inside the SysMenu.
 sysmenu.save.x=184
 sysmenu.save.y=7
 sysmenu.save.width=60
 sysmenu.save.height=58
 
-# Position of the load button (Position inside system menu image)
+# The offset position and the size of the load button inside the SysMenu.
 sysmenu.load.x=245
 sysmenu.load.y=7
 sysmenu.load.width=60
 sysmenu.load.height=58
 
-# Position of the auto button (Position inside system menu image)
+# The offset position and the size of the auto button inside the SysMenu.
 sysmenu.auto.x=306
 sysmenu.auto.y=7
 sysmenu.auto.width=60
 sysmenu.auto.height=58
 
-# Position of the skip button (Position inside system menu image)
+# The offset position and the size of the skip button inside the SysMenu.
 sysmenu.skip.x=367
 sysmenu.skip.y=7
 sysmenu.skip.width=60
 sysmenu.skip.height=58
 
-# Position of the history button (Position inside system menu image)
+# The offset position and the size of the history button inside the SysMenu.
 sysmenu.history.x=428
 sysmenu.history.y=7
 sysmenu.history.width=60
 sysmenu.history.height=58
 
-# Position of the config button (Position inside system menu image)
+# The offset position and the size of the config button inside the SysMenu.
 sysmenu.config.x=489
 sysmenu.config.y=7
 sysmenu.config.width=60
 sysmenu.config.height=58
 
 # [Unused in the sample]
-# Position of the user-defined-1 button (Position inside system menu image) (Optional)
+# The position of the user-defined-1 button (Optional)
 #sysmenu.custom1.x=0
 #sysmenu.custom1.y=0
 #sysmenu.custom1.width=0
 #sysmenu.custom1.height=0
 
 # [Unused in the sample]
-# Position of the user-defined-2 button (Position inside system menu image) (Optional)
+# The position of the user-defined-2 button (Optional)
 #sysmenu.custom2.x=0
 #sysmenu.custom2.y=0
 #sysmenu.custom2.width=0
 #sysmenu.custom2.height=0
 
-# Sound effect when the system menu is called (Optional)
+# Sound effect for Collapsed SysMenu point. (optional)
 sysmenu.enter.se=click.ogg
 
-# Sound effect when the system menu is canceled (Optional)
+# Sound effect for SysMenu open. (optional)
 sysmenu.leave.se=click.ogg
 
-# Sound effect when the selected item in the system menu is changed (Optional)
+# Sound effect for SysMenu change. (optional)
 sysmenu.change.se=btn-change.ogg
 
-# Sound effect when quick save is selected (Optional)
+# Sound effect for SysMenu quick save. (optional)
 sysmenu.qsave.se=click.ogg
 
-# Sound effect when quick load is selected (Optional)
+# Sound effect for SysMenu quick load. (optional)
 sysmenu.qload.se=click.ogg
 
-# Sound effect when save is selected (Optional)
+# Sound effect for SysMenu save. (optional)
 sysmenu.save.se=click.ogg
 
-# Sound effect when load is selected (Optional)
+# Sound effect for SysMenu load. (optional)
 sysmenu.load.se=click.ogg
 
-# Sound effect when auto is selected (Optional)
+# Sound effect for SysMenu auto. (optional)
 sysmenu.auto.se=click.ogg
 
-# Sound effect when skip is selected (Optional)
+# Sound effect for SysMenu skip. (optional)
 sysmenu.skip.se=click.ogg
 
-# Sound effect when history is selected (Optional)
+# Sound effect for SysMenu history. (optional)
 sysmenu.history.se=click.ogg
 
-# Sound effect when config is selected (Optional)
+# Sound effect for SysMenu config. (optional)
 sysmenu.config.se=click.ogg
 
 # [Unused in the sample]
@@ -447,44 +529,28 @@ sysmenu.config.se=click.ogg
 # Sound effect when user-defined-2 is selected (Optional)
 #sysmenu.custom2.se=click.ogg
 
-# Position of the collapsed system menu image
-sysmenu.collapsed.x=1219
-sysmenu.collapsed.y=29
-
-# Collapsed system menu image (base) file name
-sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
-
-# Collapsed system menu image (pointed) file name
-sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
-
-# Sound effect when the collapsed system menu is pointed (Optional)
-sysmenu.collapsed.se=btn-change.ogg
-
-# System menu (0:show, 1:hide on message, 2:hide always) (Optional)
-sysmenu.hidden=0
-
 ###
-### Auto Mode Settings
+### AutoMode Settings
 ###
 
-# Auto mode banner image file
+# The image file of the AutoMode banner.
 automode.banner.file=auto.png
 
-# Position of the auto mode banner
+# The position of the AutoMode banner.
 automode.banner.x=0
 automode.banner.y=126
 
-# Auto mode speed (x seconds per character)
+# The speed of the AutoMode. (wait x seconds per character)
 automode.speed=0.15
 
 ###
-### Skip Mode Settings
+### SkipMode Settings
 ###
 
-# Skip mode banner image file
+# The image file of the SkipMode.
 skipmode.banner.file=skip.png
 
-# Position of the skip mode banner
+# The position of the SkipMode banner.
 skipmode.banner.x=0
 skipmode.banner.y=186
 
@@ -550,7 +616,7 @@ sound.vol.se=1.0
 sound.vol.character=1.0
 
 ###
-### Settings For Per-Character Voice Volume
+### Settings for Per-Character Voice Volume
 ###  - If the character name of the message matches to the following name list,
 ###    then the per-character volume will be applied.
 ###  - Per-character volumes can be set in the config screen. (#0 to #15)
@@ -565,7 +631,9 @@ sound.character.name1=Midori
 ### Character Message Colors
 ###
 
-# Change colors of line (1:name-only, 0:name-and-message) (Optional)
+# Use coloring by character names? (Optional)
+#  0: name-and-message
+#  1: name-only
 serif.color.name.only=1
 
 # A color definition (Optional)
@@ -625,32 +693,48 @@ kirakira.frame=0.333
 ### Miscellaneous
 ###
 
-# Voice continues on click (0:stop, 1:continue) (Optional)
+# Use voice-continue on click? (Optional)
+#  0: stop
+#  1: continue
 voice.stop.off=0
 
-# Full screen mode (0:enable, 1:disable) (Optional)
+# Use full screen mode? (Optional)
+#  0: enable
+#  1: disable
 window.fullscreen.disable=0
 
-# Window maximization (0:enable, 1:disable) (Optional)
+# Use window maximization? (Optional)
+#  0: enable
+#  1: disable
 window.maximize.disable=0
 
 # Separator between window title and chapter name, remember to add a trailing space if desired (Optional)
 window.title.separator= 
 
-# Chapter name (appended to window title) (0:show, 1:hide) (Optional)
+# Chapter name (appended to window title) (Optional)
+#  0: show
+#  1: hide
 window.title.chapter.disable=0
 
-# Message box on character change (0:hide, 1:show) (Optional)
+# Show MessageBox on character changes? (Optional)
+#  0: hide
+#  1: show
 msgbox.show.on.ch=0
 
-# Message box on background change (0:fade-out, 1:show, 2:hide) (Optional)
+# Show MessageBox on background-changes (Optional)
+#  0: fade-out
+#  1: show
+#  2: hide
 msgbox.show.on.bg=0
 
-# Message box on options (1:show, 0:hide) (Optional)
+# Show Message box on options (Optional)
+#  0: hide
+#  1: show
 msgbox.show.on.choose=0
 
-# Show the collapsed system menu while the characters/background is changing (0:hide, 1:show) (Optional)
-# (The collapsed system menu always disappears while skip is disabled because we want to make a logo screen easily.)
+# Show the Collapsed SysMenu while the characters/background is changing? (Optional)
+#  0: hide
+#  1: show (Note: the Collapsed SysMenud always disappears while skip is disabled because we want to make a logo screen easily.)
 sysmenu.transition=0
 
 # Don't show history on up-arrow key or mouse wheel (1:Don't show, 0:Show) (Optional)

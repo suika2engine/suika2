@@ -15,13 +15,14 @@
  *  2023-09-17 Added a support the full screen mode without resolution change
  *  2023-12-09 Refactored
  *  2023-12-11 Separated winmain.c to winmain.c and winpro.c
+ *  2024-01-06 Changed the language check logic.
  */
 
 /* Suika2 Base */
 #include "../suika.h"
 
 /* Suika2 HAL Implementaions */
-#include "d3drender.h"		/* Graphics HAL */
+#include "dx9render.h"		/* Graphics HAL */
 #include "dsound.h"			/* Sound HAL */
 #include "dsvideo.h"		/* Video HAL */
 #include "tts_sapi.h"		/* TTS HAL */
@@ -33,6 +34,7 @@
 
 /* msvcrt  */
 #include <io.h> /* _access() */
+#include <locale.h> /* setlocale() */
 
 /* A macro to check whether a file exists. */
 #define FILE_EXISTS(fname)	(_access(fname, 0) != -1)
@@ -190,6 +192,8 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	RECT rcClient;
 	HRESULT hResult;
+
+	setlocale(LC_NUMERIC, "C");
 
 	/* COMの初期化を行う */
 	hResult = CoInitialize(0);
@@ -1434,31 +1438,27 @@ void leave_full_screen_mode(void)
  */
 const char *get_system_locale(void)
 {
-	switch (GetUserDefaultLCID()) {
-	case 1033:	/* US */
-	case 2057:	/* UK */
-	case 3081:	/* オーストラリア */
-	case 4105:	/* カナダ */
+	DWORD dwLang = GetUserDefaultLCID() & 0x3ff;
+	switch (dwLang) {
+	case LANG_ENGLISH:
 		return "en";
-	case 1036:
+	case LANG_FRENCH:
 		return "fr";
-	case 1031:	/* ドイツ */
-	case 2055:	/* スイス */
-	case 3079:	/* オーストリア */
+	case LANG_GERMAN:
 		return "de";
-	case 3082:
+	case LANG_SPANISH:
 		return "es";
-	case 1040:
+	case LANG_ITALIAN:
 		return "it";
-	case 1032:
+	case LANG_GREEK:
 		return "el";
-	case 1049:
+	case LANG_RUSSIAN:
 		return "ru";
-	case 2052:
+	case LANG_CHINESE_SIMPLIFIED:
 		return "zh";
-	case 1028:
+	case LANG_CHINESE_TRADITIONAL:
 		return "tw";
-	case 1041:
+	case LANG_JAPANESE:
 		return "ja";
 	default:
 		break;

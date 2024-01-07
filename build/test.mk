@@ -1,13 +1,7 @@
 usage:
-	@echo "This Makefile is for dev internal build test before a git-commit."
-	@echo "  make docker ... build docker containers"
-	@echo "  make all    ... build all"
-	@echo "  make extra  ... build android and switch with docker"
+	@echo "This Makefile is for dev internal only (test before a git commit)"
+	@echo "  make -f test.mk all ... do build tests"
 	@echo ""
-
-setup:
-	cd android && docker build -t suika2-android . && cd ..
-	docker pull devkitpro/devkita64
 
 all:
 	@cd engine-windows && rm -f *.o suika.exe && make -j24 && cd ..
@@ -26,6 +20,3 @@ all:
 		cd pro-macos && make build-only && cd ..; \
 		cd pro-ios && make build-only && cd ..; \
 	fi
-
-extra:
-	cd engine-android && docker run -it --rm -v `readlink -f ../../`:/project suika2-android bash -c "cd /project/build/engine-android && ./build-on-docker.sh" && cd ..

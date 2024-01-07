@@ -50,8 +50,14 @@ bool click_command(void)
 	      is_left_clicked))
 	    ||
 	    (is_auto_mode() &&
-	      (float)get_lap_timer_millisec(&sw) >= AUTO_MODE_WAIT))
+	     (float)get_lap_timer_millisec(&sw) >= AUTO_MODE_WAIT)) {
 		stop_command_repetition();
+	} else {
+#if defined(USE_DEBUGGER)
+		if (dbg_is_stop_requested())
+			stop_command_repetition();
+#endif
+	}
 
 	/* ステージの描画を行う */
 	render_stage();

@@ -217,7 +217,7 @@ static void draw(void)
 
 	/* ステージを描画する */
 	if (is_in_command_repetition())
-		draw_fade();
+		render_fade();
 	else
 		render_stage();
 

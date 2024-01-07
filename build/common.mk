@@ -1,3 +1,8 @@
+#
+# Common source and header files that are referred from Makefile-based build directories.
+#
+
+# Headers for Suika2 Engine
 HDRS_MAIN = \
 	../../src/suika.h \
 	../../src/anime.h \
@@ -22,15 +27,7 @@ HDRS_MAIN = \
 	../../src/wave.h \
 	../../src/wms.h
 
-HDRS_PRO = \
-	../../src/pro.h \
-	../../src/package.h
-
-HDRS_APPLE = \
-	../../src/GameRenderer.h \
-	../../src/GameShaderTypes.h \
-	../../src/GameViewControllerProtocol.h
-
+# Sources for Suika2 Engine
 SRCS_MAIN = \
 	../../src/anime.c \
 	../../src/conf.c \
@@ -88,5 +85,11 @@ SRCS_MAIN = \
 	../../src/cmd_wait.c \
 	../../src/cmd_wms.c
 
+# Headers for Suika2 Pro
+HDRS_PRO = \
+	../../src/pro.h \
+	../../src/package.h
+
+# Source for Suika2 Pro
 SRCS_PRO = \
 	../../src/package.c

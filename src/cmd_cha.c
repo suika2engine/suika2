@@ -127,11 +127,23 @@ static bool get_position(int *chpos, const char *pos)
 		   strcmp(pos, U8("左")) == 0) {
 		/* 左に配置する */
 		*chpos = CH_LEFT;
+	} else if (strcmp(pos, "left-center") == 0 ||
+		   strcmp(pos, "left-centre") == 0 ||
+		   strcmp(pos, "lc") == 0 ||
+		   strcmp(pos, U8("左中")) == 0) {
+		/* 左中央に配置する */
+		*chpos = CH_LEFT_CENTER;
 	} else if (strcmp(pos, "right") == 0 ||
 		   strcmp(pos, "r") == 0 ||
 		   strcmp(pos, U8("右")) == 0) {
 		/* 右に配置する */
 		*chpos = CH_RIGHT;
+	} else if (strcmp(pos, "right-center") == 0 ||
+		   strcmp(pos, "right-centre") == 0 ||
+		   strcmp(pos, "rc") == 0 ||
+		   strcmp(pos, U8("右中")) == 0) {
+		/* 右中央に配置する */
+		*chpos = CH_RIGHT_CENTER;
 	} else if (strcmp(pos, "center") == 0 ||
 		   strcmp(pos, "centre") == 0 ||
 		   strcmp(pos, "c") == 0 ||

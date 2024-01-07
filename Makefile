@@ -69,7 +69,7 @@ clean:
 ##
 
 do-release:
-	@cd build && ./scripts/do-release.sh && cd ..
+	@cd build && ./do-release.sh && cd ..
 
 setup:
 	@# For macOS:

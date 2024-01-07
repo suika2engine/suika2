@@ -86,12 +86,10 @@ static bool init(void)
 	}
 	set_gui_options(opt_cancel, opt_nofadein, opt_nofadeout);
 
-	/* 背景以外を消す */
 	if (!opt_msgbox) {
 		show_namebox(false);
 		show_msgbox(false);
 	}
-
 	if (is_auto_mode()) {
 		stop_auto_mode();
 		show_automode_banner(false);

@@ -113,6 +113,9 @@
 			<button class="nav-link" id="android-tab" data-bs-toggle="tab" data-bs-target="#android-tab-pane" type="button" role="tab" aria-controls="android-tab-pane" aria-selected="false">Android</button>
 		</li>
 		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="kindle-tab" data-bs-toggle="tab" data-bs-target="#kindle-tab-pane" type="button" role="tab" aria-controls="kindle-tab-pane" aria-selected="false">Kindle</button>
+		</li>
+		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux/Chromebook</button>
 		</li>
 	</ul>
@@ -128,9 +131,9 @@
 				ストア版よりも新しいバージョンです。
 			</p>
 			<p>
-<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.47 (2023/1/4):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-15.47.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-15.47.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.57 (2023/1/8):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.57.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.57.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
 			</p>
 			<br>
 			<h4>旧版</h4>
@@ -162,6 +165,11 @@
 		<!-- Android -->
 		<div class="tab-pane fade" id="android-tab-pane" role="tabpanel" aria-labelledby="android-tab" tabindex="0">
 			<a href="https://play.google.com/store/apps/details?id=jp.luxion.suikapro"><img src="/img/banners/pro-android.png" style="width:min(90vw, 500px);"></a>
+		</div>
+
+		<!-- Kindle -->
+		<div class="tab-pane fade" id="kindle-tab-pane" role="tabpanel" aria-labelledby="kindle-tab" tabindex="0">
+			<a href="https://www.amazon.com/gp/product/B0CRKC8P79"><img src="/img/banners/pro-kindle.png" style="width:min(90vw, 500px);"></a>
 		</div>
 
 		<!-- Linux/Chromebook -->
@@ -590,13 +598,22 @@
 	<div class="accordion-item">
 		<h4 class="accordion-header" id="panelsStayOpen-heading1" style="margin-top: 0;">
 			<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-				<span style="font-size: 1.3em;">2024年1月</span>
+				<span style="font-size: 1.3em;">最近の更新</span>
 			</button>
 		</h4>
 		<div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
 			<div class="accordion-body">
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/15.57 2023/1/8 <ul> <li>Microsoft Officeがインストールされているとオートスクロールしないバグを修正</li> <li>ジャストシステムのATOKがインストールされているとシンタックスハイライトされないバグを修正(全角モードで入力中はハイライトしない)</li> </ul> </li>
+<li>Suika2/15.56 2023/1/8 <ul> <li>オートスクロールしないバグを修正</li> </ul> </li>
+<li>Suika2/15.55 2023/1/8 <ul> <li>エディタのハイライトを遅延更新にして軽量化</li> <li>設定メニューを追加</li> <li>設定メニューにフォント選択を追加、フォント名とサイズを選択可能に</li> <li>設定メニューにハイライトモードを追加、ハイライトをオプション化</li> <li>設定メニューにダークモードを追加、ダークモードをオプション化</li> <li>メッセージの途中でコンフィグ画面に入るとメッセージが止まるバグを修正 (Thanks to minirop!)</li> </ul> </li>
+<li>Suika2/15.54 2023/1/7 <ul> <li>@chsxに明暗を追加 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/15.53 2023/1/7 <ul> <li>Linux版でフランス語環境でのバグに対応 (Thanks to minirop!)</li> <li>@gui load.txtを使用したときにGUIが背景に残ってしまうバグを修正 (Thanks to ラワン材-san!)</li> <li>英語NVLを追加</li> <li>英語コンフィグファイルの説明を強化</li> <li>起動時にプロジェクトを開かないように変更</li> </ul> </li>
+<li>Suika2/15.52 2023/1/6 <ul> <li>@chaコマンドでleft-centerとright-centerを指定できないバグを修正 (Thanks to Ronron-san!)</li> <li>macOS版Proでリロード機能を追加 (Thanks to coexistem-san!)</li> </ul> </li>
+<li>Suika2/15.50 2023/1/6 <ul> <li>GUIの仕様をドキュメント通りに修正: システムGUIでなく、baseイメージが未指定で、fadeoutが未指定か0の場合、GUIの状態を仮の背景として保存する (Thanks to banana-san!)</li> </ul> </li>
+<li>Suika2/15.49 2023/1/5 <ul> <li>GUIの仕様をドキュメント通りに修正: システムGUIでなく、baseイメージが未指定で、fadeoutが未指定か0の場合、GUIの状態を仮の背景として保存する (Thanks to banana-san!)</li> </ul> </li>
+<li>Suika2/15.48 2023/1/5 <ul> <li>sysmenu.hidden=2のときに選択肢を選択できないバグを修正 (Thanks to banana-san!)</li> </ul> </li>
 <li>Suika2/15.47 2023/1/4 <ul> <li>ロード時にbg2が有効になるバグを修正 (Thanks to ラワン材-san!)</li> </ul> </li>
 <li>Suika2/15.46 2023/1/4 <ul> <li>ループアニメの登録機能によるセーブロード追加(reg00からreg07まで) (Thanks to Ronron-san!)</li> <li>ライトテーマ/ダークテーマの切り替え (Thanks to Ronron-san!)</li> <li>拡張構文のバグ修正 (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.45 2023/1/3 <ul> <li>ダークテーマの導入 (Thanks to Nipa-san!)</li> </ul> </li>

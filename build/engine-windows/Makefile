@@ -61,7 +61,7 @@ SRCS_C = \
 	../../src/microsoft/dsound.c
 
 SRCS_CC = \
-	../../src/microsoft/d3drender.cc \
+	../../src/microsoft/dx9render.cc \
 	../../src/microsoft/dsvideo.cc \
 	../../src/microsoft/tts_sapi.cc
 
@@ -69,7 +69,7 @@ SRCS_R = resource.rc
 
 HDRS = \
 	../../src/microsoft/dsound.h \
-	../../src/microsoft/d3drender.h \
+	../../src/microsoft/dx9render.h \
 	../../src/microsoft/dsvideo.h \
 	../../src/microsoft/tts_sapi.h
 
