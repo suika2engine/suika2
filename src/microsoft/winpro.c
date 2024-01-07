@@ -3670,7 +3670,7 @@ static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD d
 			if ((dwConversion & IME_CMODE_CHARCODE) != 0 ||
 				(dwConversion & IME_CMODE_EUDC) != 0 ||
 				(dwConversion & IME_CMODE_FIXED) != 0 ||
-				(dwConversion & IME_CMODE_FULLSHAPE) != 0 ||
+// For ATOK		(dwConversion & IME_CMODE_FULLSHAPE) != 0 ||
 				(dwConversion & IME_CMODE_HANJACONVERT) != 0 ||
 				(dwConversion & IME_CMODE_KATAKANA) != 0 ||
 				(dwConversion & IME_CMODE_NOCONVERSION) != 0 ||
