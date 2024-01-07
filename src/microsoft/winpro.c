@@ -3663,23 +3663,25 @@ static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD d
 	hImc = ImmGetContext(hWndRichEdit);
 	if (hImc != NULL)
 	{
-		bRet = ImmGetConversionStatus(hImc, &dwConversion, &dwSentence);
-		ImmReleaseContext(hWndRichEdit, hImc);
-		if (bRet)
+		if (ImmGetOpenStatus(hImc))
 		{
-			if ((dwConversion & IME_CMODE_CHARCODE) != 0 ||
-				(dwConversion & IME_CMODE_EUDC) != 0 ||
-				(dwConversion & IME_CMODE_FIXED) != 0 ||
-// For ATOK		(dwConversion & IME_CMODE_FULLSHAPE) != 0 ||
-				(dwConversion & IME_CMODE_HANJACONVERT) != 0 ||
-				(dwConversion & IME_CMODE_KATAKANA) != 0 ||
-				(dwConversion & IME_CMODE_NOCONVERSION) != 0 ||
-				(dwConversion & IME_CMODE_ROMAN) != 0 ||
-				(dwConversion & IME_CMODE_SOFTKBD) != 0 ||
-				(dwConversion & IME_CMODE_SYMBOL) != 0)
+			bRet = ImmGetConversionStatus(hImc, &dwConversion, &dwSentence);
+			ImmReleaseContext(hWndRichEdit, hImc);
+			if (bRet)
 			{
-				/* 入力中 */
-				return;
+				if ((dwConversion & IME_CMODE_CHARCODE) != 0 ||
+					(dwConversion & IME_CMODE_EUDC) != 0 ||
+					(dwConversion & IME_CMODE_FIXED) != 0 ||
+					(dwConversion & IME_CMODE_HANJACONVERT) != 0 ||
+					(dwConversion & IME_CMODE_KATAKANA) != 0 ||
+					(dwConversion & IME_CMODE_NOCONVERSION) != 0 ||
+					(dwConversion & IME_CMODE_ROMAN) != 0 ||
+					(dwConversion & IME_CMODE_SOFTKBD) != 0 ||
+					(dwConversion & IME_CMODE_SYMBOL) != 0)
+				{
+					/* 入力中 */
+					return;
+				}
 			}
 		}
 	}
