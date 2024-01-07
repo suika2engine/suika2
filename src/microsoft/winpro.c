@@ -1220,7 +1220,7 @@ static VOID InitMenu(HWND hWnd)
 
 	/* ハイライトモードを作成する */
 	mi.wID = ID_HIGHLIGHTMODE;
-	mi.dwTypeData = bEnglish ? L"Highlight mode (slow yet)" : L"ハイライトモード (まだ遅い)";
+	mi.dwTypeData = bEnglish ? L"Highlight mode" : L"ハイライトモード";
 	InsertMenuItem(hMenuPref, nOrder++, TRUE, &mi);
 
 	/* ダークモードを作成する */
@@ -3635,7 +3635,10 @@ static VOID RichEdit_DelayedHighligth(void)
 
 static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam)
 {
+	HIMC hImc;
+	DWORD dwConversion, dwSentence;
 	int nCursor;
+	BOOL bRet;
 
 	UNUSED_PARAMETER(hWnd);
 	UNUSED_PARAMETER(nID);
@@ -3645,6 +3648,31 @@ static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD d
 	/* 選択範囲がある場合は更新せず、1秒後に再び確認する */
 	if (RichEdit_GetSelectedLen() > 0)
 		return;
+
+	/* IMEを使用中は更新せず、1秒後に再び確認する */
+	hImc = ImmGetContext(hWndRichEdit);
+	if (hImc != NULL)
+	{
+		bRet = ImmGetConversionStatus(hImc, &dwConversion, &dwSentence);
+		ImmReleaseContext(hWndRichEdit, hImc);
+		if (bRet)
+		{
+			if ((dwConversion & IME_CMODE_CHARCODE) != 0 ||
+				(dwConversion & IME_CMODE_EUDC) != 0 ||
+				(dwConversion & IME_CMODE_FIXED) != 0 ||
+				(dwConversion & IME_CMODE_FULLSHAPE) != 0 ||
+				(dwConversion & IME_CMODE_HANJACONVERT) != 0 ||
+				(dwConversion & IME_CMODE_KATAKANA) != 0 ||
+				(dwConversion & IME_CMODE_NOCONVERSION) != 0 ||
+				(dwConversion & IME_CMODE_ROMAN) != 0 ||
+				(dwConversion & IME_CMODE_SOFTKBD) != 0 ||
+				(dwConversion & IME_CMODE_SYMBOL) != 0)
+			{
+				/* 入力中 */
+				return;
+			}
+		}
+	}
 
 	/* タイマを止める */
 	KillTimer(hWndMain, ID_TIMER_FORMAT);
