@@ -483,6 +483,9 @@ static bool blit_process(void)
 		return true;
 	}
 
+	/* 文字の描画/クリックアニメーションの制御を行う */
+	blit_frame();
+
 	/* 必要な場合はステージのサムネイルを作成する (クイックセーブ/システムGUI遷移) */
 	if (will_quick_save
 	    ||
@@ -516,9 +519,6 @@ static bool blit_process(void)
 		start_gui_mode();
 		return true;
 	}
-
-	/* 文字の描画/クリックアニメーションの制御を行う */
-	blit_frame();
 
 	return true;
 }
