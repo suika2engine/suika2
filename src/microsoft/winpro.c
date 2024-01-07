@@ -659,6 +659,7 @@ static BOOL InitRenderingPanel(HINSTANCE hInstance, int nWidth, int nHeight)
 /* Initialize the editor panel. */
 static BOOL InitEditorPanel(HINSTANCE hInstance)
 {
+	wchar_t wszCls[128];
 	WNDCLASSEX wcex;
 	RECT rcClient;
 	HFONT hFont, hFontFixed;
@@ -818,7 +819,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	EnableWindow(hWndBtnSelectScript, FALSE);
 
 	/* スクリプトのリッチエディットを作成する */
-	LoadLibrary(L"Msftedit.dll");
+	LoadLibrary(L"C:\\Windows\\System32\\Msftedit.dll");
 	hWndRichEdit = CreateWindowEx(
 		0,
 		MSFTEDIT_CLASS,
@@ -832,6 +833,14 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		(HMENU)ID_RICHEDIT,
 		hInstance,
 		NULL);
+	GetClassName(hWndRichEdit, wszCls, sizeof(wszCls) / sizeof(wchar_t));
+	if (wcscmp(wszCls, L"RICHEDIT50W") != 0)
+	{
+		/* Microsoft Office付属のリッチエディットの場合、オートスクロールを使用する */
+		LONG style = GetWindowLong(hWndRichEdit, GWL_STYLE);
+		style |= ES_AUTOVSCROLL;
+		SetWindowLong(hWndRichEdit, GWL_STYLE, style);
+	}
 	SendMessage(hWndRichEdit, EM_SHOWSCROLLBAR, (WPARAM)SB_VERT, (LPARAM)TRUE);
 	SendMessage(hWndRichEdit, EM_SETEVENTMASK, 0, (LPARAM)ENM_CHANGE);
 	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
