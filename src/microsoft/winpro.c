@@ -823,7 +823,6 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		0,
 		MSFTEDIT_CLASS,
 		L"Script",
-//		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
 		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP,
 		MulDiv(10, nDpi, 96),
 		MulDiv(100, nDpi, 96),
@@ -3387,7 +3386,9 @@ static VOID RichEdit_AutoScroll(void)
 	SetFocus(hWndRichEdit);
 
 	/* リッチエディットをスクロールする */
+	SendMessage(hWndRichEdit, EM_SETREADONLY, TRUE, 0);
 	SendMessage(hWndRichEdit, EM_SCROLLCARET, 0, 0);
+	SendMessage(hWndRichEdit, EM_SETREADONLY, FALSE, 0);
 
 	/* リッチエディットを再描画する */
 	InvalidateRect(hWndRichEdit, NULL, TRUE);
