@@ -85,11 +85,11 @@ void (*pDeviceLostCallback)(void);
 // "dim"パイプラインのピクセルシェーダ
 //
 // dimShaderSrc[] =
-//	"ps_1_4                                                             \n"
-//	"def c0, 0.5, 0.5, 0.5, 1.0 // c0: float4(0.5, 0.5, 0.5, 1.0)       \n"
-//	"texld r0, t0               // r0 = samplerColor;                   \n"
-//	"mul r0, r0, c0             // r0 *= c0;                            \n";
-//                              // return r0;
+//	"ps_1_4                                                    \n"
+//	"                     // c0: the slot for dim factor       \n"
+//	"texld r0, t0         // r0 = samplerColor;                \n"
+//	"mul r0, r0, c0       // r0 *= c0;                         \n";
+//                        // return r0;
 //
 static  unsigned char dimShaderBin[] {
 	0x04, 0x01, 0xff, 0xff, 0x51, 0x00, 0x00, 0x00,
@@ -421,6 +421,72 @@ BOOL D3DRedraw(void)
 	return TRUE;
 }
 
+//
+// [参考]
+//  - シェーダ言語(アセンブリ or HLSL)のコンパイル
+//    - 実行時にコンパイルするにはd3dx9_43.dllのインストールが必要になる
+//    - これがインストールされていなくても実行可能なようにしたい
+//    - そこで、シェーダは開発者がコンパイルしてバイトコードをベタ書きする
+//    - 下記コードでコンパイルを行って、shader.txtの内容を利用すること
+//    - 開発中のみリンカオプションで-ld3dx9とする
+//
+#if 0
+#include <d3dx9.h>
+
+void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
+{
+	ID3DXBuffer *pShader;
+	ID3DXBuffer *pError;
+
+	if (!bHLSL)
+	{
+		// For pixel shader assembly
+		if (FAILED(D3DXAssembleShader(pSrc, strlen(pSrc), 0, NULL, 0,
+									  &pShader, &pError)))
+		{
+			log_api_error("D3DXAssembleShader");
+
+			LPSTR pszError = (LPSTR)pError->GetBufferPointer();
+			if (pszError != NULL)
+				log_error("%s", pszError);
+
+			exit(1);
+		}
+	}
+	else
+	{
+		// For pixel shader HLSL
+		if (FAILED(D3DXCompileShader(pSrc, strlen(pSrc) - 1,
+									 NULL, NULL, "blur", "ps_2_0", 0,
+									 &pShader, &pError, NULL)))
+		{
+			log_api_error("D3DXCompileShader");
+
+			LPSTR pszError = (LPSTR)pError->GetBufferPointer();
+			if (pszError != NULL)
+				log_error("%s", pszError);
+
+			exit(1);
+		}
+	}
+
+	FILE *fp;
+	fp = fopen("shader.txt", "w");
+	if (fp == NULL)
+		exit(1);
+
+	int size = pShader->GetBufferSize();
+	unsigned char *p = (unsigned char *)pShader->GetBufferPointer();
+	for (int i=0; i<size; i++) {
+		pDst[i] = p[i];
+		fprintf(fp, "0x%02x, ", p[i]);
+		if (i % 8 == 7)
+			fprintf(fp, "\n");
+	}
+
+	fclose(fp);
+}
+#endif
 
 //
 // HAL: Notifies an image update.
@@ -674,6 +740,8 @@ DrawPrimitives(
 		pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		pD3DDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
 		pD3DDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		th4[0] = th4[1] = th4[2] = 0.5f;
+		pD3DDevice->SetPixelShaderConstantF(0, th4, 1);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG1, D3DTA_TEXTURE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLOROP, D3DTOP_MODULATE);
 		pD3DDevice->SetTextureStageState(0,	D3DTSS_COLORARG2, D3DTA_DIFFUSE);
@@ -800,70 +868,3 @@ VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
 {
 	pDeviceLostCallback = pFunc;
 }
-
-//
-// [参考]
-//  - シェーダ言語(アセンブリ or HLSL)のコンパイル
-//    - 実行時にコンパイルするにはd3dx9_43.dllのインストールが必要になる
-//    - これがインストールされていなくても実行可能なようにしたい
-//    - そこで、シェーダは開発者がコンパイルしてバイトコードをベタ書きする
-//    - 下記コードでコンパイルを行って、shader.txtの内容を利用すること
-//    - 開発中のみリンカオプションで-ld3dx9とする
-//
-#if 0
-#include <d3dx9.h>
-
-void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
-{
-	ID3DXBuffer *pShader;
-	ID3DXBuffer *pError;
-
-	if (!bHLSL)
-	{
-		// For pixel shader assembly
-		if (FAILED(D3DXAssembleShader(pSrc, strlen(pSrc), 0, NULL, 0,
-									  &pShader, &pError)))
-		{
-			log_api_error("D3DXAssembleShader");
-
-			LPSTR pszError = (LPSTR)pError->GetBufferPointer();
-			if (pszError != NULL)
-				log_error("%s", pszError);
-
-			exit(1);
-		}
-	}
-	else
-	{
-		// For pixel shader HLSL
-		if (FAILED(D3DXCompileShader(pSrc, strlen(pSrc) - 1,
-									 NULL, NULL, "blur", "ps_2_0", 0,
-									 &pShader, &pError, NULL)))
-		{
-			log_api_error("D3DXCompileShader");
-
-			LPSTR pszError = (LPSTR)pError->GetBufferPointer();
-			if (pszError != NULL)
-				log_error("%s", pszError);
-
-			exit(1);
-		}
-	}
-
-	FILE *fp;
-	fp = fopen("shader.txt", "w");
-	if (fp == NULL)
-		exit(1);
-
-	int size = pShader->GetBufferSize();
-	unsigned char *p = (unsigned char *)pShader->GetBufferPointer();
-	for (int i=0; i<size; i++) {
-		pDst[i] = p[i];
-		fprintf(fp, "0x%02x, ", p[i]);
-		if (i % 8 == 7)
-			fprintf(fp, "\n");
-	}
-
-	fclose(fp);
-}
-#endif

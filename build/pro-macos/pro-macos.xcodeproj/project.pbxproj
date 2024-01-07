@@ -174,6 +174,7 @@
 		2610CCDE2B287ACD00300004 /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../src/glyph.h; sourceTree = "<group>"; };
 		2610CCDF2B287ACD00300004 /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = log.c; path = ../../src/log.c; sourceTree = "<group>"; };
 		2617DE222B3C5EB2006F4211 /* suika-mac.dmg */ = {isa = PBXFileReference; lastKnownFileType = file; name = "suika-mac.dmg"; path = "../../engine-macos/suika-mac.dmg"; sourceTree = "<group>"; };
+		263A19572B49D1C400DBD647 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		26495D0A2B2A7BFD0050EDDF /* GameViewControllerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameViewControllerProtocol.h; path = ../../src/apple/GameViewControllerProtocol.h; sourceTree = "<group>"; };
 		26495D0B2B2A7BFD0050EDDF /* aunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aunit.h; path = ../../src/apple/aunit.h; sourceTree = "<group>"; };
 		26495D0C2B2A7BFD0050EDDF /* GameShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = GameShaders.metal; path = ../../src/apple/GameShaders.metal; sourceTree = "<group>"; };
@@ -206,7 +207,6 @@
 		26A1BAF82B2AD7F600761444 /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
 		26B673AD2B3562DA00E83202 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		26F4E5B02B32CE61003E4B5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		26F5AD772B49657A00C15A53 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -548,7 +548,7 @@
 			children = (
 				26F4E5B02B32CE61003E4B5A /* Base */,
 				26B673AD2B3562DA00E83202 /* en */,
-				26F5AD772B49657A00C15A53 /* ja */,
+				263A19572B49D1C400DBD647 /* ja */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

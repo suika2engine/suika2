@@ -15,6 +15,7 @@
  *  2023-09-17 Added a support the full screen mode without resolution change
  *  2023-12-09 Refactored
  *  2023-12-11 Separated winmain.c to winmain.c and winpro.c
+ *  2024-01-06 Changed the language check logic.
  */
 
 /* Suika2 Base */

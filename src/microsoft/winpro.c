@@ -21,6 +21,7 @@
  *  2023-12-09 Refactored
  *  2023-12-11 Separated winmain.c to winmain.c and winpro.c
  *  2024-01-04 Added the dark mode and the preference save/load.
+ *  2024-01-06 Changed the language check logic.
  */
 
 /* Suika2 Base */
@@ -63,11 +64,11 @@
 
 /* バージョン文字列 */
 #define VERSION_EN \
-	L"Suika2 Pro Desktop 15\n" \
-	L"Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved."
+	L"Suika2 Pro Desktop\n" \
+	L"Copyright (c) 2001-2024, Keiichi Tabata. All rights reserved."
 #define VERSION_JP \
-	L"Suika2 Pro Desktop 15\n" \
-	L"Copyright (c) 2001-2023, Keiichi Tabata. All rights reserved."
+	L"Suika2 Pro Desktop\n" \
+	L"Copyright (c) 2001-2024, Keiichi Tabata. All rights reserved."
 
 /* 最小ウィンドウサイズ */
 #define WINDOW_WIDTH_MIN	(800)
@@ -93,6 +94,9 @@
 
 /* UTF-8/UTF-16の変換バッファサイズ */
 #define CONV_MESSAGE_SIZE	(65536)
+
+/* ビギナータイマー */
+#define ID_TIMER_BEGINNER	(1)
 
 /* Colors */
 #define LIGHT_BG_DEFAULT	0x00ffffff
@@ -154,6 +158,9 @@ static char szMessage[CONV_MESSAGE_SIZE];
 /* WaitForNextFrame()の時間管理用 */
 static DWORD dwStartTime;
 
+/* プロジェクトが読み込まれた */
+static BOOL bProjectOpened;
+
 /* フルスクリーンモードか */
 static BOOL bFullScreen;
 
@@ -195,6 +202,9 @@ static BOOL bRunning;
 /* ダークモードか */
 static BOOL bDarkMode;
 
+/* ハイライトモードか */
+static BOOL bHighlightMode;
+
 /* 発生したイベントの状態 */
 static BOOL bContinuePressed;		/* 「続ける」ボタンが押下された */
 static BOOL bNextPressed;			/* 「次へ」ボタンが押下された */
@@ -228,14 +238,14 @@ static DWORD dwColorCurrentExec = LIGHT_CURRENT_EXEC;
 /* static */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
-static BOOL InitProject(VOID);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
-static BOOL InitMainWindow(HINSTANCE hInstance, int *pnRenderWidth, int *pnRenderHeight);
 static BOOL InitRenderingPanel(HINSTANCE hInstance, int nWidth, int nHeight);
+static BOOL InitMainWindow(HINSTANCE hInstance, int *pnRenderWidth, int *pnRenderHeight);
 static BOOL InitEditorPanel(HINSTANCE hInstance);
 static VOID InitMenu(HWND hWnd);
 static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish, const wchar_t *pszTextJapanese);
-static void GameLoop(void);
+static VOID StartGame(void);
+static VOID GameLoop(void);
 static BOOL RunFrame(void);
 static BOOL SyncEvents(void);
 static BOOL PretranslateMessage(MSG* pMsg);
@@ -284,7 +294,7 @@ static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void);
 static VOID RichEdit_InsertText(const wchar_t *pLine, ...);
 
 /* Project */
-static BOOL CreateOrChooseProject(void);
+static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam);
 static BOOL CreateProjectFromTemplate(void);
 static BOOL ChooseProject(void);
 static BOOL OpenProjectAtPath(const wchar_t *pszPath);
@@ -292,6 +302,9 @@ static VOID ReadProjectFile(void);
 static VOID WriteProjectFile(void);
 
 /* Command Handlers */
+static VOID OnNewProject(void);
+static VOID OnOpenProject(void);
+static VOID SetProjectOpened(void);
 static VOID OnOpenGameFolder(void);
 static VOID OnOpenScript(void);
 static VOID OnReloadScript(void);
@@ -355,117 +368,38 @@ int WINAPI wWinMain(
 	LPWSTR lpszCmd,
 	int nCmdShow)
 {
-	HRESULT hResult;
 	int nRet;
 
 	nRet = 1;
 	do {
 		/* Decide Japanese or English. */
-		bEnglish = GetUserDefaultLCID() == 1041 ? FALSE : TRUE;
+		bEnglish = (GetUserDefaultLCID() & 0x3ff) == LANG_JAPANESE ? FALSE : TRUE;
 
-		/* Initialize COM. */
-		hResult = CoInitialize(0);
-		if (FAILED(hResult))
-		{
-			log_api_error("CoInitialize");
-			break;
-		}
-
-		/* Initialize the Common Controls. */
-		InitCommonControls();
-
-		/* Select a project and set a working directory.. */
-		if (!InitProject())
-			break;
-
-		/* Do the lower layer initialization. */
+		/* Initialize the app. */
 		if(!InitApp(hInstance, nCmdShow))
-			break;
-
-		/* Do the upper layer initialization. */
-		if(!on_event_init())
 			break;
 
 		/* Run the main loop. */
 		GameLoop();
 
-		/* Cleanup the upper layer. */
-		on_event_cleanup();
-
-		/* Cleanup the lower layer. */
+		/* Cleanup the app. */
 		CleanupApp();
 
 		nRet = 0;
 	} while (0);
 
-	UNUSED_PARAMETER(hInstance);
 	UNUSED_PARAMETER(hPrevInstance);
 	UNUSED_PARAMETER(lpszCmd);
 
 	return nRet;
 }
 
-/*
- * Initialize the project.
- */
-static BOOL InitProject(VOID)
-{
-	/* If no argument is specified: */
-	if (__argc < 2)
-	{
-		/* If we are in a game directory: */
-		if (FILE_EXISTS("conf\\config.txt") &&
-			FILE_EXISTS("txt\\init.txt"))
-		{
-			/* We use "in-folder mode" for compatibilities. */
-			return TRUE;
-		}
-
-		/* Create a new project or choose an existing project. */
-		if (!CreateOrChooseProject())
-		{
-			MessageBox(NULL, bEnglish ?
-					   L"Failed to create a project." :
-					   L"プロジェクトの作成に失敗しました。",
-					   MSGBOX_TITLE,
-					   MB_OK | MB_ICONERROR);
-			return FALSE;
-		}
-
-		/* Succeeded. */
-		return TRUE;
-	}
-
-	/* If an argument is specified, open it as an existing project. */
-	if (!OpenProjectAtPath(__wargv[1]))
-		return FALSE;
-
-	/* Succeeded. */
-	return TRUE;
-}
-
 /* Do the lower layer initialization. */
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 {
-	RECT rcClient;
-
-	/* Check if a game exists. */
-	if (!FILE_EXISTS("conf\\config.txt"))
-	{
-		log_error(get_ui_message(UIMSG_NO_GAME_FILES));
-		return FALSE;
-	}
-
-	/* Initialize the locale code. */
-	init_locale_code();
-
-	/* Initialize the file subsyetem. */
-	if (!init_file())
-		return FALSE;
-
-	/* Initialize the config subsyetem. */
-	if (!init_conf())
-		return FALSE;
+	conf_window_width = 1280;
+	conf_window_height = 720;
+	conf_window_title = strdup("Suika2 Pro Desktop");
 
 	/* Initialize the window. */
 	if (!InitWindow(hInstance, nCmdShow))
@@ -478,12 +412,6 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	/* Move the game panel and notify its position to the rendering subsyetem. */
-	GetClientRect(hWndMain, &rcClient);
-	nLastClientWidth = 0;
-	nLastClientHeight = 0;
-	Layout(rcClient.right, rcClient.bottom);
-
 	/* Initialize the sound HAL. */
 	if (!DSInitialize(hWndMain))
 	{
@@ -491,17 +419,27 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
+	/* Open a project file if specified in argv[1]. */
+	if (__argc >= 2)
+		if (OpenProjectAtPath(__wargv[1]))
+			StartGame();
+
+	/* Set a timer for a beginner. */
+	if (!bProjectOpened)
+		SetTimer(hWndMain, ID_TIMER_BEGINNER, 5000, OnTimerBeginner);
+
 	return TRUE;
 }
 
 /* 基盤レイヤの終了処理を行う */
 static void CleanupApp(void)
 {
-	/* コンフィグの終了処理を行う */
-	cleanup_conf();
-
-	/* ファイルの使用を終了する */
-    cleanup_file();
+	if (bProjectOpened)
+	{
+		on_event_cleanup();
+		cleanup_conf();
+		cleanup_file();
+	}
 
 	/* Direct3Dの終了処理を行う */
 	D3DCleanup();
@@ -539,20 +477,36 @@ int Win11_GetDpiForWindow(HWND hWnd)
 /* Initialize the window. */
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
-	int nRenderWidth, nRenderHeight;
-	int i;
+	HRESULT hResult;
+	int i, nRenderWidth, nRenderHeight;
 
+	/* Initialize COM. */
+	hResult = CoInitialize(0);
+	if (FAILED(hResult))
+	{
+		log_api_error("CoInitialize");
+		return FALSE;
+	}
+
+	/* Initialize the Common Controls. */
+	InitCommonControls();
+
+	/* Initialize the main window. */
 	if (!InitMainWindow(hInstance, &nRenderWidth, &nRenderHeight))
 		return FALSE;
 
-	if (!InitRenderingPanel(hInstance, nRenderWidth, nRenderHeight))
+	/* Initialize the rendering panel. */
+	if (!InitRenderingPanel(hInstance, nRenderWidth, nRenderWidth))
 		return FALSE;
 
+	/* Initialize the editor panel. */
 	if (!InitEditorPanel(hInstance))
 		return FALSE;
 
+	/* Initialize the menu. */
 	InitMenu(hWndMain);
 
+	/* Show the window. */
 	ShowWindow(hWndMain, nCmdShow);
 	UpdateWindow(hWndMain);
 
@@ -966,13 +920,28 @@ static VOID InitMenu(HWND hWnd)
 	/* 2階層目を作成する準備を行う */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
 
-	/* ゲームフォルダを開くを作成する */
+	/* 新規プロジェクトを作成する */
 	nOrder = 0;
+	mi.wID = ID_NEW_PROJECT;
+	mi.dwTypeData = bEnglish ?
+		L"New game project" :
+		L"新規ゲームプロジェクト";
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+
+	/* プロジェクトを開くを作成する */
+	mi.wID = ID_OPEN_PROJECT;
+	mi.dwTypeData = bEnglish ?
+		L"Open project" :
+		L"ゲームプロジェクトを開く";
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+
+	/* ゲームフォルダを開くを作成する */
 	mi.wID = ID_OPEN_GAME_FOLDER;
 	mi.dwTypeData = bEnglish ?
 		L"Open game folder" :
 		L"ゲームフォルダを開く";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_OPEN_GAME_FOLDER, MF_GRAYED);
 
 	/* スクリプトを開く(O)を作成する */
 	mi.wID = ID_OPEN;
@@ -980,6 +949,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Open script(&O)\tCtrl+O" :
 		L"スクリプトを開く(&O)\tCtrl+O";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_OPEN, MF_GRAYED);
 
 	/* スクリプトをリロードを作成する */
 	mi.wID = ID_RELOAD;
@@ -987,6 +957,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Reload script(&L)\tCtrl+L" :
 		L"スクリプトをリロードする(&L)\tCtrl+L";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_RELOAD, MF_GRAYED);
 
 	/* スクリプトを上書き保存する(S)を作成する */
 	mi.wID = ID_SAVE;
@@ -994,6 +965,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Overwrite script(&S)\tCtrl+S" :
 		L"スクリプトを上書き保存する(&S)\tCtrl+S";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
@@ -1007,11 +979,13 @@ static VOID InitMenu(HWND hWnd)
 	mi.wID = ID_RESUME;
 	mi.dwTypeData = bEnglish ? L"Continue(&R)\tCtrl+R" : L"続ける(&R)\tCtrl+R";
 	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_RESUME, MF_GRAYED);
 
 	/* 次へ(N)を作成する */
 	mi.wID = ID_NEXT;
 	mi.dwTypeData = bEnglish ? L"Next(&N)\tCtrl+N" : L"次へ(&N)\tCtrl+N";
 	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_NEXT, MF_GRAYED);
 
 	/* 停止(P)を作成する */
 	mi.wID = ID_PAUSE;
@@ -1025,6 +999,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Go to next error(&E)\tCtrl+E" :
 		L"次のエラー箇所へ移動(&E)\tCtrl+E";
 	InsertMenuItem(hMenuRun, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_ERROR, MF_GRAYED);
 
 	/* Windowsゲームをエクスポートするを作成する */
 	nOrder = 0;
@@ -1033,6 +1008,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Export a Windows game" :
 		L"Windowsゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_GRAYED);
 
 	/* Windows EXEインストーラを作成するを作成する */
 	mi.wID = ID_EXPORT_WIN_INST;
@@ -1040,6 +1016,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Export a Windows game (installer)" :
 		L"Windowsゲームをエクスポートする(インストーラ)";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_GRAYED);
 
 	/* Windows/Macゲームをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WIN_MAC;
@@ -1047,6 +1024,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Export a desktop game for Windows and others" :
 		L"Windowsなどのデスクトップゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_GRAYED);
 
 	/* Webゲームをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_WEB;
@@ -1054,6 +1032,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Export for Web" :
 		L"Webゲームをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_GRAYED);
 
 	/* Androidプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_ANDROID;
@@ -1061,6 +1040,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Export Android project" :
 		L"Androidプロジェクトをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_GRAYED);
 
 	/* iOSプロジェクトをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_IOS;
@@ -1068,6 +1048,7 @@ static VOID InitMenu(HWND hWnd)
 		L"Export iOS project" :
 		L"iOSプロジェクトをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_GRAYED);
 
 	/* パッケージをエクスポートするを作成する */
 	mi.wID = ID_EXPORT_PACKAGE;
@@ -1075,127 +1056,155 @@ static VOID InitMenu(HWND hWnd)
 		L"Export package only" :
 		L"パッケージのみをエクスポートする";
 	InsertMenuItem(hMenuExport, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_EXPORT_PACKAGE, MF_GRAYED);
 
 	/* 地の文を入力を作成する */
 	nOrder = 0;
 	mi.wID = ID_CMD_MESSAGE;
 	mi.dwTypeData = bEnglish ? L"Message" : L"地の文を入力";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_MESSAGE, MF_GRAYED);
 
 	/* セリフを入力を作成する */
 	mi.wID = ID_CMD_SERIF;
 	mi.dwTypeData = bEnglish ? L"Line" : L"セリフを入力";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_SERIF, MF_GRAYED);
 
 	/* 背景を作成する */
 	mi.wID = ID_CMD_BG;
 	mi.dwTypeData = bEnglish ? L"Background" : L"背景";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_BG, MF_GRAYED);
 
 	/* 背景だけ変更を作成する */
 	mi.wID = ID_CMD_BG_ONLY;
 	mi.dwTypeData = bEnglish ? L"Change Background Only" : L"背景だけ変更";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_BG_ONLY, MF_GRAYED);
 
 	/* キャラクタを作成する */
 	mi.wID = ID_CMD_CH;
 	mi.dwTypeData = bEnglish ? L"Character" : L"キャラクタ";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_CH, MF_GRAYED);
 
 	/* キャラクタを同時に変更を作成する */
 	mi.wID = ID_CMD_CHSX;
 	mi.dwTypeData = bEnglish ? L"Change Multiple Characters" : L"キャラクタを同時に変更";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_CHSX, MF_GRAYED);
 
 	/* 音楽を再生を作成する */
 	mi.wID = ID_CMD_BGM;
 	mi.dwTypeData = bEnglish ? L"Play BGM" : L"音楽を再生";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_BGM, MF_GRAYED);
 
 	/* 音楽を停止を作成する */
 	mi.wID = ID_CMD_BGM_STOP;
 	mi.dwTypeData = bEnglish ? L"Stop BGM" : L"音楽を停止";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_BGM_STOP, MF_GRAYED);
 
 	/* 音楽の音量を作成する */
 	mi.wID = ID_CMD_VOL_BGM;
 	mi.dwTypeData = bEnglish ? L"BGM Volume" : L"音楽の音量";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_VOL_BGM, MF_GRAYED);
 
 	/* 効果音を再生を作成する */
 	mi.wID = ID_CMD_SE;
 	mi.dwTypeData = bEnglish ? L"Play Sound Effect" : L"効果音を再生";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_SE, MF_GRAYED);
 
 	/* 効果音を停止を作成する */
 	mi.wID = ID_CMD_SE_STOP;
 	mi.dwTypeData = bEnglish ? L"Stop Sound Effect" : L"効果音を停止";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_SE_STOP, MF_GRAYED);
 
 	/* 効果音の音量を作成する */
 	mi.wID = ID_CMD_VOL_SE;
 	mi.dwTypeData = bEnglish ? L"Sound Effect Volume" : L"効果音の音量";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_VOL_SE, MF_GRAYED);
 
 	/* 動画を再生する */
 	mi.wID = ID_CMD_VIDEO;
 	mi.dwTypeData = bEnglish ? L"Play Video" : L"動画を再生する";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_VIDEO, MF_GRAYED);
 
 	/* 画面を横に揺らすを作成する */
 	mi.wID = ID_CMD_SHAKE_H;
 	mi.dwTypeData = bEnglish ? L"Shake Screen Horizontally" : L"画面を横に揺らす";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_SHAKE_H, MF_GRAYED);
 
 	/* 画面を縦に揺らすを作成する */
 	mi.wID = ID_CMD_SHAKE_V;
 	mi.dwTypeData = bEnglish ? L"Shake Screen Vertically" : L"画面を縦に揺らす";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_SHAKE_V, MF_GRAYED);
 
 	/* 選択肢(3)を作成する */
 	mi.wID = ID_CMD_CHOOSE_3;
 	mi.dwTypeData = bEnglish ? L"Options (3)" : L"選択肢(3)";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_CHOOSE_3, MF_GRAYED);
 
 	/* 選択肢(2)を作成する */
 	mi.wID = ID_CMD_CHOOSE_2;
 	mi.dwTypeData = bEnglish ? L"Options (2)" : L"選択肢(2)";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_CHOOSE_2, MF_GRAYED);
 
 	/* 選択肢(1)を作成する */
 	mi.wID = ID_CMD_CHOOSE_1;
 	mi.dwTypeData = bEnglish ? L"Option (1)" : L"選択肢(1)";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_CHOOSE_1, MF_GRAYED);
 
 	/* GUI呼び出しを作成する */
 	mi.wID = ID_CMD_GUI;
 	mi.dwTypeData = bEnglish ? L"Menu (GUI)" : L"メニュー (GUI)";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_GUI, MF_GRAYED);
 
 	/* クリック待ちを作成する */
 	mi.wID = ID_CMD_CLICK;
 	mi.dwTypeData = bEnglish ? L"Click Wait" : L"クリック待ち";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_CLICK, MF_GRAYED);
 
 	/* 時間指定待ちを作成する */
 	mi.wID = ID_CMD_WAIT;
 	mi.dwTypeData = bEnglish ? L"Timed Wait" : L"時間指定待ち";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_WAIT, MF_GRAYED);
 
 	/* 他のスクリプトへ移動を作成する */
 	mi.wID = ID_CMD_LOAD;
 	mi.dwTypeData = bEnglish ? L"Load Other Script" : L"他のスクリプトへ移動";
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
+	EnableMenuItem(hMenu, ID_CMD_LOAD, MF_GRAYED);
 
-	/* バージョン(V)を作成する */
+	/* バージョンを作成する */
 	nOrder = 0;
 	mi.wID = ID_VERSION;
-	mi.dwTypeData = bEnglish ? L"Version(&V)" : L"バージョン(&V)\tCtrl+V";
+	mi.dwTypeData = bEnglish ? L"Version" : L"バージョン";
 	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
 
 	/* ダークモードを作成する */
 	mi.wID = ID_DARKMODE;
 	mi.dwTypeData = bEnglish ? L"Dark mode" : L"ダークモード";
+	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
+
+	/* 高速編集モードを作成する */
+	mi.wID = ID_HIGHLIGHT;
+	mi.dwTypeData = bEnglish ? L"Fast edit mode" : L"高速編集モード";
 	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
 
 	/* メインメニューをセットする */
@@ -1226,6 +1235,76 @@ static HWND CreateTooltip(HWND hWndBtn, const wchar_t *pszTextEnglish,
 
 	return hWndTip;
 }
+
+static VOID StartGame(void)
+{
+	RECT rcClient;
+
+	do {
+		/* Initialize the locale code. */
+		init_locale_code();
+
+		/* Initialize the file subsyetem. */
+		if (!init_file())
+			break;
+
+		/* Initialize the config subsyetem. */
+		if (!init_conf())
+			break;
+
+		/* Move the game panel and notify its position to the rendering subsyetem. */
+		GetClientRect(hWndMain, &rcClient);
+		nLastClientWidth = 0;
+		nLastClientHeight = 0;
+		Layout(rcClient.right, rcClient.bottom);
+
+		/* Do the upper layer initialization. */
+		if (!on_event_init())
+			break;
+
+		/* Mark as opened. */
+		bProjectOpened = TRUE;
+
+		/* Set menu items enabled/disabled. */
+		EnableMenuItem(hMenu, ID_NEW_PROJECT, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_OPEN_PROJECT, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_OPEN_GAME_FOLDER, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_OPEN, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_RELOAD, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_SAVE, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_RESUME, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_NEXT, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_PAUSE, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_ERROR, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_INST, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WIN_MAC, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_WEB, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_ANDROID, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_IOS, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_EXPORT_PACKAGE, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_MESSAGE, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_SERIF, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_BG, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_BG_ONLY, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_CH, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_CHSX, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_BGM, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_BGM_STOP, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_VOL_BGM, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_SE, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_SE_STOP, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_VOL_SE, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_VIDEO, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_SHAKE_H, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_SHAKE_V, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_CHOOSE_3, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_CHOOSE_2, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_CHOOSE_1, MF_ENABLED);
+		EnableMenuItem(hMenu, ID_CMD_CLICK, MF_ENABLED);
+	} while (0);
+}
+
 /* ゲームループを実行する */
 static void GameLoop(void)
 {
@@ -1259,6 +1338,10 @@ static void GameLoop(void)
 static BOOL RunFrame(void)
 {
 	BOOL bRet;
+
+	/* プロジェクトが開かれていない場合 */
+	if (!bProjectOpened)
+		return TRUE;
 
 	/* 実行許可前の場合 */
 	if (!bRunFrameAllow)
@@ -1822,6 +1905,12 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 	switch(nID)
 	{
 	/* ファイル */
+	case ID_NEW_PROJECT:
+		OnNewProject();
+		break;
+	case ID_OPEN_PROJECT:
+		OnOpenProject();
+		break;
 	case ID_OPEN_GAME_FOLDER:
 		OnOpenGameFolder();
 		break;
@@ -3683,24 +3772,29 @@ static VOID RichEdit_InsertText(const wchar_t *pFormat, ...)
  */
 
 /* Create a new project or choose an existing project. */
-static BOOL CreateOrChooseProject(void)
+static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam)
 {
-	/* Show a dialog and ask if the user wants to create new project. */
-	if (MessageBox(NULL,
-				   bEnglish ?
-				   L"Going to create a new game.\n"
-				   L"Select YES to specify the new game data folder.\n"
-				   L"Select NO to specify an existing game data folder." :
-				   L"新規ゲームを作成します。\n"
-				   L"「はい」を押すと新規ゲームデータの保存先を指定できます。\n"
-				   L"「いいえ」を押すと既存ゲームデータを選択します。\n",
-				   MSGBOX_TITLE,
-				   MB_YESNO) == IDNO)
-	{
-		return ChooseProject();
-	}
+	UNUSED_PARAMETER(hWnd);
+	UNUSED_PARAMETER(nID);
+	UNUSED_PARAMETER(uTime);
+	UNUSED_PARAMETER(dwParam);
 
-	return CreateProjectFromTemplate();
+	KillTimer(hWndMain, ID_TIMER_BEGINNER);
+	if (bProjectOpened)
+		return;
+
+	MessageBox(hWndMain,
+			   bEnglish ?
+			   L"May I help you?\n"
+			   L"\n"
+			   L"Press File->New project to create a new game.\n"
+			   L"Press File->Open project to open an existing game." :
+			   L"お困りですか？\n"
+			   L"\n"
+			   L"メニューの「ファイル」→「新規ゲームプロジェクト」を押すと新規ゲームを作成します。\n"
+			   L"メニューの「ファイル」→「ゲームプロジェクトを開く」を押すと既存ゲームを開きます。\n",
+			   MSGBOX_TITLE,
+			   MB_OK);
 }
 
 /* Create a new project from a template. */
@@ -3785,7 +3879,8 @@ static BOOL CreateProjectFromTemplate(void)
 	/* テンプレートを選択する */
 	if (MessageBox(NULL,
 				   bEnglish ?
-				   L"Do you want to use the full screen style?" :
+				   L"Do you want to use the good old full screen style, that is, NVL mode?\n"
+				   L"(No is recommended.)" :
 				   L"全画面スタイルにしますか？\n"
 				   L"「はい」を押すと全画面スタイルにします。\n"
 				   L"「いいえ」を押すとアドベンチャースタイルにします。\n",
@@ -3794,7 +3889,7 @@ static BOOL CreateProjectFromTemplate(void)
 	{
 		/* 英語の場合 */
 		if (bEnglish)
-			return CopyLibraryFiles(L"games\\nvl\\*", L".\\");
+			return CopyLibraryFiles(L"games\\nvl-en\\*", L".\\");
 
 		/* 日本語の場合 */
 		if (MessageBox(NULL, L"縦書きにしますか？", MSGBOX_TITLE, MB_YESNO) == IDYES)
@@ -3878,13 +3973,15 @@ static BOOL OpenProjectAtPath(const wchar_t *pszPath)
 
 static void ReadProjectFile(void)
 {
-	const char *DARKMODE = "darkmode\n";
+	const char HIGHLIGHTMODE[] = "highlightmode\n";
+	const char DARKMODE[] = "darkmode\n";
 
 	char buf[1024];
 	FILE *fp;
 
 	/* Defaults */
 	bDarkMode = FALSE;
+	bHighlightMode = FALSE;
 	dwColorBgDefault = LIGHT_BG_DEFAULT;
 	dwColorFgDefault = LIGHT_FG_DEFAULT;
 	dwColorComment = LIGHT_COMMENT;
@@ -3903,6 +4000,9 @@ static void ReadProjectFile(void)
 	{
 		if (fread(buf, 1, sizeof(buf) - 1, fp) < 1)
 			break;
+
+		if (strcmp(buf, HIGHLIGHTMODE) == 0)
+			bHighlightMode = TRUE;
 
 		if (strcmp(buf, DARKMODE) == 0)
 		{
@@ -3932,6 +4032,8 @@ static void WriteProjectFile(void)
 	if (fp == NULL)
 		return;
 
+	if (bHighlightMode)
+		fprintf(fp, "highlightmode\n");
 	if (bDarkMode)
 		fprintf(fp, "darkmode\n");
 
@@ -3941,6 +4043,42 @@ static void WriteProjectFile(void)
 /*
  * コマンド処理
  */
+
+/* 新規ゲームプロジェクト作成 */
+static VOID OnNewProject(void)
+{
+	if (!CreateProjectFromTemplate())
+		return;
+
+	/* Do the upper layer initialization. */
+	if (!on_event_init())
+	{
+		on_event_cleanup();
+		return;
+	}
+
+	SetProjectOpened();
+}
+
+/* ゲームプロジェクトを開く */
+static VOID OnOpenProject(void)
+{
+	if (!ChooseProject())
+		return;
+
+	/* Do the upper layer initialization. */
+	if (!on_event_init())
+	{
+		on_event_cleanup();
+		return;
+	}
+
+	SetProjectOpened();
+}
+
+static VOID SetProjectOpened(void)
+{
+}
 
 /* ゲームフォルダオープン */
 static VOID OnOpenGameFolder(void)

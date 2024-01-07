@@ -1,20 +1,25 @@
 /* Icon */
 #define IDI_ICON                            100
 
+/* Manifest */
+#define CREATE_PROCESS_MANIFEST_RESOURCE_ID 1
+
 /* File Menu / Open Button*/
-#define ID_OPEN_GAME_FOLDER		    150
-#define ID_OPEN                             151
-#define ID_RELOAD                           152
-#define ID_SAVE                             153
-#define ID_QUIT                             154
+#define ID_NEW_PROJECT			    150
+#define ID_OPEN_PROJECT			    151
+#define ID_OPEN_GAME_FOLDER		    152
+#define ID_OPEN                             153
+#define ID_RELOAD                           154
+#define ID_SAVE                             155
+#define ID_QUIT                             156
 
 /* Run Menu / Buttons */
-#define ID_RESUME                           155
-#define ID_NEXT                             156
-#define ID_PAUSE                            157
-#define ID_MOVE                             158
-#define ID_ERROR                            159
-#define ID_VARS                             160
+#define ID_RESUME                           160
+#define ID_NEXT                             161
+#define ID_PAUSE                            162
+#define ID_MOVE                             163
+#define ID_ERROR                            164
+#define ID_VARS                             165
 
 /* Direction Menu / Popup Menu */
 #define ID_CMD_MESSAGE			    180
@@ -43,6 +48,7 @@
 /* Help Menu */
 #define ID_VERSION                          210
 #define ID_DARKMODE                         211
+#define ID_HIGHLIGHT                        212
 
 /* Export Menu */
 #define ID_EXPORT_WIN                       220

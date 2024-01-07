@@ -1947,15 +1947,14 @@ bool start_fade_for_chs(const bool *stay, const char **fname,
 
 	/* キャラを入れ替える */
 	for (i = 0; i < CH_BASIC_LAYERS; i++) {
-		if (stay[i])
-			continue;
-
 		layer = chpos_to_layer(i);
-		if (!set_layer_file_name(layer, fname[i]))
-			return false;
-		set_layer_image(layer, img[i]);
-		set_layer_alpha(layer, alpha[i]);
+		if (!stay[i]) {
+			if (!set_layer_file_name(layer, fname[i]))
+				return false;
+			set_layer_image(layer, img[i]);
+		}
 		set_layer_position(layer, x[i], y[i]);
+		set_layer_alpha(layer, alpha[i]);
 	}
 
 	/* 背景を入れ替える */
@@ -4013,7 +4012,8 @@ static void draw_layer_image(struct image *target, int layer)
 			       layer_image[layer],
 			       layer_image[layer]->width,
 			       layer_image[layer]->height,
-			       0, 0);
+			       0, 0,
+			       layer_alpha[layer]);
 		return;
 	}
 

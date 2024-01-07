@@ -75,10 +75,12 @@ static ViewController *theViewController;
     AVPlayer *_avPlayer;
     AVPlayerLayer *_avPlayerLayer;
     BOOL _isVideoPlaying;
-
+    
     // Edit
     BOOL _isFirstChange;
     BOOL _isRangedChange;
+ 
+    BOOL _isInitialized;
 }
 
 - (void)viewDidLoad {
@@ -89,8 +91,11 @@ static ViewController *theViewController;
 }
 
 - (void)viewDidAppear {
-    self.view.window.delegate = self;
+    if (_isInitialized)
+        return;
 
+    self.view.window.delegate = self;
+    
     // Initialize a project.
     if (![self initProject])
         exit(1);
@@ -118,14 +123,14 @@ static ViewController *theViewController;
     [_renderer mtkView:self.renderView drawableSizeWillChange:self.renderView.drawableSize];
     self.renderView.delegate = _renderer;
     [self updateViewport:self.renderView.frame.size];
-
+    
     // Setup a rendering timer.
     [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
                                      target:self
                                    selector:@selector(timerFired:)
                                    userInfo:nil
                                     repeats:YES];
-
+    
     // Accept keyboard and mouse inputs.
     [self.view.window makeKeyAndOrderFront:nil];
     [self.view.window setAcceptsMouseMovedEvents:YES];
@@ -134,12 +139,14 @@ static ViewController *theViewController;
 
     // Set the window title.
     [self.view.window setTitle:@"Suika2"];
-
+    
     // Set the script view delegate.
     _textViewScript.delegate = (id<NSTextViewDelegate>)_textViewScript;
-
+    
     // Update the viewport size.
     [self updateViewport:self.renderView.frame.size];
+    
+    _isInitialized = YES;
 }
 
 - (void)timerFired:(NSTimer *)timer {
@@ -167,37 +174,14 @@ static ViewController *theViewController;
              atStart:YES];
 }
 
-// フルスクリーンになる前に呼び出される
-- (NSSize)window:(NSWindow *)window willUseFullScreenContentSize:(NSSize)proposedSize {
-    // 表示位置を更新する
-    proposedSize.width -= _editorPanel.frame.size.width;
-    [self updateViewport:proposedSize];
-    
-    // 動画プレーヤレイヤのサイズを更新する
-    if (_avPlayerLayer != nil)
-        [_avPlayerLayer setFrame:NSMakeRect(_screenOffset.x, _screenOffset.y, _screenSize.width, _screenSize.height)];
-    
-    // スクリーンサイズを返す
-    return proposedSize;
-}
-
 // フルスクリーンになるとき呼び出される
 - (void)windowWillEnterFullScreen:(NSNotification *)notification {
     _isFullScreen = YES;
-
-    // ウィンドウサイズを保存する
-    _savedViewFrame = self.view.frame;
 }
 
 // フルスクリーンから戻るときに呼び出される
 - (void)windowWillExitFullScreen:(NSNotification *)notification {
     _isFullScreen = NO;
-    
-    // 動画プレーヤレイヤのサイズを元に戻す
-    if(_avPlayerLayer != nil)
-        [_avPlayerLayer setFrame:NSMakeRect(0, 0, _savedViewFrame.size.width, _savedViewFrame.size.height)];
-    
-    [self updateViewport:_savedViewFrame.size];
 }
 
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
@@ -210,6 +194,10 @@ static ViewController *theViewController;
 
 - (void)windowDidResize:(NSNotification *)notification {
     [self updateViewport:self.renderView.frame.size];
+
+    // 動画プレーヤレイヤのサイズを更新する
+    if (_avPlayerLayer != nil)
+        [_avPlayerLayer setFrame:NSMakeRect(_screenOffset.x, _screenOffset.y, _screenSize.width, _screenSize.height)];
 }
 
 - (void)updateViewport:(NSSize)newViewSize {
@@ -358,11 +346,11 @@ static ViewController *theViewController;
         if ([alert runModal] == NSAlertFirstButtonReturn) {
             // If English, we use the horizontal.
             if (_isEnglish) {
-                if (![self copyResourceTemplate:@"nvl"])
+                if (![self copyResourceTemplate:@"nvl-en"])
                     continue;
                 break;
             }
-            
+
             // If Japanese, ask if the user needs the vertical.
             alert = [[NSAlert alloc] init];
             [alert setMessageText:@"縦書きにしますか？"];

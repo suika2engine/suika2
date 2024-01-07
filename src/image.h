@@ -172,7 +172,8 @@ void draw_image_dim(struct image *dst_image,
 		    int width,
 		    int height,
 		    int src_left,
-		    int src_top);
+		    int src_top,
+		    int alpha);
 
 /* イメージをルール付きで描画する */
 void draw_image_rule(struct image *dst_image,

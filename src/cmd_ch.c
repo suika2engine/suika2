@@ -118,9 +118,11 @@ static bool init(void)
 	/* アルファ値を求める */
 	alpha = get_alpha(alpha_s);
 
-	/* 発話中以外のキャラを暗くする */
-	if (chpos != CH_FACE)
-		focus_character(chpos, fname);
+	/* 自動明暗を使う場合 */
+	if (conf_character_focus != 0) {
+		if (chpos != CH_FACE)
+			focus_character(chpos, fname);
+	}
 
 	/* メッセージボックスを消す */
 	if (!conf_msgbox_show_on_ch) {
@@ -259,6 +261,8 @@ static void focus_character(int chpos, const char *fname)
 {
 	int i;
 
+	assert(conf_character_focus != 0);
+
 	/* 名前が登録されているキャラクタであるかチェックする */
 	for (i = 0; i < CHARACTER_MAP_COUNT; i++) {
 		if (conf_character_name[i] == NULL)
@@ -276,13 +280,14 @@ static void focus_character(int chpos, const char *fname)
 	/* キャラ位置chposのキャラ番号を設定する */
 	set_ch_name_mapping(chpos, i);
 
-	/* 自動明暗を使い(!=0)、かつ、登場時に明るくする(==1)、かつ、未登録キャラの場合(-1) */
-	if (conf_character_focus == 1 && i == -1)
+	/* 登場時に発話キャラとして明るくする(==1)、かつ、未登録キャラの場合(-1) */
+	if (conf_character_focus == 1 && i == -1) {
+		/* 発話者をなしとする */
 		set_ch_talking(-1);
+	}
 
-	/* 自動明暗を使う(!=0)場合、明暗を更新する */
-	if (conf_character_focus != 0)
-		update_ch_dim_by_talking_ch();
+	/* 自動明暗を更新する */
+	update_ch_dim_by_talking_ch();
 }
 
 /* 描画を行う */

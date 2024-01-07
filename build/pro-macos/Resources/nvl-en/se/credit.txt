@@ -1,5 +1,0 @@
-***CREDIT***
-
-free:
-  btn-change.ogg
-  click.ogg
