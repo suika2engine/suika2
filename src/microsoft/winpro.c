@@ -304,7 +304,6 @@ static VOID WriteProjectFile(void);
 /* Command Handlers */
 static VOID OnNewProject(void);
 static VOID OnOpenProject(void);
-static VOID SetProjectOpened(void);
 static VOID OnOpenGameFolder(void);
 static VOID OnOpenScript(void);
 static VOID OnReloadScript(void);
@@ -924,15 +923,15 @@ static VOID InitMenu(HWND hWnd)
 	nOrder = 0;
 	mi.wID = ID_NEW_PROJECT;
 	mi.dwTypeData = bEnglish ?
-		L"New game project" :
-		L"新規ゲームプロジェクト";
+		L"New game" :
+		L"新規ゲーム";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* プロジェクトを開くを作成する */
 	mi.wID = ID_OPEN_PROJECT;
 	mi.dwTypeData = bEnglish ?
-		L"Open project" :
-		L"ゲームプロジェクトを開く";
+		L"Open game" :
+		L"ゲームを開く";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* ゲームフォルダを開くを作成する */
@@ -1241,6 +1240,9 @@ static VOID StartGame(void)
 	RECT rcClient;
 
 	do {
+		assert(FILE_EXISTS("conf\\config.txt"));
+		assert(FILE_EXISTS("txt\\init.txt"));
+
 		/* Initialize the locale code. */
 		init_locale_code();
 
@@ -3787,12 +3789,12 @@ static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD
 			   bEnglish ?
 			   L"May I help you?\n"
 			   L"\n"
-			   L"Press File->New project to create a new game.\n"
-			   L"Press File->Open project to open an existing game." :
+			   L"Press File->New game to create a new game.\n"
+			   L"Press File->Open game to open an existing game." :
 			   L"お困りですか？\n"
 			   L"\n"
-			   L"メニューの「ファイル」→「新規ゲームプロジェクト」を押すと新規ゲームを作成します。\n"
-			   L"メニューの「ファイル」→「ゲームプロジェクトを開く」を押すと既存ゲームを開きます。\n",
+			   L"メニューの「ファイル」→「新規ゲーム」を押すと新規ゲームを作成します。\n"
+			   L"メニューの「ファイル」→「ゲームを開く」を押すと既存ゲームを開きます。\n",
 			   MSGBOX_TITLE,
 			   MB_OK);
 }
@@ -4050,14 +4052,7 @@ static VOID OnNewProject(void)
 	if (!CreateProjectFromTemplate())
 		return;
 
-	/* Do the upper layer initialization. */
-	if (!on_event_init())
-	{
-		on_event_cleanup();
-		return;
-	}
-
-	SetProjectOpened();
+	StartGame();
 }
 
 /* ゲームプロジェクトを開く */
@@ -4066,18 +4061,7 @@ static VOID OnOpenProject(void)
 	if (!ChooseProject())
 		return;
 
-	/* Do the upper layer initialization. */
-	if (!on_event_init())
-	{
-		on_event_cleanup();
-		return;
-	}
-
-	SetProjectOpened();
-}
-
-static VOID SetProjectOpened(void)
-{
+	StartGame();
 }
 
 /* ゲームフォルダオープン */

@@ -23,6 +23,6 @@ The second screen. Let me explain how to make a line break.
 
 The third screen. Here I'll explain a way to continue lines.
 *Midori*\This description continues line.
-*みどり*\\nHowever, you'll need a line break.
+*Midori*\\nHowever, you'll need a line break.
 
 That's all.
