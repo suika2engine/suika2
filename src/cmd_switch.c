@@ -508,7 +508,7 @@ static bool init_choose(void)
 		if (strcmp(get_system_locale(), "ja") == 0)
 			speak_text("選択肢が表示されています。左右のキーを押してください。");
 		else
-			speak_text("Options are dispayed. Press left or right arrow key.");
+			speak_text("Options are displayed. Press the left or right arrow key.");
 	}
 
 	return true;
