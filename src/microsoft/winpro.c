@@ -819,12 +819,12 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	EnableWindow(hWndBtnSelectScript, FALSE);
 
 	/* スクリプトのリッチエディットを作成する */
-	LoadLibrary(L"C:\\Windows\\System32\\Msftedit.dll");
+	LoadLibrary(L"Msftedit.dll");
 	hWndRichEdit = CreateWindowEx(
 		0,
 		MSFTEDIT_CLASS,
 		L"Script",
-		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP,
+		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
 		MulDiv(10, nDpi, 96),
 		MulDiv(100, nDpi, 96),
 		MulDiv(420, nDpi, 96),
@@ -834,11 +834,11 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		hInstance,
 		NULL);
 	GetClassName(hWndRichEdit, wszCls, sizeof(wszCls) / sizeof(wchar_t));
-	if (wcscmp(wszCls, L"RICHEDIT50W") != 0)
+	if (wcscmp(wszCls, L"RICHEDIT50W") == 0)
 	{
-		/* Microsoft Office付属のリッチエディットの場合、オートスクロールを使用する */
+		/* Microsoft Office付属のリッチエディットでない場合(Windows付属の場合)、オートスクロールを使用しない */
 		LONG style = GetWindowLong(hWndRichEdit, GWL_STYLE);
-		style |= ES_AUTOVSCROLL;
+		style &= ~ES_AUTOVSCROLL;
 		SetWindowLong(hWndRichEdit, GWL_STYLE, style);
 	}
 	SendMessage(hWndRichEdit, EM_SHOWSCROLLBAR, (WPARAM)SB_VERT, (LPARAM)TRUE);
