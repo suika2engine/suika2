@@ -1009,8 +1009,12 @@ static void process_blit(void)
 	/* プレビューボタンの更新を行う */
 	draw_preview_buttons();
 
-	/* GUIv2ではなく、システムGUIでなく、フェードアウトしないとき、終了時に背景を作成する */
-	if (is_finished && !is_sys_gui && !is_v2 && fade_out_time == 0) {
+	/* 終了時、GUIv2ではなく、システムGUIでなく、ロードされず、フェードアウトしないとき、終了時に背景を作成する */
+	if (is_finished &&
+	    !is_v2 &&
+	    !is_sys_gui &&
+	    !(result_index != -1 && button[result_index].type != TYPE_LOAD) &&
+	    fade_out_time == 0) {
 		struct image *img;
 		int i;
 
