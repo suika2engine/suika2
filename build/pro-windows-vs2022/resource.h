@@ -45,22 +45,25 @@
 #define ID_CMD_WAIT			    200
 #define ID_CMD_LOAD			    201
 
-/* Help Menu */
-#define ID_VERSION                          210
+/* View Menu */
+#define ID_FONT		                    210
 #define ID_HIGHLIGHTMODE                    211
 #define ID_DARKMODE                         212
 
+/* Help Menu */
+#define ID_VERSION                          220
+
 /* Export Menu */
-#define ID_EXPORT_WIN                       220
-#define ID_EXPORT_WIN_INST                  221
-#define ID_EXPORT_WIN_MAC                   222
-#define ID_EXPORT_WEB                       223
-#define ID_EXPORT_ANDROID                   224
-#define ID_EXPORT_IOS                       225
-#define ID_EXPORT_PACKAGE                   226
+#define ID_EXPORT_WIN                       230
+#define ID_EXPORT_WIN_INST                  231
+#define ID_EXPORT_WIN_MAC                   232
+#define ID_EXPORT_WEB                       233
+#define ID_EXPORT_ANDROID                   234
+#define ID_EXPORT_IOS                       235
+#define ID_EXPORT_PACKAGE                   236
 
 /* RichEdit */
-#define ID_RICHEDIT                         230
+#define ID_RICHEDIT                         240
 
 /* Popup Menu */
-#define ID_POPUP                            231
+#define ID_POPUP                            251
