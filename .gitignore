@@ -98,6 +98,7 @@ build/engine-linux/suika
 # Windows
 build/pro-windows-vs2022/.vs/
 build/pro-windows-vs2022/Debug/
+build/pro-windows-vs2022/Release/
 build/pro-windows-vs2022/bzip2/
 build/pro-windows-vs2022/freetype/
 build/pro-windows-vs2022/jpeg/
