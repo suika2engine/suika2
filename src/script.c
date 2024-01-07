@@ -2968,13 +2968,6 @@ bool update_script_line(int line, const char *text)
 	assert(line < cur_expanded_line);
 	assert(text != NULL);
 
-	/*
-	 * TODO:
-	 * src: comment, command
-	 * dst: comment, command
-	 * などの組み合わせにして、単純化できそう
-	 */
-
 	/* 行番号line以降の最初のコマンドを探す */
 	cmd_index = get_command_index_from_line_num(line);
 
@@ -3044,6 +3037,7 @@ static bool replace_command_by_command(int index, const char *text)
 
 	/* コマンドの文字列を解放する */
 	if (c->text != NULL) {
+		assert(text != c->text);
 		free(c->text);
 		c->text = NULL;
 	}
@@ -3159,7 +3153,7 @@ static bool replace_comment_by_command(int line, const char *text)
 	/* 行番号line以降にコマンドがある場合 (末尾のコメントでない場合) */
 	if (cmd_index != -1) {
 		/* cmd_index以降のコマンドを1つずつ後ろにずらす */
-		for (i = SCRIPT_CMD_SIZE - 1; i > cmd_index; i--)
+		for (i = cmd_size; i > cmd_index; i--)
 			cmd[i] = cmd[i - 1];
 		memset(&cmd[cmd_index], 0, sizeof(struct command));
 	}

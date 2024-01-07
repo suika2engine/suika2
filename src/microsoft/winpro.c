@@ -38,13 +38,13 @@
 
 /* Windows */
 #include <windows.h>
-#include <shlobj.h>		/* SHGetFolderPath() */
-#include <commctrl.h>	/* TOOLINFO */
-#include <richedit.h>	/* RichEdit */
+#include <shlobj.h>			/* SHGetFolderPath() */
+#include <commctrl.h>		/* TOOLINFO */
+#include <richedit.h>		/* RichEdit */
 #include "resource.h"
 
 /* msvcrt  */
-#include <io.h> /* _access() */
+#include <io.h>				/* _access() */
 #define wcsdup(s)	_wcsdup(s)
 
 /* A macro to check whether a file exists. */
@@ -59,29 +59,27 @@
  * Constants
  */
 
-/* メッセージボックスのタイトル */
-#define MSGBOX_TITLE	L"Suika2"
+/* The window title of message boxes. */
+#define TITLE			L"Suika2 Pro"
 
-/* バージョン文字列 */
-#define VERSION_EN \
+/* The font name for the controls. */
+#define CONTROL_FONT	L"Yu Gothic UI"
+
+/* The font name for the script view. */
+#define SCRIPT_FONT_JP		L"BIZ UDゴシック"
+#define SCRIPT_FONT_EN		L"Courier New"
+
+/* The version string. */
+#define VERSION			\
 	L"Suika2 Pro Desktop\n" \
 	L"Copyright (c) 2001-2024, Keiichi Tabata. All rights reserved."
-#define VERSION_JP \
-	L"Suika2 Pro Desktop\n" \
-	L"Copyright (c) 2001-2024, Keiichi Tabata. All rights reserved."
 
-/* 最小ウィンドウサイズ */
+/* The minimum window size. */
 #define WINDOW_WIDTH_MIN	(800)
 #define WINDOW_HEIGHT_MIN	(600)
 
-/* エディタパネルのサイズの基本値 */
+/* The width of the editor panel. */
 #define EDITOR_WIDTH		(440)
-
-/* ウィンドウタイトルのバッファサイズ */
-#define TITLE_BUF_SIZE	(1024)
-
-/* ログ1行のサイズ */
-#define LOG_BUF_SIZE	(4096)
 
 /* フレームレート */
 #define FPS				(30)
@@ -95,8 +93,9 @@
 /* UTF-8/UTF-16の変換バッファサイズ */
 #define CONV_MESSAGE_SIZE	(65536)
 
-/* ビギナータイマー */
+/* タイマー */
 #define ID_TIMER_BEGINNER	(1)
+#define ID_TIMER_FORMAT		(2)
 
 /* Colors */
 #define LIGHT_BG_DEFAULT	0x00ffffff
@@ -148,9 +147,6 @@ static HWND hWndBtnVar;				/* 変数を反映するボタン */
 static HMENU hMenu;					/* ウィンドウのメニュー */
 static HMENU hMenuPopup;			/* ポップアップメニュー */
 
-/* ウィンドウタイトル(UTF-16) */
-static wchar_t wszTitle[TITLE_BUF_SIZE];
-
 /* メッセージ変換バッファ */
 static wchar_t wszMessage[CONV_MESSAGE_SIZE];
 static char szMessage[CONV_MESSAGE_SIZE];
@@ -172,6 +168,7 @@ static BOOL bNeedWindowed;
 
 /* ウィンドウモードでのスタイル */
 static DWORD dwStyle;
+static DWORD dwExStyle;
 
 /* ウィンドウモードでの位置 */
 static RECT rcWindow;
@@ -199,11 +196,11 @@ static BOOL bEnglish;
 /* 実行中であるか */
 static BOOL bRunning;
 
-/* ダークモードか */
-static BOOL bDarkMode;
-
 /* ハイライトモードか */
 static BOOL bHighlightMode;
+
+/* ダークモードか */
+static BOOL bDarkMode;
 
 /* 発生したイベントの状態 */
 static BOOL bContinuePressed;		/* 「続ける」ボタンが押下された */
@@ -226,6 +223,12 @@ static DWORD dwColorCommandName = LIGHT_COMMAND_NAME;
 static DWORD dwColorParamName = LIGHT_PARAM_NAME;
 static DWORD dwColorNextExec = LIGHT_NEXT_EXEC;
 static DWORD dwColorCurrentExec = LIGHT_CURRENT_EXEC;
+
+/* The font name for the script view. */
+static wchar_t wszFontName[128];
+
+/* The font size for the script view. */
+static int nFontSize = 10;
 
 /*
  * Forward Declaration
@@ -275,8 +278,8 @@ static VOID RichEdit_SetSelectedRange(int nLineStart, int nLineLen);
 static int RichEdit_GetCursorLine(void);
 static wchar_t *RichEdit_GetText(void);
 static VOID RichEdit_SetTextColorForAllLines(void);
-static VOID RichEdit_SetTextColorForCursorLine(void);
 static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR, int nLineStartCRLF, int nLineLen);
+static VOID RichEdit_ClearFormatAll(void);
 static VOID RichEdit_ClearBackgroundColorAll(void);
 static VOID RichEdit_SetBackgroundColorForNextExecuteLine(void);
 static VOID RichEdit_SetBackgroundColorForCurrentExecuteLine(void);
@@ -290,8 +293,9 @@ static VOID RichEdit_GetLineStartAndLength(int nLine, int *nLineStart, int *nLin
 static BOOL RichEdit_SearchNextError(int nStart, int nEnd);
 static VOID RichEdit_UpdateTextFromScriptModel(void);
 static VOID RichEdit_UpdateScriptModelFromText(void);
-static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void);
 static VOID RichEdit_InsertText(const wchar_t *pLine, ...);
+static VOID RichEdit_UpdateTheme(void);
+static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam);
 
 /* Project */
 static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam);
@@ -308,6 +312,10 @@ static VOID OnOpenGameFolder(void);
 static VOID OnOpenScript(void);
 static VOID OnReloadScript(void);
 static const wchar_t *SelectFile(const char *pszDir);
+static VOID OnContinue(void);
+static VOID OnNext(void);
+static VOID OnStop(void);
+static VOID OnMove(void);
 static VOID OnSave(void);
 static VOID OnNextError(void);
 static VOID OnPopup(void);
@@ -319,8 +327,8 @@ static VOID OnExportWinMac(void);
 static VOID OnExportWeb(void);
 static VOID OnExportAndroid(void);
 static VOID OnExportIOS(void);
-
-/* Dark Mode */
+static VOID OnFont(void);
+static VOID OnHighlightMode(void);
 static VOID OnDarkMode(void);
 
 /* Export Helpers */
@@ -519,6 +527,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 
 static BOOL InitMainWindow(HINSTANCE hInstance, int *pnRenderWidth, int *pnRenderHeight)
 {
+	wchar_t wszTitle[1024];
 	WNDCLASSEX wcex;
 	RECT rc;
 	int nVirtualScreenWidth, nVirtualScreenHeight;
@@ -550,7 +559,7 @@ static BOOL InitMainWindow(HINSTANCE hInstance, int *pnRenderWidth, int *pnRende
 					  GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
 	/* ウィンドウのタイトルをUTF-8からUTF-16に変換する */
-	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle, TITLE_BUF_SIZE - 1);
+	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle, sizeof(wszTitle) / sizeof(wchar_t) - 1);
 
 	/* モニタの数を取得する */
 	nMonitors = GetSystemMetrics(SM_CMONITORS);
@@ -685,16 +694,17 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	nDpi = Win11_GetDpiForWindow(hWndMain);
 
 	/* フォントを作成する */
-	hFont = CreateFont(MulDiv(18, nDpi, 96),
-					   0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
-					   ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
-					   DEFAULT_QUALITY,
-					   DEFAULT_PITCH | FF_DONTCARE, L"Yu Gothic UI");
-	hFontFixed = CreateFont(MulDiv(14, nDpi, 96),
-							0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
-							DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
-							DEFAULT_QUALITY,
-							FIXED_PITCH | FF_DONTCARE, L"BIZ UDゴシック");
+	wcscpy(wszFontName, bEnglish ? SCRIPT_FONT_EN : SCRIPT_FONT_JP);
+	hFont = CreateFont(MulDiv(18, nDpi, 96), 0, 0, 0, FW_DONTCARE, FALSE,
+					   FALSE, FALSE, ANSI_CHARSET, OUT_TT_PRECIS,
+					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+					   DEFAULT_PITCH | FF_DONTCARE,
+					   CONTROL_FONT);
+	hFontFixed = CreateFont(MulDiv(nFontSize, nDpi, 96), 0, 0, 0,
+							FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+							OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+							DEFAULT_QUALITY, FIXED_PITCH | FF_DONTCARE,
+							wszFontName);
 
 	/* 続けるボタンを作成する */
 	hWndBtnResume = CreateWindow(
@@ -710,6 +720,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		hInstance,
 		NULL);
 	SendMessage(hWndBtnResume, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	EnableWindow(hWndBtnResume, FALSE);
 	CreateTooltip(hWndBtnResume,
 				  L"Start executing script and run continuosly.",
 				  L"スクリプトの実行を開始し、継続して実行します。");
@@ -728,6 +739,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		hInstance,
 		NULL);
 	SendMessage(hWndBtnNext, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	EnableWindow(hWndBtnNext, FALSE);
 	CreateTooltip(hWndBtnNext,
 				  L"Run only one command and stop after it.",
 				  L"コマンドを1つだけ実行し、停止します。");
@@ -747,6 +759,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		NULL);
 	EnableWindow(hWndBtnPause, FALSE);
 	SendMessage(hWndBtnPause, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	EnableWindow(hWndBtnPause, FALSE);
 	CreateTooltip(hWndBtnPause,
 				  L"Stop script execution.",
 				  L"コマンドの実行を停止します。");
@@ -766,6 +779,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		NULL);
 	EnableWindow(hWndBtnMove, TRUE);
 	SendMessage(hWndBtnMove, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	EnableWindow(hWndBtnMove, FALSE);
 	CreateTooltip(hWndBtnMove,
 				  L"Move to the cursor line and run only one command.",
 				  L"カーソル行に移動してコマンドを1つだけ実行します。");
@@ -804,6 +818,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	CreateTooltip(hWndBtnSelectScript,
 				  L"Select a script file and jump to it.",
 				  L"スクリプトファイルを選択してジャンプします。");
+	EnableWindow(hWndBtnSelectScript, FALSE);
 
 	/* スクリプトのリッチエディットを作成する */
 	LoadLibrary(L"Msftedit.dll");
@@ -811,7 +826,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	hWndRichEdit = CreateWindowEx(
 		0,
 		MSFTEDIT_CLASS,
-		L"Text",
+		L"Script",
 		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
 		MulDiv(10, nDpi, 96),
 		MulDiv(100, nDpi, 96),
@@ -825,6 +840,8 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	SendMessage(hWndRichEdit, EM_SETEVENTMASK, 0, (LPARAM)ENM_CHANGE);
 	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
 	SendMessage(hWndRichEdit, WM_SETFONT, (WPARAM)hFontFixed, (LPARAM)TRUE);
+	RichEdit_SetFont();
+	EnableWindow(hWndRichEdit, FALSE);
 
 	/* 変数のテキストボックスを作成する */
 	hWndTextboxVar = CreateWindow(
@@ -841,6 +858,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		hInstance,
 		NULL);
 	SendMessage(hWndTextboxVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	EnableWindow(hWndTextboxVar, FALSE);
 	CreateTooltip(hWndTextboxVar,
 				  L"List of variables which have non-initial values.",
 				  L"初期値から変更された変数の一覧です。");
@@ -859,6 +877,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		hInstance,
 		NULL);
 	SendMessage(hWndBtnVar, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	EnableWindow(hWndBtnVar, FALSE);
 	CreateTooltip(hWndBtnVar,
 				  L"Write to the variables.",
 				  L"変数の内容を書き込みます。");
@@ -873,6 +892,7 @@ static VOID InitMenu(HWND hWnd)
 	HMENU hMenuRun = CreatePopupMenu();
 	HMENU hMenuDirection = CreatePopupMenu();
 	HMENU hMenuExport = CreatePopupMenu();
+	HMENU hMenuView = CreatePopupMenu();
 	HMENU hMenuHelp = CreatePopupMenu();
     MENUITEMINFO mi;
 	UINT nOrder;
@@ -909,6 +929,11 @@ static VOID InitMenu(HWND hWnd)
 	/* エクスポート(E)を作成する */
 	mi.hSubMenu = hMenuExport;
 	mi.dwTypeData = bEnglish ? L"Export(&E)": L"エクスポート(&E)";
+	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
+
+	/* 表示(V)を作成する */
+	mi.hSubMenu = hMenuView;
+	mi.dwTypeData = bEnglish ? L"View(&V)": L"表示(&V)";
 	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
 
 	/* ヘルプ(H)を作成する */
@@ -1190,20 +1215,26 @@ static VOID InitMenu(HWND hWnd)
 	InsertMenuItem(hMenuDirection, nOrder++, TRUE, &mi);
 	EnableMenuItem(hMenu, ID_CMD_LOAD, MF_GRAYED);
 
-	/* バージョンを作成する */
+	/* フォント選択を作成する */
 	nOrder = 0;
-	mi.wID = ID_VERSION;
-	mi.dwTypeData = bEnglish ? L"Version" : L"バージョン";
-	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
+	mi.wID = ID_FONT;
+	mi.dwTypeData = bEnglish ? L"Font settings" : L"フォント設定";
+	InsertMenuItem(hMenuView, nOrder++, TRUE, &mi);
+
+	/* ハイライトモードを作成する */
+	mi.wID = ID_HIGHLIGHTMODE;
+	mi.dwTypeData = bEnglish ? L"Highlight mode (slow yet)" : L"ハイライトモード (まだ遅い)";
+	InsertMenuItem(hMenuView, nOrder++, TRUE, &mi);
 
 	/* ダークモードを作成する */
 	mi.wID = ID_DARKMODE;
 	mi.dwTypeData = bEnglish ? L"Dark mode" : L"ダークモード";
-	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
+	InsertMenuItem(hMenuView, nOrder++, TRUE, &mi);
 
-	/* 高速編集モードを作成する */
-	mi.wID = ID_HIGHLIGHT;
-	mi.dwTypeData = bEnglish ? L"Fast edit mode" : L"高速編集モード";
+	/* バージョンを作成する */
+	nOrder = 0;
+	mi.wID = ID_VERSION;
+	mi.dwTypeData = bEnglish ? L"Version" : L"バージョン";
 	InsertMenuItem(hMenuHelp, nOrder++, TRUE, &mi);
 
 	/* メインメニューをセットする */
@@ -1267,9 +1298,19 @@ static VOID StartGame(void)
 		/* Mark as opened. */
 		bProjectOpened = TRUE;
 
-		/* Set menu items enabled/disabled. */
-		EnableMenuItem(hMenu, ID_NEW_PROJECT, MF_ENABLED);
-		EnableMenuItem(hMenu, ID_OPEN_PROJECT, MF_ENABLED);
+		/* Make controls enabled/disabled. */
+		EnableWindow(hWndBtnResume, TRUE);
+		EnableWindow(hWndBtnNext, TRUE);
+		EnableWindow(hWndBtnMove, TRUE);
+		EnableWindow(hWndBtnPause, FALSE);
+		EnableWindow(hWndBtnSelectScript, TRUE);
+		EnableWindow(hWndRichEdit, TRUE);
+		EnableWindow(hWndTextboxVar, TRUE);
+		EnableWindow(hWndBtnVar, TRUE);
+
+		/* Make menu items enabled/disabled. */
+		EnableMenuItem(hMenu, ID_NEW_PROJECT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_OPEN_PROJECT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_OPEN_GAME_FOLDER, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_OPEN, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_RELOAD, MF_ENABLED);
@@ -1930,19 +1971,16 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	/* スクリプト実行 */
 	case ID_RESUME:
-		bContinuePressed = TRUE;
+		OnContinue();
 		break;
 	case ID_NEXT:
-		bNextPressed = TRUE;
+		OnNext();
 		break;
 	case ID_PAUSE:
-		bStopPressed = TRUE;
+		OnStop();
 		break;
 	case ID_MOVE:
-		RichEdit_UpdateScriptModelFromText();
-		nLineChanged = RichEdit_GetCursorLine();
-		bExecLineChanged = TRUE;
-		bNextPressed = TRUE;
+		OnMove();
 		break;
 	case ID_ERROR:
 		OnNextError();
@@ -2040,13 +2078,19 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 	case ID_EXPORT_PACKAGE:
 		OnExportPackage();
 		break;
-	/* ヘルプ */
-	case ID_VERSION:
-		MessageBox(hWndMain, bEnglish ? VERSION_EN : VERSION_JP,
-				   MSGBOX_TITLE, MB_OK | MB_ICONINFORMATION);
+	/* ビュー */
+	case ID_FONT:
+		OnFont();
+		break;
+	case ID_HIGHLIGHTMODE:
+		OnHighlightMode();
 		break;
 	case ID_DARKMODE:
 		OnDarkMode();
+		break;
+	/* ヘルプ */
+	case ID_VERSION:
+		MessageBox(hWndMain, VERSION, TITLE, MB_OK | MB_ICONINFORMATION);
 		break;
 	/* ボタン */
 	case ID_VARS:
@@ -2210,6 +2254,8 @@ static void OnSize(void)
 		rc = minfo.rcMonitor;
 
 		dwStyle = (DWORD)GetWindowLong(hWndMain, GWL_STYLE);
+		dwExStyle = (DWORD)GetWindowLong(hWndMain, GWL_EXSTYLE);
+		GetWindowRect(hWndMain, &rcWindow);
 
 		SetMenu(hWndMain, NULL);
 		SetWindowLong(hWndMain, GWL_STYLE, (LONG)(WS_POPUP | WS_VISIBLE));
@@ -2227,15 +2273,9 @@ static void OnSize(void)
 		if (hMenu != NULL)
 			SetMenu(hWndMain, hMenu);
 		SetWindowLong(hWndMain, GWL_STYLE, (LONG)dwStyle);
-		SetWindowLong(hWndMain, GWL_EXSTYLE, 0);
-		SetWindowPos(hWndMain, NULL, 0, 0, 0, 0,
-					 SWP_NOMOVE | SWP_NOSIZE |
-					 SWP_NOZORDER | SWP_FRAMECHANGED);
-		MoveWindow(hWndMain, rcWindow.left, rcWindow.top,
-				   rcWindow.right - rcWindow.left,
-				   rcWindow.bottom - rcWindow.top, TRUE);
+		SetWindowLong(hWndMain, GWL_EXSTYLE, (LONG)dwExStyle);
+		MoveWindow(hWndMain, rcWindow.left, rcWindow.top, rcWindow.right - rcWindow.left, rcWindow.bottom - rcWindow.top, TRUE);
 		InvalidateRect(hWndMain, NULL, TRUE);
-
 		GetClientRect(hWndMain, &rc);
 	}
 	else
@@ -2344,6 +2384,7 @@ VOID OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect)
 					   SWP_NOZORDER | SWP_NOACTIVATE);
 		GetClientRect(hWndMain, &rcClient);
 		Layout(rcClient.right, rcClient.bottom);
+		RichEdit_SetFont();
 	}
 }
 
@@ -2356,15 +2397,14 @@ VOID OnDpiChanged(HWND hWnd, UINT nDpi, LPRECT lpRect)
  */
 bool log_info(const char *s, ...)
 {
-	char buf[LOG_BUF_SIZE];
+	char buf[4096];
 	va_list ap;
 
 	/* メッセージボックスを表示する */
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-	MessageBox(hWndMain, conv_utf8_to_utf16(buf), wszTitle,
-			   MB_OK | MB_ICONINFORMATION);
+	MessageBox(hWndMain, conv_utf8_to_utf16(buf), TITLE, MB_OK | MB_ICONINFORMATION);
 
 	return true;
 }
@@ -2374,15 +2414,14 @@ bool log_info(const char *s, ...)
  */
 bool log_warn(const char *s, ...)
 {
-	char buf[LOG_BUF_SIZE];
+	char buf[4096];
 	va_list ap;
 
 	/* メッセージボックスを表示する */
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-	MessageBox(hWndMain, conv_utf8_to_utf16(buf), wszTitle,
-			   MB_OK | MB_ICONWARNING);
+	MessageBox(hWndMain, conv_utf8_to_utf16(buf), TITLE, MB_OK | MB_ICONWARNING);
 
 	return true;
 }
@@ -2392,15 +2431,14 @@ bool log_warn(const char *s, ...)
  */
 bool log_error(const char *s, ...)
 {
-	char buf[LOG_BUF_SIZE];
+	char buf[4096];
 	va_list ap;
 
 	/* メッセージボックスを表示する */
 	va_start(ap, s);
 	vsnprintf(buf, sizeof(buf), s, ap);
 	va_end(ap);
-	MessageBox(hWndMain, conv_utf8_to_utf16(buf), wszTitle,
-			   MB_OK | MB_ICONERROR);
+	MessageBox(hWndMain, conv_utf8_to_utf16(buf), TITLE, MB_OK | MB_ICONERROR);
 
 	return true;
 }
@@ -2518,7 +2556,8 @@ bool exit_dialog(void)
 {
 	if (MessageBox(hWndMain,
 				   conv_utf8_to_utf16(get_ui_message(UIMSG_EXIT)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
+				   TITLE,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2530,7 +2569,8 @@ bool title_dialog(void)
 {
 	if (MessageBox(hWndMain,
 				   conv_utf8_to_utf16(get_ui_message(UIMSG_TITLE)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
+				   TITLE,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2542,7 +2582,8 @@ bool delete_dialog(void)
 {
 	if (MessageBox(hWndMain,
 				   conv_utf8_to_utf16(get_ui_message(UIMSG_DELETE)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
+				   TITLE,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2554,7 +2595,8 @@ bool overwrite_dialog(void)
 {
 	if (MessageBox(hWndMain,
 				   conv_utf8_to_utf16(get_ui_message(UIMSG_OVERWRITE)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
+				   TITLE,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2566,7 +2608,8 @@ bool default_dialog(void)
 {
 	if (MessageBox(hWndMain,
 				   conv_utf8_to_utf16(get_ui_message(UIMSG_DEFAULT)),
-				   wszTitle, MB_OKCANCEL) == IDOK)
+				   TITLE,
+				   MB_OKCANCEL) == IDOK)
 		return true;
 	return false;
 }
@@ -2617,26 +2660,28 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
+	wchar_t wszTitle[1024];
+	wchar_t wszTmp[1024];
 	const char *separator;
-	int cch1, cch2;
-
-	/* セパレータを取得する */
-	separator = conf_window_title_separator;
-	if (separator == NULL)
-		separator = " ";
 
 	ZeroMemory(&wszTitle[0], sizeof(wszTitle));
+	ZeroMemory(&wszTmp[0], sizeof(wszTmp));
 
 	/* コンフィグのウィンドウタイトルをUTF-8からUTF-16に変換する */
-	cch1 = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
-							   TITLE_BUF_SIZE - 1);
-	cch1--;
-	cch2 = MultiByteToWideChar(CP_UTF8, 0, separator, -1, wszTitle + cch1,
-							   TITLE_BUF_SIZE - cch1 - 1);
-	cch2--;
-	MultiByteToWideChar(CP_UTF8, 0, get_chapter_name(), -1,
-							   wszTitle + cch1 + cch2,
-							   TITLE_BUF_SIZE - cch1 - cch2 - 1);
+	wcscpy(wszTitle, conv_utf8_to_utf16(conf_window_title));
+	if (!conf_window_title_chapter_disable)
+	{
+		/* セパレータを取得する */
+		separator = conf_window_title_separator;
+		if (separator == NULL)
+			separator = " ";
+
+		/* セパレータを連結する */
+		wcscat(wszTitle, conv_utf8_to_utf16(separator));
+
+		/* 章タイトルを連結する */
+		wcscat(wszTitle, conv_utf8_to_utf16(get_chapter_name()));
+	}
 
 	/* ウィンドウのタイトルを設定する */
 	SetWindowText(hWndMain, wszTitle);
@@ -2930,7 +2975,8 @@ void on_load_script(void)
 	EnableWindow(hWndRichEdit, FALSE);
 	RichEdit_UpdateTextFromScriptModel();
 	RichEdit_SetFont();
-	RichEdit_SetTextColorForAllLines();
+	if (bHighlightMode)
+		RichEdit_SetTextColorForAllLines();
 	EnableWindow(hWndRichEdit, TRUE);
 }
 
@@ -3014,13 +3060,14 @@ static VOID RichEdit_OnChange(void)
 	/* スクリプトモデルの変更後、最初の通知のとき */
 	if (bFirstChange)
 	{
-		/* フォントを設定する */
-		RichEdit_SetFont();
-
-		/* ハイライトを更新する */
-		RichEdit_SetTextColorForAllLines();
-
 		bFirstChange = FALSE;
+
+		/* 全体のテキスト色を変更する(1秒遅延) */
+		if (bHighlightMode)
+		{
+			KillTimer(hWndMain, ID_TIMER_FORMAT);
+			SetTimer(hWndMain, ID_TIMER_FORMAT, 1000, OnTimerFormat);
+		}
 	}
 	/* 複数行にまたがる可能性のある変更の通知のとき */
 	else if (bRangedChanged)
@@ -3030,18 +3077,26 @@ static VOID RichEdit_OnChange(void)
 		/* スクリプトモデルを作り直す */
 		RichEdit_UpdateScriptModelFromText();
 
-		/* フォントを設定する */
-		RichEdit_SetFont();
-
-		/* ハイライトを更新する */
-		//RichEdit_SetTextColorForAllLines();
+		/* 全体のテキスト色を変更する(1秒遅延) */
+		if (bHighlightMode)
+		{
+			KillTimer(hWndMain, ID_TIMER_FORMAT);
+			SetTimer(hWndMain, ID_TIMER_FORMAT, 1000, OnTimerFormat);
+		}
 	}
 	/* 単一行内での変更の通知のとき */
 	else
 	{
-		/* 現在の行のテキスト色を変更する */
-		RichEdit_SetTextColorForCursorLine();
+		/* 全体のテキスト色を変更する(1秒遅延) */
+		if (bHighlightMode)
+		{
+			KillTimer(hWndMain, ID_TIMER_FORMAT);
+			SetTimer(hWndMain, ID_TIMER_FORMAT, 1000, OnTimerFormat);
+		}
 	}
+
+	/* フォントを設定する */
+	RichEdit_SetFont();
 
 	/* 実行行の背景色を設定する */
 	if (bRunning)
@@ -3074,7 +3129,14 @@ static VOID RichEdit_OnReturn(void)
 	}
 
 	/* スクリプトモデルを更新する */
-	RichEdit_UpdateScriptModelFromCurrentLineText();
+	RichEdit_UpdateScriptModelFromText();
+
+	/* 全体のテキスト色を変更する(1秒遅延) */
+	if (bHighlightMode)
+	{
+		KillTimer(hWndMain, ID_TIMER_FORMAT);
+		SetTimer(hWndMain, ID_TIMER_FORMAT, 1000, OnTimerFormat);
+	}
 
 	/* 次フレームでの一行実行の問い合わせに真を返すようにしておく */
 	if (dbg_get_parse_error_count() == 0)
@@ -3088,8 +3150,9 @@ static VOID RichEdit_SetFont(void)
 
 	memset(&cf, 0, sizeof(cf));
 	cf.cbSize = sizeof(cf);
-	cf.dwMask = CFM_FACE;
-	wcscpy(&cf.szFaceName[0], L"BIZ UDゴシック");
+	cf.dwMask = CFM_FACE | CFM_SIZE;
+	cf.yHeight = nFontSize * 20;
+	wcscpy(&cf.szFaceName[0], wszFontName);
 	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
 }
 
@@ -3223,6 +3286,7 @@ static VOID RichEdit_SetTextColorForAllLines(void)
 	free(pText);
 }
 
+#if 0
 /* 現在のカーソル行のテキスト色を設定する */
 static VOID RichEdit_SetTextColorForCursorLine(void)
 {
@@ -3254,6 +3318,7 @@ static VOID RichEdit_SetTextColorForCursorLine(void)
 	}
 	free(pText);
 }
+#endif
 
 /* 特定の行のテキスト色を設定する */
 static VOID RichEdit_SetTextColorForLine(const wchar_t *pText, int nLineStartCR, int nLineStartCRLF, int nLineLen)
@@ -3394,6 +3459,20 @@ static VOID RichEdit_SetBackgroundColorForCurrentExecuteLine(void)
 
 	/* カーソル位置を実行行の先頭に設定する */
 	RichEdit_SetCursorPosition(nLineStart);
+}
+
+/* リッチエディットの書式をクリアする */
+static VOID RichEdit_ClearFormatAll(void)
+{
+	CHARFORMAT2W cf;
+
+	memset(&cf, 0, sizeof(cf));
+
+	cf.cbSize = sizeof(cf);
+	cf.dwMask = CFM_BACKCOLOR | CFM_COLOR;
+	cf.crBackColor = dwColorBgDefault;
+	cf.crTextColor = dwColorFgDefault;
+	SendMessage(hWndRichEdit, EM_SETCHARFORMAT, (WPARAM)SCF_ALL, (LPARAM)&cf);
 }
 
 /* リッチエディットのテキスト全体の背景色をクリアする */
@@ -3621,9 +3700,9 @@ static VOID RichEdit_UpdateTextFromScriptModel(void)
 /* リッチエディットの内容を元にスクリプトモデルを更新する */
 static VOID RichEdit_UpdateScriptModelFromText(void)
 {
+	char szLine[2048];
 	wchar_t *pWcs, *pCRLF;
 	int i, nTotal, nLine, nLineStartCharCR, nLineStartCharCRLF;
-	BOOL bExecLineChanged;
 
 	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
 	dbg_reset_parse_error_count();
@@ -3649,10 +3728,12 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 			*pCRLF = L'\0';
 
 		/* 行を更新する */
+		strncpy(szLine, conv_utf16_to_utf8(pLine), sizeof(szLine) - 1);
+		szLine[sizeof(szLine) - 1] = '\0';
 		if (nLine < get_line_count())
-			update_script_line(nLine, conv_utf16_to_utf8(pLine));
+			update_script_line(nLine, szLine);
 		else
-			insert_script_line(nLine, conv_utf16_to_utf8(pLine));
+			insert_script_line(nLine, szLine);
 
 		nLine++;
 		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
@@ -3665,8 +3746,6 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 	for (i = get_line_count() - 1; i >= nLine; i--)
 		if (delete_script_line(nLine))
 			bExecLineChanged = TRUE;
-	if (bExecLineChanged)
-		RichEdit_SetBackgroundColorForNextExecuteLine();
 
 	/* 拡張構文がある場合に対応する */
 	reparse_script_for_structured_syntax();
@@ -3676,61 +3755,6 @@ static VOID RichEdit_UpdateScriptModelFromText(void)
 	{
 		/* 行頭の'!'を反映するためにテキストを再設定する */
 		RichEdit_UpdateTextFromScriptModel();
-		RichEdit_SetTextColorForAllLines();
-	}
-}
-
-/* リッチエディットの現在の行の内容を元にスクリプトモデルを更新する */
-static VOID RichEdit_UpdateScriptModelFromCurrentLineText(void)
-{
-	wchar_t *pWcs, *pCRLF, *pLine;
-	int nCursorLine, nTotal, nLine, nLineStartCharCR, nLineStartCharCRLF, nLen;
-
-	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
-	dbg_reset_parse_error_count();
-
-	/* カーソル行を取得する */
-	nCursorLine = RichEdit_GetCursorLine();
-
-	/* リッチエディットのテキストの内容でスクリプトの各行をアップデートする */
-	pWcs = RichEdit_GetText();
-	nTotal = (int)wcslen(pWcs);
-	nLine = 0;
-	nLineStartCharCR = 0;
-	nLineStartCharCRLF = 0;
-	while (nLineStartCharCRLF < nTotal)
-	{
-		/* 行を切り出す */
-		pLine = pWcs + nLineStartCharCRLF;
-		pCRLF = wcswcs(pLine, L"\r\n");
-		nLen = (pCRLF != NULL) ?
-			(int)(pCRLF - (pWcs + nLineStartCharCRLF)) :
-			(int)wcslen(pWcs + nLineStartCharCRLF);
-		if (pCRLF != NULL)
-			*pCRLF = L'\0';
-
-		/* 行を更新する */
-		if (nLine == nCursorLine)
-		{
-			update_script_line(nLine, conv_utf16_to_utf8(pLine));
-			break;
-		}
-
-		nLineStartCharCRLF += nLen + 2; /* +2 for CRLF */
-		nLineStartCharCR += nLen + 1; /* +1 for CR */
-		nLine++;
-	}
-	free(pWcs);
-
-	/* 拡張構文がある場合に対応する */
-	reparse_script_for_structured_syntax();
-
-	/* コマンドのパースに失敗した場合 */
-	if (dbg_get_parse_error_count() > 0)
-	{
-		/* 行頭の'!'を反映するためにテキストを再設定する */
-		RichEdit_UpdateTextFromScriptModel();
-		RichEdit_SetTextColorForAllLines();
 	}
 }
 
@@ -3769,6 +3793,48 @@ static VOID RichEdit_InsertText(const wchar_t *pFormat, ...)
 	bExecLineChanged = TRUE;
 }
 
+static VOID RichEdit_UpdateTheme(void)
+{
+	int nCursor;
+
+	if (hWndRichEdit == NULL)
+		return;
+
+	SetFocus(NULL);
+
+	nCursor = RichEdit_GetCursorPosition();
+	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
+	RichEdit_ClearFormatAll();
+	RichEdit_ClearBackgroundColorAll();
+	if (bHighlightMode)
+		RichEdit_SetTextColorForAllLines();
+	if (!bRunning)
+		RichEdit_SetBackgroundColorForNextExecuteLine();
+	else
+		RichEdit_SetBackgroundColorForCurrentExecuteLine();
+	RichEdit_SetCursorPosition(nCursor);
+	RichEdit_AutoScroll();
+
+	SetFocus(hWndRichEdit);
+}
+
+static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam)
+{
+	int nCursor;
+
+	UNUSED_PARAMETER(hWnd);
+	UNUSED_PARAMETER(nID);
+	UNUSED_PARAMETER(uTime);
+	UNUSED_PARAMETER(dwParam);
+
+	KillTimer(hWndMain, ID_TIMER_FORMAT);
+	nCursor = RichEdit_GetCursorPosition();
+	SetFocus(NULL);
+	RichEdit_SetTextColorForAllLines();
+	RichEdit_SetCursorPosition(nCursor);
+	SetFocus(hWndRichEdit);
+}
+
 /*
  * Project
  */
@@ -3795,7 +3861,7 @@ static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD
 			   L"\n"
 			   L"メニューの「ファイル」→「新規ゲーム」を押すと新規ゲームを作成します。\n"
 			   L"メニューの「ファイル」→「ゲームを開く」を押すと既存ゲームを開きます。\n",
-			   MSGBOX_TITLE,
+			   TITLE,
 			   MB_OK);
 }
 
@@ -3842,7 +3908,8 @@ static BOOL CreateProjectFromTemplate(void)
 			MessageBox(NULL, bEnglish ?
 					   L"Invalid folder. Please choose one again." :
 					   L"フォルダが存在しません。選択しなおしてください。",
-					   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+					   TITLE,
+					   MB_OK | MB_ICONERROR);
 			continue;
 		}
 		bNonEmpty = FALSE;
@@ -3859,7 +3926,8 @@ static BOOL CreateProjectFromTemplate(void)
 			MessageBox(NULL, bEnglish ?
 					   L"Folder is not empty. Please create an empty folder." :
 					   L"フォルダが空ではありません。空のフォルダを作成してください。",
-					   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+					   TITLE,
+					   MB_OK | MB_ICONERROR);
 			continue;
 		}
 
@@ -3886,7 +3954,7 @@ static BOOL CreateProjectFromTemplate(void)
 				   L"全画面スタイルにしますか？\n"
 				   L"「はい」を押すと全画面スタイルにします。\n"
 				   L"「いいえ」を押すとアドベンチャースタイルにします。\n",
-				   MSGBOX_TITLE,
+				   TITLE,
 				   MB_YESNO) == IDYES)
 	{
 		/* 英語の場合 */
@@ -3894,7 +3962,7 @@ static BOOL CreateProjectFromTemplate(void)
 			return CopyLibraryFiles(L"games\\nvl-en\\*", L".\\");
 
 		/* 日本語の場合 */
-		if (MessageBox(NULL, L"縦書きにしますか？", MSGBOX_TITLE, MB_YESNO) == IDYES)
+		if (MessageBox(NULL, L"縦書きにしますか？", TITLE, MB_YESNO) == IDYES)
 			return CopyLibraryFiles(L"games\\nvl-tategaki\\*", L".\\");
 		else
 			return CopyLibraryFiles(L"games\\nvl\\*", L".\\");
@@ -3952,7 +4020,8 @@ static BOOL OpenProjectAtPath(const wchar_t *pszPath)
 		MessageBox(NULL, bEnglish ?
 				   L"Invalid file name." :
 				   L"ファイル名が正しくありません。",
-				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+				   TITLE,
+				   MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 	*pLastSeparator = L'\0';
@@ -3963,7 +4032,8 @@ static BOOL OpenProjectAtPath(const wchar_t *pszPath)
 		MessageBox(NULL, bEnglish ?
 				   L"Invalid game folder." :
 				   L"ゲームフォルダが正しくありません。",
-				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+				   TITLE,
+				   MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -3975,15 +4045,14 @@ static BOOL OpenProjectAtPath(const wchar_t *pszPath)
 
 static void ReadProjectFile(void)
 {
-	const char HIGHLIGHTMODE[] = "highlightmode\n";
-	const char DARKMODE[] = "darkmode\n";
-
 	char buf[1024];
 	FILE *fp;
 
 	/* Defaults */
 	bDarkMode = FALSE;
 	bHighlightMode = FALSE;
+	wcscpy(wszFontName, bEnglish ? SCRIPT_FONT_EN : SCRIPT_FONT_JP);
+	nFontSize = 10;
 	dwColorBgDefault = LIGHT_BG_DEFAULT;
 	dwColorFgDefault = LIGHT_FG_DEFAULT;
 	dwColorComment = LIGHT_COMMENT;
@@ -3993,20 +4062,33 @@ static void ReadProjectFile(void)
 	dwColorParamName = LIGHT_PARAM_NAME;
 	dwColorNextExec = LIGHT_NEXT_EXEC;
 	dwColorCurrentExec = LIGHT_CURRENT_EXEC;
+	CheckMenuItem(hMenu, ID_HIGHLIGHTMODE, MF_UNCHECKED);
+	CheckMenuItem(hMenu, ID_DARKMODE, MF_UNCHECKED);
 
 	/* Read the preference. */
 	fp = fopen("game.suika2project", "r");
 	if (fp == NULL)
-		return;
+		log_info("failed to read the project file.");
 	while (1)
 	{
-		if (fread(buf, 1, sizeof(buf) - 1, fp) < 1)
+		char *stop;
+
+		if (fgets(buf, sizeof(buf) - 1, fp) == NULL)
 			break;
+		stop = strstr(buf, "\n");
+		if (stop != NULL)
+			*stop = '\0';
 
-		if (strcmp(buf, HIGHLIGHTMODE) == 0)
+		if (strncmp(buf, "font-name:", 10) == 0)
+			wcscpy(wszFontName, conv_utf8_to_utf16(buf + 10));
+		else if (strncmp(buf, "font-size:", 10) == 0)
+			nFontSize = abs(atoi(buf + 10));
+		else if (strcmp(buf, "highlightmode") == 0)
+		{
 			bHighlightMode = TRUE;
-
-		if (strcmp(buf, DARKMODE) == 0)
+			CheckMenuItem(hMenu, ID_HIGHLIGHTMODE, MF_CHECKED);
+		}
+		else if (strcmp(buf, "darkmode") == 0)
 		{
 			bDarkMode = TRUE;
 			dwColorBgDefault = DARK_BG_DEFAULT;
@@ -4018,12 +4100,16 @@ static void ReadProjectFile(void)
 			dwColorParamName = DARK_PARAM_NAME;
 			dwColorNextExec = DARK_NEXT_EXEC;
 			dwColorCurrentExec = DARK_CURRENT_EXEC;
+			CheckMenuItem(hMenu, ID_DARKMODE, MF_CHECKED);
+		}
+		else
+		{
+			log_info("unknown project setting: %s", buf);
 		}
 	}
 	fclose(fp);
 
-	if (hWndRichEdit != NULL)
-		SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
+	RichEdit_UpdateTheme();
 }
 
 static void WriteProjectFile(void)
@@ -4034,6 +4120,8 @@ static void WriteProjectFile(void)
 	if (fp == NULL)
 		return;
 
+	fprintf(fp, "font-name:%s\n", conv_utf16_to_utf8(wszFontName));
+	fprintf(fp, "font-size:%d\n", nFontSize);
 	if (bHighlightMode)
 		fprintf(fp, "highlightmode\n");
 	if (bDarkMode)
@@ -4049,6 +4137,8 @@ static void WriteProjectFile(void)
 /* 新規ゲームプロジェクト作成 */
 static VOID OnNewProject(void)
 {
+	KillTimer(hWndMain, ID_TIMER_BEGINNER);
+
 	if (!CreateProjectFromTemplate())
 		return;
 
@@ -4058,6 +4148,8 @@ static VOID OnNewProject(void)
 /* ゲームプロジェクトを開く */
 static VOID OnOpenProject(void)
 {
+	KillTimer(hWndMain, ID_TIMER_BEGINNER);
+
 	if (!ChooseProject())
 		return;
 
@@ -4168,8 +4260,41 @@ static VOID OnSave(void)
 		MessageBox(hWndMain, bEnglish ?
 				   L"Cannot write to file." :
 				   L"ファイルに書き込めません。",
-				   MSGBOX_TITLE, MB_OK | MB_ICONERROR);
+				   TITLE,
+				   MB_OK | MB_ICONERROR);
 	}
+}
+
+/* 続ける */
+static VOID OnContinue(void)
+{
+	bContinuePressed = TRUE;
+}
+
+/* 次へ */
+static VOID OnNext(void)
+{
+	bNextPressed = TRUE;
+}
+
+/* 停止 */
+static VOID OnStop(void)
+{
+	bStopPressed = TRUE;
+}
+
+/* 移動 */
+static VOID OnMove(void)
+{
+	RichEdit_UpdateScriptModelFromText();
+
+	nLineChanged = RichEdit_GetCursorLine();
+	bExecLineChanged = TRUE;
+
+	if (bExecLineChanged)
+		RichEdit_SetBackgroundColorForNextExecuteLine();
+	if (bHighlightMode)
+		RichEdit_SetTextColorForAllLines();
 }
 
 /* 次のエラー箇所へ移動ボタンが押下されたとき */
@@ -4187,7 +4312,8 @@ static VOID OnNextError(void)
 	MessageBox(hWndMain, bEnglish ?
 			   L"No error.\n" :
 			   L"エラーはありません。\n",
-			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+			   TITLE,
+			   MB_ICONINFORMATION | MB_OK);
 }
 
 /* ポップアップを表示する */
@@ -4259,7 +4385,8 @@ VOID OnExportPackage(void)
 				   L"パッケージをエクスポートします。\n"
 				   L"この処理には時間がかかります。\n"
 				   L"よろしいですか？",
-				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   TITLE,
+				   MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
 	/* パッケージを作成する */
@@ -4276,7 +4403,8 @@ VOID OnExportWin(void)
 	if (MessageBox(hWndMain, bEnglish ?
 				   L"Takes a while. Are you sure?\n" :
 				   L"エクスポートには時間がかかります。よろしいですか？",
-				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   TITLE,
+				   MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
 	/* パッケージを作成する */
@@ -4315,7 +4443,8 @@ VOID OnExportWin(void)
 	MessageBox(hWndMain, bEnglish ?
 			   L"Export succeeded. Will open the folder." :
 			   L"エクスポートに成功しました。フォルダを開きます。",
-			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+			   TITLE,
+			   MB_ICONINFORMATION | MB_OK);
 
 	/* Explorerを開く */
 	ShellExecuteW(NULL, L"explore", L".\\windows-export", NULL, NULL, SW_SHOW);
@@ -4331,7 +4460,8 @@ VOID OnExportWinInst(void)
 	if (MessageBox(hWndMain, bEnglish ?
 				   L"Takes a while. Are you sure?\n" :
 				   L"エクスポートには時間がかかります。よろしいですか？",
-				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   TITLE,
+				   MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
 	/* パッケージを作成する */
@@ -4421,7 +4551,8 @@ VOID OnExportWinMac(void)
 	if (MessageBox(hWndMain, bEnglish ?
 				   L"Takes a while. Are you sure?\n" :
 				   L"エクスポートには時間がかかります。よろしいですか？",
-				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   TITLE,
+				   MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
 	/* パッケージを作成する */
@@ -4469,7 +4600,8 @@ VOID OnExportWinMac(void)
 	MessageBox(hWndMain, bEnglish ?
 			   L"Export succeeded. Will open the folder." :
 			   L"エクスポートに成功しました。フォルダを開きます。",
-			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+			   TITLE,
+			   MB_ICONINFORMATION | MB_OK);
 
 	/* Explorerを開く */
 	ShellExecuteW(NULL, L"explore", L".\\windows-mac-export", NULL, NULL, SW_SHOW);
@@ -4481,7 +4613,8 @@ VOID OnExportWeb(void)
 	if (MessageBox(hWndMain, bEnglish ?
 				   L"Takes a while. Are you sure?\n" :
 				   L"エクスポートには時間がかかります。よろしいですか？",
-				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   TITLE,
+				   MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
 	/* パッケージを作成する */
@@ -4521,7 +4654,8 @@ VOID OnExportWeb(void)
 	MessageBox(hWndMain, bEnglish ?
 			   L"Export succeeded. Will open the folder." :
 			   L"エクスポートに成功しました。フォルダを開きます。",
-			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+			   TITLE,
+			   MB_ICONINFORMATION | MB_OK);
 
 	/* Explorerを開く */
 	ShellExecuteW(NULL, L"explore", L".\\web-export", NULL, NULL, SW_SHOW);
@@ -4533,7 +4667,8 @@ VOID OnExportAndroid(void)
 	if (MessageBox(hWndMain, bEnglish ?
 				   L"Takes a while. Are you sure?\n" :
 				   L"エクスポートには時間がかかります。よろしいですか？",
-				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   TITLE,
+				   MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
 	/* フォルダを再作成する */
@@ -4570,7 +4705,8 @@ VOID OnExportAndroid(void)
 			   L"Build with Android Studio." :
 			   L"エクスポートしたソースコードフォルダを開きます。\n"
 			   L"Android Studioでそのままビルドできます。",
-			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+			   TITLE,
+			   MB_ICONINFORMATION | MB_OK);
 
 	/* Explorerを開く */
 	ShellExecuteW(NULL, L"explore", L".\\android-export", NULL, NULL, SW_SHOW);
@@ -4582,7 +4718,8 @@ VOID OnExportIOS(void)
 	if (MessageBox(hWndMain, bEnglish ?
 				   L"Takes a while. Are you sure?\n" :
 				   L"エクスポートには時間がかかります。よろしいですか？",
-				   MSGBOX_TITLE, MB_ICONWARNING | MB_OKCANCEL) != IDOK)
+				   TITLE,
+				   MB_ICONWARNING | MB_OKCANCEL) != IDOK)
 		return;
 
 	/* パッケージを作成する */
@@ -4624,7 +4761,8 @@ VOID OnExportIOS(void)
 			   L"Build with Xcode." :
 			   L"エクスポートしたソースコードフォルダを開きます。\n"
 			   L"Xcodeでそのままビルドできます。\n",
-			   MSGBOX_TITLE, MB_ICONINFORMATION | MB_OK);
+			   TITLE,
+			   MB_ICONINFORMATION | MB_OK);
 
 	/* Explorerを開く */
 	ShellExecuteW(NULL, L"explore", L".\\ios-export", NULL, NULL, SW_SHOW);
@@ -4778,8 +4916,49 @@ static BOOL MovePackageFile(const wchar_t *lpszPkgFile, wchar_t *lpszDestDir)
 }
 
 /*
- * Dark Mode
+ * View
  */
+
+static VOID OnFont(void)
+{
+	CHOOSEFONT cf;
+	LOGFONT lf;
+	HDC hDC;
+
+	ZeroMemory(&cf, sizeof(cf));
+	cf.lStructSize = sizeof(cf);
+	cf.hwndOwner = hWndMain;
+	cf.lpLogFont = &lf;
+	if (!ChooseFont(&cf))
+		return;
+
+	hDC = GetDC(NULL);
+	nFontSize = -MulDiv (lf.lfHeight, 72, GetDeviceCaps(hDC, LOGPIXELSY));
+	ReleaseDC(NULL, hDC);
+
+	wcscpy(wszFontName, lf.lfFaceName);
+
+	RichEdit_SetFont();
+}
+
+static VOID OnHighlightMode(void)
+{
+	if (!bHighlightMode)
+	{
+		CheckMenuItem(hMenu, ID_HIGHLIGHTMODE, MF_CHECKED);
+		bHighlightMode = TRUE;
+	}
+	else
+	{
+		CheckMenuItem(hMenu, ID_HIGHLIGHTMODE, MF_UNCHECKED);
+		bHighlightMode = FALSE;
+	}
+
+	if (bProjectOpened)
+		WriteProjectFile();
+
+	RichEdit_UpdateTheme();
+}
 
 static VOID OnDarkMode(void)
 {
@@ -4787,24 +4966,35 @@ static VOID OnDarkMode(void)
 	{
 		CheckMenuItem(hMenu, ID_DARKMODE, MF_CHECKED);
 		bDarkMode = TRUE;
+		dwColorBgDefault = DARK_BG_DEFAULT;
+		dwColorFgDefault = DARK_FG_DEFAULT;
+		dwColorComment = DARK_COMMENT;
+		dwColorLabel = DARK_LABEL;
+		dwColorError = DARK_ERROR;
+		dwColorCommandName = DARK_COMMAND_NAME;
+		dwColorParamName = DARK_PARAM_NAME;
+		dwColorNextExec = DARK_NEXT_EXEC;
+		dwColorCurrentExec = DARK_CURRENT_EXEC;
 	}
 	else
 	{
 		CheckMenuItem(hMenu, ID_DARKMODE, MF_UNCHECKED);
 		bDarkMode = FALSE;
+		dwColorBgDefault = LIGHT_BG_DEFAULT;
+		dwColorFgDefault = LIGHT_FG_DEFAULT;
+		dwColorComment = LIGHT_COMMENT;
+		dwColorLabel = LIGHT_LABEL;
+		dwColorError = LIGHT_ERROR;
+		dwColorCommandName = LIGHT_COMMAND_NAME;
+		dwColorParamName = LIGHT_PARAM_NAME;
+		dwColorNextExec = LIGHT_NEXT_EXEC;
+		dwColorCurrentExec = LIGHT_CURRENT_EXEC;
 	}
 
-	WriteProjectFile();
-	ReadProjectFile();
+	if (bProjectOpened)
+		WriteProjectFile();
 
-	SendMessage(hWndRichEdit, EM_SETBKGNDCOLOR, (WPARAM)0, (LPARAM)dwColorBgDefault);
-	RichEdit_ClearBackgroundColorAll();
-	RichEdit_SetTextColorForAllLines();
-	if (!bRunning)
-		RichEdit_SetBackgroundColorForNextExecuteLine();
-	else
-		RichEdit_SetBackgroundColorForCurrentExecuteLine();
-	RichEdit_AutoScroll();
+	RichEdit_UpdateTheme();
 }
 
 /*

@@ -47,8 +47,8 @@
 
 /* Help Menu */
 #define ID_VERSION                          210
-#define ID_DARKMODE                         211
-#define ID_HIGHLIGHT                        212
+#define ID_HIGHLIGHTMODE                    211
+#define ID_DARKMODE                         212
 
 /* Export Menu */
 #define ID_EXPORT_WIN                       220

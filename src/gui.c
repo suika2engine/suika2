@@ -1013,7 +1013,7 @@ static void process_blit(void)
 	if (is_finished &&
 	    !is_v2 &&
 	    !is_sys_gui &&
-	    !(result_index != -1 && button[result_index].type != TYPE_LOAD) &&
+	    ((result_index == -1) || !(result_index != -1 && button[result_index].type != TYPE_LOAD)) &&
 	    fade_out_time == 0) {
 		struct image *img;
 		int i;
