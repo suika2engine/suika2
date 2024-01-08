@@ -44,6 +44,8 @@ static bool s2_push_stage(struct wms_runtime *rt);
 static bool s2_pop_stage(struct wms_runtime *rt);
 static bool s2_remove_local_save(struct wms_runtime *rt);
 static bool s2_remove_global_save(struct wms_runtime *rt);
+static bool s2_reset_local_variables(struct wms_runtime *rt);
+static bool s2_reset_global_variables(struct wms_runtime *rt);
 
 /*
  * FFI function table 
@@ -71,6 +73,8 @@ struct wms_ffi_func_tbl ffi_func_tbl[] = {
 	{s2_pop_stage, "s2_pop_stage", {NULL}},
 	{s2_remove_local_save, "s2_remove_local_save", {"index", NULL}},
 	{s2_remove_global_save, "s2_remove_global_save", {NULL}},
+	{s2_reset_local_variables, "s2_reset_local_variables", {NULL}},
+	{s2_reset_global_variables, "s2_reset_global_variables", {NULL}},
 };
 
 #define FFI_FUNC_TBL_SIZE (sizeof(ffi_func_tbl) / sizeof(ffi_func_tbl[0]))
@@ -579,6 +583,30 @@ static bool s2_remove_global_save(struct wms_runtime *rt)
 	UNUSED_PARAMETER(rt);
 
 	delete_global_save();
+
+	return true;
+}
+
+static bool s2_reset_local_variables(struct wms_runtime *rt)
+{
+	int i;
+
+	UNUSED_PARAMETER(rt);
+
+	for (i = 0; i < LOCAL_VAR_SIZE; i++)
+		set_variable(i, 0);
+
+	return true;
+}
+
+static bool s2_reset_global_variables(struct wms_runtime *rt)
+{
+	int i;
+
+	UNUSED_PARAMETER(rt);
+
+	for (i = GLOBAL_VAR_OFFSET; i < GLOBAL_VAR_SIZE; i++)
+		set_variable(i, 0);
 
 	return true;
 }

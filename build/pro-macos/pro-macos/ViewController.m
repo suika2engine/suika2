@@ -35,6 +35,7 @@ static ViewController *theViewController;
 @property BOOL isOpenScriptPressed;
 @property BOOL isExecLineChanged;
 @property int changedExecLine;
+@property BOOL isVarsUpdated;
 
 // View
 @property (strong) IBOutlet GameView *renderView;
@@ -78,8 +79,10 @@ static ViewController *theViewController;
     
     // Edit
     BOOL _isFirstChange;
-    BOOL _isRangedChange;
- 
+
+    NSTimer *_formatTimer;
+    BOOL _needFormat;
+    
     BOOL _isInitialized;
 }
 
@@ -127,7 +130,7 @@ static ViewController *theViewController;
     // Setup a rendering timer.
     [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
                                      target:self
-                                   selector:@selector(timerFired:)
+                                   selector:@selector(renderingTimerFired:)
                                    userInfo:nil
                                     repeats:YES];
     
@@ -149,7 +152,7 @@ static ViewController *theViewController;
     _isInitialized = YES;
 }
 
-- (void)timerFired:(NSTimer *)timer {
+- (void)renderingTimerFired:(NSTimer *)timer {
     [self.renderView setNeedsDisplay:TRUE];
 }
 
@@ -551,7 +554,7 @@ static ViewController *theViewController;
 // 移動ボタンが押下されたイベント
 - (IBAction) onMoveButton:(id)sender {
     [self updateScriptModelFromText];
-    [self setTextColorForAllLines];
+    [self setTextColorForAllLinesDelayed];
     self.isExecLineChanged = YES;
     self.changedExecLine = [self scriptCursorLine];
     self.isNextPressed = YES;
@@ -614,7 +617,7 @@ static ViewController *theViewController;
     }
 
     // 変更された後の変数でテキストフィールドを更新する
-    on_update_variable();
+    [self updateVars];
 }
 
 - (IBAction)onQuit:(id)sender {
@@ -1368,13 +1371,13 @@ static ViewController *theViewController;
         if (delete_script_line(i))
             self.isExecLineChanged = TRUE;
     if (self.isExecLineChanged)
-        [self setTextColorForAllLines];
+        [self setTextColorForAllLinesDelayed];
 
     // コマンドのパースに失敗した場合
     if (dbg_get_parse_error_count() > 0) {
         // 行頭の'!'を反映するためにテキストを再設定する
         [self updateTextFromScriptModel];
-        [self setTextColorForAllLines];
+        [self setTextColorForAllLinesDelayed];
     }
 }
 
@@ -1383,7 +1386,24 @@ static ViewController *theViewController;
     [self updateScriptModelFromText];
 }
 
-- (void)setTextColorForAllLines {
+- (void)setTextColorForAllLinesDelayed {
+    if (_formatTimer == nil) {
+        _formatTimer = [NSTimer scheduledTimerWithTimeInterval:1.0f
+                                                        target:self
+                                                      selector:@selector(delayedFormatTimerFired:)
+                                                      userInfo:nil
+                                                       repeats:YES];
+    }
+    _needFormat = YES;
+}
+
+- (void)delayedFormatTimerFired:(NSTimer *)timer {
+    if (_needFormat)
+        [self setTextColorForAllLinesImmediately];
+    _needFormat = NO;
+}
+
+- (void)setTextColorForAllLinesImmediately {
     // すべてのテキスト装飾を削除する
     NSString *text = self.textViewScript.string;
     NSRange allRange = NSMakeRange(0, [text length]);
@@ -1487,22 +1507,15 @@ static ViewController *theViewController;
     }
 }
 
-- (void)onScriptShiftEnter {
+- (void)onScriptEnter {
+    [self updateScriptModelFromText];
     self.changedExecLine = [self scriptCursorLine];
     self.isExecLineChanged = YES;
     self.isNextPressed = YES;
 }
 
-- (void)onScriptRangedChange {
-    _isRangedChange = YES;
-}
-
 - (void)onScriptChange {
-    if (_isRangedChange) {
-        [self updateScriptModelFromText];
-        [self setTextColorForAllLines];
-    }
-    _isRangedChange = NO;
+    [self setTextColorForAllLinesDelayed];
 }
 
 - (int)scriptCursorLine {
@@ -1545,6 +1558,27 @@ static ViewController *theViewController;
         lineCount++;
         lineTop += lineLen + 1;
     }
+}
+
+//
+// Variables
+//
+
+- (void)updateVars {
+    int index, val;
+    NSMutableString *text = [NSMutableString new];
+    for (index = 0; index < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; index++) {
+        // 変数が初期値の場合
+        val = get_variable(index);
+        if(val == 0 && !is_variable_changed(index))
+            continue;
+        
+        // 行を追加する
+        [text appendString:[NSString stringWithFormat:@"$%d=%d\n", index, val]];
+    }
+    
+    theViewController.textFieldVariables.stringValue = text;
+    self.isVarsUpdated = NO;
 }
 
 @end
@@ -1773,7 +1807,7 @@ void on_change_running_state(bool running, bool request_stop)
             [theViewController.buttonMove setEnabled:NO];
             [theViewController.buttonOpenScript setEnabled:NO];
             [theViewController.textViewScript setEditable:NO];
-            [theViewController.textFieldVariables setEnabled:NO];
+            [theViewController.textFieldVariables setEditable:NO];
             [theViewController.buttonUpdateVariables setEnabled:NO];
             [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
             [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
@@ -1785,7 +1819,7 @@ void on_change_running_state(bool running, bool request_stop)
                 [item setEnabled:NO];
             for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
                 [item setEnabled:NO];
-            [theViewController setTextColorForAllLines];
+            [theViewController setTextColorForAllLinesImmediately];
             return;
         } else if (running) {
             // Running and there is no stop request.
@@ -1808,7 +1842,7 @@ void on_change_running_state(bool running, bool request_stop)
                 [item setEnabled:NO];
             for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
                 [item setEnabled:NO];
-            [theViewController setTextColorForAllLines];
+            [theViewController setTextColorForAllLinesImmediately];
             return;
         } else {
             // Stopped.
@@ -1831,7 +1865,7 @@ void on_change_running_state(bool running, bool request_stop)
                 [item setEnabled:YES];
             for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
                 [item setEnabled:YES];
-            [theViewController setTextColorForAllLines];
+            [theViewController setTextColorForAllLinesImmediately];
         }
     }
 }
@@ -1842,7 +1876,7 @@ void on_load_script(void)
         NSString *scriptName = [[NSString alloc] initWithUTF8String:get_script_file_name()];
         theViewController.textFieldScriptName.stringValue = scriptName;
         [theViewController updateTextFromScriptModel];
-        [theViewController setTextColorForAllLines];
+        [theViewController setTextColorForAllLinesDelayed];
     }
 }
 
@@ -1850,27 +1884,14 @@ void on_change_position(void)
 {
     @autoreleasepool {
         [theViewController scrollToExecLine];
-        [theViewController setTextColorForAllLines];
+        [theViewController setTextColorForAllLinesImmediately];
+        if (theViewController.isVarsUpdated)
+            [theViewController updateVars];
+            
     }
 }
 
 void on_update_variable(void)
 {
-    @autoreleasepool {
-        int index, val;
-        NSMutableString *text = [NSMutableString new];
-
-        for (index = 0; index < LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE; index++) {
-            // 変数が初期値の場合
-            val = get_variable(index);
-            if(val == 0 && !is_variable_changed(index))
-                continue;
-
-            // 行を追加する
-            [text appendString:
-                      [NSString stringWithFormat:@"$%d=%d\n", index, val]];
-        }
-
-        theViewController.textFieldVariables.stringValue = text;
-    }
+    theViewController.isVarsUpdated = YES;
 }

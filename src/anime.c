@@ -546,16 +546,17 @@ static bool on_key_value(const char *key, const char *val)
 			log_invalid_layer_name(val);
 			return false;
 		}
-		context[cur_seq_layer].seq_count++;
-		context[cur_seq_layer].sw = cur_sw;
-		context[cur_seq_layer].is_running = true;
-		context[cur_seq_layer].is_finished = false;
 
 		s = &sequence[cur_seq_layer][context[cur_seq_layer].seq_count];
 		s->from_scale_x = 1.0f;
 		s->from_scale_y = 1.0f;
 		s->to_scale_x = 1.0f;
 		s->to_scale_y = 1.0f;
+
+		context[cur_seq_layer].seq_count++;
+		context[cur_seq_layer].sw = cur_sw;
+		context[cur_seq_layer].is_running = true;
+		context[cur_seq_layer].is_finished = false;
 		return true;
 	}
 	if (cur_seq_layer == -1) {

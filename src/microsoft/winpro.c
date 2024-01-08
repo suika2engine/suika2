@@ -210,6 +210,7 @@ static BOOL bScriptOpened;			/* スクリプトファイルが選択された */
 static BOOL bExecLineChanged;		/* 実行行が変更された */
 static int nLineChanged;			/* 実行行が変更された場合の行番号 */
 static BOOL bIgnoreChange;			/* リッチエディットへの変更を無視する */
+static BOOL bNeedUpdateVars;		/* 変数が更新されたか */
 
 /* Colors */
 static DWORD dwColorBgDefault = LIGHT_BG_DEFAULT;
@@ -2952,6 +2953,13 @@ void on_change_position(void)
 	else
 		RichEdit_SetBackgroundColorForCurrentExecuteLine();
 
+	/* 変数の情報を更新する */
+	if (bNeedUpdateVars)
+	{
+		Variable_UpdateText();
+		bNeedUpdateVars = FALSE;
+	}
+
 	/* スクロールする */
 	RichEdit_AutoScroll();
 
@@ -2963,8 +2971,7 @@ void on_change_position(void)
  */
 void on_update_variable(void)
 {
-	/* 変数の情報を更新する */
-	Variable_UpdateText();
+	bNeedUpdateVars = TRUE;
 }
 
 /*

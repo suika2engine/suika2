@@ -113,6 +113,7 @@ bool layer_command(void)
 	set_layer_image(layer, img);
 	set_layer_position(layer, x, y);
 	set_layer_alpha(layer, a);
+	set_layer_scale(layer, 1.0f, 1.0f);
 
 	/* 次のコマンドへ */
 	if (!move_to_next_command())
