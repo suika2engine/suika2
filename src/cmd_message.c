@@ -429,7 +429,7 @@ static bool pre_process(void)
 {
 	/* インラインウェイトのキャンセルを処理する */
 	if (is_inline_wait) {
-		if (is_left_button_pressed || is_right_button_pressed ||
+		if (is_left_clicked || is_right_clicked ||
 		    is_control_pressed || is_space_pressed ||
 		    is_return_pressed || is_up_pressed || is_down_pressed ||
 		    is_page_up_pressed || is_page_down_pressed ||

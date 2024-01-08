@@ -956,7 +956,7 @@ static void process_main_input(void)
 	enter_sysmenu = false;
 
 	/* 右クリックされたとき */
-	if (is_right_button_pressed) {
+	if (is_right_clicked) {
 		if (selected_parent_index == -1)
 			enter_sysmenu = true;
 		else
@@ -1108,7 +1108,7 @@ static void process_sysmenu_input(void)
 	}
 
 	/* 右クリックされた場合と、エスケープキーが押下されたとき */
-	if (is_right_button_pressed || is_escape_pressed) {
+	if (is_right_clicked || is_escape_pressed) {
 		/* SEを再生する */
 		play_se(conf_sysmenu_leave_se);
 
