@@ -1077,8 +1077,7 @@ static void process_render(void)
 	}
 
 	/* ステージをレンダリングする */
-	if (is_v2)
-		render_stage();
+	render_stage();
 
 	/* baseをレンダリングする */
 	if (base_image != NULL)
