@@ -11,7 +11,8 @@
 #define ID_OPEN                             153
 #define ID_RELOAD                           154
 #define ID_SAVE                             155
-#define ID_QUIT                             156
+#define ID_DEBUG_LAYERS                     156
+#define ID_QUIT                             157
 
 /* Run Menu / Buttons */
 #define ID_RESUME                           160
