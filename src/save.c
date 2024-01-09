@@ -879,6 +879,9 @@ bool execute_load(int index)
 	/* グローバル変数のセーブを行う */
 	save_global_data();
 
+	/* ステージをクリアする */
+	clear_stage();
+
 	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(s))
 		return false;

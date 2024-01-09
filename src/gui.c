@@ -1013,10 +1013,16 @@ static void process_blit(void)
 	/* プレビューボタンの更新を行う */
 	draw_preview_buttons();
 
-	/* 終了時、GUIv2ではなく、システムGUIでなく、ロードされず、フェードアウトしないとき、終了時に背景を作成する */
+	/*
+	 * 下記の条件にすべて該当するときは終了時に背景を作成する
+	 *  - GUIv2ではない
+	 *  - システムGUIでないか、もしくは、タイトルへ戻る場合
+	 *  - 選択されたボタンはロードではない
+	 *  - フェードアウトを使用しない
+	 */
 	if (is_finished &&
 	    !is_v2 &&
-	    !is_sys_gui &&
+	    (!is_sys_gui || ((result_index == -1) || (result_index != -1 && button[result_index].type == TYPE_TITLE))) &&
 	    ((result_index == -1) || !(result_index != -1 && button[result_index].type != TYPE_LOAD)) &&
 	    fade_out_time == 0) {
 		struct image *img;
@@ -1264,6 +1270,13 @@ static bool move_to_title(void)
 	if (!save_seen())
 		return false;
 
+	/* ステージをクリアする */
+	clear_stage();
+
+	/* ローカル変数をクリアする */
+	for (i = 0; i < LOCAL_VAR_SIZE; i++)
+		set_variable(i, 0);
+
 	/* スクリプトをロードする */
 	if (!load_script(file))
 		return false;
@@ -1273,7 +1286,7 @@ static bool move_to_title(void)
 		stop_command_repetition();
 
 	/*
-	 * メッセージ・スイッチの最中に呼ばれた場合
+	 * メッセージか選択肢の最中に呼ばれた場合
 	 *  - この場合はシステムGUIから戻ったという扱いにしない
 	 */
 	if (is_sys_gui)
