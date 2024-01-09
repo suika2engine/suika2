@@ -298,6 +298,9 @@ static bool is_first_frame;
 /* セーブを行ったか */
 static bool did_save;
 
+/* ロードを行ったか */
+static bool did_load;
+
 /*
  * 前方参照
  */
@@ -463,6 +466,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	fade_in_time = 0;
 	fade_out_time = 0;
 	did_save = false;
+	did_load = false;
 	is_finished = false;
 
 	/* GUIv2動作を無効にしておく(base:が指定されるとv2になる) */
@@ -892,12 +896,16 @@ bool run_gui_mode(void)
 	process_input();
 
 	/* タイトルへ戻る場合 */
-	if (result_index != -1 &&
-	    button[result_index].type == TYPE_TITLE)
-		return move_to_title();
+	if (!did_load) {
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_TITLE)
+			return move_to_title();
+	}
 
 	/* 画像の更新を処理する */
-	process_blit();
+	if (!did_load) {
+		process_blit();
+	}
 
 	/*
 	 * レンダリングを行う
@@ -905,13 +913,17 @@ bool run_gui_mode(void)
 	 *  - 理由は、チェインイ先のGUIの読み込みで画像の更新が発生するから
 	 *  - HALによっては、テクスチャの更新をレンダリング後に行ってはいけない
 	 */
-	if ((result_index == -1) ||
-	    (result_index != -1 && button[result_index].type != TYPE_GUI))
-		process_render();
+	if (!did_load) {
+		if ((result_index == -1) ||
+		    (result_index != -1 && button[result_index].type != TYPE_GUI))
+			process_render();
+	}
 
 	/* コマンドやGUIの移動を処理する */
-	if (!process_move())
-		return false;
+	if (!did_load) {
+		if (!process_move())
+			return false;
+	}
 
 	/* SEを再生する */
 	process_se();
@@ -998,6 +1010,8 @@ static void process_input(void)
 /* 画像の描画を処理する */
 static void process_blit(void)
 {
+	bool make_bg;
+
 	/* ヒストリボタンの更新が必要な場合 */
 	if (need_update_history_buttons) {
 		draw_history_buttons();
@@ -1013,18 +1027,25 @@ static void process_blit(void)
 	/* プレビューボタンの更新を行う */
 	draw_preview_buttons();
 
-	/*
-	 * 下記の条件にすべて該当するときは終了時に背景を作成する
-	 *  - GUIv2ではない
-	 *  - システムGUIでないか、もしくは、タイトルへ戻る場合
-	 *  - 選択されたボタンはロードではない
-	 *  - フェードアウトを使用しない
-	 */
-	if (is_finished &&
-	    !is_v2 &&
-	    (!is_sys_gui || ((result_index == -1) || (result_index != -1 && button[result_index].type == TYPE_TITLE))) &&
-	    ((result_index == -1) || !(result_index != -1 && button[result_index].type != TYPE_LOAD)) &&
-	    fade_out_time == 0) {
+	/* 条件に該当するときは終了時に背景を作成する */
+	make_bg = false;
+	if (is_finished) {
+		if (!is_v2) {
+			if (!is_sys_gui) {
+				if (fade_out_time == 0) {
+					if (result_index != -1) {
+						if (button[result_index].type == TYPE_TITLE)
+							make_bg = false;
+						else if (button[result_index].type == TYPE_LOAD)
+							make_bg = false;
+						else
+							make_bg = true;
+					}
+				}
+			}
+		}
+	}
+	if (make_bg) {
 		struct image *img;
 		int i;
 
@@ -1105,12 +1126,6 @@ static bool process_move(void)
 		return true;
 	if (is_fading_in || is_fading_out)
 		return true;
-
-	/* ロードの場合は@guiを止める */
-	if (result_index != -1 &&
-	    button[result_index].type == TYPE_LOAD &&
-	    is_in_command_repetition())
-		stop_command_repetition();
 
 	/* 他のGUIに移動する場合 */
 	if (result_index != -1 &&
@@ -2364,6 +2379,11 @@ static void process_load(int button_index)
 
 	/* 最後にロードしたページを保存する */
 	conf_gui_save_last_page = save_page;
+
+	did_load = true;
+	if (is_in_command_repetition())
+		stop_command_repetition();
+	stop_gui_mode();
 }
 
 /* セーブ・ロードボタンの描画を行う */

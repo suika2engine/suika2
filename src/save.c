@@ -28,7 +28,7 @@
 #endif
 
 /* セーブデータの互換性バージョン(12.42で導入) */
-#define SAVE_VER	(0xabcd1546)
+#define SAVE_VER	(0xabcd1563)
 
 #ifdef SUIKA_TARGET_WASM
 #include <emscripten/emscripten.h>
@@ -589,7 +589,7 @@ static bool serialize_stage(struct wfile *wf)
 	size_t len;
 	int i, x, y, alpha;
 
-	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+	for (i = 0; i < STAGE_LAYERS; i++) {
 		/* Exclude the following layers. */
 		switch (i) {
 		case LAYER_MSG: continue;
@@ -825,6 +825,12 @@ bool quick_load(void)
 	/* グローバル変数のセーブを行う */
 	save_global_data();
 
+	/* ステージをクリアする */
+	clear_stage();
+
+	/* アニメを停止する */
+	cleanup_anime();
+
 	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(QUICK_SAVE_FILE))
 		return false;
@@ -881,6 +887,9 @@ bool execute_load(int index)
 
 	/* ステージをクリアする */
 	clear_stage();
+
+	/* アニメを停止する */
+	cleanup_anime();
 
 	/* ローカルデータのデシリアライズを行う */
 	if (!deserialize_all(s))
@@ -1034,7 +1043,7 @@ static bool deserialize_stage(struct rfile *rf)
 	const char *fname;
 	int i, x, y, alpha;
 
-	for (i = LAYER_BG; i <= LAYER_EFFECT4; i++) {
+	for (i = 0; i < STAGE_LAYERS; i++) {
 		/* Exclude the following layers. */
 		switch (i) {
 		case LAYER_MSG: continue;
@@ -1138,8 +1147,6 @@ static bool deserialize_anime(struct rfile *rf)
 {
 	char text[4096];
 	int i;
-
-	cleanup_anime();
 
 	for (i = 0; i < REG_ANIME_COUNT; i++) {
 		if (gets_rfile(rf, text, sizeof(text)) == NULL)

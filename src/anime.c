@@ -177,14 +177,16 @@ bool load_anime_from_file(const char *fname, int reg_index)
 		return false;
 
 	/* Register an anime file for looping. */
-	if (reg_anime_file[reg_index] != NULL) {
-		free(reg_anime_file[reg_index]);
-		reg_anime_file[reg_index] = NULL;
-	}
-	reg_anime_file[reg_index] = strdup(fname);
-	if (reg_anime_file[reg_index] == NULL) {
-		log_memory();
-		return false;
+	if (reg_index != -1) {
+		if (reg_anime_file[reg_index] != NULL) {
+			free(reg_anime_file[reg_index]);
+			reg_anime_file[reg_index] = NULL;
+		}
+		reg_anime_file[reg_index] = strdup(fname);
+		if (reg_anime_file[reg_index] == NULL) {
+			log_memory();
+			return false;
+		}
 	}
 
 	return true;

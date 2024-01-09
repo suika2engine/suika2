@@ -479,4 +479,9 @@ const char *get_layer_text(int text_layer_index);
 /* テキストレイヤのテキストを設定する */
 bool set_layer_text(int text_layer_index, const char *msg);
 
+/*
+ * Debug
+ */
+void write_layers_to_files(void);
+
 #endif

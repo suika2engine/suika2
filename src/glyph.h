@@ -117,8 +117,6 @@ struct draw_msg_context {
 
 	/* Internal: updated on a draw. */
 	struct image *layer_image;
-	int layer_x;
-	int layer_y;
 	bool runtime_is_after_space;
 	bool runtime_is_inline_wait;
 	int runtime_ruby_x;

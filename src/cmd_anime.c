@@ -46,7 +46,7 @@ static bool init(void)
 	const char *fname;
 	const char *spec;
 	int i;
-	bool reg_index;
+	int reg_index;
 
 	/* パラメータを取得する */
 	fname = get_string_param(ANIME_PARAM_FILE);
