@@ -865,6 +865,8 @@ static int get_key_code(XEvent *event)
 		return KEY_LEFT;
 	case XK_Right:
 		return KEY_RIGHT;
+	default:
+		break;
 	}
 	return -1;
 }

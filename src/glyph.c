@@ -47,20 +47,6 @@ static bool read_font_file_content(
 	const char *file_name,
 	FT_Byte **content,
 	FT_Long *size);
-static bool draw_glyph_wrapper(
-	struct image *img,
-	int font,
-	int font_size,
-	int base_font_size,
-	bool use_outline,
-	int x,
-	int y,
-	pixel_t color,
-	pixel_t outline_color,
-	uint32_t wc,
-	int *ret_width,
-	int *ret_height,
-	bool is_dimming);
 static bool draw_glyph_without_outline(
 	struct image *img,
 	int font_type,
@@ -1019,14 +1005,8 @@ void construct_draw_msg_context(
 	context->use_tategaki = use_tategaki;
 
 	/* Get a layer image. */
-	if (stage_layer != -1) {
+	if (stage_layer != -1)
 		context->layer_image = get_layer_image(stage_layer);
-		context->layer_x = get_layer_x(stage_layer);
-		context->layer_y = get_layer_y(stage_layer);
-	} else {
-		context->layer_x = 0;
-		context->layer_y = 0;
-	}
 
 	/* The first character is treated as after-space. */
 	context->runtime_is_after_space = true;
@@ -1183,19 +1163,19 @@ draw_msg_common(
 		}
 
 		/* 描画する */
-		draw_glyph_wrapper(context->layer_image,
-				   context->font,
-				   context->font_size,
-				   context->base_font_size,
-				   context->use_outline,
-				   context->pen_x + ofs_x,
-				   context->pen_y + ofs_y,
-				   context->color,
-				   context->outline_color,
-				   wc,
-				   &ret_width,
-				   &ret_height,
-				   context->is_dimming);
+		draw_glyph(context->layer_image,
+			   context->font,
+			   context->font_size,
+			   context->base_font_size,
+			   context->use_outline,
+			   context->pen_x + ofs_x,
+			   context->pen_y + ofs_y,
+			   context->color,
+			   context->outline_color,
+			   wc,
+			   &ret_width,
+			   &ret_height,
+			   context->is_dimming);
 
 		/* ルビ用のペン位置を更新する */
 		if (!context->use_tategaki) {
@@ -1765,19 +1745,19 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context)
 		if (mblen == -1)
 			return false;
 
-		draw_glyph_wrapper(context->layer_image,
-				   context->font,
-				   context->ruby_size,
-				   context->ruby_size,
-				   context->use_outline,
-				   context->runtime_ruby_x,
-				   context->runtime_ruby_y,
-				   context->color,
-				   context->outline_color,
-				   wc,
-				   &ret_w,
-				   &ret_h,
-				   context->is_dimming);
+		draw_glyph(context->layer_image,
+			   context->font,
+			   context->ruby_size,
+			   context->ruby_size,
+			   context->use_outline,
+			   context->runtime_ruby_x,
+			   context->runtime_ruby_y,
+			   context->color,
+			   context->outline_color,
+			   wc,
+			   &ret_w,
+			   &ret_h,
+			   context->is_dimming);
 
 		if (!context->use_tategaki)
 			context->runtime_ruby_x += ret_w;
@@ -1785,38 +1765,6 @@ static bool process_escape_sequence_ruby(struct draw_msg_context *context)
 			context->runtime_ruby_y += ret_h;
 
 		p += mblen;
-	}
-
-	return true;
-}
-
-static bool draw_glyph_wrapper(
-	struct image *img,
-	int font, int font_size, int base_font_size, bool use_outline,
-	int x, int y, pixel_t color, pixel_t outline_color,
-	uint32_t wc, int *ret_width, int *ret_height,
-	bool is_dimming)
-{
-	bool ret;
-
-	/* 文字を描画する */
-	ret = draw_glyph(
-		img,
-		font,
-		font_size,
-		base_font_size,
-		use_outline,
-		x,
-		y,
-		color,
-		outline_color,
-		wc,
-		ret_width,
-		ret_height,
-		is_dimming);
-	if (!ret) {
-		/* グリフがない、コードポイントがおかしい、など */
-		return false;
 	}
 
 	return true;

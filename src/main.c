@@ -208,10 +208,8 @@ bool game_loop_iter(void)
 
 	/*
 	 * 入力の状態をリセットする
-	 *  - Controlキー押下とドラッグ状態以外は1フレームごとにリセットする
+	 *  - マウスボタン押下、Controlキー押下、ドラッグ状態以外は1フレームごとにリセットする
 	 */
-	is_left_button_pressed = false;
-	is_right_button_pressed = false;
 	is_left_clicked = false;
 	is_right_clicked = false;
 	is_space_pressed = false;

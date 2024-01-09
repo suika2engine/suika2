@@ -15,7 +15,8 @@ CPPFLAGS = -I/usr/include/freetype2
 #
 
 CFLAGS = \
-	-O3 \
+	-O0 \
+	-g3 \
 	-ffast-math \
 	-ftree-vectorize \
 	-std=gnu11 \

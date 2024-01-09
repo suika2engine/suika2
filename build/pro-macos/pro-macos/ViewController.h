@@ -16,8 +16,7 @@
 @property BOOL isShiftPressed;
 @property BOOL isCommandPressed;
 
-- (void)onScriptShiftEnter;
-- (void)onScriptRangedChange;
+- (void)onScriptEnter;
 - (void)onScriptChange;
 
 @end

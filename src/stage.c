@@ -221,6 +221,7 @@ static bool setup_sysmenu(void);
 static bool setup_banners(void);
 static bool setup_kirakira(void);
 static bool setup_thumb(void);
+static void restore_text_layers(void);
 static bool create_fade_layer_images(void);
 static void destroy_layer_image(int layer);
 static void draw_fo_common(void);
@@ -334,6 +335,9 @@ bool reload_stage(void)
 	/* キラキラ画像をセットアップする */
 	if (!setup_kirakira())
 		return false;
+
+	/* テキストレイヤの文字を復元する */
+	restore_text_layers();
 
 	return true;
 }
@@ -686,6 +690,66 @@ static bool setup_thumb(void)
 	return true;
 }
 
+/* テキストレイヤーの文字を復元する */
+static void restore_text_layers(void)
+{
+	struct draw_msg_context context;
+	pixel_t color, outline_color;
+	int i, total_chars;
+
+	/* デフォルト色をロードする */
+	color = make_pixel(0xff,
+			   (pixel_t)conf_font_color_r,
+			   (pixel_t)conf_font_color_g,
+			   (pixel_t)conf_font_color_b);
+	outline_color = make_pixel(0xff,
+				   (pixel_t)conf_font_outline_color_r,
+				   (pixel_t)conf_font_outline_color_g,
+				   (pixel_t)conf_font_outline_color_b);
+
+	for (i = LAYER_TEXT1; i <= LAYER_TEXT8; i++) {
+		if (layer_text[i] == NULL)
+			continue;
+
+		/* 描画する */
+		construct_draw_msg_context(
+			&context,
+			i,
+			layer_text[i],
+			conf_font_select,
+			conf_font_size,
+			conf_font_size,
+			conf_font_ruby_size,
+			!conf_font_outline_remove,
+			0,	/* pen_x */
+			0,	/* pen_y */
+			layer_image[i]->width,
+			layer_image[i]->height,
+			0,	/* left_margin */
+			0,	/* right_margin */
+			0,	/* top_margin */
+			0,	/* bottom_margin */
+			0,	/* line_margin */
+			conf_msgbox_margin_char,
+			color,
+			outline_color,
+			false,	/* is_dimming */
+			false,	/* ignore_linefeed */
+			false,	/* ignore_font */
+			false,	/* ignore_outline */
+			false,	/* ignore_color */
+			false,	/* ignore_size */
+			false,	/* ignore_position */
+			false,	/* ignore_ruby */
+			true,	/* ignore_wait */
+			NULL,	/* inline_wait_hook */
+			false);	/* use_tategaki */
+		total_chars = count_chars_common(&context);
+		draw_msg_common(&context, total_chars);
+		notify_image_update(layer_image[i]);
+	}
+}
+
 /* レイヤのイメージを作成する */
 static bool create_fade_layer_images(void)
 {
@@ -904,6 +968,11 @@ void set_layer_scale(int layer, float scale_x, float scale_y)
 {
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
+	if (scale_x == 0)
+		log_info("scale_x = 0");
+	if (scale_y == 0)
+		log_info("scale_y = 0");
+
 	layer_scale_x[layer] = scale_x;
 	layer_scale_y[layer] = scale_y;
 }
@@ -1031,7 +1100,13 @@ void clear_stage_basic(void)
 		set_layer_file_name(i, NULL);
 		set_layer_image(i, NULL);
 	}
-}
+
+	for (i = LAYER_TEXT1; i <= LAYER_TEXT8; i++) {
+		if (layer_text[i] != NULL) {
+			free(layer_text[i]);
+			layer_text[i] = NULL;
+		}
+	}}
 
 /*
  * Clear the stage and make it initial state.
@@ -4153,8 +4228,10 @@ bool set_layer_text(int layer, const char *msg)
 	assert(layer >= LAYER_TEXT1);
 	assert(layer <= LAYER_TEXT8);
 
-	if (layer_text[layer] != NULL)
+	if (layer_text[layer] != NULL) {
+		free(layer_text[layer]);
 		layer_text[layer] = NULL;
+	}
 
 	if (msg != NULL && strcmp(msg, "") != 0) {
 		layer_text[layer] = strdup(msg);
@@ -4166,3 +4243,82 @@ bool set_layer_text(int layer, const char *msg)
 
 	return true;
 }
+
+/*
+ * for debug
+ */
+#include <png.h>
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclobbered"
+#endif
+void write_layers_to_files(void)
+{
+	char fname[128];
+	png_structp png;
+	png_infop info;
+	FILE *png_fp;
+	static png_bytep *row_pointers;
+	int y, i;
+
+	for (i = 0; i < STAGE_LAYERS; i++) {
+		sprintf(fname, "debug-layer-%02d.png", i);
+		remove(fname);
+
+		if (layer_image[i] == NULL)
+			continue;
+
+		row_pointers = malloc(sizeof(png_bytep) * (size_t)layer_image[i]->height);
+		if (row_pointers == NULL) {
+			log_memory();
+			return;
+		}
+		for (y = 0; y < layer_image[i]->height; y++)
+			row_pointers[y] = (png_bytep)&layer_image[i]->pixels[layer_image[i]->width * y];
+
+		/* PNGファイルをオープンする */
+		png_fp = fopen(fname, "wb");
+		if (png_fp == NULL) {
+			log_file_open(fname);
+			return;
+		}
+
+		/* PNGを書き出す */
+		png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+		if (png == NULL) {
+			log_api_error("png_create_write_struct");
+			fclose(png_fp);
+			return;
+		}
+		info = png_create_info_struct(png);
+		if (info == NULL) {
+			log_api_error("png_create_info_struct");
+			png_destroy_write_struct(&png, NULL);
+			return;
+		}
+		if (setjmp(png_jmpbuf(png))) {
+			log_error("Failed to write png file.");
+			png_destroy_write_struct(&png, &info);
+			return;
+		}
+
+		png_init_io(png, png_fp);
+		png_set_IHDR(png, info,
+			     (png_uint_32)layer_image[i]->width,
+			     (png_uint_32)layer_image[i]->height,
+			     8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+			     PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+		png_write_info(png, info);
+		png_write_image(png, row_pointers);
+		png_write_end(png, NULL);
+		png_destroy_write_struct(&png, &info);
+
+		/* PNGファイルをクローズする */
+		fclose(png_fp);
+
+		free(row_pointers);
+	}
+}
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic pop
+#endif

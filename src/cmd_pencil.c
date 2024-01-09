@@ -12,6 +12,8 @@
 
 #include "suika.h"
 
+static int get_layer_index(const char *s);
+
 /*
  * pencilコマンド
  */
@@ -21,18 +23,11 @@ bool pencil_command(void)
 	struct image *img;
 	const char *text;
 	pixel_t color, outline_color;
-	int layer, layer_w, layer_h,total_chars;
+	int layer, layer_w, layer_h, total_chars;
 
 	/* パラメータを取得する */
-	layer = get_int_param(PENCIL_PARAM_LAYER);
+	layer = get_layer_index(get_string_param(PENCIL_PARAM_LAYER));
 	text = get_string_param(PENCIL_PARAM_TEXT);
-
-	/* レイヤを制限する */
-	if (layer < 0)
-		layer = 0;
-	if (layer > 7)
-		layer = 7;
-	layer = LAYER_TEXT1 + layer;
 
 	/* 変数を展開する */
 	text = expand_variable(text);
@@ -96,4 +91,33 @@ bool pencil_command(void)
 	render_stage();
 
 	return move_to_next_command();
+}
+
+static int get_layer_index(const char *s)
+{
+	int layer;
+
+	if (strcmp(s, "text1") == 0)
+		return LAYER_TEXT1;
+	if (strcmp(s, "text2") == 0)
+		return LAYER_TEXT2;
+	if (strcmp(s, "text3") == 0)
+		return LAYER_TEXT3;
+	if (strcmp(s, "text4") == 0)
+		return LAYER_TEXT4;
+	if (strcmp(s, "text5") == 0)
+		return LAYER_TEXT5;
+	if (strcmp(s, "text6") == 0)
+		return LAYER_TEXT6;
+	if (strcmp(s, "text7") == 0)
+		return LAYER_TEXT7;
+	if (strcmp(s, "text8") == 0)
+		return LAYER_TEXT8;
+
+	layer = LAYER_TEXT1 + atoi(s);
+	if (layer < LAYER_TEXT1)
+		layer = LAYER_TEXT1;
+	if (layer > LAYER_TEXT8)
+		layer = LAYER_TEXT8;
+	return layer;
 }

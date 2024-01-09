@@ -210,6 +210,7 @@ static BOOL bScriptOpened;			/* スクリプトファイルが選択された */
 static BOOL bExecLineChanged;		/* 実行行が変更された */
 static int nLineChanged;			/* 実行行が変更された場合の行番号 */
 static BOOL bIgnoreChange;			/* リッチエディットへの変更を無視する */
+static BOOL bNeedUpdateVars;		/* 変数が */
 
 /* Colors */
 static DWORD dwColorBgDefault = LIGHT_BG_DEFAULT;
@@ -995,6 +996,13 @@ static VOID InitMenu(HWND hWnd)
 		L"スクリプトを上書き保存する(&S)\tCtrl+S";
 	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 	EnableMenuItem(hMenu, ID_SAVE, MF_GRAYED);
+
+	/* レイヤー画像のデバッグ出力を作成する */
+	mi.wID = ID_DEBUG_LAYERS;
+	mi.dwTypeData = bEnglish ?
+		L"Write layer images for debugging" :
+		L"レイヤー画像のデバッグ出力";
+	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* 終了(Q)を作成する */
 	mi.wID = ID_QUIT;
@@ -1918,6 +1926,9 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	case ID_SAVE:
 		OnSave();
+		break;
+	case ID_DEBUG_LAYERS:
+		write_layers_to_files();
 		break;
 	case ID_QUIT:
 		DestroyWindow(hWndMain);
@@ -2952,6 +2963,13 @@ void on_change_position(void)
 	else
 		RichEdit_SetBackgroundColorForCurrentExecuteLine();
 
+	/* 変数の情報を更新する */
+	if (bNeedUpdateVars)
+	{
+		Variable_UpdateText();
+		bNeedUpdateVars = FALSE;
+	}
+
 	/* スクロールする */
 	RichEdit_AutoScroll();
 
@@ -2963,8 +2981,7 @@ void on_change_position(void)
  */
 void on_update_variable(void)
 {
-	/* 変数の情報を更新する */
-	Variable_UpdateText();
+	bNeedUpdateVars = TRUE;
 }
 
 /*

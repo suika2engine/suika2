@@ -298,6 +298,9 @@ static bool is_first_frame;
 /* セーブを行ったか */
 static bool did_save;
 
+/* ロードを行ったか */
+static bool did_load;
+
 /*
  * 前方参照
  */
@@ -463,6 +466,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	fade_in_time = 0;
 	fade_out_time = 0;
 	did_save = false;
+	did_load = false;
 	is_finished = false;
 
 	/* GUIv2動作を無効にしておく(base:が指定されるとv2になる) */
@@ -546,6 +550,10 @@ static bool set_global_key_value(const char *key, const char *val)
 {
 	if (strcmp(key, "base") == 0) {
 		if (!load_base_image(val))
+			return false;
+		return true;
+	} else if (strcmp(key, "overlay") == 0) {
+		if (!load_base_image("none"))
 			return false;
 		return true;
 	} else if (strcmp(key, "idle") == 0) {
@@ -888,12 +896,16 @@ bool run_gui_mode(void)
 	process_input();
 
 	/* タイトルへ戻る場合 */
-	if (result_index != -1 &&
-	    button[result_index].type == TYPE_TITLE)
-		return move_to_title();
+	if (!did_load) {
+		if (result_index != -1 &&
+		    button[result_index].type == TYPE_TITLE)
+			return move_to_title();
+	}
 
 	/* 画像の更新を処理する */
-	process_blit();
+	if (!did_load) {
+		process_blit();
+	}
 
 	/*
 	 * レンダリングを行う
@@ -901,13 +913,17 @@ bool run_gui_mode(void)
 	 *  - 理由は、チェインイ先のGUIの読み込みで画像の更新が発生するから
 	 *  - HALによっては、テクスチャの更新をレンダリング後に行ってはいけない
 	 */
-	if ((result_index == -1) ||
-	    (result_index != -1 && button[result_index].type != TYPE_GUI))
-		process_render();
+	if (!did_load) {
+		if ((result_index == -1) ||
+		    (result_index != -1 && button[result_index].type != TYPE_GUI))
+			process_render();
+	}
 
 	/* コマンドやGUIの移動を処理する */
-	if (!process_move())
-		return false;
+	if (!did_load) {
+		if (!process_move())
+			return false;
+	}
 
 	/* SEを再生する */
 	process_se();
@@ -994,6 +1010,8 @@ static void process_input(void)
 /* 画像の描画を処理する */
 static void process_blit(void)
 {
+	bool make_bg;
+
 	/* ヒストリボタンの更新が必要な場合 */
 	if (need_update_history_buttons) {
 		draw_history_buttons();
@@ -1009,12 +1027,25 @@ static void process_blit(void)
 	/* プレビューボタンの更新を行う */
 	draw_preview_buttons();
 
-	/* 終了時、GUIv2ではなく、システムGUIでなく、ロードされず、フェードアウトしないとき、終了時に背景を作成する */
-	if (is_finished &&
-	    !is_v2 &&
-	    !is_sys_gui &&
-	    ((result_index == -1) || !(result_index != -1 && button[result_index].type != TYPE_LOAD)) &&
-	    fade_out_time == 0) {
+	/* 条件に該当するときは終了時に背景を作成する */
+	make_bg = false;
+	if (is_finished) {
+		if (!is_v2) {
+			if (!is_sys_gui) {
+				if (fade_out_time == 0) {
+					if (result_index != -1) {
+						if (button[result_index].type == TYPE_TITLE)
+							make_bg = false;
+						else if (button[result_index].type == TYPE_LOAD)
+							make_bg = false;
+						else
+							make_bg = true;
+					}
+				}
+			}
+		}
+	}
+	if (make_bg) {
 		struct image *img;
 		int i;
 
@@ -1079,7 +1110,7 @@ static void process_render(void)
 	if (base_image != NULL)
 		render_image_normal(0, 0, -1, -1, base_image, 0, 0, -1, -1, cur_alpha);
 
-	/* GUIv2でなければidleをレンダリングする */
+	/* GUIv2でないなら、idleを全体にレンダリングする */
 	if (!is_v2)
 		render_image_normal(0, 0, -1, -1, idle_image, 0, 0, -1, -1, cur_alpha);
 
@@ -1095,12 +1126,6 @@ static bool process_move(void)
 		return true;
 	if (is_fading_in || is_fading_out)
 		return true;
-
-	/* ロードの場合は@guiを止める */
-	if (result_index != -1 &&
-	    button[result_index].type == TYPE_LOAD &&
-	    is_in_command_repetition())
-		stop_command_repetition();
 
 	/* 他のGUIに移動する場合 */
 	if (result_index != -1 &&
@@ -1260,6 +1285,13 @@ static bool move_to_title(void)
 	if (!save_seen())
 		return false;
 
+	/* ステージをクリアする */
+	clear_stage();
+
+	/* ローカル変数をクリアする */
+	for (i = 0; i < LOCAL_VAR_SIZE; i++)
+		set_variable(i, 0);
+
 	/* スクリプトをロードする */
 	if (!load_script(file))
 		return false;
@@ -1269,7 +1301,7 @@ static bool move_to_title(void)
 		stop_command_repetition();
 
 	/*
-	 * メッセージ・スイッチの最中に呼ばれた場合
+	 * メッセージか選択肢の最中に呼ばれた場合
 	 *  - この場合はシステムGUIから戻ったという扱いにしない
 	 */
 	if (is_sys_gui)
@@ -1777,14 +1809,14 @@ static void process_button_render_activatable(int index)
 		return;
 	}
 
-	if (!is_v2) {
-		/* コンフィグが選択されていればactive画像を描画する */
-		if (b->rt.is_active)
-			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
-	} else {
+	if (is_v2) {
 		if (!b->rt.is_active)
 			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
+			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
+	} else {
+		/* コンフィグが選択されていればactive画像を描画する */
+		if (b->rt.is_active)
 			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 }
@@ -1806,15 +1838,15 @@ static void process_button_render_generic(int index)
 
 	b = &button[index];
 
-	if (!is_v2) {
-		/* GUIv1 */
-		if (index == pointed_index)
-			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
-	} else {
-		/* GUIv2 */
+	if (is_v2) {
+		/* GUIv2/GUIv1オーバレイ */
 		if (index != pointed_index)
 			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
+	} else {
+		/* GUIv1 */
+		if (index == pointed_index)
 			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 }
@@ -1827,14 +1859,11 @@ static void process_button_render_gallery(int index)
 	b = &button[index];
 	assert(b->type == TYPE_GALLERY);
 
-	if (!is_v2) {
-		/* GUIv1 */
+	if (is_v2) {
+		/* GUIv2/GUIv1オーバレイ */
 		if (b->rt.is_disabled) {
-			/*
-			 * 指定された変数が0のときは描画しない
-			 *  - つまり解放されていないギャラリー
-			 *  - idleに無効項目を書いておく
-			 */
+			/* 指定された変数が0のときはidleを描画する */
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		} else if (index != pointed_index) {
 			/* ポイントされていないとき、active画像を描画する */
 			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
@@ -1843,10 +1872,13 @@ static void process_button_render_gallery(int index)
 			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 		}
 	} else {
-		/* GUIv2 */
+		/* GUIv1 */
 		if (b->rt.is_disabled) {
-			/* 指定された変数が0のときはidleを描画する */
-			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
+			/*
+			 * 指定された変数が0のときは描画しない
+			 *  - つまり解放されていないギャラリー
+			 *  - idleに無効項目を書いておく
+			 */
 		} else if (index != pointed_index) {
 			/* ポイントされていないとき、active画像を描画する */
 			render_image_normal(b->x, b->y, b->width, b->height, active_image, b->x, b->y, b->width, b->height, cur_alpha);
@@ -2347,6 +2379,11 @@ static void process_load(int button_index)
 
 	/* 最後にロードしたページを保存する */
 	conf_gui_save_last_page = save_page;
+
+	did_load = true;
+	if (is_in_command_repetition())
+		stop_command_repetition();
+	stop_gui_mode();
 }
 
 /* セーブ・ロードボタンの描画を行う */
@@ -2356,14 +2393,14 @@ static void process_button_render_save(int index)
 
 	b = &button[index];
 
-	if (!is_v2) {
-		/* ポイントされているときの描画を行う */
-		if (index == pointed_index)
-			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
-	} else {
+	if (is_v2) {
 		if (index != pointed_index)
 			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
+	} else {
+		/* ポイントされているときの描画を行う */
+		if (index == pointed_index)
 			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 
@@ -2419,15 +2456,15 @@ static void process_button_render_history(int index)
 	if (b->rt.img == NULL)
 		return;
 
-	if (!is_v2) {
-		/* ポイントされているときの描画を行う */
-		if (b->rt.is_active && index == pointed_index)
-			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
-	} else {
+	if (is_v2) {
 		if (b->rt.is_active && index == pointed_index)
 			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 		else
 			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
+	} else {
+		/* ポイントされているときの描画を行う */
+		if (b->rt.is_active && index == pointed_index)
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 	}
 
 	/* テキストの描画を行う */
