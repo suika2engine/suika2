@@ -916,7 +916,7 @@ bool run_gui_mode(void)
 	 *  - Metalではrender後にblitができない
 	 */
 	if (!did_load) {
-		if (result_index != -1 && button[result_index].type != TYPE_GUI)
+		if (result_index != -1 && button[result_index].type == TYPE_GUI)
 			chain = true;
 		else 
 			process_render();
