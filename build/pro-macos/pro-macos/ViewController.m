@@ -243,6 +243,11 @@ static ViewController *theViewController;
     on_event_mouse_move(point.x, point.y);
 }
 
+- (void)mouseDragged:(NSEvent *)event {
+    NSPoint point = [self windowPointToScreenPoint:[event locationInWindow]];
+    on_event_mouse_move(point.x, point.y);
+}
+
 // キーボード修飾変化イベント
 - (void)flagsChanged:(NSEvent *)event {
     BOOL newControllPressed = ([event modifierFlags] & NSEventModifierFlagControl) ==
@@ -678,29 +683,7 @@ static ViewController *theViewController;
     if([alert runModal] != NSAlertFirstButtonReturn)
         return;
 
-    // ファイルを開く
-    char *path = make_valid_path(SCRIPT_DIR, scr);
-    if (path == NULL)
-        return;
-    FILE *fp = fopen(path, "w");
-    free(path);
-    if (fp == NULL)    {
-        log_error(self.isEnglish ?
-                  "Cannot write to file." : "ファイルに書き込めません。");
-        return;
-    }
-
-    // 書き出す
-    for (int i = 0; i < get_line_count(); i++) {
-        int body = fputs(get_line_string_at_line_num(i), fp);
-        int lf = fputs("\n", fp);
-        if (body < 0 || lf < 0) {
-            log_error(self.isEnglish ?
-                      "Cannot write to file." : "ファイルに書き込めません。");
-            break;
-        }
-    }
-    fclose(fp);
+    save_script();
 }
 
 // 続けるメニューが押下されたイベント

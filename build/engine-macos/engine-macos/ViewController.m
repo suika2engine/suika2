@@ -286,6 +286,13 @@ static FILE *openLog(void);
     on_event_mouse_move(x, conf_window_height - y);
 }
 
+- (void)mouseDragged:(NSEvent *)event {
+    NSPoint point = [event locationInWindow];
+    int x = (int)((point.x - self.screenOffset.x) * _screenScale);
+    int y = (int)((point.y - self.screenOffset.y) * _screenScale);
+    on_event_mouse_move(x, conf_window_height - y);
+}
+
 // キーボード修飾変化イベント
 - (void)flagsChanged:(NSEvent *)theEvent {
     // Controlキーの状態を取得する

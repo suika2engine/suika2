@@ -829,25 +829,6 @@
                                 </items>
                             </menu>
                         </menuItem>
-                        <menuItem title="Speed" id="INm-Jh-EPm">
-                            <modifierMask key="keyEquivalentModifierMask"/>
-                            <menu key="submenu" title="Speed" systemMenu="help" id="5KL-qU-6hg">
-                                <items>
-                                    <menuItem title="Disable Highlight" id="0zK-sB-QGL">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                        <connections>
-                                            <action selector="onHelp:" target="XfG-lQ-9wD" id="XS1-IT-vx8"/>
-                                        </connections>
-                                    </menuItem>
-                                    <menuItem title="Disable Auto Scroll" id="lmk-ho-IFd">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                        <connections>
-                                            <action selector="onHelp:" target="XfG-lQ-9wD" id="MXH-Qz-dtE"/>
-                                        </connections>
-                                    </menuItem>
-                                </items>
-                            </menu>
-                        </menuItem>
                         <menuItem title="Help" id="48t-hm-7j7">
                             <modifierMask key="keyEquivalentModifierMask"/>
                             <menu key="submenu" title="Help" systemMenu="help" id="o7U-tS-QIk">

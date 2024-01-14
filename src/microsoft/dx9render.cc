@@ -372,6 +372,26 @@ VOID D3DEndFrame(void)
 	// 描画を完了する
 	pD3DDevice->EndScene();
 
+	// 帯をクリアする
+	RECT rcClient;
+	GetClientRect(hMainWnd, &rcClient);
+	if (fDisplayOffsetY > 0)
+	{
+		D3DRECT rc[2] = {
+			{0, 0, rcClient.right, (LONG)fDisplayOffsetY},
+			{0, (LONG)(rcClient.bottom - (int)fDisplayOffsetY), rcClient.right, rcClient.bottom}
+		};			
+		pD3DDevice->Clear(2, &rc[0], D3DCLEAR_TARGET, D3DCOLOR_RGBA(0, 0, 0, 255), 0, 0);
+	}
+	if (fDisplayOffsetX > 0)
+	{
+		D3DRECT rc[2] = {
+			{0, 0, (LONG)fDisplayOffsetX, rcClient.bottom},
+			{(LONG)(rcClient.right - (int)fDisplayOffsetX), 0, rcClient.right, rcClient.bottom}
+		};			
+		pD3DDevice->Clear(2, &rc[0], D3DCLEAR_TARGET, D3DCOLOR_RGBA(0, 0, 0, 255), 0, 0);
+	}
+
 	// 表示する
 	if(pD3DDevice->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST)
 	{

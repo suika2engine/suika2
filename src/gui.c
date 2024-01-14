@@ -244,6 +244,9 @@ static bool is_pointed_by_key;
 /* キー入力によりポイントされたときのマウス座標 */
 static int save_mouse_pos_x, save_mouse_pos_y;
 
+/* ドラッグが開始されたボタンのインデックス */
+static int dragging_index;
+
 /* 選択結果のボタンのインデックス */
 static int result_index;
 
@@ -468,6 +471,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	did_save = false;
 	did_load = false;
 	is_finished = false;
+	dragging_index = -1;
 
 	/* GUIv2動作を無効にしておく(base:が指定されるとv2になる) */
 	is_v2 = false;
@@ -892,6 +896,8 @@ bool is_gui_mode(void)
  */
 bool run_gui_mode(void)
 {
+	bool chain;
+
 	/* 入力を処理する */
 	process_input();
 
@@ -910,12 +916,14 @@ bool run_gui_mode(void)
 	/*
 	 * レンダリングを行う
 	 *  - ただしGUIのチェインを行う場合を除く
-	 *  - 理由は、チェインイ先のGUIの読み込みで画像の更新が発生するから
-	 *  - HALによっては、テクスチャの更新をレンダリング後に行ってはいけない
+	 *  - 理由は、チェインイ先のGUIの読み込みでblitが発生するから
+	 *  - Metalではrender後にblitができない
 	 */
+	chain = false;
 	if (!did_load) {
-		if ((result_index == -1) ||
-		    (result_index != -1 && button[result_index].type != TYPE_GUI))
+		if (result_index != -1 && button[result_index].type == TYPE_GUI)
+			chain = true;
+		else 
 			process_render();
 	}
 
@@ -924,6 +932,10 @@ bool run_gui_mode(void)
 		if (!process_move())
 			return false;
 	}
+
+	/* チェイン時のレンダリングを行う */
+	if (chain)
+		process_render();
 
 	/* SEを再生する */
 	process_se();
@@ -1034,12 +1046,16 @@ static void process_blit(void)
 			if (!is_sys_gui) {
 				if (fade_out_time == 0) {
 					if (result_index != -1) {
-						if (button[result_index].type == TYPE_TITLE)
+						switch (button[result_index].type) {
+						case TYPE_GUI:
+						case TYPE_TITLE:
+						case TYPE_LOAD:
 							make_bg = false;
-						else if (button[result_index].type == TYPE_LOAD)
-							make_bg = false;
-						else
+							break;
+						default:
 							make_bg = true;
+							break;
+						}
 					}
 				}
 			}
@@ -1442,7 +1458,12 @@ static void process_button_drag(int index)
 		if (!is_mouse_dragging)
 			return;
 
+		/* すでにドラッグされている場合 */
+		if (dragging_index != -1)
+			return;
+
 		/* ドラッグを開始する */
+		dragging_index = index;
 		b->rt.is_dragging = true;
 		b->rt.slider = calc_slider_value(index);
 		if (b->type == TYPE_BGMVOL)
@@ -1496,6 +1517,7 @@ static void process_button_drag(int index)
 	/* ドラッグを終了する場合 */
 	if (!is_mouse_dragging) {
 		b->rt.is_dragging = false;
+		dragging_index = -1;
 
 		/* 調節完了後のアクションを実行する */
 		switch (b->type) {

@@ -50,7 +50,8 @@ struct layer_context {
 	bool is_finished;
 	uint64_t sw;
 	float cur_lap;
-	int loop_rem;
+	uint64_t loop_len;
+	uint64_t loop_ofs;
 	char *file;
 };
 static struct layer_context context[STAGE_LAYERS];
@@ -281,9 +282,10 @@ bool start_layer_anime(int layer)
 	context[layer].is_running = true;
 	context[layer].is_finished = false;
 	context[layer].cur_lap = 0;
-	context[layer].loop_rem =
+	context[layer].loop_ofs = 0;
+	context[layer].loop_len =
 		sequence[layer][context[layer].seq_count - 1].loop ?
-		(int)(sequence[layer][context[layer].seq_count - 1].end_time * 1000.0f) :
+		(uint64_t)(sequence[layer][context[layer].seq_count - 1].end_time * 1000.0f) :
 		0;
 
 	return true;
@@ -313,7 +315,8 @@ bool finish_layer_anime(int layer)
 	context[layer].is_running = false;
 	context[layer].is_finished = true;
 	context[layer].cur_lap = 0;
-	context[layer].loop_rem = 0;
+	context[layer].loop_ofs = 0;
+	context[layer].loop_len = 0;
 	if (context[layer].file != NULL) {
 		free(context[layer].file);
 		context[layer].file = NULL;
@@ -360,14 +363,19 @@ void update_anime_frame(void)
 			continue;
 
 		lap = get_lap_timer_millisec(&context[i].sw);
-		if (context[i].loop_rem > 0)
-			lap %= (uint64_t)context[i].loop_rem;
+		if (context[i].loop_len > 0 &&
+		    lap > context[i].loop_ofs + context[i].loop_len) {
+			lap -= context[i].loop_ofs;
+			lap %= context[i].loop_len;
+			lap += context[i].loop_ofs;
+		}
 		context[i].cur_lap = (float)lap / 1000.0f;
 
 		last_seq = context[i].seq_count - 1;
 		assert(last_seq >= 0);
 
-		if (context[i].cur_lap >= sequence[i][last_seq].end_time) {
+		if (context[i].loop_len == 0 &&
+		    context[i].cur_lap >= sequence[i][last_seq].end_time) {
 			context[i].is_running = false;
 			context[i].is_finished = true;
 		}
@@ -631,7 +639,8 @@ static bool on_key_value(const char *key, const char *val)
 		s->accel = atoi(val);
 	} else if (strcmp(key, "loop") == 0) {
 		s->loop = true;
-		context[cur_seq_layer].loop_rem = (int)(s->end_time * 1000.0f);
+		context[cur_seq_layer].loop_ofs = (uint64_t)(atof(val) * 1000.0f);
+		context[cur_seq_layer].loop_len = (uint64_t)(s->end_time * 1000.0f) - context[cur_seq_layer].loop_ofs;
 	} else if (strcmp(key, "file") == 0) {
 		s->file = strdup(val);
 		if (s->file == NULL) {
