@@ -243,6 +243,11 @@ static ViewController *theViewController;
     on_event_mouse_move(point.x, point.y);
 }
 
+- (void)mouseDragged:(NSEvent *)event {
+    NSPoint point = [self windowPointToScreenPoint:[event locationInWindow]];
+    on_event_mouse_move(point.x, point.y);
+}
+
 // キーボード修飾変化イベント
 - (void)flagsChanged:(NSEvent *)event {
     BOOL newControllPressed = ([event modifierFlags] & NSEventModifierFlagControl) ==

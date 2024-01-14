@@ -244,6 +244,9 @@ static bool is_pointed_by_key;
 /* キー入力によりポイントされたときのマウス座標 */
 static int save_mouse_pos_x, save_mouse_pos_y;
 
+/* ドラッグが開始されたボタンのインデックス */
+static int dragging_index;
+
 /* 選択結果のボタンのインデックス */
 static int result_index;
 
@@ -468,6 +471,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	did_save = false;
 	did_load = false;
 	is_finished = false;
+	dragging_index = -1;
 
 	/* GUIv2動作を無効にしておく(base:が指定されるとv2になる) */
 	is_v2 = false;
@@ -1453,7 +1457,12 @@ static void process_button_drag(int index)
 		if (!is_mouse_dragging)
 			return;
 
+		/* すでにドラッグされている場合 */
+		if (dragging_index != -1)
+			return;
+
 		/* ドラッグを開始する */
+		dragging_index = index;
 		b->rt.is_dragging = true;
 		b->rt.slider = calc_slider_value(index);
 		if (b->type == TYPE_BGMVOL)
@@ -1507,6 +1516,7 @@ static void process_button_drag(int index)
 	/* ドラッグを終了する場合 */
 	if (!is_mouse_dragging) {
 		b->rt.is_dragging = false;
+		dragging_index = -1;
 
 		/* 調節完了後のアクションを実行する */
 		switch (b->type) {
