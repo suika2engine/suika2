@@ -581,12 +581,7 @@ static BOOL WriteNext(int nBuffer)
 									AREA_SAMPLES);
 
 		/* 入力が終端に達した場合 */
-		if(nSamples == 0)
-		{
-			/* 再生終了位置を記憶する */
-			nPosEndArea[nBuffer] = nArea == 0 ? BUF_AREAS - 1 : nArea - 1;
-		}
-		else if(nSamples != AREA_SAMPLES)
+		if(nSamples != AREA_SAMPLES)
 		{
 			/* バッファの残りをゼロクリアする */
 			ZeroMemory((char*)pBuf[0] + nSamples * BYTES_PER_SAMPLE,
@@ -684,13 +679,14 @@ static VOID OnNotifyPlayPos(int nBuffer)
 		IDirectSoundBuffer_Stop(pDSBuffer[nBuffer]);
 		IDirectSoundBuffer_SetCurrentPosition(pDSBuffer[nBuffer], 0);
 
-		/* ストリームを停止状態にする */
+		/* 入力ストリームをなしにする */
 		pStream[nBuffer] = NULL;
 
 		/* 再生終了フラグをセットする */
 		bFinish[nBuffer] = TRUE;
 
-		return;	// 再生終了
+		/* 再生終了 */
+		return;
 	}
 
 	/* 再生したことを記録する */
