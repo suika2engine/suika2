@@ -326,7 +326,7 @@ static int get_dim(const char *dim_s)
 	if (strcmp(dim_s, "light") == 0 ||
 	    strcmp(dim_s, "no") == 0 ||
 	    strcmp(dim_s, U8("明")) == 0)
-	    return -1;
+	    return 1;
 
 	/* 指定が誤っている場合は変更しない */
 	return 0;

@@ -3341,8 +3341,8 @@ bool save_script(void)
 	int i;
 	bool in_using;
 
-	const char USING_BEGIN_PREFIX[] = "#<!-- // begin using ";
-	const char USING_END[] = "#--> // end using";
+	const char USING_BEGIN_PREFIX[] = "<!-- // begin using ";
+	const char USING_END[] = "--> // end using";
 
 	/* DEBUG画面なら保存しない */
 	if (strcmp(cur_script, "DEBUG") == 0)

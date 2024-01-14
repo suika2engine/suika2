@@ -919,6 +919,7 @@ bool run_gui_mode(void)
 	 *  - 理由は、チェインイ先のGUIの読み込みでblitが発生するから
 	 *  - Metalではrender後にblitができない
 	 */
+	chain = false;
 	if (!did_load) {
 		if (result_index != -1 && button[result_index].type == TYPE_GUI)
 			chain = true;
