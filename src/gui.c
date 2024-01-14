@@ -892,6 +892,8 @@ bool is_gui_mode(void)
  */
 bool run_gui_mode(void)
 {
+	bool chain;
+
 	/* 入力を処理する */
 	process_input();
 
@@ -910,12 +912,13 @@ bool run_gui_mode(void)
 	/*
 	 * レンダリングを行う
 	 *  - ただしGUIのチェインを行う場合を除く
-	 *  - 理由は、チェインイ先のGUIの読み込みで画像の更新が発生するから
-	 *  - HALによっては、テクスチャの更新をレンダリング後に行ってはいけない
+	 *  - 理由は、チェインイ先のGUIの読み込みでblitが発生するから
+	 *  - Metalではrender後にblitができない
 	 */
 	if (!did_load) {
-		if ((result_index == -1) ||
-		    (result_index != -1 && button[result_index].type != TYPE_GUI))
+		if (result_index != -1 && button[result_index].type != TYPE_GUI)
+			chain = true;
+		else 
 			process_render();
 	}
 
@@ -924,6 +927,10 @@ bool run_gui_mode(void)
 		if (!process_move())
 			return false;
 	}
+
+	/* チェイン時のレンダリングを行う */
+	if (chain)
+		process_render();
 
 	/* SEを再生する */
 	process_se();
@@ -1034,12 +1041,16 @@ static void process_blit(void)
 			if (!is_sys_gui) {
 				if (fade_out_time == 0) {
 					if (result_index != -1) {
-						if (button[result_index].type == TYPE_TITLE)
+						switch (button[result_index].type) {
+						case TYPE_GUI:
+						case TYPE_TITLE:
+						case TYPE_LOAD:
 							make_bg = false;
-						else if (button[result_index].type == TYPE_LOAD)
-							make_bg = false;
-						else
+							break;
+						default:
 							make_bg = true;
+							break;
+						}
 					}
 				}
 			}
