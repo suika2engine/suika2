@@ -206,7 +206,7 @@ echo "Upload completed."
 echo ""
 echo "Updating the Web site."
 SAVE_DIR=`pwd`
-cd ../doc/web && ./templates.sh && ./version.sh && ./upload.sh
+cd ../doc/web && ./templates.sh && ./version.sh && ./upload.sh && ./push.sh
 cd "$SAVE_DIR"
 
 #
