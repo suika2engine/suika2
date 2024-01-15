@@ -188,7 +188,7 @@ const char *get_ui_message(int id)
 		case LOCALE_TW:
 			return U8("遊戲結束了嗎？");
 		case LOCALE_FR:
-			return U8("Le jeu est-il terminé?");
+			return U8("Quitter le jeu?");
 		case LOCALE_RU:
 			return U8("Вы уверены, что хотите выйти?");
 		case LOCALE_DE:
