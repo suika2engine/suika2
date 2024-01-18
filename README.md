@@ -16,7 +16,7 @@ providing tools and features to enrich both the creator and user experience.
 
 **A new standard for Visual Novel creation** in the era of 2020s is the goal of the Suika2 development.
 
-## What are the Suika2's Mission, Vision and Value (MVV)?
+## What are the Suika2's Mission, Vision and Values (MVV)?
 
 * Mission
   * **Simple:** Suika2 enables the creation of Visual Novels in an easy and efficient manner.
@@ -25,9 +25,10 @@ providing tools and features to enrich both the creator and user experience.
 * Vision
   * **Earning:** Game developers can publish their games on stores and earn income.
   * **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer including mobile devices.
-* Value
-  * **Diverse:** Develop, distribute, and publish on almost any platform - Suika2 seeks the true portability and we call it diversity.
+* Values
+  * **Market Creation:** We complete the market launch of game subscriptions with platform partners.
   * **Cultural:** We hold the belief that the creation of information is humanity's true value.
+  * **Diverse:** Develop, distribute, and publish on all platforms - Suika2 seeks the true portability and we call it diversity.
 
 ## Downloads
 
