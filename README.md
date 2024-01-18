@@ -12,9 +12,15 @@ Effortlessness and efficiently are key concepts of Suika2,
 and it provides that without sacrificing features or usability,
 providing tools and features to enrich both the creator and user experience.
 
+We don't aim for "No Code", but we achieve "Low Code" using multiple DSLs, Domain Specific Languages.
+Specifically, there are separate languages for scenarios, GUI, and logic.
+We are in the process of adding a little graphical support for each DSL.
+This is quite different from other engines and we call it "Visual Live Scripting" technology.
+The author thinks as a researcher of software engineering that VLS is one shape of RAD, Rapid Application Development.
+
 ## What is the Suika2's Development Goal?
 
-**A new standard for Visual Novel creation** in the era of 2020s is the goal of the Suika2 development.
+**"The New Standard for Visual Novel Creation"**, in the era of 2020s and beyond, is the goal of the Suika2 development.
 
 ## What are the Suika2's Mission, Vision and Values (MVV)?
 
