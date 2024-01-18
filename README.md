@@ -3,7 +3,7 @@
 
 ## What is Suika2?
 
-Suika2 is a development suite for developing visual novels.
+Suika2 is a development suite for visual novels.
 It has an open-source philosophy and is designed with a true cross-platform portablity including iOS and Android.
 It is equipped with features and tools of production-grade quality.
 Suika2 is perfect for both beginners and seasoned creators alike.
