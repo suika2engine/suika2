@@ -31,8 +31,8 @@ The author thinks as a researcher of software engineering that VLS is one shape 
   * **Earning:** Game developers can publish their games on stores and earn income.
   * **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer including mobile devices.
 * Values
-  * **Market Creation:** We complete the market launch of game subscriptions with platform partners.
-  * **Cultural:** We hold the belief that the creation of information is humanity's true value.
+  * **Market:** We shall complete the market launch of game subscriptions with world leading platform partners.
+  * **Cultural:** We hold the belief that the creation and generation of information including story writing is humanity's true value.
   * **Diverse:** Develop, distribute, and publish on all platforms - Suika2 seeks the true portability and we call it diversity.
 
 ## Downloads
