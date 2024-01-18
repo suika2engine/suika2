@@ -5,9 +5,9 @@
 # Basic Settings
 global {
     # Use these images
-    idle:   menu-idle.png;
-    hover:  menu-hover.png;
-    active: menu-hover.png;
+    idle:   system/menu/idle.png;
+    hover:  system/menu/hover.png;
+    active: system/menu/hover.png;
 }
 
 # START Button

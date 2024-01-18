@@ -5,9 +5,9 @@
 # Basic Settings
 global {
     # Use these images
-    idle:   load-idle.png;
-    hover:  load-hover.png;
-    active: load-active.png;
+    idle:   system/load/idle.png;
+    hover:  system/load/hover.png;
+    active: system/load/active.png;
 
     # 3 slots per page
     saveslots: 3;

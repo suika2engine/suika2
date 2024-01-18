@@ -5,9 +5,9 @@
 # Basic Settings
 global {
     # Use these images
-    idle:   history-idle.png;
-    hover:  history-hover.png;
-    active: history-active.png;
+    idle:   system/history/idle.png;
+    hover:  system/history/hover.png;
+    active: system/history/active.png;
 
     # 3 slots per page
     historyslots: 3;
