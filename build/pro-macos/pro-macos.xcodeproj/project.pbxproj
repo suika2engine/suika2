@@ -85,6 +85,7 @@
 		26A1BAF42B2AD7D700761444 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF12B2AD7D700761444 /* index.html */; };
 		26A1BAF52B2AD7D700761444 /* index.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF22B2AD7D700761444 /* index.wasm */; };
 		26A1BAF92B2AD7F600761444 /* suika.exe in Resources */ = {isa = PBXBuildFile; fileRef = 26A1BAF82B2AD7F600761444 /* suika.exe */; };
+		26B79E272B59495F00E6D883 /* WindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26B79E262B59495F00E6D883 /* WindowController.m */; };
 		26F4E5AF2B32CE61003E4B5A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26F4E5B12B32CE61003E4B5A /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -208,6 +209,8 @@
 		26A1BAF22B2AD7D700761444 /* index.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; name = index.wasm; path = "../../engine-wasm/html/index.wasm"; sourceTree = "<group>"; };
 		26A1BAF82B2AD7F600761444 /* suika.exe */ = {isa = PBXFileReference; lastKnownFileType = file; name = suika.exe; path = "../../engine-windows/suika.exe"; sourceTree = "<group>"; };
 		26B673AD2B3562DA00E83202 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
+		26B79E252B59495F00E6D883 /* WindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WindowController.h; sourceTree = "<group>"; };
+		26B79E262B59495F00E6D883 /* WindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WindowController.m; sourceTree = "<group>"; };
 		26F4E5B02B32CE61003E4B5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -377,6 +380,8 @@
 				2669F7D02B284675001AEF17 /* main.m */,
 				2669F7CE2B284675001AEF17 /* AppDelegate.h */,
 				2669F7CD2B284675001AEF17 /* AppDelegate.m */,
+				26B79E252B59495F00E6D883 /* WindowController.h */,
+				26B79E262B59495F00E6D883 /* WindowController.m */,
 				2669F7D52B284675001AEF17 /* ViewController.h */,
 				2669F7D62B284675001AEF17 /* ViewController.m */,
 				2669F7D22B284675001AEF17 /* GameView.h */,
@@ -532,6 +537,7 @@
 				2669F7D72B284675001AEF17 /* AppDelegate.m in Sources */,
 				2610CCEF2B287ACD00300004 /* cmd_load.c in Sources */,
 				2610CD132B287ACD00300004 /* cmd_click.c in Sources */,
+				26B79E272B59495F00E6D883 /* WindowController.m in Sources */,
 				2610CCF12B287ACD00300004 /* wms_core.c in Sources */,
 				2610CD112B287ACD00300004 /* cmd_se.c in Sources */,
 				26495D132B2A7BFD0050EDDF /* aunit.c in Sources */,

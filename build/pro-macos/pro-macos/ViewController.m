@@ -79,7 +79,7 @@ static ViewController *theViewController;
     
     // Edit
     BOOL _isFirstChange;
-
+    
     NSTimer *_formatTimer;
     BOOL _needFormat;
     
@@ -88,17 +88,25 @@ static ViewController *theViewController;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     _isEnglish = [[[NSLocale preferredLanguages] objectAtIndex:0] hasPrefix:@"ja-"] ? false : true;
     theViewController = self;
 }
 
+- (void)viewDidLayout {
+    [super viewDidLayout];
+    
+    self.view.window.delegate = self;
+}
+
 - (void)viewDidAppear {
+    [super viewDidAppear];
+
+    self.view.window.delegate = self;
+
     if (_isInitialized)
         return;
 
-    self.view.window.delegate = self;
-    
     // Initialize a project.
     if (![self initProject])
         exit(1);
@@ -135,9 +143,8 @@ static ViewController *theViewController;
                                     repeats:YES];
     
     // Accept keyboard and mouse inputs.
-    [self.view.window makeKeyAndOrderFront:nil];
+    [self.view.window makeKeyAndOrderFront:self];
     [self.view.window setAcceptsMouseMovedEvents:YES];
-    [self.view.window setDelegate:self];
     [self.view.window makeFirstResponder:self];
 
     // Set the window title.
@@ -390,6 +397,7 @@ static ViewController *theViewController;
             continue;
         break;
     }
+
     return YES;
 }
 
