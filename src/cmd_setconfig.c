@@ -24,8 +24,7 @@ bool setconfig_command(void)
 
 	/* 特殊なキーを処理する */
 	if (strcmp(key, "update-msgbox-and-namebox") == 0) {
-		if (!update_msgbox_and_namebox())
-			return false;
+		/* 互換性のため */
 	} else {
 		/* コンフィグを書き換える */
 		if (!overwrite_config(key, val)) {

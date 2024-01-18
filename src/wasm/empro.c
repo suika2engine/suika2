@@ -6,7 +6,7 @@
  */
 
 /*
- * Suika2 Studio HAL for WASM (Emscripten)
+ * HAL and Pro HAL for Emscripten
  *
  * [Changes]
  *  2023-11-12 Created.
@@ -75,39 +75,41 @@ static void update_script_model_from_current_line_text(void);
 static void update_text_from_script_model(void);
 
 /*
- * メイン
+ * Main
  */
 int main(void)
 {
+	/* Keep the thread alive and will receive events. */
 	emscripten_exit_with_live_runtime();
 	return 0;
 }
 
 /*
- * エンジン起動
+ * Startup
  */
-EMSCRIPTEN_KEEPALIVE void start_engine(void)
+EMSCRIPTEN_KEEPALIVE
+void start_engine(void)
 {
-	/* ロケールを初期化する */
+	/* Initialize the locale. */
 	init_locale_code();
 
-	/* パッケージの初期化処理を行う */
+	/* Initialize the data01.arc package. */
 	if(!init_file())
 		return;
 
-	/* コンフィグの初期化処理を行う */
+	/* Initialize the config. */
 	if(!init_conf())
 		return;
 
-	/* サウンドの初期化処理を行う */
+	/* Initialize the OpenAL sound subsystem. */
 	if (!init_openal())
 		return;
 
-	/* キャンバスサイズを設定する */
+	/* Set the rendering canvas size. */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
 	EM_ASM_({resizeWindow(null);});
 
-	/* OpenGLレンダを初期化する */
+	/* Initialize the OpenGL rendering subsystem. */
 	EmscriptenWebGLContextAttributes attr;
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context;
 	emscripten_webgl_init_context_attributes(&attr);
@@ -118,11 +120,11 @@ EMSCRIPTEN_KEEPALIVE void start_engine(void)
 	if (!init_opengl())
 		return;
 
-	/* 初期化イベントを処理する */
+	/* Execute the startup event. */
 	if(!on_event_init())
 		return;
 
-	/* イベントの登録をする */
+	/* Register canvas events. */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
 	emscripten_set_mousemove_callback("canvas", 0, true, cb_mousemove);
@@ -133,36 +135,38 @@ EMSCRIPTEN_KEEPALIVE void start_engine(void)
 	emscripten_set_touchmove_callback("canvas", 0, true, cb_touchmove);
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
 
-	/* フレームを予約する */
+	/* Reserve the first frame callback. */
 	emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
 }
 
-/* フレームを処理する */
+/* Run a frame. */
 static void loop_iter(void *userData)
 {
 	static bool is_flip_pending = false;
 
-	/* サウンドの処理を行う */
+	/* Do sound buffer filling. */
 	fill_sound_buffer();
 
 	/*
-	 * フレームのレンダリングを開始する
-	 *  - ChromeではファイルI/OでawaitするときにglFlush()されてしまうらしい
-	 *  - これによるチラつきを避けるためにglClear()を呼ばない
+	 * Start a rendering.
+	 *  - On Chrome, glFlush() seems to be called on "await" for a file I/O
+	 *  - This causes flickering
+	 *  - We avoid calling glClear() through opengl_start_rendering() here
+	 *  - See also finish_frame_io()
 	 */
 	/* opengl_start_rendering(); */
 
-	/* フレームのコマンドを実行する */
+	/* Do a frame event. */
 	on_event_frame();
 
-	/* フレームのレンダリングを終了する */
+	/* Finish a rendering. */
 	opengl_end_rendering();
 
-	/* 次のフレームを予約する */
+	/* Reserve the next frame callback. */
 	emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
 }
 
-/* mousemoveのコールバック */
+/* mousemove callback */
 static EM_BOOL cb_mousemove(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData)
@@ -171,22 +175,23 @@ static EM_BOOL cb_mousemove(int eventType,
 	int x, y;
 
 	/*
-	 * canvasのCSS上の大きさを取得する
-	 *  - canvasの描画領域のサイズではない
-	 *  - CSS上の大きさにスケールされて表示される
+	 * Get the "CSS" size of the rendering canvas
+	 *  - It's not a visible size of the canvas
 	 */
 	emscripten_get_element_css_size("canvas", &w, &h);
 
-	/* マウス座標をスケーリングする */
+	/* Scale a mouse position. */
 	scale = w / (double)conf_window_width;
 	x = (int)((double)mouseEvent->targetX / scale);
 	y = (int)((double)mouseEvent->targetY / scale);
 
+	/* Call the event handler. */
 	on_event_mouse_move(x, y);
+
 	return EM_TRUE;
 }
 
-/* mousedownのコールバック */
+/* mousedown callback */
 static EM_BOOL cb_mousedown(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData)
@@ -194,7 +199,7 @@ static EM_BOOL cb_mousedown(int eventType,
 	double w, h, scale;
 	int x, y, button;
 
-	/* マウス座標をスケーリングする */
+	/* Scale a mouse position. */
 	emscripten_get_element_css_size("canvas", &w, &h);
 	scale = w / (double)conf_window_width;
 	x = (int)((double)mouseEvent->targetX / scale);
@@ -205,11 +210,13 @@ static EM_BOOL cb_mousedown(int eventType,
 	else
 		button = MOUSE_RIGHT;
 
+	/* Call the event handler. */
 	on_event_mouse_press(button, x, y);
+
 	return EM_TRUE;
 }
 
-/* mouseupのコールバック */
+/* mouseup callback */
 static EM_BOOL cb_mouseup(int eventType,
 			    const EmscriptenMouseEvent *mouseEvent,
 			    void *userData)
@@ -217,7 +224,7 @@ static EM_BOOL cb_mouseup(int eventType,
 	double w, h, scale;
 	int x, y, button;
 
-	/* マウス座標をスケーリングする */
+	/* Scale a mouse position. */
 	emscripten_get_element_css_size("canvas", &w, &h);
 	scale = w / (double)conf_window_width;
 	x = (int)((double)mouseEvent->targetX / scale);
@@ -228,11 +235,13 @@ static EM_BOOL cb_mouseup(int eventType,
 	else
 		button = MOUSE_RIGHT;
 
+	/* Call the event handler. */
 	on_event_mouse_release(button, x, y);
+
 	return EM_TRUE;
 }
 
-/* wheelのコールバック */
+/* wheel callback */
 static EM_BOOL cb_wheel(int eventType,
 			const EmscriptenWheelEvent *wheelEvent,
 			void *userData)
@@ -247,7 +256,7 @@ static EM_BOOL cb_wheel(int eventType,
 	return EM_TRUE;
 }
 
-/* keydownのコールバック */
+/* keydown callback */
 static EM_BOOL cb_keydown(int eventType,
 			  const EmscriptenKeyboardEvent *keyEvent,
 			  void *userData)
@@ -262,7 +271,7 @@ static EM_BOOL cb_keydown(int eventType,
 	return EM_TRUE;
 }
 
-/* keyupのコールバック */
+/* keyup callback */
 static EM_BOOL cb_keyup(int eventType,
 			const EmscriptenKeyboardEvent *keyEvent,
 			void *userData)
@@ -277,7 +286,7 @@ static EM_BOOL cb_keyup(int eventType,
 	return EM_TRUE;
 }
 
-/* キーコードを取得する */
+/* Get a keycode from a keysym. */
 static int get_keycode(const char *key)
 {
 	if (strcmp(key, "Enter") == 0) {
@@ -294,10 +303,11 @@ static int get_keycode(const char *key)
 	return -1;
 }
 
-/* touchstartのコールバック */
-static EM_BOOL cb_touchstart(int eventType,
-			     const EmscriptenTouchEvent *touchEvent,
-			     void *userData)
+/* touchstart callback */
+static EM_BOOL cb_touchstart(
+	int eventType,
+	const EmscriptenTouchEvent *touchEvent,
+	void *userData)
 {
 	double w, h, scale;
 	int x, y;
@@ -306,21 +316,23 @@ static EM_BOOL cb_touchstart(int eventType,
 	touch_start_y = touchEvent->touches[0].targetY;
 	touch_last_y = touchEvent->touches[0].targetY;
 
-	/* マウス座標をスケーリングする */
+	/* Scale a mouse position. */
 	emscripten_get_element_css_size("canvas", &w, &h);
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
+	/* Call the event handler. */
 	on_event_mouse_press(MOUSE_LEFT, x, y);
 
 	return EM_TRUE;
 }
 
 /* touchmoveのコールバック */
-static EM_BOOL cb_touchmove(int eventType,
-			    const EmscriptenTouchEvent *touchEvent,
-			    void *userData)
+static EM_BOOL cb_touchmove(
+	int eventType,
+	const EmscriptenTouchEvent *touchEvent,
+	void *userData)
 {
 	const int LINE_HEIGHT = 10;
 	double w, h, scale;
@@ -337,42 +349,45 @@ static EM_BOOL cb_touchmove(int eventType,
 		on_event_key_release(KEY_UP);
 	}
 
-	/* マウス座標をスケーリングする */
+	/* Scale a mouse position. */
 	emscripten_get_element_css_size("canvas", &w, &h);
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
+	/* Call the event handler. */
 	on_event_mouse_move(x, y);
 
 	return EM_TRUE;
 }
 
 /* touchendのコールバック */
-static EM_BOOL cb_touchend(int eventType,
-			   const EmscriptenTouchEvent *touchEvent,
-			   void *userData)
+static EM_BOOL cb_touchend(
+	int eventType,
+	const EmscriptenTouchEvent *touchEvent,
+	void *userData)
 {
 	const int OFS = 10;
 	double w, h, scale;
 	int x, y;
 
-	/* マウス座標をスケーリングする */
+	/* Scale a mouse position. */
 	emscripten_get_element_css_size("canvas", &w, &h);
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
+	/* Call the event handler. */
 	on_event_mouse_move(x, y);
 
-	/* 2本指でタップした場合、右クリックとする */
+	/* Consider a two-finger tap as a right-click. */
 	if (touchEvent->numTouches == 2) {
 		on_event_mouse_press(MOUSE_RIGHT, x, y);
 		on_event_mouse_release(MOUSE_RIGHT, x, y);
 		return EM_TRUE;
 	}
 
-	/* 1本指でタップした場合、左クリックとする */
+	/* Consider a one-finger tap as a left-click. */
 	if (abs(touchEvent->touches[0].targetX - touch_start_x) < OFS &&
 	    abs(touchEvent->touches[0].targetY - touch_start_y) < OFS) {
 		on_event_mouse_release(MOUSE_LEFT, x, y);
@@ -383,52 +398,52 @@ static EM_BOOL cb_touchend(int eventType,
 }
 
 /*
- * JavaScriptからのコールバック
+ * Callback from JavaScript
  */
 
-/* プロジェクトがロードされたときのコールバック */
+/* Callback when a project is loaded. */
 EMSCRIPTEN_KEEPALIVE void onLoadProject(void)
 {
 	start_engine();
 }
 
-/* 続けるボタンがクリックされたときのコールバック */
+/* Callback when the continue button is pressed. */
 EMSCRIPTEN_KEEPALIVE void onClickContinue(void)
 {
 	flag_continue_pushed = true;
 }
 
-/* 次へボタンがクリックされたときのコールバック */
+/* Callback when the next button is pressed. */
 EMSCRIPTEN_KEEPALIVE void onClickNext(void)
 {
 	flag_next_pushed = true;
 }
 
-/* 停止ボタンがクリックされたときのコールバック */
+/* Callback when the stop button is pressed. */
 EMSCRIPTEN_KEEPALIVE void onClickStop(void)
 {
 	flag_stop_pushed = true;
 }
 
-/* タブが表示された際のコールバック */
+/* Callback when a tab is shown. */
 EMSCRIPTEN_KEEPALIVE void setVisible(void)
 {
 	resume_sound();
 }
 
-/* タブが非表示にされた際のコールバック */
+/* Callback when a tab is hidden. */
 EMSCRIPTEN_KEEPALIVE void setHidden(void)
 {
 	pause_sound();
 }
 
-/* 範囲変更のコールバック */
+/* Callback when a selected range is changed. */
 EMSCRIPTEN_KEEPALIVE void onEditorRangeChange(void)
 {
 	update_script_model_from_text();
 }
 
-/* Ctrl+Returnのコールバック */
+/* Callback when Ctrl+Return is pressed. */
 EMSCRIPTEN_KEEPALIVE void onEditorCtrlReturn(void)
 {
 	update_script_model_from_current_line_text();
@@ -441,12 +456,9 @@ EMSCRIPTEN_KEEPALIVE void onEditorCtrlReturn(void)
 }
 
 /*
- * HAL-API for Suika2 Main Engine
+ * HAL API
  */
 
-/*
- * INFOログを出力する
- */
 bool log_info(const char *s, ...)
 {
 	char buf[1024];
@@ -463,9 +475,6 @@ bool log_info(const char *s, ...)
 	return true;
 }
 
-/*
- * WARNログを出力する
- */
 bool log_warn(const char *s, ...)
 {
 	char buf[1024];
@@ -482,9 +491,6 @@ bool log_warn(const char *s, ...)
 	return true;
 }
 
-/*
- * ERRORログを出力する
- */
 bool log_error(const char *s, ...)
 {
 	char buf[1024];
@@ -501,25 +507,6 @@ bool log_error(const char *s, ...)
 	return true;
 }
 
-/*
- * GPUを使うか調べる
- */
-bool is_gpu_accelerated(void)
-{
-	return true;
-}
-
-/*
- * OpenGLが有効か調べる
- */
-bool is_opengl_enabled(void)
-{
-	return true;
-}
-
-/*
- * テクスチャを更新する
- */
 void notify_image_update(struct image *img)
 {
 	fill_sound_buffer();
@@ -527,9 +514,6 @@ void notify_image_update(struct image *img)
 	fill_sound_buffer();
 }
 
-/*
- * テクスチャを破棄する
- */
 void notify_image_free(struct image *img)
 {
 	fill_sound_buffer();
@@ -582,41 +566,33 @@ void render_image_dim(
 	opengl_render_image_dim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
 }
 
-/* イメージをルール付きでレンダリングする */
-void render_image_rule(struct image *src_img,
-		       struct image *rule_img,
-		       int threshold)
+void render_image_rule(
+	struct image *src_img,
+	struct image *rule_img,
+	int threshold)
 {
 	opengl_render_image_rule(src_img, rule_img, threshold);
 }
 
-/* イメージをルール付き(メルト)でレンダリングする */
-void render_image_melt(struct image *src_img,
-		       struct image *rule_img,
-		       int threshold)
+void render_image_melt(
+	struct image *src_img,
+	struct image *rule_img,
+	int threshold)
 {
 	opengl_render_image_melt(src_img, rule_img, threshold);
 }
 
-/*
- * セーブディレクトリを作成する
- */
 bool make_sav_dir(void)
 {
 	return true;
 }
 
-/*
- * データファイルのディレクトリ名とファイル名を指定して有効なパスを取得する
- */
 char *make_valid_path(const char *dir, const char *fname)
 {
+	/* stub */
 	return strdup("");
 }
 
-/*
- * タイマをリセットする
- */
 void reset_lap_timer(uint64_t *t)
 {
 	struct timeval tv;
@@ -626,9 +602,6 @@ void reset_lap_timer(uint64_t *t)
 	*t = (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-/*
- * タイマのラップをミリ秒単位で取得する
- */
 uint64_t get_lap_timer_millisec(uint64_t *t)
 {
 	struct timeval tv;
@@ -641,54 +614,36 @@ uint64_t get_lap_timer_millisec(uint64_t *t)
 	return (uint64_t)(end - *t);
 }
 
-/*
- * 終了ダイアログを表示する
- */
 bool exit_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * タイトルに戻るダイアログを表示する
- */
 bool title_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * 削除ダイアログを表示する
- */
 bool delete_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * 上書きダイアログを表示する
- */
 bool overwrite_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * 初期設定ダイアログを表示する
- */
 bool default_dialog(void)
 {
 	/* stub */
 	return true;
 }
 
-/*
- * ビデオを再生する
- */
 bool play_video(const char *fname, bool is_skippable)
 {
 	char *path;
@@ -714,9 +669,6 @@ bool play_video(const char *fname, bool is_skippable)
 	return true;
 }
 
-/*
- * ビデオを停止する
- */
 void stop_video(void)
 {
 	EM_ASM_({
@@ -731,9 +683,6 @@ void stop_video(void)
 	});
 }
 
-/*
- * ビデオが再生中か調べる
- */
 bool is_video_playing(void)
 {
 	int ended;
@@ -746,9 +695,6 @@ bool is_video_playing(void)
 	return !ended;
 }
 
-/*
- * ウィンドウタイトルを更新する
- */
 void update_window_title(void)
 {
 	const char *separator, *chapter;
@@ -764,41 +710,26 @@ void update_window_title(void)
 	}, conf_window_title, separator, chapter);
 }
 
-/*
- * フルスクリーンモードがサポートされるか調べる
- */
 bool is_full_screen_supported(void)
 {
 	return false;
 }
 
-/*
- * フルスクリーンモードであるか調べる
- */
 bool is_full_screen_mode(void)
 {
 	return false;
 }
 
-/*
- * フルスクリーンモードを開始する
- */
 void enter_full_screen_mode(void)
 {
 	/* stub */
 }
 
-/*
- * フルスクリーンモードを終了する
- */
 void leave_full_screen_mode(void)
 {
 	/* stub */
 }
 
-/*
- * システムのロケールを取得する
- */
 const char *get_system_locale(void)
 {
 	int lang_code;
@@ -815,20 +746,17 @@ const char *get_system_locale(void)
 	return "en";
 }
 
-/*
- * フレームのI/O完了時に呼ばれる
- */
 void finish_frame_io(void)
 {
 	opengl_start_rendering();
 }
 
 /*
- * HAL-DBG API for Suika2 Studio
+ * Pro HAL API
  */
 
 /*
- * Return whether the "continue" botton is pressed.
+ * Returns whether the "continue" botton is pressed.
  */
 bool is_continue_pushed(void)
 {
@@ -839,7 +767,7 @@ bool is_continue_pushed(void)
 }
 
 /*
- * Return whether the "next" button is pressed.
+ * Returns whether the "next" button is pressed.
  */
 bool is_next_pushed(void)
 {
@@ -850,7 +778,7 @@ bool is_next_pushed(void)
 }
 
 /*
- * Return whether the "stop" button is pressed.
+ * Returns whether the "stop" button is pressed.
  */
 bool is_stop_pushed(void)
 {
@@ -861,7 +789,7 @@ bool is_stop_pushed(void)
 }
 
 /*
- * Return whether the "open" button is pressed.
+ * Returns whether the "open" button is pressed.
  */
 bool is_script_opened(void)
 {
@@ -872,7 +800,7 @@ bool is_script_opened(void)
 }
 
 /*
- * Return a script file name when the "open" button is pressed.
+ * Returns a script file name when the "open" button is pressed.
  */
 const char *get_opened_script(void)
 {
@@ -880,7 +808,7 @@ const char *get_opened_script(void)
 }
 
 /*
- * Return whether the "execution line number" is changed.
+ * Returns whether the "execution line number" is changed.
  */
 bool is_exec_line_changed(void)
 {
@@ -891,7 +819,7 @@ bool is_exec_line_changed(void)
 }
 
 /*
- * Return the "execution line number" if it is changed.
+ * Returns the "execution line number" if it is changed.
  */
 int get_changed_exec_line(void)
 {
@@ -899,7 +827,7 @@ int get_changed_exec_line(void)
 }
 
 /*
- * Update UI elements when the running state is changed.
+ * Updates UI elements when the running state is changed.
  */
 void on_change_running_state(bool running, bool request_stop)
 {
@@ -919,10 +847,7 @@ void on_change_running_state(bool running, bool request_stop)
 	}
 
 	if(request_stop) {
-		/*
-		 * 停止によりコマンドの完了を待機中のとき
-		 *  - コントロールとメニューアイテムを無効にする
-		 */
+		/* Running but stop-requested. */
 		EM_ASM({
 			document.getElementById('runningStatus').innerHTML = '実行中(停止待ち)';
 			document.getElementById('btnContinue').disabled = 'disabled';
@@ -932,10 +857,7 @@ void on_change_running_state(bool running, bool request_stop)
 			document.getElementById('btnMove').disabled = 'disabled';
 		});
 	} else if(running) {
-		/*
-		 * 実行中のとき
-		 *  - 「停止」だけ有効、他は無効にする
-		 */
+		/* Running. */
 		EM_ASM({
 			document.getElementById('runningStatus').innerHTML = '実行中';
 			document.getElementById('btnContinue').disabled = 'disabled';
@@ -945,10 +867,7 @@ void on_change_running_state(bool running, bool request_stop)
 			document.getElementById('btnMove').disabled = 'disabled';
 		});
 	} else {
-		/*
-		 * 完全に停止中のとき
-		 *  - 「停止」だけ無効、他は有効にする
-		 */
+		/* Stopped. */
 		EM_ASM({
 			document.getElementById('runningStatus').innerHTML = '停止中';
 			document.getElementById('btnContinue').disabled = "";
@@ -1005,33 +924,33 @@ void on_update_variable(void)
  * Script Model
  */
 
-/* テキストを元にスクリプトモデルを更新する */
+/* Updates the script model from the text of the editview. */
 static void update_script_model_from_text(void)
 {
 	char line_buf[4096];
 	int lines, i;
 
-	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
+	/* Reset parse errors and will notify a first error. */
 	dbg_reset_parse_error_count();
 
-	/* エディタの行数を求める */
-	lines = EM_ASM_INT({ return editor.session.getLength(); }); /*  */
+	/* Get the line count on the editor. */
+	lines = EM_ASM_INT({ return editor.session.getLength(); });
 
-	/* 各行ごとにアップデートする */
+	/* Update for each line. */
 	for (i = 0; i < lines; i++) {
-		/* 行を取得する */
+		/* Get the line text. */
 		EM_ASM({
 			stringToUTF8(editor.session.getLine($0), $1, $2);
 		}, i, line_buf, sizeof(line_buf));
 
-		/* 行を更新する */
+		/* Update the line on the script model. */
 		if (i < get_line_count())
 			update_script_line(i, line_buf);
 		else
 			insert_script_line(i, line_buf);
 	}
 
-	/* 削除された末尾の行を処理する */
+	/* Process the removed tailing lines. */
 	flag_exec_line_changed = false;
 	for (i = get_line_count() - 1; i >= lines; i--)
 		if (delete_script_line(i))
@@ -1045,43 +964,43 @@ static void update_script_model_from_text(void)
 		}, get_line_num());
 	}
 
-	/* コマンドのパースに失敗した場合 */
+	/* If there are parse errors: */
 	if (dbg_get_parse_error_count() > 0) {
-		/* 行頭の'!'を反映するためにテキストを再設定する */
+		/* Set the editview text in order to apply heading '!'. */
 		update_text_from_script_model();
 	}
 }
 
-/* 現在の行のテキストを元にスクリプトモデルを更新する */
+/* Updates the script model from the current line text of the editview. */
 static void update_script_model_from_current_line_text(void)
 {
 	char line_buf[4096];
 	int line;
 
-	/* パースエラーをリセットして、最初のパースエラーで通知を行う */
+	/* Reset parse errors and will notify a first error. */
 	dbg_reset_parse_error_count();
 
-	/* 現在のカーソル行番号を取得する */
+	/* Get the cursor line number on the editor. */
 	line = EM_ASM_INT({
 		return editor.getSelection().getRange().start.row;
 	});
 
-	/* 行を取得する */
+	/* Get the line text on the editor. */
 	EM_ASM({
 		stringToUTF8(editor.session.getLine($0), $1, $2);
 	}, line, line_buf, sizeof(line_buf));
 
-	/* 行を更新する */
+	/* Update a line. */
 	update_script_line(line, line_buf);
 
-	/* コマンドのパースに失敗した場合 */
+	/* If there are parse errors: */
 	if (dbg_get_parse_error_count() > 0) {
-		/* 行頭の'!'を反映するためにテキストを再設定する */
+		/* Set the editview text in order to apply heading '!'. */
 		update_text_from_script_model();
 	}
 }
 
-/* スクリプトモデルを元にエディタのテキストを更新する */
+/* Set the editview text from the script model. */
 static void update_text_from_script_model(void)
 {
 	int i, lines;
