@@ -79,7 +79,7 @@ static ViewController *theViewController;
     
     // Edit
     BOOL _isFirstChange;
-
+    
     NSTimer *_formatTimer;
     BOOL _needFormat;
     
@@ -88,17 +88,25 @@ static ViewController *theViewController;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     _isEnglish = [[[NSLocale preferredLanguages] objectAtIndex:0] hasPrefix:@"ja-"] ? false : true;
     theViewController = self;
 }
 
+- (void)viewDidLayout {
+    [super viewDidLayout];
+    
+    self.view.window.delegate = self;
+}
+
 - (void)viewDidAppear {
+    [super viewDidAppear];
+
+    self.view.window.delegate = self;
+
     if (_isInitialized)
         return;
 
-    self.view.window.delegate = self;
-    
     // Initialize a project.
     if (![self initProject])
         exit(1);
@@ -135,14 +143,13 @@ static ViewController *theViewController;
                                     repeats:YES];
     
     // Accept keyboard and mouse inputs.
-    [self.view.window makeKeyAndOrderFront:nil];
+    [self.view.window makeKeyAndOrderFront:self];
     [self.view.window setAcceptsMouseMovedEvents:YES];
-    [self.view.window.delegate self];
     [self.view.window makeFirstResponder:self];
 
     // Set the window title.
     [self.view.window setTitle:@"Suika2"];
-    
+
     // Set the script view delegate.
     _textViewScript.delegate = (id<NSTextViewDelegate>)_textViewScript;
     
@@ -346,12 +353,12 @@ static ViewController *theViewController;
         NSAlert *alert;
         alert = [[NSAlert alloc] init];
         [alert setMessageText:_isEnglish ?
-         @"Do you want to use the full screen style?" :
-         @"全画面スタイルにしますか？\n"];
-        [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
+         @"Do you want to use the full screen style?\n(No is recommended.)" :
+         @"全画面スタイルにしますか？\n(いいえを推奨)\n"];
         [alert addButtonWithTitle:_isEnglish ? @"No" : @"いいえ"];
+        [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
         [alert setAlertStyle:NSAlertStyleInformational];
-        if ([alert runModal] == NSAlertFirstButtonReturn) {
+        if ([alert runModal] != NSAlertFirstButtonReturn) {
             // If English, we use the horizontal.
             if (_isEnglish) {
                 if (![self copyResourceTemplate:@"nvl-en"])
@@ -390,6 +397,7 @@ static ViewController *theViewController;
             continue;
         break;
     }
+
     return YES;
 }
 
@@ -482,13 +490,18 @@ static ViewController *theViewController;
 }
 
 - (void)enterFullScreen {
-    if (!_isFullScreen)
-        [self.view.window toggleFullScreen:self.view];
+    if (!_isFullScreen) {
+        [self.view.window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+        [self.view.window toggleFullScreen:self];
+        _isFullScreen = YES;
+    }
 }
 
 - (void)leaveFullScreen {
-    if (!_isFullScreen)
-        [self.view.window toggleFullScreen:self.view];
+    if (!_isFullScreen) {
+        [self.view.window toggleFullScreen:self];
+        _isFullScreen = NO;
+    }
 }
 
 - (BOOL)isVideoPlaying {
@@ -562,7 +575,6 @@ static ViewController *theViewController;
     [self setTextColorForAllLinesDelayed];
     self.isExecLineChanged = YES;
     self.changedExecLine = [self scriptCursorLine];
-    self.isNextPressed = YES;
 }
 
 // スクリプトファイル名の反映ボタンが押下されたイベント

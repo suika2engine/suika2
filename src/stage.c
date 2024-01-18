@@ -213,9 +213,9 @@ static uint64_t sw_kirakira;
  * 前方参照
  */
 static bool setup_namebox(void);
-static bool setup_msgbox(void);
+static bool setup_msgbox(bool no_bg, bool no_fg);
 static bool setup_click(void);
-static bool setup_switch(void);
+static bool setup_switch(bool no_bg, bool no_fg, int index);
 static bool setup_news(void);
 static bool setup_sysmenu(void);
 static bool setup_banners(void);
@@ -309,7 +309,7 @@ bool reload_stage(void)
 		return false;
 
 	/* メッセージボックスをセットアップする */
-	if (!setup_msgbox())
+	if (!setup_msgbox(false, false))
 		return false;
 
 	/* クリックアニメーションをセットアップする */
@@ -317,7 +317,7 @@ bool reload_stage(void)
 		return false;
 
 	/* スイッチをセットアップする */
-	if (!setup_switch())
+	if (!setup_switch(false, false, -1))
 		return false;
 
 	/* NEWSをセットアップする */
@@ -378,18 +378,22 @@ static bool setup_namebox(void)
 }
 
 /* メッセージボックスをセットアップする */
-static bool setup_msgbox(void)
+static bool setup_msgbox(bool no_bg, bool no_fg)
 {
 	is_msgbox_visible = false;
 
 	/* 再初期化時に破棄する */
-	if (msgbox_bg_image != NULL) {
-		destroy_image(msgbox_bg_image);
-		msgbox_bg_image = NULL;
+	if (!no_bg) {
+		if (msgbox_bg_image != NULL) {
+			destroy_image(msgbox_bg_image);
+			msgbox_bg_image = NULL;
+		}
 	}
-	if (msgbox_fg_image != NULL) {
-		destroy_image(msgbox_fg_image);
-		msgbox_fg_image = NULL;
+	if (!no_fg) {
+		if (msgbox_fg_image != NULL) {
+			destroy_image(msgbox_fg_image);
+			msgbox_fg_image = NULL;
+		}
 	}
 	if (layer_image[LAYER_MSG] != NULL) {
 		destroy_image(layer_image[LAYER_MSG]);
@@ -397,14 +401,18 @@ static bool setup_msgbox(void)
 	}
 
 	/* メッセージボックスの背景画像を読み込む */
-	msgbox_bg_image = create_image_from_file(CG_DIR, conf_msgbox_bg_file);
-	if (msgbox_bg_image == NULL)
-		return false;
+	if (!no_bg) {
+		msgbox_bg_image = create_image_from_file(CG_DIR, conf_msgbox_bg_file);
+		if (msgbox_bg_image == NULL)
+			return false;
+	}
 
 	/* メッセージボックスの前景画像を読み込む */
-	msgbox_fg_image = create_image_from_file(CG_DIR, conf_msgbox_fg_file);
-	if (msgbox_fg_image == NULL)
-		return false;
+	if (!no_fg) {
+		msgbox_fg_image = create_image_from_file(CG_DIR, conf_msgbox_fg_file);
+		if (msgbox_fg_image == NULL)
+			return false;
+	}
 
 	/* メッセージボックスの前景と背景が同じサイズであることを確認する */
 	if (msgbox_bg_image->width != msgbox_fg_image->width ||
@@ -472,19 +480,25 @@ static bool setup_click(void)
 }
 
 /* 選択肢をセットアップする */
-static bool setup_switch(void)
+static bool setup_switch(bool no_bg, bool no_fg, int index)
 {
 	int i;
 
 	/* 再初期化時に破棄する */
 	for (i = 0; i < 8; i ++) {
-		if (switch_bg_image[i] != NULL) {
-			destroy_image(switch_bg_image[i]);
-			switch_bg_image[i] = NULL;
-		}
-		if (switch_fg_image[i] != NULL) {
-			destroy_image(switch_fg_image[i]);
-			switch_fg_image[i] = NULL;
+		if (index == -1 || index == 0) {
+			if (!no_bg) {
+				if (switch_bg_image[i] != NULL) {
+					destroy_image(switch_bg_image[i]);
+					switch_bg_image[i] = NULL;
+				}
+			}
+			if (!no_fg) {
+				if (switch_fg_image[i] != NULL) {
+					destroy_image(switch_fg_image[i]);
+					switch_fg_image[i] = NULL;
+				}
+			}
 		}
 	}
 
@@ -498,16 +512,18 @@ static bool setup_switch(void)
 		assert(conf_switch_bg_file[i] != NULL);
 
 		/* スイッチの非選択イメージを読み込む */
-		switch_bg_image[i] =
-			create_image_from_file(CG_DIR, conf_switch_bg_file[i]);
-		if (switch_bg_image[i] == NULL)
-			return false;
+		if (!no_bg) {
+			switch_bg_image[i] = create_image_from_file(CG_DIR, conf_switch_bg_file[i]);
+			if (switch_bg_image[i] == NULL)
+				return false;
+		}
 
 		/* スイッチの選択イメージを読み込む */
-		switch_fg_image[i] =
-			create_image_from_file(CG_DIR, conf_switch_fg_file[i]);
-		if (switch_fg_image[i] == NULL)
-			return false;
+		if (!no_fg) {
+			switch_fg_image[i] = create_image_from_file(CG_DIR, conf_switch_fg_file[i]);
+			if (switch_fg_image[i] == NULL)
+				return false;
+		}
 	}
 
 	return true;
@@ -794,17 +810,46 @@ struct image *create_initial_bg(void)
 }
 
 /*
- * メッセージボックスと名前ボックスを更新する
+ * メッセージボックスを更新する
  */
-bool update_msgbox_and_namebox(void)
+bool update_msgbox(bool is_fg)
+{
+	/* メッセージボックスをセットアップする */
+	if (!is_fg) {
+		if (!setup_msgbox(false, true))
+			return false;
+	} else {
+		if (!setup_msgbox(true, false))
+			return false;
+	}
+
+	return true;
+}
+
+/*
+ * 名前ボックスを更新する
+ */
+bool update_namebox(void)
 {
 	/* 名前ボックスをセットアップする */
 	if (!setup_namebox())
 		return false;
 
-	/* メッセージボックスをセットアップする */
-	if (!setup_msgbox())
-		return false;
+	return true;
+}
+
+/*
+ * 選択肢ボックスを更新する
+ */
+bool update_switchbox(bool is_fg, int index)
+{
+	if (!is_fg) {
+		if (!setup_switch(false, true, index))
+			return false;
+	} else {
+		if (!setup_switch(true, false, index))
+			return false;
+	}
 
 	return true;
 }

@@ -594,13 +594,19 @@ bool is_full_screen_mode(void)
 //
 void enter_full_screen_mode(void)
 {
+#ifdef SUIKA_TARGET_MACOS
+    [theViewController enterFullScreen];
+#endif
 }
 
-///
+//
 // フルスクリーンモードを終了する
 //
 void leave_full_screen_mode(void)
 {
+#ifdef SUIKA_TARGET_MACOS
+    [theViewController leaveFullScreen];
+#endif
 }
 
 //

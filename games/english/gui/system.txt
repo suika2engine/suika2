@@ -5,9 +5,9 @@
 # Basic Settings
 global {
     # Use these images
-    idle:   config-idle.png;
-    hover:  config-hover.png;
-    active: config-active.png;
+    idle:   system/config/idle.png;
+    hover:  system/config/hover.png;
+    active: system/config/active.png;
 
     # fade-in time (seconds)
     fadein: 0.5;

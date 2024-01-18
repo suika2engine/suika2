@@ -323,9 +323,10 @@ static bool s2_reflect_msgbox_and_namebox_config(struct wms_runtime *rt)
 {
 	UNUSED_PARAMETER(rt);
 
-	/* Update. */
-	if (!update_msgbox_and_namebox())
-		return false;
+	/*
+	 * This function does nothing and exists for the compatibility.
+	 * Now we change images in overwrite_config().
+	 */
 
 	return true;
 }

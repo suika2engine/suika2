@@ -193,8 +193,14 @@ bool reload_stage(void);
 /* 起動・ロード直後の一時的な背景を作成する */
 struct image *create_initial_bg(void);
 
-/* メッセージボックスと名前ボックスを更新する */
-bool update_msgbox_and_namebox(void);
+/* メッセージボックスを更新する */
+bool update_msgbox(bool is_fg);
+
+/* 名前ボックスを更新する */
+bool update_namebox(void);
+
+/* 選択肢ボックスを更新する */
+bool update_switchbox(bool is_fg, int index);
 
 /* ステージの終了処理を行う */
 void cleanup_stage(void);

@@ -1632,13 +1632,6 @@ static void set_locale_mapping(void)
  */
 bool overwrite_config(const char *key, const char *val)
 {
-	struct item {
-		const char *key;
-		bool (*func)(const char *val);
-	} special_items[] = {
-		{"locale.force", overwrite_config_locale_force},
-		{"font.file", overwrite_config_font_file},
-	};
 	int i;
 	char *s;
 
@@ -1646,11 +1639,10 @@ bool overwrite_config(const char *key, const char *val)
 	assert(val != NULL);
 
 	/* 特別扱いするキーの場合を処理する */
-	for (i = 0;
-	     i < (int)(sizeof(special_items) / sizeof(struct item)); i++) {
-		if (strcmp(special_items[i].key, key) == 0)
-			return special_items[i].func(val);
-	}
+	if (strcmp(key, "locale.force") == 0)
+		return overwrite_config_locale_force(val);
+	else if (strcmp(key, "font.file") == 0)
+		return overwrite_config_font_file(val);
 
 	/* 一般扱いのキーの場合を処理する */
 	for (i = 0; i < RULE_TBL_SIZE; i++) {
@@ -1696,6 +1688,47 @@ bool overwrite_config(const char *key, const char *val)
 		assert(INVALID_CONFIG_TYPE);
 		break;
 	}
+
+	/* 画像読み込みの後処理を行う */
+	if (strcmp(key, "msgbox.bg.file") == 0)
+		update_msgbox(false);
+	else if (strcmp(key, "msgbox.fg.file") == 0)
+		update_msgbox(false);
+	else if (strcmp(key, "namebox.file") == 0)
+		update_namebox();
+	else if (strcmp(key, "switch.bg.file") == 0)
+		update_switchbox(false, 0);
+	else if (strcmp(key, "switch.fg.file") == 0)
+		update_switchbox(true, 0);
+	else if (strcmp(key, "switch.bg.file2") == 0)
+		update_switchbox(false, 1);
+	else if (strcmp(key, "switch.fg.file2") == 0)
+		update_switchbox(true, 1);
+	else if (strcmp(key, "switch.bg.file3") == 0)
+		update_switchbox(false, 2);
+	else if (strcmp(key, "switch.fg.file3") == 0)
+		update_switchbox(true, 2);
+	else if (strcmp(key, "switch.bg.file4") == 0)
+		update_switchbox(false, 3);
+	else if (strcmp(key, "switch.fg.file4") == 0)
+		update_switchbox(true, 3);
+	else if (strcmp(key, "switch.bg.file5") == 0)
+		update_switchbox(false, 4);
+	else if (strcmp(key, "switch.fg.file5") == 0)
+		update_switchbox(true, 4);
+	else if (strcmp(key, "switch.bg.file6") == 0)
+		update_switchbox(false, 5);
+	else if (strcmp(key, "switch.fg.file6") == 0)
+		update_switchbox(true, 5);
+	else if (strcmp(key, "switch.bg.file7") == 0)
+		update_switchbox(false, 6);
+	else if (strcmp(key, "switch.fg.file7") == 0)
+		update_switchbox(true, 6);
+	else if (strcmp(key, "switch.bg.file8") == 0)
+		update_switchbox(false, 7);
+	else if (strcmp(key, "switch.fg.file8") == 0)
+		update_switchbox(true, 7);
+
 	return true;
 }
 

@@ -59,7 +59,7 @@ static FILE *openLog(void);
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     // Initialize the Suika2 engine.
     init_locale_code();
     if(!init_file())
@@ -70,7 +70,7 @@ static FILE *openLog(void);
         exit(1);
     if(!on_event_init())
         exit(1);
-    
+
     // Create an MTKView.
     _view = (GameView *)self.view;
     _view.enableSetNeedsDisplay = YES;
@@ -93,9 +93,15 @@ static FILE *openLog(void);
                                     repeats:YES];
 }
 
+- (void)viewDidLayout {
+    [super viewDidLayout];
+
+    self.view.window.delegate = self;
+}
+
 - (void)viewDidAppear {
     self.view.window.delegate = self;
-    
+
     // Set the window position and size.
     NSRect screenRect = [[NSScreen mainScreen] visibleFrame];
     NSRect contentRect = NSMakeRect(screenRect.origin.x + (screenRect.size.width - conf_window_width) / 2,
@@ -108,14 +114,13 @@ static FILE *openLog(void);
     // Enable the window maximization.
     if (!conf_window_fullscreen_disable)
         [self.view.window setCollectionBehavior:[self.view.window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
-    
+
     // Set the window title.
     [self.view.window setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
-    
+
     // Accept keyboard and mouse inputs.
     [self.view.window makeKeyAndOrderFront:nil];
     [self.view.window setAcceptsMouseMovedEvents:YES];
-    [self.view.window.delegate self];
     [self.view.window makeFirstResponder:self];
 
     // Set the app name in the main menu.
@@ -151,10 +156,10 @@ static FILE *openLog(void);
     // Save.
     save_global_data();
     save_seen();
-    
+
     // Exit the event loop.
     [NSApp stop:nil];
-    
+
     // Magic: Post an empty event and make sure to exit the main loop.
     [NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined
                                         location:NSMakePoint(0, 0)

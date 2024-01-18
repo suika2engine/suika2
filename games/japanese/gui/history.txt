@@ -5,9 +5,9 @@
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   history-idle.png;
-    hover:  history-hover.png;
-    active: history-active.png;
+    idle:   system/history/idle.png;
+    hover:  system/history/hover.png;
+    active: system/history/active.png;
 
     # 1画面あたりの履歴表示数を指定
     historyslots: 3;

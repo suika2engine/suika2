@@ -3,20 +3,25 @@
 
 ## What is Suika2?
 
-Suika2 is a development suite for developing visual novels.
+Suika2 is a development suite for Visual Novels.
 It has an open-source philosophy and is designed with a true cross-platform portablity including iOS and Android.
 It is equipped with features and tools of production-grade quality.
 Suika2 is perfect for both beginners and seasoned creators alike.
 
-Effortlessness and efficiently are key concepts of Suika2,
-and it provides that without sacrificing features or usability,
-providing tools and features to enrich both the creator and user experience.
+Effortlessness and efficiently are key concepts of Suika2.
+It provides that without sacrificing features or usability to enrich both the creator and user experience.
+
+We don't aim for no-code but we achieve low-code using multiple DSLs, Domain Specific Languages.
+Specifically, there are separate languages for scenarios, GUI, and logic.
+We are in the process of adding a little graphical support for each DSL.
+This is quite different from other engines and we call it "Visual Live Scripting" technology.
+The author thinks as a researcher of software engineering that VLS is one shape of RAD, Rapid Application Development.
 
 ## What is the Suika2's Development Goal?
 
-**A new standard for Visual Novel creation** in the era of 2020s is the goal of the Suika2 development.
+**"The New Standard for Visual Novel Creation"**, in the era of 2020s and beyond, is the goal of the Suika2 development.
 
-## What are the Suika2's Mission, Vision and Value (MVV)?
+## What are the Suika2's Mission, Vision and Values (MVV)?
 
 * Mission
   * **Simple:** Suika2 enables the creation of Visual Novels in an easy and efficient manner.
@@ -25,9 +30,10 @@ providing tools and features to enrich both the creator and user experience.
 * Vision
   * **Earning:** Game developers can publish their games on stores and earn income.
   * **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer including mobile devices.
-* Value
-  * **Diverse:** Develop, distribute, and publish on almost any platform - Suika2 seeks the true portability and we call it diversity.
-  * **Cultural:** We hold the belief that the creation of information is humanity's true value.
+* Values
+  * **Market:** We shall complete the market launch of game subscriptions with world leading platform partners.
+  * **Cultural:** We hold the belief that the creation and generation of information including story writing is humanity's true value.
+  * **Diverse:** Develop, distribute, and publish on all platforms - Suika2 seeks the true portability and we call it diversity.
 
 ## Downloads
 

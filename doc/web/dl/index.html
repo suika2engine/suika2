@@ -112,11 +112,6 @@
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="android-tab" data-bs-toggle="tab" data-bs-target="#android-tab-pane" type="button" role="tab" aria-controls="android-tab-pane" aria-selected="false">Android</button>
 		</li>
-<!--
-		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="kindle-tab" data-bs-toggle="tab" data-bs-target="#kindle-tab-pane" type="button" role="tab" aria-controls="kindle-tab-pane" aria-selected="false">Kindle</button>
-		</li>
--->
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux/Chromebook</button>
 		</li>
@@ -133,9 +128,9 @@
 				ストア版よりも新しいバージョンです。
 			</p>
 			<p>
-<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.72 (2023/1/14):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-15.72.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-15.72.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.77 (2023/1/18):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.77.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.77.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
 			</p>
 			<br>
 			<h4>旧版</h4>
@@ -169,12 +164,6 @@
 			<a href="https://play.google.com/store/apps/details?id=jp.luxion.suikapro"><img src="/img/banners/pro-android.png" style="width:min(90vw, 500px);"></a>
 		</div>
 
-		<!-- Kindle -->
-<!--
-		<div class="tab-pane fade" id="kindle-tab-pane" role="tabpanel" aria-labelledby="kindle-tab" tabindex="0">
-			<a href="https://www.amazon.com/gp/product/B0CRKC8P79"><img src="/img/banners/pro-kindle.png" style="width:min(90vw, 500px);"></a>
-		</div>
--->
 		<!-- Linux/Chromebook -->
 		<div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab" tabindex="0">
 			<div style="margin-left:1em;margin-top:1em;">
@@ -259,11 +248,55 @@
 		</a>
 	</div>
 	<br>
-	<h3>サンプルゲームのPhotoshop素材</h3>
+	<h3>コンプリート版サンプルゲームとPhotoshop素材</h3>
 	<p>
-		<a href="/dl/material/gui-config-psd.zip"><img src="/img/icons/zip.png" width="48">コンフィグ画面のGUI (By MaxMorgan)</a>
-		<a href="/dl/material/gui-menu-psd.zip"><img src="/img/icons/zip.png" width="48">メニュー画面のGUI (By heath)</a>
-		<a href="/dl/material/gui-save-psd.zip"><img src="/img/icons/zip.png" width="48">セーブ画面のGUI (By heath)</a>
+		<img src="/img/icons/zip.png" width="48"><br>
+		<a href="/dl/material/complete-demo.zip">コンプリート版デモ</a><br>
+		<a href="/dl/material/gui-config-psd.zip">コンフィグ画面のGUI (By MaxMorgan)</a><br>
+		<a href="/dl/material/gui-menu-psd.zip">メニュー画面のGUI (By heath)</a><br>
+		<a href="/dl/material/gui-save-psd.zip">セーブ画面のGUI (By heath)</a>
+	</p>
+</div>
+
+<hr>
+
+<div style="text-align: center;">
+  <div style="width: 100%; text-align: center;">
+		<a href="https://suika2.com/run/wafuu-ui/" target="_blank">
+			<div class="game">
+				<img style="width: 50%; height: 50%;" src="/img/screenshots/wafuu.png" alt="Suika2 和風UI デモ">
+				<div class="game-mask">
+					<div class="caption">クリックでゲームを実行</div>
+				</div>
+			</div>
+		</a>
+	</div>
+	<br>
+	<h3>和風システムグラフィック</h3>
+	<p>
+		大塚旭さんご提供の和風GUIです。<br>
+		<a href="/dl/material/wafuu.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+	</p>
+</div>
+
+<hr>
+
+<div style="text-align: center;">
+  <div style="width: 100%; text-align: center;">
+		<a href="https://suika2.com/run/wafuu-blue-ui/" target="_blank">
+			<div class="game">
+				<img style="width: 50%; height: 50%;" src="/img/screenshots/wafuu-blue.png" alt="Suika2 和風UI(青) デモ">
+				<div class="game-mask">
+					<div class="caption">クリックでゲームを実行</div>
+				</div>
+			</div>
+		</a>
+	</div>
+	<br>
+	<h3>和風(青)システムグラフィック</h3>
+	<p>
+		大塚旭さんご提供の和風(青)GUIです。<br>
+		<a href="/dl/material/wafuu-blue.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
 	</p>
 </div>
 
@@ -499,14 +532,14 @@
 		<ul>
 			<li>OS: Windows 11, Windows 10 (Windows 10は32bit/64bit対応)</li>
 			<li>CPU: Intel/AMD/Arm64</li>
-			<li>GPU: Direct3D 9 (今後DirectX 11に移行予定)</li>
+			<li>GPU: Direct3D 9 (今後DirectX 12に移行予定)</li>
 		</ul>
 	</li>
 	<li>出力ゲーム (Windows)
 		<ul>
 			<li>OS: Windows 11, Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, Windows XP (Windows 11以外は32bit/64bit対応)</li>
 			<li>CPU: Intel/AMD/Arm64</li>
-			<li>GPU: Direct3D 9 (今後DirectX 11を選択可能にする予定)</li>
+			<li>GPU: Direct3D 9 (今後DirectX 12を選択可能にする予定)</li>
 		</ul>
 	</li>
 </ul>
@@ -515,6 +548,9 @@
 <ul>
 	<li>制作ツール Suika2 Pro Desktop (macOS)
 		<ul>
+			<li>macOS 10.13 High Sierra</li>
+			<li>macOS 10.14 Mojave</li>
+			<li>macOS 10.15 Catalina</li>
 			<li>macOS 11 Big Sur</li>
 			<li>macOS 12 Monterey</li>
 			<li>macOS 13 Ventura</li>
@@ -549,7 +585,7 @@
 	<li>出力ゲーム (iOS)
 		<ul>
 			<li>iOS 11 (ビルドにはmacOS 13 Ventura以前とXcode14以前が必要)</li>
-			<li>iOS 12 (ビルドにmacOS 14 SonomaとXcode 15を用いた場合の最低要件)</li>
+			<li>iOS 12 (ビルドにmacOS 14 SonomaとXcode15を用いた場合の最低要件)</li>
 			<li>iOS 13 / iPadOS 13</li>
 			<li>iOS 14 / iPadOS 14</li>
 			<li>iOS 15 / iPadOS 15</li>
@@ -563,7 +599,7 @@
 <ul>
 	<li>制作ツール Suika2 Pro Mobile (Android)
 		<ul>
-			<li>Android 8.0以降</li>
+			<li>Android 10以降 (ファイル操作の都合上、Android 10が必要)</li>
 		</ul>
 	</li>
 	<li>出力ゲーム (Android)
@@ -582,11 +618,9 @@
 			<li>Microsoft Edge</li>
 			<li>Safari</li>
 			<li>Mozilla Firefox</li>
-			<li>Google Chrome (Android)</li>
-			<li>Safari (iOS/iPadOS)</li>
 		</ul>
 	</li>
-	<li>制作ツール Suika2 Studio Wasm 2024 (まだ制作中)
+	<li>制作ツール Suika2 Studio 2024 Wasm (まだ制作中)
 		<ul>
 			<li><a href="/vls/">Google Chromeのみ対応</a></li>
 		</ul>
@@ -608,6 +642,11 @@
 			<div class="accordion-body">
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/15.77 2023/1/18 <ul> <li>Mac版のフルスクリーン動作を修正 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/15.76 2023/1/18 <ul> <li>Mac版エディタの動作を少し改善</li> </ul> </li>
+<li>Suika2/15.75 2023/1/18 <ul> <li>画像コンフィグの即時反映を追加 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/15.74 2023/1/15 <ul> <li>フランス語のメッセージを修正 (Thanks to banana-san!)</li> </ul> </li>
+<li>Suika2/15.73 2023/1/14 <ul> <li>Windowsで特定の長さの音声ファイルが残響する問題を修正 (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.72 2023/1/14 <ul> <li>@chsxでキャラの明暗を操作できないバグを修正 (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.71 2023/1/14 <ul> <li>Re: Mac版Proでスクリプトを保存するとusingが展開されてしまうバグを修正 (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.70 2023/1/14 <ul> <li>Re: Mac版Proでスクリプトを保存するとusingが展開されてしまうバグを修正 (Thanks to Ronron-san!)</li> </ul> </li>
@@ -690,48 +729,31 @@
 <li>Suika2/15.4 2023/12/13 <ul> <li>インストーラ配布に変更</li> <li>macOS版: 最新のAppKitやMetalを使って書き直した</li> <li>macOS版: Proにエディタを追加</li> </ul> </li>
 <li>Suika2/15.3 2023/12/5 <ul> <li>Windows版でSuika2のインストール先とゲーム制作フォルダを分離</li> <li>Windows版でDirect3Dを必須化 (拡大縮小のサポートに向けて)</li> <li>起動時にゲームテンプレート選択を追加</li> </ul> </li>
 <li>Suika2/15.2 2023/12/1 <ul> <li>@ch faceのバグを修正 (Thanks to ソロー-san!)</li> </ul> </li>
-					<li>Suika2/15.1 2023/11/27 <ul> <li>ちらつきのないレイヤロードのコマンド @layer を追加</li> </ul> </li>
-					<li>Suika2/15.0 2023/11/27 <ul> <li>キャラクタを左、左中、中央、中央背面、右中、右の6枚に増やした</li> </ul> </li>
-					<li>Suika2/14.19 2023/11/24 <ul> <li>oggのLOOPSTARTを修正 (Thanks to 鏡読み-san!)</li> </ul> </li>
-					<li>Suika2/14.18 2023/11/23 <ul> <li>アニメで背景がなくなる領域がクリアされない仕様を修正 (Thanks to 花澄匝-san!)</li> <li>既読メッセージ色を有効にした際のキャラクタ名の色を修正 (Thanks to 松野-san!)</li> </ul> </li>
-					<li>Suika2/14.17 2023/11/23 <ul> <li>ヒストリーのセリフのカッコを変更するコンフィグの追加 (Thanks to 小鳩えん-san!)</li> <li>キャラの表示オフセットを設定するコンフィグの追加 (Thanks to かめの-san)</li> <li>セーブデータをクリアするWMS関数を追加 (Thanks to Mirin-san!)</li> <li>既読メッセージの色を変更するコンフィグを追加 (Thanks to Mirin-san!)</li> <li>@chsxで変更指示のないキャラの挙動を修正 (Thanks to 花澄匝-san!)</li> </ul> </li>
-					<li>Suika2/14.17 2023/11/23 <ul> <li>ヒストリーのセリフのカッコを変更するコンフィグの追加 (Thanks to 小鳩えん-san!)</li> <li>キャラの表示オフセットを設定するコンフィグの追加 (Thanks to かめの-san)</li> <li>セーブデータをクリアするWMS関数を追加 (Thanks to Mirin-san!)</li> <li>既読メッセージの色を変更するコンフィグを追加 (Thanks to Mirin-san!)</li> <li>@chsxで変更指示のないキャラの挙動を修正 (Thanks to 花澄匝-san!)</li> </ul> </li>
-					<li>Suika2/14.17 2023/11/23 <ul> <li>ヒストリーのセリフのカッコを変更するコンフィグの追加 (Thanks to 小鳩えん-san!)</li> <li>キャラの表示オフセットを設定するコンフィグの追加 (Thanks to かめの-san)</li> <li>セーブデータをクリアするWMS関数を追加 (Thanks to Mirin-san!)</li> <li>既読メッセージの色を変更するコンフィグを追加 (Thanks to Mirin-san!)</li> <li>@chsxで変更指示のないキャラの挙動を修正 (Thanks to 花澄匝-san!)</li> </ul> </li>
-					<li>Suika2/14.16 2023/11/21 <ul> <li>バグ修正: 手動のセーブ画面表示を修正 (Thanks to 松野-san!)</li> </ul> </li>
-					<li>Suika2/14.15 2023/11/19 <ul> <li>バグ修正: グローバルフォント以外が使えないバグを修正 (Thanks to ソロー-san!)</li> <li>バグ修正: 拡張if文の修正 (Thanks to ソロー-san!)</li> </ul> </li>
-					<li>Suika2/14.14 2023/11/11 <ul> <li>バグ修正: Suika2 Studioで行挿入したときのバグを修正 (Thanks to ソロー-san!)</li> </ul> </li>
-					<li>Suika2/14.13 2023/11/11 <ul> <li>バグ修正: Suika2 Studioで行挿入したときのバグを修正 (Thanks to ソロー-san!)</li> </ul> </li>
-					<li>Suika2/14.12 2023/11/11 <ul> <li>バグ修正: Suika2 Studioでスクリプトロード時の挙動を修正 (Thanks to クロウズの嫁つる-san!)</li> </ul> </li>
-					<li>Suika2/14.11 2023/11/11 <ul> <li>Web: 制作ツールを自動分類する公開サイト様のために、index.htmlに文字列"This is a Suika2 Generated HTML."を追加 (削除しても動作します)</li> </ul> </li>
-					<li>Suika2/14.10 2023/11/10 <ul> <li>ベータ版: Suika2 Studioを追加 (スクリプトの編集が可能)</li> <li>iOSで動画再生に対応</li> <li>移植用: 日本語ファイル名の許容(非推奨)</li> <li>移植用: @loadコマンドにジャンプ先ラベル名の指定を追加(非推奨)</li> </ul> </li>
-					<li>Suika2/14.9 内部バージョン(iOSストア向け)</li>
-					<li>Suika2/14.8 内部バージョン(Androidストア向け)</li>
-					<li>Suika2/14.7 2023/10/25 <ul> <li>Androidで動画再生に対応</li> <li>Web以外(Windows/macOS/Linux/iOS/Android)でWebP画像形式に対応 (iOS/Androidでの配布ファイルサイズ削減でのみ使用)</li> </ul> </li>
-					<li>Suika2/14.6 2023/10/16 <ul> <li>Suika2 Pro (Windows版)をシングルウィンドウに変更</li> <li>タイトル画面からロードするとロード画像が出たままになるバグを修正 (Thanks to ubi_2/aramasi0.9-san!)</li> <li>フェードインフェードアウトをカスタムメニューに使うとゲームが落ちるバグを修正 (Thanks to ubi_2/aramasi0.9-san!)</li> <li>アニメの相対座標が利用できないバグを修正 (Thanks to MATSUNO-san!)</li> <li>アニメの画像ロードが実行されないことがあるバグを修正 (Thanks to MATSUNO-san!)</li> </ul> </li>
-					<li>Suika2/14.5 2023/10/14 <ul> <li>Web版でmovフォルダから動画ファイルを移動しなくてよいように修正 (Thanks to 赤井ルイ-san!)</li> </ul> </li>
-					<li>Suika2/14.4 2023/10/14 <ul> <li>サンプルゲームのロード画面のフェードアウトを改善</li> </ul> </li>
-					<li>Suika2/14.3 2023/10/14 <ul> <li>GUIにフェードイン/フェードアウトを追加 (Thanks to 花澄匝-san!) <ul> <li>GUIファイルに <code>fadein: 1.0;</code> や <code>fadeout: 1.0;</code> が追加されました</li> <li><code>@gui</code> 終了時に残る背景画像に、GUIボタンの内容が反映されるようになりました</li> <li>ロード画面呼び出しの <code>@goto $LOAD</code> は <code>@gui load.txt cancel,nofadeout</code> に変更を推奨です</li> </ul> </li> <li>GUIにオーバレイモード(透過)を追加 (Thanks to 花澄匝-san!) <ul> <li>背景やキャラなどのレイヤーを表示したままGUIを表示できるようになりました</li> <li>使用するにはGUIファイルで <code>overlay: yes;</code> を指定します</li> <li>オーバレイ指定時は <code>@gui</code> の終了時に背景画像を作成しません</li> </ul> </li> <li>GUIのキー操作とマウス操作のバグを修正 (Thanks to かめの-san!)</li> <li>選択肢のキー操作とマウス操作のバグを修正</li> <li>テキスト読み上げのオン/オフを可能に修正 (Thanks to MATSUNO-san!)</li> <li>言語選択画面の改良</li> <li>重要: DL数が一定になるまでの短期間、起動時に警告が出ます</li> </ul> </li>
-					<li>Suika2/14.2 2023/10/13 <ul> <li>WMSに抜けていた割り算の余りを求める演算子%を追加 (Thanks to 花澄匝-san!)</li> <li>重要: コード署名証明書の更新 (DL数が一定になるまでの短期間、起動時に警告が出ます)</li> </ul> </li>
-					<li>Suika2/14.1 2023/10/12 <ul> <li>エフェクトレイヤーのバグ修正 (Thanks to ラワン材-san!)</li> <li>キーボードでのセーブのオープン (Sキー)</li> <li>キーボードでのロードのオープン (Lキー)</li> <li>キーボードでのヒストリーのオープン (Hキー)</li> <li>ヒストリーの読み上げ (TTS有効時のみ)</li> </ul> </li>
-					<li>Suika2/14.0 2023/10/10
-						<ul>
-							<li>バージョン14系へ移行</li>
-							<li>GUIのテキスト読み上げ対応</li>
-							<li>GUIの左右キーとリターンキー対応</li>
-							<li><code>@choose</code> コマンドのテキスト読み上げ対応</li>
-							<li><code>@choose</code> コマンドの左右キーとリターンキー対応</li>
-							<li>Vキーによるテキスト読み上げ有効化機能の追加 (オプション)</li>
-							<li>文章の装飾をテキスト読み上げしないように修正</li>
-							<li>エフェクトレイヤー <code>effect1</code> から <code>effect4</code> の移動 (キャラの上、メッセージボックスの下) (Thanks to ラワン材-san!)</li>
-							<li>エフェクトレイヤー <code>effect5</code> から <code>effect6</code> の移動 (背景の上、キャラの下) (Thanks to ラワン材-san!)</li>
-							<li>Suika2 Proでコマンドのアップデートができない問題を修正 (Thanks to へたれるいす-san!)</li>
-						</ul>
-					</li>
-					<li>Suika2/13.35 2023/10/09
-						<ul>
-							<li>Linux版開発ツール修正</li>
-						</ul>
-					</li>
+<li>Suika2/15.1 2023/11/27 <ul> <li>ちらつきのないレイヤロードのコマンド @layer を追加</li> </ul> </li>
+<li>Suika2/15.0 2023/11/27 <ul> <li>キャラクタを左、左中、中央、中央背面、右中、右の6枚に増やした</li> </ul> </li>
+<li>Suika2/14.19 2023/11/24 <ul> <li>oggのLOOPSTARTを修正 (Thanks to 鏡読み-san!)</li> </ul> </li>
+<li>Suika2/14.18 2023/11/23 <ul> <li>アニメで背景がなくなる領域がクリアされない仕様を修正 (Thanks to 花澄匝-san!)</li> <li>既読メッセージ色を有効にした際のキャラクタ名の色を修正 (Thanks to 松野-san!)</li> </ul> </li>
+<li>Suika2/14.17 2023/11/23 <ul> <li>ヒストリーのセリフのカッコを変更するコンフィグの追加 (Thanks to 小鳩えん-san!)</li> <li>キャラの表示オフセットを設定するコンフィグの追加 (Thanks to かめの-san)</li> <li>セーブデータをクリアするWMS関数を追加 (Thanks to Mirin-san!)</li> <li>既読メッセージの色を変更するコンフィグを追加 (Thanks to Mirin-san!)</li> <li>@chsxで変更指示のないキャラの挙動を修正 (Thanks to 花澄匝-san!)</li> </ul> </li>
+<li>Suika2/14.17 2023/11/23 <ul> <li>ヒストリーのセリフのカッコを変更するコンフィグの追加 (Thanks to 小鳩えん-san!)</li> <li>キャラの表示オフセットを設定するコンフィグの追加 (Thanks to かめの-san)</li> <li>セーブデータをクリアするWMS関数を追加 (Thanks to Mirin-san!)</li> <li>既読メッセージの色を変更するコンフィグを追加 (Thanks to Mirin-san!)</li> <li>@chsxで変更指示のないキャラの挙動を修正 (Thanks to 花澄匝-san!)</li> </ul> </li>
+<li>Suika2/14.17 2023/11/23 <ul> <li>ヒストリーのセリフのカッコを変更するコンフィグの追加 (Thanks to 小鳩えん-san!)</li> <li>キャラの表示オフセットを設定するコンフィグの追加 (Thanks to かめの-san)</li> <li>セーブデータをクリアするWMS関数を追加 (Thanks to Mirin-san!)</li> <li>既読メッセージの色を変更するコンフィグを追加 (Thanks to Mirin-san!)</li> <li>@chsxで変更指示のないキャラの挙動を修正 (Thanks to 花澄匝-san!)</li> </ul> </li>
+<li>Suika2/14.16 2023/11/21 <ul> <li>バグ修正: 手動のセーブ画面表示を修正 (Thanks to 松野-san!)</li> </ul> </li>
+<li>Suika2/14.15 2023/11/19 <ul> <li>バグ修正: グローバルフォント以外が使えないバグを修正 (Thanks to ソロー-san!)</li> <li>バグ修正: 拡張if文の修正 (Thanks to ソロー-san!)</li> </ul> </li>
+<li>Suika2/14.14 2023/11/11 <ul> <li>バグ修正: Suika2 Studioで行挿入したときのバグを修正 (Thanks to ソロー-san!)</li> </ul> </li>
+<li>Suika2/14.13 2023/11/11 <ul> <li>バグ修正: Suika2 Studioで行挿入したときのバグを修正 (Thanks to ソロー-san!)</li> </ul> </li>
+<li>Suika2/14.12 2023/11/11 <ul> <li>バグ修正: Suika2 Studioでスクリプトロード時の挙動を修正 (Thanks to クロウズの嫁つる-san!)</li> </ul> </li>
+<li>Suika2/14.11 2023/11/11 <ul> <li>Web: 制作ツールを自動分類する公開サイト様のために、index.htmlに文字列"This is a Suika2 Generated HTML."を追加 (削除しても動作します)</li> </ul> </li>
+<li>Suika2/14.10 2023/11/10 <ul> <li>ベータ版: Suika2 Studioを追加 (スクリプトの編集が可能)</li> <li>iOSで動画再生に対応</li> <li>移植用: 日本語ファイル名の許容(非推奨)</li> <li>移植用: @loadコマンドにジャンプ先ラベル名の指定を追加(非推奨)</li> </ul> </li>
+<li>Suika2/14.9 内部バージョン(iOSストア向け)</li>
+<li>Suika2/14.8 内部バージョン(Androidストア向け)</li>
+<li>Suika2/14.7 2023/10/25 <ul> <li>Androidで動画再生に対応</li> <li>Web以外(Windows/macOS/Linux/iOS/Android)でWebP画像形式に対応 (iOS/Androidでの配布ファイルサイズ削減でのみ使用)</li> </ul> </li>
+<li>Suika2/14.6 2023/10/16 <ul> <li>Suika2 Pro (Windows版)をシングルウィンドウに変更</li> <li>タイトル画面からロードするとロード画像が出たままになるバグを修正 (Thanks to ubi_2/aramasi0.9-san!)</li> <li>フェードインフェードアウトをカスタムメニューに使うとゲームが落ちるバグを修正 (Thanks to ubi_2/aramasi0.9-san!)</li> <li>アニメの相対座標が利用できないバグを修正 (Thanks to MATSUNO-san!)</li> <li>アニメの画像ロードが実行されないことがあるバグを修正 (Thanks to MATSUNO-san!)</li> </ul> </li>
+<li>Suika2/14.5 2023/10/14 <ul> <li>Web版でmovフォルダから動画ファイルを移動しなくてよいように修正 (Thanks to 赤井ルイ-san!)</li> </ul> </li>
+<li>Suika2/14.4 2023/10/14 <ul> <li>サンプルゲームのロード画面のフェードアウトを改善</li> </ul> </li>
+<li>Suika2/14.3 2023/10/14 <ul> <li>GUIにフェードイン/フェードアウトを追加 (Thanks to 花澄匝-san!) <ul> <li>GUIファイルに <code>fadein: 1.0;</code> や <code>fadeout: 1.0;</code> が追加されました</li> <li><code>@gui</code> 終了時に残る背景画像に、GUIボタンの内容が反映されるようになりました</li> <li>ロード画面呼び出しの <code>@goto $LOAD</code> は <code>@gui load.txt cancel,nofadeout</code> に変更を推奨です</li> </ul> </li> <li>GUIにオーバレイモード(透過)を追加 (Thanks to 花澄匝-san!) <ul> <li>背景やキャラなどのレイヤーを表示したままGUIを表示できるようになりました</li> <li>使用するにはGUIファイルで <code>overlay: yes;</code> を指定します</li> <li>オーバレイ指定時は <code>@gui</code> の終了時に背景画像を作成しません</li> </ul> </li> <li>GUIのキー操作とマウス操作のバグを修正 (Thanks to かめの-san!)</li> <li>選択肢のキー操作とマウス操作のバグを修正</li> <li>テキスト読み上げのオン/オフを可能に修正 (Thanks to MATSUNO-san!)</li> <li>言語選択画面の改良</li> <li>重要: DL数が一定になるまでの短期間、起動時に警告が出ます</li> </ul> </li>
+<li>Suika2/14.2 2023/10/13 <ul> <li>WMSに抜けていた割り算の余りを求める演算子%を追加 (Thanks to 花澄匝-san!)</li> <li>重要: コード署名証明書の更新 (DL数が一定になるまでの短期間、起動時に警告が出ます)</li> </ul> </li>
+<li>Suika2/14.1 2023/10/12 <ul> <li>エフェクトレイヤーのバグ修正 (Thanks to ラワン材-san!)</li> <li>キーボードでのセーブのオープン (Sキー)</li> <li>キーボードでのロードのオープン (Lキー)</li> <li>キーボードでのヒストリーのオープン (Hキー)</li> <li>ヒストリーの読み上げ (TTS有効時のみ)</li> </ul> </li>
+<li>Suika2/14.0 2023/10/10 <ul> <li>バージョン14系へ移行</li> <li>GUIのテキスト読み上げ対応</li> <li>GUIの左右キーとリターンキー対応</li> <li><code>@choose</code> コマンドのテキスト読み上げ対応</li> <li><code>@choose</code> コマンドの左右キーとリターンキー対応</li> <li>Vキーによるテキスト読み上げ有効化機能の追加 (オプション)</li> <li>文章の装飾をテキスト読み上げしないように修正</li> <li>エフェクトレイヤー <code>effect1</code> から <code>effect4</code> の移動 (キャラの上、メッセージボックスの下) (Thanks to ラワン材-san!)</li> <li>エフェクトレイヤー <code>effect5</code> から <code>effect6</code> の移動 (背景の上、キャラの下) (Thanks to ラワン材-san!)</li> <li>Suika2 Proでコマンドのアップデートができない問題を修正 (Thanks to へたれるいす-san!)</li> </ul> </li>
+<li>Suika2/13.35 2023/10/09 <ul> <li>Linux版開発ツール修正</li> </ul></li>
 					<li>Suika2/13.34 2023/10/09
 						<ul>
 							<li>Linux版開発ツール修正</li>
