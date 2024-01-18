@@ -114,10 +114,10 @@ static FILE *openLog(void);
     // Enable the window maximization.
     if (!conf_window_fullscreen_disable)
         [self.view.window setCollectionBehavior:[self.view.window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
-    
+
     // Set the window title.
     [self.view.window setTitle:[[NSString alloc] initWithUTF8String:conf_window_title]];
-    
+
     // Accept keyboard and mouse inputs.
     [self.view.window makeKeyAndOrderFront:nil];
     [self.view.window setAcceptsMouseMovedEvents:YES];
@@ -156,10 +156,10 @@ static FILE *openLog(void);
     // Save.
     save_global_data();
     save_seen();
-    
+
     // Exit the event loop.
     [NSApp stop:nil];
-    
+
     // Magic: Post an empty event and make sure to exit the main loop.
     [NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined
                                         location:NSMakePoint(0, 0)
