@@ -562,7 +562,6 @@ static ViewController *theViewController;
     [self setTextColorForAllLinesDelayed];
     self.isExecLineChanged = YES;
     self.changedExecLine = [self scriptCursorLine];
-    self.isNextPressed = YES;
 }
 
 // スクリプトファイル名の反映ボタンが押下されたイベント
