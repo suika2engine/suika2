@@ -594,6 +594,7 @@ bool is_full_screen_mode(void)
 //
 void enter_full_screen_mode(void)
 {
+    [theViewController enterFullScreen];
 }
 
 ///
@@ -601,6 +602,7 @@ void enter_full_screen_mode(void)
 //
 void leave_full_screen_mode(void)
 {
+    [theViewController leaveFullScreen];
 }
 
 //
