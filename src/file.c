@@ -176,7 +176,10 @@ void cleanup_file(void)
 /*
  * ファイル読み込みストリームを開く
  */
-struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
+struct rfile *open_rfile(
+	const char *dir,
+	const char *file,
+	bool save_data)
 {
 	char entry_name[FILE_NAME_SIZE];
 	char *real_path;
@@ -233,7 +236,7 @@ struct rfile *open_rfile(const char *dir, const char *file, bool save_data)
 		return NULL;
 	}
 
-	/* パッケージがなければエラーとする */
+	/* パッケージがなければ開けなかったことする */
 	if (package_path == NULL) {
 		log_dir_file_open(dir, file);
 		free(rf);

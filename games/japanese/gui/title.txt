@@ -1,18 +1,17 @@
 ###
-### メインメニュー画面のGUI定義
+### タイトル画面のGUI定義
 ###
 
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   menu-idle.png;
-    hover:  menu-hover.png;
-    active: menu-hover.png;
+    idle:   title/idle.png;
+    hover:  title/hover.png;
 
-    # idle画像に透明度のある画像を使う場合は下記を指定する
-    # overlay: yes;
+    # この画面ではactive画像を使わないので、hover画像と同じものを指定する
+    active: title/hover.png;
 
-    # フェードイン時間(秒) [この画面ではフェードアウトを使わない]
+    # フェードイン時間(秒) [この画面ではフェードインを使わない]
     # fadein: 1.0;
 
     # フェードアウト時間(秒) [この画面ではフェードアウトを使わない]
@@ -31,10 +30,10 @@ START {
     label: START;
 
     # 座標とサイズ
-    x: 2;
-    y: 495;
-    width: 314;
-    height: 192;
+    x: 33;
+    y: 491;
+    width: 323;
+    height: 196;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -55,10 +54,10 @@ LOAD {
     label: LOAD;
 
     # 座標とサイズ
-    x: 316;
-    y: 494;
-    width: 322;
-    height: 203;
+    x: 356;
+    y: 493;
+    width: 321;
+    height: 205;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -79,10 +78,10 @@ CONFIG {
     label: CONFIG;
 
     # 座標とサイズ
-    x: 640;
-    y: 492;
-    width: 317;
-    height: 204;
+    x: 677;
+    y: 496;
+    width: 321;
+    height: 193;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -92,28 +91,4 @@ CONFIG {
 
     # 読み上げテキスト
     alt: このボタンを押すとコンフィグ画面を表示します。;
-}
-
-# QUITボタン
-QUIT {
-    # 種類:ラベルへジャンプ
-    type: goto;
-
-    # ジャンプ先のラベル
-    label: QUIT;
-
-    # 座標とサイズ
-    x: 960;
-    y: 497;
-    width: 317;
-    height: 201;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンを押すとゲームを終了します。;
 }

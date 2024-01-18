@@ -5,9 +5,9 @@
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   load-idle.png;
-    hover:  load-hover.png;
-    active: load-active.png;
+    idle:   system/load/idle.png;
+    hover:  system/load/hover.png;
+    active: system/load/active.png;
 
     # 1画面あたりのセーブデータ表示数を指定
     saveslots: 3;

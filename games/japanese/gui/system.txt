@@ -1,13 +1,13 @@
 ###
-### コンフィグ画面(1ページ目)のGUI定義
+### コンフィグ画面のGUI定義
 ###
 
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   config-idle.png;
-    hover:  config-hover.png;
-    active: config-active.png;
+    idle:   system/config/idle.png;
+    hover:  system/config/hover.png;
+    active: system/config/active.png;
 
     # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
@@ -266,30 +266,6 @@ DEFAULT {
 
     # 読み上げテキスト
     alt: このボタンはすべての設定を既定値に戻すものです。;
-}
-
-# 設定ページ2への移動ボタン
-PAGE2 {
-    # 種類:他のGUIへの移動
-    type: gui;
-
-    # 移動先のGUIファイル
-    file: system-page2.txt;
-
-    # 座標とサイズ
-    x: 1234;
-    y: 132;
-    width: 35;
-    height: 35;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
-
-    # 読み上げテキスト
-    alt: このボタンは設定ページ2に移動するものです。;
 }
 
 # タイトルへ戻るボタン
