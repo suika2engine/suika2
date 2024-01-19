@@ -572,8 +572,9 @@ bool is_video_playing(void)
 void update_window_title(void)
 {
     NSString *title = [NSString stringWithUTF8String:conf_window_title];
-    if (!conf_window_title_chapter_disable)
-        title = [NSString stringWithFormat:@"%@%s%s", title, conf_window_title_separator, get_chapter_name()];
+    const char *chapter = get_chapter_name();
+    if (!conf_window_title_chapter_disable && strcmp(chapter, "") != 0)
+        title = [NSString stringWithFormat:@"%@%@%@", title, [NSString stringWithUTF8String:conf_window_title_separator], [NSString stringWithUTF8String:chapter]];
     [theViewController setTitle:title];
 }
 

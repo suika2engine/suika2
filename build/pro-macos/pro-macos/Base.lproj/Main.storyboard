@@ -81,7 +81,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <subviews>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4WV-uO-TSw">
-                                        <rect key="frame" x="18" y="253" width="172" height="16"/>
+                                        <rect key="frame" x="18" y="253" width="371" height="16"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="New game from a template:" id="kw6-Qf-ReF">
                                             <font key="font" usesAppearanceFont="YES"/>

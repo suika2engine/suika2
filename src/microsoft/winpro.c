@@ -2624,31 +2624,36 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
-	wchar_t wszTitle[1024];
+	wchar_t wszNewTitle[1024];
 	wchar_t wszTmp[1024];
 	const char *separator;
+	const char *chapter;
 
-	ZeroMemory(&wszTitle[0], sizeof(wszTitle));
+	ZeroMemory(&wszNewTitle[0], sizeof(wszNewTitle));
 	ZeroMemory(&wszTmp[0], sizeof(wszTmp));
 
 	/* コンフィグのウィンドウタイトルをUTF-8からUTF-16に変換する */
-	wcscpy(wszTitle, conv_utf8_to_utf16(conf_window_title));
-	if (!conf_window_title_chapter_disable)
-	{
-		/* セパレータを取得する */
-		separator = conf_window_title_separator;
-		if (separator == NULL)
-			separator = " ";
+	wcscpy(wszNewTitle, conv_utf8_to_utf16(conf_window_title));
 
+	/* セパレータを取得する */
+	separator = conf_window_title_separator;
+	if (separator == NULL)
+		separator = " ";
+
+	/* 章タイトルを取得する */
+	chapter = get_chapter_name();
+
+	if (!conf_window_title_chapter_disable && strcmp(chapter, "") != 0)
+	{
 		/* セパレータを連結する */
-		wcscat(wszTitle, conv_utf8_to_utf16(separator));
+		wcscat(wszNewTitle, conv_utf8_to_utf16(separator));
 
 		/* 章タイトルを連結する */
-		wcscat(wszTitle, conv_utf8_to_utf16(get_chapter_name()));
+		wcscat(wszNewTitle, conv_utf8_to_utf16(chapter));
 	}
 
 	/* ウィンドウのタイトルを設定する */
-	SetWindowText(hWndMain, wszTitle);
+	SetWindowText(hWndMain, wszNewTitle);
 }
 
 /*
