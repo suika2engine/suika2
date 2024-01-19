@@ -28,10 +28,10 @@ BACK {
     type: cancel;
 
     # 座標とサイズ
-    x: 1156;
-    y: 653;
-    width: 103;
-    height: 21;
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -277,10 +277,10 @@ TITLE {
     file: init.txt;
 
     # 座標とサイズ
-    x: 1007;
-    y: 652;
-    width: 109;
-    height: 25;
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;

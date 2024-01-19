@@ -1784,34 +1784,50 @@ static void process_button_render_slider(int index)
 
 	b = &button[index];
 
-	/* ポイントされているとき、バー部分をhover画像で描画する */
-	if (index == pointed_index && !is_fading_in && !is_fading_out) {
-		render_image_normal(b->x,
+	if (!is_v2) {
+		/* ポイントされているとき、バー部分をhover画像で描画する */
+		if (index == pointed_index && !is_fading_in && !is_fading_out) {
+			render_image_normal(b->x,
+					    b->y,
+					    b->width,
+					    b->height,
+					    hover_image,
+					    b->x,
+					    b->y,
+					    b->width,
+					    b->height,
+					    cur_alpha);
+		}
+
+		/* 描画位置を計算する */
+		x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
+
+		/* ツマミをactive画像で描画する */
+		render_image_normal(x,
 				    b->y,
-				    b->width,
 				    b->height,
-				    hover_image,
+				    b->height,
+				    active_image,
 				    b->x,
 				    b->y,
-				    b->width,
+				    b->height,
 				    b->height,
 				    cur_alpha);
+	} else {
+		/* ポイントされていないときバー部分をidle画像で描画する */
+		if (index != pointed_index || is_fading_in || is_fading_out)
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
+
+		/* ポイントされているときバー部分をhover画像で描画する */
+		if (index == pointed_index && !is_fading_in && !is_fading_out)
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
+
+		/* 描画位置を計算する */
+		x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
+
+		/* ツマミをactive画像で描画する */
+		render_image_normal(x, b->y, b->height, b->height, active_image, b->x, b->y, b->height, b->height, cur_alpha);
 	}
-
-	/* 描画位置を計算する */
-	x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
-
-	/* ツマミをactive画像で描画する */
-	render_image_normal(x,
-			    b->y,
-			    b->height,
-			    b->height,
-			    active_image,
-			    b->x,
-			    b->y,
-			    b->height,
-			    b->height,
-			    cur_alpha);
 }
 
 /* 垂直スライダーボタンをレンダリングする */
@@ -1822,15 +1838,31 @@ static void process_button_render_slider_vertical(int index)
 
 	b = &button[index];
 
-	/* ポイントされているとき、バー部分をhover画像で描画する */
-	if (index == pointed_index && !is_fading_in && !is_fading_out)
-		render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
+	if (!is_v2) {
+		/* ポイントされているとき、バー部分をhover画像で描画する */
+		if (index == pointed_index && !is_fading_in && !is_fading_out)
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 
-	/* 描画位置を計算する */
-	y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
+		/* 描画位置を計算する */
+		y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
 
-	/* ツマミをactive画像で描画する */
-	render_image_normal(b->x, y, b->width, b->width, active_image, b->x, b->y, b->width, b->width, cur_alpha);
+		/* ツマミをactive画像で描画する */
+		render_image_normal(b->x, y, b->width, b->width, active_image, b->x, b->y, b->width, b->width, cur_alpha);
+	} else {
+		/* ポイントされていないときバー部分をidle画像で描画する */
+		if (index != pointed_index || is_fading_in || is_fading_out)
+			render_image_normal(b->x, b->y, b->width, b->height, idle_image, b->x, b->y, b->width, b->height, cur_alpha);
+
+		/* ポイントされているときバー部分をhover画像で描画する */
+		if (index == pointed_index && !is_fading_in && !is_fading_out)
+			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
+
+		/* 描画位置を計算する */
+		y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
+
+		/* ツマミをactive画像で描画する */
+		render_image_normal(b->x, y, b->width, b->width, active_image, b->x, b->y, b->width, b->width, cur_alpha);
+	}
 }
 
 /* アクティブ化可能ボタンをレンダリングする */

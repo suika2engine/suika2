@@ -5,6 +5,7 @@
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
+    base:   system/history/base.png;
     idle:   system/history/idle.png;
     hover:  system/history/hover.png;
     active: system/history/active.png;
@@ -31,10 +32,10 @@ BACK {
     type: cancel;
 
     # 座標とサイズ
-    x: 33;
-    y: 623;
-    width: 170;
-    height: 64;
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -55,10 +56,10 @@ HISTORYSLOT1 {
     index: 0;
 
     # 座標とサイズ
-    x: 32;
-    y: 112;
-    width: 1140;
-    height: 153;
+    x: 26;
+    y: 122;
+    width: 1110;
+    height: 152;
 
     # テキストのマージン
     margin: 20;
@@ -79,10 +80,10 @@ HISTORYSLOT2 {
     index: 1;
 
     # 座標とサイズ
-    x: 32;
-    y: 284;
-    width: 1140;
-    height: 153;
+    x: 26;
+    y: 285;
+    width: 1110;
+    height: 152;
 
     # テキストのマージン
     margin: 20;
@@ -103,10 +104,10 @@ HISTORYSLOT3 {
     index: 2;
 
     # 座標とサイズ
-    x: 32;
-    y: 456;
-    width: 1140;
-    height: 153;
+    x: 26;
+    y: 447;
+    width: 1110;
+    height: 152;
 
     # テキストのマージン
     margin: 20;
@@ -124,14 +125,38 @@ SCROLL {
     type: historyscroll;
 
     # 座標とサイズ
-    x: 1192;
-    y: 112;
-    width: 67;
-    height: 498;
+    x: 1159;
+    y: 120;
+    width: 101;
+    height: 478;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
     # 読み上げテキスト
     alt: スクロールバーです。上下のキーで操作できます。;
+}
+
+# タイトルへ戻るボタン
+TITLE {
+    # 種類:タイトルへ戻る
+    type: title;
+
+    # 移動先のスクリプトファイル
+    file: init.txt;
+
+    # 座標とサイズ
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはゲームのタイトル画面に戻るものです。;
 }
