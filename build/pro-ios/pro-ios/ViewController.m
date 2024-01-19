@@ -291,10 +291,6 @@ static void setStoppedState(void);
 // ウィンドウ/ビューの設定/取得
 //
 
-// ウィンドウのタイトルを設定する
-- (void)setTitle:(NSString *)title {
-}
-
 // 続けるボタンを設定する
 - (void)setResumeButton:(BOOL)enabled {
     [[self buttonContinue] setEnabled:enabled];
