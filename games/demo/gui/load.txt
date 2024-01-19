@@ -5,9 +5,10 @@
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   load-idle.png;
-    hover:  load-hover.png;
-    active: load-active.png;
+    base:   system/load/base.png;
+    idle:   system/load/idle.png;
+    hover:  system/load/hover.png;
+    active: system/load/active.png;
 
     # 1画面あたりのセーブデータ表示数を指定
     saveslots: 3;
@@ -31,10 +32,10 @@ BACK {
     type: cancel;
 
     # 座標とサイズ
-    x: 33;
-    y: 623;
-    width: 170;
-    height: 64;
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -55,10 +56,10 @@ SAVESLOT1 {
     index: 0;
 
     # 座標とサイズ
-    x: 50;
-    y: 138;
-    width: 1106;
-    height: 140;
+    x: 26;
+    y: 122;
+    width: 1110;
+    height: 152;
 
     # 画像とテキストのマージン
     margin: 10;
@@ -82,10 +83,10 @@ SAVESLOT2 {
     index: 1;
 
     # 座標とサイズ
-    x: 50;
-    y: 283;
-    width: 1106;
-    height: 140;
+    x: 26;
+    y: 285;
+    width: 1110;
+    height: 152;
 
     # 画像とテキストのマージン
     margin: 10;
@@ -109,10 +110,10 @@ SAVESLOT3 {
     index: 2;
 
     # 座標とサイズ
-    x: 50;
-    y: 429;
-    width: 1106;
-    height: 140;
+    x: 26;
+    y: 447;
+    width: 1110;
+    height: 152;
 
     # 画像とテキストのマージン
     margin: 10;
@@ -132,14 +133,14 @@ PAGE1 {
     # 種類:セーブデータページ
     type: savepage;
 
-    # ページ0番目
+    # 1ページ目(index=0)
     index: 0;
 
     # 座標とサイズ
-    x: 1137;
-    y: 0;
-    width: 70;
-    height: 63;
+    x: 1171;
+    y: 319;
+    width: 74;
+    height: 75;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -156,14 +157,14 @@ PAGE2 {
     # 種類:セーブデータページ
     type: savepage;
 
-    # ページ0番目
+    # 2ページ目(index=1)
     index: 1;
 
     # 座標とサイズ
-    x: 1206;
-    y: 0;
-    width: 70;
-    height: 63;
+    x: 1171;
+    y: 412;
+    width: 74;
+    height: 75;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -175,3 +176,50 @@ PAGE2 {
     alt: このボタンを押すとセーブデータのページ2を表示します。;
 }
 
+# セーブデータページ3のボタン
+PAGE3 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # 3ページ目(index=2)
+    index: 2;
+
+    # 座標とサイズ
+    x: 1171;
+    y: 508;
+    width: 74;
+    height: 75;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ2を表示します。;
+}
+
+# タイトルへ戻るボタン
+TITLE {
+    # 種類:タイトルへ戻る
+    type: title;
+
+    # 移動先のスクリプトファイル
+    file: init.txt;
+
+    # 座標とサイズ
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはゲームのタイトル画面に戻るものです。;
+}

@@ -10,7 +10,7 @@
 
 #import "GameViewControllerProtocol.h"
 
-@interface ViewController : NSViewController <NSWindowDelegate, NSTextViewDelegate, GameViewControllerProtocol>
+@interface ViewController : NSViewController <NSApplicationDelegate, NSWindowDelegate, NSTextViewDelegate, GameViewControllerProtocol>
 
 @property BOOL isControlPressed;
 @property BOOL isShiftPressed;

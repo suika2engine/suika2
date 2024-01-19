@@ -230,6 +230,10 @@ static void setStoppedState(void);
     return _screenSize;
 }
 
+- (CGPoint)windowPointToScreenPoint:(CGPoint)windowPoint {
+    return windowPoint;
+}
+
 - (BOOL)isVideoPlaying {
     return _isVideoPlaying;
 }
@@ -270,13 +274,22 @@ static void setStoppedState(void);
     }
 }
 
+- (void)setTitle:(NSString *)title {
+}
+
+- (BOOL)isFullScreen {
+    return NO;
+}
+
+- (void)enterFullScreen {
+}
+
+- (void)leaveFullScreen {
+}
+
 //
 // ウィンドウ/ビューの設定/取得
 //
-
-// ウィンドウのタイトルを設定する
-- (void)setTitle:(NSString *)title {
-}
 
 // 続けるボタンを設定する
 - (void)setResumeButton:(BOOL)enabled {

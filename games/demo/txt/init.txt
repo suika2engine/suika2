@@ -53,12 +53,12 @@
 # 言語選択画面の背景をフェードインします
 # Show a language selection background gradually
 
-@bg file=cg/language.png duration=0.5
+@bg file=cg/language/ja_idle.png duration=0.5
 
 # 言語選択のメニューを表示します
 # Call a menu.
 
-@gui file=language.txt
+@gui file=language/japanese.txt
 
 #####
 # 日本語が選択された場合
@@ -85,6 +85,8 @@
 # 英語モードにします
 # Set English mode
 
+# 少しだけコンフィグを書き換えます
+# Slightly change config.
 @setconfig locale.force en
 @setconfig font.size 28
 @setconfig msgbox.margin.line 45

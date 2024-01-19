@@ -788,7 +788,7 @@ window.fullscreen.disable=0
 window.maximize.disable=0
 
 # [ウィンドウタイトルと章タイトルの間のセパレータ] (省略可)
-window.title.separator= 
+window.title.separator= - 
 
 # [章タイトルをウィンドウタイトルに反映しない] (省略可)
 #  - 0: 反映する

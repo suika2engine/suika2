@@ -10,8 +10,8 @@
 #import "AppDelegate.h"
 
 int main(int argc, const char * argv[]) {
+    setlocale(LC_NUMERIC, "C");
     @autoreleasepool {
     }
-    setlocale(LC_NUMERIC, "C");
     return NSApplicationMain(argc, argv);
 }

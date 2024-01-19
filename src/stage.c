@@ -1007,6 +1007,30 @@ void set_layer_position(int layer, int x, int y)
 }
 
 /*
+ * Updates layer positions by config.
+ */
+void update_layer_position_by_config(void)
+{
+	layer_x[LAYER_MSG] = conf_msgbox_x;
+	layer_y[LAYER_MSG] = conf_msgbox_y;
+
+	layer_x[LAYER_NAME] = conf_namebox_x;
+	layer_y[LAYER_NAME] = conf_namebox_y;
+
+	layer_x[LAYER_NAME] = conf_namebox_x;
+	layer_y[LAYER_NAME] = conf_namebox_y;
+
+	layer_x[LAYER_CLICK] = conf_click_x;
+	layer_y[LAYER_CLICK] = conf_click_y;
+
+	layer_x[LAYER_AUTO] = conf_automode_banner_x;
+	layer_y[LAYER_AUTO] = conf_automode_banner_y;
+
+	layer_x[LAYER_SKIP] = conf_skipmode_banner_x;
+	layer_y[LAYER_SKIP] = conf_skipmode_banner_y;
+}
+
+/*
  * Sets a layer scale.
  */
 void set_layer_scale(int layer, float scale_x, float scale_y)

@@ -218,6 +218,9 @@ int get_layer_y(int layer);
 /* Sets a layer position. */
 void set_layer_position(int layer, int x, int y);
 
+/* Updates layer positions by config. */
+void update_layer_position_by_config(void);
+
 /* Sets a layer scale. */
 void set_layer_scale(int layer, float scale_x, float scale_y);
 

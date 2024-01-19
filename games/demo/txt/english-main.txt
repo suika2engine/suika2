@@ -16,7 +16,7 @@
 @chapter "Menu"
 
 # Call a menu.
-@gui menu.txt nofadein
+@gui title.txt nofadein
 
 # When START is selected:
 :START
@@ -250,10 +250,6 @@ If there's anything you want to customize, but can't, please contact the Team.
 ###
 
 :END
-@chapter Logo
-@skip disable
-@vol bgm 0.0 2.0
-@bg white.png 1.0
-@ch c luxion.png 0.5
-@wait 1.0
-@ch c none 1.0
+
+# Reload init.txt and jump to the game top.
+@load init.txt

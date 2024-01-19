@@ -1689,6 +1689,9 @@ bool overwrite_config(const char *key, const char *val)
 		break;
 	}
 
+	/* レイヤー座標の範囲を行う */
+	update_layer_position_by_config();
+
 	/* 画像読み込みの後処理を行う */
 	if (strcmp(key, "msgbox.bg.file") == 0)
 		update_msgbox(false);

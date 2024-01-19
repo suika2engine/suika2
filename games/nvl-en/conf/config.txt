@@ -34,7 +34,7 @@ language.other=en
 ###
 
 # The window title.
-window.title=Suika2
+window.title=Template Game
 
 # The window width.
 window.width=1280
@@ -123,7 +123,7 @@ font.ruby.size=16
 ###
 
 # The Namebox file name.
-namebox.file=namebox.png
+namebox.file=system/namebox/idle.png
 
 # The Namebox position.
 namebox.x=95
@@ -166,10 +166,10 @@ namebox.hidden=1
 ###
 
 # The MessageBox file name. (background)
-msgbox.bg.file=msgbox-bg.png
+msgbox.bg.file=system/msgbox/idle.png
 
 # The MessageBox file name. (foreground)
-msgbox.fg.file=msgbox-fg.png
+msgbox.fg.file=system/msgbox/idle.png
 
 # The position of the MessageBox.
 msgbox.x=0
@@ -308,12 +308,8 @@ click.move=1
 
 # The click animation image file names.
 #  - click.file1 is required, 2..16 are optional
-click.file1=click1.png
-click.file2=click2.png
-click.file3=click3.png
-click.file4=click4.png
-click.file5=click5.png
-click.file6=click5.png
+click.file1=system/click/click1.png
+click.file2=system/click/click2.png
 
 # The interval of the click animation (seconds).
 click.interval=1.0
@@ -328,10 +324,10 @@ click.disable=0
 ###
 
 # The image file of choose item. (background, idle)
-switch.bg.file=switch-bg.png
+switch.bg.file=system/choose/idle.png
 
 # The image file of choose item. (foreground, pointed or active)
-switch.fg.file=switch-bg.png
+switch.fg.file=system/choose/idle.png
 
 # The position of the first choose item.
 switch.x=406
@@ -392,10 +388,10 @@ sysmenu.collapsed.x=1280
 sysmenu.collapsed.y=0
 
 # The Collapsed SysMenu image file. (idle)
-sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
+sysmenu.collapsed.idle.file=system/sysmenu-collapsed/idle.png
 
 # The Collapsed SysMenu image file. (hover)
-sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
+sysmenu.collapsed.hover.file=system/sysmenu-collapsed/hover.png
 
 # Sound effect when the collapsed system menu is pointed (Optional)
 #sysmenu.collapsed.se=btn-change.ogg
@@ -405,13 +401,13 @@ sysmenu.x=731
 sysmenu.y=29
 
 # The image file name of the SysMenu. (idle)
-sysmenu.idle.file=sysmenu-idle.png
+sysmenu.idle.file=system/sysmenu/idle.png
 
 # The image file name of the SysMenu. (hover)
-sysmenu.hover.file=sysmenu-hover.png
+sysmenu.hover.file=system/sysmenu/hover.png
 
 # The image file name of the SysMenu. (disabled)
-sysmenu.disable.file=sysmenu-disable.png
+sysmenu.disable.file=system/sysmenu/disable.png
 
 # Note: you can disable buttons by setting sysmenu.*.with=0
 
@@ -526,7 +522,7 @@ sysmenu.config.se=click.ogg
 ###
 
 # The image file of the AutoMode banner.
-automode.banner.file=auto.png
+automode.banner.file=system/auto/auto.png
 
 # The position of the AutoMode banner.
 automode.banner.x=0
@@ -540,7 +536,7 @@ automode.speed=0.15
 ###
 
 # The image file of the SkipMode.
-skipmode.banner.file=skip.png
+skipmode.banner.file=system/skip/skip.png
 
 # The position of the SkipMode banner.
 skipmode.banner.x=0

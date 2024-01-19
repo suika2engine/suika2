@@ -3,7 +3,7 @@
 ###
 
 # ウィンドウのタイトル
-window.title=Suika
+window.title=テンプレートゲーム
 
 # ウィンドウの幅
 window.width=1280
@@ -45,7 +45,7 @@ font.outline.remove=0
 ###
 
 # 名前ボックス画像のファイル名
-namebox.file=namebox.png
+namebox.file=system/namebox/idle.png
 
 # 名前ボックス画像を表示する位置
 namebox.x=95
@@ -68,10 +68,10 @@ namebox.hidden=1
 ###
 
 # メッセージボックスの背景の画像ファイル名
-msgbox.bg.file=msgbox-bg.png
+msgbox.bg.file=system/msgbox/idle.png
 
 # メッセージボックスの前景の画像ファイル名
-msgbox.fg.file=msgbox-fg.png
+msgbox.fg.file=system/msgbox/idle.png
 
 # メッセージボックス画像を表示する位置
 msgbox.x=0
@@ -200,14 +200,10 @@ click.y=0
 click.move=1
 
 # クリックアニメーション画像のファイル名
-click.file1=click1.png
+click.file1=system/click/click1.png
 
 # クリックアニメーション画像のファイル名 (省略可)
-click.file2=click2.png
-click.file3=click3.png
-click.file4=click4.png
-click.file5=click5.png
-click.file6=click5.png
+click.file2=system/click/click2.png
 
 # クリックアニメーションの時間間隔
 click.interval=1.0
@@ -220,10 +216,10 @@ click.disable=0
 ###
 
 # 選択肢（非選択中）画像のファイル名
-switch.bg.file=switch-bg.png
+switch.bg.file=system/choose/idle.png
 
 # 選択肢（選択中）画像のファイル名
-switch.fg.file=switch-bg.png
+switch.fg.file=system/choose/idle.png
 
 # 選択肢の位置
 switch.x=406
@@ -270,13 +266,13 @@ sysmenu.x=731
 sysmenu.y=29
 
 # システムメニュー画像(通常時)のファイル名
-sysmenu.idle.file=sysmenu-idle.png
+sysmenu.idle.file=system/sysmenu/idle.png
 
 # システムメニュー画像(選択時)のファイル名
-sysmenu.hover.file=sysmenu-hover.png
+sysmenu.hover.file=system/sysmenu/hover.png
 
 # システムメニュー画像(使用できない時)のファイル名
-sysmenu.disable.file=sysmenu-disable.png
+sysmenu.disable.file=system/sysmenu/disable.png
 
 # システムメニューのクイックセーブボタンの座標(システムメニュー画像内での座標)
 sysmenu.qsave.x=62
@@ -365,10 +361,10 @@ sysmenu.collapsed.x=1280
 sysmenu.collapsed.y=0
 
 # 折りたたみシステムメニュー画像(通常時)のファイル名
-sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
+sysmenu.collapsed.idle.file=system/sysmenu-collapsed/idle.png
 
 # 折りたたみシステムメニュー画像(選択時)のファイル名
-sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
+sysmenu.collapsed.hover.file=system/sysmenu-collapsed/hover.png
 
 # 折りたたみシステムメニューが選択されたときのSE(省略可)
 sysmenu.collapsed.se=btn-change.ogg
@@ -381,7 +377,7 @@ sysmenu.hidden=0
 ###
 
 # オートモードバナー画像のファイル名
-automode.banner.file=auto.png
+automode.banner.file=system/auto/auto.png
 
 # オートモードバナーの座標
 automode.banner.x=0
@@ -395,7 +391,7 @@ automode.speed=0.15
 ###
 
 # スキップモードバナー画像のファイル名
-skipmode.banner.file=skip.png
+skipmode.banner.file=system/skip/skip.png
 
 # スキップモードバナーの座標
 skipmode.banner.x=0

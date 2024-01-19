@@ -24,6 +24,7 @@ upload doc/scriptgen.html
 upload works/index.html
 upload wiki/skin/pukiwiki.skin.php
 upload award2023.html
+upload award2024.html
 
 upload en/index.html
 upload en/dl/index.html
