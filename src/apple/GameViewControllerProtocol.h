@@ -8,23 +8,19 @@
 - (float)screenScale;
 - (CGPoint)screenOffset;
 - (CGSize)screenSize;
+- (CGPoint)windowPointToScreenPoint:(CGPoint)windowPoint;
 
 // Video playback implementation
 - (BOOL)isVideoPlaying;
 - (void)playVideoWithPath:(NSString *)path skippable:(BOOL)isSkippable;
 - (void)stopVideo;
 
-#ifdef SUIKA_TARGET_MACOS
-// Set title.
+// Set a window title
 - (void)setTitle:(NSString *)name;
-
-// Point conversion.
-- (NSPoint)windowPointToScreenPoint:(NSPoint)windowPoint;
 
 // Full screen implementation
 - (BOOL)isFullScreen;
 - (void)enterFullScreen;
 - (void)leaveFullScreen;
-#endif
 
 @end

@@ -69,6 +69,12 @@
 		26495D122B2A7BFD0050EDDF /* GameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0D2B2A7BFD0050EDDF /* GameRenderer.m */; };
 		26495D132B2A7BFD0050EDDF /* aunit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26495D0F2B2A7BFD0050EDDF /* aunit.c */; };
 		2658796B2B4A7BBA00EC733D /* nvl-en in Resources */ = {isa = PBXBuildFile; fileRef = 2658796A2B4A7BBA00EC733D /* nvl-en */; };
+		2662D0E82B5A5E860019B596 /* WindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2662D0E72B5A5E860019B596 /* WindowController.m */; };
+		2662D0FA2B5AC8710019B596 /* nvl-jp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2662D0F52B5AC8710019B596 /* nvl-jp.png */; };
+		2662D0FB2B5AC8710019B596 /* adv-jp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2662D0F62B5AC8710019B596 /* adv-jp.png */; };
+		2662D0FC2B5AC8710019B596 /* adv-en.png in Resources */ = {isa = PBXBuildFile; fileRef = 2662D0F72B5AC8710019B596 /* adv-en.png */; };
+		2662D0FD2B5AC8710019B596 /* nvl-en.png in Resources */ = {isa = PBXBuildFile; fileRef = 2662D0F82B5AC8710019B596 /* nvl-en.png */; };
+		2662D0FE2B5AC8710019B596 /* nvl-jp-vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 2662D0F92B5AC8710019B596 /* nvl-jp-vert.png */; };
 		2669F7CB2B2843D5001AEF17 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */; };
 		2669F7D72B284675001AEF17 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CD2B284675001AEF17 /* AppDelegate.m */; };
 		2669F7D82B284675001AEF17 /* GameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2669F7CF2B284675001AEF17 /* GameView.m */; };
@@ -184,6 +190,13 @@
 		26495D0F2B2A7BFD0050EDDF /* aunit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aunit.c; path = ../../src/apple/aunit.c; sourceTree = "<group>"; };
 		26495D102B2A7BFD0050EDDF /* GameShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameShaderTypes.h; path = ../../src/apple/GameShaderTypes.h; sourceTree = "<group>"; };
 		2658796A2B4A7BBA00EC733D /* nvl-en */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "nvl-en"; path = "../../../games/nvl-en"; sourceTree = "<group>"; };
+		2662D0E62B5A5E860019B596 /* WindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WindowController.h; sourceTree = "<group>"; };
+		2662D0E72B5A5E860019B596 /* WindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WindowController.m; sourceTree = "<group>"; };
+		2662D0F52B5AC8710019B596 /* nvl-jp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nvl-jp.png"; sourceTree = "<group>"; };
+		2662D0F62B5AC8710019B596 /* adv-jp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "adv-jp.png"; sourceTree = "<group>"; };
+		2662D0F72B5AC8710019B596 /* adv-en.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "adv-en.png"; sourceTree = "<group>"; };
+		2662D0F82B5AC8710019B596 /* nvl-en.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nvl-en.png"; sourceTree = "<group>"; };
+		2662D0F92B5AC8710019B596 /* nvl-jp-vert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nvl-jp-vert.png"; sourceTree = "<group>"; };
 		2669F7082B283866001AEF17 /* Suika2 Pro Desktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro Desktop.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2669F7CA2B2843D5001AEF17 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2669F7CD2B284675001AEF17 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -318,18 +331,23 @@
 		2610CD1B2B287C9100300004 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2662D0F72B5AC8710019B596 /* adv-en.png */,
+				2662D0F62B5AC8710019B596 /* adv-jp.png */,
+				2662D0F82B5AC8710019B596 /* nvl-en.png */,
+				2662D0F92B5AC8710019B596 /* nvl-jp-vert.png */,
+				2662D0F52B5AC8710019B596 /* nvl-jp.png */,
+				26A1BAE22B2AD78700761444 /* ios-src */,
+				26A1BAE62B2AD79E00761444 /* android-src */,
+				26A1BAEB2B2AD7B200761444 /* nvl-tategaki */,
+				26A1BAE92B2AD7B200761444 /* nvl */,
+				26A1BAE82B2AD7B200761444 /* japanese */,
+				26A1BAEA2B2AD7B200761444 /* english */,
 				2658796A2B4A7BBA00EC733D /* nvl-en */,
 				2617DE222B3C5EB2006F4211 /* suika-mac.dmg */,
 				26A1BAF82B2AD7F600761444 /* suika.exe */,
 				26A1BAF12B2AD7D700761444 /* index.html */,
 				26A1BAF02B2AD7D700761444 /* index.js */,
 				26A1BAF22B2AD7D700761444 /* index.wasm */,
-				26A1BAEA2B2AD7B200761444 /* english */,
-				26A1BAE82B2AD7B200761444 /* japanese */,
-				26A1BAE92B2AD7B200761444 /* nvl */,
-				26A1BAEB2B2AD7B200761444 /* nvl-tategaki */,
-				26A1BAE62B2AD79E00761444 /* android-src */,
-				26A1BAE22B2AD78700761444 /* ios-src */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -377,6 +395,8 @@
 				2669F7D02B284675001AEF17 /* main.m */,
 				2669F7CE2B284675001AEF17 /* AppDelegate.h */,
 				2669F7CD2B284675001AEF17 /* AppDelegate.m */,
+				2662D0E62B5A5E860019B596 /* WindowController.h */,
+				2662D0E72B5A5E860019B596 /* WindowController.m */,
 				2669F7D52B284675001AEF17 /* ViewController.h */,
 				2669F7D62B284675001AEF17 /* ViewController.m */,
 				2669F7D22B284675001AEF17 /* GameView.h */,
@@ -455,11 +475,15 @@
 			files = (
 				2610CC842B2878C900300004 /* Assets.xcassets in Resources */,
 				26F4E5AF2B32CE61003E4B5A /* Main.storyboard in Resources */,
+				2662D0FA2B5AC8710019B596 /* nvl-jp.png in Resources */,
 				2658796B2B4A7BBA00EC733D /* nvl-en in Resources */,
 				26A1BAEC2B2AD7B200761444 /* japanese in Resources */,
+				2662D0FD2B5AC8710019B596 /* nvl-en.png in Resources */,
 				26A1BAE32B2AD78800761444 /* ios-src in Resources */,
 				2617DE232B3C5EB2006F4211 /* suika-mac.dmg in Resources */,
 				26A1BAED2B2AD7B200761444 /* nvl in Resources */,
+				2662D0FC2B5AC8710019B596 /* adv-en.png in Resources */,
+				2662D0FE2B5AC8710019B596 /* nvl-jp-vert.png in Resources */,
 				26A1BAF92B2AD7F600761444 /* suika.exe in Resources */,
 				26A1BAF52B2AD7D700761444 /* index.wasm in Resources */,
 				26A1BAF32B2AD7D700761444 /* index.js in Resources */,
@@ -467,6 +491,7 @@
 				26A1BAE72B2AD79E00761444 /* android-src in Resources */,
 				26A1BAF42B2AD7D700761444 /* index.html in Resources */,
 				26A1BAEE2B2AD7B200761444 /* english in Resources */,
+				2662D0FB2B5AC8710019B596 /* adv-jp.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -532,6 +557,7 @@
 				2669F7D72B284675001AEF17 /* AppDelegate.m in Sources */,
 				2610CCEF2B287ACD00300004 /* cmd_load.c in Sources */,
 				2610CD132B287ACD00300004 /* cmd_click.c in Sources */,
+				2662D0E82B5A5E860019B596 /* WindowController.m in Sources */,
 				2610CCF12B287ACD00300004 /* wms_core.c in Sources */,
 				2610CD112B287ACD00300004 /* cmd_se.c in Sources */,
 				26495D132B2A7BFD0050EDDF /* aunit.c in Sources */,

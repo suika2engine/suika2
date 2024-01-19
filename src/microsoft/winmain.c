@@ -315,8 +315,7 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 					  GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
 
 	/* ウィンドウのタイトルをUTF-8からUTF-16に変換する */
-	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
-						TITLE_BUF_SIZE - 1);
+	MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle, TITLE_BUF_SIZE - 1);
 
 	/* モニタの数を取得する */
 	nMonitors = GetSystemMetrics(SM_CMONITORS);
@@ -1368,29 +1367,31 @@ bool is_video_playing(void)
  */
 void update_window_title(void)
 {
+	wchar_t wszNewTitle[1024];
+	wchar_t wszTmp[1024];
 	const char *separator;
-	int cch1, cch2;
-
-	/* セパレータを取得する */
-	separator = conf_window_title_separator;
-	if (separator == NULL)
-		separator = " ";
 
 	ZeroMemory(&wszTitle[0], sizeof(wszTitle));
+	ZeroMemory(&wszTmp[0], sizeof(wszTmp));
 
 	/* コンフィグのウィンドウタイトルをUTF-8からUTF-16に変換する */
-	cch1 = MultiByteToWideChar(CP_UTF8, 0, conf_window_title, -1, wszTitle,
-							   TITLE_BUF_SIZE - 1);
-	cch1--;
-	cch2 = MultiByteToWideChar(CP_UTF8, 0, separator, -1, wszTitle + cch1,
-							   TITLE_BUF_SIZE - cch1 - 1);
-	cch2--;
-	MultiByteToWideChar(CP_UTF8, 0, get_chapter_name(), -1,
-							   wszTitle + cch1 + cch2,
-							   TITLE_BUF_SIZE - cch1 - cch2 - 1);
+	wcscpy(wszNewTitle, conv_utf8_to_utf16(conf_window_title));
+	if (!conf_window_title_chapter_disable)
+	{
+		/* セパレータを取得する */
+		separator = conf_window_title_separator;
+		if (separator == NULL)
+			separator = " ";
+
+		/* セパレータを連結する */
+		wcscat(wszNewTitle, conv_utf8_to_utf16(separator));
+
+		/* 章タイトルを連結する */
+		wcscat(wszNewTitle, conv_utf8_to_utf16(get_chapter_name()));
+	}
 
 	/* ウィンドウのタイトルを設定する */
-	SetWindowText(hWndMain, wszTitle);
+	SetWindowText(hWndMain, wszNewTitle);
 }
 
 /*

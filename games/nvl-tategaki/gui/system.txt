@@ -1,16 +1,46 @@
 ###
-### コンフィグ画面(1ページ目)のGUI定義
+### コンフィグ画面のGUI定義
 ###
 
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   config-idle.png;
-    hover:  config-hover.png;
-    active: config-active.png;
+    idle:   system/config/idle.png;
+    hover:  system/config/hover.png;
+    active: system/config/active.png;
 
     # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
+
+    # フェードイン時間(秒)
+    fadein: 0.5;
+
+    # フェードアウト時間(秒)
+    fadeout: 0.5;
+
+    # 読み上げテキスト
+    alt: コンフィグ画面を表示しています。左右のキーを押してください。;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:タイトルへ戻る
+    type: cancel;
+
+    # 座標とサイズ
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとゲームに戻ります。;
 }
 
 # テキストスピードスライダー
@@ -26,6 +56,9 @@ TEXTSPEED {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはテキストのスピードを調整するものです。;
 }
 
 # オートモードスピードスライダー
@@ -41,6 +74,9 @@ AUTOSPEED {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;    
+
+    # 読み上げテキスト
+    alt: このボタンはオートモードのスピードを調整するものです。;
 }
 
 # テキストスピードのプレビュー
@@ -56,6 +92,9 @@ PREVIEW {
     y: 453;
     width: 590;
     height: 120;
+
+    # 読み上げテキスト
+    alt: テキストスピードのプレビューを表示するものです。;
 }
 
 # BGMのボリュームスライダー
@@ -71,6 +110,9 @@ BGM {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはBGMの音量を調整するものです。;
 }
 
 # SEのボリュームスライダー
@@ -89,6 +131,9 @@ SE {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンは効果音の音量を調整するものです。;
 }
 
 # ボイスのボリュームスライダー
@@ -107,6 +152,9 @@ VOICE {
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはボイスの音量を調整するものです。;
 }
 
 # フォント選択ボタン1
@@ -128,6 +176,9 @@ FONT1 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはフォント1を選択するものです。;
 }
 
 # フォント選択ボタン1
@@ -149,6 +200,9 @@ FONT2 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはフォント2を選択するものです。;
 }
 
 # フルスクリーンモードへの切り替えボタン
@@ -167,6 +221,9 @@ FULLSCREEN {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはフルスクリーンモードに移行するものです。;
 }
 
 # ウィンドウモードへの切り替えボタン
@@ -185,6 +242,9 @@ WINDOW {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはウィンドウモードに移行するものです。;
 }
 
 # すべて既定値に戻すボタン
@@ -203,27 +263,9 @@ DEFAULT {
 
     # クリックされたときの効果音
     clickse: click.ogg;
-}
 
-# 設定ページ2への移動ボタン
-PAGE2 {
-    # 種類:他のGUIへの移動
-    type: gui;
-
-    # 移動先のGUIファイル
-    file: system-page2.txt;
-
-    # 座標とサイズ
-    x: 1234;
-    y: 132;
-    width: 35;
-    height: 35;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
+    # 読み上げテキスト
+    alt: このボタンはすべての設定を既定値に戻すものです。;
 }
 
 # タイトルへ戻るボタン
@@ -235,32 +277,17 @@ TITLE {
     file: init.txt;
 
     # 座標とサイズ
-    x: 1007;
-    y: 652;
-    width: 109;
-    height: 25;
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
     # クリックされたときの効果音
     clickse: click.ogg;
-}
 
-# 元の画面に戻るボタン
-BACK {
-    # 種類:タイトルへ戻る
-    type: cancel;
-
-    # 座標とサイズ
-    x: 1156;
-    y: 653;
-    width: 103;
-    height: 21;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
+    # 読み上げテキスト
+    alt: このボタンはゲームのタイトル画面に戻るものです。;
 }

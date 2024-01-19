@@ -125,7 +125,7 @@ font.ruby.size=16
 # The Namebox file name.
 namebox.file=system/namebox/idle.png
 
-# The Namebox font size.
+# The font size for the NameBox. (Optional)
 namebox.font.size=38
 
 # The font selection for the NameBox. (Optional)
@@ -134,9 +134,6 @@ namebox.font.size=38
 #  - 2: alt1
 #  - 3: alt2
 namebox.font.select=0
-
-# The font size for the NameBox. (Optional)
-namebox.font.size=38
 
 # Use font outline for the NameBox? (Optional)
 #  - 0: As same as the MessageBox
@@ -209,15 +206,6 @@ msgbox.skip.unseen=0
 #msgbox.dim.color.outline.r=40
 #msgbox.dim.color.outline.g=40
 #msgbox.dim.color.outline.b=40
-
-# Sound effects.
-msgbox.btn.change.se=btn-change.ogg
-msgbox.history.se=click.ogg
-msgbox.config.se=click.ogg
-msgbox.hide.se=click.ogg
-msgbox.show.se=click.ogg
-msgbox.auto.cancel.se=click.ogg
-msgbox.skip.cancel.se=click.ogg
 
 # The position of the hide button (position inside message box) (Optional)
 msgbox.btn.hide.x=1146

@@ -35,7 +35,7 @@
 @bgm file=00.ogg
 
 # Show the menu background image.
-@bg file=cg/menu-idle.png 1.0
+@bg file=cg/title/idle.png 1.0
 
 # This is the menu top. We'll be back here when LOAD or CONFIG is selected.
 :MENU
@@ -44,7 +44,7 @@
 @chapter "Menu"
 
 # Call the menu.
-@gui menu.txt nofadein
+@gui file=title.txt nofadein
 
 # When START is selected:
 :START
@@ -53,13 +53,13 @@
 # When LOAD is selected:
 :LOAD
 @chapter Load
-@gui file=load.txt cancel
+@gui file=load.txt cancellable
 @goto MENU
 
 # When CONFIG is selected:
 :CONFIG
 @chapter Config
-@gui system.txt cancel
+@gui system.txt cancellable
 
 # Note that we'll come here only when system.txt is canceled
 @goto MENU
@@ -281,10 +281,6 @@ If there's anything you want to customize, but can't, please contact the Team.
 ###
 
 :END
-@chapter Logo
-@skip disable
-@vol bgm 0.0 2.0
-@bg white.png 1.0
-@ch c luxion.png 0.5
-@wait 1.0
-@ch c none 1.0
+
+# Reload this file.
+@load init.txt

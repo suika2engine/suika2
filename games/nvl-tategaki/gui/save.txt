@@ -5,57 +5,46 @@
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   save-idle.png;
-    hover:  save-hover.png;
-    active: save-active.png;
+    base:   system/save/base.png;
+    idle:   system/save/idle.png;
+    hover:  system/save/hover.png;
+    active: system/save/active.png;
 
     # 1画面あたりのセーブデータ表示数を指定
     saveslots: 3;
 
     # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;
+
+    # フェードイン時間(秒)
+    fadein: 0.5;
+
+    # フェードアウト時間(秒)
+    fadeout: 0.5;
+
+    # 読み上げテキスト
+    alt: セーブ画面が表示されています。左右のキーを押してください。;
 }
 
-# セーブデータページ1のボタン
-PAGE1 {
-    # 種類:セーブデータページ
-    type: savepage;
-
-    # ページ0番目
-    index: 0;
+# 元の画面に戻るボタン
+BACK {
+    # 種類:キャンセル
+    type: cancel;
 
     # 座標とサイズ
-    x: 1137;
-    y: 0;
-    width: 70;
-    height: 63;
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
     # クリックされたときの効果音
     clickse: click.ogg;
-}
 
-# セーブデータページ2のボタン
-PAGE2 {
-    # 種類:セーブデータページ
-    type: savepage;
-
-    # ページ0番目
-    index: 1;
-
-    # 座標とサイズ
-    x: 1206;
-    y: 0;
-    width: 70;
-    height: 63;
-
-    # ポイントされたときの効果音
-    pointse: btn-change.ogg;
-
-    # クリックされたときの効果音
-    clickse: click.ogg;
+    # 読み上げテキスト
+    alt: このボタンを押すとゲーム画面に戻ります。;
 }
 
 # セーブデータ1番目
@@ -67,10 +56,10 @@ SAVESLOT1 {
     index: 0;
 
     # 座標とサイズ
-    x: 50;
-    y: 138;
-    width: 1106;
-    height: 140;
+    x: 26;
+    y: 122;
+    width: 1110;
+    height: 152;
 
     # 画像とテキストのマージン
     margin: 10;
@@ -80,6 +69,9 @@ SAVESLOT1 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット1にセーブします。;
 }
 
 # セーブデータ2番目
@@ -91,10 +83,10 @@ SAVESLOT2 {
     index: 1;
 
     # 座標とサイズ
-    x: 50;
-    y: 283;
-    width: 1106;
-    height: 140;
+    x: 26;
+    y: 285;
+    width: 1110;
+    height: 152;
 
     # 画像とテキストのマージン
     margin: 10;
@@ -104,6 +96,9 @@ SAVESLOT2 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット2にセーブします。;
 }
 
 # セーブデータ3番目
@@ -115,10 +110,10 @@ SAVESLOT3 {
     index: 2;
 
     # 座標とサイズ
-    x: 50;
-    y: 429;
-    width: 1106;
-    height: 140;
+    x: 26;
+    y: 447;
+    width: 1110;
+    height: 152;
 
     # 画像とテキストのマージン
     margin: 10;
@@ -128,22 +123,103 @@ SAVESLOT3 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット3にセーブします。;
 }
 
-# 元の画面に戻るボタン
-BACK {
-    # 種類:キャンセル
-    type: cancel;
+# セーブデータページ1のボタン
+PAGE1 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # 1ページ目(index=0)
+    index: 0;
 
     # 座標とサイズ
-    x: 33;
-    y: 623;
-    width: 170;
-    height: 64;
+    x: 1171;
+    y: 319;
+    width: 74;
+    height: 75;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ1を表示します。;
+}
+
+# セーブデータページ2のボタン
+PAGE2 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # 2ページ目(index=1)
+    index: 1;
+
+    # 座標とサイズ
+    x: 1171;
+    y: 412;
+    width: 74;
+    height: 75;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ2を表示します。;
+}
+
+# セーブデータページ2のボタン
+PAGE3 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # 3ページ目(index=2)
+    index: 2;
+
+    # 座標とサイズ
+    x: 1171;
+    y: 508;
+    width: 74;
+    height: 75;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ2を表示します。;
+}
+
+# タイトルへ戻るボタン
+TITLE {
+    # 種類:タイトルへ戻る
+    type: title;
+
+    # 移動先のスクリプトファイル
+    file: init.txt;
+
+    # 座標とサイズ
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはゲームのタイトル画面に戻るものです。;
 }

@@ -27,6 +27,7 @@ static ViewController *theViewController;
 
 @interface ViewController ()
 // Status
+@property BOOL isInitialized;
 @property BOOL isEnglish;
 @property BOOL isRunning;
 @property BOOL isContinuePressed;
@@ -37,10 +38,14 @@ static ViewController *theViewController;
 @property int changedExecLine;
 @property BOOL isVarsUpdated;
 
-// View
-@property (strong) IBOutlet GameView *renderView;
-
 // IBOutlet
+@property (weak) IBOutlet NSView *projectPanel;
+@property (weak) IBOutlet NSButton *buttonJapaneseAdv;
+@property (weak) IBOutlet NSButton *buttonEnglishAdv;
+@property (weak) IBOutlet NSButton *buttonJapaneseNvl;
+@property (weak) IBOutlet NSButton *buttonJapaneseVertical;
+@property (weak) IBOutlet NSButton *buttonEnglishNvl;
+@property (weak) IBOutlet GameView *renderView;
 @property (weak) IBOutlet NSView *editorPanel;
 @property (weak) IBOutlet NSButton *buttonContinue;
 @property (weak) IBOutlet NSButton *buttonNext;
@@ -82,35 +87,53 @@ static ViewController *theViewController;
     
     NSTimer *_formatTimer;
     BOOL _needFormat;
-    
-    BOOL _isInitialized;
 }
+
+//
+// View Initialization
+//
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    _isEnglish = [[[NSLocale preferredLanguages] objectAtIndex:0] hasPrefix:@"ja-"] ? false : true;
-    theViewController = self;
-}
-
-- (void)viewDidLayout {
-    [super viewDidLayout];
-    
-    self.view.window.delegate = self;
 }
 
 - (void)viewDidAppear {
     [super viewDidAppear];
-
-    self.view.window.delegate = self;
-
-    if (_isInitialized)
-        return;
-
-    // Initialize a project.
-    if (![self initProject])
-        exit(1);
     
+    // Determine the language we use.
+    _isEnglish = ![[[NSLocale preferredLanguages] objectAtIndex:0] hasPrefix:@"ja-"];
+    
+    // Save the view controller to the global variable.
+    theViewController = self;
+
+    // Set button images.
+    [self.buttonJapaneseAdv setImage:[NSImage imageNamed:@"adv-jp"]];
+    [self.buttonEnglishAdv setImage:[NSImage imageNamed:@"adv-en"]];
+    [self.buttonJapaneseNvl setImage:[NSImage imageNamed:@"nvl-jp"]];
+    [self.buttonJapaneseVertical setImage:[NSImage imageNamed:@"nvl-jp-vert"]];
+    [self.buttonEnglishNvl setImage:[NSImage imageNamed:@"nvl-en"]];
+
+    // Set the editor panel non-editable.
+    [theViewController.buttonContinue setEnabled:NO];
+    [theViewController.buttonNext setEnabled:NO];
+    [theViewController.buttonStop setEnabled:NO];
+    [theViewController.buttonMove setEnabled:NO];
+    [theViewController.buttonOpenScript setEnabled:NO];
+    [theViewController.textViewScript setEditable:NO];
+    [theViewController.textFieldVariables setEditable:NO];
+    [theViewController.buttonUpdateVariables setEnabled:NO];
+}
+
+// Called when a project is created or opened.
+- (void)setupView {
+    assert(!_isInitialized);
+
+    // Make the project panel hidden.
+    [_projectPanel setHidden:YES];
+
+    // Set the render panel size.
+    [_renderView setFrame:NSMakeRect(0, 0, _renderView.bounds.size.width, _editorPanel.frame.size.height)];
+
     // Initialize the Suika2 engine.
     init_locale_code();
     if(!init_file())
@@ -121,7 +144,7 @@ static ViewController *theViewController;
         exit(1);
     if(!on_event_init())
         exit(1);
-    
+
     // Create an MTKView.
     self.renderView.enableSetNeedsDisplay = YES;
     self.renderView.device = MTLCreateSystemDefaultDevice();
@@ -143,25 +166,33 @@ static ViewController *theViewController;
                                     repeats:YES];
     
     // Accept keyboard and mouse inputs.
-    [self.view.window makeKeyAndOrderFront:self];
-    [self.view.window setAcceptsMouseMovedEvents:YES];
     [self.view.window makeFirstResponder:self];
+    [self.view.window setAcceptsMouseMovedEvents:YES];
+    [self.view.window makeKeyAndOrderFront:self];
 
     // Set the window title.
-    [self.view.window setTitle:@"Suika2"];
+    update_window_title();
 
     // Set the script view delegate.
     _textViewScript.delegate = (id<NSTextViewDelegate>)_textViewScript;
-    
+
     // Update the viewport size.
     [self updateViewport:self.renderView.frame.size];
-    
-    _isInitialized = YES;
+
+    // Set the initialized state.
+    self.isInitialized = YES;
+
+    // Set the editor panel editable.
+    on_change_running_state(false, false);
 }
 
 - (void)renderingTimerFired:(NSTimer *)timer {
     [self.renderView setNeedsDisplay:TRUE];
 }
+
+//
+// NSWindowDelegate
+//
 
 - (void)windowWillClose:(NSNotification *)notification {
     // Save.
@@ -305,98 +336,39 @@ static ViewController *theViewController;
     return -1;
 }
 
-- (NSString *)uiMessage:(int)id {
-    return [[NSString alloc] initWithUTF8String:get_ui_message(id)];
-}
+//
+// Project
+//
 
-- (BOOL)initProject {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:_isEnglish ? @"Going to create a new game.\n" : @"新規ゲームを作成します。\n"];
-    [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
-    [alert addButtonWithTitle:_isEnglish ? @"No" : @"いいえ"];
-    [alert setAlertStyle:NSAlertStyleInformational];
-    if ([alert runModal] == NSAlertFirstButtonReturn)
-        return [self createProject];
-    
-    return [self openProject];
-}
+- (BOOL)createProject:(NSString *)templateName {
+    // Open folder.
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    [panel setCanChooseDirectories:YES];
+    [panel setCanCreateDirectories:YES];
+    if ([panel runModal] != NSModalResponseOK) {
+        [NSApp stop:nil];
+        return NO;
+    }
 
-- (BOOL)createProject {
-    while (YES) {
-        // Open folder.
-        NSOpenPanel *panel = [NSOpenPanel openPanel];
-        [panel setCanChooseDirectories:YES];
-        [panel setCanCreateDirectories:YES];
-        if ([panel runModal] != NSModalResponseOK) {
-            [NSApp stop:nil];
-            return NO;
-        }
-
-        // Create a project file.
-        NSString *path = [[panel directoryURL] path];
-        [[NSFileManager defaultManager] changeCurrentDirectoryPath:path];
-        FILE *fp = fopen([[[[panel URL] path] stringByAppendingString:@"/game.suika2project"] UTF8String], "w");
-        if (fp == NULL) {
-            NSAlert *alert;
-            alert = [[NSAlert alloc] init];
-            [alert setMessageText:_isEnglish ?
-             @"Failed to write to the folder. Choose another one." :
-             @"フォルダへの書き込みに失敗しました。別のフォルダを指定してください。"];
-            [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
-            [alert setAlertStyle:NSAlertStyleInformational];
-            [alert runModal];
-            return NO;
-        }
-        fclose(fp);
-
-        // Ask if the user needs NVL.
+    // Create a project file.
+    NSString *path = [[panel directoryURL] path];
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath:path];
+    FILE *fp = fopen([[[[panel URL] path] stringByAppendingString:@"/game.suika2project"] UTF8String], "w");
+    if (fp == NULL) {
         NSAlert *alert;
         alert = [[NSAlert alloc] init];
         [alert setMessageText:_isEnglish ?
-         @"Do you want to use the full screen style?\n(No is recommended.)" :
-         @"全画面スタイルにしますか？\n(いいえを推奨)\n"];
-        [alert addButtonWithTitle:_isEnglish ? @"No" : @"いいえ"];
+            @"Failed to write to the folder. Choose another one." :
+            @"フォルダへの書き込みに失敗しました。別のフォルダを指定してください。"];
         [alert addButtonWithTitle:_isEnglish ? @"Yes" : @"はい"];
         [alert setAlertStyle:NSAlertStyleInformational];
-        if ([alert runModal] != NSAlertFirstButtonReturn) {
-            // If English, we use the horizontal.
-            if (_isEnglish) {
-                if (![self copyResourceTemplate:@"nvl-en"])
-                    continue;
-                break;
-            }
-
-            // If Japanese, ask if the user needs the vertical.
-            alert = [[NSAlert alloc] init];
-            [alert setMessageText:@"縦書きにしますか？"];
-            [alert addButtonWithTitle:@"はい"];
-            [alert addButtonWithTitle:@"いいえ"];
-            [alert setAlertStyle:NSAlertStyleInformational];
-            if ([alert runModal] == NSAlertFirstButtonReturn) {
-                // Use the vertical.
-                if (![self copyResourceTemplate:@"nvl-tategaki"])
-                    continue;
-                break;
-            } else {
-                // Use the horizontal.
-                if (![self copyResourceTemplate:@"nvl"])
-                    continue;
-                break;
-            }
-        }
-
-        // If not NVL and English, we use the English-ADV.
-        if (_isEnglish) {
-            if (![self copyResourceTemplate:@"english"])
-                continue;
-            break;
-        }
-
-        // If not NVL and Japanese, we use the Japanese-ADV.
-        if (![self copyResourceTemplate:@"japanese"])
-            continue;
-        break;
+        [alert runModal];
+        return NO;
     }
+    fclose(fp);
+
+    if (![self copyResourceTemplate:templateName])
+        return NO;
 
     return YES;
 }
@@ -476,32 +448,13 @@ static ViewController *theViewController;
     return _screenSize;
 }
 
-- (NSPoint)windowPointToScreenPoint:(NSPoint)windowPoint {
+- (CGPoint)windowPointToScreenPoint:(CGPoint)windowPoint {
     float retinaScale = _renderView.layer.contentsScale;
 
     int x = (int)(windowPoint.x - (_screenOffset.x / retinaScale)) * _screenScale;
     int y = (int)(windowPoint.y - (_screenOffset.y / retinaScale)) * _screenScale;
 
-    return NSMakePoint(x, conf_window_height - y);
-}
-
-- (BOOL)isFullScreen {
-    return _isFullScreen;
-}
-
-- (void)enterFullScreen {
-    if (!_isFullScreen) {
-        [self.view.window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-        [self.view.window toggleFullScreen:self];
-        _isFullScreen = YES;
-    }
-}
-
-- (void)leaveFullScreen {
-    if (!_isFullScreen) {
-        [self.view.window toggleFullScreen:self];
-        _isFullScreen = NO;
-    }
+    return CGPointMake(x, conf_window_height - y);
 }
 
 - (BOOL)isVideoPlaying {
@@ -546,30 +499,82 @@ static ViewController *theViewController;
     }
 }
 
+- (void)setTitle:(NSString *)title {
+    [self.view.window setTitle:title];
+}
+
+- (BOOL)isFullScreen {
+    return _isFullScreen;
+}
+
+- (void)enterFullScreen {
+    if (!_isFullScreen) {
+        [self.view.window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+        [self.view.window toggleFullScreen:self];
+        _isFullScreen = YES;
+    }
+}
+
+- (void)leaveFullScreen {
+    if (!_isFullScreen) {
+        [self.view.window toggleFullScreen:self];
+        _isFullScreen = NO;
+    }
+}
+
 //
 // IB Actions
 //
 
 - (IBAction)onAbout:(id)sender {
-    [NSApp orderFrontStandardAboutPanel:self];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:@"Suika2 Pro Desktop\nCopyright (c) 2001-2024, Keiichi Tabata. All rights reserved."];
+    [alert setAlertStyle:NSAlertStyleInformational];
+    [alert runModal];
 }
 
-// 続けるボタンが押下されたイベント
+- (IBAction)onCreateAdvJpGame:(id)sender {
+    if ([self createProject:@"japanese"])
+        [self setupView];
+}
+
+- (IBAction)onCreateAdvEnGame:(id)sender {
+    if ([self createProject:@"english"])
+        [self setupView];
+}
+
+- (IBAction)onCreateNvlJpGame:(id)sender {
+    if ([self createProject:@"nvl"])
+        [self setupView];
+}
+
+- (IBAction)onCreateNvlJpVerticalGame:(id)sender {
+    if ([self createProject:@"nvl-tategaki"])
+        [self setupView];
+}
+
+- (IBAction)onCreateNvlEnGame:(id)sender {
+    if ([self createProject:@"nvl-en"])
+        [self setupView];
+}
+
+- (IBAction)onOpenGame:(id)sender {
+    if ([self openProject])
+        [self setupView];
+}
+
 - (IBAction) onContinueButton:(id)sender {
     self.isContinuePressed = true;
 }
 
-// 次へボタンが押下されたイベント
 - (IBAction) onNextButton:(id)sender {
     self.isNextPressed = true;
 }
 
-// 停止ボタンが押下されたイベント
 - (IBAction) onStopButton:(id)sender {
     self.isStopPressed = true;
 }
 
-// 移動ボタンが押下されたイベント
 - (IBAction) onMoveButton:(id)sender {
     [self updateScriptModelFromText];
     [self setTextColorForAllLinesDelayed];
@@ -577,7 +582,6 @@ static ViewController *theViewController;
     self.changedExecLine = [self scriptCursorLine];
 }
 
-// スクリプトファイル名の反映ボタンが押下されたイベント
 - (IBAction)onOpenScriptButton:(id)sender {
     NSString *basePath = [[NSFileManager defaultManager] currentDirectoryPath];
     NSString *txtPath = [NSString stringWithFormat:@"%@/%@", basePath, @"txt"];
@@ -593,7 +597,6 @@ static ViewController *theViewController;
     }
 }
 
-// 変数の反映ボタンが押下されたイベント
 - (IBAction)onUpdateVariablesButton:(id)sender {
     // テキストフィールドの内容を取得する
     NSString *text = self.textFieldVariables.stringValue;
@@ -641,11 +644,12 @@ static ViewController *theViewController;
     [NSApp stop:nil];
 }
 
-// ゲームフォルダを開くメニューが押下されたイベント
 - (IBAction)onMenuOpenGameFolder:(id)sender {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *url = [NSURL fileURLWithPath:[fileManager currentDirectoryPath]];
+    [[NSWorkspace sharedWorkspace] openURL:url];
 }
 
-// スクリプトを開くメニューが押下されたイベント
 - (IBAction)onMenuOpenScript:(id)sender {
     // .appバンドルのパスを取得する
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
@@ -670,14 +674,12 @@ static ViewController *theViewController;
     }
 }
 
-// リロードメニューが押下されたイベント
 - (IBAction)onMenuReloadScript:(id)sender {
     _isOpenScriptPressed = YES;
     _isExecLineChanged = YES;
     _changedExecLine = get_expanded_line_num();
 }
 
-// 保存ボタンが押下されたイベント
 - (IBAction)onMenuSave:(id)sender {
     // スクリプトファイル名を取得する
     const char *scr = get_script_file_name();
@@ -698,22 +700,18 @@ static ViewController *theViewController;
     save_script();
 }
 
-// 続けるメニューが押下されたイベント
 - (IBAction)onMenuContinue:(id)sender {
     [self onContinueButton:sender];
 }
 
-// 次へメニューが押下されたイベント
 - (IBAction)onMenuNext:(id)sender {
     [self onNextButton:sender];
 }
 
-// 停止メニューが押下されたイベント
 - (IBAction)onMenuStop:(id)sender {
     [self onStopButton:sender];
 }
 
-// 次のエラー箇所へ移動メニューが押下されたイベント
 - (IBAction)onMenuNextError:(id)sender {
     // 行数を取得する
     int lines = get_line_count();
@@ -768,7 +766,6 @@ static ViewController *theViewController;
     [_textViewScript insertText:command replacementRange:NSMakeRange(lineTop, 0)];
 }
 
-// メッセージの挿入
 - (IBAction)onMenuMessage:(id)sender {
     if (self.isEnglish)
         [self insertText:@"Edit this message and press return."];
@@ -776,7 +773,6 @@ static ViewController *theViewController;
         [self insertText:@"この行のメッセージを編集して改行してください。"];
 }
 
-// セリフの挿入
 - (IBAction)onMenuLine:(id)sender {
     if (self.isEnglish)
         [self insertText:@"*Name*Edit this line and press return."];
@@ -784,7 +780,6 @@ static ViewController *theViewController;
         [self insertText:@"名前「このセリフを編集して改行してください。」"];
 }
 
-// セリフ(ボイスつき)の挿入
 - (IBAction)onMenuLineWithVoice:(id)sender {
     if (self.isEnglish)
         [self insertText:@"*Name*001.ogg*Edit this line and press return."];
@@ -792,7 +787,6 @@ static ViewController *theViewController;
         [self insertText:@"*名前*001.ogg*このセリフを編集して改行してください。"];
 }
 
-// 背景変更の挿入
 - (IBAction)onMenuBackground:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/bg"]];
@@ -807,7 +801,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@背景 ファイル=%@ 秒=1.0", file]];
 }
 
-// 背景のみ変更の挿入
 - (IBAction)onMenuBackgroundOnly:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/bg"]];
@@ -822,7 +815,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@場面転換X 背景=%@ 秒=1.0", file]];
 }
 
-// 左キャラの表示
 - (IBAction)onMenuShowLeftCharacter:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
@@ -837,7 +829,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@キャラ 位置=左 ファイル=%@ 秒=1.0", file]];
 }
 
-// 左キャラの非表示
 - (IBAction)onMenuHideLeftCharacter:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@ch position=left file=none duration=1.0"];
@@ -845,7 +836,6 @@ static ViewController *theViewController;
         [self insertText:@"@キャラ 位置=左 ファイル=なし 秒=1.0"];
 }
 
-// 左中央キャラの表示
 - (IBAction)onMenuShowLeftCenterCharacter:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
@@ -860,7 +850,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@キャラ 位置=左中央 ファイル=%@ 秒=1.0", file]];
 }
 
-// 左中央キャラの非表示
 - (IBAction)onMenuHideLeftCenterCharacter:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@ch position=left-center file=none duration=1.0"];
@@ -868,7 +857,6 @@ static ViewController *theViewController;
         [self insertText:@"@キャラ 位置=左中央 ファイル=なし 秒=1.0"];
 }
 
-// 中央キャラの表示
 - (IBAction)onMenuShowCenterCharacter:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
@@ -883,7 +871,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@キャラ 位置=中央 ファイル=%@ 秒=1.0", file]];
 }
 
-// 中央キャラの非表示
 - (IBAction)onMenuHideCenterCharacter:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@ch position=center file=none duration=1.0"];
@@ -891,7 +878,6 @@ static ViewController *theViewController;
         [self insertText:@"@キャラ 位置=中央 ファイル=なし 秒=1.0"];
 }
 
-// 右中央キャラの表示
 - (IBAction)onMenuShowRightwCenterCharacter:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
@@ -906,7 +892,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@キャラ 位置=右中央 ファイル=%@ 秒=1.0", file]];
 }
 
-// 右中央キャラの非表示
 - (IBAction)onMenuHideRightCenterCharacter:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@ch position=right-center file=none duration=1.0"];
@@ -914,7 +899,6 @@ static ViewController *theViewController;
         [self insertText:@"@キャラ 位置=右中央 ファイル=なし 秒=1.0"];
 }
 
-// 右キャラの表示
 - (IBAction)onMenuShowRightCharacter:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/ch"]];
@@ -929,7 +913,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@キャラ 位置=右 ファイル=%@ 秒=1.0", file]];
 }
 
-// 右キャラの非表示
 - (IBAction)onMenuHideRightCharacter:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@ch position=right file=none duration=1.0"];
@@ -937,7 +920,6 @@ static ViewController *theViewController;
         [self insertText:@"@キャラ 位置=右 ファイル=なし 秒=1.0"];
 }
 
-// 複数キャラの変更
 - (IBAction)onMenuChsx:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@chsx left=stay center=stay right=stay duration=1.0"];
@@ -945,7 +927,6 @@ static ViewController *theViewController;
         [self insertText:@"@場面転換X left=stay center=stay right=stay duration=1.0"];
 }
 
-// BGM再生
 - (IBAction)onMenuBgmPlay:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/bgm"]];
@@ -960,7 +941,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@音楽 ファイル=%@", file]];
 }
 
-// BGM停止
 - (IBAction)onMenuBgmStop:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@bgm file=stop"];
@@ -968,7 +948,6 @@ static ViewController *theViewController;
         [self insertText:@"@音楽 ファイル=停止"];
 }
 
-// BGMボリューム
 - (IBAction)onMenuBgmVolume:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@vol track=bgm volume=1.0"];
@@ -976,7 +955,6 @@ static ViewController *theViewController;
         [self insertText:@"@音量 トラック=bgm 音量=1.0"];
 }
 
-// SE再生
 - (IBAction)onMenuSePlay:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/se"]];
@@ -991,7 +969,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@効果音 ファイル=%@", file]];
 }
 
-// SE停止
 - (IBAction)onMenuSeStop:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@se file=stop"];
@@ -999,7 +976,6 @@ static ViewController *theViewController;
         [self insertText:@"@効果音 ファイル=停止"];
 }
 
-// SEボリューム
 - (IBAction)onMenuSeVolume:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@vol track=se volume=1.0"];
@@ -1007,7 +983,6 @@ static ViewController *theViewController;
         [self insertText:@"@音量 トラック=se 音量=1.0"];
 }
 
-// ボイス再生
 - (IBAction)onMenuVoicePlay:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/cv"]];
@@ -1022,7 +997,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@効果音 ファイル=%@ voice", file]];
 }
 
-// ボイス停止
 - (IBAction)onMenuVoiceStop:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@se file=stop voice"];
@@ -1030,7 +1004,6 @@ static ViewController *theViewController;
         [self insertText:@"@効果音 ファイル=停止 voice"];
 }
 
-// ボイスボリューム
 - (IBAction)onMenuVoiceVolume:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@vol track=voice volume=1.0"];
@@ -1038,7 +1011,27 @@ static ViewController *theViewController;
         [self insertText:@"@音量 トラック=voice 音量=1.0"];
 }
 
-// ビデオ
+- (IBAction)onMenuChoose1:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@choose Label1 \"Option1\""];
+    else
+        [self insertText:@"@選択肢 ラベル1 \"選択肢１\""];
+}
+
+- (IBAction)onMenuChoose2:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@choose Label1 \"Option1\" Label2 \"Option2\""];
+    else
+        [self insertText:@"@選択肢 ラベル1 \"選択肢１\" ラベル2 \"選択肢２\""];
+}
+
+- (IBAction)onMenuChoose3:(id)sender {
+    if (self.isEnglish)
+        [self insertText:@"@choose Label1 \"Option1\" Label2 \"Option2\" Label3 \"Option3\""];
+    else
+        [self insertText:@"@選択肢 ラベル1 \"選択肢１\" ラベル2 \"選択肢２\" ラベル3 \"選択肢３\""];
+}
+
 - (IBAction)onMenuVideo:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/mov"]];
@@ -1053,31 +1046,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@動画 ファイル=%@", file]];
 }
 
-// 選択肢1
-- (IBAction)onMenuChoose1:(id)sender {
-    if (self.isEnglish)
-        [self insertText:@"@choose Label1 \"Option1\""];
-    else
-        [self insertText:@"@選択肢 ラベル1 \"選択肢１\""];
-}
-
-// 選択肢2
-- (IBAction)onMenuChoose2:(id)sender {
-    if (self.isEnglish)
-        [self insertText:@"@choose Label1 \"Option1\" Label2 \"Option2\""];
-    else
-        [self insertText:@"@選択肢 ラベル1 \"選択肢１\" ラベル2 \"選択肢２\""];
-}
-
-// 選択肢3
-- (IBAction)onMenuChoose3:(id)sender {
-    if (self.isEnglish)
-        [self insertText:@"@choose Label1 \"Option1\" Label2 \"Option2\" Label3 \"Option3\""];
-    else
-        [self insertText:@"@選択肢 ラベル1 \"選択肢１\" ラベル2 \"選択肢２\" ラベル3 \"選択肢３\""];
-}
-
-// クリック
 - (IBAction)onMenuClick:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@click"];
@@ -1085,7 +1053,6 @@ static ViewController *theViewController;
         [self insertText:@"@クリック待ち"];
 }
 
-// 時間待ち
 - (IBAction)onMenuWait:(id)sender {
     if (self.isEnglish)
         [self insertText:@"@wait duration=1.0"];
@@ -1093,7 +1060,6 @@ static ViewController *theViewController;
         [self insertText:@"@時間待ち 秒=1.0"];
 }
 
-// gui
 - (IBAction)onMenuGUI:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/gui"]];
@@ -1108,7 +1074,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@メニュー ファイル=%@", file]];
 }
 
-// wms
 - (IBAction)onMenuWMS:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/wms"]];
@@ -1123,7 +1088,6 @@ static ViewController *theViewController;
         [self insertText:[NSString stringWithFormat:@"@スクリプト ファイル=%@", file]];
 }
 
-// load
 - (IBAction)onMenuLoad:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.directoryURL = [NSURL fileURLWithPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/txt"]];
@@ -1210,7 +1174,6 @@ static ViewController *theViewController;
     [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[fileManager currentDirectoryPath] stringByAppendingString:@"/export-web"]]];
 }
 
-// パッケージのエクスポートが押下されたイベント
 - (IBAction)onMenuExportForIOS:(id)sender {
     if (!create_package("")) {
         log_info("Export error.");
@@ -1291,7 +1254,6 @@ static ViewController *theViewController;
     [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:[[fileManager currentDirectoryPath] stringByAppendingString:@"/export-android"]]];
 }
 
-// パッケージのエクスポートが押下されたイベント
 - (IBAction)onMenuExportPackage:(id)sender {
     if (!create_package("")) {
         log_info("Export error.");
@@ -1312,17 +1274,8 @@ static ViewController *theViewController;
 }
 
 //
-// ウィンドウ/ビューの設定/取得
+// スクリプトのテキストビュー
 //
-
-// ウィンドウのタイトルを設定する
-- (void)setTitle:(NSString *)title {
-    [self.view.window setTitle:title];
-}
-
-///
-/// スクリプトのテキストビュー
-///
 
 // テキストビューの内容をスクリプトモデルを元に設定する
 - (void)updateTextFromScriptModel {
@@ -1792,6 +1745,9 @@ int get_changed_exec_line(void)
 //
 void on_change_running_state(bool running, bool request_stop)
 {
+    if (!theViewController.isInitialized)
+        return;
+
     @autoreleasepool {
         theViewController.isRunning = running ? YES : NO;
         if(request_stop) {
@@ -1804,15 +1760,12 @@ void on_change_running_state(bool running, bool request_stop)
             [theViewController.textViewScript setEditable:NO];
             [theViewController.textFieldVariables setEditable:NO];
             [theViewController.buttonUpdateVariables setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
-            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:1] submenu] itemArray])
                 [item setEnabled:NO];
-            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
+                [item setEnabled:YES];
+            [[[[[NSApp mainMenu] itemAtIndex:3] submenu] itemWithTag:112] setEnabled:NO];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:5] submenu] itemArray])
                 [item setEnabled:NO];
             [theViewController setTextColorForAllLinesImmediately];
             return;
@@ -1826,16 +1779,12 @@ void on_change_running_state(bool running, bool request_stop)
             [theViewController.textViewScript setEditable:YES];
             [theViewController.textFieldVariables setEditable:NO];
             [theViewController.buttonUpdateVariables setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:YES];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:NO];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:1] submenu] itemArray])
+                [item setEnabled:NO];
             for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
                 [item setEnabled:NO];
-            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+            [[[[[NSApp mainMenu] itemAtIndex:3] submenu] itemWithTag:112] setEnabled:YES];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:5] submenu] itemArray])
                 [item setEnabled:NO];
             [theViewController setTextColorForAllLinesImmediately];
             return;
@@ -1849,16 +1798,12 @@ void on_change_running_state(bool running, bool request_stop)
             [theViewController.textViewScript setEditable:YES];
             [theViewController.textFieldVariables setEditable:YES];
             [theViewController.buttonUpdateVariables setEnabled:YES];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:100] setEnabled:YES];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:101] setEnabled:YES];
-            [[[[[NSApp mainMenu] itemAtIndex:1] submenu] itemWithTag:107] setEnabled:YES];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:102] setEnabled:YES];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:103] setEnabled:YES];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:104] setEnabled:NO];
-            [[[[[NSApp mainMenu] itemAtIndex:2] submenu] itemWithTag:105] setEnabled:YES];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:1] submenu] itemArray])
+                [item setEnabled:YES];
             for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:3] submenu] itemArray])
                 [item setEnabled:YES];
-            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:4] submenu] itemArray])
+            [[[[[NSApp mainMenu] itemAtIndex:3] submenu] itemWithTag:112] setEnabled:NO];
+            for (NSMenuItem *item in [[[[NSApp mainMenu] itemAtIndex:5] submenu] itemArray])
                 [item setEnabled:YES];
             [theViewController setTextColorForAllLinesImmediately];
         }

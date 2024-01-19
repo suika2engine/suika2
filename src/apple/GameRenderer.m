@@ -571,6 +571,10 @@ bool is_video_playing(void)
 //
 void update_window_title(void)
 {
+    NSString *title = [NSString stringWithUTF8String:conf_window_title];
+    if (!conf_window_title_chapter_disable)
+        title = [NSString stringWithFormat:@"%@%s%s", title, conf_window_title_separator, get_chapter_name()];
+    [theViewController setTitle:title];
 }
 
 //
@@ -586,7 +590,7 @@ bool is_full_screen_supported(void)
 //
 bool is_full_screen_mode(void)
 {
-    return false;
+    return [theViewController isFullScreen];
 }
 
 //
@@ -594,9 +598,7 @@ bool is_full_screen_mode(void)
 //
 void enter_full_screen_mode(void)
 {
-#ifdef SUIKA_TARGET_MACOS
     [theViewController enterFullScreen];
-#endif
 }
 
 //
@@ -604,9 +606,7 @@ void enter_full_screen_mode(void)
 //
 void leave_full_screen_mode(void)
 {
-#ifdef SUIKA_TARGET_MACOS
     [theViewController leaveFullScreen];
-#endif
 }
 
 //

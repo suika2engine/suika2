@@ -1,13 +1,13 @@
 ###
-### GUI Definition for Main Menu Screen
+### GUI Definition for Title Screen
 ###
 
 # Basic Settings
 global {
     # Use these images
-    idle:   system/menu/idle.png;
-    hover:  system/menu/hover.png;
-    active: system/menu/hover.png;
+    idle:   title/idle.png;
+    hover:  title/hover.png;
+    active: title/hover.png;
 }
 
 # START Button
@@ -19,10 +19,10 @@ START {
     label: START;
 
     # Position and size
-    x: 2;
-    y: 495;
-    width: 314;
-    height: 192;
+    x: 33;
+    y: 491;
+    width: 323;
+    height: 196;
 
     # Sound effect when pointed
     pointse: btn-change.ogg;
@@ -40,10 +40,10 @@ LOAD {
     label: LOAD;
 
     # Position and size
-    x: 316;
-    y: 494;
-    width: 322;
-    height: 203;
+    x: 356;
+    y: 493;
+    width: 321;
+    height: 205;
 
     # Sound effect when pointed
     pointse: btn-change.ogg;
@@ -61,31 +61,10 @@ CONFIG {
     label: CONFIG;
 
     # Position and size
-    x: 640;
-    y: 492;
-    width: 317;
-    height: 204;
-
-    # Sound effect when pointed
-    pointse: btn-change.ogg;
-
-    # Sound effect when clicked
-    clickse: click.ogg;
-}
-
-# QUIT Button
-QUIT {
-    # Jump-to-label type
-    type: goto;
-
-    # Jump to label
-    label: QUIT;
-
-    # Position and size
-    x: 960;
-    y: 497;
-    width: 317;
-    height: 201;
+    x: 677;
+    y: 496;
+    width: 321;
+    height: 193;
 
     # Sound effect when pointed
     pointse: btn-change.ogg;

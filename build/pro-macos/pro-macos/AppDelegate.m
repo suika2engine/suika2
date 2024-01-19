@@ -25,6 +25,7 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    NSApp.delegate = (id<NSApplicationDelegate>)NSApp.mainWindow.contentViewController;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

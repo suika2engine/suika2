@@ -9,12 +9,12 @@
 @音楽 ファイル=00.ogg
 
 # メニューの背景を表示する
-@背景 ファイル=cg/menu-idle.png 1.0
+@背景 ファイル=cg/title/idle.png 1.0
 
 # メニューを表示する
 :MENU
 @章 タイトル=メニュー
-@メニュー ファイル=menu.txt フェードインなし
+@メニュー ファイル=title.txt フェードインなし
 
 # メニューでSTARTが選択されたとき、ここにジャンプする
 :START
@@ -286,13 +286,9 @@ iPhoneやiPad, Android, Linuxでも快適に動作し、ストア公開されて
 ###
 
 :END
-@chapter ロゴ
-@skip disable
-@vol bgm 0.0 2.0
-@bg white.png 1.0
-@ch c luxion.png 0.5
-@wait 1.0
-@ch c none 1.0
+
+# init.txtを読み込んでゲームの先頭に戻る
+@load init.txt
 
 ###
 ### いかがでしたか？いろいろな記法がありますが、お好みのものをお使いください！

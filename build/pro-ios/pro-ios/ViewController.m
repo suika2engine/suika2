@@ -230,6 +230,10 @@ static void setStoppedState(void);
     return _screenSize;
 }
 
+- (CGPoint)windowPointToScreenPoint:(CGPoint)windowPoint {
+    return windowPoint;
+}
+
 - (BOOL)isVideoPlaying {
     return _isVideoPlaying;
 }
@@ -268,6 +272,19 @@ static void setStoppedState(void);
         _avPlayer = nil;
         _avPlayerLayer = nil;
     }
+}
+
+- (void)setTitle:(NSString *)title {
+}
+
+- (BOOL)isFullScreen {
+    return NO;
+}
+
+- (void)enterFullScreen {
+}
+
+- (void)leaveFullScreen {
 }
 
 //

@@ -1170,6 +1170,15 @@ static bool process_move(void)
 /* SEの再生を処理する */
 static void process_se(void)
 {
+	/* キャンセルボタンの場合 */
+	if (result_index == -1) {
+		if (is_fade_out_first_frame) {
+			play_sys_se(cancel_se);
+			is_fade_out_first_frame = false;
+		}
+		return;
+	}
+
 	/* 戻るボタンの場合 */
 	if (result_index != -1 && button[result_index].type == TYPE_CANCEL) {
 		if (is_fade_out_first_frame) {
