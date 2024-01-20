@@ -345,7 +345,7 @@ static bool post_process(void)
 {
 	/* システムメニューで押されたボタンの処理を行う */
 	if (will_quick_save) {
-		quick_save();
+		quick_save(false);
 		will_quick_save = false;
 	}
 
@@ -1178,7 +1178,7 @@ static void process_sysmenu_input(void)
 		break;
 	case SYSMENU_QLOAD:
 		play_se(conf_sysmenu_qload_se);
-		if (!quick_load())
+		if (!quick_load(false))
 			is_quick_load_failed = true;
 		did_quick_load = true;
 		break;

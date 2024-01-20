@@ -357,9 +357,9 @@ switch.color.inactive=1
 switch.color.inactive.r=255
 switch.color.inactive.g=255
 switch.color.inactive.b=255
-switch.color.inactive.outline.r=255
-switch.color.inactive.outline.g=255
-switch.color.inactive.outline.b=255
+switch.color.inactive.outline.r=128
+switch.color.inactive.outline.g=128
+switch.color.inactive.outline.b=128
 
 # [ポイントされた項目のテキスト色] (省略可)
 #  - active=0: 無効

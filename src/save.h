@@ -32,6 +32,11 @@
 #define QUICK_SAVE_FILE		"q000.sav"
 
 /*
+ * クイックセーブファイル(extra)
+ */
+#define QUICK_SAVE_EXTRA_FILE	"q001.sav"
+
+/*
  * セーブデータ数
  */
 #define SAVE_SLOTS		(100)
@@ -58,10 +63,10 @@ void save_global_data(void);
 bool have_quick_save_data(void);
 
 /* クイックセーブを行う */
-bool quick_save(void);
+bool quick_save(bool extra);
 
 /* クイックロードを行う */
-bool quick_load(void);
+bool quick_load(bool extra);
 
 /* ローカルセーブデータの削除を行う */
 void delete_local_save(int index);
