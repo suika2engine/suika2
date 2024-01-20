@@ -358,6 +358,7 @@ static bool pre_dispatch(void)
 static bool dispatch_command(bool *cont)
 {
 	const char *locale;
+	int command_type;
 
 	/* 次のコマンドを同じフレーム内で実行するか */
 	*cont = false;
@@ -384,11 +385,12 @@ static bool dispatch_command(bool *cont)
 	}
 
 	/* コマンドをディスパッチする */
-	switch (get_command_type()) {
+	command_type = get_command_type();
+	switch (command_type) {
 	case COMMAND_LABEL:
-		*cont = true;
 		if (!move_to_next_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_MESSAGE:
 	case COMMAND_SERIF:
@@ -535,10 +537,8 @@ static bool dispatch_command(bool *cont)
 	}
 
 #ifdef USE_DEBUGGER
-	if (*cont) {
+	if (*cont && !dbg_request_stop) {
 		render_stage();
-		if (!is_non_interruptible())
-			render_collapsed_sysmenu(false);
 		*cont = false;
 	}
 #endif

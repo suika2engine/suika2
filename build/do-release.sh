@@ -159,7 +159,12 @@ cp -v ../doc/readme-en.html installer-windows/readme-en.html
 # /games
 rm -rf installer-windows/games
 find ../games -name '.*' | xargs rm
-cp -Rv ../games installer-windows/games
+mkdir installer-windows/games
+cp -Rv ../games/japanese installer-windows/games/
+cp -Rv ../games/english installer-windows/games/
+cp -Rv ../games/nvl installer-windows/games/
+cp -Rv ../games/nvl-tategaki installer-windows/games/
+cp -Rv ../games/nvl-en installer-windows/games/
 
 # /tools
 rm -rf installer-windows/tools
