@@ -784,24 +784,46 @@ static void draw_text(struct image *target, const char *text, int w, int h, bool
 	}
 
 	/* 色を決める */
-	if (is_bg || (!is_bg && !conf_switch_color_active)) {
-		color = make_pixel(0xff,
-				   (pixel_t)conf_font_color_r,
-				   (pixel_t)conf_font_color_g,
-				   (pixel_t)conf_font_color_b);
-		outline_color = make_pixel(0xff,
-					   (pixel_t)conf_font_outline_color_r,
-					   (pixel_t)conf_font_outline_color_g,
-					   (pixel_t)conf_font_outline_color_b);
+	if (is_bg) {
+		if (!conf_switch_color_inactive) {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_font_color_r,
+					   (pixel_t)conf_font_color_g,
+					   (pixel_t)conf_font_color_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_font_outline_color_r,
+						   (pixel_t)conf_font_outline_color_g,
+						   (pixel_t)conf_font_outline_color_b);
+		} else {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_switch_color_inactive_body_r,
+					   (pixel_t)conf_switch_color_inactive_body_g,
+					   (pixel_t)conf_switch_color_inactive_body_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_switch_color_inactive_outline_r,
+						   (pixel_t)conf_switch_color_inactive_outline_g,
+						   (pixel_t)conf_switch_color_inactive_outline_b);
+		}
 	} else {
-		color = make_pixel(0xff,
-					  (pixel_t)conf_switch_color_active_body_r,
-					  (pixel_t)conf_switch_color_active_body_g,
-					  (pixel_t)conf_switch_color_active_body_b);
-		outline_color = make_pixel(0xff,
-						  (pixel_t)conf_switch_color_active_outline_r,
-						  (pixel_t)conf_switch_color_active_outline_g,
-						  (pixel_t)conf_switch_color_active_outline_b);
+		if (!conf_switch_color_active) {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_font_color_r,
+					   (pixel_t)conf_font_color_g,
+					   (pixel_t)conf_font_color_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_font_outline_color_r,
+						   (pixel_t)conf_font_outline_color_g,
+						   (pixel_t)conf_font_outline_color_b);
+		} else {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_switch_color_active_body_r,
+					   (pixel_t)conf_switch_color_active_body_g,
+					   (pixel_t)conf_switch_color_active_body_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_switch_color_active_outline_r,
+						   (pixel_t)conf_switch_color_active_outline_g,
+						   (pixel_t)conf_switch_color_active_outline_b);
+		}
 	}
 
 	/* 描画位置を決める */

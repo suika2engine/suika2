@@ -345,6 +345,17 @@ switch.margin.y=20
 # The top margin of the choose item text.
 switch.text.margin.y=16
 
+# The color of a text of a non-pointed choose item. (optional)
+#  inactive=0: Do not change the color of a non-pointed item.
+#  inactive=1: Change the color of a non-pointed item.
+switch.color.inactive=1
+switch.color.inactive.r=255
+switch.color.inactive.g=255
+switch.color.inactive.b=255
+switch.color.inactive.outline.r=255
+switch.color.inactive.outline.g=255
+switch.color.inactive.outline.b=255
+
 # The color of a text of a pointed choose item. (optional)
 #  active=0: Do not change the color of a pointed item.
 #  active=1: Change the color of a pointed item.
