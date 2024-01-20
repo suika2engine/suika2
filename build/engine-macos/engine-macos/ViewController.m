@@ -385,13 +385,15 @@ static FILE *openLog(void);
     if (!_isFullScreen) {
         [self.view.window toggleFullScreen:self.view];
         [self setAppName];
+        _isFullScreen = YES;
     }
 }
 
 - (void)leaveFullScreen {
-    if (!_isFullScreen) {
+    if (_isFullScreen) {
         [self.view.window toggleFullScreen:self.view];
         [self setAppName];
+        _isFullScreen = NO;
     }
 }
 

@@ -203,8 +203,8 @@ struct insn_item {
 	{U8("@クリック"), COMMAND_CLICK, 0, 1},
 
 	/* 時間指定待ち */
-	{"@wait", COMMAND_WAIT, 1, 1},
-	{U8("@時間待ち"), COMMAND_WAIT, 1, 1},
+	{"@wait", COMMAND_WAIT, 1, 2},
+	{U8("@時間待ち"), COMMAND_WAIT, 1, 2},
 
 	/* ラベルへジャンプ */
 	{"@goto", COMMAND_GOTO, 1, 1},

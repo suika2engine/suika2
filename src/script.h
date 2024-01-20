@@ -147,6 +147,7 @@ enum ch_command_param {
 /* waitコマンドのパラメータ */
 enum wait_command_param {
 	WAIT_PARAM_SPAN = 1,
+	WAIT_PARAM_OPT,
 };
 
 /* gotoコマンドのパラメータ */
