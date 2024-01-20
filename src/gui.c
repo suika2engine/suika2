@@ -229,9 +229,6 @@ static float fade_in_time;
 /* フェードアウト時間 */
 static float fade_out_time;
 
-/* フェードアウトの最初のフレームか */
-static bool is_fade_out_first_frame;
-
 /* 終了したか */
 static bool is_finished;
 
@@ -270,6 +267,9 @@ static bool is_saved_in_this_frame;
 
 /* SEの再生を控えるフレームであるか */
 static bool suppress_se;
+
+/* SEが再生済みなのでこれ以上の再生を控えるか */
+static bool suppress_se_forever;
 
 /* ヒストリの1ページあたりのスロット数 */
 static int history_slots;
@@ -471,7 +471,6 @@ bool prepare_gui_mode(const char *file, bool sys)
 	history_top = -1;
 	fade_in_time = 0;
 	fade_out_time = 0;
-	is_fade_out_first_frame = false;
 	did_save = false;
 	did_load = false;
 	is_finished = false;
@@ -874,6 +873,7 @@ void start_gui_mode(void)
 	is_fading_out = false;
 	is_saved_in_this_frame = false;
 	suppress_se = false;
+	suppress_se_forever = false;
 }
 
 /*
@@ -980,13 +980,9 @@ static void process_input(void)
 			/* どのボタンも選ばれなかったことにする */
 			result_index = -1;
 
-			/* SEを再生する */
-			play_sys_se(cancel_se);
-
 			/* フェードアウトか終了処理を行う */
 			if (fade_out_time > 0) {
 				is_fading_out = true;
-				is_fade_out_first_frame = true;
 				reset_lap_timer(&fade_sw);
 			} else {
 				is_finished = true;
@@ -1014,7 +1010,6 @@ static void process_input(void)
 		    (button[result_index].type != TYPE_GUI &&
 		     button[result_index].type != TYPE_TITLE)) {
 			is_fading_out = true;
-			is_fade_out_first_frame = true;
 			reset_lap_timer(&fade_sw);
 		} else {
 			is_finished = true;
@@ -1170,55 +1165,48 @@ static bool process_move(void)
 /* SEの再生を処理する */
 static void process_se(void)
 {
-	/* キャンセルボタンの場合 */
-	if (result_index == -1) {
-		if (is_fade_out_first_frame) {
-			play_sys_se(cancel_se);
-			is_fade_out_first_frame = false;
-		}
-		return;
-	}
-
-	/* 戻るボタンの場合 */
-	if (result_index != -1 && button[result_index].type == TYPE_CANCEL) {
-		if (is_fade_out_first_frame) {
-			play_sys_se(button[result_index].clickse);
-			is_fade_out_first_frame = false;
-		}
-		return;
-	}
-
-	/* フェード中はSEを再生しない */
-	if (is_fading_in || is_fading_out)
+	/* 初回フレームの場合は再生しない */
+	if (is_first_frame)
 		return;
 
-	/* SEを抑止するフレームの場合 */
+	/* SEを抑止するフレームの場合は再生しない */
 	if (suppress_se) {
 		suppress_se = false;
 		return;
 	}
 
-	/* セーブされたフレームの場合 */
+	/* セーブされたフレームの場合は再生しない */
 	if (is_saved_in_this_frame) {
 		suppress_se = true;
 		is_saved_in_this_frame = false;
 		return;
 	}
 
-	/* 初回フレームの場合 */
-	if (is_first_frame)
-		return;
+	/* ボタンが選択された場合 */
+	if (!suppress_se_forever) {
+		if (result_index == -1 && (is_fading_out || is_finished)) {
+			/* キャンセルの場合 */
+			play_sys_se(cancel_se);
 
-	/* それ以外の場合で、ボタンが選択された場合 */
-	if (result_index != -1) {
-		/* 音量系のボタンの場合、SEは再生しない */
-		if (button[result_index].type == TYPE_BGMVOL ||
-			button[result_index].type == TYPE_VOICEVOL ||
-			button[result_index].type == TYPE_SEVOL ||
-			button[result_index].type == TYPE_CHARACTERVOL)
+			/* これ以上SEを再生しない */
+			suppress_se_forever = true;
 			return;
-		play_sys_se(button[result_index].clickse);
-		return;
+		} else if (result_index != -1) {
+			/* 音量系のボタンの場合、SEは再生しない */
+			if (button[result_index].type == TYPE_BGMVOL ||
+			    button[result_index].type == TYPE_VOICEVOL ||
+			    button[result_index].type == TYPE_SEVOL ||
+			    button[result_index].type == TYPE_CHARACTERVOL)
+				return;
+
+			/* クリック音を再生する */
+			play_sys_se(button[result_index].clickse);
+
+			/* これ以上SEを再生しない */
+			if (is_fading_out || is_finished)
+				suppress_se_forever = true;
+			return;
+		}
 	}
 
 	/* 前フレームとは異なるボタンがポイントされた場合 */

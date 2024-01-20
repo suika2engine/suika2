@@ -580,7 +580,7 @@ void update_window_title(void)
 
 //
 // フルスクリーンモードがサポートされるか調べる
-//
+//	
 bool is_full_screen_supported(void)
 {
     return true;

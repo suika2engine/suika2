@@ -516,7 +516,7 @@ static ViewController *theViewController;
 }
 
 - (void)leaveFullScreen {
-    if (!_isFullScreen) {
+    if (_isFullScreen) {
         [self.view.window toggleFullScreen:self];
         _isFullScreen = NO;
     }
