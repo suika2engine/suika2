@@ -264,6 +264,10 @@ struct insn_item {
 	{"@ichoose", COMMAND_ICHOOSE, 2, 16},
 	{U8("@インライン選択肢"), COMMAND_ICHOOSE, 2, 16},
 
+	/* 条件付き選択肢 */
+	{"@mchoose", COMMAND_MCHOOSE, 3, 24},
+	{U8("@条件付き選択肢"), COMMAND_MCHOOSE, 2, 24},
+
 	/* 章タイトル */
 	{"@chapter", COMMAND_CHAPTER, 1, 1},
 	{U8("@章"), COMMAND_CHAPTER, 1, 1},

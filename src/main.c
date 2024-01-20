@@ -449,9 +449,9 @@ static bool dispatch_command(bool *cont)
 		break;
 	case COMMAND_CHOOSE:
 	case COMMAND_ICHOOSE:
+	case COMMAND_MCHOOSE:
 	case COMMAND_SWITCH:	/* deprecated */
 	case COMMAND_NEWS:	/* deprecated */
-	case COMMAND_SELECT:	/* deprecated */
 		if (!switch_command())
 			return false;
 		break;
