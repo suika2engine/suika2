@@ -537,6 +537,8 @@ static bool dispatch_command(bool *cont)
 #ifdef USE_DEBUGGER
 	if (*cont) {
 		render_stage();
+		if (!is_non_interruptible())
+			render_collapsed_sysmenu(false);
 		*cont = false;
 	}
 #endif
