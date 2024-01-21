@@ -296,14 +296,14 @@ static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD d
 
 /* Project */
 static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam);
-static BOOL CreateProjectFromTemplate(void);
+static BOOL CreateProjectFromTemplate(const wchar_t *pszTemplate);
 static BOOL ChooseProject(void);
 static BOOL OpenProjectAtPath(const wchar_t *pszPath);
 static VOID ReadProjectFile(void);
 static VOID WriteProjectFile(void);
 
 /* Command Handlers */
-static VOID OnNewProject(void);
+static VOID OnNewProject(const wchar_t *pszTemplate);
 static VOID OnOpenProject(void);
 static VOID OnOpenGameFolder(void);
 static VOID OnOpenScript(void);
@@ -900,6 +900,7 @@ static VOID InitMenu(HWND hWnd)
 	HMENU hMenuExport = CreatePopupMenu();
 	HMENU hMenuPref = CreatePopupMenu();
 	HMENU hMenuHelp = CreatePopupMenu();
+	HMENU hMenuProject = CreatePopupMenu();
     MENUITEMINFO mi;
 	UINT nOrder;
 
@@ -947,16 +948,44 @@ static VOID InitMenu(HWND hWnd)
 	mi.dwTypeData = bEnglish ? L"Help(&H)": L"ヘルプ(&H)";
 	InsertMenuItem(hMenu, nOrder++, TRUE, &mi);
 
+	/* 新規ゲームの入れ子を作成する */
+	mi.hSubMenu = hMenuProject;
+	mi.dwTypeData = bEnglish ? L"Create a new game" : L"新規ゲームを作成";
+	InsertMenuItem(hMenuFile, 0, TRUE, &mi);
+
+	/* 日本語アドベンチャーを作成する */
+	nOrder = 0;
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+	mi.wID = ID_NEW_PROJECT_ADVJP;
+	mi.dwTypeData = bEnglish ? L"Japanese ADV" : L"日本語アドベンチャー";
+	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
+
+	/* 日本語ノベルを作成する */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+	mi.wID = ID_NEW_PROJECT_NVLJP;
+	mi.dwTypeData = bEnglish ? L"Japanese NVL" : L"日本語ノベル";
+	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
+
+	/* 日本語縦書きを作成する */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+	mi.wID = ID_NEW_PROJECT_NVLJPV;
+	mi.dwTypeData = bEnglish ? L"Japanese NVL Vertival" : L"日本語縦書き";
+	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
+
+	/* 英語アドベンチャーを作成する */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+	mi.wID = ID_NEW_PROJECT_NVLEN;
+	mi.dwTypeData = bEnglish ? L"English ADV" : L"英語アドベンチャー";
+	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
+
+	/* 英語ノベルを作成する */
+	mi.fMask = MIIM_TYPE | MIIM_ID;
+	mi.wID = ID_NEW_PROJECT_NVLEN;
+	mi.dwTypeData = bEnglish ? L"English NVL" : L"英語ノベル";
+	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
+
 	/* 2階層目を作成する準備を行う */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
-
-	/* 新規プロジェクトを作成する */
-	nOrder = 0;
-	mi.wID = ID_NEW_PROJECT;
-	mi.dwTypeData = bEnglish ?
-		L"New game" :
-		L"新規ゲーム";
-	InsertMenuItem(hMenuFile, nOrder++, TRUE, &mi);
 
 	/* プロジェクトを開くを作成する */
 	mi.wID = ID_OPEN_PROJECT;
@@ -1322,7 +1351,11 @@ static VOID StartGame(void)
 		EnableWindow(hWndBtnVar, TRUE);
 
 		/* Make menu items enabled/disabled. */
-		EnableMenuItem(hMenu, ID_NEW_PROJECT, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_NEW_PROJECT_ADVJP, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_NEW_PROJECT_NVLJP, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_NEW_PROJECT_NVLJPV, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_NEW_PROJECT_ADVEN, MF_GRAYED);
+		EnableMenuItem(hMenu, ID_NEW_PROJECT_NVLEN, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_OPEN_PROJECT, MF_GRAYED);
 		EnableMenuItem(hMenu, ID_OPEN_GAME_FOLDER, MF_ENABLED);
 		EnableMenuItem(hMenu, ID_OPEN, MF_ENABLED);
@@ -1909,8 +1942,20 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 	switch(nID)
 	{
 	/* ファイル */
-	case ID_NEW_PROJECT:
-		OnNewProject();
+	case ID_NEW_PROJECT_ADVJP:
+		OnNewProject(L"games\\japanese\\*");
+		break;
+	case ID_NEW_PROJECT_NVLJP:
+		OnNewProject(L"games\\nvl\\*");
+		break;
+	case ID_NEW_PROJECT_NVLJPV:
+		OnNewProject(L"games\\nvl-tategaki\\*");
+		break;
+	case ID_NEW_PROJECT_ADVEN:
+		OnNewProject(L"games\\english\\*");
+		break;
+	case ID_NEW_PROJECT_NVLEN:
+		OnNewProject(L"games\\nvl-en\\*");
 		break;
 	case ID_OPEN_PROJECT:
 		OnOpenProject();
@@ -3766,7 +3811,7 @@ static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD
 }
 
 /* Create a new project from a template. */
-static BOOL CreateProjectFromTemplate(void)
+static BOOL CreateProjectFromTemplate(const wchar_t *pszTemplate)
 {
 	static wchar_t wszPath[1024];
 	OPENFILENAMEW ofn;
@@ -3846,30 +3891,11 @@ static BOOL CreateProjectFromTemplate(void)
 					 L"plaintext.code-snippets.jp",
 					 L".\\.vscode\\plaintext.code-snippets");
 
-	/* テンプレートを選択する */
-	if (MessageBox(NULL,
-				   bEnglish ?
-				   L"Do you want to use the good old full screen style, that is, NVL mode?\n"
-				   L"(No is recommended.)" :
-				   L"全画面スタイルにしますか？\n"
-				   L"「はい」を押すと全画面スタイルにします。\n"
-				   L"「いいえ」を押すとアドベンチャースタイルにします。\n",
-				   TITLE,
-				   MB_YESNO) == IDYES)
-	{
-		/* 英語の場合 */
-		if (bEnglish)
-			return CopyLibraryFiles(L"games\\nvl-en\\*", L".\\");
+	/* コピーを行う */
+	if (!CopyLibraryFiles(pszTemplate, L".\\"))
+		return FALSE;
 
-		/* 日本語の場合 */
-		if (MessageBox(NULL, L"縦書きにしますか？", TITLE, MB_YESNO) == IDYES)
-			return CopyLibraryFiles(L"games\\nvl-tategaki\\*", L".\\");
-		else
-			return CopyLibraryFiles(L"games\\nvl\\*", L".\\");
-	}
-	if (bEnglish)
-		return CopyLibraryFiles(L"games\\english\\*", L".\\");
-	return CopyLibraryFiles(L"games\\japanese\\*", L".\\");
+	return TRUE;
 }
 
 /* Choose a project and open it. */
@@ -4035,11 +4061,11 @@ static void WriteProjectFile(void)
  */
 
 /* 新規ゲームプロジェクト作成 */
-static VOID OnNewProject(void)
+static VOID OnNewProject(const wchar_t *pszTemplate)
 {
 	KillTimer(hWndMain, ID_TIMER_BEGINNER);
 
-	if (!CreateProjectFromTemplate())
+	if (!CreateProjectFromTemplate(pszTemplate))
 		return;
 
 	StartGame();

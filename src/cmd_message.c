@@ -555,7 +555,7 @@ static void post_process(void)
 
 	/* クイックセーブを行う */
 	if (will_quick_save) {
-		quick_save();
+		quick_save(false);
 		will_quick_save = false;
 	}
 
@@ -2004,7 +2004,7 @@ static void action_qsave(void)
 static void action_qload(void)
 {
 	/* クイックロードを行う */
-	if (!quick_load()) {
+	if (!quick_load(false)) {
 		is_quick_load_failed = true;
 		return;
 	}

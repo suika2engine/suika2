@@ -113,7 +113,10 @@
 			<button class="nav-link" id="android-tab" data-bs-toggle="tab" data-bs-target="#android-tab-pane" type="button" role="tab" aria-controls="android-tab-pane" aria-selected="false">Android</button>
 		</li>
 		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="windows-tab-pane" aria-selected="false">Linux/Chromebook</button>
+			<button class="nav-link" id="linux-tab" data-bs-toggle="tab" data-bs-target="#linux-tab-pane" type="button" role="tab" aria-controls="linux-tab-pane" aria-selected="false">Linux/Chromebook</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="credit-tab" data-bs-toggle="tab" data-bs-target="#credit-tab-pane" type="button" role="tab" aria-controls="credit-tab-pane" aria-selected="false">Credit</button>
 		</li>
 	</ul>
 
@@ -128,14 +131,14 @@
 				ストア版よりも新しいバージョンです。
 			</p>
 			<p>
-<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.79 (2023/1/20):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-15.79.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-15.79.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/15.96 (2023/1/21):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-15.96.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-15.96.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
 			</p>
 			<br>
 			<h4>旧版</h4>
 				<p>
-					大幅な変更を行った直前のバージョンを念のために残してあります。<br>
+					現在は最新版の方が安定していますが、念のため、大幅な変更直前のバージョンを残してあります。<br>
 					<a href="/dl/suika2-15.3.zip">Suika2/15.3 本体 Windows/macOS対応 ZIP</a><br>
 					<a href="/dl/suika2-14.19.zip">Suika2/14.19 本体 Windows/macOS対応 ZIP</a><br>
 					<a href="/dl/suika2-13.35.zip">Suika2/13.35 本体 Windows/macOS対応 ZIP</a><br>
@@ -172,6 +175,50 @@
 				<pre><code>sudo apt-get install -y git build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev<br>git clone https://github.com/suika2engine/suika2.git<br>cd suika2<br>make<br>sudo make install<br>suika2</code></pre>
 				<p>Ubuntuパッケージのインストール (22.04 LTSのみ):</p>
 				<pre><code>sudo add-apt-repository ppa:ktabata/ppa<br>sudo apt update<br>sudo apt install suika2<br>suika2</code></pre>
+			</div>
+		</div>
+
+		<!-- Credit -->
+		<div class="tab-pane fade" id="credit-tab-pane" role="tabpanel" aria-labelledby="credit-tab" tabindex="0">
+			<div style="margin-left:1em;margin-top:1em;">
+				<h3>クレジット</h3>
+				<p>テンプレートゲームの作成にあたり、才能溢れる素晴しいクリエイタの皆様にご参加いただいております。(敬称略)</p>
+				<ul>
+					<li>美術
+						<ul>
+							<li>システムGUI: MaxMorgan</li>
+							<li>キャラクタデザイン(みどり): ななぽに (@gigzagu123)</li>
+							<li>キャラクタデザイン(りな): 猫柳れお (@Reo_SR)</li>
+							<li>背景(屋上/砂浜): つる</li>
+							<li>タイトル画面デザイン: heath</li>
+							<li>アイコンデザイン(suika.exe): Ronron</li>
+						</ul>
+					</li>
+					<li>演技
+						<ul>
+							<li>日本語: しぐれるぅ。 (@sigureruu)</li>
+							<li>米語: カレン・ヘドリック <a href="https://www.karenvoice.jp/">Karen Voice</a></li>
+						</ul>
+					</li>
+					<li>音楽
+						<ul>
+							<li>BGM: 80</li>
+							<li>BGM: krol (ymurata58)</li>
+						</ul>
+					</li>
+					<li>利用ライブラリ
+						<ul>
+							<li>zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler. All rights reserved.</li>
+							<li>libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors. All rights reserved.</li>
+							<li>jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding. All rights reserved.</li>
+							<li>bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.</li>
+							<li>libwebp: Copyright (C) 2010, Google Inc. All rights reserved.</li>
+							<li>libogg: Copyright (C) 2002, Xiph.org Foundation. All rights reserved.</li>
+							<li>libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation. All rights reserved.</li>
+							<li>FreeType2: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg. All rights reserved.</li>
+						</ul>
+					</li>
+				</ul>
 			</div>
 		</div>
 
@@ -252,9 +299,8 @@
 	<p>
 		<img src="/img/icons/zip.png" width="48"><br>
 		<a href="/dl/material/complete-demo.zip">コンプリート版デモ</a><br>
-		<a href="/dl/material/gui-config-psd.zip">コンフィグ画面のGUI (By MaxMorgan)</a><br>
-		<a href="/dl/material/gui-menu-psd.zip">メニュー画面のGUI (By heath)</a><br>
-		<a href="/dl/material/gui-save-psd.zip">セーブ画面のGUI (By heath)</a>
+		<a href="/dl/material/gui-psd.zip">システムGUI (By MaxMorgan)</a><br>
+		<a href="/dl/material/gui-menu-psd.zip">タイトル画面のGUI (By heath)</a>
 	</p>
 </div>
 
@@ -642,6 +688,24 @@
 			<div class="accordion-body">
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/15.96 2023/1/21 <ul> <li>微調整</li> </ul> </li>
+<li>Suika2/15.95 2023/1/21 <ul> <li>Windows版でアップデートインストール時に自動アンインストールを実装</li> </ul> </li>
+<li>Suika2/15.94 2023/1/21 <ul> <li>GUIからGUIへの遷移でSEが鳴らないバグを修正 (Thanks to Ronron!)</li> </ul> </li>
+
+<li>Suika2/15.93 2023/1/21 <ul> <li>@mchooseの位置を修正 (Thanks to coexistem!)</li> </ul> </li>
+<li>Suika2/15.92 2023/1/21 <ul> <li>Windows版Proで英語テンプレのミスを修正</li> </ul> </li>
+<li>Suika2/15.91 2023/1/21 <ul> <li>Proでのチラつきを再度調整 (Thanks to あさつき-san!)</li> </ul> </li>
+<li>Suika2/15.90 2023/1/21 <ul> <li>Windows版Proでテンプレートの選択を実装</li> </ul> </li>
+<li>Suika2/15.89 2023/1/21 <ul> <li>Proでのチラつきを抑制 (Thanks to あさつき-san!)</li> </ul> </li>
+<li>Suika2/15.88 2023/1/20 <ul> <li>条件付き選択肢の@mchooseコマンドを追加 (Thanks to coexistem!)</li> </ul> </li>
+<li>Suika2/15.87 2023/1/20 <ul> <li>GUIのSEが鳴らないバグを修正 (Thanks to many!)</li> </ul> </li>
+<li>Suika2/15.86 2023/1/20 <ul> <li>コンフィグの誤記を修正 (Thanks to MATSUNO-san!)</li> </ul> </li>
+<li>Suika2/15.85 2023/1/20 <ul> <li>macOS版のエクスポートアプリでフルスクリーンの不具合を修正</li> </ul> </li>
+<li>Suika2/15.84 2023/1/20 <ul> <li>@waitコマンドにshowsysmenu, showmsgbox, hidemsgbox, shownamebox, hidenameboxを追加 (Thanks to あさつき-san!)</li> </ul> </li>
+<li>Suika2/15.83 2023/1/20 <ul> <li>s2_quick_save_extra()とs2_quick_load_extra()を追加 (Thanks to 鏡読み-san!)</li> </ul> </li>
+<li>Suika2/15.82 2023/1/20 <ul> <li>微調整</li> </ul> </li>
+<li>Suika2/15.81 2023/1/20 <ul> <li>選択肢のテキスト色を追加 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/15.80 2023/1/20 <ul> <li>@animeにforcemsgboxとforcenameboxを追加 (Thanks to あさつき-san!)</li> </ul> </li>
 <li>Suika2/15.79 2023/1/20 <ul> <li>テンプレートのSAVE/LOAD/HISTORYのデザインを変更</li> <li>テンプレート内のフォルダ分けを実施</li> <li>macOS: テンプレート選択を実装</li> <li>macOS: 全画面化のバグを修正 (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.78 2023/1/18 <ul> <li>s2_reflect_msgbox_and_namebox_config()の挙動を修正 (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/15.77 2023/1/18 <ul> <li>Mac版のフルスクリーン動作を修正 (Thanks to Ronron-san!)</li> </ul> </li>

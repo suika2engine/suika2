@@ -65,6 +65,10 @@ static bool init(void)
 		show_msgbox(false);
 		show_click(false);
 	}
+	if (strstr(spec, "forcemsgbox") != NULL)
+		show_msgbox(true);
+	if (strstr(spec, "forcenamebox") != NULL)
+		show_namebox(true);
 	if (strstr(spec, "reg00") != NULL)
 		reg_index = 0;
 	if (strstr(spec, "reg01") != NULL)

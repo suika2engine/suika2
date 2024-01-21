@@ -5,22 +5,26 @@
 #define CREATE_PROCESS_MANIFEST_RESOURCE_ID 1
 
 /* File Menu / Open Button*/
-#define ID_NEW_PROJECT			    150
-#define ID_OPEN_PROJECT			    151
-#define ID_OPEN_GAME_FOLDER		    152
-#define ID_OPEN                             153
-#define ID_RELOAD                           154
-#define ID_SAVE                             155
-#define ID_DEBUG_LAYERS                     156
-#define ID_QUIT                             157
+#define ID_NEW_PROJECT_ADVJP		    150
+#define ID_NEW_PROJECT_NVLJP		    151
+#define ID_NEW_PROJECT_NVLJPV		    152
+#define ID_NEW_PROJECT_ADVEN		    153
+#define ID_NEW_PROJECT_NVLEN		    154
+#define ID_OPEN_PROJECT			    155
+#define ID_OPEN_GAME_FOLDER		    156
+#define ID_OPEN                             157
+#define ID_RELOAD                           158
+#define ID_SAVE                             159
+#define ID_DEBUG_LAYERS                     160
+#define ID_QUIT                             161
 
 /* Run Menu / Buttons */
-#define ID_RESUME                           160
-#define ID_NEXT                             161
-#define ID_PAUSE                            162
-#define ID_MOVE                             163
-#define ID_ERROR                            164
-#define ID_VARS                             165
+#define ID_RESUME                           170
+#define ID_NEXT                             171
+#define ID_PAUSE                            172
+#define ID_MOVE                             173
+#define ID_ERROR                            174
+#define ID_VARS                             175
 
 /* Direction Menu / Popup Menu */
 #define ID_CMD_MESSAGE			    180

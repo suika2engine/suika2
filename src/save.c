@@ -292,8 +292,9 @@ struct image *get_save_thumbnail(int index)
 /*
  * クイックセーブを行う
  */
-bool quick_save(void)
+bool quick_save(bool extra)
 {
+	const char *fname;
 	uint64_t timestamp;
 
 	/*
@@ -306,8 +307,10 @@ bool quick_save(void)
 	  In switch command, use draw_stage_fo_thumb().
 	*/
 
+	fname = !extra ? QUICK_SAVE_FILE : QUICK_SAVE_EXTRA_FILE;
+
 	/* ローカルデータのシリアライズを行う */
-	if (!serialize_all(QUICK_SAVE_FILE, &timestamp, -1))
+	if (!serialize_all(fname, &timestamp, -1))
 		return false;
 
 	/* 既読フラグのセーブを行う */
@@ -817,8 +820,10 @@ bool have_quick_save_data(void)
 /*
  * クイックロードを行う Do quick load
  */
-bool quick_load(void)
+bool quick_load(bool extra)
 {
+	const char *fname;
+
 	/* 既読フラグのセーブを行う */
 	save_seen();
 
@@ -832,7 +837,8 @@ bool quick_load(void)
 	cleanup_anime();
 
 	/* ローカルデータのデシリアライズを行う */
-	if (!deserialize_all(QUICK_SAVE_FILE))
+	fname = !extra ? QUICK_SAVE_FILE : QUICK_SAVE_EXTRA_FILE;
+	if (!deserialize_all(fname))
 		return false;
 
 	/* ステージを初期化する */

@@ -350,6 +350,17 @@ switch.margin.y=20
 # [選択肢画像のテキストの縦方向マージン]
 switch.text.margin.y=12
 
+# [ポイントされていない項目のテキスト色]
+#  - inactive=0: 無効
+#  - inactive=1: 無効
+switch.color.inactive=1
+switch.color.inactive.body.r=255
+switch.color.inactive.body.g=255
+switch.color.inactive.body.b=255
+switch.color.inactive.outline.r=128
+switch.color.inactive.outline.g=128
+switch.color.inactive.outline.b=128
+
 # [ポイントされた項目のテキスト色] (省略可)
 #  - active=0: 無効
 #  - active=1: 有効

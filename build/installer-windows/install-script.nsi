@@ -14,6 +14,8 @@ Page directory
 Page instfiles
 
 Section "Install"
+  Call UninstallPrevious
+
   SetOutPath "$INSTDIR"
   File "suika-pro.exe"
   File /r "games"
@@ -24,6 +26,7 @@ Section "Install"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateDirectory "$SMPROGRAMS\Suika2 Pro Desktop"
   CreateShortcut "$SMPROGRAMS\Suika2 Pro Desktop\Suika2 Pro Desktop.lnk" "$INSTDIR\suika-pro.exe" ""
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "InstDir" '"$INSTDIR"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayName" "Suika2 Pro Desktop"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayIcon" '"$INSTDIR\icon.ico"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "DisplayVersion" "15"
@@ -33,6 +36,17 @@ Section "Install"
   SetShellVarContext current
   CreateShortCut "$DESKTOP\Suika2 Pro Desktop.lnk" "$INSTDIR\suika-pro.exe"
 SectionEnd
+
+Function UninstallPrevious
+  ReadRegStr $R0 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Suika2 Pro Desktop" "UninstallString"
+  ${If} $R0 == ""
+    DetailPrint "No previous installation."
+    Goto Done
+  ${EndIf}
+  DetailPrint "Removing previous installation."
+  ExecWait "$R0 /S"
+  Done:
+FunctionEnd
 
 Section "Uninstall"
   Delete "$INSTDIR\Uninstall.exe"

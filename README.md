@@ -37,6 +37,9 @@ The author thinks as a researcher of software engineering that VLS is one shape 
 
 ## Downloads
 
+Note that releases on GitHub and the stores are infrequent.
+Please visit [the official website](https://suika2.com/en/dl/) to obtain the latest release.
+
 * On Windows (Suika2 Pro Desktop):
   * Open [Microsoft Store](https://apps.microsoft.com/detail/XP99CQV05PR79W)
 
@@ -67,9 +70,6 @@ The author thinks as a researcher of software engineering that VLS is one shape 
   suika2
   ```
 
-Note that releases on GitHub and the official stores are infrequent.
-Please visit [the official website](https://suika2.com/en/dl/) to obtain the latest release.
-
 ## Discord
 
 Our community is a cherished and invaluable space that embraces developers, creators, and end-users irrespective of their nationality, language, ethnicity, color, lineage, beliefs, gender, education, age, religion, or identity.
@@ -83,11 +83,14 @@ We hold a grand vision for cultural growth and engage in profound discussions, b
 ## Suika2 Pro series
 
 `Suika2 Pro Desktop` and `Suika2 Pro Mobile` are Suika2's creator tools, available for Windows PC, Mac, iPhone, iPad, Android phone/tablet, Chromebook and Linux.
-They provide creators with all the functionality they need, such as editing, debugging, and exporting games out of the box.
+They provide creators with all the functionalities they need, such as editing, debugging, and exporting games out of the box.
 
 ## License
 
-This software is released under the MIT license. There is no restriction on distribution and or modification of the Suika2 Source Code.
+This software is released under the MIT license.
+There is no restriction on distribution and or modification of the Suika2 Source Code.
+
+This project will not be commercialized in the future and please use with confidence.
 
 ## Contribution
 
@@ -112,7 +115,7 @@ The CORE is written in ANSI C, the most portable programming language in the wor
 
 If you would like to port Suika2 to a new target platform, you only need to write a thin HAL, this is generally possible within a week.
 
-Suika2 does not depend on SDKs or frameworks such as Unity, Godot, or SDL2, this is thanks to the extensive design of our compatibility layer's API.
+Suika2 does not depend on SDKs or frameworks such as Unity, Godot, Python, or SDL2, this is thanks to the extensive design of HAL, our compatibility layer's API.
 
 ## CI/CD (Continuous Integration and Continuous Deployment)
 
@@ -131,7 +134,7 @@ Did you know that...
 
 ## Sponsors
 
-You've taken your stand, here's where you raise your banner!
+Here's where you raise your banner!
 
 **Come forward**, those who resonate with our vision and are of like mind.
 

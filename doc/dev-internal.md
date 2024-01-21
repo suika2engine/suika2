@@ -18,24 +18,15 @@ FTP_URL=ftp://suika2.com/dl
 ```
 * He has a `SIGNATURE` variable in `build/macos/Makefile` to sign dmg files
 
-## How to release a main ZIP
-* Update the changelog in readme files (this tells the release script a new version number):
-  * `doc/readme-jp.html`
-  * `doc/readme-en.html`
+## How to release
+* Update the `doc/changelog.html` files and this tells the release script a new version number and explanations
 * On terminal, navigate to the repository root and run the following command:
 ```
 make do-release
 ```
-* A release zip file will be built automatically
-* The zip file will be uploaded to `suika2.com/dl/`
+* Release files for Windows and macOS will be built automatically
+* The files will be uploaded to `suika2.com/dl/`
 * The HTML pages on `suika2.com` will be updated automatically
-
-## How to update template games
-* On WSL2, navigate to the repository root and run the following command:
-```
-make update-templates
-```
-* Template game files will be uploaded to the Web server automatically
 
 ## How to update Ubuntu PPA
 * On WSL2, navigate to the repository root and run the following command:

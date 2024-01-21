@@ -80,7 +80,7 @@
                                 <rect key="frame" x="0.0" y="431" width="856" height="289"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <subviews>
-                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4WV-uO-TSw">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4WV-uO-TSw">
                                         <rect key="frame" x="18" y="253" width="371" height="16"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="New game from a template:" id="kw6-Qf-ReF">
@@ -212,7 +212,7 @@
                                             <action selector="onOpenScriptButton:" target="rdk-rJ-M5M" id="yTo-7w-aqh"/>
                                         </connections>
                                     </button>
-                                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vcA-e7-8fq">
+                                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vcA-e7-8fq">
                                         <rect key="frame" x="20" y="651" width="334" height="21"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="Lvg-TU-u5j">
@@ -247,7 +247,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
-                                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e6P-a3-plD">
+                                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e6P-a3-plD">
                                         <rect key="frame" x="20" y="20" width="297" height="71"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="4dU-oN-Bbm">
@@ -267,7 +267,7 @@
                                             <action selector="onUpdateVariablesButton:" target="rdk-rJ-M5M" id="VWj-33-XPA"/>
                                         </connections>
                                     </button>
-                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="09a-2y-TLU">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="09a-2y-TLU">
                                         <rect key="frame" x="20" y="99" width="267" height="16"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Changed Variables (non-initial values only):" id="wJ8-Id-DCW">

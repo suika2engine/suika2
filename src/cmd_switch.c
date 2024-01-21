@@ -73,7 +73,16 @@
 #define CHOOSE_LABEL(n)			(CHOOSE_PARAM_LABEL1 + n * 2)
 
 /* @chooseのメッセージの引数インデックス */
-#define CHOOSE_MESSAGE(n)	(CHOOSE_PARAM_LABEL1 + n * 2 + 1)
+#define CHOOSE_MESSAGE(n)		(CHOOSE_PARAM_LABEL1 + n * 2 + 1)
+
+/* @mchooseのラベルの引数インデックス */
+#define MCHOOSE_LABEL(n)		(MCHOOSE_PARAM_LABEL1 + n * 3)
+
+/* @mchooseの変数の引数インデックス */
+#define MCHOOSE_VAR(n)			(MCHOOSE_PARAM_LABEL1 + n * 3 + 1)
+
+/* @mchooseのメッセージの引数インデックス */
+#define MCHOOSE_MESSAGE(n)		(MCHOOSE_PARAM_LABEL1 + n * 3 + 2)
 
 /* @switchと@newsの親選択肢の引数インデックス */
 #define SWITCH_PARENT_MESSAGE(n)	(SWITCH_PARAM_PARENT_M1 + n)
@@ -139,6 +148,9 @@ static bool is_selected_by_key;
 
 /* キー操作によってポイントが変更されたときのマウス座標 */
 static int save_mouse_pos_x, save_mouse_pos_y;
+
+/* このコマンドを無視するか */
+static bool ignore_as_no_options;
 
 /*
  * 描画の状態
@@ -208,6 +220,7 @@ static bool post_process(void);
 static bool init(void);
 static bool init_choose(void);
 static bool init_ichoose(void);
+static int init_mchoose(void);
 static bool init_switch(void);
 static void draw_text(struct image *target, const char *text, int w, int h, bool is_bg, bool is_news);
 
@@ -239,6 +252,10 @@ bool switch_command(void)
 	if (!is_in_command_repetition())
 		if (!init())
 			return false;
+
+	/* 選択肢がなかった場合 */
+	if (ignore_as_no_options)
+		return move_to_next_command();
 
 	pre_process();
 	if (is_quick_load_failed)
@@ -345,7 +362,7 @@ static bool post_process(void)
 {
 	/* システムメニューで押されたボタンの処理を行う */
 	if (will_quick_save) {
-		quick_save();
+		quick_save(false);
 		will_quick_save = false;
 	}
 
@@ -372,10 +389,10 @@ bool init(void)
 {
 	int type;
 
-	start_command_repetition();
-
 	pointed_index = -1;
 	selected_parent_index = -1;
+
+	ignore_as_no_options = false;
 
 	is_centered = true;
 
@@ -418,10 +435,22 @@ bool init(void)
 	} else if (type == COMMAND_ICHOOSE) {
 		if (!init_ichoose())
 			return false;
+	} else if (type == COMMAND_MCHOOSE) {
+		switch (init_mchoose()) {
+		case -1:
+			return false;
+		case 0:
+			ignore_as_no_options = true;
+			return true;
+		default:
+			break;
+		}
 	} else {
 		if (!init_switch())
 			return false;
 	}
+
+	start_command_repetition();
 
 	/* 名前ボックス、メッセージボックスを非表示にする */
 	if (!conf_msgbox_show_on_choose) {
@@ -584,6 +613,80 @@ static bool init_ichoose(void)
 	}
 
 	return true;
+}
+
+/* @mchooseコマンドの初期化を行う */
+static int init_mchoose(void)
+{
+	const char *var, *label, *msg;
+	int i, pos, var_index, var_val;
+
+	memset(parent_button, 0, sizeof(parent_button));
+	memset(child_button, 0, sizeof(child_button));
+
+	/* 選択肢の情報を取得する */
+	pos = 0;
+	for (i = 0; i < PARENT_COUNT; i++) {
+		/* 変数を取得する */
+		var = get_string_param(MCHOOSE_VAR(i));
+		if (strcmp(var, "") == 0)
+			break;
+		if (var[0] != '$' || strlen(var) == 1) {
+			log_script_lhs_not_variable(var);
+			log_script_exec_footer();
+			return -1;
+		}
+		var_index = atoi(&var[1]);
+		var_val = get_variable(var_index);
+		if (var_val == 0)
+			continue;
+
+		/* ラベルを取得する */
+		label = get_string_param(MCHOOSE_LABEL(i));
+		if (strcmp(label, "") == 0)
+			break;
+
+		/* メッセージを取得する */
+		msg = get_string_param(MCHOOSE_MESSAGE(i));
+		if (strcmp(msg, "") == 0) {
+			log_script_choose_no_message();
+			log_script_exec_footer();
+			return false;
+		}
+
+		/* ボタンの情報を保存する */
+		parent_button[pos].msg = msg;
+		parent_button[pos].label = label;
+		parent_button[pos].has_child = false;
+		parent_button[pos].child_count = 0;
+
+		/* 座標を計算する */
+		get_switch_rect(pos,
+				&parent_button[pos].x,
+				&parent_button[pos].y,
+				&parent_button[pos].w,
+				&parent_button[pos].h);
+
+		/* idle画像を作成する */
+		parent_button[pos].img_idle = create_image(parent_button[pos].w, parent_button[pos].h);
+		if (parent_button[pos].img_idle == NULL)
+			return false;
+		draw_switch_bg_image(parent_button[pos].img_idle, pos);
+
+		/* hover画像を作成する */
+		parent_button[pos].img_hover = create_image(parent_button[pos].w, parent_button[pos].h);
+		if (parent_button[pos].img_hover == NULL)
+			return false;
+		draw_switch_fg_image(parent_button[pos].img_hover, pos);
+
+		/* テキストを描画する */
+		draw_text(parent_button[pos].img_idle, parent_button[pos].msg, parent_button[pos].w, parent_button[pos].h, true, false);
+		draw_text(parent_button[pos].img_hover, parent_button[pos].msg, parent_button[pos].w, parent_button[pos].h, false, false);
+
+		pos++;
+	}
+
+	return pos;
 }
 
 /* @switchの初期化を行う */
@@ -784,24 +887,46 @@ static void draw_text(struct image *target, const char *text, int w, int h, bool
 	}
 
 	/* 色を決める */
-	if (is_bg || (!is_bg && !conf_switch_color_active)) {
-		color = make_pixel(0xff,
-				   (pixel_t)conf_font_color_r,
-				   (pixel_t)conf_font_color_g,
-				   (pixel_t)conf_font_color_b);
-		outline_color = make_pixel(0xff,
-					   (pixel_t)conf_font_outline_color_r,
-					   (pixel_t)conf_font_outline_color_g,
-					   (pixel_t)conf_font_outline_color_b);
+	if (is_bg) {
+		if (!conf_switch_color_inactive) {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_font_color_r,
+					   (pixel_t)conf_font_color_g,
+					   (pixel_t)conf_font_color_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_font_outline_color_r,
+						   (pixel_t)conf_font_outline_color_g,
+						   (pixel_t)conf_font_outline_color_b);
+		} else {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_switch_color_inactive_body_r,
+					   (pixel_t)conf_switch_color_inactive_body_g,
+					   (pixel_t)conf_switch_color_inactive_body_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_switch_color_inactive_outline_r,
+						   (pixel_t)conf_switch_color_inactive_outline_g,
+						   (pixel_t)conf_switch_color_inactive_outline_b);
+		}
 	} else {
-		color = make_pixel(0xff,
-					  (pixel_t)conf_switch_color_active_body_r,
-					  (pixel_t)conf_switch_color_active_body_g,
-					  (pixel_t)conf_switch_color_active_body_b);
-		outline_color = make_pixel(0xff,
-						  (pixel_t)conf_switch_color_active_outline_r,
-						  (pixel_t)conf_switch_color_active_outline_g,
-						  (pixel_t)conf_switch_color_active_outline_b);
+		if (!conf_switch_color_active) {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_font_color_r,
+					   (pixel_t)conf_font_color_g,
+					   (pixel_t)conf_font_color_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_font_outline_color_r,
+						   (pixel_t)conf_font_outline_color_g,
+						   (pixel_t)conf_font_outline_color_b);
+		} else {
+			color = make_pixel(0xff,
+					   (pixel_t)conf_switch_color_active_body_r,
+					   (pixel_t)conf_switch_color_active_body_g,
+					   (pixel_t)conf_switch_color_active_body_b);
+			outline_color = make_pixel(0xff,
+						   (pixel_t)conf_switch_color_active_outline_r,
+						   (pixel_t)conf_switch_color_active_outline_g,
+						   (pixel_t)conf_switch_color_active_outline_b);
+		}
 	}
 
 	/* 描画位置を決める */
@@ -1156,7 +1281,7 @@ static void process_sysmenu_input(void)
 		break;
 	case SYSMENU_QLOAD:
 		play_se(conf_sysmenu_qload_se);
-		if (!quick_load())
+		if (!quick_load(false))
 			is_quick_load_failed = true;
 		did_quick_load = true;
 		break;

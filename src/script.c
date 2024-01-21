@@ -203,8 +203,8 @@ struct insn_item {
 	{U8("@クリック"), COMMAND_CLICK, 0, 1},
 
 	/* 時間指定待ち */
-	{"@wait", COMMAND_WAIT, 1, 1},
-	{U8("@時間待ち"), COMMAND_WAIT, 1, 1},
+	{"@wait", COMMAND_WAIT, 1, 2},
+	{U8("@時間待ち"), COMMAND_WAIT, 1, 2},
 
 	/* ラベルへジャンプ */
 	{"@goto", COMMAND_GOTO, 1, 1},
@@ -263,6 +263,10 @@ struct insn_item {
 	/* インライン選択肢 */
 	{"@ichoose", COMMAND_ICHOOSE, 2, 16},
 	{U8("@インライン選択肢"), COMMAND_ICHOOSE, 2, 16},
+
+	/* 条件付き選択肢 */
+	{"@mchoose", COMMAND_MCHOOSE, 3, 24},
+	{U8("@条件付き選択肢"), COMMAND_MCHOOSE, 2, 24},
 
 	/* 章タイトル */
 	{"@chapter", COMMAND_CHAPTER, 1, 1},

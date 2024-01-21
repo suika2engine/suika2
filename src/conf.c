@@ -191,6 +191,13 @@ int conf_switch_x[8];
 int conf_switch_y[8];
 int conf_switch_margin_y;
 int conf_switch_text_margin_y;
+int conf_switch_color_inactive;
+int conf_switch_color_inactive_body_r;
+int conf_switch_color_inactive_body_g;
+int conf_switch_color_inactive_body_b;
+int conf_switch_color_inactive_outline_r;
+int conf_switch_color_inactive_outline_g;
+int conf_switch_color_inactive_outline_b;
 int conf_switch_color_active;
 int conf_switch_color_active_body_r;
 int conf_switch_color_active_body_g;
@@ -615,6 +622,13 @@ static struct rule {
 	{"switch.y", 'i', &conf_switch_y[0], MUST, SAVE},
 	{"switch.margin.y", 'i', &conf_switch_margin_y, MUST, SAVE},
 	{"switch.text.margin.y", 'i', &conf_switch_text_margin_y, MUST, SAVE},
+	{"switch.color.inactive", 'i', &conf_switch_color_inactive, OPTIONAL, SAVE},
+	{"switch.color.inactive.body.r", 'i', &conf_switch_color_inactive_body_r, OPTIONAL, SAVE},
+	{"switch.color.inactive.body.g", 'i', &conf_switch_color_inactive_body_g, OPTIONAL, SAVE},
+	{"switch.color.inactive.body.b", 'i', &conf_switch_color_inactive_body_b, OPTIONAL, SAVE},
+	{"switch.color.inactive.outline.r", 'i', &conf_switch_color_inactive_outline_r, OPTIONAL, SAVE},
+	{"switch.color.inactive.outline.g", 'i', &conf_switch_color_inactive_outline_g, OPTIONAL, SAVE},
+	{"switch.color.inactive.outline.b", 'i', &conf_switch_color_inactive_outline_b, OPTIONAL, SAVE},
 	{"switch.color.active", 'i', &conf_switch_color_active, OPTIONAL, SAVE},
 	{"switch.color.active.body.r", 'i', &conf_switch_color_active_body_r, OPTIONAL, SAVE},
 	{"switch.color.active.body.g", 'i', &conf_switch_color_active_body_g, OPTIONAL, SAVE},

@@ -11,14 +11,14 @@ if [ ! -z "`which ghead`" ]; then
 fi
 
 # Get the version and the date strings.
-HEADER=`grep -a1 '<!-- BEGIN-LATEST -->' ../readme-jp.html | tail -n1`
+HEADER=`grep -a1 '<!-- BEGIN-LATEST-JP -->' ../changelog.html | tail -n1`
 VERSION=`echo $HEADER | cut -d '>' -f 2 | cut -d ' ' -f 1`
 VERSION_DIGIT=`echo $VERSION | cut -d '/' -f 2`
 DATE=`echo $HEADER | cut -d ' ' -f 2`
 
 # Get the release notes for Japanese and English.
-NOTE_JP=`cat ../readme-jp.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | $HEAD -n -1`
-NOTE_EN=`cat ../readme-en.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | $HEAD -n -1`
+NOTE_JP=`cat ../changelog.html | awk '/BEGIN-LATEST-JP/,/END-LATEST-JP/' | tail -n +2 | $HEAD -n -1`
+NOTE_EN=`cat ../changelog.html | awk '/BEGIN-LATEST-EN/,/END-LATEST-EN/' | tail -n +2 | $HEAD -n -1`
 
 # Update /index.html
 $SED -e "s|.*LATEST-RELEASE.*|<!--LATEST-RELEASE--><li><a href=\"/dl/\">$DATE $VERSION リリース</a></li>|" -i index.html
