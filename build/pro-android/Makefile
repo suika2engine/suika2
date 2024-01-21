@@ -21,7 +21,7 @@ setup:
 	@
 	@echo 'Extracting freetype2.'
 	@mkdir -p app/src/main/cpp/freetype
-	@tar xzf ../libsrc/freetype-2.9.1.tar.gz -C app/src/main/cpp/freetype --strip-components 1
+	@tar xzf ../libsrc/freetype-2.13.2.tar.gz -C app/src/main/cpp/freetype --strip-components 1
 	@
 	@echo 'Extracting jpeg9.'
 	@mkdir -p app/src/main/cpp/jpeg

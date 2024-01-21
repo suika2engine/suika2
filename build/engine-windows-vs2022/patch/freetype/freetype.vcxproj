@@ -438,6 +438,11 @@
     <ClCompile Include="..\..\..\src\type1\type1.c" />
     <ClCompile Include="..\..\..\src\type42\type42.c" />
     <ClCompile Include="..\..\..\src\winfonts\winfnt.c" />
+    <ClCompile Include="..\..\..\src\sdf\ftsdf.c" />
+    <ClCompile Include="..\..\..\src\sdf\ftbsdf.c" />
+    <ClCompile Include="..\..\..\src\sdf\ftsdfcommon.c" />
+    <ClCompile Include="..\..\..\src\sdf\ftsdfrend.c" />
+    <ClCompile Include="..\..\..\src\svg\ftsvg.c" />
     <ClCompile Include="..\ftdebug.c">
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
     </ClCompile>

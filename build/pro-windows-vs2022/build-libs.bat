@@ -64,8 +64,8 @@ copy patch\libvorbis\libvorbisfile_static.vcxproj libvorbis\win32\VS2010\libvorb
 msbuild libvorbis\win32\VS2010\vorbis_static.sln /t:build /p:Configuration="Release";Platform="Win32"
 
 echo Building freetype...
-tar -xzf ../libsrc/freetype-2.9.1.tar.gz
-ren freetype-2.9.1 freetype
+tar -xzf ../libsrc/freetype-2.13.2.tar.gz
+ren freetype-2.13.2 freetype
 copy patch\freetype\freetype.sln freetype\builds\windows\vc2010\freetype.sln
 copy patch\freetype\freetype.vcxproj freetype\builds\windows\vc2010\freetype.vcxproj
 msbuild freetype\builds\windows\vc2010\freetype.sln /t:build /p:Configuration="Release Static";Platform="Win32"

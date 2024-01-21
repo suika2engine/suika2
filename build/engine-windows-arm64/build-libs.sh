@@ -104,7 +104,7 @@ sed -e 's/FONT_MODULES += type1//' \
     < modules.cfg > modules.cfg.new
 mv modules.cfg.new modules.cfg
 # Add |tee to avoid freeze on Emacs shell
-./configure --prefix=$PREFIX --host=aarch64-w64-mingw32 --enable-static --disable-shared --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes CFLAGS='-O3 -ffunction-sections -fdata-sections' ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' CC=aarch64-w64-mingw32-gcc | tee
+./configure --prefix=$PREFIX --host=aarch64-w64-mingw32 --enable-static --disable-shared --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes --with-brotli=no CFLAGS='-O3 -ffunction-sections -fdata-sections' ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' CC=aarch64-w64-mingw32-gcc | tee
 make | tee
 make install | tee
 cd ..
