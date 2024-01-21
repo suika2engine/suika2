@@ -175,6 +175,23 @@ static ViewController *theViewController;
     }
 }
 
+- (void)enterFullScreen { 
+}
+
+
+- (BOOL)isFullScreen { 
+    return NO;
+}
+
+
+- (void)leaveFullScreen { 
+}
+
+
+- (CGPoint)windowPointToScreenPoint:(CGPoint)windowPoint { 
+    return windowPoint;
+}
+
 @end
 
 //

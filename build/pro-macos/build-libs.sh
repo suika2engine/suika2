@@ -14,9 +14,16 @@ PREFIX=`pwd`/libroot
 export MACOSX_DEPLOYMENT_TARGET=11.0
 
 rm -rf tmp libroot
-mkdir -p tmp libroot
+mkdir -p tmp libroot/include libroot/lib
 
 cd tmp
+
+echo 'Building brotli...'
+tar xzf ../../libsrc/brotli-1.1.0.tar.gz
+cp ../Makefile.brotli brotli-1.1.0/Makefile
+cd brotli-1.1.0
+make
+cd ..
 
 echo 'building zlib...'
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz

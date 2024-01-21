@@ -415,11 +415,13 @@ static bool setup_msgbox(bool no_bg, bool no_fg)
 	}
 
 	/* メッセージボックスの前景と背景が同じサイズであることを確認する */
+#if 0
 	if (msgbox_bg_image->width != msgbox_fg_image->width ||
 	    msgbox_bg_image->height != msgbox_fg_image->height) {
 		log_invalid_msgbox_size();
 		return false;
 	}
+#endif
 
 	/* メッセージボックスのレイヤのイメージを作成する */
 	layer_image[LAYER_MSG] = create_image(msgbox_bg_image->width, msgbox_bg_image->height);

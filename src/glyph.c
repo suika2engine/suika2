@@ -20,6 +20,7 @@
  * FreeType2 headers
  */
 #include <ft2build.h>
+
 #include FT_FREETYPE_H
 #ifdef SUIKA_TARGET_WASM
 #include <ftstroke.h>

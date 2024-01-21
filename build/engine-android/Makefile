@@ -124,6 +124,9 @@ debug:
 	@mkdir -p app/src/main/cpp/freetype
 	@tar xzf ../libsrc/freetype-2.13.2.tar.gz -C app/src/main/cpp/freetype --strip-components 1
 	@
+	@mkdir -p app/src/main/cpp/brotli
+	@tar xzf ../libsrc/brotli-1.1.0.tar.gz -C app/src/main/cpp/brotli --strip-components 1
+	@
 	@mkdir -p app/src/main/assets
 	@cp -R ../../games/demo/* app/src/main/assets/
 
@@ -245,5 +248,8 @@ src:
 	@
 	@mkdir -p android-src/app/src/main/cpp/freetype
 	@tar xzf ../libsrc/freetype-2.13.2.tar.gz -C android-src/app/src/main/cpp/freetype --strip-components 1
+	@
+	@mkdir -p app/src/main/cpp/brotli
+	@tar xzf ../libsrc/brotli-1.1.0.tar.gz -C app/src/main/cpp/brotli --strip-components 1
 	@
 	@mkdir -p android-src/app/src/main/assets

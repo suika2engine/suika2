@@ -18,6 +18,13 @@ mkdir -p tmp libroot
 
 cd tmp
 
+echo 'Building brotli...'
+tar xzf ../../libsrc/brotli-1.1.0.tar.gz
+cp ../Makefile.brotli brotli-1.1.0/Makefile
+cd brotli-1.1.0
+make
+cd ..
+
 echo 'building zlib...'
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11

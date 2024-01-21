@@ -9,6 +9,13 @@ rm -rf tmp libroot
 mkdir -p tmp libroot libroot/include libroot/lib
 cd tmp
 
+echo 'Building brotli...'
+tar xzf ../../libsrc/brotli-1.1.0.tar.gz
+cp ../Makefile.brotli brotli-1.1.0/Makefile
+cd brotli-1.1.0
+make
+cd ..
+
 echo 'Building bzip2...'
 tar xzf ../../libsrc/bzip2-1.0.6.tar.gz
 cd bzip2-1.0.6

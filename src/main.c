@@ -814,4 +814,5 @@ const char license_info[]
    "libwebp: Copyright (C) 2010, Google Inc. All rights reserved.\n"
    "libogg: Copyright (C) 2002, Xiph.org Foundation. All rights reserved.\n"
    "libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation. All rights reserved.\n"
+   "brotli: Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors. All rights reserved.\n"
    "FreeType2: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg. All rights reserved.\n";
