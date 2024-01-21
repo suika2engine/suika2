@@ -5,9 +5,9 @@
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   config-page2-idle.png;
-    hover:  config-page2-hover.png;
-    active: config-page2-active.png;
+    idle:   system/config/page2-idle.png;
+    hover:  system/config/page2-hover.png;
+    active: system/config/page2-active.png;
 
     # フェードイン時間(秒)
     fadein: 0.5;

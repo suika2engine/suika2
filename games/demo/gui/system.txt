@@ -5,9 +5,9 @@
 # このファイルの基本設定
 global {
     # 下記の画像を使用する
-    idle:   config-idle.png;
-    hover:  config-hover.png;
-    active: config-active.png;
+    idle:   system/config/page1-idle.png;
+    hover:  system/config/page1-hover.png;
+    active: system/config/page1-active.png;
 
     # 右クリックによるキャンセル時のSE
     cancelse: click.ogg;

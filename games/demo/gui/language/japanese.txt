@@ -1,7 +1,7 @@
 global {
-    idle:   language_idle.png;
-    hover:  language_hover.png;
-    active: language_hover.png;
+    idle:   language/ja_idle.png;
+    hover:  language/ja_hover.png;
+    active: language/ja_hover.png;
 
     alt: 画面では日本語のあいさつが表示されています。左右のキーを押してください。;
 }

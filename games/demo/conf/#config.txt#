@@ -1,17 +1,19 @@
 ###
 ### コンフィグファイル
 ###  - 全般的な設定が行えます
-###  - ほとんどの項目は、@setconfigを使えばゲームの中で変更できます
+###  - ほとんどの項目は、WMSを使えばゲームの中で変更できます
 ###  - 省略可能で0か1の値を取る項目は、指定しないと0になります
 ###  - 利用するSuika2のバージョンを上げるときは、新規追加されたコンフィグを書き足してくだだい
 ###
+
+### For English users, rename config-english-sample.txt to config.txt
 
 ###
 ### ウィンドウの設定
 ###
 
 # ウィンドウのタイトル
-window.title=テンプレートゲーム
+window.title=Suika
 
 # ウィンドウの幅
 window.width=1280
@@ -100,7 +102,7 @@ font.ruby.size=16
 ###
 
 # [名前ボックス画像のファイル名]
-namebox.file=system/namebox/idle.png
+namebox.file=system/namebox.png
 
 # [名前ボックスのフォント選択] (省略可)
 #  - 0: グローバル
@@ -144,10 +146,10 @@ namebox.hidden=0
 ###
 
 # [メッセージボックスの背景の画像ファイル名]
-msgbox.bg.file=system/msgbox/idle.png
+msgbox.bg.file=msgbox-bg.png
 
 # [メッセージボックスの前景の画像ファイル名]
-msgbox.fg.file=system/msgbox/hover.png
+msgbox.fg.file=msgbox-fg.png
 
 # [メッセージボックス画像を表示する位置]
 msgbox.x=43
@@ -299,11 +301,15 @@ click.y=660
 click.move=0
 
 # [クリックアニメーション画像のファイル名]
-click.file1=system/click/click1.png
+click.file1=click1.png
 
 # [クリックアニメーション画像のファイル名] (省略可)
 #  - click.file16まで指定可能
-click.file2=system/click/click2.png
+click.file2=click2.png
+click.file3=click3.png
+click.file4=click4.png
+click.file5=click5.png
+click.file6=click5.png
 
 # [クリックアニメーションの時間間隔(秒)]
 click.interval=1.0
@@ -318,10 +324,10 @@ click.disable=0
 ###
 
 # [選択肢（非選択中）画像のファイル名]
-switch.bg.file=system/choose/idle.png
+switch.bg.file=switch-bg.png
 
 # [選択肢（選択中）画像のファイル名]
-switch.fg.file=system/choose/hover.png
+switch.fg.file=switch-fg.png
 
 # [選択肢のフォント] (省略可)
 #  - 0: グローバル
@@ -349,17 +355,6 @@ switch.margin.y=20
 
 # [選択肢画像のテキストの縦方向マージン]
 switch.text.margin.y=12
-
-# [ポイントされていない項目のテキスト色]
-#  - inactive=0: 無効
-#  - inactive=1: 無効
-switch.color.inactive=1
-switch.color.inactive.body.r=255
-switch.color.inactive.body.g=255
-switch.color.inactive.body.b=255
-switch.color.inactive.outline.r=128
-switch.color.inactive.outline.g=128
-switch.color.inactive.outline.b=128
 
 # [ポイントされた項目のテキスト色] (省略可)
 #  - active=0: 無効
@@ -425,13 +420,13 @@ sysmenu.x=731
 sysmenu.y=29
 
 # [システムメニュー画像(通常時)のファイル名]
-sysmenu.idle.file=system/sysmenu/idle.png
+sysmenu.idle.file=sysmenu-idle.png
 
 # [システムメニュー画像(選択時)のファイル名]
-sysmenu.hover.file=system/sysmenu/hover.png
+sysmenu.hover.file=sysmenu-hover.png
 
 # [システムメニュー画像(使用できない時)のファイル名]
-sysmenu.disable.file=system/sysmenu/disable.png
+sysmenu.disable.file=sysmenu-disable.png
 
 # 以下、sysmenu.*.widthを0にするとそのボタンを無効化できます
 
@@ -551,10 +546,10 @@ sysmenu.collapsed.x=1219
 sysmenu.collapsed.y=29
 
 # [折りたたみシステムメニュー画像(通常時)のファイル名]
-sysmenu.collapsed.idle.file=system/sysmenu-collapsed/idle.png
+sysmenu.collapsed.idle.file=sysmenu-collapsed-idle.png
 
 # [折りたたみシステムメニュー画像(選択時)のファイル名]
-sysmenu.collapsed.hover.file=system/sysmenu-collapsed/hover.png
+sysmenu.collapsed.hover.file=sysmenu-collapsed-hover.png
 
 # [折りたたみシステムメニューが選択されたときのSE] (省略可)
 sysmenu.collapsed.se=btn-change.ogg
@@ -570,7 +565,7 @@ sysmenu.hidden=0
 ###
 
 # [オートモードバナー画像のファイル名]
-automode.banner.file=system/auto/auto.png
+automode.banner.file=auto.png
 
 # [オートモードバナーの座標]
 automode.banner.x=0
@@ -585,7 +580,7 @@ automode.speed=0.15
 ###
 
 # [スキップモードバナー画像のファイル名]
-skipmode.banner.file=system/skip/skip.png
+skipmode.banner.file=skip.png
 
 # [スキップモードバナーの座標]
 skipmode.banner.x=0
@@ -726,10 +721,10 @@ serif.color1.outline.b=128
 ### キャラクタ名と画像ファイルのマッピング
 ###
 
-# [自動明暗:話しているキャラクタ以外を自動で暗くするか] (省略可)
-#  - 0: 無効(手動)
+# [話しているキャラクタ以外を自動で暗くするか] (省略可)
+#  - 0: 無効
 #  - 1: 有効(暗くする, 新たに登場したときは明るくする)
-#  - 2: 有効(暗くする, 新たに登場したときは暗くする)
+#  - 2: 有効(暗くする, 新たに登場したときも暗くする)
 character.focus=1
 
 # 「みどり」のキャラクタ名とファイル名の先頭の文字
@@ -799,7 +794,7 @@ window.fullscreen.disable=0
 window.maximize.disable=0
 
 # [ウィンドウタイトルと章タイトルの間のセパレータ] (省略可)
-window.title.separator= - 
+window.title.separator= 
 
 # [章タイトルをウィンドウタイトルに反映しない] (省略可)
 #  - 0: 反映する
@@ -829,7 +824,8 @@ serif.quote=0
 
 # [キャラ/背景の変更中に折りたたみシステムメニューを表示する] (省略可)
 #  - 0: 表示しない
-#  - 1: 表示する ※ロゴ画面を簡単に作るために、スキップの禁止中は、折りたたみシステムメニューは表示されません
+#  - 1: 表示する
+#  - ※ロゴ画面を簡単に作るために、スキップの禁止中は、折りたたみシステムメニューは表示されません
 sysmenu.transition=0
 
 # [上キーとマウスホイールでヒストリを表示しない] (省略可)
