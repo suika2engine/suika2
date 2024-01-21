@@ -661,7 +661,7 @@ static int init_mchoose(void)
 		parent_button[pos].child_count = 0;
 
 		/* 座標を計算する */
-		get_switch_rect(i,
+		get_switch_rect(pos,
 				&parent_button[pos].x,
 				&parent_button[pos].y,
 				&parent_button[pos].w,
