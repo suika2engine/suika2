@@ -244,6 +244,6 @@ src:
 	@tar xzf ../libsrc/libwebp-1.3.2.tar.gz -C android-src/app/src/main/cpp/libwebp --strip-components 1
 	@
 	@mkdir -p android-src/app/src/main/cpp/freetype
-	@tar xzf ../libsrc/freetype-2.9.1.tar.gz -C android-src/app/src/main/cpp/freetype --strip-components 1
+	@tar xzf ../libsrc/freetype-2.13.2.tar.gz -C android-src/app/src/main/cpp/freetype --strip-components 1
 	@
 	@mkdir -p android-src/app/src/main/assets

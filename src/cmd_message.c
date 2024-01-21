@@ -2995,17 +2995,18 @@ static void play_se(const char *file)
 /* 既読であるか調べる */
 static bool is_skippable(void)
 {
-	if (is_skip_mode()) {
-		if (conf_msgbox_skip_unseen != 1)
+	if (conf_msgbox_skip_unseen == 0) {
+		return get_seen();
+	} else if (conf_msgbox_skip_unseen == 1) {
+		return true;
+	} else if (conf_msgbox_skip_unseen == 2) {
+		if (is_control_pressed)
 			return true;
-	} else {
-		if (conf_msgbox_skip_unseen)
-			return true;
+		if (is_skip_mode())
+			return get_seen();
 	}
 
-	if (get_seen())
-		return true;
-
+	/* never come here */
 	return false;
 }
 
