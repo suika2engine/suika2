@@ -259,8 +259,9 @@ msgbox.auto.cancel.se=click.ogg
 msgbox.skip.cancel.se=click.ogg
 
 # [未読でもスキップする] (省略可)
-#  - 0: スキップしない
-#  - 1: スキップする
+#  - 0: Ctrlキーとスキップモードで、既読のみスキップ
+#  - 1: Ctrlキーとスキップモードで、未読でもスキップ
+#  - 2: Ctrlキーは未読でもスキップ、スキップモードでは未読メッセージで停止
 msgbox.skip.unseen=0
 
 # [既読メッセージの色を変更する] (省略可)

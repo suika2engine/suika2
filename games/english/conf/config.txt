@@ -192,8 +192,9 @@ msgbox.margin.char=0
 msgbox.speed=40.0
 
 # Use skipping for unseen messages? (optional)
-#  0: No
-#  1: Yes
+#  0: Skip seen messages only for both Ctrl-key and SkipMode
+#  1: Skip all messages for both Ctrl-key and SkipMode
+#  2: Skip all messages for Ctrl-key, skip seen messages only for SkipMode
 msgbox.skip.unseen=0
 
 # Use dimming for previously read messages? (optional)

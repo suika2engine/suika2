@@ -80,7 +80,7 @@ sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += psnames//' \
     < modules.cfg > modules.cfg.new
 mv modules.cfg.new modules.cfg
-./configure --prefix=$PREFIX --enable-static --disable-shared --host=x86_64-w64-mingw32 --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes CFLAGS='-O3 -ffunction-sections -fdata-sections' ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' CC=x86_64-w64-mingw32-gcc | tee
+./configure --prefix=$PREFIX --enable-static --disable-shared --host=x86_64-w64-mingw32 --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes --with-brotli=no CFLAGS='-O3 -ffunction-sections -fdata-sections' ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' CC=x86_64-w64-mingw32-gcc | tee
 make
 make install
 cd ..
