@@ -74,8 +74,8 @@ make
 make install
 cd ..
 
-tar xzf ../../libsrc/freetype-2.9.1.tar.gz
-cd freetype-2.9.1
+tar xzf ../../libsrc/freetype-2.13.2.tar.gz
+cd freetype-2.13.2
 sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += cid//' \
     -e 's/FONT_MODULES += pfr//' \
@@ -88,7 +88,7 @@ sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += psnames//' \
     < modules.cfg > modules.cfg.new
 mv modules.cfg.new modules.cfg
-./configure --prefix=$PREFIX --disable-shared --with-png=no --with-zlib=no --with-harfbuzz=no --with-bzip2=no CFLAGS="-arch arm64 -arch x86_64" LDFLAGS="-arch arm64 -arch x86_64"
+./configure --prefix=$PREFIX --enable-static --disable-shared --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes CFLAGS='-arch arm64 -arch x86_64' LDFLAGS="-arch arm64 -arch x86_64" ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' | tee
 make
 make install
 cd ..
