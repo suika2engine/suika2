@@ -11,7 +11,7 @@
 ###
 
 # ウィンドウのタイトル
-window.title=テンプレートゲーム
+window.title=Suika2 Full Demo
 
 # ウィンドウの幅
 window.width=1280

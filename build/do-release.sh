@@ -56,15 +56,15 @@ fi
 #
 # Guess the release version number.
 #
-VERSION=`grep -a1 '<!-- BEGIN-LATEST -->' ../doc/readme-jp.html | tail -n1`
+VERSION=`grep -a1 '<!-- BEGIN-LATEST-JP -->' ../doc/changelog.html | tail -n1`
 VERSION=`echo $VERSION | cut -d '>' -f 2 | cut -d ' ' -f 1`
 VERSION=`echo $VERSION | cut -d '/' -f 2`
 
 #
 # Get the release notes.
 #
-NOTE_JP=`cat ../doc/readme-jp.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | $HEAD -n -1`
-NOTE_EN=`cat ../doc/readme-en.html | awk '/BEGIN-LATEST/,/END-LATEST/' | tail -n +2 | $HEAD -n -1`
+NOTE_JP=`cat ../doc/changelog.html | awk '/BEGIN-LATEST-JP/,/END-LATEST-JP/' | tail -n +2 | $HEAD -n -1`
+NOTE_EN=`cat ../doc/changelog.html | awk '/BEGIN-LATEST-EN/,/END-LATEST-EN/' | tail -n +2 | $HEAD -n -1`
 
 #
 # Do an interactive confirmation.
@@ -153,8 +153,6 @@ echo "Creating an installer for Windows."
 
 # /
 cp -v pro-windows/suika-pro.exe installer-windows/suika-pro.exe
-cp -v ../doc/readme-jp.html installer-windows/readme-jp.html
-cp -v ../doc/readme-en.html installer-windows/readme-en.html
 
 # /games
 rm -rf installer-windows/games
@@ -218,3 +216,8 @@ cd "$SAVE_DIR"
 # Restore a non-signed dmg for a store release.
 #
 mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
+
+#
+# Finish.
+#
+echo "Finished. $VERSION was released!"
