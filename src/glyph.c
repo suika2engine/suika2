@@ -1153,7 +1153,7 @@ draw_msg_common(
 		/* 縦書きの句読点変換を行う */
 		if (context->use_tategaki) {
 			wc = convert_tategaki_char(wc);
-			wc_next = convert_tategaki_char(wc);
+			wc_next = convert_tategaki_char(wc_next);
 		}
 
 		/* 文字の幅と高さを取得する */
@@ -1169,8 +1169,8 @@ draw_msg_common(
 		/* 小さいひらがな/カタカタのオフセットを計算する */
 		if (context->use_tategaki && is_small_kana(wc)) {
 			/* FIXME: 何らかの調整を加える */
-			ofs_x = 0;
-			ofs_y = 0;
+			ofs_x = context->font_size / 10;
+			ofs_y = -context->font_size / 8;
 		} else {
 			ofs_x = 0;
 			ofs_y = 0;
@@ -1293,21 +1293,20 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			context->pen_y += context->line_margin;
 			context->pen_x = context->left_margin;
 		} else {
-			/* 右幅は足りるが、次の文字c_nextで行が溢れる場合 */
-			if (context->pen_x + glyph_width + context->char_margin + next_glyph_width + context->char_margin >= limit) {
+			/* 右幅は足りるが、文字cが行末禁則の場合 */
+			if (is_gyomatsu_kinsoku(c)) {
+				/* LFを無視する場合は、描画を終了する */
+				if (context->ignore_linefeed)
+					return false;
+
+				/* 改行する */
+				context->pen_y += context->line_margin;
+				context->pen_x = context->left_margin;
+			} else if (context->pen_x + glyph_width + context->char_margin + next_glyph_width + context->char_margin >= limit) {
+				/* 右幅は足りるが、次の文字c_nextで行が溢れ、c_nextが行頭禁則の場合 */
 				if (is_gyoto_kinsoku(c_next)) {
-					/* c_nextが行頭禁則の場合、次の文字で改行しないようにフラグを立てる */
+					/* 次の文字で改行しないようにフラグを立てる */
 					context->runtime_is_gyoto_kinsoku = true;
-				} else if (is_gyomatsu_kinsoku(c_next)) {
-					/* c_nextが行末禁則の場合*/
-
-					/* LFを無視する場合は、描画を終了する */
-					if (context->ignore_linefeed)
-						return false;
-
-					/* 改行する */
-					context->pen_y += context->line_margin;
-					context->pen_x = context->left_margin;
 				}
 			}
 		}
@@ -1328,21 +1327,20 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			context->pen_x -= context->line_margin;
 			context->pen_y = context->top_margin;
 		} else {
-			/* 下幅は足りるが、次の文字c_nextで行が溢れる場合 */
-			if (context->pen_y + glyph_height + context->char_margin + next_glyph_height + context->char_margin >= limit) {
+			/* 下幅は足りるが、文字cが行末禁則の場合 */
+			if (is_gyomatsu_kinsoku(c)) {
+				/* LFを無視する場合は、描画を終了する */
+				if (context->ignore_linefeed)
+					return false;
+
+				/* 改行する */
+				context->pen_x -= context->line_margin;
+				context->pen_y = context->top_margin;
+			} else if (context->pen_y + glyph_height + context->char_margin + next_glyph_height + context->char_margin >= limit) {
+				/* 下幅は足りるが、次の文字c_nextで行が溢れ、c_nextが行頭禁則の場合 */
 				if (is_gyoto_kinsoku(c_next)) {
-					/* c_nextが行頭禁則の場合、次の文字で改行しないようにフラグを立てる */
+					/* 次の文字で改行しないようにフラグを立てる */
 					context->runtime_is_gyoto_kinsoku = true;
-				} else if (is_gyomatsu_kinsoku(c_next)) {
-					/* c_nextが行末禁則の場合*/
-
-					/* LFを無視する場合は、描画を終了する */
-					if (context->ignore_linefeed)
-						return false;
-
-					/* 改行する */
-					context->pen_x -= context->line_margin;
-					context->pen_y = context->top_margin;
 				}
 			}
 		}
@@ -1359,16 +1357,10 @@ static bool is_gyomatsu_kinsoku(uint32_t c)
 	case '(':
 	case '[':
 	case '{':
-	case U32_C('、'):
-	case U32_C('。'):
-	case U32_C('，'):
-	case U32_C('︐'):
 	case U32_C('（'):
 	case U32_C('︵'):
 	case U32_C('｛'):
 	case U32_C('︷'):
-	case U32_C('〈'): // U+3008
-	case U32_C('〈'): // U+2329
 	case U32_C('「'):
 	case U32_C('﹁'):
 	case U32_C('『'):
@@ -1383,11 +1375,16 @@ static bool is_gyomatsu_kinsoku(uint32_t c)
 	case U32_C('〖'):
 	case U32_C('《'):
 	case U32_C('︽'):
+	case U32_C('〈'): // U+3008
+	case U32_C('〈'): // U+2329
+	case U32_C('｟'):
+	case U32_C('«'):
+	case U32_C('︙'):
+	case U32_C('︰'):
+	case U32_C('丨'):
 	case U32_C('〝'):
 	case U32_C('‘'):
 	case U32_C('“'):
-	case U32_C('｟'):
-	case U32_C('«'):
 		return true;
 	default:
 		break;
@@ -1411,7 +1408,11 @@ static bool is_gyoto_kinsoku(uint32_t c)
 	case '}':
 	case '/':
 	case U32_C('、'):
+	case U32_C('︑'):
+	case U32_C('，'):
+	case U32_C('︐'):
 	case U32_C('。'):
+	case U32_C('︒'):
 	case U32_C('〕'):
 	case U32_C('〉'):
 	case U32_C('》'):
