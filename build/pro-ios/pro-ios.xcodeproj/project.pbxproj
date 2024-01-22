@@ -673,6 +673,8 @@
 					"-lfreetype",
 					"-lbz2",
 					"-lz",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -724,6 +726,8 @@
 					"-lfreetype",
 					"-lbz2",
 					"-lz",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
