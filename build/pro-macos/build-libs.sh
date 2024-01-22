@@ -95,7 +95,7 @@ sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += psnames//' \
     < modules.cfg > modules.cfg.new
 mv modules.cfg.new modules.cfg
-./configure --prefix=$PREFIX --enable-static --disable-shared --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes CFLAGS='-arch arm64 -arch x86_64' LDFLAGS="-arch arm64 -arch x86_64" ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' | tee
+./configure --prefix=$PREFIX --enable-static --disable-shared --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes --with-brotli=yes CFLAGS='-arch arm64 -arch x86_64' LDFLAGS="-arch arm64 -arch x86_64" ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' BROTLI_CFLAGS='-I../../libroot/include' BROTLI_LIBS='-L../../libroot/lib -lbrotlidec -lbrotlicommon'
 make
 make install
 cd ..

@@ -99,6 +99,8 @@ static bool init(void)
 		 */
 		for (i = 0; i < STAGE_LAYERS; i++)
 			finish_layer_anime(i);
+	} else if (strcmp(fname, "unregister") == 0) {
+		unregister_anime(reg_index);
 	} else {
 		/* アニメファイルをロードする */
 		if (!load_anime_from_file(fname, reg_index)) {

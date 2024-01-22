@@ -30,7 +30,7 @@ all: libbrotlicommon.a libbrotlidec.a
 	cp -R c/include/brotli ../../libroot/include/
 
 libbrotlicommon.a: $(OBJ_COMMON)
-	$(AR) -rcu ../../libroot/lib/libbrotlicommon.a $(OBJ_COMMON)
+	$(AR) rcs ../../libroot/lib/libbrotlicommon.a $(OBJ_COMMON)
 
 libbrotlidec.a: $(OBJ_DEC)
-	$(AR) -rcu ../../libroot/lib/libbrotlidec.a $(OBJ_DEC)
+	$(AR) rcs ../../libroot/lib/libbrotlidec.a $(OBJ_DEC)

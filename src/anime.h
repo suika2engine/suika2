@@ -59,6 +59,9 @@ bool is_anime_finished_for_layer(int layer);
 /* アニメーションのフレームを更新する */
 void update_anime_frame(void);
 
+/* ループアニメの登録を解除する */
+void unregister_anime(int reg_index);
+
 /* ループアニメファイル名を取得する */
 const char *get_reg_anime_file_name(int reg_index);
 

@@ -659,6 +659,8 @@
 					"-lbz2",
 					"-lz",
 					"-lfreetype",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.co.luxion.suika.engine-macos";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -711,6 +713,8 @@
 					"-lbz2",
 					"-lz",
 					"-lfreetype",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.co.luxion.suika.engine-macos";
 				PRODUCT_NAME = "$(TARGET_NAME)";

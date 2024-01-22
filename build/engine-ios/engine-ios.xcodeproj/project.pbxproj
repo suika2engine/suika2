@@ -93,7 +93,7 @@
 		26A5000D2B29E4CB00C1ED7D /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		26A5000E2B29E55400C1ED7D /* GameView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameView.m; sourceTree = "<group>"; };
 		26A500102B29E58700C1ED7D /* GameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
-		26A500132B29F40400C1ED7D /* data01.arc */ = {isa = PBXFileReference; lastKnownFileType = file; path = data01.arc; sourceTree = "<group>"; };
+		26A500132B29F40400C1ED7D /* data01.arc */ = {isa = PBXFileReference; lastKnownFileType = text; path = data01.arc; sourceTree = "<group>"; };
 		26A5FFFC2B29E4BA00C1ED7D /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		26A5FFFD2B29E4BA00C1ED7D /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		26A5FFFE2B29E4BA00C1ED7D /* SceneDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
@@ -627,6 +627,8 @@
 					"-lfreetype",
 					"-lbz2",
 					"-lz",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.engine-ios.suika2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -672,6 +674,8 @@
 					"-lfreetype",
 					"-lbz2",
 					"-lz",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.engine-ios.suika2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
