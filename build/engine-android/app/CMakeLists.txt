@@ -89,6 +89,10 @@ target_link_libraries(
 add_subdirectory(src/main/cpp/bzip2)
 include_directories(src/main/cpp/bzip2)
 
+# Add brotli
+add_subdirectory(src/main/cpp/brotli)
+include_directories(src/main/cpp/brotli/c/include)
+
 # Add libpng
 option(HAVE_LD_VERSION_SCRIPT OFF)
 set(HAVE_LD_VERSION_SCRIPT OFF)

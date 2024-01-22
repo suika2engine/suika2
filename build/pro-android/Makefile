@@ -23,6 +23,10 @@ setup:
 	@mkdir -p app/src/main/cpp/freetype
 	@tar xzf ../libsrc/freetype-2.13.2.tar.gz -C app/src/main/cpp/freetype --strip-components 1
 	@
+	@echo 'Extracting brotli.'
+	@mkdir -p app/src/main/cpp/brotli
+	@tar xzf ../libsrc/brotli-1.1.0.tar.gz -C app/src/main/cpp/brotli --strip-components 1
+	@
 	@echo 'Extracting jpeg9.'
 	@mkdir -p app/src/main/cpp/jpeg
 	@tar xzf ../libsrc/jpegsrc.v9e.tar.gz -C app/src/main/cpp/jpeg --strip-components 1
