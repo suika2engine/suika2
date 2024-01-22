@@ -1170,7 +1170,7 @@ draw_msg_common(
 		if (context->use_tategaki && is_small_kana(wc)) {
 			/* FIXME: 何らかの調整を加える */
 			ofs_x = context->font_size / 10;
-			ofs_y = -context->font_size / 8;
+			ofs_y = -context->font_size / 6;
 		} else {
 			ofs_x = 0;
 			ofs_y = 0;
