@@ -932,8 +932,9 @@ static bool do_word_wrapping(struct draw_msg_context *context);
 static int get_en_word_width(struct draw_msg_context *context);
 static uint32_t convert_tategaki_char(uint32_t wc);
 static bool is_tategaki_punctuation(uint32_t wc);
-static bool process_lf(struct draw_msg_context *context, uint32_t c,
-		       int glyph_width, int glyph_height);
+static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_width, int glyph_height, uint32_t c_next, int next_glyph_width, int next_glyph_height);
+static bool is_gyomatsu_kinsoku(uint32_t c);
+static bool is_gyoto_kinsoku(uint32_t c);
 static bool is_small_kana(uint32_t wc);
 
 /*
@@ -1011,6 +1012,9 @@ void construct_draw_msg_context(
 
 	/* The first character is treated as after-space. */
 	context->runtime_is_after_space = true;
+
+	/* "no-beginning-of-line" rule. */
+	context->runtime_is_gyoto_kinsoku = false;
 
 	/* Set zeros. */
 	context->runtime_is_inline_wait = false;
@@ -1108,8 +1112,9 @@ draw_msg_common(
 	int char_count)				/* characters to draw. */
 {
 	uint32_t wc = 0;
+	uint32_t wc_next = 0;
 	int i, mblen;
-	int glyph_width, glyph_height, ofs_x, ofs_y;
+	int glyph_width, glyph_height, next_glyph_width, next_glyph_height, ofs_x, ofs_y;
 	int ret_width = 0, ret_height = 0;
 
 	context->font = translate_font_type(context->font);
@@ -1141,16 +1146,24 @@ draw_msg_common(
 			return -1;
 		}
 
-		/* 縦書きの句読点変換を行う */
-		if (context->use_tategaki)
-			wc = convert_tategaki_char(wc);
+		/* 行末禁則処理のために、1文字先読みする */
+		if (utf8_to_utf32(context->msg + mblen, &wc_next) == -1)
+			wc_next = 0;
 
-		/* 描画する文字の幅と高さを取得する */
+		/* 縦書きの句読点変換を行う */
+		if (context->use_tategaki) {
+			wc = convert_tategaki_char(wc);
+			wc_next = convert_tategaki_char(wc);
+		}
+
+		/* 文字の幅と高さを取得する */
 		glyph_width = get_glyph_width(context->font, context->font_size, wc);
 		glyph_height = get_glyph_height(context->font, context->font_size, wc);
+		next_glyph_width = get_glyph_width(context->font, context->font_size, wc_next);
+		next_glyph_height = get_glyph_height(context->font, context->font_size, wc_next);
 
 		/* 右側の幅が足りなければ改行する */
-		if (!process_lf(context, wc, glyph_width, glyph_height))
+		if (!process_lf(context, wc, glyph_width, glyph_height, wc_next, next_glyph_width, next_glyph_height))
 			return i;
 
 		/* 小さいひらがな/カタカタのオフセットを計算する */
@@ -1248,39 +1261,231 @@ static int get_en_word_width(struct draw_msg_context *context)
 }
 
 /* 右側の幅が足りなければ改行する */
-static bool process_lf(struct draw_msg_context *context, uint32_t c,
-		       int glyph_width, int glyph_height)
+static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_width, int glyph_height, uint32_t c_next, int next_glyph_width, int next_glyph_height)
 {
-	if (!context->use_tategaki) {
-		/* 右側の幅が足りる場合、改行しない */
-		if (context->pen_x + glyph_width + context->char_margin <
-		    context->area_width - context->right_margin)
-			return true;
-	} else {
-		/* 下側の幅が足りる場合、改行しない */
-		if (context->pen_y + glyph_height + context->char_margin <
-		    context->area_height - context->bottom_margin)
-			return true;
-	}
+	/* 前の文字で行頭禁則を検出した場合 */
+	if (context->runtime_is_gyoto_kinsoku) {
+		/* 行頭禁則を解除する */
+		context->runtime_is_gyoto_kinsoku = false;
 
-	/* 禁則文字の場合、改行しない */
-	if (c == ' ' || c == ',' || c == '.' || c == ':' || c == ';' ||
-	    c == CHAR_TOUTEN || c == CHAR_KUTEN)
+		/* LFを無視する場合は、描画を終了する */
+		if (context->ignore_linefeed)
+			return false;
+
+		/* 改行しない */
 		return true;
-
-	if (context->ignore_linefeed)
-		return false;
-
-	/* 改行する */
-	if (!context->use_tategaki) {
-		context->pen_y += context->line_margin;
-		context->pen_x = context->left_margin;
-	} else {
-		context->pen_x -= context->line_margin;
-		context->pen_y = context->top_margin;
 	}
 
+	if (!context->use_tategaki) {
+		int limit = context->area_width - context->right_margin;
+
+		/* 右側の幅が足りない場合 */
+		if (context->pen_x + glyph_width + context->char_margin >= limit) {
+			/* cが行頭禁則禁則文字の場合は改行しない */
+			if (is_gyoto_kinsoku(c))
+				return true;
+
+			/* LFを無視する場合は、描画を終了する */
+			if (context->ignore_linefeed)
+				return false;
+
+			/* 改行する */
+			context->pen_y += context->line_margin;
+			context->pen_x = context->left_margin;
+		} else {
+			/* 右幅は足りるが、次の文字c_nextで行が溢れる場合 */
+			if (context->pen_x + glyph_width + context->char_margin + next_glyph_width + context->char_margin >= limit) {
+				if (is_gyoto_kinsoku(c_next)) {
+					/* c_nextが行頭禁則の場合、次の文字で改行しないようにフラグを立てる */
+					context->runtime_is_gyoto_kinsoku = true;
+				} else if (is_gyomatsu_kinsoku(c_next)) {
+					/* c_nextが行末禁則の場合*/
+
+					/* LFを無視する場合は、描画を終了する */
+					if (context->ignore_linefeed)
+						return false;
+
+					/* 改行する */
+					context->pen_y += context->line_margin;
+					context->pen_x = context->left_margin;
+				}
+			}
+		}
+	} else {
+		int limit = context->area_height - context->bottom_margin;
+
+		/* 下側の幅が足りない場合 */
+		if (context->pen_y + glyph_height + context->char_margin >= limit) {
+			/* cが行頭禁則禁則文字の場合は改行しない */
+			if (is_gyoto_kinsoku(c))
+				return true;
+
+			/* LFを無視する場合は、描画を終了する */
+			if (context->ignore_linefeed)
+				return false;
+
+			/* 改行する */
+			context->pen_x -= context->line_margin;
+			context->pen_y = context->top_margin;
+		} else {
+			/* 下幅は足りるが、次の文字c_nextで行が溢れる場合 */
+			if (context->pen_y + glyph_height + context->char_margin + next_glyph_height + context->char_margin >= limit) {
+				if (is_gyoto_kinsoku(c_next)) {
+					/* c_nextが行頭禁則の場合、次の文字で改行しないようにフラグを立てる */
+					context->runtime_is_gyoto_kinsoku = true;
+				} else if (is_gyomatsu_kinsoku(c_next)) {
+					/* c_nextが行末禁則の場合*/
+
+					/* LFを無視する場合は、描画を終了する */
+					if (context->ignore_linefeed)
+						return false;
+
+					/* 改行する */
+					context->pen_x -= context->line_margin;
+					context->pen_y = context->top_margin;
+				}
+			}
+		}
+	}
+
+	/* 改行しない */
 	return true;
+}
+
+/* Check if "no-end-of-line" ruled character. */
+static bool is_gyomatsu_kinsoku(uint32_t c)
+{
+	switch (c) {
+	case '(':
+	case '[':
+	case '{':
+	case U32_C('、'):
+	case U32_C('。'):
+	case U32_C('，'):
+	case U32_C('︐'):
+	case U32_C('（'):
+	case U32_C('︵'):
+	case U32_C('｛'):
+	case U32_C('︷'):
+	case U32_C('〈'): // U+3008
+	case U32_C('〈'): // U+2329
+	case U32_C('「'):
+	case U32_C('﹁'):
+	case U32_C('『'):
+	case U32_C('﹃'):
+	case U32_C('【'):
+	case U32_C('︻'):
+	case U32_C('［'):
+	case U32_C('﹇'):
+	case U32_C('〔'):
+	case U32_C('︹'):
+	case U32_C('〘'):
+	case U32_C('〖'):
+	case U32_C('《'):
+	case U32_C('︽'):
+	case U32_C('〝'):
+	case U32_C('‘'):
+	case U32_C('“'):
+	case U32_C('｟'):
+	case U32_C('«'):
+		return true;
+	default:
+		break;
+	}
+	return false;
+}
+
+/* Check if "no-beginning-of-line" ruled character. */
+static bool is_gyoto_kinsoku(uint32_t c)
+{
+	switch (c) {
+	case ' ':
+	case ',':
+	case '.':
+	case '!':
+	case '?':
+	case ':':
+	case ';':
+	case ')':
+	case ']':
+	case '}':
+	case '/':
+	case U32_C('、'):
+	case U32_C('。'):
+	case U32_C('〕'):
+	case U32_C('〉'):
+	case U32_C('》'):
+	case U32_C('」'):
+	case U32_C('』'):
+	case U32_C('】'):
+	case U32_C('〙'):
+	case U32_C('〗'):
+	case U32_C('〟'):
+	case U32_C('’'):
+	case U32_C('”'):
+	case U32_C('｠'):
+	case U32_C('»'):
+	case U32_C('ゝ'):
+	case U32_C('ゞ'):
+	case U32_C('ー'):
+	case U32_C('ァ'):
+	case U32_C('ィ'):
+	case U32_C('ゥ'):
+	case U32_C('ェ'):
+	case U32_C('ォ'):
+	case U32_C('ッ'):
+	case U32_C('ャ'):
+	case U32_C('ュ'):
+	case U32_C('ョ'):
+	case U32_C('ヮ'):
+	case U32_C('ヵ'):
+	case U32_C('ヶ'):
+	case U32_C('ぁ'):
+	case U32_C('ぃ'):
+	case U32_C('ぅ'):
+	case U32_C('ぇ'):
+	case U32_C('ぉ'):
+	case U32_C('っ'):
+	case U32_C('ゃ'):
+	case U32_C('ゅ'):
+	case U32_C('ょ'):
+	case U32_C('ゎ'):
+	case U32_C('ゕ'):
+	case U32_C('ゖ'):
+	case U32_C('ㇰ'):
+	case U32_C('ㇱ'):
+	case U32_C('ㇲ'):
+	case U32_C('ㇳ'):
+	case U32_C('ㇴ'):
+	case U32_C('ㇵ'):
+	case U32_C('ㇶ'):
+	case U32_C('ㇷ'):
+	case U32_C('ㇸ'):
+	case U32_C('ㇹ'):
+	case U32_C('゚'):
+	case U32_C('ㇺ'):
+	case U32_C('ㇻ'):
+	case U32_C('ㇼ'):
+	case U32_C('ㇽ'):
+	case U32_C('ㇾ'):
+	case U32_C('ㇿ'):
+	case U32_C('々'):
+	case U32_C('〻'):
+	case U32_C('‐'):
+	case U32_C('゠'):
+	case U32_C('–'):
+	case U32_C('〜'):
+	case U32_C('～'):
+	case U32_C('‼'):
+	case U32_C('⁇'):
+	case U32_C('⁈'):
+	case U32_C('⁉'):
+	case U32_C('・'):
+		return true;
+	default:
+		break;
+	}
+	return false;
 }
 
 /* 縦書きの句読点変換を行う */
@@ -1307,6 +1512,12 @@ static uint32_t convert_tategaki_char(uint32_t wc)
 	case U32_C('…'): return U32_C('︙');
 	case U32_C('‥'): return U32_C('︰');
 	case U32_C('ー'): return U32_C('丨');
+	case U32_C('〈'): return U32_C('︿'); // U+3008 -> U+FE3F
+	case U32_C('〈'): return U32_C('︿'); // U+2329 -> U+FE3F
+	case U32_C('〉'): return U32_C('⟩');  // U+3009 -> U+FE40
+	case U32_C('〉'): return U32_C('⟩');  // U+232A -> U+FE40
+	case U32_C('《'): return U32_C('︽');
+	case U32_C('》'): return U32_C('︾');
 	default:
 		break;
 	}
