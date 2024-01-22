@@ -4,9 +4,10 @@ set -eu
 
 PREFIX=`pwd`/libroot
 
-echo 'Reconstructing libroot...'
 rm -rf tmp libroot
-mkdir -p tmp libroot libroot/include libroot/lib
+mkdir -p tmp libroot
+mkdir -p libroot/include libroot/lib
+
 cd tmp
 
 echo 'Building brotli...'
@@ -35,7 +36,7 @@ cd ..
 echo 'Building zlib...'
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11
-make -f win32/Makefile.gcc PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections'
+make libz.a -f win32/Makefile.gcc PREFIX=i686-w64-mingw32- CFLAGS='-O3 -ffunction-sections -fdata-sections'
 cp zlib.h zconf.h ../../libroot/include/
 cp libz.a ../../libroot/lib/
 cd ..
@@ -88,7 +89,7 @@ sed -e 's/FONT_MODULES += type1//' \
     < modules.cfg > modules.cfg.new
 mv modules.cfg.new modules.cfg
 # Add |tee for avoid freeze on Emacs shell.
-./configure --prefix=$PREFIX --enable-static --disable-shared --host=i686-w64-mingw32 --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes --with-brotli=no CFLAGS='-O3 -ffunction-sections -fdata-sections' ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' CC=i686-w64-mingw32-gcc | tee
+./configure --prefix=$PREFIX --enable-static --disable-shared --host=i686-w64-mingw32 --with-png=yes --with-harfbuzz=no --with-zlib=yes --with-bzip2=yes --with-brotli=yes CFLAGS='-O3 -ffunction-sections -fdata-sections' ZLIB_CFLAGS='-I../../libroot/include' ZLIB_LIBS='-L../../libroot/lib -lz' BZIP2_CFLAGS='-I../../libroot/include' BZIP2_LIBS='-L../../libroot/lib -lbz2' LIBPNG_CFLAGS='-I../../libroot/include' LIBPNG_LIBS='-L../../libroot/lib -lpng' BROTLI_CFLAGS='-I../../libroot/include' BROTLI_LIBS='-L../../libroot/lib -lpng' CC=i686-w64-mingw32-gcc | tee
 make | tee
 make install | tee
 cd ..

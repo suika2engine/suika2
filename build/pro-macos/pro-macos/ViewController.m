@@ -1188,7 +1188,7 @@ static ViewController *theViewController;
         return;
     }
 
-    NSArray *appArray = @[@"libroot", @"src", @"engine-ios", @"engine-ios.xcodeproj"];
+    NSArray *appArray = @[@"libroot", @"engine-ios", @"engine-ios.xcodeproj"];
     for (NSString *sub in appArray) {
         if (![fileManager copyItemAtPath:[NSString stringWithFormat:@"%@/Contents/Resources/ios-src/%@", [[NSBundle  mainBundle] bundlePath], sub]
                                   toPath:[NSString stringWithFormat:@"%@/export-ios/%@", [fileManager currentDirectoryPath], sub]

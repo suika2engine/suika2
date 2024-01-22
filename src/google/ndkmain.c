@@ -128,12 +128,10 @@ Java_jp_luxion_suika_MainActivity_nativeRunFrame(
 	JNIEnv *env,
 	jobject instance)
 {
-	bool do_render;
-
 	jni_env = env;
 
 	/* Process a video playback. */
-	bool draw = true;
+	bool do_render = true;
 	if (state_video) {
 		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
 		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeIsVideoPlaying", "()Z");
@@ -485,7 +483,7 @@ void stop_video(void)
 bool is_video_playing(void)
 {
 	if (state_video) {
-		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suikapro/MainActivity");
+		jclass cls = (*jni_env)->FindClass(jni_env, "jp/luxion/suika/MainActivity");
 		jmethodID mid = (*jni_env)->GetMethodID(jni_env, cls, "bridgeIsVideoPlaying", "()V");
 		if (!(*jni_env)->CallBooleanMethod(jni_env, main_activity, mid)) {
 			state_video = false;

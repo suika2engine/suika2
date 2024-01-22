@@ -56,6 +56,8 @@ debug:
 	@cp ../../src/uimsg.h app/src/main/cpp/
 	@cp ../../src/uimsg.c app/src/main/cpp/
 	@cp ../../src/types.h app/src/main/cpp/
+	@cp ../../src/uimsg.h app/src/main/cpp/
+	@cp ../../src/uimsg.c app/src/main/cpp/
 	@cp ../../src/vars.h app/src/main/cpp/
 	@cp ../../src/vars.c app/src/main/cpp/
 	@cp ../../src/wave.h app/src/main/cpp/
@@ -132,7 +134,7 @@ debug:
 
 src:
 	@echo 'Making a source code tree for the export feature.'
-	@rm -rf app/build app/.cxx app/src/main/cpp android-src
+	@rm -rf app/build app/.cxx app/src/main/cpp app/src/main/assets android-src
 	@mkdir -p android-src
 	@mkdir -p android-src/app/src/main/cpp
 	@
@@ -190,6 +192,8 @@ src:
 	@cp ../../src/stage.h android-src/app/src/main/cpp/
 	@cp ../../src/stage.c android-src/app/src/main/cpp/
 	@cp ../../src/types.h android-src/app/src/main/cpp/
+	@cp ../../src/uimsg.h android-src/app/src/main/cpp/
+	@cp ../../src/uimsg.c android-src/app/src/main/cpp/
 	@cp ../../src/vars.h android-src/app/src/main/cpp/
 	@cp ../../src/vars.c android-src/app/src/main/cpp/
 	@cp ../../src/wave.h android-src/app/src/main/cpp/
@@ -249,7 +253,16 @@ src:
 	@mkdir -p android-src/app/src/main/cpp/freetype
 	@tar xzf ../libsrc/freetype-2.13.2.tar.gz -C android-src/app/src/main/cpp/freetype --strip-components 1
 	@
-	@mkdir -p app/src/main/cpp/brotli
-	@tar xzf ../libsrc/brotli-1.1.0.tar.gz -C app/src/main/cpp/brotli --strip-components 1
+	@mkdir -p android-src/app/src/main/cpp/brotli
+	@tar xzf ../libsrc/brotli-1.1.0.tar.gz -C android-src/app/src/main/cpp/brotli --strip-components 1
+	@
+	@mkdir -p android-src/app/src/main/cpp/libogg
+	@tar xzf ../libsrc/libogg-1.3.3.tar.gz -C android-src/app/src/main/cpp/libogg --strip-components 1
+	@cp cmake/libogg.txt android-src/app/src/main/cpp/libogg/CMakeLists.txt
+	@sed -e 's/@INCLUDE_INTTYPES_H@/1/g' -e 's/@INCLUDE_STDINT_H@/1/g' -e 's/@INCLUDE_SYS_TYPES_H@/1/g' -e 's/@SIZE16@/int16_t/g' -e 's/@USIZE16@/uint16_t/g' -e 's/@SIZE32@/int32_t/g' -e 's/@USIZE32@/uint32_t/g' -e 's/@SIZE64@/int64_t/g' -e 's/@USIZE64@/uint64_t/g' < android-src/app/src/main/cpp/libogg/include/ogg/config_types.h.in > android-src/app/src/main/cpp/libogg/include/ogg/config_types.h
+	@
+	@mkdir -p android-src/app/src/main/cpp/libvorbis
+	@tar xzf ../libsrc/libvorbis-1.3.6.tar.gz -C android-src/app/src/main/cpp/libvorbis --strip-components 1
+	@cp cmake/libvorbis.txt android-src/app/src/main/cpp/libvorbis/CMakeLists.txt
 	@
 	@mkdir -p android-src/app/src/main/assets
