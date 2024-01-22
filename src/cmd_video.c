@@ -87,12 +87,15 @@ static bool init(void)
 	/* 既読フラグを設定する */
 	set_seen();
 
-	/* 動画を再生する */
-	if (!play_video(fn, is_skippable))
-		return false;
-
 	/* 繰り返し実行を開始する */
 	start_command_repetition();
+
+	/* 動画を再生する */
+	if (!play_video(fn, is_skippable)) {
+		stop_command_repetition();
+		return false;
+	}
+
 	return true;
 }
 
