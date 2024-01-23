@@ -1387,9 +1387,6 @@ static bool is_gyomatsu_kinsoku(uint32_t c)
 	case U32_C('〈'): // U+2329
 	case U32_C('｟'):
 	case U32_C('«'):
-	case U32_C('︙'):
-	case U32_C('︰'):
-	case U32_C('丨'):
 	case U32_C('〝'):
 	case U32_C('‘'):
 	case U32_C('“'):
@@ -1437,7 +1434,12 @@ static bool is_gyoto_kinsoku(uint32_t c)
 	case U32_C('»'):
 	case U32_C('ゝ'):
 	case U32_C('ゞ'):
+	case U32_C('‐'):
+	case U32_C('–'):
 	case U32_C('ー'):
+	case U32_C('丨'):
+	case U32_C('︙'):
+	case U32_C('︰'):
 	case U32_C('ァ'):
 	case U32_C('ィ'):
 	case U32_C('ゥ'):
@@ -1481,9 +1483,7 @@ static bool is_gyoto_kinsoku(uint32_t c)
 	case U32_C('ㇿ'):
 	case U32_C('々'):
 	case U32_C('〻'):
-	case U32_C('‐'):
 	case U32_C('゠'):
-	case U32_C('–'):
 	case U32_C('〜'):
 	case U32_C('～'):
 	case U32_C('‼'):
