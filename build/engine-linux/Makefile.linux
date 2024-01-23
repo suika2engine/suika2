@@ -40,6 +40,8 @@ LDFLAGS = \
 	-logg \
 	-lz \
 	-lbz2 \
+	-lbrotlicommon \
+	-lbrotlidec \
 	-Wl,--gc-sections \
 	-L/usr/local/lib \
 	-L/usr/pkg/lib \

@@ -121,6 +121,8 @@ struct draw_msg_context {
 	bool runtime_is_inline_wait;
 	int runtime_ruby_x;
 	int runtime_ruby_y;
+	bool runtime_is_line_top;
+	bool runtime_is_gyoto_kinsoku;
 };
 
 /*

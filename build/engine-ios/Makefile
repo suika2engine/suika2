@@ -30,16 +30,17 @@ src:
 	@cp -R engine-ios engine-ios.xcodeproj ios-src/
 	@rm -f ios-src/engine-ios/data01.arc
 	@
-	@gsed -e 's|../../src/apple/||g' -i ios-src/engine-ios.xcodeproj/project.pbxproj
-	@gsed -e 's|../../src/||g' -i ios-src/engine-ios.xcodeproj/project.pbxproj
+	@gsed -e 's|../../src/apple/|engine-ios/apple/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj
+	@gsed -e 's|../../src/|engine-ios/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj
 	@
-	@cp ../../src/apple/GameRenderer.h ios-src/engine-ios/
-	@cp ../../src/apple/GameRenderer.m ios-src/engine-ios/
-	@cp ../../src/apple/GameShaders.metal ios-src/engine-ios/
-	@cp ../../src/apple/GameShaderTypes.h ios-src/engine-ios/
-	@cp ../../src/apple/GameViewControllerProtocol.h ios-src/engine-ios/
-	@cp ../../src/apple/aunit.c ios-src/engine-ios/
-	@cp ../../src/apple/aunit.h ios-src/engine-ios/
+	@mkdir -p ios-src/engine-ios/apple
+	@cp ../../src/apple/GameRenderer.h ios-src/engine-ios/apple/
+	@cp ../../src/apple/GameRenderer.m ios-src/engine-ios/apple/
+	@cp ../../src/apple/GameShaders.metal ios-src/engine-ios/apple/
+	@cp ../../src/apple/GameShaderTypes.h ios-src/engine-ios/apple/
+	@cp ../../src/apple/GameViewControllerProtocol.h ios-src/engine-ios/apple/
+	@cp ../../src/apple/aunit.c ios-src/engine-ios/apple/
+	@cp ../../src/apple/aunit.h ios-src/engine-ios/apple/
 	@cp ../../src/anime.c ios-src/engine-ios/
 	@cp ../../src/anime.h ios-src/engine-ios/
 	@cp ../../src/conf.c ios-src/engine-ios/

@@ -112,6 +112,9 @@ public class MainActivity extends Activity {
     // Finger count of a last touch.
     private int touchCount;
 
+    // A flag that indicates if the game is loaded.
+    private boolean isLoaded;
+
     // A flag that indicates if the game is finished.
     private boolean isFinished;
 
@@ -190,6 +193,7 @@ public class MainActivity extends Activity {
             if(!resumeFromVideo) {
                 synchronized (syncObj) {
                     nativeInitGame();
+					isLoaded = true;
                 }
             } else {
                 resumeFromVideo = false;
@@ -225,6 +229,8 @@ public class MainActivity extends Activity {
 
         @Override
         public void onDrawFrame(GL10 gl) {
+            if(!isLoaded)
+                return;
             if(isFinished)
                 return;
             if(video != null)
@@ -309,6 +315,9 @@ public class MainActivity extends Activity {
         @Override
         public void onDraw(Canvas canvas) {
             if(video != null) {
+				if(!isLoaded)
+					return;
+
                 boolean ret = true;
                 synchronized (syncObj) {
                     ret = nativeRunFrame();

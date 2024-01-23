@@ -47,8 +47,10 @@ LDFLAGS = \
 	-lvorbisfile \
 	-lvorbis \
 	-logg \
-	-lbz2 \
 	-lz \
+	-lbz2 \
+	-lbrotlicommon \
+	-lbrotlidec \
 	-L/usr/local/lib \
 	-lasound \
 	-lX11 \

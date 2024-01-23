@@ -84,6 +84,8 @@ target_link_libraries(
   freetype
   bz2
   z
+  brotlidec
+  brotlicommon
   ogg
   vorbis
   OpenSLES
@@ -93,6 +95,10 @@ target_link_libraries(
 # Add bzip2
 add_subdirectory(src/main/cpp/bzip2)
 include_directories(src/main/cpp/bzip2)
+
+# Add brotli
+add_subdirectory(src/main/cpp/brotli)
+include_directories(src/main/cpp/brotli/c/include)
 
 # Add libpng
 option(HAVE_LD_VERSION_SCRIPT OFF)

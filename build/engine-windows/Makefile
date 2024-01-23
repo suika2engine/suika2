@@ -49,7 +49,7 @@ LDFLAGS = \
 	-lstrmiids \
 	-lsapi \
 	-L./libroot/lib \
-	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lvorbisfile,-lvorbis,-logg,-dy \
+	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lbrotlidec,-lbrotlicommon,-lvorbisfile,-lvorbis,-logg,-dy \
 	-Wl,--gc-sections
 
 #

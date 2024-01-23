@@ -739,7 +739,18 @@ static float calc_pos_y_to(int anime_layer, int index, const char *value)
 	return ret;
 }
 
-/* ループアニメファイル名を取得する */
+/*
+ * ループアニメの登録を解除する
+ */
+void unregister_anime(int reg_index)
+{
+	free(reg_anime_file[reg_index]);
+	reg_anime_file[reg_index] = NULL;
+}
+
+/*
+ * ループアニメファイル名を取得する
+ */
 const char *get_reg_anime_file_name(int reg_index)
 {
 	return reg_anime_file[reg_index];

@@ -48,8 +48,10 @@ LDFLAGS = \
 	-lvorbisfile \
 	-lvorbis \
 	-logg \
-	-lbz2 \
 	-lz \
+	-lbz2 \
+	-lbrotlicommon \
+	-lbrotlidec \
 	-L/usr/pkg/lib \
 	-lasound \
 	-L/usr/X11R7/lib \

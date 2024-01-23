@@ -37,7 +37,7 @@ CFLAGS = \
 
 LDFLAGS = \
 	-L./libroot/lib \
-	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lvorbisfile,-lvorbis,-logg,-lz,-lbz2,-dy \
+	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lvorbisfile,-lvorbis,-logg,-lz,-lbz2,-lbrotlicommon,-lbrotlidec,-dy \
 	-Wl,--gc-sections \
 	-L/usr/local/lib \
 	-L/usr/pkg/lib \

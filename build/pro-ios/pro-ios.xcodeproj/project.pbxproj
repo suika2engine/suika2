@@ -637,7 +637,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Suika2 Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "pro-ios/Info.plist";
@@ -653,7 +653,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 15.87;
+				MARKETING_VERSION = 15.103;
 				OTHER_CFLAGS = (
 					"-I../../src/",
 					"-I../../src/apple",
@@ -673,6 +673,8 @@
 					"-lfreetype",
 					"-lbz2",
 					"-lz",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -688,7 +690,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Suika2 Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = 7S742FWR63;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "pro-ios/Info.plist";
@@ -704,7 +706,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 15.87;
+				MARKETING_VERSION = 15.103;
 				OTHER_CFLAGS = (
 					"-I../../src/",
 					"-I../../src/apple",
@@ -724,6 +726,8 @@
 					"-lfreetype",
 					"-lbz2",
 					"-lz",
+					"-lbrotlidec",
+					"-lbrotlicommon",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";

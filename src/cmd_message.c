@@ -2995,14 +2995,18 @@ static void play_se(const char *file)
 /* 既読であるか調べる */
 static bool is_skippable(void)
 {
-	/* コンフィグで未読スキップが指定されている場合 */
-	if (conf_msgbox_skip_unseen)
+	if (conf_msgbox_skip_unseen == 0) {
+		return get_seen();
+	} else if (conf_msgbox_skip_unseen == 1) {
 		return true;
+	} else if (conf_msgbox_skip_unseen == 2) {
+		if (is_control_pressed)
+			return true;
+		if (is_skip_mode())
+			return get_seen();
+	}
 
-	/* 既読である場合 */
-	if (get_seen())
-		return true;
-
+	/* never come here */
 	return false;
 }
 
