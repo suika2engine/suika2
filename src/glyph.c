@@ -1302,22 +1302,21 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			context->pen_x = context->left_margin;
 			context->runtime_is_line_top = true;
 		} else {
-			/* 右幅は足りるが、文字cが行末禁則の場合 */
-			if (is_gyomatsu_kinsoku(c) && !line_top) {
-				/* LFを無視する場合は、描画を終了する */
+			/* 右幅が足りる場合 */
+			if (line_top) {
+				/* 行頭なら改行しない */
+			} else if (is_gyomatsu_kinsoku(c)) {
+				/* cが行末禁止文字の場合は改行する */
 				if (context->ignore_linefeed)
-					return false;
-
-				/* 改行する */
+					return false; /* ただしLFを無視する場合は、描画を終了する */
 				context->pen_y += context->line_margin;
 				context->pen_x = context->left_margin;
 				context->runtime_is_line_top = true;
-			} else if (context->pen_x + glyph_width + context->char_margin + next_glyph_width + context->char_margin >= limit) {
-				/* 右幅は足りるが、次の文字c_nextで行が溢れ、c_nextが行頭禁則の場合 */
-				if (is_gyoto_kinsoku(c_next)) {
-					/* 次の文字で改行しないようにフラグを立てる */
-					context->runtime_is_gyoto_kinsoku = true;
-				}
+			} else if (is_gyoto_kinsoku(c_next) &&
+				   context->pen_x + glyph_width + context->char_margin + next_glyph_width + context->char_margin >= limit) {
+				/* c_nextが行頭禁則文字で右端からはみ出るなら改行しない */
+				/* 次の文字で改行しないようにフラグを立てる */
+				context->runtime_is_gyoto_kinsoku = true;
 			}
 		}
 	} else {
@@ -1338,22 +1337,19 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			context->pen_y = context->top_margin;
 			context->runtime_is_line_top = true;
 		} else {
-			/* 下幅は足りるが、文字cが行末禁則の場合 */
-			if (is_gyomatsu_kinsoku(c) && !line_top) {
-				/* LFを無視する場合は、描画を終了する */
-				if (context->ignore_linefeed)
-					return false;
-
-				/* 改行する */
+			/* 下幅が足りる場合 */
+			if (line_top) {
+				/* 行頭なら改行しない */
+			} else if (is_gyomatsu_kinsoku(c)) {
+				/* cが行末禁止文字の場合は改行する */
 				context->pen_x -= context->line_margin;
 				context->pen_y = context->top_margin;
 				context->runtime_is_line_top = true;
-			} else if (context->pen_y + glyph_height + context->char_margin + next_glyph_height + context->char_margin >= limit) {
-				/* 下幅は足りるが、次の文字c_nextで行が溢れ、c_nextが行頭禁則の場合 */
-				if (is_gyoto_kinsoku(c_next)) {
-					/* 次の文字で改行しないようにフラグを立てる */
-					context->runtime_is_gyoto_kinsoku = true;
-				}
+			} else if (is_gyoto_kinsoku(c_next) &&
+				   context->pen_y + glyph_height + context->char_margin + next_glyph_height + context->char_margin >= limit) {
+				/* c_nextが行頭禁則文字で下端からはみ出るなら改行しない */
+				/* 次の文字で改行しないようにフラグを立てる */
+				context->runtime_is_gyoto_kinsoku = true;
 			}
 		}
 	}
@@ -1419,6 +1415,7 @@ static bool is_gyoto_kinsoku(uint32_t c)
 	case ']':
 	case '}':
 	case '/':
+	case U32_C('？'):
 	case U32_C('、'):
 	case U32_C('︑'):
 	case U32_C('，'):
