@@ -1013,6 +1013,9 @@ void construct_draw_msg_context(
 	/* The first character is treated as after-space. */
 	context->runtime_is_after_space = true;
 
+	/* Set line-top.. */
+	context->runtime_is_line_top = true;
+
 	/* "no-beginning-of-line" rule. */
 	context->runtime_is_gyoto_kinsoku = false;
 
@@ -1263,6 +1266,11 @@ static int get_en_word_width(struct draw_msg_context *context)
 /* 右側の幅が足りなければ改行する */
 static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_width, int glyph_height, uint32_t c_next, int next_glyph_width, int next_glyph_height)
 {
+	bool line_top;
+
+	line_top = context->runtime_is_line_top;
+	context->runtime_is_line_top = false;
+
 	/* 前の文字で行頭禁則を検出した場合 */
 	if (context->runtime_is_gyoto_kinsoku) {
 		/* 行頭禁則を解除する */
@@ -1282,7 +1290,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 		/* 右側の幅が足りない場合 */
 		if (context->pen_x + glyph_width + context->char_margin >= limit) {
 			/* cが行頭禁則禁則文字の場合は改行しない */
-			if (is_gyoto_kinsoku(c))
+			if (is_gyoto_kinsoku(c) && !line_top)
 				return true;
 
 			/* LFを無視する場合は、描画を終了する */
@@ -1292,9 +1300,10 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			/* 改行する */
 			context->pen_y += context->line_margin;
 			context->pen_x = context->left_margin;
+			context->runtime_is_line_top = true;
 		} else {
 			/* 右幅は足りるが、文字cが行末禁則の場合 */
-			if (is_gyomatsu_kinsoku(c)) {
+			if (is_gyomatsu_kinsoku(c) && !line_top) {
 				/* LFを無視する場合は、描画を終了する */
 				if (context->ignore_linefeed)
 					return false;
@@ -1302,6 +1311,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 				/* 改行する */
 				context->pen_y += context->line_margin;
 				context->pen_x = context->left_margin;
+				context->runtime_is_line_top = true;
 			} else if (context->pen_x + glyph_width + context->char_margin + next_glyph_width + context->char_margin >= limit) {
 				/* 右幅は足りるが、次の文字c_nextで行が溢れ、c_nextが行頭禁則の場合 */
 				if (is_gyoto_kinsoku(c_next)) {
@@ -1316,7 +1326,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 		/* 下側の幅が足りない場合 */
 		if (context->pen_y + glyph_height + context->char_margin >= limit) {
 			/* cが行頭禁則禁則文字の場合は改行しない */
-			if (is_gyoto_kinsoku(c))
+			if (is_gyoto_kinsoku(c) && !line_top)
 				return true;
 
 			/* LFを無視する場合は、描画を終了する */
@@ -1326,9 +1336,10 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			/* 改行する */
 			context->pen_x -= context->line_margin;
 			context->pen_y = context->top_margin;
+			context->runtime_is_line_top = true;
 		} else {
 			/* 下幅は足りるが、文字cが行末禁則の場合 */
-			if (is_gyomatsu_kinsoku(c)) {
+			if (is_gyomatsu_kinsoku(c) && !line_top) {
 				/* LFを無視する場合は、描画を終了する */
 				if (context->ignore_linefeed)
 					return false;
@@ -1336,6 +1347,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 				/* 改行する */
 				context->pen_x -= context->line_margin;
 				context->pen_y = context->top_margin;
+				context->runtime_is_line_top = true;
 			} else if (context->pen_y + glyph_height + context->char_margin + next_glyph_height + context->char_margin >= limit) {
 				/* 下幅は足りるが、次の文字c_nextで行が溢れ、c_nextが行頭禁則の場合 */
 				if (is_gyoto_kinsoku(c_next)) {

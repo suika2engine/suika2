@@ -260,9 +260,11 @@ src:
 	@tar xzf ../libsrc/libogg-1.3.3.tar.gz -C android-src/app/src/main/cpp/libogg --strip-components 1
 	@cp cmake/libogg.txt android-src/app/src/main/cpp/libogg/CMakeLists.txt
 	@sed -e 's/@INCLUDE_INTTYPES_H@/1/g' -e 's/@INCLUDE_STDINT_H@/1/g' -e 's/@INCLUDE_SYS_TYPES_H@/1/g' -e 's/@SIZE16@/int16_t/g' -e 's/@USIZE16@/uint16_t/g' -e 's/@SIZE32@/int32_t/g' -e 's/@USIZE32@/uint32_t/g' -e 's/@SIZE64@/int64_t/g' -e 's/@USIZE64@/uint64_t/g' < android-src/app/src/main/cpp/libogg/include/ogg/config_types.h.in > android-src/app/src/main/cpp/libogg/include/ogg/config_types.h
+	@rm -rf android-src/app/src/main/cpp/libogg/macosx
 	@
 	@mkdir -p android-src/app/src/main/cpp/libvorbis
 	@tar xzf ../libsrc/libvorbis-1.3.6.tar.gz -C android-src/app/src/main/cpp/libvorbis --strip-components 1
 	@cp cmake/libvorbis.txt android-src/app/src/main/cpp/libvorbis/CMakeLists.txt
+	@rm -rf android-src/app/src/main/cpp/libvorbis/macosx
 	@
 	@mkdir -p android-src/app/src/main/assets
