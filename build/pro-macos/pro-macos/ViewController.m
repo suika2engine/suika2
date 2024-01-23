@@ -396,10 +396,8 @@ static ViewController *theViewController;
     while (YES) {
         NSOpenPanel *panel = [NSOpenPanel openPanel];
         [panel setCanChooseDirectories:YES];
-        if ([panel runModal] != NSModalResponseOK) {
-            [NSApp stop:nil];
+        if ([panel runModal] != NSModalResponseOK)
             return NO;
-        }
 
         NSString *path = [[panel URL] path];
         if ([[path lastPathComponent] hasSuffix:@"suika2project"]) {
