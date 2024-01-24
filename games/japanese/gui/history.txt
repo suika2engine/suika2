@@ -125,9 +125,9 @@ SCROLL {
     type: historyscroll;
 
     # 座標とサイズ
-    x: 1159;
+    x: 1152;
     y: 120;
-    width: 101;
+    width: 118;
     height: 478;
 
     # ポイントされたときの効果音

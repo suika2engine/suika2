@@ -1306,12 +1306,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			if (line_top) {
 				/* 行頭なら改行しない */
 			} else if (is_gyomatsu_kinsoku(c)) {
-				/* cが行末禁止文字の場合は改行する */
-				if (context->ignore_linefeed)
-					return false; /* ただしLFを無視する場合は、描画を終了する */
-				context->pen_y += context->line_margin;
-				context->pen_x = context->left_margin;
-				context->runtime_is_line_top = true;
+				/* cが行末禁止文字の場合は改行しない */
 			} else if (is_gyoto_kinsoku(c_next) &&
 				   context->pen_x + glyph_width + context->char_margin + next_glyph_width + context->char_margin >= limit) {
 				/* c_nextが行頭禁則文字で右端からはみ出るなら改行しない */
@@ -1341,10 +1336,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			if (line_top) {
 				/* 行頭なら改行しない */
 			} else if (is_gyomatsu_kinsoku(c)) {
-				/* cが行末禁止文字の場合は改行する */
-				context->pen_x -= context->line_margin;
-				context->pen_y = context->top_margin;
-				context->runtime_is_line_top = true;
+				/* cが行末禁止文字の場合は改行しない */
 			} else if (is_gyoto_kinsoku(c_next) &&
 				   context->pen_y + glyph_height + context->char_margin + next_glyph_height + context->char_margin >= limit) {
 				/* c_nextが行頭禁則文字で下端からはみ出るなら改行しない */
@@ -1387,9 +1379,6 @@ static bool is_gyomatsu_kinsoku(uint32_t c)
 	case U32_C('〈'): // U+2329
 	case U32_C('｟'):
 	case U32_C('«'):
-	case U32_C('︙'):
-	case U32_C('︰'):
-	case U32_C('丨'):
 	case U32_C('〝'):
 	case U32_C('‘'):
 	case U32_C('“'):
@@ -1430,6 +1419,7 @@ static bool is_gyoto_kinsoku(uint32_t c)
 	case U32_C('】'):
 	case U32_C('〙'):
 	case U32_C('〗'):
+	case U32_C('︘'):
 	case U32_C('〟'):
 	case U32_C('’'):
 	case U32_C('”'):
@@ -1437,7 +1427,12 @@ static bool is_gyoto_kinsoku(uint32_t c)
 	case U32_C('»'):
 	case U32_C('ゝ'):
 	case U32_C('ゞ'):
+	case U32_C('‐'):
+	case U32_C('–'):
 	case U32_C('ー'):
+	case U32_C('丨'):
+	case U32_C('︙'):
+	case U32_C('︰'):
 	case U32_C('ァ'):
 	case U32_C('ィ'):
 	case U32_C('ゥ'):
@@ -1481,9 +1476,7 @@ static bool is_gyoto_kinsoku(uint32_t c)
 	case U32_C('ㇿ'):
 	case U32_C('々'):
 	case U32_C('〻'):
-	case U32_C('‐'):
 	case U32_C('゠'):
-	case U32_C('–'):
 	case U32_C('〜'):
 	case U32_C('～'):
 	case U32_C('‼'):
@@ -1522,12 +1515,15 @@ static uint32_t convert_tategaki_char(uint32_t wc)
 	case U32_C('…'): return U32_C('︙');
 	case U32_C('‥'): return U32_C('︰');
 	case U32_C('ー'): return U32_C('丨');
+	case U32_C('─'): return U32_C('丨');
 	case U32_C('〈'): return U32_C('︿'); // U+3008 -> U+FE3F
 	case U32_C('〈'): return U32_C('︿'); // U+2329 -> U+FE3F
 	case U32_C('〉'): return U32_C('⟩');  // U+3009 -> U+FE40
 	case U32_C('〉'): return U32_C('⟩');  // U+232A -> U+FE40
 	case U32_C('《'): return U32_C('︽');
 	case U32_C('》'): return U32_C('︾');
+	case U32_C('〖'): return U32_C('︗');
+	case U32_C('〗'): return U32_C('︘');
 	default:
 		break;
 	}

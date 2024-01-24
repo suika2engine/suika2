@@ -60,19 +60,20 @@
  */
 
 /* The window title of message boxes. */
-#define TITLE			L"Suika2 Pro"
+#define TITLE				L"Suika2 Pro"
 
 /* The font name for the controls. */
-#define CONTROL_FONT	L"Yu Gothic UI"
+#define CONTROL_FONT		L"Yu Gothic UI"
 
 /* The font name for the script view. */
 #define SCRIPT_FONT_JP		L"BIZ UDゴシック"
 #define SCRIPT_FONT_EN		L"Courier New"
 
 /* The version string. */
-#define VERSION			\
-	L"Suika2 Pro Desktop\n" \
-	L"Copyright (c) 2001-2024, Keiichi Tabata. All rights reserved."
+#define PROGRAM				"Suika2 Pro Desktop"
+#define VERSION_HELPER(x)	#x
+#define VERSION_STR(x)		VERSION_HELPER(x)
+#define COPYRIGHT			"Copyright (c) 2001-2024, Keiichi Tabata. All rights reserved."
 
 /* The minimum window size. */
 #define WINDOW_WIDTH_MIN	(800)
@@ -82,13 +83,13 @@
 #define EDITOR_WIDTH		(440)
 
 /* フレームレート */
-#define FPS				(30)
+#define FPS					(30)
 
 /* 1フレームの時間 */
-#define FRAME_MILLI		(33)
+#define FRAME_MILLI			(33)
 
 /* 1回にスリープする時間 */
-#define SLEEP_MILLI		(5)
+#define SLEEP_MILLI			(5)
 
 /* UTF-8/UTF-16の変換バッファサイズ */
 #define CONV_MESSAGE_SIZE	(65536)
@@ -295,7 +296,9 @@ static VOID RichEdit_DelayedHighligth(void);
 static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam);
 
 /* Project */
+#if 0
 static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam);
+#endif
 static BOOL CreateProjectFromTemplate(const wchar_t *pszTemplate);
 static BOOL ChooseProject(void);
 static BOOL OpenProjectAtPath(const wchar_t *pszPath);
@@ -328,6 +331,7 @@ static VOID OnExportIOS(void);
 static VOID OnFont(void);
 static VOID OnHighlightMode(void);
 static VOID OnDarkMode(void);
+static VOID OnHelp(void);
 
 /* Export Helpers */
 static VOID RecreateDirectory(const wchar_t *path);
@@ -429,9 +433,11 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 		if (OpenProjectAtPath(__wargv[1]))
 			StartGame();
 
+#if 0
 	/* Set a timer for a beginner. */
 	if (!bProjectOpened)
 		SetTimer(hWndMain, ID_TIMER_BEGINNER, 5000, OnTimerBeginner);
+#endif
 
 	return TRUE;
 }
@@ -2099,7 +2105,7 @@ static void OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	/* ヘルプ */
 	case ID_VERSION:
-		MessageBox(hWndMain, VERSION, TITLE, MB_OK | MB_ICONINFORMATION);
+		OnHelp();
 		break;
 	/* ボタン */
 	case ID_VARS:
@@ -3784,6 +3790,7 @@ static VOID __stdcall OnTimerFormat(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD d
  * Project
  */
 
+#if 0
 /* Create a new project or choose an existing project. */
 static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD dwParam)
 {
@@ -3809,6 +3816,7 @@ static VOID __stdcall OnTimerBeginner(HWND hWnd, UINT nID, UINT_PTR uTime, DWORD
 			   TITLE,
 			   MB_OK);
 }
+#endif
 
 /* Create a new project from a template. */
 static BOOL CreateProjectFromTemplate(const wchar_t *pszTemplate)
@@ -4951,6 +4959,15 @@ static VOID OnDarkMode(void)
 		WriteProjectFile();
 
 	RichEdit_UpdateTheme();
+}
+
+static VOID OnHelp(void)
+{
+	wchar_t buf[1024];
+
+	swprintf(buf, sizeof(buf) / sizeof(wchar_t), L"%s %s\n%s", PROGRAM, VERSION_STR(VERSION), COPYRIGHT);
+
+	MessageBox(hWndMain, buf, TITLE, MB_OK | MB_ICONINFORMATION);
 }
 
 /*
