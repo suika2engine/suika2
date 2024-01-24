@@ -56,15 +56,15 @@ fi
 #
 # Guess the release version number.
 #
-VERSION=`grep -a1 '<!-- BEGIN-LATEST-JP -->' ../doc/changelog.html | tail -n1`
+VERSION=`grep -a1 '<!-- BEGIN-LATEST-JP -->' ../ChangeLog | tail -n1`
 VERSION=`echo $VERSION | cut -d '>' -f 2 | cut -d ' ' -f 1`
 VERSION=`echo $VERSION | cut -d '/' -f 2`
 
 #
 # Get the release notes.
 #
-NOTE_JP=`cat ../doc/changelog.html | awk '/BEGIN-LATEST-JP/,/END-LATEST-JP/' | tail -n +2 | $HEAD -n -1`
-NOTE_EN=`cat ../doc/changelog.html | awk '/BEGIN-LATEST-EN/,/END-LATEST-EN/' | tail -n +2 | $HEAD -n -1`
+NOTE_JP=`cat ../ChangeLog | awk '/BEGIN-LATEST-JP/,/END-LATEST-JP/' | tail -n +2 | $HEAD -n -1`
+NOTE_EN=`cat ../ChangeLog | awk '/BEGIN-LATEST-EN/,/END-LATEST-EN/' | tail -n +2 | $HEAD -n -1`
 
 #
 # Do an interactive confirmation.
@@ -142,7 +142,7 @@ rm -f *.o
 if [ ! -e libroot ]; then
     cp -Rav ../engine-windows/libroot .;
 fi
-make -j12
+make -j12 VERSION="$VERSION"
 sign.sh suika-pro.exe
 cd ..
 

@@ -17,6 +17,7 @@ CPPFLAGS = \
 	-DUSE_EDITOR \
 	-DUSE_DEBUGGER \
 	-D_WIN32_WINNT=0x0601 \
+	-DVERSION=$(VERSION) \
 	-I. \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
