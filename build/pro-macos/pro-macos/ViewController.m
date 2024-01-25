@@ -345,10 +345,8 @@ static ViewController *theViewController;
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     [panel setCanChooseDirectories:YES];
     [panel setCanCreateDirectories:YES];
-    if ([panel runModal] != NSModalResponseOK) {
-        [NSApp stop:nil];
+    if ([panel runModal] != NSModalResponseOK)
         return NO;
-    }
 
     // Create a project file.
     NSString *path = [[panel directoryURL] path];
