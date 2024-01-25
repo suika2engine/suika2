@@ -23,7 +23,7 @@ global {
     fadeout: 0.5;
 
     # Text-to-speech
-    alt: "The save screen is showing. Press left and rigth keys.";
+    alt: "The save screen is showing. Press left and right keys.";
 }
 
 # A button to return.
