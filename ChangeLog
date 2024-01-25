@@ -1,12 +1,18 @@
 Release History (Japanese)
 <ul>
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.112 2024/1/25
+  <ul>
+    <li>拡張if文のバグを修正 (Thanks to Ronron-san!)</li>
+    <li>@michooseコマンドを追加 (Thanks to Ronron-san and coexistem!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/15.111 2024/1/25
   <ul>
     <li>スクリプトの自動セーブを無効化 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/15.110 2024/1/25
   <ul>
     <li>クリックアニメの移動を修正 (Thanks to あさつき-san!)</li>
@@ -1057,12 +1063,18 @@ Release History (English)
 
 <ul>
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.112 2024/1/25
+  <ul>
+    <li>Fixed a bug of the extended if block (Thanks to Ronron!)</li>
+    <li>Added the @michoose command (Thanks to Ronron and coexistem!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/15.111 2024/1/25
   <ul>
     <li>Disabled the script auto save (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/15.110 2024/1/25
   <ul>
     <li>Fixed the click move (Thanks to Asatsuki-san!)</li>

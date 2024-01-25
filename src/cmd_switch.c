@@ -72,16 +72,16 @@
 /* @chooseのラベルの引数インデックス */
 #define CHOOSE_LABEL(n)			(CHOOSE_PARAM_LABEL1 + n * 2)
 
-/* @chooseのメッセージの引数インデックス */
+/* @choose/@ichooseのメッセージの引数インデックス */
 #define CHOOSE_MESSAGE(n)		(CHOOSE_PARAM_LABEL1 + n * 2 + 1)
 
-/* @mchooseのラベルの引数インデックス */
+/* @mchoose/@michooseのラベルの引数インデックス */
 #define MCHOOSE_LABEL(n)		(MCHOOSE_PARAM_LABEL1 + n * 3)
 
-/* @mchooseの変数の引数インデックス */
+/* @mchoose/@michooseの変数の引数インデックス */
 #define MCHOOSE_VAR(n)			(MCHOOSE_PARAM_LABEL1 + n * 3 + 1)
 
-/* @mchooseのメッセージの引数インデックス */
+/* @mchoose/@michooseのメッセージの引数インデックス */
 #define MCHOOSE_MESSAGE(n)		(MCHOOSE_PARAM_LABEL1 + n * 3 + 2)
 
 /* @switchと@newsの親選択肢の引数インデックス */
@@ -221,6 +221,7 @@ static bool init(void);
 static bool init_choose(void);
 static bool init_ichoose(void);
 static int init_mchoose(void);
+static int init_michoose(void);
 static bool init_switch(void);
 static void draw_text(struct image *target, const char *text, int w, int h, bool is_bg, bool is_news);
 
@@ -445,6 +446,16 @@ bool init(void)
 		default:
 			break;
 		}
+	} else if (type == COMMAND_MICHOOSE) {
+		switch (init_michoose()) {
+		case -1:
+			return false;
+		case 0:
+			ignore_as_no_options = true;
+			return true;
+		default:
+			break;
+		}
 	} else {
 		if (!init_switch())
 			return false;
@@ -455,10 +466,10 @@ bool init(void)
 	/* 名前ボックス、メッセージボックスを非表示にする */
 	if (!conf_msgbox_show_on_choose) {
 		show_namebox(false);
-		if (type != COMMAND_ICHOOSE)
-			show_msgbox(false);
-		else
+		if (type == COMMAND_ICHOOSE || type == COMMAND_MICHOOSE)
 			show_msgbox(true);
+		else
+			show_msgbox(false);
 	}
 	show_click(false);
 
@@ -682,6 +693,95 @@ static int init_mchoose(void)
 		/* テキストを描画する */
 		draw_text(parent_button[pos].img_idle, parent_button[pos].msg, parent_button[pos].w, parent_button[pos].h, true, false);
 		draw_text(parent_button[pos].img_hover, parent_button[pos].msg, parent_button[pos].w, parent_button[pos].h, false, false);
+
+		pos++;
+	}
+
+	return pos;
+}
+
+/* @michooseコマンドの初期化を行う */
+static int init_michoose(void)
+{
+	const char *var, *label, *msg;
+	int i, pen_x, pen_y, pos, var_index, var_val;
+
+	memset(parent_button, 0, sizeof(parent_button));
+	memset(child_button, 0, sizeof(child_button));
+
+	is_centered = false;
+	if (conf_msgbox_tategaki) {
+		pen_x = get_pen_position_x() - conf_msgbox_margin_line;
+		pen_y = conf_msgbox_y + conf_msgbox_margin_top;
+	} else {
+		pen_x = conf_msgbox_x + conf_msgbox_margin_left;
+		pen_y = get_pen_position_y() + conf_msgbox_margin_line;
+	}
+
+	/* 選択肢の情報を取得する */
+	pos = 0;
+	for (i = 0; i < PARENT_COUNT; i++) {
+		/* 変数を取得する */
+		var = get_string_param(MCHOOSE_VAR(i));
+		if (strcmp(var, "") == 0)
+			break;
+		if (var[0] != '$' || strlen(var) == 1) {
+			log_script_lhs_not_variable(var);
+			log_script_exec_footer();
+			return -1;
+		}
+		var_index = atoi(&var[1]);
+		var_val = get_variable(var_index);
+		if (var_val == 0)
+			continue;
+
+		/* ラベルを取得する */
+		label = get_string_param(MCHOOSE_LABEL(i));
+		if (strcmp(label, "") == 0)
+			break;
+
+		/* メッセージを取得する */
+		msg = get_string_param(MCHOOSE_MESSAGE(i));
+		if (strcmp(msg, "") == 0) {
+			log_script_choose_no_message();
+			log_script_exec_footer();
+			return false;
+		}
+
+		/* ボタンの情報を保存する */
+		parent_button[i].msg = msg;
+		parent_button[i].label = label;
+		parent_button[i].has_child = false;
+		parent_button[i].child_count = 0;
+
+		/* 座標を計算する */
+		get_switch_rect(0,
+				&parent_button[i].x,
+				&parent_button[i].y,
+				&parent_button[i].w,
+				&parent_button[i].h);
+		parent_button[i].x = pen_x;
+		parent_button[i].y = pen_y;
+		if (conf_msgbox_tategaki)
+			pen_x -= conf_msgbox_margin_line;
+		else
+			pen_y += conf_msgbox_margin_line;
+
+		/* idle画像を作成する */
+		parent_button[i].img_idle = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_idle == NULL)
+			return false;
+		draw_switch_bg_image(parent_button[i].img_idle, i);
+
+		/* hover画像を作成する */
+		parent_button[i].img_hover = create_image(parent_button[i].w, parent_button[i].h);
+		if (parent_button[i].img_hover == NULL)
+			return false;
+		draw_switch_fg_image(parent_button[i].img_hover, i);
+
+		/* テキストを描画する */
+		draw_text(parent_button[i].img_idle, parent_button[i].msg, parent_button[i].w, parent_button[i].h, true, false);
+		draw_text(parent_button[i].img_hover, parent_button[i].msg, parent_button[i].w, parent_button[i].h, false, false);
 
 		pos++;
 	}
