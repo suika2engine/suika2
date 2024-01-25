@@ -1,15 +1,20 @@
 Release History (Japanese)
 <ul>
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/15.108 2024/1/23
+<li>Suika2/15.109 2024/1/25
+  <ul>
+    <li>フォントレンダリングを改善 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+</ul>
+<li>Suika2/15.108 2024/1/24
   <ul>
     <li>テンプレートのSAVE, LOAD, HISTORYのGUIを改良 (Thanks to Ronron-san!)</li>
     <li>Proのバージョン情報を追加 (Thanks to nekoha-san!)</li>
     <li>config.txtの記載ミスを修正 (Thanks to nekoha-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-</ul>
 * Suika2/15.107 2024/1/23
     * 禁則文字を修正 (Thanks to あさつき-san!)
     * 縦書き文字を修正 (Thanks to Ronron-san!)
@@ -1041,15 +1046,20 @@ Release History (English)
 
 <ul>
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/15.108 2024/1/23
+<li>Suika2/15.109 2024/1/23
+  <ul>
+    <li>Improved font rendering (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+</ul>
+<li>Suika2/15.108 2024/1/24
   <ul>
     <li>Improved the save, load, and history GUIs (Thanks to Ronron-san!)</li>
     <li>Added the Pro version number to the help (Thanks to nekoha-san!)</li>
     <li>Fixed the config.txt file description (Thanks to nekoha-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-</ul>
 * Suika2/15.107 2024/1/23
     * Fixed the no-end-of-line rule (Thanks to あさつき-san!)
     * Fixed some vertical character conversions (Thanks to Ronron-san!)
