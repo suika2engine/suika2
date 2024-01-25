@@ -1051,13 +1051,8 @@ static char *concat_serif(const char *name, const char *serif)
 
 	/* 日本語ロケールかどうかでセリフの囲いを分ける */
 	if (conf_locale == LOCALE_JA || conf_serif_quote) {
-		if (!conf_msgbox_tategaki) {
-			prefix = U8("「");
-			suffix = U8("」");
-		} else {
-			prefix = U8("﹁");
-			suffix = U8("﹂");
-		}
+		prefix = U8("「");
+		suffix = U8("」");
 	} else {
 		prefix = ": ";
 		suffix = "";
