@@ -161,8 +161,9 @@ bool game_loop_iter(void)
 				cleanup_gui();
 			} else {
 				/* @guiを終了する */
-				if (!gui_command())
-					return false; /* エラー */
+				if (get_command_type() == COMMAND_GUI)
+					if (!gui_command())
+						return false; /* エラー */
 			}
 		}
 	}

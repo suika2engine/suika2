@@ -566,6 +566,7 @@ gui.save.font.size=30
 # Ruby font size for save items (Optional)
 gui.save.font.ruby.size=16
 
+# History font selection
 gui.history.font.select=0
 gui.history.font.outline=0
 

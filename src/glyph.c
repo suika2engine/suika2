@@ -2,7 +2,7 @@
 
 /*
  * Suika2
- * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
+ * Copyright (C) 2001-2024, Keiichi Tabata. All rights reserved.
  */
 
 /*
@@ -591,30 +591,32 @@ static bool draw_glyph_without_outline(struct image *img,
 	}
 
 	/* 文字のビットマップを対象イメージに描画する */
-	if (img != NULL && !is_dim) {
-		draw_glyph_func(face[font_type]->glyph->bitmap.buffer,
-				(int)face[font_type]->glyph->bitmap.width,
-				(int)face[font_type]->glyph->bitmap.rows,
-				face[font_type]->glyph->bitmap_left,
-				font_size - face[font_type]->glyph->bitmap_top,
-				img->pixels,
-				img->width,
-				img->height,
-				x,
-				y - (font_size - base_font_size),
-				color);
-	} else if (img != NULL && is_dim) {
-		draw_glyph_dim_func(face[font_type]->glyph->bitmap.buffer,
-				    (int)face[font_type]->glyph->bitmap.width,
-				    (int)face[font_type]->glyph->bitmap.rows,
-				    face[font_type]->glyph->bitmap_left,
-				    font_size - face[font_type]->glyph->bitmap_top,
-				    img->pixels,
-				    img->width,
-				    img->height,
-				    x,
-				    y - (font_size - base_font_size),
-				    color);
+	if (img != NULL) {
+		if (!is_dim) {
+			draw_glyph_func(face[font_type]->glyph->bitmap.buffer,
+					(int)face[font_type]->glyph->bitmap.width,
+					(int)face[font_type]->glyph->bitmap.rows,
+					face[font_type]->glyph->bitmap_left,
+					font_size - face[font_type]->glyph->bitmap_top,
+					img->pixels,
+					img->width,
+					img->height,
+					x,
+					y - (font_size - base_font_size),
+					color);
+		} else {
+			draw_glyph_dim_func(face[font_type]->glyph->bitmap.buffer,
+					    (int)face[font_type]->glyph->bitmap.width,
+					    (int)face[font_type]->glyph->bitmap.rows,
+					    face[font_type]->glyph->bitmap_left,
+					    font_size - face[font_type]->glyph->bitmap_top,
+					    img->pixels,
+					    img->width,
+					    img->height,
+					    x,
+					    y - (font_size - base_font_size),
+					    color);
+		}
 	}
 
 	/* descentを求める */
@@ -727,7 +729,7 @@ static void draw_glyph_func(unsigned char *font,
 			    pixel_t color)
 {
 	unsigned char *src_ptr, src_pix;
-	pixel_t *dst_ptr, dst_pix, dst_aa;
+	pixel_t *dst_ptr, dst_pix, dst_a2;
 	float color_r, color_g, color_b;
 	float src_a, src_r, src_g, src_b;
 	float dst_a, dst_r, dst_g, dst_b;
@@ -779,30 +781,28 @@ static void draw_glyph_func(unsigned char *font,
 	dst_ptr = image + image_real_y * image_width + image_real_x;
 	src_ptr = font + font_real_y * font_width + font_real_x;
 	for (py = font_real_y; py < font_real_y + font_real_height; py++) {
-		for (px = font_real_x; px < font_real_x + font_real_width;
-		     px++) {
-			/* アルファ値を計算する */
+		for (px = font_real_x; px < font_real_x + font_real_width; px++) {
+			/* 文字のピクセルの値を取得する */
 			src_pix = *src_ptr++;
-			src_a = src_pix / 255.0f;
-			dst_a = 1.0f - src_a;
 
-			/* 色にアルファ値を乗算する */
+			/* 色にピクセルの値(アルファ値)を乗算する */
+			src_a = (float)src_pix / 255.0f;
+			dst_a = 1.0f - src_a;
 			src_r = src_a * color_r;
 			src_g = src_a * color_g;
 			src_b = src_a * color_b;
 
-			/* 転送先ピクセルにアルファ値を乗算する */
+			/* 転送先画像のピクセルの値を取得する */
 			dst_pix	= *dst_ptr;
-			dst_r = dst_a * (float)get_pixel_r(dst_pix);
-			dst_g = dst_a * (float)get_pixel_g(dst_pix);
-			dst_b = dst_a * (float)get_pixel_b(dst_pix);
+			dst_r  = dst_a * (float)get_pixel_r(dst_pix);
+			dst_g  = dst_a * (float)get_pixel_g(dst_pix);
+			dst_b  = dst_a * (float)get_pixel_b(dst_pix);
+			dst_a2 = src_pix + get_pixel_a(dst_pix);
+			if (dst_a2 > 255)
+				dst_a2 = 255;
 
-			/* 転送先ピクセルのアルファ値を求める */
-			dst_aa = src_pix + get_pixel_a(dst_pix);
-			dst_aa = dst_aa >= 255 ? 255 : dst_aa;
-
-			/* 転送先に格納する */
-			*dst_ptr++ = make_pixel(dst_aa,
+			/* 合成して転送先に格納する */
+			*dst_ptr++ = make_pixel((uint32_t)dst_a2,
 						(uint32_t)(src_r + dst_r),
 						(uint32_t)(src_g + dst_g),
 						(uint32_t)(src_b + dst_b));
@@ -813,7 +813,7 @@ static void draw_glyph_func(unsigned char *font,
 }
 
 /*
- * フォントをイメージに描画する(dim用)
+ * フォントをイメージに描画する(dimmingでの上書き用)
  */
 static void draw_glyph_dim_func(unsigned char *font,
 				int font_width,
@@ -827,11 +827,8 @@ static void draw_glyph_dim_func(unsigned char *font,
 				int image_y,
 				pixel_t color)
 {
-	unsigned char *src_ptr, src_pix;
-	pixel_t *dst_ptr, dst_pix, dst_aa;
-	float color_r, color_g, color_b;
-	float src_a, src_r, src_g, src_b;
-	float dst_a, dst_r, dst_g, dst_b;
+	unsigned char *src_ptr;
+	pixel_t *dst_ptr;
 	int image_real_x, image_real_y;
 	int font_real_x, font_real_y;
 	int font_real_width, font_real_height;
@@ -873,40 +870,21 @@ static void draw_glyph_dim_func(unsigned char *font,
 				    image_height;
 	}
 
+	color = make_pixel(255,
+			   get_pixel_r(color),
+			   get_pixel_g(color),
+			   get_pixel_b(color));
+
 	/* 描画する */
-	color_r = (float)get_pixel_r(color);
-	color_g = (float)get_pixel_g(color);
-	color_b = (float)get_pixel_b(color);
 	dst_ptr = image + image_real_y * image_width + image_real_x;
 	src_ptr = font + font_real_y * font_width + font_real_x;
 	for (py = font_real_y; py < font_real_y + font_real_height; py++) {
-		for (px = font_real_x; px < font_real_x + font_real_width;
-		     px++) {
-			/* アルファ値を計算する */
-			src_pix = *src_ptr++;
-			src_a = src_pix > 0 ? 1.0f : 0.0f;
-			dst_a = 1.0f - src_a;
-
-			/* 色にアルファ値を乗算する */
-			src_r = src_a * color_r;
-			src_g = src_a * color_g;
-			src_b = src_a * color_b;
-
-			/* 転送先ピクセルにアルファ値を乗算する */
-			dst_pix	= *dst_ptr;
-			dst_r = dst_a * (float)get_pixel_r(dst_pix);
-			dst_g = dst_a * (float)get_pixel_g(dst_pix);
-			dst_b = dst_a * (float)get_pixel_b(dst_pix);
-
-			/* 転送先ピクセルのアルファ値を求める */
-			dst_aa = src_pix + get_pixel_a(dst_pix);
-			dst_aa = dst_aa >= 255 ? 255 : dst_aa;
-
-			/* 転送先に格納する */
-			*dst_ptr++ = make_pixel(dst_aa,
-						(uint32_t)(src_r + dst_r),
-						(uint32_t)(src_g + dst_g),
-						(uint32_t)(src_b + dst_b));
+		for (px = font_real_x; px < font_real_x + font_real_width; px++) {
+			/* フォントのピクセル値が0なら書き込まず、1以上ならブレンドなしで上書きする */
+			if (*src_ptr++ == 0)
+				dst_ptr++;
+			else
+				*dst_ptr++ = color;
 		}
 		dst_ptr += image_width - font_real_width;
 		src_ptr += font_width - font_real_width;

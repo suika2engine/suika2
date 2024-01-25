@@ -398,6 +398,105 @@ skipmode.banner.x=0
 skipmode.banner.y=186
 
 ###
+### システムGUIの設定
+###
+
+# [ヒストリとセーブアイテムにルビを表示するか] (省略可)
+#  - 0: 表示しない
+#  - 1: 表示する
+gui.ruby=1
+
+# [セーブのフォント] (省略可)
+#  - 0: グローバル
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+gui.save.font.select=0
+
+# [セーブのフォントサイズ] (省略可)
+#  - 0を指定するか省略するとメッセージと同じになる
+gui.save.font.size=38
+
+# [セーブのフォントのふちどり] (省略可)
+#  - 0: メッセージボックスと同じ設定
+#  - 1: ふちどりあり
+#  - 2: ふちどりなし
+gui.save.font.outline=0
+
+# [セーブのルビのフォントサイズ]
+gui.save.font.ruby.size=16
+
+# [セーブの縦書き] (省略可)
+#  - 0: 横書き
+#  - 1: 縦書き
+gui.save.tategaki=0
+
+# [セーブアイテムの背景色]
+#  - セーブアイテムが白いときは白、黒いときは黒を設定する
+#  - これを設定しないと、フォントのふちどりを使用していないのに擬似的なふちが生じる
+gui.save.clear.color.r=255
+gui.save.clear.color.g=255
+gui.save.clear.color.b=255
+
+# [ヒストリのフォント] (省略可)
+#  - 0: グローバル
+#  - 1: main
+#  - 2: alt1
+#  - 3: alt2
+gui.history.font.select=0
+
+# [ヒストリのフォントサイズ] (省略可)
+#  - 0を指定するか省略するとメッセージと同じになる
+gui.history.font.size=38
+
+# [ヒストリのフォントのふちどり] (省略可)
+#  - 0: メッセージボックスと同じ設定
+#  - 1: ふちどりあり
+#  - 2: ふちどりなし
+gui.history.font.outline=0
+
+# [ヒストリのルビのフォントサイズ] (省略可)
+gui.history.font.ruby.size=16
+
+# [ヒストリの行間] (省略可)
+gui.history.margin.line=55
+
+# [ヒストリの縦書き] (省略可)
+#  - 0: 横書き
+#  - 1: 縦書き
+gui.history.tategaki=0
+
+# [ヒストリでカラーを無効にする] (省略可)
+#  - 0: カラーを有効にする
+#  - 1: カラーを無効にする(メッセージの色を使う)
+#  - 2: カラーを無効にする(ヒストリの色を使う)
+gui.history.disable.color=0
+
+# [ヒストリのフォントの色]
+gui.history.font.color.r=255
+gui.history.font.color.g=255
+gui.history.font.color.b=255
+gui.history.font.outline.color.r=128
+gui.history.font.outline.color.g=128
+gui.history.font.outline.color.b=128
+
+# [ヒストリアイテムの背景色]
+#  - ヒストリアイテムが白いときは白、黒いときは黒を設定する
+#  - これを設定しないと、フォントのふちどりを使用していないのに擬似的なふちが生じる
+gui.history.clear.color.r=255
+gui.history.clear.color.g=255
+gui.history.clear.color.b=255
+
+# ヒストリーのカギカッコ
+gui.history.quote.start=「
+gui.history.quote.end=」
+
+# [プレビューの縦書き] (省略可)
+#  - 0: 横書き
+#  - 1: 縦書き
+gui.preview.tategaki=0
+
+###
 ### 音量の初期値
 ###  - これは初期値で、セーブデータがある場合はそちらが利用される
 ###

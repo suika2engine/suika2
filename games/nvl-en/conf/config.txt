@@ -558,6 +558,12 @@ gui.save.font.size=30
 # Ruby font size for save items (Optional)
 gui.save.font.ruby.size=16
 
+# Save item background color
+gui.save.clear.color.r=255
+gui.save.clear.color.g=255
+gui.save.clear.color.b=255
+
+# History font
 gui.history.font.select=0
 gui.history.font.outline=0
 
@@ -583,6 +589,11 @@ gui.history.font.color.b=255
 gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
+
+# History item background color
+gui.history.clear.color.r=255
+gui.history.clear.color.g=255
+gui.history.clear.color.b=255
 
 ###
 ### Initial Sound Volumes

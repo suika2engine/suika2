@@ -3023,6 +3023,12 @@ static void speak(void)
 
 static void stop(void)
 {
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode || need_config_mode || need_custom_gosub) {
+		stop_command_repetition();
+		return;
+	}
+
 	if (conf_msgbox_dim)
 		need_dimming = true;
 	else

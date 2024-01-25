@@ -146,6 +146,9 @@ static struct gui_button {
 	/* すべて */
 	char *pointse;
 
+	/* TYPE_HISTORY, TYPE_SAVE, TYPE_LOAD */
+	int clear_r, clear_g, clear_b;
+
 	/*
 	 * 実行時の情報
 	 */
@@ -716,6 +719,12 @@ static bool set_button_key_value(const int index, const char *key,
 			b->namevar = val[0] - 'a';
 	} else if (strcmp("max", key) == 0) {
 		b->max = abs(atoi(val));
+	} else if (strcmp("clear-r", key) == 0) {
+		b->clear_r = atoi(val);
+	} else if (strcmp("clear-g", key) == 0) {
+		b->clear_g = atoi(val);
+	} else if (strcmp("clear-b", key) == 0) {
+		b->clear_b = atoi(val);
 	} else {
 		log_gui_unknown_button_property(key);
 		return false;
@@ -2273,7 +2282,11 @@ static void draw_save_button(int button_index)
 	save_time = get_save_date(save_index);
 
 	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
+	clear_image_color(b->rt.img,
+			  make_pixel(0,
+				     (uint32_t)b->clear_r,
+				     (uint32_t)b->clear_g,
+				     (uint32_t)b->clear_b));
 
 	/* サムネイルを描画する */
 	thumb = get_save_thumbnail(save_index);
@@ -2592,7 +2605,11 @@ static void draw_history_button(int index)
 	}
 
 	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
+	clear_image_color(b->rt.img,
+			  make_pixel(0,
+				     (uint32_t)b->clear_r,
+				     (uint32_t)b->clear_g,
+				     (uint32_t)b->clear_b));
 
 	/* メッセージを描画する */
 	if (b->rt.history_offset != -1)
