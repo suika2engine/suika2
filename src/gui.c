@@ -149,6 +149,9 @@ static struct gui_button {
 	/* TYPE_HISTORY, TYPE_SAVE, TYPE_LOAD */
 	int clear_r, clear_g, clear_b;
 
+	/* TYPE_HISTORYSCROLL, TYPE_HISTORYSCROLL_HORIZONTAL */
+	bool use_arrow;
+
 	/*
 	 * 実行時の情報
 	 */
@@ -725,6 +728,8 @@ static bool set_button_key_value(const int index, const char *key,
 		b->clear_g = atoi(val);
 	} else if (strcmp("clear-b", key) == 0) {
 		b->clear_b = atoi(val);
+	} else if (strcmp("usearrow", key) == 0) {
+		b->use_arrow = true;
 	} else {
 		log_gui_unknown_button_property(key);
 		return false;
@@ -1808,7 +1813,10 @@ static void process_button_render_slider(int index)
 		}
 
 		/* 描画位置を計算する */
-		x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
+		if (!b->use_arrow)
+			x = b->x + (int)((float)(b->width - b->height) * b->rt.slider);
+		else
+			x = b->x + (int)((float)(b->width - b->height * 2) * b->rt.slider) + b->height;
 
 		/* ツマミをactive画像で描画する */
 		render_image_normal(x,
@@ -1852,7 +1860,10 @@ static void process_button_render_slider_vertical(int index)
 			render_image_normal(b->x, b->y, b->width, b->height, hover_image, b->x, b->y, b->width, b->height, cur_alpha);
 
 		/* 描画位置を計算する */
-		y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
+		if (!b->use_arrow)
+			y = b->y + (int)((float)(b->height - b->width) * b->rt.slider);
+		else
+			y = b->y + (int)((float)(b->height - b->width * 2) * b->rt.slider) + b->width;
 
 		/* ツマミをactive画像で描画する */
 		render_image_normal(b->x, y, b->width, b->width, active_image, b->x, b->y, b->width, b->width, cur_alpha);
