@@ -2434,8 +2434,12 @@ static bool reparse_if_block(int index, char *params, int *end_index)
 			return false;
 		index = ret_index;
 
-		/* 空行のとき */
+		/* 通常行のとき */
 		if (accepted == SMODE_ACCEPT_NONE)
+			continue;
+
+		/* switchブロックのとき */
+		if (accepted == SMODE_ACCEPT_SWITCH)
 			continue;
 
 		/* ifが"}"で閉じられたとき */
@@ -2478,7 +2482,7 @@ static bool reparse_if_block(int index, char *params, int *end_index)
 		free(smode_target_skip);
 		smode_target_skip = NULL;
 	}
-	
+
 	/* ターゲットを元に戻す */
 	smode_target_finally = save_smode_target_finally;
 	smode_target_skip = save_smode_target_skip;
@@ -2635,7 +2639,7 @@ static bool reparse_normal_line(int index, int spaces)
 	case '\0':
 	case '#':
 		nullify_command(index);
-		return true;
+		break;
 	case '@':
 		/* 命令行をパースする */
 		if (!parse_insn(raw_copy, raw_copy + spaces, top, index))
