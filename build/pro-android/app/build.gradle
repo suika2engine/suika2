@@ -10,8 +10,8 @@ android {
         applicationId "jp.luxion.suikapro"
         minSdk 30
         targetSdk 34
-        versionCode 9
-        versionName "15.100"
+        versionCode 10
+        versionName "15.112"
     }
     externalNativeBuild {
         cmake {

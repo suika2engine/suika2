@@ -3,6 +3,7 @@ Release History (Japanese)
 <!-- BEGIN-LATEST-JP -->
 <li>Suika2/15.112 2024/1/25
   <ul>
+    <li>iOS版で保存機能を追加 (Thanks to すあま-san!)</li>
     <li>拡張if文のバグを修正 (Thanks to Ronron-san!)</li>
     <li>@michooseコマンドを追加 (Thanks to Ronron-san and coexistem!)</li>
   </ul>
@@ -1065,6 +1066,7 @@ Release History (English)
 <!-- BEGIN-LATEST-EN -->
 <li>Suika2/15.112 2024/1/25
   <ul>
+    <li>Added a save functionality to the iOS version (Thanks to Suama-san!)</li>
     <li>Fixed a bug of the extended if block (Thanks to Ronron!)</li>
     <li>Added the @michoose command (Thanks to Ronron and coexistem!)</li>
   </ul>
