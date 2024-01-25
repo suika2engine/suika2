@@ -90,7 +90,7 @@ msgbox.margin.top=50
 msgbox.margin.right=80
 
 # メッセージボックス画像内のテキスト下端マージン
-msgbox.margin.bottom=50
+msgbox.margin.bottom=80
 
 # メッセージの行間
 msgbox.margin.line=55

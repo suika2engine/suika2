@@ -2648,23 +2648,12 @@ static void set_click(void)
 
 		/* 表示位置を設定する */
 		if (conf_click_move) {
+			int cur_pen_x, cur_pen_y;
 			set_click_index(0);
 			get_click_rect(&click_x, &click_y, &click_w, &click_h);
-			if (!conf_msgbox_tategaki) {
-				if (pen_x + click_w  >= msgbox_w -
-				    conf_msgbox_margin_right) {
-					pen_y += conf_msgbox_margin_line;
-					pen_x = conf_msgbox_margin_left;
-				}
-			} else {
-				if (pen_y + click_h  >= msgbox_h -
-				    conf_msgbox_margin_bottom) {
-					pen_x -= conf_msgbox_margin_line;
-					pen_y = conf_msgbox_margin_top;
-				}
-			}
-			set_click_position(pen_x + conf_msgbox_x,
-					   pen_y + conf_msgbox_y);
+			get_pen_position_common(&msgbox_context, &cur_pen_x, &cur_pen_y);
+			set_click_position(cur_pen_x + conf_msgbox_x,
+					   cur_pen_y + conf_msgbox_y);
 		} else {
 			set_click_position(conf_click_x, conf_click_y);
 		}
