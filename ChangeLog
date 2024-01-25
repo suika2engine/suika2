@@ -1,12 +1,23 @@
 Release History (Japanese)
 <ul>
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.111 2024/1/25
+  <ul>
+    <li>スクリプトの自動セーブを無効化 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+<li>Suika2/15.110 2024/1/25
+  <ul>
+    <li>クリックアニメの移動を修正 (Thanks to あさつき-san!)</li>
+    <li>コンフィグを修正 (Thanks to renge-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.109 2024/1/25
   <ul>
     <li>フォントレンダリングを改善 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 </ul>
 <li>Suika2/15.108 2024/1/24
   <ul>
@@ -1046,12 +1057,23 @@ Release History (English)
 
 <ul>
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.111 2024/1/25
+  <ul>
+    <li>Disabled the script auto save (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+<li>Suika2/15.110 2024/1/25
+  <ul>
+    <li>Fixed the click move (Thanks to Asatsuki-san!)</li>
+    <li>Fixed the config (Thanks to renge-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.109 2024/1/23
   <ul>
     <li>Improved font rendering (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 </ul>
 <li>Suika2/15.108 2024/1/24
   <ul>

@@ -36,10 +36,6 @@ bool load_command(void)
 	/* 既読フラグをセーブする */
 	save_seen();
 
-#ifdef USE_EDITOR
-	save_script();
-#endif
-
 	/* スクリプトをロードする */
 	if (!load_script(file)) {
 		free(file);

@@ -437,13 +437,6 @@ gui.save.font.ruby.size=16
 #  - 1: 縦書き
 gui.save.tategaki=0
 
-# [セーブアイテムの背景色]
-#  - セーブアイテムが白いときは白、黒いときは黒を設定する
-#  - これを設定しないと、フォントのふちどりを使用していないのに擬似的なふちが生じる
-gui.save.clear.color.r=255
-gui.save.clear.color.g=255
-gui.save.clear.color.b=255
-
 # [ヒストリのフォント] (省略可)
 #  - 0: グローバル
 #  - 1: main
@@ -485,13 +478,6 @@ gui.history.font.color.b=255
 gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
-
-# [ヒストリアイテムの背景色]
-#  - ヒストリアイテムが白いときは白、黒いときは黒を設定する
-#  - これを設定しないと、フォントのふちどりを使用していないのに擬似的なふちが生じる
-gui.history.clear.color.r=255
-gui.history.clear.color.g=255
-gui.history.clear.color.b=255
 
 # ヒストリーのカギカッコ
 gui.history.quote.start=「
