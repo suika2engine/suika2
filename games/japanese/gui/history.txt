@@ -145,6 +145,9 @@ SCROLL {
     width: 118;
     height: 478;
 
+    # 矢印を使う
+    usearrow: yes;
+
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
 

@@ -1,12 +1,17 @@
 Release History (Japanese)
 <ul>
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/15.114 2024/1/26
+<li>Suika2/15.115 2024/1/26
   <ul>
     <li>スクロールバーの上下ボタンを追加 (Thanks to あさつき-san and Ronron-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
+<li>Suika2/15.114 2024/1/26
+  <ul>
+    <li>スクロールバーの上下ボタンを追加 (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.113 2024/1/25
   <ul>
     <li>縦書きのメッセージを横書きヒストリーで表示したときのカギカッコを修正 (Thanks to Ronron-san!)</li>
@@ -1074,12 +1079,17 @@ Release History (English)
 
 <ul>
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/15.114 2024/1/26
+<li>Suika2/15.115 2024/1/26
   <ul>
     <li>Added scrollbar arrows (Thanks to Asatsuki-san and Ronron-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
+<li>Suika2/15.114 2024/1/26
+  <ul>
+    <li>Added scrollbar arrows (Thanks to Asatsuki-san and Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.113 2024/1/25
   <ul>
     <li>Fixed the vertical quotation (Thanks to Ronron-san!)</li>
