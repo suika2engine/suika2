@@ -45,18 +45,31 @@
 						ドキュメント
 					</a>
 					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">一覧</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">チュートリアル</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">コマンドリファレンス</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">タイトル画面の作り方</a></li>
-						<li><a class="dropdown-item" href="/doc/font.html">フォントの変更方法</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">ドキュメントトップ</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">コマンド一覧</a></li>
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%B3%E3%83%95%E3%82%A3%E3%82%B0%E4%B8%80%E8%A6%A7">コンフィグ一覧</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">WMSの使い方</a></li>
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E8%B3%AA%E5%95%8F">よくある質問</a></li>
+						<li><a class="dropdown-item" href="/wiki/?cmd=search">ドキュメントを検索...</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						チュートリアル
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">最初のチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">GUIのチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">WMSのチュートリアル</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						開発参加
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%90%E3%82%B0%E5%A0%B1%E5%91%8A%E3%81%AE%E4%B8%80%E8%A6%A7">バグ報告の一覧</a></li>
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E6%A9%9F%E8%83%BD%E8%A6%81%E6%9C%9B%E3%81%AE%E4%B8%80%E8%A6%A7">機能要望の一覧</a></li>
-						<li><a class="dropdown-item" href="/wiki/">Wikiトップ</a></li>
-						<li><a class="dropdown-item" href="/wiki/?cmd=search">検索</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%95%E3%83%AA%E3%83%BC%E7%B4%A0%E6%9D%90">フリー素材</a></li>
 					</ul>
 				</li>
 				<li class="nav-item"><a class="nav-link" href="/works/">利用作品紹介</a></li>

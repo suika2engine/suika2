@@ -1,12 +1,17 @@
 Release History (Japanese)
 <ul>
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.116 2024/1/26
+  <ul>
+    <li>スクロールバーの挙動を調整(まだ調整中) (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/15.115 2024/1/26
   <ul>
     <li>スクロールバーの上下ボタンを追加 (Thanks to あさつき-san and Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/15.114 2024/1/26
   <ul>
     <li>スクロールバーの上下ボタンを追加 (Thanks to あさつき-san and Ronron-san!)</li>
@@ -1079,12 +1084,17 @@ Release History (English)
 
 <ul>
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.116 2024/1/26
+  <ul>
+    <li>Made djustments to history scroll bars (work in progress) (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/15.115 2024/1/26
   <ul>
     <li>Added scrollbar arrows (Thanks to Asatsuki-san and Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/15.114 2024/1/26
   <ul>
     <li>Added scrollbar arrows (Thanks to Asatsuki-san and Ronron-san!)</li>
