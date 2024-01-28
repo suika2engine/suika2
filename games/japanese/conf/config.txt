@@ -40,7 +40,7 @@ window.resize=2
 #  - 指定しなければ window.width と window.height が利用される
 #  - 今のところWindows専用
 #window.default.width=0
-#window.default.heigth=0
+#window.default.height=0
 
 ###
 ### フォントの設定

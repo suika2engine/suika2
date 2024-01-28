@@ -342,8 +342,8 @@ static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 	nWinHeight = nGameHeight + nFrameAddHeight;
 
 	/* ディスプレイのサイズが足りない場合 */
-	if (nVirtualScreenWidth < conf_window_width ||
-		nVirtualScreenHeight < conf_window_height)
+	if (nVirtualScreenWidth < nWinWidth ||
+		nVirtualScreenHeight < nWinHeight)
 	{
 		log_error(get_ui_message(UIMSG_WIN32_SMALL_DISPLAY),
 				  nVirtualScreenWidth, nVirtualScreenHeight);
