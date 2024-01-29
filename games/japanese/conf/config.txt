@@ -668,9 +668,14 @@ gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
 
-# ヒストリーのカギカッコ
+# [ヒストリーのカギカッコ]
 gui.history.quote.start=「
 gui.history.quote.end=」
+
+# [ヒストリー内で改行を行わない]
+#  - 0: 改行する
+#  - 1: 改行を無視する
+gui.history.oneline=0
 
 # [プレビューの縦書き] (省略可)
 #  - 0: 横書き

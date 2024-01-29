@@ -1,13 +1,18 @@
 Release History (Japanese)
 <ul>
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.120 2024/1/29
+  <ul>
+    <li>ヒストリーで改行を無視するコンフィグ'gui.history.oneline=1'を追加 (Thanks to 赤月-san!)
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/15.119 2024/1/29
   <ul>
     <li>WMSの実行に1描画フレームを消費しないように変更 (Thanks to あさつき-san!)
     <li>Windowsでの動画再生位置を修正 (Thanks to 赤月-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/15.118 2024/1/28
   <ul>
     <li>eye-openエフェクトを修正 (Thanks to Ronron-san!)</li>
@@ -1100,13 +1105,18 @@ Release History (English)
 
 <ul>
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.120 2024/1/29
+  <ul>
+    <li>Added a config 'gui.history.oneline=1' that makes it possible to ignore line-feeds in hitory (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/15.119 2024/1/29
   <ul>
     <li>Changed to not consuming a frame on WMS run (Thanks to Asatsuki-san!)</li>
     <li>Fixed the video playback on Windows (Thanks to Akatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/15.118 2024/1/28
   <ul>
     <li>Fixed the eye-open effect (Thanks to Ronron-san!)</li>

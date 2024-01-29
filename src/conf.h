@@ -347,6 +347,7 @@ extern int conf_gui_history_font_outline_color_b;
 extern int conf_gui_history_clear_color_r;
 extern int conf_gui_history_clear_color_g;
 extern int conf_gui_history_clear_color_b;
+extern int conf_gui_history_oneline;
 extern char *conf_gui_history_quote_start;
 extern char *conf_gui_history_quote_end;
 extern int conf_gui_preview_tategaki;

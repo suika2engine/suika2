@@ -2747,7 +2747,7 @@ static void draw_history_text_item(int button_index)
 		color,
 		outline_color,
 		false,		/* is_dimming */
-		false,		/* ignore_linefeed */
+		conf_gui_history_oneline,	/* ignore_linefeed */
 		false,		/* ignore_font */
 		false,		/* ignore_outline */
 		ignore_color,	/* ignore_color */

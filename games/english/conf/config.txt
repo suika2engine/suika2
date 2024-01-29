@@ -593,6 +593,11 @@ gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
 
+# Ignore line-feeds in history
+#  - 0: Appply line-feeds
+#  - 1: Ignore line-feeds
+gui.history.oneline=0
+
 ###
 ### Initial Sound Volumes
 ###  - Note that these are the initial values.
