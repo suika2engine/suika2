@@ -179,6 +179,11 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
 - (void)drawInMTKView:(nonnull MTKView *)view {
     if(view.currentRenderPassDescriptor == nil)
         return;
+    if([theViewController isVideoPlaying]) {
+            if(!runSuika2Frame())
+                    exit(0);
+            return;
+    }
 
     // Create a command buffer.
     theCommandBuffer = [_commandQueue commandBuffer];

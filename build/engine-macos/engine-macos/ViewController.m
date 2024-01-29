@@ -413,14 +413,14 @@ static FILE *openLog(void);
     [_avPlayerLayer setFrame:theViewController.view.bounds];
     [self.view.layer addSublayer:_avPlayerLayer];
 
-    // 再生を開始する
-    [_avPlayer play];
-
     // 再生終了の通知を送るようにする
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(onPlayEnd:)
                                                name:AVPlayerItemDidPlayToEndTimeNotification
                                              object:playerItem];
+
+    // 再生を開始する
+    [_avPlayer play];
 
     _isVideoPlaying = YES;
 }
