@@ -180,9 +180,13 @@ static int nLastClientWidth, nLastClientHeight, nLastDpi;
 /* RunFrame()が描画してよいか */
 static BOOL bRunFrameAllow;
 
-/* フルスクリーンモード時の描画オフセット */
-static int nOffsetX;
-static int nOffsetY;
+/* ビューポート */
+static int nViewportOffsetX;
+static int nViewportOffsetY;
+static int nViewportWidth;
+static int nViewportHeight;
+
+/* マウス座標計算用の画面拡大率 */
 static float fMouseScale;
 
 /* DirectShowでビデオを再生中か */
@@ -1738,8 +1742,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_press(MOUSE_LEFT,
-								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								 (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								 (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1747,8 +1751,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_release(MOUSE_LEFT,
-								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								   (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								   (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1756,8 +1760,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_press(MOUSE_RIGHT,
-								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								 (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								 (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1765,8 +1769,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_release(MOUSE_RIGHT,
-								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								   (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								   (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1804,8 +1808,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_MOUSEMOVE:
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
-			on_event_mouse_move((int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			on_event_mouse_move((int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								(int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -2341,14 +2345,18 @@ static void Layout(int nClientWidth, int nClientHeight)
     }
 
 	/* Calc the viewport origin. */
-	nOffsetX = (int)((((float)nRenderWidth - fRenderWidth) / 2.0f) + 0.5);
-	nOffsetY = (int)((((float)nClientHeight - fRenderHeight) / 2.0f) + 0.5);
+	nViewportOffsetX = (int)((((float)nRenderWidth - fRenderWidth) / 2.0f) + 0.5);
+	nViewportOffsetY = (int)((((float)nClientHeight - fRenderHeight) / 2.0f) + 0.5);
+
+	/* Save the viewport size. */
+	nViewportWidth = nRenderWidth;
+	nViewportHeight = (int)fRenderHeight;
 
 	/* Move the rendering panel. */
 	MoveWindow(hWndRender, 0, 0, nRenderWidth, nClientHeight, TRUE);
 
 	/* Update the screen offset and scale for drawing subsystem. */
-	D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
+	D3DResizeWindow(nViewportOffsetX, nViewportOffsetY, fMouseScale);
 
 	/* エディタのコントロールをサイズ変更する */
 	MoveWindow(hWndRichEdit,
@@ -2645,7 +2653,7 @@ bool play_video(const char *fname, bool is_skippable)
 	bDShowSkippable = is_skippable;
 
 	/* ビデオの再生を開始する */
-	BOOL ret = DShowPlayVideo(hWndMain, path);
+	BOOL ret = DShowPlayVideo(hWndRender, path, nViewportOffsetX, nViewportOffsetY, nViewportWidth, nViewportHeight);
 	if(!ret)
 		bDShowMode = FALSE;
 

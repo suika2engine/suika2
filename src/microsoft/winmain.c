@@ -114,9 +114,13 @@ static BOOL bRunFrameAllow;
 /* ストップウォッチの停止した時間 */
 DWORD dwStopWatchOffset;
 
-/* フルスクリーンモード時の描画オフセット */
-static int nOffsetX;
-static int nOffsetY;
+/* ビューポート */
+static int nViewportOffsetX;
+static int nViewportOffsetY;
+static int nViewportWidth;
+static int nViewportHeight;
+
+/* マウス座標計算用の拡大率 */
 static float fMouseScale;
 
 /* DirectShowでビデオを再生中か */
@@ -616,23 +620,23 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		return 0;
 	case WM_LBUTTONDOWN:
 		on_event_mouse_press(MOUSE_LEFT,
-							 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-							 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+							 (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+							 (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 		return 0;
 	case WM_LBUTTONUP:
 		on_event_mouse_release(MOUSE_LEFT,
-							   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-							   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+							   (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+							   (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 		return 0;
 	case WM_RBUTTONDOWN:
 		on_event_mouse_press(MOUSE_RIGHT,
-							 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-							 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+							 (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+							 (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 		return 0;
 	case WM_RBUTTONUP:
 		on_event_mouse_release(MOUSE_RIGHT,
-							   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-							   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+							   (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+							   (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 		return 0;
 	case WM_KEYDOWN:
 		/* オートリピートの場合を除外する */
@@ -678,8 +682,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			on_event_key_release(kc);
 		return 0;
 	case WM_MOUSEMOVE:
-		on_event_mouse_move((int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-							(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+		on_event_mouse_move((int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+							(int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 		return 0;
 	case WM_MOUSEWHEEL:
 		if((int)(short)HIWORD(wParam) > 0)
@@ -1006,11 +1010,15 @@ static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
     }
 
 	/* Calc the viewport origin. */
-	nOffsetX = (int)((((float)nClientWidth - fUseWidth) / 2.0f) + 0.5);
-	nOffsetY = (int)((((float)nClientHeight - fUseHeight) / 2.0f) + 0.5);
+	nViewportOffsetX = (int)((((float)nClientWidth - fUseWidth) / 2.0f) + 0.5);
+	nViewportOffsetY = (int)((((float)nClientHeight - fUseHeight) / 2.0f) + 0.5);
+
+	/* Save the viewport size. */
+	nViewportWidth = (int)fUseWidth;
+	nViewportHeight = (int)fUseHeight;
 
 	/* Update the screen offset and scale for drawing subsystem. */
-	D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
+	D3DResizeWindow(nViewportOffsetX, nViewportOffsetY, fMouseScale);
 }
 
 /*
@@ -1337,7 +1345,7 @@ bool play_video(const char *fname, bool is_skippable)
 	bDShowSkippable = is_skippable;
 
 	/* ビデオの再生を開始する */
-	BOOL ret = DShowPlayVideo(hWndMain, path);
+	BOOL ret = DShowPlayVideo(hWndMain, path, nViewportOffsetX, nViewportOffsetY, nViewportWidth, nViewportHeight);
 	if(!ret)
 		bDShowMode = FALSE;
 

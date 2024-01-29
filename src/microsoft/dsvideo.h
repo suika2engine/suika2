@@ -19,7 +19,7 @@
 
 #define WM_GRAPHNOTIFY	(WM_APP + 13)
 
-BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName);
+BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName, int nOfsX, int nOfsY, int nWidth, int nHeight);
 VOID DShowStopVideo(void);
 BOOL DShowProcessEvent(void);
 
