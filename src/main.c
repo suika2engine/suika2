@@ -508,6 +508,7 @@ static bool dispatch_command(bool *cont)
 	case COMMAND_WMS:
 		if (!wms_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_ANIME:
 		if (!anime_command())

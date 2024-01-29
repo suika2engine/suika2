@@ -1,12 +1,18 @@
 Release History (Japanese)
 <ul>
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.119 2024/1/29
+  <ul>
+    <li>WMSの実行に1描画フレームを消費しないように変更 (Thanks to あさつき-san!)
+    <li>Windowsでの動画再生位置を修正 (Thanks to 赤月-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/15.118 2024/1/28
   <ul>
     <li>eye-openエフェクトを修正 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/15.117 2024/1/28
   <ul>
     <li>Windows: 仮想ウィンドウサイズ機能を修正 (Thanks to ラワン材-san!)</li>
@@ -1094,12 +1100,18 @@ Release History (English)
 
 <ul>
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.119 2024/1/29
+  <ul>
+    <li>Changed to not consuming a frame on WMS run (Thanks to Asatsuki-san!)</li>
+    <li>Fixed the video playback on Windows (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/15.118 2024/1/28
   <ul>
     <li>Fixed the eye-open effect (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/15.117 2024/1/28
   <ul>
     <li>Windows: Fix virtual window size feature (Thanks to ラワン材-san!)</li>
