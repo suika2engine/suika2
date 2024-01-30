@@ -1000,7 +1000,7 @@ static VOID InitMenu(HWND hWnd)
 
 	/* 英語アドベンチャーを作成する */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
-	mi.wID = ID_NEW_PROJECT_NVLEN;
+	mi.wID = ID_NEW_PROJECT_ADVEN;
 	mi.dwTypeData = bEnglish ? L"English ADV" : L"英語アドベンチャー";
 	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
 
