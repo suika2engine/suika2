@@ -833,7 +833,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	LoadLibrary(L"Msftedit.dll");
 	hWndRichEdit = CreateWindowEx(
 		0,
-		MSFTEDIT_CLASS,
+		MSFTEDIT_CLASS, /* RichEdit50W */
 		L"Script",
 		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
 		MulDiv(10, nDpi, 96),
@@ -844,6 +844,22 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		(HMENU)ID_RICHEDIT,
 		hInstance,
 		NULL);
+	if (hWndRichEdit == NULL)
+	{
+		hWndRichEdit = CreateWindowEx(
+			0,
+			RICHEDIT_CLASS, /* RichEdit30W */
+			L"Script",
+			ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
+			MulDiv(10, nDpi, 96),
+			MulDiv(100, nDpi, 96),
+			MulDiv(420, nDpi, 96),
+			MulDiv(400, nDpi, 96),
+			hWndEditor,
+			(HMENU)ID_RICHEDIT,
+			hInstance,
+			NULL);
+	}
 	GetClassName(hWndRichEdit, wszCls, sizeof(wszCls) / sizeof(wchar_t));
 	if (wcscmp(wszCls, L"RICHEDIT50W") == 0)
 	{
@@ -3566,7 +3582,8 @@ static VOID RichEdit_SetTextByScriptModel(void)
 	for (i = 0; i < get_line_count(); i++)
 	{
 		const char *pUtf8Line = get_line_string_at_line_num(i);
-		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CR */
+//		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CR */
+		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CRLF */
 	}
 
 	/* スクリプトを格納するメモリを確保する */
@@ -3583,7 +3600,8 @@ static VOID RichEdit_SetTextByScriptModel(void)
 	{
 		const char *pUtf8Line = get_line_string_at_line_num(i);
 		wcscat(pWcs, conv_utf8_to_utf16(pUtf8Line));
-		wcscat(pWcs, L"\r");
+//		wcscat(pWcs, L"\r");
+		wcscat(pWcs, L"\r\n");
 	}
 
 	/* リッチエディットにテキストを設定する */
