@@ -1,12 +1,24 @@
-Release History (Japanese)
-<ul>
+// -*- mode: text; -*-
+
+This file is referred by some automatic release scripts.
+
+[Release History (Japanese)]
+
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.122 2024/1/30
+  <ul>
+    <li>拡張switchや拡張ifが複数あるときにジャンプ先が間違っているバグを修正 (Thanks to ソロー=san!)</li>
+    <li>動画再生がスキップされるときにassertion errorとなるバグを修正 (Thanks to 赤月-san!)</li>
+    <li>英語アドベンチャーのメニュー項目を修正</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/15.121 2024/1/30
   <ul>
     <li>Windows XPでも動くように修正 (Thanks to Verónica!)
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/15.120 2024/1/29
   <ul>
     <li>ヒストリーで改行を無視するコンフィグ'gui.history.oneline=1'を追加 (Thanks to 赤月-san!)
@@ -1108,14 +1120,21 @@ Release History (Japanese)
 
 Release History (English)
 
-<ul>
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.122 2024/1/30
+  <ul>
+    <li>Fixed a bug where jump destinations are wrong on the extended switch/if syntaxes (Thanks to ソロー=san!)</li>
+    <li>Fixed an assertion error bug when a video is skipped by Ctrl-key or SkipMode (Thanks to Akatsuki-san!)
+    <li>Fixed the English ADV/NVL New Project menu items on Windows</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.121 2024/1/30
   <ul>
     <li>Workaround for Windows XP (Thanks to Verónica!)
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/15.120 2024/1/29
   <ul>
     <li>Added a config 'gui.history.oneline=1' that makes it possible to ignore line-feeds in hitory (Thanks to Akatsuki-san!)</li>

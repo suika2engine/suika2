@@ -2149,7 +2149,7 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 	opt_count = 1;
 	while ((opt[opt_count] = strtok_escape(NULL, &escaped)) != NULL &&
 	       opt_count < 8) {
-		if (strcmp(opt[opt_count], "}") == 0)
+		if (strcmp(opt[opt_count], "{") == 0)
 			break;
 		opt_count++;
 
@@ -2166,14 +2166,14 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 			snprintf(label[i],
 				 sizeof(label[i]),
 				 "CHOOSE_%d_%d",
-				 cur_expanded_line,
+				 cmd[index].expanded_line,
 				 i);
 		}
 	}
 	snprintf(finally_label,
 		 sizeof(finally_label),
 		 "CHOOSE_%d_FINALLY",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 
 	/* @chooseコマンドを生成して格納する */
 	snprintf(tmp_command, sizeof(tmp_command),
@@ -2384,11 +2384,11 @@ static bool reparse_if_block(int index, char *params, int *end_index)
 	snprintf(skip_label,
 		 sizeof(skip_label),
 		 "IF_%d_SKIP",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 	snprintf(finally_label,
 		 sizeof(finally_label),
 		 "IF_%d_FINALLY",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 
 	/* @unlessコマンドを生成する */
 	snprintf(unless_command,
@@ -2565,7 +2565,7 @@ static bool reparse_elseif(int index, const char *params)
 	snprintf(skip_label,
 		 sizeof(skip_label),
 		 "ELIF_%d_SKIP",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 
 	/* targetラベルを付け替える */
 	if (smode_target_skip != NULL)
