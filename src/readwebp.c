@@ -5,6 +5,8 @@
  * Copyright (C) 2001-2023, Keiichi Tabata. All rights reserved.
  */
 
+#if !defined(NO_WEBP)
+
 #include "suika.h"
 
 #include <webp/decode.h>
@@ -88,3 +90,5 @@ struct image *create_image_from_file_webp(const char *dir, const char *file)
 
 	return img;
 }
+
+#endif /* !defined(NO_WEBP) */

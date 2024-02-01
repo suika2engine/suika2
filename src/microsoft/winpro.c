@@ -42,6 +42,7 @@
 #include <commctrl.h>		/* TOOLINFO */
 #include <richedit.h>		/* RichEdit */
 #include "resource.h"
+#define WM_DPICHANGED       0x02E0 /* Vista */
 
 /* msvcrt  */
 #include <io.h>				/* _access() */

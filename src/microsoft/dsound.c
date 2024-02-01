@@ -109,7 +109,7 @@ static BOOL PlaySoundBuffer(int nBuffer, struct wave *pStr);
 static VOID StopSoundBuffer(int nBuffer);
 static BOOL SetBufferVolume(int nBuffer, float Vol);
 static BOOL WriteNext(int nBuffer);
-static VOID EventThread(VOID *);
+static DWORD WINAPI EventThread(LPVOID lpParameter);
 static VOID OnNotifyPlayPos(int nBuffer);
 
 /*
@@ -122,7 +122,6 @@ static VOID OnNotifyPlayPos(int nBuffer);
 BOOL DSInitialize(HWND hWnd)
 {
 	HRESULT hRet;
-	uintptr_t t;
 
 	/* IDirectSoundのインスタンスを取得して初期化する */
 	hRet = CoCreateInstance(&CLSID_DirectSound,
@@ -155,11 +154,9 @@ BOOL DSInitialize(HWND hWnd)
 		return FALSE;
 
 	/* DirectSoundの再生位置通知を受け取るスレッドを開始する */
-	t = _beginthread(EventThread, 0, NULL);
-	if(t == (unsigned long)-1)
+	hEventThread = CreateThread(NULL, 0, EventThread, NULL, 0, NULL); //t = _beginthread(EventThread, 0, NULL);
+	if(hEventThread == NULL)
 		return FALSE;
-
-	hEventThread = (HANDLE)t;
 
 	/* ボリュームを設定する */
 	SetBufferVolume(BGM_STREAM, fInitialVol[BGM_STREAM]);
@@ -187,11 +184,7 @@ VOID DSCleanup()
 			WaitForSingleObject(hEventThread, 1000*30);
 
 		CloseHandle(hQuitEvent);
-
-		/*
-		 * _beginthread()で作成したスレッドのハンドルhEventThreadは、
-		 * CloseHandle()で閉じては*いけない*。
-		 */
+		CloseHandle(hEventThread);
 	}
 
 	/* クリティカルセクションを削除する */
@@ -616,13 +609,13 @@ static BOOL WriteNext(int nBuffer)
 /*
  * イベントスレッドのメインループ
  */
-static void EventThread(void *p)
+static DWORD WINAPI EventThread(LPVOID lpParameter)
 {
 	HANDLE hEvents[MIXER_STREAMS+1];
 	DWORD dwResult;
 	int i, nBuf;
 
-	UNUSED_PARAMETER(p);
+	UNUSED_PARAMETER(lpParameter);
 
 	/* イベントの配列を作成する */
 	for(i=0; i<MIXER_STREAMS; i++)
@@ -661,6 +654,8 @@ static void EventThread(void *p)
 		}
 		LeaveCriticalSection(&StreamCritical);
 	}
+
+	return 0;
 }
 
 /*

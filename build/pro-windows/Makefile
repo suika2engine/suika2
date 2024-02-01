@@ -16,8 +16,8 @@ WINDRES = i686-w64-mingw32-windres
 CPPFLAGS = \
 	-DUSE_EDITOR \
 	-DUSE_DEBUGGER \
-	-D_WIN32_WINNT=0x0601 \
 	-DVERSION=$(VERSION) \
+	-D_WIN32_WINNT=0x0500 \
 	-I. \
 	-I./libroot/include \
 	-I./libroot/include/freetype2
@@ -32,6 +32,7 @@ CFLAGS = \
 	-ffast-math \
 	-finput-charset=utf-8 \
 	-fexec-charset=utf-8 \
+	-no-pthread \
 	-Wall \
 	-Werror \
 	-Wextra \
@@ -50,7 +51,6 @@ LDFLAGS = \
 	-ldsound \
 	-ldxguid \
 	-ld3d9 \
-	-ld3dx9_43 \
 	-lstrmiids \
 	-lcomctl32 \
 	-limm32 \
@@ -108,7 +108,7 @@ OBJS = \
 all: suika-pro.exe
 
 suika-pro.exe: libroot $(OBJS) $(HDRS_MAIN) $(HDRS)
-	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS)
+	$(CC) -s -o suika-pro.exe $(OBJS) $(LDFLAGS) -no-pthread
 
 libroot:
 	./build-libs.sh

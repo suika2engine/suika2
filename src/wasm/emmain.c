@@ -88,6 +88,9 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	if (!init_openal())
 		return;
 
+	/* ウィンドウのタイトルを初期化する */
+	update_window_title();
+
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
 #ifndef DEFAULT_SHELL
@@ -743,8 +746,8 @@ bool is_video_playing(void)
 void update_window_title(void)
 {
 	EM_ASM_({
-		document.title = Module.UTF8ToString($0, $1);
-	}, conf_window_title, strlen(conf_window_title));
+		document.title = Module.UTF8ToString($0);
+	}, conf_window_title);
 }
 
 /*
