@@ -15,6 +15,9 @@
 /* 動画をスキップ可能か */
 static bool is_skippable;
 
+/* 動画をスキップしたか */
+static bool is_skipped;
+
 /* 前方参照 */
 static bool init(void);
 static void run(void);
@@ -28,6 +31,8 @@ bool video_command(void)
 	if (!is_in_command_repetition())
 		if (!init())
 			return false;
+	if (is_skipped)
+		return true;
 
 	/* 毎フレーム処理する */
 	run();
@@ -66,8 +71,11 @@ static bool init(void)
 	}
 
 	/* 再生しない場合を検出する */
+	is_skipped = false;
 	if ((!is_non_interruptible() && get_seen() && is_control_pressed) ||
 	    (is_skip_mode() && get_seen())) {
+		is_skipped = true;
+
 		/* 次のコマンドへ移動する */
 		return move_to_next_command();
 	}

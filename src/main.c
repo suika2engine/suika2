@@ -161,8 +161,9 @@ bool game_loop_iter(void)
 				cleanup_gui();
 			} else {
 				/* @guiを終了する */
-				if (!gui_command())
-					return false; /* エラー */
+				if (get_command_type() == COMMAND_GUI)
+					if (!gui_command())
+						return false; /* エラー */
 			}
 		}
 	}
@@ -452,6 +453,7 @@ static bool dispatch_command(bool *cont)
 	case COMMAND_CHOOSE:
 	case COMMAND_ICHOOSE:
 	case COMMAND_MCHOOSE:
+	case COMMAND_MICHOOSE:
 	case COMMAND_SWITCH:	/* deprecated */
 	case COMMAND_NEWS:	/* deprecated */
 		if (!switch_command())
@@ -506,6 +508,7 @@ static bool dispatch_command(bool *cont)
 	case COMMAND_WMS:
 		if (!wms_command())
 			return false;
+		*cont = true;
 		break;
 	case COMMAND_ANIME:
 		if (!anime_command())

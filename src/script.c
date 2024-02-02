@@ -266,7 +266,11 @@ struct insn_item {
 
 	/* 条件付き選択肢 */
 	{"@mchoose", COMMAND_MCHOOSE, 3, 24},
-	{U8("@条件付き選択肢"), COMMAND_MCHOOSE, 2, 24},
+	{U8("@条件付き選択肢"), COMMAND_MCHOOSE, 3, 24},
+
+	/* 条件付きインライン選択肢 */
+	{"@michoose", COMMAND_MICHOOSE, 3, 24},
+	{U8("@条件付きインライン選択肢"), COMMAND_MICHOOSE, 3, 24},
 
 	/* 章タイトル */
 	{"@chapter", COMMAND_CHAPTER, 1, 1},
@@ -2145,7 +2149,7 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 	opt_count = 1;
 	while ((opt[opt_count] = strtok_escape(NULL, &escaped)) != NULL &&
 	       opt_count < 8) {
-		if (strcmp(opt[opt_count], "}") == 0)
+		if (strcmp(opt[opt_count], "{") == 0)
 			break;
 		opt_count++;
 
@@ -2162,14 +2166,14 @@ static bool reparse_switch_block(int index, char *params, int *end_index)
 			snprintf(label[i],
 				 sizeof(label[i]),
 				 "CHOOSE_%d_%d",
-				 cur_expanded_line,
+				 cmd[index].expanded_line,
 				 i);
 		}
 	}
 	snprintf(finally_label,
 		 sizeof(finally_label),
 		 "CHOOSE_%d_FINALLY",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 
 	/* @chooseコマンドを生成して格納する */
 	snprintf(tmp_command, sizeof(tmp_command),
@@ -2380,11 +2384,11 @@ static bool reparse_if_block(int index, char *params, int *end_index)
 	snprintf(skip_label,
 		 sizeof(skip_label),
 		 "IF_%d_SKIP",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 	snprintf(finally_label,
 		 sizeof(finally_label),
 		 "IF_%d_FINALLY",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 
 	/* @unlessコマンドを生成する */
 	snprintf(unless_command,
@@ -2434,8 +2438,12 @@ static bool reparse_if_block(int index, char *params, int *end_index)
 			return false;
 		index = ret_index;
 
-		/* 空行のとき */
+		/* 通常行のとき */
 		if (accepted == SMODE_ACCEPT_NONE)
+			continue;
+
+		/* switchブロックのとき */
+		if (accepted == SMODE_ACCEPT_SWITCH)
 			continue;
 
 		/* ifが"}"で閉じられたとき */
@@ -2478,7 +2486,7 @@ static bool reparse_if_block(int index, char *params, int *end_index)
 		free(smode_target_skip);
 		smode_target_skip = NULL;
 	}
-	
+
 	/* ターゲットを元に戻す */
 	smode_target_finally = save_smode_target_finally;
 	smode_target_skip = save_smode_target_skip;
@@ -2557,7 +2565,7 @@ static bool reparse_elseif(int index, const char *params)
 	snprintf(skip_label,
 		 sizeof(skip_label),
 		 "ELIF_%d_SKIP",
-		 cur_expanded_line);
+		 cmd[index].expanded_line);
 
 	/* targetラベルを付け替える */
 	if (smode_target_skip != NULL)
@@ -2635,7 +2643,7 @@ static bool reparse_normal_line(int index, int spaces)
 	case '\0':
 	case '#':
 		nullify_command(index);
-		return true;
+		break;
 	case '@':
 		/* 命令行をパースする */
 		if (!parse_insn(raw_copy, raw_copy + spaces, top, index))

@@ -64,7 +64,7 @@ html: emsdk $(SRC)
 	source ./emsdk/emsdk_env.sh && \
 	rm -f html/index.* && \
 	mkdir -p html && \
-	emcc $(SRC) -o html/index.html -O3 -DUSE_OPENGL -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_FREETYPE=1 -s USE_LIBJPEG=1 -s TOTAL_MEMORY=536870912 -s NO_EXIT_RUNTIME=1 -s EXPORTED_RUNTIME_METHODS=["ccall","UTF8ToString"] -lz -lpng -logg -lvorbis -lfreetype -lopenal -lidbfs.js --shell-file shell.html --pre-js pre.js --use-preload-plugins
+	emcc $(SRC) -o html/index.html -O3 -DUSE_OPENGL -DNO_WEBP -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_OGG=1 -s USE_VORBIS=1 -s USE_FREETYPE=1 -s USE_LIBJPEG=1 -s TOTAL_MEMORY=536870912 -s NO_EXIT_RUNTIME=1 -s EXPORTED_RUNTIME_METHODS=["ccall","UTF8ToString"] -lz -lpng -logg -lvorbis -lfreetype -lopenal -lidbfs.js --shell-file shell.html --pre-js pre.js --use-preload-plugins
 
 emsdk:
 	git clone https://github.com/emscripten-core/emsdk.git

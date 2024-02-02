@@ -73,6 +73,7 @@ public class MainActivity extends ComponentActivity {
 	public native void nativeSetStopFlag();
 	public native void nativeSetOpenFlag(String file);
 	public native void nativeSetLineFlag(int line);
+	public native void nativeSaveScript();
 	public native String nativeGetScript();
 	public native boolean nativeUpdateScriptModel(String script);
 
@@ -190,6 +191,9 @@ public class MainActivity extends ComponentActivity {
 
 					// Reserve a single step execution.
 					nativeSetNextFlag();
+
+					// Save the script.
+					nativeSaveScript();
 				}
 
 				// If there are syntax errors,

@@ -1,15 +1,102 @@
-Release History (Japanese)
-<ul>
+// -*- mode: text; -*-
+
+This file is referred by some automatic release scripts.
+
+[Release History (Japanese)]
+
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/15.108 2024/1/23
+<li>Suika2/15.123 2024/2/1
+  <ul>
+    <li>Windows XPでも動くように修正 (Thanks to Verónica!)
+    <li>Webエクスポート時にウィンドウタイトルを変更できないバグを修正 (Thanks to Ronron-san!)
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
+<li>Suika2/15.122 2024/1/30
+  <ul>
+    <li>拡張switchや拡張ifが複数あるときにジャンプ先が間違っているバグを修正 (Thanks to ソロー=san!)</li>
+    <li>動画再生がスキップされるときにassertion errorとなるバグを修正 (Thanks to 赤月-san!)</li>
+    <li>英語アドベンチャーのメニュー項目を修正</li>
+  </ul>
+</li>
+<li>Suika2/15.121 2024/1/30
+  <ul>
+    <li>Windows XPでも動くように修正 (Thanks to Verónica!)
+  </ul>
+</li>
+<li>Suika2/15.120 2024/1/29
+  <ul>
+    <li>ヒストリーで改行を無視するコンフィグ'gui.history.oneline=1'を追加 (Thanks to 赤月-san!)
+  </ul>
+</li>
+<li>Suika2/15.119 2024/1/29
+  <ul>
+    <li>WMSの実行に1描画フレームを消費しないように変更 (Thanks to あさつき-san!)
+    <li>Windowsでの動画再生位置を修正 (Thanks to 赤月-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.118 2024/1/28
+  <ul>
+    <li>eye-openエフェクトを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.117 2024/1/28
+  <ul>
+    <li>Windows: 仮想ウィンドウサイズ機能を修正 (Thanks to ラワン材-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.116 2024/1/26
+  <ul>
+    <li>スクロールバーの挙動を調整(まだ調整中) (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.115 2024/1/26
+  <ul>
+    <li>スクロールバーの上下ボタンを追加 (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.114 2024/1/26
+  <ul>
+    <li>スクロールバーの上下ボタンを追加 (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.113 2024/1/25
+  <ul>
+    <li>縦書きのメッセージを横書きヒストリーで表示したときのカギカッコを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.112 2024/1/25
+  <ul>
+    <li>iOS版で保存機能を追加 (Thanks to すあま-san!)</li>
+    <li>拡張if文のバグを修正 (Thanks to Ronron-san!)</li>
+    <li>@michooseコマンドを追加 (Thanks to Ronron-san and coexistem!)</li>
+  </ul>
+</li>
+<li>Suika2/15.111 2024/1/25
+  <ul>
+    <li>スクリプトの自動セーブを無効化 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.110 2024/1/25
+  <ul>
+    <li>クリックアニメの移動を修正 (Thanks to あさつき-san!)</li>
+    <li>コンフィグを修正 (Thanks to renge-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.109 2024/1/25
+  <ul>
+    <li>フォントレンダリングを改善 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+</ul>
+<li>Suika2/15.108 2024/1/24
   <ul>
     <li>テンプレートのSAVE, LOAD, HISTORYのGUIを改良 (Thanks to Ronron-san!)</li>
     <li>Proのバージョン情報を追加 (Thanks to nekoha-san!)</li>
     <li>config.txtの記載ミスを修正 (Thanks to nekoha-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-</ul>
 * Suika2/15.107 2024/1/23
     * 禁則文字を修正 (Thanks to あさつき-san!)
     * 縦書き文字を修正 (Thanks to Ronron-san!)
@@ -1039,17 +1126,99 @@ Release History (Japanese)
 
 Release History (English)
 
-<ul>
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/15.108 2024/1/23
+<li>Suika2/15.123 2024/2/1
+  <ul>
+    <li>Workaround for Windows XP (Thanks to Verónica!)
+    <li>Fixed a bug where a Web-exported game cannot change a window title (Thanks to Ronron-san!)
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
+<li>Suika2/15.122 2024/1/30
+  <ul>
+    <li>Fixed a bug where jump destinations are wrong on the extended switch/if syntaxes (Thanks to ソロー=san!)</li>
+    <li>Fixed an assertion error bug when a video is skipped by Ctrl-key or SkipMode (Thanks to Akatsuki-san!)
+    <li>Fixed the English ADV/NVL New Project menu items on Windows</li>
+  </ul>
+</li>
+<li>Suika2/15.121 2024/1/30
+  <ul>
+    <li>Workaround for Windows XP (Thanks to Verónica!)
+  </ul>
+</li>
+<li>Suika2/15.120 2024/1/29
+  <ul>
+    <li>Added a config 'gui.history.oneline=1' that makes it possible to ignore line-feeds in hitory (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.119 2024/1/29
+  <ul>
+    <li>Changed to not consuming a frame on WMS run (Thanks to Asatsuki-san!)</li>
+    <li>Fixed the video playback on Windows (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.118 2024/1/28
+  <ul>
+    <li>Fixed the eye-open effect (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.117 2024/1/28
+  <ul>
+    <li>Windows: Fix virtual window size feature (Thanks to ラワン材-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.116 2024/1/26
+  <ul>
+    <li>Made djustments to history scroll bars (work in progress) (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.115 2024/1/26
+  <ul>
+    <li>Added scrollbar arrows (Thanks to Asatsuki-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.114 2024/1/26
+  <ul>
+    <li>Added scrollbar arrows (Thanks to Asatsuki-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.113 2024/1/25
+  <ul>
+    <li>Fixed the vertical quotation (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.112 2024/1/25
+  <ul>
+    <li>Added a save functionality to the iOS version (Thanks to Suama-san!)</li>
+    <li>Fixed a bug of the extended if block (Thanks to Ronron!)</li>
+    <li>Added the @michoose command (Thanks to Ronron and coexistem!)</li>
+  </ul>
+</li>
+<li>Suika2/15.111 2024/1/25
+  <ul>
+    <li>Disabled the script auto save (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.110 2024/1/25
+  <ul>
+    <li>Fixed the click move (Thanks to Asatsuki-san!)</li>
+    <li>Fixed the config (Thanks to renge-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.109 2024/1/23
+  <ul>
+    <li>Improved font rendering (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+</ul>
+<li>Suika2/15.108 2024/1/24
   <ul>
     <li>Improved the save, load, and history GUIs (Thanks to Ronron-san!)</li>
     <li>Added the Pro version number to the help (Thanks to nekoha-san!)</li>
     <li>Fixed the config.txt file description (Thanks to nekoha-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-</ul>
 * Suika2/15.107 2024/1/23
     * Fixed the no-end-of-line rule (Thanks to あさつき-san!)
     * Fixed some vertical character conversions (Thanks to Ronron-san!)

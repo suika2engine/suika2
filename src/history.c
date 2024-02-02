@@ -132,22 +132,14 @@ bool register_message(const char *name, const char *msg, const char *voice,
 			/* 日本語 */
 			if (!is_quoted_serif(msg)) {
 				/* カッコがない場合 */
-				if (!conf_msgbox_tategaki) {
-					snprintf(tmp_text, TEXT_SIZE,
-						 "\\#{%06x}%s"
-						 U8("\\#{%06x}%s%s%s"),
-						 name_color, name,
-						 body_color,
-						 quote_start,
-						 msg,
-						 quote_end);
-				} else {
-					snprintf(tmp_text, TEXT_SIZE,
-						 "\\#{%06x}%s"
-						 U8("\\#{%06x}﹁%s﹂"),
-						 name_color, name,
-						 body_color, msg);
-				}
+				snprintf(tmp_text, TEXT_SIZE,
+					 "\\#{%06x}%s"
+					 U8("\\#{%06x}%s%s%s"),
+					 name_color, name,
+					 body_color,
+					 quote_start,
+					 msg,
+					 quote_end);
 			} else {
 				/* すでにカッコがある場合 */
 				snprintf(tmp_text, TEXT_SIZE,

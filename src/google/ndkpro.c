@@ -426,6 +426,15 @@ Java_jp_luxion_suikapro_MainActivity_nativeSetLineFlag(
 	flag_line = true;
 }
 
+JNIEXPORT void JNICALL
+Java_jp_luxion_suikapro_MainActivity_nativeSaveScript(
+	JNIEnv *env,
+	jobject instance,
+	jint line)
+{
+	save_script();
+}
+
 JNIEXPORT jboolean JNICALL
 Java_jp_luxion_suikapro_MainActivity_nativeUpdateScriptModel(
 	JNIEnv *env,

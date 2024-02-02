@@ -146,6 +146,9 @@ static struct gui_button {
 	/* すべて */
 	char *pointse;
 
+	/* TYPE_HISTORY, TYPE_SAVE, TYPE_LOAD */
+	int clear_r, clear_g, clear_b;
+
 	/*
 	 * 実行時の情報
 	 */
@@ -348,8 +351,12 @@ static void draw_history_buttons(void);
 static void draw_history_button(int button_index);
 static void draw_history_text_item(int button_index);
 static void process_button_render_history(int button_index);
-static void process_history_scroll(int delta);
+static void process_history_scroll_n(int delta);
+static void process_history_scroll_at(float pos);
+static void process_history_scroll_click(int index);
+#if 0
 static void update_history_top(int button_index);
+#endif
 static void process_history_voice(int button_index);
 static bool init_preview_buttons(void);
 static void reset_preview_buttons(void);
@@ -716,6 +723,14 @@ static bool set_button_key_value(const int index, const char *key,
 			b->namevar = val[0] - 'a';
 	} else if (strcmp("max", key) == 0) {
 		b->max = abs(atoi(val));
+	} else if (strcmp("clear-r", key) == 0) {
+		b->clear_r = atoi(val);
+	} else if (strcmp("clear-g", key) == 0) {
+		b->clear_g = atoi(val);
+	} else if (strcmp("clear-b", key) == 0) {
+		b->clear_b = atoi(val);
+	} else if (strcmp("usearrow", key) == 0) {
+		/* removed */
 	} else {
 		log_gui_unknown_button_property(key);
 		return false;
@@ -968,10 +983,10 @@ static void process_input(void)
 
 	/* マウスホイールか上下キーによるスクロールを処理する */
 	if (is_up_pressed) {
-		process_history_scroll(-1);
+		process_history_scroll_n(-1);
 		update_runtime_props(false);
 	} else if (is_down_pressed) {
-		process_history_scroll(1);
+		process_history_scroll_n(1);
 		update_runtime_props(false);
 	}
 
@@ -1407,6 +1422,10 @@ static bool process_button_point(int index, bool key)
 	if (b->type == TYPE_NAMEVAR)
 		return false;
 
+	/* 他の項目がドラッグ中の場合 */
+	if (dragging_index != -1 && dragging_index != index)
+		return false;
+
 	/* キー操作の場合 */
 	if (key) {
 		/* ポイントされている状態にする */
@@ -1489,12 +1508,6 @@ static void process_button_drag(int index)
 		b->rt.slider = calc_slider_value(index);
 		if (b->type == TYPE_BGMVOL)
 			set_mixer_global_volume(BGM_STREAM, b->rt.slider);
-		if (b->type == TYPE_HISTORYSCROLL ||
-		    b->type == TYPE_HISTORYSCROLL_HORIZONTAL) {
-			transient_history_slider = b->rt.slider;
-			update_history_top(index);
-			b->rt.slider = transient_history_slider;
-		}
 		return;
 	}
 
@@ -1522,14 +1535,8 @@ static void process_button_drag(int index)
 		transient_auto_speed = b->rt.slider;
 		break;
 	case TYPE_HISTORYSCROLL:
-		transient_history_slider = b->rt.slider;
-		update_history_top(index);
-		b->rt.slider = transient_history_slider;
-		break;
 	case TYPE_HISTORYSCROLL_HORIZONTAL:
 		transient_history_slider = b->rt.slider;
-		update_history_top(index);
-		b->rt.slider = transient_history_slider;
 		break;
 	default:
 		break;
@@ -1567,6 +1574,11 @@ static void process_button_drag(int index)
 			/* テキストを再表示する */
 			set_auto_speed(b->rt.slider);
 			reset_preview_buttons();
+			break;
+		case TYPE_HISTORYSCROLL:
+		case TYPE_HISTORYSCROLL_HORIZONTAL:
+			/* ヒストリーのスクロールバーを設定する */
+			process_history_scroll_at(b->rt.slider);
 			break;
 		default:
 			break;
@@ -1634,7 +1646,7 @@ static void process_button_click(int index)
 	if (b->type == TYPE_BGMVOL || b->type == TYPE_VOICEVOL ||
 	    b->type == TYPE_SEVOL || b->type == TYPE_CHARACTERVOL ||
 	    b->type == TYPE_TEXTSPEED || b->type == TYPE_AUTOSPEED ||
-	    b->type == TYPE_PREVIEW || b->type == TYPE_HISTORYSCROLL)
+	    b->type == TYPE_PREVIEW)
 		return;
 
 	/* ボタンがポイントされていない場合 */
@@ -1643,6 +1655,10 @@ static void process_button_click(int index)
 
 	/* ボタンがクリックされていない場合 */
 	if (!is_left_clicked && !is_return_pressed)
+		return;
+
+	/* 他のボタンがドラッグ中の場合 */
+	if (dragging_index != -1 && dragging_index != index)
 		return;
 
 	/* ボタンのタイプごとにクリックを処理する */
@@ -1692,6 +1708,10 @@ static void process_button_click(int index)
 		break;
 	case TYPE_HISTORY:
 		process_history_voice(index);
+		break;
+	case TYPE_HISTORYSCROLL:
+	case TYPE_HISTORYSCROLL_HORIZONTAL:
+		process_history_scroll_click(index);
 		break;
 	case TYPE_TITLE:
 		if (title_dialog())
@@ -2273,7 +2293,11 @@ static void draw_save_button(int button_index)
 	save_time = get_save_date(save_index);
 
 	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
+	clear_image_color(b->rt.img,
+			  make_pixel(0,
+				     (uint32_t)b->clear_r,
+				     (uint32_t)b->clear_g,
+				     (uint32_t)b->clear_b));
 
 	/* サムネイルを描画する */
 	thumb = get_save_thumbnail(save_index);
@@ -2592,7 +2616,11 @@ static void draw_history_button(int index)
 	}
 
 	/* イメージをクリアする */
-	clear_image_color(b->rt.img, make_pixel(0, 0, 0, 0));
+	clear_image_color(b->rt.img,
+			  make_pixel(0,
+				     (uint32_t)b->clear_r,
+				     (uint32_t)b->clear_g,
+				     (uint32_t)b->clear_b));
 
 	/* メッセージを描画する */
 	if (b->rt.history_offset != -1)
@@ -2719,7 +2747,7 @@ static void draw_history_text_item(int button_index)
 		color,
 		outline_color,
 		false,		/* is_dimming */
-		false,		/* ignore_linefeed */
+		conf_gui_history_oneline,	/* ignore_linefeed */
 		false,		/* ignore_font */
 		false,		/* ignore_outline */
 		ignore_color,	/* ignore_color */
@@ -2734,6 +2762,7 @@ static void draw_history_text_item(int button_index)
 	draw_msg_common(&context, total_chars);
 }
 
+#if 0
 /* history_topを更新する */
 static void update_history_top(int button_index)
 {
@@ -2765,14 +2794,16 @@ static void update_history_top(int button_index)
 	transient_history_slider = 1.0f -
 		(float)(history_top - (history_slots - 1)) /
 		(float)((history_count - 1) - (history_slots - 1));
+	b->rt.slider = transient_history_slider;
 
 	/* 再描画が必要な場合 */
 	if (history_top != old_history_top)
 		need_update_history_buttons = true;
 }
+#endif
 
 /* マウスホイールおよび上下キーによるスクロールを処理する */
-static void process_history_scroll(int delta)
+static void process_history_scroll_n(int delta)
 {
 	int history_count, old_history_top;
 
@@ -2800,6 +2831,47 @@ static void process_history_scroll(int delta)
 	/* 再描画が必要な場合 */
 	if (history_top != old_history_top)
 		need_update_history_buttons = true;
+}
+
+/* ヒストリーバーのクリックによるスクロールを処理する */
+static void process_history_scroll_at(float pos)
+{
+	int history_count, old_history_top;
+
+	old_history_top = history_top;
+
+	/* ヒストリの数がスロットの数より小さい場合 */
+	history_count = get_history_count();
+	if (history_count <= history_slots)
+		return;
+
+	/* スクロールする行数を減算する */
+	history_top = (int)((float)history_count * (1.0f - pos));
+
+	/* 上限と下限でカットする */
+	if (history_top < history_slots)
+		history_top = history_slots - 1;
+	if (history_top >= history_count)
+		history_top = history_count - 1;
+
+	/* スライダの位置を補正する */
+	transient_history_slider = 1.0f -
+		(float)(history_top - (history_slots - 1)) /
+		(float)((history_count - 1) - (history_slots - 1));
+
+	/* 再描画が必要な場合 */
+	if (history_top != old_history_top)
+		need_update_history_buttons = true;
+}
+
+/* ヒストリースクロールバーのクリックを処理する */
+static void process_history_scroll_click(int index)
+{
+	struct gui_button *b;
+
+	b = &button[index];
+	b->rt.slider = calc_slider_value(index);
+	process_history_scroll_at(b->rt.slider);
 }
 
 /* ヒストリのボイスを再生する */

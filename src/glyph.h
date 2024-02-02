@@ -123,6 +123,7 @@ struct draw_msg_context {
 	int runtime_ruby_y;
 	bool runtime_is_line_top;
 	bool runtime_is_gyoto_kinsoku;
+	bool runtime_is_gyoto_kinsoku_second;
 };
 
 /*

@@ -3285,7 +3285,7 @@ static void render_fade_eye_open(void)
 	/* 上幕の描画を行う */
 	for (i = up, a = 0; i >= 0; i--) {
 		render_image_normal(0,
-				    0,
+				    i,
 				    conf_window_width,
 				    1,
 				    fo_image,
@@ -3310,7 +3310,7 @@ static void render_fade_eye_open(void)
 				    i,
 				    conf_window_width,
 				    1,
-				    255);
+				    a);
 		a += ALPHA_STEP;
 		if (a > 255)
 			a = 255;

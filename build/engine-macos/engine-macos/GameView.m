@@ -13,6 +13,7 @@
 #import "suika.h"
 
 @implementation GameView
+
 + (Class)layerClass {
     return AVPlayerLayer.class;
 }

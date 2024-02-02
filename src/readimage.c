@@ -9,7 +9,7 @@
 
 struct image *create_image_from_file_png(const char *dir, const char *file);
 struct image *create_image_from_file_jpeg(const char *dir, const char *file);
-#if !defined(SUIKA_TARGET_WASM)
+#if !defined(NO_WEBP)
 struct image *create_image_from_file_webp(const char *dir, const char *file);
 #endif
 
@@ -17,7 +17,7 @@ struct image *create_image_from_file_webp(const char *dir, const char *file);
  * 前方参照
  */
 static bool is_jpg_ext(const char *str);
-#if !defined(SUIKA_TARGET_WASM)
+#if !defined(NO_WEBP)
 static bool is_webp_ext(const char *str);
 #endif
 
@@ -30,7 +30,7 @@ struct image *create_image_from_file(const char *dir, const char *file)
 	if (is_jpg_ext(file))
 		return create_image_from_file_jpeg(dir, file);
 
-#if !defined(SUIKA_TARGET_WASM)
+#if !defined(NO_WEBP)
 	/* WebPファイルの場合 */
 	if (is_webp_ext(file))
 		return create_image_from_file_webp(dir, file);
@@ -54,7 +54,7 @@ static bool is_jpg_ext(const char *str)
 	return false;
 }
 
-#if !defined(SUIKA_TARGET_WASM)
+#if !defined(NO_WEBP)
 /* 拡張子がWebPであるかチェックする */
 static bool is_webp_ext(const char *str)
 {

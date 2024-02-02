@@ -21,9 +21,6 @@ extern "C" {
 
 #define PATH_SIZE	(1024)
 
-// メインウィンドウのハンドル
-static HWND hWndMain;
-
 // DirectShowのインタフェース
 static IGraphBuilder *pBuilder;
 static IMediaControl *pControl;
@@ -35,11 +32,9 @@ static BOOL DisplayRenderFileErrorMessage(HRESULT hr);
 //
 // 動画を再生する
 //
-BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName)
+BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName, int nOfsX, int nOfsY, int nWidth, int nHeight)
 {
 	HRESULT hRes;
-
-	hWndMain = hWnd;
 
 	// IGraphBuilderのインスタンスを取得する
 	hRes = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER,
@@ -64,19 +59,19 @@ BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName)
 		log_api_error("IGraphBuilder::QueryInterface");
 		return FALSE;
 	}
-	pWindow->put_Owner((OAHWND)hWndMain);
-	pWindow->put_MessageDrain((OAHWND)hWndMain);
+	pWindow->put_Owner((OAHWND)hWnd);
+	pWindow->put_MessageDrain((OAHWND)hWnd);
 	pWindow->put_WindowStyle(WS_CHILD | WS_CLIPSIBLINGS);
-	pWindow->SetWindowPosition(0, 0, conf_window_width, conf_window_height);
+	pWindow->SetWindowPosition(nOfsX, nOfsY, nWidth, nHeight);
 
-	// hWndMainでイベントを取得するようにする
+	// hWndでイベントを取得するようにする
 	pBuilder->QueryInterface(IID_IMediaEventEx, (void**)&pEvent);
 	if(pEvent == NULL)
 	{
 		log_api_error("IGraphBuilder::QueryInterface");
 		return FALSE;
 	}
-	pEvent->SetNotifyWindow((OAHWND)hWndMain, WM_GRAPHNOTIFY, 0);
+	pEvent->SetNotifyWindow((OAHWND)hWnd, WM_GRAPHNOTIFY, 0);
 
 	// ファイルを再生する
 	pBuilder->QueryInterface(IID_IMediaControl, (void **)&pControl);
@@ -85,7 +80,12 @@ BOOL DShowPlayVideo(HWND hWnd, const char *pszFileName)
 		log_api_error("IGraphBuilder::QueryInterface");
 		return FALSE;
 	}
-	pControl->Run();
+	hRes = pControl->Run();
+	if (FAILED(hRes))
+	{
+		log_api_error("IMediaControl::Run");
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -141,7 +141,6 @@ VOID DShowStopVideo(void)
 	{
 		pControl->Stop();
 
-		hWndMain = NULL;
 		if(pBuilder)
 		{
 			pBuilder->Release();
@@ -195,7 +194,6 @@ BOOL DShowProcessEvent(void)
 	// 再生完了した場合、リソースを解放する
 	if(!bContinue)
 	{
-		hWndMain = NULL;
 		if(pBuilder)
 		{
 			pBuilder->Release();

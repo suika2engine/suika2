@@ -1,5 +1,5 @@
+CC = clang
 CPPFLAGS = -Ic/include
-CFLAGS = -no-pthread
 
 SRC_COMMON = \
 	c/common/constants.c \
@@ -20,16 +20,16 @@ OBJ_COMMON = $(SRC_COMMON:c/common/%.c=%.o)
 OBJ_DEC = $(SRC_DEC:c/dec/%.c=%.o)
 
 %.o: c/common/%.c
-	i686-w64-mingw32-gcc -c $(CPPFLAGS) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) -O3 -arch arm64 -isysroot `xcrun -sdk iphonesimulator --show-sdk-path` -fembed-bitcode -mios-version-min=8.0 $<
 
 %.o: c/dec/%.c
-	i686-w64-mingw32-gcc -c $(CPPFLAGS) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) -O3 -arch arm64 -isysroot `xcrun -sdk iphonesimulator --show-sdk-path` -fembed-bitcode -mios-version-min=8.0 $<
 
 all: libbrotlicommon.a libbrotlidec.a
 	cp -R c/include/brotli ../../libroot/include/
 
 libbrotlicommon.a: $(OBJ_COMMON)
-	i686-w64-mingw32-ar -rcs ../../libroot/lib/libbrotlicommon.a $(OBJ_COMMON)
+	$(AR) rcs ../../libroot/lib/libbrotlicommon.a $(OBJ_COMMON)
 
 libbrotlidec.a: $(OBJ_DEC)
-	i686-w64-mingw32-ar -rcs ../../libroot/lib/libbrotlidec.a $(OBJ_DEC)
+	$(AR) rcs ../../libroot/lib/libbrotlidec.a $(OBJ_DEC)

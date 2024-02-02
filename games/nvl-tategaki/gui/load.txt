@@ -70,6 +70,11 @@ SAVESLOT1 {
     # クリックされたときの効果音
     clickse: click.ogg;
 
+    # クリア用の色(背景色を設定しないと擬似的なフォントのふちどりが生じる)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
     # 読み上げテキスト
     alt: このボタンを押すとセーブスロット1からロードします。;
 }
@@ -96,6 +101,11 @@ SAVESLOT2 {
 
     # クリックされたときの効果音
     clickse: click.ogg;
+
+    # クリア用の色(背景色を設定しないと擬似的なフォントのふちどりが生じる)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
 
     # 読み上げテキスト
     alt: このボタンを押すとセーブスロット2からロードします。;
@@ -124,6 +134,11 @@ SAVESLOT3 {
     # クリックされたときの効果音
     clickse: click.ogg;
 
+    # クリア用の色(背景色を設定しないと擬似的なフォントのふちどりが生じる)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
     # 読み上げテキスト
     alt: このボタンを押すとセーブスロット3からロードします。;
 }
@@ -137,10 +152,10 @@ PAGE1 {
     index: 0;
 
     # 座標とサイズ
-    x: 1171;
-    y: 319;
-    width: 74;
-    height: 75;
+    x: 1164;
+    y: 330;
+    width: 88;
+    height: 88;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -161,10 +176,10 @@ PAGE2 {
     index: 1;
 
     # 座標とサイズ
-    x: 1171;
-    y: 412;
-    width: 74;
-    height: 75;
+    x: 1164;
+    y: 423;
+    width: 88;
+    height: 88;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;
@@ -185,10 +200,10 @@ PAGE3 {
     index: 2;
 
     # 座標とサイズ
-    x: 1171;
-    y: 508;
-    width: 74;
-    height: 75;
+    x: 1164;
+    y: 517;
+    width: 88;
+    height: 88;
 
     # ポイントされたときの効果音
     pointse: btn-change.ogg;

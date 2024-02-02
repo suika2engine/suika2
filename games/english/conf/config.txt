@@ -390,8 +390,9 @@ save.data.thumb.height=120
 ###
 
 # Use SysMenu?
-#  0: Yes
-#  1: No
+#  - 0: Show
+#  - 1: Hide except @choose
+#  - 2: Hide always
 sysmenu.hidden=0
 
 # The position of the Collapsed SysMenu.
@@ -566,6 +567,7 @@ gui.save.font.size=30
 # Ruby font size for save items (Optional)
 gui.save.font.ruby.size=16
 
+# History font selection
 gui.history.font.select=0
 gui.history.font.outline=0
 
@@ -591,6 +593,11 @@ gui.history.font.color.b=255
 gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
+
+# Ignore line-feeds in history
+#  - 0: Appply line-feeds
+#  - 1: Ignore line-feeds
+gui.history.oneline=0
 
 ###
 ### Initial Sound Volumes

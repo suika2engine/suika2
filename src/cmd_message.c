@@ -1051,13 +1051,8 @@ static char *concat_serif(const char *name, const char *serif)
 
 	/* 日本語ロケールかどうかでセリフの囲いを分ける */
 	if (conf_locale == LOCALE_JA || conf_serif_quote) {
-		if (!conf_msgbox_tategaki) {
-			prefix = U8("「");
-			suffix = U8("」");
-		} else {
-			prefix = U8("﹁");
-			suffix = U8("﹂");
-		}
+		prefix = U8("「");
+		suffix = U8("」");
 	} else {
 		prefix = ": ";
 		suffix = "";
@@ -2653,23 +2648,12 @@ static void set_click(void)
 
 		/* 表示位置を設定する */
 		if (conf_click_move) {
+			int cur_pen_x, cur_pen_y;
 			set_click_index(0);
 			get_click_rect(&click_x, &click_y, &click_w, &click_h);
-			if (!conf_msgbox_tategaki) {
-				if (pen_x + click_w  >= msgbox_w -
-				    conf_msgbox_margin_right) {
-					pen_y += conf_msgbox_margin_line;
-					pen_x = conf_msgbox_margin_left;
-				}
-			} else {
-				if (pen_y + click_h  >= msgbox_h -
-				    conf_msgbox_margin_bottom) {
-					pen_x -= conf_msgbox_margin_line;
-					pen_y = conf_msgbox_margin_top;
-				}
-			}
-			set_click_position(pen_x + conf_msgbox_x,
-					   pen_y + conf_msgbox_y);
+			get_pen_position_common(&msgbox_context, &cur_pen_x, &cur_pen_y);
+			set_click_position(cur_pen_x + conf_msgbox_x,
+					   cur_pen_y + conf_msgbox_y);
 		} else {
 			set_click_position(conf_click_x, conf_click_y);
 		}
@@ -3028,6 +3012,12 @@ static void speak(void)
 
 static void stop(void)
 {
+	if (did_quick_load || need_save_mode || need_load_mode ||
+	    need_history_mode || need_config_mode || need_custom_gosub) {
+		stop_command_repetition();
+		return;
+	}
+
 	if (conf_msgbox_dim)
 		need_dimming = true;
 	else

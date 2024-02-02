@@ -42,6 +42,7 @@
 #include <commctrl.h>		/* TOOLINFO */
 #include <richedit.h>		/* RichEdit */
 #include "resource.h"
+#define WM_DPICHANGED       0x02E0 /* Vista */
 
 /* msvcrt  */
 #include <io.h>				/* _access() */
@@ -180,9 +181,13 @@ static int nLastClientWidth, nLastClientHeight, nLastDpi;
 /* RunFrame()が描画してよいか */
 static BOOL bRunFrameAllow;
 
-/* フルスクリーンモード時の描画オフセット */
-static int nOffsetX;
-static int nOffsetY;
+/* ビューポート */
+static int nViewportOffsetX;
+static int nViewportOffsetY;
+static int nViewportWidth;
+static int nViewportHeight;
+
+/* マウス座標計算用の画面拡大率 */
 static float fMouseScale;
 
 /* DirectShowでビデオを再生中か */
@@ -829,7 +834,7 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 	LoadLibrary(L"Msftedit.dll");
 	hWndRichEdit = CreateWindowEx(
 		0,
-		MSFTEDIT_CLASS,
+		MSFTEDIT_CLASS, /* RichEdit50W */
 		L"Script",
 		ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
 		MulDiv(10, nDpi, 96),
@@ -840,6 +845,22 @@ static BOOL InitEditorPanel(HINSTANCE hInstance)
 		(HMENU)ID_RICHEDIT,
 		hInstance,
 		NULL);
+	if (hWndRichEdit == NULL)
+	{
+		hWndRichEdit = CreateWindowEx(
+			0,
+			RICHEDIT_CLASS, /* RichEdit30W */
+			L"Script",
+			ES_MULTILINE | WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOVSCROLL,
+			MulDiv(10, nDpi, 96),
+			MulDiv(100, nDpi, 96),
+			MulDiv(420, nDpi, 96),
+			MulDiv(400, nDpi, 96),
+			hWndEditor,
+			(HMENU)ID_RICHEDIT,
+			hInstance,
+			NULL);
+	}
 	GetClassName(hWndRichEdit, wszCls, sizeof(wszCls) / sizeof(wchar_t));
 	if (wcscmp(wszCls, L"RICHEDIT50W") == 0)
 	{
@@ -980,7 +1001,7 @@ static VOID InitMenu(HWND hWnd)
 
 	/* 英語アドベンチャーを作成する */
 	mi.fMask = MIIM_TYPE | MIIM_ID;
-	mi.wID = ID_NEW_PROJECT_NVLEN;
+	mi.wID = ID_NEW_PROJECT_ADVEN;
 	mi.dwTypeData = bEnglish ? L"English ADV" : L"英語アドベンチャー";
 	InsertMenuItem(hMenuProject, nOrder++, TRUE, &mi);
 
@@ -1738,8 +1759,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_press(MOUSE_LEFT,
-								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								 (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								 (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1747,8 +1768,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_release(MOUSE_LEFT,
-								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								   (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								   (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1756,8 +1777,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_press(MOUSE_RIGHT,
-								 (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								 (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								 (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								 (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1765,8 +1786,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
 			on_event_mouse_release(MOUSE_RIGHT,
-								   (int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								   (int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+								   (int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								   (int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -1804,8 +1825,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_MOUSEMOVE:
 		if (hWnd != NULL && hWnd == hWndRender)
 		{
-			on_event_mouse_move((int)((float)(LOWORD(lParam) - nOffsetX) / fMouseScale),
-								(int)((float)(HIWORD(lParam) - nOffsetY) / fMouseScale));
+			on_event_mouse_move((int)((float)(LOWORD(lParam) - nViewportOffsetX) / fMouseScale),
+								(int)((float)(HIWORD(lParam) - nViewportOffsetY) / fMouseScale));
 			return 0;
 		}
 		break;
@@ -2341,14 +2362,18 @@ static void Layout(int nClientWidth, int nClientHeight)
     }
 
 	/* Calc the viewport origin. */
-	nOffsetX = (int)((((float)nRenderWidth - fRenderWidth) / 2.0f) + 0.5);
-	nOffsetY = (int)((((float)nClientHeight - fRenderHeight) / 2.0f) + 0.5);
+	nViewportOffsetX = (int)((((float)nRenderWidth - fRenderWidth) / 2.0f) + 0.5);
+	nViewportOffsetY = (int)((((float)nClientHeight - fRenderHeight) / 2.0f) + 0.5);
+
+	/* Save the viewport size. */
+	nViewportWidth = nRenderWidth;
+	nViewportHeight = (int)fRenderHeight;
 
 	/* Move the rendering panel. */
 	MoveWindow(hWndRender, 0, 0, nRenderWidth, nClientHeight, TRUE);
 
 	/* Update the screen offset and scale for drawing subsystem. */
-	D3DResizeWindow(nOffsetX, nOffsetY, fMouseScale);
+	D3DResizeWindow(nViewportOffsetX, nViewportOffsetY, fMouseScale);
 
 	/* エディタのコントロールをサイズ変更する */
 	MoveWindow(hWndRichEdit,
@@ -2645,7 +2670,7 @@ bool play_video(const char *fname, bool is_skippable)
 	bDShowSkippable = is_skippable;
 
 	/* ビデオの再生を開始する */
-	BOOL ret = DShowPlayVideo(hWndMain, path);
+	BOOL ret = DShowPlayVideo(hWndRender, path, nViewportOffsetX, nViewportOffsetY, nViewportWidth, nViewportHeight);
 	if(!ret)
 		bDShowMode = FALSE;
 
@@ -3558,7 +3583,8 @@ static VOID RichEdit_SetTextByScriptModel(void)
 	for (i = 0; i < get_line_count(); i++)
 	{
 		const char *pUtf8Line = get_line_string_at_line_num(i);
-		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CR */
+//		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CR */
+		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CRLF */
 	}
 
 	/* スクリプトを格納するメモリを確保する */
@@ -3575,7 +3601,8 @@ static VOID RichEdit_SetTextByScriptModel(void)
 	{
 		const char *pUtf8Line = get_line_string_at_line_num(i);
 		wcscat(pWcs, conv_utf8_to_utf16(pUtf8Line));
-		wcscat(pWcs, L"\r");
+//		wcscat(pWcs, L"\r");
+		wcscat(pWcs, L"\r\n");
 	}
 
 	/* リッチエディットにテキストを設定する */

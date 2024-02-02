@@ -520,15 +520,6 @@ static void setStoppedState(void);
     }
 }
 
-- (void)onScriptShiftEnter {
-}
-
-- (void)onScriptRangedChange {
-}
-
-- (void)onScriptChange {
-}
-
 - (int)scriptCursorLine {
     NSString *text = _textViewScript.text;
     NSArray *lines = [text componentsSeparatedByString:@"\n"];
@@ -604,10 +595,12 @@ static void setStoppedState(void);
 
 - (IBAction)onUpdateButton:(id)sender {
     [self updateScriptModelFromText];
-
+    
     self.changedExecLine = [self scriptCursorLine];
     self.isExecLineChanged = YES;
     self.isNextPressed = YES;
+
+    save_script();
 }
 
 @end

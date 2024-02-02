@@ -38,9 +38,10 @@ bool wms_command(void)
 	 * TODO:
 	 * 別途作成するリピートフラグが立っていればset_command_repetition()を呼ぶ。
 	 * その場合、ここでリターンする。
+	 * 現状では、command repetitionは実行されないこととする。
 	 */
-
 	assert(!is_in_command_repetition());
+
 	if (!cleanup())
 		return false;
 
@@ -98,8 +99,6 @@ static bool run(void)
 		return false;
 	}
 
-	/* 描画を行う */
-	render_stage();
 	return true;
 }
 

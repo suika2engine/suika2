@@ -17,16 +17,19 @@ function apply_template_english ()
 }
 
 apply_template_japanese index.html
-apply_template_japanese award2023.html
 apply_template_japanese dl/index.html
+
+apply_template_english en/index.html
+apply_template_english en/dl/index.html
+
+apply_template_japanese award2023.html
+apply_template_japanese award2024.html
 apply_template_japanese doc/index.html
 apply_template_japanese doc/font.html
 apply_template_japanese doc/scriptgen.html
 apply_template_japanese works/index.html
 apply_template_japanese wiki/skin/pukiwiki.skin.php
 
-apply_template_english en/index.html
-apply_template_english en/dl/index.html
 apply_template_english en/doc/index.html
 apply_template_english en/doc/font.html
 apply_template_english en/doc/title.html

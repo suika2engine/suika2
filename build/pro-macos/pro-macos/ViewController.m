@@ -345,10 +345,8 @@ static ViewController *theViewController;
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     [panel setCanChooseDirectories:YES];
     [panel setCanCreateDirectories:YES];
-    if ([panel runModal] != NSModalResponseOK) {
-        [NSApp stop:nil];
+    if ([panel runModal] != NSModalResponseOK)
         return NO;
-    }
 
     // Create a project file.
     NSString *path = [[panel directoryURL] path];
@@ -468,17 +466,17 @@ static ViewController *theViewController;
     // プレーヤーのレイヤーを作成する
     [self.view setWantsLayer:YES];
     _avPlayerLayer = [AVPlayerLayer playerLayerWithPlayer:_avPlayer];
-    [_avPlayerLayer setFrame:theViewController.view.bounds];
-    [self.view.layer addSublayer:_avPlayerLayer];
-
-    // 再生を開始する
-    [_avPlayer play];
+    [_avPlayerLayer setFrame:_renderView.bounds];
+    [_renderView.layer addSublayer:_avPlayerLayer];
 
     // 再生終了の通知を送るようにする
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(onPlayEnd:)
                                                name:AVPlayerItemDidPlayToEndTimeNotification
                                              object:playerItem];
+
+    // 再生を開始する
+    [_avPlayer play];
 
     _isVideoPlaying = YES;
 }
