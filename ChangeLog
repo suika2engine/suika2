@@ -5,14 +5,20 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/15.123 2024/2/1
+<li>Suika2/15.124 2024/2/3
   <ul>
-    <li>Windows XPでも動くように修正 (Thanks to Verónica!)
-    <li>Webエクスポート時にウィンドウタイトルを変更できないバグを修正 (Thanks to Ronron-san!)
+    <li>iPhoneエクスポート後にビルドできないエラーを修正</li>
+    <li>iPhoneで動画再生できない問題はもうすぐ解決するのでお待ちください</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
 
+<li>Suika2/15.123 2024/2/1
+  <ul>
+    <li>Windows XPでも動くように修正 (Thanks to Verónica!)</li>
+    <li>Webエクスポート時にウィンドウタイトルを変更できないバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.122 2024/1/30
   <ul>
     <li>拡張switchや拡張ifが複数あるときにジャンプ先が間違っているバグを修正 (Thanks to ソロー=san!)</li>
@@ -1127,14 +1133,20 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.124 2024/2/3
+  <ul>
+    <li>Fixed a compilation error on exported source tree for iPhone</li>
+    <li>Currently we have a problem playing back videos on iPhone</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.123 2024/2/1
   <ul>
     <li>Workaround for Windows XP (Thanks to Verónica!)
     <li>Fixed a bug where a Web-exported game cannot change a window title (Thanks to Ronron-san!)
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.122 2024/1/30
   <ul>
     <li>Fixed a bug where jump destinations are wrong on the extended switch/if syntaxes (Thanks to ソロー=san!)</li>

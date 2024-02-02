@@ -71,6 +71,7 @@ html: emsdk $(SRC) shell.html
 		-DUSE_OPENGL \
 		-DUSE_DEBUGGER \
 		-DUSE_EDITOR \
+		-DNO_WEBP \
 		-s USE_ZLIB=1 \
 		-s USE_LIBPNG=1 \
 		-s USE_OGG=1 \

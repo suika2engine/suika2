@@ -156,7 +156,7 @@ static ViewController *theViewController;
                                              object:playerItem];
 
     // 再生を開始する
-    BOOL ret = [_avPlayer play];
+    [_avPlayer play];
 
     _isVideoPlaying = YES;
 }
