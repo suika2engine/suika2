@@ -5,14 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.125 2024/2/3
+  <ul>
+    <li>pro-ios: fix</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/15.124 2024/2/3
   <ul>
     <li>iPhoneエクスポート後にビルドできないエラーを修正</li>
     <li>iPhoneで動画再生できない問題はもうすぐ解決するのでお待ちください</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.123 2024/2/1
   <ul>
     <li>Windows XPでも動くように修正 (Thanks to Verónica!)</li>
@@ -1133,14 +1138,19 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.125 2024/2/3
+  <ul>
+    <li>pro-ios: fix</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.124 2024/2/3
   <ul>
     <li>Fixed a compilation error on exported source tree for iPhone</li>
     <li>Currently we have a problem playing back videos on iPhone</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.123 2024/2/1
   <ul>
     <li>Workaround for Windows XP (Thanks to Verónica!)
