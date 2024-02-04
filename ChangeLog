@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.126 2024/2/4
+  <ul>
+    <li>ボイス連番: ボイスファイル名で$0のような変数名に対応、変数は1ずつ増加 (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/15.125 2024/2/3
   <ul>
     <li>pro-ios: fix</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.124 2024/2/3
   <ul>
     <li>iPhoneエクスポート後にビルドできないエラーを修正</li>
@@ -1138,13 +1143,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.126 2024/2/4
+  <ul>
+    <li>Sequential Voice: Supported variables in voice file names, variables are auto-incremented (Thanks to Mirin-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.125 2024/2/3
   <ul>
     <li>pro-ios: fix</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.124 2024/2/3
   <ul>
     <li>Fixed a compilation error on exported source tree for iPhone</li>

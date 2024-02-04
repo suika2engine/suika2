@@ -221,10 +221,18 @@ void truncate_name_variable(int index)
  */
 const char *expand_variable(const char *msg)
 {
+	return expand_variable_with_increment(msg, 0);
+}
+
+/*
+ * 文字列の中の変数を展開して返す(変数のインクリメントも行う)
+ */
+const char *expand_variable_with_increment(const char *msg, int inc)
+{
 	char var[16];
 	char *d;
 	size_t buf_size;
-	int i, index, name_index;
+	int i, index, name_index, value;
 
 	d = expand_variable_buf;
 	buf_size = sizeof(expand_variable_buf);
@@ -252,12 +260,14 @@ const char *expand_variable(const char *msg)
 			if (i > 0) {
 				index = atoi(var);
 				if (index >= 0 && index < VAR_SIZE) {
+					value = get_variable(index);
 					d += snprintf(d,
 						      buf_size -
 						      (size_t)(d -
 							       expand_variable_buf),
 						      "%d",
-						      get_variable(index));
+						      value);
+					set_variable(index, value + inc);
 				}
 			} else {
 				/* 不正な変数番号の場合、$を出力する */
