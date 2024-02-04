@@ -26,14 +26,16 @@ The author thinks as a researcher of software engineering that VLS is one shape 
 * Mission
   * **Simple:** Suika2 enables the creation of Visual Novels in an easy and efficient manner.
   * **Fast:** Apps are constructed using native technologies only, ensuring resource efficiency on mobile devices.
-  * **Free:** Suika2 is an OSS project and free for anyone without any hidden costs while it respects intellectual properties of others.
+  * **Free:** We are an open source project and we make our technology public as pro-bono-publico with respects for intellectual properties of others.
+
 * Vision
   * **Earning:** Game developers can publish their games on stores and earn income.
   * **Prosperity:** Our aim is to create a world where anyone can make a living with just a single computer including mobile devices.
+  * **Talent**: Bringing people with talents but difficulties into the world (Giftedness support)
 * Values
+  * **Information:** We hold the belief that the creation and generation of information including story writing is humanity's true value.
   * **Market:** We shall complete the market launch of game subscriptions with world leading platform partners.
-  * **Cultural:** We hold the belief that the creation and generation of information including story writing is humanity's true value.
-  * **Diverse:** Develop, distribute, and publish on all platforms - Suika2 seeks the true portability and we call it diversity.
+  * **Diversity:** Develop, distribute, and publish on all platforms - Suika2 seeks the true portability and we call it diversity.
 
 ## Downloads
 
