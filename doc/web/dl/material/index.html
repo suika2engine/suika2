@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <link rel="stylesheet" href="/css/adjustments.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+
+  <!-- HTML Card -->
+  <title>Suika2 | 素材ダウンロード</title>
+  <meta name="description" content="Suika2はノベルアプリを制作するためのツールです。">
+  <meta name="theme-color" content="#eb8334">
+
+	<!-- INSERT-GTAG-HERE -->
+</head>
+<body>
+
+<!-- BEGIN-HEADER -->
+<nav class="navbar navbar-expand-lg bg-dark nav-block" data-bs-theme="dark">
+	<div class="container">
+		<a class="navbar-brand d-none d-md-block" href="/"><img height="100" src="/img/icons/suika.png" alt="suika2"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item"><a class="nav-link" href="/">ホーム</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ダウンロード
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/dl/">アプリ</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/dl/material/">素材</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ドキュメント
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">ドキュメントトップ</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">初級者向け: 最初のチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">中級者向け: GUIのチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">上級者向け: WMSのチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">全開発者向け: コマンド一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%B3%E3%83%95%E3%82%A3%E3%82%B0%E4%B8%80%E8%A6%A7">全開発者向け: コンフィグ一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E8%B3%AA%E5%95%8F">よくある質問</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?cmd=search">ドキュメントを検索...</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						開発
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%90%E3%82%B0%E5%A0%B1%E5%91%8A%E3%81%AE%E4%B8%80%E8%A6%A7">バグ報告の一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E6%A9%9F%E8%83%BD%E8%A6%81%E6%9C%9B%E3%81%AE%E4%B8%80%E8%A6%A7">機能要望の一覧</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"><a class="nav-link" href="/works/">利用作品</a></li>
+				<li class="nav-item"><a class="nav-link" href="/en/">English</a></li>
+				<li class="nav-item dropdown d-block d-md-none">
+					<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+						<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+					</ul>
+				</li>
+			</ul>
+			<li class="nav-item dropdown d-none d-md-block">
+				<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
+				<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">Light</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">Dark</button></li>
+					<li><button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">Auto</button></li>
+				</ul>
+			</li>
+		</div>
+	</div>
+</nav>
+<!-- END-HEADER -->
+
+<!-- Title -->
+<div class="block">
+	<div class="container">
+		<div class="row">
+			<div class="col-md">
+				<h1>Suika2 素材ダウンロード</h1>
+				<p>Suika2で利用できる素材のダウンロードページです。</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- BEGIN-CONTENT -->
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+<!-- ----------- -->
+
+<!-- ------------------------- -->
+
+<div class="download">
+
+	<!-- Tabs -->
+	<ul class="nav nav-pills" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="gui-tab" data-bs-toggle="tab" data-bs-target="#gui-tab-pane" type="button" role="tab" aria-controls="gui-tab-pane" aria-selected="true">GUI</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="name-tab" data-bs-toggle="tab" data-bs-target="#name-tab-pane" type="button" role="tab" aria-controls="name-tab-pane" aria-selected="false">名前入力</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="effect-tab" data-bs-toggle="tab" data-bs-target="#effect-tab-pane" type="button" role="tab" aria-controls="effect-tab-pane" aria-selected="false">エフェクト</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="direction-tab" data-bs-toggle="tab" data-bs-target="#direction-tab-pane" type="button" role="tab" aria-controls="direction-tab-pane" aria-selected="false">演出</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="sound-tab" data-bs-toggle="tab" data-bs-target="#sound-tab-pane" type="button" role="tab" aria-controls="sound-tab-pane" aria-selected="false">サウンド</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="chara-tab" data-bs-toggle="tab" data-bs-target="#chara-tab-pane" type="button" role="tab" aria-controls="chara-tab-pane" aria-selected="false">キャラ</button>
+		</li>
+	</ul>
+
+	<!-- Contents of Tabs -->
+	<div class="tab-content" id="myTabContent">
+
+		<!-- GUI -->
+		<div class="tab-pane fade show active" id="gui-tab-pane" role="tabpanel" aria-labelledby="gui-tab" tabindex="0">
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="/run/sample/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/config-gui.png" alt="Suika2 GUI">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>コンプリート版サンプルゲームとPhotoshop素材</h3>
+				<p>
+					<img src="/img/icons/zip.png" width="48"><br>
+					<a href="/dl/material/complete-demo.zip">コンプリート版デモ</a><br>
+					<a href="/dl/material/gui-psd.zip">システムGUI (By MaxMorgan)</a><br>
+					<a href="/dl/material/gui-menu-psd.zip">タイトル画面のGUI (By heath)</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/wafuu-ui/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/wafuu.png" alt="Suika2 和風UI デモ">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>和風システムグラフィック</h3>
+				<p>
+					大塚旭さんご提供の和風GUIです。<br>
+					<a href="/dl/material/wafuu.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/wafuu-blue-ui/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/wafuu-blue.png" alt="Suika2 和風UI(青) デモ">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>和風(青)システムグラフィック</h3>
+				<p>
+					大塚旭さんご提供の和風(青)GUIです。<br>
+					<a href="/dl/material/wafuu-blue.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/mori-demo/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/mori.png" alt="Suika2 森デモ">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>『森』のUI素材</h3>
+				<p>
+					ソローさんご提供の『森の中で』のGUI素材	<a href="https://plicy.net/GamePlay/156139">作品はこちら</a><br>
+					<a href="/dl/material/mori_demo.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+					<a href="/dl/material/mori_gui_psd.zip">Photoshopデータ ダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<img style="width: 50%; height: 50%;" src="/img/screenshots/ronron-ui-1.png">
+				<br>
+				<h3>縦UIテンプレート</h3>
+				<p>
+					Ronronさんご提供の縦GUIテンプレートです。<br>
+					<a href="/dl/material/916-ronron-V002.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://plicy.net/GamePlay/160965" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/nikki.png" alt="Suika2 日記デモ">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>『美しい断首』の日記機能サンプル [ウビーニさんご提供]</h3>
+				<p>
+					<a href="/dl/material/diarysamplesuika2-13.31utukusiidansyu.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<img src="/img/screenshots/miryokuteki-click.png">
+				<br>
+				<h3>クリックアイコン</h3>
+				<p>
+					三力滴さんご提供のクリックアイコンです。<br>
+					<a href="/dl/material/miryokuteki-click.zip"><img src="/img/icons/zip.png" width="48"> ZIPダウンロード</a>
+				</p>
+			</div>
+
+		</div>
+		<!-- End of GUI -->
+
+		<!-- Name Input -->
+		<div class="tab-pane fade" id="name-tab-pane" role="tabpanel" aria-labelledby="name-tab" tabindex="0">
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/name2/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/name2.png" alt="Suika2 名前入力サンプル2画面">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>名前入力のフリー素材/サンプル [Type2 - あさつきさん作, フリー利用可能]</h3>
+				<p>
+					<a href="/dl/sample/name-demo-type2.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/name1/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/name1.png" alt="Suika2 名前入力サンプル画面">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>名前入力のフリー素材/サンプル [Type1 - ubi_2/aramasi0.9さん作, フリー利用可能]</h3>
+				<p>
+					<a href="/dl/sample/name-demo-type1.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+		</div>
+		<!-- End of Name Input -->
+
+		<!-- Effect -->
+		<div class="tab-pane fade" id="effect-tab-pane" role="tabpanel" aria-labelledby="effect-tab" tabindex="0">
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/sorow-rain/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/sorow-rain2.png" alt="Suika2 雨デモ">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>『雨』エフェクト</h3>
+				<p>
+					ソローさんご提供の雨エフェクトです<br>
+					<a href="/dl/material/sorow-rain.zip"><img src="/img/icons/zip.png" width="48"> プラグイン ZIPダウンロード</a>
+					<a href="/dl/material/sorow-rain-SampleGame.zip"><img src="/img/icons/zip.png" width="48"> サンプルゲーム ダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/lauan-effect-1/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/lauan-effect-1.png" alt="Suika2 エフェクト集">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>エフェクト詰め合わせ1</h3>
+				<p>
+					ラワン材さんご提供のエフェクト詰め合わせです<br>
+					<a href="/dl/material/lauan-effect-1.zip"><img src="/img/icons/zip.png" width="48"> サンプルゲーム ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<figure>
+					<figcaption>サンプル:</figcaption>
+					<video controls src="/dl/kirakira-effect-ronron-v2.mp4" width="50%"></video>
+				</figure>
+				<h3>キラキラエフェクトの素材</h3>
+				<p>
+					Ronronさんご提供のキラキラエフェクトです。
+				</p>
+				<a href="/dl/material/kirakira-effect-ronron-v2.zip"><img src="/img/icons/zip.png" width="48"> ZIPダウンロード</a><br>
+			</div>
+
+		</div>
+		<!-- End of Effect -->
+
+		<!-- Directtion -->
+		<div class="tab-pane fade" id="direction-tab-pane" role="tabpanel" aria-labelledby="direction-tab" tabindex="0">
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/animation/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/cha.png" alt="Suika2 キャラ簡易アニメ サンプル画面">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>キャラを動かす簡易アニメ演出のサンプル</h3>
+				<p>
+					<a href="/dl/sample/animation.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<img style="width: 50%; height: 50%;" src="/img/screenshots/micchi.png" alt="ミッチーにおまかせ">
+				</div>
+				<h3>『ミッチーにおまかせ』(マイマイさん)</h3>
+				<p>
+					11系列までの全演出の利用例で、スクリプトの中身が公開されています<br>
+					Suika2の初期版から最新版まで対応してきた唯一のゲームです。<br>
+					<a href="/dl/material/micchi-15.40.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a><br>
+					<a href="/dl/sample/name-demo-type3.zip"><img src="/img/icons/zip.png" width="48"> 名前入力のみのサンプル [Type3]</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://suika2.com/run/gallery/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/gallery.png" alt="Suika2 CG鑑賞モードサンプル画面">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームを実行</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>CG鑑賞モードのサンプル</h3>
+				<p>
+					つまりクリッカブルマップです。<br>
+					場所移動やストーリーのフローチャートを実現できます。<br>
+					<a href="/dl/sample/gallery-demo.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a>
+				</p>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<h3>エンディングスタッフロールサンプル</h3>
+				<p>
+					松野さんご提供のスタッフロールサンプルです。
+				</p>
+				<a href="/dl/material/staff-roll.zip"><img src="/img/icons/zip.png" width="48"> ZIPダウンロード</a><br>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<h3>マクロの利用例</h3>
+				<p>
+					マクロを作成するサンプルです。<br>
+					<a href="/dl/sample/macro-demo.zip"><img src="/img/icons/zip.png" width="48"> スクリプト ZIPダウンロード</a><br>
+				</p>
+			</div>
+
+		</div>
+		<!-- End of Direction -->
+
+		<!-- Sound -->
+		<div class="tab-pane fade" id="sound-tab-pane" role="tabpanel" aria-labelledby="sound-tab" tabindex="0">
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="/run/beep/" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/beep.png" alt="制作：クロウズの嫁つるさん">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームへ移動</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>ボイスビープ音</h3>
+				<p>
+					レトロゲームでボイスに使われているようなビープ音です。マイミアマイマイ様提供。<br>
+					各音程の用意があり、レトロゲーム風にできます。<br>
+					<a href="/dl/material/VOICE_BEEP_SET_2.1.zip"><img src="/img/icons/zip.png" width="64"> ボイスビープ音のダウンロード</a><br>
+					サンプルゲームの制作はクロウズの嫁つるさん
+				</p>
+				<figure>
+					<figcaption>サンプルビープ音:</figcaption>
+					<audio controls src="/dl/music/maimai/beep-sample.mp3"></audio>
+				</figure>
+			</div>
+
+			<hr>
+			<br>
+
+			<div style="text-align: center;">
+				<div style="width: 100%; text-align: center;">
+					<a href="https://www.freem.ne.jp/win/game/31531" target="_blank">
+						<div class="game">
+							<img style="width: 50%; height: 50%;" src="/img/screenshots/callcenter.png" alt="コールセンターの鈴木さんとVtuberの佐藤さん">
+							<div class="game-mask">
+								<div class="caption">クリックでゲームへ移動</div>
+							</div>
+						</div>
+					</a>
+				</div>
+				<br>
+				<h3>『コールセンターの鈴木さんとVtuberの佐藤さん BGM集』</h3>
+				<p>
+					鏡読みさんご提供のBGM素材です。<a href="https://www.freem.ne.jp/dl/win/31531">作品はこちらです</a>
+				</p>
+				<a href="/dl/material/VtuberBGM.zip"><img src="/img/icons/zip.png" width="48"> ZIPダウンロード</a><br>
+				<figure><figcaption>サンプル</figcaption><audio controls src="/dl/music/vtuber/001.mp3"></audio></figure>
+			</div>
+		</div>
+		<!-- End of Sound -->
+
+		<!-- Chara -->
+		<div class="tab-pane fade" id="chara-tab-pane" role="tabpanel" aria-labelledby="chara-tab" tabindex="0">
+			<br>
+
+			<img style="width: 50%; height: 50%;" src="/img/screenshots/sorow-chara.png" alt="ソローさんのキャラ素材">
+			<h3>キャラ</h3>
+			<p>
+				ソローさんご提供のキャラ素材です。
+			</p>
+			<a href="/dl/material/sorow_charasozai.zip"><img src="/img/icons/zip.png" width="48"> ZIPダウンロード</a><br>
+
+		</div>
+		<!-- End of Chara -->
+
+	</div>
+	<!-- End of Contents-of-tabs -->
+</div>
+<!-- End of class="downloads" -->
+
+<!-- ----------- -->
+
+    </div>
+  </div>
+</div>
+<!-- END-CONTENT -->
+
+<!-- BEGIN-FOOTER -->
+<footer id="footer" class="container-fluid nav-block bg-dark" data-bs-theme="dark">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>ノベルアプリ開発ツール Suika2</h5>
+				<p>Suika2はノベルアプリを制作するためのツールです。</p>
+			</div>
+			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+				<h5>リンク</h5>
+				<ul class="list-unstyled mb-0">
+					<li><a href="https://github.com/suika2engine/suika2">GitHub</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="text-center mt-5 ">
+		Copyright &copy; 2001-2024, Keiichi Tabata. All rights reserved.
+	</div>
+</footer>
+<script src="/js/darkmode.js"></script>
+<!-- END-FOOTER -->
+
+</body>
+</html>

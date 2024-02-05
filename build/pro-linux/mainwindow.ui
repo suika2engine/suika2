@@ -25,7 +25,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>940</width>
+      <width>840</width>
       <height>720</height>
      </rect>
     </property>
@@ -41,7 +41,7 @@
      <rect>
       <x>945</x>
       <y>0</y>
-      <width>340</width>
+      <width>440</width>
       <height>720</height>
      </rect>
     </property>
@@ -77,10 +77,23 @@
       <string>Next</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="moveButton">
+     <property name="geometry">
+      <rect>
+       <x>215</x>
+       <y>0</y>
+       <width>100</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Move</string>
+     </property>
+    </widget>
     <widget class="QPushButton" name="stopButton">
      <property name="geometry">
       <rect>
-       <x>225</x>
+       <x>330</x>
        <y>0</y>
        <width>100</width>
        <height>32</height>
@@ -90,160 +103,36 @@
       <string>Stop</string>
      </property>
     </widget>
-    <widget class="QLabel" name="fileNameLabel">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>40</y>
-       <width>321</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Script file name:</string>
-     </property>
-    </widget>
     <widget class="QLineEdit" name="fileNameTextEdit">
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>60</y>
-       <width>191</width>
-       <height>21</height>
+       <y>40</y>
+       <width>190</width>
+       <height>32</height>
       </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lineNumberLabel">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>90</y>
-       <width>321</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Script line number:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineNumberEdit">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>110</y>
-       <width>101</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="updateScriptButton">
-     <property name="geometry">
-      <rect>
-       <x>205</x>
-       <y>60</y>
-       <width>80</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Update</string>
      </property>
     </widget>
     <widget class="QPushButton" name="openScriptButton">
      <property name="geometry">
       <rect>
-       <x>295</x>
-       <y>60</y>
-       <width>31</width>
-       <height>24</height>
+       <x>205</x>
+       <y>40</y>
+       <width>30</width>
+       <height>32</height>
       </rect>
      </property>
      <property name="text">
       <string>...</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="updateLineNumberButton">
-     <property name="geometry">
-      <rect>
-       <x>115</x>
-       <y>110</y>
-       <width>80</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Update</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="commandLabel">
+    <widget class="QTextEdit" name="scriptView">
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>140</y>
-       <width>321</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Script command to be executed:</string>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="commandEdit">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>160</y>
-       <width>241</width>
-       <height>70</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="updateCommandButton">
-     <property name="geometry">
-      <rect>
-       <x>255</x>
-       <y>160</y>
-       <width>70</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Update</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="resetCommandButton">
-     <property name="geometry">
-      <rect>
-       <x>255</x>
-       <y>190</y>
-       <width>70</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Reset</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="scriptContentLabel">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>240</y>
-       <width>321</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Script content:</string>
-     </property>
-    </widget>
-    <widget class="QListView" name="scriptListView">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>260</y>
-       <width>321</width>
-       <height>261</height>
+       <y>55</y>
+       <width>430</width>
+       <height>260</height>
       </rect>
      </property>
      <property name="verticalScrollBarPolicy">
@@ -257,7 +146,7 @@
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>530</y>
+       <y>330</y>
        <width>80</width>
        <height>24</height>
       </rect>
@@ -266,37 +155,11 @@
       <string>Search error</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="overwriteButton">
-     <property name="geometry">
-      <rect>
-       <x>155</x>
-       <y>530</y>
-       <width>80</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Overwrite</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="reloadButton">
-     <property name="geometry">
-      <rect>
-       <x>245</x>
-       <y>530</y>
-       <width>80</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Reload</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="variableLabel">
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>560</y>
+       <y>370</y>
        <width>321</width>
        <height>16</height>
       </rect>
@@ -309,23 +172,23 @@
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>580</y>
-       <width>321</width>
-       <height>101</height>
+       <y>385</y>
+       <width>380</width>
+       <height>100</height>
       </rect>
      </property>
     </widget>
     <widget class="QPushButton" name="writeButton">
      <property name="geometry">
       <rect>
-       <x>245</x>
-       <y>690</y>
+       <x>395</x>
+       <y>385</y>
        <width>80</width>
        <height>24</height>
       </rect>
      </property>
      <property name="text">
-      <string>Update variables</string>
+      <string>Write Vars</string>
      </property>
     </widget>
    </widget>
@@ -343,19 +206,44 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionExport_data01_arc"/>
+    <addaction name="actionExport_for_Linux"/>
+    <addaction name="actionExport_for_Windows"/>
+    <addaction name="actionExport_for_macOS"/>
+    <addaction name="actionExport_for_iOS"/>
+    <addaction name="actionExport_for_Android"/>
     <addaction name="actionExport_for_Web"/>
+    <addaction name="actionExport_package_only"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
-  <action name="actionExport_data01_arc">
+  <action name="actionExport_for_Linux">
    <property name="text">
-    <string>Export data01.arc</string>
+    <string>Export for Linux</string>
    </property>
   </action>
-  <action name="actionExport_for_Web">
+  <action name="actionExport_for_Windows">
    <property name="text">
-    <string>Export for Web</string>
+    <string>Export for Windows</string>
+   </property>
+  </action>
+  <action name="actionExport_for_macOS">
+   <property name="text">
+    <string>Export for macOS</string>
+   </property>
+  </action>
+  <action name="actionExport_for_iOS">
+   <property name="text">
+    <string>Export for iOS</string>
+   </property>
+  </action>
+  <action name="actionExport_for_Android">
+   <property name="text">
+    <string>Export for iOS</string>
+   </property>
+  </action>
+  <action name="actionExport_package_only">
+   <property name="text">
+    <string>Export for package only</string>
    </property>
   </action>
  </widget>

@@ -21,12 +21,13 @@ extern "C" {
 #include "package.h"
 };
 
-// HAL
+// HAL: graphics
 extern "C" {
 #include "glrender.h"
 };
-// We use ALSA by default.
-#ifndef USE_QTSOUND
+
+// HAL: sound
+#ifndef USE_QT_AUDIO
 extern "C" {
 #include "asound.h"
 };
@@ -61,10 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_isResumePressed = false;
     m_isNextPressed = false;
     m_isPausePressed = false;
-    m_isChangeScriptPressed = false;
-    m_isChangeLinePressed = false;
-    m_isCommandUpdatePressed = false;
-    m_isReloadPressed = false;
+    m_isOpenScriptPressed = false;
 
     // Determine the language to use.
     m_isEnglish = !QLocale().name().startsWith("ja");
@@ -72,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Initialize sound.
     init_asound();
 
-#ifdef USE_QTAUDIO
+#ifdef USE_QT_AUDIO
     // Setup the sound outputs.
     QAudioFormat format;
     format.setSampleFormat(QAudioFormat::Int16);
@@ -104,22 +102,12 @@ MainWindow::MainWindow(QWidget *parent)
     setStoppedState();
 
     // Set button and labels texts.
-    ui->fileNameLabel->setText(m_isEnglish ? "Script file name:" : "スクリプトファイル名:");
-    ui->lineNumberLabel->setText(m_isEnglish ? "Script line number:" : "スクリプト行番号:");
-    ui->commandLabel->setText(m_isEnglish ? "Script command to be executed:" : "実行されるコマンド行:");
-    ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
-    ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
-    ui->variableLabel->setText(m_isEnglish ? "Variables (non-initial value):" : "変数一覧(初期値0でないもの):");
     ui->continueButton->setText(m_isEnglish ? "Continue" : "続ける");
     ui->nextButton->setText(m_isEnglish ? "Next" : "次へ");
+    ui->moveButton->setText(m_isEnglish ? "Move" : "移動");
     ui->stopButton->setText(m_isEnglish ? "Stop" : "停止");
-    ui->updateScriptButton->setText(m_isEnglish ? "Update" : "更新");
-    ui->updateLineNumberButton->setText(m_isEnglish ? "Update" : "更新");
-    ui->updateCommandButton->setText(m_isEnglish ? "Update" : "更新");
-    ui->resetCommandButton->setText(m_isEnglish ? "Reset" : "リセット");
     ui->errorButton->setText(m_isEnglish ? "Search error" : "次のエラー");
-    ui->overwriteButton->setText(m_isEnglish ? "Overwrite" : "上書き保存");
-    ui->reloadButton->setText(m_isEnglish ? "Reload" : "再読み込み");
+    ui->variableLabel->setText(m_isEnglish ? "Variables (non-initial value):" : "変数一覧(初期値0でないもの):");
     ui->writeButton->setText(m_isEnglish ? "Update variables" : "変数の更新");
 }
 
@@ -134,7 +122,7 @@ void MainWindow::onTimer()
     // Do a game frame.
     ui->openGLWidget->update();
 
-#ifdef USE_QTAUDIO
+#ifdef USE_QT_AUDIO
     const int SNDBUFSIZE = 4096;
     static uint32_t soundBuf[SNDBUFSIZE];
 
@@ -182,29 +170,32 @@ void MainWindow::on_nextButton_clicked()
     m_isNextPressed = true;
 }
 
+void MainWindow::on_moveButton_clicked()
+{
+    updateScriptModelFromText();
+
+    QTextCursor cursor = ui->scriptView->textCursor();
+    cursor.movePosition(QTextCursor::StartOfLine);
+    int lines = 1;
+    while (cursor.positionInBlock()>0) {
+        cursor.movePosition(QTextCursor::Up);
+        lines++;
+    }
+    QTextBlock block = cursor.block().previous();
+    while (block.isValid()) {
+        lines += block.lineCount();
+        block = block.previous();
+    }
+
+    m_changedExecLine = lines;
+    m_isExecLineChanged = true;
+
+    save_script();
+}
+
 void MainWindow::on_stopButton_clicked()
 {
     m_isPausePressed = true;
-}
-
-void MainWindow::on_fileNameEdit_returnPressed()
-{
-    m_isChangeScriptPressed = true;
-}
-
-void MainWindow::on_lineNumberEdit_returnPressed()
-{
-    m_isChangeLinePressed = true;
-}
-
-void MainWindow::on_updateLineNumberButton_clicked()
-{
-    m_isChangeLinePressed = true;
-}
-
-void MainWindow::on_updateScriptFileButton_clicked()
-{
-    m_isChangeScriptPressed = true;
 }
 
 void MainWindow::on_openScriptFileButton_clicked()
@@ -212,22 +203,8 @@ void MainWindow::on_openScriptFileButton_clicked()
     // TODO: Open a dialog.
 }
 
-void MainWindow::on_updateCommandButton_clicked()
+void MainWindow::on_scriptView_textChanged()
 {
-    m_isCommandUpdatePressed = true;
-}
-
-void MainWindow::on_resetCommandButton_clicked()
-{
-    ui->commandEdit->setText(get_line_string());
-}
-
-void MainWindow::on_scriptListView_doubleClicked(const QModelIndex &index)
-{
-    int line = ui->scriptListView->currentIndex().row();
-    QString text = QString::number(line);
-    ui->lineNumberEdit->setText(text);
-    m_isChangeLinePressed = true;
 }
 
 void MainWindow::on_writeButton_clicked()
@@ -274,73 +251,25 @@ void MainWindow::on_writeButton_clicked()
     updateVariableText();
 }
 
-void MainWindow::on_reloadButton_clicked()
-{
-    m_isReloadPressed = true;
-}
-
-void MainWindow::on_overwriteButton_clicked()
-{
-    const char *scr = get_script_file_name();
-    if(strcmp(scr, "DEBUG") == 0)
-        return;
-
-    QMessageBox msgbox(nullptr);
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setWindowTitle("Suika2 Pro");
-    msgbox.setText(m_isEnglish ?
-                   "Are you sure you want to overwrite the script file?" :
-                   "スクリプトファイルを上書き保存します。\nよろしいですか？");
-    msgbox.addButton(QMessageBox::Yes);
-    msgbox.addButton(QMessageBox::No);
-    if (msgbox.exec() != QMessageBox::Yes)
-        return;
-    
-    char *path = make_valid_path(SCRIPT_DIR, scr);
-    FILE *fp = fopen(path, "w");
-    if (fp == NULL) {
-        free(path);
-
-        QMessageBox errmsg(nullptr);
-        errmsg.setIcon(QMessageBox::Critical);
-        errmsg.setWindowTitle("Suika2 Pro");
-        errmsg.setText(m_isEnglish ? "Cannot write to file." : "ファイルに書き込めません。");
-        errmsg.addButton(QMessageBox::Close);
-        errmsg.exec();
-        return;
-    }
-    free(path);
-
-    for (int i = 0; i < get_line_count(); i++) {
-        int body = fputs(get_line_string_at_line_num(i), fp);
-        int crlf = fputs("\n", fp);
-        if(body < 0 || crlf < 0) {
-            fclose(fp);
-            return;
-	}
-    }
-    fclose(fp);
-}
-
 void MainWindow::on_errorButton_clicked()
 {
-    int lines = get_line_count();
-    int start = ui->scriptListView->currentIndex().column();
+    QString text = ui->scriptView->toPlainText();
+    int lineCount = text.split(u8'\n').count();
+    int cursorLine = getCursorLine();
 
     // Start searching from a line at (current-selected + 1).
-    for(int i = start + 1; i < lines; i++) {
+    for(int i = cursorLine + 1; i < lineCount; i++) {
         const char *text = get_line_string_at_line_num(i);
         if(text[0] == '!') {
-            QModelIndex cellIndex = ui->scriptListView->model()->index(i, 0);
-            ui->scriptListView->setCurrentIndex(cellIndex);
+            setExecLine(i);
             return;
-	}
+        }
     }
 
     // Don't re-start search if the selected item is at index 0.
-    if(start == 0) {
+    if(cursorLine == 0) {
         // Re-start searching from index 0 to index start.
-        for(int i = 0; i <= start; i++) {
+        for(int i = 0; i <= cursorLine; i++) {
             const char *text = get_line_string_at_line_num(i);
             if(text[0] == '!') {
                 QModelIndex cellIndex = ui->scriptListView->model()->index(i, 0);
@@ -595,19 +524,15 @@ void MainWindow::setStoppedState()
 //
 void MainWindow::updateScriptView()
 {
-    QAbstractItemModel *oldModel = ui->scriptListView->model();
-    QStandardItemModel *newModel = new QStandardItemModel();
-
-    int count = get_line_count();
-    for (int lineNum = 0; lineNum < count; lineNum++) {
-        QStandardItem *item = new QStandardItem();
-        item->setText(::get_line_string_at_line_num(lineNum));
-        item->setEditable(false);
-        newModel->appendRow(item);
+    // 行を連列してスクリプト文字列を作成する
+    QString text = "";
+    for (int i = 0; i < get_line_count(); i++) {
+        text.appnd(get_line_string_at_line_num(i));
+        text.append("\n");
     }
-    ui->scriptListView->setModel(newModel);
 
-    delete oldModel;
+    // テキストビューにテキストを設定する
+    ui->scriptView->setText(text);
 }
 
 //
@@ -642,39 +567,341 @@ void MainWindow::scrollScript()
 }
 
 //
-// Export data01.arc
+// Export for Linux.
 //
-void MainWindow::on_actionExport_data01_arc_triggered()
+void MainWindow::on_actionExport_for_Linux_triggered()
 {
     QMessageBox msgbox(nullptr);
     msgbox.setIcon(QMessageBox::Question);
     msgbox.setWindowTitle("Export");
     msgbox.setText(m_isEnglish ?
-				   "Are you sure you want to export the package file?\n"
-				   "This may take a while." :
-				   "パッケージをエクスポートします。\n"
-				   "この処理には時間がかかります。\n"
-				   "よろしいですか？");
+                   "Are you sure you want to export a Linux game?\n"
+                   "This may take a while." :
+                   "Linuxゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
     msgbox.addButton(QMessageBox::Yes);
     msgbox.addButton(QMessageBox::No);
     if (msgbox.exec() != QMessageBox::Yes)
         return;
 
     // Generate a package in the current directory.
-    bool ret = create_package("");
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
 
-    if (ret) {
-		log_info(m_isEnglish ?
-				 "Successfully exported data01.arc" :
-				 "data01.arcのエクスポートに成功しました。");
-	}
+    // Copy an export template.
+    if (!copyExportTemplate("linux", true))
+        return false;
+
+    return true;
 }
 
 //
-// Export Web version
+// Export for Windows.
+//
+void MainWindow::on_actionExport_for_Windows_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a Windows game?\n"
+                   "This may take a while." :
+                   "Windowsゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplate("export-windows", true))
+        return false;
+
+    return true;
+}
+
+//
+// Export for macOS.
+//
+void MainWindow::on_actionExport_for_macOS_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a macOS game?\n"
+                   "This may take a while." :
+                   "macOSゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplate("export-macos", true))
+        return false;
+
+    return true;
+}
+
+//
+// Export for iOS.
+//
+void MainWindow::on_actionExport_for_iOS_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export an iOS game?\n"
+                   "This may take a while." :
+                   "iOSゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplate("export-ios", true))
+        return false;
+
+    return true;
+}
+
+//
+// Export for Android.
+//
+void MainWindow::on_actionExport_for_macOS_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export an Android game?\n"
+                   "This may take a while." :
+                   "Androidゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplate("export-android", true))
+        return false;
+
+    // Copy assets.
+    const char *subdir[] = {"anime", "bg", "bgm", "cg", "ch", "conf", "cv",
+                            "font", "gui", "mov", "rule", "se", "txt", "wms"};
+    for (int i = 0; i < sizeof(subdir) / sizeof(const char *); i++) {
+        QString src = subdir[i];
+        QString dst = "export-android";
+        copyPath(src, dst);
+    }
+
+    return true;
+}
+
+//
+// Export for Web.
 //
 void MainWindow::on_actionExport_for_Web_triggered()
 {
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a Web game?\n"
+                   "This may take a while." :
+                   "Webゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplate("export-web"))
+        return false;
+
+    return true;
+}
+
+//
+// Export a package only.
+//
+void MainWindow::on_actionExport_package_only_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a package file?\n"
+                   "This may take a while." :
+                   "パッケージファイルをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    return true;
+}
+
+// Copy export-* files.
+void MainWindow::CopyExports(const QString& name, bool copyArc)
+{
+    QDir dir = QApplication::applicationDirPath();
+    dir.cd("..");
+    dir.cd(QString("share/suika2/") + name);
+
+    copyPath(src, dir.path());
+
+    if (copyArc)
+        QFile::copy("data01.arc", dst + QDir::separator() + "data01.arc");
+}
+
+// Copy files recursively.
+void MainWindow::copyPath(QString src, QString dst)
+{
+    QDir dir(src);
+    if (! dir.exists())
+        return;
+
+    foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        QString dst_path = dst + QDir::separator() + d;
+        dir.mkpath(dst_path);
+        copyPath(src+ QDir::separator() + d, dst_path);
+    }
+
+    foreach (QString f, dir.entryList(QDir::Files)) {
+        QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
+    }
+}
+
+// Get the cursor line.
+int MainWindow::getCursorLine()
+{
+    QTextCursor cursor = ui->scriptView->textCursor();
+    cursor.movePosition(QTextCursor::StartOfLine);
+    int lines = 1;
+    while (cursor.positionInBlock()>0) {
+        cursor.movePosition(QTextCursor::Up);
+        lines++;
+    }
+    QTextBlock block = cursor.block().previous();
+    while (block.isValid()) {
+        lines += block.lineCount();
+        block = block.previous();
+    }
+    return lines;
+}
+
+// Set execution line.
+void MainWindow::setExecLine(int line)
+{
+    QTextCursor cursor(ui->scriptView->document()->findBlockByLineNumber(line));
+    ui->scriptView->setTextCursor(cursor);
+}
+
+// Update script model from text.
+void MainWindow::updateScriptModelFromText(){
+    // Reset parse errors, will notify the first error.
+    dbg_reset_parse_error_count();
+
+    // Get the text from text view and update script model for each line.
+    QString text = ui->scriptView->toPlainText();
+    QStringList lines = text.split(u'\n');
+    int lineCount = 0;
+    for (QString line : lines) {
+		pLine = pWcs + nLineStartCharCRLF;
+
+		// Update a line.
+        const char *utf8 = line.toUtf8();
+		if (lineCount < get_line_count())
+			update_script_line(lineCount, utf8);
+		else
+			insert_script_line(lineCount, utf8);
+
+		lineCount++;
+	}
+	free(pWcs);
+
+	// Process removed lines.
+	m_isExecLineChanged = false;
+	for (int i = get_line_count() - 1; i >= lineCount; i--)
+		if (delete_script_line(lineCount))
+			m_isExecLineChanged = true;
+
+	// Reparse if there are extended syntaxes.
+	reparse_script_for_structured_syntax();
+
+	// If failed to parse and reparse:
+	if (dbg_get_parse_error_count() > 0) {
+		// Set text again to reflect '!' at the line starts.
+		updateScriptView();
+	}
 }
 
 //

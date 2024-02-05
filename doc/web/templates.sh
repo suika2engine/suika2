@@ -18,6 +18,7 @@ function apply_template_english ()
 
 apply_template_japanese index.html
 apply_template_japanese dl/index.html
+apply_template_japanese dl/material/index.html
 
 apply_template_english en/index.html
 apply_template_english en/dl/index.html

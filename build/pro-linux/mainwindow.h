@@ -10,9 +10,10 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QLocale>
+#include <QTextBlock>
 
-// We've dropped the sound support of Qt by default.
-#ifdef USE_QTAUDIO
+// We use ALSA directly on Linux because Qt doesn't support ALSA.
+#ifdef USE_QT_AUDIO
 #include <QAudioFormat>
 #include <QAudioSink>
 #include <QIODevice>
@@ -40,21 +41,18 @@ private slots:
     void on_continueButton_clicked();
     void on_nextButton_clicked();
     void on_stopButton_clicked();
-    void on_fileNameEdit_returnPressed();
-    void on_lineNumberEdit_returnPressed();
-    void on_updateScriptFileButton_clicked();
+    void on_moveButton_clicked();
     void on_openScriptFileButton_clicked();
-    void on_updateCommandButton_clicked();
-    void on_resetCommandButton_clicked();
     void on_writeButton_clicked();
-    void on_reloadButton_clicked();
-    void on_overwriteButton_clicked();
     void on_errorButton_clicked();
-    void on_updateLineNumberButton_clicked();
-    void on_scriptListView_doubleClicked(const QModelIndex &index);
+    void on_scriptView_textChanged();
 
-    void on_actionExport_data01_arc_triggered();
+    void on_actionExport_for_Windows_triggered();
+    void on_actionExport_for_macOS_triggered();
+    void on_actionExport_for_iOS_triggered();
+    void on_actionExport_for_Android_triggered();
     void on_actionExport_for_Web_triggered();
+    void on_actionExport_package_only();
 
 private:
     // The rendering timer.
@@ -66,6 +64,15 @@ private:
     // Whether we are in English mode.
     bool m_isEnglish;
 
+    // Get the cursor line.
+    int getCursorLine();
+
+    // Update the script model from text view content.
+    void updateScriptModelFromText();
+
+    // File copy helper.
+    void copyPath(QString src, QString dst);
+
 public:
     // For Qt Creator. (contains UI objects such as ui->continueButton)
     Ui::MainWindow *ui;
@@ -73,22 +80,20 @@ public:
     //
     // Note:
     //  the following members are currently public to be used from the HAL
-    //  and the debugger-HAL functions that are declared in platform.h and
-    //  implemented in mainwindow.cpp
+    //  functions that are declared in platform.h and implemented in mainwindow.cpp
     //
 
     // The unique instance of this class.
     static MainWindow *obj;
 
-    // State. (read/written from
+    // State.
     bool m_isRunning;
     bool m_isResumePressed;
     bool m_isNextPressed;
     bool m_isPausePressed;
-    bool m_isChangeScriptPressed;
-    bool m_isChangeLinePressed;
-    bool m_isCommandUpdatePressed;
-    bool m_isReloadPressed;
+    bool m_isOpenScriptPressed;
+    bool m_isExecLineChanged;
+    int m_changedExecLine;
 
     // View update.
     void setWaitingState();
@@ -98,8 +103,7 @@ public:
     void updateVariableText();
     void scrollScript();
 
-    // We've dropped the sound support of Qt by default.
-#ifdef USE_QTAUDIO
+#ifdef USE_QT_AUDIO
     // The sound sinks.
     QAudioSink *m_soundSink[MIXER_STREAMS];
 

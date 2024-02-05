@@ -18,6 +18,7 @@ function upload()
 
 upload index.html
 upload dl/index.html
+upload dl/material/index.html
 upload doc/index.html
 upload doc/font.html
 upload doc/scriptgen.html

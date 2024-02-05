@@ -25,7 +25,7 @@ set(PROJECT_SOURCES
   asound.h
   asound.c
 
-  # platform-independent
+  # CORE
   anime.h
   anime.c
   conf.h

@@ -138,12 +138,12 @@ void log_image_file_error(const char *dir, const char *file)
 /*
  * メモリ確保エラーを記録する
  */
-void log_memory(void)
+void log_memory_helper(const char *file, int line)
 {
 	if (is_english_mode())
-		log_error("Out of memory.\n");
+		log_error("Out of memory. (%s:%d)\n", file, line);
 	else
-		log_error(U8("メモリの確保に失敗しました。\n"));
+		log_error(U8("メモリの確保に失敗しました。(%s:%d)\n"), file, line);
 
 	abort();
 }

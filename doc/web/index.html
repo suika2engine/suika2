@@ -14,15 +14,7 @@
   <link rel="stylesheet" href="/css/adjustments.css">
   <script src="/js/bootstrap.bundle.min.js"></script>
 
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PLYR5Y3JSJ"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() {
-				dataLayer.push(arguments);
-		}
-		gtag("js", new Date());
-		gtag("config", "G-PLYR5Y3JSJ");
-	</script>
+	<!-- INSERT-GTAG-HERE -->
 </head>
 <body>
 
@@ -36,40 +28,40 @@
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 				<li class="nav-item"><a class="nav-link" href="/">ホーム</a></li>
-				<li class="nav-item"><a class="nav-link" href="/dl/">ダウンロード</a></li>
+				<li class="nav-item dropdown" aria-current="page">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						ダウンロード
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+						<li><a class="dropdown-item" href="https://suika2.com/dl/">アプリ</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/dl/material/">素材</a></li>
+					</ul>
+				</li>
 				<li class="nav-item dropdown" aria-current="page">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						ドキュメント
 					</a>
 					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">ドキュメントトップ</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">コマンド一覧</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%B3%E3%83%95%E3%82%A3%E3%82%B0%E4%B8%80%E8%A6%A7">コンフィグ一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">初級者向け: 最初のチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">中級者向け: GUIのチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">上級者向け: WMSのチュートリアル</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9">全開発者向け: コマンド一覧</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%B3%E3%83%B3%E3%83%95%E3%82%A3%E3%82%B0%E4%B8%80%E8%A6%A7">全開発者向け: コンフィグ一覧</a></li>
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E8%B3%AA%E5%95%8F">よくある質問</a></li>
-						<li><a class="dropdown-item" href="/wiki/?cmd=search">ドキュメントを検索...</a></li>
+						<li><a class="dropdown-item" href="https://suika2.com/wiki/?cmd=search">ドキュメントを検索...</a></li>
 					</ul>
 				</li>
 				<li class="nav-item dropdown" aria-current="page">
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						チュートリアル
-					</a>
-					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB">最初のチュートリアル</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E7%94%BB%E9%9D%A2%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9">GUIのチュートリアル</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?WMS%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9">WMSのチュートリアル</a></li>
-					</ul>
-				</li>
-				<li class="nav-item dropdown" aria-current="page">
-					<a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						開発参加
+						開発
 					</a>
 					<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%90%E3%82%B0%E5%A0%B1%E5%91%8A%E3%81%AE%E4%B8%80%E8%A6%A7">バグ報告の一覧</a></li>
 						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E6%A9%9F%E8%83%BD%E8%A6%81%E6%9C%9B%E3%81%AE%E4%B8%80%E8%A6%A7">機能要望の一覧</a></li>
-						<li><a class="dropdown-item" href="https://suika2.com/wiki/?%E3%83%95%E3%83%AA%E3%83%BC%E7%B4%A0%E6%9D%90">フリー素材</a></li>
 					</ul>
 				</li>
-				<li class="nav-item"><a class="nav-link" href="/works/">利用作品紹介</a></li>
+				<li class="nav-item"><a class="nav-link" href="/works/">利用作品</a></li>
 				<li class="nav-item"><a class="nav-link" href="/en/">English</a></li>
 				<li class="nav-item dropdown d-block d-md-none">
 					<a class="btn btn-outline-success rounded-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-moon"></i></a>
@@ -446,6 +438,7 @@
 <!-- ------------------------- -->
 
 <h2 class="spacer">Suika2が目指す世界</h2>
+<br>
 <h3>時代背景</h3>
 <p>
 	1990年代後半から2000年代前半にかけて、
@@ -461,6 +454,7 @@
 	結果的に、2023年10月に至るまで、ビジュアルノベルをスマートフォンで簡単に実現するための、
 	標準的と言えるソフトウェアが存在しませんでした。
 </p>
+<br>
 <h3>歴史的転換</h3>
 <p>
 	このような長期間の空白を、Suika2が2023年10月に埋めました。
@@ -475,6 +469,7 @@
 	<li>仕様が頻繁に変わる <a href="https://ja.renpy.org/">Python</a> ではない</li>
 	<li>家庭用ゲーム機に移植できない <a href="https://github.com/krkrsdl2/krkrsdl2">SDL2</a> ではない</li>
 </ul>
+<br>
 <h3>Suika2の背後にある技術</h3>
 <p>
 	Suika2がこれほどまでに移植に長けているのは、単純に開発者がベテランだからです。
@@ -482,16 +477,19 @@
 	単に古参というだけでなく、最先端のソフトウェア設計とハードウェア設計の研究職であり、米国IEEEの会員として人類の発展のために第一線で活躍しています。
 	その希少なスキルが惜しみなくSuika2につぎ込まれている、ただそれだけのことです。
 </p>
+<br>
 <h3>Suika2が実現した世界</h3>
 <p>
 	Suika2は、個人、インディーの作品が公開されるプラットフォームを、これまでのPCとWebから、スマートフォンアプリへと拡大した実績を持ちます。
 	Suika2は、クリエイタがスマートフォンのアプリストアで簡単に収益を上げられるような市場を実際に創出し、世界を変えました。
 </p>
+<br>
 <h3>Suika2が今取り組んでいること</h3>
 <p>
 	Suika2はインディーと商業でのツールの垣根を撤廃し、 多くのインディー創作が商業化していく「勢い」を作り出すことに取り組んでいます。
 	Suika2は、一人でも多くのクリエイタが創作で生計を立てられるように、 パイオニアとしてこの市場を牽引します。
 </p>
+<br>
 <h3>Suika2が目指す世界</h3>
 <ul class="alert">
 	<li>スマートフォンを新たな時代の生産手段とする新機軸(イノベーション)を打ち立てます</li>
@@ -503,9 +501,9 @@
 <!-- ------------------------- -->
 
 <h2>Resonance</h2>
-<div style="background: #c4edf7; color: black; padding: 2em; text-align: center;">
+<div style="background: #c4edf7; color: black; padding: 4em; text-align: center;">
 	<p>
-		<a href="https://lightvn.net/"><img src="/img/ext/light_splash2.png" style="width:60%;"></a><br>
+		<a href="https://lightvn.net/"><img src="/img/ext/light_splash2.png" style="width:50%;"></a><br>
 		<br>
 		<a class="btn btn-primary mb-3" href="https://lightvn.net/">Light.vn 公式サイト</a>
 	</p>

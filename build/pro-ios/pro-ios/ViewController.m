@@ -598,7 +598,6 @@ static void setStoppedState(void);
     
     self.changedExecLine = [self scriptCursorLine];
     self.isExecLineChanged = YES;
-    self.isNextPressed = YES;
 
     save_script();
 }

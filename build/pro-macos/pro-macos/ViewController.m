@@ -1421,8 +1421,9 @@ static ViewController *theViewController;
                 [lineText length] != commandNameLen) {
                 // 引数名を灰色にする
                 NSUInteger paramStart = startPos + commandNameLen;
+                int ofs = commandNameLen;
                 do {
-                    NSString *sub = [lineText substringFromIndex:commandNameLen + 1];
+                    NSString *sub = [lineText substringFromIndex:ofs + 1];
                     if ([sub length] == 0)
                         break;
 
@@ -1433,8 +1434,11 @@ static ViewController *theViewController;
 
                     // '='の手前に' 'があればスキップする
                     NSUInteger spacePos = [sub rangeOfString:@" "].location;
-                    if (spacePos != NSNotFound && spacePos < eqPos)
+                    if (spacePos != NSNotFound && spacePos < eqPos) {
+                        ofs += spacePos + 1;
+                        paramStart += spacePos + 1;
                         continue;
+                    }
 
                     // 引数名部分のテキスト色を変更する
                     NSRange paramNameRange = NSMakeRange(paramStart, eqPos + 2);
@@ -1442,7 +1446,8 @@ static ViewController *theViewController;
                                value:[NSColor colorWithRed:0xc0/255.0f green:0xf0/255.0f blue:0xc0/255.0f alpha:1.0f]
                                range:paramNameRange];
 
-                    paramStart += spacePos;
+                    ofs += spacePos + 1;
+                    paramStart += spacePos + 1;
                 } while (paramStart < lineLen);
             }
         }
