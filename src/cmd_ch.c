@@ -201,10 +201,13 @@ static bool get_position(const char *pos,	/* IN: character position name */
 		   strcmp(pos, U8("右中")) == 0) {
 		/* 右中に配置する */
 		*chpos = CH_RIGHT_CENTER;
-		if (img != NULL)
-			*xpos = (conf_window_width - img->width) - img->width / 2 + ofs_x;
-		else
+		if (img != NULL) {
+			int center = (conf_window_width - img->width) / 2 + ofs_x;
+			int right = conf_window_width - img->width - conf_stage_ch_margin_right + ofs_x;
+			*xpos = (center + right) / 2 + ofs_x;
+		} else {
 			*xpos = 0;
+		}
 	} else if (strcmp(pos, "center") == 0 ||
 		   strcmp(pos, "centre") == 0 ||
 		   strcmp(pos, "c") == 0 ||
