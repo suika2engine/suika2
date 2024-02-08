@@ -3584,7 +3584,7 @@ static VOID RichEdit_SetTextByScriptModel(void)
 	{
 		const char *pUtf8Line = get_line_string_at_line_num(i);
 //		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CR */
-		nScriptSize += (int)strlen(pUtf8Line) + 1; /* +1 for CRLF */
+		nScriptSize += (int)strlen(pUtf8Line) + 2; /* +2 for CRLF */
 	}
 
 	/* スクリプトを格納するメモリを確保する */

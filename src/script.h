@@ -616,7 +616,7 @@ int get_command_count(void);
 /*
  * For Suika2 Pro
  */
-#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
+#if defined(USE_EDITOR)
 
 /* using展開後のコマンドの行番号を取得する(ログ用) */
 int get_expanded_line_num(void);
@@ -651,6 +651,6 @@ bool reparse_script_for_structured_syntax(void);
 /* コマンド名からコマンドタイプを返す */
 int get_command_type_from_name(const char *name);
 
-#endif /* defined(USE_EDITOR) || defined(USE_DEBUGGER) */
+#endif /* defined(USE_EDITOR) */
 
 #endif

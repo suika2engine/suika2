@@ -255,7 +255,7 @@ BOOL D3DInitialize(HWND hWnd)
 								 &pD3DDevice);
     if (FAILED(hResult))
     {
-		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF,
+		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_SW,
 									 hWnd, D3DCREATE_MIXED_VERTEXPROCESSING,
 									 &d3dpp, &pD3DDevice);
 		if (FAILED(hResult))

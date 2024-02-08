@@ -661,7 +661,6 @@
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
 					"-DUSE_EDITOR",
-					"-DUSE_DEBUGGER",
 				);
 				OTHER_LDFLAGS = (
 					"-L./libroot/lib",
@@ -679,8 +678,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -717,7 +718,6 @@
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
 					"-DUSE_EDITOR",
-					"-DUSE_DEBUGGER",
 				);
 				OTHER_LDFLAGS = (
 					"-L./libroot/lib",
@@ -735,8 +735,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

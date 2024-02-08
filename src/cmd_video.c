@@ -88,7 +88,7 @@ static bool init(void)
 	is_skippable = get_seen() && !is_non_interruptible();
 	if (strstr(options, "skip") != NULL)
 		is_skippable = true;
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	is_skippable = true;
 #endif
 

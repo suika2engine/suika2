@@ -26,6 +26,8 @@
  * ログを出力してよいのはメインスレッドのみとする。
  */
 
+#define log_memory()	log_memory_helper(__FILE__, __LINE__)
+
 void log_api_error(const char *api);
 void log_audio_file_error(const char *dir, const char *file);
 void log_dir_file_open(const char *dir, const char *file);
@@ -34,7 +36,7 @@ void log_file_open(const char *fname);
 void log_file_read(const char *dir, const char *file);
 void log_font_file_error(const char *font);
 void log_image_file_error(const char *dir, const char *file);
-void log_memory(void);
+void log_memory_helper(const char *file, int line);
 void log_package_file_error(void);
 void log_duplicated_conf(const char *key);
 void log_undefined_conf(const char *key);
@@ -105,7 +107,7 @@ void log_anime_unknown_key(const char *key);
 void log_anime_long_sequence(void);
 void log_invalid_layer_name(const char *name);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 void log_inform_translated_commands(void);
 void log_script_line_size(void);
 void log_dir_not_found(const char *dir);

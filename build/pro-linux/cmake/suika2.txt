@@ -9,7 +9,7 @@ project(suika2 VERSION 0.1 LANGUAGES C)
 
 # Preprocessor macros
 add_compile_definitions(
-  USE_DEBUGGER
+  USE_EDITOR
   USE_QT
 )
 
@@ -25,7 +25,7 @@ set(PROJECT_SOURCES
   asound.h
   asound.c
 
-  # platform-independent
+  # CORE
   anime.h
   anime.c
   conf.h

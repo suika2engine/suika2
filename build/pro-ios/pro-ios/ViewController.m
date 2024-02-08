@@ -422,7 +422,7 @@ static void setStoppedState(void);
     NSRange allRange = NSMakeRange(0, [text length]);
     [self.textViewScript.textStorage removeAttribute:NSForegroundColorAttributeName range:allRange];
     [self.textViewScript.textStorage removeAttribute:NSBackgroundColorAttributeName range:allRange];
-
+    
     // 行ごとに処理する
     NSArray *lineArray = [text componentsSeparatedByString:@"\n"];
     int startPos = 0;
@@ -434,40 +434,40 @@ static void setStoppedState(void);
             startPos++;
             continue;
         }
-
+        
         NSRange lineRange = NSMakeRange(startPos, [lineArray[i] length]);
-
+        
         // 実行行であれば背景色を設定する
         if (i == execLineNum) {
             UIColor *bgColor = self.isRunning ?
-                [UIColor colorWithRed:0xff/255.0f green:0xc0/255.0f blue:0xc0/255.0f alpha:1.0f] :
-                [UIColor colorWithRed:0xc0/255.0f green:0xc0/255.0f blue:0xff/255.0f alpha:1.0f];
+            [UIColor colorWithRed:0xff/255.0f green:0xc0/255.0f blue:0xc0/255.0f alpha:1.0f] :
+            [UIColor colorWithRed:0xc0/255.0f green:0xc0/255.0f blue:0xff/255.0f alpha:1.0f];
             [self.textViewScript.textStorage addAttribute:NSBackgroundColorAttributeName value:bgColor range:lineRange];
         }
-
+        
         // コメントを処理する
         if ([lineText characterAtIndex:0] == L'#') {
             // 行全体のテキスト色を変更する
             [self.textViewScript.textStorage
-                addAttribute:NSForegroundColorAttributeName
-                       value:[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f]
-                       range:lineRange];
+             addAttribute:NSForegroundColorAttributeName
+             value:[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f]
+             range:lineRange];
         }
         // ラベルを処理する
         else if ([lineText characterAtIndex:0] == L':') {
             // 行全体のテキスト色を変更する
             [self.textViewScript.textStorage
-                addAttribute:NSForegroundColorAttributeName
-                       value:[UIColor colorWithRed:1.0f green:0 blue:0 alpha:1.0f]
-                       range:lineRange];
+             addAttribute:NSForegroundColorAttributeName
+             value:[UIColor colorWithRed:1.0f green:0 blue:0 alpha:1.0f]
+             range:lineRange];
         }
         // エラー行を処理する
         else if ([lineText characterAtIndex:0] == L'!') {
             // 行全体のテキスト色を変更する
             [self.textViewScript.textStorage
-                addAttribute:NSForegroundColorAttributeName
-                       value:[UIColor colorWithRed:1.0f green:0 blue:0 alpha:1.0f]
-                       range:lineRange];
+             addAttribute:NSForegroundColorAttributeName
+             value:[UIColor colorWithRed:1.0f green:0 blue:0 alpha:1.0f]
+             range:lineRange];
         }
         // コマンド行を処理する
         else if ([lineText characterAtIndex:0] == L'@') {
@@ -475,14 +475,14 @@ static void setStoppedState(void);
             NSUInteger commandNameLen = [lineText rangeOfString:@" "].location;
             if (commandNameLen == NSNotFound)
                 commandNameLen = [lineText length];
-
+            
             // コマンド名のテキストに色を付ける
             NSRange commandRange = NSMakeRange(startPos, commandNameLen);
             [self.textViewScript.textStorage
-                addAttribute:NSForegroundColorAttributeName
-                       value:[UIColor colorWithRed:0 green:0 blue:1.0f alpha:1.0f]
-                       range:commandRange];
-
+             addAttribute:NSForegroundColorAttributeName
+             value:[UIColor colorWithRed:0 green:0 blue:1.0f alpha:1.0f]
+             range:commandRange];
+            
             // 引数に色を付ける
             int commandType = get_command_type_from_name([[lineText substringToIndex:commandNameLen] UTF8String]);
             if (commandType != COMMAND_SET && commandType != COMMAND_IF &&
@@ -490,28 +490,33 @@ static void setStoppedState(void);
                 [lineText length] != commandNameLen) {
                 // 引数名を灰色にする
                 NSUInteger paramStart = startPos + commandNameLen;
+                NSUInteger ofs = commandNameLen;
                 do {
-                    NSString *sub = [lineText substringFromIndex:commandNameLen + 1];
+                    NSString *sub = [lineText substringFromIndex:ofs + 1];
                     if ([sub length] == 0)
                         break;
-
+                    
                     // '='を探す
                     NSUInteger eqPos = [sub rangeOfString:@"="].location;
                     if (eqPos == NSNotFound)
                         break;
-
+                    
                     // '='の手前に' 'があればスキップする
                     NSUInteger spacePos = [sub rangeOfString:@" "].location;
-                    if (spacePos != NSNotFound && spacePos < eqPos)
+                    if (spacePos != NSNotFound && spacePos < eqPos) {
+                        ofs += spacePos + 1;
+                        paramStart += spacePos + 1;
                         continue;
-
+                    }
+                    
                     // 引数名部分のテキスト色を変更する
                     NSRange paramNameRange = NSMakeRange(paramStart, eqPos + 2);
                     [self.textViewScript.textStorage addAttribute:NSForegroundColorAttributeName
-                               value:[UIColor colorWithRed:0xc0/255.0f green:0xf0/255.0f blue:0xc0/255.0f alpha:1.0f]
-                               range:paramNameRange];
-
-                    paramStart += spacePos;
+                                                            value:[NSColor colorWithRed:0xc0/255.0f green:0xf0/255.0f blue:0xc0/255.0f alpha:1.0f]
+                                                            range:paramNameRange];
+                    
+                    ofs += spacePos + 1;
+                    paramStart += spacePos + 1;
                 } while (paramStart < lineLen);
             }
         }
@@ -598,7 +603,6 @@ static void setStoppedState(void);
     
     self.changedExecLine = [self scriptCursorLine];
     self.isExecLineChanged = YES;
-    self.isNextPressed = YES;
 
     save_script();
 }

@@ -66,13 +66,16 @@ void truncate_name_variable(int index);
 /* 文字列の中の変数を展開して返す */
 const char *expand_variable(const char *msg);
 
+/* 文字列の中の変数を展開して返す(変数のインクリメントも行う) */
+const char *expand_variable_with_increment(const char *msg, int inc);
+
 /* ローカル変数テーブルへのポインタを取得する */
 int32_t *get_local_variables_pointer(void);
 
 /* ローカル変数テーブルへのポインタを取得する */
 int32_t *get_global_variables_pointer(void);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /* 変数の値が更新されたかをチェックする */
 bool check_variable_updated(void);
 

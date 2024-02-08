@@ -7,7 +7,6 @@ find_library(log-lib log)
 # We make libsuika.so
 add_compile_definitions(
   USE_EDITOR
-  USE_DEBUGGER
 )
 add_library(
   suika

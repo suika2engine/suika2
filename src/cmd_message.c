@@ -171,6 +171,9 @@ static bool is_dimming;
 /* ボイスがあるか */
 static bool have_voice;
 
+/* ボイスファイル */
+static char *voice_file;
+
 /* ビープ音再生中であるか */
 static bool is_beep;
 
@@ -319,6 +322,7 @@ static void init_auto_mode(void);
 static void init_skip_mode(void);
 static bool init_name_top(void);
 static void init_font_color(void);
+static bool init_voice_file(void);
 static bool init_msg_top(void);
 static bool is_escape_sequence_char(char c);
 static const char *skip_lf(const char *m, int *lf);
@@ -588,6 +592,10 @@ static bool init(void)
 	/* 文字色の初期化を行う */
 	init_font_color();
 
+	/* ボイスファイルを取得する */
+	if (!init_voice_file())
+		return false;
+
 	/* メッセージを取得する */
 	if (!init_msg_top())
 		return false;
@@ -772,7 +780,7 @@ static void init_font_color(void)
 	if (gui_sys_flag)
 		return;
 
-#if !defined(USE_EDITOR) && !defined(USE_DEBUGGER)
+#if !defined(USE_EDITOR)
 	/* 既読であり、既読の色が設定されている場合 */
 	if (get_seen() && conf_msgbox_seen_color) {
 		body_color = make_pixel(0xff,
@@ -827,6 +835,34 @@ static void init_font_color(void)
 			}
 		}
 	}
+}
+
+/* ボイスファイル名を取得する */
+static bool init_voice_file(void)
+{
+	const char *voice;
+
+	if (get_command_type() != COMMAND_SERIF)
+		return true;
+
+	/* ロード/タイトルへ戻った場合はvoice_fileが残っているので解放する */
+	if (voice_file != NULL) {
+		free(voice_file);
+		voice_file = NULL;
+		return true;
+	}
+
+	/* ボイスのファイル名を取得する */
+	voice = get_string_param(SERIF_PARAM_VOICE);
+
+	/* 変数展開する */
+	voice_file = strdup(expand_variable_with_increment(voice, 1));
+	if (voice_file == NULL) {
+		log_memory();
+		return false;
+	}
+
+	return true;
 }
 
 /* メッセージを取得する */
@@ -1006,10 +1042,8 @@ static bool register_message_for_history(const char *msg)
 	if (get_command_type() == COMMAND_SERIF) {
 		assert(name_top != NULL);
 
-		/* ボイスファイルを取得する */
-		voice = get_string_param(SERIF_PARAM_VOICE);
-
 		/* ビープ音は履歴画面で再生しない */
+		voice = voice_file;
 		if (voice[0] == '@')
 			voice = NULL;
 
@@ -1255,10 +1289,12 @@ static bool play_voice(void)
 	int times;
 	bool repeat;
 
-	/* ボイスのファイル名を取得する */
-	voice = get_string_param(SERIF_PARAM_VOICE);
-	repeat = voice[0] == '@';
-	voice = repeat ? &voice[1] : voice;
+	if (voice_file == NULL || strcmp(voice_file, "") == 0)
+		return true;
+
+	/* ビープ音のリピートであるかを調べる */
+	repeat = voice_file[0] == '@';
+	voice = repeat ? &voice_file[1] : voice_file;
 	if (strcmp(voice, "") == 0)
 		return true;
 
@@ -1467,7 +1503,7 @@ static int get_pointed_button(void)
 {
 	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合、ボタンを選択できなくする */
 	if (dbg_is_stop_requested())
 		return BTN_NONE;
@@ -1635,7 +1671,7 @@ static bool frame_auto_mode(void)
 	/* オートモード中はメッセージボックスを非表示にできない */
 	assert(!is_hidden);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* オートモード中に停止要求があった場合 */
 	if (dbg_is_stop_requested()) {
 		/* オートモード終了アクションを処理する */
@@ -1777,7 +1813,7 @@ static bool frame_buttons(void)
 		play_se(conf_msgbox_btn_change_se);
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中はボタンのクリックを処理しない */
 	if (dbg_is_stop_requested())
 		return false;
@@ -2082,7 +2118,7 @@ static void action_custom(int index)
 /* システムメニューの処理を行う */
 static bool frame_sysmenu(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested()) {
 		/* システムメニュー表示中でない場合 */
@@ -2334,7 +2370,7 @@ static void adjust_sysmenu_pointed_index(void)
 /* 選択中のシステムメニューのボタンを取得する */
 static int get_pointed_sysmenu_item_extended(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合、ボタンを選択できなくする */
 	if (dbg_is_stop_requested())
 		return SYSMENU_NONE;
@@ -2505,7 +2541,7 @@ static int get_frame_chars(void)
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		/*
 		 * デバッガの停止ボタンが押されている場合は、
 		 * クリック待ちに移行せずにコマンドを終了する流れにする
@@ -2691,7 +2727,7 @@ static bool check_stop_click_animation(void)
 	/* 本文の描画が完了していなければここに来ない */
 	assert(is_end_of_msg());
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* デバッガから停止要求がある場合 */
 	if (dbg_is_stop_requested()) {
 		/* ボイスがなければ停止する */
@@ -2870,7 +2906,7 @@ static void render_collapsed_sysmenu_extended(void)
 /* 折りたたみシステムメニューがポイントされているか調べる */
 static bool is_collapsed_sysmenu_pointed_extended(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested())
 		return false;
@@ -3035,7 +3071,7 @@ static bool cleanup(void)
 		set_mixer_input(VOICE_STREAM, NULL);
 
 	/* クリックアニメーションを非表示にする */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	if (dbg_is_stop_requested())
 		show_click(true);
 #else
@@ -3064,6 +3100,10 @@ static bool cleanup(void)
 		if (msg_top != NULL) {
 			free(msg_top);
 			msg_top = NULL;
+		}
+		if (voice_file != NULL) {
+			free(voice_file);
+			voice_file = NULL;
 		}
 	}
 

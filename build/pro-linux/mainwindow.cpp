@@ -21,12 +21,13 @@ extern "C" {
 #include "package.h"
 };
 
-// HAL
+// HAL: graphics
 extern "C" {
 #include "glrender.h"
 };
-// We use ALSA by default.
-#ifndef USE_QTSOUND
+
+// HAL: sound
+#ifndef USE_QT_AUDIO
 extern "C" {
 #include "asound.h"
 };
@@ -61,18 +62,16 @@ MainWindow::MainWindow(QWidget *parent)
     m_isResumePressed = false;
     m_isNextPressed = false;
     m_isPausePressed = false;
-    m_isChangeScriptPressed = false;
-    m_isChangeLinePressed = false;
-    m_isCommandUpdatePressed = false;
-    m_isReloadPressed = false;
+    m_isScriptOpened = false;
+    m_isExecLineChanged = false;
 
     // Determine the language to use.
     m_isEnglish = !QLocale().name().startsWith("ja");
 
+#ifndef USE_QT_AUDIO
     // Initialize sound.
     init_asound();
-
-#ifdef USE_QTAUDIO
+#else
     // Setup the sound outputs.
     QAudioFormat format;
     format.setSampleFormat(QAudioFormat::Int16);
@@ -104,23 +103,13 @@ MainWindow::MainWindow(QWidget *parent)
     setStoppedState();
 
     // Set button and labels texts.
-    ui->fileNameLabel->setText(m_isEnglish ? "Script file name:" : "スクリプトファイル名:");
-    ui->lineNumberLabel->setText(m_isEnglish ? "Script line number:" : "スクリプト行番号:");
-    ui->commandLabel->setText(m_isEnglish ? "Script command to be executed:" : "実行されるコマンド行:");
-    ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
-    ui->scriptContentLabel->setText(m_isEnglish ? "Script content:" : "スクリプトリスト:");
-    ui->variableLabel->setText(m_isEnglish ? "Variables (non-initial value):" : "変数一覧(初期値0でないもの):");
     ui->continueButton->setText(m_isEnglish ? "Continue" : "続ける");
     ui->nextButton->setText(m_isEnglish ? "Next" : "次へ");
+    ui->moveButton->setText(m_isEnglish ? "Move" : "移動");
     ui->stopButton->setText(m_isEnglish ? "Stop" : "停止");
-    ui->updateScriptButton->setText(m_isEnglish ? "Update" : "更新");
-    ui->updateLineNumberButton->setText(m_isEnglish ? "Update" : "更新");
-    ui->updateCommandButton->setText(m_isEnglish ? "Update" : "更新");
-    ui->resetCommandButton->setText(m_isEnglish ? "Reset" : "リセット");
     ui->errorButton->setText(m_isEnglish ? "Search error" : "次のエラー");
-    ui->overwriteButton->setText(m_isEnglish ? "Overwrite" : "上書き保存");
-    ui->reloadButton->setText(m_isEnglish ? "Reload" : "再読み込み");
-    ui->writeButton->setText(m_isEnglish ? "Update variables" : "変数の更新");
+    ui->variableLabel->setText(m_isEnglish ? "Variables (non-initial value):" : "変数一覧(初期値0でないもの):");
+    ui->writeButton->setText(m_isEnglish ? "Write Vars" : "変数の更新");
 }
 
 MainWindow::~MainWindow()
@@ -134,7 +123,7 @@ void MainWindow::onTimer()
     // Do a game frame.
     ui->openGLWidget->update();
 
-#ifdef USE_QTAUDIO
+#ifdef USE_QT_AUDIO
     const int SNDBUFSIZE = 4096;
     static uint32_t soundBuf[SNDBUFSIZE];
 
@@ -165,7 +154,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int frameWidth = event->size().width();
     int frameHeight = event->size().height();
 
-    int panelWidth = 340;
+    int panelWidth = 440;
     int panelHeight = 720;
 
     ui->openGLWidget->resize(frameWidth - panelWidth, frameHeight);
@@ -182,29 +171,32 @@ void MainWindow::on_nextButton_clicked()
     m_isNextPressed = true;
 }
 
+void MainWindow::on_moveButton_clicked()
+{
+    updateScriptModelFromText();
+
+    QTextCursor cursor = ui->scriptView->textCursor();
+    cursor.movePosition(QTextCursor::StartOfLine);
+    int lines = 1;
+    while (cursor.positionInBlock()>0) {
+        cursor.movePosition(QTextCursor::Up);
+        lines++;
+    }
+    QTextBlock block = cursor.block().previous();
+    while (block.isValid()) {
+        lines += block.lineCount();
+        block = block.previous();
+    }
+
+    m_changedExecLine = lines;
+    m_isExecLineChanged = true;
+
+    save_script();
+}
+
 void MainWindow::on_stopButton_clicked()
 {
     m_isPausePressed = true;
-}
-
-void MainWindow::on_fileNameEdit_returnPressed()
-{
-    m_isChangeScriptPressed = true;
-}
-
-void MainWindow::on_lineNumberEdit_returnPressed()
-{
-    m_isChangeLinePressed = true;
-}
-
-void MainWindow::on_updateLineNumberButton_clicked()
-{
-    m_isChangeLinePressed = true;
-}
-
-void MainWindow::on_updateScriptFileButton_clicked()
-{
-    m_isChangeScriptPressed = true;
 }
 
 void MainWindow::on_openScriptFileButton_clicked()
@@ -212,22 +204,8 @@ void MainWindow::on_openScriptFileButton_clicked()
     // TODO: Open a dialog.
 }
 
-void MainWindow::on_updateCommandButton_clicked()
+void MainWindow::on_scriptView_textChanged()
 {
-    m_isCommandUpdatePressed = true;
-}
-
-void MainWindow::on_resetCommandButton_clicked()
-{
-    ui->commandEdit->setText(get_line_string());
-}
-
-void MainWindow::on_scriptListView_doubleClicked(const QModelIndex &index)
-{
-    int line = ui->scriptListView->currentIndex().row();
-    QString text = QString::number(line);
-    ui->lineNumberEdit->setText(text);
-    m_isChangeLinePressed = true;
 }
 
 void MainWindow::on_writeButton_clicked()
@@ -274,77 +252,28 @@ void MainWindow::on_writeButton_clicked()
     updateVariableText();
 }
 
-void MainWindow::on_reloadButton_clicked()
-{
-    m_isReloadPressed = true;
-}
-
-void MainWindow::on_overwriteButton_clicked()
-{
-    const char *scr = get_script_file_name();
-    if(strcmp(scr, "DEBUG") == 0)
-        return;
-
-    QMessageBox msgbox(nullptr);
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setWindowTitle("Suika2 Pro");
-    msgbox.setText(m_isEnglish ?
-                   "Are you sure you want to overwrite the script file?" :
-                   "スクリプトファイルを上書き保存します。\nよろしいですか？");
-    msgbox.addButton(QMessageBox::Yes);
-    msgbox.addButton(QMessageBox::No);
-    if (msgbox.exec() != QMessageBox::Yes)
-        return;
-    
-    char *path = make_valid_path(SCRIPT_DIR, scr);
-    FILE *fp = fopen(path, "w");
-    if (fp == NULL) {
-        free(path);
-
-        QMessageBox errmsg(nullptr);
-        errmsg.setIcon(QMessageBox::Critical);
-        errmsg.setWindowTitle("Suika2 Pro");
-        errmsg.setText(m_isEnglish ? "Cannot write to file." : "ファイルに書き込めません。");
-        errmsg.addButton(QMessageBox::Close);
-        errmsg.exec();
-        return;
-    }
-    free(path);
-
-    for (int i = 0; i < get_line_count(); i++) {
-        int body = fputs(get_line_string_at_line_num(i), fp);
-        int crlf = fputs("\n", fp);
-        if(body < 0 || crlf < 0) {
-            fclose(fp);
-            return;
-	}
-    }
-    fclose(fp);
-}
-
 void MainWindow::on_errorButton_clicked()
 {
-    int lines = get_line_count();
-    int start = ui->scriptListView->currentIndex().column();
+    QString text = ui->scriptView->toPlainText();
+    int lineCount = text.split(u8'\n').count();
+    int cursorLine = getCursorLine();
 
     // Start searching from a line at (current-selected + 1).
-    for(int i = start + 1; i < lines; i++) {
+    for (int i = cursorLine + 1; i < lineCount; i++) {
         const char *text = get_line_string_at_line_num(i);
-        if(text[0] == '!') {
-            QModelIndex cellIndex = ui->scriptListView->model()->index(i, 0);
-            ui->scriptListView->setCurrentIndex(cellIndex);
+        if (text[0] == '!') {
+            setExecLine(i);
             return;
-	}
+        }
     }
 
     // Don't re-start search if the selected item is at index 0.
-    if(start == 0) {
+    if (cursorLine == 0) {
         // Re-start searching from index 0 to index start.
-        for(int i = 0; i <= start; i++) {
+        for (int i = 0; i <= cursorLine; i++) {
             const char *text = get_line_string_at_line_num(i);
-            if(text[0] == '!') {
-                QModelIndex cellIndex = ui->scriptListView->model()->index(i, 0);
-                ui->scriptListView->setCurrentIndex(cellIndex);
+            if (text[0] == '!') {
+                setExecLine(i);
                 return;
             }
         }
@@ -380,44 +309,14 @@ void MainWindow::setWaitingState()
     // Disable the script file text field.
     ui->fileNameTextEdit->setEnabled(false);
 
-    // Disable the script file update button.
-    ui->updateScriptButton->setEnabled(false);
-
     // Disable the script open button.
     ui->openScriptButton->setEnabled(false);
 
-    // Set the line number label.
-    ui->lineNumberLabel->setText(m_isEnglish ? "Current Waiting Line:" : "現在完了待ちの行番号:");
-
-    // Disable the line number text field.
-    ui->lineNumberEdit->setEnabled(false);
-
-    // Disable the line number update button.
-    ui->updateLineNumberButton->setEnabled(false);
-
-    // Set the command label.
-    ui->commandLabel->setText(m_isEnglish ? "Current Waiting Command:" : "現在完了待ちのコマンド:");
-
-    // Disable the command text edit.
-    ui->commandEdit->setEnabled(false);
-
-    // Disable the command update button.
-    ui->updateCommandButton->setEnabled(false);
-
-    // Disable the command reset button.
-    ui->resetCommandButton->setEnabled(false);
-
     // Enable the script view.
-    ui->scriptListView->setEnabled(true);
+    ui->scriptView->setEnabled(true);
 
     // Disable the search-error button.
     ui->errorButton->setEnabled(false);
-
-    // Disable the overwrite button.
-    ui->overwriteButton->setEnabled(false);
-
-    // Disable the reload button.
-    ui->reloadButton->setEnabled(false);
 
     // Disable the variable text edit.
     ui->variableTextEdit->setEnabled(false);
@@ -456,44 +355,14 @@ void MainWindow::setRunningState()
     // Disable the script file text field.
     ui->fileNameTextEdit->setEnabled(false);
 
-    // Disable the script file update button.
-    ui->updateScriptButton->setEnabled(false);
-
     // Disable the script open button.
     ui->openScriptButton->setEnabled(false);
 
-    // Set the line number label.
-    ui->lineNumberLabel->setText(m_isEnglish ? "Current Waiting Line:" : "現在完了待ちの行番号:");
-
-    // Disable the line number text field.
-    ui->lineNumberEdit->setEnabled(false);
-
-    // Disable the line number update button.
-    ui->updateLineNumberButton->setEnabled(false);
-
-    // Set the command label.
-    ui->commandLabel->setText(m_isEnglish ? "Current Waiting Command:" : "現在完了待ちのコマンド:");
-
-    // Disable the command text edit.
-    ui->commandEdit->setEnabled(false);
-
-    // Disable the command update button.
-    ui->updateCommandButton->setEnabled(false);
-
-    // Disable the command reset button.
-    ui->resetCommandButton->setEnabled(false);
-
     // Enable the script view.
-    ui->scriptListView->setEnabled(true);
+    ui->scriptView->setEnabled(true);
 
     // Disable the search-error button.
     ui->errorButton->setEnabled(false);
-
-    // Disable the overwrite button.
-    ui->overwriteButton->setEnabled(false);
-
-    // Disable the reload button.
-    ui->reloadButton->setEnabled(false);
 
     // Disable the variable text edit.
     ui->variableTextEdit->setEnabled(false);
@@ -532,47 +401,14 @@ void MainWindow::setStoppedState()
     // Enable the script file text field.
     ui->fileNameTextEdit->setEnabled(true);
 
-    // Enable the script file update button.
-    ui->updateScriptButton->setEnabled(true);
-
     // Enable the script open button.
     ui->openScriptButton->setEnabled(true);
 
-    // Enable the script open button.
-    ui->openScriptButton->setEnabled(false);
-
-    // Set the line number label.
-    ui->lineNumberLabel->setText(m_isEnglish ? "Next Line to be Executed:" : "次に実行される行番号:");
-
-    // Enable the line number text field.
-    ui->lineNumberEdit->setEnabled(true);
-
-    // Enable the line number update button.
-    ui->updateLineNumberButton->setEnabled(true);
-
-    // Set the command label.
-    ui->commandLabel->setText(m_isEnglish ? "Next Command to be Executed:" : "次に実行されるコマンド:");
-
-    // Enable the command text edit.
-    ui->commandEdit->setEnabled(true);
-
-    // Enable the command update button.
-    ui->updateCommandButton->setEnabled(true);
-
-    // Disable the command reset button.
-    ui->resetCommandButton->setEnabled(true);
-
     // Enable the script view.
-    ui->scriptListView->setEnabled(true);
+    ui->scriptView->setEnabled(true);
 
     // Enable the search-error button.
     ui->errorButton->setEnabled(true);
-
-    // Enable the overwrite button.
-    ui->overwriteButton->setEnabled(true);
-
-    // Enable the reload button.
-    ui->reloadButton->setEnabled(true);
 
     // Enable the variable text edit.
     ui->variableTextEdit->setEnabled(true);
@@ -595,19 +431,15 @@ void MainWindow::setStoppedState()
 //
 void MainWindow::updateScriptView()
 {
-    QAbstractItemModel *oldModel = ui->scriptListView->model();
-    QStandardItemModel *newModel = new QStandardItemModel();
-
-    int count = get_line_count();
-    for (int lineNum = 0; lineNum < count; lineNum++) {
-        QStandardItem *item = new QStandardItem();
-        item->setText(::get_line_string_at_line_num(lineNum));
-        item->setEditable(false);
-        newModel->appendRow(item);
+    // 行を連列してスクリプト文字列を作成する
+    QString text = "";
+    for (int i = 0; i < get_line_count(); i++) {
+        text.append(get_line_string_at_line_num(i));
+        text.append("\n");
     }
-    ui->scriptListView->setModel(newModel);
 
-    delete oldModel;
+    // テキストビューにテキストを設定する
+    ui->scriptView->setText(text);
 }
 
 //
@@ -635,46 +467,385 @@ void MainWindow::updateVariableText()
 //
 void MainWindow::scrollScript()
 {
-    int line = get_expanded_line_num();
-    QModelIndex cellIndex = ui->scriptListView->model()->index(line, 0);
-    ui->scriptListView->setCurrentIndex(cellIndex);
-    ui->scriptListView->scrollTo(cellIndex);
+    setExecLine(get_expanded_line_num());
 }
 
 //
-// Export data01.arc
+// Open a project.
 //
-void MainWindow::on_actionExport_data01_arc_triggered()
+void MainWindow::on_actionOpen_Project_triggered()
+{
+    // Open a project file.
+    QString filename = QFileDialog::getOpenFileName(this, "Open", QString(), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
+    if (filename.isEmpty())
+        return;
+
+    printf("%s\n", QDir(filename).dirName().toUtf8().data());
+
+    // Set the current working directory.
+    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
+
+    // Initialize.
+    init_locale_code();
+    if(!init_conf())
+        abort();
+
+    // Start game rendering.
+    ui->openGLWidget->start();
+
+    // FIXME: workaround
+    resize(this->width() + 1, this->height());
+}
+
+//
+// Export for Linux.
+//
+void MainWindow::on_actionExport_for_Linux_triggered()
 {
     QMessageBox msgbox(nullptr);
     msgbox.setIcon(QMessageBox::Question);
     msgbox.setWindowTitle("Export");
     msgbox.setText(m_isEnglish ?
-				   "Are you sure you want to export the package file?\n"
-				   "This may take a while." :
-				   "パッケージをエクスポートします。\n"
-				   "この処理には時間がかかります。\n"
-				   "よろしいですか？");
+                   "Are you sure you want to export a Linux game?\n"
+                   "This may take a while." :
+                   "Linuxゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
     msgbox.addButton(QMessageBox::Yes);
     msgbox.addButton(QMessageBox::No);
     if (msgbox.exec() != QMessageBox::Yes)
         return;
 
     // Generate a package in the current directory.
-    bool ret = create_package("");
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
 
-    if (ret) {
-		log_info(m_isEnglish ?
-				 "Successfully exported data01.arc" :
-				 "data01.arcのエクスポートに成功しました。");
-	}
+    // Copy an export template.
+    if (!copyExportTemplateWithGame("export-linux", true))
+        return;
+
+    // Open the folder.
+    QDesktopServices::openUrl(QUrl::fromLocalFile("export-linux"));
 }
 
 //
-// Export Web version
+// Export for Windows.
+//
+void MainWindow::on_actionExport_for_Windows_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a Windows game?\n"
+                   "This may take a while." :
+                   "Windowsゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplateWithGame("export-windows", true))
+        return;
+
+    // Open the folder.
+    QDesktopServices::openUrl(QUrl::fromLocalFile("export-windows"));
+}
+
+//
+// Export for macOS.
+//
+void MainWindow::on_actionExport_for_macOS_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a macOS game?\n"
+                   "This may take a while." :
+                   "macOSゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplateWithGame("export-macos", true))
+        return;
+
+    // Open the folder.
+    QDesktopServices::openUrl(QUrl::fromLocalFile("export-macos"));
+}
+
+//
+// Export for iOS.
+//
+void MainWindow::on_actionExport_for_iOS_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export an iOS game?\n"
+                   "This may take a while." :
+                   "iOSゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplateWithGame("export-ios", true))
+        return;
+
+    // Open the folder.
+    QDesktopServices::openUrl(QUrl::fromLocalFile("export-ios"));
+}
+
+//
+// Export for Android.
+//
+void MainWindow::on_actionExport_for_Android_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export an Android game?\n"
+                   "This may take a while." :
+                   "Androidゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplateWithGame("export-android", true))
+        return;
+
+    // Copy assets.
+    const char *subdir[] = {"anime", "bg", "bgm", "cg", "ch", "conf", "cv",
+                            "font", "gui", "mov", "rule", "se", "txt", "wms"};
+    for (int i = 0; i < sizeof(subdir) / sizeof(const char *); i++) {
+        QString src = subdir[i];
+        QString dst = "export-android";
+        copyFiles(src, dst);
+    }
+
+    // Open the folder.
+    QDesktopServices::openUrl(QUrl::fromLocalFile("export-android"));
+}
+
+//
+// Export for Web.
 //
 void MainWindow::on_actionExport_for_Web_triggered()
 {
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a Web game?\n"
+                   "This may take a while." :
+                   "Webゲームをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Copy an export template.
+    if (!copyExportTemplateWithGame("export-web", true))
+        return;
+
+    // Open the folder.
+    QDesktopServices::openUrl(QUrl::fromLocalFile("export-web"));
+}
+
+//
+// Export a package only.
+//
+void MainWindow::on_actionExport_package_only_triggered()
+{
+    QMessageBox msgbox(nullptr);
+    msgbox.setIcon(QMessageBox::Question);
+    msgbox.setWindowTitle("Export");
+    msgbox.setText(m_isEnglish ?
+                   "Are you sure you want to export a package file?\n"
+                   "This may take a while." :
+                   "パッケージファイルをエクスポートします。\n"
+                   "この処理には時間がかかります。\n"
+                   "よろしいですか？");
+    msgbox.addButton(QMessageBox::Yes);
+    msgbox.addButton(QMessageBox::No);
+    if (msgbox.exec() != QMessageBox::Yes)
+        return;
+
+    // Generate a package in the current directory.
+    if (!create_package("")) {
+        log_info(m_isEnglish ?
+                 "Failed to exported data01.arc" :
+                 "data01.arcのエクスポートに失敗しました。");
+        return;
+    }
+
+    // Open the folder.
+    QDesktopServices::openUrl(QUrl::fromLocalFile("data01.arc"));
+}
+
+// Copy export-* files.
+bool MainWindow::copyExportTemplateWithGame(const QString& name, bool copyArc)
+{
+    QDir src = QApplication::applicationDirPath();
+    src.cd("../share/suika2/" + name);
+
+    QDir dst(".");
+
+    // Copy a template directory.
+    copyFiles(src.path(), dst.path());
+
+    // Copy an archive.
+    if (copyArc)
+        QFile::copy("data01.arc", dst.path() + QDir::separator() + "data01.arc");
+
+    return true;
+}
+
+// Copy files recursively.
+bool MainWindow::copyFiles(QString src, QString dst)
+{
+    QDir dir(src);
+    if (!dir.exists())
+        return false;
+
+    foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        QString dst_path = dst + QDir::separator() + d;
+        dir.mkpath(dst_path);
+        copyFiles(src + QDir::separator() + d, dst_path);
+    }
+
+    foreach (QString f, dir.entryList(QDir::Files)) {
+        QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
+    }
+
+    return true;
+}
+
+// Get the cursor line.
+int MainWindow::getCursorLine()
+{
+    QTextCursor cursor = ui->scriptView->textCursor();
+    cursor.movePosition(QTextCursor::StartOfLine);
+    int lines = 1;
+    while (cursor.positionInBlock()>0) {
+        cursor.movePosition(QTextCursor::Up);
+        lines++;
+    }
+    QTextBlock block = cursor.block().previous();
+    while (block.isValid()) {
+        lines += block.lineCount();
+        block = block.previous();
+    }
+    return lines;
+}
+
+// Set execution line.
+void MainWindow::setExecLine(int line)
+{
+    QTextCursor lineCursor(ui->scriptView->document()->findBlockByLineNumber(line));
+    lineCursor.select(QTextCursor::LineUnderCursor);
+    ui->scriptView->setTextCursor(lineCursor);
+}
+
+// Update script model from text.
+void MainWindow::updateScriptModelFromText()
+{
+    // Reset parse errors, will notify the first error.
+    dbg_reset_parse_error_count();
+
+    // Get the text from text view and update script model for each line.
+    QString text = ui->scriptView->toPlainText();
+    QStringList lines = text.split(u'\n');
+    int lineCount = 0;
+    for (QString line : lines) {
+		// Update a line.
+        const char *utf8 = line.toUtf8();
+		if (lineCount < get_line_count())
+			update_script_line(lineCount, utf8);
+		else
+			insert_script_line(lineCount, utf8);
+
+		lineCount++;
+	}
+
+	// Process removed lines.
+	m_isExecLineChanged = false;
+	for (int i = get_line_count() - 1; i >= lineCount; i--)
+		if (delete_script_line(lineCount))
+			m_isExecLineChanged = true;
+
+	// Reparse if there are extended syntaxes.
+	reparse_script_for_structured_syntax();
+
+	// If failed to parse and reparse:
+	if (dbg_get_parse_error_count() > 0) {
+		// Set text again to reflect '!' at the line starts.
+		updateScriptView();
+	}
 }
 
 //
@@ -1082,50 +1253,26 @@ bool is_stop_pushed(void)
 
 bool is_script_opened(void)
 {
-    bool ret = MainWindow::obj->m_isChangeScriptPressed;
-    MainWindow::obj->m_isChangeScriptPressed = false;
+    bool ret = MainWindow::obj->m_isScriptOpened;
+    MainWindow::obj->m_isScriptOpened = false;
     return ret;
 }
 
 const char *get_opened_script(void)
 {
-    static char script[256];
-    snprintf(script, sizeof(script), "%s", MainWindow::obj->ui->fileNameTextEdit->text().toUtf8().data());
-    return script;
+    return MainWindow::obj->m_openedScript.toUtf8();
 }
 
 bool is_exec_line_changed(void)
 {
-    bool ret = MainWindow::obj->m_isChangeLinePressed;
-    MainWindow::obj->m_isChangeLinePressed = false;
+    bool ret = MainWindow::obj->m_isExecLineChanged;
+    MainWindow::obj->m_isExecLineChanged = false;
     return ret;
 }
 
 int get_changed_exec_line(void)
 {
-    return MainWindow::obj->ui->lineNumberEdit->text().toInt();
-}
-
-bool is_command_updated(void)
-{
-    bool ret = MainWindow::obj->m_isCommandUpdatePressed;
-    MainWindow::obj->m_isCommandUpdatePressed = false;
-    return ret;
-}
-
-const char *get_updated_command(void)
-{
-    static char command[4096];
-    snprintf(command, sizeof(command), "%s", MainWindow::obj->ui->commandEdit->document()->toPlainText().toUtf8().data());
-    return command;
-}
-
-bool is_script_reloaded(void)
-{
-    bool ret = MainWindow::obj->m_isReloadPressed;
-    MainWindow::obj->m_isReloadPressed = false;
-    return ret;
-    return false;
+    return MainWindow::obj->m_changedExecLine;
 }
 
 void on_change_running_state(bool running, bool request_stop)
@@ -1157,8 +1304,6 @@ void on_load_script(void)
 
 void on_change_position(void)
 {
-    MainWindow::obj->ui->lineNumberEdit->setText(QString::number(get_expanded_line_num()));
-    MainWindow::obj->ui->commandEdit->setText(get_line_string());
     MainWindow::obj->scrollScript();
 }
 

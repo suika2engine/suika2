@@ -13,7 +13,7 @@
 #include "suika.h"
 
 /* 既読フラグ */
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 static bool seen_flag[SCRIPT_CMD_SIZE];
 #endif
 
@@ -21,7 +21,7 @@ static bool seen_flag[SCRIPT_CMD_SIZE];
 static bool is_initialized;
 
 /* 前方参照 */
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 static const char *hash(const char *file);
 static char hex(int c);
 #endif
@@ -57,7 +57,7 @@ void cleanup_seen(void)
  */
 bool load_seen(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	return true;
 #else
 	struct rfile *rf;
@@ -102,7 +102,7 @@ bool load_seen(void)
  */
 bool save_seen(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	return true;
 #else
 	struct wfile *wf;
@@ -143,7 +143,7 @@ bool save_seen(void)
  */
 bool get_seen(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	return true;
 #else
 	int index;
@@ -160,7 +160,7 @@ bool get_seen(void)
  */
 void set_seen(void)
 {
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	int index;
 
 	index = get_command_index();
@@ -170,7 +170,7 @@ void set_seen(void)
 #endif
 }
 
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 /* スクリプトファイル名からハッシュを求める */
 static const char *hash(const char *file)
 {

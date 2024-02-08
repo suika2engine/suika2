@@ -53,7 +53,7 @@ bool click_command(void)
 	     (float)get_lap_timer_millisec(&sw) >= AUTO_MODE_WAIT)) {
 		stop_command_repetition();
 	} else {
-#if defined(USE_DEBUGGER)
+#if defined(USE_EDITOR)
 		if (dbg_is_stop_requested())
 			stop_command_repetition();
 #endif

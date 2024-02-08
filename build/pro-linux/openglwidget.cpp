@@ -21,6 +21,10 @@ extern "C" {
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
+    m_isStarted = false;
+    m_isOpenGLInitialized = false;
+    m_isFirstFrame = false;
+
     // No transparency.
     setAttribute(Qt::WA_TranslucentBackground, false);
 
@@ -33,6 +37,14 @@ OpenGLWidget::~OpenGLWidget()
 }
 
 //
+// Start game.
+//
+void OpenGLWidget::start()
+{
+    m_isStarted = true;
+}
+
+//
 // Initialization.
 //
 void OpenGLWidget::initializeGL()
@@ -41,8 +53,11 @@ void OpenGLWidget::initializeGL()
     initializeOpenGLFunctions();
 
     // Start using the Suika2's OpenGL ES rendering subsystem.
-    if(!init_opengl())
+    if (!init_opengl())
         abort();
+
+    glViewport(m_viewportX, m_viewportY, m_viewportWidth, m_viewportHeight);
+
     m_isOpenGLInitialized = true;
     m_isFirstFrame = true;
 }
@@ -52,6 +67,10 @@ void OpenGLWidget::initializeGL()
 //
 void OpenGLWidget::paintGL()
 {
+    // Guard if not started.
+    if (!m_isStarted)
+        return;
+
     // Guard if not initialized.
     if (!m_isOpenGLInitialized)
         return;

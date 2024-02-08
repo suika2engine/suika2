@@ -23,7 +23,7 @@ ACCEPT {
 
 JAPANESE {
     type: gui;
-    file: language.txt;
+    file: language/japanese.txt;
 
     x: 495;
     y: 266;

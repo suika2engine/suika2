@@ -33,7 +33,7 @@ static char *name_var_tbl[NAME_VAR_SIZE];
 /* expand_variable()のバッファ */
 static char expand_variable_buf[4096];
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 static bool is_var_changed[LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE];
 #endif
 
@@ -55,7 +55,7 @@ void init_vars(void)
 		name_var_tbl[i] = NULL;
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	clear_variable_changed();
 #endif
 }
@@ -95,7 +95,7 @@ void set_variable(int index, int32_t val)
 {
 	assert(index < VAR_SIZE);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	if (index >= VAR_SIZE)
 		return;
 	is_var_changed[index] = true;
@@ -221,10 +221,18 @@ void truncate_name_variable(int index)
  */
 const char *expand_variable(const char *msg)
 {
+	return expand_variable_with_increment(msg, 0);
+}
+
+/*
+ * 文字列の中の変数を展開して返す(変数のインクリメントも行う)
+ */
+const char *expand_variable_with_increment(const char *msg, int inc)
+{
 	char var[16];
 	char *d;
 	size_t buf_size;
-	int i, index, name_index;
+	int i, index, name_index, value;
 
 	d = expand_variable_buf;
 	buf_size = sizeof(expand_variable_buf);
@@ -252,12 +260,14 @@ const char *expand_variable(const char *msg)
 			if (i > 0) {
 				index = atoi(var);
 				if (index >= 0 && index < VAR_SIZE) {
+					value = get_variable(index);
 					d += snprintf(d,
 						      buf_size -
 						      (size_t)(d -
 							       expand_variable_buf),
 						      "%d",
-						      get_variable(index));
+						      value);
+					set_variable(index, value + inc);
 				}
 			} else {
 				/* 不正な変数番号の場合、$を出力する */
@@ -301,9 +311,9 @@ int32_t *get_global_variables_pointer(void)
 }
 
 /*
- * デバッガ用
+ * Suika2 Pro用
  */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /*
  * 変数が初期値から更新されているかを調べる
  */

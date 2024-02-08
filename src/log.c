@@ -138,12 +138,12 @@ void log_image_file_error(const char *dir, const char *file)
 /*
  * メモリ確保エラーを記録する
  */
-void log_memory(void)
+void log_memory_helper(const char *file, int line)
 {
 	if (is_english_mode())
-		log_error("Out of memory.\n");
+		log_error("Out of memory. (%s:%d)\n", file, line);
 	else
-		log_error(U8("メモリの確保に失敗しました。\n"));
+		log_error(U8("メモリの確保に失敗しました。(%s:%d)\n"), file, line);
 
 	abort();
 }
@@ -268,7 +268,7 @@ void log_save_ver(void)
  */
 void log_script_exec_footer(void)
 {
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	const char *file;
 	int line;
 
@@ -455,7 +455,7 @@ void log_script_op_error(const char *op)
  */
 void log_script_parse_footer(const char *file, int line, const char *buf)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	if (dbg_get_parse_error_count() > 0)
 		return;
 #endif
@@ -1004,7 +1004,7 @@ void log_invalid_layer_name(const char *name)
 		log_error(U8("未知のレイヤ名 \"%s\"が指定されました"), name);
 }
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /*
  * スクリプトにエラーがあった際の情報提供を行う
  */

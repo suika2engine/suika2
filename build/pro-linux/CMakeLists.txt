@@ -16,9 +16,11 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGL OpenGLWidg
 
 # We use the following preprocessor macros.
 add_compile_definitions(
-  USE_DEBUGGER
+  USE_EDITOR
   USE_QT
-  NO_SSE_VERSIONING
+
+  # This is for non-Linux including FreeBSD, NetBSD, OpenBSD.
+# USE_QT_AUDIO
 )
 
 # The following source files.
@@ -55,9 +57,14 @@ target_link_libraries(
   vorbisfile
   vorbis
   ogg
-  z
+  brotlidec
+  brotlicommon
   bz2
+  z
+
+  # Comment out if not for Linux.
   asound
+
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::OpenGLWidgets
   Qt${QT_VERSION_MAJOR}::Multimedia
