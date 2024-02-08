@@ -756,9 +756,13 @@ character.file3=002-
 ### ステージの設定
 ###
 
-# キャラクタの位置補正
+# キャラクタの位置補正(下端マージン)
 stage.ch.margin.bottom=0
+
+# キャラクタの位置補正(左端マージン)
 stage.ch.margin.left=0
+
+# キャラクタの位置補正(右端マージン)
 stage.ch.margin.right=0
 
 ###

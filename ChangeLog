@@ -5,14 +5,26 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.129 2024/2/8
+  <ul>
+    <li>@chsxでright-centerの位置を修正 (Thanks to あさつき-san!)</li>
+    <li>@chsxで下マージンのコンフィグstage.ch.margin.bottomが効かないバグを修正 (Thanks to あさつき-san!)</li>
+    <li>@chsxでleft-x=keepという表記でキャラ変更時にオフセットを変更しない機能を追加 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
+<li>Suika2/15.128 2024/2/8
+  <ul>
+    <li>right-centerの位置を修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.127 2024/2/5
   <ul>
     <li>pro-windows: バグ修正</li>
     <li>pro-macos: バグ修正</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.126 2024/2/4
   <ul>
     <li>ボイス連番: ボイスファイル名で$0のような変数名に対応、変数は1ずつ増加 (Thanks to Mirin-san!)</li>
@@ -1149,14 +1161,26 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.129 2024/2/8
+  <ul>
+    <li>Fixed a bug where right-center's X offset is bad in @chsx (Thanks to Asatsuki-san!)</li>
+    <li>Fixed a bug where stage.ch.margin.bottom config is not applied in @chsx (Thanks to Asatsuki-san!)</li>
+    <li>Added a new feature left-x=keep in @chsx (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
+<li>Suika2/15.128 2024/2/8
+  <ul>
+    <li>Fixed a position calc of right-center (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.127 2024/2/5
   <ul>
     <li>pro-windows: bug fix</li>
     <li>pro-macos: bug fix</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.126 2024/2/4
   <ul>
     <li>Sequential Voice: Supported variables in voice file names, variables are auto-incremented (Thanks to Mirin-san!)</li>
