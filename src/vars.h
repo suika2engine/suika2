@@ -75,7 +75,7 @@ int32_t *get_local_variables_pointer(void);
 /* ローカル変数テーブルへのポインタを取得する */
 int32_t *get_global_variables_pointer(void);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /* 変数の値が更新されたかをチェックする */
 bool check_variable_updated(void);
 

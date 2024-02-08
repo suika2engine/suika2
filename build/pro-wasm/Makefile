@@ -69,7 +69,6 @@ html: emsdk $(SRC) shell.html
 		-o html/index.html \
 		-O3 \
 		-DUSE_OPENGL \
-		-DUSE_DEBUGGER \
 		-DUSE_EDITOR \
 		-DNO_WEBP \
 		-s USE_ZLIB=1 \

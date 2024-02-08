@@ -728,10 +728,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 15.116;
 				OTHER_CFLAGS = (
-					"-DUSE_EDITOR",
-					"-DUSE_DEBUGGER",
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
+					"-DUSE_EDITOR",
 				);
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_LDFLAGS = (
@@ -781,10 +780,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 15.116;
 				OTHER_CFLAGS = (
-					"-DUSE_EDITOR",
-					"-DUSE_DEBUGGER",
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
+					"-DUSE_EDITOR",
 				);
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				OTHER_LDFLAGS = (

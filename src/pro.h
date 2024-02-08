@@ -10,12 +10,13 @@
  *
  * [History]
  *  - 2023-12-08 Created.
+ *  - 2024-02-08 Removed the old APIs and moved to editor version on all the platforms.
  */
 
 #ifndef SUIKA_PRO_H
 #define SUIKA_PRO_H
 
-#if defined(USE_DEBUGGER) || defined(USE_EDITOR)
+#if defined(USE_EDITOR)
 
 /*
  * Return whether the "continue" botton is pressed.
@@ -72,27 +73,6 @@ void on_change_position(void);
  */
 void on_update_variable(void);
 
-#endif /* defined(USE_DEBUGGER) || defined(USE_EDITOR) */
-
-/*
- * The following are not used in the newer versions of Suika2 Pro.
- * Currently only Qt6 version uses them.
- */
-#if !defined(USE_EDITOR)
-/*
- * Return whether "current command string" is updated.
- */
-bool is_command_updated(void);
-
-/*
- * Return the "current command string" if it is changed.
- */
-const char *get_updated_command(void);
-
-/*
- * Return whether the "reload" button is pressed.
- */
-bool is_script_reloaded(void);
-#endif /* !defined(USE_EDITOR) */
+#endif /* defined(USE_EDITOR) */
 
 #endif /* SUIKA_PRO_H */

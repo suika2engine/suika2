@@ -166,7 +166,7 @@ int get_pen_position_y(void);
 /*
  * Debugging Support For Suika2 Pro
  */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 
 /*
  * Stop execution and update debugger UI elements.
@@ -201,6 +201,6 @@ void dbg_increment_parse_error_count(void);
  */
 int dbg_get_parse_error_count(void);
 
-#endif	/* USE_DEBUGGER */
+#endif	/* USE_EDITOR */
 
 #endif	/* SUIKA_MAIN_H */

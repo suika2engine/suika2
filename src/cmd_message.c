@@ -780,7 +780,7 @@ static void init_font_color(void)
 	if (gui_sys_flag)
 		return;
 
-#if !defined(USE_EDITOR) && !defined(USE_DEBUGGER)
+#if !defined(USE_EDITOR)
 	/* 既読であり、既読の色が設定されている場合 */
 	if (get_seen() && conf_msgbox_seen_color) {
 		body_color = make_pixel(0xff,
@@ -1503,7 +1503,7 @@ static int get_pointed_button(void)
 {
 	int rx, ry, btn_x, btn_y, btn_w, btn_h, i;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合、ボタンを選択できなくする */
 	if (dbg_is_stop_requested())
 		return BTN_NONE;
@@ -1671,7 +1671,7 @@ static bool frame_auto_mode(void)
 	/* オートモード中はメッセージボックスを非表示にできない */
 	assert(!is_hidden);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* オートモード中に停止要求があった場合 */
 	if (dbg_is_stop_requested()) {
 		/* オートモード終了アクションを処理する */
@@ -1813,7 +1813,7 @@ static bool frame_buttons(void)
 		play_se(conf_msgbox_btn_change_se);
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中はボタンのクリックを処理しない */
 	if (dbg_is_stop_requested())
 		return false;
@@ -2118,7 +2118,7 @@ static void action_custom(int index)
 /* システムメニューの処理を行う */
 static bool frame_sysmenu(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested()) {
 		/* システムメニュー表示中でない場合 */
@@ -2370,7 +2370,7 @@ static void adjust_sysmenu_pointed_index(void)
 /* 選択中のシステムメニューのボタンを取得する */
 static int get_pointed_sysmenu_item_extended(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合、ボタンを選択できなくする */
 	if (dbg_is_stop_requested())
 		return SYSMENU_NONE;
@@ -2541,7 +2541,7 @@ static int get_frame_chars(void)
 		if (is_beep)
 			set_mixer_input(VOICE_STREAM, NULL);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		/*
 		 * デバッガの停止ボタンが押されている場合は、
 		 * クリック待ちに移行せずにコマンドを終了する流れにする
@@ -2727,7 +2727,7 @@ static bool check_stop_click_animation(void)
 	/* 本文の描画が完了していなければここに来ない */
 	assert(is_end_of_msg());
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* デバッガから停止要求がある場合 */
 	if (dbg_is_stop_requested()) {
 		/* ボイスがなければ停止する */
@@ -2906,7 +2906,7 @@ static void render_collapsed_sysmenu_extended(void)
 /* 折りたたみシステムメニューがポイントされているか調べる */
 static bool is_collapsed_sysmenu_pointed_extended(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* シングルステップか停止要求中の場合 */
 	if (dbg_is_stop_requested())
 		return false;
@@ -3071,7 +3071,7 @@ static bool cleanup(void)
 		set_mixer_input(VOICE_STREAM, NULL);
 
 	/* クリックアニメーションを非表示にする */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	if (dbg_is_stop_requested())
 		show_click(true);
 #else

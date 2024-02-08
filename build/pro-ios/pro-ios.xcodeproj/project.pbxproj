@@ -661,7 +661,6 @@
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
 					"-DUSE_EDITOR",
-					"-DUSE_DEBUGGER",
 				);
 				OTHER_LDFLAGS = (
 					"-L./libroot/lib",
@@ -719,7 +718,6 @@
 					"-I./libroot/include",
 					"-I./libroot/include/freetype2",
 					"-DUSE_EDITOR",
-					"-DUSE_DEBUGGER",
 				);
 				OTHER_LDFLAGS = (
 					"-L./libroot/lib",

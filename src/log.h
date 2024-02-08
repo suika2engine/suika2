@@ -107,7 +107,7 @@ void log_anime_unknown_key(const char *key);
 void log_anime_long_sequence(void);
 void log_invalid_layer_name(const char *name);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 void log_inform_translated_commands(void);
 void log_script_line_size(void);
 void log_dir_not_found(const char *dir);

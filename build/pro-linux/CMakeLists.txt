@@ -17,7 +17,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGL OpenGLWidg
 # We use the following preprocessor macros.
 add_compile_definitions(
   USE_EDITOR
-  USE_DEBUGGER
   USE_QT
 
   # This is for non-Linux including FreeBSD, NetBSD, OpenBSD.

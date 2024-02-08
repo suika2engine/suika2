@@ -23,7 +23,7 @@
 
 #include "suika.h"
 
-#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
+#if defined(USE_EDITOR)
 #include "pro.h"
 #endif
 
@@ -861,7 +861,7 @@ bool quick_load(bool extra)
 	if (is_skip_mode())
 		stop_skip_mode();
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	clear_variable_changed();
 	on_load_script();
 	on_change_position();
@@ -913,7 +913,7 @@ bool execute_load(int index)
 	if (!conf_window_title_chapter_disable)
 		update_window_title();
 	
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	clear_variable_changed();
 	on_load_script();
 	on_change_position();

@@ -55,7 +55,7 @@
 #include "wms.h"	/* The WMS subsystem */
 
 /* Suika2 Pro */
-#if defined(USE_EDITOR) || defined(USE_DEBUGGER)
+#if defined(USE_EDITOR)
 #include "pro.h"
 #endif
 

@@ -33,7 +33,7 @@ static char *name_var_tbl[NAME_VAR_SIZE];
 /* expand_variable()のバッファ */
 static char expand_variable_buf[4096];
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 static bool is_var_changed[LOCAL_VAR_SIZE + GLOBAL_VAR_SIZE];
 #endif
 
@@ -55,7 +55,7 @@ void init_vars(void)
 		name_var_tbl[i] = NULL;
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	clear_variable_changed();
 #endif
 }
@@ -95,7 +95,7 @@ void set_variable(int index, int32_t val)
 {
 	assert(index < VAR_SIZE);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	if (index >= VAR_SIZE)
 		return;
 	is_var_changed[index] = true;
@@ -311,9 +311,9 @@ int32_t *get_global_variables_pointer(void)
 }
 
 /*
- * デバッガ用
+ * Suika2 Pro用
  */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /*
  * 変数が初期値から更新されているかを調べる
  */

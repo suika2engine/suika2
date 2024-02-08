@@ -81,7 +81,7 @@ static int saved_pen_y;
 /* 前方参照 */
 static bool dispatch_command(bool *cont);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /* 実行中であるか */
 static bool dbg_running;
 
@@ -133,7 +133,7 @@ void init_game_loop(void)
 
 	srand((unsigned int)time(NULL));
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	dbg_running = false;
 	on_change_position();
 #endif
@@ -168,7 +168,7 @@ bool game_loop_iter(void)
 		}
 	}
 
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	/* ゲームエンジン本体の場合、コマンドを実行する */
 	if (!is_gui) {
 		/* コマンドを実行する */
@@ -227,7 +227,7 @@ bool game_loop_iter(void)
 	return true;
 }
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /* デバッガ用のコマンドディスパッチの前処理 */
 static bool pre_dispatch(void)
 {
@@ -539,7 +539,7 @@ static bool dispatch_command(bool *cont)
 		break;
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	if (*cont && !dbg_request_stop) {
 		render_stage();
 		*cont = false;
@@ -744,7 +744,7 @@ int get_pen_position_y(void)
 /*
  * For Suika2 Pro
  */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 
 /*
  * デバッガの実行状態を停止にする

@@ -151,14 +151,14 @@ static int cur_expanded_line;
 /*
  * For the main engine
  */
-#if !defined(USE_EDITOR) && !defined(USE_DEBUGGER)
+#if !defined(USE_EDITOR)
 bool reparse_script_for_structured_syntax(void);
 #endif
 
 /*
  * For Suika2 Pro
  */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 
 /* コメント行のテキスト */
 #define SCRIPT_LINE_SIZE	(65536)
@@ -174,7 +174,7 @@ static void replace_comment_by_comment(int line, const char *text);
 static void insert_comment(int line, const char *text);
 static bool insert_command(int line, const char *text);
 
-#endif /* USE_DEBUGGER */
+#endif /* USE_EDITOR */
 
 /*
  * 命令の種類
@@ -605,7 +605,7 @@ struct param_item {
 
 #define PARAM_TBL_SIZE	(sizeof(param_tbl) / sizeof(struct param_item))
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /*
  * スタートアップ情報
  */
@@ -694,7 +694,7 @@ static void show_parse_error_footer(int cmd_index, const char *raw);
 /*
  * Forward Declarations (dynamic script model manipulation)
  */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 /* For parse error handling. */
 static void recover_from_parse_error(int cmd_index, const char *raw);
 
@@ -716,7 +716,7 @@ bool init_script(void)
 	cleanup_script();
 #endif
 
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	/* スクリプトをロードする */
 	if (!load_script(INIT_FILE))
 		return false;
@@ -784,7 +784,7 @@ void cleanup_script(void)
 	}
 	used_file_names = 0;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* コメント行の配列を解放する */
 	for (i = 0; i < cur_expanded_line; i++) {
 		if (comment_text[i] != NULL) {
@@ -828,7 +828,7 @@ bool load_script(const char *fname)
 	/* コマンドが含まれない場合 */
 	if (cmd_size == 0) {
 		log_script_no_command(fname);
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		/* デバッグ表示用のダミーのスクリプトを読み込む */
 		return load_debug_script();
 #else
@@ -850,7 +850,7 @@ bool load_script(const char *fname)
 	assert(cur_script != NULL);
 	set_return_point(INVALID_RETURN_POINT);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* スクリプトロードのタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
@@ -890,12 +890,7 @@ bool move_to_command_index(int index)
 
 	cur_index = index;
 
-#ifdef USE_DEBUGGER
-#ifndef USE_EDITOR
-	/* コマンド移動のタイミングでは停止要求を処理する */
-	if (dbg_is_stop_requested())
-		dbg_stop();
-#endif
+#ifdef USE_EDITOR
 	on_change_position();
 #endif
 
@@ -915,7 +910,7 @@ bool move_to_next_command(void)
 
 	cur_index++;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
@@ -960,7 +955,7 @@ bool move_to_label(const char *label)
 	if (c->type == COMMAND_LABELEDGOTO)
 		cur_index++;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
@@ -999,7 +994,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 		cur_index = i;
 		if (c->type == COMMAND_LABELEDGOTO)
 			cur_index++;
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		/* コマンド移動のタイミングでは停止要求を処理する */
 		if (dbg_is_stop_requested())
 			dbg_stop();
@@ -1035,7 +1030,7 @@ bool move_to_label_finally(const char *label, const char *finally_label)
 	if (c->type == COMMAND_LABELEDGOTO)
 		cur_index++;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* コマンド移動のタイミングでは停止要求を処理する */
 	if (dbg_is_stop_requested())
 		dbg_stop();
@@ -1327,7 +1322,7 @@ static const char *search_file_name_pointer(const char *fname)
 /* スクリプトの保存先の容量をチェックする */
 static bool check_size(void)
 {
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* これ以上スクリプト行を保存できない場合 */
 	if (cur_expanded_line >= SCRIPT_LINE_SIZE) {
 		log_script_line_size();
@@ -1351,7 +1346,7 @@ static bool process_include(char *raw_buf, bool is_included)
 	if (is_included) {
 		log_script_deep_include(&raw_buf[strlen(MACRO_INC)]);
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		/* デバッガの場合、回復してコメント行扱いにする */
 		if (!add_comment_line("!%s", raw_buf))
 			return false;
@@ -1365,7 +1360,7 @@ static bool process_include(char *raw_buf, bool is_included)
 #endif
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* デバッガの場合、開始コメント行を挿入する */
 	if (!add_comment_line("<!-- // begin using %s", &raw_buf[strlen(MACRO_INC)]))
 		return false;
@@ -1375,7 +1370,7 @@ static bool process_include(char *raw_buf, bool is_included)
 	if (!read_script_from_file(&raw_buf[strlen(MACRO_INC)], true))
 		return false;
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* デバッガの場合、終了コメント行を挿入する */
 	if (!add_comment_line("--> // end using"))
 		return false;
@@ -1412,7 +1407,7 @@ static bool process_normal_line(const char *raw, const char *buf)
 	switch (buf[top]) {
 	case '\0':
 	case '#':
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 		/* デバッガならコメントを保存する */
 		if (!add_comment_line("%s", raw))
 			return false;
@@ -1449,7 +1444,7 @@ static bool process_normal_line(const char *raw, const char *buf)
 		break;
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* デバッガの場合、パースエラーから復旧する */
 	if (!ret)
 		ret = true;
@@ -2666,7 +2661,7 @@ static bool reparse_normal_line(int index, int spaces)
 		break;
 	}
 
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 	/* デバッガの場合、パースエラーから復旧する */
 	if (!ret)
 		ret = true;
@@ -2708,7 +2703,7 @@ static bool starts_with(const char *s, const char *prefix)
 /* パースエラーのフッタを表示する */
 static void show_parse_error_footer(int index, const char *raw)
 {
-#ifndef USE_DEBUGGER
+#ifndef USE_EDITOR
 	/* フッタを表示する */
 	log_script_parse_footer(cur_parse_file, cur_parse_line, raw);
 
@@ -2722,7 +2717,7 @@ static void show_parse_error_footer(int index, const char *raw)
 /*
  * For Suika2 Pro
  */
-#ifdef USE_DEBUGGER
+#ifdef USE_EDITOR
 
 /* パースエラーから回復する */
 static void recover_from_parse_error(int cmd_index, const char *raw)
@@ -3421,4 +3416,4 @@ int get_command_type_from_name(const char *name)
 	return -1;
 }
 
-#endif /* USE_DEBUGGER */
+#endif /* USE_EDITOR */
