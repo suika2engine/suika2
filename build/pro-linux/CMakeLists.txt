@@ -58,7 +58,8 @@ target_link_libraries(
   vorbisfile
   vorbis
   ogg
-  brotli
+  brotlidec
+  brotlicommon
   bz2
   z
 

@@ -130,8 +130,8 @@
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>55</y>
-       <width>430</width>
+       <y>85</y>
+       <width>420</width>
        <height>260</height>
       </rect>
      </property>
@@ -146,8 +146,8 @@
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>330</y>
-       <width>80</width>
+       <y>355</y>
+       <width>100</width>
        <height>24</height>
       </rect>
      </property>
@@ -159,8 +159,8 @@
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>370</y>
-       <width>321</width>
+       <y>440</y>
+       <width>300</width>
        <height>16</height>
       </rect>
      </property>
@@ -173,7 +173,7 @@
       <rect>
        <x>5</x>
        <y>385</y>
-       <width>380</width>
+       <width>315</width>
        <height>100</height>
       </rect>
      </property>
@@ -181,9 +181,9 @@
     <widget class="QPushButton" name="writeButton">
      <property name="geometry">
       <rect>
-       <x>395</x>
+       <x>330</x>
        <y>385</y>
-       <width>80</width>
+       <width>95</width>
        <height>24</height>
       </rect>
      </property>
@@ -206,6 +206,17 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="actionNew_Project_English_Adv"/>
+    <addaction name="actionNew_Project_English_Nvl"/>
+    <addaction name="actionNew_Project_Japanese_Adv"/>
+    <addaction name="actionNew_Project_Japanese_Nvl"/>
+    <addaction name="actionNew_Project_Japanese_Nvl_Vertical"/>
+   </widget>
+   <widget class="QMenu" name="menuExport">
+    <property name="title">
+     <string>Export</string>
+    </property>
     <addaction name="actionExport_for_Linux"/>
     <addaction name="actionExport_for_Windows"/>
     <addaction name="actionExport_for_macOS"/>
@@ -215,7 +226,38 @@
     <addaction name="actionExport_package_only"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuExport"/>
   </widget>
+  <action name="actionNew_Project_English_Adv">
+   <property name="text">
+    <string>English ADV</string>
+   </property>
+  </action>
+  <action name="actionNew_Project_English_Nvl">
+   <property name="text">
+    <string>English NVL</string>
+   </property>
+  </action>
+  <action name="actionNew_Project_Japanese_Adv">
+   <property name="text">
+    <string>Japanese ADV</string>
+   </property>
+  </action>
+  <action name="actionNew_Project_Japanese_Nvl">
+   <property name="text">
+    <string>Japanese NVL</string>
+   </property>
+  </action>
+  <action name="actionNew_Project_Japanese_Nvl_Vertical">
+   <property name="text">
+    <string>Japanese NVL Vertical</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="text">
+    <string>Open Project</string>
+   </property>
+  </action>
   <action name="actionExport_for_Linux">
    <property name="text">
     <string>Export for Linux</string>

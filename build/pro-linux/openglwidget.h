@@ -23,6 +23,7 @@ public:
     explicit OpenGLWidget(QWidget *parent = nullptr);
     virtual ~OpenGLWidget();
 
+    void start();
     void initializeGL();
     void paintGL();
     void resizeGL(int w, int h);
@@ -35,6 +36,9 @@ signals:
 public slots:
 
 private:
+    // Whether the game is loaded.
+    bool m_isStarted;
+
     // Whether the Suika2's rendering subsystem initialized.
     bool m_isOpenGLInitialized;
 

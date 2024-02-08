@@ -7,7 +7,7 @@
 @bgm file=00.ogg
 
 # Show the menu background image.
-@bg file=cg/menu-idle.png 1.0
+@bg file=cg/title/idle.png 1.0
 
 # This is the menu top. We'll be back here when LOAD or CONFIG is selected.
 :MENU

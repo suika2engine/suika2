@@ -5,13 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.127 2024/2/5
+  <ul>
+    <li>pro-windows: バグ修正</li>
+    <li>pro-macos: バグ修正</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/15.126 2024/2/4
   <ul>
     <li>ボイス連番: ボイスファイル名で$0のような変数名に対応、変数は1ずつ増加 (Thanks to Mirin-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.125 2024/2/3
   <ul>
     <li>pro-ios: fix</li>
@@ -1143,13 +1149,19 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.127 2024/2/5
+  <ul>
+    <li>pro-windows: bug fix</li>
+    <li>pro-macos: bug fix</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.126 2024/2/4
   <ul>
     <li>Sequential Voice: Supported variables in voice file names, variables are auto-incremented (Thanks to Mirin-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.125 2024/2/3
   <ul>
     <li>pro-ios: fix</li>

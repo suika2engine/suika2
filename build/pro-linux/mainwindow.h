@@ -11,6 +11,9 @@
 #include <QDir>
 #include <QLocale>
 #include <QTextBlock>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QPalette>
 
 // We use ALSA directly on Linux because Qt doesn't support ALSA.
 #ifdef USE_QT_AUDIO
@@ -47,12 +50,14 @@ private slots:
     void on_errorButton_clicked();
     void on_scriptView_textChanged();
 
+    void on_actionOpen_Project_triggered();
+    void on_actionExport_for_Linux_triggered();
     void on_actionExport_for_Windows_triggered();
     void on_actionExport_for_macOS_triggered();
     void on_actionExport_for_iOS_triggered();
     void on_actionExport_for_Android_triggered();
     void on_actionExport_for_Web_triggered();
-    void on_actionExport_package_only();
+    void on_actionExport_package_only_triggered();
 
 private:
     // The rendering timer.
@@ -67,11 +72,17 @@ private:
     // Get the cursor line.
     int getCursorLine();
 
+    // Set the execution line.
+    void setExecLine(int line);
+
     // Update the script model from text view content.
     void updateScriptModelFromText();
 
+    // Copy an export template, then copy an archive or game files.
+    bool copyExportTemplateWithGame(const QString& name, bool copyArc);
+
     // File copy helper.
-    void copyPath(QString src, QString dst);
+    bool copyFiles(QString src, QString dst);
 
 public:
     // For Qt Creator. (contains UI objects such as ui->continueButton)
@@ -91,9 +102,10 @@ public:
     bool m_isResumePressed;
     bool m_isNextPressed;
     bool m_isPausePressed;
-    bool m_isOpenScriptPressed;
+    bool m_isScriptOpened;
     bool m_isExecLineChanged;
     int m_changedExecLine;
+    QString m_openedScript;
 
     // View update.
     void setWaitingState();

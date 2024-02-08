@@ -29,37 +29,52 @@ suika-pro:
 
 install: build
 	@install -v -d $(DESTDIR)/bin
-	@install -v -d $(DESTDIR)/share/suika2/game
-	@install -v -d $(DESTDIR)/share/suika2/game/anime
-	@install -v -d $(DESTDIR)/share/suika2/game/bg
-	@install -v -d $(DESTDIR)/share/suika2/game/bgm
-	@install -v -d $(DESTDIR)/share/suika2/game/ch
-	@install -v -d $(DESTDIR)/share/suika2/game/cg
-	@install -v -d $(DESTDIR)/share/suika2/game/conf
-	@install -v -d $(DESTDIR)/share/suika2/game/cv
-	@install -v -d $(DESTDIR)/share/suika2/game/gui
-	@install -v -d $(DESTDIR)/share/suika2/game/txt
-	@install -v -d $(DESTDIR)/share/suika2/game/font
-	@install -v -d $(DESTDIR)/share/suika2/game/rule
-	@install -v -d $(DESTDIR)/share/suika2/game/se
-	@install -v -d $(DESTDIR)/share/suika2/game/wms
-	@install -v -d $(DESTDIR)/share/suika2/game/mov
-	@install -v suika-linux $(DESTDIR)/bin
-	@install -v suika-pro $(DESTDIR)/bin
-	@install -v build/pro-linux/suika2 $(DESTDIR)/bin
-	@install -v -t $(DESTDIR)/share/suika2/game/anime games/english/anime/*
-	@install -v -t $(DESTDIR)/share/suika2/game/bg games/english/bg/*
-	@install -v -t $(DESTDIR)/share/suika2/game/bgm games/english/bgm/*
-	@install -v -t $(DESTDIR)/share/suika2/game/ch games/english/ch/*
-	@install -v -t $(DESTDIR)/share/suika2/game/cg games/english/cg/*
-	@install -v -t $(DESTDIR)/share/suika2/game/conf games/english/conf/*
-	@install -v -t $(DESTDIR)/share/suika2/game/cv games/english/cv/*
-	@install -v -t $(DESTDIR)/share/suika2/game/gui games/english/gui/*
-	@install -v -t $(DESTDIR)/share/suika2/game/txt games/english/txt/*
-	@install -v -t $(DESTDIR)/share/suika2/game/font games/english/font/*
-	@install -v -t $(DESTDIR)/share/suika2/game/rule games/english/rule/*
-	@install -v -t $(DESTDIR)/share/suika2/game/se games/english/se/*
-	@install -v -t $(DESTDIR)/share/suika2/game/wms games/english/wms/*
+	@install -v suika-linux $(DESTDIR)/bin/suika-runtime
+	@install -v suika-pro $(DESTDIR)/bin/suika2
+
+	@install -v -d $(DESTDIR)/share
+	@install -v -d $(DESTDIR)/share/suika2
+	@install -v -d $(DESTDIR)/share/suika2/export-linux
+	@install -v suika-linux $(DESTDIR)/share/suika2/export-linux/suika-runtime
+
+	@install -v -d $(DESTDIR)/share/suika2/export-windows
+	@install -v build/engine-windows/suika.exe $(DESTDIR)/share/suika2/export-windows
+
+	@install -v -d $(DESTDIR)/share/suika2/export-macos
+	@install -v build/engine-macos/suika-mac.dmg $(DESTDIR)/share/suika2/export-macos
+
+	@install -v -d $(DESTDIR)/share/suika2/export-ios
+	@cd build/engine-ios/ios-src && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/export-ios/{}" ';' && cd ../../..
+	@cd build/engine-ios/ios-src && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/export-ios/{}" ';' && cd ../../..
+
+	@install -v -d $(DESTDIR)/share/suika2/export-android
+	@cd build/engine-android/android-src && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/export-android/{}" ';' && cd ../../..
+	@cd build/engine-android/android-src && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/export-android/{}" ';' && cd ../../..
+
+	@install -v -d $(DESTDIR)/share/suika2/export-web
+	@install -v build/engine-wasm/html/index.html $(DESTDIR)/share/suika2/export-web
+	@install -v build/engine-wasm/html/index.js $(DESTDIR)/share/suika2/export-web
+	@install -v build/engine-wasm/html/index.wasm $(DESTDIR)/share/suika2/export-web
+
+	@install -v -d $(DESTDIR)/share/suika2/english-adv
+	@cd games/english && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/english-adv/{}" ';' && cd ../..
+	@cd games/english && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/english-adv/{}" ';' && cd ../..
+
+	@install -v -d $(DESTDIR)/share/suika2/english-nvl
+	@cd games/nvl-en && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/english-nvl/{}" ';' && cd ../..
+	@cd games/nvl-en && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/english-nvl/{}" ';' && cd ../..
+
+	@install -v -d $(DESTDIR)/share/suika2/japanese-adv
+	@cd games/japanese && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/japanese-adv/{}" ';' && cd ../..
+	@cd games/japanese && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/japanese-adv/{}" ';' && cd ../..
+
+	@install -v -d $(DESTDIR)/share/suika2/japanese-nvl
+	@cd games/nvl && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/japanese-nvl/{}" ';' && cd ../..
+	@cd games/nvl && find . -type f -exec install -v "$(DESTDIR)/share/suika2/japanese-nvl/{}" "{}" ';' && cd ../..
+
+	@install -v -d $(DESTDIR)/share/suika2/japanese-nvl-vertical
+	@cd games/nvl-tategaki && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/japanese-nvl-vertical/{}" ';' && cd ../..
+	@cd games/nvl-tategaki && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/japanese-nvl-vertical/{}" ';' && cd ../..
 
 clean:
 	rm -f suika-linux suika-pro

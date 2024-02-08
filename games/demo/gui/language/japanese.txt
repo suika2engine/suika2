@@ -23,7 +23,7 @@ ACCEPT {
 
 ENGLISH {
     type: gui;
-    file: language_en.txt;
+    file: language/english.txt;
 
     x: 495;
     y: 316;

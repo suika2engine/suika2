@@ -1421,7 +1421,7 @@ static ViewController *theViewController;
                 [lineText length] != commandNameLen) {
                 // 引数名を灰色にする
                 NSUInteger paramStart = startPos + commandNameLen;
-                int ofs = commandNameLen;
+                NSUInteger ofs = commandNameLen;
                 do {
                     NSString *sub = [lineText substringFromIndex:ofs + 1];
                     if ([sub length] == 0)
