@@ -173,8 +173,7 @@ static bool init(void)
 			    (get_command_type() == COMMAND_CHSX && strcmp(fname[i], "") == 0)) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
-				x[i] = get_layer_x(layer);
-				y[i] = get_layer_y(layer);
+				get_position(&x[i], &y[i], i, get_layer_image(layer), ofs_keep_x[i], ofs_keep_y[i], ofs_x[i], ofs_y[i]);
 				continue;
 			}
 		} else {
@@ -183,8 +182,7 @@ static bool init(void)
 			    strcmp(fname[i], "") == 0) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
-				x[i] = get_layer_x(layer);
-				y[i] = get_layer_y(layer);
+				get_position(&x[i], &y[i], i, get_layer_image(layer), ofs_keep_x[i], ofs_keep_y[i], ofs_x[i], ofs_y[i]);
 				continue;
 			}
 		}
@@ -452,7 +450,7 @@ static void get_position(int *xpos, int *ypos, int chpos, struct image *img, boo
 			if (!ofs_keep_x) {
 				center = (conf_window_width - img->width) / 2;
 				right = conf_window_width - img->width - conf_stage_ch_margin_right;
-				*xpos = (center + right) / 2;
+				*xpos = (center + right) / 2 + ofs_x;
 			} else {
 				*xpos = get_layer_x(LAYER_CHRC);
 			}

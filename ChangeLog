@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/15.132 2024/2/9
+<li>Suika2/15.133 2024/2/9
   <ul>
     <li>@chsxのバグ修正 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
 
+<li>Suika2/15.132 2024/2/9
+  <ul>
+    <li>@chsxのバグ修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.130 2024/2/8
   <ul>
     <li>msgbox.skip.unseen=2のときにスキップモードに入れないバグを修正 (Thanks to Mastuno-san!)</li>
@@ -1171,13 +1176,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/15.132 2024/2/9
+<li>Suika2/15.133 2024/2/9
   <ul>
     <li>Fixed a bug of @chsx (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
 
+<li>Suika2/15.132 2024/2/9
+  <ul>
+    <li>Fixed a bug of @chsx (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.131 2024/2/8
   <ul>
     <li>Fixed a bug where it is impossible to enter SkipMode with msgbox.skip.unseen=2 (Thanks to Mastuno-san!)</li>
