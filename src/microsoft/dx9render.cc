@@ -63,6 +63,15 @@ static float fDisplayOffsetY;
 static float fScale;
 
 //
+// Soft renderer objects.
+//
+static BOOL bSoftRendering;
+static struct image *pBackImage;
+static HDC hWndDC;
+static HDC hBitmapDC;
+static HBITMAP hBitmap;
+
+//
 // デバイスロスト時のコールバック
 //
 extern "C" {
@@ -223,6 +232,15 @@ static VOID DrawPrimitives(int dst_left,
 						   int pipeline);
 static BOOL UploadTextureIfNeeded(struct image *img);
 
+static bool soft_render_init();
+static void soft_render_image_normal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void soft_render_image_add(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void soft_render_image_dim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void soft_render_image_rule(struct image *src_image, struct image *rule_image, int threshold);
+static void soft_render_image_melt(struct image *src_image, struct image *rule_image, int progress);
+
+
+
 //
 // Direct3Dの初期化を行う
 //
@@ -253,19 +271,20 @@ BOOL D3DInitialize(HWND hWnd)
 	hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 								 D3DCREATE_MIXED_VERTEXPROCESSING, &d3dpp,
 								 &pD3DDevice);
-    if (FAILED(hResult))
-    {
-		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_SW,
-									 hWnd, D3DCREATE_MIXED_VERTEXPROCESSING,
-									 &d3dpp, &pD3DDevice);
-		if (FAILED(hResult))
-        {
-			log_api_error("Direct3D::CreateDevice()");
-			pD3D->Release();
-			pD3D = NULL;
-            return FALSE;
-        }
-    }
+	if (FAILED(hResult))
+	{
+		pD3D->Release();
+		pD3D = NULL;
+
+		log_api_error("Direct3D::CreateDevice()");
+		log_info("Falling back to soft rendering.");
+
+		bSoftRendering = TRUE;
+		if (!soft_render_init())
+			return FALSE;
+
+		return TRUE;
+	}
 
 	// シェーダを作成する
 	do {
@@ -352,6 +371,16 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 //
 VOID D3DStartFrame(void)
 {
+	// If we use soft rendering.
+	if (bSoftRendering)
+	{
+		if (conf_window_white)
+			clear_image_white(pBackImage);
+		else
+			clear_image_black(pBackImage);
+		return;
+	}
+
 	// クリアする
 	pD3DDevice->Clear(0,
 					  NULL,
@@ -369,6 +398,13 @@ VOID D3DStartFrame(void)
 //
 VOID D3DEndFrame(void)
 {
+	// If we use soft rendering.
+	if (bSoftRendering)
+	{
+		BitBlt(hWndDC, 0, 0, conf_window_width, conf_window_height, hBitmapDC, 0, 0, SRCCOPY);
+		return;
+	}
+
 	// 描画を完了する
 	pD3DDevice->EndScene();
 
@@ -542,6 +578,12 @@ render_image_normal(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
+	if (bSoftRendering)
+	{
+		soft_render_image_normal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+
 	DrawPrimitives(dst_left,
 				   dst_top,
 				   dst_width,
@@ -572,6 +614,12 @@ render_image_add(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
+	if (bSoftRendering)
+	{
+		soft_render_image_add(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+
 	DrawPrimitives(dst_left,
 				   dst_top,
 				   dst_width,
@@ -602,6 +650,12 @@ render_image_dim(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
+	if (bSoftRendering)
+	{
+		soft_render_image_dim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+
 	DrawPrimitives(dst_left,
 				   dst_top,
 				   dst_width,
@@ -621,6 +675,12 @@ render_image_dim(
 //
 void render_image_rule(struct image *src_image, struct image *rule_image, int threshold)
 {
+	if (bSoftRendering)
+	{
+		soft_render_image_rule(src_image, rule_image, threshold);
+		return;
+	}
+
 	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, threshold, PIPELINE_RULE);
 }
 
@@ -629,6 +689,12 @@ void render_image_rule(struct image *src_image, struct image *rule_image, int th
 //
 void render_image_melt(struct image *src_image, struct image *rule_image, int progress)
 {
+	if (bSoftRendering)
+	{
+		soft_render_image_melt(src_image, rule_image, progress);
+		return;
+	}
+
 	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, progress, PIPELINE_MELT);
 }
 
@@ -884,4 +950,175 @@ VOID *D3DGetDevice(void)
 VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
 {
 	pDeviceLostCallback = pFunc;
+}
+
+//
+// Soft Renderer
+//
+
+extern "C" BOOL D3DIsSoftRendering(void)
+{
+	return bSoftRendering;
+}
+
+static bool soft_render_init()
+{
+	// Get a device context for the window.
+	hWndDC = GetDC(hMainWnd);
+
+	// Create a device conetxt for RGBA32 bitmap.
+	BITMAPINFO bi;
+	memset(&bi, 0, sizeof(BITMAPINFO));
+	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bi.bmiHeader.biWidth = conf_window_width;
+	bi.bmiHeader.biHeight = -conf_window_height; /* Top-down */
+	bi.bmiHeader.biPlanes = 1;
+	bi.bmiHeader.biBitCount = 32;
+	bi.bmiHeader.biCompression = BI_RGB;
+	hBitmapDC = CreateCompatibleDC(NULL);
+	if(hBitmapDC == NULL)
+		return false;
+
+	// Create a backing bitmap.
+	pixel_t *pixels = NULL;
+	hBitmap = CreateDIBSection(hBitmapDC, &bi, DIB_RGB_COLORS, (VOID **)&pixels, NULL, 0);
+	if(hBitmap == NULL || pixels == NULL)
+		return false;
+	SelectObject(hBitmapDC, hBitmap);
+
+	// Create a image.
+	pBackImage = create_image_with_pixels(conf_window_width, conf_window_height, pixels);
+	if(pBackImage == NULL)
+		return false;
+	if(conf_window_white)
+		clear_image_white(pBackImage);
+
+	return true;
+}
+
+static void soft_render_image_normal(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
+{
+	UNUSED_PARAMETER(dst_width);
+	UNUSED_PARAMETER(dst_height);
+
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
+	draw_image_normal(pBackImage,
+					  dst_left,
+					  dst_top,
+					  src_image,
+					  src_width,
+					  src_height,
+					  src_left,
+					  src_top,
+					  alpha);
+}
+
+static void soft_render_image_add(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
+{
+	UNUSED_PARAMETER(dst_width);
+	UNUSED_PARAMETER(dst_height);
+
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
+	draw_image_add(pBackImage,
+				   dst_left,
+				   dst_top,
+				   src_image,
+				   src_width,
+				   src_height,
+				   src_left,
+				   src_top,
+				   alpha);
+}
+
+static void soft_render_image_dim(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
+{
+	UNUSED_PARAMETER(dst_width);
+	UNUSED_PARAMETER(dst_height);
+
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
+	draw_image_dim(pBackImage,
+				   dst_left,
+				   dst_top,
+				   src_image,
+				   src_width,
+				   src_height,
+				   src_left,
+				   src_top,
+				   alpha);
+}
+
+static void soft_render_image_rule(
+	struct image *src_image,
+	struct image *rule_image,
+	int threshold)
+{
+	draw_image_rule(pBackImage,
+					src_image,
+					rule_image,
+					threshold);
+}
+
+static void soft_render_image_melt(
+	struct image *src_image,
+	struct image *rule_image,
+	int progress)
+{
+	draw_image_melt(pBackImage,
+					src_image,
+					rule_image,
+					progress);
 }

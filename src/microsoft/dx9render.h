@@ -44,4 +44,6 @@ VOID D3DRenderClear(int left, int top, int width, int height, pixel_t color);
 VOID *D3DGetDevice(void);
 VOID D3DSetDeviceLostCallback(void (*pFunc)(void));
 
+BOOL D3DIsSoftRendering(void);
+
 #endif

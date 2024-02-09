@@ -128,6 +128,9 @@ struct image *create_image_from_file(const char *dir, const char *file);
 /* 文字列で色を指定してイメージを作成する */
 struct image *create_image_from_color_string(int w, int h, const char *color);
 
+/* バッキングイメージを作成する */
+struct image *create_image_with_pixels(int w, int h, pixel_t *pixels);
+
 /* イメージを削除する */
 void destroy_image(struct image *img);
 
@@ -163,6 +166,17 @@ void draw_image_normal(struct image *dst_image,
 		       int src_left,
 		       int src_top,
 		       int alpha);
+
+/* イメージを描画する(加算) */
+void draw_image_add(struct image *dst_image,
+		    int dst_left,
+		    int dst_top,
+		    struct image *src_image,
+		    int width,
+		    int height,
+		    int src_left,
+		    int src_top,
+		    int alpha);
 
 /* イメージを描画する(50%暗くする) */
 void draw_image_dim(struct image *dst_image,

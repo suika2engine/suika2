@@ -229,7 +229,7 @@ static BOOL InitApp(HINSTANCE hInstance, int nCmdShow)
 	/* 描画エンジンを初期化する */
 	if (!D3DInitialize(hWndMain))
 	{
-		log_error(get_ui_message(UIMSG_WIN32_NO_DIRECT3D));
+		log_info(get_ui_message(UIMSG_WIN32_NO_DIRECT3D));
 		return FALSE;
 	}
 
@@ -859,9 +859,9 @@ static void OnSizing(int edge, LPRECT lpRect)
 
 	/* Calc the paddings. */
 	fPadX = (float)((rcWindow.right - rcWindow.left) -
-		(rcClient.right - rcClient.left));
+					(rcClient.right - rcClient.left));
 	fPadY = (float)((rcWindow.bottom - rcWindow.top) -
-		(rcClient.bottom - rcClient.top));
+					(rcClient.bottom - rcClient.top));
 
 	/* Calc the client size.*/
 	fWidth = (float)(lpRect->right - lpRect->left + 1) - fPadX;
@@ -992,6 +992,16 @@ static void OnSize(void)
 static void UpdateScreenOffsetAndScale(int nClientWidth, int nClientHeight)
 {
 	float fAspect, fUseWidth, fUseHeight;
+
+	if (D3DIsSoftRendering())
+	{
+		nViewportWidth = conf_window_width;
+		nViewportHeight = conf_window_height;
+		nViewportOffsetX = 0;
+		nViewportOffsetY = 0;
+		fMouseScale = 1.0f;
+		return;
+	}
 
 	/* Calc the aspect ratio of the game. */
 	fAspect = (float)conf_window_height / (float)conf_window_width;

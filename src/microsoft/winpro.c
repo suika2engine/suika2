@@ -1703,6 +1703,11 @@ static BOOL WaitForNextFrame(void)
 
 	/* 30FPSを目指す */
 	span = FRAME_MILLI;
+	if (D3DIsSoftRendering())
+	{
+		/* ソフトレンダリングのときは15fpsとする */
+		span *= 2;
+	}
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -2404,6 +2409,15 @@ static void Layout(int nClientWidth, int nClientHeight)
 
 	/* Move the editor panel. */
 	MoveWindow(hWndEditor, nRenderWidth, 0, nEditorWidth, nClientHeight, TRUE);
+
+	if (D3DIsSoftRendering())
+	{
+		nViewportWidth = conf_window_width;
+		nViewportHeight = conf_window_height;
+		nViewportOffsetX = 0;
+		nViewportOffsetY = 0;
+		fMouseScale = 1.0f;
+	}
 }
 
 /* WM_DPICHANGED */
