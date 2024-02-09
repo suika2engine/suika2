@@ -301,10 +301,10 @@ static void get_offset_x(const char *s, int layer, int *ofs_x, bool *keep)
 		*keep = true;
 		*ofs_x = get_layer_x(layer);
 	} else {
+		*keep = false;
 		*ofs_x = atoi(s);
 	}
 }
-
 
 /* Yオフセットを取得する */
 static void get_offset_y(const char *s, int layer, int *ofs_y, bool *keep)
@@ -313,6 +313,7 @@ static void get_offset_y(const char *s, int layer, int *ofs_y, bool *keep)
 		*keep = true;
 		*ofs_y = get_layer_y(layer);
 	} else {
+		*keep = false;
 		*ofs_y = atoi(s);
 	}
 }
