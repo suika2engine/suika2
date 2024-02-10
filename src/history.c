@@ -80,6 +80,10 @@ bool register_message(const char *name, const char *msg, const char *voice,
 	struct history *h;
 	const char *quote_start, *quote_end;
 
+	/* 改行だけの場合などを除外する */
+	if (strcmp(msg, "") == 0)
+		return true;
+
 	/* 引用符を取得する */
 	quote_start = conf_gui_history_quote_start;
 	quote_end = conf_gui_history_quote_end;
@@ -201,6 +205,10 @@ bool append_message(const char *msg)
 {
 	struct history *h;
 	char *new_text;
+
+	/* 改行だけの場合などを除外する */
+	if (strcmp(msg, "") == 0)
+		return true;
 
 	/* ヒストリがない状態で追記されたとき */
 	if (last_history_index == -1) {

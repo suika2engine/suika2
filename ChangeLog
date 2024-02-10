@@ -8,6 +8,7 @@ This file is referred by some automatic release scripts.
 <li>Suika2/15.139 2024/2/10
   <ul>
     <li>ヒストリの名前の直後で改行するために、<code>gui.history.quote.prefix=\n</code> コンフィグを追加 (Thanks to あさつき-san!!)</li>
+    <li>改行だけの場合ヒストリに表示しないよう修正 (Thanks to Ronron-san and あさつき-san!!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
@@ -1209,6 +1210,7 @@ Release History (English)
 <li>Suika2/15.139 2024/2/10
   <ul>
     <li>Added a config <code>gui.history.quote.prefix=\n</code> to insert a line-feed after a name in the history (Thanks to Asatsuki-san!!)</li>
+    <li>Ignore empty messages in the history (Thanks to Ronron-san and Asatsuki-san!!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
