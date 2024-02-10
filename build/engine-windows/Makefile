@@ -57,9 +57,11 @@ LDFLAGS = \
 # Source files
 #
 
-SRCS_C = \
+SRCS_C_MS = \
 	../../src/microsoft/winmain.c \
-	../../src/microsoft/dsound.c \
+	../../src/microsoft/dsound.c
+
+SRCS_C_GL = \
 	../../src/khronos/glrender.c
 
 SRCS_CC = \
@@ -83,7 +85,8 @@ HDRS = \
 
 OBJS = \
 	$(SRCS_MAIN:../../src/%.c=%.o) \
-	$(SRCS_C:../../src/microsoft/%.c=%.o) \
+	$(SRCS_C_MS:../../src/microsoft/%.c=%.o) \
+	$(SRCS_C_GL:../../src/khronos/%.c=%.o) \
 	$(SRCS_CC:../../src/microsoft/%.cc=%.o) \
 	$(SRCS_R:%.rc=%.o)
 

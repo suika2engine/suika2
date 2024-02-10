@@ -53,7 +53,7 @@ LDFLAGS = \
 	-lstrmiids \
 	-lcomctl32 \
 	-limm32 \
-	-opengl32 \
+	-lopengl32 \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lbrotlidec,-lbrotlicommon,-lvorbisfile,-lvorbis,-logg,-dy \
 	-Wl,--gc-sections
@@ -62,9 +62,11 @@ LDFLAGS = \
 # Source files
 #
 
-SRCS_C = \
+SRCS_C_MS = \
 	../../src/microsoft/winpro.c \
 	../../src/microsoft/dsound.c \
+
+SRCS_C_GL = \
 	../../src/khronos/glrender.c
 
 SRCS_CC = \
@@ -86,7 +88,8 @@ HDRS = \
 #
 
 OBJS = \
-	$(SRCS_C:../../src/microsoft/%.c=%.o) \
+	$(SRCS_C_MS:../../src/microsoft/%.c=%.o) \
+	$(SRCS_C_GL:../../src/khronos/%.c=%.o) \
 	$(SRCS_CC:../../src/microsoft/%.cc=%.o) \
 	$(SRCS_MAIN:../../src/%.c=%.o) \
 	$(SRCS_PRO:../../src/%.c=%.o) \
