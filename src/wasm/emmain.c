@@ -72,7 +72,7 @@ int main(void)
 	EM_ASM_({
 		FS.mkdir("suika2-sav");
 		FS.mount(IDBFS, {}, "suika2-sav");
-		FS.syncfs(true, function (err) { ccall('main_continue', 'v'); });
+		FS.syncfs(true, function (err) { Module.ccall('main_continue', 'v'); });
 	});
 
 	/* 読み込みは非同期で、main_continue()に継続される */
@@ -93,9 +93,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-#ifndef DEFAULT_SHELL
-	EM_ASM_({resizeWindow(null);});
-#endif
+	EM_ASM_({ resizeWindow(); });
 
 	/* OpenGLレンダを初期化する */
 	EmscriptenWebGLContextAttributes attr;
@@ -112,6 +110,29 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	if(!on_event_init())
 		return;
 
+	/* イベントハンドラを設定する */
+	EM_ASM_({
+		function visibilityChange() {
+			if(document.visibilityState === 'visible') {
+				Module.ccall('setVisible', null, null, null);
+				document.getElementById('canvas').focus();
+			} else if(document.visibilityState === 'hidden') {
+				Module.ccall('setHidden', null, null, null);
+			}
+		}
+		function preventDefault(e) {
+			e.preventDefault();
+		}
+		window.ontouchmove = preventDefault;
+		window.onwheel = preventDefault;
+		document.ontouchmove = preventDefault;
+		document.onwheel = preventDefault;
+		document.body.addEventListener('touchmove', preventDefault, { passive: false });
+		document.body.addEventListener('wheel', preventDefault, { passive: false });
+		window.addEventListener('resize', resizeWindow);
+		document.addEventListener('visibilitychange', visibilityChange);
+	});
+
 	/* イベントの登録をする */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
@@ -126,6 +147,25 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
 }
+
+/* キャンバスをリサイズする */
+EM_JS(void, resizeWindow, (void), {
+	canvas = document.getElementById('canvas');
+	cw = canvas.width;
+	ch = canvas.height;
+	aspect = cw / ch;
+	winw = window.innerWidth;
+	winh = window.innerHeight;
+	w = winw;
+	h = winw / aspect;
+	if(h > winh) {
+		h = winh;
+		w = winh * aspect;
+	}
+	canvas.style.width = w + 'px';
+	canvas.style.height = h + 'px';
+	canvas.focus();
+});
 
 /* フレームを処理する */
 static EM_BOOL loop_iter(double time, void *userData)
@@ -393,6 +433,12 @@ void EMSCRIPTEN_KEEPALIVE setVisible(void)
 void EMSCRIPTEN_KEEPALIVE setHidden(void)
 {
 	pause_sound();
+}
+
+/* サウンドを再開する際のコールバック */
+void EMSCRIPTEN_KEEPALIVE resumeSound(void)
+{
+	resume_sound();
 }
 
 /*

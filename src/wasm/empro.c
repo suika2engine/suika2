@@ -107,7 +107,7 @@ void start_engine(void)
 
 	/* Set the rendering canvas size. */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-	EM_ASM_({resizeWindow(null);});
+	EM_ASM_({ resizeWindow(); });
 
 	/* Initialize the OpenGL rendering subsystem. */
 	EmscriptenWebGLContextAttributes attr;
@@ -123,6 +123,29 @@ void start_engine(void)
 	/* Execute the startup event. */
 	if(!on_event_init())
 		return;
+
+	/* Set event callbacks. */
+	EM_ASM_({
+		function visibilityChange() {
+			if(document.visibilityState === 'visible') {
+				Module.ccall('set_visible', null, null, null);
+				document.getElementById('canvas').focus();
+			} else if(document.visibilityState === 'hidden') {
+				Module.ccall('set_hidden', null, null, null);
+			}
+		}
+		function preventDefault(e) {
+			e.preventDefault();
+		}
+		window.ontouchmove = preventDefault;
+		window.onwheel = preventDefault;
+		document.ontouchmove = preventDefault;
+		document.onwheel = preventDefault;
+		document.body.addEventListener('touchmove', preventDefault, { passive: false });
+		document.body.addEventListener('wheel', preventDefault, { passive: false });
+		window.addEventListener('resize', resizeWindow);
+		document.addEventListener('visibilitychange', visibilityChange);
+	});
 
 	/* Register canvas events. */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
@@ -400,6 +423,25 @@ static EM_BOOL cb_touchend(
 /*
  * Callback from JavaScript
  */
+
+/* Resize the canvas. */
+EM_JS(void, resizeWindow, (void), {
+	canvas = document.getElementById('canvas');
+	cw = canvas.width;
+	ch = canvas.height;
+	aspect = cw / ch;
+	winw = window.innerWidth;
+	winh = window.innerHeight;
+	w = winw;
+	h = winw / aspect;
+	if(h > winh) {
+		h = winh;
+		w = winh * aspect;
+	}
+	canvas.style.width = w + 'px';
+	canvas.style.height = h + 'px';
+	canvas.focus();
+});
 
 /* Callback when a project is loaded. */
 EMSCRIPTEN_KEEPALIVE void onLoadProject(void)

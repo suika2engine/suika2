@@ -891,7 +891,8 @@ bool clip_by_dest(
 	if(*dst_y + *cy > dst_cy)
 		*cy = dst_cy - *dst_y;
 
-	assert(*cx > 0 && *cy > 0);
+	if (*cx <= 0 || *cy <= 0)
+		return false;
 
 	/* 成功 */
 	return true;

@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.137 2024/2/10
+  <ul>
+    <li>iOSのSafariでセーブ後にサウンド出力が停止してしまうバグを修正 (Thanks to all!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/15.136 2024/2/10
   <ul>
     <li>イメージクリッピングのバグ回避 (Thanks to ラワン材-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.135 2024/2/10
   <ul>
     <li>Direct3Dの利用できないWindows環境でOpenGLに対応 (Thanks to Vernica!)</li>
@@ -1191,13 +1196,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.137 2024/2/10
+  <ul>
+    <li>Fixed a bug where sound stops after save on iOS Safari (Thanks to all!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.136 2024/2/10
   <ul>
     <li>Workaround for image clipping (Thanks to Lauan-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.135 2024/2/10
   <ul>
     <li>Added a support for OpenGL for when Direct3D is not available (Thanks to Vernica!)</li>
