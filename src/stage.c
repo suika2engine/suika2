@@ -1040,9 +1040,9 @@ void set_layer_scale(int layer, float scale_x, float scale_y)
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	if (scale_x == 0)
-		log_info("scale_x = 0");
+		log_info("warning: scale_x = 0");
 	if (scale_y == 0)
-		log_info("scale_y = 0");
+		log_info("warning: scale_y = 0");
 
 	layer_scale_x[layer] = scale_x;
 	layer_scale_y[layer] = scale_y;
