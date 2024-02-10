@@ -17,6 +17,20 @@
 #ifndef SUIKA_GLHELPER_H
 #define SUIKA_GLHELPER_H
 
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
+/*
+ * For Windows.
+ */
+#define WGL_CONTEXT_MAJOR_VERSION_ARB		0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB		0x2092
+#define WGL_CONTEXT_FLAGS_ARB			0x2094
+#define WGL_CONTEXT_PROFILE_MASK_ARB		0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB	0x00000001
+
 /*
  * Define the missing macros for OpenGL 2+ and OpenGL ES 2+.
  */
@@ -52,7 +66,7 @@ typedef ssize_t GLsizeiptr;
  *
  * With Qt, we use replacement macros and don't define the API symbols directly.
  */
-#if defined(SUIKA_TARGET_POSIX) && !defined(USE_QT)
+#if (defined(SUIKA_TARGET_POSIX) && !defined(USE_QT)) || defined(SUIKA_TARGET_WIN32)
 extern GLuint (APIENTRY *glCreateShader)(GLenum type);
 extern void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count, const GLchar *const *string, const GLint *length);
 extern void (APIENTRY *glCompileShader)(GLuint shader);

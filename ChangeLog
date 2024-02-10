@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.135 2024/2/10
+  <ul>
+    <li>Direct3Dの利用できないWindows環境でOpenGLに対応 (Thanks to Vernica!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/15.134 2024/2/9
   <ul>
     <li>Direct3Dの利用できないWindows XP環境でソフトレンダリングに対応 (Thanks to Vernica!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.133 2024/2/9
   <ul>
     <li>@chsxのバグ修正 (Thanks to あさつき-san!)</li>
@@ -1181,13 +1186,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.135 2024/2/10
+  <ul>
+    <li>Added a support for OpenGL for when Direct3D is not available (Thanks to Vernica!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.134 2024/2/9
   <ul>
     <li>Added software rendering system for when Direct3D graphics card is not available (Thanks to Vernica!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.133 2024/2/9
   <ul>
     <li>Fixed a bug of @chsx (Thanks to Asatsuki-san!)</li>

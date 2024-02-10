@@ -58,6 +58,16 @@ static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
 	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
 }
 
+/* ピクセル値を合成する */
+static INLINE pixel_t make_pixel_ex(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
+{
+#if defined(SUIKA_TARGET_WIN32)
+	if (is_rgba_reverse_needed())
+		return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
+#endif
+	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
+}
+
 /* ピクセル値のアルファチャンネルを取得する */
 static INLINE uint32_t get_pixel_a(pixel_t p)
 {
@@ -89,6 +99,12 @@ static INLINE uint32_t get_pixel_b(pixel_t p)
 
 /* ピクセル値を合成する */
 static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
+{
+	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
+}
+
+/* ピクセル値を合成する */
+static INLINE pixel_t make_pixel_ex(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
 {
 	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
 }

@@ -50,6 +50,15 @@
 #endif
 
 /*
+ * Windows (OpenGL fallback) (OpenGL 3.2)
+ */
+#if defined(SUIKA_TARGET_WIN32)
+#include <windows.h>
+#include <GL/gl.h>
+#include "glhelper.h"
+#endif
+
+/*
  * Pipeline types.
  */
 

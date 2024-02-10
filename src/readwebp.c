@@ -74,12 +74,23 @@ struct image *create_image_from_file_webp(const char *dir, const char *file)
 
 	/* ピクセルのコピーを行う */
 	p = img->pixels;
-	for (y = 0; y < height; y++) {
-		for (x = 0; x < width; x++) {
-			*p++ = make_pixel(pixels[y * width * 4 + x * 4 + 3],
-					  pixels[y * width * 4 + x * 4 + 0],
-					  pixels[y * width * 4 + x * 4 + 1],
-					  pixels[y * width * 4 + x * 4 + 2]);
+	if (!is_rgba_reverse_needed()) {
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				*p++ = make_pixel(pixels[y * width * 4 + x * 4 + 3],
+						  pixels[y * width * 4 + x * 4 + 0],
+						  pixels[y * width * 4 + x * 4 + 1],
+						  pixels[y * width * 4 + x * 4 + 2]);
+			}
+		}
+	} else {
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				*p++ = make_pixel(pixels[y * width * 4 + x * 4 + 3],
+						  pixels[y * width * 4 + x * 4 + 2],
+						  pixels[y * width * 4 + x * 4 + 1],
+						  pixels[y * width * 4 + x * 4 + 0]);
+			}
 		}
 	}
 	notify_image_update(img);

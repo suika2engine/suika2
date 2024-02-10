@@ -11,11 +11,19 @@
  */
 
 extern "C" {
-#include "../suika.h"
 #include "dx9render.h"
 };
 
+// Direct3D 9.0
 #include <d3d9.h>
+
+// For OpenGL fallback.
+#include <windows.h>
+#include <GL/gl.h>
+extern "C" {
+#include "../khronos/glhelper.h"
+#include "../khronos/glrender.h"
+};
 
 //
 // パイプラインの種類
@@ -63,11 +71,17 @@ static float fDisplayOffsetY;
 static float fScale;
 
 //
-// Soft renderer objects.
+// OpenGL fallback objects.
 //
-static BOOL bSoftRendering;
-static struct image *pBackImage;
+static BOOL bGLFallback;
+static HGLRC hGLRC;
 static HDC hWndDC;
+
+//
+// GDI fallback objects.
+//
+static BOOL bGDIFallback;
+static struct image *pBackImage;
 static HDC hBitmapDC;
 static HBITMAP hBitmap;
 
@@ -82,13 +96,10 @@ void (*pDeviceLostCallback)(void);
 // シェーダ
 //
 
-// Note: 頂点シェーダはなく、固定シェーダを使用している
-
-// Note: "copy"パイプラインは固定シェーダで実行する
-
-// Note: "normal"パイプラインは固定シェーダで実行する
-
-// Note: "add"パイプラインは固定シェーダで実行する
+// Note:
+//  - 頂点シェーダはなく、固定シェーダを使用している
+//  - "normal"パイプラインはピクセルシェーダではなく固定シェーダで実行する
+//  - "add"パイプラインはピクセルシェーダではなく固定シェーダで実行する
 
 //
 // "dim"パイプラインのピクセルシェーダ
@@ -231,15 +242,18 @@ static VOID DrawPrimitives(int dst_left,
 						   int alpha,
 						   int pipeline);
 static BOOL UploadTextureIfNeeded(struct image *img);
-
-static bool soft_render_init();
-static void soft_render_image_normal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
-static void soft_render_image_add(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
-static void soft_render_image_dim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
-static void soft_render_image_rule(struct image *src_image, struct image *rule_image, int threshold);
-static void soft_render_image_melt(struct image *src_image, struct image *rule_image, int progress);
-
-
+static BOOL GL_Init();
+static void GL_RenderImageNormal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GL_RenderImageAdd(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GL_RenderImageDim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GL_RenderImageRule(struct image *src_image, struct image *rule_image, int threshold);
+static void GL_RenderImageMelt(struct image *src_image, struct image *rule_image, int progress);
+static BOOL GDI_Init();
+static void GDI_RenderImageNormal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GDI_RenderImageAdd(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GDI_RenderImageDim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GDI_RenderImageRule(struct image *src_image, struct image *rule_image, int threshold);
+static void GDI_RenderImageMelt(struct image *src_image, struct image *rule_image, int progress);
 
 //
 // Direct3Dの初期化を行う
@@ -277,12 +291,23 @@ BOOL D3DInitialize(HWND hWnd)
 		pD3D = NULL;
 
 		log_api_error("Direct3D::CreateDevice()");
-		log_info("Falling back to soft rendering.");
+		log_info("Falling back to OpenGL.");
 
-		bSoftRendering = TRUE;
-		if (!soft_render_init())
-			return FALSE;
+		if (!GL_Init())
+		{
+			log_info("Falling back to GDI.");
 
+			if (!GDI_Init())
+			{
+				log_error("Failed to initialize GDI.");
+				return FALSE;
+			}
+
+			bGDIFallback = TRUE;
+			return TRUE;
+		}
+
+		bGLFallback = TRUE;
 		return TRUE;
 	}
 
@@ -351,6 +376,14 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 	fDisplayOffsetY = (float)nOffsetY;
 	fScale = scale;
 
+	if (bGLFallback)
+	{
+		opengl_set_screen(nOffsetX, nOffsetY, (int)((float)conf_window_width * fScale), (int)((float)conf_window_height * fScale));
+		return TRUE;
+	}
+	if (bGDIFallback)
+		return TRUE;
+
 	if (pD3DDevice != NULL)
 	{
 		// Direct3Dデバイスをリセットする
@@ -371,8 +404,13 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 //
 VOID D3DStartFrame(void)
 {
-	// If we use soft rendering.
-	if (bSoftRendering)
+	// Fallbacks:
+	if (bGLFallback)
+	{
+		opengl_start_rendering();
+		return;
+	}
+	if (bGDIFallback)
 	{
 		if (conf_window_white)
 			clear_image_white(pBackImage);
@@ -398,8 +436,14 @@ VOID D3DStartFrame(void)
 //
 VOID D3DEndFrame(void)
 {
-	// If we use soft rendering.
-	if (bSoftRendering)
+	// Fallbacks:
+	if (bGLFallback)
+	{
+		opengl_end_rendering();
+		SwapBuffers(hWndDC);
+		return;
+	}
+	if (bGDIFallback)
 	{
 		BitBlt(hWndDC, 0, 0, conf_window_width, conf_window_height, hBitmapDC, 0, 0, SRCCOPY);
 		return;
@@ -547,6 +591,14 @@ void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
 //
 void notify_image_update(struct image *img)
 {
+	if (bGLFallback)
+	{
+		opengl_notify_image_update(img);
+		return;
+	}
+	if (bGDIFallback)
+		return;
+
 	img->need_upload = true;
 }
 
@@ -555,6 +607,14 @@ void notify_image_update(struct image *img)
 //
 void notify_image_free(struct image *img)
 {
+	if (bGLFallback)
+	{
+		opengl_notify_image_free(img);
+		return;
+	}
+	if (bGDIFallback)
+		return;
+
 	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)img->texture;
 	if(pTex == NULL)
 		return;
@@ -578,9 +638,14 @@ render_image_normal(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
-	if (bSoftRendering)
+	if (bGLFallback)
 	{
-		soft_render_image_normal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		GL_RenderImageNormal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+	if (bGDIFallback)
+	{
+		GDI_RenderImageNormal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
 		return;
 	}
 
@@ -614,9 +679,14 @@ render_image_add(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
-	if (bSoftRendering)
+	if (bGLFallback)
 	{
-		soft_render_image_add(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		GL_RenderImageAdd(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+	if (bGDIFallback)
+	{
+		GDI_RenderImageAdd(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
 		return;
 	}
 
@@ -650,9 +720,14 @@ render_image_dim(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
-	if (bSoftRendering)
+	if (bGLFallback)
 	{
-		soft_render_image_dim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		GL_RenderImageDim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+	if (bGDIFallback)
+	{
+		GDI_RenderImageDim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
 		return;
 	}
 
@@ -675,9 +750,14 @@ render_image_dim(
 //
 void render_image_rule(struct image *src_image, struct image *rule_image, int threshold)
 {
-	if (bSoftRendering)
+	if (bGLFallback)
 	{
-		soft_render_image_rule(src_image, rule_image, threshold);
+		GL_RenderImageRule(src_image, rule_image, threshold);
+		return;
+	}
+	if (bGDIFallback)
+	{
+		GDI_RenderImageRule(src_image, rule_image, threshold);
 		return;
 	}
 
@@ -689,9 +769,14 @@ void render_image_rule(struct image *src_image, struct image *rule_image, int th
 //
 void render_image_melt(struct image *src_image, struct image *rule_image, int progress)
 {
-	if (bSoftRendering)
+	if (bGLFallback)
 	{
-		soft_render_image_melt(src_image, rule_image, progress);
+		GL_RenderImageMelt(src_image, rule_image, progress);
+		return;
+	}
+	if (bGDIFallback)
+	{
+		GDI_RenderImageMelt(src_image, rule_image, progress);
 		return;
 	}
 
@@ -953,15 +1038,226 @@ VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
 }
 
 //
-// Soft Renderer
+// OpenGL fallback
+//
+
+// OpenGL Function Pointers
+extern "C" {
+GLuint (APIENTRY *glCreateShader)(GLenum type);
+void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count, const GLchar *const*string, const GLint *length);
+void (APIENTRY *glCompileShader)(GLuint shader);
+void (APIENTRY *glGetShaderiv)(GLuint shader, GLenum pname, GLint *params);
+void (APIENTRY *glGetShaderInfoLog)(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+void (APIENTRY *glAttachShader)(GLuint program, GLuint shader);
+void (APIENTRY *glLinkProgram)(GLuint program);
+void (APIENTRY *glGetProgramiv)(GLuint program, GLenum pname, GLint *params);
+void (APIENTRY *glGetProgramInfoLog)(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+GLuint (APIENTRY *glCreateProgram)(void);
+void (APIENTRY *glUseProgram)(GLuint program);
+void (APIENTRY *glGenVertexArrays)(GLsizei n, GLuint *arrays);
+void (APIENTRY *glBindVertexArray)(GLuint array);
+void (APIENTRY *glGenBuffers)(GLsizei n, GLuint *buffers);
+void (APIENTRY *glBindBuffer)(GLenum target, GLuint buffer);
+GLint (APIENTRY *glGetAttribLocation)(GLuint program, const GLchar *name);
+void (APIENTRY *glVertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+void (APIENTRY *glEnableVertexAttribArray)(GLuint index);
+GLint (APIENTRY *glGetUniformLocation)(GLuint program, const GLchar *name);
+void (APIENTRY *glUniform1i)(GLint location, GLint v0);
+void (APIENTRY *glBufferData)(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
+void (APIENTRY *glDeleteShader)(GLuint shader);
+void (APIENTRY *glDeleteProgram)(GLuint program);
+void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
+void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
+void (APIENTRY *glActiveTexture)(GLenum texture);
+};
+
+// A table to map OpenGL API names to addresses of function pointers.
+struct GLExtAPITable
+{
+	void **func;
+	const char *name;
+} APITable[] =
+{
+	{(void **)&glCreateShader, "glCreateShader"},
+	{(void **)&glShaderSource, "glShaderSource"},
+	{(void **)&glCompileShader, "glCompileShader"},
+	{(void **)&glGetShaderiv, "glGetShaderiv"},
+	{(void **)&glGetShaderInfoLog, "glGetShaderInfoLog"},
+	{(void **)&glAttachShader, "glAttachShader"},
+	{(void **)&glLinkProgram, "glLinkProgram"},
+	{(void **)&glGetProgramiv, "glGetProgramiv"},
+	{(void **)&glGetProgramInfoLog, "glGetProgramInfoLog"},
+	{(void **)&glCreateProgram, "glCreateProgram"},
+	{(void **)&glUseProgram, "glUseProgram"},
+	{(void **)&glGenVertexArrays, "glGenVertexArrays"},
+	{(void **)&glBindVertexArray, "glBindVertexArray"},
+	{(void **)&glGenBuffers, "glGenBuffers"},
+	{(void **)&glBindBuffer, "glBindBuffer"},
+	{(void **)&glGetAttribLocation, "glGetAttribLocation"},
+	{(void **)&glVertexAttribPointer, "glVertexAttribPointer"},
+	{(void **)&glEnableVertexAttribArray, "glEnableVertexAttribArray"},
+	{(void **)&glGetUniformLocation, "glGetUniformLocation"},
+	{(void **)&glUniform1i, "glUniform1i"},
+	{(void **)&glBufferData, "glBufferData"},
+	{(void **)&glDeleteShader, "glDeleteShader"},
+	{(void **)&glDeleteProgram, "glDeleteProgram"},
+	{(void **)&glDeleteVertexArrays, "glDeleteVertexArrays"},
+	{(void **)&glDeleteBuffers, "glDeleteBuffers"},
+	{(void **)&glActiveTexture, "glActiveTexture"},
+};
+
+bool is_rgba_reverse_needed(void)
+{
+	return bGLFallback ? true : false;
+}
+
+static BOOL GL_Init()
+{
+	PIXELFORMATDESCRIPTOR pfd = {
+		sizeof(PIXELFORMATDESCRIPTOR),
+		1,
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+		PFD_TYPE_RGBA,
+		24, /* 24-bit color */
+		0, 0, 0, 0, 0, 0,
+		0,
+		0,
+		0,
+		0, 0, 0, 0,
+		0, /* no z-buffer */
+		0,
+		0,
+		PFD_MAIN_PLANE,
+		0,
+		0, 0, 0
+	};
+	static const int  contextAttibs[]= {
+		WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
+		WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+		WGL_CONTEXT_FLAGS_ARB, 0,
+		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		0
+	};
+
+	// Get a device context for the window.
+	hWndDC = GetDC(hMainWnd);
+
+	// Choose the pixel format.
+	int pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
+	if (pixelFormat == 0)
+	{
+		log_info("Failed to call ChoosePixelFormat()");
+		return FALSE;
+	}
+	SetPixelFormat(hWndDC, pixelFormat, &pfd);
+
+	// Create an OpenGL context.
+	hGLRC = wglCreateContext(hWndDC);
+	if (hGLRC == NULL)
+	{
+		log_info("Failed to call wglCreateContext()");
+		return FALSE;
+	}
+	wglMakeCurrent(hWndDC, hGLRC);
+
+	// Get the pointer to wglCreateContextAttribsARB()
+	HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
+	wglCreateContextAttribsARB = reinterpret_cast<HGLRC (WINAPI *)(HDC, HGLRC, const int *)>(reinterpret_cast<long>(wglGetProcAddress("wglCreateContextAttribsARB")));
+	if (wglCreateContextAttribsARB == NULL)
+	{
+		log_info("API wglCreateContextAttribsARB not found.");
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRC);
+		hGLRC = NULL;
+		return FALSE;
+	}
+
+	// Create a new HGLRC.
+	HGLRC hGLRCOld = hGLRC;
+	hGLRC = wglCreateContextAttribsARB(hWndDC, NULL, contextAttibs);
+	if (hGLRC == NULL)
+	{
+		log_info("Failed to call wglCreateContextAttribsARB()");
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRCOld);
+		return FALSE;
+	}
+	wglMakeCurrent(hWndDC, hGLRC);
+	wglDeleteContext(hGLRCOld);
+
+	// If we are in a virtual machine that uses VMware graphics implementaion,
+	// we avoid using OpenGL because the graphics driver doesn't support OpenGL 3+.
+	// It seems that VirtualBox uses a VMware impementation of graphics driver.
+	if (strcmp((const char *)glGetString(GL_VENDOR), "VMware, Inc.") == 0) {
+		log_info("Detected virtual machine environment.");
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRC);
+		hGLRC = NULL;
+		return FALSE;
+	}
+
+	// Get API pointers.
+	for (int i = 0; i < (int)(sizeof(APITable) / sizeof(struct GLExtAPITable)); i++)
+	{
+		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
+		if (*APITable[i].func == NULL)
+		{
+			log_info("API %s not found.", APITable[i].name);
+			wglMakeCurrent(NULL, NULL);
+			wglDeleteContext(hGLRC);
+			hGLRC = NULL;
+			return FALSE;
+		}
+	}
+
+	// Initialize OpenGL.
+	if (!init_opengl())
+	{
+		log_info("Failed to initialize OpenGL.");
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(hGLRC);
+		hGLRC = NULL;
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void GL_RenderImageNormal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
+{
+	opengl_render_image_normal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+}
+
+static void GL_RenderImageAdd(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
+{
+	opengl_render_image_add(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+}
+
+static void GL_RenderImageDim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
+{
+	opengl_render_image_dim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+}
+
+static void GL_RenderImageRule(struct image *src_image, struct image *rule_image, int threshold)
+{
+	opengl_render_image_rule(src_image, rule_image, threshold);
+}
+
+static void GL_RenderImageMelt(struct image *src_image, struct image *rule_image, int progress)
+{
+	opengl_render_image_melt(src_image, rule_image, progress);
+}
+
+//
+// Soft Rendering Fallback
 //
 
 extern "C" BOOL D3DIsSoftRendering(void)
 {
-	return bSoftRendering;
+	return bGDIFallback;
 }
 
-static bool soft_render_init()
+static BOOL GDI_Init()
 {
 	// Get a device context for the window.
 	hWndDC = GetDC(hMainWnd);
@@ -977,26 +1273,26 @@ static bool soft_render_init()
 	bi.bmiHeader.biCompression = BI_RGB;
 	hBitmapDC = CreateCompatibleDC(NULL);
 	if(hBitmapDC == NULL)
-		return false;
+		return FALSE;
 
 	// Create a backing bitmap.
 	pixel_t *pixels = NULL;
 	hBitmap = CreateDIBSection(hBitmapDC, &bi, DIB_RGB_COLORS, (VOID **)&pixels, NULL, 0);
 	if(hBitmap == NULL || pixels == NULL)
-		return false;
+		return FALSE;
 	SelectObject(hBitmapDC, hBitmap);
 
 	// Create a image.
 	pBackImage = create_image_with_pixels(conf_window_width, conf_window_height, pixels);
 	if(pBackImage == NULL)
-		return false;
+		return FALSE;
 	if(conf_window_white)
 		clear_image_white(pBackImage);
 
-	return true;
+	return TRUE;
 }
 
-static void soft_render_image_normal(
+static void GDI_RenderImageNormal(
 	int dst_left,				/* The X coordinate of the screen */
 	int dst_top,				/* The Y coordinate of the screen */
 	int dst_width,				/* The width of the destination rectangle */
@@ -1031,7 +1327,7 @@ static void soft_render_image_normal(
 					  alpha);
 }
 
-static void soft_render_image_add(
+static void GDI_RenderImageAdd(
 	int dst_left,				/* The X coordinate of the screen */
 	int dst_top,				/* The Y coordinate of the screen */
 	int dst_width,				/* The width of the destination rectangle */
@@ -1066,7 +1362,7 @@ static void soft_render_image_add(
 				   alpha);
 }
 
-static void soft_render_image_dim(
+static void GDI_RenderImageDim(
 	int dst_left,				/* The X coordinate of the screen */
 	int dst_top,				/* The Y coordinate of the screen */
 	int dst_width,				/* The width of the destination rectangle */
@@ -1101,7 +1397,7 @@ static void soft_render_image_dim(
 				   alpha);
 }
 
-static void soft_render_image_rule(
+static void GDI_RenderImageRule(
 	struct image *src_image,
 	struct image *rule_image,
 	int threshold)
@@ -1112,7 +1408,7 @@ static void soft_render_image_rule(
 					threshold);
 }
 
-static void soft_render_image_melt(
+static void GDI_RenderImageMelt(
 	struct image *src_image,
 	struct image *rule_image,
 	int progress)
