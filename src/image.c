@@ -818,7 +818,8 @@ bool clip_by_source(
 	if(*src_y + *cy > src_cy)
 		*cy = src_cy - *src_y;
 
-	assert(*cx > 0 && *cy > 0);
+	if (*cx <= 0 || *cy <= 0)
+		return false;
 
 	/* 成功 */
 	return true;

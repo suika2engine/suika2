@@ -1162,7 +1162,7 @@ static BOOL GL_Init()
 
 	// Get the pointer to wglCreateContextAttribsARB()
 	HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
-	wglCreateContextAttribsARB = reinterpret_cast<HGLRC (WINAPI *)(HDC, HGLRC, const int *)>(reinterpret_cast<long>(wglGetProcAddress("wglCreateContextAttribsARB")));
+	wglCreateContextAttribsARB = reinterpret_cast<HGLRC (WINAPI *)(HDC, HGLRC, const int *)>(reinterpret_cast<uintptr_t>(wglGetProcAddress("wglCreateContextAttribsARB")));
 	if (wglCreateContextAttribsARB == NULL)
 	{
 		log_info("API wglCreateContextAttribsARB not found.");

@@ -48,6 +48,7 @@ LDFLAGS = \
 	-ld3d9 \
 	-lstrmiids \
 	-lsapi \
+	-lopengl32 \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lvorbisfile,-lvorbis,-logg,-dy \
 	-Wl,--gc-sections
@@ -56,9 +57,12 @@ LDFLAGS = \
 # Source files
 #
 
-SRCS_C = \
+SRCS_C_MS = \
 	../../src/microsoft/winmain.c \
 	../../src/microsoft/dsound.c
+
+SRCS_C_GL = \
+	../../src/khronos/glrender.c
 
 SRCS_CC = \
 	../../src/microsoft/dx9render.cc \
@@ -71,7 +75,9 @@ HDRS = \
 	../../src/microsoft/dsound.h \
 	../../src/microsoft/dx9render.h \
 	../../src/microsoft/dsvideo.h \
-	../../src/microsoft/tts_sapi.h
+	../../src/microsoft/tts_sapi.h \
+	../../src/khronos/glrender.h \
+	../../src/khronos/glhelper.h
 
 #
 # .c.o compilation rules
@@ -79,11 +85,15 @@ HDRS = \
 
 OBJS = \
 	$(SRCS_MAIN:../../src/%.c=%.o) \
-	$(SRCS_C:../../src/microsoft/%.c=%.o) \
+	$(SRCS_C_MS:../../src/microsoft/%.c=%.o) \
+	$(SRCS_C_GL:../../src/khronos/%.c=%.o) \
 	$(SRCS_CC:../../src/microsoft/%.cc=%.o) \
 	$(SRCS_R:%.rc=%.o)
 
 %.o: ../../src/microsoft/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+%.o: ../../src/khronos/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 %.o: ../../src/microsoft/%.cc
