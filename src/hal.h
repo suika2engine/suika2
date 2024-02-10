@@ -107,15 +107,11 @@ void notify_image_free(struct image *img);
  * Returns if RGBA values have to be reversed to BGRA.
  */
 #if defined(SUIKA_TARGET_WIN32)
-bool is_rgba_reverse_needed(void);
+bool is_opengl_byte_order(void);
 #elif defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM) || defined(SUIKA_TARGET_POSIX) || defined(USE_QT)
-static inline bool is_rgba_reverse_needed(void) {
-	return true;
-}
+#define is_opengl_byte_order()	true
 #else
-static inline bool is_rgba_reverse_needed(void) {
-	return false;
-}
+#define is_opengl_byte_order()	false
 #endif
 
 /*************

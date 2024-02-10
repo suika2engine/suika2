@@ -230,11 +230,22 @@ void clear_anime_sequence(int layer)
  */
 bool new_anime_sequence(int layer)
 {
+	struct sequence *s;
+
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	cur_seq_layer = layer;
+
+	s = &sequence[layer][0];
+	s->from_scale_x = 1.0f;
+	s->from_scale_y = 1.0f;
+	s->to_scale_x = 1.0f;
+	s->to_scale_y = 1.0f;
+
 	context[layer].seq_count++;
-	
+	context[layer].is_running = false;
+	context[layer].is_finished = false;
+
 	return true;
 }
 

@@ -156,7 +156,7 @@ static bool read_header(void)
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_PALETTE:
-		if (!is_rgba_reverse_needed())
+		if (!is_opengl_byte_order())
 			png_set_bgr(png_ptr);
 
 		png_set_palette_to_rgb(png_ptr);
@@ -164,7 +164,7 @@ static bool read_header(void)
 		png_read_update_info(png_ptr, info_ptr);
 		break;
 	case PNG_COLOR_TYPE_RGB:
-		if (!is_rgba_reverse_needed())
+		if (!is_opengl_byte_order())
 			png_set_bgr(png_ptr);
 
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
@@ -175,7 +175,7 @@ static bool read_header(void)
 		}
 		break;
 	case PNG_COLOR_TYPE_RGB_ALPHA:
-		if (!is_rgba_reverse_needed())
+		if (!is_opengl_byte_order())
 			png_set_bgr(png_ptr);
 		break;
 	case PNG_COLOR_TYPE_GRAY_ALPHA:

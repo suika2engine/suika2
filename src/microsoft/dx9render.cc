@@ -1106,7 +1106,7 @@ struct GLExtAPITable
 	{(void **)&glActiveTexture, "glActiveTexture"},
 };
 
-bool is_rgba_reverse_needed(void)
+bool is_opengl_byte_order(void)
 {
 	return bGLFallback ? true : false;
 }

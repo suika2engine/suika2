@@ -78,15 +78,18 @@ bool register_message(const char *name, const char *msg, const char *voice,
 		      pixel_t name_color, pixel_t name_outline_color)
 {
 	struct history *h;
-	const char *quote_start, *quote_end;
+	const char *quote_prefix, *quote_start, *quote_end;
 
 	/* 改行だけの場合などを除外する */
 	if (strcmp(msg, "") == 0)
 		return true;
 
 	/* 引用符を取得する */
+	quote_prefix = conf_gui_history_quote_prefix;
 	quote_start = conf_gui_history_quote_start;
 	quote_end = conf_gui_history_quote_end;
+	if (quote_prefix == NULL)
+		quote_prefix = "";
 	if (quote_start == NULL)
 		quote_start = conf_locale == LOCALE_JA ? U8("「") : U8(" \"");
 	if (quote_end == NULL)
@@ -147,7 +150,7 @@ bool register_message(const char *name, const char *msg, const char *voice,
 					 U8("\\#{%06x}%s%s%s"),
 					 name_color,
 					 name,
-					 conf_gui_history_quote_prefix,
+					 quote_prefix,
 					 body_color,
 					 quote_start,
 					 msg,
@@ -158,7 +161,7 @@ bool register_message(const char *name, const char *msg, const char *voice,
 					 U8("\\#{%06x}%s%s\\#{%06x}%s"),
 					 name_color,
 					 name,
-					 conf_gui_history_quote_prefix,
+					 quote_prefix,
 					 body_color,
 					 msg);
 			}
@@ -168,7 +171,7 @@ bool register_message(const char *name, const char *msg, const char *voice,
 				 "\\#{%06x}%s%s\\#{%06x}: %s",
 				 name_color,
 				 name,
-				 conf_gui_history_quote_prefix,
+				 quote_prefix,
 				 body_color,
 				 msg);
 		}
