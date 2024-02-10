@@ -668,6 +668,10 @@ gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
 
+# [ヒストリーの名前直後に改行を入れるためのコンフィグ]
+#  - \nを指定すると改行できる
+#gui.history.quote.prefix=\n
+
 # [ヒストリーのカギカッコ]
 gui.history.quote.start=「
 gui.history.quote.end=」

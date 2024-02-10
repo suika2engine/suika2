@@ -1047,25 +1047,37 @@ static bool register_message_for_history(const char *msg)
 		if (voice[0] == '@')
 			voice = NULL;
 
-		/* セリフをヒストリ画面用に登録する */
-		if (!register_message(name_top,
-				      msg,
-				      voice,
-				      body_color,
-				      body_outline_color,
-				      name_color,
-				      name_outline_color))
-			return false;
+		if (!is_continue_mode) {
+			/* セリフをヒストリ画面用に登録する */
+			if (!register_message(name_top,
+					      msg,
+					      voice,
+					      body_color,
+					      body_outline_color,
+					      name_color,
+					      name_outline_color))
+				return false;
+		} else {
+			/* セリフのメッセージ部分のみをヒストリ画面用に登録(追記)する */
+			if (!append_message(msg))
+				return false;
+		}
 	} else {
-		/* メッセージをヒストリ画面用に登録する */
-		if (!register_message(NULL,
-				      msg,
-				      NULL,
-				      body_color,
-				      body_outline_color,
-				      0,
-				      0))
-			return false;
+		if (!is_continue_mode) {
+			/* メッセージをヒストリ画面用に登録する */
+			if (!register_message(NULL,
+					      msg,
+					      NULL,
+					      body_color,
+					      body_outline_color,
+					      0,
+					      0))
+				return false;
+		} else {
+			/* メッセージをヒストリ画面用に登録(追記)する */
+			if (!append_message(msg))
+				return false;
+		}
 	}
 
 	/* 成功 */

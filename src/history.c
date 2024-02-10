@@ -35,6 +35,9 @@ static int history_count;
 /* ヒストリ項目の先頭 */
 static int history_index;
 
+/* 前回格納したヒストリ項目 */
+static int last_history_index;
+
 /* 一時領域 */
 static char tmp_text[TEXT_SIZE];
 
@@ -49,6 +52,8 @@ bool init_history(void)
 {
 	/* Android NDK用に初期化を行う */
 	clear_history();
+
+	last_history_index = -1;
 
 	return true;
 }
@@ -134,8 +139,11 @@ bool register_message(const char *name, const char *msg, const char *voice,
 				/* カッコがない場合 */
 				snprintf(tmp_text, TEXT_SIZE,
 					 "\\#{%06x}%s"
+					 "%s"
 					 U8("\\#{%06x}%s%s%s"),
-					 name_color, name,
+					 name_color,
+					 name,
+					 conf_gui_history_quote_prefix,
 					 body_color,
 					 quote_start,
 					 msg,
@@ -143,14 +151,22 @@ bool register_message(const char *name, const char *msg, const char *voice,
 			} else {
 				/* すでにカッコがある場合 */
 				snprintf(tmp_text, TEXT_SIZE,
-					 U8("\\#{%06x}%s\\#{%06x}%s"),
-					 name_color, name, body_color, msg);
+					 U8("\\#{%06x}%s%s\\#{%06x}%s"),
+					 name_color,
+					 name,
+					 conf_gui_history_quote_prefix,
+					 body_color,
+					 msg);
 			}
 		} else {
 			/* 日本語以外 */
 			snprintf(tmp_text, TEXT_SIZE,
-				 "\\#{%06x}%s\\#{%06x}: %s",
-				 name_color, name, body_color, msg);
+				 "\\#{%06x}%s%s\\#{%06x}: %s",
+				 name_color,
+				 name,
+				 conf_gui_history_quote_prefix,
+				 body_color,
+				 msg);
 		}
 		h->text = strdup(tmp_text);
 		if (h->text == NULL) {
@@ -167,6 +183,7 @@ bool register_message(const char *name, const char *msg, const char *voice,
 	}
 
 	/* 格納位置を更新する */
+	last_history_index = history_index;
 	history_index = (history_index + 1) % HISTORY_SIZE;
 	history_count = (history_count + 1) >= HISTORY_SIZE ? HISTORY_SIZE :
 			(history_count + 1);
@@ -175,6 +192,44 @@ bool register_message(const char *name, const char *msg, const char *voice,
 	UNUSED_PARAMETER(name_outline_color);
 
     return true;
+}
+
+/*
+ * メッセージを末尾に追記する
+ */
+bool append_message(const char *msg)
+{
+	struct history *h;
+	char *new_text;
+
+	/* ヒストリがない状態で追記されたとき */
+	if (last_history_index == -1) {
+		last_history_index = 0;
+		history[0].text = strdup("");
+		if (history[0].text == NULL) {
+			log_memory();
+			return false;
+		}
+	}
+
+	/* 追記するヒストリ項目を求める */
+	h = &history[last_history_index];
+	assert(h->text != NULL);
+
+	/* メモリを確保する */
+	new_text = malloc(strlen(h->text) + strlen(msg) + 1);
+	if (new_text == NULL) {
+		log_memory();
+		return false;
+	}
+
+	/* 文字列をコピーする */
+	strcpy(new_text, h->text);
+	free(h->text);
+	h->text = new_text;
+	strcat(h->text, msg);
+
+	return true;
 }
 
 /*

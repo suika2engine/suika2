@@ -29,6 +29,9 @@ bool register_message(const char *name, const char *msg, const char *voice,
 		      pixel_t body_color, pixel_t body_outline_color,
 		      pixel_t name_color, pixel_t name_outline_color);
 
+/* メッセージを末尾に追記する */
+bool append_message(const char *msg);
+
 /* ヒストリをクリアする(ロード時) */
 void clear_history(void);
 
