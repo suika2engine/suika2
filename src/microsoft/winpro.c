@@ -247,7 +247,7 @@ static int nFontSize = 10;
  */
 
 /* static */
-static void SIGSEGV_Handler(int);
+static void SIGSEGV_Handler(int n);
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -414,9 +414,11 @@ int WINAPI wWinMain(
 	return nRet;
 }
 
-static void SIGSEGV_Handler(int)
+static void SIGSEGV_Handler(int n)
 {
 	BOOL bEnglish;
+
+	UNUSED_PARAMETER(n);
 
 	bEnglish = strcmp(get_system_locale(), "ja") != 0;
 
