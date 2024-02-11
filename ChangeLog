@@ -5,14 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.142 2024/2/11
+  <ul>
+    <li>クラッシュバグを修正 (Thanks to ラワン材-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/15.141 2024/2/11
   <ul>
     <li>gui.history.quote.prefixの修正</li>
     <li>chaの修正</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.140 2024/2/11
   <ul>
     <li>JPEGとWebPの色を修正 (Thanks to Ronron-san!!)</li>
@@ -1218,14 +1223,19 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.142 2024/2/11
+  <ul>
+    <li>Fixed a crash bug (Thanks to Lauan-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/15.141 2024/2/11
   <ul>
     <li>Fixed gui.history.quote.prefix</li>
     <li>Fixed cha</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.140 2024/2/11
   <ul>
     <li>Fixed colors of JPEG and WebP (Thanks to Ronron-san!!)</li>

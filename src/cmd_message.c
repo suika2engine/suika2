@@ -842,8 +842,10 @@ static bool init_voice_file(void)
 {
 	const char *voice;
 
-	if (get_command_type() != COMMAND_SERIF)
+	if (get_command_type() != COMMAND_SERIF) {
+		voice_file = NULL;
 		return true;
+	}
 
 	/* ロード/タイトルへ戻った場合はvoice_fileが残っているので解放する */
 	if (voice_file != NULL) {
@@ -1044,7 +1046,7 @@ static bool register_message_for_history(const char *msg)
 
 		/* ビープ音は履歴画面で再生しない */
 		voice = voice_file;
-		if (voice[0] == '@')
+		if (voice != NULL && voice[0] == '@')
 			voice = NULL;
 
 		if (!is_continue_mode) {
