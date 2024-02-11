@@ -32,6 +32,9 @@
 #include <shlobj.h>			/* SHGetFolderPath() */
 #include "resource.h"
 
+/* Standard C */
+#include <signal.h>
+
 /* msvcrt  */
 #include <io.h> /* _access() */
 #include <locale.h> /* setlocale() */
@@ -134,6 +137,7 @@ static BOOL bDShowSkippable;
  */
 
 /* static */
+static void SIGSEGV_Handler(int);
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -167,6 +171,8 @@ int WINAPI wWinMain(
 	UNUSED_PARAMETER(hPrevInstance);
 	UNUSED_PARAMETER(lpszCmd);
 
+	signal(SIGABRT, SIGSEGV_Handler);
+
 	do {
 		/* Do the lower layer initialization. */
 		if (!InitApp(hInstance, nCmdShow))
@@ -189,6 +195,29 @@ int WINAPI wWinMain(
 	CleanupApp();
 
 	return nRet;
+}
+
+static void SIGSEGV_Handler(int)
+{
+	BOOL bEnglish;
+
+	bEnglish = strcmp(get_system_locale(), "ja") != 0;
+
+	log_error(bEnglish ?
+			  "Sorry, the app was crashed.\n"
+			  "Please send a bug report to the author." :
+			  "ご迷惑をかけ申し訳ございません。\n"
+			  "アプリがクラッシュしました。\n"
+			  "バグ報告をいただけますと幸いです。");
+	log_error(bEnglish ?
+			  "Sorry, Suika2 was crashed.\n"
+			  "Please send a bug report to the author.\n"
+			  "You can get 1000JPY gift code if the author solved this problem." :
+			  "ご迷惑をかけ申し訳ございません。\n"
+			  "Suika2がクラッシュしました。\n"
+			  "バグ報告をいただけますと幸いです。\n"
+			  "このコード(JVXP401)をお伝えいただければギフトコード1000円分を進呈します。");
+	exit(1);
 }
 
 /* 基盤レイヤの初期化処理を行う */

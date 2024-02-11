@@ -48,6 +48,7 @@ LDFLAGS = \
 	-ld3d9 \
 	-lstrmiids \
 	-lsapi \
+	-limagehlp \
 	-lopengl32 \
 	-L./libroot/lib \
 	-Wl,-dn,-lpng16,-ljpeg,-lwebp,-lfreetype,-lz,-lbz2,-lbrotlidec,-lbrotlicommon,-lvorbisfile,-lvorbis,-logg,-dy \
