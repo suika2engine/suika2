@@ -183,6 +183,9 @@ cp -v ../tools/snippets/en-normal/plaintext.code-snippets installer-windows/plai
 cd installer-windows
 make
 sign.sh suika2-installer.exe
+
+# Also, make a zip
+make zip
 cd ..
 
 #
@@ -200,6 +203,7 @@ cd ..
 echo "Uploading files."
 
 curl -T "installer-windows/suika2-installer.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.exe"
+curl -T "installer-windows/suika2.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.zip"
 curl -T "pro-macos/suika2.dmg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.dmg"
 echo "Upload completed."
 
