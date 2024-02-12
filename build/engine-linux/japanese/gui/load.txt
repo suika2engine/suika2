@@ -1,0 +1,240 @@
+###
+### ロード画面のGUI定義
+###
+
+# このファイルの基本設定
+global {
+    # 下記の画像を使用する
+    base:   system/load/base.png;
+    idle:   system/load/idle.png;
+    hover:  system/load/hover.png;
+    active: system/load/active.png;
+
+    # 1画面あたりのセーブデータ表示数を指定
+    saveslots: 3;
+
+    # 右クリックによるキャンセル時のSE
+    cancelse: click.ogg;
+
+    # フェードイン時間(秒)
+    fadein: 0.5;
+
+    # フェードアウト時間(秒)
+    fadeout: 0.5;
+
+    # 読み上げテキスト
+    alt: ロード画面が表示されています。左右のキーを押してください。;
+}
+
+# 元の画面に戻るボタン
+BACK {
+    # 種類:キャンセル
+    type: cancel;
+
+    # 座標とサイズ
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとゲーム画面に戻ります。;
+}
+
+# セーブデータ1番目
+SAVESLOT1 {
+    # 種類:ロード
+    type: load;
+
+    # セーブデータ番号0
+    index: 0;
+
+    # 座標とサイズ
+    x: 26;
+    y: 122;
+    width: 1110;
+    height: 152;
+
+    # 画像とテキストのマージン
+    margin: 10;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # クリア用の色(背景色を設定しないと擬似的なフォントのふちどりが生じる)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット1からロードします。;
+}
+
+# セーブデータ2番目
+SAVESLOT2 {
+    # 種類:ロード
+    type: load;
+
+    # セーブデータ番号1
+    index: 1;
+
+    # 座標とサイズ
+    x: 26;
+    y: 285;
+    width: 1110;
+    height: 152;
+
+    # 画像とテキストのマージン
+    margin: 10;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # クリア用の色(背景色を設定しないと擬似的なフォントのふちどりが生じる)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット2からロードします。;
+}
+
+# セーブデータ3番目
+SAVESLOT3 {
+    # 種類:ロード
+    type: load;
+
+    # セーブデータ番号2
+    index: 2;
+
+    # 座標とサイズ
+    x: 26;
+    y: 447;
+    width: 1110;
+    height: 152;
+
+    # 画像とテキストのマージン
+    margin: 10;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # クリア用の色(背景色を設定しないと擬似的なフォントのふちどりが生じる)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブスロット3からロードします。;
+}
+
+# セーブデータページ1のボタン
+PAGE1 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # 1ページ目(index=0)
+    index: 0;
+
+    # 座標とサイズ
+    x: 1164;
+    y: 330;
+    width: 88;
+    height: 88;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ1を表示します。;
+}
+
+# セーブデータページ2のボタン
+PAGE2 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # 2ページ目(index=1)
+    index: 1;
+
+    # 座標とサイズ
+    x: 1164;
+    y: 423;
+    width: 88;
+    height: 88;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ2を表示します。;
+}
+
+# セーブデータページ3のボタン
+PAGE3 {
+    # 種類:セーブデータページ
+    type: savepage;
+
+    # 3ページ目(index=2)
+    index: 2;
+
+    # 座標とサイズ
+    x: 1164;
+    y: 517;
+    width: 88;
+    height: 88;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンを押すとセーブデータのページ2を表示します。;
+}
+
+# タイトルへ戻るボタン
+TITLE {
+    # 種類:タイトルへ戻る
+    type: title;
+
+    # 移動先のスクリプトファイル
+    file: init.txt;
+
+    # 座標とサイズ
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
+
+    # ポイントされたときの効果音
+    pointse: btn-change.ogg;
+
+    # クリックされたときの効果音
+    clickse: click.ogg;
+
+    # 読み上げテキスト
+    alt: このボタンはゲームのタイトル画面に戻るものです。;
+}

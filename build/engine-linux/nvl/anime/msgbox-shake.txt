@@ -1,0 +1,67 @@
+move {
+    layer: msg;
+    clear: all;
+    start: 0.0;
+    end: 0.1;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    to-x: +100;
+    to-y: +0;
+    to-a: 255;
+}
+move {
+    layer: msg;
+    start: 0.1;
+    end: 0.2;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    to-x: +-200;
+    to-y: +0;
+    to-a: 255;
+}
+move {
+    layer: msg;
+    start: 0.2;
+    end: 0.3;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    to-x: +200;
+    to-y: +0;
+    to-a: 255;
+}
+move {
+    layer: msg;
+    start: 0.3;
+    end: 0.4;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    to-x: +-200;
+    to-y: +0;
+    to-a: 255;
+}
+move {
+    layer: msg;
+    start: 0.4;
+    end: 0.5;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    to-x: +200;
+    to-y: +0;
+    to-a: 255;
+}
+move {
+    layer: msg;
+    start: 0.5;
+    end: 0.6;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    to-x: +-100;
+    to-y: +0;
+    to-a: 255;
+}

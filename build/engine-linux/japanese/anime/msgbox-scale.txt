@@ -1,0 +1,31 @@
+scale-up {
+    layer: msg;
+    clear: all;
+    start: 0.0;
+    end: 1.0;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    from-scale-x: 1.0;
+    from-scale-y: 1.0;
+    to-x: +-200;
+    to-y: +-100;
+    to-a: 255;
+    to-scale-x: 2.0;
+    to-scale-y: 2.0;
+}
+scale-down {
+    layer: msg;
+    start: 1.0;
+    end: 2.0;
+    from-x: +0;
+    from-y: +0;
+    from-a: 255;
+    from-scale-x: 2.0;
+    from-scale-y: 2.0;
+    to-x: +200;
+    to-y: +100;
+    to-a: 255;
+    to-scale-x: 1.0;
+    to-scale-y: 1.0;
+}

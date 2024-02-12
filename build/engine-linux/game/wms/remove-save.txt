@@ -1,0 +1,14 @@
+func main() {
+     // ローカルセーブデータ(0から99)を削除する
+     for (i in 0..99) {
+         s2_remove_local_save(i);
+     }
+
+     // クイックセーブデータを削除する
+     s2_remove_local_save(-1);
+
+     // グローバルセーブデータを削除する
+     s2_remove_global_save();
+
+     // 注意: 変数のクリアは別途行ってください
+}
