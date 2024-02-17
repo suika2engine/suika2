@@ -35,6 +35,14 @@
 #endif
 
 /*
+ * Console samples (OpenGL ES 3.0)
+ */
+#if defined(SUIKA_TARGET_SDL2)
+#include <GL/gl.h>
+#include "glhelper.h"
+#endif
+
+/*
  * Linux and POSIX (OpenGL 3.2)
  */
 #if defined(SUIKA_TARGET_POSIX)
