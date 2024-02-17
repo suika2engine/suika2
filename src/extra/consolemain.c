@@ -22,7 +22,7 @@
 #include "suika.h"
 
 /* Suika2 HAL for OpenGL */
-#include "glrender.h"
+#include "../khronos/glrender.h"
 
 /* SDL2 */
 #include <SDL2/SDL.h>
@@ -127,6 +127,7 @@ static void close_log_file(void);
 static bool init_sound(void);
 static void cleanup_sound(void);
 static void audio_callback(void *userdata, Uint8 *stream, int len);
+static void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples);
 
 /*
  * main(): called with args "-gamedir:dirpath -savedir:dirpath"
@@ -985,4 +986,36 @@ static void audio_callback(UNUSED(void *userdata), Uint8 *stream, int len)
 		}
 	}
 	pthread_mutex_unlock(&mutex);
+}
+
+static void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples)
+{
+    float scale;
+    int i;
+    int32_t il, ir; /* intermediate L/R */
+    int16_t sl, sr; /* source L/R*/
+    int16_t dl, dr; /* destination L/R */
+
+    /* スケールファクタを指数関数にする */
+    scale = (powf(10.0f, vol) - 1.0f) / (10.0f - 1.0f);
+
+    /* 各サンプルを合成する */
+    for (i = 0; i < samples; i++) {
+        dl = (int16_t)(uint16_t)dst[i];
+        dr = (int16_t)(uint16_t)(dst[i] >> 16);
+
+        sl = (int16_t)(uint16_t)src[i];
+        sr = (int16_t)(uint16_t)(src[i] >> 16);
+
+        il = (int32_t)dl + (int32_t)(sl * scale);
+        ir = (int32_t)dr + (int32_t)(sr * scale);
+
+        il = il > 32767 ? 32767 : il;
+        il = il < -32768 ? -32768 : il;
+        ir = ir > 32767 ? 32767 : ir;
+        ir = ir < -32768 ? -32768 : ir;
+
+        dst[i] = ((uint32_t)(uint16_t)(int16_t)il) |
+                 (((uint32_t)(uint16_t)(int16_t)ir) << 16);
+    }
 }

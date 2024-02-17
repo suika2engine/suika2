@@ -51,6 +51,7 @@ static int get_keycode(const char *key);
 static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static EM_BOOL cb_touchcancel(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 
 /*
  * メイン
@@ -143,6 +144,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	emscripten_set_touchstart_callback("canvas", 0, true, cb_touchstart);
 	emscripten_set_touchmove_callback("canvas", 0, true, cb_touchmove);
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
+	emscripten_set_touchcancel_callback("canvas", 0, true, cb_touchcancel);
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
@@ -416,6 +418,16 @@ static EM_BOOL cb_touchend(int eventType,
 		return EM_TRUE;
 	}
 	
+	return EM_TRUE;
+}
+
+/* touchcancelのコールバック */
+static EM_BOOL cb_touchcancel(int eventType,
+			      const EmscriptenTouchEvent *touchEvent,
+			      void *userData)
+{
+	on_event_mouse_move(-1, -1);
+
 	return EM_TRUE;
 }
 

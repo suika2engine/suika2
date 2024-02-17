@@ -70,6 +70,7 @@ static int get_keycode(const char *key);
 static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent,void *userData);
 static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static EM_BOOL cb_touchcancel(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static void update_script_model_from_text(void);
 static void update_script_model_from_current_line_text(void);
 static void update_text_from_script_model(void);
@@ -157,6 +158,7 @@ void start_engine(void)
 	emscripten_set_touchstart_callback("canvas", 0, true, cb_touchstart);
 	emscripten_set_touchmove_callback("canvas", 0, true, cb_touchmove);
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
+	emscripten_set_touchcancel_callback("canvas", 0, true, cb_touchcancel);
 
 	/* Reserve the first frame callback. */
 	emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
@@ -417,6 +419,16 @@ static EM_BOOL cb_touchend(
 		return EM_TRUE;
 	}
 	
+	return EM_TRUE;
+}
+
+/* touchcancelのコールバック */
+static EM_BOOL cb_touchcancel(int eventType,
+			      const EmscriptenTouchEvent *touchEvent,
+			      void *userData)
+{
+	on_event_mouse_move(-1, -1);
+
 	return EM_TRUE;
 }
 
