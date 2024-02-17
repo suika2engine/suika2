@@ -35,7 +35,7 @@
 /*
  * ステージのレイヤ
  */
-enum {
+enum layer {
 	/* 背景レイヤ */
 	LAYER_BG,
 
@@ -165,7 +165,7 @@ enum fade_method {
 /*
  * システムメニューのボタンのインデックス
  */
-enum {
+enum sysmenu_button {
 	SYSMENU_NONE = -1,
         SYSMENU_QSAVE = 0,
 	SYSMENU_QLOAD = 1,
@@ -178,6 +178,14 @@ enum {
 	SYSMENU_CUSTOM1 = 8,
 	SYSMENU_CUSTOM2 = 9,
 	SYSMENU_COUNT = 10,
+};
+
+/*
+ * ブレンドモード
+ */
+enum blend_mode {
+	BLENDMODE_NORMAL,
+	BLENDMODE_ADD,
 };
 
 /*
@@ -235,6 +243,15 @@ int get_layer_alpha(int layer);
 
 /* Sets a layer alpha. */
 void set_layer_alpha(int layer, int alpha);
+
+/* Sets a layer belnd mode. */
+void set_layer_blend(int layer, int blend);
+
+/* Sets a layer center coordinate. */
+void set_layer_center(int layer, int x, int y);
+
+/* Sets a layer rotation. */
+void set_layer_rotate(int layer, float rad);
 
 /* Gets a layer file name. */
 const char *get_layer_file_name(int layer);

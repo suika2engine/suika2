@@ -17,14 +17,6 @@ extern "C" {
 // Direct3D 9.0
 #include <d3d9.h>
 
-// For OpenGL fallback.
-#include <windows.h>
-#include <GL/gl.h>
-extern "C" {
-#include "../khronos/glhelper.h"
-#include "../khronos/glrender.h"
-};
-
 //
 // パイプラインの種類
 //
@@ -71,15 +63,9 @@ static float fDisplayOffsetY;
 static float fScale;
 
 //
-// OpenGL fallback objects.
-//
-static BOOL bGLFallback;
-static HGLRC hGLRC;
-static HDC hWndDC;
-
-//
 // GDI fallback objects.
 //
+static HDC hWndDC;
 static BOOL bGDIFallback;
 static struct image *pBackImage;
 static HDC hBitmapDC;
@@ -241,13 +227,23 @@ static VOID DrawPrimitives(int dst_left,
 						   int src_height,
 						   int alpha,
 						   int pipeline);
+static VOID DrawPrimitives3D(float x1,
+							 float y1,
+							 float x2,
+							 float y2,
+							 float x3,
+							 float y3,
+							 float x4,
+							 float y4,
+							 struct image *src_image,
+							 struct image *rule_image,
+							 int src_left,
+							 int src_top,
+							 int src_width,
+							 int src_height,
+							 int alpha,
+							 int pipeline);
 static BOOL UploadTextureIfNeeded(struct image *img);
-static BOOL GL_Init();
-static void GL_RenderImageNormal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
-static void GL_RenderImageAdd(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
-static void GL_RenderImageDim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
-static void GL_RenderImageRule(struct image *src_image, struct image *rule_image, int threshold);
-static void GL_RenderImageMelt(struct image *src_image, struct image *rule_image, int progress);
 static BOOL GDI_Init();
 static void GDI_RenderImageNormal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
 static void GDI_RenderImageAdd(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
@@ -291,23 +287,15 @@ BOOL D3DInitialize(HWND hWnd)
 		pD3D = NULL;
 
 		log_api_error("Direct3D::CreateDevice()");
-		log_info("Falling back to OpenGL.");
+		log_info("Falling back to GDI.");
 
-		if (!GL_Init())
+		if (!GDI_Init())
 		{
-			log_info("Falling back to GDI.");
-
-			if (!GDI_Init())
-			{
-				log_error("Failed to initialize GDI.");
-				return FALSE;
-			}
-
-			bGDIFallback = TRUE;
-			return TRUE;
+			log_error("Failed to initialize GDI.");
+			return FALSE;
 		}
 
-		bGLFallback = TRUE;
+		bGDIFallback = TRUE;
 		return TRUE;
 	}
 
@@ -376,11 +364,6 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 	fDisplayOffsetY = (float)nOffsetY;
 	fScale = scale;
 
-	if (bGLFallback)
-	{
-		opengl_set_screen(nOffsetX, nOffsetY, (int)((float)conf_window_width * fScale), (int)((float)conf_window_height * fScale));
-		return TRUE;
-	}
 	if (bGDIFallback)
 		return TRUE;
 
@@ -405,11 +388,6 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 VOID D3DStartFrame(void)
 {
 	// Fallbacks:
-	if (bGLFallback)
-	{
-		opengl_start_rendering();
-		return;
-	}
 	if (bGDIFallback)
 	{
 		if (conf_window_white)
@@ -437,12 +415,6 @@ VOID D3DStartFrame(void)
 VOID D3DEndFrame(void)
 {
 	// Fallbacks:
-	if (bGLFallback)
-	{
-		opengl_end_rendering();
-		SwapBuffers(hWndDC);
-		return;
-	}
 	if (bGDIFallback)
 	{
 		BitBlt(hWndDC, 0, 0, conf_window_width, conf_window_height, hBitmapDC, 0, 0, SRCCOPY);
@@ -591,11 +563,6 @@ void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
 //
 void notify_image_update(struct image *img)
 {
-	if (bGLFallback)
-	{
-		opengl_notify_image_update(img);
-		return;
-	}
 	if (bGDIFallback)
 		return;
 
@@ -607,11 +574,6 @@ void notify_image_update(struct image *img)
 //
 void notify_image_free(struct image *img)
 {
-	if (bGLFallback)
-	{
-		opengl_notify_image_free(img);
-		return;
-	}
 	if (bGDIFallback)
 		return;
 
@@ -638,11 +600,6 @@ render_image_normal(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
-	if (bGLFallback)
-	{
-		GL_RenderImageNormal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
-		return;
-	}
 	if (bGDIFallback)
 	{
 		GDI_RenderImageNormal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
@@ -679,11 +636,6 @@ render_image_add(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
-	if (bGLFallback)
-	{
-		GL_RenderImageAdd(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
-		return;
-	}
 	if (bGDIFallback)
 	{
 		GDI_RenderImageAdd(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
@@ -720,11 +672,6 @@ render_image_dim(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
-	if (bGLFallback)
-	{
-		GL_RenderImageDim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
-		return;
-	}
 	if (bGDIFallback)
 	{
 		GDI_RenderImageDim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
@@ -750,11 +697,6 @@ render_image_dim(
 //
 void render_image_rule(struct image *src_image, struct image *rule_image, int threshold)
 {
-	if (bGLFallback)
-	{
-		GL_RenderImageRule(src_image, rule_image, threshold);
-		return;
-	}
 	if (bGDIFallback)
 	{
 		GDI_RenderImageRule(src_image, rule_image, threshold);
@@ -769,11 +711,6 @@ void render_image_rule(struct image *src_image, struct image *rule_image, int th
 //
 void render_image_melt(struct image *src_image, struct image *rule_image, int progress)
 {
-	if (bGLFallback)
-	{
-		GL_RenderImageMelt(src_image, rule_image, progress);
-		return;
-	}
 	if (bGDIFallback)
 	{
 		GDI_RenderImageMelt(src_image, rule_image, progress);
@@ -799,6 +736,121 @@ DrawPrimitives(
 	int alpha,
 	int pipeline)
 {
+	DrawPrimitives3D((float)dst_left,
+					 (float)dst_top,
+					 (float)(dst_left + dst_width + 1),
+					 (float)dst_top,
+					 (float)dst_left,
+					 (float)(dst_top + dst_height + 1),
+					 (float)(dst_left + dst_width + 1),
+					 (float)(dst_top + dst_height + 1),
+					 src_image,
+					 rule_image,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 pipeline);
+}
+
+//
+// Renders an image to the screen with the "normal" shader pipeline.
+//
+void
+render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	DrawPrimitives3D(x1,
+					 y1,
+					 x2,
+					 y2,
+					 x3,
+					 y3,
+					 x4,
+					 y4,
+					 src_image,
+					 NULL,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 PIPELINE_NORMAL);
+}
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ *  - The "normal" shader pipeline renders pixels with alpha blending
+ */
+void
+render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	DrawPrimitives3D(x1,
+					 y1,
+					 x2,
+					 y2,
+					 x3,
+					 y3,
+					 x4,
+					 y4,
+					 src_image,
+					 NULL,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 PIPELINE_ADD);
+}
+
+// プリミティブを描画する
+static VOID
+DrawPrimitives3D(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	struct image *rule_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha,
+	int pipeline)
+{
 	IDirect3DTexture9 *pTexColor = NULL;
 	IDirect3DTexture9 *pTexRule = NULL;
 
@@ -812,27 +864,14 @@ DrawPrimitives(
 		pTexRule = (IDirect3DTexture9 *)rule_image->texture;
 	}
 
-	// 描画の必要があるか判定する
-	if (dst_width == 0 || dst_height == 0)
-		return;	// 描画の必要がない
-
-	if (dst_width == -1)
-		dst_width = src_image->width;
-	if (dst_height == -1)
-		dst_height = src_image->height;
-	if (src_width == -1)
-		src_width = src_image->width;
-	if (src_height == -1)
-		src_height = src_image->height;
-
 	float img_w = (float)src_image->width;
 	float img_h = (float)src_image->height;
 
 	Vertex v[4];
 
 	// 左上
-	v[0].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
-	v[0].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
+	v[0].x = x1 * fScale + fDisplayOffsetX - 0.5f;
+	v[0].y = y1 * fScale + fDisplayOffsetY - 0.5f;
 	v[0].z = 0.0f;
 	v[0].rhw = 1.0f;
 	v[0].u1 = (float)src_left / img_w;
@@ -842,8 +881,8 @@ DrawPrimitives(
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)dst_left * fScale + (float)dst_width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
-	v[1].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
+	v[1].x = x2 * fScale + fDisplayOffsetX + 0.5f;
+	v[1].y = y2 * fScale + fDisplayOffsetY - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
 	v[1].u1 = (float)(src_left + src_width) / img_w;
@@ -853,8 +892,8 @@ DrawPrimitives(
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 左下
-	v[2].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
-	v[2].y = (float)dst_top * fScale + (float)dst_height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
+	v[2].x = x3 * fScale + fDisplayOffsetX - 0.5f;
+	v[2].y = y3 * fScale + fDisplayOffsetY + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u1 = (float)src_left / img_w;
@@ -864,8 +903,8 @@ DrawPrimitives(
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)dst_left * fScale + (float)dst_width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
-	v[3].y = (float)dst_top * fScale + (float)dst_height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
+	v[3].x = x4 * fScale + fDisplayOffsetX + 0.5f;
+	v[3].y = y4 * fScale + fDisplayOffsetY + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
 	v[3].u1 = (float)(src_left + src_width) / img_w;
@@ -955,15 +994,15 @@ DrawPrimitives(
 	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	// 描画する
-	if(dst_width == 1 && dst_height == 1)
+	if(x1 == x2 && x2 == x3 && x3 == x4)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v, sizeof(Vertex));
 	}
-	else if(dst_width == 1)
+	else if(x1 == x3 && x2 == x4 && fabsf(x1 - x2) == 1)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v + 1, sizeof(Vertex));
 	}
-	else if(dst_height == 1)
+	else if(y1 == y2 && y3 == y4 && fabsf(y1 - y3) == 1)
 	{
 		v[1].y += 1.0f;
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v, sizeof(Vertex));
@@ -1035,217 +1074,6 @@ VOID *D3DGetDevice(void)
 VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
 {
 	pDeviceLostCallback = pFunc;
-}
-
-//
-// OpenGL fallback
-//
-
-// OpenGL Function Pointers
-extern "C" {
-GLuint (APIENTRY *glCreateShader)(GLenum type);
-void (APIENTRY *glShaderSource)(GLuint shader, GLsizei count, const GLchar *const*string, const GLint *length);
-void (APIENTRY *glCompileShader)(GLuint shader);
-void (APIENTRY *glGetShaderiv)(GLuint shader, GLenum pname, GLint *params);
-void (APIENTRY *glGetShaderInfoLog)(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-void (APIENTRY *glAttachShader)(GLuint program, GLuint shader);
-void (APIENTRY *glLinkProgram)(GLuint program);
-void (APIENTRY *glGetProgramiv)(GLuint program, GLenum pname, GLint *params);
-void (APIENTRY *glGetProgramInfoLog)(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-GLuint (APIENTRY *glCreateProgram)(void);
-void (APIENTRY *glUseProgram)(GLuint program);
-void (APIENTRY *glGenVertexArrays)(GLsizei n, GLuint *arrays);
-void (APIENTRY *glBindVertexArray)(GLuint array);
-void (APIENTRY *glGenBuffers)(GLsizei n, GLuint *buffers);
-void (APIENTRY *glBindBuffer)(GLenum target, GLuint buffer);
-GLint (APIENTRY *glGetAttribLocation)(GLuint program, const GLchar *name);
-void (APIENTRY *glVertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
-void (APIENTRY *glEnableVertexAttribArray)(GLuint index);
-GLint (APIENTRY *glGetUniformLocation)(GLuint program, const GLchar *name);
-void (APIENTRY *glUniform1i)(GLint location, GLint v0);
-void (APIENTRY *glBufferData)(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
-void (APIENTRY *glDeleteShader)(GLuint shader);
-void (APIENTRY *glDeleteProgram)(GLuint program);
-void (APIENTRY *glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
-void (APIENTRY *glDeleteBuffers)(GLsizei n, const GLuint *buffers);
-void (APIENTRY *glActiveTexture)(GLenum texture);
-};
-
-// A table to map OpenGL API names to addresses of function pointers.
-struct GLExtAPITable
-{
-	void **func;
-	const char *name;
-} APITable[] =
-{
-	{(void **)&glCreateShader, "glCreateShader"},
-	{(void **)&glShaderSource, "glShaderSource"},
-	{(void **)&glCompileShader, "glCompileShader"},
-	{(void **)&glGetShaderiv, "glGetShaderiv"},
-	{(void **)&glGetShaderInfoLog, "glGetShaderInfoLog"},
-	{(void **)&glAttachShader, "glAttachShader"},
-	{(void **)&glLinkProgram, "glLinkProgram"},
-	{(void **)&glGetProgramiv, "glGetProgramiv"},
-	{(void **)&glGetProgramInfoLog, "glGetProgramInfoLog"},
-	{(void **)&glCreateProgram, "glCreateProgram"},
-	{(void **)&glUseProgram, "glUseProgram"},
-	{(void **)&glGenVertexArrays, "glGenVertexArrays"},
-	{(void **)&glBindVertexArray, "glBindVertexArray"},
-	{(void **)&glGenBuffers, "glGenBuffers"},
-	{(void **)&glBindBuffer, "glBindBuffer"},
-	{(void **)&glGetAttribLocation, "glGetAttribLocation"},
-	{(void **)&glVertexAttribPointer, "glVertexAttribPointer"},
-	{(void **)&glEnableVertexAttribArray, "glEnableVertexAttribArray"},
-	{(void **)&glGetUniformLocation, "glGetUniformLocation"},
-	{(void **)&glUniform1i, "glUniform1i"},
-	{(void **)&glBufferData, "glBufferData"},
-	{(void **)&glDeleteShader, "glDeleteShader"},
-	{(void **)&glDeleteProgram, "glDeleteProgram"},
-	{(void **)&glDeleteVertexArrays, "glDeleteVertexArrays"},
-	{(void **)&glDeleteBuffers, "glDeleteBuffers"},
-	{(void **)&glActiveTexture, "glActiveTexture"},
-};
-
-bool is_opengl_byte_order(void)
-{
-	return bGLFallback ? true : false;
-}
-
-static BOOL GL_Init()
-{
-	PIXELFORMATDESCRIPTOR pfd = {
-		sizeof(PIXELFORMATDESCRIPTOR),
-		1,
-		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-		PFD_TYPE_RGBA,
-		24, /* 24-bit color */
-		0, 0, 0, 0, 0, 0,
-		0,
-		0,
-		0,
-		0, 0, 0, 0,
-		0, /* no z-buffer */
-		0,
-		0,
-		PFD_MAIN_PLANE,
-		0,
-		0, 0, 0
-	};
-	static const int  contextAttibs[]= {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
-		WGL_CONTEXT_MINOR_VERSION_ARB, 0,
-		WGL_CONTEXT_FLAGS_ARB, 0,
-		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-		0
-	};
-
-	// Get a device context for the window.
-	hWndDC = GetDC(hMainWnd);
-
-	// Choose the pixel format.
-	int pixelFormat = ChoosePixelFormat(hWndDC, &pfd);
-	if (pixelFormat == 0)
-	{
-		log_info("Failed to call ChoosePixelFormat()");
-		return FALSE;
-	}
-	SetPixelFormat(hWndDC, pixelFormat, &pfd);
-
-	// Create an OpenGL context.
-	hGLRC = wglCreateContext(hWndDC);
-	if (hGLRC == NULL)
-	{
-		log_info("Failed to call wglCreateContext()");
-		return FALSE;
-	}
-	wglMakeCurrent(hWndDC, hGLRC);
-
-	// Get the pointer to wglCreateContextAttribsARB()
-	HGLRC (WINAPI *wglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
-	wglCreateContextAttribsARB = reinterpret_cast<HGLRC (WINAPI *)(HDC, HGLRC, const int *)>(reinterpret_cast<uintptr_t>(wglGetProcAddress("wglCreateContextAttribsARB")));
-	if (wglCreateContextAttribsARB == NULL)
-	{
-		log_info("API wglCreateContextAttribsARB not found.");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRC);
-		hGLRC = NULL;
-		return FALSE;
-	}
-
-	// Create a new HGLRC.
-	HGLRC hGLRCOld = hGLRC;
-	hGLRC = wglCreateContextAttribsARB(hWndDC, NULL, contextAttibs);
-	if (hGLRC == NULL)
-	{
-		log_info("Failed to call wglCreateContextAttribsARB()");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRCOld);
-		return FALSE;
-	}
-	wglMakeCurrent(hWndDC, hGLRC);
-	wglDeleteContext(hGLRCOld);
-
-	// If we are in a virtual machine that uses VMware graphics implementaion,
-	// we avoid using OpenGL because the graphics driver doesn't support OpenGL 3+.
-	// It seems that VirtualBox uses a VMware impementation of graphics driver.
-	if (strcmp((const char *)glGetString(GL_VENDOR), "VMware, Inc.") == 0) {
-		log_info("Detected virtual machine environment.");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRC);
-		hGLRC = NULL;
-		return FALSE;
-	}
-
-	// Get API pointers.
-	for (int i = 0; i < (int)(sizeof(APITable) / sizeof(struct GLExtAPITable)); i++)
-	{
-		*APITable[i].func = (void *)wglGetProcAddress(APITable[i].name);
-		if (*APITable[i].func == NULL)
-		{
-			log_info("API %s not found.", APITable[i].name);
-			wglMakeCurrent(NULL, NULL);
-			wglDeleteContext(hGLRC);
-			hGLRC = NULL;
-			return FALSE;
-		}
-	}
-
-	// Initialize OpenGL.
-	if (!init_opengl())
-	{
-		log_info("Failed to initialize OpenGL.");
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(hGLRC);
-		hGLRC = NULL;
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static void GL_RenderImageNormal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
-{
-	opengl_render_image_normal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
-}
-
-static void GL_RenderImageAdd(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
-{
-	opengl_render_image_add(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
-}
-
-static void GL_RenderImageDim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
-{
-	opengl_render_image_dim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
-}
-
-static void GL_RenderImageRule(struct image *src_image, struct image *rule_image, int threshold)
-{
-	opengl_render_image_rule(src_image, rule_image, threshold);
-}
-
-static void GL_RenderImageMelt(struct image *src_image, struct image *rule_image, int progress)
-{
-	opengl_render_image_melt(src_image, rule_image, progress);
 }
 
 //

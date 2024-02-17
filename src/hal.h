@@ -106,9 +106,7 @@ void notify_image_free(struct image *img);
 /*
  * Returns if RGBA values have to be reversed to BGRA.
  */
-#if defined(SUIKA_TARGET_WIN32)
-bool is_opengl_byte_order(void);
-#elif defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM) || defined(SUIKA_TARGET_POSIX) || defined(USE_QT)
+#if defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM) || defined(SUIKA_TARGET_POSIX) || defined(USE_QT)
 #define is_opengl_byte_order()	true
 #else
 #define is_opengl_byte_order()	false
@@ -189,6 +187,48 @@ void render_image_melt(
 	struct image *src_img,	/* [IN] The source image */
 	struct image *rule_img,	/* [IN] The rule image */
 	int progress);		/* The progress (0 to 255) */
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ *  - The "normal" shader pipeline renders pixels with alpha blending
+ */
+void
+render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha);
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ *  - The "normal" shader pipeline renders pixels with alpha blending
+ */
+void
+render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha);
 
 /*************
  * Lap Timer *

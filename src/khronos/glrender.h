@@ -83,6 +83,40 @@ void opengl_render_image_melt(struct image *src_image,
 			      struct image *rule_image,
 			      int progress);
 
+void
+opengl_render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha);
+
+void
+opengl_render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha);
+
 /* 全画面表示のときのスクリーンオフセットを指定する */
 void opengl_set_screen(int x, int y, int w, int h);
 

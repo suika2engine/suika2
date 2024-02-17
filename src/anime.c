@@ -36,6 +36,11 @@ struct sequence {
 	float to_a;
 	float to_scale_x;
 	float to_scale_y;
+	float center_x;
+	float center_y;
+	float from_rotate;
+	float to_rotate;
+	int blend;
 	int accel;
 	bool loop;
 };
@@ -418,7 +423,7 @@ static bool update_layer_params(int layer)
 	struct sequence *s;
 	float progress;
 	int i, x, y, alpha;
-	float scale_x, scale_y;
+	float scale_x, scale_y, rotate;
 
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
@@ -437,9 +442,13 @@ static bool update_layer_params(int layer)
 		x = (int)s->to_x;
 		y = (int)s->to_y;
 		alpha = (int)s->to_a;
+		rotate = s->to_rotate;
 		set_layer_position(layer, (int)s->to_x, (int)s->to_y);
 		set_layer_scale(layer, s->to_scale_x, s->to_scale_y);
 		set_layer_alpha(layer, alpha);
+		set_layer_center(layer, (int)s->center_x, (int)s->center_y);
+		set_layer_rotate(layer, rotate * (3.14159265f / 180.0f));
+		set_layer_blend(layer, s->blend);
 		return true;
 	}
 
@@ -478,10 +487,14 @@ static bool update_layer_params(int layer)
 		y = (int)(s->from_y + (s->to_y - s->from_y) * progress);
 		scale_x = s->from_scale_x + (s->to_scale_x - s->from_scale_x) * progress;
 		scale_y = s->from_scale_y + (s->to_scale_y - s->from_scale_y) * progress;
+		rotate = s->from_rotate + (s->to_rotate - s->from_rotate) * progress;
 		alpha = (int)(s->from_a + (s->to_a - s->from_a) * progress);
 		set_layer_position(layer, x, y);
-		set_layer_scale(layer, scale_x, scale_y);
+		set_layer_center(layer, (int)s->center_x, (int)s->center_y);
 		set_layer_alpha(layer, alpha);
+		set_layer_scale(layer, scale_x, scale_y);
+		set_layer_rotate(layer, rotate * (3.14159265f / 180.0f));
+		set_layer_blend(layer, s->blend);
 		break;
 	}
 
@@ -646,6 +659,16 @@ static bool on_key_value(const char *key, const char *val)
 		s->to_scale_x = (float)atof(val);
 	} else if (strcmp(key, "to-scale-y") == 0) {
 		s->to_scale_y = (float)atof(val);
+	} else if (strcmp(key, "from-rotate") == 0) {
+		s->from_rotate = (float)atof(val);
+	} else if (strcmp(key, "to-rotate") == 0) {
+		s->to_rotate = (float)atof(val);
+	} else if (strcmp(key, "center-x") == 0) {
+		s->center_x = (float)atof(val);
+	} else if (strcmp(key, "center-y") == 0) {
+		s->center_y = (float)atof(val);
+	} else if (strcmp(key, "blend") == 0) {
+		s->blend = atoi(val);
 	} else if (strcmp(key, "accel") == 0) {
 		s->accel = atoi(val);
 	} else if (strcmp(key, "loop") == 0) {
