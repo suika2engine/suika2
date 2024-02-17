@@ -5,13 +5,23 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/15.146 2024/2/17
+  <ul>
+    <li>gui.history.oneline=1のときに右端到達で改行されない挙動を修正 (Thanks to 赤月-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
+<li>Suika2/15.145 2024/2/15
+  <ul>
+    <li>アニメファイルの記述量の制限を緩和 (Thanks to ソロー-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.144 2024/2/12
   <ul>
     <li>ZIP版を追加</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.143 2024/2/11
   <ul>
     <li>クラッシュ時にお詫びを表示するように変更</li>
@@ -1233,13 +1243,23 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/15.146 2024/2/17
+  <ul>
+    <li>Changed to do line-feed when gui.history.oneline=1 and a text reached the right edge (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
+<li>Suika2/15.145 2024/2/15
+  <ul>
+    <li>Relaxed the anime sequence limit (Thanks to Sorow-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.144 2024/2/11
   <ul>
     <li>Added a ZIP version</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.143 2024/2/11
   <ul>
     <li>Added a message when crashed.</li>

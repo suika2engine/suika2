@@ -17,7 +17,7 @@
 #define INVALID_ACCEL_TYPE	(0)
 
 /* レイヤごとのアニメーションシーケンスの最大数 */
-#define SEQUENCE_COUNT		(16)
+#define SEQUENCE_COUNT		(64)
 
 /* アニメーションシーケンスの構造 */
 struct sequence {
