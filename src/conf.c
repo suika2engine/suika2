@@ -332,6 +332,7 @@ int conf_gui_history_font_outline_color_r;
 int conf_gui_history_font_outline_color_g;
 int conf_gui_history_font_outline_color_b;
 int conf_gui_history_oneline;
+char *conf_gui_history_quote_prefix;
 char *conf_gui_history_quote_start;
 char *conf_gui_history_quote_end;
 int conf_gui_preview_tategaki;
@@ -768,6 +769,7 @@ static struct rule {
 	{"gui.history.font.outline.color.g", 'i', &conf_gui_history_font_outline_color_g, OPTIONAL, SAVE},
 	{"gui.history.font.outline.color.b", 'i', &conf_gui_history_font_outline_color_b, OPTIONAL, SAVE},
 	{"gui.history.oneline", 'i', &conf_gui_history_oneline, OPTIONAL, SAVE},
+	{"gui.history.quote.prefix", 's', &conf_gui_history_quote_prefix, OPTIONAL, SAVE},
 	{"gui.history.quote.start", 's', &conf_gui_history_quote_start, OPTIONAL, SAVE},
 	{"gui.history.quote.end", 's', &conf_gui_history_quote_end, OPTIONAL, SAVE},
 	{"gui.preview.tategaki", 'i', &conf_gui_preview_tategaki, OPTIONAL, SAVE},

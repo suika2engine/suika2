@@ -842,8 +842,10 @@ static bool init_voice_file(void)
 {
 	const char *voice;
 
-	if (get_command_type() != COMMAND_SERIF)
+	if (get_command_type() != COMMAND_SERIF) {
+		voice_file = NULL;
 		return true;
+	}
 
 	/* ロード/タイトルへ戻った場合はvoice_fileが残っているので解放する */
 	if (voice_file != NULL) {
@@ -1044,28 +1046,40 @@ static bool register_message_for_history(const char *msg)
 
 		/* ビープ音は履歴画面で再生しない */
 		voice = voice_file;
-		if (voice[0] == '@')
+		if (voice != NULL && voice[0] == '@')
 			voice = NULL;
 
-		/* セリフをヒストリ画面用に登録する */
-		if (!register_message(name_top,
-				      msg,
-				      voice,
-				      body_color,
-				      body_outline_color,
-				      name_color,
-				      name_outline_color))
-			return false;
+		if (!is_continue_mode) {
+			/* セリフをヒストリ画面用に登録する */
+			if (!register_message(name_top,
+					      msg,
+					      voice,
+					      body_color,
+					      body_outline_color,
+					      name_color,
+					      name_outline_color))
+				return false;
+		} else {
+			/* セリフのメッセージ部分のみをヒストリ画面用に登録(追記)する */
+			if (!append_message(msg))
+				return false;
+		}
 	} else {
-		/* メッセージをヒストリ画面用に登録する */
-		if (!register_message(NULL,
-				      msg,
-				      NULL,
-				      body_color,
-				      body_outline_color,
-				      0,
-				      0))
-			return false;
+		if (!is_continue_mode) {
+			/* メッセージをヒストリ画面用に登録する */
+			if (!register_message(NULL,
+					      msg,
+					      NULL,
+					      body_color,
+					      body_outline_color,
+					      0,
+					      0))
+				return false;
+		} else {
+			/* メッセージをヒストリ画面用に登録(追記)する */
+			if (!append_message(msg))
+				return false;
+		}
 	}
 
 	/* 成功 */
@@ -1563,8 +1577,10 @@ static void adjust_pointed_index(void)
 		return;
 	}
 
-	/* 未読の場合にSKIPボタンを無効化する */
-	if (!is_skippable() && pointed_index == BTN_SKIP) {
+	/* スキップモードに入れないときにSKIPボタンを無効化する */
+	if (!get_seen() &&
+	    conf_msgbox_skip_unseen != 1 &&
+	    pointed_index == BTN_SKIP) {
 		pointed_index = BTN_NONE;
 		return;
 	}
@@ -2362,8 +2378,10 @@ static void adjust_sysmenu_pointed_index(void)
 	    sysmenu_pointed_index == SYSMENU_QLOAD)
 		sysmenu_pointed_index = SYSMENU_NONE;
 
-	/* 未読の場合、スキップのポイントを無効にする */
-	if (!is_skippable() && sysmenu_pointed_index == SYSMENU_SKIP)
+	/* スキップできない場合、ポイントを無効にする */
+	if (!get_seen() &&
+	    conf_msgbox_skip_unseen != 1 &&
+	    sysmenu_pointed_index == SYSMENU_SKIP)
 		sysmenu_pointed_index = SYSMENU_NONE;
 }
 
@@ -2854,6 +2872,7 @@ static void render_sysmenu_extended(void)
 {
 	int i;
 	bool sel[SYSMENU_COUNT];
+	bool skippable;
 
 	/* システムメニューボタンがポイントされているかを取得する */
 	for (i = 0; i < SYSMENU_COUNT; i++) {
@@ -2863,9 +2882,19 @@ static void render_sysmenu_extended(void)
 			sel[i] = false;
 	}
 
+	/* スキップモードボタンの有効/無効を判定する */
+	skippable = true;
+	if (!get_seen()) {
+		if (conf_msgbox_skip_unseen == 0 ||
+		    conf_msgbox_skip_unseen == 2)
+			skippable = false;
+	}
+	if (is_non_interruptible())
+		skippable = false;
+
 	/* 描画する */
 	render_sysmenu(true,
-		       is_skippable(),
+		       skippable,
 		       is_save_load_enabled(),
 		       is_save_load_enabled() &&
 		       have_quick_save_data(),
@@ -3012,7 +3041,7 @@ static void play_se(const char *file)
 	set_mixer_input(SYS_STREAM, w);
 }
 
-/* 既読であるか調べる */
+/* スキップ可能であるか調べる */
 static bool is_skippable(void)
 {
 	if (conf_msgbox_skip_unseen == 0) {

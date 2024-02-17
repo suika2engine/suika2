@@ -118,6 +118,32 @@ struct image *create_image_from_color_string(int w, int h, const char *color)
 }
 
 /*
+ * イメージを作成する
+ */
+struct image *create_image_with_pixels(int w, int h, pixel_t *pixels)
+{
+	struct image *img;
+
+	assert(w > 0 && h > 0);
+
+	/* イメージ構造体のメモリを確保する */
+	img = malloc(sizeof(struct image));
+	if (img == NULL) {
+		log_memory();
+		return NULL;
+	}
+
+	/* 構造体を初期化する */
+	img->width = w;
+	img->height = h;
+	img->pixels = pixels;
+	img->texture = NULL;
+	img->need_upload = false;
+
+	return img;
+}
+
+/*
  * イメージを削除する
  */
 void destroy_image(struct image *img)
@@ -296,6 +322,81 @@ void draw_image_normal(struct image *dst_image,
 						(uint32_t)(src_r + dst_r),
 						(uint32_t)(src_g + dst_g),
 						(uint32_t)(src_b + dst_b));
+		}
+		src_ptr += src_line_inc;
+		dst_ptr += dst_line_inc;
+	}
+
+	notify_image_update(dst_image);
+}
+
+/*
+ * イメージを描画する
+ */
+void draw_image_add(struct image *dst_image,
+		    int dst_left,
+		    int dst_top,
+		    struct image *src_image,
+		    int width,
+		    int height,
+		    int src_left,
+		    int src_top,
+		    int alpha)
+{
+	pixel_t * RESTRICT src_ptr;
+	pixel_t * RESTRICT dst_ptr;
+	float a, src_a;
+	uint32_t src_pix, src_r, src_g, src_b;
+	uint32_t dst_pix, dst_r, dst_g, dst_b;
+	uint32_t add_r, add_g, add_b;
+	int src_line_inc, dst_line_inc, x, y, sw, dw;
+
+	if (!check_draw_image(dst_image, &dst_left, &dst_top, src_image, &width, &height, &src_left, &src_top, alpha))
+		return;
+
+	sw = src_image->width;
+	dw = dst_image->width;
+	src_ptr = src_image->pixels + sw * src_top + src_left;
+	dst_ptr = dst_image->pixels + dw * dst_top + dst_left;
+	src_line_inc = sw - width;
+	dst_line_inc = dw - width;
+	a = (float)alpha / 255.0f;
+
+	for(y = 0; y < height; y++) {
+		for(x = 0; x < width; x++) {
+			/* 転送元と転送先のピクセルを取得する */
+			src_pix	= *src_ptr++;
+			dst_pix	= *dst_ptr;
+
+			/* アルファ値を計算する */
+			src_a = a * ((float)get_pixel_a(src_pix) / 255.0f);
+
+			/* 転送元ピクセルにアルファ値を乗算する */
+			src_r = (uint32_t)(src_a * ((float)get_pixel_r(src_pix) / 255.0f) * 255.0f);
+			src_g = (uint32_t)(src_a * ((float)get_pixel_g(src_pix) / 255.0f) * 255.0f);
+			src_b = (uint32_t)(src_a * ((float)get_pixel_b(src_pix) / 255.0f) * 255.0f);
+
+			/* 転送先ピクセルを取得する */
+			dst_r = get_pixel_r(dst_pix);
+			dst_g = get_pixel_g(dst_pix);
+			dst_b = get_pixel_b(dst_pix);
+
+			/* 飽和加算する */
+			add_r = src_r + dst_r;
+			if (add_r > 255)
+				add_r = 255;
+			add_g = src_g + dst_g;
+			if (add_g > 255)
+				add_g = 255;
+			add_b = src_b + dst_b;
+			if (add_b > 255)
+				add_b = 255;
+
+			/* 転送先に格納する */
+			*dst_ptr++ = make_pixel(0xff,
+						add_r,
+						add_g,
+						add_b);
 		}
 		src_ptr += src_line_inc;
 		dst_ptr += dst_line_inc;
@@ -717,7 +818,8 @@ bool clip_by_source(
 	if(*src_y + *cy > src_cy)
 		*cy = src_cy - *src_y;
 
-	assert(*cx > 0 && *cy > 0);
+	if (*cx <= 0 || *cy <= 0)
+		return false;
 
 	/* 成功 */
 	return true;
@@ -789,7 +891,8 @@ bool clip_by_dest(
 	if(*dst_y + *cy > dst_cy)
 		*cy = dst_cy - *dst_y;
 
-	assert(*cx > 0 && *cy > 0);
+	if (*cx <= 0 || *cy <= 0)
+		return false;
 
 	/* 成功 */
 	return true;

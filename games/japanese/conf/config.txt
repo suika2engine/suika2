@@ -668,6 +668,10 @@ gui.history.font.outline.color.r=128
 gui.history.font.outline.color.g=128
 gui.history.font.outline.color.b=128
 
+# [ヒストリーの名前直後に改行を入れるためのコンフィグ]
+#  - \nを指定すると改行できる
+#gui.history.quote.prefix=\n
+
 # [ヒストリーのカギカッコ]
 gui.history.quote.start=「
 gui.history.quote.end=」
@@ -756,9 +760,13 @@ character.file3=002-
 ### ステージの設定
 ###
 
-# キャラクタの位置補正
+# キャラクタの位置補正(下端マージン)
 stage.ch.margin.bottom=0
+
+# キャラクタの位置補正(左端マージン)
 stage.ch.margin.left=0
+
+# キャラクタの位置補正(右端マージン)
 stage.ch.margin.right=0
 
 ###
@@ -857,7 +865,7 @@ tts.enable=0
 #  0: 無効
 #  1: Vキーで有効/無効にできる (視覚障害者モード)
 #  2: Vキーで有効/無効にできる (晴眼者モード)
-tts.user=1
+tts.user=0
 
 ###
 ### 言語設定 (省略可)
@@ -868,7 +876,7 @@ tts.user=1
 # locale.force=en
 
 # [言語マッピング] (省略可)
-#  - OSの言語設定がxxのとき、シナリオのyyの言語を使う、の意味(+yy+の表記のこと)
+#  - language.xx=yyとは、OSの言語設定がxxのとき、シナリオの言語yyを使う、の意味(+yy+の表記のこと)
 #  - 初めはすべてjaにしておいて、翻訳できた言語から順にマッピングを変える、などが可能
 language.en=en
 language.fr=fr

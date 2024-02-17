@@ -35,6 +35,13 @@ INCLUDES = \
 	-I$(LIBNX)/include
 
 #
+# CPPFLAGS
+#
+
+CPPFLAGS = \
+	-DSUIKA_TARGET_SDL2
+
+#
 # CFLAGS
 #
 
@@ -76,7 +83,7 @@ LDFLAGS = \
 include ../common.mk
 
 SRCS_KHRONOS = ../../src/khronos/glrender.c
-SRCS_ECTRA = ../../src/extra/consolemain.c
+SRCS_EXTRA = ../../src/extra/consolemain.c
 
 all: $(TARGET).nro
 
@@ -115,6 +122,15 @@ $(OUTPUT).nsp : $(OUTPUT).nso $(OUTPUT).npdm
 #
 # Phony
 #
+
+setup:
+	pacman -Syu switch-dev
+	pacman -Syu switch-mesa
+	pacman -Syu switch-libjpeg9
+	pacman -Syu switch-libpng
+	pacman -Syu switch-libwebp
+	pacman -Syu switch-libvorbis
+	pacman -Syu switch-libfreetype2
 
 install: $(TARGET).nro
 	cp $(TARGET).nro ../../

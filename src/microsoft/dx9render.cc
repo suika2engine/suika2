@@ -11,10 +11,10 @@
  */
 
 extern "C" {
-#include "../suika.h"
 #include "dx9render.h"
 };
 
+// Direct3D 9.0
 #include <d3d9.h>
 
 //
@@ -63,6 +63,15 @@ static float fDisplayOffsetY;
 static float fScale;
 
 //
+// GDI fallback objects.
+//
+static HDC hWndDC;
+static BOOL bGDIFallback;
+static struct image *pBackImage;
+static HDC hBitmapDC;
+static HBITMAP hBitmap;
+
+//
 // デバイスロスト時のコールバック
 //
 extern "C" {
@@ -73,13 +82,10 @@ void (*pDeviceLostCallback)(void);
 // シェーダ
 //
 
-// Note: 頂点シェーダはなく、固定シェーダを使用している
-
-// Note: "copy"パイプラインは固定シェーダで実行する
-
-// Note: "normal"パイプラインは固定シェーダで実行する
-
-// Note: "add"パイプラインは固定シェーダで実行する
+// Note:
+//  - 頂点シェーダはなく、固定シェーダを使用している
+//  - "normal"パイプラインはピクセルシェーダではなく固定シェーダで実行する
+//  - "add"パイプラインはピクセルシェーダではなく固定シェーダで実行する
 
 //
 // "dim"パイプラインのピクセルシェーダ
@@ -221,7 +227,29 @@ static VOID DrawPrimitives(int dst_left,
 						   int src_height,
 						   int alpha,
 						   int pipeline);
+static VOID DrawPrimitives3D(float x1,
+							 float y1,
+							 float x2,
+							 float y2,
+							 float x3,
+							 float y3,
+							 float x4,
+							 float y4,
+							 struct image *src_image,
+							 struct image *rule_image,
+							 int src_left,
+							 int src_top,
+							 int src_width,
+							 int src_height,
+							 int alpha,
+							 int pipeline);
 static BOOL UploadTextureIfNeeded(struct image *img);
+static BOOL GDI_Init();
+static void GDI_RenderImageNormal(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GDI_RenderImageAdd(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GDI_RenderImageDim(int dst_left, int dst_top, int dst_width, int dst_height, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha);
+static void GDI_RenderImageRule(struct image *src_image, struct image *rule_image, int threshold);
+static void GDI_RenderImageMelt(struct image *src_image, struct image *rule_image, int progress);
 
 //
 // Direct3Dの初期化を行う
@@ -253,19 +281,23 @@ BOOL D3DInitialize(HWND hWnd)
 	hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 								 D3DCREATE_MIXED_VERTEXPROCESSING, &d3dpp,
 								 &pD3DDevice);
-    if (FAILED(hResult))
-    {
-		hResult = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_SW,
-									 hWnd, D3DCREATE_MIXED_VERTEXPROCESSING,
-									 &d3dpp, &pD3DDevice);
-		if (FAILED(hResult))
-        {
-			log_api_error("Direct3D::CreateDevice()");
-			pD3D->Release();
-			pD3D = NULL;
-            return FALSE;
-        }
-    }
+	if (FAILED(hResult))
+	{
+		pD3D->Release();
+		pD3D = NULL;
+
+		log_api_error("Direct3D::CreateDevice()");
+		log_info("Falling back to GDI.");
+
+		if (!GDI_Init())
+		{
+			log_error("Failed to initialize GDI.");
+			return FALSE;
+		}
+
+		bGDIFallback = TRUE;
+		return TRUE;
+	}
 
 	// シェーダを作成する
 	do {
@@ -332,6 +364,9 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 	fDisplayOffsetY = (float)nOffsetY;
 	fScale = scale;
 
+	if (bGDIFallback)
+		return TRUE;
+
 	if (pD3DDevice != NULL)
 	{
 		// Direct3Dデバイスをリセットする
@@ -352,6 +387,16 @@ BOOL D3DResizeWindow(int nOffsetX, int nOffsetY, float scale)
 //
 VOID D3DStartFrame(void)
 {
+	// Fallbacks:
+	if (bGDIFallback)
+	{
+		if (conf_window_white)
+			clear_image_white(pBackImage);
+		else
+			clear_image_black(pBackImage);
+		return;
+	}
+
 	// クリアする
 	pD3DDevice->Clear(0,
 					  NULL,
@@ -369,6 +414,13 @@ VOID D3DStartFrame(void)
 //
 VOID D3DEndFrame(void)
 {
+	// Fallbacks:
+	if (bGDIFallback)
+	{
+		BitBlt(hWndDC, 0, 0, conf_window_width, conf_window_height, hBitmapDC, 0, 0, SRCCOPY);
+		return;
+	}
+
 	// 描画を完了する
 	pD3DDevice->EndScene();
 
@@ -511,6 +563,9 @@ void CompileShader(const char *pSrc, unsigned char *pDst, BOOL bHLSL)
 //
 void notify_image_update(struct image *img)
 {
+	if (bGDIFallback)
+		return;
+
 	img->need_upload = true;
 }
 
@@ -519,6 +574,9 @@ void notify_image_update(struct image *img)
 //
 void notify_image_free(struct image *img)
 {
+	if (bGDIFallback)
+		return;
+
 	IDirect3DTexture9 *pTex = (IDirect3DTexture9 *)img->texture;
 	if(pTex == NULL)
 		return;
@@ -542,6 +600,12 @@ render_image_normal(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
+	if (bGDIFallback)
+	{
+		GDI_RenderImageNormal(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+
 	DrawPrimitives(dst_left,
 				   dst_top,
 				   dst_width,
@@ -572,6 +636,12 @@ render_image_add(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
+	if (bGDIFallback)
+	{
+		GDI_RenderImageAdd(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+
 	DrawPrimitives(dst_left,
 				   dst_top,
 				   dst_width,
@@ -602,6 +672,12 @@ render_image_dim(
 	int src_height,				/* The height of the source rectangle */
 	int alpha)					/* The alpha value (0 to 255) */
 {
+	if (bGDIFallback)
+	{
+		GDI_RenderImageDim(dst_left, dst_top, dst_width, dst_height, src_image, src_left, src_top, src_width, src_height, alpha);
+		return;
+	}
+
 	DrawPrimitives(dst_left,
 				   dst_top,
 				   dst_width,
@@ -621,6 +697,12 @@ render_image_dim(
 //
 void render_image_rule(struct image *src_image, struct image *rule_image, int threshold)
 {
+	if (bGDIFallback)
+	{
+		GDI_RenderImageRule(src_image, rule_image, threshold);
+		return;
+	}
+
 	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, threshold, PIPELINE_RULE);
 }
 
@@ -629,6 +711,12 @@ void render_image_rule(struct image *src_image, struct image *rule_image, int th
 //
 void render_image_melt(struct image *src_image, struct image *rule_image, int progress)
 {
+	if (bGDIFallback)
+	{
+		GDI_RenderImageMelt(src_image, rule_image, progress);
+		return;
+	}
+
 	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, progress, PIPELINE_MELT);
 }
 
@@ -639,6 +727,121 @@ DrawPrimitives(
 	int dst_top,
 	int dst_width,
 	int dst_height,
+	struct image *src_image,
+	struct image *rule_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha,
+	int pipeline)
+{
+	DrawPrimitives3D((float)dst_left,
+					 (float)dst_top,
+					 (float)(dst_left + dst_width + 1),
+					 (float)dst_top,
+					 (float)dst_left,
+					 (float)(dst_top + dst_height + 1),
+					 (float)(dst_left + dst_width + 1),
+					 (float)(dst_top + dst_height + 1),
+					 src_image,
+					 rule_image,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 pipeline);
+}
+
+//
+// Renders an image to the screen with the "normal" shader pipeline.
+//
+void
+render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	DrawPrimitives3D(x1,
+					 y1,
+					 x2,
+					 y2,
+					 x3,
+					 y3,
+					 x4,
+					 y4,
+					 src_image,
+					 NULL,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 PIPELINE_NORMAL);
+}
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ *  - The "normal" shader pipeline renders pixels with alpha blending
+ */
+void
+render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	DrawPrimitives3D(x1,
+					 y1,
+					 x2,
+					 y2,
+					 x3,
+					 y3,
+					 x4,
+					 y4,
+					 src_image,
+					 NULL,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 PIPELINE_ADD);
+}
+
+// プリミティブを描画する
+static VOID
+DrawPrimitives3D(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
 	struct image *src_image,
 	struct image *rule_image,
 	int src_left,
@@ -661,27 +864,14 @@ DrawPrimitives(
 		pTexRule = (IDirect3DTexture9 *)rule_image->texture;
 	}
 
-	// 描画の必要があるか判定する
-	if (dst_width == 0 || dst_height == 0)
-		return;	// 描画の必要がない
-
-	if (dst_width == -1)
-		dst_width = src_image->width;
-	if (dst_height == -1)
-		dst_height = src_image->height;
-	if (src_width == -1)
-		src_width = src_image->width;
-	if (src_height == -1)
-		src_height = src_image->height;
-
 	float img_w = (float)src_image->width;
 	float img_h = (float)src_image->height;
 
 	Vertex v[4];
 
 	// 左上
-	v[0].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
-	v[0].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
+	v[0].x = x1 * fScale + fDisplayOffsetX - 0.5f;
+	v[0].y = y1 * fScale + fDisplayOffsetY - 0.5f;
 	v[0].z = 0.0f;
 	v[0].rhw = 1.0f;
 	v[0].u1 = (float)src_left / img_w;
@@ -691,8 +881,8 @@ DrawPrimitives(
 	v[0].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右上
-	v[1].x = (float)dst_left * fScale + (float)dst_width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
-	v[1].y = (float)dst_top * fScale + fDisplayOffsetY - 0.5f;
+	v[1].x = x2 * fScale + fDisplayOffsetX + 0.5f;
+	v[1].y = y2 * fScale + fDisplayOffsetY - 0.5f;
 	v[1].z = 0.0f;
 	v[1].rhw = 1.0f;
 	v[1].u1 = (float)(src_left + src_width) / img_w;
@@ -702,8 +892,8 @@ DrawPrimitives(
 	v[1].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 左下
-	v[2].x = (float)dst_left * fScale + fDisplayOffsetX - 0.5f;
-	v[2].y = (float)dst_top * fScale + (float)dst_height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
+	v[2].x = x3 * fScale + fDisplayOffsetX - 0.5f;
+	v[2].y = y3 * fScale + fDisplayOffsetY + 0.5f;
 	v[2].z = 0.0f;
 	v[2].rhw = 1.0f;
 	v[2].u1 = (float)src_left / img_w;
@@ -713,8 +903,8 @@ DrawPrimitives(
 	v[2].color = D3DCOLOR_ARGB(alpha, 0xff, 0xff, 0xff);
 
 	// 右下
-	v[3].x = (float)dst_left * fScale + (float)dst_width * fScale - 1.0f + fDisplayOffsetX + 0.5f;
-	v[3].y = (float)dst_top * fScale + (float)dst_height * fScale - 1.0f + fDisplayOffsetY + 0.5f;
+	v[3].x = x4 * fScale + fDisplayOffsetX + 0.5f;
+	v[3].y = y4 * fScale + fDisplayOffsetY + 0.5f;
 	v[3].z = 0.0f;
 	v[3].rhw = 1.0f;
 	v[3].u1 = (float)(src_left + src_width) / img_w;
@@ -804,15 +994,15 @@ DrawPrimitives(
 	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	// 描画する
-	if(dst_width == 1 && dst_height == 1)
+	if(x1 == x2 && x2 == x3 && x3 == x4)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v, sizeof(Vertex));
 	}
-	else if(dst_width == 1)
+	else if(x1 == x3 && x2 == x4 && fabsf(x1 - x2) == 1)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v + 1, sizeof(Vertex));
 	}
-	else if(dst_height == 1)
+	else if(y1 == y2 && y3 == y4 && fabsf(y1 - y3) == 1)
 	{
 		v[1].y += 1.0f;
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v, sizeof(Vertex));
@@ -884,4 +1074,175 @@ VOID *D3DGetDevice(void)
 VOID D3DSetDeviceLostCallback(void (*pFunc)(void))
 {
 	pDeviceLostCallback = pFunc;
+}
+
+//
+// Soft Rendering Fallback
+//
+
+extern "C" BOOL D3DIsSoftRendering(void)
+{
+	return bGDIFallback;
+}
+
+static BOOL GDI_Init()
+{
+	// Get a device context for the window.
+	hWndDC = GetDC(hMainWnd);
+
+	// Create a device conetxt for RGBA32 bitmap.
+	BITMAPINFO bi;
+	memset(&bi, 0, sizeof(BITMAPINFO));
+	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bi.bmiHeader.biWidth = conf_window_width;
+	bi.bmiHeader.biHeight = -conf_window_height; /* Top-down */
+	bi.bmiHeader.biPlanes = 1;
+	bi.bmiHeader.biBitCount = 32;
+	bi.bmiHeader.biCompression = BI_RGB;
+	hBitmapDC = CreateCompatibleDC(NULL);
+	if(hBitmapDC == NULL)
+		return FALSE;
+
+	// Create a backing bitmap.
+	pixel_t *pixels = NULL;
+	hBitmap = CreateDIBSection(hBitmapDC, &bi, DIB_RGB_COLORS, (VOID **)&pixels, NULL, 0);
+	if(hBitmap == NULL || pixels == NULL)
+		return FALSE;
+	SelectObject(hBitmapDC, hBitmap);
+
+	// Create a image.
+	pBackImage = create_image_with_pixels(conf_window_width, conf_window_height, pixels);
+	if(pBackImage == NULL)
+		return FALSE;
+	if(conf_window_white)
+		clear_image_white(pBackImage);
+
+	return TRUE;
+}
+
+static void GDI_RenderImageNormal(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
+{
+	UNUSED_PARAMETER(dst_width);
+	UNUSED_PARAMETER(dst_height);
+
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
+	draw_image_normal(pBackImage,
+					  dst_left,
+					  dst_top,
+					  src_image,
+					  src_width,
+					  src_height,
+					  src_left,
+					  src_top,
+					  alpha);
+}
+
+static void GDI_RenderImageAdd(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
+{
+	UNUSED_PARAMETER(dst_width);
+	UNUSED_PARAMETER(dst_height);
+
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
+	draw_image_add(pBackImage,
+				   dst_left,
+				   dst_top,
+				   src_image,
+				   src_width,
+				   src_height,
+				   src_left,
+				   src_top,
+				   alpha);
+}
+
+static void GDI_RenderImageDim(
+	int dst_left,				/* The X coordinate of the screen */
+	int dst_top,				/* The Y coordinate of the screen */
+	int dst_width,				/* The width of the destination rectangle */
+	int dst_height,				/* The width of the destination rectangle */
+	struct image *src_image,	/* [IN] an image to be rendered */
+	int src_left,				/* The X coordinate of a source image */
+	int src_top,				/* The Y coordinate of a source image */
+	int src_width,				/* The width of the source rectangle */
+	int src_height,				/* The height of the source rectangle */
+	int alpha)					/* The alpha value (0 to 255) */
+{
+	UNUSED_PARAMETER(dst_width);
+	UNUSED_PARAMETER(dst_height);
+
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
+	draw_image_dim(pBackImage,
+				   dst_left,
+				   dst_top,
+				   src_image,
+				   src_width,
+				   src_height,
+				   src_left,
+				   src_top,
+				   alpha);
+}
+
+static void GDI_RenderImageRule(
+	struct image *src_image,
+	struct image *rule_image,
+	int threshold)
+{
+	draw_image_rule(pBackImage,
+					src_image,
+					rule_image,
+					threshold);
+}
+
+static void GDI_RenderImageMelt(
+	struct image *src_image,
+	struct image *rule_image,
+	int progress)
+{
+	draw_image_melt(pBackImage,
+					src_image,
+					rule_image,
+					progress);
 }

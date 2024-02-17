@@ -70,6 +70,7 @@ static int get_keycode(const char *key);
 static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent,void *userData);
 static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static EM_BOOL cb_touchcancel(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static void update_script_model_from_text(void);
 static void update_script_model_from_current_line_text(void);
 static void update_text_from_script_model(void);
@@ -107,7 +108,7 @@ void start_engine(void)
 
 	/* Set the rendering canvas size. */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-	EM_ASM_({resizeWindow(null);});
+	EM_ASM_({ resizeWindow(); });
 
 	/* Initialize the OpenGL rendering subsystem. */
 	EmscriptenWebGLContextAttributes attr;
@@ -124,6 +125,29 @@ void start_engine(void)
 	if(!on_event_init())
 		return;
 
+	/* Set event callbacks. */
+	EM_ASM_({
+		function visibilityChange() {
+			if(document.visibilityState === 'visible') {
+				Module.ccall('set_visible', null, null, null);
+				document.getElementById('canvas').focus();
+			} else if(document.visibilityState === 'hidden') {
+				Module.ccall('set_hidden', null, null, null);
+			}
+		}
+		function preventDefault(e) {
+			e.preventDefault();
+		}
+		window.ontouchmove = preventDefault;
+		window.onwheel = preventDefault;
+		document.ontouchmove = preventDefault;
+		document.onwheel = preventDefault;
+		document.body.addEventListener('touchmove', preventDefault, { passive: false });
+		document.body.addEventListener('wheel', preventDefault, { passive: false });
+		window.addEventListener('resize', resizeWindow);
+		document.addEventListener('visibilitychange', visibilityChange);
+	});
+
 	/* Register canvas events. */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
@@ -134,6 +158,7 @@ void start_engine(void)
 	emscripten_set_touchstart_callback("canvas", 0, true, cb_touchstart);
 	emscripten_set_touchmove_callback("canvas", 0, true, cb_touchmove);
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
+	emscripten_set_touchcancel_callback("canvas", 0, true, cb_touchcancel);
 
 	/* Reserve the first frame callback. */
 	emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
@@ -397,9 +422,38 @@ static EM_BOOL cb_touchend(
 	return EM_TRUE;
 }
 
+/* touchcancelのコールバック */
+static EM_BOOL cb_touchcancel(int eventType,
+			      const EmscriptenTouchEvent *touchEvent,
+			      void *userData)
+{
+	on_event_mouse_move(-1, -1);
+
+	return EM_TRUE;
+}
+
 /*
  * Callback from JavaScript
  */
+
+/* Resize the canvas. */
+EM_JS(void, resizeWindow, (void), {
+	canvas = document.getElementById('canvas');
+	cw = canvas.width;
+	ch = canvas.height;
+	aspect = cw / ch;
+	winw = window.innerWidth;
+	winh = window.innerHeight;
+	w = winw;
+	h = winw / aspect;
+	if(h > winh) {
+		h = winh;
+		w = winh * aspect;
+	}
+	canvas.style.width = w + 'px';
+	canvas.style.height = h + 'px';
+	canvas.focus();
+});
 
 /* Callback when a project is loaded. */
 EMSCRIPTEN_KEEPALIVE void onLoadProject(void)
@@ -580,6 +634,72 @@ void render_image_melt(
 	int threshold)
 {
 	opengl_render_image_melt(src_img, rule_img, threshold);
+}
+
+void
+render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	opengl_render_image_3d_normal(x1,
+				      y1,
+				      x2,
+				      y2,
+				      x3,
+				      y3,
+				      x4,
+				      y4,
+				      src_image,
+				      src_left,
+				      src_top,
+				      src_width,
+				      src_height,
+				      alpha);
+}
+
+void
+render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	opengl_render_image_3d_add(x1,
+				   y1,
+				   x2,
+				   y2,
+				   x3,
+				   y3,
+				   x4,
+				   y4,
+				   src_image,
+				   src_left,
+				   src_top,
+				   src_width,
+				   src_height,
+				   alpha);
 }
 
 bool make_sav_dir(void)

@@ -153,11 +153,23 @@ static int layer_y[STAGE_LAYERS];
 /* レイヤのアルファ値 */
 static int layer_alpha[STAGE_LAYERS];
 
+/* レイヤのブレンドモード */
+static int layer_blend[STAGE_LAYERS];
+
 /* レイヤのXスケール */
 static float layer_scale_x[STAGE_LAYERS];
 
 /* レイヤのYスケール */
 static float layer_scale_y[STAGE_LAYERS];
+
+/* レイヤの中心X座標 */
+static float layer_center_x[STAGE_LAYERS];
+
+/* レイヤの中心Y座標 */
+static float layer_center_y[STAGE_LAYERS];
+
+/* レイヤの回転(rad) */
+static float layer_rotate[STAGE_LAYERS];
 
 /* ファイル名(FI/FOを除く) */
 static char *layer_file_name[STAGE_LAYERS];
@@ -1040,9 +1052,9 @@ void set_layer_scale(int layer, float scale_x, float scale_y)
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 
 	if (scale_x == 0)
-		log_info("scale_x = 0");
+		log_info("warning: scale_x = 0");
 	if (scale_y == 0)
-		log_info("scale_y = 0");
+		log_info("warning: scale_y = 0");
 
 	layer_scale_x[layer] = scale_x;
 	layer_scale_y[layer] = scale_y;
@@ -1084,6 +1096,34 @@ void set_layer_alpha(int layer, int alpha)
 {
 	assert(layer >= 0 && layer < STAGE_LAYERS);
 	layer_alpha[layer] = alpha;
+}
+
+/*
+ * Sets a layer belnd mode.
+ */
+void set_layer_blend(int layer, int blend)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	layer_blend[layer] = blend;
+}
+
+/*
+ * Sets a layer center coordinate.
+ */
+void set_layer_center(int layer, int x, int y)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	layer_center_x[layer] = (float)x;
+	layer_center_y[layer] = (float)y;
+}
+
+/*
+ * Sets a layer rotation.
+ */
+void set_layer_rotate(int layer, float rad)
+{
+	assert(layer >= 0 && layer < STAGE_LAYERS);
+	layer_rotate[layer] = rad;
 }
 
 /*
@@ -4094,6 +4134,111 @@ static void render_layer_image(int layer)
 	/* イメージがセットされていなければ描画しない */
 	if (layer_image[layer] == NULL)
 		return;
+
+	/* 3Dの場合 */
+	if (layer_rotate[layer] != 0 ||
+	    layer_scale_x[layer] != 1.0f ||
+	    layer_scale_y[layer] != 1.0f) {
+		float x1 = 0;
+		float y1 = 0;
+		float x2 = (float)layer_image[layer]->width - 1.0f;
+		float y2 = 0;
+		float x3 = 0;
+		float y3 = (float)layer_image[layer]->height - 1.0f;;
+		float x4 = (float)layer_image[layer]->width - 1.0f;
+		float y4 = (float)layer_image[layer]->height - 1.0f;
+		float center_x = (float)layer_center_x[layer];
+		float center_y = (float)layer_center_y[layer];
+		float rad = (float)layer_rotate[layer];
+
+		/* 1. Shift for the centering. */
+		x1 -= center_x;
+		y1 -= center_y;
+		x2 -= center_x;
+		y2 -= center_y;
+		x3 -= center_x;
+		y3 -= center_y;
+		x4 -= center_x;
+		y4 -= center_y;
+
+		/* 2. Scale. */
+		x1 *= layer_scale_x[layer];
+		y1 *= layer_scale_y[layer];
+		x2 *= layer_scale_x[layer];
+		y2 *= layer_scale_y[layer];
+		x3 *= layer_scale_x[layer];
+		y3 *= layer_scale_y[layer];
+		x4 *= layer_scale_x[layer];
+		y4 *= layer_scale_y[layer];
+
+		/* 3. Rotate. */
+		if (rad != 0) {
+			float tmp_x, tmp_y;
+
+			tmp_x = x1;
+			tmp_y = y1;
+			x1 = tmp_x * cosf(rad) - tmp_y * sinf(rad);
+			y1 = tmp_x * sinf(rad) + tmp_y * cosf(rad);
+
+			tmp_x = x2;
+			tmp_y = y2;
+			x2 = tmp_x * cosf(rad) - tmp_y * sinf(rad);
+			y2 = tmp_x * sinf(rad) + tmp_y * cosf(rad);
+
+			tmp_x = x3;
+			tmp_y = y3;
+			x3 = tmp_x * cosf(rad) - tmp_y * sinf(rad);
+			y3 = tmp_x * sinf(rad) + tmp_y * cosf(rad);
+
+			tmp_x = x4;
+			tmp_y = y4;
+			x4 = tmp_x * cosf(rad) - tmp_y * sinf(rad);
+			y4 = tmp_x * sinf(rad) + tmp_y * cosf(rad);
+		}
+
+		/* 4. Shift again for the centering. */
+		x1 += center_x;
+		y1 += center_y;
+		x2 += center_x;
+		y2 += center_y;
+		x3 += center_x;
+		y3 += center_y;
+		x4 += center_x;
+		y4 += center_y;
+
+		/* 5. Shift for the layer position. */
+		x1 += (float)layer_x[layer];
+		y1 += (float)layer_y[layer];
+		x2 += (float)layer_x[layer];
+		y2 += (float)layer_y[layer];
+		x3 += (float)layer_x[layer];
+		y3 += (float)layer_y[layer];
+		x4 += (float)layer_x[layer];
+		y4 += (float)layer_y[layer];
+
+		/* Render. */
+		switch (layer_blend[layer]) {
+		case BLENDMODE_NORMAL:
+			render_image_3d_normal(x1, y1, x2, y2, x3, y3, x4, y4,
+					       layer_image[layer],
+					       0, 0,
+					       layer_image[layer]->width,
+					       layer_image[layer]->height,
+					       layer_alpha[layer]);
+			break;
+		case BLENDMODE_ADD:
+			render_image_3d_add(x1, y1, x2, y2, x3, y3, x4, y4,
+					    layer_image[layer],
+					    0, 0,
+					    layer_image[layer]->width,
+					    layer_image[layer]->height,
+					    layer_alpha[layer]);
+			break;
+		default:
+			break;
+		}
+		return;
+	}
 
 	/* キャラクタレイヤを暗く描画する場合 */
 	if (layer >= LAYER_CHB && layer <= LAYER_CHC &&

@@ -20,6 +20,13 @@ mkdir -p tmp libroot
 
 cd tmp
 
+# build brotli
+tar xzf ../../libsrc/brotli-1.1.0.tar.gz
+cp ../Makefile.brotli brotli-1.1.0/Makefile
+cd brotli-1.1.0
+make
+cd ..
+
 # build zlib
 tar xzf ../../libsrc/zlib-1.2.11.tar.gz
 cd zlib-1.2.11
@@ -91,8 +98,8 @@ make install
 cd ..
 
 # build freetype2
-tar xzf ../../libsrc/freetype-2.9.1.tar.gz
-cd freetype-2.9.1
+tar xzf ../../libsrc/freetype-2.13.2.tar.gz
+cd freetype-2.13.2
 sed -e 's/FONT_MODULES += type1//' \
     -e 's/FONT_MODULES += cid//' \
     -e 's/FONT_MODULES += pfr//' \

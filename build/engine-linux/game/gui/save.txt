@@ -1,0 +1,240 @@
+###
+### Save Screen Definition
+###
+
+# Global settings for this file.
+global {
+    # Use the following images.
+    base:   system/save/base.png;
+    idle:   system/save/idle.png;
+    hover:  system/save/hover.png;
+    active: system/save/active.png;
+
+    # Save data count per screen.
+    saveslots: 3;
+
+    # Sound effect for click.
+    cancelse: click.ogg;
+
+    # Fade-in time (seconds)
+    fadein: 0.5;
+
+    # Fade-out time (seconds)
+    fadeout: 0.5;
+
+    # Text-to-speech
+    alt: "The save screen is showing. Press left and right keys.";
+}
+
+# A button to return.
+BACK {
+    # Type: cancel
+    type: cancel;
+
+    # Position and size.
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Text-to-speech
+    alt: "Press this button to return to the game.";
+}
+
+# The first save data item.
+SAVESLOT1 {
+    # Type: save
+    type: save;
+
+    # Save data index.
+    index: 0;
+
+    # Position and size.
+    x: 26;
+    y: 122;
+    width: 1110;
+    height: 152;
+
+    # Margin between an image and texts.
+    margin: 10;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Clear color for text (specify the background color to suppress pseudo font outline)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # Text-to-speech
+    alt: "Press this button to save to the slot 1.";
+}
+
+# The second save data item.
+SAVESLOT2 {
+    # Type: save
+    type: save;
+
+    # Save data index.
+    index: 1;
+
+    # Position and size.
+    x: 26;
+    y: 285;
+    width: 1110;
+    height: 152;
+
+    # Margin between an image and texts.
+    margin: 10;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Clear color for text (specify the background color to suppress pseudo font outline)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # Text-to-speech
+    alt: "Press this button to save to the slot 2.";
+}
+
+# The third save data item.
+SAVESLOT3 {
+    # Type: save
+    type: save;
+
+    # Save data index.
+    index: 2;
+
+    # Position and size.
+    x: 26;
+    y: 447;
+    width: 1110;
+    height: 152;
+
+    # Margin between an image and texts.
+    margin: 10;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Clear color for text (specify the background color to suppress pseudo font outline)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # Text-to-speech
+    alt: "Press this button to save to the slot 3.";
+}
+
+# A button for save data page 1
+PAGE1 {
+    # Type: savepage
+    type: savepage;
+
+    # Page 1 (index=0)
+    index: 0;
+
+    # Position and size.
+    x: 1164;
+    y: 330;
+    width: 88;
+    height: 88;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Text-to-speech.
+    alt: "Press this button to move to save data page 1.";
+}
+
+# A button for save data page 2
+PAGE2 {
+    # Type: savepage
+    type: savepage;
+
+    # Page 2 (index=1)
+    index: 1;
+
+    # Position and size.
+    x: 1164;
+    y: 423;
+    width: 88;
+    height: 88;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Text-to-speech.
+    alt: "Press this button to move to save data page 2.";
+}
+
+# A button for save data page 3
+PAGE3 {
+    # Type: savepage
+    type: savepage;
+
+    # Page 3 (index=2)
+    index: 2;
+
+    # Position and size.
+    x: 1164;
+    y: 517;
+    width: 88;
+    height: 88;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Text-to-speech.
+    alt: "Press this button to move to save data page 3.";
+}
+
+# A button to return to the title.
+TITLE {
+    # Type: title
+    type: title;
+
+    # The title script.
+    file: init.txt;
+
+    # Position and size.
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Text-to-speech
+    alt: "Press this button to return to the game title.";
+}

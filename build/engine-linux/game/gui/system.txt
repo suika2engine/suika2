@@ -1,0 +1,272 @@
+###
+### GUI Definition for Config Screen (Page 1)
+###
+
+# Basic Settings
+global {
+    # Use these images
+    idle:   system/config/idle.png;
+    hover:  system/config/hover.png;
+    active: system/config/active.png;
+
+    # fade-in time (seconds)
+    fadein: 0.5;
+
+    # fade-out time (seconds)
+    fadeout: 0.5;
+
+    # Sound effect when canceled by right click
+    cancelse: click.ogg;
+}
+
+# Text Speed Slider
+TEXTSPEED {
+    # Text speed type
+    type: textspeed;
+
+    # Position and size
+    x: 68;
+    y: 250;
+    width: 266;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# Auto Mode Speed
+AUTOSPEED {
+    # Auto mode speed type
+    type: autospeed;
+
+    # Position and size
+    x: 68;
+    y: 339;
+    width: 266;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;    
+}
+
+# Text Speed Preview
+PREVIEW {
+    # Preview type
+    type: preview;
+
+    # Preview message
+    msg: "This is a preview. Is message speed OK for you?";
+
+    # Position and size
+    x: 442;
+    y: 453;
+    width: 590;
+    height: 120;
+}
+
+# BGM Volume Slider
+BGM {
+    # BGM volume type
+    type: bgmvol;
+
+    # Position and size
+    x: 420;
+    y: 249;
+    width: 266;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# SE Volume Slider
+SE {
+    # SE volume type
+    type: sevol;
+
+    # Sound effect file to play when slider moved
+    file: click.ogg;
+
+    # Position and size
+    x: 420;
+    y: 339;
+    width: 266;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# Voice (All-character) Volume Slider
+VOICE {
+    # Voice volume type
+    type: voicevol;
+
+    # Character voice file to play when slider moved
+    file: e026.ogg;
+
+    # Position and size
+    x: 68;
+    y: 498;
+    width: 266;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+}
+
+# Font1 Selection Button
+FONT1 {
+    # Font type
+    type: font;
+
+    # Font file name
+    file: VL-PGothic-Regular.ttf;
+
+    # Position and size
+    x: 770;
+    y: 328;
+    width: 87;
+    height: 30;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Font2 Selection Button
+FONT2 {
+    # Font type
+    type: font;
+
+    # Font file name
+    file: yasashisa.ttf;
+
+    # Position and size
+    x: 900;
+    y: 328;
+    width: 95;
+    height: 27;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Full Screen Button
+FULLSCREEN {
+    # Full screen type
+    type: fullscreen;
+
+    # Position and size
+    x: 750;
+    y: 206;
+    width: 200;
+    height: 25;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Window Button
+WINDOW {
+    # Window button
+    type: window;
+
+    # Position and size
+    x: 995;
+    y: 206;
+    width: 200;
+    height: 25;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Reset Button
+DEFAULT {
+    # Default type
+    type: default;
+
+    # Position and size
+    x: 1131;
+    y: 61;
+    width: 115;
+    height: 40;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Config Page 2 Button
+PAGE2 {
+    # Jump-to-other-GUI type
+    type: gui;
+
+    # GUI file name
+    file: system-page2.txt;
+
+    # Position and size
+    x: 1234;
+    y: 132;
+    width: 35;
+    height: 35;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Back to Title Button
+TITLE {
+    # Back-to-Title type
+    type: title;
+
+    # Title script file name
+    file: init.txt;
+
+    # Position and size
+    x: 1007;
+    y: 652;
+    width: 109;
+    height: 25;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# Back Button
+BACK {
+    # Cancel type
+    type: cancel;
+
+    # Position and size
+    x: 1156;
+    y: 653;
+    width: 103;
+    height: 21;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}

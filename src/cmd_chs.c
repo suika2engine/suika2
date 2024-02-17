@@ -25,9 +25,11 @@ static float span;
 static int fade_method;
 
 static bool init(void);
+static void get_offset_x(const char *s, int layer, int *ofs_x, bool *keep);
+static void get_offset_y(const char *s, int layer, int *ofs_y, bool *keep);
 static int get_alpha(const char *alpha_s);
 static int get_dim(const char *dim_s);
-static void get_position(int *xpos, int *ypos, int chpos, struct image *img);
+static void get_position(int *xpos, int *ypos, int chpos, struct image *img, bool ofs_keep_x, bool ofs_keep_y, int ofs_x, int ofs_y);
 static void focus_character(int chpos, const char *fname);
 static void draw(void);
 static bool cleanup(void);
@@ -58,6 +60,8 @@ static bool init(void)
 	struct image *img[PARAM_SIZE], *rule_img;
 	const char *fname[PARAM_SIZE];
 	bool stay[PARAM_SIZE];
+	bool ofs_keep_x[PARAM_SIZE];
+	bool ofs_keep_y[PARAM_SIZE];
 	int ofs_x[PARAM_SIZE];
 	int ofs_y[PARAM_SIZE];
 	int alpha[PARAM_SIZE - 1];
@@ -112,20 +116,20 @@ static bool init(void)
 		fname[CH_LEFT_CENTER] = get_string_param(CHSX_PARAM_LEFT_CENTER);
 		fname[CH_BACK] = get_string_param(CHSX_PARAM_BACK);
 		fname[BG_INDEX] = get_string_param(CHSX_PARAM_BG);
-		ofs_x[CH_CENTER] = get_int_param(CHSX_PARAM_CX);
-		ofs_y[CH_CENTER] = get_int_param(CHSX_PARAM_CY);
-		ofs_x[CH_RIGHT] = get_int_param(CHSX_PARAM_RX);
-		ofs_y[CH_RIGHT] = get_int_param(CHSX_PARAM_RY);
-		ofs_x[CH_LEFT] = get_int_param(CHSX_PARAM_LX);
-		ofs_y[CH_LEFT] = get_int_param(CHSX_PARAM_LY);
-		ofs_x[CH_RIGHT_CENTER] = get_int_param(CHSX_PARAM_RCX);
-		ofs_y[CH_RIGHT_CENTER] = get_int_param(CHSX_PARAM_RCY);
-		ofs_x[CH_LEFT_CENTER] = get_int_param(CHSX_PARAM_LCX);
-		ofs_y[CH_LEFT_CENTER] = get_int_param(CHSX_PARAM_LCY);
-		ofs_x[CH_BACK] = get_int_param(CHSX_PARAM_BX);
-		ofs_y[CH_BACK] = get_int_param(CHSX_PARAM_BY);
-		ofs_x[BG_INDEX] = get_int_param(CHSX_PARAM_BGX);
-		ofs_y[BG_INDEX] = get_int_param(CHSX_PARAM_BGY);
+		get_offset_x(get_string_param(CHSX_PARAM_CX), LAYER_CHC, &ofs_x[CH_CENTER], &ofs_keep_x[CH_CENTER]);
+		get_offset_y(get_string_param(CHSX_PARAM_CY), LAYER_CHC, &ofs_y[CH_CENTER], &ofs_keep_y[CH_CENTER]);
+		get_offset_x(get_string_param(CHSX_PARAM_RX), LAYER_CHR, &ofs_x[CH_RIGHT], &ofs_keep_x[CH_RIGHT]);
+		get_offset_y(get_string_param(CHSX_PARAM_RY), LAYER_CHR, &ofs_y[CH_RIGHT], &ofs_keep_y[CH_RIGHT]);
+		get_offset_x(get_string_param(CHSX_PARAM_LX), LAYER_CHL, &ofs_x[CH_LEFT], &ofs_keep_x[CH_LEFT]);
+		get_offset_y(get_string_param(CHSX_PARAM_LY), LAYER_CHL, &ofs_y[CH_LEFT], &ofs_keep_y[CH_LEFT]);
+		get_offset_x(get_string_param(CHSX_PARAM_RCX), LAYER_CHRC, &ofs_x[CH_RIGHT_CENTER], &ofs_keep_x[CH_RIGHT_CENTER]);
+		get_offset_y(get_string_param(CHSX_PARAM_RCY), LAYER_CHRC, &ofs_y[CH_RIGHT_CENTER], &ofs_keep_y[CH_RIGHT_CENTER]);
+		get_offset_x(get_string_param(CHSX_PARAM_LCX), LAYER_CHLC, &ofs_x[CH_LEFT_CENTER], &ofs_keep_x[CH_LEFT_CENTER]);
+		get_offset_y(get_string_param(CHSX_PARAM_LCY), LAYER_CHLC, &ofs_y[CH_LEFT_CENTER], &ofs_keep_y[CH_LEFT_CENTER]);
+		get_offset_x(get_string_param(CHSX_PARAM_BX), LAYER_CHB, &ofs_x[CH_BACK], &ofs_keep_x[CH_BACK]);
+		get_offset_y(get_string_param(CHSX_PARAM_BY), LAYER_CHB, &ofs_y[CH_BACK], &ofs_keep_y[CH_BACK]);
+		get_offset_x(get_string_param(CHSX_PARAM_BGX), LAYER_BG, &ofs_x[BG_INDEX], &ofs_keep_x[BG_INDEX]);
+		get_offset_y(get_string_param(CHSX_PARAM_BGY), LAYER_BG, &ofs_y[BG_INDEX], &ofs_keep_y[BG_INDEX]);
 		alpha[CH_CENTER] = get_alpha(get_string_param(CHSX_PARAM_CA));
 		alpha[CH_RIGHT] = get_alpha(get_string_param(CHSX_PARAM_RA));
 		alpha[CH_LEFT] = get_alpha(get_string_param(CHSX_PARAM_LA));
@@ -169,8 +173,7 @@ static bool init(void)
 			    (get_command_type() == COMMAND_CHSX && strcmp(fname[i], "") == 0)) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
-				x[i] = get_layer_x(layer);
-				y[i] = get_layer_y(layer);
+				get_position(&x[i], &y[i], i, get_layer_image(layer), ofs_keep_x[i], ofs_keep_y[i], ofs_x[i], ofs_y[i]);
 				continue;
 			}
 		} else {
@@ -179,8 +182,7 @@ static bool init(void)
 			    strcmp(fname[i], "") == 0) {
 				/* 変更なしフラグをセットする */
 				stay[i] = true;
-				x[i] = get_layer_x(layer);
-				y[i] = get_layer_y(layer);
+				get_position(&x[i], &y[i], i, get_layer_image(layer), ofs_keep_x[i], ofs_keep_y[i], ofs_x[i], ofs_y[i]);
 				continue;
 			}
 		}
@@ -219,9 +221,7 @@ static bool init(void)
 
 		/* 表示位置を取得する */
 		if (i != BG_INDEX) {
-			get_position(&x[i], &y[i], i, img[i]);
-			x[i] += ofs_x[i];
-			y[i] += ofs_y[i];
+			get_position(&x[i], &y[i], i, img[i], ofs_keep_x[i], ofs_keep_y[i], ofs_x[i], ofs_y[i]);
 		} else {
 			x[i] = ofs_x[i];
 			y[i] = ofs_y[i];
@@ -292,6 +292,30 @@ static bool init(void)
 	return true;
 }
 
+/* Xオフセットを取得する */
+static void get_offset_x(const char *s, int layer, int *ofs_x, bool *keep)
+{
+	if (strcmp(s, "keep") == 0) {
+		*keep = true;
+		*ofs_x = get_layer_x(layer);
+	} else {
+		*keep = false;
+		*ofs_x = atoi(s);
+	}
+}
+
+/* Yオフセットを取得する */
+static void get_offset_y(const char *s, int layer, int *ofs_y, bool *keep)
+{
+	if (strcmp(s, "keep") == 0) {
+		*keep = true;
+		*ofs_y = get_layer_y(layer);
+	} else {
+		*keep = false;
+		*ofs_y = atoi(s);
+	}
+}
+
 /* 文字列のアルファ値を整数に変換する */
 static int get_alpha(const char *alpha_s)
 {
@@ -333,39 +357,113 @@ static int get_dim(const char *dim_s)
 }
 
 /* キャラの横方向の位置を取得する */
-static void get_position(int *xpos, int *ypos, int chpos, struct image *img)
+static void get_position(int *xpos, int *ypos, int chpos, struct image *img, bool ofs_keep_x, bool ofs_keep_y, int ofs_x, int ofs_y)
 {
+	int center, right;
+
 	*xpos = 0;
 
 	switch (chpos) {
 	case CH_BACK:
+		/* 中央に配置する */
+		if (img != NULL) {
+			if (!ofs_keep_x)
+				*xpos = (conf_window_width - img->width) / 2 + ofs_x;
+			else
+				*xpos = get_layer_x(LAYER_CHB);
+			if (!ofs_keep_y)
+				*ypos = conf_window_height - img->height - conf_stage_ch_margin_bottom + ofs_y;
+			else
+				*ypos = get_layer_y(LAYER_CHB);
+		} else {
+			*xpos = 0;
+			*ypos = 0;
+		}
+		break;
 	case CH_CENTER:
 		/* 中央に配置する */
-		if (img != NULL)
-			*xpos = (conf_window_width - img->width) / 2;
+		if (img != NULL) {
+			if (!ofs_keep_x)
+				*xpos = (conf_window_width - img->width) / 2 + ofs_x;
+			else
+				*xpos = get_layer_x(LAYER_CHC);
+			if (!ofs_keep_y)
+				*ypos = conf_window_height - img->height - conf_stage_ch_margin_bottom + ofs_y;
+			else
+				*ypos = get_layer_y(LAYER_CHC);
+		} else {
+			*xpos = 0;
+			*ypos = 0;
+		}
 		break;
 	case CH_LEFT:
 		/* 左に配置する */
-		*xpos = conf_stage_ch_margin_left;
+		if (img != NULL) {
+			if (!ofs_keep_x)
+				*xpos = conf_stage_ch_margin_left + ofs_x;
+			else
+				*xpos = get_layer_x(LAYER_CHL);
+			if (!ofs_keep_y)
+				*ypos = conf_window_height - img->height - conf_stage_ch_margin_bottom + ofs_y;
+			else
+				*ypos = get_layer_y(LAYER_CHL);
+		} else {
+			*xpos = 0;
+			*ypos = 0;
+		}
 		break;
 	case CH_LEFT_CENTER:
 		/* 左中に配置する */
-		*xpos = (conf_window_width - img->width) / 4;
+		if (img != NULL) {
+			if (!ofs_keep_x)
+				*xpos = (conf_window_width - img->width) / 4 + ofs_x;
+			else
+				*xpos = get_layer_x(LAYER_CHLC);
+			if (!ofs_keep_y)
+				*ypos = conf_window_height - img->height - conf_stage_ch_margin_bottom + ofs_y;
+			else
+				*ypos = get_layer_y(LAYER_CHLC);
+		} else {
+			*xpos = 0;
+			*ypos = 0;
+		}
 		break;
 	case CH_RIGHT:
 		/* 右に配置する */
-		if (img != NULL)
-			*xpos = conf_window_width - img->width - conf_stage_ch_margin_right;
+		if (img != NULL) {
+			if (!ofs_keep_x)
+				*xpos = conf_window_width - img->width - conf_stage_ch_margin_right + ofs_x;
+			else
+				*xpos = get_layer_x(LAYER_CHR);
+			if (!ofs_keep_y)
+				*ypos = conf_window_height - img->height - conf_stage_ch_margin_bottom + ofs_y;
+			else
+				*ypos = get_layer_y(LAYER_CHR);
+		} else {
+			*xpos = 0;
+			*ypos = 0;
+		}
 		break;
 	case CH_RIGHT_CENTER:
 		/* 右に配置する */
-		if (img != NULL)
-			*xpos = (conf_window_width - img->width) - img->width / 2;
+		if (img != NULL) {
+			if (!ofs_keep_x) {
+				center = (conf_window_width - img->width) / 2;
+				right = conf_window_width - img->width - conf_stage_ch_margin_right;
+				*xpos = (center + right) / 2 + ofs_x;
+			} else {
+				*xpos = get_layer_x(LAYER_CHRC);
+			}
+			if (!ofs_keep_y)
+				*ypos = conf_window_height - img->height - conf_stage_ch_margin_bottom + ofs_y;
+			else
+				*ypos = get_layer_y(LAYER_CHRC);
+		} else {
+			*xpos = 0;
+			*ypos = 0;
+		}
 		break;
 	}
-
-	/* 縦方向の位置を求める */
-	*ypos = img != NULL ? conf_window_height - img->height : 0;
 }
 
 /* キャラクタのフォーカスを行う */

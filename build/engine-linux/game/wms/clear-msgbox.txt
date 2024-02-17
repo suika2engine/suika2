@@ -1,0 +1,3 @@
+func main() {
+    s2_clear_msgbox();
+}

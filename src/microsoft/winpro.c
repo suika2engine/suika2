@@ -44,6 +44,9 @@
 #include "resource.h"
 #define WM_DPICHANGED       0x02E0 /* Vista */
 
+/* Standard C */
+#include <signal.h>
+
 /* msvcrt  */
 #include <io.h>				/* _access() */
 #define wcsdup(s)	_wcsdup(s)
@@ -244,6 +247,7 @@ static int nFontSize = 10;
  */
 
 /* static */
+static void SIGSEGV_Handler(int n);
 static BOOL InitApp(HINSTANCE hInstance, int nCmdShow);
 static void CleanupApp(void);
 static BOOL InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -384,6 +388,8 @@ int WINAPI wWinMain(
 {
 	int nRet;
 
+	signal(SIGSEGV, SIGSEGV_Handler);
+
 	nRet = 1;
 	do {
 		/* Decide Japanese or English. */
@@ -406,6 +412,25 @@ int WINAPI wWinMain(
 	UNUSED_PARAMETER(lpszCmd);
 
 	return nRet;
+}
+
+static void SIGSEGV_Handler(int n)
+{
+	BOOL bEnglish;
+
+	UNUSED_PARAMETER(n);
+
+	bEnglish = strcmp(get_system_locale(), "ja") != 0;
+
+	log_error(bEnglish ?
+			  "Sorry, Suika2 was crashed.\n"
+			  "Please send a bug report to the author.\n"
+			  "You can get a 3000JPY gift code if the author solved this problem." :
+			  "ご迷惑をかけ申し訳ございません。\n"
+			  "Suika2がクラッシュしました。\n"
+			  "バグ報告をいただけますと幸いです。\n"
+			  "バグが修正できた場合、ギフトコード3000円分を進呈します。");
+	exit(1);
 }
 
 /* Do the lower layer initialization. */
@@ -1703,6 +1728,11 @@ static BOOL WaitForNextFrame(void)
 
 	/* 30FPSを目指す */
 	span = FRAME_MILLI;
+	if (D3DIsSoftRendering())
+	{
+		/* ソフトレンダリングのときは15fpsとする */
+		span *= 2;
+	}
 
 	/* 次のフレームの開始時刻になるまでイベント処理とスリープを行う */
 	do {
@@ -2404,6 +2434,15 @@ static void Layout(int nClientWidth, int nClientHeight)
 
 	/* Move the editor panel. */
 	MoveWindow(hWndEditor, nRenderWidth, 0, nEditorWidth, nClientHeight, TRUE);
+
+	if (D3DIsSoftRendering())
+	{
+		nViewportWidth = conf_window_width;
+		nViewportHeight = conf_window_height;
+		nViewportOffsetX = 0;
+		nViewportOffsetY = 0;
+		fMouseScale = 1.0f;
+	}
 }
 
 /* WM_DPICHANGED */

@@ -51,6 +51,7 @@ static int get_keycode(const char *key);
 static EM_BOOL cb_touchstart(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchmove(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 static EM_BOOL cb_touchend(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
+static EM_BOOL cb_touchcancel(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData);
 
 /*
  * メイン
@@ -72,7 +73,7 @@ int main(void)
 	EM_ASM_({
 		FS.mkdir("suika2-sav");
 		FS.mount(IDBFS, {}, "suika2-sav");
-		FS.syncfs(true, function (err) { ccall('main_continue', 'v'); });
+		FS.syncfs(true, function (err) { Module.ccall('main_continue', 'v'); });
 	});
 
 	/* 読み込みは非同期で、main_continue()に継続される */
@@ -93,9 +94,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-#ifndef DEFAULT_SHELL
-	EM_ASM_({resizeWindow(null);});
-#endif
+	EM_ASM_({ resizeWindow(); });
 
 	/* OpenGLレンダを初期化する */
 	EmscriptenWebGLContextAttributes attr;
@@ -112,6 +111,29 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	if(!on_event_init())
 		return;
 
+	/* イベントハンドラを設定する */
+	EM_ASM_({
+		function visibilityChange() {
+			if(document.visibilityState === 'visible') {
+				Module.ccall('setVisible', null, null, null);
+				document.getElementById('canvas').focus();
+			} else if(document.visibilityState === 'hidden') {
+				Module.ccall('setHidden', null, null, null);
+			}
+		}
+		function preventDefault(e) {
+			e.preventDefault();
+		}
+		window.ontouchmove = preventDefault;
+		window.onwheel = preventDefault;
+		document.ontouchmove = preventDefault;
+		document.onwheel = preventDefault;
+		document.body.addEventListener('touchmove', preventDefault, { passive: false });
+		document.body.addEventListener('wheel', preventDefault, { passive: false });
+		window.addEventListener('resize', resizeWindow);
+		document.addEventListener('visibilitychange', visibilityChange);
+	});
+
 	/* イベントの登録をする */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
@@ -122,10 +144,30 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	emscripten_set_touchstart_callback("canvas", 0, true, cb_touchstart);
 	emscripten_set_touchmove_callback("canvas", 0, true, cb_touchmove);
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
+	emscripten_set_touchcancel_callback("canvas", 0, true, cb_touchcancel);
 
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
 }
+
+/* キャンバスをリサイズする */
+EM_JS(void, resizeWindow, (void), {
+	canvas = document.getElementById('canvas');
+	cw = canvas.width;
+	ch = canvas.height;
+	aspect = cw / ch;
+	winw = window.innerWidth;
+	winh = window.innerHeight;
+	w = winw;
+	h = winw / aspect;
+	if(h > winh) {
+		h = winh;
+		w = winh * aspect;
+	}
+	canvas.style.width = w + 'px';
+	canvas.style.height = h + 'px';
+	canvas.focus();
+});
 
 /* フレームを処理する */
 static EM_BOOL loop_iter(double time, void *userData)
@@ -379,6 +421,16 @@ static EM_BOOL cb_touchend(int eventType,
 	return EM_TRUE;
 }
 
+/* touchcancelのコールバック */
+static EM_BOOL cb_touchcancel(int eventType,
+			      const EmscriptenTouchEvent *touchEvent,
+			      void *userData)
+{
+	on_event_mouse_move(-1, -1);
+
+	return EM_TRUE;
+}
+
 /*
  * JavaScriptからのコールバック
  */
@@ -393,6 +445,12 @@ void EMSCRIPTEN_KEEPALIVE setVisible(void)
 void EMSCRIPTEN_KEEPALIVE setHidden(void)
 {
 	pause_sound();
+}
+
+/* サウンドを再開する際のコールバック */
+void EMSCRIPTEN_KEEPALIVE resumeSound(void)
+{
+	resume_sound();
 }
 
 /*
@@ -555,6 +613,80 @@ void render_image_melt(struct image * RESTRICT src_img,
 		       int threshold)
 {
 	opengl_render_image_melt(src_img, rule_img, threshold);
+}
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ *  - The "normal" shader pipeline renders pixels with alpha blending
+ */
+void
+render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	opengl_render_image_3d_normal(x1,
+				      y1,
+				      x2,
+				      y2,
+				      x3,
+				      y3,
+				      x4,
+				      y4,
+				      src_image,
+				      src_left,
+				      src_top,
+				      src_width,
+				      src_height,
+				      alpha);
+}
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ *  - The "normal" shader pipeline renders pixels with alpha blending
+ */
+void
+render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	opengl_render_image_3d_add(x1,
+				   y1,
+				   x2,
+				   y2,
+				   x3,
+				   y3,
+				   x4,
+				   y4,
+				   src_image,
+				   src_left,
+				   src_top,
+				   src_width,
+				   src_height,
+				   alpha);
 }
 
 /*

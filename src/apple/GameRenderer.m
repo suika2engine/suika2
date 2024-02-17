@@ -1,4 +1,4 @@
-// -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; -*-
+// -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; -*-
 
 /*
  * Suika2
@@ -55,6 +55,12 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
                            int src_left, int src_top, int src_width, int src_height,
                            int alpha,
                            id<MTLRenderPipelineState> pipeline);
+static void drawPrimitives3D(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4,
+                             struct image *src_image,
+                             struct image *rule_image,
+                             int src_left, int src_top, int src_width, int src_height,
+                             int alpha,
+                             id<MTLRenderPipelineState> pipeline);
 
 //
 // GameRender
@@ -110,7 +116,7 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
     addPipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
     addPipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
     addPipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
-    addPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    addPipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
     addPipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor =  MTLBlendFactorOne;
     addPipelineStateDescriptor.depthAttachmentPixelFormat = theMTKView.depthStencilPixelFormat;
     theAddPipelineState = [theDevice newRenderPipelineStateWithDescriptor:addPipelineStateDescriptor error:&error];
@@ -433,6 +439,113 @@ static void drawPrimitives(int dst_left, int dst_top, int dst_width, int dst_hei
     vsIn[21] = (float)(src_top + src_height) / th;               // V (0.0 to 1.0, top to bottom)
     vsIn[22] = (float)alpha / 255.0f;                        // Alpha (0.0 to 1.0)
     vsIn[23] = 0;                                            // Padding for a 64-bit boundary
+
+    // Upload textures if they are pending.
+    if (theBlitEncoder != nil) {
+        [theBlitEncoder endEncoding];
+        theBlitEncoder = nil;
+    }
+
+    // Draw two triangles.
+    if (theRenderEncoder == nil) {
+        theMTKView.currentRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        theMTKView.currentRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+        theMTKView.currentRenderPassDescriptor.colorAttachments[0].clearColor = conf_window_white ?
+            MTLClearColorMake(1.0, 1.0, 1.0, 1.0) :
+            MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+        theRenderEncoder = [theCommandBuffer renderCommandEncoderWithDescriptor:theMTKView.currentRenderPassDescriptor];
+        theRenderEncoder.label = @"MyRenderEncoder";
+
+        MTLViewport viewport;
+        viewport.originX = [theViewController screenOffset].x;
+        viewport.originY = [theViewController screenOffset].y;
+        viewport.width = [theViewController screenSize].width;
+        viewport.height = [theViewController screenSize].height;
+        viewport.zfar = 0;
+        viewport.znear = 0;
+        [theRenderEncoder setViewport:viewport];
+    }
+    [theRenderEncoder setRenderPipelineState:pipeline];
+    id<MTLTexture> tex1 = (__bridge id<MTLTexture> _Nullable)(src_image->texture);
+    id<MTLTexture> tex2 = rule_image != NULL ? (__bridge id<MTLTexture> _Nullable)(rule_image->texture) : nil;
+    [theRenderEncoder setVertexBytes:vsIn length:sizeof(vsIn) atIndex:GameVertexInputIndexVertices];
+    [theRenderEncoder setFragmentTexture:tex1 atIndex:GameTextureIndexColor];
+    if (tex2 != nil)
+        [theRenderEncoder setFragmentTexture:tex2 atIndex:GameTextureIndexRule];
+    [theRenderEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
+}
+
+//
+// Renders an image to the screen with the "normal" shader pipeline.
+//
+void render_image_3d_normal(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
+{
+    drawPrimitives3D(x1, y1, x2, y2, x3, y3, x4, y4, src_image, NULL, src_left, src_top, src_width, src_height, alpha, theNormalPipelineState);
+}
+
+//
+// Renders an image to the screen with the "normal" shader pipeline.
+//
+void render_image_3d_add(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, struct image *src_image, int src_left, int src_top, int src_width, int src_height, int alpha)
+{
+    drawPrimitives3D(x1, y1, x2, y2, x3, y3, x4, y4, src_image, NULL, src_left, src_top, src_width, src_height, alpha, theAddPipelineState);
+}
+
+//
+// Draw a rectangle with a specified pipeline.
+//
+static void drawPrimitives3D(float x1, float y1,
+                             float x2, float y2,
+                             float x3, float y3,
+                             float x4, float y4,
+                             struct image *src_image,
+                             struct image *rule_image,
+                             int src_left, int src_top, int src_width, int src_height,
+                             int alpha,
+                             id<MTLRenderPipelineState> pipeline)
+{
+    // Calc the half size of the window.
+    float hw = (float)conf_window_width / 2.0f;
+    float hh = (float)conf_window_height / 2.0f;
+
+    // Get the texture size.
+    float tw = (float)src_image->width;
+    float th = (float)src_image->height;
+    
+    // The vertex shader input
+    float vsIn[24];
+
+    // Set the left top vertex.
+    vsIn[0] = ((float)x1 - hw) / hw;        // X (-1.0 to 1.0, left to right)
+    vsIn[1] = -((float)y1 - hh) / hh;       // Y (-1.0 to 1.0, bottom to top)
+    vsIn[2] = (float)src_left / tw;         // U (0.0 to 1.0, left to right)
+    vsIn[3] = (float)src_top / th;          // V (0.0 to 1.0, top to bottom)
+    vsIn[4] = (float)alpha / 255.0f;        // Alpha (0.0 to 1.0)
+    vsIn[5] = 0;                            // Padding for a 64-bit boundary
+
+    // Set the right top vertex.
+    vsIn[6] = ((float)x2 - hw) / hw;               // X (-1.0 to 1.0, left to right)
+    vsIn[7] = -((float)y2 - hh) / hh;              // Y (-1.0 to 1.0, bottom to top)
+    vsIn[8] = (float)(src_left + src_width) / tw;  // U (0.0 to 1.0, left to right)
+    vsIn[9] = (float)(src_top) / th;               // V (0.0 to 1.0, top to bottom)
+    vsIn[10] = (float)alpha / 255.0f;              // Alpha (0.0 to 1.0)
+    vsIn[11] = 0;                                  // Padding for a 64-bit boundary
+
+    // Set the left bottom vertex.
+    vsIn[12] = ((float)x3 - hw) / hw;               // X (-1.0 to 1.0, left to right)
+    vsIn[13] = -((float)y3 - hh) / hh;              // Y (-1.0 to 1.0, bottom to top)
+    vsIn[14] = (float)src_left / tw;                // U (0.0 to 1.0, left to right)
+    vsIn[15] = (float)(src_top + src_height) / th;  // V (0.0 to 1.0, top to bottom)
+    vsIn[16] = (float)alpha / 255.0f;               // Alpha (0.0 to 1.0)
+    vsIn[17] = 0;                                   // Padding for a 64-bit boundary
+
+    // Set the right bottom vertex.
+    vsIn[18] = ((float)x4 - hw) / hw;               // X (-1.0 to 1.0, left to right)
+    vsIn[19] = -((float)y4 - hh) / hh;              // Y (-1.0 to 1.0, bottom to top)
+    vsIn[20] = (float)(src_left + src_width) / tw;  // U (0.0 to 1.0, left to right)
+    vsIn[21] = (float)(src_top + src_height) / th;  // V (0.0 to 1.0, top to bottom)
+    vsIn[22] = (float)alpha / 255.0f;               // Alpha (0.0 to 1.0)
+    vsIn[23] = 0;                                   // Padding for a 64-bit boundary
 
     // Upload textures if they are pending.
     if (theBlitEncoder != nil) {

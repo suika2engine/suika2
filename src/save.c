@@ -323,11 +323,13 @@ bool quick_save(bool extra)
 	quick_save_time = (time_t)timestamp;
 
 #ifdef SUIKA_TARGET_WASM
-	void resume_sound(void);
-	EM_ASM_(
-		FS.syncfs(function (err) { alert('Saved to the browser!'); });
-	);
-	resume_sound();
+	EM_ASM_({
+		if (window.navigator.userAgent.indexOf('iPad') != -1 || window.navigator.userAgent.indexOf('iPhone') != -1) {
+			FS.syncfs(function (err) {});
+		} else {
+			FS.syncfs(function (err) { alert('Saved!'); });
+		}
+	});
 #endif
 	return true;
 }
@@ -357,11 +359,13 @@ bool execute_save(int index)
 	save_time[index] = (time_t)timestamp;
 
 #ifdef SUIKA_TARGET_WASM
-	void resume_sound(void);
-	EM_ASM_(
-		FS.syncfs(function (err) { alert('Saved to the browser!'); });
-	);
-	resume_sound();
+	EM_ASM_({
+		if (window.navigator.userAgent.indexOf('iPad') != -1 || window.navigator.userAgent.indexOf('iPhone') != -1) {
+			FS.syncfs(function (err) {});
+		} else {
+			FS.syncfs(function (err) { alert('Saved!'); });
+		}
+	});
 #endif
 	return true;
 }

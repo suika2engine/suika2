@@ -28,7 +28,8 @@ cat dl/index.html | \
 $SED -e "s|.*LATEST-VERSION-AND-DATE.*|<!-- LATEST-VERSION-AND-DATE -->最新版 $VERSION \($DATE\):<br>|" \
      -e "s|.*LATEST-EXE.*|<!-- LATEST-EXE --><a href=\"/dl/suika2-$VERSION_DIGIT.exe\">Windows版 Suika2 Pro Desktop インストーラ</a><br>|" \
      -e "s|.*LATEST-DMG.*|<!-- LATEST-DMG --><a href=\"/dl/suika2-$VERSION_DIGIT.dmg\">macOS版 Suika2 Pro Desktop インストーラ</a><br>|" \
-  > tmp
+     -e "s|.*LATEST-ZIP.*|<!-- LATEST-ZIP --><a href=\"/dl/suika2-$VERSION_DIGIT.zip\">ZIP配布のSuika2 Pro Desktop (Windows版)</a><br>|" \
+ > tmp
 cat tmp | awk '/.*DOCTYPE html.*/,/.*LATEST-RELEASE-NOTE.*/' > before
 cat tmp | awk '/.*LATEST-RELEASE-NOTE.*/,/\<\/html\>/' | tail -n +2 > after
 cat before > new

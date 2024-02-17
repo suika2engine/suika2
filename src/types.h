@@ -25,6 +25,7 @@
  *  - SUIKA_TARGET_ANDROID for Android (armv8/armv7/x86_64)
  *  - SUIKA_TARGET_WASM    for Wasm with Emscripten
  *  - SUIKA_TARGET_POSIX   for Linux and *BSD
+ *  - SUIKA_TARGET_SDL2    for SDL2
  */
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
@@ -39,7 +40,7 @@
 #define SUIKA_TARGET_ANDROID
 #elif defined(__EMSCRIPTEN__)
 #define SUIKA_TARGET_WASM
-#else
+#elif !defined(SUIKA_TARGET_SDL2)
 #define SUIKA_TARGET_POSIX
 #endif
 

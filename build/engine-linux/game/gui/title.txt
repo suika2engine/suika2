@@ -1,0 +1,74 @@
+###
+### GUI Definition for Title Screen
+###
+
+# Basic Settings
+global {
+    # Use these images
+    idle:   title/idle.png;
+    hover:  title/hover.png;
+    active: title/hover.png;
+}
+
+# START Button
+START {
+    # Jump-to-label type
+    type: goto;
+
+    # Jump to label
+    label: START;
+
+    # Position and size
+    x: 33;
+    y: 491;
+    width: 323;
+    height: 196;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# LOAD Button
+LOAD {
+    # Jump-to-label type
+    type: goto;
+
+    # Jump to label
+    label: LOAD;
+
+    # Position and size
+    x: 356;
+    y: 493;
+    width: 321;
+    height: 205;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}
+
+# CONFIG Button
+CONFIG {
+    # Jump-to-label type
+    type: goto;
+
+    # Jump to label
+    label: CONFIG;
+
+    # Position and size
+    x: 677;
+    y: 496;
+    width: 321;
+    height: 193;
+
+    # Sound effect when pointed
+    pointse: btn-change.ogg;
+
+    # Sound effect when clicked
+    clickse: click.ogg;
+}

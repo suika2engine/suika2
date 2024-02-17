@@ -35,6 +35,14 @@
 #endif
 
 /*
+ * Console samples (OpenGL ES 3.0)
+ */
+#if defined(SUIKA_TARGET_SDL2)
+#include <GL/gl.h>
+#include "glhelper.h"
+#endif
+
+/*
  * Linux and POSIX (OpenGL 3.2)
  */
 #if defined(SUIKA_TARGET_POSIX)
@@ -46,6 +54,15 @@
  * Qt (We use a wrapper for QOpenGLFunctions class)
  */
 #if defined(USE_QT)
+#include "glhelper.h"
+#endif
+
+/*
+ * Windows (OpenGL fallback) (OpenGL 3.2)
+ */
+#if defined(SUIKA_TARGET_WIN32)
+#include <windows.h>
+#include <GL/gl.h>
 #include "glhelper.h"
 #endif
 
@@ -304,6 +321,22 @@ static void draw_elements(int dst_left,
 			  int src_height,
 			  int alpha,
 			  int pipeline);
+static void draw_elements_3d(float x1,
+			     float y1,
+			     float x2,
+			     float y2,
+			     float x3,
+			     float y3,
+			     float x4,
+			     float y4,
+			     struct image *src_image,
+			     struct image *rule_image,
+			     int src_left,
+			     int src_top,
+			     int src_width,
+			     int src_height,
+			     int alpha,
+			     int pipeline);
 static void update_texture_if_needed(struct image *img);
 
 /*
@@ -828,6 +861,117 @@ static void draw_elements(int dst_left,
 			  int alpha,
 			  int pipeline)
 {
+	draw_elements_3d((float)dst_left,
+			 (float)dst_top,
+			 (float)(dst_left + dst_width - 1),
+			 (float)dst_top,
+			 (float)dst_left,
+			 (float)(dst_top + dst_height - 1),
+			 (float)(dst_left + dst_width - 1),
+			 (float)(dst_top + dst_height - 1),
+			 src_image,
+			 rule_image,
+			 src_left,
+			 src_top,
+			 src_width,
+			 src_height,
+			 alpha,
+			 pipeline);
+}
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ */
+void
+opengl_render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	draw_elements_3d(x1,
+			 y1,
+			 x2,
+			 y2,
+			 x3,
+			 y3,
+			 x4,
+			 y4,
+			 src_image,
+			 NULL,
+			 src_left,
+			 src_top,
+			 src_width,
+			 src_height,
+			 alpha,
+			 PIPELINE_NORMAL);
+}
+
+/*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ */
+void
+opengl_render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	draw_elements_3d(x1,
+			 y1,
+			 x2,
+			 y2,
+			 x3,
+			 y3,
+			 x4,
+			 y4,
+			 src_image,
+			 NULL,
+			 src_left,
+			 src_top,
+			 src_width,
+			 src_height,
+			 alpha,
+			 PIPELINE_ADD);
+}
+
+static void draw_elements_3d(float x1,
+			     float y1,
+			     float x2,
+			     float y2,
+			     float x3,
+			     float y3,
+			     float x4,
+			     float y4,
+			     struct image *src_image,
+			     struct image *rule_image,
+			     int src_left,
+			     int src_top,
+			     int src_width,
+			     int src_height,
+			     int alpha,
+			     int pipeline)
+{
 	GLfloat pos[24];
 	float hw, hh, tw, th;
 	GLuint tex1, tex2;
@@ -854,32 +998,32 @@ static void draw_elements(int dst_left,
 	th = (float)src_image->height;
 
 	/* 左上 */
-	pos[0] = ((float)dst_left - hw) / hw;
-	pos[1] = -((float)dst_top - hh) / hh;
+	pos[0] = (x1 - hw) / hw;
+	pos[1] = -(y1 - hh) / hh;
 	pos[2] = 0.0f;
 	pos[3] = (float)src_left / tw;
 	pos[4] = (float)src_top / th;
 	pos[5] = (float)alpha / 255.0f;
 
 	/* 右上 */
-	pos[6] = ((float)dst_left + (float)dst_width - hw) / hw;
-	pos[7] = -((float)dst_top - hh) / hh;
+	pos[6] = (x2 - hw) / hw;
+	pos[7] = -(y2 - hh) / hh;
 	pos[8] = 0.0f;
 	pos[9] = (float)(src_left + src_width) / tw;
 	pos[10] = (float)(src_top) / th;
 	pos[11] = (float)alpha / 255.0f;
 
 	/* 左下 */
-	pos[12] = ((float)dst_left - hw) / hw;
-	pos[13] = -((float)dst_top + (float)dst_height - hh) / hh;
+	pos[12] = (x3 - hw) / hw;
+	pos[13] = -(y3 - hh) / hh;
 	pos[14] = 0.0f;
 	pos[15] = (float)src_left / tw;
 	pos[16] = (float)(src_top + src_height) / th;
 	pos[17] = (float)alpha / 255.0f;
 
 	/* 右下 */
-	pos[18] = ((float)dst_left + (float)dst_width - hw) / hw;
-	pos[19] = -((float)dst_top + (float)dst_height - hh) / hh;
+	pos[18] = (x4 - hw) / hw;
+	pos[19] = -(y4 - hh) / hh;
 	pos[20] = 0.0f;
 	pos[21] = (float)(src_left + src_width) / tw;
 	pos[22] = (float)(src_top + src_height) / th;

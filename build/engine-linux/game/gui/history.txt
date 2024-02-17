@@ -1,0 +1,179 @@
+###
+### History Screen Definition
+###
+
+# このファイルの基本設定
+global {
+    # Global settings for this file.
+    base:   system/history/base.png;
+    idle:   system/history/idle.png;
+    hover:  system/history/hover.png;
+    active: system/history/active.png;
+
+    # History items per screen.
+    historyslots: 3;
+
+    # Sound effect for click.
+    cancelse: click.ogg;
+
+    # Fade-in time (seconds)
+    fadein: 0.5;
+
+    # Fade-out time (seconds)
+    fadeout: 0.5;
+
+    # Text-to-speech
+    alt: "The history screen is showing. Press left and right keys.";
+}
+
+# A button to return.
+BACK {
+    # Type: cancel
+    type: cancel;
+
+    # Position and size.
+    x: 1140;
+    y: 625;
+    width: 139;
+    height: 80;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Text-to-speech
+    alt: "Press this button to return to the game.";
+}
+
+
+# History slot1
+HISTORYSLOT1 {
+    # Type: history
+    type: history;
+
+    # Slot 1 (index=0)
+    index: 0;
+
+    # Position and size.
+    x: 26;
+    y: 122;
+    width: 1110;
+    height: 152;
+
+    # Margin.
+    margin: 20;
+
+    # Clear color for text (specify the background color to suppress pseudo font outline)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+
+    # Text-to-speech
+    alt: "This is the first slot of history. Press return to read.";
+}
+
+# History slot2
+HISTORYSLOT2 {
+    # Type: history
+    type: history;
+
+    # Slot 2 (index=1)
+    index: 1;
+
+    # Position and size.
+    x: 26;
+    y: 285;
+    width: 1110;
+    height: 152;
+
+    # Margin.
+    margin: 20;
+
+    # Clear color for text (specify the background color to suppress pseudo font outline)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Text-to-speech
+    alt: "This is the second slot of history. Press return to read.";
+}
+
+# History slot2
+HISTORYSLOT3 {
+    # Type: history
+    type: history;
+
+    # Slot 3 (index=2)
+    index: 2;
+
+    # Position and size.
+    x: 26;
+    y: 447;
+    width: 1110;
+    height: 152;
+
+    # Margin.
+    margin: 20;
+
+    # Clear color for text (specify the background color to suppress pseudo font outline)
+    clear-r: 255;
+    clear-g: 255;
+    clear-b: 255;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Text-to-speech
+    alt: "This is the third slot of history. Press return to read.";
+}
+
+# Scroll bar
+SCROLL {
+    # Type: historyscroll
+    type: historyscroll;
+
+    # Position and size.
+    x: 1152;
+    y: 120;
+    width: 118;
+    height: 478;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Text-to-speech
+    alt: "This is the third slot of history. Press up or down arrrow to scroll.";
+}
+
+# A button to return to the title.
+TITLE {
+    # Type: title
+    type: title;
+
+    # The title script.
+    file: init.txt;
+
+    # Position and size.
+    x: 967;
+    y: 625;
+    width: 174;
+    height: 80;
+
+    # Sound effect for pointing.
+    pointse: btn-change.ogg;
+
+    # Sound effect for clicking.
+    clickse: click.ogg;
+
+    # Text-to-speech
+    alt: "Press this button to return to the game title.";
+}

@@ -671,6 +671,20 @@ character.file3=002-
 
 # Continues to character.name32, but omissible
 
+
+###
+### Stage Settings
+###
+
+# Bottom margin of characters
+stage.ch.margin.bottom=0
+
+# Left margin of characters
+stage.ch.margin.left=0
+
+# Right margin of characters
+stage.ch.margin.right=0
+
 ###
 ### Effect for Taps (Kirakira)
 ###

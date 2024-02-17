@@ -512,7 +512,7 @@ static void setStoppedState(void);
                     // 引数名部分のテキスト色を変更する
                     NSRange paramNameRange = NSMakeRange(paramStart, eqPos + 2);
                     [self.textViewScript.textStorage addAttribute:NSForegroundColorAttributeName
-                                                            value:[NSColor colorWithRed:0xc0/255.0f green:0xf0/255.0f blue:0xc0/255.0f alpha:1.0f]
+                                                            value:[UIColor colorWithRed:0xc0/255.0f green:0xf0/255.0f blue:0xc0/255.0f alpha:1.0f]
                                                             range:paramNameRange];
                     
                     ofs += spacePos + 1;

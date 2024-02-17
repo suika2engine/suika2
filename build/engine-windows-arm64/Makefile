@@ -87,6 +87,9 @@ OBJS = \
 %.o: ../../src/microsoft/%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
+%.o: ../../src/khronos/%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
 %.o: ../../src/microsoft/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
 

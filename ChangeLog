@@ -5,14 +5,108 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.0 2024/2/17
+  <ul>
+    <li>回転を追加 (Thanks to all!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
+<li>Suika2/15.145 2024/2/15
+  <ul>
+    <li>アニメファイルの記述量の制限を緩和 (Thanks to ソロー-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.144 2024/2/12
+  <ul>
+    <li>ZIP版を追加</li>
+  </ul>
+</li>
+<li>Suika2/15.143 2024/2/11
+  <ul>
+    <li>クラッシュ時にお詫びを表示するように変更</li>
+  </ul>
+</li>
+<li>Suika2/15.142 2024/2/11
+  <ul>
+    <li>クラッシュバグを修正 (Thanks to ラワン材-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.141 2024/2/11
+  <ul>
+    <li>gui.history.quote.prefixの修正</li>
+    <li>chaの修正</li>
+  </ul>
+</li>
+<li>Suika2/15.140 2024/2/11
+  <ul>
+    <li>JPEGとWebPの色を修正 (Thanks to Ronron-san!!)</li>
+  </ul>
+</li>
+<li>Suika2/15.139 2024/2/10
+  <ul>
+    <li>ヒストリの名前の直後で改行するために、<code>gui.history.quote.prefix=\n</code> コンフィグを追加 (Thanks to あさつき-san!!)</li>
+    <li>改行だけの場合ヒストリに表示しないよう修正 (Thanks to Ronron-san and あさつき-san!!)</li>
+  </ul>
+</li>
+<li>Suika2/15.138 2024/2/10
+  <ul>
+    <li>継続行のヒストリを分割しないように調整 (Thanks to あさつき-san!!)</li>
+  </ul>
+</li>
+<li>Suika2/15.137 2024/2/10
+  <ul>
+    <li>iOSのSafariでセーブ後にサウンド出力が停止してしまうバグを修正 (Thanks to all!)</li>
+  </ul>
+</li>
+<li>Suika2/15.136 2024/2/10
+  <ul>
+    <li>イメージクリッピングのバグ回避 (Thanks to ラワン材-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.135 2024/2/10
+  <ul>
+    <li>Direct3Dの利用できないWindows環境でOpenGLに対応 (Thanks to Vernica!)</li>
+  </ul>
+</li>
+<li>Suika2/15.134 2024/2/9
+  <ul>
+    <li>Direct3Dの利用できないWindows XP環境でソフトレンダリングに対応 (Thanks to Vernica!)</li>
+  </ul>
+</li>
+<li>Suika2/15.133 2024/2/9
+  <ul>
+    <li>@chsxのバグ修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.132 2024/2/9
+  <ul>
+    <li>@chsxのバグ修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.130 2024/2/8
+  <ul>
+    <li>msgbox.skip.unseen=2のときにスキップモードに入れないバグを修正 (Thanks to Mastuno-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.129 2024/2/8
+  <ul>
+    <li>@chsxでright-centerの位置を修正 (Thanks to あさつき-san!)</li>
+    <li>@chsxで下マージンのコンフィグstage.ch.margin.bottomが効かないバグを修正 (Thanks to あさつき-san!)</li>
+    <li>@chsxでleft-x=keepという表記でキャラ変更時にオフセットを変更しない機能を追加 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.128 2024/2/8
+  <ul>
+    <li>right-centerの位置を修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.127 2024/2/5
   <ul>
     <li>pro-windows: バグ修正</li>
     <li>pro-macos: バグ修正</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/15.126 2024/2/4
   <ul>
     <li>ボイス連番: ボイスファイル名で$0のような変数名に対応、変数は1ずつ増加 (Thanks to Mirin-san!)</li>
@@ -1149,14 +1243,118 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.0 2024/2/17
+  <ul>
+    <li>Added roration (Thanks to all!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
+<li>Suika2/15.146 2024/2/17
+  <ul>
+    <li>Changed to do line-feed when gui.history.oneline=1 and a text reached the right edge (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.145 2024/2/15
+  <ul>
+    <li>Relaxed the anime sequence limit (Thanks to Sorow-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.144 2024/2/11
+  <ul>
+    <li>Added a ZIP version</li>
+  </ul>
+</li>
+<li>Suika2/15.143 2024/2/11
+  <ul>
+    <li>Added a message when crashed.</li>
+  </ul>
+</li>
+<li>Suika2/15.142 2024/2/11
+  <ul>
+    <li>Fixed a crash bug (Thanks to Lauan-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.141 2024/2/11
+  <ul>
+    <li>Fixed gui.history.quote.prefix</li>
+    <li>Fixed cha</li>
+  </ul>
+</li>
+<li>Suika2/15.140 2024/2/11
+  <ul>
+    <li>Fixed colors of JPEG and WebP (Thanks to Ronron-san!!)</li>
+  </ul>
+</li>
+<li>Suika2/15.139 2024/2/10
+  <ul>
+    <li>Added a config <code>gui.history.quote.prefix=\n</code> to insert a line-feed after a name in the history (Thanks to Asatsuki-san!!)</li>
+    <li>Ignore empty messages in the history (Thanks to Ronron-san and Asatsuki-san!!)</li>
+  </ul>
+</li>
+<li>Suika2/15.138 2024/2/10
+  <ul>
+    <li>Changed to append a continued message to a previous history item (Thanks to Asatsuki-san!!)</li>
+  </ul>
+</li>
+<li>Suika2/15.137 2024/2/10
+  <ul>
+    <li>Fixed a bug where sound stops after save on iOS Safari (Thanks to all!)</li>
+  </ul>
+</li>
+<li>Suika2/15.136 2024/2/10
+  <ul>
+    <li>Workaround for image clipping (Thanks to Lauan-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.135 2024/2/10
+  <ul>
+    <li>Added a support for OpenGL for when Direct3D is not available (Thanks to Vernica!)</li>
+  </ul>
+</li>
+<li>Suika2/15.134 2024/2/9
+  <ul>
+    <li>Added software rendering system for when Direct3D graphics card is not available (Thanks to Vernica!)</li>
+  </ul>
+</li>
+<li>Suika2/15.133 2024/2/9
+  <ul>
+    <li>Fixed a bug of @chsx (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.132 2024/2/9
+  <ul>
+    <li>Fixed a bug of @chsx (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.131 2024/2/8
+  <ul>
+    <li>Fixed a bug where it is impossible to enter SkipMode with msgbox.skip.unseen=2 (Thanks to Mastuno-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.130 2024/2/8
+  <ul>
+    <li>Fixed a bug where it is impossible to enter SkipMode with msgbox.skip.unseen=2 (Thanks to Mastuno-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.129 2024/2/8
+  <ul>
+    <li>Fixed a bug where right-center's X offset is bad in @chsx (Thanks to Asatsuki-san!)</li>
+    <li>Fixed a bug where stage.ch.margin.bottom config is not applied in @chsx (Thanks to Asatsuki-san!)</li>
+    <li>Added a new feature left-x=keep in @chsx (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/15.128 2024/2/8
+  <ul>
+    <li>Fixed a position calc of right-center (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
 <li>Suika2/15.127 2024/2/5
   <ul>
     <li>pro-windows: bug fix</li>
     <li>pro-macos: bug fix</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/15.126 2024/2/4
   <ul>
     <li>Sequential Voice: Supported variables in voice file names, variables are auto-incremented (Thanks to Mirin-san!)</li>

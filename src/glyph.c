@@ -1259,7 +1259,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 		context->runtime_is_gyoto_kinsoku_second = true;
 
 		/* LFを無視する場合は、描画を終了する */
-		if (context->ignore_linefeed)
+		if (context->ignore_linefeed && context->line_margin == 0)
 			return false;
 
 		/* 改行しない */
@@ -1276,7 +1276,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 				return true;
 
 			/* LFを無視する場合は、描画を終了する */
-			if (context->ignore_linefeed)
+			if (context->ignore_linefeed && context->line_margin == 0)
 				return false;
 
 			/* 改行する */
@@ -1306,7 +1306,7 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 				return true;
 
 			/* LFを無視する場合は、描画を終了する */
-			if (context->ignore_linefeed)
+			if (context->ignore_linefeed && context->line_margin == 0)
 				return false;
 
 			/* 改行する */

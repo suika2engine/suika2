@@ -628,36 +628,7 @@
     };
   </script>
 
-  <!-- Code for Suika2 Main Engine -->
-  <script type="text/javascript">
-		function resizeWindow(event) {
-				canvas = document.getElementById('canvas');
-				aspect = canvas.width / canvas.height;
-				holder = document.getElementById('canvasHolder');
-				w = holder.offsetWidth;
-				h = holder.offsetWidth / aspect;
-				if (h > holder.offsetHeight) {
-						h = holder.offsetHeight;
-						w = holder.offsetHeight * aspect;
-				}
-				canvas.style.width = w + 'px';
-				canvas.style.height = h + 'px';
-				canvas.focus();
-    }
-    window.addEventListener('resize', resizeWindow);
-
-		function changeVisibility() {
-				if (document.visibilityState === 'visible') {
-						Module.ccall('setVisible', null, null, null);
-						document.getElementById('canvas').focus();
-				} else if (document.visibilityState === 'hidden') {
-						Module.ccall('setHidden', null, null, null);
-				}
-	  }
-		document.addEventListener('visibilitychange', changeVisibility);
-  </script>
-
-  <!-- Code for Suika2 Studio -->
+  <!-- Code for Suika2 Pro -->
   <script type="text/javascript">
 		// File System API
 		var dirHandle = null;
@@ -882,7 +853,7 @@
 		var editorText = "";
 	</script>
 
-	<!-- Code from Suika2 Kirara -->
+	<!-- Code that was ported from Suika2 Kirara -->
 	<script>
 		const locale = "ja";
 		const MSG_SPECIFY_FILE = "ファイルを指定してください";

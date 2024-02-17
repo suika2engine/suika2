@@ -58,6 +58,12 @@ static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
 	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
 }
 
+/* ピクセル値を合成する */
+static INLINE pixel_t make_pixel_ex(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
+{
+	return (((pixel_t)a) << 24) | (((pixel_t)r) << 16) | (((pixel_t)g) << 8) | ((pixel_t)b);
+}
+
 /* ピクセル値のアルファチャンネルを取得する */
 static INLINE uint32_t get_pixel_a(pixel_t p)
 {
@@ -89,6 +95,12 @@ static INLINE uint32_t get_pixel_b(pixel_t p)
 
 /* ピクセル値を合成する */
 static INLINE pixel_t make_pixel(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
+{
+	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
+}
+
+/* ピクセル値を合成する */
+static INLINE pixel_t make_pixel_ex(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
 {
 	return (((pixel_t)a) << 24) | (((pixel_t)b) << 16) | (((pixel_t)g) << 8) | ((pixel_t)r);
 }
@@ -128,6 +140,9 @@ struct image *create_image_from_file(const char *dir, const char *file);
 /* 文字列で色を指定してイメージを作成する */
 struct image *create_image_from_color_string(int w, int h, const char *color);
 
+/* バッキングイメージを作成する */
+struct image *create_image_with_pixels(int w, int h, pixel_t *pixels);
+
 /* イメージを削除する */
 void destroy_image(struct image *img);
 
@@ -163,6 +178,17 @@ void draw_image_normal(struct image *dst_image,
 		       int src_left,
 		       int src_top,
 		       int alpha);
+
+/* イメージを描画する(加算) */
+void draw_image_add(struct image *dst_image,
+		    int dst_left,
+		    int dst_top,
+		    struct image *src_image,
+		    int width,
+		    int height,
+		    int src_left,
+		    int src_top,
+		    int alpha);
 
 /* イメージを描画する(50%暗くする) */
 void draw_image_dim(struct image *dst_image,
