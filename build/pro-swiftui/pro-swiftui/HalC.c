@@ -222,6 +222,46 @@ render_image_melt(
     p->renderImageMelt(src_img, rule_img, progress);
 }
 
+void
+render_image_3d_normal(
+    float x1,
+    float y1,
+    float x2,
+    float y2,
+    float x3,
+    float y3,
+    float x4,
+    float y4,
+    struct image *src_image,
+    int src_left,
+    int src_top,
+    int src_width,
+    int src_height,
+    int alpha)
+{
+    p->renderImage3DNormal(x1, y1, x2, y2, x3, y3, x4, y4, src_image, src_left, src_top, src_width, src_height, alpha);
+}
+
+void
+render_image_3d_add(
+    float x1,
+    float y1,
+    float x2,
+    float y2,
+    float x3,
+    float y3,
+    float x4,
+    float y4,
+    struct image *src_image,
+    int src_left,
+    int src_top,
+    int src_width,
+    int src_height,
+    int alpha)
+{
+    p->renderImage3DAdd(x1, y1, x2, y2, x3, y3, x4, y4, src_image, src_left, src_top, src_width, src_height, alpha);
+}
+
 /*
  * Lap Timer
  */
@@ -353,9 +393,9 @@ void leave_full_screen_mode(void)
 
 const char *get_system_locale(void)
 {
-    const char *locale;
+    static char locale[16];
 
-    locale = p->getSystemLocale();
+    p->getSystemLocale((void *)&locale[0], 16);
 
     return locale;
 }
@@ -370,6 +410,69 @@ void speak_text(const char *text)
 }
 
 /*
+ * Suika2 Pro
+ */
+
+bool is_continue_pushed(void)
+{
+    return p->isContinuePushed();
+}
+
+bool is_next_pushed(void)
+{
+    return p->isNextPushed();
+}
+
+bool is_stop_pushed(void)
+{
+    return p->isStopPushed();
+}
+
+bool is_script_opened(void)
+{
+    return p->isScriptOpened();
+}
+
+const char *get_opened_script(void)
+{
+    static char name[128];
+
+    p->getOpenedScript(name, sizeof(name));
+
+    return strdup(name);
+}
+
+bool is_exec_line_changed(void)
+{
+    return p->isExecLineChanged();
+}
+
+int get_changed_exec_line(void)
+{
+    return p->getChangedExecLine();
+}
+
+void on_change_running_state(bool running, bool request_stop)
+{
+    p->onChangeRunningState(running, request_stop);
+}
+
+void on_load_script(void)
+{
+    p->onLoadScript();
+}
+
+void on_change_position(void)
+{
+    p->onChangePosition();
+}
+
+void on_update_variable(void)
+{
+    p->onUpdateVariable();
+}
+
+/*
  * Sound (AudioUnit)
  *
  * [Changes]
@@ -380,8 +483,6 @@ void speak_text(const char *text)
 
 #include <AudioUnit/AudioUnit.h>
 #include <pthread.h>
-
-#include "aunit.h"
 
 /* PCM format. */
 #define SAMPLING_RATE   (44100)
@@ -749,4 +850,3 @@ static void mul_add_pcm(uint32_t *dst, uint32_t *src, float vol, int samples)
                  (((uint32_t)(uint16_t)(int16_t)ir) << 16);
     }
 }
-

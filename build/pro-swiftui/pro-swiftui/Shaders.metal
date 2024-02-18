@@ -26,7 +26,7 @@ struct RasterizerData {
 
 vertex RasterizerData
 vertexShader(uint vertexID [[vertex_id]],
-             constant Vertex *vertexArray [[buffer(ShaderVertexInputIndexVertices)]])
+             constant ShaderVertex *vertexArray [[buffer(ShaderVertexInputIndexVertices)]])
 {
     RasterizerData out;
     out.position = vector_float4(vertexArray[vertexID].xy, 0, 1);

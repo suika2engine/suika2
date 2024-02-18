@@ -9,16 +9,18 @@
 // MetalViewCoordinator is the renderer for MetalView and it implements Suika2 HAL.
 //
 
-import Foundation
 import MetalKit
 
 class Renderer : NSObject, MTKViewDelegate {
     // The sole instance of this class.
     static var instance: Renderer!
-    
+
     // Mutual exclusion for rendering.
     static var in_flight_semaphore = DispatchSemaphore(value: 1)
-    
+
+    // Is a game started?
+    var isInitialized = false
+
     // Metal objects.
     var mtkView: MTKView!
     var mtlDevice: MTLDevice!
@@ -40,7 +42,7 @@ class Renderer : NSObject, MTKViewDelegate {
     
     init(_ view: MTKView) {
         // Setup a Swift function callback table for C code.
-        HalCSetup(&Renderer.callbacks)
+        HalCSetup(&HalSwift.callbacks)
 
         mtkView = view
         mtlDevice = view.device
@@ -157,6 +159,11 @@ class Renderer : NSObject, MTKViewDelegate {
         if view.currentRenderPassDescriptor == nil {
             return
         }
+
+        // Guard if not started.
+        if !isInitialized {
+            return
+        }
         
         // Don't render if a video is playing back.
         if Controller.instance.isVideoPlaying() {
@@ -217,9 +224,9 @@ class Renderer : NSObject, MTKViewDelegate {
     }
     
     func runSuika2Frame() -> Void {
-        on_event_frame()
+        //on_event_frame()
     }
-    
+
     func notifyImageUpdate(image: UnsafeRawPointer) -> Void {
         // Treat images that are created before the Metal initialization.
         if commandBuffer == nil {
@@ -398,7 +405,7 @@ class Renderer : NSObject, MTKViewDelegate {
                          pipeline: pipeline)
     }
 
-    func renderImage3DNormal(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, image: UnsafeRawPointer, srcLeft: Int, srcTop: Int, srcWidth: Int, srcHeight: Int, alpha: Int, pipeline: MTLRenderPipelineState) {
+    func renderImage3DNormal(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, image: UnsafeRawPointer, srcLeft: Int, srcTop: Int, srcWidth: Int, srcHeight: Int, alpha: Int) {
         drawPrimitives3D(x1: x1,
                          y1: y1,
                          x2: x2,
@@ -417,7 +424,7 @@ class Renderer : NSObject, MTKViewDelegate {
                          pipeline: normalPipelineState)
     }
 
-    func renderImage3DAdd(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, image: UnsafeRawPointer, srcLeft: Int, srcTop: Int, srcWidth: Int, srcHeight: Int, alpha: Int, pipeline: MTLRenderPipelineState) {
+    func renderImage3DAdd(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, image: UnsafeRawPointer, srcLeft: Int, srcTop: Int, srcWidth: Int, srcHeight: Int, alpha: Int) {
         drawPrimitives3D(x1: x1,
                          y1: y1,
                          x2: x2,
@@ -515,180 +522,4 @@ class Renderer : NSObject, MTKViewDelegate {
         }
         renderEncoder.drawPrimitives(type: MTLPrimitiveType.triangleStrip, vertexStart: 0, vertexCount: 4)
     }
-
-    //
-    // Swift part of HAL implementation
-    //
-
-    private static func halPrint(msg: UnsafePointer<CChar>) -> Bool {
-        print("\(String(cString: msg))")
-        return true
-    }
-
-    private static func halMakeSavDir() -> Bool {
-        var path = FileManager.default.currentDirectoryPath
-        path.append("/")
-        path.append(SAVE_DIR)
-        
-        do {
-            try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: false)
-        } catch let error {
-            print(error)
-        }
-        return true
-    }
-
-    private static func halMakeValidPath(dir: UnsafePointer<CChar>?, file: UnsafePointer<CChar>?) -> String {
-        var path = FileManager.default.currentDirectoryPath
-        if dir != nil {
-            if file != nil {
-                path.append("/")
-                path.append(String(cString: dir!))
-                path.append("/")
-                path.append(String(cString: file!))
-            } else {
-                path.append("/")
-                path.append(String(cString: dir!))
-            }
-        } else {
-            if file != nil {
-                path.append("/")
-                path.append(String(cString: file!))
-            } else {
-                // Use the base path.
-            }
-        }
-        return path
-    }
-    
-    private static func halNotifyImageUpdate(image: UnsafeRawPointer) -> Void {
-        Renderer.instance.notifyImageUpdate(image: image)
-    }
-    
-    private static func halNotifyImageFree(image: UnsafeRawPointer) -> Void {
-        Renderer.instance.notifyImageFree(image: image)
-    }
-    
-    private static func halRenderImageNormal(dstLeft: Int, dstTop: Int, dstWidth: Int, dstHeight: Int, srcImage: UnsafeRawPointer, srcLeft: Int, srcTop: Int, srcWidth: Int, srcHeight: Int, alpha: Int) -> Void {
-    }
-    
-    private static func halRenderImageAdd(dstLeft: Int, dstTop: Int, dstWidth: Int, dstHeight: Int, srcImage: UnsafeRawPointer, srcLeft: Int, srcTop: Int, srcWidth: Int, srcHeight: Int, alpha: Int) -> Void {
-    }
-    
-    private static func halRenderImageDim(dstLeft: Int, dstTop: Int, dstWidth: Int, dstHeight: Int, srcImage: UnsafeRawPointer, srcLeft: Int, srcTop: Int, srcWidth: Int, srcHeight: Int, alpha: Int) -> Void {
-    }
-    
-    private static func halRenderImageRule(srcImage: UnsafeRawPointer, ruleImage: UnsafeRawPointer, threshold: Int) -> Void {
-    }
-    
-    private static func halRenderImageMelt(srcImage: UnsafeRawPointer, ruleImage: UnsafeRawPointer, progress: Int) -> Void {
-    }
-    
-    private static func halPlayVideo(file: String, skippable: Bool) -> Bool {
-        return false
-    }
-    
-    private static func halStopVideo() -> Void {
-    }
-    
-    private static func halIsVideoPlaying() -> Bool {
-        return false
-    }
-    
-    private static func halUpdateWindowTitle() -> Void {
-    }
-    
-    private static func halIsFullScreenSupported() -> Bool {
-        return false
-    }
-    
-    private static func halIsFullScreenMode() -> Bool {
-        return false
-    }
-    
-    private static func halEnterFullScreenMode() -> Void {
-    }
-    
-    private static func halLeaveFullScreenMode() -> Void {
-    }
-    
-    private static func halGetSystemLocale() -> String {
-        return "ja"
-    }
-    
-    private static func halSpeakText(text: String) -> Void {
-    }
-    
-    static var callbacks: HalSwiftExports = HalSwiftExports(
-        logInfo: { (msg) in
-            halPrint(msg: msg)
-        },
-        logWarn: { (msg) in
-            halPrint(msg: msg)
-        },
-        logError: { (msg) in
-            halPrint(msg: msg)
-        },
-        makeSavDir: { () in
-            halMakeSavDir()
-        },
-        makeValidPath: { (dir, file, dst, len) in
-            let s = halMakeValidPath(dir: dir, file: file).utf8CString
-            let addr = s.withUnsafeBytes { $0.baseAddress! }
-            dst.copyMemory(from: addr, byteCount: min(len, s.count))
-        },
-        notifyImageUpdate: { (img) in
-            halNotifyImageUpdate(image: UnsafeRawPointer(img))
-        },
-        notifyImageFree: { (img) in
-            halNotifyImageFree(image: UnsafeRawPointer(img))
-        },
-        renderImageNormal: { (dstLeft, dstTop, dstWidth, dstHeight, srcImage, srcLeft, srcTop, srcWidth, srcHeight, alpha) in
-            halRenderImageNormal(dstLeft: Int(dstLeft), dstTop: Int(dstTop), dstWidth: Int(dstWidth), dstHeight: Int(dstHeight), srcImage: UnsafeRawPointer(srcImage), srcLeft: Int(srcLeft), srcTop: Int(srcTop), srcWidth: Int(srcWidth), srcHeight: Int(srcHeight), alpha: Int(alpha))
-        },
-        renderImageAdd: { (dstLeft, dstTop, dstWidth, dstHeight, srcImage, srcLeft, srcTop, srcWidth, srcHeight, alpha) in
-            halRenderImageAdd(dstLeft: Int(dstLeft), dstTop: Int(dstTop), dstWidth: Int(dstWidth), dstHeight: Int(dstHeight), srcImage: UnsafeRawPointer(srcImage), srcLeft: Int(srcLeft), srcTop: Int(srcTop), srcWidth: Int(srcWidth), srcHeight: Int(srcHeight), alpha: Int(alpha))
-        },
-        renderImageDim: { (dstLeft, dstTop, dstWidth, dstHeight, srcImage, srcLeft, srcTop, srcWidth, srcHeight, alpha) in
-            halRenderImageNormal(dstLeft: Int(dstLeft), dstTop: Int(dstTop), dstWidth: Int(dstWidth), dstHeight: Int(dstHeight), srcImage: UnsafeRawPointer(srcImage), srcLeft: Int(srcLeft), srcTop: Int(srcTop), srcWidth: Int(srcWidth), srcHeight: Int(srcHeight), alpha: Int(alpha))
-        },
-        renderImageRule: { (srcImage, ruleImage, threshold) in
-            halRenderImageRule(srcImage: UnsafeRawPointer(srcImage), ruleImage: UnsafeRawPointer(ruleImage), threshold: Int(threshold))
-        },
-        renderImageMelt: { (srcImage, ruleImage, progress) in
-            halRenderImageMelt(srcImage: UnsafeRawPointer(srcImage), ruleImage: UnsafeRawPointer(ruleImage), progress: Int(progress))
-        },
-        playVideo: { (file, skippable) in
-            halPlayVideo(file: String(cString: file), skippable: skippable)
-        },
-        stopVideo: { () in
-            halStopVideo()
-        },
-        isVideoPlaying: { () in
-            halIsVideoPlaying()
-        },
-        updateWindowTitle: { () in
-            halUpdateWindowTitle()
-        },
-        isFullScreenSupported: { () in
-            halIsFullScreenSupported()
-        },
-        isFullScreenMode: { () in
-            halIsFullScreenMode()
-        },
-        enterFullScreenMode: { () in
-            halEnterFullScreenMode()
-        },
-        leaveFullScreenMode: { () in
-            halLeaveFullScreenMode()
-        },
-        getSystemLocale: { () in
-            return halGetSystemLocale().utf8CString.withUnsafeBytes { $0.baseAddress! }
-        },
-        speakText: { (text) in
-            if let t = text {
-                halSpeakText(text: String(cString: UnsafePointer<CChar>(t)))
-            }
-        }
-    )
 }

@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		2615F9072B7C5B53006850D8 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2615F9062B7C5B53006850D8 /* Controller.swift */; };
+		261F59A42B82204C00221783 /* HalSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261F59A32B82204C00221783 /* HalSwift.swift */; };
+		261F59A62B822C1C00221783 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261F59A52B822C1C00221783 /* TextView.swift */; };
 		266A64272B7E6BE500401A6C /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 266A64252B7E6BE500401A6C /* Shaders.metal */; };
-		266A64292B7E6C8200401A6C /* Hal.c in Sources */ = {isa = PBXBuildFile; fileRef = 266A64282B7E6C8200401A6C /* Hal.c */; };
+		266A64292B7E6C8200401A6C /* HalC.c in Sources */ = {isa = PBXBuildFile; fileRef = 266A64282B7E6C8200401A6C /* HalC.c */; };
 		269BCE702B7B4A4800477106 /* pro_swiftuiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269BCE6F2B7B4A4800477106 /* pro_swiftuiApp.swift */; };
 		269BCE722B7B4A4800477106 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269BCE712B7B4A4800477106 /* ContentView.swift */; };
 		269BCE742B7B4A4900477106 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 269BCE732B7B4A4900477106 /* Assets.xcassets */; };
@@ -76,10 +78,12 @@
 
 /* Begin PBXFileReference section */
 		2615F9062B7C5B53006850D8 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
+		261F59A32B82204C00221783 /* HalSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HalSwift.swift; sourceTree = "<group>"; };
+		261F59A52B822C1C00221783 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		266A64232B7E6BE500401A6C /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
 		266A64252B7E6BE500401A6C /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
-		266A64282B7E6C8200401A6C /* Hal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Hal.c; sourceTree = "<group>"; };
-		269BCE6C2B7B4A4800477106 /* pro-swiftui.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pro-swiftui.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		266A64282B7E6C8200401A6C /* HalC.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = HalC.c; sourceTree = "<group>"; };
+		269BCE6C2B7B4A4800477106 /* Suika2 Pro Desktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Suika2 Pro Desktop.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		269BCE6F2B7B4A4800477106 /* pro_swiftuiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pro_swiftuiApp.swift; sourceTree = "<group>"; };
 		269BCE712B7B4A4800477106 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		269BCE732B7B4A4900477106 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -198,7 +202,7 @@
 		269BCE6D2B7B4A4800477106 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				269BCE6C2B7B4A4800477106 /* pro-swiftui.app */,
+				269BCE6C2B7B4A4800477106 /* Suika2 Pro Desktop.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -206,13 +210,15 @@
 		269BCE6E2B7B4A4800477106 /* pro-swiftui */ = {
 			isa = PBXGroup;
 			children = (
-				269BCE7F2B7B4AB300477106 /* Bridging-Header.h */,
-				266A64282B7E6C8200401A6C /* Hal.c */,
-				26F3188C2B7B7BEA00F05179 /* Renderer.swift */,
-				26F3188A2B7B7B3D00F05179 /* MetalView.swift */,
-				2615F9062B7C5B53006850D8 /* Controller.swift */,
 				269BCE6F2B7B4A4800477106 /* pro_swiftuiApp.swift */,
 				269BCE712B7B4A4800477106 /* ContentView.swift */,
+				2615F9062B7C5B53006850D8 /* Controller.swift */,
+				26F3188C2B7B7BEA00F05179 /* Renderer.swift */,
+				26F3188A2B7B7B3D00F05179 /* MetalView.swift */,
+				261F59A52B822C1C00221783 /* TextView.swift */,
+				269BCE7F2B7B4AB300477106 /* Bridging-Header.h */,
+				261F59A32B82204C00221783 /* HalSwift.swift */,
+				266A64282B7E6C8200401A6C /* HalC.c */,
 				266A64252B7E6BE500401A6C /* Shaders.metal */,
 				266A64232B7E6BE500401A6C /* ShaderTypes.h */,
 				269BCE732B7B4A4900477106 /* Assets.xcassets */,
@@ -325,9 +331,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		269BCE6B2B7B4A4800477106 /* pro-swiftui */ = {
+		269BCE6B2B7B4A4800477106 /* Suika2 Pro Desktop */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 269BCE7B2B7B4A4900477106 /* Build configuration list for PBXNativeTarget "pro-swiftui" */;
+			buildConfigurationList = 269BCE7B2B7B4A4900477106 /* Build configuration list for PBXNativeTarget "Suika2 Pro Desktop" */;
 			buildPhases = (
 				269BCE682B7B4A4800477106 /* Sources */,
 				269BCE692B7B4A4800477106 /* Frameworks */,
@@ -337,9 +343,9 @@
 			);
 			dependencies = (
 			);
-			name = "pro-swiftui";
+			name = "Suika2 Pro Desktop";
 			productName = "pro-swiftui";
-			productReference = 269BCE6C2B7B4A4800477106 /* pro-swiftui.app */;
+			productReference = 269BCE6C2B7B4A4800477106 /* Suika2 Pro Desktop.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -371,7 +377,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				269BCE6B2B7B4A4800477106 /* pro-swiftui */,
+				269BCE6B2B7B4A4800477106 /* Suika2 Pro Desktop */,
 			);
 		};
 /* End PBXProject section */
@@ -420,8 +426,9 @@
 				269BCEDD2B7B4AB400477106 /* cmd_message.c in Sources */,
 				269BCEDA2B7B4AB400477106 /* seen.c in Sources */,
 				269BCF0C2B7B4AB400477106 /* anime.c in Sources */,
-				266A64292B7E6C8200401A6C /* Hal.c in Sources */,
+				266A64292B7E6C8200401A6C /* HalC.c in Sources */,
 				269BCEF32B7B4AB400477106 /* cmd_gui.c in Sources */,
+				261F59A62B822C1C00221783 /* TextView.swift in Sources */,
 				269BCEE72B7B4AB400477106 /* image.c in Sources */,
 				269BCED52B7B4AB400477106 /* cmd_if.c in Sources */,
 				269BCEFB2B7B4AB400477106 /* main.c in Sources */,
@@ -450,6 +457,7 @@
 				269BCF0B2B7B4AB400477106 /* cmd_cha.c in Sources */,
 				269BCEEA2B7B4AB400477106 /* readimage.c in Sources */,
 				269BCEE52B7B4AB400477106 /* wms_parser.tab.c in Sources */,
+				261F59A42B82204C00221783 /* HalSwift.swift in Sources */,
 				269BCEE42B7B4AB400477106 /* scbuf.c in Sources */,
 				269BCEDC2B7B4AB400477106 /* cmd_layer.c in Sources */,
 				269BCF072B7B4AB400477106 /* glyph.c in Sources */,
@@ -606,12 +614,12 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
 				OTHER_CFLAGS = (
-					"-I./libroot/include",
-					"-I./libroot/include/freetype2",
+					"-I./libroot-macos/include",
+					"-I./libroot-macos/include/freetype2",
 					"-DUSE_EDITOR",
 				);
 				OTHER_LDFLAGS = (
-					"-L./libroot/lib",
+					"-L./libroot-macos/lib",
 					"-lbrotlidec",
 					"-lbrotlicommon",
 					"-lpng",
@@ -627,12 +635,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-swiftui.pro-swiftui";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "pro-swiftui/Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -666,12 +674,12 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
 				OTHER_CFLAGS = (
-					"-I./libroot/include",
-					"-I./libroot/include/freetype2",
+					"-I./libroot-macos/include",
+					"-I./libroot-macos/include/freetype2",
 					"-DUSE_EDITOR",
 				);
 				OTHER_LDFLAGS = (
-					"-L./libroot/lib",
+					"-L./libroot-macos/lib",
 					"-lbrotlidec",
 					"-lbrotlicommon",
 					"-lpng",
@@ -687,11 +695,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.luxion.suika.pro-swiftui.pro-swiftui";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "pro-swiftui/Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -707,7 +715,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		269BCE7B2B7B4A4900477106 /* Build configuration list for PBXNativeTarget "pro-swiftui" */ = {
+		269BCE7B2B7B4A4900477106 /* Build configuration list for PBXNativeTarget "Suika2 Pro Desktop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				269BCE7C2B7B4A4900477106 /* Debug */,
