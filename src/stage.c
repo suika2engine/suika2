@@ -2747,7 +2747,7 @@ static void render_fade_slide_right(void)
 			    0,
 			    0,
 			    right,
-			    conf_window_width - right,
+			    conf_window_height,
 			    255);
 
 	/* 右側の背景を表示する */
