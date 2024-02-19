@@ -181,6 +181,7 @@ static bool reopen(struct wave *w, bool loop)
 	}
 
 	w->do_skip = loop;
+	w->consumed_bytes = 0;
 
 	return true;
 }
@@ -400,4 +401,5 @@ static void skip_if_needed(struct wave *w, int sample_bytes)
 	}
 
 	w->do_skip = false;
+	w->consumed_bytes = (long)w->loop_start;
 }

@@ -5,14 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.8 2024/2/19
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.7 2024/2/19
   <ul>
     <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
     <li>継続行のバグを修正 (Thanks to ラワン材-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.6 2024/2/20
   <ul>
     <li>セーブ画面を強制的に呼んだときのバグを修正 (Thanks to 松野-san!)</li>
@@ -1281,14 +1286,19 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.8 2024/2/19
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.7 2024/2/19
   <ul>
     <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
     <li>Fixed a bug of continued lines (Thanks to Lauan-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.6 2024/2/20
   <ul>
     <li>Fixed a bug when calling save screen (Thanks to MATSUNO-san!)</li>
