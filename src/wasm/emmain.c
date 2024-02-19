@@ -35,9 +35,6 @@
  */
 static int touch_start_x;
 static int touch_start_y;
-static int touch_last_y;
-static uint64_t touch_start_time;
-static bool touch_processed;
 
 /*
  * 前方参照
@@ -345,9 +342,6 @@ static EM_BOOL cb_touchstart(int eventType,
 
 	touch_start_x = touchEvent->touches[0].targetX;
 	touch_start_y = touchEvent->touches[0].targetY;
-	touch_last_y = touchEvent->touches[0].targetY;
-	touch_processed = false;
-	reset_lap_timer(&touch_start_time);
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
