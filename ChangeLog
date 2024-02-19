@@ -5,14 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.3 2024/2/19
+  <ul>
+    <li>Webのスワイプの仕様を変更 (Thanks to all!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.2 2024/2/18
   <ul>
     <li>折りたたみシステムメニューのちらつきを修正 (Thanks to あさつき-san!)</li>
     <li>右スライドエフェクトのバグを修正 (Thanks to 松野-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.1 2024/2/18
   <ul>
     <li>Windowsでルール画像が適用されないバグを修正 (Thanks to banana-san!)</li>
@@ -1254,14 +1259,19 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.3 2024/2/19
+  <ul>
+    <li>Changed the spec of swipe on Web (Thanks to all!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.2 2024/2/18
   <ul>
     <li>Fixed a bug where the collapsed sysmenu flickers (Thanks to Asatsuki-san!)</li>
     <li>Fixed a bug of the right-slide effect (Thanks to MATSUNO-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.1 2024/2/18
   <ul>
     <li>Fixed a bug where rule images are not applied on Windows (Thanks to banana-san!)</li>

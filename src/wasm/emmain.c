@@ -36,6 +36,8 @@
 static int touch_start_x;
 static int touch_start_y;
 static int touch_last_y;
+static uint64_t touch_start_time;
+static bool touch_processed;
 
 /*
  * 前方参照
@@ -344,6 +346,8 @@ static EM_BOOL cb_touchstart(int eventType,
 	touch_start_x = touchEvent->touches[0].targetX;
 	touch_start_y = touchEvent->touches[0].targetY;
 	touch_last_y = touchEvent->touches[0].targetY;
+	touch_processed = false;
+	reset_lap_timer(&touch_start_time);
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
@@ -361,20 +365,8 @@ static EM_BOOL cb_touchmove(int eventType,
 			    const EmscriptenTouchEvent *touchEvent,
 			    void *userData)
 {
-	const int LINE_HEIGHT = 10;
 	double w, h, scale;
 	int delta, x, y;
-
-	delta = touchEvent->touches[0].targetY - touch_last_y;
-	touch_last_y = touchEvent->touches[0].targetY;
-
-	if (delta > LINE_HEIGHT) {
-		on_event_key_press(KEY_DOWN);
-		on_event_key_release(KEY_DOWN);
-	} else if (delta < -LINE_HEIGHT) {
-		on_event_key_press(KEY_UP);
-		on_event_key_release(KEY_UP);
-	}
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
@@ -392,9 +384,21 @@ static EM_BOOL cb_touchend(int eventType,
 			   const EmscriptenTouchEvent *touchEvent,
 			   void *userData)
 {
-	const int OFS = 10;
+	const int FLICK_DISTANCE = 50;
+	const int FINGER_DISTANCE = 10;
 	double w, h, scale;
-	int x, y;
+	int x, y, delta;
+
+	delta = touchEvent->touches[0].targetY - touch_start_y;
+	if (delta > FLICK_DISTANCE) {
+		on_event_key_press(KEY_UP);
+		on_event_key_release(KEY_UP);
+		return EM_TRUE;
+	} else if (delta < -FLICK_DISTANCE) {
+		on_event_key_press(KEY_DOWN);
+		on_event_key_release(KEY_DOWN);
+		return EM_TRUE;
+	}
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
@@ -412,8 +416,8 @@ static EM_BOOL cb_touchend(int eventType,
 	}
 
 	/* 1本指でタップした場合、左クリックとする */
-	if (abs(touchEvent->touches[0].targetX - touch_start_x) < OFS &&
-	    abs(touchEvent->touches[0].targetY - touch_start_y) < OFS) {
+	if (abs(touchEvent->touches[0].targetX - touch_start_x) < FINGER_DISTANCE &&
+	    abs(touchEvent->touches[0].targetY - touch_start_y) < FINGER_DISTANCE) {
 		on_event_mouse_release(MOUSE_LEFT, x, y);
 		return EM_TRUE;
 	}
