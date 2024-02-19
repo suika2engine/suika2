@@ -23,7 +23,7 @@ build-only: $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_IOS)
 	@tar xzf libroot-ios.tar.gz
 	@ln -sf libroot-device libroot
 	@if [ ! -z "`uname -a | grep arm64`" ]; then \
-		xcodebuild -target "Suika2" -project engine-ios.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+		xcodebuild -target "Suika2" -project engine-ios.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO; \
 	else \
 		echo 'We cannot build on a x86_64 host.'; \
 	fi
