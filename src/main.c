@@ -542,6 +542,21 @@ static bool dispatch_command(bool *cont)
 #ifdef USE_EDITOR
 	if (*cont && !dbg_request_stop) {
 		render_stage();
+		switch (command_type) {
+		case COMMAND_BGM:
+		case COMMAND_VOL:
+		case COMMAND_SET:
+		case COMMAND_IF:
+		case COMMAND_UNLESS:
+		case COMMAND_LABEL:
+		case COMMAND_LABELEDGOTO:
+		case COMMAND_GOTO:
+		case COMMAND_GOSUB:
+			render_collapsed_sysmenu(false);
+			break;
+		default:
+			break;
+		}
 		*cont = false;
 	}
 #endif

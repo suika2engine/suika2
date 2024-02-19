@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "if [ ! -d &quot;$WORSPACE_PATH/../../libroot&quot; ]; then&#10;    cd &quot;$WORKSPACE_PATH/../..&quot;;&#10;    curl -O https://suika2.com/dl/libroot-ios.tar.gz;&#10;    tar xzf libroot-ios.tar.gz;&#10;fi&#10;">
+               scriptText = "if [ ! -d &quot;$WORSPACE_PATH/../../libroot&quot; ]; then&#10;    cd &quot;$WORKSPACE_PATH/../..&quot;;&#10;    curl -O https://suika2.com/dl/libroot-ios.tar.gz;&#10;    tar xzf libroot-ios.tar.gz;&#10;    if [[ &quot;$RUN_DESTINATION_DEVICE_PLATFORM_IDENTIFIER&quot; == *simulator ]]; then&#10;        echo &apos;simulator&apos;;&#10;        rm -f libroot;&#10;        ln -sf libroot-sim libroot;&#10;        rm -rf libroot-device;&#10;    else&#10;        echo &apos;device&apos;;&#10;        rm -f libroot;&#10;        ln -sf libroot-device libroot;&#10;        rm -rf libroot-sim;&#10;    fi;&#10;fi&#10;">
             </ActionContent>
          </ExecutionAction>
       </PreActions>

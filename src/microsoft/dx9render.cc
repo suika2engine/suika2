@@ -215,18 +215,18 @@ static const char szBlurPixelShader[] =
 //
 // 前方参照
 //
-static VOID DrawPrimitives(int dst_left,
-						   int dst_top,
-						   int dst_width,
-						   int dst_height,
-						   struct image *src_image,
-						   struct image *rule_image,
-						   int src_left,
-						   int src_top,
-						   int src_width,
-						   int src_height,
-						   int alpha,
-						   int pipeline);
+static VOID DrawPrimitives2D(int dst_left,
+							 int dst_top,
+							 int dst_width,
+							 int dst_height,
+							 struct image *src_image,
+							 struct image *rule_image,
+							 int src_left,
+							 int src_top,
+							 int src_width,
+							 int src_height,
+							 int alpha,
+							 int pipeline);
 static VOID DrawPrimitives3D(float x1,
 							 float y1,
 							 float x2,
@@ -606,18 +606,18 @@ render_image_normal(
 		return;
 	}
 
-	DrawPrimitives(dst_left,
-				   dst_top,
-				   dst_width,
-				   dst_height,
-				   src_image,
-				   NULL,
-				   src_left,
-				   src_top,
-				   src_width,
-				   src_height,
-				   alpha,
-				   PIPELINE_NORMAL);
+	DrawPrimitives2D(dst_left,
+					 dst_top,
+					 dst_width,
+					 dst_height,
+					 src_image,
+					 NULL,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 PIPELINE_NORMAL);
 }
 
 //
@@ -642,18 +642,18 @@ render_image_add(
 		return;
 	}
 
-	DrawPrimitives(dst_left,
-				   dst_top,
-				   dst_width,
-				   dst_height,
-				   src_image,
-				   NULL,
-				   src_left,
-				   src_top,
-				   src_width,
-				   src_height,
-				   alpha,
-				   PIPELINE_ADD);
+	DrawPrimitives2D(dst_left,
+					 dst_top,
+					 dst_width,
+					 dst_height,
+					 src_image,
+					 NULL,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 PIPELINE_ADD);
 }
 
 //
@@ -678,18 +678,18 @@ render_image_dim(
 		return;
 	}
 
-	DrawPrimitives(dst_left,
-				   dst_top,
-				   dst_width,
-				   dst_height,
-				   src_image,
-				   NULL,
-				   src_left,
-				   src_top,
-				   src_width,
-				   src_height,
-				   alpha,
-				   PIPELINE_DIM);
+	DrawPrimitives2D(dst_left,
+					 dst_top,
+					 dst_width,
+					 dst_height,
+					 src_image,
+					 NULL,
+					 src_left,
+					 src_top,
+					 src_width,
+					 src_height,
+					 alpha,
+					 PIPELINE_DIM);
 }
 
 //
@@ -703,7 +703,18 @@ void render_image_rule(struct image *src_image, struct image *rule_image, int th
 		return;
 	}
 
-	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, threshold, PIPELINE_RULE);
+	DrawPrimitives2D(0,
+					 0,
+					 src_image->width,
+					 src_image->height,
+					 src_image,
+					 rule_image,
+					 0,
+					 0,
+					 rule_image->width,
+					 rule_image->height,
+					 threshold,
+					 PIPELINE_RULE);
 }
 
 //
@@ -717,12 +728,23 @@ void render_image_melt(struct image *src_image, struct image *rule_image, int pr
 		return;
 	}
 
-	DrawPrimitives(0, 0, -1, -1, src_image, rule_image, 0, 0, -1, -1, progress, PIPELINE_MELT);
+	DrawPrimitives2D(0,
+					 0,
+					 src_image->width,
+					 src_image->height,
+					 src_image,
+					 rule_image,
+					 0,
+					 0,
+					 rule_image->width,
+					 rule_image->height,
+					 progress,
+					 PIPELINE_MELT);
 }
 
 // プリミティブを描画する
 static VOID
-DrawPrimitives(
+DrawPrimitives2D(
 	int dst_left,
 	int dst_top,
 	int dst_width,
@@ -736,6 +758,15 @@ DrawPrimitives(
 	int alpha,
 	int pipeline)
 {
+	if (dst_width == -1)
+		dst_width = src_image->width;
+	if (dst_height == -1)
+		dst_height = src_image->height;
+	if (src_width == -1)
+		src_width = src_image->width;
+	if (src_height == -1)
+		src_height = src_image->height;
+
 	DrawPrimitives3D((float)dst_left,
 					 (float)dst_top,
 					 (float)(dst_left + dst_width + 1),

@@ -44,6 +44,7 @@ struct wave {
 	struct rfile *rf;
 	bool loop;
 	uint32_t loop_start;
+	uint32_t loop_length;
 	int times;	/* loop=trueのとき、-1なら無限、0以上は残り回数 */
 	bool monaural;
 
@@ -51,6 +52,7 @@ struct wave {
 	bool eos;
 	bool err;
 	bool do_skip;
+	long consumed_bytes;
 
 	/* Vorbisのオブジェクト */
 	OggVorbis_File ovf;
@@ -79,7 +81,9 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 	int i;
 
 	const char *LOOPSTART = "LOOPSTART=";
-	const size_t LOOPSTARTLEN = strlen(LOOPSTART);
+	const char *LOOPLENGTH = "LOOPSTART=";
+	const size_t LOOPSTART_LEN = strlen(LOOPSTART);
+	const size_t LOOPLENGTH_LEN = strlen(LOOPLENGTH);
 
 	UNUSED_PARAMETER(OV_CALLBACKS_DEFAULT);
 	UNUSED_PARAMETER(OV_CALLBACKS_NOCLOSE);
@@ -121,21 +125,23 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 	/* wave構造体を初期化する */
 	w->loop = loop;
 	w->loop_start = 0;
+	w->loop_length = 0;
 	w->times = -1;
 	w->eos = false;
 	w->err = false;
 	w->do_skip = false;
+	w->consumed_bytes = 0;
 
 	/* LOOPSTARTとLOOPLENGTHを取得する */
 	vc = ov_comment(&w->ovf, -1);
 	if (vc != NULL) {
 		for (i = 0; i < vc->comments; i++) {
-			if (strncmp(vc->user_comments[i], LOOPSTART,
-				    LOOPSTARTLEN) == 0) {
+			if (strncmp(vc->user_comments[i], LOOPSTART, LOOPSTART_LEN) == 0) {
 				w->loop = true;
-				w->loop_start = (uint32_t)atol(
-					vc->user_comments[i] + LOOPSTARTLEN);
-				break;
+				w->loop_start = (uint32_t)atol(vc->user_comments[i] + LOOPSTART_LEN);
+			} else if (strncmp(vc->user_comments[i], LOOPLENGTH, LOOPLENGTH_LEN) == 0) {
+				w->loop = true;
+				w->loop_length = (uint32_t)atol(vc->user_comments[i] + LOOPLENGTH_LEN);
 			}
 		}
 	}
@@ -260,8 +266,9 @@ int get_wave_samples(struct wave *w, uint32_t *buf, int samples)
 static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 {
 	unsigned char mbuf[IOSIZE];
-	long ret_bytes, last_ret_bytes;
-	int retain, read_bytes, bitstream, i;
+	long read_bytes, ret_bytes, last_ret_bytes;
+	int retain, bitstream, i;
+	bool loop_end;
 
 	/* サンプルの取得が完了するか、終端に達するまで続ける */
 	retain = 0;
@@ -271,20 +278,25 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 		skip_if_needed(w, 2);
 
 		/* デコードする */
-		read_bytes = (samples - retain) * 2 > 4096 ? 4096 :
+		read_bytes = (samples - retain) * 2 > IOSIZE ? IOSIZE :
 			     (samples - retain) * 2;
-		ret_bytes = ov_read(&w->ovf, (char *)mbuf, read_bytes, 0, 2,
-				    1, &bitstream);
+		loop_end = false;
+		if (w->loop_length > 0 &&
+		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
+			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
+			loop_end = true;
+		}
+		ret_bytes = ov_read(&w->ovf, (char *)mbuf, (int)read_bytes, 0, 2, 1, &bitstream);
 		if (ret_bytes == 0) {
 			/* 終端に達した */
-			if (w->loop && (w->times == -1 || w->times > 0)) {
+			if ((w->loop && (w->times == -1 || w->times > 0)) || loop_end) {
 				/* ストリームを再度オープンする */
 				if (last_ret_bytes == 0)
 					return 0; 	/* エラー */
 				ov_clear(&w->ovf);
 				if (!reopen(w, true))
 					return 0;	/* エラー */
-				last_ret_bytes = ret_bytes;
+				last_ret_bytes = 0;
 				if (w->times != -1)
 					w->times--;
 			} else {
@@ -311,8 +323,9 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 /* ステレオのサンプルを取得する */
 static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 {
-	long ret_bytes, last_ret_bytes;
+	long read_bytes, ret_bytes, last_ret_bytes;
 	int retain, bitstream;
+	bool loop_end;
 
 	/* サンプルの取得が完了するか、終端に達するまで続ける */
 	retain = 0;
@@ -322,19 +335,25 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 		skip_if_needed(w, 4);
 
 		/* デコードする */
-		ret_bytes = ov_read(&w->ovf, (char *)(buf + retain),
-				    (samples - retain) * 4, 0, 2, 1,
-				    &bitstream);
+		read_bytes = (samples - retain) * 4 > IOSIZE ? IOSIZE :
+			     (samples - retain) * 4;
+		loop_end = false;
+		if (w->loop_length > 0 &&
+		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
+			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
+			loop_end = true;
+		}
+		ret_bytes = ov_read(&w->ovf, (char *)(buf + retain), (int)read_bytes, 0, 2, 1, &bitstream);
 		if (ret_bytes == 0) {
 			/* 終端に達した */
-			if (w->loop && (w->times == -1 || w->times > 0)) {
+			if ((w->loop && (w->times == -1 || w->times > 0)) || loop_end) {
 				/* ストリームを再度オープンする */
 				if (last_ret_bytes == 0)
 					return 0; 	/* エラー */
 				ov_clear(&w->ovf);
 				if (!reopen(w, true))
 					return 0;	/* エラー */
-				last_ret_bytes = ret_bytes;
+				last_ret_bytes = 0;
 				if (w->times != -1)
 					w->times--;
 			} else {

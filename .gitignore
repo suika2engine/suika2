@@ -31,6 +31,11 @@ sav
 # Windows
 *.o
 libroot
+libroot-device
+libroot-sim
+libroot-macos
+libroot-ios-device
+libroot-ios-sim
 *.exe
 *.aps
 llvm
