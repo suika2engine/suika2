@@ -962,7 +962,7 @@ bool run_gui_mode(void)
 	process_se();
 
 	/* キャンセルされたとき */
-	if (is_finished) {
+	if (result_index == -1 && is_finished) {
 		if (is_in_command_repetition())
 			stop_command_repetition();
 	}
