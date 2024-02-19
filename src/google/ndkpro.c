@@ -685,6 +685,7 @@ void render_image_melt(struct image *src_img, struct image *rule_img, int progre
 	opengl_render_image_melt(src_img, rule_img, progress);
 }
 
+void
 render_image_3d_normal(
 	float x1,
 	float y1,
