@@ -5,13 +5,24 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/16.5 2024/2/20
+<li>Suika2/16.7 2024/2/19
   <ul>
-    <li>レンダリングのズレを解消 (Thanks to あさつき-san!)</li>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
 
+<li>Suika2/16.6 2024/2/20
+  <ul>
+    <li>セーブ画面を強制的に呼んだときのバグを修正 (Thanks to 松野-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.5 2024/2/20
+  <ul>
+    <li>レンダリングのズレを解消 (Thanks to あさつき-san!)</li>
+    <li>slide-leftを修正 (Thanks to 松野-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.4 2024/2/19
   <ul>
     <li>oggのLOOPLENGTHに対応 (Thanks to Ronron-san!)</li>
@@ -1269,13 +1280,24 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/16.5 2024/2/20
+<li>Suika2/16.7 2024/2/19
   <ul>
-    <li>Fixed rendering positions (Thanks to Asatsuki-san!)</li>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
 
+<li>Suika2/16.6 2024/2/20
+  <ul>
+    <li>Fixed a bug when calling save screen (Thanks to MATSUNO-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.5 2024/2/20
+  <ul>
+    <li>Fixed rendering positions (Thanks to Asatsuki-san!)</li>
+    <li>Fixed a bug of slide-left (Thanks to MATSUNO-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.4 2024/2/19
   <ul>
     <li>Added the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>

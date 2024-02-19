@@ -285,6 +285,7 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
 			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
 			loop_end = true;
+			w->consumed_bytes += read_bytes;
 		}
 		ret_bytes = ov_read(&w->ovf, (char *)mbuf, (int)read_bytes, 0, 2, 1, &bitstream);
 		if (ret_bytes == 0) {
@@ -335,13 +336,13 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 		skip_if_needed(w, 4);
 
 		/* デコードする */
-		read_bytes = (samples - retain) * 4 > IOSIZE ? IOSIZE :
-			     (samples - retain) * 4;
+		read_bytes = (samples - retain) * 4;
 		loop_end = false;
 		if (w->loop_length > 0 &&
 		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
 			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
 			loop_end = true;
+			w->consumed_bytes += read_bytes;
 		}
 		ret_bytes = ov_read(&w->ovf, (char *)(buf + retain), (int)read_bytes, 0, 2, 1, &bitstream);
 		if (ret_bytes == 0) {

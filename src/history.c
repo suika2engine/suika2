@@ -225,7 +225,8 @@ bool append_message(const char *msg)
 
 	/* 追記するヒストリ項目を求める */
 	h = &history[last_history_index];
-	assert(h->text != NULL);
+	if (h->text != NULL)
+		h->text = strdup("");
 
 	/* メモリを確保する */
 	new_text = malloc(strlen(h->text) + strlen(msg) + 1);

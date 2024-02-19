@@ -2795,7 +2795,7 @@ static void render_fade_slide_left(void)
 			    0,
 			    0,
 			    left,
-			    conf_window_width - left,
+			    conf_window_height,
 			    255);
 }
 

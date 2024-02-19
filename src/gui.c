@@ -961,6 +961,12 @@ bool run_gui_mode(void)
 	/* SEを再生する */
 	process_se();
 
+	/* キャンセルされたとき */
+	if (is_finished) {
+		if (is_in_command_repetition())
+			stop_command_repetition();
+	}
+
 	is_first_frame = false;
 	return true;
 }
