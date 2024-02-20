@@ -128,6 +128,18 @@ static bool process_normal_var(const char *lhs, const char *op,
 	/* 右辺の値を求める */
 	if (rhs[0] == '$' && strlen(rhs) > 1)
 		rval = get_variable(atoi(&rhs[1]));
+	else if (strcmp(rhs, "true") == 0)
+		rval = 1;
+	else if (strcmp(rhs, "false") == 0)
+		rval = 0;
+	else if (strcmp(rhs, "yes") == 0)
+		rval = 1;
+	else if (strcmp(rhs, "no") == 0)
+		rval = 0;
+	else if (strcmp(rhs, U8("はい")) == 0)
+		rval = 1;
+	else if (strcmp(rhs, U8("いいえ")) == 0)
+		rval = 0;
 	else
 		rval = atoi(rhs);
 
