@@ -284,7 +284,7 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 		loop_end = false;
 		if (w->loop_length > 0 &&
 		    w->consumed_bytes + read_bytes >= (long)(w->loop_start + w->loop_length) * 2) {
-			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
+			read_bytes = (long)(w->loop_start + w->loop_length) * 2 - w->consumed_bytes;
 			loop_end = true;
 		}
 		ret_bytes = ov_read(&w->ovf, (char *)mbuf, (int)read_bytes, 0, 2, 1, &bitstream);
@@ -342,7 +342,7 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 		loop_end = false;
 		if (w->loop_length > 0 &&
 		    w->consumed_bytes + read_bytes >= (long)(w->loop_start + w->loop_length) * 4) {
-			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
+			read_bytes = (long)(w->loop_start + w->loop_length) * 4 - w->consumed_bytes;
 			loop_end = true;
 		}
 		ret_bytes = ov_read(&w->ovf, (char *)(buf + retain), (int)read_bytes, 0, 2, 1, &bitstream);

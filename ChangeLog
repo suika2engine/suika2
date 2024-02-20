@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.13 2024/2/21
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.12 2024/2/20
   <ul>
     <li>変数の名前に対応 (${変数名}, 変数名はコンフィグのvar.name0=変数名) (Thanks to szmtharu-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.11 2024/2/20
   <ul>
     <li>@setコマンドに"true/false/yes/no/はい/いいえ"を追加 (Thanks to szmtharu-san!)</li>
@@ -1307,13 +1312,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.13 2024/2/21
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.12 2024/2/20
   <ul>
     <li>Added the support for variable aliases (${Var_Name}, use "var.name0=Var_Name" in the config) (Thanks to szmtharu-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.11 2024/2/20
   <ul>
     <li>Added the values, true/false/yes/no/はい/いいえ to the @set command (Thanks to szmtharu-san!)</li>
