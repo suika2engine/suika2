@@ -81,7 +81,7 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 	int i;
 
 	const char *LOOPSTART = "LOOPSTART=";
-	const char *LOOPLENGTH = "LOOPSTART=";
+	const char *LOOPLENGTH = "LOOPLENGTH=";
 	const size_t LOOPSTART_LEN = strlen(LOOPSTART);
 	const size_t LOOPLENGTH_LEN = strlen(LOOPLENGTH);
 
