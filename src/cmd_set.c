@@ -69,6 +69,18 @@ static bool process_normal_var(const char *lhs, const char *op,
 	if (strcmp(rhs, RANDOM_VARIABLE) == 0) {
 		srand((unsigned int)time(NULL));
 		rval = rand();
+	} else if (strcmp(rhs, "yes") == 0) {
+		rval = 1;
+	} else if (strcmp(rhs, "no") == 0) {
+		rval = 0;
+	} else if (strcmp(rhs, "true") == 0) {
+		rval = 1;
+	} else if (strcmp(rhs, "false") == 0) {
+		rval = 0;
+	} else if (strcmp(rhs, U8("はい")) == 0) {
+		rval = 1;
+	} else if (strcmp(rhs, U8("いいえ")) == 0) {
+		rval = 0;
 	} else if (rhs[0] == '$' && strlen(rhs) > 1) {
 		rval_index = atoi(&rhs[1]);
 		if (rval_index < 0 || rval_index >= VAR_SIZE) {
