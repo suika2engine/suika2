@@ -90,7 +90,7 @@ static bool process_normal_var(const char *lhs, const char *op,
 			       const char *rhs, const char *label,
 			       const char *finally_label)
 {
-	int lval, rval, cmp;
+	int lval_index, lval, rval, cmp;
 
 	/* 左辺の値を求める */
 	if (lhs[0] != '$' || strlen(lhs) == 1) {
@@ -98,7 +98,32 @@ static bool process_normal_var(const char *lhs, const char *op,
 		log_script_exec_footer();
 		return false;
 	}
-	lval = get_variable(atoi(&lhs[1]));
+	lval_index = -1;
+	if (lhs[1] == '{') {
+		char *stop = strstr(lhs, "}");
+		int len, i;
+		if (stop == NULL) {
+			log_script_not_variable(lhs);
+			return false;
+		}
+		len = (int)(stop - lhs) - 2;
+		lval_index = -1;
+		for (i = 0; i < NAMED_VAR_COUNT; i++) {
+			if (conf_var_name[i] == NULL)
+				continue;
+			if (strncmp(lhs + 2, conf_var_name[i], (size_t)len) == 0){
+				lval_index = i;
+				break;
+			}
+		}
+		if (lval_index == -1) {
+			log_script_not_variable(lhs);
+			return false;
+		}
+	} else {
+		lval_index = atoi(&lhs[1]);
+	}
+	lval = get_variable(lval_index);
 
 	/* 右辺の値を求める */
 	if (rhs[0] == '$' && strlen(rhs) > 1)

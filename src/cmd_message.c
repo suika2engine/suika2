@@ -2720,20 +2720,14 @@ static void set_click(void)
 	lap = get_lap_timer_millisec(&click_sw);
 
 	/* クリックアニメーションの表示を行う */
-	if (conf_click_disable) {
-		set_click_index(0);
-		show_click(true);
-		is_click_visible = true;
-	} else {
-		index = (int)((lap % (uint64_t)(conf_click_interval * 1000)) /
-			((uint64_t)(conf_click_interval * 1000) / (uint64_t)click_frames) %
-			      (uint64_t)click_frames);
-		index = index < 0 ? 0 : index;
-		index = index >= click_frames ? 0 : index;
-		set_click_index(index);
-		show_click(true);
-		is_click_visible = true;
-	}
+	index = (int)((lap % (uint64_t)(conf_click_interval * 1000)) /
+		((uint64_t)(conf_click_interval * 1000) / (uint64_t)click_frames) %
+		      (uint64_t)click_frames);
+	index = index < 0 ? 0 : index;
+	index = index >= click_frames ? 0 : index;
+	set_click_index(index);
+	show_click(true);
+	is_click_visible = true;
 }
 
 /* クリックアニメーションで入力があったら繰り返しを終了する */

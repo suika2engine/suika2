@@ -1404,7 +1404,7 @@ void render_stage(void)
 		render_layer_image(LAYER_NAME);
 	if (is_msgbox_visible)
 		render_layer_image(LAYER_CHF);
-	if (is_click_visible && !conf_click_disable)
+	if (is_click_visible)
 		render_layer_image(LAYER_CLICK);
 	if (is_auto_visible)
 		render_layer_image(LAYER_AUTO);

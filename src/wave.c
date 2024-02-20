@@ -283,7 +283,7 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 			     (samples - retain) * 2;
 		loop_end = false;
 		if (w->loop_length > 0 &&
-		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
+		    w->consumed_bytes + read_bytes >= (long)(w->loop_start + w->loop_length) * 2) {
 			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
 			loop_end = true;
 		}
@@ -341,7 +341,7 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 		read_bytes = (samples - retain) * 4;
 		loop_end = false;
 		if (w->loop_length > 0 &&
-		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
+		    w->consumed_bytes + read_bytes >= (long)(w->loop_start + w->loop_length) * 4) {
 			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
 			loop_end = true;
 		}
