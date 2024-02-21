@@ -341,8 +341,7 @@ static void process_button_render_preview(int index);
 static bool init_save_buttons(void);
 static void update_save_buttons(void);
 static void draw_save_button(int button_index);
-static int draw_save_text_item(int button_index, int x, int y,
-			       const char *text);
+static int draw_save_text_item(int button_index, int x, int y, const char *text, bool multiline);
 static void process_save(int button_index);
 static void process_load(int button_index);
 static void process_button_render_save(int button_index);
@@ -2324,7 +2323,7 @@ static void draw_save_button(int button_index)
 	}
 	width = draw_save_text_item(button_index,
 				    conf_save_data_thumb_width + b->margin * 2,
-				    b->margin, text);
+				    b->margin, text, false);
 
 	/* 章タイトルを描画する */
 	chapter = get_save_chapter_name(save_index);
@@ -2332,7 +2331,9 @@ static void draw_save_button(int button_index)
 		draw_save_text_item(button_index,
 				    conf_save_data_thumb_width +
 				    b->margin * 2 + width,
-				    b->margin, chapter);
+				    b->margin,
+				    chapter,
+				    false);
 	}
 
 	/* 最後のメッセージを描画する */
@@ -2341,7 +2342,8 @@ static void draw_save_button(int button_index)
 		draw_save_text_item(button_index,
 				    conf_save_data_thumb_width + b->margin * 2,
 				    b->margin + conf_msgbox_margin_line,
-				    msg);
+				    msg,
+				    true);
 	}
 
 	notify_image_update(b->rt.img);
@@ -2349,7 +2351,7 @@ static void draw_save_button(int button_index)
 
 /* セーブデータのテキストを描画する */
 static int draw_save_text_item(int button_index, int x, int y,
-			       const char *text)
+			       const char *text, bool multiline)
 {
 	struct draw_msg_context context;
 	struct gui_button *b;
@@ -2403,11 +2405,11 @@ static int draw_save_text_item(int button_index, int x, int y,
 		y,
 		b->width,
 		b->height,
-		0,		/* left_margin */
+		x,		/* left_margin */
 		b->margin,	/* right_margin */
 		0,		/* top_margin */
 		0,		/* bottom_margin */
-		conf_msgbox_margin_line,
+		multiline ? conf_msgbox_margin_line : 0,
 		conf_msgbox_margin_char,
 		color,
 		outline_color,

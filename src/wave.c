@@ -403,5 +403,5 @@ static void skip_if_needed(struct wave *w, int sample_bytes)
 	}
 
 	w->do_skip = false;
-	w->consumed_bytes = (long)w->loop_start;
+	w->consumed_bytes = (long)w->loop_start * sample_bytes;
 }

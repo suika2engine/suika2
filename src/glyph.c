@@ -1283,6 +1283,8 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			context->pen_y += context->line_margin;
 			context->pen_x = context->left_margin;
 			context->runtime_is_line_top = true;
+			if (context->pen_y + context->line_margin >= context->area_height)
+				return false; /* 描画終了 */
 		} else {
 			/* 右幅が足りる場合 */
 			if (line_top) {
@@ -1313,6 +1315,8 @@ static bool process_lf(struct draw_msg_context *context, uint32_t c, int glyph_w
 			context->pen_x -= context->line_margin;
 			context->pen_y = context->top_margin;
 			context->runtime_is_line_top = true;
+			if (context->pen_x + context->line_margin < 0)
+				return false; /* 描画終了 */
 		} else {
 			/* 下幅が足りる場合 */
 			if (line_top) {
