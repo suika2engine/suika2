@@ -2886,7 +2886,6 @@ void translate_command_to_message_for_runtime_error(int index)
 	c->type = COMMAND_MESSAGE;
 
 	/* rawテキストの先頭文字を'@'から'!'に変更する */
-	assert(c->text[0] == '@');
 	c->text[0] = '!';
 
 	/* メッセージとしてparam[0]に複製する */
