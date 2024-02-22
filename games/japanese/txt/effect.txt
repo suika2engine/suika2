@@ -1,0 +1,14 @@
+# 雨エフェクト開始
+# - 呼び出すには、@gosub start-rainとする
+:start-rain
+@layer effect1 effect/rain/1.png
+@layer effect2 effect/rain/1.png
+@anime rain.txt async,reg00
+@return
+
+# 雨エフェクト終了
+# - 呼び出すには、@gosub end-rainとする
+:end-rain
+@anime stop-all
+@anime unregister reg00
+@return

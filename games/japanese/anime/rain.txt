@@ -1,0 +1,44 @@
+#
+# Free Rain Effect
+#  - Developed by SOrow
+#
+
+# 奇数レイヤー (Odd Layer)
+
+effect1 {
+    layer: effect1;
+    clear: all;
+    start: 0.0;
+    end: 1.0;
+    from-scale-y:2.0;
+    from-scale-x:2.0;
+    from-x: 0;
+    from-y: -720;
+    from-a: 128;
+    to-scale-y:2.0;
+    to-scale-x:2.0;
+    to-x: 0;
+    to-y: 720;
+    to-a: 64;
+    loop: 0.0;
+}
+
+# 偶数レイヤー (Even Layer)
+
+effect2 {
+    layer: effect2;
+    clear: all;
+    start: 0.5;
+    end: 1.5;
+    from-scale-y:2.0;
+    from-scale-x:2.0;
+    from-x: 0;
+    from-y: -720;
+    from-a: 128;
+    to-scale-y:2.0;
+    to-scale-x:2.0;
+    to-x: 0;
+    to-y: 720;
+    to-a: 64;
+    loop: 0.5;
+}
