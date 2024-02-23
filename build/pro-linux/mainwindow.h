@@ -83,6 +83,9 @@ private:
     // Update the script model from text view content.
     void updateScriptModelFromText();
 
+    // Start with a template game.
+    void startWithTemplateGame(QString name);
+
     // Copy a template game.
     bool copyNewTemplateGame(const QString& name);
 

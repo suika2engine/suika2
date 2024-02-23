@@ -424,7 +424,7 @@ static void SIGSEGV_Handler(int n)
 
 	log_error(bEnglish ?
 			  "Sorry, Suika2 was crashed.\n"
-			  "Please send a bug report to the author."
+			  "Please send a bug report to the author." :
 			  "ご迷惑をかけ申し訳ございません。\n"
 			  "Suika2がクラッシュしました。\n"
 			  "バグ報告をいただけますと幸いです。\n");

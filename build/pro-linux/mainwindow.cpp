@@ -475,32 +475,7 @@ void MainWindow::scrollScript()
 //
 void MainWindow::on_actionNew_Project_English_Adv_triggered()
 {
-    // Open a project file.
-    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
-    if (filename.isEmpty())
-        return;
-
-    printf("%s\n", QDir(QFileInfo(filename).absoluteDir()).absolutePath().toUtf8().data());
-
-    // Set the current working directory.
-    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
-
-    // Copy the template.
-    if (!copyNewTemplateGame("english-adv")) {
-        printf("Copy error.\n");
-        return;
-    }
-
-    // Initialize.
-    init_locale_code();
-    if(!init_conf())
-        abort();
-
-    // Start game rendering.
-    ui->openGLWidget->start();
-
-    // FIXME: workaround
-    resize(this->width() + 1, this->height());
+    startWithTemplateGame("english-adv");
 }
 
 //
@@ -508,30 +483,7 @@ void MainWindow::on_actionNew_Project_English_Adv_triggered()
 //
 void MainWindow::on_actionNew_Project_English_Nvl_triggered()
 {
-    // Open a project file.
-    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
-    if (filename.isEmpty())
-        return;
-
-    printf("%s\n", QDir(filename).dirName().toUtf8().data());
-
-    // Set the current working directory.
-    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
-
-    // Copy the template.
-    if (!copyNewTemplateGame("english-nvl"))
-        return;
-
-    // Initialize.
-    init_locale_code();
-    if(!init_conf())
-        abort();
-
-    // Start game rendering.
-    ui->openGLWidget->start();
-
-    // FIXME: workaround
-    resize(this->width() + 1, this->height());
+    startWithTemplateGame("english-nvl");
 }
 
 //
@@ -539,30 +491,7 @@ void MainWindow::on_actionNew_Project_English_Nvl_triggered()
 //
 void MainWindow::on_actionNew_Project_Japanese_Adv_triggered()
 {
-    // Open a project file.
-    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
-    if (filename.isEmpty())
-        return;
-
-    printf("%s\n", QDir(filename).dirName().toUtf8().data());
-
-    // Set the current working directory.
-    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
-
-    // Copy the template.
-    if (!copyNewTemplateGame("japanese-adv"))
-        return;
-
-    // Initialize.
-    init_locale_code();
-    if(!init_conf())
-        abort();
-
-    // Start game rendering.
-    ui->openGLWidget->start();
-
-    // FIXME: workaround
-    resize(this->width() + 1, this->height());
+    startWithTemplateGame("japanese-adv");
 }
 
 //
@@ -570,30 +499,7 @@ void MainWindow::on_actionNew_Project_Japanese_Adv_triggered()
 //
 void MainWindow::on_actionNew_Project_Japanese_Nvl_triggered()
 {
-    // Open a project file.
-    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
-    if (filename.isEmpty())
-        return;
-
-    printf("%s\n", QDir(filename).dirName().toUtf8().data());
-
-    // Set the current working directory.
-    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
-
-    // Copy the template.
-    if (!copyNewTemplateGame("japanese-nvl"))
-        return;
-
-    // Initialize.
-    init_locale_code();
-    if(!init_conf())
-        abort();
-
-    // Start game rendering.
-    ui->openGLWidget->start();
-
-    // FIXME: workaround
-    resize(this->width() + 1, this->height());
+    startWithTemplateGame("japanese-nvl");
 }
 
 //
@@ -601,19 +507,25 @@ void MainWindow::on_actionNew_Project_Japanese_Nvl_triggered()
 //
 void MainWindow::on_actionNew_Project_Japanese_Nvl_Vertical_triggered()
 {
+    startWithTemplateGame("japanese-nvl-vertical");
+}
+
+// Copy a template game.
+void MainWindow::startWithTemplateGame(QString name)
+{
     // Open a project file.
     QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
     if (filename.isEmpty())
         return;
 
-    printf("%s\n", QDir(filename).dirName().toUtf8().data());
-
     // Set the current working directory.
     QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
 
     // Copy the template.
-    if (!copyNewTemplateGame("japanese-nvl-vertical"))
+    if (!copyNewTemplateGame(name)) {
+        log_error("Copy error.\n");
         return;
+    }
 
     // Initialize.
     init_locale_code();
@@ -633,10 +545,9 @@ bool MainWindow::copyNewTemplateGame(const QString& name)
     QDir src = QApplication::applicationDirPath();
     src.cd("../share/suika2/" + name);
 
-    QDir dst(".");
-
     // Copy a template directory.
-    copyFiles(src.path(), dst.path());
+    if (!copyFiles(src.path(), QDir::current().canonicalPath()))
+        return false;
 
     return true;
 }
@@ -844,7 +755,7 @@ void MainWindow::on_actionExport_for_Android_triggered()
                             "font", "gui", "mov", "rule", "se", "txt", "wms"};
     for (int i = 0; i < sizeof(subdir) / sizeof(const char *); i++) {
         QString src = subdir[i];
-        QString dst = "export-android";
+        QString dst = QDir::current().canonicalPath() + QDir::separator() + "export-android";
         copyFiles(src, dst);
     }
 
@@ -924,14 +835,26 @@ bool MainWindow::copyExportTemplateWithGame(const QString& name, bool copyArc)
     QDir src = QApplication::applicationDirPath();
     src.cd("../share/suika2/" + name);
 
-    QDir dst(".");
+    QDir dst = QDir::current();
+    dst.mkpath(name);
+    dst.cd(name);
 
     // Copy a template directory.
-    copyFiles(src.path(), dst.path());
+    copyFiles(src.canonicalPath(), dst.canonicalPath());
 
     // Copy an archive.
-    if (copyArc)
-        QFile::copy("data01.arc", dst.path() + QDir::separator() + "data01.arc");
+    if (copyArc) {
+        QString srcPath = QDir::current().canonicalPath() + QDir::separator() + "data01.arc";
+        QString dstPath = QDir::current().canonicalPath() + QDir::separator() + name + QDir::separator() + "data01.arc";
+        QFile dstFile(dstPath);
+        if (dstFile.exists()) {
+            printf("Removing %s\n", dstPath.toUtf8().data());
+            dstFile.remove();
+        }
+        printf("Copying %s to %s\n", srcPath.toUtf8().data(), dstPath.toUtf8().data());
+        if (!QFile::copy(srcPath, dstPath))
+            return false;
+    }
 
     return true;
 }
@@ -939,29 +862,36 @@ bool MainWindow::copyExportTemplateWithGame(const QString& name, bool copyArc)
 // Copy files recursively.
 bool MainWindow::copyFiles(QString src, QString dst)
 {
-    QDir dir(src);
-    if (!dir.exists()) {
-        log_error("Directory doesn't exist: %s", src.toUtf8().data());
+    if (!QDir(src).exists()) {
+        log_error("Source doesn't exist: %s", src.toUtf8().data());
         return false;
     }
 
-    foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        QString dst_path = dst + QDir::separator() + d;
-        dir.mkpath(dst_path);
-        copyFiles(src + QDir::separator() + d, dst_path);
+    foreach (QString d, QDir(src).entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        QString srcPath = QDir(src).canonicalPath() + QDir::separator() + d;
+        QString dstPath = QDir(dst).canonicalPath() + QDir::separator() + d;
+
+        QDir dstDir(dst);
+        dstDir.mkpath(d);
+
+        copyFiles(srcPath, dstPath);
     }
 
-    foreach (QString f, dir.entryList(QDir::Files)) {
-        system("pwd");
-        printf("Copying file %s to %s\n",
-               (src + QDir::separator() + f).toUtf8().data(),
-               (dst + QDir::separator() + f).toUtf8().data());
-        QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
-    }
+    foreach (QString f, QDir(src).entryList(QDir::Files)) {
+        QString srcPath = QDir(src).canonicalPath() + QDir::separator() + f;
+        QString dstPath = QDir(dst).canonicalPath() + QDir::separator() + f;
 
-    if (dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot).isEmpty() &&
-        dir.entryList(QDir::Files).isEmpty()) {
-        printf("%s is empty.\n", src.toUtf8().data());
+        QFile dstFile(dstPath);
+        if (dstFile.exists()) {
+            printf("Removing %s\n", dstPath);
+            dstFile.remove();
+        }
+
+        printf("Copyng %s to %s\n", srcPath.toUtf8().data(), dstPath.toUtf8().data());
+        if (!QFile::copy(srcPath, dstPath)) {
+            log_error("Copy failed.\n");
+            return false;
+        }
     }
 
     return true;

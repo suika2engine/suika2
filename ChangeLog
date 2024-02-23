@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.20 2024/2/23
+  <ul>
+    <li>Linux版の最新化</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.19 2024/2/23
   <ul>
     <li>自動カギカッコを使用する場合に行頭の文字装飾を処理できないバグを修正 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.18 2024/2/23
   <ul>
     <li>行頭の文字装飾が誤って継続行扱いになるバグを修正 (Thanks to Ronron-san!)</li>
@@ -1345,13 +1350,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.20 2024/2/23
+  <ul>
+    <li>New Linux version</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.19 2024/2/23
   <ul>
     <li>Fixed a bug where heading escape sequences are not applied (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.18 2024/2/23
   <ul>
     <li>Fixed a bug where heading escape sequences are recognized as continued lines (Thanks to Ronron-san!)</li>
