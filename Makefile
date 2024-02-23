@@ -41,7 +41,7 @@ install: build
 	@install -v -d $(DESTDIR)/share
 	@install -v -d $(DESTDIR)/share/suika2
 
-@install -v -d $(DESTDIR)/share/suika2/export-linux
+	@install -v -d $(DESTDIR)/share/suika2/export-linux
 	@install -v suika-linux $(DESTDIR)/share/suika2/export-linux/suika-runtime
 
 	@install -v -d $(DESTDIR)/share/suika2/export-ios
