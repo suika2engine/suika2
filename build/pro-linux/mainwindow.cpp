@@ -471,6 +471,175 @@ void MainWindow::scrollScript()
 }
 
 //
+// Make a new English ADV project.
+//
+void MainWindow::on_actionNew_Project_English_Adv_triggered()
+{
+    // Open a project file.
+    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
+    if (filename.isEmpty())
+        return;
+
+    printf("%s\n", QDir(filename).dirName().toUtf8().data());
+
+    // Set the current working directory.
+    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
+
+    // Copy the template.
+    if (!copyNewTemplateGame("english-adv"))
+        return;
+
+    // Initialize.
+    init_locale_code();
+    if(!init_conf())
+        abort();
+
+    // Start game rendering.
+    ui->openGLWidget->start();
+
+    // FIXME: workaround
+    resize(this->width() + 1, this->height());
+}
+
+//
+// Make a new English NVL project.
+//
+void MainWindow::on_actionNew_Project_English_Nvl_triggered()
+{
+    // Open a project file.
+    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
+    if (filename.isEmpty())
+        return;
+
+    printf("%s\n", QDir(filename).dirName().toUtf8().data());
+
+    // Set the current working directory.
+    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
+
+    // Copy the template.
+    if (!copyNewTemplateGame("english-nvl"))
+        return;
+
+    // Initialize.
+    init_locale_code();
+    if(!init_conf())
+        abort();
+
+    // Start game rendering.
+    ui->openGLWidget->start();
+
+    // FIXME: workaround
+    resize(this->width() + 1, this->height());
+}
+
+//
+// Make a new Japanese ADV project.
+//
+void MainWindow::on_actionNew_Project_Japanese_Adv_triggered()
+{
+    // Open a project file.
+    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
+    if (filename.isEmpty())
+        return;
+
+    printf("%s\n", QDir(filename).dirName().toUtf8().data());
+
+    // Set the current working directory.
+    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
+
+    // Copy the template.
+    if (!copyNewTemplateGame("japanese-adv"))
+        return;
+
+    // Initialize.
+    init_locale_code();
+    if(!init_conf())
+        abort();
+
+    // Start game rendering.
+    ui->openGLWidget->start();
+
+    // FIXME: workaround
+    resize(this->width() + 1, this->height());
+}
+
+//
+// Make a new Japanese NVL project.
+//
+void MainWindow::on_actionNew_Project_Japanese_Nvl_triggered()
+{
+    // Open a project file.
+    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
+    if (filename.isEmpty())
+        return;
+
+    printf("%s\n", QDir(filename).dirName().toUtf8().data());
+
+    // Set the current working directory.
+    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
+
+    // Copy the template.
+    if (!copyNewTemplateGame("japanese-nvl"))
+        return;
+
+    // Initialize.
+    init_locale_code();
+    if(!init_conf())
+        abort();
+
+    // Start game rendering.
+    ui->openGLWidget->start();
+
+    // FIXME: workaround
+    resize(this->width() + 1, this->height());
+}
+
+//
+// Make a new Japanese NVL (vertical) project.
+//
+void MainWindow::on_actionNew_Project_Japanese_Nvl_Vertical_triggered()
+{
+    // Open a project file.
+    QString filename = QFileDialog::getSaveFileName(this, "Create", QString("game.suika2project"), QObject::tr("Suika2 Project (*.suika2project)"), nullptr);
+    if (filename.isEmpty())
+        return;
+
+    printf("%s\n", QDir(filename).dirName().toUtf8().data());
+
+    // Set the current working directory.
+    QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
+
+    // Copy the template.
+    if (!copyNewTemplateGame("japanese-nvl-vertical"))
+        return;
+
+    // Initialize.
+    init_locale_code();
+    if(!init_conf())
+        abort();
+
+    // Start game rendering.
+    ui->openGLWidget->start();
+
+    // FIXME: workaround
+    resize(this->width() + 1, this->height());
+}
+
+// Copy a template game.
+bool MainWindow::copyNewTemplateGame(const QString& name)
+{
+    QDir src = QApplication::applicationDirPath();
+    src.cd("../share/suika2/" + name);
+
+    QDir dst(".");
+
+    // Copy a template directory.
+    copyFiles(src.path(), dst.path());
+
+    return true;
+}
+
+//
 // Open a project.
 //
 void MainWindow::on_actionOpen_Project_triggered()
@@ -769,8 +938,10 @@ bool MainWindow::copyExportTemplateWithGame(const QString& name, bool copyArc)
 bool MainWindow::copyFiles(QString src, QString dst)
 {
     QDir dir(src);
-    if (!dir.exists())
+    if (!dir.exists()) {
+        log_error("Directory doesn't exist: %s", src.toUtf8());
         return false;
+    }
 
     foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         QString dst_path = dst + QDir::separator() + d;

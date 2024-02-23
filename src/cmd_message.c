@@ -966,10 +966,13 @@ static bool is_escape_sequence_char(char c)
 {
 	switch (c) {
 	case 'n': /* 改行 */
+	case 'f': /* フォント */
+	case 'o': /* ふちどり */
 	case '#': /* 文字色 */
 	case '@': /* 文字サイズ */
 	case 'w': /* インラインウェイト */
 	case 'p': /* ペン移動 */
+	case '^': /* ルビ */
 		return true;
 	default:
 		break;

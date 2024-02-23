@@ -1102,6 +1102,78 @@ void render_image_melt(struct image *src_img,
 }
 
 /*
+ * Renders an image to the screen with the "normal" shader pipeline.
+ */
+void
+render_image_3d_normal(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	opengl_render_image_3d_normal(x1,
+				      y1,
+				      x2,
+				      y2,
+				      x3,
+				      y3,
+				      x4,
+				      y4,
+				      src_image,
+				      src_left,
+				      src_top,
+				      src_width,
+				      src_height,
+				      alpha);
+}
+
+/*
+ * Renders an image to the screen with the "add" shader pipeline.
+ */
+void
+render_image_3d_add(
+	float x1,
+	float y1,
+	float x2,
+	float y2,
+	float x3,
+	float y3,
+	float x4,
+	float y4,
+	struct image *src_image,
+	int src_left,
+	int src_top,
+	int src_width,
+	int src_height,
+	int alpha)
+{
+	opengl_render_image_3d_add(x1,
+				   y1,
+				   x2,
+				   y2,
+				   x3,
+				   y3,
+				   x4,
+				   y4,
+				   src_image,
+				   src_left,
+				   src_top,
+				   src_width,
+				   src_height,
+				   alpha);
+}
+
+/*
  * セーブディレクトリを作成する
  */
 bool make_sav_dir(void)
