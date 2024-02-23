@@ -26,7 +26,7 @@ suika-pro:
 		make && \
 		cp suika-pro ../../../ && \
 		cd ../../..
-	@cd buiild/engine-android && \
+	@cd build/engine-android && \
 		make src && \
 		cd ../../
 	@cd buiild/engine-android && \
@@ -40,7 +40,7 @@ install: build
 
 	@install -v -d $(DESTDIR)/share
 	@install -v -d $(DESTDIR)/share/suika2
-	@install -v -d $(DESTDIR)/share/suika2/export-linux
+@install -v -d $(DESTDIR)/share/suika2/export-linux
 	@install -v suika-linux $(DESTDIR)/share/suika2/export-linux/suika-runtime
 
 	@install -v -d $(DESTDIR)/share/suika2/export-ios
