@@ -5,6 +5,13 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.19 2024/2/23
+  <ul>
+    <li>自動カギカッコを使用する場合に行頭の文字装飾を処理できないバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.18 2024/2/23
   <ul>
     <li>行頭の文字装飾が誤って継続行扱いになるバグを修正 (Thanks to Ronron-san!)</li>
@@ -12,8 +19,6 @@ This file is referred by some automatic release scripts.
     <li>日本語のカギカッコの前にエスケープシーケンスが来るときを考慮 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.17 2024/2/22
   <ul>
     <li>引数が足りないとき、全角スペースの混入を指摘する機能を追加 (Thanks to Mirin-san!)</li>
@@ -1340,6 +1345,13 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.19 2024/2/23
+  <ul>
+    <li>Fixed a bug where heading escape sequences are not applied (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.18 2024/2/23
   <ul>
     <li>Fixed a bug where heading escape sequences are recognized as continued lines (Thanks to Ronron-san!)</li>
@@ -1347,8 +1359,6 @@ Release History (English)
     <li>Support a special case where escape sequeces appears before a Japanese quotation (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.17 2024/2/22
   <ul>
     <li>Added an warning for full-width spaces (Thanks to Mirin-san!)</li>

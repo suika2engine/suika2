@@ -341,11 +341,14 @@ bool is_quoted_serif(const char *msg)
 
 	while (*msg == '\\') {
 		if (*(msg + 1) == 'n') {
-			msg++;
-		} else if (*(msg + 1) == '{') {
 			msg += 2;
+			continue;
+		}
+		if (*(msg + 1) != '\0' && *(msg + 2) == '{') {
+			msg += 3;
 			while (*msg++ != '}')
 				;
+			continue;
 		}
 		msg++;
 	}

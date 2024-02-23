@@ -113,7 +113,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="openScriptButton">
+    <widget class="QPushButton" name="openScriptFileButton">
      <property name="geometry">
       <rect>
        <x>205</x>
@@ -281,6 +281,11 @@
   <action name="actionExport_for_Android">
    <property name="text">
     <string>Export for iOS</string>
+   </property>
+  </action>
+  <action name="actionExport_for_Web">
+   <property name="text">
+    <string>Export for Web</string>
    </property>
   </action>
   <action name="actionExport_package_only">

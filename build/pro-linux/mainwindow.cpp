@@ -310,7 +310,7 @@ void MainWindow::setWaitingState()
     ui->fileNameTextEdit->setEnabled(false);
 
     // Disable the script open button.
-    ui->openScriptButton->setEnabled(false);
+    ui->openScriptFileButton->setEnabled(false);
 
     // Enable the script view.
     ui->scriptView->setEnabled(true);
@@ -356,7 +356,7 @@ void MainWindow::setRunningState()
     ui->fileNameTextEdit->setEnabled(false);
 
     // Disable the script open button.
-    ui->openScriptButton->setEnabled(false);
+    ui->openScriptFileButton->setEnabled(false);
 
     // Enable the script view.
     ui->scriptView->setEnabled(true);
@@ -402,7 +402,7 @@ void MainWindow::setStoppedState()
     ui->fileNameTextEdit->setEnabled(true);
 
     // Enable the script open button.
-    ui->openScriptButton->setEnabled(true);
+    ui->openScriptFileButton->setEnabled(true);
 
     // Enable the script view.
     ui->scriptView->setEnabled(true);
@@ -480,14 +480,16 @@ void MainWindow::on_actionNew_Project_English_Adv_triggered()
     if (filename.isEmpty())
         return;
 
-    printf("%s\n", QDir(filename).dirName().toUtf8().data());
+    printf("%s\n", QDir(QFileInfo(filename).absoluteDir()).absolutePath().toUtf8().data());
 
     // Set the current working directory.
     QDir::setCurrent(QDir(QFileInfo(filename).absoluteDir()).absolutePath());
 
     // Copy the template.
-    if (!copyNewTemplateGame("english-adv"))
+    if (!copyNewTemplateGame("english-adv")) {
+        printf("Copy error.\n");
         return;
+    }
 
     // Initialize.
     init_locale_code();
@@ -612,6 +614,8 @@ void MainWindow::on_actionNew_Project_Japanese_Nvl_Vertical_triggered()
     // Copy the template.
     if (!copyNewTemplateGame("japanese-nvl-vertical"))
         return;
+
+    system("pwd");
 
     // Initialize.
     init_locale_code();
@@ -939,9 +943,11 @@ bool MainWindow::copyFiles(QString src, QString dst)
 {
     QDir dir(src);
     if (!dir.exists()) {
-        log_error("Directory doesn't exist: %s", src.toUtf8());
+        log_error("Directory doesn't exist: %s", src.toUtf8().data());
         return false;
     }
+
+    printf("Copying directory %s\n", src.toUtf8().data());
 
     foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         QString dst_path = dst + QDir::separator() + d;
@@ -950,7 +956,13 @@ bool MainWindow::copyFiles(QString src, QString dst)
     }
 
     foreach (QString f, dir.entryList(QDir::Files)) {
+        printf("Copying file %s\n", (src + QDir::separator() + f).toUtf8().data());
         QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
+    }
+
+    if (dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot).isEmpty() &&
+        dir.entryList(QDir::Files).isEmpty()) {
+        printf("%s is empty.\n", src.toUtf8().data());
     }
 
     return true;

@@ -1111,11 +1111,9 @@ static char *concat_serif(const char *name, const char *serif)
 
 	/* 先頭の'\\' 'n'をカウントする */
 	lf = 0;
-	while (*serif == '\\') {
-		if (*(serif + 1) == 'n') {
-			lf++;
-			serif += 2;
-		}
+	while (*serif == '\\' && *(serif + 1) == 'n') {
+		lf++;
+		serif += 2;
 	}
 
 	/* 先頭の改行の先の文字列を作る */
