@@ -615,8 +615,6 @@ void MainWindow::on_actionNew_Project_Japanese_Nvl_Vertical_triggered()
     if (!copyNewTemplateGame("japanese-nvl-vertical"))
         return;
 
-    system("pwd");
-
     // Initialize.
     init_locale_code();
     if(!init_conf())
@@ -947,8 +945,6 @@ bool MainWindow::copyFiles(QString src, QString dst)
         return false;
     }
 
-    printf("Copying directory %s\n", src.toUtf8().data());
-
     foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         QString dst_path = dst + QDir::separator() + d;
         dir.mkpath(dst_path);
@@ -956,7 +952,10 @@ bool MainWindow::copyFiles(QString src, QString dst)
     }
 
     foreach (QString f, dir.entryList(QDir::Files)) {
-        printf("Copying file %s\n", (src + QDir::separator() + f).toUtf8().data());
+        system("pwd");
+        printf("Copying file %s to %s\n",
+               (src + QDir::separator() + f).toUtf8().data(),
+               (dst + QDir::separator() + f).toUtf8().data());
         QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
     }
 

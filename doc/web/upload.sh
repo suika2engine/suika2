@@ -7,9 +7,11 @@ fi
 
 function upload()
 {
-    $SED -e 's|.*INSERT-GTAG-HERE.*|\<script async src="https://www.googletagmanager.com/gtag/js\?id=G-PLYR5Y3JSJ"\>\</script\>\<script\>window.dataLayer = window.dataLayer \|\| \[\];function gtag\(\){dataLayer.push\(arguments\);}gtag\("js", new Date\(\)\);gtag\("config", "G-PLYR5Y3JSJ"\);\</script\>|' < $1 > tmp
-    ftp-upload.sh tmp $1;
-    rm tmp
+    ftp-upload.sh $1;
+
+#   $SED -e 's|.*INSERT-GTAG-HERE.*|\<script async src="https://www.googletagmanager.com/gtag/js\?id=G-PLYR5Y3JSJ"\>\</script\>\<script\>window.dataLayer = window.dataLayer \|\| \[\];function gtag\(\){dataLayer.push\(arguments\);}gtag\("js", new Date\(\)\);gtag\("config", "G-PLYR5Y3JSJ"\);\</script\>|' < $1 > tmp;
+#   ftp-upload.sh tmp $1;
+#   rm tmp;
 }
 
 upload index.html
