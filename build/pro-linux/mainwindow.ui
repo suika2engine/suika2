@@ -218,8 +218,6 @@
      <string>Export</string>
     </property>
     <addaction name="actionExport_for_Linux"/>
-    <addaction name="actionExport_for_Windows"/>
-    <addaction name="actionExport_for_macOS"/>
     <addaction name="actionExport_for_iOS"/>
     <addaction name="actionExport_for_Android"/>
     <addaction name="actionExport_for_Web"/>

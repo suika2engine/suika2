@@ -614,6 +614,7 @@ void MainWindow::on_actionExport_for_Linux_triggered()
     QDesktopServices::openUrl(QUrl::fromLocalFile("export-linux"));
 }
 
+#if 0
 //
 // Export for Windows.
 //
@@ -683,6 +684,7 @@ void MainWindow::on_actionExport_for_macOS_triggered()
     // Open the folder.
     QDesktopServices::openUrl(QUrl::fromLocalFile("export-macos"));
 }
+#endif
 
 //
 // Export for iOS.
