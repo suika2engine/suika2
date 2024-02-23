@@ -3,7 +3,7 @@
 set -eu
 
 # Get the version of Suika2.
-VERSION=`grep -a1 '<!-- BEGIN-LATEST -->' ../../doc/readme-jp.html | tail -n1`
+VERSION=`grep -a1 '<!-- BEGIN-LATEST-JP -->' ../../ChangeLog | tail -n1`
 VERSION=`echo $VERSION | cut -d '>' -f 2 | cut -d ' ' -f 1`
 VERSION=`echo $VERSION | cut -d '/' -f 2`
 
