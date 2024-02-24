@@ -2730,35 +2730,35 @@ static void render_fade_curtain_down(void)
 /* 右方向スライドフェードの描画を行う */
 static void render_fade_slide_right(void)
 {
-	int right;
+	int shift;
 
 	/*
 	 * スライドの右端を求める
 	 *  - スライドの右端は0からconf_window_widthになる
 	 */
-	right = (int)((float)conf_window_width * fi_fo_fade_progress);
+	shift = (int)((float)conf_window_width * fi_fo_fade_progress);
 
 	/* 左側の背景を表示する */
-	render_image_normal(0,
+	render_image_normal(-(conf_window_width - shift),
 			    0,
-			    right,
+			    conf_window_width,
 			    conf_window_height,
 			    fi_image,
 			    0,
 			    0,
-			    right,
+			    conf_window_width,
 			    conf_window_height,
 			    255);
 
 	/* 右側の背景を表示する */
-	render_image_normal(right,
+	render_image_normal(shift,
 			    0,
-			    conf_window_width - right,
+			    conf_window_width,
 			    conf_window_height,
 			    fo_image,
-			    right,
 			    0,
-			    conf_window_width - right,
+			    0,
+			    conf_window_width,
 			    conf_window_height,
 			    255);
 }
@@ -2766,13 +2766,14 @@ static void render_fade_slide_right(void)
 /* 左方向スライドフェードの描画を行う */
 static void render_fade_slide_left(void)
 {
-	int left;
+	int shift, left;
 
 	/*
 	 * スライドの左端を求める
 	 *  - スライドの左端はconf_window_widthから0になる
 	 */
-	left = conf_window_width - (int)((float)conf_window_width * fi_fo_fade_progress);
+	shift = (int)((float)conf_window_width * fi_fo_fade_progress);
+	left = conf_window_width - shift;
 
 	/* 右側の背景を表示する */
 	render_image_normal(left,
@@ -2780,21 +2781,21 @@ static void render_fade_slide_left(void)
 			    conf_window_width - left,
 			    conf_window_height,
 			    fi_image,
-			    left,
+			    0,
 			    0,
 			    conf_window_width - left,
 			    conf_window_height,
 			    255);
 
 	/* 左側の背景を表示する */
-	render_image_normal(0,
+	render_image_normal(-shift,
 			    0,
-			    left,
+			    conf_window_width,
 			    conf_window_height,
 			    fo_image,
 			    0,
 			    0,
-			    left,
+			    conf_window_width,
 			    conf_window_height,
 			    255);
 }
@@ -2802,36 +2803,37 @@ static void render_fade_slide_left(void)
 /* 上方向スライドフェードの描画を行う */
 static void render_fade_slide_up(void)
 {
-	int top;
+	int shift, top;
 
 	/*
 	 * スライドの上端を求める
 	 *  - スライドの上端はconf_window_heightから0になる
 	 */
-	top = conf_window_height - (int)((float)conf_window_height * fi_fo_fade_progress);
+	shift = (int)((float)conf_window_height * fi_fo_fade_progress);
+	top = conf_window_height - shift;
 
 	/* 上側の背景を表示する */
 	render_image_normal(0,
-			    0,
+			    -shift,
 			    conf_window_width,
-			    top,
+			    conf_window_height,
 			    fo_image,
 			    0,
-			    conf_window_height - top,
+			    0,
 			    conf_window_width,
-			    top,
+			    conf_window_height,
 			    255);
 
 	/* 下側の背景を表示する */
 	render_image_normal(0,
 			    top,
 			    conf_window_width,
-			    conf_window_height - top,
+			    conf_window_height,
 			    fi_image,
 			    0,
 			    0,
 			    conf_window_width,
-			    conf_window_height - top,
+			    conf_window_height,
 			    255);
 }
 
