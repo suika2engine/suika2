@@ -1,6 +1,5 @@
 #
-# Free Snow Effect
-#  - Developed by SOrow
+# SOrow Effect Collection 2: Snow Effect
 #
 
 # Fading In

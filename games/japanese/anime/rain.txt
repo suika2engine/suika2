@@ -1,9 +1,8 @@
 #
-# Free Rain Effect
-#  - Developed by SOrow
+# SOrow Effect Collection 1: Rain Effect
 #
 
-# フェードイン
+# Fading In
 
 effect2 {
     layer: effect2;
@@ -22,7 +21,7 @@ effect2 {
     to-scale-y:2.0;
 }
 
-# ループ本体
+# Loop Body
 
 # 奇数レイヤー (Odd Layer)
 

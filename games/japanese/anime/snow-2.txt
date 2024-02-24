@@ -1,6 +1,5 @@
 #
-# Free Snow Effect (slash)
-#  - Developed by SOrow
+# SOrow Effect Collection 3: Powder Snow Effect
 #
 
 # Fading In

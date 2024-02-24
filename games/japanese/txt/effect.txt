@@ -1,6 +1,5 @@
 #
-# Free Effects
-#  - Developed by SOrow
+# SOrow Effect Collection
 #
 
 #
@@ -39,7 +38,7 @@
 :start-powder-snow
 @layer effect1 effect/snow/snow-powder-small2.png
 @layer effect2 effect/snow/snow-powder-small2.png
-@anime snow.txt async,reg00
+@anime snow-2.txt async,reg00
 @return
 
 # 雪エフェクト終了
