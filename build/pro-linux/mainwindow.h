@@ -57,8 +57,6 @@ private slots:
     void on_actionNew_Project_Japanese_Nvl_Vertical_triggered();
     void on_actionOpen_Project_triggered();
     void on_actionExport_for_Linux_triggered();
-    void on_actionExport_for_iOS_triggered();
-    void on_actionExport_for_Android_triggered();
     void on_actionExport_for_Web_triggered();
     void on_actionExport_package_only_triggered();
 

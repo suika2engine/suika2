@@ -26,12 +26,6 @@ suika-pro:
 		make && \
 		cp suika-pro ../../../ && \
 		cd ../../..
-	@cd build/engine-ios && \
-		make src && \
-		cd ../../
-	@cd build/engine-android && \
-		make src && \
-		cd ../../
 
 install: build
 	@install -v -d $(DESTDIR)/bin
@@ -43,14 +37,6 @@ install: build
 
 	@install -v -d $(DESTDIR)/share/suika2/export-linux
 	@install -v suika-linux $(DESTDIR)/share/suika2/export-linux/suika-runtime
-
-	@install -v -d $(DESTDIR)/share/suika2/export-ios
-	@cd build/engine-ios/ios-src && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/export-ios/{}" ';' && cd ../../..
-	@cd build/engine-ios/ios-src && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/export-ios/{}" ';' && cd ../../..
-
-	@install -v -d $(DESTDIR)/share/suika2/export-android
-	@cd build/engine-android/android-src && find . -type d -exec install -v -d "$(DESTDIR)/share/suika2/export-android/{}" ';' && cd ../../..
-	@cd build/engine-android/android-src && find . -type f -exec install -v "{}" "$(DESTDIR)/share/suika2/export-android/{}" ';' && cd ../../..
 
 	@install -v -d $(DESTDIR)/share/suika2/export-web
 	@install -v build/engine-wasm/html/index.html $(DESTDIR)/share/suika2/export-web

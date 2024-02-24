@@ -684,7 +684,6 @@ void MainWindow::on_actionExport_for_macOS_triggered()
     // Open the folder.
     QDesktopServices::openUrl(QUrl::fromLocalFile("export-macos"));
 }
-#endif
 
 //
 // Export for iOS.
@@ -764,6 +763,7 @@ void MainWindow::on_actionExport_for_Android_triggered()
     // Open the folder.
     QDesktopServices::openUrl(QUrl::fromLocalFile("export-android"));
 }
+#endif
 
 //
 // Export for Web.
