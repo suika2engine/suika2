@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/16.31 2024/2/24
+<li>Suika2/16.32 2024/2/24
   <ul>
     <li>内部バージョン</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
+<li>Suika2/16.31 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
 <li>Suika2/16.30 2024/2/24
   <ul>
     <li>内部バージョン</li>
@@ -1409,12 +1414,17 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/16.31 2024/2/24
+<li>Suika2/16.32 2024/2/24
   <ul>
     <li>Internal version</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
+<li>Suika2/16.31 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
 <li>Suika2/16.30 2024/2/24
   <ul>
     <li>Internal version</li>
