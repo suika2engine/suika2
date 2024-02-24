@@ -34,14 +34,8 @@ src:
 	@
 	@cp -R engine-ios engine-ios.xcodeproj ios-src/
 	@rm -f ios-src/engine-ios/data01.arc
-	@
-	@if [ -z "`uname -a | grep Linux`" ]; then \
-		sed -e 's|../../src/apple/|engine-ios/apple/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj; \
-		sed -e 's|../../src/|engine-ios/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj; \
-	else \
-		gsed -e 's|../../src/apple/|engine-ios/apple/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj; \
-		gsed -e 's|../../src/|engine-ios/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj; \
-	fi
+	@sed -e 's|../../src/apple/|engine-ios/apple/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj; \
+	@sed -e 's|../../src/|engine-ios/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj; \
 	@mkdir -p ios-src/engine-ios/apple
 	@cp ../../src/apple/GameRenderer.h ios-src/engine-ios/apple/
 	@cp ../../src/apple/GameRenderer.m ios-src/engine-ios/apple/
