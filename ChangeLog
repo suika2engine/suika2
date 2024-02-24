@@ -7,10 +7,15 @@ This file is referred by some automatic release scripts.
 <!-- BEGIN-LATEST-JP -->
 <li>Suika2/16.29 2024/2/24
   <ul>
-    <li>エフェクト "雪" と "粉雪" (SOrow Effect Collection) を追加</li>
+    <li>内部バージョン</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
+<li>Suika2/16.29 2024/2/24
+  <ul>
+    <li>エフェクト "雪" と "粉雪" (SOrow Effect Collection) を追加</li>
+  </ul>
+</li>
 <li>Suika2/16.28 2024/2/24
   <ul>
     <li>内部バージョン</li>
@@ -1394,15 +1399,15 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/16.29 2024/2/24
+<li>Suika2/16.30 2024/2/24
   <ul>
-    <li>Added SOrow Effect Collection "Snow" and "Powder Snow"</li>
+    <li>Internal version</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
-<li>Suika2/16.28 2024/2/24
+<li>Suika2/16.29 2024/2/24
   <ul>
-    <li>Internal version</li>
+    <li>Added SOrow Effect Collection "Snow" and "Powder Snow"</li>
   </ul>
 </li>
 <li>Suika2/16.27 2024/2/24
