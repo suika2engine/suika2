@@ -29,7 +29,7 @@ suika-pro:
 	@cd build/engine-android && \
 		make src && \
 		cd ../../
-	@cd buiild/engine-android && \
+	@cd build/engine-android && \
 		make src && \
 		cd ../../
 
