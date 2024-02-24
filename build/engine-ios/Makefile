@@ -34,8 +34,8 @@ src:
 	@
 	@cp -R engine-ios engine-ios.xcodeproj ios-src/
 	@rm -f ios-src/engine-ios/data01.arc
-	@sed -e 's|../../src/apple/|engine-ios/apple/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj; \
-	@sed -e 's|../../src/|engine-ios/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj; \
+	@sed -e 's|../../src/apple/|engine-ios/apple/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj
+	@sed -e 's|../../src/|engine-ios/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj
 	@mkdir -p ios-src/engine-ios/apple
 	@cp ../../src/apple/GameRenderer.h ios-src/engine-ios/apple/
 	@cp ../../src/apple/GameRenderer.m ios-src/engine-ios/apple/
