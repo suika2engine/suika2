@@ -120,6 +120,26 @@ bool get_variable_by_string(const char *var, int32_t *val)
 		return false;
 	}
 
+	if (var[1] == '{') {
+		char *stop = strstr(var, "}");
+		int len, i;
+		if (stop == NULL) {
+			log_script_not_variable(var);
+			return false;
+		}
+		len = (int)(stop - var) - 2;
+		for (i = 0; i < NAMED_VAR_COUNT; i++) {
+			if (conf_var_name[i] == NULL)
+				continue;
+			if (strncmp(var + 2, conf_var_name[i], (size_t)len) == 0){
+				*val = get_variable(i);
+				return true;
+			}
+		}
+		log_script_not_variable(var);
+		return false;
+	}
+
 	index = atoi(&var[1]);
 	if (index < 0 || index >= VAR_SIZE) {
 		log_script_var_index(index);
@@ -143,7 +163,31 @@ bool set_variable_by_string(const char *var, int32_t val)
 		return false;
 	}
 
-	index = atoi(&var[1]);
+	index = -1;
+	if (var[1] == '{') {
+		char *stop = strstr(var, "}");
+		int len, i;
+		if (stop == NULL) {
+			log_script_not_variable(var);
+			return false;
+		}
+		len = (int)(stop - var) - 2;
+		for (i = 0; i < NAMED_VAR_COUNT; i++) {
+			if (conf_var_name[i] == NULL)
+				continue;
+			if (strncmp(var + 2, conf_var_name[i], (size_t)len) == 0){
+				index = i;
+				break;
+			}
+		}
+		if (index == -1) {
+			log_script_not_variable(var);
+			return false;
+		}
+	} else {
+		index = atoi(&var[1]);
+	}
+
 	if (index < 0 || index >= VAR_SIZE) {
 		log_script_var_index(index);
 		log_script_exec_footer();
@@ -248,27 +292,42 @@ const char *expand_variable_with_increment(const char *msg, int inc)
 
 			/* 変数番号を取得する */
 			msg++;
-			for (i = 0; i < 5; i++) {
-				if (isdigit((int)*msg))
-					var[i] = *msg++;
-				else
-					break;
+			index = -1;
+			if (*msg == '{') {
+				char *stop = strstr(var, "}");
+				int len, i;
+				if (stop == NULL) {
+					log_script_not_variable(var);
+					return false;
+				}
+				len = (int)(stop - var) - 2;
+				for (i = 0; i < NAMED_VAR_COUNT; i++) {
+					if (conf_var_name[i] == NULL)
+						continue;
+					if (strncmp(var + 2, conf_var_name[i], (size_t)len) == 0){
+						index = i;
+						break;
+					}
+				}
+			} else {
+				for (i = 0; i < 5; i++) {
+					if (isdigit((int)*msg))
+						var[i] = *msg++;
+					else
+						break;
+				}
+				var[i] = '\0';
+				index = atoi(var);
 			}
-			var[i] = '\0';
 
 			/* 変数番号から値を取得して文字列にする */
-			if (i > 0) {
-				index = atoi(var);
-				if (index >= 0 && index < VAR_SIZE) {
-					value = get_variable(index);
-					d += snprintf(d,
-						      buf_size -
-						      (size_t)(d -
-							       expand_variable_buf),
-						      "%d",
-						      value);
-					set_variable(index, value + inc);
-				}
+			if (index >= 0 && index < VAR_SIZE) {
+				value = get_variable(index);
+				d += snprintf(d,
+					      buf_size - (size_t)(d - expand_variable_buf),
+					      "%d",
+					      value);
+				set_variable(index, value + inc);
 			} else {
 				/* 不正な変数番号の場合、$を出力する */
 				*d++ = '$';

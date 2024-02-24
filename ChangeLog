@@ -5,13 +5,168 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.33 2024/2/24
+  <ul>
+    <li>背景変更時のエフェクトのうちslide系とshutter系の修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+<li>Suika2/16.32 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.31 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.30 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.29 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.29 2024/2/24
+  <ul>
+    <li>エフェクト "雪" と "粉雪" (SOrow Effect Collection) を追加</li>
+  </ul>
+</li>
+<li>Suika2/16.28 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.27 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.26 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.25 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.24 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.23 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.22 2024/2/24
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.21 2024/2/23
+  <ul>
+    <li>内部バージョン</li>
+  </ul>
+</li>
+<li>Suika2/16.20 2024/2/23
+  <ul>
+    <li>Linux版の最新化</li>
+  </ul>
+</li>
+<li>Suika2/16.19 2024/2/23
+  <ul>
+    <li>自動カギカッコを使用する場合に行頭の文字装飾を処理できないバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.18 2024/2/23
+  <ul>
+    <li>行頭の文字装飾が誤って継続行扱いになるバグを修正 (Thanks to Ronron-san!)</li>
+    <li>日本語のカギカッコに色が適用されないバグを修正 (Thanks to Ronron-san!)</li>
+    <li>日本語のカギカッコの前にエスケープシーケンスが来るときを考慮 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.17 2024/2/22
+  <ul>
+    <li>引数が足りないとき、全角スペースの混入を指摘する機能を追加 (Thanks to Mirin-san!)</li>
+    <li>Webで1pxズレるのを調整(だめだったら教えてください) (Thanks to -san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.16 2024/2/22
+  <ul>
+    <li>Direct3Dの座標計算が1ずれているのを修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.15 2024/2/22
+  <ul>
+    <li>ヒストリーの改行を修正 (Thanks to Lauan-san and Akatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.14 2024/2/21
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.13 2024/2/21
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.12 2024/2/20
+  <ul>
+    <li>変数の名前に対応 (${変数名}, 変数名はコンフィグのvar.name0=変数名) (Thanks to szmtharu-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.11 2024/2/20
+  <ul>
+    <li>@setコマンドに"true/false/yes/no/はい/いいえ"を追加 (Thanks to szmtharu-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.10 2024/2/20
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.9 2024/2/20
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.8 2024/2/19
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+    <li>GUIのバグを修正 (Thanks to ラワン材-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.7 2024/2/19
+  <ul>
+    <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li>
+    <li>継続行のバグを修正 (Thanks to ラワン材-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.6 2024/2/20
+  <ul>
+    <li>セーブ画面を強制的に呼んだときのバグを修正 (Thanks to 松野-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.5 2024/2/20
+  <ul>
+    <li>レンダリングのズレを解消 (Thanks to あさつき-san!)</li>
+    <li>slide-leftを修正 (Thanks to 松野-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.4 2024/2/19
   <ul>
     <li>oggのLOOPLENGTHに対応 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.3 2024/2/19
   <ul>
     <li>Webのスワイプの仕様を変更 (Thanks to all!)</li>
@@ -1264,13 +1419,163 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.33 2024/2/24
+  <ul>
+    <li>Fixed the fading effects (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+<li>Suika2/16.32 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.31 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.30 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.29 2024/2/24
+  <ul>
+    <li>Added SOrow Effect Collection "Snow" and "Powder Snow"</li>
+  </ul>
+</li>
+<li>Suika2/16.28 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.27 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.26 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.25 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.24 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.23 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.22 2024/2/24
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.21 2024/2/23
+  <ul>
+    <li>Internal version</li>
+  </ul>
+</li>
+<li>Suika2/16.20 2024/2/23
+  <ul>
+    <li>New Linux version</li>
+  </ul>
+</li>
+<li>Suika2/16.19 2024/2/23
+  <ul>
+    <li>Fixed a bug where heading escape sequences are not applied (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.18 2024/2/23
+  <ul>
+    <li>Fixed a bug where heading escape sequences are recognized as continued lines (Thanks to Ronron-san!)</li>
+    <li>Fixed a bug where Japanese quotations are not colored (Thanks to Ronron-san!)</li>
+    <li>Support a special case where escape sequeces appears before a Japanese quotation (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.17 2024/2/22
+  <ul>
+    <li>Added an warning for full-width spaces (Thanks to Mirin-san!)</li>
+    <li>Fixed 1px misalignment on Web (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.16 2024/2/22
+  <ul>
+    <li>Fixed an off-by-one error of Direct3D coordinates (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.15 2024/2/22
+  <ul>
+    <li>Fixed line-feeds in history (Thanks to Lauan-san and Akatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.14 2024/2/21
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.13 2024/2/21
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.12 2024/2/20
+  <ul>
+    <li>Added the support for variable aliases (${Var_Name}, use "var.name0=Var_Name" in the config) (Thanks to szmtharu-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.11 2024/2/20
+  <ul>
+    <li>Added the values, true/false/yes/no/はい/いいえ to the @set command (Thanks to szmtharu-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.10 2024/2/20
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.9 2024/2/20
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.8 2024/2/19
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+    <li>Fixed a bug of GUI (Thanks to Lauan-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.7 2024/2/19
+  <ul>
+    <li>Fixed the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
+    <li>Fixed a bug of continued lines (Thanks to Lauan-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.6 2024/2/20
+  <ul>
+    <li>Fixed a bug when calling save screen (Thanks to MATSUNO-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.5 2024/2/20
+  <ul>
+    <li>Fixed rendering positions (Thanks to Asatsuki-san!)</li>
+    <li>Fixed a bug of slide-left (Thanks to MATSUNO-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.4 2024/2/19
   <ul>
     <li>Added the support for LOOPLENGTH of ogg files (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.3 2024/2/19
   <ul>
     <li>Changed the spec of swipe on Web (Thanks to all!)</li>

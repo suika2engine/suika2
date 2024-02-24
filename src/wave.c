@@ -81,7 +81,7 @@ struct wave *create_wave_from_file(const char *dir, const char *fname,
 	int i;
 
 	const char *LOOPSTART = "LOOPSTART=";
-	const char *LOOPLENGTH = "LOOPSTART=";
+	const char *LOOPLENGTH = "LOOPLENGTH=";
 	const size_t LOOPSTART_LEN = strlen(LOOPSTART);
 	const size_t LOOPLENGTH_LEN = strlen(LOOPLENGTH);
 
@@ -181,6 +181,7 @@ static bool reopen(struct wave *w, bool loop)
 	}
 
 	w->do_skip = loop;
+	w->consumed_bytes = 0;
 
 	return true;
 }
@@ -282,12 +283,12 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 			     (samples - retain) * 2;
 		loop_end = false;
 		if (w->loop_length > 0 &&
-		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
-			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
+		    w->consumed_bytes + read_bytes >= (long)(w->loop_start + w->loop_length) * 2) {
+			read_bytes = (long)(w->loop_start + w->loop_length) * 2 - w->consumed_bytes;
 			loop_end = true;
 		}
 		ret_bytes = ov_read(&w->ovf, (char *)mbuf, (int)read_bytes, 0, 2, 1, &bitstream);
-		if (ret_bytes == 0) {
+		if (ret_bytes == 0 || (loop_end && ret_bytes == read_bytes)) {
 			/* 終端に達した */
 			if ((w->loop && (w->times == -1 || w->times > 0)) || loop_end) {
 				/* ストリームを再度オープンする */
@@ -304,6 +305,8 @@ static int get_wave_samples_monaural(struct wave *w, uint32_t *buf, int samples)
 				w->eos = true;
 				return retain;
 			}
+		} else {
+			w->consumed_bytes += ret_bytes;
 		}
 
 		/* ステレオに変換する */
@@ -335,16 +338,15 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 		skip_if_needed(w, 4);
 
 		/* デコードする */
-		read_bytes = (samples - retain) * 4 > IOSIZE ? IOSIZE :
-			     (samples - retain) * 4;
+		read_bytes = (samples - retain) * 4;
 		loop_end = false;
 		if (w->loop_length > 0 &&
-		    w->consumed_bytes + read_bytes >= (long)w->loop_start + (long)w->loop_length) {
-			read_bytes = (long)(w->loop_start + w->loop_length) - w->consumed_bytes;
+		    w->consumed_bytes + read_bytes >= (long)(w->loop_start + w->loop_length) * 4) {
+			read_bytes = (long)(w->loop_start + w->loop_length) * 4 - w->consumed_bytes;
 			loop_end = true;
 		}
 		ret_bytes = ov_read(&w->ovf, (char *)(buf + retain), (int)read_bytes, 0, 2, 1, &bitstream);
-		if (ret_bytes == 0) {
+		if (ret_bytes == 0 || (loop_end && ret_bytes == read_bytes)) {
 			/* 終端に達した */
 			if ((w->loop && (w->times == -1 || w->times > 0)) || loop_end) {
 				/* ストリームを再度オープンする */
@@ -361,6 +363,8 @@ static int get_wave_samples_stereo(struct wave *w, uint32_t *buf, int samples)
 				w->eos = true;
 				return retain;
 			}
+		} else {
+			w->consumed_bytes += ret_bytes;
 		}
 		retain += (int)ret_bytes / 4;
 	}
@@ -399,4 +403,5 @@ static void skip_if_needed(struct wave *w, int sample_bytes)
 	}
 
 	w->do_skip = false;
+	w->consumed_bytes = (long)w->loop_start * sample_bytes;
 }

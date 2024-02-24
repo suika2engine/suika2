@@ -769,12 +769,12 @@ DrawPrimitives2D(
 
 	DrawPrimitives3D((float)dst_left,
 					 (float)dst_top,
-					 (float)(dst_left + dst_width + 1),
+					 (float)(dst_left + dst_width),
 					 (float)dst_top,
 					 (float)dst_left,
-					 (float)(dst_top + dst_height + 1),
-					 (float)(dst_left + dst_width + 1),
-					 (float)(dst_top + dst_height + 1),
+					 (float)(dst_top + dst_height),
+					 (float)(dst_left + dst_width),
+					 (float)(dst_top + dst_height),
 					 src_image,
 					 rule_image,
 					 src_left,
@@ -1025,18 +1025,15 @@ DrawPrimitives3D(
 	pD3DDevice->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	// 描画する
-	if(x1 == x2 && x2 == x3 && x3 == x4)
+	if(x1 == x2 && x2 == x3 && x3 == x4 &&
+	   y1 == y2 && y2 == y3 && y3 == y4)
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_POINTLIST, 1, v, sizeof(Vertex));
 	}
-	else if(x1 == x3 && x2 == x4 && fabsf(x1 - x2) == 1)
+	else if((x1 == x2 && x2 == x3 && x3 == x4) ||
+			(y1 == y2 && y2 == y3 && y3 == y4))
 	{
 		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v + 1, sizeof(Vertex));
-	}
-	else if(y1 == y2 && y3 == y4 && fabsf(y1 - y3) == 1)
-	{
-		v[1].y += 1.0f;
-		pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, v, sizeof(Vertex));
 	}
 	else
 	{

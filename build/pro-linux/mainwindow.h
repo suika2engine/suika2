@@ -50,12 +50,13 @@ private slots:
     void on_errorButton_clicked();
     void on_scriptView_textChanged();
 
+    void on_actionNew_Project_English_Adv_triggered();
+    void on_actionNew_Project_English_Nvl_triggered();
+    void on_actionNew_Project_Japanese_Adv_triggered();
+    void on_actionNew_Project_Japanese_Nvl_triggered();
+    void on_actionNew_Project_Japanese_Nvl_Vertical_triggered();
     void on_actionOpen_Project_triggered();
     void on_actionExport_for_Linux_triggered();
-    void on_actionExport_for_Windows_triggered();
-    void on_actionExport_for_macOS_triggered();
-    void on_actionExport_for_iOS_triggered();
-    void on_actionExport_for_Android_triggered();
     void on_actionExport_for_Web_triggered();
     void on_actionExport_package_only_triggered();
 
@@ -77,6 +78,12 @@ private:
 
     // Update the script model from text view content.
     void updateScriptModelFromText();
+
+    // Start with a template game.
+    void startWithTemplateGame(QString name);
+
+    // Copy a template game.
+    bool copyNewTemplateGame(const QString& name);
 
     // Copy an export template, then copy an archive or game files.
     bool copyExportTemplateWithGame(const QString& name, bool copyArc);

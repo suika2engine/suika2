@@ -405,6 +405,14 @@ extern float conf_kirakira_frame;
 extern char *conf_kirakira_file[KIRAKIRA_FRAME_COUNT];
 
 /*
+ * 変数名
+ */
+
+#define NAMED_VAR_COUNT		(100)
+
+extern char *conf_var_name[NAMED_VAR_COUNT];
+
+/*
  * config.txtには公開されないコンフィグ
  */
 
@@ -414,7 +422,6 @@ extern int conf_gui_save_last_page;
 /*
  * アクセシビリティ
  */
-extern int conf_click_disable;
 extern int conf_tts_enable;
 extern int conf_tts_user;
 

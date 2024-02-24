@@ -421,6 +421,10 @@ void log_script_too_few_param(int min, int real)
 	} else {
 		log_error(U8("引数が足りません。最低%d個必要ですが、")
 			  U8("%d個しか指定されませんでした。\n"), min, real);
+		if (strstr(get_line_string(), U8("　")) != NULL) {
+			log_error(U8("行に全角スペースが含まれています。\n")
+				  U8("半角にするべきか確認してください。\n"));
+		}
 	}
 }
 

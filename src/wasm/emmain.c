@@ -615,7 +615,6 @@ void render_image_melt(struct image * RESTRICT src_img,
 
 /*
  * Renders an image to the screen with the "normal" shader pipeline.
- *  - The "normal" shader pipeline renders pixels with alpha blending
  */
 void
 render_image_3d_normal(
@@ -651,8 +650,7 @@ render_image_3d_normal(
 }
 
 /*
- * Renders an image to the screen with the "normal" shader pipeline.
- *  - The "normal" shader pipeline renders pixels with alpha blending
+ * Renders an image to the screen with the "add" shader pipeline.
  */
 void
 render_image_3d_add(

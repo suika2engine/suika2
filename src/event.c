@@ -149,9 +149,6 @@ void on_event_key_press(int key)
 	case KEY_ESCAPE:
 		is_escape_pressed = true;
 		break;
-	case KEY_C:
-		conf_click_disable = conf_click_disable ? 0 : 1;
-		break;
 	case KEY_S:
 		is_s_pressed = true;
 		break;

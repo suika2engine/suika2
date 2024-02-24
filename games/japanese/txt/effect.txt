@@ -1,0 +1,49 @@
+#
+# SOrow Effect Collection
+#
+
+#
+# 雨
+#
+
+# 雨エフェクト開始
+# - 呼び出すには、@gosub start-rainとする
+:start-rain
+@layer effect1 effect/rain/1.png
+@layer effect2 effect/rain/1.png
+@anime rain.txt async,reg00
+@return
+
+# 雨エフェクト終了
+# - 呼び出すには、@gosub stop-rainとする
+:stop-rain
+@anime stop-all
+@anime unregister reg00
+@return
+
+#
+# 雪
+#
+
+# ふつうの雪エフェクト開始
+# - 呼び出すには、@gosub start-snowとする
+:start-snow
+@layer effect1 effect/snow/snow-circle1.png
+@layer effect2 effect/snow/snow-circle1.png
+@anime snow.txt async,reg00
+@return
+
+# 粉雪エフェクト開始
+# - 呼び出すには、@gosub start-powder-snowとする
+:start-powder-snow
+@layer effect1 effect/snow/snow-powder-small2.png
+@layer effect2 effect/snow/snow-powder-small2.png
+@anime snow-2.txt async,reg00
+@return
+
+# 雪エフェクト終了
+# - 呼び出すには、@gosub stop-snowとする
+:stop-snow
+@anime stop-all
+@anime unregister reg00
+@return

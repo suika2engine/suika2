@@ -189,8 +189,7 @@ void render_image_melt(
 	int progress);		/* The progress (0 to 255) */
 
 /*
- * Renders an image to the screen with the "normal" shader pipeline.
- *  - The "normal" shader pipeline renders pixels with alpha blending
+ * Renders an image to the screen as a triangle strip with the "normal" shader pipeline.
  */
 void
 render_image_3d_normal(
@@ -210,8 +209,7 @@ render_image_3d_normal(
 	int alpha);
 
 /*
- * Renders an image to the screen with the "normal" shader pipeline.
- *  - The "normal" shader pipeline renders pixels with alpha blending
+ * Renders an image to the screen as a triangle strip with the "add" shader pipeline.
  */
 void
 render_image_3d_add(

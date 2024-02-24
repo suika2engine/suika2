@@ -14,16 +14,6 @@
 	<link rel="stylesheet" href="/css/adjustments.css">
 	<script src="/js/bootstrap.bundle.min.js"></script>
 
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-PLYR5Y3JSJ"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() {
-				dataLayer.push(arguments);
-		}
-		gtag("js", new Date());
-		gtag("config", "G-PLYR5Y3JSJ");
-	</script>
-
   <?php echo $head_tag ?>
 
 </head>
@@ -159,7 +149,7 @@
 		<div class="row">
 			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
 				<h5>ノベルアプリ開発ツール Suika2</h5>
-				<p>Suika2はノベルアプリを制作するためのツールです。</p>
+				<p>Suika2はノベルアプリ(スマートフォンのノベルゲーム)を制作するためのツールです。</p>
 			</div>
 			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
 				<h5>リンク</h5>

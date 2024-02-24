@@ -966,10 +966,13 @@ static bool is_escape_sequence_char(char c)
 {
 	switch (c) {
 	case 'n': /* 改行 */
+	case 'f': /* フォント */
+	case 'o': /* ふちどり */
 	case '#': /* 文字色 */
 	case '@': /* 文字サイズ */
 	case 'w': /* インラインウェイト */
 	case 'p': /* ペン移動 */
+	case '^': /* ルビ */
 		return true;
 	default:
 		break;
@@ -1108,11 +1111,9 @@ static char *concat_serif(const char *name, const char *serif)
 
 	/* 先頭の'\\' 'n'をカウントする */
 	lf = 0;
-	while (*serif == '\\') {
-		if (*(serif + 1) == 'n') {
-			lf++;
-			serif += 2;
-		}
+	while (*serif == '\\' && *(serif + 1) == 'n') {
+		lf++;
+		serif += 2;
 	}
 
 	/* 先頭の改行の先の文字列を作る */
@@ -2720,20 +2721,14 @@ static void set_click(void)
 	lap = get_lap_timer_millisec(&click_sw);
 
 	/* クリックアニメーションの表示を行う */
-	if (conf_click_disable) {
-		set_click_index(0);
-		show_click(true);
-		is_click_visible = true;
-	} else {
-		index = (int)((lap % (uint64_t)(conf_click_interval * 1000)) /
-			((uint64_t)(conf_click_interval * 1000) / (uint64_t)click_frames) %
-			      (uint64_t)click_frames);
-		index = index < 0 ? 0 : index;
-		index = index >= click_frames ? 0 : index;
-		set_click_index(index);
-		show_click(true);
-		is_click_visible = true;
-	}
+	index = (int)((lap % (uint64_t)(conf_click_interval * 1000)) /
+		((uint64_t)(conf_click_interval * 1000) / (uint64_t)click_frames) %
+		      (uint64_t)click_frames);
+	index = index < 0 ? 0 : index;
+	index = index >= click_frames ? 0 : index;
+	set_click_index(index);
+	show_click(true);
+	is_click_visible = true;
 }
 
 /* クリックアニメーションで入力があったら繰り返しを終了する */

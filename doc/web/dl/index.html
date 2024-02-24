@@ -12,7 +12,7 @@
 
   <!-- HTML Card -->
   <title>Suika2 | ダウンロード</title>
-  <meta name="description" content="Suika2はノベルゲームを制作するためのツールです。">
+  <meta name="description" content="Suika2はノベルゲーム(スマートフォンのノベルゲーム)を制作するためのツールです。">
   <meta name="theme-color" content="#eb8334">
 
 	<!-- INSERT-GTAG-HERE -->
@@ -144,9 +144,9 @@
 				ストア版よりも新しいバージョンです。
 			</p>
 			<p>
-<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/16.4 (2024/2/19):<br>
-<!-- LATEST-EXE --><a href="/dl/suika2-16.4.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
-<!-- LATEST-DMG --><a href="/dl/suika2-16.4.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-VERSION-AND-DATE -->最新版 Suika2/16.33 (2024/2/24):<br>
+<!-- LATEST-EXE --><a href="/dl/suika2-16.33.exe">Windows版 Suika2 Pro Desktop インストーラ</a><br>
+<!-- LATEST-DMG --><a href="/dl/suika2-16.33.dmg">macOS版 Suika2 Pro Desktop インストーラ</a><br>
 			</p>
 			<br>
 			<h4>旧版</h4>
@@ -157,7 +157,7 @@
 			</p>
 			<h4>その他</h4>
 			<p>
-<!-- LATEST-ZIP --><a href="/dl/suika2-16.4.zip">ZIP配布のSuika2 Pro Desktop (Windows版)</a><br>
+<!-- LATEST-ZIP --><a href="/dl/suika2-16.33.zip">ZIP配布のSuika2 Pro Desktop (Windows版)</a><br>
 			</p>
 		</div>
 
@@ -206,6 +206,7 @@
 							<li>背景(屋上/砂浜): つる</li>
 							<li>タイトル画面デザイン: heath</li>
 							<li>アイコンデザイン(suika.exe): Ronron</li>
+							<li>エフェクト: SOrow (@sorow_fts)</li>
 						</ul>
 					</li>
 					<li>演技
@@ -222,15 +223,31 @@
 					</li>
 					<li>利用ライブラリ
 						<ul>
-							<li>zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler. All rights reserved.</li>
-							<li>libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors. All rights reserved.</li>
-							<li>jpeg: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding. All rights reserved.</li>
-							<li>bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.</li>
-							<li>libwebp: Copyright (C) 2010, Google Inc. All rights reserved.</li>
-							<li>libogg: Copyright (C) 2002, Xiph.org Foundation. All rights reserved.</li>
-							<li>libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation. All rights reserved.</li>
-							<li>FreeType2: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg. All rights reserved.</li>
-							<li>Brotli: Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors. All rights reserved.</li>
+							<li>画像
+								<ul>
+									<li>libpng: Copyright (C) 2000-2002, 2004, 2006-2016, Glenn Randers-Pehrson and the original authors. All rights reserved.</li>
+									<li>jpeg9: copyright (C) 1991-2022, Thomas G. Lane, Guido Vollbeding. All rights reserved.</li>
+									<li>libwebp: Copyright (C) 2010, Google Inc. All rights reserved.</li>
+								</ul>
+							</li>
+							<li>音声
+								<ul>
+									<li>libvorbis: Copyright (C) 2002-2015, Xiph.org Foundation. All rights reserved.</li>
+								</ul>
+							</li>
+							<li>フォント
+								<ul>
+									<li>FreeType2: Copyright (C) 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg. All rights reserved.</li>
+								</ul>
+							</li>
+							<li>ogg/png/webp/woff2の内部的な依存ライブラリ
+								<ul>
+									<li>libogg: Copyright (C) 2002, Xiph.org Foundation. All rights reserved.</li>
+									<li>zlib: Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler. All rights reserved.</li>
+									<li>bzip2: Copyright (C) 1996-2010 Julian R Seward. All rights reserved.</li>
+									<li>Brotli: Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors. All rights reserved.</li>
+								</ul>
+							</li>
 						</ul>
 					</li>
 				</ul>
@@ -418,6 +435,24 @@
 			<div class="accordion-body">
         <ul>
 <!-- LATEST-RELEASE-NOTE -->
+<li>Suika2/16.33 2024/2/24 <ul> <li>背景変更時のエフェクトのうちslide系とshutter系の修正 (Thanks to あさつき-san!)</li> </ul> </li>
+<li>Suika2/16.29 2024/2/24 <ul> <li>エフェクト "雪" と "粉雪" (SOrow Effect Collection) を追加</li> </ul> </li>
+<li>Suika2/16.20 2024/2/23 <ul> <li>Linux版の最新化</li> </ul> </li>
+<li>Suika2/16.19 2024/2/23 <ul> <li>自動カギカッコを使用する場合に行頭の文字装飾を処理できないバグを修正 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/16.18 2024/2/23 <ul> <li>行頭の文字装飾が誤って継続行扱いになるバグを修正 (Thanks to Ronron-san!)</li> <li>日本語のカギカッコに色が適用されないバグを修正 (Thanks to Ronron-san!)</li> <li>日本語のカギカッコの前にエスケープシーケンスが来るときを考慮 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/16.17 2024/2/22 <ul> <li>引数が足りないとき、全角スペースの混入を指摘する機能を追加 (Thanks to Mirin-san!)</li> <li>Webで1pxズレるのを調整(だめだったら教えてください) (Thanks to -san!)</li> </ul> </li>
+<li>Suika2/16.16 2024/2/22 <ul> <li>Direct3Dの座標計算が1ずれているのを修正 (Thanks to あさつき-san!)</li> </ul> </li>
+<li>Suika2/16.15 2024/2/22 <ul> <li>ヒストリーの改行を修正 (Thanks to Lauan-san and Akatsuki-san!)</li> </ul> </li>
+<li>Suika2/16.14 2024/2/21 <ul> <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/16.13 2024/2/21 <ul> <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/16.12 2024/2/20 <ul> <li>変数の名前に対応 (${変数名}, 変数名はコンフィグのvar.name0=変数名) (Thanks to szmtharu-san!)</li> </ul> </li>
+<li>Suika2/16.11 2024/2/20 <ul> <li>@setコマンドに"true/false/yes/no/はい/いいえ"を追加 (Thanks to szmtharu-san!)</li> </ul> </li>
+<li>Suika2/16.10 2024/2/20 <ul> <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/16.9 2024/2/20 <ul> <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li> </ul> </li>
+<li>Suika2/16.8 2024/2/19 <ul> <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li> <li>GUIのバグを修正 (Thanks to ラワン材-san!)</li> </ul> </li>
+<li>Suika2/16.7 2024/2/19 <ul> <li>oggのLOOPLENGTHを修正 (Thanks to Ronron-san!)</li> <li>継続行のバグを修正 (Thanks to ラワン材-san!)</li> </ul> </li>
+<li>Suika2/16.6 2024/2/20 <ul> <li>セーブ画面を強制的に呼んだときのバグを修正 (Thanks to 松野-san!)</li> </ul> </li>
+<li>Suika2/16.5 2024/2/20 <ul> <li>レンダリングのズレを解消 (Thanks to あさつき-san!)</li> <li>slide-leftを修正 (Thanks to 松野-san!)</li> </ul> </li>
 <li>Suika2/16.4 2024/2/19 <ul> <li>oggのLOOPLENGTHに対応 (Thanks to Ronron-san!)</li> </ul> </li>
 <li>Suika2/16.3 2024/2/19 <ul> <li>Webのスワイプの仕様を変更 (Thanks to all!)</li> </ul> </li>
 <li>Suika2/16.2 2024/2/18 <ul> <li>折りたたみシステムメニューのちらつきを修正 (Thanks to あさつき-san!)</li> <li>右スライドエフェクトのバグを修正 (Thanks to 松野-san!)</li> </ul> </li>
@@ -1331,7 +1366,7 @@
 		<div class="row">
 			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
 				<h5>ノベルアプリ開発ツール Suika2</h5>
-				<p>Suika2はノベルアプリを制作するためのツールです。</p>
+				<p>Suika2はノベルアプリ(スマートフォンのノベルゲーム)を制作するためのツールです。</p>
 			</div>
 			<div class="col-lg-6 col-md-12 mb-4 mb-md-0">
 				<h5>リンク</h5>

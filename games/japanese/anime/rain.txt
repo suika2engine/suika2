@@ -1,0 +1,63 @@
+#
+# SOrow Effect Collection 1: Rain Effect
+#
+
+# Fading In
+
+effect2 {
+    layer: effect2;
+    clear: all;
+    start: 0.0;
+    end: 1.0;
+    from-x: 0;
+    from-y: -720;
+    from-a: 0;
+    to-x: 0;
+    to-y: 720;
+    to-a: 80;
+    from-scale-x:2.0;
+    from-scale-y:2.0;
+    to-scale-x:2.0;
+    to-scale-y:2.0;
+}
+
+# Loop Body
+
+# 奇数レイヤー (Odd Layer)
+
+effect1 {
+    layer: effect1;
+    clear:all;
+    start: 0.5;
+    end: 1.5;
+    from-x: 0;
+    from-y: -720;
+    from-a: 80;
+    to-x: 0;
+    to-y: 720;
+    to-a: 80;
+    from-scale-x:2.0;
+    from-scale-y:2.0;
+    to-scale-x:2.0;
+    to-scale-y:2.0;
+    loop: 0.5;
+}
+
+# 偶数レイヤー (Even Layer)
+
+effect2 {
+    layer: effect2;
+    start: 1.0;
+    end: 2.0;
+    from-x: 0;
+    from-y: -720;
+    from-a: 80;
+    to-x: 0;
+    to-y: 720;
+    to-a: 80;
+    from-scale-x:2.0;
+    from-scale-y:2.0;
+    to-scale-x:2.0;
+    to-scale-y:2.0;
+    loop: 1.0;
+}

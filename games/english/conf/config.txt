@@ -758,6 +758,16 @@ sysmenu.transition=0
 msgbox.history.disable=0
 
 ###
+### Variable Aliases (0..99)
+###
+
+var.name0=Unused
+var.name1=Is_Option1_Read
+var.name2=Is_Option2_Read
+var.name3=Is_Option3_Read
+var.name4=Is_Option4_Read
+
+###
 ### Release Mode
 ###  - Turn off this mode if you distribute a zip file
 ###  - Use this mode only when installing games to the "Program Files" folder by an installer

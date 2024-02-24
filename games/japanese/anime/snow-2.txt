@@ -1,0 +1,71 @@
+#
+# SOrow Effect Collection 3: Powder Snow Effect
+#
+
+# Fading In
+
+effect2-1{
+   layer:effect2;
+   clear:all;
+   start:0;
+   end:0.8;
+   from-scale-x:1.5;
+   from-scale-y:1.5;
+   from-x:-910;
+   from-y:-720;
+   from-a:255;
+   to-scale-x:1.5;
+   to-scale-y:1.5;
+   to-x:910;
+   to-y:720;
+   to-a:255;
+   from-rotate:-30;
+   to-rotate:-30;
+   center-x:640;
+   center-y:360;
+}
+
+# Loop Body
+
+effect1-1{
+   layer:effect1;
+   clear:all;
+   start:0.4;
+   end:1.2;
+   from-scale-x:1.5;
+   from-scale-y:1.5;
+   from-x:-910;
+   from-y:-720;
+   from-a:255;
+   to-scale-x:1.5;
+   to-scale-y:1.5;
+   to-x:910;
+   to-y:720;
+   to-a:255;
+   from-rotate:-30;
+   to-rotate:-30;
+   center-x:640;
+   center-y:360;
+   loop:0.4;
+}
+
+effect2-1{
+   layer:effect2;
+   start:0.8;
+   end:1.6;
+   from-scale-x:1.5;
+   from-scale-y:1.5;
+   from-x:-910;
+   from-y:-720;
+   from-a:255;
+   to-scale-x:1.5;
+   to-scale-y:1.5;
+   to-x:910;
+   to-y:720;
+   to-a:255;
+   from-rotate:-30;
+   to-rotate:-30;
+   center-x:640;
+   center-y:360;
+   loop:0.8;
+}

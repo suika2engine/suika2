@@ -21,7 +21,12 @@ FILES_IOS= \
 build-only: $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_IOS)
 	@curl -O https://suika2.com/dl/libroot-ios.tar.gz
 	@tar xzf libroot-ios.tar.gz
-	@xcodebuild -target "Suika2" -project engine-ios.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+	@ln -sf libroot-device libroot
+	@if [ ! -z "`uname -a | grep arm64`" ]; then \
+		xcodebuild -target "Suika2" -project engine-ios.xcodeproj -configuration Debug build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO; \
+	else \
+		echo 'We cannot build on a x86_64 host.'; \
+	fi
 
 src:
 	@rm -rf ios-src
@@ -29,10 +34,8 @@ src:
 	@
 	@cp -R engine-ios engine-ios.xcodeproj ios-src/
 	@rm -f ios-src/engine-ios/data01.arc
-	@
-	@gsed -e 's|../../src/apple/|engine-ios/apple/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj
-	@gsed -e 's|../../src/|engine-ios/|g' -i ios-src/engine-ios.xcodeproj/project.pbxproj
-	@
+	@sed -e 's|../../src/apple/|engine-ios/apple/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj
+	@sed -e 's|../../src/|engine-ios/|g' < ios-src/engine-ios.xcodeproj/project.pbxproj > tmp && mv tmp ios-src/engine-ios.xcodeproj/project.pbxproj
 	@mkdir -p ios-src/engine-ios/apple
 	@cp ../../src/apple/GameRenderer.h ios-src/engine-ios/apple/
 	@cp ../../src/apple/GameRenderer.m ios-src/engine-ios/apple/

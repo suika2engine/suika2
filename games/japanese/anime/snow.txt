@@ -1,0 +1,59 @@
+#
+# SOrow Effect Collection 2: Snow Effect
+#
+
+# Fading In
+
+effect2 {
+    layer: effect2;
+    clear: all;
+    start: 0.0;
+    end: 5.0;
+    from-x: 0;
+    from-y: -720;
+    from-a: 0;
+    to-x: 0;
+    to-y: 720;
+    to-a: 255;
+    from-scale-x:2.0;
+    from-scale-y:2.0;
+    to-scale-x:2.0;
+    to-scale-y:2.0;
+}
+
+# Loop Body
+
+effect1 {
+    layer: effect1;
+    clear: all;
+    start: 2.5;
+    end: 7.5;
+    from-x: 0;
+    from-y: -720;
+    from-a: 255;
+    to-x: 0;
+    to-y: 720;
+    to-a: 255;
+    from-scale-x:2.0;
+    from-scale-y:2.0;
+    to-scale-x:2.0;
+    to-scale-y:2.0;
+    loop: 2.5;
+}
+
+effect2 {
+    layer: effect2;
+    start: 5.0;
+    end: 10.0;
+    from-x: 0;
+    from-y: -720;
+    from-a: 255;
+    to-x: 0;
+    to-y: 720;
+    to-a: 255;
+    from-scale-x:2.0;
+    from-scale-y:2.0;
+    to-scale-x:2.0;
+    to-scale-y:2.0;
+    loop: 5.0;
+}

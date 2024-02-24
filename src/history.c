@@ -145,34 +145,32 @@ bool register_message(const char *name, const char *msg, const char *voice,
 			if (!is_quoted_serif(msg)) {
 				/* カッコがない場合 */
 				snprintf(tmp_text, TEXT_SIZE,
-					 "\\#{%06x}%s"
-					 "%s"
-					 U8("\\#{%06x}%s%s%s"),
+					 "\\#{%06x}%s\\#{%06x}%s%s%s%s",
 					 name_color,
 					 name,
-					 quote_prefix,
 					 body_color,
+					 quote_prefix,
 					 quote_start,
 					 msg,
 					 quote_end);
 			} else {
 				/* すでにカッコがある場合 */
 				snprintf(tmp_text, TEXT_SIZE,
-					 U8("\\#{%06x}%s%s\\#{%06x}%s"),
+					 "\\#{%06x}%s\\#{%06x}%s%s",
 					 name_color,
 					 name,
-					 quote_prefix,
 					 body_color,
+					 quote_prefix,
 					 msg);
 			}
 		} else {
 			/* 日本語以外 */
 			snprintf(tmp_text, TEXT_SIZE,
-				 "\\#{%06x}%s%s\\#{%06x}: %s",
+				 "\\#{%06x}%s\\#{%06x}%s: %s",
 				 name_color,
 				 name,
-				 quote_prefix,
 				 body_color,
+				 quote_prefix,
 				 msg);
 		}
 		h->text = strdup(tmp_text);
@@ -225,7 +223,8 @@ bool append_message(const char *msg)
 
 	/* 追記するヒストリ項目を求める */
 	h = &history[last_history_index];
-	assert(h->text != NULL);
+	if (h->text != NULL)
+		h->text = strdup("");
 
 	/* メモリを確保する */
 	new_text = malloc(strlen(h->text) + strlen(msg) + 1);
@@ -339,6 +338,20 @@ bool is_quoted_serif(const char *msg)
 	};
 
 	size_t i;
+
+	while (*msg == '\\') {
+		if (*(msg + 1) == 'n') {
+			msg += 2;
+			continue;
+		}
+		if (*(msg + 1) != '\0' && *(msg + 2) == '{') {
+			msg += 3;
+			while (*msg++ != '}')
+				;
+			continue;
+		}
+		msg++;
+	}
 
 	for (i = 0; i < sizeof(items) / sizeof(struct item); i++) {
 		if (strncmp(msg, items[i].prefix, strlen(items[i].prefix)) == 0 &&

@@ -1,5 +1,5 @@
-suika2 (15.3-1) jammy; urgency=medium
+suika2 (16.20-1) jammy; urgency=medium
 
   * Sync upstream
 
- -- Keiichi Tabata <tabata@luxion.jp>  Tue, 05 Dec 2023 01:12:53 +0900
+ -- Keiichi Tabata <tabata@luxion.jp>  Fri, 23 Feb 2024 23:18:11 +0900
