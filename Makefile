@@ -26,7 +26,7 @@ suika-pro:
 		make && \
 		cp suika-pro ../../../ && \
 		cd ../../..
-	@cd build/engine-android && \
+	@cd build/engine-ios && \
 		make src && \
 		cd ../../
 	@cd build/engine-android && \
