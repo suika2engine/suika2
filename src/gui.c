@@ -244,6 +244,9 @@ static int prev_pointed_index;
 /* キー入力によりポイントされているか */
 static bool is_pointed_by_key;
 
+/* ドラッグが完了したか */
+static bool is_drag_finished;
+
 /* キー入力によりポイントされたときのマウス座標 */
 static int save_mouse_pos_x, save_mouse_pos_y;
 
@@ -481,6 +484,7 @@ bool prepare_gui_mode(const char *file, bool sys)
 	did_load = false;
 	is_finished = false;
 	dragging_index = -1;
+	is_drag_finished = false;
 
 	/* GUIv2動作を無効にしておく(base:が指定されるとv2になる) */
 	is_v2 = false;
@@ -1013,6 +1017,7 @@ static void process_input(void)
 	}
 
 	/* 各ボタンについて処理する */
+	is_drag_finished = false;
 	for (i = 0; i < BUTTON_COUNT; i++) {
 		if (!is_fading_in && !is_fading_out) {
 			/* ポイント状態を更新する */
@@ -1026,6 +1031,13 @@ static void process_input(void)
 		}
 	}
     
+	/* ドラッグ終了後の処理を行う */
+	if (is_drag_finished) {
+		for (i = 0; i < BUTTON_COUNT; i++)
+			process_button_point(i, false);
+		is_drag_finished = false;
+	}
+
 	/* ボタンが決定された場合は終了する */
 	if (result_index != -1) {
 		if (fade_out_time > 0 &&
@@ -1431,6 +1443,24 @@ static bool process_button_point(int index, bool key)
 	if (dragging_index != -1 && dragging_index != index)
 		return false;
 
+	/* タッチ対応 */
+#if defined(SUIKA_TARGET_IOS) || defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM)
+	/* タッチムーブがキャンセルされた場合 */
+	if (is_touch_canceled) {
+		if (pointed_index == index)
+			pointed_index = -1;
+		return false;
+	}
+
+	/* ドラッグが完了したとき、スクロールバーを非選択状態にする */
+	if (is_drag_finished &&
+	    (b->type == TYPE_HISTORYSCROLL || b->type == TYPE_HISTORYSCROLL_HORIZONTAL)) {
+		if (pointed_index == index)
+			pointed_index = -1;
+		return false;
+	}
+#endif
+
 	/* キー操作の場合 */
 	if (key) {
 		/* ポイントされている状態にする */
@@ -1495,12 +1525,12 @@ static void process_button_drag(int index)
 
 	/* ドラッグ中でない場合 */
 	if (!b->rt.is_dragging) {
-		/* ポイントされていない場合 */
-		if (index != pointed_index)
+		/* ドラッグ中でない場合 */
+		if (!is_mouse_dragging)
 			return;
 
-		/* マウスの左ボタンが押下されていない場合 */
-		if (!is_mouse_dragging)
+		/* ポイントされていない場合 */
+		if (pointed_index != index)
 			return;
 
 		/* すでにドラッグされている場合 */
@@ -1516,10 +1546,20 @@ static void process_button_drag(int index)
 		return;
 	}
 
-	/* ドラッグ中の場合 */
-	b->rt.slider = calc_slider_value(index);
+	/*
+	 * ドラッグ中の場合
+	 */
+
+	/* ポイント範囲外になった場合はドラッグをキャンセルする */
+	if (pointed_index != index) {
+		b->rt.is_dragging = false;
+		dragging_index = -1;
+		is_drag_finished = true;
+		return;
+	}
 
 	/* スライダの量を設定に反映する */
+	b->rt.slider = calc_slider_value(index);
 	switch (b->type) {
 	case TYPE_BGMVOL:
 		set_mixer_global_volume(BGM_STREAM, b->rt.slider);
@@ -1551,6 +1591,7 @@ static void process_button_drag(int index)
 	if (!is_mouse_dragging) {
 		b->rt.is_dragging = false;
 		dragging_index = -1;
+		is_drag_finished = true;
 
 		/* 調節完了後のアクションを実行する */
 		switch (b->type) {

@@ -114,14 +114,17 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	EM_ASM_({
 		function visibilityChange() {
 			if(document.visibilityState === 'visible') {
-				Module.ccall('setVisible', null, null, null);
+				Module.ccall('setVisible');
 				document.getElementById('canvas').focus();
 			} else if(document.visibilityState === 'hidden') {
-				Module.ccall('setHidden', null, null, null);
+				Module.ccall('setHidden');
 			}
 		}
 		function preventDefault(e) {
 			e.preventDefault();
+		}
+		function onMouseLeave() {
+			Module.ccall('mouseLeave');
 		}
 		window.ontouchmove = preventDefault;
 		window.onwheel = preventDefault;
@@ -131,6 +134,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 		document.body.addEventListener('wheel', preventDefault, { passive: false });
 		window.addEventListener('resize', resizeWindow);
 		document.addEventListener('visibilitychange', visibilityChange);
+		document.getElementById('canvas').addEventListener('mouseleave', onMouseLeave);
 	});
 
 	/* イベントの登録をする */
@@ -349,6 +353,9 @@ static EM_BOOL cb_touchstart(int eventType,
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
+	on_event_mouse_release(MOUSE_LEFT, -1, -1);
+	on_event_mouse_release(MOUSE_RIGHT, -1, -1);
+
 	on_event_mouse_press(MOUSE_LEFT, x, y);
 
 	return EM_TRUE;
@@ -385,10 +392,14 @@ static EM_BOOL cb_touchend(int eventType,
 
 	delta = touchEvent->touches[0].targetY - touch_start_y;
 	if (delta > FLICK_DISTANCE) {
+		EM_ASM({ alert("1"); });
+		on_event_touch_cancel();
 		on_event_key_press(KEY_UP);
 		on_event_key_release(KEY_UP);
 		return EM_TRUE;
 	} else if (delta < -FLICK_DISTANCE) {
+		EM_ASM({ alert("2"); });
+		on_event_touch_cancel();
 		on_event_key_press(KEY_DOWN);
 		on_event_key_release(KEY_DOWN);
 		return EM_TRUE;
@@ -400,22 +411,29 @@ static EM_BOOL cb_touchend(int eventType,
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
-	on_event_mouse_move(x, y);
+	/* 1本指でタップして、距離が誤差範囲内の場合、左クリックとする */
+	if (touchEvent->numTouches == 1 &&
+	    abs(touchEvent->touches[0].targetX - touch_start_x) < FINGER_DISTANCE &&
+	    abs(touchEvent->touches[0].targetY - touch_start_y) < FINGER_DISTANCE) {
+		EM_ASM({ alert("3"); });
+		on_event_mouse_press(MOUSE_LEFT, x, y);
+		on_event_mouse_release(MOUSE_LEFT, x, y);
+		return EM_TRUE;
+	}
 
 	/* 2本指でタップした場合、右クリックとする */
 	if (touchEvent->numTouches == 2) {
+		EM_ASM({ alert("4"); });
+		on_event_touch_cancel();
 		on_event_mouse_press(MOUSE_RIGHT, x, y);
 		on_event_mouse_release(MOUSE_RIGHT, x, y);
 		return EM_TRUE;
 	}
 
-	/* 1本指でタップした場合、左クリックとする */
-	if (abs(touchEvent->touches[0].targetX - touch_start_x) < FINGER_DISTANCE &&
-	    abs(touchEvent->touches[0].targetY - touch_start_y) < FINGER_DISTANCE) {
-		on_event_mouse_release(MOUSE_LEFT, x, y);
-		return EM_TRUE;
-	}
-	
+	/* その他の場合はタッチをキャンセルする */
+	EM_ASM({ alert("5"); });
+	on_event_touch_cancel();
+
 	return EM_TRUE;
 }
 
@@ -424,7 +442,7 @@ static EM_BOOL cb_touchcancel(int eventType,
 			      const EmscriptenTouchEvent *touchEvent,
 			      void *userData)
 {
-	on_event_mouse_move(-1, -1);
+	on_event_touch_cancel();
 
 	return EM_TRUE;
 }
@@ -445,10 +463,11 @@ void EMSCRIPTEN_KEEPALIVE setHidden(void)
 	pause_sound();
 }
 
-/* サウンドを再開する際のコールバック */
-void EMSCRIPTEN_KEEPALIVE resumeSound(void)
+/* ポインタがCanvasからはみ出た際のコールバック */
+void EMSCRIPTEN_KEEPALIVE mouseLeave(void)
 {
-	resume_sound();
+	on_event_mouse_move(-1, -1);
+	on_event_touch_cancel();
 }
 
 /*

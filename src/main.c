@@ -51,6 +51,7 @@ bool is_control_pressed;
 bool is_s_pressed;
 bool is_l_pressed;
 bool is_h_pressed;
+bool is_touch_canceled;
 
 int mouse_pos_x;
 int mouse_pos_y;
@@ -223,6 +224,7 @@ bool game_loop_iter(void)
 	is_s_pressed = false;
 	is_l_pressed = false;
 	is_h_pressed = false;
+	is_touch_canceled = false;
 
 	return true;
 }

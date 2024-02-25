@@ -244,9 +244,25 @@ void on_event_mouse_release(int button, int x, int y)
  */
 void on_event_mouse_move(int x, int y)
 {
-	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height)
+	if (x < 0 || x >= conf_window_width || y < 0 || y >= conf_window_height) {
+		on_event_touch_cancel();
 		return;
+	}
 
 	mouse_pos_x = x;
 	mouse_pos_y = y;
+}
+
+/*
+ * タッチキャンセル時に呼び出される
+ */
+void on_event_touch_cancel(void)
+{
+	is_left_button_pressed = false;
+	is_right_button_pressed = false;
+	is_mouse_dragging = false;
+	is_left_clicked = false;
+	is_right_clicked = false;
+
+	is_touch_canceled = true;
 }

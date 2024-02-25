@@ -74,5 +74,13 @@ emsdk:
 run:
 	python3 -m http.server
 
+upload:
+	ftp-upload.sh html/index.html test/
+	ftp-upload.sh html/index.js test/
+	ftp-upload.sh html/index.wasm test/
+
+update-game:
+	ftp-upload.sh html/data01.arc test/
+
 clean:
 	rm -rf html
