@@ -5,12 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.34 2024/2/25
+  <ul>
+    <li>bgmコマンドでonceを指定したときに、セーブ・ロードを経るとループされるバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
 <li>Suika2/16.33 2024/2/24
   <ul>
     <li>背景変更時のエフェクトのうちslide系とshutter系の修正 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.32 2024/2/24
   <ul>
     <li>内部バージョン</li>
@@ -1419,12 +1424,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.34 2024/2/25
+  <ul>
+    <li>Fixed the invalid loop of the bgm command (Thanks to Ronron-san!)</li>
+    <li>Fixed a bug where RGB-to-BGR conversion on OpenGL is invalid (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
 <li>Suika2/16.33 2024/2/24
   <ul>
     <li>Fixed the fading effects (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.32 2024/2/24
   <ul>
     <li>Internal version</li>

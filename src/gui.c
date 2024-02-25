@@ -2625,10 +2625,10 @@ static void draw_history_button(int index)
 
 	/* イメージをクリアする */
 	clear_image_color(b->rt.img,
-			  make_pixel(0,
-				     (uint32_t)b->clear_r,
-				     (uint32_t)b->clear_g,
-				     (uint32_t)b->clear_b));
+			  make_pixel_ex(0,
+					(uint32_t)b->clear_r,
+					(uint32_t)b->clear_g,
+					(uint32_t)b->clear_b));
 
 	/* メッセージを描画する */
 	if (b->rt.history_offset != -1)
@@ -2673,38 +2673,38 @@ static void draw_history_text_item(int button_index)
 		 * string head as an escape sequece.
 		 */
 		ignore_color = false;
-		color = make_pixel(0xff,
-				   (pixel_t)conf_font_color_r,
-				   (pixel_t)conf_font_color_g,
-				   (pixel_t)conf_font_color_b);
-		outline_color = make_pixel(0xff,
-					   (pixel_t)conf_font_outline_color_r,
-					   (pixel_t)conf_font_outline_color_g,
-					   (pixel_t)conf_font_outline_color_b);
+		color = make_pixel_ex(0xff,
+				      (pixel_t)conf_font_color_r,
+				      (pixel_t)conf_font_color_g,
+				      (pixel_t)conf_font_color_b);
+		outline_color = make_pixel_ex(0xff,
+					      (pixel_t)conf_font_outline_color_r,
+					      (pixel_t)conf_font_outline_color_g,
+					      (pixel_t)conf_font_outline_color_b);
 		break;
 	case 1:
 		/* Use font.color */
 		ignore_color = true;
-		color = make_pixel(0xff,
-				   (pixel_t)conf_font_color_r,
-				   (pixel_t)conf_font_color_g,
-				   (pixel_t)conf_font_color_b);
-		outline_color = make_pixel(0xff,
-					   (pixel_t)conf_font_outline_color_r,
-					   (pixel_t)conf_font_outline_color_g,
-					   (pixel_t)conf_font_outline_color_b);
+		color = make_pixel_ex(0xff,
+				      (pixel_t)conf_font_color_r,
+				      (pixel_t)conf_font_color_g,
+				      (pixel_t)conf_font_color_b);
+		outline_color = make_pixel_ex(0xff,
+					      (pixel_t)conf_font_outline_color_r,
+					      (pixel_t)conf_font_outline_color_g,
+					      (pixel_t)conf_font_outline_color_b);
 		break;
 	case 2:
 		/* Use gui.history.font.color */
 		ignore_color = true;
-		color = make_pixel(0xff,
-				   (pixel_t)conf_gui_history_font_color_r,
-				   (pixel_t)conf_gui_history_font_color_g,
-				   (pixel_t)conf_gui_history_font_color_b);
-		outline_color = make_pixel(0xff,
-					   (pixel_t)conf_gui_history_font_outline_color_r,
-					   (pixel_t)conf_gui_history_font_outline_color_g,
-					   (pixel_t)conf_gui_history_font_outline_color_b);
+		color = make_pixel_ex(0xff,
+				      (pixel_t)conf_gui_history_font_color_r,
+				      (pixel_t)conf_gui_history_font_color_g,
+				      (pixel_t)conf_gui_history_font_color_b);
+		outline_color = make_pixel_ex(0xff,
+					      (pixel_t)conf_gui_history_font_outline_color_r,
+					      (pixel_t)conf_gui_history_font_outline_color_g,
+					      (pixel_t)conf_gui_history_font_outline_color_b);
 		break;
 	default:
 		/* A strage value, but ignore for now. */
