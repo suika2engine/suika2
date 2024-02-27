@@ -5,12 +5,32 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/16.36 2024/2/25
+<li>Suika2/16.41 2024/2/27
+  <ul>
+    <li>Suika2 Proで@wms, @return, @seコマンドで折りたたみメニューが点滅するのを修正 (Thanks to あさつき-san!)</li>
+    <li>タイトル画面からコンフィグを呼び出すと右クリックでキャンセルができないのを修正 (Thanks to あさつき-san!)</ul>
+</li>
+<!-- END-LATEST-JP -->
+
+<li>Suika2/16.40 2024/2/27
+  <ul>
+    <li>描画のズレを修正 (Thanks to あさつき-san!)</li>
+</li>
+<li>Suika2/16.39 2024/2/26
+  <ul>
+    <li>GUIのスライダーの値が反映されないバグを修正 (Thanks to いそぎんちく-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.38 2024/2/26
+  <ul>
+    <li>継続行がメッセージ履歴に反映されないバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.37 2024/2/25
   <ul>
     <li>Web版でのタッチの動きに関する挙動を幾分緩和した (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.35 2024/2/25
   <ul>
     <li>Web版でのマウスの動きに関する挙動を幾分緩和した (Thanks to all!)</li>
@@ -1434,12 +1454,39 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.41 2024/2/27
+  <ul>
+    <li>Fixed a flickering on Suika2 Pro (Thanks to Asatsuki-san!)>/li>
+    <li>Fixed a bug where GUI cannot be canceled by a right click (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
+<li>Suika2/16.40 2024/2/27
+  <ul>
+    <li>Fixed a rendering coordinate bug (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.39 2024/2/26
+  <ul>
+    <li>GUIのスライダーの値が反映されないバグを修正 (Thanks to いそぎんちく-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.38 2024/2/26
+  <ul>
+    <li>Fixed a bug where continued lines are not appended to the history (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.37 2024/2/25
+  <ul>
+    <li>Mitigated odd touch behaviors on the Web version (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.36 2024/2/25
   <ul>
     <li>Mitigated odd touch behaviors on the Web version (Thanks to Ronron-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.35 2024/2/25
   <ul>
     <li>Mitigated odd mouse behaviors on the Web version (Thanks to all!)</li>

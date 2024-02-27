@@ -546,6 +546,7 @@ static bool dispatch_command(bool *cont)
 		render_stage();
 		switch (command_type) {
 		case COMMAND_BGM:
+		case COMMAND_SE:
 		case COMMAND_VOL:
 		case COMMAND_SET:
 		case COMMAND_IF:
@@ -554,6 +555,8 @@ static bool dispatch_command(bool *cont)
 		case COMMAND_LABELEDGOTO:
 		case COMMAND_GOTO:
 		case COMMAND_GOSUB:
+		case COMMAND_RETURN:
+		case COMMAND_WMS:
 			render_collapsed_sysmenu(false);
 			break;
 		default:

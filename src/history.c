@@ -223,7 +223,7 @@ bool append_message(const char *msg)
 
 	/* 追記するヒストリ項目を求める */
 	h = &history[last_history_index];
-	if (h->text != NULL)
+	if (h->text == NULL)
 		h->text = strdup("");
 
 	/* メモリを確保する */

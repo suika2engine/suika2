@@ -964,12 +964,6 @@ bool run_gui_mode(void)
 	/* SEを再生する */
 	process_se();
 
-	/* キャンセルされたとき */
-	if (result_index == -1 && is_finished) {
-		if (is_in_command_repetition())
-			stop_command_repetition();
-	}
-
 	is_first_frame = false;
 	return true;
 }
@@ -1550,14 +1544,6 @@ static void process_button_drag(int index)
 	 * ドラッグ中の場合
 	 */
 
-	/* ポイント範囲外になった場合はドラッグをキャンセルする */
-	if (pointed_index != index) {
-		b->rt.is_dragging = false;
-		dragging_index = -1;
-		is_drag_finished = true;
-		return;
-	}
-
 	/* スライダの量を設定に反映する */
 	b->rt.slider = calc_slider_value(index);
 	switch (b->type) {
@@ -1633,6 +1619,13 @@ static void process_button_drag(int index)
 
 	/* 同じタイプのボタンが複数ある場合のために、他のボタンの更新を行う */
 	update_runtime_props(false);
+
+	/* ポイント範囲外になった場合はドラッグをキャンセルする */
+	if (pointed_index != index) {
+		b->rt.is_dragging = false;
+		dragging_index = -1;
+		is_drag_finished = true;
+	}
 }
 
 /* スライダの値を計算する */

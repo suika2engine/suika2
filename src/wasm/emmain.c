@@ -392,13 +392,11 @@ static EM_BOOL cb_touchend(int eventType,
 
 	delta = touchEvent->touches[0].targetY - touch_start_y;
 	if (delta > FLICK_DISTANCE) {
-		EM_ASM({ alert("1"); });
 		on_event_touch_cancel();
 		on_event_key_press(KEY_UP);
 		on_event_key_release(KEY_UP);
 		return EM_TRUE;
 	} else if (delta < -FLICK_DISTANCE) {
-		EM_ASM({ alert("2"); });
 		on_event_touch_cancel();
 		on_event_key_press(KEY_DOWN);
 		on_event_key_release(KEY_DOWN);
@@ -415,7 +413,6 @@ static EM_BOOL cb_touchend(int eventType,
 	if (touchEvent->numTouches == 1 &&
 	    abs(touchEvent->touches[0].targetX - touch_start_x) < FINGER_DISTANCE &&
 	    abs(touchEvent->touches[0].targetY - touch_start_y) < FINGER_DISTANCE) {
-		EM_ASM({ alert("3"); });
 		on_event_mouse_press(MOUSE_LEFT, x, y);
 		on_event_mouse_release(MOUSE_LEFT, x, y);
 		return EM_TRUE;
@@ -423,7 +420,6 @@ static EM_BOOL cb_touchend(int eventType,
 
 	/* 2本指でタップした場合、右クリックとする */
 	if (touchEvent->numTouches == 2) {
-		EM_ASM({ alert("4"); });
 		on_event_touch_cancel();
 		on_event_mouse_press(MOUSE_RIGHT, x, y);
 		on_event_mouse_release(MOUSE_RIGHT, x, y);
@@ -431,7 +427,6 @@ static EM_BOOL cb_touchend(int eventType,
 	}
 
 	/* その他の場合はタッチをキャンセルする */
-	EM_ASM({ alert("5"); });
 	on_event_touch_cancel();
 
 	return EM_TRUE;

@@ -89,7 +89,7 @@ rm -f *.o
 if [ ! -e libroot ]; then
     ./build-libs.sh;
 fi
-make -j12
+make -j20
 sign.sh suika.exe
 cd ..
 
@@ -142,7 +142,7 @@ rm -f *.o
 if [ ! -e libroot ]; then
     cp -Rav ../engine-windows/libroot .;
 fi
-make -j12 VERSION="$VERSION"
+make -j20 VERSION="$VERSION"
 sign.sh suika-pro.exe
 cd ..
 
