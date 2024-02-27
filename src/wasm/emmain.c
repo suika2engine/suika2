@@ -393,13 +393,13 @@ static EM_BOOL cb_touchend(int eventType,
 	delta = touchEvent->touches[0].targetY - touch_start_y;
 	if (delta > FLICK_DISTANCE) {
 		on_event_touch_cancel();
-		on_event_key_press(KEY_UP);
-		on_event_key_release(KEY_UP);
+		on_event_key_press(KEY_DOWN);
+		on_event_key_release(KEY_DOWN);
 		return EM_TRUE;
 	} else if (delta < -FLICK_DISTANCE) {
 		on_event_touch_cancel();
-		on_event_key_press(KEY_DOWN);
-		on_event_key_release(KEY_DOWN);
+		on_event_key_press(KEY_UP);
+		on_event_key_release(KEY_UP);
 		return EM_TRUE;
 	}
 

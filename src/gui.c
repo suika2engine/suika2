@@ -985,13 +985,23 @@ static void process_input(void)
 	process_left_right_arrow_keys();
 
 	/* マウスホイールか上下キーによるスクロールを処理する */
-	if (is_up_pressed) {
-		process_history_scroll_n(-1);
+#if defined(SUIKA_TARGET_IOS) || defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM)
+	if (is_down_pressed) {
+		process_history_scroll_n(-history_slots);
 		update_runtime_props(false);
-	} else if (is_down_pressed) {
-		process_history_scroll_n(1);
+	} else if (is_up_pressed) {
+		process_history_scroll_n(history_slots);
 		update_runtime_props(false);
 	}
+#else
+	if (is_up_pressed) {
+		process_history_scroll_n(-history_slots);
+		update_runtime_props(false);
+	} else if (is_down_pressed) {
+		process_history_scroll_n(history_slots);
+		update_runtime_props(false);
+	}
+#endif
 
 	/* 右クリックでキャンセル可能な場合 */
 	if (cancelable) {
