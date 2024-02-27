@@ -216,7 +216,6 @@ static float inline_wait_time_total;
 /* インラインウェイトの経過時刻を表すストップウォッチ */
 static uint64_t inline_sw;
 
-
 /*
  * コマンドが開始されたときの状態 
  */
@@ -304,6 +303,13 @@ static const char *custom_gosub_label;
  */
 
 static bool need_dimming;
+
+/*
+ * その他
+ */
+
+/* ヒストリに残すが表示しない場合 */
+static bool no_show;
 
 /*
  * 前方参照
@@ -403,9 +409,14 @@ static bool cleanup(void);
 bool message_command(bool *cont)
 {
 	/* 初期化処理を行う */
-	if (!is_in_command_repetition())
+	if (!is_in_command_repetition()) {
 		if (!init())
 			return false;
+	}
+	if (no_show) {
+		move_to_next_command();
+		return true;
+	}
 
 	if (!pre_process())
 		return false;
@@ -600,6 +611,13 @@ static bool init(void)
 	if (!init_msg_top())
 		return false;
 
+	/* ヒストリに登録するが表示しない場合 */
+	if (conf_msgbox_history_control != NULL &&
+	    strcmp(conf_msgbox_history_control, "only-history") == 0) {
+		no_show = true;
+		return true;
+	}
+
 	/* メッセージボックスを初期化する */
 	init_msgbox();
 
@@ -690,6 +708,8 @@ static void init_flags_and_vars(void)
 	is_inline_wait = false;
 	inline_wait_time_total = 0;
 	do_draw_all = false;
+
+	no_show = false;
 }
 
 /* オートモードの場合の初期化処理を行う */
@@ -1042,6 +1062,11 @@ static bool register_message_for_history(const char *msg)
 
 	assert(msg != NULL);
 	assert(!gui_sys_flag);
+
+	/* ヒストリに登録しない場合 */
+	if (conf_msgbox_history_control != NULL &&
+	    strcmp(conf_msgbox_history_control, "no-history") == 0)
+		return true;
 
 	/* メッセージ履歴を登録する */
 	if (get_command_type() == COMMAND_SERIF) {
