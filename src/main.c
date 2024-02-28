@@ -557,6 +557,7 @@ static bool dispatch_command(bool *cont)
 		case COMMAND_GOSUB:
 		case COMMAND_RETURN:
 		case COMMAND_WMS:
+		case COMMAND_SETCONFIG:
 			render_collapsed_sysmenu(false);
 			break;
 		default:

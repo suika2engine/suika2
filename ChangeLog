@@ -5,13 +5,17 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.44 2024/2/28
+  <ul>
+    <li>@setconfigでのチラつきを修正 (Thanks to Ronron-san!)</li>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.43 2024/2/28
   <ul>
     <li>タッチスクリーン環境でメッセージ表示からヒストリ表示へ移行するスワイプの方向を修正 (Thanks to Ronron-san!)</li>
     <li>ヒストリ画面でのスワイプ時に１行送りでなく１ページ送りに変更 (Thanks to all!)</li>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.42 2024/2/28
   <ul>
     <li>メッセージをヒストリに追加しないモードを追加 "@setconfig msgbox.history.control no-history" (Thanks to あさつき-san!)</li>
@@ -1464,13 +1468,17 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.44 2024/2/28
+  <ul>
+    <li>Fixed a flicering on the setconfig command (Thanks to Ronron-san!)</li>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.43 2024/2/28
   <ul>
     <li>Fixed swipe directions (Thanks to Ronron-san!)</li>
     <li>Changed the amount of lines for swipe paging (Thanks to all!)</li>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.42 2024/2/28
   <ul>
     <li>Added a config "msgbox.history.control" (Thanks to Asatsuki-san!)</li>
