@@ -280,7 +280,7 @@ static bool suppress_se_forever;
 /* ヒストリの1ページあたりのスロット数 */
 static int history_slots;
 
-/* 表示する先頭のヒストリ番号 */
+/* 表示する先頭のヒストリ番号(index=0のヒストリオフセット番号) */
 static int history_top;
 
 /* ドラッグ中のヒストリのスライダー値 */
@@ -353,12 +353,10 @@ static void draw_history_buttons(void);
 static void draw_history_button(int button_index);
 static void draw_history_text_item(int button_index);
 static void process_button_render_history(int button_index);
-static void process_history_scroll_n(int delta);
+static void process_history_scroll_up(void);
+static void process_history_scroll_down(void);
 static void process_history_scroll_at(float pos);
 static void process_history_scroll_click(int index);
-#if 0
-static void update_history_top(int button_index);
-#endif
 static void process_history_voice(int button_index);
 static bool init_preview_buttons(void);
 static void reset_preview_buttons(void);
@@ -631,7 +629,6 @@ static bool add_button(int index)
 static bool set_button_key_value(const int index, const char *key,
 				 const char *val)
 {
-
 	struct gui_button *b;
 	int var_val;
 
@@ -983,24 +980,20 @@ static void process_input(void)
 	/* 左右キーを処理する */
 	process_left_right_arrow_keys();
 
-	/* マウスホイールか上下キーによるスクロールを処理する */
-#if defined(SUIKA_TARGET_IOS) || defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM)
+	/* マウスホイールか上下キーかスワイプによるスクロールを処理する */
 	if (is_down_pressed) {
-		process_history_scroll_n(-history_slots);
+		if (is_swiped)
+			process_history_scroll_up();
+		else
+			process_history_scroll_down();
 		update_runtime_props(false);
 	} else if (is_up_pressed) {
-		process_history_scroll_n(history_slots);
+		if (is_swiped)
+			process_history_scroll_down();
+		else
+			process_history_scroll_up();
 		update_runtime_props(false);
 	}
-#else
-	if (is_up_pressed) {
-		process_history_scroll_n(-history_slots);
-		update_runtime_props(false);
-	} else if (is_down_pressed) {
-		process_history_scroll_n(history_slots);
-		update_runtime_props(false);
-	}
-#endif
 
 	/* 右クリックでキャンセル可能な場合 */
 	if (cancelable) {
@@ -2786,71 +2779,58 @@ static void draw_history_text_item(int button_index)
 	draw_msg_common(&context, total_chars);
 }
 
-#if 0
-/* history_topを更新する */
-static void update_history_top(int button_index)
+/* 上スクロールを処理する */
+static void process_history_scroll_up(void)
 {
-	struct gui_button *b;
-	int history_count;
-	int old_history_top;
+	int history_count, old_history_top;
+	float pos;
 
-	b = &button[button_index];
 	old_history_top = history_top;
 
-	/* ヒストリの数がスロットの数より小さい場合 */
+	/* ヒストリの先頭位置を計算する */
 	history_count = get_history_count();
-	if (history_count <= history_slots) {
+	history_top++;
+	if (history_top >= history_count)
 		history_top = history_count - 1;
-		b->rt.slider = 0;
-		transient_history_slider = 0;
-		return;
-	}
 
-	/* ヒストリのトップを更新する */
-	history_top = (int)((float)((history_count - 1) -
-				    (history_slots - 1)) *
-			    (1.0f - transient_history_slider)) +
-			   (history_slots - 1);
-	assert(history_top >= history_slots - 1);
-	assert(history_top <= history_count - 1);
+	/* スクロール位置を計算する */
+	pos = 1.0f - (float)(history_top - (history_slots - 1)) / (float)((history_count - 1) - (history_slots - 1));
+	if (pos < 0)
+		pos = 0;
+	if (pos > 1.0f)
+		pos = 1.0f;
 
 	/* スライダの位置を補正する */
-	transient_history_slider = 1.0f -
-		(float)(history_top - (history_slots - 1)) /
-		(float)((history_count - 1) - (history_slots - 1));
-	b->rt.slider = transient_history_slider;
+	transient_history_slider = pos;
 
 	/* 再描画が必要な場合 */
 	if (history_top != old_history_top)
 		need_update_history_buttons = true;
 }
-#endif
 
-/* マウスホイールおよび上下キーによるスクロールを処理する */
-static void process_history_scroll_n(int delta)
+/* 下スクロールを処理する */
+static void process_history_scroll_down(void)
 {
 	int history_count, old_history_top;
+	float pos;
 
 	old_history_top = history_top;
 
-	/* ヒストリの数がスロットの数より小さい場合 */
+	/* ヒストリの先頭位置を計算する */
 	history_count = get_history_count();
-	if (history_count <= history_slots)
-		return;
+	history_top--;
+	if (history_top < 0)
+		history_top = 0;
 
-	/* スクロールする行数を減算する */
-	history_top -= delta;
-
-	/* 上限と下限でカットする */
-	if (history_top < history_slots)
-		history_top = history_slots - 1;
-	if (history_top >= history_count)
-		history_top = history_count - 1;
+	/* スクロール位置を計算する */
+	pos = 1.0f - (float)(history_top - (history_slots - 1)) / (float)((history_count - 1) - (history_slots - 1));
+	if (pos < 0)
+		pos = 0;
+	if (pos > 1.0f)
+		pos = 1.0f;
 
 	/* スライダの位置を補正する */
-	transient_history_slider = 1.0f -
-		(float)(history_top - (history_slots - 1)) /
-		(float)((history_count - 1) - (history_slots - 1));
+	transient_history_slider = pos;
 
 	/* 再描画が必要な場合 */
 	if (history_top != old_history_top)
@@ -2869,21 +2849,13 @@ static void process_history_scroll_at(float pos)
 	if (history_count <= history_slots)
 		return;
 
-	/* スクロールする行数を減算する */
-	history_top = (int)((float)history_count * (1.0f - pos));
-
-	/* 上限と下限でカットする */
-	if (history_top < history_slots)
-		history_top = history_slots - 1;
-	if (history_top >= history_count)
+	/* スクロール位置を計算する */
+	if (history_count <= history_slots)
 		history_top = history_count - 1;
+	else
+		history_top = (int)(((float)((history_count - 1) - (history_slots - 1)) * (1.0f - pos)) + (float)(history_slots - 1) + 0.5f);
 
 	/* スライダの位置を補正する */
-	/*
-	 * transient_history_slider = 1.0f -
-	 * 	(float)(history_top - (history_slots - 1)) /
-	 * 	(float)((history_count - 1) - (history_slots - 1));
-	 */
 	transient_history_slider = pos;
 
 	/* 再描画が必要な場合 */

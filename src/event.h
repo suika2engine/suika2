@@ -54,5 +54,7 @@ void on_event_mouse_press(int button, int x, int y);
 void on_event_mouse_release(int button, int x, int y);
 void on_event_mouse_move(int x, int y);
 void on_event_touch_cancel(void);
+void on_event_swipe_down(void);
+void on_event_swipe_up(void);
 
 #endif

@@ -50,12 +50,12 @@
 
 # メニューで"LOAD"が選択されたとき、ここにジャンプしてくる
 :LOAD
-@メニュー ファイル=load.txt
+@メニュー ファイル=load.txt cancel
 @ジャンプ 行き先=MENU
 
 # メニューで"CONFIG"が選択されたとき、ここにジャンプしてくる
 :CONFIG
-@メニュー ファイル=system.txt
+@メニュー ファイル=system.txt cancel
 @ジャンプ 行き先=MENU
 
 ###

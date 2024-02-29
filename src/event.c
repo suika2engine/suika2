@@ -266,3 +266,15 @@ void on_event_touch_cancel(void)
 
 	is_touch_canceled = true;
 }
+
+void on_event_swipe_down(void)
+{
+	is_down_pressed = true;
+	is_swiped = true;
+}
+
+void on_event_swipe_up(void)
+{
+	is_up_pressed = true;
+	is_swiped = true;
+}

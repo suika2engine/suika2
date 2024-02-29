@@ -47,4 +47,10 @@ const char *get_history_voice(int index);
 /* セリフがカッコで始まりカッコで終わるかチェックする */
 bool is_quoted_serif(const char *msg);
 
+/* セリフがカッコで始まるかチェックする */
+bool is_quote_started(const char *msg);
+
+/* セリフがカッコで終わるかチェックする */
+bool is_quote_ended(const char *msg);
+
 #endif

@@ -959,7 +959,7 @@ static bool init_msg_top(void)
 				return false;
 			}
 			free(exp_msg);
-		} else if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
+		} else if (conf_serif_quote && !is_quote_started(exp_msg)) {
 			/* カギカッコを付加する */
 			msg_top = concat_serif("", exp_msg);
 			if (msg_top == NULL) {

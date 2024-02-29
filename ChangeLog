@@ -5,13 +5,19 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.52 2024/3/1
+  <ul>
+    <li>「で始まるセリフに自動カギカッコを付けないように変更 (Thanks to あさつき-san!)</li>
+    <li>ヒストリーのスクロールバーの調整 (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
 <li>Suika2/16.51 2024/3/1
   <ul>
     <li>セリフの次に来る継続行で名前ボックスを消さないように変更 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.50 2024/2/29
   <ul>
     <li>GUIスクロールバーの挙動を調整 (Thanks to Ronron-san!)</li>
@@ -1509,13 +1515,19 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.52 2024/3/1
+  <ul>
+    <li>Fixed a Japanese quotation rule (Thanks to Asatsuki-san!)</li>
+    <li>Fixed behaviors of history scroll bar (Thanks to Asatsuki-san and Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
 <li>Suika2/16.51 2024/3/1
   <ul>
     <li>Changed to not hiding the NameBox when a continued line appeared after a line with name (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.50 2024/2/29
   <ul>
     <li>Adjustment on the behavior of scroll bar (Thanks to Ronron-san!)</li>

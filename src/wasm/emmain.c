@@ -393,13 +393,11 @@ static EM_BOOL cb_touchend(int eventType,
 	delta = touchEvent->touches[0].targetY - touch_start_y;
 	if (delta > FLICK_DISTANCE) {
 		on_event_touch_cancel();
-		on_event_key_press(KEY_DOWN);
-		on_event_key_release(KEY_DOWN);
+		on_event_swipe_down();
 		return EM_TRUE;
 	} else if (delta < -FLICK_DISTANCE) {
 		on_event_touch_cancel();
-		on_event_key_press(KEY_UP);
-		on_event_key_release(KEY_UP);
+		on_event_swipe_up();
 		return EM_TRUE;
 	}
 
@@ -461,7 +459,6 @@ void EMSCRIPTEN_KEEPALIVE setHidden(void)
 /* ポインタがCanvasからはみ出た際のコールバック */
 void EMSCRIPTEN_KEEPALIVE mouseLeave(void)
 {
-	on_event_mouse_move(-1, -1);
 	on_event_touch_cancel();
 }
 
