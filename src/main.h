@@ -61,6 +61,8 @@ extern bool is_h_pressed;
 extern int mouse_pos_x;
 extern int mouse_pos_y;
 extern bool is_mouse_dragging;
+extern bool is_touch_canceled;
+extern bool is_swiped;
 
 void clear_input_state(void);
 

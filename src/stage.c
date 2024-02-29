@@ -4137,6 +4137,10 @@ static void render_layer_image(int layer)
 	if (layer_image[layer] == NULL)
 		return;
 
+	/* クリックアニメーションが非表示のときは描画しない */
+	if (layer == LAYER_CLICK && conf_click_disable)
+		return;
+
 	/* 3Dの場合 */
 	if (layer_rotate[layer] != 0 ||
 	    layer_scale_x[layer] != 1.0f ||

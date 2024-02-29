@@ -5,12 +5,113 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.53 2024/3/1
+  <ul>
+    <li>透明ピクセルのRGB値を強制的に(0,0,0)にする機能を追加 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
+<li>Suika2/16.52 2024/3/1
+  <ul>
+    <li>「で始まるセリフに自動カギカッコを付けないように変更 (Thanks to あさつき-san!)</li>
+    <li>ヒストリーのスクロールバーの調整 (Thanks to あさつき-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.51 2024/3/1
+  <ul>
+    <li>セリフの次に来る継続行で名前ボックスを消さないように変更 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.50 2024/2/29
+  <ul>
+    <li>GUIスクロールバーの挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.49 2024/2/29
+  <ul>
+    <li>GUIスクロールバーの挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.48 2024/2/29
+  <ul>
+    <li>only-historyのチラつきを修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.47 2024/2/28
+  <ul>
+    <li>クリックアニメーションを表示しない場合のバグを修正 (Thanks to クエナイ-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.46 2024/2/28
+  <ul>
+    <li>クリックアニメーションを表示しない場合のバグを修正 (Thanks to クエナイ-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.45 2024/2/28
+  <ul>
+    <li>ヒストリーに記録して表示は行わないメッセージでのチラつきを修正 (Thanks to あさつき-san!)</li>
+    <li>ヒストリーのスクロールバーのノブについて挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.44 2024/2/28
+  <ul>
+    <li>@setconfigでのチラつきを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.43 2024/2/28
+  <ul>
+    <li>タッチスクリーン環境でメッセージ表示からヒストリ表示へ移行するスワイプの方向を修正 (Thanks to Ronron-san!)</li>
+    <li>ヒストリ画面でのスワイプ時に１行送りでなく１ページ送りに変更 (Thanks to all!)</li>
+  </ul>
+</li>
+<li>Suika2/16.42 2024/2/28
+  <ul>
+    <li>メッセージをヒストリに追加しないモードを追加 "@setconfig msgbox.history.control no-history" (Thanks to あさつき-san!)</li>
+    <li>メッセージをヒストリにだけ追加して表示しないモードを追加 "@setconfig msgbox.history.control only-history" (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.41 2024/2/27
+  <ul>
+    <li>Suika2 Proで@wms, @return, @seコマンドで折りたたみメニューが点滅するのを修正 (Thanks to あさつき-san!)</li>
+    <li>タイトル画面からコンフィグを呼び出すと右クリックでキャンセルができないのを修正 (Thanks to あさつき-san!)</ul>
+  </ul>
+</li>
+<li>Suika2/16.40 2024/2/27
+  <ul>
+    <li>描画のズレを修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.39 2024/2/26
+  <ul>
+    <li>GUIのスライダーの値が反映されないバグを修正 (Thanks to いそぎんちく-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.38 2024/2/26
+  <ul>
+    <li>継続行がメッセージ履歴に反映されないバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.37 2024/2/25
+  <ul>
+    <li>Web版でのタッチの動きに関する挙動を幾分緩和した (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.35 2024/2/25
+  <ul>
+    <li>Web版でのマウスの動きに関する挙動を幾分緩和した (Thanks to all!)</li>
+  </ul>
+</li>
+<li>Suika2/16.34 2024/2/25
+  <ul>
+    <li>bgmコマンドでonceを指定したときに、セーブ・ロードを経るとループされるバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.33 2024/2/24
   <ul>
     <li>背景変更時のエフェクトのうちslide系とshutter系の修正 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
 <li>Suika2/16.32 2024/2/24
   <ul>
     <li>内部バージョン</li>
@@ -1419,12 +1520,118 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.53 2024/3/1
+  <ul>
+    <li>Added a feature to zero-clear RGB value of pixels that have 0 alpha values (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
+<li>Suika2/16.52 2024/3/1
+  <ul>
+    <li>Fixed a Japanese quotation rule (Thanks to Asatsuki-san!)</li>
+    <li>Fixed behaviors of history scroll bar (Thanks to Asatsuki-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.51 2024/3/1
+  <ul>
+    <li>Changed to not hiding the NameBox when a continued line appeared after a line with name (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.50 2024/2/29
+  <ul>
+    <li>Adjustment on the behavior of scroll bar (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.49 2024/2/29
+  <ul>
+    <li>Adjustment on the behavior of scroll bar (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.48 2024/2/29
+  <ul>
+    <li>Fixed a flickering of "only-history" (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.47 2024/2/28
+  <ul>
+    <li>Fixed a bug of click.disable (Thanks to Kuenai-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.46 2024/2/28
+  <ul>
+    <li>Fixed a bug of click.disable (Thanks to Kuenai-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.45 2024/2/28
+  <ul>
+    <li>ヒストリーに記録して表示は行わないメッセージでのチラつきを修正 (Thanks to あさつき-san!)</li>
+    <li>ヒストリーのスクロールバーのノブについて挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.44 2024/2/28
+  <ul>
+    <li>Fixed a flicering on the setconfig command (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.43 2024/2/28
+  <ul>
+    <li>Fixed swipe directions (Thanks to Ronron-san!)</li>
+    <li>Changed the amount of lines for swipe paging (Thanks to all!)</li>
+  </ul>
+</li>
+<li>Suika2/16.42 2024/2/28
+  <ul>
+    <li>Added a config "msgbox.history.control" (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.41 2024/2/27
+  <ul>
+    <li>Fixed a flickering on Suika2 Pro (Thanks to Asatsuki-san!)>/li>
+    <li>Fixed a bug where GUI cannot be canceled by a right click (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.40 2024/2/27
+  <ul>
+    <li>Fixed a rendering coordinate bug (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.39 2024/2/26
+  <ul>
+    <li>GUIのスライダーの値が反映されないバグを修正 (Thanks to いそぎんちく-san and Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.38 2024/2/26
+  <ul>
+    <li>Fixed a bug where continued lines are not appended to the history (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.37 2024/2/25
+  <ul>
+    <li>Mitigated odd touch behaviors on the Web version (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.36 2024/2/25
+  <ul>
+    <li>Mitigated odd touch behaviors on the Web version (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.35 2024/2/25
+  <ul>
+    <li>Mitigated odd mouse behaviors on the Web version (Thanks to all!)</li>
+  </ul>
+</li>
+<li>Suika2/16.34 2024/2/25
+  <ul>
+    <li>Fixed the invalid loop of the bgm command (Thanks to Ronron-san!)</li>
+    <li>Fixed a bug where RGB-to-BGR conversion on OpenGL is invalid (Thanks to Akatsuki-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.33 2024/2/24
   <ul>
     <li>Fixed the fading effects (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
 <li>Suika2/16.32 2024/2/24
   <ul>
     <li>Internal version</li>

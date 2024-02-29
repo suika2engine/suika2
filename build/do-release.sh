@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Stop when failed.
 set -eu
 
 #
@@ -26,31 +27,6 @@ fi
 HEAD='head'
 if [ ! -z "`which ghead`" ]; then
     HEAD='ghead';
-fi
-
-#
-# Load credentials from build/.env file.
-#
-echo "Checking for build/.env credentials."
-if [ ! -e .env ]; then
-    echo "Error: please create build/.env file."
-    exit 1;
-fi
-FTP_USER=""
-FTP_PASSWORD=""
-FTP_URL=""
-eval `cat .env`;
-if [ -z "$FTP_USER" ]; then
-    echo "Error: please specify FTP_USER in build/.env";
-    exit 1;
-fi
-if [ -z "$FTP_PASSWORD" ]; then
-    echo "Error: please specify FTP_PASSWORD in build/.env";
-    exit 1;
-fi
-if [ -z "$FTP_URL" ]; then
-    echo "Error: please specify FTP_URL in build/.env";
-    exit 1;
 fi
 
 #
@@ -89,12 +65,12 @@ rm -f *.o
 if [ ! -e libroot ]; then
     ./build-libs.sh;
 fi
-make -j12
+make -j20
 sign.sh suika.exe
 cd ..
 
 #
-# Build "Suika.app".
+# Build the "Suika.app".
 #
 echo "Building Suika.app (suika-mac.dmg)."
 cd engine-macos
@@ -105,7 +81,7 @@ codesign --sign 'Developer ID Application: Keiichi TABATA' suika-mac.dmg
 cd ..
 
 #
-# Build Wasm files.
+# Build the Wasm files.
 #
 echo "Building Wasm files."
 cd engine-wasm
@@ -142,7 +118,7 @@ rm -f *.o
 if [ ! -e libroot ]; then
     cp -Rav ../engine-windows/libroot .;
 fi
-make -j12 VERSION="$VERSION"
+make -j20 VERSION="$VERSION"
 sign.sh suika-pro.exe
 cd ..
 
@@ -202,9 +178,9 @@ cd ..
 #
 echo "Uploading files."
 
-curl -T "installer-windows/suika2-installer.exe" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.exe"
-curl -T "installer-windows/suika2.zip" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.zip"
-curl -T "pro-macos/suika2.dmg" -u "$FTP_USER:$FTP_PASSWORD" "$FTP_URL/suika2-$VERSION.dmg"
+ftp-upload.sh installer-windows/suika2-installer.exe "dl/suika2-$VERSION.exe"
+ftp-upload.sh installer-windows/suika2.zip "dl/suika2-$VERSION.zip"
+ftp-upload.sh pro-macos/suika2.dmg "dl/suika2-$VERSION.dmg"
 echo "Upload completed."
 
 #
@@ -213,7 +189,14 @@ echo "Upload completed."
 echo ""
 echo "Updating the Web site."
 SAVE_DIR=`pwd`
-cd ../doc/web && ./templates.sh && ./version.sh && ./upload.sh && ./push.sh
+cd ../doc/web && \
+    ./templates.sh && \
+    ./version.sh && \
+    ftp-upload.sh index.html && \
+    ftp-upload.sh dl/index.html && \
+    ftp-upload.sh en/index.html && \
+    ftp-upload.sh en/dl/index.html && \
+    ./push.sh
 cd "$SAVE_DIR"
 
 #
@@ -225,3 +208,4 @@ mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
 # Finish.
 #
 echo "Finished. $VERSION was released!"
+echo "$NOTE_JP"

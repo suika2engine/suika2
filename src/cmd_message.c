@@ -216,7 +216,6 @@ static float inline_wait_time_total;
 /* インラインウェイトの経過時刻を表すストップウォッチ */
 static uint64_t inline_sw;
 
-
 /*
  * コマンドが開始されたときの状態 
  */
@@ -304,6 +303,13 @@ static const char *custom_gosub_label;
  */
 
 static bool need_dimming;
+
+/*
+ * その他
+ */
+
+/* ヒストリに残すが表示しない場合 */
+static bool no_show;
 
 /*
  * 前方参照
@@ -403,9 +409,17 @@ static bool cleanup(void);
 bool message_command(bool *cont)
 {
 	/* 初期化処理を行う */
-	if (!is_in_command_repetition())
+	if (!is_in_command_repetition()) {
 		if (!init())
 			return false;
+	}
+	if (no_show) {
+		render_stage();
+		if (!conf_sysmenu_hidden)
+			render_collapsed_sysmenu_extended();
+		move_to_next_command();
+		return true;
+	}
 
 	if (!pre_process())
 		return false;
@@ -600,6 +614,13 @@ static bool init(void)
 	if (!init_msg_top())
 		return false;
 
+	/* ヒストリに登録するが表示しない場合 */
+	if (conf_msgbox_history_control != NULL &&
+	    strcmp(conf_msgbox_history_control, "only-history") == 0) {
+		no_show = true;
+		return true;
+	}
+
 	/* メッセージボックスを初期化する */
 	init_msgbox();
 
@@ -690,6 +711,8 @@ static void init_flags_and_vars(void)
 	is_inline_wait = false;
 	inline_wait_time_total = 0;
 	do_draw_all = false;
+
+	no_show = false;
 }
 
 /* オートモードの場合の初期化処理を行う */
@@ -936,7 +959,7 @@ static bool init_msg_top(void)
 				return false;
 			}
 			free(exp_msg);
-		} else if (conf_serif_quote && !is_quoted_serif(exp_msg)) {
+		} else if (conf_serif_quote && !is_quote_started(exp_msg)) {
 			/* カギカッコを付加する */
 			msg_top = concat_serif("", exp_msg);
 			if (msg_top == NULL) {
@@ -1042,6 +1065,11 @@ static bool register_message_for_history(const char *msg)
 
 	assert(msg != NULL);
 	assert(!gui_sys_flag);
+
+	/* ヒストリに登録しない場合 */
+	if (conf_msgbox_history_control != NULL &&
+	    strcmp(conf_msgbox_history_control, "no-history") == 0)
+		return true;
 
 	/* メッセージ履歴を登録する */
 	if (get_command_type() == COMMAND_SERIF) {
@@ -1232,8 +1260,10 @@ static bool init_serif(void)
 		/* ボイスはない */
 		have_voice = false;
 
-		/* 名前ボックスを表示しない */
-		show_namebox(false);
+		/* 名前ボックスを表示しない(継続行の場合は表示状態を変えない) */
+		if (!is_continue_mode)
+			show_namebox(false);
+
 		is_beep = false;
 		return true;
 	}

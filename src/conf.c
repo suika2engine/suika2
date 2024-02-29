@@ -168,6 +168,7 @@ int conf_msgbox_seen_outline_color_g;
 int conf_msgbox_seen_outline_color_b;
 int conf_msgbox_tategaki;
 int conf_msgbox_nowait;
+char *conf_msgbox_history_control;
 
 /*
  * クリックアニメーションの設定
@@ -178,6 +179,7 @@ int conf_click_move;
 char *conf_click_file[16];
 float conf_click_interval;
 int click_frames;
+int conf_click_disable;
 
 /*
  * スイッチの設定
@@ -405,9 +407,6 @@ int conf_tts_enable;
 /* Text-To-Speechをユーザが有効にできる */
 int conf_tts_user;
 
-/* クリックアニメーションを点滅させない */
-int conf_click_disable;
-
 /*
  * その他の設定
  */
@@ -601,6 +600,7 @@ static struct rule {
 	{"msgbox.seen.outline.color.b", 'i', &conf_msgbox_seen_outline_color_b, OPTIONAL, SAVE},
 	{"msgbox.tategaki", 'i', &conf_msgbox_tategaki, OPTIONAL, SAVE},
 	{"msgbox.nowait", 'i', &conf_msgbox_nowait, OPTIONAL, SAVE},
+	{"msgbox.history.control", 's', &conf_msgbox_history_control, OPTIONAL, SAVE},
 	{"click.x", 'i', &conf_click_x, MUST, SAVE},
 	{"click.y", 'i', &conf_click_y, MUST, SAVE},
 	{"click.move", 'i', &conf_click_move, OPTIONAL, SAVE},

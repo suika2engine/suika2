@@ -51,6 +51,8 @@ bool is_control_pressed;
 bool is_s_pressed;
 bool is_l_pressed;
 bool is_h_pressed;
+bool is_touch_canceled;
+bool is_swiped;
 
 int mouse_pos_x;
 int mouse_pos_y;
@@ -223,6 +225,8 @@ bool game_loop_iter(void)
 	is_s_pressed = false;
 	is_l_pressed = false;
 	is_h_pressed = false;
+	is_touch_canceled = false;
+	is_swiped = false;
 
 	return true;
 }
@@ -544,6 +548,7 @@ static bool dispatch_command(bool *cont)
 		render_stage();
 		switch (command_type) {
 		case COMMAND_BGM:
+		case COMMAND_SE:
 		case COMMAND_VOL:
 		case COMMAND_SET:
 		case COMMAND_IF:
@@ -552,6 +557,9 @@ static bool dispatch_command(bool *cont)
 		case COMMAND_LABELEDGOTO:
 		case COMMAND_GOTO:
 		case COMMAND_GOSUB:
+		case COMMAND_RETURN:
+		case COMMAND_WMS:
+		case COMMAND_SETCONFIG:
 			render_collapsed_sysmenu(false);
 			break;
 		default:

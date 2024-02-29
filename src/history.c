@@ -142,7 +142,7 @@ bool register_message(const char *name, const char *msg, const char *voice,
 		/* "名前「メッセージ」"の形式に連結して保存する */
 		if (conf_locale == LOCALE_JA || conf_serif_quote) {
 			/* 日本語 */
-			if (!is_quoted_serif(msg)) {
+			if (!is_quote_started(msg)) {
 				/* カッコがない場合 */
 				snprintf(tmp_text, TEXT_SIZE,
 					 "\\#{%06x}%s\\#{%06x}%s%s%s%s",
@@ -223,7 +223,7 @@ bool append_message(const char *msg)
 
 	/* 追記するヒストリ項目を求める */
 	h = &history[last_history_index];
-	if (h->text != NULL)
+	if (h->text == NULL)
 		h->text = strdup("");
 
 	/* メモリを確保する */
@@ -360,5 +360,47 @@ bool is_quoted_serif(const char *msg)
 			return true;
 	}
 
+	return false;
+}
+
+/* セリフがカッコで始まるかチェックする */
+bool is_quote_started(const char *msg)
+{
+	const char *items[] = {
+		U8("（"),
+		U8("「"),
+		U8("『"),
+		U8("『"),
+		U8("︵"),
+		U8("﹁"),
+		U8("﹃"),
+	};
+	size_t i;
+
+	for (i = 0; i < sizeof(items) / sizeof(const char *); i++) {
+		if (strncmp(msg, items[i], strlen(items[i])) == 0)
+			return true;
+	}
+	return false;
+}
+
+/* セリフがカッコで終わるかチェックする */
+bool is_quote_ended(const char *msg)
+{
+	const char *items[] = {
+		U8("）"),
+		U8("」"),
+		U8("』"),
+		U8("』"),
+		U8("︶"),
+		U8("﹂"),
+		U8("﹄"),
+	};
+	size_t i;
+
+	for (i = 0; i < sizeof(items) / sizeof(const char *); i++) {
+		if (strncmp(msg + strlen(msg) - strlen(items[i]), items[i], strlen(items[i])) == 0)
+			return true;
+	}
 	return false;
 }
