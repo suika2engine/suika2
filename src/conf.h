@@ -189,6 +189,7 @@ extern int conf_click_move;
 extern char *conf_click_file[16];
 extern float conf_click_interval;
 extern int click_frames;
+extern int conf_click_disable;
 
 /*
  * スイッチの設定

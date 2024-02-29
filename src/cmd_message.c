@@ -414,6 +414,9 @@ bool message_command(bool *cont)
 			return false;
 	}
 	if (no_show) {
+		render_stage();
+		if (!conf_sysmenu_hidden)
+			render_collapsed_sysmenu_extended();
 		move_to_next_command();
 		return true;
 	}

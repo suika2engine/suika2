@@ -5,30 +5,61 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/16.44 2024/2/28
+<li>Suika2/16.49 2024/2/29
   <ul>
-    <li>@setconfigでのチラつきを修正 (Thanks to Ronron-san!)</li>
+    <li>GUIスクロールバーの挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
 </li>
 <!-- END-LATEST-JP -->
 
+<li>Suika2/16.48 2024/2/29
+  <ul>
+    <li>only-historyのチラつきを修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.47 2024/2/28
+  <ul>
+    <li>クリックアニメーションを表示しない場合のバグを修正 (Thanks to クエナイ-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.46 2024/2/28
+  <ul>
+    <li>クリックアニメーションを表示しない場合のバグを修正 (Thanks to クエナイ-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.45 2024/2/28
+  <ul>
+    <li>ヒストリーに記録して表示は行わないメッセージでのチラつきを修正 (Thanks to あさつき-san!)</li>
+    <li>ヒストリーのスクロールバーのノブについて挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.44 2024/2/28
+  <ul>
+    <li>@setconfigでのチラつきを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.43 2024/2/28
   <ul>
     <li>タッチスクリーン環境でメッセージ表示からヒストリ表示へ移行するスワイプの方向を修正 (Thanks to Ronron-san!)</li>
     <li>ヒストリ画面でのスワイプ時に１行送りでなく１ページ送りに変更 (Thanks to all!)</li>
+  </ul>
 </li>
 <li>Suika2/16.42 2024/2/28
   <ul>
     <li>メッセージをヒストリに追加しないモードを追加 "@setconfig msgbox.history.control no-history" (Thanks to あさつき-san!)</li>
     <li>メッセージをヒストリにだけ追加して表示しないモードを追加 "@setconfig msgbox.history.control only-history" (Thanks to あさつき-san!)</li>
+  </ul>
 </li>
 <li>Suika2/16.41 2024/2/27
   <ul>
     <li>Suika2 Proで@wms, @return, @seコマンドで折りたたみメニューが点滅するのを修正 (Thanks to あさつき-san!)</li>
     <li>タイトル画面からコンフィグを呼び出すと右クリックでキャンセルができないのを修正 (Thanks to あさつき-san!)</ul>
+  </ul>
 </li>
 <li>Suika2/16.40 2024/2/27
   <ul>
     <li>描画のズレを修正 (Thanks to あさつき-san!)</li>
+  </ul>
 </li>
 <li>Suika2/16.39 2024/2/26
   <ul>
@@ -1468,20 +1499,49 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/16.44 2024/2/28
+<li>Suika2/16.49 2024/2/29
   <ul>
-    <li>Fixed a flicering on the setconfig command (Thanks to Ronron-san!)</li>
+    <li>Adjustment on the behavior of scroll bar (Thanks to Ronron-san!)</li>
+  </ul>
 </li>
 <!-- END-LATEST-EN -->
 
+<li>Suika2/16.48 2024/2/29
+  <ul>
+    <li>Fixed a flickering of "only-history" (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.47 2024/2/28
+  <ul>
+    <li>Fixed a bug of click.disable (Thanks to Kuenai-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.46 2024/2/28
+  <ul>
+    <li>Fixed a bug of click.disable (Thanks to Kuenai-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.45 2024/2/28
+  <ul>
+    <li>ヒストリーに記録して表示は行わないメッセージでのチラつきを修正 (Thanks to あさつき-san!)</li>
+    <li>ヒストリーのスクロールバーのノブについて挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.44 2024/2/28
+  <ul>
+    <li>Fixed a flicering on the setconfig command (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.43 2024/2/28
   <ul>
     <li>Fixed swipe directions (Thanks to Ronron-san!)</li>
     <li>Changed the amount of lines for swipe paging (Thanks to all!)</li>
+  </ul>
 </li>
 <li>Suika2/16.42 2024/2/28
   <ul>
     <li>Added a config "msgbox.history.control" (Thanks to Asatsuki-san!)</li>
+  </ul>
 </li>
 <li>Suika2/16.41 2024/2/27
   <ul>

@@ -118,7 +118,7 @@ static struct gui_button {
 	/* TYPE_GOTO, TYPE_GALLERY */
 	char *label;
 
-	/* TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI, TYPE_FONT TYPE_WMS*/
+	/* TYPE_BGMVOL, TYPE_VOICEVOL, TYPE_SEVOL, TYPE_GUI, TYPE_FONT TYPE_WMS */
 	char *file;
 
 	/* すべてのボタン */
@@ -165,7 +165,7 @@ static struct gui_button {
 		/* ドラッグ中か */
 		bool is_dragging;
 
-		/* ボリューム・スピードのスライダーの値 */
+		/* ボリューム・スピード・スクロールバーのスライダーの値 */
 		float slider;
 
 		/* サムネイル、フォント描画用 */
@@ -1630,12 +1630,14 @@ static void process_button_drag(int index)
 	/* 同じタイプのボタンが複数ある場合のために、他のボタンの更新を行う */
 	update_runtime_props(false);
 
+#if 0
 	/* ポイント範囲外になった場合はドラッグをキャンセルする */
 	if (pointed_index != index) {
 		b->rt.is_dragging = false;
 		dragging_index = -1;
 		is_drag_finished = true;
 	}
+#endif
 }
 
 /* スライダの値を計算する */
@@ -2907,9 +2909,12 @@ static void process_history_scroll_at(float pos)
 		history_top = history_count - 1;
 
 	/* スライダの位置を補正する */
-	transient_history_slider = 1.0f -
-		(float)(history_top - (history_slots - 1)) /
-		(float)((history_count - 1) - (history_slots - 1));
+	/*
+	 * transient_history_slider = 1.0f -
+	 * 	(float)(history_top - (history_slots - 1)) /
+	 * 	(float)((history_count - 1) - (history_slots - 1));
+	 */
+	transient_history_slider = pos;
 
 	/* 再描画が必要な場合 */
 	if (history_top != old_history_top)

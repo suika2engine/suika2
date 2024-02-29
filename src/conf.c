@@ -179,6 +179,7 @@ int conf_click_move;
 char *conf_click_file[16];
 float conf_click_interval;
 int click_frames;
+int conf_click_disable;
 
 /*
  * スイッチの設定
@@ -405,9 +406,6 @@ int conf_tts_enable;
 
 /* Text-To-Speechをユーザが有効にできる */
 int conf_tts_user;
-
-/* クリックアニメーションを点滅させない */
-int conf_click_disable;
 
 /*
  * その他の設定
