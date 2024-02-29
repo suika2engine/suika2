@@ -1260,8 +1260,10 @@ static bool init_serif(void)
 		/* ボイスはない */
 		have_voice = false;
 
-		/* 名前ボックスを表示しない */
-		show_namebox(false);
+		/* 名前ボックスを表示しない(継続行の場合は表示状態を変えない) */
+		if (!is_continue_mode)
+			show_namebox(false);
+
 		is_beep = false;
 		return true;
 	}
