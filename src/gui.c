@@ -858,10 +858,9 @@ static void update_runtime_props(bool is_first_time)
 				button[i].rt.is_active = false;
 			break;
 		case TYPE_HISTORYSCROLL:
-			button[i].rt.slider = transient_history_slider;
-			break;
 		case TYPE_HISTORYSCROLL_HORIZONTAL:
 			button[i].rt.slider = transient_history_slider;
+			process_history_scroll_at(button[i].rt.slider);
 			break;
 		default:
 			break;
@@ -1447,24 +1446,6 @@ static bool process_button_point(int index, bool key)
 	if (dragging_index != -1 && dragging_index != index)
 		return false;
 
-	/* タッチ対応 */
-#if defined(SUIKA_TARGET_IOS) || defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM)
-	/* タッチムーブがキャンセルされた場合 */
-	if (is_touch_canceled) {
-		if (pointed_index == index)
-			pointed_index = -1;
-		return false;
-	}
-
-	/* ドラッグが完了したとき、スクロールバーを非選択状態にする */
-	if (is_drag_finished &&
-	    (b->type == TYPE_HISTORYSCROLL || b->type == TYPE_HISTORYSCROLL_HORIZONTAL)) {
-		if (pointed_index == index)
-			pointed_index = -1;
-		return false;
-	}
-#endif
-
 	/* キー操作の場合 */
 	if (key) {
 		/* ポイントされている状態にする */
@@ -1619,8 +1600,6 @@ static void process_button_drag(int index)
 			break;
 		case TYPE_HISTORYSCROLL:
 		case TYPE_HISTORYSCROLL_HORIZONTAL:
-			/* ヒストリーのスクロールバーを設定する */
-			process_history_scroll_at(b->rt.slider);
 			break;
 		default:
 			break;
@@ -1629,15 +1608,6 @@ static void process_button_drag(int index)
 
 	/* 同じタイプのボタンが複数ある場合のために、他のボタンの更新を行う */
 	update_runtime_props(false);
-
-#if 0
-	/* ポイント範囲外になった場合はドラッグをキャンセルする */
-	if (pointed_index != index) {
-		b->rt.is_dragging = false;
-		dragging_index = -1;
-		is_drag_finished = true;
-	}
-#endif
 }
 
 /* スライダの値を計算する */

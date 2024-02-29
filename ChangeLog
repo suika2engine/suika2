@@ -5,13 +5,18 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
-<li>Suika2/16.49 2024/2/29
+<li>Suika2/16.50 2024/2/29
   <ul>
     <li>GUIスクロールバーの挙動を調整 (Thanks to Ronron-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-JP -->
 
+<li>Suika2/16.49 2024/2/29
+  <ul>
+    <li>GUIスクロールバーの挙動を調整 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.48 2024/2/29
   <ul>
     <li>only-historyのチラつきを修正 (Thanks to あさつき-san!)</li>
@@ -1499,13 +1504,18 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
-<li>Suika2/16.49 2024/2/29
+<li>Suika2/16.50 2024/2/29
   <ul>
     <li>Adjustment on the behavior of scroll bar (Thanks to Ronron-san!)</li>
   </ul>
 </li>
 <!-- END-LATEST-EN -->
 
+<li>Suika2/16.49 2024/2/29
+  <ul>
+    <li>Adjustment on the behavior of scroll bar (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.48 2024/2/29
   <ul>
     <li>Fixed a flickering of "only-history" (Thanks to Asatsuki-san!)</li>
