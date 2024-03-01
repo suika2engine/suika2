@@ -75,13 +75,9 @@ public class MainActivity extends Activity {
     private native boolean nativeRunFrame();
     private native boolean nativeOnPause();
     private native boolean nativeOnResume();
-    private native void nativeOnTouchOneDown(int x, int y);
-    private native void nativeOnTouchTwoDown(int x, int y);
+    private native void nativeOnTouchStart(int x, int y, int points);
     private native void nativeOnTouchMove(int x, int y);
-    private native void nativeOnTouchScrollUp();
-    private native void nativeOnTouchScrollDown();
-    private native void nativeOnTouchOneUp(int x, int y);
-    private native void nativeOnTouchTwoUp(int x, int y);
+    private native void nativeOnTouchEnd(int x, int y, int points);
 
     //
     // Constants
@@ -259,25 +255,13 @@ public class MainActivity extends Activity {
             synchronized(syncObj) {
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-                        touchLastY = y;
-                        if (pointed == 1)
-                            nativeOnTouchOneDown(x, y);
-                        else
-                            nativeOnTouchTwoDown(x, y);
+						nativeOnTouchBegin(x, y, pointed);
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (delta > LINE_HEIGHT)
-                            nativeOnTouchScrollDown();
-                        else if (delta < -LINE_HEIGHT)
-                            nativeOnTouchScrollUp();
-                        touchLastY = y;
                         nativeOnTouchMove(x, y);
                         break;
                     case MotionEvent.ACTION_UP:
-                        if (touchCount == 1)
-                            nativeOnTouchOneUp(x, y);
-                        else
-                            nativeOnTouchTwoUp(x, y);
+						nativeOnTouchEnd(x, y, touchCount);
                         break;
                 }
             }

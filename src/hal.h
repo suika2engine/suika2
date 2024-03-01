@@ -409,7 +409,7 @@ void speak_text(const char *text);
 /*
  * Enable/disable message skip by touch move.
  */
-#if defined(SUIKA_TARGET_WASM)
+#if defined(SUIKA_TARGET_IOS) || defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM)
 void set_continuous_swipe_enabled(bool is_enabled);
 #else
 static inline void set_continuous_swipe_enabled(bool is_enabled) { UNUSED_PARAMETER(is_enabled); }

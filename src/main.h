@@ -38,6 +38,12 @@
 /* ヒストリのGUIファイル */
 #define HISTORY_GUI_FILE	"history.txt"
 
+/* custom1のGUIファイル */
+#define CUSTOM1_GUI_FILE	"custom1.txt"
+
+/* custom2のGUIファイル */
+#define CUSTOM2_GUI_FILE	"custom2.txt"
+
 /*
  * 入力の状態
  */

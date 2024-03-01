@@ -179,7 +179,7 @@ cd ..
 echo "Uploading files."
 
 ftp-upload.sh installer-windows/suika2-installer.exe "dl/suika2-$VERSION.exe"
-ftp-upload.sh installer-windows/suika2.zip "dl/suika2-$VERSION.zip"
+ftp-upload.sh installer-windows/suika2.7z "dl/suika2-$VERSION.7z"
 ftp-upload.sh pro-macos/suika2.dmg "dl/suika2-$VERSION.dmg"
 echo "Upload completed."
 

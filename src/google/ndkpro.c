@@ -219,144 +219,99 @@ Java_jp_luxion_suikapro_MainActivity_nativeOnResume(
 }
 
 JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneDown(
+Java_jp_luxion_suika_MainActivity_nativeOnTouchStart(
+        JNIEnv *env,
+        jobject instance,
+        jint x,
+        jint y,
+	jint points)
+{
+	jni_env = env;
+	{
+		touch_start_x = x;
+		touch_start_y = y;
+		touch_last_y = y;
+		on_event_mouse_press(MOUSE_LEFT, x, y);
+	}
+	jni_env = NULL;
+}
+
+JNIEXPORT void JNICALL
+Java_jp_luxion_suika_MainActivity_nativeOnTouchMove(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
 	jint y)
 {
 	jni_env = env;
-	on_event_mouse_press(MOUSE_LEFT, x, y);
+	do {
+		// Emulate a wheel down.
+		const int FLICK_Y_DISTANCE = 30;
+		int delta_y = y - touch_last_y;
+		touch_last_y = y;
+		if (is_continuous_swipe_enabled) {
+			if (delta_y > 0 && delta_y < FLICK_Y_DISTANCE) {
+				on_event_key_press(KEY_DOWN);
+				on_event_key_release(KEY_DOWN);
+				break;
+			}
+		}
+
+		// Emulate a mouse move.
+		on_event_mouse_move(x, y);
+	} while (0);
 	jni_env = NULL;
 }
 
 JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoDown(
+Java_jp_luxion_suika_MainActivity_nativeOnTouchEnd(
 	JNIEnv *env,
 	jobject instance,
 	jint x,
-	jint y)
+	jint y,
+	jint points)
 {
 	jni_env = env;
-	on_event_mouse_press(MOUSE_RIGHT, x, y);
-	jni_env = NULL;
-}
 
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnTouchMove(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_move(x, y);
-	jni_env = NULL;
-}
+	do {
+		// Detect a down/up swipe.
+		const int FLICK_Y_DISTANCE = 50;
+		int delta_y = y - touch_start_y;
+		if (delta_y > FLICK_Y_DISTANCE) {
+			on_event_touch_cancel();
+			on_event_swipe_down();
+			break;
+		} else if (delta_y < -FLICK_Y_DISTANCE) {
+			on_event_touch_cancel();
+			on_event_swipe_up();
+			break;
+		}
 
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollUp(
-	JNIEnv *env,
-	jobject instance)
-{
-	jni_env = env;
-	on_event_key_press(KEY_UP);
-	on_event_key_release(KEY_UP);
-	jni_env = NULL;
-}
+		// Emulate a left click.
+		const int FINGER_DISTANCE = 10;
+		if (points == 1 &&
+		    abs(x - touch_start_x) < FINGER_DISTANCE &&
+		    abs(y - touch_start_y) < FINGER_DISTANCE) {
+			on_event_touch_cancel();
+			on_event_mouse_press(MOUSE_LEFT, x, y);
+			on_event_mouse_release(MOUSE_LEFT, x, y);
+			break;
+		}
 
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnTouchScrollDown(
-	JNIEnv *env,
-	jobject instance)
-{
-	jni_env = env;
-	on_event_key_press(KEY_DOWN);
-	on_event_key_release(KEY_DOWN);
-	jni_env = NULL;
-}
+		// Emulate a right click.
+		if (points == 2 &&
+		    abs(x - touch_start_x) < FINGER_DISTANCE &&
+		    abs(y - touch_start_y) < FINGER_DISTANCE) {
+			on_event_touch_cancel();
+			on_event_mouse_press(MOUSE_RIGHT, x, y);
+			on_event_mouse_release(MOUSE_RIGHT, x, y);
+			break;
+		}
 
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnTouchOneUp(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_release(MOUSE_LEFT, x, y);
-	jni_env = NULL;
-}
+		// Cancel the touch move.
+		on_event_touch_cancel();
+	} while (0);
 
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnTouchTwoUp(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_release(MOUSE_RIGHT, x, y);
-	jni_env = NULL;
-}
-
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftDown(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_press(MOUSE_LEFT, x, y);
-	jni_env = NULL;
-}
-
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnMouseLeftUp(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_release(MOUSE_LEFT, x, y);
-	jni_env = NULL;
-}
-
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightDown(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_press(MOUSE_RIGHT, x, y);
-	jni_env = NULL;
-}
-
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnMouseRightUp(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_release(MOUSE_RIGHT, x, y);
-	jni_env = NULL;
-}
-
-JNIEXPORT void JNICALL
-Java_jp_luxion_suikapro_MainActivity_nativeOnMouseMove(
-	JNIEnv *env,
-	jobject instance,
-	jint x,
-	jint y)
-{
-	jni_env = env;
-	on_event_mouse_move(x, y);
 	jni_env = NULL;
 }
 

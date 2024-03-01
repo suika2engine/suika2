@@ -76,8 +76,8 @@ public class VideoSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 		// Mutually exclude with the rendering thread.
 		synchronized(MainActivity.instance.syncObj) {
 			// No need for a coordinate, just skip the video.
-			MainActivity.instance.nativeOnTouchOneDown(0, 0);
-			MainActivity.instance.nativeOnTouchOneUp(0, 0);
+			MainActivity.instance.nativeOnTouchStart(0, 0, 1);
+			MainActivity.instance.nativeOnTouchEnd(0, 0, 1);
 		}
 		return true;
 	}

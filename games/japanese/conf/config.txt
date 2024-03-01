@@ -493,25 +493,27 @@ sysmenu.config.width=60
 sysmenu.config.height=58
 
 # [サンプルでは未使用]
-# システムメニューのユーザ定義ボタン1の座標(システムメニュー画像内での座標) (省略可)
+#  - システムメニューのユーザ定義ボタン1の座標(システムメニュー画像内での座標) (省略可)
+#  - gui/custom1.txtが呼び出される
 #sysmenu.custom1.x=0
 #sysmenu.custom1.y=0
 #sysmenu.custom1.width=0
 #sysmenu.custom1.height=0
 
 # [サンプルでは未使用]
-# システムメニューのユーザ定義ボタン1が選択されたときのSE(省略可)
+#  - システムメニューのユーザ定義ボタン1が選択されたときのSE(省略可)
 #sysmenu.custom1.se=click.ogg
 
 # [サンプルでは未使用]
-# システムメニューのユーザ定義ボタン2の座標(システムメニュー画像内での座標) (省略可)
+#  - システムメニューのユーザ定義ボタン2の座標(システムメニュー画像内での座標) (省略可)
+#  - gui/custom2.txtが呼び出される
 #sysmenu.custom2.x=0
 #sysmenu.custom2.y=0
 #sysmenu.custom2.width=0
 #sysmenu.custom2.height=0
 
 # [サンプルでは未使用]
-# システムメニューのユーザ定義ボタン2が選択されたときのSE(省略可)
+# - システムメニューのユーザ定義ボタン2が選択されたときのSE(省略可)
 #sysmenu.custom2.se=click.ogg
 
 # [システムメニューを呼び出すときのSE] (省略可)

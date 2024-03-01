@@ -44,6 +44,7 @@ suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_MACOS)
 		--format ULFO \
 		"suika2.dmg" \
 		"tmp"
+	@codesign --sign 'Developer ID Application: Keiichi TABATA' suika2.dmg
 
 libroot:
 	./build-libs.sh
