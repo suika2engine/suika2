@@ -412,7 +412,7 @@ void speak_text(const char *text);
 #if defined(SUIKA_TARGET_WASM)
 void set_continuous_swipe_enabled(bool is_enabled);
 #else
-inline void set_continuous_swipe_enabled(bool is_enabled) { UNUSED_PARAMETER(is_enabled); }
+static inline void set_continuous_swipe_enabled(bool is_enabled) { UNUSED_PARAMETER(is_enabled); }
 #endif
 
 #endif /* SUIKA_HAL_H */
