@@ -722,6 +722,10 @@ static void init_auto_mode(void)
 	if (gui_sys_flag)
 		return;
 
+	/* ヒストリに残して表示しない場合は処理しない */
+	if (strcmp(conf_msgbox_history_control, "only-history") == 0)
+		return;
+
 	/* オートモードの場合 */
 	if (is_auto_mode()) {
 		/* リターンキー、下キーの入力を無効にする */
@@ -735,6 +739,10 @@ static void init_skip_mode(void)
 {
 	/* システムGUIから戻った場合は処理しない */
 	if (gui_sys_flag)
+		return;
+
+	/* ヒストリに残して表示しない場合は処理しない */
+	if (strcmp(conf_msgbox_history_control, "only-history") == 0)
 		return;
 
 	/* スキップモードの場合 */
