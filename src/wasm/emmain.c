@@ -126,12 +126,6 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 		function onMouseLeave() {
 			Module.ccall('mouseLeave');
 		}
-		window.ontouchmove = preventDefault;
-		window.onwheel = preventDefault;
-		document.ontouchmove = preventDefault;
-		document.onwheel = preventDefault;
-		document.body.addEventListener('touchmove', preventDefault, { passive: false });
-		document.body.addEventListener('wheel', preventDefault, { passive: false });
 		window.addEventListener('resize', resizeWindow);
 		document.addEventListener('visibilitychange', visibilityChange);
 		document.getElementById('canvas').addEventListener('mouseleave', onMouseLeave);
@@ -337,9 +331,10 @@ static int get_keycode(const char *key)
 }
 
 /* touchstartのコールバック */
-static EM_BOOL cb_touchstart(int eventType,
-			     const EmscriptenTouchEvent *touchEvent,
-			     void *userData)
+static EM_BOOL
+cb_touchstart(int eventType,
+	      const EmscriptenTouchEvent *touchEvent,
+	      void *userData)
 {
 	double w, h, scale;
 	int x, y;
@@ -353,18 +348,20 @@ static EM_BOOL cb_touchstart(int eventType,
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
-	on_event_mouse_release(MOUSE_LEFT, -1, -1);
-	on_event_mouse_release(MOUSE_RIGHT, -1, -1);
+	/* 既存のタッチムーブを解除する */
+	on_event_touch_cancel();
 
+	/* マウス押下/タッチ開始のどちらであれ、マウス押下として処理する */
 	on_event_mouse_press(MOUSE_LEFT, x, y);
 
 	return EM_TRUE;
 }
 
 /* touchmoveのコールバック */
-static EM_BOOL cb_touchmove(int eventType,
-			    const EmscriptenTouchEvent *touchEvent,
-			    void *userData)
+static EM_BOOL
+cb_touchmove(int eventType,
+	     const EmscriptenTouchEvent *touchEvent,
+	     void *userData)
 {
 	double w, h, scale;
 	int delta, x, y;
@@ -375,27 +372,29 @@ static EM_BOOL cb_touchmove(int eventType,
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
+	/* マウス移動/タッチムーブのどちらであれ、マウス移動として処理する */
 	on_event_mouse_move(x, y);
 
 	return EM_TRUE;
 }
 
 /* touchendのコールバック */
-static EM_BOOL cb_touchend(int eventType,
-			   const EmscriptenTouchEvent *touchEvent,
-			   void *userData)
+static EM_BOOL
+cb_touchend(int eventType,
+	    const EmscriptenTouchEvent *touchEvent,
+	    void *userData)
 {
 	const int FLICK_DISTANCE = 50;
 	const int FINGER_DISTANCE = 10;
 	double w, h, scale;
-	int x, y, delta;
+	int x, y, delta_y;
 
-	delta = touchEvent->touches[0].targetY - touch_start_y;
-	if (delta > FLICK_DISTANCE) {
+	delta_y = touchEvent->touches[0].targetY - touch_start_y;
+	if (delta_y > FLICK_DISTANCE) {
 		on_event_touch_cancel();
 		on_event_swipe_down();
 		return EM_TRUE;
-	} else if (delta < -FLICK_DISTANCE) {
+	} else if (delta_y < -FLICK_DISTANCE) {
 		on_event_touch_cancel();
 		on_event_swipe_up();
 		return EM_TRUE;
@@ -406,17 +405,23 @@ static EM_BOOL cb_touchend(int eventType,
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
+	if (x < 0 || x >= conf_window_width ||
+	    y < 0 || y >= conf_window_height) {
+		/* キャバス外にはみ出した場合は処理しない */
+		return EM_TRUE;
+	}
 
-	/* 1本指でタップして、距離が誤差範囲内の場合、左クリックとする */
+	/* 1本指でタップして、距離が誤差範囲内の場合、左クリック相当とする */
 	if (touchEvent->numTouches == 1 &&
 	    abs(touchEvent->touches[0].targetX - touch_start_x) < FINGER_DISTANCE &&
 	    abs(touchEvent->touches[0].targetY - touch_start_y) < FINGER_DISTANCE) {
+		on_event_touch_cancel();
 		on_event_mouse_press(MOUSE_LEFT, x, y);
 		on_event_mouse_release(MOUSE_LEFT, x, y);
 		return EM_TRUE;
 	}
 
-	/* 2本指でタップした場合、右クリックとする */
+	/* 2本指でタップした場合、右クリック相当とする */
 	if (touchEvent->numTouches == 2) {
 		on_event_touch_cancel();
 		on_event_mouse_press(MOUSE_RIGHT, x, y);
@@ -424,19 +429,20 @@ static EM_BOOL cb_touchend(int eventType,
 		return EM_TRUE;
 	}
 
-	/* その他の場合はタッチをキャンセルする */
+	/* その他の場合は単にタッチムーブをキャンセルする */
 	on_event_touch_cancel();
 
 	return EM_TRUE;
 }
 
 /* touchcancelのコールバック */
-static EM_BOOL cb_touchcancel(int eventType,
-			      const EmscriptenTouchEvent *touchEvent,
-			      void *userData)
+static EM_BOOL
+cb_touchcancel(int eventType,
+	       const EmscriptenTouchEvent *touchEvent,
+	       void *userData)
 {
+	/* FIXME: どういう状況でコールバックされるのか？ */
 	on_event_touch_cancel();
-
 	return EM_TRUE;
 }
 

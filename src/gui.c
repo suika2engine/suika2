@@ -2610,6 +2610,12 @@ static void draw_history_button(int index)
 
 	b = &button[index];
 
+#if defined(SUIKA_TARGET_WASM)
+	/* フォント描画に時間がかかる場合のために、サウンドバッファのフィルを行う */
+	void fill_sound_buffer(void);
+	fill_sound_buffer();
+#endif
+
 	/* ヒストリのオフセットを計算する */
 	history_count = get_history_count();
 	if (history_count < history_slots)

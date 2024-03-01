@@ -75,12 +75,12 @@ run:
 	python3 -m http.server
 
 upload:
-	ftp-upload.sh html/index.html test/
-	ftp-upload.sh html/index.js test/
-	ftp-upload.sh html/index.wasm test/
+	ftp-upload.sh html/index.html test-20240301h/
+	ftp-upload.sh html/index.js test-20240301h/
+	ftp-upload.sh html/index.wasm test-20240301h/
 
 update-game:
-	ftp-upload.sh html/data01.arc test/
+	ftp-upload.sh data01.arc test-20240301h/
 
 clean:
 	rm -rf html

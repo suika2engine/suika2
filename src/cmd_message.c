@@ -1996,8 +1996,7 @@ static bool process_button_click(void)
 		action_skip();
 		break;
 	case BTN_HISTORY:
-		play_se(is_up_pressed ?
-			conf_msgbox_history_se : conf_msgbox_btn_history_se);
+		play_se(is_up_pressed ? conf_msgbox_history_se : conf_msgbox_btn_history_se);
 		action_history();
 		break;
 	case BTN_CONFIG:
