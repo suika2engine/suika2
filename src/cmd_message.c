@@ -650,6 +650,9 @@ static bool init(void)
 	/* テキスト読み上げを行う */
 	speak();
 
+	/* 連続スワイプによるスキップ動作を有効にする */
+	set_continuous_swipe_enabled(true);
+
 	return true;
 }
 

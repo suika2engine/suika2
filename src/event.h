@@ -57,4 +57,9 @@ void on_event_touch_cancel(void);
 void on_event_swipe_down(void);
 void on_event_swipe_up(void);
 
+/*
+ * タッチ対応(右スワイプでスキップ動作を行うか)
+ */
+void set_horizontal_swipe_enabled(bool is_enabled);
+
 #endif

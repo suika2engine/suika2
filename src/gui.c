@@ -888,6 +888,9 @@ void start_gui_mode(void)
 	is_saved_in_this_frame = false;
 	suppress_se = false;
 	suppress_se_forever = false;
+
+	/* 連続スワイプによるスキップ動作を無効にする */
+	set_continuous_swipe_enabled(false);
 }
 
 /*

@@ -35,6 +35,10 @@
  */
 static int touch_start_x;
 static int touch_start_y;
+static int touch_last_y;
+
+/* 連続スワイプが有効か */
+static bool is_continuous_swipe_enabled;
 
 /*
  * 前方参照
@@ -341,6 +345,7 @@ cb_touchstart(int eventType,
 
 	touch_start_x = touchEvent->touches[0].targetX;
 	touch_start_y = touchEvent->touches[0].targetY;
+	touch_last_y = touch_start_y;
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
@@ -363,8 +368,21 @@ cb_touchmove(int eventType,
 	     const EmscriptenTouchEvent *touchEvent,
 	     void *userData)
 {
+	const int FLICK_X_DISTANCE = 10;
+	const int FLICK_Y_DISTANCE = 30;
 	double w, h, scale;
-	int delta, x, y;
+	int delta_x, delta_y, x, y;
+
+	/* ドラッグを処理する */
+	delta_y = touchEvent->touches[0].targetY - touch_last_y;
+	touch_last_y = touchEvent->touches[0].targetY;
+	if (is_continuous_swipe_enabled) {
+		if (delta_y < FLICK_Y_DISTANCE) {
+			on_event_key_press(KEY_DOWN);
+			on_event_key_release(KEY_DOWN);
+			return EM_TRUE;
+		}
+	}
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
@@ -384,17 +402,17 @@ cb_touchend(int eventType,
 	    const EmscriptenTouchEvent *touchEvent,
 	    void *userData)
 {
-	const int FLICK_DISTANCE = 50;
+	const int FLICK_Y_DISTANCE = 50;
 	const int FINGER_DISTANCE = 10;
 	double w, h, scale;
 	int x, y, delta_y;
 
 	delta_y = touchEvent->touches[0].targetY - touch_start_y;
-	if (delta_y > FLICK_DISTANCE) {
+	if (delta_y > FLICK_Y_DISTANCE) {
 		on_event_touch_cancel();
 		on_event_swipe_down();
 		return EM_TRUE;
-	} else if (delta_y < -FLICK_DISTANCE) {
+	} else if (delta_y < -FLICK_Y_DISTANCE) {
 		on_event_touch_cancel();
 		on_event_swipe_up();
 		return EM_TRUE;
@@ -950,4 +968,9 @@ const char *get_system_locale(void)
 void speak_text(const char *text)
 {
 	UNUSED_PARAMETER(text);
+}
+
+void set_continuous_swipe_enabled(bool is_enabled)
+{
+	is_continuous_swipe_enabled = is_enabled;
 }
