@@ -97,7 +97,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-	EM_ASM_({ resizeWindow(); });
+	EM_ASM_({ onResizeWindow(); });
 
 	/* OpenGLレンダを初期化する */
 	EmscriptenWebGLContextAttributes attr;
@@ -114,28 +114,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	if(!on_event_init())
 		return;
 
-	/* イベントハンドラを設定する */
-	EM_ASM_({
-		function visibilityChange() {
-			if(document.visibilityState === 'visible') {
-				Module.ccall('setVisible');
-				document.getElementById('canvas').focus();
-			} else if(document.visibilityState === 'hidden') {
-				Module.ccall('setHidden');
-			}
-		}
-		function preventDefault(e) {
-			e.preventDefault();
-		}
-		function onMouseLeave() {
-			Module.ccall('mouseLeave');
-		}
-		window.addEventListener('resize', resizeWindow);
-		document.addEventListener('visibilitychange', visibilityChange);
-		document.getElementById('canvas').addEventListener('mouseleave', onMouseLeave);
-	});
-
-	/* イベントの登録をする */
+	/* 入力デバイスのイベントを登録する */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
 	emscripten_set_mousemove_callback("canvas", 0, true, cb_mousemove);
@@ -147,20 +126,36 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
 	emscripten_set_touchcancel_callback("canvas", 0, true, cb_touchcancel);
 
+	/* その他のイベントハンドラを登録する */
+	EM_ASM_({
+		window.addEventListener('resize', onResizeWindow);
+		document.addEventListener('visibilitychange', function () {
+			if(document.visibilityState === 'visible') {
+				Module.ccall('setVisible');
+				document.getElementById('canvas').focus();
+			} else if(document.visibilityState === 'hidden') {
+				Module.ccall('setHidden');
+			}
+		});
+		document.getElementById('canvas').addEventListener('mouseleave', function () {
+			Module.ccall('mouseLeave');
+		});
+	});
+
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
 }
 
-/* キャンバスをリサイズする */
-EM_JS(void, resizeWindow, (void), {
-	canvas = document.getElementById('canvas');
-	cw = canvas.width;
-	ch = canvas.height;
-	aspect = cw / ch;
-	winw = window.innerWidth;
-	winh = window.innerHeight;
-	w = winw;
-	h = winw / aspect;
+EM_JS(void, onResizeWindow, (void),
+{
+	var canvas = document.getElementById('canvas');
+	var cw = canvas.width;
+	var ch = canvas.height;
+	var aspect = cw / ch;
+	var winw = window.innerWidth;
+	var winh = window.innerHeight;
+	var w = winw;
+	var h = winw / aspect;
 	if(h > winh) {
 		h = winh;
 		w = winh * aspect;
@@ -203,9 +198,10 @@ static EM_BOOL loop_iter(double time, void *userData)
 }
 
 /* mousemoveのコールバック */
-static EM_BOOL cb_mousemove(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData)
+static EM_BOOL
+cb_mousemove(int eventType,
+	    const EmscriptenMouseEvent *mouseEvent,
+	    void *userData)
 {
 	double w, h, scale;
 	int x, y;
@@ -227,9 +223,10 @@ static EM_BOOL cb_mousemove(int eventType,
 }
 
 /* mousedownのコールバック */
-static EM_BOOL cb_mousedown(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData)
+static EM_BOOL
+cb_mousedown(int eventType,
+	    const EmscriptenMouseEvent *mouseEvent,
+	    void *userData)
 {
 	double w, h, scale;
 	int x, y, button;
@@ -250,9 +247,10 @@ static EM_BOOL cb_mousedown(int eventType,
 }
 
 /* mouseupのコールバック */
-static EM_BOOL cb_mouseup(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData)
+static EM_BOOL
+cb_mouseup(int eventType,
+	   const EmscriptenMouseEvent *mouseEvent,
+	   void *userData)
 {
 	double w, h, scale;
 	int x, y, button;
@@ -273,9 +271,10 @@ static EM_BOOL cb_mouseup(int eventType,
 }
 
 /* wheelのコールバック */
-static EM_BOOL cb_wheel(int eventType,
-			const EmscriptenWheelEvent *wheelEvent,
-			void *userData)
+static EM_BOOL
+cb_wheel(int eventType,
+	 const EmscriptenWheelEvent *wheelEvent,
+	 void *userData)
 {
 	if (wheelEvent->deltaY > 0) {
 		on_event_key_press(KEY_DOWN);
@@ -288,9 +287,10 @@ static EM_BOOL cb_wheel(int eventType,
 }
 
 /* keydownのコールバック */
-static EM_BOOL cb_keydown(int eventType,
-			  const EmscriptenKeyboardEvent *keyEvent,
-			  void *userData)
+static EM_BOOL
+cb_keydown(int eventType,
+	   const EmscriptenKeyboardEvent *keyEvent,
+	   void *userData)
 {
 	int keycode;
 
@@ -303,9 +303,10 @@ static EM_BOOL cb_keydown(int eventType,
 }
 
 /* keyupのコールバック */
-static EM_BOOL cb_keyup(int eventType,
-			const EmscriptenKeyboardEvent *keyEvent,
-			void *userData)
+static EM_BOOL
+cb_keyup(int eventType,
+	 const EmscriptenKeyboardEvent *keyEvent,
+	 void *userData)
 {
 	int keycode;
 

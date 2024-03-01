@@ -209,3 +209,4 @@ mv engine-macos/suika-mac-nosign.dmg engine-macos/suika-mac.dmg
 #
 echo "Finished. $VERSION was released!"
 echo "$NOTE_JP"
+discord-release-bot.sh
