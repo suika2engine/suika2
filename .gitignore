@@ -30,12 +30,7 @@ sav
 
 # Windows
 *.o
-libroot
-libroot-device
-libroot-sim
-libroot-macos
-libroot-ios-device
-libroot-ios-sim
+libroot*
 *.exe
 *.aps
 llvm
@@ -162,6 +157,7 @@ build/installer-windows/readme-jp.html
 build/installer-windows/plaintext.code-snippets.en
 build/installer-windows/plaintext.code-snippets.jp
 build/installer-windows/suika2.zip
+build/installer-windows/suika2.7z
 
 #
 # Misc.

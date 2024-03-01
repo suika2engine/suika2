@@ -81,7 +81,7 @@ setup:
 			/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
 		fi; \
 		echo 'Installing build tools...'; \
-		brew install mingw-w64 gsed cmake coreutils gsed wget makensis create-dmg; \
+		brew install mingw-w64 gsed cmake coreutils wget makensis create-dmg; \
 		echo "Building libraries..."; \
 		cd build/engine-windows && ./build-libs.sh && cd ../..; \
 		cp -Ra build/engine-windows/libroot build/pro-windows/; \
