@@ -377,7 +377,7 @@ cb_touchmove(int eventType,
 	delta_y = touchEvent->touches[0].targetY - touch_last_y;
 	touch_last_y = touchEvent->touches[0].targetY;
 	if (is_continuous_swipe_enabled) {
-		if (delta_y < FLICK_Y_DISTANCE) {
+		if (delta_y > 0 && delta_y < FLICK_Y_DISTANCE) {
 			on_event_key_press(KEY_DOWN);
 			on_event_key_release(KEY_DOWN);
 			return EM_TRUE;

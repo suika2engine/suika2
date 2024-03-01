@@ -485,6 +485,9 @@ bool init(void)
 		show_skipmode_banner(false);
 	}
 
+	/* 連続スワイプによるスキップ動作を無効にする */
+	set_continuous_swipe_enabled(false);
+
 	return true;
 }
 
