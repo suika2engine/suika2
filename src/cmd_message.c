@@ -289,14 +289,14 @@ static bool need_history_mode;
 /* コンフィグモードに遷移するか */
 static bool need_config_mode;
 
+/* カスタム1に遷移するか */
+static bool need_custom1_mode;
+
+/* カスタム2に遷移するか */
+static bool need_custom2_mode;
+
 /* クイックロードに失敗したか */
 static bool is_quick_load_failed;
-
-/* カスタムルーチンに遷移するか */
-static bool need_custom_gosub;
-
-/* カスタムルーチン */
-static const char *custom_gosub_label;
 
 /*
  * dimming
@@ -508,7 +508,7 @@ static bool blit_process(void)
 	if (will_quick_save
 	    ||
 	    (need_save_mode || need_load_mode || need_history_mode ||
-	     need_config_mode))
+	     need_config_mode || need_custom1_mode || need_custom2_mode))
 		draw_stage_to_thumb();
 
 	/* システムメニューで押されたボタンの処理を行う */
@@ -532,6 +532,18 @@ static bool blit_process(void)
 		return true;
 	} else if (need_config_mode) {
 		if (!prepare_gui_mode(CONFIG_GUI_FILE, true))
+			return false;
+		set_gui_options(true, false, false);
+		start_gui_mode();
+		return true;
+	} else if (need_custom1_mode) {
+		if (!prepare_gui_mode(CUSTOM1_GUI_FILE, true))
+			return false;
+		set_gui_options(true, false, false);
+		start_gui_mode();
+		return true;
+	} else if (need_custom2_mode) {
+		if (!prepare_gui_mode(CUSTOM2_GUI_FILE, true))
 			return false;
 		set_gui_options(true, false, false);
 		start_gui_mode();
@@ -579,7 +591,8 @@ static void post_process(void)
 
 	/* システムGUIへ遷移する場合 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode || need_custom_gosub)
+	    need_history_mode || need_config_mode ||
+	    need_custom1_mode || need_custom2_mode)
 		stop();
 }
 
@@ -650,6 +663,9 @@ static bool init(void)
 	/* テキスト読み上げを行う */
 	speak();
 
+	/* 連続スワイプによるスキップ動作を有効にする */
+	set_continuous_swipe_enabled(true);
+
 	return true;
 }
 
@@ -695,7 +711,8 @@ static void init_flags_and_vars(void)
 	need_load_mode = false;
 	need_history_mode = false;
 	need_config_mode = false;
-	need_custom_gosub = false;
+	need_custom1_mode = false;
+	need_custom2_mode = false;
 	is_quick_load_failed = false;
 
 	/* システムメニューの状態設定を行う */
@@ -722,6 +739,11 @@ static void init_auto_mode(void)
 	if (gui_sys_flag)
 		return;
 
+	/* ヒストリに残して表示しない場合は処理しない */
+	if (conf_msgbox_history_control != NULL &&
+	    strcmp(conf_msgbox_history_control, "only-history") == 0)
+		return;
+
 	/* オートモードの場合 */
 	if (is_auto_mode()) {
 		/* リターンキー、下キーの入力を無効にする */
@@ -735,6 +757,11 @@ static void init_skip_mode(void)
 {
 	/* システムGUIから戻った場合は処理しない */
 	if (gui_sys_flag)
+		return;
+
+	/* ヒストリに残して表示しない場合は処理しない */
+	if (conf_msgbox_history_control != NULL &&
+	    strcmp(conf_msgbox_history_control, "only-history") == 0)
 		return;
 
 	/* スキップモードの場合 */
@@ -1988,8 +2015,7 @@ static bool process_button_click(void)
 		action_skip();
 		break;
 	case BTN_HISTORY:
-		play_se(is_up_pressed ?
-			conf_msgbox_history_se : conf_msgbox_btn_history_se);
+		play_se(is_up_pressed ? conf_msgbox_history_se : conf_msgbox_btn_history_se);
 		action_history();
 		break;
 	case BTN_CONFIG:
@@ -2145,16 +2171,10 @@ static void action_custom(int index)
 
 	switch (index) {
 	case 0:
-		if (conf_sysmenu_custom1_gosub == NULL)
-			break;
-		custom_gosub_label = conf_sysmenu_custom1_gosub;
-		need_custom_gosub = true;
+		need_custom1_mode = true;
 		break;
 	case 1:
-		if (conf_sysmenu_custom2_gosub == NULL)
-			break;
-		custom_gosub_label = conf_sysmenu_custom2_gosub;
-		need_custom_gosub = true;
+		need_custom2_mode = true;
 		break;
 	default:
 		assert(0);
@@ -2200,7 +2220,7 @@ static bool frame_sysmenu(void)
 	}
 
 	/* キー操作を受け付ける */
-	if (is_s_pressed && conf_sysmenu_hidden != 2) {
+	if (is_s_pressed && conf_sysmenu_hidden != 2 && is_save_load_enabled()) {
 		play_se(conf_sysmenu_save_se);
 		action_save();
 		clear_input_state();
@@ -2209,7 +2229,7 @@ static bool frame_sysmenu(void)
 			is_sysmenu_finished = true;
 		}
 		return true;
-	} else if (is_l_pressed && conf_sysmenu_hidden != 2) {
+	} else if (is_l_pressed && conf_sysmenu_hidden != 2 && is_save_load_enabled()) {
 		play_se(conf_sysmenu_load_se);
 		action_load();
 		clear_input_state();
@@ -3103,7 +3123,8 @@ static void speak(void)
 static void stop(void)
 {
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode || need_custom_gosub) {
+	    need_history_mode || need_config_mode ||
+	    need_custom1_mode || need_custom2_mode) {
 		stop_command_repetition();
 		return;
 	}
@@ -3138,15 +3159,16 @@ static bool cleanup(void)
 	 *  - クイックロードされた場合はquick_load()ですでにクリアされている
 	 */
 	if (!did_quick_load && !need_save_mode && !need_load_mode &&
-	    !need_history_mode && !need_config_mode)
+	    !need_history_mode && !need_config_mode &&
+	    !need_custom1_mode && !need_custom2_mode)
 		clear_message_active();
 
 	/* 既読にする */
 	set_seen();
 
 	/* 名前と本文を解放する */
-	if (!need_save_mode && !need_load_mode && !need_history_mode &&
-	    !need_config_mode) {
+	if (!need_save_mode && !need_load_mode && !need_history_mode && !need_config_mode &&
+	    !need_custom1_mode && !need_custom2_mode) {
 		if (name_top != NULL) {
 			free(name_top);
 			name_top = NULL;
@@ -3161,16 +3183,10 @@ static bool cleanup(void)
 		}
 	}
 
-	/* カスタムシステムメニューのgosubを処理する */
-	if (need_custom_gosub && custom_gosub_label != NULL) {
-		push_return_point_minus_one();
-		if (!move_to_label(custom_gosub_label))
-			return false;
-	}
-
 	/* 次のコマンドに移動する */
 	if (!did_quick_load && !need_save_mode && !need_load_mode &&
-	    !need_history_mode && !need_config_mode && !need_custom_gosub) {
+	    !need_history_mode && !need_config_mode &&
+	    !need_custom1_mode && !need_custom2_mode) {
 		if (!move_to_next_command())
 			return false;
 	}

@@ -33,23 +33,23 @@ struct image *create_image_from_file(const char *dir, const char *file)
 	if (is_jpg_ext(file)) {
 		img = create_image_from_file_jpeg(dir, file);
 		if (img == NULL)
-			return false;
+			return NULL;
 		return img;
 	}
-
 #if !defined(NO_WEBP)
 	/* WebPファイルの場合 */
-	if (is_webp_ext(file)) {
+	else if (is_webp_ext(file)) {
 		img = create_image_from_file_webp(dir, file);
 		if (img == NULL)
-			return false;
+			return NULL;
 	}
 #endif
-
-	/* その他の場合はPNGファイルとみなす */
-	img = create_image_from_file_png(dir, file);
-	if (img == NULL)
-		return false;
+	else {
+		/* その他の場合はPNGファイルとみなす */
+		img = create_image_from_file_png(dir, file);
+		if (img == NULL)
+			return NULL;
+	}
 
 	/* 完全に透明なピクセルのRGB値を0にする */
 	for (y = 0; y < img->height; y++)

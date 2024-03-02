@@ -139,24 +139,13 @@ public class GameView extends GLSurfaceView implements View.OnTouchListener, Ren
             switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 MainActivity.instance.touchLastY = y;
-                if (pointed == 1)
-                    MainActivity.instance.nativeOnTouchOneDown(x, y);
-                else
-                    MainActivity.instance.nativeOnTouchTwoDown(x, y);
+                MainActivity.instance.nativeOnTouchStart(x, y, pointed);
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (delta > LINE_HEIGHT)
-                    MainActivity.instance.nativeOnTouchScrollDown();
-                else if (delta < -LINE_HEIGHT)
-                    MainActivity.instance.nativeOnTouchScrollUp();
-                MainActivity.instance.touchLastY = y;
                 MainActivity.instance.nativeOnTouchMove(x, y);
                 break;
             case MotionEvent.ACTION_UP:
-                if (MainActivity.instance.touchCount == 1)
-                    MainActivity.instance.nativeOnTouchOneUp(x, y);
-                else
-                    MainActivity.instance.nativeOnTouchTwoUp(x, y);
+                MainActivity.instance.nativeOnTouchOneUp(x, y, MainActivity.instance.touchCount);
                 break;
             }
         }

@@ -203,6 +203,12 @@ static bool need_history_mode;
 /* コフィグモードに遷移するか */
 static bool need_config_mode;
 
+/* カスタム1に遷移するか */
+static bool need_custom1_mode;
+
+/* カスタム2に遷移するか */
+static bool need_custom2_mode;
+
 /* クイックロードに失敗したか */
 static bool is_quick_load_failed;
 
@@ -319,7 +325,7 @@ static bool blit_process(void)
 		}
 	}
 
-	 if (need_save_mode) {
+	if (need_save_mode) {
 		if (!prepare_gui_mode(SAVE_GUI_FILE, true))
 			return false;
 		set_gui_options(true, false, false);
@@ -339,9 +345,19 @@ static bool blit_process(void)
 			return false;
 		set_gui_options(true, false, false);
 		start_gui_mode();
+	} else if (need_custom1_mode) {
+		if (!prepare_gui_mode(CUSTOM1_GUI_FILE, true))
+			return false;
+		set_gui_options(true, false, false);
+		start_gui_mode();
+	} else if (need_custom2_mode) {
+		if (!prepare_gui_mode(CUSTOM2_GUI_FILE, true))
+			return false;
+		set_gui_options(true, false, false);
+		start_gui_mode();
 	}
 
-	 return true;
+	return true;
 }
 
 static void render_process(void)
@@ -349,7 +365,7 @@ static void render_process(void)
 	/* レンダリングを行わない場合 */
 	if (did_quick_load
 	    ||
-	    (need_save_mode || need_load_mode || need_history_mode || need_config_mode))
+	    (need_save_mode || need_load_mode || need_history_mode || need_config_mode || need_custom1_mode || need_custom2_mode))
 		return;
 
 	/* レンダリングを行う */
@@ -374,8 +390,7 @@ static bool post_process(void)
 	 */
 	if (did_quick_load
 	    ||
-	    (need_save_mode || need_load_mode || need_history_mode ||
-	     need_config_mode))
+	    (need_save_mode || need_load_mode || need_history_mode || need_config_mode || need_custom1_mode || need_custom2_mode))
 		stop_command_repetition();
 
 	return true;
@@ -408,6 +423,8 @@ bool init(void)
 	need_load_mode = false;
 	need_history_mode = false;
 	need_config_mode = false;
+	need_custom1_mode = false;
+	need_custom2_mode = false;
 	is_quick_load_failed = false;
 
 	/* Android NDKの場合、画像を破棄する */
@@ -484,6 +501,9 @@ bool init(void)
 		stop_skip_mode();
 		show_skipmode_banner(false);
 	}
+
+	/* 連続スワイプによるスキップ動作を無効にする */
+	set_continuous_swipe_enabled(false);
 
 	return true;
 }
@@ -1404,6 +1424,16 @@ static void process_sysmenu_input(void)
 		play_se(conf_sysmenu_config_se);
 		need_config_mode = true;
 		break;
+	case SYSMENU_CUSTOM1:
+		set_mixer_input(VOICE_STREAM, NULL);
+		play_se(conf_sysmenu_custom1_se);
+		need_custom2_mode = true;
+		break;
+	case SYSMENU_CUSTOM2:
+		set_mixer_input(VOICE_STREAM, NULL);
+		play_se(conf_sysmenu_custom2_se);
+		need_custom2_mode = true;
+		break;
 	default:
 		assert(0);
 		break;
@@ -1635,7 +1665,8 @@ static bool cleanup(void)
 
 	/* クイックロードやシステムGUIへの遷移を行う場合 */
 	if (did_quick_load || need_save_mode || need_load_mode ||
-	    need_history_mode || need_config_mode) {
+	    need_history_mode || need_config_mode ||
+	    need_custom1_mode || need_custom2_mode) {
 		/* コマンドの移動を行わない */
 		return true;
 	}

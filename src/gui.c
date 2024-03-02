@@ -888,6 +888,9 @@ void start_gui_mode(void)
 	is_saved_in_this_frame = false;
 	suppress_se = false;
 	suppress_se_forever = false;
+
+	/* 連続スワイプによるスキップ動作を無効にする */
+	set_continuous_swipe_enabled(false);
 }
 
 /*
@@ -2609,6 +2612,12 @@ static void draw_history_button(int index)
 	int history_count;
 
 	b = &button[index];
+
+#if defined(SUIKA_TARGET_WASM)
+	/* フォント描画に時間がかかる場合のために、サウンドバッファのフィルを行う */
+	void fill_sound_buffer(void);
+	fill_sound_buffer();
+#endif
 
 	/* ヒストリのオフセットを計算する */
 	history_count = get_history_count();

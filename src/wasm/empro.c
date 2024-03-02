@@ -45,6 +45,7 @@
 static int touch_start_x;
 static int touch_start_y;
 static int touch_last_y;
+static bool is_continuous_swipe_enabled;
 
 /* Debugger Status */
 static bool is_running;
@@ -108,7 +109,7 @@ void start_engine(void)
 
 	/* Set the rendering canvas size. */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-	EM_ASM_({ resizeWindow(); });
+	EM_ASM_({ onResizeWindow(); });
 
 	/* Initialize the OpenGL rendering subsystem. */
 	EmscriptenWebGLContextAttributes attr;
@@ -125,30 +126,7 @@ void start_engine(void)
 	if(!on_event_init())
 		return;
 
-	/* Set event callbacks. */
-	EM_ASM_({
-		function visibilityChange() {
-			if(document.visibilityState === 'visible') {
-				Module.ccall('set_visible', null, null, null);
-				document.getElementById('canvas').focus();
-			} else if(document.visibilityState === 'hidden') {
-				Module.ccall('set_hidden', null, null, null);
-			}
-		}
-		function preventDefault(e) {
-			e.preventDefault();
-		}
-		window.ontouchmove = preventDefault;
-		window.onwheel = preventDefault;
-		document.ontouchmove = preventDefault;
-		document.onwheel = preventDefault;
-		document.body.addEventListener('touchmove', preventDefault, { passive: false });
-		document.body.addEventListener('wheel', preventDefault, { passive: false });
-		window.addEventListener('resize', resizeWindow);
-		document.addEventListener('visibilitychange', visibilityChange);
-	});
-
-	/* Register canvas events. */
+	/* Register input events. */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
 	emscripten_set_mousemove_callback("canvas", 0, true, cb_mousemove);
@@ -160,9 +138,44 @@ void start_engine(void)
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
 	emscripten_set_touchcancel_callback("canvas", 0, true, cb_touchcancel);
 
+	/* Register other events. */
+	EM_ASM_({
+		window.addEventListener('resize', onResizeWindow);
+		document.addEventListener('visibilitychange', function () {
+			if(document.visibilityState === 'visible') {
+				Module.ccall('setVisible');
+				document.getElementById('canvas').focus();
+			} else if(document.visibilityState === 'hidden') {
+				Module.ccall('setHidden');
+			}
+		});
+		document.getElementById('canvas').addEventListener('mouseleave', function () {
+			Module.ccall('mouseLeave');
+		});
+	});
+
 	/* Reserve the first frame callback. */
 	emscripten_async_call(loop_iter, NULL, FRAME_MILLI);
 }
+
+EM_JS(void, onResizeWindow, (void),
+{
+	var canvas = document.getElementById('canvas');
+	var cw = canvas.width;
+	var ch = canvas.height;
+	var aspect = cw / ch;
+	var winw = window.innerWidth;
+	var winh = window.innerHeight;
+	var w = winw;
+	var h = winw / aspect;
+	if(h > winh) {
+		h = winh;
+		w = winh * aspect;
+	}
+	canvas.style.width = w + 'px';
+	canvas.style.height = h + 'px';
+	canvas.focus();
+});
 
 /* Run a frame. */
 static void loop_iter(void *userData)
@@ -1143,4 +1156,9 @@ static void update_text_from_script_model(void)
 void speak_text(const char *text)
 {
 	UNUSED_PARAMETER(text);
+}
+
+void set_continuous_swipe_enabled(bool is_enabled)
+{
+	is_continuous_swipe_enabled = is_enabled;
 }

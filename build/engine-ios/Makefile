@@ -130,4 +130,4 @@ src:
 	@rm -f libroot-ios.tar.gz
 	@wget 'https://suika2.com/dl/libroot-ios.tar.gz'
 	@tar xzf libroot-ios.tar.gz -C ios-src/
-	@rm -rf ios-src/libroot/bin ios-src/libroot/share
+	@rm -rf ios-src/libroot ios-src/libroot-device/bin ios-src/libroot-device/share ios-src/libroot-sim/bin ios-src/libroot-sim/share

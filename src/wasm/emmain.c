@@ -35,6 +35,10 @@
  */
 static int touch_start_x;
 static int touch_start_y;
+static int touch_last_y;
+
+/* 連続スワイプが有効か */
+static bool is_continuous_swipe_enabled;
 
 /*
  * 前方参照
@@ -93,7 +97,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 
 	/* キャンバスサイズを設定する */
 	emscripten_set_canvas_element_size("canvas", conf_window_width, conf_window_height);
-	EM_ASM_({ resizeWindow(); });
+	EM_ASM_({ onResizeWindow(); });
 
 	/* OpenGLレンダを初期化する */
 	EmscriptenWebGLContextAttributes attr;
@@ -110,34 +114,7 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	if(!on_event_init())
 		return;
 
-	/* イベントハンドラを設定する */
-	EM_ASM_({
-		function visibilityChange() {
-			if(document.visibilityState === 'visible') {
-				Module.ccall('setVisible');
-				document.getElementById('canvas').focus();
-			} else if(document.visibilityState === 'hidden') {
-				Module.ccall('setHidden');
-			}
-		}
-		function preventDefault(e) {
-			e.preventDefault();
-		}
-		function onMouseLeave() {
-			Module.ccall('mouseLeave');
-		}
-		window.ontouchmove = preventDefault;
-		window.onwheel = preventDefault;
-		document.ontouchmove = preventDefault;
-		document.onwheel = preventDefault;
-		document.body.addEventListener('touchmove', preventDefault, { passive: false });
-		document.body.addEventListener('wheel', preventDefault, { passive: false });
-		window.addEventListener('resize', resizeWindow);
-		document.addEventListener('visibilitychange', visibilityChange);
-		document.getElementById('canvas').addEventListener('mouseleave', onMouseLeave);
-	});
-
-	/* イベントの登録をする */
+	/* 入力デバイスのイベントを登録する */
 	emscripten_set_mousedown_callback("canvas", 0, true, cb_mousedown);
 	emscripten_set_mouseup_callback("canvas", 0, true, cb_mouseup);
 	emscripten_set_mousemove_callback("canvas", 0, true, cb_mousemove);
@@ -149,20 +126,36 @@ EMSCRIPTEN_KEEPALIVE void main_continue(void)
 	emscripten_set_touchend_callback("canvas", 0, true, cb_touchend);
 	emscripten_set_touchcancel_callback("canvas", 0, true, cb_touchcancel);
 
+	/* その他のイベントハンドラを登録する */
+	EM_ASM_({
+		window.addEventListener('resize', onResizeWindow);
+		document.addEventListener('visibilitychange', function () {
+			if(document.visibilityState === 'visible') {
+				Module.ccall('setVisible');
+				document.getElementById('canvas').focus();
+			} else if(document.visibilityState === 'hidden') {
+				Module.ccall('setHidden');
+			}
+		});
+		document.getElementById('canvas').addEventListener('mouseleave', function () {
+			Module.ccall('mouseLeave');
+		});
+	});
+
 	/* アニメーションの処理を開始する */
 	emscripten_request_animation_frame_loop(loop_iter, 0);
 }
 
-/* キャンバスをリサイズする */
-EM_JS(void, resizeWindow, (void), {
-	canvas = document.getElementById('canvas');
-	cw = canvas.width;
-	ch = canvas.height;
-	aspect = cw / ch;
-	winw = window.innerWidth;
-	winh = window.innerHeight;
-	w = winw;
-	h = winw / aspect;
+EM_JS(void, onResizeWindow, (void),
+{
+	var canvas = document.getElementById('canvas');
+	var cw = canvas.width;
+	var ch = canvas.height;
+	var aspect = cw / ch;
+	var winw = window.innerWidth;
+	var winh = window.innerHeight;
+	var w = winw;
+	var h = winw / aspect;
 	if(h > winh) {
 		h = winh;
 		w = winh * aspect;
@@ -205,9 +198,10 @@ static EM_BOOL loop_iter(double time, void *userData)
 }
 
 /* mousemoveのコールバック */
-static EM_BOOL cb_mousemove(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData)
+static EM_BOOL
+cb_mousemove(int eventType,
+	    const EmscriptenMouseEvent *mouseEvent,
+	    void *userData)
 {
 	double w, h, scale;
 	int x, y;
@@ -229,9 +223,10 @@ static EM_BOOL cb_mousemove(int eventType,
 }
 
 /* mousedownのコールバック */
-static EM_BOOL cb_mousedown(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData)
+static EM_BOOL
+cb_mousedown(int eventType,
+	    const EmscriptenMouseEvent *mouseEvent,
+	    void *userData)
 {
 	double w, h, scale;
 	int x, y, button;
@@ -252,9 +247,10 @@ static EM_BOOL cb_mousedown(int eventType,
 }
 
 /* mouseupのコールバック */
-static EM_BOOL cb_mouseup(int eventType,
-			    const EmscriptenMouseEvent *mouseEvent,
-			    void *userData)
+static EM_BOOL
+cb_mouseup(int eventType,
+	   const EmscriptenMouseEvent *mouseEvent,
+	   void *userData)
 {
 	double w, h, scale;
 	int x, y, button;
@@ -275,9 +271,10 @@ static EM_BOOL cb_mouseup(int eventType,
 }
 
 /* wheelのコールバック */
-static EM_BOOL cb_wheel(int eventType,
-			const EmscriptenWheelEvent *wheelEvent,
-			void *userData)
+static EM_BOOL
+cb_wheel(int eventType,
+	 const EmscriptenWheelEvent *wheelEvent,
+	 void *userData)
 {
 	if (wheelEvent->deltaY > 0) {
 		on_event_key_press(KEY_DOWN);
@@ -290,9 +287,10 @@ static EM_BOOL cb_wheel(int eventType,
 }
 
 /* keydownのコールバック */
-static EM_BOOL cb_keydown(int eventType,
-			  const EmscriptenKeyboardEvent *keyEvent,
-			  void *userData)
+static EM_BOOL
+cb_keydown(int eventType,
+	   const EmscriptenKeyboardEvent *keyEvent,
+	   void *userData)
 {
 	int keycode;
 
@@ -305,9 +303,10 @@ static EM_BOOL cb_keydown(int eventType,
 }
 
 /* keyupのコールバック */
-static EM_BOOL cb_keyup(int eventType,
-			const EmscriptenKeyboardEvent *keyEvent,
-			void *userData)
+static EM_BOOL
+cb_keyup(int eventType,
+	 const EmscriptenKeyboardEvent *keyEvent,
+	 void *userData)
 {
 	int keycode;
 
@@ -337,15 +336,17 @@ static int get_keycode(const char *key)
 }
 
 /* touchstartのコールバック */
-static EM_BOOL cb_touchstart(int eventType,
-			     const EmscriptenTouchEvent *touchEvent,
-			     void *userData)
+static EM_BOOL
+cb_touchstart(int eventType,
+	      const EmscriptenTouchEvent *touchEvent,
+	      void *userData)
 {
 	double w, h, scale;
 	int x, y;
 
 	touch_start_x = touchEvent->touches[0].targetX;
 	touch_start_y = touchEvent->touches[0].targetY;
+	touch_last_y = touch_start_y;
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
@@ -353,21 +354,36 @@ static EM_BOOL cb_touchstart(int eventType,
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
-	on_event_mouse_release(MOUSE_LEFT, -1, -1);
-	on_event_mouse_release(MOUSE_RIGHT, -1, -1);
+	/* 既存のタッチムーブを解除する */
+	on_event_touch_cancel();
 
+	/* マウス押下/タッチ開始のどちらであれ、マウス押下として処理する */
 	on_event_mouse_press(MOUSE_LEFT, x, y);
 
 	return EM_TRUE;
 }
 
 /* touchmoveのコールバック */
-static EM_BOOL cb_touchmove(int eventType,
-			    const EmscriptenTouchEvent *touchEvent,
-			    void *userData)
+static EM_BOOL
+cb_touchmove(int eventType,
+	     const EmscriptenTouchEvent *touchEvent,
+	     void *userData)
 {
+	const int FLICK_X_DISTANCE = 10;
+	const int FLICK_Y_DISTANCE = 30;
 	double w, h, scale;
-	int delta, x, y;
+	int delta_x, delta_y, x, y;
+
+	/* ドラッグを処理する */
+	delta_y = touchEvent->touches[0].targetY - touch_last_y;
+	touch_last_y = touchEvent->touches[0].targetY;
+	if (is_continuous_swipe_enabled) {
+		if (delta_y > 0 && delta_y < FLICK_Y_DISTANCE) {
+			on_event_key_press(KEY_DOWN);
+			on_event_key_release(KEY_DOWN);
+			return EM_TRUE;
+		}
+	}
 
 	/* マウス座標をスケーリングする */
 	emscripten_get_element_css_size("canvas", &w, &h);
@@ -375,27 +391,29 @@ static EM_BOOL cb_touchmove(int eventType,
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
 
+	/* マウス移動/タッチムーブのどちらであれ、マウス移動として処理する */
 	on_event_mouse_move(x, y);
 
 	return EM_TRUE;
 }
 
 /* touchendのコールバック */
-static EM_BOOL cb_touchend(int eventType,
-			   const EmscriptenTouchEvent *touchEvent,
-			   void *userData)
+static EM_BOOL
+cb_touchend(int eventType,
+	    const EmscriptenTouchEvent *touchEvent,
+	    void *userData)
 {
-	const int FLICK_DISTANCE = 50;
+	const int FLICK_Y_DISTANCE = 50;
 	const int FINGER_DISTANCE = 10;
 	double w, h, scale;
-	int x, y, delta;
+	int x, y, delta_y;
 
-	delta = touchEvent->touches[0].targetY - touch_start_y;
-	if (delta > FLICK_DISTANCE) {
+	delta_y = touchEvent->touches[0].targetY - touch_start_y;
+	if (delta_y > FLICK_Y_DISTANCE) {
 		on_event_touch_cancel();
 		on_event_swipe_down();
 		return EM_TRUE;
-	} else if (delta < -FLICK_DISTANCE) {
+	} else if (delta_y < -FLICK_Y_DISTANCE) {
 		on_event_touch_cancel();
 		on_event_swipe_up();
 		return EM_TRUE;
@@ -406,17 +424,23 @@ static EM_BOOL cb_touchend(int eventType,
 	scale = w / (double)conf_window_width;
 	x = (int)((double)touchEvent->touches[0].targetX / scale);
 	y = (int)((double)touchEvent->touches[0].targetY / scale);
+	if (x < 0 || x >= conf_window_width ||
+	    y < 0 || y >= conf_window_height) {
+		/* キャバス外にはみ出した場合は処理しない */
+		return EM_TRUE;
+	}
 
-	/* 1本指でタップして、距離が誤差範囲内の場合、左クリックとする */
+	/* 1本指でタップして、距離が誤差範囲内の場合、左クリック相当とする */
 	if (touchEvent->numTouches == 1 &&
 	    abs(touchEvent->touches[0].targetX - touch_start_x) < FINGER_DISTANCE &&
 	    abs(touchEvent->touches[0].targetY - touch_start_y) < FINGER_DISTANCE) {
+		on_event_touch_cancel();
 		on_event_mouse_press(MOUSE_LEFT, x, y);
 		on_event_mouse_release(MOUSE_LEFT, x, y);
 		return EM_TRUE;
 	}
 
-	/* 2本指でタップした場合、右クリックとする */
+	/* 2本指でタップした場合、右クリック相当とする */
 	if (touchEvent->numTouches == 2) {
 		on_event_touch_cancel();
 		on_event_mouse_press(MOUSE_RIGHT, x, y);
@@ -424,19 +448,20 @@ static EM_BOOL cb_touchend(int eventType,
 		return EM_TRUE;
 	}
 
-	/* その他の場合はタッチをキャンセルする */
+	/* その他の場合は単にタッチムーブをキャンセルする */
 	on_event_touch_cancel();
 
 	return EM_TRUE;
 }
 
 /* touchcancelのコールバック */
-static EM_BOOL cb_touchcancel(int eventType,
-			      const EmscriptenTouchEvent *touchEvent,
-			      void *userData)
+static EM_BOOL
+cb_touchcancel(int eventType,
+	       const EmscriptenTouchEvent *touchEvent,
+	       void *userData)
 {
+	/* FIXME: どういう状況でコールバックされるのか？ */
 	on_event_touch_cancel();
-
 	return EM_TRUE;
 }
 
@@ -944,4 +969,9 @@ const char *get_system_locale(void)
 void speak_text(const char *text)
 {
 	UNUSED_PARAMETER(text);
+}
+
+void set_continuous_swipe_enabled(bool is_enabled)
+{
+	is_continuous_swipe_enabled = is_enabled;
 }

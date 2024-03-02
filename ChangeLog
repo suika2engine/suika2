@@ -5,13 +5,38 @@ This file is referred by some automatic release scripts.
 [Release History (Japanese)]
 
 <!-- BEGIN-LATEST-JP -->
+<li>Suika2/16.58 2024/3/2
+  <ul>
+    <li>JPEGとWebPが読み込めないバグを修正 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-JP -->
+
+<li>Suika2/16.57 2024/3/2
+  <ul>
+    <li>システムメニューのカスタムGUIを追加 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.56 2024/3/1
+  <ul>
+    <li>iOS版とAndroid版のタッチ操作改善</li>
+  </ul>
+</li>
+<li>Suika2/16.55 2024/3/1
+  <ul>
+    <li>Web版の改善 (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.54 2024/3/1
+  <ul>
+    <li>only-historyのときオートモード・スキップモードを解除しないよう修正 (Thanks to あさつき-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.53 2024/3/1
   <ul>
     <li>透明ピクセルのRGB値を強制的に(0,0,0)にする機能を追加 (Thanks to あさつき-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-JP -->
-
 <li>Suika2/16.52 2024/3/1
   <ul>
     <li>「で始まるセリフに自動カギカッコを付けないように変更 (Thanks to あさつき-san!)</li>
@@ -1520,13 +1545,38 @@ This file is referred by some automatic release scripts.
 Release History (English)
 
 <!-- BEGIN-LATEST-EN -->
+<li>Suika2/16.58 2024/3/2
+  <ul>
+    <li>Fixed a bug where the engine cannot read JPEG and WebP (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<!-- END-LATEST-EN -->
+
+<li>Suika2/16.57 2024/3/2
+  <ul>
+    <li>Added the custom1 and custom2 GUIs (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.56 2024/3/1
+  <ul>
+    <li>Improvements on touch operations for the iOS and Android versions</li>
+  </ul>
+</li>
+<li>Suika2/16.55 2024/3/1
+  <ul>
+    <li>Improvements on the Web version (Thanks to Ronron-san!)</li>
+  </ul>
+</li>
+<li>Suika2/16.54 2024/3/1
+  <ul>
+    <li>Fixed to not cancelling AutoMode and SkipMode on "only-history" messages (Thanks to Asatsuki-san!)</li>
+  </ul>
+</li>
 <li>Suika2/16.53 2024/3/1
   <ul>
     <li>Added a feature to zero-clear RGB value of pixels that have 0 alpha values (Thanks to Asatsuki-san!)</li>
   </ul>
 </li>
-<!-- END-LATEST-EN -->
-
 <li>Suika2/16.52 2024/3/1
   <ul>
     <li>Fixed a Japanese quotation rule (Thanks to Asatsuki-san!)</li>

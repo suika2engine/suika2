@@ -402,4 +402,17 @@ const char *get_system_locale(void);
  */
 void speak_text(const char *text);
 
+/****************
+ * Touch Screen *
+ ****************/
+
+/*
+ * Enable/disable message skip by touch move.
+ */
+#if defined(SUIKA_TARGET_IOS) || defined(SUIKA_TARGET_ANDROID) || defined(SUIKA_TARGET_WASM)
+void set_continuous_swipe_enabled(bool is_enabled);
+#else
+static inline void set_continuous_swipe_enabled(bool is_enabled) { UNUSED_PARAMETER(is_enabled); }
+#endif
+
 #endif /* SUIKA_HAL_H */
