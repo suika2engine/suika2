@@ -255,7 +255,7 @@ public class MainActivity extends Activity {
             synchronized(syncObj) {
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-						nativeOnTouchBegin(x, y, pointed);
+						nativeOnTouchStart(x, y, pointed);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         nativeOnTouchMove(x, y);
@@ -335,8 +335,8 @@ public class MainActivity extends Activity {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             synchronized(syncObj) {
-                nativeOnTouchOneDown(0, 0);
-                nativeOnTouchOneUp(0, 0);
+                nativeOnTouchStart(0, 0, 1);
+                nativeOnTouchEnd(0, 0, 1);
             }
             return true;
         }
