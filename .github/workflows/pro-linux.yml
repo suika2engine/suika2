@@ -12,8 +12,4 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libasound2-dev libx11-dev mesa-common-dev qt6-base-dev qt6-multimedia-dev libwebp-dev
           cd build/pro-linux
-          ./make-deps.sh
-          mkdir build
-          cd build
-          cmake ..
-          make -j8
+          make
