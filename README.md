@@ -1,5 +1,5 @@
 <!-- Big Banner -->
-<img src="https://github.com/suika2engine/suika2/raw/master/doc/img/banner.png" width="100%">
+<img src="https://github.com/suika2engine/suika2/raw/master/doc/banner.png" width="100%">
 
 ## What is Suika2?
 
@@ -101,7 +101,7 @@ We are always open to suggestions and ideas.
 
 ## Live Web Demo
 
-<a href="https://suika2.com/run/sample/"><img src="https://github.com/suika2engine/suika2/raw/master/doc/img/screenshot.jpg"></a>
+<a href="https://suika2.com/run/sample/"><img src="https://github.com/suika2engine/suika2/raw/master/doc/screenshot.jpg"></a>
 
 ## Documentation
 
