@@ -11,6 +11,6 @@ case $1 in
         ;;
     --prefix=*)
         PREFIX=${1#--prefix=}
-	sed -i "s|^DESTDIR=.*$|DESTDIR=$PREFIX|g" Makefile
+	sed -i -e "s|^DESTDIR=.*$|DESTDIR=$PREFIX|g" Makefile
         ;;
 esac
