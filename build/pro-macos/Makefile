@@ -27,7 +27,7 @@ suika2.dmg: libroot $(SRCS_MAIN) $(HDRS_MAIN) $(FILES_MACOS)
 	@until \
 		xcodebuild -quiet -exportNotarizedApp -archivePath `pwd`/build/Release/pro-macos.xcarchive -exportPath `pwd`/build/Release; \
 	do \
-		echo "waiting..."; \
+		echo "retrying..."; \
 		sleep 10; \
 	done
 	@rm -rf tmp *.dmg
