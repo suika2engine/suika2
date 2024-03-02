@@ -775,6 +775,7 @@ static void init_skip_mode(void)
 
 		/* クリックされた場合 */
 		if (is_right_clicked || is_left_clicked ||
+		    is_up_pressed || is_down_pressed ||
 		    is_escape_pressed) {
 			/* SEを再生する */
 			play_se(conf_msgbox_skip_cancel_se);
@@ -3125,14 +3126,19 @@ static void stop(void)
 	if (did_quick_load || need_save_mode || need_load_mode ||
 	    need_history_mode || need_config_mode ||
 	    need_custom1_mode || need_custom2_mode) {
-		stop_command_repetition();
+		/* スキップモードでなければ */
+		if (is_in_command_repetition())
+			stop_command_repetition();
 		return;
 	}
 
-	if (conf_msgbox_dim)
+	if (conf_msgbox_dim) {
 		need_dimming = true;
-	else
-		stop_command_repetition();
+	} else {
+		/* スキップモードでなければ */
+		if (is_in_command_repetition())
+			stop_command_repetition();
+	}
 }
 
 /* 終了処理を行う */
